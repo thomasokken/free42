@@ -1337,7 +1337,7 @@ void draw_varmenu() {
     }
 }
 
-static const int fcn_cat[] = {
+static int fcn_cat[] = {
     CMD_ABS,      CMD_ACOS,      CMD_ACOSH,    CMD_ADV,        CMD_AGRAPH,  CMD_AIP,
     CMD_ALENG,    CMD_ALL,       CMD_ALLSIGMA, CMD_AND,        CMD_AOFF,    CMD_AON,
     CMD_ARCL,     CMD_AROT,      CMD_ASHF,     CMD_ASIN,       CMD_ASINH,   CMD_ASSIGNa,
