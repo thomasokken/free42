@@ -1,0 +1,114 @@
+# Default key mapping table for Free42 (Windows version)
+#
+# Format: [Ctrl|Alt|Shift]* <KeyCode> : <macro>
+# <KeyCode> is a numeric Windows key code; <macro> is a sequence of zero or
+# more HP-42S key codes. The HP-42S key codes must be between 1 and 255;
+# codes 1..37 correspond to actual keys on the calculator's keyboard, while
+# codes 38..255 can be used to refer to extra keys defined by customized skins.
+#
+# Anything from a "#" until the end of the line is a comment, and is ignored.
+# White space (Space, Tab) separates tokens in the key map, but is otherwise
+# ignored.
+
+112             : 1       # menu key 1
+Shift 112       : 28 1    # menu key 1, shifted
+113             : 2       # menu key 2
+Shift 113       : 28 2    # menu key 2, shifted
+114             : 3       # menu key 3
+Shift 114       : 28 3    # menu key 3, shifted
+115             : 4       # menu key 4
+Shift 115       : 28 4    # menu key 4, shifted
+116             : 5       # menu key 5
+Shift 116       : 28 5    # menu key 5, shifted
+117             : 6       # menu key 6
+Shift 117       : 28 6    # menu key 6, shifted
+65              : 1       # Sigma+ ("Accumulate")
+Shift 65        : 28 1    # Sigma-
+86              : 2       # 1/X ("inVerse")
+Shift 86        : 28 2    # Y^X
+81              : 3       # sqrt(X) ("sQuare root")
+Shift 81        : 28 3    # X^2
+79              : 4       # LOG ("lOg, not Ln")
+Shift 79        : 28 4    # 10^X
+76              : 5       # LN ("Ln, not lOg")
+Shift 76        : 28 5    # E^X
+88              : 6       # XEQ
+Shift 88        : 28 6    # GTO
+77              : 7       # STO (m as in memory)
+Shift 77        : 28 7    # COMPLEX
+82              : 8       # RCL
+Shift 82        : 28 8    # %
+68              : 9       # RDN (d as in down)
+Shift 68        : 28 9    # PI
+83              : 10      # SIN
+Shift 83        : 28 10   # ASIN
+67              : 11      # COS
+Shift 67        : 28 11   # ACOS
+84              : 12      # TAN
+Shift 84        : 28 12   # ATAN
+13              : 13      # ENTER
+Shift 13        : 28 13   # ALPHA
+87              : 14      # X<>Y ("sWap")
+Shift 87        : 28 14   # LASTX
+78              : 15      # +/- ("Negative")
+Shift 78        : 28 15   # MODES
+69              : 16      # E
+Shift 69        : 28 16   # DISP
+8               : 17      # <-
+Shift 8         : 28 17   # CLEAR
+38              : 18      # up
+Shift 38        : 28 18   # BST
+55              : 19      # 7
+103             : 19      # 7
+Shift 55        : 28 19   # SOLVER
+56              : 20      # 8
+104             : 20      # 8
+Alt 56          : 28 20   # Integ f(x) (note: can't use "Shift 8" because that's "*", which we use for "multiply")
+57              : 21      # 9
+105             : 21      # 9
+Shift 57        : 28 21   # MATRIX
+191             : 22      # divide
+111             : 22      # divide
+Shift 191       : 28 22   # STAT
+40              : 23      # down
+Shift 40        : 28 23   # SST
+52              : 24      # 4
+100             : 24      # 4
+Shift 52        : 28 24   # BASE
+53              : 25      # 5
+101             : 25      # 5
+Shift 53        : 28 25   # CONVERT
+54              : 26      # 6
+102             : 26      # 6
+Shift 54        : 28 26   # FLAGS
+Shift 56        : 27      # multiply
+106             : 27      # multiply
+Ctrl 56         : 28 27   # PROB ("*" is already shifted so we have to do something odd here)
+49              : 29      # 1
+97              : 29      # 1
+Shift 49        : 28 29   # ASSIGN
+50              : 30      # 2
+98              : 30      # 2
+Shift 50        : 28 30   # CUSTOM
+51              : 31      # 3
+99              : 31      # 3
+Shift 51        : 28 31   # PGM.FCN
+189             : 32      # -
+109             : 32      # -
+Shift 189       : 28 32   # PRINT
+27              : 33      # EXIT
+Shift 27        : 28 33   # OFF
+48              : 34      # 0
+96              : 34      # 0
+Shift 48        : 28 34   # TOP.FCN
+190             : 35      # .
+188             : 35      # .
+110             : 35      # .
+108             : 35      # .
+Shift 190       : 28 35   # SHOW
+Shift 188       : 28 35   # SHOW
+220             : 36      # R/S
+Shift 220       : 28 36   # PRGM
+107             : 37      # +
+Shift 187       : 37      # +
+187             : 28 37   # CATALOG ("+" is already shifted so we have to do something odd here)

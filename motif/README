@@ -1,0 +1,41 @@
+About Free42
+
+Free42 is a free re-implementation of the HP-42S scientific programmable RPN
+calculator, which was made from 1988 until 1995 by Hewlett-Packard.
+Free42 is a complete rewrite and contains no HP code whatsoever.
+At this time, the author supports versions that run on PalmOS, Microsoft
+Windows, and Linux.
+
+
+Installing Free42:
+
+Copy free42 to wherever you want it, e.g. $HOME/bin or /usr/local/bin, and make
+sure that that directory is in your PATH environment variable.
+When Free42 runs, it will create a directory named .free42 in your home
+directory; in this directory, it will create three files, 'state', 'print', and
+'keymap' (the calculator's internal state, the contents of the print-out
+window, and the PC keyboard map); also, if you want to use a non-standard skin
+with Free42, the .free42 directory is where you have to store the skin's layout
+and bitmap files.
+
+
+Uninstalling Free42:
+
+Remove free42 and the $HOME/.free42 directory and its contents.
+
+
+NOTE: The binary in this package was built on a PC running Red Hat Linux
+version 7.3, and it is dynamically linked against glibc version 2.2.5 and
+Open Motif version 2.2.2. If your system has different versions of these
+libraries, the binary in this package may not work. In this case, please
+download the Free42 source package and try to compile Free42 using your
+installation's own compiler and libraries.
+In the future, the author plans to provide binaries for more recent versions of
+Linux, but at present, he's worried that if he tries to upgrade his development
+system, everything will come crashing down around him. Stay tuned...
+
+
+Free42 is (C) 2004-2005, by Thomas Okken
+Contact the author at thomas_okken@hotmail.com
+Look for updates, and versions for other operating systems, at
+http://home.planet.nl/~demun000/thomas_projects/free42/

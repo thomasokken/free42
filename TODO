@@ -1,0 +1,12 @@
+BCD floating point, possibly even as the default option. It turns out that
+there are programs out there that rely on exact decimal math in order to pack
+multiple numbers into one, similar to the BBBBB.EEESS of DSE/ISG etc.;
+especially for people who use third-party code, there's no getting around the
+need for BCD to make such legacy code work correctly (at least, without users
+having to go through the code, looking for BCDisms, and fixing them manually).
+The "IP Hack" option in the Free42 Preferences is meant to address this very
+issue, but for many programs, it does not help. True BCD is the only reliable
+way. The OpenRPN project has an open-source BCD library that may be worth a
+look; other possible sources include http://www2.hursley.ibm.com/decimal/.
+
+Pocket PC version.

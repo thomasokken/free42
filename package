@@ -1,0 +1,40 @@
+#!/bin/sh -x
+rm -rf Free42PalmOS* Free42Windows* Free42Linux* tmp free42.tgz Free42Skins.zip Free42PalmOSSkins.zip
+
+mkdir Free42PalmOS
+cp palmos/README.txt Free42PalmOS
+cp palmos/free42.prc Free42PalmOS
+cp conduit/Free42ConduitInstaller/Release/Free42ConduitInstaller.exe Free42PalmOS
+cp conduit/Free42Conduit/Release/Free42Conduit.dll Free42PalmOS
+cp /win/cdk403/Common/Bin/condmgr.dll Free42PalmOS
+cp /win/cdk403/Common/Bin/HSAPI.dll Free42PalmOS
+zip -r Free42PalmOS.zip Free42PalmOS
+rm -rf Free42PalmOS
+
+mkdir Free42Windows
+cp windows/README.txt Free42Windows
+cp windows/Release/Free42.exe Free42Windows
+zip -r Free42Windows.zip Free42Windows
+rm -rf Free42Windows
+
+mkdir Free42Linux
+cp motif/README Free42Linux
+cp motif/free42 Free42Linux
+strip Free42Linux/free42
+tar cvfz Free42Linux.tgz Free42Linux
+rm -rf Free42Linux
+
+mkdir tmp
+cd tmp
+cvs checkout free42
+find . -type d -name CVS -prune -exec rm -rf {} \;
+zip -j ../Free42Skins.zip free42/skins/*
+tar cvfz ../free42.tgz free42
+cd ..
+rm -rf tmp
+
+cp HISTORY HISTORY.txt
+cp TODO TODO.txt
+cp palmos/Free42PalmOSSkins.zip .
+tar cvf package.tar Free42PalmOS.zip Free42Windows.zip Free42Linux.tgz free42.tgz Free42Skins.zip Free42PalmOSSkins.zip HISTORY.txt TODO.txt
+rm Free42PalmOS.zip Free42Windows.zip Free42Linux.tgz free42.tgz Free42Skins.zip Free42PalmOSSkins.zip HISTORY.txt TODO.txt

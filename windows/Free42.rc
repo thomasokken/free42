@@ -1,0 +1,289 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "windows.h"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+#include "resource.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_FREE42              ICON    DISCARDABLE     "Free42.ICO"
+IDI_SMALL               ICON    DISCARDABLE     "SMALL.ICO"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDC_FREE42 MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "Show Print-Out",              IDM_SHOWPRINTOUT
+        MENUITEM SEPARATOR
+        MENUITEM "Import Program...",           IDM_IMPORTPROGRAM
+        MENUITEM "Export Program...",           IDM_EXPORTPROGRAM
+        MENUITEM SEPARATOR
+        MENUITEM "Clear Print-Out",             IDM_CLEARPRINTOUT
+        MENUITEM "Preferences...",              IDM_PREFERENCES
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit\tCtrl+Q",               IDM_EXIT
+    END
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
+        MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
+    END
+    POPUP "&Skin"
+    BEGIN
+        MENUITEM "dummy",                       IDM_IMPORTPROGRAM
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About Free42...",            IDM_ABOUT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDC_FREE42 ACCELERATORS MOVEABLE PURE 
+BEGIN
+    "/",            IDM_ABOUT,              ASCII,  ALT, NOINVERT
+    "?",            IDM_ABOUT,              ASCII,  ALT, NOINVERT
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    "Q",            IDM_EXIT,               VIRTKEY, CONTROL, NOINVERT
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOG DISCARDABLE  65499, 40, 225, 53
+STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
+CAPTION "About"
+FONT 8, "System"
+BEGIN
+    ICON            IDI_FREE42,IDC_MYICON,9,7,20,20
+    LTEXT           "Free42 1.2.10",IDC_STATIC,31,4,99,8,SS_NOPREFIX
+    LTEXT           "(C) 2004-2005 Thomas Okken",IDC_STATIC,31,17,98,8
+    DEFPUSHBUTTON   "OK",IDOK,189,6,30,11,WS_GROUP
+    LTEXT           "thomas_okken@hotmail.com",IDC_STATIC,31,26,100,8
+    LTEXT           "http://home.planet.nl/~demun000/thomas_projects/free42/",
+                    IDC_STATIC,31,38,191,8
+END
+
+IDD_PREFERENCES DIALOG DISCARDABLE  65480, 30, 322, 158
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Preferences"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "Inverting or solving a singular matrix yields ""Singular Matrix"" error",
+                    IDC_MATRIX_SINGULARMATRIX,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,7,7,223,10
+    CONTROL         "Overflows during matrix operations yield ""Out of Range"" error",
+                    IDC_MATRIX_OUTOFRANGE,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,7,18,213,10
+    CONTROL         "IP hack: round arguments to 8 digits before truncating",
+                    IDC_IP_HACK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,29,
+                    185,10
+    CONTROL         "Write printer output to text file:",IDC_PRINTER_TXT,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,44,112,10
+    EDITTEXT        IDC_PRINTER_TXT_NAME,125,42,132,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Browse...",IDC_PRINTER_TXT_BROWSE,265,42,50,14
+    CONTROL         "Raw text",IDC_RAW_TEXT,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,215,58,47,10
+    CONTROL         "Write printer output to GIF file:",IDC_PRINTER_GIF,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,73,110,10
+    EDITTEXT        IDC_PRINTER_GIF_NAME,125,71,132,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Browse...",IDC_PRINTER_GIF_BROWSE,265,71,50,14
+    LTEXT           "Maximum GIF height (pixels):",IDC_STATIC,124,92,90,8
+    EDITTEXT        IDC_PRINTER_GIF_HEIGHT,217,89,40,14,ES_AUTOHSCROLL
+    LTEXT           "Free42 Directory:",IDC_STATIC,62,112,55,8
+    EDITTEXT        IDC_HOMEDIR,125,109,132,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Browse...",IDC_HOMEDIR_BROWSE,265,109,50,14
+    LTEXT           "The Free42 directory is where the persistent state, print-out, keyboard map, and skins are stored. Leave this blank to use the directory where Free42.exe is located.",
+                    IDC_STATIC,125,126,190,24
+    DEFPUSHBUTTON   "OK",IDOK,7,138,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,65,138,50,14
+END
+
+IDD_SELECTPROGRAM DIALOG DISCARDABLE  44, 0, 120, 149
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Export Program"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Select Programs to Export:",IDC_STATIC,7,7,106,8
+    LISTBOX         IDC_LIST1,7,20,106,101,NOT LBS_NOTIFY | LBS_EXTENDEDSEL | 
+                    WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "OK",IDOK,12,128,45,14
+    PUSHBUTTON      "Cancel",IDCANCEL,63,128,45,14
+END
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""windows.h""\r\n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""resource.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        RIGHTMARGIN, 222
+    END
+
+    IDD_PREFERENCES, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 315
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 146
+    END
+
+    IDD_SELECTPROGRAM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 113
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 142
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,1,4,0
+ PRODUCTVERSION 1,1,4,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "Comments", "\0"
+            VALUE "CompanyName", "\0"
+            VALUE "FileDescription", "HP-42S Calculator Clone\0"
+            VALUE "FileVersion", "1.2.10\0"
+            VALUE "InternalName", "Free42\0"
+            VALUE "LegalCopyright", "Copyright © 2004-2005 Thomas Okken\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "Free42.exe\0"
+            VALUE "PrivateBuild", "\0"
+            VALUE "ProductName", "Free42\0"
+            VALUE "ProductVersion", "1.2.10\0"
+            VALUE "SpecialBuild", "\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_APP_TITLE           "Free42"
+    IDS_HELLO               "Hello World!"
+    IDC_FREE42              "FREE42"
+    IDC_FREE42_PRINTOUT     "FREE42PRINTOUT"
+    IDS_PRINTOUT_TITLE      "Free42 Print-Out"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

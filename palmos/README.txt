@@ -1,0 +1,124 @@
+About Free42 and the Free42 conduit
+
+Free42 is a free re-implementation of the HP-42S scientific programmable RPN
+calculator, which was made from 1988 until 1995 by Hewlett-Packard.
+Free42 is a complete rewrite and contains no HP code whatsoever.
+At this time, the author supports versions that run on PalmOS, Microsoft
+Windows, and Linux.
+
+The PalmOS version of Free42 incorporates code that lets it create a virtual
+filesystem inside a PalmOS database. Within Free42, you can use this filesystem
+just like any VFS filesystem, such as a VFAT filesystem on a Secure Digital
+(SD) card. The Free42 filesystem is available on all PalmOS versions that
+Free42 runs on, regardless of whether they have VFS support or not.
+There are two ways to get files into and out of the Free42 filesystem:
+1) In the Free42 application, use the Copy File command in the Util menu, to
+copy files to or from an SD card or any other VFS filesystem;
+2) Use the Free42 conduit (Windows only, for now).
+
+If the Free42 conduit is installed on the PC you use for HotSyncing your PalmOS
+hand-held, any files in the Free42 filesystem that were created or modified
+since the last HotSync operation, will be copied to a directory on the PC. You
+can tell the Free42 conduit which folder you wish to download to, by clicking
+on the HotSync Manager icon in the task bar (the icon that looks like a red and
+a blue arrow chasing each other's tails), and select the Custom option from the
+menu. In the dialog box that appears next, scroll down until you find Free42,
+select it, and click Change; another dialog box will pop up where you can
+browse through the directories on your PC. Select the one you want to use for
+downloads, and click OK; then click Done to dismiss the Custom dialog.
+
+You can also upload files from the PC to the Palm; to do this, move them to a
+directory named "Upload" within your download directory. Whatever is in the
+Upload directory is copied to the Free42 filesystem on the hand-held during the
+next HotSync operation; the Upload folder itself is then renamed "Upload <date>
+<time>" and replaced with a new, empty, Upload folder. The reason for the
+rename step is to prevent files from being uploaded over and over again in case
+you forget to remove them.
+
+NOTE: when a file is downloaded, and there is a file with the same name in the
+download directory already, the old file is first renamed by appending ".001"
+to its name (or if that name is also already taken, ".002" is appended instead,
+etc.), so that the downloaded file does not overwrite any existing files.
+During uploads, however, uploaded files simply replace any existing files in
+the Free42 filesystem if they have the same name. This may be changed in the
+future, to make uploads behave more like downloads, but until then, be careful
+when performing uploads.
+
+ALSO NOTE: files are downloaded only if they were created or changed since the
+last HotSync; files are uploaded from the Upload folder regardless of when they
+were last modified. If you have files in the Free42 filesystem on your
+hand-held that you want to download, but they have been downloaded previously
+and have not been changed since then, you can use the Force Download command in
+Free42's Util menu; this will schedule ALL files in the Free42 filesystem for
+download during the next HotSync.
+
+ALSO ALSO NOTE: if you do not install the Free42 conduit on your PC, you can
+still use the Free42 filesystem on the hand-held, but you won't be able to
+upload or download files to or from it. You will be able to copy files between
+it and a VFS filesystem, if available. The Free42 conduit is not required for
+backing up Free42's internal state, either, so any programs and variables,
+CUSTOM key assignments, etc., in short, everything that lives inside the
+calculator's memory, will still be backed up during HotSync, whether the
+conduit is installed or not.
+
+
+Manifest:
+
+The Free42-for-PalmOS package, Free42PalmOS.zip, should contain these files:
+
+1) README.txt                   The document you're reading now
+2) free42.prc                   The PalmOS version of Free42
+3) Free42ConduitInstaller.exe   Installer for the Free42 conduit
+4) Free42Conduit.dll            The Free42 conduit
+5) condmgr.dll                  Dynamic Link Library needed by the installer
+6) HSAPI.dll                    Dynamic Link Library needed by the installer
+
+
+Installing the Free42 application:
+
+* Double-click 'free42.prc' to schedule it for installation to the hand-held.
+  This will copy it to Quick Install; from there, it will be installed to the
+  hand-held the next time you perform a HotSync operation.
+
+Installing the Free42 conduit:
+
+* Double-click 'Free42ConduitInstaller.exe' to start the installer.
+* If you already have an older version of the Free42 conduit installed, first
+  select the "Uninstall" option and click OK.
+* Select the "Install" option and click OK.
+* Click Exit to leave the installer.
+* NOTE: You should not need to restart HotSync Manager.
+
+NOTE: once the above installation steps are completed, you can remove the
+Free42 package, even before running the next HotSync; the application and
+conduit are copied to <Palm>\<User>\QuickInstall and <Palm>, respectively, and
+the files in the Free42 package (i.e. where you found this README file) are no
+longer needed.
+You should, however, archive Free42PalmOS.zip someplace safe, since you will
+need it in order to uninstall the Free42 conduit, should you decide to do so at
+some time in the future.
+
+Removing the Free42 application:
+
+* On the hand-held, go to the Launcher (click the 'house' icon next to the
+  Graffiti area to leave any application that may be running).
+* Tap on the 'menu' icon (below the 'house' icon) to activate the menu bar.
+* Select the App menu, then select the Delete command.
+* Scroll down until you find Free42 in the list; select it, and click Delete.
+* Click Yes to confirm.
+* Click Done.
+
+Removing the Free42 conduit:
+
+* Unpack the Free42PalmOS.zip file again, in case you had deleted the extracted
+  folder after you finished the installation, before.
+* Double-click 'Free42ConduitInstaller.exe' to start the installer.
+* Select the "Uninstall" option and click OK.
+* Click Exit to leave the installer.
+* NOTE: You should not need to restart HotSync Manager.
+
+
+Free42 is (C) 2004-2005, by Thomas Okken
+Contact the author at thomas_okken@hotmail.com
+Look for updates, and versions for other operating systems, at
+http://home.planet.nl/~demun000/thomas_projects/free42/

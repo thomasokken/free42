@@ -1,0 +1,70 @@
+/*****************************************************************************
+ * Free42 -- a free HP-42S calculator clone
+ * Copyright (C) 2004-2005  Thomas Okken
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License, version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *****************************************************************************/
+
+#ifndef SHELL_MAIN_H
+#define SHELL_MAIN_H 1
+
+#define FILENAMELEN 256
+
+extern Display *display;
+extern Screen *screen;
+extern int screennumber;
+extern Window rootwindow;
+extern Visual *visual;
+extern Colormap colormap;
+extern int depth; 
+extern GC gc;
+extern unsigned long black, white; 
+
+extern Widget calc_widget;
+extern Window calc_canvas;
+extern int allow_paint;
+
+
+#define SHELL_VERSION 3
+
+typedef struct state {
+    int extras;
+    int printerToTxtFile;
+    int printerToGifFile;
+    char printerTxtFileName[FILENAMELEN];
+    char printerGifFileName[FILENAMELEN];
+    int printerGifMaxLength;
+    char mainWindowKnown, printWindowKnown, printWindowMapped;
+    int mainWindowX, mainWindowY;
+    int printWindowX, printWindowY, printWindowHeight;
+    char skinName[FILENAMELEN];
+} state_type;
+
+extern state_type state;
+
+extern char free42dirname[FILENAMELEN];
+
+
+#define KEYMAP_MAX_MACRO_LENGTH 16
+typedef struct {
+    int ctrl;
+    int alt;
+    int shift;
+    KeySym keysym;
+    unsigned char macro[KEYMAP_MAX_MACRO_LENGTH];
+} keymap_entry;
+
+keymap_entry *parse_keymap_entry(char *line, int lineno);
+
+#endif
