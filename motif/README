@@ -24,11 +24,11 @@ Uninstalling Free42:
 Remove free42 and the $HOME/.free42 directory and its contents.
 
 
-NOTE: The binary in this package was built on a PC running Red Hat Linux
-version 7.3, and it is dynamically linked against glibc version 2.2.5 and
-Open Motif version 2.2.2. If your system has different versions of these
-libraries, the binary in this package may not work. In this case, please
-download the Free42 source package and try to compile Free42 using your
+NOTE: The binary in this package was built on a PC running Fedora Core
+release 3, and it is dynamically linked against glibc version 2.3.3, libstdc++
+version 3.4.2, and Open Motif version 2.2.3. If your system has different
+versions of these libraries, the binary in this package may not work. In this
+case, please download the Free42 source package and compile Free42 using your
 installation's own compiler and libraries.
 In the future, the author plans to provide binaries for more recent versions of
 Linux, but at present, he's worried that if he tries to upgrade his development

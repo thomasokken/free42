@@ -126,7 +126,7 @@ extern "C" {
 #define uint8 unsigned long long
 #define LL(x) x##LL
 
-/* NOTE: In my Linux build, all I have to do is DECLARE sincos(); glibc 2.2.5
+/* NOTE: In my Linux build, all I have to do is DECLARE sincos(); glibc 2.3.3
  * has it (for C99, I suppose) so I don't have to DEFINE it. On other Unixes
  * (e.g. MacOS X), it may not be provided by the standard libraries; in this
  * case, define the NO_SINCOS symbol, here or in the Makefile.

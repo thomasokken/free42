@@ -29,10 +29,9 @@ to be specified explicitly. Additional libraries may also be needed.
 If your build fails due to a missing sincos(), add -DNO_SINCOS to the
 CXXFLAGS in the Makefile.
 
------------
-Red Hat 7.3: this is what I use for development; the Unix version builds with
-no changes. The C compiler will issue warnings about sincos() being implicitly
-defined; these can be safely ignored.
+-------------
+Fedora Core 3: this is what I use for development; the Unix version builds with
+no changes.
 
 -------
 MacOS X: Needs LIBS = -lm -lXm -lXpm -lXp -lXmu -lXt -lX11
