@@ -83,7 +83,7 @@ shell-sections.s shell-sections.ld: shell.def
 
 shell: $(OBJS) MathLib.o shell-sections.s shell-sections.ld
 	m68k-palmos-g++ $(LDFLAGS) -o shell $(OBJS) MathLib.o \
-		-lnoexcept -lPalmOSGlue -lnoexcept \
+		-lnoexcept -lPalmOSGlue \
 		shell-sections.s shell-sections.ld
 	
 shell.ro: shell.rcp

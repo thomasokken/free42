@@ -85,9 +85,14 @@ symlinks:
 
 shell0000.out: $(OBJS) MathLib.o
 	m68k-palmos-multilink -basename shell -fid Fk42 -gdb-script shell.gdb \
-		-g -segmentsize 28k -lgcc -lc $(OBJS) MathLib.o \
+		-g -segmentsize 28k $(OBJS) MathLib.o \
 		-L/opt/palmdev/sdk-5r3/lib/m68k-palmos-coff \
-		-lnoexcept -lPalmOSGlue
+		-lnoexcept -lc -lgcc -lPalmOSGlue
+
+# libgcc is in /usr/lib/gcc-lib/m68k-palmos/2.95.3-kgpd
+# libPalmOSGlue is in /opt/palmdev/sdk-5r3/lib/m68k-palmos-coff
+# libc is in /usr/m68k-palmos/lib
+# libnoexcept is in /usr/m68k-palmos/lib
 
 shell.ro: shell.rcp
 	pilrc -MD -q -allowEditID -ro -o shell.ro shell.rcp

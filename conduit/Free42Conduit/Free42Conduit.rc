@@ -73,14 +73,14 @@ BEGIN
             VALUE "Comments", "\0"
             VALUE "CompanyName", "\0"
             VALUE "FileDescription", "File transfer for Free42/PalmOS\0"
-            VALUE "FileVersion", "1.2.10\0"
+            VALUE "FileVersion", "1.3\0"
             VALUE "InternalName", "Free42Conduit\0"
             VALUE "LegalCopyright", "Copyright © 2004-2005 Thomas Okken\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "Free42Conduit.dll\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "Free42Conduit\0"
-            VALUE "ProductVersion", "1.2.10\0"
+            VALUE "ProductVersion", "1.3\0"
             VALUE "SpecialBuild", "\0"
         END
     END
