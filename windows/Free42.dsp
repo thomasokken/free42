@@ -90,59 +90,59 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\core_commands1.c
+SOURCE=.\core_commands1.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\core_commands2.c
+SOURCE=.\core_commands2.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\core_commands3.c
+SOURCE=.\core_commands3.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\core_commands4.c
+SOURCE=.\core_commands4.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\core_decimal.c
+SOURCE=.\core_decimal.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\core_display.c
+SOURCE=.\core_display.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\core_globals.c
+SOURCE=.\core_globals.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\core_helpers.c
+SOURCE=.\core_helpers.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\core_keydown.c
+SOURCE=.\core_keydown.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\core_linalg.c
+SOURCE=.\core_linalg.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\core_main.c
+SOURCE=.\core_main.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\core_math.c
+SOURCE=.\core_math.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\core_tables.c
+SOURCE=.\core_tables.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\core_variables.c
+SOURCE=.\core_variables.cpp
 # End Source File
 # Begin Source File
 
@@ -150,7 +150,7 @@ SOURCE=.\Free42.rc
 # End Source File
 # Begin Source File
 
-SOURCE=.\keymap.c
+SOURCE=.\keymap.cpp
 # End Source File
 # Begin Source File
 
@@ -158,7 +158,7 @@ SOURCE=.\mathfudge.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\msg2string.c
+SOURCE=.\msg2string.cpp
 # End Source File
 # Begin Source File
 
@@ -166,19 +166,19 @@ SOURCE=.\shell.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\shell_loadimage.c
+SOURCE=.\shell_loadimage.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\shell_skin.c
+SOURCE=.\shell_skin.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\shell_spool.c
+SOURCE=.\shell_spool.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\skins.c
+SOURCE=.\skins.cpp
 # End Source File
 # Begin Source File
 

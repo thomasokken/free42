@@ -6,7 +6,7 @@ a regular Windows installation, you should copy the files from 'common' to
 'windows'; if you're using Win4Lin, you can use the 'make-symlinks' script to
 create all the required links.
 
-Note: the Free42 workspace contains three projects: Free42, keymap2c, and
-skin2c. Before building Free42, you must build keymap2c and skin2c and run
-them; this creates the keymap.c and skins.c files, which contain the default
-keymap and the skins to be compiled into the Free42 executable.
+Note: the Free42 workspace contains three projects: Free42, keymap2cpp, and
+skin2cpp. Before building Free42, you must build keymap2cpp and skin2cpp and
+run them; this creates the keymap.cpp and skins.cpp files, which contain the
+default keymap and the skins to be compiled into the Free42 executable.

@@ -1,39 +1,39 @@
 #!/bin/sh
 
-ln -s ~/free42/common/free42.h
-ln -s ~/free42/common/core_commands1.c
-ln -s ~/free42/common/core_commands1.h
-ln -s ~/free42/common/core_commands2.c
-ln -s ~/free42/common/core_commands2.h
-ln -s ~/free42/common/core_commands3.c
-ln -s ~/free42/common/core_commands3.h
-ln -s ~/free42/common/core_commands4.c
-ln -s ~/free42/common/core_commands4.h
-ln -s ~/free42/common/core_decimal.c
-ln -s ~/free42/common/core_decimal.h
-ln -s ~/free42/common/core_display.c
-ln -s ~/free42/common/core_display.h
-ln -s ~/free42/common/core_globals.c
-ln -s ~/free42/common/core_globals.h
-ln -s ~/free42/common/core_helpers.c
-ln -s ~/free42/common/core_helpers.h
-ln -s ~/free42/common/core_keydown.c
-ln -s ~/free42/common/core_keydown.h
-ln -s ~/free42/common/core_linalg.c
-ln -s ~/free42/common/core_linalg.h
-ln -s ~/free42/common/core_math.c
-ln -s ~/free42/common/core_math.h
-ln -s ~/free42/common/core_main.c
-ln -s ~/free42/common/core_main.h
-ln -s ~/free42/common/core_tables.c
-ln -s ~/free42/common/core_tables.h
-ln -s ~/free42/common/core_variables.c
-ln -s ~/free42/common/core_variables.h
-ln -s ~/free42/common/shell.h
-ln -s ~/free42/common/shell_loadimage.c
-ln -s ~/free42/common/shell_loadimage.h
-ln -s ~/free42/common/shell_spool.c
-ln -s ~/free42/common/shell_spool.h
-ln -s ~/free42/common/skin2c.c
-ln -s ~/free42/common/skin2c.conf
-ln -s ~/free42/common/keymap2c.c
+ln -s ../common/free42.h
+ln -s ../common/core_commands1.cc core_commands1.cpp
+ln -s ../common/core_commands1.h
+ln -s ../common/core_commands2.cc core_commands2.cpp
+ln -s ../common/core_commands2.h
+ln -s ../common/core_commands3.cc core_commands3.cpp
+ln -s ../common/core_commands3.h
+ln -s ../common/core_commands4.cc core_commands4.cpp
+ln -s ../common/core_commands4.h
+ln -s ../common/core_decimal.cc core_decimal.cpp
+ln -s ../common/core_decimal.h
+ln -s ../common/core_display.cc core_display.cpp
+ln -s ../common/core_display.h
+ln -s ../common/core_globals.cc core_globals.cpp
+ln -s ../common/core_globals.h
+ln -s ../common/core_helpers.cc core_helpers.cpp
+ln -s ../common/core_helpers.h
+ln -s ../common/core_keydown.cc core_keydown.cpp
+ln -s ../common/core_keydown.h
+ln -s ../common/core_linalg.cc core_linalg.cpp
+ln -s ../common/core_linalg.h
+ln -s ../common/core_math.cc core_math.cpp
+ln -s ../common/core_math.h
+ln -s ../common/core_main.cc core_main.cpp
+ln -s ../common/core_main.h
+ln -s ../common/core_tables.cc core_tables.cpp
+ln -s ../common/core_tables.h
+ln -s ../common/core_variables.cc core_variables.cpp
+ln -s ../common/core_variables.h
+ln -s ../common/shell.h
+ln -s ../common/shell_loadimage.cc shell_loadimage.cpp
+ln -s ../common/shell_loadimage.h
+ln -s ../common/shell_spool.cc shell_spool.cpp
+ln -s ../common/shell_spool.h
+ln -s ../common/skin2cc.cc skin2cpp.cpp
+ln -s ../common/skin2cc.conf skin2cpp.conf
+ln -s ../common/keymap2cc.cc keymap2cpp.cpp

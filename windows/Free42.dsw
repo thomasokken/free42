@@ -15,7 +15,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "skin2c"=.\skin2c.dsp - Package Owner=<4>
+Project: "skin2cc"=.\skin2cc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -27,7 +27,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "keymap2c"=.\keymap2c.dsp - Package Owner=<4>
+Project: "keymap2cc"=.\keymap2cc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
