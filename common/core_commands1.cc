@@ -1681,9 +1681,9 @@ static int mappable_to_hr(double x, double *y) {
 	h = floor(x);
 	x -= h;
 	ix = (int8) (x * 1000000000000.0 + 0.5);
-	ixhr = ix % 10000000000LL;
-	ix /= 10000000000LL;
-	ixhr += (ix % 100) * 6000000000LL;
+	ixhr = ix % LL(10000000000);
+	ix /= LL(10000000000);
+	ixhr += (ix % 100) * LL(6000000000);
 	res = h + ixhr / 360000000000.0;
     }
     *y = neg ? -res : res;

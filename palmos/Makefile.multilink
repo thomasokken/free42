@@ -16,9 +16,9 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ###############################################################################
 
-#CFLAGS = -MMD -Wall -g -DPALMOS=1 -DMULTILINK=1
-CFLAGS = -MMD -Wall -g -DPALMOS=1 -DMULTILINK=1 -save-temps
-CXXFLAGS = $(CFLAGS)
+CFLAGS = -MMD -Wall -g -DPALMOS=1 -DMULTILINK=1
+#CFLAGS = -MMD -Wall -g -DPALMOS=1 -DMULTILINK=1 -save-temps
+CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 LDFLAGS = -g
 
 SRCS = shell1.cc shell2.cc shell_spool.cc myglue.cc filesys.cc core_main.cc \
@@ -86,7 +86,8 @@ symlinks:
 shell0000.out: $(OBJS) MathLib.o
 	m68k-palmos-multilink -basename shell -fid Fk42 -gdb-script shell.gdb \
 		-g -segmentsize 28k -lgcc -lc $(OBJS) MathLib.o \
-		-L/opt/palmdev/sdk-5r3/lib/m68k-palmos-coff -lPalmOSGlue
+		-L/opt/palmdev/sdk-5r3/lib/m68k-palmos-coff \
+		-lnoexcept -lPalmOSGlue
 
 shell.ro: shell.rcp
 	pilrc -MD -q -allowEditID -ro -o shell.ro shell.rcp

@@ -748,17 +748,17 @@ int docmd_rotxy(arg_struct *arg) {
     if (x == 0)
 	res = y;
     else {
-	y &= 0xfffffffffLL;
+	y &= LL(0xfffffffff);
 	if (x > 0)
 	    res = (y >> x) | (y << (36 - x));
 	else {
 	    x = -x;
 	    res = (y << x) | (y >> (36 - x));
 	}
-	if ((res & 0x800000000LL) == 0)
-	    res &= 0x7ffffffffLL;
+	if ((res & LL(0x800000000)) == 0)
+	    res &= LL(0x7ffffffff);
 	else
-	    res |= 0xfffffff000000000LL;
+	    res |= LL(0xfffffff000000000);
     }
     v = new_real((double) res);
     if (v == NULL) 
@@ -1315,7 +1315,7 @@ int docmd_to_dec(arg_struct *arg) {
 	if (neg)
 	    x = -x;
 	oct = (int8) x;
-	if (oct != x || oct > 777777777777LL)
+	if (oct != x || oct > LL(777777777777))
 	    return ERR_INVALID_DATA;
 	while (oct != 0) {
 	    int digit = (int) (oct % 10);
@@ -1347,7 +1347,7 @@ int docmd_to_oct(arg_struct *arg) {
 	if (neg)
 	    x = -x;
 	dec = (int8) x;
-	if (dec != x || dec > 68719476735LL)
+	if (dec != x || dec > LL(68719476735))
 	    return ERR_INVALID_DATA;
 	while (dec != 0) {
 	    int digit = (int) (dec & 7);

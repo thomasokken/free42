@@ -29,7 +29,7 @@
  * globals area. Is this because of the function pointers?
  */
 
-static const command_spec cmd_array[] TABLES_SECT =
+static const command_spec cmd_array[] =
 {
     { /* CLX */         "CLX",                  3, docmd_clx,         0x00000077, ARG_NONE,  FLAG_NONE },
     { /* ENTER */       "ENT\305R",             5, docmd_enter,       0x00000083, ARG_NONE,  FLAG_NONE },

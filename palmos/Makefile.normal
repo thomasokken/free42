@@ -18,7 +18,7 @@
 
 CFLAGS = -MMD -Wall -g -DPALMOS=1
 #CFLAGS = -MMD -Wall -g -DPALMOS=1 -save-temps
-CXXFLAGS = $(CFLAGS)
+CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 LDFLAGS = -g
 
 SRCS = shell1.cc shell2.cc shell_spool.cc myglue.cc filesys.cc core_main.cc \
@@ -83,7 +83,8 @@ shell-sections.s shell-sections.ld: shell.def
 
 shell: $(OBJS) MathLib.o shell-sections.s shell-sections.ld
 	m68k-palmos-g++ $(LDFLAGS) -o shell $(OBJS) MathLib.o \
-		-lPalmOSGlue shell-sections.s shell-sections.ld
+		-lnoexcept -lPalmOSGlue -lnoexcept \
+		shell-sections.s shell-sections.ld
 	
 shell.ro: shell.rcp
 	pilrc -MD -q -allowEditID -ro -o shell.ro shell.rcp

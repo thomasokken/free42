@@ -665,7 +665,7 @@ int double2string(double d, char *buf, int buflen, int base_mode, int digits,
 
 	n = (int8) d;
 	inexact = base_mode == 1 && n != d;
-	n &= 0xfffffffffLL;
+	n &= LL(0xfffffffff);
 	shift = base == 2 ? 1 : base == 8 ? 3 : 4;
 	while (n != 0) {
 	    int digit = (int) (n & (base - 1));

@@ -386,7 +386,7 @@ int main(int argc, char *argv[]) {
     skin2->nmacros = swap_int2(nmacros);
     for (i = 0; i < nmacros; i++) {
 	skin2->macro[i].code = swap_int2(macrolist->code);
-	strcpy(skin2->macro[i].macro, macrolist->macro);
+	strcpy((char *) skin2->macro[i].macro, (const char *) macrolist->macro);
 	macrolist = macrolist->next;
     }
 

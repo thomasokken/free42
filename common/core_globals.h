@@ -66,7 +66,7 @@ typedef struct {
     int length;
 } error_spec;
 
-extern const error_spec errors[] GLOBALS_SECT;
+extern error_spec errors[];
 
 
 /*************/
@@ -197,7 +197,7 @@ typedef struct {
     menu_item_spec child[6];
 } menu_spec;
 
-extern const menu_spec menus[] GLOBALS_SECT;
+extern menu_spec menus[];
 
 
 /***********************/

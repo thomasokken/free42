@@ -33,7 +33,7 @@
 #include "shell.h"
 
 
-const error_spec errors[] GLOBALS_SECT = {
+error_spec errors[] = {
     { /* NONE */                   NULL,                       0 },
     { /* ALPHA_DATA_IS_INVALID */  "Alpha Data Is Invalid",   21 },
     { /* INSUFFICIENT_MEMORY */    "Insufficient Memory",     19 },
@@ -69,7 +69,7 @@ const error_spec errors[] GLOBALS_SECT = {
 };
 
 
-const menu_spec menus[] GLOBALS_SECT = {
+menu_spec menus[] = {
     { /* MENU_ALPHA1 */ MENU_NONE, MENU_ALPHA2, MENU_ALPHA2,
 		      { { MENU_ALPHA_ABCDE1, 5, "ABCDE" },
 			{ MENU_ALPHA_FGHI,   4, "FGHI"  },

@@ -65,6 +65,7 @@ extern "C" {
 #endif
 #define int4 Int32
 #define uint4 UInt32
+#define LL(x) x##LL
 
 #else /* !PALMOS */
 
@@ -87,6 +88,7 @@ extern "C" {
 #define VARIABLES_SECT
 #define int4 int
 #define uint4 unsigned int
+#define LL(x) x
 
 #endif /* PALMOS */
 

@@ -727,7 +727,7 @@ typedef struct {
 #define SOLVE_BAD_GUESSES   3
 #define SOLVE_CONSTANT      4
 
-static const message_spec solve_message[] MATH_SECT = {
+static const message_spec solve_message[] = {
     { NULL,             0 },
     { "Sign Reversal", 13 },
     { "Extremum",       8 },

@@ -32,7 +32,18 @@
 /* HP-42S font data */
 /********************/
 
-static const char bigchars[130][5] =
+#ifdef WINDOWS
+/* Disable warnings:
+ * 	'initializing' : truncation from 'const int ' to 'const char '
+ * 	'initializing' : truncation of constant value
+ */
+#pragma warning(push)
+#pragma warning(disable: 4305)
+#pragma warning(disable: 4309)
+#endif
+
+
+static char bigchars[130][5] =
     {
 	{ 0x08, 0x08, 0x2a, 0x08, 0x08 },
 	{ 0x22, 0x14, 0x08, 0x14, 0x22 },
@@ -166,7 +177,7 @@ static const char bigchars[130][5] =
 	{ 0x04, 0x08, 0x70, 0x08, 0x04 }
     };
 
-static const char smallchars[329] =
+static char smallchars[329] =
     {
 	0x00, 0x00, 0x00,
 	0x5c,
@@ -268,7 +279,7 @@ static const char smallchars[329] =
 	0x58, 0x24, 0x54, 0x48
     };
 
-static const short smallchars_offset[99] =
+static short smallchars_offset[99] =
     {
 	  0,
 	  3,
@@ -371,7 +382,7 @@ static const short smallchars_offset[99] =
 	329
     };
 
-static const char smallchars_map[128] =
+static char smallchars_map[128] =
     {
 	/*   0 */  70,
 	/*   1 */  71,
@@ -502,6 +513,11 @@ static const char smallchars_map[128] =
 	/* 126 */  68,
 	/* 127 */  85
     };
+
+#ifdef WINDOWS
+#pragma warning(pop)
+#endif
+
 
 
 static char display[272];

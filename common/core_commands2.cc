@@ -1095,7 +1095,7 @@ typedef struct {
     int length;
 } sigma_label_spec;
 
-static const sigma_label_spec sigma_labels[] COMMANDS2_SECT = {
+static const sigma_label_spec sigma_labels[] = {
     { "\005X=",           3 },
     { "\005X^2=",         5 },
     { "\005Y=",           3 },
