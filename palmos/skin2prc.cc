@@ -98,7 +98,7 @@ void generate_bitmap(int x, int y, int width, int height) {
 		    fprintf(stderr, "Unsupported bitmap depth (%d) specified.\n", depth[i]);
 		    exit(1);
 	    }
-	    fprintf(script, "giftopnm %s | ppmquant %s -mapfile %s >tmp_skin.%d.ppm\n", gif, dither ? "-fs" : "", map, depth[i]);
+	    fprintf(script, "giftopnm %s | ppmtoppm | pnmremap %s -mapfile=%s >tmp_skin.%d.ppm\n", gif, dither ? "-fs" : "", map, depth[i]);
 	}
 	inited = 1;
     }

@@ -65,7 +65,6 @@ extern "C" {
 #endif
 #define int4 Int32
 #define uint4 UInt32
-#define LL(x) x##LL
 
 #else /* !PALMOS */
 
@@ -88,7 +87,6 @@ extern "C" {
 #define VARIABLES_SECT
 #define int4 int
 #define uint4 unsigned int
-#define LL(x) x
 
 #endif /* PALMOS */
 
@@ -97,6 +95,7 @@ extern "C" {
 
 #define int8 __int64
 #define uint8 unsigned __int64
+#define LL(x) x
 
 	/* MSVC++ 6.0 lacks a few math functions that Free42 needs.
 	 * I've defined workarounds in mathfudge.c. NOTE: my versions
@@ -125,6 +124,7 @@ extern "C" {
 
 #define int8 long long
 #define uint8 unsigned long long
+#define LL(x) x##LL
 
 /* NOTE: In my Linux build, all I have to do is DECLARE sincos(); glibc 2.2.5
  * has it (for C99, I suppose) so I don't have to DEFINE it. On other Unixes
