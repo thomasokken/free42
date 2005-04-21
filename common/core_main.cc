@@ -1466,16 +1466,17 @@ void core_import_programs(int (*progress_report)(const char *)) {
 	skip:
 	if (progress_report != NULL) {
 	    /* Poll the progress dialog every 1000 instructions, in case
-		* we're reading a bogus file: normally, we only update the
-		* dialog when we encounter a GLOBAL, and that should be often
-		* enough when reading legitimate HP-42S programs, but if we're
-		* reading garbage, it may not happen at all, and that would
-		* mean the user would get no chance to intervene.
-		*/
-	    if (++instrcount == 1000)
+	     * we're reading a bogus file: normally, we only update the
+	     * dialog when we encounter a GLOBAL, and that should be often
+	     * enough when reading legitimate HP-42S programs, but if we're
+	     * reading garbage, it may not happen at all, and that would
+	     * mean the user would get no chance to intervene.
+	     */
+	    if (++instrcount == 1000) {
 		if (progress_report(NULL))
 		    goto done;
-	    instrcount = 0;
+		instrcount = 0;
+	    }
 	}
 	byte1 = getbyte(buf, &pos, &nread, 1000);
 	if (byte1 == -1)
@@ -1561,10 +1562,10 @@ void core_import_programs(int (*progress_report)(const char *)) {
 		goto skip;
 	    } else if (byte1 >= 0x0A0 && byte1 <= 0x0A7) {
 		/* XROM & parameterless HP-42S extensions.
-		    * I don't want to build a reverse look-up table
-		    * for these, so instead I just do a linear search
-		    * on the cmdlist table.
-		    */
+		 * I don't want to build a reverse look-up table
+		 * for these, so instead I just do a linear search
+		 * on the cmdlist table.
+		 */
 		uint4 code;
 		byte2 = getbyte(buf, &pos, &nread, 1000);
 		if (byte2 == -1)
@@ -1681,9 +1682,9 @@ void core_import_programs(int (*progress_report)(const char *)) {
 			    goto done;
 			if (suffix > 17) {
 			    /* Bad assign... Fix the command to the string
-				* it would have been if I had known this
-				* earlier.
-				*/
+			     * it would have been if I had known this
+			     * earlier.
+			     */
 			    for (i = arg.length; i > 0; i--)
 				arg.val.text[i] = arg.val.text[i - 1];
 			    arg.val.text[0] = (char) 0xC0;
@@ -1766,9 +1767,9 @@ void core_import_programs(int (*progress_report)(const char *)) {
 				goto done;
 			    if (suffix < 1 || suffix > 9) {
 				/* Treat as plain string. Alas, it is
-				    * not safe to back up 2 positions, so
-				    * I do the whole thing here.
-				    */
+				 * not safe to back up 2 positions, so
+				 * I do the whole thing here.
+				 */
 				int i;
 				bad_keyg_keyx:
 				cmd = CMD_STRING;
