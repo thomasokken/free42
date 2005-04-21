@@ -1234,6 +1234,7 @@ Boolean calcgadget_handler(struct FormGadgetTypeInCallback *gadgetP,
 			    squeak();
 			    return true;
 			}
+			SndPlaySystemSound(sndClick);
 			while (*macro != 0) {
 			    want_to_run = core_keydown(*macro++, &enqueued,
 								 &repeat);
@@ -1241,8 +1242,10 @@ Boolean calcgadget_handler(struct FormGadgetTypeInCallback *gadgetP,
 				core_keyup();
 			}
 			repeat = 0;
-		    } else
+		    } else {
+			SndPlaySystemSound(sndClick);
 			want_to_run = core_keydown(keycode, &enqueued, &repeat);
+		    }
 
 		    if (softkey == 0) {
 			set_default_colors();
