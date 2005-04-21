@@ -1,3 +1,8 @@
+21-04-2005: version 1.3.4
+
+* PalmOS version: yet another 'program import' bug, this time due to a
+  difference of opinion between gcc and g++ about sign extension. Fixed.
+
 21-04-2005: version 1.3.3
 
 * PalmOS version: program import and HP-41 synonym lookup were broken, again

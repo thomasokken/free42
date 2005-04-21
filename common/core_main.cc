@@ -1569,7 +1569,7 @@ void core_import_programs(int (*progress_report)(const char *)) {
 		byte2 = getbyte(buf, &pos, &nread, 1000);
 		if (byte2 == -1)
 		    goto done;
-		code = (byte1 << 8) | byte2;
+		code = (((unsigned int) byte1) << 8) | byte2;
 		for (i = 0; i < CMD_SENTINEL; i++)
 		    if (cmdlist(i)->hp42s_code == code) {
 			cmd = i;
