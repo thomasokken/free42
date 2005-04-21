@@ -974,7 +974,7 @@ int core_export_programs(int count, const int *indexes,
     return 0;
 }
 
-static const int hp42tofree42[] = {
+static int hp42tofree42[] = {
     /* Flag values: 0 = simple 1-byte command; 1 = 1-byte command with
      * embedded argument; 2 = 2-byte command, argument follows;
      * 3 = everything else, special case handling required.
@@ -1279,7 +1279,7 @@ static const int hp42tofree42[] = {
     CMD_NULL  | 0x3000
 };
 
-static const int hp42ext[] = {
+static int hp42ext[] = {
     /* Flag values: 0 = string, 1 = IND string, 2 = suffix, 3 = special,
      * 4 = illegal */
     /* 80-8F */
@@ -2051,7 +2051,7 @@ typedef struct {
     int cmd_id;
 } synonym_spec;
 
-static const synonym_spec hp41_synonyms[] =
+static synonym_spec hp41_synonyms[] =
 {
     { "/",      1, CMD_DIV     },
     { "*",      1, CMD_MUL     },
