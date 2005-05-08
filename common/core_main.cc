@@ -758,6 +758,9 @@ static int export_hp42s(int index, int (*progress_report)(const char *)) {
 			cmdbuf[cmdlen++] = keynum;
 			goto non_string_suffix;
 		    }
+		} else if (cmd == CMD_XROM) {
+		    cmdbuf[cmdlen++] = (char) (0xA0 + ((arg.val.num >> 8) & 7));
+		    cmdbuf[cmdlen++] = (char) arg.val.num;
 		} else {
 		    /* Shouldn't happen */
 		    continue;
@@ -938,6 +941,8 @@ int4 hp42s_size(int prgm_index) {
 			size += arg.length + 3;
 		    else
 			size += 4;
+		} else if (cmd == CMD_XROM) {
+		    size += 2;
 		} else {
 		    /* Shouldn't happen */
 		    continue;
@@ -1577,8 +1582,11 @@ void core_import_programs(int (*progress_report)(const char *)) {
 			arg.type = ARGTYPE_NONE;
 			goto store;
 		    }
-		/* Not found */
-		goto skip;
+		/* Not found; insert XROM instruction */
+		cmd = CMD_XROM;
+		arg.type = ARGTYPE_NUM;
+		arg.val.num = code & 0x07FF;
+		goto store;
 	    } else if (byte1 == 0x0AE) {
 		/* GTO/XEQ IND */
 		suffix = getbyte(buf, &pos, &nread, 1000);

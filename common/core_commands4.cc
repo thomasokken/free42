@@ -2050,3 +2050,7 @@ int docmd_sigmasub(arg_struct *arg) {
 	docmd_prx(NULL);
     return err;
 }
+
+int docmd_xrom(arg_struct *arg) {
+    return ERR_NONEXISTENT;
+}

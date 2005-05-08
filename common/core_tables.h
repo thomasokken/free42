@@ -349,7 +349,8 @@
 #define CMD_MAX         311
 #define CMD_MIN         312
 #define CMD_FIND        313
-#define CMD_SENTINEL    314
+#define CMD_XROM        314
+#define CMD_SENTINEL    315
 
 
 /* command_spec.argtype */

@@ -1204,6 +1204,12 @@ int string2double(const char *buf, int buflen, double *d) {
 	char c = buf[i];
 	if (c == 24) {
 	    in_exp = 1;
+	    if (mant_digits == 0) {
+		mant_digits++;
+		mantissa[mant_pos++] = 1;
+		is_zero = 0;
+		exp_offset = 0;
+	    }
 	    continue;
 	}
 	if (in_exp) {

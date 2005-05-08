@@ -74,5 +74,6 @@ int docmd_min(arg_struct *arg) COMMANDS4_SECT;
 int docmd_find(arg_struct *arg) COMMANDS4_SECT;
 int docmd_sigmaadd(arg_struct *arg) COMMANDS4_SECT;
 int docmd_sigmasub(arg_struct *arg) COMMANDS4_SECT;
+int docmd_xrom(arg_struct *arg) COMMANDS4_SECT;
 
 #endif

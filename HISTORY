@@ -1,3 +1,14 @@
+??-??-????: version 1.3.5
+
+* Improved import of HP-41 programs: numbers with exponent but no mantissa are
+  now handled correctly (e.g. 'e4' becomes '1e4', rather than '0'); XROM
+  instructions that do not correspond to HP-42S built-in functions are now
+  imported as XROM instructions, rather than being skipped.
+  Note that XROM instructions always return the "Nonexistent" error message, so
+  HP-41 programs that rely on non-HP-42S extensions still won't actually work
+  in Free42, but at least now you will be able to see more easily *why* such
+  programs fail.
+
 21-04-2005: version 1.3.4
 
 * PalmOS version: yet another 'program import' bug, this time due to a

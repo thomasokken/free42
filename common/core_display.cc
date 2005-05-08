@@ -2114,7 +2114,17 @@ int command2buf(char *buf, int len, int cmd, const arg_struct *arg) {
 	string2buf(buf, len, &bufptr, "ASSIGN ", 7);
     else
 	string2buf(buf, len, &bufptr, cmdspec->name, cmdspec->name_length);
-    if (cmdspec->argtype != ARG_NONE) {
+    if (cmd == CMD_XROM) {
+	int n = arg->val.num & 0x7FF;
+	int rom = n >> 6;
+	int instr = n & 63;
+	char2buf(buf, len, &bufptr, ' ');
+	char2buf(buf, len, &bufptr, '0' + rom / 10);
+	char2buf(buf, len, &bufptr, '0' + rom % 10);
+	char2buf(buf, len, &bufptr, ',');
+	char2buf(buf, len, &bufptr, '0' + instr / 10);
+	char2buf(buf, len, &bufptr, '0' + instr % 10);
+    } else if (cmdspec->argtype != ARG_NONE) {
 	if (cmdspec->name_length > 0)
 	    char2buf(buf, len, &bufptr, ' ');
 	if (arg->type == ARGTYPE_IND_NUM
