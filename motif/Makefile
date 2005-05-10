@@ -18,7 +18,7 @@
 
 CXXFLAGS = -MMD -Wall -g -I/usr/X11R6/include -fno-exceptions -fno-rtti
 LDFLAGS = -L/usr/X11R6/lib
-LIBS = -lm -lXm -lXpm
+LIBS = -lm -lXm -lXt -lX11 -lXmu -lXpm
 
 #CXXFLAGS = -MMD -Wall -g -I/usr/local/lesstif/include -I/usr/X11R6/include -fno-exceptions -fno-rtti
 #LDFLAGS = -L/usr/local/lesstif/lib -L/usr/X11R6/lib

@@ -1699,7 +1699,7 @@ static Widget make_file_select_dialog(const char *title, const char *pattern,
 	XtSetArg(args[2], XmNfileSearchProc, my_search_proc);
 	nargs++;
     }
-    fsd = XmCreateFileSelectionDialog(owner, "FileSelDialog", args, 3);
+    fsd = XmCreateFileSelectionDialog(owner, "FileSelDialog", args, nargs);
 
     /* Pattern selection menu */
     if (pattern != NULL) {

@@ -455,8 +455,8 @@ static double sin_pi(double x) {
 	return -y;
 }
 
-static int math_lgamma(double x, double *gam, int *signgam) MATH_SECT;
-static int math_lgamma(double x, double *gam, int *signgam) {
+static int math_lgamma(double x, double *gam, int *sgngam) MATH_SECT;
+static int math_lgamma(double x, double *gam, int *sgngam) {
 	double t,y,z,nadj,p,p1,p2,p3,q,r,w;
 	double absx;
 	int i, neg = 0;
@@ -468,13 +468,13 @@ static int math_lgamma(double x, double *gam, int *signgam) {
      * the function that *returns* inf or nan, not the way functions deal
      * with such incoming arguments.
      */
-	*signgam = 1;
+	*sgngam = 1;
 	if (x == 0)
 	    return ERR_INVALID_DATA;
 	absx = x < 0 ? -x : x;
 	if (absx < 8.47032947254300339068e-22) {
 	    /* |x|<2**-70, return -log(|x|) */
-	    *signgam = -1;
+	    *sgngam = -1;
 	    *gam = -log(absx);
 	    return ERR_NONE;
 	}
@@ -486,7 +486,7 @@ static int math_lgamma(double x, double *gam, int *signgam) {
 	    if (t == zero)
 		return ERR_INVALID_DATA;
 	    if (t < 0) {
-		*signgam = -1;
+		*sgngam = -1;
 		nadj = log(pi / (t*x));
 	    } else
 		nadj = log(pi / (-t*x));
