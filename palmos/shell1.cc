@@ -434,7 +434,7 @@ UInt32 PilotMain(UInt16 cmd, void *pbp, UInt16 flags) {
 
 	    dbfs_init();
 
-	    do {
+	    while (1) {
 		Int32 now = TimGetTicks();
 		Int32 eventWaitTicks = nextBatteryCheck - now;
 		if (eventWaitTicks <= 0) {
@@ -453,7 +453,9 @@ UInt32 PilotMain(UInt16 cmd, void *pbp, UInt16 flags) {
 		    }
 		}
 		EvtGetEvent(&event, want_to_run ? 0 : eventWaitTicks);
-		if (event.eType == nilEvent || event.eType == firstUserEvent) {
+		if (event.eType == appStopEvent)
+		    break;
+		else if (event.eType == nilEvent || event.eType == firstUserEvent) {
 		    int dummy1, dummy2;
 		    want_to_run = core_keydown(0, &dummy1, &dummy2);
 		} else {
@@ -486,7 +488,7 @@ UInt32 PilotMain(UInt16 cmd, void *pbp, UInt16 flags) {
 			}
 		    } 
 		}
-	    } while (event.eType != appStopEvent);
+	    }
 
 	    if (has_notification_mgr) {
 		SysNotifyUnregister(appCrd, appDB, sysNotifySleepRequestEvent,
@@ -499,41 +501,32 @@ UInt32 PilotMain(UInt16 cmd, void *pbp, UInt16 flags) {
 
 	    statefile = FileOpen(0, "Free42State", 'Stat', 'Fk42',
 				 fileModeReadWrite, &error);
+
 	    if (error != errNone)
 		statefile = NULL;
-	    else {
-		/* Make sure the file's "backup" flag is set */
-		DmOpenRef db;
-		Int32 dbsz = sizeof(DmOpenRef);
-		error = FileControl(fileOpGetOpenDbRef, statefile,
-				    &db, &dbsz);
-		if (error == errNone) {
-		    UInt16 card;
-		    LocalID dbid;
-		    error = DmOpenDatabaseInfo(db, &dbid, NULL,
-					       NULL, &card, NULL);
-		    if (error == errNone) {
-			UInt16 atts;
-			error = DmDatabaseInfo(card, dbid, NULL, &atts, NULL,
-					       NULL, NULL, NULL, NULL, NULL,
-					       NULL, NULL, NULL);
-			if (error == errNone
-				&& (atts & dmHdrAttrBackup) == 0) {
-			    atts |= dmHdrAttrBackup;
-			    DmSetDatabaseInfo(card, dbid, NULL, &atts, NULL,
-					      NULL, NULL, NULL, NULL, NULL,
-					      NULL, NULL, NULL);
-			}
-		    }
-		}
-	    }
 
 	    if (statefile != NULL)
 		write_shell_state();
 
 	    core_quit();
-	    if (statefile != NULL)
+	    if (statefile != NULL) {
 		FileClose(statefile);
+		UInt16 card = 0;
+		LocalID dbid = DmFindDatabase(card, "Free42State");
+		if (dbid != 0) {
+		    UInt16 atts;
+		    error = DmDatabaseInfo(card, dbid, NULL, &atts, NULL,
+					NULL, NULL, NULL, NULL, NULL,
+					NULL, NULL, NULL);
+		    if (error == errNone
+			    && (atts & dmHdrAttrBackup) == 0) {
+			atts |= dmHdrAttrBackup;
+			DmSetDatabaseInfo(card, dbid, NULL, &atts, NULL,
+					NULL, NULL, NULL, NULL, NULL,
+					NULL, NULL, NULL);
+		    }
+		}
+	    }
 
 	    close_math_lib();
 

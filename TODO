@@ -1,3 +1,11 @@
-BCD floating point.
+Decimal floating point.
 
 Pocket PC version.
+
+Windows version: in Win2k, computing the scrollbar width (print-out window)
+does not work, because the code relies on a Win98 registry key that does not
+exist in Win2k. Need to find a clean (read: "supported") way of finding the
+desktop settings.
+Users who have the scroll bar width set to 16 (the Windows default) won't
+notice anything, but if you use "large fonts", there will be a few pixels
+chopped off at the right edge of the print-out because of this bug.

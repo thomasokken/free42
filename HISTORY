@@ -1,4 +1,4 @@
-??-??-????: version 1.3.5
+11-05-2005: version 1.3.5
 
 * Improved import of HP-41 programs: numbers with exponent but no mantissa are
   now handled correctly (e.g. 'e4' becomes '1e4', rather than '0'); XROM
@@ -8,6 +8,16 @@
   HP-41 programs that rely on non-HP-42S extensions still won't actually work
   in Free42, but at least now you will be able to see more easily *why* such
   programs fail.
+* PalmOS version: PalmOS 5.0 (and 5.1?) has a bug in FileControl(): the
+  fileOpGetOpenDbRef command returns a bogus value; when using this value in
+  subsequent Data Manager calls, a crash results. This was noticed on a Palm
+  Tungsten T and on PalmOS Simulator 5.
+  This bug caused Free42 to crash on exit on some devices (it would crash while
+  trying to set the "backup" bit on the Free42State file). I changed my code so
+  that it obtains the necessary information another way.
+* Motif version: fixed a bug that could cause a crash whenever a file selection
+  dialog was created. I never noticed it causing a problem in Linux, but it
+  did crash the Cygwin build, and it was incorrect code anyway. Fixed now.
 
 21-04-2005: version 1.3.4
 
