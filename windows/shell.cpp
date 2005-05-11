@@ -1336,65 +1336,7 @@ static void show_printout() {
 	// Anyway, since "standard" maximizing (full screen) is not appropriate for
 	// the printout window, I just disable the maximize box for now.
 
-	// TODO: I get the scroll bar width from the registry keys
-	// HKEY_USERS\.DEFAULT\Control Panel\Desktop\WindowMetrics\ScrollWidth
-	// and HKEY_LOCAL_MACHINE\Config\0001\Display\Settings\DPILogicalX;
-	// it appears that the correct width is ScrollWidth * DPI / 1440.
-	// There are still some unanswered questions about this. For one, why are
-	// most of the numbers in WindowMetrics negative? I suspect that if they
-	// are positive, they work different (absolute numbers of pixels perhaps?).
-	// Also, should I use DPILogicalX or DPIPhysicalX? I'm using Logical at
-	// the moment, but that is just an arbitrary guess.
-	// Also, what about that factor of 1440? It has a nice ring to it but still
-	// I can't help wondering whether this is truly a constant or not.
-	// And finally, is it REALLY necessary to go to all this trouble just to
-	// figure out the size of a scroll bar? Isn't there some nice API that will
-	// tell me this, without me having to go behind the scenes like this?
-
-	int use_reg = 0;
-	int reg_sbwidth;
-	int reg_dpi;
-	HKEY k1, k2, k3, k4;
-
-	if (RegOpenKeyEx(HKEY_USERS, ".DEFAULT", NULL, KEY_QUERY_VALUE, &k1) == ERROR_SUCCESS) {
-		if (RegOpenKeyEx(k1, "Control Panel", NULL, KEY_QUERY_VALUE, &k2) == ERROR_SUCCESS) {
-			if (RegOpenKeyEx(k2, "Desktop", NULL, KEY_QUERY_VALUE, &k3) == ERROR_SUCCESS) {
-				if (RegOpenKeyEx(k3, "WindowMetrics", NULL, KEY_QUERY_VALUE, &k4) == ERROR_SUCCESS) {
-					BYTE buf[10];
-					DWORD type, size = 10;
-					if (RegQueryValueEx(k4, "ScrollWidth", NULL, &type, buf, &size) == ERROR_SUCCESS && type == REG_SZ) {
-						if (sscanf((char *) buf, "%d", &reg_sbwidth) == 1)
-							use_reg++;
-					}
-					RegCloseKey(k4);
-				}
-				RegCloseKey(k3);
-			}
-			RegCloseKey(k2);
-		}
-		RegCloseKey(k1);
-	}
-
-	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "Config", NULL, KEY_QUERY_VALUE, &k1) == ERROR_SUCCESS) { 
-		if (RegOpenKeyEx(k1, "0001", NULL, KEY_QUERY_VALUE, &k2) == ERROR_SUCCESS) { 
-			if (RegOpenKeyEx(k2, "Display", NULL, KEY_QUERY_VALUE, &k3) == ERROR_SUCCESS) { 
-				if (RegOpenKeyEx(k3, "Settings", NULL, KEY_QUERY_VALUE, &k4) == ERROR_SUCCESS) { 
-					BYTE buf[10];
-					DWORD type, size = 10;
-					if (RegQueryValueEx(k4, "DPILogicalX", NULL, &type, buf, &size) == ERROR_SUCCESS && type == REG_SZ) {
-						if (sscanf((char *) buf, "%d", &reg_dpi) == 1)
-							use_reg++;
-					}
-					RegCloseKey(k4);
-				}
-				RegCloseKey(k3);
-			}
-			RegCloseKey(k2);
-		}
-		RegCloseKey(k1);
-	}
-
-	int sbwidth = use_reg == 2 ? abs(reg_sbwidth * reg_dpi / 1440) : 16;
+	int sbwidth = GetSystemMetrics(SM_CXVSCROLL);
 
 	printOutWidth = r.right - r.left + sbwidth;
 	hPrintOutWnd = CreateWindow(szPrintOutWindowClass, szPrintOutTitle,
