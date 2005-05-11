@@ -453,9 +453,12 @@ UInt32 PilotMain(UInt16 cmd, void *pbp, UInt16 flags) {
 		    }
 		}
 		EvtGetEvent(&event, want_to_run ? 0 : eventWaitTicks);
-		if (event.eType == appStopEvent)
+		if (event.eType == appStopEvent
+			|| (event.eType == keyHoldEvent
+				&& event.data.keyHold.chr == vchrRockerCenter))
 		    break;
-		else if (event.eType == nilEvent || event.eType == firstUserEvent) {
+		else if (event.eType == nilEvent
+			|| event.eType == firstUserEvent) {
 		    int dummy1, dummy2;
 		    want_to_run = core_keydown(0, &dummy1, &dummy2);
 		} else {

@@ -1,3 +1,11 @@
+11-05-2005: version 1.3.6
+
+* Windows version: fixed computation of scroll bar width, so Windows 2000 users
+  who use "Large Fonts" (or otherwise wider-than-normal scroll bars) don't lose
+  pixels at the right edge of the print-out window.
+* PalmOS version: holding the 5-way navigator's center button for 1 second now
+  exits to the launcher.
+
 11-05-2005: version 1.3.5
 
 * Improved import of HP-41 programs: numbers with exponent but no mantissa are
