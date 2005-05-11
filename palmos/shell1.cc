@@ -34,6 +34,24 @@ static MemHandle printrec;
 static DmOpenRef bcddb;
 static MemHandle bcdrec;
 
+#if 0
+static void log(const char *message) {
+    char basename[FILENAMELEN];
+    char *newline = "\n";
+    fsa_obj *dir, *logfile;
+    int err = fsa_resolve("Free42:/log.txt", &dir, 1, basename);
+    err = fsa_create(dir, basename, &logfile);
+    fsa_release(dir);
+    err = fsa_open(logfile, FSA_MODE_READWRITE);
+    err = fsa_seek(logfile, FSA_SEEK_END, 0);
+    uint4 len = (uint4) StrLen(message);
+    err = fsa_write(logfile, message, &len);
+    len = 1;
+    err = fsa_write(logfile, newline, &len);
+    fsa_release(logfile);
+}
+#endif
+
 static void open_printout() {
     LocalID id = DmFindDatabase(0, "Free42Print");
     if (id == 0) {
@@ -453,9 +471,21 @@ UInt32 PilotMain(UInt16 cmd, void *pbp, UInt16 flags) {
 		    }
 		}
 		EvtGetEvent(&event, want_to_run ? 0 : eventWaitTicks);
+#if 0
+		{
+		    char buf[100];
+		    StrPrintF(buf, "type=%d chr=%d", event.eType, event.data.keyHold.chr);
+		    log(buf);
+		}
 		if (event.eType == appStopEvent
 			|| (event.eType == keyHoldEvent
 				&& event.data.keyHold.chr == vchrRockerCenter))
+		    break;
+		else if (event.eType == keyDownEvent
+				&& event.data.keyHold.chr == vchrRockerCenter)
+		    continue;
+#endif
+		if (event.eType == appStopEvent)
 		    break;
 		else if (event.eType == nilEvent
 			|| event.eType == firstUserEvent) {

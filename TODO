@@ -1,3 +1,6 @@
 Decimal floating point.
 
 Pocket PC version.
+
+PalmOS version: detect keyHold of 5-way navigator's central key
+(vchrRockerCenter) and exit when it is received.
