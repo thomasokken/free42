@@ -1,8 +1,12 @@
-??-??-????: version 1.3.6
+12-05-2005: version 1.3.6
 
 * Windows version: fixed computation of scroll bar width, so Windows 2000 users
   who use "Large Fonts" (or otherwise wider-than-normal scroll bars) don't lose
   pixels at the right edge of the print-out window.
+* PalmOS version: pressing and holding the 5-way navigator's center button now
+  exits to the Application Launcher (this is an automatic PalmOS behavior,
+  which I had unintentionally sabotaged before by mis-handling auto-repeat
+  events).
 
 11-05-2005: version 1.3.5
 

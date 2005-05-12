@@ -474,16 +474,9 @@ UInt32 PilotMain(UInt16 cmd, void *pbp, UInt16 flags) {
 #if 0
 		{
 		    char buf[100];
-		    StrPrintF(buf, "type=%d chr=%d", event.eType, event.data.keyHold.chr);
+		    StrPrintF(buf, "type=%d chr=0x%04x", event.eType, event.data.keyDown.chr);
 		    log(buf);
 		}
-		if (event.eType == appStopEvent
-			|| (event.eType == keyHoldEvent
-				&& event.data.keyHold.chr == vchrRockerCenter))
-		    break;
-		else if (event.eType == keyDownEvent
-				&& event.data.keyHold.chr == vchrRockerCenter)
-		    continue;
 #endif
 		if (event.eType == appStopEvent)
 		    break;
@@ -519,7 +512,7 @@ UInt32 PilotMain(UInt16 cmd, void *pbp, UInt16 flags) {
 				printgadget_handler(NULL,
 					    formGadgetDrawCmd, NULL);
 			}
-		    } 
+		    }
 		}
 	    }
 

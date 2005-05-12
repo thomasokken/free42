@@ -1425,7 +1425,7 @@ Boolean handle_event(EventType *e) {
 	if (FrmGetActiveFormID() != calcform_id)
 	    return false;
 	if ((e->data.keyDown.modifiers & autoRepeatKeyMask) != 0)
-	    return true;
+	    return false;
 	c = e->data.keyDown.chr;
 	if (c == vchrPageUp
 		/*|| c == vchrThumbWheelUp*/
