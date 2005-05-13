@@ -1421,19 +1421,40 @@ Boolean handle_event(EventType *e) {
 	}
 	return true;
     } else if (e->eType == keyDownEvent) {
-	char c;
+	char c = e->data.keyDown.chr;
+
+	if (FrmGetActiveFormID() == printform_id) {
+	    if (c != vchrPageUp && c != vchrPageDown)
+		return false;
+	    int up = c == vchrPageUp;
+	    FormType *form = FrmGetFormPtr(printform_id);
+	    UInt16 scl_index = FrmGetObjectIndex(form, printscroll_id);
+	    ScrollBarType *sb =
+		    (ScrollBarType *) FrmGetObjectPtr(form, scl_index);
+	    Int16 value, min, max, page;
+	    SclGetScrollBar(sb, &value, &min, &max, &page);
+	    if (up) {
+		value -= page;
+		if (value < min)
+		    value = min;
+	    } else {
+		value += page;
+		if (value > max)
+		    value = max;
+	    }
+	    SclSetScrollBar(sb, value, min, max, page);
+	    printout_pos = value;
+	    repaint_printout();
+	    return true;
+	}
+
 	if (FrmGetActiveFormID() != calcform_id)
 	    return false;
 	if ((e->data.keyDown.modifiers & autoRepeatKeyMask) != 0)
 	    return false;
-	c = e->data.keyDown.chr;
-	if (c == vchrPageUp
-		/*|| c == vchrThumbWheelUp*/
-		/*|| c == vchrRockerUp*/
-		|| c == vchrPageDown
-		/*|| c == vchrThumbWheelDown*/
-		/*|| c == vchrRockerDown*/) {
-	    int up = c == vchrPageUp /*|| c == vchrThumbWheelUp || c == vchrRockerUp*/;
+
+	if (c == vchrPageUp || c == vchrPageDown) {
+	    int up = c == vchrPageUp;
 	    UInt32 mask = up ? keyBitPageUp : keyBitPageDown;
 	    int enqueued, repeat;
 	    int k = up ? 17 : 22;

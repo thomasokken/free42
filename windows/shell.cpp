@@ -855,8 +855,8 @@ static LRESULT CALLBACK PrintOutWndProc(HWND hWnd, UINT message, WPARAM wParam, 
 				case SB_BOTTOM: pos = si.nMax; break;
 				case SB_LINEUP: pos = printout_pos - 18; break;
 				case SB_LINEDOWN: pos = printout_pos + 18; break;
-				case SB_PAGEUP: pos = printout_pos - printOutHeight; break;
-				case SB_PAGEDOWN: pos = printout_pos + printOutHeight; break;
+				case SB_PAGEUP: pos = printout_pos - printOutHeight + 18; break;
+				case SB_PAGEDOWN: pos = printout_pos + printOutHeight - 18; break;
 				case SB_THUMBPOSITION:
 				case SB_THUMBTRACK: pos = HIWORD(wParam); break;
 				default: pos = printout_pos;
