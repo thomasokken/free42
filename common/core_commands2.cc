@@ -721,6 +721,8 @@ int docmd_xtoa(arg_struct *arg) {
 		double d = m->array->data[i].d;
 		if (d < 0)
 		    d = -d;
+		if (core_settings.ip_hack)
+		    d += 5e-9;
 		if (d >= 256)
 		    buf[buflen++] = (char) 255;
 		else

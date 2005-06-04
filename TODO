@@ -1,3 +1,8 @@
+PalmOS version: support dynamic screen size changes (dynamic input area;
+portrait/landscape mode switching). The tricky bit: storing the currenly
+selected skin will no longer be a simple matter of keeping track of one skin
+name; I'll have to keep track of a list of name/resolution pairs.
+
 Decimal floating point.
 
 Pocket PC version.
