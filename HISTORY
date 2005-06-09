@@ -1,3 +1,10 @@
+09-06-2005: version 1.3.8
+
+* PalmOS version: Added Copy and Paste icons to the command bar for the
+  calculator form.
+* PalmOS version: The Edit and Skin menus were switched in the print-out form.
+  Fixed.
+
 12-05-2005: version 1.3.7
 
 * PalmOS version: hardware Up and Down keys now scroll the print-out window.

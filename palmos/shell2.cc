@@ -1420,6 +1420,20 @@ Boolean handle_event(EventType *e) {
 	    }
 	}
 	return true;
+    } else if (e->eType == menuCmdBarOpenEvent) {
+	if (feature_set_3_5_present()
+		    && FrmGetActiveFormID() == calcform_id) {
+	    /* Show "Copy" and "Paste" icons on command bar; this is usually
+	     * automatic, but since the calculator form does not use text
+	     * fields, we have to add them ourselves here.
+	     */
+	    MenuCmdBarAddButton(menuCmdBarOnRight, BarCopyBitmap,
+				menuCmdBarResultMenuItem, copy_id, NULL);
+	    MenuCmdBarAddButton(menuCmdBarOnRight, BarPasteBitmap,
+				menuCmdBarResultMenuItem, paste_id, NULL);
+	    e->data.menuCmdBarOpen.preventFieldButtons = true;
+	}
+	return false;
     } else if (e->eType == keyDownEvent) {
 	char c = e->data.keyDown.chr;
 

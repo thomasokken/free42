@@ -88,16 +88,16 @@ begin
     menuitem "Preferences..." id prefsform1_id
   end
 
-  pulldown "Skin"
-  begin
-    menuitem "Select..." id selectskin_id
-    menuitem "Delete..." id deleteskin_id
-  end
-
   pulldown "Edit"
   begin
     menuitem "Copy" id copy_id "C"
     menuitem "Paste" id paste_id "P"
+  end
+
+  pulldown "Skin"
+  begin
+    menuitem "Select..." id selectskin_id
+    menuitem "Delete..." id deleteskin_id
   end
 
   pulldown "Util"
@@ -385,14 +385,14 @@ begin
   bitmap "filesel-144-doc.bmp" BPP 1 DENSITY 144
 end
 
-version "1.3.7"
+version "1.3.8"
 
 form id aboutform_id at (2 2 156 156)
 frame modal
 begin
   formbitmap at (18 18) bitmap 3333
   label "Free42" autoid at (45 15) font 2
-  label "Version 1.3.7" autoid at (prevleft prevbottom)
+  label "Version 1.3.8" autoid at (prevleft prevbottom)
   label "\251 2004-2005 Thomas Okken" autoid at (18 55)
   label "thomas_okken@hotmail.com" autoid at (prevleft prevbottom)
   label "http://home.planet.nl/" autoid at (prevleft prevbottom+10)
