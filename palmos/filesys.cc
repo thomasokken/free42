@@ -2295,6 +2295,11 @@ static void update_path_list() {
     }
 }
 
+static Int16 dir_item_compar(void *p1, void *p2, Int32 other) FILESYS_SECT;
+static Int16 dir_item_compar(void *p1, void *p2, Int32 other) {
+    return StrCaselessCompare(*(const char **) p1, *(const char **) p2);
+}
+
 static void update_dir_list() FILESYS_SECT;
 static void update_dir_list() {
 
@@ -2389,6 +2394,10 @@ static void update_dir_list() {
     }
 
     done:
+    if (dir_item_count > 0)
+	SysInsertionSort(sfs->dir_item_names, dir_item_count,
+			 sizeof(char *), dir_item_compar, 0);
+
     LstSetListChoices(sfs->dir_list, sfs->dir_item_names, dir_item_count);
     if (selected_item != -1)
 	LstSetSelection(sfs->dir_list, selected_item);
