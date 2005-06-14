@@ -2377,8 +2377,9 @@ static void update_dir_list() {
 		for (i = 0; i < item_count - 1; i++)
 		    for (j = i + 1; j < item_count; j++)
 			if (!item_types[i] && item_types[j]
-				|| StrCaselessCompare(item_names[i],
-							item_names[j]) > 0) {
+				|| item_types[i] == item_types[j]
+				    && StrCaselessCompare(item_names[i],
+							 item_names[j]) > 0) {
 			    int type = item_types[i];
 			    item_types[i] = item_types[j];
 			    item_types[j] = type;
