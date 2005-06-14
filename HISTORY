@@ -1,3 +1,11 @@
+14-06-2005: version 1.3.10
+
+* PalmOS version: in the file selection dialog, sorting was broken. It sorted
+  the volume list, which is shouldn't, and when sorting direcory listings, it
+  sorted the names but not the types, and it did not force directories to the
+  top of the list. Oops! So many bugs in such a trivial enhancement... Well,
+  it's fixed now, and I'm taking a vacation from this project. :-)
+
 14-06-2005: version 1.3.9
 
 * PalmOS version: in the file selection dialog, file names are now sorted

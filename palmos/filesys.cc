@@ -2295,11 +2295,6 @@ static void update_path_list() {
     }
 }
 
-static Int16 dir_item_compar(void *p1, void *p2, Int32 other) FILESYS_SECT;
-static Int16 dir_item_compar(void *p1, void *p2, Int32 other) {
-    return StrCaselessCompare(*(const char **) p1, *(const char **) p2);
-}
-
 static void update_dir_list() FILESYS_SECT;
 static void update_dir_list() {
 
@@ -2371,18 +2366,30 @@ static void update_dir_list() {
     } else {
 	char **item_names;
 	int *item_types;
-	int item_count, i;
+	int item_count, i, j;
 	int err = fsa_list(sfs->dir,
 			   filename_filter, sfs->patterns[sfs->sel_type],
 			   &item_names, &item_types, &item_count);
 	if (err == FSA_ERR_NONE) {
 	    dir_item_count = item_count;
 	    if (item_count > 0) {
-		char *name;
+		/* Sort directory items alphabetically; keep folders first */
+		for (i = 0; i < item_count - 1; i++)
+		    for (j = i + 1; j < item_count; j++)
+			if (!item_types[i] && item_types[j]
+				|| StrCaselessCompare(item_names[i],
+							item_names[j]) > 0) {
+			    int type = item_types[i];
+			    item_types[i] = item_types[j];
+			    item_types[j] = type;
+			    char *name = item_names[i];
+			    item_names[i] = item_names[j];
+			    item_names[j] = name;
+			}
 		sfs->dir_item_names = item_names;
 		sfs->dir_item_types = item_types;
 		selected_item = 0;
-		name = FldGetTextPtr(sfs->name_field);
+		char *name = FldGetTextPtr(sfs->name_field);
 		if (name != NULL)
 		    for (i = 0; i < item_count; i++)
 			if (StrCaselessCompare(item_names[i], name) == 0) {
@@ -2394,10 +2401,6 @@ static void update_dir_list() {
     }
 
     done:
-    if (dir_item_count > 0)
-	SysInsertionSort(sfs->dir_item_names, dir_item_count,
-			 sizeof(char *), dir_item_compar, 0);
-
     LstSetListChoices(sfs->dir_list, sfs->dir_item_names, dir_item_count);
     if (selected_item != -1)
 	LstSetSelection(sfs->dir_list, selected_item);
