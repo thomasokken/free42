@@ -1456,7 +1456,7 @@ void core_import_programs(int (*progress_report)(const char *)) {
     arg_struct arg;
     int assign = 0;
     int at_end = 1;
-    int instrcount = 0;
+    int instrcount = -1;
     int report_label = 0;
 
     /* Set print mode to MAN during the import, to prevent store_command()
@@ -1470,14 +1470,14 @@ void core_import_programs(int (*progress_report)(const char *)) {
     while (!done_flag) {
 	skip:
 	if (progress_report != NULL) {
-	    /* Poll the progress dialog every 1000 instructions, in case
+	    /* Poll the progress dialog every 100 instructions, in case
 	     * we're reading a bogus file: normally, we only update the
 	     * dialog when we encounter a GLOBAL, and that should be often
 	     * enough when reading legitimate HP-42S programs, but if we're
 	     * reading garbage, it may not happen at all, and that would
 	     * mean the user would get no chance to intervene.
 	     */
-	    if (++instrcount == 1000) {
+	    if (++instrcount == 100) {
 		if (progress_report(NULL))
 		    goto done;
 		instrcount = 0;

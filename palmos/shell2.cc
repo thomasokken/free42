@@ -2124,15 +2124,14 @@ static Boolean progress_text_cb(PrgCallbackDataPtr cb) {
 
 static int progress_report_cb(const char *message) SHELL_SECT;
 static int progress_report_cb(const char *message) {
-    EventType event;
-    int cancel = 0;
     if (message != NULL)
 	PrgUpdateDialog(progress, errNone, 0, message, true);
-    EvtGetEvent(&event, 0);
-    if (event.eType != nilEvent)
+    EventType event;
+    while (EvtGetEvent(&event, 0), event.eType != nilEvent)
 	if (!PrgHandleEvent(progress, &event))
-	    cancel = PrgUserCancel(progress);
-    return cancel;
+	    if (PrgUserCancel(progress))
+		return 1;
+    return 0;
 }
 
 static void do_import() {
