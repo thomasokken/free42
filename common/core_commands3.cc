@@ -1160,7 +1160,7 @@ int docmd_dot(arg_struct *arg) {
 	return ERR_INVALID_TYPE;
     if (v == NULL)
 	return ERR_INSUFFICIENT_MEMORY;
-    unary_result(v);
+    binary_result(v);
     return ERR_NONE;
 }
 
