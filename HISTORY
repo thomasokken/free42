@@ -1,3 +1,11 @@
+??-??-????: version 1.3.12
+
+* Motif version: closing the print-out window did not work in the Cygwin build
+  with the Cygwin XFree86 server in multi-window mode. This may have affected
+  other window managers as well... I'm actually surprised that it worked
+  anywhere: the XWithdrawWindow() call was missing in the WM_DELETE_WINDOW
+  protocol callback! Odd. Anyway, it's there now.
+
 19-06-2005: version 1.3.11
 
 * DOT did not drop the stack; it placed the result in X but left Y intact.
