@@ -789,7 +789,7 @@ int main(int argc, char *argv[]) {
     XtSetArg(args[nargs], XmNtitle, "Free42 Print-Out"); nargs++;
     XtSetArg(args[nargs], XmNmappedWhenManaged, False); nargs++;
     XtSetArg(args[nargs], XmNallowShellResize, True); nargs++;
-    XtSetArg(args[nargs], XmNdeleteResponse, XmUNMAP); nargs++;
+    XtSetArg(args[nargs], XmNdeleteResponse, XmDO_NOTHING); nargs++;
     XtSetArg(args[nargs], XmNscreen, screen); nargs++;
     XtSetArg(args[nargs], XmNiconPixmap, icon); nargs++;
     XtSetArg(args[nargs], XmNiconMask, iconmask); nargs++;
