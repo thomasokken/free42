@@ -1,10 +1,10 @@
 20-06-2005: version 1.3.12
 
-* Motif version: closing the print-out window did not work in the Cygwin build
-  with the Cygwin XFree86 server in multi-window mode. For some reason, the
-  delete response of XmUNMAP seems to get ignored. I changed it to XmDO_NOTHING
-  and added an explicit XWithdrawWindow() call in the WM_DELETE_WINDOW protocol
-  callback, and that seems to do the job.
+* Motif version: closing the print-out window did not work in the Cygwin build.
+  The problem appears to be in the Cygwin Motif library: the XmUNMAP setting
+  for the deleteResponse resource in TopLevelShell does not work.
+  I now work around this by using the XmDO_NOTHING setting instead, and calling
+  XWithdrawWindow() explicitly in the WM_DELETE_WINDOW protocol handler.
 
 19-06-2005: version 1.3.11
 
