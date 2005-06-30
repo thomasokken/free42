@@ -1,3 +1,6 @@
+Revisit SOLVE: compare its performance to the examples given in Chapter 3 of
+the Programming Examples & Techniques book.
+
 PalmOS version: support dynamic screen size changes (dynamic input area;
 portrait/landscape mode switching). The tricky bit: storing the currenly
 selected skin will no longer be a simple matter of keeping track of one skin
