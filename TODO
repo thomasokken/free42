@@ -1,6 +1,11 @@
 Revisit SOLVE: compare its performance to the examples given in Chapter 3 of
 the Programming Examples & Techniques book.
 
+Revisit printing: am I handling line wrapping properly? What does the real
+HP-42S do when printing a complex number that does not fit on one line?
+
+Import/export of variables.
+
 PalmOS version: support dynamic screen size changes (dynamic input area;
 portrait/landscape mode switching). The tricky bit: storing the currenly
 selected skin will no longer be a simple matter of keeping track of one skin
