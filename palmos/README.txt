@@ -8,7 +8,7 @@ Windows, and Linux.
 
 The PalmOS version of Free42 incorporates code that lets it create a virtual
 filesystem inside a PalmOS database. Within Free42, you can use this filesystem
-just like any VFS filesystem, such as a VFAT filesystem on a Secure Digital
+just like any VFS filesystem, such as a FAT32 filesystem on a Secure Digital
 (SD) card. The Free42 filesystem is available on all PalmOS versions that
 Free42 runs on, regardless of whether they have VFS support or not.
 There are two ways to get files into and out of the Free42 filesystem:

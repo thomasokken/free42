@@ -6,6 +6,8 @@ HP-42S do when printing a complex number that does not fit on one line?
 
 Import/export of variables.
 
+Plain-text program import/export.
+
 PalmOS version: support dynamic screen size changes (dynamic input area;
 portrait/landscape mode switching). The tricky bit: storing the currenly
 selected skin will no longer be a simple matter of keeping track of one skin
