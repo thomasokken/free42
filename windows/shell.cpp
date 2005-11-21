@@ -680,12 +680,6 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			goto do_default;
 		}
 		case WM_DESTROY:
-			GetWindowPlacement(hMainWnd, &state.mainPlacement);
-			state.mainPlacementValid = 1;
-			if (state.printOutOpen) {
-				GetWindowPlacement(hPrintOutWnd, &state.printOutPlacement);
-				state.printOutPlacementValid = 1;
-			}
 			PostQuitMessage(0);
 			break;
 		case WM_INITMENUPOPUP: {
@@ -1270,8 +1264,15 @@ static void Quit() {
     }
 
 	statefile = fopen(statefilename, "wb");
-	if (statefile != NULL)
+	if (statefile != NULL) {
+		GetWindowPlacement(hMainWnd, &state.mainPlacement);
+		state.mainPlacementValid = 1;
+		if (state.printOutOpen) {
+			GetWindowPlacement(hPrintOutWnd, &state.printOutPlacement);
+			state.printOutPlacementValid = 1;
+		}
 		write_shell_state();
+	}
 	core_quit();
 	if (statefile != NULL)
 		fclose(statefile);
