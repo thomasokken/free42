@@ -394,7 +394,7 @@ begin
   label "Free42" autoid at (45 15) font 2
   label "Version 1.3.12" autoid at (prevleft prevbottom)
   label "\251 2004-2005 Thomas Okken" autoid at (18 55)
-  label "thomas_okken@hotmail.com" autoid at (prevleft prevbottom)
+  label "thomas_okken@yahoo.com" autoid at (prevleft prevbottom)
   label "http://home.planet.nl/" autoid at (prevleft prevbottom+10)
   label "~demun000/" autoid at (prevleft+20 prevbottom)
   label "thomas_projects/free42/" autoid at (prevleft prevbottom)
