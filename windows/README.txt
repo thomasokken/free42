@@ -44,7 +44,7 @@ Remove Free42.exe, and "My Documents"\Free42\ and its contents, and any
 shortcuts you have created to point to Free42.exe.
 
 
-Free42 is (C) 2004-2005, by Thomas Okken
+Free42 is (C) 2004-2006, by Thomas Okken
 Contact the author at thomas_okken@yahoo.com
 Look for updates, and versions for other operating systems, at
 http://home.planet.nl/~demun000/thomas_projects/free42/

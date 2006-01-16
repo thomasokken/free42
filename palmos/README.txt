@@ -118,7 +118,7 @@ Removing the Free42 conduit:
 * NOTE: You should not need to restart HotSync Manager.
 
 
-Free42 is (C) 2004-2005, by Thomas Okken
+Free42 is (C) 2004-2006, by Thomas Okken
 Contact the author at thomas_okken@yahoo.com
 Look for updates, and versions for other operating systems, at
 http://home.planet.nl/~demun000/thomas_projects/free42/
