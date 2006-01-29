@@ -1,3 +1,8 @@
+When the BASE->A..F menu is active, the PC keyboard's A thru F keys should act
+as number entry keys, overriding any mappings from the keyboard map. (Compare
+the behavior of the PC keyboard in ALPHA mode.)
+This should also apply to Graffiti entry on the Palm.
+
 Revisit SOLVE: compare its performance to the examples given in Chapter 3 of
 the Programming Examples & Techniques book.
 
