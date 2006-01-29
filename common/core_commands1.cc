@@ -163,7 +163,33 @@ int docmd_lastx(arg_struct *arg) {
 
 static int mappable_sin_r(double x, double *y) COMMANDS1_SECT;
 static int mappable_sin_r(double x, double *y) {
-    *y = sin(angle_to_rad(x));
+    if (flags.f.rad) {
+	*y = sin(x);
+    } else if (flags.f.grad) {
+	x = fmod(x, 400);
+	if (x < 0)
+	    x += 400;
+	if (x == 0 || x == 200)
+	    *y = 0;
+	else if (x == 100)
+	    *y = 1;
+	else if (x == 300)
+	    *y = -1;
+	else
+	    *y = sin(x / (200 / PI));
+    } else {
+	x = fmod(x, 360);
+	if (x < 0)
+	    x += 360;
+	if (x == 0 || x == 180)
+	    *y = 0;
+	else if (x == 90)
+	    *y = 1;
+	else if (x == 270)
+	    *y = -1;
+	else
+	    *y = sin(x / (180 / PI));
+    }
     return ERR_NONE;
 }
 
@@ -173,11 +199,24 @@ static int mappable_sin_c(double xre, double xim, double *yre, double *yim) {
     /* NOTE: DEG/RAD/GRAD mode does not apply here. */
     double sinxre, cosxre;
     double sinhxim, coshxim;
+    int inf;
     sincos(xre, &sinxre, &cosxre);
     sinhxim = sinh(xim);
     coshxim = cosh(xim);
     *yre = sinxre * coshxim;
+    if ((inf = isinf(*yre)) != 0) {
+	if (flags.f.range_error_ignore)
+	    *yre = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+	else
+	    return ERR_OUT_OF_RANGE;
+    }
     *yim = cosxre * sinhxim;
+    if ((inf = isinf(*yim)) != 0) {
+	if (flags.f.range_error_ignore)
+	    *yim = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+	else
+	    return ERR_OUT_OF_RANGE;
+    }
     return ERR_NONE;
 }
 
@@ -194,7 +233,33 @@ int docmd_sin(arg_struct *arg) {
 
 static int mappable_cos_r(double x, double *y) COMMANDS1_SECT;
 static int mappable_cos_r(double x, double *y) {
-    *y = cos(angle_to_rad(x));
+    if (flags.f.rad) {
+	*y = cos(x);
+    } else if (flags.f.grad) {
+	x = fmod(x, 400);
+	if (x < 0)
+	    x += 400;
+	if (x == 0)
+	    *y = 1;
+	else if (x == 100 || x == 300)
+	    *y = 0;
+	else if (x == 200)
+	    *y = -1;
+	else
+	    *y = cos(x / (200 / PI));
+    } else {
+	x = fmod(x, 360);
+	if (x < 0)
+	    x += 360;
+	if (x == 0)
+	    *y = 1;
+	else if (x == 90 || x == 270)
+	    *y = 0;
+	else if (x == 180)
+	    *y = -1;
+	else
+	    *y = cos(x / (180 / PI));
+    }
     return ERR_NONE;
 }
 
@@ -204,11 +269,24 @@ static int mappable_cos_c(double xre, double xim, double *yre, double *yim) {
     /* NOTE: DEG/RAD/GRAD mode does not apply here. */
     double sinxre, cosxre;
     double sinhxim, coshxim;
+    int inf;
     sincos(xre, &sinxre, &cosxre);
     sinhxim = sinh(xim);
     coshxim = cosh(xim);
     *yre = cosxre * coshxim;
+    if ((inf = isinf(*yre)) != 0) {
+	if (flags.f.range_error_ignore)
+	    *yre = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+	else
+	    return ERR_OUT_OF_RANGE;
+    }
     *yim = -sinxre * sinhxim;
+    if ((inf = isinf(*yim)) != 0) {
+	if (flags.f.range_error_ignore)
+	    *yim = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+	else
+	    return ERR_OUT_OF_RANGE;
+    }
     return ERR_NONE;
 }
 
@@ -225,12 +303,40 @@ int docmd_cos(arg_struct *arg) {
 
 static int mappable_tan_r(double x, double *y) COMMANDS1_SECT;
 static int mappable_tan_r(double x, double *y) {
-    int inf;
-    *y = tan(angle_to_rad(x));
-    if (isnan(*y)) {
-	inf = 1;
-	goto infinite;
+    int inf = 1;
+    if (flags.f.rad) {
+	*y = tan(x);
+    } else if (flags.f.grad) {
+	x = fmod(x, 200);
+	if (x < 0)
+	    x += 200;
+	if (x == 0)
+	    *y = 0;
+	else if (x == 50)
+	    *y = 1;
+	else if (x == 100)
+	    goto infinite;
+	else if (x == 150)
+	    *y = -1;
+	else
+	    *y = tan(x / (200 / PI));
+    } else {
+	x = fmod(x, 180);
+	if (x < 0)
+	    x += 180;
+	if (x == 0)
+	    *y = 0;
+	else if (x == 45)
+	    *y = 1;
+	else if (x == 90)
+	    goto infinite;
+	else if (x == 135)
+	    *y = -1;
+	else
+	    *y = tan(x / (180 / PI));
     }
+    if (isnan(*y))
+	goto infinite;
     if ((inf = isinf(*y)) != 0) {
 	infinite:
 	if (flags.f.range_error_ignore)

@@ -23,12 +23,6 @@ up; I'm not committing to those features but I decided to put them back in the
 TODO list so that people are aware that I am aware of these requests. :-)
 
 
-Ed McIntosh (emcintosh at adelphia dot net), 7/29/2005:
-In DEG and GRAD modes, trig functions should check arguments for multiples of
-90 degrees (100 grads) and possibly other special values that most users
-expect to return exact results. Note that "trig functions" includes rect/polar
-conversions and the COMPLEX function.
-
 Jeffrey Bienstock (jeffbien at yahoo dot com), 8/3/2005:
 Requested "always on top" feature.
 
@@ -54,9 +48,3 @@ Today if you want to load 41 modules programs, you need to go into a painful
 process using a 41 emulator: for each program you want, copy it into the
 main memory, export it in raw format, and load the .raw in Free42. Not really
 effective when you have tons of programs in a module.
-
-Vincent Weber (viweber at bluewin dot ch), 1/5/2006:
-10 ENTER COMPLEX SIN SIN
-yields
-<Infinity> i<Infinity>
-Clearly, some more range checks are needed in the complex trigs.

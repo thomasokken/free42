@@ -5,6 +5,10 @@
   return (1,0); this is not consistent with the real HP-42S, which returns
   "Invalid Data", but it is consistent with the way Free42 already treated
   0^0).
+* SIN, COS, P->R, and COMPLEX, when used in DEG and GRAD modes, now return
+  exact results for multiples of 90 degrees (100 grads). Also, the TAN function
+  now returns exact results for multiples of 45 degrees (50 grads).
+* Added range checks to the complex versions of SIN and COS.
 * Windows version: when exiting the emulator using the OFF command (shift-EXIT
   or XEQ "OFF"), the positions of the main and print-out windows would not get
   updated in the state file.

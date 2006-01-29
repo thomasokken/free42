@@ -59,7 +59,6 @@ void binary_result(vartype *x) HELPERS_SECT;
 int apply_sto_operation(char operation, vartype *x, vartype *oldval,
 			void (*completion)(int, vartype *)) HELPERS_SECT;
 double rad_to_angle(double x) HELPERS_SECT;
-double angle_to_rad(double x) HELPERS_SECT;
 double rad_to_deg(double x) HELPERS_SECT;
 double deg_to_rad(double x) HELPERS_SECT;
 void append_alpha_char(char c) HELPERS_SECT;

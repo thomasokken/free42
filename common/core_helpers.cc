@@ -215,15 +215,6 @@ double rad_to_angle(double x) {
 	return x * (180 / PI);
 }
 
-double angle_to_rad(double x) {
-    if (flags.f.rad)
-	return x;
-    else if (flags.f.grad)
-	return fmod(x, 400) / (200 / PI);
-    else
-	return fmod(x, 360) / (180 / PI);
-}
-
 double rad_to_deg(double x) {
     return x * (180 / PI);
 }
@@ -1208,7 +1199,45 @@ void generic_r2p(double re, double im, double *r, double *phi) {
 
 void generic_p2r(double r, double phi, double *re, double *im) {
     double tre, tim;
-    sincos(angle_to_rad(phi), &tim, &tre);
+    if (flags.f.rad) {
+	sincos(phi, &tim, &tre);
+    } else if (flags.f.grad) {
+	phi = fmod(phi, 400);
+	if (phi < 0)
+	    phi += 400;
+	if (phi == 0) {
+	    tre = 1;
+	    tim = 0;
+	} else if (phi == 100) {
+	    tre = 0;
+	    tim = 1;
+	} else if (phi == 200) {
+	    tre = -1;
+	    tim = 0;
+	} else if (phi == 300) {
+	    tre = 0;
+	    tim = -1;
+	} else
+	    sincos(phi / (200 / PI), &tim, &tre);
+    } else {
+	phi = fmod(phi, 360);
+	if (phi < 0)
+	    phi += 360;
+	if (phi == 0) {
+	    tre = 1;
+	    tim = 0;
+	} else if (phi == 90) {
+	    tre = 0;
+	    tim = 1;
+	} else if (phi == 180) {
+	    tre = -1;
+	    tim = 0;
+	} else if (phi == 270) {
+	    tre = 0;
+	    tim = -1;
+	} else
+	    sincos(phi / (180 / PI), &tim, &tre);
+    }
     *re = r * tre;
     *im = r * tim;
 }
