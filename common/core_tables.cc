@@ -336,7 +336,7 @@ static const command_spec cmd_array[] =
     { /* MATX */        "MATX",                 4, docmd_matx,        0x02000000, ARG_NONE,  FLAG_HIDDEN + FLAG_NO_PRGM },
     { /* GOTOROW */     "GOTO\240\322\357\367", 8, NULL,              0x02000000, ARG_COUNT, FLAG_HIDDEN },
     { /* GOTOCOLUMN */  "GOTO Column",         11, NULL,              0x02000000, ARG_COUNT, FLAG_HIDDEN },
-    { /* A_THRU_F */    "A\032F",               3, NULL,              0x02000000, ARG_NONE,  FLAG_HIDDEN },
+    { /* A_THRU_F */    "A\032F",               3, NULL,              0x02000000, ARG_NONE,  FLAG_HIDDEN + FLAG_NO_PRGM },
     { /* CLALLb */      "CLALL",                5, docmd_clall,       0x02000000, ARG_NONE,  FLAG_HIDDEN },
     { /* PGMSLVi */     "P\307\315SLV",         6, docmd_pgmslvi,     0x02000000, ARG_PRGM,  FLAG_HIDDEN },
     { /* PGMINTi */     "P\307\315INT",         6, docmd_pgminti,     0x02000000, ARG_PRGM,  FLAG_HIDDEN },

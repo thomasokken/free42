@@ -9,6 +9,8 @@
   exact results for multiples of 90 degrees (100 grads). Also, the TAN function
   now returns exact results for multiples of 45 degrees (50 grads).
 * Added range checks to the complex versions of SIN and COS.
+* In PRGM mode, the A..F command in the BASE menu now says "Restricted
+  Operation".
 * Windows version: when exiting the emulator using the OFF command (shift-EXIT
   or XEQ "OFF"), the positions of the main and print-out windows would not get
   updated in the state file.
