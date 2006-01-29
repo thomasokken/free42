@@ -844,8 +844,19 @@ int docmd_y_pow_x(arg_struct *arg) {
 		yre = ((vartype_complex *) reg_y)->re;
 		yim = ((vartype_complex *) reg_y)->im;
 		ex = (int4) x;
-		if (ex <= 0 && yre == 0 && yim == 0)
-		    return ERR_INVALID_DATA;
+		if (yre == 0 && yim == 0) {
+		    if (ex < 0)
+			return ERR_INVALID_DATA;
+		    else if (ex == 0) {
+			res = new_complex(1, 0);
+			if (res == NULL)
+			    return ERR_INSUFFICIENT_MEMORY;
+			else {
+			    binary_result(res);
+			    return ERR_NONE;
+			}
+		    }
+		}
 		if (ex < 0) {
 		    double h = hypot(yre, yim);
 		    yre = yre / h / h;
@@ -967,6 +978,20 @@ int docmd_y_pow_x(arg_struct *arg) {
 	} else {
 	    yre = ((vartype_complex *) reg_y)->re;
 	    yim = ((vartype_complex *) reg_y)->im;
+	}
+	if (yre == 0 && yim == 0) {
+	    if (xre < 0 || (xre == 0 && xim != 0))
+		return ERR_INVALID_DATA;
+	    else if (xre == 0)
+		res = new_complex(1, 0);
+	    else
+		res = new_complex(0, 0);
+	    if (res == NULL)
+		return ERR_INSUFFICIENT_MEMORY;
+	    else {
+		binary_result(res);
+		return ERR_NONE;
+	    }
 	}
 	err = mappable_ln_c(yre, yim, &lre, &lim);
 	if (err != ERR_NONE)

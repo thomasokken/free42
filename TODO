@@ -23,16 +23,16 @@ up; I'm not committing to those features but I decided to put them back in the
 TODO list so that people are aware that I am aware of these requests. :-)
 
 
-Ed McIntosh <emcintosh@adelphia.net>, 7/29/2005:
+Ed McIntosh <emcintosh at adelphia dot net>, 7/29/2005:
 In DEG and GRAD modes, trig functions should check arguments for multiples of
 90 degrees (100 grads) and possibly other special values that most users
 expect to return exact results. Note that "trig functions" includes rect/polar
 conversions and the COMPLEX function.
 
-Jeffrey Bienstock <jeffbien@yahoo.com>, 8/3/2005:
+Jeffrey Bienstock <jeffbien at yahoo dot com>, 8/3/2005:
 Requested "always on top feature".
 
-Alan Arndt <aga@jlw.com>, 8/11/2005:
+Alan Arndt <aga at jlw dot com>, 8/11/2005:
 1) Typing rapidly on Windows drops keystrokes. I suspect that Free42's message
 handling code is to blame; prime suspect is "rollover" (user presses X, user
 presses Y, user releases X, user releases Y).
@@ -42,7 +42,7 @@ accurate pointing and thereby reduces stress on the user's arm. A pain to do,
 because skin editing is so tedious, but it would be a good thing to help free
 the world from RSI.
 
-Vincent Weber <viweber@bluewin.ch>, 12/21/2005:
+Vincent Weber <viweber at bluewin dot ch>, 12/21/2005:
 One thing I thought would be great for Free42 is the ability to load 41 modules
 in .MOD or .ROM format; not the machine-code stuff that is irrelevant to
 the 42 (CCD, Advantage, Hepax, AEC, PPC...), but the PURE RPN modules, such
@@ -55,15 +55,7 @@ process using a 41 emulator: for each program you want, copy it into the
 main memory, export it in raw format, and load the .raw in Free42. Not really
 effective when you have tons of programs in a module.
 
-Joseph Helfand <jhelfand@limno.com>, 12/29/2005:
-Complained about behavior of 0^0, which returns an error on the HP-42S, but
-returns 1 on Free42. I consider Free42's behavior to be better, so I won't
-change it. A configuration option is of course possible but I won't do that
-either unless someone shows me that this is actually necessary.
-Having said all that, the behavior of 0^0 in Free42 is inconsistent with the
-behavior of (0+0i)^0 etc; the latter have to be fixed.
-
-Vincent Weber <viweber@bluewin.ch>, 1/5/2006:
+Vincent Weber <viweber at bluewin dot ch>, 1/5/2006:
 10 ENTER COMPLEX SIN SIN
 yields
 <Infinity> i<Infinity>
