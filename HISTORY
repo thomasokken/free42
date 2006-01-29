@@ -1,7 +1,7 @@
 29-01-2006: version 1.3.13
 
 * Fixed behavior of Y^X for certain special cases (namely, 0^(0,0); (0,0)^0;
-  (0,0)^(0,0); 0^(1,0); (0,0)^(1,0). Note that the first of those three now
+  (0,0)^(0,0); 0^(1,0); (0,0)^(1,0). Note that the first three of those now
   return (1,0); this is not consistent with the real HP-42S, which returns
   "Invalid Data", but it is consistent with the way Free42 already treated
   0^0).
