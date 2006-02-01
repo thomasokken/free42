@@ -1,3 +1,11 @@
+01-02-2006: version 1.3.14
+* Windows version: added always-on-top feature.
+* Windows version: in the previous version, when I fixed the code that saves
+  the window positions when exiting using the OFF command, I broke the code
+  that saves the window positions when exiting using the close box and the Quit
+  command. Fixed, so now window positions should be remembered correctly
+  regardless of how Free42 is exited.
+
 29-01-2006: version 1.3.13
 
 * Fixed behavior of Y^X for certain special cases (namely, 0^(0,0); (0,0)^0;

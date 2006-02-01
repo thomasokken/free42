@@ -41,6 +41,7 @@
 #define IDC_RAW_TEXT                    1012
 #define IDC_HOMEDIR                     1013
 #define IDC_HOMEDIR_BROWSE              1014
+#define IDC_ALWAYSONTOP                 1015
 #define IDM_SHOWPRINTOUT                32771
 #define IDM_CLEARPRINTOUT               32772
 #define IDM_PREFERENCES                 32773
@@ -57,7 +58,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        141
 #define _APS_NEXT_COMMAND_VALUE         32779
-#define _APS_NEXT_CONTROL_VALUE         1015
+#define _APS_NEXT_CONTROL_VALUE         1016
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

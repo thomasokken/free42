@@ -100,7 +100,7 @@ static int keymap_length = 0;
 static keymap_entry *keymap = NULL;
 
 
-#define SHELL_VERSION 4
+#define SHELL_VERSION 5
 
 typedef struct state {
 	BOOL extras;
@@ -115,9 +115,11 @@ typedef struct state {
 	char printerGifFileName[FILENAMELEN];
 	int printerGifMaxLength;
 	char skinName[FILENAMELEN];
+	BOOL alwaysOnTop;
 } state_type;
 
 static state_type state;
+static int placement_saved = 0;
 static int printOutWidth;
 static int printOutHeight;
 
@@ -377,6 +379,8 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		r2->bottom = r2->top + r.bottom - r.top;
 		SetWindowPlacement(hMainWnd, &state.mainPlacement);
 	}
+	if (state.alwaysOnTop)
+		SetWindowPos(hMainWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 	ShowWindow(hMainWnd, nCmdShow);
 	UpdateWindow(hMainWnd);
 
@@ -680,6 +684,13 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			goto do_default;
 		}
 		case WM_DESTROY:
+			GetWindowPlacement(hMainWnd, &state.mainPlacement);
+			state.mainPlacementValid = 1;
+			if (state.printOutOpen) {
+				GetWindowPlacement(hPrintOutWnd, &state.printOutPlacement);
+				state.printOutPlacementValid = 1;
+			}
+			placement_saved = 1;
 			PostQuitMessage(0);
 			break;
 		case WM_INITMENUPOPUP: {
@@ -956,6 +967,10 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
 				ctl = GetDlgItem(hDlg, IDC_IP_HACK);
 				SendMessage(ctl, BM_SETCHECK, 1, 0);
 			}
+			if (state.alwaysOnTop) {
+				ctl = GetDlgItem(hDlg, IDC_ALWAYSONTOP);
+				SendMessage(ctl, BM_SETCHECK, 1, 0);
+			}
 			if (state.printerToTxtFile) {
 				ctl = GetDlgItem(hDlg, IDC_PRINTER_TXT);
 				SendMessage(ctl, BM_SETCHECK, 1, 0);
@@ -988,6 +1003,15 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
 					core_settings.matrix_outofrange = SendMessage(ctl, BM_GETCHECK, 0, 0);
 					ctl = GetDlgItem(hDlg, IDC_IP_HACK);
 					core_settings.ip_hack = SendMessage(ctl, BM_GETCHECK, 0, 0);
+					ctl = GetDlgItem(hDlg, IDC_ALWAYSONTOP);
+					BOOL alwaysOnTop = SendMessage(ctl, BM_GETCHECK, 0, 0);
+					if (alwaysOnTop != state.alwaysOnTop) {
+						state.alwaysOnTop = alwaysOnTop;
+						SetWindowPos(hMainWnd, alwaysOnTop ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+						if (hPrintOutWnd != NULL)
+							SetWindowPos(hPrintOutWnd, alwaysOnTop ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+					}
+
 					ctl = GetDlgItem(hDlg, IDC_PRINTER_TXT);
 					state.printerToTxtFile = SendMessage(ctl, BM_GETCHECK, 0, 0);
 					char buf[FILENAMELEN];
@@ -1265,11 +1289,13 @@ static void Quit() {
 
 	statefile = fopen(statefilename, "wb");
 	if (statefile != NULL) {
-		GetWindowPlacement(hMainWnd, &state.mainPlacement);
-		state.mainPlacementValid = 1;
-		if (state.printOutOpen) {
-			GetWindowPlacement(hPrintOutWnd, &state.printOutPlacement);
-			state.printOutPlacementValid = 1;
+		if (!placement_saved) {
+			GetWindowPlacement(hMainWnd, &state.mainPlacement);
+			state.mainPlacementValid = 1;
+			if (state.printOutOpen) {
+				GetWindowPlacement(hPrintOutWnd, &state.printOutPlacement);
+				state.printOutPlacementValid = 1;
+			}
 		}
 		write_shell_state();
 	}
@@ -1354,6 +1380,8 @@ static void show_printout() {
 		r2->right = r2->left + printOutWidth;
 		SetWindowPlacement(hPrintOutWnd, &state.printOutPlacement);
 	}
+	if (state.alwaysOnTop)
+		SetWindowPos(hPrintOutWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 
 	printout_length_changed();
 	printout_scroll_to_bottom(0);
@@ -1959,6 +1987,9 @@ static void init_shell_state(int4 version) {
 			state.skinName[0] = 0;
 			// fall through
 		case 4:
+			state.alwaysOnTop = 0;
+			// fall through
+		case 5:
 			// current version (SHELL_VERSION = 4),
 			// so nothing to do here since everything
 			// was initialized from the state file.

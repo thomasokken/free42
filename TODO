@@ -29,9 +29,6 @@ up; I'm not committing to those features but I decided to put them back in the
 TODO list so that people are aware that I am aware of these requests. :-)
 
 
-Jeffrey Bienstock (jeffbien at yahoo dot com), 8/3/2005:
-Requested "always on top" feature.
-
 Alan Arndt (aga at jlw dot com), 8/11/2005:
 1) Typing rapidly on Windows drops keystrokes. I suspect that Free42's message
 handling code is to blame; prime suspect is "rollover" (user presses X, user
