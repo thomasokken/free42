@@ -22,6 +22,11 @@ portrait/landscape mode switching). The tricky bit: storing the currenly
 selected skin will no longer be a simple matter of keeping track of one skin
 name; I'll have to keep track of a list of name/resolution pairs.
 
+PalmOS version: repainting the display, when using high-resolution skins on
+the Tungsten E, is slow. I should profile this; is my code for constructing
+high-resolution bitmaps inefficient, or am I using the wrong PalmOS calls, or
+is PalmOS itself to blame?
+
 Pocket PC version.
 
 The requests for fractions, equations, and decimal floating point keep cropping
