@@ -45,7 +45,7 @@ The requests for fractions, equations, and decimal floating point keep cropping
 up; I'm not committing to those features but I decided to put them back in the
 TODO list so that people are aware that I am aware of these requests. :-)
 
-Jeff Turner (jeff dot turner at cinergy dot com), 1/28/2005:
+Jeff O., 1/28/2005:
 Basically, I would like to enhance the way complex numbers are entered,
 displayed, and converted back and forth between rectangular and polar form. To
 make entry more natural, I propose that a key labelled "i" be included on the
