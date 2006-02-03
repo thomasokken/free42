@@ -1,4 +1,5 @@
 01-02-2006: version 1.3.14
+
 * Windows version: added always-on-top feature.
 * Windows version: in the previous version, when I fixed the code that saves
   the window positions when exiting using the OFF command, I broke the code

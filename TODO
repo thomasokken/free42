@@ -1,7 +1,6 @@
-I have several contributed programs that still need to be put up on my web
-site: an Advanced Encryption Standard implementation by Brett Stevens, a
-surveying program by Tony Nikkel, and some interesting Free42 patches for the
-Palm and Mac by Jeff Dionne.
+Get a PayPal account to accept donations. :-)
+
+Merge Jeff Dionne's patches.
 
 When the BASE->A..F menu is active, the PC keyboard's A thru F keys should act
 as number entry keys, overriding any mappings from the keyboard map. (Compare
@@ -24,13 +23,6 @@ the Tungsten E, is slow. I should profile this; is my code for constructing
 high-resolution bitmaps inefficient, or am I using the wrong PalmOS calls, or
 is PalmOS itself to blame?
 
-Pocket PC version.
-
-The requests for fractions, equations, and decimal floating point keep cropping
-up; I'm not committing to those features but I decided to put them back in the
-TODO list so that people are aware that I am aware of these requests. :-)
-
-
 Alan Arndt (aga at jlw dot com), 8/11/2005:
 1) Typing rapidly on Windows drops keystrokes. I suspect that Free42's message
 handling code is to blame; prime suspect is "rollover" (user presses X, user
@@ -44,6 +36,57 @@ maximize the area to hit with the mouse or pen; this reduces the need for
 accurate pointing and thereby reduces stress on the user's arm. A pain to do,
 because skin editing is so tedious, but it would be a good thing to help free
 the world from RSI.
+
+Pocket PC version.
+
+And *maybe*...
+
+The requests for fractions, equations, and decimal floating point keep cropping
+up; I'm not committing to those features but I decided to put them back in the
+TODO list so that people are aware that I am aware of these requests. :-)
+
+Jeff Turner (jeff dot turner at cinergy dot com), 1/28/2005:
+Basically, I would like to enhance the way complex numbers are entered,
+displayed, and converted back and forth between rectangular and polar form. To
+make entry more natural, I propose that a key labelled "i" be included on the
+keyboard. This would be the label on the face of the key for the primary
+function, not a shifted function. When entering a complex number in
+rectangular form, one would merely key in the real part, then press "i" to
+terminate entry of the real part and begin entering the imaginary part. When
+done, you would press enter or any other operation as usual after keying in
+any number. Both the real and imaginary parts of the number would be displayed
+on one line in the display in the same way the 42S does it (NOT the way the
+28, 48 and 49 display complex numbers). To key in a number in polar form, one
+would not need to switch to polar display mode. Either there would be a
+separate key, or the "i" key would have a shifted function, labelled with the
+angle symbol. To enter a number in polar form, you would merely enter the
+magnitude, then press the angle key (or shift "i"), then enter the angle. The
+number would be displayed on one line in the display in polar form, again
+exactly as the 42S does. Complex numbers in rectangular form and complex
+numbers in polar form would be allowed to exist in the stack and/or any memory
+registers at the same time. You could key in a rectangular form number, press
+enter, key in a polar form number, press multiply, divide, etc. and get your
+answer immediately with no worry about being in polar display mode or
+rectangular display mode. The answer would by default be displayed in the
+format of the number in the X register. As I see things, there would be no
+real need for "polar" or "rectangular" display modes. There should be keys
+with rectangular to polar and polar to rectangular conversion functions.
+(Please label them as ->R and ->P, not the ->phi,r and ->y,x labelling of the
+33S.) These keys would function as they do on the 42S. If the displayed number
+is complex and displayed in polar form and you press the ->R key, it takes the
+two components, treats them as magnitude and angle and converts and displays
+them in rectangular form. If the displayed number is complex and displayed in
+rectangular form and you press the ->P key, it takes the two components,
+treats them as real and imaginary components and converts and displays them in
+polar form. (If you try to convert a polar form number to polar form or
+convert a rectangular form number to rectangular form, nothing would happen.)
+If the X-register contains a real number, it takes the numbers in the X and Y
+registers and converts and displays them accordingly. In a complex functions
+menu, there would be a global command to convert all numbers currently stored
+in the calculator to either polar or rectangular display. In this case, it
+would not alter numbers already in rectangular form when converting all to
+rectangular, and would not alter numbers already in polar form when converting
+to polar.
 
 Vincent Weber (viweber at bluewin dot ch), 12/21/2005:
 One thing I thought would be great for Free42 is the ability to load 41 modules
