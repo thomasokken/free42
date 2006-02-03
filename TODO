@@ -7,9 +7,6 @@ When the BASE->A..F menu is active, the PC keyboard's A thru F keys should act
 as number entry keys, overriding any mappings from the keyboard map. (Compare
 the behavior of the PC keyboard in ALPHA mode.)
 
-Revisit SOLVE: compare its performance to the examples given in Chapter 3 of
-the Programming Examples & Techniques book.
-
 Revisit printing: am I handling line wrapping properly? What does the real
 HP-42S do when printing a complex number that does not fit on one line?
 
@@ -38,6 +35,10 @@ Alan Arndt (aga at jlw dot com), 8/11/2005:
 1) Typing rapidly on Windows drops keystrokes. I suspect that Free42's message
 handling code is to blame; prime suspect is "rollover" (user presses X, user
 presses Y, user releases X, user releases Y).
+Update: I've noticed the same phenomenon when using the Linux version, so maybe
+this is a problem in the emulator core? Or is the X11 shell buggy too?
+Interesting, because keyboard handling is very different between the Windows
+and X11 shells.
 2) Skins should have sensitive rectangles that are as large as possible, to
 maximize the area to hit with the mouse or pen; this reduces the need for
 accurate pointing and thereby reduces stress on the user's arm. A pain to do,
