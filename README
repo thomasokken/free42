@@ -172,3 +172,19 @@ complex, or string; real or string values are only found in real matrices, and
 complex values are only found in complex matrices; in other words, 5 is not
 considered equal to 5 + 0i -- mathematically speaking this is wrong, but on the
 other hand it is consistent with the behavior of the X=Y? and X!=Y? functions.
+
+-------------------------------------------------------------------------------
+Differences between the Free42 printer emulation and the HP-42S/82240
+
+Free42 prints programs differently in NORM or TRACE modes: in NORM mode, the
+listing is right-justified, and in TRACE mode, the listing is compact (multiple
+commands per line). The HP42S does not do this; Free42 "inherited" this
+behavior from the HP-82143 printer, which the author remembers fondly. :-)
+
+When the HP-42S has to print a line that is too long to fit on one physical
+printer line (i.e., more than 24 characters), it takes no special action.
+Whether the printer prints the overflow left- or right-justified remains to be
+found out. I should check the 82240 specs to see how it behaves.
+Free42 usually prints the overflow left-justified; the exceptions are PRX
+(when printing a complex scalar), PRP/LIST (in NORM mode), and command printing
+(NORM and TRACE modes).

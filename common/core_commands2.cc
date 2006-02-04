@@ -1346,9 +1346,21 @@ int docmd_prx(arg_struct *arg) {
 	int len;
 	shell_annunciators(-1, -1, 0, -1, -1, -1);
 	len = vartype2string(reg_x, buf, 100);
-	print_right(buf, len, "***", 3);
-	shell_annunciators(-1, -1, 0, -1, -1, -1);
-	return ERR_NONE;
+	if (reg_x->type == TYPE_REAL || reg_x->type == TYPE_STRING)
+	    print_right(buf, len, "***", 3);
+	else
+	    print_lines(buf, len, 0);
+
+	if (reg_x->type == TYPE_REALMATRIX || reg_x->type == TYPE_COMPLEXMATRIX) {
+	    prv_var = reg_x;
+	    prv_index = 0;
+	    mode_interruptible = prv_worker;
+	    mode_stoppable = 1;
+	    return ERR_INTERRUPTIBLE;
+	} else {
+	    shell_annunciators(-1, -1, 0, -1, -1, -1);
+	    return ERR_NONE;
+	}
     }
 }
 
