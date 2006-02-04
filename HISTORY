@@ -5,6 +5,9 @@
   the descriptor line (as shown in the display), it now prints the matrix
   contents as well. These changes bring the Free42 PRX command in line with
   the HP-42S.
+* Windows & Motif versions: fixed handling of PC keyboard key rollover (i.e.
+  pressing a key before the previous key is released). This should fix the
+  problem of keystrokes being missed when typing rapidly.
 * Windows & Motif versions: when the A..F menu in the BASE application is
   active, the A through F keys are now mapped to the corresponding menu keys,
   regardless of the keyboard map -- so you can now enter a number like FCE2
