@@ -24,6 +24,9 @@ palmos: FORCE
 motif: FORCE
 	cd motif && $(MAKE)
 
+MacDashboard: FORCE
+	cd MacDashboard && $(MAKE)
+
 clean: FORCE
 	cd palmos && $(MAKE) clean
 	cd motif && $(MAKE) clean

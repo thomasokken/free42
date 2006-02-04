@@ -1,7 +1,5 @@
 Get a PayPal account to accept donations. :-)
 
-Merge Jeff Dionne's patches.
-
 Revisit printing: am I handling line wrapping properly? What does the real
 HP-42S do when printing a complex number that does not fit on one line?
 

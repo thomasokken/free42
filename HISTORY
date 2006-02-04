@@ -4,6 +4,9 @@
   active, the A through F keys are now mapped to the corresponding menu keys,
   regardless of the keyboard map -- so you can now enter a number like FCE2
   without having to use the mouse or the F1-F6 keys.
+* Added MacDashboard version to the source distribution. No binary
+  distribution, alas, because I don't have a MacOS X build environment.
+  MacDashboard code written by D. Jeff Dionne.
 
 01-02-2006: version 1.3.14
 
