@@ -93,6 +93,11 @@ int core_alpha_menu() {
     return menu != NULL && *menu >= MENU_ALPHA1 && *menu <= MENU_ALPHA_MISC2;
 }
 
+int core_hex_menu() {
+    int *menu = get_front_menu();
+    return menu != NULL && *menu == MENU_BASE_A_THRU_F;
+}
+
 int core_keydown(int key, int *enqueued, int *repeat) {
 
     *enqueued = 0;

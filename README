@@ -129,9 +129,11 @@ say Insufficient Memory when that clearly wasn't true; I have heard a report
 from someone else about the machine even locking up to the point where it needs
 a hard reset.
 
+In LINSigma mode, Sigma+ and Sigma- do not update LASTx (TODO - confirm).
+
 I have also heard a report that FCSTX is buggy in PWRF mode; I have not been
-able to confirm this yet but there appears to be more I have to read about it
-(TODO).
+able to confirm this yet but there appears to be more I have to read about it.
+Probably depends on your ROM version; I tested with rev. C but it seemed fine.
 
 Not sure if this is a bug or not:
 

@@ -2,10 +2,6 @@ Get a PayPal account to accept donations. :-)
 
 Merge Jeff Dionne's patches.
 
-When the BASE->A..F menu is active, the PC keyboard's A thru F keys should act
-as number entry keys, overriding any mappings from the keyboard map. (Compare
-the behavior of the PC keyboard in ALPHA mode.)
-
 Revisit printing: am I handling line wrapping properly? What does the real
 HP-42S do when printing a complex number that does not fit on one line?
 

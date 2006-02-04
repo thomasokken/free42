@@ -58,6 +58,16 @@ void core_quit() MAIN_SECT;
  */
 int core_alpha_menu() MAIN_SECT;
 
+/* core_hex_menu()
+ *
+ * The shell uses this function to check if the core is in "hex" mode (i.e.
+ * the A..F submenu of the BASE application is active). This affects how events
+ * from the keyboard (the real PC keyboard, not the on-screen one emulated by
+ * Free42) are handled: in hex mode, 'A' through 'F' and 'a' through 'f' are
+ * translated to keycodes 1 through 6, regardless of the keyboard map.
+ */
+int core_hex_menu() MAIN_SECT;
+
 /* core_keydown()
  *
  * This function informs the emulator core that an HP-42S key was pressed. Keys

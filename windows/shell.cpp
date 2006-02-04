@@ -628,6 +628,16 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 					shell_keydown();
 					mouse_key = 0;
 					break;
+				} else if (core_hex_menu() && ((keyChar >= 'a' && keyChar <= 'f')
+							|| (keyChar >= 'A' && keyChar <= 'F'))) {
+					if (keyChar >= 'a' && keyChar <= 'f')
+						ckey = keyChar - 'a' + 1;
+					else
+						ckey = keyChar - 'A' + 1;
+					skey = -1;
+					shell_keydown();
+					mouse_key = 0;
+					break;
 				}
 				unsigned char *macro = skin_keymap_lookup(virtKey, ctrl_down, alt_down, shift_down);
 				if (macro == NULL) {

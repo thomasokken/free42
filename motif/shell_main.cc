@@ -2671,19 +2671,6 @@ static void input_cb(Widget w, XtPointer ud, XtPointer cd) {
 	    int printable = len == 1 && buf[0] >= 32 && buf[0] <= 126;
 	    just_pressed_shift = 0;
 
-	    if (printable && core_alpha_menu()) {
-		char c = buf[0];
-		if (c >= 'a' && c <= 'z')
-		    c = c + 'A' - 'a';
-		else if (c >= 'A' && c <= 'Z')
-		    c = c + 'a' - 'A';
-		ckey = 1024 + c;
-		skey = -1;
-		shell_keydown();
-		mouse_key = 0;
-		return;
-	    }
-
 	    if (ks == XK_Shift_L || ks == XK_Shift_R) {
 		just_pressed_shift = 1;
 		return;
@@ -2691,6 +2678,31 @@ static void input_cb(Widget w, XtPointer ud, XtPointer cd) {
 	    ctrl = (event->xkey.state & ControlMask) != 0;
 	    alt = (event->xkey.state & Mod1Mask) != 0;
 	    shift = (event->xkey.state & (ShiftMask | LockMask)) != 0;
+
+	    if (!ctrl && !alt) {
+		char c = buf[0];
+		if (printable && core_alpha_menu()) {
+		    if (c >= 'a' && c <= 'z')
+			c = c + 'A' - 'a';
+		    else if (c >= 'A' && c <= 'Z')
+			c = c + 'a' - 'A';
+		    ckey = 1024 + c;
+		    skey = -1;
+		    shell_keydown();
+		    mouse_key = 0;
+		    return;
+		} else if (core_hex_menu() && ((c >= 'a' && c <= 'f')
+					    || (c >= 'A' && c <= 'F'))) {
+		    if (c >= 'a' && c <= 'f')
+			ckey = c - 'a' + 1;
+		    else
+			ckey = c - 'A' + 1;
+		    skey = -1;
+		    shell_keydown();
+		    mouse_key = 0;
+		    return;
+		}
+	    }
 
 	    macro = skin_keymap_lookup(ks, ctrl, alt, shift);
 	    if (macro == NULL) {
