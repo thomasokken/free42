@@ -263,6 +263,7 @@ static Window print_canvas;
 static int ckey = 0;
 static int skey;
 static int mouse_key;
+static unsigned int active_keycode = 0;
 static int just_pressed_shift = 0;
 static int timeout_active = 0;
 static XtIntervalId timeout_id;
@@ -2660,7 +2661,7 @@ static void input_cb(Widget w, XtPointer ud, XtPointer cd) {
 	if (ckey != 0 && mouse_key)
 	    shell_keyup();
     } else if (event->type == KeyPress) {
-	if (ckey == 0) {
+	if (ckey == 0 || !mouse_key) {
 	    char buf[32];
 	    KeySym ks;
 	    int i;
@@ -2679,6 +2680,11 @@ static void input_cb(Widget w, XtPointer ud, XtPointer cd) {
 	    alt = (event->xkey.state & Mod1Mask) != 0;
 	    shift = (event->xkey.state & (ShiftMask | LockMask)) != 0;
 
+	    if (ckey != 0) {
+		shell_keyup();
+		active_keycode = 0;
+	    }
+
 	    if (!ctrl && !alt) {
 		char c = buf[0];
 		if (printable && core_alpha_menu()) {
@@ -2690,6 +2696,7 @@ static void input_cb(Widget w, XtPointer ud, XtPointer cd) {
 		    skey = -1;
 		    shell_keydown();
 		    mouse_key = 0;
+		    active_keycode = event->xkey.keycode;
 		    return;
 		} else if (core_hex_menu() && ((c >= 'a' && c <= 'f')
 					    || (c >= 'A' && c <= 'F'))) {
@@ -2700,6 +2707,7 @@ static void input_cb(Widget w, XtPointer ud, XtPointer cd) {
 		    skey = -1;
 		    shell_keydown();
 		    mouse_key = 0;
+		    active_keycode = event->xkey.keycode;
 		    return;
 		}
 	    }
@@ -2730,6 +2738,7 @@ static void input_cb(Widget w, XtPointer ud, XtPointer cd) {
 			shell_keydown();
 		    }
 		mouse_key = 0;
+		active_keycode = event->xkey.keycode;
 	    }
 	}
     } else if (event->type == KeyRelease) {
@@ -2744,8 +2753,10 @@ static void input_cb(Widget w, XtPointer ud, XtPointer cd) {
 		shell_keyup();
 	    }
 	} else {
-	    if (!mouse_key)
+	    if (!mouse_key && event->xkey.keycode == active_keycode) {
 		shell_keyup();
+		active_keycode = 0;
+	    }
 	}
     }
 }

@@ -90,6 +90,7 @@ static char *printout;
 
 static int ckey = 0;
 static int skey;
+static int active_keycode = 0;
 static int ctrl_down = 0;
 static int alt_down = 0;
 static int shift_down = 0;
@@ -615,9 +616,13 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 				// message; we defer handling them until then.
 				break;
 
-			if (ckey == 0) {
+			if (ckey == 0 || !mouse_key) {
 				int i;
 				int printable = keyChar >= 32 && keyChar <= 126;
+				if (ckey != 0) {
+					shell_keyup();
+					active_keycode = 0;
+				}
 				if (printable && core_alpha_menu()) {
 					if (keyChar >= 'a' && keyChar <= 'z')
 						keyChar = keyChar + 'A' - 'a';
@@ -627,6 +632,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 					skey = -1;
 					shell_keydown();
 					mouse_key = 0;
+					active_keycode = virtKey;
 					break;
 				} else if (core_hex_menu() && ((keyChar >= 'a' && keyChar <= 'f')
 							|| (keyChar >= 'A' && keyChar <= 'F'))) {
@@ -637,6 +643,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 					skey = -1;
 					shell_keydown();
 					mouse_key = 0;
+					active_keycode = virtKey;
 					break;
 				}
 				unsigned char *macro = skin_keymap_lookup(virtKey, ctrl_down, alt_down, shift_down);
@@ -665,6 +672,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 							shell_keydown();
 						}
 					mouse_key = 0;
+					active_keycode = virtKey;
 					break;
 				}
 			}
@@ -689,8 +697,10 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 				}
 				goto do_default;
 			}
-			if (ckey != 0 && !mouse_key)
+			if (ckey != 0 && !mouse_key && virtKey == active_keycode) {
 				shell_keyup();
+				active_keycode = 0;
+			}
 			goto do_default;
 		}
 		case WM_DESTROY:

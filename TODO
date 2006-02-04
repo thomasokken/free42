@@ -1,36 +1,29 @@
-Get a PayPal account to accept donations. :-)
+Alan Arndt (aga at jlw dot com), 8/11/2005:
+Skins should have sensitive rectangles that are as large as possible, to
+maximize the area to hit with the mouse or pen; this reduces the need for
+accurate pointing and thereby reduces stress on the user's arm. A pain to do,
+because skin editing is so tedious, but it would be a good thing to help free
+the world from RSI.
 
 Import/export of variables.
 
 Plain-text program import/export.
 
-PalmOS version: support dynamic screen size changes (dynamic input area;
-portrait/landscape mode switching). The tricky bit: storing the currenly
-selected skin will no longer be a simple matter of keeping track of one skin
-name; I'll have to keep track of a list of name/resolution pairs.
+Pocket PC version.
 
 PalmOS version: repainting the display, when using high-resolution skins on
 the Tungsten E, is slow. I should profile this; is my code for constructing
 high-resolution bitmaps inefficient, or am I using the wrong PalmOS calls, or
 is PalmOS itself to blame?
 
-Alan Arndt (aga at jlw dot com), 8/11/2005:
-1) Typing rapidly on Windows drops keystrokes. I suspect that Free42's message
-handling code is to blame; prime suspect is "rollover" (user presses X, user
-presses Y, user releases X, user releases Y).
-Update: I've noticed the same phenomenon when using the Linux version, so maybe
-this is a problem in the emulator core? Or is the X11 shell buggy too?
-Interesting, because keyboard handling is very different between the Windows
-and X11 shells.
-2) Skins should have sensitive rectangles that are as large as possible, to
-maximize the area to hit with the mouse or pen; this reduces the need for
-accurate pointing and thereby reduces stress on the user's arm. A pain to do,
-because skin editing is so tedious, but it would be a good thing to help free
-the world from RSI.
+PalmOS version: support dynamic screen size changes (dynamic input area;
+portrait/landscape mode switching). The tricky bit: storing the currenly
+selected skin will no longer be a simple matter of keeping track of one skin
+name; I'll have to keep track of a list of name/resolution pairs.
 
-Pocket PC version.
+Get a PayPal account to accept donations. :-)
 
-And *maybe*...
+=============================== And *maybe*... ================================
 
 The requests for fractions, equations, and decimal floating point keep cropping
 up; I'm not committing to those features but I decided to put them back in the
