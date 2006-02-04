@@ -173,6 +173,7 @@ complex values are only found in complex matrices; in other words, 5 is not
 considered equal to 5 + 0i -- mathematically speaking this is wrong, but on the
 other hand it is consistent with the behavior of the X=Y? and X!=Y? functions.
 
+
 -------------------------------------------------------------------------------
 Differences between the Free42 printer emulation and the HP-42S/82240
 
