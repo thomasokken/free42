@@ -464,7 +464,7 @@ main(int argc, char *argv[])
 {
 	char cmd[256];
 	unsigned char *macro;
-	int keyno;
+	int keyno, ctrl, alt, shift;
 	int repeat;
 	int queue;
 	int version;
@@ -509,8 +509,28 @@ main(int argc, char *argv[])
 			if (!queue) core_keyup();
 			break;
 		case 'K':
-			macro = skin_keymap_lookup(keyno & 0xffff,
-				keyno & 0x10000 ? 1 : 0, keyno & 0x20000 ? 1 : 0, keyno & 0x40000 ? 1 : 0); 
+			ctrl = (keyno & 0x10000) != 0;
+			alt = (keyno & 0x20000) != 0;
+			shift = (keyno & 0x40000) != 0;
+			keyno &= 0xffff;
+			if (!ctrl && !alt) {
+				if (core_alpha_menu() && keyno >= 32 && keyno <= 126) {
+					while (core_keydown(keyno + 1024, &queue, &repeat))
+					    keyno = 0;
+					if (!queue) core_keyup();
+					break;
+				} else if (core_hex_menu() && ((keyno >= 'a' && keyno <= 'f') || (keyno >= 'A' && keyno <= 'F'))) {
+					if (keyno >= 'a' && keyno <= 'f')
+						keyno -= 'a' - 1;
+					else
+						keyno -= 'A' - 1;
+					while (core_keydown(keyno, &queue, &repeat))
+					    keyno = 0;
+					if (!queue) core_keyup();
+					break;
+				}
+			}
+			macro = skin_keymap_lookup(keyno, ctrl, alt, shift);
 			for (; macro && *macro; macro++) {
 				keyno = *macro;
 				while (core_keydown(keyno, &queue, &repeat)) {
