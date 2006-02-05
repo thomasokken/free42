@@ -118,6 +118,15 @@ Removing the Free42 conduit:
 * NOTE: You should not need to restart HotSync Manager.
 
 
+Documentation
+
+The ultimate documentation for Free42 is the manual for the HP-42S. You can
+obtain this manual in PDF format by purchasing the CD or DVD set from The
+Museum of HP Calculators (http://hpmuseum.org/). Alternatively, there is an
+independently written HP-42S/Free42 manual, by Jose Lauro Strapasson, which
+you can download free at http://joselauro.com/42s.pdf.
+
+
 Free42 is (C) 2004-2006, by Thomas Okken
 Contact the author at thomas_okken@yahoo.com
 Look for updates, and versions for other operating systems, at
