@@ -515,6 +515,10 @@ main(int argc, char *argv[])
 			keyno &= 0xffff;
 			if (!ctrl && !alt) {
 				if (core_alpha_menu() && keyno >= 32 && keyno <= 126) {
+					if (keyno >= 'a' && keyno <= 'z')
+						keyno = keyno + 'A' - 'a';
+					else if (keyno >= 'A' && keyno <= 'Z')
+						keyno = keyno + 'a' - 'A';
 					while (core_keydown(keyno + 1024, &queue, &repeat))
 					    keyno = 0;
 					if (!queue) core_keyup();
