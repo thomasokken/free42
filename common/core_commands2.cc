@@ -1348,8 +1348,14 @@ int docmd_prx(arg_struct *arg) {
 	len = vartype2string(reg_x, buf, 100);
 	if (reg_x->type == TYPE_REAL || reg_x->type == TYPE_STRING)
 	    print_right(buf, len, "***", 3);
-	else
-	    print_lines(buf, len, 0);
+	else {
+	    /* Normally we print X right-justified, but if it doesn't fit on
+	     * one line, we print it left-justified, because having the excess
+	     * go near the right margin looks weird and confusing.
+	     */
+	    int left = len > (flags.f.double_wide_print ? 12 : 24);
+	    print_lines(buf, len, left);
+	}
 
 	if (reg_x->type == TYPE_REALMATRIX || reg_x->type == TYPE_COMPLEXMATRIX) {
 	    prv_var = reg_x;

@@ -647,8 +647,14 @@ void print_command(int cmd, const arg_struct *arg) {
 	    never_mind:;
 	}
 	print_right(cmdline, cmdline_length, buf, bufptr);
-    } else
-	print_lines(buf, bufptr, 0);
+    } else {
+	/* Normally we print commands right-justified, but if they don't fit
+	 * on one line, we print them left-justified, because having the excess
+	 * go near the right margin looks weird and confusing.
+	 */
+	int left = bufptr > (flags.f.double_wide_print ? 12 : 24);
+	print_lines(buf, bufptr, left);
+    }
 
     deferred_print = 0;
     shell_annunciators(-1, -1, 0, -1, -1, -1);
