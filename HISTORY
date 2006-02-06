@@ -300,7 +300,7 @@
   control in the Preferences dialog (ugly but functional); and now allows skin
   switching (using a dialog instead of a dynamic menu).
 * Motif and Windows versions: implemented keyboard mapping. When Free42 is run,
-  it looks for $HOME/.free42/keymap (Motif) or <My Documents>\Free42\keymap.txt
+  it looks for $HOME/.free42/keymap (Motif) or "My Documents"\Free42\keymap.txt
   (Windows), and if it doesn't exist, it creates a new one, which provides
   mappings for all calculator keys and also contains comments explaining the
   keymap file format.
@@ -348,13 +348,13 @@
   last 'x' that was actually used.
 * Windows version: the Free42State.bin and Free42Print.bin files are now called
   state.bin and print.bin, respectively, and they're no longer stored in the
-  directory containing Free42.exe, but rather in <MYDOCUMENTS>\Free42 (this
+  directory containing Free42.exe, but rather in "My Documents"\Free42 (this
   directory is automagically created if necessary). Storing the state under
   My Documents means multiple users sharing one PC no longer share one Free42
   state.
 * Windows version: implemented pluggable skin support. Each skin consists of a
   pair of files, named <skinname>.layout and <skinname>.gif. Skins are loaded
-  from the <MYDOCUMENTS>\Free42 directory; this is also the directory where
+  from the "My Documents"\Free42 directory; this is also the directory where
   Free42 stores its persistent state, starting with this version.
 * In the "Standard" skin (Standard.gif), 10^X and E^X were swapped. Fixed now.
 * Motif version: three XtVaSetValues() calls were missing the final NULL

@@ -1,4 +1,6 @@
-If you are using Windows, put the skins in "My Documents"\Free42\
+If you are using Windows, put the skins in the Free42 directory ("My
+Documents"\Free42 by default, but its location can be changed in the
+Preferences dialog).
 If you are using Unix, put the skins in $HOME/.free42/
 
 -------------------------------------------------------------------------------
@@ -9,7 +11,7 @@ Non-comment lines contain the following information:
 
 (Note: the skin bitmap is assumed to have the same filename as the skin
 description, with the 'layout' extension replaced by 'gif'.)
-(Note: rectangles are given as "x,y,width,height"; coordinates are "x,y".)
+(Note: rectangles are given as "x,y,width,height"; points are "x,y".)
 
 Skin: the portion of the skin bitmap to be rendered as the actual faceplate
 Display: describes the location, size, and color of the display; arguments

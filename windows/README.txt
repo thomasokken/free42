@@ -11,14 +11,18 @@ Installing Free42:
 
 Copy Free42.exe to wherever you want it, e.g. create a directory "C:\Program
 Files\Free42" and put it there. When Free42 runs, it will create three
-additional files, in "My Documents"\Free42\ (this directory will be created if
-it does not already exist); the additional files are state.bin, print.bin, and
-keymap.txt, and they are used to store the calculator's internal state, the
-contents of the print-out window, and the PC keyboard map. Also, if you want to
-use a non-standard skin with Free42, this directory is where you have to store
-the skin's layout and bitmap files.
+additional files, in the Free42 directory (*) (this directory will be created
+if it does not already exist); the additional files are state.bin, print.bin,
+and keymap.txt, and they are used to store the calculator's internal state, the
+contents of the print-out window, and the PC keyboard map, respectively.
+Also, if you want to use a non-standard skin with Free42, the Free42 directory
+is where you have to store the skin's layout and bitmap files.
 For convenience, create a shortcut to Free42.exe and put it on the desktop or
 in the Start menu.
+(*) The Free42 directory is "My Documents"\Free42 by default, but you can
+change this in the Preferences dialog. If you select a different location, you
+must exit Free42, and then move the files from the old to the new Free42
+directory manually.
 
 
 Upgrading from Free42 version 1.1.14 or earlier:
@@ -40,8 +44,8 @@ old to the new Free42 directory.
 
 Uninstalling Free42:
 
-Remove Free42.exe, and "My Documents"\Free42\ and its contents, and any
-shortcuts you have created to point to Free42.exe.
+Remove Free42.exe, and the Free42 directory and its contents, and any shortcuts
+you have created to point to Free42.exe.
 
 
 Documentation
