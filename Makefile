@@ -30,6 +30,7 @@ MacDashboard: FORCE
 clean: FORCE
 	cd palmos && $(MAKE) clean
 	cd motif && $(MAKE) clean
+	cd MacDashboard && $(MAKE) clean
 	find . -name 'core.*' -exec rm -f {} \;
 
 FORCE:

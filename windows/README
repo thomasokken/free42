@@ -2,9 +2,9 @@ I developed the Windows shell for Free42 using Visual C++, running under
 Windows 98 SE, running under Win4Lin 3.0.
 Because I run Windows under Linux, I can use symlinks and keep all the common
 files in the 'common' directory. If you want to use these sources on a regular
-Windows installation, you should copy the files from 'common' to 'windows'; if
-you're using Win4Lin, you can use the 'make-symlinks' script to create all the
-required links.
+Windows installation, you should copy the files from 'common' to 'windows'
+using the copy-files script; if you're using Win4Lin, you can use the
+'make-symlinks' script to create all the required links.
 
 Note: the Free42 workspace contains three projects: Free42, keymap2cpp, and
 skin2cpp. Before building Free42, you must build keymap2cpp and skin2cpp and

@@ -4,7 +4,7 @@ Free42 is a free re-implementation of the HP-42S scientific programmable RPN
 calculator, which was made from 1988 until 1995 by Hewlett-Packard.
 Free42 is a complete rewrite and contains no HP code whatsoever.
 At this time, the author supports versions that run on PalmOS, Microsoft
-Windows, and Linux.
+Windows, and Unix.
 
 
 Installing Free42:
@@ -25,14 +25,11 @@ Remove free42 and the $HOME/.free42 directory and its contents.
 
 
 NOTE: The binary in this package was built on a PC running Fedora Core
-release 3, and it is dynamically linked against glibc version 2.3.3, libstdc++
-version 3.4.2, and Open Motif version 2.2.3. If your system has different
+release 3, and it is dynamically linked against glibc version 2.3.6, libstdc++
+version 3.4.4, and Open Motif version 2.2.3. If your system has different
 versions of these libraries, the binary in this package may not work. In this
 case, please download the Free42 source package and compile Free42 using your
 installation's own compiler and libraries.
-In the future, the author plans to provide binaries for more recent versions of
-Linux, but at present, he's worried that if he tries to upgrade his development
-system, everything will come crashing down around him. Stay tuned...
 
 
 Documentation

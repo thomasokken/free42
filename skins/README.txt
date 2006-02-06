@@ -1,5 +1,5 @@
 If you are using Windows, put the skins in "My Documents"\Free42\
-If you are using Linux, put the skins in $HOME/.free42/
+If you are using Unix, put the skins in $HOME/.free42/
 
 -------------------------------------------------------------------------------
 

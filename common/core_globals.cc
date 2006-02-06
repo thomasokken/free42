@@ -1940,7 +1940,7 @@ int load_state(int4 ver) {
 
     if (ver < 4) {
 	/* Before state file version 4, I used to save the BCD table in the
-	 * state file. As of state file version 4, the Linux and Windows
+	 * state file. As of state file version 4, the Unix and Windows
 	 * versions don't do that any more because they don't need to
 	 * (generating the table on startup is fast enough); the PalmOS version
 	 * now persists the BCD table in a database, which is faster because it
