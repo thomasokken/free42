@@ -553,17 +553,14 @@ void print_right(const char *left, int leftlen, const char *right, int rightlen)
 	    print_text(buf + line_start, width, 1);
 	    line_start += width;
 	}
-	if (len - line_start + 1 + rightlen <= width) {
-	    pad = width - (len - line_start) - rightlen;
-	    for (i = 0; i < pad; i++)
-		buf[len++] = ' ';
-	    for (i = 0; i < rightlen; i++)
-		buf[len++] = right[i];
-	    print_text(buf + line_start, len - line_start, 1);
-	} else {
-	    print_text(buf + line_start, len - line_start, 1);
-	    print_text(right, rightlen, 0);
-	}
+	pad = width - (len - line_start) - rightlen;
+	if (pad < 1)
+	    pad = 1;
+	for (i = 0; i < pad; i++)
+	    buf[len++] = ' ';
+	for (i = 0; i < rightlen; i++)
+	    buf[len++] = right[i];
+	print_lines(buf + line_start, len - line_start, 1);
     }
 }
 
