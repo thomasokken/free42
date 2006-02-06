@@ -87,3 +87,5 @@ Today if you want to load 41 modules programs, you need to go into a painful
 process using a 41 emulator: for each program you want, copy it into the
 main memory, export it in raw format, and load the .raw in Free42. Not really
 effective when you have tons of programs in a module.
+
+GTK version.
