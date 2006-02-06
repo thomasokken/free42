@@ -24,9 +24,9 @@ Key: describes a clickable key; arguments are: keycode, sensitive rectangle
   display rectangle, only its position, not its width and height, are
   specified).
   Keycodes in the range 1..37 correspond to actual calculator keys; keycodes
-  38..1023 can be used to define "macro" keys. For each such keycode, there
-  must be a corresponding "Macro:" line in the layout file.
-Macro: for keys with keycodes in the range 38..1023, this defines the sequence
+  38..255 can be used to define "macro" keys. For each such keycode, there must
+  be a corresponding "Macro:" line in the layout file.
+Macro: for keys with keycodes in the range 38..255, this defines the sequence
   of HP-42S keys (keycodes 1..37) that is to be pressed; arguments are:
   keycode, followed by zero or more keycodes in the range 1..37. See below for
   an example.

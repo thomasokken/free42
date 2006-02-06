@@ -234,7 +234,7 @@
   mapped to a calculator key for which multiple keys exist in the skin
   description, the first one is highlighted, instead of the last one.
 * Macro keys: in the *.layout files, it is now possible to define keys with
-  keycodes in the range 38..1023; these keys are mapped using "Macro:"
+  keycodes in the range 38..255; these keys are mapped using "Macro:"
   definitions in the same *.layout file. The macro is a sequence of zero or
   more standard key codes (1..37).
 * Windows & Motif versions: key mappings can now be defined in the skin *.layout

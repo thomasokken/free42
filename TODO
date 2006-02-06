@@ -4,6 +4,9 @@ maximize the area to hit with the mouse or pen; this reduces the need for
 accurate pointing and thereby reduces stress on the user's arm. A pain to do,
 because skin editing is so tedious, but it would be a good thing to help free
 the world from RSI.
+Hint: write a perl script that expands the sensitive rectangles automatically,
+and add it to the skins directory. It is bound to come in handy again in the
+future.
 
 Import/export of variables.
 
