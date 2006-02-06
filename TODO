@@ -1,4 +1,4 @@
-Alan Arndt (aga at jlw dot com), 8/11/2005:
+Alan Arndt, 8/11/2005:
 Skins should have sensitive rectangles that are as large as possible, to
 maximize the area to hit with the mouse or pen; this reduces the need for
 accurate pointing and thereby reduces stress on the user's arm. A pain to do,
@@ -72,7 +72,7 @@ would not alter numbers already in rectangular form when converting all to
 rectangular, and would not alter numbers already in polar form when converting
 to polar.
 
-Vincent Weber (viweber at bluewin dot ch), 12/21/2005:
+Vincent Weber, 12/21/2005:
 One thing I thought would be great for Free42 is the ability to load 41 modules
 in .MOD or .ROM format; not the machine-code stuff that is irrelevant to
 the 42 (CCD, Advantage, Hepax, AEC, PPC...), but the PURE RPN modules, such
