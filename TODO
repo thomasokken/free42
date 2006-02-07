@@ -12,24 +12,30 @@ is PalmOS itself to blame?
 PalmOS version: support dynamic screen size changes (dynamic input area;
 portrait/landscape mode switching). The tricky bit: storing the currenly
 selected skin will no longer be a simple matter of keeping track of one skin
-name; I'll have to keep track of a list of name/resolution pairs.
+name; I'll have to keep track of a list of name/resolution pairs, and the skin
+size (in pixels) has to be added to the skin resource format -- and the Skin
+menu has to be dynamically updated so it only shows skins that are usable at
+the current screen size.
 
 Get a PayPal account to accept donations. :-)
 
 =============================== And *maybe*... ================================
 
-Vincent Weber, 12/21/2005:
-One thing I thought would be great for Free42 is the ability to load 41 modules
-in .MOD or .ROM format; not the machine-code stuff that is irrelevant to
-the 42 (CCD, Advantage, Hepax, AEC, PPC...), but the PURE RPN modules, such
-as Financial, Securites, Aviation, etc. For ease of use, this would require
-maybe to expand the 42 to support directories and associated commands (MKDIR,
-RMDIR, UPDIR,...) which is also good to organize stuff in an already much
-improved 42 with I/O and loads of memory...
-Today if you want to load 41 modules programs, you need to go into a painful
-process using a 41 emulator: for each program you want, copy it into the
-main memory, export it in raw format, and load the .raw in Free42. Not really
-effective when you have tons of programs in a module.
+HP-41 module support. Should be able to read ROM files, and maybe also MOD;
+should extract user code and warn if it encounters mcode. It would be nice to
+group module programs in directories, to prevent the PGM catalog from becoming
+hopelessly cluttered. (Arguably Free42 needs directories anyway, what with it
+having basically limitless memory...)
+(Requested by Vincent Weber, 12/21/2005)
+Additional thoughts by ThO:
+This is not an easy feature to implement, and adding directories is going to be
+a real nightmare. As a temporary fix, to at least take most of the pain out of
+transferring modules to Free42, I could write a separate MOD-to-raw conversion
+program. This converter should extract user code, warn if it finds mcode, warn
+if the user code calls the mcode, and convert all XROMs that call user code
+from the same module (and warn about XROMs that call other modules, but not
+about XROMs that Free42 recognizes, like XROM 29,20 (PRX), XROM 24,49 (AIP),
+etc.).
 
 Auto-repeat: for keys where the usual holding-down behavior isn't needed
 (number keys, backspace, etc.) it might be nice to support auto-repeat.
@@ -40,45 +46,25 @@ TODO list so that people are aware that I am aware of these requests. :-)
 
 GTK version.
 
-Jeff O., 1/28/2005:
-Basically, I would like to enhance the way complex numbers are entered,
-displayed, and converted back and forth between rectangular and polar form. To
-make entry more natural, I propose that a key labelled "i" be included on the
-keyboard. This would be the label on the face of the key for the primary
-function, not a shifted function. When entering a complex number in
-rectangular form, one would merely key in the real part, then press "i" to
-terminate entry of the real part and begin entering the imaginary part. When
-done, you would press enter or any other operation as usual after keying in
-any number. Both the real and imaginary parts of the number would be displayed
-on one line in the display in the same way the 42S does it (NOT the way the
-28, 48 and 49 display complex numbers). To key in a number in polar form, one
-would not need to switch to polar display mode. Either there would be a
-separate key, or the "i" key would have a shifted function, labelled with the
-angle symbol. To enter a number in polar form, you would merely enter the
-magnitude, then press the angle key (or shift "i"), then enter the angle. The
-number would be displayed on one line in the display in polar form, again
-exactly as the 42S does. Complex numbers in rectangular form and complex
-numbers in polar form would be allowed to exist in the stack and/or any memory
-registers at the same time. You could key in a rectangular form number, press
-enter, key in a polar form number, press multiply, divide, etc. and get your
-answer immediately with no worry about being in polar display mode or
-rectangular display mode. The answer would by default be displayed in the
-format of the number in the X register. As I see things, there would be no
-real need for "polar" or "rectangular" display modes. There should be keys
-with rectangular to polar and polar to rectangular conversion functions.
-(Please label them as ->R and ->P, not the ->phi,r and ->y,x labelling of the
-33S.) These keys would function as they do on the 42S. If the displayed number
-is complex and displayed in polar form and you press the ->R key, it takes the
-two components, treats them as magnitude and angle and converts and displays
-them in rectangular form. If the displayed number is complex and displayed in
-rectangular form and you press the ->P key, it takes the two components,
-treats them as real and imaginary components and converts and displays them in
-polar form. (If you try to convert a polar form number to polar form or
-convert a rectangular form number to rectangular form, nothing would happen.)
-If the X-register contains a real number, it takes the numbers in the X and Y
-registers and converts and displays them accordingly. In a complex functions
-menu, there would be a global command to convert all numbers currently stored
-in the calculator to either polar or rectangular display. In this case, it
-would not alter numbers already in rectangular form when converting all to
-rectangular, and would not alter numbers already in polar form when converting
-to polar.
+Alternative forms of complex number entry and display: in addition to the
+COMPLEX command, there should be ways to enter complex numbers in rectangular
+or polar format *regardless* of the setting of flag 73. When numbers are
+entered using those new commands (let's call them R.CPX and P.CPX for the sake
+of discussion), the rect/polar display mode should "stick" to them, so they
+will keep being displayed the same way even if flag 73 is toggled. Three
+additional commands are needed to change a number's sticky mode (or maybe just
+two; a number can always be forced back to "classic" behavior by doing COMPLEX
+COMPLEX).
+(Requested by Jeff O., 1/28/2005)
+Additional thoughts by ThO:
+Note that the "sticky" display mode could potentially break existing programs,
+so it should be optional. Also, it is a LOT of work to implement, because the
+complex data type has to be changed, and all the code that handles complex
+numbers -- that's hundreds of code changes throughout the emulator core.
+As an alternative, consider a partial implementation, where we add only the
+R.CPX and P.CPX commands (plus possibly SHOW POLAR and SHOW RECT commands so
+the user can view numbers in the format of their choice without having to
+switch modes). Note: after entering a number, it should be displayed in the
+format the user entered it in, for a second or two, before reverting to the
+format specified by flag 73 -- in other words, when using R.CPX in POLAR mode,
+or P.CPX in RECT mode, automatically do a SHOW RECT or SHOW POLAR as well.
