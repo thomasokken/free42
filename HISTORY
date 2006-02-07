@@ -1,3 +1,20 @@
+??-??-????: version 1.3.16
+
+* A few obscure printing fixes (PRX now prints complex scalars left-justified
+  if they do not fit on one line; the same now happens for command printing in
+  NORM and TRACE modes).
+* Modified all skins so all the sensitive rectangles are now as large as
+  possible, making keys easier to hit with the mouse. (The sensitive rectangle
+  for a key is the area on the screen where a mouse click will cause the key to
+  be pressed; in several skins this area was the size of the keys themselves,
+  but after this modification, the area extends several pixels beyond the keys,
+  meaning you can be a bit sloppier now, which is good because it reduces
+  strain on the arm muscles and tendons.)
+  I did not change the Semi-Auto skins yet, because my automatic rectangle-
+  stretching program only handles 37-key layouts. Fortunately, the Semi-Auto
+  skins already have large sensitive rectangles, which cannot be enlarged
+  much further anyway. (I know, lame excuse!)
+
 06-02-2006: version 1.3.15
 
 * The PRX command no longer prints three asterisks when printing a complex
