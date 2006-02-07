@@ -1,13 +1,7 @@
-Import/export of variables.
-
-Plain-text program import/export.
+Write stand-alone MOD-to-raw converter for importing HP-41 modules, in lieu of
+a full-blown integrated module import facility (see below).
 
 Pocket PC version.
-
-PalmOS version: repainting the display, when using high-resolution skins on
-the Tungsten E, is slow. I should profile this; is my code for constructing
-high-resolution bitmaps inefficient, or am I using the wrong PalmOS calls, or
-is PalmOS itself to blame?
 
 PalmOS version: support dynamic screen size changes (dynamic input area;
 portrait/landscape mode switching). The tricky bit: storing the currenly
@@ -16,6 +10,11 @@ name; I'll have to keep track of a list of name/resolution pairs, and the skin
 size (in pixels) has to be added to the skin resource format -- and the Skin
 menu has to be dynamically updated so it only shows skins that are usable at
 the current screen size.
+
+PalmOS version: repainting the display, when using high-resolution skins on
+the Tungsten E, is slow. I should profile this; is my code for constructing
+high-resolution bitmaps inefficient, or am I using the wrong PalmOS calls, or
+is PalmOS itself to blame?
 
 Get a PayPal account to accept donations. :-)
 
@@ -45,6 +44,10 @@ up; I'm not committing to those features but I decided to put them back in the
 TODO list so that people are aware that I am aware of these requests. :-)
 
 GTK version.
+
+Plain-text program import/export.
+
+Import/export of variables.
 
 Alternative forms of complex number entry and display: in addition to the
 COMPLEX command, there should be ways to enter complex numbers in rectangular
