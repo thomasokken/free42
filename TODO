@@ -18,9 +18,27 @@ Get a PayPal account to accept donations. :-)
 
 =============================== And *maybe*... ================================
 
+Vincent Weber, 12/21/2005:
+One thing I thought would be great for Free42 is the ability to load 41 modules
+in .MOD or .ROM format; not the machine-code stuff that is irrelevant to
+the 42 (CCD, Advantage, Hepax, AEC, PPC...), but the PURE RPN modules, such
+as Financial, Securites, Aviation, etc. For ease of use, this would require
+maybe to expand the 42 to support directories and associated commands (MKDIR,
+RMDIR, UPDIR,...) which is also good to organize stuff in an already much
+improved 42 with I/O and loads of memory...
+Today if you want to load 41 modules programs, you need to go into a painful
+process using a 41 emulator: for each program you want, copy it into the
+main memory, export it in raw format, and load the .raw in Free42. Not really
+effective when you have tons of programs in a module.
+
+Auto-repeat: for keys where the usual holding-down behavior isn't needed
+(number keys, backspace, etc.) it might be nice to support auto-repeat.
+
 The requests for fractions, equations, and decimal floating point keep cropping
 up; I'm not committing to those features but I decided to put them back in the
 TODO list so that people are aware that I am aware of these requests. :-)
+
+GTK version.
 
 Jeff O., 1/28/2005:
 Basically, I would like to enhance the way complex numbers are entered,
@@ -64,18 +82,3 @@ in the calculator to either polar or rectangular display. In this case, it
 would not alter numbers already in rectangular form when converting all to
 rectangular, and would not alter numbers already in polar form when converting
 to polar.
-
-Vincent Weber, 12/21/2005:
-One thing I thought would be great for Free42 is the ability to load 41 modules
-in .MOD or .ROM format; not the machine-code stuff that is irrelevant to
-the 42 (CCD, Advantage, Hepax, AEC, PPC...), but the PURE RPN modules, such
-as Financial, Securites, Aviation, etc. For ease of use, this would require
-maybe to expand the 42 to support directories and associated commands (MKDIR,
-RMDIR, UPDIR,...) which is also good to organize stuff in an already much
-improved 42 with I/O and loads of memory...
-Today if you want to load 41 modules programs, you need to go into a painful
-process using a 41 emulator: for each program you want, copy it into the
-main memory, export it in raw format, and load the .raw in Free42. Not really
-effective when you have tons of programs in a module.
-
-GTK version.
