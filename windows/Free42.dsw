@@ -15,7 +15,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "skin2cpp"=.\skin2cpp.dsp - Package Owner=<4>
+Project: "keymap2cpp"=.\keymap2cpp.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -27,7 +27,19 @@ Package=<4>
 
 ###############################################################################
 
-Project: "keymap2cpp"=.\keymap2cpp.dsp - Package Owner=<4>
+Project: "rom2raw"=.\rom2raw.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "skin2cpp"=.\skin2cpp.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

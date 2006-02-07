@@ -37,3 +37,4 @@ ln -s ../common/shell_spool.h
 ln -s ../common/skin2cc.cc skin2cpp.cpp
 ln -s ../common/skin2cc.conf skin2cpp.conf
 ln -s ../common/keymap2cc.cc keymap2cpp.cpp
+ln -s ../util/rom2raw.c

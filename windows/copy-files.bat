@@ -35,3 +35,4 @@ copy ..\common\shell_spool.h .
 copy ..\common\skin2cc.cc skin2cpp.cpp
 copy ..\common\skin2cc.conf skin2cpp.conf
 copy ..\common\keymap2cc.cc keymap2cpp.cpp
+copy ..\util\rom2raw.c .
