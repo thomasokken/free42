@@ -318,8 +318,8 @@ int main(int argc, char *argv[]) {
 	getname(rom_name, pos);
 
     if (outfile_name[0] == 0) {
-	p = 0;
 	unsigned char ch;
+	p = 0;
 	do {
 	    ch = rom_name[p];
 	    if (ch == ' ' || ch == '/' || ch == '\\')
