@@ -30,6 +30,7 @@
 #include "shell_skin.h"
 #include "shell_loadimage.h"
 #include "shell_main.h"
+#include "core_main.h"
 
 
 /**************************/
@@ -1017,7 +1018,8 @@ void skin_repaint_annunciator(int which, int state) {
 
 void skin_find_key(int x, int y, int *skey, int *ckey) {
     int i;
-    if (x >= display_loc.x
+    if (core_menu()
+	    && x >= display_loc.x
 	    && x < display_loc.x + 131 * display_scale.x
 	    && y >= display_loc.y + 9 * display_scale.y
 	    && y < display_loc.y + 16 * display_scale.y) {

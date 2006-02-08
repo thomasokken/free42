@@ -1,6 +1,3 @@
-Write stand-alone MOD-to-raw converter for importing HP-41 modules, in lieu of
-a full-blown integrated module import facility (see below).
-
 Pocket PC version.
 
 PalmOS version: support dynamic screen size changes (dynamic input area;
@@ -20,21 +17,15 @@ Get a PayPal account to accept donations. :-)
 
 =============================== And *maybe*... ================================
 
-HP-41 module support. Should be able to read ROM files, and maybe also MOD;
-should extract user code and warn if it encounters mcode. It would be nice to
-group module programs in directories, to prevent the PGM catalog from becoming
-hopelessly cluttered. (Arguably Free42 needs directories anyway, what with it
-having basically limitless memory...)
+HP-41 module support. Should be able to read ROM files, and maybe also MOD.
 (Requested by Vincent Weber, 12/21/2005)
 Additional thoughts by ThO:
-This is not an easy feature to implement, and adding directories is going to be
-a real nightmare. As a temporary fix, to at least take most of the pain out of
-transferring modules to Free42, I could write a separate MOD-to-raw conversion
-program. This converter should extract user code, warn if it finds mcode, warn
-if the user code calls the mcode, and convert all XROMs that call user code
-from the same module (and warn about XROMs that call other modules, but not
-about XROMs that Free42 recognizes, like XROM 29,20 (PRX), XROM 24,49 (AIP),
-etc.).
+The basic functionality of extracting user code from module ROM images is
+already provided by the rom2raw program, but of course it would be nice to
+integrate this into Free42 itself. However, in order to prevent the PGM catalog
+from getting hopelessly cluttered, Free42 really should support directories.
+If HP could add directories to the 28C to support the extra memory of the 28S,
+surely I can do the same here -- and Free42 needs it even more than the 28S...
 
 Auto-repeat: for keys where the usual holding-down behavior isn't needed
 (number keys, backspace, etc.) it might be nice to support auto-repeat.

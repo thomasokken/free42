@@ -16,7 +16,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *****************************************************************************/
 
-/* TODO: String translations (e.g. Sigma is 126 on the 41, but 5 on the 42S. */
+/* TODO: Detect synthetic instructions, e.g. STO M etc.; if ignored, they
+ * will either become valid HP-42S instructions that don't do what the
+ * original code expects (e.g. STO 117), or they will get dropped (Free42)
+ * or may cause the calculator to choke (Emu42).
+ * TODO: When displaying strings to the user, do 42S->ASCII translation.
+ */
 
 #include <stdio.h>
 #include <string.h>
@@ -181,6 +186,8 @@ xrom_spec hp42s_xroms[] = {
     /* sentinel */      -1, 0, NULL
 };
 
+char *fallback_argv[] = { "foo", "-", NULL };
+
 int entry[1024], entry_index[1024], mach_entry[1024];
 int rom[65536], rom_size;
 int pages, rom_number[16], num_func[16];
@@ -191,11 +198,27 @@ int entry_index_compar(const void *ap, const void *bp) {
     return entry[a] - entry[b];
 }
 
-char *fallback_argv[] = { "foo", "-", NULL };
+unsigned char chartrans[] = {
+    31, 31, 31, 16, 31, 31, 31, 14, 31, 31, 31, 31, 17, 23, 31, 31,
+    31, 31, 38, 20, 20, 22, 22, 28, 28, 29, 29, 25, 25, 12, 18, 30,
+    32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
+    48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
+    64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
+    80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95,
+    96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111,
+    112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 7, 124, 15, 5, 127
+};
+
+void string_convert(int len, unsigned char *s) {
+    int i;
+    for (i = 0; i < len; i++)
+	s[i] = chartrans[s[i] & 127];
+}
 
 void getname(char *dest, int src, int space_to_underscore) {
     int c;
-	char k;
+    char k;
+    char *d = dest;
     do {
 	c = rom[--src];
 	k = c & 127;
@@ -203,9 +226,10 @@ void getname(char *dest, int src, int space_to_underscore) {
 	    k += 64;
 	if (k == ' ' && space_to_underscore)
 	    k = '_';
-	*dest++ = k;
-    } while ((c & 128) == 0);
-    *dest = 0;
+	*d++ = k;
+    } while ((c & 128) == 0 && src > 0);
+    *d = 0;
+    string_convert(strlen(dest), dest);
 }
 
 int xrom2index(int modnum, int funcnum) {
@@ -313,7 +337,7 @@ int main(int argc, char *argv[]) {
 		    e -= 0x10000;
 		e += page_base;
 		if (mcode) {
-		    if (e >= rom_size) {
+		    if (e < 0 || e >= rom_size) {
 			printf("Bad machine code entry point for "
 				"XROM %02d,%02d: 0x%03X.\n",
 				rom_number[p], f, e);
@@ -346,6 +370,7 @@ int main(int argc, char *argv[]) {
 			for (i = 0; i < (rom[e + 2] & 15) - 1; i++)
 			    buf[i] = rom[e + 4 + i];
 			buf[i] = 0;
+			string_convert(i, buf);
 			printf("XROM %02d,%02d: user code \"%s\"\n",
 						    rom_number[p], f, buf);
 		    }
@@ -393,7 +418,10 @@ int main(int argc, char *argv[]) {
 		    instr[i++] = c & 255;
 		} while ((c & 512) == 0 && (rom[pos] & 256) == 0);
 		k = instr[0];
-		if (k >= 0xB1 && k <= 0xBF) {
+		if (k >= 0x1D && k <= 0x1F) {
+		    /* GTO/XEQ/W <alpha> */
+		    string_convert(instr[1] & 15, instr + 2);
+		} else if (k >= 0xB1 && k <= 0xBF) {
 		    /* Short-form GTO; wipe out offset (second byte) */
 		    instr[1] = 0;
 		} else if (k >= 0xC0 && k <= 0xCD) {
@@ -405,6 +433,8 @@ int main(int argc, char *argv[]) {
 		    if (instr[2] < 0xF1)
 			/* END */
 			instr[2] = 0x0D;
+		    else
+			string_convert((instr[2] & 15) - 1, instr + 4);
 		} else if (k >= 0xD0 && k <= 0xEF) {
 		    /* Long-form GTO, and XEQ: wipe out offset
 		     * (low nybble of 1st byte + all of 2nd byte)
@@ -436,6 +466,7 @@ int main(int argc, char *argv[]) {
 			    for (i = 0; i < len; i++)
 				instr[i + 2] = rom[entry[idx] + 4 + i];
 			    i = len + 2;
+			    string_convert(len, instr + 2);
 			}
 		    } else {
 			/* Nonlocal XROM;
@@ -443,6 +474,8 @@ int main(int argc, char *argv[]) {
 			 */
 			used_xrom[num] = 2;
 		    }
+		} else if (k > 0xF0) {
+		    string_convert(k & 15, instr + 1);
 		}
 		for (j = 0; j < i; j++)
 		    fputc(instr[j], out);

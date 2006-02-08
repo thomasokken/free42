@@ -88,6 +88,10 @@ void core_quit() {
     release_bcd_table();
 }
 
+int core_menu() {
+    return get_front_menu() != NULL;
+}
+
 int core_alpha_menu() {
     int *menu = get_front_menu();
     return menu != NULL && *menu >= MENU_ALPHA1 && *menu <= MENU_ALPHA_MISC2;

@@ -1,3 +1,19 @@
+??-??-????: version 1.3.17
+
+* Clicking in the display now only activates softkeys if a menu is active. This
+  means that programs that "fake" menus by painting in the display and calling
+  GETKEY are no longer supported -- but then again, you can still use the top
+  six keys of the keyboard in that case, and for all I know there is only one
+  program on the whole planet that actually does a fake menu (hi Erik :-) ).
+* Added rom2raw.c to the source tree. This is a program that extracts user code
+  from *.ROM format HP-41 module images; it converts XROM calls to user code
+  within the same module to XEQ, and warns about all other XROMs (except the
+  ones that correspond to HP-42S instructions). At some point it would be nice
+  to integrate module support into Free42 itself; meanwhile here's hoping this
+  will also be useful. I'll put it on my web page as a separate download,
+  complete with a ready-to-run Windows executable, once I iron out the
+  wrinkles.
+
 07-02-2006: version 1.3.16
 
 * A few obscure printing fixes (PRX now prints complex scalars left-justified

@@ -1195,7 +1195,8 @@ Boolean calcgadget_handler(struct FormGadgetTypeInCallback *gadgetP,
 		    y <<= 1;
 		}
 
-		if (x >= skin->display_x
+		if (core_menu()
+			&& x >= skin->display_x
 			&& x < skin->display_x + 131 * skin->display_xscale
 			&& y >= skin->display_y + 9 * skin->display_yscale
 			&& y < skin->display_y + 16 * skin->display_yscale) {

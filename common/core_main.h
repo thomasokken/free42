@@ -46,6 +46,14 @@ void core_init(int read_state, int4 version) MAIN_SECT;
  */
 void core_quit() MAIN_SECT;
 
+/* core_menu()
+ *
+ * The shell uses this function to check if a menu is active. This affects
+ * whether or not clicking in the display, to activate menu keys, is
+ * enabled.
+ */
+int core_menu() MAIN_SECT;
+
 /* core_alpha_menu()
  *
  * The shell uses this function to check if the core is in "alpha" mode (i.e.
