@@ -517,8 +517,6 @@ int main(int argc, char *argv[]) {
 	if (j != 0)
 	    printf("Because of these XROM calls, "
 		    "the converted user code may not work.\n");
-
-	end_file_loop:;
     }
 
     return 0;
