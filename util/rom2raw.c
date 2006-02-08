@@ -16,11 +16,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *****************************************************************************/
 
-/* TODO: Detect synthetic instructions, e.g. STO M etc.; if ignored, they
- * will either become valid HP-42S instructions that don't do what the
- * original code expects (e.g. STO 117), or they will get dropped (Free42)
- * or may cause the calculator to choke (Emu42).
- * TODO: When displaying strings to the user, do 42S->ASCII translation.
+/* TODO:
+ * When displaying strings to the user, do 42S->ASCII translation.
+ * Add -l (list) option, which prints a 42S-style program listing of all
+ * converted code. This listing should show synthetic instructions properly
+ * (e.g., STO M, not STO 117), and clearly highlight all problematic
+ * instructions (synthetics, local mcode XROMs, and nonlocal, non-42S XROMs).
  */
 
 #include <stdio.h>
@@ -249,7 +250,8 @@ int main(int argc, char *argv[]) {
     unsigned char rom_name[256], buf[256], outfile_name[256] = "";
     int f, e, i, j, p, total_func;
     int used_xrom[2048];
-    int machine_code_warning;
+    int machine_code_warning = 0;
+    int synthetic_code_warning = 0;
     int show_help = 0;
 
     char **argv2 = (char **) malloc(argc * sizeof(char *));
@@ -336,7 +338,6 @@ int main(int argc, char *argv[]) {
     printf("ROM Size: %d (0x%03X), %d page%s\n",
 			    rom_size, rom_size, pages, pages == 1 ? "" : "s");
 
-    machine_code_warning = 0;
     total_func = 0;
 
     for (p = 0; p < pages; p++) {
@@ -436,7 +437,7 @@ int main(int argc, char *argv[]) {
     pos = 0;
     while (f < total_func) {
 	unsigned char instr[16];
-	int c, k;
+	int c, k, a;
 	if (entry[entry_index[f]] < pos) {
 	    f++;
 	    continue;
@@ -449,29 +450,78 @@ int main(int argc, char *argv[]) {
 		instr[i++] = c & 255;
 	    } while ((c & 512) == 0 && (rom[pos] & 256) == 0);
 	    k = instr[0];
+	    a = instr[1];
 	    if (k >= 0x1D && k <= 0x1F) {
 		/* GTO/XEQ/W <alpha> */
 		string_convert(instr[1] & 15, instr + 2);
+		if (k == 0x1F || instr[1] < 0xF1 || instr[1] > 0xF7)
+		    /* W instr, or bad label length */
+		    synthetic_code_warning = 1;
+	    } else if (k >= 0x90 && k <= 0x98
+		    || k == 0x9A || k == 0x9B || k == 0xAE) {
+		/* RCL, STO, STO+, STO-, STO*, STO/, ISG, DSE, VIEW,
+		 * ASTO, ARCL, GTO/XEQ IND
+		 */
+		a &= 127;
+		if (a > 99 && a < 112 || a > 116)
+		    /* Argument is not 00-99, stack, IND 00-99, or IND stack */
+		    synthetic_code_warning = 1;
+	    } else if (k == 0x99) {
+		/* SigmaREG */
+		if (a > 99 && a < 128 || a > 227 && a < 240 || a > 244)
+		    /* Argument is not 00-99, IND 00-99, or IND stack */
+		    synthetic_code_warning = 1;
+	    } else if (k >= 0x9C && k <= 0x9F) {
+		/* FIX, SCI, ENG, TONE */
+		if (a > 9 && a < 128 || a > 227 && a < 240 || a > 244)
+		    /* Argument is not 0-9, IND 00-99, or IND stack */
+		    synthetic_code_warning = 1;
+	    } else if (k >= 0xA8 && k <= 0xAB) {
+		/* SF, CF, FS?C, FC?C */
+		if (a > 29 && a < 128 || a > 227 && a < 240 || a > 244)
+		    /* Argument is not 00-29, IND 00-99, or IND stack */
+		    synthetic_code_warning = 1;
+	    } else if (k == 0xAC || k == 0xAD) {
+		/* FS?, FC? */
+		if (a > 55 && a < 128 || a > 227 && a < 240 || a > 244)
+		    /* Argument is not 00-55, IND 00-99, or IND stack */
+		    synthetic_code_warning = 1;
+	    } else if (k == 0xAF || k == 0xB0) {
+		/* SPARE1, SPARE2 */
+		synthetic_code_warning = 1;
 	    } else if (k >= 0xB1 && k <= 0xBF) {
 		/* Short-form GTO; wipe out offset (second byte) */
 		instr[1] = 0;
 	    } else if (k >= 0xC0 && k <= 0xCD) {
 		/* Global; wipe out offset
-		    * (low nybble of 1st byte + all of 2nd byte)
-		    */
+		 * (low nybble of 1st byte + all of 2nd byte)
+		 */
 		instr[0] &= 0xF0;
 		instr[1] = 0;
 		if (instr[2] < 0xF1)
 		    /* END */
 		    instr[2] = 0x0D;
-		else
+		else {
 		    string_convert((instr[2] & 15) - 1, instr + 4);
+		    if (instr[2] > 0xF8)
+			/* bad label length */
+			synthetic_code_warning = 1;
+		}
 	    } else if (k >= 0xD0 && k <= 0xEF) {
 		/* Long-form GTO, and XEQ: wipe out offset
-		    * (low nybble of 1st byte + all of 2nd byte)
-		    */
+		 * (low nybble of 1st byte + all of 2nd byte)
+		 * Also wipe out bit 7 of byte 2. I don't know why it
+		 * should ever be set, but it happens.
+		 */
 		instr[0] &= 0xF0;
 		instr[1] = 0;
+		instr[2] &= 0x7F;
+		a = instr[2];
+		if (a > 99 && a < 102 || a > 111 && a < 123
+			|| a > 227 && a < 240 || a > 244)
+		    /* Argument is not 00-99, A-J, a-e,
+		     * IND 00-99, or IND stack */
+		    synthetic_code_warning = 1;
 	    } else if (k >= 0xA0 && k <= 0xA7) {
 		/* XROM */
 		int num = ((k & 7) << 8) | instr[1];
@@ -501,10 +551,13 @@ int main(int argc, char *argv[]) {
 		    }
 		} else {
 		    /* Nonlocal XROM;
-			* we'll separate the HP-42S XROMs out later
-			*/
+		     * we'll separate the HP-42S XROMs out later
+		     */
 		    used_xrom[num] = 2;
 		}
+	    } else if (k == 0xF0) {
+		/* zero-length string */
+		synthetic_code_warning = 1;
 	    } else if (k > 0xF0) {
 		string_convert(k & 15, instr + 1);
 	    }
@@ -516,9 +569,9 @@ int main(int argc, char *argv[]) {
     fclose(out);
 
     /* Don't complain about XROMs that match HP-42S instructions
-	* if those are indeed the same instructions as in the corresponding
-	* HP-41 ROMs; complain about all the others.
-	*/
+     * if those are indeed the same instructions as in the corresponding
+     * HP-41 ROMs; complain about all the others.
+     */
     for (i = 0; hp42s_xroms[i].number != -1; i++) {
 	if (hp42s_xroms[i].allow)
 	    used_xrom[hp42s_xroms[i].number] = 0;
@@ -581,6 +634,9 @@ int main(int argc, char *argv[]) {
     if (j != 0)
 	printf("Because of these XROM calls, "
 		"the converted user code may not work.\n");
+    if (synthetic_code_warning)
+	printf("\nWarning: this ROM contains synthetic code; "
+		"this code will probably fail on a HP-42S.\n");
     printf("\n");
 
     return 0;
