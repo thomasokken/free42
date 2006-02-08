@@ -186,11 +186,10 @@ xrom_spec hp42s_xroms[] = {
     /* sentinel */      -1, 0, NULL
 };
 
-char *fallback_argv[] = { "foo", "-", NULL };
-
 int entry[1024], entry_index[1024], mach_entry[1024];
 int rom[65536], rom_size;
 int pages, rom_number[16], num_func[16];
+int convert_strings = 1;
 
 int entry_index_compar(const void *ap, const void *bp) {
     int a = *((int *) ap);
@@ -211,11 +210,13 @@ unsigned char chartrans[] = {
 
 void string_convert(int len, unsigned char *s) {
     int i;
+    if (!convert_strings)
+	return;
     for (i = 0; i < len; i++)
 	s[i] = chartrans[s[i] & 127];
 }
 
-void getname(char *dest, int src, int space_to_underscore) {
+void getname(char *dest, int src) {
     int c;
     char k;
     char *d = dest;
@@ -224,8 +225,6 @@ void getname(char *dest, int src, int space_to_underscore) {
 	k = c & 127;
 	if (k >= 0 && k <= 31)
 	    k += 64;
-	if (k == ' ' && space_to_underscore)
-	    k = '_';
 	*d++ = k;
     } while ((c & 128) == 0 && src > 0);
     *d = 0;
@@ -247,32 +246,54 @@ int main(int argc, char *argv[]) {
     int argnum;
     FILE *in, *out;
     int pos;
-    char rom_name[256], buf[256];
+    unsigned char rom_name[256], buf[256], outfile_name[256] = "";
     int f, e, i, j, p, total_func;
     int used_xrom[2048];
     int machine_code_warning;
+    int show_help = 0;
 
-    if (argc == 1) {
-	argc = 2;
-	argv = fallback_argv;
+    char **argv2 = (char **) malloc(argc * sizeof(char *));
+    int argc2 = 0;
+
+    for (i = 1; i < argc; i++) {
+	if (strcmp(argv[i], "-s") == 0)
+	    convert_strings = 0;
+	else if (strcmp(argv[i], "-o") == 0) {
+	    if (i + 1 < argc)
+		strcpy(outfile_name, argv[++i]);
+	} else if (strcmp(argv[i], "-h") == 0)
+	    show_help = 1;
+	else
+	    argv2[argc2++] = argv[i];
     }
 
-    for (argnum = 1; argnum < argc; argnum++) {
-	printf("\n");
-	if (strcmp(argv[argnum], "-") != 0) {
-	    in = fopen(argv[argnum], "rb");
-	    if (in == NULL) {
-		int err = errno;
-		printf("Can't open \"%s\" for reading: %s (%d)\n",
-					    argv[argnum], strerror(err), err);
-		continue;
-	    }
-	} else
-	    in = stdin;
+    if (show_help || argc2 == 0) {
+	printf(
+"Usage: rom2raw [-o outputfile] [-s] [-h] inputfiles...\n"
+"    All input files are concatenated and treated as a single ROM image,\n"
+"    to facilitate working with multi-page ROMs. To process multiple ROMs,\n"
+"    you must run rom2raw once for each ROM.\n"
+"    If the -o option is omitted, the ROM name from the image will be used.\n"
+"    The -s option disables HP-41 => HP-42S character code translation.\n"
+"    The -h option shows this message.\n");
+	exit(0);
+    }
 
-	printf("Input file: %s\n", argv[argnum]);
+    rom_size = 0;
 
-	rom_size = 0;
+    printf("Input file%s:", argc2 == 1 ? "" : "s");
+    for (argnum = 0; argnum < argc2; argnum++)
+	printf(" %s", argv2[argnum]);
+    printf("\n");
+
+    for (argnum = 0; argnum < argc2; argnum++) {
+	in = fopen(argv2[argnum], "rb");
+	if (in == NULL) {
+	    int err = errno;
+	    printf("Can't open \"%s\" for reading: %s (%d)\n",
+					    argv2[argnum], strerror(err), err);
+	    exit(1);
+	}
 	while (rom_size < 65536) {
 	    int c1, c2;
 	    c1 = fgetc(in);
@@ -283,274 +304,284 @@ int main(int argc, char *argv[]) {
 		break;
 	    rom[rom_size++] = (c1 << 8) | c2;
 	}
-	if (strcmp(argv[argnum], "-") != 0)
-	    fclose(in);
+	fclose(in);
+    }
 
-	num_func[0] = rom[1] - 1;
-	if (num_func[0] == 0 || num_func[0] > 63)
-	    num_func[0] = 63;
+    num_func[0] = rom[1] - 1;
+    if (num_func[0] == 0 || num_func[0] > 63)
+	num_func[0] = 63;
 
-	pos = ((rom[2] & 255) << 8) | (rom[3] & 255);
-	if (pos <= num_func[0] * 2 + 2 || pos >= rom_size) {
-	    printf("Bad offset to ROM name (%d, rom size = %d), "
-			    "using \"foo\" instead.\n", pos, rom_size);
-	    strcpy(rom_name, "foo");
+    pos = ((rom[2] & 255) << 8) | (rom[3] & 255);
+    if (pos <= num_func[0] * 2 + 2 || pos >= rom_size)
+	printf("Bad offset to ROM name (%d, rom size = %d)\n", pos, rom_size);
+    else
+	getname(rom_name, pos);
+
+    if (outfile_name[0] == 0) {
+	p = 0;
+	unsigned char ch;
+	do {
+	    ch = rom_name[p];
+	    if (ch == ' ' || ch == '/' || ch == '\\')
+		ch = '_';
+	    outfile_name[p] = ch;
+	    p++;
+	} while (ch != 0);
+	strcat(outfile_name, ".raw");
+    }
+    
+    printf("Output file: %s\n", outfile_name);
+    printf("ROM Name: %s\n", rom_name);
+    pages = (rom_size + 4095) / 4096;
+    printf("ROM Size: %d (0x%03X), %d page%s\n",
+			    rom_size, rom_size, pages, pages == 1 ? "" : "s");
+
+    machine_code_warning = 0;
+    total_func = 0;
+
+    for (p = 0; p < pages; p++) {
+	int page_base = 4096 * p;
+	printf("--- Page %d ---\n", p);
+	rom_number[p] = rom[page_base];
+	if (rom_number[p] > 31) {
+	    printf("Bad ROM number (%d), using %d instead.\n",
+					rom_number[p], rom_number[p] & 31);
+	    rom_number[p] &= 31;
 	} else
-	    getname(rom_name, pos, 1);
-
-	printf("Output file: %s.raw\n", rom_name);
-	printf("ROM Name: %s\n", rom_name);
-	pages = (rom_size + 4095) / 4096;
-	printf("ROM Size: %d (0x%03X), %d pages\n", rom_size, rom_size, pages);
-
-	machine_code_warning = 0;
-	total_func = 0;
-
-	for (p = 0; p < pages; p++) {
-	    int page_base = 4096 * p;
-	    printf("Page %d ---\n", p);
-	    rom_number[p] = rom[page_base];
-	    if (rom_number[p] > 31) {
-		printf("Bad ROM number (%d), using %d instead.\n",
-					    rom_number[p], rom_number[p] & 31);
-		rom_number[p] &= 31;
-	    } else
-		printf("ROM Number: %d\n", rom_number[p]);
-	    num_func[p] = rom[page_base + 1] - 1;
-	    if (num_func[p] <= 0 || num_func[p] > 63) {
-		printf("Bad function count (%d), skipping this page.\n",
-					    num_func[p]);
-		num_func[p] = 0;
-		continue;
-	    }
-
-	    printf("%d functions (XROM %02d,01 - %02d,%02d)\n",
-			num_func[p], rom_number[p], rom_number[p], num_func[p]);
-
-	    for (f = 1; f <= num_func[p]; f++) {
-		int mcode;
-		e = (rom[page_base + f * 2 + 2] << 8)
-			| (rom[page_base + f * 2 + 3] & 255);
-		mcode = (e & 0x20000) == 0;
-		e &= 0xffff;
-		if (e >= 0x8000)
-		    e -= 0x10000;
-		e += page_base;
-		if (mcode) {
-		    if (e < 0 || e >= rom_size) {
-			printf("Bad machine code entry point for "
-				"XROM %02d,%02d: 0x%03X.\n",
-				rom_number[p], f, e);
-			mach_entry[total_func] = 0;
-		    } else {
-			getname(buf, e, 0);
-			printf("XROM %02d,%02d: machine code %s\n",
-							rom_number[p], f, buf);
-			mach_entry[total_func] = e;
-			machine_code_warning = 1;
-		    }
-		    entry[total_func] = 0;
-		} else {
-		    e &= 0xFFFF;
-		    if (e >= rom_size - 5) {
-			printf("Bad user code entry point for "
-				"XROM %02d,%02d: 0x%03X, skipping.\n",
-				rom_number[p],
-				f, e);
-			entry[total_func] = 0;
-		    } else if (rom[e] & 0xF0 != 0xC0
-				|| rom[e + 2] < 0xF2 || rom[e + 2] > 0xF8) {
-			printf("User code entry point (0x%03X) from "
-				"XROM %02d,%02d does not point to a "
-				"global label; skipping.\n",
-				e, rom_number[p], f);
-			entry[total_func] = 0;
-		    } else {
-			entry[total_func] = e;
-			for (i = 0; i < (rom[e + 2] & 15) - 1; i++)
-			    buf[i] = rom[e + 4 + i];
-			buf[i] = 0;
-			string_convert(i, buf);
-			printf("XROM %02d,%02d: user code \"%s\"\n",
-						    rom_number[p], f, buf);
-		    }
-		}
-		entry_index[total_func] = total_func;
-		total_func++;
-	    }
-	}
-
-	if (machine_code_warning)
-	    printf("Warning: this ROM contains machine code; "
-		    "this code cannot be translated.\n");
-
-	qsort(entry_index, total_func, sizeof(int), entry_index_compar);
-	f = 0;
-	while (entry[entry_index[f]] == 0 && f < total_func)
-	    f++;
-
-	strcpy(buf, rom_name);
-	strcat(buf, ".raw");
-	out = fopen(buf, "wb");
-	if (out == NULL) {
-	    int err = errno;
-	    printf("Can't open \"%s\" for writing: %s (%d)\n",
-						    buf, strerror(err), err);
+	    printf("ROM Number: %d\n", rom_number[p]);
+	num_func[p] = rom[page_base + 1] - 1;
+	if (num_func[p] <= 0 || num_func[p] > 63) {
+	    printf("Bad function count (%d), skipping this page.\n",
+					num_func[p]);
+	    num_func[p] = 0;
 	    continue;
 	}
 
-	for (i = 0; i < 2048; i++)
-	    used_xrom[i] = 0;
+	printf("%d functions (XROM %02d,01 - %02d,%02d)\n",
+		    num_func[p], rom_number[p], rom_number[p], num_func[p]);
 
-	pos = 0;
-	while (f < total_func) {
-	    unsigned char instr[16];
-	    int c, k;
-	    if (entry[entry_index[f]] < pos) {
-		f++;
-		continue;
-	    }
-	    pos = entry[entry_index[f]];
-	    do {
-		i = 0;
-		do {
-		    c = rom[pos++];
-		    instr[i++] = c & 255;
-		} while ((c & 512) == 0 && (rom[pos] & 256) == 0);
-		k = instr[0];
-		if (k >= 0x1D && k <= 0x1F) {
-		    /* GTO/XEQ/W <alpha> */
-		    string_convert(instr[1] & 15, instr + 2);
-		} else if (k >= 0xB1 && k <= 0xBF) {
-		    /* Short-form GTO; wipe out offset (second byte) */
-		    instr[1] = 0;
-		} else if (k >= 0xC0 && k <= 0xCD) {
-		    /* Global; wipe out offset
-		     * (low nybble of 1st byte + all of 2nd byte)
-		     */
-		    instr[0] &= 0xF0;
-		    instr[1] = 0;
-		    if (instr[2] < 0xF1)
-			/* END */
-			instr[2] = 0x0D;
-		    else
-			string_convert((instr[2] & 15) - 1, instr + 4);
-		} else if (k >= 0xD0 && k <= 0xEF) {
-		    /* Long-form GTO, and XEQ: wipe out offset
-		     * (low nybble of 1st byte + all of 2nd byte)
-		     */
-		    instr[0] &= 0xF0;
-		    instr[1] = 0;
-		} else if (k >= 0xA0 && k <= 0xA7) {
-		    /* XROM */
-		    int num = ((k & 7) << 8) | instr[1];
-		    int modnum = num >> 6;
-		    int instnum = num & 63;
-		    int islocal = 0;
-		    for (p = 0; p < pages; p++)
-			if (num_func[p] != 0 && rom_number[p] == modnum) {
-			    islocal = 1;
-			    break;
-			}
-		    if (islocal) {
-			/* Local XROM */
-			int idx = xrom2index(modnum, instnum);
-			if (entry[idx] == 0) {
-			    /* Mcode XROM, can't translate */
-			    used_xrom[num] = 1;
-			} else {
-			    /* User code XROM, translate to XEQ */
-			    int len = (rom[entry[idx] + 2] & 15) - 1;
-			    instr[0] = 0x1E;
-			    instr[1] = 0xF0 + len;
-			    for (i = 0; i < len; i++)
-				instr[i + 2] = rom[entry[idx] + 4 + i];
-			    i = len + 2;
-			    string_convert(len, instr + 2);
-			}
-		    } else {
-			/* Nonlocal XROM;
-			 * we'll separate the HP-42S XROMs out later
-			 */
-			used_xrom[num] = 2;
-		    }
-		} else if (k > 0xF0) {
-		    string_convert(k & 15, instr + 1);
+	for (f = 1; f <= num_func[p]; f++) {
+	    int mcode;
+	    e = (rom[page_base + f * 2 + 2] << 8)
+		    | (rom[page_base + f * 2 + 3] & 255);
+	    mcode = (e & 0x20000) == 0;
+	    e &= 0xffff;
+	    if (e >= 0x8000)
+		e -= 0x10000;
+	    e += page_base;
+	    if (mcode) {
+		if (e < 0 || e >= rom_size) {
+		    printf("Bad machine code entry point for "
+			    "XROM %02d,%02d: 0x%03X.\n",
+			    rom_number[p], f, e);
+		    mach_entry[total_func] = 0;
+		} else {
+		    getname(buf, e);
+		    printf("XROM %02d,%02d: machine code %s\n",
+							rom_number[p], f, buf);
+		    mach_entry[total_func] = e;
+		    machine_code_warning = 1;
 		}
-		for (j = 0; j < i; j++)
-		    fputc(instr[j], out);
-	    } while ((c & 512) == 0);
-	}
-
-	fclose(out);
-
-	/* Don't complain about XROMs that match HP-42S instructions
-	 * if those are indeed the same instructions as in the corresponding
-	 * HP-41 ROMs; complain about all the others.
-	 */
-	for (i = 0; hp42s_xroms[i].number != -1; i++) {
-	    if (hp42s_xroms[i].allow)
-		used_xrom[hp42s_xroms[i].number] = 0;
-	    else if (used_xrom[hp42s_xroms[i].number] != 0)
-		used_xrom[hp42s_xroms[i].number] = 3;
-	}
-
-	j = 0;
-	for (i = 0; i < 2048; i++) {
-	    if (used_xrom[i] == 1) {
-		int p;
-		if (j == 0) {
-		    j = 1;
-		    printf("\nThe following machine code XROMs were called "
-			    "from user code:\n");
+		entry[total_func] = 0;
+	    } else {
+		e &= 0xFFFF;
+		if (e >= rom_size - 5) {
+		    printf("Bad user code entry point for "
+			    "XROM %02d,%02d: 0x%03X, skipping.\n",
+			    rom_number[p],
+			    f, e);
+		    entry[total_func] = 0;
+		} else if (rom[e] & 0xF0 != 0xC0
+			    || rom[e + 2] < 0xF2 || rom[e + 2] > 0xF8) {
+		    printf("User code entry point (0x%03X) from "
+			    "XROM %02d,%02d does not point to a "
+			    "global label; skipping.\n",
+			    e, rom_number[p], f);
+		    entry[total_func] = 0;
+		} else {
+		    entry[total_func] = e;
+		    for (i = 0; i < (rom[e + 2] & 15) - 1; i++)
+			buf[i] = rom[e + 4 + i];
+		    buf[i] = 0;
+		    string_convert(i, buf);
+		    printf("XROM %02d,%02d: user code \"%s\"\n",
+						    rom_number[p], f, buf);
 		}
-		p = mach_entry[xrom2index(i >> 6, i & 63)];
-		if (p == 0)
-		    strcpy(buf, "(bad entry point)");
-		else
-		    getname(buf, p, 0);
-		printf("XROM %02d,%02d: %s\n", i >> 6, i & 63, buf);
 	    }
+	    entry_index[total_func] = total_func;
+	    total_func++;
 	}
-
-	for (i = 0; i < 2048; i++) {
-	    if (used_xrom[i] == 2) {
-		if (j < 2) {
-		    if (j == 0)
-			printf("\n");
-		    j = 2;
-		    printf("The following non-local XROMs were called "
-			    "from user code:\n");
-		}
-		printf("XROM %02d,%02d\n", i >> 6, i & 63);
-	    }
-	}
-
-	for (i = 0; i < 2048; i++) {
-	    if (used_xrom[i] == 3) {
-		int p;
-		if (j < 3) {
-		    if (j == 0)
-			printf("\n");
-		    j = 3;
-		    printf("The following XROMs were called which are "
-			    "going to be\nmistaken for HP-42S commands:\n");
-		}
-		for (f = 0; hp42s_xroms[f].number != i; f++);
-		p = mach_entry[xrom2index(i >> 6, i & 63)];
-		if (p == 0)
-		    strcpy(buf, "(bad entry point)");
-		else
-		    getname(buf, p, 0);
-		printf("XROM %02d,%02d: %s => %s\n", i >> 6, i & 63, buf,
-						    hp42s_xroms[f].name);
-	    }
-	}
-
-	if (j != 0)
-	    printf("Because of these XROM calls, "
-		    "the converted user code may not work.\n");
     }
+
+    if (machine_code_warning)
+	printf("Warning: this ROM contains machine code; "
+		"this code cannot be translated.\n");
+
+    qsort(entry_index, total_func, sizeof(int), entry_index_compar);
+    f = 0;
+    while (entry[entry_index[f]] == 0 && f < total_func)
+	f++;
+
+    out = fopen(outfile_name, "wb");
+    if (out == NULL) {
+	int err = errno;
+	printf("Can't open \"%s\" for writing: %s (%d)\n",
+						    buf, strerror(err), err);
+	exit(2);
+    }
+
+    for (i = 0; i < 2048; i++)
+	used_xrom[i] = 0;
+
+    pos = 0;
+    while (f < total_func) {
+	unsigned char instr[16];
+	int c, k;
+	if (entry[entry_index[f]] < pos) {
+	    f++;
+	    continue;
+	}
+	pos = entry[entry_index[f]];
+	do {
+	    i = 0;
+	    do {
+		c = rom[pos++];
+		instr[i++] = c & 255;
+	    } while ((c & 512) == 0 && (rom[pos] & 256) == 0);
+	    k = instr[0];
+	    if (k >= 0x1D && k <= 0x1F) {
+		/* GTO/XEQ/W <alpha> */
+		string_convert(instr[1] & 15, instr + 2);
+	    } else if (k >= 0xB1 && k <= 0xBF) {
+		/* Short-form GTO; wipe out offset (second byte) */
+		instr[1] = 0;
+	    } else if (k >= 0xC0 && k <= 0xCD) {
+		/* Global; wipe out offset
+		    * (low nybble of 1st byte + all of 2nd byte)
+		    */
+		instr[0] &= 0xF0;
+		instr[1] = 0;
+		if (instr[2] < 0xF1)
+		    /* END */
+		    instr[2] = 0x0D;
+		else
+		    string_convert((instr[2] & 15) - 1, instr + 4);
+	    } else if (k >= 0xD0 && k <= 0xEF) {
+		/* Long-form GTO, and XEQ: wipe out offset
+		    * (low nybble of 1st byte + all of 2nd byte)
+		    */
+		instr[0] &= 0xF0;
+		instr[1] = 0;
+	    } else if (k >= 0xA0 && k <= 0xA7) {
+		/* XROM */
+		int num = ((k & 7) << 8) | instr[1];
+		int modnum = num >> 6;
+		int instnum = num & 63;
+		int islocal = 0;
+		for (p = 0; p < pages; p++)
+		    if (num_func[p] != 0 && rom_number[p] == modnum) {
+			islocal = 1;
+			break;
+		    }
+		if (islocal) {
+		    /* Local XROM */
+		    int idx = xrom2index(modnum, instnum);
+		    if (entry[idx] == 0) {
+			/* Mcode XROM, can't translate */
+			used_xrom[num] = 1;
+		    } else {
+			/* User code XROM, translate to XEQ */
+			int len = (rom[entry[idx] + 2] & 15) - 1;
+			instr[0] = 0x1E;
+			instr[1] = 0xF0 + len;
+			for (i = 0; i < len; i++)
+			    instr[i + 2] = rom[entry[idx] + 4 + i];
+			i = len + 2;
+			string_convert(len, instr + 2);
+		    }
+		} else {
+		    /* Nonlocal XROM;
+			* we'll separate the HP-42S XROMs out later
+			*/
+		    used_xrom[num] = 2;
+		}
+	    } else if (k > 0xF0) {
+		string_convert(k & 15, instr + 1);
+	    }
+	    for (j = 0; j < i; j++)
+		fputc(instr[j], out);
+	} while ((c & 512) == 0);
+    }
+
+    fclose(out);
+
+    /* Don't complain about XROMs that match HP-42S instructions
+	* if those are indeed the same instructions as in the corresponding
+	* HP-41 ROMs; complain about all the others.
+	*/
+    for (i = 0; hp42s_xroms[i].number != -1; i++) {
+	if (hp42s_xroms[i].allow)
+	    used_xrom[hp42s_xroms[i].number] = 0;
+	else if (used_xrom[hp42s_xroms[i].number] != 0)
+	    used_xrom[hp42s_xroms[i].number] = 3;
+    }
+
+    j = 0;
+    for (i = 0; i < 2048; i++) {
+	if (used_xrom[i] == 1) {
+	    int p;
+	    if (j == 0) {
+		j = 1;
+		printf("\nThe following machine code XROMs were called "
+			"from user code:\n");
+	    }
+	    p = mach_entry[xrom2index(i >> 6, i & 63)];
+	    if (p == 0)
+		strcpy(buf, "(bad entry point)");
+	    else
+		getname(buf, p);
+	    printf("XROM %02d,%02d: %s\n", i >> 6, i & 63, buf);
+	}
+    }
+
+    for (i = 0; i < 2048; i++) {
+	if (used_xrom[i] == 2) {
+	    if (j < 2) {
+		if (j == 0)
+		    printf("\n");
+		j = 2;
+		printf("The following non-local XROMs were called "
+			"from user code:\n");
+	    }
+	    printf("XROM %02d,%02d\n", i >> 6, i & 63);
+	}
+    }
+
+    for (i = 0; i < 2048; i++) {
+	if (used_xrom[i] == 3) {
+	    int p;
+	    if (j < 3) {
+		if (j == 0)
+		    printf("\n");
+		j = 3;
+		printf("The following XROMs were called which are "
+			"going to be\nmistaken for HP-42S commands:\n");
+	    }
+	    for (f = 0; hp42s_xroms[f].number != i; f++);
+	    p = mach_entry[xrom2index(i >> 6, i & 63)];
+	    if (p == 0)
+		strcpy(buf, "(bad entry point)");
+	    else
+		getname(buf, p);
+	    printf("XROM %02d,%02d: %s => %s\n", i >> 6, i & 63, buf,
+						hp42s_xroms[f].name);
+	}
+    }
+
+    if (j != 0)
+	printf("Because of these XROM calls, "
+		"the converted user code may not work.\n");
+    printf("\n");
 
     return 0;
 }
