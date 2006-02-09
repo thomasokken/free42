@@ -18,15 +18,12 @@
 
 /* TODO:
  * When displaying strings to the user, do 42S->ASCII translation.
- * Add -l (list) option, which prints a 42S-style program listing of all
- * converted code. This listing should show synthetic instructions properly
- * (e.g., STO M, not STO 117), and clearly highlight all problematic
- * instructions (synthetics, local mcode XROMs, and nonlocal, non-42S XROMs).
  */
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <errno.h>
 
 /* The following is a list of all XROM numbers used by the HP-42S. Some of
@@ -243,6 +240,143 @@ int xrom2index(int modnum, int funcnum) {
     return res + funcnum - 1;
 }
 
+char *hp2ascii(char *s, int len) {
+    /* TODO */
+    static char buf[100];
+    strncpy(buf, s, len);
+    buf[len] = 0;
+    return buf;
+}
+
+char *instr_map[] = {
+    "+", "-", "*", "/", "X<Y?", "X>Y?", "X<=Y?", "Sigma+",
+    "Sigma-", "HMS+", "HMS-", "MOD", "%", "%CH", "->REC", "->POL",
+    "LN", "X^2", "SQRT", "Y^X", "+/-", "E^X", "LOG", "10^X",
+    "E^X-1", "SIN", "COS", "TAN", "ASIN", "ACOS", "ATAN", "->DEC",
+    "1/X", "ABS", "FACT", "X!=0?", "X>0?", "LN1+X", "X<0?", "X=0?",
+    "IP", "FP", "->RAD", "->DEG", "->HMS", "->HR", "RND", "->OCT",
+    "CLSigma", "X<>Y", "PI", "CLST", "R^", "Rv", "LASTX", "CLX",
+    "X=Y?", "X!=Y?", "SIGN", "X<=0?", "MEAN", "SDEV", "AVIEW", "CLD",
+    "DEG", "RAD", "GRAD", "ENTER", "STOP", "RTN", "BEEP", "CLA",
+    "ASHF", "PSE", "CLRG", "AOFF", "AON", "OFF", "PROMPT", "ADV",
+    "RCL", "STO", "STO+", "STO-", "STO*", "STO/", "ISG", "DSE",
+    "VIEW", "SigmaREG", "ASTO", "ARCL", "FIX", "SCI", "ENG", "TONE",
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    "SF", "CF", "FS?C", "FC?C", "FS?", "FC?"
+};
+
+void bufprintf(char *buf, const char *fmt, ...) {
+    int n;
+    static char buf2[1024];
+    va_list ap;
+    va_start(ap, fmt);
+    n = vsprintf(buf2, fmt, ap);
+    va_end(ap);
+    strcat(buf, buf2);
+}
+
+char *arg2str(unsigned char x, int one_digit) {
+    static char buf[20];
+    if (x <= 101)
+	sprintf(buf, one_digit ? "%d" : "%02d", x);
+    else if (x == 122)
+	sprintf(buf, "|-");
+    else if (x <= 127)
+	sprintf(buf, "%c", "ABCDEFGHIJTZYXLMNOPQ.abcde"[x - 102]);
+    else if (x <= 239)
+	sprintf(buf, "IND %02d", x - 128);
+    else if (x == 250)
+	sprintf(buf, "IND |-");
+    else
+	sprintf(buf, "IND %c", "ABCDEFGHIJTZYXLMNOPQ.abcde"[x - 230]);
+    return buf;
+}
+
+int print_line(int lineno, unsigned char *instr, int len) {
+    int k = instr[0];
+    static char buf[1024];
+    buf[0] = 0;
+    if (k == 0x00)
+	return;
+    bufprintf(buf, "%02d", lineno);
+    if (k <= 0x0F) {
+	bufprintf(buf, ">LBL %02d", (k & 15) - 1);
+    } else if (k <= 0x1C) {
+	int i;
+	bufprintf(buf, " ");
+	for (i = 0; i < len; i++) {
+	    k = instr[i];
+	    if (k >= 0x10 && k <= 0x19)
+		bufprintf(buf, "%c", '0' + k - 0x10);
+	    else if (k == 0x1A)
+		bufprintf(buf, ".");
+	    else if (k == 0x1B)
+		bufprintf(buf, "E");
+	    else if (k == 0x1C)
+		bufprintf(buf, "-");
+	}
+    } else if (k <= 0x1F) {
+	if (k == 0x1D)
+	    bufprintf(buf, " GTO \"");
+	else if (k == 0x1E)
+	    bufprintf(buf, " XEQ \"");
+	else
+	    bufprintf(buf, " W \"");
+	bufprintf(buf, "%s\"", hp2ascii(instr + 2, instr[1] & 15));
+    } else if (k <= 0x2F) {
+	bufprintf(buf, " RCL %02d", k & 15);
+    } else if (k <= 0x3F) {
+	bufprintf(buf, " STO %02d", k & 15);
+    } else if (k <=0x8F) {
+	bufprintf(buf, " %s", instr_map[k - 0x40]);
+    } else if (k <= 0x9F || k >= 0xA8 && k <= 0xAE) {
+	if (k == 0xAE) {
+	    bufprintf(buf, " %s %s", (instr[1] & 0x80) != 0 ? "XEQ" : "GTO",
+			arg2str(instr[1] | 0x80, 0));
+	} else {
+	    bufprintf(buf, " %s %s", instr_map[k - 0x40],
+			arg2str(instr[1], k == 0x9F));
+	}
+    } else if (k <= 0xA7) {
+	bufprintf(buf, " XROM %02d,%02d", ((k & 7) << 2) | (instr[1] >> 6), instr[1] & 63);
+    } else if (k == 0xAF) {
+	bufprintf(buf, " SPARE1");
+    } else if (k == 0xB0) {
+	bufprintf(buf, " SPARE2");
+    } else if (k <= 0xBF) {
+	bufprintf(buf, " GTO %02d", (k & 15) - 1);
+    } else if (k <= 0xCD) {
+	if (instr[2] < 0xF1)
+	    bufprintf(buf, " END");
+	else
+	    bufprintf(buf, ">LBL \"%s\"", hp2ascii(instr + 4, (instr[2] & 15) - 1));
+    } else if (k == 0xCE) {
+	bufprintf(buf, " X<> %s", arg2str(instr[1], 0));
+    } else if (k == 0xCF) {
+	/* TODO: how about IND arguments? And how does the
+	   synthetics-detecting code deal with that? */
+	bufprintf(buf, ">LBL %s", arg2str(instr[1], 0));
+    } else if (k <= 0xDF) {
+	bufprintf(buf, " GTO %s", arg2str(instr[2] & 127, 0));
+    } else if (k <= 0xEF) {
+	bufprintf(buf, " XEQ %s", arg2str(instr[2] & 127, 0));
+    } else {
+	int len = k & 15;
+	if (len > 0 && instr[1] == 127)
+	    bufprintf(buf, " |-\"%s\"", hp2ascii(instr + 2, len - 1));
+	else
+	    bufprintf(buf, " \"%s\"", hp2ascii(instr + 1, len));
+    }
+    printf("%s", buf);
+    return strlen(buf);
+}
+
+void spaces(int x) {
+    do {
+	printf(" ");
+    } while (--x > 0);
+}
+
 int main(int argc, char *argv[]) {
     int argnum;
     FILE *in, *out;
@@ -253,6 +387,11 @@ int main(int argc, char *argv[]) {
     int machine_code_warning = 0;
     int synthetic_code_warning = 0;
     int show_help = 0;
+    int list = 0;
+
+    /**********************/
+    /* Parse command line */
+    /**********************/
 
     char **argv2 = (char **) malloc(argc * sizeof(char *));
     int argc2 = 0;
@@ -260,6 +399,8 @@ int main(int argc, char *argv[]) {
     for (i = 1; i < argc; i++) {
 	if (strcmp(argv[i], "-s") == 0)
 	    convert_strings = 0;
+	else if (strcmp(argv[i], "-l") == 0)
+	    list = 1;
 	else if (strcmp(argv[i], "-o") == 0) {
 	    if (i + 1 < argc)
 		strcpy(outfile_name, argv[++i]);
@@ -271,15 +412,21 @@ int main(int argc, char *argv[]) {
 
     if (show_help || argc2 == 0) {
 	printf(
-"Usage: rom2raw [-o outputfile] [-s] [-h] inputfiles...\n"
+"Usage: rom2raw [-o outputfile] [-s] [-l] [-h] inputfiles...\n"
 "    All input files are concatenated and treated as a single ROM image,\n"
-"    to facilitate working with multi-page ROMs. To process multiple ROMs,\n"
-"    you must run rom2raw once for each ROM.\n"
+"     to facilitate working with multi-page ROMs. To process multiple ROMs,\n"
+"     you must run rom2raw once for each ROM.\n"
 "    If the -o option is omitted, the ROM name from the image will be used.\n"
 "    The -s option disables HP-41 => HP-42S character code translation.\n"
+"    The -l option turns on user code listings, to help you find problematic\n"
+"     XROMs and synthetic instructions.\n"
 "    The -h option shows this message.\n");
 	exit(0);
     }
+
+    /************************/
+    /* Read ROM image files */
+    /************************/
 
     rom_size = 0;
 
@@ -309,6 +456,11 @@ int main(int argc, char *argv[]) {
 	fclose(in);
     }
 
+    /****************************************/
+    /* Determine ROM and output file names, */
+    /*   and do some other preparations.    */
+    /****************************************/
+
     num_func[0] = rom[1] - 1;
     if (num_func[0] == 0 || num_func[0] > 63)
 	num_func[0] = 63;
@@ -337,6 +489,11 @@ int main(int argc, char *argv[]) {
     pages = (rom_size + 4095) / 4096;
     printf("ROM Size: %d (0x%03X), %d page%s\n",
 			    rom_size, rom_size, pages, pages == 1 ? "" : "s");
+
+    /********************************************/
+    /* Read page directories and compile a list */
+    /*  of user and machine code entry points.  */
+    /********************************************/
 
     total_func = 0;
 
@@ -423,6 +580,10 @@ int main(int argc, char *argv[]) {
     while (entry[entry_index[f]] == 0 && f < total_func)
 	f++;
 
+    /****************************************/
+    /* Open output file and write user code */
+    /****************************************/
+
     out = fopen(outfile_name, "wb");
     if (out == NULL) {
 	int err = errno;
@@ -438,12 +599,17 @@ int main(int argc, char *argv[]) {
     while (f < total_func) {
 	unsigned char instr[16];
 	int c, k, a;
+	int lineno = 0;
 	if (entry[entry_index[f]] < pos) {
 	    f++;
 	    continue;
 	}
 	pos = entry[entry_index[f]];
+	if (list)
+	    printf("\n");
 	do {
+	    int synth = 0;
+	    lineno++;
 	    i = 0;
 	    do {
 		c = rom[pos++];
@@ -451,44 +617,47 @@ int main(int argc, char *argv[]) {
 	    } while ((c & 512) == 0 && (rom[pos] & 256) == 0);
 	    k = instr[0];
 	    a = instr[1];
-	    if (k >= 0x1D && k <= 0x1F) {
+	    if (k == 0x00) {
+		/* NULL */
+		lineno--;
+	    } else if (k >= 0x1D && k <= 0x1F) {
 		/* GTO/XEQ/W <alpha> */
 		string_convert(instr[1] & 15, instr + 2);
 		if (k == 0x1F || instr[1] < 0xF1 || instr[1] > 0xF7)
 		    /* W instr, or bad label length */
-		    synthetic_code_warning = 1;
-	    } else if (k >= 0x90 && k <= 0x98
-		    || k == 0x9A || k == 0x9B || k == 0xAE) {
+		    synth = 1;
+	    } else if (k >= 0x90 && k <= 0x98 || k == 0x9A
+		    || k == 0x9B || k == 0xAE || k == 0xCE) {
 		/* RCL, STO, STO+, STO-, STO*, STO/, ISG, DSE, VIEW,
-		 * ASTO, ARCL, GTO/XEQ IND
+		 * ASTO, ARCL, GTO/XEQ IND, X<>
 		 */
 		a &= 127;
 		if (a > 99 && a < 112 || a > 116)
 		    /* Argument is not 00-99, stack, IND 00-99, or IND stack */
-		    synthetic_code_warning = 1;
+		    synth = 1;
 	    } else if (k == 0x99) {
 		/* SigmaREG */
 		if (a > 99 && a < 128 || a > 227 && a < 240 || a > 244)
 		    /* Argument is not 00-99, IND 00-99, or IND stack */
-		    synthetic_code_warning = 1;
+		    synth = 1;
 	    } else if (k >= 0x9C && k <= 0x9F) {
 		/* FIX, SCI, ENG, TONE */
 		if (a > 9 && a < 128 || a > 227 && a < 240 || a > 244)
 		    /* Argument is not 0-9, IND 00-99, or IND stack */
-		    synthetic_code_warning = 1;
+		    synth = 1;
 	    } else if (k >= 0xA8 && k <= 0xAB) {
 		/* SF, CF, FS?C, FC?C */
 		if (a > 29 && a < 128 || a > 227 && a < 240 || a > 244)
 		    /* Argument is not 00-29, IND 00-99, or IND stack */
-		    synthetic_code_warning = 1;
+		    synth = 1;
 	    } else if (k == 0xAC || k == 0xAD) {
 		/* FS?, FC? */
 		if (a > 55 && a < 128 || a > 227 && a < 240 || a > 244)
 		    /* Argument is not 00-55, IND 00-99, or IND stack */
-		    synthetic_code_warning = 1;
+		    synth = 1;
 	    } else if (k == 0xAF || k == 0xB0) {
 		/* SPARE1, SPARE2 */
-		synthetic_code_warning = 1;
+		synth = 1;
 	    } else if (k >= 0xB1 && k <= 0xBF) {
 		/* Short-form GTO; wipe out offset (second byte) */
 		instr[1] = 0;
@@ -505,8 +674,13 @@ int main(int argc, char *argv[]) {
 		    string_convert((instr[2] & 15) - 1, instr + 4);
 		    if (instr[2] > 0xF8)
 			/* bad label length */
-			synthetic_code_warning = 1;
+			synth = 1;
 		}
+	    } else if (k == 0xCF) {
+		/* LBL */
+		if (a > 99 && a < 102 || a > 111 && a < 123 || a > 128)
+		    /* Argument is not 00-99, A-J, or a-e */
+		    synth = 1;
 	    } else if (k >= 0xD0 && k <= 0xEF) {
 		/* Long-form GTO, and XEQ: wipe out offset
 		 * (low nybble of 1st byte + all of 2nd byte)
@@ -521,7 +695,7 @@ int main(int argc, char *argv[]) {
 			|| a > 227 && a < 240 || a > 244)
 		    /* Argument is not 00-99, A-J, a-e,
 		     * IND 00-99, or IND stack */
-		    synthetic_code_warning = 1;
+		    synth = 1;
 	    } else if (k >= 0xA0 && k <= 0xA7) {
 		/* XROM */
 		int num = ((k & 7) << 8) | instr[1];
@@ -555,29 +729,89 @@ int main(int argc, char *argv[]) {
 		     */
 		    used_xrom[num] = 2;
 		}
+		if (list) {
+		    if (used_xrom[num] == 0) {
+			/* Translated to XEQ; no special action */
+			print_line(lineno, instr, i);
+			printf("\n");
+		    } else {
+			int x, y, mistaken_identity = 0;
+			char namebuf[30], linebuf[1024];
+			for (x = 0; hp42s_xroms[x].number != -1; x++)
+			    if (hp42s_xroms[x].number == num)
+				break;
+			if (hp42s_xroms[x].number != -1) {
+			    if (hp42s_xroms[x].allow) {
+				used_xrom[num] = 0;
+				printf("%02d %s\n", lineno, hp42s_xroms[x].name);
+			    } else
+				mistaken_identity = 1;
+			}
+			if (used_xrom[num] == 1) {
+			    /* Mcode XROM */
+			    int y = mach_entry[xrom2index(modnum, instnum)];
+			    if (y == 0)
+				printf(namebuf, "XROM %02d,%02d (bad entry)", modnum, instnum);
+			    else
+				getname(namebuf, y);
+			    sprintf(linebuf, "%02d %s", lineno, namebuf);
+			    printf(linebuf);
+			    spaces(25 - strlen(linebuf));
+			    if (mistaken_identity)
+				printf("Will be mistaken for HP-42S function %s\n", hp42s_xroms[x].name);
+			    else
+				printf("Machine code XROM %02d,%02d\n", modnum, instnum);
+			} else if (used_xrom[num] == 2) {
+			    sprintf(linebuf, "%02d XROM %02d,%02d", lineno, modnum, instnum);
+			    printf(linebuf);
+			    spaces(25 - strlen(linebuf));
+			    if (mistaken_identity)
+				printf("Will be mistaken for HP-42S function %s\n", hp42s_xroms[x].name);
+			    else
+				printf("Non-local XROM\n");
+			}
+		    }
+		}
 	    } else if (k == 0xF0) {
 		/* zero-length string */
-		synthetic_code_warning = 1;
+		synth = 1;
 	    } else if (k > 0xF0) {
 		string_convert(k & 15, instr + 1);
 	    }
+	    if (synth)
+		synthetic_code_warning = 1;
 	    for (j = 0; j < i; j++)
 		fputc(instr[j], out);
+	    if (list && k != 0x00 && (k < 0xA0 || k > 0xA7)) {
+		/* NULLs are not printed, and XROMs were handled earlier */
+		int x = print_line(lineno, instr, i);
+		if (synth) {
+		    spaces(25 - x);
+		    printf("Synthetic");
+		}
+		printf("\n");
+	    }
 	} while ((c & 512) == 0);
     }
 
     fclose(out);
 
-    /* Don't complain about XROMs that match HP-42S instructions
-     * if those are indeed the same instructions as in the corresponding
-     * HP-41 ROMs; complain about all the others.
-     */
+    /*********************************************************************/
+    /* Don't complain about XROMs that match HP-42S instructions         */
+    /* if those are indeed the same instructions as in the corresponding */
+    /* HP-41 ROMs; complain about all the others.                        */
+    /*********************************************************************/
+
     for (i = 0; hp42s_xroms[i].number != -1; i++) {
 	if (hp42s_xroms[i].allow)
 	    used_xrom[hp42s_xroms[i].number] = 0;
 	else if (used_xrom[hp42s_xroms[i].number] != 0)
 	    used_xrom[hp42s_xroms[i].number] = 3;
     }
+
+    /************************************************/
+    /* Print warning about local machine code XROMs */
+    /************************************************/
 
     j = 0;
     for (i = 0; i < 2048; i++) {
@@ -597,6 +831,10 @@ int main(int argc, char *argv[]) {
 	}
     }
 
+    /***************************************/
+    /* Print warning about non-local XROMs */
+    /***************************************/
+
     for (i = 0; i < 2048; i++) {
 	if (used_xrom[i] == 2) {
 	    if (j < 2) {
@@ -609,6 +847,13 @@ int main(int argc, char *argv[]) {
 	    printf("XROM %02d,%02d\n", i >> 6, i & 63);
 	}
     }
+
+    /**************************************************************/
+    /* Print warnings about XROMs that match HP-42S instructions, */
+    /* but which have different meanings on the HP-41 than on the */
+    /* HP-42S (these are the ones that have allow=0 in the        */
+    /* hp42s_xroms table at the beginning of this file).          */
+    /**************************************************************/
 
     for (i = 0; i < 2048; i++) {
 	if (used_xrom[i] == 3) {
@@ -630,6 +875,10 @@ int main(int argc, char *argv[]) {
 						hp42s_xroms[f].name);
 	}
     }
+
+    /******************************************************/
+    /* Print a few final words of caution, if appropriate */
+    /******************************************************/
 
     if (j != 0)
 	printf("Because of these XROM calls, "
