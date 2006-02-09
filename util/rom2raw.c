@@ -16,10 +16,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *****************************************************************************/
 
-/* TODO:
- * When displaying strings to the user, do 42S->ASCII translation.
- */
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -196,7 +192,7 @@ int entry_index_compar(const void *ap, const void *bp) {
 }
 
 unsigned char chartrans[] = {
-    31, 31, 31, 16, 31, 31, 31, 14, 31, 31, 31, 31, 17, 23, 31, 31,
+    31, 'x', 31, 16, 31, 31, 31, 14, 31, 31, 31, 31, 17, 23, 31, 31,
     31, 31, 38, 20, 20, 22, 22, 28, 28, 29, 29, 25, 25, 12, 18, 30,
     32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
     48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
@@ -215,7 +211,7 @@ void string_convert(int len, unsigned char *s) {
 }
 
 void getname(char *dest, int src) {
-    int c;
+    int c, len = 0;
     char k;
     char *d = dest;
     do {
@@ -224,7 +220,7 @@ void getname(char *dest, int src) {
 	if (k >= 0 && k <= 31)
 	    k += 64;
 	*d++ = k;
-    } while ((c & 128) == 0 && src > 0);
+    } while ((c & 128) == 0 && src > 0 && ++len < 16);
     *d = 0;
     string_convert(strlen(dest), dest);
 }
@@ -240,12 +236,76 @@ int xrom2index(int modnum, int funcnum) {
     return res + funcnum - 1;
 }
 
-char *hp2ascii(char *s, int len) {
-    /* TODO */
-    static char buf[100];
-    strncpy(buf, s, len);
-    buf[len] = 0;
-    return buf;
+char *hp2ascii(char *src, int len) {
+    char *esc;
+    unsigned char c;
+    static char dst[100];
+    int s, d = 0;
+    for (s = 0; s < len; s++) {
+	c = src[s] & 127;
+	switch (c) {
+	    /* NOTE: this code performs the following 11 translations
+	     * that are not ASCII, but seem to be widely accepted --
+	     * that is, they looked OK when I tried them in several
+	     * fonts in Windows and Linux, and in Memo Pad on the Palm:
+	     *
+	     *  19: 197 (0305) Aring
+	     *  20: 229 (0345) aring
+	     *  21: 196 (0304) Aumlaut
+	     *  22: 228 (0344) aumlaut
+	     *  23: 214 (0326) Oumlaut
+	     *  24: 246 (0366) oumlaut
+	     *  25: 220 (0334) Uumlaut
+	     *  26: 252 (0374) uumlaut
+	     *  27: 198 (0306) AE
+	     *  28: 230 (0346) ae
+	     *  29: 163 (0243) sterling
+	     */
+	    case  0:   esc = "\\diamond"; break;
+	    case  1:   esc = "x"; break;
+	    case  2:   esc = "\\mean"; break;
+	    case  3:   esc = "<-"; break;
+	    case  4:   esc = "\\alpha"; break;
+	    case  5:   esc = "\\beta"; break;
+	    case  6:   esc = "\\Gamma"; break;
+	    case  7:   esc = "v"; break;
+	    case  8:   esc = "\\Delta"; break;
+	    case  9:   esc = "\\sigma"; break;
+	    case 10:   esc = "\\LF"; break;
+	    case 11:   esc = "\\lambda"; break;
+	    case 12:   esc = "\\mu"; break;
+	    case 13:   esc = "\\angle"; break;
+	    case 14:   esc = "\\tau"; break;
+	    case 15:   esc = "\\Phi"; break;
+	    case 16:   esc = "\\Theta"; break;
+	    case 17:   esc = "\\Omega"; break;
+	    case 18:   esc = "\\delta"; break;
+	    case 19:   esc = "\305"; break;
+	    case 20:   esc = "\345"; break;
+	    case 21:   esc = "\304"; break;
+	    case 22:   esc = "\344"; break;
+	    case 23:   esc = "\326"; break;
+	    case 24:   esc = "\366"; break;
+	    case 25:   esc = "\334"; break;
+	    case 26:   esc = "\374"; break;
+	    case 27:   esc = "\306"; break;
+	    case 28:   esc = "\346"; break;
+	    case 29:   esc = "!="; break;
+	    case 30:   esc = "\243"; break;
+	    case 31:   esc = "\\gray"; break;
+	    case '\\': esc = "\\\\"; break;
+	    case 96:   esc = "\\T"; break;
+	    case 123:  esc = "\\pi"; break;
+	    case 125:  esc = "->"; break;
+	    case 126:  esc = "\\Sigma"; break;
+	    case 127:  esc = "|-"; break;
+	    default:   dst[d++] = c; continue;
+	}
+	while (*esc != 0)
+	    dst[d++] = *esc++;
+    }
+    dst[d] = 0;
+    return dst;
 }
 
 char *instr_map[] = {
@@ -297,7 +357,7 @@ int print_line(int lineno, unsigned char *instr, int len) {
     static char buf[1024];
     buf[0] = 0;
     if (k == 0x00)
-	return;
+	return 0;
     bufprintf(buf, "%02d", lineno);
     if (k <= 0x0F) {
 	bufprintf(buf, ">LBL %02d", (k & 15) - 1);
@@ -335,10 +395,11 @@ int print_line(int lineno, unsigned char *instr, int len) {
 			arg2str(instr[1] | 0x80, 0));
 	} else {
 	    bufprintf(buf, " %s %s", instr_map[k - 0x40],
-			arg2str(instr[1], k == 0x9F));
+			arg2str(instr[1], k >= 0x9C && k <= 0x9F));
 	}
     } else if (k <= 0xA7) {
-	bufprintf(buf, " XROM %02d,%02d", ((k & 7) << 2) | (instr[1] >> 6), instr[1] & 63);
+	bufprintf(buf, " XROM %02d,%02d",
+			((k & 7) << 2) | (instr[1] >> 6), instr[1] & 63);
     } else if (k == 0xAF) {
 	bufprintf(buf, " SPARE1");
     } else if (k == 0xB0) {
@@ -349,7 +410,8 @@ int print_line(int lineno, unsigned char *instr, int len) {
 	if (instr[2] < 0xF1)
 	    bufprintf(buf, " END");
 	else
-	    bufprintf(buf, ">LBL \"%s\"", hp2ascii(instr + 4, (instr[2] & 15) - 1));
+	    bufprintf(buf, ">LBL \"%s\"",
+				hp2ascii(instr + 4, (instr[2] & 15) - 1));
     } else if (k == 0xCE) {
 	bufprintf(buf, " X<> %s", arg2str(instr[1], 0));
     } else if (k == 0xCF) {
@@ -561,9 +623,8 @@ int main(int argc, char *argv[]) {
 		    for (i = 0; i < (rom[e + 2] & 15) - 1; i++)
 			buf[i] = rom[e + 4 + i];
 		    buf[i] = 0;
-		    string_convert(i, buf);
 		    printf("XROM %02d,%02d: user code \"%s\"\n",
-						    rom_number[p], f, buf);
+					rom_number[p], f, hp2ascii(buf, i));
 		}
 	    }
 	    entry_index[total_func] = total_func;
@@ -609,6 +670,7 @@ int main(int argc, char *argv[]) {
 	    printf("\n");
 	do {
 	    int synth = 0;
+	    int conv_off, conv_len = 0;
 	    lineno++;
 	    i = 0;
 	    do {
@@ -622,7 +684,8 @@ int main(int argc, char *argv[]) {
 		lineno--;
 	    } else if (k >= 0x1D && k <= 0x1F) {
 		/* GTO/XEQ/W <alpha> */
-		string_convert(instr[1] & 15, instr + 2);
+		conv_off = 2;
+		conv_len = instr[1] & 15;
 		if (k == 0x1F || instr[1] < 0xF1 || instr[1] > 0xF7)
 		    /* W instr, or bad label length */
 		    synth = 1;
@@ -671,7 +734,8 @@ int main(int argc, char *argv[]) {
 		    /* END */
 		    instr[2] = 0x0D;
 		else {
-		    string_convert((instr[2] & 15) - 1, instr + 4);
+		    conv_off = 4;
+		    conv_len = (instr[2] & 15) - 1;
 		    if (instr[2] > 0xF8)
 			/* bad label length */
 			synth = 1;
@@ -721,7 +785,8 @@ int main(int argc, char *argv[]) {
 			for (i = 0; i < len; i++)
 			    instr[i + 2] = rom[entry[idx] + 4 + i];
 			i = len + 2;
-			string_convert(len, instr + 2);
+			conv_off = 2;
+			conv_len = len;
 		    }
 		} else {
 		    /* Nonlocal XROM;
@@ -735,7 +800,7 @@ int main(int argc, char *argv[]) {
 			print_line(lineno, instr, i);
 			printf("\n");
 		    } else {
-			int x, y, mistaken_identity = 0;
+			int x, mistaken_identity = 0;
 			char namebuf[30], linebuf[1024];
 			for (x = 0; hp42s_xroms[x].number != -1; x++)
 			    if (hp42s_xroms[x].number == num)
@@ -751,22 +816,29 @@ int main(int argc, char *argv[]) {
 			    /* Mcode XROM */
 			    int y = mach_entry[xrom2index(modnum, instnum)];
 			    if (y == 0)
-				printf(namebuf, "XROM %02d,%02d (bad entry)", modnum, instnum);
+				sprintf(namebuf, "XROM %02d,%02d (bad entry)",
+							    modnum, instnum);
 			    else
 				getname(namebuf, y);
 			    sprintf(linebuf, "%02d %s", lineno, namebuf);
 			    printf(linebuf);
-			    spaces(25 - strlen(linebuf));
+			    spaces(30 - strlen(linebuf));
 			    if (mistaken_identity)
-				printf("Will be mistaken for HP-42S function %s\n", hp42s_xroms[x].name);
+				printf("Will be mistaken for "
+					"HP-42S function %s\n",
+					hp42s_xroms[x].name);
 			    else
-				printf("Machine code XROM %02d,%02d\n", modnum, instnum);
+				printf("Machine code XROM %02d,%02d\n",
+							modnum, instnum);
 			} else if (used_xrom[num] == 2) {
-			    sprintf(linebuf, "%02d XROM %02d,%02d", lineno, modnum, instnum);
+			    sprintf(linebuf, "%02d XROM %02d,%02d",
+						    lineno, modnum, instnum);
 			    printf(linebuf);
-			    spaces(25 - strlen(linebuf));
+			    spaces(30 - strlen(linebuf));
 			    if (mistaken_identity)
-				printf("Will be mistaken for HP-42S function %s\n", hp42s_xroms[x].name);
+				printf("Will be mistaken for "
+					"HP-42S function %s\n",
+					hp42s_xroms[x].name);
 			    else
 				printf("Non-local XROM\n");
 			}
@@ -776,7 +848,8 @@ int main(int argc, char *argv[]) {
 		/* zero-length string */
 		synth = 1;
 	    } else if (k > 0xF0) {
-		string_convert(k & 15, instr + 1);
+		conv_off = 1;
+		conv_len = k & 15;
 	    }
 	    if (synth)
 		synthetic_code_warning = 1;
@@ -786,11 +859,13 @@ int main(int argc, char *argv[]) {
 		/* NULLs are not printed, and XROMs were handled earlier */
 		int x = print_line(lineno, instr, i);
 		if (synth) {
-		    spaces(25 - x);
+		    spaces(30 - x);
 		    printf("Synthetic");
 		}
 		printf("\n");
 	    }
+	    if (conv_len != 0)
+		string_convert(conv_len, instr + conv_off);
 	} while ((c & 512) == 0);
     }
 
