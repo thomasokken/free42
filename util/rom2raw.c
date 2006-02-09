@@ -884,7 +884,7 @@ int main(int argc, char *argv[]) {
 	printf("Because of these XROM calls, "
 		"the converted user code may not work.\n");
     if (synthetic_code_warning)
-	printf("\nWarning: this ROM contains synthetic code; "
+	printf("\nWarning: this ROM contains synthetic code;\n"
 		"this code will probably fail on a HP-42S.\n");
     printf("\n");
 
