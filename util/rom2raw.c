@@ -233,7 +233,7 @@ int xrom2index(int modnum, int funcnum) {
 	    break;
 	res += num_func[p];
     }
-    return res + funcnum - 1;
+    return res + funcnum;
 }
 
 char *hp2ascii(char *src, int len) {
@@ -310,16 +310,16 @@ char *hp2ascii(char *src, int len) {
 
 char *instr_map[] = {
     "+", "-", "*", "/", "X<Y?", "X>Y?", "X<=Y?", "Sigma+",
-    "Sigma-", "HMS+", "HMS-", "MOD", "%", "%CH", "->REC", "->POL",
-    "LN", "X^2", "SQRT", "Y^X", "+/-", "E^X", "LOG", "10^X",
-    "E^X-1", "SIN", "COS", "TAN", "ASIN", "ACOS", "ATAN", "->DEC",
+    "Sigma-", "HMS+", "HMS-", "MOD", "%", "%CH", "P-R", "R-P",
+    "LN", "X^2", "SQRT", "Y^X", "CHS", "E^X", "LOG", "10^X",
+    "E^X-1", "SIN", "COS", "TAN", "ASIN", "ACOS", "ATAN", "DEC",
     "1/X", "ABS", "FACT", "X!=0?", "X>0?", "LN1+X", "X<0?", "X=0?",
-    "IP", "FP", "->RAD", "->DEG", "->HMS", "->HR", "RND", "->OCT",
-    "CLSigma", "X<>Y", "PI", "CLST", "R^", "Rv", "LASTX", "CLX",
+    "INT", "FRC", "D-R", "R-D", "HMS", "HR", "RND", "OCT",
+    "CLSigma", "X<>Y", "PI", "CLST", "R^", "RDN", "LASTX", "CLX",
     "X=Y?", "X!=Y?", "SIGN", "X<=0?", "MEAN", "SDEV", "AVIEW", "CLD",
-    "DEG", "RAD", "GRAD", "ENTER", "STOP", "RTN", "BEEP", "CLA",
+    "DEG", "RAD", "GRAD", "ENTER^", "STOP", "RTN", "BEEP", "CLA",
     "ASHF", "PSE", "CLRG", "AOFF", "AON", "OFF", "PROMPT", "ADV",
-    "RCL", "STO", "STO+", "STO-", "STO*", "STO/", "ISG", "DSE",
+    "RCL", "STO", "ST+", "ST-", "ST*", "ST/", "ISG", "DSE",
     "VIEW", "SigmaREG", "ASTO", "ARCL", "FIX", "SCI", "ENG", "TONE",
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     "SF", "CF", "FS?C", "FC?C", "FS?", "FC?"
@@ -371,7 +371,7 @@ int print_line(int lineno, unsigned char *instr, int len) {
 	    else if (k == 0x1A)
 		bufprintf(buf, ".");
 	    else if (k == 0x1B)
-		bufprintf(buf, "E");
+		bufprintf(buf, " E");
 	    else if (k == 0x1C)
 		bufprintf(buf, "-");
 	}
@@ -523,9 +523,9 @@ int main(int argc, char *argv[]) {
     /*   and do some other preparations.    */
     /****************************************/
 
-    num_func[0] = rom[1] - 1;
-    if (num_func[0] == 0 || num_func[0] > 63)
-	num_func[0] = 63;
+    num_func[0] = rom[1];
+    if (num_func[0] == 0 || num_func[0] > 64)
+	num_func[0] = 64;
 
     pos = ((rom[2] & 255) << 8) | (rom[3] & 255);
     if (pos <= num_func[0] * 2 + 2 || pos >= rom_size)
@@ -569,18 +569,18 @@ int main(int argc, char *argv[]) {
 	    rom_number[p] &= 31;
 	} else
 	    printf("ROM Number: %d\n", rom_number[p]);
-	num_func[p] = rom[page_base + 1] - 1;
-	if (num_func[p] <= 0 || num_func[p] > 63) {
+	num_func[p] = rom[page_base + 1];
+	if (num_func[p] <= 0 || num_func[p] > 64) {
 	    printf("Bad function count (%d), skipping this page.\n",
 					num_func[p]);
 	    num_func[p] = 0;
 	    continue;
 	}
 
-	printf("%d functions (XROM %02d,01 - %02d,%02d)\n",
-		    num_func[p], rom_number[p], rom_number[p], num_func[p]);
+	printf("%d functions (XROM %02d,00 - %02d,%02d)\n",
+		num_func[p], rom_number[p], rom_number[p], num_func[p] - 1);
 
-	for (f = 1; f <= num_func[p]; f++) {
+	for (f = 0; f < num_func[p]; f++) {
 	    int mcode;
 	    e = (rom[page_base + f * 2 + 2] << 8)
 		    | (rom[page_base + f * 2 + 3] & 255);
@@ -597,10 +597,11 @@ int main(int argc, char *argv[]) {
 		    mach_entry[total_func] = 0;
 		} else {
 		    getname(buf, e);
-		    printf("XROM %02d,%02d: machine code %s\n",
-							rom_number[p], f, buf);
+		    printf("XROM %02d,%02d: %s %s\n", rom_number[p], f,
+			rom[e] == 0x3E0 ? "dummy entry" : "machine code", buf);
 		    mach_entry[total_func] = e;
-		    machine_code_warning = 1;
+		    if (rom[e] != 0x3E0)
+			machine_code_warning = 1;
 		}
 		entry[total_func] = 0;
 	    } else {
