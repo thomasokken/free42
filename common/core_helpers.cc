@@ -475,7 +475,7 @@ void print_text(const char *text, int length, int left_justified) {
 	    buf[bufptr++] = ' ';
     for (i = 0; i < length; i++) {
 	char c = text[i];
-	if (flags.f.lowercase_print && c >= 'A' && c <= 'Z')
+	if (flags.f.lowercase_print && (c & 127) >= 'A' && (c & 127) <= 'Z')
 	    c += 32;
 	else if (c == 10)
 	    c = (char) 138;

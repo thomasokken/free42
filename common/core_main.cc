@@ -89,7 +89,7 @@ void core_quit() {
 }
 
 int core_menu() {
-    return get_front_menu() != NULL;
+    return mode_clall || get_front_menu() != NULL;
 }
 
 int core_alpha_menu() {
@@ -1659,9 +1659,21 @@ void core_import_programs(int (*progress_report)(const char *)) {
 		goto do_suffix;
 	    } else /* byte1 >= 0xF0 && byte1 <= 0xFF */ {
 		/* Strings and parameterized HP-42S extensions */
-		if (byte1 == 0x0F0)
-		    /* Don't allow 0-length strings */
-		    goto skip;
+		if (byte1 == 0x0F0) {
+		    /* Zero-length strings can only be entered synthetically
+		     * on the HP-41; they act as NOPs and are sometimes used
+		     * right after ISG or DSE.
+		     * I would be within my rights to drop these instructions
+		     * on the floor -- the real 42S doesn't deal with them
+		     * all that gracefully either -- but I'm just too nice,
+		     * so I convert them to |-"", which is also a NOP.
+		     */
+		    cmd = CMD_STRING;
+		    arg.type = ARGTYPE_STR;
+		    arg.length = 1;
+		    arg.val.text[0] = 127;
+		    goto store;
+		}
 		byte2 = getbyte(buf, &pos, &nread, 1000);
 		if (byte1 == 0x0F1) {
 		    switch (byte2) {
