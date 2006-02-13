@@ -21,13 +21,13 @@
 
 
 #include "free42.h"
+#include "core_phloat.h"
 #include "core_globals.h"
 
-
-extern double POS_HUGE_DOUBLE;
-extern double NEG_HUGE_DOUBLE;
-extern double POS_TINY_DOUBLE;
-extern double NEG_TINY_DOUBLE;
+extern phloat POS_HUGE_PHLOAT;
+extern phloat NEG_HUGE_PHLOAT;
+extern phloat POS_TINY_PHLOAT;
+extern phloat NEG_TINY_PHLOAT;
 
 void make_bcd_table() DECIMAL_SECT;
 void release_bcd_table() DECIMAL_SECT;
@@ -35,14 +35,16 @@ void char2buf(char *buf, int buflen, int *bufptr, char c) DECIMAL_SECT;
 void string2buf(char *buf, int buflen, int *bufptr, const char *s, int slen)
 							    DECIMAL_SECT;
 int int2string(int4 n, char *buf, int buflen) DECIMAL_SECT;
-int double2string(double d, char *buf, int buflen,
+int phloat2string(phloat d, char *buf, int buflen,
 		  int base_mode, int digits, int dispmode,
 		  int thousandssep) DECIMAL_SECT;
-int easy_double2string(double d, char *buf, int buflen, int base_mode)
+int easy_phloat2string(phloat d, char *buf, int buflen, int base_mode)
 							    DECIMAL_SECT;
 int vartype2string(const vartype *v, char *buf, int buflen) DECIMAL_SECT;
-int string2double(const char *buf, int buflen, double *d) DECIMAL_SECT;
-char *double2program(double d) DECIMAL_SECT;
+int string2phloat(const char *buf, int buflen, phloat *d) DECIMAL_SECT;
+char *phloat2program(phloat d) DECIMAL_SECT;
+
+void set_decimal_mode(int decimal) DECIMAL_SECT;
 
 
 #endif

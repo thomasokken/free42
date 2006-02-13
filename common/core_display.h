@@ -20,6 +20,7 @@
 #define CORE_DISPLAY_H 1
 
 #include "free42.h"
+#include "core_phloat.h"
 #include "core_globals.h"
 
 int persist_display() DISPLAY_SECT;
@@ -28,7 +29,7 @@ void clear_display() DISPLAY_SECT;
 void flush_display() DISPLAY_SECT;
 void repaint_display() DISPLAY_SECT;
 void draw_pixel(int x, int y) DISPLAY_SECT;
-void draw_pattern(double dx, double dy, const char *pattern, int pattern_width)
+void draw_pattern(phloat dx, phloat dy, const char *pattern, int pattern_width)
 								DISPLAY_SECT;
 void fly_goose() DISPLAY_SECT;
 

@@ -24,14 +24,14 @@
 #include "core_variables.h"
 
 
-vartype *new_real(double value) {
+vartype *new_real(phloat value) {
     vartype_real *r = (vartype_real *) malloc(sizeof(vartype_real));
     r->type = TYPE_REAL;
     r->x = value;
     return (vartype *) r;
 }
 
-vartype *new_complex(double re, double im) {
+vartype *new_complex(phloat re, phloat im) {
     vartype_complex *c = (vartype_complex *) malloc(sizeof(vartype_complex));
     c->type = TYPE_COMPLEX;
     c->re = re;
@@ -58,8 +58,7 @@ vartype *new_realmatrix(int4 rows, int4 columns) {
     rm->columns = columns;
     sz = rows * columns;
     rm->array = (realmatrix_data *) malloc(sizeof(realmatrix_data));
-    rm->array->data = (double_or_string *)
-				    malloc(sz * sizeof(double_or_string));
+    rm->array->data = (phloat *) malloc(sz * sizeof(phloat));
     if (rm->array->data == NULL) {
 	/* Oops */
 	free(rm->array);
@@ -75,7 +74,7 @@ vartype *new_realmatrix(int4 rows, int4 columns) {
 	return NULL;
     }
     for (i = 0; i < sz; i++)
-	rm->array->data[i].d = 0;
+	rm->array->data[i] = 0;
     for (i = 0; i < sz; i++)
 	rm->array->is_string[i] = 0;
     rm->array->refcount = 1;
@@ -91,7 +90,7 @@ vartype *new_complexmatrix(int4 rows, int4 columns) {
     cm->columns = columns;
     sz = rows * columns * 2;
     cm->array = (complexmatrix_data *) malloc(sizeof(complexmatrix_data));
-    cm->array->data = (double *) malloc(2 * sz * sizeof(double));
+    cm->array->data = (phloat *) malloc(2 * sz * sizeof(phloat));
     if (cm->array->data == NULL) {
 	/* Oops */
 	free(cm->array);
@@ -189,8 +188,7 @@ int disentangle(vartype *v) {
 					malloc(sizeof(realmatrix_data));
 		int4 sz = rm->rows * rm->columns;
 		int4 i;
-		md->data = (double_or_string *)
-				    malloc(sz * sizeof(double_or_string));
+		md->data = (phloat *) malloc(sz * sizeof(phloat));
 		if (md->data == NULL) {
 		    free(md);
 		    return 0;
@@ -220,7 +218,7 @@ int disentangle(vartype *v) {
 					    malloc(sizeof(complexmatrix_data));
 		int4 sz = cm->rows * cm->columns * 2;
 		int4 i;
-		md->data = (double *) malloc(sz * sizeof(double));
+		md->data = (phloat *) malloc(sz * sizeof(phloat));
 		if (md->data == NULL) {
 		    free(md);
 		    return 0;
@@ -382,7 +380,7 @@ int matrix_copy(vartype *dst, const vartype *src) {
 		return ERR_ALPHA_DATA_IS_INVALID;
 	    size = s->rows * s->columns;
 	    for (i = 0; i < size; i++) {
-		d->array->data[2 * i] = s->array->data[i].d;
+		d->array->data[2 * i] = s->array->data[i];
 		d->array->data[2 * i + 1] = 0;
 	    }
 	    return ERR_NONE;

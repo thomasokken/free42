@@ -62,6 +62,7 @@ void core_init(int read_saved_state, int4 version) {
     make_bcd_table();
     if (read_saved_state != 1 || !load_state(version))
 	hard_reset(read_saved_state != 0);
+    set_decimal_mode(core_settings.decimal);
 
     repaint_display();
     shell_annunciators(mode_updown,
@@ -709,7 +710,7 @@ static int export_hp42s(int index, int (*progress_report)(const char *)) {
 		    cmdbuf[cmdlen++] = 0x00;
 		    cmdbuf[cmdlen++] = 0x0D;
 		} else if (cmd == CMD_NUMBER) {
-		    char *p = double2program(arg.val.d);
+		    char *p = phloat2program(arg.val_d);
 		    char dot = flags.f.decimal_point ? '.' : ',';
 		    char c;
 		    while ((c = *p++) != 0) {
@@ -928,7 +929,7 @@ int4 hp42s_size(int prgm_index) {
 		} else if (cmd == CMD_END) {
 		    /* Not counted for the line 00 total */
 		} else if (cmd == CMD_NUMBER) {
-		    char *p = double2program(arg.val.d);
+		    char *p = phloat2program(arg.val_d);
 		    while (*p++ != 0)
 			size += 1;
 		    size += 1;
@@ -1537,24 +1538,24 @@ void core_import_programs(int (*progress_report)(const char *)) {
 		    done_flag = 1;
 		else if (byte1 != 0x00)
 		    pos--;
-		s2d_err = string2double(numbuf, numlen, &arg.val.d);
+		s2d_err = string2phloat(numbuf, numlen, &arg.val_d);
 		switch (s2d_err) {
 		    case 0: /* OK */
 			break;
 		    case 1: /* +overflow */
-			arg.val.d = POS_HUGE_DOUBLE;
+			arg.val_d = POS_HUGE_PHLOAT;
 			break;
 		    case 2: /* -overflow */
-			arg.val.d = NEG_HUGE_DOUBLE;
+			arg.val_d = NEG_HUGE_PHLOAT;
 			break;
 		    case 3: /* +underflow */
-			arg.val.d = POS_TINY_DOUBLE;
+			arg.val_d = POS_TINY_PHLOAT;
 			break;
 		    case 4: /* -underflow */
-			arg.val.d = NEG_TINY_DOUBLE;
+			arg.val_d = NEG_TINY_PHLOAT;
 			break;
 		    case 5: /* error */
-			arg.val.d = 0;
+			arg.val_d = 0;
 			break;
 		}
 		cmd = CMD_NUMBER;

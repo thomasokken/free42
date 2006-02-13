@@ -23,10 +23,10 @@
 #include "shell.h"
 
 
-double POS_HUGE_DOUBLE;
-double NEG_HUGE_DOUBLE;
-double POS_TINY_DOUBLE;
-double NEG_TINY_DOUBLE;
+phloat POS_HUGE_PHLOAT;
+phloat NEG_HUGE_PHLOAT;
+phloat POS_TINY_PHLOAT;
+phloat NEG_TINY_PHLOAT;
 
 /* binary-to-bcd conversion tables */
 static int min_pow2;
@@ -41,6 +41,11 @@ static shell_bcd_table_struct *bcdtab = NULL;
 /*********************/
 /* Private functions */
 /*********************/
+
+static double POS_HUGE_DOUBLE;
+static double NEG_HUGE_DOUBLE;
+static double POS_TINY_DOUBLE;
+static double NEG_TINY_DOUBLE;
 
 static void bcd_add(char *dst_mant, int *dst_exp,
 		    const char *src_mant, int src_exp) DECIMAL_SECT;
@@ -619,8 +624,10 @@ int int2string(int4 n, char *buf, int buflen) {
     return count;
 }
 
-int double2string(double d, char *buf, int buflen, int base_mode, int digits,
+int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
 			 int dispmode, int thousandssep) {
+    // PHLOAT_TODO: Separate decimal and binary implementations
+    double d = pd.to_double();
     double mantissa;
 #ifdef PALMOS
     Int16 exp;
@@ -634,12 +641,12 @@ int double2string(double d, char *buf, int buflen, int base_mode, int digits,
     int chars_so_far = 0;
     int base;
 
-    if (isnan(d)) {
+    if (p_isnan(d)) {
 	string2buf(buf, buflen, &chars_so_far, "<Not a Number>", 14);
 	return chars_so_far;
     }
 
-    if (isinf(d)) {
+    if (p_isinf(d)) {
 	char2buf(buf, buflen, &chars_so_far, '<');
 	if (d < 0)
 	    char2buf(buf, buflen, &chars_so_far, '-');
@@ -1015,7 +1022,8 @@ int double2string(double d, char *buf, int buflen, int base_mode, int digits,
     }
 }
 
-int easy_double2string(double d, char *buf, int buflen, int base_mode) {
+int easy_phloat2string(phloat d, char *buf, int buflen, int base_mode) {
+    // PHLOAT_TODO: Separate decimal and binary implementations
     int dispmode;
     int digits = 0;
 
@@ -1032,7 +1040,7 @@ int easy_double2string(double d, char *buf, int buflen, int base_mode) {
     if (flags.f.digits_bit0)
 	digits += 1;
 
-    return double2string(d, buf, buflen, base_mode,
+    return phloat2string(d, buf, buflen, base_mode,
 			 digits, dispmode, flags.f.thousands_separators);
 }
 
@@ -1056,12 +1064,12 @@ int vartype2string(const vartype *v, char *buf, int buflen) {
     switch (v->type) {
 
 	case TYPE_REAL:
-	    return double2string(((vartype_real *) v)->x, buf, buflen,
+	    return phloat2string(((vartype_real *) v)->x, buf, buflen,
 				 1, digits, dispmode,
 				 flags.f.thousands_separators);
 
 	case TYPE_COMPLEX: {
-	    double x, y;
+	    phloat x, y;
 	    char x_buf[22];
 	    int x_len;
 	    char y_buf[22];
@@ -1071,26 +1079,26 @@ int vartype2string(const vartype *v, char *buf, int buflen) {
 	    if (flags.f.polar) {
 		generic_r2p(((vartype_complex *) v)->re,
 			    ((vartype_complex *) v)->im, &x, &y);
-		if (isinf(x))
+		if (p_isinf(x))
 		    x = POS_HUGE_DOUBLE;
 	    } else {
 		x = ((vartype_complex *) v)->re;
 		y = ((vartype_complex *) v)->im;
 	    }
 
-	    x_len = double2string(x, x_buf, 22,
+	    x_len = phloat2string(x, x_buf, 22,
 				  0, digits, dispmode,
 				  flags.f.thousands_separators);
-	    y_len = double2string(y, y_buf, 22,
+	    y_len = phloat2string(y, y_buf, 22,
 				  0, digits, dispmode,
 				  flags.f.thousands_separators);
 
 	    if (x_len + y_len + 2 > buflen) {
 		/* Too long? Fall back on ENG 2 */
-		x_len = double2string(x, x_buf, 22,
+		x_len = phloat2string(x, x_buf, 22,
 				      0, 2, 2,
 				      flags.f.thousands_separators);
-		y_len = double2string(y, y_buf, 22,
+		y_len = phloat2string(y, y_buf, 22,
 				      0, 2, 2,
 				      flags.f.thousands_separators);
 	    }
@@ -1173,8 +1181,9 @@ int vartype2string(const vartype *v, char *buf, int buflen) {
     }
 }
 
-int string2double(const char *buf, int buflen, double *d) {
-    /* Convert string to double.
+int string2phloat(const char *buf, int buflen, phloat *d) {
+    // PHLOAT_TODO: Separate decimal and binary implementations
+    /* Convert string to phloat.
      * Return values:
      * 0: no error
      * 1: positive overflow
@@ -1367,7 +1376,7 @@ int string2double(const char *buf, int buflen, double *d) {
 	res = -res;
     if (res == 0)
 	return mant_sign ? 4 : 3;
-    else if (isinf(res))
+    else if (p_isinf(res))
 	return mant_sign ? 2 : 1;
     else {
 	*d = res;
@@ -1375,8 +1384,8 @@ int string2double(const char *buf, int buflen, double *d) {
     }
 }
 
-char *double2program(double d) {
-    /* Converts a double to its most compact representation;
+char *phloat2program(phloat d) {
+    /* Converts a phloat to its most compact representation;
      * used for generating HP-42S style number literals in programs.
      */
     static char allbuf[25];
@@ -1386,8 +1395,8 @@ char *double2program(double d) {
     char dot = flags.f.decimal_point ? '.' : ',';
     int decimal, zeroes, last_nonzero, exponent;
     int i;
-    alllen = double2string(d, allbuf, 24, 0, 0, 3, 0);
-    scilen = double2string(d, scibuf, 24, 0, 11, 1, 0);
+    alllen = phloat2string(d, allbuf, 24, 0, 0, 3, 0);
+    scilen = phloat2string(d, scibuf, 24, 0, 11, 1, 0);
     /* Shorten SCI representation by removing trailing zeroes,
      * and decreasing the exponent until the decimal point
      * shifts out of the mantissa.
@@ -1464,5 +1473,16 @@ char *double2program(double d) {
     } else {
 	allbuf[alllen] = 0;
 	return allbuf;
+    }
+}
+
+void set_decimal_mode(int decimal) {
+    if (decimal) {
+	// TODO
+    } else {
+	POS_HUGE_PHLOAT = POS_HUGE_DOUBLE;
+	NEG_HUGE_PHLOAT = NEG_HUGE_DOUBLE;
+	POS_TINY_PHLOAT = POS_TINY_DOUBLE;
+	NEG_TINY_PHLOAT = NEG_TINY_DOUBLE;
     }
 }

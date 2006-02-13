@@ -40,30 +40,30 @@
 typedef struct {
     vartype_realmatrix *a;
     int4 *perm;
-    double det;
+    phloat det;
     int4 i, imax, j, k;
-    double max, tmp, sum, *scale;
+    phloat max, tmp, sum, *scale;
     int state;
-    int (*completion)(int, vartype_realmatrix *, int4 *, double);
+    int (*completion)(int, vartype_realmatrix *, int4 *, phloat);
 } lu_r_data_struct;
 
 lu_r_data_struct *lu_r_data;
 
 static int lu_decomp_r(vartype_realmatrix *a, int4 *perm,
 		       int (*completion)(int, vartype_realmatrix *,
-					  int4 *, double)) LINALG_SECT;
+					  int4 *, phloat)) LINALG_SECT;
 static int lu_decomp_r_worker(int interrupted) LINALG_SECT;
 
 static int lu_decomp_r(vartype_realmatrix *a, int4 *perm,
 		       int (*completion)(int, vartype_realmatrix *,
-					  int4 *, double)) {
+					  int4 *, phloat)) {
     lu_r_data_struct *dat =
 		(lu_r_data_struct *) malloc(sizeof(lu_r_data_struct));
 
     if (dat == NULL)
 	return completion(ERR_INSUFFICIENT_MEMORY, a, perm, 0);
 
-    dat->scale = (double *) malloc(a->rows * sizeof(double));
+    dat->scale = (phloat *) malloc(a->rows * sizeof(phloat));
     if (dat->scale == NULL) {
 	free(dat);
 	return completion(ERR_INSUFFICIENT_MEMORY, a, perm, 0);
@@ -85,9 +85,9 @@ static int lu_decomp_r_worker(int interrupted) {
     
     lu_r_data_struct *dat = lu_r_data;
 
-    double_or_string *a = dat->a->array->data;
+    phloat *a = dat->a->array->data;
     int4 n = dat->a->rows;
-    double *scale = dat->scale;
+    phloat *scale = dat->scale;
     int4 *perm = dat->perm;
     int count = 1000;
     int err;
@@ -96,9 +96,9 @@ static int lu_decomp_r_worker(int interrupted) {
     int4 imax = dat->imax;
     int4 j = dat->j;
     int4 k = dat->k;
-    double max = dat->max;
-    double tmp = dat->tmp;
-    double sum = dat->sum;
+    phloat max = dat->max;
+    phloat tmp = dat->tmp;
+    phloat sum = dat->sum;
 
     if (interrupted) {
 	free(scale);
@@ -121,7 +121,7 @@ static int lu_decomp_r_worker(int interrupted) {
     for (i = 0; i < n; i++) {
 	max = 0;
 	for (j = 0; j < n; j++) {
-	    tmp = a[i * n + j].d;
+	    tmp = a[i * n + j];
 	    if (tmp < 0)
 		tmp = -tmp;
 	    if (tmp > max)
@@ -133,23 +133,23 @@ static int lu_decomp_r_worker(int interrupted) {
 
     for (j = 0; j < n; j++) {
 	for (i = 0; i < j; i++) {
-	    sum = a[i * n + j].d;
+	    sum = a[i * n + j];
 	    for (k = 0; k < i; k++) {
-		sum -= a[i * n + k].d * a[k * n + j].d;
+		sum -= a[i * n + k] * a[k * n + j];
 		STATE(2);
 	    }
-	    a[i * n + j].d = sum;
+	    a[i * n + j] = sum;
 	}
 
 	max = 0;
 	imax = j;
 	for (i = j; i < n; i++) {
-	    sum = a[i * n + j].d;
+	    sum = a[i * n + j];
 	    for (k = 0; k < j; k++) {
-		sum -= a[i * n + k].d * a[k * n + j].d;
+		sum -= a[i * n + k] * a[k * n + j];
 		STATE(3);
 	    }
-	    a[i * n  + j].d = sum;
+	    a[i * n  + j] = sum;
 	    if (scale[i] == 0) {
 		imax = i;
 		break;
@@ -163,9 +163,9 @@ static int lu_decomp_r_worker(int interrupted) {
 
 	if (j != imax) {
 	    for (k = 0; k < n; k++) {
-		tmp = a[imax * n + k].d;
-		a[imax * n + k].d = a[j * n + k].d;
-		a[j * n + k].d = tmp;
+		tmp = a[imax * n + k];
+		a[imax * n + k] = a[j * n + k];
+		a[j * n + k] = tmp;
 		STATE(4);
 	    }
 	    dat->det = -dat->det;
@@ -173,7 +173,7 @@ static int lu_decomp_r_worker(int interrupted) {
 	}
 
 	perm[j] = imax;
-	if (a[j * n + j].d == 0) {
+	if (a[j * n + j] == 0) {
 	    if (core_settings.matrix_singularmatrix) {
 		free(scale);
 		err = dat->completion(ERR_SINGULAR_MATRIX, dat->a, perm, 0);
@@ -183,10 +183,10 @@ static int lu_decomp_r_worker(int interrupted) {
 		/* For a zero pivot, substitute a small positive number.
 		 * I use a number that's about 10^-20 times the size of
 		 * the maximum of the original column, with a minimum of
-		 * 10^20 / POS_HUGE_DOUBLE.
+		 * 10^20 / POS_HUGE_PHLOAT.
 		 */
-		double tiniest = 1e20 / POS_HUGE_DOUBLE;
-		double tiny;
+		phloat tiniest = 1e20 / POS_HUGE_PHLOAT;
+		phloat tiny;
 		if (scale[j] == 0)
 		    tiny = tiniest;
 		else {
@@ -194,14 +194,14 @@ static int lu_decomp_r_worker(int interrupted) {
 		    if (tiny < tiniest)
 			tiny = tiniest;
 		}
-		a[j * n + j].d = tiny;
+		a[j * n + j] = tiny;
 	    }
 	}
-	dat->det *= a[j * n + j].d;
+	dat->det *= a[j * n + j];
 	if (j != n - 1) {
-	    tmp = 1 / a[j * n + j].d;
+	    tmp = 1 / a[j * n + j];
 	    for (i = j + 1; i < n; i++) {
-		a[i * n + j].d *= tmp;
+		a[i * n + j] *= tmp;
 		STATE(5);
 	    }
 	}
@@ -227,30 +227,30 @@ static int lu_decomp_r_worker(int interrupted) {
 typedef struct {
     vartype_complexmatrix *a;
     int4 *perm;
-    double det_re, det_im;
+    phloat det_re, det_im;
     int4 i, imax, j, k;
-    double max, tmp, tmp_re, tmp_im, sum_re, sum_im, *scale;
+    phloat max, tmp, tmp_re, tmp_im, sum_re, sum_im, *scale;
     int state;
-    int (*completion)(int, vartype_complexmatrix *, int4 *, double, double);
+    int (*completion)(int, vartype_complexmatrix *, int4 *, phloat, phloat);
 } lu_c_data_struct;
 
 lu_c_data_struct *lu_c_data;
 
 static int lu_decomp_c(vartype_complexmatrix *a, int4 *perm,
 		       int (*completion)(int, vartype_complexmatrix *,
-					  int4 *, double, double)) LINALG_SECT;
+					  int4 *, phloat, phloat)) LINALG_SECT;
 static int lu_decomp_c_worker(int interrupted) LINALG_SECT;
 
 static int lu_decomp_c(vartype_complexmatrix *a, int4 *perm,
 		       int (*completion)(int, vartype_complexmatrix *,
-					  int4 *, double, double)) {
+					  int4 *, phloat, phloat)) {
     lu_c_data_struct *dat =
 		(lu_c_data_struct *) malloc(sizeof(lu_c_data_struct));
 
     if (dat == NULL)
 	return completion(ERR_INSUFFICIENT_MEMORY, a, perm, 0, 0);
 
-    dat->scale = (double *) malloc(a->rows * sizeof(double));
+    dat->scale = (phloat *) malloc(a->rows * sizeof(phloat));
     if (dat->scale == NULL) {
 	free(dat);
 	return completion(ERR_INSUFFICIENT_MEMORY, a, perm, 0, 0);
@@ -272,9 +272,9 @@ static int lu_decomp_c_worker(int interrupted) {
     
     lu_c_data_struct *dat = lu_c_data;
 
-    double *a = dat->a->array->data;
+    phloat *a = dat->a->array->data;
     int4 n = dat->a->rows;
-    double *scale = dat->scale;
+    phloat *scale = dat->scale;
     int4 *perm = dat->perm;
     int count = 1000;
     int err;
@@ -283,12 +283,17 @@ static int lu_decomp_c_worker(int interrupted) {
     int4 imax = dat->imax;
     int4 j = dat->j;
     int4 k = dat->k;
-    double max = dat->max;
-    double tmp = dat->tmp;
-    double tmp_re = dat->tmp_re;
-    double tmp_im = dat->tmp_im;
-    double sum_re = dat->sum_re;
-    double sum_im = dat->sum_im;
+    phloat max = dat->max;
+    phloat tmp = dat->tmp;
+    phloat tmp_re = dat->tmp_re;
+    phloat tmp_im = dat->tmp_im;
+    phloat sum_re = dat->sum_re;
+    phloat sum_im = dat->sum_im;
+
+    phloat xre, xim, yre, yim;
+    phloat tiniest = 1e20 / POS_HUGE_PHLOAT;
+    phloat tiny;
+    phloat s_re, s_im;
 
     if (interrupted) {
 	free(scale);
@@ -325,7 +330,6 @@ static int lu_decomp_c_worker(int interrupted) {
 	    sum_re = a[2 * (i * n + j)];
 	    sum_im = a[2 * (i * n + j) + 1];
 	    for (k = 0; k < i; k++) {
-		double xre, xim, yre, yim;
 		xre = a[2 * (i * n + k)];
 		xim = a[2 * (i * n + k) + 1];
 		yre = a[2 * (k * n + j)];
@@ -343,7 +347,6 @@ static int lu_decomp_c_worker(int interrupted) {
 	    sum_re = a[2 * (i * n + j)];
 	    sum_im = a[2 * (i * n + j) + 1];
 	    for (k = 0; k < j; k++) {
-		double xre, xim, yre, yim;
 		xre = a[2 * (i * n + k)];
 		xim = a[2 * (i * n + k) + 1];
 		yre = a[2 * (k * n + j)];
@@ -393,10 +396,8 @@ static int lu_decomp_c_worker(int interrupted) {
 		/* For a zero pivot, substitute a small positive number.
 		 * I use a number that's about 10^-20 times the size of
 		 * the maximum of the original column, with a minimum of
-		 * 10^20 / POS_HUGE_DOUBLE.
+		 * 10^20 / POS_HUGE_PHLOAT.
 		 */
-		double tiniest = 1e20 / POS_HUGE_DOUBLE;
-		double tiny;
 		if (scale[j] == 0)
 		    tiny = tiniest;
 		else {
@@ -412,7 +413,6 @@ static int lu_decomp_c_worker(int interrupted) {
 	dat->det_im = dat->det_im * tmp_re + dat->det_re * tmp_im;
 	dat->det_re = tmp;
 	if (j != n - 1) {
-	    double s_re, s_im;
 	    tmp = hypot(tmp_re, tmp_im);
 	    s_re = tmp_re / tmp / tmp;
 	    s_im = -tmp_im / tmp / tmp;
@@ -455,7 +455,7 @@ typedef struct {
     int4 *perm;
     vartype_realmatrix *b;
     int4 i, ii, j, ll, k;
-    double sum;
+    phloat sum;
     int state;
     void (*completion)(int, vartype_realmatrix *, int4 *, vartype_realmatrix *);
 } backsub_rr_data_struct;
@@ -497,9 +497,9 @@ static int lu_backsubst_rr(vartype_realmatrix *a,
 
 static int lu_backsubst_rr_worker(int interrupted) {
     backsub_rr_data_struct *dat = backsub_rr_data;
-    double_or_string *a = dat->a->array->data;
+    phloat *a = dat->a->array->data;
     int4 n = dat->a->rows;
-    double_or_string *b = dat->b->array->data;
+    phloat *b = dat->b->array->data;
     int4 q = dat->b->columns;
     int4 *perm = dat->perm;
     int count = 1000;
@@ -509,7 +509,9 @@ static int lu_backsubst_rr_worker(int interrupted) {
     int4 j = dat->j;
     int4 ll = dat->ll;
     int4 k = dat->k;
-    double sum = dat->sum;
+    phloat sum = dat->sum;
+
+    phloat t;
 
     if (interrupted) {
 	dat->completion(ERR_INTERRUPTED, dat->a, perm, dat->b);
@@ -527,33 +529,32 @@ static int lu_backsubst_rr_worker(int interrupted) {
 	ii = -1;
 	for (i = 0; i < n; i++) {
 	    ll = perm[i];
-	    sum = b[ll * q + k].d;
-	    b[ll * q + k].d = b[i * q + k].d;
+	    sum = b[ll * q + k];
+	    b[ll * q + k] = b[i * q + k];
 	    if (ii != -1) {
 		for (j = ii; j < i; j++) {
-		    sum -= a[i * n + j].d * b[j * q + k].d;
+		    sum -= a[i * n + j] * b[j * q + k];
 		    STATE(1);
 		}
 	    } else if (sum != 0)
 		ii = i;
-	    b[i * q + k].d = sum;
+	    b[i * q + k] = sum;
 	}
 	for (i = n - 1; i >= 0; i--) {
-	    double t;
-	    sum = b[i * q + k].d;
+	    sum = b[i * q + k];
 	    for (j = i + 1; j < n; j++) {
-		sum -= a[i * n + j].d * b[j * q + k].d;
+		sum -= a[i * n + j] * b[j * q + k];
 		STATE(2);
 	    }
-	    t = sum / a[i * n + i].d;
-	    if (isinf(t) || isnan(t)) {
+	    t = sum / a[i * n + i];
+	    if (p_isinf(t) || p_isnan(t)) {
 		if (core_settings.matrix_outofrange
 					&& !flags.f.range_error_ignore)
 		    return ERR_OUT_OF_RANGE;
 		else
-		    t = isinf(t) < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+		    t = p_isinf(t) < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 	    }
-	    b[i * q + k].d = t;
+	    b[i * q + k] = t;
 	}
     }
 
@@ -576,7 +577,7 @@ typedef struct {
     int4 *perm;
     vartype_complexmatrix *b;
     int4 i, ii, j, ll, k;
-    double sum_re, sum_im;
+    phloat sum_re, sum_im;
     int state;
     void (*completion)(int, vartype_realmatrix *, int4 *,
 					    vartype_complexmatrix *);
@@ -619,9 +620,9 @@ static int lu_backsubst_rc(vartype_realmatrix *a,
 
 static int lu_backsubst_rc_worker(int interrupted) {
     backsub_rc_data_struct *dat = backsub_rc_data;
-    double_or_string *a = dat->a->array->data;
+    phloat *a = dat->a->array->data;
     int4 n = dat->a->rows;
-    double *b = dat->b->array->data;
+    phloat *b = dat->b->array->data;
     int4 q = dat->b->columns;
     int4 *perm = dat->perm;
     int count = 1000;
@@ -631,9 +632,11 @@ static int lu_backsubst_rc_worker(int interrupted) {
     int4 j = dat->j;
     int4 ll = dat->ll;
     int4 k = dat->k;
-    double sum_re = dat->sum_re;
-    double sum_im = dat->sum_im;
-    double tmp;
+    phloat sum_re = dat->sum_re;
+    phloat sum_im = dat->sum_im;
+    phloat tmp;
+
+    phloat t_re, t_im;
 
     if (interrupted) {
 	dat->completion(ERR_INTERRUPTED, dat->a, perm, dat->b);
@@ -657,7 +660,7 @@ static int lu_backsubst_rc_worker(int interrupted) {
 	    b[2 * (ll * q + k) + 1] = b[2 * (i * q + k) + 1];
 	    if (ii != -1) {
 		for (j = ii; j < i; j++) {
-		    tmp = a[i * n + j].d;
+		    tmp = a[i * n + j];
 		    sum_re -= tmp * b[2 * (j * q + k)];
 		    sum_im -= tmp * b[2 * (j * q + k) + 1];
 		    STATE(1);
@@ -668,31 +671,30 @@ static int lu_backsubst_rc_worker(int interrupted) {
 	    b[2 * (i * q + k) + 1] = sum_im;
 	}
 	for (i = n - 1; i >= 0; i--) {
-	    double t_re, t_im;
 	    sum_re = b[2 * (i * q + k)];
 	    sum_im = b[2 * (i * q + k) + 1];
 	    for (j = i + 1; j < n; j++) {
-		tmp = a[i * n + j].d;
+		tmp = a[i * n + j];
 		sum_re -= tmp * b[2 * (j * q + k)];
 		sum_im -= tmp * b[2 * (j * q + k) + 1];
 		STATE(2);
 	    }
-	    tmp = a[i * n + i].d;
+	    tmp = a[i * n + i];
 	    t_re = sum_re / tmp;
 	    t_im = sum_im / tmp;
-	    if (isinf(t_re) || isnan(t_re)) {
+	    if (p_isinf(t_re) || p_isnan(t_re)) {
 		if (core_settings.matrix_outofrange
 					&& !flags.f.range_error_ignore)
 		    return ERR_OUT_OF_RANGE;
 		else
-		    t_re = isinf(t_re) < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+		    t_re = p_isinf(t_re) < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 	    }
-	    if (isinf(t_im) || isnan(t_im)) {
+	    if (p_isinf(t_im) || p_isnan(t_im)) {
 		if (core_settings.matrix_outofrange
 					&& !flags.f.range_error_ignore)
 		    return ERR_OUT_OF_RANGE;
 		else
-		    t_im = isinf(t_im) < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+		    t_im = p_isinf(t_im) < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 	    }
 	    b[2 * (i * q + k)] = t_re;
 	    b[2 * (i * q + k) + 1] = t_im;
@@ -719,7 +721,7 @@ typedef struct {
     int4 *perm;
     vartype_complexmatrix *b;
     int4 i, ii, j, ll, k;
-    double sum_re, sum_im;
+    phloat sum_re, sum_im;
     int state;
     void (*completion)(int, vartype_complexmatrix *, int4 *,
 					    vartype_complexmatrix *);
@@ -762,9 +764,9 @@ static int lu_backsubst_cc(vartype_complexmatrix *a,
 
 static int lu_backsubst_cc_worker(int interrupted) {
     backsub_cc_data_struct *dat = backsub_cc_data;
-    double *a = dat->a->array->data;
+    phloat *a = dat->a->array->data;
     int4 n = dat->a->rows;
-    double *b = dat->b->array->data;
+    phloat *b = dat->b->array->data;
     int4 q = dat->b->columns;
     int4 *perm = dat->perm;
     int count = 1000;
@@ -774,9 +776,12 @@ static int lu_backsubst_cc_worker(int interrupted) {
     int4 j = dat->j;
     int4 ll = dat->ll;
     int4 k = dat->k;
-    double sum_re = dat->sum_re;
-    double sum_im = dat->sum_im;
-    double tmp, tmp_re, tmp_im;
+    phloat sum_re = dat->sum_re;
+    phloat sum_im = dat->sum_im;
+    phloat tmp, tmp_re, tmp_im;
+
+    phloat bre, bim;
+    phloat t_re, t_im;
 
     if (interrupted) {
 	dat->completion(ERR_INTERRUPTED, dat->a, perm, dat->b);
@@ -800,7 +805,6 @@ static int lu_backsubst_cc_worker(int interrupted) {
 	    b[2 * (ll * q + k) + 1] = b[2 * (i * q + k) + 1];
 	    if (ii != -1) {
 		for (j = ii; j < i; j++) {
-		    double bre, bim;
 		    bre = b[2 * (j * q + k)];
 		    bim = b[2 * (j * q + k) + 1];
 		    tmp_re = a[2 * (i * n + j)];
@@ -815,11 +819,9 @@ static int lu_backsubst_cc_worker(int interrupted) {
 	    b[2 * (i * q + k) + 1] = sum_im;
 	}
 	for (i = n - 1; i >= 0; i--) {
-	    double t_re, t_im;
 	    sum_re = b[2 * (i * q + k)];
 	    sum_im = b[2 * (i * q + k) + 1];
 	    for (j = i + 1; j < n; j++) {
-		double bre, bim;
 		bre = b[2 * (j * q + k)];
 		bim = b[2 * (j * q + k) + 1];
 		tmp_re = a[2 * (i * n + j)];
@@ -835,19 +837,19 @@ static int lu_backsubst_cc_worker(int interrupted) {
 	    tmp_im = -tmp_im / tmp / tmp;
 	    t_re = sum_re * tmp_re - sum_im * tmp_im;
 	    t_im = sum_im * tmp_re + sum_re * tmp_im;
-	    if (isinf(t_re) || isnan(t_re)) {
+	    if (p_isinf(t_re) || p_isnan(t_re)) {
 		if (core_settings.matrix_outofrange
 					&& !flags.f.range_error_ignore)
 		    return ERR_OUT_OF_RANGE;
 		else
-		    t_re = isinf(t_re) < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+		    t_re = p_isinf(t_re) < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 	    }
-	    if (isinf(t_im) || isnan(t_im)) {
+	    if (p_isinf(t_im) || p_isnan(t_im)) {
 		if (core_settings.matrix_outofrange
 					&& !flags.f.range_error_ignore)
 		    return ERR_OUT_OF_RANGE;
 		else
-		    t_im = isinf(t_im) < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+		    t_im = p_isinf(t_im) < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 	    }
 	    b[2 * (i * q + k)] = t_re;
 	    b[2 * (i * q + k) + 1] = t_im;
@@ -879,19 +881,19 @@ static const vartype *linalg_div_left;
 static vartype *linalg_div_result;
 
 static int div_rr_completion1(int error, vartype_realmatrix *a, int4 *perm,
-				    double det) LINALG_SECT;
+				    phloat det) LINALG_SECT;
 static void div_rr_completion2(int error, vartype_realmatrix *a, int4 *perm,
 				    vartype_realmatrix *b) LINALG_SECT;
 static int div_rc_completion1(int error, vartype_complexmatrix *a, int4 *perm,
-				    double det_re, double det_im) LINALG_SECT;
+				    phloat det_re, phloat det_im) LINALG_SECT;
 static void div_rc_completion2(int error, vartype_complexmatrix *a, int4 *perm,
 				    vartype_complexmatrix *b) LINALG_SECT;
 static int div_cr_completion1(int error, vartype_realmatrix *a, int4 *perm,
-				    double det) LINALG_SECT;
+				    phloat det) LINALG_SECT;
 static void div_cr_completion2(int error, vartype_realmatrix *a, int4 *perm,
 				    vartype_complexmatrix *b) LINALG_SECT;
 static int div_cc_completion1(int error, vartype_complexmatrix *a, int4 *perm,
-				    double det_re, double det_im) LINALG_SECT;
+				    phloat det_re, phloat det_im) LINALG_SECT;
 static void div_cc_completion2(int error, vartype_complexmatrix *a, int4 *perm,
 				    vartype_complexmatrix *b) LINALG_SECT;
 
@@ -1045,7 +1047,7 @@ int linalg_div(const vartype *left, const vartype *right,
 }
 
 static int div_rr_completion1(int error, vartype_realmatrix *a, int4 *perm,
-					 double det) {
+					 phloat det) {
     if (error != ERR_NONE) {
 	free_vartype((vartype *) a);
 	free(perm);
@@ -1069,7 +1071,7 @@ static void div_rr_completion2(int error, vartype_realmatrix *a, int4 *perm,
 }
 
 static int div_rc_completion1(int error, vartype_complexmatrix *a, int4 *perm,
-					 double det_re, double det_im) {
+					 phloat det_re, phloat det_im) {
     if (error != ERR_NONE) {
 	free_vartype((vartype *) a);
 	free(perm);
@@ -1093,7 +1095,7 @@ static void div_rc_completion2(int error, vartype_complexmatrix *a, int4 *perm,
 }
 
 static int div_cr_completion1(int error, vartype_realmatrix *a, int4 *perm,
-				    double det) {
+				    phloat det) {
     if (error != ERR_NONE) {
 	free_vartype((vartype *) a);
 	free(perm);
@@ -1117,7 +1119,7 @@ static void div_cr_completion2(int error, vartype_realmatrix *a, int4 *perm,
 }
 
 static int div_cc_completion1(int error, vartype_complexmatrix *a, int4 *perm,
-				    double det_re, double det_im) {
+				    phloat det_re, phloat det_im) {
     if (error != ERR_NONE) {
 	free_vartype((vartype *) a);
 	free(perm);
@@ -1150,7 +1152,7 @@ typedef struct {
     vartype_realmatrix *right;
     vartype *result;
     int4 i, j, k;
-    double sum;
+    phloat sum;
     void (*completion)(int error, vartype *result);
 } mul_rr_data_struct;
 
@@ -1211,16 +1213,16 @@ static int matrix_mul_rr_worker(int interrupted) {
     mul_rr_data_struct *dat = mul_rr_data;
     int count = 0;
     int inf;
-    double_or_string *l = dat->left->array->data;
-    double_or_string *r = dat->right->array->data;
-    double_or_string *p = ((vartype_realmatrix *) dat->result)->array->data;
+    phloat *l = dat->left->array->data;
+    phloat *r = dat->right->array->data;
+    phloat *p = ((vartype_realmatrix *) dat->result)->array->data;
     int4 i = dat->i;
     int4 j = dat->j;
     int4 k = dat->k;
     int4 m = dat->left->rows;
     int4 n = dat->right->columns;
     int4 q = dat->left->columns;
-    double sum = dat->sum;
+    phloat sum = dat->sum;
 
     if (interrupted) {
 	dat->completion(ERR_INTERRUPTED, NULL);
@@ -1230,20 +1232,20 @@ static int matrix_mul_rr_worker(int interrupted) {
     }
 
     while (count++ < 1000) {
-	sum += l[i * q + k].d * r[k * n + j].d;
+	sum += l[i * q + k] * r[k * n + j];
 	if (++k < q)
 	    continue;
 	k = 0;
-	if ((inf = isinf(sum)) != 0) {
+	if ((inf = p_isinf(sum)) != 0) {
 	    if (core_settings.matrix_outofrange && !flags.f.range_error_ignore){
 		dat->completion(ERR_OUT_OF_RANGE, NULL);
 		free_vartype(dat->result);
 		free(dat);
 		return ERR_OUT_OF_RANGE;
 	    } else
-		sum = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+		sum = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 	}
-	p[i * n + j].d = sum;
+	p[i * n + j] = sum;
 	sum = 0;
 	if (++j < n)
 	    continue;
@@ -1286,12 +1288,12 @@ static int matrix_mul_rr_worker(int interrupted) {
  */
 static int matrix_mul_rr(vartype_realmatrix *left, vartype_realmatrix *right,
 			 vartype **result) {
-    double *cache = NULL;
-    double *leftcache, *rightcache;
+    phloat *cache = NULL;
+    phloat *leftcache, *rightcache;
 
-    double_or_string *l = left->array->data;
-    double_or_string *r = right->array->data;
-    double_or_string *p;
+    phloat *l = left->array->data;
+    phloat *r = right->array->data;
+    phloat *p;
     int inf;
     int4 m, n, q;
     int4 i, j, k;
@@ -1316,17 +1318,17 @@ static int matrix_mul_rr(vartype_realmatrix *left, vartype_realmatrix *right,
 	int4 misalgn;
 	if (alignment == 0)
 	    alignment = 1;
-	misalgn = alignment % sizeof(double);
+	misalgn = alignment % sizeof(phloat);
 	if (misalgn != 0)
-	    alignment += sizeof(double) - misalgn;
+	    alignment += sizeof(phloat) - misalgn;
 
-	cache = (double *) malloc(cachesize * sizeof(double) + alignment);
+	cache = (phloat *) malloc(cachesize * sizeof(phloat) + alignment);
 	if (cache != NULL) {
 	    misalgn = ((unsigned long) cache) % alignment;
 	    if (misalgn == 0)
 		leftcache = cache;
 	    else
-		leftcache = cache + (alignment - misalgn) / sizeof(double);
+		leftcache = cache + (alignment - misalgn) / sizeof(phloat);
 	    rightcache = leftcache + BLOCK_SIZE * BLOCK_SIZE;
 	}
     }
@@ -1336,17 +1338,17 @@ static int matrix_mul_rr(vartype_realmatrix *left, vartype_realmatrix *right,
 	/* Falling back on basic i,j,k algorithm */
 	for (i = 0; i < m; i++)
 	    for (j = 0; j < n; j++) {
-		double sum = 0;
+		phloat sum = 0;
 		for (k = 0; k < q; k++)
-		    sum += l[i * q + k].d * r[k * n + j].d;
-		if ((inf = isinf(sum)) != 0) {
+		    sum += l[i * q + k] * r[k * n + j];
+		if ((inf = p_isinf(sum)) != 0) {
 		    if (core_settings.matrix_outofrange
 					    && !flags.f.range_error_ignore)
 			return ERR_OUT_OF_RANGE;
 		    else
-			sum = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+			sum = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 		}
-		p[i * n + j].d = sum;
+		p[i * n + j] = sum;
 	    }
 	return ERR_NONE;
 
@@ -1369,27 +1371,27 @@ static int matrix_mul_rr(vartype_realmatrix *left, vartype_realmatrix *right,
 		    for (ii = 0; ii < iimax; ii++)
 			for (kk = 0; kk < kkmax; kk++)
 			    leftcache[ii * BLOCK_SIZE + kk]
-				= l[(ii + i) * q + (kk + k)].d;
+				= l[(ii + i) * q + (kk + k)];
 		    for (kk = 0; kk < kkmax; kk++)
 			for (jj = 0; jj < jjmax; jj++)
 			    rightcache[kk * BLOCK_SIZE + jj]
-				= r[(kk + k) * n + (jj + j)].d;
+				= r[(kk + k) * n + (jj + j)];
 		    for (ii = 0; ii < iimax; ii++)
 			for (jj = 0; jj < jjmax; jj++) {
-			    double sum = p[(ii + i) * n + (jj + j)].d;
+			    phloat sum = p[(ii + i) * n + (jj + j)];
 			    for (kk = 0; kk < kkmax; kk++)
 				sum += leftcache[ii * BLOCK_SIZE + kk]
 					* rightcache[kk * BLOCK_SIZE + jj];
-			    if ((inf = isinf(sum)) != 0) {
+			    if ((inf = p_isinf(sum)) != 0) {
 				if (core_settings.matrix_outofrange
 					    && !flags.f.range_error_ignore) {
 				    free(cache);
 				    return ERR_OUT_OF_RANGE;
 				} else
-				    sum = inf < 0 ? NEG_HUGE_DOUBLE
-						  : POS_HUGE_DOUBLE;
+				    sum = inf < 0 ? NEG_HUGE_PHLOAT
+						  : POS_HUGE_PHLOAT;
 			    }
-			    p[(ii + i) * n + (jj + j)].d = sum;
+			    p[(ii + i) * n + (jj + j)] = sum;
 			}
 		}
 	    }
@@ -1406,7 +1408,7 @@ typedef struct {
     vartype_complexmatrix *right;
     vartype *result;
     int4 i, j, k;
-    double sum_re, sum_im;
+    phloat sum_re, sum_im;
     void (*completion)(int error, vartype *result);
 } mul_rc_data_struct;
 
@@ -1468,17 +1470,17 @@ static int matrix_mul_rc_worker(int interrupted) {
     mul_rc_data_struct *dat = mul_rc_data;
     int count = 0;
     int inf;
-    double_or_string *l = dat->left->array->data;
-    double *r = dat->right->array->data;
-    double *p = ((vartype_complexmatrix *) dat->result)->array->data;
+    phloat *l = dat->left->array->data;
+    phloat *r = dat->right->array->data;
+    phloat *p = ((vartype_complexmatrix *) dat->result)->array->data;
     int4 i = dat->i;
     int4 j = dat->j;
     int4 k = dat->k;
     int4 m = dat->left->rows;
     int4 n = dat->right->columns;
     int4 q = dat->left->columns;
-    double sum_re = dat->sum_re;
-    double sum_im = dat->sum_im;
+    phloat sum_re = dat->sum_re;
+    phloat sum_im = dat->sum_im;
 
     if (interrupted) {
 	dat->completion(ERR_INTERRUPTED, NULL);
@@ -1488,29 +1490,29 @@ static int matrix_mul_rc_worker(int interrupted) {
     }
 
     while (count++ < 1000) {
-	double tmp = l[i * q + k].d;
+	phloat tmp = l[i * q + k];
 	sum_re += tmp * r[2 * (k * n + j)];
 	sum_im += tmp * r[2 * (k * n + j) + 1];
 	if (++k < q)
 	    continue;
 	k = 0;
-	if ((inf = isinf(sum_re)) != 0) {
+	if ((inf = p_isinf(sum_re)) != 0) {
 	    if (core_settings.matrix_outofrange && !flags.f.range_error_ignore){
 		dat->completion(ERR_OUT_OF_RANGE, NULL);
 		free_vartype(dat->result);
 		free(dat);
 		return ERR_OUT_OF_RANGE;
 	    } else
-		sum_re = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+		sum_re = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 	}
-	if ((inf = isinf(sum_im)) != 0) {
+	if ((inf = p_isinf(sum_im)) != 0) {
 	    if (core_settings.matrix_outofrange && !flags.f.range_error_ignore){
 		dat->completion(ERR_OUT_OF_RANGE, NULL);
 		free_vartype(dat->result);
 		free(dat);
 		return ERR_OUT_OF_RANGE;
 	    } else
-		sum_im = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+		sum_im = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 	}
 	p[2 * (i * n + j)] = sum_re;
 	p[2 * (i * n + j) + 1] = sum_im;
@@ -1541,7 +1543,7 @@ typedef struct {
     vartype_realmatrix *right;
     vartype *result;
     int4 i, j, k;
-    double sum_re, sum_im;
+    phloat sum_re, sum_im;
     void (*completion)(int error, vartype *result);
 } mul_cr_data_struct;
 
@@ -1603,17 +1605,17 @@ static int matrix_mul_cr_worker(int interrupted) {
     mul_cr_data_struct *dat = mul_cr_data;
     int count = 0;
     int inf;
-    double *l = dat->left->array->data;
-    double_or_string *r = dat->right->array->data;
-    double *p = ((vartype_complexmatrix *) dat->result)->array->data;
+    phloat *l = dat->left->array->data;
+    phloat *r = dat->right->array->data;
+    phloat *p = ((vartype_complexmatrix *) dat->result)->array->data;
     int4 i = dat->i;
     int4 j = dat->j;
     int4 k = dat->k;
     int4 m = dat->left->rows;
     int4 n = dat->right->columns;
     int4 q = dat->left->columns;
-    double sum_re = dat->sum_re;
-    double sum_im = dat->sum_im;
+    phloat sum_re = dat->sum_re;
+    phloat sum_im = dat->sum_im;
 
     if (interrupted) {
 	dat->completion(ERR_INTERRUPTED, NULL);
@@ -1623,29 +1625,29 @@ static int matrix_mul_cr_worker(int interrupted) {
     }
 
     while (count++ < 1000) {
-	double tmp = r[k * n + j].d;
+	phloat tmp = r[k * n + j];
 	sum_re += tmp * l[2 * (i * q + k)];
 	sum_im += tmp * l[2 * (i * q + k) + 1];
 	if (++k < q)
 	    continue;
 	k = 0;
-	if ((inf = isinf(sum_re)) != 0) {
+	if ((inf = p_isinf(sum_re)) != 0) {
 	    if (core_settings.matrix_outofrange && !flags.f.range_error_ignore){
 		dat->completion(ERR_OUT_OF_RANGE, NULL);
 		free_vartype(dat->result);
 		free(dat);
 		return ERR_OUT_OF_RANGE;
 	    } else
-		sum_re = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+		sum_re = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 	}
-	if ((inf = isinf(sum_im)) != 0) {
+	if ((inf = p_isinf(sum_im)) != 0) {
 	    if (core_settings.matrix_outofrange && !flags.f.range_error_ignore){
 		dat->completion(ERR_OUT_OF_RANGE, NULL);
 		free_vartype(dat->result);
 		free(dat);
 		return ERR_OUT_OF_RANGE;
 	    } else
-		sum_im = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+		sum_im = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 	}
 	p[2 * (i * n + j)] = sum_re;
 	p[2 * (i * n + j) + 1] = sum_im;
@@ -1676,7 +1678,7 @@ typedef struct {
     vartype_complexmatrix *right;
     vartype *result;
     int4 i, j, k;
-    double sum_re, sum_im;
+    phloat sum_re, sum_im;
     void (*completion)(int error, vartype *result);
 } mul_cc_data_struct;
 
@@ -1733,17 +1735,17 @@ static int matrix_mul_cc_worker(int interrupted) {
     mul_cc_data_struct *dat = mul_cc_data;
     int count = 0;
     int inf;
-    double *l = dat->left->array->data;
-    double *r = dat->right->array->data;
-    double *p = ((vartype_complexmatrix *) dat->result)->array->data;
+    phloat *l = dat->left->array->data;
+    phloat *r = dat->right->array->data;
+    phloat *p = ((vartype_complexmatrix *) dat->result)->array->data;
     int4 i = dat->i;
     int4 j = dat->j;
     int4 k = dat->k;
     int4 m = dat->left->rows;
     int4 n = dat->right->columns;
     int4 q = dat->left->columns;
-    double sum_re = dat->sum_re;
-    double sum_im = dat->sum_im;
+    phloat sum_re = dat->sum_re;
+    phloat sum_im = dat->sum_im;
 
     if (interrupted) {
 	dat->completion(ERR_INTERRUPTED, NULL);
@@ -1753,32 +1755,32 @@ static int matrix_mul_cc_worker(int interrupted) {
     }
 
     while (count++ < 1000) {
-	double l_re = l[2 * (i * q + k)];
-	double l_im = l[2 * (i * q + k) + 1];
-	double r_re = r[2 * (k * n + j)];
-	double r_im = r[2 * (k * n + j) + 1];
+	phloat l_re = l[2 * (i * q + k)];
+	phloat l_im = l[2 * (i * q + k) + 1];
+	phloat r_re = r[2 * (k * n + j)];
+	phloat r_im = r[2 * (k * n + j) + 1];
 	sum_re += l_re * r_re - l_im * r_im;
 	sum_im += l_im * r_re + l_re * r_im;
 	if (++k < q)
 	    continue;
 	k = 0;
-	if ((inf = isinf(sum_re)) != 0) {
+	if ((inf = p_isinf(sum_re)) != 0) {
 	    if (core_settings.matrix_outofrange && !flags.f.range_error_ignore){
 		dat->completion(ERR_OUT_OF_RANGE, NULL);
 		free_vartype(dat->result);
 		free(dat);
 		return ERR_OUT_OF_RANGE;
 	    } else
-		sum_re = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+		sum_re = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 	}
-	if ((inf = isinf(sum_im)) != 0) {
+	if ((inf = p_isinf(sum_im)) != 0) {
 	    if (core_settings.matrix_outofrange && !flags.f.range_error_ignore){
 		dat->completion(ERR_OUT_OF_RANGE, NULL);
 		free_vartype(dat->result);
 		free(dat);
 		return ERR_OUT_OF_RANGE;
 	    } else
-		sum_im = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+		sum_im = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 	}
 	p[2 * (i * n + j)] = sum_re;
 	p[2 * (i * n + j) + 1] = sum_im;
@@ -1836,11 +1838,11 @@ static void (*linalg_inv_completion)(int error, vartype *det);
 static vartype *linalg_inv_result;
 
 static int inv_r_completion1(int error, vartype_realmatrix *a, int4 *perm,
-				double det) LINALG_SECT;
+				phloat det) LINALG_SECT;
 static void inv_r_completion2(int error, vartype_realmatrix *a, int4 *perm,
 				vartype_realmatrix *b) LINALG_SECT;
 static int inv_c_completion1(int error, vartype_complexmatrix *a, int4 *perm,
-				double det_re, double det_im) LINALG_SECT;
+				phloat det_re, phloat det_im) LINALG_SECT;
 static void inv_c_completion2(int error, vartype_complexmatrix *a, int4 *perm,
 				vartype_complexmatrix *b) LINALG_SECT;
 
@@ -1902,7 +1904,7 @@ int linalg_inv(const vartype *src, void (*completion)(int, vartype *)) {
 }
 
 static int inv_r_completion1(int error, vartype_realmatrix *a, int4 *perm,
-				double det) {
+				phloat det) {
     if (error != ERR_NONE) {
 	free_vartype(linalg_inv_result);
 	free_vartype((vartype *) a);
@@ -1913,7 +1915,7 @@ static int inv_r_completion1(int error, vartype_realmatrix *a, int4 *perm,
 	int4 i, n = a->rows;
 	vartype_realmatrix *inv = (vartype_realmatrix *) linalg_inv_result;
 	for (i = 0; i < n; i++)
-	    inv->array->data[i * (n + 1)].d = 1;
+	    inv->array->data[i * (n + 1)] = 1;
 	return lu_backsubst_rr(a, perm, inv, inv_r_completion2);
     }
 }
@@ -1928,7 +1930,7 @@ static void inv_r_completion2(int error, vartype_realmatrix *a, int4 *perm,
 }
 
 static int inv_c_completion1(int error, vartype_complexmatrix *a, int4 *perm,
-				double det_re, double det_im) {
+				phloat det_re, phloat det_im) {
     if (error != ERR_NONE) {
 	free_vartype(linalg_inv_result);
 	free_vartype((vartype *) a);
@@ -1963,9 +1965,9 @@ static void (*linalg_det_completion)(int error, vartype *det);
 static int linalg_det_prev_sm_err;
 
 static int det_r_completion(int error, vartype_realmatrix *a, int4 *perm,
-				    double det) LINALG_SECT;
+				    phloat det) LINALG_SECT;
 static int det_c_completion(int error, vartype_complexmatrix *a, int4 *perm,
-				    double det_re, double det_im) LINALG_SECT;
+				    phloat det_re, phloat det_im) LINALG_SECT;
 
 int linalg_det(const vartype *src, void (*completion)(int, vartype *)) {
     int4 n;
@@ -2045,7 +2047,7 @@ int linalg_det(const vartype *src, void (*completion)(int, vartype *)) {
 }
 
 static int det_r_completion(int error, vartype_realmatrix *a, int4 *perm,
-					 double det) {
+					 phloat det) {
     vartype *det_v;
 
     core_settings.matrix_singularmatrix = linalg_det_prev_sm_err;
@@ -2057,10 +2059,10 @@ static int det_r_completion(int error, vartype_realmatrix *a, int4 *perm,
 	error = ERR_NONE;
     }
     if (error == ERR_NONE) {
-	int inf = isinf(det);
+	int inf = p_isinf(det);
 	if (inf != 0) {
 	    if (flags.f.range_error_ignore)
-		det = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+		det = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 	    else
 		error = ERR_OUT_OF_RANGE;
 	}
@@ -2076,7 +2078,7 @@ static int det_r_completion(int error, vartype_realmatrix *a, int4 *perm,
 }
 
 static int det_c_completion(int error, vartype_complexmatrix *a, int4 *perm,
-				    double det_re, double det_im) {
+				    phloat det_re, phloat det_im) {
     vartype *det_v;
 
     core_settings.matrix_singularmatrix = linalg_det_prev_sm_err;
@@ -2090,15 +2092,15 @@ static int det_c_completion(int error, vartype_complexmatrix *a, int4 *perm,
     }
     if (error == ERR_NONE) {
 	int inf;
-	if ((inf = isinf(det_re)) != 0) {
+	if ((inf = p_isinf(det_re)) != 0) {
 	    if (flags.f.range_error_ignore)
-		det_re = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+		det_re = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 	    else
 		error = ERR_OUT_OF_RANGE;
 	}
-	if ((inf = isinf(det_im)) != 0) {
+	if ((inf = p_isinf(det_im)) != 0) {
 	    if (flags.f.range_error_ignore)
-		det_im = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+		det_im = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 	    else
 		error = ERR_OUT_OF_RANGE;
 	}

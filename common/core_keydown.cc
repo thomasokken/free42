@@ -152,7 +152,7 @@ void keydown(int shift, int key) {
 	    else if (mode_number_entry) {
 		arg_struct arg;
 		arg.type = ARGTYPE_DOUBLE;
-		arg.val.d = entered_number;
+		arg.val_d = entered_number;
 		store_command(pc, CMD_NUMBER, &arg);
 		prgm_highlight_row = 1;
 	    }
@@ -216,7 +216,7 @@ void keydown(int shift, int key) {
 	if (flags.f.prgm_mode) {
 	    arg_struct arg;
 	    arg.type = ARGTYPE_DOUBLE;
-	    arg.val.d = entered_number;
+	    arg.val_d = entered_number;
 	    store_command(pc, CMD_NUMBER, &arg);
 	    prgm_highlight_row = 1;
 	} else if ((flags.f.trace_print || flags.f.normal_print)
@@ -280,7 +280,7 @@ void keydown(int shift, int key) {
 }
 
 void keydown_number_entry(int shift, int key) {
-    double x;
+    phloat x;
     char buf[100];
     int bufptr;
     int base = get_base();
@@ -331,7 +331,7 @@ void keydown_number_entry(int shift, int key) {
 	if (exp_pos != -1) {
 	    /* Change exponent sign */
 	    int failed = 0;
-	    double d;
+	    phloat d;
 	    undo_chs_exp:
 	    if (cmdline_length > exp_pos + 1
 		    && cmdline[exp_pos + 1] == '-') {
@@ -345,7 +345,7 @@ void keydown_number_entry(int shift, int key) {
 		cmdline_length++;
 	    }
 	    if (!failed) {
-		if (string2double(cmdline, cmdline_length, &d) != 0) {
+		if (string2phloat(cmdline, cmdline_length, &d) != 0) {
 		    failed = 1;
 		    goto undo_chs_exp;
 		}
@@ -460,7 +460,7 @@ void keydown_number_entry(int shift, int key) {
 	c = digit < 10 ? '0' + digit : 'A' + digit - 10;
 	cmdline[cmdline_length++] = c;
 	if (base == 10) {
-	    if (string2double(cmdline, cmdline_length, &x) == 0) {
+	    if (string2phloat(cmdline, cmdline_length, &x) == 0) {
 		if (!flags.f.prgm_mode)
 		    fix_thousands_separators(cmdline, &cmdline_length);
 	    } else {
@@ -478,7 +478,7 @@ void keydown_number_entry(int shift, int key) {
     }
 
     if (base == 10) {
-	if (string2double(cmdline, cmdline_length, &x) != 0)
+	if (string2phloat(cmdline, cmdline_length, &x) != 0)
 	    /* Should never happen */
 	    x = 0;
     } else {
@@ -491,7 +491,7 @@ void keydown_number_entry(int shift, int key) {
 	}
 	if (n & LL(0x800000000))
 	    n |= LL(0xfffffff000000000);
-	x = (double) n;
+	x = (phloat) n;
     }
 
     if (flags.f.prgm_mode)

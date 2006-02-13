@@ -19,8 +19,10 @@
 #ifndef CORE_VARIABLES_H
 #define CORE_VARIABLES_H 1
 
-vartype *new_real(double value) VARIABLES_SECT;
-vartype *new_complex(double re, double im) VARIABLES_SECT;
+#include "core_phloat.h"
+
+vartype *new_real(phloat value) VARIABLES_SECT;
+vartype *new_complex(phloat re, phloat im) VARIABLES_SECT;
 vartype *new_string(const char *s, int slen) VARIABLES_SECT;
 vartype *new_realmatrix(int4 rows, int4 columns) VARIABLES_SECT;
 vartype *new_complexmatrix(int4 rows, int4 columns) VARIABLES_SECT;

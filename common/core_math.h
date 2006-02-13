@@ -19,23 +19,24 @@
 #ifndef CORE_MATH_H
 #define CORE_MATH_H 1
 
+#include "core_phloat.h"
 #include "core_globals.h"
 
 int persist_math() MATH_SECT;
 int unpersist_math() MATH_SECT;
 void reset_math() MATH_SECT;
 
-double math_random() MATH_SECT;
-int math_asinh_acosh(double xre, double xim,
-			    double *yre, double *yim, int do_asinh) MATH_SECT;
-int math_atanh(double xre, double xim, double *yre, double *yim) MATH_SECT;
-int math_gamma(double x, double *gamma) MATH_SECT;
+phloat math_random() MATH_SECT;
+int math_asinh_acosh(phloat xre, phloat xim,
+			    phloat *yre, phloat *yim, int do_asinh) MATH_SECT;
+int math_atanh(phloat xre, phloat xim, phloat *yre, phloat *yim) MATH_SECT;
+int math_gamma(phloat x, phloat *gamma) MATH_SECT;
 
-void put_shadow(const char *name, int length, double value) MATH_SECT;
-int get_shadow(const char *name, int length, double *value) MATH_SECT;
+void put_shadow(const char *name, int length, phloat value) MATH_SECT;
+int get_shadow(const char *name, int length, phloat *value) MATH_SECT;
 void remove_shadow(const char *name, int length) MATH_SECT;
 void set_solve_prgm(const char *name, int length) MATH_SECT;
-int start_solve(const char *name, int length, double x1, double x2) MATH_SECT;
+int start_solve(const char *name, int length, phloat x1, phloat x2) MATH_SECT;
 int return_to_solve(int failure) MATH_SECT;
 
 void set_integ_prgm(const char *name, int length) MATH_SECT;

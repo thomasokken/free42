@@ -1,3 +1,29 @@
+Look for PHLOAT_TODO and do them:
+Convert programs, variables, and other persistent data (stat, solve, integ,
+other globals?). Basically every phloat with global visibility and extent
+needs conversion.
+When reading a core-version <= 8 state file, always do the mode switch to
+decimal? It's probably what many users will want anyway, and most of the
+others won't care...
+
+Regression test HMS+, HMS-, ->HMS, ->HR, ISG, DSE, ->DEC, ->OCT, AIP,
+DIM, NEWMAT, GETM, R<>R, string<->number conversion.
+
+In the PalmOS version, allow running w/o MathLib -- but: lock the "Decimal"
+checkbox in the "on" position in this case. (Pop up a message box about MathLib
+if the user clicks on the disabled checkbox.) BTW, would we still be able to
+read a binary-mode state file without MathLib? Or is it not needed for
+bin->dec conversion? (Should be OK, I guess; MathLib is for <math.h> type
+stuff; the basic stuff (arithmetic, at least) is handled by g++ and the
+standard libs, I think.)
+Note that we don't need the BCD conversion database in decimal mode. How hard
+would it be to defer generating/loading it until binary mode is actually turned
+on? This would be really nice for old Palms: eliminating MathLib *and* an
+annoyingly large database.
+
+When switching modes, not only convert all phloat variables in memory, but
+also convert all non-int4 number literals in programs!
+
 Pocket PC version.
 
 PalmOS version: support dynamic screen size changes (dynamic input area;

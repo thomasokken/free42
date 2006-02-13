@@ -45,19 +45,17 @@ int resolve_ind_arg(arg_struct *arg) {
 		    return ERR_SIZE_ERROR;
 		if (rm->array->is_string[num]) {
 		    int i;
-		    double_or_string *ds = &rm->array->data[num];
+		    phloat *ds = &rm->array->data[num];
 		    arg->type = ARGTYPE_STR;
-		    arg->length = ds->s.length;
-		    for (i = 0; i < ds->s.length; i++)
-			arg->val.text[i] = ds->s.text[i];
+		    arg->length = ds->ph.length;
+		    for (i = 0; i < ds->ph.length; i++)
+			arg->val.text[i] = ds->ph.text[i];
 		} else {
-		    double x = rm->array->data[num].d;
+		    phloat x = rm->array->data[num];
 		    if (x < 0)
 			x = -x;
-		    if (core_settings.ip_hack)
-			x += 5e-9;
 		    arg->type = ARGTYPE_NUM;
-		    arg->val.num = (int4) x;
+		    arg->val.num = x.to_int4();
 		}
 		return ERR_NONE;
 	    }
@@ -78,13 +76,11 @@ int resolve_ind_arg(arg_struct *arg) {
 		return ERR_NONEXISTENT;
 	    finish_resolve:
 	    if (v->type == TYPE_REAL) {
-		double x = ((vartype_real *) v)->x;
+		phloat x = ((vartype_real *) v)->x;
 		if (x < 0)
 		    x = -x;
-		if (core_settings.ip_hack)
-		    x += 5e-9;
 		arg->type = ARGTYPE_NUM;
-		arg->val.num = (int4) x;
+		arg->val.num = x.to_int4();
 		return ERR_NONE;
 	    } else if (v->type == TYPE_STRING) {
 		vartype_string *s = (vartype_string *) v;
@@ -206,7 +202,7 @@ int apply_sto_operation(char operation, vartype *x, vartype *oldval,
     }
 }
 
-double rad_to_angle(double x) {
+phloat rad_to_angle(phloat x) {
     if (flags.f.rad)
 	return x;
     else if (flags.f.grad)
@@ -215,11 +211,11 @@ double rad_to_angle(double x) {
 	return x * (180 / PI);
 }
 
-double rad_to_deg(double x) {
+phloat rad_to_deg(phloat x) {
     return x * (180 / PI);
 }
 
-double deg_to_rad(double x) {
+phloat deg_to_rad(phloat x) {
     return x / (180 / PI);
 }
 
@@ -420,22 +416,14 @@ void set_base(int base) {
 }
 
 int get_base_param(const vartype *v, int8 *n) {
-    double x;
-    int8 t;
     if (v->type == TYPE_STRING)
 	return ERR_ALPHA_DATA_IS_INVALID;
     else if (v->type != TYPE_REAL)
 	return ERR_INVALID_TYPE;
-    x = ((vartype_real *) v)->x;
+    phloat x = ((vartype_real *) v)->x;
     if (x > 34359738367.0 || x < -34359738368.0)
 	return ERR_INVALID_DATA;
-    if (core_settings.ip_hack) {
-	if (x < 0)
-	    x -= 5e-9;
-	else
-	    x += 5e-9;
-    }
-    t = (int8) x;
+    int8 t = x.to_int8();
     if ((t & LL(0x800000000)) != 0)
 	*n = t | LL(0xfffffff000000000);
     else
@@ -691,11 +679,11 @@ int generic_sub(const vartype *px, const vartype *py, vartype **dst) {
     if (px->type == TYPE_REAL && py->type == TYPE_REAL) {
 	vartype_real *x = (vartype_real *) px;
 	vartype_real *y = (vartype_real *) py;
-	double res = y->x - x->x;
-	int inf = isinf(res);
+	phloat res = y->x - x->x;
+	int inf = p_isinf(res);
 	if (inf != 0) {
 	    if (flags.f.range_error_ignore)
-		res = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+		res = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	    else
 		return ERR_OUT_OF_RANGE;
 	}
@@ -708,20 +696,20 @@ int generic_sub(const vartype *px, const vartype *py, vartype **dst) {
 	vartype_complex *x = (vartype_complex *) px;
 	vartype_complex *y = (vartype_complex *) py;
 	int inf;
-	double re, im;
+	phloat re, im;
 	re = y->re - x->re;
-	inf = isinf(re);
+	inf = p_isinf(re);
 	if (inf != 0) {
 	    if (flags.f.range_error_ignore)
-		re = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+		re = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	    else
 		return ERR_OUT_OF_RANGE;
 	}
 	im = y->im - x->im;
-	inf = isinf(im);
+	inf = p_isinf(im);
 	if (inf != 0) {
 	    if (flags.f.range_error_ignore)
-		im = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+		im = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	    else
 		return ERR_OUT_OF_RANGE;
 	}
@@ -734,11 +722,11 @@ int generic_sub(const vartype *px, const vartype *py, vartype **dst) {
 	vartype_real *x = (vartype_real *) px;
 	vartype_complex *y = (vartype_complex *) py;
 	int inf;
-	double re = y->re - x->x;
-	inf = isinf(re);
+	phloat re = y->re - x->x;
+	inf = p_isinf(re);
 	if (inf != 0) {
 	    if (flags.f.range_error_ignore)
-		re = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+		re = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	    else
 		return ERR_OUT_OF_RANGE;
 	}
@@ -750,11 +738,11 @@ int generic_sub(const vartype *px, const vartype *py, vartype **dst) {
     } else if (px->type == TYPE_COMPLEX && py->type == TYPE_REAL) {
 	vartype_complex *x = (vartype_complex *) px;
 	vartype_real *y = (vartype_real *) py;
-	double re = y->x - x->re;
-	int inf = isinf(re);
+	phloat re = y->x - x->re;
+	int inf = p_isinf(re);
 	if (inf != 0) {
 	    if (flags.f.range_error_ignore)
-		re = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+		re = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	    else
 		return ERR_OUT_OF_RANGE;
 	}
@@ -773,11 +761,11 @@ int generic_add(const vartype *px, const vartype *py, vartype **dst) {
     if (px->type == TYPE_REAL && py->type == TYPE_REAL) {
 	vartype_real *x = (vartype_real *) px;
 	vartype_real *y = (vartype_real *) py;
-	double res = y->x + x->x;
-	int inf = isinf(res);
+	phloat res = y->x + x->x;
+	int inf = p_isinf(res);
 	if (inf != 0) {
 	    if (flags.f.range_error_ignore)
-		res = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+		res = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	    else
 		return ERR_OUT_OF_RANGE;
 	}
@@ -790,20 +778,20 @@ int generic_add(const vartype *px, const vartype *py, vartype **dst) {
 	vartype_complex *x = (vartype_complex *) px;
 	vartype_complex *y = (vartype_complex *) py;
 	int inf;
-	double re, im;
+	phloat re, im;
 	re = x->re + y->re;
-	inf = isinf(re);
+	inf = p_isinf(re);
 	if (inf != 0) {
 	    if (flags.f.range_error_ignore)
-		re = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+		re = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	    else
 		return ERR_OUT_OF_RANGE;
 	}
 	im = x->im + y->im;
-	inf = isinf(im);
+	inf = p_isinf(im);
 	if (inf != 0) {
 	    if (flags.f.range_error_ignore)
-		im = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+		im = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	    else
 		return ERR_OUT_OF_RANGE;
 	}
@@ -815,11 +803,11 @@ int generic_add(const vartype *px, const vartype *py, vartype **dst) {
     } else if (px->type == TYPE_REAL && py->type == TYPE_COMPLEX) {
 	vartype_real *x = (vartype_real *) px;
 	vartype_complex *y = (vartype_complex *) py;
-	double re = y->re + x->x;
-	int inf = isinf(re);
+	phloat re = y->re + x->x;
+	int inf = p_isinf(re);
 	if (inf != 0) {
 	    if (flags.f.range_error_ignore)
-		re = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+		re = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	    else
 		return ERR_OUT_OF_RANGE;
 	}
@@ -831,11 +819,11 @@ int generic_add(const vartype *px, const vartype *py, vartype **dst) {
     } else if (px->type == TYPE_COMPLEX && py->type == TYPE_REAL) {
 	vartype_complex *x = (vartype_complex *) px;
 	vartype_real *y = (vartype_real *) py;
-	double re = x->re + y->x;
-	int inf = isinf(re);
+	phloat re = x->re + y->x;
+	int inf = p_isinf(re);
 	if (inf != 0) {
 	    if (flags.f.range_error_ignore)
-		re = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+		re = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	    else
 		return ERR_OUT_OF_RANGE;
 	}
@@ -868,14 +856,14 @@ int generic_rcl(arg_struct *arg, vartype **dst) {
 		vartype_realmatrix *rm = (vartype_realmatrix *) regs;
 		int4 size = rm->rows * rm->columns;
 		int4 index = arg->val.num;
-		double_or_string ds;
+		phloat ds;
 		if (index >= size)
 		    return ERR_SIZE_ERROR;
 		ds = rm->array->data[index];
 		if (rm->array->is_string[index])
-		    *dst = new_string(ds.s.text, ds.s.length);
+		    *dst = new_string(ds.ph.text, ds.ph.length);
 		else
-		    *dst = new_real(ds.d);
+		    *dst = new_real(ds);
 		if (*dst == NULL)
 		    return ERR_INSUFFICIENT_MEMORY;
 		return ERR_NONE;
@@ -983,29 +971,29 @@ int generic_sto(arg_struct *arg, char operation) {
 		    return ERR_SIZE_ERROR;
 		if (reg_x->type == TYPE_STRING) {
 		    vartype_string *vs = (vartype_string *) reg_x;
-		    double_or_string *ds = rm->array->data + num;
+		    phloat *ds = rm->array->data + num;
 		    int len, i;
 		    if (!disentangle((vartype *) rm))
 			return ERR_INSUFFICIENT_MEMORY;
 		    len = vs->length;
-		    ds->s.length = len;
+		    ds->ph.length = len;
 		    for (i = 0; i < len; i++)
-			ds->s.text[i] = vs->text[i];
+			ds->ph.text[i] = vs->text[i];
 		    rm->array->is_string[num] = 1;
 		    return ERR_NONE;
 		} else if (reg_x->type == TYPE_REAL) {
 		    if (!disentangle((vartype *) rm))
 			return ERR_INSUFFICIENT_MEMORY;
 		    if (operation == 0) {
-			rm->array->data[num].d = ((vartype_real *) reg_x)->x;
+			rm->array->data[num] = ((vartype_real *) reg_x)->x;
 			rm->array->is_string[num] = 0;
 		    } else {
-			double x, n;
+			phloat x, n;
 			int inf;
 			if (rm->array->is_string[num])
 			    return ERR_ALPHA_DATA_IS_INVALID;
 			x = ((vartype_real *) reg_x)->x;
-			n = rm->array->data[num].d;
+			n = rm->array->data[num];
 			switch (operation) {
 			    case '/': if (x == 0) return ERR_DIVIDE_BY_0;
 				      n /= x; break;
@@ -1013,15 +1001,15 @@ int generic_sto(arg_struct *arg, char operation) {
 			    case '-': n -= x; break;
 			    case '+': n += x; break;
 			}
-			inf = isinf(n);
+			inf = p_isinf(n);
 			if (inf != 0) {
 			    if (flags.f.range_error_ignore)
-				n = inf == 1 ? POS_HUGE_DOUBLE
-					     : NEG_HUGE_DOUBLE;
+				n = inf == 1 ? POS_HUGE_PHLOAT
+					     : NEG_HUGE_PHLOAT;
 			    else
 				return ERR_OUT_OF_RANGE;
 			}
-			rm->array->data[num].d = n;
+			rm->array->data[num] = n;
 		    }
 		    return ERR_NONE;
 		} else
@@ -1030,7 +1018,7 @@ int generic_sto(arg_struct *arg, char operation) {
 		vartype_complexmatrix *cm = (vartype_complexmatrix *) regs;
 		int4 size = cm->rows * cm->columns;
 		int4 num = arg->val.num;
-		double re, im;
+		phloat re, im;
 		if (num >= size)
 		    return ERR_SIZE_ERROR;
 		if (reg_x->type == TYPE_STRING)
@@ -1051,11 +1039,11 @@ int generic_sto(arg_struct *arg, char operation) {
 		    cm->array->data[num * 2] = re;
 		    cm->array->data[num * 2 + 1] = im;
 		} else {
-		    double nre = cm->array->data[num * 2];
-		    double nim = cm->array->data[num * 2 + 1];
+		    phloat nre = cm->array->data[num * 2];
+		    phloat nim = cm->array->data[num * 2 + 1];
 		    int inf;
 		    if (reg_x->type == TYPE_REAL) {
-			double x;
+			phloat x;
 			x = ((vartype_real *) reg_x)->x;
 			switch (operation) {
 			    case '/': if (x == 0) return ERR_DIVIDE_BY_0;
@@ -1065,7 +1053,7 @@ int generic_sto(arg_struct *arg, char operation) {
 			    case '+': nre += x; break;
 			}
 		    } else {
-			double xre, xim, h, tmp;
+			phloat xre, xim, h, tmp;
 			xre = ((vartype_complex *) reg_x)->re;
 			xim = ((vartype_complex *) reg_x)->im;
 			h = xre * xre + xim * xim;
@@ -1093,19 +1081,19 @@ int generic_sto(arg_struct *arg, char operation) {
 				break;
 			}
 		    }
-		    inf = isinf(nre);
+		    inf = p_isinf(nre);
 		    if (inf != 0) {
 			if (flags.f.range_error_ignore)
-			    nre = inf == 1 ? POS_HUGE_DOUBLE
-					   : NEG_HUGE_DOUBLE;
+			    nre = inf == 1 ? POS_HUGE_PHLOAT
+					   : NEG_HUGE_PHLOAT;
 			else
 			    return ERR_OUT_OF_RANGE;
 		    }
-		    inf = isinf(nim);
+		    inf = p_isinf(nim);
 		    if (inf != 0) {
 			if (flags.f.range_error_ignore)
-			    nim = inf == 1 ? POS_HUGE_DOUBLE
-					   : NEG_HUGE_DOUBLE;
+			    nim = inf == 1 ? POS_HUGE_PHLOAT
+					   : NEG_HUGE_PHLOAT;
 			else
 			    return ERR_OUT_OF_RANGE;
 		    }
@@ -1195,13 +1183,13 @@ int generic_sto(arg_struct *arg, char operation) {
     }
 }
 
-void generic_r2p(double re, double im, double *r, double *phi) {
+void generic_r2p(phloat re, phloat im, phloat *r, phloat *phi) {
     *r = hypot(re, im);
     *phi = rad_to_angle(atan2(im, re));
 }
 
-void generic_p2r(double r, double phi, double *re, double *im) {
-    double tre, tim;
+void generic_p2r(phloat r, phloat phi, phloat *re, phloat *im) {
+    phloat tre, tim;
     if (flags.f.rad) {
 	sincos(phi, &tim, &tre);
     } else if (flags.f.grad) {
@@ -1249,7 +1237,7 @@ int map_unary(const vartype *src, vartype **dst, mappable_r mr, mappable_c mc) {
     int error;
     switch (src->type) {
 	case TYPE_REAL: {
-	    double r;
+	    phloat r;
 	    error = mr(((vartype_real *) src)->x, &r);
 	    if (error == ERR_NONE) {
 		*dst = new_real(r);
@@ -1259,7 +1247,7 @@ int map_unary(const vartype *src, vartype **dst, mappable_r mr, mappable_c mc) {
 	    return error;
 	}
 	case TYPE_COMPLEX: {
-	    double rre, rim;
+	    phloat rre, rim;
 	    error = mc(((vartype_complex *) src)->re,
 		       ((vartype_complex *) src)->im, &rre, &rim);
 	    if (error == ERR_NONE) {
@@ -1285,7 +1273,7 @@ int map_unary(const vartype *src, vartype **dst, mappable_r mr, mappable_c mc) {
 		}
 	    }
 	    for (i = 0; i < size; i++) {
-		error = mr(sm->array->data[i].d, &dm->array->data[i].d);
+		error = mr(sm->array->data[i], &dm->array->data[i]);
 		if (error != ERR_NONE) {
 		    free_vartype((vartype *) dm);
 		    return error;
@@ -1328,7 +1316,7 @@ int map_binary(const vartype *src1, const vartype *src2, vartype **dst,
 	case TYPE_REAL:
 	    switch (src2->type) {
 		case TYPE_REAL: {
-		    double r;
+		    phloat r;
 		    error = mrr(((vartype_real *) src1)->x,
 				((vartype_real *) src2)->x, &r);
 		    if (error == ERR_NONE) {
@@ -1339,7 +1327,7 @@ int map_binary(const vartype *src1, const vartype *src2, vartype **dst,
 		    return error;
 		}
 		case TYPE_COMPLEX: {
-		    double rre, rim;
+		    phloat rre, rim;
 		    error = mrc(((vartype_real *) src1)->x,
 				((vartype_complex *) src2)->re,
 				((vartype_complex *) src2)->im,
@@ -1368,8 +1356,8 @@ int map_binary(const vartype *src1, const vartype *src2, vartype **dst,
 			}
 		    for (i = 0; i < size; i++) {
 			error = mrr(((vartype_real *) src1)->x,
-				    sm->array->data[i].d,
-				    &dm->array->data[i].d);
+				    sm->array->data[i],
+				    &dm->array->data[i]);
 			if (error != ERR_NONE) {
 			    free_vartype((vartype *) dm);
 			    return error;
@@ -1408,7 +1396,7 @@ int map_binary(const vartype *src1, const vartype *src2, vartype **dst,
 	case TYPE_COMPLEX:
 	    switch (src2->type) {
 		case TYPE_REAL: {
-		    double rre, rim;
+		    phloat rre, rim;
 		    error = mcr(((vartype_complex *) src1)->re,
 				((vartype_complex *) src1)->im,
 				((vartype_real *) src2)->x,
@@ -1421,7 +1409,7 @@ int map_binary(const vartype *src1, const vartype *src2, vartype **dst,
 		    return error;
 		}
 		case TYPE_COMPLEX: {
-		    double rre, rim;
+		    phloat rre, rim;
 		    error = mcc(((vartype_complex *) src1)->re,
 				((vartype_complex *) src1)->im,
 				((vartype_complex *) src2)->re,
@@ -1452,7 +1440,7 @@ int map_binary(const vartype *src1, const vartype *src2, vartype **dst,
 		    for (i = 0; i < size; i++) {
 			error = mcr(((vartype_complex *) src1)->re,
 				    ((vartype_complex *) src1)->im,
-				    sm->array->data[i].d,
+				    sm->array->data[i],
 				    &dm->array->data[i * 2],
 				    &dm->array->data[i * 2 + 1]);
 			if (error != ERR_NONE) {
@@ -1509,9 +1497,9 @@ int map_binary(const vartype *src1, const vartype *src2, vartype **dst,
 			    return ERR_ALPHA_DATA_IS_INVALID;
 			}
 		    for (i = 0; i < size; i++) {
-			error = mrr(sm->array->data[i].d,
+			error = mrr(sm->array->data[i],
 				    ((vartype_real *) src2)->x,
-				    &dm->array->data[i].d);
+				    &dm->array->data[i]);
 			if (error != ERR_NONE) {
 			    free_vartype((vartype *) dm);
 			    return error;
@@ -1536,7 +1524,7 @@ int map_binary(const vartype *src1, const vartype *src2, vartype **dst,
 			    return ERR_ALPHA_DATA_IS_INVALID;
 			}
 		    for (i = 0; i < size; i++) {
-			error = mrc(sm->array->data[i].d,
+			error = mrc(sm->array->data[i],
 				    ((vartype_complex *) src2)->re,
 				    ((vartype_complex *) src2)->im,
 				    &dm->array->data[i * 2],
@@ -1569,9 +1557,9 @@ int map_binary(const vartype *src1, const vartype *src2, vartype **dst,
 			    return ERR_ALPHA_DATA_IS_INVALID;
 			}
 		    for (i = 0; i < size; i++) {
-			error = mrr(sm1->array->data[i].d,
-				    sm2->array->data[i].d,
-				    &dm->array->data[i].d);
+			error = mrr(sm1->array->data[i],
+				    sm2->array->data[i],
+				    &dm->array->data[i]);
 			if (error != ERR_NONE) {
 			    free_vartype((vartype *) dm);
 			    return error;
@@ -1599,7 +1587,7 @@ int map_binary(const vartype *src1, const vartype *src2, vartype **dst,
 			    return ERR_ALPHA_DATA_IS_INVALID;
 			}
 		    for (i = 0; i < size; i++) {
-			error = mrc(sm1->array->data[i].d,
+			error = mrc(sm1->array->data[i],
 				    sm2->array->data[i * 2],
 				    sm2->array->data[i * 2 + 1],
 				    &dm->array->data[i * 2],
@@ -1687,7 +1675,7 @@ int map_binary(const vartype *src1, const vartype *src2, vartype **dst,
 		    for (i = 0; i < size; i++) {
 			error = mcr(sm1->array->data[i * 2],
 				    sm1->array->data[i * 2 + 1],
-				    sm2->array->data[i].d,
+				    sm2->array->data[i],
 				    &dm->array->data[i * 2],
 				    &dm->array->data[i * 2 + 1]);
 			if (error != ERR_NONE) {
@@ -1734,16 +1722,16 @@ int map_binary(const vartype *src1, const vartype *src2, vartype **dst,
     }
 }
 
-int div_rr(double x, double y, double *z) {
-    double r;
+int div_rr(phloat x, phloat y, phloat *z) {
+    phloat r;
     int inf;
     if (x == 0)
 	return ERR_DIVIDE_BY_0;
     r = y / x;
-    inf = isinf(r);
+    inf = p_isinf(r);
     if (inf != 0) {
 	if (flags.f.range_error_ignore)
-	    r = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+	    r = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
@@ -1751,24 +1739,24 @@ int div_rr(double x, double y, double *z) {
     return ERR_NONE;
 }
     
-int div_rc(double x, double yre, double yim, double *zre, double *zim) {
-    double rre, rim;
+int div_rc(phloat x, phloat yre, phloat yim, phloat *zre, phloat *zim) {
+    phloat rre, rim;
     int inf;
     if (x == 0)
 	return ERR_DIVIDE_BY_0;
     rre = yre / x;
-    inf = isinf(rre);
+    inf = p_isinf(rre);
     if (inf != 0) {
 	if (flags.f.range_error_ignore)
-	    rre = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+	    rre = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
     rim = yim / x;
-    inf = isinf(rim);
+    inf = p_isinf(rim);
     if (inf != 0) {
 	if (flags.f.range_error_ignore)
-	    rim = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+	    rim = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
@@ -1777,26 +1765,26 @@ int div_rc(double x, double yre, double yim, double *zre, double *zim) {
     return ERR_NONE;
 }
 
-int div_cr(double xre, double xim, double y, double *zre, double *zim) {
-    double rre, rim, h;
+int div_cr(phloat xre, phloat xim, phloat y, phloat *zre, phloat *zim) {
+    phloat rre, rim, h;
     int inf;
     /* TODO: overflows in intermediate results */
     h = xre * xre + xim * xim;
     if (h == 0)
 	return ERR_DIVIDE_BY_0;
     rre = y * xre / h;
-    inf = isinf(rre);
+    inf = p_isinf(rre);
     if (inf != 0) {
 	if (flags.f.range_error_ignore)
-	    rre = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+	    rre = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
     rim = -y * xim / h;
-    inf = isinf(rim);
+    inf = p_isinf(rim);
     if (inf != 0) {
 	if (flags.f.range_error_ignore)
-	    rim = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+	    rim = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
@@ -1805,27 +1793,27 @@ int div_cr(double xre, double xim, double y, double *zre, double *zim) {
     return ERR_NONE;
 }
 
-int div_cc(double xre, double xim, double yre, double yim,
-						    double *zre, double *zim) {
-    double rre, rim, h;
+int div_cc(phloat xre, phloat xim, phloat yre, phloat yim,
+						    phloat *zre, phloat *zim) {
+    phloat rre, rim, h;
     int inf;
     /* TODO: overflows in intermediate results */
     h = xre * xre + xim * xim;
     if (h == 0)
 	return ERR_DIVIDE_BY_0;
     rre = (xre * yre + xim * yim) / h;
-    inf = isinf(rre);
+    inf = p_isinf(rre);
     if (inf != 0) {
 	if (flags.f.range_error_ignore)
-	    rre = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+	    rre = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
     rim = (xre * yim - yre * xim) / h;
-    inf = isinf(rim);
+    inf = p_isinf(rim);
     if (inf != 0) {
 	if (flags.f.range_error_ignore)
-	    rim = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+	    rim = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
@@ -1834,14 +1822,14 @@ int div_cc(double xre, double xim, double yre, double yim,
     return ERR_NONE;
 }
 
-int mul_rr(double x, double y, double *z) {
-    double r;
+int mul_rr(phloat x, phloat y, phloat *z) {
+    phloat r;
     int inf;
     r = y * x;
-    inf = isinf(r);
+    inf = p_isinf(r);
     if (inf != 0) {
 	if (flags.f.range_error_ignore)
-	    r = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+	    r = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
@@ -1849,22 +1837,22 @@ int mul_rr(double x, double y, double *z) {
     return ERR_NONE;
 }
     
-int mul_rc(double x, double yre, double yim, double *zre, double *zim) {
-    double rre, rim;
+int mul_rc(phloat x, phloat yre, phloat yim, phloat *zre, phloat *zim) {
+    phloat rre, rim;
     int inf;
     rre = yre * x;
-    inf = isinf(rre);
+    inf = p_isinf(rre);
     if (inf != 0) {
 	if (flags.f.range_error_ignore)
-	    rre = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+	    rre = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
     rim = yim * x;
-    inf = isinf(rim);
+    inf = p_isinf(rim);
     if (inf != 0) {
 	if (flags.f.range_error_ignore)
-	    rim = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+	    rim = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
@@ -1873,22 +1861,22 @@ int mul_rc(double x, double yre, double yim, double *zre, double *zim) {
     return ERR_NONE;
 }
 
-int mul_cr(double xre, double xim, double y, double *zre, double *zim) {
-    double rre, rim;
+int mul_cr(phloat xre, phloat xim, phloat y, phloat *zre, phloat *zim) {
+    phloat rre, rim;
     int inf;
     rre = y * xre;
-    inf = isinf(rre);
+    inf = p_isinf(rre);
     if (inf != 0) {
 	if (flags.f.range_error_ignore)
-	    rre = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+	    rre = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
     rim = y * xim;
-    inf = isinf(rim);
+    inf = p_isinf(rim);
     if (inf != 0) {
 	if (flags.f.range_error_ignore)
-	    rim = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+	    rim = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
@@ -1897,23 +1885,23 @@ int mul_cr(double xre, double xim, double y, double *zre, double *zim) {
     return ERR_NONE;
 }
 
-int mul_cc(double xre, double xim, double yre, double yim,
-						    double *zre, double *zim) {
-    double rre, rim;
+int mul_cc(phloat xre, phloat xim, phloat yre, phloat yim,
+						    phloat *zre, phloat *zim) {
+    phloat rre, rim;
     int inf;
     rre = xre * yre - xim * yim;
-    inf = isinf(rre);
+    inf = p_isinf(rre);
     if (inf != 0) {
 	if (flags.f.range_error_ignore)
-	    rre = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+	    rre = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
     rim = xre * yim + yre * xim;
-    inf = isinf(rim);
+    inf = p_isinf(rim);
     if (inf != 0) {
 	if (flags.f.range_error_ignore)
-	    rim = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+	    rim = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
@@ -1922,14 +1910,14 @@ int mul_cc(double xre, double xim, double yre, double yim,
     return ERR_NONE;
 }
 
-int sub_rr(double x, double y, double *z) {
-    double r;
+int sub_rr(phloat x, phloat y, phloat *z) {
+    phloat r;
     int inf;
     r = y - x;
-    inf = isinf(r);
+    inf = p_isinf(r);
     if (inf != 0) {
 	if (flags.f.range_error_ignore)
-	    r = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+	    r = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
@@ -1937,14 +1925,14 @@ int sub_rr(double x, double y, double *z) {
     return ERR_NONE;
 }
     
-int sub_rc(double x, double yre, double yim, double *zre, double *zim) {
-    double rre;
+int sub_rc(phloat x, phloat yre, phloat yim, phloat *zre, phloat *zim) {
+    phloat rre;
     int inf;
     rre = yre - x;
-    inf = isinf(rre);
+    inf = p_isinf(rre);
     if (inf != 0) {
 	if (flags.f.range_error_ignore)
-	    rre = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+	    rre = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
@@ -1953,14 +1941,14 @@ int sub_rc(double x, double yre, double yim, double *zre, double *zim) {
     return ERR_NONE;
 }
 
-int sub_cr(double xre, double xim, double y, double *zre, double *zim) {
-    double rre;
+int sub_cr(phloat xre, phloat xim, phloat y, phloat *zre, phloat *zim) {
+    phloat rre;
     int inf;
     rre = y - xre;
-    inf = isinf(rre);
+    inf = p_isinf(rre);
     if (inf != 0) {
 	if (flags.f.range_error_ignore)
-	    rre = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+	    rre = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
@@ -1969,23 +1957,23 @@ int sub_cr(double xre, double xim, double y, double *zre, double *zim) {
     return ERR_NONE;
 }
 
-int sub_cc(double xre, double xim, double yre, double yim,
-						    double *zre, double *zim) {
-    double rre, rim;
+int sub_cc(phloat xre, phloat xim, phloat yre, phloat yim,
+						    phloat *zre, phloat *zim) {
+    phloat rre, rim;
     int inf;
     rre = yre - xre;
-    inf = isinf(rre);
+    inf = p_isinf(rre);
     if (inf != 0) {
 	if (flags.f.range_error_ignore)
-	    rre = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+	    rre = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
     rim = yim - xim;
-    inf = isinf(rim);
+    inf = p_isinf(rim);
     if (inf != 0) {
 	if (flags.f.range_error_ignore)
-	    rim = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+	    rim = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
@@ -1994,14 +1982,14 @@ int sub_cc(double xre, double xim, double yre, double yim,
     return ERR_NONE;
 }
 
-int add_rr(double x, double y, double *z) {
-    double r;
+int add_rr(phloat x, phloat y, phloat *z) {
+    phloat r;
     int inf;
     r = y + x;
-    inf = isinf(r);
+    inf = p_isinf(r);
     if (inf != 0) {
 	if (flags.f.range_error_ignore)
-	    r = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+	    r = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
@@ -2009,14 +1997,14 @@ int add_rr(double x, double y, double *z) {
     return ERR_NONE;
 }
     
-int add_rc(double x, double yre, double yim, double *zre, double *zim) {
-    double rre;
+int add_rc(phloat x, phloat yre, phloat yim, phloat *zre, phloat *zim) {
+    phloat rre;
     int inf;
     rre = yre + x;
-    inf = isinf(rre);
+    inf = p_isinf(rre);
     if (inf != 0) {
 	if (flags.f.range_error_ignore)
-	    rre = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+	    rre = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
@@ -2025,14 +2013,14 @@ int add_rc(double x, double yre, double yim, double *zre, double *zim) {
     return ERR_NONE;
 }
 
-int add_cr(double xre, double xim, double y, double *zre, double *zim) {
-    double rre;
+int add_cr(phloat xre, phloat xim, phloat y, phloat *zre, phloat *zim) {
+    phloat rre;
     int inf;
     rre = y + xre;
-    inf = isinf(rre);
+    inf = p_isinf(rre);
     if (inf != 0) {
 	if (flags.f.range_error_ignore)
-	    rre = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+	    rre = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
@@ -2041,23 +2029,23 @@ int add_cr(double xre, double xim, double y, double *zre, double *zim) {
     return ERR_NONE;
 }
 
-int add_cc(double xre, double xim, double yre, double yim,
-						    double *zre, double *zim) {
-    double rre, rim;
+int add_cc(phloat xre, phloat xim, phloat yre, phloat yim,
+						    phloat *zre, phloat *zim) {
+    phloat rre, rim;
     int inf;
     rre = yre + xre;
-    inf = isinf(rre);
+    inf = p_isinf(rre);
     if (inf != 0) {
 	if (flags.f.range_error_ignore)
-	    rre = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+	    rre = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
     rim = yim + xim;
-    inf = isinf(rim);
+    inf = p_isinf(rim);
     if (inf != 0) {
 	if (flags.f.range_error_ignore)
-	    rim = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+	    rim = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
@@ -2107,9 +2095,9 @@ int dimension_array_ref(vartype *matrix, int4 rows, int4 columns) {
 	     */
 	    char *new_is_string = (char *) malloc(size);
 	    int4 i, s, oldsize;
-	    double_or_string *new_data = (double_or_string *)
+	    phloat *new_data = (phloat *)
 				    realloc(oldmatrix->array->data,
-					    size * sizeof(double_or_string));
+					    size * sizeof(phloat));
 	    if (new_data == NULL) {
 		free(new_is_string);
 		return ERR_INSUFFICIENT_MEMORY;
@@ -2120,7 +2108,7 @@ int dimension_array_ref(vartype *matrix, int4 rows, int4 columns) {
 		new_is_string[i] = oldmatrix->array->is_string[i];
 	    for (i = s; i < size; i++) {
 		new_is_string[i] = 0;
-		new_data[i].d = 0;
+		new_data[i] = 0;
 	    }
 	    free(oldmatrix->array->is_string);
 	    oldmatrix->array->is_string = new_is_string;
@@ -2140,8 +2128,7 @@ int dimension_array_ref(vartype *matrix, int4 rows, int4 columns) {
 	    new_array = (realmatrix_data *) malloc(sizeof(realmatrix_data));
 	    if (new_array == NULL)
 		return ERR_INSUFFICIENT_MEMORY;
-	    new_array->data = (double_or_string *)
-				malloc(size * sizeof(double_or_string));
+	    new_array->data = (phloat *) malloc(size * sizeof(phloat));
 	    if (new_array->data == NULL) {
 		free(new_array);
 		return ERR_INSUFFICIENT_MEMORY;
@@ -2160,7 +2147,7 @@ int dimension_array_ref(vartype *matrix, int4 rows, int4 columns) {
 	    }
 	    for (i = s; i < size; i++) {
 		new_array->is_string[i] = 0;
-		new_array->data[i].d = 0;
+		new_array->data[i] = 0;
 	    }
 	    new_array->refcount = 1;
 	    oldmatrix->array->refcount--;
@@ -2178,8 +2165,8 @@ int dimension_array_ref(vartype *matrix, int4 rows, int4 columns) {
 	     * I can modify it in place using a realloc().
 	     */
 	    int4 i, oldsize;
-	    double *new_data = (double *)
-		    realloc(oldmatrix->array->data, 2 * size * sizeof(double));
+	    phloat *new_data = (phloat *)
+		    realloc(oldmatrix->array->data, 2 * size * sizeof(phloat));
 	    if (new_data == NULL)
 		return ERR_INSUFFICIENT_MEMORY;
 	    oldsize = oldmatrix->rows * oldmatrix->columns;
@@ -2202,7 +2189,7 @@ int dimension_array_ref(vartype *matrix, int4 rows, int4 columns) {
 					malloc(sizeof(complexmatrix_data));
 	    if (new_array == NULL)
 		return ERR_INSUFFICIENT_MEMORY;
-	    new_array->data = (double *) malloc(2 * size * sizeof(double));
+	    new_array->data = (phloat *) malloc(2 * size * sizeof(phloat));
 	    if (new_array->data == NULL) {
 		free(new_array);
 		return ERR_INSUFFICIENT_MEMORY;
@@ -2223,27 +2210,84 @@ int dimension_array_ref(vartype *matrix, int4 rows, int4 columns) {
     }
 }
 
-double fix_hms(double x) {
-    /* NOTE: this function assumes x is non-negative */
+phloat fix_hms(phloat x) {
+    const phloat sec_corr(4, 1000);
+    const phloat min_corr(4, 10);
+
+    bool neg = x < 0;
+    if (neg)
+	x = -x;
     if (x == x + 1)
 	return x;
     if (x < 0.0059)
 	return x;
-    if (((int8) (x * 10000)) % 100 == 60)
-	x += 0.004;
-    if (((int8) (x * 100)) % 100 == 60) {
-	x += 0.4;
-	if (((int8) (x * 10000)) % 100 == 60)
+    if (core_settings.decimal) {
+	if (floor(fmod(x * 10000, 100)) == 60)
+	    x += sec_corr;
+	if (floor(fmod(x * 100, 100)) == 60) {
+	    x += min_corr;
+	    if (floor(fmod(x * 10000, 100)) == 60)
+		x += sec_corr;
+	}
+    } else {
+	if ((x * 10000).to_int8() % 100 == 60)
 	    x += 0.004;
+	if ((x * 100).to_int8() % 100 == 60) {
+	    x += 0.4;
+	    if ((x * 10000).to_int8() % 100 == 60)
+		x += 0.004;
+	}
     }
-    return x;
+    return neg ? -x : x;
 }
 
 #ifdef NO_SINCOS
 
-void sincos(double x, double *sinx, double *cosx) {
+void sincos(phloat x, phloat *sinx, phloat *cosx) {
     *sinx = sin(x);
     *cosx = cos(x);
 }
 
 #endif
+
+int read_arg(arg_struct *arg, bool old) {
+    if (old) {
+	// Prior to core state version 9, the arg_struct type saved a bit of
+	// by using a union to hold the argument value.
+	// In version 9, we switched from using 'double' as our main numeric
+	// data type to 'phloat' -- but since 'phloat' is a class, with a
+	// constructor, it cannot be a member of a union.
+	// So, I had to change the 'val' member from a union to a struct.
+	// Of course, this means that the arg_struct layout is now different,
+	// and when deserializing a pre-9 state file, I must make sure to
+	// deserialize an old-stype arg_struct and then convert it to a
+	// new one.
+	struct {
+	    unsigned char type;
+	    unsigned char length;
+	    int4 target;
+	    union {
+		int4 num;
+		char text[15];
+		char stk;
+		int cmd; /* For backward compatibility only! */
+		char lclbl;
+		double d;
+	    } val;
+	} old_arg;
+	if (shell_read_saved_state(&old_arg, sizeof(old_arg))
+		!= sizeof(old_arg))
+	    return 0;
+	arg->type = old_arg.type;
+	arg->length = old_arg.length;
+	arg->target = old_arg.target;
+	char *d = (char *) &arg->val;
+	char *s = (char *) &old_arg.val;
+	for (unsigned int i = 0; i < sizeof(old_arg.val); i++)
+	    *d++ = *s++;
+	arg->val_d = old_arg.val.d;
+	return 1;
+    } else
+	return shell_read_saved_state(arg, sizeof(arg_struct))
+	    == sizeof(arg_struct);
+}

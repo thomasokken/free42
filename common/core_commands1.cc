@@ -96,7 +96,7 @@ int docmd_chs(arg_struct *arg) {
 	    if (!disentangle((vartype *) rm))
 		return ERR_INSUFFICIENT_MEMORY;
 	    for (i = 0; i < sz; i++)
-		rm->array->data[i].d = -(rm->array->data[i].d);
+		rm->array->data[i] = -(rm->array->data[i]);
 	    break;
 	}
 	case TYPE_COMPLEXMATRIX: {
@@ -161,8 +161,8 @@ int docmd_lastx(arg_struct *arg) {
     return ERR_NONE;
 }
 
-static int mappable_sin_r(double x, double *y) COMMANDS1_SECT;
-static int mappable_sin_r(double x, double *y) {
+static int mappable_sin_r(phloat x, phloat *y) COMMANDS1_SECT;
+static int mappable_sin_r(phloat x, phloat *y) {
     if (flags.f.rad) {
 	*y = sin(x);
     } else if (flags.f.grad) {
@@ -193,27 +193,27 @@ static int mappable_sin_r(double x, double *y) {
     return ERR_NONE;
 }
 
-static int mappable_sin_c(double xre, double xim,
-			     double *yre, double *yim) COMMANDS1_SECT;
-static int mappable_sin_c(double xre, double xim, double *yre, double *yim) {
+static int mappable_sin_c(phloat xre, phloat xim,
+			     phloat *yre, phloat *yim) COMMANDS1_SECT;
+static int mappable_sin_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     /* NOTE: DEG/RAD/GRAD mode does not apply here. */
-    double sinxre, cosxre;
-    double sinhxim, coshxim;
+    phloat sinxre, cosxre;
+    phloat sinhxim, coshxim;
     int inf;
     sincos(xre, &sinxre, &cosxre);
     sinhxim = sinh(xim);
     coshxim = cosh(xim);
     *yre = sinxre * coshxim;
-    if ((inf = isinf(*yre)) != 0) {
+    if ((inf = p_isinf(*yre)) != 0) {
 	if (flags.f.range_error_ignore)
-	    *yre = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+	    *yre = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
     *yim = cosxre * sinhxim;
-    if ((inf = isinf(*yim)) != 0) {
+    if ((inf = p_isinf(*yim)) != 0) {
 	if (flags.f.range_error_ignore)
-	    *yim = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+	    *yim = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
@@ -231,8 +231,8 @@ int docmd_sin(arg_struct *arg) {
 	return ERR_ALPHA_DATA_IS_INVALID;
 }
 
-static int mappable_cos_r(double x, double *y) COMMANDS1_SECT;
-static int mappable_cos_r(double x, double *y) {
+static int mappable_cos_r(phloat x, phloat *y) COMMANDS1_SECT;
+static int mappable_cos_r(phloat x, phloat *y) {
     if (flags.f.rad) {
 	*y = cos(x);
     } else if (flags.f.grad) {
@@ -263,27 +263,27 @@ static int mappable_cos_r(double x, double *y) {
     return ERR_NONE;
 }
 
-static int mappable_cos_c(double xre, double xim,
-			     double *yre, double *yim) COMMANDS1_SECT;
-static int mappable_cos_c(double xre, double xim, double *yre, double *yim) {
+static int mappable_cos_c(phloat xre, phloat xim,
+			     phloat *yre, phloat *yim) COMMANDS1_SECT;
+static int mappable_cos_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     /* NOTE: DEG/RAD/GRAD mode does not apply here. */
-    double sinxre, cosxre;
-    double sinhxim, coshxim;
+    phloat sinxre, cosxre;
+    phloat sinhxim, coshxim;
     int inf;
     sincos(xre, &sinxre, &cosxre);
     sinhxim = sinh(xim);
     coshxim = cosh(xim);
     *yre = cosxre * coshxim;
-    if ((inf = isinf(*yre)) != 0) {
+    if ((inf = p_isinf(*yre)) != 0) {
 	if (flags.f.range_error_ignore)
-	    *yre = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+	    *yre = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
     *yim = -sinxre * sinhxim;
-    if ((inf = isinf(*yim)) != 0) {
+    if ((inf = p_isinf(*yim)) != 0) {
 	if (flags.f.range_error_ignore)
-	    *yim = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+	    *yim = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
@@ -301,8 +301,8 @@ int docmd_cos(arg_struct *arg) {
 	return ERR_ALPHA_DATA_IS_INVALID;
 }
 
-static int mappable_tan_r(double x, double *y) COMMANDS1_SECT;
-static int mappable_tan_r(double x, double *y) {
+static int mappable_tan_r(phloat x, phloat *y) COMMANDS1_SECT;
+static int mappable_tan_r(phloat x, phloat *y) {
     int inf = 1;
     if (flags.f.rad) {
 	*y = tan(x);
@@ -335,25 +335,25 @@ static int mappable_tan_r(double x, double *y) {
 	else
 	    *y = tan(x / (180 / PI));
     }
-    if (isnan(*y))
+    if (p_isnan(*y))
 	goto infinite;
-    if ((inf = isinf(*y)) != 0) {
+    if ((inf = p_isinf(*y)) != 0) {
 	infinite:
 	if (flags.f.range_error_ignore)
-	    *y = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+	    *y = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
     return ERR_NONE;
 }
 
-static int mappable_tan_c(double xre, double xim,
-			     double *yre, double *yim) COMMANDS1_SECT;
-static int mappable_tan_c(double xre, double xim, double *yre, double *yim) {
+static int mappable_tan_c(phloat xre, phloat xim,
+			     phloat *yre, phloat *yim) COMMANDS1_SECT;
+static int mappable_tan_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     /* NOTE: DEG/RAD/GRAD mode does not apply here. */
-    double sinxre, cosxre;
-    double sinhxim, coshxim;
-    double re_sin, im_sin, re_cos, im_cos, abs_cos;
+    phloat sinxre, cosxre;
+    phloat sinhxim, coshxim;
+    phloat re_sin, im_sin, re_cos, im_cos, abs_cos;
     int inf;
 
     sincos(xre, &sinxre, &cosxre);
@@ -368,26 +368,26 @@ static int mappable_tan_c(double xre, double xim, double *yre, double *yim) {
 
     if (abs_cos == 0) {
 	if (flags.f.range_error_ignore) {
-	    *yre = re_sin * re_cos + im_sin * im_cos > 0 ? POS_HUGE_DOUBLE
-							 : NEG_HUGE_DOUBLE;
-	    *yim = im_sin * re_cos - re_sin * im_cos > 0 ? POS_HUGE_DOUBLE
-							 : NEG_HUGE_DOUBLE;
+	    *yre = re_sin * re_cos + im_sin * im_cos > 0 ? POS_HUGE_PHLOAT
+							 : NEG_HUGE_PHLOAT;
+	    *yim = im_sin * re_cos - re_sin * im_cos > 0 ? POS_HUGE_PHLOAT
+							 : NEG_HUGE_PHLOAT;
 	    return ERR_NONE;
 	} else
 	    return ERR_OUT_OF_RANGE;
     }
 
     *yre = (re_sin * re_cos + im_sin * im_cos) / abs_cos / abs_cos;
-    if ((inf = isinf(*yre)) != 0) {
+    if ((inf = p_isinf(*yre)) != 0) {
 	if (flags.f.range_error_ignore)
-	    *yre = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+	    *yre = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
     *yim = (im_sin * re_cos - re_sin * im_cos) / abs_cos / abs_cos;
-    if ((inf = isinf(*yim)) != 0) {
+    if ((inf = p_isinf(*yim)) != 0) {
 	if (flags.f.range_error_ignore)
-	    *yim = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+	    *yim = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
@@ -406,18 +406,18 @@ int docmd_tan(arg_struct *arg) {
 	return ERR_ALPHA_DATA_IS_INVALID;
 }
 
-static int mappable_asin_r(double x, double *y) COMMANDS1_SECT;
-static int mappable_asin_r(double x, double *y) {
+static int mappable_asin_r(phloat x, phloat *y) COMMANDS1_SECT;
+static int mappable_asin_r(phloat x, phloat *y) {
     if (x < -1 || x > 1)
 	return ERR_INVALID_DATA;
     *y = rad_to_angle(asin(x));
     return ERR_NONE;
 }
 
-static int mappable_asin_c(double xre, double xim, double *yre, double *yim)
+static int mappable_asin_c(phloat xre, phloat xim, phloat *yre, phloat *yim)
 								COMMANDS1_SECT;
-static int mappable_asin_c(double xre, double xim, double *yre, double *yim) {
-    double tre, tim;
+static int mappable_asin_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
+    phloat tre, tim;
     int err = math_asinh_acosh(-xim, xre, &tre, &tim, 1);
     *yre = tim;
     *yim = -tre;
@@ -429,7 +429,7 @@ int docmd_asin(arg_struct *arg) {
     if (reg_x->type == TYPE_STRING)
 	return ERR_ALPHA_DATA_IS_INVALID;
     if (reg_x->type == TYPE_REAL) {
-	double x = ((vartype_real *) reg_x)->x;
+	phloat x = ((vartype_real *) reg_x)->x;
 	if (x < -1 || x > 1) {
 	    if (flags.f.real_result_only)
 		return ERR_INVALID_DATA;
@@ -451,18 +451,18 @@ int docmd_asin(arg_struct *arg) {
     return ERR_NONE;
 }
 
-static int mappable_acos_r(double x, double *y) COMMANDS1_SECT;
-static int mappable_acos_r(double x, double *y) {
+static int mappable_acos_r(phloat x, phloat *y) COMMANDS1_SECT;
+static int mappable_acos_r(phloat x, phloat *y) {
     if (x < -1 || x > 1)
 	return ERR_INVALID_DATA;
     *y = rad_to_angle(acos(x));
     return ERR_NONE;
 }
 
-static int mappable_acos_c(double xre, double xim, double *yre, double *yim)
+static int mappable_acos_c(phloat xre, phloat xim, phloat *yre, phloat *yim)
 								COMMANDS1_SECT;
-static int mappable_acos_c(double xre, double xim, double *yre, double *yim) {
-    double tre, tim;
+static int mappable_acos_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
+    phloat tre, tim;
     int err = math_asinh_acosh(xre, xim, &tre, &tim, 0);
     *yre = tim;
     *yim = -tre;
@@ -474,7 +474,7 @@ int docmd_acos(arg_struct *arg) {
     if (reg_x->type == TYPE_STRING)
 	return ERR_ALPHA_DATA_IS_INVALID;
     if (reg_x->type == TYPE_REAL) {
-	double x = ((vartype_real *) reg_x)->x;
+	phloat x = ((vartype_real *) reg_x)->x;
 	if (x < -1 || x > 1) {
 	    if (flags.f.real_result_only)
 		return ERR_INVALID_DATA;
@@ -496,16 +496,16 @@ int docmd_acos(arg_struct *arg) {
     return ERR_NONE;
 }
 
-static int mappable_atan_r(double x, double *y) COMMANDS1_SECT;
-static int mappable_atan_r(double x, double *y) {
+static int mappable_atan_r(phloat x, phloat *y) COMMANDS1_SECT;
+static int mappable_atan_r(phloat x, phloat *y) {
     *y = rad_to_angle(atan(x));
     return ERR_NONE;
 }
 
-static int mappable_atan_c(double xre, double xim, double *yre, double *yim)
+static int mappable_atan_c(phloat xre, phloat xim, phloat *yre, phloat *yim)
 								COMMANDS1_SECT;
-static int mappable_atan_c(double xre, double xim, double *yre, double *yim) {
-    double tre, tim;
+static int mappable_atan_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
+    phloat tre, tim;
     int err = math_atanh(xim, -xre, &tre, &tim);
     *yre = -tim;
     *yim = tre;
@@ -524,8 +524,8 @@ int docmd_atan(arg_struct *arg) {
     }
 }
 
-static int mappable_log_r(double x, double *y) COMMANDS1_SECT;
-static int mappable_log_r(double x, double *y) {
+static int mappable_log_r(phloat x, phloat *y) COMMANDS1_SECT;
+static int mappable_log_r(phloat x, phloat *y) {
     if (x <= 0)
 	return ERR_INVALID_DATA;
     else {
@@ -534,10 +534,10 @@ static int mappable_log_r(double x, double *y) {
     }
 }
 
-static int mappable_log_c(double xre, double xim,
-			     double *yre, double *yim) COMMANDS1_SECT;
-static int mappable_log_c(double xre, double xim, double *yre, double *yim) {
-    double h = hypot(xre, xim);
+static int mappable_log_c(phloat xre, phloat xim,
+			     phloat *yre, phloat *yim) COMMANDS1_SECT;
+static int mappable_log_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
+    phloat h = hypot(xre, xim);
     if (h == 0)
 	return ERR_INVALID_DATA;
     else {
@@ -584,45 +584,45 @@ int docmd_log(arg_struct *arg) {
     }
 }
 
-static int mappable_10_pow_x_r(double x, double *y) COMMANDS1_SECT;
-static int mappable_10_pow_x_r(double x, double *y) {
+static int mappable_10_pow_x_r(phloat x, phloat *y) COMMANDS1_SECT;
+static int mappable_10_pow_x_r(phloat x, phloat *y) {
     *y = pow(10, x);
-    if (isinf(*y) != 0) {
+    if (p_isinf(*y) != 0) {
 	if (!flags.f.range_error_ignore)
 	    return ERR_OUT_OF_RANGE;
-	*y = POS_HUGE_DOUBLE;
+	*y = POS_HUGE_PHLOAT;
     }
     return ERR_NONE;
 }
 
-static int mappable_10_pow_x_c(double xre, double xim,
-			     double *yre, double *yim) COMMANDS1_SECT;
-static int mappable_10_pow_x_c(double xre, double xim, double *yre, double *yim){
+static int mappable_10_pow_x_c(phloat xre, phloat xim,
+			     phloat *yre, phloat *yim) COMMANDS1_SECT;
+static int mappable_10_pow_x_c(phloat xre, phloat xim, phloat *yre, phloat *yim){
     int inf;
-    double h;
+    phloat h;
     xim *= log(10);
-    if ((inf = isinf(xim)) != 0)
-	xim = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+    if ((inf = p_isinf(xim)) != 0)
+	xim = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
     h = pow(10, xre);
-    if ((inf = isinf(h)) == 0) {
+    if ((inf = p_isinf(h)) == 0) {
 	*yre = cos(xim) * h;
 	*yim = sin(xim) * h;
 	return ERR_NONE;
     } else if (flags.f.range_error_ignore) {
-	double t = cos(xim);
+	phloat t = cos(xim);
 	if (t == 0)
 	    *yre = 0;
 	else if (t < 0)
-	    *yre = inf < 0 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+	    *yre = inf < 0 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	else
-	    *yre = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+	    *yre = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 	t = sin(xim);
 	if (t == 0)
 	    *yim = 0;
 	else if (t < 0)
-	    *yim = inf < 0 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+	    *yim = inf < 0 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	else
-	    *yim = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+	    *yim = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 	return ERR_NONE;
     } else
 	return ERR_OUT_OF_RANGE;
@@ -640,8 +640,8 @@ int docmd_10_pow_x(arg_struct *arg) {
 	return ERR_ALPHA_DATA_IS_INVALID;
 }
 
-static int mappable_ln_r(double x, double *y) COMMANDS1_SECT;
-static int mappable_ln_r(double x, double *y) {
+static int mappable_ln_r(phloat x, phloat *y) COMMANDS1_SECT;
+static int mappable_ln_r(phloat x, phloat *y) {
     if (x <= 0)
 	return ERR_INVALID_DATA;
     else {
@@ -650,10 +650,10 @@ static int mappable_ln_r(double x, double *y) {
     }
 }
 
-static int mappable_ln_c(double xre, double xim,
-			     double *yre, double *yim) COMMANDS1_SECT;
-static int mappable_ln_c(double xre, double xim, double *yre, double *yim) {
-    double h = hypot(xre, xim);
+static int mappable_ln_c(phloat xre, phloat xim,
+			     phloat *yre, phloat *yim) COMMANDS1_SECT;
+static int mappable_ln_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
+    phloat h = hypot(xre, xim);
     if (h == 0)
 	return ERR_INVALID_DATA;
     else {
@@ -700,41 +700,41 @@ int docmd_ln(arg_struct *arg) {
     }
 }
 
-static int mappable_e_pow_x_r(double x, double *y) COMMANDS1_SECT;
-static int mappable_e_pow_x_r(double x, double *y) {
+static int mappable_e_pow_x_r(phloat x, phloat *y) COMMANDS1_SECT;
+static int mappable_e_pow_x_r(phloat x, phloat *y) {
     *y = exp(x);
-    if (isinf(*y) != 0) {
+    if (p_isinf(*y) != 0) {
 	if (!flags.f.range_error_ignore)
 	    return ERR_OUT_OF_RANGE;
-	*y = POS_HUGE_DOUBLE;
+	*y = POS_HUGE_PHLOAT;
     }
     return ERR_NONE;
 }
 
-static int mappable_e_pow_x_c(double xre, double xim,
-			     double *yre, double *yim) COMMANDS1_SECT;
-static int mappable_e_pow_x_c(double xre, double xim, double *yre, double *yim){
-    double h = exp(xre);
-    int inf = isinf(h);
+static int mappable_e_pow_x_c(phloat xre, phloat xim,
+			     phloat *yre, phloat *yim) COMMANDS1_SECT;
+static int mappable_e_pow_x_c(phloat xre, phloat xim, phloat *yre, phloat *yim){
+    phloat h = exp(xre);
+    int inf = p_isinf(h);
     if (inf == 0) {
 	*yre = cos(xim) * h;
 	*yim = sin(xim) * h;
 	return ERR_NONE;
     } else if (flags.f.range_error_ignore) {
-	double t = cos(xim);
+	phloat t = cos(xim);
 	if (t == 0)
 	    *yre = 0;
 	else if (t < 0)
-	    *yre = inf < 0 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+	    *yre = inf < 0 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	else
-	    *yre = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+	    *yre = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 	t = sin(xim);
 	if (t == 0)
 	    *yim = 0;
 	else if (t < 0)
-	    *yim = inf < 0 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+	    *yim = inf < 0 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	else
-	    *yim = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+	    *yim = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 	return ERR_NONE;
     } else
 	return ERR_OUT_OF_RANGE;
@@ -751,8 +751,8 @@ int docmd_e_pow_x(arg_struct *arg) {
 	return ERR_ALPHA_DATA_IS_INVALID;
 }
 
-static int mappable_sqrt_r(double x, double *y) COMMANDS1_SECT;
-static int mappable_sqrt_r(double x, double *y) {
+static int mappable_sqrt_r(phloat x, phloat *y) COMMANDS1_SECT;
+static int mappable_sqrt_r(phloat x, phloat *y) {
     if (x < 0)
 	return ERR_INVALID_DATA;
     else {
@@ -761,13 +761,13 @@ static int mappable_sqrt_r(double x, double *y) {
     }
 }
 
-static int mappable_sqrt_c(double xre, double xim, double *yre, double *yim)
+static int mappable_sqrt_c(phloat xre, phloat xim, phloat *yre, phloat *yim)
 								COMMANDS1_SECT;
-static int mappable_sqrt_c(double xre, double xim, double *yre, double *yim) {
+static int mappable_sqrt_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     /* TODO: review -- is there a better way, without all the trig? */
-    double r = sqrt(hypot(xre, xim));
-    double phi = atan2(xim, xre) / 2;
-    double s, c;
+    phloat r = sqrt(hypot(xre, xim));
+    phloat phi = atan2(xim, xre) / 2;
+    phloat s, c;
     sincos(phi, &s, &c);
     *yre = r * c;
     *yim = r * s;
@@ -776,7 +776,7 @@ static int mappable_sqrt_c(double xre, double xim, double *yre, double *yim) {
 
 int docmd_sqrt(arg_struct *arg) {
     if (reg_x->type == TYPE_REAL) {
-	double x = ((vartype_real *) reg_x)->x;
+	phloat x = ((vartype_real *) reg_x)->x;
 	vartype *v;
 	if (x < 0) {
 	    if (flags.f.real_result_only)
@@ -800,13 +800,13 @@ int docmd_sqrt(arg_struct *arg) {
     }
 }
 
-static int mappable_square_r(double x, double *y) COMMANDS1_SECT;
-static int mappable_square_r(double x, double *y) {
-    double r = x * x;
+static int mappable_square_r(phloat x, phloat *y) COMMANDS1_SECT;
+static int mappable_square_r(phloat x, phloat *y) {
+    phloat r = x * x;
     int inf;
-    if ((inf = isinf(r)) != 0) {
+    if ((inf = p_isinf(r)) != 0) {
 	if (flags.f.range_error_ignore)
-	    r = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+	    r = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
@@ -814,21 +814,21 @@ static int mappable_square_r(double x, double *y) {
     return ERR_NONE;
 }
 
-static int mappable_square_c(double xre, double xim,
-			     double *yre, double *yim) COMMANDS1_SECT;
-static int mappable_square_c(double xre, double xim, double *yre, double *yim) {
-    double rre = xre * xre - xim * xim;
-    double rim = 2 * xre * xim;
+static int mappable_square_c(phloat xre, phloat xim,
+			     phloat *yre, phloat *yim) COMMANDS1_SECT;
+static int mappable_square_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
+    phloat rre = xre * xre - xim * xim;
+    phloat rim = 2 * xre * xim;
     int inf;
-    if ((inf = isinf(rre)) != 0) {
+    if ((inf = p_isinf(rre)) != 0) {
 	if (flags.f.range_error_ignore)
-	    rre = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+	    rre = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
-    if ((inf = isinf(rim)) != 0) {
+    if ((inf = p_isinf(rim)) != 0) {
 	if (flags.f.range_error_ignore)
-	    rim = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+	    rim = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
@@ -849,38 +849,38 @@ int docmd_square(arg_struct *arg) {
     }
 }
 
-static int mappable_inv_r(double x, double *y) COMMANDS1_SECT;
-static int mappable_inv_r(double x, double *y) {
+static int mappable_inv_r(phloat x, phloat *y) COMMANDS1_SECT;
+static int mappable_inv_r(phloat x, phloat *y) {
     int inf;
     if (x == 0)
 	return ERR_DIVIDE_BY_0;
     *y = 1 / x;
-    if ((inf = isinf(*y)) != 0) {
+    if ((inf = p_isinf(*y)) != 0) {
 	if (!flags.f.range_error_ignore)
 	    return ERR_OUT_OF_RANGE;
-	*y = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+	*y = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
     }
     return ERR_NONE;
 }
 
-static int mappable_inv_c(double xre, double xim,
-			     double *yre, double *yim) COMMANDS1_SECT;
-static int mappable_inv_c(double xre, double xim, double *yre, double *yim) {
+static int mappable_inv_c(phloat xre, phloat xim,
+			     phloat *yre, phloat *yim) COMMANDS1_SECT;
+static int mappable_inv_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     int inf;
-    double h = hypot(xre, xim);
+    phloat h = hypot(xre, xim);
     if (h == 0)
 	return ERR_DIVIDE_BY_0;
     *yre = xre / h / h;
-    if ((inf = isinf(*yre)) != 0) {
+    if ((inf = p_isinf(*yre)) != 0) {
 	if (!flags.f.range_error_ignore)
 	    return ERR_OUT_OF_RANGE;
-	*yre = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+	*yre = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
     }
     *yim = (-xim) / h / h;
-    if ((inf = isinf(*yim)) != 0) {
+    if ((inf = p_isinf(*yim)) != 0) {
 	if (!flags.f.range_error_ignore)
 	    return ERR_OUT_OF_RANGE;
-	*yim = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+	*yim = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
     }
     return ERR_NONE;
 }
@@ -898,7 +898,7 @@ int docmd_inv(arg_struct *arg) {
 }
 
 int docmd_y_pow_x(arg_struct *arg) {
-    double yr, yphi;
+    phloat yr, yphi;
     int inf;
     vartype *res;
 
@@ -910,22 +910,22 @@ int docmd_y_pow_x(arg_struct *arg) {
 	    || reg_y->type == TYPE_COMPLEXMATRIX)
 	return ERR_INVALID_TYPE;
     else if (reg_x->type == TYPE_REAL) {
-	double x = ((vartype_real *) reg_x)->x;
+	phloat x = ((vartype_real *) reg_x)->x;
 	if (x == floor(x)) {
 	    /* Integer exponent */
 	    if (reg_y->type == TYPE_REAL) {
 		/* Real number to integer power */
-		double y = ((vartype_real *) reg_y)->x;
-		double r = pow(y, x);
-		if (isnan(r))
+		phloat y = ((vartype_real *) reg_y)->x;
+		phloat r = pow(y, x);
+		if (p_isnan(r))
 		    /* Should not happen; pow() is supposed to be able
 		     * to raise negative numbers to integer exponents
 		     */
 		    return ERR_INVALID_DATA;
-		if ((inf = isinf(r)) != 0) {
+		if ((inf = p_isinf(r)) != 0) {
 		    if (!flags.f.range_error_ignore)
 			return ERR_OUT_OF_RANGE;
-		    r = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+		    r = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 		}
 		res = new_real(r);
 		if (res == NULL)
@@ -936,7 +936,7 @@ int docmd_y_pow_x(arg_struct *arg) {
 		}
 	    } else {
 		/* Complex number to integer power */
-		double rre, rim, yre, yim;
+		phloat rre, rim, yre, yim;
 		int4 ex;
 		if (x < -2147483647 || x > 2147483647)
 		    /* For really huge exponents, the repeated-squaring
@@ -949,7 +949,7 @@ int docmd_y_pow_x(arg_struct *arg) {
 		rim = 0;
 		yre = ((vartype_complex *) reg_y)->re;
 		yim = ((vartype_complex *) reg_y)->im;
-		ex = (int4) x;
+		ex = x.to_int4();
 		if (yre == 0 && yim == 0) {
 		    if (ex < 0)
 			return ERR_INVALID_DATA;
@@ -964,13 +964,13 @@ int docmd_y_pow_x(arg_struct *arg) {
 		    }
 		}
 		if (ex < 0) {
-		    double h = hypot(yre, yim);
+		    phloat h = hypot(yre, yim);
 		    yre = yre / h / h;
 		    yim = (-yim) / h / h;
 		    ex = -ex;
 		}
 		while (1) {
-		    double tmp;
+		    phloat tmp;
 		    if ((ex & 1) != 0) {
 			tmp = rre * yre - rim * yim;
 			rim = rre * yim + rim * yre;
@@ -979,7 +979,7 @@ int docmd_y_pow_x(arg_struct *arg) {
 			 * the other is zero? If yes, how do we handle
 			 * that?
 			 */
-			if (isinf(rre) && isinf(rim))
+			if (p_isinf(rre) && p_isinf(rim))
 			    break;
 			if (rre == 0 && rim == 0)
 			    break;
@@ -991,15 +991,15 @@ int docmd_y_pow_x(arg_struct *arg) {
 		    yim = 2 * yre * yim;
 		    yre = tmp;
 		}
-		if ((inf = isinf(rre)) != 0) {
+		if ((inf = p_isinf(rre)) != 0) {
 		    if (!flags.f.range_error_ignore)
 			return ERR_OUT_OF_RANGE;
-		    rre = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+		    rre = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 		}
-		if ((inf = isinf(rim)) != 0) {
+		if ((inf = p_isinf(rim)) != 0) {
 		    if (!flags.f.range_error_ignore)
 			return ERR_OUT_OF_RANGE;
-		    rim = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+		    rim = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 		}
 		res = new_complex(rre, rim);
 		if (res == NULL)
@@ -1011,8 +1011,8 @@ int docmd_y_pow_x(arg_struct *arg) {
 	    }
 	} else if (reg_y->type == TYPE_REAL) {
 	    /* Real number to noninteger real power */
-	    double y = ((vartype_real *) reg_y)->x;
-	    double r;
+	    phloat y = ((vartype_real *) reg_y)->x;
+	    phloat r;
 	    if (y < 0) {
 		if (flags.f.real_result_only)
 		    return ERR_INVALID_DATA;
@@ -1021,11 +1021,11 @@ int docmd_y_pow_x(arg_struct *arg) {
 		goto complex_pow_real_2;
 	    }
 	    r = pow(y, x);
-	    inf = isinf(r);
+	    inf = p_isinf(r);
 	    if (inf != 0) {
 		if (!flags.f.range_error_ignore)
 		    return ERR_OUT_OF_RANGE;
-		r = inf < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+		r = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 	    }
 	    res = new_real(r);
 	    if (res == NULL)
@@ -1036,28 +1036,30 @@ int docmd_y_pow_x(arg_struct *arg) {
 	    }
 	} else {
 	    /* Complex (or negative real) number to noninteger real power */
-	    double yre, yim, rre, rim;
 	    complex_pow_real_1:
-	    yre = ((vartype_complex *) reg_y)->re;
-	    yim = ((vartype_complex *) reg_y)->im;
-	    yr = hypot(yre, yim);
-	    yphi = atan2(yim, yre);
+	    {
+		phloat yre = ((vartype_complex *) reg_y)->re;
+		phloat yim = ((vartype_complex *) reg_y)->im;
+		yr = hypot(yre, yim);
+		yphi = atan2(yim, yre);
+	    }
 	    complex_pow_real_2:
 	    yr = pow(yr, x);
 	    yphi *= x;
-	    if ((inf = isinf(yr)) != 0) {
+	    phloat rre, rim;
+	    if ((inf = p_isinf(yr)) != 0) {
 		if (!flags.f.range_error_ignore)
 		    return ERR_OUT_OF_RANGE;
 		else {
-		    double re, im;
+		    phloat re, im;
 		    sincos(yphi, &im, &re);
 		    rre = re == 0 ? 0 :
-			    re < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+			    re < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 		    rim = im == 0 ? 0 :
-			    im < 0 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+			    im < 0 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 		}
 	    } else {
-		double re, im;
+		phloat re, im;
 		sincos(yphi, &im, &re);
 		rre = yr * re;
 		rim = yr * im;
@@ -1072,11 +1074,11 @@ int docmd_y_pow_x(arg_struct *arg) {
 	}
     } else {
 	/* Real or complex number to complex power */
-	double xre = ((vartype_complex *) reg_x)->re;
-	double xim = ((vartype_complex *) reg_x)->im;
-	double yre, yim;
-	double lre, lim;
-	double tmp;
+	phloat xre = ((vartype_complex *) reg_x)->re;
+	phloat xim = ((vartype_complex *) reg_x)->im;
+	phloat yre, yim;
+	phloat lre, lim;
+	phloat tmp;
 	int err;
 	if (reg_y->type == TYPE_REAL) {
 	    yre = ((vartype_real *) reg_y)->x;
@@ -1126,11 +1128,11 @@ int docmd_percent(arg_struct *arg) {
     else {
 	vartype_real *x = (vartype_real *) reg_x;
 	vartype_real *y = (vartype_real *) reg_y;
-	double res = x->x * y->x;
-	if (isinf(res)) {
+	phloat res = x->x * y->x;
+	if (p_isinf(res)) {
 	    /* Try different evaluation order */
 	    res = (x->x / 100.0) * y->x;
-	    if (isinf(res))
+	    if (p_isinf(res))
 		return ERR_OUT_OF_RANGE;
 	} else
 	    res /= 100.0;
@@ -1161,7 +1163,7 @@ int docmd_complex(arg_struct *arg) {
 	    free_vartype(reg_lastx);
 	    reg_lastx = reg_x;
 	    if (flags.f.polar) {
-		double re, im;
+		phloat re, im;
 		generic_p2r(((vartype_real *) reg_y)->x,
 			    ((vartype_real *) reg_x)->x, &re, &im);
 		reg_x = new_complex(re, im);
@@ -1181,12 +1183,12 @@ int docmd_complex(arg_struct *arg) {
 	    reg_t = reg_z;
 	    reg_z = reg_y;
 	    if (flags.f.polar) {
-		double r, phi;
+		phloat r, phi;
 		int inf;
 		generic_r2p(((vartype_complex *) reg_x)->re,
 			    ((vartype_complex *) reg_x)->im, &r, &phi);
-		if ((inf = isinf(r)) != 0)
-		    r = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+		if ((inf = p_isinf(r)) != 0)
+		    r = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 		reg_y = new_real(r);
 		reg_x = new_real(phi);
 	    } else {
@@ -1223,15 +1225,15 @@ int docmd_complex(arg_struct *arg) {
 		    return ERR_INSUFFICIENT_MEMORY;
 		if (flags.f.polar) {
 		    for (i = 0; i < sz; i++) {
-			generic_p2r(re_m->array->data[i].d,
-				    im_m->array->data[i].d,
+			generic_p2r(re_m->array->data[i],
+				    im_m->array->data[i],
 				    &cm->array->data[2 * i],
 				    &cm->array->data[2 * i + 1]);
 		    }
 		} else {
 		    for (i = 0; i < sz; i++) {
-			cm->array->data[2 * i] = re_m->array->data[i].d;
-			cm->array->data[2 * i + 1] = im_m->array->data[i].d;
+			cm->array->data[2 * i] = re_m->array->data[i];
+			cm->array->data[2 * i + 1] = im_m->array->data[i];
 		    }
 		}
 		free_vartype(reg_lastx);
@@ -1261,19 +1263,19 @@ int docmd_complex(arg_struct *arg) {
 	    }
 	    if (flags.f.polar) {
 		for (i = 0; i < sz; i++) {
-		    double r, phi;
+		    phloat r, phi;
 		    int inf;
 		    generic_r2p(cm->array->data[2 * i],
 				cm->array->data[2 * i + 1], &r, &phi);
-		    if ((inf = isinf(r)) != 0)
-			r = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
-		    re_m->array->data[i].d = r;
-		    im_m->array->data[i].d = phi;
+		    if ((inf = p_isinf(r)) != 0)
+			r = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
+		    re_m->array->data[i] = r;
+		    im_m->array->data[i] = phi;
 		}
 	    } else {
 		for (i = 0; i < sz; i++) {
-		    re_m->array->data[i].d = cm->array->data[2 * i];
-		    im_m->array->data[i].d = cm->array->data[2 * i + 1];
+		    re_m->array->data[i] = cm->array->data[2 * i];
+		    im_m->array->data[i] = cm->array->data[2 * i + 1];
 		}
 	    }
 	    free_vartype(reg_lastx);
@@ -1616,7 +1618,7 @@ int docmd_clsigma(arg_struct *arg) {
 	return ERR_SIZE_ERROR;
     for (i = first; i < last; i++) {
 	r->array->is_string[i] = 0;
-	r->array->data[i].d = 0;
+	r->array->data[i] = 0;
     }
     flags.f.log_fit_invalid = 0;
     flags.f.exp_fit_invalid = 0;
@@ -1669,7 +1671,7 @@ int docmd_clrg(arg_struct *arg) {
 	rm = (vartype_realmatrix *) regs;
 	sz = rm->rows * rm->columns;
 	for (i = 0; i < sz; i++)
-	    rm->array->data[i].d = 0;
+	    rm->array->data[i] = 0;
 	for (i = 0; i < sz; i++)
 	    rm->array->is_string[i] = 0;
 	return ERR_NONE;
@@ -1749,14 +1751,14 @@ int docmd_clall(arg_struct *arg) {
     return ERR_NONE;
 }
 
-static int mappable_to_deg(double x, double *y) COMMANDS1_SECT;
-static int mappable_to_deg(double x, double *y) {
-    double r;
+static int mappable_to_deg(phloat x, phloat *y) COMMANDS1_SECT;
+static int mappable_to_deg(phloat x, phloat *y) {
+    phloat r;
     int inf;
     r = rad_to_deg(x);
-    if ((inf = isinf(r)) != 0) {
+    if ((inf = p_isinf(r)) != 0) {
 	if (flags.f.range_error_ignore)
-	    r = inf == 1 ? POS_HUGE_DOUBLE : NEG_HUGE_DOUBLE;
+	    r = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
@@ -1777,8 +1779,8 @@ int docmd_to_deg(arg_struct *arg) {
 	return ERR_INVALID_TYPE;
 }
 
-static int mappable_to_rad(double x, double *y) COMMANDS1_SECT;
-static int mappable_to_rad(double x, double *y) {
+static int mappable_to_rad(phloat x, phloat *y) COMMANDS1_SECT;
+static int mappable_to_rad(phloat x, phloat *y) {
     *y = deg_to_rad(x);
     return ERR_NONE;
 }
@@ -1796,26 +1798,41 @@ int docmd_to_rad(arg_struct *arg) {
 	return ERR_INVALID_TYPE;
 }
 
-static int mappable_to_hr(double x, double *y) COMMANDS1_SECT;
-static int mappable_to_hr(double x, double *y) {
+static int mappable_to_hr(phloat x, phloat *y) COMMANDS1_SECT;
+static int mappable_to_hr(phloat x, phloat *y) {
     int neg = x < 0;
-    int8 ix, ixhr;
-    double h, res;
+    phloat res;
+    const phloat point01(1, 100);
+    const phloat point36(36, 100);
     if (neg)
 	x = -x;
     
     if (x == x + 1)
 	res = x;
-    else if (x < 0.01)
-	res = x / 0.36;
-    else {
-	h = floor(x);
-	x -= h;
-	ix = (int8) (x * 1000000000000.0 + 0.5);
-	ixhr = ix % LL(10000000000);
-	ix /= LL(10000000000);
-	ixhr += (ix % 100) * LL(6000000000);
-	res = h + ixhr / 360000000000.0;
+    else if (core_settings.decimal) {
+	if (x < point01)
+	    res = x / point36;
+	else {
+	    phloat xh = floor(x);
+	    phloat t = (x - xh) * 100;
+	    phloat xm = floor(t);
+	    phloat xs = (xm - t) * 100;
+	    res = xh + xm / 60 + xs / 3600;
+	}
+    } else {
+	if (x < 0.01)
+	    res = x / 0.36;
+	else {
+	    int8 ix, ixhr;
+	    phloat h = floor(x);
+	    x -= h;
+	    //ix = (int8) (x * 1000000000000.0 + 0.5);
+	    x = (x * 1000000000000.0 + 0.5); ix = x.to_int8();
+	    ixhr = ix % LL(10000000000);
+	    ix /= LL(10000000000);
+	    ixhr += (ix % 100) * LL(6000000000);
+	    res = h + ixhr / 360000000000.0;
+	}
     }
     *y = neg ? -res : res;
     return ERR_NONE;
@@ -1834,10 +1851,10 @@ int docmd_to_hr(arg_struct *arg) {
 	return ERR_INVALID_TYPE;
 }
 
-static int mappable_to_hms(double x, double *y) COMMANDS1_SECT;
-static int mappable_to_hms(double x, double *y) {
+static int mappable_to_hms(phloat x, phloat *y) COMMANDS1_SECT;
+static int mappable_to_hms(phloat x, phloat *y) {
     int neg = x < 0;
-    double r, t;
+    phloat r, t;
     if (neg)
 	x = -x;
     r = floor(x);
@@ -1848,7 +1865,8 @@ static int mappable_to_hms(double x, double *y) {
     /* Round-off may have caused the minutes or seconds to reach 60;
      * detect this and fix...
      */
-    r = fix_hms(r);
+    if (!core_settings.decimal)
+	r = fix_hms(r.ph.d);
 
     *y = neg ? -r : r;
     return ERR_NONE;
@@ -1878,11 +1896,11 @@ int docmd_to_rec(arg_struct *arg) {
 	     * arguments return ERR_INVALID_TYPE, or at least offer the
 	     * option of selecting that behavior.
 	     */
-	    double r = ((vartype_real *) reg_x)->x;
-	    double phi = reg_y->type == TYPE_REAL
+	    phloat r = ((vartype_real *) reg_x)->x;
+	    phloat phi = reg_y->type == TYPE_REAL
 			    ? ((vartype_real *) reg_y)->x
 			    : ((vartype_complex *) reg_y)->re;
-	    double x, y;
+	    phloat x, y;
 	    vartype *vx, *vy;
 	    generic_p2r(r, phi, &x, &y);
 	    vx = new_real(x);
@@ -1915,7 +1933,7 @@ int docmd_to_rec(arg_struct *arg) {
 	    return ERR_INVALID_TYPE;
     } else if (reg_x->type == TYPE_COMPLEX) {
 	vartype_complex *c = (vartype_complex *) reg_x;
-	double x, y;
+	phloat x, y;
 	vartype *v;
 	generic_p2r(c->re, c->im, &x, &y);
 	v = new_complex(x, y);
@@ -1940,16 +1958,16 @@ int docmd_to_pol(arg_struct *arg) {
 	     * arguments return ERR_INVALID_TYPE, or at least offer the
 	     * option of selecting that behavior.
 	     */
-	    double x = ((vartype_real *) reg_x)->x;
-	    double y = reg_y->type == TYPE_REAL
+	    phloat x = ((vartype_real *) reg_x)->x;
+	    phloat y = reg_y->type == TYPE_REAL
 			    ? ((vartype_real *) reg_y)->x
 			    : ((vartype_complex *) reg_y)->re;
-	    double r, phi;
+	    phloat r, phi;
 	    vartype *vx, *vy;
 	    generic_r2p(x, y, &r, &phi);
-	    if (isinf(r)) {
+	    if (p_isinf(r)) {
 		if (flags.f.range_error_ignore)
-		    r = POS_HUGE_DOUBLE;
+		    r = POS_HUGE_PHLOAT;
 		else
 		    return ERR_OUT_OF_RANGE;
 	    }
@@ -1983,12 +2001,12 @@ int docmd_to_pol(arg_struct *arg) {
 	    return ERR_INVALID_TYPE;
     } else if (reg_x->type == TYPE_COMPLEX) {
 	vartype_complex *c = (vartype_complex *) reg_x;
-	double r, phi;
+	phloat r, phi;
 	vartype *v;
 	generic_r2p(c->re, c->im, &r, &phi);
-	if (isinf(r)) {
+	if (p_isinf(r)) {
 	    if (flags.f.range_error_ignore)
-		r = POS_HUGE_DOUBLE;
+		r = POS_HUGE_PHLOAT;
 	    else
 		return ERR_OUT_OF_RANGE;
 	}
@@ -2003,19 +2021,12 @@ int docmd_to_pol(arg_struct *arg) {
 	return ERR_INVALID_TYPE;
 }
 
-static int mappable_ip(double x, double *y) COMMANDS1_SECT;
-static int mappable_ip(double x, double *y) {
-    if (core_settings.ip_hack) {
-	if (x < 0)
-	    *y = -floor(5e-9 - x);
-	else
-	    *y = floor(5e-9 + x);
-    } else {
-	if (x < 0)
-	    *y = -floor(-x);
-	else
-	    *y = floor(x);
-    }
+static int mappable_ip(phloat x, phloat *y) COMMANDS1_SECT;
+static int mappable_ip(phloat x, phloat *y) {
+    if (x < 0)
+	*y = -floor(-x);
+    else
+	*y = floor(x);
     return ERR_NONE;
 }
 
@@ -2032,19 +2043,12 @@ int docmd_ip(arg_struct *arg) {
 	return ERR_INVALID_TYPE;
 }
 
-static int mappable_fp(double x, double *y) COMMANDS1_SECT;
-static int mappable_fp(double x, double *y) {
-    if (core_settings.ip_hack) {
-	if (x < 0)
-	    *y = x + floor(5e-9 - x);
-	else
-	    *y = x - floor(5e-9 + x);
-    } else {
-	if (x < 0)
-	    *y = x + floor(-x);
-	else
-	    *y = x - floor(x);
-    }
+static int mappable_fp(phloat x, phloat *y) COMMANDS1_SECT;
+static int mappable_fp(phloat x, phloat *y) {
+    if (x < 0)
+	*y = x + floor(-x);
+    else
+	*y = x - floor(x);
     return ERR_NONE;
 }
 
@@ -2061,15 +2065,15 @@ int docmd_fp(arg_struct *arg) {
 	return ERR_INVALID_TYPE;
 }
 
-static double rnd_multiplier;
+static phloat rnd_multiplier;
 
-static int mappable_rnd_r(double x, double *y) COMMANDS1_SECT;
-static int mappable_rnd_r(double x, double *y) {
+static int mappable_rnd_r(phloat x, phloat *y) COMMANDS1_SECT;
+static int mappable_rnd_r(phloat x, phloat *y) {
     if (flags.f.fix_or_all) {
 	if (flags.f.eng_or_all)
 	    *y = x;
 	else {
-	    double t = x;
+	    phloat t = x;
 	    int neg = t < 0;
 	    if (neg)
 		t = -t;
@@ -2082,9 +2086,9 @@ static int mappable_rnd_r(double x, double *y) {
 	}
 	return ERR_NONE;
     } else {
-	double t = x;
+	phloat t = x;
 	int neg;
-	double scale;
+	phloat scale;
 	if (t == 0)
 	    *y = 0;
 	else {
@@ -2104,9 +2108,9 @@ static int mappable_rnd_r(double x, double *y) {
 	    }
 	    t = floor(t / scale * rnd_multiplier + 0.5)
 					    / rnd_multiplier * scale;
-	    if (isinf(t)) {
+	    if (p_isinf(t)) {
 		if (flags.f.range_error_ignore)
-		    *y = neg ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+		    *y = neg ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 		else
 		    return ERR_OUT_OF_RANGE;
 	    } else
@@ -2116,9 +2120,9 @@ static int mappable_rnd_r(double x, double *y) {
     }
 }
 
-static int mappable_rnd_c(double xre, double xim, double *yre, double *yim)
+static int mappable_rnd_c(phloat xre, phloat xim, phloat *yre, phloat *yim)
 								COMMANDS1_SECT;
-static int mappable_rnd_c(double xre, double xim, double *yre, double *yim) {
+static int mappable_rnd_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     int err = mappable_rnd_r(xre, yre);
     if (err != ERR_NONE)
 	return err;
@@ -2152,7 +2156,7 @@ int docmd_abs(arg_struct *arg) {
     switch (reg_x->type) {
 	case TYPE_REAL: {
 	    vartype *r;
-	    double x = ((vartype_real *) reg_x)->x;
+	    phloat x = ((vartype_real *) reg_x)->x;
 	    if (x < 0)
 		x = -x;
 	    r = new_real(x);
@@ -2163,8 +2167,8 @@ int docmd_abs(arg_struct *arg) {
 	}
 	case TYPE_COMPLEX: {
 	    vartype *r;
-	    double re = ((vartype_complex *) reg_x)->re;
-	    double im = ((vartype_complex *) reg_x)->im;
+	    phloat re = ((vartype_complex *) reg_x)->re;
+	    phloat im = ((vartype_complex *) reg_x)->im;
 	    r = new_real(hypot(re, im));
 	    if (r == NULL)
 		return ERR_INSUFFICIENT_MEMORY;
@@ -2189,10 +2193,10 @@ int docmd_abs(arg_struct *arg) {
 	    }
 	    size = src->rows * src->columns;
 	    for (i = 0; i < size; i++) {
-		double x = src->array->data[i].d;
+		phloat x = src->array->data[i];
 		if (x < 0)
 		    x = -x;
-		dst->array->data[i].d = x;
+		dst->array->data[i] = x;
 	    }
 	    unary_result((vartype *) dst);
 	    return ERR_NONE;
@@ -2208,7 +2212,7 @@ int docmd_abs(arg_struct *arg) {
 		return ERR_INSUFFICIENT_MEMORY;
 	    size = src->rows * src->columns;
 	    for (i = 0; i < size; i++) {
-		dst->array->data[i].d = hypot(src->array->data[i * 2],
+		dst->array->data[i] = hypot(src->array->data[i * 2],
 					      src->array->data[i * 2 + 1]);
 	    }
 	    unary_result((vartype *) dst);
@@ -2219,10 +2223,10 @@ int docmd_abs(arg_struct *arg) {
     }
 }
 
-static int mappable_sign(double xre, double xim, double *yre, double *yim)
+static int mappable_sign(phloat xre, phloat xim, phloat *yre, phloat *yim)
 								COMMANDS1_SECT;
-static int mappable_sign(double xre, double xim, double *yre, double *yim) {
-    double h = hypot(xre, xim);
+static int mappable_sign(phloat xre, phloat xim, phloat *yre, phloat *yim) {
+    phloat h = hypot(xre, xim);
     if (h == 0) {
 	*yre = 0;
 	*yim = 0;
@@ -2271,9 +2275,9 @@ int docmd_sign(arg_struct *arg) {
 	    size = src->rows * src->columns;
 	    for (i = 0; i < size; i++) {
 		if (src->array->is_string[i])
-		    dst->array->data[i].d = 0;
+		    dst->array->data[i] = 0;
 		else
-		    dst->array->data[i].d = src->array->data[i].d < 0 ? -1 : 1;
+		    dst->array->data[i] = src->array->data[i] < 0 ? -1 : 1;
 	    }
 	    unary_result((vartype *) dst);
 	    return ERR_NONE;
@@ -2292,9 +2296,9 @@ int docmd_sign(arg_struct *arg) {
 
 int docmd_mod(arg_struct *arg) {
     if (reg_x->type == TYPE_REAL && reg_y->type == TYPE_REAL) {
-	double x = ((vartype_real *) reg_x)->x;
-	double y = ((vartype_real *) reg_y)->x;
-	double res;
+	phloat x = ((vartype_real *) reg_x)->x;
+	phloat y = ((vartype_real *) reg_y)->x;
+	phloat res;
 	vartype *v;
 	if (x == 0)
 	    res = y;

@@ -21,6 +21,7 @@
 
 
 #include "free42.h"
+#include "core_phloat.h"
 #include "core_tables.h"
 
 
@@ -218,27 +219,19 @@ typedef struct {
 
 typedef struct {
     int type;
-    double x;
+    phloat x;
 } vartype_real;
 
 
 typedef struct {
     int type;
-    double re, im;
+    phloat re, im;
 } vartype_complex;
 
 
-typedef union {
-    double d;
-    struct {
-	unsigned char length;
-	char text[6];
-    } s;
-} double_or_string;
-
 typedef struct {
     int refcount;
-    double_or_string *data;
+    phloat *data;
     char *is_string;
 } realmatrix_data;
 
@@ -252,7 +245,7 @@ typedef struct {
 
 typedef struct {
     int refcount;
-    double *data;
+    phloat *data;
 } complexmatrix_data;
 
 typedef struct {
@@ -436,7 +429,7 @@ extern int mode_updown;
 extern int4 mode_sigma_reg;
 extern int mode_goose;
 
-extern double entered_number;
+extern phloat entered_number;
 extern int entered_string_length;
 extern char entered_string[15];
 
@@ -493,7 +486,7 @@ extern arg_struct input_arg;
 extern int baseapp;
 
 /* Random number generator */
-extern double random_number;
+extern phloat random_number;
 
 /* NORM & TRACE mode: number waiting to be printed */
 extern int deferred_print;

@@ -304,7 +304,7 @@ void core_paste_string(const char *s) MAIN_SECT;
 typedef struct {
 	int matrix_singularmatrix;
 	int matrix_outofrange;
-	int ip_hack;
+	int decimal;
 	int raw_text;
 } core_settings_struct;
 

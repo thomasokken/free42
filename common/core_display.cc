@@ -636,9 +636,9 @@ int unpersist_display(int version) {
 	    }
     }
 
-    if (shell_read_saved_state(progmenu_arg, 9 * sizeof(arg_struct))
-	    != 9 * sizeof(arg_struct))
-	return 0;
+    for (int i = 0; i < 9; i++)
+	if (!read_arg(progmenu_arg + i, version < 9))
+	    return 0;
     if (shell_read_saved_state(progmenu_is_gto, 9 * sizeof(int))
 	    != 9 * sizeof(int))
 	return 0;
@@ -681,12 +681,12 @@ void draw_pixel(int x, int y) {
     mark_dirty(y, x, y + 1, x + 1);
 }
 
-void draw_pattern(double dx, double dy, const char *pattern, int pattern_width){
+void draw_pattern(phloat dx, phloat dy, const char *pattern, int pattern_width){
     int x, y, h, v, hmin, hmax, vmin, vmax;
     if (dx + pattern_width < 1 || dx > 131 || dy + 8 < 1 || dy > 16)
 	return;
-    x = dx < 0 ? (int) (dx - 0.5) : (int) (dx + 0.5);
-    y = dy < 0 ? (int) (dy - 0.5) : (int) (dy + 0.5);
+    x = dx < 0 ? -floor(-dx + 0.5).to_int() : floor(dx + 0.5).to_int();
+    y = dy < 0 ? -floor(-dy + 0.5).to_int() : floor(dy + 0.5).to_int();
     hmin = x < 1 ? 1 - x : 0;
     hmax = x + pattern_width > 132 ? 132 - x : pattern_width;
     vmin = y < 1 ? 1 - y : 0;
@@ -982,7 +982,7 @@ static int prgmline2buf(char *buf, int len, int4 line, int highlight,
     } else if (cmd == CMD_END && current_prgm == prgms_count - 1) {
 	string2buf(buf, len, &bufptr, ".END.", 5);
     } else if (cmd == CMD_NUMBER) {
-	char *num = double2program(arg->val.d);
+	char *num = phloat2program(arg->val_d);
 	char c;
 	while ((c = *num++) != 0 && bufptr < len)
 	    buf[bufptr++] = c;
@@ -1584,7 +1584,7 @@ void show() {
 	clear_display();
 	switch (reg_x->type) {
 	    case TYPE_REAL: {
-		bufptr = double2string(((vartype_real *) reg_x)->x, buf, 44,
+		bufptr = phloat2string(((vartype_real *) reg_x)->x, buf, 44,
 				       2, 0, 3,
 				       flags.f.thousands_separators);
 		if (bufptr <= 22)
@@ -1604,20 +1604,20 @@ void show() {
 	    }
 	    case TYPE_COMPLEX: {
 		vartype_complex *c = (vartype_complex *) reg_x;
-		double x, y;
+		phloat x, y;
 		if (flags.f.polar) {
 		    generic_r2p(c->re, c->im, &x, &y);
-		    if (isinf(x))
-			x = POS_HUGE_DOUBLE;
+		    if (p_isinf(x))
+			x = POS_HUGE_PHLOAT;
 		} else {
 		    x = c->re;
 		    y = c->im;
 		}
-		bufptr = double2string(x, buf, 22,
+		bufptr = phloat2string(x, buf, 22,
 				       0, 0, 3,
 				       flags.f.thousands_separators);
 		draw_string(0, 0, buf, bufptr);
-		bufptr = double2string(y, buf, 22,
+		bufptr = phloat2string(y, buf, 22,
 				       0, 0, 3,
 				       flags.f.thousands_separators);
 		if (flags.f.polar) {
@@ -1636,16 +1636,16 @@ void show() {
 	    }
 	    case TYPE_REALMATRIX: {
 		vartype_realmatrix *rm = (vartype_realmatrix *) reg_x;
-		double_or_string *ds = rm->array->data;
+		phloat *ds = rm->array->data;
 		bufptr = vartype2string(reg_x, buf, 22);
 		draw_string(0, 0, buf, bufptr);
 		draw_string(0, 1, "1:1=", 4);
 		if (rm->array->is_string[0]) {
 		    draw_char(4, 1, '"');
-		    draw_string(5, 1, ds->s.text, ds->s.length);
-		    draw_char(5 + ds->s.length, 1, '"');
+		    draw_string(5, 1, ds->ph.text, ds->ph.length);
+		    draw_char(5 + ds->ph.length, 1, '"');
 		} else {
-		    bufptr = double2string(ds->d, buf, 18,
+		    bufptr = phloat2string(*ds, buf, 18,
 					   0, 0, 3,
 					   flags.f.thousands_separators);
 		    draw_string(4, 1, buf, bufptr);

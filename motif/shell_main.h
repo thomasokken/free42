@@ -38,7 +38,7 @@ extern int allow_paint;
 
 #define SHELL_VERSION 3
 
-typedef struct state {
+typedef struct state_type {
     int extras;
     int printerToTxtFile;
     int printerToGifFile;
@@ -49,7 +49,7 @@ typedef struct state {
     int mainWindowX, mainWindowY;
     int printWindowX, printWindowY, printWindowHeight;
     char skinName[FILENAMELEN];
-} state_type;
+};
 
 extern state_type state;
 

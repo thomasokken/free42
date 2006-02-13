@@ -21,6 +21,7 @@
 
 
 #include "free42.h"
+#include "core_phloat.h"
 #include "core_globals.h"
 
 
@@ -28,21 +29,21 @@
 /* Signatures for functions mapped by map_unary */
 /************************************************/
 
-typedef int (*mappable_r)(double x, double *z);
-typedef int (*mappable_c)(double xre, double xim, double *zre, double *zim);
+typedef int (*mappable_r)(phloat x, phloat *z);
+typedef int (*mappable_c)(phloat xre, phloat xim, phloat *zre, phloat *zim);
 
 
 /*************************************************/
 /* Signatures for functions mapped by map_binary */
 /*************************************************/
 
-typedef int (*mappable_rr)(double x, double y, double *z);
-typedef int (*mappable_rc)(double x, double yre, double yim,
-						double *zre, double *zim);
-typedef int (*mappable_cr)(double xre, double xim, double y,
-						double *zre, double *zim);
-typedef int (*mappable_cc)(double xre, double xim, double yre, double yim,
-						double *zre, double *zim);
+typedef int (*mappable_rr)(phloat x, phloat y, phloat *z);
+typedef int (*mappable_rc)(phloat x, phloat yre, phloat yim,
+						phloat *zre, phloat *zim);
+typedef int (*mappable_cr)(phloat xre, phloat xim, phloat y,
+						phloat *zre, phloat *zim);
+typedef int (*mappable_cc)(phloat xre, phloat xim, phloat yre, phloat yim,
+						phloat *zre, phloat *zim);
 
 
 /*********************/
@@ -58,9 +59,9 @@ void unary_result(vartype *x) HELPERS_SECT;
 void binary_result(vartype *x) HELPERS_SECT;
 int apply_sto_operation(char operation, vartype *x, vartype *oldval,
 			void (*completion)(int, vartype *)) HELPERS_SECT;
-double rad_to_angle(double x) HELPERS_SECT;
-double rad_to_deg(double x) HELPERS_SECT;
-double deg_to_rad(double x) HELPERS_SECT;
+phloat rad_to_angle(phloat x) HELPERS_SECT;
+phloat rad_to_deg(phloat x) HELPERS_SECT;
+phloat deg_to_rad(phloat x) HELPERS_SECT;
 void append_alpha_char(char c) HELPERS_SECT;
 void append_alpha_string(const char *buf, int buflen, int reverse) HELPERS_SECT;
 
@@ -105,8 +106,8 @@ int generic_sub(const vartype *x, const vartype *y, vartype **res) HELPERS_SECT;
 int generic_add(const vartype *x, const vartype *y, vartype **res) HELPERS_SECT;
 int generic_rcl(arg_struct *arg, vartype **dst) HELPERS_SECT;
 int generic_sto(arg_struct *arg, char operation) HELPERS_SECT;
-void generic_r2p(double re, double im, double *r, double *phi) HELPERS_SECT;
-void generic_p2r(double r, double phi, double *re, double *im) HELPERS_SECT;
+void generic_r2p(phloat re, phloat im, phloat *r, phloat *phi) HELPERS_SECT;
+void generic_p2r(phloat r, phloat phi, phloat *re, phloat *im) HELPERS_SECT;
 
 
 /**********************************************/
@@ -124,37 +125,37 @@ int map_binary(const vartype *src1, const vartype *src2, vartype **dst,
 /* Operators that can be used by the mapping functions, above */
 /**************************************************************/
 
-int div_rr(double x, double y, double *z) HELPERS_SECT;
-int div_rc(double x, double yre, double yim, double *zre, double *zim)
+int div_rr(phloat x, phloat y, phloat *z) HELPERS_SECT;
+int div_rc(phloat x, phloat yre, phloat yim, phloat *zre, phloat *zim)
 								HELPERS_SECT;
-int div_cr(double xre, double xim, double y, double *zre, double *zim)
+int div_cr(phloat xre, phloat xim, phloat y, phloat *zre, phloat *zim)
 								HELPERS_SECT;
-int div_cc(double xre, double xim, double yre, double yim,
-				    double *zre, double *zim) HELPERS_SECT;
+int div_cc(phloat xre, phloat xim, phloat yre, phloat yim,
+				    phloat *zre, phloat *zim) HELPERS_SECT;
 
-int mul_rr(double x, double y, double *z) HELPERS_SECT;
-int mul_rc(double x, double yre, double yim, double *zre, double *zim)
+int mul_rr(phloat x, phloat y, phloat *z) HELPERS_SECT;
+int mul_rc(phloat x, phloat yre, phloat yim, phloat *zre, phloat *zim)
 								HELPERS_SECT;
-int mul_cr(double xre, double xim, double y, double *zre, double *zim)
+int mul_cr(phloat xre, phloat xim, phloat y, phloat *zre, phloat *zim)
 								HELPERS_SECT;
-int mul_cc(double xre, double xim, double yre, double yim,
-				    double *zre, double *zim) HELPERS_SECT;
+int mul_cc(phloat xre, phloat xim, phloat yre, phloat yim,
+				    phloat *zre, phloat *zim) HELPERS_SECT;
 
-int sub_rr(double x, double y, double *z) HELPERS_SECT;
-int sub_rc(double x, double yre, double yim, double *zre, double *zim)
+int sub_rr(phloat x, phloat y, phloat *z) HELPERS_SECT;
+int sub_rc(phloat x, phloat yre, phloat yim, phloat *zre, phloat *zim)
 								HELPERS_SECT;
-int sub_cr(double xre, double xim, double y, double *zre, double *zim)
+int sub_cr(phloat xre, phloat xim, phloat y, phloat *zre, phloat *zim)
 								HELPERS_SECT;
-int sub_cc(double xre, double xim, double yre, double yim,
-				    double *zre, double *zim) HELPERS_SECT;
+int sub_cc(phloat xre, phloat xim, phloat yre, phloat yim,
+				    phloat *zre, phloat *zim) HELPERS_SECT;
 
-int add_rr(double x, double y, double *z) HELPERS_SECT;
-int add_rc(double x, double yre, double yim, double *zre, double *zim)
+int add_rr(phloat x, phloat y, phloat *z) HELPERS_SECT;
+int add_rc(phloat x, phloat yre, phloat yim, phloat *zre, phloat *zim)
 								HELPERS_SECT;
-int add_cr(double xre, double xim, double y, double *zre, double *zim)
+int add_cr(phloat xre, phloat xim, phloat y, phloat *zre, phloat *zim)
 								HELPERS_SECT;
-int add_cc(double xre, double xim, double yre, double yim,
-				    double *zre, double *zim) HELPERS_SECT;
+int add_cc(phloat xre, phloat xim, phloat yre, phloat yim,
+				    phloat *zre, phloat *zim) HELPERS_SECT;
 
 /***********************/
 /* Miscellaneous stuff */
@@ -164,7 +165,7 @@ int dimension_array(const char *name, int namelen, int4 rows, int4 columns)
 								  HELPERS_SECT;
 int dimension_array_ref(vartype *matrix, int4 rows, int4 columns) HELPERS_SECT;
 
-double fix_hms(double x) HELPERS_SECT;
-
+phloat fix_hms(phloat x) HELPERS_SECT;
+int read_arg(arg_struct *arg, bool old) HELPERS_SECT;
 
 #endif

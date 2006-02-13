@@ -586,7 +586,7 @@ int mode_updown;
 int4 mode_sigma_reg;
 int mode_goose;
 
-double entered_number;
+phloat entered_number;
 int entered_string_length;
 char entered_string[15];
 
@@ -630,7 +630,7 @@ arg_struct input_arg;
 int baseapp = 0;
 
 /* Random number generator */
-double random_number;
+phloat random_number;
 
 /* NORM & TRACE mode: number waiting to be printed */
 int deferred_print = 0;
@@ -697,7 +697,7 @@ static int persist_vartype(vartype *v) {
 		return 0;
 	    size = mp.rows * mp.columns;
 	    if (!shell_write_saved_state(rm->array->data,
-					 size * sizeof(double_or_string)))
+					 size * sizeof(phloat)))
 		return 0;
 	    if (!shell_write_saved_state(rm->array->is_string, size))
 		return 0;
@@ -714,7 +714,7 @@ static int persist_vartype(vartype *v) {
 		return 0;
 	    size = mp.rows * mp.columns;
 	    if (!shell_write_saved_state(cm->array->data,
-					 2 * size * sizeof(double)))
+					 2 * size * sizeof(phloat)))
 		return 0;
 	    return 1;
 	}
@@ -782,7 +782,7 @@ static int unpersist_vartype(vartype **v) {
 	    rm = (vartype_realmatrix *) new_realmatrix(mp.rows, mp.columns);
 	    if (rm == NULL)
 		return 0;
-	    size = mp.rows * mp.columns * sizeof(double_or_string);
+	    size = mp.rows * mp.columns * sizeof(phloat);
 	    if (shell_read_saved_state(rm->array->data, size) != size) {
 		free_vartype((vartype *) rm);
 		return 0;
@@ -807,7 +807,7 @@ static int unpersist_vartype(vartype **v) {
 				    new_complexmatrix(mp.rows, mp.columns);
 	    if (cm == NULL)
 		return 0;
-	    size = 2 * mp.rows * mp.columns * sizeof(double);
+	    size = 2 * mp.rows * mp.columns * sizeof(phloat);
 	    if (shell_read_saved_state(cm->array->data, size) != size) {
 		free_vartype((vartype *) cm);
 		return 0;
@@ -1238,7 +1238,7 @@ int get_command_length(int prgm_index, int4 pc) {
 	    break;
 	}
 	case ARGTYPE_DOUBLE:
-	    pc2 += sizeof(double);
+	    pc2 += sizeof(phloat);
 	    break;
     }
     return pc2 - pc;
@@ -1308,6 +1308,7 @@ void get_next_command(int4 *pc, int *command, arg_struct *arg, int find_target){
 	    break;
 	}
 	case ARGTYPE_DOUBLE: {
+	    // PHLOAT_TODO
 	    union {
 		double d;
 		unsigned char b[sizeof(double)];
@@ -1315,14 +1316,14 @@ void get_next_command(int4 *pc, int *command, arg_struct *arg, int find_target){
 	    int i;
 	    for (i = 0; i < (int) sizeof(double); i++)
 		u.b[i] = prgm->text[(*pc)++];
-	    arg->val.d = u.d;
+	    arg->val_d = u.d;
 	    break;
 	}
     }
 
     if (*command == CMD_NUMBER && arg->type != ARGTYPE_DOUBLE) {
-	/* argtype is ARGTYPE_NUM; convert to double */
-	arg->val.d = arg->val.num;
+	/* argtype is ARGTYPE_NUM; convert to phloat */
+	arg->val_d = arg->val.num;
 	arg->type = ARGTYPE_DOUBLE;
     }
     
@@ -1494,8 +1495,8 @@ void store_command(int4 pc, int command, arg_struct *arg) {
 	 * efficiency, we handle integers specially and store them as
 	 * ARGTYPE_NUM or ARGTYPE_NEG_NUM instead.
 	 */
-	int4 n = (int4) arg->val.d;
-	if (n == arg->val.d && n != (int4) 0x80000000) {
+	int4 n = arg->val_d.to_int4();
+	if (n == arg->val_d && n != (int4) 0x80000000) {
 	    if (n >= 0) {
 		arg->val.num = n;
 		arg->type = ARGTYPE_NUM;
@@ -1607,7 +1608,8 @@ void store_command(int4 pc, int command, arg_struct *arg) {
 		unsigned char b[sizeof(double)];
 	    } u;
 	    int i;
-	    u.d = arg->val.d;
+	    // PHLOAT_TODO
+	    u.d = arg->val_d.to_double();
 	    for (i = 0; i < (int) sizeof(double); i++)
 		buf[bufptr++] = u.b[i];
 	    break;
@@ -1838,11 +1840,21 @@ int load_state(int4 ver) {
     if (ver < 2) {
 	core_settings.matrix_singularmatrix = 0;
 	core_settings.matrix_outofrange = 0;
-	core_settings.ip_hack = 0;
     } else {
 	if (!read_int(&core_settings.matrix_singularmatrix)) return 0;
 	if (!read_int(&core_settings.matrix_outofrange)) return 0;
-	if (!read_int(&core_settings.ip_hack)) return 0;
+	if (!read_int(&core_settings.decimal)) return 0;
+	if (ver < 9)
+	    // In version 8 and before, Free42 had an "IP Hack" option, which
+	    // attempted to work around the problems with binary round-off by
+	    // rounding numbers to 8 decimals before applying truncating
+	    // operations (e.g. IP, indirect addressing). Starting with version
+	    // 9, Free42 supports Decimal mode, which fixes the root cause of
+	    // the problem. We cannot simply take the setting of IP Hack as the
+	    // setting for Decimal, however, because switching to decimal
+	    // requires a conversion off *all* phloats in memory. We leave it
+	    // to the user to do that manually, if they want.
+	    core_settings.decimal = 0;
     }
     if (ver < 5)
 	core_settings.raw_text = 0;
@@ -1874,16 +1886,14 @@ int load_state(int4 ver) {
     else if (!read_int(&mode_getkey))
 	return 0;
 
-    if (shell_read_saved_state(&entered_number, sizeof(double))
-	    != sizeof(double))
+    if (shell_read_saved_state(&entered_number, sizeof(phloat))
+	    != sizeof(phloat))
 	return 0;
     if (!read_int(&entered_string_length)) return 0;
     if (shell_read_saved_state(entered_string, 15) != 15) return 0;
 
     if (!read_int(&pending_command)) return 0;
-    if (shell_read_saved_state(&pending_command_arg, sizeof(arg_struct))
-	    != sizeof(arg_struct))
-	return 0;
+    if (!read_arg(&pending_command_arg, ver < 9)) return 0;
     if (!read_int(&xeq_invisible)) return 0;
 
     if (!read_int(&incomplete_command)) return 0;
@@ -1911,14 +1921,12 @@ int load_state(int4 ver) {
 
     if (shell_read_saved_state(input_name, 11) != 11) return 0;
     if (!read_int(&input_length)) return 0;
-    if (shell_read_saved_state(&input_arg, sizeof(arg_struct))
-	    != sizeof(arg_struct))
-	return 0;
+    if (!read_arg(&input_arg, ver < 9)) return 0;
 
     if (!read_int(&baseapp)) return 0;
 
-    if (shell_read_saved_state(&random_number, sizeof(double))
-	    != sizeof(double))
+    if (shell_read_saved_state(&random_number, sizeof(phloat))
+	    != sizeof(phloat))
 	return 0;
 
     if (ver < 3) {
@@ -1989,7 +1997,7 @@ void save_state() {
 
     if (!write_int(core_settings.matrix_singularmatrix)) return;
     if (!write_int(core_settings.matrix_outofrange)) return;
-    if (!write_int(core_settings.ip_hack)) return;
+    if (!write_int(core_settings.decimal)) return;
     if (!write_int(core_settings.raw_text)) return;
     if (!write_int(mode_clall)) return;
     if (!write_int(mode_command_entry)) return;
@@ -2007,7 +2015,7 @@ void save_state() {
     if (!write_int(mode_updown)) return;
     if (!write_int(mode_getkey)) return;
 
-    if (!shell_write_saved_state(&entered_number, sizeof(double))) return;
+    if (!shell_write_saved_state(&entered_number, sizeof(phloat))) return;
     if (!write_int(entered_string_length)) return;
     if (!shell_write_saved_state(entered_string, 15)) return;
 
@@ -2045,7 +2053,7 @@ void save_state() {
 
     if (!write_int(baseapp)) return;
 
-    if (!shell_write_saved_state(&random_number, sizeof(double))) return;
+    if (!shell_write_saved_state(&random_number, sizeof(phloat))) return;
 
     if (!write_int(deferred_print)) return;
 

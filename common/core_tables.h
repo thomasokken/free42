@@ -21,6 +21,7 @@
 
 
 #include "free42.h"
+#include "core_phloat.h"
 
 
 /************/
@@ -414,8 +415,10 @@ typedef struct {
 	char stk;
 	int cmd; /* For backward compatibility only! */
 	char lclbl;
-	double d;
     } val;
+    // This used to be a member of the 'val' union, but once I changed it
+    // from 'double' to 'phloat', that was no longer possible.
+    phloat val_d;
 } arg_struct;
 
 

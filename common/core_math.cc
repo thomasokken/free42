@@ -48,14 +48,14 @@ typedef struct {
     int which;
     int toggle;
     int retry_counter;
-    double retry_value;
-    double x1, x2, x3;
-    double fx1, fx2;
-    double prev_x, curr_x, curr_f;
-    double xm, fxm;
+    phloat retry_value;
+    phloat x1, x2, x3;
+    phloat fx1, fx2;
+    phloat prev_x, curr_x, curr_f;
+    phloat xm, fxm;
     char shadow_name[NUM_SHADOWS][7];
     int shadow_length[NUM_SHADOWS];
-    double shadow_value[NUM_SHADOWS];
+    phloat shadow_value[NUM_SHADOWS];
     uint4 last_disp_time;
 } solve_state;
 
@@ -76,8 +76,8 @@ typedef struct {
     int prev_prgm;
     int4 prev_pc;
     int state;
-    double llim, ulim, acc;
-    double h, integral, prev_integral;
+    phloat llim, ulim, acc;
+    phloat h, integral, prev_integral;
     int i, n;
 } integ_state;
 
@@ -98,15 +98,15 @@ typedef struct {
     int prev_prgm;
     int4 prev_pc;
     int state;
-    double llim, ulim, acc;
-    double a, b, eps;
+    phloat llim, ulim, acc;
+    phloat a, b, eps;
     int n, m, i;
-    double h, sum;
-    double c[ROMB_MAX+1];
+    phloat h, sum;
+    phloat c[ROMB_MAX+1];
     int nsteps;
-    double p;
-    double t, u;
-    double prev_int;
+    phloat p;
+    phloat t, u;
+    phloat prev_int;
 } integ_state;
 
 #endif
@@ -178,7 +178,7 @@ void reset_math() {
     reset_integ();
 }
 
-double math_random() {
+phloat math_random() {
     /* TODO Check if this is adequate -- there are probably much
      * better RNGs out there. This one is taken from the Blackjack
      * program in the HP-41C Standard Applications book.
@@ -188,11 +188,11 @@ double math_random() {
     return random_number;
 }
 
-int math_asinh_acosh(double xre, double xim,
-			    double *yre, double *yim, int do_asinh) {
+int math_asinh_acosh(phloat xre, phloat xim,
+			    phloat *yre, phloat *yim, int do_asinh) {
 
     /* TODO: review; and deal with overflows in intermediate results */
-    double are, aim, br, bphi;
+    phloat are, aim, br, bphi;
 
     /* a = z ^ 2 +- 1 */
     are = xre * xre - xim * xim;
@@ -214,9 +214,9 @@ int math_asinh_acosh(double xre, double xim,
     return ERR_NONE;
 }
 
-int math_atanh(double xre, double xim, double *yre, double *yim) {
+int math_atanh(phloat xre, phloat xim, phloat *yre, phloat *yim) {
 
-    double are, aim, bre, bim, cre, cim, h;
+    phloat are, aim, bre, bim, cre, cim, h;
 
     /* TODO: review, and deal with overflows in intermediate results */
     if (xim == 0 && (xre == 1 || xre == -1))
@@ -566,7 +566,10 @@ static int math_lgamma(double x, double *gam, int *sgngam) {
 /* Here ends the borrowed GNU C Library code (Gamma function). */
 /***************************************************************/
 
-int math_gamma(double x, double *gamma) {
+int math_gamma(phloat phx, phloat *phgamma) {
+    // PHLOAT_TODO: Separate decimal and binary implementations
+    double x = phx.to_double();
+    double gam;
     double lgam;
     int sign, err;
     if (x == 0 || (x < 0 && x == floor(x)))
@@ -574,15 +577,14 @@ int math_gamma(double x, double *gamma) {
     err = math_lgamma(x, &lgam, &sign);
     if (err != ERR_NONE)
 	return err;
-    *gamma = exp(lgam);
-    if (isinf(*gamma)) {
+    gam = exp(lgam);
+    if (p_isinf(gam)) {
 	if (flags.f.range_error_ignore)
-	    *gamma = sign < 0 ? NEG_HUGE_DOUBLE : POS_HUGE_DOUBLE;
+	    *phgamma = sign < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     } else {
-	if (sign < 0)
-	    *gamma = -(*gamma);
+	*phgamma = sign < 0 ? gam : -gam;
     }
     return ERR_NONE;
 }
@@ -606,7 +608,7 @@ static int find_shadow(const char *name, int length) {
     return -1;
 }
 
-void put_shadow(const char *name, int length, double value) {
+void put_shadow(const char *name, int length, phloat value) {
     int i = find_shadow(name, length);
     if (i == -1) {
 	for (i = 0; i < NUM_SHADOWS; i++)
@@ -626,7 +628,7 @@ void put_shadow(const char *name, int length, double value) {
     solve.shadow_value[i] = value;
 }
 
-int get_shadow(const char *name, int length, double *value) {
+int get_shadow(const char *name, int length, phloat *value) {
     int i = find_shadow(name, length);
     if (i == -1)
 	return 0;
@@ -656,7 +658,7 @@ static int call_solve_fn(int which, int state) {
     int err, i;
     arg_struct arg;
     vartype *v = recall_var(solve.var_name, solve.var_length);
-    double x = which == 1 ? solve.x1 : which == 2 ? solve.x2 : solve.x3;
+    phloat x = which == 1 ? solve.x1 : which == 2 ? solve.x2 : solve.x3;
     solve.prev_x = solve.curr_x;
     solve.curr_x = x;
     if (v == NULL || v->type != TYPE_REAL) {
@@ -681,7 +683,7 @@ static int call_solve_fn(int which, int state) {
     return ERR_RUN;
 }
 
-int start_solve(const char *name, int length, double x1, double x2) {
+int start_solve(const char *name, int length, phloat x1, phloat x2) {
     if (solve_active())
 	return ERR_SOLVE_SOLVE;
     string_copy(solve.var_name, &solve.var_length, name, length);
@@ -695,7 +697,7 @@ int start_solve(const char *name, int length, double x1, double x2) {
 	    solve.retry_counter = 0;
 	} else {
 	    x2 = x1 * 1.000001;
-	    if (isinf(x2))
+	    if (p_isinf(x2))
 		x2 = x1 * 0.999999;
 	    solve.retry_counter = -10;
 	}
@@ -804,7 +806,7 @@ static int finish_solve(int message) {
 }
 
 int return_to_solve(int failure) {
-    double f, slope, s, prev_f = solve.curr_f;
+    phloat f, slope, s, prev_f = solve.curr_f;
     uint4 now_time;
 
     if (solve.state == 0)
@@ -816,11 +818,11 @@ int return_to_solve(int failure) {
 	    if (f == 0)
 		return finish_solve(SOLVE_ROOT);
 	} else {
-	    solve.curr_f = POS_HUGE_DOUBLE;
+	    solve.curr_f = POS_HUGE_PHLOAT;
 	    failure = 1;
 	}
     } else
-	solve.curr_f = POS_HUGE_DOUBLE;
+	solve.curr_f = POS_HUGE_PHLOAT;
 
     if (!failure && solve.retry_counter != 0) {
 	if (solve.retry_counter > 0)
@@ -839,17 +841,17 @@ int return_to_solve(int failure) {
 	int bufptr = 0, i;
 	solve.last_disp_time = now_time;
 	clear_display();
-	bufptr = double2string(solve.curr_x, buf, 22, 0, 0, 3,
+	bufptr = phloat2string(solve.curr_x, buf, 22, 0, 0, 3,
 				    flags.f.thousands_separators);
 	for (i = bufptr; i < 21; i++)
 	    buf[i] = ' ';
 	buf[21] = failure ? '?' : solve.curr_f > 0 ? '+' : '-';
 	draw_string(0, 0, buf, 22);
-	bufptr = double2string(solve.prev_x, buf, 22, 0, 0, 3,
+	bufptr = phloat2string(solve.prev_x, buf, 22, 0, 0, 3,
 				    flags.f.thousands_separators);
 	for (i = bufptr; i < 21; i++)
 	    buf[i] = ' ';
-	buf[21] = prev_f == POS_HUGE_DOUBLE ? '?' : prev_f > 0 ? '+' : '-';
+	buf[21] = prev_f == POS_HUGE_PHLOAT ? '?' : prev_f > 0 ? '+' : '-';
 	draw_string(0, 1, buf, 22);
 	flush_display();
 	flags.f.message = 1;
@@ -902,10 +904,10 @@ int return_to_solve(int failure) {
 		 * apply the secant method.
 		 */
 		int which;
-		double x;
+		phloat x;
 		if (solve.toggle) {
 		    x = solve.x2 + 100 * (solve.x2 - solve.x1);
-		    if (isinf(x)) {
+		    if (p_isinf(x)) {
 			if (solve.retry_counter != 0)
 			    goto retry_solve;
 			return finish_solve(SOLVE_CONSTANT);
@@ -914,7 +916,7 @@ int return_to_solve(int failure) {
 		    solve.x2 = x;
 		} else {
 		    x = solve.x1 - 100 * (solve.x2 - solve.x1);
-		    if (isinf(x)) {
+		    if (p_isinf(x)) {
 			if (solve.retry_counter != 0)
 			    goto retry_solve;
 			return finish_solve(SOLVE_CONSTANT);
@@ -949,7 +951,7 @@ int return_to_solve(int failure) {
 		    /* Failure inside [x1, x2];
 		     * alternately approach x1 and x2 */
 		    if (solve.toggle) {
-			double old_x3 = solve.x3;
+			phloat old_x3 = solve.x3;
 			if (solve.x3 <= (solve.x1 + solve.x2) / 2)
 			    solve.x3 = (solve.x1 + solve.x3) / 2;
 			else
@@ -1007,7 +1009,7 @@ int return_to_solve(int failure) {
 	    }
 	    if (solve.x2 < solve.x1) {
 		/* Make sure x1 is always less than x2 */
-		double tmp = solve.x1;
+		phloat tmp = solve.x1;
 		solve.x1 = solve.x2;
 		solve.x2 = tmp;
 		tmp = solve.fx1;
@@ -1021,7 +1023,7 @@ int return_to_solve(int failure) {
 		    || (solve.fx1 < 0 && solve.fx2 > 0))
 		goto do_ridders;
 	    slope = (solve.fx2 - solve.fx1) / (solve.x2 - solve.x1);
-	    if (isinf(slope)) {
+	    if (p_isinf(slope)) {
 		solve.x3 = (solve.x1 + solve.x2) / 2;
 		if (solve.x3 == solve.x1 || solve.x3 == solve.x2)
 		    return finish_solve(SOLVE_ROOT);
@@ -1040,7 +1042,7 @@ int return_to_solve(int failure) {
 		int inf;
 		solve.x3 = solve.x1 - solve.fx1 / slope;
 		finish_secant:
-		if ((inf = isinf(solve.x3)) != 0) {
+		if ((inf = p_isinf(solve.x3)) != 0) {
 		    if (solve.retry_counter != 0)
 			goto retry_solve;
 		    return finish_solve(SOLVE_EXTREMUM);
@@ -1069,11 +1071,11 @@ int return_to_solve(int failure) {
 		/* If we're extrapolating, make sure we don't race away from
 		 * the current interval too quickly */
 		if (solve.x3 < solve.x1) {
-		    double min = solve.x1 - 100 * (solve.x2 - solve.x1);
+		    phloat min = solve.x1 - 100 * (solve.x2 - solve.x1);
 		    if (solve.x3 < min)
 			solve.x3 = min;
 		} else if (solve.x3 > solve.x2) {
-		    double max = solve.x2 + 100 * (solve.x2 - solve.x1);
+		    phloat max = solve.x2 + 100 * (solve.x2 - solve.x1);
 		    if (solve.x3 > max)
 			solve.x3 = max;
 		} else {
@@ -1081,7 +1083,7 @@ int return_to_solve(int failure) {
 		     * some progress. Enforce a minimum distance between x3
 		     * and the edges of the interval.
 		     */
-		    double eps = (solve.x2 - solve.x1) / 10;
+		    phloat eps = (solve.x2 - solve.x1) / 10;
 		    if (solve.x3 < solve.x1 + eps)
 			solve.x3 = solve.x1 + eps;
 		    else if (solve.x3 > solve.x2 - eps)
@@ -1100,10 +1102,10 @@ int return_to_solve(int failure) {
 	    if (solve.retry_counter > 0) {
 		solve.x1 = solve.retry_value;
 		solve.x2 = solve.x1 * 1.000001;
-		if (isinf(solve.x2))
+		if (p_isinf(solve.x2))
 		    solve.x2 = solve.x1 * 0.999999;
 		if (solve.x1 > solve.x2) {
-		    double tmp = solve.x1;
+		    phloat tmp = solve.x1;
 		    solve.x1 = solve.x2;
 		    solve.x2 = tmp;
 		}
@@ -1202,7 +1204,7 @@ static int call_integ_fn() MATH_SECT;
 static int call_integ_fn() {
     int err, i;
     arg_struct arg;
-    double x = integ.llim + integ.h * integ.i;
+    phloat x = integ.llim + integ.h * integ.i;
     vartype *v = recall_var(integ.var_name, integ.var_length);
     if (v == NULL || v->type != TYPE_REAL) {
 	v = new_real(x);
@@ -1318,7 +1320,7 @@ int return_to_integ(int failure) {
      * derivative of the integrand is high).
      */
 
-    double y;
+    phloat y;
     if (failure || reg_x->type != TYPE_REAL)
 	y = 0;
     else
@@ -1337,7 +1339,7 @@ int return_to_integ(int failure) {
 		integ.integral += (integ.h * 1.333333333333333333333333) * y;
 	    if (integ.i == integ.n) {
 		if (integ.state == 2) {
-		    double eps = integ.prev_integral - integ.integral;
+		    phloat eps = integ.prev_integral - integ.integral;
 		    if (eps < 0)
 			eps = -eps;
 		    if (eps <= integ.acc)
@@ -1363,7 +1365,7 @@ static int call_integ_fn() MATH_SECT;
 static int call_integ_fn() {
     int err, i;
     arg_struct arg;
-    double x = integ.u;
+    phloat x = integ.u;
     vartype *v = recall_var(integ.var_name, integ.var_length);
     if (v == NULL || v->type != TYPE_REAL) {
 	v = new_real(x);

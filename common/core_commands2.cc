@@ -148,9 +148,9 @@ int docmd_fcc_t(arg_struct *arg) {
 
 int docmd_comb(arg_struct *arg) {
     if (reg_x->type == TYPE_REAL && reg_y->type == TYPE_REAL) {
-	double y = ((vartype_real *) reg_y)->x;
-	double x = ((vartype_real *) reg_x)->x;
-	double r = 1, q = 1;
+	phloat y = ((vartype_real *) reg_y)->x;
+	phloat x = ((vartype_real *) reg_x)->x;
+	phloat r = 1, q = 1;
 	vartype *v;
 	if (x < 0 || x != floor(x) || x == x - 1 || y < 0 || y != floor(y))
 	    return ERR_INVALID_DATA;
@@ -160,9 +160,9 @@ int docmd_comb(arg_struct *arg) {
 	    x = y - x;
 	while (q <= x) {
 	    r *= y--;
-	    if (isinf(r)) {
+	    if (p_isinf(r)) {
 		if (flags.f.range_error_ignore) {
-		    r = POS_HUGE_DOUBLE;
+		    r = POS_HUGE_PHLOAT;
 		    break;
 		} else
 		    return ERR_OUT_OF_RANGE;
@@ -186,9 +186,9 @@ int docmd_comb(arg_struct *arg) {
 
 int docmd_perm(arg_struct *arg) {
     if (reg_x->type == TYPE_REAL && reg_y->type == TYPE_REAL) {
-	double y = ((vartype_real *) reg_y)->x;
-	double x = ((vartype_real *) reg_x)->x;
-	double r = 1;
+	phloat y = ((vartype_real *) reg_y)->x;
+	phloat x = ((vartype_real *) reg_x)->x;
+	phloat r = 1;
 	vartype *v;
 	if (x < 0 || x != floor(x) || x == x - 1 || y < 0 || y != floor(y))
 	    return ERR_INVALID_DATA;
@@ -196,9 +196,9 @@ int docmd_perm(arg_struct *arg) {
 	    return ERR_INVALID_DATA;
 	while (x > 0) {
 	    r *= y--;
-	    if (isinf(r)) {
+	    if (p_isinf(r)) {
 		if (flags.f.range_error_ignore) {
-		    r = POS_HUGE_DOUBLE;
+		    r = POS_HUGE_PHLOAT;
 		    break;
 		} else
 		    return ERR_OUT_OF_RANGE;
@@ -220,16 +220,16 @@ int docmd_perm(arg_struct *arg) {
 	return ERR_INVALID_TYPE;
 }
 
-static int mappable_fact(double x, double *y) COMMANDS2_SECT;
-static int mappable_fact(double x, double *y) {
-    double f = 1;
+static int mappable_fact(phloat x, phloat *y) COMMANDS2_SECT;
+static int mappable_fact(phloat x, phloat *y) {
+    phloat f = 1;
     if (x < 0 || x != floor(x))
 	return ERR_INVALID_DATA;
     while (x > 1) {
 	f *= x--;
-	if (isinf(f)) {
+	if (p_isinf(f)) {
 	    if (flags.f.range_error_ignore) {
-		*y = POS_HUGE_DOUBLE;
+		*y = POS_HUGE_PHLOAT;
 		return ERR_NONE;
 	    } else
 		return ERR_OUT_OF_RANGE;
@@ -276,7 +276,7 @@ int docmd_ran(arg_struct *arg) {
 
 int docmd_seed(arg_struct *arg) {
     if (reg_x->type == TYPE_REAL) {
-	double x = ((vartype_real *) reg_x)->x;
+	phloat x = ((vartype_real *) reg_x)->x;
 	int i;
 	if (x == 0)
 	    random_number = shell_random_seed();
@@ -500,9 +500,10 @@ int docmd_pse(arg_struct *arg) {
     return ERR_NONE;
 }
 
-static int generic_loop_helper(double *x, int isg) COMMANDS2_SECT;
-static int generic_loop_helper(double *x, int isg) {
-    double t;
+static int generic_loop_helper(phloat *x, int isg) COMMANDS2_SECT;
+static int generic_loop_helper(phloat *x, int isg) {
+    // PHLOAT_TODO: Separate decimal and binary implementations
+    phloat t;
     int8 i, j, k;
     int s;
     if (*x == *x + 1) {
@@ -521,7 +522,7 @@ static int generic_loop_helper(double *x, int isg) {
     } else
 	s = 1;
 
-    i = (int8) t;
+    i = t.to_int8();
     t = (t - i) * 100000;
     /* The 0.0000005 is a precaution to prevent the loop increment
      * value from being taken to be 1 lower than what the user intended;
@@ -535,7 +536,8 @@ static int generic_loop_helper(double *x, int isg) {
      * the multiplication by 100000. So, we sacrifice some of the range
      * of an IEEE-754 double, but maintain HP-42S compatibility.
      */
-    k = (int8) (t + 0.0000005);
+    //k = (int8) (t + 0.0000005);
+    t = t + 0.0000005; k = t.to_int8();
     j = k / 100;
     k -= j * 100;
     if (k == 0)
@@ -600,7 +602,7 @@ static int generic_loop(arg_struct *arg, int isg) {
 		else {
 		    if (!disentangle(regs))
 			return ERR_INSUFFICIENT_MEMORY;
-		    return generic_loop_helper(&rm->array->data[index].d, isg);
+		    return generic_loop_helper(&rm->array->data[index], isg);
 		}
 	    } else if (regs->type == TYPE_COMPLEXMATRIX) {
 		return ERR_INVALID_TYPE;
@@ -652,7 +654,11 @@ int docmd_dse(arg_struct *arg) {
 
 int docmd_aip(arg_struct *arg) {
     if (reg_x->type == TYPE_REAL) {
-	double d = ((vartype_real *) reg_x)->x;
+	// PHLOAT_TODO: Handle binary and decimal separately.
+	// The to_double() conversion is expensive.
+	// The integer-phloat-to-string conversion should be moved
+	// into core_decimal or core_phloat.
+	double d = ((vartype_real *) reg_x)->x.to_double();
 	int s = 1;
 	char buf[44];
 	int buflen = 0;
@@ -661,10 +667,7 @@ int docmd_aip(arg_struct *arg) {
 	    d = -d;
 	    s = -1;
 	}
-	if (core_settings.ip_hack)
-	    d = floor(5e-9 + d);
-	else
-	    d = floor(d);
+	d = floor(d);
 	while (d != 0 && buflen < 44) {
 	    char c = '0' + (int) fmod(d, 10);
 	    buf[buflen++] = c;
@@ -692,14 +695,12 @@ int docmd_aip(arg_struct *arg) {
 
 int docmd_xtoa(arg_struct *arg) {
     if (reg_x->type == TYPE_REAL) {
-	double x = ((vartype_real *) reg_x)->x;
+	phloat x = ((vartype_real *) reg_x)->x;
 	if (x < 0)
 	    x = -x;
-	if (core_settings.ip_hack)
-	    x += 5e-9;
 	if (x >= 256)
 	    return ERR_INVALID_DATA;
-	append_alpha_char((char) x);
+	append_alpha_char((char) x.to_char());
     } else if (reg_x->type == TYPE_STRING) {
 	vartype_string *s = (vartype_string *) reg_x;
 	append_alpha_string(s->text, s->length, 0);
@@ -712,21 +713,19 @@ int docmd_xtoa(arg_struct *arg) {
 	for (i = size - 1; i >= 0; i--) {
 	    if (m->array->is_string[i]) {
 		int j;
-		for (j = m->array->data[i].s.length - 1; j >= 0; j--) {
-		    buf[buflen++] = m->array->data[i].s.text[j];
+		for (j = m->array->data[i].ph.length - 1; j >= 0; j--) {
+		    buf[buflen++] = m->array->data[i].ph.text[j];
 		    if (buflen == 44)
 			goto done;
 		}
 	    } else {
-		double d = m->array->data[i].d;
+		phloat d = m->array->data[i];
 		if (d < 0)
 		    d = -d;
-		if (core_settings.ip_hack)
-		    d += 5e-9;
 		if (d >= 256)
 		    buf[buflen++] = (char) 255;
 		else
-		    buf[buflen++] = (char) d;
+		    buf[buflen++] = d.to_char();
 		if (buflen == 44)
 		    goto done;
 	    }
@@ -744,8 +743,8 @@ int docmd_agraph(arg_struct *arg) {
     switch (reg_x->type) {
 	case TYPE_REAL: {
 	    if (reg_y->type == TYPE_REAL) {
-		double x = ((vartype_real *) reg_x)->x;
-		double y = ((vartype_real *) reg_y)->x;
+		phloat x = ((vartype_real *) reg_x)->x;
+		phloat y = ((vartype_real *) reg_y)->x;
 		draw_pattern(x, y, reg_alpha, reg_alpha_length);
 		flush_display();
 		flags.f.message = flags.f.two_line_message = 1;
@@ -756,8 +755,8 @@ int docmd_agraph(arg_struct *arg) {
 		return ERR_INVALID_TYPE;
 	}
 	case TYPE_COMPLEX: {
-	    double x = ((vartype_complex *) reg_x)->re;
-	    double y = ((vartype_complex *) reg_y)->im;
+	    phloat x = ((vartype_complex *) reg_x)->re;
+	    phloat y = ((vartype_complex *) reg_y)->im;
 	    draw_pattern(x, y, reg_alpha, reg_alpha_length);
 	    flush_display();
 	    flags.f.message = flags.f.two_line_message = 1;
@@ -781,10 +780,12 @@ int docmd_agraph(arg_struct *arg) {
     }
 }
 
-static void pixel_helper(double dx, double dy) COMMANDS2_SECT;
-static void pixel_helper(double dx, double dy) {
-    int x = dx < 0 ? (int) (dx - 0.5) : (int) (dx + 0.5);
-    int y = dy < 0 ? (int) (dy - 0.5) : (int) (dy + 0.5);
+static void pixel_helper(phloat dx, phloat dy) COMMANDS2_SECT;
+static void pixel_helper(phloat dx, phloat dy) {
+    dx = dx < 0 ? -floor(-dx + 0.5) : floor(dx + 0.5);
+    dy = dy < 0 ? -floor(-dy + 0.5) : floor(dy + 0.5);
+    int x = dx < -132 ? -132 : dx > 132 ? 132 : dx.to_int();
+    int y = dy < -132 ? -132 : dy > 132 ? 132 : dy.to_int();
     int i;
     int dot = 1;
     if (x < 0) {
@@ -980,13 +981,13 @@ int docmd_x_eq_y(arg_struct *arg) {
 		if (xstr != ystr)
 		    return ERR_NO;
 		if (xstr) {
-		    if (!string_equals(x->array->data[i].s.text,
-				       x->array->data[i].s.length,
-				       y->array->data[i].s.text,
-				       y->array->data[i].s.length))
+		    if (!string_equals(x->array->data[i].ph.text,
+				       x->array->data[i].ph.length,
+				       y->array->data[i].ph.text,
+				       y->array->data[i].ph.length))
 			return ERR_NO;
 		} else {
-		    if (x->array->data[i].d != y->array->data[i].d)
+		    if (x->array->data[i] != y->array->data[i])
 			return ERR_NO;
 		}
 	    }
@@ -1158,11 +1159,11 @@ int docmd_prsigma(arg_struct *arg) {
 	if (rm->array->is_string[j]) {
 	    bufptr = 0;
 	    char2buf(buf, 100, &bufptr, '"');
-	    string2buf(buf, 100, &bufptr, rm->array->data[j].s.text,
-					  rm->array->data[j].s.length);
+	    string2buf(buf, 100, &bufptr, rm->array->data[j].ph.text,
+					  rm->array->data[j].ph.length);
 	    char2buf(buf, 100, &bufptr, '"');
 	} else
-	    bufptr = easy_double2string(rm->array->data[j].d, buf, 100, 0);
+	    bufptr = easy_phloat2string(rm->array->data[j], buf, 100, 0);
 	print_wide(sigma_labels[i].text, sigma_labels[i].length, buf, bufptr);
     }
     shell_annunciators(-1, -1, 0, -1, -1, -1);
@@ -1253,11 +1254,11 @@ static int prv_worker(int interrupted) {
 	if (rm->array->is_string[prv_index]) {
 	    rlen = 0;
 	    char2buf(rbuf, 100, &rlen, '"');
-	    string2buf(rbuf, 100, &rlen, rm->array->data[prv_index].s.text,
-				    rm->array->data[prv_index].s.length);
+	    string2buf(rbuf, 100, &rlen, rm->array->data[prv_index].ph.text,
+				    rm->array->data[prv_index].ph.length);
 	    char2buf(rbuf, 100, &rlen, '"');
 	} else
-	    rlen = easy_double2string(rm->array->data[prv_index].d,
+	    rlen = easy_phloat2string(rm->array->data[prv_index],
 					rbuf, 100, 0);
 	print_wide(lbuf, llen, rbuf, rlen);
     } else /* prv_var->type == TYPE_COMPLEXMATRIX) */ {
@@ -1474,7 +1475,7 @@ int docmd_prlcd(arg_struct *arg) {
 
 int docmd_delay(arg_struct *arg) {
     if (reg_x->type == TYPE_REAL) {
-	double x = ((vartype_real *) reg_x)->x;
+	phloat x = ((vartype_real *) reg_x)->x;
 	if (x < 0)
 	    x = -x;
 	if (x >= 1.95)
@@ -1598,7 +1599,7 @@ int docmd_number(arg_struct *arg) {
 	reg_z = reg_y;
 	reg_y = reg_x;
     }
-    reg_x = new_real(arg->val.d);
+    reg_x = new_real(arg->val_d);
     return ERR_NONE;
 }
 
@@ -1653,7 +1654,6 @@ int docmd_stop(arg_struct *arg) {
 }
 
 int docmd_newmat(arg_struct *arg) {
-    double x, y;
     vartype *m;
 
     if (reg_x->type == TYPE_STRING)
@@ -1665,22 +1665,18 @@ int docmd_newmat(arg_struct *arg) {
     else if (reg_y->type != TYPE_REAL)
 	return ERR_INVALID_TYPE;
 
-    x = ((vartype_real *) reg_x)->x;
+    phloat x = ((vartype_real *) reg_x)->x;
     if (x < 0)
 	x = -x;
     if (x < 1 || x >= 2147483648.0)
 	return ERR_DIMENSION_ERROR;
-    y = ((vartype_real *) reg_y)->x;
+    phloat y = ((vartype_real *) reg_y)->x;
     if (y < 0)
 	y = -y;
     if (y < 1 || y >= 2147483648.0)
 	return ERR_DIMENSION_ERROR;
-    if (core_settings.ip_hack) {
-	x += 5e-9;
-	y += 5e-9;
-    }
 
-    m = new_realmatrix((int4) y, (int4) x);
+    m = new_realmatrix(y.to_int4(), x.to_int4());
     if (m == NULL)
 	return ERR_INSUFFICIENT_MEMORY;
     else {

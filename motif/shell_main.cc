@@ -242,7 +242,7 @@ static int gif_lines;
 static XtAppContext appcontext;
 static Widget appshell, mainwindow, printwindow, print_da, print_sb;
 static Widget prefsdialog = NULL, prefs_matrix_singularmatrix,
-		prefs_matrix_outofrange, prefs_ip_hack,
+		prefs_matrix_outofrange, prefs_decimal,
 		prefs_printer_txt, prefs_printer_txt_name, prefs_raw_text,
 		prefs_printer_gif, prefs_printer_gif_name,
 		prefs_printer_gif_height;
@@ -1972,7 +1972,7 @@ static void preferencesCB(Widget w, XtPointer ud, XtPointer cd) {
 			   core_settings.matrix_singularmatrix, False);
     XmToggleButtonSetState(prefs_matrix_outofrange,
 			   core_settings.matrix_outofrange, False);
-    XmToggleButtonSetState(prefs_ip_hack, core_settings.ip_hack, False);
+    XmToggleButtonSetState(prefs_decimal, core_settings.decimal, False);
     XmToggleButtonSetState(prefs_printer_txt, state.printerToTxtFile, False);
     XmTextSetString(prefs_printer_txt_name, state.printerTxtFileName);
     XmToggleButtonSetState(prefs_raw_text, core_settings.raw_text, False);
@@ -2029,9 +2029,9 @@ static void make_prefs_dialog() {
 			NULL);
     XmStringFree(s);
 
-    s = XmStringCreateLocalized("IP hack: round arguments to 8 digits before truncating");
-    prefs_ip_hack = XtVaCreateManagedWidget(
-			"IP_Hack",
+    s = XmStringCreateLocalized("Use decimal floating point internally");
+    prefs_decimal = XtVaCreateManagedWidget(
+			"Decimal",
 			xmToggleButtonWidgetClass,
 			prefsdialog,
 			XmNlabelString, s,
@@ -2050,7 +2050,7 @@ static void make_prefs_dialog() {
 			XmNlabelString, s,
 			XmNnavigationType, XmEXCLUSIVE_TAB_GROUP,
 			XmNtopAttachment, XmATTACH_WIDGET,
-			XmNtopWidget, prefs_ip_hack,
+			XmNtopWidget, prefs_decimal,
 			XmNtopOffset, 10,
 			XmNleftAttachment, XmATTACH_FORM,
 			NULL);
@@ -2250,8 +2250,8 @@ static void prefsButtonCB(Widget w, XtPointer ud, XtPointer cd) {
 		XmToggleButtonGetState(prefs_matrix_singularmatrix);
 	    core_settings.matrix_outofrange =
 		XmToggleButtonGetState(prefs_matrix_outofrange);
-	    core_settings.ip_hack =
-		XmToggleButtonGetState(prefs_ip_hack);
+	    core_settings.decimal =
+		XmToggleButtonGetState(prefs_decimal);
 	    core_settings.raw_text =
 		XmToggleButtonGetState(prefs_raw_text);
 
