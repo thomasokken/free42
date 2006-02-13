@@ -1,3 +1,13 @@
+??-??-????: version 1.3.18
+
+* Added 'phloat' class, which replaces 'double' almost everywhere. This is a
+  major step in the direction of supporting decimal floating point; once the
+  'phloat' operation is complete, all that's left to do is to hook a decimal
+  library into the phloat class, and implement appropriate string<->phloat
+  conversions, and it's done.
+* Removed IP Hack option. Never really did the job anyway, and with the
+  introduction of Decimal mode, it will become obsolete.
+
 10-02-2006: version 1.3.17
 
 * Clicking in the display now only activates softkeys if a menu is active. This
