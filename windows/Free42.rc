@@ -114,9 +114,8 @@ BEGIN
     CONTROL         "Overflows during matrix operations yield ""Out of Range"" error",
                     IDC_MATRIX_OUTOFRANGE,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,7,18,213,10
-    CONTROL         "IP hack: round arguments to 8 digits before truncating",
-                    IDC_IP_HACK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,29,
-                    185,10
+    CONTROL         "Use decimal floating point internally",IDC_DECIMAL,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,29,126,10
     CONTROL         "Keep Free42 window always on top",IDC_ALWAYSONTOP,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,40,128,10
     CONTROL         "Write printer output to text file:",IDC_PRINTER_TXT,

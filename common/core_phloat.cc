@@ -37,7 +37,7 @@ phloat::phloat(int i) {
 
 /* public */
 phloat::phloat(int8 i) {
-    ph.d = i;
+    ph.d = (double) i;
 }
 
 /* public */
@@ -58,7 +58,7 @@ phloat phloat::operator=(int i) {
 
 /* public */
 phloat phloat::operator=(int8 i) {
-    ph.d = i;
+    ph.d = (double) i;
     return *this;
 }
 

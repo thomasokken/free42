@@ -37,6 +37,7 @@ extern "C" {
 #define COMMANDS3_SECT __attribute__ ((section ("Commnds3")))
 #define COMMANDS4_SECT __attribute__ ((section ("Commnds4")))
 #define COMMANDS5_SECT __attribute__ ((section ("Commnds5")))
+#define COMMANDS6_SECT __attribute__ ((section ("Commnds6")))
 #define DECIMAL_SECT __attribute__ ((section ("Decimal")))
 #define DISPLAY_SECT __attribute__ ((section ("Display")))
 #define GLOBALS_SECT __attribute__ ((section ("Globals")))
@@ -44,7 +45,10 @@ extern "C" {
 #define KEYDOWN_SECT __attribute__ ((section ("KeyDown")))
 #define LINALG1_SECT __attribute__ ((section ("LinAlg1")))
 #define LINALG2_SECT __attribute__ ((section ("LinAlg2")))
-#define MATH_SECT __attribute__ ((section ("Math")))
+#define MATH1_SECT __attribute__ ((section ("Math1")))
+#define MATH2_SECT __attribute__ ((section ("Math2")))
+#define PHLOAT_SECT __attribute__ ((section ("Phloat")))
+#define STO_RCL_SECT __attribute__ ((section ("StoRcl")))
 #define TABLES_SECT __attribute__ ((section ("Tables")))
 #define VARIABLES_SECT __attribute__ ((section ("Variabls")))
 #else
@@ -56,6 +60,7 @@ extern "C" {
 #define COMMANDS3_SECT
 #define COMMANDS4_SECT
 #define COMMANDS5_SECT
+#define COMMANDS6_SECT
 #define DECIMAL_SECT
 #define DISPLAY_SECT
 #define GLOBALS_SECT
@@ -63,7 +68,10 @@ extern "C" {
 #define KEYDOWN_SECT
 #define LINALG1_SECT
 #define LINALG2_SECT
-#define MATH_SECT
+#define MATH1_SECT
+#define MATH2_SECT
+#define PHLOAT_SECT
+#define STO_RCL_SECT
 #define TABLES_SECT
 #define VARIABLES_SECT
 #endif
@@ -81,6 +89,7 @@ extern "C" {
 #define COMMANDS3_SECT
 #define COMMANDS4_SECT
 #define COMMANDS5_SECT
+#define COMMANDS6_SECT
 #define DECIMAL_SECT
 #define DISPLAY_SECT
 #define GLOBALS_SECT
@@ -88,7 +97,10 @@ extern "C" {
 #define KEYDOWN_SECT
 #define LINALG1_SECT
 #define LINALG2_SECT
-#define MATH_SECT
+#define MATH1_SECT
+#define MATH2_SECT
+#define PHLOAT_SECT
+#define STO_RCL_SECT
 #define TABLES_SECT
 #define VARIABLES_SECT
 #define int4 int

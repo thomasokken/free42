@@ -2539,7 +2539,7 @@ void clear_prgm_menu() {
 void assign_prgm_key(int keynum, int is_gto, const arg_struct *arg) {
     int length, i;
     keynum--;
-    progmenu_arg[keynum] = *arg;
+    progmenu_arg[keynum] = (arg_struct) *arg;
     progmenu_is_gto[keynum] = is_gto;
     length = reg_alpha_length;
     if (keynum < 6) {

@@ -49,4 +49,21 @@ int docmd_sum(arg_struct *arg) COMMANDS5_SECT;
 int docmd_wmean(arg_struct *arg) COMMANDS5_SECT;
 int docmd_yint(arg_struct *arg) COMMANDS5_SECT;
 
+int docmd_integ(arg_struct *arg) COMMANDS5_SECT;
+int docmd_linsigma(arg_struct *arg) COMMANDS5_SECT;
+int docmd_not(arg_struct *arg) COMMANDS5_SECT;
+int docmd_or(arg_struct *arg) COMMANDS5_SECT;
+int docmd_pgmint(arg_struct *arg) COMMANDS5_SECT;
+int docmd_pgmslv(arg_struct *arg) COMMANDS5_SECT;
+int docmd_pgminti(arg_struct *arg) COMMANDS5_SECT;
+int docmd_pgmslvi(arg_struct *arg) COMMANDS5_SECT;
+int docmd_rotxy(arg_struct *arg) COMMANDS5_SECT;
+int docmd_solve(arg_struct *arg) COMMANDS5_SECT;
+int docmd_vmsolve(arg_struct *arg) COMMANDS5_SECT;
+int docmd_xor(arg_struct *arg) COMMANDS5_SECT;
+int docmd_to_dec(arg_struct *arg) COMMANDS5_SECT;
+int docmd_to_oct(arg_struct *arg) COMMANDS5_SECT;
+int docmd_sigmaadd(arg_struct *arg) COMMANDS5_SECT;
+int docmd_sigmasub(arg_struct *arg) COMMANDS5_SECT;
+
 #endif

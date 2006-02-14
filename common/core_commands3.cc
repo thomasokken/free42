@@ -26,7 +26,8 @@
 #include "core_helpers.h"
 #include "core_linalg1.h"
 #include "core_main.h"
-#include "core_math.h"
+#include "core_math2.h"
+#include "core_sto_rcl.h"
 #include "core_variables.h"
 
 static int mappable_acosh_r(phloat x, phloat *y) COMMANDS3_SECT;

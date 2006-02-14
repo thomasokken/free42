@@ -35,6 +35,7 @@
 #define IDC_PRINTER_TXT_BROWSE          1006
 #define IDC_PRINTER_GIF_BROWSE          1007
 #define IDC_IP_HACK                     1008
+#define IDC_DECIMAL                     1008
 #define IDC_PRINTER_GIF_HEIGHT          1009
 #define IDC_LIST1                       1010
 #define IDC_HP42S_SIZES                 1011

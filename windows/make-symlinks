@@ -9,6 +9,10 @@ ln -s ../common/core_commands3.cc core_commands3.cpp
 ln -s ../common/core_commands3.h
 ln -s ../common/core_commands4.cc core_commands4.cpp
 ln -s ../common/core_commands4.h
+ln -s ../common/core_commands5.cc core_commands5.cpp
+ln -s ../common/core_commands5.h
+ln -s ../common/core_commands6.cc core_commands6.cpp
+ln -s ../common/core_commands6.h
 ln -s ../common/core_decimal.cc core_decimal.cpp
 ln -s ../common/core_decimal.h
 ln -s ../common/core_display.cc core_display.cpp
@@ -19,12 +23,20 @@ ln -s ../common/core_helpers.cc core_helpers.cpp
 ln -s ../common/core_helpers.h
 ln -s ../common/core_keydown.cc core_keydown.cpp
 ln -s ../common/core_keydown.h
-ln -s ../common/core_linalg.cc core_linalg.cpp
-ln -s ../common/core_linalg.h
-ln -s ../common/core_math.cc core_math.cpp
-ln -s ../common/core_math.h
+ln -s ../common/core_linalg1.cc core_linalg1.cpp
+ln -s ../common/core_linalg1.h
+ln -s ../common/core_linalg2.cc core_linalg2.cpp
+ln -s ../common/core_linalg2.h
+ln -s ../common/core_math1.cc core_math1.cpp
+ln -s ../common/core_math1.h
+ln -s ../common/core_math2.cc core_math2.cpp
+ln -s ../common/core_math2.h
 ln -s ../common/core_main.cc core_main.cpp
 ln -s ../common/core_main.h
+ln -s ../common/core_phloat.cc core_phloat.cpp
+ln -s ../common/core_phloat.h
+ln -s ../common/core_sto_rcl.cc core_sto_rcl.cpp
+ln -s ../common/core_sto_rcl.h
 ln -s ../common/core_tables.cc core_tables.cpp
 ln -s ../common/core_tables.h
 ln -s ../common/core_variables.cc core_variables.cpp

@@ -24,7 +24,9 @@
 #include "core_display.h"
 #include "core_helpers.h"
 #include "core_main.h"
-#include "core_math.h"
+#include "core_math1.h"
+#include "core_math2.h"
+#include "core_sto_rcl.h"
 #include "core_variables.h"
 #include "shell.h"
 
@@ -500,8 +502,8 @@ int docmd_pse(arg_struct *arg) {
     return ERR_NONE;
 }
 
-static int generic_loop_helper(phloat *x, int isg) COMMANDS2_SECT;
-static int generic_loop_helper(phloat *x, int isg) {
+static int generic_loop_helper(phloat *x, bool isg) COMMANDS2_SECT;
+static int generic_loop_helper(phloat *x, bool isg) {
     // PHLOAT_TODO: Separate decimal and binary implementations
     phloat t;
     int8 i, j, k;
@@ -576,8 +578,8 @@ static int generic_loop_helper(phloat *x, int isg) {
     }
 }
 
-static int generic_loop(arg_struct *arg, int isg) COMMANDS2_SECT;
-static int generic_loop(arg_struct *arg, int isg) {
+static int generic_loop(arg_struct *arg, bool isg) COMMANDS2_SECT;
+static int generic_loop(arg_struct *arg, bool isg) {
     int err;
     if (arg->type == ARGTYPE_IND_NUM
 	    || arg->type == ARGTYPE_IND_STK
@@ -645,11 +647,11 @@ static int generic_loop(arg_struct *arg, int isg) {
 }
 
 int docmd_isg(arg_struct *arg) {
-    return generic_loop(arg, 1);
+    return generic_loop(arg, true);
 }
 
 int docmd_dse(arg_struct *arg) {
-    return generic_loop(arg, 0);
+    return generic_loop(arg, false);
 }
 
 int docmd_aip(arg_struct *arg) {

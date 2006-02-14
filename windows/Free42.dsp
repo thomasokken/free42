@@ -106,6 +106,14 @@ SOURCE=.\core_commands4.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\core_commands5.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\core_commands6.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\core_decimal.cpp
 # End Source File
 # Begin Source File
@@ -126,7 +134,11 @@ SOURCE=.\core_keydown.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\core_linalg.cpp
+SOURCE=.\core_linalg1.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\core_linalg2.cpp
 # End Source File
 # Begin Source File
 
@@ -134,7 +146,19 @@ SOURCE=.\core_main.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\core_math.cpp
+SOURCE=.\core_math1.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\core_math2.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\core_phloat.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\core_sto_rcl.cpp
 # End Source File
 # Begin Source File
 
@@ -207,6 +231,14 @@ SOURCE=.\core_commands4.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\core_commands5.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\core_commands6.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\core_decimal.h
 # End Source File
 # Begin Source File
@@ -227,7 +259,11 @@ SOURCE=.\core_keydown.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\core_linalg.h
+SOURCE=.\core_linalg1.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\core_linalg2.h
 # End Source File
 # Begin Source File
 
@@ -235,7 +271,19 @@ SOURCE=.\core_main.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\core_math.h
+SOURCE=.\core_math1.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\core_math2.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\core_phloat.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\core_sto_rcl.h
 # End Source File
 # Begin Source File
 

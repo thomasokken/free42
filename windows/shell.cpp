@@ -983,8 +983,8 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
 				ctl = GetDlgItem(hDlg, IDC_MATRIX_OUTOFRANGE);
 				SendMessage(ctl, BM_SETCHECK, 1, 0);
 			}
-			if (core_settings.ip_hack) {
-				ctl = GetDlgItem(hDlg, IDC_IP_HACK);
+			if (core_settings.decimal) {
+				ctl = GetDlgItem(hDlg, IDC_DECIMAL);
 				SendMessage(ctl, BM_SETCHECK, 1, 0);
 			}
 			if (state.alwaysOnTop) {
@@ -1021,8 +1021,8 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
 					core_settings.matrix_singularmatrix = SendMessage(ctl, BM_GETCHECK, 0, 0);
 					ctl = GetDlgItem(hDlg, IDC_MATRIX_OUTOFRANGE);
 					core_settings.matrix_outofrange = SendMessage(ctl, BM_GETCHECK, 0, 0);
-					ctl = GetDlgItem(hDlg, IDC_IP_HACK);
-					core_settings.ip_hack = SendMessage(ctl, BM_GETCHECK, 0, 0);
+					ctl = GetDlgItem(hDlg, IDC_DECIMAL);
+					core_settings.decimal = SendMessage(ctl, BM_GETCHECK, 0, 0);
 					ctl = GetDlgItem(hDlg, IDC_ALWAYSONTOP);
 					BOOL alwaysOnTop = SendMessage(ctl, BM_GETCHECK, 0, 0);
 					if (alwaysOnTop != state.alwaysOnTop) {

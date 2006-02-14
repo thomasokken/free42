@@ -37,19 +37,19 @@ class phloat {
 	} ph;
 
 	phloat() {}
-	phloat(int numer, int denom);
-	phloat(int i);
-	phloat(int8 i);
-	phloat(double d);
-	phloat(const phloat &p);
-	phloat operator=(int i);
-	phloat operator=(int8 i);
-	phloat operator=(double d);
-	phloat operator=(phloat p);
+	phloat(int numer, int denom) PHLOAT_SECT;
+	phloat(int i) PHLOAT_SECT;
+	phloat(int8 i) PHLOAT_SECT;
+	phloat(double d) PHLOAT_SECT;
+	phloat(const phloat &p) PHLOAT_SECT;
+	phloat operator=(int i) PHLOAT_SECT;
+	phloat operator=(int8 i) PHLOAT_SECT;
+	phloat operator=(double d) PHLOAT_SECT;
+	phloat operator=(phloat p) PHLOAT_SECT;
 
 #ifdef PALMOS
-	phloat(int4 i);
-	phloat operator=(int4 i);
+	phloat(int4 i) PHLOAT_SECT;
+	phloat operator=(int4 i) PHLOAT_SECT;
 #endif
 
 	// We don't define type cast operators, because they just lead
@@ -58,74 +58,74 @@ class phloat {
 	// converted actually fits in the returned type; if not, the result
 	// is undefined, except for to_char(), which will handle the range
 	// -128..255 correctly.
-	int to_digit() const; // Returns digit in units position
-	char to_char() const;
-	int to_int() const;
-	int4 to_int4() const;
-	int8 to_int8() const;
-	double to_double() const;
+	int to_digit() const PHLOAT_SECT; // Returns digit in units position
+	char to_char() const PHLOAT_SECT;
+	int to_int() const PHLOAT_SECT;
+	int4 to_int4() const PHLOAT_SECT;
+	int8 to_int8() const PHLOAT_SECT;
+	double to_double() const PHLOAT_SECT;
 
-	bool operator==(phloat p) const;
-	bool operator!=(phloat p) const;
-	bool operator<(phloat p) const;
-	bool operator<=(phloat p) const;
-	bool operator>(phloat p) const;
-	bool operator>=(phloat p) const;
-	phloat operator-() const;
-	phloat operator*(phloat p) const;
-	phloat operator/(phloat p) const;
-	phloat operator+(phloat p) const;
-	phloat operator-(phloat p) const;
-	phloat operator*=(phloat p);
-	phloat operator/=(phloat p);
-	phloat operator+=(phloat p);
-	phloat operator-=(phloat p);
-	phloat operator++(); // prefix
-	phloat operator++(int); // postfix
-	phloat operator--(); // prefix
-	phloat operator--(int); // postfix
+	bool operator==(phloat p) const PHLOAT_SECT;
+	bool operator!=(phloat p) const PHLOAT_SECT;
+	bool operator<(phloat p) const PHLOAT_SECT;
+	bool operator<=(phloat p) const PHLOAT_SECT;
+	bool operator>(phloat p) const PHLOAT_SECT;
+	bool operator>=(phloat p) const PHLOAT_SECT;
+	phloat operator-() const PHLOAT_SECT;
+	phloat operator*(phloat p) const PHLOAT_SECT;
+	phloat operator/(phloat p) const PHLOAT_SECT;
+	phloat operator+(phloat p) const PHLOAT_SECT;
+	phloat operator-(phloat p) const PHLOAT_SECT;
+	phloat operator*=(phloat p) PHLOAT_SECT;
+	phloat operator/=(phloat p) PHLOAT_SECT;
+	phloat operator+=(phloat p) PHLOAT_SECT;
+	phloat operator-=(phloat p) PHLOAT_SECT;
+	phloat operator++() PHLOAT_SECT; // prefix
+	phloat operator++(int) PHLOAT_SECT; // postfix
+	phloat operator--() PHLOAT_SECT; // prefix
+	phloat operator--(int) PHLOAT_SECT; // postfix
 
 	// Switch phloat object from dec to bin, or vice versa
-	void dec2bin();
-	void bin2dec();
+	void dec2bin() PHLOAT_SECT;
+	void bin2dec() PHLOAT_SECT;
 };
 
 // I can't simply overload isinf() and isnan(), because the Linux math.h
 // defines them as macros.
-int p_isinf(phloat p);
-int p_isnan(phloat p);
+int p_isinf(phloat p) PHLOAT_SECT;
+int p_isnan(phloat p) PHLOAT_SECT;
 
-phloat sin(phloat p);
-phloat cos(phloat p);
-phloat tan(phloat p);
-phloat asin(phloat p);
-phloat acos(phloat p);
-phloat atan(phloat p);
-void sincos(phloat phi, phloat *s, phloat *c);
-phloat hypot(phloat x, phloat y);
-phloat atan2(phloat x, phloat y);
-phloat sinh(phloat p);
-phloat cosh(phloat p);
-phloat tanh(phloat p);
-phloat asinh(phloat p);
-phloat acosh(phloat p);
-phloat atanh(phloat p);
-phloat log(phloat p);
-phloat log1p(phloat p);
-phloat log10(phloat p);
-phloat exp(phloat p);
-phloat expm1(phloat p);
-phloat sqrt(phloat p);
-phloat fmod(phloat x, phloat y);
-phloat fabs(phloat p);
-phloat pow(phloat x, phloat y);
-phloat floor(phloat x);
+phloat sin(phloat p) PHLOAT_SECT;
+phloat cos(phloat p) PHLOAT_SECT;
+phloat tan(phloat p) PHLOAT_SECT;
+phloat asin(phloat p) PHLOAT_SECT;
+phloat acos(phloat p) PHLOAT_SECT;
+phloat atan(phloat p) PHLOAT_SECT;
+void sincos(phloat phi, phloat *s, phloat *c) PHLOAT_SECT;
+phloat hypot(phloat x, phloat y) PHLOAT_SECT;
+phloat atan2(phloat x, phloat y) PHLOAT_SECT;
+phloat sinh(phloat p) PHLOAT_SECT;
+phloat cosh(phloat p) PHLOAT_SECT;
+phloat tanh(phloat p) PHLOAT_SECT;
+phloat asinh(phloat p) PHLOAT_SECT;
+phloat acosh(phloat p) PHLOAT_SECT;
+phloat atanh(phloat p) PHLOAT_SECT;
+phloat log(phloat p) PHLOAT_SECT;
+phloat log1p(phloat p) PHLOAT_SECT;
+phloat log10(phloat p) PHLOAT_SECT;
+phloat exp(phloat p) PHLOAT_SECT;
+phloat expm1(phloat p) PHLOAT_SECT;
+phloat sqrt(phloat p) PHLOAT_SECT;
+phloat fmod(phloat x, phloat y) PHLOAT_SECT;
+phloat fabs(phloat p) PHLOAT_SECT;
+phloat pow(phloat x, phloat y) PHLOAT_SECT;
+phloat floor(phloat x) PHLOAT_SECT;
 
-phloat operator*(int x, phloat y);
-phloat operator/(int x, phloat y);
-phloat operator/(double x, phloat y);
-phloat operator+(int x, phloat y);
-phloat operator-(int x, phloat y);
-bool operator==(int4 x, phloat y);
+phloat operator*(int x, phloat y) PHLOAT_SECT;
+phloat operator/(int x, phloat y) PHLOAT_SECT;
+phloat operator/(double x, phloat y) PHLOAT_SECT;
+phloat operator+(int x, phloat y) PHLOAT_SECT;
+phloat operator-(int x, phloat y) PHLOAT_SECT;
+bool operator==(int4 x, phloat y) PHLOAT_SECT;
 
 #endif

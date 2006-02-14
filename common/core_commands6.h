@@ -1,0 +1,40 @@
+/*****************************************************************************
+ * Free42 -- a free HP-42S calculator clone
+ * Copyright (C) 2004-2006  Thomas Okken
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License, version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *****************************************************************************/
+
+#ifndef CORE_COMMANDS6_H
+#define CORE_COMMANDS6_H 1
+
+#include "free42.h"
+#include "core_globals.h"
+
+int docmd_sin(arg_struct *arg) COMMANDS6_SECT;
+int docmd_cos(arg_struct *arg) COMMANDS6_SECT;
+int docmd_tan(arg_struct *arg) COMMANDS6_SECT;
+int docmd_asin(arg_struct *arg) COMMANDS6_SECT;
+int docmd_acos(arg_struct *arg) COMMANDS6_SECT;
+int docmd_atan(arg_struct *arg) COMMANDS6_SECT;
+int docmd_log(arg_struct *arg) COMMANDS6_SECT;
+int docmd_10_pow_x(arg_struct *arg) COMMANDS6_SECT;
+int docmd_ln(arg_struct *arg) COMMANDS6_SECT;
+int docmd_e_pow_x(arg_struct *arg) COMMANDS6_SECT;
+int docmd_sqrt(arg_struct *arg) COMMANDS6_SECT;
+int docmd_square(arg_struct *arg) COMMANDS6_SECT;
+int docmd_inv(arg_struct *arg) COMMANDS6_SECT;
+int docmd_y_pow_x(arg_struct *arg) COMMANDS6_SECT;
+
+#endif

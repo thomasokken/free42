@@ -25,8 +25,7 @@
 #include "core_display.h"
 #include "core_helpers.h"
 #include "core_linalg1.h"
-#include "core_main.h"
-#include "core_math.h"
+#include "core_sto_rcl.h"
 #include "core_variables.h"
 
 int docmd_insr(arg_struct *arg) {
@@ -193,23 +192,6 @@ int docmd_insr(arg_struct *arg) {
     return ERR_NONE;
 }
 
-int docmd_integ(arg_struct *arg) {
-    int err;
-    if (arg->type == ARGTYPE_IND_NUM
-	    || arg->type == ARGTYPE_IND_STK
-	    || arg->type == ARGTYPE_IND_STR) {
-	err = resolve_ind_arg(arg);
-	if (err != ERR_NONE)
-	    return err;
-    }
-    if (arg->type != ARGTYPE_STR)
-	return ERR_INVALID_TYPE;
-    if (!program_running())
-	clear_all_rtns();
-    string_copy(reg_alpha, &reg_alpha_length, arg->val.text, arg->length);
-    return start_integ(arg->val.text, arg->length);
-}
-
 static void invrt_completion(int error, vartype *res) COMMANDS4_SECT;
 static void invrt_completion(int error, vartype *res) {
     if (error == ERR_NONE)
@@ -275,11 +257,6 @@ int docmd_j_sub(arg_struct *arg) {
     return ERR_NONE;
 }
 
-int docmd_linsigma(arg_struct *arg) {
-    flags.f.all_sigma = 0;
-    return ERR_NONE;
-}
-
 static int mappable_ln_1_x(phloat x, phloat *y) COMMANDS4_SECT;
 static int mappable_ln_1_x(phloat x, phloat *y) {
     if (x <= -1)
@@ -301,147 +278,8 @@ int docmd_ln_1_x(arg_struct *arg) {
 	return ERR_INVALID_TYPE;
 }
 
-int docmd_not(arg_struct *arg) {
-    int8 x;
-    int err;
-    vartype *v;
-    if ((err = get_base_param(reg_x, &x)) != ERR_NONE)
-	return err;
-    v = new_real((phloat) ~x);
-    if (v == NULL)
-	return ERR_INSUFFICIENT_MEMORY;
-    unary_result(v);
-    return ERR_NONE;
-}
-
 int docmd_old(arg_struct *arg) {
     return docmd_rclel(NULL);
-}
-
-int docmd_or(arg_struct *arg) {
-    int8 x, y; 
-    int err; 
-    vartype *v;
-    if ((err = get_base_param(reg_x, &x)) != ERR_NONE) 
-	return err;
-    if ((err = get_base_param(reg_y, &y)) != ERR_NONE)
-	return err;
-    v = new_real((phloat) (x | y));
-    if (v == NULL) 
-	return ERR_INSUFFICIENT_MEMORY;
-    binary_result(v);
-    return ERR_NONE;
-}
-
-int docmd_pgmslv(arg_struct *arg) {
-    int err;
-    if (arg->type == ARGTYPE_IND_NUM
-	    || arg->type == ARGTYPE_IND_STK
-	    || arg->type == ARGTYPE_IND_STR) {
-	err = resolve_ind_arg(arg);
-	if (err != ERR_NONE)
-	    return err;
-    }
-    if (arg->type == ARGTYPE_STR) {
-	int prgm;
-	int4 pc;
-	if (!find_global_label(arg, &prgm, &pc))
-	    return ERR_LABEL_NOT_FOUND;
-	set_solve_prgm(arg->val.text, arg->length);
-	return ERR_NONE;
-    } else
-	return ERR_INVALID_TYPE;
-}
-
-int docmd_pgmint(arg_struct *arg) {
-    int err;
-    if (arg->type == ARGTYPE_IND_NUM
-	    || arg->type == ARGTYPE_IND_STK
-	    || arg->type == ARGTYPE_IND_STR) {
-	err = resolve_ind_arg(arg);
-	if (err != ERR_NONE)
-	    return err;
-    }
-    if (arg->type == ARGTYPE_STR) {
-	int prgm;
-	int4 pc;
-	if (!find_global_label(arg, &prgm, &pc))
-	    return ERR_LABEL_NOT_FOUND;
-	set_integ_prgm(arg->val.text, arg->length);
-	return ERR_NONE;
-    } else
-	return ERR_INVALID_TYPE;
-}
-
-int appmenu_exitcallback_3(int menuid) {
-    if (menuid == MENU_NONE) {
-	set_menu(MENULEVEL_APP, MENU_CATALOG);
-	set_cat_section(CATSECT_PGM_SOLVE);
-    } else
-	mode_appmenu = menuid;
-    return ERR_NONE;
-}
-
-int docmd_pgmslvi(arg_struct *arg) {
-    /* This command can only be invoked from a menu; we assume that
-     * the menu handler only gives us valid arguments. We do check
-     * the argument type, but the existence of the named label, and
-     * whether it actually has MVAR instructions, we just assume.
-     */
-    if (arg->type == ARGTYPE_STR) {
-	set_solve_prgm(arg->val.text, arg->length);
-	string_copy(varmenu, &varmenu_length, arg->val.text, arg->length);
-	varmenu_row = 0;
-	varmenu_role = 1;
-	set_menu(MENULEVEL_APP, MENU_VARMENU);
-	set_appmenu_exitcallback(3);
-	return ERR_NONE;
-    } else
-	return ERR_INVALID_TYPE;
-}
-
-int appmenu_exitcallback_4(int menuid) {
-    if (menuid == MENU_NONE) {
-	set_menu(MENULEVEL_APP, MENU_CATALOG);
-	set_cat_section(CATSECT_PGM_INTEG);
-    } else
-	mode_appmenu = menuid;
-    return ERR_NONE;
-}
-
-int appmenu_exitcallback_5(int menuid) {
-    if (menuid == MENU_NONE) {
-	get_integ_prgm(varmenu, &varmenu_length);
-	varmenu_row = 0;
-	varmenu_role = 2;
-	set_menu(MENULEVEL_APP, MENU_VARMENU);
-	set_appmenu_exitcallback(4);
-    } else
-	mode_appmenu = menuid;
-    return ERR_NONE;
-}
-
-int docmd_pgminti(arg_struct *arg) {
-    /* This command can only be invoked from a menu; we assume that
-     * the menu handler only gives us valid arguments. We do check
-     * the argument type, but the existence of the named label, and
-     * whether it actually has MVAR instructions, we just assume.
-     */
-    if (arg->type == ARGTYPE_STR) {
-	set_integ_prgm(arg->val.text, arg->length);
-	string_copy(varmenu, &varmenu_length, arg->val.text, arg->length);
-	varmenu_row = 0;
-	varmenu_role = 2;
-	set_menu(MENULEVEL_APP, MENU_VARMENU);
-	set_appmenu_exitcallback(4);
-	clear_row(0);
-	draw_string(0, 0, "Set Vars; Select \003var", 21);
-	flags.f.message = 1;
-	flags.f.two_line_message = 0;
-	mode_varmenu = 1;
-	return ERR_NONE;
-    } else
-	return ERR_INVALID_TYPE;
 }
 
 int docmd_posa(arg_struct *arg) {
@@ -694,38 +532,6 @@ int docmd_rnrm(arg_struct *arg) {
 	return ERR_INVALID_TYPE;
 }
 
-int docmd_rotxy(arg_struct *arg) {
-    int8 x, y, res;
-    int err; 
-    vartype *v;
-    if ((err = get_base_param(reg_x, &x)) != ERR_NONE) 
-	return err;
-    if ((err = get_base_param(reg_y, &y)) != ERR_NONE)
-	return err;
-    if (x < -35 || x > 35)
-	return ERR_INVALID_DATA;
-    if (x == 0)
-	res = y;
-    else {
-	y &= LL(0xfffffffff);
-	if (x > 0)
-	    res = (y >> x) | (y << (36 - x));
-	else {
-	    x = -x;
-	    res = (y << x) | (y >> (36 - x));
-	}
-	if ((res & LL(0x800000000)) == 0)
-	    res &= LL(0x7ffffffff);
-	else
-	    res |= LL(0xfffffff000000000);
-    }
-    v = new_real((phloat) res);
-    if (v == NULL) 
-	return ERR_INSUFFICIENT_MEMORY;
-    binary_result(v);
-    return ERR_NONE;
-}
-
 int docmd_rsum(arg_struct *arg) {
     if (reg_x->type == TYPE_REALMATRIX) {
 	vartype_realmatrix *rm = (vartype_realmatrix *) reg_x;
@@ -932,67 +738,6 @@ int docmd_sinh(arg_struct *arg) {
 	return err;
     } else
 	return ERR_ALPHA_DATA_IS_INVALID;
-}
-
-int docmd_solve(arg_struct *arg) {
-    int err;
-    vartype *v;
-    phloat x1, x2;
-    if (arg->type == ARGTYPE_IND_NUM
-	    || arg->type == ARGTYPE_IND_STK
-	    || arg->type == ARGTYPE_IND_STR) {
-	err = resolve_ind_arg(arg);
-	if (err != ERR_NONE)
-	    return err;
-    }
-    if (arg->type != ARGTYPE_STR)
-	return ERR_INVALID_TYPE;
-
-    v = recall_var(arg->val.text, arg->length);
-    if (v == 0)
-	x1 = 0;
-    else if (v->type == TYPE_REAL)
-	x1 = ((vartype_real *) v)->x;
-    else if (v->type == TYPE_STRING)
-	return ERR_ALPHA_DATA_IS_INVALID;
-    else
-	return ERR_INVALID_TYPE;
-
-    if (reg_x->type == TYPE_REAL)
-	x2 = ((vartype_real *) reg_x)->x;
-    else if (reg_x->type == TYPE_STRING)
-	return ERR_ALPHA_DATA_IS_INVALID;
-    else
-	return ERR_INVALID_TYPE;
-
-    if (!program_running())
-	clear_all_rtns();
-    string_copy(reg_alpha, &reg_alpha_length, arg->val.text, arg->length);
-    return start_solve(arg->val.text, arg->length, x1, x2);
-}
-
-int docmd_vmsolve(arg_struct *arg) {
-    vartype *v;
-    phloat x1, x2;
-    if (arg->type != ARGTYPE_STR)
-	return ERR_INVALID_TYPE;
-
-    v = recall_var(arg->val.text, arg->length);
-    if (v == NULL) {
-	x1 = 0;
-	x2 = 1;
-    } else if (v->type == TYPE_REAL) {
-	x1 = ((vartype_real *) v)->x;
-	if (!get_shadow(arg->val.text, arg->length, &x2))
-	    x2 = x1;
-    } else if (v->type == TYPE_STRING)
-	return ERR_ALPHA_DATA_IS_INVALID;
-    else
-	return ERR_INVALID_TYPE;
-
-    clear_all_rtns();
-    string_copy(reg_alpha, &reg_alpha_length, arg->val.text, arg->length);
-    return start_solve(arg->val.text, arg->length, x1, x2);
 }
 
 int docmd_stoel(arg_struct *arg) {
@@ -1240,109 +985,6 @@ int docmd_x_swap(arg_struct *arg) {
 	    docmd_prx(NULL);
     }
     return err;
-}
-
-int docmd_xor(arg_struct *arg) {
-    int8 x, y;
-    int err; 
-    vartype *v;
-    if ((err = get_base_param(reg_x, &x)) != ERR_NONE) 
-	return err;
-    if ((err = get_base_param(reg_y, &y)) != ERR_NONE)
-	return err;
-    v = new_real((phloat) (x ^ y));
-    if (v == NULL) 
-	return ERR_INSUFFICIENT_MEMORY;
-    binary_result(v);
-    return ERR_NONE;
-}
-
-int docmd_to_dec(arg_struct *arg) {
-    if (reg_x->type == TYPE_REAL) {
-	phloat oct = ((vartype_real *) reg_x)->x;
-	phloat res;
-	int neg = oct < 0;
-	if (neg)
-	    oct = -oct;
-	if (oct > 777777777777.0 || oct != floor(oct))
-	    return ERR_INVALID_DATA;
-	vartype *v;
-	if (core_settings.decimal) {
-	    phloat dec = 0, mul = 1;
-	    while (oct != 0) {
-		int digit = oct.to_digit();
-		if (digit > 7)
-		    return ERR_INVALID_DATA;
-		oct = floor(oct / 10);
-		dec += digit * mul;
-		mul *= 8;
-	    }
-	    res = neg ? -dec : dec;
-	} else {
-	    int8 ioct = oct.to_int8();
-	    int8 dec = 0, mul = 1;
-	    while (ioct != 0) {
-		int digit = (int) (ioct % 10);
-		if (digit > 7)
-		    return ERR_INVALID_DATA;
-		ioct /= 10;
-		dec += digit * mul;
-		mul <<= 3;
-	    }
-	    res = neg ? -dec : dec;
-	}
-	v = new_real(res);
-	if (v == NULL)
-	    return ERR_INSUFFICIENT_MEMORY;
-	unary_result(v);
-	return ERR_NONE;
-    } else if (reg_x->type == TYPE_STRING)
-	return ERR_ALPHA_DATA_IS_INVALID;
-    else
-	return ERR_INVALID_TYPE;
-}
-
-int docmd_to_oct(arg_struct *arg) {
-    if (reg_x->type == TYPE_REAL) {
-	phloat dec = ((vartype_real *) reg_x)->x;
-	phloat res;
-	int neg = dec < 0;
-	if (neg)
-	    dec = -dec;
-	if (dec > 68719476735.0 || dec != floor(dec))
-	    return ERR_INVALID_DATA;
-	vartype *v;
-	if (core_settings.decimal) {
-	    phloat oct = 0, mul = 1;
-	    while (dec != 0) {
-		int digit = dec.to_digit();
-		if (digit > 7)
-		    return ERR_INVALID_DATA;
-		dec = floor(dec / 10);
-		oct += digit * mul;
-		mul *= 8;
-	    }
-	    res = neg ? -oct : oct;
-	} else {
-	    int8 idec = dec.to_int8();
-	    int8 oct = 0, mul = 1;
-	    while (idec != 0) {
-		int digit = (int) (idec & 7);
-		idec >>= 3;
-		oct += digit * mul;
-		mul *= 10;
-	    }
-	    res = neg ? -oct : oct;
-	}
-	v = new_real(res);
-	if (v == NULL)
-	    return ERR_INSUFFICIENT_MEMORY;
-	unary_result(v);
-	return ERR_NONE;
-    } else if (reg_x->type == TYPE_STRING)
-	return ERR_ALPHA_DATA_IS_INVALID;
-    else
-	return ERR_INVALID_TYPE;
 }
 
 #define DIR_LEFT  0
@@ -1878,154 +1520,6 @@ int docmd_find(arg_struct *arg) {
 		    p += 2;
     }
     return ERR_NO;
-}
-
-static void accum(phloat *sum, phloat term, int weight) COMMANDS4_SECT;
-static void accum(phloat *sum, phloat term, int weight) {
-    int inf;
-    phloat s;
-    if (weight == 1)
-	s = *sum + term;
-    else
-	s = *sum - term;
-    if ((inf = p_isinf(s)) != 0)
-	s = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
-    *sum = s;
-}
-
-static phloat sigma_helper_2(phloat *sigmaregs,
-			     phloat x, phloat y, int weight) COMMANDS4_SECT;
-static phloat sigma_helper_2(phloat *sigmaregs,
-			     phloat x, phloat y, int weight) {
-
-    accum(&sigmaregs[0], x, weight);
-    accum(&sigmaregs[1], x * x, weight);
-    accum(&sigmaregs[2], y, weight);
-    accum(&sigmaregs[3], y * y, weight);
-    accum(&sigmaregs[4], x * y, weight);
-    accum(&sigmaregs[5], 1, weight);
-
-    if (flags.f.all_sigma) {
-	if (x > 0) {
-	    phloat lnx = log(x);
-	    if (y > 0) {
-		phloat lny = log(y);
-		accum(&sigmaregs[8], lny, weight);
-		accum(&sigmaregs[9], lny * lny, weight);
-		accum(&sigmaregs[10], lnx * lny, weight);
-		accum(&sigmaregs[11], x * lny, weight);
-	    } else {
-		flags.f.exp_fit_invalid = 1;
-		flags.f.pwr_fit_invalid = 1;
-	    }
-	    accum(&sigmaregs[6], lnx, weight);
-	    accum(&sigmaregs[7], lnx * lnx, weight);
-	    accum(&sigmaregs[12], lnx * y, weight);
-	} else {
-	    if (y > 0) {
-		phloat lny = log(y);
-		accum(&sigmaregs[8], lny, weight);
-		accum(&sigmaregs[9], lny * lny, weight);
-		accum(&sigmaregs[11], x * lny, weight);
-	    } else
-		flags.f.exp_fit_invalid = 1;
-	    flags.f.log_fit_invalid = 1;
-	    flags.f.pwr_fit_invalid = 1;
-	}
-    } else {
-	flags.f.log_fit_invalid = 1;
-	flags.f.exp_fit_invalid = 1;
-	flags.f.pwr_fit_invalid = 1;
-    }
-
-    return sigmaregs[5];
-}
-
-static int sigma_helper_1(int weight) COMMANDS4_SECT;
-static int sigma_helper_1(int weight) {
-    /* Check if summation registers are OK */
-    int4 first = mode_sigma_reg;
-    int4 last = first + (flags.f.all_sigma ? 13 : 6);
-    int4 size, i;
-    vartype *regs = recall_var("REGS", 4);
-    vartype_realmatrix *r;
-    phloat *sigmaregs;
-    if (regs == NULL)
-	return ERR_SIZE_ERROR;
-    if (regs->type != TYPE_REALMATRIX)
-	return ERR_INVALID_TYPE;
-    r = (vartype_realmatrix *) regs;
-    size = r->rows * r->columns;
-    if (last > size)
-	return ERR_SIZE_ERROR;
-    for (i = first; i < last; i++)
-	if (r->array->is_string[i])
-	    return ERR_ALPHA_DATA_IS_INVALID;
-    sigmaregs = r->array->data + first;
-
-    /* All summation registers present, real-valued, non-string. */
-    switch (reg_x->type) {
-	case TYPE_REAL: {
-	    if (reg_y->type == TYPE_REAL) {
-		vartype_real *x = (vartype_real *) new_real(0);
-		if (x == NULL)
-		    return ERR_INSUFFICIENT_MEMORY;
-		x->x = sigma_helper_2(sigmaregs,
-				      ((vartype_real *) reg_x)->x,
-				      ((vartype_real *) reg_y)->x,
-				      weight);
-		free_vartype(reg_lastx);
-		reg_lastx = reg_x;
-		reg_x = (vartype *) x;
-		mode_disable_stack_lift = 1;
-		return ERR_NONE;
-	    } else if (reg_y->type == TYPE_STRING)
-		return ERR_ALPHA_DATA_IS_INVALID;
-	    else
-		return ERR_INVALID_TYPE;
-	}
-	case TYPE_REALMATRIX: {
-	    vartype_realmatrix *rm = (vartype_realmatrix *) reg_x;
-	    vartype_real *x;
-	    int4 i;
-	    if (rm->columns != 2)
-		return ERR_DIMENSION_ERROR;
-	    for (i = 0; i < rm->rows * 2; i++)
-		if (rm->array->is_string[i])
-		    return ERR_ALPHA_DATA_IS_INVALID;
-	    x = (vartype_real *) new_real(0);
-	    if (x == NULL)
-		return ERR_INSUFFICIENT_MEMORY;
-	    for (i = 0; i < rm->rows; i++)
-		x->x = sigma_helper_2(sigmaregs,
-				      rm->array->data[i * 2],
-				      rm->array->data[i * 2 + 1],
-				      weight);
-	    free_vartype(reg_lastx);
-	    reg_lastx = reg_x;
-	    reg_x = (vartype *) x;
-	    mode_disable_stack_lift = 1;
-	    return ERR_NONE;
-	}
-	case TYPE_STRING:
-	    return ERR_ALPHA_DATA_IS_INVALID;
-	default:
-	    return ERR_INVALID_TYPE;
-    }
-}
-
-int docmd_sigmaadd(arg_struct *arg) {
-    int err = sigma_helper_1(1);
-    if (err == ERR_NONE && flags.f.trace_print && flags.f.printer_exists)
-	docmd_prx(NULL);
-    return err;
-}
-
-int docmd_sigmasub(arg_struct *arg) {
-    int err = sigma_helper_1(-1);
-    if (err == ERR_NONE && flags.f.trace_print && flags.f.printer_exists)
-	docmd_prx(NULL);
-    return err;
 }
 
 int docmd_xrom(arg_struct *arg) {

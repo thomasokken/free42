@@ -25,7 +25,7 @@
 #include "core_display.h"
 #include "core_helpers.h"
 #include "core_main.h"
-#include "core_math.h"
+#include "core_math1.h"
 #include "core_tables.h"
 #include "core_variables.h"
 #include "shell.h"

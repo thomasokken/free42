@@ -1,2 +1,2 @@
 application { "Free42" Fk42 }
-multiple code { Shell FileSys Main Commnds1 Commnds2 Commnds3 Commnds4 Commnds5 Display Decimal Globals Helpers KeyDown LinAlg1 LinAlg2 Math Tables Variabls }
+multiple code { Shell FileSys Main Commnds1 Commnds2 Commnds3 Commnds4 Commnds5 Commnds6 Display Decimal Globals Helpers KeyDown LinAlg1 LinAlg2 Math1 Math2 Phloat StoRcl Tables Variabls }
