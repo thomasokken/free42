@@ -1,3 +1,7 @@
+PalmOS version won't build; COMMANDS1, COMMANDS4, HELPERS, MATH, and main
+segments are overflowing. (In the case of 'main', I suspect that it's
+because 'phloat' is going in there now.)
+
 Look for PHLOAT_TODO and do them:
 Convert programs, variables, and other persistent data (stat, solve, integ,
 other globals?). Basically every phloat with global visibility and extent
@@ -5,6 +9,8 @@ needs conversion.
 When reading a core-version <= 8 state file, always do the mode switch to
 decimal? It's probably what many users will want anyway, and most of the
 others won't care...
+
+Add longphloat type; use it for all intermediaries.
 
 Regression test HMS+, HMS-, ->HMS, ->HR, ISG, DSE, ->DEC, ->OCT, AIP,
 DIM, NEWMAT, GETM, R<>R, string<->number conversion.
