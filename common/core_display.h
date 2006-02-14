@@ -63,7 +63,7 @@ int command2buf(char *buf, int len, int cmd, const arg_struct *arg) DISPLAY_SECT
 #define MENULEVEL_APP       4
 
 int appmenu_exitcallback_1(int menuid) COMMANDS3_SECT;
-int appmenu_exitcallback_2(int menuid) COMMANDS4_SECT;
+int appmenu_exitcallback_2(int menuid) COMMANDS5_SECT;
 int appmenu_exitcallback_3(int menuid) COMMANDS4_SECT;
 int appmenu_exitcallback_4(int menuid) COMMANDS4_SECT;
 int appmenu_exitcallback_5(int menuid) COMMANDS4_SECT;

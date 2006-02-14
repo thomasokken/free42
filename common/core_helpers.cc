@@ -22,7 +22,7 @@
 #include "core_commands2.h"
 #include "core_decimal.h"
 #include "core_display.h"
-#include "core_linalg.h"
+#include "core_linalg1.h"
 #include "core_main.h"
 #include "core_variables.h"
 #include "shell.h"
@@ -47,9 +47,9 @@ int resolve_ind_arg(arg_struct *arg) {
 		    int i;
 		    phloat *ds = &rm->array->data[num];
 		    arg->type = ARGTYPE_STR;
-		    arg->length = ds->ph.length;
-		    for (i = 0; i < ds->ph.length; i++)
-			arg->val.text[i] = ds->ph.text[i];
+		    arg->length = ds->ph.s.length;
+		    for (i = 0; i < ds->ph.s.length; i++)
+			arg->val.text[i] = ds->ph.s.text[i];
 		} else {
 		    phloat x = rm->array->data[num];
 		    if (x < 0)
@@ -861,7 +861,7 @@ int generic_rcl(arg_struct *arg, vartype **dst) {
 		    return ERR_SIZE_ERROR;
 		ds = rm->array->data[index];
 		if (rm->array->is_string[index])
-		    *dst = new_string(ds.ph.text, ds.ph.length);
+		    *dst = new_string(ds.ph.s.text, ds.ph.s.length);
 		else
 		    *dst = new_real(ds);
 		if (*dst == NULL)
@@ -976,9 +976,9 @@ int generic_sto(arg_struct *arg, char operation) {
 		    if (!disentangle((vartype *) rm))
 			return ERR_INSUFFICIENT_MEMORY;
 		    len = vs->length;
-		    ds->ph.length = len;
+		    ds->ph.s.length = len;
 		    for (i = 0; i < len; i++)
-			ds->ph.text[i] = vs->text[i];
+			ds->ph.s.text[i] = vs->text[i];
 		    rm->array->is_string[num] = 1;
 		    return ERR_NONE;
 		} else if (reg_x->type == TYPE_REAL) {

@@ -16,18 +16,18 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *****************************************************************************/
 
-#ifndef CORE_LINALG_H
-#define CORE_LINALG_H 1
+#ifndef CORE_LINALG1_H
+#define CORE_LINALG1_H 1
 
 #include "core_globals.h"
 
 int linalg_div(const vartype *left, const vartype *right,
-			     void (*completion)(int, vartype *)) LINALG_SECT;
+			     void (*completion)(int, vartype *)) LINALG1_SECT;
 int linalg_mul(const vartype *left, const vartype *right,
-			     void (*completion)(int, vartype *)) LINALG_SECT;
+			     void (*completion)(int, vartype *)) LINALG1_SECT;
 int linalg_inv(const vartype *src, void (*completion)(int, vartype *))
-								 LINALG_SECT;
+								 LINALG1_SECT;
 int linalg_det(const vartype *src, void (*completion)(int, vartype *))
-								 LINALG_SECT;
+								 LINALG1_SECT;
 
 #endif

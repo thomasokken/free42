@@ -70,7 +70,7 @@
 
 #define prefs_matrix_singularmatrix	300
 #define prefs_matrix_outofrange		301
-#define prefs_ip_hack			302
+#define prefs_decimal			302
 #define prefs_printer_memo		303
 #define prefs_printer_memo_name		304
 #define prefs_printer_txt		305

@@ -21,11 +21,6 @@
 
 
 /* public */
-phloat::phloat(int i) {
-    ph.d = i;
-}
-
-/* public */
 phloat::phloat(int numer, int denom) {
     // PHLOAT_TODO: This constructor is meant to be used to allow exact decimal
     // number literals, e.g. phloat(4, 100) to represent 0.04 exactly.
@@ -33,6 +28,11 @@ phloat::phloat(int numer, int denom) {
     // it should only be *used* in decimal mode, and its dec2bin() and
     // bin2dec() methods should never be called.
     ph.d = numer / denom;
+}
+
+/* public */
+phloat::phloat(int i) {
+    ph.d = i;
 }
 
 /* public */
@@ -73,6 +73,21 @@ phloat phloat::operator=(phloat p) {
     ph = p.ph;
     return *this;
 }
+
+#ifdef PALMOS
+
+/* public */
+phloat::phloat(int4 i) {
+    ph.d = i;
+}
+
+/* public */
+phloat phloat::operator=(int4 i) {
+    ph.d = i;
+    return *this;
+}
+
+#endif
 
 /* public */
 int phloat::to_digit() const {

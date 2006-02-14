@@ -33,12 +33,12 @@ class phloat {
 	    struct {
 		char text[6];
 		unsigned char length;
-	    };
+	    } s;
 	} ph;
 
 	phloat() {}
-	phloat(int i);
 	phloat(int numer, int denom);
+	phloat(int i);
 	phloat(int8 i);
 	phloat(double d);
 	phloat(const phloat &p);
@@ -46,6 +46,11 @@ class phloat {
 	phloat operator=(int8 i);
 	phloat operator=(double d);
 	phloat operator=(phloat p);
+
+#ifdef PALMOS
+	phloat(int4 i);
+	phloat operator=(int4 i);
+#endif
 
 	// We don't define type cast operators, because they just lead
 	// to tons of ambiguities. Defining explicit conversions instead.

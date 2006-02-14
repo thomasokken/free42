@@ -1642,8 +1642,8 @@ void show() {
 		draw_string(0, 1, "1:1=", 4);
 		if (rm->array->is_string[0]) {
 		    draw_char(4, 1, '"');
-		    draw_string(5, 1, ds->ph.text, ds->ph.length);
-		    draw_char(5 + ds->ph.length, 1, '"');
+		    draw_string(5, 1, ds->ph.s.text, ds->ph.s.length);
+		    draw_char(5 + ds->ph.s.length, 1, '"');
 		} else {
 		    bufptr = phloat2string(*ds, buf, 18,
 					   0, 0, 3,

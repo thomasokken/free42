@@ -713,8 +713,8 @@ int docmd_xtoa(arg_struct *arg) {
 	for (i = size - 1; i >= 0; i--) {
 	    if (m->array->is_string[i]) {
 		int j;
-		for (j = m->array->data[i].ph.length - 1; j >= 0; j--) {
-		    buf[buflen++] = m->array->data[i].ph.text[j];
+		for (j = m->array->data[i].ph.s.length - 1; j >= 0; j--) {
+		    buf[buflen++] = m->array->data[i].ph.s.text[j];
 		    if (buflen == 44)
 			goto done;
 		}
@@ -981,10 +981,10 @@ int docmd_x_eq_y(arg_struct *arg) {
 		if (xstr != ystr)
 		    return ERR_NO;
 		if (xstr) {
-		    if (!string_equals(x->array->data[i].ph.text,
-				       x->array->data[i].ph.length,
-				       y->array->data[i].ph.text,
-				       y->array->data[i].ph.length))
+		    if (!string_equals(x->array->data[i].ph.s.text,
+				       x->array->data[i].ph.s.length,
+				       y->array->data[i].ph.s.text,
+				       y->array->data[i].ph.s.length))
 			return ERR_NO;
 		} else {
 		    if (x->array->data[i] != y->array->data[i])
@@ -1159,8 +1159,8 @@ int docmd_prsigma(arg_struct *arg) {
 	if (rm->array->is_string[j]) {
 	    bufptr = 0;
 	    char2buf(buf, 100, &bufptr, '"');
-	    string2buf(buf, 100, &bufptr, rm->array->data[j].ph.text,
-					  rm->array->data[j].ph.length);
+	    string2buf(buf, 100, &bufptr, rm->array->data[j].ph.s.text,
+					  rm->array->data[j].ph.s.length);
 	    char2buf(buf, 100, &bufptr, '"');
 	} else
 	    bufptr = easy_phloat2string(rm->array->data[j], buf, 100, 0);
@@ -1254,8 +1254,8 @@ static int prv_worker(int interrupted) {
 	if (rm->array->is_string[prv_index]) {
 	    rlen = 0;
 	    char2buf(rbuf, 100, &rlen, '"');
-	    string2buf(rbuf, 100, &rlen, rm->array->data[prv_index].ph.text,
-				    rm->array->data[prv_index].ph.length);
+	    string2buf(rbuf, 100, &rlen, rm->array->data[prv_index].ph.s.text,
+				    rm->array->data[prv_index].ph.s.length);
 	    char2buf(rbuf, 100, &rlen, '"');
 	} else
 	    rlen = easy_phloat2string(rm->array->data[prv_index],

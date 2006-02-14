@@ -24,24 +24,10 @@
 #include "core_decimal.h"
 #include "core_display.h"
 #include "core_helpers.h"
-#include "core_linalg.h"
+#include "core_linalg1.h"
 #include "core_main.h"
 #include "core_math.h"
 #include "core_variables.h"
-
-int appmenu_exitcallback_2(int menuid) {
-    if (menuid == MENU_BASE
-	    || menuid == MENU_BASE_A_THRU_F
-	    || menuid == MENU_BASE_LOGIC) {
-	mode_appmenu = menuid;
-	set_appmenu_exitcallback(2);
-    } else {
-	set_base(10);
-	mode_appmenu = menuid;
-	baseapp = 0;
-    }
-    return ERR_NONE;
-}
 
 int docmd_insr(arg_struct *arg) {
     vartype *m, *newx;
@@ -289,14 +275,6 @@ int docmd_j_sub(arg_struct *arg) {
     return ERR_NONE;
 }
 
-int docmd_linf(arg_struct *arg) {
-    flags.f.lin_fit = 1;
-    flags.f.log_fit = 0;
-    flags.f.exp_fit = 0;
-    flags.f.pwr_fit = 0;
-    return ERR_NONE;
-}
-
 int docmd_linsigma(arg_struct *arg) {
     flags.f.all_sigma = 0;
     return ERR_NONE;
@@ -321,14 +299,6 @@ int docmd_ln_1_x(arg_struct *arg) {
 	return ERR_ALPHA_DATA_IS_INVALID;
     else
 	return ERR_INVALID_TYPE;
-}
-
-int docmd_logf(arg_struct *arg) {
-    flags.f.lin_fit = 0;
-    flags.f.log_fit = 1;
-    flags.f.exp_fit = 0;
-    flags.f.pwr_fit = 0;
-    return ERR_NONE;
 }
 
 int docmd_not(arg_struct *arg) {
@@ -602,14 +572,6 @@ int docmd_putm(arg_struct *arg) {
     }
 }
 
-int docmd_pwrf(arg_struct *arg) {
-    flags.f.lin_fit = 0;
-    flags.f.log_fit = 0;
-    flags.f.exp_fit = 0;
-    flags.f.pwr_fit = 1;
-    return ERR_NONE;
-}
-
 int docmd_rclel(arg_struct *arg) {
     vartype *m, *v;
     switch (matedit_mode) {
@@ -633,8 +595,8 @@ int docmd_rclel(arg_struct *arg) {
 	vartype_realmatrix *rm = (vartype_realmatrix *) m;
 	int4 n = matedit_i * rm->columns + matedit_j;
 	if (rm->array->is_string[n])
-	    v = new_string(rm->array->data[n].ph.text,
-			   rm->array->data[n].ph.length);
+	    v = new_string(rm->array->data[n].ph.s.text,
+			   rm->array->data[n].ph.s.length);
 	else
 	    v = new_real(rm->array->data[n]);
     } else if (m->type == TYPE_COMPLEXMATRIX) {
@@ -1072,9 +1034,9 @@ int docmd_stoel(arg_struct *arg) {
 	    vartype_string *s = (vartype_string *) reg_x;
 	    int i;
 	    rm->array->is_string[n] = 1;
-	    rm->array->data[n].ph.length = s->length;
+	    rm->array->data[n].ph.s.length = s->length;
 	    for (i = 0; i < s->length; i++)
-		rm->array->data[n].ph.text[i] = s->text[i];
+		rm->array->data[n].ph.s.text[i] = s->text[i];
 	    return ERR_NONE;
 	} else
 	    return ERR_INVALID_TYPE;
@@ -1491,8 +1453,8 @@ static int matedit_move(int direction) {
     if (m->type == TYPE_REALMATRIX) {
 	if (old_n != new_n) {
 	    if (rm->array->is_string[new_n])
-		v = new_string(rm->array->data[new_n].ph.text,
-			    rm->array->data[new_n].ph.length);
+		v = new_string(rm->array->data[new_n].ph.s.text,
+			    rm->array->data[new_n].ph.s.length);
 	    else
 		v = new_real(rm->array->data[new_n]);
 	    if (v == NULL)
@@ -1505,9 +1467,9 @@ static int matedit_move(int direction) {
 	    vartype_string *s = (vartype_string *) reg_x;
 	    int i;
 	    rm->array->is_string[old_n] = 1;
-	    rm->array->data[old_n].ph.length = s->length;
+	    rm->array->data[old_n].ph.s.length = s->length;
 	    for (i = 0; i < s->length; i++)
-		rm->array->data[old_n].ph.text[i] = s->text[i];
+		rm->array->data[old_n].ph.s.text[i] = s->text[i];
 	} else {
 	    free_vartype(v);
 	    return ERR_INVALID_TYPE;
@@ -1674,8 +1636,8 @@ static int matabx(int which) {
     if (mat->type == TYPE_REALMATRIX) {
 	vartype_realmatrix *rm = (vartype_realmatrix *) mat;
 	if (rm->array->is_string[0])
-	    v = new_string(rm->array->data[0].ph.text,
-			    rm->array->data[0].ph.length);
+	    v = new_string(rm->array->data[0].ph.s.text,
+			    rm->array->data[0].ph.s.length);
 	else
 	    v = new_real(rm->array->data[0]);
     } else {
@@ -1889,8 +1851,8 @@ int docmd_find(arg_struct *arg) {
 		for (j = 0; j < rm->columns; j++)
 		    if (rm->array->is_string[p]
 			    && string_equals(s->text, s->length, 
-					     rm->array->data[p].ph.text,
-					     rm->array->data[p].ph.length)) {
+					     rm->array->data[p].ph.s.text,
+					     rm->array->data[p].ph.s.length)) {
 			matedit_i = i;
 			matedit_j = j;
 			return ERR_YES;

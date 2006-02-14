@@ -23,14 +23,16 @@ LDFLAGS = -g
 
 SRCS = shell1.cc shell2.cc shell_spool.cc myglue.cc filesys.cc core_main.cc \
 	core_commands1.cc core_commands2.cc core_commands3.cc \
-	core_commands4.cc core_decimal.cc core_display.cc core_globals.cc \
-	core_helpers.cc core_keydown.cc core_linalg.cc core_math.cc \
-	core_tables.cc core_variables.cc
+	core_commands4.cc core_commands5.cc core_decimal.cc core_display.cc \
+	core_globals.cc core_helpers.cc core_keydown.cc core_linalg1.cc \
+	core_linalg2.cc core_math.cc core_phloat.cc core_tables.cc \
+	core_variables.cc
 OBJS = shell1.o shell2.o shell_spool.o myglue.o filesys.o core_main.o \
 	core_commands1.o core_commands2.o core_commands3.o \
-	core_commands4.o core_decimal.o core_display.o core_globals.o \
-	core_helpers.o core_keydown.o core_linalg.o core_math.o \
-	core_tables.o core_variables.o
+	core_commands4.o core_commands5.o core_decimal.o core_display.o \
+	core_globals.o core_helpers.o core_keydown.o core_linalg1.o \
+	core_linalg2.o core_math.o core_phloat.o core_tables.o \
+	core_variables.o
 
 free42.prc: shell shell.ro Original.prc
 	build-prc -o free42.prc shell.def shell shell.ro Original.prc
@@ -47,6 +49,8 @@ symlinks:
 	ln -s ../common/core_commands3.h
 	ln -s ../common/core_commands4.cc
 	ln -s ../common/core_commands4.h
+	ln -s ../common/core_commands5.cc
+	ln -s ../common/core_commands5.h
 	ln -s ../common/core_decimal.cc
 	ln -s ../common/core_decimal.h
 	ln -s ../common/core_display.cc
@@ -61,8 +65,12 @@ symlinks:
 	ln -s ../common/core_math.h
 	ln -s ../common/core_main.cc
 	ln -s ../common/core_main.h
-	ln -s ../common/core_linalg.cc
-	ln -s ../common/core_linalg.h
+	ln -s ../common/core_linalg1.cc
+	ln -s ../common/core_linalg1.h
+	ln -s ../common/core_linalg2.cc
+	ln -s ../common/core_linalg2.h
+	ln -s ../common/core_phloat.cc
+	ln -s ../common/core_phloat.h
 	ln -s ../common/core_tables.cc
 	ln -s ../common/core_tables.h
 	ln -s ../common/core_variables.cc

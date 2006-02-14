@@ -23,6 +23,7 @@
 #include "core_commands2.h"
 #include "core_commands3.h"
 #include "core_commands4.h"
+#include "core_commands5.h"
 
 
 /* PalmOS: even though this array is declared "const", it ends up in the

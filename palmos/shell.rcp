@@ -198,7 +198,7 @@ begin
 
   checkbox "\"Singular Matrix\" error" id prefs_matrix_singularmatrix at (5 18 auto auto)
   checkbox "Matrix \"Out of Range\"" id prefs_matrix_outofrange at (5 prevbottom+2 auto auto)
-  checkbox "IP hack" id prefs_ip_hack at (5 prevbottom+2 auto auto)
+  checkbox "IP hack" id prefs_decimal at (5 prevbottom+2 auto auto)
 
   label "Print to..." autoid at (5 prevbottom+5)
   checkbox "Memo:" id prefs_printer_memo at (5 prevbottom+2 auto auto)
@@ -234,7 +234,7 @@ begin
 
   checkbox "\"Singular Matrix\" error" id prefs_matrix_singularmatrix at (5 18 auto auto)
   checkbox "Matrix \"Out of Range\"" id prefs_matrix_outofrange at (5 prevbottom+2 auto auto)
-  checkbox "IP hack" id prefs_ip_hack at (5 prevbottom+2 auto auto)
+  checkbox "Decimal" id prefs_decimal at (5 prevbottom+2 auto auto)
 
   label "Print to..." autoid at (5 prevbottom+5)
   checkbox "Memo:" id prefs_printer_memo at (5 prevbottom+2 auto auto)

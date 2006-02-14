@@ -889,8 +889,8 @@ Boolean form_handler(EventType *e) {
 		    i = FrmGetObjectIndex(form, prefs_matrix_outofrange);
 		    FrmSetControlValue(form, i,
 					core_settings.matrix_outofrange);
-		    i = FrmGetObjectIndex(form, prefs_ip_hack);
-		    FrmSetControlValue(form, i, core_settings.ip_hack);
+		    i = FrmGetObjectIndex(form, prefs_decimal);
+		    FrmSetControlValue(form, i, core_settings.decimal);
 		    i = FrmGetObjectIndex(form, raw_text_id);
 		    FrmSetControlValue(form, i, core_settings.raw_text);
 
@@ -949,8 +949,8 @@ Boolean form_handler(EventType *e) {
 		    i = FrmGetObjectIndex(form, prefs_matrix_outofrange);
 		    core_settings.matrix_outofrange =
 					FrmGetControlValue(form, i);
-		    i = FrmGetObjectIndex(form, prefs_ip_hack);
-		    core_settings.ip_hack = FrmGetControlValue(form, i);
+		    i = FrmGetObjectIndex(form, prefs_decimal);
+		    core_settings.decimal = FrmGetControlValue(form, i);
 		    i = FrmGetObjectIndex(form, raw_text_id);
 		    core_settings.raw_text = FrmGetControlValue(form, i);
 

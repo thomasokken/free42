@@ -36,12 +36,14 @@ extern "C" {
 #define COMMANDS2_SECT __attribute__ ((section ("Commnds2")))
 #define COMMANDS3_SECT __attribute__ ((section ("Commnds3")))
 #define COMMANDS4_SECT __attribute__ ((section ("Commnds4")))
+#define COMMANDS5_SECT __attribute__ ((section ("Commnds5")))
 #define DECIMAL_SECT __attribute__ ((section ("Decimal")))
 #define DISPLAY_SECT __attribute__ ((section ("Display")))
 #define GLOBALS_SECT __attribute__ ((section ("Globals")))
 #define HELPERS_SECT __attribute__ ((section ("Helpers")))
 #define KEYDOWN_SECT __attribute__ ((section ("KeyDown")))
-#define LINALG_SECT __attribute__ ((section ("LinAlg")))
+#define LINALG1_SECT __attribute__ ((section ("LinAlg1")))
+#define LINALG2_SECT __attribute__ ((section ("LinAlg2")))
 #define MATH_SECT __attribute__ ((section ("Math")))
 #define TABLES_SECT __attribute__ ((section ("Tables")))
 #define VARIABLES_SECT __attribute__ ((section ("Variabls")))
@@ -53,12 +55,14 @@ extern "C" {
 #define COMMANDS2_SECT
 #define COMMANDS3_SECT
 #define COMMANDS4_SECT
+#define COMMANDS5_SECT
 #define DECIMAL_SECT
 #define DISPLAY_SECT
 #define GLOBALS_SECT
 #define HELPERS_SECT
 #define KEYDOWN_SECT
-#define LINALG_SECT
+#define LINALG1_SECT
+#define LINALG2_SECT
 #define MATH_SECT
 #define TABLES_SECT
 #define VARIABLES_SECT
@@ -76,12 +80,14 @@ extern "C" {
 #define COMMANDS2_SECT
 #define COMMANDS3_SECT
 #define COMMANDS4_SECT
+#define COMMANDS5_SECT
 #define DECIMAL_SECT
 #define DISPLAY_SECT
 #define GLOBALS_SECT
 #define HELPERS_SECT
 #define KEYDOWN_SECT
-#define LINALG_SECT
+#define LINALG1_SECT
+#define LINALG2_SECT
 #define MATH_SECT
 #define TABLES_SECT
 #define VARIABLES_SECT
