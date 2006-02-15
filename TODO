@@ -12,6 +12,10 @@ others won't care...
 
 Add longphloat type; use it for all intermediaries.
 
+Number entry and display should support 4-digit exponents -- at least, if we're
+going to use Hugh Steers' BCD code. But it could be nice anyway, because it
+would also allow supporting 'long double' throughout the binary version.
+
 Regression test HMS+, HMS-, ->HMS, ->HR, ISG, DSE, ->DEC, ->OCT, AIP,
 DIM, NEWMAT, GETM, R<>R, string<->number conversion.
 
