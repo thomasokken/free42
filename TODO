@@ -1,7 +1,3 @@
-PalmOS version won't build; COMMANDS1, COMMANDS4, HELPERS, MATH, and main
-segments are overflowing. (In the case of 'main', I suspect that it's
-because 'phloat' is going in there now.)
-
 Look for PHLOAT_TODO and do them:
 Convert programs, variables, and other persistent data (stat, solve, integ,
 other globals?). Basically every phloat with global visibility and extent
@@ -10,7 +6,16 @@ When reading a core-version <= 8 state file, always do the mode switch to
 decimal? It's probably what many users will want anyway, and most of the
 others won't care...
 
-Add longphloat type; use it for all intermediaries.
+2 versions:
+a) "Fast": define "phloat" as "double"; same as before
+b) "Accurate": define "phloat" as a 12-byte type that is
+   either IEEE-754 "long double" ("extended"), or Hugh Steers'
+   BCD type with P=5 (5 base-10,000 digits, i.e. worst case
+   17 decimal digits -- good enough for 42S compatibility)
+
+The PalmOS version of gcc supports "long double", but MathLib does not, so I'll
+need to copy the relevant code from glibc -- here's hoping that code is not
+GPL, or else I'm stuck.
 
 Number entry and display should support 4-digit exponents -- at least, if we're
 going to use Hugh Steers' BCD code. But it could be nice anyway, because it
@@ -21,18 +26,20 @@ DIM, NEWMAT, GETM, R<>R, string<->number conversion.
 
 In the PalmOS version, allow running w/o MathLib -- but: lock the "Decimal"
 checkbox in the "on" position in this case. (Pop up a message box about MathLib
-if the user clicks on the disabled checkbox.) BTW, would we still be able to
-read a binary-mode state file without MathLib? Or is it not needed for
-bin->dec conversion? (Should be OK, I guess; MathLib is for <math.h> type
-stuff; the basic stuff (arithmetic, at least) is handled by g++ and the
-standard libs, I think.)
+if the user clicks on the disabled checkbox.)
 Note that we don't need the BCD conversion database in decimal mode. How hard
 would it be to defer generating/loading it until binary mode is actually turned
 on? This would be really nice for old Palms: eliminating MathLib *and* an
 annoyingly large database.
+Note that I should switch to a more space-efficient float/string converter:
+the current lookup-table approach becomes a tad unwieldy with "long double" --
+because of the wider mantissa and the greater dynamic range, the table would
+grow by a factor of nearly 40, which is a no-no for 2 MB PalmOS machines.
 
 When switching modes, not only convert all phloat variables in memory, but
 also convert all non-int4 number literals in programs!
+
+...............................................................................
 
 Pocket PC version.
 

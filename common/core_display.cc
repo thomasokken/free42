@@ -32,7 +32,7 @@
 /* HP-42S font data */
 /********************/
 
-#ifdef WINDOWS
+#if defined(WINDOWS) && !defined(__GNUC__)
 /* Disable warnings:
  * 	'initializing' : truncation from 'const int ' to 'const char '
  * 	'initializing' : truncation of constant value
@@ -514,7 +514,7 @@ static char smallchars_map[128] =
 	/* 127 */  85
     };
 
-#ifdef WINDOWS
+#if defined(WINDOWS) && !defined(__GNUC__)
 #pragma warning(pop)
 #endif
 

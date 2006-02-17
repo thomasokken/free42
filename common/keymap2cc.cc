@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#ifdef WINDOWS
+#if defined(WINDOWS) && !defined(__GNUC__)
 #define KEYMAP_CC "keymap.cpp"
 #define KEYMAP2CC "keymap2cpp"
 #else
@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
 	" * NOTE: this is a generated file; do not edit!\n"
 	" */\n\n", KEYMAP_CC, KEYMAP2CC);
 
-	fprintf(out, "#ifdef WINDOWS\n");
+	fprintf(out, "#if defined(WINDOWS) && !defined(__GNUC__)\n");
 	fprintf(out, "/* Disable warning 'initializing' : truncation from 'const int ' to 'const char ' */\n");
 	fprintf(out, "#pragma warning(disable: 4305)\n");
 	fprintf(out, "/* Disable warning 'initializing' : truncation of constant value */\n");

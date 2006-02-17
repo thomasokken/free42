@@ -426,7 +426,7 @@ int math_gamma(phloat phx, phloat *phgamma) {
 	else
 	    return ERR_OUT_OF_RANGE;
     } else {
-	*phgamma = sign < 0 ? gam : -gam;
+	*phgamma = sign < 0 ? -gam : gam;
     }
     return ERR_NONE;
 }

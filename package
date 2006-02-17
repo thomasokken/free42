@@ -13,7 +13,8 @@ rm -rf Free42PalmOS
 
 mkdir Free42Windows
 cp windows/README.txt Free42Windows
-cp windows/Release/Free42.exe Free42Windows
+cp windows/Free42.exe Free42Windows
+strip Free42Windows/Free42.exe
 zip -r Free42Windows.zip Free42Windows
 rm -rf Free42Windows
 
