@@ -13,14 +13,16 @@ CFLAGS+=-fexceptions -O2 -D_WINDOWS -DWINDOWS -DWIN32 -DNDEBUG -D_MBCS -W -Wno-u
 LD=$(CXX) $(CXXFLAGS)
 LDFLAGS=
 LDFLAGS+=-Wl,--subsystem,windows
-LIBS+=-lkernel32 -luser32 -lgdi32 -lwinspool -lcomdlg32 -ladvapi32 -lshell32 -lole32 -loleaut32 -luuid -lodbc32 -lodbccp32
+#LIBS+=-lkernel32 -luser32 -lgdi32 -lwinspool -lcomdlg32 -ladvapi32 -lshell32 -lole32 -loleaut32 -luuid -lodbc32 -lodbccp32
+LIBS+=-lgdi32 -lcomdlg32
 else
 ifeq "$(CFG)"  "Debug"
 CFLAGS+=-fexceptions -g -O0 -D_WINDOWS -DWINDOWS -DWIN32 -D_DEBUG -D_MBCS -W
 LD=$(CXX) $(CXXFLAGS)
 LDFLAGS=
 LDFLAGS+=-Wl,--subsystem,windows
-LIBS+=-lkernel32 -luser32 -lgdi32 -lwinspool -lcomdlg32 -ladvapi32 -lshell32 -lole32 -loleaut32 -luuid -lodbc32 -lodbccp32
+#LIBS+=-lkernel32 -luser32 -lgdi32 -lwinspool -lcomdlg32 -ladvapi32 -lshell32 -lole32 -loleaut32 -luuid -lodbc32 -lodbccp32
+LIBS+=-lgdi32 -lcomdlg32
 endif
 endif
 
@@ -129,10 +131,13 @@ keymap2cc: keymap2cc.cc
 
 keymap.cc: keymap2cc keymap.txt
 	./keymap2cc
+
+rom2raw: rom2raw.c
+	$(CC) -o rom2raw rom2raw.c
 	
 .PHONY: clean
 clean:
-	-rm -f $(OBJS) $(TARGET) Free42.dep
+	-rm -f $(OBJS) $(TARGET) Free42.dep keymap2cc.exe keymap.cc skin2cc.exe skins.cc rom2raw.exe
 
 .PHONY: depends
 depends:

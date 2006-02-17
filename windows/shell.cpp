@@ -25,7 +25,7 @@
 #include <stdio.h>
 #include <shlobj.h>
 
-#include "stdafx.h"
+#include "windows.h"
 #include "resource.h"
 
 #include "free42.h"
