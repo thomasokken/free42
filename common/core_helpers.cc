@@ -860,7 +860,7 @@ phloat fix_hms(phloat x) {
 
 #ifdef NO_SINCOS
 
-void sincos(phloat x, phloat *sinx, phloat *cosx) {
+void sincos(double x, double *sinx, double *cosx) {
     *sinx = sin(x);
     *cosx = cos(x);
 }

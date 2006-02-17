@@ -625,7 +625,8 @@ void skin_finish_image() {
 	bh->bV4YPelsPerMeter = 2835;
 	bh->bV4ClrImportant = 0;
 	/* bh->bV4RedMask, bh->bV4GreenMask, bh->bV4BlueMask, bh->bV4AlphaMask: unused */
-	bh->bV4CSType = LCS_WINDOWS_COLOR_SPACE;
+	//bh->bV4CSType = LCS_WINDOWS_COLOR_SPACE;
+	bh->bV4CSType = LCS_CALIBRATED_RGB;
 	/* bh->bV4Endpoints, bh->bV4GammaRed, bh->bV4GammaGreen, bh->bV4GammaBlue: unused */
 	
 	skin_header = bh;

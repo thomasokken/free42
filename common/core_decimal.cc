@@ -145,7 +145,7 @@ void make_bcd_table() {
     pd = 1;
     while (1) {
 	tmp = pd / 2;
-#ifdef WINDOWS
+#if defined(WINDOWS) && !defined(__GNUC__)
 	/* Without this, Visual C++ 6.0 generates code that leaves the loop
 	 * one iteration too late. Looks like an optimizer bug or something.
 	 */
@@ -159,7 +159,7 @@ void make_bcd_table() {
     nd = -1;
     while (1) {
 	tmp = nd / 2;
-#ifdef WINDOWS
+#if defined(WINDOWS) && !defined(__GNUC__)
 	/* Without this, Visual C++ 6.0 generates code that leaves the loop
 	 * one iteration too late. Looks like an optimizer bug or something.
 	 */

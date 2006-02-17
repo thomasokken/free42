@@ -109,7 +109,7 @@ extern "C" {
 #endif /* PALMOS */
 
 
-#ifdef WINDOWS
+#if defined(WINDOWS) && !defined(__GNUC__)
 
 #define int8 __int64
 #define uint8 unsigned __int64
