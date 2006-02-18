@@ -1,3 +1,14 @@
+Latest thought: never mind creating a lean-and-mean version; let's just go for
+only one version, with 12-byte phloats. On the Palm, let's not even support
+binary mode. Decimal will perform well enough, right? Plus, we get rid of the
+MathLib requirement, and we can get rid of the nasty decimal<->string crap in
+*all* versions.
+
+While getting rid of all the stuff that is neither GNU libm nor Hugh Steers'
+BCD, I should also be able to get rid of math_gamma(), and instead implement a
+mappable gamma using plain old gamma() from GNU libm. (Why didn't I use GNU
+libm gamma() for the Unix build, BTW? Was there an actual reason for that?)
+
 Look for PHLOAT_TODO and do them:
 Convert programs, variables, and other persistent data (stat, solve, integ,
 other globals?). Basically every phloat with global visibility and extent
