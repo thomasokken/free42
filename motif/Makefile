@@ -114,8 +114,8 @@ symlinks:
 	touch symlinks
 
 clean: FORCE
-	rm -f `find . -type l` free42 skin2cc skins.cc \
-		keymap2cc keymap.cc \
+	rm -f `find . -type l` free42 free42.exe skin2cc skin2cc.exe skins.cc \
+		keymap2cc keymap2cc.exe keymap.cc \
 		*.o *.d *.i *.ii *.s symlinks core.*
 
 FORCE:
