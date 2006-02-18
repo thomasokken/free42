@@ -20,7 +20,6 @@
 
 #include "core_linalg1.h"
 #include "core_linalg2.h"
-#include "core_decimal.h"
 #include "core_main.h"
 #include "core_variables.h"
 

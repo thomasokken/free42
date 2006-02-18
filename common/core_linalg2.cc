@@ -19,7 +19,6 @@
 #include <stdlib.h>
 
 #include "core_linalg2.h"
-#include "core_decimal.h"
 #include "core_globals.h"
 #include "core_main.h"
 

@@ -20,7 +20,6 @@
 
 #include "core_commands1.h"
 #include "core_commands2.h"
-#include "core_decimal.h"
 #include "core_display.h"
 #include "core_helpers.h"
 #include "core_main.h"
@@ -504,7 +503,6 @@ int docmd_pse(arg_struct *arg) {
 
 static int generic_loop_helper(phloat *x, bool isg) COMMANDS2_SECT;
 static int generic_loop_helper(phloat *x, bool isg) {
-    // PHLOAT_TODO: Separate decimal and binary implementations
     phloat t;
     int8 i, j, k;
     int s;
@@ -538,8 +536,9 @@ static int generic_loop_helper(phloat *x, bool isg) {
      * the multiplication by 100000. So, we sacrifice some of the range
      * of an IEEE-754 double, but maintain HP-42S compatibility.
      */
-    //k = (int8) (t + 0.0000005);
-    t = t + 0.0000005; k = to_int8(t);
+    if (!core_settings.decimal)
+	t = t + 0.0000005;
+    k = to_int8(t);
     j = k / 100;
     k -= j * 100;
     if (k == 0)
@@ -656,36 +655,9 @@ int docmd_dse(arg_struct *arg) {
 
 int docmd_aip(arg_struct *arg) {
     if (reg_x->type == TYPE_REAL) {
-	// PHLOAT_TODO: Handle binary and decimal separately.
-	// The to_double() conversion is expensive.
-	// The integer-phloat-to-string conversion should be moved
-	// into core_decimal or core_phloat.
-	double d = to_double(((vartype_real *) reg_x)->x);
-	int s = 1;
 	char buf[44];
-	int buflen = 0;
-
-	if (d < 0) {
-	    d = -d;
-	    s = -1;
-	}
-	d = floor(d);
-	while (d != 0 && buflen < 44) {
-	    char c = '0' + (int) fmod(d, 10);
-	    buf[buflen++] = c;
-	    d = floor(d / 10);
-	}
-	if (buflen == 0)
-	    buf[buflen++] = '0';
-	if (s == -1 && buflen < 44)
-	    buf[buflen++] = '-';
-
-	/* Now I have the number in decimal, in right-to-left order.
-	 * If it's more than 44 positions long, I don't care about the
-	 * rest, because the rest won't fit in the alpha register
-	 * anyway.
-	 */
-	append_alpha_string(buf, buflen, 1);
+	int size = ip2revstring(((vartype_real *) reg_x)->x, buf, 44);
+	append_alpha_string(buf, size, 1);
 	if (flags.f.trace_print && flags.f.printer_exists)
 	    docmd_pra(NULL);
 	return ERR_NONE;

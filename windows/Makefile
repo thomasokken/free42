@@ -4,7 +4,7 @@ ifndef CFG
 CFG=Release
 endif
 CC=gcc
-CFLAGS=-DNO_SINCOS
+CFLAGS=-DNO_SINCOS -DPHLOAT_IS_DOUBLE
 CXX=g++
 CXXFLAGS=$(CFLAGS)
 RC=windres -O COFF
@@ -56,7 +56,6 @@ SOURCE_FILES= \
 	core_commands4.cc \
 	core_commands5.cc \
 	core_commands6.cc \
-	core_decimal.cc \
 	core_display.cc \
 	core_globals.cc \
 	core_helpers.cc \
@@ -86,7 +85,6 @@ HEADER_FILES= \
 	core_commands4.h \
 	core_commands5.h \
 	core_commands6.h \
-	core_decimal.h \
 	core_display.h \
 	core_globals.h \
 	core_helpers.h \

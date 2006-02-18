@@ -21,7 +21,6 @@
 #include "core_commands2.h"
 #include "core_commands3.h"
 #include "core_commands4.h"
-#include "core_decimal.h"
 #include "core_display.h"
 #include "core_helpers.h"
 #include "core_linalg1.h"

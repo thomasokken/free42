@@ -21,8 +21,13 @@
 
 
 #include "free42.h"
+#ifndef PHLOAT_IS_DOUBLE
+#include "bcdfloat.h"
+#endif
+
 
 #ifdef PHLOAT_IS_DOUBLE
+
 
 #define phloat double
 
@@ -43,7 +48,12 @@ struct hp_string {
 #define to_int8(x) ((int8) (x))
 #define to_double(x) ((double) (x))
 
-#else
+#define PI 3.1415926535897932384626433;
+double bcd2double(const char *p);
+
+
+#else // !PHLOAT_IS_DOUBLE
+
 
 #define phloat Phloat
 #define phloat_d(x) (x).ph.d
@@ -53,10 +63,8 @@ struct hp_string {
 class Phloat {
     public:
 	union {
-	    // For binary mode
-	    double d;
-	    // For decimal mode
-	    unsigned char b[8];
+	    // For storing numbers
+	    BCDFloat b;
 	    // For storing user-mode strings
 	    struct {
 		char text[6];
@@ -99,10 +107,6 @@ class Phloat {
 	Phloat operator++(int) PHLOAT_SECT; // postfix
 	Phloat operator--() PHLOAT_SECT; // prefix
 	Phloat operator--(int) PHLOAT_SECT; // postfix
-
-	// Switch Phloat object from dec to bin, or vice versa
-	void dec2bin() PHLOAT_SECT;
-	void bin2dec() PHLOAT_SECT;
 };
 
 // I can't simply overload isinf() and isnan(), because the Linux math.h
@@ -156,6 +160,24 @@ Phloat operator+(int x, Phloat y) PHLOAT_SECT;
 Phloat operator-(int x, Phloat y) PHLOAT_SECT;
 bool operator==(int4 x, Phloat y) PHLOAT_SECT;
 
-#endif
+BCDFloat double2bcd(double d) PHLOAT_SECT;
+double bcd2double(BCDFloat b) PHLOAT_SECT;
+
+
+#endif // PHLOAT_IS_DOUBLE
+
+
+extern phloat POS_HUGE_PHLOAT;
+extern phloat NEG_HUGE_PHLOAT;
+extern phloat POS_TINY_PHLOAT;
+extern phloat NEG_TINY_PHLOAT;
+
+void phloat_init() PHLOAT_SECT;
+void phloat_cleanup() PHLOAT_SECT;
+int phloat2string(phloat d, char *buf, int buflen,
+		  int base_mode, int digits, int dispmode,
+		  int thousandssep) PHLOAT_SECT;
+int string2phloat(const char *buf, int buflen, phloat *d) PHLOAT_SECT;
+
 
 #endif

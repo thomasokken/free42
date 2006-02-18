@@ -18,7 +18,6 @@
 
 #include <stdlib.h>
 
-#include "core_decimal.h"
 #include "core_helpers.h"
 #include "core_linalg1.h"
 #include "core_sto_rcl.h"

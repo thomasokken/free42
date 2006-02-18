@@ -20,7 +20,6 @@
 
 #include "core_commands2.h"
 #include "core_commands5.h"
-#include "core_decimal.h"
 #include "core_display.h"
 #include "core_helpers.h"
 #include "core_main.h"
@@ -216,9 +215,9 @@ int docmd_basechs(arg_struct *arg) {
     int err;
     if ((err = get_base_param(reg_x, &x)) != ERR_NONE)
 	return err;
-    if (x == LL(-34359738368)) {
+    if (x == -34359738368LL) {
 	if (flags.f.range_error_ignore)
-	    x = LL(34359738367);
+	    x = 34359738367LL;
 	else
 	    return ERR_OUT_OF_RANGE;
     } else
@@ -228,7 +227,6 @@ int docmd_basechs(arg_struct *arg) {
 }
 
 static struct sum_struct {
-    // PHLOAT_TODO: convert this on bin/dec mode switch
     phloat x;
     phloat x2;
     phloat y;
@@ -284,8 +282,6 @@ static int get_summation() {
 }
     
 static struct model_struct {
-    // PHLOAT_TODO: convert this on bin/dec mode switch
-    // Update: really? Is this persistent?
     phloat x;
     phloat x2;
     phloat y;
@@ -876,17 +872,17 @@ int docmd_rotxy(arg_struct *arg) {
     if (x == 0)
 	res = y;
     else {
-	y &= LL(0xfffffffff);
+	y &= 0xfffffffffLL;
 	if (x > 0)
 	    res = (y >> x) | (y << (36 - x));
 	else {
 	    x = -x;
 	    res = (y << x) | (y >> (36 - x));
 	}
-	if ((res & LL(0x800000000)) == 0)
-	    res &= LL(0x7ffffffff);
+	if ((res & 0x800000000LL) == 0)
+	    res &= 0x7ffffffffLL;
 	else
-	    res |= LL(0xfffffff000000000);
+	    res |= 0xfffffff000000000LL;
     }
     v = new_real((phloat) res);
     if (v == NULL) 

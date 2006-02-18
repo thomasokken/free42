@@ -21,7 +21,6 @@
 #include "core_main.h"
 #include "core_commands2.h"
 #include "core_commands4.h"
-#include "core_decimal.h"
 #include "core_display.h"
 #include "core_helpers.h"
 #include "core_keydown.h"
@@ -60,7 +59,7 @@ void core_init(int read_saved_state, int4 version) {
      * 2: state file present but not OK (State File Corrupt)
      */
 
-    make_bcd_table();
+    phloat_init();
     if (read_saved_state != 1 || !load_state(version))
 	hard_reset(read_saved_state != 0);
     set_decimal_mode(core_settings.decimal);
@@ -87,7 +86,7 @@ void core_quit() {
     clear_all_prgms();
     if (vars != NULL)
 	free(vars);
-    release_bcd_table();
+    phloat_cleanup();
 }
 
 int core_menu() {

@@ -21,6 +21,7 @@
 #include "core_helpers.h"
 #include "core_commands2.h"
 #include "core_display.h"
+#include "core_phloat.h"
 #include "core_main.h"
 #include "core_variables.h"
 #include "shell.h"
@@ -400,22 +401,22 @@ int get_base_param(const vartype *v, int8 *n) {
     if (x > 34359738367.0 || x < -34359738368.0)
 	return ERR_INVALID_DATA;
     int8 t = to_int8(x);
-    if ((t & LL(0x800000000)) != 0)
-	*n = t | LL(0xfffffff000000000);
+    if ((t & 0x800000000LL) != 0)
+	*n = t | 0xfffffff000000000LL;
     else
 	*n = t;
     return ERR_NONE;
 }
 
 int base_range_check(int8 *n) {
-    if (*n < LL(-34359738368)) {
+    if (*n < -34359738368LL) {
 	if (flags.f.range_error_ignore)
-	    *n = LL(-34359738368);
+	    *n = -34359738368LL;
 	else
 	    return ERR_OUT_OF_RANGE;
-    } else if (*n > LL(34359738367)) {
+    } else if (*n > 34359738367LL) {
 	if (flags.f.range_error_ignore)
-	    *n = LL(34359738367);
+	    *n = 34359738367LL;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
@@ -912,4 +913,304 @@ int read_arg(arg_struct *arg, bool old) {
     } else
 	return shell_read_saved_state(arg, sizeof(arg_struct))
 	    == sizeof(arg_struct);
+}
+
+void char2buf(char *buf, int buflen, int *bufptr, char c) {
+    if (*bufptr < buflen)
+	buf[(*bufptr)++] = c;
+    else
+	buf[buflen - 1] = 26;
+}
+
+void string2buf(char *buf, int buflen, int *bufptr, const char *s, int slen) {
+    int i;
+    for (i = 0; i < slen; i++)
+	char2buf(buf, buflen, bufptr, s[i]);
+}
+
+int int2string(int4 n, char *buf, int buflen) {
+    int4 pt = 1;
+    int count = 0;
+    if (n < 0) {
+	char2buf(buf, buflen, &count, '-');
+	n = -n;
+    }
+    while (pt * 10 <= n)
+	pt *= 10;
+    while (pt != 0) {
+	char2buf(buf, buflen, &count, (char) ('0' + (n / pt) % 10));
+	pt /= 10;
+    }
+    return count;
+}
+
+int vartype2string(const vartype *v, char *buf, int buflen) {
+    int dispmode;
+    int digits = 0;
+
+    if (flags.f.fix_or_all)
+	dispmode = flags.f.eng_or_all ? 3 : 0;
+    else
+	dispmode = flags.f.eng_or_all ? 2 : 1;
+    if (flags.f.digits_bit3)
+	digits += 8;
+    if (flags.f.digits_bit2)
+	digits += 4;
+    if (flags.f.digits_bit1)
+	digits += 2;
+    if (flags.f.digits_bit0)
+	digits += 1;
+
+    switch (v->type) {
+
+	case TYPE_REAL:
+	    return phloat2string(((vartype_real *) v)->x, buf, buflen,
+				 1, digits, dispmode,
+				 flags.f.thousands_separators);
+
+	case TYPE_COMPLEX: {
+	    phloat x, y;
+	    char x_buf[22];
+	    int x_len;
+	    char y_buf[22];
+	    int y_len;
+	    int i, ret_len;
+
+	    if (flags.f.polar) {
+		generic_r2p(((vartype_complex *) v)->re,
+			    ((vartype_complex *) v)->im, &x, &y);
+		if (p_isinf(x))
+		    x = POS_HUGE_PHLOAT;
+	    } else {
+		x = ((vartype_complex *) v)->re;
+		y = ((vartype_complex *) v)->im;
+	    }
+
+	    x_len = phloat2string(x, x_buf, 22,
+				  0, digits, dispmode,
+				  flags.f.thousands_separators);
+	    y_len = phloat2string(y, y_buf, 22,
+				  0, digits, dispmode,
+				  flags.f.thousands_separators);
+
+	    if (x_len + y_len + 2 > buflen) {
+		/* Too long? Fall back on ENG 2 */
+		x_len = phloat2string(x, x_buf, 22,
+				      0, 2, 2,
+				      flags.f.thousands_separators);
+		y_len = phloat2string(y, y_buf, 22,
+				      0, 2, 2,
+				      flags.f.thousands_separators);
+	    }
+
+	    for (i = 0; i < buflen; i++) {
+		if (i < x_len)
+		    buf[i] = x_buf[i];
+		else if (i < x_len + 1)
+		    buf[i] = ' ';
+		else if (i < x_len + 2) {
+		    if (y_buf[0] == '-' && !flags.f.polar)
+			buf[i] = '-';
+		    else
+			buf[i] = flags.f.polar ? 23 : 'i';
+		} else if (i < x_len + 3) {
+		    if (y_buf[0] == '-' && !flags.f.polar)
+			buf[i] = flags.f.polar ? 23 : 'i';
+		    else
+			buf[i] = y_buf[0];
+		} else
+		    buf[i] = y_buf[i - x_len - 2];
+	    }
+
+	    ret_len = x_len + y_len + 2;
+	    if (ret_len > buflen) {
+		buf[buflen - 1] = 26;
+		ret_len = buflen;
+	    }
+
+	    return ret_len;
+	}
+
+	case TYPE_REALMATRIX: {
+	    vartype_realmatrix *m = (vartype_realmatrix *) v;
+	    int i;
+	    int chars_so_far = 0;
+	    string2buf(buf, buflen, &chars_so_far, "[ ", 2);
+	    i = int2string(m->rows, buf + chars_so_far, buflen - chars_so_far);
+	    chars_so_far += i;
+	    char2buf(buf, buflen, &chars_so_far, 'x');
+	    i = int2string(m->columns, buf + chars_so_far, buflen - chars_so_far);
+	    chars_so_far += i;
+	    string2buf(buf, buflen, &chars_so_far, " Matrix ]", 9);
+	    return chars_so_far;
+	}
+
+	case TYPE_COMPLEXMATRIX: {
+	    vartype_complexmatrix *m = (vartype_complexmatrix *) v;
+	    int i;
+	    int chars_so_far = 0;
+	    string2buf(buf, buflen, &chars_so_far, "[ ", 2);
+	    i = int2string(m->rows, buf + chars_so_far, buflen - chars_so_far);
+	    chars_so_far += i;
+	    char2buf(buf, buflen, &chars_so_far, 'x');
+	    i = int2string(m->columns, buf + chars_so_far, buflen - chars_so_far);
+	    chars_so_far += i;
+	    string2buf(buf, buflen, &chars_so_far, " Cpx Matrix ]", 13);
+	    return chars_so_far;
+	}
+
+	case TYPE_STRING: {
+	    vartype_string *s = (vartype_string *) v;
+	    int i;
+	    int chars_so_far = 0;
+	    char2buf(buf, buflen, &chars_so_far, '"');
+	    for (i = 0; i < s->length; i++)
+		char2buf(buf, buflen, &chars_so_far, s->text[i]);
+	    char2buf(buf, buflen, &chars_so_far, '"');
+	    return chars_so_far;
+	}
+
+	default: {
+	    char *msg = "UnsuppVarType";
+	    int msglen = 13;
+	    int i;
+	    for (i = 0; i < msglen; i++)
+		buf[i] = msg[i];
+	    return msglen;
+	}
+    }
+}
+
+char *phloat2program(phloat d) {
+    /* Converts a phloat to its most compact representation;
+     * used for generating HP-42S style number literals in programs.
+     */
+    static char allbuf[25];
+    static char scibuf[25];
+    int alllen;
+    int scilen;
+    char dot = flags.f.decimal_point ? '.' : ',';
+    int decimal, zeroes, last_nonzero, exponent;
+    int i;
+    alllen = phloat2string(d, allbuf, 24, 0, 0, 3, 0);
+    scilen = phloat2string(d, scibuf, 24, 0, 11, 1, 0);
+    /* Shorten SCI representation by removing trailing zeroes,
+     * and decreasing the exponent until the decimal point
+     * shifts out of the mantissa.
+     */
+    decimal = -1;
+    exponent = -1;
+    for (i = 0; i < scilen; i++) {
+	char c = scibuf[i];
+	if (c == dot) {
+	    decimal = i;
+	    last_nonzero = i;
+	    zeroes = 0;
+	} else if (c == 24) {
+	    exponent = i;
+	    break;
+	} else if (c != '0') {
+	    last_nonzero = i;
+	    zeroes = 0;
+	} else
+	    zeroes++;
+    }
+    if (decimal != -1) {
+	if (zeroes > 0) {
+	    for (i = last_nonzero + 1; i < scilen - zeroes; i++)
+		scibuf[i] = scibuf[i + zeroes];
+	    scilen -= zeroes;
+	}
+	if ((exponent == -1 && decimal == scilen - 1)
+		|| (exponent != -1 && exponent - decimal == 1)){
+	    for (i = decimal; i < scilen - 1; i++)
+		scibuf[i] = scibuf[i + 1];
+	    scilen--;
+	} else if (exponent != -1) {
+	    int offset, ex, neg, newexplen, t;
+	    exponent -= zeroes;
+	    offset = exponent - decimal - 1;
+	    ex = 0;
+	    neg = 0;
+	    for (i = exponent + 1; i < scilen; i++) {
+		char c = scibuf[i];
+		if (c == '-')
+		    neg = 1;
+		else
+		    ex = ex * 10 + c - '0';
+	    }
+	    if (neg)
+		ex = -ex;
+	    ex -= offset;
+	    if (ex < 0) {
+		ex = -ex;
+		neg = 1;
+	    } else
+		neg = 0;
+	    newexplen = neg ? 2 : 1;
+	    t = 10;
+	    while (ex >= t) {
+		newexplen++;
+		t *= 10;
+	    }
+	    if (newexplen <= scilen - exponent - 1) {
+		for (i = decimal; i < exponent; i++)
+		    scibuf[i] = scibuf[i + 1];
+		scilen = exponent;
+		if (neg)
+		    ex = -ex;
+		scilen += int2string(ex, scibuf + exponent,
+					50 - exponent);
+	    }
+	}
+    }
+    if (scilen < alllen) {
+	scibuf[scilen] = 0;
+	return scibuf;
+    } else {
+	allbuf[alllen] = 0;
+	return allbuf;
+    }
+}
+
+int easy_phloat2string(phloat d, char *buf, int buflen, int base_mode) {
+    int dispmode;
+    int digits = 0;
+
+    if (flags.f.fix_or_all)
+	dispmode = flags.f.eng_or_all ? 3 : 0;
+    else
+	dispmode = flags.f.eng_or_all ? 2 : 1;
+    if (flags.f.digits_bit3)
+	digits += 8;
+    if (flags.f.digits_bit2)
+	digits += 4;
+    if (flags.f.digits_bit1)
+	digits += 2;
+    if (flags.f.digits_bit0)
+	digits += 1;
+
+    return phloat2string(d, buf, buflen, base_mode,
+			 digits, dispmode, flags.f.thousands_separators);
+}
+
+int ip2revstring(phloat d, char *buf, int buflen) {
+    int s = 1;
+    int bufpos = 0;
+
+    if (d < 0) {
+	d = -d;
+	s = -1;
+    }
+    d = floor(d);
+    while (d != 0 && bufpos < buflen) {
+	char c = '0' + to_digit(d);
+	buf[bufpos++] = c;
+	d = floor(d / 10);
+    }
+    if (bufpos == 0)
+	buf[bufpos++] = '0';
+    if (s == -1 && bufpos < buflen)
+	buf[bufpos++] = '-';
+    return bufpos;
 }

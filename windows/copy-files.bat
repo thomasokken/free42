@@ -11,8 +11,6 @@ copy ..\common\core_commands5.cc .
 copy ..\common\core_commands5.h .
 copy ..\common\core_commands6.cc .
 copy ..\common\core_commands6.h .
-copy ..\common\core_decimal.cc .
-copy ..\common\core_decimal.h .
 copy ..\common\core_display.cc .
 copy ..\common\core_display.h .
 copy ..\common\core_globals.cc .

@@ -16,7 +16,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *****************************************************************************/
 
-#include "core_decimal.h"
 #include "core_globals.h"
 #include "core_math2.h"
 
@@ -87,6 +86,15 @@ int math_atanh(phloat xre, phloat xim, phloat *yre, phloat *yim) {
      */
     return ERR_NONE;
 }
+
+#ifndef PHLOAT_IS_DOUBLE
+
+int math_gamma(phloat phx, phloat *phgamma) {
+    // PHLOAT_TODO
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+#else // PLOAT_IS_DOUBLE
 
 /**************************************************************/
 /* The following is code to compute the gamma function,       */
@@ -409,7 +417,6 @@ static int math_lgamma(double x, double *gam, int *sgngam) {
 /***************************************************************/
 
 int math_gamma(phloat phx, phloat *phgamma) {
-    // PHLOAT_TODO: Separate decimal and binary implementations
     double x = to_double(phx);
     double gam;
     double lgam;
@@ -430,3 +437,5 @@ int math_gamma(phloat phx, phloat *phgamma) {
     }
     return ERR_NONE;
 }
+
+#endif // PLOAT_IS_DOUBLE

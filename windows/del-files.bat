@@ -11,8 +11,6 @@ del core_commands5.cc
 del core_commands5.h
 del core_commands6.cc
 del core_commands6.h
-del core_decimal.cc
-del core_decimal.h
 del core_display.cc
 del core_display.h
 del core_globals.cc

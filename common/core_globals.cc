@@ -21,7 +21,6 @@
 #include "core_globals.h"
 #include "core_commands2.h"
 #include "core_commands4.h"
-#include "core_decimal.h"
 #include "core_display.h"
 #include "core_helpers.h"
 #include "core_main.h"
@@ -1306,15 +1305,9 @@ void get_next_command(int4 *pc, int *command, arg_struct *arg, int find_target){
 	    break;
 	}
 	case ARGTYPE_DOUBLE: {
-	    // PHLOAT_TODO
-	    union {
-		double d;
-		unsigned char b[sizeof(double)];
-	    } u;
-	    int i;
-	    for (i = 0; i < (int) sizeof(double); i++)
-		u.b[i] = prgm->text[(*pc)++];
-	    arg->val_d = u.d;
+	    unsigned char *b = (unsigned char *) arg->val_d;
+	    for (int i = 0; i < (int) sizeof(phloat); i++)
+		*b++ = prgm->text[(*pc)++];
 	    break;
 	}
     }
@@ -1601,15 +1594,9 @@ void store_command(int4 pc, int command, arg_struct *arg) {
 	    buf[bufptr++] = arg->val.lclbl;
 	    break;
 	case ARGTYPE_DOUBLE: {
-	    union {
-		double d;
-		unsigned char b[sizeof(double)];
-	    } u;
-	    int i;
-	    // PHLOAT_TODO
-	    u.d = to_double(arg->val_d);
-	    for (i = 0; i < (int) sizeof(double); i++)
-		buf[bufptr++] = u.b[i];
+	    unsigned char *b = (unsigned char *) &arg->val_d;
+	    for (int i = 0; i < (int) sizeof(phloat); i++)
+		buf[bufptr++] = *b++;
 	    break;
 	}
     }

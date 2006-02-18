@@ -83,4 +83,15 @@ int dimension_array_ref(vartype *matrix, int4 rows, int4 columns) HELPERS_SECT;
 phloat fix_hms(phloat x) HELPERS_SECT;
 int read_arg(arg_struct *arg, bool old) HELPERS_SECT;
 
+void char2buf(char *buf, int buflen, int *bufptr, char c) HELPERS_SECT;
+void string2buf(char *buf, int buflen, int *bufptr, const char *s, int slen)
+							    HELPERS_SECT;
+int int2string(int4 n, char *buf, int buflen) HELPERS_SECT;
+int vartype2string(const vartype *v, char *buf, int buflen) HELPERS_SECT;
+char *phloat2program(phloat d) HELPERS_SECT;
+int easy_phloat2string(phloat d, char *buf, int buflen, int base_mode)
+							    HELPERS_SECT;
+int ip2revstring(phloat d, char *buf, int buflen) HELPERS_SECT;
+
+
 #endif

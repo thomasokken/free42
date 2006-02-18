@@ -21,7 +21,6 @@
 #include "core_keydown.h"
 #include "core_commands2.h"
 #include "core_commands3.h"
-#include "core_decimal.h"
 #include "core_display.h"
 #include "core_helpers.h"
 #include "core_main.h"
@@ -489,8 +488,8 @@ void keydown_number_entry(int shift, int key) {
 	    int digit = c <= '9' ? c - '0' : c - 'A' + 10;
 	    n = n * base + digit;
 	}
-	if (n & LL(0x800000000))
-	    n |= LL(0xfffffff000000000);
+	if (n & 0x800000000LL)
+	    n |= 0xfffffff000000000LL;
 	x = (phloat) n;
     }
 

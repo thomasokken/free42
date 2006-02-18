@@ -20,7 +20,6 @@
 
 #include "core_math1.h"
 #include "core_commands2.h"
-#include "core_decimal.h"
 #include "core_display.h"
 #include "core_globals.h"
 #include "core_helpers.h"
