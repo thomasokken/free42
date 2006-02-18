@@ -3,6 +3,9 @@ only one version, with 12-byte phloats. On the Palm, let's not even support
 binary mode. Decimal will perform well enough, right? Plus, we get rid of the
 MathLib requirement, and we can get rid of the nasty decimal<->string crap in
 *all* versions.
+But, before burning any bridges, make sure that performance of the new BCD
+version is not *much* worse than the classic version's; check this using
+plot_thomas and a few large matrix ops.
 
 While getting rid of all the stuff that is neither GNU libm nor Hugh Steers'
 BCD, I should also be able to get rid of math_gamma(), and instead implement a
