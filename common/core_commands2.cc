@@ -524,7 +524,7 @@ static int generic_loop_helper(phloat *x, bool isg) {
     } else
 	s = 1;
 
-    i = t.to_int8();
+    i = to_int8(t);
     t = (t - i) * 100000;
     /* The 0.0000005 is a precaution to prevent the loop increment
      * value from being taken to be 1 lower than what the user intended;
@@ -539,7 +539,7 @@ static int generic_loop_helper(phloat *x, bool isg) {
      * of an IEEE-754 double, but maintain HP-42S compatibility.
      */
     //k = (int8) (t + 0.0000005);
-    t = t + 0.0000005; k = t.to_int8();
+    t = t + 0.0000005; k = to_int8(t);
     j = k / 100;
     k -= j * 100;
     if (k == 0)
@@ -660,7 +660,7 @@ int docmd_aip(arg_struct *arg) {
 	// The to_double() conversion is expensive.
 	// The integer-phloat-to-string conversion should be moved
 	// into core_decimal or core_phloat.
-	double d = ((vartype_real *) reg_x)->x.to_double();
+	double d = to_double(((vartype_real *) reg_x)->x);
 	int s = 1;
 	char buf[44];
 	int buflen = 0;
@@ -702,7 +702,7 @@ int docmd_xtoa(arg_struct *arg) {
 	    x = -x;
 	if (x >= 256)
 	    return ERR_INVALID_DATA;
-	append_alpha_char((char) x.to_char());
+	append_alpha_char(to_char(x));
     } else if (reg_x->type == TYPE_STRING) {
 	vartype_string *s = (vartype_string *) reg_x;
 	append_alpha_string(s->text, s->length, 0);
@@ -715,8 +715,8 @@ int docmd_xtoa(arg_struct *arg) {
 	for (i = size - 1; i >= 0; i--) {
 	    if (m->array->is_string[i]) {
 		int j;
-		for (j = m->array->data[i].ph.s.length - 1; j >= 0; j--) {
-		    buf[buflen++] = m->array->data[i].ph.s.text[j];
+		for (j = phloat_length(m->array->data[i]) - 1; j >= 0; j--) {
+		    buf[buflen++] = phloat_text(m->array->data[i])[j];
 		    if (buflen == 44)
 			goto done;
 		}
@@ -727,7 +727,7 @@ int docmd_xtoa(arg_struct *arg) {
 		if (d >= 256)
 		    buf[buflen++] = (char) 255;
 		else
-		    buf[buflen++] = d.to_char();
+		    buf[buflen++] = to_char(d);
 		if (buflen == 44)
 		    goto done;
 	    }
@@ -786,8 +786,8 @@ static void pixel_helper(phloat dx, phloat dy) COMMANDS2_SECT;
 static void pixel_helper(phloat dx, phloat dy) {
     dx = dx < 0 ? -floor(-dx + 0.5) : floor(dx + 0.5);
     dy = dy < 0 ? -floor(-dy + 0.5) : floor(dy + 0.5);
-    int x = dx < -132 ? -132 : dx > 132 ? 132 : dx.to_int();
-    int y = dy < -132 ? -132 : dy > 132 ? 132 : dy.to_int();
+    int x = dx < -132 ? -132 : dx > 132 ? 132 : to_int(dx);
+    int y = dy < -132 ? -132 : dy > 132 ? 132 : to_int(dy);
     int i;
     int dot = 1;
     if (x < 0) {
@@ -983,10 +983,10 @@ int docmd_x_eq_y(arg_struct *arg) {
 		if (xstr != ystr)
 		    return ERR_NO;
 		if (xstr) {
-		    if (!string_equals(x->array->data[i].ph.s.text,
-				       x->array->data[i].ph.s.length,
-				       y->array->data[i].ph.s.text,
-				       y->array->data[i].ph.s.length))
+		    if (!string_equals(phloat_text(x->array->data[i]),
+				       phloat_length(x->array->data[i]),
+				       phloat_text(y->array->data[i]),
+				       phloat_length(y->array->data[i])))
 			return ERR_NO;
 		} else {
 		    if (x->array->data[i] != y->array->data[i])
@@ -1161,8 +1161,8 @@ int docmd_prsigma(arg_struct *arg) {
 	if (rm->array->is_string[j]) {
 	    bufptr = 0;
 	    char2buf(buf, 100, &bufptr, '"');
-	    string2buf(buf, 100, &bufptr, rm->array->data[j].ph.s.text,
-					  rm->array->data[j].ph.s.length);
+	    string2buf(buf, 100, &bufptr, phloat_text(rm->array->data[j]),
+					  phloat_length(rm->array->data[j]));
 	    char2buf(buf, 100, &bufptr, '"');
 	} else
 	    bufptr = easy_phloat2string(rm->array->data[j], buf, 100, 0);
@@ -1256,8 +1256,8 @@ static int prv_worker(int interrupted) {
 	if (rm->array->is_string[prv_index]) {
 	    rlen = 0;
 	    char2buf(rbuf, 100, &rlen, '"');
-	    string2buf(rbuf, 100, &rlen, rm->array->data[prv_index].ph.s.text,
-				    rm->array->data[prv_index].ph.s.length);
+	    string2buf(rbuf, 100, &rlen, phloat_text(rm->array->data[prv_index]),
+				    phloat_length(rm->array->data[prv_index]));
 	    char2buf(rbuf, 100, &rlen, '"');
 	} else
 	    rlen = easy_phloat2string(rm->array->data[prv_index],
@@ -1678,7 +1678,7 @@ int docmd_newmat(arg_struct *arg) {
     if (y < 1 || y >= 2147483648.0)
 	return ERR_DIMENSION_ERROR;
 
-    m = new_realmatrix(y.to_int4(), x.to_int4());
+    m = new_realmatrix(to_int4(y), to_int4(x));
     if (m == NULL)
 	return ERR_INSUFFICIENT_MEMORY;
     else {

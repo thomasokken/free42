@@ -1,3 +1,11 @@
+When windows/Free42.exe is built with PHLOAT_IS_DOUBLE, the solver does not
+converge on "SUN" with TILT=23.5, LAT=52, SEAS=3.75, HGHT=0, SOLVE("TOD")
+(start TOD with 0 and 12). Noticed while running the PLOT test case with
+YMIN=0, YMAX=12, AXIS=-1, XMIN=0, XMAX=360, XINC=30, indep=SEAS, solve for TOD.
+PHLOAT_IS_DOUBLE does not have this effect in the Unix build.
+Note that the values do seem to converge on something; either the stopping
+criteria are failing or there is some numerical weirdness going on.
+
 Latest thought: never mind creating a lean-and-mean version; let's just go for
 only one version, with 12-byte phloats. On the Palm, let's not even support
 binary mode. Decimal will perform well enough, right? Plus, we get rid of the

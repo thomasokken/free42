@@ -43,17 +43,17 @@ int resolve_ind_arg(arg_struct *arg) {
 		    return ERR_SIZE_ERROR;
 		if (rm->array->is_string[num]) {
 		    int i;
-		    phloat *ds = &rm->array->data[num];
+		    phloat *d = &rm->array->data[num];
 		    arg->type = ARGTYPE_STR;
-		    arg->length = ds->ph.s.length;
-		    for (i = 0; i < ds->ph.s.length; i++)
-			arg->val.text[i] = ds->ph.s.text[i];
+		    arg->length = phloat_length(*d);
+		    for (i = 0; i < phloat_length(*d); i++)
+			arg->val.text[i] = phloat_text(*d)[i];
 		} else {
 		    phloat x = rm->array->data[num];
 		    if (x < 0)
 			x = -x;
 		    arg->type = ARGTYPE_NUM;
-		    arg->val.num = x.to_int4();
+		    arg->val.num = to_int4(x);
 		}
 		return ERR_NONE;
 	    }
@@ -78,7 +78,7 @@ int resolve_ind_arg(arg_struct *arg) {
 		if (x < 0)
 		    x = -x;
 		arg->type = ARGTYPE_NUM;
-		arg->val.num = x.to_int4();
+		arg->val.num = to_int4(x);
 		return ERR_NONE;
 	    } else if (v->type == TYPE_STRING) {
 		vartype_string *s = (vartype_string *) v;
@@ -399,7 +399,7 @@ int get_base_param(const vartype *v, int8 *n) {
     phloat x = ((vartype_real *) v)->x;
     if (x > 34359738367.0 || x < -34359738368.0)
 	return ERR_INVALID_DATA;
-    int8 t = x.to_int8();
+    int8 t = to_int8(x);
     if ((t & LL(0x800000000)) != 0)
 	*n = t | LL(0xfffffff000000000);
     else
@@ -828,8 +828,13 @@ int dimension_array_ref(vartype *matrix, int4 rows, int4 columns) {
 }
 
 phloat fix_hms(phloat x) {
+#ifdef PHLOAT_IS_DOUBLE
+    const phloat sec_corr = 0.004;
+    const phloat min_corr = 0.4;
+#else
     const phloat sec_corr(4, 1000);
     const phloat min_corr(4, 10);
+#endif
 
     bool neg = x < 0;
     if (neg)
@@ -847,11 +852,11 @@ phloat fix_hms(phloat x) {
 		x += sec_corr;
 	}
     } else {
-	if ((x * 10000).to_int8() % 100 == 60)
+	if (to_int8(x * 10000) % 100 == 60)
 	    x += 0.004;
-	if ((x * 100).to_int8() % 100 == 60) {
+	if (to_int8(x * 100) % 100 == 60) {
 	    x += 0.4;
-	    if ((x * 10000).to_int8() % 100 == 60)
+	    if (to_int8(x * 10000) % 100 == 60)
 		x += 0.004;
 	}
     }

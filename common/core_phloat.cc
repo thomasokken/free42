@@ -20,56 +20,58 @@
 #include "core_phloat.h"
 
 
+#ifndef PHLOAT_IS_DOUBLE
+
 /* public */
-phloat::phloat(int numer, int denom) {
+Phloat::Phloat(int numer, int denom) {
     // PHLOAT_TODO: This constructor is meant to be used to allow exact decimal
-    // number literals, e.g. phloat(4, 100) to represent 0.04 exactly.
-    // Because of this, it should always be created as a decimal-mode phloat;
+    // number literals, e.g. Phloat(4, 100) to represent 0.04 exactly.
+    // Because of this, it should always be created as a decimal-mode Phloat;
     // it should only be *used* in decimal mode, and its dec2bin() and
     // bin2dec() methods should never be called.
     ph.d = numer / denom;
 }
 
 /* public */
-phloat::phloat(int i) {
+Phloat::Phloat(int i) {
     ph.d = i;
 }
 
 /* public */
-phloat::phloat(int8 i) {
+Phloat::Phloat(int8 i) {
     ph.d = (double) i;
 }
 
 /* public */
-phloat::phloat(double d) {
+Phloat::Phloat(double d) {
     ph.d = d;
 }
 
 /* public */
-phloat::phloat(const phloat &p) {
+Phloat::Phloat(const Phloat &p) {
     ph = p.ph;
 }
 
 /* public */
-phloat phloat::operator=(int i) {
+Phloat Phloat::operator=(int i) {
     ph.d = i;
     return *this;
 }
 
 /* public */
-phloat phloat::operator=(int8 i) {
+Phloat Phloat::operator=(int8 i) {
     ph.d = (double) i;
     return *this;
 }
 
 /* public */
-phloat phloat::operator=(double d) {
+Phloat Phloat::operator=(double d) {
     ph.d = d;
     return *this;
 }
 
 /* public */
-phloat phloat::operator=(phloat p) {
+Phloat Phloat::operator=(Phloat p) {
     ph = p.ph;
     return *this;
 }
@@ -77,12 +79,12 @@ phloat phloat::operator=(phloat p) {
 #ifdef PALMOS
 
 /* public */
-phloat::phloat(int4 i) {
+Phloat::Phloat(int4 i) {
     ph.d = i;
 }
 
 /* public */
-phloat phloat::operator=(int4 i) {
+Phloat Phloat::operator=(int4 i) {
     ph.d = i;
     return *this;
 }
@@ -90,288 +92,284 @@ phloat phloat::operator=(int4 i) {
 #endif
 
 /* public */
-int phloat::to_digit() const {
-    // TODO: more efficient implementation for decimal
-    return (int) fmod(ph.d, 10);
-}
-
-/* public */
-char phloat::to_char() const {
-    // TODO: more efficient implementation for decimal
-    return (char) ph.d;
-}
-
-/* public */
-int phloat::to_int() const {
-    // TODO: more efficient implementation for decimal
-    return (int) ph.d;
-}
-
-/* public */
-int4 phloat::to_int4() const {
-    // TODO: more efficient implementation for decimal
-    return (int4) ph.d;
-}
-
-/* public */
-int8 phloat::to_int8() const {
-    // TODO: more efficient implementation for decimal
-    return (int8) ph.d;
-}
-
-/* public */
-double phloat::to_double() const {
-    // TODO: more efficient implementation for decimal
-    return ph.d;
-}
-
-/* public */
-bool phloat::operator==(phloat p) const {
+bool Phloat::operator==(Phloat p) const {
     return ph.d == p.ph.d;
 }
 
 /* public */
-bool phloat::operator!=(phloat p) const {
+bool Phloat::operator!=(Phloat p) const {
     return ph.d != p.ph.d;
 }
 
 /* public */
-bool phloat::operator<(phloat p) const {
+bool Phloat::operator<(Phloat p) const {
     return ph.d < p.ph.d;
 }
 
 /* public */
-bool phloat::operator<=(phloat p) const {
+bool Phloat::operator<=(Phloat p) const {
     return ph.d <= p.ph.d;
 }
 
 /* public */
-bool phloat::operator>(phloat p) const {
+bool Phloat::operator>(Phloat p) const {
     return ph.d > p.ph.d;
 }
 
 /* public */
-bool phloat::operator>=(phloat p) const {
+bool Phloat::operator>=(Phloat p) const {
     return ph.d >= p.ph.d;
 }
 
 /* public */
-phloat phloat::operator-() const {
-    return phloat(-ph.d);
+Phloat Phloat::operator-() const {
+    return Phloat(-ph.d);
 }
 
 /* public */
-phloat phloat::operator*(phloat p) const {
+Phloat Phloat::operator*(Phloat p) const {
     return ph.d * p.ph.d;
 }
 
 /* public */
-phloat phloat::operator/(phloat p) const {
+Phloat Phloat::operator/(Phloat p) const {
     return ph.d / p.ph.d;
 }
 
 /* public */
-phloat phloat::operator+(phloat p) const {
+Phloat Phloat::operator+(Phloat p) const {
     return ph.d + p.ph.d;
 }
 
 /* public */
-phloat phloat::operator-(phloat p) const {
+Phloat Phloat::operator-(Phloat p) const {
     return ph.d - p.ph.d;
 }
 
 /* public */
-phloat phloat::operator*=(phloat p) {
+Phloat Phloat::operator*=(Phloat p) {
     ph.d *= p.ph.d;
     return *this;
 }
 
 /* public */
-phloat phloat::operator/=(phloat p) {
+Phloat Phloat::operator/=(Phloat p) {
     ph.d /= p.ph.d;
     return *this;
 }
 
 /* public */
-phloat phloat::operator+=(phloat p) {
+Phloat Phloat::operator+=(Phloat p) {
     ph.d += p.ph.d;
     return *this;
 }
 
 /* public */
-phloat phloat::operator-=(phloat p) {
+Phloat Phloat::operator-=(Phloat p) {
     ph.d -= p.ph.d;
     return *this;
 }
 
 /* public */
-phloat phloat::operator++() {
+Phloat Phloat::operator++() {
     // prefix
     ++ph.d;
     return *this;
 }
 
 /* public */
-phloat phloat::operator++(int) {
+Phloat Phloat::operator++(int) {
     // postfix
-    phloat old = *this;
+    Phloat old = *this;
     ++ph.d;
     return old;
 }
 
 /* public */
-phloat phloat::operator--() {
+Phloat Phloat::operator--() {
     // prefix
     --ph.d;
     return *this;
 }
 
 /* public */
-phloat phloat::operator--(int) {
+Phloat Phloat::operator--(int) {
     // postfix
-    phloat old = *this;
+    Phloat old = *this;
     --ph.d;
     return old;
 }
 
 /* public */
-void phloat::dec2bin() {
+void Phloat::dec2bin() {
     //
 }
 
 /* public */
-void phloat::bin2dec() {
+void Phloat::bin2dec() {
     //
 }
 
-int p_isinf(phloat p) {
+int p_isinf(Phloat p) {
     return isinf(p.ph.d);
 }
 
-int p_isnan(phloat p) {
+int p_isnan(Phloat p) {
     return isnan(p.ph.d);
 }
 
-phloat sin(phloat p) {
-    return phloat(sin(p.ph.d));
+int to_digit(Phloat p) {
+    // TODO: more efficient implementation for decimal
+    return (int) fmod(p.ph.d, 10);
 }
 
-phloat cos(phloat p) {
-    return phloat(cos(p.ph.d));
+char to_char(Phloat p) {
+    // TODO: more efficient implementation for decimal
+    return (char) p.ph.d;
 }
 
-phloat tan(phloat p) {
-    return phloat(tan(p.ph.d));
+int to_int(Phloat p) {
+    // TODO: more efficient implementation for decimal
+    return (int) p.ph.d;
 }
 
-phloat asin(phloat p) {
-    return phloat(asin(p.ph.d));
+int4 to_int4(Phloat p) {
+    // TODO: more efficient implementation for decimal
+    return (int4) p.ph.d;
 }
 
-phloat acos(phloat p) {
-    return phloat(acos(p.ph.d));
+int8 to_int8(Phloat p) {
+    // TODO: more efficient implementation for decimal
+    return (int8) p.ph.d;
 }
 
-phloat atan(phloat p) {
-    return phloat(atan(p.ph.d));
+double to_double(Phloat p) {
+    // TODO: more efficient implementation for decimal
+    return p.ph.d;
 }
 
-void sincos(phloat phi, phloat *s, phloat *c) {
+Phloat sin(Phloat p) {
+    return Phloat(sin(p.ph.d));
+}
+
+Phloat cos(Phloat p) {
+    return Phloat(cos(p.ph.d));
+}
+
+Phloat tan(Phloat p) {
+    return Phloat(tan(p.ph.d));
+}
+
+Phloat asin(Phloat p) {
+    return Phloat(asin(p.ph.d));
+}
+
+Phloat acos(Phloat p) {
+    return Phloat(acos(p.ph.d));
+}
+
+Phloat atan(Phloat p) {
+    return Phloat(atan(p.ph.d));
+}
+
+void sincos(Phloat phi, Phloat *s, Phloat *c) {
     sincos(phi.ph.d, &s->ph.d, &c->ph.d);
 }
 
-phloat hypot(phloat x, phloat y) {
-    return phloat(hypot(x.ph.d, y.ph.d));
+Phloat hypot(Phloat x, Phloat y) {
+    return Phloat(hypot(x.ph.d, y.ph.d));
 }
 
-phloat atan2(phloat x, phloat y) {
-    return phloat(atan2(x.ph.d, y.ph.d));
+Phloat atan2(Phloat x, Phloat y) {
+    return Phloat(atan2(x.ph.d, y.ph.d));
 }
 
-phloat sinh(phloat p) {
-    return phloat(sinh(p.ph.d));
+Phloat sinh(Phloat p) {
+    return Phloat(sinh(p.ph.d));
 }
 
-phloat cosh(phloat p) {
-    return phloat(cosh(p.ph.d));
+Phloat cosh(Phloat p) {
+    return Phloat(cosh(p.ph.d));
 }
 
-phloat tanh(phloat p) {
-    return phloat(tanh(p.ph.d));
+Phloat tanh(Phloat p) {
+    return Phloat(tanh(p.ph.d));
 }
 
-phloat asinh(phloat p) {
-    return phloat(asinh(p.ph.d));
+Phloat asinh(Phloat p) {
+    return Phloat(asinh(p.ph.d));
 }
 
-phloat acosh(phloat p) {
-    return phloat(acosh(p.ph.d));
+Phloat acosh(Phloat p) {
+    return Phloat(acosh(p.ph.d));
 }
 
-phloat atanh(phloat p) {
-    return phloat(atanh(p.ph.d));
+Phloat atanh(Phloat p) {
+    return Phloat(atanh(p.ph.d));
 }
 
-phloat log(phloat p) {
-    return phloat(log(p.ph.d));
+Phloat log(Phloat p) {
+    return Phloat(log(p.ph.d));
 }
 
-phloat log1p(phloat p) {
-    return phloat(log1p(p.ph.d));
+Phloat log1p(Phloat p) {
+    return Phloat(log1p(p.ph.d));
 }
 
-phloat log10(phloat p) {
-    return phloat(log10(p.ph.d));
+Phloat log10(Phloat p) {
+    return Phloat(log10(p.ph.d));
 }
 
-phloat exp(phloat p) {
-    return phloat(exp(p.ph.d));
+Phloat exp(Phloat p) {
+    return Phloat(exp(p.ph.d));
 }
 
-phloat expm1(phloat p) {
-    return phloat(expm1(p.ph.d));
+Phloat expm1(Phloat p) {
+    return Phloat(expm1(p.ph.d));
 }
 
-phloat sqrt(phloat p) {
-    return phloat(sqrt(p.ph.d));
+Phloat sqrt(Phloat p) {
+    return Phloat(sqrt(p.ph.d));
 }
 
-phloat fmod(phloat x, phloat y) {
-    return phloat(fmod(x.ph.d, y.ph.d));
+Phloat fmod(Phloat x, Phloat y) {
+    return Phloat(fmod(x.ph.d, y.ph.d));
 }
 
-phloat fabs(phloat p) {
-    return phloat(fabs(p.ph.d));
+Phloat fabs(Phloat p) {
+    return Phloat(fabs(p.ph.d));
 }
 
-phloat pow(phloat x, phloat y) {
-    return phloat(pow(x.ph.d, y.ph.d));
+Phloat pow(Phloat x, Phloat y) {
+    return Phloat(pow(x.ph.d, y.ph.d));
 }
 
-phloat floor(phloat p) {
-    return phloat(floor(p.ph.d));
+Phloat floor(Phloat p) {
+    return Phloat(floor(p.ph.d));
 }
 
-phloat operator*(int x, phloat y) {
-    return phloat(x * y.ph.d);
+Phloat operator*(int x, Phloat y) {
+    return Phloat(x * y.ph.d);
 }
 
-phloat operator/(int x, phloat y) {
-    return phloat(x / y.ph.d);
+Phloat operator/(int x, Phloat y) {
+    return Phloat(x / y.ph.d);
 }
 
-phloat operator/(double x, phloat y) {
-    return phloat(x / y.ph.d);
+Phloat operator/(double x, Phloat y) {
+    return Phloat(x / y.ph.d);
 }
 
-phloat operator+(int x, phloat y) {
-    return phloat(x + y.ph.d);
+Phloat operator+(int x, Phloat y) {
+    return Phloat(x + y.ph.d);
 }
 
-phloat operator-(int x, phloat y) {
-    return phloat(x - y.ph.d);
+Phloat operator-(int x, Phloat y) {
+    return Phloat(x - y.ph.d);
 }
 
-bool operator==(int4 x, phloat y) {
+bool operator==(int4 x, Phloat y) {
     return x == y.ph.d;
 }
+
+#endif

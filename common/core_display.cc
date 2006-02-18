@@ -685,8 +685,8 @@ void draw_pattern(phloat dx, phloat dy, const char *pattern, int pattern_width){
     int x, y, h, v, hmin, hmax, vmin, vmax;
     if (dx + pattern_width < 1 || dx > 131 || dy + 8 < 1 || dy > 16)
 	return;
-    x = dx < 0 ? -floor(-dx + 0.5).to_int() : floor(dx + 0.5).to_int();
-    y = dy < 0 ? -floor(-dy + 0.5).to_int() : floor(dy + 0.5).to_int();
+    x = dx < 0 ? to_int(-floor(-dx + 0.5)) : to_int(floor(dx + 0.5));
+    y = dy < 0 ? to_int(-floor(-dy + 0.5)) : to_int(floor(dy + 0.5));
     hmin = x < 1 ? 1 - x : 0;
     hmax = x + pattern_width > 132 ? 132 - x : pattern_width;
     vmin = y < 1 ? 1 - y : 0;
@@ -1636,16 +1636,16 @@ void show() {
 	    }
 	    case TYPE_REALMATRIX: {
 		vartype_realmatrix *rm = (vartype_realmatrix *) reg_x;
-		phloat *ds = rm->array->data;
+		phloat *d = rm->array->data;
 		bufptr = vartype2string(reg_x, buf, 22);
 		draw_string(0, 0, buf, bufptr);
 		draw_string(0, 1, "1:1=", 4);
 		if (rm->array->is_string[0]) {
 		    draw_char(4, 1, '"');
-		    draw_string(5, 1, ds->ph.s.text, ds->ph.s.length);
-		    draw_char(5 + ds->ph.s.length, 1, '"');
+		    draw_string(5, 1, phloat_text(*d), phloat_length(*d));
+		    draw_char(5 + phloat_length(*d), 1, '"');
 		} else {
-		    bufptr = phloat2string(*ds, buf, 18,
+		    bufptr = phloat2string(*d, buf, 18,
 					   0, 0, 3,
 					   flags.f.thousands_separators);
 		    draw_string(4, 1, buf, bufptr);

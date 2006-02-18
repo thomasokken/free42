@@ -263,7 +263,7 @@ int generic_rcl(arg_struct *arg, vartype **dst) {
 		    return ERR_SIZE_ERROR;
 		ds = rm->array->data[index];
 		if (rm->array->is_string[index])
-		    *dst = new_string(ds.ph.s.text, ds.ph.s.length);
+		    *dst = new_string(phloat_text(ds), phloat_length(ds));
 		else
 		    *dst = new_real(ds);
 		if (*dst == NULL)
@@ -378,9 +378,9 @@ int generic_sto(arg_struct *arg, char operation) {
 		    if (!disentangle((vartype *) rm))
 			return ERR_INSUFFICIENT_MEMORY;
 		    len = vs->length;
-		    ds->ph.s.length = len;
+		    phloat_length(*ds) = len;
 		    for (i = 0; i < len; i++)
-			ds->ph.s.text[i] = vs->text[i];
+			phloat_text(*ds)[i] = vs->text[i];
 		    rm->array->is_string[num] = 1;
 		    return ERR_NONE;
 		} else if (reg_x->type == TYPE_REAL) {

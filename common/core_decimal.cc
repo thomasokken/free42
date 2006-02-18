@@ -627,7 +627,7 @@ int int2string(int4 n, char *buf, int buflen) {
 int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
 			 int dispmode, int thousandssep) {
     // PHLOAT_TODO: Separate decimal and binary implementations
-    double d = pd.to_double();
+    double d = to_double(pd);
     double mantissa;
 #ifdef PALMOS
     Int16 exp;

@@ -293,7 +293,7 @@ int docmd_posa(arg_struct *arg) {
 	    x = -x;
 	if (x >= 256)
 	    return ERR_INVALID_DATA;
-	c = x.to_char();
+	c = to_char(x);
 	for (i = 0; i < reg_alpha_length; i++)
 	    if (reg_alpha[i] == c) {
 		pos = i;
@@ -433,8 +433,8 @@ int docmd_rclel(arg_struct *arg) {
 	vartype_realmatrix *rm = (vartype_realmatrix *) m;
 	int4 n = matedit_i * rm->columns + matedit_j;
 	if (rm->array->is_string[n])
-	    v = new_string(rm->array->data[n].ph.s.text,
-			   rm->array->data[n].ph.s.length);
+	    v = new_string(phloat_text(rm->array->data[n]),
+			   phloat_length(rm->array->data[n]));
 	else
 	    v = new_real(rm->array->data[n]);
     } else if (m->type == TYPE_COMPLEXMATRIX) {
@@ -643,14 +643,14 @@ int docmd_swap_r(arg_struct *arg) {
 	xx = -xx;
     if (xx < 1 || xx >= 2147483648.0)
 	return ERR_DIMENSION_ERROR;
-    x = xx.to_int4() - 1;
+    x = to_int4(xx) - 1;
 
     yy = ((vartype_real *) reg_y)->x;
     if (yy < 0)
 	yy = -yy;
     if (yy < 1 || yy >= 2147483648.0)
 	return ERR_DIMENSION_ERROR;
-    y = yy.to_int4() - 1;
+    y = to_int4(yy) - 1;
 
     if (m->type == TYPE_REALMATRIX) {
 	vartype_realmatrix *rm = (vartype_realmatrix *) m;
@@ -779,9 +779,9 @@ int docmd_stoel(arg_struct *arg) {
 	    vartype_string *s = (vartype_string *) reg_x;
 	    int i;
 	    rm->array->is_string[n] = 1;
-	    rm->array->data[n].ph.s.length = s->length;
+	    phloat_length(rm->array->data[n]) = s->length;
 	    for (i = 0; i < s->length; i++)
-		rm->array->data[n].ph.s.text[i] = s->text[i];
+		phloat_text(rm->array->data[n])[i] = s->text[i];
 	    return ERR_NONE;
 	} else
 	    return ERR_INVALID_TYPE;
@@ -836,11 +836,11 @@ int docmd_stoij(arg_struct *arg) {
     x = ((vartype_real *) reg_x)->x;
     if (x < 0)
 	x = -x;
-    j = x.to_int4();
+    j = to_int4(x);
     y = ((vartype_real *) reg_y)->x;
     if (y < 0)
 	y = -y;
-    i = y.to_int4();
+    i = to_int4(y);
 
     if (m->type == TYPE_REALMATRIX) {
 	vartype_realmatrix *rm = (vartype_realmatrix *) m;
@@ -1095,8 +1095,8 @@ static int matedit_move(int direction) {
     if (m->type == TYPE_REALMATRIX) {
 	if (old_n != new_n) {
 	    if (rm->array->is_string[new_n])
-		v = new_string(rm->array->data[new_n].ph.s.text,
-			    rm->array->data[new_n].ph.s.length);
+		v = new_string(phloat_text(rm->array->data[new_n]),
+			    phloat_length(rm->array->data[new_n]));
 	    else
 		v = new_real(rm->array->data[new_n]);
 	    if (v == NULL)
@@ -1109,9 +1109,9 @@ static int matedit_move(int direction) {
 	    vartype_string *s = (vartype_string *) reg_x;
 	    int i;
 	    rm->array->is_string[old_n] = 1;
-	    rm->array->data[old_n].ph.s.length = s->length;
+	    phloat_length(rm->array->data[old_n]) = s->length;
 	    for (i = 0; i < s->length; i++)
-		rm->array->data[old_n].ph.s.text[i] = s->text[i];
+		phloat_text(rm->array->data[old_n])[i] = s->text[i];
 	} else {
 	    free_vartype(v);
 	    return ERR_INVALID_TYPE;
@@ -1278,8 +1278,8 @@ static int matabx(int which) {
     if (mat->type == TYPE_REALMATRIX) {
 	vartype_realmatrix *rm = (vartype_realmatrix *) mat;
 	if (rm->array->is_string[0])
-	    v = new_string(rm->array->data[0].ph.s.text,
-			    rm->array->data[0].ph.s.length);
+	    v = new_string(phloat_text(rm->array->data[0]),
+			    phloat_length(rm->array->data[0]));
 	else
 	    v = new_real(rm->array->data[0]);
     } else {
@@ -1493,8 +1493,8 @@ int docmd_find(arg_struct *arg) {
 		for (j = 0; j < rm->columns; j++)
 		    if (rm->array->is_string[p]
 			    && string_equals(s->text, s->length, 
-					     rm->array->data[p].ph.s.text,
-					     rm->array->data[p].ph.s.length)) {
+					     phloat_text(rm->array->data[p]),
+					     phloat_length(rm->array->data[p]))) {
 			matedit_i = i;
 			matedit_j = j;
 			return ERR_YES;

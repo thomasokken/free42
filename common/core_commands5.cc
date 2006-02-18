@@ -984,7 +984,7 @@ int docmd_to_dec(arg_struct *arg) {
 	if (core_settings.decimal) {
 	    phloat dec = 0, mul = 1;
 	    while (oct != 0) {
-		int digit = oct.to_digit();
+		int digit = to_digit(oct);
 		if (digit > 7)
 		    return ERR_INVALID_DATA;
 		oct = floor(oct / 10);
@@ -993,7 +993,7 @@ int docmd_to_dec(arg_struct *arg) {
 	    }
 	    res = neg ? -dec : dec;
 	} else {
-	    int8 ioct = oct.to_int8();
+	    int8 ioct = to_int8(oct);
 	    int8 dec = 0, mul = 1;
 	    while (ioct != 0) {
 		int digit = (int) (ioct % 10);
@@ -1029,7 +1029,7 @@ int docmd_to_oct(arg_struct *arg) {
 	if (core_settings.decimal) {
 	    phloat oct = 0, mul = 1;
 	    while (dec != 0) {
-		int digit = dec.to_digit();
+		int digit = to_digit(dec);
 		if (digit > 7)
 		    return ERR_INVALID_DATA;
 		dec = floor(dec / 10);
@@ -1038,7 +1038,7 @@ int docmd_to_oct(arg_struct *arg) {
 	    }
 	    res = neg ? -oct : oct;
 	} else {
-	    int8 idec = dec.to_int8();
+	    int8 idec = to_int8(dec);
 	    int8 oct = 0, mul = 1;
 	    while (idec != 0) {
 		int digit = (int) (idec & 7);

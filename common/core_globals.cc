@@ -1493,7 +1493,7 @@ void store_command(int4 pc, int command, arg_struct *arg) {
 	 * efficiency, we handle integers specially and store them as
 	 * ARGTYPE_NUM or ARGTYPE_NEG_NUM instead.
 	 */
-	int4 n = arg->val_d.to_int4();
+	int4 n = to_int4(arg->val_d);
 	if (n == arg->val_d && n != (int4) 0x80000000) {
 	    if (n >= 0) {
 		arg->val.num = n;
@@ -1607,7 +1607,7 @@ void store_command(int4 pc, int command, arg_struct *arg) {
 	    } u;
 	    int i;
 	    // PHLOAT_TODO
-	    u.d = arg->val_d.to_double();
+	    u.d = to_double(arg->val_d);
 	    for (i = 0; i < (int) sizeof(double); i++)
 		buf[bufptr++] = u.b[i];
 	    break;

@@ -820,7 +820,7 @@ int docmd_y_pow_x(arg_struct *arg) {
 		rim = 0;
 		yre = ((vartype_complex *) reg_y)->re;
 		yim = ((vartype_complex *) reg_y)->im;
-		ex = x.to_int4();
+		ex = to_int4(x);
 		if (yre == 0 && yim == 0) {
 		    if (ex < 0)
 			return ERR_INVALID_DATA;

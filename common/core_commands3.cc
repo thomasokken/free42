@@ -107,7 +107,7 @@ int docmd_arot(arg_struct *arg) {
 	    x = -floor(-x);
 	else
 	    x = floor(x);
-	j = fmod(x, reg_alpha_length).to_int();
+	j = to_int(fmod(x, reg_alpha_length));
 	if (j == 0)
 	    goto done;
 	if (j < 0)
@@ -433,8 +433,8 @@ int docmd_delr(arg_struct *arg) {
     if (interactive) {
 	if (m->type == TYPE_REALMATRIX) {
 	    if (rm->array->is_string[n])
-		newx = new_string(rm->array->data[n].ph.s.text,
-				  rm->array->data[n].ph.s.length);
+		newx = new_string(phloat_text(rm->array->data[n]),
+				  phloat_length(rm->array->data[n]));
 	    else
 		newx = new_real(rm->array->data[n]);
 	} else
@@ -631,7 +631,7 @@ int docmd_dim(arg_struct *arg) {
 	y = -y;
     if (y >= 2147483648.0)
 	return ERR_INSUFFICIENT_MEMORY;
-    return dimension_array(arg->val.text, arg->length, y.to_int(), x.to_int());
+    return dimension_array(arg->val.text, arg->length, to_int(y), to_int(x));
 }
 
 int docmd_dot(arg_struct *arg) {
@@ -864,8 +864,8 @@ int docmd_edit(arg_struct *arg) {
 	if (reg_x->type == TYPE_REALMATRIX) {
 	    vartype_realmatrix *rm = (vartype_realmatrix *) reg_x;
 	    if (rm->array->is_string[0])
-		v = new_string(rm->array->data[0].ph.s.text,
-			       rm->array->data[0].ph.s.length);
+		v = new_string(phloat_text(rm->array->data[0]),
+			       phloat_length(rm->array->data[0]));
 	    else
 		v = new_real(rm->array->data[0]);
 	} else {
@@ -919,8 +919,8 @@ int docmd_editn(arg_struct *arg) {
 	if (m->type == TYPE_REALMATRIX) {
 	    vartype_realmatrix *rm = (vartype_realmatrix *) m;
 	    if (rm->array->is_string[0])
-		v = new_string(rm->array->data[0].ph.s.text,
-			       rm->array->data[0].ph.s.length);
+		v = new_string(phloat_text(rm->array->data[0]),
+			       phloat_length(rm->array->data[0]));
 	    else
 		v = new_real(rm->array->data[0]);
 	} else {
@@ -1084,14 +1084,14 @@ int docmd_getm(arg_struct *arg) {
 	xx = -xx;
     if (xx >= 2147483648.0)
 	return ERR_DIMENSION_ERROR;
-    x = xx.to_int4();
+    x = to_int4(xx);
 
     yy = ((vartype_real *) reg_y)->x;
     if (yy < 0)
 	yy = -yy;
     if (yy >= 2147483648.0)
 	return ERR_DIMENSION_ERROR;
-    y = yy.to_int4();
+    y = to_int4(yy);
 
     if (m->type == TYPE_REALMATRIX) {
 	vartype_realmatrix *src, *dst;
@@ -1231,11 +1231,11 @@ static int hms_add_or_sub(bool add) {
 	double rx, ry, res;
 	int8 ix, iy, ixhr, iyhr, ires, ireshr;
 
-	rx = floor(x.ph.d);
-	ry = floor(y.ph.d);
+	rx = floor(phloat_d(x));
+	ry = floor(phloat_d(y));
 	res = add ? ry + rx : ry - rx;
-	ix = (int8) (((x.ph.d - rx) * 1000000000000.0) + 0.5);
-	iy = (int8) (((y.ph.d - ry) * 1000000000000.0) + 0.5);
+	ix = (int8) (((phloat_d(x) - rx) * 1000000000000.0) + 0.5);
+	iy = (int8) (((phloat_d(y) - ry) * 1000000000000.0) + 0.5);
 	ixhr = ix % LL(10000000000);
 	iyhr = iy % LL(10000000000);
 	ix /= LL(10000000000);

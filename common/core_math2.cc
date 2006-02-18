@@ -410,7 +410,7 @@ static int math_lgamma(double x, double *gam, int *sgngam) {
 
 int math_gamma(phloat phx, phloat *phgamma) {
     // PHLOAT_TODO: Separate decimal and binary implementations
-    double x = phx.to_double();
+    double x = to_double(phx);
     double gam;
     double lgam;
     int sign, err;

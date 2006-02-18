@@ -843,8 +843,13 @@ static int mappable_to_hr(phloat x, phloat *y) COMMANDS1_SECT;
 static int mappable_to_hr(phloat x, phloat *y) {
     int neg = x < 0;
     phloat res;
+#ifdef PHLOAT_IS_DOUBLE
+    const phloat point01 = 0.01;
+    const phloat point36 = 0.36;
+#else
     const phloat point01(1, 100);
     const phloat point36(36, 100);
+#endif
     if (neg)
 	x = -x;
     
@@ -868,7 +873,7 @@ static int mappable_to_hr(phloat x, phloat *y) {
 	    phloat h = floor(x);
 	    x -= h;
 	    //ix = (int8) (x * 1000000000000.0 + 0.5);
-	    x = (x * 1000000000000.0 + 0.5); ix = x.to_int8();
+	    x = (x * 1000000000000.0 + 0.5); ix = to_int8(x);
 	    ixhr = ix % LL(10000000000);
 	    ix /= LL(10000000000);
 	    ixhr += (ix % 100) * LL(6000000000);
@@ -907,7 +912,7 @@ static int mappable_to_hms(phloat x, phloat *y) {
      * detect this and fix...
      */
     if (!core_settings.decimal)
-	r = fix_hms(r.ph.d);
+	r = fix_hms(phloat_d(r));
 
     *y = neg ? -r : r;
     return ERR_NONE;
