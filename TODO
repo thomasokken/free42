@@ -6,6 +6,11 @@ MathLib requirement, and we can get rid of the nasty decimal<->string crap in
 But, before burning any bridges, make sure that performance of the new BCD
 version is not *much* worse than the classic version's; check this using
 plot_thomas and a few large matrix ops.
+OR... Create two versions for PalmOS (one where we do "#define phloat double"
+and include all existing support code (string<->binary, gamma, MathLib), and
+one that is basically identical to the PC builds, but w/o the binary (long
+double) stuff. For the PC (Windows/Unix) builds, go with only one build, that
+is switchable between BCD and long double.
 
 While getting rid of all the stuff that is neither GNU libm nor Hugh Steers'
 BCD, I should also be able to get rid of math_gamma(), and instead implement a
@@ -54,6 +59,8 @@ When switching modes, not only convert all phloat variables in memory, but
 also convert all non-int4 number literals in programs!
 
 ...............................................................................
+
+LN(POS_HUGE_DOUBLE iPOS_HUGE_DOUBLE) returns something involving <Infinity>
 
 Pocket PC version.
 
