@@ -6,7 +6,8 @@ When windows/Free42.exe is built without BCD_MATH, the solver no longer
 converges on "SUN" with TILT=23.5, LAT=52, SEAS=3.75, HGHT=0, SOLVE("TOD")
 (start TOD with 0 and 12). Noticed while running the PLOT test case with
 YMIN=0, YMAX=12, AXIS=-1, XMIN=0, XMAX=360, XINC=30, indep=SEAS, solve for TOD.
-!BCD_MATH does not have this effect in the Unix build.
+The BCD_MATH build works fine on this test case, as do all the Unix/Cygwin
+builds.
 Note that the values do seem to converge on something; either the stopping
 criteria are failing or there is some numerical weirdness going on.
 
@@ -16,6 +17,8 @@ DIM, NEWMAT, GETM, R<>R, string<->number conversion.
 In the PalmOS Decimal build, and add code to delete the Free42BcdConv database.
 How hard is it to get rid of the MathLib dependency? (What happens when
 compiling without MathLib.h?)
+Add new BCD_SECT section and put all non-inline code from bcd, bcdfloat, and
+bcdmath into it.
 
 Regression testing: the binary version seems to execute prm_bin OK, and the
 solver and plot_thomas also look fine. On the decimal version, however,
