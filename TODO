@@ -14,6 +14,14 @@ Regression test HMS+, HMS-, ->HMS, ->HR, ISG, DSE, ->DEC, ->OCT, AIP,
 DIM, NEWMAT, GETM, R<>R, string<->number conversion.
 
 In the PalmOS Decimal build, and add code to delete the Free42BcdConv database.
+How hard is it to get rid of the MathLib dependency? (What happens when
+compiling without MathLib.h?)
+
+Regression testing: the binary version seems to execute prm_bin OK, and the
+solver and plot_thomas also look fine. On the decimal version, however,
+prm_dec and pi_dec do not work correctly. And, I got a crash a while back,
+weirdness with XEQ using the PGM catalog yielding "Invalid Type"... Sounds
+like memory corruption.
 
 Decimal version: implement gamma(), and add *proper* implementations of log1p()
 and expm1().

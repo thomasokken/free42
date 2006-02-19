@@ -324,24 +324,31 @@ int p_isnan(Phloat p) {
 }
 
 int to_digit(Phloat p) {
-    BCD res = fmod(BCD(p.bcd), 10);
+    BCD res = trunc(fmod(BCD(p.bcd), 10));
     return ifloor(res);
 }
 
+static int8 mant(const BCDFloat &b) {
+    int8 m = 0;
+    for (int i = b.exp() - 1; i >= 0 && i < P; i--)
+	m = m * 10000 + b.d_[i];
+    return m;
+}
+
 char to_char(Phloat p) {
-    return (char) ifloor(p.bcd);
+    return (char) mant(p.bcd);
 }
 
 int to_int(Phloat p) {
-    return (int) ifloor(p.bcd);
+    return (int) mant(p.bcd);
 }
 
 int4 to_int4(Phloat p) {
-    return (int4) bcd2double(p.bcd);
+    return (int4) mant(p.bcd);
 }
 
 int8 to_int8(Phloat p) {
-    return (int8) bcd2double(p.bcd);
+    return (int8) mant(p.bcd);
 }
 
 double to_double(Phloat p) {
@@ -604,7 +611,7 @@ struct PI_initializer {
 };
 static PI_initializer foo;
 
-BCDFloat double2bcd(double d) {
+BCDFloat double2bcd(double d, bool round /* = false */) {
     if (isnan(d))
 	return BCDFloat::nan();
     int inf = isinf(d);
@@ -628,6 +635,48 @@ BCDFloat double2bcd(double d) {
 	    short s = (short) d;
 	    res.d_[i] = s;
 	    d = (d - s) * 10000;
+	}
+	if (round) {
+	    // This is used when converting programs from a Free42Binary state
+	    // file. Number literals in programs are rounded to 12 digits, so
+	    // what you see really is what you get; without this hack, you'd
+	    // get stuff like 0.9 turning into 0.8999999+ but still *looking*
+	    // like 0.9!
+	    for (int i = 4; i < P; i++)
+		res.d_[i] = 0;
+	    unsigned short s = res.d_[3];
+	    unsigned short d;
+	    if (s < 10)
+		d = 10;
+	    else if (s < 100)
+		d = 100;
+	    else if (s < 1000)
+		d = 1000;
+	    else
+		d = 10000;
+	    unsigned short r = s % d;
+	    if (r >= d >> 1)
+		s += d;
+	    s -= r;
+	    bool carry = s >= 10000;
+	    if (carry)
+		s -= 10000;
+	    res.d_[3] = s;
+	    for (int i = 2; carry && i >= 0; i--) {
+		s = res.d_[i] + 1;
+		carry = s >= 10000;
+		if (carry)
+		    s -= 10000;
+		res.d_[i] = s;
+	    }
+	    if (carry) {
+		for (int i = 3; i >= 0; i--)
+		    res.d_[i + 1] = res.d_[i];
+		res.d_[0] = 1;
+		res.d_[P]++;
+		// No need to check if the exponent is overflowing; the range
+		// of 'double' is too small to cause such problems here.
+	    }
 	}
 	if (neg)
 	    res.negate();

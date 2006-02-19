@@ -2515,10 +2515,10 @@ static bool convert_programs() {
 	    if ((command == CMD_GTO || command == CMD_XEQ)
 		    && (argtype == ARGTYPE_NUM || argtype == ARGTYPE_LCLBL)) {
 		// Invalidate local label offsets
-		prgm->text[pc++] = 0;
-		prgm->text[pc++] = 0;
-		prgm->text[pc++] = 0;
-		prgm->text[pc++] = 0;
+		prgm->text[pc++] = 255;
+		prgm->text[pc++] = 255;
+		prgm->text[pc++] = 255;
+		prgm->text[pc++] = 255;
 	    }
 	    switch (argtype) {
 		case ARGTYPE_NUM:
@@ -2568,10 +2568,8 @@ static bool convert_programs() {
 			}
 			prgm->size += growth;
 
-			// TODO: round to 12 digits, to prevent stuff like 0.9
-			// turning into 0.899999+; in a program line, this is
-			// even eviller than usual, because you can't SEE it.
-			phloat p = d;
+			phloat p;
+			p.bcd = double2bcd(d, true);
 			b = (unsigned char *) &p;
 			for (int i = 0; i < (int) sizeof(phloat); i++)
 			    prgm->text[pc++] = *b++;
@@ -2595,7 +2593,7 @@ static bool convert_programs() {
 			}
 			pc -= sizeof(fake_bcd);
 
-			int shrinkage = sizeof(phloat) - sizeof(double);
+			int shrinkage = sizeof(fake_bcd) - sizeof(double);
 			for (int4 pos = pc; pos < prgm->size; pos++)
 			    prgm->text[pos] = prgm->text[pos + shrinkage];
 			prgm->size -= shrinkage;

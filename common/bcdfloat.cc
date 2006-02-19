@@ -158,6 +158,10 @@ BCDFloat::BCDFloat(const char* s)
 BCDFloat::BCDFloat(int v)
 {
     _init();
+
+    // Special case to prevent zero with nonzero exponent
+    if (v == 0)
+	return;
     
     bool neg = false;
     if (v < 0) {

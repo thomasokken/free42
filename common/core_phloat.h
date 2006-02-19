@@ -155,7 +155,7 @@ bool operator==(int4 x, Phloat y) PHLOAT_SECT;
 
 extern Phloat PI;
 
-BCDFloat double2bcd(double d) PHLOAT_SECT;
+BCDFloat double2bcd(double d, bool round = false) PHLOAT_SECT;
 double bcd2double(BCDFloat b) PHLOAT_SECT;
 
 

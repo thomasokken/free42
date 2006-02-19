@@ -615,18 +615,19 @@ BCD modtwopi(const BCD& a)
 BCD log10(const BCD& v)
 {
     /* XXX FIXME */
-    return log(v);
+    BCD ln10(*(const BCDFloat*)(constTable + BCD_CONST_LN10));
+    return log(v) / ln10;
 }
 
 BCD hypot(const BCD& a, const BCD& b)
 {
     /* XXX FIXME */
-    return a;
+    return sqrt(a * a + b * b);
 }
 
 BCD fmod(const BCD& a, const BCD& b)
 {
     /* XXX FIXME */
-    return a;
+    return a - b * trunc(a / b);
 }
 
