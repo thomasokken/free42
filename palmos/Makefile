@@ -36,6 +36,7 @@ OBJS = shell1.o shell2.o shell_spool.o myglue.o filesys.o core_main.o \
 
 ifdef BCD_MATH
 CXXFLAGS += -DBCD_MATH
+SRCS += bcdfloat.cc bcd.cc bcdmath.cc
 OBJS += bcdfloat.o bcd.o bcdmath.o
 else
 OBJS += MathLib.o
