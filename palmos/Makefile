@@ -34,6 +34,13 @@ OBJS = shell1.o shell2.o shell_spool.o myglue.o filesys.o core_main.o \
 	core_linalg2.o core_math1.o core_math2.o core_phloat.o \
 	core_sto_rcl.o core_tables.o core_variables.o
 
+ifdef PHLOAT_IS_DOUBLE
+CXXFLAGS += -DPHLOAT_IS_DOUBLE
+OBJS += MathLib.o
+else
+OBJS += bcdfloat.o bcd.o bcdmath.o
+endif
+
 free42.prc: shell shell.ro Original.prc
 	build-prc -o free42.prc shell.def shell shell.ro Original.prc
 
@@ -82,6 +89,12 @@ symlinks:
 	ln -s ../common/shell.h
 	ln -s ../common/shell_spool.cc
 	ln -s ../common/shell_spool.h
+	ln -s ../common/bcd.cc
+	ln -s ../common/bcd.h
+	ln -s ../common/bcdfloat.cc
+	ln -s ../common/bcdfloat.h
+	ln -s ../common/bcdmath.cc
+	ln -s ../common/bcdmath.h
 	touch symlinks
 
 shell-sections.s shell-sections.ld: shell.def
@@ -93,8 +106,8 @@ shell-sections.s shell-sections.ld: shell.def
 .cc.o:
 	m68k-palmos-g++ $(CXXFLAGS) -c -o $@ $<
 
-shell: $(OBJS) MathLib.o shell-sections.s shell-sections.ld
-	m68k-palmos-g++ $(LDFLAGS) -o shell $(OBJS) MathLib.o \
+shell: $(OBJS) shell-sections.s shell-sections.ld
+	m68k-palmos-g++ $(LDFLAGS) -o shell $(OBJS) \
 		-lnoexcept -lPalmOSGlue \
 		shell-sections.s shell-sections.ld
 	

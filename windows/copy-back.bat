@@ -45,4 +45,10 @@ copy shell_spool.h ..\common
 copy skin2cc.cc ..\common
 copy skin2cc.conf ..\common
 copy keymap2cc.cc ..\common
+copy bcd.cc ..\common
+copy bcd.h ..\common
+copy bcdfloat.cc ..\common
+copy bcdfloat.h ..\common
+copy bcdmath.cc ..\common
+copy bcdmath.h ..\common
 copy rom2raw.c ..\util

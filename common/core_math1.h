@@ -22,8 +22,8 @@
 #include "free42.h"
 #include "core_phloat.h"
 
-int persist_math() MATH1_SECT;
-int unpersist_math() MATH1_SECT;
+bool persist_math() MATH1_SECT;
+bool unpersist_math(bool discard) MATH1_SECT;
 void reset_math() MATH1_SECT;
 
 void put_shadow(const char *name, int length, phloat value) MATH1_SECT;

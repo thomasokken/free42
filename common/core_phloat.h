@@ -25,19 +25,21 @@
 #include "bcdfloat.h"
 #endif
 
+// A little hack to allow storing 6-character strings in a phloat
+struct hp_string {
+    char text[6];
+    unsigned char length;
+};
+#define phloat_text(x) (((hp_string *) &(x))->text)
+#define phloat_length(x) (((hp_string *) &(x))->length)
+
 
 #ifdef PHLOAT_IS_DOUBLE
 
 
 #define phloat double
 
-struct hp_string {
-    char text[6];
-    unsigned char length;
-};
 #define phloat_d(x) (x)
-#define phloat_text(x) (((hp_string *) &(x))->text)
-#define phloat_length(x) (((hp_string *) &(x))->length)
 
 #define p_isinf isinf
 #define p_isnan isnan
@@ -49,28 +51,19 @@ struct hp_string {
 #define to_double(x) ((double) (x))
 
 #define PI 3.1415926535897932384626433;
-double bcd2double(const char *p);
+#define P 7
+double bcd2double(const short *p);
 
 
 #else // !PHLOAT_IS_DOUBLE
 
 
 #define phloat Phloat
-#define phloat_d(x) (x).ph.d
-#define phloat_text(x) (x).ph.s.text
-#define phloat_length(x) (x).ph.s.length
+#define phloat_d(x) ((x).b)
 
 class Phloat {
     public:
-	union {
-	    // For storing numbers
-	    BCDFloat b;
-	    // For storing user-mode strings
-	    struct {
-		char text[6];
-		unsigned char length;
-	    } s;
-	} ph;
+	BCDFloat bcd;
 
 	Phloat() {}
 	Phloat(int numer, int denom) PHLOAT_SECT;
@@ -159,6 +152,8 @@ Phloat operator/(double x, Phloat y) PHLOAT_SECT;
 Phloat operator+(int x, Phloat y) PHLOAT_SECT;
 Phloat operator-(int x, Phloat y) PHLOAT_SECT;
 bool operator==(int4 x, Phloat y) PHLOAT_SECT;
+
+extern Phloat PI;
 
 BCDFloat double2bcd(double d) PHLOAT_SECT;
 double bcd2double(BCDFloat b) PHLOAT_SECT;

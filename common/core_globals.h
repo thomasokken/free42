@@ -529,8 +529,13 @@ int solve_active() GLOBALS_SECT;
 int integ_active() GLOBALS_SECT;
 void unwind_stack_until_solve() GLOBALS_SECT;
 
-int load_state(int4 version) GLOBALS_SECT;
+bool load_state(int4 version) GLOBALS_SECT;
 void save_state() GLOBALS_SECT;
 void hard_reset(int bad_state_file) GLOBALS_SECT;
+
+bool read_arg(arg_struct *arg, bool old) GLOBALS_SECT;
+bool read_phloat(phloat *d) GLOBALS_SECT;
+bool write_phloat(phloat d) GLOBALS_SECT;
+
 
 #endif

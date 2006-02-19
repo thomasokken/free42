@@ -81,7 +81,6 @@ int dimension_array(const char *name, int namelen, int4 rows, int4 columns)
 int dimension_array_ref(vartype *matrix, int4 rows, int4 columns) HELPERS_SECT;
 
 phloat fix_hms(phloat x) HELPERS_SECT;
-int read_arg(arg_struct *arg, bool old) HELPERS_SECT;
 
 void char2buf(char *buf, int buflen, int *bufptr, char c) HELPERS_SECT;
 void string2buf(char *buf, int buflen, int *bufptr, const char *s, int slen)

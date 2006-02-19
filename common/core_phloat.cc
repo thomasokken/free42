@@ -19,11 +19,11 @@
 #include <math.h>
 #include <stdlib.h>
 
-#include "bcd.h"
-#include "bcdmath.h"
 #include "core_phloat.h"
 #include "core_helpers.h"
 #include "shell.h"
+#include "bcd.h"
+#include "bcdmath.h"
 
 
 phloat POS_HUGE_PHLOAT;
@@ -36,90 +36,28 @@ phloat NEG_TINY_PHLOAT;
 
 
 void phloat_init() {
-    POS_HUGE_PHLOAT.b.d_[0] = 9999;
-    POS_HUGE_PHLOAT.b.d_[1] = 9999;
-    POS_HUGE_PHLOAT.b.d_[2] = 9999;
-    POS_HUGE_PHLOAT.b.d_[3] = 9999;
-    POS_HUGE_PHLOAT.b.d_[4] = 9999;
-    POS_HUGE_PHLOAT.b.d_[5] = 9999;
-    POS_HUGE_PHLOAT.b.d_[6] = 9999;
-    POS_HUGE_PHLOAT.b.d_[7] = 2499;
+    POS_HUGE_PHLOAT.bcd.d_[0] = 9999;
+    POS_HUGE_PHLOAT.bcd.d_[1] = 9999;
+    POS_HUGE_PHLOAT.bcd.d_[2] = 9999;
+    POS_HUGE_PHLOAT.bcd.d_[3] = 9999;
+    POS_HUGE_PHLOAT.bcd.d_[4] = 9999;
+    POS_HUGE_PHLOAT.bcd.d_[5] = 9999;
+    POS_HUGE_PHLOAT.bcd.d_[6] = 9999;
+    POS_HUGE_PHLOAT.bcd.d_[7] = 2499;
     NEG_HUGE_PHLOAT = -POS_HUGE_PHLOAT;
-    POS_TINY_PHLOAT.b.d_[0] = 1;
-    POS_TINY_PHLOAT.b.d_[1] = 0;
-    POS_TINY_PHLOAT.b.d_[2] = 0;
-    POS_TINY_PHLOAT.b.d_[3] = 0;
-    POS_TINY_PHLOAT.b.d_[4] = 0;
-    POS_TINY_PHLOAT.b.d_[5] = 0;
-    POS_TINY_PHLOAT.b.d_[6] = 0;
-    POS_TINY_PHLOAT.b.d_[7] = -2499;
+    POS_TINY_PHLOAT.bcd.d_[0] = 1;
+    POS_TINY_PHLOAT.bcd.d_[1] = 0;
+    POS_TINY_PHLOAT.bcd.d_[2] = 0;
+    POS_TINY_PHLOAT.bcd.d_[3] = 0;
+    POS_TINY_PHLOAT.bcd.d_[4] = 0;
+    POS_TINY_PHLOAT.bcd.d_[5] = 0;
+    POS_TINY_PHLOAT.bcd.d_[6] = 0;
+    POS_TINY_PHLOAT.bcd.d_[7] = (unsigned short) -2499;
     NEG_TINY_PHLOAT = -POS_TINY_PHLOAT;
 }
 
 void phloat_cleanup() {
     // Nothing to do
-}
-
-int phloat2string(phloat d, char *buf, int buflen, int base_mode, int digits,
-			 int dispmode, int thousandssep) {
-    int chars_so_far = 0;
-    int base;
-
-    if (p_isnan(d)) {
-	string2buf(buf, buflen, &chars_so_far, "<Not a Number>", 14);
-	return chars_so_far;
-    }
-
-    if (p_isinf(d)) {
-	char2buf(buf, buflen, &chars_so_far, '<');
-	if (d < 0)
-	    char2buf(buf, buflen, &chars_so_far, '-');
-	string2buf(buf, buflen, &chars_so_far, "Infinity>", 9);
-	return chars_so_far;
-    }
-
-    /* base_mode: 0=only decimal, 1=all bases, 2=all bases (show) */
-    if (base_mode != 0 && (base = get_base()) != 10) {
-	int8 n;
-	int inexact, shift;
-	char binbuf[36];
-	int binbufptr = 0;
-
-	if (d > 34359738367.0 || d < -34359738368.0) {
-	    if (base_mode == 2)
-		goto decimal_after_all;
-	    else {
-		string2buf(buf, buflen, &chars_so_far, "<Too Big>", 9);
-		return chars_so_far;
-	    }
-	}
-
-	n = to_int8(d);
-	inexact = base_mode == 1 && n != d;
-	n &= 0xfffffffffLL;
-	shift = base == 2 ? 1 : base == 8 ? 3 : 4;
-	while (n != 0) {
-	    int digit = (int) (n & (base - 1));
-	    char c = digit < 10 ? '0' + digit : 'A' + digit - 10;
-	    binbuf[binbufptr++] = c;
-	    n >>= shift;
-	}
-	if (binbufptr == 0)
-	    binbuf[binbufptr++] = '0';
-
-	while (binbufptr > 0)
-	    char2buf(buf, buflen, &chars_so_far, binbuf[--binbufptr]);
-	if (inexact)
-	    char2buf(buf, buflen, &chars_so_far,
-		     (char) (flags.f.decimal_point ? '.' : ','));
-	return chars_so_far;
-
-	decimal_after_all:;
-    }
-
-
-
-    return chars_so_far;
 }
 
 int string2phloat(const char *buf, int buflen, phloat *d) {
@@ -136,7 +74,7 @@ int string2phloat(const char *buf, int buflen, phloat *d) {
     // strip thousands separators, convert comma to dot if
     // appropriate, and convert char(24) to 'E'.
     // Also, reject numbers with more than 12 digits in the mantissa.
-    char *buf2[100];
+    char buf2[100];
     int buflen2 = 0;
     char sep = flags.f.decimal_point ? ',' : '.';
     int mantdigits = 0;
@@ -165,63 +103,58 @@ int string2phloat(const char *buf, int buflen, phloat *d) {
 	return b.neg() ? 2 : 1;
     if (!zero && b.isZero())
 	return b.neg() ? 4 : 3;
-    *d.b = b;
+    d->bcd = b;
     return 0;
 }
 
 /* public */
 Phloat::Phloat(int numer, int denom) {
-    // PHLOAT_TODO: This constructor is meant to be used to allow exact decimal
-    // number literals, e.g. Phloat(4, 100) to represent 0.04 exactly.
-    // Because of this, it should always be created as a decimal-mode Phloat;
-    // it should only be *used* in decimal mode, and its dec2bin() and
-    // bin2dec() methods should never be called.
     BCDFloat n(numer);
     BCDFloat d(denom);
-    BCDFloat::div(&n, &d, &ph.b);
+    BCDFloat::div(&n, &d, &bcd);
 }
 
 /* public */
 Phloat::Phloat(int i) {
-    ph.b = BCDFloat(i);
+    bcd = BCDFloat(i);
 }
 
 /* public */
 Phloat::Phloat(int8 i) {
-    ph.b = double2bcd(i);
+    bcd = double2bcd(i);
 }
 
 /* public */
 Phloat::Phloat(double d) {
-    ph.b = double2bcd(d);
+    bcd = double2bcd(d);
 }
 
 /* public */
 Phloat::Phloat(const Phloat &p) {
-    ph = p.ph;
+    bcd = p.bcd;
 }
 
 /* public */
 Phloat Phloat::operator=(int i) {
-    ph.b = BCDFloat(i);
+    bcd = BCDFloat(i);
     return *this;
 }
 
 /* public */
 Phloat Phloat::operator=(int8 i) {
-    ph.b = double2bcd(i);
+    bcd = double2bcd(i);
     return *this;
 }
 
 /* public */
 Phloat Phloat::operator=(double d) {
-    ph.b = double2bcd(d);
+    bcd = double2bcd(d);
     return *this;
 }
 
 /* public */
 Phloat Phloat::operator=(Phloat p) {
-    ph = p.ph;
+    bcd = p.bcd;
     return *this;
 }
 
@@ -229,12 +162,12 @@ Phloat Phloat::operator=(Phloat p) {
 
 /* public */
 Phloat::Phloat(int4 i) {
-    ph.b = double2bcd(i);
+    bcd = double2bcd(i);
 }
 
 /* public */
 Phloat Phloat::operator=(int4 i) {
-    ph.b = double2bcd(i);
+    bcd = double2bcd(i);
     return *this;
 }
 
@@ -242,99 +175,99 @@ Phloat Phloat::operator=(int4 i) {
 
 /* public */
 bool Phloat::operator==(Phloat p) const {
-    return BCDFloat::equal(&ph.b, &p.ph.b);
+    return BCDFloat::equal(&bcd, &p.bcd);
 }
 
 /* public */
 bool Phloat::operator!=(Phloat p) const {
     // TODO -- this does not handle NaN correctly
-    return BCDFloat::equal(&ph.b, &p.ph.b);
+    return BCDFloat::equal(&bcd, &p.bcd);
 }
 
 /* public */
 bool Phloat::operator<(Phloat p) const {
-    return BCDFloat::lt(&ph.b, &p.ph.b);
+    return BCDFloat::lt(&bcd, &p.bcd);
 }
 
 /* public */
 bool Phloat::operator<=(Phloat p) const {
-    return BCDFloat::le(&ph.b, &p.ph.b);
+    return BCDFloat::le(&bcd, &p.bcd);
 }
 
 /* public */
 bool Phloat::operator>(Phloat p) const {
-    return BCDFloat::gt(&ph.b, &p.ph.b);
+    return BCDFloat::gt(&bcd, &p.bcd);
 }
 
 /* public */
 bool Phloat::operator>=(Phloat p) const {
-    return BCDFloat::ge(&ph.b, &p.ph.b);
+    return BCDFloat::ge(&bcd, &p.bcd);
 }
 
 /* public */
 Phloat Phloat::operator-() const {
-    Phloat res(this);
-    res.ph.b.negate();
+    Phloat res(*this);
+    res.bcd.negate();
     return res;
 }
 
 /* public */
 Phloat Phloat::operator*(Phloat p) const {
     Phloat res;
-    BCDFloat::mul(&ph.b, &p.ph.b, &res.ph.b);
+    BCDFloat::mul(&bcd, &p.bcd, &res.bcd);
     return res;
 }
 
 /* public */
 Phloat Phloat::operator/(Phloat p) const {
     Phloat res;
-    BCDFloat::div(&ph.b, &p.ph.b, &res.ph.b);
+    BCDFloat::div(&bcd, &p.bcd, &res.bcd);
     return res;
 }
 
 /* public */
 Phloat Phloat::operator+(Phloat p) const {
     Phloat res;
-    BCDFloat::add(&ph.b, &p.ph.b, &res.ph.b);
+    BCDFloat::add(&bcd, &p.bcd, &res.bcd);
     return res;
 }
 
 /* public */
 Phloat Phloat::operator-(Phloat p) const {
     Phloat res;
-    BCDFloat::sub(&ph.b, &p.ph.b, &res.ph.b);
+    BCDFloat::sub(&bcd, &p.bcd, &res.bcd);
     return res;
 }
 
 /* public */
 Phloat Phloat::operator*=(Phloat p) {
     BCDFloat temp;
-    BCDFloat::mul(&ph.b, &p.ph.b, &temp);
-    ph.b = temp;
+    BCDFloat::mul(&bcd, &p.bcd, &temp);
+    bcd = temp;
     return *this;
 }
 
 /* public */
 Phloat Phloat::operator/=(Phloat p) {
     BCDFloat temp;
-    BCDFloat::div(&ph.b, &p.ph.b, &temp);
-    ph.b = temp;
+    BCDFloat::div(&bcd, &p.bcd, &temp);
+    bcd = temp;
     return *this;
 }
 
 /* public */
 Phloat Phloat::operator+=(Phloat p) {
     BCDFloat temp;
-    BCDFloat::add(&ph.b, &p.ph.b, &temp);
-    ph.b = temp;
+    BCDFloat::add(&bcd, &p.bcd, &temp);
+    bcd = temp;
     return *this;
 }
 
 /* public */
 Phloat Phloat::operator-=(Phloat p) {
     BCDFloat temp;
-    BCDFloat::sub(&ph.b, &p.ph.b, &temp);
-    ph.b = temp;
+    BCDFloat::sub(&bcd, &p.bcd, &temp);
+    bcd = temp;
     return *this;
 }
 
@@ -343,8 +276,8 @@ Phloat Phloat::operator++() {
     // prefix
     const BCDFloat one(1);
     BCDFloat temp;
-    BCDFloat::add(&ph.b, &one, &temp);
-    ph.b = temp;
+    BCDFloat::add(&bcd, &one, &temp);
+    bcd = temp;
     return *this;
 }
 
@@ -354,8 +287,8 @@ Phloat Phloat::operator++(int) {
     Phloat old = *this;
     const BCDFloat one(1);
     BCDFloat temp;
-    BCDFloat::add(&ph.b, &one, &temp);
-    ph.b = temp;
+    BCDFloat::add(&bcd, &one, &temp);
+    bcd = temp;
     return old;
 }
 
@@ -364,8 +297,8 @@ Phloat Phloat::operator--() {
     // prefix
     const BCDFloat one(1);
     BCDFloat temp;
-    BCDFloat::sub(&ph.b, &one, &temp);
-    ph.b = temp;
+    BCDFloat::sub(&bcd, &one, &temp);
+    bcd = temp;
     return *this;
 }
 
@@ -375,230 +308,302 @@ Phloat Phloat::operator--(int) {
     Phloat old = *this;
     const BCDFloat one(1);
     BCDFloat temp;
-    BCDFloat::sub(&ph.b, &one, &temp);
-    ph.b = temp;
+    BCDFloat::sub(&bcd, &one, &temp);
+    bcd = temp;
     return old;
 }
 
 int p_isinf(Phloat p) {
-    if (p.ph.b.isInf())
-	return p.ph.b.neg() ? -1 : 1;
+    if (p.bcd.isInf())
+	return p.bcd.neg() ? -1 : 1;
     else
 	return 0;
 }
 
 int p_isnan(Phloat p) {
-    return p.ph.b.isNan() ? 1 : 0;
+    return p.bcd.isNan() ? 1 : 0;
 }
 
 int to_digit(Phloat p) {
-    BCD res = fmod(BCD(p.ph.b), 10);
-    return res.ifloor();
+    BCD res = fmod(BCD(p.bcd), 10);
+    return ifloor(res);
 }
 
 char to_char(Phloat p) {
-    return (char) p.ph.b.ifloor();
+    return (char) ifloor(p.bcd);
 }
 
 int to_int(Phloat p) {
-    return (int) p.ph.b.ifloor();
+    return (int) ifloor(p.bcd);
 }
 
 int4 to_int4(Phloat p) {
-    return (int4) bcd2double(p.ph.b);
+    return (int4) bcd2double(p.bcd);
 }
 
 int8 to_int8(Phloat p) {
-    return (int8) bcd2double(p.ph.b);
+    return (int8) bcd2double(p.bcd);
 }
 
 double to_double(Phloat p) {
-    return bcd2double(p.ph.b);
+    return bcd2double(p.bcd);
 }
 
 Phloat sin(Phloat p) {
     Phloat res;
-    res.ph.b = sin(BCD(p.ph.b)).ref->v_;
+    res.bcd = sin(BCD(p.bcd)).ref_->v_;
     return res;
 }
 
 Phloat cos(Phloat p) {
     Phloat res;
-    res.ph.b = cos(BCD(p.ph.b)).ref->v_;
+    res.bcd = cos(BCD(p.bcd)).ref_->v_;
     return res;
 }
 
 Phloat tan(Phloat p) {
     Phloat res;
-    res.ph.b = tan(BCD(p.ph.b)).ref->v_;
+    res.bcd = tan(BCD(p.bcd)).ref_->v_;
     return res;
 }
 
 Phloat asin(Phloat p) {
     Phloat res;
-    res.ph.b = asin(BCD(p.ph.b)).ref->v_;
+    res.bcd = asin(BCD(p.bcd)).ref_->v_;
     return res;
 }
 
 Phloat acos(Phloat p) {
     Phloat res;
-    res.ph.b = acos(BCD(p.ph.b)).ref->v_;
+    res.bcd = acos(BCD(p.bcd)).ref_->v_;
     return res;
 }
 
 Phloat atan(Phloat p) {
     Phloat res;
-    res.ph.b = atan(BCD(p.ph.b)).ref->v_;
+    res.bcd = atan(BCD(p.bcd)).ref_->v_;
     return res;
 }
 
 void sincos(Phloat phi, Phloat *s, Phloat *c) {
-    BCD p(phi.ph.b);
-    s->ph.b = sin(p).ref_->v_;
-    c->ph.b = cos(p).ref_->v_;
+    BCD p(phi.bcd);
+    s->bcd = sin(p).ref_->v_;
+    c->bcd = cos(p).ref_->v_;
 }
 
 Phloat hypot(Phloat x, Phloat y) {
     Phloat res;
-    res.ph.b = hypot(BCD(x.ph.b), BCD(y.ph.b)).ref->v_;
+    res.bcd = hypot(BCD(x.bcd), BCD(y.bcd)).ref_->v_;
     return res;
 }
 
 Phloat atan2(Phloat x, Phloat y) {
     Phloat res;
-    res.ph.b = atan2(BCD(x.ph.b), BCD(y.ph.b)).ref->v_;
+    res.bcd = atan2(BCD(x.bcd), BCD(y.bcd)).ref_->v_;
     return res;
 }
 
 Phloat sinh(Phloat p) {
-    // TODO
-    return Phloat(0.0 / 0.0); // NaN
+    // (exp(x)-exp(-x))/2
+    BCDFloat temp1 = exp(BCD(p.bcd)).ref_->v_;
+    BCDFloat temp2 = exp(BCD((-p).bcd)).ref_->v_;
+    BCDFloat temp3;
+    BCDFloat::sub(&temp1, &temp2, &temp3);
+    const BCDFloat two(2);
+    Phloat res;
+    BCDFloat::div(&temp3, &two, &res.bcd);
+    return res;
 }
 
 Phloat cosh(Phloat p) {
-    // TODO
-    return Phloat(0.0 / 0.0); // NaN
+    // (exp(x)+exp(-x))/2
+    BCDFloat temp1 = exp(BCD(p.bcd)).ref_->v_;
+    BCDFloat temp2 = exp(BCD((-p).bcd)).ref_->v_;
+    BCDFloat temp3;
+    BCDFloat::add(&temp1, &temp2, &temp3);
+    const BCDFloat two(2);
+    Phloat res;
+    BCDFloat::div(&temp3, &two, &res.bcd);
+    return res;
 }
 
 Phloat tanh(Phloat p) {
-    // TODO
-    return Phloat(0.0 / 0.0); // NaN
+    // (exp(x)-exp(-x))/(exp(x)+exp(-x))
+    BCDFloat temp1 = exp(BCD(p.bcd)).ref_->v_;
+    BCDFloat temp2 = exp(BCD((-p).bcd)).ref_->v_;
+    BCDFloat temp3, temp4;
+    BCDFloat::sub(&temp1, &temp2, &temp3);
+    BCDFloat::add(&temp1, &temp2, &temp4);
+    Phloat res;
+    BCDFloat::div(&temp3, &temp4, &res.bcd);
+    return res;
 }
 
 Phloat asinh(Phloat p) {
-    // TODO
-    return Phloat(0.0 / 0.0); // NaN
+    // log(sqrt(x^2+1)+x)
+    BCDFloat temp1;
+    BCDFloat::mul(&p.bcd, &p.bcd, &temp1);
+    BCDFloat temp2;
+    const BCDFloat one(1);
+    BCDFloat::add(&temp1, &one, &temp2);
+    temp1 = sqrt(BCD(temp2)).ref_->v_;
+    BCDFloat::add(&temp1, &p.bcd, &temp2);
+    Phloat res;
+    res.bcd = log(BCD(temp2)).ref_->v_;
+    return res;
 }
 
 Phloat acosh(Phloat p) {
-    // TODO
-    return Phloat(0.0 / 0.0); // NaN
+    // log(sqrt(x^2-1)+x)
+    BCDFloat temp1;
+    BCDFloat::mul(&p.bcd, &p.bcd, &temp1);
+    BCDFloat temp2;
+    const BCDFloat one(1);
+    BCDFloat::sub(&temp1, &one, &temp2);
+    temp1 = sqrt(BCD(temp2)).ref_->v_;
+    BCDFloat::add(&temp1, &p.bcd, &temp2);
+    Phloat res;
+    res.bcd = log(BCD(temp2)).ref_->v_;
+    return res;
 }
 
 Phloat atanh(Phloat p) {
-    // TODO
-    return Phloat(0.0 / 0.0); // NaN
+    // log((1+x)/(1-x))/2
+    const BCDFloat one(1);
+    BCDFloat temp1, temp2, temp3;
+    BCDFloat::add(&one, &p.bcd, &temp1);
+    BCDFloat::sub(&one, &p.bcd, &temp2);
+    BCDFloat::div(&temp1, &temp2, &temp3);
+    temp1 = log(BCD(temp3)).ref_->v_;
+    Phloat res;
+    const BCDFloat two(2);
+    BCDFloat::div(&temp1, &two, &res.bcd);
+    return res;
 }
 
 Phloat log(Phloat p) {
     Phloat res;
-    res.ph.b = log(BCD(p.ph.b)).ref->v_;
+    res.bcd = log(BCD(p.bcd)).ref_->v_;
     return res;
 }
 
 Phloat log1p(Phloat p) {
-    // TODO
-    return Phloat(0.0 / 0.0); // NaN
+    // TODO - proper implementation
+    Phloat res;
+    BCDFloat temp;
+    const BCDFloat one(1);
+    BCDFloat::add(&p.bcd, &one, &temp);
+    res.bcd = log(BCD(temp)).ref_->v_;
+    return res;
 }
 
 Phloat log10(Phloat p) {
     Phloat res;
-    res.ph.b = log10(BCD(p.ph.b)).ref->v_;
+    res.bcd = log10(BCD(p.bcd)).ref_->v_;
     return res;
 }
 
 Phloat exp(Phloat p) {
     Phloat res;
-    res.ph.b = exp(BCD(p.ph.b)).ref->v_;
+    res.bcd = exp(BCD(p.bcd)).ref_->v_;
     return res;
 }
 
 Phloat expm1(Phloat p) {
-    // TODO
-    return Phloat(0.0 / 0.0); // NaN
+    // TODO - proper implementation
+    Phloat res;
+    BCDFloat temp = exp(BCD(p.bcd)).ref_->v_;
+    const BCDFloat one(1);
+    BCDFloat::sub(&temp, &one, &res.bcd);
+    return res;
 }
 
 Phloat sqrt(Phloat p) {
     Phloat res;
-    res.ph.b = sqrt(BCD(p.ph.b)).ref->v_;
+    res.bcd = sqrt(BCD(p.bcd)).ref_->v_;
     return res;
 }
 
 Phloat fmod(Phloat x, Phloat y) {
     Phloat res;
-    res.ph.b = fmod(BCD(x.ph.b), BCD(y.ph.b)).ref->v_;
+    res.bcd = fmod(BCD(x.bcd), BCD(y.bcd)).ref_->v_;
     return res;
 }
 
 Phloat fabs(Phloat p) {
     Phloat res;
-    if (!res.ph.b.isNan() && res.ph.b.neg())
-	res.ph.b.negate();
+    if (!res.bcd.isNan() && res.bcd.neg())
+	res.bcd.negate();
     return res;
 }
 
 Phloat pow(Phloat x, Phloat y) {
     Phloat res;
-    if (!y.ph.b.isSpecial()) {
-	int iy = y.ph.b.ifloor();
-	if (BCDFloat::equal(&y.ph.b, BCDFloat(iy))) {
-	    res.ph.b = pow(BCD(x.ph.b), iy);
+    if (!y.bcd.isSpecial()) {
+	int iy = ifloor(y.bcd);
+	BCDFloat by(iy);
+	if (BCDFloat::equal(&y.bcd, &by)) {
+	    res.bcd = pow(BCD(x.bcd), iy).ref_->v_;
 	    return res;
 	}
     }
-    res = pow(BCD(x.ph.b), BCD(y.ph.b));
+    res.bcd = pow(BCD(x.bcd), BCD(y.bcd)).ref_->v_;
     return res;
 }
 
 Phloat floor(Phloat p) {
     Phloat res;
-    BCDFloat::floor(&p.ph.b, &res.ph.b);
+    BCDFloat::floor(&p.bcd, &res.bcd);
     return res;
 }
 
 Phloat operator*(int x, Phloat y) {
     Phloat res;
-    BCDFloat::mul(BCDFloat(x), &y.ph.b, &res.ph.b);
+    BCDFloat bx(x);
+    BCDFloat::mul(&bx, &y.bcd, &res.bcd);
     return res;
 }
 
 Phloat operator/(int x, Phloat y) {
     Phloat res;
-    BCDFloat::div(BCDFloat(x), &y.ph.b, &res.ph.b);
+    BCDFloat bx(x);
+    BCDFloat::div(&bx, &y.bcd, &res.bcd);
     return res;
 }
 
 Phloat operator/(double x, Phloat y) {
     Phloat res;
-    BCDFloat::div(double2bcd(x), &y.ph.b, &res.ph.b);
+    BCDFloat bx = double2bcd(x);
+    BCDFloat::div(&bx, &y.bcd, &res.bcd);
     return res;
 }
 
 Phloat operator+(int x, Phloat y) {
     Phloat res;
-    BCDFloat::add(BCDFloat(x), &y.ph.b, &res.ph.b);
+    BCDFloat bx(x);
+    BCDFloat::add(&bx, &y.bcd, &res.bcd);
     return res;
 }
 
 Phloat operator-(int x, Phloat y) {
     Phloat res;
-    BCDFloat::sub(BCDFloat(x), &y.ph.b, &res.ph.b);
+    BCDFloat bx(x);
+    BCDFloat::sub(&bx, &y.bcd, &res.bcd);
     return res;
 }
 
 bool operator==(int4 x, Phloat y) {
-    return BCDFloat::equal(double2bcd(x), &y.ph.b);
+    BCDFloat bx = double2bcd(x);
+    return BCDFloat::equal(&bx, &y.bcd);
 }
+
+Phloat PI;
+struct PI_initializer {
+    PI_initializer() {
+	PI.bcd = pi().ref_->v_;
+    }
+};
+static PI_initializer foo;
 
 BCDFloat double2bcd(double d) {
     if (isnan(d))
@@ -616,7 +621,7 @@ BCDFloat double2bcd(double d) {
     BCDFloat res;
     int exp = ((int) log10(d)) / 4;
     res.d_[P] = exp;
-    double m = pow(100, exp);
+    double m = pow(100.0, (double) exp);
     d /= m;
     d /= m;
     for (int i = 0; i <= P; i++) {
@@ -624,11 +629,13 @@ BCDFloat double2bcd(double d) {
 	res.d_[i] = s;
 	d = (d - s) * 10000;
     }
-    return neg ? -res : res;
+    if (neg)
+	res.negate();
+    return res;
 }
 
 double bcd2double(BCDFloat b) {
-    short exp = b.d_[P];
+    unsigned short exp = b.d_[P];
     if (exp == 0x3000)
 	return 0.0 / 0.0; // NaN
     else if (exp == 0x3FFF)
@@ -638,10 +645,9 @@ double bcd2double(BCDFloat b) {
 
     exp = (exp << 1) >> 1;
     double res = 0;
-    short *sp = (short *) p;
     for (int i = 0; i < P; i++)
-	res = res * 10000 + sp[i];
-    return res * pow(10000, exp - P);
+	res = res * 10000 + b.d_[i];
+    return res * pow(10000.0, (double) (exp - P));
 }
 
 
@@ -1410,10 +1416,8 @@ int string2phloat(const char *buf, int buflen, phloat *d) {
     }
 }
 
-double bcd2double(const char *p) {
-    // NOTE: depends on BCDFloat internals
-    int sz = 7; // P
-    short exp = sp[sz];
+double bcd2double(const short *p) {
+    short exp = p[P];
     if (exp == 0x3000)
 	return 0.0 / 0.0; // NaN
     else if (exp == 0x3FFF)
@@ -1423,10 +1427,9 @@ double bcd2double(const char *p) {
 
     exp = (exp << 1) >> 1;
     double res = 0;
-    short *sp = (short *) p;
-    for (int i = 0; i < sz; i++)
-	res = res * 10000 + sp[i];
-    return res * pow(10000, exp - sz);
+    for (int i = 0; i < P; i++)
+	res = res * 10000 + p[i];
+    return res * pow(10000, exp - P);
 }
 
 
@@ -1494,8 +1497,8 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
     int bcd_exponent = 0;
     int bcd_mantissa_sign = 0;
 
-    if (d < 0) {
-	d = -d;
+    if (pd < 0) {
+	pd = -pd;
 	bcd_mantissa_sign = 1;
     }
 
@@ -1538,16 +1541,16 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
 #else // PHLOAT_IS_DOUBLE
 
     int offset, pos = 0;
-    if (sa[0] >= 1000)
+    if (pd.bcd.d_[0] >= 1000)
 	offset = 0;
-    else if (sa[0] >= 100)
+    else if (pd.bcd.d_[0] >= 100)
 	offset = 1;
-    else if (sa[0] >= 10)
+    else if (pd.bcd.d_[0] >= 10)
 	offset = 2;
     else
 	offset = 3;
     for (int i = 0; i < 4; i++) {
-	short s = pd.ph.b.d_[i];
+	short s = pd.bcd.d_[i];
 	for (int j = 0; j < 4; j++) {
 	    if (pos == 16)
 		break;
@@ -1555,7 +1558,7 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
 	    s /= 10;
 	}
     }
-    bcd_exponent = pd.ph.b.exp() * 4 - 1 - offset;
+    bcd_exponent = pd.bcd.exp() * 4 - 1 - offset;
 
 #endif // PHLOAT_IS_DOUBLE
 
@@ -1675,7 +1678,7 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
 	}
 
 	/* Check if the number is still within bounds for FIX or ALL */
-	if (d != 0) {
+	if (pd != 0) {
 	    /* Make sure that nonzero numbers are not
 	     * displayed as zero because of the rounding.
 	     */

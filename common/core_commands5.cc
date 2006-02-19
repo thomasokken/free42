@@ -977,7 +977,7 @@ int docmd_to_dec(arg_struct *arg) {
 	if (oct > 777777777777.0 || oct != floor(oct))
 	    return ERR_INVALID_DATA;
 	vartype *v;
-	if (core_settings.decimal) {
+	#ifndef PHLOAT_IS_DOUBLE
 	    phloat dec = 0, mul = 1;
 	    while (oct != 0) {
 		int digit = to_digit(oct);
@@ -988,7 +988,7 @@ int docmd_to_dec(arg_struct *arg) {
 		mul *= 8;
 	    }
 	    res = neg ? -dec : dec;
-	} else {
+	#else
 	    int8 ioct = to_int8(oct);
 	    int8 dec = 0, mul = 1;
 	    while (ioct != 0) {
@@ -1000,7 +1000,7 @@ int docmd_to_dec(arg_struct *arg) {
 		mul <<= 3;
 	    }
 	    res = neg ? -dec : dec;
-	}
+	#endif
 	v = new_real(res);
 	if (v == NULL)
 	    return ERR_INSUFFICIENT_MEMORY;
@@ -1022,7 +1022,7 @@ int docmd_to_oct(arg_struct *arg) {
 	if (dec > 68719476735.0 || dec != floor(dec))
 	    return ERR_INVALID_DATA;
 	vartype *v;
-	if (core_settings.decimal) {
+	#ifndef PHLOAT_IS_DOUBLE
 	    phloat oct = 0, mul = 1;
 	    while (dec != 0) {
 		int digit = to_digit(dec);
@@ -1033,7 +1033,7 @@ int docmd_to_oct(arg_struct *arg) {
 		mul *= 8;
 	    }
 	    res = neg ? -oct : oct;
-	} else {
+	#else
 	    int8 idec = to_int8(dec);
 	    int8 oct = 0, mul = 1;
 	    while (idec != 0) {
@@ -1043,7 +1043,7 @@ int docmd_to_oct(arg_struct *arg) {
 		mul *= 10;
 	    }
 	    res = neg ? -oct : oct;
-	}
+	#endif
 	v = new_real(res);
 	if (v == NULL)
 	    return ERR_INSUFFICIENT_MEMORY;

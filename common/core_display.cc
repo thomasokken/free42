@@ -551,49 +551,49 @@ static void fill_rect(int x, int y, int width, int height, int color)
 static int get_cat_index() DISPLAY_SECT;
 
 
-int persist_display() {
+bool persist_display() {
     if (!shell_write_saved_state(catalogmenu_section, 5 * sizeof(int)))
-	return 0;
+	return false;
     if (!shell_write_saved_state(catalogmenu_rows, 5 * sizeof(int)))
-	return 0;
+	return false;
     if (!shell_write_saved_state(catalogmenu_row, 5 * sizeof(int)))
-	return 0;
+	return false;
     if (!shell_write_saved_state(catalogmenu_item, 30 * sizeof(int)))
-	return 0;
+	return false;
     if (!shell_write_saved_state(custommenu_length, 18 * sizeof(int)))
-	return 0;
+	return false;
     if (!shell_write_saved_state(custommenu_label, 126))
-	return 0;
+	return false;
     if (!shell_write_saved_state(progmenu_arg, 9 * sizeof(arg_struct)))
-	return 0;
+	return false;
     if (!shell_write_saved_state(progmenu_is_gto, 9 * sizeof(int)))
-	return 0;
+	return false;
     if (!shell_write_saved_state(progmenu_length, 6 * sizeof(int)))
-	return 0;
+	return false;
     if (!shell_write_saved_state(progmenu_label, 42))
-	return 0;
+	return false;
     if (!shell_write_saved_state(display, 272))
-	return 0;
+	return false;
     if (!shell_write_saved_state(&appmenu_exitcallback, sizeof(int)))
-	return 0;
-    return 1;
+	return false;
+    return true;
 }
 
-int unpersist_display(int version) {
+bool unpersist_display(int version) {
     int custommenu_cmd[3][6];
     is_dirty = 0;
     if (shell_read_saved_state(catalogmenu_section, 5 * sizeof(int))
 	    != 5 * sizeof(int))
-	return 0;
+	return false;
     if (shell_read_saved_state(catalogmenu_rows, 5 * sizeof(int))
 	    != 5 * sizeof(int))
-	return 0;
+	return false;
     if (shell_read_saved_state(catalogmenu_row, 5 * sizeof(int))
 	    != 5 * sizeof(int))
-	return 0;
+	return false;
     if (shell_read_saved_state(catalogmenu_item, 30 * sizeof(int))
 	    != 30 * sizeof(int))
-	return 0;
+	return false;
 
     if (version < 7) {
 	/* In version 7, I removed the special handling
@@ -603,14 +603,14 @@ int unpersist_display(int version) {
 	 */
 	if (shell_read_saved_state(custommenu_cmd, 18 * sizeof(int))
 		!= 18 * sizeof(int))
-	    return 0;
+	    return false;
     }
     if (shell_read_saved_state(custommenu_length, 18 * sizeof(int))
 	    != 18 * sizeof(int))
-	return 0;
+	return false;
     if (shell_read_saved_state(custommenu_label, 126)
 	    != 126)
-	return 0;
+	return false;
     if (version < 7) {
 	/* Starting with version 7, FCN catalog assignments are no longer
 	 * handled specially; instead, commands with shortened key labels
@@ -637,23 +637,23 @@ int unpersist_display(int version) {
 
     for (int i = 0; i < 9; i++)
 	if (!read_arg(progmenu_arg + i, version < 9))
-	    return 0;
+	    return false;
     if (shell_read_saved_state(progmenu_is_gto, 9 * sizeof(int))
 	    != 9 * sizeof(int))
-	return 0;
+	return false;
     if (shell_read_saved_state(progmenu_length, 6 * sizeof(int))
 	    != 6 * sizeof(int))
-	return 0;
+	return false;
     if (shell_read_saved_state(progmenu_label, 42)
 	    != 42)
-	return 0;
+	return false;
     if (shell_read_saved_state(display, 272)
 	    != 272)
-	return 0;
+	return false;
     if (shell_read_saved_state(&appmenu_exitcallback, sizeof(int))
 	    != sizeof(int))
-	return 0;
-    return 1;
+	return false;
+    return true;
 }
 
 void clear_display() {

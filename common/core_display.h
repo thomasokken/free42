@@ -23,8 +23,8 @@
 #include "core_phloat.h"
 #include "core_globals.h"
 
-int persist_display() DISPLAY_SECT;
-int unpersist_display(int version) DISPLAY_SECT;
+bool persist_display() DISPLAY_SECT;
+bool unpersist_display(int version) DISPLAY_SECT;
 void clear_display() DISPLAY_SECT;
 void flush_display() DISPLAY_SECT;
 void repaint_display() DISPLAY_SECT;

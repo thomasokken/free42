@@ -844,7 +844,7 @@ phloat fix_hms(phloat x) {
 	return x;
     if (x < 0.0059)
 	return x;
-    if (core_settings.decimal) {
+    #ifndef PHLOAT_IS_DOUBLE
 	if (floor(fmod(x * 10000, 100)) == 60)
 	    x += sec_corr;
 	if (floor(fmod(x * 100, 100)) == 60) {
@@ -852,7 +852,7 @@ phloat fix_hms(phloat x) {
 	    if (floor(fmod(x * 10000, 100)) == 60)
 		x += sec_corr;
 	}
-    } else {
+    #else
 	if (to_int8(x * 10000) % 100 == 60)
 	    x += 0.004;
 	if (to_int8(x * 100) % 100 == 60) {
@@ -860,7 +860,7 @@ phloat fix_hms(phloat x) {
 	    if (to_int8(x * 10000) % 100 == 60)
 		x += 0.004;
 	}
-    }
+    #endif
     return neg ? -x : x;
 }
 
@@ -872,48 +872,6 @@ void sincos(double x, double *sinx, double *cosx) {
 }
 
 #endif
-
-int read_arg(arg_struct *arg, bool old) {
-    if (old) {
-	// Prior to core state version 9, the arg_struct type saved a bit of
-	// by using a union to hold the argument value.
-	// In version 9, we switched from using 'double' as our main numeric
-	// data type to 'phloat' -- but since 'phloat' is a class, with a
-	// constructor, it cannot be a member of a union.
-	// So, I had to change the 'val' member from a union to a struct.
-	// Of course, this means that the arg_struct layout is now different,
-	// and when deserializing a pre-9 state file, I must make sure to
-	// deserialize an old-stype arg_struct and then convert it to a
-	// new one.
-	struct {
-	    unsigned char type;
-	    unsigned char length;
-	    int4 target;
-	    union {
-		int4 num;
-		char text[15];
-		char stk;
-		int cmd; /* For backward compatibility only! */
-		char lclbl;
-		double d;
-	    } val;
-	} old_arg;
-	if (shell_read_saved_state(&old_arg, sizeof(old_arg))
-		!= sizeof(old_arg))
-	    return 0;
-	arg->type = old_arg.type;
-	arg->length = old_arg.length;
-	arg->target = old_arg.target;
-	char *d = (char *) &arg->val;
-	char *s = (char *) &old_arg.val;
-	for (unsigned int i = 0; i < sizeof(old_arg.val); i++)
-	    *d++ = *s++;
-	arg->val_d = old_arg.val.d;
-	return 1;
-    } else
-	return shell_read_saved_state(arg, sizeof(arg_struct))
-	    == sizeof(arg_struct);
-}
 
 void char2buf(char *buf, int buflen, int *bufptr, char c) {
     if (*bufptr < buflen)

@@ -85,6 +85,7 @@ static void do_removedir() SHELL_SECT;
 
 
 void open_math_lib() {
+#ifdef PHLOAT_IS_DOUBLE
     Err error;
 
     /* TODO: better error handling */
@@ -94,6 +95,7 @@ void open_math_lib() {
     ErrFatalDisplayIf(error, "Can't find MathLib");
     error = MathLibOpen(MathLibRef, MathLibVersion);
     ErrFatalDisplayIf(error, "Can't open MathLib");
+#endif
 }
 
 static Int16 str_ptr_compare(void *a, void *b, Int32 other) SHELL_SECT;
@@ -412,6 +414,7 @@ void unload_skin() {
 }
 
 void close_math_lib() {
+#ifdef PHLOAT_IS_DOUBLE
     UInt16 usecount;
     Err error;
 
@@ -419,6 +422,7 @@ void close_math_lib() {
     ErrFatalDisplayIf(error, "Can't close MathLib");
     if (usecount == 0)
 	SysLibRemove(MathLibRef);
+#endif
 }
 
 void misc_cleanup() {

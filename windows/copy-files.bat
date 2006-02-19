@@ -45,4 +45,10 @@ copy ..\common\shell_spool.h .
 copy ..\common\skin2cc.cc .
 copy ..\common\skin2cc.conf .
 copy ..\common\keymap2cc.cc .
+copy ..\common\bcd.cc .
+copy ..\common\bcd.h .
+copy ..\common\bcdfloat.cc .
+copy ..\common\bcdfloat.h .
+copy ..\common\bcdmath.cc .
+copy ..\common\bcdmath.h .
 copy ..\util\rom2raw.c .

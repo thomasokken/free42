@@ -39,6 +39,12 @@ OBJS = shell_main.o shell_skin.o skins.o keymap.o shell_loadimage.o \
 	core_math2.o core_phloat.o core_sto_rcl.o core_tables.o \
 	core_variables.o
 
+ifndef PHLOAT_IS_DOUBLE
+OBJS += bcdfloat.o bcd.o bcdmath.o
+else
+CXXFLAGS += -DPHLOAT_IS_DOUBLE
+endif
+
 free42: $(OBJS)
 	$(CXX) -o free42 $(LDFLAGS) $(OBJS) $(LIBS)
 
@@ -109,6 +115,12 @@ symlinks:
 	ln -s ../common/skin2cc.cc
 	ln -s ../common/skin2cc.conf
 	ln -s ../common/keymap2cc.cc
+	ln -s ../common/bcd.cc
+	ln -s ../common/bcd.h
+	ln -s ../common/bcdfloat.cc
+	ln -s ../common/bcdfloat.h
+	ln -s ../common/bcdmath.cc
+	ln -s ../common/bcdmath.h
 	touch symlinks
 
 clean: FORCE

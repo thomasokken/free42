@@ -1163,7 +1163,7 @@ static int hms_add_or_sub(bool add) {
     } else
 	neg = 0;
 
-    if (core_settings.decimal) {
+    #ifndef PHLOAT_IS_DOUBLE
 	phloat xh, xm, xs, yh, ym, ys, t;
 	xh = floor(x);
 	t = (x - xh) * 100;
@@ -1218,7 +1218,7 @@ static int hms_add_or_sub(bool add) {
 
 	r = xh + xm / 100 + xs / 10000;
 
-    } else {
+    #else
 
 	/* I'm doing the computation in integer math. The nastiness is necessary,
 	* because this is one of those cases (along with ->HR, ISG, and DSE)
@@ -1258,7 +1258,7 @@ static int hms_add_or_sub(bool add) {
 	ires += (ireshr / 60) * 1000000000000LL;
 	res += ires / 1000000000000.0;
 	r = res;
-    }
+    #endif
 
     /* Round-off may have caused the minutes or seconds to reach 60;
      * detect this and fix...

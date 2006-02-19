@@ -854,30 +854,32 @@ static int mappable_to_hr(phloat x, phloat *y) {
     
     if (x == x + 1)
 	res = x;
-    else if (core_settings.decimal) {
-	if (x < point01)
-	    res = x / point36;
-	else {
-	    phloat xh = floor(x);
-	    phloat t = (x - xh) * 100;
-	    phloat xm = floor(t);
-	    phloat xs = (xm - t) * 100;
-	    res = xh + xm / 60 + xs / 3600;
-	}
-    } else {
-	if (x < 0.01)
-	    res = x / 0.36;
-	else {
-	    int8 ix, ixhr;
-	    phloat h = floor(x);
-	    x -= h;
-	    //ix = (int8) (x * 1000000000000.0 + 0.5);
-	    x = (x * 1000000000000.0 + 0.5); ix = to_int8(x);
-	    ixhr = ix % 10000000000LL;
-	    ix /= 10000000000LL;
-	    ixhr += (ix % 100) * 6000000000LL;
-	    res = h + ixhr / 360000000000.0;
-	}
+    else {
+	#ifndef PHLOAT_IS_DOUBLE
+	    if (x < point01)
+		res = x / point36;
+	    else {
+		phloat xh = floor(x);
+		phloat t = (x - xh) * 100;
+		phloat xm = floor(t);
+		phloat xs = (xm - t) * 100;
+		res = xh + xm / 60 + xs / 3600;
+	    }
+	#else
+	    if (x < 0.01)
+		res = x / 0.36;
+	    else {
+		int8 ix, ixhr;
+		phloat h = floor(x);
+		x -= h;
+		//ix = (int8) (x * 1000000000000.0 + 0.5);
+		x = (x * 1000000000000.0 + 0.5); ix = to_int8(x);
+		ixhr = ix % 10000000000LL;
+		ix /= 10000000000LL;
+		ixhr += (ix % 100) * 6000000000LL;
+		res = h + ixhr / 360000000000.0;
+	    }
+	#endif
     }
     *y = neg ? -res : res;
     return ERR_NONE;
@@ -910,8 +912,7 @@ static int mappable_to_hms(phloat x, phloat *y) {
     /* Round-off may have caused the minutes or seconds to reach 60;
      * detect this and fix...
      */
-    if (!core_settings.decimal)
-	r = fix_hms(phloat_d(r));
+    r = fix_hms(r);
 
     *y = neg ? -r : r;
     return ERR_NONE;

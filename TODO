@@ -6,23 +6,13 @@ PHLOAT_IS_DOUBLE does not have this effect in the Unix build.
 Note that the values do seem to converge on something; either the stopping
 criteria are failing or there is some numerical weirdness going on.
 
-Look for PHLOAT_TODO and do them:
-Convert programs, variables, and other persistent data (stat, solve, integ,
-other globals?). Basically every phloat with global visibility and extent
-needs conversion.
-When reading a core-version <= 8 state file, always do the mode switch to
-decimal? It's probably what many users will want anyway, and most of the
-others won't care...
-
-Number entry and display should support 4-digit exponents -- at least, if we're
-going to use Hugh Steers' BCD code. But it could be nice anyway, because it
-would also allow supporting 'long double' throughout the binary version.
-
 Regression test HMS+, HMS-, ->HMS, ->HR, ISG, DSE, ->DEC, ->OCT, AIP,
 DIM, NEWMAT, GETM, R<>R, string<->number conversion.
 
-In the PalmOS Decimal build, remove the MathLib-related code, and add code to
-delete the Free42BcdConv database.
+In the PalmOS Decimal build, and add code to delete the Free42BcdConv database.
+
+Decimal version: implement gamma(), and add *proper* implementations of log1p()
+and expm1().
 
 ...............................................................................
 

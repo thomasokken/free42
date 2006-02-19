@@ -4,7 +4,10 @@ ifndef CFG
 CFG=Release
 endif
 CC=gcc
-CFLAGS=-DNO_SINCOS -DPHLOAT_IS_DOUBLE
+CFLAGS=-DNO_SINCOS
+ifdef PHLOAT_IS_DOUBLE
+CFLAGS += -DPHLOAT_IS_DOUBLE
+endif
 CXX=g++
 CXXFLAGS=$(CFLAGS)
 RC=windres -O COFF
@@ -114,6 +117,10 @@ SRCS=$(SOURCE_FILES) $(HEADER_FILES) $(RESOURCE_FILES)  \
 	ReadMe.txt
 
 OBJS=$(patsubst %.rc,%.res,$(patsubst %.cxx,%.o,$(patsubst %.cpp,%.o,$(patsubst %.cc,%.o,$(patsubst %.c,%.o,$(filter %.c %.cc %.cpp %.cxx %.rc,$(SRCS)))))))
+
+ifndef PHLOAT_IS_DOUBLE
+OBJS += bcdfloat.o bcd.o bcdmath.o
+endif
 
 $(TARGET): $(OBJS)
 	$(LD) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)

@@ -62,7 +62,6 @@ void core_init(int read_saved_state, int4 version) {
     phloat_init();
     if (read_saved_state != 1 || !load_state(version))
 	hard_reset(read_saved_state != 0);
-    set_decimal_mode(core_settings.decimal);
 
     repaint_display();
     shell_annunciators(mode_updown,

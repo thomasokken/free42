@@ -242,7 +242,7 @@ static int gif_lines;
 static XtAppContext appcontext;
 static Widget appshell, mainwindow, printwindow, print_da, print_sb;
 static Widget prefsdialog = NULL, prefs_matrix_singularmatrix,
-		prefs_matrix_outofrange, prefs_decimal,
+		prefs_matrix_outofrange,
 		prefs_printer_txt, prefs_printer_txt_name, prefs_raw_text,
 		prefs_printer_gif, prefs_printer_gif_name,
 		prefs_printer_gif_height;
@@ -1972,7 +1972,6 @@ static void preferencesCB(Widget w, XtPointer ud, XtPointer cd) {
 			   core_settings.matrix_singularmatrix, False);
     XmToggleButtonSetState(prefs_matrix_outofrange,
 			   core_settings.matrix_outofrange, False);
-    XmToggleButtonSetState(prefs_decimal, core_settings.decimal, False);
     XmToggleButtonSetState(prefs_printer_txt, state.printerToTxtFile, False);
     XmTextSetString(prefs_printer_txt_name, state.printerTxtFileName);
     XmToggleButtonSetState(prefs_raw_text, core_settings.raw_text, False);
@@ -2029,19 +2028,6 @@ static void make_prefs_dialog() {
 			NULL);
     XmStringFree(s);
 
-    s = XmStringCreateLocalized("Use decimal floating point internally");
-    prefs_decimal = XtVaCreateManagedWidget(
-			"Decimal",
-			xmToggleButtonWidgetClass,
-			prefsdialog,
-			XmNlabelString, s,
-			XmNnavigationType, XmEXCLUSIVE_TAB_GROUP,
-			XmNtopAttachment, XmATTACH_WIDGET,
-			XmNtopWidget, prefs_matrix_outofrange,
-			XmNleftAttachment, XmATTACH_FORM,
-			NULL);
-    XmStringFree(s);
-
     s = XmStringCreateLocalized("Print to text file:");
     prefs_printer_txt = XtVaCreateManagedWidget(
 			"Printer_TXT",
@@ -2050,7 +2036,7 @@ static void make_prefs_dialog() {
 			XmNlabelString, s,
 			XmNnavigationType, XmEXCLUSIVE_TAB_GROUP,
 			XmNtopAttachment, XmATTACH_WIDGET,
-			XmNtopWidget, prefs_decimal,
+			XmNtopWidget, prefs_matrix_outofrange,
 			XmNtopOffset, 10,
 			XmNleftAttachment, XmATTACH_FORM,
 			NULL);
@@ -2250,8 +2236,6 @@ static void prefsButtonCB(Widget w, XtPointer ud, XtPointer cd) {
 		XmToggleButtonGetState(prefs_matrix_singularmatrix);
 	    core_settings.matrix_outofrange =
 		XmToggleButtonGetState(prefs_matrix_outofrange);
-	    core_settings.decimal =
-		XmToggleButtonGetState(prefs_decimal);
 	    core_settings.raw_text =
 		XmToggleButtonGetState(prefs_raw_text);
 
@@ -2449,7 +2433,7 @@ static void aboutCB(Widget w, XtPointer ud, XtPointer cd) {
 	Widget button;
 	XmString s;
 
-	s = XmStringCreateLtoR("Free42 1.3.18\n(C) 2004-2006 Thomas Okken\nthomas_okken@yahoo.com\nhttp://home.planet.nl/~demun000/thomas_projects/free42/", XmFONTLIST_DEFAULT_TAG);
+	s = XmStringCreateLtoR("Free42 1.4\n(C) 2004-2006 Thomas Okken\nthomas_okken@yahoo.com\nhttp://home.planet.nl/~demun000/thomas_projects/free42/", XmFONTLIST_DEFAULT_TAG);
 	XtSetArg(args[0], XmNmessageString, s);
 	XtSetArg(args[1], XmNtitle, "About Free42");
 	XtSetArg(args[2], XmNsymbolPixmap, icon);

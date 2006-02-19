@@ -45,4 +45,10 @@ del shell_spool.h
 del skin2cc.cc
 del skin2cc.conf
 del keymap2cc.cc
+del bcd.cc
+del bcd.h
+del bcdfloat.cc
+del bcdfloat.h
+del bcdmath.cc
+del bcdmath.h
 del rom2raw.c

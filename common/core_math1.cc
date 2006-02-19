@@ -117,59 +117,60 @@ static void reset_solve() MATH1_SECT;
 static void reset_integ() MATH1_SECT;
 
 
-int persist_math() {
+bool persist_math() {
     int size = sizeof(solve_state);
     solve.version = SOLVE_VERSION;
-    if (!shell_write_saved_state(&size, sizeof(int))) return 0;
-    if (!shell_write_saved_state(&solve, sizeof(solve_state))) return 0;
+    if (!shell_write_saved_state(&size, sizeof(int))) return false;
+    if (!shell_write_saved_state(&solve, sizeof(solve_state))) return false;
     size = sizeof(integ_state);
     integ.version = INTEG_VERSION;
-    if (!shell_write_saved_state(&size, sizeof(int))) return 0;
-    if (!shell_write_saved_state(&integ, sizeof(integ_state))) return 0;
-    return 1;
+    if (!shell_write_saved_state(&size, sizeof(int))) return false;
+    if (!shell_write_saved_state(&integ, sizeof(integ_state))) return false;
+    return true;
 }
 
-int unpersist_math() {
-    int size, success;
+bool unpersist_math(bool discard) {
+    int size;
+    bool success;
     void *dummy;
 
     if (shell_read_saved_state(&size, sizeof(int)) != sizeof(int))
-	return 0;
-    if (size == sizeof(solve_state)) {
+	return false;
+    if (!discard && size == sizeof(solve_state)) {
 	if (shell_read_saved_state(&solve, size) != size)
-	    return 0;
+	    return false;
 	if (solve.version != SOLVE_VERSION)
 	    reset_solve();
     } else {
 	dummy = malloc(size);
 	if (dummy == NULL)
-	    return 0;
+	    return false;
 	success = shell_read_saved_state(dummy, size) == size;
 	free(dummy);
 	if (!success)
-	    return 0;
+	    return false;
 	reset_solve();
     }
 
     if (shell_read_saved_state(&size, sizeof(int)) != sizeof(int))
-	return 0;
+	return false;
     if (size == sizeof(integ_state)) {
 	if (shell_read_saved_state(&integ, size) != size)
-	    return 0;
+	    return false;
 	if (integ.version != INTEG_VERSION)
 	    reset_integ();
     } else {
 	dummy = malloc(size);
 	if (dummy == NULL)
-	    return 0;
+	    return false;
 	success = shell_read_saved_state(dummy, size) == size;
 	free(dummy);
 	if (!success)
-	    return 0;
+	    return false;
 	reset_integ();
     }
 
-    return 1;
+    return true;
 }
 
 void reset_math() {

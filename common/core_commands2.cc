@@ -536,8 +536,9 @@ static int generic_loop_helper(phloat *x, bool isg) {
      * the multiplication by 100000. So, we sacrifice some of the range
      * of an IEEE-754 double, but maintain HP-42S compatibility.
      */
-    if (!core_settings.decimal)
+    #ifdef PHLOAT_IS_DOUBLE
 	t = t + 0.0000005;
+    #endif
     k = to_int8(t);
     j = k / 100;
     k -= j * 100;
