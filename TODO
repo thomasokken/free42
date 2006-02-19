@@ -25,6 +25,8 @@ In the PalmOS Decimal build, and add code to delete the Free42BcdConv database.
 Decimal version: implement gamma(), and add *proper* implementations of log1p()
 and expm1().
 
+Why am I including math.h (or MathLib.h) in free42.h?
+
 ...............................................................................
 
 LN(POS_HUGE_DOUBLE iPOS_HUGE_DOUBLE) returns something involving <Infinity>
