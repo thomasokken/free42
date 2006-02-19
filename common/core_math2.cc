@@ -87,14 +87,14 @@ int math_atanh(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     return ERR_NONE;
 }
 
-#ifndef PHLOAT_IS_DOUBLE
+#ifdef BCD_MATH
 
 int math_gamma(phloat phx, phloat *phgamma) {
     // PHLOAT_TODO
     return ERR_NOT_YET_IMPLEMENTED;
 }
 
-#else // PLOAT_IS_DOUBLE
+#else // BCD_MATH
 
 /**************************************************************/
 /* The following is code to compute the gamma function,       */
@@ -438,4 +438,4 @@ int math_gamma(phloat phx, phloat *phgamma) {
     return ERR_NONE;
 }
 
-#endif // PLOAT_IS_DOUBLE
+#endif // BCD_MATH

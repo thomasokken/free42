@@ -1163,7 +1163,7 @@ static int hms_add_or_sub(bool add) {
     } else
 	neg = 0;
 
-    #ifndef PHLOAT_IS_DOUBLE
+    #ifdef BCD_MATH
 	phloat xh, xm, xs, yh, ym, ys, t;
 	xh = floor(x);
 	t = (x - xh) * 100;

@@ -198,7 +198,6 @@ begin
 
   checkbox "\"Singular Matrix\" error" id prefs_matrix_singularmatrix at (5 18 auto auto)
   checkbox "Matrix \"Out of Range\"" id prefs_matrix_outofrange at (5 prevbottom+2 auto auto)
-  checkbox "IP hack" id prefs_decimal at (5 prevbottom+2 auto auto)
 
   label "Print to..." autoid at (5 prevbottom+5)
   checkbox "Memo:" id prefs_printer_memo at (5 prevbottom+2 auto auto)
@@ -234,7 +233,6 @@ begin
 
   checkbox "\"Singular Matrix\" error" id prefs_matrix_singularmatrix at (5 18 auto auto)
   checkbox "Matrix \"Out of Range\"" id prefs_matrix_outofrange at (5 prevbottom+2 auto auto)
-  checkbox "Decimal" id prefs_decimal at (5 prevbottom+2 auto auto)
 
   label "Print to..." autoid at (5 prevbottom+5)
   checkbox "Memo:" id prefs_printer_memo at (5 prevbottom+2 auto auto)
@@ -271,21 +269,6 @@ string id prefshelp_id
   "24.\n" \
   "  The former matches the behavior of the HP-42S; the latter is more " \
   "consistent with all the other HP-42S functions.\n" \
-  "\n" \
-  "\225 IP hack:\n" \
-  "When checked, the IP function rounds its arguments to 8 decimals before " \
-  "truncating; when unchecked, it truncates the argument at full precision.\n" \
-  "  This hack will allow some programs to work that rely " \
-  "on packed-decimal techniques. (For example, storing two two-digit numbers " \
-  "in a format like AA.BB; to extract AA, you do IP; to extract BB, you do " \
-  "FP 100 \327 IP. In binary floating-point math, the number AA.BB cannot, " \
-  "in general, be represented exactly, and if the approximation is low, then " \
-  "the extracted value of BB will end up being low as well. By rounding, " \
-  "IP can preserve the intended behavior.\n" \
-  "  The IP hack affects all functions that truncate arguments: IP, FP, AIP, " \
-  "AROT, DIM, NEWMAT, POSA, R<>R, STOIJ, XTOA; BASE functions (AND, BASE+, " \
-  "BASE-, BASE\327, BASE\367, BASE+/-, BIT?, NOT, OR, ROTXY, XOR); and " \
-  "indirect addressing when the target is a numbered register.\n" \
   "\n" \
   "\225 Print to Memo:\n" \
   "When checked, printer output is sent to Memo Pad. Use the text field to " \

@@ -39,11 +39,10 @@ OBJS = shell_main.o shell_skin.o skins.o keymap.o shell_loadimage.o \
 	core_math2.o core_phloat.o core_sto_rcl.o core_tables.o \
 	core_variables.o
 
-ifndef PHLOAT_IS_DOUBLE
+ifdef BCD_MATH
+CXXFLAGS += -DBCD_MATH
 SRCS += bcdfloat.cc bcd.cc bcdmath.cc
 OBJS += bcdfloat.o bcd.o bcdmath.o
-else
-CXXFLAGS += -DPHLOAT_IS_DOUBLE
 endif
 
 free42: $(OBJS)

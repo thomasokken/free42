@@ -772,7 +772,7 @@ static bool unpersist_vartype(vartype **v) {
 	    if (r == NULL)
 		return false;
 	    if (state_needs_converting) {
-		#ifndef PHLOAT_IS_DOUBLE
+		#ifdef BCD_MATH
 		    int n = sizeof(bin_real) - sizeof(int);
 		    bin_real br;
 		    if (shell_read_saved_state(&br.type + 1, n) != n) {
@@ -804,7 +804,7 @@ static bool unpersist_vartype(vartype **v) {
 	    if (c == NULL)
 		return false;
 	    if (state_needs_converting) {
-		#ifndef PHLOAT_IS_DOUBLE
+		#ifdef BCD_MATH
 		    int n = sizeof(bin_complex) - sizeof(int);
 		    bin_complex bc;
 		    if (shell_read_saved_state(&bc.type + 1, n) != n) {
@@ -856,7 +856,7 @@ static bool unpersist_vartype(vartype **v) {
 	    if (rm == NULL)
 		return false;
 	    if (state_needs_converting) {
-		#ifndef PHLOAT_IS_DOUBLE
+		#ifdef BCD_MATH
 		    int phsz = sizeof(double);
 		#else
 		    int phsz = sizeof(fake_bcd);
@@ -877,7 +877,7 @@ static bool unpersist_vartype(vartype **v) {
 		    free_vartype((vartype *) rm);
 		    return false;
 		}
-		#ifndef PHLOAT_IS_DOUBLE
+		#ifdef BCD_MATH
 		    for (int4 i = 0; i < size; i++) {
 			if (rm->array->is_string[i]) {
 			    char *src = temp + i * phsz;
@@ -1944,7 +1944,7 @@ static bool write_int4(int4 n) {
 
 bool read_phloat(phloat *d) {
     if (state_needs_converting) {
-	#ifndef PHLOAT_IS_DOUBLE
+	#ifdef BCD_MATH
 	    double dbl;
 	    if (shell_read_saved_state(&dbl, sizeof(double)) != sizeof(double))
 		return false;
@@ -1974,7 +1974,7 @@ bool load_state(int4 ver) {
      * and loaded the shell state, before we got called.
      */
 
-    #ifndef PHLOAT_IS_DOUBLE
+    #ifdef BCD_MATH
 	if (ver < 10)
 	    state_needs_converting = true;
 	else {
@@ -2139,7 +2139,7 @@ void save_state() {
      * and the shell state, before we got called.
      */
 
-    #ifndef PHLOAT_IS_DOUBLE
+    #ifdef BCD_MATH
 	if (!write_int(1)) return;
     #else
 	if (!write_int(0)) return;
@@ -2433,7 +2433,7 @@ bool read_arg(arg_struct *arg, bool old) {
 	arg->val_d = old_arg.val.d;
 	return true;
     } else if (state_needs_converting) {
-	#ifndef PHLOAT_IS_DOUBLE
+	#ifdef BCD_MATH
 	    bin_arg_struct ba;
 	    if (shell_read_saved_state(&ba, sizeof(bin_arg_struct))
 			!= sizeof(bin_arg_struct))
@@ -2516,7 +2516,7 @@ static bool convert_programs() {
 		    break;
 		}
 		case ARGTYPE_DOUBLE:
-		    #ifndef PHLOAT_IS_DOUBLE
+		    #ifdef BCD_MATH
 			double d;
 			unsigned char *b = (unsigned char *) &d;
 			for (int i = 0; i < (int) sizeof(double); i++)

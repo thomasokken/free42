@@ -5,8 +5,8 @@ CFG=Release
 endif
 CC=gcc
 CFLAGS=-DNO_SINCOS
-ifdef PHLOAT_IS_DOUBLE
-CFLAGS += -DPHLOAT_IS_DOUBLE
+ifdef BCD_MATH
+CFLAGS += -DBCD_MATH
 endif
 CXX=g++
 CXXFLAGS=$(CFLAGS)
@@ -118,7 +118,7 @@ SRCS=$(SOURCE_FILES) $(HEADER_FILES) $(RESOURCE_FILES)  \
 
 OBJS=$(patsubst %.rc,%.res,$(patsubst %.cxx,%.o,$(patsubst %.cpp,%.o,$(patsubst %.cc,%.o,$(patsubst %.c,%.o,$(filter %.c %.cc %.cpp %.cxx %.rc,$(SRCS)))))))
 
-ifndef PHLOAT_IS_DOUBLE
+ifdef BCD_MATH
 OBJS += bcdfloat.o bcd.o bcdmath.o
 endif
 

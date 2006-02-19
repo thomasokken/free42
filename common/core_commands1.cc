@@ -842,7 +842,7 @@ static int mappable_to_hr(phloat x, phloat *y) COMMANDS1_SECT;
 static int mappable_to_hr(phloat x, phloat *y) {
     int neg = x < 0;
     phloat res;
-#ifndef PHLOAT_IS_DOUBLE
+#ifdef BCD_MATH
     const phloat point01(1, 100);
     const phloat point36(36, 100);
 #endif
@@ -852,7 +852,7 @@ static int mappable_to_hr(phloat x, phloat *y) {
     if (x == x + 1)
 	res = x;
     else {
-	#ifndef PHLOAT_IS_DOUBLE
+	#ifdef BCD_MATH
 	    if (x < point01)
 		res = x / point36;
 	    else {

@@ -829,7 +829,7 @@ int dimension_array_ref(vartype *matrix, int4 rows, int4 columns) {
 }
 
 phloat fix_hms(phloat x) {
-#ifndef PHLOAT_IS_DOUBLE
+#ifdef BCD_MATH
     const phloat sec_corr(4, 1000);
     const phloat min_corr(4, 10);
 #endif
@@ -841,7 +841,7 @@ phloat fix_hms(phloat x) {
 	return x;
     if (x < 0.0059)
 	return x;
-    #ifndef PHLOAT_IS_DOUBLE
+    #ifdef BCD_MATH
 	if (floor(fmod(x * 10000, 100)) == 60)
 	    x += sec_corr;
 	if (floor(fmod(x * 100, 100)) == 60) {

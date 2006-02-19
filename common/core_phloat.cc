@@ -32,7 +32,7 @@ phloat POS_TINY_PHLOAT;
 phloat NEG_TINY_PHLOAT;
 
 
-#ifndef PHLOAT_IS_DOUBLE
+#ifdef BCD_MATH
 
 
 void phloat_init() {
@@ -651,7 +651,7 @@ double bcd2double(BCDFloat b) {
 }
 
 
-#else // PHLOAT_IS_DOUBLE
+#else // BCD_MATH
 
 
 /* binary-to-bcd conversion tables */
@@ -1433,7 +1433,7 @@ double bcd2double(const short *p) {
 }
 
 
-#endif // PHLOAT_IS_DOUBLE
+#endif // BCD_MATH
 
 
 int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
@@ -1502,7 +1502,7 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
 	bcd_mantissa_sign = 1;
     }
 
-#ifdef PHLOAT_IS_DOUBLE
+#ifndef BCD_MATH
 
     double d = to_double(pd);
     double mantissa;
@@ -1538,7 +1538,7 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
 	}
     }
 
-#else // PHLOAT_IS_DOUBLE
+#else // BCD_MATH
 
     int offset, pos = 0;
     if (pd.bcd.d_[0] >= 1000)
@@ -1560,7 +1560,7 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
     }
     bcd_exponent = pd.bcd.exp() * 4 - 1 - offset;
 
-#endif // PHLOAT_IS_DOUBLE
+#endif // BCD_MATH
 
     if (dispmode == 0 || dispmode == 3) {
 

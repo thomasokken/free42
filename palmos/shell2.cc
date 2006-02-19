@@ -85,7 +85,7 @@ static void do_removedir() SHELL_SECT;
 
 
 void open_math_lib() {
-#ifdef PHLOAT_IS_DOUBLE
+#ifndef BCD_MATH
     Err error;
 
     /* TODO: better error handling */
@@ -414,7 +414,7 @@ void unload_skin() {
 }
 
 void close_math_lib() {
-#ifdef PHLOAT_IS_DOUBLE
+#ifndef BCD_MATH
     UInt16 usecount;
     Err error;
 
@@ -893,8 +893,6 @@ Boolean form_handler(EventType *e) {
 		    i = FrmGetObjectIndex(form, prefs_matrix_outofrange);
 		    FrmSetControlValue(form, i,
 					core_settings.matrix_outofrange);
-		    i = FrmGetObjectIndex(form, prefs_decimal);
-		    FrmSetControlValue(form, i, core_settings.decimal);
 		    i = FrmGetObjectIndex(form, raw_text_id);
 		    FrmSetControlValue(form, i, core_settings.raw_text);
 
@@ -953,8 +951,6 @@ Boolean form_handler(EventType *e) {
 		    i = FrmGetObjectIndex(form, prefs_matrix_outofrange);
 		    core_settings.matrix_outofrange =
 					FrmGetControlValue(form, i);
-		    i = FrmGetObjectIndex(form, prefs_decimal);
-		    core_settings.decimal = FrmGetControlValue(form, i);
 		    i = FrmGetObjectIndex(form, raw_text_id);
 		    core_settings.raw_text = FrmGetControlValue(form, i);
 

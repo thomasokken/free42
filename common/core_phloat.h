@@ -21,7 +21,7 @@
 
 
 #include "free42.h"
-#ifndef PHLOAT_IS_DOUBLE
+#ifdef BCD_MATH
 #include "bcdfloat.h"
 #endif
 
@@ -34,7 +34,7 @@ struct hp_string {
 #define phloat_length(x) (((hp_string *) &(x))->length)
 
 
-#ifdef PHLOAT_IS_DOUBLE
+#ifndef BCD_MATH
 
 
 #define phloat double
@@ -55,7 +55,7 @@ struct hp_string {
 double bcd2double(const short *p);
 
 
-#else // !PHLOAT_IS_DOUBLE
+#else // BCD_MATH
 
 
 #define phloat Phloat
@@ -159,7 +159,7 @@ BCDFloat double2bcd(double d) PHLOAT_SECT;
 double bcd2double(BCDFloat b) PHLOAT_SECT;
 
 
-#endif // PHLOAT_IS_DOUBLE
+#endif // BCD_MATH
 
 
 extern phloat POS_HUGE_PHLOAT;

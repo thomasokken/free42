@@ -977,7 +977,7 @@ int docmd_to_dec(arg_struct *arg) {
 	if (oct > 777777777777.0 || oct != floor(oct))
 	    return ERR_INVALID_DATA;
 	vartype *v;
-	#ifndef PHLOAT_IS_DOUBLE
+	#ifdef BCD_MATH
 	    phloat dec = 0, mul = 1;
 	    while (oct != 0) {
 		int digit = to_digit(oct);
@@ -1022,7 +1022,7 @@ int docmd_to_oct(arg_struct *arg) {
 	if (dec > 68719476735.0 || dec != floor(dec))
 	    return ERR_INVALID_DATA;
 	vartype *v;
-	#ifndef PHLOAT_IS_DOUBLE
+	#ifdef BCD_MATH
 	    phloat oct = 0, mul = 1;
 	    while (dec != 0) {
 		int digit = to_digit(dec);
