@@ -185,8 +185,8 @@ int math_gamma(phloat phx, phloat *phgamma) {
  *
  */
 
-/* NOTE (ThO): if the 'const' in this code is not commented out, the non-
- * Multilink PalmOS build of Free42 malfunctions in GAMMA (wrong results,
+/* NOTE (ThO): if the 'const' in this code is not commented out, the
+ * PalmOS build of Free42 malfunctions in GAMMA (wrong results,
  * memory access weirdness). This isn't the first time I've noticed
  * m68k-palmos-gcc acting weird in the presence of const globals.
  * It probably puts them in the wrong section or something. I should debug

@@ -27,8 +27,7 @@
 extern "C" {
 #include "MathLib.h"
 }
-#ifndef MULTILINK
-/* Segmentation stuff -- not needed with multilink */
+/* Segmentation stuff */
 #define SHELL_SECT __attribute__ ((section ("Shell")))
 #define FILESYS_SECT __attribute__ ((section ("FileSys")))
 #define MAIN_SECT __attribute__ ((section ("Main")))
@@ -50,29 +49,6 @@ extern "C" {
 #define STO_RCL_SECT __attribute__ ((section ("StoRcl")))
 #define TABLES_SECT __attribute__ ((section ("Tables")))
 #define VARIABLES_SECT __attribute__ ((section ("Variabls")))
-#else
-#define SHELL_SECT
-#define FILESYS_SECT
-#define MAIN_SECT
-#define COMMANDS1_SECT
-#define COMMANDS2_SECT
-#define COMMANDS3_SECT
-#define COMMANDS4_SECT
-#define COMMANDS5_SECT
-#define COMMANDS6_SECT
-#define DISPLAY_SECT
-#define GLOBALS_SECT
-#define HELPERS_SECT
-#define KEYDOWN_SECT
-#define LINALG1_SECT
-#define LINALG2_SECT
-#define MATH1_SECT
-#define MATH2_SECT
-#define PHLOAT_SECT
-#define STO_RCL_SECT
-#define TABLES_SECT
-#define VARIABLES_SECT
-#endif
 #define int4 Int32
 #define uint4 UInt32
 

@@ -1,3 +1,10 @@
+So far, the binary builds seem OK (all platforms -- but see the next item about
+the Windows version). Needs regression testing, though.
+The decimal builds are *not* OK. Phloat<->string conversions look broken, as
+does state file reading (how about writing?) -- and that's just the Unix and
+Windows versions; the PalmOS version won't build at all, because of segment
+overflows and God knows what else.
+
 When windows/Free42.exe is built without BCD_MATH, the solver no longer
 converges on "SUN" with TILT=23.5, LAT=52, SEAS=3.75, HGHT=0, SOLVE("TOD")
 (start TOD with 0 and 12). Noticed while running the PLOT test case with

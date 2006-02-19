@@ -843,13 +843,7 @@ void draw_char(int x, int y, char c) {
 
 void get_char(char *bits, char c) {
     /* TODO - it should be possible to simply return bigchars[c],
-     * but that crashes on the Palm. I suspect this is caused by
-     * a compiler bug. The value that gdb shows me for 'bigchars'
-     * is bogus (as indeed all globals are when debugging a
-     * MultiLink build), but when I try to get around that by
-     * assigning it to a local, the compiler craps out with an
-     * "internal error" or something to that effect, and tells
-     * me to submit a bug report. Sigh.
+     * but that crashes on the Palm. Looks like a compiler bug.
      */
     int i;
     unsigned char uc = (unsigned char) c;
