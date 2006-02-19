@@ -1,6 +1,8 @@
 The PalmOS version, when running on the Zire 21, does not seem to return Inf
 and NaN results when it should (e.g. 10+10i SIN SIN). Works fine on PalmSim,
-though. What's going on? ... Might be interesting to test this under POSE.
+though. What's going on? ... This *is* reproducible under POSE.
+First guess: some weirdness with globals again... POS_HUGE_DOUBLE etc. not
+mapped properly?
 
 When windows/Free42.exe is built without BCD_MATH, the solver no longer
 converges on "SUN" with TILT=23.5, LAT=52, SEAS=3.75, HGHT=0, SOLVE("TOD")
