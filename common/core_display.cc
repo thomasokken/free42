@@ -1387,7 +1387,7 @@ static void draw_catalog() {
 	draw_key(3, 0, 0, "CPX", 3);
 	draw_key(4, 0, 0, "MAT", 3);
 	draw_key(5, 0, 0, "MEM", 3);
-	mode_updown = 0;
+	mode_updown = false;
 	shell_annunciators(0, -1, -1, -1, -1, -1);
     } else if (catsect == CATSECT_PGM
 	    || catsect == CATSECT_PGM_ONLY
@@ -1464,7 +1464,7 @@ static void draw_catalog() {
 		draw_key(i, 0, 1, cmdlist(cmd)->name,
 				  cmdlist(cmd)->name_length);
 	}
-	mode_updown = 1;
+	mode_updown = true;
 	shell_annunciators(1, -1, -1, -1, -1, -1);
     } else {
 	int vcount = 0;
@@ -1991,7 +1991,7 @@ int print_program(int prgm_index, int4 pc, int4 lines, int normal) {
     } else {
 	print_text(NULL, 0, 1);
 	mode_interruptible = print_program_worker;
-	mode_stoppable = 1;
+	mode_stoppable = true;
 	return ERR_INTERRUPTIBLE;
     }
 }
@@ -2260,7 +2260,7 @@ int set_menu_return_err(int level, int menuid) {
 				: menus[*newmenu].next != MENU_NONE;
 	}
     } else
-	mode_updown = 0;
+	mode_updown = false;
     shell_annunciators(mode_updown, -1, -1, -1, -1, -1);
     return ERR_NONE;
 }
@@ -2562,11 +2562,11 @@ void do_prgm_menu_key(int keynum) {
 						&progmenu_arg[keynum]);
     oldprgm = current_prgm;
     oldpc = pc;
-    set_running(1);
+    set_running(true);
     progmenu_arg[keynum].target = -1; /* Force docmd_gto() to search */
     err = docmd_gto(&progmenu_arg[keynum]);
     if (err != ERR_NONE) {
-	set_running(0);
+	set_running(false);
 	display_error(err, 1);
 	flush_display();
 	return;
@@ -2580,7 +2580,7 @@ void do_prgm_menu_key(int keynum) {
 	     * if they're using a programmable menu in the middle of
 	     * a solver invocation...
 	     */
-	    set_running(0);
+	    set_running(false);
 	    display_error(err, 1);
 	    flush_display();
 	    return;

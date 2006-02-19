@@ -110,10 +110,10 @@ extern "C" void sincos(double x, double *sinx, double *cosx) HELPERS_SECT;
  * Version 6: 1.1.8
  * Version 7: 1.1.12
  * Version 8: 1.1.14
- * Version 9 and 10: 1.4
+ * Version 9: 1.4
  */
 #define FREE42_MAGIC 0x466b3432
-#define FREE42_VERSION 10
+#define FREE42_VERSION 9
 
 
 #endif

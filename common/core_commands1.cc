@@ -36,7 +36,7 @@
 int docmd_clx(arg_struct *arg) {
     free_vartype(reg_x);
     reg_x = new_real(0);
-    mode_disable_stack_lift = 1;
+    mode_disable_stack_lift = true;
     return ERR_NONE;
 }
 
@@ -48,7 +48,7 @@ int docmd_enter(arg_struct *arg) {
     reg_t = reg_z;
     reg_z = reg_y;
     reg_y = v;
-    mode_disable_stack_lift = 1;
+    mode_disable_stack_lift = true;
     return ERR_NONE;
 }
 
@@ -517,7 +517,7 @@ int docmd_arcl(arg_struct *arg) {
     free_vartype(v);
 
     if (flags.f.alpha_mode && !program_running())
-	set_alpha_entry(1);
+	set_alpha_entry(true);
     if (flags.f.trace_print && flags.f.printer_exists)
 	docmd_pra(NULL);
     return ERR_NONE;
@@ -525,7 +525,7 @@ int docmd_arcl(arg_struct *arg) {
 
 int docmd_cla(arg_struct *arg) {
     reg_alpha_length = 0;
-    set_alpha_entry(0);
+    set_alpha_entry(false);
     return ERR_NONE;
 }
 

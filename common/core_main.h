@@ -302,10 +302,9 @@ void core_paste_string(const char *s) MAIN_SECT;
  * allow the user to view and change these settings.
  */
 typedef struct {
-	int matrix_singularmatrix;
-	int matrix_outofrange;
-	int unused;
-	int raw_text;
+	bool matrix_singularmatrix;
+	bool matrix_outofrange;
+	bool raw_text;
 } core_settings_struct;
 
 extern core_settings_struct core_settings;
@@ -325,9 +324,9 @@ extern int repeating_key;
 /*******************/
 
 int4 hp42s_size(int prgm_index) MAIN_SECT;
-void set_alpha_entry(int state) MAIN_SECT;
-void set_running(int state) MAIN_SECT;
-int program_running() MAIN_SECT;
+void set_alpha_entry(bool state) MAIN_SECT;
+void set_running(bool state) MAIN_SECT;
+bool program_running() MAIN_SECT;
 
 int want_to_run_again() MAIN_SECT;
 void do_interactive(int command) MAIN_SECT;
@@ -340,7 +339,7 @@ void bst() MAIN_SECT;
 void fix_thousands_separators(char *buf, int *bufptr) MAIN_SECT;
 int find_menu_key(int key) MAIN_SECT;
 void start_incomplete_command(int cmd_id) MAIN_SECT;
-void finish_command_entry(int refresh) MAIN_SECT;
+void finish_command_entry(bool refresh) MAIN_SECT;
 void finish_xeq() MAIN_SECT;
 void start_alpha_prgm_line() MAIN_SECT;
 void finish_alpha_prgm_line() MAIN_SECT;

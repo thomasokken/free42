@@ -58,7 +58,7 @@ int docmd_sf(arg_struct *arg) {
 	     * unless mode_disable_stack_lift is set, we must intervene for
 	     * this to actually have the intended effect.
 	     */
-	    mode_disable_stack_lift = 1;
+	    mode_disable_stack_lift = true;
 	return ERR_NONE;
     }
 }
@@ -871,13 +871,13 @@ int docmd_varmenu(arg_struct *arg) {
 }
 
 int docmd_getkey(arg_struct *arg) {
-    mode_getkey = 1;
+    mode_getkey = true;
     return ERR_NONE;
 }
 
 int docmd_menu(arg_struct *arg) {
     set_menu(MENULEVEL_PLAIN, MENU_PROGRAMMABLE);
-    mode_plainmenu_sticky = 1;
+    mode_plainmenu_sticky = true;
     return ERR_NONE;
 }
 
@@ -1198,7 +1198,7 @@ int docmd_prv(arg_struct *arg) {
 	    prv_var = v;
 	    prv_index = 0;
 	    mode_interruptible = prv_worker;
-	    mode_stoppable = 1;
+	    mode_stoppable = true;
 	    return ERR_INTERRUPTIBLE;
 	} else {
 	    shell_annunciators(-1, -1, 0, -1, -1, -1);
@@ -1337,7 +1337,7 @@ int docmd_prx(arg_struct *arg) {
 	    prv_var = reg_x;
 	    prv_index = 0;
 	    mode_interruptible = prv_worker;
-	    mode_stoppable = 1;
+	    mode_stoppable = true;
 	    return ERR_INTERRUPTIBLE;
 	} else {
 	    shell_annunciators(-1, -1, 0, -1, -1, -1);
@@ -1361,7 +1361,7 @@ int docmd_prusr(arg_struct *arg) {
 	prusr_state = 0;
 	prusr_index = vars_count - 1;
 	mode_interruptible = prusr_worker;
-	mode_stoppable = 1;
+	mode_stoppable = true;
 	return ERR_INTERRUPTIBLE;
     }
 }
@@ -1904,7 +1904,7 @@ int docmd_vmsto(arg_struct *arg) {
     if (err == ERR_NONE)
 	err = view_helper(arg, 0);
     if (err == ERR_NONE)
-	mode_varmenu = 1;
+	mode_varmenu = true;
     return err;
 }
 

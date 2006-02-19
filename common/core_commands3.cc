@@ -89,7 +89,7 @@ int docmd_aoff(arg_struct *arg) {
 
 int docmd_aon(arg_struct *arg) {
     flags.f.alpha_mode = 1;
-    mode_alpha_entry = 0;
+    mode_alpha_entry = false;
     set_menu(MENULEVEL_ALPHA, MENU_ALPHA1);
     return ERR_NONE;
 }

@@ -1,10 +1,3 @@
-So far, the binary builds seem OK (all platforms -- but see the next item about
-the Windows version). Needs regression testing, though.
-The decimal builds are *not* OK. Phloat<->string conversions look broken, as
-does state file reading (how about writing?) -- and that's just the Unix and
-Windows versions; the PalmOS version won't build at all, because of segment
-overflows and God knows what else.
-
 The PalmOS version, when running on the Zire 21, does not seem to return Inf
 and NaN results when it should (e.g. 10+10i SIN SIN). Works fine on PalmSim,
 though. What's going on? ... Might be interesting to test this under POSE.
@@ -25,7 +18,7 @@ In the PalmOS Decimal build, and add code to delete the Free42BcdConv database.
 Decimal version: implement gamma(), and add *proper* implementations of log1p()
 and expm1().
 
-Why am I including math.h (or MathLib.h) in free42.h?
+Pass BCDFloat patches on to Hugh Steers.
 
 ...............................................................................
 

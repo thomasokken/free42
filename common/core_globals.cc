@@ -562,24 +562,24 @@ int varmenu_labellength[6];
 char varmenu_labeltext[6][7];
 int varmenu_role;
 
-int mode_clall;
+bool mode_clall;
 int (*mode_interruptible)(int) = NULL;
-int mode_stoppable;
-int mode_command_entry;
-int mode_number_entry;
-int mode_alpha_entry;
-int mode_shift;
+bool mode_stoppable;
+bool mode_command_entry;
+bool mode_number_entry;
+bool mode_alpha_entry;
+bool mode_shift;
 int mode_appmenu;
 int mode_plainmenu;
-int mode_plainmenu_sticky;
+bool mode_plainmenu_sticky;
 int mode_transientmenu;
 int mode_alphamenu;
 int mode_commandmenu;
-int mode_running;
-int mode_getkey;
-int mode_disable_stack_lift; /* transient */
-int mode_varmenu;
-int mode_updown;
+bool mode_running;
+bool mode_getkey;
+bool mode_disable_stack_lift; /* transient */
+bool mode_varmenu;
+bool mode_updown;
 int4 mode_sigma_reg;
 int mode_goose;
 
@@ -647,6 +647,7 @@ int remove_program_catalog = 0;
 /*******************/
 
 static bool state_needs_converting;
+static bool state_bool_is_int;
 
 #define MAX_RTNS 8
 static int rtn_sp = 0;
@@ -665,6 +666,8 @@ static bool read_int(int *n) GLOBALS_SECT;
 static bool write_int(int n) GLOBALS_SECT;
 static bool read_int4(int4 *n) GLOBALS_SECT;
 static bool write_int4(int4 n) GLOBALS_SECT;
+static bool read_bool(bool *n) GLOBALS_SECT;
+static bool write_bool(bool n) GLOBALS_SECT;
 
 static bool persist_vartype(vartype *v) GLOBALS_SECT;
 static bool unpersist_vartype(vartype **v) GLOBALS_SECT;
@@ -851,11 +854,11 @@ static bool unpersist_vartype(vartype **v) {
 	    int n = sizeof(matrix_persister) - sizeof(int);
 	    if (shell_read_saved_state(&mp.type + 1, n) != n)
 		return false;
-	    int4 size = mp.rows * mp.columns * sizeof(phloat);
 	    vartype_realmatrix *rm = (vartype_realmatrix *) new_realmatrix(mp.rows, mp.columns);
 	    if (rm == NULL)
 		return false;
 	    if (state_needs_converting) {
+		int4 size = mp.rows * mp.columns;
 		#ifdef BCD_MATH
 		    int phsz = sizeof(double);
 		#else
@@ -902,6 +905,7 @@ static bool unpersist_vartype(vartype **v) {
 		#endif
 		free(temp);
 	    } else {
+		int4 size = mp.rows * mp.columns * sizeof(phloat);
 		if (shell_read_saved_state(rm->array->data, size) != size) {
 		    free_vartype((vartype *) rm);
 		    return false;
@@ -919,14 +923,13 @@ static bool unpersist_vartype(vartype **v) {
 	    matrix_persister mp;
 	    int n = sizeof(matrix_persister) - sizeof(int);
 	    vartype_complexmatrix *cm;
-	    int4 size;
 	    if (shell_read_saved_state(&mp.type + 1, n) != n)
 		return false;
 	    cm = (vartype_complexmatrix *)
 				    new_complexmatrix(mp.rows, mp.columns);
 	    if (cm == NULL)
 		return false;
-	    size = 2 * mp.rows * mp.columns * sizeof(phloat);
+	    int4 size = 2 * mp.rows * mp.columns;
 	    if (state_needs_converting) {
 		for (int4 i = 0; i < size; i++)
 		    if (!read_phloat(cm->array->data + i)) {
@@ -1942,6 +1945,24 @@ static bool write_int4(int4 n) {
     return shell_write_saved_state(&n, sizeof(int4));
 }
 
+static bool read_bool(bool *b) {
+    if (state_bool_is_int) {
+	int t;
+	if (!read_int(&t))
+	    return false;
+	if (t != 0 && t != 1)
+	    return false;
+	*b = t != 0;
+	return true;
+    } else {
+	return shell_read_saved_state(b, sizeof(bool)) == sizeof(bool);
+    }
+}
+
+static bool write_bool(bool b) {
+    return shell_write_saved_state(&b, sizeof(bool));
+}
+
 bool read_phloat(phloat *d) {
     if (state_needs_converting) {
 	#ifdef BCD_MATH
@@ -1959,7 +1980,7 @@ bool read_phloat(phloat *d) {
 	    return true;
 	#endif
     } else
-	return shell_read_saved_state(d, sizeof(phloat)) != sizeof(phloat);
+	return shell_read_saved_state(d, sizeof(phloat)) == sizeof(phloat);
 }
 
 bool write_phloat(phloat d) {
@@ -1974,63 +1995,65 @@ bool load_state(int4 ver) {
      * and loaded the shell state, before we got called.
      */
 
+    state_bool_is_int = ver < 9;
+
     #ifdef BCD_MATH
-	if (ver < 10)
+	if (ver < 9)
 	    state_needs_converting = true;
 	else {
-	    int state_is_decimal;
-	    if (!read_int(&state_is_decimal)) return false;
-	    state_needs_converting = state_is_decimal == 0;
+	    bool state_is_decimal;
+	    if (!read_bool(&state_is_decimal)) return false;
+	    state_needs_converting = !state_is_decimal;
 	}
     #else
-	if (ver < 10)
+	if (ver < 9)
 	    state_needs_converting = false;
 	else {
-	    int state_is_decimal;
-	    if (!read_int(&state_is_decimal)) return false;
-	    state_needs_converting = state_is_decimal != 0;
+	    bool state_is_decimal;
+	    if (!read_bool(&state_is_decimal)) return false;
+	    state_needs_converting = state_is_decimal;
 	}
     #endif
 
     if (ver < 2) {
-	core_settings.matrix_singularmatrix = 0;
-	core_settings.matrix_outofrange = 0;
+	core_settings.matrix_singularmatrix = false;
+	core_settings.matrix_outofrange = false;
     } else {
-	if (!read_int(&core_settings.matrix_singularmatrix)) return false;
-	if (!read_int(&core_settings.matrix_outofrange)) return false;
-	if (ver < 10) {
+	if (!read_bool(&core_settings.matrix_singularmatrix)) return false;
+	if (!read_bool(&core_settings.matrix_outofrange)) return false;
+	if (ver < 9) {
 	    int dummy;
 	    if (!read_int(&dummy)) return false;
 	}
     }
     if (ver < 5)
-	core_settings.raw_text = 0;
+	core_settings.raw_text = false;
     else {
-	if (!read_int(&core_settings.raw_text)) return false;
+	if (!read_bool(&core_settings.raw_text)) return false;
 	if (ver < 8) {
 	    int dummy;
 	    if (!read_int(&dummy)) return false;
 	}
     }
 
-    if (!read_int(&mode_clall)) return false;
-    if (!read_int(&mode_command_entry)) return false;
-    if (!read_int(&mode_number_entry)) return false;
-    if (!read_int(&mode_alpha_entry)) return false;
-    if (!read_int(&mode_shift)) return false;
+    if (!read_bool(&mode_clall)) return false;
+    if (!read_bool(&mode_command_entry)) return false;
+    if (!read_bool(&mode_number_entry)) return false;
+    if (!read_bool(&mode_alpha_entry)) return false;
+    if (!read_bool(&mode_shift)) return false;
     if (!read_int(&mode_appmenu)) return false;
     if (!read_int(&mode_plainmenu)) return false;
-    if (!read_int(&mode_plainmenu_sticky)) return false;
+    if (!read_bool(&mode_plainmenu_sticky)) return false;
     if (!read_int(&mode_transientmenu)) return false;
     if (!read_int(&mode_alphamenu)) return false;
     if (!read_int(&mode_commandmenu)) return false;
-    if (!read_int(&mode_running)) return false;
-    if (!read_int(&mode_varmenu)) return false;
-    if (!read_int(&mode_updown)) return false;
+    if (!read_bool(&mode_running)) return false;
+    if (!read_bool(&mode_varmenu)) return false;
+    if (!read_bool(&mode_updown)) return false;
 
     if (ver < 6)
-	mode_getkey = 0;
-    else if (!read_int(&mode_getkey))
+	mode_getkey = false;
+    else if (!read_bool(&mode_getkey))
 	return false;
 
     if (!read_phloat(&entered_number)) return false;
@@ -2140,28 +2163,28 @@ void save_state() {
      */
 
     #ifdef BCD_MATH
-	if (!write_int(1)) return;
+	if (!write_bool(true)) return;
     #else
-	if (!write_int(0)) return;
+	if (!write_bool(false)) return;
     #endif
-    if (!write_int(core_settings.matrix_singularmatrix)) return;
-    if (!write_int(core_settings.matrix_outofrange)) return;
-    if (!write_int(core_settings.raw_text)) return;
-    if (!write_int(mode_clall)) return;
-    if (!write_int(mode_command_entry)) return;
-    if (!write_int(mode_number_entry)) return;
-    if (!write_int(mode_alpha_entry)) return;
-    if (!write_int(mode_shift)) return;
+    if (!write_bool(core_settings.matrix_singularmatrix)) return;
+    if (!write_bool(core_settings.matrix_outofrange)) return;
+    if (!write_bool(core_settings.raw_text)) return;
+    if (!write_bool(mode_clall)) return;
+    if (!write_bool(mode_command_entry)) return;
+    if (!write_bool(mode_number_entry)) return;
+    if (!write_bool(mode_alpha_entry)) return;
+    if (!write_bool(mode_shift)) return;
     if (!write_int(mode_appmenu)) return;
     if (!write_int(mode_plainmenu)) return;
-    if (!write_int(mode_plainmenu_sticky)) return;
+    if (!write_bool(mode_plainmenu_sticky)) return;
     if (!write_int(mode_transientmenu)) return;
     if (!write_int(mode_alphamenu)) return;
     if (!write_int(mode_commandmenu)) return;
-    if (!write_int(mode_running)) return;
-    if (!write_int(mode_varmenu)) return;
-    if (!write_int(mode_updown)) return;
-    if (!write_int(mode_getkey)) return;
+    if (!write_bool(mode_running)) return;
+    if (!write_bool(mode_varmenu)) return;
+    if (!write_bool(mode_updown)) return;
+    if (!write_bool(mode_getkey)) return;
 
     if (!write_phloat(entered_number)) return;
     if (!write_int(entered_string_length)) return;
@@ -2335,22 +2358,22 @@ void hard_reset(int bad_state_file) {
     flags.f.f93 = flags.f.f94 = flags.f.f95 = flags.f.f96 = flags.f.f97 = 0;
     flags.f.f98 = flags.f.f99 = 0;
 
-    mode_clall = 0;
-    mode_command_entry = 0;
-    mode_number_entry = 0;
-    mode_alpha_entry = 0;
-    mode_shift = 0;
+    mode_clall = false;
+    mode_command_entry = false;
+    mode_number_entry = false;
+    mode_alpha_entry = false;
+    mode_shift = false;
     mode_commandmenu = MENU_NONE;
     mode_alphamenu = MENU_NONE;
     mode_transientmenu = MENU_NONE;
     mode_plainmenu = MENU_NONE;
     mode_appmenu = MENU_NONE;
-    mode_running = 0;
-    mode_getkey = 0;
-    mode_varmenu = 0;
+    mode_running = false;
+    mode_getkey = false;
+    mode_varmenu = false;
     prgm_highlight_row = 0;
     varmenu_length = 0;
-    mode_updown = 0;
+    mode_updown = false;
     mode_sigma_reg = 11;
     mode_goose = -1;
 
@@ -2543,7 +2566,11 @@ static bool convert_programs() {
 			    for (pos = prgm->size - 1; pos >= pc; pos--)
 				prgm->text[pos + growth] = prgm->text[pos];
 			}
+			prgm->size += growth;
 
+			// TODO: round to 12 digits, to prevent stuff like 0.9
+			// turning into 0.899999+; in a program line, this is
+			// even eviller than usual, because you can't SEE it.
 			phloat p = d;
 			b = (unsigned char *) &p;
 			for (int i = 0; i < (int) sizeof(phloat); i++)
@@ -2571,6 +2598,7 @@ static bool convert_programs() {
 			int shrinkage = sizeof(phloat) - sizeof(double);
 			for (int4 pos = pc; pos < prgm->size; pos++)
 			    prgm->text[pos] = prgm->text[pos + shrinkage];
+			prgm->size -= shrinkage;
 
 			b = (unsigned char *) &dbl;
 			for (int i = 0; i < (int) sizeof(double); i++)

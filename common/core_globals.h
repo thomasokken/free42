@@ -408,24 +408,24 @@ extern int varmenu_role;
 /* More globals */
 /****************/
 
-extern int mode_clall;
+extern bool mode_clall;
 extern int (*mode_interruptible)(int);
-extern int mode_stoppable;
-extern int mode_command_entry;
-extern int mode_number_entry;
-extern int mode_alpha_entry;
-extern int mode_shift;
+extern bool mode_stoppable;
+extern bool mode_command_entry;
+extern bool mode_number_entry;
+extern bool mode_alpha_entry;
+extern bool mode_shift;
 extern int mode_appmenu;
 extern int mode_plainmenu;
-extern int mode_plainmenu_sticky;
+extern bool mode_plainmenu_sticky;
 extern int mode_transientmenu;
 extern int mode_alphamenu;
 extern int mode_commandmenu;
-extern int mode_running;
-extern int mode_getkey;
-extern int mode_disable_stack_lift;
-extern int mode_varmenu;
-extern int mode_updown;
+extern bool mode_running;
+extern bool mode_getkey;
+extern bool mode_disable_stack_lift;
+extern bool mode_varmenu;
+extern bool mode_updown;
 extern int4 mode_sigma_reg;
 extern int mode_goose;
 

@@ -353,7 +353,7 @@ static int matrix_mul_rr(vartype_realmatrix *left, vartype_realmatrix *right,
 
     mul_rr_data = dat;
     mode_interruptible = matrix_mul_rr_worker;
-    mode_stoppable = 0;
+    mode_stoppable = false;
     return ERR_INTERRUPTIBLE;
 
     finished:
@@ -610,7 +610,7 @@ static int matrix_mul_rc(vartype_realmatrix *left, vartype_complexmatrix *right,
 
     mul_rc_data = dat;
     mode_interruptible = matrix_mul_rc_worker;
-    mode_stoppable = 0;
+    mode_stoppable = false;
     return ERR_INTERRUPTIBLE;
 
     finished:
@@ -745,7 +745,7 @@ static int matrix_mul_cr(vartype_complexmatrix *left, vartype_realmatrix *right,
 
     mul_cr_data = dat;
     mode_interruptible = matrix_mul_cr_worker;
-    mode_stoppable = 0;
+    mode_stoppable = false;
     return ERR_INTERRUPTIBLE;
 
     finished:
@@ -875,7 +875,7 @@ static int matrix_mul_cc(vartype_complexmatrix *left, vartype_complexmatrix *rig
 
     mul_cc_data = dat;
     mode_interruptible = matrix_mul_cc_worker;
-    mode_stoppable = 0;
+    mode_stoppable = false;
     return ERR_INTERRUPTIBLE;
 
     finished:
@@ -1114,7 +1114,7 @@ static void inv_c_completion2(int error, vartype_complexmatrix *a, int4 *perm,
 /******************************/
 
 static void (*linalg_det_completion)(int error, vartype *det);
-static int linalg_det_prev_sm_err;
+static bool linalg_det_prev_sm_err;
 
 static int det_r_completion(int error, vartype_realmatrix *a, int4 *perm,
 				    phloat det) LINALG1_SECT;
@@ -1160,7 +1160,7 @@ int linalg_det(const vartype *src, void (*completion)(int, vartype *)) {
 	 * mode to its original value.
 	 */
 	linalg_det_prev_sm_err = core_settings.matrix_singularmatrix;
-	core_settings.matrix_singularmatrix = 1;
+	core_settings.matrix_singularmatrix = true;
 
 	linalg_det_completion = completion;
 	return lu_decomp_r(ma, perm, det_r_completion); 
@@ -1191,7 +1191,7 @@ int linalg_det(const vartype *src, void (*completion)(int, vartype *)) {
 	 * mode to its original value.
 	 */
 	linalg_det_prev_sm_err = core_settings.matrix_singularmatrix;
-	core_settings.matrix_singularmatrix = 1;
+	core_settings.matrix_singularmatrix = true;
 
 	linalg_det_completion = completion;
 	return lu_decomp_c(ma, perm, det_c_completion); 

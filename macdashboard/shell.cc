@@ -563,13 +563,10 @@ main(int argc, char *argv[])
 		case 'e':
 		case 'E':
 			if (strstr(cmd, "invSingular")) {
-				core_settings.matrix_singularmatrix = cmd[0] == 'E' ? 1 : 0;
+				core_settings.matrix_singularmatrix = cmd[0] == 'E';
 			}
 			if (strstr(cmd, "matrixOverflow")) {
-				core_settings.matrix_outofrange = cmd[0] == 'E' ? 1 : 0;
-			}
-			if (strstr(cmd, "roundArgs")) {
-				core_settings.ip_hack = cmd[0] == 'E' ? 1 : 0;
+				core_settings.matrix_outofrange = cmd[0] == 'E';
 			}
 			break;
 		}

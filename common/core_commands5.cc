@@ -853,7 +853,7 @@ int docmd_pgminti(arg_struct *arg) {
 	draw_string(0, 0, "Set Vars; Select \003var", 21);
 	flags.f.message = 1;
 	flags.f.two_line_message = 0;
-	mode_varmenu = 1;
+	mode_varmenu = true;
 	return ERR_NONE;
     } else
 	return ERR_INVALID_TYPE;
@@ -1152,7 +1152,7 @@ static int sigma_helper_1(int weight) {
 		free_vartype(reg_lastx);
 		reg_lastx = reg_x;
 		reg_x = (vartype *) x;
-		mode_disable_stack_lift = 1;
+		mode_disable_stack_lift = true;
 		return ERR_NONE;
 	    } else if (reg_y->type == TYPE_STRING)
 		return ERR_ALPHA_DATA_IS_INVALID;
@@ -1179,7 +1179,7 @@ static int sigma_helper_1(int weight) {
 	    free_vartype(reg_lastx);
 	    reg_lastx = reg_x;
 	    reg_x = (vartype *) x;
-	    mode_disable_stack_lift = 1;
+	    mode_disable_stack_lift = true;
 	    return ERR_NONE;
 	}
 	case TYPE_STRING:

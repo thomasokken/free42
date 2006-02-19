@@ -69,7 +69,6 @@ function startUp()
 
 	if (widget.preferenceForKey("Free42-invSingular")) document.getElementById("invSingular").checked = true;
 	if (widget.preferenceForKey("Free42-matrixOverflow")) document.getElementById("matrixOverflow").checked = true;
-	if (widget.preferenceForKey("Free42-roundArgs")) document.getElementById("roundArgs").checked = true;
 
 	document.addEventListener("keydown", keyPressed, true);
 }

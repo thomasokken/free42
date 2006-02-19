@@ -180,8 +180,7 @@ bool Phloat::operator==(Phloat p) const {
 
 /* public */
 bool Phloat::operator!=(Phloat p) const {
-    // TODO -- this does not handle NaN correctly
-    return BCDFloat::equal(&bcd, &p.bcd);
+    return !BCDFloat::equal(&bcd, &p.bcd);
 }
 
 /* public */
@@ -619,18 +618,20 @@ BCDFloat double2bcd(double d) {
 	d = -d;
 
     BCDFloat res;
-    int exp = ((int) log10(d)) / 4;
-    res.d_[P] = exp;
-    double m = pow(100.0, (double) exp);
-    d /= m;
-    d /= m;
-    for (int i = 0; i <= P; i++) {
-	short s = (short) d;
-	res.d_[i] = s;
-	d = (d - s) * 10000;
+    if (d != 0) {
+	int exp = (((int) floor(log10(d))) & ~3) >> 2;
+	res.d_[P] = exp + 1;
+	double m = pow(100.0, (double) exp);
+	d /= m;
+	d /= m;
+	for (int i = 0; i < P; i++) {
+	    short s = (short) d;
+	    res.d_[i] = s;
+	    d = (d - s) * 10000;
+	}
+	if (neg)
+	    res.negate();
     }
-    if (neg)
-	res.negate();
     return res;
 }
 
@@ -1549,16 +1550,19 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
 	offset = 2;
     else
 	offset = 3;
-    for (int i = 0; i < 4; i++) {
+    bcd_exponent = pd.bcd.exp() * 4 - 1 - offset;
+    for (int i = 0; i < 5; i++) {
 	short s = pd.bcd.d_[i];
 	for (int j = 0; j < 4; j++) {
 	    if (pos == 16)
 		break;
-	    bcd_mantissa[pos++] = s / 1000;
-	    s /= 10;
+	    if (offset == 0)
+		bcd_mantissa[pos++] = s / 1000;
+	    else
+		offset--;
+	    s = (s % 1000) * 10;
 	}
     }
-    bcd_exponent = pd.bcd.exp() * 4 - 1 - offset;
 
 #endif // BCD_MATH
 

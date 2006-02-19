@@ -32,8 +32,8 @@
 #include "shell_spool.h"
 
 
-static void set_shift(int state) MAIN_SECT;
-static void set_shift(int state) {
+static void set_shift(bool state) MAIN_SECT;
+static void set_shift(bool state) {
     if (mode_shift != state) {
 	mode_shift = state;
 	shell_annunciators(-1, state, -1, -1, -1, -1);
@@ -134,7 +134,7 @@ int core_keydown(int key, int *enqueued, int *repeat) {
 		    keybuf_head = (keybuf_head + 1) & 15;
 		}
 	    }
-	    set_shift(0);
+	    set_shift(false);
 	}
 	error = mode_interruptible(0);
 	if (error == ERR_INTERRUPTIBLE)
@@ -144,7 +144,7 @@ int core_keydown(int key, int *enqueued, int *repeat) {
 	keep_running = handle_error(error);
 	if (mode_running) {
 	    if (!keep_running)
-		set_running(0);
+		set_running(false);
 	} else {
 	    shell_annunciators(-1, -1, -1, 0, -1, -1);
 	    pending_command = CMD_NONE;
@@ -164,8 +164,8 @@ int core_keydown(int key, int *enqueued, int *repeat) {
 	if (key != 0) {
 	    if (key == KEY_EXIT) {
 		keybuf_tail = keybuf_head;
-		set_shift(0);
-		set_running(0);
+		set_shift(false);
+		set_running(false);
 		pending_command = CMD_CANCELLED;
 		return 0;
 	    }
@@ -173,7 +173,7 @@ int core_keydown(int key, int *enqueued, int *repeat) {
 	    *enqueued = 1;
 	    if (!mode_shift && key == KEY_RUN) {
 		keybuf_tail = keybuf_head;
-		set_running(0);
+		set_running(false);
 		redisplay();
 		return 0;
 	    }
@@ -183,7 +183,7 @@ int core_keydown(int key, int *enqueued, int *repeat) {
 		keybuf[keybuf_head] = key;
 		keybuf_head = (keybuf_head + 1) & 15;
 	    }
-	    set_shift(0);
+	    set_shift(false);
 	}
 	continue_running();
 	if ((mode_running && !mode_getkey) || keybuf_tail != keybuf_head)
@@ -202,7 +202,7 @@ int core_keydown(int key, int *enqueued, int *repeat) {
 	}
     }
 
-    /* If we get here, mode_running must be 0,
+    /* If we get here, mode_running must be false.
      * or a program is running but hanging in GETKEY;
      */
 
@@ -237,7 +237,7 @@ int core_keydown(int key, int *enqueued, int *repeat) {
 		keybuf[keybuf_head] = key;
 		keybuf_head = (keybuf_head + 1) & 15;
 	    }
-	    set_shift(0);
+	    set_shift(false);
 	}
 	return mode_running || keybuf_head != keybuf_tail;
     }
@@ -247,7 +247,7 @@ int core_keydown(int key, int *enqueued, int *repeat) {
      */
     if (key != 0) {
 	int shift = mode_shift;
-	set_shift(0);
+	set_shift(false);
 	if (mode_getkey && mode_running)
 	    shell_annunciators(-1, -1, -1, 1, -1, -1);
 	keydown(shift, key);
@@ -379,7 +379,7 @@ int core_keyup() {
 		|| pending_command == CMD_GTODOT
 		|| pending_command == CMD_GTODOTDOT
 		|| pending_command == CMD_RTN)
-	    /* NOTE: set_running(1) also ends INPUT mode, so commands that
+	    /* NOTE: set_running(true) also ends INPUT mode, so commands that
 	     * cause program execution to start do not have to be handled here.
 	     */
 	    input_length = 0;
@@ -398,7 +398,7 @@ int core_keyup() {
 	pending_command = CMD_NONE;
 	if (pc == -1)
 	    pc = 0;
-	set_running(1);
+	set_running(true);
 	return 1;
     }
 
@@ -412,15 +412,15 @@ int core_keyup() {
 	if ((flags.f.trace_print || flags.f.normal_print)
 		&& flags.f.printer_exists)
 	    print_program_line(current_prgm, oldpc);
-	mode_disable_stack_lift = 0;
-	set_running(1);
+	mode_disable_stack_lift = false;
+	set_running(true);
 	error = cmdlist(cmd)->handler(&arg);
-	set_running(0);
+	set_running(false);
     } else {
 	if ((flags.f.trace_print || flags.f.normal_print)
 		&& flags.f.printer_exists)
 	    print_command(pending_command, &pending_command_arg);
-	mode_disable_stack_lift = 0;
+	mode_disable_stack_lift = false;
 	error = cmdlist(pending_command)->handler(&pending_command_arg);
     }
 
@@ -459,7 +459,7 @@ int core_allows_powerdown(int *want_cpu) {
 	     * anyway, so we change our mind and allow the powerdown.
 	     */
 	    display_error(ERR_INSUFFICIENT_MEMORY, 1);
-	    set_running(0);
+	    set_running(false);
 	    redisplay();
 	    allow = 1;
 	}
@@ -475,7 +475,7 @@ int core_powercycle() {
 	stop_interruptible();
 
     keybuf_tail = keybuf_head;
-    set_shift(0);
+    set_shift(false);
     flags.f.continuous_on = 0;
     pending_command = CMD_NONE;
 
@@ -502,17 +502,17 @@ int core_powercycle() {
 	}
 	if (!flags.f.auto_exec)
 	    need_redisplay = 1;
-	mode_getkey = 0;
+	mode_getkey = false;
     }
 
     if (flags.f.auto_exec) {
 	if (mode_command_entry)
-	    finish_command_entry(0);
-	set_running(1);
+	    finish_command_entry(false);
+	set_running(true);
 	flags.f.auto_exec = 0;
     } else {
 	if (mode_running) {
-	    set_running(0);
+	    set_running(false);
 	    need_redisplay = 1;
 	}
 	if (need_redisplay)
@@ -1913,7 +1913,7 @@ void core_paste_real(double x) {
 	squeak();
     else {
 	if (!flags.f.prgm_mode)
-	    mode_number_entry = 0;
+	    mode_number_entry = false;
 	recall_result(v);
 	flags.f.stack_lift_disable = 0;
     }
@@ -1925,7 +1925,7 @@ void core_paste_complex(double re, double im) {
 	squeak();
     else {
 	if (!flags.f.prgm_mode)
-	    mode_number_entry = 0;
+	    mode_number_entry = false;
 	recall_result(v);
 	flags.f.stack_lift_disable = 0;
     }
@@ -1941,17 +1941,17 @@ void core_paste_string(const char *s) {
 	squeak();
     else {
 	if (!flags.f.prgm_mode)
-	    mode_number_entry = 0;
+	    mode_number_entry = false;
 	recall_result(v);
 	flags.f.stack_lift_disable = 0;
     }
 }
 
-void set_alpha_entry(int state) {
+void set_alpha_entry(bool state) {
     mode_alpha_entry = state;
 }
 
-void set_running(int state) {
+void set_running(bool state) {
     if (mode_running != state) {
 	mode_running = state;
 	shell_annunciators(-1, -1, -1, state, -1, -1);
@@ -1964,7 +1964,7 @@ void set_running(int state) {
     }
 }
 
-int program_running() {
+bool program_running() {
     return mode_running;
 }
 
@@ -1989,7 +1989,7 @@ void do_interactive(int command) {
 	redisplay();
 	return;
     } else if (command == CMD_CLALLa) {
-	mode_clall = 1;
+	mode_clall = true;
 	redisplay();
 	return;
     } else if (command == CMD_CLV || command == CMD_PRV) {
@@ -2058,13 +2058,13 @@ void continue_running() {
 	if (pc >= prgms[current_prgm].size)
 	    pc = -1;
 	if (pc == -1) {
-	    set_running(0);
+	    set_running(false);
 	    return;
 	}
 	get_next_command(&pc, &cmd, &arg, 1);
 	if (flags.f.trace_print && flags.f.printer_exists)
 	    print_program_line(current_prgm, oldpc);
-	mode_disable_stack_lift = 0;
+	mode_disable_stack_lift = false;
 	error = cmdlist(cmd)->handler(&arg);
 	if (error == ERR_INTERRUPTIBLE)
 	    return;
@@ -2246,7 +2246,7 @@ void start_incomplete_command(int cmd_id) {
     else
 	incomplete_maxdigits = 2;
     incomplete_argtype = argtype;
-    mode_command_entry = 1;
+    mode_command_entry = true;
     if (incomplete_command == CMD_ASSIGNa) {
 	set_catalog_menu(CATSECT_TOP);
 	flags.f.local_label = 0;
@@ -2277,14 +2277,14 @@ void start_incomplete_command(int cmd_id) {
 	    if (incomplete_command == CMD_MVAR)
 		mode_commandmenu = MENU_ALPHA1;
 	} else {
-	    mode_command_entry = 0;
+	    mode_command_entry = false;
 	    display_error(ERR_NO_REAL_VARIABLES, 0);
 	}
     } else if (argtype == ARG_MAT) {
 	if (flags.f.prgm_mode || vars_exist(0, 0, 1))
 	    set_catalog_menu(CATSECT_MAT_ONLY);
 	else if (cmd_id != CMD_DIM) {
-	    mode_command_entry = 0;
+	    mode_command_entry = false;
 	    display_error(ERR_NO_MATRIX_VARIABLES, 0);
 	}
     } else if (argtype == ARG_LBL || argtype == ARG_PRGM)
@@ -2294,13 +2294,13 @@ void start_incomplete_command(int cmd_id) {
     redisplay();
 }
 
-void finish_command_entry(int refresh) {
+void finish_command_entry(bool refresh) {
     if (pending_command == CMD_ASSIGNa) {
 	pending_command = CMD_NONE;
 	start_incomplete_command(CMD_ASSIGNb);
 	return;
     }
-    mode_command_entry = 0;
+    mode_command_entry = false;
     if (flags.f.prgm_mode) {
 	set_menu(MENULEVEL_COMMAND, MENU_NONE);
 	if (pending_command == CMD_NULL || pending_command == CMD_CANCELLED) {
@@ -2354,7 +2354,7 @@ void finish_command_entry(int refresh) {
 		|| (pending_command >= CMD_ASGN01
 		    && pending_command <= CMD_ASGN18)) {
 	    set_menu(MENULEVEL_PLAIN, mode_commandmenu);
-	    mode_plainmenu_sticky = 1;
+	    mode_plainmenu_sticky = true;
 	}
 	set_menu(MENULEVEL_COMMAND, MENU_NONE);
 	if (pending_command == CMD_BST) {
@@ -2382,15 +2382,15 @@ void finish_xeq() {
 			   pending_command_arg.length);
 
     if (cmd == CMD_CLALLa) {
-	mode_clall = 1;
-	mode_command_entry = 0;
+	mode_clall = true;
+	mode_command_entry = false;
 	pending_command = CMD_NONE;
 	redisplay();
 	return;
     }
 
     if (cmd == CMD_NONE)
-	finish_command_entry(1);
+	finish_command_entry(true);
     else {
 	/* Show the entered command in its XEQ "FOO"
 	 * form, briefly, just to confirm to the user
@@ -2399,12 +2399,12 @@ void finish_xeq() {
 	 * usual brief delay (timeout1() or the
 	 * explicit delay, below).
 	 */
-	mode_command_entry = 0;
+	mode_command_entry = false;
 	redisplay();
 	if (cmdlist(cmd)->argtype == ARG_NONE) {
 	    pending_command = cmd;
 	    pending_command_arg.type = ARGTYPE_NONE;
-	    finish_command_entry(0);
+	    finish_command_entry(false);
 	    return;
 	} else {
 	    shell_delay(250);
@@ -2433,7 +2433,7 @@ void start_alpha_prgm_line() {
     if (cmdline_row == 1)
 	display_prgm_line(0, -1);
     entered_string_length = 0;
-    mode_alpha_entry = 1;
+    mode_alpha_entry = true;
 }
 
 void finish_alpha_prgm_line() {
@@ -2450,7 +2450,7 @@ void finish_alpha_prgm_line() {
 	store_command(pc, CMD_STRING, &arg);
 	prgm_highlight_row = 1;
     }
-    mode_alpha_entry = 0;
+    mode_alpha_entry = false;
 }
 
 int shiftcharacter(char c) {
@@ -2465,9 +2465,9 @@ static void stop_interruptible() {
     handle_error(error);
     mode_interruptible = NULL;
     if (mode_running)
-	set_running(0);
+	set_running(false);
     else
-	shell_annunciators(-1, -1, -1, 0, -1, -1);
+	shell_annunciators(-1, -1, -1, false, -1, -1);
     pending_command = CMD_NONE;
     redisplay();
 }
@@ -2485,7 +2485,7 @@ static int handle_error(int error) {
 	} else if (error == ERR_STOP) {
 	    if (pc >= prgms[current_prgm].size)
 		pc = -1;
-	    set_running(0);
+	    set_running(false);
 	    return 0;
 	} else if (error != ERR_NONE && error != ERR_YES) {
 	    if (flags.f.error_ignore) {
@@ -2499,13 +2499,13 @@ static int handle_error(int error) {
 		unwind_stack_until_solve();
 		error = return_to_solve(1);
 		if (error == ERR_STOP)
-		    set_running(0);
+		    set_running(false);
 		if (error == ERR_NONE || error == ERR_RUN || error == ERR_STOP)
 		    return 0;
 	    }
 	    pc = oldpc;
 	    display_error(error, 1);
-	    set_running(0);
+	    set_running(false);
 	    return 0;
 	}
 	return 1;
@@ -2544,7 +2544,7 @@ static int handle_error(int error) {
 	return 0;
     } else {
 	if (error == ERR_RUN) {
-	    set_running(1);
+	    set_running(true);
 	    error = ERR_NONE;
 	}
 	if (error == ERR_NONE || error == ERR_NO || error == ERR_YES

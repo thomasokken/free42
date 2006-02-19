@@ -1074,6 +1074,13 @@ bool BCDFloat::le(const BCDFloat* a, const BCDFloat* b)
 
 bool BCDFloat::equal(const BCDFloat* a, const BCDFloat* b)
 {
+    /* handle zero separately, to prevent zeroes with unequal
+     * exponents from being considered different.
+     * TODO - bug report. (ThO)
+     */
+    if (a->d_[0] == 0 && b->d_[0] == 0)
+	return true;
+
     /* compare the memory */
     int i;
     for (i = 0; i <= P; ++i) {

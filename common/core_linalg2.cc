@@ -72,7 +72,7 @@ int lu_decomp_r(vartype_realmatrix *a, int4 *perm,
 
     lu_r_data = dat;
     mode_interruptible = lu_decomp_r_worker;
-    mode_stoppable = 0;
+    mode_stoppable = false;
     return ERR_INTERRUPTIBLE;
 }
 
@@ -256,7 +256,7 @@ int lu_decomp_c(vartype_complexmatrix *a, int4 *perm,
 
     lu_c_data = dat;
     mode_interruptible = lu_decomp_c_worker;
-    mode_stoppable = 0;
+    mode_stoppable = false;
     return ERR_INTERRUPTIBLE;
 }
 
@@ -476,7 +476,7 @@ int lu_backsubst_rr(vartype_realmatrix *a, int4 *perm, vartype_realmatrix *b,
 
     backsub_rr_data = dat;
     mode_interruptible = lu_backsubst_rr_worker;
-    mode_stoppable = 0;
+    mode_stoppable = false;
     return ERR_INTERRUPTIBLE;
 }
 
@@ -592,7 +592,7 @@ int lu_backsubst_rc(vartype_realmatrix *a, int4 *perm, vartype_complexmatrix *b,
 
     backsub_rc_data = dat;
     mode_interruptible = lu_backsubst_rc_worker;
-    mode_stoppable = 0;
+    mode_stoppable = false;
     return ERR_INTERRUPTIBLE;
 }
 
@@ -729,7 +729,7 @@ int lu_backsubst_cc(vartype_complexmatrix *a, int4 *perm, vartype_complexmatrix 
 
     backsub_cc_data = dat;
     mode_interruptible = lu_backsubst_cc_worker;
-    mode_stoppable = 0;
+    mode_stoppable = false;
     return ERR_INTERRUPTIBLE;
 }
 

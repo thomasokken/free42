@@ -92,7 +92,9 @@ struct BCDFloat
     void                asString(char* buf) const;
     int                 exp() const { return ((short)(d_[P] << 1)) >> 1; }
     void                exp(int v) { d_[P] = (v & (NEG-1)); }
-    bool                neg() const { return (d_[P]& NEG) != 0; }
+    // Modified neg() to check for zero; I don't want negative zeroes.
+    // See also my patch for equal(). TODO - Bug report (ThO)
+    bool                neg() const { return d_[0] != 0 && (d_[P]& NEG) != 0; }
     void                negate() { d_[P] = d_[P] ^ NEG; }
     bool                isZero() const { return d_[0] == 0; }
     bool                isSpecial() const { return (d_[P]&0x7000) == 0x3000; } 

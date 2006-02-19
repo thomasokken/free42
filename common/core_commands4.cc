@@ -1143,7 +1143,7 @@ static int matedit_move(int direction) {
 	free_vartype(reg_x);
 	reg_x = v;
     }
-    mode_disable_stack_lift = 1;
+    mode_disable_stack_lift = true;
     if (flags.f.trace_print && flags.f.printer_enable)
 	docmd_prx(NULL);
     return ERR_NONE;

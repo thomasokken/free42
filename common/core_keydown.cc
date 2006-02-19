@@ -114,7 +114,7 @@ void keydown(int shift, int key) {
 	    pending_command = CMD_CANCELLED;
 	else
 	    pending_command = CMD_NULL;
-	mode_clall = 0;
+	mode_clall = false;
 	return;
     }
 
@@ -125,11 +125,11 @@ void keydown(int shift, int key) {
 	    flags.f.stack_lift_disable = 0;
 	} else {
 	    display_error(ERR_INSUFFICIENT_MEMORY, 1);
-	    set_running(0);
+	    set_running(false);
 	}
 	if (key == KEY_EXIT || (!shift && key == KEY_RUN))
-	    set_running(0);
-	mode_getkey = 0;
+	    set_running(false);
+	mode_getkey = false;
 	if (!mode_running)
 	    redisplay();
 	return;
@@ -167,11 +167,11 @@ void keydown(int shift, int key) {
 	    }
 	}
 
-	mode_alpha_entry = 0;
-	mode_number_entry = 0;
+	mode_alpha_entry = false;
+	mode_number_entry = false;
 	flags.f.prgm_mode = !flags.f.prgm_mode;
 
-	mode_varmenu = 0;
+	mode_varmenu = false;
 	if (flags.f.prgm_mode) {
 	    if (mode_appmenu == MENU_BASE_A_THRU_F)
 		set_menu(MENULEVEL_APP, MENU_BASE);
@@ -211,7 +211,7 @@ void keydown(int shift, int key) {
 	    && (key != KEY_CHS || shift || baseapp || get_base() != 10)
 	    && (key != KEY_BSP || shift)) {
 	/* Leaving number entry mode */
-	mode_number_entry = 0;
+	mode_number_entry = false;
 	if (flags.f.prgm_mode) {
 	    arg_struct arg;
 	    arg.type = ARGTYPE_DOUBLE;
@@ -258,7 +258,7 @@ void keydown(int shift, int key) {
 		&& (flags.f.trace_print || flags.f.normal_print)
 		&& flags.f.printer_exists)
 	    docmd_pra(NULL);
-	mode_alpha_entry = 0;
+	mode_alpha_entry = false;
 	clear_all_rtns();
 	bst();
 	flags.f.prgm_mode = 1;
@@ -302,7 +302,7 @@ void keydown_number_entry(int shift, int key) {
      */
 
     if (key == KEY_BSP && cmdline_length == 1) {
-	mode_number_entry = 0;
+	mode_number_entry = false;
 	if (flags.f.prgm_mode) {
 	    pc = line2pc(pc2line(pc) - 1);
 	    prgm_highlight_row = 0;
@@ -355,7 +355,7 @@ void keydown_number_entry(int shift, int key) {
 	    if (cmdline[0] == '-') {
 		if (cmdline_length == 1) {
 		    if (flags.f.prgm_mode) {
-			mode_number_entry = 0;
+			mode_number_entry = false;
 			pc = line2pc(pc2line(pc) - 1);
 			prgm_highlight_row = 0;
 			redisplay();
@@ -364,7 +364,7 @@ void keydown_number_entry(int shift, int key) {
 			/* This is a bit odd, but it's how the HP-42S
 			 * does it, so there.
 			 */
-			mode_number_entry = 0;
+			mode_number_entry = false;
 			free_vartype(reg_x);
 			reg_x = new_real(0);
 			pending_command = CMD_CLX;
@@ -538,12 +538,12 @@ void keydown_command_entry(int shift, int key) {
 	int menukey;
 	if (!shift && key == KEY_BSP) {
 	    pending_command = CMD_NULL;
-	    finish_command_entry(0);
+	    finish_command_entry(false);
 	    return;
 	}
 	if (key == KEY_EXIT) {
 	    pending_command = CMD_CANCELLED;
-	    finish_command_entry(0);
+	    finish_command_entry(false);
 	    return;
 	}
 	menukey = find_menu_key(key);
@@ -562,7 +562,7 @@ void keydown_command_entry(int shift, int key) {
 	    pending_command_arg.type =
 			incomplete_ind ? ARGTYPE_IND_STK : ARGTYPE_STK;
 	    pending_command_arg.val.stk = "LXYZT"[menukey];
-	    finish_command_entry(1);
+	    finish_command_entry(true);
 	    return;
 	}
 	squeak();
@@ -646,13 +646,13 @@ void keydown_command_entry(int shift, int key) {
 	if (menukey != -1) {
 	    pending_command = CMD_ASGN01 + menukey
 			    + 6 * (mode_commandmenu - MENU_CUSTOM1);
-	    finish_command_entry(1);
+	    finish_command_entry(true);
 	} else if (!shift && key == KEY_BSP) {
 	    pending_command = CMD_NULL;
-	    finish_command_entry(0);
+	    finish_command_entry(false);
 	} else if (key == KEY_EXIT) {
 	    pending_command = CMD_CANCELLED;
-	    finish_command_entry(0);
+	    finish_command_entry(false);
 	} else if (!shift && (key == KEY_UP || key == KEY_DOWN)) {
 	    mode_commandmenu += key == KEY_UP ? -1 : 1;
 	    if (mode_commandmenu < MENU_CUSTOM1)
@@ -684,7 +684,7 @@ void keydown_command_entry(int shift, int key) {
 	    case KEY_EXIT: case KEY_9: cmd += 8; break;
 	    case KEY_BSP:
 		pending_command = CMD_NULL;
-		finish_command_entry(0);
+		finish_command_entry(false);
 		return;
 	    default:
 		squeak();
@@ -780,7 +780,7 @@ void keydown_command_entry(int shift, int key) {
 			    pending_command_arg.val.text[i] =
 						labels[itemindex].name[i];
 		    }
-		    finish_command_entry(1);
+		    finish_command_entry(true);
 		    return;
 		}
 		pending_command = incomplete_command;
@@ -800,7 +800,7 @@ void keydown_command_entry(int shift, int key) {
 		if (!incomplete_ind && incomplete_command == CMD_XEQ)
 		    finish_xeq();
 		else
-		    finish_command_entry(1);
+		    finish_command_entry(true);
 		return;
 	    }
 	}
@@ -819,7 +819,7 @@ void keydown_command_entry(int shift, int key) {
 		redisplay();
 	    } else {
 		pending_command = CMD_CANCELLED;
-		finish_command_entry(0);
+		finish_command_entry(false);
 	    }
 	    return;
 	}
@@ -839,7 +839,7 @@ void keydown_command_entry(int shift, int key) {
 	    for (i = 0; i < pending_command_arg.length; i++)
 		pending_command_arg.val.text[i] =
 					varmenu_labeltext[menukey][i];
-	    finish_command_entry(0);
+	    finish_command_entry(false);
 	    return;
 	}
 	if (!shift && (key == KEY_UP || key == KEY_DOWN)) {
@@ -859,7 +859,7 @@ void keydown_command_entry(int shift, int key) {
 	}
 	if (key == KEY_EXIT) {
 	    pending_command = CMD_CANCELLED;
-	    finish_command_entry(0);
+	    finish_command_entry(false);
 	    return;
 	}
     } else if (mode_commandmenu == MENU_INTEG_PARAMS) {
@@ -878,12 +878,12 @@ void keydown_command_entry(int shift, int key) {
 	    pending_command_arg.length = length;
 	    for (i = 0; i < length; i++)
 		pending_command_arg.val.text[i] = name[i];
-	    finish_command_entry(0);
+	    finish_command_entry(false);
 	    return;
 	}
 	if (key == KEY_EXIT) {
 	    pending_command = CMD_CANCELLED;
-	    finish_command_entry(0);
+	    finish_command_entry(false);
 	    return;
 	}
     }
@@ -891,7 +891,7 @@ void keydown_command_entry(int shift, int key) {
     if (!incomplete_alpha) {
 	if (key == KEY_EXIT) {
 	    pending_command = CMD_CANCELLED;
-	    finish_command_entry(0);
+	    finish_command_entry(false);
 	    return;
 	}
 
@@ -955,7 +955,7 @@ void keydown_command_entry(int shift, int key) {
 		&& key == KEY_DOT) {
 	    pending_command = CMD_GTODOTDOT;
 	    pending_command_arg.type = ARGTYPE_NONE;
-	    finish_command_entry(0);
+	    finish_command_entry(false);
 	    return;
 	}
 	    
@@ -986,7 +986,7 @@ void keydown_command_entry(int shift, int key) {
 		} else if (incomplete_command == CMD_GOTOCOLUMN) {
 		    matedit_goto(pending_command_arg.val.num, incomplete_num);
 		    pending_command = CMD_NONE;
-		    finish_command_entry(1);
+		    finish_command_entry(true);
 		    return;
 		}
 		pending_command = incomplete_command;
@@ -994,7 +994,7 @@ void keydown_command_entry(int shift, int key) {
 			    incomplete_ind ? ARGTYPE_IND_NUM : ARGTYPE_NUM;
 		pending_command_arg.length = incomplete_maxdigits;
 		pending_command_arg.val.num = incomplete_num;
-		finish_command_entry(0);
+		finish_command_entry(false);
 		return;
 	    }
 	}
@@ -1062,7 +1062,7 @@ void keydown_command_entry(int shift, int key) {
 		} else if (incomplete_command == CMD_GOTOCOLUMN) {
 		    matedit_goto(pending_command_arg.val.num, incomplete_num);
 		    pending_command = CMD_NONE;
-		    finish_command_entry(1);
+		    finish_command_entry(true);
 		    return;
 		}
 		pending_command = incomplete_command;
@@ -1073,7 +1073,7 @@ void keydown_command_entry(int shift, int key) {
 			incomplete_argtype == ARG_NUM11 && incomplete_num > 11)
 		    incomplete_num = 11;
 		pending_command_arg.val.num = incomplete_num;
-		finish_command_entry(1);
+		finish_command_entry(true);
 		return;
 	    } else
 		set_menu(MENULEVEL_COMMAND, MENU_NONE);
@@ -1085,7 +1085,7 @@ void keydown_command_entry(int shift, int key) {
 		    && !shift && key == KEY_BSP) {
 	    if (incomplete_length == 0) {
 		pending_command = CMD_NULL;
-		finish_command_entry(0);
+		finish_command_entry(false);
 		return;
 	    } else {
 		incomplete_length--;
@@ -1250,7 +1250,7 @@ void keydown_command_entry(int shift, int key) {
 	    const menu_spec *m;
 	    if (mode_commandmenu == MENU_NONE) {
 		pending_command = CMD_CANCELLED;
-		finish_command_entry(0);
+		finish_command_entry(false);
 		return;
 	    }
 	    if (mode_commandmenu == MENU_CATALOG) {
@@ -1268,7 +1268,7 @@ void keydown_command_entry(int shift, int key) {
 	    set_menu(MENULEVEL_COMMAND, m->parent);
 	    if (mode_commandmenu == MENU_NONE) {
 		pending_command = CMD_CANCELLED;
-		finish_command_entry(0);
+		finish_command_entry(false);
 	    } else
 		redisplay();
 	    return;
@@ -1285,7 +1285,7 @@ void keydown_command_entry(int shift, int key) {
 					? CMD_KEYG : CMD_KEYX);
 		    else {
 			pending_command = CMD_NULL;
-			finish_command_entry(0);
+			finish_command_entry(false);
 		    }
 		} else {
 		    incomplete_length--;
@@ -1314,7 +1314,7 @@ void keydown_command_entry(int shift, int key) {
 		    } else if (incomplete_argtype == ARG_RVAR) {
 			if (incomplete_command == CMD_MVAR) {
 			    pending_command = CMD_NULL;
-			    finish_command_entry(0);
+			    finish_command_entry(false);
 			} else
 			    goto out_of_alpha;
 		    } else if (incomplete_argtype == ARG_MAT) {
@@ -1337,7 +1337,7 @@ void keydown_command_entry(int shift, int key) {
 		    redisplay();
 		} else {
 		    pending_command = CMD_NULL;
-		    finish_command_entry(0);
+		    finish_command_entry(false);
 		}
 		return;
 	    }
@@ -1443,7 +1443,7 @@ void keydown_command_entry(int shift, int key) {
 			|| (incomplete_str[0] >= 'a'
 			    && incomplete_str[0] <= 'e'))) {
 		/* Display XEQ "A" briefly before changing to XEQ A */
-		mode_command_entry = 0;
+		mode_command_entry = false;
 		pending_command_arg.type = ARGTYPE_STR;
 		pending_command_arg.length = 1;
 		pending_command_arg.val.text[0] = incomplete_str[0];
@@ -1457,7 +1457,7 @@ void keydown_command_entry(int shift, int key) {
 		pending_command_arg.type = ARGTYPE_LCLBL;
 		pending_command_arg.val.lclbl = incomplete_str[0];
 		set_menu(MENULEVEL_COMMAND, MENU_NONE);
-		finish_command_entry(0);
+		finish_command_entry(false);
 		return;
 	    } else {
 		pending_command_arg.type =
@@ -1469,7 +1469,7 @@ void keydown_command_entry(int shift, int key) {
 		if (!incomplete_ind && incomplete_command == CMD_XEQ)
 		    finish_xeq();
 		else
-		    finish_command_entry(1);
+		    finish_command_entry(true);
 		return;
 	    }
 	}
@@ -1514,7 +1514,7 @@ void keydown_alpha_mode(int shift, int key) {
 	    if (!mode_alpha_entry) {
 		reg_alpha_length = 0;
 		flags.f.alpha_data_input = 1;
-		mode_alpha_entry = 1;
+		mode_alpha_entry = true;
 	    }
 	    append_alpha_char(c);
 	    if (reg_alpha_length == 44)
@@ -1563,7 +1563,7 @@ void keydown_alpha_mode(int shift, int key) {
     } else {
 	if (!mode_alpha_entry) {
 	    reg_alpha_length = 0;
-	    mode_alpha_entry = 1;
+	    mode_alpha_entry = true;
 	    flags.f.alpha_data_input = 1;
 	}
 	append_alpha_char(c);
@@ -1595,7 +1595,7 @@ void keydown_alpha_mode(int shift, int key) {
 		else if ((flags.f.trace_print || flags.f.normal_print)
 			&& flags.f.printer_exists)
 		    docmd_pra(NULL);
-		mode_alpha_entry = 0;
+		mode_alpha_entry = false;
 	    }
 	    flags.f.alpha_mode = 0;
 	    pending_command = CMD_CANCELLED;
@@ -1657,10 +1657,10 @@ void keydown_alpha_mode(int shift, int key) {
 			&& flags.f.printer_exists)
 		    docmd_pra(NULL);
 		flags.f.alpha_mode = 0;
-		mode_alpha_entry = 0;
+		mode_alpha_entry = false;
 		set_menu(MENULEVEL_ALPHA, MENU_NONE);
 	    } else
-		mode_alpha_entry = 1;
+		mode_alpha_entry = true;
 	}
 	redisplay();
 	return;
@@ -1716,7 +1716,7 @@ void keydown_alpha_mode(int shift, int key) {
 	else if ((flags.f.trace_print || flags.f.normal_print)
 		&& flags.f.printer_exists)
 	    docmd_pra(NULL);
-	mode_alpha_entry = 0;
+	mode_alpha_entry = false;
     }
 
     if (command == CMD_CANCELLED) {
@@ -1741,7 +1741,7 @@ void keydown_normal_mode(int shift, int key) {
 	    cmdline_row = 0;
 	else
 	    cmdline_row = 1;
-	mode_number_entry = 1;
+	mode_number_entry = true;
 	if (flags.f.prgm_mode) {
 	    if (pc == -1)
 		pc = 0;
@@ -1759,7 +1759,7 @@ void keydown_normal_mode(int shift, int key) {
 	    } else
 		flags.f.stack_lift_disable = 0;
 	    flags.f.numeric_data_input = 1;
-	    mode_varmenu = 0;
+	    mode_varmenu = false;
 	    if (cmdline_row == 1)
 		display_y(0);
 	    else
@@ -1943,7 +1943,7 @@ void keydown_normal_mode(int shift, int key) {
 			    if (cmd == -1)
 				pending_command = CMD_XEQ;
 			    else if (cmd == CMD_CLALLa) {
-				mode_clall = 1;
+				mode_clall = true;
 				pending_command = CMD_NONE;
 				redisplay();
 				return;
@@ -2244,7 +2244,7 @@ void keydown_normal_mode(int shift, int key) {
 	if (deferred_print)
 	    print_command(CMD_NULL, NULL);
 	flags.f.alpha_mode = 1;
-	mode_alpha_entry = 0;
+	mode_alpha_entry = false;
 	set_menu(MENULEVEL_ALPHA, MENU_ALPHA1);
 	redisplay();
 	return;
