@@ -892,7 +892,7 @@ static bool unpersist_vartype(vartype **v) {
 		    for (int4 i = 0; i < size; i++) {
 			if (rm->array->is_string[i]) {
 			    char *src = temp + i * phsz;
-			    char *dst = (char *) rm->array->data[i];
+			    char *dst = (char *) (rm->array->data + i);
 			    for (int j = 0; j < 7; j++)
 				*dst++ = *src++;
 			} else {
@@ -1955,7 +1955,7 @@ bool read_phloat(phloat *d) {
 	    if (shell_read_saved_state(bcd, (P + 1) * sizeof(short))
 		    != (P + 1) * sizeof(short))
 		return false;
-	    *d = bcd2phloat(bcd);
+	    *d = bcd2double(bcd);
 	    return true;
 	#endif
     } else
@@ -2458,7 +2458,7 @@ bool read_arg(arg_struct *arg, bool old) {
 	    char *s = (char *) &da.val;
 	    for (unsigned int i = 0; i < sizeof(da.val); i++)
 		*d++ = *s++;
-	    arg->val_d = bcd2double(da.val_d);
+	    arg->val_d = bcd2double(da.val_d.d_);
 	#endif
 	return true;
     } else {
@@ -2552,19 +2552,19 @@ static bool convert_programs() {
 			fake_bcd bcd;
 			unsigned char *b = (unsigned char *) &bcd;
 			for (int i = 0; i < (int) sizeof(fake_bcd); i++)
-			    *b++ = prgm->text[(*pc)++];
-			double dbl = bcd2double(bcd);
+			    *b++ = prgm->text[pc++];
+			double dbl = bcd2double(bcd.d_);
 			int inf = isinf(dbl);
 			if (inf > 0)
-			    dbl = POS_HUGE_DOUBLE;
+			    dbl = POS_HUGE_PHLOAT;
 			else if (inf < 0)
-			    dbl = NEG_HUGE_DOUBLE;
+			    dbl = NEG_HUGE_PHLOAT;
 			else if (dbl == 0) {
 			    if (bcd.d_[0] != 0)
 				if ((bcd.d_[P] & 0x8000) == 0)
-				    dbl = POS_TINY_DOUBLE;
+				    dbl = POS_TINY_PHLOAT;
 				else
-				    dbl = NEG_TINY_DOUBLE;
+				    dbl = NEG_TINY_PHLOAT;
 			}
 			pc -= sizeof(fake_bcd);
 

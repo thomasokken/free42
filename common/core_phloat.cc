@@ -1417,7 +1417,7 @@ int string2phloat(const char *buf, int buflen, phloat *d) {
 }
 
 double bcd2double(const short *p) {
-    short exp = p[P];
+    unsigned short exp = p[P];
     if (exp == 0x3000)
 	return 0.0 / 0.0; // NaN
     else if (exp == 0x3FFF)
@@ -1429,7 +1429,7 @@ double bcd2double(const short *p) {
     double res = 0;
     for (int i = 0; i < P; i++)
 	res = res * 10000 + p[i];
-    return res * pow(10000, exp - P);
+    return res * pow(10000.0, (double) (exp - P));
 }
 
 

@@ -50,7 +50,7 @@ struct hp_string {
 #define to_int8(x) ((int8) (x))
 #define to_double(x) ((double) (x))
 
-#define PI 3.1415926535897932384626433;
+#define PI 3.1415926535897932384626433
 #define P 7
 double bcd2double(const short *p);
 

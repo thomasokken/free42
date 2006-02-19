@@ -40,6 +40,7 @@ OBJS = shell_main.o shell_skin.o skins.o keymap.o shell_loadimage.o \
 	core_variables.o
 
 ifndef PHLOAT_IS_DOUBLE
+SRCS += bcdfloat.cc bcd.cc bcdmath.cc
 OBJS += bcdfloat.o bcd.o bcdmath.o
 else
 CXXFLAGS += -DPHLOAT_IS_DOUBLE

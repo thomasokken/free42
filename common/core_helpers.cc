@@ -829,10 +829,7 @@ int dimension_array_ref(vartype *matrix, int4 rows, int4 columns) {
 }
 
 phloat fix_hms(phloat x) {
-#ifdef PHLOAT_IS_DOUBLE
-    const phloat sec_corr = 0.004;
-    const phloat min_corr = 0.4;
-#else
+#ifndef PHLOAT_IS_DOUBLE
     const phloat sec_corr(4, 1000);
     const phloat min_corr(4, 10);
 #endif

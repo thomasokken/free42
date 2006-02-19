@@ -842,10 +842,7 @@ static int mappable_to_hr(phloat x, phloat *y) COMMANDS1_SECT;
 static int mappable_to_hr(phloat x, phloat *y) {
     int neg = x < 0;
     phloat res;
-#ifdef PHLOAT_IS_DOUBLE
-    const phloat point01 = 0.01;
-    const phloat point36 = 0.36;
-#else
+#ifndef PHLOAT_IS_DOUBLE
     const phloat point01(1, 100);
     const phloat point36(36, 100);
 #endif
