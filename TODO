@@ -1,3 +1,7 @@
+The Windows Decimal build does not print the axis and numbers in plot_thomas.
+Actually, I don't think the Windows Binary build does, either.
+Yet another reason to move back to MSVC++? I need some decent debug tools...
+
 Patch BCD code to tolerate any number of leading zeroes on the exponent.
 
 Does the BCD code leak memory? I couldn't help noticing that some of the
@@ -12,6 +16,7 @@ Migrate Windows build back to MSVC++. Now that I've decided not to use long
 double after all, I don't need to use G++, and for debugging, MSVC++ looks the
 better deal (at least until I can figure out how to get ddd and mingw-gdb to
 talk to each other).
+On the other hand, what MinGW *does* give me is proper Inf and Nan handling...
 
 When windows/Free42.exe is built without BCD_MATH, the solver no longer
 converges on "SUN" with TILT=23.5, LAT=52, SEAS=3.75, HGHT=0, SOLVE("TOD")
