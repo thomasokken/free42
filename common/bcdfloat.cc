@@ -85,7 +85,7 @@ BCDFloat::BCDFloat(const char* s)
     bool eneg = false;
     if (startp) {
         if (toupper(*endp) == 'E') {
-            /* accept 4 digits of exponent */
+            /* accept 6 digits of exponent */
             const char* p = endp + 1;
             if (*p == '-') {
                 eneg = true;
@@ -94,14 +94,11 @@ BCDFloat::BCDFloat(const char* s)
             else if (*p == '+') ++p;  // allow E+1234 
 
             e = 0;
-            const char* se = p;
-            for (i = 0; i < 4; ++i) {
-                if (isdigit(*p)) ++p;
-                else break;
-            }
-            if (p > se) {
-                i = 4 - (p-se); // decade of start digit.
-                while(se != p) e += ((*se++)-'0')*decade_[i++];
+            for (i = 0; i < 6; ++i) {
+		if (isdigit(*p))
+		    e = e * 10 + *p++ - '0';
+                else
+		    break;
             }
             if (eneg) e = -e;
         }
@@ -146,6 +143,24 @@ BCDFloat::BCDFloat(const char* s)
             }
             ++j;
         }
+
+	// Normalize mantissa
+
+	i = 0;
+	while (i < P && d_[i] == 0)
+	    i++;
+	if (i > 0)
+	    if (i == P)
+		// zero
+		e = 0;
+	    else {
+		for (j = i; j < P; j++)
+		    d_[j - i] = d_[j];
+		for (j = P - i; j < P; j++)
+		    d_[j] = 0;
+		e -= i;
+	    }
+
         if (e <= -EXPLIMIT) _init();
         else {
             if (e > EXPLIMIT) *this = posInf();
@@ -340,6 +355,15 @@ int BCDFloat::_round()
 
 void BCDFloat::add(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
 {
+    if (a->isZero()) {
+	*c = *b;
+	return;
+    }
+    if (b->isZero()) {
+	*c = *a;
+	return;
+    }
+
     if (a->isSpecial() || b->isSpecial()) {
         /* inf + inf = inf
          * -inf + (-inf) = -inf
@@ -395,6 +419,16 @@ void BCDFloat::add(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
 
 void BCDFloat::sub(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
 {
+    if (a->isZero()) {
+	*c = *b;
+	c->negate();
+	return;
+    }
+    if (b->isZero()) {
+	*c = *a;
+	return;
+    }
+
     if (a->isSpecial() || b->isSpecial()) {
         bool done = false;
         if (!a->isNan() && !b->isNan()) {
@@ -776,9 +810,10 @@ void BCDFloat::div(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
                 --ea;
             }
             else {
-                c->d_[j] = q;
-                if (j == P) break;
-                ++j;
+                if (j == P) {
+		    c->d_[j] = q;
+		    break;
+		}
 
                 ca = 0;
                 for (i = P; i > 0; --i) {
@@ -796,7 +831,7 @@ void BCDFloat::div(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
                     /* the infamous add back correction */
                     ca = 0;
                     for (i = P; i > 0; --i) {
-                        v = BASE - acc.d_[i] + b1.d_[i-1] + ca;
+                        v = acc.d_[i] + b1.d_[i-1] + ca;
                         ca = 0;
                         if (v >= BASE) {
                             ca = 1;
@@ -804,8 +839,12 @@ void BCDFloat::div(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
                         }
                         acc.d_[i] = v;
                     }
+		    q--;
                 }
-
+		if (q == 0 && j == 0)
+		    --ea;
+		else
+		    c->d_[j++] = q;
             }
 
             acc._lshift();

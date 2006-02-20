@@ -616,7 +616,9 @@ BCD log10(const BCD& v)
 {
     /* XXX FIXME */
     BCD ln10(*(const BCDFloat*)(constTable + BCD_CONST_LN10));
-    return log(v) / ln10;
+    BCD x(log(v));
+    return x / ln10;
+    //return log(v) / ln10;
 }
 
 BCD hypot(const BCD& a, const BCD& b)

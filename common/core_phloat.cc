@@ -43,7 +43,7 @@ void phloat_init() {
     POS_HUGE_PHLOAT.bcd.d_[4] = 9999;
     POS_HUGE_PHLOAT.bcd.d_[5] = 9999;
     POS_HUGE_PHLOAT.bcd.d_[6] = 9999;
-    POS_HUGE_PHLOAT.bcd.d_[7] = 2499;
+    POS_HUGE_PHLOAT.bcd.d_[7] = 2500;
     NEG_HUGE_PHLOAT = -POS_HUGE_PHLOAT;
     POS_TINY_PHLOAT.bcd.d_[0] = 1;
     POS_TINY_PHLOAT.bcd.d_[1] = 0;
@@ -757,6 +757,10 @@ void phloat_init() {
 	NEG_HUGE_DOUBLE = bcdtab->neg_huge_double;
 	POS_TINY_DOUBLE = bcdtab->pos_tiny_double;
 	NEG_TINY_DOUBLE = bcdtab->neg_tiny_double;
+	POS_HUGE_PHLOAT = POS_HUGE_DOUBLE;
+	NEG_HUGE_PHLOAT = NEG_HUGE_DOUBLE;
+	POS_TINY_PHLOAT = POS_TINY_DOUBLE;
+	NEG_TINY_PHLOAT = NEG_TINY_DOUBLE;
 	max_pow2 = bcdtab->max_pow2;
 	min_pow2 = bcdtab->min_pow2;
 	pos_pow2mant = base;
@@ -1590,26 +1594,28 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
 
 #else // BCD_MATH
 
-    int offset, pos = 0;
-    if (pd.bcd.d_[0] >= 1000)
-	offset = 0;
-    else if (pd.bcd.d_[0] >= 100)
-	offset = 1;
-    else if (pd.bcd.d_[0] >= 10)
-	offset = 2;
-    else
-	offset = 3;
-    bcd_exponent = pd.bcd.exp() * 4 - 1 - offset;
-    for (int i = 0; i < 5; i++) {
-	short s = pd.bcd.d_[i];
-	for (int j = 0; j < 4; j++) {
-	    if (pos == 16)
-		break;
-	    if (offset == 0)
-		bcd_mantissa[pos++] = s / 1000;
-	    else
-		offset--;
-	    s = (s % 1000) * 10;
+    if (pd != 0) {
+	int offset, pos = 0;
+	if (pd.bcd.d_[0] >= 1000)
+	    offset = 0;
+	else if (pd.bcd.d_[0] >= 100)
+	    offset = 1;
+	else if (pd.bcd.d_[0] >= 10)
+	    offset = 2;
+	else
+	    offset = 3;
+	bcd_exponent = pd.bcd.exp() * 4 - 1 - offset;
+	for (int i = 0; i < 5; i++) {
+	    short s = pd.bcd.d_[i];
+	    for (int j = 0; j < 4; j++) {
+		if (pos == 16)
+		    break;
+		if (offset == 0)
+		    bcd_mantissa[pos++] = s / 1000;
+		else
+		    offset--;
+		s = (s % 1000) * 10;
+	    }
 	}
     }
 
