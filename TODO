@@ -15,12 +15,12 @@ How hard is it to get rid of the MathLib dependency? (What happens when
 compiling without MathLib.h?)
 Add new BCD_SECT section and put all non-inline code from bcd, bcdfloat, and
 bcdmath into it.
+The PalmOS Decimal build will require 'int' to be changed to 'Int32' in the bcd
+code.
 
 Regression testing: the binary version seems to execute prm_bin OK, and the
 solver and plot_thomas also look fine. On the decimal version, however,
-prm_dec and pi_dec do not work correctly. And, I got a crash a while back,
-weirdness with XEQ using the PGM catalog yielding "Invalid Type"... Sounds
-like memory corruption.
+prm_dec and pi_dec do not work correctly.
 
 Decimal version: implement gamma(), and add *proper* implementations of log1p()
 and expm1().
