@@ -1,3 +1,14 @@
+Patch BCD code to tolerate any number of leading zeroes on the exponent.
+
+Phloat::Phloat(int8) constructor uses double2bcd() internally. That is not good
+-- can lose precision. Should add an int8_to_bcd() method. There are a few other
+places where double2bcd() is also used inappropriately.
+
+Migrate Windows build back to MSVC++. Now that I've decided not to use long
+double after all, I don't need to use G++, and for debugging, MSVC++ looks the
+better deal (at least until I can figure out how to get ddd and mingw-gdb to
+talk to each other).
+
 When windows/Free42.exe is built without BCD_MATH, the solver no longer
 converges on "SUN" with TILT=23.5, LAT=52, SEAS=3.75, HGHT=0, SOLVE("TOD")
 (start TOD with 0 and 12). Noticed while running the PLOT test case with
@@ -18,14 +29,10 @@ bcdmath into it.
 The PalmOS Decimal build will require 'int' to be changed to 'Int32' in the bcd
 code.
 
-Regression testing: the binary version seems to execute prm_bin OK, and the
-solver and plot_thomas also look fine. On the decimal version, however,
-prm_dec and pi_dec do not work correctly.
+Test pi_dec on the decimal build.
 
 Decimal version: implement gamma(), and add *proper* implementations of log1p()
 and expm1().
-
-Pass BCDFloat patches on to Hugh Steers.
 
 ...............................................................................
 

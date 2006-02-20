@@ -330,7 +330,10 @@ int to_digit(Phloat p) {
 
 static int8 mant(const BCDFloat &b) {
     int8 m = 0;
-    for (int i = b.exp() - 1; i >= 0 && i < P; i--)
+    int e = b.exp();
+    if (e > P)
+	e = P;
+    for (int i = 0; i < e; i++)
 	m = m * 10000 + b.d_[i];
     return m;
 }

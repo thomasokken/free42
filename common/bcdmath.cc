@@ -36,6 +36,7 @@
 #define BCD_CONST_ATANLIM (BCD_CONST_LN10+1)
 #define BCD_CONST_PIBY32A (BCD_CONST_ATANLIM+1)
 #define BCD_CONST_PIBY32B (BCD_CONST_PIBY32A+1)
+#define BCD_CONST_POINT5  (BCD_CONST_PIBY32B+1)
 
 typedef unsigned short Dig[P+1];
 
@@ -72,6 +73,8 @@ static Dig constTable[] =
 
     { 981, 7477, 424, 0, 0, 0, 0, 0 }, // pi/32 part A
     { 6810, 3870, 1957, 6057, 2748, 4465, 1312, (-3)&(NEG-1) }, // pi/32 part B
+
+    { 5000, 0, 0, 0, 0, 0, 0, 0 }, // 1/2
 };
 
 BCD pi()
@@ -628,6 +631,16 @@ BCD hypot(const BCD& a, const BCD& b)
 BCD fmod(const BCD& a, const BCD& b)
 {
     /* XXX FIXME */
-    return a - b * trunc(a / b);
+    BCD c = a - b * trunc(a / b);
+    if (a == trunc(a) && b == trunc(b) && !(c == trunc(c))) {
+	// Numerator and denominator are both integral;
+	// in this case we force the result to be integral as well,
+	// since that is what a lot of code will expect.
+	BCD half(*(const BCDFloat*)(constTable + BCD_CONST_POINT5));
+	if (c < 0)
+	    c = trunc(c - half);
+	else
+	    c = trunc(c + half);
+    }
+    return c;
 }
-
