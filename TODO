@@ -4,6 +4,10 @@ though. What's going on? ... This *is* reproducible under POSE.
 First guess: some weirdness with globals again... POS_HUGE_DOUBLE etc. not
 mapped properly?
 
+The Decimal version, Unix and Windows, in FIX and SCI modes, displays 0 as
+0.00E-4. Why? Also, number entry is screwed up: I can't enter 0.0000001 on
+the BCD version.
+
 When windows/Free42.exe is built without BCD_MATH, the solver no longer
 converges on "SUN" with TILT=23.5, LAT=52, SEAS=3.75, HGHT=0, SOLVE("TOD")
 (start TOD with 0 and 12). Noticed while running the PLOT test case with
