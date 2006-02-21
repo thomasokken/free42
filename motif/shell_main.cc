@@ -2963,18 +2963,18 @@ int4 shell_read_saved_state(void *buf, int4 bufsize) {
     }
 }
 
-int shell_write_saved_state(const void *buf, int4 nbytes) {
+bool shell_write_saved_state(const void *buf, int4 nbytes) {
     if (statefile == NULL)
-	return 0;
+	return false;
     else {
 	int4 n = fwrite(buf, 1, nbytes, statefile);
 	if (n != nbytes) {
 	    fclose(statefile);
 	    remove(statefilename);
 	    statefile = NULL;
-	    return 0;
+	    return false;
 	} else
-	    return 1;
+	    return true;
     }
 }
 

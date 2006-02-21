@@ -2575,8 +2575,9 @@ static bool convert_programs() {
 			    prgm->text[pc++] = *b++;
 		    #else
 			fake_bcd bcd;
+			int i;
 			unsigned char *b = (unsigned char *) &bcd;
-			for (int i = 0; i < (int) sizeof(fake_bcd); i++)
+			for (i = 0; i < (int) sizeof(fake_bcd); i++)
 			    *b++ = prgm->text[pc++];
 			double dbl = bcd2double(bcd.d_);
 			int inf = isinf(dbl);
@@ -2599,7 +2600,7 @@ static bool convert_programs() {
 			prgm->size -= shrinkage;
 
 			b = (unsigned char *) &dbl;
-			for (int i = 0; i < (int) sizeof(double); i++)
+			for (i = 0; i < (int) sizeof(double); i++)
 			    prgm->text[pc++] = *b++;
 		    #endif
 		    break;

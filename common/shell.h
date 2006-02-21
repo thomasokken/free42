@@ -111,7 +111,7 @@ int4 shell_read_saved_state(void *buf, int4 bufsize);
  * horrible will happen if you try to call this function during other contexts,
  * but you will always get an error then.)
  */
-int shell_write_saved_state(const void *buf, int4 nbytes);
+bool shell_write_saved_state(const void *buf, int4 nbytes);
 
 /* shell_get_mem()
  * Callback to get the amount of free memory in bytes.

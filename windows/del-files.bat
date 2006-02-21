@@ -42,9 +42,9 @@ del shell_loadimage.cpp
 del shell_loadimage.h
 del shell_spool.cpp
 del shell_spool.h
-del skin2cc.cpp
-del skin2cc.conf
-del keymap2cc.cpp
+del skin2cpp.cpp
+del skin2cpp.conf
+del keymap2cpp.cpp
 del bcd.cpp
 del bcd.h
 del bcdfloat.cpp

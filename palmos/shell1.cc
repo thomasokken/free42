@@ -226,9 +226,9 @@ int4 shell_read_saved_state(void *buf, int4 bufsize) {
     }
 }
 
-int shell_write_saved_state(const void *buf, int4 nbytes) {
+bool shell_write_saved_state(const void *buf, int4 nbytes) {
     if (statefile == NULL)
-	return 0;
+	return false;
     else {
 	Err error;
 	int4 n = FileWrite(statefile, buf, 1, nbytes, &error);
@@ -236,9 +236,9 @@ int shell_write_saved_state(const void *buf, int4 nbytes) {
 	    FileClose(statefile);
 	    FileDelete(0, "Free42State");
 	    statefile = NULL;
-	    return 0;
+	    return false;
 	} else
-	    return 1;
+	    return true;
     }
 }
 

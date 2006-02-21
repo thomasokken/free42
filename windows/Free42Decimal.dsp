@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="Free42" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="Free42Decimal" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Application" 0x0101
 
-CFG=Free42 - Win32 Debug
+CFG=Free42Decimal - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "Free42.mak".
+!MESSAGE NMAKE /f "Free42Decimal.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "Free42.mak" CFG="Free42 - Win32 Debug"
+!MESSAGE NMAKE /f "Free42Decimal.mak" CFG="Free42Decimal - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "Free42 - Win32 Release" (based on "Win32 (x86) Application")
-!MESSAGE "Free42 - Win32 Debug" (based on "Win32 (x86) Application")
+!MESSAGE "Free42Decimal - Win32 Release" (based on "Win32 (x86) Application")
+!MESSAGE "Free42Decimal - Win32 Debug" (based on "Win32 (x86) Application")
 !MESSAGE 
 
 # Begin Project
@@ -29,7 +29,7 @@ CPP=cl.exe
 MTL=midl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "Free42 - Win32 Release"
+!IF  "$(CFG)" == "Free42Decimal - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -38,11 +38,12 @@ RSC=rc.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "Release"
-# PROP Intermediate_Dir "Release"
+# PROP Output_Dir "ReleaseDecimal"
+# PROP Intermediate_Dir "ReleaseDecimal"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /Yu"stdafx.h" /FD /c
-# ADD CPP /nologo /W3 /GX /O2 /D "_WINDOWS" /D "WINDOWS" /D "WIN32" /D "NDEBUG" /D "_MBCS" /FR /FD /c
+# ADD CPP /nologo /W3 /GX /O2 /D "_WINDOWS" /D "WINDOWS" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "BCD_MATH" /FR /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
@@ -54,7 +55,7 @@ LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /machine:I386
 # ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /machine:I386
 
-!ELSEIF  "$(CFG)" == "Free42 - Win32 Debug"
+!ELSEIF  "$(CFG)" == "Free42Decimal - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -63,8 +64,8 @@ LINK32=link.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
-# PROP Output_Dir "Debug"
-# PROP Intermediate_Dir "Debug"
+# PROP Output_Dir "DebugDecimal"
+# PROP Intermediate_Dir "DebugDecimal"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /Yu"stdafx.h" /FD /GZ /c
 # ADD CPP /nologo /W3 /Gm /GX /ZI /Od /D "_WINDOWS" /D "WINDOWS" /D "WIN32" /D "_DEBUG" /D "_MBCS" /FR /FD /GZ /c
@@ -83,8 +84,8 @@ LINK32=link.exe
 
 # Begin Target
 
-# Name "Free42 - Win32 Release"
-# Name "Free42 - Win32 Debug"
+# Name "Free42Decimal - Win32 Release"
+# Name "Free42Decimal - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
@@ -106,7 +107,11 @@ SOURCE=.\core_commands4.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\core_decimal.cpp
+SOURCE=.\core_commands5.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\core_commands6.cpp
 # End Source File
 # Begin Source File
 
@@ -126,7 +131,11 @@ SOURCE=.\core_keydown.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\core_linalg.cpp
+SOURCE=.\core_linalg1.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\core_linalg2.cpp
 # End Source File
 # Begin Source File
 
@@ -134,7 +143,19 @@ SOURCE=.\core_main.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\core_math.cpp
+SOURCE=.\core_math1.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\core_math2.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\core_phloat.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\core_sto_rcl.cpp
 # End Source File
 # Begin Source File
 
@@ -207,7 +228,11 @@ SOURCE=.\core_commands4.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\core_decimal.h
+SOURCE=.\core_commands5.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\core_commands6.h
 # End Source File
 # Begin Source File
 
@@ -227,7 +252,11 @@ SOURCE=.\core_keydown.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\core_linalg.h
+SOURCE=.\core_linalg1.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\core_linalg2.h
 # End Source File
 # Begin Source File
 
@@ -235,7 +264,19 @@ SOURCE=.\core_main.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\core_math.h
+SOURCE=.\core_math1.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\core_math2.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\core_phloat.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\core_sto_rcl.h
 # End Source File
 # Begin Source File
 

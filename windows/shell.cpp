@@ -1014,9 +1014,9 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
 				case IDOK: {
 					// Update the prefs structures from the dialog
 					HWND ctl = GetDlgItem(hDlg, IDC_MATRIX_SINGULARMATRIX);
-					core_settings.matrix_singularmatrix = SendMessage(ctl, BM_GETCHECK, 0, 0);
+					core_settings.matrix_singularmatrix = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
 					ctl = GetDlgItem(hDlg, IDC_MATRIX_OUTOFRANGE);
-					core_settings.matrix_outofrange = SendMessage(ctl, BM_GETCHECK, 0, 0);
+					core_settings.matrix_outofrange = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
 					ctl = GetDlgItem(hDlg, IDC_ALWAYSONTOP);
 					BOOL alwaysOnTop = SendMessage(ctl, BM_GETCHECK, 0, 0);
 					if (alwaysOnTop != state.alwaysOnTop) {
@@ -1040,7 +1040,7 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
 					}
 					strcpy(state.printerTxtFileName, buf);
 					ctl = GetDlgItem(hDlg, IDC_RAW_TEXT);
-					core_settings.raw_text = SendMessage(ctl, BM_GETCHECK, 0, 0);
+					core_settings.raw_text = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
 					ctl = GetDlgItem(hDlg, IDC_PRINTER_GIF);
 					state.printerToGifFile = SendMessage(ctl, BM_GETCHECK, 0, 0);
 					BOOL success;
@@ -1696,18 +1696,18 @@ int4 shell_read_saved_state(void *buf, int4 bufsize) {
     }
 }
 
-int shell_write_saved_state(const void *buf, int4 nbytes) {
+bool shell_write_saved_state(const void *buf, int4 nbytes) {
     if (statefile == NULL)
-        return 0;
+        return false;
     else {
         int4 n = fwrite(buf, 1, nbytes, statefile);
         if (n != nbytes) {
             fclose(statefile);
             remove(statefilename);
             statefile = NULL;
-            return 0;
+            return false;
         } else
-            return 1;
+            return true;
     }
 }
 

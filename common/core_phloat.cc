@@ -689,12 +689,22 @@ BCDFloat double2bcd(double d, bool round /* = false */) {
 
 double bcd2double(BCDFloat b) {
     unsigned short exp = b.d_[P];
+
+#if defined(WINDOWS) && !defined(__GNUC__)
+    if (exp == 0x3000)
+	return HUGE_VAL; // NaN
+    else if (exp == 0x3FFF)
+	return HUGE_VAL; // Inf
+    else if (exp == 0xBFFF)
+	return -HUGE_VAL; // -Inf
+#else
     if (exp == 0x3000)
 	return 0.0 / 0.0; // NaN
     else if (exp == 0x3FFF)
 	return 1.0 / 0.0; // Inf
     else if (exp == 0xBFFF)
 	return -1.0 / 0.0; // -Inf
+#endif
 
     exp = (exp << 1) >> 1;
     double res = 0;
@@ -1487,12 +1497,22 @@ int string2phloat(const char *buf, int buflen, phloat *d) {
 
 double bcd2double(const short *p) {
     unsigned short exp = p[P];
+
+#if defined(WINDOWS) && !defined(__GNUC__)
+    if (exp == 0x3000)
+	return HUGE_VAL; // NaN
+    else if (exp == 0x3FFF)
+	return HUGE_VAL; // Inf
+    else if (exp == 0xBFFF)
+	return -HUGE_VAL; // -Inf
+#else
     if (exp == 0x3000)
 	return 0.0 / 0.0; // NaN
     else if (exp == 0x3FFF)
 	return 1.0 / 0.0; // Inf
     else if (exp == 0xBFFF)
 	return -1.0 / 0.0; // -Inf
+#endif
 
     exp = (exp << 1) >> 1;
     double res = 0;

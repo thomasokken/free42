@@ -42,9 +42,9 @@ copy shell_loadimage.cpp ..\common\shell_loadimage.cc
 copy shell_loadimage.h ..\common
 copy shell_spool.cpp ..\common\shell_spool.cc
 copy shell_spool.h ..\common
-copy skin2cc.cpp ..\common\skin2cc.cc
-copy skin2cc.conf ..\common
-copy keymap2cc.cpp ..\common\keymap2cc.cc
+copy skin2cpp.cpp ..\common\skin2cc.cc
+copy skin2cpp.conf ..\common
+copy keymap2cpp.cpp ..\common\keymap2cc.cc
 copy bcd.cpp ..\common\bcd.cc
 copy bcd.h ..\common
 copy bcdfloat.cpp ..\common\bcdfloat.cc

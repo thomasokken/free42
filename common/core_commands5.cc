@@ -999,7 +999,7 @@ int docmd_to_dec(arg_struct *arg) {
 		dec += digit * mul;
 		mul <<= 3;
 	    }
-	    res = neg ? -dec : dec;
+	    res = (double) (neg ? -dec : dec);
 	#endif
 	v = new_real(res);
 	if (v == NULL)
@@ -1042,7 +1042,7 @@ int docmd_to_oct(arg_struct *arg) {
 		oct += digit * mul;
 		mul *= 10;
 	    }
-	    res = neg ? -oct : oct;
+	    res = (double) (neg ? -oct : oct);
 	#endif
 	v = new_real(res);
 	if (v == NULL)
