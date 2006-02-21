@@ -82,8 +82,40 @@ extern "C" {
 #endif /* PALMOS */
 
 
+#if defined(WINDOWS) && !defined(__GNUC__)
+
+#define int8 __int64
+#define uint8 unsigned __int64
+#define LL(x) x
+
+	/* MSVC++ 6.0 lacks a few math functions that Free42 needs.
+	 * I've defined workarounds in mathfudge.c. NOTE: my versions
+	 * of isnan(), finite(), and isinf() are a bit lame -- I *think*
+	 * they handle infinities properly, but definitely not NaNs
+	 * (although NaNs shouldn't be much of a problem because the Free42
+	 * code mostly tries to avoid them, rather than detect them after
+	 * the fact).
+	 */
+#ifdef __cplusplus
+	extern "C" {
+#endif
+		int isnan(double x);
+		int finite(double x);
+		int isinf(double x);
+		void sincos(double x, double *sinx, double *cosx);
+		double asinh(double x);
+		double acosh(double x);
+		double atanh(double x);
+		double expm1(double x);
+		double log1p(double x);
+#ifdef __cplusplus
+	}
+#endif
+#else
+
 #define int8 long long
 #define uint8 unsigned long long
+#define LL(x) x##LL
 
 /* NOTE: In my Linux build, all I have to do is DECLARE sincos(); glibc 2.3.3
  * has it (for C99, I suppose) so I don't have to DEFINE it. On other Unixes
@@ -96,6 +128,8 @@ extern "C" {
 extern "C" void sincos(double x, double *sinx, double *cosx) HELPERS_SECT;
 #endif
 //#define NO_SINCOS 1
+
+#endif
 
 
 #define uint unsigned int

@@ -215,9 +215,9 @@ int docmd_basechs(arg_struct *arg) {
     int err;
     if ((err = get_base_param(reg_x, &x)) != ERR_NONE)
 	return err;
-    if (x == -34359738368LL) {
+    if (x == LL(-34359738368)) {
 	if (flags.f.range_error_ignore)
-	    x = 34359738367LL;
+	    x = LL(34359738367);
 	else
 	    return ERR_OUT_OF_RANGE;
     } else
@@ -872,17 +872,17 @@ int docmd_rotxy(arg_struct *arg) {
     if (x == 0)
 	res = y;
     else {
-	y &= 0xfffffffffLL;
+	y &= LL(0xfffffffff);
 	if (x > 0)
 	    res = (y >> x) | (y << (36 - x));
 	else {
 	    x = -x;
 	    res = (y << x) | (y >> (36 - x));
 	}
-	if ((res & 0x800000000LL) == 0)
-	    res &= 0x7ffffffffLL;
+	if ((res & LL(0x800000000)) == 0)
+	    res &= LL(0x7ffffffff);
 	else
-	    res |= 0xfffffff000000000LL;
+	    res |= LL(0xfffffff000000000);
     }
     v = new_real((phloat) res);
     if (v == NULL) 

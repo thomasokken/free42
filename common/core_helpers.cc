@@ -401,22 +401,22 @@ int get_base_param(const vartype *v, int8 *n) {
     if (x > 34359738367.0 || x < -34359738368.0)
 	return ERR_INVALID_DATA;
     int8 t = to_int8(x);
-    if ((t & 0x800000000LL) != 0)
-	*n = t | 0xfffffff000000000LL;
+    if ((t & LL(0x800000000)) != 0)
+	*n = t | LL(0xfffffff000000000);
     else
 	*n = t;
     return ERR_NONE;
 }
 
 int base_range_check(int8 *n) {
-    if (*n < -34359738368LL) {
+    if (*n < LL(-34359738368)) {
 	if (flags.f.range_error_ignore)
-	    *n = -34359738368LL;
+	    *n = LL(-34359738368);
 	else
 	    return ERR_OUT_OF_RANGE;
-    } else if (*n > 34359738367LL) {
+    } else if (*n > LL(34359738367)) {
 	if (flags.f.range_error_ignore)
-	    *n = 34359738367LL;
+	    *n = LL(34359738367);
 	else
 	    return ERR_OUT_OF_RANGE;
     }

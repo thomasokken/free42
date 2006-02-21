@@ -828,6 +828,12 @@ void phloat_init() {
     pd = 1;
     while (1) {
 	tmp = pd / 2;
+#if defined(WINDOWS) && !defined(__GNUC__)
+	/* Without this, Visual C++ 6.0 generates code that leaves the loop
+	 * one iteration too late. Looks like an optimizer bug or something.
+	 */
+	fabs(tmp);
+#endif
 	if (tmp == 0)
 	    break;
 	pd = tmp;
@@ -836,6 +842,12 @@ void phloat_init() {
     nd = -1;
     while (1) {
 	tmp = nd / 2;
+#if defined(WINDOWS) && !defined(__GNUC__)
+	/* Without this, Visual C++ 6.0 generates code that leaves the loop
+	 * one iteration too late. Looks like an optimizer bug or something.
+	 */
+	fabs(tmp);
+#endif
 	if (tmp == 0)
 	    break;
 	nd = tmp;
@@ -1529,7 +1541,7 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
 
 	n = to_int8(pd);
 	inexact = base_mode == 1 && pd != n;
-	n &= 0xfffffffffLL;
+	n &= LL(0xfffffffff);
 	shift = base == 2 ? 1 : base == 8 ? 3 : 4;
 	while (n != 0) {
 	    int digit = (int) (n & (base - 1));
