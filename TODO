@@ -6,6 +6,8 @@ Phloat::Phloat(int8) constructor uses double2bcd() internally. That is not good
 -- can lose precision. Should add an int8_to_bcd() method. There are a few other
 places where double2bcd() is also used inappropriately.
 
+LN(POS_HUGE_DOUBLE iPOS_HUGE_DOUBLE) returns something involving <Infinity>
+
 Patch BCD code to tolerate any number of leading zeroes on the exponent.
 
 Does the BCD code leak memory? I couldn't help noticing that some of the
@@ -15,6 +17,17 @@ Must ask Hugh -- it *seems* like a no-no to me.
 Regression test HMS+, HMS-, ->HMS, ->HR, ISG, DSE, ->DEC, ->OCT, AIP,
 DIM, NEWMAT, GETM, R<>R, string<->number conversion.
 
+The Binary Windows build, when built with MinGW, has an interesting SOLVE bug:
+It does not converge on "SUN" with TILT=23.5, LAT=52, SEAS=3.75, HGHT=0,
+SOLVE("TOD") (start TOD with 0 and 12). Noticed while running the PLOT test
+case with YMIN=0, YMAX=12, AXIS=-1, XMIN=0, XMAX=360, XINC=30, indep=SEAS,
+solve for TOD.
+Note that the values do seem to converge on something; either the stopping
+criteria are failing or there is some numerical weirdness going on.
+
+Decimal version: implement gamma(), and add *proper* implementations of log1p()
+and expm1().
+
 In the PalmOS Decimal build, and add code to delete the Free42BcdConv database.
 How hard is it to get rid of the MathLib dependency? (What happens when
 compiling without MathLib.h?)
@@ -23,12 +36,7 @@ bcdmath into it.
 The PalmOS Decimal build will require 'int' to be changed to 'Int32' in the bcd
 code.
 
-Decimal version: implement gamma(), and add *proper* implementations of log1p()
-and expm1().
-
 ...............................................................................
-
-LN(POS_HUGE_DOUBLE iPOS_HUGE_DOUBLE) returns something involving <Infinity>
 
 Pocket PC version.
 
@@ -49,6 +57,9 @@ Get a PayPal account to accept donations. :-)
 
 =============================== And *maybe*... ================================
 
+Auto-repeat: for keys where the usual holding-down behavior isn't needed
+(number keys, backspace, etc.) it might be nice to support auto-repeat.
+
 HP-41 module support. Should be able to read ROM files, and maybe also MOD.
 (Requested by Vincent Weber, 12/21/2005)
 Additional thoughts by ThO:
@@ -59,12 +70,9 @@ from getting hopelessly cluttered, Free42 really should support directories.
 If HP could add directories to the 28C to support the extra memory of the 28S,
 surely I can do the same here -- and Free42 needs it even more than the 28S...
 
-Auto-repeat: for keys where the usual holding-down behavior isn't needed
-(number keys, backspace, etc.) it might be nice to support auto-repeat.
+Algebraic equations, a la HP-27S.
 
-The requests for fractions, equations, and decimal floating point keep cropping
-up; I'm not committing to those features but I decided to put them back in the
-TODO list so that people are aware that I am aware of these requests. :-)
+Fractions.
 
 GTK version.
 
