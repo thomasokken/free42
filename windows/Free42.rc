@@ -264,7 +264,8 @@ END
 
 STRINGTABLE DISCARDABLE 
 BEGIN
-    IDS_APP_TITLE           "Free42"
+    IDS_APP_TITLE_BIN       "Free42 Binary"
+    IDS_APP_TITLE_DEC       "Free42 Decimal"
     IDS_HELLO               "Hello World!"
     IDC_FREE42              "FREE42"
     IDC_FREE42_PRINTOUT     "FREE42PRINTOUT"

@@ -200,7 +200,11 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	HACCEL hAccelTable;
 
 	// Initialize global strings
-	LoadString(hInstance, IDS_APP_TITLE, szMainTitle, MAX_LOADSTRING);
+#ifdef BCD_MATH
+	LoadString(hInstance, IDS_APP_TITLE_DEC, szMainTitle, MAX_LOADSTRING);
+#else
+	LoadString(hInstance, IDS_APP_TITLE_BIN, szMainTitle, MAX_LOADSTRING);
+#endif
 	LoadString(hInstance, IDS_PRINTOUT_TITLE, szPrintOutTitle, MAX_LOADSTRING);
 	LoadString(hInstance, IDC_FREE42, szMainWindowClass, MAX_LOADSTRING);
 	LoadString(hInstance, IDC_FREE42_PRINTOUT, szPrintOutWindowClass, MAX_LOADSTRING);

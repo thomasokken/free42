@@ -495,7 +495,13 @@ int main(int argc, char *argv[]) {
 			    &iconmask,
 			    NULL);
 
-    XtSetArg(args[nargs], XmNtitle, "Free42"); nargs++;
+#ifdef BCD_MATH
+#define TITLE "Free42 Decimal"
+#else
+#define TITLE "Free42 Binary"
+#endif
+
+    XtSetArg(args[nargs], XmNtitle, TITLE); nargs++;
     XtSetArg(args[nargs], XmNmappedWhenManaged, False); nargs++;
     XtSetArg(args[nargs], XmNallowShellResize, True); nargs++;
     XtSetArg(args[nargs], XmNdeleteResponse, XmDO_NOTHING); nargs++;
