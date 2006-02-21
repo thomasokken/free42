@@ -1,3 +1,7 @@
+The decimal version does not properly sign-extend negative numbers in BASE
+mode. In fact, everything seems kinda screwed up in BASE mode (but the binary
+version is still OK). Could this have something to do with the item below?
+
 Phloat::Phloat(int8) constructor uses double2bcd() internally. That is not good
 -- can lose precision. Should add an int8_to_bcd() method. There are a few other
 places where double2bcd() is also used inappropriately.
