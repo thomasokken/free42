@@ -215,7 +215,7 @@ BCDFloat::BCDFloat(int8 n) {
     if (neg)
 	n = -n;
     for (i = 4; i >= 0; i--) {
-	int d = n % BASE;
+	int d = (int) (n % BASE);
 	d_[i] = d;
 	n /= BASE;
 	if (d != 0)
