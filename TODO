@@ -1,12 +1,15 @@
+When switching from the decimal to the binary version, -1 becomes Inf.
+Noticed in Windows and Unix versions.
+
+Phloat::Phloat(int8) constructor uses double2bcd() internally. That is not good
+-- can lose precision. Should add an int8_to_bcd() method. There are a few other
+places where double2bcd() is also used inappropriately.
+
 Patch BCD code to tolerate any number of leading zeroes on the exponent.
 
 Does the BCD code leak memory? I couldn't help noticing that some of the
 operators defined in the BCD class return dynamically allocated references.
 Must ask Hugh -- it *seems* like a no-no to me.
-
-Phloat::Phloat(int8) constructor uses double2bcd() internally. That is not good
--- can lose precision. Should add an int8_to_bcd() method. There are a few other
-places where double2bcd() is also used inappropriately.
 
 Regression test HMS+, HMS-, ->HMS, ->HR, ISG, DSE, ->DEC, ->OCT, AIP,
 DIM, NEWMAT, GETM, R<>R, string<->number conversion.
