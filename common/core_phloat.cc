@@ -121,7 +121,8 @@ Phloat::Phloat(int i) {
 
 /* public */
 Phloat::Phloat(int8 i) {
-    bcd = double2bcd(i);
+    // TODO -- converting int8 to double loses precision
+    bcd = double2bcd((double) i);
 }
 
 /* public */
@@ -142,7 +143,8 @@ Phloat Phloat::operator=(int i) {
 
 /* public */
 Phloat Phloat::operator=(int8 i) {
-    bcd = double2bcd(i);
+    // TODO -- converting int8 to double loses precision
+    bcd = double2bcd((double) i);
     return *this;
 }
 
@@ -645,7 +647,8 @@ BCDFloat double2bcd(double d, bool round /* = false */) {
 	    // what you see really is what you get; without this hack, you'd
 	    // get stuff like 0.9 turning into 0.8999999+ but still *looking*
 	    // like 0.9!
-	    for (int i = 4; i < P; i++)
+	    int i;
+	    for (i = 4; i < P; i++)
 		res.d_[i] = 0;
 	    unsigned short s = res.d_[3];
 	    unsigned short d;
@@ -665,7 +668,7 @@ BCDFloat double2bcd(double d, bool round /* = false */) {
 	    if (carry)
 		s -= 10000;
 	    res.d_[3] = s;
-	    for (int i = 2; carry && i >= 0; i--) {
+	    for (i = 2; carry && i >= 0; i--) {
 		s = res.d_[i] + 1;
 		carry = s >= 10000;
 		if (carry)
@@ -673,7 +676,7 @@ BCDFloat double2bcd(double d, bool round /* = false */) {
 		res.d_[i] = s;
 	    }
 	    if (carry) {
-		for (int i = 3; i >= 0; i--)
+		for (i = 3; i >= 0; i--)
 		    res.d_[i + 1] = res.d_[i];
 		res.d_[0] = 1;
 		res.d_[P]++;

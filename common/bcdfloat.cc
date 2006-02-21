@@ -29,9 +29,9 @@
 BCDFloat BCDFloat::roundedVal_;
 BCDFloat BCDFloat::rounding_;
 int BCDFloat::decade_[4] = { 1000, 100, 10, 1 };
-short BCDFloat::posInfD_[P+1] = { 0, 0, 0, 0, 0, 0, 0, 0x3fff };
-short BCDFloat::negInfD_[P+1] = { 0, 0, 0, 0, 0, 0, 0, 0xBfff };
-short BCDFloat::nanD_[P+1] =    { 0, 0, 0, 0, 0, 0, 0, 0x3000 };
+unsigned short BCDFloat::posInfD_[P+1] = { 0, 0, 0, 0, 0, 0, 0, 0x3fff };
+unsigned short BCDFloat::negInfD_[P+1] = { 0, 0, 0, 0, 0, 0, 0, 0xBfff };
+unsigned short BCDFloat::nanD_[P+1] =    { 0, 0, 0, 0, 0, 0, 0, 0x3000 };
 
 void BCDFloat::_init()
 {

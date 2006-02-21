@@ -143,12 +143,12 @@ struct BCDFloat
      */
     unsigned short      d_[P+1];  
 
-    static BCDFloat     roundedVal_;
-    static BCDFloat     rounding_;
-    static short        posInfD_[P+1];
-    static short        negInfD_[P+1];
-    static short        nanD_[P+1];
-    static int          decade_[4];
+    static BCDFloat       roundedVal_;
+    static BCDFloat       rounding_;
+    static unsigned short posInfD_[P+1];
+    static unsigned short negInfD_[P+1];
+    static unsigned short nanD_[P+1];
+    static int            decade_[4];
 };
 
 inline void BCDFloat::_rshift()

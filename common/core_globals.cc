@@ -2541,8 +2541,9 @@ static bool convert_programs() {
 		case ARGTYPE_DOUBLE:
 		    #ifdef BCD_MATH
 			double d;
+			int i;
 			unsigned char *b = (unsigned char *) &d;
-			for (int i = 0; i < (int) sizeof(double); i++)
+			for (i = 0; i < (int) sizeof(double); i++)
 			    *b++ = prgm->text[pc++];
 			pc -= sizeof(double);
 
@@ -2571,7 +2572,7 @@ static bool convert_programs() {
 			phloat p;
 			p.bcd = double2bcd(d, true);
 			b = (unsigned char *) &p;
-			for (int i = 0; i < (int) sizeof(phloat); i++)
+			for (i = 0; i < (int) sizeof(phloat); i++)
 			    prgm->text[pc++] = *b++;
 		    #else
 			fake_bcd bcd;
