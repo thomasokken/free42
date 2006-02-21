@@ -39,6 +39,10 @@ bcdmath into it.
 The PalmOS Decimal build will require 'int' to be changed to 'Int32' in the bcd
 code.
 
+On binary/decimal switch, don't allow program to run at startup (override flag
+11). The alternative is to go all the way, and update the pc and the whole
+return stack; that would be nice, but it's annoying to implement.
+
 ...............................................................................
 
 Pocket PC version.
