@@ -1499,7 +1499,7 @@ int string2phloat(const char *buf, int buflen, phloat *d) {
 }
 
 double bcd2double(const short *p) {
-    short exp = p[P];
+    unsigned short exp = p[P];
 
 #if defined(WINDOWS) && !defined(__GNUC__)
     if (exp == 0x3000)
