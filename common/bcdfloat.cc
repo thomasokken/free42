@@ -955,10 +955,6 @@ static int root0(int v)
     return x;
 }
 
-// ThO -- this is how far I got looking for cases of 
-// 'int' needing to be changed to 'int4'.
-// TODO
-
 bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
 {
     if (a->neg()) return false;
@@ -973,9 +969,9 @@ bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
     int rs;
     int as;
     int ts;
-    int v;
+    int4 v;
     int rodd;
-    int q;
+    int4 q;
 
     BCDFloat u;
     int us = 0;
@@ -1012,7 +1008,7 @@ bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
             ca = 0;
             ts = rs;
             for (i = rs; i > 0; --i) {
-                v = r->d_[i-1]*m + ca;
+                v = ((int4) r->d_[i-1])*m + ca;
                 ca = 0;
                 if (v >= BASE) {
                     ca = v/BASE;
@@ -1038,10 +1034,10 @@ bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
 
             q = 0;
             if (ts == as) {
-                q = (acc.d_[0]*BASE + acc.d_[1])/(t.d_[0]*BASE+t.d_[1]);
+                q = (((int4) acc.d_[0])*BASE + acc.d_[1])/(((int4) t.d_[0])*BASE+t.d_[1]);
             }
             else if (as > ts) {
-                q = (acc.d_[0]*BASE + acc.d_[1])/t.d_[0];
+                q = (((int4) acc.d_[0])*BASE + acc.d_[1])/t.d_[0];
             }
 
             if (q) {
@@ -1215,7 +1211,7 @@ bool BCDFloat::floor(const BCDFloat* a, BCDFloat* c)
     return true;
 }
 
-int BCDFloat::ifloor(const BCDFloat* x)
+int4 BCDFloat::ifloor(const BCDFloat* x)
 {
     BCDFloat a;
     floor(x, &a);
@@ -1223,7 +1219,7 @@ int BCDFloat::ifloor(const BCDFloat* x)
     int na = a.neg();
     int ea = a.exp();
 
-    int v = 0;
+    int4 v = 0;
     int i = 0;
     while (i < ea && i < P) {
         if (v > 214748) return 0; // too large, bail out.

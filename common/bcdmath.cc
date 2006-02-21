@@ -242,9 +242,9 @@ static BCD expTaylor(const BCD& a, int n)
 }
 
 
-BCD pow(const BCD& a, int n)
+BCD pow(const BCD& a, int4 n)
 {
-    int m;
+    int4 m;
     if (n == 0) return 1;
     m = (n < 0) ? -n : n;
 
@@ -286,7 +286,7 @@ BCD exp(const BCD& v)
     }
 
     BCD ln2(*(const BCDFloat*)(constTable + BCD_CONST_LN2));
-    int n = ifloor(v/ln2);
+    int4 n = ifloor(v/ln2);
 
     if (n > 33218) {
         /* overflow */
@@ -488,7 +488,7 @@ BCD pow(const BCD& x, const BCD& y)
     
     /* check for x^n */
     if (y.isInteger()) {
-        int n = ifloor(y);
+        int4 n = ifloor(y);
         if (n) return pow(x, n);
         
         /* otherwise power is too large */
@@ -634,8 +634,7 @@ BCD fmod(const BCD& a, const BCD& b)
     BCD c = a - b * trunc(a / b);
     if (a == trunc(a) && b == trunc(b) && !(c == trunc(c))) {
 	// Numerator and denominator are both integral;
-	// in this case we force the result to be integral as well,
-	// since that is what a lot of code will expect.
+	// in this case we force the result to be integral as well.
 	BCD half(*(const BCDFloat*)(constTable + BCD_CONST_POINT5));
 	if (c < 0)
 	    c = trunc(c - half);
