@@ -23,6 +23,26 @@
 #ifndef __bcdfloat_h__
 #define __bcdfloat_h__
 
+
+#ifdef PALMOS
+#define int4 Int32
+#define uint4 UInt32
+#else
+#define int4 int
+#define uint4 unsigned int
+#endif
+
+#if defined(WINDOWS) && !defined(__GNUC__)
+#define int8 __int64
+#define uint8 unsigned __int64
+#define LL(x) x
+#else
+#define int8 long long
+#define uint8 unsigned long long
+#define LL(x) x##LL
+#endif
+
+
 #define NEG 0x8000
 #define P 7
 #define BASE 10000
@@ -86,14 +106,13 @@ struct BCDFloat
 {
     BCDFloat() { _init(); }
     BCDFloat(const char* s);
-    BCDFloat(int);
+    BCDFloat(int4);
+    BCDFloat(int8);
 
     // Features
     void                asString(char* buf) const;
     int                 exp() const { return ((short)(d_[P] << 1)) >> 1; }
     void                exp(int v) { d_[P] = (v & (NEG-1)); }
-    // Modified neg() to check for zero; I don't want negative zeroes.
-    // See also my patch for equal(). TODO - Bug report (ThO)
     bool                neg() const { return d_[0] != 0 && (d_[P]& NEG) != 0; }
     void                negate() { d_[P] = d_[P] ^ NEG; }
     bool                isZero() const { return d_[0] == 0; }
@@ -115,7 +134,7 @@ struct BCDFloat
     static bool         ge(const BCDFloat* a, const BCDFloat* b)
                                 { return le(b, a); }
     static bool         equal(const BCDFloat* a, const BCDFloat* b);
-    static int          ifloor(const BCDFloat* a);
+    static int4         ifloor(const BCDFloat* a);
     static bool         floor(const BCDFloat* a, BCDFloat* c);
     static bool         trunc(const BCDFloat* a, BCDFloat* c);
 

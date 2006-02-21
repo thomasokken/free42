@@ -1,24 +1,16 @@
-The decimal version does not properly sign-extend negative numbers in BASE
-mode. In fact, everything seems kinda screwed up in BASE mode (but the binary
-version is still OK). Could this have something to do with the item below?
-
-Phloat::Phloat(int8) constructor uses double2bcd() internally. That is not good
--- can lose precision. Should add an int8_to_bcd() method. There are a few other
-places where double2bcd() is also used inappropriately.
-
-LN(POS_HUGE_DOUBLE iPOS_HUGE_DOUBLE) returns something involving <Infinity>
-
-Patch BCD code to tolerate any number of leading zeroes on the exponent.
+LN(POS_HUGE_DOUBLE iPOS_HUGE_DOUBLE) returns something with <Infinity> for the
+real part. The problem is that hypot(re, im) returns Inf in this case; this can
+be worked around by scaling re and im down before computing hypot, and then
+adusting the result of log(hypot(re, im)). Note: the current hypot() in the
+BCDFloat class overflows at 1e5000; this, too, needs to be addressed by scaling
+the argument down and then adjusting the result.
 
 Does the BCD code leak memory? I couldn't help noticing that some of the
 operators defined in the BCD class return dynamically allocated references.
 Must ask Hugh -- it *seems* like a no-no to me.
 
-Regression test HMS+, HMS-, ->HMS, ->HR, ISG, DSE, ->DEC, ->OCT, AIP,
-DIM, NEWMAT, GETM, R<>R, string<->number conversion.
-
 The Binary Windows build, when built with MinGW, has an interesting SOLVE bug:
-It does not converge on "SUN" with TILT=23.5, LAT=52, SEAS=3.75, HGHT=0,
+It does not terminate on "SUN" with TILT=23.5, LAT=52, SEAS=3.75, HGHT=0,
 SOLVE("TOD") (start TOD with 0 and 12). Noticed while running the PLOT test
 case with YMIN=0, YMAX=12, AXIS=-1, XMIN=0, XMAX=360, XINC=30, indep=SEAS,
 solve for TOD.
@@ -29,7 +21,9 @@ but also because the MinGW build seems to perform a lot better, and then there
 is the fact that g++ handles infinities and NaNs correctly, unlike VC++.
 
 Decimal version: implement gamma(), and add *proper* implementations of log1p()
-and expm1().
+and expm1(). Also, are the current implementations of the hyperbolics
+acceptable? I just used the usual equalities where they are expressed in terms
+of logarithms and exponents.
 
 In the PalmOS Decimal build, and add code to delete the Free42BcdConv database.
 How hard is it to get rid of the MathLib dependency? (What happens when
@@ -39,13 +33,12 @@ bcdmath into it.
 The PalmOS Decimal build will require 'int' to be changed to 'Int32' in the bcd
 code.
 
-On binary/decimal switch, don't allow program to run at startup (override flag
-11). The alternative is to go all the way, and update the pc and the whole
-return stack; that would be nice, but it's annoying to implement.
-
 In TRACE mode, when a function puts a matrix in X, should it really print the
 entire matrix (which is what it does now), or just the descriptor?
 Also: should clearing flag 21 disable VIEW (and AVIEW & ADV) in RUN mode?
+
+Some or all of the non-bcd code, which makes assumptions about the bcd type
+(e.g. int8_to_bcd(), double_to_bcd()), should be moved into the BCDFloat class.
 
 ...............................................................................
 

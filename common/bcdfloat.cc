@@ -85,7 +85,6 @@ BCDFloat::BCDFloat(const char* s)
     bool eneg = false;
     if (startp) {
         if (toupper(*endp) == 'E') {
-            /* accept 6 digits of exponent */
             const char* p = endp + 1;
             if (*p == '-') {
                 eneg = true;
@@ -94,11 +93,18 @@ BCDFloat::BCDFloat(const char* s)
             else if (*p == '+') ++p;  // allow E+1234 
 
             e = 0;
+	    char c;
+	    // Skip leading zeroes
+	    while ((c = *p++) == '0');
+	    // Accept up to 6 digits; the reason why I don't stop after
+	    // 5 digits is because I want to make sure that 0.1e100000
+	    // is converted to Inf, and not 1e9999
             for (i = 0; i < 6; ++i) {
-		if (isdigit(*p))
-		    e = e * 10 + *p++ - '0';
+		if (isdigit(c))
+		    e = e * 10 + c - '0';
                 else
 		    break;
+		c = *p++;
             }
             if (eneg) e = -e;
         }
@@ -170,7 +176,7 @@ BCDFloat::BCDFloat(const char* s)
     }
 }
 
-BCDFloat::BCDFloat(int v)
+BCDFloat::BCDFloat(int4 v)
 {
     _init();
 
@@ -178,11 +184,9 @@ BCDFloat::BCDFloat(int v)
     if (v == 0)
 	return;
     
-    bool neg = false;
-    if (v < 0) {
-        neg = true;
+    bool neg = v < 0;
+    if (neg)
         v = -v;
-    }
 
     /* quicker to deal with cases separately */
     if (v < BASE) {
@@ -203,6 +207,31 @@ BCDFloat::BCDFloat(int v)
     }
 
     if (neg) negate();
+}
+
+BCDFloat::BCDFloat(int8 n) {
+    int i, z = 5;
+    bool neg = n < 0;
+    if (neg)
+	n = -n;
+    for (i = 4; i >= 0; i--) {
+	int d = n % BASE;
+	d_[i] = d;
+	n /= BASE;
+	if (d != 0)
+	    z = i;
+    }
+    if (z < 5) {
+	if (z > 0) {
+	    for (i = 0; i < 5 - z; i++)
+		d_[i] = d_[i + z];
+	    for (i = 5 - z; i < 5; i++)
+		d_[i] = 0;
+	}
+	d_[P] = 5 - z;
+	if (neg)
+	    negate();
+    }
 }
 
 const BCDFloat& BCDFloat::_round20() const
@@ -629,7 +658,8 @@ void BCDFloat::mul(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
 
     int ca;
     int i, j;
-    int u, v;
+    int u;
+    int4 v;
 
     int ea = a->exp();
     int eb = b->exp();
@@ -729,11 +759,12 @@ void BCDFloat::div(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
         return;
     }
 
-    int u, v;
+    int u;
+    int4 v;
     int ca;
     int j = 0;
     int i;
-    int q;
+    int4 q;
 
     bool az = a->isZero();
     bool bz = b->isZero();
@@ -868,7 +899,8 @@ void BCDFloat::mul2(unsigned short* ad, int ea,
 {
     int ca;
     int i, j;
-    int u, v;
+    int u;
+    int4 v;
 
     unsigned short acc[2*P+1];
 
@@ -922,6 +954,10 @@ static int root0(int v)
     } while (b >>=1);
     return x;
 }
+
+// ThO -- this is how far I got looking for cases of 
+// 'int' needing to be changed to 'int4'.
+// TODO
 
 bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
 {

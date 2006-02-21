@@ -32,7 +32,7 @@ BCD tan(const BCD&);
 BCD exp(const BCD&);
 BCD log(const BCD&);
 BCD atan(const BCD&);
-BCD pow(const BCD&, int n);
+BCD pow(const BCD&, int4 n);
 BCD pow(const BCD&, const BCD&);
 BCD atan2(const BCD& y, const BCD& x);
 BCD asin(const BCD&);

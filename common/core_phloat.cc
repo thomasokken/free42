@@ -120,9 +120,8 @@ Phloat::Phloat(int i) {
 }
 
 /* public */
-Phloat::Phloat(int8 i) {
-    // TODO -- converting int8 to double loses precision
-    bcd = double2bcd((double) i);
+Phloat::Phloat(int8 i) : bcd(i) {
+    // Nothing else to do
 }
 
 /* public */
@@ -143,8 +142,7 @@ Phloat Phloat::operator=(int i) {
 
 /* public */
 Phloat Phloat::operator=(int8 i) {
-    // TODO -- converting int8 to double loses precision
-    bcd = double2bcd((double) i);
+    bcd = BCDFloat(i);
     return *this;
 }
 
@@ -163,13 +161,13 @@ Phloat Phloat::operator=(Phloat p) {
 #ifdef PALMOS
 
 /* public */
-Phloat::Phloat(int4 i) {
-    bcd = double2bcd(i);
+Phloat::Phloat(int4 i) : bcd(i) {
+    // Nothing else to do
 }
 
 /* public */
 Phloat Phloat::operator=(int4 i) {
-    bcd = double2bcd(i);
+    bcd = BCDFloat(i);
     return *this;
 }
 
@@ -330,6 +328,7 @@ int to_digit(Phloat p) {
     return ifloor(res);
 }
 
+static int8 mant(const BCDFloat &b) PHLOAT_SECT;
 static int8 mant(const BCDFloat &b) {
     int8 m = 0;
     int e = b.exp();
@@ -337,6 +336,8 @@ static int8 mant(const BCDFloat &b) {
 	e = P;
     for (int i = 0; i < e; i++)
 	m = m * 10000 + b.d_[i];
+    if (b.neg())
+	m = -m;
     return m;
 }
 
@@ -604,7 +605,7 @@ Phloat operator-(int x, Phloat y) {
 }
 
 bool operator==(int4 x, Phloat y) {
-    BCDFloat bx = double2bcd(x);
+    BCDFloat bx(x);
     return BCDFloat::equal(&bx, &y.bcd);
 }
 
@@ -624,6 +625,17 @@ BCDFloat double2bcd(double d, bool round /* = false */) {
 	return BCDFloat::posInf();
     else if (inf < 0)
 	return BCDFloat::negInf();
+
+    // Return exact results if d is representable exactly as a long long.
+    // TODO: there are additional cases we should try to handle exactly, e.g.
+    // 0.375. Basically, the idea would be to do the conversion by summing
+    // exact equivalents for the values of d's nonzero bits, just like the
+    // way the table-based binary-to-bcd conversion in the Free42 Binary
+    // build works. This approach returns exact results for a very large set
+    // of cases, including all representable integers.
+    int8 n = (int8) d;
+    if (d == n)
+	return BCDFloat(n);
 
     bool neg = d < 0;
     if (neg)
