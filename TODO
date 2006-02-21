@@ -13,27 +13,10 @@ Does the BCD code leak memory? I couldn't help noticing that some of the
 operators defined in the BCD class return dynamically allocated references.
 Must ask Hugh -- it *seems* like a no-no to me.
 
-The Binary Windows build, when built with MinGW, has an interesting SOLVE bug:
-It does not terminate on "SUN" with TILT=23.5, LAT=52, SEAS=3.75, HGHT=0,
-SOLVE("TOD") (start TOD with 0 and 12). Noticed while running the PLOT test
-case with YMIN=0, YMAX=12, AXIS=-1, XMIN=0, XMAX=360, XINC=30, indep=SEAS,
-solve for TOD.
-Note that the values do seem to converge on something; either the stopping
-criteria are failing or there is some numerical weirdness going on.
-It would be nice to get this straightened out -- not just on general principle,
-but also because the MinGW build seems to perform a lot better, and then there
-is the fact that g++ handles infinities and NaNs correctly, unlike VC++.
-
 Decimal version: implement gamma(), and add *proper* implementations of log1p()
 and expm1(). Also, are the current implementations of the hyperbolics
 acceptable? I just used the usual equalities where they are expressed in terms
 of logarithms and exponents.
-
-In the PalmOS Decimal build, and add code to delete the Free42BcdConv database.
-How hard is it to get rid of the MathLib dependency? (What happens when
-compiling without MathLib.h?)
-Add new BCD_SECT section and put all non-inline code from bcd, bcdfloat, and
-bcdmath into it.
 
 ...............................................................................
 
@@ -58,6 +41,14 @@ Get a PayPal account to accept donations. :-)
 
 Auto-repeat: for keys where the usual holding-down behavior isn't needed
 (number keys, backspace, etc.) it might be nice to support auto-repeat.
+
+Take another look at the possibility of a Decimal PalmOS build. My last attempt
+was unsuccessful; I got linker errors where it complained about the .text
+(unnamed) section being full, which is weird because there isn't that much code
+in that section. Even when I moved *all* code out of the unnamed section,
+leaving only a stub PilotMain() there, the errors persisted (having to do with
+offsets to __do_bhook, __do_ctors, etc.). I guess using PRC-tools to build a
+500 kilobyte C++ executable is pushing it...
 
 HP-41 module support. Should be able to read ROM files, and maybe also MOD.
 (Requested by Vincent Weber, 12/21/2005)
