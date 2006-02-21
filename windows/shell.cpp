@@ -25,7 +25,7 @@
 #include <stdio.h>
 #include <shlobj.h>
 
-#include "windows.h"
+#include "stdafx.h"
 #include "resource.h"
 
 #include "free42.h"
@@ -729,7 +729,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			for (int i = GetMenuItemCount(menu) - 1; i >= 0; i--)
 				RemoveMenu(menu, i, MF_BYPOSITION);
 
-			for (int i = 0; i < skin_count; i++) {
+			for (i = 0; i < skin_count; i++) {
 				UINT flags = 0;
 				if (strcmp(state.skinName, skin_name[i]) == 0)
 					flags = MF_CHECKED;
@@ -781,7 +781,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			}
 
 			qsort(name, n, MAX_PATH, (int (*)(const void *, const void *)) _stricmp);
-			for (int i = 0; i < n; i++) {
+			for (i = 0; i < n; i++) {
 				UINT flags;
 				int j;
 				if (i > 0 && _stricmp(name[i], name[i - 1]) == 0)
@@ -933,7 +933,7 @@ static LRESULT CALLBACK ExportProgram(HWND hDlg, UINT message, WPARAM wParam, LP
 			int count = core_list_programs(buf, 10000);
 			char *p = buf;
 			for (int i = 0; i < count; i++) {
-				SendMessage(list, LB_ADDSTRING, (WPARAM) NULL, (long) p);
+				SendMessage(list, LB_ADDSTRING, NULL, (long) p);
 				p += strlen(p) + 1;
 			}
 			return TRUE;
@@ -1124,7 +1124,7 @@ static int browse_file(HWND owner, char *title, int save, char *filter, char *de
 static void set_home_dir(const char *path) {
 	HKEY k1, k2, k3;
 	DWORD disp;
-	if (RegOpenKeyEx(HKEY_CURRENT_USER, "Software", 0, KEY_QUERY_VALUE, &k1) == ERROR_SUCCESS) {
+	if (RegOpenKeyEx(HKEY_CURRENT_USER, "Software", NULL, KEY_QUERY_VALUE, &k1) == ERROR_SUCCESS) {
 		if (RegCreateKeyEx(k1, "Thomas Okken Software", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k2, &disp) == ERROR_SUCCESS) {
 			if (RegCreateKeyEx(k2, "Free42", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k3, &disp) == ERROR_SUCCESS) {
 				RegSetValueEx(k3, "HomeDir", 0, REG_SZ, (const unsigned char *) path, strlen(path) + 1);
@@ -1141,11 +1141,11 @@ static void get_home_dir(char *path, int pathlen, BOOL exedir_ok) {
 	path[0] = 0;
 	BOOL found = FALSE;
 	
-	if (RegOpenKeyEx(HKEY_CURRENT_USER, "Software", 0, KEY_QUERY_VALUE, &k1) == ERROR_SUCCESS) {
-		if (RegOpenKeyEx(k1, "Thomas Okken Software", 0, KEY_QUERY_VALUE, &k2) == ERROR_SUCCESS) {
-			if (RegOpenKeyEx(k2, "Free42", 0, KEY_QUERY_VALUE, &k3) == ERROR_SUCCESS) {
+	if (RegOpenKeyEx(HKEY_CURRENT_USER, "Software", NULL, KEY_QUERY_VALUE, &k1) == ERROR_SUCCESS) {
+		if (RegOpenKeyEx(k1, "Thomas Okken Software", NULL, KEY_QUERY_VALUE, &k2) == ERROR_SUCCESS) {
+			if (RegOpenKeyEx(k2, "Free42", NULL, KEY_QUERY_VALUE, &k3) == ERROR_SUCCESS) {
 				DWORD type, len = pathlen;
-				if (RegQueryValueEx(k3, "HomeDir", 0, &type, (unsigned char *) path, &len) == ERROR_SUCCESS && type == REG_SZ)
+				if (RegQueryValueEx(k3, "HomeDir", NULL, &type, (unsigned char *) path, &len) == ERROR_SUCCESS && type == REG_SZ)
 					found = TRUE;
 				RegCloseKey(k3);
 			}
