@@ -1,6 +1,3 @@
-When switching from the decimal to the binary version, -1 becomes Inf.
-Noticed in Windows and Unix versions.
-
 Phloat::Phloat(int8) constructor uses double2bcd() internally. That is not good
 -- can lose precision. Should add an int8_to_bcd() method. There are a few other
 places where double2bcd() is also used inappropriately.

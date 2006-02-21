@@ -1499,28 +1499,31 @@ int string2phloat(const char *buf, int buflen, phloat *d) {
 }
 
 double bcd2double(const short *p) {
-    unsigned short exp = p[P];
+    short exp = p[P];
 
 #if defined(WINDOWS) && !defined(__GNUC__)
     if (exp == 0x3000)
 	return HUGE_VAL; // NaN
     else if (exp == 0x3FFF)
 	return HUGE_VAL; // Inf
-    else if (exp == 0xBFFF)
+    else if (exp == (short) 0xBFFF)
 	return -HUGE_VAL; // -Inf
 #else
     if (exp == 0x3000)
 	return 0.0 / 0.0; // NaN
     else if (exp == 0x3FFF)
 	return 1.0 / 0.0; // Inf
-    else if (exp == 0xBFFF)
+    else if (exp == (short) 0xBFFF)
 	return -1.0 / 0.0; // -Inf
 #endif
 
-    exp = (exp << 1) >> 1;
+    bool neg = (exp & 0x8000) != 0;
+    exp = ((short) (exp << 1)) >> 1;
     double res = 0;
     for (int i = 0; i < P; i++)
 	res = res * 10000 + p[i];
+    if (neg)
+	res = -res;
     return res * pow(10000.0, (double) (exp - P));
 }
 
