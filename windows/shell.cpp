@@ -730,7 +730,8 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			if (state.skinName[0] == 0)
 				strcpy(state.skinName, skin_name[0]);
 
-			for (int i = GetMenuItemCount(menu) - 1; i >= 0; i--)
+			int i;
+			for (i = GetMenuItemCount(menu) - 1; i >= 0; i--)
 				RemoveMenu(menu, i, MF_BYPOSITION);
 
 			for (i = 0; i < skin_count; i++) {
@@ -937,7 +938,7 @@ static LRESULT CALLBACK ExportProgram(HWND hDlg, UINT message, WPARAM wParam, LP
 			int count = core_list_programs(buf, 10000);
 			char *p = buf;
 			for (int i = 0; i < count; i++) {
-				SendMessage(list, LB_ADDSTRING, NULL, (long) p);
+				SendMessage(list, LB_ADDSTRING, 0, (long) p);
 				p += strlen(p) + 1;
 			}
 			return TRUE;
@@ -1128,7 +1129,7 @@ static int browse_file(HWND owner, char *title, int save, char *filter, char *de
 static void set_home_dir(const char *path) {
 	HKEY k1, k2, k3;
 	DWORD disp;
-	if (RegOpenKeyEx(HKEY_CURRENT_USER, "Software", NULL, KEY_QUERY_VALUE, &k1) == ERROR_SUCCESS) {
+	if (RegOpenKeyEx(HKEY_CURRENT_USER, "Software", 0, KEY_QUERY_VALUE, &k1) == ERROR_SUCCESS) {
 		if (RegCreateKeyEx(k1, "Thomas Okken Software", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k2, &disp) == ERROR_SUCCESS) {
 			if (RegCreateKeyEx(k2, "Free42", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k3, &disp) == ERROR_SUCCESS) {
 				RegSetValueEx(k3, "HomeDir", 0, REG_SZ, (const unsigned char *) path, strlen(path) + 1);
@@ -1145,9 +1146,9 @@ static void get_home_dir(char *path, int pathlen, BOOL exedir_ok) {
 	path[0] = 0;
 	BOOL found = FALSE;
 	
-	if (RegOpenKeyEx(HKEY_CURRENT_USER, "Software", NULL, KEY_QUERY_VALUE, &k1) == ERROR_SUCCESS) {
-		if (RegOpenKeyEx(k1, "Thomas Okken Software", NULL, KEY_QUERY_VALUE, &k2) == ERROR_SUCCESS) {
-			if (RegOpenKeyEx(k2, "Free42", NULL, KEY_QUERY_VALUE, &k3) == ERROR_SUCCESS) {
+	if (RegOpenKeyEx(HKEY_CURRENT_USER, "Software", 0, KEY_QUERY_VALUE, &k1) == ERROR_SUCCESS) {
+		if (RegOpenKeyEx(k1, "Thomas Okken Software", 0, KEY_QUERY_VALUE, &k2) == ERROR_SUCCESS) {
+			if (RegOpenKeyEx(k2, "Free42", 0, KEY_QUERY_VALUE, &k3) == ERROR_SUCCESS) {
 				DWORD type, len = pathlen;
 				if (RegQueryValueEx(k3, "HomeDir", NULL, &type, (unsigned char *) path, &len) == ERROR_SUCCESS && type == REG_SZ)
 					found = TRUE;

@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#if defined(WINDOWS) && !defined(__GNUC__)
+#ifdef WINDOWS
 #define SKINS_CC "skins.cpp"
 #define SKIN2CC_CONF "skin2cpp.conf"
 #define SKIN2CC "skin2cpp"

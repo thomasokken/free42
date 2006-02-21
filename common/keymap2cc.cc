@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#if defined(WINDOWS) && !defined(__GNUC__)
+#ifdef WINDOWS
 #define KEYMAP_CC "keymap.cpp"
 #define KEYMAP2CC "keymap2cpp"
 #else
