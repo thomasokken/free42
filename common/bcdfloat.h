@@ -24,14 +24,6 @@
 #define __bcdfloat_h__
 
 
-#ifdef PALMOS
-#define int4 Int32
-#define uint4 UInt32
-#else
-#define int4 int
-#define uint4 unsigned int
-#endif
-
 #if defined(WINDOWS) && !defined(__GNUC__)
 #define int8 __int64
 #define uint8 unsigned __int64
@@ -106,7 +98,7 @@ struct BCDFloat
 {
     BCDFloat() { _init(); }
     BCDFloat(const char* s);
-    BCDFloat(int4);
+    BCDFloat(int);
     BCDFloat(int8);
 
     // Features
@@ -134,7 +126,7 @@ struct BCDFloat
     static bool         ge(const BCDFloat* a, const BCDFloat* b)
                                 { return le(b, a); }
     static bool         equal(const BCDFloat* a, const BCDFloat* b);
-    static int4         ifloor(const BCDFloat* a);
+    static int          ifloor(const BCDFloat* a);
     static bool         floor(const BCDFloat* a, BCDFloat* c);
     static bool         trunc(const BCDFloat* a, BCDFloat* c);
 
@@ -183,5 +175,3 @@ inline void BCDFloat::_lshift()
 }
 
 #endif 
-
-

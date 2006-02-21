@@ -41,7 +41,7 @@ struct BCD
     BCD() { ref_ = 0; }
     BCD(BCDRef* r) : ref_(r) {}
     BCD(const char* s) { ref_ = BCDRef::_alloc(); ref_->v_ = BCDFloat(s); }
-    BCD(int4 v) { ref_ = BCDRef::_alloc(); ref_->v_ = BCDFloat(v); }
+    BCD(int v) { ref_ = BCDRef::_alloc(); ref_->v_ = BCDFloat(v); }
     BCD(const BCD& v) { ref_ = 0; *this = v; }
     BCD(const BCDFloat& v) { ref_ = BCDRef::_alloc(); ref_->v_ = v; }
     //BCD(double v) { ref_ = 0; } // XXX FIXME
@@ -126,7 +126,7 @@ struct BCD
         *this -= 1;
     }
 
-    friend int4         ifloor(const BCD& a)
+    friend int          ifloor(const BCD& a)
                         { return BCDFloat::ifloor(&a.ref_->v_); }
     friend BCD          floor(const BCD&);
     friend BCD          trunc(const BCD&);

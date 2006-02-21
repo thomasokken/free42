@@ -176,7 +176,7 @@ BCDFloat::BCDFloat(const char* s)
     }
 }
 
-BCDFloat::BCDFloat(int4 v)
+BCDFloat::BCDFloat(int v)
 {
     _init();
 
@@ -658,8 +658,7 @@ void BCDFloat::mul(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
 
     int ca;
     int i, j;
-    int u;
-    int4 v;
+    int u, v;
 
     int ea = a->exp();
     int eb = b->exp();
@@ -759,12 +758,11 @@ void BCDFloat::div(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
         return;
     }
 
-    int u;
-    int4 v;
+    int u, v;
     int ca;
     int j = 0;
     int i;
-    int4 q;
+    int q;
 
     bool az = a->isZero();
     bool bz = b->isZero();
@@ -899,8 +897,7 @@ void BCDFloat::mul2(unsigned short* ad, int ea,
 {
     int ca;
     int i, j;
-    int u;
-    int4 v;
+    int u, v;
 
     unsigned short acc[2*P+1];
 
@@ -969,9 +966,9 @@ bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
     int rs;
     int as;
     int ts;
-    int4 v;
+    int v;
     int rodd;
-    int4 q;
+    int q;
 
     BCDFloat u;
     int us = 0;
@@ -1008,7 +1005,7 @@ bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
             ca = 0;
             ts = rs;
             for (i = rs; i > 0; --i) {
-                v = ((int4) r->d_[i-1])*m + ca;
+                v = r->d_[i-1]*m + ca;
                 ca = 0;
                 if (v >= BASE) {
                     ca = v/BASE;
@@ -1034,10 +1031,10 @@ bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
 
             q = 0;
             if (ts == as) {
-                q = (((int4) acc.d_[0])*BASE + acc.d_[1])/(((int4) t.d_[0])*BASE+t.d_[1]);
+                q = (acc.d_[0]*BASE + acc.d_[1])/(t.d_[0]*BASE+t.d_[1]);
             }
             else if (as > ts) {
-                q = (((int4) acc.d_[0])*BASE + acc.d_[1])/t.d_[0];
+                q = (acc.d_[0]*BASE + acc.d_[1])/t.d_[0];
             }
 
             if (q) {
@@ -1151,7 +1148,6 @@ bool BCDFloat::equal(const BCDFloat* a, const BCDFloat* b)
 {
     /* handle zero separately, to prevent zeroes with unequal
      * exponents from being considered different.
-     * TODO - bug report. (ThO)
      */
     if (a->d_[0] == 0 && b->d_[0] == 0)
 	return true;
@@ -1211,7 +1207,7 @@ bool BCDFloat::floor(const BCDFloat* a, BCDFloat* c)
     return true;
 }
 
-int4 BCDFloat::ifloor(const BCDFloat* x)
+int BCDFloat::ifloor(const BCDFloat* x)
 {
     BCDFloat a;
     floor(x, &a);
@@ -1219,7 +1215,7 @@ int4 BCDFloat::ifloor(const BCDFloat* x)
     int na = a.neg();
     int ea = a.exp();
 
-    int4 v = 0;
+    int v = 0;
     int i = 0;
     while (i < ea && i < P) {
         if (v > 214748) return 0; // too large, bail out.
@@ -1242,4 +1238,3 @@ bool BCDFloat::isInteger() const
     }
     return false;
 }
-

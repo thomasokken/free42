@@ -34,13 +34,13 @@ OBJS = shell1.o shell2.o shell_spool.o myglue.o filesys.o core_main.o \
 	core_linalg2.o core_math1.o core_math2.o core_phloat.o \
 	core_sto_rcl.o core_tables.o core_variables.o
 
-ifdef BCD_MATH
-CXXFLAGS += -DBCD_MATH
-SRCS += bcdfloat.cc bcd.cc bcdmath.cc
-OBJS += bcdfloat.o bcd.o bcdmath.o
-else
+#-ifdef BCD_MATH
+#-CXXFLAGS += -DBCD_MATH
+#-SRCS += bcdfloat.cc bcd.cc bcdmath.cc
+#-OBJS += bcdfloat.o bcd.o bcdmath.o
+#-else
 OBJS += MathLib.o
-endif
+#-endif
 
 free42.prc: shell shell.ro Original.prc
 	build-prc -o free42.prc shell.def shell shell.ro Original.prc

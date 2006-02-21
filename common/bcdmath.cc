@@ -242,9 +242,9 @@ static BCD expTaylor(const BCD& a, int n)
 }
 
 
-BCD pow(const BCD& a, int4 n)
+BCD pow(const BCD& a, int n)
 {
-    int4 m;
+    int m;
     if (n == 0) return 1;
     m = (n < 0) ? -n : n;
 
@@ -286,7 +286,7 @@ BCD exp(const BCD& v)
     }
 
     BCD ln2(*(const BCDFloat*)(constTable + BCD_CONST_LN2));
-    int4 n = ifloor(v/ln2);
+    int n = ifloor(v/ln2);
 
     if (n > 33218) {
         /* overflow */
@@ -488,7 +488,7 @@ BCD pow(const BCD& x, const BCD& y)
     
     /* check for x^n */
     if (y.isInteger()) {
-        int4 n = ifloor(y);
+        int n = ifloor(y);
         if (n) return pow(x, n);
         
         /* otherwise power is too large */

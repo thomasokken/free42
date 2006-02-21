@@ -5,6 +5,10 @@ adusting the result of log(hypot(re, im)). Note: the current hypot() in the
 BCDFloat class overflows at 1e5000; this, too, needs to be addressed by scaling
 the argument down and then adjusting the result.
 
+In TRACE mode, when a function puts a matrix in X, should it really print the
+entire matrix (which is what it does now), or just the descriptor?
+Also: should clearing flag 21 disable VIEW (and AVIEW & ADV) in RUN mode?
+
 Does the BCD code leak memory? I couldn't help noticing that some of the
 operators defined in the BCD class return dynamically allocated references.
 Must ask Hugh -- it *seems* like a no-no to me.
@@ -30,15 +34,6 @@ How hard is it to get rid of the MathLib dependency? (What happens when
 compiling without MathLib.h?)
 Add new BCD_SECT section and put all non-inline code from bcd, bcdfloat, and
 bcdmath into it.
-The PalmOS Decimal build will require 'int' to be changed to 'Int32' in the bcd
-code.
-
-In TRACE mode, when a function puts a matrix in X, should it really print the
-entire matrix (which is what it does now), or just the descriptor?
-Also: should clearing flag 21 disable VIEW (and AVIEW & ADV) in RUN mode?
-
-Some or all of the non-bcd code, which makes assumptions about the bcd type
-(e.g. int8_to_bcd(), double_to_bcd()), should be moved into the BCDFloat class.
 
 ...............................................................................
 

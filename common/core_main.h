@@ -116,7 +116,7 @@ int core_keydown(int key, int *enqueued, int *repeat) MAIN_SECT;
  * This function is called by the shell to signal auto-repeating key events.
  * It is the core's responsibility to keep track of *which* key is repeating.
  */
-void core_repeat();
+void core_repeat() MAIN_SECT;
 
 /* core_keytimeout1()
  *
