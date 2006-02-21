@@ -2499,6 +2499,8 @@ static bool convert_programs() {
     // CMD_NUMBER with arg.type = ARGTYPE_DOUBLE) and converts them from double
     // to Phloat or the other way around.
 
+    int prev_current_prgm = current_prgm;
+
     for (int i = 0; i < prgms_count; i++) {
 	current_prgm = i;
 	pc = 0;
@@ -2609,8 +2611,18 @@ static bool convert_programs() {
 	}
     }
 
+    current_prgm = prev_current_prgm;
+    rebuild_label_table();
+
+    // TODO: This could be done better -- update the pc and return stack while
+    // converting the program; if that is done, there's no need to override
+    // auto_exec because programs can simply pick up where they left off.
+    // TODO: Regardless of whether I implement the above or not, we should call
+    // redisplay() at some point after a binary<->decimal mode switch, because
+    // the number or program line in the display might have changed.
     pc = -1;
-    current_prgm = 0;
     clear_all_rtns();
+    flags.f.auto_exec = false;
+
     return true;
 }
