@@ -34,16 +34,19 @@ OBJS = shell1.o shell2.o shell_spool.o myglue.o filesys.o core_main.o \
 	core_linalg2.o core_math1.o core_math2.o core_phloat.o \
 	core_sto_rcl.o core_tables.o core_variables.o
 
-#-ifdef BCD_MATH
-#-CXXFLAGS += -DBCD_MATH
-#-SRCS += bcdfloat.cc bcd.cc bcdmath.cc
-#-OBJS += bcdfloat.o bcd.o bcdmath.o
-#-else
+ifdef BCD_MATH
+CXXFLAGS += -DBCD_MATH
+SRCS += bcdfloat.cc bcd.cc bcdmath.cc
+OBJS += bcdfloat.o bcd.o bcdmath.o
+SHELL_DEF = shell_dec.def
+else
+SHELL_DEF = shell_bin.def
+endif
+# TODO - The "decimal" build should not require this
 OBJS += MathLib.o
-#-endif
 
 free42.prc: shell shell.ro Original.prc
-	build-prc -o free42.prc shell.def shell shell.ro Original.prc
+	build-prc -o free42.prc $(SHELL_DEF) shell shell.ro Original.prc
 
 $(SRCS): symlinks
 
@@ -98,8 +101,8 @@ symlinks:
 	ln -s ../common/bcdmath.h
 	touch symlinks
 
-shell-sections.s shell-sections.ld: shell.def
-	m68k-palmos-multigen shell.def
+shell-sections.s shell-sections.ld: $(SHELL_DEF)
+	m68k-palmos-multigen -b shell-sections $(SHELL_DEF)
 
 .c.o:
 	m68k-palmos-gcc $(CFLAGS) -c -o $@ $<

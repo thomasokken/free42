@@ -28,7 +28,8 @@ extern "C" {
 #include "MathLib.h"
 }
 /* Segmentation stuff */
-#define SHELL_SECT __attribute__ ((section ("Shell")))
+#define SHELL1_SECT __attribute__ ((section ("Shell1")))
+#define SHELL2_SECT __attribute__ ((section ("Shell2")))
 #define FILESYS_SECT __attribute__ ((section ("FileSys")))
 #define MAIN_SECT __attribute__ ((section ("Main")))
 #define COMMANDS1_SECT __attribute__ ((section ("Commnds1")))
@@ -49,13 +50,15 @@ extern "C" {
 #define STO_RCL_SECT __attribute__ ((section ("StoRcl")))
 #define TABLES_SECT __attribute__ ((section ("Tables")))
 #define VARIABLES_SECT __attribute__ ((section ("Variabls")))
+#define BCD_SECT __attribute__ ((section ("BcdFloat")))
 #define int4 Int32
 #define uint4 UInt32
 
 #else /* !PALMOS */
 
 #include <math.h>
-#define SHELL_SECT
+#define SHELL1_SECT
+#define SHELL2_SECT
 #define FILESYS_SECT
 #define MAIN_SECT
 #define COMMANDS1_SECT
@@ -76,6 +79,7 @@ extern "C" {
 #define STO_RCL_SECT
 #define TABLES_SECT
 #define VARIABLES_SECT
+#define BCD_SECT
 #define int4 int
 #define uint4 unsigned int
 

@@ -74,14 +74,14 @@ static int builtin_skins;
 static int external_skins;
 static char **skin_name = NULL;
  
-static void do_import() SHELL_SECT;
-static void do_export() SHELL_SECT;
-static void do_clip_copy() SHELL_SECT;
-static void do_clip_paste() SHELL_SECT;
-static void do_delete_skin() SHELL_SECT;
-static void do_copy() SHELL_SECT;
-static void do_delete() SHELL_SECT;
-static void do_removedir() SHELL_SECT;
+static void do_import() SHELL2_SECT;
+static void do_export() SHELL2_SECT;
+static void do_clip_copy() SHELL2_SECT;
+static void do_clip_paste() SHELL2_SECT;
+static void do_delete_skin() SHELL2_SECT;
+static void do_copy() SHELL2_SECT;
+static void do_delete() SHELL2_SECT;
+static void do_removedir() SHELL2_SECT;
 
 
 void open_math_lib() {
@@ -96,12 +96,12 @@ void open_math_lib() {
     ErrFatalDisplayIf(error, "Can't open MathLib");
 }
 
-static Int16 str_ptr_compare(void *a, void *b, Int32 other) SHELL_SECT;
+static Int16 str_ptr_compare(void *a, void *b, Int32 other) SHELL2_SECT;
 static Int16 str_ptr_compare(void *a, void *b, Int32 other) {
     return StrCaselessCompare(*(char **) a, *(char **) b);
 }
 
-static void make_skin_list() SHELL_SECT;
+static void make_skin_list() SHELL2_SECT;
 static void make_skin_list() {
     int bufsize = 5000;
     char *buf = (char *) MemPtrNew(bufsize);
@@ -197,7 +197,7 @@ static void make_skin_list() {
     MemPtrFree(buf);
 }
 
-static unsigned char *find_macro(int ckey) SHELL_SECT;
+static unsigned char *find_macro(int ckey) SHELL2_SECT;
 static unsigned char *find_macro(int ckey) {
     int i;
     if (skin2 == NULL)
@@ -712,7 +712,7 @@ void draw_softkey(int state) {
 	MemPtrFree(bits_v3);
 }
 
-static Boolean prefs_handler(EventType *e) SHELL_SECT;
+static Boolean prefs_handler(EventType *e) SHELL2_SECT;
 static Boolean prefs_handler(EventType *e) {
     char buf[FILENAMELEN];
     int field, direction;
@@ -1619,7 +1619,7 @@ static int memoseq;
 static int4 memolen;
 static UInt16 memoindex;
 
-static void memo_writer(const char *text, int length) SHELL_SECT;
+static void memo_writer(const char *text, int length) SHELL2_SECT;
 static void memo_writer(const char *text, int length) {
     MemPtr mp;
     char *cp;
@@ -1769,7 +1769,7 @@ static void memo_writer(const char *text, int length) {
     }
 }
 
-static void memo_newliner() SHELL_SECT;
+static void memo_newliner() SHELL2_SECT;
 static void memo_newliner() {
     /* No-op; memo_writer() takes care of the newlines */
 
@@ -1810,7 +1810,7 @@ void close_memo() {
 
 static fsa_obj *txtfile = NULL;
 
-static void txt_writer(const char *text, int length) SHELL_SECT;
+static void txt_writer(const char *text, int length) SHELL2_SECT;
 static void txt_writer(const char *text, int length) {
     uint4 n;
     int err;
@@ -1872,7 +1872,7 @@ static void txt_writer(const char *text, int length) {
 		 "Printing to text file disabled.");
 }
 
-static void txt_newliner() SHELL_SECT;
+static void txt_newliner() SHELL2_SECT;
 static void txt_newliner() {
     txt_writer("\n", 1);
 }
@@ -1893,7 +1893,7 @@ static int gifseq = -1;
 static int4 gif_lines;
 static char giffile_name[FILENAMELEN];
 
-static void gif_seeker(int4 pos) SHELL_SECT;
+static void gif_seeker(int4 pos) SHELL2_SECT;
 static void gif_seeker(int4 pos) {
     int err;
     if (!state.printerToGifFile || giffile == NULL)
@@ -1911,7 +1911,7 @@ static void gif_seeker(int4 pos) {
     }
 }
 
-static void gif_writer(const char *text, int length) SHELL_SECT;
+static void gif_writer(const char *text, int length) SHELL2_SECT;
 static void gif_writer(const char *text, int length) {
     int err;
     uint4 n;
@@ -2046,7 +2046,7 @@ static struct {
 } selprog;
 
 static void text_cell_renderer(void *tablep, Int16 row, Int16 column,
-					    RectangleType *bounds) SHELL_SECT;
+					    RectangleType *bounds) SHELL2_SECT;
 static void text_cell_renderer(void *tablep, Int16 row, Int16 column,
 					    RectangleType *bounds) {
     TableType *table = (TableType *) tablep;
@@ -2062,7 +2062,7 @@ static void text_cell_renderer(void *tablep, Int16 row, Int16 column,
     FntSetFont(prevFid);
 }
 
-static Boolean selectprogram_handler(EventType *e) SHELL_SECT;
+static Boolean selectprogram_handler(EventType *e) SHELL2_SECT;
 static Boolean selectprogram_handler(EventType *e) {
     switch (e->eType) {
 	case sclRepeatEvent: {
@@ -2112,14 +2112,14 @@ static fsa_obj *export_file = NULL;
 static fsa_obj *import_file = NULL;
 static ProgressPtr progress;
 
-static Boolean progress_text_cb(PrgCallbackDataPtr cb) SHELL_SECT;
+static Boolean progress_text_cb(PrgCallbackDataPtr cb) SHELL2_SECT;
 static Boolean progress_text_cb(PrgCallbackDataPtr cb) {
     StrNCopy(cb->textP, cb->message, cb->textLen - 1);
     cb->textP[cb->textLen - 1] = 0;
     return true;
 }
 
-static int progress_report_cb(const char *message) SHELL_SECT;
+static int progress_report_cb(const char *message) SHELL2_SECT;
 static int progress_report_cb(const char *message) {
     if (message != NULL)
 	PrgUpdateDialog(progress, errNone, 0, message, true);
@@ -2285,7 +2285,7 @@ static void do_clip_copy() {
     ClipboardAddItem(clipboardText, buf, StrLen(buf));
 }
 
-static int parse_double(char *p, int len, double *res) SHELL_SECT;
+static int parse_double(char *p, int len, double *res) SHELL2_SECT;
 static int parse_double(char *p, int len, double *res) {
     /* This is the Palm, so we have no sscanf(), and FlpBufferAToF()
      * is broken. Welcome to the Dark Ages! Here comes my roll-your-own
@@ -2354,7 +2354,7 @@ static int parse_double(char *p, int len, double *res) {
     return 1;
 }
 
-static int is_number_char(char c) SHELL_SECT;
+static int is_number_char(char c) SHELL2_SECT;
 static int is_number_char(char c) {
     return (c >= '0' && c <= '9')
 	    || c == '-' || c == '+' || c == '.' || c == 'e';

@@ -31,7 +31,7 @@ struct BCDRef
     BCDRef*             next_;
 
     void                _free() { next_ = pool_;  pool_ = this; }
-    static BCDRef*      _alloc();
+    static BCDRef*      _alloc() BCD_SECT;
     static BCDRef*      pool_;
 };
 
@@ -41,7 +41,10 @@ struct BCD
     BCD() { ref_ = 0; }
     BCD(BCDRef* r) : ref_(r) {}
     BCD(const char* s) { ref_ = BCDRef::_alloc(); ref_->v_ = BCDFloat(s); }
+#ifdef PALMOS
     BCD(int v) { ref_ = BCDRef::_alloc(); ref_->v_ = BCDFloat(v); }
+#endif
+    BCD(int4 v) { ref_ = BCDRef::_alloc(); ref_->v_ = BCDFloat(v); }
     BCD(const BCD& v) { ref_ = 0; *this = v; }
     BCD(const BCDFloat& v) { ref_ = BCDRef::_alloc(); ref_->v_ = v; }
     //BCD(double v) { ref_ = 0; } // XXX FIXME
@@ -126,13 +129,15 @@ struct BCD
         *this -= 1;
     }
 
-    friend int          ifloor(const BCD& a)
+    friend int4         ifloor(const BCD& a)
                         { return BCDFloat::ifloor(&a.ref_->v_); }
-    friend BCD          floor(const BCD&);
-    friend BCD          trunc(const BCD&);
-    friend BCD          fabs(const BCD&);
-    friend BCD          frac(const BCD&);
+    friend BCD          floor(const BCD&) BCD_SECT;
+    friend BCD          trunc(const BCD&) BCD_SECT;
+    friend BCD          fabs(const BCD&) BCD_SECT;
+    friend BCD          frac(const BCD&) BCD_SECT;
+#ifndef PALMOS
     const char*         asString() const;
+#endif
     bool                isZero() const { return !ref_ || ref_->v_.isZero(); }
     bool                isNeg() const { return ref_ && ref_->v_.neg(); }
     bool                isSpecial() const

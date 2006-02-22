@@ -25,22 +25,22 @@
 
 #include "bcd.h"
 
-BCD pi();
-BCD sin(const BCD&);
-BCD cos(const BCD&);
-BCD tan(const BCD&);
-BCD exp(const BCD&);
-BCD log(const BCD&);
-BCD atan(const BCD&);
-BCD pow(const BCD&, int n);
-BCD pow(const BCD&, const BCD&);
-BCD atan2(const BCD& y, const BCD& x);
-BCD asin(const BCD&);
-BCD acos(const BCD&);
-BCD modtwopi(const BCD&);
-BCD log10(const BCD&);
-BCD sqrt(const BCD&);
-BCD hypot(const BCD& a, const BCD& b);
-BCD fmod(const BCD& a, const BCD& b);
+BCD pi() BCD_SECT;
+BCD sin(const BCD&) BCD_SECT;
+BCD cos(const BCD&) BCD_SECT;
+BCD tan(const BCD&) BCD_SECT;
+BCD exp(const BCD&) BCD_SECT;
+BCD log(const BCD&) BCD_SECT;
+BCD atan(const BCD&) BCD_SECT;
+BCD pow(const BCD&, int4 n) BCD_SECT;
+BCD pow(const BCD&, const BCD&) BCD_SECT;
+BCD atan2(const BCD& y, const BCD& x) BCD_SECT;
+BCD asin(const BCD&) BCD_SECT;
+BCD acos(const BCD&) BCD_SECT;
+BCD modtwopi(const BCD&) BCD_SECT;
+BCD log10(const BCD&) BCD_SECT;
+BCD sqrt(const BCD&) BCD_SECT;
+BCD hypot(const BCD& a, const BCD& b) BCD_SECT;
+BCD fmod(const BCD& a, const BCD& b) BCD_SECT;
 
 #endif // bcdmath

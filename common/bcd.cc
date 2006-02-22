@@ -38,6 +38,7 @@ BCDRef* BCDRef::_alloc()
 
 char BCD::buf_[64];
 
+#ifndef PALMOS
 const char* BCD::asString() const
 {
     if (ref_) {
@@ -46,6 +47,7 @@ const char* BCD::asString() const
     else *buf_ = 0;
     return buf_;
 }
+#endif
 
 BCD fabs(const BCD& a)
 {

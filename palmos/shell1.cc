@@ -52,6 +52,13 @@ static void log(const char *message) {
 }
 #endif
 
+UInt32 shell_main(UInt16 cmd, void *pbp, UInt16 flags) SHELL1_SECT;
+
+UInt32 PilotMain(UInt16 cmd, void *pbp, UInt16 flags) {
+    return shell_main(cmd, pbp, flags);
+}
+
+static void open_printout() SHELL1_SECT;
 static void open_printout() {
     LocalID id = DmFindDatabase(0, "Free42Print");
     if (id == 0) {
@@ -85,6 +92,7 @@ static void open_printout() {
     }
 }
 
+static void close_printout() SHELL1_SECT;
 static void close_printout() {
     if (printdb != 0) {
 	if (printrec != 0) {
@@ -378,7 +386,7 @@ void shell_release_bcd_table(shell_bcd_table_struct *bcdtab) {
     }
 }
 
-UInt32 PilotMain(UInt16 cmd, void *pbp, UInt16 flags) {
+UInt32 shell_main(UInt16 cmd, void *pbp, UInt16 flags) {
     switch (cmd) {
 	case sysAppLaunchCmdNormalLaunch: {
 	    EventType event;

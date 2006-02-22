@@ -543,7 +543,7 @@ Phloat fmod(Phloat x, Phloat y) {
 }
 
 Phloat fabs(Phloat p) {
-    Phloat res;
+    Phloat res(p);
     if (!res.bcd.isNan() && res.bcd.neg())
 	res.bcd.negate();
     return res;

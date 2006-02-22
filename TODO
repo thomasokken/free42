@@ -42,14 +42,6 @@ Get a PayPal account to accept donations. :-)
 Auto-repeat: for keys where the usual holding-down behavior isn't needed
 (number keys, backspace, etc.) it might be nice to support auto-repeat.
 
-Take another look at the possibility of a Decimal PalmOS build. My last attempt
-was unsuccessful; I got linker errors where it complained about the .text
-(unnamed) section being full, which is weird because there isn't that much code
-in that section. Even when I moved *all* code out of the unnamed section,
-leaving only a stub PilotMain() there, the errors persisted (having to do with
-offsets to __do_bhook, __do_ctors, etc.). I guess using PRC-tools to build a
-500 kilobyte C++ executable is pushing it...
-
 HP-41 module support. Should be able to read ROM files, and maybe also MOD.
 (Requested by Vincent Weber, 12/21/2005)
 Additional thoughts by ThO:

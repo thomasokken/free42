@@ -70,41 +70,41 @@ extern int radAnn;
 extern SkinSpec *skin;
 
 
-void open_math_lib() SHELL_SECT;
-void load_skin() SHELL_SECT;
-void unload_skin() SHELL_SECT;
-void close_math_lib() SHELL_SECT;
-void misc_cleanup() SHELL_SECT;
-int feature_set_3_5_present() SHELL_SECT;
-int feature_set_4_0_present() SHELL_SECT;
-int feature_set_high_density_present() SHELL_SECT;
-int graffiti_2_present() SHELL_SECT;
-void init_shell_state(int4 version) SHELL_SECT;
-int read_shell_state(int4 *ver) SHELL_SECT;
-int write_shell_state() SHELL_SECT;
-void set_colors(RGBColorType *bg, RGBColorType *fg) SHELL_SECT;
-void restore_colors() SHELL_SECT;
-void set_coord_sys() SHELL_SECT;
-void restore_coord_sys() SHELL_SECT;
-void repaint_annunciator(int i) SHELL_SECT;
-void repaint_printout() SHELL_SECT;
-void draw_softkey(int state) SHELL_SECT;
-Boolean form_handler(EventType *e) SHELL_SECT;
+void open_math_lib() SHELL2_SECT;
+void load_skin() SHELL2_SECT;
+void unload_skin() SHELL2_SECT;
+void close_math_lib() SHELL2_SECT;
+void misc_cleanup() SHELL2_SECT;
+int feature_set_3_5_present() SHELL2_SECT;
+int feature_set_4_0_present() SHELL2_SECT;
+int feature_set_high_density_present() SHELL2_SECT;
+int graffiti_2_present() SHELL2_SECT;
+void init_shell_state(int4 version) SHELL2_SECT;
+int read_shell_state(int4 *ver) SHELL2_SECT;
+int write_shell_state() SHELL2_SECT;
+void set_colors(RGBColorType *bg, RGBColorType *fg) SHELL2_SECT;
+void restore_colors() SHELL2_SECT;
+void set_coord_sys() SHELL2_SECT;
+void restore_coord_sys() SHELL2_SECT;
+void repaint_annunciator(int i) SHELL2_SECT;
+void repaint_printout() SHELL2_SECT;
+void draw_softkey(int state) SHELL2_SECT;
+Boolean form_handler(EventType *e) SHELL2_SECT;
 Boolean calcgadget_handler(struct FormGadgetTypeInCallback *gadgetP,
-			    UInt16 cmd, void *paramP) SHELL_SECT;
+			    UInt16 cmd, void *paramP) SHELL2_SECT;
 Boolean printgadget_handler(struct FormGadgetTypeInCallback *gadgetP,
-			    UInt16 cmd, void *paramP) SHELL_SECT;
-Boolean handle_event(EventType *e) SHELL_SECT;
+			    UInt16 cmd, void *paramP) SHELL2_SECT;
+Boolean handle_event(EventType *e) SHELL2_SECT;
 
-void show_message(char *message) SHELL_SECT;
-void set_field_text(FieldType *fld, const char *text) SHELL_SECT;
+void show_message(char *message) SHELL2_SECT;
+void set_field_text(FieldType *fld, const char *text) SHELL2_SECT;
 
-void print_to_memo(const char *text, int length) SHELL_SECT;
-void print_to_txt(const char *text, int length) SHELL_SECT;
+void print_to_memo(const char *text, int length) SHELL2_SECT;
+void print_to_txt(const char *text, int length) SHELL2_SECT;
 void print_to_gif(const char *bits, short bytesperline, short x, short y,
-		  short width, short height) SHELL_SECT;
-void close_memo() SHELL_SECT;
-void close_txt() SHELL_SECT;
-void close_gif(int reset_sequence) SHELL_SECT;
+		  short width, short height) SHELL2_SECT;
+void close_memo() SHELL2_SECT;
+void close_txt() SHELL2_SECT;
+void close_gif(int reset_sequence) SHELL2_SECT;
 
 #endif

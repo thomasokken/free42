@@ -23,6 +23,16 @@
 #ifndef __bcdfloat_h__
 #define __bcdfloat_h__
 
+#include "free42.h"
+
+#ifdef PALMOS
+#include <PalmOS.h>
+#define int4 Int32
+#define uint4 UInt32
+#else
+#define int4 int
+#define uint4 unsigned int
+#endif
 
 #if defined(WINDOWS) && !defined(__GNUC__)
 #define int8 __int64
@@ -97,12 +107,18 @@
 struct BCDFloat
 {
     BCDFloat() { _init(); }
-    BCDFloat(const char* s);
-    BCDFloat(int);
-    BCDFloat(int8);
+    //BCDFloat() {}
+    BCDFloat(const char* s) BCD_SECT;
+#ifdef PALMOS
+    BCDFloat(int) BCD_SECT;
+#endif
+    BCDFloat(int4) BCD_SECT;
+    BCDFloat(int8) BCD_SECT;
 
     // Features
+#ifndef PALMOS
     void                asString(char* buf) const;
+#endif
     int                 exp() const { return ((short)(d_[P] << 1)) >> 1; }
     void                exp(int v) { d_[P] = (v & (NEG-1)); }
     bool                neg() const { return d_[0] != 0 && (d_[P]& NEG) != 0; }
@@ -111,35 +127,37 @@ struct BCDFloat
     bool                isSpecial() const { return (d_[P]&0x7000) == 0x3000; } 
     bool                isNan() const { return (d_[P]&0x7fff) == 0x3000; }
     bool                isInf() const { return (d_[P]&0x7fff) == 0x3fff; }
-    bool                isInteger() const;
+    bool                isInteger() const BCD_SECT;
 
-    static void         add(const BCDFloat* a, const BCDFloat* b, BCDFloat* c);
-    static void         sub(const BCDFloat* a, const BCDFloat* b, BCDFloat* c);
-    static void         mul(const BCDFloat* a, const BCDFloat* b, BCDFloat* c);
-    static void         div(const BCDFloat* a, const BCDFloat* b, BCDFloat* c);
-    static bool         sqrt(const BCDFloat* a, BCDFloat* ra);
+    static void         add(const BCDFloat* a, const BCDFloat* b, BCDFloat* c) BCD_SECT;
+    static void         sub(const BCDFloat* a, const BCDFloat* b, BCDFloat* c) BCD_SECT;
+    static void         mul(const BCDFloat* a, const BCDFloat* b, BCDFloat* c) BCD_SECT;
+    static void         div(const BCDFloat* a, const BCDFloat* b, BCDFloat* c) BCD_SECT;
+    static bool         sqrt(const BCDFloat* a, BCDFloat* ra) BCD_SECT;
 
-    static bool         lt(const BCDFloat* a, const BCDFloat* b);
-    static bool         le(const BCDFloat* a, const BCDFloat* b);
+    static bool         lt(const BCDFloat* a, const BCDFloat* b) BCD_SECT;
+    static bool         le(const BCDFloat* a, const BCDFloat* b) BCD_SECT;
     static bool         gt(const BCDFloat* a, const BCDFloat* b)
                                 { return lt(b, a); }
     static bool         ge(const BCDFloat* a, const BCDFloat* b)
                                 { return le(b, a); }
-    static bool         equal(const BCDFloat* a, const BCDFloat* b);
-    static int          ifloor(const BCDFloat* a);
-    static bool         floor(const BCDFloat* a, BCDFloat* c);
-    static bool         trunc(const BCDFloat* a, BCDFloat* c);
+    static bool         equal(const BCDFloat* a, const BCDFloat* b) BCD_SECT;
+    static int4         ifloor(const BCDFloat* a) BCD_SECT;
+    static bool         floor(const BCDFloat* a, BCDFloat* c) BCD_SECT;
+    static bool         trunc(const BCDFloat* a, BCDFloat* c) BCD_SECT;
 
-    void                _init();
+    void                _init() BCD_SECT;
     static void         _uadd(const BCDFloat* a, const BCDFloat* b,
-                              BCDFloat* c);
+                              BCDFloat* c) BCD_SECT;
     static void         _usub(const BCDFloat* a, const BCDFloat* b,
-                              BCDFloat* c);
-    int                 _round();
-    void                _rshift();
-    void                _lshift();
-    const BCDFloat&     _round20() const;
+                              BCDFloat* c) BCD_SECT;
+    int                 _round() BCD_SECT;
+    void                _rshift() BCD_SECT;
+    void                _lshift() BCD_SECT;
+    const BCDFloat&     _round20() const BCD_SECT;
+#ifndef PALMOS
     void                _asString(char* buf) const;
+#endif
 
     static const BCDFloat& posInf() { return *(BCDFloat*)posInfD_; }
     static const BCDFloat& negInf() { return *(BCDFloat*)negInfD_; }
@@ -147,7 +165,7 @@ struct BCDFloat
 
     static void         mul2(unsigned short* ad, int ea,
                              unsigned short* bd, int eb,
-                             unsigned short* cd, int& ec);
+                             unsigned short* cd, int& ec) BCD_SECT;
     
     /* store P 4dec `digits', equivalent to P*4 decimal digits.
      * the last place is the exponent.

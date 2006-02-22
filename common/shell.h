@@ -44,7 +44,7 @@
  * height of the area to be repainted.
  */
 void shell_blitter(const char *bits, int bytesperline, int x, int y,
-			     int width, int height);
+			     int width, int height) SHELL1_SECT;
 
 /* shell_beeper()
  * Callback invoked by the emulator core to play a sound.
@@ -53,7 +53,7 @@ void shell_blitter(const char *bits, int bytesperline, int x, int y,
  * Sound playback should be synchronous (the beeper function should
  * not return until the sound has finished), if possible.
  */
-void shell_beeper(int frequency, int duration);
+void shell_beeper(int frequency, int duration) SHELL1_SECT;
 
 /* shell_annunciators()
  * Callback invoked by the emulator core to change the state of the display
@@ -64,7 +64,7 @@ void shell_beeper(int frequency, int duration);
  * the lot that the emulator core does not actually have any control over, and
  * so the shell is expected to handle that one by itself.
  */
-void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad);
+void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) SHELL1_SECT;
 
 /* shell_wants_cpu()
  *
@@ -76,20 +76,20 @@ void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad);
  * immediately (with a return value of 1, to indicate that it would like to get
  * the CPU back as soon as possible).
  */
-int shell_wants_cpu();
+int shell_wants_cpu() SHELL1_SECT;
 
 /* Callback to suspend execution for the given number of milliseconds. No event
  * processing will take place during the wait, so the core can call this
  * without having to worry about core_keydown() etc. being re-entered.
  */
-void shell_delay(int duration);
+void shell_delay(int duration) SHELL1_SECT;
 
 /* Callback to ask the shell to call core_timeout3() after the given number of
  * milliseconds. If there are keystroke events during that time, the timeout is
  * cancelled. (Pressing 'shift' does not cancel the timeout.)
  * This function supports the delay after SHOW, MEM, and shift-VARMENU.
  */
-void shell_request_timeout3(int delay);
+void shell_request_timeout3(int delay) SHELL1_SECT;
 
 /* shell_read_saved_state()
  *
@@ -102,7 +102,7 @@ void shell_request_timeout3(int delay);
  * happen if you try to call this function during other contexts, but you will
  * always get an error then.)
  */
-int4 shell_read_saved_state(void *buf, int4 bufsize);
+int4 shell_read_saved_state(void *buf, int4 bufsize) SHELL1_SECT;
 
 /* shell_write_saved_state()
  * Callback to dump the saved state to persistent storage.
@@ -111,12 +111,12 @@ int4 shell_read_saved_state(void *buf, int4 bufsize);
  * horrible will happen if you try to call this function during other contexts,
  * but you will always get an error then.)
  */
-bool shell_write_saved_state(const void *buf, int4 nbytes);
+bool shell_write_saved_state(const void *buf, int4 nbytes) SHELL1_SECT;
 
 /* shell_get_mem()
  * Callback to get the amount of free memory in bytes.
  */
-int4 shell_get_mem();
+int4 shell_get_mem() SHELL1_SECT;
 
 /* shell_low_battery()
  * Callback to find out if the battery is low. Used to emulate flag 49 and the
@@ -125,14 +125,14 @@ int4 shell_get_mem();
  * implementation of shell_low_battery(), it can leave the decision on how to
  * respond to sysNotifySleepRequestEvent to core_allows_powerdown().
  */
-int shell_low_battery();
+int shell_low_battery() SHELL1_SECT;
 
 /* shell_powerdown()
  * Callback to tell the shell that the emulator wants to power down.
  * Only called in response to OFF (shift-EXIT or the OFF command); automatic
  * power-off is left to the OS and/or shell.
  */
-void shell_powerdown();
+void shell_powerdown() SHELL1_SECT;
 
 /* shell_random_seed()
  * When SEED is invoked with X = 0, the random number generator should be
@@ -145,14 +145,14 @@ void shell_powerdown();
  * applications like games where you don't want the same sequence of cards
  * dealt each time.
  */
-double shell_random_seed();
+double shell_random_seed() SHELL1_SECT;
 
 /* shell_milliseconds()
  * Returns an elapsed-time value in milliseconds. The caller should make no
  * assumptions as to what this value is relative to; it is only intended to
  * allow the emulator core make short-term elapsed-time measurements.
  */
-uint4 shell_milliseconds();
+uint4 shell_milliseconds() SHELL1_SECT;
 
 /* shell_print()
  * Printer emulation. The first 2 parameters are the plain text version of the
@@ -163,14 +163,14 @@ uint4 shell_milliseconds();
  */
 void shell_print(const char *text, int length,
 		 const char *bits, int bytesperline,
-		 int x, int y, int width, int height);
+		 int x, int y, int width, int height) SHELL1_SECT;
 
 /* shell_write()
  *
  * Callback for core_export_programs(). Returns 0 if a problem occurred;
  * core_export_programs() should abort in that case.
  */
-int shell_write(const char *buf, int4 buflen);
+int shell_write(const char *buf, int4 buflen) SHELL1_SECT;
 
 /* shell_read()
  *
@@ -178,7 +178,7 @@ int shell_write(const char *buf, int4 buflen);
  * read. Returns -1 if an error occurred; a return value of 0 signifies end of
  * input.
  */
-int4 shell_read(char *buf, int4 buflen);
+int4 shell_read(char *buf, int4 buflen) SHELL1_SECT;
 
 /* shell_get_bcd_table()
  * shell_put_bcd_table()
@@ -202,9 +202,9 @@ typedef struct {
     uint4 neg_pow2exp_offset;
 } shell_bcd_table_struct;
 
-shell_bcd_table_struct *shell_get_bcd_table();
+shell_bcd_table_struct *shell_get_bcd_table() SHELL1_SECT;
 shell_bcd_table_struct *shell_put_bcd_table(shell_bcd_table_struct *bcdtab,
-					    uint4 size);
-void shell_release_bcd_table(shell_bcd_table_struct *bcdtab);
+					    uint4 size) SHELL1_SECT;
+void shell_release_bcd_table(shell_bcd_table_struct *bcdtab) SHELL1_SECT;
 
 #endif

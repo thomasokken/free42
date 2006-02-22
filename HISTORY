@@ -5,15 +5,6 @@
   binary floating point as well.
 * Removed IP Hack option. It never really did the job anyway, and with the
   introduction of the Decimal version, it is now obsolete.
-* NOTE: there is no decimal version for PalmOS at the moment. I'm having
-  trouble getting the executable linked. The PRC-tools linker complains about
-  offsets getting out of range, which of course is par for the course when
-  building large PalmOS executables, but usually the error messages make it
-  easy to figure out which segments are overflowing and which offsets are
-  getting truncated -- but this time the messages have to do with C++ support
-  functions which I don't know what to do about (__do_ctors, etc.). Even after
-  moving everything except PilotMain() out of the unnamed section, ld still
-  says that that section is full. I have no clue how to proceed from here.
 
 10-02-2006: version 1.3.17
 
