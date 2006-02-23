@@ -141,6 +141,7 @@ Phloat log1p(Phloat p) PHLOAT_SECT;
 Phloat log10(Phloat p) PHLOAT_SECT;
 Phloat exp(Phloat p) PHLOAT_SECT;
 Phloat expm1(Phloat p) PHLOAT_SECT;
+Phloat gamma(Phloat p) PHLOAT_SECT;
 Phloat sqrt(Phloat p) PHLOAT_SECT;
 Phloat fmod(Phloat x, Phloat y) PHLOAT_SECT;
 Phloat fabs(Phloat p) PHLOAT_SECT;

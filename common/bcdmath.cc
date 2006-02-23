@@ -36,7 +36,10 @@
 #define BCD_CONST_ATANLIM (BCD_CONST_LN10+1)
 #define BCD_CONST_PIBY32A (BCD_CONST_ATANLIM+1)
 #define BCD_CONST_PIBY32B (BCD_CONST_PIBY32A+1)
-#define BCD_CONST_POINT5  (BCD_CONST_PIBY32B+1)
+#define BCD_CONST_HUNDREDTH (BCD_CONST_PIBY32B+1)
+#define BCD_CONST_HALF (BCD_CONST_HUNDREDTH+1)
+#define BCD_CONST_LANCZOS (BCD_CONST_HALF+1)
+
 
 typedef unsigned short Dig[P+1];
 
@@ -73,8 +76,23 @@ static Dig constTable[] =
 
     { 981, 7477, 424, 0, 0, 0, 0, 0 }, // pi/32 part A
     { 6810, 3870, 1957, 6057, 2748, 4465, 1312, (-3)&(NEG-1) }, // pi/32 part B
+    { 100, 0, 0, 0, 0, 0, 0, 0 },  // 0.01 limit used in ln1p
+    { 5000, 0, 0, 0, 0, 0, 0, 0 },  // 0.5
 
-    { 5000, 0, 0, 0, 0, 0, 0, 0 }, // 1/2
+    // Lanczos terms for gamma
+    { 3, 7948, 6229, 8882, 1576, 6137, 571, 2 },
+    { 6, 1191, 9133, 3435, 268, 9475, 3696, 32770 },
+    { 3, 1935, 3139, 9365, 7178, 9732, 6587, 2 },
+    { 1, 648, 2204, 9659, 4145, 5971, 637, 32770 },
+    { 2215, 7659, 2545, 9700, 1065, 2640, 839, 1 },
+    { 277, 3434, 9002, 3102, 315, 6808, 5633, 32769 },
+    { 19, 7504, 4798, 8896, 954, 2464, 2454, 1 },
+    { 7351, 4584, 5326, 3110, 3427, 1541, 972, 32768 },
+    { 125, 201, 6315, 9372, 8926, 576, 1395, 0 },
+    { 7710, 2871, 8096, 9904, 7327, 526, 2403, 65535 },
+    { 10, 9373, 7115, 9701, 7175, 1506, 3503, 32767 },
+    { 11, 2406, 1022, 3182, 8735, 6453, 7307, 65534 },
+    { 2, 7709, 5759, 7224, 6395, 7358, 7375, 32766 },
 };
 
 BCD pi()
@@ -617,29 +635,215 @@ BCD modtwopi(const BCD& a)
 
 BCD log10(const BCD& v)
 {
-    /* XXX FIXME */
     BCD ln10(*(const BCDFloat*)(constTable + BCD_CONST_LN10));
     return log(v) / ln10;
 }
 
 BCD hypot(const BCD& a, const BCD& b)
 {
-    /* XXX FIXME */
+    /* XXX FIXME.
+     * there isn't a fix for this. the only way to retain precision
+     * is to use double working precision during the calculation.
+     */
     return sqrt(a * a + b * b);
 }
 
 BCD fmod(const BCD& a, const BCD& b)
 {
-    /* XXX FIXME */
     BCD c = a - b * trunc(a / b);
     if (a == trunc(a) && b == trunc(b) && !(c == trunc(c))) {
 	// Numerator and denominator are both integral;
 	// in this case we force the result to be integral as well.
-	BCD half(*(const BCDFloat*)(constTable + BCD_CONST_POINT5));
+	BCD half(*(const BCDFloat*)(constTable + BCD_CONST_HALF));
 	if (c < 0)
 	    c = trunc(c - half);
 	else
 	    c = trunc(c + half);
     }
     return c;
+}
+
+BCD ln1p(const BCD& a)
+{
+    /* calculate log(a+1) without numerical instability near
+     * a == 0.
+     */
+
+    /* first test special cases. */
+    if (a.isSpecial()) return a;
+    if (a.isZero()) return 0; // ln(1) == 0
+    if (a == -1) return BCDFloat::negInf(); // ln(0) = -inf
+    if (a < -1) return BCDFloat::nan(); // ln(-x) = nan
+
+    /* if x > 0.01, then the usual log calculation will give correct
+     * results.
+     */
+    BCD pointzeroone(*(const BCDFloat*)(constTable + BCD_CONST_HUNDREDTH));
+    if (fabs(a) >= pointzeroone) return log(1+a);
+
+    /* otherwise use a series that converges for small arguments */
+    BCD c(2);
+    BCD s;
+    BCD t;
+    BCD s1;
+    BCD x;
+
+    s = a;
+    x = -a;
+    t = x;
+
+    for (;;) {
+        t *= x;
+        s1 = s - t/c;
+        if (s1 == s) break;
+        c += 1;
+        s = s1;
+    }
+    return s1;
+}
+
+static void dumpbcd(const BCD& a) BCD_SECT;
+static void dumpbcd(const BCD& a)
+{
+    int16 i;
+    const BCDFloat& f = a.ref_->v_;
+    printf("{ ");
+    for (i = 0; i < P; ++i) {
+        printf("%d, ", f.d_[i]);
+    }
+    printf("%d },\n", f.d_[P]);
+}
+
+#define K 12
+#define GG 12
+
+static BCD _gammaFactorial1(const BCD& z) BCD_SECT;
+static BCD _gammaFactorial1(const BCD& z)
+{
+    /* calculate gamma(z+1) = z! for z > 0
+     * using lanczos expansion with precomputed coefficients.
+     *
+     * NOTE: accuracy degrades as z increases.
+     */
+
+    BCD t1;
+    BCD t2;
+    BCD s, t;
+    int16 i;
+
+    const BCDFloat* lancz = (const BCDFloat*)(constTable + BCD_CONST_LANCZOS);
+    s = lancz[0];
+
+    i = 1;
+    t = 1;
+    for (;;) {
+        t *= (z+(1-i))/(z + i);
+        s += t*lancz[i];
+        if (i == K) break;
+        ++i;
+    }
+
+    BCD half(*(const BCDFloat*)(constTable + BCD_CONST_HALF));
+    t1 = z + half;
+    t2 = t1 + GG;
+    return 2*exp(t1*log(t2)-t2)*s;
+}
+
+static BCD _gammaFactorial(const BCD& z) BCD_SECT;
+static BCD _gammaFactorial(const BCD& z)
+{
+    /* this "middle-man" function prevents larger arguments being given
+     * to the base calculation. unfortunately, we have to reduce by
+     * multiplications so if `z' is large (up to 3249) that means we 
+     * can have a lot of multiplications. this is not good, but it retains
+     * 20 digit accuracy.
+     *
+     * note: tried reduction by halves using Gauss multiple formula,
+     * but its slower because there are more leaves to calculate.
+     */
+    if (z > 2.5) {
+        BCD x = z;
+        BCD f = x;
+        for (;;) {
+            x -= 1;
+            if (x <= 2.5) break;
+            f *= x;
+        }
+        return _gammaFactorial1(x)*f;
+    }
+    return _gammaFactorial1(z);
+}
+
+BCD gammaFactorial(const BCD& c)
+{
+    /* return c! (c factorial) and also the gamma function
+     * where c! = gamma(c+1).
+     */
+
+    /* deal with special cases */
+    if (c.isSpecial()) return c;
+
+    if (c >= 3249) return BCDFloat::posInf();
+
+    if (c.isInteger()) {
+        if (c.isZero()) return 1;
+        if (c.isNeg()) return BCDFloat::nan();
+        int16 v = ifloor(c);
+        
+        if (!v) {
+            /* too large for integer. answer must be infinite */
+            return BCDFloat::posInf();
+        }
+
+        /* calculate integer factorial */
+        BCD f = c;
+        BCD x = c;
+        while (v > 1) {
+            --x;
+            f *= x;
+            --v;
+        }
+        return f;
+    }
+
+    if (c.isNeg()) {
+        /* use reflection formula */
+        BCD z1 = -c;
+        BCD pi(*(const BCDFloat*)(constTable + BCD_CONST_PI));
+        BCD z2 = z1*pi;
+        return z2/sin(z2)/_gammaFactorial(z1);
+    }
+    else {
+        return _gammaFactorial(c);
+    }
+}
+
+BCD expm1(const BCD& a)
+{
+    /* first test special cases. */
+    if (a.isSpecial()) return a;
+
+    if (a.isZero()) return 0; // exp(0)-1 == 0
+
+    /* if |x| > 0.01, then the usual calculation will give correct
+     * results.
+     */
+    BCD pointzeroone(*(const BCDFloat*)(constTable + BCD_CONST_HUNDREDTH));
+    if (fabs(a) >= pointzeroone) {
+        return exp(a)-1;
+    }
+
+    BCD t = 1;
+    BCD d = 2;
+    BCD s = 1;
+    BCD s1;
+
+    for (;;) {
+        t = t*a/d;
+        s1 = s + t;
+        if (s1 == s) break;
+        s = s1;
+        ++d;
+    }
+    return s*a;
 }

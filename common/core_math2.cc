@@ -90,8 +90,17 @@ int math_atanh(phloat xre, phloat xim, phloat *yre, phloat *yim) {
 #ifdef BCD_MATH
 
 int math_gamma(phloat phx, phloat *phgamma) {
-    // PHLOAT_TODO
-    return ERR_NOT_YET_IMPLEMENTED;
+    if (phx == 0 || (phx < 0 && phx == floor(phx)))
+	return ERR_INVALID_DATA;
+    *phgamma = gamma(phx);
+    int inf = p_isinf(*phgamma);
+    if (inf != 0) {
+	if (flags.f.range_error_ignore)
+	    *phgamma = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
+	else
+	    return ERR_OUT_OF_RANGE;
+    }
+    return ERR_NONE;
 }
 
 #else // BCD_MATH

@@ -42,5 +42,8 @@ BCD log10(const BCD&) BCD_SECT;
 BCD sqrt(const BCD&) BCD_SECT;
 BCD hypot(const BCD& a, const BCD& b) BCD_SECT;
 BCD fmod(const BCD& a, const BCD& b) BCD_SECT;
+BCD ln1p(const BCD&) BCD_SECT;
+BCD expm1(const BCD&) BCD_SECT;
+BCD gammaFactorial(const BCD&) BCD_SECT;
 
 #endif // bcdmath

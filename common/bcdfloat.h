@@ -119,6 +119,7 @@ struct BCDFloat
 #endif
     BCDFloat(int4) BCD_SECT;
     BCDFloat(int8) BCD_SECT;
+    BCDFloat(double) BCD_SECT;
 
     // Features
 #ifndef PALMOS

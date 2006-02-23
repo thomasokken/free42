@@ -23,6 +23,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 #include "bcdfloat.h"
 
 /* tempoary storage for rounding for printing */
@@ -251,6 +252,55 @@ BCDFloat::BCDFloat(int8 n) {
 		d_[i] = 0;
 	}
 	d_[P] = 5 - z;
+	if (neg)
+	    negate();
+    }
+}
+
+BCDFloat::BCDFloat(double d) {
+    if (isnan(d)) {
+	*this = BCDFloat::nan();
+	return;
+    }
+    int inf = isinf(d);
+    if (inf > 0) {
+	*this = BCDFloat::posInf();
+	return;
+    } else if (inf < 0) {
+	*this = BCDFloat::negInf();
+	return;
+    }
+
+    // Return exact results if d is representable exactly as a long long.
+    // TODO: there are additional cases we should try to handle exactly, e.g.
+    // 0.375. Basically, the idea would be to do the conversion by summing
+    // exact equivalents for the values of d's nonzero bits, just like the
+    // way the table-based binary-to-bcd conversion in the Free42 Binary
+    // build works. This approach returns exact results for a very large set
+    // of cases, including all representable integers.
+    int8 n = (int8) d;
+    if (d == n) {
+	*this = BCDFloat(n);
+	return;
+    }
+
+    bool neg = d < 0;
+    if (neg)
+	d = -d;
+
+    if (d == 0) {
+	_init();
+    } else {
+	int exp = (((int) ::floor(log10(d))) & ~3) >> 2;
+	d_[P] = (exp + 1) & 0x7FFF;
+	double m = pow(100.0, (double) exp);
+	d /= m;
+	d /= m;
+	for (int i = 0; i < P; i++) {
+	    short s = (short) d;
+	    d_[i] = s;
+	    d = (d - s) * 10000;
+	}
 	if (neg)
 	    negate();
     }

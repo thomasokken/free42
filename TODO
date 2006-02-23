@@ -17,15 +17,6 @@ adusting the result of log(hypot(re, im)). Note: the current hypot() in the
 BCDFloat class overflows at 1e5000; this, too, needs to be addressed by scaling
 the argument down and then adjusting the result.
 
-Does the BCD code leak memory? I couldn't help noticing that some of the
-operators defined in the BCD class return dynamically allocated references.
-Must ask Hugh -- it *seems* like a no-no to me.
-
-Decimal version: implement gamma(), and add *proper* implementations of log1p()
-and expm1(). Also, are the current implementations of the hyperbolics
-acceptable? I just used the usual equalities where they are expressed in terms
-of logarithms and exponents.
-
 ...............................................................................
 
 Pocket PC version.

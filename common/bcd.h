@@ -47,8 +47,8 @@ struct BCD
     BCD(int4 v) { ref_ = BCDRef::_alloc(); ref_->v_ = BCDFloat(v); }
     BCD(const BCD& v) { ref_ = 0; *this = v; }
     BCD(const BCDFloat& v) { ref_ = BCDRef::_alloc(); ref_->v_ = v; }
-    //BCD(double v) { ref_ = 0; } // XXX FIXME
-    //BCD(const int8& v) { ref_ = 0; } // XXX FIXME
+    BCD(double v) { ref_ = BCDRef::_alloc(); ref_->v_ = BCDFloat(v); }
+    BCD(const int8& v) { ref_ = BCDRef::_alloc(); ref_->v_ = BCDFloat(v); }
 
     BCD&                operator=(const BCD& v)
     {

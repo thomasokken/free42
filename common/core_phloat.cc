@@ -500,12 +500,8 @@ Phloat log(Phloat p) {
 }
 
 Phloat log1p(Phloat p) {
-    // TODO - proper implementation
     Phloat res;
-    BCDFloat temp;
-    const BCDFloat one(1);
-    BCDFloat::add(&p.bcd, &one, &temp);
-    res.bcd = log(BCD(temp)).ref_->v_;
+    res.bcd = ln1p(BCD(p.bcd)).ref_->v_;
     return res;
 }
 
@@ -522,11 +518,15 @@ Phloat exp(Phloat p) {
 }
 
 Phloat expm1(Phloat p) {
-    // TODO - proper implementation
     Phloat res;
-    BCDFloat temp = exp(BCD(p.bcd)).ref_->v_;
-    const BCDFloat one(1);
-    BCDFloat::sub(&temp, &one, &res.bcd);
+    res.bcd = expm1(BCD(p.bcd)).ref_->v_;
+    return res;
+}
+
+Phloat gamma(Phloat p) {
+    --p;
+    Phloat res;
+    res.bcd = gammaFactorial(BCD(p.bcd)).ref_->v_;
     return res;
 }
 
@@ -612,87 +612,50 @@ bool operator==(int4 x, Phloat y) {
 Phloat PI(BCDFloat(3, 1415, 9265, 3589, 7932, 3846, 2643, 1));
 
 BCDFloat double2bcd(double d, bool round /* = false */) {
-    if (isnan(d))
-	return BCDFloat::nan();
-    int inf = isinf(d);
-    if (inf > 0)
-	return BCDFloat::posInf();
-    else if (inf < 0)
-	return BCDFloat::negInf();
-
-    // Return exact results if d is representable exactly as a long long.
-    // TODO: there are additional cases we should try to handle exactly, e.g.
-    // 0.375. Basically, the idea would be to do the conversion by summing
-    // exact equivalents for the values of d's nonzero bits, just like the
-    // way the table-based binary-to-bcd conversion in the Free42 Binary
-    // build works. This approach returns exact results for a very large set
-    // of cases, including all representable integers.
-    int8 n = (int8) d;
-    if (d == n)
-	return BCDFloat(n);
-
-    bool neg = d < 0;
-    if (neg)
-	d = -d;
-
-    BCDFloat res;
-    if (d != 0) {
-	int exp = (((int) floor(log10(d))) & ~3) >> 2;
-	res.d_[P] = (exp + 1) & 0x7FFF;
-	double m = pow(100.0, (double) exp);
-	d /= m;
-	d /= m;
-	for (int i = 0; i < P; i++) {
-	    short s = (short) d;
-	    res.d_[i] = s;
-	    d = (d - s) * 10000;
-	}
-	if (round) {
-	    // This is used when converting programs from a Free42Binary state
-	    // file. Number literals in programs are rounded to 12 digits, so
-	    // what you see really is what you get; without this hack, you'd
-	    // get stuff like 0.9 turning into 0.8999999+ but still *looking*
-	    // like 0.9!
-	    int i;
-	    for (i = 4; i < P; i++)
-		res.d_[i] = 0;
-	    unsigned short s = res.d_[0];
-	    unsigned short d;
-	    if (s < 10)
-		d = 10;
-	    else if (s < 100)
-		d = 100;
-	    else if (s < 1000)
-		d = 1000;
-	    else
-		d = 10000;
-	    s = res.d_[3];
-	    unsigned short r = s % d;
-	    if (r >= d >> 1)
-		s += d;
-	    s -= r;
-	    bool carry = s >= 10000;
+    BCDFloat res(d);
+    if (round && !res.isSpecial()) {
+	// This is used when converting programs from a Free42Binary state
+	// file. Number literals in programs are rounded to 12 digits, so
+	// what you see really is what you get; without this hack, you'd
+	// get stuff like 0.9 turning into 0.8999999+ but still *looking*
+	// like 0.9!
+	int i;
+	for (i = 4; i < P; i++)
+	    res.d_[i] = 0;
+	unsigned short s = res.d_[0];
+	unsigned short d;
+	if (s < 10)
+	    d = 10;
+	else if (s < 100)
+	    d = 100;
+	else if (s < 1000)
+	    d = 1000;
+	else
+	    d = 10000;
+	s = res.d_[3];
+	unsigned short r = s % d;
+	if (r >= d >> 1)
+	    s += d;
+	s -= r;
+	bool carry = s >= 10000;
+	if (carry)
+	    s -= 10000;
+	res.d_[3] = s;
+	for (i = 2; carry && i >= 0; i--) {
+	    s = res.d_[i] + 1;
+	    carry = s >= 10000;
 	    if (carry)
 		s -= 10000;
-	    res.d_[3] = s;
-	    for (i = 2; carry && i >= 0; i--) {
-		s = res.d_[i] + 1;
-		carry = s >= 10000;
-		if (carry)
-		    s -= 10000;
-		res.d_[i] = s;
-	    }
-	    if (carry) {
-		for (i = 3; i >= 0; i--)
-		    res.d_[i + 1] = res.d_[i];
-		res.d_[0] = 1;
-		res.d_[P]++;
-		// No need to check if the exponent is overflowing; the range
-		// of 'double' is too small to cause such problems here.
-	    }
+	    res.d_[i] = s;
 	}
-	if (neg)
-	    res.negate();
+	if (carry) {
+	    for (i = 3; i >= 0; i--)
+		res.d_[i + 1] = res.d_[i];
+	    res.d_[0] = 1;
+	    res.d_[P]++;
+	    // No need to check if the exponent is overflowing; the range
+	    // of 'double' is too small to cause such problems here.
+	}
     }
     return res;
 }
