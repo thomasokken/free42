@@ -640,13 +640,13 @@ int keybuf_tail = 0;
 int keybuf[16];
 
 int remove_program_catalog = 0;
+bool bin_dec_mode_switch;
 
 
 /*******************/
 /* Private globals */
 /*******************/
 
-static bool state_needs_converting;
 static bool state_bool_is_int;
 
 #define MAX_RTNS 8
@@ -774,7 +774,7 @@ static bool unpersist_vartype(vartype **v) {
 	    vartype_real *r = (vartype_real *) new_real(0);
 	    if (r == NULL)
 		return false;
-	    if (state_needs_converting) {
+	    if (bin_dec_mode_switch) {
 		#ifdef BCD_MATH
 		    int n = sizeof(bin_real) - sizeof(int);
 		    bin_real br;
@@ -806,7 +806,7 @@ static bool unpersist_vartype(vartype **v) {
 	    vartype_complex *c = (vartype_complex *) new_complex(0, 0);
 	    if (c == NULL)
 		return false;
-	    if (state_needs_converting) {
+	    if (bin_dec_mode_switch) {
 		#ifdef BCD_MATH
 		    int n = sizeof(bin_complex) - sizeof(int);
 		    bin_complex bc;
@@ -857,7 +857,7 @@ static bool unpersist_vartype(vartype **v) {
 	    vartype_realmatrix *rm = (vartype_realmatrix *) new_realmatrix(mp.rows, mp.columns);
 	    if (rm == NULL)
 		return false;
-	    if (state_needs_converting) {
+	    if (bin_dec_mode_switch) {
 		int4 size = mp.rows * mp.columns;
 		#ifdef BCD_MATH
 		    int phsz = sizeof(double);
@@ -930,7 +930,7 @@ static bool unpersist_vartype(vartype **v) {
 	    if (cm == NULL)
 		return false;
 	    int4 size = 2 * mp.rows * mp.columns;
-	    if (state_needs_converting) {
+	    if (bin_dec_mode_switch) {
 		for (int4 i = 0; i < size; i++)
 		    if (!read_phloat(cm->array->data + i)) {
 			free_vartype((vartype *) cm);
@@ -1124,7 +1124,7 @@ static bool unpersist_globals() {
 	pc = -1;
 	return false;
     }
-    if (state_needs_converting)
+    if (bin_dec_mode_switch)
 	if (!convert_programs()) {
 	    clear_all_prgms();
 	    return false;
@@ -1964,7 +1964,7 @@ static bool write_bool(bool b) {
 }
 
 bool read_phloat(phloat *d) {
-    if (state_needs_converting) {
+    if (bin_dec_mode_switch) {
 	#ifdef BCD_MATH
 	    double dbl;
 	    if (shell_read_saved_state(&dbl, sizeof(double)) != sizeof(double))
@@ -1999,19 +1999,19 @@ bool load_state(int4 ver) {
 
     #ifdef BCD_MATH
 	if (ver < 9)
-	    state_needs_converting = true;
+	    bin_dec_mode_switch = true;
 	else {
 	    bool state_is_decimal;
 	    if (!read_bool(&state_is_decimal)) return false;
-	    state_needs_converting = !state_is_decimal;
+	    bin_dec_mode_switch = !state_is_decimal;
 	}
     #else
 	if (ver < 9)
-	    state_needs_converting = false;
+	    bin_dec_mode_switch = false;
 	else {
 	    bool state_is_decimal;
 	    if (!read_bool(&state_is_decimal)) return false;
-	    state_needs_converting = state_is_decimal;
+	    bin_dec_mode_switch = state_is_decimal;
 	}
     #endif
 
@@ -2144,7 +2144,7 @@ bool load_state(int4 ver) {
 	}
     }
 
-    if (!unpersist_math(state_needs_converting))
+    if (!unpersist_math(bin_dec_mode_switch))
 	return false;
 
     if (!read_int4(&magic)) return false;
@@ -2455,7 +2455,7 @@ bool read_arg(arg_struct *arg, bool old) {
 	    *d++ = *s++;
 	arg->val_d = old_arg.val.d;
 	return true;
-    } else if (state_needs_converting) {
+    } else if (bin_dec_mode_switch) {
 	#ifdef BCD_MATH
 	    bin_arg_struct ba;
 	    if (shell_read_saved_state(&ba, sizeof(bin_arg_struct))

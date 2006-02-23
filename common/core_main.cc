@@ -469,7 +469,7 @@ int core_allows_powerdown(int *want_cpu) {
 }
 
 int core_powercycle() {
-    int need_redisplay = 0;
+    bool need_redisplay = false;
 
     if (mode_interruptible != NULL)
 	stop_interruptible();
@@ -501,7 +501,7 @@ int core_powercycle() {
 	    flags.f.auto_exec = 0;
 	}
 	if (!flags.f.auto_exec)
-	    need_redisplay = 1;
+	    need_redisplay = true;
 	mode_getkey = false;
     }
 
@@ -510,13 +510,17 @@ int core_powercycle() {
 	    finish_command_entry(false);
 	set_running(true);
 	flags.f.auto_exec = 0;
+	need_redisplay = false;
     } else {
 	if (mode_running) {
 	    set_running(false);
-	    need_redisplay = 1;
+	    need_redisplay = true;
 	}
-	if (need_redisplay)
-	    redisplay();
+    }
+
+    if (need_redisplay || bin_dec_mode_switch) {
+	bin_dec_mode_switch = false;
+	redisplay();
     }
     return mode_running;
 }

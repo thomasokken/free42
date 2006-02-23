@@ -1,5 +1,6 @@
 During a binary<->decimal mode switch, update the pc and the RTN stack.
-Also, force a call of redisplay().
+
+=============================================
 
 Free42 Decimal:
 

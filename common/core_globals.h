@@ -499,6 +499,7 @@ extern int keybuf_tail;
 extern int keybuf[16];
 
 extern int remove_program_catalog;
+extern bool bin_dec_mode_switch;
 
 
 /*********************/
