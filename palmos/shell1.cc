@@ -55,7 +55,17 @@ static void log(const char *message) {
 UInt32 shell_main(UInt16 cmd, void *pbp, UInt16 flags) SHELL1_SECT;
 
 UInt32 PilotMain(UInt16 cmd, void *pbp, UInt16 flags) {
-    return shell_main(cmd, pbp, flags);
+    // Make sure we only forward the call if globals are available.
+    // As it turns out, cross-section calls require globals to be present,
+    // and I had to move shell_main() out of the unnamed section.
+    // If I ever want to handle command codes that are sent w/o globals being
+    // available (e.g., sysAppLaunchCmdSyncNotify or whatever), those handlers
+    // must be here, or in some other function in the unnamed section.
+    if (cmd == sysAppLaunchCmdNormalLaunch
+		|| (flags & sysAppLaunchFlagSubCall) != 0)
+	return shell_main(cmd, pbp, flags);
+    else
+	return errNone;
 }
 
 static void open_printout() SHELL1_SECT;
@@ -649,5 +659,5 @@ UInt32 shell_main(UInt16 cmd, void *pbp, UInt16 flags) {
 	}
     }
 
-    return 0;
+    return errNone;
 }
