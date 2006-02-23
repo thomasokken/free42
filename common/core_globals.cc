@@ -1909,20 +1909,20 @@ void clear_all_rtns() {
     rtn_sp = 0;
 }
 
-int solve_active() {
+bool solve_active() {
     int i;
     for (i = 0; i < rtn_sp; i++)
 	if (rtn_prgm[i] == -2)
-	    return 1;
-    return 0;
+	    return true;
+    return false;
 }
 
-int integ_active() {
+bool integ_active() {
     int i;
     for (i = 0; i < rtn_sp; i++)
 	if (rtn_prgm[i] == -3)
-	    return 1;
-    return 0;
+	    return true;
+    return false;
 }
 
 void unwind_stack_until_solve() {

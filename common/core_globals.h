@@ -525,8 +525,8 @@ int find_global_label(const arg_struct *arg, int *prgm, int4 *pc) GLOBALS_SECT;
 int push_rtn_addr(int prgm, int4 pc) GLOBALS_SECT;
 void pop_rtn_addr(int *prgm, int4 *pc) GLOBALS_SECT;
 void clear_all_rtns() GLOBALS_SECT;
-int solve_active() GLOBALS_SECT;
-int integ_active() GLOBALS_SECT;
+bool solve_active() GLOBALS_SECT;
+bool integ_active() GLOBALS_SECT;
 void unwind_stack_until_solve() GLOBALS_SECT;
 
 bool load_state(int4 version) GLOBALS_SECT;
