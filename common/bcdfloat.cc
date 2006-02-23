@@ -674,7 +674,7 @@ void BCDFloat::_usub(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
 	    i++;
 	if (i > 0) {
 	    e -= i;
-	    if (e < -EXPLIMIT) {
+	    if (e <= -EXPLIMIT) {
 		/* underflow */
 		c->d_[0] = 0;
 		e = 0;
@@ -1230,7 +1230,7 @@ bool BCDFloat::equal(const BCDFloat* a, const BCDFloat* b)
     /* handle zero separately, to prevent zeroes with unequal
      * exponents from being considered different.
      */
-    if (a->d_[0] == 0 && b->d_[0] == 0)
+    if (a->isZero() && b->isZero())
 	return true;
 
     /* compare the memory */

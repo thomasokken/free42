@@ -411,7 +411,12 @@ static int mappable_log_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     if (h == 0)
 	return ERR_INVALID_DATA;
     else {
-	*yre = log10(h);
+	if (p_isinf(h)) {
+	    const phloat s = 10000;
+	    h = hypot(xre / s, xim / s);
+	    *yre = log10(h) + 4;
+	} else
+	    *yre = log10(h);
 	*yim = atan2(xim, xre) / log(10);
 	return ERR_NONE;
     }
@@ -527,7 +532,12 @@ static int mappable_ln_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     if (h == 0)
 	return ERR_INVALID_DATA;
     else {
-	*yre = log(h);
+	if (p_isinf(h)) {
+	    const phloat s = 10000;
+	    h = hypot(xre / s, xim / s);
+	    *yre = log(h) + log(s);
+	} else
+	    *yre = log(h);
 	*yim = atan2(xim, xre);
 	return ERR_NONE;
     }

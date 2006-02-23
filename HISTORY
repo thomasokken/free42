@@ -10,6 +10,7 @@
 * In TRACE mode, when the X register is printed automatically (not because of
   an explicit PRX), and it contains a matrix, print only the matrix descriptor,
   not its whole contents.
+* Fixed handling of large complex arguments in LOG and LN.
 
 10-02-2006: version 1.3.17
 

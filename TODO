@@ -10,13 +10,6 @@ Try narrowing it down by commenting out everything in bcd.cc and bcdmath.cc
 except, say, fmod(), and maybe stare at the compiler output. Of course, it
 could also be a linker bug, in which case it get really ugly.
 
-LN(POS_HUGE_DOUBLE iPOS_HUGE_DOUBLE) returns something with <Infinity> for the
-real part. The problem is that hypot(re, im) returns Inf in this case; this can
-be worked around by scaling re and im down before computing hypot, and then
-adusting the result of log(hypot(re, im)). Note: the current hypot() in the
-BCDFloat class overflows at 1e5000; this, too, needs to be addressed by scaling
-the argument down and then adjusting the result.
-
 ...............................................................................
 
 Pocket PC version.

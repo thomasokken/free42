@@ -39,6 +39,7 @@
 #define BCD_CONST_HUNDREDTH (BCD_CONST_PIBY32B+1)
 #define BCD_CONST_HALF (BCD_CONST_HUNDREDTH+1)
 #define BCD_CONST_LANCZOS (BCD_CONST_HALF+1)
+#define BCD_CONST_1E5000 (BCD_CONST_LANCZOS+13)
 
 
 typedef unsigned short Dig[P+1];
@@ -93,6 +94,8 @@ static Dig constTable[] =
     { 10, 9373, 7115, 9701, 7175, 1506, 3503, 32767 },
     { 11, 2406, 1022, 3182, 8735, 6453, 7307, 65534 },
     { 2, 7709, 5759, 7224, 6395, 7358, 7375, 32766 },
+    
+    { 1, 0, 0, 0, 0, 0, 0, 1251 }, // 1e5000
 };
 
 BCD pi()
@@ -641,11 +644,15 @@ BCD log10(const BCD& v)
 
 BCD hypot(const BCD& a, const BCD& b)
 {
-    /* XXX FIXME.
-     * there isn't a fix for this. the only way to retain precision
-     * is to use double working precision during the calculation.
-     */
-    return sqrt(a * a + b * b);
+    BCD res = sqrt(a * a + b * b);
+    if (res.isInf()) {
+	// Try scaling down a and b, then adjusting the result.
+	BCD s(*(const BCDFloat*)(constTable + BCD_CONST_1E5000));
+	BCD as(a / s);
+	BCD bs(b / s);
+	res = sqrt(as * as + bs * bs) * s;
+    }
+    return res;
 }
 
 BCD fmod(const BCD& a, const BCD& b)
