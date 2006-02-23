@@ -61,7 +61,7 @@ Start POSE, but don't start the app yet
 
 Make sure you have a symlink 'gdb' pointing to /usr/bin/m68k-palmos-gdb
 in $PATH, overriding the usual 'gdb'
-Start DDD, and open 'free42' (not the PRC!)
+Start DDD, and open 'shell' (not the PRC!)
 Ignore the message about crt0.c not being found -- doesn't seem to be a
 problem.
 Type 'target pilot localhost:2000'.
