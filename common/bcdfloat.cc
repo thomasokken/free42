@@ -231,6 +231,7 @@ BCDFloat::BCDFloat(int4 v)
 }
 
 BCDFloat::BCDFloat(int8 n) {
+    _init();
     int i, z = 5;
     bool neg = n < 0;
     if (neg)
