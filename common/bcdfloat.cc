@@ -619,22 +619,26 @@ void BCDFloat::_usub(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
             neg = true;
         }
 
-        i = 0;
-        for (;;) {
-            if (c->d_[i]) {
-                if (i) {
-                    e -= i;
-                    int j = 0;
-                    while (i < P) c->d_[j++] = c->d_[i++];
-                }
-                break;
-            }
-            if (++i == P) {
-                /* is zero */
-                e = 0;
-                break;
-            }
-        }
+	i = 0;
+	while (i < P && c->d_[i] == 0)
+	    i++;
+	if (i > 0) {
+	    e -= i;
+	    if (e < -EXPLIMIT) {
+		/* underflow */
+		c->d_[0] = 0;
+		e = 0;
+	    } else {
+		int j;
+		for (j = 0; j < P - i; j++)
+		    c->d_[j] = c->d_[j + i];
+		for (j = P - i; j < P; j++)
+		    c->d_[j] = 0;
+	    }
+	} else if (i == P) {
+	    /* is zero */
+	    e = 0;
+	}
 
         if (e > EXPLIMIT) *c = posInf();
         else c->exp(e);
