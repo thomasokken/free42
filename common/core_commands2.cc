@@ -407,7 +407,7 @@ int view_helper(arg_struct *arg, int print) {
     flags.f.message = 1;
     flags.f.two_line_message = 0;
 
-    if (print && flags.f.printer_enable) {
+    if (print && (flags.f.printer_enable || !program_running())) {
 	if (flags.f.printer_exists)
 	    print_wide(buf, part2, buf + part2, bufptr - part2);
 	else
@@ -456,7 +456,7 @@ static void aview_helper() {
 
 int docmd_aview(arg_struct *arg) {
     aview_helper();
-    if (flags.f.printer_enable) {
+    if (flags.f.printer_enable || !program_running()) {
 	if (flags.f.printer_exists)
 	    docmd_pra(arg);
 	else
@@ -1333,7 +1333,8 @@ int docmd_prx(arg_struct *arg) {
 	    print_lines(buf, len, left);
 	}
 
-	if (reg_x->type == TYPE_REALMATRIX || reg_x->type == TYPE_COMPLEXMATRIX) {
+	if (arg != NULL && (reg_x->type == TYPE_REALMATRIX
+			    || reg_x->type == TYPE_COMPLEXMATRIX)) {
 	    prv_var = reg_x;
 	    prv_index = 0;
 	    mode_interruptible = prv_worker;
@@ -1427,7 +1428,8 @@ int docmd_list(arg_struct *arg) {
 }
 
 int docmd_adv(arg_struct *arg) {
-    if (flags.f.printer_enable && flags.f.printer_exists) {
+    if (flags.f.printer_exists
+	    && (flags.f.printer_enable || !program_running())) {
 	shell_annunciators(-1, -1, 1, -1, -1, -1);
 	print_text(NULL, 0, 1);
 	shell_annunciators(-1, -1, 0, -1, -1, -1);
