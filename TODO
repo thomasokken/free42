@@ -1,27 +1,6 @@
 During a binary<->decimal mode switch, update the pc and the RTN stack.
 
-=============================================
-
-Free42 Decimal:
-
-9.99999999999e9999 1/X 1e-10000 -
-
-Result: 1.e-10012
-
-What's up with that?!?
-
-=============================================
-
-Enter prgm line 1e-10000 in Decimal mode.
-Now, switch to Binary.
-Result: 494065645841e-335
-Now, switch back to Decimal.
-Result: -494065646e-332
-
-Why the precision loss?
-Problem appears in Windows AND Unix versions.
-
-Also, HMS+ and HMS- don't work in the Decimal versions.
+HMS+ and HMS- don't work in the Decimal versions.
 Try 0.5959 0.0001 HMS+,
 or 1 0.0001 HMS-
 ->HR doesn't look too good, either.
@@ -43,10 +22,6 @@ be worked around by scaling re and im down before computing hypot, and then
 adusting the result of log(hypot(re, im)). Note: the current hypot() in the
 BCDFloat class overflows at 1e5000; this, too, needs to be addressed by scaling
 the argument down and then adjusting the result.
-
-In TRACE mode, when a function puts a matrix in X, should it really print the
-entire matrix (which is what it does now), or just the descriptor?
-Also: should clearing flag 21 disable VIEW (and AVIEW & ADV) in RUN mode?
 
 Does the BCD code leak memory? I couldn't help noticing that some of the
 operators defined in the BCD class return dynamically allocated references.

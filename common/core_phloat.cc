@@ -656,7 +656,7 @@ BCDFloat double2bcd(double d, bool round /* = false */) {
 	    int i;
 	    for (i = 4; i < P; i++)
 		res.d_[i] = 0;
-	    unsigned short s = res.d_[3];
+	    unsigned short s = res.d_[0];
 	    unsigned short d;
 	    if (s < 10)
 		d = 10;
@@ -666,6 +666,7 @@ BCDFloat double2bcd(double d, bool round /* = false */) {
 		d = 1000;
 	    else
 		d = 10000;
+	    s = res.d_[3];
 	    unsigned short r = s % d;
 	    if (r >= d >> 1)
 		s += d;
