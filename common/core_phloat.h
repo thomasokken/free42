@@ -66,6 +66,7 @@ class Phloat {
 	BCDFloat bcd;
 
 	Phloat() {}
+	Phloat(BCDFloat b) : bcd(b) {}
 	Phloat(int numer, int denom) PHLOAT_SECT;
 	Phloat(int i) PHLOAT_SECT;
 	Phloat(int8 i) PHLOAT_SECT;
