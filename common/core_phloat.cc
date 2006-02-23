@@ -638,7 +638,7 @@ BCDFloat double2bcd(double d, bool round /* = false */) {
     BCDFloat res;
     if (d != 0) {
 	int exp = (((int) floor(log10(d))) & ~3) >> 2;
-	res.d_[P] = exp + 1;
+	res.d_[P] = (exp + 1) & 0x7FFF;
 	double m = pow(100.0, (double) exp);
 	d /= m;
 	d /= m;

@@ -1,3 +1,38 @@
+Free42 Decimal:
+
+9.99999999999e9999 1/X 1e-10000 -
+
+Result: 1.e-10012
+
+What's up with that?!?
+
+=============================================
+
+Enter prgm line 1e-10000 in Decimal mode.
+Now, switch to Binary.
+Result: 494065645841e-335
+Now, switch back to Decimal.
+Result: -494065646e-332
+
+Why the precision loss?
+Problem appears in Windows AND Unix versions.
+
+Also, HMS+ and HMS- don't work in the Decimal versions.
+Try 0.5959 0.0001 HMS+,
+or 1 0.0001 HMS-
+->HR doesn't look too good, either.
+Try 0.9999999 ->HMS ->HR
+
+The decimal code in the PalmOS build is buggy. Obvious workaround: just change
+*all* occurrences of "int" to "int4". Slightly more interesting approach:
+change all occurrences of "int" to "int2" and debug the bastard in the good old
+Unix environment. If plan B fails, I should always be able to fall back on plan
+A...
+Update: OK, so it's not that simple. It looks an awful lot like a compiler bug.
+Try narrowing it down by commenting out everything in bcd.cc and bcdmath.cc
+except, say, fmod(), and maybe stare at the compiler output. Of course, it
+could also be a linker bug, in which case it get really ugly.
+
 LN(POS_HUGE_DOUBLE iPOS_HUGE_DOUBLE) returns something with <Infinity> for the
 real part. The problem is that hypot(re, im) returns Inf in this case; this can
 be worked around by scaling re and im down before computing hypot, and then

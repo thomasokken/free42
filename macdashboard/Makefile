@@ -31,6 +31,12 @@ OBJS = shell.o shell_spool.o \
 	core_globals.o core_helpers.o core_keydown.o core_linalg.o \
 	core_math.o core_tables.o core_variables.o
 
+ifdef BCD_MATH
+CXXFLAGS += -DBCD_MATH
+SRCS += bcdfloat.cc bcd.cc bcdmath.cc
+OBJS += bcdfloat.o bcd.o bcdmath.o
+endif
+
 Free42.wdgt: free42 keymap.txt
 	cp -rv Widget.Template Free42.wdgt
 	cp keymap.txt Free42.wdgt
@@ -82,6 +88,12 @@ symlinks:
 	ln -s ../common/skin2cc.cc
 	ln -s ../common/skin2cc.conf
 	ln -s ../common/keymap2cc.cc
+	ln -s ../common/bcd.cc
+	ln -s ../common/bcd.h
+	ln -s ../common/bcdfloat.cc
+	ln -s ../common/bcdfloat.h
+	ln -s ../common/bcdmath.cc
+	ln -s ../common/bcdmath.h
 	touch symlinks
 
 clean: FORCE
