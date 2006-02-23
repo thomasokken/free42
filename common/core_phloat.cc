@@ -609,13 +609,7 @@ bool operator==(int4 x, Phloat y) {
     return BCDFloat::equal(&bx, &y.bcd);
 }
 
-Phloat PI;
-struct PI_initializer {
-    PI_initializer() {
-	PI.bcd = pi().ref_->v_;
-    }
-};
-static PI_initializer foo;
+Phloat PI(BCDFloat(3, 1415, 9265, 3589, 7932, 3846, 2643, 1));
 
 BCDFloat double2bcd(double d, bool round /* = false */) {
     if (isnan(d))

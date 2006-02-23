@@ -106,6 +106,10 @@
 
 struct BCDFloat
 {
+    BCDFloat(int d0, int d1, int d2, int d3, int d4, int d5, int d6, int d7) {
+	d_[0] = d0; d_[1] = d1; d_[2] = d2; d_[3] = d3;
+	d_[4] = d4; d_[5] = d5; d_[6] = d6; d_[7] = d7;
+    }
     BCDFloat() { _init(); }
     //BCDFloat() {}
     BCDFloat(const char* s) BCD_SECT;
