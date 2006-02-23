@@ -28,14 +28,14 @@
 /* tempoary storage for rounding for printing */
 BCDFloat BCDFloat::roundedVal_;
 BCDFloat BCDFloat::rounding_;
-int BCDFloat::decade_[4] = { 1000, 100, 10, 1 };
+int16 BCDFloat::decade_[4] = { 1000, 100, 10, 1 };
 unsigned short BCDFloat::posInfD_[P+1] = { 0, 0, 0, 0, 0, 0, 0, 0x3fff };
 unsigned short BCDFloat::negInfD_[P+1] = { 0, 0, 0, 0, 0, 0, 0, 0xBfff };
 unsigned short BCDFloat::nanD_[P+1] =    { 0, 0, 0, 0, 0, 0, 0, 0x3000 };
 
 void BCDFloat::_init()
 {
-    int i;
+    int16 i;
     for (i = 0; i <= P; ++i) {
         d_[i] = 0;
     }
@@ -54,9 +54,9 @@ BCDFloat::BCDFloat(const char* s)
         ++s;
     }
 
-    int i;
-    int j = 0;
-    int e = 0;
+    int16 i;
+    int16 j = 0;
+    int16 e = 0;
     
     /* find the end of the input string */
     const char* endp = s;
@@ -132,7 +132,7 @@ BCDFloat::BCDFloat(const char* s)
     
         const char* p = startp;
         while (p != endp) {
-            int d = 0;
+            int16 d = 0;
             while (i < 4) {
                 if (*p != '.') {
                     d += (*p - '0')*decade_[i];
@@ -232,12 +232,12 @@ BCDFloat::BCDFloat(int4 v)
 
 BCDFloat::BCDFloat(int8 n) {
     _init();
-    int i, z = 5;
+    int16 i, z = 5;
     bool neg = n < 0;
     if (neg)
 	n = -n;
     for (i = 4; i >= 0; i--) {
-	int d = (int) (n % BASE);
+	int16 d = (int16) (n % BASE);
 	d_[i] = d;
 	n /= BASE;
 	if (d != 0)
@@ -263,18 +263,18 @@ const BCDFloat& BCDFloat::_round20() const
     /* round to 20 decimal digits */
     /* first see how many digits in the first `digit' */
 
-    int dn;
+    int16 dn;
     if (d_[0] >= 1000) dn = 5000;
     else if (d_[0] >= 100) dn = 500;
     else if (d_[0] >= 10) dn = 50;
     else dn = 5;
     
     rounding_.d_[0] = dn;
-    int e = exp();
+    int16 e = exp();
     rounding_.exp(e-5);
     if (neg()) rounding_.negate();
     add(this, &rounding_, &roundedVal_);
-    int v = roundedVal_.d_[5];
+    int16 v = roundedVal_.d_[5];
 
     roundedVal_.d_[P-1] = 0;
     if (dn == 5000) v = 0;
@@ -304,14 +304,14 @@ void BCDFloat::_asString(char* buf) const
         }
     }
     else {
-        int i;
+        int16 i;
         if (neg()) *p++ = '-';
         char* point = 0;
 
-        int v;
-        int eadj = 0;
+        int16 v;
+        int16 eadj = 0;
         bool scimode = false;
-        int e = exp();
+        int16 e = exp();
         i = 0;
         if (e > 0) {
             /* if the exponent is less than our digits, we can
@@ -352,7 +352,7 @@ void BCDFloat::_asString(char* buf) const
             *p = 0;
         }
 
-        int n = P;
+        int16 n = P;
         while (!d_[n-1] && n > i) --n;
 
         if (i < n) {
@@ -362,7 +362,7 @@ void BCDFloat::_asString(char* buf) const
                 ++p;
             }
             for (; i < n; ++i) {
-                int v = d_[i];
+                int16 v = d_[i];
                 sprintf(p, "%04d", v);            
                 p += 4;
             }
@@ -381,11 +381,11 @@ void BCDFloat::_asString(char* buf) const
 }
 #endif
 
-int BCDFloat::_round()
+int16 BCDFloat::_round()
 {
-    int v;
-    int i;
-    int r = (d_[P] >= BASE/2);
+    int16 v;
+    int16 i;
+    int16 r = (d_[P] >= BASE/2);
     if (r) {
         for (i = P-1; i >= 0; --i) {
             v = d_[i] + r;
@@ -445,8 +445,8 @@ void BCDFloat::add(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
         return;
     }
 
-    int ea = a->exp();
-    int eb = b->exp();
+    int16 ea = a->exp();
+    int16 eb = b->exp();
 
     bool na = a->neg();
     bool nb = b->neg();
@@ -515,8 +515,8 @@ void BCDFloat::sub(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
     bool nb = b->neg();
     bool sub = (na == nb);
 
-    int ea = a->exp();
-    int eb = b->exp();
+    int16 ea = a->exp();
+    int16 eb = b->exp();
 
     if (sub) {
         if (ea >= eb) {
@@ -538,21 +538,21 @@ void BCDFloat::sub(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
 
 void BCDFloat::_uadd(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
 {
-    int ea = a->exp();
-    int eb = b->exp();
+    int16 ea = a->exp();
+    int16 eb = b->exp();
 
-    int d = ea - eb;
+    int16 d = ea - eb;
     if (d >= P) {
         /* `b' is insignificant */
         *c = *a;
     }
     else {
-        int i;
-        int ca = 0;
-        int v;
+        int16 i;
+        int16 ca = 0;
+        int16 v;
         for (i = P-1; i >= 0; --i) {
             v = a->d_[i] + ca;
-            int j = i-d;
+            int16 j = i-d;
             if (j >= 0) v += b->d_[j];
             ca = 0;
             if (v >= BASE) {
@@ -577,22 +577,22 @@ void BCDFloat::_uadd(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
 
 void BCDFloat::_usub(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
 {
-    int ea = a->exp();
-    int eb = b->exp();
+    int16 ea = a->exp();
+    int16 eb = b->exp();
     bool neg = false;
 
-    int d = ea - eb;
+    int16 d = ea - eb;
     if (d >= P) {
         /* `b' is insignificant */
         *c = *a;
     }
     else {
-        int i;
-        int ca = 0;
-        int v;
+        int16 i;
+        int16 ca = 0;
+        int16 v;
         for (i = P-1; i >= 0; --i) {
             v = a->d_[i];
-            int j = i-d;
+            int16 j = i-d;
             if (j >= 0) v -= b->d_[j];
             v -= ca;
             ca = 0;
@@ -603,7 +603,7 @@ void BCDFloat::_usub(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
             c->d_[i] = v;
         }
 
-        int e = a->exp();
+        int16 e = a->exp();
         if (ca) {
             /* overall borrow, need to complement number */
             ca = 1;
@@ -629,7 +629,7 @@ void BCDFloat::_usub(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
 		c->d_[0] = 0;
 		e = 0;
 	    } else {
-		int j;
+		int16 j;
 		for (j = 0; j < P - i; j++)
 		    c->d_[j] = c->d_[j + i];
 		for (j = P - i; j < P; j++)
@@ -648,8 +648,8 @@ void BCDFloat::_usub(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
 
 void BCDFloat::mul(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
 {
-    int na = a->neg();
-    int nb = b->neg();
+    int16 na = a->neg();
+    int16 nb = b->neg();
 
     if (a->isSpecial() || b->isSpecial()) {
         bool done = false;
@@ -684,19 +684,19 @@ void BCDFloat::mul(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
         return;
     }
 
-    int ca;
-    int i, j;
-    int u;
+    int16 ca;
+    int16 i, j;
+    int16 u;
     int4 v;
 
-    int ea = a->exp();
-    int eb = b->exp();
+    int16 ea = a->exp();
+    int16 eb = b->exp();
 
 
     BCDFloat acc;
     c->_init();
 
-    int cc = 0;
+    int16 cc = 0;
     for (i = P-1; i >= 0; --i) {
         ca = c->_round();
         if (!ca) c->_rshift();
@@ -757,8 +757,8 @@ void BCDFloat::mul(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
 
 void BCDFloat::div(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
 {
-    int na = a->neg();
-    int nb = b->neg();
+    int16 na = a->neg();
+    int16 nb = b->neg();
 
     if (a->isSpecial() || b->isSpecial()) {
         bool done = false;
@@ -787,11 +787,11 @@ void BCDFloat::div(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
         return;
     }
 
-    int u;
+    int16 u;
     int4 v;
-    int ca;
-    int j = 0;
-    int i;
+    int16 ca;
+    int16 j = 0;
+    int16 i;
     int4 q;
 
     bool az = a->isZero();
@@ -807,8 +807,8 @@ void BCDFloat::div(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
         }
     }
     else {
-        int ea = a->exp();
-        int eb = b->exp();
+        int16 ea = a->exp();
+        int16 eb = b->exp();
 
 
         BCDFloat acc;
@@ -921,19 +921,19 @@ void BCDFloat::div(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
     }
 }
 
-void BCDFloat::mul2(unsigned short* ad, int ea,
-                    unsigned short* bd, int eb,
-                    unsigned short* cd, int& ec)
+void BCDFloat::mul2(unsigned short* ad, int16 ea,
+                    unsigned short* bd, int16 eb,
+                    unsigned short* cd, int16& ec)
 {
-    int ca;
-    int i, j;
-    int u;
+    int16 ca;
+    int16 i, j;
+    int16 u;
     int4 v;
 
     unsigned short acc[2*P+1];
 
     for (i = 0; i < 2*P; ++i) cd[i] = 0;
-    int cc = 0;
+    int16 cc = 0;
     for (i = 2*P-1; i >= 0; --i) {
         for (j = 2*P; j > 0; --j) cd[j] = cd[j-1];
         cd[0] = cc; cc = 0;
@@ -971,11 +971,11 @@ void BCDFloat::mul2(unsigned short* ad, int ea,
     ec = ea + eb;
 }
 
-static int root0(int v)
+static int16 root0(int16 v)
 {
     /* integer root for x<= 9999 */
-    int x = 0;
-    int b = 1<<7;
+    int16 x = 0;
+    int16 b = 1<<7;
     do {
         x ^= b;  
         if (x*x > v ) x ^= b;
@@ -994,19 +994,19 @@ bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
 
     BCDFloat acc;
     BCDFloat t;
-    int rs;
-    int as;
-    int ts;
+    int16 rs;
+    int16 as;
+    int16 ts;
     int4 v;
-    int rodd;
+    int16 rodd;
     int4 q;
 
     BCDFloat u;
-    int us = 0;
+    int16 us = 0;
 
     r->_init();
 
-    int e = a->exp();
+    int16 e = a->exp();
 
     v = root0(a->d_[0]);
 
@@ -1019,9 +1019,9 @@ bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
     acc.d_[0] = a->d_[0] - v*v;
     if (acc.d_[0]) ++as;
 
-    int i;
-    int j = 1;
-    int ca;
+    int16 i;
+    int16 j = 1;
+    int16 ca;
 
     for (;;) {
         /* bring in the next digit */
@@ -1032,7 +1032,7 @@ bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
             ++as;
         
             /* t = 200*r if even, t=2*r if odd */
-            int m = rodd ? 2 : 200;
+            int16 m = rodd ? 2 : 200;
             ca = 0;
             ts = rs;
             for (i = rs; i > 0; --i) {
@@ -1099,7 +1099,7 @@ bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
                     bool fail = us > as;
                     if (!fail && us == as) {
                         for (i = 0; i < as; ++i) {
-                            int d = u.d_[i] - acc.d_[i];
+                            int16 d = u.d_[i] - acc.d_[i];
                             if (d > 0) {
                                 fail = true;
                                 break;
@@ -1135,7 +1135,7 @@ bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
             /* acc = acc - u.
              * wont borrow because u <= acc.
              */
-            int k;
+            int16 k;
             ca = 0;
             k = us;
             for (i = as-1; i >= 0; --i) {
@@ -1184,7 +1184,7 @@ bool BCDFloat::equal(const BCDFloat* a, const BCDFloat* b)
 	return true;
 
     /* compare the memory */
-    int i;
+    int16 i;
     for (i = 0; i <= P; ++i) {
         if (a->d_[i] != b->d_[i]) return false;
     }
@@ -1198,8 +1198,8 @@ bool BCDFloat::trunc(const BCDFloat* a, BCDFloat* c)
      * trunc(-2.1) = -2
      */
     *c = *a;
-    int e = c->exp();
-    int i;
+    int16 e = c->exp();
+    int16 i;
     for (i = P-1; i >= 0; --i) {
         if (i >= e) {
             c->d_[i] = 0;
@@ -1216,8 +1216,8 @@ bool BCDFloat::floor(const BCDFloat* a, BCDFloat* c)
      */
 
     *c = *a;
-    int e = c->exp();
-    int i;
+    int16 e = c->exp();
+    int16 i;
     bool changed = false;
     for (i = P-1; i >= 0; --i) {
         if (i >= e) {
@@ -1243,11 +1243,11 @@ int4 BCDFloat::ifloor(const BCDFloat* x)
     BCDFloat a;
     floor(x, &a);
 
-    int na = a.neg();
-    int ea = a.exp();
+    int16 na = a.neg();
+    int16 ea = a.exp();
 
     int4 v = 0;
-    int i = 0;
+    int16 i = 0;
     while (i < ea && i < P) {
         if (v > 214748) return 0; // too large, bail out.
         v*= BASE;
@@ -1260,8 +1260,8 @@ int4 BCDFloat::ifloor(const BCDFloat* x)
 
 bool BCDFloat::isInteger() const
 {
-    int e = exp();
-    int i;
+    int16 e = exp();
+    int16 i;
     for (i = P-1; i >= 0; --i) {
         if (d_[i]) {
             return e > i;

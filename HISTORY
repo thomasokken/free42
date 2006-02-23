@@ -3,7 +3,7 @@
 * Added decimal floating point, implemented using BCDFloat code by Hugh Steers.
   The decimal code is a compile-time option; I can still build Free42 with
   binary floating point as well.
-* Removed IP Hack option. It never really did the job anyway, and with the
+* Removed "IP Hack" option. It never really did the job anyway, and with the
   introduction of the Decimal version, it is now obsolete.
 * VIEW, AVIEW, and ADV now talk to the printer when invoked from the keyboard,
   even if flag 21 is clear.

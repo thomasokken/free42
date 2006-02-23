@@ -1,11 +1,5 @@
 During a binary<->decimal mode switch, update the pc and the RTN stack.
 
-HMS+ and HMS- don't work in the Decimal versions.
-Try 0.5959 0.0001 HMS+,
-or 1 0.0001 HMS-
-->HR doesn't look too good, either.
-Try 0.9999999 ->HMS ->HR
-
 The decimal code in the PalmOS build is buggy. Obvious workaround: just change
 *all* occurrences of "int" to "int4". Slightly more interesting approach:
 change all occurrences of "int" to "int2" and debug the bastard in the good old

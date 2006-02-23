@@ -44,10 +44,12 @@
 #define LL(x) x##LL
 #endif
 
+#define int16 int4
+
 
 #define NEG 0x8000
 #define P 7
-#define BASE 10000
+#define BASE 10000L
 #define EXPLIMIT (BASE/4)
 
 /**
@@ -111,7 +113,6 @@ struct BCDFloat
 	d_[4] = d4; d_[5] = d5; d_[6] = d6; d_[7] = d7;
     }
     BCDFloat() { _init(); }
-    //BCDFloat() {}
     BCDFloat(const char* s) BCD_SECT;
 #ifdef PALMOS
     BCDFloat(int) BCD_SECT;
@@ -123,8 +124,8 @@ struct BCDFloat
 #ifndef PALMOS
     void                asString(char* buf) const;
 #endif
-    int                 exp() const { return ((short)(d_[P] << 1)) >> 1; }
-    void                exp(int v) { d_[P] = (v & (NEG-1)); }
+    int16                 exp() const { return ((short)(d_[P] << 1)) >> 1; }
+    void                exp(int16 v) { d_[P] = (v & (NEG-1)); }
     bool                neg() const { return d_[0] != 0 && (d_[P]& NEG) != 0; }
     void                negate() { d_[P] = d_[P] ^ NEG; }
     bool                isZero() const { return d_[0] == 0; }
@@ -155,7 +156,7 @@ struct BCDFloat
                               BCDFloat* c) BCD_SECT;
     static void         _usub(const BCDFloat* a, const BCDFloat* b,
                               BCDFloat* c) BCD_SECT;
-    int                 _round() BCD_SECT;
+    int16                 _round() BCD_SECT;
     void                _rshift() BCD_SECT;
     void                _lshift() BCD_SECT;
     const BCDFloat&     _round20() const BCD_SECT;
@@ -167,9 +168,9 @@ struct BCDFloat
     static const BCDFloat& negInf() { return *(BCDFloat*)negInfD_; }
     static const BCDFloat& nan() { return *(BCDFloat*)nanD_; }
 
-    static void         mul2(unsigned short* ad, int ea,
-                             unsigned short* bd, int eb,
-                             unsigned short* cd, int& ec) BCD_SECT;
+    static void         mul2(unsigned short* ad, int16 ea,
+                             unsigned short* bd, int16 eb,
+                             unsigned short* cd, int16& ec) BCD_SECT;
     
     /* store P 4dec `digits', equivalent to P*4 decimal digits.
      * the last place is the exponent.
@@ -181,18 +182,18 @@ struct BCDFloat
     static unsigned short posInfD_[P+1];
     static unsigned short negInfD_[P+1];
     static unsigned short nanD_[P+1];
-    static int            decade_[4];
+    static int16            decade_[4];
 };
 
 inline void BCDFloat::_rshift()
 {
-    int i;
+    int16 i;
     for (i = P; i > 0; --i) d_[i] = d_[i-1];
 }
 
 inline void BCDFloat::_lshift()
 {
-    int i;
+    int16 i;
     for (i = 0; i < P; ++i) d_[i] = d_[i+1]; 
 }
 

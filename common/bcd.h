@@ -60,9 +60,9 @@ struct BCD
         return *this;
     }
 
-    int                 exponent() const { return ref_->v_.exp(); }
-    void                setExponent(int v) { ref_->v_.exp(v); }
-    int                 digit(int n) const { return ref_->v_.d_[n]; }
+    int16                 exponent() const { return ref_->v_.exp(); }
+    void                setExponent(int16 v) { ref_->v_.exp(v); }
+    int16                 digit(int16 n) const { return ref_->v_.d_[n]; }
 
     // Arithmetic
     friend BCD          operator+(const BCD& a, const BCD& b)

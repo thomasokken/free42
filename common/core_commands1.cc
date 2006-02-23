@@ -859,7 +859,7 @@ static int mappable_to_hr(phloat x, phloat *y) {
 		phloat xh = floor(x);
 		phloat t = (x - xh) * 100;
 		phloat xm = floor(t);
-		phloat xs = (xm - t) * 100;
+		phloat xs = (t - xm) * 100;
 		res = xh + xm / 60 + xs / 3600;
 	    }
 	#else

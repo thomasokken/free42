@@ -1216,7 +1216,7 @@ static int hms_add_or_sub(bool add) {
 	    }
 	}
 
-	r = xh + xm / 100 + xs / 10000;
+	r = yh + ym / 100 + ys / 10000;
 
     #else
 
