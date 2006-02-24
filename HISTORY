@@ -11,6 +11,10 @@
   an explicit PRX), and it contains a matrix, print only the matrix descriptor,
   not its whole contents.
 * Fixed handling of large complex arguments in LOG and LN.
+* Windows version: the default location for the Free42 directory is once again
+  the executable's directory. This change only affects new installations; the
+  Free42 directory location is still stored in the Registry, and any already
+  existing setting will be honored.
 
 10-02-2006: version 1.3.17
 
