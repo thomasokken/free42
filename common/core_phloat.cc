@@ -679,10 +679,35 @@ double bcd2double(BCDFloat b) {
 	return -1.0 / 0.0; // -Inf
 #endif
 
+    if (b.d_[0] == 0)
+	return 0;
+
+    bool neg = (exp & 0x8000) != 0;
     exp = (exp << 1) >> 1;
+
+    // Make sure we get exact results for integers
+    if (exp > 0 && exp <= 4) {
+	int j;
+	for (j = exp; j < P; j++)
+	    if (b.d_[j] != 0)
+		goto noninteger;
+	int8 n = 0;
+	for (j = 0; j < exp; j++)
+	    n = n * 10000 + b.d_[j];
+	return (double) (neg ? -n : n);
+    }
+
+    // TODO: Using a table-based conversion algorithm, like the one I use in
+    // the binary version of string2phloat, I could get better accuracy.
+    // The current code returns an inexact result for 23.5, for instance
+    // (VC++), while the number *is* exactly representable in a 'double'.
+
+    noninteger:
     double res = 0;
     for (int i = 0; i < P; i++)
 	res = res * 10000 + b.d_[i];
+    if (neg)
+	res = -res;
     return res * pow(10000.0, (double) (exp - P));
 }
 
@@ -1487,8 +1512,30 @@ double bcd2double(const short *p) {
 	return -1.0 / 0.0; // -Inf
 #endif
 
+    if (p[0] == 0)
+	return 0;
+
     bool neg = (exp & 0x8000) != 0;
     exp = ((short) (exp << 1)) >> 1;
+
+    // Make sure we get exact results for integers
+    if (exp > 0 && exp <= 5) {
+	int j;
+	for (j = exp; j < P; j++)
+	    if (p[j] != 0)
+		goto noninteger;
+	int8 n = 0;
+	for (j = 0; j < exp; j++)
+	    n = n * 10000 + p[j];
+	return (double) (neg ? -n : n);
+    }
+
+    // TODO: Using a table-based conversion algorithm, like the one I use in
+    // the binary version of string2phloat, I could get better accuracy.
+    // The current code returns an inexact result for 23.5, for instance
+    // (VC++), while the number *is* exactly representable in a 'double'.
+
+    noninteger:
     double res = 0;
     for (int i = 0; i < P; i++)
 	res = res * 10000 + p[i];
