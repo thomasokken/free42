@@ -1,23 +1,22 @@
-+-----------------------------------------------------------------------------+
-| NOTE: Most of the items in this list are "nice to have" things. I'm not     |
-| promising that I will actually implement any of them -- I simply put any    |
-| reasonable feature request in this list, and when I feel like programming,  |
-| I may or may not tackle any of these items. The only exceptions are bugs:   |
-| those I *will* definitely fix as quickly as possible.                       |
-+-----------------------------------------------------------------------------+
++----------------------------------------------------------------------------+
+| NOTE: Most of the items in this list are "nice to have" things. I'm not    |
+| promising that I will actually implement any of them -- I simply put any   |
+| reasonable feature request in this list, and when I feel like programming, |
+| I may or may not tackle any of these items. The only exceptions are bugs:  |
+| those I *will* definitely fix as quickly as possible.                      |
++----------------------------------------------------------------------------+
 
-The decimal code in the PalmOS build is buggy. Obvious workaround: just change
-*all* occurrences of "int" to "int4". Slightly more interesting approach:
-change all occurrences of "int" to "int2" and debug the bastard in the good old
-Unix environment. If plan B fails, I should always be able to fall back on plan
-A...
-Update: OK, so it's not that simple. It looks an awful lot like a compiler bug.
-Try narrowing it down by commenting out everything in bcd.cc and bcdmath.cc
-except, say, fmod(), and maybe stare at the compiler output. Of course, it
-could also be a linker bug, in which case it get really ugly.
+The decimal code in the PalmOS build crashes. It looks like the compiler may be
+generating incorrect code for the BCD class and its friends; the Phloat code
+that uses only BCDFloat seems to work fine, but methods involving BCD cause
+memory corruption somehow.
 Once the decimal code works on PalmOS, look for all occurrences of int16, and
 change them to int or int4, as appropriate. Then, and only then, generate a
 patch for Hugh.
+
+Remove MathLib dependency from the Decimal PalmOS version. This could be tricky
+because even the BCD version uses a couple of binary math functions -- IIRC, it
+uses log10() and floor(), and maybe others.
 
 Get a PayPal account to accept donations. :-)
 
