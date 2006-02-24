@@ -39,7 +39,7 @@
 #define BCD_CONST_HUNDREDTH (BCD_CONST_PIBY32B+1)
 #define BCD_CONST_HALF (BCD_CONST_HUNDREDTH+1)
 #define BCD_CONST_LANCZOS (BCD_CONST_HALF+1)
-#define BCD_CONST_1E5000 (BCD_CONST_LANCZOS+13)
+#define BCD_CONST_1E5004 (BCD_CONST_LANCZOS+13)
 
 
 typedef unsigned short Dig[P+1];
@@ -95,7 +95,7 @@ static Dig constTable[] =
     { 11, 2406, 1022, 3182, 8735, 6453, 7307, 65534 },
     { 2, 7709, 5759, 7224, 6395, 7358, 7375, 32766 },
     
-    { 1, 0, 0, 0, 0, 0, 0, 1251 }, // 1e5000
+    { 1, 0, 0, 0, 0, 0, 0, 1252 }, // 1e5004
 };
 
 BCD pi()
@@ -647,7 +647,7 @@ BCD hypot(const BCD& a, const BCD& b)
     BCD res = sqrt(a * a + b * b);
     if (res.isInf()) {
 	// Try scaling down a and b, then adjusting the result.
-	BCD s(*(const BCDFloat*)(constTable + BCD_CONST_1E5000));
+	BCD s(*(const BCDFloat*)(constTable + BCD_CONST_1E5004));
 	BCD as(a / s);
 	BCD bs(b / s);
 	res = sqrt(as * as + bs * bs) * s;

@@ -6,6 +6,11 @@
 | those I *will* definitely fix as quickly as possible.                      |
 +----------------------------------------------------------------------------+
 
+The Windows version has some problem with the "Kopie van state.bin" state file
+in C:\Program Files\Free42. It appears to read the file with no problem, but
+the file that it writes back on exit is truncated, and the next time Free42 is
+launched, it says "State File Corrupt". Very odd.
+
 The decimal code in the PalmOS build crashes. It looks like the compiler may be
 generating incorrect code for the BCD class and its friends; the Phloat code
 that uses only BCDFloat seems to work fine, but methods involving BCD cause
