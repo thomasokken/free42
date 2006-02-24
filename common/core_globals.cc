@@ -2499,14 +2499,68 @@ static bool convert_programs() {
     // CMD_NUMBER with arg.type = ARGTYPE_DOUBLE) and converts them from double
     // to Phloat or the other way around.
 
-    int prev_current_prgm = current_prgm;
+    int saved_prgm = current_prgm;
+    int4 saved_pc = pc;
+
+    // Since converting programs can cause instructions to move, I have to
+    // update all stored PC values to correct for this. PCs are stored in the
+    // 'pc' and 'rtn_pc[]' globals. I copy those values into a local array,
+    // which I then sort by program index and pc; this allows me to do the
+    // updates very efficiently later on.
+    int mod_prgm[MAX_RTNS + 1];
+    int4 mod_pc[MAX_RTNS + 1];
+    int mod_sp[MAX_RTNS + 1];
+    int mod_count = 0;
+    for (int i = 0; i < rtn_sp; i++) {
+	int prgm = rtn_prgm[i];
+	if (prgm == -2 || prgm == -3)
+	    // Return-to-solve and return-to-integ
+	    continue;
+	mod_prgm[mod_count] = prgm;
+	mod_pc[mod_count] = rtn_pc[i];
+	mod_sp[mod_count] = i;
+	mod_count++;
+    }
+    mod_prgm[mod_count] = current_prgm;
+    mod_pc[mod_count] = pc;
+    mod_sp[mod_count] = -1;
+
+    for (int i = 0; i < mod_count; i++)
+	for (int j = i + 1; j <= mod_count; j++)
+	    if (mod_prgm[i] < mod_prgm[j]
+		    || mod_prgm[i] == mod_prgm[j] && mod_pc[i] > mod_pc[j]) {
+		int tmp = mod_prgm[i];
+		mod_prgm[i] = mod_prgm[j];
+		mod_prgm[j] = tmp;
+		int4 tmp4 = mod_pc[i];
+		mod_pc[i] = mod_pc[j];
+		mod_pc[j] = tmp4;
+		tmp = mod_sp[i];
+		mod_sp[i] = mod_sp[j];
+		mod_sp[j] = tmp;
+	    }
 
     for (int i = 0; i < prgms_count; i++) {
 	current_prgm = i;
 	pc = 0;
+	int4 oldpc = 0;
 	prgm_struct *prgm = prgms + i;
 	prgm->lclbl_invalid = 1;
 	while (true) {
+	    while (mod_count >= 0 && current_prgm == mod_prgm[mod_count]
+				  && oldpc >= mod_pc[mod_count]) {
+		// oldpc should never be greater than mod_pc[mod_count]; this
+		// means that something is out of whack, because we have an old
+		// PC value that does not actually coincide with the beginning
+		// of an instruction.
+		int s = mod_sp[mod_count];
+		if (s == -1)
+		    saved_pc = pc;
+		else
+		    rtn_pc[s] = pc;
+		mod_count--;
+	    }
+	    int4 prevpc = pc;
 	    int command = prgm->text[pc++];
 	    int argtype = prgm->text[pc++];
 	    command |= (argtype & 240) << 4;
@@ -2570,6 +2624,7 @@ static bool convert_programs() {
 				prgm->text[pos + growth] = prgm->text[pos];
 			}
 			prgm->size += growth;
+			oldpc -= growth;
 
 			phloat p;
 			p.bcd = double2bcd(d, true);
@@ -2601,6 +2656,7 @@ static bool convert_programs() {
 			for (int4 pos = pc; pos < prgm->size; pos++)
 			    prgm->text[pos] = prgm->text[pos + shrinkage];
 			prgm->size -= shrinkage;
+			oldpc += shrinkage;
 
 			b = (unsigned char *) &dbl;
 			for (i = 0; i < (int) sizeof(double); i++)
@@ -2608,21 +2664,13 @@ static bool convert_programs() {
 		    #endif
 		    break;
 	    }
+	    oldpc += pc - prevpc;
 	}
     }
 
-    current_prgm = prev_current_prgm;
+    current_prgm = saved_prgm;
+    pc = saved_pc;
     rebuild_label_table();
-
-    // TODO: This could be done better -- update the pc and return stack while
-    // converting the program; if that is done, there's no need to override
-    // auto_exec because programs can simply pick up where they left off.
-    // TODO: Regardless of whether I implement the above or not, we should call
-    // redisplay() at some point after a binary<->decimal mode switch, because
-    // the number or program line in the display might have changed.
-    pc = -1;
-    clear_all_rtns();
-    flags.f.auto_exec = false;
 
     return true;
 }
