@@ -6,18 +6,6 @@
 | those I *will* definitely fix as quickly as possible.                      |
 +----------------------------------------------------------------------------+
 
-The Windows version has some problem with the "Kopie van state.bin" state file
-in C:\Program Files\Free42. The binary version appears to read the file with no
-problem, but if you then exit and restart, you get "State File Corrupt".
-The Decimal version complains about "Kopie van state.bin" immediately.
-Wouldn't it be nice if there was some memory-corrupting bug in the state file
-reading code, and that bug would also be the cause of the mysterious crashes of
-the PalmOS Decimal version...?
-
-PC conversion: should also handle incomplete_saved_pc. Otherwise, severe
-wackiness can occur if the emulator is exited while in the middle of entering a
-program line.
-
 The decimal code in the PalmOS build crashes. It looks like the compiler may be
 generating incorrect code for the BCD class and its friends; the Phloat code
 that uses only BCDFloat seems to work fine, but methods involving BCD cause

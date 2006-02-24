@@ -929,14 +929,15 @@ static bool unpersist_vartype(vartype **v) {
 				    new_complexmatrix(mp.rows, mp.columns);
 	    if (cm == NULL)
 		return false;
-	    int4 size = 2 * mp.rows * mp.columns;
 	    if (bin_dec_mode_switch) {
+		int4 size = 2 * mp.rows * mp.columns;
 		for (int4 i = 0; i < size; i++)
 		    if (!read_phloat(cm->array->data + i)) {
 			free_vartype((vartype *) cm);
 			return false;
 		    }
 	    } else {
+		int4 size = 2 * mp.rows * mp.columns * sizeof(phloat);
 		if (shell_read_saved_state(cm->array->data, size) != size) {
 		    free_vartype((vartype *) cm);
 		    return false;
@@ -2508,9 +2509,9 @@ static bool convert_programs() {
     // 'pc' and 'rtn_pc[]' globals. I copy those values into a local array,
     // which I then sort by program index and pc; this allows me to do the
     // updates very efficiently later on.
-    int mod_prgm[MAX_RTNS + 1];
-    int4 mod_pc[MAX_RTNS + 1];
-    int mod_sp[MAX_RTNS + 1];
+    int mod_prgm[MAX_RTNS + 2];
+    int4 mod_pc[MAX_RTNS + 2];
+    int mod_sp[MAX_RTNS + 2];
     int mod_count = 0;
     for (i = 0; i < rtn_sp; i++) {
 	int prgm = rtn_prgm[i];
@@ -2525,6 +2526,10 @@ static bool convert_programs() {
     mod_prgm[mod_count] = current_prgm;
     mod_pc[mod_count] = pc;
     mod_sp[mod_count] = -1;
+    mod_count++;
+    mod_prgm[mod_count] = current_prgm;
+    mod_pc[mod_count] = incomplete_saved_pc;
+    mod_sp[mod_count] = -2;
 
     for (i = 0; i < mod_count; i++)
 	for (int j = i + 1; j <= mod_count; j++)
@@ -2557,6 +2562,8 @@ static bool convert_programs() {
 		int s = mod_sp[mod_count];
 		if (s == -1)
 		    saved_pc = pc;
+		else if (s == -2)
+		    incomplete_saved_pc = pc;
 		else
 		    rtn_pc[s] = pc;
 		mod_count--;
