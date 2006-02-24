@@ -44,6 +44,15 @@
 #define LL(x) x##LL
 #endif
 
+
+// Section attribute -- something like
+// #define BCD_SECT __attribute__ ((section ("BcdSect")))
+// Only needed when building a multi-segment PalmOS executable.
+#ifndef BCD_SECT
+#define BCD_SECT
+#endif
+
+
 #define int16 int4
 
 
