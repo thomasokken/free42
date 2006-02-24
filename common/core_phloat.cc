@@ -1496,6 +1496,7 @@ int string2phloat(const char *buf, int buflen, phloat *d) {
 
 double bcd2double(const short *p) {
     short exp = p[P];
+    double zero = 0;
 
 #if defined(WINDOWS) && !defined(__GNUC__)
     if (exp == 0x3000)
@@ -1506,11 +1507,11 @@ double bcd2double(const short *p) {
 	return -HUGE_VAL; // -Inf
 #else
     if (exp == 0x3000)
-	return 0.0 / 0.0; // NaN
+	return 0 / zero; // NaN
     else if (exp == 0x3FFF)
-	return 1.0 / 0.0; // Inf
+	return 1 / zero; // Inf
     else if (exp == (short) 0xBFFF)
-	return -1.0 / 0.0; // -Inf
+	return -1 / zero; // -Inf
 #endif
 
     if (p[0] == 0)
