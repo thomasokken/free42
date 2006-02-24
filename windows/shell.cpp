@@ -307,9 +307,9 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 	srand(GetTickCount());
 
-    /***********************************************************/
-    /***** Try to create the My Documents\Free42 directory *****/
-    /***********************************************************/
+    /**********************************************/
+    /***** Try to create the Free42 directory *****/
+    /**********************************************/
 
 	get_home_dir(free42dirname, FILENAMELEN, TRUE);
     _mkdir(free42dirname);
@@ -1159,7 +1159,19 @@ static void get_home_dir(char *path, int pathlen, BOOL exedir_ok) {
 		RegCloseKey(k1);
 	}
 	
-	if (found) {
+// Starting with version 1.4, the default Free42 directory is the one
+// containing the executable. This means that users upgrading from versions
+// 1.1.15 through 1.2.5 will have to manually move their state file etc. from
+// <My Documents>\Free42, or manually set the Free42 directory to that location
+// in Preferences.
+// (Version 1.1.14 and earlier always used the executable's directory, so we'll
+// find it just fine; version 1.2.6 and later use the Registry to keep track of
+// the Free42 directory location, so we'll find it just fine, too.)
+// It's an inconvenience, especially since there are probably still mirrors out there
+// that carry versions in that range, but for new users, this new default is much
+// more intuitive. Plus, it's what most users will want, anyway.
+//
+//	if (found) {
 		if (path[0] == 0 && exedir_ok) {
 			GetModuleFileName(0, path, pathlen - 1);
 			char *lastbackslash = strrchr(path, '\\');
@@ -1169,8 +1181,9 @@ static void get_home_dir(char *path, int pathlen, BOOL exedir_ok) {
 				strcpy(path, "C:\\Free42");
 		}
 		return;
-	}
+//	}
 
+#if 0
 	// HomeDir not set: use "My Documents"\Free42 for backward compatibility
 	// with versions 1.1.15 and later. Versions 1.1.14 and earlier used different
 	// names for the state and print-out files, and stored them in the executable's
@@ -1191,6 +1204,7 @@ static void get_home_dir(char *path, int pathlen, BOOL exedir_ok) {
 	set_home_dir(buf);
 	strncpy(path, buf, pathlen - 1);
 	path[pathlen - 1] = 0;
+#endif
 }
 
 static void config_home_dir(HWND owner, char *buf, int bufsize) {

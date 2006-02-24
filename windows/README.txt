@@ -9,43 +9,30 @@ Windows, and Unix.
 
 Installing Free42:
 
-Copy Free42.exe to wherever you want it, e.g. create a directory "C:\Program
-Files\Free42" and put it there. When Free42 runs, it will create three
-additional files, in the Free42 directory (*) (this directory will be created
-if it does not already exist); the additional files are state.bin, print.bin,
-and keymap.txt, and they are used to store the calculator's internal state, the
-contents of the print-out window, and the PC keyboard map, respectively.
+Copy Free42Decimal.exe (or Free42Binary.exe, or both) to wherever you want it,
+e.g. create a directory "C:\Program Files\Free42" and put it there. When Free42
+runs, it will create three additional files, in the Free42 directory (*) (this
+directory will be created if it does not already exist); the additional files
+are state.bin, print.bin, and keymap.txt, and they are used to store the
+calculator's internal state, the contents of the print-out window, and the PC
+keyboard map, respectively.
 Also, if you want to use a non-standard skin with Free42, the Free42 directory
-is where you have to store the skin's layout and bitmap files.
-For convenience, create a shortcut to Free42.exe and put it on the desktop or
-in the Start menu.
-(*) The Free42 directory is "My Documents"\Free42 by default, but you can
-change this in the Preferences dialog. If you select a different location, you
-must exit Free42, and then move the files from the old to the new Free42
-directory manually.
-
-
-Upgrading from Free42 version 1.1.14 or earlier:
-
-Free42 1.1.14 and older stored persistent state in a file called
-Free42State.bin, and the print-out image in Free42Print.bin; these files are
-in the same directory as the executable. Free42 1.1.15 and later use files
-called state.bin and print.bin, stored in "My Documents"\Free42.
-To upgrade from 1.1.14 or older to 1.2.7 or later, you should move the state
-and print-out files to "My Documents"\Free42, and rename them to state.bin and
-print.bin. Note that it is not critical to do so, but if you don't, you'll
-start with brand-new state.bin and print.bin files, meaning "Memory Clear" and
-a blank print-out.
-Starting with version 1.2.7, you can change the location of the Free42
-directory, using the Preferences dialog. When you do, and if you want to keep
-your old state file etc., you should exit Free42, then move the files from the
-old to the new Free42 directory.
+is where you have to store the skin's layout and bitmap files. (In addition to
+the Free42 directory, you may also store skins in the directory containing the
+executable. Note that those directories may be one and the same.)
+For convenience, create a shortcut to Free42Decimal.exe (or Free42Binary.exe,
+or both) and put it on the desktop or in the Start menu.
+(*) By default, the Free42 directory is the directory containing the
+executable, but you can change this in the Preferences dialog. If you select a
+different location, you must exit Free42, and then move or copy the files from
+the old to the new Free42 directory manually; if you don't do this, you will
+start with a clean slate next time you start Free42 ("Memory Clear").
 
 
 Uninstalling Free42:
 
-Remove Free42.exe, and the Free42 directory and its contents, and any shortcuts
-you have created to point to Free42.exe.
+Remove Free42Decimal.exe, Free42Binary.exe, and the Free42 directory and its
+contents, and any shortcuts you have created to point to Free42.exe.
 
 
 Documentation
@@ -57,7 +44,35 @@ independently written HP-42S/Free42 manual, by Jose Lauro Strapasson, which
 you can download free at http://joselauro.com/42s.pdf.
 
 
+What's the deal with the "Decimal" and "Binary"?
+
+Starting with version 1.4, Free42 comes in decimal and binary versions. The two
+look and behave identically; the only difference is the way they represent
+numbers internally.
+Free42Decimal uses Hugh Steers' 7-digit base-10000 BCDFloat class, which
+effectively gives 25 decimal digits of precision, with exponents ranging from
+-10000 to +9999. Transcendental functions are evaluated to about 20 digits;
+each number consumes 16 bytes of memory.
+Free42Binary uses the PC's FPU; it represents numbers as IEEE-754 compatible
+double precision binary floating point, which consumes 8 bytes per number, and
+gives an effective precision of nearly 16 decimal digits, with exponents
+ranging from -308 to +308 (actually, exponents can be less than -308; such
+small numbers are "denormalized" and don't have the full precision of
+"normalized" numbers).
+The binary version has the advantage of being much faster than the decimal
+version; also, it uses less memory. However, numbers such as 0.1 (one-tenth)
+cannot be represented exactly in binary, since they are repeating fractions
+then. This inexactness can cause some HP-42S programs to fail.
+If you understand the issues surrounding binary floating point, and you do not
+rely on legacy software that may depend on the exactness of decimal fractions,
+you may use Free42Binary and enjoy its speed advantage. If, on the other hand,
+you need full HP-42S compatibility, you should use Free42Decimal.
+If you don't fully understand the above, it is best to play safe and use
+Free42Decimal.
+
+
 Free42 is (C) 2004-2006, by Thomas Okken
+BCD support (C) 2005, by Hugh Steers / voidware
 Contact the author at thomas_okken@yahoo.com
 Look for updates, and versions for other operating systems, at
 http://home.planet.nl/~demun000/thomas_projects/free42/

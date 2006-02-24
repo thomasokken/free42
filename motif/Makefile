@@ -43,10 +43,13 @@ ifdef BCD_MATH
 CXXFLAGS += -DBCD_MATH
 SRCS += bcdfloat.cc bcd.cc bcdmath.cc
 OBJS += bcdfloat.o bcd.o bcdmath.o
+EXE = free42dec
+else
+EXE = free42bin
 endif
 
-free42: $(OBJS)
-	$(CXX) -o free42 $(LDFLAGS) $(OBJS) $(LIBS)
+$(EXE): $(OBJS)
+	$(CXX) -o $(EXE) $(LDFLAGS) $(OBJS) $(LIBS)
 
 $(SRCS): symlinks
 
@@ -124,7 +127,15 @@ symlinks:
 	touch symlinks
 
 clean: FORCE
-	rm -f `find . -type l` free42 free42.exe skin2cc skin2cc.exe skins.cc \
+	rm -f `find . -type l` \
+		skin2cc skin2cc.exe skins.cc \
+		keymap2cc keymap2cc.exe keymap.cc \
+		*.o *.d *.i *.ii *.s symlinks core.*
+
+cleaner: FORCE
+	rm -f `find . -type l` \
+		free42bin free42bin.exe free42dec free42dec.exe \
+		skin2cc skin2cc.exe skins.cc \
 		keymap2cc keymap2cc.exe keymap.cc \
 		*.o *.d *.i *.ii *.s symlinks core.*
 

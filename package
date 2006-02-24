@@ -13,15 +13,20 @@ rm -rf Free42PalmOS
 
 mkdir Free42Windows
 cp windows/README.txt Free42Windows
-cp windows/ReleaseBinary/Free42Binary.exe Free42Windows/Free42.exe
-strip Free42Windows/Free42.exe
+cp windows/ReleaseBinary/Free42Binary.exe Free42Windows
+cp windows/ReleaseDecimal/Free42Decimal.exe Free42Windows
+# For MinGW:
+# strip Free42Windows/Free42Binary.exe
+# strip Free42Windows/Free42Decimal.exe
 zip -r Free42Windows.zip Free42Windows
 rm -rf Free42Windows
 
 mkdir Free42Linux
 cp motif/README Free42Linux
-cp motif/free42 Free42Linux
-strip Free42Linux/free42
+cp motif/free42bin Free42Linux
+cp motif/free42dec Free42Linux
+strip Free42Linux/free42bin
+strip Free42Linux/free42dec
 tar cvfz Free42Linux.tgz Free42Linux
 rm -rf Free42Linux
 
