@@ -1,6 +1,7 @@
 #!/bin/sh -x
 rm -rf Free42PalmOS* Free42Windows* Free42Linux* tmp free42.tgz Free42Skins.zip Free42PalmOSSkins.zip
 
+# PalmOS package
 mkdir Free42PalmOS
 cp palmos/README.txt Free42PalmOS
 cp palmos/free42.prc Free42PalmOS
@@ -11,6 +12,7 @@ cp /win/cdk403/Common/Bin/HSAPI.dll Free42PalmOS
 zip -r Free42PalmOS.zip Free42PalmOS
 rm -rf Free42PalmOS
 
+# Windows package -- Visual C++
 mkdir Free42Windows
 cp windows/README.txt Free42Windows
 cp windows/ReleaseBinary/Free42Binary.exe Free42Windows
@@ -18,6 +20,17 @@ cp windows/ReleaseDecimal/Free42Decimal.exe Free42Windows
 zip -r Free42Windows.zip Free42Windows
 rm -rf Free42Windows
 
+# Windows package -- MinGW
+# mkdir Free42Windows
+# cp windows/README.txt Free42Windows
+# cp windows/Free42Binary.exe Free42Windows
+# cp windows/Free42Decimal.exe Free42Windows
+# /mingw/bin/strip windows/Free42Binary.exe
+# /mingw/bin/strip windows/Free42Decimal.exe
+# zip -r Free42Windows.zip Free42Windows
+# rm -rf Free42Windows
+
+# Linux package
 mkdir Free42Linux
 cp motif/README Free42Linux
 cp motif/free42bin Free42Linux
@@ -27,6 +40,7 @@ strip Free42Linux/free42dec
 tar cvfz Free42Linux.tgz Free42Linux
 rm -rf Free42Linux
 
+# Source package
 mkdir tmp
 cd tmp
 cvs checkout free42
@@ -36,6 +50,7 @@ tar cvfz ../free42.tgz free42
 cd ..
 rm -rf tmp
 
+# Wrap it all up...
 cp HISTORY HISTORY.txt
 cp TODO TODO.txt
 cp palmos/Free42PalmOSSkins.zip .

@@ -30,7 +30,11 @@ endif
 endif
 
 ifndef TARGET
-TARGET=Free42.exe
+ifdef BCD_MATH
+TARGET=Free42Decimal.exe
+else
+TARGET=Free42Binary.exe
+endif
 endif
 
 .PHONY: all
@@ -142,7 +146,11 @@ rom2raw: rom2raw.c
 	
 .PHONY: clean
 clean:
-	-rm -f $(OBJS) $(TARGET) Free42.dep keymap2cpp.exe keymap.cpp skin2cpp.exe skins.cpp rom2raw.exe
+	-rm -f $(OBJS) Free42.dep keymap2cpp.exe keymap.cpp skin2cpp.exe skins.cpp rom2raw.exe
+
+.PHONY: cleaner
+cleaner:
+	-rm -f $(OBJS) Free42Binary.exe Free42Decimal.exe Free42.dep keymap2cpp.exe keymap.cpp skin2cpp.exe skins.cpp rom2raw.exe
 
 .PHONY: depends
 depends:
