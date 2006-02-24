@@ -709,6 +709,7 @@ BCD ln1p(const BCD& a)
     return s1;
 }
 
+#ifndef PALMOS
 static void dumpbcd(const BCD& a) BCD_SECT;
 static void dumpbcd(const BCD& a)
 {
@@ -720,6 +721,7 @@ static void dumpbcd(const BCD& a)
     }
     printf("%d },\n", f.d_[P]);
 }
+#endif
 
 #define K 12
 #define GG 12
