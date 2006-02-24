@@ -56,7 +56,7 @@ each number consumes 16 bytes of memory.
 Free42Binary uses the PC's FPU; it represents numbers as IEEE-754 compatible
 double precision binary floating point, which consumes 8 bytes per number, and
 gives an effective precision of nearly 16 decimal digits, with exponents
-ranging from -308 to +308 (actually, exponents can be less than -308; such
+ranging from -308 to +307 (actually, exponents can be less than -308; such
 small numbers are "denormalized" and don't have the full precision of
 "normalized" numbers).
 The binary version has the advantage of being much faster than the decimal

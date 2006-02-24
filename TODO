@@ -18,9 +18,6 @@ Remove MathLib dependency from the Decimal PalmOS version. This could be tricky
 because even the BCD version uses a couple of binary math functions -- IIRC, it
 uses log10() and floor(), and maybe others.
 
-windows/Makefile (MinGW) still needs to be updated to support both binary and
-decimal builds. Try to model it after motif/Makefile.
-
 Get a PayPal account to accept donations. :-)
 
 Pocket PC version.

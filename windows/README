@@ -6,10 +6,11 @@ Windows installation, you should copy the files from 'common' to 'windows'
 using the copy-files script; if you're using Win4Lin, you can use the
 'make-symlinks' script to create all the required links.
 
-Note: the Free42 workspace contains three projects: Free42, keymap2cpp, and
-skin2cpp. Before building Free42, you must build keymap2cpp and skin2cpp and
-run them; this creates the keymap.cpp and skins.cpp files, which contain the
-default keymap and the skins to be compiled into the Free42 executable.
+Note: the Free42 workspace contains four projects: Free42Binary, Free42Decimal,
+keymap2cpp, and skin2cpp. Before building Free42Binary and Free42Decimal, you
+must build keymap2cpp and skin2cpp and run them; this creates the keymap.cpp
+and skins.cpp files, which contain the default keymap and the skins to be
+compiled into the Free42 executable.
 
 Update: as an alternative, you can also build the Windows version using MinGW
 now. Run copy-files or make-symlinks to get the stuff from the 'common'

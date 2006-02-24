@@ -15,9 +15,6 @@ mkdir Free42Windows
 cp windows/README.txt Free42Windows
 cp windows/ReleaseBinary/Free42Binary.exe Free42Windows
 cp windows/ReleaseDecimal/Free42Decimal.exe Free42Windows
-# For MinGW:
-# strip Free42Windows/Free42Binary.exe
-# strip Free42Windows/Free42Decimal.exe
 zip -r Free42Windows.zip Free42Windows
 rm -rf Free42Windows
 
