@@ -14,10 +14,6 @@ Once the decimal code works on PalmOS, look for all occurrences of int16, and
 change them to int or int4, as appropriate. Then, and only then, generate a
 patch for Hugh.
 
-Remove MathLib dependency from the Decimal PalmOS version. This could be tricky
-because even the BCD version uses a couple of binary math functions -- IIRC, it
-uses log10() and floor(), and maybe others.
-
 Get a PayPal account to accept donations. :-)
 
 Pocket PC version.
