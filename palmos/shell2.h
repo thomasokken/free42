@@ -70,10 +70,12 @@ extern int radAnn;
 extern SkinSpec *skin;
 
 
+#ifndef BCD_MATH
 void open_math_lib() SHELL2_SECT;
+void close_math_lib() SHELL2_SECT;
+#endif
 void load_skin() SHELL2_SECT;
 void unload_skin() SHELL2_SECT;
-void close_math_lib() SHELL2_SECT;
 void misc_cleanup() SHELL2_SECT;
 int feature_set_3_5_present() SHELL2_SECT;
 int feature_set_4_0_present() SHELL2_SECT;

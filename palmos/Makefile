@@ -39,14 +39,15 @@ CXXFLAGS += -DBCD_MATH
 SRCS += bcdfloat.cc bcd.cc bcdmath.cc
 OBJS += bcdfloat.o bcd.o bcdmath.o
 SHELL_DEF = shell_dec.def
+TARGET = free42dec.prc
 else
-SHELL_DEF = shell_bin.def
-endif
-# TODO - The "decimal" build should not require this
 OBJS += MathLib.o
+SHELL_DEF = shell_bin.def
+TARGET = free42bin.prc
+endif
 
-free42.prc: shell shell.ro Original.prc
-	build-prc -o free42.prc $(SHELL_DEF) shell shell.ro Original.prc
+$(TARGET): shell shell.ro Original.prc
+	build-prc -o $(TARGET) $(SHELL_DEF) shell shell.ro Original.prc
 
 $(SRCS): symlinks
 
@@ -151,6 +152,13 @@ skin2prc: skin2prc.cc skin2prc.h
 	c++ -o skin2prc skin2prc.cc
 
 clean:
+	rm -f `ls *.prc | grep -v '^free42'` \
+		shell shell.ro *.o *.i *.ii *.s *.d \
+		*.out *.grc shell.gdb `find . -type l` \
+		shell-sections.s shell-sections.ld symlinks \
+		skin2prc skin2prc.exe tmp_skin.* Free42PalmOSSkins.zip
+
+cleaner:
 	rm -f *.prc shell shell.ro *.o *.i *.ii *.s *.d \
 		*.out *.grc shell.gdb `find . -type l` \
 		shell-sections.s shell-sections.ld symlinks \

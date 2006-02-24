@@ -84,6 +84,7 @@ static void do_delete() SHELL2_SECT;
 static void do_removedir() SHELL2_SECT;
 
 
+#ifndef BCD_MATH
 void open_math_lib() {
     Err error;
 
@@ -95,6 +96,7 @@ void open_math_lib() {
     error = MathLibOpen(MathLibRef, MathLibVersion);
     ErrFatalDisplayIf(error, "Can't open MathLib");
 }
+#endif
 
 static Int16 str_ptr_compare(void *a, void *b, Int32 other) SHELL2_SECT;
 static Int16 str_ptr_compare(void *a, void *b, Int32 other) {
@@ -411,6 +413,7 @@ void unload_skin() {
     }
 }
 
+#ifndef BCD_MATH
 void close_math_lib() {
     UInt16 usecount;
     Err error;
@@ -420,6 +423,7 @@ void close_math_lib() {
     if (usecount == 0)
 	SysLibRemove(MathLibRef);
 }
+#endif
 
 void misc_cleanup() {
     if (skin_name != NULL)

@@ -4,7 +4,8 @@ rm -rf Free42PalmOS* Free42Windows* Free42Linux* tmp free42.tgz Free42Skins.zip 
 # PalmOS package
 mkdir Free42PalmOS
 cp palmos/README.txt Free42PalmOS
-cp palmos/free42.prc Free42PalmOS
+cp palmos/free42bin.prc Free42PalmOS
+cp palmos/free42dec.prc Free42PalmOS
 cp conduit/Free42ConduitInstaller/Release/Free42ConduitInstaller.exe Free42PalmOS
 cp conduit/Free42Conduit/Release/Free42Conduit.dll Free42PalmOS
 cp /win/cdk403/Common/Bin/condmgr.dll Free42PalmOS

@@ -24,9 +24,12 @@
 
 #include <PalmOS.h>
 #include <Libraries/PalmOSGlue/PalmOSGlue.h>
+#ifndef BCD_MATH
 extern "C" {
 #include "MathLib.h"
 }
+#endif
+
 /* Segmentation stuff */
 #define SHELL1_SECT __attribute__ ((section ("Shell1")))
 #define SHELL2_SECT __attribute__ ((section ("Shell2")))
@@ -133,6 +136,18 @@ extern "C" void sincos(double x, double *sinx, double *cosx) HELPERS_SECT;
 #endif
 //#define NO_SINCOS 1
 
+#endif
+
+
+#if defined(PALMOS) && defined(BCD_MATH)
+// Compatibility hacks for the sake of core_phloat and bcdfloat. I don't want
+// to depend on MathLib for this stuff, especially since I can make do with
+// simple partial implementations.
+int isinf(double d) PHLOAT_SECT;
+int isnan(double d) PHLOAT_SECT;
+double pow(double x, double y) PHLOAT_SECT;
+double floor(double x) PHLOAT_SECT;
+double log10(double x) PHLOAT_SECT;
 #endif
 
 

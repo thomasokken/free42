@@ -662,6 +662,7 @@ BCDFloat double2bcd(double d, bool round /* = false */) {
 
 double bcd2double(BCDFloat b) {
     unsigned short exp = b.d_[P];
+    double zero = 0;
 
 #if defined(WINDOWS) && !defined(__GNUC__)
     if (exp == 0x3000)
@@ -672,11 +673,11 @@ double bcd2double(BCDFloat b) {
 	return -HUGE_VAL; // -Inf
 #else
     if (exp == 0x3000)
-	return 0.0 / 0.0; // NaN
+	return 0 / zero; // NaN
     else if (exp == 0x3FFF)
-	return 1.0 / 0.0; // Inf
+	return 1 / zero; // Inf
     else if (exp == 0xBFFF)
-	return -1.0 / 0.0; // -Inf
+	return -1 / zero; // -Inf
 #endif
 
     if (b.d_[0] == 0)
@@ -692,7 +693,7 @@ double bcd2double(BCDFloat b) {
 	    if (b.d_[j] != 0)
 		goto noninteger;
 	int8 n = 0;
-	for (j = 0; j < exp; j++)
+	for (j = 0; j < (short) exp; j++)
 	    n = n * 10000 + b.d_[j];
 	return (double) (neg ? -n : n);
     }
@@ -1978,3 +1979,81 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
 	return chars_so_far;
     }
 }
+
+#if defined(PALMOS) && defined(BCD_MATH)
+
+// Compatibility stuff - note that some of these are only partial
+// implementations. These are just hacks so that core_phloat and bcdfloat can
+// be compiled and run on Palms without MathLib.
+
+union double_words {
+    double d;
+    struct {
+	Int32 hx, lx;
+    } w;
+};
+
+int isinf(double x) {
+    double_words dw;
+    dw.d = x;
+    dw.w.lx |= (dw.w.hx & 0x7fffffff) ^ 0x7ff00000;
+    dw.w.lx |= -dw.w.lx;
+    return ~(dw.w.lx >> 31) & (dw.w.hx >> 30);
+}
+
+int isnan(double x) {
+    double_words dw;
+    dw.d = x;
+    dw.w.hx &= 0x7fffffff;
+    dw.w.hx |= (UInt32)(dw.w.lx|(-dw.w.lx))>>31;
+    dw.w.hx = 0x7ff00000 - dw.w.hx;
+    return (int)(((UInt32)dw.w.hx)>>31);
+}
+
+double pow(double x, double y) {
+    // Only handles integer exponents
+    int4 exp = (int4) y;
+    bool neg = exp < 0;
+    if (neg)
+	exp = -exp;
+    double res = 1, factor = x;
+    while (exp != 0) {
+	if ((exp & 1) != 0)
+	    res *= factor;
+	exp >>= 1;
+	factor *= factor;
+    }
+    return neg ? 1 / res : res;
+}
+
+double floor(double x) {
+    // Yes, this is adequate, believe it or not: this only gets called on the
+    // result of our hacked log10() (see below), and that function implicitly
+    // "floors" its return value.
+    return x;
+}
+
+double log10(double x) {
+    // TODO: faster implementation. It doesn't matter all that much, since this
+    // function is only called for the state file conversion, but still, that
+    // conversion shouldn't take any longer than necessary either.
+    if (x <= 0) {
+	double zero = 0;
+	return x == 0 ? -1 / zero : 0 / zero;
+    }
+    int res = 0;
+    if (x < 1) {
+	while (x < 1) {
+	    x *= 10;
+	    res--;
+	}
+    } else {
+	while (x >= 10) {
+	    x /= 10;
+	    res++;
+	}
+    }
+    return (double) res;
+}
+
+#endif

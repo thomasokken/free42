@@ -770,12 +770,13 @@ static BCD _gammaFactorial(const BCD& z)
      * note: tried reduction by halves using Gauss multiple formula,
      * but its slower because there are more leaves to calculate.
      */
-    if (z > 2.5) {
+    BCD twopointfive(2.5);
+    if (z > twopointfive) {
         BCD x = z;
         BCD f = x;
         for (;;) {
             x -= 1;
-            if (x <= 2.5) break;
+            if (x <= twopointfive) break;
             f *= x;
         }
         return _gammaFactorial1(x)*f;
