@@ -262,7 +262,7 @@ BCDFloat::BCDFloat(double d) {
 	*this = BCDFloat::nan();
 	return;
     }
-    int inf = isinf(d);
+    int16 inf = isinf(d);
     if (inf > 0) {
 	*this = BCDFloat::posInf();
 	return;
@@ -291,12 +291,12 @@ BCDFloat::BCDFloat(double d) {
     if (d == 0) {
 	_init();
     } else {
-	int exp = (((int) ::floor(log10(d))) & ~3) >> 2;
+	int16 exp = (((int16) ::floor(log10(d))) & ~3) >> 2;
 	d_[P] = (exp + 1) & 0x7FFF;
 	double m = pow(100.0, (double) exp);
 	d /= m;
 	d /= m;
-	for (int i = 0; i < P; i++) {
+	for (int16 i = 0; i < P; i++) {
 	    short s = (short) d;
 	    d_[i] = s;
 	    d = (d - s) * 10000;

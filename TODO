@@ -1,3 +1,11 @@
++-----------------------------------------------------------------------------+
+| NOTE: Most of the items in this list are "nice to have" things. I'm not     |
+| promising that I will actually implement any of them -- I simply put any    |
+| reasonable feature request in this list, and when I feel like programming,  |
+| I may or may not tackle any of these items. The only exceptions are bugs:   |
+| those I *will* definitely fix as quickly as possible.                       |
++-----------------------------------------------------------------------------+
+
 The decimal code in the PalmOS build is buggy. Obvious workaround: just change
 *all* occurrences of "int" to "int4". Slightly more interesting approach:
 change all occurrences of "int" to "int2" and debug the bastard in the good old
@@ -7,8 +15,11 @@ Update: OK, so it's not that simple. It looks an awful lot like a compiler bug.
 Try narrowing it down by commenting out everything in bcd.cc and bcdmath.cc
 except, say, fmod(), and maybe stare at the compiler output. Of course, it
 could also be a linker bug, in which case it get really ugly.
+Once the decimal code works on PalmOS, look for all occurrences of int16, and
+change them to int or int4, as appropriate. Then, and only then, generate a
+patch for Hugh.
 
-...............................................................................
+Get a PayPal account to accept donations. :-)
 
 Pocket PC version.
 
@@ -24,10 +35,6 @@ PalmOS version: repainting the display, when using high-resolution skins on
 the Tungsten E, is slow. I should profile this; is my code for constructing
 high-resolution bitmaps inefficient, or am I using the wrong PalmOS calls, or
 is PalmOS itself to blame?
-
-Get a PayPal account to accept donations. :-)
-
-=============================== And *maybe*... ================================
 
 Auto-repeat: for keys where the usual holding-down behavior isn't needed
 (number keys, backspace, etc.) it might be nice to support auto-repeat.
