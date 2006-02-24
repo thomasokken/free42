@@ -51,14 +51,18 @@ Needs -DNO_SINCOS.
 
 
 -------------------------------------------------------------------------------
-Debugging using POSE:
+Debugging using POSE or PalmSim:
 
-First of all, make sure you have the multi-segment patches installed. You won't
-get anywhere trying to debug Free42 with the standard gdb included with PRC-
-tools. Free42 has lots of segments!
+First of all, make sure you have gdb with the multi-segment patches installed.
+You won't get anywhere trying to debug Free42 with the standard gdb included
+with PRC-tools. Free42 has lots of segments!
 
-Load the app on POSE
-Start POSE, but don't start the app yet
+On PalmSim, load gdbpanel.prc. Without this, gdb can't talk to the simulator.
+Launch gdbpanel, and check the "Enable stub" checkbox.
+If you're using POSE, you do not need gdbpanel.
+
+Load free42.prc on the simulator.
+Start the simulator, but don't start Free42 yet
 
 Make sure you have a symlink 'gdb' pointing to /usr/bin/m68k-palmos-gdb
 in $PATH, overriding the usual 'gdb'
@@ -67,8 +71,9 @@ Ignore the message about crt0.c not being found -- doesn't seem to be a
 problem.
 Type 'target pilot localhost:2000'.
 
-Start the debuggee app on POSE. The debugger will now say 'program received
-signal SIGSTOP'.
+Start Free42 on the simulator. The debugger will now say 'program received
+signal SIGSTOP' and stop at an automatic breakpoint at the beginning of
+PilotMain.
 Happy debugging!
 
 
@@ -98,16 +103,18 @@ higher).
 -------------------------------------------------------------------------------
 HP-42S bugs that I found:
 
-If you activate the CUSTOM menu in KEYASN mode, go to its third row, and
-then switch to LCLBL mode, you get a menu row with labels "L", "M", "N", "O",
-"@", "XEQ"; these keys activate the commands XEQ ST Z, XEQ ST Y, XEQ ST X,
-XEQ ST L, XEQ 117, XEQ 118 (all of which yield "Label Not Found").
+If you activate the CUSTOM menu in KEYASN mode, go to its third row, and then
+switch to LCLBL mode, you get a menu row with labels "L", "M", "N", "O", "@",
+"XEQ"; these keys activate the commands XEQ ST Z, XEQ ST Y, XEQ ST X, XEQ ST L,
+XEQ 117, XEQ 118.
+These commands do actually work, but entering the corresponding labels into a
+program is a bit tricky...
 
-TO_POL and TO_REC with a real number in X reject a string in Y (good),
-accept a real number in Y (good), accept a complex number in Y but only use
-its real part (undocumented and not very useful), and accept real and
-complex matrices in Y with weird results. I'd say the complex and matrix
-cases are all bugs, resulting from a missing parameter type check.
+->POL and ->REC with a real number in X reject a string in Y (good), accept a
+real number in Y (good), accept a complex number in Y but only use its real
+part (undocumented and not very useful), and accept real and complex matrices
+in Y with weird results. I'd say the complex and matrix cases are all bugs,
+resulting from a missing parameter type check.
 
 HP-42S bugs that others have found:
 
@@ -132,7 +139,9 @@ say Insufficient Memory when that clearly wasn't true; I have heard a report
 from someone else about the machine even locking up to the point where it needs
 a hard reset.
 
-In LINSigma mode, Sigma+ and Sigma- do not update LASTx (TODO - confirm).
+In some versions, LINSigma mode, Sigma+ and Sigma- do not update LASTx.
+I read about this in a manual addendum from HP; however, I cannot reproduce
+this, neither on my real HP-42S nor on Emu42 (both rev. C ROM).
 
 I have also heard a report that FCSTX is buggy in PWRF mode; I have not been
 able to confirm this yet but there appears to be more I have to read about it.
