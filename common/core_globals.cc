@@ -2501,6 +2501,7 @@ static bool convert_programs() {
 
     int saved_prgm = current_prgm;
     int4 saved_pc = pc;
+    int i;
 
     // Since converting programs can cause instructions to move, I have to
     // update all stored PC values to correct for this. PCs are stored in the
@@ -2511,7 +2512,7 @@ static bool convert_programs() {
     int4 mod_pc[MAX_RTNS + 1];
     int mod_sp[MAX_RTNS + 1];
     int mod_count = 0;
-    for (int i = 0; i < rtn_sp; i++) {
+    for (i = 0; i < rtn_sp; i++) {
 	int prgm = rtn_prgm[i];
 	if (prgm == -2 || prgm == -3)
 	    // Return-to-solve and return-to-integ
@@ -2525,7 +2526,7 @@ static bool convert_programs() {
     mod_pc[mod_count] = pc;
     mod_sp[mod_count] = -1;
 
-    for (int i = 0; i < mod_count; i++)
+    for (i = 0; i < mod_count; i++)
 	for (int j = i + 1; j <= mod_count; j++)
 	    if (mod_prgm[i] < mod_prgm[j]
 		    || mod_prgm[i] == mod_prgm[j] && mod_pc[i] > mod_pc[j]) {
@@ -2540,7 +2541,7 @@ static bool convert_programs() {
 		mod_sp[j] = tmp;
 	    }
 
-    for (int i = 0; i < prgms_count; i++) {
+    for (i = 0; i < prgms_count; i++) {
 	current_prgm = i;
 	pc = 0;
 	int4 oldpc = 0;
@@ -2597,9 +2598,9 @@ static bool convert_programs() {
 		case ARGTYPE_DOUBLE:
 		    #ifdef BCD_MATH
 			double d;
-			int i;
+			int j;
 			unsigned char *b = (unsigned char *) &d;
-			for (i = 0; i < (int) sizeof(double); i++)
+			for (j = 0; j < (int) sizeof(double); j++)
 			    *b++ = prgm->text[pc++];
 			pc -= sizeof(double);
 
@@ -2629,13 +2630,13 @@ static bool convert_programs() {
 			phloat p;
 			p.bcd = double2bcd(d, true);
 			b = (unsigned char *) &p;
-			for (i = 0; i < (int) sizeof(phloat); i++)
+			for (j = 0; j < (int) sizeof(phloat); j++)
 			    prgm->text[pc++] = *b++;
 		    #else
 			fake_bcd bcd;
-			int i;
+			int j;
 			unsigned char *b = (unsigned char *) &bcd;
-			for (i = 0; i < (int) sizeof(fake_bcd); i++)
+			for (j = 0; j < (int) sizeof(fake_bcd); j++)
 			    *b++ = prgm->text[pc++];
 			double dbl = bcd2double(bcd.d_);
 			int inf = isinf(dbl);
@@ -2659,7 +2660,7 @@ static bool convert_programs() {
 			oldpc += shrinkage;
 
 			b = (unsigned char *) &dbl;
-			for (i = 0; i < (int) sizeof(double); i++)
+			for (j = 0; j < (int) sizeof(double); j++)
 			    prgm->text[pc++] = *b++;
 		    #endif
 		    break;
