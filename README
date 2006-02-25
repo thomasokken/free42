@@ -66,7 +66,7 @@ On PalmSim, load gdbpanel.prc. Without this, gdb can't talk to the simulator.
 Launch gdbpanel, and check the "Enable stub" checkbox.
 If you're using POSE, you do not need gdbpanel.
 
-Load free42.prc on the simulator.
+Load free42bin.prc or free42dec.prc on the simulator.
 Start the simulator, but don't start Free42 yet
 
 Make sure you have a symlink 'gdb' pointing to /usr/bin/m68k-palmos-gdb
