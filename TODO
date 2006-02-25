@@ -14,6 +14,10 @@ Once the decimal code works on PalmOS, look for all occurrences of int16, and
 change them to int or int4, as appropriate. Then, and only then, generate a
 patch for Hugh.
 
+The PalmOS README file needs to be updated with information about free42dec.prc
+vs. free42bin.prc (point out that only one of them can be installed at at a
+time!)
+
 Get a PayPal account to accept donations. :-)
 
 Pocket PC version.

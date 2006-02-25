@@ -67,11 +67,12 @@ Manifest:
 The Free42-for-PalmOS package, Free42PalmOS.zip, should contain these files:
 
 1) README.txt                   The document you're reading now
-2) free42.prc                   The PalmOS version of Free42
-3) Free42ConduitInstaller.exe   Installer for the Free42 conduit
-4) Free42Conduit.dll            The Free42 conduit
-5) condmgr.dll                  Dynamic Link Library needed by the installer
-6) HSAPI.dll                    Dynamic Link Library needed by the installer
+2) free42dec.prc                The PalmOS version of Free42 Decimal
+3) free42bin.prc                The PalmOS version of Free42 Binary
+4) Free42ConduitInstaller.exe   Installer for the Free42 conduit
+5) Free42Conduit.dll            The Free42 conduit
+6) condmgr.dll                  Dynamic Link Library needed by the installer
+7) HSAPI.dll                    Dynamic Link Library needed by the installer
 
 
 Installing the Free42 application:
