@@ -2523,18 +2523,24 @@ static bool convert_programs() {
 	mod_sp[mod_count] = i;
 	mod_count++;
     }
-    mod_prgm[mod_count] = current_prgm;
-    mod_pc[mod_count] = pc;
-    mod_sp[mod_count] = -1;
-    mod_count++;
-    mod_prgm[mod_count] = current_prgm;
-    mod_pc[mod_count] = incomplete_saved_pc;
-    mod_sp[mod_count] = -2;
+    if (saved_pc > 0) {
+	mod_prgm[mod_count] = current_prgm;
+	mod_pc[mod_count] = saved_pc;
+	mod_sp[mod_count] = -1;
+	mod_count++;
+    }
+    if (incomplete_saved_pc > 0) {
+	mod_prgm[mod_count] = current_prgm;
+	mod_pc[mod_count] = incomplete_saved_pc;
+	mod_sp[mod_count] = -2;
+	mod_count++;
+    }
+    mod_count--;
 
     for (i = 0; i < mod_count; i++)
 	for (int j = i + 1; j <= mod_count; j++)
 	    if (mod_prgm[i] < mod_prgm[j]
-		    || mod_prgm[i] == mod_prgm[j] && mod_pc[i] > mod_pc[j]) {
+		    || mod_prgm[i] == mod_prgm[j] && mod_pc[i] < mod_pc[j]) {
 		int tmp = mod_prgm[i];
 		mod_prgm[i] = mod_prgm[j];
 		mod_prgm[j] = tmp;
