@@ -128,8 +128,8 @@ Reverse.prc: skin2prc
 		../palmskins/Reverse.gif 1000 2000 1 72 Reverse off 1
 
 StandardHD.prc: skin2prc
-	./make-skin ../palmskins/Standard.layout \
-		../palmskins/Standard.gif 1000 2000 1,4,8 144 StandardHD off 2
+	./make-skin ../palmskins/StandardHD.layout \
+		../palmskins/StandardHD.gif 1000 2000 1,4,8 144 StandardHD off 2
 
 SemiReal42.prc: skin2prc
 	./make-skin ../palmskins/SemiReal42.layout \
