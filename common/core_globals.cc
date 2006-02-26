@@ -1125,11 +1125,6 @@ static bool unpersist_globals() {
 	pc = -1;
 	return false;
     }
-    if (bin_dec_mode_switch)
-	if (!convert_programs()) {
-	    clear_all_prgms();
-	    return false;
-	}
     if (!read_int(&prgm_highlight_row)) {
 	prgm_highlight_row = 0;
 	return false;
@@ -1165,6 +1160,11 @@ static bool unpersist_globals() {
     if (shell_read_saved_state(rtn_pc, MAX_RTNS * sizeof(int4))
 	    != MAX_RTNS * sizeof(int4))
 	return false;
+    if (bin_dec_mode_switch)
+	if (!convert_programs()) {
+	    clear_all_prgms();
+	    return false;
+	}
     rebuild_label_table();
     return true;
 }
@@ -2684,7 +2684,6 @@ static bool convert_programs() {
 
     current_prgm = saved_prgm;
     pc = saved_pc;
-    rebuild_label_table();
 
     return true;
 }
