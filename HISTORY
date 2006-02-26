@@ -15,6 +15,11 @@
   the executable's directory. This change only affects new installations; the
   Free42 directory location is still stored in the Registry, and any already
   existing setting will be honored.
+* On hard reset, the printer is enabled now (flags 21 and 55 are set instead of
+  cleared). This is not what the real HP-42S does, but, then again, the real
+  HP-42S does not have built-in printer.
+  (Note: flags 21 and 55, and the PRON and PROFF commands, still work as
+  before; the only change is their initial setting.)
 
 10-02-2006: version 1.3.17
 
