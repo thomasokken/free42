@@ -638,18 +638,24 @@ int docmd_swap_r(arg_struct *arg) {
 	return ERR_INVALID_TYPE;
 
     xx = ((vartype_real *) reg_x)->x;
-    if (xx < 0)
-	xx = -xx;
-    if (xx < 1 || xx >= 2147483648.0)
+    if (xx <= -2147483648.0 || xx >= 2147483648.0)
 	return ERR_DIMENSION_ERROR;
-    x = to_int4(xx) - 1;
+    x = to_int4(xx);
+    if (x == 0)
+	return ERR_DIMENSION_ERROR;
+    if (x < 0)
+	x = -x;
+    x--;
 
     yy = ((vartype_real *) reg_y)->x;
-    if (yy < 0)
-	yy = -yy;
-    if (yy < 1 || yy >= 2147483648.0)
+    if (yy <= -2147483648.0 || yy >= 2147483648.0)
 	return ERR_DIMENSION_ERROR;
-    y = to_int4(yy) - 1;
+    y = to_int4(yy);
+    if (y == 0)
+	return ERR_DIMENSION_ERROR;
+    if (y < 0)
+	y = -y;
+    y--;
 
     if (m->type == TYPE_REALMATRIX) {
 	vartype_realmatrix *rm = (vartype_realmatrix *) m;
@@ -833,13 +839,18 @@ int docmd_stoij(arg_struct *arg) {
 	return ERR_INVALID_TYPE;
 
     x = ((vartype_real *) reg_x)->x;
-    if (x < 0)
-	x = -x;
+    if (x <= -2147483648.0 || x >= 2147483648.0)
+	return ERR_DIMENSION_ERROR;
     j = to_int4(x);
+    if (j < 0)
+	j = -j;
+
     y = ((vartype_real *) reg_y)->x;
-    if (y < 0)
-	y = -y;
+    if (y <= -2147483648.0 || y >= 2147483648.0)
+	return ERR_DIMENSION_ERROR;
     i = to_int4(y);
+    if (i < 0)
+	i = -i;
 
     if (m->type == TYPE_REALMATRIX) {
 	vartype_realmatrix *rm = (vartype_realmatrix *) m;

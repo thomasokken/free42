@@ -818,7 +818,7 @@ int docmd_y_pow_x(arg_struct *arg) {
 		/* Complex number to integer power */
 		phloat rre, rim, yre, yim;
 		int4 ex;
-		if (x < -2147483647 || x > 2147483647)
+		if (x < -2147483647.0 || x > 2147483647.0)
 		    /* For really huge exponents, the repeated-squaring
 		     * algorithm for integer exponents loses its accuracy
 		     * and speed advantage, and we switch to the general

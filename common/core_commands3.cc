@@ -1079,18 +1079,22 @@ int docmd_getm(arg_struct *arg) {
 	return ERR_INVALID_TYPE;
 
     xx = ((vartype_real *) reg_x)->x;
-    if (xx < 0)
-	xx = -xx;
-    if (xx >= 2147483648.0)
+    if (xx <= -2147483648.0 || xx >= 2147483648.0)
 	return ERR_DIMENSION_ERROR;
     x = to_int4(xx);
+    if (x == 0)
+	return ERR_DIMENSION_ERROR;
+    if (x < 0)
+	x = -x;
 
     yy = ((vartype_real *) reg_y)->x;
-    if (yy < 0)
-	yy = -yy;
-    if (yy >= 2147483648.0)
+    if (yy <= -2147483648.0 || yy >= 2147483648.0)
 	return ERR_DIMENSION_ERROR;
     y = to_int4(yy);
+    if (y == 0)
+	return ERR_DIMENSION_ERROR;
+    if (y < 0)
+	y = -y;
 
     if (m->type == TYPE_REALMATRIX) {
 	vartype_realmatrix *src, *dst;

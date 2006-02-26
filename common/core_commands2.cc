@@ -1643,17 +1643,24 @@ int docmd_newmat(arg_struct *arg) {
 	return ERR_INVALID_TYPE;
 
     phloat x = ((vartype_real *) reg_x)->x;
-    if (x < 0)
-	x = -x;
-    if (x < 1 || x >= 2147483648.0)
+    if (x <= -2147483648.0 || x >= 2147483648.0)
 	return ERR_DIMENSION_ERROR;
-    phloat y = ((vartype_real *) reg_y)->x;
-    if (y < 0)
-	y = -y;
-    if (y < 1 || y >= 2147483648.0)
+    int4 xx = to_int4(x);
+    if (xx == 0)
 	return ERR_DIMENSION_ERROR;
+    if (xx < 0)
+	xx = -xx;
 
-    m = new_realmatrix(to_int4(y), to_int4(x));
+    phloat y = ((vartype_real *) reg_y)->x;
+    if (y <= -2147483648.0 || y >= 2147483648.0)
+	return ERR_DIMENSION_ERROR;
+    int4 yy = to_int4(y);
+    if (yy == 0)
+	return ERR_DIMENSION_ERROR;
+    if (yy < 0)
+	yy = -yy;
+
+    m = new_realmatrix(yy, xx);
     if (m == NULL)
 	return ERR_INSUFFICIENT_MEMORY;
     else {

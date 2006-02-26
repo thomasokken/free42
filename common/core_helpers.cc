@@ -53,8 +53,11 @@ int resolve_ind_arg(arg_struct *arg) {
 		    phloat x = rm->array->data[num];
 		    if (x < 0)
 			x = -x;
+		    if (x >= 2147483648.0)
+			arg->val.num = 2147483647;
+		    else
+			arg->val.num = to_int4(x);
 		    arg->type = ARGTYPE_NUM;
-		    arg->val.num = to_int4(x);
 		}
 		return ERR_NONE;
 	    }
@@ -78,8 +81,11 @@ int resolve_ind_arg(arg_struct *arg) {
 		phloat x = ((vartype_real *) v)->x;
 		if (x < 0)
 		    x = -x;
+		if (x >= 2147483648.0)
+		    arg->val.num = 2147483647;
+		else
+		    arg->val.num = to_int4(x);
 		arg->type = ARGTYPE_NUM;
-		arg->val.num = to_int4(x);
 		return ERR_NONE;
 	    } else if (v->type == TYPE_STRING) {
 		vartype_string *s = (vartype_string *) v;
