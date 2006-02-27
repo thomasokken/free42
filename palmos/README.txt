@@ -137,16 +137,16 @@ What's the deal with the "Decimal" and "Binary"?
 Starting with version 1.4, Free42 comes in decimal and binary versions. The two
 look and behave identically; the only difference is the way they represent
 numbers internally.
-Free42 Decimal uses Hugh Steers' 7-digit base-10000 BCDFloat class, which
-effectively gives 25 decimal digits of precision, with exponents ranging from
--10000 to +9999. Transcendental functions are evaluated to about 20 digits;
-each number consumes 16 bytes of memory.
-Free42 Binary uses the PC's FPU; it represents numbers as IEEE-754 compatible
-double precision binary floating point, which consumes 8 bytes per number, and
-gives an effective precision of nearly 16 decimal digits, with exponents
-ranging from -308 to +307 (actually, exponents can be less than -308; such
-small numbers are "denormalized" and don't have the full precision of
-"normalized" numbers).
+Free42 Decimal (free42dec.prc) uses Hugh Steers' 7-digit base-10000 BCDFloat
+class, which effectively gives 25 decimal digits of precision, with exponents
+ranging from -10000 to +9999. Transcendental functions are evaluated to about
+20 digits; each number consumes 16 bytes of memory.
+Free42 Binary (free42bin.prc) uses the PC's FPU; it represents numbers as
+IEEE-754 compatible double precision binary floating point, which consumes 8
+bytes per number, and gives an effective precision of nearly 16 decimal digits,
+with exponents ranging from -308 to +307 (actually, exponents can be less than
+-308; such small numbers are "denormalized" and don't have the full precision
+of "normalized" numbers).
 The binary version has the advantage of being much faster than the decimal
 version; also, it uses less memory. However, numbers such as 0.1 (one-tenth)
 cannot be represented exactly in binary, since they are repeating fractions
@@ -156,7 +156,7 @@ rely on legacy software that may depend on the exactness of decimal fractions,
 you may use Free42 Binary and enjoy its speed advantage. If, on the other hand,
 you need full HP-42S compatibility, you should use Free42 Decimal.
 If you don't fully understand the above, it is best to play safe and use
-Free42 Decimal.
+Free42 Decimal (free42dec.prc).
 
 
 Free42 is (C) 2004-2006, by Thomas Okken

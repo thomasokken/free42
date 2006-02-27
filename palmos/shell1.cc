@@ -442,6 +442,12 @@ UInt32 shell_main(UInt16 cmd, void *pbp, UInt16 flags) {
 
 	    #ifndef BCD_MATH
 	    open_math_lib();
+	    #else
+	    {
+	    UInt16 card = 0;
+	    LocalID dbid = DmFindDatabase(card, "Free42BcdConv");
+	    DmDeleteDatabase(card, dbid);
+	    }
 	    #endif
 
 	    /* I allocate the printout buffer using a database, so it does

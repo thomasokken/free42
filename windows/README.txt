@@ -49,11 +49,11 @@ What's the deal with the "Decimal" and "Binary"?
 Starting with version 1.4, Free42 comes in decimal and binary versions. The two
 look and behave identically; the only difference is the way they represent
 numbers internally.
-Free42Decimal uses Hugh Steers' 7-digit base-10000 BCDFloat class, which
+Free42 Decimal uses Hugh Steers' 7-digit base-10000 BCDFloat class, which
 effectively gives 25 decimal digits of precision, with exponents ranging from
 -10000 to +9999. Transcendental functions are evaluated to about 20 digits;
 each number consumes 16 bytes of memory.
-Free42Binary uses the PC's FPU; it represents numbers as IEEE-754 compatible
+Free42 Binary uses the PC's FPU; it represents numbers as IEEE-754 compatible
 double precision binary floating point, which consumes 8 bytes per number, and
 gives an effective precision of nearly 16 decimal digits, with exponents
 ranging from -308 to +307 (actually, exponents can be less than -308; such
@@ -65,10 +65,10 @@ cannot be represented exactly in binary, since they are repeating fractions
 then. This inexactness can cause some HP-42S programs to fail.
 If you understand the issues surrounding binary floating point, and you do not
 rely on legacy software that may depend on the exactness of decimal fractions,
-you may use Free42Binary and enjoy its speed advantage. If, on the other hand,
-you need full HP-42S compatibility, you should use Free42Decimal.
+you may use Free42 Binary and enjoy its speed advantage. If, on the other hand,
+you need full HP-42S compatibility, you should use Free42 Decimal.
 If you don't fully understand the above, it is best to play safe and use
-Free42Decimal.
+Free42 Decimal.
 
 
 Free42 is (C) 2004-2006, by Thomas Okken
