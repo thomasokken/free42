@@ -131,10 +131,6 @@ struct BCD
 
     friend int4         ifloor(const BCD& a)
                         { return BCDFloat::ifloor(&a.ref_->v_); }
-    friend BCD          floor(const BCD&) BCD_SECT;
-    friend BCD          trunc(const BCD&) BCD_SECT;
-    friend BCD          fabs(const BCD&) BCD_SECT;
-    friend BCD          frac(const BCD&) BCD_SECT;
 #ifndef PALMOS
     const char*         asString() const;
 #endif
@@ -171,5 +167,9 @@ struct BCD
 };
 
 BCD sqrt(const BCD&) BCD_SECT;
+BCD trunc(const BCD&) BCD_SECT;
+BCD floor(const BCD&) BCD_SECT;
+BCD fabs(const BCD&) BCD_SECT;
+BCD frac(const BCD&) BCD_SECT;
 
 #endif 
