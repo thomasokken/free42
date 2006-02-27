@@ -77,9 +77,13 @@ The Free42-for-PalmOS package, Free42PalmOS.zip, should contain these files:
 
 Installing the Free42 application:
 
-* Double-click 'free42.prc' to schedule it for installation to the hand-held.
-  This will copy it to Quick Install; from there, it will be installed to the
-  hand-held the next time you perform a HotSync operation.
+* Double-click 'free42dec.prc' or 'free42bin.prc' to schedule it for
+  installation to the hand-held. This will copy it to Quick Install; from
+  there, it will be installed to the hand-held the next time you perform a
+  HotSync operation.
+  Note that you cannot install the Decimal and Binary versions together. If you
+  have one version installed, and you then install the other, the new version
+  will replace the existing one.
 
 Installing the Free42 conduit:
 
@@ -128,7 +132,35 @@ independently written HP-42S/Free42 manual, by Jose Lauro Strapasson, which
 you can download free at http://joselauro.com/42s.pdf.
 
 
+What's the deal with the "Decimal" and "Binary"?
+
+Starting with version 1.4, Free42 comes in decimal and binary versions. The two
+look and behave identically; the only difference is the way they represent
+numbers internally.
+Free42 Decimal uses Hugh Steers' 7-digit base-10000 BCDFloat class, which
+effectively gives 25 decimal digits of precision, with exponents ranging from
+-10000 to +9999. Transcendental functions are evaluated to about 20 digits;
+each number consumes 16 bytes of memory.
+Free42 Binary uses the PC's FPU; it represents numbers as IEEE-754 compatible
+double precision binary floating point, which consumes 8 bytes per number, and
+gives an effective precision of nearly 16 decimal digits, with exponents
+ranging from -308 to +307 (actually, exponents can be less than -308; such
+small numbers are "denormalized" and don't have the full precision of
+"normalized" numbers).
+The binary version has the advantage of being much faster than the decimal
+version; also, it uses less memory. However, numbers such as 0.1 (one-tenth)
+cannot be represented exactly in binary, since they are repeating fractions
+then. This inexactness can cause some HP-42S programs to fail.
+If you understand the issues surrounding binary floating point, and you do not
+rely on legacy software that may depend on the exactness of decimal fractions,
+you may use Free42 Binary and enjoy its speed advantage. If, on the other hand,
+you need full HP-42S compatibility, you should use Free42 Decimal.
+If you don't fully understand the above, it is best to play safe and use
+Free42 Decimal.
+
+
 Free42 is (C) 2004-2006, by Thomas Okken
+BCD support (C) 2005, by Hugh Steers / voidware
 Contact the author at thomas_okken@yahoo.com
 Look for updates, and versions for other operating systems, at
 http://home.planet.nl/~demun000/thomas_projects/free42/

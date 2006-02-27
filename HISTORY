@@ -1,4 +1,4 @@
-??-??-????: version 1.4
+27-02-2006: version 1.4
 
 * Added decimal floating point, implemented using BCDFloat code by Hugh Steers.
   The decimal code is a compile-time option; I can (and will!) still build

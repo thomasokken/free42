@@ -614,7 +614,7 @@ Phloat PI(BCDFloat(3, 1415, 9265, 3589, 7932, 3846, 2643, 1));
 BCDFloat double2bcd(double d, bool round /* = false */) {
     BCDFloat res(d);
     if (round && !res.isSpecial()) {
-	// This is used when converting programs from a Free42Binary state
+	// This is used when converting programs from a Free42 Binary state
 	// file. Number literals in programs are rounded to 12 digits, so
 	// what you see really is what you get; without this hack, you'd
 	// get stuff like 0.9 turning into 0.8999999+ but still *looking*
