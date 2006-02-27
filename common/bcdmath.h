@@ -39,7 +39,6 @@ BCD asin(const BCD&) BCD_SECT;
 BCD acos(const BCD&) BCD_SECT;
 BCD modtwopi(const BCD&) BCD_SECT;
 BCD log10(const BCD&) BCD_SECT;
-BCD sqrt(const BCD&) BCD_SECT;
 BCD hypot(const BCD& a, const BCD& b) BCD_SECT;
 BCD fmod(const BCD& a, const BCD& b) BCD_SECT;
 BCD ln1p(const BCD&) BCD_SECT;

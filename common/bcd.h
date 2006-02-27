@@ -170,4 +170,6 @@ struct BCD
     static char         buf_[64];
 };
 
+BCD sqrt(const BCD&) BCD_SECT;
+
 #endif 
