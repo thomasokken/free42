@@ -1149,7 +1149,7 @@ bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
                     bool fail = us > as;
                     if (!fail && us == as) {
                         for (i = 0; i < as; ++i) {
-                            int16 d = u.d_[i] - acc.d_[i];
+                            short d = u.d_[i] - acc.d_[i];
                             if (d > 0) {
                                 fail = true;
                                 break;
