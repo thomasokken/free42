@@ -53,9 +53,6 @@
 #endif
 
 
-#define int16 int4
-
-
 #define NEG 0x8000
 #define P 7
 #define BASE 10000L
@@ -134,8 +131,8 @@ struct BCDFloat
 #ifndef PALMOS
     void                asString(char* buf) const;
 #endif
-    int16                 exp() const { return ((short)(d_[P] << 1)) >> 1; }
-    void                exp(int16 v) { d_[P] = (v & (NEG-1)); }
+    int                 exp() const { return ((short)(d_[P] << 1)) >> 1; }
+    void                exp(int v) { d_[P] = (v & (NEG-1)); }
     bool                neg() const { return d_[0] != 0 && (d_[P]& NEG) != 0; }
     void                negate() { d_[P] = d_[P] ^ NEG; }
     bool                isZero() const { return d_[0] == 0 && (d_[P]&0x7000) != 0x3000; }
@@ -178,9 +175,9 @@ struct BCDFloat
     static const BCDFloat& negInf() { return *(BCDFloat*)negInfD_; }
     static const BCDFloat& nan() { return *(BCDFloat*)nanD_; }
 
-    static void         mul2(unsigned short* ad, int16 ea,
-                             unsigned short* bd, int16 eb,
-                             unsigned short* cd, int16& ec) BCD_SECT;
+    static void         mul2(unsigned short* ad, int ea,
+                             unsigned short* bd, int eb,
+                             unsigned short* cd, int& ec) BCD_SECT;
     
     /* store P 4dec `digits', equivalent to P*4 decimal digits.
      * the last place is the exponent.
@@ -197,13 +194,13 @@ struct BCDFloat
 
 inline void BCDFloat::_rshift()
 {
-    int16 i;
+    int i;
     for (i = P; i > 0; --i) d_[i] = d_[i-1];
 }
 
 inline void BCDFloat::_lshift()
 {
-    int16 i;
+    int i;
     for (i = 0; i < P; ++i) d_[i] = d_[i+1]; 
 }
 

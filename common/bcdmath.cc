@@ -103,7 +103,8 @@ BCD pi()
     return *(const BCDFloat*)(constTable + BCD_CONST_PI);
 }
 
-static void sincosTaylor(const BCD& a, BCD& sa, BCD& ca, int16 n)
+static void sincosTaylor(const BCD& a, BCD& sa, BCD& ca, int n) BCD_SECT;
+static void sincosTaylor(const BCD& a, BCD& sa, BCD& ca, int n)
 {
     /* calculate sin(a) and cos(a) by taylor series of n terms.
      */
@@ -113,8 +114,8 @@ static void sincosTaylor(const BCD& a, BCD& sa, BCD& ca, int16 n)
     sa = 1;
     BCD t = 1;
 
-    int16 i = 1;
-    int16 j = 1;
+    int i = 1;
+    int j = 1;
     while (i < n) {
         ++j;
         t *= a2/j;
@@ -138,8 +139,8 @@ void sincos(const BCD& v, BCD* sinv, BCD* cosv)
      */
     BCD res;
     BCD a;
-    int16 k;
-    int16 neg = (v < 0);
+    int k;
+    int neg = (v < 0);
 
     /* arrange a >= 0 */
     if (neg) a = -v;
@@ -180,7 +181,7 @@ void sincos(const BCD& v, BCD* sinv, BCD* cosv)
     BCD sina, cosa;
 
     k &= 64-1;  // wrap around at 2pi
-    int16 q = k/16; // q is the quadrant.
+    int q = k/16; // q is the quadrant.
 
     k &= 15; // index into table.
 
@@ -250,11 +251,12 @@ BCD tan(const BCD& v)
     return s/c;
 }
 
-static BCD expTaylor(const BCD& a, int16 n)
+static BCD expTaylor(const BCD& a, int n) BCD_SECT;
+static BCD expTaylor(const BCD& a, int n)
 {
     BCD t = a;
     BCD s = t + 1;
-    int16 i = 1;
+    int i = 1;
     while (i < n) {
         t = t*a/(++i);
         s += t;
@@ -318,7 +320,7 @@ BCD exp(const BCD& v)
         return 0;
     }
 
-    int16 k = 64;
+    int k = 64;
     BCD r = (v - n*ln2)/k;
     
     /* error bounded by x^9/9! where x = ln(2)/k */
@@ -339,11 +341,11 @@ BCD log(const BCD& v)
     if (v.isZero()) return BCDFloat::negInf();
 
     BCD a = v;
-    int16 p10 = a.exponent()*4;
+    int p10 = a.exponent()*4;
     a.setExponent(0);
 
-    int16 n;
-    int16 d = a.digit(0);
+    int n;
+    int d = a.digit(0);
     if (d >= 1000) { n = 10; p10 -= 1; }
     else if (d >= 100) { n = 100; p10 -= 2; }
     else if (d >= 10) { n = 1000; p10 -= 3; }
@@ -353,7 +355,7 @@ BCD log(const BCD& v)
     a *= n;
 
     BCD oneotwo(*(const BCDFloat*)(constTable + BCD_CONST_ONEOTWO)); // 1.02
-    int16 p2 = 2;
+    int p2 = 2;
 
     while (a >= oneotwo) { 
         p2 <<= 1;
@@ -368,7 +370,7 @@ BCD log(const BCD& v)
     BCD s = t;
     a = t*t;
 
-    int16 i;
+    int i;
     for (i = 3; i < 12; i += 2) { // only 5 terms needed
         t *= a;
         s += t/i;
@@ -410,7 +412,7 @@ BCD atan(const BCD& v)
      *  tan(x/2) = tan(x)/(1+sqrt(1+tan(x)^2))
      */
     BCD atanlim(*(const BCDFloat*)(constTable + BCD_CONST_ATANLIM));
-    int16 doubles = 0;
+    int doubles = 0;
     while (a > atanlim) {
         ++doubles;
         a = a/(1+sqrt(1+a*a));  // at most 3 iterations.
@@ -423,8 +425,8 @@ BCD atan(const BCD& v)
     BCD a2 = a*a;
     BCD t = a2;
     BCD s = 1 - t/3;
-    int16 i;
-    int16 j = 5;
+    int i;
+    int j = 5;
     /* perform 9 more terms, error will be the first term not used.
      * ie x^21/21.
      */
@@ -565,7 +567,7 @@ BCD modtwopi(const BCD& a)
     if (a < pi2) return a;
 
     unsigned short xd[2*P+1];
-    int16 i;
+    int i;
 
     /* copy digits of manstissa as double precision */
     for (i = 0; i < P; ++i) {
@@ -575,11 +577,11 @@ BCD modtwopi(const BCD& a)
         xd[i] = 0;
         ++i;
     }
-    int16 ex = a.exponent();
+    int ex = a.exponent();
 
     unsigned short bd[2*P+1];
-    int16 eb;
-    int16 excess = 0;
+    int eb;
+    int excess = 0;
 
     /* see if the exponent is large enough to consider it separately */
     if (ex > P) {
@@ -593,10 +595,10 @@ BCD modtwopi(const BCD& a)
         ex = P;
 
         unsigned short fd[2*P+1];
-        int16 ef;
+        int ef;
 
         /* do we have enough table? */
-        if (excess + 2*P+1 > (int16)(sizeof(inv2pi)/sizeof(inv2pi[0]))) {
+        if (excess + 2*P+1 > (int)(sizeof(inv2pi)/sizeof(inv2pi[0]))) {
             /* oh dear, digits required off end of table. give up.
              */
             return BCDFloat::nan();
@@ -713,7 +715,7 @@ BCD ln1p(const BCD& a)
 static void dumpbcd(const BCD& a) BCD_SECT;
 static void dumpbcd(const BCD& a)
 {
-    int16 i;
+    int i;
     const BCDFloat& f = a.ref_->v_;
     printf("{ ");
     for (i = 0; i < P; ++i) {
@@ -738,7 +740,7 @@ static BCD _gammaFactorial1(const BCD& z)
     BCD t1;
     BCD t2;
     BCD s, t;
-    int16 i;
+    int i;
 
     const BCDFloat* lancz = (const BCDFloat*)(constTable + BCD_CONST_LANCZOS);
     s = lancz[0];
@@ -798,7 +800,7 @@ BCD gammaFactorial(const BCD& c)
     if (c.isInteger()) {
         if (c.isZero()) return 1;
         if (c.isNeg()) return BCDFloat::nan();
-        int16 v = ifloor(c);
+        int v = (int) ifloor(c);
         
         if (!v) {
             /* too large for integer. answer must be infinite */

@@ -6,9 +6,6 @@
 | those I *will* definitely fix as quickly as possible.                      |
 +----------------------------------------------------------------------------+
 
-In the BCD code, check all occurrences of int16, and replace them with int
-wherever 16 bits is sufficient, and replace them with int4 everywhere else.
-This should hopefully speed up the BCD code on the Palm somewhat.
 It may also be worth trying to use value parameters exclusively in the BCD
 code; the theory is that the extra cost of copying 16-byte parameters will be
 offset by eliminating large numbers of pointer dereferences.
