@@ -22,7 +22,7 @@
 
 #include "bcd.h"
 
-BCDRef* BCDRef::pool_;
+BCDRef* BCDRef::pool_ = NULL;
 
 BCDRef* BCDRef::_alloc()
 {
@@ -34,6 +34,26 @@ BCDRef* BCDRef::_alloc()
         ref = new BCDRef;
     }
     return ref;
+}
+
+/* A little hack to force the pooled BCDRef instances to be deleted.
+ * This avoids the memory leak warnings that POSE will otherwise display on app
+ * exit; I don't want to simply ignore those warnings, because one day they
+ * might just alert me to a *real* memory leak.
+ */
+struct PoolCleaner {
+    ~PoolCleaner() BCD_SECT;
+    int foo;
+};
+static PoolCleaner poolCleanerInstance;
+
+PoolCleaner::~PoolCleaner() {
+    BCDRef *r = BCDRef::pool_;
+    while (r != NULL) {
+	BCDRef *r2 = r;
+	r = r->next_;
+	delete r2;
+    }
 }
 
 char BCD::buf_[64];
