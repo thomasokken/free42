@@ -6,10 +6,6 @@
 | those I *will* definitely fix as quickly as possible.                      |
 +----------------------------------------------------------------------------+
 
-It may also be worth trying to use value parameters exclusively in the BCD
-code; the theory is that the extra cost of copying 16-byte parameters will be
-offset by eliminating large numbers of pointer dereferences.
-
 In the Decimal code, transcendentals should be evaluated at full precision, or
 else their results should be rounded to eliminate the chaotic behavior in the
 final digits. This noise is ruining SOLVE performance.
