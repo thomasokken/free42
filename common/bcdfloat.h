@@ -166,7 +166,7 @@ struct BCDFloat
                               BCDFloat* c) BCD_SECT;
     static void         _usub(const BCDFloat* a, const BCDFloat* b,
                               BCDFloat* c) BCD_SECT;
-    int16                 _round() BCD_SECT;
+    int                 _round() BCD_SECT;
     void                _rshift() BCD_SECT;
     void                _lshift() BCD_SECT;
     const BCDFloat&     _round20() const BCD_SECT;
@@ -192,7 +192,7 @@ struct BCDFloat
     static unsigned short posInfD_[P+1];
     static unsigned short negInfD_[P+1];
     static unsigned short nanD_[P+1];
-    static int16            decade_[4];
+    static int            decade_[4];
 };
 
 inline void BCDFloat::_rshift()
