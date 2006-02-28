@@ -1,3 +1,8 @@
+??-??-????: version 1.4.1
+
+* PalmOS version: when entering text using Graffiti, case switching is now
+  performed even on Graffiti 2.
+
 27-02-2006: version 1.4
 
 * Added decimal floating point, implemented using BCDFloat code by Hugh Steers.

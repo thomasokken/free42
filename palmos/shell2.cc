@@ -430,7 +430,7 @@ void misc_cleanup() {
 	MemPtrFree(skin_name);
 }
 
-int feature_set_3_5_present() {
+bool feature_set_3_5_present() {
     static int three_five_present = -1;
     if (three_five_present == -1) {
 	UInt32 neededRom = sysMakeROMVersion(3, 5, 0, sysROMStageRelease, 0);
@@ -438,10 +438,10 @@ int feature_set_3_5_present() {
 	Err err = FtrGet(sysFtrCreator, sysFtrNumROMVersion, &presentRom);
 	three_five_present = err == errNone && presentRom >= neededRom;
     }
-    return three_five_present;
+    return three_five_present != 0;
 }
 
-int feature_set_4_0_present() {
+bool feature_set_4_0_present() {
     static int four_oh_present = -1;
     if (four_oh_present == -1) {
 	UInt32 neededRom = sysMakeROMVersion(4, 0, 0, sysROMStageRelease, 0);
@@ -449,27 +449,17 @@ int feature_set_4_0_present() {
 	Err err = FtrGet(sysFtrCreator, sysFtrNumROMVersion, &presentRom);
 	four_oh_present = err == errNone && presentRom >= neededRom;
     }
-    return four_oh_present;
+    return four_oh_present != 0;
 }
 
-int feature_set_high_density_present() {
+bool feature_set_high_density_present() {
     static int hd_present = -1;
     if (hd_present == -1) {
 	UInt32 version;
 	Err err = FtrGet(sysFtrCreator, sysFtrNumWinVersion, &version);
 	hd_present = err == errNone && version >= 4;
     }
-    return hd_present;
-}
-
-int graffiti_2_present() {
-    static int g2_present = -1;
-    if (g2_present == -1) {
-	UInt32 g2DynamicID;
-	g2_present = FtrGet('grft', 1110, &g2DynamicID) == errNone || 
-		     FtrGet('grf2', 1110, &g2DynamicID) == errNone;
-    }
-    return g2_present;
+    return hd_present != 0;
 }
 
 void init_shell_state(int4 version) {
@@ -1550,21 +1540,10 @@ Boolean handle_event(EventType *e) {
 	    else if (c == 10 || c == 13)
 		key = 13; /* KEY_ENTER */
 	    else if (c >= 32 && c <= 126) {
-		if (!graffiti_2_present()) {
-		    /* Graffiti 2 allows you to enter both uppercase and
-		     * lowercase without using shift, simply by where in
-		     * the graffiti area you perform the gestures;
-		     * Graffiti 1, on the other hand, requires a 'shift'
-		     * gesture for each uppercase character. Since uppercase
-		     * is much more common than lowercase on the HP-42S,
-		     * we switch cases in this case (just like the Windows
-		     * and Unix versions of Free42 do).
-		     */
-		    if (c >= 'a' && c <= 'z')
-			c = c - 'a' + 'A';
-		    else if (c >= 'A' && c <= 'Z')
-			c = c - 'A' + 'a';
-		}
+		if (c >= 'a' && c <= 'z')
+		    c = c - 'a' + 'A';
+		else if (c >= 'A' && c <= 'Z')
+		    c = c - 'A' + 'a';
 		key = c + 1024;
 	    }
 	    if (key != 0) {
