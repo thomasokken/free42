@@ -22,7 +22,7 @@
 
 #include "bcd.h"
 
-BCDRef* BCDRef::pool_ = NULL;
+BCDRef* BCDRef::pool_ = 0;
 
 BCDRef* BCDRef::_alloc()
 {
@@ -49,7 +49,7 @@ static PoolCleaner poolCleanerInstance;
 
 PoolCleaner::~PoolCleaner() {
     BCDRef *r = BCDRef::pool_;
-    while (r != NULL) {
+    while (r != 0) {
 	BCDRef *r2 = r;
 	r = r->next_;
 	delete r2;
