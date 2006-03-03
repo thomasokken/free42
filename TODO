@@ -6,17 +6,7 @@
 | those I *will* definitely fix as quickly as possible.                      |
 +----------------------------------------------------------------------------+
 
-In the Decimal code, transcendentals should be evaluated at full precision, or
-else their results should be rounded to eliminate the chaotic behavior in the
-final digits. This noise is ruining SOLVE performance.
-UPDATE: I tried doing the above, by increasing the number of terms of the
-Taylor series evaluations involved for the trigs, but with no success. Applying
-_round20() to the results, on the other hand, did improve performance. I guess
-that means I should go with the latter, but why did the former not work? Odd...
-The patches I tried are at the end of this file. I should probably take a
-really close look at the solver's behavior to see why the number of iterations
-increases so dramatically with full precision, and why the extra Taylor series
-terms are not helping.
+In the Decimal code, transcendentals should be evaluated at full precision.
 
 Get a PayPal account to accept donations. :-)
 

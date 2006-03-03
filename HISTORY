@@ -1,5 +1,9 @@
-??-??-????: version 1.4.1
+03-03-2006: version 1.4.1
 
+* Decimal version: fixed a bug in BCDFloat addition and subtraction that could
+  cause the result to have the wrong sign under certain circumstances.
+  This seems to have fixed the poor SOLVE performance; apparently that was
+  *not* caused by transcendentals not being evaluated to the full 28 digits.
 * PalmOS version: when entering text using Graffiti, case switching is now
   performed even on Graffiti 2.
 
