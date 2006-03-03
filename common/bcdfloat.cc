@@ -595,6 +595,8 @@ void BCDFloat::_uadd(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
     if (d >= P) {
         /* `b' is insignificant */
         *c = *a;
+	if (c->neg())
+	    c->negate();
     }
     else {
         int i;
@@ -635,6 +637,8 @@ void BCDFloat::_usub(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
     if (d >= P) {
         /* `b' is insignificant */
         *c = *a;
+	if (c->neg())
+	    c->negate();
     }
     else {
         int i;
