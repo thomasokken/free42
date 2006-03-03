@@ -6,7 +6,9 @@
 | those I *will* definitely fix as quickly as possible.                      |
 +----------------------------------------------------------------------------+
 
-In the Decimal code, transcendentals should be evaluated at full precision.
+In the Decimal code, it would be nice if transcendentals were evaluated at full
+precision. This just requires evaluating a few more terms of the respective
+Taylor series, but I need to figure out exactly how many. Stay tuned...
 
 Get a PayPal account to accept donations. :-)
 
