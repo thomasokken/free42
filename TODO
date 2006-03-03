@@ -10,6 +10,11 @@ In the Decimal code, it would be nice if transcendentals were evaluated at full
 precision. This just requires evaluating a few more terms of the respective
 Taylor series, but I need to figure out exactly how many. Stay tuned...
 
+In the Decimal code, BASE is currently defined as 10000L. I should distinguish
+the cases where it actually needs to be 32 bits, and those where 16-bit math is
+sufficient. Probably insignificant, but on the Palm, I'll take every little
+speed-up I can get.
+
 Get a PayPal account to accept donations. :-)
 
 Pocket PC version.
