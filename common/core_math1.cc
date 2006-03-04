@@ -154,7 +154,7 @@ bool unpersist_math(bool discard) {
 
     if (shell_read_saved_state(&size, sizeof(int)) != sizeof(int))
 	return false;
-    if (size == sizeof(integ_state)) {
+    if (!discard && size == sizeof(integ_state)) {
 	if (shell_read_saved_state(&integ, size) != size)
 	    return false;
 	if (integ.version != INTEG_VERSION)

@@ -1,3 +1,7 @@
+??-??-????: version 1.4.2
+
+* Fixed handling of large complex arguments in ABS and SIGN.
+
 03-03-2006: version 1.4.1
 
 * Decimal version: fixed a bug in BCDFloat addition and subtraction that could

@@ -1192,10 +1192,6 @@ int docmd_rnd(arg_struct *arg) {
 }
 
 int docmd_abs(arg_struct *arg) {
-    /* Can't use map_unary here because it does not support
-     * complex-to-real mappers. Oh, well, this only affects
-     * ABS, to what the heck.
-     */
     switch (reg_x->type) {
 	case TYPE_REAL: {
 	    vartype *r;
@@ -1210,18 +1206,24 @@ int docmd_abs(arg_struct *arg) {
 	}
 	case TYPE_COMPLEX: {
 	    vartype *r;
-	    phloat re = ((vartype_complex *) reg_x)->re;
-	    phloat im = ((vartype_complex *) reg_x)->im;
-	    r = new_real(hypot(re, im));
+	    phloat a = hypot(((vartype_complex *) reg_x)->re,
+			     ((vartype_complex *) reg_x)->im);
+	    if (p_isinf(a) == 0)
+		r = new_real(a);
+	    else if (flags.f.range_error_ignore)
+		r = new_real(POS_HUGE_PHLOAT);
+	    else
+		return ERR_OUT_OF_RANGE;
 	    if (r == NULL)
 		return ERR_INSUFFICIENT_MEMORY;
 	    unary_result(r);
 	    return ERR_NONE;
 	}
-	case TYPE_STRING: {
+	case TYPE_STRING:
 	    return ERR_ALPHA_DATA_IS_INVALID;
-	}
 	case TYPE_REALMATRIX: {
+	    if (!is_pure_real(reg_x))
+		return ERR_ALPHA_DATA_IS_INVALID;
 	    vartype_realmatrix *src;
 	    vartype_realmatrix *dst;
 	    int4 size, i;
@@ -1230,10 +1232,6 @@ int docmd_abs(arg_struct *arg) {
 				new_realmatrix(src->rows, src->columns);
 	    if (dst == NULL)
 		return ERR_INSUFFICIENT_MEMORY;
-	    if (!is_pure_real(reg_x)) {
-		free_vartype((vartype *) dst);
-		return ERR_ALPHA_DATA_IS_INVALID;
-	    }
 	    size = src->rows * src->columns;
 	    for (i = 0; i < size; i++) {
 		phloat x = src->array->data[i];
@@ -1244,23 +1242,8 @@ int docmd_abs(arg_struct *arg) {
 	    unary_result((vartype *) dst);
 	    return ERR_NONE;
 	}
-	case TYPE_COMPLEXMATRIX: {
-	    vartype_complexmatrix *src;
-	    vartype_realmatrix *dst;
-	    int4 size, i;
-	    src = (vartype_complexmatrix *) reg_x;
-	    dst = (vartype_realmatrix *)
-				new_realmatrix(src->rows, src->columns);
-	    if (dst == NULL)
-		return ERR_INSUFFICIENT_MEMORY;
-	    size = src->rows * src->columns;
-	    for (i = 0; i < size; i++) {
-		dst->array->data[i] = hypot(src->array->data[i * 2],
-					      src->array->data[i * 2 + 1]);
-	    }
-	    unary_result((vartype *) dst);
-	    return ERR_NONE;
-	}
+	case TYPE_COMPLEXMATRIX:
+	    return ERR_INVALID_TYPE;
 	default:
 	    return ERR_INTERNAL_ERROR;
     }
@@ -1273,7 +1256,13 @@ static int mappable_sign(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     if (h == 0) {
 	*yre = 0;
 	*yim = 0;
+    } else if (p_isinf(h) == 0) {
+	*yre = xre / h;
+	*yim = xim / h;
     } else {
+	xre /= 10000;
+	xim /= 10000;
+	h = hypot(xre, xim);
 	*yre = xre / h;
 	*yim = xim / h;
     }

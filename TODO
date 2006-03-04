@@ -6,8 +6,6 @@
 | those I *will* definitely fix as quickly as possible.                      |
 +----------------------------------------------------------------------------+
 
-ABS and SIGN do not handle Infinity for complex arguments.
-
 In the Decimal code, BASE is currently defined as 10000L. I should distinguish
 the cases where it actually needs to be 32 bits, and those where 16-bit math is
 sufficient. Probably insignificant, but on the Palm, I'll take every little
@@ -18,15 +16,6 @@ SOLVE getting stuck. Why? (It's odd because all the other builds, decimal and
 binary, seem fine. And it's annoying because at the moment I don't know how to
 get DDD to work with gdb-mingw... Looks like another visit to printf() city is
 in the offing!)
-
-When stopping the MinGW Binary build after the stuck test case (see above),
-then switching to the VC++ Decimal build, and resuming, I get "Internal Error".
-Why? (Is this actually the first time I'm seeing this error in the real
-world?!?)
-UPDATE: this happens because the binary/decimal mode switch causes
-unpersist_math() to discard its state. I need to either clear the RTN stack as
-well in that case, or make sure to actually convert the SOLVE state. Why am I
-discarding that state during a mode switch anyway?
 
 Modify Decimal transcendentals so they compute to full precision.
 

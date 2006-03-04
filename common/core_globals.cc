@@ -2515,9 +2515,15 @@ static bool convert_programs() {
     int mod_count = 0;
     for (i = 0; i < rtn_sp; i++) {
 	int prgm = rtn_prgm[i];
-	if (prgm == -2 || prgm == -3)
+	if (prgm == -2 || prgm == -3) {
 	    // Return-to-solve and return-to-integ
-	    continue;
+	    // On a binary/decimal mode switch, unpersist_math() discards all
+	    // the SOLVE and INTEG state. If SOLVE or INTEG are actually
+	    // active, we have to clear the RTN stack, too.
+	    rtn_sp = 0;
+	    mod_count = 0;
+	    break;
+	}
 	mod_prgm[mod_count] = prgm;
 	mod_pc[mod_count] = rtn_pc[i];
 	mod_sp[mod_count] = i;
