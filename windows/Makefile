@@ -12,7 +12,7 @@ CXX=g++
 CXXFLAGS=$(CFLAGS)
 RC=windres -O COFF
 ifeq "$(CFG)"  "Release"
-CFLAGS+=-fno-exceptions -fno-rtti -O2 -D_WINDOWS -DWINDOWS -DWIN32 -DNDEBUG -D_MBCS -W -Wno-uninitialized
+CFLAGS+=-fno-exceptions -fno-rtti -O0 -D_WINDOWS -DWINDOWS -DWIN32 -DNDEBUG -D_MBCS -W -Wno-uninitialized
 LD=$(CXX) $(CXXFLAGS)
 LDFLAGS=
 LDFLAGS+=-Wl,--subsystem,windows

@@ -11,15 +11,8 @@ the cases where it actually needs to be 32 bits, and those where 16-bit math is
 sufficient. Probably insignificant, but on the Palm, I'll take every little
 speed-up I can get.
 
-The MinGW Binary build still chokes on my dplot_thomas test case. Probably
-SOLVE getting stuck. Why? (It's odd because all the other builds, decimal and
-binary, seem fine. And it's annoying because at the moment I don't know how to
-get DDD to work with gdb-mingw... Looks like another visit to printf() city is
-in the offing!)
-
-Modify Decimal transcendentals so they compute to full precision.
-
-Build PalmOS >= 5.0 ARM-native version.
+Shorten BCDFloat to 5 base-10000 digits, leaving us with effectively 17 decimal
+digits. That should be plenty for a 42S clone, and it will improve performance.
 
 Get a PayPal account to accept donations. :-)
 
