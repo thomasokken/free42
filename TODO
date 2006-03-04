@@ -6,14 +6,6 @@
 | those I *will* definitely fix as quickly as possible.                      |
 +----------------------------------------------------------------------------+
 
-In the Decimal code, BASE is currently defined as 10000L. I should distinguish
-the cases where it actually needs to be 32 bits, and those where 16-bit math is
-sufficient. Probably insignificant, but on the Palm, I'll take every little
-speed-up I can get.
-
-Shorten BCDFloat to 5 base-10000 digits, leaving us with effectively 17 decimal
-digits. That should be plenty for a 42S clone, and it will improve performance.
-
 Get a PayPal account to accept donations. :-)
 
 Pocket PC version.

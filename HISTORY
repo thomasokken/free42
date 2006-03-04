@@ -1,6 +1,10 @@
 ??-??-????: version 1.4.2
 
 * Fixed handling of large complex arguments in ABS and SIGN.
+* Some minor maintenance stuff: changed the type of BASE (in bcdfloat.h) from
+  'long' back to 'int' in order to make the PalmOS code slightly more
+  efficient; removed the -O2 option from the MinGW makefile, because the
+  optimizer was breaking the solver.
 
 03-03-2006: version 1.4.1
 

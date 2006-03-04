@@ -55,7 +55,7 @@
 
 #define NEG 0x8000
 #define P 7
-#define BASE 10000L
+#define BASE 10000
 #define EXPLIMIT (BASE/4)
 
 /**
