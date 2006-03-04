@@ -11,7 +11,11 @@ the cases where it actually needs to be 32 bits, and those where 16-bit math is
 sufficient. Probably insignificant, but on the Palm, I'll take every little
 speed-up I can get.
 
-Does the MinGW Binary build still choke on my dplot_thomas test case?
+The MinGW Binary build still chokes on my dplot_thomas test case. Probably
+SOLVE getting stuck. Why? (It's odd because all the other builds, decimal and
+binary, seem fine. And it's annoying because at the moment I don't know how to
+get DDD to work with gdb-mingw... Looks like another visit to printf() city is
+in the offing!)
 
 Get a PayPal account to accept donations. :-)
 
