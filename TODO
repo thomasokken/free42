@@ -28,6 +28,10 @@ unpersist_math() to discard its state. I need to either clear the RTN stack as
 well in that case, or make sure to actually convert the SOLVE state. Why am I
 discarding that state during a mode switch anyway?
 
+Modify Decimal transcendentals so they compute to full precision.
+
+Build PalmOS >= 5.0 ARM-native version.
+
 Get a PayPal account to accept donations. :-)
 
 Pocket PC version.
