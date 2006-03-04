@@ -6,10 +6,6 @@
 | those I *will* definitely fix as quickly as possible.                      |
 +----------------------------------------------------------------------------+
 
-In the Decimal code, it would be nice if transcendentals were evaluated at full
-precision. This just requires evaluating a few more terms of the respective
-Taylor series, but I need to figure out exactly how many. Stay tuned...
-
 In the Decimal code, BASE is currently defined as 10000L. I should distinguish
 the cases where it actually needs to be 32 bits, and those where 16-bit math is
 sufficient. Probably insignificant, but on the Palm, I'll take every little
@@ -77,41 +73,3 @@ switch modes). Note: after entering a number, it should be displayed in the
 format the user entered it in, for a second or two, before reverting to the
 format specified by flag 73 -- in other words, when using R.CPX in POLAR mode,
 or P.CPX in RECT mode, automatically do a SHOW RECT or SHOW POLAR as well.
-
-Index: common/bcdmath.cc
-===================================================================
-RCS file: /home/cvs/free42/common/bcdmath.cc,v
-retrieving revision 1.15
-diff -U3 -r1.15 bcdmath.cc
---- common/bcdmath.cc	28 Feb 2006 14:52:03 -0000	1.15
-+++ common/bcdmath.cc	3 Mar 2006 09:22:07 -0000
-@@ -170,13 +170,13 @@
-         a = (a - k*piby32a) - k*piby32b;
-     }
- 
--    /* now a <= pi/32, we can apply taylor series with only 6 terms.
-+    /* now a <= pi/32, we can apply taylor series with only 8 terms.
-      * the error is then bounded by a^2^(2n+1)/(2n+1)!. ie the
-      * first ignored term.
-      */
-     BCD sa;
-     BCD ca;
--    sincosTaylor(a, sa, ca, 6);
-+    sincosTaylor(a, sa, ca, 8);
- 
-     BCD sina, cosa;
- 
-@@ -427,10 +427,10 @@
-     BCD s = 1 - t/3;
-     int i;
-     int j = 5;
--    /* perform 9 more terms, error will be the first term not used.
--     * ie x^21/21.
-+    /* perform 13 more terms, error will be the first term not used.
-+     * ie x^29/29.
-      */
--    for (i = 2; i < 11; ++i) {
-+    for (i = 2; i < 15; ++i) {
-         t *= a2;
-         if ((i & 1) == 0) s += t/j;
-         else s -= t/j;
