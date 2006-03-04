@@ -23,6 +23,10 @@ When stopping the MinGW Binary build after the stuck test case (see above),
 then switching to the VC++ Decimal build, and resuming, I get "Internal Error".
 Why? (Is this actually the first time I'm seeing this error in the real
 world?!?)
+UPDATE: this happens because the binary/decimal mode switch causes
+unpersist_math() to discard its state. I need to either clear the RTN stack as
+well in that case, or make sure to actually convert the SOLVE state. Why am I
+discarding that state during a mode switch anyway?
 
 Get a PayPal account to accept donations. :-)
 
