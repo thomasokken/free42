@@ -17,6 +17,11 @@ binary, seem fine. And it's annoying because at the moment I don't know how to
 get DDD to work with gdb-mingw... Looks like another visit to printf() city is
 in the offing!)
 
+When stopping the MinGW Binary build after the stuck test case (see above),
+then switching to the VC++ Decimal build, and resuming, I get "Internal Error".
+Why? (Is this actually the first time I'm seeing this error in the real
+world?!?)
+
 Get a PayPal account to accept donations. :-)
 
 Pocket PC version.
