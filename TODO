@@ -11,6 +11,8 @@ the cases where it actually needs to be 32 bits, and those where 16-bit math is
 sufficient. Probably insignificant, but on the Palm, I'll take every little
 speed-up I can get.
 
+Does the MinGW Binary build still choke on my dplot_thomas test case?
+
 Get a PayPal account to accept donations. :-)
 
 Pocket PC version.
