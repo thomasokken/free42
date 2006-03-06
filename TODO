@@ -6,6 +6,9 @@
 | those I *will* definitely fix as quickly as possible.                      |
 +----------------------------------------------------------------------------+
 
+When flag 21 is clear, should there be automatic printing in NORM and TRACE
+modes? What about PRGM vs. RUN modes in this situation?
+
 Get a PayPal account to accept donations. :-)
 
 Pocket PC version.
