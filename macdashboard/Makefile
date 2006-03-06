@@ -22,14 +22,18 @@ LIBS = -lm
 
 SRCS = shell.cc shell_spool.cc \
 	core_main.cc core_commands1.cc core_commands2.cc \
-	core_commands3.cc core_commands4.cc core_decimal.cc core_display.cc \
-	core_globals.cc core_helpers.cc core_keydown.cc core_linalg.cc \
-	core_math.cc core_tables.cc core_variables.cc
+	core_commands3.cc core_commands4.cc core_commands5.cc \
+	core_commands6.cc core_display.cc \
+	core_globals.cc core_helpers.cc core_keydown.cc core_linalg1.cc \
+	core_linalg2.cc core_math1.cc core_math2.cc core_phloat.cc \
+	core_sto_rcl.cc core_tables.cc core_variables.cc
 OBJS = shell.o shell_spool.o \
 	core_main.o core_commands1.o core_commands2.o \
-	core_commands3.o core_commands4.o core_decimal.o core_display.o \
-	core_globals.o core_helpers.o core_keydown.o core_linalg.o \
-	core_math.o core_tables.o core_variables.o
+	core_commands3.o core_commands4.o core_commands5.o \
+	core_commands6.o core_display.o \
+	core_globals.o core_helpers.o core_keydown.o core_linalg1.o \
+	core_linalg2.o core_math1.o core_math2.o core_phloat.o \
+	core_sto_rcl.o core_tables.o core_variables.o
 
 ifdef BCD_MATH
 CXXFLAGS += -DBCD_MATH
@@ -40,6 +44,7 @@ endif
 Free42.wdgt: free42 keymap.txt
 	cp -rv Widget.Template Free42.wdgt
 	cp keymap.txt Free42.wdgt
+	- mkdir Free42.wdgt/bin
 	cp free42 Free42.wdgt/bin
 
 free42: $(OBJS)
@@ -60,8 +65,10 @@ symlinks:
 	ln -s ../common/core_commands3.h
 	ln -s ../common/core_commands4.cc
 	ln -s ../common/core_commands4.h
-	ln -s ../common/core_decimal.cc
-	ln -s ../common/core_decimal.h
+	ln -s ../common/core_commands5.cc
+	ln -s ../common/core_commands5.h
+	ln -s ../common/core_commands6.cc
+	ln -s ../common/core_commands6.h
 	ln -s ../common/core_display.cc
 	ln -s ../common/core_display.h
 	ln -s ../common/core_globals.cc
@@ -70,12 +77,20 @@ symlinks:
 	ln -s ../common/core_helpers.h
 	ln -s ../common/core_keydown.cc
 	ln -s ../common/core_keydown.h
-	ln -s ../common/core_linalg.cc
-	ln -s ../common/core_linalg.h
-	ln -s ../common/core_math.cc
-	ln -s ../common/core_math.h
+	ln -s ../common/core_linalg1.cc
+	ln -s ../common/core_linalg1.h
+	ln -s ../common/core_linalg2.cc
+	ln -s ../common/core_linalg2.h
+	ln -s ../common/core_math1.cc
+	ln -s ../common/core_math1.h
+	ln -s ../common/core_math2.cc
+	ln -s ../common/core_math2.h
 	ln -s ../common/core_main.cc
 	ln -s ../common/core_main.h
+	ln -s ../common/core_phloat.cc
+	ln -s ../common/core_phloat.h
+	ln -s ../common/core_sto_rcl.cc
+	ln -s ../common/core_sto_rcl.h
 	ln -s ../common/core_tables.cc
 	ln -s ../common/core_tables.h
 	ln -s ../common/core_variables.cc
