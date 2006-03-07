@@ -20,8 +20,20 @@ CXXFLAGS := -MMD -Wall -g -fno-exceptions -fno-rtti $(shell pkg-config --cflags 
 LDFLAGS = 
 LIBS := $(shell pkg-config --libs gtk+-2.0)
 
-SRCS = shell_main.cc shell_skin.cc skins.cc shell_loadimage.cc
-OBJS = shell_main.o shell_skin.o skins.o shell_loadimage.o
+SRCS = shell_main.cc shell_skin.cc skins.cc keymap.cc shell_loadimage.cc \
+	shell_spool.cc core_main.cc core_commands1.cc core_commands2.cc \
+	core_commands3.cc core_commands4.cc core_commands5.cc \
+	core_commands6.cc core_display.cc core_globals.cc core_helpers.cc \
+	core_keydown.cc core_linalg1.cc core_linalg2.cc core_math1.cc \
+	core_math2.cc core_phloat.cc core_sto_rcl.cc core_tables.cc \
+	core_variables.cc
+OBJS = shell_main.o shell_skin.o skins.o keymap.o shell_loadimage.o \
+	shell_spool.o core_main.o core_commands1.o core_commands2.o \
+	core_commands3.o core_commands4.o core_commands5.o \
+	core_commands6.o core_display.o core_globals.o core_helpers.o \
+	core_keydown.o core_linalg1.o core_linalg2.o core_math1.o \
+	core_math2.o core_phloat.o core_sto_rcl.o core_tables.o \
+	core_variables.o
 
 free42: $(OBJS)
 	$(CXX) -o free42 $(LDFLAGS) $(OBJS) $(LIBS)
@@ -37,11 +49,66 @@ skin2cc: skin2cc.cc
 skins.cc: skin2cc skin2cc.conf
 	./skin2cc
 
+keymap2cc: keymap2cc.cc
+	$(CXX) -o keymap2cc keymap2cc.cc
+
+keymap.cc: keymap2cc keymap.txt
+	./keymap2cc
+
 symlinks:
+	ln -s ../common/free42.h
+	ln -s ../common/core_commands1.cc
+	ln -s ../common/core_commands1.h
+	ln -s ../common/core_commands2.cc
+	ln -s ../common/core_commands2.h
+	ln -s ../common/core_commands3.cc
+	ln -s ../common/core_commands3.h
+	ln -s ../common/core_commands4.cc
+	ln -s ../common/core_commands4.h
+	ln -s ../common/core_commands5.cc
+	ln -s ../common/core_commands5.h
+	ln -s ../common/core_commands6.cc
+	ln -s ../common/core_commands6.h
+	ln -s ../common/core_display.cc
+	ln -s ../common/core_display.h
+	ln -s ../common/core_globals.cc
+	ln -s ../common/core_globals.h
+	ln -s ../common/core_helpers.cc
+	ln -s ../common/core_helpers.h
+	ln -s ../common/core_keydown.cc
+	ln -s ../common/core_keydown.h
+	ln -s ../common/core_linalg1.cc
+	ln -s ../common/core_linalg1.h
+	ln -s ../common/core_linalg2.cc
+	ln -s ../common/core_linalg2.h
+	ln -s ../common/core_math1.cc
+	ln -s ../common/core_math1.h
+	ln -s ../common/core_math2.cc
+	ln -s ../common/core_math2.h
+	ln -s ../common/core_main.cc
+	ln -s ../common/core_main.h
+	ln -s ../common/core_phloat.cc
+	ln -s ../common/core_phloat.h
+	ln -s ../common/core_sto_rcl.cc
+	ln -s ../common/core_sto_rcl.h
+	ln -s ../common/core_tables.cc
+	ln -s ../common/core_tables.h
+	ln -s ../common/core_variables.cc
+	ln -s ../common/core_variables.h
+	ln -s ../common/shell.h
 	ln -s ../common/shell_loadimage.cc
 	ln -s ../common/shell_loadimage.h
+	ln -s ../common/shell_spool.cc
+	ln -s ../common/shell_spool.h
 	ln -s ../common/skin2cc.cc
 	ln -s ../common/skin2cc.conf
+	ln -s ../common/keymap2cc.cc
+	ln -s ../common/bcd.cc
+	ln -s ../common/bcd.h
+	ln -s ../common/bcdfloat.cc
+	ln -s ../common/bcdfloat.h
+	ln -s ../common/bcdmath.cc
+	ln -s ../common/bcdmath.h
 	touch symlinks
 
 clean: FORCE

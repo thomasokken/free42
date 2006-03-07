@@ -40,6 +40,8 @@ void skin_put_pixels(unsigned const char *data);
 void skin_finish_image();
 
 void skin_repaint();
+void skin_display_blitter(const char *bits, int bytesperline, int x, int y,
+	                             int width, int height);
 void skin_repaint_display();
 
 #if 0

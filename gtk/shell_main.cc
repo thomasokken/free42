@@ -21,11 +21,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "shell.h"
 #include "shell_main.h"
 #include "shell_skin.h"
+#include "core_main.h"
 
 
 /* These are global because the skin code uses them a lot */
@@ -199,7 +202,9 @@ int main(int argc, char *argv[]) {
     gtk_widget_show_all(window);
     gtk_widget_show(window);
 
-    gtk_main ();
+    core_init(0, 0);
+
+    gtk_main();
     return 0;
 }
 
@@ -263,4 +268,142 @@ static gboolean expose_cb(GtkWidget *w, GdkEventExpose *event, gpointer cd) {
     if (ckey != 0)
 	skin_repaint_key(skey, 1);
     */
+    return TRUE;
+}
+
+void shell_blitter(const char *bits, int bytesperline, int x, int y,
+				     int width, int height) {
+    skin_display_blitter(bits, bytesperline, x, y, width, height);
+    // TODO
+    /*
+    if (skey >= -7 && skey <= -2)
+	skin_repaint_key(skey, 1);
+    */
+}
+
+void shell_beeper(int frequency, int duration) {
+    // TODO
+}
+
+void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
+    // TODO
+}
+
+int shell_wants_cpu() {
+    // TODO
+    return 0;
+}
+
+void shell_delay(int duration) {
+    // TODO
+}
+
+void shell_request_timeout3(int delay) {
+    // TODO
+}
+
+int4 shell_read_saved_state(void *buf, int4 bufsize) {
+    // TODO
+    return -1;
+}
+
+bool shell_write_saved_state(const void *buf, int4 nbytes) {
+    // TODO
+    return false;
+}
+
+int shell_get_mem() { 
+    FILE *meminfo = fopen("/proc/meminfo", "r");
+    char line[1024];
+    int bytes = 0;
+    if (meminfo == NULL)
+	return 0;
+    while (fgets(line, 1024, meminfo) != NULL) {
+	if (strncmp(line, "MemFree:", 8) == 0) {
+	    int kbytes;
+	    if (sscanf(line + 8, "%d", &kbytes) == 1)
+		bytes = 1024 * kbytes;
+	    break;
+	}
+    }
+    fclose(meminfo);
+    return bytes;
+}
+
+int shell_low_battery() {
+         
+    /* /proc/apm partial legend:
+     * 
+     * 1.16 1.2 0x03 0x01 0x03 0x09 9% -1 ?
+     *               ^^^^ ^^^^
+     *                 |    +-- Battery status (0 = full, 1 = low,
+     *                 |                        2 = critical, 3 = charging)
+     *                 +------- AC status (0 = offline, 1 = online)
+     */
+
+    FILE *apm = fopen("/proc/apm", "r");
+    char line[1024];
+    int lowbat = 0;
+    int ac_stat, bat_stat;
+    if (apm == NULL)
+	goto done2;
+    if (fgets(line, 1024, apm) == NULL)
+	goto done1;
+    if (sscanf(line, "%*s %*s %*s %x %x", &ac_stat, &bat_stat) == 2)
+	lowbat = ac_stat != 1 && (bat_stat == 1 || bat_stat == 2);
+    done1:
+    fclose(apm);
+    done2:
+//    TODO
+//    if (lowbat != ann_battery) {
+//	ann_battery = lowbat;
+//	if (allow_paint)
+//	    skin_repaint_annunciator(5, ann_battery);
+//    }
+    return lowbat;
+}
+
+void shell_powerdown() {
+    // TODO
+}
+
+double shell_random_seed() {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return ((tv.tv_sec * 1000000L + tv.tv_usec) & 0xffffffffL) / 4294967296.0;
+}
+
+uint4 shell_milliseconds() {
+    struct timeval tv;               
+    gettimeofday(&tv, NULL);
+    return (uint4) (tv.tv_sec * 1000L + tv.tv_usec / 1000);
+}
+
+void shell_print(const char *text, int length,
+		 const char *bits, int bytesperline,
+		 int x, int y, int width, int height) {
+    // TODO
+}
+
+int shell_write(const char *buf, int4 buflen) {
+    // TODO
+    return 0;
+}
+
+int shell_read(char *buf, int4 buflen) {
+    // TODO
+    return -1;
+}
+
+shell_bcd_table_struct *shell_get_bcd_table() {
+    return NULL;
+}
+
+shell_bcd_table_struct *shell_put_bcd_table(shell_bcd_table_struct *bcdtab,
+					    uint4 size) {
+    return bcdtab;
+}
+
+void shell_release_bcd_table(shell_bcd_table_struct *bcdtab) {
+    free(bcdtab);
 }

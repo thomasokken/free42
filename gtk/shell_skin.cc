@@ -573,6 +573,38 @@ void skin_repaint() {
 		    GDK_RGB_DITHER_MAX, 0, 0);
 }
 
+void skin_display_blitter(const char *bits, int bytesperline, int x, int y,
+				     int width, int height) {
+    guchar *pix = gdk_pixbuf_get_pixels(disp_image);
+    int disp_bpl = gdk_pixbuf_get_rowstride(disp_image);
+    int sx = display_scale.x;
+    int sy = display_scale.y;
+
+    for (int v = y; v < y + height; v++)
+	for (int h = x; h < x + width; h++) {
+	    SkinColor c;
+	    if ((bits[v * bytesperline + (h >> 3)] & (1 << (h & 7))) != 0)
+		c = display_fg;
+	    else
+		c = display_bg;
+	    for (int vv = v * sy; vv < (v + 1) * sy; vv++) {
+		guchar *p = pix + disp_bpl * vv;
+		for (int hh = h * sx; hh < (h + 1) * sx; hh++) {
+		    guchar *p2 = p + hh * 3;
+		    p2[0] = c.r;
+		    p2[1] = c.g;
+		    p2[2] = c.b;
+		}
+	    }
+	}
+    if (allow_paint)
+	gdk_draw_pixbuf(calc_widget->window, NULL, disp_image,
+			x * sx, y * sy,
+			display_loc.x + x * sx, display_loc.y + y * sy,
+			width * sx, height * sy,
+			GDK_RGB_DITHER_NONE, 0, 0);
+}
+
 void skin_repaint_display() {
     gdk_draw_pixbuf(calc_widget->window, NULL, disp_image,
 		    0, 0, display_loc.x, display_loc.y,
