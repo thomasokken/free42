@@ -26,6 +26,8 @@
 extern GtkWidget *calc_widget;
 extern bool allow_paint;
 
+#define SHELL_VERSION 3
+
 typedef struct state_type {
     int extras;
     int printerToTxtFile;

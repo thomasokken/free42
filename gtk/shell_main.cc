@@ -42,10 +42,18 @@ char free42dirname[FILENAMELEN];
 
 /* Private globals */
 
+static GtkWidget *mainwindow;
+
+static FILE *statefile = NULL;
 static char statefilename[FILENAMELEN];
 static char printfilename[FILENAMELEN];
 
 
+/* Private functions */
+
+static void init_shell_state(int4 version);
+static int read_shell_state(int4 *version);
+static int write_shell_state();
 static void quit();
 static void quitCB();
 static void showPrintOutCB();
@@ -145,25 +153,41 @@ int main(int argc, char *argv[]) {
     /***** Open the state file and read the shell settings *****/
     /***********************************************************/
 
-    // TODO
-    strcpy(state.skinName, "Standard");
+    int4 version;
+    int init_mode;
+
+    statefile = fopen(statefilename, "r");
+    if (statefile != NULL) {
+	if (read_shell_state(&version))
+	    init_mode = 1;
+	else {
+	    init_shell_state(-1);
+	    init_mode = 2;
+	}
+    } else {
+	init_shell_state(-1);
+	init_mode = 0;
+    }
 
 
     /*********************************/
     /***** Build the main window *****/
     /*********************************/
 
-    GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(window), TITLE);
-    gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
-    g_signal_connect(G_OBJECT(window), "delete_event",
+    mainwindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title(GTK_WINDOW(mainwindow), TITLE);
+    gtk_window_set_resizable(GTK_WINDOW(mainwindow), FALSE);
+    g_signal_connect(G_OBJECT(mainwindow), "delete_event",
 		     G_CALLBACK(delete_cb), NULL);
+    if (state.mainWindowKnown)
+	gtk_window_move(GTK_WINDOW(mainwindow), state.mainWindowX,
+					    state.mainWindowY);
 
     GtkAccelGroup *acc_grp = gtk_accel_group_new();
     GtkItemFactory *fac = gtk_item_factory_new(GTK_TYPE_MENU_BAR,
 					       "<Main>", acc_grp);
     gtk_item_factory_create_items(fac, num_entries, entries, NULL);
-    gtk_window_add_accel_group(GTK_WINDOW(window), acc_grp);
+    gtk_window_add_accel_group(GTK_WINDOW(mainwindow), acc_grp);
     GtkWidget *menubar = gtk_item_factory_get_widget(fac, "<Main>");
 
     // The "Skin" menu is dynamic; we don't populate any items in it here.
@@ -178,7 +202,7 @@ int main(int argc, char *argv[]) {
 		     G_CALLBACK(skin_menu_update), NULL);
 
     GtkWidget *box = gtk_vbox_new(FALSE, 0);
-    gtk_container_add(GTK_CONTAINER(window), box);
+    gtk_container_add(GTK_CONTAINER(mainwindow), box);
     gtk_box_pack_start(GTK_BOX(box), menubar, FALSE, FALSE, 0);
 
 
@@ -199,17 +223,120 @@ int main(int argc, char *argv[]) {
     /***** Show main window & start the emulator *****/
     /*************************************************/
 
-    gtk_widget_show_all(window);
-    gtk_widget_show(window);
+    gtk_widget_show_all(mainwindow);
+    gtk_widget_show(mainwindow);
 
-    core_init(0, 0);
+    core_init(init_mode, version);
+    if (statefile != NULL) {
+	fclose(statefile);
+	statefile = NULL;
+    }
 
     gtk_main();
     return 0;
 }
 
+static void init_shell_state(int4 version) {
+    switch (version) {
+	case -1:
+	    state.extras = 0;
+	    /* fall through */
+	case 0:
+	    state.printerToTxtFile = 0;
+	    state.printerToGifFile = 0;
+	    state.printerTxtFileName[0] = 0;
+	    state.printerGifFileName[0] = 0;
+	    state.printerGifMaxLength = 256;
+	    /* fall through */
+	case 1:
+	    state.mainWindowKnown = 0;
+	    state.printWindowKnown = 0;
+	    /* fall through */
+	case 2:
+	    state.skinName[0] = 0;
+	    /* fall through */
+	case 3:
+	    /* current version (SHELL_VERSION = 3),
+	     * so nothing to do here since everything
+	     * was initialized from the state file.
+	     */
+	    ;
+    }
+}
+
+static int read_shell_state(int4 *ver) {
+    int4 magic;
+    int4 version;
+    int4 state_size;
+    int4 state_version;
+
+    if (shell_read_saved_state(&magic, sizeof(int4)) != sizeof(int4))
+	return 0;
+    if (magic != FREE42_MAGIC)
+	return 0;
+
+    if (shell_read_saved_state(&version, sizeof(int4)) != sizeof(int4))
+	return 0;
+    if (version == 0) {
+	/* State file version 0 does not contain shell state,
+	 * only core state, so we just hard-init the shell.
+	 */
+	init_shell_state(-1);
+	*ver = version;
+	return 1;
+    } else if (version > FREE42_VERSION)
+	/* Unknown state file version */
+	return 0;
+    
+    if (shell_read_saved_state(&state_size, sizeof(int4)) != sizeof(int4))
+	return 0;
+    if (shell_read_saved_state(&state_version, sizeof(int4)) != sizeof(int4))
+	return 0;
+    if (state_version < 0 || state_version > SHELL_VERSION)
+	/* Unknown shell state version */
+	return 0;
+    if (shell_read_saved_state(&state, state_size) != state_size)
+	return 0;
+
+    init_shell_state(state_version);
+    *ver = version;
+    return 1;
+}
+
+static int write_shell_state() {
+    int4 magic = FREE42_MAGIC;
+    int4 version = FREE42_VERSION;
+    int4 state_size = sizeof(state_type);
+    int4 state_version = SHELL_VERSION;
+
+    if (!shell_write_saved_state(&magic, sizeof(int4)))
+	return 0;
+    if (!shell_write_saved_state(&version, sizeof(int4)))
+	return 0;
+    if (!shell_write_saved_state(&state_size, sizeof(int4)))
+	return 0;
+    if (!shell_write_saved_state(&state_version, sizeof(int4)))
+	return 0;
+    if (!shell_write_saved_state(&state, sizeof(state_type)))
+	return 0;
+
+    return 1;
+}
+
 static void quit() {
-    // Save state etc.
+    gint x, y;
+    gtk_window_get_position(GTK_WINDOW(mainwindow), &x, &y);
+    state.mainWindowKnown = 1;
+    state.mainWindowX = x;
+    state.mainWindowY = y;
+
+    statefile = fopen(statefilename, "w");
+    if (statefile != NULL)
+	write_shell_state();
+    core_quit();
+    if (statefile != NULL)
+	fclose(statefile);
+
     exit(0);
 }
 
@@ -303,13 +430,32 @@ void shell_request_timeout3(int delay) {
 }
 
 int4 shell_read_saved_state(void *buf, int4 bufsize) {
-    // TODO
-    return -1;
+    if (statefile == NULL)
+	return -1;
+    else {
+	int4 n = fread(buf, 1, bufsize, statefile);
+	if (n != bufsize && ferror(statefile)) {
+	    fclose(statefile);
+	    statefile = NULL;
+	    return -1;
+	} else
+	    return n;
+    }
 }
 
 bool shell_write_saved_state(const void *buf, int4 nbytes) {
-    // TODO
-    return false;
+    if (statefile == NULL)
+	return false;
+    else {
+	int4 n = fwrite(buf, 1, nbytes, statefile);
+	if (n != nbytes) {
+	    fclose(statefile);
+	    remove(statefilename);
+	    statefile = NULL;
+	    return false;
+	} else
+	    return true;
+    }
 }
 
 int shell_get_mem() { 
