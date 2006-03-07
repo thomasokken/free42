@@ -27,6 +27,7 @@
 #include "shell_skin.h"
 #include "shell_main.h"
 #include "shell_loadimage.h"
+#include "core_main.h"
 
 
 /**************************/
@@ -571,6 +572,93 @@ void skin_repaint() {
     gdk_draw_pixbuf(calc_widget->window, NULL, skin_image,
 		    skin.x, skin.y, 0, 0, skin.width, skin.height,
 		    GDK_RGB_DITHER_MAX, 0, 0);
+}
+
+void skin_repaint_annunciator(int which, bool state) {
+    SkinAnnunciator *ann = annunciators + (which - 1);
+    if (state)
+	gdk_draw_pixbuf(calc_widget->window, NULL, skin_image,
+			ann->src.x, ann->src.y,
+			ann->disp_rect.x, ann->disp_rect.y,
+			ann->disp_rect.width, ann->disp_rect.height,
+			GDK_RGB_DITHER_NONE, 0, 0);
+    else
+	gdk_draw_pixbuf(calc_widget->window, NULL, skin_image,
+			ann->disp_rect.x, ann->disp_rect.y,
+			ann->disp_rect.x, ann->disp_rect.y,
+			ann->disp_rect.width, ann->disp_rect.height,
+			GDK_RGB_DITHER_NONE, 0, 0);
+}
+
+void skin_find_key(int x, int y, int *skey, int *ckey) {
+    int i;
+    if (core_menu()
+	    && x >= display_loc.x
+	    && x < display_loc.x + 131 * display_scale.x
+	    && y >= display_loc.y + 9 * display_scale.y
+	    && y < display_loc.y + 16 * display_scale.y) {
+	int softkey = (x - display_loc.x) / (22 * display_scale.x) + 1;
+	*skey = -1 - softkey;
+	*ckey = softkey;
+	return;
+    }
+    for (i = 0; i < nkeys; i++) {
+	SkinKey *k = keylist + i;
+	int rx = x - k->sens_rect.x;
+	int ry = y - k->sens_rect.y;
+	if (rx >= 0 && rx < k->sens_rect.width
+		&& ry >= 0 && ry < k->sens_rect.height) {
+	    *skey = i;
+	    *ckey = k->code;
+	    return;
+	}
+    }
+    *skey = -1;
+    *ckey = 0;
+}
+
+int skin_find_skey(int ckey) {
+    int i;
+    for (i = 0; i < nkeys; i++)
+	if (keylist[i].code == ckey)
+	    return i;
+    return -1;
+}
+
+void skin_repaint_key(int key, bool state) {
+    SkinKey *k;
+
+    if (key >= -7 && key <= -2) {
+	/* Soft key */
+//	int x, y;
+//	GC gc = state ? disp_inv_gc : disp_gc;
+//	key = -1 - key;
+//	x = (key - 1) * 22 * display_scale.x;
+//	y = 9 * display_scale.y;
+//	XPutImage(display, calc_canvas, gc, disp_image,
+//		  x, y,
+//		  display_loc.x + x, display_loc.y + y,
+//		  21 * display_scale.x, 7 * display_scale.y);
+	return;
+    }
+
+    if (key < 0 || key >= nkeys)
+	return;
+    k = keylist + key;
+    if (state)
+	gdk_draw_pixbuf(calc_widget->window, NULL, skin_image,
+			k->src.x, k->src.y,
+			k->disp_rect.x, k->disp_rect.y,
+			k->disp_rect.width, k->disp_rect.height,
+			GDK_RGB_DITHER_MAX,
+			k->disp_rect.x, k->disp_rect.y);
+    else
+	gdk_draw_pixbuf(calc_widget->window, NULL, skin_image,
+			k->disp_rect.x, k->disp_rect.y,
+			k->disp_rect.x, k->disp_rect.y,
+			k->disp_rect.width, k->disp_rect.height,
+			GDK_RGB_DITHER_MAX,
+			k->disp_rect.x, k->disp_rect.y);
 }
 
 void skin_display_blitter(const char *bits, int bytesperline, int x, int y,

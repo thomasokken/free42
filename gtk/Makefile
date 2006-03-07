@@ -35,8 +35,17 @@ OBJS = shell_main.o shell_skin.o skins.o keymap.o shell_loadimage.o \
 	core_math2.o core_phloat.o core_sto_rcl.o core_tables.o \
 	core_variables.o
 
-free42: $(OBJS)
-	$(CXX) -o free42 $(LDFLAGS) $(OBJS) $(LIBS)
+ifdef BCD_MATH
+CXXFLAGS += -DBCD_MATH
+SRCS += bcdfloat.cc bcd.cc bcdmath.cc
+OBJS += bcdfloat.o bcd.o bcdmath.o
+EXE = free42dec
+else
+EXE = free42bin
+endif
+
+$(EXE): $(OBJS)
+	$(CXX) -o $(EXE) $(LDFLAGS) $(OBJS) $(LIBS)
 
 $(SRCS): symlinks
 

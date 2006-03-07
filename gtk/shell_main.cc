@@ -39,14 +39,32 @@ bool allow_paint = false;
 state_type state;
 char free42dirname[FILENAMELEN];
 
+static bool quit_flag = false;
+static int enqueued;
+
 
 /* Private globals */
 
 static GtkWidget *mainwindow;
 
+static int ckey = 0;
+static int skey;
+static bool mouse_key;
+static guint timeout_id = 0;
+static guint timeout3_id = 0;
+
+static guint reminder_id = 0;
 static FILE *statefile = NULL;
 static char statefilename[FILENAMELEN];
 static char printfilename[FILENAMELEN];
+
+static int ann_updown = 0;
+static int ann_shift = 0;
+static int ann_print = 0;
+static int ann_run = 0;
+static int ann_battery = 0;
+static int ann_g = 0;
+static int ann_rad = 0;
 
 
 /* Private functions */
@@ -66,6 +84,14 @@ static void pasteCB();
 static void aboutCB();
 static void delete_cb(GtkWidget *w, gpointer cd);
 static gboolean expose_cb(GtkWidget *w, GdkEventExpose *event, gpointer cd);
+static gboolean button_cb(GtkWidget *w, GdkEventButton *event, gpointer cd);
+static void enable_reminder();
+static void disable_reminder();
+static gboolean repeater(gpointer cd);
+static gboolean timeout1(gpointer cd);
+static gboolean timeout2(gpointer cd);
+static gboolean timeout3(gpointer cd);
+static gboolean reminder(gpointer cd);
 
 #ifdef BCD_MATH
 #define TITLE "Free42 Decimal"
@@ -216,6 +242,9 @@ int main(int argc, char *argv[]) {
     gtk_widget_set_size_request(w, win_width, win_height);
     gtk_box_pack_start(GTK_BOX(box), w, FALSE, FALSE, 0);
     g_signal_connect(G_OBJECT(w), "expose_event", G_CALLBACK(expose_cb), NULL);
+    gtk_widget_add_events(w, GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK);
+    g_signal_connect(G_OBJECT(w), "button-press-event", G_CALLBACK(button_cb), NULL);
+    g_signal_connect(G_OBJECT(w), "button-release-event", G_CALLBACK(button_cb), NULL);
     calc_widget = w;
 
 
@@ -232,6 +261,7 @@ int main(int argc, char *argv[]) {
 	statefile = NULL;
     }
 
+    // TODO: catch INT and TERM signals
     gtk_main();
     return 0;
 }
@@ -384,7 +414,6 @@ static gboolean expose_cb(GtkWidget *w, GdkEventExpose *event, gpointer cd) {
     allow_paint = true;
     skin_repaint();
     skin_repaint_display();
-    /*
     skin_repaint_annunciator(1, ann_updown);
     skin_repaint_annunciator(2, ann_shift);
     skin_repaint_annunciator(3, ann_print);
@@ -394,39 +423,316 @@ static gboolean expose_cb(GtkWidget *w, GdkEventExpose *event, gpointer cd) {
     skin_repaint_annunciator(7, ann_rad);
     if (ckey != 0)
 	skin_repaint_key(skey, 1);
-    */
     return TRUE;
+}
+
+static void shell_keydown() {
+    int repeat, keep_running;
+    if (skey == -1)
+	skey = skin_find_skey(ckey);
+    skin_repaint_key(skey, 1);
+    if (timeout3_id != 0 && ckey != 28 /* KEY_SHIFT */) {
+	g_source_remove(timeout3_id);
+	timeout3_id = 0;
+	core_timeout3(0);
+    }
+
+//    if (ckey >= 38 && ckey <= 255) {
+//	/* Macro */
+//	unsigned char *macro = skin_find_macro(ckey);
+//	if (macro == NULL || *macro == 0) {
+//	    squeak();
+//	    return;
+//	}
+//	while (*macro != 0) {
+//	    keep_running = core_keydown(*macro++, &enqueued, &repeat);
+//	    if (*macro != 0 && !enqueued)
+//		core_keyup();
+//	}
+//	repeat = 0;
+//    } else
+	keep_running = core_keydown(ckey, &enqueued, &repeat);
+
+    if (quit_flag)
+	quit();
+    if (keep_running)
+	enable_reminder();
+    else {
+	disable_reminder();
+	if (timeout_id != 0)
+	    g_source_remove(timeout_id);
+	if (repeat)
+	    timeout_id = g_timeout_add(1000, repeater, NULL);
+	else if (!enqueued)
+	    timeout_id = g_timeout_add(250, timeout1, NULL);
+    }
+}
+
+static void shell_keyup() {
+    skin_repaint_key(skey, 0);
+    ckey = 0;
+    skey = -1;
+    if (timeout_id != 0) {
+	g_source_remove(timeout_id);
+	timeout_id = 0;
+    }
+    if (!enqueued) {
+	int keep_running = core_keyup();
+	if (quit_flag)
+	    quit();
+	if (keep_running)
+	    enable_reminder();
+	else
+	    disable_reminder();
+    }
+}
+
+static gboolean button_cb(GtkWidget *w, GdkEventButton *event, gpointer cd) {
+    if (event->type == GDK_BUTTON_PRESS) {
+	if (ckey == 0) {
+	    int x = (int) event->x;
+	    int y = (int) event->y;
+	    skin_find_key(x, y, &skey, &ckey);
+	    if (ckey != 0) {
+		shell_keydown();
+		mouse_key = 1;
+	    }
+	}
+    } else if (event->type == GDK_BUTTON_RELEASE) {
+	if (ckey != 0 && mouse_key)
+	    shell_keyup();
+    }
+    return TRUE;
+}
+
+/*
+static void input_cb(Widget w, XtPointer ud, XtPointer cd) {
+    XmDrawingAreaCallbackStruct *cbs = (XmDrawingAreaCallbackStruct *) cd;
+    XEvent *event = cbs->event;
+
+    if (event->type == ButtonPress) {
+	if (ckey == 0) {
+	    int x = event->xbutton.x;
+	    int y = event->xbutton.y;
+	    skin_find_key(x, y, &skey, &ckey);
+	    if (ckey != 0) {
+		shell_keydown();
+		mouse_key = 1;
+	    }
+	}
+    } else if (event->type == ButtonRelease) {
+	if (ckey != 0 && mouse_key)
+	    shell_keyup();
+    } else if (event->type == KeyPress) {
+	if (ckey == 0 || !mouse_key) {
+	    char buf[32];
+	    KeySym ks;
+	    int i;
+	    int ctrl, alt, shift;
+	    unsigned char *macro;
+
+	    int len = XLookupString(&event->xkey, buf, 32, &ks, NULL);
+	    int printable = len == 1 && buf[0] >= 32 && buf[0] <= 126;
+	    just_pressed_shift = 0;
+
+	    if (ks == XK_Shift_L || ks == XK_Shift_R) {
+		just_pressed_shift = 1;
+		return;
+	    }
+	    ctrl = (event->xkey.state & ControlMask) != 0;
+	    alt = (event->xkey.state & Mod1Mask) != 0;
+	    shift = (event->xkey.state & (ShiftMask | LockMask)) != 0;
+
+	    if (ckey != 0) {
+		shell_keyup();
+		active_keycode = 0;
+	    }
+
+	    if (!ctrl && !alt) {
+		char c = buf[0];
+		if (printable && core_alpha_menu()) {
+		    if (c >= 'a' && c <= 'z')
+			c = c + 'A' - 'a';
+		    else if (c >= 'A' && c <= 'Z')
+			c = c + 'a' - 'A';
+		    ckey = 1024 + c;
+		    skey = -1;
+		    shell_keydown();
+		    mouse_key = 0;
+		    active_keycode = event->xkey.keycode;
+		    return;
+		} else if (core_hex_menu() && ((c >= 'a' && c <= 'f')
+					    || (c >= 'A' && c <= 'F'))) {
+		    if (c >= 'a' && c <= 'f')
+			ckey = c - 'a' + 1;
+		    else
+			ckey = c - 'A' + 1;
+		    skey = -1;
+		    shell_keydown();
+		    mouse_key = 0;
+		    active_keycode = event->xkey.keycode;
+		    return;
+		}
+	    }
+
+	    macro = skin_keymap_lookup(ks, ctrl, alt, shift);
+	    if (macro == NULL) {
+		for (i = 0; i < keymap_length; i++) {
+		    keymap_entry *entry = keymap + i;
+		    if (ctrl == entry->ctrl
+			    && alt == entry->alt
+			    && (printable || shift == entry->shift)
+			    && ks == entry->keysym) {
+			macro = entry->macro;
+			break;
+		    }
+		}
+	    }
+	    if (macro != NULL) {
+		int j;
+		for (j = 0; j < KEYMAP_MAX_MACRO_LENGTH; j++)
+		    if (macro[j] == 0)
+			break;
+		    else {
+			if (ckey != 0)
+			    shell_keyup();
+			ckey = macro[j];
+			skey = -1;
+			shell_keydown();
+		    }
+		mouse_key = 0;
+		active_keycode = event->xkey.keycode;
+	    }
+	}
+    } else if (event->type == KeyRelease) {
+	char buf[10];
+	KeySym ks;
+	XLookupString(&event->xkey, buf, 10, &ks, NULL);
+	if (ckey == 0) {
+	    if (just_pressed_shift && (ks == XK_Shift_L || ks == XK_Shift_R)) {
+		ckey = 28;
+		skey = -1;
+		shell_keydown();
+		shell_keyup();
+	    }
+	} else {
+	    if (!mouse_key && event->xkey.keycode == active_keycode) {
+		shell_keyup();
+		active_keycode = 0;
+	    }
+	}
+    }
+}
+*/
+
+static void enable_reminder() {
+    if (reminder_id == 0)
+	reminder_id = g_idle_add(reminder, NULL);
+    if (timeout_id != 0) {
+	g_source_remove(timeout_id);
+	timeout_id = 0;
+    }
+}
+
+static void disable_reminder() {
+    if (reminder_id != 0) {
+	g_source_remove(reminder_id);
+	reminder_id = 0;
+    }
+}
+
+static gboolean repeater(gpointer cd) {
+    core_repeat();
+    timeout_id = g_timeout_add(200, repeater, NULL);
+    return FALSE;
+}
+
+static gboolean timeout1(gpointer cd) {
+    if (ckey != 0) {
+	core_keytimeout1();
+	timeout_id = g_timeout_add(1750, timeout2, NULL);
+    } else
+	timeout_id = 0;
+    return FALSE;
+}
+
+static gboolean timeout2(gpointer cd) {
+    if (ckey != 0)
+	core_keytimeout2();
+    timeout_id = 0;
+    return FALSE;
+}
+
+static gboolean timeout3(gpointer cd) {
+    core_timeout3(1);
+    timeout3_id = 0;
+    return FALSE;
+}
+
+static gboolean reminder(gpointer cd) {
+    int dummy1, dummy2;
+    int keep_running = core_keydown(0, &dummy1, &dummy2);
+    if (quit_flag)
+	quit();
+    if (keep_running)
+	return TRUE;
+    else {
+	reminder_id = 0;
+	return FALSE;
+    }
 }
 
 void shell_blitter(const char *bits, int bytesperline, int x, int y,
 				     int width, int height) {
     skin_display_blitter(bits, bytesperline, x, y, width, height);
-    // TODO
-    /*
     if (skey >= -7 && skey <= -2)
 	skin_repaint_key(skey, 1);
-    */
 }
 
 void shell_beeper(int frequency, int duration) {
-    // TODO
+    gdk_beep();
 }
 
 void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
-    // TODO
+    if (updn != -1 && ann_updown != updn) {
+	ann_updown = updn;
+	skin_repaint_annunciator(1, ann_updown);
+    }
+    if (shf != -1 && ann_shift != shf) {
+	ann_shift = shf;
+	skin_repaint_annunciator(2, ann_shift);
+    }
+    if (prt != -1 && ann_print != prt) {
+	ann_print = prt;
+	skin_repaint_annunciator(3, ann_print);
+    }
+    if (run != -1 && ann_run != run) {
+	ann_run = run;
+	skin_repaint_annunciator(4, ann_run);
+    }
+    if (g != -1 && ann_g != g) {
+	ann_g = g;
+	skin_repaint_annunciator(6, ann_g);
+    }
+    if (rad != -1 && ann_rad != rad) {
+	ann_rad = rad;
+	skin_repaint_annunciator(7, ann_rad);
+    }
 }
 
 int shell_wants_cpu() {
-    // TODO
-    return 0;
+    return g_main_context_pending(NULL) ? 1 : 0;
 }
 
 void shell_delay(int duration) {
-    // TODO
+    gdk_display_flush(gdk_display_get_default());
+    g_usleep(duration * 1000);
 }
 
 void shell_request_timeout3(int delay) {
-    // TODO
+    if (timeout3_id != 0)
+	g_source_remove(timeout3_id);
+    timeout3_id = g_timeout_add(delay, timeout3, NULL);
 }
 
 int4 shell_read_saved_state(void *buf, int4 bufsize) {
@@ -500,17 +806,21 @@ int shell_low_battery() {
     done1:
     fclose(apm);
     done2:
-//    TODO
-//    if (lowbat != ann_battery) {
-//	ann_battery = lowbat;
-//	if (allow_paint)
-//	    skin_repaint_annunciator(5, ann_battery);
-//    }
+    if (lowbat != ann_battery) {
+	ann_battery = lowbat;
+	if (allow_paint)
+	    skin_repaint_annunciator(5, ann_battery);
+    }
     return lowbat;
 }
 
 void shell_powerdown() {
-    // TODO
+    /* We defer the actual shutdown so the emulator core can
+     * return from core_keyup() or core_keydown() and isn't
+     * asked to save its state while still in the middle of
+     * executing the OFF instruction...
+     */
+    quit_flag = true;
 }
 
 double shell_random_seed() {

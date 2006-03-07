@@ -34,48 +34,21 @@ typedef struct {
 #define IMGTYPE_TRUECOLOR 4
 
 int skin_getchar();
+//void skin_rewind();
 int skin_init_image(int type, int ncolors, const SkinColor *colors,
 		    int width, int height);
 void skin_put_pixels(unsigned const char *data);
 void skin_finish_image();
 
 void skin_repaint();
-void skin_display_blitter(const char *bits, int bytesperline, int x, int y,
-	                             int width, int height);
-void skin_repaint_display();
-
-#if 0
-
-void skin_menu_update(Widget w, XtPointer ud, XtPointer cd);
-void skin_load(int *width, int *height);
-
-typedef struct {
-    unsigned char r, g, b, pad;
-} SkinColor;
-
-#define IMGTYPE_MONO 1
-#define IMGTYPE_GRAY 2
-#define IMGTYPE_COLORMAPPED 3
-#define IMGTYPE_TRUECOLOR 4
-
-int skin_getchar();
-void skin_rewind();
-int skin_init_image(int type, int ncolors, const SkinColor *colors,
-		    int width, int height);
-void skin_put_pixels(unsigned const char *data);
-void skin_finish_image();
-
-void skin_repaint();
-void skin_repaint_annunciator(int which, int state);
+void skin_repaint_annunciator(int which, bool state);
 void skin_find_key(int x, int y, int *key, int *code);
 int skin_find_skey(int ckey);
-unsigned char *skin_find_macro(int ckey);
-unsigned char *skin_keymap_lookup(KeySym ks, int ctrl, int alt, int shift);
-void skin_repaint_key(int key, int state);
+//unsigned char *skin_find_macro(int ckey);
+//unsigned char *skin_keymap_lookup(KeySym ks, int ctrl, int alt, int shift);
+void skin_repaint_key(int key, bool state);
 void skin_display_blitter(const char *bits, int bytesperline, int x, int y,
 	                             int width, int height);
 void skin_repaint_display();
-
-#endif
 
 #endif
