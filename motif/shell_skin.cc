@@ -120,7 +120,7 @@ extern const unsigned char *skin_bitmap_data[];
 /* Local functions */
 /*******************/
 
-static int addMenuItem(Widget w, const char *name);
+static void addMenuItem(Widget w, const char *name);
 static void selectSkinCB(Widget w, XtPointer ud, XtPointer cd);
 static int skin_open(const char *name, int open_layout);
 static int skin_gets(char *buf, int buflen);
@@ -132,20 +132,17 @@ static void allocate_grayramp();
 static void calc_rgb_masks();
 
 
-static int addMenuItem(Widget w, const char *name) {
+static void addMenuItem(Widget w, const char *name) {
     XmString s;
     Arg args[2];
     int nargs = 0;
     Widget button;
-    int selected = 0;
     
     if (state.skinName[0] == 0) {
 	strcpy(state.skinName, name);
 	XtSetArg(args[nargs], XmNset, XmSET); nargs++;
-	selected = 1;
     } else if (strcmp(state.skinName, name) == 0) {
 	XtSetArg(args[nargs], XmNset, XmSET); nargs++;
-	selected = 1;
     }
     
     s = XmStringCreateLocalized((char *) name);
@@ -156,7 +153,6 @@ static int addMenuItem(Widget w, const char *name) {
 				   args, nargs);
     XmStringFree(s);
     XtAddCallback(button, XmNvalueChangedCallback, selectSkinCB, NULL);
-    return selected;
 }
 
 static void selectSkinCB(Widget w, XtPointer ud, XtPointer cd) {
@@ -426,7 +422,6 @@ static int case_insens_comparator(const void *a, const void *b) {
 }
 
 void skin_menu_update(Widget w, XtPointer ud, XtPointer cd) {
-    int selected = 0;
     Widget *children;
     Cardinal numChildren;
     DIR *dir;
@@ -445,7 +440,7 @@ void skin_menu_update(Widget w, XtPointer ud, XtPointer cd) {
     }
 
     for (i = 0; i < skin_count; i++)
-	selected += addMenuItem(w, skin_name[i]);
+	addMenuItem(w, skin_name[i]);
 
     dir = opendir(free42dirname);
     if (dir == NULL)
@@ -478,7 +473,7 @@ void skin_menu_update(Widget w, XtPointer ud, XtPointer cd) {
 				  NULL, 0);
 	    have_separator = 1;
 	}
-	selected += addMenuItem(w, skinname[i]);
+	addMenuItem(w, skinname[i]);
 	skip:
 	free(skinname[i]);
     }
