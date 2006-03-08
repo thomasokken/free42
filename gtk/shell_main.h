@@ -45,4 +45,16 @@ extern state_type state;
 
 extern char free42dirname[FILENAMELEN];
 
+
+#define KEYMAP_MAX_MACRO_LENGTH 16
+typedef struct {
+    bool ctrl;
+    bool alt;
+    bool shift;
+    guint keyval;
+    unsigned char macro[KEYMAP_MAX_MACRO_LENGTH];
+} keymap_entry;
+    
+keymap_entry *parse_keymap_entry(char *line, int lineno);
+
 #endif

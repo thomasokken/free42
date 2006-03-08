@@ -1,12 +1,12 @@
-# Default key mapping table for Free42 (X version)
+# Default key mapping table for Free42 (GTK version)
 #
-# Format: [Ctrl|Alt|Shift]* <KeySym> : <macro>
-# <KeySym> is a string consisting of the name of the symbolic constant as
-# defined in /usr/X11R6/include/X11/keysymdef.h, with the leading "XK_"
-# removed; <macro> is a sequence of zero or more HP-42S key codes. The key
-# codes must be between 1 and 255; codes 1..37 correspond to actual keys on
-# the calculator's keyboard, while codes 38..255 can be used to refer to
-# extra keys defined by customized skins.
+# Format: [Ctrl|Alt|Shift]* <KeyName> : <macro>
+# <KeyName> is a string consisting of the name of the symbolic constant as
+# defined in <gdk/gdkkeysyms.h>, with the leading "GDK_" removed; <macro> is a
+# sequence of zero or more HP-42S key codes. The key codes must be between 1
+# and 255; codes 1..37 correspond to actual keys on the calculator's keyboard,
+# while codes 38..255 can be used to refer to extra keys defined by customized
+# skins.
 #
 # Anything from a "#" until the end of the line is a comment, and is ignored.
 # White space (Space, Tab) separates tokens in the key map, but is otherwise

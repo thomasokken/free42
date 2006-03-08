@@ -17,6 +17,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,6 +31,8 @@
 #include "shell_main.h"
 #include "shell_skin.h"
 #include "core_main.h"
+#include "core_display.h"
+#include "icon.xpm"
 
 
 /* These are global because the skin code uses them a lot */
@@ -46,12 +50,18 @@ static int enqueued;
 /* Private globals */
 
 static GtkWidget *mainwindow;
+static GdkPixbuf *icon;
 
 static int ckey = 0;
 static int skey;
 static bool mouse_key;
+static guint16 active_keycode = 0;
+static bool just_pressed_shift = false;
 static guint timeout_id = 0;
 static guint timeout3_id = 0;
+
+static int keymap_length = 0;
+static keymap_entry *keymap = NULL;
 
 static guint reminder_id = 0;
 static FILE *statefile = NULL;
@@ -69,6 +79,7 @@ static int ann_rad = 0;
 
 /* Private functions */
 
+static void read_key_map(const char *keymapfilename);
 static void init_shell_state(int4 version);
 static int read_shell_state(int4 *version);
 static int write_shell_state();
@@ -85,6 +96,7 @@ static void aboutCB();
 static void delete_cb(GtkWidget *w, gpointer cd);
 static gboolean expose_cb(GtkWidget *w, GdkEventExpose *event, gpointer cd);
 static gboolean button_cb(GtkWidget *w, GdkEventButton *event, gpointer cd);
+static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd);
 static void enable_reminder();
 static void disable_reminder();
 static gboolean repeater(gpointer cd);
@@ -171,8 +183,7 @@ int main(int argc, char *argv[]) {
     /***** Read the key map *****/
     /****************************/
 
-    // TODO
-    //read_key_map(keymapfilename);
+    read_key_map(keymapfilename);
 
 
     /***********************************************************/
@@ -200,7 +211,10 @@ int main(int argc, char *argv[]) {
     /***** Build the main window *****/
     /*********************************/
 
+    icon = gdk_pixbuf_new_from_xpm_data((const char **) icon_xpm);
+
     mainwindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_icon(GTK_WINDOW(mainwindow), icon);
     gtk_window_set_title(GTK_WINDOW(mainwindow), TITLE);
     gtk_window_set_resizable(GTK_WINDOW(mainwindow), FALSE);
     g_signal_connect(G_OBJECT(mainwindow), "delete_event",
@@ -245,6 +259,9 @@ int main(int argc, char *argv[]) {
     gtk_widget_add_events(w, GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK);
     g_signal_connect(G_OBJECT(w), "button-press-event", G_CALLBACK(button_cb), NULL);
     g_signal_connect(G_OBJECT(w), "button-release-event", G_CALLBACK(button_cb), NULL);
+    GTK_WIDGET_SET_FLAGS(w, GTK_CAN_FOCUS);
+    g_signal_connect(G_OBJECT(w), "key-press-event", G_CALLBACK(key_cb), NULL);
+    g_signal_connect(G_OBJECT(w), "key-release-event", G_CALLBACK(key_cb), NULL);
     calc_widget = w;
 
 
@@ -264,6 +281,131 @@ int main(int argc, char *argv[]) {
     // TODO: catch INT and TERM signals
     gtk_main();
     return 0;
+}
+
+keymap_entry *parse_keymap_entry(char *line, int lineno) {
+    char *p;
+    static keymap_entry entry;
+
+    p =  strchr(line, '#');
+    if (p != NULL)
+	*p = 0;
+    p = strchr(line, '\n');
+    if (p != NULL)
+	*p = 0;
+    p = strchr(line, '\r');
+    if (p != NULL)
+	*p = 0;
+
+    p = strchr(line, ':');
+    if (p != NULL) {
+	char *val = p + 1;
+	char *tok;
+	bool ctrl = false;
+	bool alt = false;
+	bool shift = false;
+	guint keyval = GDK_VoidSymbol;
+	bool done = false;
+	unsigned char macro[KEYMAP_MAX_MACRO_LENGTH];
+	int macrolen = 0;
+
+	/* Parse keysym */
+	*p = 0;
+	tok = strtok(line, " \t");
+	while (tok != NULL) {
+	    if (done) {
+		fprintf(stderr, "Keymap, line %d: Excess tokens in key spec.\n", lineno);
+		return NULL;
+	    }
+	    if (strcasecmp(tok, "ctrl") == 0)
+		ctrl = true;
+	    else if (strcasecmp(tok, "alt") == 0)
+		alt = true;
+	    else if (strcasecmp(tok, "shift") == 0)
+		shift = true;
+	    else {
+		keyval = gdk_keyval_from_name(tok);
+		if (keyval == GDK_VoidSymbol) {
+		    fprintf(stderr, "Keymap, line %d: Unrecognized KeyName.\n", lineno);
+		    return NULL;
+		}
+		done = true;
+	    }
+	    tok = strtok(NULL, " \t");
+	}
+	if (!done) {
+	    fprintf(stderr, "Keymap, line %d: Unrecognized KeyName.\n", lineno);
+	    return NULL;
+	}
+
+	/* Parse macro */
+	tok = strtok(val, " \t");
+	memset(macro, 0, KEYMAP_MAX_MACRO_LENGTH);
+	while (tok != NULL) {
+	    char *endptr;
+	    long k = strtol(tok, &endptr, 10);
+	    if (*endptr != 0 || k < 1 || k > 255) {
+		fprintf(stderr, "Keymap, line %d: Bad value (%s) in macro.\n", lineno, tok);
+		return NULL;
+	    } else if (macrolen == KEYMAP_MAX_MACRO_LENGTH) {
+		fprintf(stderr, "Keymap, line %d: Macro too long (max=%d).\n", lineno, KEYMAP_MAX_MACRO_LENGTH);
+		return NULL;
+	    } else
+		macro[macrolen++] = k;
+	    tok = strtok(NULL, " \t");
+	}
+
+	entry.ctrl = ctrl;
+	entry.alt = alt;
+	entry.shift = shift;
+	entry.keyval = keyval;
+	memcpy(entry.macro, macro, KEYMAP_MAX_MACRO_LENGTH);
+	return &entry;
+    } else
+	return NULL;
+}
+
+static void read_key_map(const char *keymapfilename) {
+    FILE *keymapfile = fopen(keymapfilename, "r");
+    int kmcap = 0;
+    char line[1024];
+    int lineno = 0;
+
+    if (keymapfile == NULL) {
+	/* Try to create default keymap file */
+	extern long keymap_filesize;
+	extern const char keymap_filedata[];
+	long n;
+
+	keymapfile = fopen(keymapfilename, "wb");
+	if (keymapfile == NULL)
+	    return;
+	n = fwrite(keymap_filedata, 1, keymap_filesize, keymapfile);
+	if (n != keymap_filesize) {
+	    int err = errno;
+	    fprintf(stderr, "Error writing \"%s\": %s (%d)\n",
+			    keymapfilename, strerror(err), err);
+	}
+	fclose(keymapfile);
+
+	keymapfile = fopen(keymapfilename, "r");
+	if (keymapfile == NULL)
+	    return;
+    }
+
+    while (fgets(line, 1024, keymapfile) != NULL) {
+	keymap_entry *entry = parse_keymap_entry(line, ++lineno);
+	if (entry == NULL)
+	    continue;
+	/* Create new keymap entry */
+	if (keymap_length == kmcap) {
+	    kmcap += 50;
+	    keymap = (keymap_entry *) realloc(keymap, kmcap * sizeof(keymap_entry));
+	}
+	memcpy(keymap + (keymap_length++), entry, sizeof(keymap_entry));
+    }
+
+    fclose(keymapfile);
 }
 
 static void init_shell_state(int4 version) {
@@ -395,15 +537,73 @@ static void preferencesCB() {
 }
 
 static void copyCB() {
-    //
+    char buf[100];
+    core_copy(buf, 100);
+    GtkClipboard *clip = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
+    gtk_clipboard_set_text(clip, buf, -1);
+    clip = gtk_clipboard_get(GDK_SELECTION_PRIMARY);
+    gtk_clipboard_set_text(clip, buf, -1);
+}
+
+static void paste2(GtkClipboard *clip, const gchar *text, gpointer cd) {
+    if (text == NULL)
+	return;
+    /* Try parsing it as a complex; if that fails, try
+     * parsing it as a real, and if that fails too,
+     * just paste as a string.
+     */
+    int len = strlen(text) + 1;
+    char *text2 = (char *) malloc(len);
+    if (text2 != NULL) {
+	double re, im;
+	strcpy(text2, text);
+	core_fix_number(text2);
+	if (sscanf(text2, " %lf i %lf ", &re, &im) == 2
+		|| sscanf(text2, " %lf + %lf i ", &re, &im) == 2
+		|| sscanf(text2, " ( %lf , %lf ) ",
+		    &re, &im) == 2)
+	    core_paste_complex(re, im);
+	else if (sscanf(text2, " %lf ", &re) == 1)
+	    core_paste_real(re);
+	else
+	    core_paste_string(text);
+	free(text2);
+    } else
+	core_paste_string(text);
+    redisplay();
 }
 
 static void pasteCB() {
-    //
+    // TODO: When running this as a native (non-X11) Win32 app, I think I need
+    // to use GDK_SELECTION_CLIPBOARD here, since GDK_SELECTION_PRIMARY will
+    // probably not be populated, if it exists at all.
+    GtkClipboard *clip = gtk_clipboard_get(GDK_SELECTION_PRIMARY);
+    gtk_clipboard_request_text(clip, paste2, NULL);
 }
 
 static void aboutCB() {
-    //
+    static GtkWidget *about = NULL;
+
+    if (about == NULL) {
+	about = gtk_dialog_new_with_buttons(
+			    "About Free42",
+			    GTK_WINDOW(mainwindow),
+			    GTK_DIALOG_MODAL,
+			    GTK_STOCK_OK,
+			    GTK_RESPONSE_ACCEPT,
+			    NULL);
+	GtkWidget *container = gtk_bin_get_child(GTK_BIN(about));
+	GtkWidget *box = gtk_hbox_new(FALSE, 0);
+	gtk_container_add(GTK_CONTAINER(container), box);
+	GtkWidget *image = gtk_image_new_from_pixbuf(icon);
+	gtk_box_pack_start(GTK_BOX(box), image, FALSE, FALSE, 10);
+	GtkWidget *label = gtk_label_new("Free42 1.4.1\n(C) 2004-2006 Thomas Okken\nthomas_okken@yahoo.com\nhttp://home.planet.nl/~demun000/thomas_projects/free42/");
+	gtk_box_pack_start(GTK_BOX(box), label, FALSE, FALSE, 10);
+	gtk_widget_show_all(GTK_WIDGET(about));
+    }
+
+    gtk_dialog_run(GTK_DIALOG(about));
+    gtk_widget_hide(GTK_WIDGET(about));
 }
 
 static void delete_cb(GtkWidget *w, gpointer cd) {
@@ -505,43 +705,23 @@ static gboolean button_cb(GtkWidget *w, GdkEventButton *event, gpointer cd) {
     return TRUE;
 }
 
-/*
-static void input_cb(Widget w, XtPointer ud, XtPointer cd) {
-    XmDrawingAreaCallbackStruct *cbs = (XmDrawingAreaCallbackStruct *) cd;
-    XEvent *event = cbs->event;
-
-    if (event->type == ButtonPress) {
-	if (ckey == 0) {
-	    int x = event->xbutton.x;
-	    int y = event->xbutton.y;
-	    skin_find_key(x, y, &skey, &ckey);
-	    if (ckey != 0) {
-		shell_keydown();
-		mouse_key = 1;
-	    }
-	}
-    } else if (event->type == ButtonRelease) {
-	if (ckey != 0 && mouse_key)
-	    shell_keyup();
-    } else if (event->type == KeyPress) {
+static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
+    if (event->type == GDK_KEY_PRESS) {
 	if (ckey == 0 || !mouse_key) {
-	    char buf[32];
-	    KeySym ks;
 	    int i;
-	    int ctrl, alt, shift;
 	    unsigned char *macro;
 
-	    int len = XLookupString(&event->xkey, buf, 32, &ks, NULL);
-	    int printable = len == 1 && buf[0] >= 32 && buf[0] <= 126;
-	    just_pressed_shift = 0;
+	    char *keyname = gdk_keyval_name(event->keyval);
+	    int printable = strlen(keyname) == 1 && keyname[0] >= 32 && keyname[0] <= 126;
+	    just_pressed_shift = false;
 
-	    if (ks == XK_Shift_L || ks == XK_Shift_R) {
-		just_pressed_shift = 1;
-		return;
+	    if (event->keyval == GDK_Shift_L || event->keyval == GDK_Shift_R) {
+		just_pressed_shift = true;
+		return TRUE;
 	    }
-	    ctrl = (event->xkey.state & ControlMask) != 0;
-	    alt = (event->xkey.state & Mod1Mask) != 0;
-	    shift = (event->xkey.state & (ShiftMask | LockMask)) != 0;
+	    bool ctrl = (event->state & GDK_CONTROL_MASK) != 0;
+	    bool alt = (event->state & GDK_MOD1_MASK) != 0;
+	    bool shift = (event->state & (GDK_SHIFT_MASK | GDK_LOCK_MASK)) != 0;
 
 	    if (ckey != 0) {
 		shell_keyup();
@@ -549,7 +729,7 @@ static void input_cb(Widget w, XtPointer ud, XtPointer cd) {
 	    }
 
 	    if (!ctrl && !alt) {
-		char c = buf[0];
+		char c = keyname[0];
 		if (printable && core_alpha_menu()) {
 		    if (c >= 'a' && c <= 'z')
 			c = c + 'A' - 'a';
@@ -559,8 +739,8 @@ static void input_cb(Widget w, XtPointer ud, XtPointer cd) {
 		    skey = -1;
 		    shell_keydown();
 		    mouse_key = 0;
-		    active_keycode = event->xkey.keycode;
-		    return;
+		    active_keycode = event->hardware_keycode;
+		    return TRUE;
 		} else if (core_hex_menu() && ((c >= 'a' && c <= 'f')
 					    || (c >= 'A' && c <= 'F'))) {
 		    if (c >= 'a' && c <= 'f')
@@ -570,19 +750,19 @@ static void input_cb(Widget w, XtPointer ud, XtPointer cd) {
 		    skey = -1;
 		    shell_keydown();
 		    mouse_key = 0;
-		    active_keycode = event->xkey.keycode;
-		    return;
+		    active_keycode = event->hardware_keycode;
+		    return TRUE;
 		}
 	    }
 
-	    macro = skin_keymap_lookup(ks, ctrl, alt, shift);
+	    macro = skin_keymap_lookup(event->keyval, ctrl, alt, shift);
 	    if (macro == NULL) {
 		for (i = 0; i < keymap_length; i++) {
 		    keymap_entry *entry = keymap + i;
 		    if (ctrl == entry->ctrl
 			    && alt == entry->alt
 			    && (printable || shift == entry->shift)
-			    && ks == entry->keysym) {
+			    && event->keyval == entry->keyval) {
 			macro = entry->macro;
 			break;
 		    }
@@ -601,29 +781,27 @@ static void input_cb(Widget w, XtPointer ud, XtPointer cd) {
 			shell_keydown();
 		    }
 		mouse_key = 0;
-		active_keycode = event->xkey.keycode;
+		active_keycode = event->hardware_keycode;
 	    }
 	}
-    } else if (event->type == KeyRelease) {
-	char buf[10];
-	KeySym ks;
-	XLookupString(&event->xkey, buf, 10, &ks, NULL);
+    } else if (event->type == GDK_KEY_RELEASE) {
 	if (ckey == 0) {
-	    if (just_pressed_shift && (ks == XK_Shift_L || ks == XK_Shift_R)) {
+	    if (just_pressed_shift && (event->keyval == GDK_Shift_L
+				    || event->keyval == GDK_Shift_R)) {
 		ckey = 28;
 		skey = -1;
 		shell_keydown();
 		shell_keyup();
 	    }
 	} else {
-	    if (!mouse_key && event->xkey.keycode == active_keycode) {
+	    if (!mouse_key && event->hardware_keycode == active_keycode) {
 		shell_keyup();
 		active_keycode = 0;
 	    }
 	}
     }
+    return TRUE;
 }
-*/
 
 static void enable_reminder() {
     if (reminder_id == 0)

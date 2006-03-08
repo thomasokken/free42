@@ -34,7 +34,7 @@ typedef struct {
 #define IMGTYPE_TRUECOLOR 4
 
 int skin_getchar();
-//void skin_rewind();
+void skin_rewind();
 int skin_init_image(int type, int ncolors, const SkinColor *colors,
 		    int width, int height);
 void skin_put_pixels(unsigned const char *data);
@@ -44,8 +44,8 @@ void skin_repaint();
 void skin_repaint_annunciator(int which, bool state);
 void skin_find_key(int x, int y, int *key, int *code);
 int skin_find_skey(int ckey);
-//unsigned char *skin_find_macro(int ckey);
-//unsigned char *skin_keymap_lookup(KeySym ks, int ctrl, int alt, int shift);
+unsigned char *skin_find_macro(int ckey);
+unsigned char *skin_keymap_lookup(guint keyval, int ctrl, int alt, int shift);
 void skin_repaint_key(int key, bool state);
 void skin_display_blitter(const char *bits, int bytesperline, int x, int y,
 	                             int width, int height);

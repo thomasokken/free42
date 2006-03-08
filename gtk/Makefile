@@ -122,10 +122,16 @@ symlinks:
 
 clean: FORCE
 	rm -f `find . -type l` \
-	free42 free42.exe \
-	skin2cc skin2cc.exe skins.cc \
-	keymap2cc keymap2cc.exe keymap.cc \
-	*.o *.d *.i *.ii *.s symlinks core.*
+		skin2cc skin2cc.exe skins.cc \
+		keymap2cc keymap2cc.exe keymap.cc \
+		*.o *.d *.i *.ii *.s symlinks core.*
+
+cleaner: FORCE
+	rm -f `find . -type l` \
+		free42bin free42bin.exe free42dec free42dec.exe \
+		skin2cc skin2cc.exe skins.cc \
+		keymap2cc keymap2cc.exe keymap.cc \
+		*.o *.d *.i *.ii *.s symlinks core.*
 
 FORCE:
 

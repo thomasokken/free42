@@ -87,6 +87,9 @@ static GdkPixbuf *disp_image = NULL;
 static char skin_label_buf[1024];
 static int skin_label_pos;
 
+static keymap_entry *keymap = NULL;
+static int keymap_length;
+
 
 /**********************************************************/
 /* Linked-in skins; defined in the skins.c, which in turn */
@@ -205,6 +208,13 @@ static int skin_gets(char *buf, int buflen) {
     return p > 1 || !eof;
 }
 
+void skin_rewind() {
+    if (external_file != NULL)
+	rewind(external_file);
+    else
+	builtin_pos = 0;
+}
+
 static void skin_close() {
     if (external_file != NULL)
 	fclose(external_file);
@@ -303,13 +313,11 @@ void skin_load(int *width, int *height) {
 	macrolist = m;
     }
 
-    /*
     if (keymap != NULL)
 	free(keymap);
     keymap = NULL;
     keymap_length = 0;
     int kmcap = 0;
-    */
 
     while (skin_gets(line, 1024)) {
 	lineno++;
@@ -425,7 +433,6 @@ void skin_load(int *width, int *height) {
 		}
 	    }
 	} else if (strchr(line, ':') != NULL) {
-	    /*
 	    keymap_entry *entry = parse_keymap_entry(line, lineno);
 	    if (entry != NULL) {
 		if (keymap_length == kmcap) {
@@ -435,7 +442,6 @@ void skin_load(int *width, int *height) {
 		}
 		memcpy(keymap + (keymap_length++), entry, sizeof(keymap_entry));
 	    }
-	    */
 	}
     }
 
@@ -623,6 +629,29 @@ int skin_find_skey(int ckey) {
 	if (keylist[i].code == ckey)
 	    return i;
     return -1;
+}
+
+unsigned char *skin_find_macro(int ckey) {
+    SkinMacro *m = macrolist;
+    while (m != NULL) {
+	if (m->code == ckey)
+	    return m->macro;
+	m = m->next;
+    }
+    return NULL;
+}
+
+unsigned char *skin_keymap_lookup(guint keyval, int ctrl, int alt, int shift) {
+    int i;
+    for (i = 0; i < keymap_length; i++) {
+	keymap_entry *entry = keymap + i;
+	if (ctrl == entry->ctrl
+		&& alt == entry->alt
+		&& shift == entry->shift
+		&& keyval == entry->keyval)
+	    return entry->macro;
+    }
+    return NULL;
 }
 
 void skin_repaint_key(int key, bool state) {
