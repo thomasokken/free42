@@ -1938,14 +1938,15 @@ static void importFileCB(Widget w, XtPointer ud, XtPointer cd) {
 
     if (XmStringGetLtoR(cbs->value, XmFONTLIST_DEFAULT_TAG, &filename)) {
 	import_file = fopen(filename, "r");
-	XtFree(filename);
 	if (import_file == NULL) {
 	    char buf[1000];
 	    int err = errno;
 	    snprintf(buf, 1000, "Could not open \"%s\" for reading:\n%s (%d)",
-		     buf, strerror(err), err);
+		     filename, strerror(err), err);
+	    XtFree(filename);
 	    show_message("Message", buf);
 	} else {
+	    XtFree(filename);
 	    core_import_programs(NULL);
 	    redisplay();
 	    if (import_file != NULL) {
