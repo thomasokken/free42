@@ -587,13 +587,13 @@ void skin_repaint_annunciator(int which, bool state) {
 			ann->src.x, ann->src.y,
 			ann->disp_rect.x, ann->disp_rect.y,
 			ann->disp_rect.width, ann->disp_rect.height,
-			GDK_RGB_DITHER_NONE, 0, 0);
+			GDK_RGB_DITHER_MAX, 0, 0);
     else
 	gdk_draw_pixbuf(calc_widget->window, NULL, skin_image,
 			ann->disp_rect.x, ann->disp_rect.y,
 			ann->disp_rect.x, ann->disp_rect.y,
 			ann->disp_rect.width, ann->disp_rect.height,
-			GDK_RGB_DITHER_NONE, 0, 0);
+			GDK_RGB_DITHER_MAX, 0, 0);
 }
 
 void skin_find_key(int x, int y, int *skey, int *ckey) {
@@ -659,6 +659,7 @@ void skin_repaint_key(int key, bool state) {
 
     if (key >= -7 && key <= -2) {
 	/* Soft key */
+// TODO
 //	int x, y;
 //	GC gc = state ? disp_inv_gc : disp_gc;
 //	key = -1 - key;

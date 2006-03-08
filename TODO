@@ -6,6 +6,17 @@
 | those I *will* definitely fix as quickly as possible.                      |
 +----------------------------------------------------------------------------+
 
+GTK issues: (1) how to deal with Unix signals? In the Xt case, the use of
+XtNoticeSignal ensures that the actual signal handling takes place within the
+context of the main event loop, so calling quit() (which calls core_quit(),
+among other things) is safe. The GTK docs are utterly silent on the subject of
+Unix signals, so I'm assuming that (a) GTK is thread-safe, and (b) there is
+some mechanism to make asynchronous notifications join the event loop, along
+the lines of Java's SwingUtilities.invokeLater().
+(2) Just like X11, GTK does not seem to provide any help to apps to distinguish
+between actual keystrokes and auto-repeat events. This means I'll have to
+replicate the ugly logic from the Motif version.
+
 When flag 21 is clear, should there be automatic printing in NORM and TRACE
 modes? What about PRGM vs. RUN modes in this situation?
 

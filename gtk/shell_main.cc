@@ -50,6 +50,9 @@ static int enqueued;
 /* Private globals */
 
 static GtkWidget *mainwindow;
+static char export_file_name[FILENAMELEN];
+static FILE *export_file = NULL;
+static FILE *import_file = NULL;
 static GdkPixbuf *icon;
 
 static int ckey = 0;
@@ -84,6 +87,7 @@ static void init_shell_state(int4 version);
 static int read_shell_state(int4 *version);
 static int write_shell_state();
 static void quit();
+static void show_message(char *title, char *message);
 static void quitCB();
 static void showPrintOutCB();
 static void exportProgramCB();
@@ -244,6 +248,9 @@ int main(int argc, char *argv[]) {
     GtkWidget *box = gtk_vbox_new(FALSE, 0);
     gtk_container_add(GTK_CONTAINER(mainwindow), box);
     gtk_box_pack_start(GTK_BOX(box), menubar, FALSE, FALSE, 0);
+
+    // TODO: attach an event handler to the main window that disables
+    // auto-repeat on FocusIn, and re-enables it on FocusOut.
 
 
     /****************************************/
@@ -512,28 +519,187 @@ static void quit() {
     exit(0);
 }
 
+static void show_message(char *title, char *message) {
+    // TODO
+    fprintf(stderr, "Message \"%s\": %s\n", title, message);
+}
+
 static void quitCB() {
     quit();
 }
 
 static void showPrintOutCB() {
-    //
+    // TODO
 }
 
 static void exportProgramCB() {
-    //
+    static GtkWidget *sel_dialog = NULL;
+    static GtkTreeView *tree;
+    static GtkTreeSelection *select;
+
+    if (sel_dialog == NULL) {
+	sel_dialog = gtk_dialog_new_with_buttons(
+			    "Export Program",
+			    GTK_WINDOW(mainwindow),
+			    GTK_DIALOG_MODAL,
+			    GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+			    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+			    NULL);
+	gtk_window_set_resizable(GTK_WINDOW(sel_dialog), FALSE);
+	GtkWidget *container = gtk_bin_get_child(GTK_BIN(sel_dialog));
+	GtkWidget *box = gtk_vbox_new(FALSE, 0);
+	gtk_container_add(GTK_CONTAINER(container), box);
+
+	GtkWidget *label = gtk_label_new("Select Programs to Export:");
+	gtk_box_pack_start(GTK_BOX(box), label, FALSE, FALSE, 10);
+
+	GtkWidget *scroll = gtk_scrolled_window_new(NULL, NULL);
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+	tree = (GtkTreeView *) gtk_tree_view_new();
+	select = gtk_tree_view_get_selection(tree);
+	gtk_tree_selection_set_mode(select, GTK_SELECTION_MULTIPLE);
+	GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
+	//gtk_cell_renderer_text_set_fixed_height_from_font((GtkCellRendererText *) renderer, 12);
+	GtkTreeViewColumn *column = gtk_tree_view_column_new_with_attributes("Foo", renderer, "text", 0, NULL);
+	gtk_tree_view_append_column(tree, column);
+	gtk_tree_view_set_headers_visible(tree, FALSE);
+	gtk_container_add(GTK_CONTAINER(scroll), GTK_WIDGET(tree));
+	gtk_widget_set_size_request(scroll, -1, 200);
+	gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(scroll), FALSE, FALSE, 10);
+
+	gtk_widget_show_all(GTK_WIDGET(sel_dialog));
+    }
+
+    char buf[10000];
+    int count = core_list_programs(buf, 10000);
+    char *p = buf;
+
+    GtkListStore *model = gtk_list_store_new(1, G_TYPE_STRING);
+    GtkTreeIter iter;
+    while (count-- > 0) {
+	gtk_list_store_append(model, &iter);
+	gtk_list_store_set(model, &iter, 0, p, -1);
+	p += strlen(p) + 1;
+    }
+    gtk_tree_view_set_model(tree, GTK_TREE_MODEL(model));
+
+    if (gtk_dialog_run(GTK_DIALOG(sel_dialog)) == GTK_RESPONSE_ACCEPT) {
+	int count = gtk_tree_selection_count_selected_rows(select);
+	if (count == 0)
+	    goto done;
+
+	static GtkWidget *save_dialog = NULL;
+	if (save_dialog == NULL) {
+	    // TODO: This chooser comes up in "collapsed" state by default.
+	    // There's probably a property to override that, so its initial
+	    // state looks more like the default "Open" dialog.
+	    // TODO: Filename filtering.
+	    save_dialog = gtk_file_chooser_dialog_new(
+				"Export Program",
+				GTK_WINDOW(sel_dialog),
+				GTK_FILE_CHOOSER_ACTION_SAVE,
+				GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+				GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+				NULL);
+	}
+	char *filename = NULL;
+	if (gtk_dialog_run(GTK_DIALOG(save_dialog)) == GTK_RESPONSE_ACCEPT)
+	    filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(save_dialog));
+	gtk_widget_hide(GTK_WIDGET(save_dialog));
+	if (filename == NULL)
+	    goto done;
+
+	strcpy(export_file_name, filename);
+	g_free(filename);
+	export_file = fopen(export_file_name, "w");
+
+	if (export_file == NULL) {
+	    char buf[1000];
+	    int err = errno;
+	    snprintf(buf, 1000, "Could not open \"%s\" for writing:\n%s (%d)",
+		    export_file_name, strerror(err), err);
+	    show_message("Message", buf);
+	} else {
+	    int *p2 = (int *) malloc(count * sizeof(int));
+	    GList *rows = gtk_tree_selection_get_selected_rows(select, NULL);
+	    GList *item = rows;
+	    int i = 0;
+	    while (item != NULL) {
+		GtkTreePath *path = (GtkTreePath *) item->data;
+		char *pathstring = gtk_tree_path_to_string(path);
+		sscanf(pathstring, "%d", p2 + i);
+		item = item->next;
+		i++;
+	    }
+	    g_list_free(rows);
+	    core_export_programs(count, p2, NULL);
+	    free(p2);
+	    if (export_file != NULL) {
+		fclose(export_file);
+		export_file = NULL;
+	    }
+	}
+    }
+
+    done:
+    gtk_widget_hide(sel_dialog);
+
+    // TODO: does this leak list-stores? Or is everything taken case of by the
+    // GObject reference-counting stuff?
 }
 
 static void importProgramCB() {
-    //
+    // TODO: Filename filtering.
+    // BTW, In addition to GtkFileChooser, there's also something called
+    // GtkFileSelection, which sounds like it's fancier. Maybe that's the
+    // way to go.
+    static GtkWidget *dialog = NULL;
+
+    if (dialog == NULL) {
+	dialog = gtk_file_chooser_dialog_new(
+			    "Import Program",
+			    GTK_WINDOW(mainwindow),
+			    GTK_FILE_CHOOSER_ACTION_OPEN,
+			    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+			    GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+			    NULL);
+    }
+
+    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
+	char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+	if (filename == NULL) {
+	    import_file = NULL;
+	    goto done;
+	}
+	import_file = fopen(filename, "r");
+	if (import_file == NULL) {
+	    char buf[1000];
+	    int err = errno;
+	    snprintf(buf, 1000, "Could not open \"%s\" for reading:\n%s (%d)",
+		     filename, strerror(err), err);
+	    g_free(filename);
+	    show_message("Message", buf);
+	} else {
+	    g_free(filename);
+	    core_import_programs(NULL);
+	    redisplay();
+	    if (import_file != NULL) {
+		fclose(import_file);
+		import_file = NULL;
+	    }
+	}
+    }
+
+    done:
+    gtk_widget_hide(dialog);
 }
 
 static void clearPrintOutCB() {
-    //
+    // TODO
 }
 
 static void preferencesCB() {
-    //
+    // TODO
 }
 
 static void copyCB() {
@@ -637,20 +803,20 @@ static void shell_keydown() {
 	core_timeout3(0);
     }
 
-//    if (ckey >= 38 && ckey <= 255) {
-//	/* Macro */
-//	unsigned char *macro = skin_find_macro(ckey);
-//	if (macro == NULL || *macro == 0) {
-//	    squeak();
-//	    return;
-//	}
-//	while (*macro != 0) {
-//	    keep_running = core_keydown(*macro++, &enqueued, &repeat);
-//	    if (*macro != 0 && !enqueued)
-//		core_keyup();
-//	}
-//	repeat = 0;
-//    } else
+    if (ckey >= 38 && ckey <= 255) {
+	/* Macro */
+	unsigned char *macro = skin_find_macro(ckey);
+	if (macro == NULL || *macro == 0) {
+	    squeak();
+	    return;
+	}
+	while (*macro != 0) {
+	    keep_running = core_keydown(*macro++, &enqueued, &repeat);
+	    if (*macro != 0 && !enqueued)
+		core_keyup();
+	}
+	repeat = 0;
+    } else
 	keep_running = core_keydown(ckey, &enqueued, &repeat);
 
     if (quit_flag)
@@ -1020,13 +1186,34 @@ void shell_print(const char *text, int length,
 }
 
 int shell_write(const char *buf, int4 buflen) {
-    // TODO
-    return 0;
+    int4 written;
+    if (export_file == NULL)
+	return 0;
+    written = fwrite(buf, 1, buflen, export_file);
+    if (written != buflen) {
+	char buf[1000];
+	fclose(export_file);
+	export_file = NULL;
+	snprintf(buf, 1000, "Writing \"%s\" failed.", export_file_name);
+	show_message("Message", buf);
+	return 0;
+    } else
+	return 1;
 }
 
 int shell_read(char *buf, int4 buflen) {
-    // TODO
-    return -1;
+    int4 nread;
+    if (import_file == NULL)
+	return -1;
+    nread = fread(buf, 1, buflen, import_file);
+    if (nread != buflen && ferror(import_file)) {
+	fclose(import_file);
+	import_file = NULL;
+	show_message("Message",
+		"An error occurred; import was terminated prematurely.");
+	return -1;
+    } else
+	return nread;
 }
 
 shell_bcd_table_struct *shell_get_bcd_table() {
