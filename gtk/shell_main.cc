@@ -758,6 +758,7 @@ static void aboutCB() {
 			    GTK_STOCK_OK,
 			    GTK_RESPONSE_ACCEPT,
 			    NULL);
+	gtk_window_set_resizable(GTK_WINDOW(about), FALSE);
 	GtkWidget *container = gtk_bin_get_child(GTK_BIN(about));
 	GtkWidget *box = gtk_hbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(container), box);

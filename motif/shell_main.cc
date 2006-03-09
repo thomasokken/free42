@@ -2436,7 +2436,7 @@ static void aboutCB(Widget w, XtPointer ud, XtPointer cd) {
     static Widget about = NULL;
 
     if (about == NULL) {
-	Arg args[4];
+	Arg args[6];
 	Widget button;
 	XmString s;
 
@@ -2445,7 +2445,11 @@ static void aboutCB(Widget w, XtPointer ud, XtPointer cd) {
 	XtSetArg(args[1], XmNtitle, "About Free42");
 	XtSetArg(args[2], XmNsymbolPixmap, icon);
 	XtSetArg(args[3], XmNdialogStyle, XmDIALOG_FULL_APPLICATION_MODAL);
-	about = XmCreateMessageDialog(mainwindow, "About", args, 4);
+	XtSetArg(args[4], XmNmwmFunctions,
+			    MWM_FUNC_ALL | MWM_FUNC_RESIZE | MWM_FUNC_MAXIMIZE);
+	XtSetArg(args[5], XmNmwmDecorations,
+			    MWM_DECOR_ALL | MWM_DECOR_RESIZEH | MWM_DECOR_MAXIMIZE);
+	about = XmCreateMessageDialog(mainwindow, "About", args, 6);
 	XmStringFree(s);
 
 	button = XmMessageBoxGetChild(about, XmDIALOG_CANCEL_BUTTON);

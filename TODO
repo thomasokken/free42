@@ -13,20 +13,15 @@ among other things) is safe. The GTK docs are utterly silent on the subject of
 Unix signals, so I'm assuming that (a) GTK is thread-safe, and (b) there is
 some mechanism to make asynchronous notifications join the event loop, along
 the lines of Java's SwingUtilities.invokeLater().
-(2) Just like X11, GTK does not seem to provide any help to apps to distinguish
-between actual keystrokes and auto-repeat events. This means I'll have to
-replicate the ugly logic from the Motif version.
-
-Update on issue (2), above: I seem to notice that with GDK, it is possible to
-distinguish between ragular and auto-repeat events, by keeping track of whether
-or not the key in question has been *released* earlier. Specifically, a
-press-and-hold scenario results in several KeyDown events, with NO KeyUp events
-(until the user physically releases the key, that is).
-Looks like this means I can suppress auto-repeat in the GDK version without
-going to the ugly extreme of totally disabling auto-repeat in the server.
-Does this work with X11 as well?
-If this actually works, consider allowing auto-repeat for the HP-42S backspace
-key.
+Auto-repeat: it looks like GTK provides some help in ignoring auto-repeat key
+events, in that it does not send key-up events in between the key-downs.
+I suspect GTK performs this filtering based on timestamps: you can tell an
+auto-repeat key-down because it is immediately preceded by a key-up, for the
+same key, AND with the same timestamp -- the latter is physically impossible
+when the user is actually typing.
+I should check the GTK+ source code to make sure that that is actually what's
+going on; if it is, it shouldn't be too hard to implement the same strategy
+in the Motif version.
 
 Revisit window stuff for Motif & GTK versions. Some windows do not have the
 correct behavior w.r.t. resizeability and presence of resize-bars (decoration)
