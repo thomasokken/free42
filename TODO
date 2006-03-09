@@ -13,15 +13,17 @@ among other things) is safe. The GTK docs are utterly silent on the subject of
 Unix signals, so I'm assuming that (a) GTK is thread-safe, and (b) there is
 some mechanism to make asynchronous notifications join the event loop, along
 the lines of Java's SwingUtilities.invokeLater().
-Auto-repeat: it looks like GTK provides some help in ignoring auto-repeat key
-events, in that it does not send key-up events in between the key-downs.
-I suspect GTK performs this filtering based on timestamps: you can tell an
-auto-repeat key-down because it is immediately preceded by a key-up, for the
-same key, AND with the same timestamp -- the latter is physically impossible
-when the user is actually typing.
-I should check the GTK+ source code to make sure that that is actually what's
-going on; if it is, it shouldn't be too hard to implement the same strategy
-in the Motif version.
+(2) Need to implement auto-repeat filtering. Basically, we need to keep track
+of which keys (in terms of physical key codes) are down, and ignore any key-
+down events we receive for those keys. There is a twist, unfortunately: the
+way GDK filters auto-repeat KeyRelease events is not completely reliable; it
+checks for equal timestamps in successive KeyRelease/KeyPress pairs, but
+sometimes the timestamps are 1 millisecond apart. This means that sometimes
+I'll get a bogus KeyRelease, and so I'll *also* have to check for subsequent
+KeyPress events with the same timestamp checking I now do in Free42/Motif.
+Also, I should submit a bug report to gtk.org about this (check the most
+recent version of GDK first, though: maybe they fixed it already. The version
+I'm using on my development box is a bit out of date).
 
 Revisit window stuff for Motif & GTK versions. Some windows do not have the
 correct behavior w.r.t. resizeability and presence of resize-bars (decoration)
@@ -29,6 +31,9 @@ and such. Make sure to run tests under Xnest + mwm, too.
 
 When flag 21 is clear, should there be automatic printing in NORM and TRACE
 modes? What about PRGM vs. RUN modes in this situation?
+
+Decimal version: 1.01 ->HR 1 - yields 0.16666666666666666666666. That last 6
+should be a 7. BCDFloat bug or ->HR bug?
 
 Get a PayPal account to accept donations. :-)
 
