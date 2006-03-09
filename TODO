@@ -17,6 +17,21 @@ the lines of Java's SwingUtilities.invokeLater().
 between actual keystrokes and auto-repeat events. This means I'll have to
 replicate the ugly logic from the Motif version.
 
+Update on issue (2), above: I seem to notice that with GDK, it is possible to
+distinguish between ragular and auto-repeat events, by keeping track of whether
+or not the key in question has been *released* earlier. Specifically, a
+press-and-hold scenario results in several KeyDown events, with NO KeyUp events
+(until the user physically releases the key, that is).
+Looks like this means I can suppress auto-repeat in the GDK version without
+going to the ugly extreme of totally disabling auto-repeat in the server.
+Does this work with X11 as well?
+If this actually works, consider allowing auto-repeat for the HP-42S backspace
+key.
+
+Revisit window stuff for Motif & GTK versions. Some windows do not have the
+correct behavior w.r.t. resizeability and presence of resize-bars (decoration)
+and such. Make sure to run tests under Xnest + mwm, too.
+
 When flag 21 is clear, should there be automatic printing in NORM and TRACE
 modes? What about PRGM vs. RUN modes in this situation?
 
