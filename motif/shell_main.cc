@@ -256,8 +256,6 @@ static Widget overwrite_confirm_dialog = NULL;
 static Widget import_dialog = NULL;
 static FILE *import_file = NULL;
 static Pixmap icon, iconmask;
-static int have_focus = 0;
-static int prev_autorepeat;
 
 static Window print_canvas;
 static int ckey = 0;
@@ -334,7 +332,6 @@ static void pasteCB(Widget w, XtPointer ud, XtPointer cd);
 static void aboutCB(Widget w, XtPointer ud, XtPointer cd);
 static void delete_cb(Widget w, XtPointer ud, XtPointer cd);
 static void delete_print_cb(Widget w, XtPointer ud, XtPointer cd);
-static void focus_cb(Widget w, XtPointer ud, XEvent *event, Boolean *cont);
 static void expose_cb(Widget w, XtPointer ud, XtPointer cd);
 static void print_expose_cb(Widget w, XtPointer ud, XtPointer cd);
 static void print_graphicsexpose_cb(Widget w, XtPointer ud, XEvent *event,
@@ -527,12 +524,6 @@ int main(int argc, char *argv[]) {
     XtAddEventHandler(mainwindow, 0, True,
 		      (XtEventHandler) _XEditResCheckMessages,
 		      NULL);
-
-    /* Since we can't tell the difference between real keystrokes and auto-
-     * repeat key events, we turn off auto-repeat while we have the focus.
-     * That requires an event handler... */
-    XtAddEventHandler(mainwindow, FocusChangeMask, False, focus_cb, NULL);
-
 
     translations = XtParseTranslationTable(
 	    "<KeyDown>: DrawingAreaInput()\n"
@@ -1297,11 +1288,6 @@ static void quit() {
 
     shell_spool_exit();
     
-    if (have_focus && prev_autorepeat) {
-	XAutoRepeatOn(display);
-	XSync(display, False);
-    }
-
     exit(0);
 }
 
@@ -2465,38 +2451,6 @@ static void delete_cb(Widget w, XtPointer ud, XtPointer cd) {
     quit();
 }
 
-static void focus_cb(Widget w, XtPointer ud, XEvent *event, Boolean *cont) {
-    /* We don't want to react to auto-repeat key events: they would interfere
-     * with the HP-42S behavior where, in interactive mode, commands can be
-     * cancelled by holding down the command's final key for 2 seconds.
-     * In MS Windows, key events have a flag to indicate whether the event
-     * resulted from an actual key press or not, but the X protocol does not
-     * make that distinction visible to the client. So, what I do is: whenever
-     * the calculator window receives the focus, I disable auto-repeat;
-     * whenever we lose the focus, I restore auto-repeat to its previous
-     * state. Not terribly elegant, I guess, but it does the job. :-)
-     */
-    if (event->type == FocusIn) {
-	if (!have_focus) {
-	    XKeyboardState kbstate;
-	    XGetKeyboardControl(display, &kbstate);
-	    if (kbstate.global_auto_repeat == AutoRepeatModeOn) {
-		prev_autorepeat = 1;
-		XAutoRepeatOff(display);
-	    } else
-		prev_autorepeat = 0;
-	    have_focus = 1;
-	}
-    } else if (event->type == FocusOut) {
-	if (have_focus) {
-	    if (prev_autorepeat)
-		XAutoRepeatOn(display);
-	    have_focus = 0;
-	}
-    }
-    *cont = True;
-}
-
 static void delete_print_cb(Widget w, XtPointer ud, XtPointer cd) {
     state.printWindowMapped = 0;
     if (print_repaint_pending) {
@@ -2737,6 +2691,25 @@ static void input_cb(Widget w, XtPointer ud, XtPointer cd) {
 	    }
 	}
     } else if (event->type == KeyRelease) {
+	// If a KeyRelease event is immediately followed by a KeyPress, with
+	// the same keycode and timestamp, that means there's auto-repeat
+	// taking place. Free42 does its own auto-repeat, so we simply ignore
+	// the auto-repeat events the X server is sending us.
+	// NOTE: the idea of this comes from GDK, which uses this heuristic to
+	// generate detectable auto-repeat. I have modified it slightly by
+	// allowing the two events to be up to 2 milliseconds apart; I noticed
+	// on my machine there was occasionally a 1-millisecond gap, and so
+	// I am playing safe (I hope).
+	if (XtAppPending(appcontext)) {
+	    XEvent ev2;
+	    XtAppPeekEvent(appcontext, &ev2);
+	    if (ev2.type == KeyPress
+		    && ev2.xkey.keycode == event->xkey.keycode
+		    && ev2.xkey.time - event->xkey.time <= 2) {
+		XtAppNextEvent(appcontext, &ev2);
+		return;
+	    }
+	}
 	char buf[10];
 	KeySym ks;
 	XLookupString(&event->xkey, buf, 10, &ks, NULL);
