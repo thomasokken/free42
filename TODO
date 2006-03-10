@@ -16,8 +16,6 @@ the lines of Java's SwingUtilities.invokeLater().
 (2) The file selection dialogs for Import and Export should have the usual
 file filtering stuff. How do you do that with GTK? And, what is the deal with
 having GtkFileChooser *and* GtkFileSelection?!?
-(3) The Export code should check for existing destination files (the usual
-"Replace Existing \"%s\"?" stuff).
 
 Is are the 'length' and 'string' fields in GdkEventKey populated using
 XLookupString? My code kinda assumes so; I need to know this because I use

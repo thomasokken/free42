@@ -93,6 +93,7 @@ static int read_shell_state(int4 *version);
 static int write_shell_state();
 static void quit();
 static char *strclone(const char *s);
+static bool is_file(const char *name);
 static void show_message(char *title, char *message);
 static void quitCB();
 static void showPrintOutCB();
@@ -534,6 +535,13 @@ static char *strclone(const char *s) {
     return s2;
 }
 
+static bool is_file(const char *name) {
+    struct stat st;
+    if (stat(name, &st) == -1)
+	return false;
+    return S_ISREG(st.st_mode);
+}
+
 static void show_message(char *title, char *message) {
     GtkWidget *msg = gtk_message_dialog_new(GTK_WINDOW(mainwindow),
 					    GTK_DIALOG_MODAL,
@@ -604,65 +612,81 @@ static void exportProgramCB() {
     }
     gtk_tree_view_set_model(tree, GTK_TREE_MODEL(model));
 
-    if (gtk_dialog_run(GTK_DIALOG(sel_dialog)) == GTK_RESPONSE_ACCEPT) {
-	int count = gtk_tree_selection_count_selected_rows(select);
-	if (count == 0)
-	    goto done;
-
-	static GtkWidget *save_dialog = NULL;
-	if (save_dialog == NULL) {
-	    save_dialog = gtk_file_chooser_dialog_new(
-				"Export Program",
-				GTK_WINDOW(sel_dialog),
-				GTK_FILE_CHOOSER_ACTION_SAVE,
-				GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-				GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
-				NULL);
-	}
-	char *filename = NULL;
-	if (gtk_dialog_run(GTK_DIALOG(save_dialog)) == GTK_RESPONSE_ACCEPT)
-	    filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(save_dialog));
-	gtk_widget_hide(GTK_WIDGET(save_dialog));
-	if (filename == NULL)
-	    goto done;
-
-	strcpy(export_file_name, filename);
-	g_free(filename);
-	export_file = fopen(export_file_name, "w");
-
-	if (export_file == NULL) {
-	    char buf[1000];
-	    int err = errno;
-	    snprintf(buf, 1000, "Could not open \"%s\" for writing:\n%s (%d)",
-		    export_file_name, strerror(err), err);
-	    show_message("Message", buf);
-	} else {
-	    int *p2 = (int *) malloc(count * sizeof(int));
-	    GList *rows = gtk_tree_selection_get_selected_rows(select, NULL);
-	    GList *item = rows;
-	    int i = 0;
-	    while (item != NULL) {
-		GtkTreePath *path = (GtkTreePath *) item->data;
-		char *pathstring = gtk_tree_path_to_string(path);
-		sscanf(pathstring, "%d", p2 + i);
-		item = item->next;
-		i++;
-	    }
-	    g_list_free(rows);
-	    core_export_programs(count, p2, NULL);
-	    free(p2);
-	    if (export_file != NULL) {
-		fclose(export_file);
-		export_file = NULL;
-	    }
-	}
-    }
-
-    done:
-    gtk_widget_hide(sel_dialog);
-
     // TODO: does this leak list-stores? Or is everything taken case of by the
     // GObject reference-counting stuff?
+
+    bool cancelled = gtk_dialog_run(GTK_DIALOG(sel_dialog)) != GTK_RESPONSE_ACCEPT;
+    gtk_widget_hide(sel_dialog);
+    if (cancelled)
+	return;
+
+    count = gtk_tree_selection_count_selected_rows(select);
+    if (count == 0)
+	return;
+
+    static GtkWidget *save_dialog = NULL;
+    if (save_dialog == NULL) {
+	save_dialog = gtk_file_chooser_dialog_new(
+			    "Export Program",
+			    GTK_WINDOW(mainwindow),
+			    GTK_FILE_CHOOSER_ACTION_SAVE,
+			    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+			    GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+			    NULL);
+    }
+    char *filename = NULL;
+    if (gtk_dialog_run(GTK_DIALOG(save_dialog)) == GTK_RESPONSE_ACCEPT)
+	filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(save_dialog));
+    gtk_widget_hide(GTK_WIDGET(save_dialog));
+    if (filename == NULL)
+	return;
+
+    strcpy(export_file_name, filename);
+    g_free(filename);
+
+    if (is_file(export_file_name)) {
+	char buf[1000];
+	snprintf(buf, 1000, "Replace existing \"%s\"?", export_file_name);
+	GtkWidget *msg = gtk_message_dialog_new(GTK_WINDOW(mainwindow),
+						GTK_DIALOG_MODAL,
+						GTK_MESSAGE_QUESTION,
+						GTK_BUTTONS_YES_NO,
+						buf);
+	gtk_window_set_title(GTK_WINDOW(msg), "Replace?");
+	cancelled = gtk_dialog_run(GTK_DIALOG(msg)) != GTK_RESPONSE_YES;
+	gtk_widget_destroy(msg);
+	if (cancelled)
+	    return;
+    }
+
+    export_file = fopen(export_file_name, "w");
+
+    if (export_file == NULL) {
+	char buf[1000];
+	int err = errno;
+	snprintf(buf, 1000, "Could not open \"%s\" for writing:\n%s (%d)",
+		export_file_name, strerror(err), err);
+	show_message("Message", buf);
+    } else {
+	int *p2 = (int *) malloc(count * sizeof(int));
+	GList *rows = gtk_tree_selection_get_selected_rows(select, NULL);
+	GList *item = rows;
+	int i = 0;
+	while (item != NULL) {
+	    GtkTreePath *path = (GtkTreePath *) item->data;
+	    char *pathstring = gtk_tree_path_to_string(path);
+	    sscanf(pathstring, "%d", p2 + i);
+	    item = item->next;
+	    i++;
+	}
+	g_list_free(rows);
+	core_export_programs(count, p2, NULL);
+	free(p2);
+	if (export_file != NULL) {
+	    fclose(export_file);
+	    export_file = NULL;
+	}
+    }
 }
 
 static void importProgramCB() {
