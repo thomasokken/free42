@@ -30,6 +30,7 @@
 #include "shell.h"
 #include "shell_main.h"
 #include "shell_skin.h"
+#include "shell_spool.h"
 #include "core_main.h"
 #include "core_display.h"
 #include "icon.xpm"
@@ -48,6 +49,10 @@ static int enqueued;
 
 
 /* Private globals */
+
+static FILE *print_txt = NULL;
+static FILE *print_gif = NULL;
+static char print_gif_name[FILENAMELEN];
 
 static GtkWidget *mainwindow;
 static char export_file_name[FILENAMELEN];
@@ -87,6 +92,7 @@ static void init_shell_state(int4 version);
 static int read_shell_state(int4 *version);
 static int write_shell_state();
 static void quit();
+static char *strclone(const char *s);
 static void show_message(char *title, char *message);
 static void quitCB();
 static void showPrintOutCB();
@@ -94,6 +100,7 @@ static void exportProgramCB();
 static void importProgramCB();
 static void clearPrintOutCB();
 static void preferencesCB();
+static void appendSuffix(char *path, char *suffix);
 static void copyCB();
 static void pasteCB();
 static void aboutCB();
@@ -108,6 +115,11 @@ static gboolean timeout1(gpointer cd);
 static gboolean timeout2(gpointer cd);
 static gboolean timeout3(gpointer cd);
 static gboolean reminder(gpointer cd);
+static void txt_writer(const char *text, int length);
+static void txt_newliner();
+static void gif_seeker(int4 pos);
+static void gif_writer(const char *text, int length);
+
 
 #ifdef BCD_MATH
 #define TITLE "Free42 Decimal"
@@ -248,9 +260,6 @@ int main(int argc, char *argv[]) {
     GtkWidget *box = gtk_vbox_new(FALSE, 0);
     gtk_container_add(GTK_CONTAINER(mainwindow), box);
     gtk_box_pack_start(GTK_BOX(box), menubar, FALSE, FALSE, 0);
-
-    // TODO: attach an event handler to the main window that disables
-    // auto-repeat on FocusIn, and re-enables it on FocusOut.
 
 
     /****************************************/
@@ -519,9 +528,21 @@ static void quit() {
     exit(0);
 }
 
+static char *strclone(const char *s) {
+    char *s2 = (char *) malloc(strlen(s) + 1);
+    strcpy(s2, s);
+    return s2;
+}
+
 static void show_message(char *title, char *message) {
-    // TODO
-    fprintf(stderr, "Message \"%s\": %s\n", title, message);
+    GtkWidget *msg = gtk_message_dialog_new(GTK_WINDOW(mainwindow),
+					    GTK_DIALOG_MODAL,
+					    GTK_MESSAGE_ERROR,
+					    GTK_BUTTONS_OK,
+					    message);
+    gtk_window_set_title(GTK_WINDOW(msg), title);
+    gtk_dialog_run(GTK_DIALOG(msg));
+    gtk_widget_destroy(msg);
 }
 
 static void quitCB() {
@@ -590,10 +611,6 @@ static void exportProgramCB() {
 
 	static GtkWidget *save_dialog = NULL;
 	if (save_dialog == NULL) {
-	    // TODO: This chooser comes up in "collapsed" state by default.
-	    // There's probably a property to override that, so its initial
-	    // state looks more like the default "Open" dialog.
-	    // TODO: Filename filtering.
 	    save_dialog = gtk_file_chooser_dialog_new(
 				"Export Program",
 				GTK_WINDOW(sel_dialog),
@@ -649,10 +666,6 @@ static void exportProgramCB() {
 }
 
 static void importProgramCB() {
-    // TODO: Filename filtering.
-    // BTW, In addition to GtkFileChooser, there's also something called
-    // GtkFileSelection, which sounds like it's fancier. Maybe that's the
-    // way to go.
     static GtkWidget *dialog = NULL;
 
     if (dialog == NULL) {
@@ -698,8 +711,147 @@ static void clearPrintOutCB() {
     // TODO
 }
 
+struct browse_file_info {
+    const char *title;
+    GtkWidget *textfield;
+    browse_file_info(const char *t, GtkWidget *tf) : title(t), textfield(tf) {}
+};
+
+static void browse_file(GtkButton *button, gpointer cd) {
+    browse_file_info *info = (browse_file_info *) cd;
+    GtkWidget *dialog = gtk_widget_get_toplevel(GTK_WIDGET(button));
+    GtkWidget *save_dialog = gtk_file_chooser_dialog_new(
+			    info->title,
+			    GTK_WINDOW(dialog),
+			    GTK_FILE_CHOOSER_ACTION_SAVE,
+			    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+			    GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+			    NULL);
+    const char *filename = gtk_entry_get_text(GTK_ENTRY(info->textfield));
+    if (filename[0] == '/')
+	gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(save_dialog), filename);
+    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(save_dialog), filename);
+
+    if (gtk_dialog_run(GTK_DIALOG(save_dialog)) == GTK_RESPONSE_ACCEPT) {
+	filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(save_dialog));
+	gtk_entry_set_text(GTK_ENTRY(info->textfield), filename);
+    }
+    gtk_widget_destroy(GTK_WIDGET(save_dialog));
+}
+
 static void preferencesCB() {
-    // TODO
+    static GtkWidget *dialog = NULL;
+    static GtkWidget *singularmatrix;
+    static GtkWidget *matrixoutofrange;
+    static GtkWidget *printtotext;
+    static GtkWidget *textpath;
+    static GtkWidget *rawtext;
+    static GtkWidget *printtogif;
+    static GtkWidget *gifpath;
+    static GtkWidget *gifheight;
+
+    if (dialog == NULL) {
+	dialog = gtk_dialog_new_with_buttons(
+			    "Preferences",
+			    GTK_WINDOW(mainwindow),
+			    GTK_DIALOG_MODAL,
+			    GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+			    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+			    NULL);
+	gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
+	GtkWidget *container = gtk_bin_get_child(GTK_BIN(dialog));
+	GtkWidget *table = gtk_table_new(6, 4, FALSE);
+	gtk_container_add(GTK_CONTAINER(container), table);
+
+	singularmatrix = gtk_check_button_new_with_label("Inverting or solving a singular matrix yields \"Singular Matrix\" error");
+	gtk_table_attach(GTK_TABLE(table), singularmatrix, 0, 4, 0, 1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+	matrixoutofrange = gtk_check_button_new_with_label("Overflows during matrix operations yield \"Out of Range\" error");
+	gtk_table_attach(GTK_TABLE(table), matrixoutofrange, 0, 4, 1, 2, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+	printtotext = gtk_check_button_new_with_label("Print to text file:");
+	gtk_table_attach(GTK_TABLE(table), printtotext, 0, 1, 2, 3, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+	textpath = gtk_entry_new();
+	gtk_table_attach(GTK_TABLE(table), textpath, 1, 3, 2, 3, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+	GtkWidget *browse1 = gtk_button_new_with_label("Browse...");
+	gtk_table_attach(GTK_TABLE(table), browse1, 3, 4, 2, 3, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+	rawtext = gtk_check_button_new_with_label("Raw text");
+	gtk_table_attach(GTK_TABLE(table), rawtext, 1, 3, 3, 4, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+	printtogif = gtk_check_button_new_with_label("Print to GIF file:");
+	gtk_table_attach(GTK_TABLE(table), printtogif, 0, 1, 4, 5, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+	gifpath = gtk_entry_new();
+	gtk_table_attach(GTK_TABLE(table), gifpath, 1, 3, 4, 5, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+	GtkWidget *browse2 = gtk_button_new_with_label("Browse...");
+	gtk_table_attach(GTK_TABLE(table), browse2, 3, 4, 4, 5, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+	GtkWidget *label = gtk_label_new("Maximum GIF height (pixels):");
+	gtk_table_attach(GTK_TABLE(table), label, 1, 2, 5, 6, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+	gifheight = gtk_entry_new_with_max_length(5);
+	gtk_table_attach(GTK_TABLE(table), gifheight, 2, 3, 5, 6, (GtkAttachOptions) (GTK_SHRINK), (GtkAttachOptions) 0, 3, 3);
+
+	g_signal_connect(G_OBJECT(browse1), "clicked", G_CALLBACK(browse_file), (gpointer) new browse_file_info("Select Text File Name", textpath));
+	g_signal_connect(G_OBJECT(browse2), "clicked", G_CALLBACK(browse_file), (gpointer) new browse_file_info("Select GIF File Name", gifpath));
+	
+	gtk_widget_show_all(GTK_WIDGET(dialog));
+    }
+
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(singularmatrix), core_settings.matrix_singularmatrix);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(matrixoutofrange), core_settings.matrix_outofrange);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(printtotext), state.printerToTxtFile);
+    gtk_entry_set_text(GTK_ENTRY(textpath), state.printerTxtFileName);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(rawtext), core_settings.raw_text);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(printtogif), state.printerToGifFile);
+    gtk_entry_set_text(GTK_ENTRY(gifpath), state.printerGifFileName);
+    char maxlen[6];
+    snprintf(maxlen, 6, "%d", state.printerGifMaxLength);
+	gtk_entry_set_text(GTK_ENTRY(gifheight), maxlen);
+
+    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
+	core_settings.matrix_singularmatrix = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(singularmatrix));
+	core_settings.matrix_outofrange = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(matrixoutofrange));
+	core_settings.raw_text = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(rawtext));
+
+	state.printerToTxtFile = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(printtotext));
+	char *old = strclone(state.printerTxtFileName);
+	const char *s = gtk_entry_get_text(GTK_ENTRY(textpath));
+	strncpy(state.printerTxtFileName, s, FILENAMELEN);
+	state.printerTxtFileName[FILENAMELEN - 1] = 0;
+	appendSuffix(state.printerTxtFileName, ".txt");
+	if (print_txt != NULL && (!state.printerToTxtFile || strcmp(state.printerTxtFileName, old) != 0)) {
+	    fclose(print_txt);
+	    print_txt = NULL;
+	}
+	free(old);
+
+	state.printerToGifFile = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(printtogif));
+	old = strclone(state.printerGifFileName);
+	s = gtk_entry_get_text(GTK_ENTRY(gifpath));
+	strncpy(state.printerGifFileName, s, FILENAMELEN);
+	state.printerGifFileName[FILENAMELEN - 1] = 0;
+	appendSuffix(state.printerGifFileName, ".gif");
+	if (print_gif != NULL && (!state.printerToGifFile || strcmp(state.printerGifFileName, old) != 0)) {
+	    shell_finish_gif(gif_seeker, gif_writer);
+	    fclose(print_gif);
+	    print_gif = NULL;
+	}
+	free(old);
+
+	s = gtk_entry_get_text(GTK_ENTRY(gifheight));
+	if (sscanf(s, "%d", &state.printerGifMaxLength) == 1) {
+	    if (state.printerGifMaxLength < 32)
+		state.printerGifMaxLength = 32;
+	    else if (state.printerGifMaxLength > 32767) state.printerGifMaxLength = 32767;
+	} else
+	    state.printerGifMaxLength = 256;
+    }
+
+    gtk_widget_hide(GTK_WIDGET(dialog));
+}
+
+static void appendSuffix(char *path, char *suffix) {
+    int len = strlen(path);
+    int slen = strlen(suffix);
+    if (len == 0 || len >= FILENAMELEN - slen)
+	return;
+    if (len >= slen && strcasecmp(path + len - slen, suffix) != 0)
+	strcat(path, suffix);
 }
 
 static void copyCB() {
@@ -740,10 +892,11 @@ static void paste2(GtkClipboard *clip, const gchar *text, gpointer cd) {
 }
 
 static void pasteCB() {
-    // TODO: When running this as a native (non-X11) Win32 app, I think I need
-    // to use GDK_SELECTION_CLIPBOARD here, since GDK_SELECTION_PRIMARY will
-    // probably not be populated, if it exists at all.
+#ifdef GDK_WINDOWING_X11
     GtkClipboard *clip = gtk_clipboard_get(GDK_SELECTION_PRIMARY);
+#else
+    GtkClipboard *clip = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
+#endif
     gtk_clipboard_request_text(clip, paste2, NULL);
 }
 
@@ -874,12 +1027,14 @@ static gboolean button_cb(GtkWidget *w, GdkEventButton *event, gpointer cd) {
 
 static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
     if (event->type == GDK_KEY_PRESS) {
+	if (event->hardware_keycode == active_keycode)
+	    // Auto-repeat
+	    return TRUE;
 	if (ckey == 0 || !mouse_key) {
 	    int i;
 	    unsigned char *macro;
 
-	    char *keyname = gdk_keyval_name(event->keyval);
-	    int printable = strlen(keyname) == 1 && keyname[0] >= 32 && keyname[0] <= 126;
+	    bool printable = event->length == 1 && event->string[0] >= 32 && event->string[0] <= 126;
 	    just_pressed_shift = false;
 
 	    if (event->keyval == GDK_Shift_L || event->keyval == GDK_Shift_R) {
@@ -896,7 +1051,7 @@ static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
 	    }
 
 	    if (!ctrl && !alt) {
-		char c = keyname[0];
+		char c = event->string[0];
 		if (printable && core_alpha_menu()) {
 		    if (c >= 'a' && c <= 'z')
 			c = c + 'A' - 'a';
@@ -922,7 +1077,7 @@ static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
 		}
 	    }
 
-	    macro = skin_keymap_lookup(event->keyval, ctrl, alt, shift);
+	    macro = skin_keymap_lookup(event->keyval, printable, ctrl, alt, shift);
 	    if (macro == NULL) {
 		for (i = 0; i < keymap_length; i++) {
 		    keymap_entry *entry = keymap + i;
@@ -1024,6 +1179,58 @@ static gboolean reminder(gpointer cd) {
     else {
 	reminder_id = 0;
 	return FALSE;
+    }
+}
+
+/* Callbacks used by shell_print() and shell_spool_txt() / shell_spool_gif() */
+
+static void txt_writer(const char *text, int length) {
+    int n;
+    if (print_txt == NULL)
+	return;
+    n = fwrite(text, 1, length, print_txt);
+    if (n != length) {
+	char buf[1000];
+	state.printerToTxtFile = 0;
+	fclose(print_txt);
+	print_txt = NULL;
+	snprintf(buf, 1000, "Error while writing to \"%s\".\nPrinting to text file disabled", state.printerTxtFileName);
+	show_message("Message", buf);
+    }
+}   
+    
+static void txt_newliner() {
+    if (print_txt == NULL)
+	return;
+    fputc('\n', print_txt);
+    fflush(print_txt);
+}   
+    
+static void gif_seeker(int4 pos) {
+    if (print_gif == NULL)
+	return;
+    if (fseek(print_gif, pos, SEEK_SET) == -1) {
+	char buf[1000];
+	state.printerToGifFile = 0;
+	fclose(print_gif);
+	print_gif = NULL;
+	snprintf(buf, 1000, "Error while seeking \"%s\".\nPrinting to GIF file disabled", print_gif_name);
+	show_message("Message", buf);
+    }
+}
+
+static void gif_writer(const char *text, int length) {
+    int n;
+    if (print_gif == NULL)
+	return;
+    n = fwrite(text, 1, length, print_gif);
+    if (n != length) {
+	char buf[1000];
+	state.printerToGifFile = 0;
+	fclose(print_gif);
+	print_gif = NULL;
+	snprintf(buf, 1000, "Error while writing to \"%s\".\nPrinting to GIF file disabled", print_gif_name);
+	show_message("Message", buf);
     }
 }
 
@@ -1183,7 +1390,145 @@ uint4 shell_milliseconds() {
 void shell_print(const char *text, int length,
 		 const char *bits, int bytesperline,
 		 int x, int y, int width, int height) {
-    // TODO
+#if 0
+    int xx, yy;
+    int oldlength, newlength;
+
+    for (yy = 0; yy < height; yy++) {
+	int4 Y = (printout_bottom + 2 * yy) % PRINT_LINES;
+	for (xx = 0; xx < 143; xx++) {
+	    int bit, px, py;
+	    if (xx < width) {
+		char c = bits[(y + yy) * bytesperline + ((x + xx) >> 3)];
+		bit = (c & (1 << ((x + xx) & 7))) != 0;
+	    } else
+		bit = 0;
+	    for (px = xx * 2; px < (xx + 1) * 2; px++)
+		for (py = Y; py < Y + 2; py++)
+		    if (bit)
+			print_image->data[py * PRINT_BYTESPERLINE + (px >> 3)]
+			    |= 1 << (px & 7);
+		    else
+			print_image->data[py * PRINT_BYTESPERLINE + (px >> 3)]
+			    &= ~(1 << (px & 7));
+	}
+    }
+
+    oldlength = printout_bottom - printout_top;
+    if (oldlength < 0)
+	oldlength += PRINT_LINES;
+    printout_bottom = (printout_bottom + 2 * height) % PRINT_LINES;
+    newlength = oldlength + 2 * height;
+
+    if (newlength >= PRINT_LINES) {
+	int offset;
+	printout_top = (printout_bottom + 2) % PRINT_LINES;
+	newlength = PRINT_LINES - 2;
+	if (newlength != oldlength) {
+	    XtVaSetValues(print_da, XmNheight, newlength, NULL);
+	    XtVaSetValues(print_sb, XmNincrement, 18, NULL);
+	}
+	scroll_printout_to_bottom();
+	offset = 2 * height - newlength + oldlength;
+	XCopyArea(display, print_canvas, print_canvas, gc,
+		    0, offset, 286, oldlength - offset, 0, 0);
+	repaint_printout(0, newlength - 2 * height, 286, 2 * height);
+    } else {
+	/* Is there a way to suppress the expose events that are caused
+	 * by resizing the widget? I'd rather not have to resort to
+	 * application-defined scrolling...
+	 */
+	XtVaSetValues(print_da, XmNheight, newlength, NULL);
+	XtVaSetValues(print_sb, XmNincrement, 18, NULL);
+	scroll_printout_to_bottom();
+	repaint_printout(0, oldlength, 286, 2 * height);
+    }
+
+    if (state.printerToTxtFile) {
+	int err;
+	char buf[1000];
+
+	if (print_txt == NULL) {
+	    print_txt = fopen(state.printerTxtFileName, "a");
+	    if (print_txt == NULL) {
+		err = errno;
+		state.printerToTxtFile = 0;
+		snprintf(buf, 1000, "Can't open \"%s\" for output:\n%s (%d)\nPrinting to text file disabled.", state.printerTxtFileName, strerror(err), err);
+		show_message("Message", buf);
+		goto done_print_txt;
+	    }
+	}
+
+	shell_spool_txt(text, length, txt_writer, txt_newliner);
+	done_print_txt:;
+    }
+
+    if (state.printerToGifFile) {
+	int err;
+	char buf[1000];
+
+	if (print_gif != NULL
+		&& gif_lines + height > state.printerGifMaxLength) {
+	    shell_finish_gif(gif_seeker, gif_writer);
+	    fclose(print_gif);
+	    print_gif = NULL;
+	}
+
+	if (print_gif == NULL) {
+	    while (1) {
+		int len, p;
+
+		gif_seq = (gif_seq + 1) % 10000;
+
+		strcpy(print_gif_name, state.printerGifFileName);
+		len = strlen(print_gif_name);
+
+		/* Strip ".gif" extension, if present */
+		if (len >= 4 &&
+			strcasecmp(print_gif_name + len - 4, ".gif") == 0) {
+		    len -= 4;
+		    print_gif_name[len] = 0;
+		}
+
+		/* Strip ".[0-9]+", if present */
+		p = len;
+		while (p > 0 && print_gif_name[p] >= '0'
+			     && print_gif_name[p] <= '9')
+		    p--;
+		if (p < len && p >= 0 && print_gif_name[p] == '.')
+		    print_gif_name[p] = 0;
+
+		/* Make sure we have enough space for the ".nnnn.gif" */
+		p = 1000 - 10;
+		print_gif_name[p] = 0;
+		p = strlen(print_gif_name);
+		snprintf(print_gif_name + p, 6, ".%04d", gif_seq);
+		strcat(print_gif_name, ".gif");
+
+		if (!is_file(print_gif_name))
+		    break;
+	    }
+	    print_gif = fopen(print_gif_name, "w+");
+	    if (print_gif == NULL) {
+		err = errno;
+		state.printerToGifFile = 0;
+		snprintf(buf, 1000, "Can't open \"%s\" for output:\n%s (%d)\nPrinting to GIF file disabled.", print_gif_name, strerror(err), err);
+		show_message("Message", buf);
+		goto done_print_gif;
+	    }
+	    if (!shell_start_gif(gif_writer, state.printerGifMaxLength)) {
+		state.printerToGifFile = 0;
+		show_message("Message", "Not enough memory for the GIF encoder.\nPrinting to GIF file disabled.");
+		goto done_print_gif;
+	    }
+	    gif_lines = 0;
+	}
+
+	shell_spool_gif(bits, bytesperline, x, y, width, height, gif_writer);
+	gif_lines += height;
+	done_print_gif:;
+    }
+#endif
 }
 
 int shell_write(const char *buf, int4 buflen) {

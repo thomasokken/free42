@@ -737,7 +737,7 @@ unsigned char *skin_find_macro(int ckey) {
 	return NULL;
 }
 
-unsigned char *skin_keymap_lookup(int keycode, int ctrl, int alt, int shift) {
+unsigned char *skin_keymap_lookup(int keycode, bool ctrl, bool alt, bool shift) {
 	int i;
 	for (i = 0; i < keymap_length; i++) {
 		keymap_entry *entry = keymap + i;

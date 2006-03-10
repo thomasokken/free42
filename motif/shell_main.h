@@ -58,9 +58,9 @@ extern char free42dirname[FILENAMELEN];
 
 #define KEYMAP_MAX_MACRO_LENGTH 16
 typedef struct {
-    int ctrl;
-    int alt;
-    int shift;
+    bool ctrl;
+    bool alt;
+    bool shift;
     KeySym keysym;
     unsigned char macro[KEYMAP_MAX_MACRO_LENGTH];
 } keymap_entry;

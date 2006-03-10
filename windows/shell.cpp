@@ -91,11 +91,11 @@ static char *printout;
 static int ckey = 0;
 static int skey;
 static int active_keycode = 0;
-static int ctrl_down = 0;
-static int alt_down = 0;
-static int shift_down = 0;
-static int just_pressed_shift = 0;
-static int mouse_key;
+static bool ctrl_down = false;
+static bool alt_down = false;
+static bool shift_down = false;
+static bool just_pressed_shift = false;
+static bool mouse_key;
 
 static int keymap_length = 0;
 static keymap_entry *keymap = NULL;
@@ -572,7 +572,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 				skin_find_key(x, y, &skey, &ckey);
 				if (ckey != 0) {
 					shell_keydown();
-					mouse_key = 1;
+					mouse_key = true;
 				}
 			}
 			break;
@@ -595,16 +595,16 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 				virtKey = (int) wParam;
 			} else
 				keyChar = (int) wParam;
-			just_pressed_shift = 0;
+			just_pressed_shift = false;
 			if (virtKey == 17) {
-				ctrl_down = 1;
+				ctrl_down = true;
 				goto do_default;
 			} else if (virtKey == 18) {
-				alt_down = 1;
+				alt_down = true;
 				goto do_default;
 			} else if (virtKey == 16) {
-				shift_down = 1;
-				just_pressed_shift = 1;
+				shift_down = true;
+				just_pressed_shift = true;
 				goto do_default;
 			}
 			if ((message == WM_KEYDOWN || message == WM_SYSKEYDOWN)
@@ -622,7 +622,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 
 			if (ckey == 0 || !mouse_key) {
 				int i;
-				int printable = keyChar >= 32 && keyChar <= 126;
+				bool printable = keyChar >= 32 && keyChar <= 126;
 				if (ckey != 0) {
 					shell_keyup();
 					active_keycode = 0;
@@ -635,7 +635,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 					ckey = 1024 + keyChar;
 					skey = -1;
 					shell_keydown();
-					mouse_key = 0;
+					mouse_key = false;
 					active_keycode = virtKey;
 					break;
 				} else if (core_hex_menu() && ((keyChar >= 'a' && keyChar <= 'f')
@@ -646,7 +646,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 						ckey = keyChar - 'A' + 1;
 					skey = -1;
 					shell_keydown();
-					mouse_key = 0;
+					mouse_key = false;
 					active_keycode = virtKey;
 					break;
 				}
@@ -675,7 +675,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 							skey = -1;
 							shell_keydown();
 						}
-					mouse_key = 0;
+					mouse_key = false;
 					active_keycode = virtKey;
 					break;
 				}
@@ -686,13 +686,13 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 		case WM_SYSKEYUP: {
 			int virtKey = (int) wParam;
 			if (virtKey == 17) {
-				ctrl_down = 0;
+				ctrl_down = false;
 				goto do_default;
 			} else if (virtKey == 18) {
-				alt_down = 0;
+				alt_down = false;
 				goto do_default;
 			} else if (virtKey == 16) {
-				shift_down = 0;
+				shift_down = false;
 				if (ckey == 0 && just_pressed_shift) {
 					ckey = 28;
 					skey = 1;

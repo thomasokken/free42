@@ -964,11 +964,11 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
     if (p != NULL) {
 	char *val = p + 1;
 	char *tok;
-	int ctrl = 0;
-	int alt = 0;
-	int shift = 0;
+	bool ctrl = false;
+	bool alt = false;
+	bool shift = false;
 	KeySym keysym = NoSymbol;
-	int done = 0;
+	bool done = false;
 	unsigned char macro[KEYMAP_MAX_MACRO_LENGTH];
 	int macrolen = 0;
 
@@ -981,18 +981,18 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
 		return NULL;
 	    }
 	    if (strcasecmp(tok, "ctrl") == 0)
-		ctrl = 1;
+		ctrl = true;
 	    else if (strcasecmp(tok, "alt") == 0)
-		alt = 1;
+		alt = true;
 	    else if (strcasecmp(tok, "shift") == 0)
-		shift = 1;
+		shift = true;
 	    else {
 		keysym = XStringToKeysym(tok);
 		if (keysym == NoSymbol) {
 		    fprintf(stderr, "Keymap, line %d: Unrecognized KeySym.\n", lineno);
 		    return NULL;
 		}
-		done = 1;
+		done = true;
 	    }
 	    tok = strtok(NULL, " \t");
 	}
@@ -2269,6 +2269,7 @@ static void prefsButtonCB(Widget w, XtPointer ud, XtPointer cd) {
 		    state.printerGifMaxLength = 32767;
 	    } else
 		state.printerGifMaxLength = 256;
+	    XtFree(s);
 	    /* fall through */
 
 	case 3:
@@ -2614,20 +2615,19 @@ static void input_cb(Widget w, XtPointer ud, XtPointer cd) {
 	    char buf[32];
 	    KeySym ks;
 	    int i;
-	    int ctrl, alt, shift;
 	    unsigned char *macro;
 
 	    int len = XLookupString(&event->xkey, buf, 32, &ks, NULL);
-	    int printable = len == 1 && buf[0] >= 32 && buf[0] <= 126;
+	    bool printable = len == 1 && buf[0] >= 32 && buf[0] <= 126;
 	    just_pressed_shift = 0;
 
 	    if (ks == XK_Shift_L || ks == XK_Shift_R) {
 		just_pressed_shift = 1;
 		return;
 	    }
-	    ctrl = (event->xkey.state & ControlMask) != 0;
-	    alt = (event->xkey.state & Mod1Mask) != 0;
-	    shift = (event->xkey.state & (ShiftMask | LockMask)) != 0;
+	    bool ctrl = (event->xkey.state & ControlMask) != 0;
+	    bool alt = (event->xkey.state & Mod1Mask) != 0;
+	    bool shift = (event->xkey.state & (ShiftMask | LockMask)) != 0;
 
 	    if (ckey != 0) {
 		shell_keyup();
@@ -2661,7 +2661,7 @@ static void input_cb(Widget w, XtPointer ud, XtPointer cd) {
 		}
 	    }
 
-	    macro = skin_keymap_lookup(ks, ctrl, alt, shift);
+	    macro = skin_keymap_lookup(ks, printable, ctrl, alt, shift);
 	    if (macro == NULL) {
 		for (i = 0; i < keymap_length; i++) {
 		    keymap_entry *entry = keymap + i;

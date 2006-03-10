@@ -641,13 +641,14 @@ unsigned char *skin_find_macro(int ckey) {
     return NULL;
 }
 
-unsigned char *skin_keymap_lookup(guint keyval, int ctrl, int alt, int shift) {
+unsigned char *skin_keymap_lookup(guint keyval, bool printable,
+					    bool ctrl, bool alt, bool shift) {
     int i;
     for (i = 0; i < keymap_length; i++) {
 	keymap_entry *entry = keymap + i;
 	if (ctrl == entry->ctrl
 		&& alt == entry->alt
-		&& shift == entry->shift
+		&& (printable || shift == entry->shift)
 		&& keyval == entry->keyval)
 	    return entry->macro;
     }
