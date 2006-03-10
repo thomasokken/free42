@@ -2706,9 +2706,9 @@ static int select_file_or_dir(const char *title, const char *ok_label,
 		const char *ext = sfs->patterns[sfs->sel_type];
 		if (!filename_filter(name, ext)) {
 		    /* The filter is rejecting the name, which must mean
-		    * it doesn't have the right extension. We tack on
-		    * the first sub-pattern.
-		    */
+		     * it doesn't have the right extension. We tack on
+		     * the first sub-pattern.
+		     */
 		    const char *semi = StrChr(ext, ';');
 		    int extlen = semi == NULL ? StrLen(ext) : semi - ext;
 		    char extbuf[10];
