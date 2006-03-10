@@ -22,7 +22,7 @@ make -e BCD_MATH=1
 cd ..
 
 # Clean up crap that may have been left lying around
-rm -rf Free42PalmOS* Free42Windows* Free42Linux* tmp free42.tgz Free42Skins.zip Free42PalmOSSkins.zip
+rm -rf Free42PalmOS* Free42Windows* Free42Linux* tmp free42.tgz Free42Skins.zip Free42PalmOSSkins.zip history.html todo.html
 
 # PalmOS package
 mkdir Free42PalmOS
@@ -82,8 +82,11 @@ cd ..
 rm -rf tmp
 
 # Wrap it all up...
-cp HISTORY HISTORY.txt
-cp TODO TODO.txt
+cd util
+cc -o txt2html txt2html.c
+cd ..
+util/txt2html "Free42 HISTORY" <HISTORY >history.html
+util/txt2html "Free42 TODO" <TODO >todo.html
 cp palmos/Free42PalmOSSkins.zip .
-tar cvf package.tar Free42PalmOS.zip Free42Windows.zip Free42Linux.tgz free42.tgz Free42Skins.zip Free42PalmOSSkins.zip HISTORY.txt TODO.txt
-rm Free42PalmOS.zip Free42Windows.zip Free42Linux.tgz free42.tgz Free42Skins.zip Free42PalmOSSkins.zip HISTORY.txt TODO.txt
+tar cvf package.tar Free42PalmOS.zip Free42Windows.zip Free42Linux.tgz free42.tgz Free42Skins.zip Free42PalmOSSkins.zip history.html todo.html
+rm Free42PalmOS.zip Free42Windows.zip Free42Linux.tgz free42.tgz Free42Skins.zip Free42PalmOSSkins.zip history.html todo.html

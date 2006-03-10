@@ -124,9 +124,9 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
 	if (p != NULL) {
 		char *val = p + 1;
 		char *tok;
-		int ctrl = 0;
-		int alt = 0;
-		int shift = 0;
+		bool ctrl = false;
+		bool alt = false;
+		bool shift = false;
 		int keycode = 0;
 		int done = 0;
 		unsigned char macro[KEYMAP_MAX_MACRO_LENGTH];
@@ -141,11 +141,11 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
 				return NULL;
 			}
 			if (_stricmp(tok, "ctrl") == 0)
-				ctrl = 1;
+				ctrl = true;
 			else if (_stricmp(tok, "alt") == 0)
-				alt = 1;
+				alt = true;
 			else if (_stricmp(tok, "shift") == 0)
-				shift = 1;
+				shift = true;
 			else {
 				char *endptr;
 				long k = strtol(tok, &endptr, 10);
