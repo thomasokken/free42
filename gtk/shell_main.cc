@@ -19,6 +19,7 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 #include <errno.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -53,6 +54,8 @@ static int enqueued;
 static FILE *print_txt = NULL;
 static FILE *print_gif = NULL;
 static char print_gif_name[FILENAMELEN];
+
+static int pype[2];
 
 static GtkWidget *mainwindow;
 static char export_file_name[FILENAMELEN];
@@ -91,6 +94,9 @@ static void read_key_map(const char *keymapfilename);
 static void init_shell_state(int4 version);
 static int read_shell_state(int4 *version);
 static int write_shell_state();
+static void int_term_handler(int sig);
+static gboolean gt_term_handler(GIOChannel *source, GIOCondition condition,
+							    gpointer data);
 static void quit();
 static char *strclone(const char *s);
 static bool is_file(const char *name);
@@ -98,6 +104,8 @@ static void show_message(char *title, char *message);
 static void quitCB();
 static void showPrintOutCB();
 static void exportProgramCB();
+static GtkWidget *make_file_select_dialog(
+	const char *title, const char *pattern, bool save, GtkWidget *owner);
 static void importProgramCB();
 static void clearPrintOutCB();
 static void preferencesCB();
@@ -295,7 +303,24 @@ int main(int argc, char *argv[]) {
 	statefile = NULL;
     }
 
-    // TODO: catch INT and TERM signals
+    if (pipe(pype) != 0)
+	fprintf(stderr, "Could not create pipe for signal handler; not catching INT and TERM signals.\n");
+    else {
+	GIOChannel *channel = g_io_channel_unix_new(pype[0]);
+	GError *err;
+	g_io_channel_set_encoding(channel, NULL, &err);
+	g_io_channel_set_flags(channel,     
+	    (GIOFlags) (g_io_channel_get_flags(channel) | G_IO_FLAG_NONBLOCK), &err);
+	g_io_add_watch(channel, G_IO_IN, gt_term_handler, NULL);
+	struct sigaction act;
+	act.sa_handler = int_term_handler;
+	sigemptyset(&act.sa_mask);
+	sigaddset(&act.sa_mask, SIGINT);
+	sigaddset(&act.sa_mask, SIGTERM);
+	act.sa_flags = 0;
+	sigaction(SIGINT, &act, NULL);
+	sigaction(SIGTERM, &act, NULL);
+    }
     gtk_main();
     return 0;
 }
@@ -512,6 +537,16 @@ static int write_shell_state() {
     return 1;
 }
 
+static void int_term_handler(int sig) {
+    write(pype[1], "\n", 1);
+}
+
+static gboolean gt_term_handler(GIOChannel *source, GIOCondition condition,
+							    gpointer data) {
+    quit();
+    return FALSE;
+}
+
 static void quit() {
     gint x, y;
     gtk_window_get_position(GTK_WINDOW(mainwindow), &x, &y);
@@ -625,15 +660,11 @@ static void exportProgramCB() {
 	return;
 
     static GtkWidget *save_dialog = NULL;
-    if (save_dialog == NULL) {
-	save_dialog = gtk_file_chooser_dialog_new(
-			    "Export Program",
-			    GTK_WINDOW(mainwindow),
-			    GTK_FILE_CHOOSER_ACTION_SAVE,
-			    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-			    GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
-			    NULL);
-    }
+    if (save_dialog == NULL)
+	save_dialog = make_file_select_dialog("Export Program",
+		"Program Files (*.raw)\0*.[Rr][Aa][Ww]\0All Files (*.*)\0*\0",
+		true, mainwindow);
+
     char *filename = NULL;
     if (gtk_dialog_run(GTK_DIALOG(save_dialog)) == GTK_RESPONSE_ACCEPT)
 	filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(save_dialog));
@@ -643,6 +674,10 @@ static void exportProgramCB() {
 
     strcpy(export_file_name, filename);
     g_free(filename);
+    if (strncmp(gtk_file_filter_get_name(
+		    gtk_file_chooser_get_filter(
+			GTK_FILE_CHOOSER(save_dialog))), "All", 3) != 0)
+	appendSuffix(export_file_name, ".raw");
 
     if (is_file(export_file_name)) {
 	char buf[1000];
@@ -689,46 +724,84 @@ static void exportProgramCB() {
     }
 }
 
+static GtkWidget *make_file_select_dialog(const char *title,
+					  const char *pattern,
+					  bool save,
+					  GtkWidget *owner) {
+    GtkWidget *dialog = gtk_file_chooser_dialog_new(
+			title,
+			GTK_WINDOW(owner),
+			save ? GTK_FILE_CHOOSER_ACTION_SAVE
+			     : GTK_FILE_CHOOSER_ACTION_OPEN,
+			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+			GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+			NULL);
+    const char *p = pattern;
+    while (1) {
+	const char *descr, *ext;
+	int n = strlen(p);
+	if (n == 0)
+	    break;
+	descr = p;
+	p += n + 1;
+	n = strlen(p);
+	if (n == 0)
+	    break;
+	ext = p;
+	p += n + 1;
+	
+	GtkFileFilter *filter = gtk_file_filter_new();
+	gtk_file_filter_add_pattern(filter, ext);
+	gtk_file_filter_set_name(filter, descr);
+	gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter);
+    }
+    return dialog;
+}
+
 static void importProgramCB() {
     static GtkWidget *dialog = NULL;
 
-    if (dialog == NULL) {
-	dialog = gtk_file_chooser_dialog_new(
-			    "Import Program",
-			    GTK_WINDOW(mainwindow),
-			    GTK_FILE_CHOOSER_ACTION_OPEN,
-			    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-			    GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
-			    NULL);
-    }
+    if (dialog == NULL)
+	dialog = make_file_select_dialog("Import Program",
+		"Program Files (*.raw)\0*.[Rr][Aa][Ww]\0All Files (*.*)\0*\0",
+		false, mainwindow);
 
-    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
-	char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-	if (filename == NULL) {
-	    import_file = NULL;
-	    goto done;
-	}
-	import_file = fopen(filename, "r");
-	if (import_file == NULL) {
-	    char buf[1000];
-	    int err = errno;
-	    snprintf(buf, 1000, "Could not open \"%s\" for reading:\n%s (%d)",
-		     filename, strerror(err), err);
-	    g_free(filename);
-	    show_message("Message", buf);
-	} else {
-	    g_free(filename);
-	    core_import_programs(NULL);
-	    redisplay();
-	    if (import_file != NULL) {
-		fclose(import_file);
-		import_file = NULL;
-	    }
-	}
-    }
-
-    done:
+    bool cancelled = gtk_dialog_run(GTK_DIALOG(dialog)) != GTK_RESPONSE_ACCEPT;
     gtk_widget_hide(dialog);
+    if (cancelled)
+	return;
+    
+    char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+    if (filename == NULL) {
+	import_file = NULL;
+	return;
+    }
+
+    char filenamebuf[FILENAMELEN];
+    strncpy(filenamebuf, filename, FILENAMELEN);
+    filenamebuf[FILENAMELEN - 1] = 0;
+    g_free(filename);
+
+    if (strncmp(gtk_file_filter_get_name(
+		    gtk_file_chooser_get_filter(
+			GTK_FILE_CHOOSER(dialog))), "All", 3) != 0)
+	appendSuffix(filenamebuf, ".raw");
+
+    import_file = fopen(filenamebuf, "r");
+    if (import_file == NULL) {
+	char buf[1000];
+	int err = errno;
+	snprintf(buf, 1000, "Could not open \"%s\" for reading:\n%s (%d)",
+		    filenamebuf, strerror(err), err);
+	show_message("Message", buf);
+    } else {
+	core_import_programs(NULL);
+	redisplay();
+	if (import_file != NULL) {
+	    fclose(import_file);
+	    import_file = NULL;
+	}
+    }
 }
 
 static void clearPrintOutCB() {
@@ -737,20 +810,17 @@ static void clearPrintOutCB() {
 
 struct browse_file_info {
     const char *title;
+    const char *patterns;
     GtkWidget *textfield;
-    browse_file_info(const char *t, GtkWidget *tf) : title(t), textfield(tf) {}
+    browse_file_info(const char *t, const char *p, GtkWidget *tf)
+			: title(t), patterns(p), textfield(tf) {}
 };
 
 static void browse_file(GtkButton *button, gpointer cd) {
     browse_file_info *info = (browse_file_info *) cd;
     GtkWidget *dialog = gtk_widget_get_toplevel(GTK_WIDGET(button));
-    GtkWidget *save_dialog = gtk_file_chooser_dialog_new(
-			    info->title,
-			    GTK_WINDOW(dialog),
-			    GTK_FILE_CHOOSER_ACTION_SAVE,
-			    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-			    GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
-			    NULL);
+    GtkWidget *save_dialog = make_file_select_dialog(
+				    info->title, info->patterns, true, dialog);
     const char *filename = gtk_entry_get_text(GTK_ENTRY(info->textfield));
     if (filename[0] == '/')
 	gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(save_dialog), filename);
@@ -758,7 +828,20 @@ static void browse_file(GtkButton *button, gpointer cd) {
 
     if (gtk_dialog_run(GTK_DIALOG(save_dialog)) == GTK_RESPONSE_ACCEPT) {
 	filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(save_dialog));
-	gtk_entry_set_text(GTK_ENTRY(info->textfield), filename);
+
+	char filenamebuf[FILENAMELEN];
+	strncpy(filenamebuf, filename, FILENAMELEN);
+	filenamebuf[FILENAMELEN - 1] = 0;
+	const gchar *filtername =
+	    gtk_file_filter_get_name(
+			gtk_file_chooser_get_filter(
+			    GTK_FILE_CHOOSER(save_dialog)));
+	if (strncmp(filtername, "Text", 4) == 0)
+	    appendSuffix(filenamebuf, ".txt");
+	else if (strncmp(filtername, "GIF", 3) == 0)
+	    appendSuffix(filenamebuf, ".gif");
+
+	gtk_entry_set_text(GTK_ENTRY(info->textfield), filenamebuf);
     }
     gtk_widget_destroy(GTK_WIDGET(save_dialog));
 }
@@ -810,8 +893,14 @@ static void preferencesCB() {
 	gifheight = gtk_entry_new_with_max_length(5);
 	gtk_table_attach(GTK_TABLE(table), gifheight, 2, 3, 5, 6, (GtkAttachOptions) (GTK_SHRINK), (GtkAttachOptions) 0, 3, 3);
 
-	g_signal_connect(G_OBJECT(browse1), "clicked", G_CALLBACK(browse_file), (gpointer) new browse_file_info("Select Text File Name", textpath));
-	g_signal_connect(G_OBJECT(browse2), "clicked", G_CALLBACK(browse_file), (gpointer) new browse_file_info("Select GIF File Name", gifpath));
+	g_signal_connect(G_OBJECT(browse1), "clicked", G_CALLBACK(browse_file),
+		(gpointer) new browse_file_info("Select Text File Name",
+						"Text (*.txt)\0*.[Tt][Xx][Tt]\0All Files (*.*)\0*\0",
+						textpath));
+	g_signal_connect(G_OBJECT(browse2), "clicked", G_CALLBACK(browse_file),
+		(gpointer) new browse_file_info("Select GIF File Name",
+						"GIF (*.gif)\0*.[Gg][Ii][Ff]\0All Files (*.*)\0*\0",
+						gifpath));
 	
 	gtk_widget_show_all(GTK_WIDGET(dialog));
     }
