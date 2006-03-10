@@ -602,6 +602,8 @@ void BCDFloat::_uadd(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
         int i;
         int ca = 0;
         int v;
+	if (d > 0 && b->d_[P-d] >= BASE/2)
+	    ca = 1;
         for (i = P-1; i >= 0; --i) {
             v = a->d_[i] + ca;
             int j = i-d;
@@ -644,6 +646,8 @@ void BCDFloat::_usub(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
         int i;
         int ca = 0;
         int v;
+	if (d > 0 && b->d_[P-d] >= BASE/2)
+	    ca = 1;
         for (i = P-1; i >= 0; --i) {
             v = a->d_[i];
             int j = i-d;
