@@ -17,10 +17,6 @@ the lines of Java's SwingUtilities.invokeLater().
 file filtering stuff. How do you do that with GTK? And, what is the deal with
 having GtkFileChooser *and* GtkFileSelection?!?
 
-Is are the 'length' and 'string' fields in GdkEventKey populated using
-XLookupString? My code kinda assumes so; I need to know this because I use
-those fields in the 'printability' check, and in ALPHA and A..F modes.
-
 When flag 21 is clear, should there be automatic printing in NORM and TRACE
 modes? What about PRGM vs. RUN modes in this situation?
 
