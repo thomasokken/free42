@@ -34,6 +34,8 @@ modes? What about PRGM vs. RUN modes in this situation?
 
 Decimal version: 1.01 ->HR 1 - yields 0.16666666666666666666666. That last 6
 should be a 7. BCDFloat bug or ->HR bug?
+UPDATE: 1/60 yields the correct result, but 1/60 + 1 is rounded wrong. Looks
+like a bug in BCDFloat::add().
 
 Get a PayPal account to accept donations. :-)
 
