@@ -24,6 +24,17 @@ Motif/Linux, and Motif/Cygwin builds. What's going on? NaN is the expected
 result; why do *all* the non-PalmOS builds return 0?
 NOTE: the decimal version *does* return the expected result (need to use
 1e9000 instead of 1e300 to force the overflow).
+UPDATE: Consider the following code:
+
+   double t1() { double x = 1e300; double y = -1e300;
+		 return x * x + x * y; }
+   double t2() { double x = 1e300; double y = -1e300;
+		 double a = x * x; double b = x * y; return a + b; }
+
+Version t1() returns 0, while version t2() returns the expected NaN.
+What's going on? I ran this test using plain vanilla Cygwin, and I specified no
+optimization (supposedly, "-O0" is the default).
+What is this? Strength reduction? Some optimization taking place even with -O0?
 
 PalmOS version: support dynamic screen size changes (dynamic input area;
 portrait/landscape mode switching). The tricky bit: storing the currenly
