@@ -35,6 +35,8 @@ Version t1() returns 0, while version t2() returns the expected NaN.
 What's going on? I ran this test using plain vanilla Cygwin, and I specified no
 optimization (supposedly, "-O0" is the default).
 What is this? Strength reduction? Some optimization taking place even with -O0?
+Might be interesting to look at the "-s" compiler output for those two test
+cases. Some "Inf" check being left out in the t1 case perhaps?
 
 PalmOS version: support dynamic screen size changes (dynamic input area;
 portrait/landscape mode switching). The tricky bit: storing the currenly
