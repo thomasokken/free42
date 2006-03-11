@@ -10,9 +10,6 @@ Get a PayPal account to accept donations. :-)
 
 Pocket PC version.
 
-When flag 21 is clear, should there be automatic printing in NORM and TRACE
-modes? What about PRGM vs. RUN modes in this situation?
-
 The "Paste" command converts numbers from text to 'double' before passing them
 to the emulator core; for the Decimal version, this can lead to inexact values
 being pasted. The conversion should be direct from text to decimal in this
