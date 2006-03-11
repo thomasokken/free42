@@ -18,6 +18,11 @@ to the emulator core; for the Decimal version, this can lead to inexact values
 being pasted. The conversion should be direct from text to decimal in this
 case.
 
+(1e300, 1e300) (1e300, -1e300) DOT
+This returns NaN on the Palm, but not on the Windows/MSVC++, Windows/MinGW,
+Motif/Linux, and Motif/Cygwin builds. What's going on? NaN is the expected
+result; why do *all* the non-PalmOS builds return 0?
+
 PalmOS version: support dynamic screen size changes (dynamic input area;
 portrait/landscape mode switching). The tricky bit: storing the currenly
 selected skin will no longer be a simple matter of keeping track of one skin
