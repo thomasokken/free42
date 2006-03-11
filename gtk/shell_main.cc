@@ -45,6 +45,23 @@ bool allow_paint = false;
 state_type state;
 char free42dirname[FILENAMELEN];
 
+
+/* PRINT_LINES is limited to an even lower value than in the Motif version.
+ * It appears that GTK does not allow the SUM of a widget's height and its
+ * container's height to exceed 32k, which means that as the print widget's
+ * height approaches that magical number, the top-level window is forced to
+ * become shorter and shorter. So, I set the limit at 30000 instead of
+ * 32768; if we're reading a print-out file from Free42/Motif which has more
+ * than 30000 pixels, we chop off the excess from the top.
+ */
+#define PRINT_LINES 30000
+#define PRINT_BYTESPERLINE 36
+#define PRINT_SIZE 1080000
+
+
+static unsigned char *print_bitmap;
+static int printout_top;
+static int printout_bottom;
 static bool quit_flag = false;
 static int enqueued;
 
@@ -54,10 +71,16 @@ static int enqueued;
 static FILE *print_txt = NULL;
 static FILE *print_gif = NULL;
 static char print_gif_name[FILENAMELEN];
+static int gif_seq = -1;
+static int gif_lines;
 
 static int pype[2];
 
 static GtkWidget *mainwindow;
+static GtkWidget *printwindow;
+static GtkWidget *print_widget;
+static GdkGC *print_gc = NULL;
+static GtkAdjustment *print_adj;
 static char export_file_name[FILENAMELEN];
 static FILE *export_file = NULL;
 static FILE *import_file = NULL;
@@ -101,6 +124,7 @@ static void quit();
 static char *strclone(const char *s);
 static bool is_file(const char *name);
 static void show_message(char *title, char *message);
+static void scroll_printout_to_bottom();
 static void quitCB();
 static void showPrintOutCB();
 static void exportProgramCB();
@@ -114,7 +138,9 @@ static void copyCB();
 static void pasteCB();
 static void aboutCB();
 static void delete_cb(GtkWidget *w, gpointer cd);
+static void delete_print_cb(GtkWidget *w, gpointer cd);
 static gboolean expose_cb(GtkWidget *w, GdkEventExpose *event, gpointer cd);
+static gboolean print_expose_cb(GtkWidget *w, GdkEventExpose *event, gpointer cd);
 static gboolean button_cb(GtkWidget *w, GdkEventButton *event, gpointer cd);
 static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd);
 static void enable_reminder();
@@ -123,6 +149,7 @@ static gboolean repeater(gpointer cd);
 static gboolean timeout1(gpointer cd);
 static gboolean timeout2(gpointer cd);
 static gboolean timeout3(gpointer cd);
+static void repaint_printout(int x, int y, int width, int height);
 static gboolean reminder(gpointer cd);
 static void txt_writer(const char *text, int length);
 static void txt_newliner();
@@ -289,12 +316,84 @@ int main(int argc, char *argv[]) {
     g_signal_connect(G_OBJECT(w), "key-release-event", G_CALLBACK(key_cb), NULL);
     calc_widget = w;
 
+    gtk_widget_show_all(mainwindow);
+
+
+    /**************************************/
+    /***** Build the print-out window *****/
+    /**************************************/
+
+    // In the Motif version, I create an XImage and read the bitmap data into
+    // it; in the GTK version, that approach is not practical, since pixbuf
+    // only comes in 24-bit and 32-bit flavors -- which would mean wasting
+    // 25 megabytes for a 286x32768 pixbuf. So, instead, I use a 1 bpp buffer,
+    // and simply create pixbufs on the fly whenever I have to repaint.
+    print_bitmap = (unsigned char *) malloc(PRINT_SIZE);
+
+    FILE *printfile = fopen(printfilename, "r");
+    if (printfile != NULL) {
+	int n = fread(&printout_bottom, 1, sizeof(int), printfile);
+	if (n == sizeof(int)) {
+	    if (printout_bottom > PRINT_LINES) {
+		int excess = (printout_bottom - PRINT_LINES) * PRINT_BYTESPERLINE;
+		fseek(printfile, excess, SEEK_CUR);
+		printout_bottom = PRINT_LINES;
+	    }
+	    int bytes = printout_bottom * PRINT_BYTESPERLINE;
+	    n = fread(print_bitmap, 1, bytes, printfile);
+	    if (n != bytes)
+		printout_bottom = 0;
+	} else
+	    printout_bottom = 0;
+	fclose(printfile);
+    } else
+	printout_bottom = 0;
+    printout_top = 0;
+    for (int n = printout_bottom * PRINT_BYTESPERLINE; n < PRINT_SIZE; n++)
+	print_bitmap[n] = 0;
+
+    printwindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_icon(GTK_WINDOW(printwindow), icon);
+    gtk_window_set_title(GTK_WINDOW(printwindow), "Free42 Print-Out");
+    g_signal_connect(G_OBJECT(printwindow), "delete_event",
+		     G_CALLBACK(delete_print_cb), NULL);
+
+    GtkWidget *scroll = gtk_scrolled_window_new(NULL, NULL);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
+    gtk_container_add(GTK_CONTAINER(printwindow), scroll);
+    GtkWidget *view = gtk_viewport_new(NULL, NULL);
+    gtk_container_add(GTK_CONTAINER(scroll), view);
+    print_widget = gtk_drawing_area_new();
+    gtk_widget_set_size_request(print_widget, 286, printout_bottom);
+    gtk_container_add(GTK_CONTAINER(view), print_widget);
+    print_adj = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scroll));
+    g_signal_connect(G_OBJECT(print_widget), "expose_event", G_CALLBACK(print_expose_cb), NULL);
+
+    gtk_widget_show_all(printwindow);
+    GdkGeometry geom;
+    geom.min_width = 286;
+    geom.max_width = 286;
+    geom.min_height = 1;
+    geom.max_height = 32767;
+    gtk_window_set_geometry_hints(GTK_WINDOW(printwindow), print_widget, &geom, GdkWindowHints(GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE));
+
+    if (state.printWindowKnown)
+	gtk_window_move(GTK_WINDOW(printwindow), state.printWindowX,
+						 state.printWindowY);
+    gint width, height;
+    gtk_window_get_size(GTK_WINDOW(printwindow), &width, &height);
+    gtk_window_resize(GTK_WINDOW(printwindow), width,
+	    state.printWindowKnown ? state.printWindowHeight : 600);
+
+    scroll_printout_to_bottom();
+
 
     /*************************************************/
     /***** Show main window & start the emulator *****/
     /*************************************************/
 
-    gtk_widget_show_all(mainwindow);
+    if (state.printWindowKnown && state.printWindowMapped)
+	gtk_widget_show(printwindow);
     gtk_widget_show(mainwindow);
 
     core_init(init_mode, version);
@@ -548,11 +647,66 @@ static gboolean gt_term_handler(GIOChannel *source, GIOCondition condition,
 }
 
 static void quit() {
+    FILE *printfile;
+    int n, length;
+
+    printfile = fopen(printfilename, "w");
+    if (printfile != NULL) {
+	length = printout_bottom - printout_top;
+	if (length < 0)
+	    length += PRINT_LINES;
+	n = fwrite(&length, 1, sizeof(int), printfile);
+	if (n != sizeof(int))
+	    goto failed;
+	if (printout_bottom >= printout_top) {
+	    n = fwrite(print_bitmap + PRINT_BYTESPERLINE * printout_top,
+		       1, PRINT_BYTESPERLINE * length, printfile);
+	    if (n != PRINT_BYTESPERLINE * length)
+		goto failed;
+	} else {
+	    n = fwrite(print_bitmap + PRINT_BYTESPERLINE * printout_top,
+		       1, PRINT_SIZE - PRINT_BYTESPERLINE * printout_top,
+		       printfile);
+	    if (n != PRINT_SIZE - PRINT_BYTESPERLINE * printout_top)
+		goto failed;
+	    n = fwrite(print_bitmap, 1,
+		       PRINT_BYTESPERLINE * printout_bottom, printfile);
+	    if (n != PRINT_BYTESPERLINE * printout_bottom)
+		goto failed;
+	}
+
+	fclose(printfile);
+	goto done;
+
+	failed:
+	fclose(printfile);
+	remove(printfilename);
+
+	done:
+	;
+    }
+
+    if (print_txt != NULL)
+	fclose(print_txt);
+
+    if (print_gif != NULL) {
+	shell_finish_gif(gif_seeker, gif_writer);
+	fclose(print_gif);
+    }
+
     gint x, y;
     gtk_window_get_position(GTK_WINDOW(mainwindow), &x, &y);
     state.mainWindowKnown = 1;
     state.mainWindowX = x;
     state.mainWindowY = y;
+
+    if (state.printWindowKnown) {
+	gtk_window_get_position(GTK_WINDOW(printwindow), &x, &y);
+	state.printWindowX = x;
+	state.printWindowY = y;
+	gtk_window_get_size(GTK_WINDOW(printwindow), &x, &y);
+	state.printWindowHeight = y;
+    }
 
     statefile = fopen(statefilename, "w");
     if (statefile != NULL)
@@ -560,6 +714,8 @@ static void quit() {
     core_quit();
     if (statefile != NULL)
 	fclose(statefile);
+
+    shell_spool_exit();
 
     exit(0);
 }
@@ -588,12 +744,18 @@ static void show_message(char *title, char *message) {
     gtk_widget_destroy(msg);
 }
 
+static void scroll_printout_to_bottom() {
+    gtk_adjustment_set_value(print_adj, print_adj->upper - print_adj->page_size);
+}
+
 static void quitCB() {
     quit();
 }
 
 static void showPrintOutCB() {
-    // TODO
+    gtk_widget_show(printwindow);
+    state.printWindowKnown = 1;
+    state.printWindowMapped = 1;
 }
 
 static void exportProgramCB() {
@@ -806,7 +968,15 @@ static void importProgramCB() {
 }
 
 static void clearPrintOutCB() {
-    // TODO
+    printout_top = 0;
+    printout_bottom = 0;
+    gtk_widget_set_size_request(print_widget, 286, 1);
+
+    if (print_gif != NULL) {
+	shell_finish_gif(gif_seeker, gif_writer);
+	fclose(print_gif);
+	print_gif = NULL;
+    }
 }
 
 struct browse_file_info {
@@ -1044,6 +1214,10 @@ static void delete_cb(GtkWidget *w, gpointer cd) {
     quit();
 }
 
+static void delete_print_cb(GtkWidget *w, gpointer cd) {
+    // TODO
+}
+
 static gboolean expose_cb(GtkWidget *w, GdkEventExpose *event, gpointer cd) {
     allow_paint = true;
     skin_repaint();
@@ -1057,6 +1231,12 @@ static gboolean expose_cb(GtkWidget *w, GdkEventExpose *event, gpointer cd) {
     skin_repaint_annunciator(7, ann_rad);
     if (ckey != 0)
 	skin_repaint_key(skey, 1);
+    return TRUE;
+}
+
+static gboolean print_expose_cb(GtkWidget *w, GdkEventExpose *event, gpointer cd) {
+    repaint_printout(event->area.x, event->area.y,
+		     event->area.width, event->area.height);
     return TRUE;
 }
 
@@ -1283,6 +1463,42 @@ static gboolean timeout3(gpointer cd) {
     return FALSE;
 }
 
+static void repaint_printout(int x, int y, int width, int height) {
+    GdkPixbuf *buf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, FALSE,
+				    8, width, height);
+    int d_bpl = gdk_pixbuf_get_rowstride(buf);
+    guchar *d1 = gdk_pixbuf_get_pixels(buf);
+    int length = printout_bottom - printout_top;
+    if (length < 0)
+	length += PRINT_LINES;
+
+    for (int v = y; v < y + height; v++) {
+	int v2 = printout_top + v;
+	if (v2 >= PRINT_LINES)
+	    v2 -= PRINT_LINES;
+	int v3 = v2 * 36;
+	guchar *dst = d1;
+	for (int h = x; h < x + width; h++) {
+	    unsigned char c;
+	    if (h >= 286 || v >= length)
+		c = 127;
+	    else if ((print_bitmap[v3 + (h >> 3)] & (1 << (h & 7))) == 0)
+		c = 255;
+	    else
+		c = 0;
+	    *dst++ = c;
+	    *dst++ = c;
+	    *dst++ = c;
+	}
+	d1 += d_bpl;
+    }
+
+    gdk_draw_pixbuf(print_widget->window, NULL, buf,
+		    0, 0, x, y, width, height,
+		    GDK_RGB_DITHER_MAX, 0, 0);
+    g_object_unref(G_OBJECT(buf));
+}
+
 static gboolean reminder(gpointer cd) {
     int dummy1, dummy2;
     int keep_running = core_keydown(0, &dummy1, &dummy2);
@@ -1501,10 +1717,24 @@ uint4 shell_milliseconds() {
     return (uint4) (tv.tv_sec * 1000L + tv.tv_usec / 1000);
 }
 
+struct print_growth_info {
+    int y, height;
+    print_growth_info(int yy, int hheight) : y(yy), height(hheight) {}
+};
+
+static gboolean print_widget_grew(GtkWidget *w, GdkEventConfigure *event,
+								gpointer cd) {
+    print_growth_info *info = (print_growth_info *) cd;
+    scroll_printout_to_bottom();
+    repaint_printout(0, info->y, 286, info->height);
+    g_signal_handlers_disconnect_by_func(G_OBJECT(w), (gpointer) print_widget_grew, cd);
+    delete info;
+    return FALSE;
+}
+
 void shell_print(const char *text, int length,
 		 const char *bits, int bytesperline,
 		 int x, int y, int width, int height) {
-#if 0
     int xx, yy;
     int oldlength, newlength;
 
@@ -1520,10 +1750,10 @@ void shell_print(const char *text, int length,
 	    for (px = xx * 2; px < (xx + 1) * 2; px++)
 		for (py = Y; py < Y + 2; py++)
 		    if (bit)
-			print_image->data[py * PRINT_BYTESPERLINE + (px >> 3)]
+			print_bitmap[py * PRINT_BYTESPERLINE + (px >> 3)]
 			    |= 1 << (px & 7);
 		    else
-			print_image->data[py * PRINT_BYTESPERLINE + (px >> 3)]
+			print_bitmap[py * PRINT_BYTESPERLINE + (px >> 3)]
 			    &= ~(1 << (px & 7));
 	}
     }
@@ -1538,24 +1768,25 @@ void shell_print(const char *text, int length,
 	int offset;
 	printout_top = (printout_bottom + 2) % PRINT_LINES;
 	newlength = PRINT_LINES - 2;
-	if (newlength != oldlength) {
-	    XtVaSetValues(print_da, XmNheight, newlength, NULL);
-	    XtVaSetValues(print_sb, XmNincrement, 18, NULL);
-	}
+	if (newlength != oldlength)
+	    gtk_widget_set_size_request(print_widget, 286, newlength);
 	scroll_printout_to_bottom();
 	offset = 2 * height - newlength + oldlength;
-	XCopyArea(display, print_canvas, print_canvas, gc,
-		    0, offset, 286, oldlength - offset, 0, 0);
+	if (print_gc == NULL)
+	    print_gc = gdk_gc_new(print_widget->window);
+	gdk_draw_drawable(print_widget->window, print_gc, print_widget->window,
+			  0, offset, 0, 0, 286, oldlength - 2 * height);
 	repaint_printout(0, newlength - 2 * height, 286, 2 * height);
     } else {
-	/* Is there a way to suppress the expose events that are caused
-	 * by resizing the widget? I'd rather not have to resort to
-	 * application-defined scrolling...
-	 */
-	XtVaSetValues(print_da, XmNheight, newlength, NULL);
-	XtVaSetValues(print_sb, XmNincrement, 18, NULL);
-	scroll_printout_to_bottom();
-	repaint_printout(0, oldlength, 286, 2 * height);
+	gtk_widget_set_size_request(print_widget, 286, newlength);
+	// The resize request does not take effect immediately;
+	// if I call scroll_printout_to_bottom() now, the scrolling will take
+	// place *before* the resizing, leaving the scroll bar in the wrong
+	// position.
+	// I work around this by using a callback to finish the job.
+	g_signal_connect(G_OBJECT(print_widget), "configure-event",
+			 G_CALLBACK(print_widget_grew),
+			 (gpointer) new print_growth_info(oldlength, 2 * height));
     }
 
     if (state.printerToTxtFile) {
@@ -1642,7 +1873,6 @@ void shell_print(const char *text, int length,
 	gif_lines += height;
 	done_print_gif:;
     }
-#endif
 }
 
 int shell_write(const char *buf, int4 buflen) {

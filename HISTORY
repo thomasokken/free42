@@ -1,5 +1,6 @@
-??-??-????: version 1.4.2
+11-03-2006: version 1.4.2
 
+* New: GTK+ version. For Unix users who think Motif is not cool enough. ;-)
 * Fixed handling of large complex arguments in ABS and SIGN.
 * Decimal version: fixed a bug in BCDFloat addition and subtraction that could
   cause the result to be rounded wrong under certain circumstances.
