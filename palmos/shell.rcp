@@ -368,14 +368,14 @@ begin
   bitmap "filesel-144-doc.bmp" BPP 1 DENSITY 144
 end
 
-version "1.4.1"
+version "1.4.2"
 
 form id aboutform_id at (2 2 156 156)
 frame modal
 begin
   formbitmap at (18 18) bitmap 3333
   label "Free42" autoid at (45 15) font 2
-  label "Version 1.4.1" autoid at (prevleft prevbottom)
+  label "Version 1.4.2" autoid at (prevleft prevbottom)
   label "\251 2004-2006 Thomas Okken" autoid at (18 55)
   label "thomas_okken@yahoo.com" autoid at (prevleft prevbottom)
   label "http://home.planet.nl/" autoid at (prevleft prevbottom+10)
