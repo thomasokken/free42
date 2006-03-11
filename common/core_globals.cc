@@ -2670,17 +2670,17 @@ static bool convert_programs() {
 				else
 				    dbl = NEG_TINY_PHLOAT;
 			}
+
 			pc -= sizeof(fake_bcd);
-
-			int shrinkage = sizeof(fake_bcd) - sizeof(double);
-			for (int4 pos = pc; pos < prgm->size; pos++)
-			    prgm->text[pos] = prgm->text[pos + shrinkage];
-			prgm->size -= shrinkage;
-			oldpc += shrinkage;
-
 			b = (unsigned char *) &dbl;
 			for (j = 0; j < (int) sizeof(double); j++)
 			    prgm->text[pc++] = *b++;
+
+			int shrinkage = sizeof(fake_bcd) - sizeof(double);
+			prgm->size -= shrinkage;
+			for (int4 pos = pc; pos < prgm->size; pos++)
+			    prgm->text[pos] = prgm->text[pos + shrinkage];
+			oldpc += shrinkage;
 		    #endif
 		    break;
 	    }
