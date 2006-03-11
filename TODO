@@ -22,6 +22,8 @@ case.
 This returns NaN on the Palm, but not on the Windows/MSVC++, Windows/MinGW,
 Motif/Linux, and Motif/Cygwin builds. What's going on? NaN is the expected
 result; why do *all* the non-PalmOS builds return 0?
+NOTE: the decimal version *does* return the expected result (need to use
+1e9000 instead of 1e300 to force the overflow).
 
 PalmOS version: support dynamic screen size changes (dynamic input area;
 portrait/landscape mode switching). The tricky bit: storing the currenly
