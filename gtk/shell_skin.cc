@@ -660,16 +660,53 @@ void skin_repaint_key(int key, bool state) {
 
     if (key >= -7 && key <= -2) {
 	/* Soft key */
-// TODO
-//	int x, y;
-//	GC gc = state ? disp_inv_gc : disp_gc;
-//	key = -1 - key;
-//	x = (key - 1) * 22 * display_scale.x;
-//	y = 9 * display_scale.y;
-//	XPutImage(display, calc_canvas, gc, disp_image,
-//		  x, y,
-//		  display_loc.x + x, display_loc.y + y,
-//		  21 * display_scale.x, 7 * display_scale.y);
+	key = -1 - key;
+	int x = (key - 1) * 22 * display_scale.x;
+	int y = 9 * display_scale.y;
+	int width = 21 * display_scale.x;
+	int height = 7 * display_scale.y;
+	if (state) {
+	    // Construct a temporary pixbuf, create the inverted version of
+	    // the affected screen rectangle there, and blit it
+	    GdkPixbuf *tmpbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, FALSE, 8,
+					       width, height);
+	    int s_bpl = gdk_pixbuf_get_rowstride(disp_image);
+	    int d_bpl = gdk_pixbuf_get_rowstride(tmpbuf);
+	    guchar *s1 = gdk_pixbuf_get_pixels(disp_image) + x * 3 + s_bpl * y;
+	    guchar *d1 = gdk_pixbuf_get_pixels(tmpbuf);
+	    for (int v = 0; v < height; v++) {
+		guchar *src = s1;
+		guchar *dst = d1;
+		for (int h = 0; h < width; h++) {
+		    unsigned char r = *src++;
+		    unsigned char g = *src++;
+		    unsigned char b = *src++;
+		    if (r == display_bg.r && g == display_bg.g && b == display_bg.b) {
+			*dst++ = display_fg.r;
+			*dst++ = display_fg.g;
+			*dst++ = display_fg.b;
+		    } else {
+			*dst++ = display_bg.r;
+			*dst++ = display_bg.g;
+			*dst++ = display_bg.b;
+		    }
+		}
+		s1 += s_bpl;
+		d1 += d_bpl;
+	    }
+	    gdk_draw_pixbuf(calc_widget->window, NULL, tmpbuf,
+			    0, 0,
+			    display_loc.x + x, display_loc.y + y,
+			    width, height,
+			    GDK_RGB_DITHER_NONE, 0, 0);
+	} else {
+	    // Repaint the screen
+	    gdk_draw_pixbuf(calc_widget->window, NULL, disp_image,
+			    x, y,
+			    display_loc.x + x, display_loc.y + y,
+			    width, height,
+			    GDK_RGB_DITHER_NONE, 0, 0);
+	}
 	return;
     }
 

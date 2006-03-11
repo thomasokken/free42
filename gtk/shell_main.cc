@@ -734,7 +734,8 @@ static GtkWidget *make_file_select_dialog(const char *title,
 			save ? GTK_FILE_CHOOSER_ACTION_SAVE
 			     : GTK_FILE_CHOOSER_ACTION_OPEN,
 			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-			GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+			save ? GTK_STOCK_SAVE : GTK_STOCK_OPEN,
+			GTK_RESPONSE_ACCEPT,
 			NULL);
     const char *p = pattern;
     while (1) {
