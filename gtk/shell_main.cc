@@ -1216,6 +1216,7 @@ static void delete_cb(GtkWidget *w, gpointer cd) {
 
 static void delete_print_cb(GtkWidget *w, gpointer cd) {
     state.printWindowMapped = 0;
+    gtk_widget_hide(GTK_WIDGET(printwindow));
 }
 
 static gboolean expose_cb(GtkWidget *w, GdkEventExpose *event, gpointer cd) {
