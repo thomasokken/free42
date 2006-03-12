@@ -1283,7 +1283,8 @@ int docmd_prstk(arg_struct *arg) {
 }
 
 int docmd_pra(arg_struct *arg) {
-    if (!flags.f.printer_enable && program_running())
+    // arg == NULL if we're called to do TRACE mode auto-print
+    if (arg != NULL && !flags.f.printer_enable && program_running())
 	return ERR_NONE;
     if (!flags.f.printer_exists)
 	return ERR_PRINTING_IS_DISABLED;
@@ -1313,7 +1314,8 @@ int docmd_pra(arg_struct *arg) {
 }
 
 int docmd_prx(arg_struct *arg) {
-    if (!flags.f.printer_enable && program_running())
+    // arg == NULL if we're called to do TRACE mode auto-print
+    if (arg != NULL && !flags.f.printer_enable && program_running())
 	return ERR_NONE;
     if (!flags.f.printer_exists)
 	return ERR_PRINTING_IS_DISABLED;

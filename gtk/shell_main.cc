@@ -124,6 +124,7 @@ static void quit();
 static char *strclone(const char *s);
 static bool is_file(const char *name);
 static void show_message(char *title, char *message);
+static void no_mwm_resize_borders(GtkWidget *window);
 static void scroll_printout_to_bottom();
 static void quitCB();
 static void showPrintOutCB();
@@ -269,6 +270,7 @@ int main(int argc, char *argv[]) {
     gtk_window_set_icon(GTK_WINDOW(mainwindow), icon);
     gtk_window_set_title(GTK_WINDOW(mainwindow), TITLE);
     gtk_window_set_resizable(GTK_WINDOW(mainwindow), FALSE);
+    no_mwm_resize_borders(mainwindow);
     g_signal_connect(G_OBJECT(mainwindow), "delete_event",
 		     G_CALLBACK(delete_cb), NULL);
     if (state.mainWindowKnown)
@@ -746,8 +748,29 @@ static void show_message(char *title, char *message) {
     gtk_widget_destroy(msg);
 }
 
+static void no_mwm_resize_helper(GtkWidget *w, gpointer cd) {
+    gdk_window_set_decorations(w->window, GdkWMDecoration(GDK_DECOR_ALL
+				    | GDK_DECOR_RESIZEH | GDK_DECOR_MAXIMIZE));
+    gdk_window_set_functions(w->window, GdkWMFunction(GDK_FUNC_ALL
+				    | GDK_FUNC_RESIZE | GDK_FUNC_MAXIMIZE));
+}
+
+static void no_mwm_resize_borders(GtkWidget *window) {
+    // gtk_window_set_resizable(w, FALSE) only sets the WM size hints, so that
+    // the minimum and maximum sizes coincide with the actual size. While this
+    // certainly has the desired effect of making the window non-resizable, it
+    // does not deal with the way mwm visually distinguishes resizable and
+    // non-resizable windows; the result is that, when running under mwm, you
+    // have a window with resize borders and a maximize button, none of which
+    // actually let you resize the window.
+    // So, we use an additional GDK call to set the appropriate mwm properties.
+    g_signal_connect(G_OBJECT(window), "realize",
+		     G_CALLBACK(no_mwm_resize_helper), NULL);
+}
+
 static void scroll_printout_to_bottom() {
-    gtk_adjustment_set_value(print_adj, print_adj->upper - print_adj->page_size);
+    gtk_adjustment_set_value(print_adj,
+			     print_adj->upper - print_adj->page_size);
 }
 
 static void quitCB() {
@@ -774,6 +797,7 @@ static void exportProgramCB() {
 			    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 			    NULL);
 	gtk_window_set_resizable(GTK_WINDOW(sel_dialog), FALSE);
+	no_mwm_resize_borders(sel_dialog);
 	GtkWidget *container = gtk_bin_get_child(GTK_BIN(sel_dialog));
 	GtkWidget *box = gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(container), box);
@@ -1039,6 +1063,7 @@ static void preferencesCB() {
 			    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 			    NULL);
 	gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
+	no_mwm_resize_borders(dialog);
 	GtkWidget *container = gtk_bin_get_child(GTK_BIN(dialog));
 	GtkWidget *table = gtk_table_new(6, 4, FALSE);
 	gtk_container_add(GTK_CONTAINER(container), table);
@@ -1198,6 +1223,7 @@ static void aboutCB() {
 			    GTK_RESPONSE_ACCEPT,
 			    NULL);
 	gtk_window_set_resizable(GTK_WINDOW(about), FALSE);
+	no_mwm_resize_borders(about);
 	GtkWidget *container = gtk_bin_get_child(GTK_BIN(about));
 	GtkWidget *box = gtk_hbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(container), box);

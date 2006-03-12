@@ -305,6 +305,7 @@ static void quit();
 static char *strclone(const char *s);
 static int is_file(const char *name);
 static void show_message(char *title, char *message);
+static void no_gnome_resize(Widget w);
 static void scroll_printout_to_bottom();
 static int get_window_pos(Widget w, int *x, int *y);
 static void quitCB(Widget w, XtPointer ud, XtPointer cd);
@@ -913,6 +914,7 @@ int main(int argc, char *argv[]) {
 
     if (state.printWindowKnown && state.printWindowMapped)
 	XMapRaised(display, XtWindow(printwindow));
+    no_gnome_resize(mainwindow);
     XMapRaised(display, XtWindow(mainwindow));
 
     core_init(init_mode, version);
@@ -1333,6 +1335,42 @@ static void show_message(char *title, char *message) {
     XtManageChild(msg);
 }
 
+static void no_gnome_resize(Widget w) {
+    // metacity, and probably other window managers as well, does not honor all
+    // the mwm decor/function hints -- the result is that you get a window with
+    // no maximize button (good) but which can still be resized by dragging its
+    // edges (bad). Setting the WM size hints plugs this hole.
+    // It is a pain in the neck, though, because these hints also prevent the
+    // window from being resized under program control -- so whenever that is
+    // needed (i.e. when changing skins on the calculator window), the hints
+    // must be relaxed.
+    XtRealizeWidget(w);
+    Dimension width, height;
+    XtVaGetValues(w,
+		  XmNwidth, &width,
+		  XmNheight, &height,
+		  NULL);
+    XtVaSetValues(w,
+		  XmNminWidth, width,
+		  XmNmaxWidth, width,
+		  XmNminHeight, height,
+		  XmNmaxHeight, height,
+		  NULL);
+}
+
+void allow_mainwindow_resize() {
+    XtVaSetValues(mainwindow,
+		  XmNminWidth, 1,
+		  XmNminHeight, 1,
+		  XmNmaxWidth, 32767,
+		  XmNmaxHeight, 32767,
+		  NULL);
+}
+
+void disallow_mainwindow_resize() {
+    no_gnome_resize(mainwindow);
+}
+
 static void scroll_printout_to_bottom() {
     XmScrollBarCallbackStruct cbs;
     int maximum, slidersize;
@@ -1424,6 +1462,7 @@ static void exportProgramCB(Widget w, XtPointer ud, XtPointer cd) {
     free(stringtab);
 
     XtManageChild(program_select_dialog);
+    no_gnome_resize(XtParent(program_select_dialog));
 }
 
 static void make_program_select_dialog() {
@@ -1974,6 +2013,7 @@ static void preferencesCB(Widget w, XtPointer ud, XtPointer cd) {
     XmTextSetString(prefs_printer_gif_height, maxlen);
 
     XtManageChild(prefsdialog);
+    no_gnome_resize(XtParent(prefsdialog));
 }
 
 static void make_prefs_dialog() {
@@ -2446,6 +2486,7 @@ static void aboutCB(Widget w, XtPointer ud, XtPointer cd) {
     }
 
     XtManageChild(about);
+    no_gnome_resize(XtParent(about));
 }
 
 static void delete_cb(Widget w, XtPointer ud, XtPointer cd) {

@@ -67,4 +67,7 @@ typedef struct {
 
 keymap_entry *parse_keymap_entry(char *line, int lineno);
 
+void allow_mainwindow_resize();
+void disallow_mainwindow_resize();
+
 #endif
