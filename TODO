@@ -7,6 +7,9 @@
 +----------------------------------------------------------------------------+
 
 The GTK version doesn't let you close the print-out window.
+Not only that, it always maps it on start-up -- even if the state file says not
+to. I think I'm ignoring the window-mapped setting, plus one or two other
+screw-ups!
 
 The Motif version should set size hints on the main window, to keep all the new
 GTK-centric window managers from allowing the window to be resized; the GTK
