@@ -6,6 +6,8 @@
 | those I *will* definitely fix as quickly as possible.                      |
 +----------------------------------------------------------------------------+
 
+The GTK version doesn't let you close the print-out window.
+
 The Motif version should set size hints on the main window, to keep all the new
 GTK-centric window managers from allowing the window to be resized; the GTK
 version should set WM hints to keep mwm from showing resize borders.
