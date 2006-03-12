@@ -316,8 +316,6 @@ int main(int argc, char *argv[]) {
     g_signal_connect(G_OBJECT(w), "key-release-event", G_CALLBACK(key_cb), NULL);
     calc_widget = w;
 
-    gtk_widget_show_all(mainwindow);
-
 
     /**************************************/
     /***** Build the print-out window *****/
@@ -369,7 +367,10 @@ int main(int argc, char *argv[]) {
     print_adj = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scroll));
     g_signal_connect(G_OBJECT(print_widget), "expose_event", G_CALLBACK(print_expose_cb), NULL);
 
-    gtk_widget_show_all(printwindow);
+    gtk_widget_show(print_widget);
+    gtk_widget_show(view);
+    gtk_widget_show(scroll);
+
     GdkGeometry geom;
     geom.min_width = 286;
     geom.max_width = 286;
@@ -394,6 +395,7 @@ int main(int argc, char *argv[]) {
 
     if (state.printWindowKnown && state.printWindowMapped)
 	gtk_widget_show(printwindow);
+    gtk_widget_show_all(mainwindow);
     gtk_widget_show(mainwindow);
 
     core_init(init_mode, version);
@@ -1201,7 +1203,7 @@ static void aboutCB() {
 	gtk_container_add(GTK_CONTAINER(container), box);
 	GtkWidget *image = gtk_image_new_from_pixbuf(icon);
 	gtk_box_pack_start(GTK_BOX(box), image, FALSE, FALSE, 10);
-	GtkWidget *label = gtk_label_new("Free42 1.4.2\n(C) 2004-2006 Thomas Okken\nthomas_okken@yahoo.com\nhttp://home.planet.nl/~demun000/thomas_projects/free42/");
+	GtkWidget *label = gtk_label_new("Free42 1.4.3\n(C) 2004-2006 Thomas Okken\nthomas_okken@yahoo.com\nhttp://home.planet.nl/~demun000/thomas_projects/free42/");
 	gtk_box_pack_start(GTK_BOX(box), label, FALSE, FALSE, 10);
 	gtk_widget_show_all(GTK_WIDGET(about));
     }

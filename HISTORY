@@ -1,3 +1,7 @@
+12-03-2006: version 1.4.2
+
+* GTK version: refused to close the print-out window. Fixed.
+
 11-03-2006: version 1.4.2
 
 * New: GTK+ version. For Unix users who think Motif is not cool enough. ;-)
