@@ -6,6 +6,22 @@
 | those I *will* definitely fix as quickly as possible.                      |
 +----------------------------------------------------------------------------+
 
+The GTK version initially shows the print-out window scrolled to the top.
+Apparently, the show_printout_to_bottom() call in main() isn't having the
+desired effect -- it probably needs to be deferred until *after* the window
+is realized or mapped or whatever.
+
+More GTK print-out window misery: when the window is not positioned at the
+bottom, and print-out occurs, it can get painted wrong; the bottom line is
+displayed twice. Apparently, the scrolling and painting is not taking place in
+the sequence I expected.
+
+The "Paste" command converts numbers from text to 'double' before passing them
+to the emulator core; for the Decimal version, this can lead to inexact values
+being pasted. The conversion should be direct from text to decimal in this
+case; the clean implementation would be to push *all* paste handling into the
+emulator core.
+
 Get a PayPal account to accept donations. :-)
 
 Pocket PC version.

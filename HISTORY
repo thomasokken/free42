@@ -1,3 +1,8 @@
+??-??-????: version 1.4.4
+
+* In TRACE mode, while running a program, clearing flag 21 should not suppress
+  auto-print, but it did. Fixed.
+
 12-03-2006: version 1.4.3
 
 * GTK version: refused to close the print-out window. Fixed.
