@@ -264,36 +264,14 @@ void core_import_programs(int (*progress_report)(const char *)) MAIN_SECT;
  */
 void core_copy(char *buf, int buflen) MAIN_SECT;
 
-/* core_fix_number()
+/* core_paste()
  *
- * Normalizes a number by stripping thousands separators, and changing commas
- * to periods if necessary. This converts numbers from the format specified by
- * flags 28 and 29 to a format suitable for sscanf(); this normalization step
- * should be performed in preparation for pasting.
- * Note that this function modifies the string in place.
- */
-void core_fix_number(char *s) MAIN_SECT;
-
-/* core_paste_real()
- *
- * Puts the given value on the stack as a real, using RCL semantics.
+ * Puts the given value on the stack, using RCL semantics. It tries to parse
+ * the string as a complex or a real number; if that fails, it is pasted as
+ * a plain string.
  * Used by the shell to implement the Paste command.
  */
-void core_paste_real(double x) MAIN_SECT;
-
-/* core_paste_complex()
- *
- * Puts the given value on the stack as a complex, using RCL semantics.
- * Used by the shell to implement the Paste command.
- */
-void core_paste_complex(double re, double im) MAIN_SECT;
-
-/* core_paste_string()
- *
- * Puts the given value on the stack as a string, using RCL semantics.
- * Used by the shell to implement the Paste command.
- */
-void core_paste_string(const char *s) MAIN_SECT;
+void core_paste(const char *s) MAIN_SECT;
 
 /* core_settings
  *

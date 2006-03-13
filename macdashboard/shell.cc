@@ -544,20 +544,7 @@ main(int argc, char *argv[])
 			}
 			break;
 		case 'P':
-			if (strlen(cmd + 1)) {
-				double re, im;
-				char *data2 = strdup(cmd + 1);
-				core_fix_number(data2);
-				if (sscanf(data2, " %lf i %lf ", &re, &im) == 2
-					|| sscanf(data2, " %lf + %lf i ", &re, &im) == 2
-					|| sscanf(data2, " ( %lf , %lf ) ", &re, &im) == 2)
-					core_paste_complex(re, im);
-				else if (sscanf(data2, " %lf ", &re) == 1)
-					core_paste_real(re);
-				else
-					core_paste_string(cmd + 1);
-				free(data2);
-			} else core_paste_string(cmd + 1);
+			core_paste(cmd + 1);
 			redisplay();
 			break;
 		case 'e':

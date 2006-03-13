@@ -1892,6 +1892,7 @@ void core_copy(char *buf, int buflen) {
     }
 }
 
+#if 0
 void core_fix_number(char *s) {
     char *d = s;
     char dot, sep, c;
@@ -1910,32 +1911,11 @@ void core_fix_number(char *s) {
 	    *d++ = c;
     } while (c != 0);
 }
+#endif
 
-void core_paste_real(double x) {
-    vartype *v = new_real(x);
-    if (v == NULL)
-	squeak();
-    else {
-	if (!flags.f.prgm_mode)
-	    mode_number_entry = false;
-	recall_result(v);
-	flags.f.stack_lift_disable = 0;
-    }
-}
-
-void core_paste_complex(double re, double im) {
-    vartype *v = new_complex(re, im);
-    if (v == NULL)
-	squeak();
-    else {
-	if (!flags.f.prgm_mode)
-	    mode_number_entry = false;
-	recall_result(v);
-	flags.f.stack_lift_disable = 0;
-    }
-}
-
-void core_paste_string(const char *s) {
+void core_paste(const char *s) {
+    // TODO: try converting to real or complex first;
+    // if both fail, *then* paste as string.
     vartype *v;
     int len = 0;
     while (s[len] != 0)

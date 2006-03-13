@@ -2432,29 +2432,11 @@ static void pasteCB(Widget w, XtPointer ud, XtPointer cd) {
     res = XGetWindowProperty(display, rootwindow, CUT_BUFFER0, 0, 256, False,
 			     STRING, &type, &format, &items, &bytes,
 			     (unsigned char **) &data);
-    if (res == Success && type == STRING) {
-	/* Try parsing it as a complex; if that fails, try
-	 * parsing it as a real, and if that fails too,
-	 * just paste as a string.
-	 */
-	int len = strlen(data) + 1;
-	char *data2 = (char *) malloc(len);
-	if (data2 != NULL) {
-	    double re, im;
-	    strcpy(data2, data);
-	    core_fix_number(data2);
-	    if (sscanf(data2, " %lf i %lf ", &re, &im) == 2
-		    || sscanf(data2, " %lf + %lf i ", &re, &im) == 2
-		    || sscanf(data2, " ( %lf , %lf ) ", &re, &im) == 2)
-		core_paste_complex(re, im);
-	    else if (sscanf(data2, " %lf ", &re) == 1)
-		core_paste_real(re);
-	    else
-		core_paste_string(data);
-	    free(data2);
-	} else
-	    core_paste_string(data);
-	redisplay();
+    if (res == Success) {
+	if (type == STRING) {
+	    core_paste(data);
+	    redisplay();
+	}
 	XFree(data);
     }
 }

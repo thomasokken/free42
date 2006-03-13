@@ -2,6 +2,11 @@
 
 * In TRACE mode, while running a program, clearing flag 21 should not suppress
   auto-print, but it did. Fixed.
+* GTK version: when initially presented, the print-out window was not
+  automatically scrolled to the bottom sometimes. Fixed.
+* GTK version: when the print-out window's scroll-back buffer was full, and the
+  window was not scrolled to the bottom, and print-out took place, the window
+  would get updated wrong. Fixed.
 
 12-03-2006: version 1.4.3
 

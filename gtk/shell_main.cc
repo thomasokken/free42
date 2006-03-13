@@ -388,6 +388,7 @@ int main(int argc, char *argv[]) {
     gtk_window_resize(GTK_WINDOW(printwindow), width,
 	    state.printWindowKnown ? state.printWindowHeight : 600);
 
+    gtk_widget_realize(printwindow);
     scroll_printout_to_bottom();
 
 
@@ -1175,31 +1176,10 @@ static void copyCB() {
 }
 
 static void paste2(GtkClipboard *clip, const gchar *text, gpointer cd) {
-    if (text == NULL)
-	return;
-    /* Try parsing it as a complex; if that fails, try
-     * parsing it as a real, and if that fails too,
-     * just paste as a string.
-     */
-    int len = strlen(text) + 1;
-    char *text2 = (char *) malloc(len);
-    if (text2 != NULL) {
-	double re, im;
-	strcpy(text2, text);
-	core_fix_number(text2);
-	if (sscanf(text2, " %lf i %lf ", &re, &im) == 2
-		|| sscanf(text2, " %lf + %lf i ", &re, &im) == 2
-		|| sscanf(text2, " ( %lf , %lf ) ",
-		    &re, &im) == 2)
-	    core_paste_complex(re, im);
-	else if (sscanf(text2, " %lf ", &re) == 1)
-	    core_paste_real(re);
-	else
-	    core_paste_string(text);
-	free(text2);
-    } else
-	core_paste_string(text);
-    redisplay();
+    if (text != NULL) {
+	core_paste(text);
+	redisplay();
+    }
 }
 
 static void pasteCB() {
@@ -1804,7 +1784,7 @@ void shell_print(const char *text, int length,
 	if (print_gc == NULL)
 	    print_gc = gdk_gc_new(print_widget->window);
 	gdk_draw_drawable(print_widget->window, print_gc, print_widget->window,
-			  0, offset, 0, 0, 286, oldlength - 2 * height);
+			  0, offset, 0, 0, 286, oldlength - offset);
 	repaint_printout(0, newlength - 2 * height, 286, 2 * height);
     } else {
 	gtk_widget_set_size_request(print_widget, 286, newlength);

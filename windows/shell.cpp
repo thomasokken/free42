@@ -1256,26 +1256,7 @@ static void paste() {
 	if (h != NULL) {
 		char *p = (char *) GlobalLock(h);
 		if (p != NULL) {
-			// Try parsing it as a complex; if that fails, try
-			// parsing it as a real, and if that fails too,
-			// just paste as a string.
-			int len = strlen(p) + 1;
-			char *p2 = (char *) malloc(len);
-			if (p2 != NULL) {
-				double re, im;
-				strcpy(p2, p);
-				core_fix_number(p2);
-				if (sscanf(p2, " %lf i %lf ", &re, &im) == 2
-						|| sscanf(p2, " %lf + %lf i ", &re, &im) == 2
-						|| sscanf(p2, " ( %lf , %lf ) ", &re, &im) == 2)
-					core_paste_complex(re, im);
-				else if (sscanf(p2, " %lf ", &re) == 1)
-					core_paste_real(re);
-				else
-					core_paste_string(p);
-				free(p2);
-			} else
-				core_paste_string(p);
+			core_paste(p);
 			redisplay();
 			GlobalUnlock(h);
 		}
