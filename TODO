@@ -6,11 +6,7 @@
 | those I *will* definitely fix as quickly as possible.                      |
 +----------------------------------------------------------------------------+
 
-The "Paste" command converts numbers from text to 'double' before passing them
-to the emulator core; for the Decimal version, this can lead to inexact values
-being pasted. The conversion should be direct from text to decimal in this
-case; the clean implementation would be to push *all* paste handling into the
-emulator core.
+Finish implementing core_paste().
 
 Get a PayPal account to accept donations. :-)
 
