@@ -6,14 +6,6 @@
 | those I *will* definitely fix as quickly as possible.                      |
 +----------------------------------------------------------------------------+
 
-Finish implementing core_paste().
-
-Take another look at the GTK version's shell_print. Is it really necessary to
-use a callback when printing after resizing the print widget? If so, the
-borderline case (where the new buffer size exceeds PRINT_LINES, but the old
-buffer size did not) is handled wrong, because that branch does not use a
-callback yet.
-
 Get a PayPal account to accept donations. :-)
 
 Pocket PC version.

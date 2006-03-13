@@ -1892,43 +1892,185 @@ void core_copy(char *buf, int buflen) {
     }
 }
 
-#if 0
-void core_fix_number(char *s) {
-    char *d = s;
-    char dot, sep, c;
-    if (flags.f.decimal_point) {
-	dot = '.';
-	sep = ',';
-    } else {
-	dot = ',';
-	sep = '.';
-    }
-    do {
-	c = *s++;
-	if (c == dot)
-	    *d++ = '.';
-	else if (c != sep)
-	    *d++ = c;
-    } while (c != 0);
+static bool is_number_char(char c) MAIN_SECT;
+static bool is_number_char(char c) {
+    return (c >= '0' && c <= '9')
+	|| c == '.' || c == ','
+	|| c == '+' || c == '-'
+	|| c == 'e' || c == 'E' || c == 24;
 }
-#endif
 
-void core_paste(const char *s) {
-    // TODO: try converting to real or complex first;
-    // if both fail, *then* paste as string.
-    vartype *v;
-    int len = 0;
-    while (s[len] != 0)
-	len++;
-    v = new_string(s, len);
-    if (v == NULL)
-	squeak();
+static bool parse_phloat(const char *p, int len, phloat *res) MAIN_SECT;
+static bool parse_phloat(const char *p, int len, phloat *res) {
+    // We can't pass the string on to string2phloat() unchanged, because
+    // that function is picky: it does not allow '+' signs, and it does
+    // not allow the mantissa to be more than 12 digits long (including
+    // leading zeroes). So, we massage the string a bit to make it
+    // comply with those restrictions.
+    char buf[100];
+    bool in_mant = true;
+    int mant_digits = 0;
+    int i = 0;
+    while (i < 100) {
+	char c = *p++;
+	if (c == 0)
+	    break;
+	if (c == '+')
+	    continue;
+	else if (c == 'e' || c == 'E' || c == 24) {
+	    in_mant = false;
+	    buf[i++] = 24;
+	} else if (c >= '0' && c <= '9') {
+	    if (!in_mant || mant_digits++ < 12)
+		buf[i++] = c;
+	} else
+	    buf[i++] = c;
+    }
+    int err = string2phloat(buf, i, res);
+    if (err == 0)
+	return true;
+    else if (err == 1) {
+	*res = POS_HUGE_PHLOAT;
+	return true;
+    } else if (err == 2) {
+	*res = NEG_HUGE_PHLOAT;
+	return true;
+    } else if (err == 3 || err == 4) {
+	*res = 0;
+	return true;
+    } else
+	return false;
+}
+
+void core_paste(const char *buf) {
+    phloat re, im;
+    int i, s1, e1, s2, e2;
+
+    /* Try matching " %g i %g " */
+    i = 0;
+    while (buf[i] == ' ')
+	i++;
+    s1 = i;
+    while (is_number_char(buf[i]))
+	i++;
+    e1 = i;
+    if (e1 == s1)
+	goto attempt_2;
+    while (buf[i] == ' ')
+	i++;
+    if (buf[i] == 'i')
+	i++;
+    else
+	goto attempt_2;
+    while (buf[i] == ' ')
+	i++;
+    s2 = i;
+    while (is_number_char(buf[i]))
+	i++;
+    e2 = i;
+    if (e2 == s2)
+	goto attempt_2;
+    goto finish_complex;
+
+    /* Try matching " %g + %g i " */
+    attempt_2:
+    i = 0;
+    while (buf[i] == ' ')
+	i++;
+    s1 = i;
+    while (is_number_char(buf[i]))
+	i++;
+    e1 = i;
+    if (e1 == s1)
+	goto attempt_3;
+    while (buf[i] == ' ')
+	i++;
+    if (buf[i] == '+')
+	i++;
+    else
+	goto attempt_3;
+    while (buf[i] == ' ')
+	i++;
+    s2 = i;
+    while (is_number_char(buf[i]))
+	i++;
+    e2 = i;
+    if (e2 == s2)
+	goto attempt_3;
+    goto finish_complex;
+
+    /* Try matching " ( %g , %g ) " */
+    /* To avoid the ambiguity with the comma, a colon or semicolon is
+     * also accepted; if those are used, you don't need to surround them
+     * with spaces to distinguish them from 'number' chars
+     */
+    attempt_3:
+    i = 0;
+    while (buf[i] == ' ')
+	i++;
+    if (buf[i] == '(')
+	i++;
+    else
+	goto attempt_4;
+    while (buf[i] == ' ')
+	i++;
+    s1 = i;
+    while (is_number_char(buf[i]))
+	i++;
+    e1 = i;
+    if (e1 == s1)
+	goto attempt_4;
+    while (buf[i] == ' ')
+	i++;
+    if (buf[i] == ',' || buf[i] == ':' || buf[i] == ';')
+	i++;
+    else
+	goto attempt_4;
+    while (buf[i] == ' ')
+	i++;
+    s2 = i;
+    while (is_number_char(buf[i]))
+	i++;
+    e2 = i;
+    if (e2 == s2)
+	goto attempt_4;
+    finish_complex:
+    if (!parse_phloat(buf + s1, e1 - s1, &re))
+	goto attempt_4;
+    if (!parse_phloat(buf + s2, e2 - s2, &im))
+	goto attempt_4;
+    vartype *v = new_complex(re, im);
+    goto paste;
+
+    /* Try matching " %g " */
+    attempt_4:
+    i = 0;
+    while (buf[i] == ' ')
+	i++;
+    s1 = i;
+    while (is_number_char(buf[i]))
+	i++;
+    e1 = i;
+    if (e1 != s1 && parse_phloat(buf + s1, e1 - s1, &re))
+	v = new_real(re);
     else {
+	int len = 0;
+	while (len < 6 && buf[len] != 0)
+	    len++;
+	v = new_string(buf, len);
+    }
+
+    paste:
+    if (v == NULL) {
+	squeak();
+	return;
+    } else {
 	if (!flags.f.prgm_mode)
 	    mode_number_entry = false;
 	recall_result(v);
 	flags.f.stack_lift_disable = 0;
     }
+    redisplay();
 }
 
 void set_alpha_entry(bool state) {
