@@ -1945,6 +1945,7 @@ static bool parse_phloat(const char *p, int len, phloat *res) {
 void core_paste(const char *buf) {
     phloat re, im;
     int i, s1, e1, s2, e2;
+    vartype *v;
 
     /* Try matching " %g i %g " */
     i = 0;
@@ -2039,7 +2040,7 @@ void core_paste(const char *buf) {
 	goto attempt_4;
     if (!parse_phloat(buf + s2, e2 - s2, &im))
 	goto attempt_4;
-    vartype *v = new_complex(re, im);
+    v = new_complex(re, im);
     goto paste;
 
     /* Try matching " %g " */
