@@ -269,6 +269,10 @@ BEGIN
     IDS_HELLO               "Hello World!"
     IDC_FREE42              "FREE42"
     IDC_FREE42_PRINTOUT     "FREE42PRINTOUT"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
     IDS_PRINTOUT_TITLE      "Free42 Print-Out"
 END
 
