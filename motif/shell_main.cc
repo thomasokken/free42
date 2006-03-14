@@ -805,10 +805,6 @@ int main(int argc, char *argv[]) {
 			    XmInternAtom(display, "WM_DELETE_WINDOW", False),
 			    delete_print_cb, NULL);
 
-    XtAddEventHandler(mainwindow, 0, True,
-		      (XtEventHandler) _XEditResCheckMessages,
-		      NULL);
-
     form = XtVaCreateManagedWidget("Form",
 				   xmFormWidgetClass,
 				   printwindow,
@@ -1482,9 +1478,6 @@ static void make_program_select_dialog() {
     program_select_dialog = XmCreateFormDialog(mainwindow,
 					"ProgramSelectDialog", args, 6);
 
-    XtAddEventHandler(XtParent(program_select_dialog), 0, True,
-			(XtEventHandler) _XEditResCheckMessages, NULL);
-
     s = XmStringCreateLocalized("Select Programs to Export:");
     label = XtVaCreateManagedWidget("SelectProgramsLabel",
 			xmLabelWidgetClass,
@@ -2033,9 +2026,6 @@ static void make_prefs_dialog() {
 
     prefsdialog = XmCreateFormDialog(mainwindow, "PrefsDialog", args, 7);
 
-    XtAddEventHandler(XtParent(prefsdialog), 0, True,
-			(XtEventHandler) _XEditResCheckMessages, NULL);
-
     s = XmStringCreateLocalized("Inverting or solving a singular matrix yields \"Singular Matrix\" error");
     prefs_matrix_singularmatrix = XtVaCreateManagedWidget(
 			"Matrix_SingularMatrix",
@@ -2532,6 +2522,11 @@ static void print_graphicsexpose_cb(Widget w, XtPointer ud, XEvent *event,
 	 * at the time of the XCopyArea() call, but I don't know how to do
 	 * that. So, I just schedule a full repaint. Ugly but it does the job.
 	 * TODO: find a better way!
+	 * UPDATE: the officially sanctioned and blessed way is to *wait* for
+	 * a GraphicsExpose or NoExpose event after each XCopyArea() call; by
+	 * doing it that way, you can ensure that no additional scrolling will
+	 * take place before the damage caused by the last scroll operation has
+	 * been repaired.
 	 */
 	if (!print_repaint_pending) {
 	    print_repaint_id = XtAppAddWorkProc(appcontext, print_repaint,NULL);
