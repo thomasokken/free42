@@ -8,8 +8,6 @@
 
 Get a PayPal account to accept donations. :-)
 
-Pocket PC version.
-
 PalmOS version: support dynamic screen size changes (dynamic input area;
 portrait/landscape mode switching). The tricky bit: storing the currenly
 selected skin will no longer be a simple matter of keeping track of one skin
