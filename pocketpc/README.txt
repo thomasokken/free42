@@ -2,6 +2,8 @@ Screen size is 240x320; usable area after subtracting both status/menu bars
 seems to be 240x268. TODO: get Christoph Giesselink's Emu42/PocketPC source
 code, plus all the skins I can find for it. If nothing else, those materials
 should provide a good starting point for my PPC adventure.
+UPDATE: The skins from C.G.'s web site confirm: usable area is 240x268, or
+480x536 on high-resolution devices.
 
 ========================================================================
        Windows CE APPLICATION : Free42
