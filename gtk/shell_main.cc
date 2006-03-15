@@ -1318,7 +1318,7 @@ static gboolean button_cb(GtkWidget *w, GdkEventButton *event, gpointer cd) {
 	    skin_find_key(x, y, &skey, &ckey);
 	    if (ckey != 0) {
 		shell_keydown();
-		mouse_key = 1;
+		mouse_key = true;
 	    }
 	}
     } else if (event->type == GDK_BUTTON_RELEASE) {
@@ -1363,7 +1363,7 @@ static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
 		    ckey = 1024 + c;
 		    skey = -1;
 		    shell_keydown();
-		    mouse_key = 0;
+		    mouse_key = false;
 		    active_keycode = event->hardware_keycode;
 		    return TRUE;
 		} else if (core_hex_menu() && ((c >= 'a' && c <= 'f')
@@ -1374,7 +1374,7 @@ static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
 			ckey = c - 'A' + 1;
 		    skey = -1;
 		    shell_keydown();
-		    mouse_key = 0;
+		    mouse_key = false;
 		    active_keycode = event->hardware_keycode;
 		    return TRUE;
 		}
@@ -1405,7 +1405,7 @@ static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
 			skey = -1;
 			shell_keydown();
 		    }
-		mouse_key = 0;
+		mouse_key = false;
 		active_keycode = event->hardware_keycode;
 	    }
 	}
