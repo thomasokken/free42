@@ -113,20 +113,46 @@ END
 // Dialog
 //
 
-IDD_ABOUTBOX DIALOGEX 0, 0, 140, 98
+IDD_ABOUTBOX DIALOG DISCARDABLE  8, 18, 120, 101
 STYLE WS_POPUP | WS_CAPTION
-EXSTYLE 0x80000000L
 CAPTION "About Free42"
 FONT 8, "System"
 BEGIN
-    ICON            IDI_FREE42,IDC_STATIC,23,7,21,20
-    LTEXT           "Free42",IDC_STATIC,48,7,37,8,SS_NOPREFIX
-    LTEXT           "(C) 2004-2006 Thomas Okken",IDC_STATIC,21,33,109,8
-    LTEXT           "Version 1.4.4",IDC_STATIC,48,16,54,8
-    LTEXT           "thomas_okken@yahoo.com",IDC_STATIC,21,43,89,8
-    LTEXT           "http://home.planet.nl/",IDC_STATIC,21,60,73,8
-    LTEXT           "~demun000/",IDC_STATIC,37,70,42,8
-    LTEXT           "thomas_projects/free42/",IDC_STATIC,37,80,81,8
+    ICON            IDI_FREE42,IDC_STATIC,15,4,21,20
+    LTEXT           "Free42",IDC_STATIC,40,4,37,8,SS_NOPREFIX
+    LTEXT           "(C) 2004-2006 Thomas Okken",IDC_STATIC,13,28,97,8
+    LTEXT           "Version 1.4.4",IDC_STATIC,40,13,54,8
+    LTEXT           "thomas_okken@yahoo.com",IDC_STATIC,13,37,89,8
+    LTEXT           "http://home.planet.nl/",IDC_STATIC,13,50,73,8
+    LTEXT           "~demun000/",IDC_STATIC,29,59,42,8
+    LTEXT           "thomas_projects/free42/",IDC_STATIC,29,69,81,8
+    PUSHBUTTON      "OK",IDOK,41,81,41,14
+END
+
+IDD_PREFERENCES DIALOG DISCARDABLE  0, 12, 140, 114
+STYLE WS_POPUP | WS_CAPTION
+CAPTION "Preferences"
+FONT 8, "System"
+BEGIN
+    CONTROL         """Singular Matrix"" error",IDC_MATRIX_SINGULARMATRIX,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,2,87,10
+    CONTROL         "Matrix ""Out of Range""",IDC_MATRIX_OUTOFRANGE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,5,14,87,10
+    LTEXT           "Print to...",IDC_STATIC,5,26,32,8
+    CONTROL         "Text:",IDC_PRINTER_TXT,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,5,37,33,10
+    EDITTEXT        IDC_PRINTER_TXT_NAME,39,35,76,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDC_PRINTER_TXT_BROWSE,119,35,13,14
+    CONTROL         "Raw text",IDC_RAW_TEXT,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,71,51,45,10
+    CONTROL         "GIF:",IDC_PRINTER_GIF,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,5,65,30,10
+    EDITTEXT        IDC_PRINTER_GIF_NAME,39,63,75,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDC_PRINTER_GIF_BROWSE,118,63,14,14
+    LTEXT           "Maximum GIF height:",IDC_STATIC,16,82,68,8
+    EDITTEXT        IDC_PRINTER_GIF_HEIGHT,85,80,29,14,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,5,97,38,14
+    PUSHBUTTON      "Cancel",IDCANCEL,49,97,37,14
 END
 
 
@@ -153,9 +179,17 @@ BEGIN
     IDD_ABOUTBOX, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 132
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 89
+        RIGHTMARGIN, 112
+        TOPMARGIN, 4
+        BOTTOMMARGIN, 95
+    END
+
+    IDD_PREFERENCES, DIALOG
+    BEGIN
+        LEFTMARGIN, 6
+        RIGHTMARGIN, 130
+        TOPMARGIN, 2
+        BOTTOMMARGIN, 111
     END
 END
 #endif    // APSTUDIO_INVOKED

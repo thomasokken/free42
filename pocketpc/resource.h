@@ -9,7 +9,18 @@
 #define IDM_MENU                        102
 #define IDD_ABOUTBOX                    103
 #define IDS_HELP                        104
+#define IDD_PREFERENCES                 104
 #define IDS_COMMAND1                    301
+#define IDC_MATRIX_SINGULARMATRIX       1001
+#define IDC_MATRIX_OUTOFRANGE           1002
+#define IDC_PRINTER_TXT                 1003
+#define IDC_PRINTER_TXT_NAME            1004
+#define IDC_PRINTER_TXT_BROWSE          1005
+#define IDC_PRINTER_GIF                 1006
+#define IDC_PRINTER_GIF_NAME            1007
+#define IDC_PRINTER_GIF_BROWSE          1008
+#define IDC_RAW_TEXT                    1009
+#define IDC_PRINTER_GIF_HEIGHT          1010
 #define IDM_MAIN_COMMAND1               40001
 #define IDM_HELP_ABOUT                  40003
 #define IDS_FILE                        40004
@@ -33,9 +44,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        104
+#define _APS_NEXT_RESOURCE_VALUE        105
 #define _APS_NEXT_COMMAND_VALUE         40020
-#define _APS_NEXT_CONTROL_VALUE         1001
+#define _APS_NEXT_CONTROL_VALUE         1012
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

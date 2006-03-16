@@ -18,6 +18,7 @@
 
 // Windows Header Files:
 #include <windows.h>
+#include <commdlg.h>
 
 // Local Header Files
 
