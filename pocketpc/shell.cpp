@@ -2,7 +2,7 @@
 //
 
 #include "stdafx.h"
-#include "Free42.h"
+#include "resource.h"
 #include <commctrl.h>
 #include <aygshell.h>
 #include <sipapi.h>
@@ -167,7 +167,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			// Parse the menu selections:
 			switch (wmId)
 			{	
-				case IDM_HELP_ABOUT:
+				case IDM_ABOUT:
 					DialogBox(g_hInst, (LPCTSTR)IDD_ABOUTBOX, hWnd, (DLGPROC)About);
 				    break;
 				case IDOK:

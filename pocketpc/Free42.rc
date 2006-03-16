@@ -8,14 +8,18 @@
 // Generated from the TEXTINCLUDE 2 resource.
 //
 #include "newres.h"
+
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 #ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
-#endif
+#endif //_WIN32
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -24,7 +28,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_FREE42       ICON    DISCARDABLE     "Free42.ICO"
+IDI_FREE42              ICON    DISCARDABLE     "Free42.ICO"
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -51,27 +55,55 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
-// Menu
+// Data
 //
 
-IDM_MENU RCDATA
+IDM_MENU SHMENUBAR MOVEABLE PURE 
 BEGIN
-    IDM_MENU, 1,
-    
-	I_IMAGENONE, IDM_MAIN_COMMAND1, TBSTATE_ENABLED,
-	TBSTYLE_DROPDOWN | TBSTYLE_AUTOSIZE,
-	IDS_HELP, 0, 0,
-
+    IDM_MENU, 4,
+    I_IMAGENONE, IDM_FILE, TBSTATE_ENABLED, 
+    TBSTYLE_DROPDOWN | TBSTYLE_AUTOSIZE, IDS_FILE, 0, 0,
+    I_IMAGENONE, IDM_EDIT, TBSTATE_ENABLED, 
+    TBSTYLE_DROPDOWN | TBSTYLE_AUTOSIZE, IDS_EDIT, 0, 1,
+    I_IMAGENONE, IDM_SKIN, TBSTATE_ENABLED, 
+    TBSTYLE_DROPDOWN | TBSTYLE_AUTOSIZE, IDS_SKIN, 0, 2,
+    I_IMAGENONE, IDM_HELP, TBSTATE_ENABLED, 
+    TBSTYLE_DROPDOWN | TBSTYLE_AUTOSIZE, IDS_HELP, 0, 3,
 END
 
 
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menubar
+//
+
 IDM_MENU MENU DISCARDABLE 
 BEGIN
-    POPUP "Tools"
+    POPUP "File"
     BEGIN
-        MENUITEM "About",                       IDM_HELP_ABOUT
+        MENUITEM "Show Print-Out",              IDM_SHOWPRINTOUT
+        MENUITEM SEPARATOR
+        MENUITEM "Import Program...",           IDM_IMPORTPROGRAM
+        MENUITEM "Export Program...",           IDM_EXPORTPROGRAM
+        MENUITEM SEPARATOR
+        MENUITEM "Clear Print-Out",             IDM_CLEARPRINTOUT
+        MENUITEM "Preferences...",              IDM_PREFERENCES
+    END
+    POPUP "Edit"
+    BEGIN
+        MENUITEM "&Copy",                       ID_EDIT_COPY
+        MENUITEM "&Paste",                      ID_EDIT_PASTE
+    END
+    POPUP "Skin"
+    BEGIN
+        MENUITEM "dummy",                       ID_SKIN_DUMMY
+    END
+    POPUP "Help"
+    BEGIN
+        MENUITEM "&About Free42...",            IDM_ABOUT
     END
 END
 
@@ -81,16 +113,20 @@ END
 // Dialog
 //
 
-IDD_ABOUTBOX DIALOGEX 0, 0, 140, 57
-STYLE WS_POPUP | WS_CAPTION 
-EXSTYLE WS_EX_CAPTIONOKBTN
+IDD_ABOUTBOX DIALOGEX 0, 0, 140, 98
+STYLE WS_POPUP | WS_CAPTION
+EXSTYLE 0x80000000L
 CAPTION "About Free42"
 FONT 8, "System"
-
 BEGIN
-	ICON            IDI_FREE42,IDC_STATIC,11,17,20,20
-	LTEXT           "Free42 Version 1.0",IDC_STATIC,40,10,70,8, SS_NOPREFIX
-	LTEXT           "Copyright (C) 2006",IDC_STATIC,40,25,70,8
+    ICON            IDI_FREE42,IDC_STATIC,23,7,21,20
+    LTEXT           "Free42",IDC_STATIC,48,7,37,8,SS_NOPREFIX
+    LTEXT           "(C) 2004-2006 Thomas Okken",IDC_STATIC,21,33,109,8
+    LTEXT           "Version 1.4.4",IDC_STATIC,48,16,54,8
+    LTEXT           "thomas_okken@yahoo.com",IDC_STATIC,21,43,89,8
+    LTEXT           "http://home.planet.nl/",IDC_STATIC,21,60,73,8
+    LTEXT           "~demun000/",IDC_STATIC,37,70,42,8
+    LTEXT           "thomas_projects/free42/",IDC_STATIC,37,80,81,8
 END
 
 
@@ -101,9 +137,10 @@ END
 
 IDC_FREE42 ACCELERATORS DISCARDABLE 
 BEGIN
-    "A",            IDM_HELP_ABOUT,	VIRTKEY, CONTROL, NOINVERT
-    "Q",            IDOK,			VIRTKEY, CONTROL, NOINVERT
+    "A",            IDM_HELP_ABOUT,         VIRTKEY, CONTROL, NOINVERT
+    "Q",            IDOK,                   VIRTKEY, CONTROL, NOINVERT
 END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -116,12 +153,13 @@ BEGIN
     IDD_ABOUTBOX, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 133
+        RIGHTMARGIN, 132
         TOPMARGIN, 7
-        BOTTOMMARGIN, 50
+        BOTTOMMARGIN, 89
     END
 END
 #endif    // APSTUDIO_INVOKED
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -130,14 +168,91 @@ END
 
 STRINGTABLE DISCARDABLE 
 BEGIN
-   IDC_FREE42	"FREE42"
-   IDS_APP_TITLE		"Free42"
-   IDS_HELLO			"Hello World!"
-   IDS_HELP				"Tools"
-   IDS_COMMAND1			"Done "
+    IDS_APP_TITLE           "Free42"
+    IDS_HELLO               "Hello World!"
+    IDC_FREE42              "FREE42"
 END
 
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_HELP                "Help"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_COMMAND1            "Done "
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_FILE                "File"
+    IDS_EDIT                "Edit"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_SKIN                "Skin"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Dutch (Netherlands) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NLD)
+#ifdef _WIN32
+LANGUAGE LANG_DUTCH, SUBLANG_DUTCH
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,4,4,0
+ PRODUCTVERSION 1,4,4,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
 #endif
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "Comments", "\0"
+            VALUE "CompanyName", " \0"
+            VALUE "FileDescription", "HP-42S Calculator Clone\0"
+            VALUE "FileVersion", "1.4.4\0"
+            VALUE "InternalName", "Free42\0"
+            VALUE "LegalCopyright", "Copyright © 2004-2006 Thomas Okken\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "Free42.exe\0"
+            VALUE "PrivateBuild", "\0"
+            VALUE "ProductName", "Free42\0"
+            VALUE "ProductVersion", "1.4.4\0"
+            VALUE "SpecialBuild", "\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+#endif    // Dutch (Netherlands) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
@@ -151,3 +266,4 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
+
