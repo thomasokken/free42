@@ -60,7 +60,7 @@
 /**********************************************************/
 
 extern int skin_count;
-extern const char *skin_name[];
+extern const TCHAR *skin_name[];
 extern const long skin_layout_size[];
 extern const char *skin_layout_data[];
 extern const long skin_bitmap_size[];
@@ -2004,7 +2004,7 @@ static void init_shell_state(int4 version) {
 			state.alwaysOnTop = 0;
 			// fall through
 		case 5:
-			// current version (SHELL_VERSION = 4),
+			// current version (SHELL_VERSION = 5),
 			// so nothing to do here since everything
 			// was initialized from the state file.
 			;

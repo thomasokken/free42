@@ -82,12 +82,15 @@ int main(int argc, char *argv[]) {
 	" * NOTE: this is a generated file; do not edit!\n"
 	" */\n\n", SKINS_CC, SKIN2CC, SKIN2CC_CONF);
 
-	fprintf(out, "#if defined(WINDOWS) && !defined(__GNUC__)\n");
+#ifdef WINDOWS
+	fprintf(out, "#include <tchar.h>\n\n");
+	fprintf(out, "#ifndef __GNUC__\n");
 	fprintf(out, "/* Disable warning 'initializing' : truncation from 'const int ' to 'const char ' */\n");
 	fprintf(out, "#pragma warning(disable: 4305)\n");
 	fprintf(out, "/* Disable warning 'initializing' : truncation of constant value */\n");
 	fprintf(out, "#pragma warning(disable: 4309)\n");
 	fprintf(out, "#endif\n\n");
+#endif
 
     conf = fopen(SKIN2CC_CONF, "r");
     if (conf == NULL) {
@@ -132,10 +135,17 @@ int main(int argc, char *argv[]) {
     fprintf(out, "/* Skin names */\n");
     fprintf(out, "/**************/\n\n");
 
+#ifdef WINDOWS
+    fprintf(out, "const TCHAR *skin_name[] = {\n");
+    for (i = 0; i < nskins; i++)
+	fprintf(out, "    _T(\"%s\")%s\n", skinname[i], i < nskins - 1 ? "," : "");
+    fprintf(out, "};\n\n\n");
+#else
     fprintf(out, "const char *skin_name[] = {\n");
     for (i = 0; i < nskins; i++)
 	fprintf(out, "    \"%s\"%s\n", skinname[i], i < nskins - 1 ? "," : "");
     fprintf(out, "};\n\n\n");
+#endif
 
 
     fprintf(out, "/*************************************/\n");
