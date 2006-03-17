@@ -115,6 +115,9 @@ extern "C" {
 		double atanh(double x);
 		double expm1(double x);
 		double log1p(double x);
+#ifdef _WIN32_WCE
+		double hypot(double x, double y);
+#endif
 #ifdef __cplusplus
 	}
 #endif
@@ -150,9 +153,6 @@ double floor(double x) PHLOAT_SECT;
 double log10(double x) PHLOAT_SECT;
 #endif
 
-#ifdef _WIN32_WCE
-extern "C" double hypot(double x, double y);
-#endif
 
 #define uint unsigned int
 
