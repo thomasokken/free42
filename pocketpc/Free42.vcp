@@ -250,53 +250,84 @@ NODEP_CPP_SHELL=\
 # End Source File
 # Begin Source File
 
-SOURCE=.\shell_skin.cpp
+SOURCE=.\shell_loadimage.cpp
 
 !IF  "$(CFG)" == "Free42 - Win32 (WCE emulator) Release"
 
 DEP_CPP_SHELL_=\
-	".\core_main.h"\
-	".\Free42.h"\
-	".\shell_loadimage.h"\
 	".\shell_skin.h"\
-	
-NODEP_CPP_SHELL_=\
-	".\MathLib.h"\
 	
 
 !ELSEIF  "$(CFG)" == "Free42 - Win32 (WCE emulator) Debug"
 
 DEP_CPP_SHELL_=\
-	".\core_main.h"\
-	".\Free42.h"\
-	".\shell_loadimage.h"\
 	".\shell_skin.h"\
-	
-NODEP_CPP_SHELL_=\
-	".\MathLib.h"\
 	
 
 !ELSEIF  "$(CFG)" == "Free42 - Win32 (WCE ARMV4) Release"
 
 DEP_CPP_SHELL_=\
-	".\core_main.h"\
-	".\Free42.h"\
-	".\shell_loadimage.h"\
 	".\shell_skin.h"\
-	
-NODEP_CPP_SHELL_=\
-	".\MathLib.h"\
 	
 
 !ELSEIF  "$(CFG)" == "Free42 - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_SHELL_=\
+	".\shell_skin.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\shell_skin.cpp
+
+!IF  "$(CFG)" == "Free42 - Win32 (WCE emulator) Release"
+
+DEP_CPP_SHELL_S=\
 	".\core_main.h"\
 	".\Free42.h"\
 	".\shell_loadimage.h"\
 	".\shell_skin.h"\
 	
-NODEP_CPP_SHELL_=\
+NODEP_CPP_SHELL_S=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42 - Win32 (WCE emulator) Debug"
+
+DEP_CPP_SHELL_S=\
+	".\core_main.h"\
+	".\Free42.h"\
+	".\shell_loadimage.h"\
+	".\shell_skin.h"\
+	
+NODEP_CPP_SHELL_S=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42 - Win32 (WCE ARMV4) Release"
+
+DEP_CPP_SHELL_S=\
+	".\core_main.h"\
+	".\Free42.h"\
+	".\shell_loadimage.h"\
+	".\shell_skin.h"\
+	
+NODEP_CPP_SHELL_S=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42 - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_SHELL_S=\
+	".\core_main.h"\
+	".\Free42.h"\
+	".\shell_loadimage.h"\
+	".\shell_skin.h"\
+	
+NODEP_CPP_SHELL_S=\
 	".\MathLib.h"\
 	
 
@@ -376,6 +407,10 @@ SOURCE=.\resource.h
 # Begin Source File
 
 SOURCE=.\shell.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\shell_loadimage.h
 # End Source File
 # Begin Source File
 
