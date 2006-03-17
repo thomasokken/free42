@@ -150,6 +150,9 @@ double floor(double x) PHLOAT_SECT;
 double log10(double x) PHLOAT_SECT;
 #endif
 
+#ifdef _WIN32_WCE
+extern "C" double hypot(double x, double y);
+#endif
 
 #define uint unsigned int
 

@@ -11,6 +11,8 @@
 #include "free42.h"
 #include "shell.h"
 #include "shell_skin.h"
+#include "shell_spool.h"
+#include "core_display.h"
 #include "core_main.h"
 
 #define MAX_LOADSTRING 100
@@ -28,11 +30,17 @@ static TCHAR szPrintOutWindowClass[MAX_LOADSTRING];
 
 static SHACTIVATEINFO s_sai;
 
+static UINT timer = 0;
+static UINT timer3 = 0;
+static int running = 0;
+static int enqueued = 0;
+
+static int ckey = 0;
+static int skey;
+static bool mouse_key;
+
 
 #define SHELL_VERSION 1
-
-// TODO: remove; this is *really* defined in core_main.cc
-core_settings_struct core_settings;
 
 typedef struct state {
 	int printerToTxtFile;
@@ -50,6 +58,18 @@ static TCHAR statefilename[FILENAMELEN];
 static FILE *statefile = NULL;
 static TCHAR printfilename[FILENAMELEN];
 
+static TCHAR export_file_name[FILENAMELEN];
+static FILE *export_file = NULL;
+static FILE *import_file = NULL;
+
+static int ann_updown = 0;
+static int ann_shift = 0;
+static int ann_print = 0;
+static int ann_run = 0;
+static int ann_battery = 0;
+static int ann_g = 0;
+static int ann_rad = 0;
+
 
 // Forward declarations of functions included in this code module:
 static void MyRegisterClass(HINSTANCE);
@@ -60,6 +80,11 @@ static LRESULT CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 static LRESULT CALLBACK	Preferences(HWND, UINT, WPARAM, LPARAM);
 static int browse_file(HWND owner, TCHAR *title, int save, TCHAR *filter, TCHAR *defExt, TCHAR *buf, int buflen);
 static void Quit();
+
+static VOID CALLBACK repeater(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime);
+static VOID CALLBACK timeout1(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime);
+static VOID CALLBACK timeout2(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime);
+static VOID CALLBACK timeout3(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime);
 
 static void init_shell_state(int4 version);
 static bool read_shell_state(int4 *version);
@@ -215,10 +240,75 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	long dummy_w, dummy_h;
 	skin_load(state.skinName, free42dirname, &dummy_w, &dummy_h);
 
+	core_init(init_mode, version);
+	if (statefile != NULL) {
+		fclose(statefile);
+		statefile = NULL;
+	}
+
 	ShowWindow(hMainWnd, nCmdShow);
 	UpdateWindow(hMainWnd);
 
 	return TRUE;
+}
+
+static void shell_keydown() {
+	if (ckey != 0) {
+		HDC hdc = GetDC(hMainWnd);
+		HDC memdc = CreateCompatibleDC(hdc);
+		if (skey == -1)
+			skey = skin_find_skey(ckey);
+		skin_repaint_key(hdc, memdc, skey, 1);
+		DeleteObject(memdc);
+		ReleaseDC(hMainWnd, hdc);
+	}
+	if (timer != 0) {
+		KillTimer(NULL, timer);
+		timer = 0;
+	}
+	if (timer3 != 0 && ckey != 28 /* SHIFT */) {
+		KillTimer(NULL, timer3);
+		timer3 = 0; 
+		core_timeout3(0);
+	}
+	int repeat;
+	if (ckey >= 38 && ckey <= 255) {
+		// Macro
+		unsigned char *macro = skin_find_macro(ckey);
+		if (macro == NULL || *macro == 0) {
+			squeak();
+			return;
+		}
+		while (*macro != 0) {
+			running = core_keydown(*macro++, &enqueued, &repeat);
+			if (*macro != 0 && !enqueued)
+				core_keyup();
+		}
+		repeat = 0;
+	} else
+		running = core_keydown(ckey, &enqueued, &repeat);
+	if (!running) {
+		if (repeat)
+			timer = SetTimer(NULL, 0, 1000, repeater);
+		else if (!enqueued)
+			timer = SetTimer(NULL, 0, 250, timeout1);
+	}
+}
+
+static void shell_keyup() {
+	HDC hdc = GetDC(hMainWnd);
+	HDC memdc = CreateCompatibleDC(hdc);
+	skin_repaint_key(hdc, memdc, skey, 0);
+	DeleteObject(memdc);
+	ReleaseDC(hMainWnd, hdc);
+	ckey = 0;
+	skey = -1;
+	if (timer != 0) {
+		KillTimer(NULL, timer);
+		timer = 0;
+	}
+	if (!enqueued)
+		running = core_keyup();
 }
 
 //
@@ -233,10 +323,7 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	HDC hdc;
 	int wmId, wmEvent;
-	PAINTSTRUCT ps;
-	TCHAR szHello[MAX_LOADSTRING];
 
 	switch (message) 
 	{
@@ -268,15 +355,41 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
             memset (&s_sai, 0, sizeof (s_sai));
             s_sai.cbSize = sizeof (s_sai);
 			break;
-		case WM_PAINT:
-			RECT rt;
-			hdc = BeginPaint(hWnd, &ps);
-			GetClientRect(hWnd, &rt);
-			LoadString(hInst, IDS_HELLO, szHello, MAX_LOADSTRING);
-			DrawText(hdc, free42dirname, _tcslen(free42dirname), &rt, 
-				DT_SINGLELINE | DT_VCENTER | DT_CENTER);
+		case WM_PAINT: {
+			PAINTSTRUCT ps;
+			HDC hdc = BeginPaint(hWnd, &ps);
+			HDC memdc = CreateCompatibleDC(hdc);
+			skin_repaint(hdc, memdc);
+			skin_repaint_display(hdc, memdc);
+			skin_repaint_annunciator(hdc, memdc, 1, ann_updown);
+			skin_repaint_annunciator(hdc, memdc, 2, ann_shift);
+			skin_repaint_annunciator(hdc, memdc, 3, ann_print);
+			skin_repaint_annunciator(hdc, memdc, 4, ann_run);
+			skin_repaint_annunciator(hdc, memdc, 5, ann_battery);
+			skin_repaint_annunciator(hdc, memdc, 6, ann_g);
+			skin_repaint_annunciator(hdc, memdc, 7, ann_rad);
+			if (ckey != 0)
+				skin_repaint_key(hdc, memdc, skey, 1);
+			DeleteDC(memdc);
 			EndPaint(hWnd, &ps);
-			break; 
+			break;
+		}
+		case WM_LBUTTONDOWN: {
+			if (ckey == 0) {
+				int x = LOWORD(lParam);  // horizontal position of cursor
+				int y = HIWORD(lParam);  // vertical position of cursor
+				skin_find_key(x, y, &skey, &ckey);
+				if (ckey != 0) {
+					shell_keydown();
+					mouse_key = true;
+				}
+			}
+			break;
+		}
+		case WM_LBUTTONUP:
+			if (ckey != 0 && mouse_key)
+				shell_keyup();
+			break;
 		case WM_DESTROY:
 			CommandBar_Destroy(hwndCB);
 			PostQuitMessage(0);
@@ -481,6 +594,112 @@ static void Quit() {
 		fclose(statefile);
 }
 
+static VOID CALLBACK repeater(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) {
+	KillTimer(NULL, timer);
+	core_repeat();
+	timer = SetTimer(NULL, 0, 200, repeater);
+}
+
+static VOID CALLBACK timeout1(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) {
+	KillTimer(NULL, timer);
+	if (ckey != 0) {
+		core_keytimeout1();
+		timer = SetTimer(NULL, 0, 1750, timeout2);
+	} else
+		timer = 0;
+}
+
+static VOID CALLBACK timeout2(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) {
+	KillTimer(NULL, timer);
+	if (ckey != 0)
+		core_keytimeout2();
+	timer = 0;
+}
+
+static VOID CALLBACK timeout3(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) {
+	KillTimer(NULL, timer3);
+	core_timeout3(1);
+	timer3 = 0;
+}
+
+void shell_blitter(const char *bits, int bytesperline, int x, int y,
+				   int width, int height) {
+	HDC hdc = GetDC(hMainWnd);
+	skin_display_blitter(hdc, bits, bytesperline, x, y, width, height);
+	if (skey >= -7 && skey <= -2) {
+		HDC memdc = CreateCompatibleDC(hdc);
+		skin_repaint_key(hdc, memdc, skey, 1);
+		DeleteObject(memdc);
+	}
+	ReleaseDC(hMainWnd, hdc);
+}
+
+void shell_beeper(int frequency, int duration) {
+	// TODO
+}
+
+/* shell_annunciators()
+ * Callback invoked by the emulator core to change the state of the display
+ * annunciators (up/down, shift, print, run, battery, (g)rad).
+ * Every parameter can have values 0 (turn off), 1 (turn on), or -1 (leave
+ * unchanged).
+ * The battery annunciator is missing from the list; this is the only one of
+ * the lot that the emulator core does not actually have any control over, and
+ * so the shell is expected to handle that one by itself.
+ */
+void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
+	HDC hdc = GetDC(hMainWnd);
+	HDC memdc = CreateCompatibleDC(hdc);
+
+    if (updn != -1 && ann_updown != updn) {
+		ann_updown = updn;
+		skin_repaint_annunciator(hdc, memdc, 1, ann_updown);
+    }
+    if (shf != -1 && ann_shift != shf) {
+		ann_shift = shf;
+		skin_repaint_annunciator(hdc, memdc, 2, ann_shift);
+    }
+    if (prt != -1 && ann_print != prt) {
+		ann_print = prt;
+		skin_repaint_annunciator(hdc, memdc, 3, ann_print);
+    }
+    if (run != -1 && ann_run != run) {
+		ann_run = run;
+		skin_repaint_annunciator(hdc, memdc, 4, ann_run);
+    }
+    if (g != -1 && ann_g != g) {
+		ann_g = g;
+		skin_repaint_annunciator(hdc, memdc, 6, ann_g);
+    }
+    if (rad != -1 && ann_rad != rad) {
+		ann_rad = rad;
+		skin_repaint_annunciator(hdc, memdc, 7, ann_rad);
+    }
+
+	DeleteDC(memdc);
+	ReleaseDC(hMainWnd, hdc);
+}
+
+int shell_wants_cpu() {
+	MSG msg;
+	return PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE) != 0;
+}
+
+void shell_delay(int duration) {
+	Sleep(duration);
+}
+
+/* Callback to ask the shell to call core_timeout3() after the given number of
+ * milliseconds. If there are keystroke events during that time, the timeout is
+ * cancelled. (Pressing 'shift' does not cancel the timeout.)
+ * This function supports the delay after SHOW, MEM, and shift-VARMENU.
+ */
+void shell_request_timeout3(int delay) {
+	if (timer3 != 0)
+		KillTimer(NULL, timer3);
+	timer3 = SetTimer(NULL, 0, delay, timeout3);
+}
+
 int4 shell_read_saved_state(void *buf, int4 bufsize) {
     if (statefile == NULL)
         return -1;
@@ -508,6 +727,87 @@ bool shell_write_saved_state(const void *buf, int4 nbytes) {
         } else
             return true;
     }
+}
+
+int4 shell_get_mem() {
+	MEMORYSTATUS memstat;
+	GlobalMemoryStatus(&memstat);
+	return memstat.dwAvailPhys;
+}
+
+int shell_low_battery() {
+	// TODO
+	int lowbat = 0;
+	if (ann_battery != lowbat) {
+		ann_battery = lowbat;
+		HDC hdc = GetDC(hMainWnd);
+		HDC memdc = CreateCompatibleDC(hdc);
+		skin_repaint_annunciator(hdc, memdc, 5, ann_battery);
+		DeleteDC(memdc);
+		ReleaseDC(hMainWnd, hdc);
+	}
+	return lowbat;
+}
+
+void shell_powerdown() {
+	PostQuitMessage(0);
+}
+
+double shell_random_seed() {
+	return ((double) rand()) / (RAND_MAX + 1.0);
+}
+
+uint4 shell_milliseconds() {
+	return GetTickCount();
+}
+
+void shell_print(const char *text, int length,
+		 const char *bits, int bytesperline,
+		 int x, int y, int width, int height) {
+	// TODO
+}
+
+int shell_write(const char *buf, int4 buflen) {
+    int4 written;
+    if (export_file == NULL)
+		return 0;
+    written = fwrite(buf, 1, buflen, export_file);
+    if (written != buflen) {
+		TCHAR buf[1000];
+		fclose(export_file);
+		export_file = NULL;
+		_stprintf(buf, _T("Writing \"%s\" failed."), export_file_name);
+		MessageBox(hMainWnd, buf, _T("Message"), MB_ICONWARNING);
+		return 0;
+    } else
+		return 1;
+}
+
+int4 shell_read(char *buf, int4 buflen) {
+    int4 nread;
+    if (import_file == NULL)
+		return -1;
+    nread = fread(buf, 1, buflen, import_file);
+    if (nread != buflen && ferror(import_file)) {
+		fclose(import_file);
+		import_file = NULL;
+		MessageBox(hMainWnd, _T("An error occurred; import was terminated prematurely."), _T("Message"), MB_ICONWARNING);
+		return -1;
+    } else
+		return nread;
+}
+
+shell_bcd_table_struct *shell_get_bcd_table() {
+	return NULL;
+}
+
+shell_bcd_table_struct *shell_put_bcd_table(shell_bcd_table_struct* bcdtab,
+					    uint4 size) {
+	return bcdtab;
+}
+
+void shell_release_bcd_table(shell_bcd_table_struct *bcdtab) {
+	free(bcdtab);
 }
 
 static void init_shell_state(int4 version) {
