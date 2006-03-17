@@ -1,0 +1,10 @@
+To build Free42 for PocketPC, first open a Cygwin bash shell and run
+'copy-files'; this will copy the required files from the 'common' directory to
+the 'pocketpc' directory. Next, run 'make'; this compiles and runs the skin2cpp
+program, which generates the skins.cpp file, containing the skins to be
+compiled into the executable.
+
+Once these preparations are done, you can run eMbedded Visual C++. Open the
+Free42.vcw workspace. This workspace contains two projects: Free42Binary and
+Free42Decimal; these build the Binary and Decimal versions of Free42,
+respectively.

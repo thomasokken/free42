@@ -3,7 +3,9 @@ this is the directory containing the Free42 executable, but its location can be
 changed in the preferences dialog. Note: If you set the Free42 directory to a
 location other than the executable's directory, you may put skins in both
 locations.
-If you are using Unix, put the skins in $HOME/.free42/
+If you are using Unix, put the skins in $HOME/.free42/.
+If you are using a Pocket PC, put the skins in the same directory as the Free42
+executable.
 
 -------------------------------------------------------------------------------
 

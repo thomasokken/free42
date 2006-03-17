@@ -3,7 +3,7 @@ Microsoft eMbedded Visual Tools Workspace File, Format Version 4.00
 
 ###############################################################################
 
-Project: "Free42"=".\Free42.vcp" - Package Owner=<4>
+Project: "Free42Binary"=".\Free42Binary.vcp" - Package Owner=<4>
 
 Package=<5>
 {{{
