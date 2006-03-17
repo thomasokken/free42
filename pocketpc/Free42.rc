@@ -91,11 +91,13 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "Clear Print-Out",             IDM_CLEARPRINTOUT
         MENUITEM "Preferences...",              IDM_PREFERENCES
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit\tCtrl+Q",               IDM_EXIT
     END
     POPUP "Edit"
     BEGIN
-        MENUITEM "&Copy",                       ID_EDIT_COPY
-        MENUITEM "&Paste",                      ID_EDIT_PASTE
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
+        MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
     END
     POPUP "Skin"
     BEGIN
@@ -129,30 +131,30 @@ BEGIN
     PUSHBUTTON      "OK",IDOK,41,81,41,14
 END
 
-IDD_PREFERENCES DIALOG DISCARDABLE  0, 12, 140, 114
+IDD_PREFERENCES DIALOG DISCARDABLE  2, 12, 133, 114
 STYLE WS_POPUP | WS_CAPTION
 CAPTION "Preferences"
 FONT 8, "System"
 BEGIN
     CONTROL         """Singular Matrix"" error",IDC_MATRIX_SINGULARMATRIX,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,2,87,10
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,3,2,87,10
     CONTROL         "Matrix ""Out of Range""",IDC_MATRIX_OUTOFRANGE,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,5,14,87,10
-    LTEXT           "Print to...",IDC_STATIC,5,26,32,8
+                    BS_AUTOCHECKBOX | WS_TABSTOP,3,14,87,10
+    LTEXT           "Print to...",IDC_STATIC,3,26,32,8
     CONTROL         "Text:",IDC_PRINTER_TXT,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,5,37,33,10
-    EDITTEXT        IDC_PRINTER_TXT_NAME,39,35,76,14,ES_AUTOHSCROLL
-    PUSHBUTTON      "...",IDC_PRINTER_TXT_BROWSE,119,35,13,14
+                    WS_TABSTOP,3,37,33,10
+    EDITTEXT        IDC_PRINTER_TXT_NAME,37,35,76,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDC_PRINTER_TXT_BROWSE,116,35,14,14
     CONTROL         "Raw text",IDC_RAW_TEXT,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,71,51,45,10
+                    WS_TABSTOP,69,51,45,10
     CONTROL         "GIF:",IDC_PRINTER_GIF,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,5,65,30,10
-    EDITTEXT        IDC_PRINTER_GIF_NAME,39,63,75,14,ES_AUTOHSCROLL
-    PUSHBUTTON      "...",IDC_PRINTER_GIF_BROWSE,118,63,14,14
+                    WS_TABSTOP,3,65,30,10
+    EDITTEXT        IDC_PRINTER_GIF_NAME,37,63,76,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDC_PRINTER_GIF_BROWSE,116,63,14,14
     LTEXT           "Maximum GIF height:",IDC_STATIC,16,82,68,8
-    EDITTEXT        IDC_PRINTER_GIF_HEIGHT,85,80,29,14,ES_AUTOHSCROLL
-    DEFPUSHBUTTON   "OK",IDOK,5,97,38,14
-    PUSHBUTTON      "Cancel",IDCANCEL,49,97,37,14
+    EDITTEXT        IDC_PRINTER_GIF_HEIGHT,84,80,29,14,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,3,97,37,14
+    PUSHBUTTON      "Cancel",IDCANCEL,46,97,37,14
 END
 
 
@@ -163,8 +165,9 @@ END
 
 IDC_FREE42 ACCELERATORS DISCARDABLE 
 BEGIN
-    "A",            IDM_HELP_ABOUT,         VIRTKEY, CONTROL, NOINVERT
-    "Q",            IDOK,                   VIRTKEY, CONTROL, NOINVERT
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    "Q",            IDM_EXIT,               VIRTKEY, CONTROL, NOINVERT
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
 END
 
 
@@ -186,7 +189,7 @@ BEGIN
 
     IDD_PREFERENCES, DIALOG
     BEGIN
-        LEFTMARGIN, 6
+        LEFTMARGIN, 3
         RIGHTMARGIN, 130
         TOPMARGIN, 2
         BOTTOMMARGIN, 111
@@ -226,6 +229,10 @@ END
 STRINGTABLE DISCARDABLE 
 BEGIN
     IDS_SKIN                "Skin"
+    IDS_APP_TITLE_DEC       "Free42 Decimal"
+    IDS_APP_TITLE_BIN       "Free42 Binary"
+    IDS_PRINTOUT_TITLE      "Free42 Print-Out"
+    IDC_FREE42_PRINTOUT     "FREE42PRINTOUT"
 END
 
 #endif    // English (U.S.) resources

@@ -37,15 +37,20 @@
 #define IDM_SKIN                        40015
 #define IDS_SKIN                        40016
 #define ID_SKIN_DUMMY                   40017
+#define IDS_APP_TITLE_DEC               40017
 #define IDM_HELP                        40018
+#define IDS_APP_TITLE_BIN               40018
 #define IDM_ABOUT                       40019
+#define IDS_PRINTOUT_TITLE              40019
+#define IDM_EXIT                        40020
+#define IDC_FREE42_PRINTOUT             40020
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        105
-#define _APS_NEXT_COMMAND_VALUE         40020
+#define _APS_NEXT_COMMAND_VALUE         40021
 #define _APS_NEXT_CONTROL_VALUE         1012
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

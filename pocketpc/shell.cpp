@@ -6,16 +6,25 @@
 #include <commctrl.h>
 #include <aygshell.h>
 #include <sipapi.h>
+#include <stdio.h>
 
 #include "free42.h"
+#include "shell.h"
+#include "shell_skin.h"
 #include "core_main.h"
 
 #define MAX_LOADSTRING 100
 #define FILENAMELEN 256
 
 // Global Variables:
-HINSTANCE			hInst;				// The current instance
-HWND				hwndCB;					// The command bar handle
+static HINSTANCE hInst;				// The current instance
+static HWND hMainWnd = NULL;
+static HWND hPrintOutWnd = NULL;
+static HWND hwndCB;					// The command bar handle
+static TCHAR szMainTitle[MAX_LOADSTRING];
+static TCHAR szPrintOutTitle[MAX_LOADSTRING];
+static TCHAR szMainWindowClass[MAX_LOADSTRING];
+static TCHAR szPrintOutWindowClass[MAX_LOADSTRING];
 
 static SHACTIVATEINFO s_sai;
 
@@ -28,23 +37,33 @@ core_settings_struct core_settings;
 typedef struct state {
 	int printerToTxtFile;
 	int printerToGifFile;
-	_TCHAR printerTxtFileName[FILENAMELEN];
-	_TCHAR printerGifFileName[FILENAMELEN];
+	TCHAR printerTxtFileName[FILENAMELEN];
+	TCHAR printerGifFileName[FILENAMELEN];
 	int printerGifMaxLength;
-	_TCHAR skinName[FILENAMELEN];
+	TCHAR skinName[FILENAMELEN];
 } state_type;
 
 static state_type state;
 
+static TCHAR free42dirname[FILENAMELEN];
+static TCHAR statefilename[FILENAMELEN];
+static FILE *statefile = NULL;
+static TCHAR printfilename[FILENAMELEN];
+
 
 // Forward declarations of functions included in this code module:
-static ATOM MyRegisterClass(HINSTANCE, LPTSTR);
+static void MyRegisterClass(HINSTANCE);
 static BOOL InitInstance(HINSTANCE, int);
 static LRESULT CALLBACK	MainWndProc(HWND, UINT, WPARAM, LPARAM);
 static HWND CreateRpCommandBar(HWND);
 static LRESULT CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 static LRESULT CALLBACK	Preferences(HWND, UINT, WPARAM, LPARAM);
-static int browse_file(HWND owner, _TCHAR *title, int save, _TCHAR *filter, _TCHAR *defExt, _TCHAR *buf, int buflen);
+static int browse_file(HWND owner, TCHAR *title, int save, TCHAR *filter, TCHAR *defExt, TCHAR *buf, int buflen);
+static void Quit();
+
+static void init_shell_state(int4 version);
+static bool read_shell_state(int4 *version);
+static bool write_shell_state();
 
 
 int WINAPI WinMain(	HINSTANCE hInstance,
@@ -55,6 +74,19 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 	MSG msg;
 	HACCEL hAccelTable;
 
+	// Initialize global strings
+#ifdef BCD_MATH
+	LoadString(hInstance, IDS_APP_TITLE_DEC, szMainTitle, MAX_LOADSTRING);
+#else
+	LoadString(hInstance, IDS_APP_TITLE_BIN, szMainTitle, MAX_LOADSTRING);
+#endif
+	LoadString(hInstance, IDS_PRINTOUT_TITLE, szPrintOutTitle, MAX_LOADSTRING);
+	LoadString(hInstance, IDC_FREE42, szMainWindowClass, MAX_LOADSTRING);
+	LoadString(hInstance, IDC_FREE42_PRINTOUT, szPrintOutWindowClass, MAX_LOADSTRING);
+	MyRegisterClass(hInstance);
+
+	MyRegisterClass(hInstance);
+	
 	// Perform application initialization:
 	if (!InitInstance (hInstance, nCmdShow)) 
 	{
@@ -73,6 +105,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 		}
 	}
 
+	Quit();
 	return msg.wParam;
 }
 
@@ -86,7 +119,7 @@ int WINAPI WinMain(	HINSTANCE hInstance,
 //    It is important to call this function so that the application 
 //    will get 'well formed' small icons associated with it.
 //
-static ATOM MyRegisterClass(HINSTANCE hInstance, LPTSTR szWindowClass)
+static void MyRegisterClass(HINSTANCE hInstance)
 {
 	WNDCLASS	wc;
 
@@ -99,9 +132,9 @@ static ATOM MyRegisterClass(HINSTANCE hInstance, LPTSTR szWindowClass)
     wc.hCursor			= 0;
     wc.hbrBackground	= (HBRUSH) GetStockObject(WHITE_BRUSH);
     wc.lpszMenuName		= 0;
-    wc.lpszClassName	= szWindowClass;
+    wc.lpszClassName	= szMainWindowClass;
 
-	return RegisterClass(&wc);
+	RegisterClass(&wc);
 }
 
 //
@@ -116,17 +149,39 @@ static ATOM MyRegisterClass(HINSTANCE hInstance, LPTSTR szWindowClass)
 //
 static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-	HWND	hWnd = NULL;
-	_TCHAR	szTitle[MAX_LOADSTRING];			// The title bar text
-	_TCHAR	szWindowClass[MAX_LOADSTRING];		// The window class name
-
 	hInst = hInstance;		// Store instance handle in our global variable
-	// Initialize global strings
-	LoadString(hInstance, IDC_FREE42, szWindowClass, MAX_LOADSTRING);
-	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
+
+	srand(GetTickCount());
+
+	GetModuleFileName(0, free42dirname, FILENAMELEN - 1);
+	TCHAR *lastbackslash = _tcsrchr(free42dirname, _T('\\'));
+	if (lastbackslash != NULL)
+		*lastbackslash = 0;
+	else
+		free42dirname[0] = 0;
+	_tcscpy(statefilename, free42dirname);
+	_tcscat(statefilename, _T("\\state.bin"));
+	_tcscpy(printfilename, free42dirname);
+	_tcscat(printfilename, _T("\\print.bin"));
+
+	int init_mode;
+	int4 version;
+
+	statefile = _tfopen(statefilename, _T("rb"));
+	if (statefile != NULL) {
+		if (read_shell_state(&version))
+			init_mode = 1;
+		else {
+			init_shell_state(-1);
+			init_mode = 2;
+		}
+	} else {
+		init_shell_state(-1);
+		init_mode = 0;
+	}
 
 	//If it is already running, then focus on the window
-	hWnd = FindWindow(szWindowClass, szTitle);	
+	HWND hWnd = FindWindow(szMainWindowClass, szMainTitle);	
 	if (hWnd) 
 	{
 		// set focus to foremost child window
@@ -136,32 +191,32 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		return 0;
 	} 
 
-	MyRegisterClass(hInstance, szWindowClass);
-	
-	hWnd = CreateWindow(szWindowClass, szTitle, WS_VISIBLE,
+	hMainWnd = CreateWindow(szMainWindowClass, szMainTitle, WS_VISIBLE,
 		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
-	if (!hWnd)
+	if (!hMainWnd)
 	{	
 		return FALSE;
 	}
 	//When the main window is created using CW_USEDEFAULT the height of the menubar (if one
-	// is created is not taken into account). So we resize the window after creating it
+	// is created) is not taken into account. So we resize the window after creating it
 	// if a menubar is present
 	if (hwndCB)
     {
 		RECT rc;
         RECT rcMenuBar;
 
-		GetWindowRect(hWnd, &rc);
+		GetWindowRect(hMainWnd, &rc);
         GetWindowRect(hwndCB, &rcMenuBar);
 		rc.bottom -= (rcMenuBar.bottom - rcMenuBar.top);
 		
-		MoveWindow(hWnd, rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top, FALSE);
+		MoveWindow(hMainWnd, rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top, FALSE);
 	}
 
+	long dummy_w, dummy_h;
+	skin_load(state.skinName, free42dirname, &dummy_w, &dummy_h);
 
-	ShowWindow(hWnd, nCmdShow);
-	UpdateWindow(hWnd);
+	ShowWindow(hMainWnd, nCmdShow);
+	UpdateWindow(hMainWnd);
 
 	return TRUE;
 }
@@ -181,7 +236,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 	HDC hdc;
 	int wmId, wmEvent;
 	PAINTSTRUCT ps;
-	_TCHAR szHello[MAX_LOADSTRING];
+	TCHAR szHello[MAX_LOADSTRING];
 
 	switch (message) 
 	{
@@ -194,11 +249,14 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 				case IDM_PREFERENCES:
 					DialogBox(hInst, (LPCTSTR)IDD_PREFERENCES, hWnd, (DLGPROC)Preferences);
 					break;
+				case IDM_EXIT:
+					DestroyWindow(hWnd);
+					break;
 				case IDM_ABOUT:
 					DialogBox(hInst, (LPCTSTR)IDD_ABOUTBOX, hWnd, (DLGPROC)About);
 				    break;
 				case IDOK:
-//					SendMessage (hWnd, WM_DESTROY, 0, 0);
+					DestroyWindow(hWnd);
 					break;
 				default:
 				   return DefWindowProc(hWnd, message, wParam, lParam);
@@ -215,7 +273,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			hdc = BeginPaint(hWnd, &ps);
 			GetClientRect(hWnd, &rt);
 			LoadString(hInst, IDS_HELLO, szHello, MAX_LOADSTRING);
-			DrawText(hdc, szHello, _tcslen(szHello), &rt, 
+			DrawText(hdc, free42dirname, _tcslen(free42dirname), &rt, 
 				DT_SINGLELINE | DT_VCENTER | DT_CENTER);
 			EndPaint(hWnd, &ps);
 			break; 
@@ -331,7 +389,7 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
 
 					ctl = GetDlgItem(hDlg, IDC_PRINTER_TXT);
 					state.printerToTxtFile = SendMessage(ctl, BM_GETCHECK, 0, 0);
-					_TCHAR buf[FILENAMELEN];
+					TCHAR buf[FILENAMELEN];
 					GetDlgItemText(hDlg, IDC_PRINTER_TXT_NAME, buf, FILENAMELEN - 1);
 					int len = _tcslen(buf);
 					if (len > 0 && (len < 4 || _tcsicmp(buf + len - 4, _T(".txt")) != 0))
@@ -366,7 +424,7 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
 					EndDialog(hDlg, LOWORD(wParam));
 					return TRUE;
 				case IDC_PRINTER_TXT_BROWSE: {
-					_TCHAR buf[FILENAMELEN];
+					TCHAR buf[FILENAMELEN];
 					GetDlgItemText(hDlg, IDC_PRINTER_TXT_NAME, buf, FILENAMELEN - 1);
 					if (browse_file(hDlg,
 									_T("Select Text File Name"),
@@ -379,7 +437,7 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
 					return TRUE;
 				}
 				case IDC_PRINTER_GIF_BROWSE: {
-					_TCHAR buf[FILENAMELEN];
+					TCHAR buf[FILENAMELEN];
 					GetDlgItemText(hDlg, IDC_PRINTER_GIF_NAME, buf, FILENAMELEN - 1);
 					if (browse_file(hDlg,
 									_T("Select GIF File Name"),
@@ -398,7 +456,7 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
     return FALSE;
 }
 
-static int browse_file(HWND owner, _TCHAR *title, int save, _TCHAR *filter, _TCHAR *defExt, _TCHAR *buf, int buflen) {
+static int browse_file(HWND owner, TCHAR *title, int save, TCHAR *filter, TCHAR *defExt, TCHAR *buf, int buflen) {
 	OPENFILENAME ofn;
 	ofn.lStructSize = sizeof(OPENFILENAME);
 	ofn.hwndOwner = owner;
@@ -412,4 +470,117 @@ static int browse_file(HWND owner, _TCHAR *title, int save, _TCHAR *filter, _TCH
 	ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
 	ofn.lpstrDefExt = defExt;
 	return save ? GetSaveFileName(&ofn) : GetOpenFileName(&ofn);
+}
+
+static void Quit() {
+	statefile = _tfopen(statefilename, _T("wb"));
+	if (statefile != NULL)
+		write_shell_state();
+	//core_quit();
+	if (statefile != NULL)
+		fclose(statefile);
+}
+
+int4 shell_read_saved_state(void *buf, int4 bufsize) {
+    if (statefile == NULL)
+        return -1;
+    else {
+        int4 n = fread(buf, 1, bufsize, statefile);
+        if (n != bufsize && ferror(statefile)) {
+            fclose(statefile);
+            statefile = NULL;
+            return -1;
+        } else
+            return n;
+    }
+}
+
+bool shell_write_saved_state(const void *buf, int4 nbytes) {
+    if (statefile == NULL)
+        return false;
+    else {
+        int4 n = fwrite(buf, 1, nbytes, statefile);
+        if (n != nbytes) {
+            fclose(statefile);
+			DeleteFile(statefilename);
+            statefile = NULL;
+            return false;
+        } else
+            return true;
+    }
+}
+
+static void init_shell_state(int4 version) {
+	switch (version) {
+		case -1:
+			state.printerToTxtFile = 0;
+			state.printerToGifFile = 0;
+			state.printerTxtFileName[0] = 0;
+			state.printerGifFileName[0] = 0;
+			state.printerGifMaxLength = 256;
+			state.skinName[0] = 0;
+			// fall through
+		case 0:
+			// current version (SHELL_VERSION = 0),
+			// so nothing to do here since everything
+			// was initialized from the state file.
+			;
+	}
+}
+
+static bool read_shell_state(int4 *ver) {
+    int4 magic;
+    int4 version;
+    int4 state_size;
+    int4 state_version;
+
+    if (shell_read_saved_state(&magic, sizeof(int4)) != sizeof(int4))
+        return false;
+    if (magic != FREE42_MAGIC)
+        return false;
+
+    if (shell_read_saved_state(&version, sizeof(int4)) != sizeof(int4))
+        return false;
+    if (version < 0 || version > FREE42_VERSION)
+        /* Unknown state file version */
+        return false;
+
+	if (version > 0) {
+		if (shell_read_saved_state(&state_size, sizeof(int4)) != sizeof(int4))
+			return false;
+		if (shell_read_saved_state(&state_version, sizeof(int4)) != sizeof(int4))
+			return false;
+		if (state_version < 0 || state_version > SHELL_VERSION)
+			/* Unknown shell state version */
+			return false;
+		if (shell_read_saved_state(&state, state_size) != state_size)
+			return false;
+		// Initialize the parts of the shell state
+		// that were NOT read from the state file
+		init_shell_state(state_version);
+	} else
+		init_shell_state(-1);
+
+	*ver = version;
+    return true;
+}
+
+static bool write_shell_state() {
+    int4 magic = FREE42_MAGIC;
+    int4 version = FREE42_VERSION;
+    int4 state_size = sizeof(state_type);
+    int4 state_version = SHELL_VERSION;
+
+    if (!shell_write_saved_state(&magic, sizeof(int4)))
+        return false;
+    if (!shell_write_saved_state(&version, sizeof(int4)))
+        return false;
+    if (!shell_write_saved_state(&state_size, sizeof(int4)))
+        return false;
+    if (!shell_write_saved_state(&state_version, sizeof(int4)))
+        return false;
+    if (!shell_write_saved_state(&state, sizeof(state_type)))
+        return false;
+
+    return true;
 }

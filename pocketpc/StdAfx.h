@@ -19,6 +19,7 @@
 // Windows Header Files:
 #include <windows.h>
 #include <commdlg.h>
+#include <tchar.h>
 
 // Local Header Files
 
