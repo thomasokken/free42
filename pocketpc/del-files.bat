@@ -43,12 +43,9 @@ del shell_loadimage.h
 del shell_spool.cpp
 del shell_spool.h
 del skin2cpp.cpp
-del skin2cpp.conf
-del keymap2cpp.cpp
 del bcd.cpp
 del bcd.h
 del bcdfloat.cpp
 del bcdfloat.h
 del bcdmath.cpp
 del bcdmath.h
-del rom2raw.c

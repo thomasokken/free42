@@ -49,4 +49,3 @@ copy ..\common\bcdfloat.cc bcdfloat.cpp
 copy ..\common\bcdfloat.h .
 copy ..\common\bcdmath.cc bcdmath.cpp
 copy ..\common\bcdmath.h .
-copy ..\util\rom2raw.c .
