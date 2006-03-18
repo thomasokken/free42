@@ -53,10 +53,12 @@ void sincos(double x, double *sinx, double *cosx) {
 }
 
 double hypot(double x, double y) {
-    // As long as the compiler is smart enough to do this entire computation
-    // inside the FPU, we don't have to worry about going out of range on the
-    // intermediaries.
-    return sqrt(x * x + y * y);
+    if (x > 1e155 || x < -1e155 || y > 1e155 || y < -1e155) {
+	x /= 1e155;
+	y /= 1e155;
+	return 1e155 * sqrt(x * x + y * y);
+    } else
+	return sqrt(x * x + y * y);
 }
 
 
