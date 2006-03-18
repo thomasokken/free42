@@ -2,7 +2,6 @@
 // Microsoft Developer Studio generated include file.
 // Used by Free42.rc
 //
-#define IDC_MYICON                      2
 #define IDD_FREE42_DIALOG               102
 #define IDD_ABOUTBOX                    103
 #define IDS_APP_TITLE_BIN               103
