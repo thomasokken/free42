@@ -19,18 +19,32 @@
 #include <float.h>
 #include "free42.h"
 
-static double z = 0.0;
+typedef union {
+    double d;
+    struct {
+		int lx, hx;
+    } w;
+} double_words;
+
+int isinf(double x) {
+    double_words dw;
+    dw.d = x;
+    dw.w.lx |= (dw.w.hx & 0x7fffffff) ^ 0x7ff00000;
+    dw.w.lx |= -dw.w.lx;
+    return ~(dw.w.lx >> 31) & (dw.w.hx >> 30);
+}
 
 int isnan(double x) {
-	return 0;
+    double_words dw;
+    dw.d = x;
+    dw.w.hx &= 0x7fffffff;
+    dw.w.hx |= (unsigned int)(dw.w.lx|(-dw.w.lx))>>31;
+    dw.w.hx = 0x7ff00000 - dw.w.hx;
+    return (int)(((unsigned int)dw.w.hx)>>31);
 }
 
 int finite(double x) {
-	return x != 0.0 / z && x != 1.0 / z && x != -1.0 / z;
-}
-
-int isinf(double x) {
-	return x == 1.0 / z || x == -1.0 / z;
+	return !isinf(x) && !isnan(x);
 }
 
 void sincos(double x, double *sinx, double *cosx) {
