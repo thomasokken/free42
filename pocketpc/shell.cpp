@@ -335,6 +335,12 @@ static void shell_keyup() {
 		running = core_keyup();
 }
 
+static int tchar_sort(const void *a, const void *b) {
+	const TCHAR *aa = *(const TCHAR **) a;
+	const TCHAR *bb = *(const TCHAR **) b;
+	return _tcsicmp(aa, bb);
+}
+
 static void update_skin_menu(HMENU menu) {
 	UINT id = 50000;
 	if (state.skinName[0] == 0)
@@ -355,7 +361,7 @@ static void update_skin_menu(HMENU menu) {
 	path[MAX_PATH - 1] = 0;
 	WIN32_FIND_DATA wfd;
 	int n = 0;
-	TCHAR name[100][MAX_PATH];
+	TCHAR *name[100];
 
 	_tcsncpy(path, free42dirname, MAX_PATH - 1);
 	_tcsncat(path, _T("\\*.layout"), MAX_PATH - 1);
@@ -365,36 +371,14 @@ static void update_skin_menu(HMENU menu) {
 		do {
 			if ((wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
 				wfd.cFileName[_tcslen(wfd.cFileName) - 7] = 0;
+				name[n] = (TCHAR *) malloc(_tcslen((wfd.cFileName) + 1) * sizeof(TCHAR));
 				_tcscpy(name[n++], wfd.cFileName);
 			}
 		} while (FindNextFile(search, &wfd));
 		FindClose(search);
 	}
 
-	// Search executable's directory
-	TCHAR exedir[MAX_PATH];
-	GetModuleFileName(0, exedir, MAX_PATH - 1);
-	TCHAR *lastbackslash = _tcsrchr(exedir, _T('\\'));
-	if (lastbackslash != 0)
-		*lastbackslash = 0;
-	else
-		exedir[0] = 0;
-	if (_tcsicmp(exedir, free42dirname) != 0) {
-		_tcsncat(exedir, _T("\\*.layout"), MAX_PATH - 1);
-		exedir[MAX_PATH - 1] = 0;
-		search = FindFirstFile(exedir, &wfd);
-		if (search != INVALID_HANDLE_VALUE) {
-			do {
-				if ((wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
-					wfd.cFileName[_tcslen(wfd.cFileName) - 7] = 0;
-					_tcscpy(name[n++], wfd.cFileName);
-				}
-			} while (FindNextFile(search, &wfd));
-			FindClose(search);
-		}
-	}
-
-	qsort(name, n, MAX_PATH, (int (*)(const void *, const void *)) _tcsicmp);
+	qsort(name, n, sizeof(TCHAR *), tchar_sort);
 	for (i = 0; i < n; i++) {
 		UINT flags;
 		int j;
@@ -413,6 +397,8 @@ static void update_skin_menu(HMENU menu) {
 		AppendMenu(menu, flags, id++, name[i]);
 		skip:;
 	}
+	for (i = 0; i < n; i++)
+		free(name[i]);
 }
 
 //
@@ -462,6 +448,28 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 					DestroyWindow(hWnd);
 					break;
 				default:
+					if (wmId >= 50000) {
+						// 'Skin' menu
+						HMENU mainmenu = (HMENU) SendMessage((hwndCB), SHCMBM_GETMENU, (WPARAM)0, (LPARAM)0);
+						HMENU skinmenu = GetSubMenu(mainmenu, 2);
+						MENUITEMINFO mii;
+						mii.cbSize = sizeof(MENUITEMINFO);
+						mii.fMask = MIIM_TYPE;
+						mii.cch = FILENAMELEN;
+						mii.dwTypeData = state.skinName;
+						GetMenuItemInfo(skinmenu, wmId, FALSE, &mii);
+
+						// The following is really just skin_load(), followed by
+						// resizing the window. Unfortunately, I couldn't find a
+						// function that resizes a window without setting its position
+						// at the same time, hence the contortions.
+						long width, height;
+						skin_load(state.skinName, free42dirname, &width, &height);
+						RECT r;
+						GetClientRect(hWnd, &r);
+						InvalidateRect(hWnd, &r, FALSE);
+						break;
+					}
 					return DefWindowProc(hWnd, message, wParam, lParam);
 			}
 			break;
@@ -509,6 +517,10 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 		case WM_DESTROY:
 			CommandBar_Destroy(hwndCB);
 			PostQuitMessage(0);
+			break;
+		case WM_INITMENUPOPUP:
+			if (LOWORD(lParam) == IDM_SKIN)
+				update_skin_menu((HMENU) wParam);
 			break;
 		case WM_ACTIVATE:
             // Notify shell of our activate message

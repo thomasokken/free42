@@ -6,13 +6,13 @@
 | those I *will* definitely fix as quickly as possible.                      |
 +----------------------------------------------------------------------------+
 
-Skin selection in PocketPC version. Simply using the code from the Win32
-version does not work -- it crashes and burns, in a *weird* way (stack overflow
--- seems like a compiler bug or something?). Maybe best to play safe and use
-a dialog box instead. And, Google PocketPC+"dynamic menus".
-UPDATE: my problems debugging the above problem may stem from debugger bugs. I
-noticed that sometimes breakpoints & stepping don't work properly. Perhaps not
-all hope is lost for the dynamic skin menu yet.
+Skin switching: the skin menu works now, and skin switching seems OK as long
+as I use compiled-in skins (?), but I noticed fandango on core when using skins
+from files.
+Actually, I doubt that this has anything to do with files vs. compiled-in, but
+I'm not sure. Needs debugging, obviously. Make sure you try skins that are too
+large, too small, and just right -- one fandango candidate is the code that
+copies the display and rescales it.
 
 Get a PayPal account to accept donations. :-)
 
