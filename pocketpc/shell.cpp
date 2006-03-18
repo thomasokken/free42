@@ -589,7 +589,7 @@ static void Quit() {
 	statefile = _tfopen(statefilename, _T("wb"));
 	if (statefile != NULL)
 		write_shell_state();
-	//core_quit();
+	core_quit();
 	if (statefile != NULL)
 		fclose(statefile);
 }
