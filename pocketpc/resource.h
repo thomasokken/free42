@@ -10,6 +10,7 @@
 #define IDD_ABOUTBOX                    103
 #define IDS_HELP                        104
 #define IDD_PREFERENCES                 104
+#define IDD_SELECTPROGRAM               105
 #define IDS_COMMAND1                    301
 #define IDC_MATRIX_SINGULARMATRIX       1001
 #define IDC_MATRIX_OUTOFRANGE           1002
@@ -44,13 +45,14 @@
 #define IDS_PRINTOUT_TITLE              40019
 #define IDM_EXIT                        40020
 #define IDC_FREE42_PRINTOUT             40020
+#define IDC_LIST1                       40021
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        105
-#define _APS_NEXT_COMMAND_VALUE         40021
+#define _APS_NEXT_RESOURCE_VALUE        106
+#define _APS_NEXT_COMMAND_VALUE         40022
 #define _APS_NEXT_CONTROL_VALUE         1012
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

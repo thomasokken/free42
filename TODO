@@ -6,6 +6,11 @@
 | those I *will* definitely fix as quickly as possible.                      |
 +----------------------------------------------------------------------------+
 
+Skin selection in PocketPC version. Simply using the code from the Win32
+version does not work -- it crashes and burns, in a *weird* way (stack overflow
+-- seems like a compiler bug or something?). Maybe best to play safe and use
+a dialog box instead. And, Google PocketPC+"dynamic menus".
+
 Get a PayPal account to accept donations. :-)
 
 PalmOS version: support dynamic screen size changes (dynamic input area;
