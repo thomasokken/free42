@@ -14,12 +14,6 @@ UPDATE: my problems debugging the above problem may stem from debugger bugs. I
 noticed that sometimes breakpoints & stepping don't work properly. Perhaps not
 all hope is lost for the dynamic skin menu yet.
 
-PocketPC/Binary: "copy" seems to truncate numbers rather than rounding them.
-I suspect I need to reinstate the IP hack for this one case. (Test case: in
-FIX 04 mode, copy the number 5 and paste it back. I get something very evil
-that starts with 4.9999...) Hmmm, wait, what does that have to do with the
-IP hack? 5 is an integer!!!
-
 Get a PayPal account to accept donations. :-)
 
 PalmOS version: support dynamic screen size changes (dynamic input area;

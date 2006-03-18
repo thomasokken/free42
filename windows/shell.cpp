@@ -1237,7 +1237,7 @@ static void copy() {
 	char buf[100];
 	core_copy(buf, 100);
 	int len = strlen(buf) + 1;
-	HGLOBAL h = GlobalAlloc(GMEM_MOVEABLE, len);
+	HGLOBAL h = GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, len);
 	if (h != NULL) {
 		void *p = GlobalLock(h);
 		memcpy(p, buf, len);

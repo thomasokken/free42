@@ -746,20 +746,17 @@ static void copy() {
 	if (!OpenClipboard(hMainWnd))
 		return;
 	char buf[100];
-	TCHAR buf2[100];
 	core_copy(buf, 100);
-	int len = 0;
-	while (buf2[len] = (unsigned char) buf[len])
-		len++;
-	len++;
-	HGLOBAL h = GlobalAlloc(GMEM_MOVEABLE, len * sizeof(TCHAR));
+	int len = strlen(buf) + 1;
+	HLOCAL h = LocalAlloc(LMEM_MOVEABLE, len * sizeof(TCHAR));
 	if (h != NULL) {
-		void *p = GlobalLock(h);
-		memcpy(p, buf2, len * sizeof(TCHAR));
-		GlobalUnlock(h);
+		TCHAR *dst = (TCHAR *) LocalLock(h);
+		char *src = buf;
+		while (*dst++ = (unsigned char) *src++);
+		LocalUnlock(h);
 		EmptyClipboard();
-		if (SetClipboardData(CF_TEXT, h) == NULL)
-			GlobalFree(h);
+		if (SetClipboardData(CF_UNICODETEXT, h) == NULL)
+			LocalFree(h);
 	}
 	CloseClipboard();
 }
@@ -767,9 +764,11 @@ static void copy() {
 static void paste() {
 	if (!OpenClipboard(hMainWnd))
 		return;
-	HANDLE h = GetClipboardData(CF_TEXT);
+	// TODO: If getting Unicode text fails, maybe also try getting
+	// CF_TEXT or CF_OEMTEXT.
+	HANDLE h = GetClipboardData(CF_UNICODETEXT);
 	if (h != NULL) {
-		TCHAR *p = (TCHAR *) GlobalLock(h);
+		TCHAR *p = (TCHAR *) LocalLock(h);
 		if (p != NULL) {
 			int len = _tcslen(p);
 			char buf[100];
@@ -778,7 +777,7 @@ static void paste() {
 			buf[i] = 0;
 			core_paste(buf);
 			redisplay();
-			GlobalUnlock(h);
+			LocalUnlock(h);
 		}
 	}
 	CloseClipboard();

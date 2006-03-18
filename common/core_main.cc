@@ -1910,9 +1910,9 @@ static bool parse_phloat(const char *p, int len, phloat *res) {
     char buf[100];
     bool in_mant = true;
     int mant_digits = 0;
-    int i = 0;
-    while (i < 100) {
-	char c = *p++;
+    int i = 0, j = 0;
+    while (i < 100 && j < len) {
+	char c = p[j++];
 	if (c == 0)
 	    break;
 	if (c == '+')
