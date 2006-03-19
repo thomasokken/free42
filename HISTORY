@@ -1,3 +1,7 @@
+??-??-????: version 1.4.6
+
+* New: Pocket PC version.
+
 19-03-2006: version 1.4.5
 
 * Decimal version: 1 ACOS returned <Not a Number> instead of 0. Fixed.
