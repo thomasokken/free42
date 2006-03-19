@@ -273,6 +273,9 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	ShowWindow(hMainWnd, nCmdShow);
 	UpdateWindow(hMainWnd);
 
+	if (core_powercycle())
+		running = 1;
+
 	return TRUE;
 }
 
