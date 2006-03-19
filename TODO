@@ -6,6 +6,8 @@
 | those I *will* definitely fix as quickly as possible.                      |
 +----------------------------------------------------------------------------+
 
+Decimal: ACOS(1) => NaN
+
 Skin switching: the skin menu works now, and skin switching seems OK as long
 as I use compiled-in skins (?), but I noticed fandango on core when using skins
 from files.
