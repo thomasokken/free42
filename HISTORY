@@ -1,3 +1,7 @@
+19-03-2006: version 1.4.5
+
+* Decimal version: 1 ACOS returned <Not a Number> instead of 0. Fixed.
+
 13-03-2006: version 1.4.4
 
 * GTK version: when initially presented, the print-out window was not

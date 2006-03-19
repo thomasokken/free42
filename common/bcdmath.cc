@@ -496,6 +496,9 @@ BCD acos(const BCD& v)
     if (v < -1 || v > 1) {
         return BCDFloat::nan();
     }
+
+    if (v == 1)
+	return 0;
     
     BCD r = atan((1-v)/sqrt(1-v*v));
     r = r + r;
