@@ -371,7 +371,7 @@ static void update_skin_menu(HMENU menu) {
 		do {
 			if ((wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
 				wfd.cFileName[_tcslen(wfd.cFileName) - 7] = 0;
-				name[n] = (TCHAR *) malloc(_tcslen((wfd.cFileName) + 1) * sizeof(TCHAR));
+				name[n] = (TCHAR *) malloc((_tcslen(wfd.cFileName) + 1) * sizeof(TCHAR));
 				_tcscpy(name[n++], wfd.cFileName);
 			}
 		} while (FindNextFile(search, &wfd));
