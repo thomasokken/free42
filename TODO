@@ -3,8 +3,12 @@
 | promising that I will actually implement any of them -- I simply put any   |
 | reasonable feature request in this list, and when I feel like programming, |
 | I may or may not tackle any of these items. The only exceptions are bugs:  |
-| those I *will* definitely fix as quickly as possible.                      |
+| those I *will* definitely try to fix as quickly as possible.               |
 +----------------------------------------------------------------------------+
+
+PocketPC version: printer emulation, keyboard handling, beeper, battery status.
+Also, why don't I see an icon? It shows up in the WinXP Explorer, and also in
+the About window, but not in the PPC File Explorer and Start Menu.
 
 Get a PayPal account to accept donations. :-)
 
