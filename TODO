@@ -10,8 +10,11 @@ PocketPC version: printer emulation, keyboard handling, beeper, battery status.
 Also, why don't I see an icon? It shows up in the WinXP Explorer, and also in
 the About window, but not in the PPC File Explorer and Start Menu.
 
-Detect high-resolution screen, and when a low-res skin is selected, double it.
+PocketPC version: detect high-resolution screen, and when a low-res skin is
+selected, double it.
 Logic goes like: hdc = GetDC(hWnd); scale = GetDeviceCaps(hdc, LOGPIXELSX)/96;
+
+Importing a program while another program is already running seems problematic.
 
 Get a PayPal account to accept donations. :-)
 
