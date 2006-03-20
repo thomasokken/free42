@@ -20,7 +20,6 @@
 #include <windows.h>
 #include <commdlg.h>
 #include <tchar.h>
-#include <Aygshell.h>
 
 // Local Header Files
 

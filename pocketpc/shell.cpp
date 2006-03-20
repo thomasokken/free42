@@ -103,6 +103,7 @@ static VOID CALLBACK repeater(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime);
 static VOID CALLBACK timeout1(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime);
 static VOID CALLBACK timeout2(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime);
 static VOID CALLBACK timeout3(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime);
+static VOID CALLBACK battery_checker(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime);
 
 static void export_program();
 static void import_program();
@@ -276,6 +277,7 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 	if (core_powercycle())
 		running = 1;
+	SetTimer(NULL, 0, 60000, battery_checker);
 
 	return TRUE;
 }
@@ -831,6 +833,10 @@ static VOID CALLBACK timeout3(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) 
 	timer3 = 0;
 }
 
+static VOID CALLBACK battery_checker(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) {
+	shell_low_battery();
+}
+
 static void export_program() {
 	if (!DialogBox(hInst, (LPCTSTR)IDD_SELECTPROGRAM, hMainWnd, (DLGPROC)ExportProgram))
 		return;
@@ -902,7 +908,7 @@ void shell_blitter(const char *bits, int bytesperline, int x, int y,
 }
 
 void shell_beeper(int frequency, int duration) {
-	// TODO
+	MessageBeep(MB_ICONASTERISK);
 }
 
 /* shell_annunciators()
@@ -1003,8 +1009,14 @@ int4 shell_get_mem() {
 }
 
 int shell_low_battery() {
-	// TODO
-	int lowbat = 0;
+	SYSTEM_POWER_STATUS_EX powerstat;
+	int lowbat;
+	if (!GetSystemPowerStatusEx(&powerstat, TRUE))
+		lowbat = 0; // getting power status failed; assume we're fine
+	else
+		lowbat = powerstat.ACLineStatus == AC_LINE_OFFLINE // offline
+				&& (powerstat.BatteryFlag
+					& (BATTERY_FLAG_LOW | BATTERY_FLAG_CRITICAL)) != 0; // low or critical
 	if (ann_battery != lowbat) {
 		ann_battery = lowbat;
 		HDC hdc = GetDC(hMainWnd);

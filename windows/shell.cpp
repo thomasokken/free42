@@ -170,6 +170,7 @@ static VOID CALLBACK repeater(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime);
 static VOID CALLBACK timeout1(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime);
 static VOID CALLBACK timeout2(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime);
 static VOID CALLBACK timeout3(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime);
+static VOID CALLBACK battery_checker(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime);
 
 static void show_printout();
 static void export_program();
@@ -396,6 +397,7 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 	if (core_powercycle())
 		running = 1;
+	SetTimer(NULL, 0, 60000, battery_checker);
 
 	return TRUE;
 }
@@ -1354,6 +1356,10 @@ static VOID CALLBACK timeout3(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) 
 	KillTimer(NULL, timer3);
 	core_timeout3(1);
 	timer3 = 0;
+}
+
+static VOID CALLBACK battery_checker(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) {
+	shell_low_battery();
 }
 
 static void show_printout() {
