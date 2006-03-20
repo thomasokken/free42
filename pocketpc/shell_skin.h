@@ -21,7 +21,7 @@
 
 #include <windows.h>
 
-void skin_load(TCHAR *skinname, const TCHAR *basedir, long *width, long *height);
+void skin_load(TCHAR *skinname, const TCHAR *basedir, int width, int height);
 
 typedef struct {
 	unsigned char r, g, b, pad;

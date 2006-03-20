@@ -261,8 +261,9 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		MoveWindow(hMainWnd, rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top, FALSE);
 	}
 
-	long dummy_w, dummy_h;
-	skin_load(state.skinName, free42dirname, &dummy_w, &dummy_h);
+	RECT r;
+	GetClientRect(hMainWnd, &r);
+	skin_load(state.skinName, free42dirname, r.right, r.bottom);
 
 	core_init(init_mode, version);
 	if (statefile != NULL) {
@@ -462,14 +463,9 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 						mii.dwTypeData = state.skinName;
 						GetMenuItemInfo(skinmenu, wmId, FALSE, &mii);
 
-						// The following is really just skin_load(), followed by
-						// resizing the window. Unfortunately, I couldn't find a
-						// function that resizes a window without setting its position
-						// at the same time, hence the contortions.
-						long width, height;
-						skin_load(state.skinName, free42dirname, &width, &height);
 						RECT r;
 						GetClientRect(hWnd, &r);
+						skin_load(state.skinName, free42dirname, r.right, r.bottom);
 						InvalidateRect(hWnd, &r, FALSE);
 						break;
 					}

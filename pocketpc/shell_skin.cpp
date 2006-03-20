@@ -88,6 +88,10 @@ static int disp_bytesperline;
 static keymap_entry *keymap = NULL;
 static int keymap_length = 0;
 
+// Used while loading a skin; specifies how much to enlarge it.
+// This is necessary to force low-res skins to fill high-res screens.
+static int magnification;
+
 
 /**********************************************************/
 /* Linked-in skins; defined in the skins.c, which in turn */
@@ -272,7 +276,7 @@ static void skin_close() {
 		fclose(external_file);
 }
 
-void skin_load(TCHAR *skinname, const TCHAR *basedir, long *width, long *height) {
+void skin_load(TCHAR *skinname, const TCHAR *basedir, int width, int height) {
 	char line[1024];
 	int success;
 	int prev_xscale = display_scale.x;
@@ -433,6 +437,55 @@ void skin_load(TCHAR *skinname, const TCHAR *basedir, long *width, long *height)
 
 	skin_close();
 
+	/********************************************************************/
+	/* Compute optimum magnification level, and adjust skin description */
+	/********************************************************************/
+
+	int xs = width / skin.width;
+	int ys = height / skin.height;
+	magnification = xs < ys ? xs : ys;
+	if (magnification < 1)
+		magnification = 1;
+	else if (magnification > 1) {
+		if (magnification > 4)
+			// In order to support magnifications of more than 4,
+			// the monochrome pixel-replication code in skin_put_pixels()
+			// needs to be modified; currently, it only supports magnifications
+			// or 1, 2, 3, and 4.
+			magnification = 4;
+		skin.x *= magnification;
+		skin.y *= magnification;
+		skin.width *= magnification;
+		skin.height *= magnification;
+		display_loc.x *= magnification;
+		display_loc.y *= magnification;
+		display_scale.x *= magnification;
+		display_scale.y *= magnification;
+		int i;
+		for (i = 0; i < nkeys; i++) {
+			SkinKey *key = keylist + i;
+			key->sens_rect.x *= magnification;
+			key->sens_rect.y *= magnification;
+			key->sens_rect.width *= magnification;
+			key->sens_rect.height *= magnification;
+			key->disp_rect.x *= magnification;
+			key->disp_rect.y *= magnification;
+			key->disp_rect.width *= magnification;
+			key->disp_rect.height *= magnification;
+			key->src.x *= magnification;
+			key->src.y *= magnification;
+		}
+		for (i = 0; i < 7; i++) {
+			SkinAnnunciator *ann = annunciators + i;
+			ann->disp_rect.x *= magnification;
+			ann->disp_rect.y *= magnification;
+			ann->disp_rect.width *= magnification;
+			ann->disp_rect.height *= magnification;
+			ann->src.x *= magnification;
+			ann->src.y *= magnification;
+		}
+	}
+
 	/********************/
 	/* Load skin bitmap */
 	/********************/
@@ -450,9 +503,6 @@ void skin_load(TCHAR *skinname, const TCHAR *basedir, long *width, long *height)
 
 	if (!success)
 		goto fallback_on_1st_builtin_skin;
-
-	*width = skin.width;
-	*height = skin.height;
 
 	/********************************/
 	/* (Re)build the display bitmap */
@@ -504,6 +554,9 @@ int skin_init_image(int type, int ncolors, const SkinColor *colors,
 	skin_type = type;
 	skin_ncolors = ncolors;
 	skin_colors = colors;
+
+	width *= magnification;
+	height *= magnification;
 	
 	switch (type) {
 		case IMGTYPE_MONO:
@@ -529,25 +582,100 @@ int skin_init_image(int type, int ncolors, const SkinColor *colors,
 
 void skin_put_pixels(unsigned const char *data) {
 	unsigned char *dst = skin_bitmap + skin_y * skin_bytesperline;
-	if (skin_type == IMGTYPE_MONO) {
-		int i;
-		for (i = 0; i < skin_bytesperline; i++) {
-			unsigned char c = data[i];
-			c = (c >> 7) | ((c >> 5) & 2) | ((c >> 3) & 4) | ((c >> 1) & 8)
-				| ((c << 1) & 16) | ((c << 3) & 32) | ((c << 5) & 64) | (c << 7);
-			dst[i] = c;
+	if (magnification == 1) {
+		if (skin_type == IMGTYPE_MONO) {
+			for (int i = 0; i < skin_bytesperline; i++) {
+				unsigned char c = data[i];
+				c = (c >> 7) | ((c >> 5) & 2) | ((c >> 3) & 4) | ((c >> 1) & 8)
+					| ((c << 1) & 16) | ((c << 3) & 32) | ((c << 5) & 64) | (c << 7);
+				dst[i] = c;
+			}
+		} else if (skin_type == IMGTYPE_TRUECOLOR) {
+			for (int i = 0; i < skin_width; i++) {
+				data++;
+				*dst++ = *data++;
+				*dst++ = *data++;
+				*dst++ = *data++;
+			}
+		} else
+			memcpy(dst, data, skin_bytesperline);
+		skin_y++;
+	} else {
+		if (skin_type == IMGTYPE_MONO) {
+			if (magnification == 2) {
+				int i = 0;
+				while (true) {
+					unsigned char c = *data++;
+					dst[i++] = (((c << 6) & 64) | ((c << 3) & 16) | (c & 4) | ((c >> 3) & 1)) * 3;
+					if (i == skin_bytesperline)
+						break;
+					dst[i++] = (((c << 2) & 64) | ((c >> 1) & 16) | ((c >> 4) & 4) | (c >> 7)) * 3;
+					if (i == skin_bytesperline)
+						break;
+				}
+			} else if (magnification == 3) {
+				int i = 0;
+				while (true) {
+					unsigned char c = *data++;
+					dst[i++] = (((c << 5) & 32) | ((c << 1) & 4)) * 7 + ((c >> 2) & 1) * 3;
+					if (i == skin_bytesperline)
+						break;
+					dst[i++] = ((c << 5) & 128) + (((c << 1) & 16) | ((c >> 3) & 2)) * 7 + ((c >> 5) & 1);
+					if (i == skin_bytesperline)
+						break;
+					dst[i++] = (((c << 1) & 64) | ((c >> 3) & 8) | (c >> 7)) * 7;
+					if (i == skin_bytesperline)
+						break;
+				}
+			} else {
+				// magnification must be 4 now; it's the highest value this bitmap
+				// scaling code supports.
+				int i = 0, j = 0;
+				while (true) {
+					unsigned char c = *data++;
+					dst[i++] = (((c << 4) & 16) | ((c >> 1) & 1)) * 15;
+					if (i == skin_bytesperline)
+						break;
+					dst[i++] = (((c << 2) & 16) | ((c >> 3) & 1)) * 15;
+					if (i == skin_bytesperline)
+						break;
+					dst[i++] = ((c & 16) | ((c >> 5) & 1)) * 15;
+					if (i == skin_bytesperline)
+						break;
+					dst[i++] = (((c >> 2) & 16) | ((c >> 7) & 1)) * 15;
+					if (i == skin_bytesperline)
+						break;
+				}
+			}
+		} else if (skin_type == IMGTYPE_TRUECOLOR) {
+			unsigned char *p = dst;
+			for (int i = 0; i < skin_width; i++) {
+				unsigned char r, g, b;
+				data++;
+				r = *data++;
+				g = *data++;
+				b = *data++;
+				for (int j = 0; j < magnification; j++) {
+					*p++ = r;
+					*p++ = g;
+					*p++ = b;
+				}
+			}
+		} else {
+			unsigned char *p = dst;
+			for (int i = 0; i < skin_width; i++) {
+				unsigned char c = *data++;
+				for (int j = 0; j < magnification; j++)
+					*p++ = c;
+			}
 		}
-	} else if (skin_type == IMGTYPE_TRUECOLOR) {
-		int i;
-		for (i = 0; i < skin_width; i++) {
-			data++;
-			*dst++ = *data++;
-			*dst++ = *data++;
-			*dst++ = *data++;
+		for (int i = 1; i < magnification; i++) {
+			unsigned char *p = dst + skin_bytesperline;
+			memcpy(p, dst, skin_bytesperline);
+			dst = p;
 		}
-	} else
-		memcpy(dst, data, skin_bytesperline);
-	skin_y++;
+		skin_y += magnification;
+	}
 }
 
 void skin_finish_image() {
