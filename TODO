@@ -7,7 +7,11 @@
 +----------------------------------------------------------------------------+
 
 PocketPC version: printer emulation, keyboard handling, CAB distro.
-Also, why does Free42 not show up in "Recent Programs"?
+Squeezed display mode (doubled pixels, but do not double every 6th pixel, that
+is, the column positions between characters). Squeezed mode will require 241
+pixels, which of course is still one too many; we'll just have to shave one
+pixel off the rightmost column. Should look pretty decent!
+Why does Free42 not show up in "Recent Programs"?
 
 Get a PayPal account to accept donations. :-)
 
