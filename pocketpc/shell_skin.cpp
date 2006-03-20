@@ -84,6 +84,7 @@ static BITMAPINFOHEADER *skin_header = NULL;
 static HBITMAP skin_dib = NULL;
 static unsigned char *disp_bitmap = NULL;
 static int disp_bytesperline;
+static bool landscape;
 
 static keymap_entry *keymap = NULL;
 static int keymap_length = 0;
@@ -285,6 +286,7 @@ void skin_load(TCHAR *skinname, const TCHAR *basedir, int width, int height) {
 	int size, new_disp_bytesperline;
 	int kmcap = 0;
 	int lineno = 0;
+	bool prev_landscape = landscape;
 
 	if (skinname[0] == 0) {
 		fallback_on_1st_builtin_skin:
@@ -314,6 +316,8 @@ void skin_load(TCHAR *skinname, const TCHAR *basedir, int width, int height) {
 	    free(keymap);
 	keymap = NULL;
 	keymap_length = 0;
+
+	landscape = false;
 
 	while (skin_gets(line, 1024)) {
 		lineno++;
@@ -368,6 +372,10 @@ void skin_load(TCHAR *skinname, const TCHAR *basedir, int width, int height) {
 				key->src.y = act_y;
 				nkeys++;
 			}
+		} else if (_strnicmp(line, "landscape:", 10) == 0) {
+			int ls;
+			if (sscanf(line + 10, " %d", &ls) == 1)
+				landscape = ls != 0;
 		} else if (_strnicmp(line, "macro:", 6) == 0) {
 			char *tok = strtok(line + 6, " ");
 			int len = 0;
@@ -508,8 +516,16 @@ void skin_load(TCHAR *skinname, const TCHAR *basedir, int width, int height) {
 	/* (Re)build the display bitmap */
 	/********************************/
 
-	new_disp_bytesperline = ((131 * display_scale.x + 15) >> 3) & ~1;
-	size = new_disp_bytesperline * 16 * display_scale.y;
+	int lcd_w, lcd_h;
+	if (landscape) {
+		lcd_w = 16;
+		lcd_h = 131;
+	} else {
+		lcd_w = 131;
+		lcd_h = 16;
+	}
+	new_disp_bytesperline = ((lcd_w * display_scale.x + 15) >> 3) & ~1;
+	size = new_disp_bytesperline * lcd_h * display_scale.y;
 	new_disp_bitmap = (unsigned char *) malloc(size);
 	memset(new_disp_bitmap, 255, size);
 
@@ -519,10 +535,23 @@ void skin_load(TCHAR *skinname, const TCHAR *basedir, int width, int height) {
 		int sx = display_scale.x;
 		int sy = display_scale.y;
 
-		for (h = 0; h < 131; h++)
-			for (v = 0; v < 16; v++) {
-				pix = disp_bitmap[prev_yscale * v * disp_bytesperline + ((prev_xscale * h) >> 3)]
-							& (128 >> ((prev_xscale * h) & 7));
+		// Pretty inefficient implementation, but what the heck,
+		// it's only used when switching skins.
+		for (h = 0; h < lcd_w; h++)
+			for (v = 0; v < lcd_h; v++) {
+				int H, V;
+				if (prev_landscape == landscape) {
+					H = h;
+					V = v;
+				} else if (landscape) {
+					H = lcd_h - 1 - v;
+					V = h;
+				} else {
+					H = v;
+					V = lcd_w - 1 - h;
+				}
+				pix = disp_bitmap[prev_yscale * V * disp_bytesperline + ((prev_xscale * H) >> 3)]
+							& (128 >> ((prev_xscale * H) & 7));
 				if (pix == 0)
 					for (hh = h * sx; hh < (h + 1) * sx; hh++)
 						for (vv = v * sy; vv < (v + 1) * sy; vv++)
@@ -803,15 +832,28 @@ void skin_repaint_annunciator(HDC hdc, HDC memdc, int which, int state) {
 
 void skin_find_key(int x, int y, int *skey, int *ckey) {
 	int i;
-	if (core_menu()
-			&& x >= display_loc.x
-			&& x < display_loc.x + 131 * display_scale.x
-			&& y >= display_loc.y + 9 * display_scale.y
-			&& y < display_loc.y + 16 * display_scale.y) {
-		int softkey = (x - display_loc.x) / (22 * display_scale.x) + 1;
-		*skey = -1 - softkey;
-		*ckey = softkey;
-		return;
+	if (core_menu()) {
+		if (landscape) {
+			if (x >= display_loc.x + 9 * display_scale.x
+					&& x < display_loc.x + 16 * display_scale.x
+					&& y >= display_loc.y
+					&& y < display_loc.y + 131 * display_scale.y) {
+				int softkey = 6 - (y - display_loc.y) / (22 * display_scale.y);
+				*skey = -1 - softkey;
+				*ckey = softkey;
+				return;
+			}
+		} else {
+			if (x >= display_loc.x
+					&& x < display_loc.x + 131 * display_scale.x
+					&& y >= display_loc.y + 9 * display_scale.y
+					&& y < display_loc.y + 16 * display_scale.y) {
+				int softkey = (x - display_loc.x) / (22 * display_scale.x) + 1;
+				*skey = -1 - softkey;
+				*ckey = softkey;
+				return;
+			}
+		}
 	}
 	for (i = 0; i < nkeys; i++) {
 		SkinKey *k = keylist + i;
@@ -875,10 +917,17 @@ void skin_repaint_key(HDC hdc, HDC memdc, int key, int state) {
 			old_fg = SetTextColor(hdc, display_fg);
 		}
 		key = -1 - key;
-		x = (key - 1) * 22 * display_scale.x;
-		y = 9 * display_scale.y;
-		w = 131 * display_scale.x;
-		h = 16 * display_scale.y;
+		if (landscape) {
+			x = 9 * display_scale.x;
+			y = (6 - key) * 22 * display_scale.y;
+			w = 16 * display_scale.x;
+			h = 131 * display_scale.y;
+		} else {
+			x = (key - 1) * 22 * display_scale.x;
+			y = 9 * display_scale.y;
+			w = 131 * display_scale.x;
+			h = 16 * display_scale.y;
+		}
 		bitmap = CreateBitmap(w, h, 1, 1, disp_bitmap);
 		SelectObject(memdc, bitmap);
 		BitBlt(hdc, display_loc.x + x, display_loc.y + y,
@@ -920,20 +969,44 @@ void skin_display_blitter(HDC hdc, const char *bits, int bytesperline, int x, in
 	HDC memdc;
 	HBITMAP bitmap;
 	COLORREF old_bg, old_fg;
+	int disp_w, disp_h;
 
-	for (v = y; v < y + height; v++)
-		for (h = x; h < x + width; h++) {
-			int pixel = (bits[v * bytesperline + (h >> 3)] & (1 << (h & 7))) == 0;
-			for (vv = v * sy; vv < (v + 1) * sy; vv++)
-				for (hh = h * sx; hh < (h + 1) * sx; hh++)
-					if (pixel)
-						disp_bitmap[vv * disp_bytesperline + (hh >> 3)] |= 128 >> (hh & 7);
-					else
-						disp_bitmap[vv * disp_bytesperline + (hh >> 3)] &= ~(128 >> (hh & 7));
-		}
+	if (landscape) {
+		for (v = y; v < y + height; v++)
+			for (h = x; h < x + width; h++) {
+				int pixel = (bits[v * bytesperline + (h >> 3)] & (1 << (h & 7))) == 0;
+				for (vv = (130 - h) * sy; vv < (131 - h) * sy; vv++)
+					for (hh = v * sx; hh < (v + 1) * sx; hh++)
+						if (pixel)
+							disp_bitmap[vv * disp_bytesperline + (hh >> 3)] |= 128 >> (hh & 7);
+						else
+							disp_bitmap[vv * disp_bytesperline + (hh >> 3)] &= ~(128 >> (hh & 7));
+			}
+		disp_w = 16;
+		disp_h = 131;
+		int tmp = x;
+		x = y;
+		y = 131 - x - width;
+		tmp = width;
+		width = height;
+		height = tmp;
+	} else {
+		for (v = y; v < y + height; v++)
+			for (h = x; h < x + width; h++) {
+				int pixel = (bits[v * bytesperline + (h >> 3)] & (1 << (h & 7))) == 0;
+				for (vv = v * sy; vv < (v + 1) * sy; vv++)
+					for (hh = h * sx; hh < (h + 1) * sx; hh++)
+						if (pixel)
+							disp_bitmap[vv * disp_bytesperline + (hh >> 3)] |= 128 >> (hh & 7);
+						else
+							disp_bitmap[vv * disp_bytesperline + (hh >> 3)] &= ~(128 >> (hh & 7));
+			}
+		disp_w = 131;
+		disp_h = 16;
+	}
 	
 	memdc = CreateCompatibleDC(hdc);
-	bitmap = CreateBitmap(131 * sx, 16 * sy, 1, 1, disp_bitmap);
+	bitmap = CreateBitmap(disp_w * sx, disp_h * sy, 1, 1, disp_bitmap);
 	SelectObject(memdc, bitmap);
 
 	old_bg = SetBkColor(hdc, display_bg);
@@ -948,8 +1021,14 @@ void skin_display_blitter(HDC hdc, const char *bits, int bytesperline, int x, in
 }
 
 void skin_repaint_display(HDC hdc, HDC memdc) {
-	int w = 131 * display_scale.x;
-	int h = 16 * display_scale.y;
+	int w, h;
+	if (landscape) {
+		w = 16 * display_scale.x;
+		h = 131 * display_scale.y;
+	} else {
+		w = 131 * display_scale.x;
+		h = 16 * display_scale.y;
+	}
 	HBITMAP bitmap = CreateBitmap(w, h, 1, 1, disp_bitmap);
 	COLORREF old_bg, old_fg;
 
