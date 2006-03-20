@@ -1472,6 +1472,8 @@ void core_import_programs(int (*progress_report)(const char *)) {
     int instrcount = -1;
     int report_label = 0;
 
+    set_running(false);
+
     /* Set print mode to MAN during the import, to prevent store_command()
      * from printing programs as they load
      */
