@@ -6,12 +6,7 @@
 | those I *will* definitely try to fix as quickly as possible.               |
 +----------------------------------------------------------------------------+
 
-PocketPC version: printer emulation, keyboard handling, CAB distro.
-Squeezed display mode (double all pixels *except* the ones between char posns,
-and except for the second column from the left of each char. This way, all the
-vertical bars will remain intact and the squeezing should be pretty unobtrusive,
-while at the same time squeezing the display to 219 pixels and the printer to
-239 pixels.
+PocketPC version: squeezed display mode, printer emulation, keyboard handling.
 
 Get a PayPal account to accept donations. :-)
 
