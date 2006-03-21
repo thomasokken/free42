@@ -6,11 +6,17 @@
 | those I *will* definitely try to fix as quickly as possible.               |
 +----------------------------------------------------------------------------+
 
-PocketPC version: printer emulation, keyboard handling, CAB distro.
+PocketPC version: printer emulation, keyboard handling, CAB distro(?).
 Squeezed display mode (doubled pixels, but do not double every 6th pixel, that
 is, the column positions between characters). Squeezed mode will require 241
 pixels, which of course is still one too many; we'll just have to shave one
 pixel off the rightmost column. Should look pretty decent!
+UPDATE: how about squeezing the 2nd and 4th pixel rows in each char cell?
+With the exception of the char "4" and maybe one or two other special cases
+(braces?) this should be pretty unobtrusive, *and*, best of all, it should even
+free up enough pixels to support print-out mode *with* a scroll bar, not to
+mention nice decorations around the display.
+
 Why does Free42 not show up in "Recent Programs"?
 
 Get a PayPal account to accept donations. :-)
