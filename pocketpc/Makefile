@@ -25,12 +25,14 @@ package: ARMV4RelDecimal/Free42Decimal.exe ARMV4RelBinary/Free42Binary.exe
 	cp README.txt Free42PocketPC
 	cp Free42Decimal.PPC2003_ARM.CAB Free42PocketPC/Free42Decimal.cab
 	cp Free42Binary.PPC2003_ARM.CAB Free42PocketPC/Free42Binary.cab
+	rm -f Free42PocketPC.zip
 	zip -r Free42PocketPC.zip Free42PocketPC
 	rm -rf Free42PocketPC
 
 clean: FORCE
-	rm -f skin2cpp.exe skins.cpp keymap2cpp.exe keymap.cpp \
+	rm -rf skin2cpp.exe skins.cpp keymap2cpp.exe keymap.cpp \
 		Free42Decimal.*.CAB Free42Decimal.*.DAT \
 		Free42Binary.*.CAB Free42Binary.*.DAT
+		Free42PocketPC Free42PocketPC.zip
 
 FORCE:
