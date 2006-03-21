@@ -483,6 +483,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 						RECT r;
 						GetClientRect(hWnd, &r);
 						skin_load(state.skinName, free42dirname, r.right, r.bottom);
+						core_repaint_display();
 						InvalidateRect(hWnd, &r, FALSE);
 						break;
 					}

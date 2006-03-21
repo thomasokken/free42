@@ -174,6 +174,7 @@ static void selectSkinCB(Widget w, XtPointer ud, XtPointer cd) {
 	int w, h;
 	strcpy(state.skinName, seg);
 	skin_load(&w, &h);
+	core_repaint_display();
 	allow_mainwindow_resize();
 	XtVaSetValues(calc_widget, XmNwidth, w, XmNheight, h, NULL);
 	disallow_mainwindow_resize();
@@ -484,9 +485,6 @@ void skin_menu_update(Widget w, XtPointer ud, XtPointer cd) {
 void skin_load(int *width, int *height) {
     char line[1024];
     int success;
-    int prev_xscale = display_scale.x;
-    int prev_yscale = display_scale.y;
-    XImage *new_disp_image;
     int size;
     XGCValues values;
     int kmcap;
@@ -677,31 +675,17 @@ void skin_load(int *width, int *height) {
     /* (Re)build the display bitmap */
     /********************************/
 
-    new_disp_image = XCreateImage(display, visual, 1, XYBitmap, 0, NULL,
-				  131 * display_scale.x, 16 * display_scale.y,
-				  8, 0);
-    size = new_disp_image->bytes_per_line * new_disp_image->height;
-    new_disp_image->data = (char *) malloc(size);
-    if (disp_image == NULL)
-	memset(new_disp_image->data, 255, size);
-    else {
-	int h, v, hh, vv;
-	unsigned long pix;
-	int sx = display_scale.x;
-	int sy = display_scale.y;
-
-	for (h = 0; h < 131; h++)
-	    for (v = 0; v < 16; v++) {
-		pix = XGetPixel(disp_image, prev_xscale * h, prev_yscale * v);
-		for (hh = h * sx; hh < (h + 1) * sx; hh++)
-		    for (vv = v * sy; vv < (v + 1) * sy; vv++)
-			XPutPixel(new_disp_image, hh, vv, pix);
-	    }
-
+    if (disp_image != NULL) {
 	free(disp_image->data);
 	XFree(disp_image);
     }
-    disp_image = new_disp_image;
+
+    disp_image = XCreateImage(display, visual, 1, XYBitmap, 0, NULL,
+			      131 * display_scale.x, 16 * display_scale.y,
+			      8, 0);
+    size = disp_image->bytes_per_line * disp_image->height;
+    disp_image->data = (char *) malloc(size);
+    memset(disp_image->data, 255, size);
 
     /*************************************/
     /* (Re)allocate display fg/bg colors */

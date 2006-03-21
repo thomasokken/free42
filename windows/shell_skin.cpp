@@ -290,10 +290,7 @@ static void skin_close() {
 void skin_load(char *skinname, const char *basedir, long *width, long *height) {
 	char line[1024];
 	int success;
-	int prev_xscale = display_scale.x;
-	int prev_yscale = display_scale.y;
-	unsigned char *new_disp_bitmap;
-	int size, new_disp_bytesperline;
+	int size;
 	int kmcap = 0;
 	int lineno = 0;
 
@@ -473,32 +470,12 @@ void skin_load(char *skinname, const char *basedir, long *width, long *height) {
 	/* (Re)build the display bitmap */
 	/********************************/
 
-	new_disp_bytesperline = ((131 * display_scale.x + 15) >> 3) & ~1;
-	size = new_disp_bytesperline * 16 * display_scale.y;
-	new_disp_bitmap = (unsigned char *) malloc(size);
-	memset(new_disp_bitmap, 255, size);
-
-	if (disp_bitmap != 0) {
-		int h, v, hh, vv;
-		unsigned long pix;
-		int sx = display_scale.x;
-		int sy = display_scale.y;
-
-		for (h = 0; h < 131; h++)
-			for (v = 0; v < 16; v++) {
-				pix = disp_bitmap[prev_yscale * v * disp_bytesperline + ((prev_xscale * h) >> 3)]
-							& (128 >> ((prev_xscale * h) & 7));
-				if (pix == 0)
-					for (hh = h * sx; hh < (h + 1) * sx; hh++)
-						for (vv = v * sy; vv < (v + 1) * sy; vv++)
-							new_disp_bitmap[vv * new_disp_bytesperline + (hh >> 3)]
-									&= ~(128 >> (hh & 7));
-			}
-
+	if (disp_bitmap != NULL)
 		free(disp_bitmap);
-	}
-	disp_bitmap = new_disp_bitmap;
-	disp_bytesperline = new_disp_bytesperline;
+	disp_bytesperline = ((131 * display_scale.x + 15) >> 3) & ~1;
+	size = disp_bytesperline * 16 * display_scale.y;
+	disp_bitmap = (unsigned char *) malloc(size);
+	memset(disp_bitmap, 255, size);
 }
 
 int skin_init_image(int type, int ncolors, const SkinColor *colors,

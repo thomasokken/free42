@@ -46,6 +46,16 @@ void core_init(int read_state, int4 version) MAIN_SECT;
  */
 void core_quit() MAIN_SECT;
 
+/* core_repaint_display()
+ *
+ * This function asks the emulator core to repaint the display. The core will
+ * respond by immediately calling shell_blitter() to repaint the entire
+ * display.
+ * The shell uses this function to re-generate the display after switching
+ * skins.
+ */
+void core_repaint_display() MAIN_SECT;
+
 /* core_menu()
  *
  * The shell uses this function to check if a menu is active. This affects

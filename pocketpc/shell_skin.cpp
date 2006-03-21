@@ -280,10 +280,7 @@ static void skin_close() {
 void skin_load(TCHAR *skinname, const TCHAR *basedir, int width, int height) {
 	char line[1024];
 	int success;
-	int prev_xscale = display_scale.x;
-	int prev_yscale = display_scale.y;
-	unsigned char *new_disp_bitmap;
-	int size, new_disp_bytesperline;
+	int size;
 	int kmcap = 0;
 	int lineno = 0;
 	bool prev_landscape = landscape;
@@ -516,6 +513,9 @@ void skin_load(TCHAR *skinname, const TCHAR *basedir, int width, int height) {
 	/* (Re)build the display bitmap */
 	/********************************/
 
+	if (disp_bitmap != NULL)
+		free(disp_bitmap);
+
 	int lcd_w, lcd_h;
 	if (landscape) {
 		lcd_w = 16;
@@ -524,45 +524,10 @@ void skin_load(TCHAR *skinname, const TCHAR *basedir, int width, int height) {
 		lcd_w = 131;
 		lcd_h = 16;
 	}
-	new_disp_bytesperline = ((lcd_w * display_scale.x + 15) >> 3) & ~1;
-	size = new_disp_bytesperline * lcd_h * display_scale.y;
-	new_disp_bitmap = (unsigned char *) malloc(size);
-	memset(new_disp_bitmap, 255, size);
-
-	if (disp_bitmap != 0) {
-		int h, v, hh, vv;
-		unsigned long pix;
-		int sx = display_scale.x;
-		int sy = display_scale.y;
-
-		// Pretty inefficient implementation, but what the heck,
-		// it's only used when switching skins.
-		for (h = 0; h < lcd_w; h++)
-			for (v = 0; v < lcd_h; v++) {
-				int H, V;
-				if (prev_landscape == landscape) {
-					H = h;
-					V = v;
-				} else if (landscape) {
-					H = lcd_h - 1 - v;
-					V = h;
-				} else {
-					H = v;
-					V = lcd_w - 1 - h;
-				}
-				pix = disp_bitmap[prev_yscale * V * disp_bytesperline + ((prev_xscale * H) >> 3)]
-							& (128 >> ((prev_xscale * H) & 7));
-				if (pix == 0)
-					for (hh = h * sx; hh < (h + 1) * sx; hh++)
-						for (vv = v * sy; vv < (v + 1) * sy; vv++)
-							new_disp_bitmap[vv * new_disp_bytesperline + (hh >> 3)]
-									&= ~(128 >> (hh & 7));
-			}
-
-		free(disp_bitmap);
-	}
-	disp_bitmap = new_disp_bitmap;
-	disp_bytesperline = new_disp_bytesperline;
+	disp_bytesperline = ((lcd_w * display_scale.x + 15) >> 3) & ~1;
+	size = disp_bytesperline * lcd_h * display_scale.y;
+	disp_bitmap = (unsigned char *) malloc(size);
+	memset(disp_bitmap, 255, size);
 }
 
 int skin_init_image(int type, int ncolors, const SkinColor *colors,

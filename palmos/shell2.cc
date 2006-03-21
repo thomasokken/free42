@@ -212,7 +212,6 @@ static unsigned char *find_macro(int ckey) {
 
 void load_skin() {
     int i, n;
-    BitmapType *new_disp_bitmap;
     Err err;
     UInt16 id;
 
@@ -308,66 +307,34 @@ void load_skin() {
 	ann_on_p[i] = (BitmapType *) MemHandleLock(h);
     }
 
-    new_disp_bitmap = MyGlueBmpCreate(131 * skin->display_xscale,
-				      16 * skin->display_yscale,
-				      1, NULL, &err);
-
     if (disp_bitmap != NULL) {
-	int h, v, hh, vv;
-	int pix;
-	char *oldbits, *newbits;
-	UInt16 old_rowbytes, new_rowbytes;
-	Coord oldwidth, oldheight;
-	int old_xscale, old_yscale;
-	int new_xscale = skin->display_xscale;
-	int new_yscale = skin->display_yscale;
-
-	oldbits = (char *) MyGlueBmpGetBits(disp_bitmap);
-	newbits = (char *) MyGlueBmpGetBits(new_disp_bitmap);
-	BmpGlueGetDimensions(disp_bitmap, &oldwidth, &oldheight, &old_rowbytes);
-	BmpGlueGetDimensions(new_disp_bitmap, NULL, NULL, &new_rowbytes);
-	old_xscale = oldwidth / 131;
-	old_yscale = oldheight / 16;
-
-	for (v = 0; v < 16; v++)
-	    for (h = 0; h < 131; h++) {
-		hh = h * old_xscale;
-		pix = oldbits[v * old_yscale * old_rowbytes + (hh >> 3)]
-							    & (128 >> (hh & 7));
-		for (vv = v * new_yscale; vv < (v + 1) * new_yscale; vv++)
-		    for (hh = h * new_xscale; hh < (h + 1) * new_xscale; hh++)
-			if (pix == 0)
-			    newbits[vv * new_rowbytes + (hh >> 3)]
-				    &= ~(128 >> (hh & 7));
-			else
-			    newbits[vv * new_rowbytes + (hh >> 3)]
-				    |= 128 >> (hh & 7);
-	    }
 	MyGlueBmpDelete(disp_bitmap);
 	if (disp_bits_v3 != NULL)
 	    MemPtrFree(disp_bits_v3);
     }
 
+    disp_bitmap = MyGlueBmpCreate(131 * skin->display_xscale,
+				  16 * skin->display_yscale,
+				  1, NULL, &err);
+    disp_bits_v3 = NULL;
+
     if (skin->density != 72) {
-	UInt32 size = BmpBitsSize(new_disp_bitmap);
-	char *bits = (char *) MemPtrNew(size);
-	char *oldbits;
-	if (bits == NULL)
-	    goto not_v3;
-	disp_bitmap = (BitmapType *) BmpCreateBitmapV3(new_disp_bitmap,
-					    kDensityDouble, bits, NULL);
-	if (disp_bitmap == NULL) {
-	    MemPtrFree(bits);
-	    goto not_v3;
+	UInt32 size = BmpBitsSize(disp_bitmap);
+	disp_bits_v3 = (char *) MemPtrNew(size);
+	if (disp_bits_v3 != NULL) {
+	    BitmapType *bmp_v3 = (BitmapType *) BmpCreateBitmapV3(disp_bitmap,
+						kDensityDouble, disp_bits_v3,
+						NULL);
+	    if (bmp_v3 == NULL) {
+		MemPtrFree(disp_bits_v3);
+		disp_bits_v3 = NULL;
+	    } else {
+		char *oldbits = (char *) BmpGetBits(disp_bitmap);
+		MemMove(disp_bits_v3, oldbits, size);
+		BmpDelete(disp_bitmap);
+		disp_bitmap = bmp_v3;
+	    }
 	}
-	disp_bits_v3 = bits;
-	oldbits = (char *) BmpGetBits(new_disp_bitmap);
-	MemMove(disp_bits_v3, oldbits, size);
-	BmpDelete(new_disp_bitmap);
-    } else {
-	not_v3:
-	disp_bitmap = new_disp_bitmap;
-	disp_bits_v3 = NULL;
     }
 }
 
@@ -1042,6 +1009,7 @@ Boolean form_handler(EventType *e) {
 			    StrCopy(state.skinName, skin_name[i]);
 			    unload_skin();
 			    load_skin();
+			    core_repaint_display();
 			    if (feature_set_3_5_present())
 				FrmUpdateForm(calcform_id, frmRedrawUpdateCode);
 			    else {
@@ -1100,6 +1068,7 @@ Boolean form_handler(EventType *e) {
 			StrCopy(state.skinName, skin_name[i]);
 			unload_skin();
 			load_skin();
+			core_repaint_display();
 			FrmUpdateForm(calcform_id, frmRedrawUpdateCode);
 			return true;
 		    } else {

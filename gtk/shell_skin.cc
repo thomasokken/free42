@@ -144,6 +144,7 @@ static void selectSkinCB(GtkWidget *w, gpointer cd) {
 	int w, h;
 	strcpy(state.skinName, name);
 	skin_load(&w, &h);
+	core_repaint_display();
 	gtk_widget_set_size_request(calc_widget, w, h);
     }
 }
@@ -283,10 +284,6 @@ void skin_menu_update(GtkWidget *w) {
 void skin_load(int *width, int *height) {
     char line[1024];
     int success;
-    int prev_xscale = display_scale.x;
-    int prev_yscale = display_scale.y;
-    SkinColor prev_disp_bg = display_bg;
-    GdkPixbuf *new_disp_image;
     int lineno = 0;
 
     if (state.skinName[0] == 0) {
@@ -472,43 +469,14 @@ void skin_load(int *width, int *height) {
     /* (Re)build the display bitmap */
     /********************************/
 
-    new_disp_image = gdk_pixbuf_new(GDK_COLORSPACE_RGB, FALSE, 8,
-				    131 * display_scale.x,
-				    16 * display_scale.y);
-    if (disp_image == NULL) {
-	guint32 p = (display_bg.r << 24)
-		    | (display_bg.g << 16) | (display_bg.b << 8);
-	gdk_pixbuf_fill(new_disp_image, p);
-    } else {
-	int oldbpl = gdk_pixbuf_get_rowstride(disp_image);
-	int newbpl = gdk_pixbuf_get_rowstride(new_disp_image);
-	guchar *op = gdk_pixbuf_get_pixels(disp_image);
-	guchar *np = gdk_pixbuf_get_pixels(new_disp_image);
-	int sx = display_scale.x;
-	int sy = display_scale.y;
-
-	for (int h = 0; h < 131; h++)
-	    for (int v = 0; v < 16; v++) {
-		SkinColor c;
-		guchar *p = op + oldbpl * prev_yscale * v + prev_xscale * h * 3;
-		if (prev_disp_bg.r == p[0]
-			&& prev_disp_bg.g == p[1]
-			&& prev_disp_bg.b == p[2])
-		    c = display_bg;
-		else
-		    c = display_fg;
-		for (int hh = h * sx; hh < (h + 1) * sx; hh++)
-		    for (int vv = v * sy; vv < (v + 1) * sy; vv++) {
-			p = np + newbpl * vv + hh * 3;
-			*p++ = c.r;
-			*p++ = c.g;
-			*p = c.b;
-		    }
-	    }
-
+    if (disp_image != NULL)
 	g_object_unref(disp_image);
-    }
-    disp_image = new_disp_image;
+    disp_image = gdk_pixbuf_new(GDK_COLORSPACE_RGB, FALSE, 8,
+				131 * display_scale.x,
+				16 * display_scale.y);
+    guint32 p = (display_bg.r << 24)
+		    | (display_bg.g << 16) | (display_bg.b << 8);
+    gdk_pixbuf_fill(disp_image, p);
 }
 
 int skin_init_image(int type, int ncolors, const SkinColor *colors,
