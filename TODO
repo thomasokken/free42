@@ -13,6 +13,8 @@ shifted, or Ctrl-1 thru Ctrl-6, or whatever.
 
 Get a PayPal account to accept donations. :-)
 
+Add CREDITS listing somewhere.
+
 PalmOS version: support dynamic screen size changes (dynamic input area;
 portrait/landscape mode switching). The tricky bit: storing the currenly
 selected skin will no longer be a simple matter of keeping track of one skin
