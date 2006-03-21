@@ -7,6 +7,9 @@
 +----------------------------------------------------------------------------+
 
 PocketPC version: squeezed display mode, printer emulation.
+Also, do something about the F1-F6 mappings. PPC apparently predefines some of
+those keys, so it might be a good idea to define some additional mappings, e.g.
+shifted, or Ctrl-1 thru Ctrl-6, or whatever.
 
 Get a PayPal account to accept donations. :-)
 
