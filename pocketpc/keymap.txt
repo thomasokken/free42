@@ -1,4 +1,4 @@
-# Default key mapping table for Free42 (Windows version)
+# Default key mapping table for Free42 (PocketPC version)
 #
 # Format: [Ctrl|Alt|Shift]* <KeyCode> : <macro>
 # <KeyCode> is a numeric Windows key code; <macro> is a sequence of zero or
