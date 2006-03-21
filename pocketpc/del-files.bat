@@ -43,6 +43,7 @@ del shell_loadimage.h
 del shell_spool.cpp
 del shell_spool.h
 del skin2cpp.cpp
+del keymap2cpp.cpp
 del bcd.cpp
 del bcd.h
 del bcdfloat.cpp

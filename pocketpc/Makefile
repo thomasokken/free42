@@ -1,10 +1,18 @@
 CABWIZ = "/cygdrive/c/Program Files/Windows CE Tools/wce420/Pocket PC 2003/Tools/CabWiz.exe"
 
-skins.cpp: skin2cpp skin2cpp.conf
-	./skin2cpp
+default: skins.cpp keymap.cpp
 
 skin2cpp: skin2cpp.cpp
 	$(CXX) -DWINDOWS -o skin2cpp skin2cpp.cpp
+
+skins.cpp: skin2cpp skin2cpp.conf
+	./skin2cpp
+
+keymap2cpp: keymap2cpp.cpp
+	$(CXX) -DWINDOWS -o keymap2cpp keymap2cpp.cpp
+
+keymap.cpp: keymap2cpp keymap.txt
+	./keymap2cpp
 
 cabs: FORCE
 	$(CABWIZ) Free42Decimal.inf /cpu PPC2003_ARM PPC2003_x86
@@ -20,6 +28,8 @@ package: FORCE
 	rm -rf Free42PocketPC
 
 clean: FORCE
-	rm -f skin2cpp.exe skins.cpp Free42Decimal.*.CAB Free42Decimal.*.DAT Free42Binary.*.CAB Free42Binary.*.DAT
+	rm -f skin2cpp.exe skins.cpp keymap2cpp.exe keymap.cpp \
+		Free42Decimal.*.CAB Free42Decimal.*.DAT \
+		Free42Binary.*.CAB Free42Binary.*.DAT
 
 FORCE:

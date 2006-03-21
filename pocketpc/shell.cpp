@@ -50,7 +50,15 @@ static int enqueued = 0;
 
 static int ckey = 0;
 static int skey;
+static int active_keycode = 0;
+static bool ctrl_down = false;
+static bool alt_down = false;
+static bool shift_down = false;
+static bool just_pressed_shift = false;
 static bool mouse_key;
+
+static int keymap_length = 0;
+static keymap_entry *keymap = NULL;
 
 
 #define SHELL_VERSION 1
@@ -108,6 +116,7 @@ static VOID CALLBACK battery_checker(HWND hwnd, UINT uMsg, UINT idEvent, DWORD d
 static void export_program();
 static void import_program();
 
+static void read_key_map(const TCHAR *keymapfilename);
 static void init_shell_state(int4 version);
 static bool read_shell_state(int4 *version);
 static bool write_shell_state();
@@ -209,10 +218,16 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		*lastbackslash = 0;
 	else
 		free42dirname[0] = 0;
+
+	TCHAR keymapfilename[FILENAMELEN];
 	_tcscpy(statefilename, free42dirname);
 	_tcscat(statefilename, _T("\\state.bin"));
 	_tcscpy(printfilename, free42dirname);
 	_tcscat(printfilename, _T("\\print.bin"));
+	_tcscpy(keymapfilename, free42dirname);
+	_tcscat(keymapfilename, _T("\\keymap.txt"));
+
+	read_key_map(keymapfilename);
 
 	int init_mode;
 	int4 version;
@@ -515,6 +530,132 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			if (ckey != 0 && mouse_key)
 				shell_keyup();
 			break;
+		case WM_KEYDOWN:
+		case WM_CHAR:
+		case WM_SYSKEYDOWN:
+		case WM_SYSCHAR: {
+			static int virtKey = 0;
+			int keyChar;
+			if ((lParam & (1 << 30)) != 0)
+				// Auto-repeat event; ignore.
+				break;
+			if (message == WM_KEYDOWN || message == WM_SYSKEYDOWN) {
+				keyChar = 0;
+				virtKey = (int) wParam;
+			} else
+				keyChar = (int) wParam;
+			just_pressed_shift = false;
+			if (virtKey == 17) {
+				ctrl_down = true;
+				goto do_default;
+			} else if (virtKey == 18) {
+				alt_down = true;
+				goto do_default;
+			} else if (virtKey == 16) {
+				shift_down = true;
+				just_pressed_shift = true;
+				goto do_default;
+			}
+			if ((message == WM_KEYDOWN || message == WM_SYSKEYDOWN)
+					&& !ctrl_down
+					&& (virtKey == 8 // Backspace
+					|| virtKey == 9 // Tab
+					|| virtKey == 13 // Enter
+					|| (virtKey == 27 && !shift_down) // Escape
+					|| virtKey == 32 // Space
+					|| (virtKey >= 48 && virtKey < 112)
+					|| (virtKey >= 0xB0 && virtKey < 0xF0)))
+				// Keystrokes that will be followed by a WM_CHAR
+				// message; we defer handling them until then.
+				break;
+
+			if (ckey == 0 || !mouse_key) {
+				int i;
+				bool printable = keyChar >= 32 && keyChar <= 126;
+				if (ckey != 0) {
+					shell_keyup();
+					active_keycode = 0;
+				}
+				if (printable && core_alpha_menu()) {
+					if (keyChar >= 'a' && keyChar <= 'z')
+						keyChar = keyChar + 'A' - 'a';
+					else if (keyChar >= 'A' && keyChar <= 'Z')
+						keyChar = keyChar + 'a' - 'A';
+					ckey = 1024 + keyChar;
+					skey = -1;
+					shell_keydown();
+					mouse_key = false;
+					active_keycode = virtKey;
+					break;
+				} else if (core_hex_menu() && ((keyChar >= 'a' && keyChar <= 'f')
+							|| (keyChar >= 'A' && keyChar <= 'F'))) {
+					if (keyChar >= 'a' && keyChar <= 'f')
+						ckey = keyChar - 'a' + 1;
+					else
+						ckey = keyChar - 'A' + 1;
+					skey = -1;
+					shell_keydown();
+					mouse_key = false;
+					active_keycode = virtKey;
+					break;
+				}
+				unsigned char *macro = skin_keymap_lookup(virtKey, ctrl_down, alt_down, shift_down);
+				if (macro == NULL) {
+					for (i = 0; i < keymap_length; i++) {
+						keymap_entry *entry = keymap + i;
+						if (ctrl_down == entry->ctrl
+								&& alt_down == entry->alt
+								&& shift_down == entry->shift
+								&& virtKey == entry->keycode) {
+							macro = entry->macro;
+							break;
+						}
+					}
+				}
+				if (macro != NULL) {
+					int j;
+					for (j = 0; j < KEYMAP_MAX_MACRO_LENGTH; j++)
+						if (macro[j] == 0)
+							break;
+						else {
+							if (ckey != 0)
+								shell_keyup();
+							ckey = macro[j];
+							skey = -1;
+							shell_keydown();
+						}
+					mouse_key = false;
+					active_keycode = virtKey;
+					break;
+				}
+			}
+			goto do_default;
+		}
+		case WM_KEYUP:
+		case WM_SYSKEYUP: {
+			int virtKey = (int) wParam;
+			if (virtKey == 17) {
+				ctrl_down = false;
+				goto do_default;
+			} else if (virtKey == 18) {
+				alt_down = false;
+				goto do_default;
+			} else if (virtKey == 16) {
+				shift_down = false;
+				if (ckey == 0 && just_pressed_shift) {
+					ckey = 28;
+					skey = 1;
+					shell_keydown();
+					shell_keyup();
+				}
+				goto do_default;
+			}
+			if (ckey != 0 && !mouse_key && virtKey == active_keycode) {
+				shell_keyup();
+				active_keycode = 0;
+			}
+			goto do_default;
+		}
 		case WM_DESTROY:
 			CommandBar_Destroy(hwndCB);
 			PostQuitMessage(0);
@@ -531,6 +672,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			SHHandleWMSettingChange(hWnd, wParam, lParam, &s_sai);
      		break;
 		default:
+		do_default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
    }
    return 0;
@@ -1087,6 +1229,48 @@ shell_bcd_table_struct *shell_put_bcd_table(shell_bcd_table_struct* bcdtab,
 
 void shell_release_bcd_table(shell_bcd_table_struct *bcdtab) {
 	free(bcdtab);
+}
+
+extern long keymap_filesize;
+extern char keymap_filedata[];
+
+static void read_key_map(const TCHAR *keymapfilename) {
+	FILE *keymapfile = _tfopen(keymapfilename, _T("r"));
+	int kmcap = 0;
+	char line[1024];
+	int lineno = 0;
+
+	if (keymapfile == NULL) {
+		/* Try to create default keymap file */
+		long n;
+
+		keymapfile = _tfopen(keymapfilename, _T("wb"));
+		if (keymapfile == NULL)
+			return;
+		n = fwrite(keymap_filedata, 1, keymap_filesize, keymapfile);
+		if (n != keymap_filesize)
+			fprintf(stderr, "Error writing \"%s\".\n", keymapfilename);
+		fclose(keymapfile);
+
+		keymapfile = _tfopen(keymapfilename, _T("r"));
+		if (keymapfile == NULL)
+			return;
+	}
+
+	while (fgets(line, 1024, keymapfile) != NULL) {
+		lineno++;
+		keymap_entry *entry = parse_keymap_entry(line, lineno);
+		if (entry != NULL) {
+			/* Create new keymap entry */
+			if (keymap_length == kmcap) {
+				kmcap += 50;
+				keymap = (keymap_entry *) realloc(keymap, kmcap * sizeof(keymap_entry));
+			}
+			memcpy(keymap + (keymap_length++), entry, sizeof(keymap_entry));
+		}
+	}
+
+	fclose(keymapfile);
 }
 
 static void init_shell_state(int4 version) {
