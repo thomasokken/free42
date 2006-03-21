@@ -40,6 +40,7 @@
 #define BCD_CONST_HALF (BCD_CONST_HUNDREDTH+1)
 #define BCD_CONST_LANCZOS (BCD_CONST_HALF+1)
 #define BCD_CONST_1E5004 (BCD_CONST_LANCZOS+13)
+#define BCD_CONST_TWOHALF (BCD_CONST_1E5004+1)
 
 
 typedef unsigned short Dig[P+1];
@@ -96,6 +97,7 @@ static Dig constTable[] =
     { 2, 7709, 5759, 7224, 6395, 7358, 7375, 32766 },
     
     { 1, 0, 0, 0, 0, 0, 0, 1252 }, // 1e5004
+    { 2, 5000, 0, 0, 0, 0, 0, 1 }, // 2.5
 };
 
 BCD pi()
@@ -775,13 +777,13 @@ static BCD _gammaFactorial(const BCD& z)
      * note: tried reduction by halves using Gauss multiple formula,
      * but its slower because there are more leaves to calculate.
      */
-    BCD twopointfive(2.5);
-    if (z > twopointfive) {
+    BCD twohalf(*(const BCDFloat*)(constTable + BCD_CONST_TWOHALF)); // 2.5
+    if (z > twohalf) {
         BCD x = z;
         BCD f = x;
         for (;;) {
             x -= 1;
-            if (x <= twopointfive) break;
+            if (x <= twohalf) break;
             f *= x;
         }
         return _gammaFactorial1(x)*f;

@@ -1,0 +1,50 @@
+[Version]
+Signature   = "$Windows NT$"	; Should be $Windows NT$ or $Windows 98$ or other OS name
+Provider    = "Microsoft"       ; full app name will be "<Provider> <AppName>"
+CESignature = "$Windows CE$"	; Must be $Windows CE$
+
+[CEStrings]
+AppName     = "Free42 Binary" ; full app name will be "<Provider> <AppName>"
+InstallDir  = %CE1%\Free42     ; "\Program Files\Free42" (default install directory, which can be changed by end user.)
+
+[CEDevice]
+;UnsupportedPlatforms    = "HPC","Jupiter","Palm PC2"
+;VersionMin 		= 3.0
+;VersionMax		= 5.0
+
+[CEDevice.PPC2003_ARM]
+ProcessorType           = 2577      ; ARM CPU
+
+[CEDevice.PPC2003_x86]
+ProcessorType           = 686      ; x86 CPU for emulator
+
+;[SourceDisksNames]              	; CPU-independent files
+;1 = ,"Common Files",,"..\skins"     	; files are in the relative path "."
+
+[SourceDisksNames.PPC2003_ARM]   	; ARM-specific files for Pocket PC 2003
+2 = ,"PPC ARM Files",,"ARMV4RelBinary" 	; files are in the relative path "ARMV4RelBinary"
+
+[SourceDisksNames.PPC2003_x86]
+2 = ,"PPC x86 Files",,"emulatorRelBinary" 	; files are in the relative path "emulatorRelBinary"
+
+[SourceDisksFiles]
+;"Voyager42PPC.layout"    = 1
+;"Voyager42PPC.gif"    = 1
+"Free42Binary.exe"             = 2     ; main executable
+
+[DefaultInstall]
+CopyFiles   = Files.InstallDir	; Required INF sections that lists the files to be copied
+CEShortcuts = Links				; Optional INF sections that lists the shortcuts to be created
+AddReg = 
+
+[DestinationDirs]
+Files.InstallDir    = 0,%InstallDir%	; "\Program Files\Free42" directory (%CE1%\Free42).
+DefaultDestDir      = 0,%InstallDir%    ; "\Program Files\Free42" directory (%CE1%\Free42).
+
+[Files.InstallDir]
+"Free42Binary.exe","Free42Binary.exe"
+;"Voyager42PPC.layout","Voyager42PPC.layout"
+;"Voyager42PPC.gif","Voyager42PPC.gif"
+
+[Links]
+"Free42 Binary",0,"Free42Binary.exe",%CE17%         ; shortcut to a file, created in the standard destination path %CE14%
