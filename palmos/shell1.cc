@@ -130,14 +130,32 @@ void shell_blitter(const char *bits, int bytesperline,
     mybits = (char *) MyGlueBmpGetBits(disp_bitmap);
     BmpGlueGetDimensions(disp_bitmap, NULL, NULL, &rowbytes);
 
+    // I used strength reduction to get rid of all of the multiplications in
+    // the blitter loop, in an attempt to speed up the performance of high-res
+    // displays, but to no avail. It appears that WinDrawBitmap() is simply a
+    // dog when painting high-res bitmaps.
+    // I tried modifying StandardHD so that the left edge of the display is at
+    // 28, just to check if pixel alignment was a factor, but I did not notice
+    // an improvement.
+    // OTOH, I am using a 1-bit bitmap here; it might help if I used a
+    // compatible bitmap instead. (TODO)
+    // An even more desperately radical idea would be to keep track of which
+    // pixels are *actually* changed here -- redisplay() will typically cause
+    // the entire screen to be repainted, while in number entry mode, for
+    // instance, the actual damage is mostly local. By using WinDrawBitmap() to
+    // draw the smallest possible bitmap, we might be able to get decent speed
+    // by taking advantage of that redundancy.
     YYmin = y * ys;
     YYmax = YYmin + ys;
+    UInt32 src_off = y * bytesperline;
+    UInt32 dst_off = YYmin * rowbytes;
+    UInt32 dst_off_step = ys * rowbytes;
     for (Y = y; Y < y + height; Y++) {
 	XXmin = x * xs;
 	XXmax = XXmin + xs;
 	for (X = x; X < x + width; X++) {
-	    int pix = bits[Y * bytesperline + (X >> 3)] & 1 << (X & 7);
-	    UInt32 off = YYmin * rowbytes;
+	    int pix = bits[src_off + (X >> 3)] & 1 << (X & 7);
+	    UInt32 off = dst_off;
 	    for (YY = YYmin; YY < YYmax; YY++) {
 		for (XX = XXmin; XX < XXmax; XX++)
 		    if (pix == 0)
@@ -151,6 +169,8 @@ void shell_blitter(const char *bits, int bytesperline,
 	}
 	YYmin += ys;
 	YYmax += ys;
+	src_off += bytesperline;
+	dst_off += dst_off_step;
     }
 
     if (can_draw && FrmGetActiveFormID() == calcform_id) {

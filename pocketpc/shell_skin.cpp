@@ -440,6 +440,9 @@ void skin_load(TCHAR *skinname, const TCHAR *basedir, int width, int height) {
 		}
 	}
 
+	if (display_scale.x == 0)
+		landscape = false;
+
 	skin_close();
 
 	/********************************************************************/
@@ -464,7 +467,14 @@ void skin_load(TCHAR *skinname, const TCHAR *basedir, int width, int height) {
 		skin.height *= magnification;
 		display_loc.x *= magnification;
 		display_loc.y *= magnification;
-		display_scale.x *= magnification;
+		if (display_scale.x == 0)
+			// This is the special hack to get the most out of the QVGA's
+			// 240-pixel width by doubling 4 out of every 6 pixels; if we're
+			// on a larger screen, fall back on a tidy integral scale factor
+			// and just leave some screen space unused.
+			display_scale.x = (int) (magnification * 1.67);
+		else
+			display_scale.x *= magnification;
 		display_scale.y *= magnification;
 		int i;
 		for (i = 0; i < nkeys; i++) {
@@ -524,7 +534,10 @@ void skin_load(TCHAR *skinname, const TCHAR *basedir, int width, int height) {
 		lcd_w = 131;
 		lcd_h = 16;
 	}
-	disp_bytesperline = ((lcd_w * display_scale.x + 15) >> 3) & ~1;
+	if (display_scale.x == 0)
+		disp_bytesperline = 28;
+	else
+		disp_bytesperline = ((lcd_w * display_scale.x + 15) >> 3) & ~1;
 	size = disp_bytesperline * lcd_h * display_scale.y;
 	disp_bitmap = (unsigned char *) malloc(size);
 	memset(disp_bitmap, 255, size);
@@ -809,11 +822,16 @@ void skin_find_key(int x, int y, int *skey, int *ckey) {
 				return;
 			}
 		} else {
+			int dw = display_scale.x == 0 ? 219 : 131 * display_scale.x;
 			if (x >= display_loc.x
-					&& x < display_loc.x + 131 * display_scale.x
+					&& x < display_loc.x + dw
 					&& y >= display_loc.y + 9 * display_scale.y
 					&& y < display_loc.y + 16 * display_scale.y) {
-				int softkey = (x - display_loc.x) / (22 * display_scale.x) + 1;
+				int softkey;
+				if (display_scale.x == 0)
+					softkey = ((x - display_loc.x + 37) * 3) / 110;
+				else
+					softkey = (x - display_loc.x) / (22 * display_scale.x) + 1;
 				*skey = -1 - softkey;
 				*ckey = softkey;
 				return;
@@ -888,15 +906,23 @@ void skin_repaint_key(HDC hdc, HDC memdc, int key, int state) {
 			w = 16 * display_scale.x;
 			h = 131 * display_scale.y;
 		} else {
-			x = (key - 1) * 22 * display_scale.x;
+			if (display_scale.x == 0) {
+				x = ((key + 1) * 110) / 3 - 73;
+				w = 219;
+			} else {
+				x = (key - 1) * 22 * display_scale.x;
+				w = 131 * display_scale.x;
+			}
 			y = 9 * display_scale.y;
-			w = 131 * display_scale.x;
 			h = 16 * display_scale.y;
 		}
 		bitmap = CreateBitmap(w, h, 1, 1, disp_bitmap);
 		SelectObject(memdc, bitmap);
 		BitBlt(hdc, display_loc.x + x, display_loc.y + y,
-			   21 * display_scale.x, 7 * display_scale.y,
+			   display_scale.x == 0
+						? key == 2 || key == 5 ? 36 : 37
+						: 21 * display_scale.x,
+			   7 * display_scale.y,
 			   memdc, x, y, SRCCOPY);
 		SetBkColor(hdc, old_bg);
 		SetTextColor(hdc, old_fg);
@@ -959,25 +985,56 @@ void skin_display_blitter(HDC hdc, const char *bits, int bytesperline, int x, in
 		for (v = y; v < y + height; v++)
 			for (h = x; h < x + width; h++) {
 				int pixel = (bits[v * bytesperline + (h >> 3)] & (1 << (h & 7))) == 0;
-				for (vv = v * sy; vv < (v + 1) * sy; vv++)
-					for (hh = h * sx; hh < (h + 1) * sx; hh++)
+				for (vv = v * sy; vv < (v + 1) * sy; vv++) {
+					int hhmax;
+					if (sx == 0) {
+						int a = h / 6;
+						int b = h - (a << 1) - (a << 2);
+						hh = a * 10 + (b << 1);
+						if (b > 1)
+							hh--;
+						hhmax = hh + (b == 1 || b == 5 ? 1 : 2);
+					} else {
+						hh = h * sx;
+						hhmax = hh + sx;
+					}
+					for (; hh < hhmax; hh++)
 						if (pixel)
 							disp_bitmap[vv * disp_bytesperline + (hh >> 3)] |= 128 >> (hh & 7);
 						else
 							disp_bitmap[vv * disp_bytesperline + (hh >> 3)] &= ~(128 >> (hh & 7));
+				}
 			}
 		disp_w = 131;
 		disp_h = 16;
 	}
 	
 	memdc = CreateCompatibleDC(hdc);
-	bitmap = CreateBitmap(disp_w * sx, disp_h * sy, 1, 1, disp_bitmap);
+	bitmap = CreateBitmap(sx == 0 ? 219 : (disp_w * sx), disp_h * sy, 1, 1, disp_bitmap);
 	SelectObject(memdc, bitmap);
 
 	old_bg = SetBkColor(hdc, display_bg);
 	old_fg = SetTextColor(hdc, display_fg);
-	BitBlt(hdc, display_loc.x + x * sx, display_loc.y + y * sy,
-				width * sx, height * sy, memdc, x * sx, y * sy, SRCCOPY);
+	int bx, bw;
+	if (sx == 0) {
+		int a = x / 6;
+		int b = x - (a << 1) - (a << 2);
+		bx = a * 10 + (b << 1);
+		if (b > 1)
+			bx--;
+		width += x;
+		a = width / 6;
+		b = width - (a << 1) - (a << 2);
+		bw = a * 10 + (b << 1);
+		if (b > 1)
+			bw--;
+		bw -= bx;
+	} else {
+		bx = x * sx;
+		bw = width * sx;
+	}
+	BitBlt(hdc, display_loc.x + bx, display_loc.y + y * sy,
+				bw, height * sy, memdc, bx, y * sy, SRCCOPY);
 	SetBkColor(hdc, old_bg);
 	SetTextColor(hdc, old_fg);
 
@@ -991,7 +1048,10 @@ void skin_repaint_display(HDC hdc, HDC memdc) {
 		w = 16 * display_scale.x;
 		h = 131 * display_scale.y;
 	} else {
-		w = 131 * display_scale.x;
+		if (display_scale.x == 0)
+			w = 219;
+		else
+			w = 131 * display_scale.x;
 		h = 16 * display_scale.y;
 	}
 	HBITMAP bitmap = CreateBitmap(w, h, 1, 1, disp_bitmap);

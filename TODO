@@ -6,24 +6,28 @@
 | those I *will* definitely try to fix as quickly as possible.               |
 +----------------------------------------------------------------------------+
 
-PocketPC version: squeezed display mode, printer emulation.
+PocketPC version: printer emulation.
 
 Get a PayPal account to accept donations. :-)
 
 Add CREDITS listing somewhere.
 
-PalmOS version: support dynamic screen size changes (dynamic input area;
-portrait/landscape mode switching). The tricky bit: storing the currenly
-selected skin will no longer be a simple matter of keeping track of one skin
-name; I'll have to keep track of a list of name/resolution pairs, and the skin
-size (in pixels) has to be added to the skin resource format -- and the Skin
-menu has to be dynamically updated so it only shows skins that are usable at
-the current screen size.
+PalmOS version: support 320x480 screens, and dynamic screen size changes
+(dynamic input area; portrait/landscape mode switching). This means that the
+set of usable skins changes according to the user's actions; ideally this would
+mean having "skin families", with different versions for all the possible
+screen dimensions (320x320, 320x450, 480x290 (?), etc.).
 
-PalmOS version: repainting the display, when using high-resolution skins on
-the Tungsten E, is slow. I should profile this; is my code for constructing
-high-resolution bitmaps inefficient, or am I using the wrong PalmOS calls, or
-is PalmOS itself to blame?
+PalmOS version: repainting the display is slow when using high-resolution
+skins. Moving all multiplications out of the blitter loop did not yield a
+noticeable speed-up, nor did aligning the display bitmap to an even pixel X
+coordinate.
+Things left to try: use a compatible bitmap instead of a monochrome; if that
+doesn't do the trick either, keep track of which pixels are *actually* changed
+in shell_blitter(), and call WinDrawBitmap() with the smallest possible
+rectangle. Note that this drastic approach may require some help from the core
+(need to make sure we don't receive unnecessary clear-display requests; those
+would completely defeat this acceleration scheme).
 
 Auto-repeat: for keys where the usual holding-down behavior isn't needed
 (number keys, backspace, etc.) it might be nice to support auto-repeat.
