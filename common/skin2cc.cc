@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
 	" * by the user-visible name on the next line.\n"
 	" * The skins consist of two files, <name>.layout (the layout \n"
 	" * description), and <name>.gif (the skin bitmap); these files \n"
-	" * are looked for in ../skins/.\n"
+	" * are looked for in ../.\n"
 	" * NOTE: this is a generated file; do not edit!\n"
 	" */\n\n", SKINS_CC, SKIN2CC, SKIN2CC_CONF);
 
@@ -156,7 +156,7 @@ int main(int argc, char *argv[]) {
     fprintf(out, "/*const*/ long skin_layout_size[] = {\n");
     for (i = 0; i < nskins; i++) {
 	char fname[1024];
-	strcpy(fname, "../skins/");
+	strcpy(fname, "../");
 	strcat(fname, skinfile[i]);
 	strcat(fname, ".layout");
 	inp = fopen(fname, "rb");
@@ -181,7 +181,7 @@ int main(int argc, char *argv[]) {
 
     for (i = 0; i < nskins; i++) {
 	char fname[1024];
-	strcpy(fname, "../skins/");
+	strcpy(fname, "../");
 	strcat(fname, skinfile[i]);
 	strcat(fname, ".layout");
 	inp = fopen(fname, "rb");
@@ -212,7 +212,7 @@ int main(int argc, char *argv[]) {
     fprintf(out, "/*const*/ long skin_bitmap_size[] = {\n");
     for (i = 0; i < nskins; i++) {
 	char fname[1024];
-	strcpy(fname, "../skins/");
+	strcpy(fname, "../");
 	strcat(fname, skinfile[i]);
 	strcat(fname, ".gif");
 	inp = fopen(fname, "rb");
@@ -237,7 +237,7 @@ int main(int argc, char *argv[]) {
 
     for (i = 0; i < nskins; i++) {
 	char fname[1024];
-	strcpy(fname, "../skins/");
+	strcpy(fname, "../");
 	strcat(fname, skinfile[i]);
 	strcat(fname, ".gif");
 	inp = fopen(fname, "rb");
