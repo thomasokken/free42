@@ -510,7 +510,7 @@ static void update_skin_menu(HMENU menu) {
 //
 static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-#if 1
+#if 0
 	static FILE *logfile = fopen("\\Storage Card\\log.txt", "w");
 	fprintf(logfile, "message=%s wParam=0x%x lParam=0x%lx\n", msg2string(message), wParam, lParam);
 	fflush(logfile);
