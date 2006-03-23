@@ -2014,6 +2014,21 @@ NODEP_CPP_MATHF=\
 # End Source File
 # Begin Source File
 
+SOURCE=.\msg2string.cpp
+
+!IF  "$(CFG)" == "Free42Decimal - Win32 (WCE emulator) Release"
+
+!ELSEIF  "$(CFG)" == "Free42Decimal - Win32 (WCE emulator) Debug"
+
+!ELSEIF  "$(CFG)" == "Free42Decimal - Win32 (WCE ARMV4) Release"
+
+!ELSEIF  "$(CFG)" == "Free42Decimal - Win32 (WCE ARMV4) Debug"
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=.\shell.cpp
 
 !IF  "$(CFG)" == "Free42Decimal - Win32 (WCE emulator) Release"
@@ -2049,6 +2064,7 @@ DEP_CPP_SHELL=\
 	".\core_phloat.h"\
 	".\core_tables.h"\
 	".\free42.h"\
+	".\msg2string.h"\
 	".\shell.h"\
 	".\shell_skin.h"\
 	".\shell_spool.h"\
@@ -2399,6 +2415,10 @@ SOURCE=.\core_variables.h
 # Begin Source File
 
 SOURCE=.\free42.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\msg2string.h
 # End Source File
 # Begin Source File
 

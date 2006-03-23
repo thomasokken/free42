@@ -14,9 +14,24 @@
 #include "shell_spool.h"
 #include "core_display.h"
 #include "core_main.h"
+#include "msg2string.h"
 
 #define MAX_LOADSTRING 100
 #define FILENAMELEN 256
+
+// The maximum height of a Bitmap is 32767 pixels;
+// so, if I want to use a larger buffer, I'll have to
+// change repaint_printout() so that it creates
+// its Bitmap objects a bit more cleverly. TODO.
+
+#define PRINT_LINES 16384
+#define PRINT_BYTESPERLINE 36
+#define PRINT_SIZE 589824
+/*
+#define PRINT_LINES 32767
+#define PRINT_BYTESPERLINE 36
+#define PRINT_SIZE 1179612
+*/
 
 /**********************************************************/
 /* Linked-in skins; defined in the skins.c, which in turn */
@@ -48,6 +63,12 @@ static UINT timer3 = 0;
 static int running = 0;
 static int enqueued = 0;
 
+static int printout_top;
+static int printout_bottom;
+static int printout_pos;
+static char *printout;
+static bool narrow_printout;
+
 static int ckey = 0;
 static int skey;
 static int active_keycode = 0;
@@ -73,11 +94,18 @@ typedef struct state {
 } state_type;
 
 static state_type state;
+static int printOutHeight;
 
 static TCHAR free42dirname[FILENAMELEN];
 static TCHAR statefilename[FILENAMELEN];
 static FILE *statefile = NULL;
 static TCHAR printfilename[FILENAMELEN];
+
+static FILE *print_txt = NULL;
+static FILE *print_gif = NULL;
+static TCHAR print_gif_name[FILENAMELEN];
+static int gif_seq = -1;
+static int gif_lines;
 
 static int sel_prog_count;
 static int *sel_prog_list;
@@ -98,6 +126,7 @@ static int ann_rad = 0;
 static void MyRegisterClass(HINSTANCE);
 static BOOL InitInstance(HINSTANCE, int);
 static LRESULT CALLBACK	MainWndProc(HWND, UINT, WPARAM, LPARAM);
+static LRESULT CALLBACK PrintOutWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 static HWND CreateRpCommandBar(HWND);
 static LRESULT CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 static LRESULT CALLBACK	ExportProgram(HWND, UINT, WPARAM, LPARAM);
@@ -113,13 +142,24 @@ static VOID CALLBACK timeout2(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime);
 static VOID CALLBACK timeout3(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime);
 static VOID CALLBACK battery_checker(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime);
 
+static void show_printout();
 static void export_program();
 static void import_program();
+static void clear_printout();
+static void repaint_printout(int x, int y, int width, int height, int validate);
+static void repaint_printout(HDC hdc, int destpos, int x, int y, int width, int height, int validate);
+static void printout_scrolled(int offset);
+static void printout_scroll_to_bottom(int offset);
+static void printout_length_changed();
 
 static void read_key_map(const TCHAR *keymapfilename);
 static void init_shell_state(int4 version);
 static bool read_shell_state(int4 *version);
 static bool write_shell_state();
+static void txt_writer(const char *text, int length);
+static void txt_newliner();
+static void gif_seeker(int4 pos);
+static void gif_writer(const char *text, int length);
 
 
 int WINAPI WinMain(	HINSTANCE hInstance,
@@ -194,6 +234,19 @@ static void MyRegisterClass(HINSTANCE hInstance)
     wc.lpszClassName	= szMainWindowClass;
 
 	RegisterClass(&wc);
+
+    wc.style			= CS_HREDRAW | CS_VREDRAW;
+    wc.lpfnWndProc		= (WNDPROC) PrintOutWndProc;
+    wc.cbClsExtra		= 0;
+    wc.cbWndExtra		= 0;
+    wc.hInstance		= hInstance;
+    wc.hIcon			= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_FREE42));
+    wc.hCursor			= 0;
+    wc.hbrBackground	= (HBRUSH) GetStockObject(GRAY_BRUSH);
+    wc.lpszMenuName		= 0;
+    wc.lpszClassName	= szPrintOutWindowClass;
+
+	RegisterClass(&wc);
 }
 
 //
@@ -209,6 +262,17 @@ static void MyRegisterClass(HINSTANCE hInstance)
 static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	hInst = hInstance;		// Store instance handle in our global variable
+
+	//If it is already running, then focus on the window
+	HWND hWnd = FindWindow(szMainWindowClass, szMainTitle);	
+	if (hWnd) 
+	{
+		// set focus to foremost child window
+		// The "| 0x01" is used to bring any owned windows to the foreground and
+		// activate them.
+		SetForegroundWindow((HWND)((ULONG) hWnd | 0x00000001));
+		return 0;
+	} 
 
 	srand(GetTickCount());
 
@@ -229,6 +293,29 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 	read_key_map(keymapfilename);
 
+	printout = (char *) malloc(PRINT_SIZE);
+	FILE *printfile = _tfopen(printfilename, _T("rb"));
+    if (printfile != NULL) {
+		int n = fread(&printout_bottom, 1, sizeof(int), printfile);
+		if (n == sizeof(int)) {
+			int bytes = printout_bottom * PRINT_BYTESPERLINE;
+			n = fread(printout, 1, bytes, printfile);
+			if (n != bytes)
+				printout_bottom = 0;
+		} else
+			printout_bottom = 0;
+		fclose(printfile);
+    } else
+		printout_bottom = 0;
+    printout_top = 0;
+    for (int n = printout_bottom * PRINT_BYTESPERLINE; n < PRINT_SIZE; n++)
+		printout[n] = 0;
+	printout_pos = printout_bottom;
+
+	int scrollWidth = GetSystemMetrics(SM_CXVSCROLL);
+	int screenWidth = GetSystemMetrics(SM_CXSCREEN);
+	narrow_printout = screenWidth - scrollWidth < 286;
+
 	int init_mode;
 	int4 version;
 
@@ -244,17 +331,6 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		init_shell_state(-1);
 		init_mode = 0;
 	}
-
-	//If it is already running, then focus on the window
-	HWND hWnd = FindWindow(szMainWindowClass, szMainTitle);	
-	if (hWnd) 
-	{
-		// set focus to foremost child window
-		// The "| 0x01" is used to bring any owned windows to the foreground and
-		// activate them.
-		SetForegroundWindow((HWND)((ULONG) hWnd | 0x00000001));
-		return 0;
-	} 
 
 	hMainWnd = CreateWindow(szMainWindowClass, szMainTitle, WS_VISIBLE,
 		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
@@ -434,6 +510,12 @@ static void update_skin_menu(HMENU menu) {
 //
 static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+#if 1
+	static FILE *logfile = fopen("\\Storage Card\\log.txt", "w");
+	fprintf(logfile, "message=%s wParam=0x%x lParam=0x%lx\n", msg2string(message), wParam, lParam);
+	fflush(logfile);
+#endif
+
 	int wmId, wmEvent;
 
 	switch (message) 
@@ -444,11 +526,17 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			// Parse the menu selections:
 			switch (wmId)
 			{	
+				case IDM_SHOWPRINTOUT:
+					show_printout();
+					break;
 				case IDM_EXPORTPROGRAM:
 					export_program();
 					break;
 				case IDM_IMPORTPROGRAM:
 					import_program();
+					break;
+				case IDM_CLEARPRINTOUT:
+					clear_printout();
 					break;
 				case IDM_PREFERENCES:
 					DialogBox(hInst, (LPCTSTR)IDD_PREFERENCES, hWnd, (DLGPROC)Preferences);
@@ -465,9 +553,6 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 				case IDM_ABOUT:
 					DialogBox(hInst, (LPCTSTR)IDD_ABOUTBOX, hWnd, (DLGPROC)About);
 				    break;
-				case IDOK:
-					DestroyWindow(hWnd);
-					break;
 				default:
 					if (wmId >= 50000) {
 						// 'Skin' menu
@@ -697,6 +782,79 @@ static HWND CreateRpCommandBar(HWND hwnd)
 	return mbi.hwndMB;
 }
 
+//
+//  FUNCTION: PrintOutWndProc(HWND, unsigned, WORD, LONG)
+//
+//  PURPOSE:  Processes messages for the print-out window.
+//
+//  WM_COMMAND	- process the application menu
+//  WM_PAINT	- Paint the main window
+//  WM_DESTROY	- post a quit message and return
+//
+//
+static LRESULT CALLBACK PrintOutWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	switch (message) 
+	{
+		case WM_PAINT: {
+			RECT r;
+			if (GetUpdateRect(hWnd, &r, FALSE)) {
+				PAINTSTRUCT ps;
+				HDC hdc = BeginPaint(hWnd, &ps);
+				repaint_printout(hdc, 1, r.left, r.top, r.right - r.left, r.bottom - r.top, 0);
+				EndPaint(hWnd, &ps);
+				break;
+			}
+		}
+		case WM_DESTROY:
+			hPrintOutWnd = NULL;
+			return 0;
+		case WM_SIZE:
+			if (wParam == SIZE_MAXIMIZED || wParam == SIZE_RESTORED) {
+				printOutHeight = HIWORD(lParam);
+				printout_length_changed();
+			}
+			return 0;
+		case WM_VSCROLL: {
+			int scroll_code = LOWORD(wParam);
+			SCROLLINFO si;
+			si.cbSize = sizeof(SCROLLINFO);
+			si.fMask = SIF_ALL;
+			GetScrollInfo(hPrintOutWnd, SB_VERT, &si);
+			int pos;
+			int p = si.nPage;
+			if (p > 0)
+				p--;
+			int maxpos = si.nMax - p;
+			switch (scroll_code) {
+				case SB_TOP: pos = si.nMin; break;
+				case SB_BOTTOM: pos = si.nMax; break;
+				case SB_LINEUP: pos = printout_pos - 18; break;
+				case SB_LINEDOWN: pos = printout_pos + 18; break;
+				case SB_PAGEUP: pos = printout_pos - printOutHeight + 18; break;
+				case SB_PAGEDOWN: pos = printout_pos + printOutHeight - 18; break;
+				case SB_THUMBPOSITION:
+				case SB_THUMBTRACK: pos = HIWORD(wParam); break;
+				default: pos = printout_pos;
+			}
+			if (pos < 0)
+				pos = 0;
+			else if (pos > maxpos)
+				pos = maxpos;
+			if (pos != printout_pos) {
+				int oldpos = printout_pos;
+				printout_pos = pos;
+				SetScrollPos(hPrintOutWnd, SB_VERT, printout_pos, TRUE);
+				printout_scrolled(oldpos - printout_pos);
+			}
+			return 0;
+		}
+		default:
+			return DefWindowProc(hWnd, message, wParam, lParam);
+	}
+	return 0;
+}
+
 // Mesage handler for the About box.
 static LRESULT CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -820,11 +978,11 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
 					int len = _tcslen(buf);
 					if (len > 0 && (len < 4 || _tcsicmp(buf + len - 4, _T(".txt")) != 0))
 						_tcscat(buf, _T(".txt"));
-//					if (print_txt != NULL && (!state.printerToTxtFile
-//							|| _tcsicmp(state.printerTxtFileName, buf) != 0)) {
-//						fclose(print_txt);
-//						print_txt = NULL;
-//					}
+					if (print_txt != NULL && (!state.printerToTxtFile
+							|| _tcsicmp(state.printerTxtFileName, buf) != 0)) {
+						fclose(print_txt);
+						print_txt = NULL;
+					}
 					_tcscpy(state.printerTxtFileName, buf);
 					ctl = GetDlgItem(hDlg, IDC_RAW_TEXT);
 					core_settings.raw_text = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
@@ -837,12 +995,12 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
 					len = _tcslen(buf);
 					if (len > 0 && (len < 4 || _tcsicmp(buf + len - 4, _T(".gif")) != 0))
 						_tcscat(buf, _T(".gif"));
-//				    if (print_gif != NULL && (!state.printerToGifFile
-//							|| _tcsicmp(state.printerGifFileName, buf) != 0)) {
-//						shell_finish_gif(gif_seeker, gif_writer);
-//						fclose(print_gif);
-//						print_gif = NULL;
-//					}
+				    if (print_gif != NULL && (!state.printerToGifFile
+							|| _tcsicmp(state.printerGifFileName, buf) != 0)) {
+						shell_finish_gif(gif_seeker, gif_writer);
+						fclose(print_gif);
+						print_gif = NULL;
+					}
 					_tcscpy(state.printerGifFileName, buf);
 					// fall through
 				}
@@ -940,12 +1098,58 @@ static void paste() {
 }
 
 static void Quit() {
+    FILE *printfile = _tfopen(printfilename, _T("wb"));
+    if (printfile != NULL) {
+		int length = printout_bottom - printout_top;
+		if (length < 0)
+			length += PRINT_LINES;
+		int n = fwrite(&length, 1, sizeof(int), printfile);
+		if (n != sizeof(int))
+			goto failed;
+		if (printout_bottom >= printout_top) {
+			n = fwrite(printout + PRINT_BYTESPERLINE * printout_top,
+						   1, PRINT_BYTESPERLINE * length, printfile);
+			if (n != PRINT_BYTESPERLINE * length)
+				goto failed;
+		} else {
+			n = fwrite(printout + PRINT_BYTESPERLINE * printout_top,
+						   1, PRINT_SIZE - PRINT_BYTESPERLINE * printout_top,
+							printfile);
+			if (n != PRINT_SIZE - PRINT_BYTESPERLINE * printout_top)
+				goto failed;
+			n = fwrite(printout, 1,
+						   PRINT_BYTESPERLINE * printout_bottom, printfile);
+			if (n != PRINT_BYTESPERLINE * printout_bottom)
+				goto failed;
+		}
+
+		fclose(printfile);
+		goto done;
+
+		failed:
+		fclose(printfile);
+		DeleteFile(printfilename);
+
+		done:
+		;
+    }
+
 	statefile = _tfopen(statefilename, _T("wb"));
 	if (statefile != NULL)
 		write_shell_state();
 	core_quit();
 	if (statefile != NULL)
 		fclose(statefile);
+
+    if (print_txt != NULL)
+		fclose(print_txt);
+    
+    if (print_gif != NULL) {
+		shell_finish_gif(gif_seeker, gif_writer);
+		fclose(print_gif);
+    }
+
+    shell_spool_exit();
 }
 
 static VOID CALLBACK repeater(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) {
@@ -978,6 +1182,41 @@ static VOID CALLBACK timeout3(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) 
 
 static VOID CALLBACK battery_checker(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) {
 	shell_low_battery();
+}
+
+static void show_printout() {
+	if (hPrintOutWnd != NULL) {
+		BringWindowToTop(hPrintOutWnd);
+		return;
+	}
+
+	hPrintOutWnd = CreateWindow(szPrintOutWindowClass, szPrintOutTitle, WS_VISIBLE | WS_VSCROLL,
+		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInst, NULL);
+
+	//When the main window is created using CW_USEDEFAULT the height of the menubar (if one
+	// is created) is not taken into account. So we resize the window after creating it
+	// if a menubar is present
+	if (hwndCB)
+    {
+		RECT rc;
+        RECT rcMenuBar;
+
+		GetWindowRect(hPrintOutWnd, &rc);
+        GetWindowRect(hwndCB, &rcMenuBar);
+		rc.bottom -= (rcMenuBar.bottom - rcMenuBar.top);
+		
+		MoveWindow(hPrintOutWnd, rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top, FALSE);
+	}
+
+	RECT r;
+	GetClientRect(hPrintOutWnd, &r);
+	printOutHeight = r.bottom;
+
+	printout_length_changed();
+	printout_scroll_to_bottom(0);
+
+	ShowWindow(hPrintOutWnd, SW_SHOW);
+	UpdateWindow(hPrintOutWnd);
 }
 
 static void export_program() {
@@ -1036,6 +1275,145 @@ static void import_program() {
 			import_file = NULL;
 		}
 	}
+}
+
+static void clear_printout() {
+	printout_top = 0;
+	printout_bottom = 0;
+	printout_pos = 0;
+	printout_length_changed();
+	if (hPrintOutWnd != NULL)
+		InvalidateRect(hPrintOutWnd, NULL, FALSE);
+
+	if (print_gif != NULL) {
+		shell_finish_gif(gif_seeker, gif_writer);
+		fclose(print_gif);
+		print_gif = NULL;
+    }
+}
+
+static void repaint_printout(int x, int y, int width, int height, int validate) {
+	HDC hdc = GetDC(hPrintOutWnd);
+	repaint_printout(hdc, 0, x, y, width, height, validate);
+	ReleaseDC(hPrintOutWnd, hdc);
+}
+
+static void repaint_printout(HDC hdc, int destpos, int x, int y,
+							 int width, int height, int validate) {
+	HDC memdc;
+	HBITMAP bitmap;
+	int xdest, ydest;
+
+	if (destpos) {
+		xdest = x;
+		ydest = y;
+		y = ydest + printout_pos;
+	} else {
+		xdest = x;
+		ydest = y - printout_pos;
+	}
+
+	int printout_length = printout_bottom - printout_top;
+	if (printout_length < 0)
+		printout_length += PRINT_LINES;
+	if (y + height > printout_length) {
+		RECT r;
+		SetRect(&r, xdest, printout_length - printout_pos,
+					xdest + width, ydest + height);
+		HBRUSH brush = (HBRUSH) GetStockObject(GRAY_BRUSH);
+		SelectObject(hdc, brush);
+		FillRect(hdc, &r, brush);
+		if (y >= printout_length)
+			return;
+		height = printout_length - y;
+	}
+
+	memdc = CreateCompatibleDC(hdc);
+	bitmap = CreateBitmap(286, PRINT_LINES, 1, 1, printout);
+	SelectObject(memdc, bitmap);
+
+    if (printout_bottom >= printout_top)
+		/* The buffer is not wrapped */
+		BitBlt(hdc, xdest, ydest, width, height,
+				memdc, x, printout_top + y, SRCCOPY);
+    else {
+		/* The buffer is wrapped */
+		if (printout_top + y < PRINT_LINES) {
+			if (printout_top + y + height <= PRINT_LINES)
+				/* The rectangle is in the lower part of the buffer */
+				BitBlt(hdc, xdest, ydest, width, height,
+						memdc, x, printout_top + y, SRCCOPY);
+			else {
+				/* The rectangle spans both parts of the buffer */
+				int part1_height = PRINT_LINES - printout_top - y;
+				int part2_height = height - part1_height;
+				BitBlt(hdc, xdest, ydest, width, part1_height,
+						memdc, x, printout_top + y, SRCCOPY);
+				BitBlt(hdc, xdest, ydest + part1_height, width, part2_height,
+						memdc, x, 0, SRCCOPY);
+			}
+		} else
+			/* The rectangle is in the upper part of the buffer */
+			BitBlt(hdc, xdest, ydest, width, height,
+					memdc, x, y + printout_top - PRINT_LINES, SRCCOPY);
+    }
+
+	DeleteDC(memdc);
+	DeleteObject(bitmap);
+
+	if (validate) {
+		RECT r;
+		SetRect(&r, xdest, ydest, xdest + width, ydest + height);
+		ValidateRect(hPrintOutWnd, &r);
+	}
+}
+
+static void printout_scrolled(int offset) {
+	RECT client;
+	GetClientRect(hPrintOutWnd, &client);
+	ScrollWindowEx(hPrintOutWnd, 0, offset, &client, &client, NULL, NULL, SW_INVALIDATE);
+}
+
+static void printout_scroll_to_bottom(int offset) {
+	SCROLLINFO si;
+	si.cbSize = sizeof(SCROLLINFO);
+	si.fMask = SIF_POS | SIF_RANGE | SIF_PAGE;
+	GetScrollInfo(hPrintOutWnd, SB_VERT, &si);
+	si.fMask = SIF_POS;
+	int p = si.nPage;
+	int oldpos = si.nPos;
+	if (p > 0)
+		p--;
+	si.nPos = si.nMax - p;
+	printout_pos = si.nPos;
+	SetScrollInfo(hPrintOutWnd, SB_VERT, &si, TRUE);
+	printout_scrolled(oldpos - printout_pos - offset);
+}
+
+static void printout_length_changed() {
+	SCROLLINFO si;
+	si.cbSize = sizeof(SCROLLINFO);
+	si.fMask = SIF_POS;
+	GetScrollInfo(hPrintOutWnd, SB_VERT, &si);
+	
+	int printout_length = printout_bottom - printout_top;
+	if (printout_length < 0)
+		printout_length += PRINT_LINES;
+
+	si.fMask = SIF_ALL | SIF_DISABLENOSCROLL;
+	si.nMin = 0;
+	si.nMax = printout_length > 0 ? printout_length - 1 : 0;
+	si.nPage = printout_length < printOutHeight ? printout_length : printOutHeight;
+	
+	int p = si.nPage;
+	if (p > 0)
+		p--;
+	int maxpos = si.nMax - p;
+	if (si.nPos > maxpos)
+		si.nPos = maxpos;
+
+	printout_pos = si.nPos;
+	SetScrollInfo(hPrintOutWnd, SB_VERT, &si, TRUE);
 }
 
 void shell_blitter(const char *bits, int bytesperline, int x, int y,
@@ -1186,7 +1564,156 @@ uint4 shell_milliseconds() {
 void shell_print(const char *text, int length,
 		 const char *bits, int bytesperline,
 		 int x, int y, int width, int height) {
-	// TODO
+    int xx, yy;
+    int oldlength, newlength;
+
+    for (yy = 0; yy < height; yy++) {
+		if (narrow_printout) {
+			for (xx = 0; xx < 286; xx++) {
+				int bit;
+				if (xx < width) {
+					char c = bits[(y + yy) * bytesperline + ((x + xx) >> 3)];
+					bit = (c & (1 << ((x + xx) & 7))) != 0;
+				} else
+					bit = 0;
+				int4 Y = (printout_bottom + yy) % PRINT_LINES;
+				if (!bit)
+					printout[Y * PRINT_BYTESPERLINE + (xx >> 3)]
+						|= 128 >> (xx & 7);
+				else
+					printout[Y * PRINT_BYTESPERLINE + (xx >> 3)]
+						&= ~(128 >> (xx & 7));
+			}
+		} else {
+			int4 Y = (printout_bottom + 2 * yy) % PRINT_LINES;
+			for (xx = 0; xx < 143; xx++) {
+				int bit, px, py;
+				if (xx < width) {
+					char c = bits[(y + yy) * bytesperline + ((x + xx) >> 3)];
+					bit = (c & (1 << ((x + xx) & 7))) != 0;
+				} else
+					bit = 0;
+				for (px = xx * 2; px < (xx + 1) * 2; px++)
+					for (py = Y; py < Y + 2; py++)
+						if (!bit)
+							printout[py * PRINT_BYTESPERLINE + (px >> 3)]
+								|= 128 >> (px & 7);
+						else
+							printout[py * PRINT_BYTESPERLINE + (px >> 3)]
+								&= ~(128 >> (px & 7));
+			}
+		}
+    }
+
+    oldlength = printout_bottom - printout_top;
+    if (oldlength < 0)
+		oldlength += PRINT_LINES;
+	int h = narrow_printout ? height : (2 * height);
+    printout_bottom = (printout_bottom + h) % PRINT_LINES;
+    newlength = oldlength + h;
+
+	if (hPrintOutWnd != NULL) {
+		if (newlength >= PRINT_LINES) {
+			printout_top = (printout_bottom + 2) % PRINT_LINES;
+			newlength = PRINT_LINES - 2;
+			if (newlength != oldlength)
+				printout_length_changed();
+			printout_scroll_to_bottom(h + oldlength - newlength);
+			repaint_printout(0, newlength - h, 286, h, 1);
+		} else {
+			printout_length_changed();
+			printout_scroll_to_bottom(0);
+			repaint_printout(0, oldlength, 286, h, 1);
+		}
+	}
+
+    if (state.printerToTxtFile) {
+		TCHAR buf[1000];
+
+		if (print_txt == NULL) {
+			print_txt = _tfopen(state.printerTxtFileName, _T("ab"));
+			if (print_txt == NULL) {
+				state.printerToTxtFile = 0;
+				_stprintf(buf, _T("Can't open \"%s\" for output.\nPrinting to TXT file disabled."), state.printerTxtFileName);
+				MessageBox(hMainWnd, buf, _T("Message"), MB_ICONWARNING);
+				goto done_print_txt;
+			}
+		}
+
+		shell_spool_txt(text, length, txt_writer, txt_newliner);
+		done_print_txt:;
+    }
+
+    if (state.printerToGifFile) {
+		TCHAR buf[1000];
+		
+		if (print_gif != NULL
+			&& gif_lines + height > state.printerGifMaxLength) {
+			shell_finish_gif(gif_seeker, gif_writer);
+			fclose(print_gif);
+			print_gif = NULL;
+		}
+
+		if (print_gif == NULL) {
+			while (1) {
+				int len, p;
+				FILE *testfile;
+
+				gif_seq = (gif_seq + 1) % 10000;
+
+				_tcscpy(print_gif_name, state.printerGifFileName);
+				len = _tcslen(print_gif_name);
+
+				/* Strip ".gif" extension, if present */
+				if (len >= 4 &&
+					_tcsicmp(print_gif_name + len - 4, _T(".gif")) == 0) {
+					len -= 4;
+					print_gif_name[len] = 0;
+				}
+
+				/* Strip ".[0-9]+", if present */
+				p = len;
+				while (p > 0 && print_gif_name[p] >= _T('0') && print_gif_name[p] <= _T('9'))
+					p--;
+				if (p < len && p >= 0 && print_gif_name[p] == _T('.'))
+					print_gif_name[p] = 0;
+
+				/* Make sure we have enough space for the ".nnnn.gif" */
+				p = 1000 - 10;
+				print_gif_name[p] = 0;
+				p = _tcslen(print_gif_name);
+				_stprintf(print_gif_name + p, _T(".%04d"), gif_seq);
+				_tcscat(print_gif_name, _T(".gif"));
+				
+				/* I know, I know, the civilized thing to do would be to
+				 * use stat(2) to find out if the file exists. Another time.
+				 * (TODO)
+				 */
+				testfile = _tfopen(print_gif_name, _T("rb"));
+				if (testfile != NULL)
+					fclose(testfile);
+				else
+					break;
+			}
+			print_gif = _tfopen(print_gif_name, _T("w+b"));
+			if (print_gif == NULL) {
+				state.printerToGifFile = 0;
+				_stprintf(buf, _T("Can't open \"%s\" for output.\nPrinting to GIF file disabled."), print_gif_name);
+				MessageBox(hMainWnd, buf, _T("Message"), MB_ICONWARNING);
+				goto done_print_gif;
+			}
+			if (!shell_start_gif(gif_writer, state.printerGifMaxLength)) {
+				state.printerToGifFile = 0;
+				MessageBox(hMainWnd, _T("Not enough memory for the GIF encoder.\nPrinting to GIF file disabled."), _T("Message"), MB_ICONWARNING);
+				goto done_print_gif;
+			}
+			gif_lines = 0;
+		}
+
+		shell_spool_gif(bits, bytesperline, x, y, width, height, gif_writer);
+		gif_lines += height;
+		done_print_gif:;
+    }
 }
 
 int shell_write(const char *buf, int4 buflen) {
@@ -1347,4 +1874,56 @@ static bool write_shell_state() {
         return false;
 
     return true;
+}
+
+/* Callbacks used by shell_print() and shell_spool_txt() / shell_spool_gif() */
+
+static void txt_writer(const char *text, int length) {
+    int n;
+    if (print_txt == NULL)
+		return;
+    n = fwrite(text, 1, length, print_txt);
+    if (n != length) {
+		TCHAR buf[1000];
+		state.printerToTxtFile = 0;
+		fclose(print_txt);
+		print_txt = NULL;
+		_stprintf(buf, _T("Error while writing to \"%s\".\nPrinting to TXT file disabled"), state.printerTxtFileName);
+		MessageBox(hMainWnd, buf, _T("Message"), MB_ICONWARNING);
+    }
+}
+
+static void txt_newliner() {
+    if (print_txt == NULL)
+		return;
+    fputs("\r\n", print_txt);
+    fflush(print_txt);
+}
+
+static void gif_seeker(int4 pos) {
+    if (print_gif == NULL)
+		return;
+    if (fseek(print_gif, pos, SEEK_SET) == -1) {
+		TCHAR buf[1000];
+		state.printerToGifFile = 0;
+		fclose(print_gif);
+		print_gif = NULL;
+		_stprintf(buf, _T("Error while seeking \"%s\".\nPrinting to GIF file disabled"), print_gif_name);
+		MessageBox(hMainWnd, buf, _T("Message"), MB_ICONWARNING);
+    }
+}
+
+static void gif_writer(const char *text, int length) {
+    int n;
+    if (print_gif == NULL)
+		return;
+    n = fwrite(text, 1, length, print_gif);
+    if (n != length) {
+		TCHAR buf[1000];
+		state.printerToGifFile = 0;
+		fclose(print_gif);
+		print_gif = NULL;
+		_stprintf(buf, _T("Error while writing to \"%s\".\nPrinting to GIF file disabled"), print_gif_name);
+		MessageBox(hMainWnd, buf, _T("Message"), MB_ICONWARNING);
+    }
 }

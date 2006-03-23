@@ -81,8 +81,6 @@ static UINT timer3 = 0;
 static int running = 0;
 static int enqueued = 0;
 
-static char display[1088]; // 32 * 34, where 34 is the number of 16-bit
-						   // words needed for 262 pixels
 static int printout_top;
 static int printout_bottom;
 static int printout_pos;
@@ -476,8 +474,6 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 	//fprintf(logfile, "message=%s wParam=0x%x lParam=0x%lx\n", msg2string(message), wParam, lParam);
 	//fflush(logfile);
 
-	static int prev_virtKey = 0;
-
 	switch (message) {
 		case WM_COMMAND: {
 			int wmId    = LOWORD(wParam); 
@@ -826,13 +822,8 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 //  WM_DESTROY	- post a quit message and return
 //
 //
-static UINT msghist[32];
-static int msghistindex = 0;
 static LRESULT CALLBACK PrintOutWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	msghist[msghistindex] = message;
-	msghistindex = (msghistindex + 1) % 32;
-
 	switch (message) 
 	{
 		case WM_PAINT: {
@@ -2074,6 +2065,7 @@ static int write_shell_state() {
 
     return 1;
 }
+
 /* Callbacks used by shell_print() and shell_spool_txt() / shell_spool_gif() */
 
 static void txt_writer(const char *text, int length) {
