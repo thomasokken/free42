@@ -1,6 +1,3 @@
-->POL should recognize pure-imaginary numbers as special cases in DEG and GRAD
-modes, and return exact angles for them. Same for pure-real numbers, BTW.
-
 PalmOS version: support 320x480 screens, and dynamic screen size changes.
 
 PalmOS version: repainting the display is slow when using high-resolution

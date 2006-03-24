@@ -629,8 +629,26 @@ void print_command(int cmd, const arg_struct *arg) {
 }
 
 void generic_r2p(phloat re, phloat im, phloat *r, phloat *phi) {
-    *r = hypot(re, im);
-    *phi = rad_to_angle(atan2(im, re));
+    if (im == 0) {
+	if (re >= 0) {
+	    *r = re;
+	    *phi = 0;
+	} else {
+	    *r = -re;
+	    *phi = flags.f.grad ? 200 : flags.f.rad ? PI : 180;
+	}
+    } else if (re == 0) {
+	if (im > 0) {
+	    *r = im;
+	    *phi = flags.f.grad ? 100 : flags.f.rad ? PI / 2 : 90;
+	} else {
+	    *r = -im;
+	    *phi = flags.f.grad ? -100 : flags.f.rad ? -PI / 2: -90;
+	}
+    } else {
+	*r = hypot(re, im);
+	*phi = rad_to_angle(atan2(im, re));
+    }
 }
 
 void generic_p2r(phloat r, phloat phi, phloat *re, phloat *im) {

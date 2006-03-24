@@ -3,6 +3,8 @@
 * New: Pocket PC version.
 * Added several new skins to the Free42Skins.zip package, both for Windows/Unix
   and for the PocketPC versions.
+* ->POL now detects the case that the real and/or imaginary parts are zero, and
+  returns exact results for those cases.
 
 19-03-2006: version 1.4.5
 
