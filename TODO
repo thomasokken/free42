@@ -6,17 +6,11 @@
 | those I *will* definitely try to fix as quickly as possible.               |
 +----------------------------------------------------------------------------+
 
-PocketPC version: printer emulation.
-
 Get a PayPal account to accept donations. :-)
 
 Add CREDITS listing somewhere.
 
-PalmOS version: support 320x480 screens, and dynamic screen size changes
-(dynamic input area; portrait/landscape mode switching). This means that the
-set of usable skins changes according to the user's actions; ideally this would
-mean having "skin families", with different versions for all the possible
-screen dimensions (320x320, 320x450, 480x290 (?), etc.).
+PalmOS version: support 320x480 screens, and dynamic screen size changes.
 
 PalmOS version: repainting the display is slow when using high-resolution
 skins. Moving all multiplications out of the blitter loop did not yield a
