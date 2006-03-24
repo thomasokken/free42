@@ -20,7 +20,7 @@
 * The "Paste" command no longer uses sscanf() to parse real or complex numbers;
   instead, it now uses the same string-to-number conversion code that is used
   when the user enters a number on the keyboard. This means that numbers like
-  0.1 can now be pasted in the Decimal version with no loss of precision.
+  0.1 can now be pasted in the Decimal version with no binary round-off error.
 
 12-03-2006: version 1.4.3
 
