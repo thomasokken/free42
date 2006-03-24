@@ -89,5 +89,5 @@ cd ..
 util/txt2html "Free42 HISTORY" <HISTORY >history.html
 util/txt2html "Free42 TODO" <TODO >todo.html
 cp palmos/Free42PalmOSSkins.zip .
-tar cvf package.tar Free42PalmOS.zip Free42Windows.zip Free42Linux.tgz free42.tgz Free42Skins.zip Free42PalmOSSkins.zip history.html todo.html
-rm Free42PalmOS.zip Free42Windows.zip Free42Linux.tgz free42.tgz Free42Skins.zip Free42PalmOSSkins.zip history.html todo.html
+tar cvf package.tar Free42PalmOS.zip Free42Windows.zip Free42Linux.tgz free42.tgz Free42Skins.zip Free42PocketPCSkins.zip Free42PalmOSSkins.zip history.html todo.html
+rm Free42PalmOS.zip Free42Windows.zip Free42Linux.tgz free42.tgz Free42Skins.zip Free42PocketPCSkins.zip Free42PalmOSSkins.zip history.html todo.html
