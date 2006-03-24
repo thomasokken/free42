@@ -1,13 +1,3 @@
-+----------------------------------------------------------------------------+
-| NOTE: Most of the items in this list are "nice to have" things. I'm not    |
-| promising that I will actually implement any of them -- I simply put any   |
-| reasonable feature request in this list, and when I feel like programming, |
-| I may or may not tackle any of these items. The only exceptions are bugs:  |
-| those I *will* definitely try to fix as quickly as possible.               |
-+----------------------------------------------------------------------------+
-
-Get a PayPal account to accept donations. :-)
-
 PalmOS version: support 320x480 screens, and dynamic screen size changes.
 
 PalmOS version: repainting the display is slow when using high-resolution
