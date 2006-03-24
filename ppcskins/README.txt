@@ -1,9 +1,5 @@
-If you are using Windows, put the skins in the Free42 directory. By default,
-this is the directory containing the Free42 executable, but its location can be
-changed in the preferences dialog. Note: If you set the Free42 directory to a
-location other than the executable's directory, you may put skins in both
-locations.
-If you are using Unix, put the skins in $HOME/.free42/.
+To use these skins, put them in the same directory as the Free42 executable
+(usually \Program Files\Free42).
 
 -------------------------------------------------------------------------------
 
@@ -20,6 +16,17 @@ Display: describes the location, size, and color of the display; arguments
   are: top-left corner, x magnification, y magnification, background color,
   foreground color. Colors are specified as 6-digit hex numbers in RRGGBB
   format.
+  On the PocketPC ONLY, the x magnification may be set to 0, which selects a
+  special mode that effectively gives a horizontal magnification of 1.67; this
+  allows Free42 to get the most out of QVGA's inconvenient 240-pixel screen
+  width. Note: this cannot be used in Landscape mode (see below).
+Landscape: (PocketPC ONLY) renders the display vertically. Like the "x
+  magnification = 0" trick, this is another way to cope with the awkward screen
+  size on QVGA Pocket PC devices: a doubled display is 262 pixels wide, which
+  does not fit in the available 240x268 area horizontally, but it does
+  vertically.
+  To enable landscape mode, say "Landscape: 1". Note: if the x magnification is
+  set to 0 (see above), landscape mode will not be enabled.
 Key: describes a clickable key; arguments are: keycode, sensitive rectangle
   (i.e. the rectangle where mouse-down events will cause the key to be
   pressed), display rectangle (i.e. the rectangle that changes when a key is
