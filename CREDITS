@@ -1,0 +1,22 @@
+Free42 is (C) 2004-2006 by Thomas Okken
+
+Decimal math: BCDFloat routines by Hugh Steers
+Skins designed by, or based on original work of: Sebastien Carlier,
+   Christoph Giesselink, Erik Ehrling, Jeff O., Michael Vogel, Klaus Reckermann
+MacOS X Dashboard version by D. Jeff Dionne
+Testing: Vini Matangrano, Dave Johnson, Walter Bonin, Andres Rodriguez,
+   Jeff O., Miguel Toro
+INTEG: Romberg integration implementation based on code by Hugh Steers
+
+Couldn't have done it without: PRC-Tools by D. Jeff Dionne, with multi-segment
+debugging support by Ton van Overbeek; Vim by Bram Moolenaar; DDD by Dorothea
+Luetkehaus and Andreas Zeller; NetPBM by Jef Poskanzer and others; gcc/g++ by
+Richard Stallman and others; Visual C++ and eMbedded Visual C++ by Microsoft;
+gdb, binutils, and too many other fine tools to name, by the Free Software
+Foundation and its contributors; the Linux kernel by Linus Torvalds and many
+others; help and advice from many contributors to several Usenet newsgroups and
+various mailing lists; and of course, the inspiration for it all, the excellent
+HP-42S calculator by Hewlett-Packard.
+
+A big and continuing Thank You to all the many people whose names I did not
+record, who have sent me bug reports and words of encouragement.

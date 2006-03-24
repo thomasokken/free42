@@ -14,10 +14,6 @@ keymap2cpp: keymap2cpp.cpp
 keymap.cpp: keymap2cpp keymap.txt
 	./keymap2cpp
 
-cabs: FORCE
-	$(CABWIZ) Free42Decimal.inf /cpu PPC2003_ARM PPC2003_x86
-	$(CABWIZ) Free42Binary.inf /cpu PPC2003_ARM PPC2003_x86
-
 package: ARMV4RelDecimal/Free42Decimal.exe ARMV4RelBinary/Free42Binary.exe
 	$(CABWIZ) Free42Decimal.inf /cpu PPC2003_ARM
 	$(CABWIZ) Free42Binary.inf /cpu PPC2003_ARM
