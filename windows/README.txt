@@ -10,23 +10,18 @@ Windows, and Unix.
 Installing Free42:
 
 Copy Free42Decimal.exe (or Free42Binary.exe, or both) to wherever you want it,
-e.g. create a directory "C:\Program Files\Free42" and put it there. When Free42
-runs, it will create three additional files, in the Free42 directory (*) (this
-directory will be created if it does not already exist); the additional files
-are state.bin, print.bin, and keymap.txt, and they are used to store the
-calculator's internal state, the contents of the print-out window, and the PC
-keyboard map, respectively.
-Also, if you want to use a non-standard skin with Free42, the Free42 directory
-is where you have to store the skin's layout and bitmap files. (In addition to
-the Free42 directory, you may also store skins in the directory containing the
-executable. Note that those directories may be one and the same.)
-For convenience, create a shortcut to Free42Decimal.exe (or Free42Binary.exe,
-or both) and put it on the desktop or in the Start menu.
-(*) By default, the Free42 directory is the directory containing the
-executable, but you can change this in the Preferences dialog. If you select a
-different location, you must exit Free42, and then move or copy the files from
-the old to the new Free42 directory manually; if you don't do this, you will
-start with a clean slate next time you start Free42 ("Memory Clear").
+e.g. create a directory "C:\Program Files\Free42" and put it there.
+When Free42 runs, it will create three additional files; they are state.bin,
+print.bin, and keymap.txt, and they are used to store the calculator's internal
+state, the contents of the print-out window, and the PC keyboard map,
+respectively.
+By default, these additional files will be stored in the same directory as
+Free42.exe, but you may specify a different directory if you wish. To do so, go
+to the Preferences dialog, and change the "Free42 Directory" setting.
+
+Free42 comes with two skins built in, but you may use different ones, by
+storing them in either the "Free42 Directory" (as specified in the Preferences
+dialog), or the directory where Free42.exe is located.
 
 
 Uninstalling Free42:

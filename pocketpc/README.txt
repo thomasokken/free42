@@ -20,7 +20,7 @@ Free42 stores its 'state.bin' and 'keymap.txt' files in the same directory
 where the executable is located, that is, in \Program Files\Free42 (unless you
 moved it someplace else manually).
 It also looks for additional skins in that location. Note that installing skins
-is optional, since Free42 already has one 240x268 skin built in.
+is optional, since Free42 already has two 240x268 skins built in.
 
 
 Uninstalling Free42:
