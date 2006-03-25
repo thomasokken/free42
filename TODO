@@ -1,3 +1,9 @@
+One tester reported a CLP glitch, which sounded like the program counter
+pointing at a memory location that was *not* the start of a legitimate
+instruction. I haven't figured out how to reproduce this so far; one thing to
+consider is binary<->decimal switching (the pc updating code *is* a bit
+hairy!)
+
 PalmOS version: support 320x480 screens, and dynamic screen size changes.
 
 PalmOS version: repainting the display is slow when using high-resolution
