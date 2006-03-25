@@ -1,7 +1,7 @@
 26-03-2006: version 1.4.6
 
 * New: Pocket PC version.
-* Added several voyager-style skin to the Free42Skins.zip package (Windows and
+* Added a new voyager-style skin to the Free42Skins.zip package (Windows and
   Unix), and created a new package, Free42PocketPCSkins.zip, with skins
   specifically designed for the Pocket PC version.
 * ->POL now detects the case that the real and/or imaginary parts are zero, and
