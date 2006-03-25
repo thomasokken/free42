@@ -4,6 +4,10 @@ instruction. I haven't figured out how to reproduce this so far; one thing to
 consider is binary<->decimal switching (the pc updating code *is* a bit
 hairy!)
 
+Make the orange labels on the PocketPC "Standard" skin larger. The buttons can
+easily be made 2 pixels shorter, which creates room to make the orange labels 2
+pixels taller -- like they are on the Windows/Unix "Standard" skin.
+
 PalmOS version: support 320x480 screens, and dynamic screen size changes.
 
 PalmOS version: repainting the display is slow when using high-resolution
