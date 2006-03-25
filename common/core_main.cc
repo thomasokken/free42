@@ -2177,8 +2177,13 @@ void do_interactive(int command) {
     } else {
 	if (cmdlist(command)->argtype == ARG_NONE)
 	    pending_command = command;
-	else
+	else {
+	    if (flags.f.prgm_mode) {
+		incomplete_saved_pc = pc;
+		incomplete_saved_highlight_row = prgm_highlight_row;
+	    }
 	    start_incomplete_command(command);
+	}
     }
 }
 
