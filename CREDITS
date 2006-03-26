@@ -3,10 +3,10 @@ Free42 is (C) 2004-2006 by Thomas Okken, except:
 Decimal math: BCD20 library by Hugh Steers
 INTEG: Romberg integration implementation based on code by Hugh Steers
 LU Decomposition and back-substitution code, and Ridders' root-refinement
-algorithm, based on sample code from "Numerical Recipes in C"
+   algorithm, based on sample code from "Numerical Recipes in C"
 Binary implementations of asinh, acosh, atanh, log(1+x), and exp(x)-1, used for
-non-g++ builds (VC++, eVC++), and of gamma, used in all binary builds, by Sun
-   Microsystems.
+   non-g++ builds (VC++, eVC++), and of gamma, used in all binary builds, by
+   Sun Microsystems.
 Skins designed by, or based on original work of: Sebastien Carlier,
    Christoph Giesselink, Erik Ehrling, Jeff O., Michael Vogel, Klaus Reckermann
 MacOS X Dashboard version by D. Jeff Dionne
