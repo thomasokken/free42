@@ -3,7 +3,7 @@
 * New: Pocket PC version.
 * Added a new voyager-style skin to the Free42Skins.zip package (Windows and
   Unix), and created a new package, Free42PocketPCSkins.zip, with skins
-  specifically designed for the Pocket PC version.
+  specifically designed for the Pocket PC.
 * ->POL now detects the case that the real and/or imaginary parts are zero, and
   returns exact results for those cases.
 * Canceling a partially-entered DEL, LIST, or PRP command in PRGM mode could
