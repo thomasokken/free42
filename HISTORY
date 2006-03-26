@@ -6,6 +6,8 @@
   specifically designed for the Pocket PC version.
 * ->POL now detects the case that the real and/or imaginary parts are zero, and
   returns exact results for those cases.
+* Canceling a partially-entered DEL, LIST, or PRP command in PRGM mode could
+  cause the instruction pointer to be set to an invalid location. Fixed.
 
 19-03-2006: version 1.4.5
 
