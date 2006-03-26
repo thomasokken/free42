@@ -107,10 +107,6 @@ SOURCE=.\Free42ConduitInstaller.rc
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # Begin Source File
 
-SOURCE=.\ico00001.ico
-# End Source File
-# Begin Source File
-
 SOURCE=.\icon1.ico
 # End Source File
 # End Group
