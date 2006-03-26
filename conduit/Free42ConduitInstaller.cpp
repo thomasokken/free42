@@ -21,7 +21,7 @@
 #include <CondMgr.h>
 #include <HSAPI.h>
 
-#include "resource.h"
+#include "resource_installer.h"
 
 
 static void install(HWND hDlg) {

@@ -97,7 +97,7 @@ SOURCE=.\Free42Conduit.rc
 # End Source File
 # Begin Source File
 
-SOURCE=.\Main.cpp
+SOURCE=.\Free42Conduit.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
