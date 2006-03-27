@@ -2,6 +2,8 @@
 # Microsoft eMbedded Visual Tools Generated Build File, Format Version 6.02
 # ** DO NOT EDIT **
 
+# TARGTYPE "Win32 (WCE x86) Application" 0x8301
+# TARGTYPE "Win32 (WCE ARM) Application" 0x8501
 # TARGTYPE "Win32 (WCE ARMV4) Application" 0xa301
 # TARGTYPE "Win32 (WCE emulator) Application" 0xa601
 
@@ -22,6 +24,10 @@ CFG=Free42Binary - Win32 (WCE emulator) Debug
 !MESSAGE "Free42Binary - Win32 (WCE emulator) Debug" (based on "Win32 (WCE emulator) Application")
 !MESSAGE "Free42Binary - Win32 (WCE ARMV4) Release" (based on "Win32 (WCE ARMV4) Application")
 !MESSAGE "Free42Binary - Win32 (WCE ARMV4) Debug" (based on "Win32 (WCE ARMV4) Application")
+!MESSAGE "Free42Binary - Win32 (WCE ARM) Debug" (based on "Win32 (WCE ARM) Application")
+!MESSAGE "Free42Binary - Win32 (WCE ARM) Release" (based on "Win32 (WCE ARM) Application")
+!MESSAGE "Free42Binary - Win32 (WCE x86) Debug" (based on "Win32 (WCE x86) Application")
+!MESSAGE "Free42Binary - Win32 (WCE x86) Release" (based on "Win32 (WCE x86) Application")
 !MESSAGE 
 
 # Begin Project
@@ -46,22 +52,22 @@ CFG=Free42Binary - Win32 (WCE emulator) Debug
 # PROP CPU_ID "{32E52003-403E-442D-BE48-DE10F8C6131D}"
 # PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
 # PROP Target_Dir ""
-RSC=rc.exe
-# ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "_X86_" /d "x86" /d "_i386_" /r
-# ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "_X86_" /d "x86" /d "_i386_" /r
+LINK32=link.exe
+# ADD BASE LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
+# ADD LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+MTL=midl.exe
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 CPP=cl.exe
 # ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "NDEBUG" /Yu"stdafx.h" /Gs8192 /GF /O2 /c
 # ADD CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "NDEBUG" /D "WINDOWS" /Gs8192 /GF /O2 /c
 # SUBTRACT CPP /YX /Yc /Yu
-MTL=midl.exe
-# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
-# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
-BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo
-# ADD BSC32 /nologo
-LINK32=link.exe
-# ADD BASE LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
-# ADD LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
+RSC=rc.exe
+# ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "_X86_" /d "x86" /d "_i386_" /r
+# ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "_X86_" /d "x86" /d "_i386_" /r
 
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Debug"
 
@@ -79,22 +85,22 @@ LINK32=link.exe
 # PROP CPU_ID "{32E52003-403E-442D-BE48-DE10F8C6131D}"
 # PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
 # PROP Target_Dir ""
-RSC=rc.exe
-# ADD BASE RSC /l 0x409 /d "$(CePlatform)" /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "_X86_" /d "x86" /d "_i386_" /r
-# ADD RSC /l 0x409 /d "$(CePlatform)" /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "_X86_" /d "x86" /d "_i386_" /r
+LINK32=link.exe
+# ADD BASE LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
+# ADD LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+MTL=midl.exe
+# ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 CPP=cl.exe
 # ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "_i386_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /Yu"stdafx.h" /Gs8192 /GF /c
 # ADD CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "_i386_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "WINDOWS" /FR /Gs8192 /GF /c
 # SUBTRACT CPP /YX /Yc /Yu
-MTL=midl.exe
-# ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
-# ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
-BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo
-# ADD BSC32 /nologo
-LINK32=link.exe
-# ADD BASE LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
-# ADD LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
+RSC=rc.exe
+# ADD BASE RSC /l 0x409 /d "$(CePlatform)" /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "_X86_" /d "x86" /d "_i386_" /r
+# ADD RSC /l 0x409 /d "$(CePlatform)" /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "_X86_" /d "x86" /d "_i386_" /r
 
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Release"
 
@@ -112,22 +118,22 @@ LINK32=link.exe
 # PROP CPU_ID "{ECBEA43D-CD7B-4852-AD55-D4227B5D624B}"
 # PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
 # PROP Target_Dir ""
-RSC=rc.exe
-# ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "NDEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /r
-# ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "NDEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /r
+LINK32=link.exe
+# ADD BASE LINK32 commctrl.lib coredll.lib aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
+# ADD LINK32 commctrl.lib coredll.lib aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+MTL=midl.exe
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 CPP=clarm.exe
 # ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /Yu"stdafx.h" /O2 /M$(CECrtMT) /c
 # ADD CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /D "WINDOWS" /O2 /M$(CECrtMT) /c
 # SUBTRACT CPP /YX /Yc /Yu
-MTL=midl.exe
-# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
-# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
-BSC32=bscmake.exe
-# ADD BASE BSC32 /nologo
-# ADD BSC32 /nologo
-LINK32=link.exe
-# ADD BASE LINK32 commctrl.lib coredll.lib aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
-# ADD LINK32 commctrl.lib coredll.lib aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
+RSC=rc.exe
+# ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "NDEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /r
+# ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "NDEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /r
 
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
 
@@ -145,13 +151,47 @@ LINK32=link.exe
 # PROP CPU_ID "{ECBEA43D-CD7B-4852-AD55-D4227B5D624B}"
 # PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
 # PROP Target_Dir ""
-RSC=rc.exe
-# ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "DEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /r
-# ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "DEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /r
+LINK32=link.exe
+# ADD BASE LINK32 commctrl.lib coredll.lib aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
+# ADD LINK32 commctrl.lib coredll.lib aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+MTL=midl.exe
+# ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 CPP=clarm.exe
 # ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /Yu"stdafx.h" /M$(CECrtMTDebug) /c
 # ADD CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /D "WINDOWS" /M$(CECrtMTDebug) /c
 # SUBTRACT CPP /YX /Yc /Yu
+RSC=rc.exe
+# ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "DEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /r
+# ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "DEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /r
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Debug"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 1
+# PROP BASE Output_Dir "ARMDbg"
+# PROP BASE Intermediate_Dir "ARMDbg"
+# PROP BASE CPU_ID "{D6518FFC-710F-11D3-99F2-00105A0DF099}"
+# PROP BASE Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 1
+# PROP Output_Dir "ARMV4DbgBinary"
+# PROP Intermediate_Dir "ARMV4DbgBinary"
+# PROP CPU_ID "{D6518FFC-710F-11D3-99F2-00105A0DF099}"
+# PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+RSC=rc.exe
+# ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /r
+# ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /r
+CPP=clarm.exe
+# ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "ARM" /D "_ARM_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /YX /M$(CECrtMTDebug) /c
+# ADD CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "ARM" /D "_ARM_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /D "WINDOWS" /M$(CECrtMTDebug) /c
+# SUBTRACT CPP /YX
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
@@ -159,8 +199,110 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 commctrl.lib coredll.lib aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
+# ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
 # ADD LINK32 commctrl.lib coredll.lib aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Release"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "ARMRel"
+# PROP BASE Intermediate_Dir "ARMRel"
+# PROP BASE CPU_ID "{D6518FFC-710F-11D3-99F2-00105A0DF099}"
+# PROP BASE Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir "ARMV4RelBinary"
+# PROP Intermediate_Dir "ARMV4RelBinary"
+# PROP CPU_ID "{D6518FFC-710F-11D3-99F2-00105A0DF099}"
+# PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+RSC=rc.exe
+# ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /r
+# ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /r
+CPP=clarm.exe
+# ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "ARM" /D "_ARM_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /YX /Oxs /M$(CECrtMT) /c
+# ADD CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "ARM" /D "_ARM_" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /D "WINDOWS" /Oxs /M$(CECrtMT) /c
+# SUBTRACT CPP /YX
+MTL=midl.exe
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 commctrl.lib coredll.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
+# ADD LINK32 commctrl.lib coredll.lib aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Debug"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 1
+# PROP BASE Output_Dir "X86Dbg"
+# PROP BASE Intermediate_Dir "X86Dbg"
+# PROP BASE CPU_ID "{D6518FF3-710F-11D3-99F2-00105A0DF099}"
+# PROP BASE Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 1
+# PROP Output_Dir "emulatorDbgBinary"
+# PROP Intermediate_Dir "emulatorDbgBinary"
+# PROP CPU_ID "{D6518FF3-710F-11D3-99F2-00105A0DF099}"
+# PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+RSC=rc.exe
+# ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "$(CePlatform)" /d "_X86_" /d "x86" /d "_i386_" /r
+# ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "$(CePlatform)" /d "_X86_" /d "x86" /d "_i386_" /r
+CPP=cl.exe
+# ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "_i386_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /YX /Gs8192 /GF /c
+# ADD CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "_i386_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "WINDOWS" /Gs8192 /GF /c
+# SUBTRACT CPP /YX
+MTL=midl.exe
+# ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
+# ADD LINK32 commctrl.lib coredll.lib aygshell.lib $(CEx86Corelibc) /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Release"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "X86Rel"
+# PROP BASE Intermediate_Dir "X86Rel"
+# PROP BASE CPU_ID "{D6518FF3-710F-11D3-99F2-00105A0DF099}"
+# PROP BASE Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir "emulatorRelBinary"
+# PROP Intermediate_Dir "emulatorRelBinary"
+# PROP CPU_ID "{D6518FF3-710F-11D3-99F2-00105A0DF099}"
+# PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+RSC=rc.exe
+# ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "_X86_" /d "x86" /d "_i386_" /r
+# ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "_X86_" /d "x86" /d "_i386_" /r
+CPP=cl.exe
+# ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "NDEBUG" /YX /Gs8192 /GF /Oxs /c
+# ADD CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "NDEBUG" /D "WINDOWS" /Gs8192 /GF /Oxs /c
+# SUBTRACT CPP /YX
+MTL=midl.exe
+# ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+# ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
+# ADD LINK32 commctrl.lib coredll.lib aygshell.lib $(CEx86Corelibc) /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
 
 !ENDIF 
 
@@ -170,6 +312,10 @@ LINK32=link.exe
 # Name "Free42Binary - Win32 (WCE emulator) Debug"
 # Name "Free42Binary - Win32 (WCE ARMV4) Release"
 # Name "Free42Binary - Win32 (WCE ARMV4) Debug"
+# Name "Free42Binary - Win32 (WCE ARM) Debug"
+# Name "Free42Binary - Win32 (WCE ARM) Release"
+# Name "Free42Binary - Win32 (WCE x86) Debug"
+# Name "Free42Binary - Win32 (WCE x86) Release"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
@@ -179,50 +325,12 @@ SOURCE=.\core_commands1.cpp
 
 !IF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Release"
 
-DEP_CPP_CORE_=\
-	".\bcdfloat.h"\
-	".\core_commands1.h"\
-	".\core_commands2.h"\
-	".\core_display.h"\
-	".\core_globals.h"\
-	".\core_helpers.h"\
-	".\core_main.h"\
-	".\core_math1.h"\
-	".\core_phloat.h"\
-	".\core_sto_rcl.h"\
-	".\core_tables.h"\
-	".\core_variables.h"\
-	".\free42.h"\
-	".\shell.h"\
-	
-NODEP_CPP_CORE_=\
-	".\MathLib.h"\
-	
-
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Debug"
-
-DEP_CPP_CORE_=\
-	".\bcdfloat.h"\
-	".\core_commands1.h"\
-	".\core_commands2.h"\
-	".\core_display.h"\
-	".\core_globals.h"\
-	".\core_helpers.h"\
-	".\core_main.h"\
-	".\core_math1.h"\
-	".\core_phloat.h"\
-	".\core_sto_rcl.h"\
-	".\core_tables.h"\
-	".\core_variables.h"\
-	".\free42.h"\
-	".\shell.h"\
-	
-NODEP_CPP_CORE_=\
-	".\MathLib.h"\
-	
 
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Release"
 
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+
 DEP_CPP_CORE_=\
 	".\bcdfloat.h"\
 	".\core_commands1.h"\
@@ -243,7 +351,73 @@ NODEP_CPP_CORE_=\
 	".\MathLib.h"\
 	
 
-!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Debug"
+
+DEP_CPP_CORE_=\
+	".\bcdfloat.h"\
+	".\core_commands1.h"\
+	".\core_commands2.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_main.h"\
+	".\core_math1.h"\
+	".\core_phloat.h"\
+	".\core_sto_rcl.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	".\shell.h"\
+	
+NODEP_CPP_CORE_=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Release"
+
+DEP_CPP_CORE_=\
+	".\bcdfloat.h"\
+	".\core_commands1.h"\
+	".\core_commands2.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_main.h"\
+	".\core_math1.h"\
+	".\core_phloat.h"\
+	".\core_sto_rcl.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	".\shell.h"\
+	
+NODEP_CPP_CORE_=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Debug"
+
+DEP_CPP_CORE_=\
+	".\bcdfloat.h"\
+	".\core_commands1.h"\
+	".\core_commands2.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_main.h"\
+	".\core_math1.h"\
+	".\core_phloat.h"\
+	".\core_sto_rcl.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	".\shell.h"\
+	
+NODEP_CPP_CORE_=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Release"
 
 DEP_CPP_CORE_=\
 	".\bcdfloat.h"\
@@ -274,52 +448,12 @@ SOURCE=.\core_commands2.cpp
 
 !IF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Release"
 
-DEP_CPP_CORE_C=\
-	".\bcdfloat.h"\
-	".\core_commands1.h"\
-	".\core_commands2.h"\
-	".\core_display.h"\
-	".\core_globals.h"\
-	".\core_helpers.h"\
-	".\core_main.h"\
-	".\core_math1.h"\
-	".\core_math2.h"\
-	".\core_phloat.h"\
-	".\core_sto_rcl.h"\
-	".\core_tables.h"\
-	".\core_variables.h"\
-	".\free42.h"\
-	".\shell.h"\
-	
-NODEP_CPP_CORE_C=\
-	".\MathLib.h"\
-	
-
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Debug"
-
-DEP_CPP_CORE_C=\
-	".\bcdfloat.h"\
-	".\core_commands1.h"\
-	".\core_commands2.h"\
-	".\core_display.h"\
-	".\core_globals.h"\
-	".\core_helpers.h"\
-	".\core_main.h"\
-	".\core_math1.h"\
-	".\core_math2.h"\
-	".\core_phloat.h"\
-	".\core_sto_rcl.h"\
-	".\core_tables.h"\
-	".\core_variables.h"\
-	".\free42.h"\
-	".\shell.h"\
-	
-NODEP_CPP_CORE_C=\
-	".\MathLib.h"\
-	
 
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Release"
 
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+
 DEP_CPP_CORE_C=\
 	".\bcdfloat.h"\
 	".\core_commands1.h"\
@@ -341,7 +475,76 @@ NODEP_CPP_CORE_C=\
 	".\MathLib.h"\
 	
 
-!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Debug"
+
+DEP_CPP_CORE_C=\
+	".\bcdfloat.h"\
+	".\core_commands1.h"\
+	".\core_commands2.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_main.h"\
+	".\core_math1.h"\
+	".\core_math2.h"\
+	".\core_phloat.h"\
+	".\core_sto_rcl.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	".\shell.h"\
+	
+NODEP_CPP_CORE_C=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Release"
+
+DEP_CPP_CORE_C=\
+	".\bcdfloat.h"\
+	".\core_commands1.h"\
+	".\core_commands2.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_main.h"\
+	".\core_math1.h"\
+	".\core_math2.h"\
+	".\core_phloat.h"\
+	".\core_sto_rcl.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	".\shell.h"\
+	
+NODEP_CPP_CORE_C=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Debug"
+
+DEP_CPP_CORE_C=\
+	".\bcdfloat.h"\
+	".\core_commands1.h"\
+	".\core_commands2.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_main.h"\
+	".\core_math1.h"\
+	".\core_math2.h"\
+	".\core_phloat.h"\
+	".\core_sto_rcl.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	".\shell.h"\
+	
+NODEP_CPP_CORE_C=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Release"
 
 DEP_CPP_CORE_C=\
 	".\bcdfloat.h"\
@@ -373,52 +576,12 @@ SOURCE=.\core_commands3.cpp
 
 !IF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Release"
 
-DEP_CPP_CORE_CO=\
-	".\bcdfloat.h"\
-	".\core_commands2.h"\
-	".\core_commands3.h"\
-	".\core_commands4.h"\
-	".\core_display.h"\
-	".\core_globals.h"\
-	".\core_helpers.h"\
-	".\core_linalg1.h"\
-	".\core_main.h"\
-	".\core_math2.h"\
-	".\core_phloat.h"\
-	".\core_sto_rcl.h"\
-	".\core_tables.h"\
-	".\core_variables.h"\
-	".\free42.h"\
-	
-NODEP_CPP_CORE_CO=\
-	".\MathLib.h"\
-	
-
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Debug"
-
-DEP_CPP_CORE_CO=\
-	".\bcdfloat.h"\
-	".\core_commands2.h"\
-	".\core_commands3.h"\
-	".\core_commands4.h"\
-	".\core_display.h"\
-	".\core_globals.h"\
-	".\core_helpers.h"\
-	".\core_linalg1.h"\
-	".\core_main.h"\
-	".\core_math2.h"\
-	".\core_phloat.h"\
-	".\core_sto_rcl.h"\
-	".\core_tables.h"\
-	".\core_variables.h"\
-	".\free42.h"\
-	
-NODEP_CPP_CORE_CO=\
-	".\MathLib.h"\
-	
 
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Release"
 
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+
 DEP_CPP_CORE_CO=\
 	".\bcdfloat.h"\
 	".\core_commands2.h"\
@@ -440,7 +603,76 @@ NODEP_CPP_CORE_CO=\
 	".\MathLib.h"\
 	
 
-!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Debug"
+
+DEP_CPP_CORE_CO=\
+	".\bcdfloat.h"\
+	".\core_commands2.h"\
+	".\core_commands3.h"\
+	".\core_commands4.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_linalg1.h"\
+	".\core_main.h"\
+	".\core_math2.h"\
+	".\core_phloat.h"\
+	".\core_sto_rcl.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	
+NODEP_CPP_CORE_CO=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Release"
+
+DEP_CPP_CORE_CO=\
+	".\bcdfloat.h"\
+	".\core_commands2.h"\
+	".\core_commands3.h"\
+	".\core_commands4.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_linalg1.h"\
+	".\core_main.h"\
+	".\core_math2.h"\
+	".\core_phloat.h"\
+	".\core_sto_rcl.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	
+NODEP_CPP_CORE_CO=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Debug"
+
+DEP_CPP_CORE_CO=\
+	".\bcdfloat.h"\
+	".\core_commands2.h"\
+	".\core_commands3.h"\
+	".\core_commands4.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_linalg1.h"\
+	".\core_main.h"\
+	".\core_math2.h"\
+	".\core_phloat.h"\
+	".\core_sto_rcl.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	
+NODEP_CPP_CORE_CO=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Release"
 
 DEP_CPP_CORE_CO=\
 	".\bcdfloat.h"\
@@ -472,48 +704,12 @@ SOURCE=.\core_commands4.cpp
 
 !IF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Release"
 
-DEP_CPP_CORE_COM=\
-	".\bcdfloat.h"\
-	".\core_commands2.h"\
-	".\core_commands3.h"\
-	".\core_commands4.h"\
-	".\core_display.h"\
-	".\core_globals.h"\
-	".\core_helpers.h"\
-	".\core_linalg1.h"\
-	".\core_phloat.h"\
-	".\core_sto_rcl.h"\
-	".\core_tables.h"\
-	".\core_variables.h"\
-	".\free42.h"\
-	
-NODEP_CPP_CORE_COM=\
-	".\MathLib.h"\
-	
-
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Debug"
-
-DEP_CPP_CORE_COM=\
-	".\bcdfloat.h"\
-	".\core_commands2.h"\
-	".\core_commands3.h"\
-	".\core_commands4.h"\
-	".\core_display.h"\
-	".\core_globals.h"\
-	".\core_helpers.h"\
-	".\core_linalg1.h"\
-	".\core_phloat.h"\
-	".\core_sto_rcl.h"\
-	".\core_tables.h"\
-	".\core_variables.h"\
-	".\free42.h"\
-	
-NODEP_CPP_CORE_COM=\
-	".\MathLib.h"\
-	
 
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Release"
 
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+
 DEP_CPP_CORE_COM=\
 	".\bcdfloat.h"\
 	".\core_commands2.h"\
@@ -533,7 +729,70 @@ NODEP_CPP_CORE_COM=\
 	".\MathLib.h"\
 	
 
-!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Debug"
+
+DEP_CPP_CORE_COM=\
+	".\bcdfloat.h"\
+	".\core_commands2.h"\
+	".\core_commands3.h"\
+	".\core_commands4.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_linalg1.h"\
+	".\core_phloat.h"\
+	".\core_sto_rcl.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	
+NODEP_CPP_CORE_COM=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Release"
+
+DEP_CPP_CORE_COM=\
+	".\bcdfloat.h"\
+	".\core_commands2.h"\
+	".\core_commands3.h"\
+	".\core_commands4.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_linalg1.h"\
+	".\core_phloat.h"\
+	".\core_sto_rcl.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	
+NODEP_CPP_CORE_COM=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Debug"
+
+DEP_CPP_CORE_COM=\
+	".\bcdfloat.h"\
+	".\core_commands2.h"\
+	".\core_commands3.h"\
+	".\core_commands4.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_linalg1.h"\
+	".\core_phloat.h"\
+	".\core_sto_rcl.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	
+NODEP_CPP_CORE_COM=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Release"
 
 DEP_CPP_CORE_COM=\
 	".\bcdfloat.h"\
@@ -563,48 +822,12 @@ SOURCE=.\core_commands5.cpp
 
 !IF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Release"
 
-DEP_CPP_CORE_COMM=\
-	".\bcdfloat.h"\
-	".\core_commands2.h"\
-	".\core_commands5.h"\
-	".\core_display.h"\
-	".\core_globals.h"\
-	".\core_helpers.h"\
-	".\core_main.h"\
-	".\core_math1.h"\
-	".\core_phloat.h"\
-	".\core_sto_rcl.h"\
-	".\core_tables.h"\
-	".\core_variables.h"\
-	".\free42.h"\
-	
-NODEP_CPP_CORE_COMM=\
-	".\MathLib.h"\
-	
-
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Debug"
-
-DEP_CPP_CORE_COMM=\
-	".\bcdfloat.h"\
-	".\core_commands2.h"\
-	".\core_commands5.h"\
-	".\core_display.h"\
-	".\core_globals.h"\
-	".\core_helpers.h"\
-	".\core_main.h"\
-	".\core_math1.h"\
-	".\core_phloat.h"\
-	".\core_sto_rcl.h"\
-	".\core_tables.h"\
-	".\core_variables.h"\
-	".\free42.h"\
-	
-NODEP_CPP_CORE_COMM=\
-	".\MathLib.h"\
-	
 
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Release"
 
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+
 DEP_CPP_CORE_COMM=\
 	".\bcdfloat.h"\
 	".\core_commands2.h"\
@@ -624,7 +847,70 @@ NODEP_CPP_CORE_COMM=\
 	".\MathLib.h"\
 	
 
-!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Debug"
+
+DEP_CPP_CORE_COMM=\
+	".\bcdfloat.h"\
+	".\core_commands2.h"\
+	".\core_commands5.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_main.h"\
+	".\core_math1.h"\
+	".\core_phloat.h"\
+	".\core_sto_rcl.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	
+NODEP_CPP_CORE_COMM=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Release"
+
+DEP_CPP_CORE_COMM=\
+	".\bcdfloat.h"\
+	".\core_commands2.h"\
+	".\core_commands5.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_main.h"\
+	".\core_math1.h"\
+	".\core_phloat.h"\
+	".\core_sto_rcl.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	
+NODEP_CPP_CORE_COMM=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Debug"
+
+DEP_CPP_CORE_COMM=\
+	".\bcdfloat.h"\
+	".\core_commands2.h"\
+	".\core_commands5.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_main.h"\
+	".\core_math1.h"\
+	".\core_phloat.h"\
+	".\core_sto_rcl.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	
+NODEP_CPP_CORE_COMM=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Release"
 
 DEP_CPP_CORE_COMM=\
 	".\bcdfloat.h"\
@@ -654,46 +940,12 @@ SOURCE=.\core_commands6.cpp
 
 !IF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Release"
 
-DEP_CPP_CORE_COMMA=\
-	".\bcdfloat.h"\
-	".\core_commands2.h"\
-	".\core_commands6.h"\
-	".\core_globals.h"\
-	".\core_helpers.h"\
-	".\core_main.h"\
-	".\core_math2.h"\
-	".\core_phloat.h"\
-	".\core_sto_rcl.h"\
-	".\core_tables.h"\
-	".\core_variables.h"\
-	".\free42.h"\
-	
-NODEP_CPP_CORE_COMMA=\
-	".\MathLib.h"\
-	
-
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Debug"
-
-DEP_CPP_CORE_COMMA=\
-	".\bcdfloat.h"\
-	".\core_commands2.h"\
-	".\core_commands6.h"\
-	".\core_globals.h"\
-	".\core_helpers.h"\
-	".\core_main.h"\
-	".\core_math2.h"\
-	".\core_phloat.h"\
-	".\core_sto_rcl.h"\
-	".\core_tables.h"\
-	".\core_variables.h"\
-	".\free42.h"\
-	
-NODEP_CPP_CORE_COMMA=\
-	".\MathLib.h"\
-	
 
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Release"
 
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+
 DEP_CPP_CORE_COMMA=\
 	".\bcdfloat.h"\
 	".\core_commands2.h"\
@@ -712,7 +964,67 @@ NODEP_CPP_CORE_COMMA=\
 	".\MathLib.h"\
 	
 
-!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Debug"
+
+DEP_CPP_CORE_COMMA=\
+	".\bcdfloat.h"\
+	".\core_commands2.h"\
+	".\core_commands6.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_main.h"\
+	".\core_math2.h"\
+	".\core_phloat.h"\
+	".\core_sto_rcl.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	
+NODEP_CPP_CORE_COMMA=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Release"
+
+DEP_CPP_CORE_COMMA=\
+	".\bcdfloat.h"\
+	".\core_commands2.h"\
+	".\core_commands6.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_main.h"\
+	".\core_math2.h"\
+	".\core_phloat.h"\
+	".\core_sto_rcl.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	
+NODEP_CPP_CORE_COMMA=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Debug"
+
+DEP_CPP_CORE_COMMA=\
+	".\bcdfloat.h"\
+	".\core_commands2.h"\
+	".\core_commands6.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_main.h"\
+	".\core_math2.h"\
+	".\core_phloat.h"\
+	".\core_sto_rcl.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	
+NODEP_CPP_CORE_COMMA=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Release"
 
 DEP_CPP_CORE_COMMA=\
 	".\bcdfloat.h"\
@@ -741,44 +1053,12 @@ SOURCE=.\core_display.cpp
 
 !IF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Release"
 
-DEP_CPP_CORE_D=\
-	".\bcdfloat.h"\
-	".\core_commands2.h"\
-	".\core_display.h"\
-	".\core_globals.h"\
-	".\core_helpers.h"\
-	".\core_main.h"\
-	".\core_phloat.h"\
-	".\core_tables.h"\
-	".\core_variables.h"\
-	".\free42.h"\
-	".\shell.h"\
-	
-NODEP_CPP_CORE_D=\
-	".\MathLib.h"\
-	
-
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Debug"
-
-DEP_CPP_CORE_D=\
-	".\bcdfloat.h"\
-	".\core_commands2.h"\
-	".\core_display.h"\
-	".\core_globals.h"\
-	".\core_helpers.h"\
-	".\core_main.h"\
-	".\core_phloat.h"\
-	".\core_tables.h"\
-	".\core_variables.h"\
-	".\free42.h"\
-	".\shell.h"\
-	
-NODEP_CPP_CORE_D=\
-	".\MathLib.h"\
-	
 
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Release"
 
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+
 DEP_CPP_CORE_D=\
 	".\bcdfloat.h"\
 	".\core_commands2.h"\
@@ -796,7 +1076,64 @@ NODEP_CPP_CORE_D=\
 	".\MathLib.h"\
 	
 
-!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Debug"
+
+DEP_CPP_CORE_D=\
+	".\bcdfloat.h"\
+	".\core_commands2.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_main.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	".\shell.h"\
+	
+NODEP_CPP_CORE_D=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Release"
+
+DEP_CPP_CORE_D=\
+	".\bcdfloat.h"\
+	".\core_commands2.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_main.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	".\shell.h"\
+	
+NODEP_CPP_CORE_D=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Debug"
+
+DEP_CPP_CORE_D=\
+	".\bcdfloat.h"\
+	".\core_commands2.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_main.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	".\shell.h"\
+	
+NODEP_CPP_CORE_D=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Release"
 
 DEP_CPP_CORE_D=\
 	".\bcdfloat.h"\
@@ -824,48 +1161,12 @@ SOURCE=.\core_globals.cpp
 
 !IF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Release"
 
-DEP_CPP_CORE_G=\
-	".\bcdfloat.h"\
-	".\core_commands2.h"\
-	".\core_commands4.h"\
-	".\core_display.h"\
-	".\core_globals.h"\
-	".\core_helpers.h"\
-	".\core_main.h"\
-	".\core_math1.h"\
-	".\core_phloat.h"\
-	".\core_tables.h"\
-	".\core_variables.h"\
-	".\free42.h"\
-	".\shell.h"\
-	
-NODEP_CPP_CORE_G=\
-	".\MathLib.h"\
-	
-
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Debug"
-
-DEP_CPP_CORE_G=\
-	".\bcdfloat.h"\
-	".\core_commands2.h"\
-	".\core_commands4.h"\
-	".\core_display.h"\
-	".\core_globals.h"\
-	".\core_helpers.h"\
-	".\core_main.h"\
-	".\core_math1.h"\
-	".\core_phloat.h"\
-	".\core_tables.h"\
-	".\core_variables.h"\
-	".\free42.h"\
-	".\shell.h"\
-	
-NODEP_CPP_CORE_G=\
-	".\MathLib.h"\
-	
 
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Release"
 
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+
 DEP_CPP_CORE_G=\
 	".\bcdfloat.h"\
 	".\core_commands2.h"\
@@ -885,7 +1186,70 @@ NODEP_CPP_CORE_G=\
 	".\MathLib.h"\
 	
 
-!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Debug"
+
+DEP_CPP_CORE_G=\
+	".\bcdfloat.h"\
+	".\core_commands2.h"\
+	".\core_commands4.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_main.h"\
+	".\core_math1.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	".\shell.h"\
+	
+NODEP_CPP_CORE_G=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Release"
+
+DEP_CPP_CORE_G=\
+	".\bcdfloat.h"\
+	".\core_commands2.h"\
+	".\core_commands4.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_main.h"\
+	".\core_math1.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	".\shell.h"\
+	
+NODEP_CPP_CORE_G=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Debug"
+
+DEP_CPP_CORE_G=\
+	".\bcdfloat.h"\
+	".\core_commands2.h"\
+	".\core_commands4.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_main.h"\
+	".\core_math1.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	".\shell.h"\
+	
+NODEP_CPP_CORE_G=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Release"
 
 DEP_CPP_CORE_G=\
 	".\bcdfloat.h"\
@@ -915,44 +1279,12 @@ SOURCE=.\core_helpers.cpp
 
 !IF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Release"
 
-DEP_CPP_CORE_H=\
-	".\bcdfloat.h"\
-	".\core_commands2.h"\
-	".\core_display.h"\
-	".\core_globals.h"\
-	".\core_helpers.h"\
-	".\core_main.h"\
-	".\core_phloat.h"\
-	".\core_tables.h"\
-	".\core_variables.h"\
-	".\free42.h"\
-	".\shell.h"\
-	
-NODEP_CPP_CORE_H=\
-	".\MathLib.h"\
-	
-
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Debug"
-
-DEP_CPP_CORE_H=\
-	".\bcdfloat.h"\
-	".\core_commands2.h"\
-	".\core_display.h"\
-	".\core_globals.h"\
-	".\core_helpers.h"\
-	".\core_main.h"\
-	".\core_phloat.h"\
-	".\core_tables.h"\
-	".\core_variables.h"\
-	".\free42.h"\
-	".\shell.h"\
-	
-NODEP_CPP_CORE_H=\
-	".\MathLib.h"\
-	
 
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Release"
 
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+
 DEP_CPP_CORE_H=\
 	".\bcdfloat.h"\
 	".\core_commands2.h"\
@@ -970,7 +1302,64 @@ NODEP_CPP_CORE_H=\
 	".\MathLib.h"\
 	
 
-!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Debug"
+
+DEP_CPP_CORE_H=\
+	".\bcdfloat.h"\
+	".\core_commands2.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_main.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	".\shell.h"\
+	
+NODEP_CPP_CORE_H=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Release"
+
+DEP_CPP_CORE_H=\
+	".\bcdfloat.h"\
+	".\core_commands2.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_main.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	".\shell.h"\
+	
+NODEP_CPP_CORE_H=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Debug"
+
+DEP_CPP_CORE_H=\
+	".\bcdfloat.h"\
+	".\core_commands2.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_main.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	".\shell.h"\
+	
+NODEP_CPP_CORE_H=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Release"
 
 DEP_CPP_CORE_H=\
 	".\bcdfloat.h"\
@@ -998,50 +1387,12 @@ SOURCE=.\core_keydown.cpp
 
 !IF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Release"
 
-DEP_CPP_CORE_K=\
-	".\bcdfloat.h"\
-	".\core_commands2.h"\
-	".\core_commands3.h"\
-	".\core_display.h"\
-	".\core_globals.h"\
-	".\core_helpers.h"\
-	".\core_keydown.h"\
-	".\core_main.h"\
-	".\core_math1.h"\
-	".\core_phloat.h"\
-	".\core_tables.h"\
-	".\core_variables.h"\
-	".\free42.h"\
-	".\shell.h"\
-	
-NODEP_CPP_CORE_K=\
-	".\MathLib.h"\
-	
-
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Debug"
-
-DEP_CPP_CORE_K=\
-	".\bcdfloat.h"\
-	".\core_commands2.h"\
-	".\core_commands3.h"\
-	".\core_display.h"\
-	".\core_globals.h"\
-	".\core_helpers.h"\
-	".\core_keydown.h"\
-	".\core_main.h"\
-	".\core_math1.h"\
-	".\core_phloat.h"\
-	".\core_tables.h"\
-	".\core_variables.h"\
-	".\free42.h"\
-	".\shell.h"\
-	
-NODEP_CPP_CORE_K=\
-	".\MathLib.h"\
-	
 
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Release"
 
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+
 DEP_CPP_CORE_K=\
 	".\bcdfloat.h"\
 	".\core_commands2.h"\
@@ -1062,7 +1413,73 @@ NODEP_CPP_CORE_K=\
 	".\MathLib.h"\
 	
 
-!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Debug"
+
+DEP_CPP_CORE_K=\
+	".\bcdfloat.h"\
+	".\core_commands2.h"\
+	".\core_commands3.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_keydown.h"\
+	".\core_main.h"\
+	".\core_math1.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	".\shell.h"\
+	
+NODEP_CPP_CORE_K=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Release"
+
+DEP_CPP_CORE_K=\
+	".\bcdfloat.h"\
+	".\core_commands2.h"\
+	".\core_commands3.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_keydown.h"\
+	".\core_main.h"\
+	".\core_math1.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	".\shell.h"\
+	
+NODEP_CPP_CORE_K=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Debug"
+
+DEP_CPP_CORE_K=\
+	".\bcdfloat.h"\
+	".\core_commands2.h"\
+	".\core_commands3.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_keydown.h"\
+	".\core_main.h"\
+	".\core_math1.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	".\shell.h"\
+	
+NODEP_CPP_CORE_K=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Release"
 
 DEP_CPP_CORE_K=\
 	".\bcdfloat.h"\
@@ -1093,40 +1510,12 @@ SOURCE=.\core_linalg1.cpp
 
 !IF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Release"
 
-DEP_CPP_CORE_L=\
-	".\bcdfloat.h"\
-	".\core_globals.h"\
-	".\core_linalg1.h"\
-	".\core_linalg2.h"\
-	".\core_main.h"\
-	".\core_phloat.h"\
-	".\core_tables.h"\
-	".\core_variables.h"\
-	".\free42.h"\
-	
-NODEP_CPP_CORE_L=\
-	".\MathLib.h"\
-	
-
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Debug"
-
-DEP_CPP_CORE_L=\
-	".\bcdfloat.h"\
-	".\core_globals.h"\
-	".\core_linalg1.h"\
-	".\core_linalg2.h"\
-	".\core_main.h"\
-	".\core_phloat.h"\
-	".\core_tables.h"\
-	".\core_variables.h"\
-	".\free42.h"\
-	
-NODEP_CPP_CORE_L=\
-	".\MathLib.h"\
-	
 
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Release"
 
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+
 DEP_CPP_CORE_L=\
 	".\bcdfloat.h"\
 	".\core_globals.h"\
@@ -1142,7 +1531,58 @@ NODEP_CPP_CORE_L=\
 	".\MathLib.h"\
 	
 
-!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Debug"
+
+DEP_CPP_CORE_L=\
+	".\bcdfloat.h"\
+	".\core_globals.h"\
+	".\core_linalg1.h"\
+	".\core_linalg2.h"\
+	".\core_main.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	
+NODEP_CPP_CORE_L=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Release"
+
+DEP_CPP_CORE_L=\
+	".\bcdfloat.h"\
+	".\core_globals.h"\
+	".\core_linalg1.h"\
+	".\core_linalg2.h"\
+	".\core_main.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	
+NODEP_CPP_CORE_L=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Debug"
+
+DEP_CPP_CORE_L=\
+	".\bcdfloat.h"\
+	".\core_globals.h"\
+	".\core_linalg1.h"\
+	".\core_linalg2.h"\
+	".\core_main.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	
+NODEP_CPP_CORE_L=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Release"
 
 DEP_CPP_CORE_L=\
 	".\bcdfloat.h"\
@@ -1168,36 +1608,12 @@ SOURCE=.\core_linalg2.cpp
 
 !IF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Release"
 
-DEP_CPP_CORE_LI=\
-	".\bcdfloat.h"\
-	".\core_globals.h"\
-	".\core_linalg2.h"\
-	".\core_main.h"\
-	".\core_phloat.h"\
-	".\core_tables.h"\
-	".\free42.h"\
-	
-NODEP_CPP_CORE_LI=\
-	".\MathLib.h"\
-	
-
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Debug"
-
-DEP_CPP_CORE_LI=\
-	".\bcdfloat.h"\
-	".\core_globals.h"\
-	".\core_linalg2.h"\
-	".\core_main.h"\
-	".\core_phloat.h"\
-	".\core_tables.h"\
-	".\free42.h"\
-	
-NODEP_CPP_CORE_LI=\
-	".\MathLib.h"\
-	
 
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Release"
 
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+
 DEP_CPP_CORE_LI=\
 	".\bcdfloat.h"\
 	".\core_globals.h"\
@@ -1211,7 +1627,52 @@ NODEP_CPP_CORE_LI=\
 	".\MathLib.h"\
 	
 
-!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Debug"
+
+DEP_CPP_CORE_LI=\
+	".\bcdfloat.h"\
+	".\core_globals.h"\
+	".\core_linalg2.h"\
+	".\core_main.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\free42.h"\
+	
+NODEP_CPP_CORE_LI=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Release"
+
+DEP_CPP_CORE_LI=\
+	".\bcdfloat.h"\
+	".\core_globals.h"\
+	".\core_linalg2.h"\
+	".\core_main.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\free42.h"\
+	
+NODEP_CPP_CORE_LI=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Debug"
+
+DEP_CPP_CORE_LI=\
+	".\bcdfloat.h"\
+	".\core_globals.h"\
+	".\core_linalg2.h"\
+	".\core_main.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\free42.h"\
+	
+NODEP_CPP_CORE_LI=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Release"
 
 DEP_CPP_CORE_LI=\
 	".\bcdfloat.h"\
@@ -1235,54 +1696,12 @@ SOURCE=.\core_main.cpp
 
 !IF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Release"
 
-DEP_CPP_CORE_M=\
-	".\bcdfloat.h"\
-	".\core_commands2.h"\
-	".\core_commands4.h"\
-	".\core_display.h"\
-	".\core_globals.h"\
-	".\core_helpers.h"\
-	".\core_keydown.h"\
-	".\core_main.h"\
-	".\core_math1.h"\
-	".\core_phloat.h"\
-	".\core_sto_rcl.h"\
-	".\core_tables.h"\
-	".\core_variables.h"\
-	".\free42.h"\
-	".\shell.h"\
-	".\shell_spool.h"\
-	
-NODEP_CPP_CORE_M=\
-	".\MathLib.h"\
-	
-
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Debug"
-
-DEP_CPP_CORE_M=\
-	".\bcdfloat.h"\
-	".\core_commands2.h"\
-	".\core_commands4.h"\
-	".\core_display.h"\
-	".\core_globals.h"\
-	".\core_helpers.h"\
-	".\core_keydown.h"\
-	".\core_main.h"\
-	".\core_math1.h"\
-	".\core_phloat.h"\
-	".\core_sto_rcl.h"\
-	".\core_tables.h"\
-	".\core_variables.h"\
-	".\free42.h"\
-	".\shell.h"\
-	".\shell_spool.h"\
-	
-NODEP_CPP_CORE_M=\
-	".\MathLib.h"\
-	
 
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Release"
 
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+
 DEP_CPP_CORE_M=\
 	".\bcdfloat.h"\
 	".\core_commands2.h"\
@@ -1305,7 +1724,79 @@ NODEP_CPP_CORE_M=\
 	".\MathLib.h"\
 	
 
-!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Debug"
+
+DEP_CPP_CORE_M=\
+	".\bcdfloat.h"\
+	".\core_commands2.h"\
+	".\core_commands4.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_keydown.h"\
+	".\core_main.h"\
+	".\core_math1.h"\
+	".\core_phloat.h"\
+	".\core_sto_rcl.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	".\shell.h"\
+	".\shell_spool.h"\
+	
+NODEP_CPP_CORE_M=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Release"
+
+DEP_CPP_CORE_M=\
+	".\bcdfloat.h"\
+	".\core_commands2.h"\
+	".\core_commands4.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_keydown.h"\
+	".\core_main.h"\
+	".\core_math1.h"\
+	".\core_phloat.h"\
+	".\core_sto_rcl.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	".\shell.h"\
+	".\shell_spool.h"\
+	
+NODEP_CPP_CORE_M=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Debug"
+
+DEP_CPP_CORE_M=\
+	".\bcdfloat.h"\
+	".\core_commands2.h"\
+	".\core_commands4.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_keydown.h"\
+	".\core_main.h"\
+	".\core_math1.h"\
+	".\core_phloat.h"\
+	".\core_sto_rcl.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	".\shell.h"\
+	".\shell_spool.h"\
+	
+NODEP_CPP_CORE_M=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Release"
 
 DEP_CPP_CORE_M=\
 	".\bcdfloat.h"\
@@ -1338,46 +1829,12 @@ SOURCE=.\core_math1.cpp
 
 !IF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Release"
 
-DEP_CPP_CORE_MA=\
-	".\bcdfloat.h"\
-	".\core_commands2.h"\
-	".\core_display.h"\
-	".\core_globals.h"\
-	".\core_helpers.h"\
-	".\core_main.h"\
-	".\core_math1.h"\
-	".\core_phloat.h"\
-	".\core_tables.h"\
-	".\core_variables.h"\
-	".\free42.h"\
-	".\shell.h"\
-	
-NODEP_CPP_CORE_MA=\
-	".\MathLib.h"\
-	
-
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Debug"
-
-DEP_CPP_CORE_MA=\
-	".\bcdfloat.h"\
-	".\core_commands2.h"\
-	".\core_display.h"\
-	".\core_globals.h"\
-	".\core_helpers.h"\
-	".\core_main.h"\
-	".\core_math1.h"\
-	".\core_phloat.h"\
-	".\core_tables.h"\
-	".\core_variables.h"\
-	".\free42.h"\
-	".\shell.h"\
-	
-NODEP_CPP_CORE_MA=\
-	".\MathLib.h"\
-	
 
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Release"
 
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+
 DEP_CPP_CORE_MA=\
 	".\bcdfloat.h"\
 	".\core_commands2.h"\
@@ -1396,7 +1853,67 @@ NODEP_CPP_CORE_MA=\
 	".\MathLib.h"\
 	
 
-!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Debug"
+
+DEP_CPP_CORE_MA=\
+	".\bcdfloat.h"\
+	".\core_commands2.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_main.h"\
+	".\core_math1.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	".\shell.h"\
+	
+NODEP_CPP_CORE_MA=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Release"
+
+DEP_CPP_CORE_MA=\
+	".\bcdfloat.h"\
+	".\core_commands2.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_main.h"\
+	".\core_math1.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	".\shell.h"\
+	
+NODEP_CPP_CORE_MA=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Debug"
+
+DEP_CPP_CORE_MA=\
+	".\bcdfloat.h"\
+	".\core_commands2.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_main.h"\
+	".\core_math1.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	".\shell.h"\
+	
+NODEP_CPP_CORE_MA=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Release"
 
 DEP_CPP_CORE_MA=\
 	".\bcdfloat.h"\
@@ -1425,34 +1942,12 @@ SOURCE=.\core_math2.cpp
 
 !IF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Release"
 
-DEP_CPP_CORE_MAT=\
-	".\bcdfloat.h"\
-	".\core_globals.h"\
-	".\core_math2.h"\
-	".\core_phloat.h"\
-	".\core_tables.h"\
-	".\free42.h"\
-	
-NODEP_CPP_CORE_MAT=\
-	".\MathLib.h"\
-	
-
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Debug"
-
-DEP_CPP_CORE_MAT=\
-	".\bcdfloat.h"\
-	".\core_globals.h"\
-	".\core_math2.h"\
-	".\core_phloat.h"\
-	".\core_tables.h"\
-	".\free42.h"\
-	
-NODEP_CPP_CORE_MAT=\
-	".\MathLib.h"\
-	
 
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Release"
 
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+
 DEP_CPP_CORE_MAT=\
 	".\bcdfloat.h"\
 	".\core_globals.h"\
@@ -1465,7 +1960,49 @@ NODEP_CPP_CORE_MAT=\
 	".\MathLib.h"\
 	
 
-!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Debug"
+
+DEP_CPP_CORE_MAT=\
+	".\bcdfloat.h"\
+	".\core_globals.h"\
+	".\core_math2.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\free42.h"\
+	
+NODEP_CPP_CORE_MAT=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Release"
+
+DEP_CPP_CORE_MAT=\
+	".\bcdfloat.h"\
+	".\core_globals.h"\
+	".\core_math2.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\free42.h"\
+	
+NODEP_CPP_CORE_MAT=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Debug"
+
+DEP_CPP_CORE_MAT=\
+	".\bcdfloat.h"\
+	".\core_globals.h"\
+	".\core_math2.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\free42.h"\
+	
+NODEP_CPP_CORE_MAT=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Release"
 
 DEP_CPP_CORE_MAT=\
 	".\bcdfloat.h"\
@@ -1488,40 +2025,12 @@ SOURCE=.\core_phloat.cpp
 
 !IF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Release"
 
-DEP_CPP_CORE_P=\
-	".\bcd.h"\
-	".\bcdfloat.h"\
-	".\bcdmath.h"\
-	".\core_globals.h"\
-	".\core_helpers.h"\
-	".\core_phloat.h"\
-	".\core_tables.h"\
-	".\free42.h"\
-	".\shell.h"\
-	
-NODEP_CPP_CORE_P=\
-	".\MathLib.h"\
-	
-
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Debug"
-
-DEP_CPP_CORE_P=\
-	".\bcd.h"\
-	".\bcdfloat.h"\
-	".\bcdmath.h"\
-	".\core_globals.h"\
-	".\core_helpers.h"\
-	".\core_phloat.h"\
-	".\core_tables.h"\
-	".\free42.h"\
-	".\shell.h"\
-	
-NODEP_CPP_CORE_P=\
-	".\MathLib.h"\
-	
 
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Release"
 
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+
 DEP_CPP_CORE_P=\
 	".\bcd.h"\
 	".\bcdfloat.h"\
@@ -1537,7 +2046,58 @@ NODEP_CPP_CORE_P=\
 	".\MathLib.h"\
 	
 
-!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Debug"
+
+DEP_CPP_CORE_P=\
+	".\bcd.h"\
+	".\bcdfloat.h"\
+	".\bcdmath.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\free42.h"\
+	".\shell.h"\
+	
+NODEP_CPP_CORE_P=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Release"
+
+DEP_CPP_CORE_P=\
+	".\bcd.h"\
+	".\bcdfloat.h"\
+	".\bcdmath.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\free42.h"\
+	".\shell.h"\
+	
+NODEP_CPP_CORE_P=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Debug"
+
+DEP_CPP_CORE_P=\
+	".\bcd.h"\
+	".\bcdfloat.h"\
+	".\bcdmath.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\free42.h"\
+	".\shell.h"\
+	
+NODEP_CPP_CORE_P=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Release"
 
 DEP_CPP_CORE_P=\
 	".\bcd.h"\
@@ -1563,40 +2123,12 @@ SOURCE=.\core_sto_rcl.cpp
 
 !IF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Release"
 
-DEP_CPP_CORE_S=\
-	".\bcdfloat.h"\
-	".\core_globals.h"\
-	".\core_helpers.h"\
-	".\core_linalg1.h"\
-	".\core_phloat.h"\
-	".\core_sto_rcl.h"\
-	".\core_tables.h"\
-	".\core_variables.h"\
-	".\free42.h"\
-	
-NODEP_CPP_CORE_S=\
-	".\MathLib.h"\
-	
-
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Debug"
-
-DEP_CPP_CORE_S=\
-	".\bcdfloat.h"\
-	".\core_globals.h"\
-	".\core_helpers.h"\
-	".\core_linalg1.h"\
-	".\core_phloat.h"\
-	".\core_sto_rcl.h"\
-	".\core_tables.h"\
-	".\core_variables.h"\
-	".\free42.h"\
-	
-NODEP_CPP_CORE_S=\
-	".\MathLib.h"\
-	
 
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Release"
 
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+
 DEP_CPP_CORE_S=\
 	".\bcdfloat.h"\
 	".\core_globals.h"\
@@ -1612,7 +2144,58 @@ NODEP_CPP_CORE_S=\
 	".\MathLib.h"\
 	
 
-!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Debug"
+
+DEP_CPP_CORE_S=\
+	".\bcdfloat.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_linalg1.h"\
+	".\core_phloat.h"\
+	".\core_sto_rcl.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	
+NODEP_CPP_CORE_S=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Release"
+
+DEP_CPP_CORE_S=\
+	".\bcdfloat.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_linalg1.h"\
+	".\core_phloat.h"\
+	".\core_sto_rcl.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	
+NODEP_CPP_CORE_S=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Debug"
+
+DEP_CPP_CORE_S=\
+	".\bcdfloat.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_linalg1.h"\
+	".\core_phloat.h"\
+	".\core_sto_rcl.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	
+NODEP_CPP_CORE_S=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Release"
 
 DEP_CPP_CORE_S=\
 	".\bcdfloat.h"\
@@ -1638,44 +2221,12 @@ SOURCE=.\core_tables.cpp
 
 !IF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Release"
 
-DEP_CPP_CORE_T=\
-	".\bcdfloat.h"\
-	".\core_commands1.h"\
-	".\core_commands2.h"\
-	".\core_commands3.h"\
-	".\core_commands4.h"\
-	".\core_commands5.h"\
-	".\core_commands6.h"\
-	".\core_globals.h"\
-	".\core_phloat.h"\
-	".\core_tables.h"\
-	".\free42.h"\
-	
-NODEP_CPP_CORE_T=\
-	".\MathLib.h"\
-	
-
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Debug"
-
-DEP_CPP_CORE_T=\
-	".\bcdfloat.h"\
-	".\core_commands1.h"\
-	".\core_commands2.h"\
-	".\core_commands3.h"\
-	".\core_commands4.h"\
-	".\core_commands5.h"\
-	".\core_commands6.h"\
-	".\core_globals.h"\
-	".\core_phloat.h"\
-	".\core_tables.h"\
-	".\free42.h"\
-	
-NODEP_CPP_CORE_T=\
-	".\MathLib.h"\
-	
 
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Release"
 
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+
 DEP_CPP_CORE_T=\
 	".\bcdfloat.h"\
 	".\core_commands1.h"\
@@ -1693,7 +2244,64 @@ NODEP_CPP_CORE_T=\
 	".\MathLib.h"\
 	
 
-!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Debug"
+
+DEP_CPP_CORE_T=\
+	".\bcdfloat.h"\
+	".\core_commands1.h"\
+	".\core_commands2.h"\
+	".\core_commands3.h"\
+	".\core_commands4.h"\
+	".\core_commands5.h"\
+	".\core_commands6.h"\
+	".\core_globals.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\free42.h"\
+	
+NODEP_CPP_CORE_T=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Release"
+
+DEP_CPP_CORE_T=\
+	".\bcdfloat.h"\
+	".\core_commands1.h"\
+	".\core_commands2.h"\
+	".\core_commands3.h"\
+	".\core_commands4.h"\
+	".\core_commands5.h"\
+	".\core_commands6.h"\
+	".\core_globals.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\free42.h"\
+	
+NODEP_CPP_CORE_T=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Debug"
+
+DEP_CPP_CORE_T=\
+	".\bcdfloat.h"\
+	".\core_commands1.h"\
+	".\core_commands2.h"\
+	".\core_commands3.h"\
+	".\core_commands4.h"\
+	".\core_commands5.h"\
+	".\core_commands6.h"\
+	".\core_globals.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\free42.h"\
+	
+NODEP_CPP_CORE_T=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Release"
 
 DEP_CPP_CORE_T=\
 	".\bcdfloat.h"\
@@ -1721,38 +2329,12 @@ SOURCE=.\core_variables.cpp
 
 !IF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Release"
 
-DEP_CPP_CORE_V=\
-	".\bcdfloat.h"\
-	".\core_display.h"\
-	".\core_globals.h"\
-	".\core_helpers.h"\
-	".\core_phloat.h"\
-	".\core_tables.h"\
-	".\core_variables.h"\
-	".\free42.h"\
-	
-NODEP_CPP_CORE_V=\
-	".\MathLib.h"\
-	
-
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Debug"
-
-DEP_CPP_CORE_V=\
-	".\bcdfloat.h"\
-	".\core_display.h"\
-	".\core_globals.h"\
-	".\core_helpers.h"\
-	".\core_phloat.h"\
-	".\core_tables.h"\
-	".\core_variables.h"\
-	".\free42.h"\
-	
-NODEP_CPP_CORE_V=\
-	".\MathLib.h"\
-	
 
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Release"
 
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+
 DEP_CPP_CORE_V=\
 	".\bcdfloat.h"\
 	".\core_display.h"\
@@ -1767,7 +2349,55 @@ NODEP_CPP_CORE_V=\
 	".\MathLib.h"\
 	
 
-!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Debug"
+
+DEP_CPP_CORE_V=\
+	".\bcdfloat.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	
+NODEP_CPP_CORE_V=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Release"
+
+DEP_CPP_CORE_V=\
+	".\bcdfloat.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	
+NODEP_CPP_CORE_V=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Debug"
+
+DEP_CPP_CORE_V=\
+	".\bcdfloat.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_helpers.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\core_variables.h"\
+	".\free42.h"\
+	
+NODEP_CPP_CORE_V=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Release"
 
 DEP_CPP_CORE_V=\
 	".\bcdfloat.h"\
@@ -1798,6 +2428,14 @@ SOURCE=.\Free42.rc
 
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
 
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Debug"
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Release"
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Debug"
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Release"
+
 !ENDIF 
 
 # End Source File
@@ -1813,6 +2451,14 @@ SOURCE=.\keymap.cpp
 
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
 
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Debug"
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Release"
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Debug"
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Release"
+
 !ENDIF 
 
 # End Source File
@@ -1822,24 +2468,12 @@ SOURCE=.\mathfudge.c
 
 !IF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Release"
 
-DEP_CPP_MATHF=\
-	".\free42.h"\
-	
-NODEP_CPP_MATHF=\
-	".\MathLib.h"\
-	
-
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Debug"
-
-DEP_CPP_MATHF=\
-	".\free42.h"\
-	
-NODEP_CPP_MATHF=\
-	".\MathLib.h"\
-	
 
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Release"
 
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+
 DEP_CPP_MATHF=\
 	".\free42.h"\
 	
@@ -1847,7 +2481,34 @@ NODEP_CPP_MATHF=\
 	".\MathLib.h"\
 	
 
-!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Debug"
+
+DEP_CPP_MATHF=\
+	".\free42.h"\
+	
+NODEP_CPP_MATHF=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Release"
+
+DEP_CPP_MATHF=\
+	".\free42.h"\
+	
+NODEP_CPP_MATHF=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Debug"
+
+DEP_CPP_MATHF=\
+	".\free42.h"\
+	
+NODEP_CPP_MATHF=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Release"
 
 DEP_CPP_MATHF=\
 	".\free42.h"\
@@ -1871,6 +2532,14 @@ SOURCE=.\msg2string.cpp
 
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
 
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Debug"
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Release"
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Debug"
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Release"
+
 !ENDIF 
 
 # End Source File
@@ -1879,6 +2548,12 @@ SOURCE=.\msg2string.cpp
 SOURCE=.\shell.cpp
 
 !IF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Release"
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Debug"
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Release"
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_SHELL=\
 	".\bcdfloat.h"\
@@ -1901,7 +2576,7 @@ NODEP_CPP_SHELL=\
 	".\ygshell.h"\
 	
 
-!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Debug"
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Debug"
 
 DEP_CPP_SHELL=\
 	".\bcdfloat.h"\
@@ -1916,16 +2591,14 @@ DEP_CPP_SHELL=\
 	".\shell_skin.h"\
 	".\shell_spool.h"\
 	".\StdAfx.h"\
-	{$(INCLUDE)}"aygshell.h"\
-	{$(INCLUDE)}"sipapi.h"\
-	{$(INCLUDE)}"winuserm.h"\
 	
 NODEP_CPP_SHELL=\
-	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\emulator\vibrate.h"\
+	".\ipapi.h"\
 	".\MathLib.h"\
+	".\ygshell.h"\
 	
 
-!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Release"
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Release"
 
 DEP_CPP_SHELL=\
 	".\bcdfloat.h"\
@@ -1935,31 +2608,57 @@ DEP_CPP_SHELL=\
 	".\core_phloat.h"\
 	".\core_tables.h"\
 	".\free42.h"\
+	".\msg2string.h"\
 	".\shell.h"\
 	".\shell_skin.h"\
 	".\shell_spool.h"\
 	".\StdAfx.h"\
 	
 NODEP_CPP_SHELL=\
-	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
-	".\inuserm.h"\
 	".\ipapi.h"\
 	".\MathLib.h"\
 	".\ygshell.h"\
 	
 
-!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Debug"
 
 DEP_CPP_SHELL=\
+	".\bcdfloat.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
 	".\core_main.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
 	".\free42.h"\
+	".\msg2string.h"\
 	".\shell.h"\
 	".\shell_skin.h"\
+	".\shell_spool.h"\
 	".\StdAfx.h"\
 	
 NODEP_CPP_SHELL=\
-	"..\..\..\..\..\Program Files\Windows CE Tools\wce420\POCKET PC 2003\Include\ARMV4\vibrate.h"\
-	".\inuserm.h"\
+	".\ipapi.h"\
+	".\MathLib.h"\
+	".\ygshell.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Release"
+
+DEP_CPP_SHELL=\
+	".\bcdfloat.h"\
+	".\core_display.h"\
+	".\core_globals.h"\
+	".\core_main.h"\
+	".\core_phloat.h"\
+	".\core_tables.h"\
+	".\free42.h"\
+	".\msg2string.h"\
+	".\shell.h"\
+	".\shell_skin.h"\
+	".\shell_spool.h"\
+	".\StdAfx.h"\
+	
+NODEP_CPP_SHELL=\
 	".\ipapi.h"\
 	".\MathLib.h"\
 	".\ygshell.h"\
@@ -1974,23 +2673,35 @@ SOURCE=.\shell_loadimage.cpp
 
 !IF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Release"
 
-DEP_CPP_SHELL_=\
-	".\shell_skin.h"\
-	
-
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Debug"
-
-DEP_CPP_SHELL_=\
-	".\shell_skin.h"\
-	
 
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Release"
 
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+
 DEP_CPP_SHELL_=\
 	".\shell_skin.h"\
 	
 
-!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Debug"
+
+DEP_CPP_SHELL_=\
+	".\shell_skin.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Release"
+
+DEP_CPP_SHELL_=\
+	".\shell_skin.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Debug"
+
+DEP_CPP_SHELL_=\
+	".\shell_skin.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Release"
 
 DEP_CPP_SHELL_=\
 	".\shell_skin.h"\
@@ -2005,30 +2716,12 @@ SOURCE=.\shell_skin.cpp
 
 !IF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Release"
 
-DEP_CPP_SHELL_S=\
-	".\core_main.h"\
-	".\free42.h"\
-	".\shell_loadimage.h"\
-	".\shell_skin.h"\
-	
-NODEP_CPP_SHELL_S=\
-	".\MathLib.h"\
-	
-
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Debug"
-
-DEP_CPP_SHELL_S=\
-	".\core_main.h"\
-	".\free42.h"\
-	".\shell_loadimage.h"\
-	".\shell_skin.h"\
-	
-NODEP_CPP_SHELL_S=\
-	".\MathLib.h"\
-	
 
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Release"
 
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+
 DEP_CPP_SHELL_S=\
 	".\core_main.h"\
 	".\free42.h"\
@@ -2039,7 +2732,43 @@ NODEP_CPP_SHELL_S=\
 	".\MathLib.h"\
 	
 
-!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Debug"
+
+DEP_CPP_SHELL_S=\
+	".\core_main.h"\
+	".\free42.h"\
+	".\shell_loadimage.h"\
+	".\shell_skin.h"\
+	
+NODEP_CPP_SHELL_S=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Release"
+
+DEP_CPP_SHELL_S=\
+	".\core_main.h"\
+	".\free42.h"\
+	".\shell_loadimage.h"\
+	".\shell_skin.h"\
+	
+NODEP_CPP_SHELL_S=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Debug"
+
+DEP_CPP_SHELL_S=\
+	".\core_main.h"\
+	".\free42.h"\
+	".\shell_loadimage.h"\
+	".\shell_skin.h"\
+	
+NODEP_CPP_SHELL_S=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Release"
 
 DEP_CPP_SHELL_S=\
 	".\core_main.h"\
@@ -2060,28 +2789,12 @@ SOURCE=.\shell_spool.cpp
 
 !IF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Release"
 
-DEP_CPP_SHELL_SP=\
-	".\core_main.h"\
-	".\free42.h"\
-	".\shell_spool.h"\
-	
-NODEP_CPP_SHELL_SP=\
-	".\MathLib.h"\
-	
-
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE emulator) Debug"
-
-DEP_CPP_SHELL_SP=\
-	".\core_main.h"\
-	".\free42.h"\
-	".\shell_spool.h"\
-	
-NODEP_CPP_SHELL_SP=\
-	".\MathLib.h"\
-	
 
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Release"
 
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+
 DEP_CPP_SHELL_SP=\
 	".\core_main.h"\
 	".\free42.h"\
@@ -2091,7 +2804,40 @@ NODEP_CPP_SHELL_SP=\
 	".\MathLib.h"\
 	
 
-!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Debug"
+
+DEP_CPP_SHELL_SP=\
+	".\core_main.h"\
+	".\free42.h"\
+	".\shell_spool.h"\
+	
+NODEP_CPP_SHELL_SP=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Release"
+
+DEP_CPP_SHELL_SP=\
+	".\core_main.h"\
+	".\free42.h"\
+	".\shell_spool.h"\
+	
+NODEP_CPP_SHELL_SP=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Debug"
+
+DEP_CPP_SHELL_SP=\
+	".\core_main.h"\
+	".\free42.h"\
+	".\shell_spool.h"\
+	
+NODEP_CPP_SHELL_SP=\
+	".\MathLib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Release"
 
 DEP_CPP_SHELL_SP=\
 	".\core_main.h"\
@@ -2116,6 +2862,14 @@ SOURCE=.\skins.cpp
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Release"
 
 !ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARMV4) Debug"
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Debug"
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Release"
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Debug"
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Release"
 
 !ENDIF 
 
@@ -2157,6 +2911,30 @@ DEP_CPP_STDAF=\
 	".\StdAfx.h"\
 	
 # ADD CPP /Yc"stdafx.h"
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Debug"
+
+DEP_CPP_STDAF=\
+	".\StdAfx.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE ARM) Release"
+
+DEP_CPP_STDAF=\
+	".\StdAfx.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Debug"
+
+DEP_CPP_STDAF=\
+	".\StdAfx.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Binary - Win32 (WCE x86) Release"
+
+DEP_CPP_STDAF=\
+	".\StdAfx.h"\
+	
 
 !ENDIF 
 
