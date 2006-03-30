@@ -1,3 +1,7 @@
+Decimal version: inverting a 3x3 zero matrix returns something different than
+the Binary version. The latter's behavior is consistent with that of the 42S,
+the former is not. How come?
+
 Make the orange labels on the PocketPC "Standard" skin larger. The buttons can
 easily be made 2 pixels shorter, which creates room to make the orange labels 2
 pixels taller -- like they are on the Windows/Unix "Standard" skin.
