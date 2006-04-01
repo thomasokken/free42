@@ -1,4 +1,4 @@
-??-??-????: version 1.4.8
+01-04-2006: version 1.4.8
 
 * Changed implementations of X<=Y? and X>=Y? so they now actually return x<=y
   and x>=y, respectively; formerly, they returned !(x>y) and !(x<y), which is
