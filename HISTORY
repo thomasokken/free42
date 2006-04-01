@@ -1,3 +1,12 @@
+01-04-2006: version 1.4.7
+
+* Decimal versions: in BCDFloat::mul(), multiplications by zero could return
+  values with zero mantissas (good) but nonzero exponents (bad). After several
+  such multiplications, the exponents could get into the "special" ranges (i.e.
+  Infinities and NaNs). Result: 0 * 0 => Nan, etc. Fixed.
+* Fixed BCDFloat::sub() so that it will not return -0. It used to do that when
+  computing 0 - 0. I think this was harmless, but I fixed it anyway.
+
 26-03-2006: version 1.4.6
 
 * New: Pocket PC version.

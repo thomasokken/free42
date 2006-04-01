@@ -522,13 +522,13 @@ void BCDFloat::add(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
 
 void BCDFloat::sub(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
 {
+    if (b->isZero()) {
+	*c = *a;
+	return;
+    }
     if (a->isZero()) {
 	*c = *b;
 	c->negate();
-	return;
-    }
-    if (b->isZero()) {
-	*c = *a;
 	return;
     }
 
@@ -706,6 +706,16 @@ void BCDFloat::_usub(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
 
 void BCDFloat::mul(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
 {
+    if (a->isZero() && !b->isSpecial()) {
+	c->_init();
+	return;
+    }
+
+    if (b->isZero() && !a->isSpecial()) {
+	c->_init();
+	return;
+    }
+
     int na = a->neg();
     int nb = b->neg();
 
