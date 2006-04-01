@@ -147,13 +147,13 @@ struct BCDFloat
     static void         div(const BCDFloat* a, const BCDFloat* b, BCDFloat* c) BCD_SECT;
     static bool         sqrt(const BCDFloat* a, BCDFloat* ra) BCD_SECT;
 
+    static int          cmp(const BCDFloat *a, const BCDFloat *b) BCD_SECT;
     static bool         lt(const BCDFloat* a, const BCDFloat* b) BCD_SECT;
     static bool         le(const BCDFloat* a, const BCDFloat* b) BCD_SECT;
-    static bool         gt(const BCDFloat* a, const BCDFloat* b)
-                                { return lt(b, a); }
-    static bool         ge(const BCDFloat* a, const BCDFloat* b)
-                                { return le(b, a); }
+    static bool         gt(const BCDFloat* a, const BCDFloat* b) BCD_SECT;
+    static bool         ge(const BCDFloat* a, const BCDFloat* b) BCD_SECT;
     static bool         equal(const BCDFloat* a, const BCDFloat* b) BCD_SECT;
+
     static int4         ifloor(const BCDFloat* a) BCD_SECT;
     static bool         floor(const BCDFloat* a, BCDFloat* c) BCD_SECT;
     static bool         trunc(const BCDFloat* a, BCDFloat* c) BCD_SECT;

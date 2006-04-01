@@ -145,9 +145,11 @@ struct BCD
     bool                isInteger() const
                                 { return !ref_ || ref_->v_.isInteger(); }
 
-    // Comparision
+    // Comparison
     friend bool         operator==(const BCD& a, const BCD& b)
                         { return BCDFloat::equal(&a.ref_->v_, &b.ref_->v_); }
+    friend bool         operator!=(const BCD& a, const BCD& b)
+                        { return !BCDFloat::equal(&a.ref_->v_, &b.ref_->v_); }
     friend bool         operator<(const BCD& a, const BCD& b)
                         { return BCDFloat::lt(&a.ref_->v_, &b.ref_->v_); }
     friend bool         operator<=(const BCD& a, const BCD& b)

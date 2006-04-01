@@ -1,3 +1,14 @@
+??-??-????: version 1.4.8
+
+* Changed implementations of X<=Y? and X>=Y? so they now actually return x<=y
+  and x>=y, respectively; formerly, they returned !(x>y) and !(x<y), which is
+  fine in most cases, except when NaNs are involved.
+* Decimal versions: rewrote BCDFloat comparison functions so they now handle
+  NaNs properly; also, inequalities now return correct results for numbers
+  whose difference is too small to represent (e.g. 1.1e-10000 1e-10000 X<Y?
+  used to return 'false', because it would subtract the two numbers and then
+  compare the result to 0 -- with no check for underflow).
+
 01-04-2006: version 1.4.7
 
 * Decimal versions: in BCDFloat::mul(), multiplications by zero could return

@@ -1224,36 +1224,88 @@ bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
     return true;
 }
 
+int BCDFloat::cmp(const BCDFloat *a, const BCDFloat *b) {
+    if (a->isNan() || b->isNan())
+	// NaNs are not equal to anything, even themselves;
+	// ALL comparisions involving them should return 'false'
+	// (except '!=', which should return 'true').
+	// So, I return a special value here.
+	return 2;
+
+    if (a->isInf()) {
+	if (b->isInf()) {
+	    if (a->neg())
+		return b->neg() ? 0 : -1;
+	    else
+		return b->neg() ? 1 : 0;
+	} else
+	    return a->neg() ? -1 : 1;
+    }
+    if (b->isInf())
+	return b->neg() ? 1 : -1;
+
+    bool sa = a->neg();
+    bool sb = b->neg();
+    if (sa != sb)
+	return sa ? -1 : 1;
+
+    // If a and b are both negative, switch them. This way, I can
+    // ignore signs in the remainder of this method.
+    if (sa) {
+	const BCDFloat *tmp = a;
+	a = b;
+	b = tmp;
+    }
+
+    if (a->isZero())
+	return b->isZero() ? 0 : -1;
+    if (b->isZero())
+	return 1;
+
+    int ea = a->exp();
+    int eb = b->exp();
+    if (ea != eb)
+	return ea < eb ? -1 : 1;
+
+    for (int i = 0; i < P; i++) {
+	int da = a->d_[i];
+	int db = b->d_[i];
+	if (da != db)
+	    return da < db ? -1 : 1;
+    }
+
+    return 0;
+}
+
 bool BCDFloat::lt(const BCDFloat* a, const BCDFloat* b)
 {
     /* true iff a < b */
-    BCDFloat c;
-    sub(a, b, &c);
-    return c.neg();
+    return cmp(a, b) == -1;
 }
 
 bool BCDFloat::le(const BCDFloat* a, const BCDFloat* b)
 {
     /* true iff a <= b */
-    BCDFloat c;
-    sub(a, b, &c);
-    return c.isZero() || c.neg();
+    int res = cmp(a, b);
+    return res == -1 || res == 0;
+}
+
+bool BCDFloat::gt(const BCDFloat* a, const BCDFloat* b)
+{
+    /* true iff a > b */
+    return cmp(a, b) == 1;
+}
+
+bool BCDFloat::ge(const BCDFloat* a, const BCDFloat* b)
+{
+    /* true iff a >= b */
+    int res = cmp(a, b);
+    return res == 1 || res == 0;
 }
 
 bool BCDFloat::equal(const BCDFloat* a, const BCDFloat* b)
 {
-    /* handle zero separately, to prevent zeroes with unequal
-     * exponents from being considered different.
-     */
-    if (a->isZero() && b->isZero())
-	return true;
-
-    /* compare the memory */
-    int i;
-    for (i = 0; i <= P; ++i) {
-        if (a->d_[i] != b->d_[i]) return false;
-    }
-    return true;
+    return cmp(a, b) == 0;
 }
 
 bool BCDFloat::trunc(const BCDFloat* a, BCDFloat* c)

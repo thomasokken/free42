@@ -1045,26 +1045,40 @@ int docmd_x_gt_y(arg_struct *arg) {
 }
 
 int docmd_x_le_y(arg_struct *arg) {
-    int err = docmd_x_gt_y(arg);
-    switch (err) {
-	case ERR_YES:
-	    return ERR_NO;
-	case ERR_NO:
-	    return ERR_YES;
+    switch (reg_x->type) {
+	case TYPE_REAL: {
+	    if (reg_y->type == TYPE_STRING)
+		return ERR_ALPHA_DATA_IS_INVALID;
+	    else if (reg_y->type != TYPE_REAL)
+		return ERR_INVALID_TYPE;
+	    if (((vartype_real *) reg_x)->x <= ((vartype_real *) reg_y)->x)
+		return ERR_YES;
+	    else
+		return ERR_NO;
+	}
+	case TYPE_STRING:
+	    return ERR_ALPHA_DATA_IS_INVALID;
 	default:
-	    return err;
+	    return ERR_INVALID_TYPE;
     }
 }
 
 int docmd_x_ge_y(arg_struct *arg) {
-    int err = docmd_x_lt_y(arg);
-    switch (err) {
-	case ERR_YES:
-	    return ERR_NO;
-	case ERR_NO:
-	    return ERR_YES;
+    switch (reg_x->type) {
+	case TYPE_REAL: {
+	    if (reg_y->type == TYPE_STRING)
+		return ERR_ALPHA_DATA_IS_INVALID;
+	    else if (reg_y->type != TYPE_REAL)
+		return ERR_INVALID_TYPE;
+	    if (((vartype_real *) reg_x)->x >= ((vartype_real *) reg_y)->x)
+		return ERR_YES;
+	    else
+		return ERR_NO;
+	}
+	case TYPE_STRING:
+	    return ERR_ALPHA_DATA_IS_INVALID;
 	default:
-	    return err;
+	    return ERR_INVALID_TYPE;
     }
 }
 
