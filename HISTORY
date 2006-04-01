@@ -1,8 +1,3 @@
-??-??-????: version 1.4.8
-
-* Added new PocketPC skin with single-click activation of shifted functions to
-  Free42PocketPCSkins.zip package. Contributed by Jeff O.
-
 01-04-2006: version 1.4.7
 
 * Decimal versions: in BCDFloat::mul(), multiplications by zero could return
@@ -11,6 +6,8 @@
   Infinities and NaNs). Result: 0 * 0 => Nan, etc. Fixed.
 * Fixed BCDFloat::sub() so that it will not return -0. It used to do that when
   computing 0 - 0. I think this was harmless, but I fixed it anyway.
+* Added new PocketPC skin with single-click activation of shifted functions to
+  Free42PocketPCSkins.zip package. Contributed by Jeff O.
 
 26-03-2006: version 1.4.6
 
