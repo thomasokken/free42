@@ -7,10 +7,6 @@ room available for taller skins. Apparently, Emu48 and some other applications
 do this. Will need to do a little research there (do I simply use another
 window style? Without a topbar, how do you close the window or switch apps?).
 
-PalmOS version: how do I deal with the potential conflicts between dynamic
-input area switching and screen switching? Should one drive the other, or is it
-possible to support *both* without flakiness?
-
 PalmOS version: repainting the display is slow when using high-resolution
 skins. Moving all multiplications out of the blitter loop did not yield a
 noticeable speed-up, nor did aligning the display bitmap to an even pixel X

@@ -54,6 +54,7 @@ static DmOpenRef skin_db = 0;
 static MemHandle skinH = NULL;
 SkinSpec *skin = NULL;
 SkinSpec2 *skin2;
+static bool skin_tall;
 static MemHandle *skin_bm_h;
 static BitmapType **skin_bm_p;
 static MemHandle *key_up_h;
@@ -230,6 +231,19 @@ static unsigned char *find_macro(int ckey) {
     return NULL;
 }
 
+static void update_dia_state() SHELL2_SECT;
+static void update_dia_state() {
+    if (pen_input_manager_present()) {
+	if (skin_tall) {
+	    PINSetInputTriggerState(pinInputTriggerEnabled);
+	    PINSetInputAreaState(pinInputAreaUser);
+	} else {
+	    PINSetInputTriggerState(pinInputTriggerDisabled);
+	    PINSetInputAreaState(pinInputAreaOpen);
+	}
+    }
+}
+
 void load_skin() {
     int i, n;
     Err err;
@@ -280,8 +294,11 @@ void load_skin() {
 	/* Old-style Skin resource, w/o version; offset 4 bytes */
 	skin = (SkinSpec *) (((char *) skin) - 4);
 	skin2 = NULL;
-    } else
+	skin_tall = false;
+    } else {
 	skin2 = (SkinSpec2 *) (skin->key + skin->nkeys);
+	skin_tall = skin->version[1] >= 2 && skin->version[3] != 0;
+    }
 
     n = skin->sections;
     id = skin->skin_bitmap;
@@ -1040,6 +1057,7 @@ Boolean form_handler(EventType *e) {
 			    unload_skin();
 			    load_skin();
 			    core_repaint_display();
+			    update_dia_state();
 			    if (feature_set_3_5_present())
 				FrmUpdateForm(calcform_id, frmRedrawUpdateCode);
 			    else {
@@ -1099,6 +1117,7 @@ Boolean form_handler(EventType *e) {
 			unload_skin();
 			load_skin();
 			core_repaint_display();
+			update_dia_state();
 			FrmUpdateForm(calcform_id, frmRedrawUpdateCode);
 			return true;
 		    } else {
@@ -1581,8 +1600,13 @@ Boolean handle_event(EventType *e) {
 	    if (pen_input_manager_present()) {
 		if (e->data.winEnter.enterWindow ==
 				(WinHandle) FrmGetFormPtr(calcform_id)) {
-		    PINSetInputTriggerState(pinInputTriggerEnabled);
-		    PINSetInputAreaState(pinInputAreaUser);
+		    if (skin_tall) {
+			PINSetInputTriggerState(pinInputTriggerEnabled);
+			PINSetInputAreaState(pinInputAreaUser);
+		    } else {
+			PINSetInputTriggerState(pinInputTriggerDisabled);
+			PINSetInputAreaState(pinInputAreaOpen);
+		    }
 		} else {
 		    PINSetInputTriggerState(pinInputTriggerDisabled);
 		    PINSetInputAreaState(pinInputAreaClosed);
@@ -2416,6 +2440,8 @@ static void do_delete_skin() {
 		StrCopy(state.skinName, skin_name[0]);
 		unload_skin();
 		load_skin();
+		core_repaint_display();
+		update_dia_state();
 		if (feature_set_3_5_present())
 		    FrmUpdateForm(calcform_id, frmRedrawUpdateCode);
 		else {
