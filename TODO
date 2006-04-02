@@ -19,6 +19,10 @@ in shell_blitter(), and call WinDrawBitmap() with the smallest possible
 rectangle. Note that this drastic approach may require some help from the core
 (need to make sure we don't receive unnecessary clear-display requests; those
 would completely defeat this acceleration scheme).
+UPDATE: there may be a really simple solution: use WinSetScalingMode() to
+disable bitmap scaling, and then use a plain old-fashioned low-density bitmap
+for the display. Not sure *why* that would perform better than using a V3
+pixmap (it's still the same number of pixels), but heck, it's worth a try.
 
 Auto-repeat: for keys where the usual holding-down behavior isn't needed
 (number keys, backspace, etc.) it might be nice to support auto-repeat.
