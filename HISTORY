@@ -1,9 +1,12 @@
-??-??-????: version 1.4.9
+02-04-2006: version 1.4.9
 
-* PalmOS version: added support for tall (320x450) skins.
 * PalmOS version: optimized display updating code. For high-density skins,
   display updates are now about 3 times faster than before; this should make
   HD skins much more usable (more responsive).
+* PalmOS version: added support for tall (320x450) skins.
+* Added new "realistic" 320x450 skin to Free42PalmOSSkins.zip package. It's
+  not great; just a quick-and-dirty, proof-of-concept adaptation of Ehrling42sm
+  from the Windows/Unix skin collection.
 
 01-04-2006: version 1.4.8
 

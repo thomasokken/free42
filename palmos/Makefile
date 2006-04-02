@@ -143,10 +143,15 @@ SemiAuto42HD.prc: skin2prc
 	./make-skin ../palmskins/SemiAuto42HD.layout \
 		../palmskins/SemiAuto42HD.gif 1000 2000 1,4,8 144 SemiAuto42HD off 2
 
-Free42PalmOSSkins.zip: Reverse.prc StandardHD.prc SemiReal42.prc SemiReal42HD.prc SemiAuto42HD.prc
+Ehrling42sm.prc: skin2prc
+	./make-skin ../palmskins/Ehrling42sm.layout \
+		../palmskins/Ehrling42sm.gif 1000 2000 1,4,8 144 Ehrling42sm off 2
+
+Free42PalmOSSkins.zip: Reverse.prc StandardHD.prc SemiReal42.prc SemiReal42HD.prc SemiAuto42HD.prc Ehrling42sm.prc
 	rm -f Free42PalmOSSkins.zip
 	zip Free42PalmOSSkins.zip Reverse.prc StandardHD.prc \
-		SemiReal42.prc SemiReal42HD.prc SemiAuto42HD.prc
+		SemiReal42.prc SemiReal42HD.prc SemiAuto42HD.prc \
+		Ehrling42sm.prc
 
 skin2prc: skin2prc.cc skin2prc.h
 	c++ -o skin2prc skin2prc.cc
