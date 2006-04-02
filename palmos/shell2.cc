@@ -119,15 +119,17 @@ static void make_skin_list() {
     LocalID dbid;
     int i, n;
 
-    //int allow_hd = feature_set_high_density_present();
-    UInt32 attr;
-    WinScreenGetAttribute(winScreenDensity, &attr);
-    bool allow_hd = attr == kDensityDouble;
-
-    UInt32 sw, sh;
-    WinScreenGetAttribute(winScreenWidth, &sw);
-    WinScreenGetAttribute(winScreenHeight, &sh);
-    bool allow_tall = sh > sw;
+    bool allow_hd = false;
+    bool allow_tall = false;
+    if (feature_set_high_density_present()) {
+	UInt32 attr;
+	WinScreenGetAttribute(winScreenDensity, &attr);
+	allow_hd = attr == kDensityDouble;
+	UInt32 sw, sh;
+	WinScreenGetAttribute(winScreenWidth, &sw);
+	WinScreenGetAttribute(winScreenHeight, &sh);
+	allow_tall = sh > sw;
+    }
 
     if (buf == NULL)
 	ErrFatalDisplayIf(1, "Out of memory while building skin list.");
@@ -233,7 +235,7 @@ static unsigned char *find_macro(int ckey) {
 
 static void update_dia_state() SHELL2_SECT;
 static void update_dia_state() {
-    if (pen_input_manager_present()) {
+    if (pen_input_manager_present() && FrmGetActiveFormID() == calcform_id) {
 	if (skin_tall) {
 	    PINSetInputTriggerState(pinInputTriggerEnabled);
 	    PINSetInputAreaState(pinInputAreaUser);
