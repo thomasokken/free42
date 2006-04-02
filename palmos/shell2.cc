@@ -1579,8 +1579,14 @@ Boolean handle_event(EventType *e) {
 		    (WinHandle) FrmGetFirstForm()) {
 	    can_draw = 1;
 	    if (pen_input_manager_present()) {
-		PINSetInputTriggerState(pinInputTriggerEnabled);
-		PINSetInputAreaState(pinInputAreaUser);
+		if (e->data.winEnter.enterWindow ==
+				(WinHandle) FrmGetFormPtr(calcform_id)) {
+		    PINSetInputTriggerState(pinInputTriggerEnabled);
+		    PINSetInputAreaState(pinInputAreaUser);
+		} else {
+		    PINSetInputTriggerState(pinInputTriggerDisabled);
+		    PINSetInputAreaState(pinInputAreaClosed);
+		}
 		EventType evt;
 		MemSet(&evt, sizeof(EventType), 0);
 		evt.eType = (eventsEnum) winDisplayChangedEvent;

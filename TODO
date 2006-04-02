@@ -7,13 +7,6 @@ room available for taller skins. Apparently, Emu48 and some other applications
 do this. Will need to do a little research there (do I simply use another
 window style? Without a topbar, how do you close the window or switch apps?).
 
-PalmOS version: the initial scroll bar position on the print-out window is
-problematic. The reason is that we're trying to compute that position before we
-even know the size of the print-out window.
-Note that I could work around it all by forcing the dynamic input area closed
-whenever the print-out is displayed. There's something to be said for that,
-since it is not possible to enter any data in the print-out anyway.
-
 PalmOS version: how do I deal with the potential conflicts between dynamic
 input area switching and screen switching? Should one drive the other, or is it
 possible to support *both* without flakiness?
