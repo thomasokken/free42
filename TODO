@@ -8,6 +8,13 @@ do this. Will need to do a little research there (do I simply use another
 window style? Without a topbar, how do you close the window or switch apps?).
 
 PalmOS version: support 320x480 screens, and dynamic screen size changes.
+Use WinScreenGetAttribute() to find the screen size and density (only if High-
+Density Display Feature Set is present!).
+Use SysGetOrientationTriggerState() to find out if orientation changes are
+supported (only if the Pen Input Manager Feature Set is present and returns
+version 1.1!).
+It seems like dynamic input areas are standard if the Pen Input Manager is
+present (any version > 0).
 
 PalmOS version: repainting the display is slow when using high-resolution
 skins. Moving all multiplications out of the blitter loop did not yield a
