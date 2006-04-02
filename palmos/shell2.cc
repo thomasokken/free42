@@ -32,6 +32,7 @@ state_type state;
 BitmapType *disp_bitmap = NULL;
 char *disp_bits_v3 = NULL;
 BitmapType *print_bitmap = NULL;
+int print_gadget_height;
 int want_to_run = 0;
 Int32 timeout3time = -1;
 char *printout = NULL;
@@ -116,7 +117,11 @@ static void make_skin_list() {
     UInt16 card;
     LocalID dbid;
     int i, n;
-    int allow_hd = feature_set_high_density_present();
+
+    //int allow_hd = feature_set_high_density_present();
+    UInt32 attr;
+    WinScreenGetAttribute(winScreenDensity, &attr);
+    int allow_hd = attr == kDensityDouble;
 
     if (buf == NULL)
 	ErrFatalDisplayIf(1, "Out of memory while building skin list.");
@@ -429,6 +434,16 @@ bool feature_set_high_density_present() {
     return hd_present != 0;
 }
 
+bool pen_input_manager_present() {
+    static int pim_present = -1;
+    if (pim_present == -1) {
+	UInt32 version;
+	Err err = FtrGet(pinCreator, pinFtrAPIVersion, &version);
+	pim_present = err == errNone && version > 0;
+    }
+    return pim_present != 0;
+}
+
 void init_shell_state(int4 version) {
     switch (version) {
 	case -1:
@@ -594,15 +609,15 @@ void repaint_printout() {
     if (length < 0)
 	length += PRINT_LINES;
     length -= printout_pos;
-    if (length > 160)
-	length = 160;
+    if (length > print_gadget_height)
+	length = print_gadget_height;
     mybits = (char *) MyGlueBmpGetBits(print_bitmap);
     for (y = 0; y < length; y++) {
 	int4 Y = (printout_top + printout_pos + y) % PRINT_LINES;
 	for (x = 0; x < PRINT_BYTESPERLINE; x++)
 	    mybits[y * 20 + x] = printout[Y * PRINT_BYTESPERLINE + x];
     }
-    for (y = length; y < 160; y++)
+    for (y = length; y < print_gadget_height; y++)
 	for (x = 0; x < 20; x++)
 	    mybits[y * 20 + x] = (y & 1) == 0 ? 0xaa : 0x55;
 
@@ -828,7 +843,7 @@ Boolean form_handler(EventType *e) {
 			int index = FrmGetObjectIndex(form, printscroll_id);
 			ScrollBarType *sb = (ScrollBarType *)
 						FrmGetObjectPtr(form, index);
-			SclSetScrollBar(sb, 0, 0, 0, 160);
+			SclSetScrollBar(sb, 0, 0, 0, print_gadget_height);
 			repaint_printout();
 		    }
 		    return true;
@@ -1326,6 +1341,11 @@ Boolean handle_event(EventType *e) {
 		    UInt16 index = FrmGetObjectIndex(form, calcgadget_id);
 		    FrmSetGadgetHandler(form, index, calcgadget_handler);
 		}
+		if (pen_input_manager_present()) {
+		    WinHandle wh = FrmGetWindowHandle(form);
+		    WinSetConstraintsSize(wh, 160, 160, 225, 160, 160, 160);
+		    FrmSetDIAPolicyAttr(form, frmDIAPolicyCustom);
+		}
 		FrmSetActiveForm(form);
 		FrmSetEventHandler(form, form_handler);
 	    }
@@ -1336,13 +1356,18 @@ Boolean handle_event(EventType *e) {
 		int max = printout_bottom - printout_top;
 		if (max < 0)
 		    max += PRINT_LINES;
-		max = max > 160 ? max - 160 : 0;
+		max = max > print_gadget_height ? max - print_gadget_height : 0;
 		index = FrmGetObjectIndex(form, printscroll_id);
 		sb = (ScrollBarType *) FrmGetObjectPtr(form, index);
-		SclSetScrollBar(sb, printout_pos, 0, max, 160);
+		SclSetScrollBar(sb, printout_pos, 0, max, print_gadget_height);
 		if (feature_set_3_5_present()) {
 		    index = FrmGetObjectIndex(form, printgadget_id);
 		    FrmSetGadgetHandler(form, index, printgadget_handler);
+		}
+		if (pen_input_manager_present()) {
+		    WinHandle wh = FrmGetWindowHandle(form);
+		    WinSetConstraintsSize(wh, 160, 160, 225, 160, 160, 160);
+		    FrmSetDIAPolicyAttr(form, frmDIAPolicyCustom);
 		}
 		FrmSetActiveForm(form);
 		FrmSetEventHandler(form, form_handler);
@@ -1536,8 +1561,56 @@ Boolean handle_event(EventType *e) {
 		|| e->data.winEnter.enterWindow ==
 		    (WinHandle) FrmGetFormPtr(printform_id))
 		&& e->data.winEnter.enterWindow ==
-		    (WinHandle) FrmGetFirstForm())
+		    (WinHandle) FrmGetFirstForm()) {
 	    can_draw = 1;
+	    if (pen_input_manager_present()) {
+		PINSetInputTriggerState(pinInputTriggerEnabled);
+		PINSetInputAreaState(pinInputAreaUser);
+		EventType evt;
+		MemSet(&evt, sizeof(EventType), 0);
+		evt.eType = (eventsEnum) winDisplayChangedEvent;
+		EvtAddUniqueEventToQueue(&evt, 0, true);
+	    }
+	}
+	return true;
+    } else if (e->eType == winDisplayChangedEvent) {
+	FormType *form = FrmGetActiveForm();
+	UInt16 id = FrmGetFormId(form);
+	if (id == calcform_id || id == printform_id) {
+	    WinHandle wh = FrmGetWindowHandle(form);
+	    RectangleType formBounds, screenBounds;
+	    WinGetBounds(wh, &formBounds);
+	    WinGetBounds(WinGetDisplayWindow(), &screenBounds);
+	    // Very simplistic -- this is only OK as long as the calc and
+	    // print-out forms *only* contain components that span the entire
+	    // height of the form. This is the case at present: the calculator
+	    // form only contains one gadget that covers it entirely, and the
+	    // print-out form contains a gadget that covers its entire height,
+	    // and most of its width, the remaining area being covered by a
+	    // scroll bar.
+	    UInt16 n = FrmGetNumberOfObjects(form);
+	    for (UInt16 i = 0; i < n; i++) {
+		RectangleType r;
+		FrmGetObjectBounds(form, i, &r);
+		r.extent.y = screenBounds.extent.y;
+		FrmSetObjectBounds(form, i, &r);
+		if (FrmGetObjectType(form, i) == frmScrollBarObj) {
+		    ScrollBarType *sb =
+			(ScrollBarType *) FrmGetObjectPtr(form, i);
+		    Int16 value, min, max, page;
+		    SclGetScrollBar(sb, &value, &min, &max, &page);
+		    page = screenBounds.extent.y;
+		    max = printout_bottom - printout_top;
+		    if (max < 0)
+			max += PRINT_LINES;
+		    max = max > page ? max - page : 0;
+		    SclSetScrollBar(sb, value, min, max, page);
+		}
+	    }
+	    WinSetBounds(wh, &screenBounds);
+	    print_gadget_height = screenBounds.extent.y;
+	    FrmDrawForm(form);
+	}
 	return true;
     } else
 	return false;

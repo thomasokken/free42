@@ -98,7 +98,8 @@ static void open_printout() {
 	length = printout_bottom - printout_top;
 	if (length < 0)
 	    length += PRINT_LINES;
-	printout_pos = length < 160 ? 0 : length - 160;
+	printout_pos = length < print_gadget_height
+			    ? 0 : length - print_gadget_height;
     }
 }
 
@@ -350,13 +351,14 @@ void shell_print(const char *text, int length,
 	printout_top = (printout_bottom + 1) % PRINT_LINES;
 	newlength = PRINT_LINES - 1;
     }
-    printout_pos = newlength < 160 ? 0 : newlength - 160;
+    printout_pos = newlength < print_gadget_height
+			? 0 : newlength - print_gadget_height;
 
     if (FrmGetActiveFormID() == printform_id) {
 	FormType *form = FrmGetActiveForm();
 	int index = FrmGetObjectIndex(form, printscroll_id);
 	ScrollBarType *sb = (ScrollBarType *) FrmGetObjectPtr(form, index);
-	SclSetScrollBar(sb, printout_pos, 0, printout_pos, 160);
+	SclSetScrollBar(sb, printout_pos, 0, printout_pos, print_gadget_height);
 	if (can_draw)
 	    repaint_printout();
     }
@@ -456,7 +458,9 @@ UInt32 shell_main(UInt16 cmd, void *pbp, UInt16 flags) {
 	    }
 
 	    load_skin();
-	    print_bitmap = MyGlueBmpCreate(153, 160, 1, NULL, &error);
+	    print_gadget_height = pen_input_manager_present() ? 225 : 160;
+	    print_bitmap = MyGlueBmpCreate(153, print_gadget_height,
+							    1, NULL, &error);
 
 	    FrmGotoForm(calcform_id);
 
@@ -494,6 +498,9 @@ UInt32 shell_main(UInt16 cmd, void *pbp, UInt16 flags) {
 				  NULL, sysNotifyNormalPriority, NULL);
 		SysNotifyRegister(appCrd, appDB, sysNotifyLateWakeupEvent,
 				  NULL, sysNotifyNormalPriority, NULL);
+		if (pen_input_manager_present())
+		    SysNotifyRegister(appCrd, appDB, sysNotifyDisplayResizedEvent,
+				    NULL, sysNotifyNormalPriority, NULL);
 	    }
 
 	    dbfs_init();
@@ -566,6 +573,9 @@ UInt32 shell_main(UInt16 cmd, void *pbp, UInt16 flags) {
 		SysNotifyUnregister(appCrd, appDB, sysNotifySleepRequestEvent,
 				    sysNotifyNormalPriority);
 		SysNotifyUnregister(appCrd, appDB, sysNotifyLateWakeupEvent,
+				    sysNotifyNormalPriority);
+		if (pen_input_manager_present())
+		    SysNotifyUnregister(appCrd, appDB, sysNotifyDisplayResizedEvent,
 				    sysNotifyNormalPriority);
 	    }
 
@@ -665,7 +675,7 @@ UInt32 shell_main(UInt16 cmd, void *pbp, UInt16 flags) {
 		    }
 		    break;
 		}
-		case sysNotifyLateWakeupEvent:
+		case sysNotifyLateWakeupEvent: {
 		    /* Tell the core that a power cycle has occurred; it
 		     * should respond by clearing the continuous-on flag (44),
 		     * starting program execution if the autostart flag (11)
@@ -684,6 +694,14 @@ UInt32 shell_main(UInt16 cmd, void *pbp, UInt16 flags) {
 			EvtAddEventToQueue(&evt);
 		    }
 		    break;
+		}
+		case sysNotifyDisplayResizedEvent: {
+		    EventType evt;
+		    MemSet(&evt, sizeof(EventType), 0);
+		    evt.eType = (eventsEnum) winDisplayChangedEvent;
+		    EvtAddUniqueEventToQueue(&evt, 0, true);
+		    break;
+		}
 	    }
 	    break;
 	}

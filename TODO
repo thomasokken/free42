@@ -7,14 +7,18 @@ room available for taller skins. Apparently, Emu48 and some other applications
 do this. Will need to do a little research there (do I simply use another
 window style? Without a topbar, how do you close the window or switch apps?).
 
-PalmOS version: support 320x480 screens, and dynamic screen size changes.
-Use WinScreenGetAttribute() to find the screen size and density (only if High-
-Density Display Feature Set is present!).
-Use SysGetOrientationTriggerState() to find out if orientation changes are
-supported (only if the Pen Input Manager Feature Set is present and returns
-version 1.1!).
-It seems like dynamic input areas are standard if the Pen Input Manager is
-present (any version > 0).
+PalmOS version: the initial scroll bar position on the print-out window is
+problematic. The reason is that we're trying to compute that position before we
+even know the size of the print-out window.
+Note that I could work around it all by forcing the dynamic input area closed
+whenever the print-out is displayed. There's something to be said for that,
+since it is not possible to enter any data in the print-out anyway.
+
+PalmOS version: how do I deal with the potential conflicts between dynamic
+input area switching and screen switching? Should one drive the other, or is it
+possible to support *both* without flakiness?
+Also: I should suppress "tall" skins on machines that can't show them.
+(Is that the same as "machines without Pen Input Manager"?)
 
 PalmOS version: repainting the display is slow when using high-resolution
 skins. Moving all multiplications out of the blitter loop did not yield a
