@@ -121,7 +121,12 @@ static void make_skin_list() {
     //int allow_hd = feature_set_high_density_present();
     UInt32 attr;
     WinScreenGetAttribute(winScreenDensity, &attr);
-    int allow_hd = attr == kDensityDouble;
+    bool allow_hd = attr == kDensityDouble;
+
+    UInt32 sw, sh;
+    WinScreenGetAttribute(winScreenWidth, &sw);
+    WinScreenGetAttribute(winScreenHeight, &sh);
+    bool allow_tall = sh > sw;
 
     if (buf == NULL)
 	ErrFatalDisplayIf(1, "Out of memory while building skin list.");
@@ -132,12 +137,18 @@ static void make_skin_list() {
     while ((h = DmGetResource('Skin', id)) != NULL) {
 	SkinSpec *ss = (SkinSpec *) MemHandleLock(h);
 	int namelen;
-	if (ss->version[0] != 0)
+	bool tall;
+	if (ss->version[0] != 0) {
 	    /* Old-style Skin resource, w/o version; offset 4 bytes */
 	    ss = (SkinSpec *) (((char *) ss) - 4);
+	    tall = false;
+	} else
+	    tall = ss->version[1] >= 2 && ss->version[3] != 0;
 	namelen = StrLen(ss->name) + 1;
 	if (len + namelen <= bufsize) {
 	    if (!allow_hd && ss->density != 72)
+		continue;
+	    if (!allow_tall && tall)
 		continue;
 	    StrCopy(p, ss->name);
 	    p += namelen;
@@ -157,7 +168,7 @@ static void make_skin_list() {
 		    NULL, NULL, NULL, NULL, NULL, NULL) == errNone) {
 	    int namelen = StrLen(name) + 1;
 	    if (len + namelen <= bufsize) {
-		if (!allow_hd) {
+		if (!allow_hd || !allow_tall) {
 		    DmOpenRef db;
 		    MemHandle h;
 		    SkinSpec *ss;
@@ -171,14 +182,18 @@ static void make_skin_list() {
 			continue;
 		    }
 		    ss = (SkinSpec *) MemHandleLock(h);
-		    if (ss->version[0] != 0)
+		    bool tall;
+		    if (ss->version[0] != 0) {
 			/* Old-style Skin resource, w/o version; offset 4 bytes */
 			ss = (SkinSpec *) (((char *) ss) - 4);
+			tall = false;
+		    } else
+			tall = ss->version[1] >= 2 && ss->version[3] != 0;
 		    high_density = ss->density != 72;
 		    MemHandleUnlock(h);
 		    DmReleaseResource(h);
 		    DmCloseDatabase(db);
-		    if (high_density)
+		    if (high_density && !allow_hd || tall && !allow_tall)
 			continue;
 		}
 		StrCopy(p, name);

@@ -135,7 +135,9 @@ int main(int argc, char *argv[]) {
 
     skin = (SkinSpec *) malloc(sizeof(SkinSpec) + 99 * sizeof(KeySpec));
     skin->version[0] = 0;
-    skin->version[1] = 1;
+    skin->version[1] = 2;
+    // Starting with version 2, version[3] specifies whether the skin is tall.
+    // This is populated later.
 
 
     /**************************************/
@@ -268,6 +270,9 @@ int main(int argc, char *argv[]) {
 		    yy += sh;
 		}
 	    }
+	    // Flag to indicate if this is a "tall" skin
+	    // Such skins will be suppressed on square-screen devices.
+	    skin->version[3] = height > width;
 	} else if (strncasecmp(line, "display:", 8) == 0) {
 	    int x, y, xscale, yscale;
 	    unsigned long fg, bg;

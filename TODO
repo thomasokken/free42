@@ -17,8 +17,6 @@ since it is not possible to enter any data in the print-out anyway.
 PalmOS version: how do I deal with the potential conflicts between dynamic
 input area switching and screen switching? Should one drive the other, or is it
 possible to support *both* without flakiness?
-Also: I should suppress "tall" skins on machines that can't show them.
-(Is that the same as "machines without Pen Input Manager"?)
 
 PalmOS version: repainting the display is slow when using high-resolution
 skins. Moving all multiplications out of the blitter loop did not yield a
