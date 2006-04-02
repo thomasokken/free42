@@ -37,17 +37,17 @@ static MemHandle bcdrec;
 #if 0
 static void log(const char *message) {
     char basename[FILENAMELEN];
-    char *newline = "\n";
+    char *crlf = "\r\n";
     fsa_obj *dir, *logfile;
-    int err = fsa_resolve("Free42:/log.txt", &dir, 1, basename);
+    int err = fsa_resolve("POSESlot1:/log.txt", &dir, 1, basename);
     err = fsa_create(dir, basename, &logfile);
     fsa_release(dir);
     err = fsa_open(logfile, FSA_MODE_READWRITE);
     err = fsa_seek(logfile, FSA_SEEK_END, 0);
     uint4 len = (uint4) StrLen(message);
     err = fsa_write(logfile, message, &len);
-    len = 1;
-    err = fsa_write(logfile, newline, &len);
+    len = 2;
+    err = fsa_write(logfile, crlf, &len);
     fsa_release(logfile);
 }
 #endif
@@ -119,60 +119,68 @@ static void close_printout() {
 
 void shell_blitter(const char *bits, int bytesperline,
 	       int x, int y, int width, int height) {
+    //char buf[100];
+    //StrPrintF(buf, "entering shell_blitter: %lu (%u)", TimGetTicks(), SysTicksPerSecond());
+    //log(buf);
     /* Callback for emulator core; it calls this to blit stuff
      * to the display
      */
-    char *mybits;
-    UInt16 rowbytes;
-    int X, Y, XX, YY, XXmin, XXmax, YYmin, YYmax;
-    int xs = skin->display_xscale;
-    int ys = skin->display_yscale;
+    int xscale = skin->display_xscale;
+    int yscale = skin->display_yscale;
 
-    mybits = (char *) MyGlueBmpGetBits(disp_bitmap);
+    char *mybits = (char *) MyGlueBmpGetBits(disp_bitmap);
+    UInt16 rowbytes;
     BmpGlueGetDimensions(disp_bitmap, NULL, NULL, &rowbytes);
 
-    // I used strength reduction to get rid of all of the multiplications in
-    // the blitter loop, in an attempt to speed up the performance of high-res
-    // displays, but to no avail. It appears that WinDrawBitmap() is simply a
-    // dog when painting high-res bitmaps.
-    // I tried modifying StandardHD so that the left edge of the display is at
-    // 28, just to check if pixel alignment was a factor, but I did not notice
-    // an improvement.
-    // OTOH, I am using a 1-bit bitmap here; it might help if I used a
-    // compatible bitmap instead. (TODO)
-    // An even more desperately radical idea would be to keep track of which
-    // pixels are *actually* changed here -- redisplay() will typically cause
-    // the entire screen to be repainted, while in number entry mode, for
-    // instance, the actual damage is mostly local. By using WinDrawBitmap() to
-    // draw the smallest possible bitmap, we might be able to get decent speed
-    // by taking advantage of that redundancy.
-    YYmin = y * ys;
-    YYmax = YYmin + ys;
+    //StrPrintF(buf, "before The Loop: %lu (%u)", TimGetTicks(), SysTicksPerSecond());
+    //log(buf);
+    
     UInt32 src_off = y * bytesperline;
-    UInt32 dst_off = YYmin * rowbytes;
-    UInt32 dst_off_step = ys * rowbytes;
-    for (Y = y; Y < y + height; Y++) {
-	XXmin = x * xs;
-	XXmax = XXmin + xs;
-	for (X = x; X < x + width; X++) {
-	    int pix = bits[src_off + (X >> 3)] & 1 << (X & 7);
-	    UInt32 off = dst_off;
-	    for (YY = YYmin; YY < YYmax; YY++) {
-		for (XX = XXmin; XX < XXmax; XX++)
-		    if (pix == 0)
-			mybits[off + (XX >> 3)] &= ~(128 >> (XX & 7));
-		    else
-			mybits[off + (XX >> 3)] |= 128 >> (XX & 7);
-		off += rowbytes;
+    UInt32 dst_off = y * yscale * rowbytes;
+
+    int xmin = x * xscale;
+    int xmax = (x + width) * xscale;
+
+    for (int Y = 0; Y < height; Y++) {
+	int xsrc = x;
+	int xmod = xscale;
+	int pix = bits[src_off + (xsrc >> 3)] & 1 << (xsrc & 7);
+	char currbyte = mybits[dst_off + (xmin >> 3)];
+
+	for (int X = xmin; X < xmax; X++) {
+	    if (pix == 0)
+		currbyte &= ~(128 >> (X & 7));
+	    else
+		currbyte |= 128 >> (X & 7);
+
+	    if (--xmod == 0) {
+		xmod = xscale;
+		xsrc++;
+		pix = bits[src_off + (xsrc >> 3)] & 1 << (xsrc & 7);
 	    }
-	    XXmin += xs;
-	    XXmax += xs;
+
+	    if ((X & 7) == 7 || X == xmax - 1) {
+		mybits[dst_off + (X >> 3)] = currbyte;
+		currbyte = mybits[dst_off + (X >> 3) + 1];
+	    }
 	}
-	YYmin += ys;
-	YYmax += ys;
+
+	if (yscale > 1) {
+	    UInt32 from_off = dst_off;
+	    UInt32 start = xmin >> 3;
+	    UInt32 end = (xmax - 1) >> 3;
+	    for (int i = 1; i < yscale; i++) {
+		dst_off += rowbytes;
+		for (UInt32 p = start; p <= end; p++)
+		    mybits[dst_off + p] = mybits[from_off + p];
+	    }
+	}
+
+	dst_off += rowbytes;
 	src_off += bytesperline;
-	dst_off += dst_off_step;
     }
+    //StrPrintF(buf, "after The Loop: %lu (%u)", TimGetTicks(), SysTicksPerSecond());
+    //log(buf);
 
     if (can_draw && FrmGetActiveFormID() == calcform_id) {
 	set_colors(&skin->display_bg, &skin->display_fg);
@@ -183,6 +191,9 @@ void shell_blitter(const char *bits, int bytesperline,
 	if (softkey != 0)
 	    draw_softkey(1);
     }
+    //StrPrintF(buf, "leaving shell_blitter: %lu (%u)", TimGetTicks(), SysTicksPerSecond());
+    //log(buf);
+    //log("");
 }
 
 void shell_beeper(int frequency, int duration) {

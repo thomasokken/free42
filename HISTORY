@@ -1,6 +1,9 @@
 ??-??-????: version 1.4.9
 
 * PalmOS version: added support for tall (320x450) skins.
+* PalmOS version: optimized display updating code. For high-density skins,
+  display updates are now about 3 times faster than before; this should make
+  HD skins much more usable (more responsive).
 
 01-04-2006: version 1.4.8
 

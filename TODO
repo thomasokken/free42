@@ -7,21 +7,6 @@ room available for taller skins. Apparently, Emu48 and some other applications
 do this. Will need to do a little research there (do I simply use another
 window style? Without a topbar, how do you close the window or switch apps?).
 
-PalmOS version: repainting the display is slow when using high-resolution
-skins. Moving all multiplications out of the blitter loop did not yield a
-noticeable speed-up, nor did aligning the display bitmap to an even pixel X
-coordinate.
-Things left to try: use a compatible bitmap instead of a monochrome; if that
-doesn't do the trick either, keep track of which pixels are *actually* changed
-in shell_blitter(), and call WinDrawBitmap() with the smallest possible
-rectangle. Note that this drastic approach may require some help from the core
-(need to make sure we don't receive unnecessary clear-display requests; those
-would completely defeat this acceleration scheme).
-UPDATE: there may be a really simple solution: use WinSetScalingMode() to
-disable bitmap scaling, and then use a plain old-fashioned low-density bitmap
-for the display. Not sure *why* that would perform better than using a V3
-pixmap (it's still the same number of pixels), but heck, it's worth a try.
-
 Auto-repeat: for keys where the usual holding-down behavior isn't needed
 (number keys, backspace, etc.) it might be nice to support auto-repeat.
 
