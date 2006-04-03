@@ -7,46 +7,28 @@ room available for taller skins. Apparently, Emu48 and some other applications
 do this. Will need to do a little research there (do I simply use another
 window style? Without a topbar, how do you close the window or switch apps?).
 
+"Sloppy clicking": optional setting to map mouse clicks that do NOT hit any of
+the sensitive rectangles, to whichever key is nearest. This would be more
+elegant than stretching sensitive rectangles in skin layouts, which some people
+don't seem to like anyway.
+
 Auto-repeat: for keys where the usual holding-down behavior isn't needed
 (number keys, backspace, etc.) it might be nice to support auto-repeat.
 
-HP-41 module support. Should be able to read ROM files, and maybe also MOD.
-(Requested by Vincent Weber, 12/21/2005)
-Additional thoughts by ThO:
-The basic functionality of extracting user code from module ROM images is
-already provided by the rom2raw program, but of course it would be nice to
-integrate this into Free42 itself. However, in order to prevent the PGM catalog
-from getting hopelessly cluttered, Free42 really should support directories.
-If HP could add directories to the 28C to support the extra memory of the 28S,
-surely I can do the same here -- and Free42 needs it even more than the 28S...
+Extended program import/export. Import and export should allow the user to
+specify *.txt as the file type, for reading and writing plain-text program
+listings. (Probably need at least two sub-options: raw text, and text with
+Free42-style character remapping.) Also, for Import, it would be nice to accept
+*.ROM (and possibly also *.MOD) files (HP-41 module images); this should use
+the user code extraction functionality from rom2raw.
+
+Import/export of variables.
+
+"Sticky" complex numbers, which remember the mode (polar or rectangular) they
+were entered in, and are always displayed in that mode; also needs R.CPX and
+P.CPX commands to allow entering a complex number in rectangular or polar
+format regardless of the current setting of flag 73.
 
 Algebraic equations, a la HP-27S.
 
 Fractions.
-
-Plain-text program import/export.
-
-Import/export of variables.
-
-Alternative forms of complex number entry and display: in addition to the
-COMPLEX command, there should be ways to enter complex numbers in rectangular
-or polar format *regardless* of the setting of flag 73. When numbers are
-entered using those new commands (let's call them R.CPX and P.CPX for the sake
-of discussion), the rect/polar display mode should "stick" to them, so they
-will keep being displayed the same way even if flag 73 is toggled. Three
-additional commands are needed to change a number's sticky mode (or maybe just
-two; a number can always be forced back to "classic" behavior by doing COMPLEX
-COMPLEX).
-(Requested by Jeff O., 1/28/2005)
-Additional thoughts by ThO:
-Note that the "sticky" display mode could potentially break existing programs,
-so it should be optional. Also, it is a LOT of work to implement, because the
-complex data type has to be changed, and all the code that handles complex
-numbers -- that's hundreds of code changes throughout the emulator core.
-As an alternative, consider a partial implementation, where we add only the
-R.CPX and P.CPX commands (plus possibly SHOW POLAR and SHOW RECT commands so
-the user can view numbers in the format of their choice without having to
-switch modes). Note: after entering a number, it should be displayed in the
-format the user entered it in, for a second or two, before reverting to the
-format specified by flag 73 -- in other words, when using R.CPX in POLAR mode,
-or P.CPX in RECT mode, automatically do a SHOW RECT or SHOW POLAR as well.
