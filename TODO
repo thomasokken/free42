@@ -26,6 +26,8 @@ the user code extraction functionality from rom2raw.
 
 Import/export of variables.
 
+Directories.
+
 "Sticky" complex numbers, which remember the mode (polar or rectangular) they
 were entered in, and are always displayed in that mode; also needs R.CPX and
 P.CPX commands to allow entering a complex number in rectangular or polar
