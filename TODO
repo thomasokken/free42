@@ -1,7 +1,3 @@
-Make the orange labels on the PocketPC "Standard" skin larger. The buttons can
-easily be made 2 pixels shorter, which creates room to make the orange labels 2
-pixels taller -- like they are on the Windows/Unix "Standard" skin.
-
 ARM-native PalmOS version.
 
 Auto-repeat: for keys where the usual holding-down behavior isn't needed
@@ -9,31 +5,19 @@ Auto-repeat: for keys where the usual holding-down behavior isn't needed
 probably be implemented using the same mechanism that's already used for the
 "up" and "down" keys.
 
-PocketPC version: a few people suggested hiding the "top" bar to make some more
+PocketPC version: a few people suggested hiding the task bar to make some more
 room available for taller skins. Apparently, Emu48 and some other applications
 also do this. Will need to do a little research there (do I simply use another
-window style? Without a topbar, how do you close the window or switch apps?).
+window style? Without a task bar, how do you close the window or switch apps?).
 
-"Sloppy clicking": optional setting to map mouse clicks that do NOT hit any of
-the sensitive rectangles, to whichever key is nearest. This would be more
-elegant than stretching sensitive rectangles in skin layouts, which some people
-don't seem to like anyway.
-
-Extended program import/export. Import and export should allow the user to
-specify *.txt as the file type, for reading and writing plain-text program
-listings. (Probably need at least two sub-options: raw text, and text with
-Free42-style character remapping.) Also, for Import, it would be nice to accept
-*.ROM (and possibly also *.MOD) files (HP-41 module images); this should use
-the user code extraction functionality from rom2raw.
+Plain text import/export; HP-41 ROM image import.
 
 Import/export of variables.
 
 Directories.
 
 "Sticky" complex numbers, which remember the mode (polar or rectangular) they
-were entered in, and are always displayed in that mode; also needs R.CPX and
-P.CPX commands to allow entering a complex number in rectangular or polar
-format regardless of the current setting of flag 73.
+were entered in, and are always displayed in that mode.
 
 Algebraic equations, a la HP-27S.
 
