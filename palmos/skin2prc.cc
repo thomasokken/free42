@@ -24,11 +24,11 @@
 #include "skin2prc.h"
 
 
-#define NUM_DEPTHS 4
+#define NUM_DEPTHS 5
 int bitmap_id = 200;
 int density = 72;
-int depth[NUM_DEPTHS] = { 1, 4, 5, 8 };
-int do_depth[NUM_DEPTHS] = { 1, 1, 1, 1 };
+int depth[NUM_DEPTHS] = { 1, 4, 5, 8, 16 };
+int do_depth[NUM_DEPTHS] = { 1, 1, 0, 1, 0 };
 int dither = 0;
 int sections = 1;
 char gif[256] = "";
@@ -57,7 +57,7 @@ void usage() {
 		    "                [-sections <number of pieces to cut skin into>]\\\n"
 		    "                [-skin_id <skin resource id>; default 100] \\\n"
 		    "                [-bitmap_id <starting bitmap resource id>; default 200] \\\n"
-		    "                [-depths <1,4,5,8 or any subset>; default 1,4,5,8] \\\n"
+		    "                [-depths <1,4,5,8,16 or any subset>; default 1,4,8] \\\n"
 		    "                [-density <72 or 144>; default 72]\n");
     exit(0);
 }
@@ -94,11 +94,16 @@ void generate_bitmap(int x, int y, int width, int height) {
 		case 8:
 		    map = "256colors.ppm";
 		    break;
+		case 16:
+		    break;
 		default:
 		    fprintf(stderr, "Unsupported bitmap depth (%d) specified.\n", depth[i]);
 		    exit(1);
 	    }
-	    fprintf(script, "giftopnm %s | ppmtoppm | pnmremap %s -mapfile=%s >tmp_skin.%d.ppm\n", gif, dither ? "-fs" : "", map, depth[i]);
+	    if (depth[i] == 16)
+		fprintf(script, "giftopnm %s | ppmtoppm >tmp_skin.16.ppm\n", gif);
+	    else
+		fprintf(script, "giftopnm %s | ppmtoppm | pnmremap %s -mapfile=%s >tmp_skin.%d.ppm\n", gif, dither ? "-fs" : "", map, depth[i]);
 	}
 	inited = 1;
     }
@@ -114,7 +119,10 @@ void generate_bitmap(int x, int y, int width, int height) {
 	d2 = depth[i];
 	if (d2 == 5)
 	    d2 = 4;
-	fprintf(script, "pnmcut %d %d %d %d tmp_skin.%d.ppm | ppmtobmp -bpp=%d >tmp_skin.%d.%d.bmp\n", x, y, width, height, depth[i], d2, bitmap_id, depth[i]);
+	if (d2 == 16)
+	    fprintf(script, "pnmcut %d %d %d %d tmp_skin.16.ppm | ppmtobmp -bpp=24 >tmp_skin.%d.16.bmp\n", x, y, width, height, bitmap_id);
+	else
+	    fprintf(script, "pnmcut %d %d %d %d tmp_skin.%d.ppm | ppmtobmp -bpp=%d >tmp_skin.%d.%d.bmp\n", x, y, width, height, depth[i], d2, bitmap_id, depth[i]);
 	fprintf(rcp, "  bitmap \"tmp_skin.%d.%d.bmp\" BPP %d DENSITY %d\n", bitmap_id, depth[i], depth[i], density);
     }
     fprintf(rcp, "end\n\n");

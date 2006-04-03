@@ -1,7 +1,7 @@
 Auto-repeat: for keys where the usual holding-down behavior isn't needed
 (number keys and backspace) it would be nice to support auto-repeat. This could
 probably be implemented using the same mechanism that's already used for the
-"up" and "down" keys.
+"up" and "down" keys (maybe a bit faster repeat rate, though).
 
 ARM-native PalmOS version.
 

@@ -3,6 +3,20 @@
 * Pocket PC version: made orange (shifted) legends in the Standard skin a bit
   larger. The original 5x4 characters were way too small; hopefully the new 7x5
   characters will be more to people's liking.
+* Tweaked the PalmOS version of the Ehrling42sm skin a little: I increased the
+  vertical key spacing by 4 pixels. It has a more balanced appearance now;
+  should be nicer to use, too.
+* PalmOS version: changed the display background color in the Ehrling42sm,
+  SemiReal42, SemiReal42HD, and SemiAuto42HD skins, from LCD greenish to gray.
+  The reason is that the standard PalmOS 8-bit palette does not contain the
+  right shade of green, so in the skin bitmaps, the color ended up becoming
+  gray anyway; displaying the actual LCD contents on top of it (which happens
+  in true color on devices that support it) then gives an ugly appearance.
+  I modified skin2prc so that it can now also generate true-color (16-bit) skin
+  bitmaps, but those tend to get pretty big, so I'm not using that
+  functionality yet while building the Free42PalmOSSkins.zip package; maybe
+  later, I'll create separate true-color versions of Ehrling42sm etc. to keep
+  the fans of green happy...
 
 02-04-2006: version 1.4.9
 
