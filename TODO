@@ -4,18 +4,20 @@ pixels taller -- like they are on the Windows/Unix "Standard" skin.
 
 ARM-native PalmOS version.
 
+Auto-repeat: for keys where the usual holding-down behavior isn't needed
+(number keys and backspace) it would be nice to support auto-repeat. This could
+probably be implemented using the same mechanism that's already used for the
+"up" and "down" keys.
+
 PocketPC version: a few people suggested hiding the "top" bar to make some more
 room available for taller skins. Apparently, Emu48 and some other applications
-do this. Will need to do a little research there (do I simply use another
+also do this. Will need to do a little research there (do I simply use another
 window style? Without a topbar, how do you close the window or switch apps?).
 
 "Sloppy clicking": optional setting to map mouse clicks that do NOT hit any of
 the sensitive rectangles, to whichever key is nearest. This would be more
 elegant than stretching sensitive rectangles in skin layouts, which some people
 don't seem to like anyway.
-
-Auto-repeat: for keys where the usual holding-down behavior isn't needed
-(number keys, backspace, etc.) it might be nice to support auto-repeat.
 
 Extended program import/export. Import and export should allow the user to
 specify *.txt as the file type, for reading and writing plain-text program
