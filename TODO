@@ -1,9 +1,9 @@
-ARM-native PalmOS version.
-
 Auto-repeat: for keys where the usual holding-down behavior isn't needed
 (number keys and backspace) it would be nice to support auto-repeat. This could
 probably be implemented using the same mechanism that's already used for the
 "up" and "down" keys.
+
+ARM-native PalmOS version.
 
 PocketPC version: a few people suggested hiding the task bar to make some more
 room available for taller skins. Apparently, Emu48 and some other applications

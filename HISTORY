@@ -1,3 +1,9 @@
+??-??-????: version 1.4.10
+
+* Pocket PC version: made orange (shifted) legends in the Standard skin a bit
+  larger. The original 5x4 characters were way too small; hopefully the new 7x5
+  characters will be more to people's liking.
+
 02-04-2006: version 1.4.9
 
 * PalmOS version: optimized display updating code. For high-density skins,
@@ -27,7 +33,7 @@
   Infinities and NaNs). Result: 0 * 0 => NaN, etc. Fixed.
 * Fixed BCDFloat::sub() so that it will not return -0. It used to do that when
   computing 0 - 0. I think this was harmless, but I fixed it anyway.
-* Added new PocketPC skin with single-click activation of shifted functions to
+* Added new Pocket PC skin with single-click activation of shifted functions to
   Free42PocketPCSkins.zip package. Contributed by Jeff O.
 
 26-03-2006: version 1.4.6
