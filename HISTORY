@@ -1,6 +1,8 @@
-??-??-????: version 1.4.11
+04-04-2006: version 1.4.11
 
 * Implemented auto-repeat for number entry and ALPHA modes.
+* In the previous version, I broke the annunciators in the Standard skin for
+  the Pocket PC. Fixed.
 
 03-04-2006: version 1.4.10
 
