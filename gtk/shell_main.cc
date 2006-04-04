@@ -1209,7 +1209,7 @@ static void aboutCB() {
 	gtk_container_add(GTK_CONTAINER(container), box);
 	GtkWidget *image = gtk_image_new_from_pixbuf(icon);
 	gtk_box_pack_start(GTK_BOX(box), image, FALSE, FALSE, 10);
-	GtkWidget *label = gtk_label_new("Free42 1.4.10\n(C) 2004-2006 Thomas Okken\nthomas_okken@yahoo.com\nhttp://home.planet.nl/~demun000/thomas_projects/free42/");
+	GtkWidget *label = gtk_label_new("Free42 1.4.11\n(C) 2004-2006 Thomas Okken\nthomas_okken@yahoo.com\nhttp://home.planet.nl/~demun000/thomas_projects/free42/");
 	gtk_box_pack_start(GTK_BOX(box), label, FALSE, FALSE, 10);
 	gtk_widget_show_all(GTK_WIDGET(about));
     }
@@ -1284,8 +1284,8 @@ static void shell_keydown() {
 	disable_reminder();
 	if (timeout_id != 0)
 	    g_source_remove(timeout_id);
-	if (repeat)
-	    timeout_id = g_timeout_add(1000, repeater, NULL);
+	if (repeat != 0)
+	    timeout_id = g_timeout_add(repeat == 1 ? 1000 : 500, repeater, NULL);
 	else if (!enqueued)
 	    timeout_id = g_timeout_add(250, timeout1, NULL);
     }
@@ -1445,8 +1445,11 @@ static void disable_reminder() {
 }
 
 static gboolean repeater(gpointer cd) {
-    core_repeat();
-    timeout_id = g_timeout_add(200, repeater, NULL);
+    int repeat = core_repeat();
+    if (repeat != 0)
+	timeout_id = g_timeout_add(repeat == 1 ? 200 : 100, repeater, NULL);
+    else
+	timeout_id = g_timeout_add(250, timeout1, NULL);
     return FALSE;
 }
 

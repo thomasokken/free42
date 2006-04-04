@@ -1,14 +1,9 @@
-Auto-repeat: for keys where the usual holding-down behavior isn't needed
-(number keys and backspace) it would be nice to support auto-repeat. This could
-probably be implemented using the same mechanism that's already used for the
-"up" and "down" keys (maybe a bit faster repeat rate, though).
-
-ARM-native PalmOS version.
-
 PocketPC version: a few people suggested hiding the task bar to make some more
 room available for taller skins. Apparently, Emu48 and some other applications
 also do this. Will need to do a little research there (do I simply use another
 window style? Without a task bar, how do you close the window or switch apps?).
+
+ARM-native PalmOS version.
 
 Plain text import/export; HP-41 ROM image import.
 

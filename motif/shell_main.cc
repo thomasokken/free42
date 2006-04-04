@@ -2439,7 +2439,7 @@ static void aboutCB(Widget w, XtPointer ud, XtPointer cd) {
 	Widget button;
 	XmString s;
 
-	s = XmStringCreateLtoR("Free42 1.4.10\n(C) 2004-2006 Thomas Okken\nthomas_okken@yahoo.com\nhttp://home.planet.nl/~demun000/thomas_projects/free42/", XmFONTLIST_DEFAULT_TAG);
+	s = XmStringCreateLtoR("Free42 1.4.11\n(C) 2004-2006 Thomas Okken\nthomas_okken@yahoo.com\nhttp://home.planet.nl/~demun000/thomas_projects/free42/", XmFONTLIST_DEFAULT_TAG);
 	XtSetArg(args[0], XmNmessageString, s);
 	XtSetArg(args[1], XmNtitle, "About Free42");
 	XtSetArg(args[2], XmNsymbolPixmap, icon);
@@ -2580,13 +2580,11 @@ static void shell_keydown() {
 	disable_reminder();
 	if (timeout_active)
 	    XtRemoveTimeOut(timeout_id);
-	if (repeat) {
-	    timeout_id = XtAppAddTimeOut(appcontext, 1000,
-					    repeater, NULL);
+	if (repeat != 0) {
+	    timeout_id = XtAppAddTimeOut(appcontext, repeat == 1 ? 1000 : 500, repeater, NULL);
 	    timeout_active = 1;
 	} else if (!enqueued) {
-	    timeout_id = XtAppAddTimeOut(appcontext, 250,
-					    timeout1, NULL);
+	    timeout_id = XtAppAddTimeOut(appcontext, 250, timeout1, NULL);
 	    timeout_active = 1;
 	}
     }
@@ -2766,8 +2764,11 @@ static void disable_reminder() {
 }
 
 static void repeater(XtPointer closure, XtIntervalId *id) {
-    core_repeat();
-    timeout_id = XtAppAddTimeOut(appcontext, 200, repeater, NULL);
+    int repeat = core_repeat();
+    if (repeat != 0)
+	timeout_id = XtAppAddTimeOut(appcontext, repeat == 1 ? 200 : 100, repeater, NULL);
+    else
+	timeout_id = XtAppAddTimeOut(appcontext, 250, timeout1, NULL);
     timeout_active = 1;
 }
 

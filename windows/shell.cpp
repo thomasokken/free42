@@ -436,8 +436,8 @@ static void shell_keydown() {
 	} else
 		running = core_keydown(ckey, &enqueued, &repeat);
 	if (!running) {
-		if (repeat)
-			timer = SetTimer(NULL, 0, 1000, repeater);
+		if (repeat != 0)
+			timer = SetTimer(NULL, 0, repeat == 1 ? 1000 : 500, repeater);
 		else if (!enqueued)
 			timer = SetTimer(NULL, 0, 250, timeout1);
 	}
@@ -1324,8 +1324,11 @@ static void Quit() {
 
 static VOID CALLBACK repeater(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) {
 	KillTimer(NULL, timer);
-	core_repeat();
-	timer = SetTimer(NULL, 0, 200, repeater);
+	int repeat = core_repeat();
+	if (repeat != 0)
+		timer = SetTimer(NULL, 0, repeat == 1 ? 200 : 100, repeater);
+	else
+		timer = SetTimer(NULL, 0, 250, timeout1);
 }
 
 static VOID CALLBACK timeout1(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) {

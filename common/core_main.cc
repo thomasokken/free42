@@ -255,8 +255,8 @@ int core_keydown(int key, int *enqueued, int *repeat) {
 	if (mode_getkey && mode_running)
 	    shell_annunciators(-1, -1, -1, 1, -1, -1);
 	keydown(shift, key);
-	if (repeating) {
-	    *repeat = 1;
+	if (repeating != 0) {
+	    *repeat = repeating;
 	    repeating = 0;
 	}
 	return mode_running && !mode_getkey;
@@ -266,9 +266,11 @@ int core_keydown(int key, int *enqueued, int *repeat) {
     return 0;
 }
 
-void core_repeat() {
+int core_repeat() {
     keydown(repeating_shift, repeating_key);
+    int rpt = repeating;
     repeating = 0;
+    return rpt;
 }
 
 void core_keytimeout1() {
@@ -2589,13 +2591,6 @@ void finish_alpha_prgm_line() {
 	prgm_highlight_row = 1;
     }
     mode_alpha_entry = false;
-}
-
-int shiftcharacter(char c) {
-    if (c >= 'A' && c <= 'Z')
-	return c - 'A' + 'a';
-    else
-	return c;
 }
 
 static void stop_interruptible() {

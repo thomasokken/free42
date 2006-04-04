@@ -1268,13 +1268,15 @@ Boolean calcgadget_handler(struct FormGadgetTypeInCallback *gadgetP,
 		    } else
 			draw_softkey(1);
 
-		    if (repeat) {
+		    if (repeat != 0) {
 			UInt16 tps = SysTicksPerSecond();
-			UInt32 ticks_repeat = TimGetTicks() + tps;
+			UInt32 ticks_repeat = TimGetTicks() + (repeat == 1 ? tps : (tps / 2));
 			while (EvtGetPen(&x, &y, &down), down) {
 			    if (TimGetTicks() > ticks_repeat) {
-				core_repeat();
-				ticks_repeat = TimGetTicks() + tps / 5;
+				repeat = core_repeat();
+				if (repeat == 0)
+				    goto do_the_usual;
+				ticks_repeat = TimGetTicks() + tps / (repeat == 1 ? 5 : 10);
 			    }
 			}
 		    } else if (want_to_run) {
@@ -1291,6 +1293,7 @@ Boolean calcgadget_handler(struct FormGadgetTypeInCallback *gadgetP,
 				want_to_run = core_keydown(0, &dummy1, &dummy2);
 			}
 		    } else if (!enqueued) {
+			do_the_usual:
 			UInt16 tps = SysTicksPerSecond();
 			UInt32 ticks_down = TimGetTicks();
 			UInt32 ticks_timeout1 = ticks_down + tps / 4;

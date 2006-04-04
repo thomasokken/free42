@@ -115,9 +115,10 @@ int core_hex_menu() MAIN_SECT;
  * last time) but no keystrokes are available. It is not necessary to balance
  * the keydown call with a keyup in this case.
  * The 'repeat' pointer is a return parameter that the emulator core uses to
- * ask the shell to auto-repeat the current key. If this is set to 1, the
+ * ask the shell to auto-repeat the current key. If this is set to 1 or 2, the
  * shell will not call timeout1() and timeout2(), but will repeatedly call
- * core_repeat() until the key is released.
+ * core_repeat() until the key is released. (1 requests a slow repeat rate, for
+ * SST/BST; 2 requests a fast repeat rate, for number/alpha entry.)
  */
 int core_keydown(int key, int *enqueued, int *repeat) MAIN_SECT;
 
@@ -125,8 +126,11 @@ int core_keydown(int key, int *enqueued, int *repeat) MAIN_SECT;
  *
  * This function is called by the shell to signal auto-repeating key events.
  * It is the core's responsibility to keep track of *which* key is repeating.
+ * The function can return 0, to request repeating to stop; 1, which requests
+ * a slow repeat rate, for SST/BST; or 2, which requests a fast repeat rate,
+ * for number/alpha entry.
  */
-void core_repeat() MAIN_SECT;
+int core_repeat() MAIN_SECT;
 
 /* core_keytimeout1()
  *
