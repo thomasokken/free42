@@ -1457,27 +1457,27 @@ void shell_beeper(int frequency, int duration) {
 
 	// (samp/sec) * msecs * (secs/msec) = samps
 	wh.dwBufferLength = (DWORD) ((__int64) 11025 * duration / 1000);
-	VERIFY(wh.lpData = (LPSTR) LocalAlloc(LMEM_FIXED,wh.dwBufferLength));
-	wh.dwBytesRecorded = 0;
-	wh.dwUser = 0;
-	wh.dwFlags = 0;
-	wh.dwLoops = 0;
+	wh.lpData = (LPSTR) LocalAlloc(LMEM_FIXED,wh.dwBufferLength);
+	if (wh.lpData != NULL) {
+		wh.dwBytesRecorded = 0;
+		wh.dwUser = 0;
+		wh.dwFlags = 0;
+		wh.dwLoops = 0;
 
-	for (i = 0; i < wh.dwBufferLength; ++i)	// generate square wave
-	{
-		wh.lpData[i] = (BYTE) (((__int64) 2 * frequency * i / 11025) & 1) * 64;
+		for (i = 0; i < wh.dwBufferLength; ++i)	// generate square wave
+			wh.lpData[i] = (BYTE) (((__int64) 2 * frequency * i / 11025) & 1) * 64;
+
+		if (waveOutPrepareHeader(hSoundDevice,&wh,sizeof(wh)) == MMSYSERR_NOERROR) {
+			ResetEvent(hEventSound);				// prepare event for finishing
+			if (waveOutWrite(hSoundDevice,&wh,sizeof(wh)) == MMSYSERR_NOERROR)
+				WaitForSingleObject(hEventSound,INFINITE); // wait for finishing
+
+			waveOutUnprepareHeader(hSoundDevice,&wh,sizeof(wh));
+			waveOutClose(hSoundDevice);
+		}
+
+		LocalFree(wh.lpData);
 	}
-
-	VERIFY(waveOutPrepareHeader(hSoundDevice,&wh,sizeof(wh)) == MMSYSERR_NOERROR);
-
-	ResetEvent(hEventSound);				// prepare event for finishing
-	VERIFY(waveOutWrite(hSoundDevice,&wh,sizeof(wh)) == MMSYSERR_NOERROR);
-	WaitForSingleObject(hEventSound,INFINITE); // wait for finishing
-
-	VERIFY(waveOutUnprepareHeader(hSoundDevice,&wh,sizeof(wh)) == MMSYSERR_NOERROR);
-	VERIFY(waveOutClose(hSoundDevice) == MMSYSERR_NOERROR);
-
-	LocalFree(wh.lpData);
 	CloseHandle(hEventSound);
 	return;
 }
