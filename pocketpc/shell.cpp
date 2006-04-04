@@ -1432,7 +1432,54 @@ void shell_blitter(const char *bits, int bytesperline, int x, int y,
 }
 
 void shell_beeper(int frequency, int duration) {
-	MessageBeep(MB_ICONASTERISK);
+	HWAVEOUT     hSoundDevice;
+	WAVEFORMATEX wf;
+	WAVEHDR      wh;
+	HANDLE       hEventSound;
+	DWORD        i;
+
+	hEventSound = CreateEvent(NULL,FALSE,FALSE,NULL);
+
+	wf.wFormatTag      = WAVE_FORMAT_PCM;
+	wf.nChannels       = 1;
+	wf.nSamplesPerSec  = 11025;
+	wf.nAvgBytesPerSec = 11025;
+	wf.nBlockAlign     = 1;
+	wf.wBitsPerSample  = 8;
+	wf.cbSize          = 0;
+
+	if (waveOutOpen(&hSoundDevice,WAVE_MAPPER,&wf,(DWORD)hEventSound,0,CALLBACK_EVENT) != 0)
+	{
+		CloseHandle(hEventSound);			// no sound available
+		MessageBeep(MB_ICONASTERISK);
+		return;
+	}
+
+	// (samp/sec) * msecs * (secs/msec) = samps
+	wh.dwBufferLength = (DWORD) ((__int64) 11025 * duration / 1000);
+	VERIFY(wh.lpData = (LPSTR) LocalAlloc(LMEM_FIXED,wh.dwBufferLength));
+	wh.dwBytesRecorded = 0;
+	wh.dwUser = 0;
+	wh.dwFlags = 0;
+	wh.dwLoops = 0;
+
+	for (i = 0; i < wh.dwBufferLength; ++i)	// generate square wave
+	{
+		wh.lpData[i] = (BYTE) (((__int64) 2 * frequency * i / 11025) & 1) * 64;
+	}
+
+	VERIFY(waveOutPrepareHeader(hSoundDevice,&wh,sizeof(wh)) == MMSYSERR_NOERROR);
+
+	ResetEvent(hEventSound);				// prepare event for finishing
+	VERIFY(waveOutWrite(hSoundDevice,&wh,sizeof(wh)) == MMSYSERR_NOERROR);
+	WaitForSingleObject(hEventSound,INFINITE); // wait for finishing
+
+	VERIFY(waveOutUnprepareHeader(hSoundDevice,&wh,sizeof(wh)) == MMSYSERR_NOERROR);
+	VERIFY(waveOutClose(hSoundDevice) == MMSYSERR_NOERROR);
+
+	LocalFree(wh.lpData);
+	CloseHandle(hEventSound);
+	return;
 }
 
 /* shell_annunciators()
