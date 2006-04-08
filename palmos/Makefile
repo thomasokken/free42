@@ -16,7 +16,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ###############################################################################
 
-CFLAGS = -MMD -Wall -g -DPALMOS=1
+CFLAGS = -MMD -Wall -g -DPALMOS=1 -I../../peal-2005_4_14/m68k
 #CFLAGS = -MMD -Wall -g -DPALMOS=1 -save-temps
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 LDFLAGS = -g
@@ -32,7 +32,7 @@ OBJS = shell1.o shell2.o shell_spool.o myglue.o filesys.o core_main.o \
 	core_commands4.o core_commands5.o core_commands6.o core_display.o \
 	core_globals.o core_helpers.o core_keydown.o core_linalg1.o \
 	core_linalg2.o core_math1.o core_math2.o core_phloat.o \
-	core_sto_rcl.o core_tables.o core_variables.o
+	core_sto_rcl.o core_tables.o core_variables.o peal.o
 
 ifdef BCD_MATH
 CXXFLAGS += -DBCD_MATH
@@ -46,8 +46,16 @@ SHELL_DEF = shell_bin.def
 TARGET = free42bin.prc
 endif
 
-$(TARGET): shell shell.ro Original.prc
-	build-prc -o $(TARGET) $(SHELL_DEF) shell shell.ro Original.prc
+$(TARGET): shell shell.ro pno.ro Original.prc
+	build-prc -o $(TARGET) $(SHELL_DEF) shell shell.ro pno.ro Original.prc
+
+pno.ro: pno.c
+	arm-palmos-gcc -fPIC -Os -Wl,--split-by-file=60000 -march=armv4t \
+		-msingle-pic-base -Wl,--emit-relocs -nostartfiles -Wall \
+		-I/PalmDev/sdk-5r3/include/Core/System \
+		-I../../peal-2005_4_14/arm pno.c pealstub.c -o pno
+	../../peal-2005_4_14/postlink/peal-postlink -v -s 1000 -t armc \
+		-o pno.ro pno
 
 $(SRCS): symlinks
 
@@ -158,17 +166,16 @@ skin2prc: skin2prc.cc skin2prc.h
 
 clean:
 	rm -f `ls *.prc | grep -v '^free42'` \
-		shell shell.ro *.o *.i *.ii *.s *.d \
+		shell shell.ro pno pno.ro *.o *.i *.ii *.s *.d \
 		*.out *.grc shell.gdb `find . -type l` \
 		shell-sections.s shell-sections.ld symlinks \
 		skin2prc skin2prc.exe tmp_skin.*
 
 cleaner:
-	rm -f *.prc shell shell.ro *.o *.i *.ii *.s *.d \
+	rm -f *.prc shell shell.ro pno pno.ro *.o *.i *.ii *.s *.d \
 		*.out *.grc shell.gdb `find . -type l` \
 		shell-sections.s shell-sections.ld symlinks \
 		skin2prc skin2prc.exe tmp_skin.* Free42PalmOSSkins.zip
 
 -include $(SRCS:.cc=.d)
 -include MathLib.d
--include shell.d
