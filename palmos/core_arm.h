@@ -1,0 +1,110 @@
+/*****************************************************************************
+ * Free42 -- an HP-42S calculator simulator
+ * Copyright (C) 2004-2006  Thomas Okken
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License, version 2,
+ * as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *****************************************************************************/
+
+#ifndef CORE_ARM_H
+#define CORE_ARM_H 1
+
+#include "free42.h"
+
+struct arg_core_init {
+    int2 read_state;
+    int4 version;
+};
+
+struct arg_core_keydown {
+    int2 key;
+    int2 enqueued;
+    int2 repeat;
+};
+
+struct arg_core_list_programs {
+    char *buf;
+    int2 bufsize;
+};
+
+struct arg_core_export_programs {
+    int2 count;
+    const int2 *indexes;
+    // TODO: progress report callback
+};
+
+struct arg_core_copy {
+    char *buf;
+    int2 buflen;
+};
+
+struct arg_shell_blitter {
+    const char *bits;
+    int2 bytesperline;
+    int2 x;
+    int2 y;
+    int2 width;
+    int2 height;
+};
+
+struct arg_shell_beeper {
+    int2 frequency;
+    int2 duration;
+};
+
+struct arg_shell_annunciators {
+    int2 updn;
+    int2 shf;
+    int2 prt;
+    int2 run;
+    int2 g;
+    int2 rad;
+};
+
+struct arg_shell_read_saved_state {
+    void *buf;
+    int4 bufsize;
+};
+
+struct arg_shell_write_saved_state {
+    const void *buf;
+    int4 nbytes;
+};
+
+struct arg_shell_print {
+    const char *text;
+    int2 length;
+    const char *bits;
+    int2 bytesperline;
+    int2 x;
+    int2 y;
+    int2 width;
+    int2 height;
+};
+
+struct arg_shell_write {
+    const char *buf;
+    int4 buflen;
+};
+
+struct arg_shell_read {
+    char *buf;
+    int4 buflen;
+};
+
+struct arg_shell_put_bcd_table {
+    void *bcdtab;
+    uint4 size;
+};
+
+#endif

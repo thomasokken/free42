@@ -21,41 +21,24 @@ CFLAGS = -MMD -Wall -g -DPALMOS=1 -I../../peal-2005_4_14/m68k
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 LDFLAGS = -g
 
-SRCS = shell1.cc shell2.cc shell_spool.cc myglue.cc filesys.cc core_main.cc \
-	core_commands1.cc core_commands2.cc core_commands3.cc \
-	core_commands4.cc core_commands5.cc core_commands6.cc core_display.cc \
-	core_globals.cc core_helpers.cc core_keydown.cc core_linalg1.cc \
-	core_linalg2.cc core_math1.cc core_math2.cc core_phloat.cc \
-	core_sto_rcl.cc core_tables.cc core_variables.cc
-OBJS = shell1.o shell2.o shell_spool.o myglue.o filesys.o core_main.o \
-	core_commands1.o core_commands2.o core_commands3.o \
-	core_commands4.o core_commands5.o core_commands6.o core_display.o \
-	core_globals.o core_helpers.o core_keydown.o core_linalg1.o \
-	core_linalg2.o core_math1.o core_math2.o core_phloat.o \
-	core_sto_rcl.o core_tables.o core_variables.o peal.o
+SRCS = shell1.cc shell2.cc shell_spool.cc myglue.cc filesys.cc shellarm.cc
+OBJS = shell1.o shell2.o shell_spool.o myglue.o filesys.o shellarm.o peal.o
+
 
 ifdef BCD_MATH
 CXXFLAGS += -DBCD_MATH
-SRCS += bcdfloat.cc bcd.cc bcdmath.cc
-OBJS += bcdfloat.o bcd.o bcdmath.o
 SHELL_DEF = shell_dec.def
 TARGET = free42dec.prc
 else
-OBJS += MathLib.o
 SHELL_DEF = shell_bin.def
 TARGET = free42bin.prc
 endif
 
-$(TARGET): shell shell.ro pno.ro Original.prc
-	build-prc -o $(TARGET) $(SHELL_DEF) shell shell.ro pno.ro Original.prc
+$(TARGET): shell shell.ro armcore.ro Original.prc
+	build-prc -o $(TARGET) $(SHELL_DEF) shell shell.ro armcore.ro Original.prc
 
-pno.ro: pno.c
-	arm-palmos-gcc -fPIC -Os -Wl,--split-by-file=60000 -march=armv4t \
-		-msingle-pic-base -Wl,--emit-relocs -nostartfiles -Wall \
-		-I/PalmDev/sdk-5r3/include/Core/System \
-		-I../../peal-2005_4_14/arm pno.c pealstub.c -o pno
-	../../peal-2005_4_14/postlink/peal-postlink -v -s 1000 -t armc \
-		-o pno.ro pno
+armcore.ro:
+	$(MAKE) -f Makefile.armcore
 
 $(SRCS): symlinks
 
@@ -119,6 +102,9 @@ shell-sections.s shell-sections.ld: $(SHELL_DEF)
 .cc.o:
 	m68k-palmos-g++ $(CXXFLAGS) -c -o $@ $<
 
+shell_arm.o:
+	m68k-palmos-g++ $(CXXFLAGS) -malign-int -c -o $@ $<
+
 shell: $(OBJS) shell-sections.s shell-sections.ld
 	m68k-palmos-g++ $(LDFLAGS) -o shell $(OBJS) \
 		-lnoexcept -lPalmOSGlue \
@@ -166,16 +152,15 @@ skin2prc: skin2prc.cc skin2prc.h
 
 clean:
 	rm -f `ls *.prc | grep -v '^free42'` \
-		shell shell.ro pno pno.ro *.o *.i *.ii *.s *.d \
+		shell shell.ro armcore armcore.ro *.o *.i *.ii *.s *.d \
 		*.out *.grc shell.gdb `find . -type l` \
 		shell-sections.s shell-sections.ld symlinks \
 		skin2prc skin2prc.exe tmp_skin.*
 
 cleaner:
-	rm -f *.prc shell shell.ro pno pno.ro *.o *.i *.ii *.s *.d \
+	rm -f *.prc shell shell.ro armcore armcore.ro *.o *.i *.ii *.s *.d \
 		*.out *.grc shell.gdb `find . -type l` \
 		shell-sections.s shell-sections.ld symlinks \
 		skin2prc skin2prc.exe tmp_skin.* Free42PalmOSSkins.zip
 
 -include $(SRCS:.cc=.d)
--include MathLib.d

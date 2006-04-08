@@ -24,7 +24,7 @@
 
 #include "pealstub.h"
 #include <stdint.h>
-#include <PceNativeCall.h>
+#include <Core/System/PceNativeCall.h>
 
 // Emulator state for calls back into 68K (set by PealArmStub)
 #ifdef __cplusplus

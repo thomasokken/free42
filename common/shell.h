@@ -195,8 +195,8 @@ typedef struct {
     double neg_huge_double;
     double pos_tiny_double;
     double neg_tiny_double;
-    int max_pow2;
-    int min_pow2;
+    int2 max_pow2;
+    int2 min_pow2;
     uint4 pos_pow2exp_offset; /* Offsets are from the end of this struct */
     uint4 neg_pow2mant_offset;/* pos_pow2mant_offset is implicitly 0 */
     uint4 neg_pow2exp_offset;

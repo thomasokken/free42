@@ -25,7 +25,7 @@
 #ifndef PEALSTUB_H
 #define PEALSTUB_H
 
-#include <PceNativeCall.h>
+#include <Core/System/PceNativeCall.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -20,7 +20,7 @@
 #define FREE42_H 1
 
 
-#ifdef PALMOS
+#if defined(PALMOS) && !defined(PALMOS_ARM)
 
 #include <PalmOS.h>
 #include <Libraries/PalmOSGlue/PalmOSGlue.h>
@@ -54,6 +54,8 @@ extern "C" {
 #define TABLES_SECT __attribute__ ((section ("Tables")))
 #define VARIABLES_SECT __attribute__ ((section ("Variabls")))
 #define BCD_SECT __attribute__ ((section ("BcdFloat")))
+#define int2 Int16
+#define uint2 UInt16
 #define int4 Int32
 #define uint4 UInt32
 
@@ -83,6 +85,8 @@ extern "C" {
 #define TABLES_SECT
 #define VARIABLES_SECT
 #define BCD_SECT
+#define int2 short
+#define uint2 unsigned short
 #define int4 int
 #define uint4 unsigned int
 
