@@ -16,6 +16,10 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *****************************************************************************/
 
+#include <PalmOS.h>
+extern "C" {
+#include "../../peal-2005_4_14/m68k/peal.h"
+}
 #include <stdlib.h>
 
 #include "core_commands1.h"
@@ -1196,8 +1200,18 @@ int docmd_abs(arg_struct *arg) {
 	case TYPE_REAL: {
 	    vartype *r;
 	    phloat x = ((vartype_real *) reg_x)->x;
+#if 1
+	    long q = (long) x;
+	    PealModule *m = PealLoadFromResources('armc', 1000);
+	    void *address = PealLookupSymbol(m, "NativeFunction");
+	    unsigned long result = PealCall(m, address, (void *) q);
+	    q = (long) result;
+	    PealUnload(m);
+	    x = q;
+#else
 	    if (x < 0)
 		x = -x;
+#endif
 	    r = new_real(x);
 	    if (r == NULL)
 		return ERR_INSUFFICIENT_MEMORY;
