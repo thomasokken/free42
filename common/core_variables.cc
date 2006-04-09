@@ -24,29 +24,74 @@
 #include "core_variables.h"
 
 
+// We cache vartype_real, vartype_complex, and vartype_string instances, to
+// cut down on the malloc/free overhead. This overhead is particularly painful
+// in the PalmOS ARM version, because it has to do an ARM-to-68K call for each
+// malloc or free, and that's a performance killer when running programs.
+
+typedef struct pool_real {
+    vartype_real r;
+    struct pool_real *next;
+} pool_real;
+
+static pool_real *realpool = NULL;
+
+typedef struct pool_complex {
+    vartype_complex c;
+    struct pool_complex *next;
+} pool_complex;
+
+static pool_complex *complexpool = NULL;
+
+typedef struct pool_string {
+    vartype_string s;
+    struct pool_string *next;
+} pool_string;
+
+static pool_string *stringpool = NULL;
+
 vartype *new_real(phloat value) {
-    vartype_real *r = (vartype_real *) malloc(sizeof(vartype_real));
-    r->type = TYPE_REAL;
-    r->x = value;
+    pool_real *r;
+    if (realpool == NULL) {
+	r = (pool_real *) malloc(sizeof(pool_real));
+	r->r.type = TYPE_REAL;
+    } else {
+	r = realpool;
+	realpool = realpool->next;
+    }
+    r->r.x = value;
     return (vartype *) r;
 }
 
 vartype *new_complex(phloat re, phloat im) {
-    vartype_complex *c = (vartype_complex *) malloc(sizeof(vartype_complex));
-    c->type = TYPE_COMPLEX;
-    c->re = re;
-    c->im = im;
+    pool_complex *c;
+    if (complexpool == NULL) {
+	c = (pool_complex *) malloc(sizeof(pool_complex));
+	c->c.type = TYPE_COMPLEX;
+    } else {
+	c = complexpool;
+	complexpool = complexpool->next;
+    }
+    c->c.re = re;
+    c->c.im = im;
     return (vartype *) c;
 }
 
-vartype *new_string(const char *s, int slen) {
-    vartype_string *str = (vartype_string *) malloc(sizeof(vartype_string));
+vartype *new_string(const char *text, int length) {
+    pool_string *s;
+    if (stringpool == NULL) {
+	s = (pool_string *) malloc(sizeof(pool_string));
+	s->s.type = TYPE_STRING;
+    } else {
+	s = stringpool;
+	stringpool = stringpool->next;
+    }
     int i;
-    str->type = TYPE_STRING;
-    str->length = slen > 6 ? 6 : slen;
-    for (i = 0; i < str->length; i++)
-	str->text[i] = s[i];
-    return (vartype *) str;
+    s->s.type = TYPE_STRING;
+    s->s.length = length > 6 ? 6 : length;
+    for (i = 0; i < s->s.length; i++)
+	s->s.text[i] = text[i];
+    return (vartype *) s;
 }
 
 vartype *new_realmatrix(int4 rows, int4 columns) {
@@ -107,11 +152,24 @@ void free_vartype(vartype *v) {
     if (v == NULL)
 	return;
     switch (v->type) {
-	case TYPE_REAL:
-	case TYPE_COMPLEX:
-	case TYPE_STRING:
-	    free(v);
+	case TYPE_REAL: {
+	    pool_real *r = (pool_real *) v;
+	    r->next = realpool;
+	    realpool = r;
 	    break;
+	}
+	case TYPE_COMPLEX: {
+	    pool_complex *c = (pool_complex *) v;
+	    c->next = complexpool;
+	    complexpool = c;
+	    break;
+	}
+	case TYPE_STRING: {
+	    pool_string *s = (pool_string *) v;
+	    s->next = stringpool;
+	    stringpool = s;
+	    break;
+	}
 	case TYPE_REALMATRIX: {
 	    vartype_realmatrix *rm = (vartype_realmatrix *) v;
 	    if (--(rm->array->refcount) == 0) {
@@ -131,6 +189,24 @@ void free_vartype(vartype *v) {
 	    free(cm);
 	    break;
 	}
+    }
+}
+
+void clean_vartype_pools() {
+    while (realpool != NULL) {
+	pool_real *r = realpool;
+	realpool = r->next;
+	free(r);
+    }
+    while (complexpool != NULL) {
+	pool_complex *c = complexpool;
+	complexpool = c->next;
+	free(c);
+    }
+    while (stringpool != NULL) {
+	pool_string *s = stringpool;
+	stringpool = s->next;
+	free(s);
     }
 }
 

@@ -3,6 +3,9 @@
 * New: ARM-native PalmOS version. It's not for everyone -- it's big, it starts
   up much slower than the 68k version, and of course you need a Palm with an
   ARM CPU -- but once it gets going, it's pretty fast!
+* Implemented instance caching for scalars and strings. This eliminates the
+  memory management overhead from most simple instructions and speeds up
+  program execution.
 
 04-04-2006: version 1.4.12
 

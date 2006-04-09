@@ -27,6 +27,7 @@ vartype *new_string(const char *s, int slen) VARIABLES_SECT;
 vartype *new_realmatrix(int4 rows, int4 columns) VARIABLES_SECT;
 vartype *new_complexmatrix(int4 rows, int4 columns) VARIABLES_SECT;
 void free_vartype(vartype *v) VARIABLES_SECT;
+void clean_vartype_pools() VARIABLES_SECT;
 vartype *dup_vartype(const vartype *v) VARIABLES_SECT;
 int disentangle(vartype *v) VARIABLES_SECT;
 int lookup_var(const char *name, int namelength) VARIABLES_SECT;

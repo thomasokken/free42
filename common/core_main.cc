@@ -85,6 +85,7 @@ void core_quit() {
     clear_all_prgms();
     if (vars != NULL)
 	free(vars);
+    clean_vartype_pools();
     phloat_cleanup();
 }
 
