@@ -16,7 +16,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ###############################################################################
 
-CFLAGS = -MMD -Wall -g -DPALMOS=1 -DNO_MATHLIB=1 -I../../peal-2005_4_14/m68k
+CFLAGS = -MMD -Wall -g -DPALMOS=1 -DPALMOS_ARM_SHELL=1 -I../../peal-2005_4_14/m68k
 #CFLAGS = -MMD -Wall -g -DPALMOS=1 -save-temps
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 LDFLAGS = -g

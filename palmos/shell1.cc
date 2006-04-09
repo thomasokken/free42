@@ -34,7 +34,7 @@ static MemHandle printrec;
 static DmOpenRef bcddb;
 static MemHandle bcdrec;
 
-#if 1
+#ifdef DEBUG
 void logtofile(const char *message) {
     char basename[FILENAMELEN];
     char *crlf = "\r\n";
@@ -142,9 +142,6 @@ static void close_printout() {
 
 void shell_blitter(const char *bits, int bytesperline,
 	       int x, int y, int width, int height) {
-    //char buf[100];
-    //StrPrintF(buf, "entering shell_blitter: %lu (%u)", TimGetTicks(), SysTicksPerSecond());
-    //log(buf);
     /* Callback for emulator core; it calls this to blit stuff
      * to the display
      */
@@ -155,9 +152,6 @@ void shell_blitter(const char *bits, int bytesperline,
     UInt16 rowbytes;
     BmpGlueGetDimensions(disp_bitmap, NULL, NULL, &rowbytes);
 
-    //StrPrintF(buf, "before The Loop: %lu (%u)", TimGetTicks(), SysTicksPerSecond());
-    //log(buf);
-    
     UInt32 src_off = y * bytesperline;
     UInt32 dst_off = y * yscale * rowbytes;
 
@@ -202,8 +196,6 @@ void shell_blitter(const char *bits, int bytesperline,
 	dst_off += rowbytes;
 	src_off += bytesperline;
     }
-    //StrPrintF(buf, "after The Loop: %lu (%u)", TimGetTicks(), SysTicksPerSecond());
-    //log(buf);
 
     if (can_draw && FrmGetActiveFormID() == calcform_id) {
 	set_colors(&skin->display_bg, &skin->display_fg);
@@ -214,9 +206,6 @@ void shell_blitter(const char *bits, int bytesperline,
 	if (softkey != 0)
 	    draw_softkey(1);
     }
-    //StrPrintF(buf, "leaving shell_blitter: %lu (%u)", TimGetTicks(), SysTicksPerSecond());
-    //log(buf);
-    //log("");
 }
 
 void shell_beeper(int frequency, int duration) {
@@ -230,13 +219,6 @@ void shell_beeper(int frequency, int duration) {
 }
 
 void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
-    logtofile("shell_annunciators()");
-    lognumber(updn);
-    lognumber(shf);
-    lognumber(prt);
-    lognumber(run);
-    lognumber(g);
-    lognumber(rad);
     if (can_draw && FrmGetActiveFormID() == calcform_id) {
 	if (updn != -1 && updn != updownAnn) {
 	    updownAnn = updn;
@@ -412,8 +394,14 @@ void shell_print(const char *text, int length,
 	print_to_gif(bits, bytesperline, x, y, width, height);
 }
 
+#ifdef PALMOS_ARM_SHELL
+#define BCD_CONV_DB_NAME "Free42BcdConvLE"
+#else
+#define BCD_CONV_DB_NAME "Free42BcdConv"
+#endif
+
 shell_bcd_table_struct *shell_get_bcd_table() {
-    LocalID id = DmFindDatabase(0, "Free42BcdConv");
+    LocalID id = DmFindDatabase(0, BCD_CONV_DB_NAME);
     if (id == 0)
 	return NULL;
     bcddb = DmOpenDatabase(0, id, dmModeReadWrite);
@@ -434,8 +422,8 @@ shell_bcd_table_struct *shell_put_bcd_table(shell_bcd_table_struct *bcdtab, uint
     UInt16 index = 0;
     shell_bcd_table_struct *newtab;
 
-    DmCreateDatabase(0, "Free42BcdConv", 'Fk42', 'BcdC', false);
-    id = DmFindDatabase(0, "Free42BcdConv");
+    DmCreateDatabase(0, BCD_CONV_DB_NAME, 'Fk42', 'BcdC', false);
+    id = DmFindDatabase(0, BCD_CONV_DB_NAME);
     if (id == 0)
 	ErrFatalDisplayIf(true, "Can't create BCD conversion database.");
     bcddb = DmOpenDatabase(0, id, dmModeReadWrite);
@@ -505,12 +493,22 @@ UInt32 shell_main(UInt16 cmd, void *pbp, UInt16 flags) {
 
 	    FrmGotoForm(calcform_id);
 
-	    #if !defined(BCD_MATH) && !defined(NO_MATHLIB)
+	    #if !defined(BCD_MATH) && !defined(PALMOS_ARM_SHELL)
 	    open_math_lib();
-	    #else
+	    #endif
+
+	    #if defined(BCD_MATH) || defined(PALMOS_ARM_SHELL)
 	    {
 	    UInt16 card = 0;
 	    LocalID dbid = DmFindDatabase(card, "Free42BcdConv");
+	    DmDeleteDatabase(card, dbid);
+	    }
+	    #endif
+
+	    #if defined(BCD_MATH) || !defined(PALMOS_ARM_SHELL)
+	    {
+	    UInt16 card = 0;
+	    LocalID dbid = DmFindDatabase(card, "Free42BcdConvLE");
 	    DmDeleteDatabase(card, dbid);
 	    }
 	    #endif
@@ -652,7 +650,7 @@ UInt32 shell_main(UInt16 cmd, void *pbp, UInt16 flags) {
 		}
 	    }
 
-	    #if !defined(BCD_MATH) && !defined(NO_MATHLIB)
+	    #if !defined(BCD_MATH) && !defined(PALMOS_ARM_SHELL)
 	    close_math_lib();
 	    #endif
 

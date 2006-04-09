@@ -40,6 +40,7 @@ struct arg_core_list_programs {
 
 struct arg_core_export_programs {
     int2 count;
+    int2 dummy;
     const int2 *indexes;
     // TODO: progress report callback
 };
@@ -85,6 +86,7 @@ struct arg_shell_write_saved_state {
 struct arg_shell_print {
     const char *text;
     int2 length;
+    int2 dummy;
     const char *bits;
     int2 bytesperline;
     int2 x;

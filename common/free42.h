@@ -41,7 +41,7 @@ extern "C" {
 #define COMMANDS4_SECT __attribute__ ((section ("Commnds4")))
 #define COMMANDS5_SECT __attribute__ ((section ("Commnds5")))
 #define COMMANDS6_SECT __attribute__ ((section ("Commnds6")))
-#ifdef NO_MATHLIB
+#ifdef PALMOS_ARM_SHELL
 #define DISPLAY_SECT
 #else
 #define DISPLAY_SECT __attribute__ ((section ("Display")))

@@ -3237,3 +3237,22 @@ shell_bcd_table_struct *shell_put_bcd_table(shell_bcd_table_struct *bcdtab,
 void shell_release_bcd_table(shell_bcd_table_struct *bcdtab) {
     free(bcdtab);
 }
+
+#if 1
+void logtofile(const char *message) {
+    printf("%s\n", message);
+}
+void lognumber(int4 num) {
+    printf("num=%d (0x%x)\n", num, num);
+}
+void logdouble(double d) {
+    union {
+	double d;
+	struct {
+	    int x, y;
+	} i;
+    } u;
+    u.d = d;
+    printf("dbl=%g (0x%08x%08x)\n", d, u.i.x, u.i.y);
+}
+#endif

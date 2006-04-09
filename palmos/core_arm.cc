@@ -168,9 +168,11 @@ unsigned long p_shell_release_bcd_table;
 unsigned long p_malloc;
 unsigned long p_realloc;
 unsigned long p_free;
+#ifdef DEBUG
 unsigned long p_logtofile;
 unsigned long p_lognumber;
 unsigned long p_logdouble;
+#endif
 
 void shell_blitter(const char *bits, int bytesperline, int x, int y,
 			     int width, int height) {
@@ -328,6 +330,7 @@ void free(void *ptr) {
     gCall68KFuncP(gEmulStateP, p_free, &p, 4);
 }
 
+#ifdef DEBUG
 void logtofile(const char *message) {
     int4 p = (int4) message;
     p = ByteSwap32(p);
@@ -354,6 +357,7 @@ void logdouble(double num) {
     p = ByteSwap32(p);
     gCall68KFuncP(gEmulStateP, p_logdouble, &p, 4);
 }
+#endif
 
 
 //////////////////////////////////////

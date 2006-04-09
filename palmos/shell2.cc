@@ -85,8 +85,13 @@ static void do_copy() SHELL2_SECT;
 static void do_delete() SHELL2_SECT;
 static void do_removedir() SHELL2_SECT;
 
+#ifdef PALMOS_ARM_SHELL
+void get_core_settings();
+void put_core_settings();
+#endif
 
-#if !defined(BCD_MATH) && !defined(NO_MATHLIB)
+
+#if !defined(BCD_MATH) && !defined(PALMOS_ARM_SHELL)
 void open_math_lib() {
     Err error;
 
@@ -419,7 +424,7 @@ void unload_skin() {
     }
 }
 
-#if !defined(BCD_MATH) && !defined(NO_MATHLIB)
+#if !defined(BCD_MATH) && !defined(PALMOS_ARM_SHELL)
 void close_math_lib() {
     UInt16 usecount;
     Err error;
@@ -893,6 +898,9 @@ Boolean form_handler(EventType *e) {
 					prefsform2_id : prefsform1_id);
 		    FrmSetEventHandler(form, prefs_handler);
 
+		    #ifdef PALMOS_ARM_SHELL
+		    get_core_settings();
+		    #endif
 		    i = FrmGetObjectIndex(form, prefs_matrix_singularmatrix);
 		    FrmSetControlValue(form, i,
 					core_settings.matrix_singularmatrix);
@@ -959,6 +967,9 @@ Boolean form_handler(EventType *e) {
 					FrmGetControlValue(form, i);
 		    i = FrmGetObjectIndex(form, raw_text_id);
 		    core_settings.raw_text = FrmGetControlValue(form, i);
+		    #ifdef PALMOS_ARM_SHELL
+		    put_core_settings();
+		    #endif
 
 		    i = FrmGetObjectIndex(form, prefs_printer_memo);
 		    state.printerToMemo = FrmGetControlValue(form, i);
