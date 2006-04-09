@@ -59,9 +59,16 @@ extern "C" {
 #define int4 Int32
 #define uint4 UInt32
 
-#else /* !PALMOS */
+#else /* !PALMOS || PALMOS_ARM */
 
+#ifndef BCD_MATH
+#ifdef PALMOS_ARM
+#include "math.h"
+#else
 #include <math.h>
+#endif
+#endif
+
 #define SHELL1_SECT
 #define SHELL2_SECT
 #define FILESYS_SECT
@@ -90,7 +97,7 @@ extern "C" {
 #define int4 int
 #define uint4 unsigned int
 
-#endif /* PALMOS */
+#endif /* PALMOS/PALMOS_ARM */
 
 
 #if defined(WINDOWS) && !defined(__GNUC__)

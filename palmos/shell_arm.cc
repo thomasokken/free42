@@ -16,6 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *****************************************************************************/
 
+#include <stdlib.h>
 #include "peal.h"
 #include "core_arm.h"
 
@@ -59,6 +60,9 @@ static int4 arm_shell_read(arg_shell_read *arg);
 static shell_bcd_table_struct *arm_shell_get_bcd_table();
 static shell_bcd_table_struct *arm_shell_put_bcd_table(arg_shell_put_bcd_table *arg);
 static void arm_shell_release_bcd_table(shell_bcd_table_struct *table);
+static void* arm_malloc(int4 size);
+static void* arm_realloc(arg_realloc *arg);
+static void arm_free(void *ptr);
 
 void core_init(int read_state, int4 version) {
     m = PealLoadFromResources('armc', 1000);
@@ -102,10 +106,13 @@ void core_init(int read_state, int4 version) {
     p = PealLookupSymbol("p_shell_get_bcd_table"); *p = arm_shell_get_bcd_table;
     p = PealLookupSymbol("p_shell_put_bcd_table"); *p = arm_shell_put_bcd_table;
     p = PealLookupSymbol("p_shell_release_bcd_table"); *p = arm_shell_release_bcd_table;
+    p = PealLookupSymbol("p_malloc"); *p = arm_malloc;
+    p = PealLookupSymbol("p_realloc"); *p = arm_realloc;
+    p = PealLookupSymbol("p_free"); *p = arm_free;
 
     arg_core_init arg;
-    arg.read_state = read_state;
-    arg.version = version;
+    arg.read_state = ByteSwap16(read_state);
+    arg.version = ByteSwap32(version);
     PealCall(m, p_core_init, &arg);
 }
 
@@ -119,28 +126,32 @@ void core_repaint_display() {
 }
 
 int core_menu() {
-    return (int) PealCall(m, p_core_menu, NULL);
+    int4 ret = PealCall(m, p_core_menu, NULL);
+    return (int) ByteSwap32(ret);
 }
 
 int core_alpha_menu() {
-    return (int) PealCall(m, p_core_alpha_menu, NULL);
+    int4 ret = PealCall(m, p_core_alpha_menu, NULL);
+    return (int) ByteSwap32(ret);
 }
 
 int core_hex_menu() {
-    return (int) PealCall(m, p_core_hex_menu, NULL);
+    int4 ret = PealCall(m, p_core_hex_menu, NULL);
+    return (int) ByteSwap32(ret);
 }
 
 int core_keydown(int key, int *enqueued, int *repeat) {
     arg_core_keydown arg;
-    arg.key = key;
-    int ret = (int) PealCall(m, p_core_keydown, &arg);
-    *enqueued = arg.enqueued;
-    *repeat = arg.repeat;
-    return ret;
+    arg.key = ByteSwap16(key);
+    int4 ret = PealCall(m, p_core_keydown, &arg);
+    *enqueued = ByteSwap16(arg.enqueued);
+    *repeat = ByteSwap16(arg.repeat);
+    return (int) ByteSwap32(ret);
 }
 
 int core_repeat() {
-    return (int) PealCall(m, p_core_repeat, NULL);
+    int4 ret = PealCall(m, p_core_repeat, NULL);
+    return (int) ByteSwap32(ret);
 }
 
 void core_keytimeout1() {
@@ -152,40 +163,46 @@ void core_keytimeout2() {
 }
 
 void core_timeout3(int repaint) {
-    PealCall(m, p_core_timeout3, (void *) repaint);
+    int4 p = repaint;
+    p = ByteSwap32(p);
+    PealCall(m, p_core_timeout3, (void *) p);
 }
 
 int core_keyup() {
-    return (int) PealCall(m, p_core_keyup, NULL);
+    int4 ret = PealCall(m, p_core_keyup, NULL);
+    return (int) ByteSwap32(ret);
 }
 
 int core_allows_powerdown(int *want_cpu) {
     struct {
-	int x;
+	int4 x;
     } int_aligner;
-    int ret = (int) PealCall(m, p_core_allows_powerdown, &int_aligner.x);
-    *want_cpu = int_aligner.x;
-    return ret;
+    int4 ret = (int) PealCall(m, p_core_allows_powerdown, &int_aligner.x);
+    *want_cpu = (int) ByteSwap32(int_aligner.x);
+    return (int) ByteSwap32(ret);
 }
 
 int core_powercycle() {
-    return (int) PealCall(m, p_core_powercycle, NULL);
+    int4 ret = PealCall(m, p_core_powercycle, NULL);
+    return (int) ByteSwap32(ret);
 }
 
 int core_list_programs(char *buf, int bufsize) {
     arg_core_list_programs arg;
-    arg.buf = buf;
-    arg.bufsize = bufsize;
-    return (int) PealCall(m, p_core_list_programs, &arg);
+    arg.buf = (char *) ByteSwap32(buf);
+    arg.bufsize = ByteSwap16(bufsize);
+    int4 ret = PealCall(m, p_core_list_programs, &arg);
+    return (int) ByteSwap32(ret);
 }
 
 int core_export_programs(int count, const int *indexes,
 			 int (*progress_report)(const char *)) {
     arg_core_export_programs arg;
-    arg.count = count;
-    arg.indexes = indexes;
+    arg.count = ByteSwap16(count);
+    arg.indexes = (const int *) ByteSwap32(indexes);
     // TODO: progress report callback
-    return PealCall(m, p_core_export_programs, &arg);
+    int4 ret = PealCall(m, p_core_export_programs, &arg);
+    return (int) ByteSwap32(ret);
 }
 
 void core_import_programs(int (*progress_report)(const char *)) {
@@ -195,13 +212,14 @@ void core_import_programs(int (*progress_report)(const char *)) {
 
 void core_copy(char *buf, int buflen) {
     arg_core_copy arg;
-    arg.buf = buf;
-    arg.buflen = buflen;
+    arg.buf = (char *) ByteSwap32(buf);
+    arg.buflen = ByteSwap16(buflen);
     PealCall(m, p_core_copy, &arg);
 }
 
 void core_paste(const char *s) {
-    PealCall(m, p_core_paste, (void *) s);
+    const char *ss = (const char *) ByteSwap32(s);
+    PealCall(m, p_core_paste, (void *) ss);
 }
 
 static void arm_shell_blitter(arg_shell_blitter *arg) {
@@ -276,4 +294,16 @@ static shell_bcd_table_struct *arm_shell_put_bcd_table(arg_shell_put_bcd_table *
 
 static void arm_shell_release_bcd_table(shell_bcd_table_struct *table) {
     shell_release_bcd_table(table);
+}
+
+static void* arm_malloc(size_t size) {
+    return malloc(size);
+}
+
+static void* arm_realloc(arg_realloc *arg) {
+    return realloc(arg->ptr, arg->size);
+}
+
+static void arm_free(void *ptr) {
+    free(ptr);
 }

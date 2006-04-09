@@ -17,10 +17,10 @@
 ###############################################################################
 
 CFLAGS = -MMD -Wall -DPALMOS=1 -DPALMOS_ARM=1 -fPIC -march=armv4t \
-		-msingle-pic-base -nostartfiles \
+		-msingle-pic-base -nostartfiles -fsigned-char \
 		-I/PalmDev/sdk-5r3/include
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
-LDFLAGS = --split-by-file=60000 --emit-relocs
+LDFLAGS = --split-by-file=60000 --emit-relocs -L/usr/lib/gcc-lib/arm-palmos/3.3.1
 
 SRCS = core_arm.cc core_main.cc \
 	core_commands1.cc core_commands2.cc core_commands3.cc \
@@ -33,14 +33,28 @@ OBJS = pealstub.o core_arm.o core_main.o \
 	core_commands4.o core_commands5.o core_commands6.o core_display.o \
 	core_globals.o core_helpers.o core_keydown.o core_linalg1.o \
 	core_linalg2.o core_math1.o core_math2.o core_phloat.o \
-	core_sto_rcl.o core_tables.o core_variables.o
+	core_sto_rcl.o core_tables.o core_variables.o \
+	math.o \
+	mathlib_e_acos.o mathlib_e_acosh.o mathlib_e_asin.o mathlib_e_atan2.o \
+	mathlib_e_atanh.o mathlib_e_cosh.o mathlib_e_exp.o mathlib_e_fmod.o \
+	mathlib_e_hypot.o mathlib_e_log.o mathlib_e_log10.o mathlib_e_pow.o \
+	mathlib_e_rem_pio2.o mathlib_e_remainder.o mathlib_e_scalb.o \
+	mathlib_e_sinh.o mathlib_e_sqrt.o mathlib_k_cos.o mathlib_k_rem_pio2.o \
+	mathlib_k_sin.o mathlib_k_tan.o mathlib_s_asinh.o mathlib_s_atan.o \
+	mathlib_s_cbrt.o mathlib_s_ceil.o mathlib_s_copysign.o mathlib_s_cos.o \
+	mathlib_s_expm1.o mathlib_s_fabs.o mathlib_s_finite.o \
+	mathlib_s_floor.o mathlib_s_frexp.o mathlib_s_ilogb.o \
+	mathlib_s_isinf.o mathlib_s_isnan.o mathlib_s_ldexp.o \
+	mathlib_s_log1p.o mathlib_s_log2.o mathlib_s_logb.o mathlib_s_modf.o \
+	mathlib_s_nextafter.o mathlib_s_rint.o mathlib_s_round.o \
+	mathlib_s_scalbn.o mathlib_s_signbit.o mathlib_s_significand.o \
+	mathlib_s_sin.o mathlib_s_sincos.o mathlib_s_tan.o mathlib_s_tanh.o \
+	mathlib_s_trunc.o
 
 ifdef BCD_MATH
 CXXFLAGS += -DBCD_MATH
 SRCS += bcdfloat.cc bcd.cc bcdmath.cc
 OBJS += bcdfloat.o bcd.o bcdmath.o
-else
-OBJS += MathLib.o
 endif
 
 armcore.ro: armcore
@@ -48,7 +62,7 @@ armcore.ro: armcore
 		-o armcore.ro armcore
 
 armcore: $(OBJS)
-	arm-palmos-ld $(LDFLAGS) -o armcore $(OBJS)
+	arm-palmos-ld $(LDFLAGS) -o armcore $(OBJS) -lgcc
 
 
 $(SRCS): symlinks
@@ -111,4 +125,3 @@ symlinks:
 	arm-palmos-g++ $(CXXFLAGS) -c -o $@ $<
 
 -include $(SRCS:.cc=.d)
--include MathLib.d

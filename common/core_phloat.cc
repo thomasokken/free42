@@ -1620,7 +1620,7 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
 
     double d = to_double(pd);
     double mantissa;
-#ifdef PALMOS
+#if defined(PALMOS) && !defined(PALMOS_ARM)
     Int16 exp;
 #else
     int exp;
@@ -1981,7 +1981,7 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
     }
 }
 
-#if defined(PALMOS) && defined(BCD_MATH)
+#if defined(PALMOS) && !defined(PALMOS_ARM) && defined(BCD_MATH)
 
 // Compatibility stuff - note that some of these are only partial
 // implementations. These are just hacks so that core_phloat and bcdfloat can

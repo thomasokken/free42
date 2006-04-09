@@ -107,4 +107,9 @@ struct arg_shell_put_bcd_table {
     uint4 size;
 };
 
+struct arg_realloc {
+    void *ptr;
+    size_t size;
+};
+
 #endif
