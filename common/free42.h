@@ -41,7 +41,11 @@ extern "C" {
 #define COMMANDS4_SECT __attribute__ ((section ("Commnds4")))
 #define COMMANDS5_SECT __attribute__ ((section ("Commnds5")))
 #define COMMANDS6_SECT __attribute__ ((section ("Commnds6")))
+#ifdef NO_MATHLIB
+#define DISPLAY_SECT
+#else
 #define DISPLAY_SECT __attribute__ ((section ("Display")))
+#endif
 #define GLOBALS_SECT __attribute__ ((section ("Globals")))
 #define HELPERS_SECT __attribute__ ((section ("Helpers")))
 #define KEYDOWN_SECT __attribute__ ((section ("KeyDown")))
