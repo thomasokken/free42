@@ -1,3 +1,5 @@
+PalmOS/ARM: PalmOS compatibility test should be modified -- check PalmOS 5.0,
+	    not 3.0, and check ARM cpu (disable the latter check if DEBUG).
 PalmOS/ARM: ARM/68K state file compatibility
 PalmOS/ARM: shell_wants_cpu() currently incurs the overhead of an ARM-to-68K
             call, PLUS the EventAvail() trap. How about invoking the trap
