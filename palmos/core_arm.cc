@@ -131,6 +131,16 @@ unsigned long arm_core_paste(void *p) {
     return 0;
 }
 
+unsigned long arm_redisplay(void *p) {
+    redisplay();
+    return 0;
+}
+
+unsigned long arm_squeak(void *p) {
+    squeak();
+    return 0;
+}
+
 
 //////////////////////////////
 ///// Calls TO the shell /////

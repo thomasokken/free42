@@ -17,8 +17,17 @@
  *****************************************************************************/
 
 #include <stdlib.h>
+#include <PalmOS.h>
+extern "C" {
 #include "peal.h"
+}
+#include "endianutils.h"
+
 #include "core_arm.h"
+#include "shell.h"
+#include "core_main.h"
+
+core_settings_struct core_settings;
 
 static PealModule *m;
 static void *p_core_init;
@@ -40,6 +49,8 @@ static void *p_core_export_programs;
 static void *p_core_import_programs;
 static void *p_core_copy;
 static void *p_core_paste;
+static void *p_redisplay;
+static void *p_squeak;
 
 static void arm_shell_blitter(arg_shell_blitter *arg);
 static void arm_shell_beeper(arg_shell_beeper *arg);
@@ -60,7 +71,7 @@ static int4 arm_shell_read(arg_shell_read *arg);
 static shell_bcd_table_struct *arm_shell_get_bcd_table();
 static shell_bcd_table_struct *arm_shell_put_bcd_table(arg_shell_put_bcd_table *arg);
 static void arm_shell_release_bcd_table(shell_bcd_table_struct *table);
-static void* arm_malloc(int4 size);
+static void* arm_malloc(size_t size);
 static void* arm_realloc(arg_realloc *arg);
 static void arm_free(void *ptr);
 
@@ -85,30 +96,32 @@ void core_init(int read_state, int4 version) {
     p_core_import_programs = PealLookupSymbol(m, "arm_core_import_programs");
     p_core_copy = PealLookupSymbol(m, "arm_core_copy");
     p_core_paste = PealLookupSymbol(m, "arm_core_paste");
+    p_redisplay = PealLookupSymbol(m, "arm_redisplay");
+    p_squeak = PealLookupSymbol(m, "arm_squeak");
 
-    void *p;
-    p = PealLookupSymbol("p_shell_blitter"); *p = arm_shell_blitter;
-    p = PealLookupSymbol("p_shell_beeper"); *p = arm_shell_beeper;
-    p = PealLookupSymbol("p_shell_annunciators"); *p = arm_shell_annunciators;
-    p = PealLookupSymbol("p_shell_wants_cpu"); *p = arm_shell_wants_cpu;
-    p = PealLookupSymbol("p_shell_delay"); *p = arm_shell_delay;
-    p = PealLookupSymbol("p_shell_request_timeout3"); *p = arm_shell_request_timeout3;
-    p = PealLookupSymbol("p_shell_read_saved_state"); *p = arm_shell_read_saved_state;
-    p = PealLookupSymbol("p_shell_write_saved_state"); *p = arm_shell_write_saved_state;
-    p = PealLookupSymbol("p_shell_get_mem"); *p = arm_shell_get_mem;
-    p = PealLookupSymbol("p_shell_low_battery"); *p = arm_shell_low_battery;
-    p = PealLookupSymbol("p_shell_powerdown"); *p = arm_shell_powerdown;
-    //p = PealLookupSymbol("p_shell_random_seed"); *p = arm_shell_random_seed;
-    p = PealLookupSymbol("p_shell_milliseconds"); *p = arm_shell_milliseconds;
-    p = PealLookupSymbol("p_shell_print"); *p = arm_shell_print;
-    p = PealLookupSymbol("p_shell_write"); *p = arm_shell_write;
-    p = PealLookupSymbol("p_shell_read"); *p = arm_shell_read;
-    p = PealLookupSymbol("p_shell_get_bcd_table"); *p = arm_shell_get_bcd_table;
-    p = PealLookupSymbol("p_shell_put_bcd_table"); *p = arm_shell_put_bcd_table;
-    p = PealLookupSymbol("p_shell_release_bcd_table"); *p = arm_shell_release_bcd_table;
-    p = PealLookupSymbol("p_malloc"); *p = arm_malloc;
-    p = PealLookupSymbol("p_realloc"); *p = arm_realloc;
-    p = PealLookupSymbol("p_free"); *p = arm_free;
+    void **p;
+    p = (void **) PealLookupSymbol(m, "p_shell_blitter"); *p = arm_shell_blitter;
+    p = (void **) PealLookupSymbol(m, "p_shell_beeper"); *p = arm_shell_beeper;
+    p = (void **) PealLookupSymbol(m, "p_shell_annunciators"); *p = arm_shell_annunciators;
+    p = (void **) PealLookupSymbol(m, "p_shell_wants_cpu"); *p = arm_shell_wants_cpu;
+    p = (void **) PealLookupSymbol(m, "p_shell_delay"); *p = arm_shell_delay;
+    p = (void **) PealLookupSymbol(m, "p_shell_request_timeout3"); *p = arm_shell_request_timeout3;
+    p = (void **) PealLookupSymbol(m, "p_shell_read_saved_state"); *p = arm_shell_read_saved_state;
+    p = (void **) PealLookupSymbol(m, "p_shell_write_saved_state"); *p = arm_shell_write_saved_state;
+    p = (void **) PealLookupSymbol(m, "p_shell_get_mem"); *p = arm_shell_get_mem;
+    p = (void **) PealLookupSymbol(m, "p_shell_low_battery"); *p = arm_shell_low_battery;
+    p = (void **) PealLookupSymbol(m, "p_shell_powerdown"); *p = arm_shell_powerdown;
+    //p = (void **) PealLookupSymbol(m, "p_shell_random_seed"); *p = arm_shell_random_seed;
+    p = (void **) PealLookupSymbol(m, "p_shell_milliseconds"); *p = arm_shell_milliseconds;
+    p = (void **) PealLookupSymbol(m, "p_shell_print"); *p = arm_shell_print;
+    p = (void **) PealLookupSymbol(m, "p_shell_write"); *p = arm_shell_write;
+    p = (void **) PealLookupSymbol(m, "p_shell_read"); *p = arm_shell_read;
+    p = (void **) PealLookupSymbol(m, "p_shell_get_bcd_table"); *p = arm_shell_get_bcd_table;
+    p = (void **) PealLookupSymbol(m, "p_shell_put_bcd_table"); *p = arm_shell_put_bcd_table;
+    p = (void **) PealLookupSymbol(m, "p_shell_release_bcd_table"); *p = arm_shell_release_bcd_table;
+    p = (void **) PealLookupSymbol(m, "p_malloc"); *p = arm_malloc;
+    p = (void **) PealLookupSymbol(m, "p_realloc"); *p = arm_realloc;
+    p = (void **) PealLookupSymbol(m, "p_free"); *p = arm_free;
 
     arg_core_init arg;
     arg.read_state = ByteSwap16(read_state);
@@ -199,7 +212,7 @@ int core_export_programs(int count, const int *indexes,
 			 int (*progress_report)(const char *)) {
     arg_core_export_programs arg;
     arg.count = ByteSwap16(count);
-    arg.indexes = (const int *) ByteSwap32(indexes);
+    arg.indexes = (const int2 *) ByteSwap32(indexes);
     // TODO: progress report callback
     int4 ret = PealCall(m, p_core_export_programs, &arg);
     return (int) ByteSwap32(ret);
@@ -220,6 +233,14 @@ void core_copy(char *buf, int buflen) {
 void core_paste(const char *s) {
     const char *ss = (const char *) ByteSwap32(s);
     PealCall(m, p_core_paste, (void *) ss);
+}
+
+void redisplay() {
+    PealCall(m, p_redisplay, NULL);
+}
+
+void squeak() {
+    PealCall(m, p_squeak, NULL);
 }
 
 static void arm_shell_blitter(arg_shell_blitter *arg) {
@@ -251,7 +272,7 @@ static int4 arm_shell_read_saved_state(arg_shell_read_saved_state *arg) {
 }
 
 static int4 arm_shell_write_saved_state(arg_shell_write_saved_state *arg) {
-    return shell_write_saved_state(arg->buf, arg->bufsize);
+    return shell_write_saved_state(arg->buf, arg->nbytes);
 }
 
 static int4 arm_shell_get_mem() {
@@ -289,7 +310,7 @@ static shell_bcd_table_struct *arm_shell_get_bcd_table() {
 }
 
 static shell_bcd_table_struct *arm_shell_put_bcd_table(arg_shell_put_bcd_table *arg) {
-    return shell_put_bcd_table((shell_put_bcd_table *) arg->bcdtab, arg->size);
+    return shell_put_bcd_table((shell_bcd_table_struct *) arg->bcdtab, arg->size);
 }
 
 static void arm_shell_release_bcd_table(shell_bcd_table_struct *table) {

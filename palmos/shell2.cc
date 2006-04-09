@@ -86,7 +86,7 @@ static void do_delete() SHELL2_SECT;
 static void do_removedir() SHELL2_SECT;
 
 
-#ifndef BCD_MATH
+#if !defined(BCD_MATH) && !defined(NO_MATHLIB)
 void open_math_lib() {
     Err error;
 
@@ -419,7 +419,7 @@ void unload_skin() {
     }
 }
 
-#ifndef BCD_MATH
+#if !defined(BCD_MATH) && !defined(NO_MATHLIB)
 void close_math_lib() {
     UInt16 usecount;
     Err error;

@@ -475,7 +475,7 @@ UInt32 shell_main(UInt16 cmd, void *pbp, UInt16 flags) {
 
 	    FrmGotoForm(calcform_id);
 
-	    #ifndef BCD_MATH
+	    #if !defined(BCD_MATH) && !defined(NO_MATHLIB)
 	    open_math_lib();
 	    #else
 	    {
@@ -621,7 +621,7 @@ UInt32 shell_main(UInt16 cmd, void *pbp, UInt16 flags) {
 		}
 	    }
 
-	    #ifndef BCD_MATH
+	    #if !defined(BCD_MATH) && !defined(NO_MATHLIB)
 	    close_math_lib();
 	    #endif
 

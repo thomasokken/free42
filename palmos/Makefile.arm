@@ -16,23 +16,22 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ###############################################################################
 
-CFLAGS = -MMD -Wall -g -DPALMOS=1 -I../../peal-2005_4_14/m68k
+CFLAGS = -MMD -Wall -g -DPALMOS=1 -DNO_MATHLIB=1 -I../../peal-2005_4_14/m68k
 #CFLAGS = -MMD -Wall -g -DPALMOS=1 -save-temps
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 LDFLAGS = -g
 
-SRCS = shell1.cc shell2.cc shell_spool.cc myglue.cc filesys.cc shellarm.cc
-OBJS = shell1.o shell2.o shell_spool.o myglue.o filesys.o shellarm.o peal.o
+SRCS = shell1.cc shell2.cc shell_spool.cc myglue.cc filesys.cc shell_arm.cc
+OBJS = shell1.o shell2.o shell_spool.o myglue.o filesys.o shell_arm.o peal.o
 
 
 ifdef BCD_MATH
 CXXFLAGS += -DBCD_MATH
-SHELL_DEF = shell_dec.def
 TARGET = free42dec.prc
 else
-SHELL_DEF = shell_bin.def
 TARGET = free42bin.prc
 endif
+SHELL_DEF = shell_arm.def
 
 $(TARGET): shell shell.ro armcore.ro Original.prc
 	build-prc -o $(TARGET) $(SHELL_DEF) shell shell.ro armcore.ro Original.prc
@@ -102,7 +101,7 @@ shell-sections.s shell-sections.ld: $(SHELL_DEF)
 .cc.o:
 	m68k-palmos-g++ $(CXXFLAGS) -c -o $@ $<
 
-shell_arm.o:
+shell_arm.o: shell_arm.cc
 	m68k-palmos-g++ $(CXXFLAGS) -malign-int -c -o $@ $<
 
 shell: $(OBJS) shell-sections.s shell-sections.ld
