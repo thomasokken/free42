@@ -73,6 +73,7 @@ int fsa_write(fsa_obj *obj, const void *buf, uint4 *nbytes) FILESYS_SECT;
 void fsa_delete(fsa_obj *obj) FILESYS_SECT;
 void fsa_release(fsa_obj *obj) FILESYS_SECT;
 
+int dbfs_delete(const char *path) FILESYS_SECT;
 void dbfs_init() FILESYS_SECT;
 void dbfs_finish() FILESYS_SECT;
 void dbfs_erase() FILESYS_SECT;

@@ -168,6 +168,9 @@ unsigned long p_shell_release_bcd_table;
 unsigned long p_malloc;
 unsigned long p_realloc;
 unsigned long p_free;
+unsigned long p_logtofile;
+unsigned long p_lognumber;
+unsigned long p_logdouble;
 
 void shell_blitter(const char *bits, int bytesperline, int x, int y,
 			     int width, int height) {
@@ -199,12 +202,11 @@ void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
     arg.g = ByteSwap16(g);
     arg.rad = ByteSwap16(rad);
     unsigned long pptr = ByteSwap32(&arg);
-    gCall68KFuncP(gEmulStateP, p_shell_beeper, &pptr, 4);
+    gCall68KFuncP(gEmulStateP, p_shell_annunciators, &pptr, 4);
 }
 
 int shell_wants_cpu() {
-    int4 ret = gCall68KFuncP(gEmulStateP, p_shell_wants_cpu, NULL, 0);
-    return (int) ByteSwap32(ret);
+    return (int) gCall68KFuncP(gEmulStateP, p_shell_wants_cpu, NULL, 0);
 }
 
 void shell_delay(int duration) {
@@ -224,8 +226,7 @@ int4 shell_read_saved_state(void *buf, int4 bufsize) {
     arg.buf = (void *) ByteSwap32(buf);
     arg.bufsize = ByteSwap32(bufsize);
     unsigned long pptr = ByteSwap32(&arg);
-    int4 ret = gCall68KFuncP(gEmulStateP, p_shell_read_saved_state, &pptr, 4);
-    return ByteSwap32(ret);
+    return (int4) gCall68KFuncP(gEmulStateP, p_shell_read_saved_state, &pptr, 4);
 }
 
 bool shell_write_saved_state(const void *buf, int4 nbytes) {
@@ -233,18 +234,15 @@ bool shell_write_saved_state(const void *buf, int4 nbytes) {
     arg.buf = (const void *) ByteSwap32(buf);
     arg.nbytes = ByteSwap32(nbytes);
     unsigned long pptr = ByteSwap32(&arg);
-    int4 ret = gCall68KFuncP(gEmulStateP, p_shell_write_saved_state, &pptr, 4);
-    return (bool) ByteSwap32(ret);
+    return (bool) gCall68KFuncP(gEmulStateP, p_shell_write_saved_state, &pptr, 4);
 }
 
 int4 shell_get_mem() {
-    int4 ret = gCall68KFuncP(gEmulStateP, p_shell_get_mem, NULL, 0);
-    return (bool) ByteSwap32(ret);
+    return (int4) gCall68KFuncP(gEmulStateP, p_shell_get_mem, NULL, 0);
 }
 
 int shell_low_battery() {
-    int4 ret = gCall68KFuncP(gEmulStateP, p_shell_low_battery, NULL, 0);
-    return (int) ByteSwap32(ret);
+    return (int) gCall68KFuncP(gEmulStateP, p_shell_low_battery, NULL, 0);
 }
 
 void shell_powerdown() {
@@ -257,8 +255,7 @@ double shell_random_seed() {
 }
 
 uint4 shell_milliseconds() {
-    uint4 ret = gCall68KFuncP(gEmulStateP, p_shell_milliseconds, NULL, 0);
-    return ByteSwap32(ret);
+    return (uint4) gCall68KFuncP(gEmulStateP, p_shell_milliseconds, NULL, 0);
 }
 
 void shell_print(const char *text, int length,
@@ -282,8 +279,7 @@ int shell_write(const char *buf, int4 buflen) {
     arg.buf = (const char *) ByteSwap32(buf);
     arg.buflen = ByteSwap32(buflen);
     unsigned long pptr = ByteSwap32(&arg);
-    int4 ret = gCall68KFuncP(gEmulStateP, p_shell_write, &pptr, 4);
-    return (int) ByteSwap32(ret);
+    return (int) gCall68KFuncP(gEmulStateP, p_shell_write, &pptr, 4);
 }
 
 int4 shell_read(char *buf, int4 buflen) {
@@ -291,13 +287,11 @@ int4 shell_read(char *buf, int4 buflen) {
     arg.buf = (char *) ByteSwap32(buf);
     arg.buflen = ByteSwap32(buflen);
     unsigned long pptr = ByteSwap32(&arg);
-    int4 ret = gCall68KFuncP(gEmulStateP, p_shell_read, &pptr, 4);
-    return ByteSwap32(ret);
+    return (int4) gCall68KFuncP(gEmulStateP, p_shell_read, &pptr, 4);
 }
 
 shell_bcd_table_struct *shell_get_bcd_table() {
-    int4 ret = gCall68KFuncP(gEmulStateP, p_shell_get_bcd_table, NULL, 0 | kPceNativeWantA0);
-    return (shell_bcd_table_struct *) ByteSwap32(ret);
+    return (shell_bcd_table_struct *) gCall68KFuncP(gEmulStateP, p_shell_get_bcd_table, NULL, 0 | kPceNativeWantA0);
 }
 
 shell_bcd_table_struct *shell_put_bcd_table(shell_bcd_table_struct *bcdtab,
@@ -306,8 +300,7 @@ shell_bcd_table_struct *shell_put_bcd_table(shell_bcd_table_struct *bcdtab,
     arg.bcdtab = (void *) ByteSwap32(bcdtab);
     arg.size = ByteSwap32(size);
     unsigned long pptr = ByteSwap32(&arg);
-    int4 ret = gCall68KFuncP(gEmulStateP, p_shell_put_bcd_table, &pptr, 4 | kPceNativeWantA0);
-    return (shell_bcd_table_struct *) ByteSwap32(ret);
+    return (shell_bcd_table_struct *) gCall68KFuncP(gEmulStateP, p_shell_put_bcd_table, &pptr, 4 | kPceNativeWantA0);
 }
 
 void shell_release_bcd_table(shell_bcd_table_struct *bcdtab) {
@@ -318,8 +311,7 @@ void shell_release_bcd_table(shell_bcd_table_struct *bcdtab) {
 void *malloc(size_t size) {
     size_t p = size;
     p = ByteSwap32(p);
-    int4 ret = gCall68KFuncP(gEmulStateP, p_malloc, &p, 4);
-    return (void *) ByteSwap32(ret);
+    return (void *) gCall68KFuncP(gEmulStateP, p_malloc, &p, 4);
 }
 
 void *realloc(void *ptr, size_t size) {
@@ -327,8 +319,7 @@ void *realloc(void *ptr, size_t size) {
     arg.ptr = (void *) ByteSwap32(ptr);
     arg.size = ByteSwap32(size);
     unsigned long pptr = ByteSwap32(&arg);
-    int4 ret = gCall68KFuncP(gEmulStateP, p_realloc, &pptr, 4);
-    return (void *) ByteSwap32(ret);
+    return (void *) gCall68KFuncP(gEmulStateP, p_realloc, &pptr, 4);
 }
 
 void free(void *ptr) {
@@ -336,6 +327,34 @@ void free(void *ptr) {
     p = ByteSwap32(p);
     gCall68KFuncP(gEmulStateP, p_free, &p, 4);
 }
+
+void logtofile(const char *message) {
+    int4 p = (int4) message;
+    p = ByteSwap32(p);
+    gCall68KFuncP(gEmulStateP, p_logtofile, &p, 4);
+}
+
+void lognumber(int4 num) {
+    int4 p = (int4) num;
+    p = ByteSwap32(p);
+    gCall68KFuncP(gEmulStateP, p_lognumber, &p, 4);
+}
+
+void logdouble(double num) {
+    union {
+	double d;
+	struct {
+	    int4 x, y;
+	} i;
+    } u;
+    u.d = num;
+    u.i.x = ByteSwap32(u.i.x);
+    u.i.y = ByteSwap32(u.i.y);
+    int4 p = (int4) &u;
+    p = ByteSwap32(p);
+    gCall68KFuncP(gEmulStateP, p_logdouble, &p, 4);
+}
+
 
 //////////////////////////////////////
 ///// Cloned from shell_spool.cc /////

@@ -21,6 +21,12 @@
 
 #include "free42.h"
 
+#if 1
+void logtofile(const char *message) SHELL1_SECT;
+void lognumber(int4 num) SHELL1_SECT;
+void logdouble(double num) SHELL1_SECT;
+#endif
+
 /* shell_blitter()
  *
  * Callback invoked by the emulator core to cause the display, or some portion

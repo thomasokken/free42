@@ -23,6 +23,7 @@
 
 struct arg_core_init {
     int2 read_state;
+    int2 dummy;
     int4 version;
 };
 

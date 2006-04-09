@@ -95,7 +95,7 @@ static int dbfs_insrec(UInt16 *pos, const char *path, int first) FILESYS_SECT;
 static int dbfs_delrecs(unsigned char *p, UInt16 pos, const char *path)
 								FILESYS_SECT;
 static int dbfs_create(const char *path) FILESYS_SECT;
-static int dbfs_delete(const char *path) FILESYS_SECT;
+/*static int dbfs_delete(const char *path) FILESYS_SECT;*/
 static dbfs_file *dbfs_open(const char *path, int mode) FILESYS_SECT;
 static void dbfs_close(dbfs_file *file) FILESYS_SECT;
 static int dbfs_seek(dbfs_file *file, int mode, Int32 offset) FILESYS_SECT;
@@ -924,7 +924,7 @@ static int dbfs_create(const char *path) {
 	return 1;
 }
 
-static int dbfs_delete(const char *path) {
+/*static*/ int dbfs_delete(const char *path) {
     UInt32 off;
     int is_file;
     MemHandle h;

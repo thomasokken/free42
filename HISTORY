@@ -1,3 +1,9 @@
+??-??-????: version 1.4.13
+
+* New: ARM-native PalmOS version. It's not for everyone -- it's big, it starts
+  up much slower than the 68k version, and of course you need a Palm with an
+  ARM CPU -- but once it gets going, it's pretty fast!
+
 04-04-2006: version 1.4.12
 
 * Pocket PC version: implemented proper beeper.

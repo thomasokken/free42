@@ -71,67 +71,85 @@ static int4 arm_shell_read(arg_shell_read *arg);
 static shell_bcd_table_struct *arm_shell_get_bcd_table();
 static shell_bcd_table_struct *arm_shell_put_bcd_table(arg_shell_put_bcd_table *arg);
 static void arm_shell_release_bcd_table(shell_bcd_table_struct *table);
-static void* arm_malloc(size_t size);
-static void* arm_realloc(arg_realloc *arg);
+static void *arm_malloc(size_t size);
+static void *arm_realloc(arg_realloc *arg);
 static void arm_free(void *ptr);
+static void arm_logtofile(void *ptr);
+static void arm_lognumber(void *ptr);
+static void arm_logdouble(void *ptr);
+
+typedef union {
+    arg_core_init init;
+    arg_core_keydown keydown;
+    arg_core_list_programs list;
+    arg_core_export_programs exprt;
+    arg_core_copy copy;
+} arg_union;
+
+static arg_union *au;
 
 void core_init(int read_state, int4 version) {
+    au = (arg_union *) malloc(sizeof(arg_union));
+
     m = PealLoadFromResources('armc', 1000);
-    p_core_init = PealLookupSymbol(m, "arm_core_init");
-    p_core_quit = PealLookupSymbol(m, "arm_core_quit");
-    p_core_repaint_display = PealLookupSymbol(m, "arm_core_repaint_display");
-    p_core_menu = PealLookupSymbol(m, "arm_core_menu");
-    p_core_alpha_menu = PealLookupSymbol(m, "arm_core_alpha_menu");
-    p_core_hex_menu = PealLookupSymbol(m, "arm_core_hex_menu");
-    p_core_keydown = PealLookupSymbol(m, "arm_core_keydown");
-    p_core_repeat = PealLookupSymbol(m, "arm_core_repeat");
-    p_core_keytimeout1 = PealLookupSymbol(m, "arm_core_keytimeout1");
-    p_core_keytimeout2 = PealLookupSymbol(m, "arm_core_keytimeout2");
-    p_core_timeout3 = PealLookupSymbol(m, "arm_core_timeout3");
-    p_core_keyup = PealLookupSymbol(m, "arm_core_keyup");
-    p_core_allows_powerdown = PealLookupSymbol(m, "arm_core_allows_powerdown");
-    p_core_powercycle = PealLookupSymbol(m, "arm_core_powercycle");
-    p_core_list_programs = PealLookupSymbol(m, "arm_core_list_programs");
-    p_core_export_programs = PealLookupSymbol(m, "arm_core_export_programs");
-    p_core_import_programs = PealLookupSymbol(m, "arm_core_import_programs");
-    p_core_copy = PealLookupSymbol(m, "arm_core_copy");
-    p_core_paste = PealLookupSymbol(m, "arm_core_paste");
-    p_redisplay = PealLookupSymbol(m, "arm_redisplay");
-    p_squeak = PealLookupSymbol(m, "arm_squeak");
+    p_core_init = PealLookupSymbol(m, "_Z13arm_core_initPv");
+    p_core_quit = PealLookupSymbol(m, "_Z13arm_core_quitPv");
+    p_core_repaint_display = PealLookupSymbol(m, "_Z24arm_core_repaint_displayPv");
+    p_core_menu = PealLookupSymbol(m, "_Z13arm_core_menuPv");
+    p_core_alpha_menu = PealLookupSymbol(m, "_Z19arm_core_alpha_menuPv");
+    p_core_hex_menu = PealLookupSymbol(m, "_Z17arm_core_hex_menuPv");
+    p_core_keydown = PealLookupSymbol(m, "_Z16arm_core_keydownPv");
+    p_core_repeat = PealLookupSymbol(m, "_Z15arm_core_repeatPv");
+    p_core_keytimeout1 = PealLookupSymbol(m, "_Z20arm_core_keytimeout1Pv");
+    p_core_keytimeout2 = PealLookupSymbol(m, "_Z20arm_core_keytimeout2Pv");
+    p_core_timeout3 = PealLookupSymbol(m, "_Z17arm_core_timeout3Pv");
+    p_core_keyup = PealLookupSymbol(m, "_Z14arm_core_keyupPv");
+    p_core_allows_powerdown = PealLookupSymbol(m, "_Z25arm_core_allows_powerdownPv");
+    p_core_powercycle = PealLookupSymbol(m, "_Z19arm_core_powercyclePv");
+    p_core_list_programs = PealLookupSymbol(m, "_Z22arm_core_list_programsPv");
+    p_core_export_programs = PealLookupSymbol(m, "_Z24arm_core_export_programsPv");
+    p_core_import_programs = PealLookupSymbol(m, "_Z24arm_core_import_programsPv");
+    p_core_copy = PealLookupSymbol(m, "_Z13arm_core_copyPv");
+    p_core_paste = PealLookupSymbol(m, "_Z14arm_core_pastePv");
+    p_redisplay = PealLookupSymbol(m, "_Z13arm_redisplayPv");
+    p_squeak = PealLookupSymbol(m, "_Z10arm_squeakPv");
 
     void **p;
-    p = (void **) PealLookupSymbol(m, "p_shell_blitter"); *p = arm_shell_blitter;
-    p = (void **) PealLookupSymbol(m, "p_shell_beeper"); *p = arm_shell_beeper;
-    p = (void **) PealLookupSymbol(m, "p_shell_annunciators"); *p = arm_shell_annunciators;
-    p = (void **) PealLookupSymbol(m, "p_shell_wants_cpu"); *p = arm_shell_wants_cpu;
-    p = (void **) PealLookupSymbol(m, "p_shell_delay"); *p = arm_shell_delay;
-    p = (void **) PealLookupSymbol(m, "p_shell_request_timeout3"); *p = arm_shell_request_timeout3;
-    p = (void **) PealLookupSymbol(m, "p_shell_read_saved_state"); *p = arm_shell_read_saved_state;
-    p = (void **) PealLookupSymbol(m, "p_shell_write_saved_state"); *p = arm_shell_write_saved_state;
-    p = (void **) PealLookupSymbol(m, "p_shell_get_mem"); *p = arm_shell_get_mem;
-    p = (void **) PealLookupSymbol(m, "p_shell_low_battery"); *p = arm_shell_low_battery;
-    p = (void **) PealLookupSymbol(m, "p_shell_powerdown"); *p = arm_shell_powerdown;
-    //p = (void **) PealLookupSymbol(m, "p_shell_random_seed"); *p = arm_shell_random_seed;
-    p = (void **) PealLookupSymbol(m, "p_shell_milliseconds"); *p = arm_shell_milliseconds;
-    p = (void **) PealLookupSymbol(m, "p_shell_print"); *p = arm_shell_print;
-    p = (void **) PealLookupSymbol(m, "p_shell_write"); *p = arm_shell_write;
-    p = (void **) PealLookupSymbol(m, "p_shell_read"); *p = arm_shell_read;
-    p = (void **) PealLookupSymbol(m, "p_shell_get_bcd_table"); *p = arm_shell_get_bcd_table;
-    p = (void **) PealLookupSymbol(m, "p_shell_put_bcd_table"); *p = arm_shell_put_bcd_table;
-    p = (void **) PealLookupSymbol(m, "p_shell_release_bcd_table"); *p = arm_shell_release_bcd_table;
-    p = (void **) PealLookupSymbol(m, "p_malloc"); *p = arm_malloc;
-    p = (void **) PealLookupSymbol(m, "p_realloc"); *p = arm_realloc;
-    p = (void **) PealLookupSymbol(m, "p_free"); *p = arm_free;
+    p = (void **) PealLookupSymbol(m, "p_shell_blitter"); *p = (void *) ByteSwap32(arm_shell_blitter);
+    p = (void **) PealLookupSymbol(m, "p_shell_beeper"); *p = (void *) ByteSwap32(arm_shell_beeper);
+    p = (void **) PealLookupSymbol(m, "p_shell_annunciators"); *p = (void *) ByteSwap32(arm_shell_annunciators);
+    p = (void **) PealLookupSymbol(m, "p_shell_wants_cpu"); *p = (void *) ByteSwap32(arm_shell_wants_cpu);
+    p = (void **) PealLookupSymbol(m, "p_shell_delay"); *p = (void *) ByteSwap32(arm_shell_delay);
+    p = (void **) PealLookupSymbol(m, "p_shell_request_timeout3"); *p = (void *) ByteSwap32(arm_shell_request_timeout3);
+    p = (void **) PealLookupSymbol(m, "p_shell_read_saved_state"); *p = (void *) ByteSwap32(arm_shell_read_saved_state);
+    p = (void **) PealLookupSymbol(m, "p_shell_write_saved_state"); *p = (void *) ByteSwap32(arm_shell_write_saved_state);
+    p = (void **) PealLookupSymbol(m, "p_shell_get_mem"); *p = (void *) ByteSwap32(arm_shell_get_mem);
+    p = (void **) PealLookupSymbol(m, "p_shell_low_battery"); *p = (void *) ByteSwap32(arm_shell_low_battery);
+    p = (void **) PealLookupSymbol(m, "p_shell_powerdown"); *p = (void *) ByteSwap32(arm_shell_powerdown);
+    //p = (void **) PealLookupSymbol(m, "p_shell_random_seed"); *p = (void *) ByteSwap32(arm_shell_random_seed);
+    p = (void **) PealLookupSymbol(m, "p_shell_milliseconds"); *p = (void *) ByteSwap32(arm_shell_milliseconds);
+    p = (void **) PealLookupSymbol(m, "p_shell_print"); *p = (void *) ByteSwap32(arm_shell_print);
+    p = (void **) PealLookupSymbol(m, "p_shell_write"); *p = (void *) ByteSwap32(arm_shell_write);
+    p = (void **) PealLookupSymbol(m, "p_shell_read"); *p = (void *) ByteSwap32(arm_shell_read);
+    p = (void **) PealLookupSymbol(m, "p_shell_get_bcd_table"); *p = (void *) ByteSwap32(arm_shell_get_bcd_table);
+    p = (void **) PealLookupSymbol(m, "p_shell_put_bcd_table"); *p = (void *) ByteSwap32(arm_shell_put_bcd_table);
+    p = (void **) PealLookupSymbol(m, "p_shell_release_bcd_table"); *p = (void *) ByteSwap32(arm_shell_release_bcd_table);
+    p = (void **) PealLookupSymbol(m, "p_malloc"); *p = (void *) ByteSwap32(arm_malloc);
+    p = (void **) PealLookupSymbol(m, "p_realloc"); *p = (void *) ByteSwap32(arm_realloc);
+    p = (void **) PealLookupSymbol(m, "p_free"); *p = (void *) ByteSwap32(arm_free);
+    p = (void **) PealLookupSymbol(m, "p_logtofile"); *p = (void *) ByteSwap32(arm_logtofile);
+    p = (void **) PealLookupSymbol(m, "p_lognumber"); *p = (void *) ByteSwap32(arm_lognumber);
+    p = (void **) PealLookupSymbol(m, "p_logdouble"); *p = (void *) ByteSwap32(arm_logdouble);
 
-    arg_core_init arg;
-    arg.read_state = ByteSwap16(read_state);
-    arg.version = ByteSwap32(version);
-    PealCall(m, p_core_init, &arg);
+    au->init.read_state = ByteSwap16(read_state);
+    au->init.version = ByteSwap32(version);
+    PealCall(m, p_core_init, au);
 }
 
 void core_quit() {
     PealCall(m, p_core_quit, NULL);
     PealUnload(m);
+    free(au);
 }
 
 void core_repaint_display() {
@@ -154,11 +172,10 @@ int core_hex_menu() {
 }
 
 int core_keydown(int key, int *enqueued, int *repeat) {
-    arg_core_keydown arg;
-    arg.key = ByteSwap16(key);
-    int4 ret = PealCall(m, p_core_keydown, &arg);
-    *enqueued = ByteSwap16(arg.enqueued);
-    *repeat = ByteSwap16(arg.repeat);
+    au->keydown.key = ByteSwap16(key);
+    int4 ret = PealCall(m, p_core_keydown, au);
+    *enqueued = ByteSwap16(au->keydown.enqueued);
+    *repeat = ByteSwap16(au->keydown.repeat);
     return (int) ByteSwap32(ret);
 }
 
@@ -201,20 +218,18 @@ int core_powercycle() {
 }
 
 int core_list_programs(char *buf, int bufsize) {
-    arg_core_list_programs arg;
-    arg.buf = (char *) ByteSwap32(buf);
-    arg.bufsize = ByteSwap16(bufsize);
-    int4 ret = PealCall(m, p_core_list_programs, &arg);
+    au->list.buf = (char *) ByteSwap32(buf);
+    au->list.bufsize = ByteSwap16(bufsize);
+    int4 ret = PealCall(m, p_core_list_programs, au);
     return (int) ByteSwap32(ret);
 }
 
 int core_export_programs(int count, const int *indexes,
 			 int (*progress_report)(const char *)) {
-    arg_core_export_programs arg;
-    arg.count = ByteSwap16(count);
-    arg.indexes = (const int2 *) ByteSwap32(indexes);
+    au->exprt.count = ByteSwap16(count);
+    au->exprt.indexes = (const int2 *) ByteSwap32(indexes);
     // TODO: progress report callback
-    int4 ret = PealCall(m, p_core_export_programs, &arg);
+    int4 ret = PealCall(m, p_core_export_programs, au);
     return (int) ByteSwap32(ret);
 }
 
@@ -224,10 +239,9 @@ void core_import_programs(int (*progress_report)(const char *)) {
 }
 
 void core_copy(char *buf, int buflen) {
-    arg_core_copy arg;
-    arg.buf = (char *) ByteSwap32(buf);
-    arg.buflen = ByteSwap16(buflen);
-    PealCall(m, p_core_copy, &arg);
+    au->copy.buf = (char *) ByteSwap32(buf);
+    au->copy.buflen = ByteSwap16(buflen);
+    PealCall(m, p_core_copy, au);
 }
 
 void core_paste(const char *s) {
@@ -327,4 +341,16 @@ static void* arm_realloc(arg_realloc *arg) {
 
 static void arm_free(void *ptr) {
     free(ptr);
+}
+
+static void arm_logtofile(void *ptr) {
+    logtofile((const char *) ptr);
+}
+
+static void arm_lognumber(void *ptr) {
+    lognumber((int4) ptr);
+}
+
+static void arm_logdouble(void *ptr) {
+    logdouble(*(double *) ptr);
 }

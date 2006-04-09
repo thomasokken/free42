@@ -34,12 +34,12 @@ static MemHandle printrec;
 static DmOpenRef bcddb;
 static MemHandle bcdrec;
 
-#if 0
-static void log(const char *message) {
+#if 1
+void logtofile(const char *message) {
     char basename[FILENAMELEN];
     char *crlf = "\r\n";
     fsa_obj *dir, *logfile;
-    int err = fsa_resolve("POSESlot1:/log.txt", &dir, 1, basename);
+    int err = fsa_resolve("Free42:/log.txt", &dir, 1, basename);
     err = fsa_create(dir, basename, &logfile);
     fsa_release(dir);
     err = fsa_open(logfile, FSA_MODE_READWRITE);
@@ -49,6 +49,29 @@ static void log(const char *message) {
     len = 2;
     err = fsa_write(logfile, crlf, &len);
     fsa_release(logfile);
+}
+
+void lognumber(int4 num) {
+    char buf[100];
+    StrPrintF(buf, "num=%ld (0x%lx)", num, num);
+    logtofile(buf);
+}
+
+void logdouble(double num) {
+    char buf1[100];
+    FlpCompDouble f;
+    f.d = num;
+    FlpFToA(f.fd, buf1);
+    char buf2[100];
+    union {
+	double d;
+	struct {
+	    int4 x, y;
+	} i;
+    } u;
+    u.d = num;
+    StrPrintF(buf2, "dbl=%s (0x%08lx%08lx)", buf1, u.i.x, u.i.y);
+    logtofile(buf2);
 }
 #endif
 
@@ -207,6 +230,13 @@ void shell_beeper(int frequency, int duration) {
 }
 
 void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
+    logtofile("shell_annunciators()");
+    lognumber(updn);
+    lognumber(shf);
+    lognumber(prt);
+    lognumber(run);
+    lognumber(g);
+    lognumber(rad);
     if (can_draw && FrmGetActiveFormID() == calcform_id) {
 	if (updn != -1 && updn != updownAnn) {
 	    updownAnn = updn;
@@ -493,6 +523,9 @@ UInt32 shell_main(UInt16 cmd, void *pbp, UInt16 flags) {
 	     */
 	    open_printout();
 
+	    dbfs_init();
+	    dbfs_delete("/log.txt");
+
 	    core_init(init_mode, version);
 	    if (statefile != NULL) {
 		FileClose(statefile);
@@ -513,8 +546,6 @@ UInt32 shell_main(UInt16 cmd, void *pbp, UInt16 flags) {
 		    SysNotifyRegister(appCrd, appDB, sysNotifyDisplayResizedEvent,
 				    NULL, sysNotifyNormalPriority, NULL);
 	    }
-
-	    dbfs_init();
 
 	    while (1) {
 		Int32 now = TimGetTicks();
