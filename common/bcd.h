@@ -41,7 +41,7 @@ struct BCD
     BCD() { ref_ = 0; }
     BCD(BCDRef* r) : ref_(r) {}
     BCD(const char* s) { ref_ = BCDRef::_alloc(); ref_->v_ = BCDFloat(s); }
-#ifdef PALMOS
+#if defined(PALMOS) && !defined(PALMOS_ARM)
     BCD(int v) { ref_ = BCDRef::_alloc(); ref_->v_ = BCDFloat(v); }
 #endif
     BCD(int4 v) { ref_ = BCDRef::_alloc(); ref_->v_ = BCDFloat(v); }

@@ -64,7 +64,7 @@ BCDFloat::BCDFloat(const char* s)
     const char* startp = 0;
     const char* point = 0;
     bool begun = false;
-    while (*endp && toupper(*endp) != 'E') {
+    while (*endp && *endp != 'E' && *endp != 'e') {
         if (*endp == '.') {
             if (point) break;
             point = endp;
@@ -74,7 +74,7 @@ BCDFloat::BCDFloat(const char* s)
             }
         }
         else {
-            if (!isdigit(*endp)) break;
+            if (*endp < '0' || *endp > '9') break;
             if (*endp != '0' && !begun) {
                 startp = endp;
                 begun = true;
@@ -85,7 +85,7 @@ BCDFloat::BCDFloat(const char* s)
 
     bool eneg = false;
     if (startp) {
-        if (toupper(*endp) == 'E') {
+        if (*endp == 'E' || *endp == 'e') {
             const char* p = endp + 1;
             if (*p == '-') {
                 eneg = true;
@@ -101,7 +101,7 @@ BCDFloat::BCDFloat(const char* s)
 	    // 5 digits is because I want to make sure that 0.1e100000
 	    // is converted to Inf, and not 1e9999
             for (i = 0; i < 6; ++i) {
-		if (isdigit(c))
+		if (c >= '0' && c <= '9')
 		    e = e * 10 + c - '0';
                 else
 		    break;
@@ -177,7 +177,7 @@ BCDFloat::BCDFloat(const char* s)
     }
 }
 
-#ifdef PALMOS
+#if defined(PALMOS) && !defined(PALMOS_ARM)
 BCDFloat::BCDFloat(int n) {
     _init();
     if (n == 0)

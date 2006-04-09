@@ -25,25 +25,6 @@
 
 #include "free42.h"
 
-#ifdef PALMOS
-#include <PalmOS.h>
-#define int4 Int32
-#define uint4 UInt32
-#else
-#define int4 int
-#define uint4 unsigned int
-#endif
-
-#if defined(WINDOWS) && !defined(__GNUC__)
-#define int8 __int64
-#define uint8 unsigned __int64
-#define LL(x) x
-#else
-#define int8 long long
-#define uint8 unsigned long long
-#define LL(x) x##LL
-#endif
-
 
 // Section attribute -- something like
 // #define BCD_SECT __attribute__ ((section ("BcdSect")))
@@ -120,7 +101,7 @@ struct BCDFloat
     }
     BCDFloat() { _init(); }
     BCDFloat(const char* s) BCD_SECT;
-#ifdef PALMOS
+#if defined(PALMOS) && !defined(PALMOS_ARM)
     BCDFloat(int) BCD_SECT;
 #endif
     BCDFloat(int4) BCD_SECT;

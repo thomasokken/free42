@@ -20,6 +20,7 @@
  * IN THE SOFTWARE.
  */
 
+#include <stdlib.h>
 #include "bcd.h"
 
 BCDRef* BCDRef::pool_ = 0;
@@ -31,7 +32,7 @@ BCDRef* BCDRef::_alloc()
         pool_ = pool_->next_;
     }
     else {
-        ref = new BCDRef;
+	ref = (BCDRef *) malloc(sizeof(BCDRef));
     }
     return ref;
 }
@@ -52,7 +53,7 @@ PoolCleaner::~PoolCleaner() {
     while (r != 0) {
 	BCDRef *r2 = r;
 	r = r->next_;
-	delete r2;
+	free(r2);
     }
 }
 

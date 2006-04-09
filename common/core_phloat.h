@@ -77,7 +77,7 @@ class Phloat {
 	Phloat operator=(double d) PHLOAT_SECT;
 	Phloat operator=(Phloat p) PHLOAT_SECT;
 
-#ifdef PALMOS
+#if defined(PALMOS) && !defined(PALMOS_ARM)
 	Phloat(int4 i) PHLOAT_SECT;
 	Phloat operator=(int4 i) PHLOAT_SECT;
 #endif

@@ -158,7 +158,7 @@ Phloat Phloat::operator=(Phloat p) {
     return *this;
 }
 
-#ifdef PALMOS
+#if defined(PALMOS) && !defined(PALMOS_ARM)
 
 /* public */
 Phloat::Phloat(int4 i) : bcd(i) {
