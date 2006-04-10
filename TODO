@@ -7,9 +7,6 @@ PalmOS/ARM: shell_wants_cpu() currently incurs the overhead of an ARM-to-68K
             call, PLUS the EventAvail() trap. How about invoking the trap
 	    directly from the ARM code -- since shell_wants_cpu() is a major
 	    performance bottleneck, this might help.
-Clean up palmos source -- would be nice to move all the mathlib* stuff to a
-separate directory; also fully integrate Peal into the source repository (so
-building does not depend on having it already installed somewhere).
 
 Plain text program import/export; HP-41 ROM image import.
 

@@ -20,10 +20,8 @@
  * IN THE SOFTWARE.
  */
 
-#include <ctype.h>
 #include <stdio.h>
 #include <string.h>
-#include <math.h>
 #include "bcdfloat.h"
 
 /* tempoary storage for rounding for printing */
