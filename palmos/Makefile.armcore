@@ -45,7 +45,7 @@ endif
 
 armcore.ro: armcore
 	cd peal/postlink ; $(MAKE)
-	peal/postlink/peal-postlink -v -s 1000 -t armc -o armcore.ro armcore
+	peal/postlink/peal-postlink -v -K peal-keepfile -s 1000 -t armc -o armcore.ro armcore
 
 armcore: $(OBJS)
 	arm-palmos-ld $(LDFLAGS) -o armcore $(OBJS) -lgcc

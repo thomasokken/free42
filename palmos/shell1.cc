@@ -461,12 +461,29 @@ UInt32 shell_main(UInt16 cmd, void *pbp, UInt16 flags) {
 	    int4 version;
 	    int init_mode;
 
+	    #ifdef PALMOS_ARM_SHELL
+	    error = FtrGet(sysFtrCreator, sysFtrNumROMVersion, &ftr);
+	    if (error != errNone ||
+		    ftr < sysMakeROMVersion(5, 0, 0, sysROMStageRelease, 0)) {
+		ErrFatalDisplayIf(true,
+			"PalmOS version too old - must be 5.0 or later.");
+	    }
+	    #ifndef DEBUG
+	    error = FtrGet(sysFileCSystem, sysFtrNumProcessorID, &ftr);
+	    if (error != errNone || !sysFtrNumProcessorIsARM(ftr)) {
+		ErrFatalDisplayIf(true,
+			"This version of Free42 requires an ARM CPU.");
+	    }
+	    #endif
+	    #else
 	    error = FtrGet(sysFtrCreator, sysFtrNumROMVersion, &ftr);
 	    if (error != errNone ||
 		    ftr < sysMakeROMVersion(3, 0, 0, sysROMStageRelease, 0)) {
 		ErrFatalDisplayIf(true,
 			"PalmOS version too old - must be 3.0 or later.");
 	    }
+	    #endif
+
 	    error = FtrGet(sysFtrCreator, sysFtrNumNotifyMgrVersion, &ftr);
 	    has_notification_mgr = error == errNone && ftr != 0;
 
@@ -522,7 +539,9 @@ UInt32 shell_main(UInt16 cmd, void *pbp, UInt16 flags) {
 	    open_printout();
 
 	    dbfs_init();
+	    #ifdef DEBUG
 	    dbfs_delete("/log.txt");
+	    #endif
 
 	    core_init(init_mode, version);
 	    if (statefile != NULL) {

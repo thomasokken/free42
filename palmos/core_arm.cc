@@ -252,8 +252,17 @@ void shell_powerdown() {
 }
 
 double shell_random_seed() {
-    // TODO: how are doubles returned?
-    return 0;
+    double *s = (double *) gCall68KFuncP(gEmulStateP, p_shell_random_seed, NULL, 0 | kPceNativeWantA0);
+    union {
+	double d;
+	struct {
+	    int4 x, y;
+	} i;
+    } u;
+    u.d = *s;
+    u.i.x = ByteSwap32(u.i.x);
+    u.i.y = ByteSwap32(u.i.y);
+    return u.d;
 }
 
 uint4 shell_milliseconds() {

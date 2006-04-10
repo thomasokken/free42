@@ -64,7 +64,7 @@ static int4 arm_shell_write_saved_state(arg_shell_write_saved_state *arg);
 static int4 arm_shell_get_mem();
 static int4 arm_shell_low_battery();
 static void arm_shell_powerdown();
-//static double arm_shell_random_seed();
+static double *arm_shell_random_seed();
 static int4 arm_shell_milliseconds();
 static void arm_shell_print(arg_shell_print *arg);
 static int4 arm_shell_write(arg_shell_write *arg);
@@ -130,7 +130,7 @@ void core_init(int read_state, int4 version) {
     p = (void **) PealLookupSymbol(m, "p_shell_get_mem"); *p = (void *) ByteSwap32(arm_shell_get_mem);
     p = (void **) PealLookupSymbol(m, "p_shell_low_battery"); *p = (void *) ByteSwap32(arm_shell_low_battery);
     p = (void **) PealLookupSymbol(m, "p_shell_powerdown"); *p = (void *) ByteSwap32(arm_shell_powerdown);
-    //p = (void **) PealLookupSymbol(m, "p_shell_random_seed"); *p = (void *) ByteSwap32(arm_shell_random_seed);
+    p = (void **) PealLookupSymbol(m, "p_shell_random_seed"); *p = (void *) ByteSwap32(arm_shell_random_seed);
     p = (void **) PealLookupSymbol(m, "p_shell_milliseconds"); *p = (void *) ByteSwap32(arm_shell_milliseconds);
     p = (void **) PealLookupSymbol(m, "p_shell_print"); *p = (void *) ByteSwap32(arm_shell_print);
     p = (void **) PealLookupSymbol(m, "p_shell_write"); *p = (void *) ByteSwap32(arm_shell_write);
@@ -306,7 +306,10 @@ static void arm_shell_powerdown() {
     shell_powerdown();
 }
 
-//static double arm_shell_random_seed();
+static double *arm_shell_random_seed() {
+    static double s = shell_random_seed();
+    return &s;
+}
 
 static int4 arm_shell_milliseconds() {
     return shell_milliseconds();
