@@ -489,6 +489,11 @@ UInt32 shell_main(UInt16 cmd, void *pbp, UInt16 flags) {
 	    FrmDrawForm(loading);
 	    #endif
 
+	    dbfs_init();
+	    #ifdef DEBUG
+	    dbfs_delete("/log.txt");
+	    #endif
+
 	    error = FtrGet(sysFtrCreator, sysFtrNumNotifyMgrVersion, &ftr);
 	    has_notification_mgr = error == errNone && ftr != 0;
 
@@ -542,11 +547,6 @@ UInt32 shell_main(UInt16 cmd, void *pbp, UInt16 flags) {
 	     * tables to fail, and that leads to a nasty crash.
 	     */
 	    open_printout();
-
-	    dbfs_init();
-	    #ifdef DEBUG
-	    dbfs_delete("/log.txt");
-	    #endif
 
 	    core_init(init_mode, version);
 	    if (statefile != NULL) {

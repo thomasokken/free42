@@ -1,8 +1,12 @@
-??-??-????: version 1.4.13
+10-04-2006: version 1.4.13
 
 * New: ARM-native PalmOS version. It's not for everyone -- it's big, it starts
   up much slower than the 68k version, and of course you need a Palm with an
   ARM CPU -- but once it gets going, it's pretty fast!
+  Note that the ARM state file is not compatible with the 68K version, so
+  whenever you switch from the 68K version to the ARM version or back, you will
+  get the "State File Corrupt" message. Be sure to export all important
+  programs before switching!
 * Implemented instance caching for scalars and strings. This eliminates the
   memory management overhead from most simple instructions and speeds up
   program execution.
