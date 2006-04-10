@@ -66,7 +66,7 @@ extern "C" {
 #else /* !PALMOS || PALMOS_ARM */
 
 #ifdef PALMOS_ARM
-#include "math.h"
+#include "mathlib/math.h"
 #else
 #include <math.h>
 #endif

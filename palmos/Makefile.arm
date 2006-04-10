@@ -16,7 +16,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ###############################################################################
 
-CFLAGS = -MMD -Wall -g -DPALMOS=1 -DPALMOS_ARM_SHELL=1 -I../../peal-2005_4_14/m68k
+CFLAGS = -MMD -Wall -g -DPALMOS=1 -DPALMOS_ARM_SHELL=1
 #CFLAGS = -MMD -Wall -g -DPALMOS=1 -save-temps
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 LDFLAGS = -g
@@ -39,7 +39,7 @@ $(TARGET): shell shell.ro armcore.ro Original.prc
 armcore.ro: FORCE
 	$(MAKE) -f Makefile.armcore
 
-$(SRCS): symlinks
+$(SRCS): symlinks symlinks.arm
 
 symlinks:
 	ln -s ../common/free42.h
@@ -91,6 +91,10 @@ symlinks:
 	ln -s ../common/bcdmath.cc
 	ln -s ../common/bcdmath.h
 	touch symlinks
+
+symlinks.arm:
+	ln -s peal/m68k/peal.c
+	touch symlinks.arm
 
 shell-sections.s shell-sections.ld: $(SHELL_DEF)
 	m68k-palmos-multigen -b shell-sections $(SHELL_DEF)
@@ -150,13 +154,13 @@ clean:
 	rm -f `ls *.prc | grep -v '^free42'` \
 		shell shell.ro armcore armcore.ro *.o *.i *.ii *.s *.d \
 		*.out *.grc shell.gdb `find . -type l` \
-		shell-sections.s shell-sections.ld symlinks \
+		shell-sections.s shell-sections.ld symlinks* \
 		skin2prc skin2prc.exe tmp_skin.*
 
 cleaner:
 	rm -f *.prc shell shell.ro armcore armcore.ro *.o *.i *.ii *.s *.d \
 		*.out *.grc shell.gdb `find . -type l` \
-		shell-sections.s shell-sections.ld symlinks \
+		shell-sections.s shell-sections.ld symlinks* \
 		skin2prc skin2prc.exe tmp_skin.* Free42PalmOSSkins.zip
 
 FORCE:

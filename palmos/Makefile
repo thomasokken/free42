@@ -160,13 +160,13 @@ clean:
 	rm -f `ls *.prc | grep -v '^free42'` \
 		shell shell.ro armcore armcore.ro *.o *.i *.ii *.s *.d \
 		*.out *.grc shell.gdb `find . -type l` \
-		shell-sections.s shell-sections.ld symlinks \
+		shell-sections.s shell-sections.ld symlinks* \
 		skin2prc skin2prc.exe tmp_skin.*
 
 cleaner:
 	rm -f *.prc shell shell.ro armcore armcore.ro *.o *.i *.ii *.s *.d \
 		*.out *.grc shell.gdb `find . -type l` \
-		shell-sections.s shell-sections.ld symlinks \
+		shell-sections.s shell-sections.ld symlinks* \
 		skin2prc skin2prc.exe tmp_skin.* Free42PalmOSSkins.zip
 
 -include $(SRCS:.cc=.d)

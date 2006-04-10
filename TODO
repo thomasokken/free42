@@ -1,3 +1,4 @@
+PalmOS/ARM: Use peal's -K option to strip unneeded symbols
 PalmOS/ARM: PalmOS compatibility test should be modified -- check PalmOS 5.0,
 	    not 3.0, and check ARM cpu (disable the latter check if DEBUG).
 PalmOS/ARM: "Loading" message box (3 seconds with no feedback is TOO LONG!)
