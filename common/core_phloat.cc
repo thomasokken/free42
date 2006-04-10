@@ -16,7 +16,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *****************************************************************************/
 
+#ifndef BCD_MATH
 #include <math.h>
+#endif
 #include <stdlib.h>
 
 #include "core_phloat.h"
@@ -1981,7 +1983,7 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
     }
 }
 
-#if defined(PALMOS) && !defined(PALMOS_ARM) && defined(BCD_MATH)
+#if defined(PALMOS) && defined(BCD_MATH)
 
 // Compatibility stuff - note that some of these are only partial
 // implementations. These are just hacks so that core_phloat and bcdfloat can
@@ -1990,7 +1992,7 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
 union double_words {
     double d;
     struct {
-	Int32 hx, lx;
+	int4 hx, lx;
     } w;
 };
 
@@ -2006,9 +2008,9 @@ int isnan(double x) {
     double_words dw;
     dw.d = x;
     dw.w.hx &= 0x7fffffff;
-    dw.w.hx |= (UInt32)(dw.w.lx|(-dw.w.lx))>>31;
+    dw.w.hx |= (uint4)(dw.w.lx|(-dw.w.lx))>>31;
     dw.w.hx = 0x7ff00000 - dw.w.hx;
-    return (int)(((UInt32)dw.w.hx)>>31);
+    return (int)(((uint4)dw.w.hx)>>31);
 }
 
 double pow(double x, double y) {

@@ -65,10 +65,12 @@ extern "C" {
 
 #else /* !PALMOS || PALMOS_ARM */
 
+#ifndef BCD_MATH
 #ifdef PALMOS_ARM
 #include "mathlib/math.h"
 #else
 #include <math.h>
+#endif
 #endif
 
 #define SHELL1_SECT
