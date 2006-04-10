@@ -94,6 +94,7 @@ symlinks:
 
 symlinks.arm:
 	ln -s peal/m68k/peal.c
+	ln -s peal/m68k/peal.h
 	touch symlinks.arm
 
 shell-sections.s shell-sections.ld: $(SHELL_DEF)
