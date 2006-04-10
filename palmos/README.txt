@@ -67,8 +67,8 @@ Manifest:
 The Free42-for-PalmOS package, Free42PalmOS.zip, should contain these files:
 
 1) README.txt                   The document you're reading now
-2) free42dec.prc                The PalmOS version of Free42 Decimal (68k)
-3) free42bin.prc                The PalmOS version of Free42 Binary  (68k)
+2) free42dec_68k.prc            The PalmOS version of Free42 Decimal (68K)
+3) free42bin_68k.prc            The PalmOS version of Free42 Binary  (68K)
 4) free42dec_arm.prc            The PalmOS version of Free42 Decimal (ARM)
 5) free42bin_arm.prc            The PalmOS version of Free42 Binary  (ARM)
 6) Free42ConduitInstaller.exe   Installer for the Free42 conduit
@@ -79,12 +79,14 @@ The Free42-for-PalmOS package, Free42PalmOS.zip, should contain these files:
 
 Installing the Free42 application:
 
-* Double-click 'free42dec.prc', 'free42bin.prc', 'free42dec_arm.prc', or
-  'free42bin_arm.prc' to schedule it for installation to the hand-held. This
+* Double-click 'free42dec_68k.prc', 'free42bin_68k.prc', 'free42dec_arm.prc',
+  or 'free42bin_arm.prc' to schedule it for installation to the hand-held. This
   will copy it to Quick Install; from there, it will be installed to the hand-
   held the next time you perform a HotSync operation.
   Note that you cannot install more than one version of Free42 at the same
-  time; see below for tips about which version is the right one for you.
+  time. The differences between the four versions are explained below; see the
+  sections about "Decimal" vs. "Binary" and "68K" vs. "ARM" at the end of this
+  document.
 
 Installing the Free42 conduit:
 
@@ -160,18 +162,18 @@ If you don't fully understand the above, it is best to play safe and use
 Free42 Decimal (free42dec.prc).
 
 
-What's the deal with the "68k" and "ARM"?
+What's the deal with the "68K" and "ARM"?
 
-Starting with version 1.4.13, Free42 for PalmOS comes in 68k and ARM versions.
+Starting with version 1.4.13, Free42 for PalmOS comes in 68K and ARM versions.
 They look and behave identically, but the ARM version runs much faster.
 To be able to use the ARM version, you need a PalmOS PDA with an ARM CPU;
 currently, this includes all Palm models running PalmOS 5.0 or later (e.g.
 the Tungsten E, Tungsten T, Zire 21, and many others).
-The ARM version does have a couple of drawbacks compared to the 68k version: it
+The ARM version does have a couple of drawbacks compared to the 68K version: it
 is larger, so it consumes about 300 kilobytes more memory; and it takes longer
 to start up (more than 2 seconds on a Zire 21; less on faster models).
-NOTE: the state file format is different between the 68k and ARM versions. This
-means that when you switch from using the 68k version (including all releases
+NOTE: the state file format is different between the 68K and ARM versions. This
+means that when you switch from using the 68K version (including all releases
 prior to 1.4.13) to the ARM version, or back, you will get the "State File
 Corrupt" message, and all the information in the calculator will be lost.
 Be sure to save (export) all important programs before switching!

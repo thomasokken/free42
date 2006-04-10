@@ -39,11 +39,11 @@ CXXFLAGS += -DBCD_MATH
 SRCS += bcdfloat.cc bcd.cc bcdmath.cc
 OBJS += bcdfloat.o bcd.o bcdmath.o
 SHELL_DEF = shell_dec.def
-TARGET = free42dec.prc
+TARGET = free42dec_68k.prc
 else
 OBJS += MathLib.o
 SHELL_DEF = shell_bin.def
-TARGET = free42bin.prc
+TARGET = free42bin_68k.prc
 endif
 
 $(TARGET): shell shell.ro Original.prc
