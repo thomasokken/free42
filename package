@@ -8,6 +8,10 @@ make cleaner
 make
 make clean
 make -e BCD_MATH=1
+make clean
+make -f Makefile.arm
+make clean
+make -f Makefile.arm -e BCD_MATH=1
 make Free42PalmOSSkins.zip
 cd ../gtk
 make cleaner
@@ -29,6 +33,8 @@ mkdir Free42PalmOS
 cp palmos/README.txt Free42PalmOS
 cp palmos/free42bin.prc Free42PalmOS
 cp palmos/free42dec.prc Free42PalmOS
+cp palmos/free42bin_arm.prc Free42PalmOS
+cp palmos/free42dec_arm.prc Free42PalmOS
 cp conduit/Release/Free42ConduitInstaller.exe Free42PalmOS
 cp conduit/Release/Free42Conduit.dll Free42PalmOS
 cp /win/cdk403/Common/Bin/condmgr.dll Free42PalmOS

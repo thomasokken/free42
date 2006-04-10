@@ -67,23 +67,24 @@ Manifest:
 The Free42-for-PalmOS package, Free42PalmOS.zip, should contain these files:
 
 1) README.txt                   The document you're reading now
-2) free42dec.prc                The PalmOS version of Free42 Decimal
-3) free42bin.prc                The PalmOS version of Free42 Binary
-4) Free42ConduitInstaller.exe   Installer for the Free42 conduit
-5) Free42Conduit.dll            The Free42 conduit
-6) condmgr.dll                  Dynamic Link Library needed by the installer
-7) HSAPI.dll                    Dynamic Link Library needed by the installer
+2) free42dec.prc                The PalmOS version of Free42 Decimal (68k)
+3) free42bin.prc                The PalmOS version of Free42 Binary  (68k)
+4) free42dec_arm.prc            The PalmOS version of Free42 Decimal (ARM)
+5) free42bin_arm.prc            The PalmOS version of Free42 Binary  (ARM)
+6) Free42ConduitInstaller.exe   Installer for the Free42 conduit
+7) Free42Conduit.dll            The Free42 conduit
+8) condmgr.dll                  Dynamic Link Library needed by the installer
+9) HSAPI.dll                    Dynamic Link Library needed by the installer
 
 
 Installing the Free42 application:
 
-* Double-click 'free42dec.prc' or 'free42bin.prc' to schedule it for
-  installation to the hand-held. This will copy it to Quick Install; from
-  there, it will be installed to the hand-held the next time you perform a
-  HotSync operation.
-  Note that you cannot install the Decimal and Binary versions together. If you
-  have one version installed, and you then install the other, the new version
-  will replace the existing one.
+* Double-click 'free42dec.prc', 'free42bin.prc', 'free42dec_arm.prc', or
+  'free42bin_arm.prc' to schedule it for installation to the hand-held. This
+  will copy it to Quick Install; from there, it will be installed to the hand-
+  held the next time you perform a HotSync operation.
+  Note that you cannot install more than one version of Free42 at the same
+  time; see below for tips about which version is the right one for you.
 
 Installing the Free42 conduit:
 
@@ -157,6 +158,23 @@ you may use Free42 Binary and enjoy its speed advantage. If, on the other hand,
 you need full HP-42S compatibility, you should use Free42 Decimal.
 If you don't fully understand the above, it is best to play safe and use
 Free42 Decimal (free42dec.prc).
+
+
+What's the deal with the "68k" and "ARM"?
+
+Starting with version 1.4.13, Free42 for PalmOS comes in 68k and ARM versions.
+They look and behave identically, but the ARM version runs much faster.
+To be able to use the ARM version, you need a PalmOS PDA with an ARM CPU;
+currently, this includes all Palm models running PalmOS 5.0 or later (e.g.
+the Tungsten E, Tungsten T, Zire 21, and many others).
+The ARM version does have a couple of drawbacks compared to the 68k version: it
+is larger, so it consumes about 300 kilobytes more memory; and it takes longer
+to start up (more than 2 seconds on a Zire 21; less on faster models).
+NOTE: the state file format is different between the 68k and ARM versions. This
+means that when you switch from using the 68k version (including all releases
+prior to 1.4.13) to the ARM version, or back, you will get the "State File
+Corrupt" message, and all the information in the calculator will be lost.
+Be sure to save (export) all important programs before switching!
 
 
 Free42 is (C) 2004-2006, by Thomas Okken
