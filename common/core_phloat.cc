@@ -17,6 +17,7 @@
  *****************************************************************************/
 
 #include <stdlib.h>
+#include <math.h>
 
 #include "core_phloat.h"
 #include "core_helpers.h"

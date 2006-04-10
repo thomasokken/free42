@@ -24,6 +24,17 @@
 #include <string.h>
 #include "bcdfloat.h"
 
+#ifdef PALMOS
+// We take the following three functions from core_phloat.cc, rather than from
+// the standard library, because in the case of the PalmOS Decimal build, the
+// standard library isn't there.
+double pow(double x, double y);
+double floor(double x);
+double log10(double x);
+#else
+#include <math.h>
+#endif
+
 /* tempoary storage for rounding for printing */
 BCDFloat BCDFloat::roundedVal_;
 BCDFloat BCDFloat::rounding_;
