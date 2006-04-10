@@ -16,12 +16,11 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ###############################################################################
 
-CFLAGS = -MMD -Wall -g -DPALMOS=1 -DPALMOS_ARM_SHELL=1
-#CFLAGS = -MMD -Wall -g -DPALMOS=1 -save-temps
+CFLAGS = -MMD -Wall -g -DPALMOS -DPALMOS_ARM_SHELL -Ipeal/m68k
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 LDFLAGS = -g
 
-SRCS = shell1.cc shell2.cc shell_spool.cc myglue.cc filesys.cc shell_arm.cc
+SRCS = shell1.cc shell2.cc shell_spool.cc myglue.cc filesys.cc shell_arm.cc peal.c
 OBJS = shell1.o shell2.o shell_spool.o myglue.o filesys.o shell_arm.o peal.o
 
 
@@ -94,7 +93,6 @@ symlinks:
 
 symlinks.arm:
 	ln -s peal/m68k/peal.c
-	ln -s peal/m68k/peal.h
 	touch symlinks.arm
 
 shell-sections.s shell-sections.ld: $(SHELL_DEF)
@@ -166,4 +164,4 @@ cleaner:
 
 FORCE:
 
--include $(SRCS:.cc=.d)
+-include $(patsubst %.cc,%.d,$(patsubst %.c,%d,$(SRCS)))

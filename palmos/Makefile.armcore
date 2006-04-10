@@ -16,13 +16,13 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ###############################################################################
 
-CFLAGS = -MMD -Wall -DPALMOS=1 -DPALMOS_ARM=1 -fPIC -march=armv4t \
+CFLAGS = -MMD -Wall -DPALMOS -DPALMOS_ARM -fPIC -march=armv4t \
 		-msingle-pic-base -nostartfiles -fsigned-char \
 		-I/PalmDev/sdk-5r3/include
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 LDFLAGS = --split-by-file=60000 --emit-relocs -L/usr/lib/gcc-lib/arm-palmos/3.3.1
 
-SRCS = core_arm.cc core_main.cc \
+SRCS = pealstub.c core_arm.cc core_main.cc \
 	core_commands1.cc core_commands2.cc core_commands3.cc \
 	core_commands4.cc core_commands5.cc core_commands6.cc core_display.cc \
 	core_globals.cc core_helpers.cc core_keydown.cc core_linalg1.cc \
@@ -118,4 +118,4 @@ symlinks.armcore:
 .cc.o:
 	arm-palmos-g++ $(CXXFLAGS) -c -o $@ $<
 
--include $(SRCS:.cc=.d)
+-include $(patsubst %.cc,%.d,$(patsubst %.c,%d,$(SRCS)))
