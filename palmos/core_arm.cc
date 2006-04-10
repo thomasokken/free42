@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include "endianutils.h"
 #include "pealstub.h"
+#include <Core/CoreTraps.h>
 
 #include "shell.h"
 #include "core_arm.h"
@@ -208,7 +209,18 @@ void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
 }
 
 int shell_wants_cpu() {
-    return (int) gCall68KFuncP(gEmulStateP, p_shell_wants_cpu, NULL, 0);
+    // I'm cheating a bit for the sake of speed. Since this function is called
+    // after EVERY program line, the cost of an ARM-to-68K call adds up pretty
+    // quickly. Calling EvtEventAvail() directly saves about 50%; only calling
+    // it every 10th time saves another 90% (it also means that a program may
+    // continue to run 9 steps too far after the user presses R/S -- oh, well).
+    static int n = 0;
+    if (++n == 10) {
+	n = 0;
+	return gCall68KFuncP(gEmulStateP, PceNativeTrapNo(sysTrapEvtEventAvail), NULL, 0);
+    } else
+	return 0;
+    //return (int) gCall68KFuncP(gEmulStateP, p_shell_wants_cpu, NULL, 0);
 }
 
 void shell_delay(int duration) {

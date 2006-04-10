@@ -33,6 +33,12 @@ begin
     value 0 min 0 max 1000 pagesize 160
 end
 
+form id loadingform_id at (40 70 80 20)
+frame modal
+begin
+  label "Loading..." autoid at (center center) font 2
+end
+
 menu id mainmenu_id
 begin
   pulldown "File"

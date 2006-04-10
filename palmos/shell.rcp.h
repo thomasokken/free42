@@ -21,14 +21,15 @@
 
 #define calcform_id		1002
 #define printform_id		1003
-#define selectprogram_id	1004
-#define selectfile_id		1005
-#define prefsform1_id		1006
-#define prefsform2_id		1007
-#define aboutform_id		1008
-#define msg_alert_id		1009
-#define erase_confirm_id	1010
-#define forcedownload_confirm_id 1011
+#define loadingform_id		1004
+#define selectprogram_id	1005
+#define selectfile_id		1006
+#define prefsform1_id		1007
+#define prefsform2_id		1008
+#define aboutform_id		1009
+#define msg_alert_id		1010
+#define erase_confirm_id	1011
+#define forcedownload_confirm_id 1012
 
 #define selectskin_id		2000
 #define deleteskin_id		2001

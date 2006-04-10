@@ -484,6 +484,11 @@ UInt32 shell_main(UInt16 cmd, void *pbp, UInt16 flags) {
 	    }
 	    #endif
 
+	    #ifdef PALMOS_ARM_SHELL
+	    FormType *loading = FrmInitForm(loadingform_id);
+	    FrmDrawForm(loading);
+	    #endif
+
 	    error = FtrGet(sysFtrCreator, sysFtrNumNotifyMgrVersion, &ftr);
 	    has_notification_mgr = error == errNone && ftr != 0;
 
@@ -563,6 +568,11 @@ UInt32 shell_main(UInt16 cmd, void *pbp, UInt16 flags) {
 		    SysNotifyRegister(appCrd, appDB, sysNotifyDisplayResizedEvent,
 				    NULL, sysNotifyNormalPriority, NULL);
 	    }
+
+	    #ifdef PALMOS_ARM_SHELL
+	    FrmEraseForm(loading);
+	    FrmDeleteForm(loading);
+	    #endif
 
 	    while (1) {
 		Int32 now = TimGetTicks();

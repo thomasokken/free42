@@ -1,9 +1,6 @@
-PalmOS/ARM: "Loading" message box (3 seconds with no feedback is TOO LONG!)
+PalmOS/ARM: Faster start-up. Is PealLoadFromResources() the culprit? If so,
+	    maybe it can be optimized a bit.
 PalmOS/ARM: ARM/68K state file compatibility
-PalmOS/ARM: shell_wants_cpu() currently incurs the overhead of an ARM-to-68K
-            call, PLUS the EventAvail() trap. How about invoking the trap
-	    directly from the ARM code -- since shell_wants_cpu() is a major
-	    performance bottleneck, this might help.
 
 Plain text program import/export; HP-41 ROM image import.
 
