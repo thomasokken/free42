@@ -224,14 +224,17 @@ int core_list_programs(char *buf, int bufsize) {
 
 int core_export_programs(int count, const int *indexes,
 			 int (*progress_report)(const char *)) {
+    int4 *indexes4 = (int4 *) malloc(count * sizeof(int4));
+    for (int i = 0; i < count; i++)
+	indexes4[i] = ByteSwap32(indexes[i]);
     au->exprt.count = ByteSwap16(count);
-    au->exprt.indexes = (const int2 *) ByteSwap32(indexes);
-    // TODO: progress report callback
-    return (int) PealCall(m, p_core_export_programs, au);
+    au->exprt.indexes = (const int4 *) ByteSwap32(indexes4);
+    int ret = (int) PealCall(m, p_core_export_programs, au);
+    free(indexes4);
+    return ret;
 }
 
 void core_import_programs(int (*progress_report)(const char *)) {
-    // TODO: progress report callback
     PealCall(m, p_core_import_programs, NULL);
 }
 

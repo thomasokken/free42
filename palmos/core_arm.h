@@ -41,8 +41,7 @@ struct arg_core_list_programs {
 struct arg_core_export_programs {
     int2 count;
     int2 dummy;
-    const int2 *indexes;
-    // TODO: progress report callback
+    const int4 *indexes;
 };
 
 struct arg_core_copy {

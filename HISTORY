@@ -1,7 +1,10 @@
-??-??-????: version 1.4.14
+11-04-2006: version 1.4.14
 
 * PalmOS version: tweaked the layout of the Preferences dialog a bit. The
   version for PalmOS < 3.5 was particularly bad.
+* PalmOS ARM version: Export Program would only export the first program in
+  memory, and write garbage (or even freeze) for any others that were selected.
+  Fixed.
 
 10-04-2006: version 1.4.13
 

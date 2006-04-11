@@ -105,18 +105,11 @@ unsigned long arm_core_list_programs(void *p) {
 }
 
 unsigned long arm_core_export_programs(void *p) {
-    // TODO: progress report callback
     arg_core_export_programs *arg = (arg_core_export_programs *) p;
-    int indexes[100];
-    if (arg->count > 100)
-	arg->count = 100;
-    for (int i = 0; i < arg->count; i++)
-	indexes[i] = arg->indexes[i];
-    return core_export_programs(arg->count, indexes, NULL);
+    return core_export_programs(arg->count, arg->indexes, NULL);
 }
 
 unsigned long arm_core_import_programs(void *p) {
-    // TODO: progress report callback
     core_import_programs(NULL);
     return 0;
 }

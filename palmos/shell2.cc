@@ -2196,6 +2196,9 @@ static Boolean selectprogram_handler(EventType *e) {
 
 static fsa_obj *export_file = NULL;
 static fsa_obj *import_file = NULL;
+
+#ifndef PALMOS_ARM_SHELL
+
 static ProgressPtr progress;
 
 static Boolean progress_text_cb(PrgCallbackDataPtr cb) SHELL2_SECT;
@@ -2216,6 +2219,8 @@ static int progress_report_cb(const char *message) {
 		return 1;
     return 0;
 }
+
+#endif
 
 static void do_import() {
     char path[FILENAMELEN];
@@ -2240,10 +2245,18 @@ static void do_import() {
 	return;
     }
 
+#ifdef PALMOS_ARM_SHELL
+    // ARM machines are fast enough that there's no point in presenting a
+    // progress dialog...
+    core_import_programs(NULL);
+#else
+    // ...but 68k machines are not.
     progress = PrgStartDialog("Importing Program", progress_text_cb, NULL);
     PrgUpdateDialog(progress, errNone, 0, "Importing...", true);
     core_import_programs(progress_report_cb);
     PrgStopDialog(progress, true);
+#endif
+
     redisplay();
     repaint_annunciator(0);
 
@@ -2265,7 +2278,7 @@ static void do_export() {
     int np, nt, i;
     char path[FILENAMELEN], basename[FILENAMELEN];
     fsa_obj *dir;
-    int err, file_existed, cancelled;
+    int err, file_existed;
 
     FrmSetEventHandler(form, selectprogram_handler);
 
@@ -2346,11 +2359,20 @@ static void do_export() {
 	goto done_export;
     }
 
+#ifdef PALMOS_ARM_SHELL
+    // ARM machines are fast enough that there's no point in presenting a
+    // progress dialog...
+    core_export_programs(np, selprog.prog_sel, NULL);
+    if (export_file != NULL) {
+	fsa_release(export_file);
+	export_file = NULL;
+    }
+#else
+    // ...but 68k machines are not.
     progress = PrgStartDialog("Exporting Program", progress_text_cb, NULL);
     PrgUpdateDialog(progress, errNone, 0, "Exporting...", true);
-    cancelled = core_export_programs(np, selprog.prog_sel, progress_report_cb);
+    int cancelled = core_export_programs(np, selprog.prog_sel, progress_report_cb);
     PrgStopDialog(progress, true);
-
     if (export_file != NULL) {
 	if (cancelled)
 	    fsa_delete(export_file);
@@ -2358,6 +2380,7 @@ static void do_export() {
 	    fsa_release(export_file);
 	export_file = NULL;
     }
+#endif
 
     done_export:
     FrmDeleteForm(form);
