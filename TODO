@@ -1,3 +1,7 @@
+PalmOS ARM version: progress dialog currently not functional. Fix it, or maybe
+remove it (is it fast enough?). Also, the implementations of shell_read() etc.
+could be speeded up by using caching to eliminate a lot of ARM-to-68K calls.
+
 Plain text program import/export; HP-41 ROM image import.
 
 Import/export of variables.
