@@ -79,14 +79,19 @@ The Free42-for-PalmOS package, Free42PalmOS.zip, should contain these files:
 
 Installing the Free42 application:
 
-* Double-click 'free42dec_68k.prc', 'free42bin_68k.prc', 'free42dec_arm.prc',
-  or 'free42bin_arm.prc' to schedule it for installation to the hand-held. This
-  will copy it to Quick Install; from there, it will be installed to the hand-
-  held the next time you perform a HotSync operation.
+* Double-click one of 'free42dec_68k.prc', 'free42bin_68k.prc',
+  'free42dec_arm.prc', or 'free42bin_arm.prc' to schedule it for installation
+  to the hand-held. This will copy it to Quick Install; from there, it will be
+  installed to the hand-held the next time you perform a HotSync operation.
   Note that you cannot install more than one version of Free42 at the same
   time. The differences between the four versions are explained below; see the
   sections about "Decimal" vs. "Binary" and "68K" vs. "ARM" at the end of this
   document.
+* The 68K version of Free42 Binary (free42bin_68k.prc) requires the MathLib
+  library. In case you don't already have it, you can download it from Rick
+  Huebner's MathLib page at http://www.radiks.net/~rhuebner/mathlib.html.
+  The other versions of Free42 (the Decimal 68K version, and the Binary and
+  Decimal ARM versions) do NOT require MathLib.
 
 Installing the Free42 conduit:
 
@@ -140,16 +145,17 @@ What's the deal with the "Decimal" and "Binary"?
 Starting with version 1.4, Free42 comes in decimal and binary versions. The two
 look and behave identically; the only difference is the way they represent
 numbers internally.
-Free42 Decimal (free42dec.prc) uses Hugh Steers' 7-digit base-10000 BCDFloat
-class, which effectively gives 25 decimal digits of precision, with exponents
-ranging from -10000 to +9999. Transcendental functions are evaluated to about
-20 digits; each number consumes 16 bytes of memory.
-Free42 Binary (free42bin.prc) uses the PC's FPU; it represents numbers as
-IEEE-754 compatible double precision binary floating point, which consumes 8
-bytes per number, and gives an effective precision of nearly 16 decimal digits,
-with exponents ranging from -308 to +307 (actually, exponents can be less than
--308; such small numbers are "denormalized" and don't have the full precision
-of "normalized" numbers).
+Free42 Decimal (free42dec_68k.prc and free42dec_arm.prc) uses Hugh Steers'
+7-digit base-10000 BCD20 library, which effectively gives 25 decimal digits of
+precision, with exponents ranging from -10000 to +9999. Transcendental
+functions are evaluated to about 20 digits; each number consumes 16 bytes of
+memory.
+Free42 Binary (free42bin_68k.prc and free42bin_arm.prc) uses a software
+implementation of IEEE-754 double precision binary floating point. This
+consumes 8 bytes per number, and gives an effective precision of nearly 16
+decimal digits, with exponents ranging from -308 to +307 (actually, exponents
+can be less than -308; such small numbers are "denormalized" and don't have the
+full precision of "normalized" numbers).
 The binary version has the advantage of being much faster than the decimal
 version; also, it uses less memory. However, numbers such as 0.1 (one-tenth)
 cannot be represented exactly in binary, since they are repeating fractions
@@ -159,7 +165,7 @@ rely on legacy software that may depend on the exactness of decimal fractions,
 you may use Free42 Binary and enjoy its speed advantage. If, on the other hand,
 you need full HP-42S compatibility, you should use Free42 Decimal.
 If you don't fully understand the above, it is best to play safe and use
-Free42 Decimal (free42dec.prc).
+Free42 Decimal (free42dec_68k.prc or free42dec_arm.prc).
 
 
 What's the deal with the "68K" and "ARM"?

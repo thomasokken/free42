@@ -1,3 +1,8 @@
+??-??-????: version 1.4.14
+
+* PalmOS version: tweaked the layout of the Preferences dialog a bit. The
+  version for PalmOS < 3.5 was particularly bad.
+
 10-04-2006: version 1.4.13
 
 * New: ARM-native PalmOS version. It's not for everyone -- it's big, it starts

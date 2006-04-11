@@ -43,7 +43,7 @@ What's the deal with the "Decimal" and "Binary"?
 Starting with version 1.4, Free42 comes in decimal and binary versions. The two
 look and behave identically; the only difference is the way they represent
 numbers internally.
-Free42 Decimal uses Hugh Steers' 7-digit base-10000 BCDFloat class, which
+Free42 Decimal uses Hugh Steers' 7-digit base-10000 BCD20 library, which
 effectively gives 25 decimal digits of precision, with exponents ranging from
 -10000 to +9999. Transcendental functions are evaluated to about 20 digits;
 each number consumes 16 bytes of memory.
