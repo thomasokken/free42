@@ -2371,7 +2371,8 @@ static void do_export() {
     // ...but 68k machines are not.
     progress = PrgStartDialog("Exporting Program", progress_text_cb, NULL);
     PrgUpdateDialog(progress, errNone, 0, "Exporting...", true);
-    int cancelled = core_export_programs(np, selprog.prog_sel, progress_report_cb);
+    int cancelled;
+    cancelled = core_export_programs(np, selprog.prog_sel, progress_report_cb);
     PrgStopDialog(progress, true);
     if (export_file != NULL) {
 	if (cancelled)
