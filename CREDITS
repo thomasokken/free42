@@ -1,28 +1,28 @@
 Free42 is (C) 2004-2006 by Thomas Okken, except:
 
-Decimal math: BCD20 library by Hugh Steers
-INTEG: Romberg integration implementation based on code by Hugh Steers
+Decimal math: BCD20 library by Hugh Steers.
+INTEG: Romberg integration implementation based on code by Hugh Steers.
 LU Decomposition and back-substitution code, and Ridders' root-refinement
-   algorithm, based on sample code from "Numerical Recipes in C"
-Binary implementations of asinh, acosh, atanh, log(1+x), and exp(x)-1, used for
-   non-g++ builds (VC++, eVC++), and of gamma, used in all binary builds, by
-   Sun Microsystems.
+   algorithm, based on sample code from "Numerical Recipes in C".
+Binary implementations of floating-point math routines, used in all binary
+   builds, developed at SunPro, a Sun Microsystems business.
 Skins designed by, or based on original work of: Sebastien Carlier,
-   Christoph Giesselink, Erik Ehrling, Jeff O., Michael Vogel, Klaus Reckermann
-MacOS X Dashboard version by D. Jeff Dionne
+   Christoph Giesselink, Erik Ehrling, Jeff O., Michael Vogel, and Klaus
+   Reckermann
+MacOS X Dashboard version by D. Jeff Dionne.
 
 Testing: Vini Matangrano, Dave Johnson, Walter Bonin, Andres Rodriguez,
-   Jeff O., Miguel Toro
+   Jeff O., and Miguel Toro.
 
 Couldn't have done it without: PRC-Tools by D. Jeff Dionne, with multi-segment
-debugging support by Ton van Overbeek; Vim by Bram Moolenaar; DDD by Dorothea
-Luetkehaus and Andreas Zeller; NetPBM by Jef Poskanzer and others; gcc/g++ by
-Richard Stallman and others; Visual C++ and eMbedded Visual C++ by Microsoft;
-gdb, binutils, and too many other fine tools to name, by the Free Software
-Foundation and its contributors; the Linux kernel by Linus Torvalds and many
-others; help and advice from many contributors to several Usenet newsgroups and
-various mailing lists; and of course, the inspiration for it all, the excellent
-HP-42S calculator by Hewlett-Packard.
+debugging support by Ton van Overbeek; Peal by Greg Parker; Vim by Bram
+Moolenaar; DDD by Dorothea Luetkehaus and Andreas Zeller; NetPBM by Jef
+Poskanzer and others; gcc/g++ by Richard Stallman and others; Visual C++ and
+eMbedded Visual C++ by Microsoft; gdb, binutils, and too many other fine tools
+to name, by the Free Software Foundation and its contributors; the Linux kernel
+by Linus Torvalds and others; help and advice from many contributors to several
+Usenet newsgroups and various mailing lists; and of course, the inspiration for
+it all, the excellent HP-42S calculator by Hewlett-Packard.
 
 A big and continuing Thank You to all the many people whose names I did not
 record, who have sent me bug reports, words of encouragement, and donations.
