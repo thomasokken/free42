@@ -1,3 +1,7 @@
+Windows version: when printing with the print-out window closed, it looks like
+the scroll-back buffer won't grow to its maximum size. Also, why is the max
+size currently 16384 and not 32767?
+
 Plain text program import/export; HP-41 ROM image import.
 
 Import/export of variables.
