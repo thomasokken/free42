@@ -1662,15 +1662,17 @@ void shell_print(const char *text, int length,
     printout_bottom = (printout_bottom + h) % PRINT_LINES;
     newlength = oldlength + h;
 
-	if (hPrintOutWnd != NULL) {
-		if (newlength >= PRINT_LINES) {
-			printout_top = (printout_bottom + 2) % PRINT_LINES;
-			newlength = PRINT_LINES - 2;
+	if (newlength >= PRINT_LINES) {
+		printout_top = (printout_bottom + 2) % PRINT_LINES;
+		newlength = PRINT_LINES - 2;
+		if (hPrintOutWnd != NULL) {
 			if (newlength != oldlength)
 				printout_length_changed();
 			printout_scroll_to_bottom(h + oldlength - newlength);
 			repaint_printout(0, newlength - h, 286, h, 1);
-		} else {
+		}
+	} else {
+		if (hPrintOutWnd != NULL) {
 			printout_length_changed();
 			printout_scroll_to_bottom(0);
 			repaint_printout(0, oldlength, 286, h, 1);

@@ -1,3 +1,8 @@
+??-??-????: version 1.4.15
+
+* Windows and Pocket PC versions: when the print-out window was not created,
+  the print-out scroll-back buffer would not grow properly. Fixed.
+
 11-04-2006: version 1.4.14
 
 * PalmOS version: tweaked the layout of the Preferences dialog a bit. The
