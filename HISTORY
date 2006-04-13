@@ -1,7 +1,8 @@
-??-??-????: version 1.4.15
+13-04-2006: version 1.4.15
 
-* Windows and Pocket PC versions: when the print-out window was not created,
-  the print-out scroll-back buffer would not grow properly. Fixed.
+* Windows and Pocket PC versions: when print commands were executed before the
+  print-out window was created, the scroll-back buffer would not grow properly.
+  Fixed.
 
 11-04-2006: version 1.4.14
 
