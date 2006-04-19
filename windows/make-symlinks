@@ -53,4 +53,5 @@ ln -s ../common/bcdfloat.cc bcdfloat.cpp
 ln -s ../common/bcdfloat.h
 ln -s ../common/bcdmath.cc bcdmath.cpp
 ln -s ../common/bcdmath.h
+ln -s ../util/inprt2txt.c
 ln -s ../util/rom2raw.c

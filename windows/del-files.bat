@@ -51,4 +51,5 @@ del bcdfloat.cpp
 del bcdfloat.h
 del bcdmath.cpp
 del bcdmath.h
+del inprt2txt.c
 del rom2raw.c
