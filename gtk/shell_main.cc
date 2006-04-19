@@ -179,7 +179,7 @@ static GtkItemFactoryEntry entries[] = {
     { "/Edit/Copy", "<CTRL>C", copyCB, 0, "<Item>" },
     { "/Edit/Paste", "<CTRL>V", pasteCB, 0, "<Item>" },
     { "/Skin", NULL, NULL, 0, "<Branch>" },
-    { "/Help", NULL, NULL, 0, "<LastBranch>" },
+    { "/Help", NULL, NULL, 0, "<Branch>" },
     { "/Help/About Free42...", NULL, aboutCB, 0, "<Item>" }
 };
 
