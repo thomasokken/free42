@@ -8,6 +8,7 @@ int main() {
 	/* First, undo 42S-to-82240A (Roman8) translations: */
 	switch (c) {
 	    case   4: c =  10; break; // line feed
+	    case 127: c =  30; break; // gray2
 	    case 129: c =   0; break; // divide
 	    case 130: c =   1; break; // multiply
 	    case 131: c =   2; break; // sqrt
@@ -31,6 +32,8 @@ int main() {
 	    case 185: c =   8; break; // upside-down question mark
 	    case 211: c =  25; break; // AE
 	    case 216: c =  22; break; // Aumlaut
+	    case 218: c =  28; break; // Oumlaut
+	    case 219: c =  29; break; // Uumlaut
 	    case 242: c =  31; break; // bullet
 	}
 
