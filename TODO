@@ -10,3 +10,8 @@ were entered in, and are always displayed in that mode.
 Algebraic equations, a la HP-27S.
 
 Fractions.
+
+Larger display; show more stack registers, program lines, etc., at once.
+
+Allow more digits in the display (FIX >= 12, etc.; also, allow entry of more
+than 12 digits when entering a number).
