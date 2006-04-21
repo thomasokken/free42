@@ -1,3 +1,9 @@
+??-??-????: version 1.4.16
+
+* Complex matrices took up twice as much memory as they actually needed. On the
+  Palm, where matrices are already constrained by the 64 kilobyte allocation
+  limit, this was particularly annoying. Fixed now.
+
 13-04-2006: version 1.4.15
 
 * Windows and Pocket PC versions: when print commands were executed before the

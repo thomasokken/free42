@@ -1,3 +1,9 @@
+Allow larger matrices on the Palm. The easiest way to implement this seems to
+be to define my own malloc() and realloc(), which use MemGluePtrNew() and
+MemPtrResize() under the hood (with realloc() falling back on MemGluePtrNew()
+plus MemPtrFree() in case the MemPtrResize() call fails, which it often will,
+since MemPtrResize() does not try very hard).
+
 Plain text program import/export; HP-41 ROM image import.
 
 Import/export of variables.

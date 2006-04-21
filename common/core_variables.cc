@@ -135,7 +135,7 @@ vartype *new_complexmatrix(int4 rows, int4 columns) {
     cm->columns = columns;
     sz = rows * columns * 2;
     cm->array = (complexmatrix_data *) malloc(sizeof(complexmatrix_data));
-    cm->array->data = (phloat *) malloc(2 * sz * sizeof(phloat));
+    cm->array->data = (phloat *) malloc(sz * sizeof(phloat));
     if (cm->array->data == NULL) {
 	/* Oops */
 	free(cm->array);
