@@ -21,14 +21,14 @@ CFLAGS = -MMD -Wall -g -DPALMOS
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 LDFLAGS = -g
 
-SRCS = shell1.cc shell2.cc shell_spool.cc myglue.cc filesys.cc core_main.cc \
-	core_commands1.cc core_commands2.cc core_commands3.cc \
+SRCS = shell1.cc shell2.cc shell_spool.cc myglue.cc filesys.cc memmgr.c \
+	core_main.cc core_commands1.cc core_commands2.cc core_commands3.cc \
 	core_commands4.cc core_commands5.cc core_commands6.cc core_display.cc \
 	core_globals.cc core_helpers.cc core_keydown.cc core_linalg1.cc \
 	core_linalg2.cc core_math1.cc core_math2.cc core_phloat.cc \
 	core_sto_rcl.cc core_tables.cc core_variables.cc
-OBJS = shell1.o shell2.o shell_spool.o myglue.o filesys.o core_main.o \
-	core_commands1.o core_commands2.o core_commands3.o \
+OBJS = shell1.o shell2.o shell_spool.o myglue.o filesys.o memmgr.o \
+	core_main.o core_commands1.o core_commands2.o core_commands3.o \
 	core_commands4.o core_commands5.o core_commands6.o core_display.o \
 	core_globals.o core_helpers.o core_keydown.o core_linalg1.o \
 	core_linalg2.o core_math1.o core_math2.o core_phloat.o \
@@ -169,5 +169,5 @@ cleaner:
 		shell-sections.s shell-sections.ld symlinks* \
 		skin2prc skin2prc.exe tmp_skin.* Free42PalmOSSkins.zip
 
--include $(SRCS:.cc=.d)
+-include $(patsubst %.cc,%.d,$(patsubst %.c,%d,$(SRCS)))
 -include MathLib.d

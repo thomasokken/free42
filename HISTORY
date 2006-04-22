@@ -1,8 +1,12 @@
-??-??-????: version 1.4.16
+22-04-2006: version 1.4.16
 
-* Complex matrices took up twice as much memory as they actually needed. On the
-  Palm, where matrices are already constrained by the 64 kilobyte allocation
-  limit, this was particularly annoying. Fixed now.
+* Complex matrices took up twice as much memory as they actually needed, due to
+  an erroneous extra multiplication by 2 while allocating the memory chunk for
+  the matrix elements. Fixed.
+* Shared matrices now remain shared even after application exit and restart.
+* PalmOS version: removed the 64 kilobyte matrix size limit. Matrix size is now
+  limited only by available application heap space. (On PalmOS < 3.5, the 64k
+  limit still exists.)
 
 13-04-2006: version 1.4.15
 

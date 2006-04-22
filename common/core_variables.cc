@@ -148,6 +148,29 @@ vartype *new_complexmatrix(int4 rows, int4 columns) {
     return (vartype *) cm;
 }
 
+vartype *new_matrix_alias(vartype *m) {
+    if (m->type == TYPE_REALMATRIX) {
+	vartype_realmatrix *rm1 = (vartype_realmatrix *) m;
+	vartype_realmatrix *rm2 = (vartype_realmatrix *)
+					malloc(sizeof(vartype_realmatrix));
+	if (rm2 == NULL)
+	    return NULL;
+	*rm2 = *rm1;
+	rm2->array->refcount++;
+	return (vartype *) rm2;
+    } else if (m->type == TYPE_COMPLEXMATRIX) {
+	vartype_complexmatrix *cm1 = (vartype_complexmatrix *) m;
+	vartype_complexmatrix *cm2 = (vartype_complexmatrix *)
+					malloc(sizeof(vartype_complexmatrix));
+	if (cm2 == NULL)
+	    return NULL;
+	*cm2 = *cm1;
+	cm2->array->refcount++;
+	return (vartype *) cm2;
+    } else
+	return NULL;
+}
+
 void free_vartype(vartype *v) {
     if (v == NULL)
 	return;

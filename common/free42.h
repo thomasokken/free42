@@ -182,9 +182,10 @@ double log10(double x) PHLOAT_SECT;
  * Version 7: 1.1.12
  * Version 8: 1.1.14
  * Version 9: 1.4
+ * Version 10: 1.4.16
  */
 #define FREE42_MAGIC 0x466b3432
-#define FREE42_VERSION 9
+#define FREE42_VERSION 10
 
 
 #endif

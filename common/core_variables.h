@@ -26,6 +26,7 @@ vartype *new_complex(phloat re, phloat im) VARIABLES_SECT;
 vartype *new_string(const char *s, int slen) VARIABLES_SECT;
 vartype *new_realmatrix(int4 rows, int4 columns) VARIABLES_SECT;
 vartype *new_complexmatrix(int4 rows, int4 columns) VARIABLES_SECT;
+vartype *new_matrix_alias(vartype *m) VARIABLES_SECT;
 void free_vartype(vartype *v) VARIABLES_SECT;
 void clean_vartype_pools() VARIABLES_SECT;
 vartype *dup_vartype(const vartype *v) VARIABLES_SECT;

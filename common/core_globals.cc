@@ -661,6 +661,10 @@ typedef struct {
     int4 columns;
 } matrix_persister;
 
+static int array_count;
+static int array_list_capacity;
+static void **array_list;
+
 
 static bool read_int(int *n) GLOBALS_SECT;
 static bool write_int(int n) GLOBALS_SECT;
@@ -669,6 +673,8 @@ static bool write_int4(int4 n) GLOBALS_SECT;
 static bool read_bool(bool *n) GLOBALS_SECT;
 static bool write_bool(bool n) GLOBALS_SECT;
 
+static bool array_list_grow() GLOBALS_SECT;
+static int array_list_search(void *array) GLOBALS_SECT;
 static bool persist_vartype(vartype *v) GLOBALS_SECT;
 static bool unpersist_vartype(vartype **v) GLOBALS_SECT;
 static void update_label_table(int prgm, int4 pc, int inserted) GLOBALS_SECT;
@@ -677,10 +683,25 @@ static int pc_line_convert(int4 loc, int loc_is_pc) GLOBALS_SECT;
 static bool convert_programs() GLOBALS_SECT;
 
 
-/* TODO: these two routines don't handle matrices > 64k on PalmOS.
- * Then again, if the PalmOS memory manager does not allow malloc(n)
- * for n > 65536, I have a lot more work to do!
- */
+static bool array_list_grow() {
+    if (array_count < array_list_capacity)
+	return true;
+    array_list_capacity += 10;
+    void **p = (void **) realloc(array_list,
+				 array_list_capacity * sizeof(void *));
+    if (p == NULL)
+	return false;
+    array_list = p;
+    return true;
+}
+
+static int array_list_search(void *array) {
+    for (int i = 0; i < array_count; i++)
+	if (array_list[i] == array)
+	    return i;
+    return -1;
+}
+
 static bool persist_vartype(vartype *v) {
     if (v == NULL) {
 	int type = TYPE_NULL;
@@ -693,37 +714,72 @@ static bool persist_vartype(vartype *v) {
 	    return shell_write_saved_state(v, sizeof(vartype_complex));
 	case TYPE_STRING:
 	    return shell_write_saved_state(v, sizeof(vartype_string));
-/* TODO: this matrix dump/restore code loses aliasing information. */
 	case TYPE_REALMATRIX: {
 	    matrix_persister mp;
 	    vartype_realmatrix *rm = (vartype_realmatrix *) v;
-	    int4 size;
 	    mp.type = rm->type;
 	    mp.rows = rm->rows;
 	    mp.columns = rm->columns;
+	    int4 size = mp.rows * mp.columns;
+	    bool must_write = true;
+	    if (rm->array->refcount > 1) {
+		int n = array_list_search(rm->array);
+		if (n == -1) {
+		    // A negative row count signals a new shared matrix
+		    mp.rows = -mp.rows;
+		    if (!array_list_grow())
+			return false;
+		    array_list[array_count++] = rm->array;
+		} else {
+		    // A zero row count means this matrix shares its data
+		    // with a previously written matrix
+		    mp.rows = 0;
+		    mp.columns = n;
+		    must_write = false;
+		}
+	    }
 	    if (!shell_write_saved_state(&mp, sizeof(matrix_persister)))
 		return false;
-	    size = mp.rows * mp.columns;
-	    if (!shell_write_saved_state(rm->array->data,
-					 size * sizeof(phloat)))
-		return false;
-	    if (!shell_write_saved_state(rm->array->is_string, size))
-		return false;
+	    if (must_write) {
+		if (!shell_write_saved_state(rm->array->data,
+					    size * sizeof(phloat)))
+		    return false;
+		if (!shell_write_saved_state(rm->array->is_string, size))
+		    return false;
+	    }
 	    return true;
 	}
 	case TYPE_COMPLEXMATRIX: {
 	    matrix_persister mp;
 	    vartype_complexmatrix *cm = (vartype_complexmatrix *) v;
-	    int4 size;
 	    mp.type = cm->type;
 	    mp.rows = cm->rows;
 	    mp.columns = cm->columns;
+	    int4 size = mp.rows * mp.columns;
+	    bool must_write = true;
+	    if (cm->array->refcount > 1) {
+		int n = array_list_search(cm->array);
+		if (n == -1) {
+		    // A negative row count signals a new shared matrix
+		    mp.rows = -mp.rows;
+		    if (!array_list_grow())
+			return false;
+		    array_list[array_count++] = cm->array;
+		} else {
+		    // A zero row count means this matrix shares its data
+		    // with a previously written matrix
+		    mp.rows = 0;
+		    mp.columns = n;
+		    must_write = false;
+		}
+	    }
 	    if (!shell_write_saved_state(&mp, sizeof(matrix_persister)))
 		return false;
-	    size = mp.rows * mp.columns;
-	    if (!shell_write_saved_state(cm->array->data,
-					 2 * size * sizeof(phloat)))
-		return false;
+	    if (must_write) {
+		if (!shell_write_saved_state(cm->array->data,
+					    2 * size * sizeof(phloat)))
+		    return false;
+	    }
 	    return true;
 	}
 	default:
@@ -854,6 +910,19 @@ static bool unpersist_vartype(vartype **v) {
 	    int n = sizeof(matrix_persister) - sizeof(int);
 	    if (shell_read_saved_state(&mp.type + 1, n) != n)
 		return false;
+	    if (mp.rows == 0) {
+		// Shared matrix
+		vartype *m = new_matrix_alias((vartype *) array_list[mp.columns]);
+		if (m == NULL)
+		    return false;
+		else {
+		    *v = m;
+		    return true;
+		}
+	    }
+	    bool shared = mp.rows < 0;
+	    if (shared)
+		mp.rows = -mp.rows;
 	    vartype_realmatrix *rm = (vartype_realmatrix *) new_realmatrix(mp.rows, mp.columns);
 	    if (rm == NULL)
 		return false;
@@ -916,17 +985,36 @@ static bool unpersist_vartype(vartype **v) {
 		    return false;
 		}
 	    }
+	    if (shared) {
+		if (!array_list_grow()) {
+		    free_vartype((vartype *) rm);
+		    return false;
+		}
+		array_list[array_count++] = rm;
+	    }
 	    *v = (vartype *) rm;
 	    return true;
 	}
 	case TYPE_COMPLEXMATRIX: {
 	    matrix_persister mp;
 	    int n = sizeof(matrix_persister) - sizeof(int);
-	    vartype_complexmatrix *cm;
 	    if (shell_read_saved_state(&mp.type + 1, n) != n)
 		return false;
-	    cm = (vartype_complexmatrix *)
-				    new_complexmatrix(mp.rows, mp.columns);
+	    if (mp.rows == 0) {
+		// Shared matrix
+		vartype *m = new_matrix_alias((vartype *) array_list[mp.columns]);
+		if (m == NULL)
+		    return false;
+		else {
+		    *v = m;
+		    return true;
+		}
+	    }
+	    bool shared = mp.rows < 0;
+	    if (shared)
+		mp.rows = -mp.rows;
+	    vartype_complexmatrix *cm = (vartype_complexmatrix *)
+					new_complexmatrix(mp.rows, mp.columns);
 	    if (cm == NULL)
 		return false;
 	    if (bin_dec_mode_switch) {
@@ -943,6 +1031,13 @@ static bool unpersist_vartype(vartype **v) {
 		    return false;
 		}
 	    }
+	    if (shared) {
+		if (!array_list_grow()) {
+		    free_vartype((vartype *) cm);
+		    return false;
+		}
+		array_list[array_count++] = cm;
+	    }
 	    *v = (vartype *) cm;
 	    return true;
 	}
@@ -954,107 +1049,121 @@ static bool unpersist_vartype(vartype **v) {
 static bool persist_globals() GLOBALS_SECT;
 static bool persist_globals() {
     int i;
+    array_count = 0;
+    array_list_capacity = 0;
+    array_list = NULL;
+    bool ret = false;
+
     if (!persist_vartype(reg_x))
-	return false;
+	goto done;
     if (!persist_vartype(reg_y))
-	return false;
+	goto done;
     if (!persist_vartype(reg_z))
-	return false;
+	goto done;
     if (!persist_vartype(reg_t))
-	return false;
+	goto done;
     if (!persist_vartype(reg_lastx))
-	return false;
+	goto done;
     if (!write_int(reg_alpha_length))
-	return false;
+	goto done;
     if (!shell_write_saved_state(reg_alpha, 44))
-	return false;
+	goto done;
     if (!write_int4(mode_sigma_reg))
-	return false;
+	goto done;
     if (!write_int(mode_goose))
-	return false;
+	goto done;
     if (!shell_write_saved_state(&flags, sizeof(flags_struct)))
-	return false;
+	goto done;
     if (!write_int(vars_count))
-	return false;
+	goto done;
     if (!shell_write_saved_state(vars, vars_count * sizeof(var_struct)))
-	return false;
+	goto done;
     for (i = 0; i < vars_count; i++)
 	if (!persist_vartype(vars[i].value))
-	    return false;
+	    goto done;
     if (!write_int(prgms_count))
-	return false;
+	goto done;
     if (!shell_write_saved_state(prgms, prgms_count * sizeof(prgm_struct)))
-	return false;
+	goto done;
     for (i = 0; i < prgms_count; i++)
 	if (!shell_write_saved_state(prgms[i].text, prgms[i].size))
-	    return false;
+	    goto done;
     if (!write_int(current_prgm))
-	return false;
+	goto done;
     if (!write_int4(pc))
-	return false;
+	goto done;
     if (!write_int(prgm_highlight_row))
-	return false;
+	goto done;
     if (!write_int(varmenu_length))
-	return false;
+	goto done;
     if (!shell_write_saved_state(varmenu, 7))
-	return false;
+	goto done;
     if (!write_int(varmenu_rows))
-	return false;
+	goto done;
     if (!write_int(varmenu_row))
-	return false;
+	goto done;
     if (!shell_write_saved_state(varmenu_labellength, 6 * sizeof(int)))
-	return false;
+	goto done;
     if (!shell_write_saved_state(varmenu_labeltext, 42))
-	return false;
+	goto done;
     if (!write_int(varmenu_role))
-	return false;
+	goto done;
     if (!write_int(rtn_sp))
-	return false;
+	goto done;
     if (!shell_write_saved_state(&rtn_prgm, MAX_RTNS * sizeof(int)))
-	return false;
+	goto done;
     if (!shell_write_saved_state(&rtn_pc, MAX_RTNS * sizeof(int4)))
-	return false;
-    return true;
+	goto done;
+    ret = true;
+
+    done:
+    free(array_list);
+    return ret;
 }
 
 static bool unpersist_globals() GLOBALS_SECT;
 static bool unpersist_globals() {
     int4 n;
     int i;
+    array_count = 0;
+    array_list_capacity = 0;
+    array_list = NULL;
+    bool ret = false;
+
     free_vartype(reg_x);
     if (!unpersist_vartype(&reg_x))
-	return false;
+	goto done;
     free_vartype(reg_y);
     if (!unpersist_vartype(&reg_y))
-	return false;
+	goto done;
     free_vartype(reg_z);
     if (!unpersist_vartype(&reg_z))
-	return false;
+	goto done;
     free_vartype(reg_t);
     if (!unpersist_vartype(&reg_t))
-	return false;
+	goto done;
     free_vartype(reg_lastx);
     if (!unpersist_vartype(&reg_lastx))
-	return false;
+	goto done;
     if (!read_int(&reg_alpha_length)) {
 	reg_alpha_length = 0;
-	return false;
+	goto done;
     }
     if (shell_read_saved_state(reg_alpha, 44) != 44) {
 	reg_alpha_length = 0;
-	return false;
+	goto done;
     }
     if (!read_int4(&mode_sigma_reg)) {
 	mode_sigma_reg = 11;
-	return false;
+	goto done;
     }
     if (!read_int(&mode_goose)) {
 	mode_goose = -1;
-	return false;
+	goto done;
     }
     if (shell_read_saved_state(&flags, sizeof(flags_struct))
 	    != sizeof(flags_struct))
-	return false;
+	goto done;
     vars_capacity = 0;
     if (vars != NULL) {
 	free(vars);
@@ -1062,19 +1171,19 @@ static bool unpersist_globals() {
     }
     if (!read_int(&vars_count)) {
 	vars_count = 0;
-	return false;
+	goto done;
     }
     n = vars_count * sizeof(var_struct);
     vars = (var_struct *) malloc(n);
     if (vars == NULL) {
 	vars_count = 0;
-	return false;
+	goto done;
     }
     if (shell_read_saved_state(vars, n) != n) {
 	free(vars);
 	vars = NULL;
 	vars_count = 0;
-	return false;
+	goto done;
     }
     vars_capacity = vars_count;
     for (i = 0; i < vars_count; i++)
@@ -1082,7 +1191,7 @@ static bool unpersist_globals() {
     for (i = 0; i < vars_count; i++)
 	if (!unpersist_vartype(&vars[i].value)) {
 	    purge_all_vars();
-	    return false;
+	    goto done;
 	}
     prgms_capacity = 0;
     if (prgms != NULL) {
@@ -1091,19 +1200,19 @@ static bool unpersist_globals() {
     }
     if (!read_int(&prgms_count)) {
 	prgms_count = 0;
-	return false;
+	goto done;
     }
     n = prgms_count * sizeof(prgm_struct);
     prgms = (prgm_struct *) malloc(n);
     if (prgms == NULL) {
 	prgms_count = 0;
-	return false;
+	goto done;
     }
     if (shell_read_saved_state(prgms, n) != n) {
 	free(prgms);
 	prgms = NULL;
 	prgms_count = 0;
-	return false;
+	goto done;
     }
     prgms_capacity = prgms_count;
     for (i = 0; i < prgms_count; i++) {
@@ -1114,59 +1223,63 @@ static bool unpersist_globals() {
 	if (shell_read_saved_state(prgms[i].text, prgms[i].size)
 		!= prgms[i].size) {
 	    clear_all_prgms();
-	    return false;
+	    goto done;
 	}
     }
     if (!read_int(&current_prgm)) {
 	current_prgm = 0;
-	return false;
+	goto done;
     }
     if (!read_int4(&pc)) {
 	pc = -1;
-	return false;
+	goto done;
     }
     if (!read_int(&prgm_highlight_row)) {
 	prgm_highlight_row = 0;
-	return false;
+	goto done;
     }
     if (!read_int(&varmenu_length)) {
 	varmenu_length = 0;
-	return false;
+	goto done;
     }
     if (shell_read_saved_state(varmenu, 7) != 7) {
 	varmenu_length = 0;
-	return false;
+	goto done;
     }
     if (!read_int(&varmenu_rows)) {
 	varmenu_length = 0;
-	return false;
+	goto done;
     }
     if (!read_int(&varmenu_row)) {
 	varmenu_length = 0;
-	return false;
+	goto done;
     }
     if (shell_read_saved_state(varmenu_labellength, 6 * sizeof(int))
 	    != 6 * sizeof(int))
-	return false;
+	goto done;
     if (shell_read_saved_state(varmenu_labeltext, 42) != 42)
-	return false;
+	goto done;
     if (!read_int(&varmenu_role))
-	return false;
+	goto done;
     if (!read_int(&rtn_sp))
-	return false;
+	goto done;
     if (shell_read_saved_state(rtn_prgm, MAX_RTNS * sizeof(int))
 	    != MAX_RTNS * sizeof(int))
-	return false;
+	goto done;
     if (shell_read_saved_state(rtn_pc, MAX_RTNS * sizeof(int4))
 	    != MAX_RTNS * sizeof(int4))
-	return false;
+	goto done;
     if (bin_dec_mode_switch)
 	if (!convert_programs()) {
 	    clear_all_prgms();
-	    return false;
+	    goto done;
 	}
     rebuild_label_table();
-    return true;
+    ret = true;
+
+    done:
+    free(array_list);
+    return ret;
 }
 
 void clear_all_prgms() {
