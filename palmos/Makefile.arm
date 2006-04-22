@@ -20,8 +20,10 @@ CFLAGS = -MMD -Wall -g -DPALMOS -DPALMOS_ARM_SHELL -Ipeal/m68k
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 LDFLAGS = -g
 
-SRCS = shell1.cc shell2.cc shell_spool.cc myglue.cc filesys.cc shell_arm.cc peal.c
-OBJS = shell1.o shell2.o shell_spool.o myglue.o filesys.o shell_arm.o peal.o
+SRCS = shell1.cc shell2.cc shell_spool.cc myglue.cc filesys.cc memmgr.c \
+	shell_arm.cc peal.c
+OBJS = shell1.o shell2.o shell_spool.o myglue.o filesys.o memmgr.o \
+	shell_arm.o peal.o
 
 
 ifdef BCD_MATH
