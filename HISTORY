@@ -1,3 +1,8 @@
+23-04-2006: (no new code release)
+
+* Added 160x160 version of the Standard skin to the Free42PalmOSSkins.zip
+  package.
+
 22-04-2006: version 1.4.16
 
 * Complex matrices took up twice as much memory as they actually needed, due to
