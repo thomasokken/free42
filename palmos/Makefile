@@ -127,6 +127,10 @@ Reverse.prc: skin2prc
 	./make-skin ../palmskins/Reverse.layout \
 		../palmskins/Reverse.gif 1000 2000 1 72 Reverse off 1
 
+Standard.prc: skin2prc
+	./make-skin ../palmskins/Standard.layout \
+		../palmskins/Standard.gif 1000 2000 1,4,8 72 Standard off 1
+
 StandardHD.prc: skin2prc
 	./make-skin ../palmskins/StandardHD.layout \
 		../palmskins/StandardHD.gif 1000 2000 1,4,8 144 StandardHD off 2
@@ -147,9 +151,9 @@ Ehrling42sm.prc: skin2prc
 	./make-skin ../palmskins/Ehrling42sm.layout \
 		../palmskins/Ehrling42sm.gif 1000 2000 1,4,8 144 Ehrling42sm off 2
 
-Free42PalmOSSkins.zip: Reverse.prc StandardHD.prc SemiReal42.prc SemiReal42HD.prc SemiAuto42HD.prc Ehrling42sm.prc
+Free42PalmOSSkins.zip: Reverse.prc Standard.prc StandardHD.prc SemiReal42.prc SemiReal42HD.prc SemiAuto42HD.prc Ehrling42sm.prc
 	rm -f Free42PalmOSSkins.zip
-	zip Free42PalmOSSkins.zip Reverse.prc StandardHD.prc \
+	zip Free42PalmOSSkins.zip Reverse.prc Standard.prc StandardHD.prc \
 		SemiReal42.prc SemiReal42HD.prc SemiAuto42HD.prc \
 		Ehrling42sm.prc
 
