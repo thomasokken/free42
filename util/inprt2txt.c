@@ -22,6 +22,7 @@ int main() {
 	    case 141: c =  15; break; // arrowright
 	    case 142: c =  16; break; // arrowleft
 	    case 143: c =  17; break; // mu
+	    case 144: c = 138; break; // LF symbol
 	    case 148: c = 127; break; // append
 	    case 155: c =  26; break; // ellipsis
 	    case 160: c =  23; break; // angle
