@@ -416,7 +416,7 @@ void skin_load(TCHAR *skinname, const TCHAR *basedir, int width, int height) {
 				macro->next = macrolist;
 				macrolist = macro;
 			}
-		} else if (strncasecmp(line, "menukeys:", 9) == 0) {
+		} else if (_strnicmp(line, "menukeys:", 9) == 0) {
 			int mk1, mk2, mk3, mk4, mk5, mk6;
 			if (sscanf(line + 9, "%d %d %d %d %d %d",
 								  &mk1, &mk2, &mk3, &mk4, &mk5, &mk6) == 6) {
@@ -833,7 +833,8 @@ void skin_find_key(int x, int y, int *skey, int *ckey) {
 					&& x < display_loc.x + 16 * display_scale.x
 					&& y >= display_loc.y
 					&& y < display_loc.y + 131 * display_scale.y) {
-				int softkey = menu_keys[5 - (y - display_loc.y) / (22 * display_scale.y)];
+				int softkey = menu_keys[
+							5 - (y - display_loc.y) / (22 * display_scale.y)];
 				*skey = -1 - softkey;
 				*ckey = softkey;
 				return;
@@ -846,9 +847,11 @@ void skin_find_key(int x, int y, int *skey, int *ckey) {
 					&& y < display_loc.y + 16 * display_scale.y) {
 				int softkey;
 				if (display_scale.x == 0)
-					softkey = menu_keys[((x - display_loc.x + 37) * 3) / 110 - 1];
+					softkey = menu_keys[
+								((x - display_loc.x + 37) * 3) / 110 - 1];
 				else
-					softkey = menu_keys[(x - display_loc.x) / (22 * display_scale.x)];
+					softkey = menu_keys[
+								(x - display_loc.x) / (22 * display_scale.x)];
 				*skey = -1 - softkey;
 				*ckey = softkey;
 				return;
@@ -944,9 +947,9 @@ void skin_repaint_key(HDC hdc, HDC memdc, int key, int state) {
 		SelectObject(memdc, bitmap);
 		BitBlt(hdc, display_loc.x + x, display_loc.y + y,
 			   display_scale.x == 0
-						? key == 2 || key == 5 ? 36 : 37
-						: 21 * display_scale.x,
-			   7 * display_scale.y,
+						? k == 2 || k == 5 ? 36 : 35
+						: (landscape ? 7 : 21) * display_scale.x,
+			   (landscape ? 21 : 7) * display_scale.y,
 			   memdc, x, y, SRCCOPY);
 		SetBkColor(hdc, old_bg);
 		SetTextColor(hdc, old_fg);

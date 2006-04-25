@@ -4,6 +4,7 @@
 Skin: 0,0,240,268
 Display: 13,3 3 2 758a80 000000
 Landscape: 1
+MenuKeys: 7 8 9 10 11 12
 
 Annunciator: 1 3,246,9,18 241,250
 Annunciator: 2 3,225,8,20 242,229
