@@ -31,6 +31,7 @@
 #include "shell_loadimage.h"
 #include "shell_main.h"
 #include "core_main.h"
+#include "core_display.h"
 
 
 /**************************/
@@ -174,7 +175,7 @@ static void selectSkinCB(Widget w, XtPointer ud, XtPointer cd) {
 	int w, h;
 	strcpy(state.skinName, seg);
 	skin_load(&w, &h);
-	core_repaint_display();
+	redisplay();
 	allow_mainwindow_resize();
 	XtVaSetValues(calc_widget, XmNwidth, w, XmNheight, h, NULL);
 	disallow_mainwindow_resize();

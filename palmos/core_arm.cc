@@ -42,11 +42,6 @@ unsigned long arm_core_quit(void *p) {
     return 0;
 }
 
-unsigned long arm_core_repaint_display(void *p) {
-    core_repaint_display();
-    return 0;
-}
-
 unsigned long arm_core_menu(void *p) {
     return core_menu();
 }

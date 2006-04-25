@@ -28,6 +28,7 @@
 #include "shell_main.h"
 #include "shell_loadimage.h"
 #include "core_main.h"
+#include "core_display.h"
 
 
 /**************************/
@@ -144,7 +145,7 @@ static void selectSkinCB(GtkWidget *w, gpointer cd) {
 	int w, h;
 	strcpy(state.skinName, name);
 	skin_load(&w, &h);
-	core_repaint_display();
+	redisplay();
 	gtk_widget_set_size_request(calc_widget, w, h);
     }
 }

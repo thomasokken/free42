@@ -1069,7 +1069,7 @@ Boolean form_handler(EventType *e) {
 			    StrCopy(state.skinName, skin_name[i]);
 			    unload_skin();
 			    load_skin();
-			    core_repaint_display();
+			    redisplay();
 			    update_dia_state();
 			    if (feature_set_3_5_present())
 				FrmUpdateForm(calcform_id, frmRedrawUpdateCode);
@@ -1129,7 +1129,7 @@ Boolean form_handler(EventType *e) {
 			StrCopy(state.skinName, skin_name[i]);
 			unload_skin();
 			load_skin();
-			core_repaint_display();
+			redisplay();
 			update_dia_state();
 			FrmUpdateForm(calcform_id, frmRedrawUpdateCode);
 			return true;
@@ -2480,7 +2480,7 @@ static void do_delete_skin() {
 		StrCopy(state.skinName, skin_name[0]);
 		unload_skin();
 		load_skin();
-		core_repaint_display();
+		redisplay();
 		update_dia_state();
 		if (feature_set_3_5_present())
 		    FrmUpdateForm(calcform_id, frmRedrawUpdateCode);

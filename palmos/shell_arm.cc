@@ -33,7 +33,6 @@ core_settings_struct *real_core_settings;
 static PealModule *m;
 static void *p_core_init;
 static void *p_core_quit;
-static void *p_core_repaint_display;
 static void *p_core_menu;
 static void *p_core_alpha_menu;
 static void *p_core_hex_menu;
@@ -98,7 +97,6 @@ void core_init(int read_state, int4 version) {
     m = PealLoadFromResources('armc', 1000);
     p_core_init = PealLookupSymbol(m, "_Z13arm_core_initPv");
     p_core_quit = PealLookupSymbol(m, "_Z13arm_core_quitPv");
-    p_core_repaint_display = PealLookupSymbol(m, "_Z24arm_core_repaint_displayPv");
     p_core_menu = PealLookupSymbol(m, "_Z13arm_core_menuPv");
     p_core_alpha_menu = PealLookupSymbol(m, "_Z19arm_core_alpha_menuPv");
     p_core_hex_menu = PealLookupSymbol(m, "_Z17arm_core_hex_menuPv");
@@ -158,10 +156,6 @@ void core_quit() {
     PealCall(m, p_core_quit, NULL);
     PealUnload(m);
     free(au);
-}
-
-void core_repaint_display() {
-    PealCall(m, p_core_repaint_display, NULL);
 }
 
 int core_menu() {

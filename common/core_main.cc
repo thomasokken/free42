@@ -90,10 +90,6 @@ void core_quit() {
     phloat_cleanup();
 }
 
-void core_repaint_display() {
-    repaint_display();
-}
-
 int core_menu() {
     return mode_clall || get_front_menu() != NULL;
 }
