@@ -30,6 +30,10 @@ Key: describes a clickable key; arguments are: keycode, sensitive rectangle
   Keycodes in the range 1..37 correspond to actual calculator keys; keycodes
   38..255 can be used to define "macro" keys. For each such keycode, there must
   be a corresponding "Macro:" line in the layout file.
+MenuKeys: for skins that do not have the Sigma+, 1/X, SQRT, LOG, LN, and XEQ
+  keys below the display, this declaration can be used to specify which six
+  keys are to be used as the menu keys. The arguments to this declaration are
+  six key codes in the range 1..37.
 Macro: for keys with keycodes in the range 38..255, this defines the sequence
   of HP-42S keys (keycodes 1..37) that is to be pressed; arguments are:
   keycode, followed by zero or more keycodes in the range 1..37. See below for
