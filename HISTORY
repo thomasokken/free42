@@ -1,3 +1,10 @@
+??-??-????: version 1.4.17
+
+* Added support for skins with non-standard menu keys, so that the six keys
+  below the display no longer have to be Sigma..XEQ; in the skin layout, the
+  keycodes for the six menu keys can be changed using the "MenuKeys"
+  declaration.
+
 23-04-2006: (no new code release)
 
 * Added 160x160 version of the Standard skin to the Free42PalmOSSkins.zip

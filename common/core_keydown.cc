@@ -30,12 +30,18 @@
 #include "shell.h"
 
 
+static int find_menu_key(int key) KEYDOWN_SECT;
+static int find_menu_key(int key) {
+    for (int i = 0; i < 6; i++)
+	if (menu_keys[i] == key)
+	    return i;
+    return -1;
+}
+
 static int is_number_key(int shift, int key) KEYDOWN_SECT;
 static int is_number_key(int shift, int key) {
     int *menu = get_front_menu();
-    if (menu != NULL && *menu == MENU_BASE_A_THRU_F
-	    && (key == KEY_SIGMA || key == KEY_INV || key == KEY_SQRT
-		|| key == KEY_LOG || key == KEY_LN || key == KEY_XEQ))
+    if (menu != NULL && *menu == MENU_BASE_A_THRU_F && find_menu_key(key) != -1)
 	return 1;
     return !shift && (key == KEY_0 || key == KEY_1 || key == KEY_2
 		|| key == KEY_3 || key == KEY_4 || key == KEY_5
@@ -108,7 +114,7 @@ void keydown(int shift, int key) {
     }
 
     if (mode_clall) {
-	if (!shift && key == KEY_SIGMA)
+	if (!shift && key == menu_keys[0])
 	    pending_command = CMD_CLALLb;
 	else if (key == KEY_EXIT)
 	    pending_command = CMD_CANCELLED;
@@ -195,7 +201,7 @@ void keydown(int shift, int key) {
     flags.f.message = 0;
     flags.f.two_line_message = 0;
 
-    if (mode_number_entry && get_base() == 16 && key == KEY_SIGMA
+    if (mode_number_entry && get_base() == 16 && key == menu_keys[0]
 	    && (menu = get_front_menu()) != NULL && *menu == MENU_BASE) {
 	/* Special case -- entering the A...F menu while in base 16
 	 * does *not* cancel number entry mode (unlike all other menu
@@ -450,12 +456,7 @@ void keydown_number_entry(int shift, int key) {
 	    case KEY_7: digit = 7; break;
 	    case KEY_8: digit = 8; break;
 	    case KEY_9: digit = 9; break;
-	    case KEY_SIGMA: digit = 10; break;
-	    case KEY_INV:   digit = 11; break;
-	    case KEY_SQRT:  digit = 12; break;
-	    case KEY_LOG:   digit = 13; break;
-	    case KEY_LN:    digit = 14; break;
-	    case KEY_XEQ:   digit = 15; break;
+	    default: digit = find_menu_key(key) + 10; break;
 	}
 	if (digit >= base)
 	    return;
@@ -610,8 +611,7 @@ void keydown_command_entry(int shift, int key) {
 #endif
 
 	if (key >= 1024
-	    || (key == KEY_SIGMA || key == KEY_INV || key == KEY_SQRT
-		    || key == KEY_LOG || key == KEY_LN || key == KEY_XEQ)
+	    || find_menu_key(key) != -1
 	    || (!shift &&
 		(key == KEY_E || key == KEY_UP || key == KEY_DOWN
 		    || key == KEY_DIV || key == KEY_MUL || key == KEY_SUB
@@ -679,12 +679,6 @@ void keydown_command_entry(int shift, int key) {
 	    return;
 	}
 	switch (key) {
-	    case KEY_SIGMA: case KEY_1: break;
-	    case KEY_INV: case KEY_2: cmd++; break;
-	    case KEY_SQRT: case KEY_3: cmd += 2; break;
-	    case KEY_LOG: case KEY_4: cmd += 3; break;
-	    case KEY_LN: case KEY_5: cmd += 4; break;
-	    case KEY_XEQ: case KEY_6: cmd += 5; break;
 	    case KEY_UP: case KEY_7: cmd += 6; break;
 	    case KEY_DOWN: case KEY_8: cmd += 7; break;
 	    case KEY_EXIT: case KEY_9: cmd += 8; break;
@@ -693,8 +687,14 @@ void keydown_command_entry(int shift, int key) {
 		finish_command_entry(false);
 		return;
 	    default:
-		squeak();
-		return;
+		int k = find_menu_key(key);
+		if (k == -1) {
+		    squeak();
+		    return;
+		} else {
+		    cmd += k;
+		    break;
+		}
 	}
 	start_incomplete_command(cmd);
 	return;
@@ -902,7 +902,7 @@ void keydown_command_entry(int shift, int key) {
 	}
 
 	if (mode_commandmenu == MENU_IND) {
-	    if (!shift && key == KEY_SIGMA) {
+	    if (!shift && key == menu_keys[0]) {
 		incomplete_command = CMD_GTO;
 		incomplete_argtype = ARG_LBL;
 		incomplete_ind = 1;

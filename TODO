@@ -1,3 +1,6 @@
+Implement MenuKeys support in Windows, Pocket PC, and Palm skin handling code.
+The TOP.FCN menu should change to match MenuKeys.
+
 Plain text program import/export; HP-41 ROM image import.
 
 Import/export of variables.

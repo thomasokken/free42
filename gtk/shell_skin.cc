@@ -316,6 +316,12 @@ void skin_load(int *width, int *height) {
     keymap_length = 0;
     int kmcap = 0;
 
+    /* If no MenuKeys specification is found, the menu keys should be the usual
+     * ones from the HP-42S, i.e. Sigma through XEQ, which have key codes 1..6
+     */
+    for (int i = 0; i < 6; i++)
+	menu_keys[i] = i + 1;
+
     while (skin_gets(line, 1024)) {
 	lineno++;
 	if (*line == 0)
@@ -410,6 +416,17 @@ void skin_load(int *width, int *height) {
 		macro->macro[len++] = 0;
 		macro->next = macrolist;
 		macrolist = macro;
+	    }
+	} else if (strncasecmp(line, "menukeys:", 9) == 0) {
+	    int mk1, mk2, mk3, mk4, mk5, mk6;
+	    if (sscanf(line + 9, "%d %d %d %d %d %d",
+				 &mk1, &mk2, &mk3, &mk4, &mk5, &mk6) == 6) {
+		menu_keys[0] = mk1;
+		menu_keys[1] = mk2;
+		menu_keys[2] = mk3;
+		menu_keys[3] = mk4;
+		menu_keys[4] = mk5;
+		menu_keys[5] = mk6;
 	    }
 	} else if (strncasecmp(line, "annunciator:", 12) == 0) {
 	    int annnum;
@@ -571,7 +588,7 @@ void skin_find_key(int x, int y, int *skey, int *ckey) {
 	    && x < display_loc.x + 131 * display_scale.x
 	    && y >= display_loc.y + 9 * display_scale.y
 	    && y < display_loc.y + 16 * display_scale.y) {
-	int softkey = (x - display_loc.x) / (22 * display_scale.x) + 1;
+	int softkey = menu_keys[(x - display_loc.x) / (22 * display_scale.x)];
 	*skey = -1 - softkey;
 	*ckey = softkey;
 	return;
@@ -626,10 +643,17 @@ unsigned char *skin_keymap_lookup(guint keyval, bool printable,
 void skin_repaint_key(int key, bool state) {
     SkinKey *k;
 
-    if (key >= -7 && key <= -2) {
+    if (key < -1) {
 	/* Soft key */
-	key = -1 - key;
-	int x = (key - 1) * 22 * display_scale.x;
+	int k = -1;
+	for (int i = 0; i < 6; i++)
+	    if (menu_keys[i] == key) {
+		k = i;
+		break;
+	    }
+	if (k == -1)
+	    return;
+	int x = k * 22 * display_scale.x;
 	int y = 9 * display_scale.y;
 	int width = 21 * display_scale.x;
 	int height = 7 * display_scale.y;

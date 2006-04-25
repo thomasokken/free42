@@ -46,6 +46,7 @@ static int handle_error(int error) MAIN_SECT;
 int repeating = 0;
 int repeating_shift;
 int repeating_key;
+int menu_keys[6];
 
 static int4 oldpc;
 
@@ -2350,18 +2351,6 @@ void fix_thousands_separators(char *buf, int *bufptr) {
 	}
     }
     *bufptr = j;
-}
-
-int find_menu_key(int key) {
-    switch (key) {
-	case KEY_SIGMA: return 0;
-	case KEY_INV:   return 1;
-	case KEY_SQRT:  return 2;
-	case KEY_LOG:   return 3;
-	case KEY_LN:    return 4;
-	case KEY_XEQ:   return 5;
-	default:        return -1;
-    }
 }
 
 void start_incomplete_command(int cmd_id) {
