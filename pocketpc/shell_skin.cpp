@@ -314,6 +314,12 @@ void skin_load(TCHAR *skinname, const TCHAR *basedir, int width, int height) {
 	keymap = NULL;
 	keymap_length = 0;
 
+	/* If no MenuKeys specification is found, the menu keys should be the usual
+	 * ones from the HP-42S, i.e. Sigma through XEQ, which have key codes 1..6
+	 */
+	for (int i = 0; i < 6; i++)
+		menu_keys[i] = i + 1;
+
 	landscape = false;
 
 	while (skin_gets(line, 1024)) {
@@ -409,6 +415,17 @@ void skin_load(TCHAR *skinname, const TCHAR *basedir, int width, int height) {
 				macro->macro[len++] = 0;
 				macro->next = macrolist;
 				macrolist = macro;
+			}
+		} else if (strncasecmp(line, "menukeys:", 9) == 0) {
+			int mk1, mk2, mk3, mk4, mk5, mk6;
+			if (sscanf(line + 9, "%d %d %d %d %d %d",
+								  &mk1, &mk2, &mk3, &mk4, &mk5, &mk6) == 6) {
+				menu_keys[0] = mk1;
+				menu_keys[1] = mk2;
+				menu_keys[2] = mk3;
+				menu_keys[3] = mk4;
+				menu_keys[4] = mk5;
+				menu_keys[5] = mk6;
 			}
 		} else if (_strnicmp(line, "annunciator:", 12) == 0) {
 			int annnum;
@@ -816,7 +833,7 @@ void skin_find_key(int x, int y, int *skey, int *ckey) {
 					&& x < display_loc.x + 16 * display_scale.x
 					&& y >= display_loc.y
 					&& y < display_loc.y + 131 * display_scale.y) {
-				int softkey = 6 - (y - display_loc.y) / (22 * display_scale.y);
+				int softkey = menu_keys[5 - (y - display_loc.y) / (22 * display_scale.y)];
 				*skey = -1 - softkey;
 				*ckey = softkey;
 				return;
@@ -829,9 +846,9 @@ void skin_find_key(int x, int y, int *skey, int *ckey) {
 					&& y < display_loc.y + 16 * display_scale.y) {
 				int softkey;
 				if (display_scale.x == 0)
-					softkey = ((x - display_loc.x + 37) * 3) / 110;
+					softkey = menu_keys[((x - display_loc.x + 37) * 3) / 110 - 1];
 				else
-					softkey = (x - display_loc.x) / (22 * display_scale.x) + 1;
+					softkey = menu_keys[(x - display_loc.x) / (22 * display_scale.x)];
 				*skey = -1 - softkey;
 				*ckey = softkey;
 				return;
@@ -888,10 +905,17 @@ void skin_repaint_key(HDC hdc, HDC memdc, int key, int state) {
 	SkinKey *k;
 	COLORREF old_bg, old_fg;
 
-	if (key >= -7 && key <= -2) {
+	if (key < -1) {
 		/* Soft key */
-		int x, y, w, h;
-		HBITMAP bitmap;
+		key = -1 - key;
+		int k = -1;
+		for (int i = 0; i < 6; i++)
+			if (menu_keys[i] == key) {
+				k = i;
+				break;
+			}
+		if (k == -1)
+			return;
 		if (state) {
 			old_bg = SetBkColor(hdc, display_fg);
 			old_fg = SetTextColor(hdc, display_bg);
@@ -899,24 +923,24 @@ void skin_repaint_key(HDC hdc, HDC memdc, int key, int state) {
 			old_bg = SetBkColor(hdc, display_bg);
 			old_fg = SetTextColor(hdc, display_fg);
 		}
-		key = -1 - key;
+		int x, y, w, h;
 		if (landscape) {
 			x = 9 * display_scale.x;
-			y = (6 - key) * 22 * display_scale.y;
+			y = (5 - k) * 22 * display_scale.y;
 			w = 16 * display_scale.x;
 			h = 131 * display_scale.y;
 		} else {
 			if (display_scale.x == 0) {
-				x = ((key + 1) * 110) / 3 - 73;
+				x = ((k + 2) * 110) / 3 - 73;
 				w = 219;
 			} else {
-				x = (key - 1) * 22 * display_scale.x;
+				x = k * 22 * display_scale.x;
 				w = 131 * display_scale.x;
 			}
 			y = 9 * display_scale.y;
 			h = 16 * display_scale.y;
 		}
-		bitmap = CreateBitmap(w, h, 1, 1, disp_bitmap);
+		HBITMAP bitmap = CreateBitmap(w, h, 1, 1, disp_bitmap);
 		SelectObject(memdc, bitmap);
 		BitBlt(hdc, display_loc.x + x, display_loc.y + y,
 			   display_scale.x == 0

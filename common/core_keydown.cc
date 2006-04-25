@@ -2183,6 +2183,51 @@ void keydown_normal_mode(int shift, int key) {
 		} else
 		    pending_command = CMD_NULL;
 		return;
+	    } else if (menu == MENU_TOP_FCN) {
+		static int key_command[] = {
+		    // Keys that have actions that do not correspond to
+		    // commands invoked through the usual command
+		    // dispatching mechanism (number entry, menu
+		    // navigation, etc.) are represented by CMD_NONE in
+		    // this table. Those values should be don't cares,
+		    // since the keystroke handling code should have
+		    // handled them and we should never get here for those
+		    // key presses, even if someone foolishly used these
+		    // keys as menu keys.
+		    CMD_SIGMAADD, CMD_INV, CMD_SQRT, CMD_LOG, CMD_LN,
+			CMD_XEQ,
+		    CMD_STO, CMD_RCL, CMD_RDN, CMD_SIN, CMD_COS, CMD_TAN,
+		    CMD_ENTER, CMD_SWAP, CMD_CHS, CMD_NONE, CMD_CLX,
+		    CMD_NONE, CMD_NONE, CMD_NONE, CMD_NONE, CMD_DIV,
+		    CMD_NONE, CMD_NONE, CMD_NONE, CMD_NONE, CMD_MUL,
+		    CMD_NONE, CMD_NONE, CMD_NONE, CMD_NONE, CMD_SUB,
+		    CMD_NONE, CMD_NONE, CMD_NONE, CMD_NONE, CMD_ADD,
+		    CMD_SIGMASUB, CMD_Y_POW_X, CMD_SQUARE, CMD_10_POW_X,
+			CMD_E_POW_X, CMD_GTO,
+		    CMD_COMPLEX, CMD_PERCENT, CMD_PI, CMD_ASIN, CMD_ACOS,
+			CMD_ATAN,
+		    CMD_NONE, CMD_LASTX, CMD_NONE, CMD_NONE, CMD_NONE,
+		    CMD_BST, CMD_NONE, CMD_NONE, CMD_NONE, CMD_NONE,
+		    CMD_SST, CMD_NONE, CMD_NONE, CMD_NONE, CMD_NONE,
+		    CMD_NONE, CMD_ASSIGNa, CMD_NONE, CMD_NONE, CMD_NONE,
+		    CMD_OFF, CMD_NONE, CMD_NONE, CMD_NONE, CMD_NONE
+		};
+		int k = menu_keys[menukey] - 1;
+		if (shift)
+		    k += 37;
+		if (k == 67) {
+		    show();
+		    pending_command = CMD_LINGER1;
+		    shell_request_timeout3(2000);
+		    return;
+		} else {
+		    if (!mode_plainmenu_sticky)
+			set_menu(level, MENU_NONE);
+		    int id = key_command[k];
+		    if (id != CMD_NONE)
+			do_interactive(id);
+		    return;
+		}
 	    } else {
 		const menu_item_spec *mi = menus[menu].child + menukey;
 		int id = mi->menuid;
@@ -2191,16 +2236,6 @@ void keydown_normal_mode(int shift, int key) {
 		    set_menu(level, id);
 		    redisplay();
 		    return;
-		}
-		if (menu == MENU_TOP_FCN && shift) {
-		    switch (menukey) {
-			case 0: id = CMD_SIGMASUB; break;
-			case 1: id = CMD_Y_POW_X; break;
-			case 2: id = CMD_SQUARE; break;
-			case 3: id = CMD_10_POW_X; break;
-			case 4: id = CMD_E_POW_X; break;
-			case 5: id = CMD_GTO; break;
-		    }
 		} else if (menu == MENU_PGM_FCN1 && menukey == 5 && shift)
 		    id = CMD_GTO;
 		else if (menu == MENU_STAT1 && menukey == 0 && shift)

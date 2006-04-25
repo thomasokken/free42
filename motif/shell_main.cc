@@ -372,6 +372,7 @@ int main(int argc, char *argv[]) {
     int init_mode;
     int win_width, win_height;
     char keymapfilename[FILENAMELEN];
+    char *skin_arg = NULL;
 
 
     /*************************************/
@@ -399,12 +400,17 @@ int main(int argc, char *argv[]) {
     black = BlackPixel(display, screennumber);
     white = WhitePixel(display, screennumber);
 
-    if (argc > 1 && strcmp(argv[1], "-xdump") == 0) {
-	fprintf(stderr, "Dumping core on X errors.\n");
-	x_errors_coredump = 1;
-	XSynchronize(display, True);
-	XSetIOErrorHandler(x_io_error_handler);
+    for (n = 1; n < argc; n++) {
+	if (strcmp(argv[n], "-xdump") == 0 && !x_errors_coredump) {
+	    fprintf(stderr, "Dumping core on X errors.\n");
+	    x_errors_coredump = 1;
+	    XSynchronize(display, True);
+	    XSetIOErrorHandler(x_io_error_handler);
+	} else if (strcmp(argv[n], "-skin") == 0 && n < argc - 1) {
+	    skin_arg = argv[++n];
+	}
     }
+
     XSetErrorHandler(x_error_handler);
 
     values.foreground = black;
@@ -470,9 +476,13 @@ int main(int argc, char *argv[]) {
 
     statefile = fopen(statefilename, "r");
     if (statefile != NULL) {
-	if (read_shell_state(&version))
+	if (read_shell_state(&version)) {
+	    if (skin_arg != NULL) {
+		strncpy(state.skinName, skin_arg, FILENAMELEN - 1);
+		state.skinName[FILENAMELEN - 1] = 0;
+	    }
 	    init_mode = 1;
-	else {
+	} else {
 	    init_shell_state(-1);
 	    init_mode = 2;
 	}

@@ -187,6 +187,9 @@ static gint num_entries = sizeof(entries) / sizeof(entries[0]);
 
 int main(int argc, char *argv[]) {
     gtk_init(&argc, &argv);
+    char *skin_arg = NULL;
+    if (argc >= 3 && strcmp(argv[1], "-skin") == 0)
+	skin_arg = argv[2];
 
     /*****************************************************/
     /***** Try to create the $HOME/.free42 directory *****/
@@ -248,9 +251,13 @@ int main(int argc, char *argv[]) {
 
     statefile = fopen(statefilename, "r");
     if (statefile != NULL) {
-	if (read_shell_state(&version))
+	if (read_shell_state(&version)) {
+	    if (skin_arg != NULL) {
+		strncpy(state.skinName, skin_arg, FILENAMELEN - 1);
+		state.skinName[FILENAMELEN - 1] = 0;
+	    }
 	    init_mode = 1;
-	else {
+	} else {
 	    init_shell_state(-1);
 	    init_mode = 2;
 	}
