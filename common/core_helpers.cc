@@ -885,15 +885,13 @@ phloat fix_hms(phloat x) {
     return neg ? -x : x;
 }
 
-#ifndef BCD_MATH
-#ifdef NO_SINCOS
+#if defined(NO_SINCOS) && !defined(BCD_MATH)
 
 void sincos(double x, double *sinx, double *cosx) {
     *sinx = sin(x);
     *cosx = cos(x);
 }
 
-#endif
 #endif
 
 void char2buf(char *buf, int buflen, int *bufptr, char c) {
