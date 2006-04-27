@@ -418,7 +418,7 @@ int main(int argc, char *argv[]) {
 	fprintf(stderr, "Could not create pipe for signal handler; not catching INT and TERM signals.\n");
     else {
 	GIOChannel *channel = g_io_channel_unix_new(pype[0]);
-	GError *err;
+	GError *err = NULL;
 	g_io_channel_set_encoding(channel, NULL, &err);
 	g_io_channel_set_flags(channel,     
 	    (GIOFlags) (g_io_channel_get_flags(channel) | G_IO_FLAG_NONBLOCK), &err);
