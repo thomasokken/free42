@@ -87,7 +87,7 @@ void shell_blitter(const char *bits, int bytesperline, int x, int y,
 
 	f= fopen("disp0000.xbm", "w");
 
-	fprintf(f, "#define %s_width  %d\n", "disp0000", 131);
+	fprintf(f, "#define %s_width %d\n", "disp0000", 131);
 	fprintf(f, "#define %s_height %d\n", "disp0000", 16);
 	fprintf(f, "static char %s_bits[] = {\n", "disp0000");
 	for (j=0; j<16; j++) {
