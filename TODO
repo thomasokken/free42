@@ -1,5 +1,6 @@
-Implement MenuKeys support in Palm skin handling code.
 Implement Shift-mapping.
+Implement function mapping.
+Implement MenuKeys support in Palm skin handling code.
 
 Plain text program import/export; HP-41 ROM image import.
 
