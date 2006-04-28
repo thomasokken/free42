@@ -1,5 +1,6 @@
 _Z13arm_core_initPv
 _Z13arm_core_quitPv
+_Z24arm_core_repaint_displayPv
 _Z13arm_core_menuPv
 _Z19arm_core_alpha_menuPv
 _Z17arm_core_hex_menuPv

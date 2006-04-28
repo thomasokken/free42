@@ -527,7 +527,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 						GetWindowRect(hWnd, &r);
 						long width, height;
 						skin_load(state.skinName, free42dirname, &width, &height);
-						redisplay();
+						core_repaint_display();
 						r.right = r.left + width;
 						r.bottom = r.top + height;
 						LONG dx = r.left;

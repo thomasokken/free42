@@ -172,17 +172,18 @@ double log10(double x) PHLOAT_SECT;
 #define uint unsigned int
 
 /* Magic number and version number for the state file.
- * Note: do not confuse the state file version with
- * the application version.
- * The state file version was originally 0; state file
- * versions 1 and 2 were introduced with application version 1.0.13.
- * Version 3: 1.0.16
- * Versions 4 and 5: 1.1
- * Version 6: 1.1.8
- * Version 7: 1.1.12
- * Version 8: 1.1.14
- * Version 9: 1.4
- * Version 10: 1.4.16
+ * State file versions correspond to application versions as follows:
+ * Version  0: 1.0    first release
+ * Version  1: 1.0.13 "IP Hack" option
+ * Version  2: 1.0.13 "singular matrix" and matrix "out of range" options
+ * Version  3: 1.0.16 "deferred_print" flag for NORM/TRACE printing
+ * Version  4: 1.1    BCD conversion table no longer stored in state file
+ * Version  5: 1.1    "raw text" option
+ * Version  6: 1.1.8  GETKEY across power-cycle
+ * Version  7: 1.1.12 FCN catalog assignments now HP-42S-compatible
+ * Version  8: 1.1.14 F42 file format and "HP-42S byte counts" option removed
+ * Version  9: 1.4    decimal version; removed IP Hack
+ * Version 10: 1.4.16 persistent shared matrices
  */
 #define FREE42_MAGIC 0x466b3432
 #define FREE42_VERSION 10

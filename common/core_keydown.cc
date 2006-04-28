@@ -30,18 +30,12 @@
 #include "shell.h"
 
 
-static int find_menu_key(int key) KEYDOWN_SECT;
-static int find_menu_key(int key) {
-    for (int i = 0; i < 6; i++)
-	if (menu_keys[i] == key)
-	    return i;
-    return -1;
-}
-
 static int is_number_key(int shift, int key) KEYDOWN_SECT;
 static int is_number_key(int shift, int key) {
     int *menu = get_front_menu();
-    if (menu != NULL && *menu == MENU_BASE_A_THRU_F && find_menu_key(key) != -1)
+    if (menu != NULL && *menu == MENU_BASE_A_THRU_F
+	    && (key == KEY_SIGMA || key == KEY_INV || key == KEY_SQRT
+		|| key == KEY_LOG || key == KEY_LN || key == KEY_XEQ))
 	return 1;
     return !shift && (key == KEY_0 || key == KEY_1 || key == KEY_2
 		|| key == KEY_3 || key == KEY_4 || key == KEY_5
@@ -114,7 +108,7 @@ void keydown(int shift, int key) {
     }
 
     if (mode_clall) {
-	if (!shift && key == menu_keys[0])
+	if (!shift && key == KEY_SIGMA)
 	    pending_command = CMD_CLALLb;
 	else if (key == KEY_EXIT)
 	    pending_command = CMD_CANCELLED;
@@ -201,7 +195,7 @@ void keydown(int shift, int key) {
     flags.f.message = 0;
     flags.f.two_line_message = 0;
 
-    if (mode_number_entry && get_base() == 16 && key == menu_keys[0]
+    if (mode_number_entry && get_base() == 16 && key == KEY_SIGMA
 	    && (menu = get_front_menu()) != NULL && *menu == MENU_BASE) {
 	/* Special case -- entering the A...F menu while in base 16
 	 * does *not* cancel number entry mode (unlike all other menu
@@ -456,7 +450,12 @@ void keydown_number_entry(int shift, int key) {
 	    case KEY_7: digit = 7; break;
 	    case KEY_8: digit = 8; break;
 	    case KEY_9: digit = 9; break;
-	    default: digit = find_menu_key(key) + 10; break;
+	    case KEY_SIGMA: digit = 10; break;
+	    case KEY_INV:   digit = 11; break;
+	    case KEY_SQRT:  digit = 12; break;
+	    case KEY_LOG:   digit = 13; break;
+	    case KEY_LN:    digit = 14; break;
+	    case KEY_XEQ:   digit = 15; break;
 	}
 	if (digit >= base)
 	    return;
@@ -611,7 +610,8 @@ void keydown_command_entry(int shift, int key) {
 #endif
 
 	if (key >= 1024
-	    || find_menu_key(key) != -1
+	    || (key == KEY_SIGMA || key == KEY_INV || key == KEY_SQRT
+		    || key == KEY_LOG || key == KEY_LN || key == KEY_XEQ)
 	    || (!shift &&
 		(key == KEY_E || key == KEY_UP || key == KEY_DOWN
 		    || key == KEY_DIV || key == KEY_MUL || key == KEY_SUB
@@ -679,6 +679,12 @@ void keydown_command_entry(int shift, int key) {
 	    return;
 	}
 	switch (key) {
+	    case KEY_SIGMA: case KEY_1: break;
+	    case KEY_INV: case KEY_2: cmd++; break;
+	    case KEY_SQRT: case KEY_3: cmd += 2; break;
+	    case KEY_LOG: case KEY_4: cmd += 3; break;
+	    case KEY_LN: case KEY_5: cmd += 4; break;
+	    case KEY_XEQ: case KEY_6: cmd += 5; break;
 	    case KEY_UP: case KEY_7: cmd += 6; break;
 	    case KEY_DOWN: case KEY_8: cmd += 7; break;
 	    case KEY_EXIT: case KEY_9: cmd += 8; break;
@@ -687,14 +693,8 @@ void keydown_command_entry(int shift, int key) {
 		finish_command_entry(false);
 		return;
 	    default:
-		int k = find_menu_key(key);
-		if (k == -1) {
-		    squeak();
-		    return;
-		} else {
-		    cmd += k;
-		    break;
-		}
+		squeak();
+		return;
 	}
 	start_incomplete_command(cmd);
 	return;
@@ -902,7 +902,7 @@ void keydown_command_entry(int shift, int key) {
 	}
 
 	if (mode_commandmenu == MENU_IND) {
-	    if (!shift && key == menu_keys[0]) {
+	    if (!shift && key == KEY_SIGMA) {
 		incomplete_command = CMD_GTO;
 		incomplete_argtype = ARG_LBL;
 		incomplete_ind = 1;
@@ -2183,51 +2183,6 @@ void keydown_normal_mode(int shift, int key) {
 		} else
 		    pending_command = CMD_NULL;
 		return;
-	    } else if (menu == MENU_TOP_FCN) {
-		static int key_command[] = {
-		    // Keys that have actions that do not correspond to
-		    // commands invoked through the usual command
-		    // dispatching mechanism (number entry, menu
-		    // navigation, etc.) are represented by CMD_NONE in
-		    // this table. Those values should be don't cares,
-		    // since the keystroke handling code should have
-		    // handled them and we should never get here for those
-		    // key presses, even if someone foolishly used these
-		    // keys as menu keys.
-		    CMD_SIGMAADD, CMD_INV, CMD_SQRT, CMD_LOG, CMD_LN,
-			CMD_XEQ,
-		    CMD_STO, CMD_RCL, CMD_RDN, CMD_SIN, CMD_COS, CMD_TAN,
-		    CMD_ENTER, CMD_SWAP, CMD_CHS, CMD_NONE, CMD_CLX,
-		    CMD_NONE, CMD_NONE, CMD_NONE, CMD_NONE, CMD_DIV,
-		    CMD_NONE, CMD_NONE, CMD_NONE, CMD_NONE, CMD_MUL,
-		    CMD_NONE, CMD_NONE, CMD_NONE, CMD_NONE, CMD_SUB,
-		    CMD_NONE, CMD_NONE, CMD_NONE, CMD_NONE, CMD_ADD,
-		    CMD_SIGMASUB, CMD_Y_POW_X, CMD_SQUARE, CMD_10_POW_X,
-			CMD_E_POW_X, CMD_GTO,
-		    CMD_COMPLEX, CMD_PERCENT, CMD_PI, CMD_ASIN, CMD_ACOS,
-			CMD_ATAN,
-		    CMD_NONE, CMD_LASTX, CMD_NONE, CMD_NONE, CMD_NONE,
-		    CMD_BST, CMD_NONE, CMD_NONE, CMD_NONE, CMD_NONE,
-		    CMD_SST, CMD_NONE, CMD_NONE, CMD_NONE, CMD_NONE,
-		    CMD_NONE, CMD_ASSIGNa, CMD_NONE, CMD_NONE, CMD_NONE,
-		    CMD_OFF, CMD_NONE, CMD_NONE, CMD_NONE, CMD_NONE
-		};
-		int k = menu_keys[menukey] - 1;
-		if (shift)
-		    k += 37;
-		if (k == 67) {
-		    show();
-		    pending_command = CMD_LINGER1;
-		    shell_request_timeout3(2000);
-		    return;
-		} else {
-		    if (!mode_plainmenu_sticky)
-			set_menu(level, MENU_NONE);
-		    int id = key_command[k];
-		    if (id != CMD_NONE)
-			do_interactive(id);
-		    return;
-		}
 	    } else {
 		const menu_item_spec *mi = menus[menu].child + menukey;
 		int id = mi->menuid;
@@ -2236,6 +2191,16 @@ void keydown_normal_mode(int shift, int key) {
 		    set_menu(level, id);
 		    redisplay();
 		    return;
+		}
+		if (menu == MENU_TOP_FCN && shift) {
+		    switch (menukey) {
+			case 0: id = CMD_SIGMASUB; break;
+			case 1: id = CMD_Y_POW_X; break;
+			case 2: id = CMD_SQUARE; break;
+			case 3: id = CMD_10_POW_X; break;
+			case 4: id = CMD_E_POW_X; break;
+			case 5: id = CMD_GTO; break;
+		    }
 		} else if (menu == MENU_PGM_FCN1 && menukey == 5 && shift)
 		    id = CMD_GTO;
 		else if (menu == MENU_STAT1 && menukey == 0 && shift)

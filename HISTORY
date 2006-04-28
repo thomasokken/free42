@@ -1,10 +1,6 @@
 ??-??-????: version 1.4.17
 
 * Pocket PC version: fixed a couple of cosmetic bugs re: menu key highlighting.
-* Added support for skins with non-standard menu keys, so that the six keys
-  below the display no longer have to be Sigma..XEQ; in the skin layout, the
-  keycodes for the six menu keys can be changed using the "MenuKeys"
-  declaration.
 
 23-04-2006: (no new code release)
 

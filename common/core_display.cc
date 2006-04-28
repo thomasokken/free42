@@ -518,51 +518,6 @@ static char smallchars_map[128] =
 #endif
 
 
-typedef struct {
-    char text[6];
-    int length;
-} key_label;
-
-static key_label key_labels[] =
-{
-    { "\005+", 2 },
-    { "1/X",   3 },
-    { "SQRT",  4 },
-    { "LOG",   3 },
-    { "LN",    2 },
-    { "XEQ",   3 },
-    { "STO",   3 },
-    { "RCL",   3 },
-    { "R\016", 2 },
-    { "SIN",   3 },
-    { "COS",   3 },
-    { "TAN",   3 },
-    { "ENTR",  4 },
-    { "X<>Y",  4 },
-    { "+/-",   3 },
-    { "E",     1 },
-    { "\020",  1 },
-    { "^",     1 },
-    { "7",     1 },
-    { "8",     1 },
-    { "9",     1 },
-    { "\000",  1 },
-    { "\016",  1 },
-    { "4",     1 },
-    { "5",     1 },
-    { "6",     1 },
-    { "\001",  1 },
-    { "SHIFT", 5 },
-    { "1",     1 },
-    { "2",     1 },
-    { "3",     1 },
-    { "-",     1 },
-    { "EXIT",  4 },
-    { "0",     1 },
-    { ".",     1 },
-    { "R/S",   3 },
-    { "+",     1 }
-};
 
 static char display[272];
 
@@ -1769,12 +1724,6 @@ void redisplay() {
     } else if (menu_id == MENU_PROGRAMMABLE) {
 	for (i = 0; i < 6; i++)
 	    draw_key(i, 0, 0, progmenu_label[i], progmenu_length[i]);
-	avail_rows = 1;
-    } else if (menu_id == MENU_TOP_FCN) {
-	for (i = 0; i < 6; i++) {
-	    int k = menu_keys[i] - 1;
-	    draw_key(i, 0, 0, key_labels[k].text, key_labels[k].length);
-	}
 	avail_rows = 1;
     } else if (menu_id != MENU_NONE) {
 	const menu_spec *m = menus + menu_id;

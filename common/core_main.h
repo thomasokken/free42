@@ -46,6 +46,16 @@ void core_init(int read_state, int4 version) MAIN_SECT;
  */
 void core_quit() MAIN_SECT;
 
+/* core_repaint_display()
+ *
+ * This function asks the emulator core to repaint the display. The core will
+ * respond by immediately calling shell_blitter() to repaint the entire
+ * display.
+ * The shell uses this function to re-generate the display after switching
+ * skins.
+ */
+void core_repaint_display() MAIN_SECT;
+
 /* core_menu()
  *
  * The shell uses this function to check if a menu is active. This affects
@@ -301,13 +311,6 @@ extern int repeating_shift;
 extern int repeating_key;
 
 
-/**************************************************************/
-/* Menu keys -- in Free42, these do not have to be Sigma..XEQ */
-/**************************************************************/
-
-extern int menu_keys[];
-
-
 /*******************/
 /* Other functions */
 /*******************/
@@ -326,6 +329,7 @@ void sst() MAIN_SECT;
 void bst() MAIN_SECT;
 
 void fix_thousands_separators(char *buf, int *bufptr) MAIN_SECT;
+int find_menu_key(int key) MAIN_SECT;
 void start_incomplete_command(int cmd_id) MAIN_SECT;
 void finish_command_entry(bool refresh) MAIN_SECT;
 void finish_xeq() MAIN_SECT;
