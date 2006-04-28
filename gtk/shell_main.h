@@ -51,6 +51,7 @@ typedef struct {
     bool ctrl;
     bool alt;
     bool shift;
+    bool cshift;
     guint keyval;
     unsigned char macro[KEYMAP_MAX_MACRO_LENGTH];
 } keymap_entry;

@@ -457,6 +457,7 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
 	bool ctrl = false;
 	bool alt = false;
 	bool shift = false;
+	bool cshift = false;
 	guint keyval = GDK_VoidSymbol;
 	bool done = false;
 	unsigned char macro[KEYMAP_MAX_MACRO_LENGTH];
@@ -476,6 +477,8 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
 		alt = true;
 	    else if (strcasecmp(tok, "shift") == 0)
 		shift = true;
+	    else if (strcasecmp(tok, "cshift") == 0)
+		cshift = true;
 	    else {
 		keyval = gdk_keyval_from_name(tok);
 		if (keyval == GDK_VoidSymbol) {
@@ -511,6 +514,7 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
 	entry.ctrl = ctrl;
 	entry.alt = alt;
 	entry.shift = shift;
+	entry.cshift = cshift;
 	entry.keyval = keyval;
 	memcpy(entry.macro, macro, KEYMAP_MAX_MACRO_LENGTH);
 	return &entry;
@@ -1216,7 +1220,7 @@ static void aboutCB() {
 	gtk_container_add(GTK_CONTAINER(container), box);
 	GtkWidget *image = gtk_image_new_from_pixbuf(icon);
 	gtk_box_pack_start(GTK_BOX(box), image, FALSE, FALSE, 10);
-	GtkWidget *label = gtk_label_new("Free42 1.4.17-d2\n(C) 2004-2006 Thomas Okken\nthomas_okken@yahoo.com\nhttp://home.planet.nl/~demun000/thomas_projects/free42/");
+	GtkWidget *label = gtk_label_new("Free42 1.4.17-d3\n(C) 2004-2006 Thomas Okken\nthomas_okken@yahoo.com\nhttp://home.planet.nl/~demun000/thomas_projects/free42/");
 	gtk_box_pack_start(GTK_BOX(box), label, FALSE, FALSE, 10);
 	gtk_widget_show_all(GTK_WIDGET(about));
     }
@@ -1322,7 +1326,7 @@ static gboolean button_cb(GtkWidget *w, GdkEventButton *event, gpointer cd) {
 	if (ckey == 0) {
 	    int x = (int) event->x;
 	    int y = (int) event->y;
-	    skin_find_key(x, y, &skey, &ckey);
+	    skin_find_key(x, y, ann_shift != 0, &skey, &ckey);
 	    if (ckey != 0) {
 		shell_keydown();
 		mouse_key = true;
@@ -1354,6 +1358,7 @@ static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
 	    bool ctrl = (event->state & GDK_CONTROL_MASK) != 0;
 	    bool alt = (event->state & GDK_MOD1_MASK) != 0;
 	    bool shift = (event->state & (GDK_SHIFT_MASK | GDK_LOCK_MASK)) != 0;
+	    bool cshift = ann_shift != 0;
 
 	    if (ckey != 0) {
 		shell_keyup();
@@ -1387,7 +1392,7 @@ static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
 		}
 	    }
 
-	    macro = skin_keymap_lookup(event->keyval, printable, ctrl, alt, shift);
+	    macro = skin_keymap_lookup(event->keyval, printable, ctrl, alt, shift, cshift);
 	    if (macro == NULL) {
 		for (i = 0; i < keymap_length; i++) {
 		    keymap_entry *entry = keymap + i;
@@ -1396,7 +1401,8 @@ static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
 			    && (printable || shift == entry->shift)
 			    && event->keyval == entry->keyval) {
 			macro = entry->macro;
-			break;
+			if (cshift == entry->cshift)
+			    break;
 		    }
 		}
 	    }
