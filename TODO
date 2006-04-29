@@ -1,7 +1,5 @@
 Disable display repainting during menu playback to prevent flashing.
 
-PalmOS version: keyboard mapping.
-
 Plain text program import/export; HP-41 ROM image import.
 
 Import/export of variables.

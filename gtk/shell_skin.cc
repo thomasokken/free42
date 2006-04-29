@@ -634,7 +634,7 @@ unsigned char *skin_keymap_lookup(guint keyval, bool printable,
 	    }
 	}
     }
-    *exact = false
+    *exact = false;
     return macro;
 }
 

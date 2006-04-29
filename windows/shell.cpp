@@ -568,7 +568,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			if (ckey == 0) {
 				int x = LOWORD(lParam);  // horizontal position of cursor
 				int y = HIWORD(lParam);  // vertical position of cursor
-				skin_find_key(x, y, &skey, &ckey);
+				skin_find_key(x, y, ann_shift != 0, &skey, &ckey);
 				if (ckey != 0) {
 					shell_keydown();
 					mouse_key = true;
@@ -651,7 +651,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 				}
 
 				bool exact;
-				bool chsift_down = ann_shift != 0;
+				bool cshift_down = ann_shift != 0;
 				unsigned char *macro = skin_keymap_lookup(virtKey, ctrl_down, alt_down, shift_down, cshift_down, &exact);
 				if (macro == NULL || !exact) {
 					for (i = 0; i < keymap_length; i++) {

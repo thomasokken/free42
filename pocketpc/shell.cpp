@@ -604,7 +604,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 			if (ckey == 0) {
 				int x = LOWORD(lParam);  // horizontal position of cursor
 				int y = HIWORD(lParam);  // vertical position of cursor
-				skin_find_key(x, y, &skey, &ckey);
+				skin_find_key(x, y, ann_shift != 0, &skey, &ckey);
 				if (ckey != 0) {
 					shell_keydown();
 					mouse_key = true;

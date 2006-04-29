@@ -188,7 +188,7 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
 		entry.shift = shift;
 		entry.cshift = cshift;
 		entry.keycode = keycode;
-		strcpy(entry.macro, macro);
+		strcpy((char *) entry.macro, (const char *) macro);
 		return &entry;
 	} else
 		return NULL;

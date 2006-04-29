@@ -28,6 +28,9 @@
 // cut down on the malloc/free overhead. This overhead is particularly painful
 // in the PalmOS ARM version, because it has to do an ARM-to-68K call for each
 // malloc or free, and that's a performance killer when running programs.
+// TODO: Pools may cause memory fragmentation. To fix, override malloc() and
+// realloc() with versions that empty the pools and retry before returning
+// NULL.
 
 typedef struct pool_real {
     vartype_real r;
