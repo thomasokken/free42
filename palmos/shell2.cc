@@ -53,6 +53,7 @@ int radAnn = 0;
 static DmOpenRef skin_db = 0;
 static MemHandle skinH = NULL;
 SkinSpec *skin = NULL;
+int skin_version;
 SkinSpec2 *skin2;
 SkinSpec2_V2 *skin2_v2;
 static bool skin_tall;
@@ -151,19 +152,23 @@ static void make_skin_list() {
 	    /* Old-style Skin resource, w/o version; offset 4 bytes */
 	    ss = (SkinSpec *) (((char *) ss) - 4);
 	    tall = false;
-	} else
+	} else if (ss->version[1] > 3)
+	    /* We only know about skin versions up to 3 */
+	    goto done;
+	else
 	    tall = ss->version[1] >= 2 && ss->version[3] != 0;
 	namelen = StrLen(ss->name) + 1;
 	if (len + namelen <= bufsize) {
 	    if (!allow_hd && ss->density != 72)
-		continue;
+		goto done;
 	    if (!allow_tall && tall)
-		continue;
+		goto done;
 	    StrCopy(p, ss->name);
 	    p += namelen;
 	    len += namelen;
 	    builtin_skins++;
 	}
+	done:
 	MemHandleUnlock(h);
 	DmReleaseResource(h);
 	id++;
@@ -304,19 +309,21 @@ void load_skin() {
 
     if (skin->version[0] != 0) {
 	/* Old-style Skin resource, w/o version; offset 4 bytes */
+	skin_version = 0;
 	skin = (SkinSpec *) (((char *) skin) - 4);
 	skin2 = NULL;
 	skin2_v2 = NULL;
 	skin_tall = false;
     } else {
-	if (skin->version[1] < 3) {
+	skin_version = skin->version[1];
+	if (skin_version < 3) {
 	    skin2 = NULL;
 	    skin2_v2 = (SkinSpec2_V2 *) (skin->key + skin->nkeys);
 	} else {
 	    skin2 = (SkinSpec2 *) (skin->key + skin->nkeys);
 	    skin2_v2 = NULL;
 	}
-	skin_tall = skin->version[1] >= 2 && skin->version[3] != 0;
+	skin_tall = skin_version >= 2 && skin->version[3] != 0;
     }
 
     n = skin->sections;
@@ -1243,7 +1250,7 @@ Boolean calcgadget_handler(struct FormGadgetTypeInCallback *gadgetP,
 				&& x < key->sens_x + key->sens_width
 				&& y >= key->sens_y
 				&& y < key->sens_y + key->sens_height) {
-			    if (skin->version[1] >= 3 && shiftAnn != 0)
+			    if (skin_version >= 3 && shiftAnn != 0)
 				keycode = key->shifted_code;
 			    else
 				keycode = key->code;

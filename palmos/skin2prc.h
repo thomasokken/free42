@@ -99,5 +99,16 @@ typedef struct {
     MacroSpec_V2 macro[1];
 } SkinSpec2_V2;
 
+/* About skin versions:
+ * The original SkinSpec structure did not have the 'version' member; its first
+ * member was 'name'. Such skins can be recognized by the fact that the first
+ * byte of SkinSpec is nonzero; for skins *with* the 'version' member, the
+ * convention if that version[0] must be 0. Version[1] is used to hold the
+ * actual version number.
+ * Version 0: 1.1.16 Pluggable skin support comes to Free42/PalmOS
+ * Version 1: 1.2.5  Sections, Macros
+ * Version 2: 1.4.9  Added support for tall (320x450) skins
+ * Version 3: 1.4.17 Added CShift support; increased macro length limit to 31.
+ */
 
 #endif
