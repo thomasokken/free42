@@ -39,13 +39,13 @@ typedef struct {
 } SkinRect;
 
 typedef struct {
-	int code;
+	int code, shifted_code;
 	SkinRect sens_rect;
 	SkinRect disp_rect;
 	SkinPoint src;
 } SkinKey;
 
-#define SKIN_MAX_MACRO_LENGTH 16
+#define SKIN_MAX_MACRO_LENGTH 31
 
 typedef struct _SkinMacro {
 	int code;
@@ -132,9 +132,10 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
 		bool ctrl = false;
 		bool alt = false;
 		bool shift = false;
+		bool cshift = false;
 		int keycode = 0;
 		int done = 0;
-		unsigned char macro[KEYMAP_MAX_MACRO_LENGTH];
+		unsigned char macro[KEYMAP_MAX_MACRO_LENGTH + 1];
 		int macrolen = 0;
 
 		/* Parse keycode */
@@ -151,6 +152,8 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
 				alt = true;
 			else if (_stricmp(tok, "shift") == 0)
 				shift = true;
+			else if (_stricmp(tok, "cshift") == 0)
+				cshift = true;
 			else {
 				char *endptr;
 				long k = strtol(tok, &endptr, 10);
@@ -170,7 +173,6 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
 
 		/* Parse macro */
 		tok = strtok(val, " \t");
-		memset(macro, 0, KEYMAP_MAX_MACRO_LENGTH);
 		while (tok != NULL) {
 			char *endptr;
 			long k = strtol(tok, &endptr, 10);
@@ -184,12 +186,14 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
 				macro[macrolen++] = (unsigned char) k;
 			tok = strtok(NULL, " \t");
 		}
+		macro[macrolen] = 0;
 
 		entry.ctrl = ctrl;
 		entry.alt = alt;
 		entry.shift = shift;
+		entry.cshift = cshift;
 		entry.keycode = keycode;
-		memcpy(entry.macro, macro, KEYMAP_MAX_MACRO_LENGTH);
+		strcpy(entry.macro, macro);
 		return &entry;
 	} else
 		return NULL;
@@ -341,33 +345,40 @@ void skin_load(TCHAR *skinname, const TCHAR *basedir, int width, int height) {
 				display_fg = ((fg >> 16) & 255) | (fg & 0x0FF00) | ((fg & 255) << 16);
 			}
 		} else if (_strnicmp(line, "key:", 4) == 0) {
-			int keynum;
+			char keynumbuf[20];
+			int keynum, shifted_keynum;
 			int sens_x, sens_y, sens_width, sens_height;
 			int disp_x, disp_y, disp_width, disp_height;
 			int act_x, act_y;
-			if (sscanf(line + 4, " %d %d,%d,%d,%d %d,%d,%d,%d %d,%d",
+			if (sscanf(line + 4, " %s %d,%d,%d,%d %d,%d,%d,%d %d,%d",
 								 &keynum,
 								 &sens_x, &sens_y, &sens_width, &sens_height,
 								 &disp_x, &disp_y, &disp_width, &disp_height,
 								 &act_x, &act_y) == 11) {
-				SkinKey *key;
-				if (nkeys == keys_cap) {
-					keys_cap += 50;
-					keylist = (SkinKey *) realloc(keylist, keys_cap * sizeof(SkinKey));
+				int n = sscanf(keynumbuf, "%d,%d", &keynum, &shifted_keynum);
+				if (n > 0) {
+					if (n == 1)
+						shifted_keynum = keynum;
+					SkinKey *key;
+					if (nkeys == keys_cap) {
+						keys_cap += 50;
+						keylist = (SkinKey *) realloc(keylist, keys_cap * sizeof(SkinKey));
+					}
+					key = keylist + nkeys;
+					key->code = keynum;
+					key->shifted_code = shifted_keynum;
+					key->sens_rect.x = sens_x;
+					key->sens_rect.y = sens_y;
+					key->sens_rect.width = sens_width;
+					key->sens_rect.height = sens_height;
+					key->disp_rect.x = disp_x;
+					key->disp_rect.y = disp_y;
+					key->disp_rect.width = disp_width;
+					key->disp_rect.height = disp_height;
+					key->src.x = act_x;
+					key->src.y = act_y;
+					nkeys++;
 				}
-				key = keylist + nkeys;
-				key->code = keynum;
-				key->sens_rect.x = sens_x;
-				key->sens_rect.y = sens_y;
-				key->sens_rect.width = sens_width;
-				key->sens_rect.height = sens_height;
-				key->disp_rect.x = disp_x;
-				key->disp_rect.y = disp_y;
-				key->disp_rect.width = disp_width;
-				key->disp_rect.height = disp_height;
-				key->src.x = act_x;
-				key->src.y = act_y;
-				nkeys++;
 			}
 		} else if (_strnicmp(line, "landscape:", 10) == 0) {
 			int ls;
@@ -808,7 +819,7 @@ void skin_repaint_annunciator(HDC hdc, HDC memdc, int which, int state) {
 	}
 }
 
-void skin_find_key(int x, int y, int *skey, int *ckey) {
+void skin_find_key(int x, int y, bool cshift, int *skey, int *ckey) {
 	int i;
 	if (core_menu()) {
 		if (landscape) {
@@ -845,7 +856,7 @@ void skin_find_key(int x, int y, int *skey, int *ckey) {
 		if (rx >= 0 && rx < k->sens_rect.width
 				&& ry >= 0 && ry < k->sens_rect.height) {
 			*skey = i;
-			*ckey = k->code;
+			*ckey = cshift ? k->shifted_code : k->code;
 			return;
 		}
 	}
@@ -856,7 +867,7 @@ void skin_find_key(int x, int y, int *skey, int *ckey) {
 int skin_find_skey(int ckey) {
 	int i;
 	for (i = 0; i < nkeys; i++)
-		if (keylist[i].code == ckey)
+		if (keylist[i].code == ckey || keylist[i].shifted_code == ckey)
 			return i;
 	return -1;
 }
@@ -871,17 +882,24 @@ unsigned char *skin_find_macro(int ckey) {
 	return NULL;
 }
 
-unsigned char *skin_keymap_lookup(int keycode, bool ctrl, bool alt, bool shift) {
+unsigned char *skin_keymap_lookup(int keycode, bool ctrl, bool alt, bool shift, bool cshift, bool *exact) {
 	int i;
+	unsigned char *macro = NULL;
 	for (i = 0; i < keymap_length; i++) {
 		keymap_entry *entry = keymap + i;
 		if (keycode == entry->keycode
 				&& ctrl == entry->ctrl
 				&& alt == entry->alt
-				&& shift == entry->shift)
-			return entry->macro;
+				&& shift == entry->shift) {
+			macro = entry->macro;
+			if (cshift == entry->cshift) {
+				*exact = true;
+				return macro;
+			}
+		}
 	}
-	return NULL;
+	*exact = false;
+	return macro;
 }
 
 void skin_repaint_key(HDC hdc, HDC memdc, int key, int state) {

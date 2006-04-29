@@ -460,7 +460,7 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
 	bool cshift = false;
 	guint keyval = GDK_VoidSymbol;
 	bool done = false;
-	unsigned char macro[KEYMAP_MAX_MACRO_LENGTH];
+	unsigned char macro[KEYMAP_MAX_MACRO_LENGTH + 1];
 	int macrolen = 0;
 
 	/* Parse keysym */
@@ -496,7 +496,6 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
 
 	/* Parse macro */
 	tok = strtok(val, " \t");
-	memset(macro, 0, KEYMAP_MAX_MACRO_LENGTH);
 	while (tok != NULL) {
 	    char *endptr;
 	    long k = strtol(tok, &endptr, 10);
@@ -510,13 +509,14 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
 		macro[macrolen++] = k;
 	    tok = strtok(NULL, " \t");
 	}
+	macro[macrolen] = 0;
 
 	entry.ctrl = ctrl;
 	entry.alt = alt;
 	entry.shift = shift;
 	entry.cshift = cshift;
 	entry.keyval = keyval;
-	memcpy(entry.macro, macro, KEYMAP_MAX_MACRO_LENGTH);
+	strcpy(entry.macro, macro);
 	return &entry;
     } else
 	return NULL;
@@ -1392,32 +1392,35 @@ static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
 		}
 	    }
 
-	    macro = skin_keymap_lookup(event->keyval, printable, ctrl, alt, shift, cshift);
-	    if (macro == NULL) {
+	    bool exact;
+	    macro = skin_keymap_lookup(event->keyval, printable,
+				       ctrl, alt, shift, cshift, &exact);
+	    if (macro == NULL || !exact) {
 		for (i = 0; i < keymap_length; i++) {
 		    keymap_entry *entry = keymap + i;
 		    if (ctrl == entry->ctrl
 			    && alt == entry->alt
 			    && (printable || shift == entry->shift)
 			    && event->keyval == entry->keyval) {
-			macro = entry->macro;
-			if (cshift == entry->cshift)
+			if (cshift == entry->cshift) {
+			    macro = entry->macro;
 			    break;
+			} else {
+			    if (macro == NULL)
+				macro = entry->macro;
+			}
 		    }
 		}
 	    }
 	    if (macro != NULL) {
 		int j;
-		for (j = 0; j < KEYMAP_MAX_MACRO_LENGTH; j++)
-		    if (macro[j] == 0)
-			break;
-		    else {
-			if (ckey != 0)
-			    shell_keyup();
-			ckey = macro[j];
-			skey = -1;
-			shell_keydown();
-		    }
+		for (j = 0; macro[j] != 0; j++) {
+		    if (ckey != 0)
+			shell_keyup();
+		    ckey = macro[j];
+		    skey = -1;
+		    shell_keydown();
+		}
 		mouse_key = false;
 		active_keycode = event->hardware_keycode;
 	    }

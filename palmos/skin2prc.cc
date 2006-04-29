@@ -35,7 +35,7 @@ char gif[256] = "";
 FILE *script = NULL;
 FILE *rcp = NULL;
 
-#define SKIN_MAX_MACRO_LENGTH 16
+#define SKIN_MAX_MACRO_LENGTH 31
 
 typedef struct _SkinMacro {
     int code;
@@ -143,7 +143,7 @@ int main(int argc, char *argv[]) {
 
     skin = (SkinSpec *) malloc(sizeof(SkinSpec) + 99 * sizeof(KeySpec));
     skin->version[0] = 0;
-    skin->version[1] = 2;
+    skin->version[1] = 3;
     // Starting with version 2, version[3] specifies whether the skin is tall.
     // This is populated later.
 
@@ -300,28 +300,35 @@ int main(int argc, char *argv[]) {
 		skin->display_fg.index = 0;
 	    }
 	} else if (strncasecmp(line, "key:", 4) == 0) {
-	    int keynum;
+	    char keynumbuf[20];
+	    int keynum, shifted_keynum;
 	    int sens_x, sens_y, sens_width, sens_height;
 	    int disp_x, disp_y, disp_width, disp_height;
 	    int act_x, act_y;
-	    if (sscanf(line + 4, " %d %d,%d,%d,%d %d,%d,%d,%d %d,%d",
-			&keynum,
+	    if (sscanf(line + 4, " %s %d,%d,%d,%d %d,%d,%d,%d %d,%d",
+			keynumbuf,
 			&sens_x, &sens_y, &sens_width, &sens_height,
 			&disp_x, &disp_y, &disp_width, &disp_height,
 			&act_x, &act_y) == 11) {
-		KeySpec *k = skin->key + nkeys;
-		k->code = swap_int2(keynum);
-		k->sens_x = swap_int2(sens_x);
-		k->sens_y = swap_int2(sens_y);
-		k->sens_width = swap_int2(sens_width);
-		k->sens_height = swap_int2(sens_height);
-		k->x = swap_int2(disp_x);
-		k->y = swap_int2(disp_y);
-		k->up_bitmap = swap_int2(bitmap_id);
-		generate_bitmap(disp_x, disp_y, disp_width, disp_height);
-		k->down_bitmap = swap_int2(bitmap_id);
-		generate_bitmap(act_x, act_y, disp_width, disp_height);
-		nkeys++;
+		int n = sscanf(keynumbuf, "%d,%d", &keynum, &shifted_keynum);
+		if (n > 0) {
+		    if (n == 1)
+			shifted_keynum = keynum;
+		    KeySpec *k = skin->key + nkeys;
+		    k->code = swap_int2(keynum);
+		    k->shifted_code = swap_int2(shifted_keynum);
+		    k->sens_x = swap_int2(sens_x);
+		    k->sens_y = swap_int2(sens_y);
+		    k->sens_width = swap_int2(sens_width);
+		    k->sens_height = swap_int2(sens_height);
+		    k->x = swap_int2(disp_x);
+		    k->y = swap_int2(disp_y);
+		    k->up_bitmap = swap_int2(bitmap_id);
+		    generate_bitmap(disp_x, disp_y, disp_width, disp_height);
+		    k->down_bitmap = swap_int2(bitmap_id);
+		    generate_bitmap(act_x, act_y, disp_width, disp_height);
+		    nkeys++;
+		}
 	    }
 	} else if (strncasecmp(line, "macro:", 6) == 0) {
 	    char *tok = strtok(line + 6, " ");

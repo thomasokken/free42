@@ -54,6 +54,7 @@ static DmOpenRef skin_db = 0;
 static MemHandle skinH = NULL;
 SkinSpec *skin = NULL;
 SkinSpec2 *skin2;
+SkinSpec2_V2 *skin2_v2;
 static bool skin_tall;
 static MemHandle *skin_bm_h;
 static BitmapType **skin_bm_p;
@@ -230,11 +231,15 @@ static void make_skin_list() {
 static unsigned char *find_macro(int ckey) SHELL2_SECT;
 static unsigned char *find_macro(int ckey) {
     int i;
-    if (skin2 == NULL)
-	return NULL;
-    for (i = 0; i < skin2->nmacros; i++)
-	if (skin2->macro[i].code == ckey)
-	    return skin2->macro[i].macro;
+    if (skin2 != NULL) {
+	for (i = 0; i < skin2->nmacros; i++)
+	    if (skin2->macro[i].code == ckey)
+		return skin2->macro[i].macro;
+    } else if (skin2_v2 != NULL) {
+	for (i = 0; i < skin2_v2->nmacros; i++)
+	    if (skin2_v2->macro[i].code == ckey)
+		return skin2_v2->macro[i].macro;
+    }
     return NULL;
 }
 
@@ -301,9 +306,16 @@ void load_skin() {
 	/* Old-style Skin resource, w/o version; offset 4 bytes */
 	skin = (SkinSpec *) (((char *) skin) - 4);
 	skin2 = NULL;
+	skin2_v2 = NULL;
 	skin_tall = false;
     } else {
-	skin2 = (SkinSpec2 *) (skin->key + skin->nkeys);
+	if (skin->version[1] < 3) {
+	    skin2 = NULL;
+	    skin2_v2 = (SkinSpec2_V2 *) (skin->key + skin->nkeys);
+	} else {
+	    skin2 = (SkinSpec2 *) (skin->key + skin->nkeys);
+	    skin2_v2 = NULL;
+	}
 	skin_tall = skin->version[1] >= 2 && skin->version[3] != 0;
     }
 
@@ -1231,7 +1243,10 @@ Boolean calcgadget_handler(struct FormGadgetTypeInCallback *gadgetP,
 				&& x < key->sens_x + key->sens_width
 				&& y >= key->sens_y
 				&& y < key->sens_y + key->sens_height) {
-			    keycode = key->code;
+			    if (skin->version[1] >= 3 && shiftAnn != 0)
+				keycode = key->shifted_code;
+			    else
+				keycode = key->code;
 			    break;
 			}
 		    }

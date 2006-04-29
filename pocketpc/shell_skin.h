@@ -32,13 +32,14 @@ typedef struct {
 #define IMGTYPE_COLORMAPPED 3
 #define IMGTYPE_TRUECOLOR 4
 
-#define KEYMAP_MAX_MACRO_LENGTH 16
+#define KEYMAP_MAX_MACRO_LENGTH 31
 typedef struct {
     bool ctrl;
 	bool alt;
     bool shift; 
+    bool cshift; 
     int keycode;
-    unsigned char macro[KEYMAP_MAX_MACRO_LENGTH];
+    unsigned char macro[KEYMAP_MAX_MACRO_LENGTH + 1];
 } keymap_entry;
 
 keymap_entry *parse_keymap_entry(char *line, int lineno);
@@ -52,7 +53,7 @@ void skin_finish_image();
 
 void skin_repaint(HDC hdc, HDC memdc);
 void skin_repaint_annunciator(HDC hdc, HDC memdc, int which, int state);
-void skin_find_key(int x, int y, int *skey, int *ckey);
+void skin_find_key(int x, int y, bool cshift, int *skey, int *ckey);
 int skin_find_skey(int ckey);
 unsigned char *skin_find_macro(int ckey);
 unsigned char *skin_keymap_lookup(int keycode, bool ctrl, bool alt, bool shift);

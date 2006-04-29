@@ -975,9 +975,10 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
 	bool ctrl = false;
 	bool alt = false;
 	bool shift = false;
+	bool cshift = false;
 	KeySym keysym = NoSymbol;
 	bool done = false;
-	unsigned char macro[KEYMAP_MAX_MACRO_LENGTH];
+	unsigned char macro[KEYMAP_MAX_MACRO_LENGTH + 1];
 	int macrolen = 0;
 
 	/* Parse keysym */
@@ -994,6 +995,8 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
 		alt = true;
 	    else if (strcasecmp(tok, "shift") == 0)
 		shift = true;
+	    else if (strcasecmp(tok, "cshift") == 0)
+		cshift = true;
 	    else {
 		keysym = XStringToKeysym(tok);
 		if (keysym == NoSymbol) {
@@ -1011,7 +1014,6 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
 
 	/* Parse macro */
 	tok = strtok(val, " \t");
-	memset(macro, 0, KEYMAP_MAX_MACRO_LENGTH);
 	while (tok != NULL) {
 	    char *endptr;
 	    long k = strtol(tok, &endptr, 10);
@@ -1025,12 +1027,14 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
 		macro[macrolen++] = k;
 	    tok = strtok(NULL, " \t");
 	}
+	macro[macrolen] = 0;
 
 	entry.ctrl = ctrl;
 	entry.alt = alt;
 	entry.shift = shift;
+	entry.cshift = cshift;
 	entry.keysym = keysym;
-	memcpy(entry.macro, macro, KEYMAP_MAX_MACRO_LENGTH);
+	strcpy(entry.macro, macro);
 	return &entry;
     } else
 	return NULL;
@@ -2627,7 +2631,7 @@ static void input_cb(Widget w, XtPointer ud, XtPointer cd) {
 	if (ckey == 0) {
 	    int x = event->xbutton.x;
 	    int y = event->xbutton.y;
-	    skin_find_key(x, y, &skey, &ckey);
+	    skin_find_key(x, y, ann_shift != 0, &skey, &ckey);
 	    if (ckey != 0) {
 		shell_keydown();
 		mouse_key = 1;
@@ -2654,6 +2658,7 @@ static void input_cb(Widget w, XtPointer ud, XtPointer cd) {
 	    bool ctrl = (event->xkey.state & ControlMask) != 0;
 	    bool alt = (event->xkey.state & Mod1Mask) != 0;
 	    bool shift = (event->xkey.state & (ShiftMask | LockMask)) != 0;
+	    bool cshift = ann_shift != 0;
 
 	    if (ckey != 0) {
 		shell_keyup();
@@ -2687,31 +2692,34 @@ static void input_cb(Widget w, XtPointer ud, XtPointer cd) {
 		}
 	    }
 
-	    macro = skin_keymap_lookup(ks, printable, ctrl, alt, shift);
-	    if (macro == NULL) {
+	    bool exact;
+	    macro = skin_keymap_lookup(ks, printable, ctrl, alt, shift, cshift, &exact);
+	    if (macro == NULL || !exact) {
 		for (i = 0; i < keymap_length; i++) {
 		    keymap_entry *entry = keymap + i;
 		    if (ctrl == entry->ctrl
 			    && alt == entry->alt
 			    && (printable || shift == entry->shift)
 			    && ks == entry->keysym) {
-			macro = entry->macro;
-			break;
+			if (cshift == entry->cshift) {
+			    macro = entry->macro;
+			    break;
+			} else {
+			    if (macro == NULL)
+				macro = entry->macro;
+			}
 		    }
 		}
 	    }
 	    if (macro != NULL) {
 		int j;
-		for (j = 0; j < KEYMAP_MAX_MACRO_LENGTH; j++)
-		    if (macro[j] == 0)
-			break;
-		    else {
-			if (ckey != 0)
-			    shell_keyup();
-			ckey = macro[j];
-			skey = -1;
-			shell_keydown();
-		    }
+		for (j = 0; macro[j] != 0; j++) {
+		    if (ckey != 0)
+			shell_keyup();
+		    ckey = macro[j];
+		    skey = -1;
+		    shell_keydown();
+		}
 		mouse_key = 0;
 		active_keycode = event->xkey.keycode;
 	    }

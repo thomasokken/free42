@@ -50,7 +50,7 @@ typedef struct {
 
 typedef struct {
     int2 code;
-    int2 pad;
+    int2 shifted_code;
     int2 sens_x, sens_y, sens_width, sens_height;
     int2 x, y;
     uint2 up_bitmap, down_bitmap;
@@ -77,13 +77,27 @@ typedef struct {
 
 typedef struct {
     int2 code;
-    unsigned char macro[18];
+    unsigned char macro[32];
 } MacroSpec;
 
 typedef struct {
     int2 nmacros;
     MacroSpec macro[1];
 } SkinSpec2;
+
+/* Before version 3, the maximum macro length was 16, and the macro array
+ * was length 18; these structures help in dealing with such old skins
+ */
+
+typedef struct {
+    int2 code;
+    unsigned char macro[18];
+} MacroSpec_V2;
+
+typedef struct {
+    int2 nmacros;
+    MacroSpec_V2 macro[1];
+} SkinSpec2_V2;
 
 
 #endif

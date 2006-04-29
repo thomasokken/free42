@@ -56,11 +56,12 @@ extern state_type state;
 extern char free42dirname[FILENAMELEN];
 
 
-#define KEYMAP_MAX_MACRO_LENGTH 16
+#define KEYMAP_MAX_MACRO_LENGTH 31
 typedef struct {
     bool ctrl;
     bool alt;
     bool shift;
+    bool cshift;
     KeySym keysym;
     unsigned char macro[KEYMAP_MAX_MACRO_LENGTH];
 } keymap_entry;

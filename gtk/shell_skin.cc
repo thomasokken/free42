@@ -49,7 +49,7 @@ typedef struct {
     SkinPoint src;
 } SkinKey;
 
-#define SKIN_MAX_MACRO_LENGTH 16
+#define SKIN_MAX_MACRO_LENGTH 31
 
 typedef struct _SkinMacro {
     int code;
@@ -363,7 +363,7 @@ void skin_load(int *width, int *height) {
 		    if (nkeys == keys_cap) {
 			keys_cap += 50;
 			keylist = (SkinKey *)
-				    realloc(keylist, keys_cap * sizeof(SkinKey));
+				realloc(keylist, keys_cap * sizeof(SkinKey));
 		    }
 		    key = keylist + nkeys;
 		    key->code = keynum;
@@ -617,9 +617,10 @@ unsigned char *skin_find_macro(int ckey) {
 }
 
 unsigned char *skin_keymap_lookup(guint keyval, bool printable,
-					    bool ctrl, bool alt, bool shift, bool cshift) {
+				  bool ctrl, bool alt, bool shift, bool cshift,
+				  bool *exact) {
     int i;
-    unsigned char *macro;
+    unsigned char *macro = NULL;
     for (i = 0; i < keymap_length; i++) {
 	keymap_entry *entry = keymap + i;
 	if (ctrl == entry->ctrl
@@ -627,11 +628,14 @@ unsigned char *skin_keymap_lookup(guint keyval, bool printable,
 		&& (printable || shift == entry->shift)
 		&& keyval == entry->keyval) {
 	    macro = entry->macro;
-	    if (cshift == entry->cshift)
+	    if (cshift == entry->cshift) {
+		*exact = true;
 		return macro;
+	    }
 	}
     }
-    return NULL;
+    *exact = false
+    return macro;
 }
 
 void skin_repaint_key(int key, bool state) {

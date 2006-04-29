@@ -649,31 +649,36 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 					active_keycode = virtKey;
 					break;
 				}
-				unsigned char *macro = skin_keymap_lookup(virtKey, ctrl_down, alt_down, shift_down);
-				if (macro == NULL) {
+
+				bool exact;
+				bool chsift_down = ann_shift != 0;
+				unsigned char *macro = skin_keymap_lookup(virtKey, ctrl_down, alt_down, shift_down, cshift_down, &exact);
+				if (macro == NULL || !exact) {
 					for (i = 0; i < keymap_length; i++) {
 						keymap_entry *entry = keymap + i;
 						if (ctrl_down == entry->ctrl
 								&& alt_down == entry->alt
 								&& shift_down == entry->shift
 								&& virtKey == entry->keycode) {
-							macro = entry->macro;
-							break;
+							if (cshift_down == entry->cshift) {
+								macro = entry->macro;
+								break;
+							} else {
+								if (macro == NULL)
+									macro = entry->macro;
+							}
 						}
 					}
 				}
 				if (macro != NULL) {
 					int j;
-					for (j = 0; j < KEYMAP_MAX_MACRO_LENGTH; j++)
-						if (macro[j] == 0)
-							break;
-						else {
-							if (ckey != 0)
-								shell_keyup();
-							ckey = macro[j];
-							skey = -1;
-							shell_keydown();
-						}
+					for (j = 0; macro[j] != 0; j++) {
+						if (ckey != 0)
+							shell_keyup();
+						ckey = macro[j];
+						skey = -1;
+						shell_keydown();
+					}
 					mouse_key = false;
 					active_keycode = virtKey;
 					break;

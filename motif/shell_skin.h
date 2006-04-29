@@ -42,7 +42,7 @@ void skin_finish_image();
 
 void skin_repaint();
 void skin_repaint_annunciator(int which, int state);
-void skin_find_key(int x, int y, int *key, int *code);
+void skin_find_key(int x, int y, bool cshift, int *key, int *code);
 int skin_find_skey(int ckey);
 unsigned char *skin_find_macro(int ckey);
 unsigned char *skin_keymap_lookup(KeySym ks, bool printable,
