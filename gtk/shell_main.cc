@@ -88,6 +88,7 @@ static GdkPixbuf *icon;
 
 static int ckey = 0;
 static int skey;
+static unsigned char *macro;
 static bool mouse_key;
 static guint16 active_keycode = 0;
 static bool just_pressed_shift = false;
@@ -460,7 +461,7 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
 	bool cshift = false;
 	guint keyval = GDK_VoidSymbol;
 	bool done = false;
-	unsigned char macro[KEYMAP_MAX_MACRO_LENGTH + 1];
+	unsigned char macrobuf[KEYMAP_MAX_MACRO_LENGTH + 1];
 	int macrolen = 0;
 
 	/* Parse keysym */
@@ -506,17 +507,17 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
 		fprintf(stderr, "Keymap, line %d: Macro too long (max=%d).\n", lineno, KEYMAP_MAX_MACRO_LENGTH);
 		return NULL;
 	    } else
-		macro[macrolen++] = k;
+		macrobuf[macrolen++] = k;
 	    tok = strtok(NULL, " \t");
 	}
-	macro[macrolen] = 0;
+	macrobuf[macrolen] = 0;
 
 	entry.ctrl = ctrl;
 	entry.alt = alt;
 	entry.shift = shift;
 	entry.cshift = cshift;
 	entry.keyval = keyval;
-	strcpy((char *) entry.macro, (const char *) macro);
+	strcpy((char *) entry.macro, (const char *) macrobuf);
 	return &entry;
     } else
 	return NULL;
@@ -1265,23 +1266,35 @@ static void shell_keydown() {
     if (skey == -1)
 	skey = skin_find_skey(ckey);
     skin_repaint_key(skey, 1);
-    if (timeout3_id != 0 && ckey != 28 /* KEY_SHIFT */) {
+    if (timeout3_id != 0 && (macro != NULL || ckey != 28 /* KEY_SHIFT */)) {
 	g_source_remove(timeout3_id);
 	timeout3_id = 0;
 	core_timeout3(0);
     }
 
-    if (ckey >= 38 && ckey <= 255) {
-	/* Macro */
-	unsigned char *macro = skin_find_macro(ckey);
-	if (macro == NULL || *macro == 0) {
+    if (macro != NULL) {
+	if (*macro == 0) {
 	    squeak();
 	    return;
 	}
+	bool one_key_macro = macro[1] == 0 || (macro[2] == 0 && macro[0] == 28);
+	if (!one_key_macro)
+	    skin_display_set_enabled(false);
 	while (*macro != 0) {
 	    keep_running = core_keydown(*macro++, &enqueued, &repeat);
 	    if (*macro != 0 && !enqueued)
 		core_keyup();
+	}
+	if (!one_key_macro) {
+	    skin_display_set_enabled(true);
+	    skin_repaint_display();
+	    skin_repaint_annunciator(1, ann_updown);
+	    skin_repaint_annunciator(2, ann_shift);
+	    skin_repaint_annunciator(3, ann_print);
+	    skin_repaint_annunciator(4, ann_run);
+	    skin_repaint_annunciator(5, ann_battery);
+	    skin_repaint_annunciator(6, ann_g);
+	    skin_repaint_annunciator(7, ann_rad);
 	}
 	repeat = 0;
     } else
@@ -1328,6 +1341,7 @@ static gboolean button_cb(GtkWidget *w, GdkEventButton *event, gpointer cd) {
 	    int y = (int) event->y;
 	    skin_find_key(x, y, ann_shift != 0, &skey, &ckey);
 	    if (ckey != 0) {
+		macro = skin_find_macro(ckey);
 		shell_keydown();
 		mouse_key = true;
 	    }
@@ -1346,7 +1360,6 @@ static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
 	    return TRUE;
 	if (ckey == 0 || !mouse_key) {
 	    int i;
-	    unsigned char *macro;
 
 	    bool printable = event->length == 1 && event->string[0] >= 32 && event->string[0] <= 126;
 	    just_pressed_shift = false;
@@ -1374,6 +1387,7 @@ static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
 			c = c + 'a' - 'A';
 		    ckey = 1024 + c;
 		    skey = -1;
+		    macro = NULL;
 		    shell_keydown();
 		    mouse_key = false;
 		    active_keycode = event->hardware_keycode;
@@ -1385,6 +1399,7 @@ static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
 		    else
 			ckey = c - 'A' + 1;
 		    skey = -1;
+		    macro = NULL;
 		    shell_keydown();
 		    mouse_key = false;
 		    active_keycode = event->hardware_keycode;
@@ -1393,9 +1408,9 @@ static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
 	    }
 
 	    bool exact;
-	    macro = skin_keymap_lookup(event->keyval, printable,
-				       ctrl, alt, shift, cshift, &exact);
-	    if (macro == NULL || !exact) {
+	    unsigned char *key_macro = skin_keymap_lookup(event->keyval,
+				printable, ctrl, alt, shift, cshift, &exact);
+	    if (key_macro == NULL || !exact) {
 		for (i = 0; i < keymap_length; i++) {
 		    keymap_entry *entry = keymap + i;
 		    if (ctrl == entry->ctrl
@@ -1403,24 +1418,55 @@ static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
 			    && (printable || shift == entry->shift)
 			    && event->keyval == entry->keyval) {
 			if (cshift == entry->cshift) {
-			    macro = entry->macro;
+			    key_macro = entry->macro;
 			    break;
 			} else {
-			    if (macro == NULL)
-				macro = entry->macro;
+			    if (key_macro == NULL)
+				key_macro = entry->macro;
 			}
 		    }
 		}
 	    }
-	    if (macro != NULL) {
-		int j;
-		for (j = 0; macro[j] != 0; j++) {
-		    if (ckey != 0)
-			shell_keyup();
-		    ckey = macro[j];
-		    skey = -1;
-		    shell_keydown();
-		}
+	    if (key_macro != NULL) {
+		// A keymap entry is a sequence of zero or more calculator
+		// keystrokes (1..37) and/or macros (38..255). We expand
+		// macros here before invoking shell_keydown().
+		// If the keymap entry is one key, or two keys with the
+		// first being 'shift', we highlight the key in question
+		// by setting ckey; otherwise, we set ckey to -10, which
+		// means no skin key will be highlighted.
+		ckey = -10;
+		skey = -1;
+		if (key_macro[0] != 0)
+		    if (key_macro[1] == 0)
+			ckey = key_macro[0];
+		    else if (key_macro[2] == 0 && key_macro[0] == 28)
+			ckey = key_macro[1];
+		bool needs_expansion = false;
+		for (int j = 0; key_macro[j] != 0; j++)
+		    if (key_macro[j] > 37) {
+			needs_expansion = true;
+			break;
+		    }
+		if (needs_expansion) {
+		    static unsigned char macrobuf[1024];
+		    int p = 0;
+		    for (int j = 0; key_macro[j] != 0 && p < 1023; j++) {
+			int c = key_macro[j];
+			if (c <= 37)
+			    macrobuf[p++] = c;
+			else {
+			    unsigned char *m = skin_find_macro(c);
+			    if (m != NULL)
+				while (*m != 0 && p < 1023)
+				    macrobuf[p++] = *m++;
+			}
+		    }
+		    macrobuf[p] = 0;
+		    macro = macrobuf;
+		} else
+		    macro = key_macro;
+		shell_keydown();
 		mouse_key = false;
 		active_keycode = event->hardware_keycode;
 	    }
@@ -1431,6 +1477,7 @@ static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
 				    || event->keyval == GDK_Shift_R)) {
 		ckey = 28;
 		skey = -1;
+		macro = NULL;
 		shell_keydown();
 		shell_keyup();
 	    }

@@ -197,7 +197,7 @@ void shell_blitter(const char *bits, int bytesperline,
 	src_off += bytesperline;
     }
 
-    if (can_draw && FrmGetActiveFormID() == calcform_id) {
+    if (can_draw && display_enabled && FrmGetActiveFormID() == calcform_id) {
 	set_colors(&skin->display_bg, &skin->display_fg);
 	set_coord_sys();
 	WinDrawBitmap(disp_bitmap, skin->display_x, skin->display_y);
@@ -219,7 +219,7 @@ void shell_beeper(int frequency, int duration) {
 }
 
 void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
-    if (can_draw && FrmGetActiveFormID() == calcform_id) {
+    if (can_draw && display_enabled && FrmGetActiveFormID() == calcform_id) {
 	if (updn != -1 && updn != updownAnn) {
 	    updownAnn = updn;
 	    repaint_annunciator(0);

@@ -52,5 +52,6 @@ void skin_repaint_key(int key, bool state);
 void skin_display_blitter(const char *bits, int bytesperline, int x, int y,
 	                             int width, int height);
 void skin_repaint_display();
+void skin_display_set_enabled(bool enable);
 
 #endif

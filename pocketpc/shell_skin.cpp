@@ -89,6 +89,8 @@ static bool landscape;
 static keymap_entry *keymap = NULL;
 static int keymap_length = 0;
 
+static bool display_enabled = true;
+
 // Used while loading a skin; specifies how much to enlarge it.
 // This is necessary to force low-res skins to fill high-res screens.
 static int magnification;
@@ -351,7 +353,7 @@ void skin_load(TCHAR *skinname, const TCHAR *basedir, int width, int height) {
 			int disp_x, disp_y, disp_width, disp_height;
 			int act_x, act_y;
 			if (sscanf(line + 4, " %s %d,%d,%d,%d %d,%d,%d,%d %d,%d",
-								 &keynum,
+								 keynumbuf,
 								 &sens_x, &sens_y, &sens_width, &sens_height,
 								 &disp_x, &disp_y, &disp_width, &disp_height,
 								 &act_x, &act_y) == 11) {
@@ -798,6 +800,8 @@ void skin_repaint(HDC hdc, HDC memdc) {
 }
 
 void skin_repaint_annunciator(HDC hdc, HDC memdc, int which, int state) {
+	if (!display_enabled)
+		return;
 	SkinAnnunciator *ann = annunciators + (which - 1);
 	COLORREF old_bg, old_fg;
 	if (!make_dib(memdc))
@@ -908,6 +912,11 @@ void skin_repaint_key(HDC hdc, HDC memdc, int key, int state) {
 
 	if (key >= -7 && key <= -2) {
 		/* Soft key */
+		if (!display_enabled)
+			// Should never happen -- the display is only disabled during macro
+			// execution, and softkey events should be impossible to generate
+			// in that state. But, just staying on the safe side.
+			return;
 		int x, y, w, h;
 		HBITMAP bitmap;
 		if (state) {
@@ -975,9 +984,6 @@ void skin_display_blitter(HDC hdc, const char *bits, int bytesperline, int x, in
 	int h, v, hh, vv;
 	int sx = display_scale.x;
 	int sy = display_scale.y;
-	HDC memdc;
-	HBITMAP bitmap;
-	COLORREF old_bg, old_fg;
 	int disp_w, disp_h;
 
 	if (landscape) {
@@ -1027,40 +1033,44 @@ void skin_display_blitter(HDC hdc, const char *bits, int bytesperline, int x, in
 		disp_h = 16;
 	}
 	
-	memdc = CreateCompatibleDC(hdc);
-	bitmap = CreateBitmap(sx == 0 ? 219 : (disp_w * sx), disp_h * sy, 1, 1, disp_bitmap);
-	SelectObject(memdc, bitmap);
+	if (display_enabled) {
+		HDC memdc = CreateCompatibleDC(hdc);
+		HBITMAP bitmap = CreateBitmap(sx == 0 ? 219 : (disp_w * sx), disp_h * sy, 1, 1, disp_bitmap);
+		SelectObject(memdc, bitmap);
 
-	old_bg = SetBkColor(hdc, display_bg);
-	old_fg = SetTextColor(hdc, display_fg);
-	int bx, bw;
-	if (sx == 0) {
-		int a = x / 6;
-		int b = x - (a << 1) - (a << 2);
-		bx = a * 10 + (b << 1);
-		if (b > 1)
-			bx--;
-		width += x;
-		a = width / 6;
-		b = width - (a << 1) - (a << 2);
-		bw = a * 10 + (b << 1);
-		if (b > 1)
-			bw--;
-		bw -= bx;
-	} else {
-		bx = x * sx;
-		bw = width * sx;
+		COLORREF old_bg = SetBkColor(hdc, display_bg);
+		COLORREF old_fg = SetTextColor(hdc, display_fg);
+		int bx, bw;
+		if (sx == 0) {
+			int a = x / 6;
+			int b = x - (a << 1) - (a << 2);
+			bx = a * 10 + (b << 1);
+			if (b > 1)
+				bx--;
+			width += x;
+			a = width / 6;
+			b = width - (a << 1) - (a << 2);
+			bw = a * 10 + (b << 1);
+			if (b > 1)
+				bw--;
+			bw -= bx;
+		} else {
+			bx = x * sx;
+			bw = width * sx;
+		}
+		BitBlt(hdc, display_loc.x + bx, display_loc.y + y * sy,
+					bw, height * sy, memdc, bx, y * sy, SRCCOPY);
+		SetBkColor(hdc, old_bg);
+		SetTextColor(hdc, old_fg);
+
+		DeleteDC(memdc);
+		DeleteObject(bitmap);
 	}
-	BitBlt(hdc, display_loc.x + bx, display_loc.y + y * sy,
-				bw, height * sy, memdc, bx, y * sy, SRCCOPY);
-	SetBkColor(hdc, old_bg);
-	SetTextColor(hdc, old_fg);
-
-	DeleteDC(memdc);
-	DeleteObject(bitmap);
 }
 
 void skin_repaint_display(HDC hdc, HDC memdc) {
+	if (!display_enabled)
+		return;
 	int w, h;
 	if (landscape) {
 		w = 16 * display_scale.x;
@@ -1073,15 +1083,18 @@ void skin_repaint_display(HDC hdc, HDC memdc) {
 		h = 16 * display_scale.y;
 	}
 	HBITMAP bitmap = CreateBitmap(w, h, 1, 1, disp_bitmap);
-	COLORREF old_bg, old_fg;
 
 	SelectObject(memdc, bitmap);
 
-	old_bg = SetBkColor(hdc, display_bg);
-	old_fg = SetTextColor(hdc, display_fg);
+	COLORREF old_bg = SetBkColor(hdc, display_bg);
+	COLORREF old_fg = SetTextColor(hdc, display_fg);
 	BitBlt(hdc, display_loc.x, display_loc.y, w, h, memdc, 0, 0, SRCCOPY);
 	SetBkColor(hdc, old_bg);
 	SetTextColor(hdc, old_fg);
 
 	DeleteObject(bitmap);
+}
+
+void skin_display_set_enabled(bool enable) {
+	display_enabled = enable;
 }

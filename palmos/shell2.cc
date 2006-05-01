@@ -41,6 +41,7 @@ int4 printout_bottom;
 int4 printout_pos;
 int can_draw = 0;
 int softkey = 0;
+bool display_enabled = true;
 
 int updownAnn = 0;
 int shiftAnn = 0;
@@ -632,6 +633,8 @@ void restore_coord_sys() {
 }
 
 void repaint_annunciator(int i) {
+    if (!display_enabled)
+	return;
     int state;
     switch (i) {
 	case 0: state = updownAnn; break;
@@ -689,6 +692,12 @@ void repaint_printout() {
 }
 
 void draw_softkey(int state) {
+    if (!display_enabled)
+	// Should never happen -- the display is only disabled during macro
+	// execution, and softkey events should be impossible to generate
+	// in that state. But, just staying on the safe side.
+	return;
+
     Coord w, h;
     int x, y, xoff, yoff;
     UInt16 err;
@@ -1279,11 +1288,26 @@ Boolean calcgadget_handler(struct FormGadgetTypeInCallback *gadgetP,
 			    return true;
 			}
 			SndPlaySystemSound(sndClick);
+			bool one_key_macro = macro[1] == 0
+					|| (macro[2] == 0 && macro[0] == 28);
+			if (!one_key_macro)
+			    display_enabled = false;
 			while (*macro != 0) {
 			    want_to_run = core_keydown(*macro++, &enqueued,
 								 &repeat);
 			    if (*macro != 0 && !enqueued)
 				core_keyup();
+			}
+			if (!one_key_macro) {
+			    display_enabled = true;
+			    set_colors(&skin->display_bg, &skin->display_fg);
+			    set_coord_sys();
+			    WinDrawBitmap(disp_bitmap, skin->display_x,
+				    skin->display_y);
+			    restore_colors();
+			    restore_coord_sys();
+			    for (int a = 0; a < 7; a++)
+				repaint_annunciator(a);
 			}
 			repeat = 0;
 		    } else {
@@ -1303,13 +1327,15 @@ Boolean calcgadget_handler(struct FormGadgetTypeInCallback *gadgetP,
 
 		    if (repeat != 0) {
 			UInt16 tps = SysTicksPerSecond();
-			UInt32 ticks_repeat = TimGetTicks() + (repeat == 1 ? tps : (tps / 2));
+			UInt32 ticks_repeat = TimGetTicks()
+					    + (repeat == 1 ? tps : (tps / 2));
 			while (EvtGetPen(&x, &y, &down), down) {
 			    if (TimGetTicks() > ticks_repeat) {
 				repeat = core_repeat();
 				if (repeat == 0)
 				    goto do_the_usual;
-				ticks_repeat = TimGetTicks() + tps / (repeat == 1 ? 5 : 10);
+				ticks_repeat = TimGetTicks()
+						+ tps / (repeat == 1 ? 5 : 10);
 			    }
 			}
 		    } else if (want_to_run) {

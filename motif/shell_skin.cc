@@ -102,6 +102,8 @@ static int *dr, *dg, *db, *nextdr, *nextdg, *nextdb;
 static keymap_entry *keymap = NULL;
 static int keymap_length;
 
+static bool display_enabled = true;
+
 
 /**********************************************************/
 /* Linked-in skins; defined in the skins.c, which in turn */
@@ -991,6 +993,8 @@ void skin_repaint() {
 }
 
 void skin_repaint_annunciator(int which, int state) {
+    if (!display_enabled)
+	return;
     SkinAnnunciator *ann = annunciators + (which - 1);
     if (state)
 	XPutImage(display, calc_canvas, gc, skin_image,
@@ -1076,6 +1080,11 @@ void skin_repaint_key(int key, int state) {
 
     if (key >= -7 && key <= -2) {
 	/* Soft key */
+	if (!display_enabled)
+	    // Should never happen -- the display is only disabled during macro
+	    // execution, and softkey events should be impossible to generate
+	    // in that state. But, just staying on the safe side.
+	    return;
 	int x, y;
 	GC gc = state ? disp_inv_gc : disp_gc;
 	key = -1 - key;
@@ -1118,7 +1127,7 @@ void skin_display_blitter(const char *bits, int bytesperline, int x, int y,
 		for (hh = h * sx; hh < (h + 1) * sx; hh++)
 		    XPutPixel(disp_image, hh, vv, pixel);
 	}
-    if (allow_paint)
+    if (allow_paint && display_enabled)
 	XPutImage(display, calc_canvas, disp_gc, disp_image,
 		  x * sx, y * sy,
 		  display_loc.x + x * sx, display_loc.y + y * sy,
@@ -1126,8 +1135,13 @@ void skin_display_blitter(const char *bits, int bytesperline, int x, int y,
 }
 
 void skin_repaint_display() {
-    XPutImage(display, calc_canvas, disp_gc, disp_image,
-	      0, 0,
-	      display_loc.x, display_loc.y,
-	      131 * display_scale.x, 16 * display_scale.y);
+    if (display_enabled)
+	XPutImage(display, calc_canvas, disp_gc, disp_image,
+		  0, 0,
+		  display_loc.x, display_loc.y,
+		  131 * display_scale.x, 16 * display_scale.y);
+}
+
+void skin_display_set_enabled(bool enable) {
+    display_enabled = enable;
 }

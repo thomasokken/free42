@@ -88,6 +88,8 @@ static int disp_bytesperline;
 static keymap_entry *keymap = NULL;
 static int keymap_length = 0;
 
+static bool display_enabled = true;
+
 
 /**********************************************************/
 /* Linked-in skins; defined in the skins.c, which in turn */
@@ -659,6 +661,8 @@ void skin_repaint(HDC hdc, HDC memdc) {
 }
 
 void skin_repaint_annunciator(HDC hdc, HDC memdc, int which, int state) {
+	if (!display_enabled)
+		return;
 	SkinAnnunciator *ann = annunciators + (which - 1);
 	COLORREF old_bg, old_fg;
 	if (!make_dib(memdc))
@@ -751,6 +755,11 @@ void skin_repaint_key(HDC hdc, HDC memdc, int key, int state) {
 
 	if (key >= -7 && key <= -2) {
 		/* Soft key */
+		if (!display_enabled)
+			// Should never happen -- the display is only disabled during macro
+			// execution, and softkey events should be impossible to generate
+			// in that state. But, just staying on the safe side.
+			return;
 		int x, y, w, h;
 		HBITMAP bitmap;
 		if (state) {
@@ -803,9 +812,6 @@ void skin_display_blitter(HDC hdc, const char *bits, int bytesperline, int x, in
 	int h, v, hh, vv;
 	int sx = display_scale.x;
 	int sy = display_scale.y;
-	HDC memdc;
-	HBITMAP bitmap;
-	COLORREF old_bg, old_fg;
 
 	for (v = y; v < y + height; v++)
 		for (h = x; h < x + width; h++) {
@@ -818,34 +824,41 @@ void skin_display_blitter(HDC hdc, const char *bits, int bytesperline, int x, in
 						disp_bitmap[vv * disp_bytesperline + (hh >> 3)] &= ~(128 >> (hh & 7));
 		}
 	
-	memdc = CreateCompatibleDC(hdc);
-	bitmap = CreateBitmap(131 * sx, 16 * sy, 1, 1, disp_bitmap);
-	SelectObject(memdc, bitmap);
+	if (display_enabled) {
+		HDC memdc = CreateCompatibleDC(hdc);
+		HBITMAP bitmap = CreateBitmap(131 * sx, 16 * sy, 1, 1, disp_bitmap);
+		SelectObject(memdc, bitmap);
 
-	old_bg = SetBkColor(hdc, display_bg);
-	old_fg = SetTextColor(hdc, display_fg);
-	BitBlt(hdc, display_loc.x + x * sx, display_loc.y + y * sy,
-				width * sx, height * sy, memdc, x * sx, y * sy, SRCCOPY);
-	SetBkColor(hdc, old_bg);
-	SetTextColor(hdc, old_fg);
+		COLORREF old_bg = SetBkColor(hdc, display_bg);
+		COLORREF old_fg = SetTextColor(hdc, display_fg);
+		BitBlt(hdc, display_loc.x + x * sx, display_loc.y + y * sy,
+					width * sx, height * sy, memdc, x * sx, y * sy, SRCCOPY);
+		SetBkColor(hdc, old_bg);
+		SetTextColor(hdc, old_fg);
 
-	DeleteDC(memdc);
-	DeleteObject(bitmap);
+		DeleteDC(memdc);
+		DeleteObject(bitmap);
+	}
 }
 
 void skin_repaint_display(HDC hdc, HDC memdc) {
+	if (!display_enabled)
+		return;
 	int w = 131 * display_scale.x;
 	int h = 16 * display_scale.y;
 	HBITMAP bitmap = CreateBitmap(w, h, 1, 1, disp_bitmap);
-	COLORREF old_bg, old_fg;
 
 	SelectObject(memdc, bitmap);
 
-	old_bg = SetBkColor(hdc, display_bg);
-	old_fg = SetTextColor(hdc, display_fg);
+	COLORREF old_bg = SetBkColor(hdc, display_bg);
+	COLORREF old_fg = SetTextColor(hdc, display_fg);
 	BitBlt(hdc, display_loc.x, display_loc.y, w, h, memdc, 0, 0, SRCCOPY);
 	SetBkColor(hdc, old_bg);
 	SetTextColor(hdc, old_fg);
 
 	DeleteObject(bitmap);
+}
+
+void skin_display_set_enabled(bool enable) {
+	display_enabled = enable;
 }

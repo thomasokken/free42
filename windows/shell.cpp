@@ -88,6 +88,7 @@ static char *printout;
 
 static int ckey = 0;
 static int skey;
+static unsigned char *macro;
 static int active_keycode = 0;
 static bool ctrl_down = false;
 static bool alt_down = false;
@@ -414,23 +415,39 @@ static void shell_keydown() {
 		KillTimer(NULL, timer);
 		timer = 0;
 	}
-	if (timer3 != 0 && ckey != 28 /* SHIFT */) {
+	if (timer3 != 0 && (macro != NULL || ckey != 28 /* SHIFT */)) {
 		KillTimer(NULL, timer3);
 		timer3 = 0; 
 		core_timeout3(0);
 	}
 	int repeat;
-	if (ckey >= 38 && ckey <= 255) {
-		// Macro
-		unsigned char *macro = skin_find_macro(ckey);
-		if (macro == NULL || *macro == 0) {
+	if (macro != NULL) {
+		if (*macro == 0) {
 			squeak();
 			return;
 		}
+		bool one_key_macro = macro[1] == 0 || (macro[2] == 0 && macro[0] == 28);
+		if (!one_key_macro)
+			skin_display_set_enabled(false);
 		while (*macro != 0) {
 			running = core_keydown(*macro++, &enqueued, &repeat);
 			if (*macro != 0 && !enqueued)
 				core_keyup();
+		}
+		if (!one_key_macro) {
+			skin_display_set_enabled(true);
+			HDC hdc = GetDC(hMainWnd);
+			HDC memdc = CreateCompatibleDC(hdc);
+			skin_repaint_display(hdc, memdc);
+			skin_repaint_annunciator(hdc, memdc, 1, ann_updown);
+			skin_repaint_annunciator(hdc, memdc, 2, ann_shift);
+			skin_repaint_annunciator(hdc, memdc, 3, ann_print);
+			skin_repaint_annunciator(hdc, memdc, 4, ann_run);
+			skin_repaint_annunciator(hdc, memdc, 5, ann_battery);
+			skin_repaint_annunciator(hdc, memdc, 6, ann_g);
+			skin_repaint_annunciator(hdc, memdc, 7, ann_rad);
+			DeleteDC(memdc);
+			ReleaseDC(hMainWnd, hdc);
 		}
 		repeat = 0;
 	} else
@@ -570,6 +587,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 				int y = HIWORD(lParam);  // vertical position of cursor
 				skin_find_key(x, y, ann_shift != 0, &skey, &ckey);
 				if (ckey != 0) {
+					macro = skin_find_macro(ckey);
 					shell_keydown();
 					mouse_key = true;
 				}
@@ -633,6 +651,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 						keyChar = keyChar + 'a' - 'A';
 					ckey = 1024 + keyChar;
 					skey = -1;
+					macro = NULL;
 					shell_keydown();
 					mouse_key = false;
 					active_keycode = virtKey;
@@ -644,6 +663,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 					else
 						ckey = keyChar - 'A' + 1;
 					skey = -1;
+					macro = NULL;
 					shell_keydown();
 					mouse_key = false;
 					active_keycode = virtKey;
@@ -652,8 +672,8 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 
 				bool exact;
 				bool cshift_down = ann_shift != 0;
-				unsigned char *macro = skin_keymap_lookup(virtKey, ctrl_down, alt_down, shift_down, cshift_down, &exact);
-				if (macro == NULL || !exact) {
+				unsigned char *key_macro = skin_keymap_lookup(virtKey, ctrl_down, alt_down, shift_down, cshift_down, &exact);
+				if (key_macro == NULL || !exact) {
 					for (i = 0; i < keymap_length; i++) {
 						keymap_entry *entry = keymap + i;
 						if (ctrl_down == entry->ctrl
@@ -661,24 +681,55 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 								&& shift_down == entry->shift
 								&& virtKey == entry->keycode) {
 							if (cshift_down == entry->cshift) {
-								macro = entry->macro;
+								key_macro = entry->macro;
 								break;
 							} else {
-								if (macro == NULL)
-									macro = entry->macro;
+								if (key_macro == NULL)
+									key_macro = entry->macro;
 							}
 						}
 					}
 				}
-				if (macro != NULL) {
-					int j;
-					for (j = 0; macro[j] != 0; j++) {
-						if (ckey != 0)
-							shell_keyup();
-						ckey = macro[j];
-						skey = -1;
-						shell_keydown();
-					}
+				if (key_macro != NULL) {
+					// A keymap entry is a sequence of zero or more calculator
+					// keystrokes (1..37) and/or macros (38..255). We expand
+					// macros here before invoking shell_keydown().
+					// If the keymap entry is one key, or two keys with the
+					// first being 'shift', we highlight the key in question
+					// by setting ckey; otherwise, we set ckey to -10, which
+					// means no skin key will be highlighted.
+					ckey = -10;
+					skey = -1;
+					if (key_macro[0] != 0)
+						if (key_macro[1] == 0)
+							ckey = key_macro[0];
+						else if (key_macro[2] == 0 && key_macro[0] == 28)
+							ckey = key_macro[1];
+					bool needs_expansion = false;
+					for (int j = 0; key_macro[j] != 0; j++)
+						if (key_macro[j] > 37) {
+							needs_expansion = true;
+							break;
+						}
+					if (needs_expansion) {
+						static unsigned char macrobuf[1024];
+						int p = 0;
+						for (int j = 0; key_macro[j] != 0 && p < 1023; j++) {
+							int c = key_macro[j];
+							if (c <= 37)
+								macrobuf[p++] = c;
+							else {
+								unsigned char *m = skin_find_macro(c);
+								if (m != NULL)
+									while (*m != 0 && p < 1023)
+										macrobuf[p++] = *m++;
+							}
+						}
+						macrobuf[p] = 0;
+						macro = macrobuf;
+					} else
+						macro = key_macro;
+					shell_keydown();
 					mouse_key = false;
 					active_keycode = virtKey;
 					break;
@@ -700,6 +751,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 				if (ckey == 0 && just_pressed_shift) {
 					ckey = 28;
 					skey = 1;
+					macro = NULL;
 					shell_keydown();
 					shell_keyup();
 				}

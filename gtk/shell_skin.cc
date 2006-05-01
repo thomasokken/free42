@@ -90,6 +90,8 @@ static int skin_label_pos;
 static keymap_entry *keymap = NULL;
 static int keymap_length;
 
+static bool display_enabled = true;
+
 
 /**********************************************************/
 /* Linked-in skins; defined in the skins.c, which in turn */
@@ -556,6 +558,8 @@ void skin_repaint() {
 }
 
 void skin_repaint_annunciator(int which, bool state) {
+    if (!display_enabled)
+	return;
     SkinAnnunciator *ann = annunciators + (which - 1);
     if (state)
 	gdk_draw_pixbuf(calc_widget->window, NULL, skin_image,
@@ -643,6 +647,11 @@ void skin_repaint_key(int key, bool state) {
 
     if (key >= -7 && key <= -2) {
 	/* Soft key */
+	if (!display_enabled)
+	    // Should never happen -- the display is only disabled during macro
+	    // execution, and softkey events should be impossible to generate
+	    // in that state. But, just staying on the safe side.
+	    return;
 	key = -1 - key;
 	int x = (key - 1) * 22 * display_scale.x;
 	int y = 9 * display_scale.y;
@@ -736,7 +745,7 @@ void skin_display_blitter(const char *bits, int bytesperline, int x, int y,
 		}
 	    }
 	}
-    if (allow_paint)
+    if (allow_paint && display_enabled)
 	gdk_draw_pixbuf(calc_widget->window, NULL, disp_image,
 			x * sx, y * sy,
 			display_loc.x + x * sx, display_loc.y + y * sy,
@@ -745,8 +754,13 @@ void skin_display_blitter(const char *bits, int bytesperline, int x, int y,
 }
 
 void skin_repaint_display() {
-    gdk_draw_pixbuf(calc_widget->window, NULL, disp_image,
-		    0, 0, display_loc.x, display_loc.y,
-		    131 * display_scale.x, 16 * display_scale.y,
-		    GDK_RGB_DITHER_NONE, 0, 0);
+    if (display_enabled)
+	gdk_draw_pixbuf(calc_widget->window, NULL, disp_image,
+			0, 0, display_loc.x, display_loc.y,
+			131 * display_scale.x, 16 * display_scale.y,
+			GDK_RGB_DITHER_NONE, 0, 0);
+}
+
+void skin_display_set_enabled(bool enable) {
+    display_enabled = enable;
 }

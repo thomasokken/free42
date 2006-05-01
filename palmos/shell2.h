@@ -59,6 +59,7 @@ extern int4 printout_bottom;
 extern int4 printout_pos;
 extern int can_draw;
 extern int softkey;
+extern bool display_enabled;
 
 extern int updownAnn;
 extern int shiftAnn;
