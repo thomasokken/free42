@@ -1,4 +1,5 @@
-PalmOS version: hardware keyboard mapping.
+PalmOS version: hardware keyboard mapping, using a keymap.txt file and skin-
+specific mappings in the *.layout file, like the other Free42 versions.
 
 Plain text program import/export; HP-41 ROM image import.
 

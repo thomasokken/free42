@@ -51,3 +51,15 @@ calculator keys for FIX is Shift (28), E (16), Sigma+ (1), so...
 
 Key: 38 <sens_rect> <disp_rect> <active_pt>
 Macro: 38 28 16 1
+
+You can also define PC keyboard mappings in the *.layout file. The syntax is
+identical to that of the keymap file.
+If a layout file defines a mapping for a key that is also mapped in the keymap
+file, the skin-specific mapping takes precedence.
+Note that, while Macro definitions may only contain codes 1..37, a keyboard
+mapping may contain codes 38..255 as well, so you could theoretically map a PC
+keyboard key to a sequence of macros. This is not recommended, however; for
+clarity, it is probably better for key mappings to consist only of one key or
+macro number, preceded by Shift (28) if necessary. This will also allow Free42
+to match the PC keyboard key to a skin-defined key, which will be highlighted
+for visual feedback when the mapping is activated.

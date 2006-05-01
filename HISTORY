@@ -1,11 +1,13 @@
-??-??-????: version 1.4.17
+01-05-2006: version 1.4.17
 
-* Pocket PC version: fixed a couple of cosmetic bugs re: menu key highlighting.
+* Pocket PC version: fixed a couple of cosmetic bugs in menu key highlighting.
 * Added support for CShift mappings. These are keyboard mappings that take
   effect if the Calculator's Shift annunciator is on. This makes it possible
   for [CShift] [Key] to activate a different keystroke or macro than the
   unshifted [Key], so you can, for example, make CShift SQRT be something other
   than X^2.
+* Display repainting is temporarily disabled during macro playback, to prevent
+  distracting "flashing" for complex macros.
 
 23-04-2006: (no new code release)
 
