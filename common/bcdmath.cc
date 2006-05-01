@@ -311,7 +311,7 @@ BCD exp(const BCD& v)
     }
 
     BCD ln2(*(const BCDFloat*)(constTable + BCD_CONST_LN2));
-    int4 n = ifloor(v/ln2);
+    BCD n = floor(v/ln2);
 
     if (n > 33218) {
         /* overflow */
@@ -327,12 +327,7 @@ BCD exp(const BCD& v)
     
     /* error bounded by x^9/9! where x = ln(2)/k */
     BCD er = expTaylor(r, 8);
-    er = pow(er, k);
-
-    if (n) {
-        er = er*pow(BCD(2), n);
-    }
-    return er;
+    return pow(er, k)*pow(BCD(2), n);
 }
 
 BCD log(const BCD& v)

@@ -443,8 +443,11 @@ Phloat tanh(Phloat p) {
     // (exp(x)-exp(-x))/(exp(x)+exp(-x))
     BCDFloat temp1 = exp(BCD(p.bcd)).ref_->v_;
     BCDFloat temp2 = exp(BCD((-p).bcd)).ref_->v_;
-    BCDFloat temp3, temp4;
+    BCDFloat temp3;
     BCDFloat::sub(&temp1, &temp2, &temp3);
+    if (temp3.isInf())
+	return temp3.neg() ? -1 : 1;
+    BCDFloat temp4;
     BCDFloat::add(&temp1, &temp2, &temp4);
     Phloat res;
     BCDFloat::div(&temp3, &temp4, &res.bcd);

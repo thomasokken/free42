@@ -114,7 +114,7 @@ struct BCDFloat
 #endif
     int                 exp() const { return ((short)(d_[P] << 1)) >> 1; }
     void                exp(int v) { d_[P] = (v & (NEG-1)); }
-    bool                neg() const { return d_[0] != 0 && (d_[P]& NEG) != 0; }
+    bool                neg() const { return (d_[0] != 0 || isInf()) && (d_[P]& NEG) != 0; }
     void                negate() { d_[P] = d_[P] ^ NEG; }
     bool                isZero() const { return d_[0] == 0 && (d_[P]&0x7000) != 0x3000; }
     bool                isSpecial() const { return (d_[P]&0x7000) == 0x3000; } 
