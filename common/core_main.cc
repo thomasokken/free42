@@ -516,9 +516,12 @@ int core_powercycle() {
 	if (mode_command_entry)
 	    finish_command_entry(false);
 	if (flags.f.prgm_mode) {
-	    if (mode_alpha_entry)
-		finish_alpha_prgm_line();
-	    else if (mode_number_entry) {
+	    if (mode_alpha_entry) {
+		pc = incomplete_saved_pc;
+		prgm_highlight_row = incomplete_saved_highlight_row;
+		set_menu(MENULEVEL_ALPHA, MENU_NONE);
+		flags.f.alpha_mode = 0;
+	    } else if (mode_number_entry) {
 		arg_struct arg;
 		arg.type = ARGTYPE_DOUBLE;
 		arg.val_d = entered_number;
