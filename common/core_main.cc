@@ -2196,9 +2196,10 @@ void continue_running() {
 	int cmd;
 	arg_struct arg;
 	oldpc = pc;
-	if (pc >= prgms[current_prgm].size)
+	if (pc == -1)
+	    pc = 0;
+	else if (pc >= prgms[current_prgm].size) {
 	    pc = -1;
-	if (pc == -1) {
 	    set_running(false);
 	    return;
 	}

@@ -1,6 +1,7 @@
 ??-??-????: version 1.4.19
 
 * GTK version: auto-start (flag 11) did not work. Fixed.
+* Auto-start did not work if the program counter was at line 00. Fixed.
 
 01-05-2006: version 1.4.18
 
