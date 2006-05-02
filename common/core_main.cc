@@ -526,12 +526,12 @@ int core_powercycle() {
 		store_command(pc, CMD_NUMBER, &arg);
 		prgm_highlight_row = 1;
 	    }
-	    mode_alpha_entry = false;
-	    mode_number_entry = false;
-	    set_menu(MENULEVEL_ALPHA, MENU_NONE);
-	    flags.f.alpha_mode = 0;
 	    flags.f.prgm_mode = false;
 	}
+	mode_alpha_entry = false;
+	mode_number_entry = false;
+	set_menu(MENULEVEL_ALPHA, MENU_NONE);
+	flags.f.alpha_mode = 0;
 	set_running(true);
 	flags.f.auto_exec = 0;
 	need_redisplay = false;
