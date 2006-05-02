@@ -519,8 +519,6 @@ int core_powercycle() {
 	    if (mode_alpha_entry) {
 		pc = incomplete_saved_pc;
 		prgm_highlight_row = incomplete_saved_highlight_row;
-		set_menu(MENULEVEL_ALPHA, MENU_NONE);
-		flags.f.alpha_mode = 0;
 	    } else if (mode_number_entry) {
 		arg_struct arg;
 		arg.type = ARGTYPE_DOUBLE;
@@ -530,6 +528,8 @@ int core_powercycle() {
 	    }
 	    mode_alpha_entry = false;
 	    mode_number_entry = false;
+	    set_menu(MENULEVEL_ALPHA, MENU_NONE);
+	    flags.f.alpha_mode = 0;
 	    flags.f.prgm_mode = false;
 	}
 	set_running(true);
