@@ -2,6 +2,9 @@
 
 * GTK version: auto-start (flag 11) did not work. Fixed.
 * Auto-start did not work if the program counter was at line 00. Fixed.
+* When auto-start causes program execution to begin while PRGM mode is active,
+  any pending command should be cancelled and PRGM mode should be exited before
+  program execution starts. This wasn't handled properly; fixed now.
 
 01-05-2006: version 1.4.18
 
