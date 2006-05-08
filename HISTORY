@@ -1,3 +1,9 @@
+08-05-2006: (no new code release)
+
+* HP-41 to HP-42S character code conversion in the rom2raw program did not
+  work; alpha LBL, GTO, XEQ, and string program lines were not converted.
+  Fixed, and updated the free42.tgz and rom2raw.zip packages.
+
 07-05-2006: version 1.4.19
 
 * GTK version: auto-start (flag 11) did not work. Fixed.

@@ -854,8 +854,6 @@ int main(int argc, char *argv[]) {
 	    }
 	    if (synth)
 		synthetic_code_warning = 1;
-	    for (j = 0; j < i; j++)
-		fputc(instr[j], out);
 	    if (list && k != 0x00 && (k < 0xA0 || k > 0xA7)) {
 		/* NULLs are not printed, and XROMs were handled earlier */
 		int x = print_line(lineno, instr, i);
@@ -867,6 +865,8 @@ int main(int argc, char *argv[]) {
 	    }
 	    if (conv_len != 0)
 		string_convert(conv_len, instr + conv_off);
+	    for (j = 0; j < i; j++)
+		fputc(instr[j], out);
 	} while ((c & 512) == 0);
     }
 
