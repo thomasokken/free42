@@ -613,7 +613,7 @@ int main(int argc, char *argv[]) {
 			    rom_number[p],
 			    f, e);
 		    entry[total_func] = 0;
-		} else if (rom[e] & 0xF0 != 0xC0
+		} else if ((rom[e] & 0xF0) != 0xC0
 			    || rom[e + 2] < 0xF2 || rom[e + 2] > 0xF8) {
 		    printf("User code entry point (0x%03X) from "
 			    "XROM %02d,%02d does not point to a "
@@ -819,13 +819,13 @@ int main(int argc, char *argv[]) {
 			    /* Mcode XROM */
 			    int y = mach_entry[xrom2index(modnum, instnum)];
 			    if (y == 0)
-				printf(linebuf,
+				sprintf(linebuf,
 				       "%02d XROM %02d,%02d (bad entry)",
 				       lineno, modnum, instnum);
 			    else {
 				char namebuf[30];
 				getname(namebuf, y);
-				printf(linebuf, "%02d %s",
+				sprintf(linebuf, "%02d %s", lineno,
 					hp2ascii(namebuf, strlen(namebuf)));
 			    }
 			    spaces(30 - strlen(linebuf));
