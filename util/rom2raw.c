@@ -828,6 +828,7 @@ int main(int argc, char *argv[]) {
 				sprintf(linebuf, "%02d %s", lineno,
 					hp2ascii(namebuf, strlen(namebuf)));
 			    }
+			    printf(linebuf);
 			    spaces(30 - strlen(linebuf));
 			    if (mistaken_identity)
 				printf("Will be mistaken for "
