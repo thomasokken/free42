@@ -222,7 +222,6 @@ void getname(char *dest, int src) {
 	*d++ = k;
     } while ((c & 128) == 0 && src > 0 && ++len < 16);
     *d = 0;
-    string_convert(strlen(dest), dest);
 }
 
 int xrom2index(int modnum, int funcnum) {
@@ -239,7 +238,7 @@ int xrom2index(int modnum, int funcnum) {
 char *hp2ascii(char *src, int len) {
     char *esc;
     unsigned char c;
-    static char dst[100];
+    static char dst[256];
     int s, d = 0;
     for (s = 0; s < len; s++) {
 	c = src[s] & 127;
@@ -528,9 +527,10 @@ int main(int argc, char *argv[]) {
 	num_func[0] = 64;
 
     pos = ((rom[2] & 255) << 8) | (rom[3] & 255);
-    if (pos <= num_func[0] * 2 + 2 || pos >= rom_size)
+    if (pos <= num_func[0] * 2 + 2 || pos >= rom_size) {
 	printf("Bad offset to ROM name (%d, rom size = %d)\n", pos, rom_size);
-    else
+	strcpy(rom_name, "Unnamed");
+    } else
 	getname(rom_name, pos);
 
     if (outfile_name[0] == 0) {
@@ -598,7 +598,8 @@ int main(int argc, char *argv[]) {
 		} else {
 		    getname(buf, e);
 		    printf("XROM %02d,%02d: %s %s\n", rom_number[p], f,
-			rom[e] == 0x3E0 ? "dummy entry" : "machine code", buf);
+			    rom[e] == 0x3E0 ? "dummy entry" : "machine code",
+			    hp2ascii(buf, strlen(buf)));
 		    mach_entry[total_func] = e;
 		    if (rom[e] != 0x3E0)
 			machine_code_warning = 1;
@@ -650,7 +651,7 @@ int main(int argc, char *argv[]) {
     if (out == NULL) {
 	int err = errno;
 	printf("Can't open \"%s\" for writing: %s (%d)\n",
-						    buf, strerror(err), err);
+					    outfile_name, strerror(err), err);
 	exit(2);
     }
 
@@ -802,14 +803,15 @@ int main(int argc, char *argv[]) {
 			printf("\n");
 		    } else {
 			int x, mistaken_identity = 0;
-			char namebuf[30], linebuf[1024];
+			char linebuf[1024];
 			for (x = 0; hp42s_xroms[x].number != -1; x++)
 			    if (hp42s_xroms[x].number == num)
 				break;
 			if (hp42s_xroms[x].number != -1) {
 			    if (hp42s_xroms[x].allow) {
 				used_xrom[num] = 0;
-				printf("%02d %s\n", lineno, hp42s_xroms[x].name);
+				printf("%02d %s\n", lineno,
+						    hp42s_xroms[x].name);
 			    } else
 				mistaken_identity = 1;
 			}
@@ -817,12 +819,15 @@ int main(int argc, char *argv[]) {
 			    /* Mcode XROM */
 			    int y = mach_entry[xrom2index(modnum, instnum)];
 			    if (y == 0)
-				sprintf(namebuf, "XROM %02d,%02d (bad entry)",
-							    modnum, instnum);
-			    else
+				printf(linebuf,
+				       "%02d XROM %02d,%02d (bad entry)",
+				       lineno, modnum, instnum);
+			    else {
+				char namebuf[30];
 				getname(namebuf, y);
-			    sprintf(linebuf, "%02d %s", lineno, namebuf);
-			    printf(linebuf);
+				printf(linebuf, "%02d %s",
+					hp2ascii(namebuf, strlen(namebuf)));
+			    }
 			    spaces(30 - strlen(linebuf));
 			    if (mistaken_identity)
 				printf("Will be mistaken for "
@@ -903,7 +908,8 @@ int main(int argc, char *argv[]) {
 		strcpy(buf, "(bad entry point)");
 	    else
 		getname(buf, p);
-	    printf("XROM %02d,%02d: %s\n", i >> 6, i & 63, buf);
+	    printf("XROM %02d,%02d: %s\n", i >> 6, i & 63,
+						hp2ascii(buf, strlen(buf)));
 	}
     }
 
@@ -947,8 +953,8 @@ int main(int argc, char *argv[]) {
 		strcpy(buf, "(bad entry point)");
 	    else
 		getname(buf, p);
-	    printf("XROM %02d,%02d: %s => %s\n", i >> 6, i & 63, buf,
-						hp42s_xroms[f].name);
+	    printf("XROM %02d,%02d: %s => %s\n", i >> 6, i & 63,
+			    hp2ascii(buf, strlen(buf)), hp42s_xroms[f].name);
 	}
     }
 
