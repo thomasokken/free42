@@ -151,6 +151,7 @@ static gboolean repeater(gpointer cd);
 static gboolean timeout1(gpointer cd);
 static gboolean timeout2(gpointer cd);
 static gboolean timeout3(gpointer cd);
+static gboolean battery_checker(gpointer cd);
 static void repaint_printout(int x, int y, int width, int height);
 static gboolean reminder(gpointer cd);
 static void txt_writer(const char *text, int length);
@@ -416,6 +417,17 @@ int main(int argc, char *argv[]) {
     }
     if (core_powercycle())
 	enable_reminder();
+
+    /* Check if /proc/apm exists and is readable, and if so,
+     * start the battery checker "thread" that keeps the battery
+     * annunciator on the calculator display up to date.
+     */
+    FILE *apm = fopen("/proc/apm", "r");
+    if (apm != NULL) {
+	fclose(apm);
+	shell_low_battery();
+	g_timeout_add(60000, battery_checker, NULL);
+    }
 
     if (pipe(pype) != 0)
 	fprintf(stderr, "Could not create pipe for signal handler; not catching INT and TERM signals.\n");
@@ -1223,7 +1235,7 @@ static void aboutCB() {
 	gtk_container_add(GTK_CONTAINER(container), box);
 	GtkWidget *image = gtk_image_new_from_pixbuf(icon);
 	gtk_box_pack_start(GTK_BOX(box), image, FALSE, FALSE, 10);
-	GtkWidget *label = gtk_label_new("Free42 1.4.19\n(C) 2004-2006 Thomas Okken\nthomas_okken@yahoo.com\nhttp://home.planet.nl/~demun000/thomas_projects/free42/");
+	GtkWidget *label = gtk_label_new("Free42 1.4.20\n(C) 2004-2006 Thomas Okken\nthomas_okken@yahoo.com\nhttp://home.planet.nl/~demun000/thomas_projects/free42/");
 	gtk_box_pack_start(GTK_BOX(box), label, FALSE, FALSE, 10);
 	gtk_widget_show_all(GTK_WIDGET(about));
     }
@@ -1538,6 +1550,11 @@ static gboolean timeout3(gpointer cd) {
     core_timeout3(1);
     timeout3_id = 0;
     return FALSE;
+}
+
+static gboolean battery_checker(gpointer cd) {
+    shell_low_battery();
+    return TRUE;
 }
 
 static void repaint_printout(int x, int y, int width, int height) {

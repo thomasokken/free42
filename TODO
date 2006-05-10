@@ -1,3 +1,5 @@
+GTK and Motif versions: /proc/acpi support for battery status checking.
+
 PalmOS version: hardware keyboard mapping, using a keymap.txt file and skin-
 specific mappings in the *.layout file, like the other Free42 versions.
 

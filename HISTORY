@@ -1,3 +1,11 @@
+??-??-????: version 1.4.20
+
+* GTK version: added periodic battery check (once per minute). The other
+  versions already had this. Note that the GTK and Motif versions use /proc/apm
+  to inspect battery status; on systems without /proc/apm, this check does not
+  work, and the battery is assumed to always be OK. /proc/acpi support is not
+  implemented yet.
+
 08-05-2006: (no new code release)
 
 * HP-41 to HP-42S character code conversion in the rom2raw program did not
