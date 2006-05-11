@@ -1,6 +1,3 @@
-All versions except Palm: auto-repeat no longer works when keys are activated
-from the PC keyboard, except for the hard-coded mappings (ALPHA and A..F).
-
 GTK and Motif versions: /proc/acpi support for battery status checking.
 
 PalmOS version: hardware keyboard mapping, using a keymap.txt file and skin-

@@ -448,8 +448,8 @@ static void shell_keydown() {
 			skin_repaint_annunciator(hdc, memdc, 7, ann_rad);
 			DeleteDC(memdc);
 			ReleaseDC(hMainWnd, hdc);
+			repeat = 0;
 		}
-		repeat = 0;
 	} else
 		running = core_keydown(ckey, &enqueued, &repeat);
 	if (!running) {

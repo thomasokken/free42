@@ -1309,8 +1309,8 @@ static void shell_keydown() {
 	    skin_repaint_annunciator(5, ann_battery);
 	    skin_repaint_annunciator(6, ann_g);
 	    skin_repaint_annunciator(7, ann_rad);
+	    repeat = 0;
 	}
-	repeat = 0;
     } else
 	keep_running = core_keydown(ckey, &enqueued, &repeat);
 
