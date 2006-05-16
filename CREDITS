@@ -7,8 +7,8 @@ LU Decomposition and back-substitution code, and Ridders' root-refinement
 Binary implementations of floating-point math routines, used in all binary
    builds, developed at SunPro, a Sun Microsystems business.
 Skins designed by, or based on original work of: Sebastien Carlier,
-   Christoph Giesselink, Erik Ehrling, Jeff O., Michael Vogel, and Klaus
-   Reckermann.
+   Christoph Giesselink, Erik Ehrling, Jeff O., Michael Vogel,
+   Klaus Reckermann, and Egan Ford.
 MacOS X Dashboard version by D. Jeff Dionne.
 
 Testing: Vini Matangrano, Dave Johnson, Walter Bonin, Andres Rodriguez,

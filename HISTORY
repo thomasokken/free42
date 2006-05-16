@@ -1,3 +1,8 @@
+??-??-????: version 1.4.21
+
+* Added "HP-42C" voyager-style skins for Windows and Unix (Free42Skins.zip
+  package). Contributed by Egan Ford.
+
 11-05-2006: version 1.4.20
 
 * GTK version: added periodic battery check (once per minute). The other
