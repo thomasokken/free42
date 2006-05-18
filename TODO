@@ -1,3 +1,12 @@
+BCD20 library: in the BCDFloat class, modify the const char * constructor, the
+double constructor, and the add, sub, mul, div, and sqrt methods, so that they
+round their final result to exactly 25 decimal digits.
+This is necessary because with pure base-10000, as used now, the ratio of the
+worst-case to best-case relative representation errors is 10000, which can
+wreak havoc on the convergence tests of some numerical iterative algorithms.
+Generally speaking, it is unwise to compute a 28-digit result when you know
+that some of your intermediaries may have been rounded to only 25 digits.
+
 GTK and Motif versions: /proc/acpi support for battery status checking.
 
 PalmOS version: hardware keyboard mapping, using a keymap.txt file and skin-
