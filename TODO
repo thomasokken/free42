@@ -5,7 +5,9 @@ This is necessary because with pure base-10000, as used now, the ratio of the
 worst-case to best-case relative representation errors is 10000, which can
 wreak havoc on the convergence tests of some numerical iterative algorithms.
 Generally speaking, it is unwise to compute a 28-digit result when you know
-that some of your intermediaries may have been rounded to only 25 digits.
+that some of your intermediaries may have been rounded to only 25 digits; the
+extra digits basically introduce noise, which can lead to the aforementioned
+convergence problems.
 
 GTK and Motif versions: /proc/acpi support for battery status checking.
 
