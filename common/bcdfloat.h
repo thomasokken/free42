@@ -147,8 +147,9 @@ struct BCDFloat
     int                 _round() BCD_SECT;
     void                _rshift() BCD_SECT;
     void                _lshift() BCD_SECT;
-    const BCDFloat&     _round20() const BCD_SECT;
+    void                _round25() BCD_SECT;
 #ifndef PALMOS
+    const BCDFloat&     _round20() const BCD_SECT;
     void                _asString(char* buf) const;
 #endif
 

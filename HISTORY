@@ -1,3 +1,15 @@
+??-??-????: version 1.4.22
+
+* Decimal version: numbers are always rounded to 25 decimal digits now. The
+  base-10000 representation, which Free42 uses internally, is equivalent to 25
+  to 28 decimal digits, but the extra digits tend to introduce noise which can
+  interfere with the convergence tests of certain iterative numerical
+  algorithms. Rounding to 25 decimal digits makes Free42 behave like a regular
+  decimal calculator, preventing such problems.
+* GTK version: explicitly realizes the print widget now, which prevents GTK
+  warnings being written to the console when print instructions are performed
+  before the print-out window is first opened.
+
 20-05-2006: version 1.4.21
 
 * Decimal version: for values < 1e-8, SQRT returned results that were a factor

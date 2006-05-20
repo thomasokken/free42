@@ -184,6 +184,7 @@ BCDFloat::BCDFloat(const char* s)
             if (neg) negate();
         }
     }
+    _round25();
 }
 
 #if defined(PALMOS) && !defined(PALMOS_ARM)
@@ -313,8 +314,60 @@ BCDFloat::BCDFloat(double d) {
 	if (neg)
 	    negate();
     }
+    _round25();
 }
 
+void BCDFloat::_round25() {
+    // Round to 25 decimal digits
+    if (isSpecial() || d_[0] < 10)
+	return;
+    else if (d_[0] < 100) {
+	unsigned short x = d_[P-1] % 10;
+	if (x < 5) {
+	    d_[P-1] -= x;
+	    return;
+	} else
+	    d_[P-1] += 10 - x;
+    } else if (d_[0] < 1000) {
+	unsigned short x = d_[P-1] % 100;
+	if (x < 50) {
+	    d_[P-1] -= x;
+	    return;
+	} else
+	    d_[P-1] += 100 - x;
+    } else {
+	unsigned short x = d_[P-1] % 1000;
+	if (x < 500) {
+	    d_[P-1] -= x;
+	    return;
+	} else
+	    d_[P-1] += 1000 - x;
+    }
+    for (int i = P-1; i >= 0; i--)
+	if (d_[i] < 10000)
+	    return;
+	else {
+	    d_[i] -= 10000;
+	    if (i > 0)
+		d_[i-1]++;
+	    else {
+		// Overflow... The only way that rounding can carry all te way
+		// to the leftmost digit is if the pre-rounding mantissa is
+		// 9999.99999999... So, the post-rounding mantissa must be
+		// 10000.00000000...; we simply change the leftmost digit to 1
+		// and increase the exponent by 1.
+		if (d_[P] == EXPLIMIT) {
+		    d_[P] = d_[P] & 0x8000 | 0x3fff;
+		    d_[0] = 0;
+		} else {
+		    d_[P]++;
+		    d_[0] = 1;
+		}
+	    }
+	}
+}
+
+#ifndef PALMOS
 const BCDFloat& BCDFloat::_round20() const
 {
     if (isSpecial()) return *this;
@@ -345,7 +398,6 @@ const BCDFloat& BCDFloat::_round20() const
     return roundedVal_;
 }
 
-#ifndef PALMOS
 void BCDFloat::asString(char* buf) const
 {
     const BCDFloat& val = _round20();
@@ -636,6 +688,7 @@ void BCDFloat::_uadd(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
         if (ea > EXPLIMIT) *c = posInf();
         else c->exp(ea);
     }
+    c->_round25();
 }
 
 void BCDFloat::_usub(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
@@ -711,6 +764,7 @@ void BCDFloat::_usub(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
         else c->exp(e);
         if (neg) c->negate();
     }
+    c->_round25();
 }
 
 void BCDFloat::mul(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
@@ -829,6 +883,7 @@ void BCDFloat::mul(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
         /* fix sign */
         if (na != nb) c->negate();
     }
+    c->_round25();
 }
 
 void BCDFloat::div(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
@@ -994,6 +1049,7 @@ void BCDFloat::div(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
             if (na != nb) c->negate();
         }
     }
+    c->_round25();
 }
 
 void BCDFloat::mul2(unsigned short* ad, int ea,
@@ -1230,6 +1286,7 @@ bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
         }
     }
     r->exp(e >= -1 ? (e + 1) / 2 : e / 2);
+    r->_round25();
     return true;
 }
 

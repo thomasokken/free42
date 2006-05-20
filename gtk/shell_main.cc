@@ -398,6 +398,7 @@ int main(int argc, char *argv[]) {
 	    state.printWindowKnown ? state.printWindowHeight : 600);
 
     gtk_widget_realize(printwindow);
+    gtk_widget_realize(print_widget);
     scroll_printout_to_bottom();
 
 
