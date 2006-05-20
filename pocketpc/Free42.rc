@@ -123,7 +123,7 @@ BEGIN
     ICON            IDI_FREE42,IDC_STATIC,15,4,21,20
     LTEXT           "Free42",IDC_STATIC,40,4,37,8,SS_NOPREFIX
     LTEXT           "(C) 2004-2006 Thomas Okken",IDC_STATIC,13,28,97,8
-    LTEXT           "Version 1.4.21",IDC_STATIC,40,13,54,8
+    LTEXT           "Version 1.4.22",IDC_STATIC,40,13,54,8
     LTEXT           "thomas_okken@yahoo.com",IDC_STATIC,13,37,89,8
     LTEXT           "http://home.planet.nl/",IDC_STATIC,13,50,73,8
     LTEXT           "~demun000/",IDC_STATIC,29,59,42,8
@@ -272,8 +272,8 @@ LANGUAGE LANG_DUTCH, SUBLANG_DUTCH
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,4,21,0
- PRODUCTVERSION 1,4,21,0
+ FILEVERSION 1,4,22,0
+ PRODUCTVERSION 1,4,22,0
  FILEFLAGSMASK 0x3fL
 #ifdef DEBUG
  FILEFLAGS 0x1L
@@ -291,14 +291,14 @@ BEGIN
             //VALUE "Comments", "\0"
             //VALUE "CompanyName", " \0"
             VALUE "FileDescription", "HP-42S Calculator Clone\0"
-            VALUE "FileVersion", "1.4.21\0"
+            VALUE "FileVersion", "1.4.22\0"
             VALUE "InternalName", "Free42\0"
             VALUE "LegalCopyright", "Copyright © 2004-2006 Thomas Okken\0"
             //VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "Free42.exe\0"
             //VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "Free42\0"
-            VALUE "ProductVersion", "1.4.21\0"
+            VALUE "ProductVersion", "1.4.22\0"
             //VALUE "SpecialBuild", "\0"
         END
     END
