@@ -1,3 +1,9 @@
+20-05-2006: version 1.4.21
+
+* Decimal version: for values < 1e-8, SQRT returned results that were a factor
+  10000 too large. This was due to a bug in the underlying BCDFloat::sqrt()
+  method, which probably affected other functions as well. Fixed.
+
 19-05-2006: (no new code release)
 
 * Added "HP-42C" voyager-style skins for Windows and Unix (Free42Skins.zip
