@@ -70,8 +70,8 @@ BCDFloat::BCDFloat(const char* s)
     
     /* find the end of the input string */
     const char* endp = s;
-    const char* startp = 0;
-    const char* point = 0;
+    const char* startp = NULL;
+    const char* point = NULL;
     bool begun = false;
     while (*endp && *endp != 'E' && *endp != 'e') {
         if (*endp == '.') {
@@ -92,99 +92,93 @@ BCDFloat::BCDFloat(const char* s)
         ++endp;
     }
 
+    if (startp == NULL)
+	return;
+
     bool eneg = false;
-    if (startp) {
-        if (*endp == 'E' || *endp == 'e') {
-            const char* p = endp + 1;
-            if (*p == '-') {
-                eneg = true;
-                ++p;
-            }
-            else if (*p == '+') ++p;  // allow E+1234 
+    if (*endp == 'E' || *endp == 'e') {
+	const char* p = endp + 1;
+	if (*p == '-') {
+	    eneg = true;
+	    ++p;
+	}
+	else if (*p == '+') ++p;  // allow E+1234 
 
-            e = 0;
-	    char c;
-	    // Skip leading zeroes
-	    while ((c = *p++) == '0');
-	    // Accept up to 6 digits; the reason why I don't stop after
-	    // 5 digits is because I want to make sure that 0.1e100000
-	    // is converted to Inf, and not 1e9999
-            for (i = 0; i < 6; ++i) {
-		if (c >= '0' && c <= '9')
-		    e = e * 10 + c - '0';
-                else
-		    break;
-		c = *p++;
-            }
-            if (eneg) e = -e;
-        }
-
-        /* represent the decimal point by adjusting the exponent */
-        if (point) {
-            e += point - startp;
-        }
-        else {
-            e += endp - startp;
-        }
-
-        /* calculate the decade offset of the exponent remainder */
-        if (e >= 0) {
-            i = (e&3);
-            if (i) i = 4-i;
-        }
-        else {
-            i = ((-e) & 3);
-        }
-        e += i;
-
-        /* convert to 4dec */
-        e >>= 2;
-    
-        const char* p = startp;
-        while (p != endp) {
-            int d = 0;
-            while (i < 4) {
-                if (*p != '.') {
-                    d += (*p - '0')*decade_[i];
-                    ++i;
-                }
-                ++p;
-                if (p == endp) break;
-            }
-            i = 0;
-            d_[j] = d;
-            if (j == P) {
-                if (_round()) ++e;
-                break;  // full up.
-            }
-            ++j;
-        }
-
-	// Normalize mantissa
-
-	i = 0;
-	while (i < P && d_[i] == 0)
-	    i++;
-	if (i > 0)
-	    if (i == P)
-		// zero
-		e = 0;
-	    else {
-		for (j = i; j < P; j++)
-		    d_[j - i] = d_[j];
-		for (j = P - i; j < P; j++)
-		    d_[j] = 0;
-		e -= i;
-	    }
-
-        if (e <= -EXPLIMIT) _init();
-        else {
-            if (e > EXPLIMIT) *this = posInf();
-            else exp(e);
-            if (neg) negate();
-        }
+	e = 0;
+	char c;
+	// Skip leading zeroes
+	while ((c = *p++) == '0');
+	// Accept up to 6 digits; the reason why I don't stop after
+	// 5 digits is because I want to make sure that 0.1e100000
+	// is converted to Inf, and not 1e9999
+	for (i = 0; i < 6; ++i) {
+	    if (c >= '0' && c <= '9')
+		e = e * 10 + c - '0';
+	    else
+		break;
+	    c = *p++;
+	}
+	if (eneg) e = -e;
     }
-    _round25();
+
+    /* represent the decimal point by adjusting the exponent */
+    if (point) {
+	e += point - startp;
+    }
+    else {
+	e += endp - startp;
+    }
+
+    /* calculate the decade offset of the exponent remainder */
+    if (e >= 0) {
+	i = (e&3);
+	if (i) i = 4-i;
+    }
+    else {
+	i = ((-e) & 3);
+    }
+    e += i;
+
+    /* convert to 4dec */
+    e >>= 2;
+
+    const char* p = startp;
+    bool leading_zero = true;
+    while (p != endp) {
+	int d = 0;
+	while (i < 4) {
+	    if (*p != '.') {
+		d += (*p - '0')*decade_[i];
+		++i;
+	    }
+	    ++p;
+	    if (p == endp) break;
+	}
+	i = 0;
+	if (leading_zero && d == 0) {
+	    e--;
+	    continue;
+	}
+	leading_zero = false;
+	d_[j] = d;
+	if (++j > P)
+	    // full up.
+	    break;
+    }
+    if (leading_zero)
+	e = 0;
+    while (j <= P)
+	d_[j++] = 0;
+
+    if (_round25(true))
+	e++;
+
+    if (e <= -EXPLIMIT) _init();
+    else {
+	if (e > EXPLIMIT) *this = posInf();
+	else exp(e);
+	if (neg) negate();
+    }
 }
 
 #if defined(PALMOS) && !defined(PALMOS_ARM)
@@ -314,38 +308,46 @@ BCDFloat::BCDFloat(double d) {
 	if (neg)
 	    negate();
     }
-    _round25();
+    _round25(false);
 }
 
-void BCDFloat::_round25() {
+bool BCDFloat::_round25(bool extended_mantissa) {
     // Round to 25 decimal digits
-    if (isSpecial() || d_[0] < 10)
-	return;
-    else if (d_[0] < 100) {
+    if (!extended_mantissa && (isSpecial() || d_[0] < 10))
+	return false;
+    if (d_[0] < 10) {
+	if (d_[P] < 5000) {
+	    d_[P] = 0;
+	    return false;
+	} else {
+	    d_[P] = 0;
+	    d_[P-1]++;
+	}
+    } else if (d_[0] < 100) {
 	unsigned short x = d_[P-1] % 10;
 	if (x < 5) {
 	    d_[P-1] -= x;
-	    return;
+	    return false;
 	} else
 	    d_[P-1] += 10 - x;
     } else if (d_[0] < 1000) {
 	unsigned short x = d_[P-1] % 100;
 	if (x < 50) {
 	    d_[P-1] -= x;
-	    return;
+	    return false;
 	} else
 	    d_[P-1] += 100 - x;
     } else {
 	unsigned short x = d_[P-1] % 1000;
 	if (x < 500) {
 	    d_[P-1] -= x;
-	    return;
+	    return false;
 	} else
 	    d_[P-1] += 1000 - x;
     }
     for (int i = P-1; i >= 0; i--)
 	if (d_[i] < 10000)
-	    return;
+	    return false;
 	else {
 	    d_[i] -= 10000;
 	    if (i > 0)
@@ -356,15 +358,23 @@ void BCDFloat::_round25() {
 		// 9999.99999999... So, the post-rounding mantissa must be
 		// 10000.00000000...; we simply change the leftmost digit to 1
 		// and increase the exponent by 1.
-		if (d_[P] == EXPLIMIT) {
+		if (extended_mantissa) {
+		    d_[0] = 1;
+		    return true;
+		} else if (d_[P] == EXPLIMIT) {
+		    // Out of range; return Inf
 		    d_[P] = d_[P] & 0x8000 | 0x3fff;
 		    d_[0] = 0;
+		    return false;
 		} else {
 		    d_[P]++;
 		    d_[0] = 1;
+		    return true;
 		}
 	    }
 	}
+    // Can't get here
+    return false;
 }
 
 #ifndef PALMOS
@@ -678,17 +688,16 @@ void BCDFloat::_uadd(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
         }
 
         if (ca) {
-            /* overall carry, shift down and round */
+            /* overall carry, shift down */
             c->_rshift();
             c->d_[0] = ca;
-            if (c->_round()) ++ea;
             ++ea;
         }
 
+	if (c->_round25(true)) ++ea;
         if (ea > EXPLIMIT) *c = posInf();
         else c->exp(ea);
     }
-    c->_round25();
 }
 
 void BCDFloat::_usub(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
@@ -763,8 +772,8 @@ void BCDFloat::_usub(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
         if (e > EXPLIMIT) *c = posInf();
         else c->exp(e);
         if (neg) c->negate();
+	c->_round25(false);
     }
-    c->_round25();
 }
 
 void BCDFloat::mul(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
@@ -883,7 +892,7 @@ void BCDFloat::mul(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
         /* fix sign */
         if (na != nb) c->negate();
     }
-    c->_round25();
+    c->_round25(false);
 }
 
 void BCDFloat::div(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
@@ -1040,7 +1049,8 @@ void BCDFloat::div(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
             acc.d_[P] = 0;
         }
 
-        c->_round();
+        if (c->_round25(true))
+	    ea++;
         ea -= eb - 1;
         if (ea <= -EXPLIMIT) c->_init();
         else {
@@ -1049,7 +1059,6 @@ void BCDFloat::div(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
             if (na != nb) c->negate();
         }
     }
-    c->_round25();
 }
 
 void BCDFloat::mul2(unsigned short* ad, int ea,
@@ -1286,7 +1295,7 @@ bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
         }
     }
     r->exp(e >= -1 ? (e + 1) / 2 : e / 2);
-    r->_round25();
+    r->_round25(false);
     return true;
 }
 

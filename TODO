@@ -1,5 +1,5 @@
 BCD20 library: make sure that _round25() is never preceded by another rounding
-operation.
+operation. Still to be checked: mul.
 
 GTK and Motif versions: /proc/acpi support for battery status checking.
 
