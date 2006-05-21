@@ -1972,15 +1972,7 @@ int docmd_sigma_reg_t(arg_struct *arg) {
     vartype *v = new_real(mode_sigma_reg);
     if (v == NULL)
 	return ERR_INSUFFICIENT_MEMORY;
-    if (flags.f.stack_lift_disable)
-	free_vartype(reg_x);
-    else {
-	free_vartype(reg_t);
-	reg_t = reg_z;
-	reg_z = reg_y;
-	reg_y = reg_x;
-    }
-    reg_x = v;
+    recall_result(v);
     return ERR_NONE;
 }
 

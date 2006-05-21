@@ -252,6 +252,8 @@ vartype *dup_vartype(const vartype *v) {
 	    vartype_realmatrix *rm = (vartype_realmatrix *) v;
 	    vartype_realmatrix *rm2 = (vartype_realmatrix *)
 					malloc(sizeof(vartype_realmatrix));
+	    if (rm2 == NULL)
+		return NULL;
 	    rm2->type = TYPE_REALMATRIX;
 	    rm2->rows = rm->rows;
 	    rm2->columns = rm->columns;
@@ -263,6 +265,8 @@ vartype *dup_vartype(const vartype *v) {
 	    vartype_complexmatrix *cm = (vartype_complexmatrix *) v;
 	    vartype_complexmatrix *cm2 = (vartype_complexmatrix *)
 					malloc(sizeof(vartype_complexmatrix));
+	    if (cm2 == NULL)
+		return NULL;
 	    cm2->type = TYPE_COMPLEXMATRIX;
 	    cm2->rows = cm->rows;
 	    cm2->columns = cm->columns;

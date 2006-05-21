@@ -167,17 +167,21 @@ int docmd_complex(arg_struct *arg) {
 		return ERR_ALPHA_DATA_IS_INVALID;
 	    else if (reg_y->type != TYPE_REAL)
 		return ERR_INVALID_TYPE;
-	    free_vartype(reg_lastx);
-	    reg_lastx = reg_x;
+	    vartype *v;
 	    if (flags.f.polar) {
 		phloat re, im;
 		generic_p2r(((vartype_real *) reg_y)->x,
 			    ((vartype_real *) reg_x)->x, &re, &im);
-		reg_x = new_complex(re, im);
+		v = new_complex(re, im);
 	    } else {
-		reg_x = new_complex(((vartype_real *) reg_y)->x,
-				    ((vartype_real *) reg_x)->x);
+		v = new_complex(((vartype_real *) reg_y)->x,
+				((vartype_real *) reg_x)->x);
 	    }
+	    if (v == NULL)
+		return ERR_INSUFFICIENT_MEMORY;
+	    free_vartype(reg_lastx);
+	    reg_lastx = reg_x;
+	    reg_x = v;
 	    free_vartype(reg_y);
 	    reg_y = reg_z;
 	    reg_z = dup_vartype(reg_t);
@@ -464,38 +468,38 @@ int docmd_asto(arg_struct *arg) {
      * that new_string() constructs a string of no more than 6 characters,
      * you'll see that this code does the job quite nicely.
      */
+    vartype *s = new_string(reg_alpha, reg_alpha_length);
+    if (s == NULL)
+	return ERR_INSUFFICIENT_MEMORY;
     if (arg->type == ARGTYPE_STK && arg->val.stk == 'X') {
 	free_vartype(reg_x);
-	reg_x = new_string(reg_alpha, reg_alpha_length);
+	reg_x = s;
 	return ERR_NONE;
     } else {
 	vartype *saved_x = reg_x;
-	int err;
-	reg_x = new_string(reg_alpha, reg_alpha_length);
-	err = docmd_sto(arg);
-	free_vartype(reg_x);
+	reg_x = s;
+	int err = docmd_sto(arg);
+	free_vartype(s);
 	reg_x = saved_x;
 	return err;
     }
 }
 
 int docmd_arcl(arg_struct *arg) {
-    vartype *saved_x = dup_vartype(reg_x);
-    vartype *v;
-    int saved_nostacklift = flags.f.stack_lift_disable;
-    int saved_trace = flags.f.trace_print;
-    int err;
-    char buf[100];
-    int bufptr;
-
     /* Do some contortions to use docmd_rcl() to get the variable,
      * and do it without affecting the stack.
      */
+    vartype *saved_x = dup_vartype(reg_x);
+    if (saved_x == NULL)
+	return ERR_INSUFFICIENT_MEMORY;
+    int saved_nostacklift = flags.f.stack_lift_disable;
+    int saved_trace = flags.f.trace_print;
     flags.f.stack_lift_disable = 1;
     flags.f.trace_print = 0;
-    err = docmd_rcl(arg);
+    int err = docmd_rcl(arg);
     flags.f.stack_lift_disable = saved_nostacklift;
     flags.f.trace_print = saved_trace;
+    vartype *v;
     if (err != ERR_NONE) {
 	free_vartype(saved_x);
 	return err;
@@ -503,6 +507,7 @@ int docmd_arcl(arg_struct *arg) {
 	v = reg_x;
 	reg_x = saved_x;
     }
+
     /* Convert the variable to a string, using the same conversion
      * used when displaying the variable in 'normal' mode -- except
      * for strings, which we append with no quotes.
@@ -511,7 +516,8 @@ int docmd_arcl(arg_struct *arg) {
 	vartype_string *s = (vartype_string *) v;
 	append_alpha_string(s->text, s->length, 0);
     } else {
-	bufptr = vartype2string(v, buf, 100);
+	char buf[100];
+	int bufptr = vartype2string(v, buf, 100);
 	append_alpha_string(buf, bufptr, 0);
     }
     free_vartype(v);
