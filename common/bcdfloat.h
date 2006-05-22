@@ -53,7 +53,7 @@
  * as 16 bit add & subtract.
  *
  * the exponent is stored in the last slot (ie P+1) and ranges from 
- * -9999 to +9999. the mantissa is stored unsigned and the sign is the
+ * -10000 to +9999. the mantissa is stored unsigned and the sign is the
  * top bit of the exponent.
  *
  * there are a number of important considerations for this representation:
@@ -75,7 +75,7 @@
  * before working with the mantissa. thus for the purposes of the internal
  * calculations, we can let the mantissa spill out into the last `digit'
  * and effectively have one extra digit of working precision. this is
- * especially usefull for making sure we get the correct rounding at the
+ * especially useful for making sure we get the correct rounding at the
  * end when we put back the exponent. and also for accommodating any overall
  * numeric carry overflow before the number is shifted down.
  *
@@ -144,7 +144,6 @@ struct BCDFloat
                               BCDFloat* c) BCD_SECT;
     static void         _usub(const BCDFloat* a, const BCDFloat* b,
                               BCDFloat* c) BCD_SECT;
-    int                 _round() BCD_SECT;
     void                _rshift() BCD_SECT;
     void                _lshift() BCD_SECT;
     bool                _round25(bool extended_mantissa) BCD_SECT;
@@ -161,7 +160,7 @@ struct BCDFloat
                              unsigned short* bd, int eb,
                              unsigned short* cd, int& ec) BCD_SECT;
     
-    /* store P 4dec `digits', equivalent to P*4 decimal digits.
+    /* store P 4dec `digits', equivalent to P*4-3 decimal digits.
      * the last place is the exponent.
      */
     unsigned short      d_[P+1];  

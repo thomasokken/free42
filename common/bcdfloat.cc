@@ -363,8 +363,7 @@ bool BCDFloat::_round25(bool extended_mantissa) {
 		    return true;
 		} else if (d_[P] == EXPLIMIT) {
 		    // Out of range; return Inf
-		    d_[P] = d_[P] & 0x8000 | 0x3fff;
-		    d_[0] = 0;
+		    *this = (d_[P] & NEG) == 0 ? posInf() : negInf();
 		    return false;
 		} else {
 		    d_[P]++;
@@ -501,31 +500,6 @@ void BCDFloat::_asString(char* buf) const
     }
 }
 #endif
-
-int BCDFloat::_round()
-{
-    int v;
-    int i;
-    int r = (d_[P] >= BASE/2);
-    if (r) {
-        for (i = P-1; i >= 0; --i) {
-            v = d_[i] + r;
-            r = 0;
-            if (v >= BASE) {
-                r = 1;
-                v -= BASE;
-            }
-            d_[i] = v;
-        }
-
-        if (r) {
-            /* rounding generated overall carry */
-            _rshift();
-            d_[0] = r;
-        }
-    }
-    return r;
-}
 
 void BCDFloat::add(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
 {
@@ -837,9 +811,8 @@ void BCDFloat::mul(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
 
     int cc = 0;
     for (i = P-1; i >= 0; --i) {
-        ca = c->_round();
-        if (!ca) c->_rshift();
-        c->d_[0] = cc + ca;
+        c->_rshift();
+        c->d_[0] = cc;
         cc = 0;
         
         u = a->d_[i];
@@ -877,9 +850,7 @@ void BCDFloat::mul(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
 
     if (!c->d_[0]) {
         c->_lshift();
-    }
-    else {
-        c->_round();  // shouldnt carry.
+    } else {
         ++ea;
     }
 
@@ -887,12 +858,14 @@ void BCDFloat::mul(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
     if (ea <= -EXPLIMIT) c->_init();
     else {
         if (ea > EXPLIMIT) *c = posInf();
-        else c->exp(ea);
+        else {
+	    c->exp(ea);
+	    c->_round25(false);
+	}
 
         /* fix sign */
         if (na != nb) c->negate();
     }
-    c->_round25(false);
 }
 
 void BCDFloat::div(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
@@ -1307,18 +1280,6 @@ int BCDFloat::cmp(const BCDFloat *a, const BCDFloat *b) {
 	// So, I return a special value here.
 	return 2;
 
-    if (a->isInf()) {
-	if (b->isInf()) {
-	    if (a->neg())
-		return b->neg() ? 0 : -1;
-	    else
-		return b->neg() ? 1 : 0;
-	} else
-	    return a->neg() ? -1 : 1;
-    }
-    if (b->isInf())
-	return b->neg() ? 1 : -1;
-
     bool sa = a->neg();
     bool sb = b->neg();
     if (sa != sb)
@@ -1331,6 +1292,11 @@ int BCDFloat::cmp(const BCDFloat *a, const BCDFloat *b) {
 	a = b;
 	b = tmp;
     }
+
+    if (a->isInf())
+	return b->isInf() ? 0 : 1;
+    if (b->isInf())
+	return -1;
 
     if (a->isZero())
 	return b->isZero() ? 0 : -1;

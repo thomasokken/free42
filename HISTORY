@@ -1,4 +1,4 @@
-??-??-????: version 1.4.22
+22-05-2006: version 1.4.22
 
 * Decimal version: numbers are always rounded to 25 decimal digits now. The 7-
   digit base-10000 representation, which Free42 uses internally, is equivalent
