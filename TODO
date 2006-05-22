@@ -1,3 +1,14 @@
+GTK version: remembering the print-out window position does not work if it is
+closed when Free42 exits. Looks like a GTK bug (?); anyway, can be worked
+around by getting the window position in the delete_print_cb handler (and *not*
+getting it in quit() if it is not mapped at that time).
+
+Code review to look for unchecked allocations. Note that the old strategy of
+assuming new_real() is safe following a free_vartype() is no longer sound: for
+one thing, with the introduction of BCD, vartype_real is no longer the smallest
+type; for another, with the introduction of instance pooling, free_vartype()
+may not free up any memory at all!
+
 GTK and Motif versions: /proc/acpi support for battery status checking.
 
 PalmOS version: hardware keyboard mapping, using a keymap.txt file and skin-
