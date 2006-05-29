@@ -1,3 +1,5 @@
+CLALL should clear the CUSTOM menu.
+
 Code review to look for unchecked allocations. Note that the old strategy of
 assuming new_real() is safe following a free_vartype() is no longer sound: for
 one thing, with the introduction of BCD, vartype_real is no longer the smallest
