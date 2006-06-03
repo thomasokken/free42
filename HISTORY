@@ -6,6 +6,7 @@
   window's geometry hints) if it is called while the window is not mapped.
   I'm now working around this by making sure I get the window position while
   the print-out window is actually mapped.
+* CLALL did not clear the CUSTOM menu and the programmable menu. Fixed.
 
 22-05-2006: version 1.4.22
 
