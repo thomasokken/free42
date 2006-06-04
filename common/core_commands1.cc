@@ -762,8 +762,7 @@ int docmd_clall(arg_struct *arg) {
     store_var("REGS", 4, regs);
 
     /* Clear the CUSTOM and programmable menus */
-    for (int i = 1; i <= 18; i++)
-	assign_custom_key(i, "", 0);
+    clear_custom_menu();
     clear_prgm_menu();
 
     return ERR_NONE;
