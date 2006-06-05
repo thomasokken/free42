@@ -10,6 +10,8 @@ alters the PC, all clear the RTN stack.
 Pressing any key during PSE should halt program execution and execute the
 keystroke.
 
+In HEXM and OCTM modes, SHOW should show the *decimal* form of the number in X.
+
 GTK and Motif versions: /proc/acpi support for battery status checking.
 
 PalmOS version: hardware keyboard mapping, using a keymap.txt file and skin-
