@@ -4,6 +4,12 @@ one thing, with the introduction of BCD, vartype_real is no longer the smallest
 type; for another, with the introduction of instance pooling, free_vartype()
 may not free up any memory at all!
 
+Code review to check that run-mode XEQ, *and* *any* run-mode instruction that
+alters the PC, all clear the RTN stack.
+
+Pressing any key during PSE should halt program execution and execute the
+keystroke.
+
 GTK and Motif versions: /proc/acpi support for battery status checking.
 
 PalmOS version: hardware keyboard mapping, using a keymap.txt file and skin-

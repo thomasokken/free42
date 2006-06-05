@@ -42,7 +42,7 @@ void phloat_init() {
     POS_HUGE_PHLOAT.bcd.d_[3] = 9999;
     POS_HUGE_PHLOAT.bcd.d_[4] = 9999;
     POS_HUGE_PHLOAT.bcd.d_[5] = 9999;
-    POS_HUGE_PHLOAT.bcd.d_[6] = 9999;
+    POS_HUGE_PHLOAT.bcd.d_[6] = 9000;
     POS_HUGE_PHLOAT.bcd.d_[7] = 2500;
     NEG_HUGE_PHLOAT = -POS_HUGE_PHLOAT;
     POS_TINY_PHLOAT.bcd.d_[0] = 1;
