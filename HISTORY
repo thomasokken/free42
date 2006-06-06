@@ -15,7 +15,7 @@
 * CLALL did not clear the CUSTOM menu and the programmable menu. Fixed.
 * STO+, STO-, STO*, and STO/, where the destination was the indexed matrix,
   would reset I and J, but that was wrong (only plain STO should do that).
-  This caused the MLP program from the HP-42S Programming Examples and
+  This caused the MLR program from the HP-42S Programming Examples and
   Techniques book to return incorrect results. Fixed.
 
 22-05-2006: version 1.4.22

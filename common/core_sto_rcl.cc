@@ -343,7 +343,16 @@ static void generic_sto_completion(int error, vartype *res) {
 		break;
 	}
     } else /* temp_arg.type == ARGTYPE_STR */ {
+	// If the destination of store_var() is the indexed matrix, it sets I
+	// and J to 1. This is *not* the desired behavior for STO arithmetic!
+	// This completion routine is only used for STO arithmetic (plain STO
+	// handled in generic_sto()), so we can simply work around the problem
+	// by saving I and J and restoring them afterward.
+	int4 i = matedit_i;
+	int4 j = matedit_j;
 	store_var(temp_arg.val.text, temp_arg.length, res);
+	matedit_i = i;
+	matedit_j = j;
     }
 }
 
