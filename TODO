@@ -12,6 +12,13 @@ keystroke.
 
 In HEXM and OCTM modes, SHOW should show the *decimal* form of the number in X.
 
+Compared to the HP-42S, the Free42 implementation of SOLVE does not do a very
+good job of identifying sign reversals. It converges on the correct value, but
+it does not check explicitly for wild behavior around the zero crossing. I
+wonder how the 42S does this? Simply looking at the difference between f(x1)
+and f(x2) won't do, because you don't know whether that difference is "large"
+or not, without prior knowledge of the expected scale of the result. Hmmm...
+
 GTK and Motif versions: /proc/acpi support for battery status checking.
 
 PalmOS version: hardware keyboard mapping, using a keymap.txt file and skin-
