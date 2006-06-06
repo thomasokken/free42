@@ -1416,6 +1416,8 @@ static VOID CALLBACK battery_checker(HWND hwnd, UINT uMsg, UINT idEvent, DWORD d
 
 static void show_printout() {
 	if (hPrintOutWnd != NULL) {
+		if (IsIconic(hPrintOutWnd))
+			OpenIcon(hPrintOutWnd);
 		BringWindowToTop(hPrintOutWnd);
 		return;
 	}

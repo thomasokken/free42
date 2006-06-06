@@ -6,9 +6,13 @@
   window's geometry hints) if it is called while the window is not mapped.
   I'm now working around this by making sure I get the window position while
   the print-out window is actually mapped.
+* Windows version: Show Print-Out did not work when the Print-Out window was
+  minimized. Fixed.
 * CLALL did not clear the CUSTOM menu and the programmable menu. Fixed.
 * Decimal version: changed the definition of POS_HUGE_PHLOAT and
-  NEG_HUGE_PHLOAT to have a mantissa with 25 nines, rather than 28.
+  NEG_HUGE_PHLOAT to have a mantissa with 25 nines, rather than 28. (These are
+  the numbers that are returned when a range error occurs while flag 24 is
+  set.)
 
 22-05-2006: version 1.4.22
 
