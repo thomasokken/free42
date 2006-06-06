@@ -7,6 +7,13 @@ may not free up any memory at all!
 Code review to check that run-mode XEQ, *and* *any* run-mode instruction that
 alters the PC, all clear the RTN stack.
 
+Revisit STO arithmetic. What does the HP-42S do when matrix-matrix STOx causes
+the dimensions of the indexed matrix to change? How about STOx that does not
+cause such a change? Etc.
+
+Find out what the "Spectral Test" is (Knuth, Seminumerical Algorithms, vol. 2),
+and check if the Free42 RAN function passes it (binary *and* decimal).
+
 Pressing any key during PSE should halt program execution and execute the
 keystroke.
 
