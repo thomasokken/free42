@@ -1,3 +1,7 @@
+When I SOLVE the function LBL "CC" MVAR "X" RCL "X" RCL "X" X^2 - / 1 -
+the sign reversal is not flagged (see also below), but it also returns X and
+Xprev that are equal to each other -- that seems wrong.
+
 Code review to look for unchecked allocations. Note that the old strategy of
 assuming new_real() is safe following a free_vartype() is no longer sound: for
 one thing, with the introduction of BCD, vartype_real is no longer the smallest
