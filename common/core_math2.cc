@@ -20,11 +20,13 @@
 #include "core_math2.h"
 
 phloat math_random() {
-    /* TODO Check if this is adequate -- there are probably much
-     * better RNGs out there. This one is taken from the Blackjack
-     * program in the HP-41C Standard Applications book.
-     */
+#ifdef BCD_MATH
+    const Phloat n1(BCDFloat(9821, 0, 0, 0, 0, 0, 0, 1));
+    const Phloat n2(BCDFloat(2113, 2700, 0, 0, 0, 0, 0, 0));
+    random_number = random_number * n1 + n2;
+#else
     random_number = random_number * 9821 + 0.211327;
+#endif
     random_number -= floor(random_number);
     return random_number;
 }

@@ -1,6 +1,6 @@
 When I SOLVE the function LBL "CC" MVAR "X" RCL "X" RCL "X" X^2 - / 1 -
-the sign reversal is not flagged (see also below), but it also returns X and
-Xprev that are equal to each other -- that seems wrong.
+the sign reversal is not flagged, but it also returns X and Xprev that are
+equal to each other -- that seems wrong.
 
 Code review to look for unchecked allocations. Note that the old strategy of
 assuming new_real() is safe following a free_vartype() is no longer sound: for
@@ -8,29 +8,17 @@ one thing, with the introduction of BCD, vartype_real is no longer the smallest
 type; for another, with the introduction of instance pooling, free_vartype()
 may not free up any memory at all!
 
-Code review to check that run-mode XEQ, *and* *any* run-mode instruction that
-alters the PC, all clear the RTN stack.
-
 Revisit STO arithmetic. What does the HP-42S do when matrix-matrix STOx causes
 the dimensions of the indexed matrix to change? How about STOx that does not
 cause such a change? Etc.
 
-Find out what the "Spectral Test" is (Knuth, Seminumerical Algorithms, vol. 2),
-and check if the Free42 RAN function passes it (binary *and* decimal).
-
 Pressing any key during PSE should halt program execution and execute the
 keystroke.
 
-In HEXM and OCTM modes, SHOW should show the *decimal* form of the number in X.
-
-Compared to the HP-42S, the Free42 implementation of SOLVE does not do a very
-good job of identifying sign reversals. It converges on the correct value, but
-it does not check explicitly for wild behavior around the zero crossing. I
-wonder how the 42S does this? Simply looking at the difference between f(x1)
-and f(x2) won't do, because you don't know whether that difference is "large"
-or not, without prior knowledge of the expected scale of the result. Hmmm...
-
 GTK and Motif versions: /proc/acpi support for battery status checking.
+
+SOLVE: detect more sign reversals (not just the ones where the sign reversal
+brackets a domain error).
 
 PalmOS version: hardware keyboard mapping, using a keymap.txt file and skin-
 specific mappings in the *.layout file, like the other Free42 versions.

@@ -17,6 +17,9 @@
   would reset I and J, but that was wrong (only plain STO should do that).
   This caused the MLR program from the HP-42S Programming Examples and
   Techniques book to return incorrect results. Fixed.
+* In HEXM and OCTM modes, SHOW should display X in decimal, but it showed it in
+  the selected base instead. On the real HP-42S, SHOW only shows the number in
+  base in BINM mode, and in decimal in all other modes. Fixed.
 
 22-05-2006: version 1.4.22
 

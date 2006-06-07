@@ -1556,7 +1556,6 @@ double bcd2double(const short *p) {
 int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
 			 int dispmode, int thousandssep) {
     int chars_so_far = 0;
-    int base;
 
     if (p_isnan(pd)) {
 	string2buf(buf, buflen, &chars_so_far, "<Not a Number>", 14);
@@ -1571,8 +1570,9 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
 	return chars_so_far;
     }
 
-    /* base_mode: 0=only decimal, 1=all bases, 2=all bases (show) */
-    if (base_mode != 0 && (base = get_base()) != 10) {
+    /* base_mode: 0=only decimal, 1=all bases, 2=decimal or binary (SHOW) */
+    int base = get_base();
+    if (base_mode == 1 && base != 10 || base_mode == 2 && base == 2) {
 	int8 n;
 	int inexact, shift;
 	char binbuf[36];
