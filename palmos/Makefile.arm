@@ -170,4 +170,4 @@ cleaner:
 
 FORCE:
 
--include $(patsubst %.cc,%.d,$(patsubst %.c,%d,$(SRCS)))
+-include $(patsubst %.cc,%.d,$(patsubst %.c,%.d,$(SRCS)))

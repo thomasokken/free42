@@ -118,4 +118,4 @@ symlinks.armcore:
 .cc.o:
 	arm-palmos-g++ $(CXXFLAGS) -c -o $@ $<
 
--include $(patsubst %.cc,%.d,$(patsubst %.c,%d,$(SRCS)))
+-include $(patsubst %.cc,%.d,$(patsubst %.c,%.d,$(SRCS)))

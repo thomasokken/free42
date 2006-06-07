@@ -173,5 +173,5 @@ cleaner:
 		shell-sections.s shell-sections.ld symlinks* \
 		skin2prc skin2prc.exe tmp_skin.* Free42PalmOSSkins.zip
 
--include $(patsubst %.cc,%.d,$(patsubst %.c,%d,$(SRCS)))
+-include $(patsubst %.cc,%.d,$(patsubst %.c,%.d,$(SRCS)))
 -include MathLib.d
