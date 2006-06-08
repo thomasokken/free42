@@ -46,14 +46,6 @@ typedef int (*mappable_cc)(phloat xre, phloat xim, phloat yre, phloat yim,
 						phloat *zre, phloat *zim);
 
 
-/*********************/
-/* Utility functions */
-/*********************/
-
-int apply_sto_operation(char operation, vartype *x, vartype *oldval,
-			void (*completion)(int, vartype *)) STO_RCL_SECT;
-
-
 /****************************************************************/
 /* Generic arithmetic operators, for use in the implementations */
 /* of +, -, *, /, STO+, STO-, etc...                            */

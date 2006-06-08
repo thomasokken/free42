@@ -15,8 +15,9 @@
   the numbers that are returned when a range error occurs while flag 24 is
   set.)
 * CLALL did not clear the CUSTOM menu and the programmable menu. Fixed.
-* STO+, STO-, STO*, and STO/, where the destination was the indexed matrix,
-  would reset I and J, but that was wrong (only plain STO should do that).
+* STO+, STO-, and STO/, where the destination was the indexed matrix, would
+  reset I and J, but that was wrong (only STO and STO* should do that, since
+  only they can actually cause the destination's dimensions to change).
   This caused the MLR program from the HP-42S Programming Examples and
   Techniques book to return incorrect results. Fixed.
 * In HEXM and OCTM modes, SHOW should display X in decimal, but it showed it in

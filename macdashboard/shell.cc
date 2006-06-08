@@ -366,6 +366,7 @@ static void read_key_map() {
 	if (keymap_length == kmcap) {
 	    kmcap += 50;
 	    keymap = (keymap_entry *) realloc(keymap, kmcap * sizeof(keymap_entry));
+	    // TODO - handle memory allocation failure
 	}
 	memcpy(keymap + (keymap_length++), entry, sizeof(keymap_entry));
     }

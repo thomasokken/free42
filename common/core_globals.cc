@@ -1218,6 +1218,7 @@ static bool unpersist_globals() {
     for (i = 0; i < prgms_count; i++) {
 	prgms[i].capacity = prgms[i].size;
 	prgms[i].text = (unsigned char *) malloc(prgms[i].size);
+	// TODO - handle memory allocation failure
     }
     for (i = 0; i < prgms_count; i++) {
 	if (shell_read_saved_state(prgms[i].text, prgms[i].size)
@@ -1414,6 +1415,7 @@ void goto_dot_dot() {
 	int i;
 	prgms_capacity += 10;
 	newprgms = (prgm_struct *) malloc(prgms_capacity * sizeof(prgm_struct));
+	// TODO - handle memory allocation failure
 	for (i = 0; i < prgms_count; i++)
 	    newprgms[i] = prgms[i];
 	if (prgms != NULL)
@@ -1606,6 +1608,7 @@ void rebuild_label_table() {
 		    labels_capacity += 50;
 		    newlabels = (label_struct *)
 				malloc(labels_capacity * sizeof(label_struct));
+		    // TODO - handle memory allocation failure
 		    for (i = 0; i < labels_count; i++)
 			newlabels[i] = labels[i];
 		    if (labels != NULL)
@@ -1686,6 +1689,7 @@ void delete_command(int4 pc) {
 	if (newsize > prgm->capacity) {
 	    int4 newcapacity = (newsize + 511) & ~511;
 	    unsigned char *newtext = (unsigned char *) malloc(newcapacity);
+	    // TODO - handle memory allocation failure
 	    for (pos = 0; pos < prgm->size; pos++)
 		newtext[pos] = prgm->text[pos];
 	    free(prgm->text);
@@ -1769,6 +1773,7 @@ void store_command(int4 pc, int command, arg_struct *arg) {
 	    prgms_capacity += 10;
 	    new_prgms = (prgm_struct *)
 			    malloc(prgms_capacity * sizeof(prgm_struct));
+	    // TODO - handle memory allocation failure
 	    for (i = 0; i <= current_prgm; i++)
 		new_prgms[i] = prgms[i];
 	    for (i = current_prgm + 1; i < prgms_count; i++)
@@ -1785,6 +1790,7 @@ void store_command(int4 pc, int command, arg_struct *arg) {
 	new_prgm->size = prgm->size - pc;
 	new_prgm->capacity = (new_prgm->size + 511) & ~511;
 	new_prgm->text = (unsigned char *) malloc(new_prgm->capacity);
+	// TODO - handle memory allocation failure
 	for (i = pc; i < prgm->size; i++)
 	    new_prgm->text[i - pc] = prgm->text[i];
 	current_prgm++;
@@ -1855,6 +1861,7 @@ void store_command(int4 pc, int command, arg_struct *arg) {
 	unsigned char *newtext;
 	prgm->capacity += 512;
 	newtext = (unsigned char *) malloc(prgm->capacity);
+	// TODO - handle memory allocation failure
 	for (pos = 0; pos < pc; pos++)
 	    newtext[pos] = prgm->text[pos];
 	for (pos = pc; pos < prgm->size; pos++)
@@ -2361,14 +2368,14 @@ void hard_reset(int bad_state_file) {
 
     /* Clear stack */
     free_vartype(reg_x);
-    reg_x = new_real(0);
     free_vartype(reg_y);
-    reg_y = new_real(0);
     free_vartype(reg_z);
-    reg_z = new_real(0);
     free_vartype(reg_t);
-    reg_t = new_real(0);
     free_vartype(reg_lastx);
+    reg_x = new_real(0);
+    reg_y = new_real(0);
+    reg_z = new_real(0);
+    reg_t = new_real(0);
     reg_lastx = new_real(0);
 
     /* Clear alpha */

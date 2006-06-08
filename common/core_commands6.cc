@@ -312,6 +312,8 @@ int docmd_asin(arg_struct *arg) {
 	    }
 	} else
 	    v = new_real(rad_to_angle(asin(x)));
+	if (v == NULL)
+	    return ERR_INSUFFICIENT_MEMORY;
     } else {
 	int err = map_unary(reg_x, &v, mappable_asin_r, mappable_asin_c);
 	if (err != ERR_NONE)
@@ -357,6 +359,8 @@ int docmd_acos(arg_struct *arg) {
 	    }
 	} else
 	    v = new_real(rad_to_angle(acos(x)));
+	if (v == NULL)
+	    return ERR_INSUFFICIENT_MEMORY;
     } else {
 	int err = map_unary(reg_x, &v, mappable_acos_r, mappable_acos_c);
 	if (err != ERR_NONE)

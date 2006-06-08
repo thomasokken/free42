@@ -225,6 +225,7 @@ int core_list_programs(char *buf, int bufsize) {
 int core_export_programs(int count, const int *indexes,
 			 int (*progress_report)(const char *)) {
     int4 *indexes4 = (int4 *) malloc(count * sizeof(int4));
+    // TODO - handle memory allocation failure
     for (int i = 0; i < count; i++)
 	indexes4[i] = ByteSwap32(indexes[i]);
     au->exprt.count = ByteSwap16(count);

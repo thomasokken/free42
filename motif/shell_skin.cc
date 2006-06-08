@@ -459,6 +459,7 @@ void skin_menu_update(Widget w, XtPointer ud, XtPointer cd) {
 	if (strcmp(dent->d_name + namelen - 7, ".layout") != 0)
 	    continue;
 	skn = (char *) malloc(namelen - 6);
+	// TODO - handle memory allocation failure
 	memcpy(skn, dent->d_name, namelen - 7);
 	skn[namelen - 7] = 0;
 	skinname[nskins++] = skn;
@@ -572,6 +573,7 @@ void skin_load(int *width, int *height) {
 			keys_cap += 50;
 			keylist = (SkinKey *)
 				realloc(keylist, keys_cap * sizeof(SkinKey));
+			// TODO - handle memory allocation failure
 		    }
 		    key = keylist + nkeys;
 		    key->code = keynum;
@@ -609,6 +611,7 @@ void skin_load(int *width, int *height) {
 			/* Macro code out of range; ignore this macro */
 			break;
 		    macro = (SkinMacro *) malloc(sizeof(SkinMacro));
+		    // TODO - handle memory allocation failure
 		    macro->code = n;
 		} else if (len < SKIN_MAX_MACRO_LENGTH) {
 		    if (n < 1 || n > 37) {
@@ -651,6 +654,7 @@ void skin_load(int *width, int *height) {
 		    kmcap += 50;
 		    keymap = (keymap_entry *)
 				realloc(keymap, kmcap * sizeof(keymap_entry));
+		    // TODO - handle memory allocation failure
 		}
 		memcpy(keymap + (keymap_length++), entry, sizeof(keymap_entry));
 	    }
@@ -694,6 +698,7 @@ void skin_load(int *width, int *height) {
 			      8, 0);
     size = disp_image->bytes_per_line * disp_image->height;
     disp_image->data = (char *) malloc(size);
+    // TODO - handle memory allocation failure
     memset(disp_image->data, 255, size);
 
     /*************************************/
@@ -762,6 +767,7 @@ int skin_init_image(int type, int ncolors, const SkinColor *colors,
 	skin_image = XCreateImage(display, visual, 1, XYBitmap,
 				  0, NULL, width, height, 32, 0);
 	skin_image->data = (char *) malloc(skin_image->bytes_per_line * height);
+	// TODO - handle memory allocation failure
 	dr = dg = db = nextdr = nextdg = nextdb = NULL;
 	return 1;
     } else if (type == IMGTYPE_GRAY) {
@@ -772,6 +778,7 @@ int skin_init_image(int type, int ncolors, const SkinColor *colors,
 	skin_image->data = (char *) malloc(skin_image->bytes_per_line * height);
 	dg = (int *) malloc(skin_image->width * sizeof(int));
 	nextdg = (int *) malloc(skin_image->width * sizeof(int));
+	// TODO - handle memory allocation failure
 	dr = db = nextdr = nextdb = NULL;
 	for (i = 0; i < skin_image->width; i++)
 	    dg[i] = nextdg[i] = 0;
@@ -791,6 +798,7 @@ int skin_init_image(int type, int ncolors, const SkinColor *colors,
 	nextdr = (int *) malloc(width * sizeof(int));
 	nextdg = (int *) malloc(width * sizeof(int));
 	nextdb = (int *) malloc(width * sizeof(int));
+	// TODO - handle memory allocation failure
 	for (i = 0; i < width; i++)
 	    dr[i] = dg[i] = db[i] = nextdr[i] = nextdg[i] = nextdb[i] = 0;
 	skin_cmap = colors;
@@ -804,6 +812,7 @@ int skin_init_image(int type, int ncolors, const SkinColor *colors,
 	skin_image = XCreateImage(display, visual, depth, ZPixmap,
 				  0, NULL, width, height, 32, 0);
 	skin_image->data = (char *) malloc(skin_image->bytes_per_line * height);
+	// TODO - handle memory allocation failure
 	return 1;
     } else if (type == IMGTYPE_TRUECOLOR) {
 	int i;
@@ -823,6 +832,7 @@ int skin_init_image(int type, int ncolors, const SkinColor *colors,
 	nextdr = (int *) malloc(width * sizeof(int));
 	nextdg = (int *) malloc(width * sizeof(int));
 	nextdb = (int *) malloc(width * sizeof(int));
+	// TODO - handle memory allocation failure
 	for (i = 0; i < width; i++)
 	    dr[i] = dg[i] = db[i] = nextdr[i] = nextdg[i] = nextdb[i] = 0;
 	return 1;

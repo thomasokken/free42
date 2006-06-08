@@ -124,6 +124,7 @@ int shell_loadimage() {
      */
 
     pm->cmap = (SkinColor *) malloc(256 * sizeof(SkinColor));
+    // TODO - handle memory allocation failure
     if (has_global_cmap) {
 	for (i = 0; i < ncolors; i++) {
 	    int r, g, b;
@@ -186,6 +187,7 @@ int shell_loadimage() {
 
     size = pm->bytesperline * pm->height;
     pm->pixels = (unsigned char *) malloc(size);
+    // TODO - handle memory allocation failure
     memset(pm->pixels, pm->depth == 1 ? background * 255 : background, size);
 
     while (1) {
@@ -251,6 +253,7 @@ int shell_loadimage() {
 		lbpp = (info & 7) + 1;
 		lncolors = 1 << lbpp;
 		lcmap = (SkinColor *) malloc(256 * sizeof(SkinColor));
+		// TODO - handle memory allocation failure
 		for (i = 0; i < lncolors; i++) {
 		    int r, g, b;
 		    if (!read_byte(&r)
@@ -266,6 +269,7 @@ int shell_loadimage() {
 		    int v, h;
 		    unsigned char *newpixels = (unsigned char *)
 				malloc(newbytesperline * pm->height);
+		    // TODO - handle memory allocation failure
 		    for (v = 0; v < pm->height; v++)
 			for (h = 0; h < pm->width; h++) {
 			    unsigned char pixel, *newpixel;

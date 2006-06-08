@@ -188,6 +188,13 @@ int docmd_complex(arg_struct *arg) {
 	    break;
 	}
 	case TYPE_COMPLEX: {
+	    vartype *new_x = new_real(0);
+	    vartype *new_y = new_real(0);
+	    if (new_x == NULL || new_y == NULL) {
+		free_vartype(new_x);
+		free_vartype(new_y);
+		return ERR_INSUFFICIENT_MEMORY;
+	    }
 	    free_vartype(reg_lastx);
 	    reg_lastx = reg_x;
 	    free_vartype(reg_t);
@@ -200,12 +207,14 @@ int docmd_complex(arg_struct *arg) {
 			    ((vartype_complex *) reg_x)->im, &r, &phi);
 		if ((inf = p_isinf(r)) != 0)
 		    r = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
-		reg_y = new_real(r);
-		reg_x = new_real(phi);
+		((vartype_real *) new_y)->x = r;
+		((vartype_real *) new_x)->x = phi;
 	    } else {
-		reg_y = new_real(((vartype_complex *) reg_x)->re);
-		reg_x = new_real(((vartype_complex *) reg_x)->im);
+		((vartype_real *) new_y)->x = ((vartype_complex *) reg_x)->re;
+		((vartype_real *) new_x)->x = ((vartype_complex *) reg_x)->im;
 	    }
+	    reg_y = new_y;
+	    reg_x = new_x;
 	    break;
 	}
 	case TYPE_REALMATRIX: {
@@ -662,12 +671,12 @@ int docmd_clv(arg_struct *arg) {
 
 int docmd_clst(arg_struct *arg) {
     free_vartype(reg_x);
-    reg_x = new_real(0);
     free_vartype(reg_y);
-    reg_y = new_real(0);
     free_vartype(reg_z);
-    reg_z = new_real(0);
     free_vartype(reg_t);
+    reg_x = new_real(0);
+    reg_y = new_real(0);
+    reg_z = new_real(0);
     reg_t = new_real(0);
     return ERR_NONE;
 }
@@ -736,14 +745,14 @@ int docmd_clall(arg_struct *arg) {
 
     /* Clear all registers */
     free_vartype(reg_x);
-    reg_x = new_real(0);
     free_vartype(reg_y);
-    reg_y = new_real(0);
     free_vartype(reg_z);
-    reg_z = new_real(0);
     free_vartype(reg_t);
-    reg_t = new_real(0);
     free_vartype(reg_lastx);
+    reg_x = new_real(0);
+    reg_y = new_real(0);
+    reg_z = new_real(0);
+    reg_t = new_real(0);
     reg_lastx = new_real(0);
     reg_alpha_length = 0;
 
@@ -784,9 +793,12 @@ int docmd_percent(arg_struct *arg) {
 		return ERR_OUT_OF_RANGE;
 	} else
 	    res /= 100.0;
+	vartype *new_x = new_real(res);
+	if (new_x == NULL)
+	    return ERR_INSUFFICIENT_MEMORY;
 	free_vartype(reg_lastx);
 	reg_lastx = reg_x;
-	reg_x = new_real(res);
+	reg_x = new_x;
 	if (flags.f.trace_print && flags.f.printer_exists)
 	    docmd_prx(NULL);
 	return ERR_NONE;

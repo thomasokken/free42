@@ -736,6 +736,8 @@ int dimension_array_ref(vartype *matrix, int4 rows, int4 columns) {
 	     * memory overhead is only about 12.5%.
 	     */
 	    char *new_is_string = (char *) malloc(size);
+	    if (new_is_string == NULL)
+		return ERR_INSUFFICIENT_MEMORY;
 	    int4 i, s, oldsize;
 	    phloat *new_data = (phloat *)
 				    realloc(oldmatrix->array->data,

@@ -777,6 +777,7 @@ int main(int argc, char *argv[]) {
     print_image = XCreateImage(display, visual, 1, XYBitmap, 0, NULL,
 			       286, PRINT_LINES, 8, 0);
     print_image->data = (char *) malloc(PRINT_SIZE);
+    // TODO - handle memory allocation failure
 
     printfile = fopen(printfilename, "r");
     if (printfile != NULL) {
@@ -1077,6 +1078,7 @@ static void read_key_map(const char *keymapfilename) {
 	if (keymap_length == kmcap) {
 	    kmcap += 50;
 	    keymap = (keymap_entry *) realloc(keymap, kmcap * sizeof(keymap_entry));
+	    // TODO - handle memory allocation failure
 	}
 	memcpy(keymap + (keymap_length++), entry, sizeof(keymap_entry));
     }
@@ -1306,7 +1308,8 @@ static void quit() {
 
 static char *strclone(const char *s) {
     char *s2 = (char *) malloc(strlen(s) + 1);
-    strcpy(s2, s);
+    if (s2 != NULL)
+	strcpy(s2, s);
     return s2;
 }
 
@@ -1460,6 +1463,7 @@ static void exportProgramCB(Widget w, XtPointer ud, XtPointer cd) {
 
     count = core_list_programs(buf, 10000);
     stringtab = (XmString *) malloc(count * sizeof(XmString));
+    // TODO - handle memory allocation failure
     for (i = 0; i < count; i++) {
 	stringtab[i] = XmStringCreateLocalized(p);
 	p += strlen(p) + 1;
@@ -1936,6 +1940,7 @@ static void do_export(Widget w, XtPointer ud, XtPointer cd) {
 	show_message("Message", buf);
     } else {
 	p2 = (unsigned int *) malloc(count * sizeof(unsigned int));
+	// TODO - handle memory allocation failure
 	for (i = 0; i < count; i++)
 	    p2[i] = positions[i] - 1;
 	core_export_programs(count, (int *) p2, NULL);
@@ -2336,6 +2341,7 @@ static void setFilePath(Widget fsb, char *filename) {
 	XmString xms;
 	int len = lastslash - filename + 2;
 	char *dirname = (char *) malloc(len);
+	// TODO - handle memory allocation failure
 	strncpy(dirname, filename, len - 1);
 	dirname[len - 1] = 0;
 	xms = XmStringCreateLocalized(dirname);
@@ -2371,6 +2377,7 @@ static void printerBrowseTxtCB(Widget w, XtPointer ud, XtPointer cd) {
 	int len = strlen(filename);
 	if (len < 4 || strcasecmp(filename + len - 4, ".txt") != 0) {
 	    char *s = (char *) malloc(len + 5);
+	    // TODO - handle memory allocation failure
 	    strcpy(s, filename);
 	    strcat(s, ".txt");
 	    XmTextSetString(prefs_printer_txt_name, s);
@@ -2393,6 +2400,7 @@ static void printerBrowseGifCB(Widget w, XtPointer ud, XtPointer cd) {
 	int len = strlen(filename);
 	if (len < 4 || strcasecmp(filename + len - 4, ".gif") != 0) {
 	    char *s = (char *) malloc(len + 5);
+	    // TODO - handle memory allocation failure
 	    strcpy(s, filename);
 	    strcat(s, ".gif");
 	    XmTextSetString(prefs_printer_gif_name, s);

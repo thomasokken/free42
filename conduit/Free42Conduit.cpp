@@ -596,6 +596,7 @@ extern "C" DllExport long OpenConduit(PROGRESSFN pFn, CSyncProperties &rProps) {
 	blk_cap = 100;
 	blk_count = 0;
 	blocks = (blk_wrapper **) malloc(blk_cap * sizeof(blk_wrapper *));
+	// TODO - handle memory allocation failure
 
 	while (1) {
 		if ((res = SyncYieldCycles(1)) != 0) {
@@ -714,6 +715,7 @@ extern "C" DllExport long OpenConduit(PROGRESSFN pFn, CSyncProperties &rProps) {
 				// 'first' flag set (or until we encounter one whose name
 				// does not match, just to be safe).
 				blk_wrapper **blocks2 = (blk_wrapper **) malloc(100 * sizeof(blk_wrapper *));
+				// TODO - handle memory allocation failure
 				int blk2_count = 0;
 				int blk2_cap = 100;
 				WORD idx = last_rec;

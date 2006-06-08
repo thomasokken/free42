@@ -338,6 +338,7 @@ int main(int argc, char *argv[]) {
     // 25 megabytes for a 286x32768 pixbuf. So, instead, I use a 1 bpp buffer,
     // and simply create pixbufs on the fly whenever I have to repaint.
     print_bitmap = (unsigned char *) malloc(PRINT_SIZE);
+    // TODO - handle memory allocation failure
 
     FILE *printfile = fopen(printfilename, "r");
     if (printfile != NULL) {
@@ -574,6 +575,7 @@ static void read_key_map(const char *keymapfilename) {
 	if (keymap_length == kmcap) {
 	    kmcap += 50;
 	    keymap = (keymap_entry *) realloc(keymap, kmcap * sizeof(keymap_entry));
+	    // TODO - handle memory allocation failure
 	}
 	memcpy(keymap + (keymap_length++), entry, sizeof(keymap_entry));
     }
@@ -756,7 +758,8 @@ static void quit() {
 
 static char *strclone(const char *s) {
     char *s2 = (char *) malloc(strlen(s) + 1);
-    strcpy(s2, s);
+    if (s2 != NULL)
+	strcpy(s2, s);
     return s2;
 }
 
@@ -922,6 +925,7 @@ static void exportProgramCB() {
 	show_message("Message", buf);
     } else {
 	int *p2 = (int *) malloc(count * sizeof(int));
+	// TODO - handle memory allocation failure
 	GList *rows = gtk_tree_selection_get_selected_rows(select, NULL);
 	GList *item = rows;
 	int i = 0;

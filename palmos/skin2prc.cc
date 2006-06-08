@@ -142,6 +142,7 @@ int main(int argc, char *argv[]) {
     char line[1024];
 
     skin = (SkinSpec *) malloc(sizeof(SkinSpec) + 99 * sizeof(KeySpec));
+    // TODO - handle memory allocation failure
     skin->version[0] = 0;
     skin->version[1] = 3;
     // Starting with version 2, version[3] specifies whether the skin is tall.
@@ -350,6 +351,7 @@ int main(int argc, char *argv[]) {
 			/* Macro code out of range; ignore this macro */
 			break;
 		    macro = (SkinMacro *) malloc(sizeof(SkinMacro));
+		    // TODO - handle memory allocation failure
 		    macro->code = n;
 		} else if (len < SKIN_MAX_MACRO_LENGTH) {
 		    if (n < 1 || n > 37) {
@@ -402,6 +404,7 @@ int main(int argc, char *argv[]) {
     skinsize = sizeof(SkinSpec) + (nkeys - 1) * sizeof(KeySpec)
 		+ sizeof(SkinSpec2) + (nmacros - 1) * sizeof(MacroSpec);
     skin = (SkinSpec *) realloc(skin, skinsize);
+    // TODO - handle memory allocation failure
     skin2 = (SkinSpec2 *) (skin->key + nkeys);
     skin2->nmacros = swap_int2(nmacros);
     for (i = 0; i < nmacros; i++) {

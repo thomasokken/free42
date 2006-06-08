@@ -295,6 +295,7 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	read_key_map(keymapfilename);
 
 	printout = (char *) malloc(PRINT_SIZE);
+	// TODO - handle memory allocation failure
 	FILE *printfile = _tfopen(printfilename, _T("rb"));
     if (printfile != NULL) {
 		int n = fread(&printout_bottom, 1, sizeof(int), printfile);
@@ -486,6 +487,7 @@ static void update_skin_menu(HMENU menu) {
 			if ((wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
 				wfd.cFileName[_tcslen(wfd.cFileName) - 7] = 0;
 				name[n] = (TCHAR *) malloc((_tcslen(wfd.cFileName) + 1) * sizeof(TCHAR));
+				// TODO - handle memory allocation failure
 				_tcscpy(name[n++], wfd.cFileName);
 			}
 		} while (FindNextFile(search, &wfd));
@@ -963,6 +965,7 @@ static LRESULT CALLBACK ExportProgram(HWND hDlg, UINT message, WPARAM wParam, LP
 					sel_prog_count = SendMessage(list, LB_GETSELCOUNT, 0, 0);
 					if (sel_prog_count > 0) {
 						sel_prog_list = (int *) malloc(sel_prog_count * sizeof(int));
+						// TODO - handle memory allocation failure
 						SendMessage(list, LB_GETSELITEMS, sel_prog_count, (long) sel_prog_list);
 					}
 					EndDialog(hDlg, 1);
@@ -1902,6 +1905,7 @@ static void read_key_map(const TCHAR *keymapfilename) {
 			if (keymap_length == kmcap) {
 				kmcap += 50;
 				keymap = (keymap_entry *) realloc(keymap, kmcap * sizeof(keymap_entry));
+				// TODO - handle memory allocation failure
 			}
 			memcpy(keymap + (keymap_length++), entry, sizeof(keymap_entry));
 		}

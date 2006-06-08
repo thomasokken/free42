@@ -24,22 +24,31 @@
 #include "core_variables.h"
 
 
-int apply_sto_operation(char operation, vartype *x, vartype *oldval,
-				    void (*completion)(int, vartype *)) {
+static int apply_sto_operation(char operation, vartype *oldval) STO_RCL_SECT;
+static void generic_sto_completion(int error, vartype *res) STO_RCL_SECT;
+
+static bool preserve_ij;
+
+
+static int apply_sto_operation(char operation, vartype *oldval) {
     vartype *newval;
     int error;
     switch (operation) {
 	case '/':
-	    return generic_div(x, oldval, completion);
+	    preserve_ij = true;
+	    return generic_div(reg_x, oldval, generic_sto_completion);
 	case '*':
-	    return generic_mul(x, oldval, completion);
+	    preserve_ij = false;
+	    return generic_mul(reg_x, oldval, generic_sto_completion);
 	case '-':
-	    error = generic_sub(x, oldval, &newval);
-	    completion(error, newval);
+	    preserve_ij = true;
+	    error = generic_sub(reg_x, oldval, &newval);
+	    generic_sto_completion(error, newval);
 	    return error;
 	case '+':
-	    error = generic_add(x, oldval, &newval);
-	    completion(error, newval);
+	    preserve_ij = true;
+	    error = generic_add(reg_x, oldval, &newval);
+	    generic_sto_completion(error, newval);
 	    return error;
 	default:
 	    return ERR_INTERNAL_ERROR;
@@ -315,7 +324,6 @@ int generic_rcl(arg_struct *arg, vartype **dst) {
 
 static arg_struct temp_arg;
 
-static void generic_sto_completion(int error, vartype *res) STO_RCL_SECT;
 static void generic_sto_completion(int error, vartype *res) {
     if (error != ERR_NONE)
 	return;
@@ -344,15 +352,16 @@ static void generic_sto_completion(int error, vartype *res) {
 	}
     } else /* temp_arg.type == ARGTYPE_STR */ {
 	// If the destination of store_var() is the indexed matrix, it sets I
-	// and J to 1. This is *not* the desired behavior for STO arithmetic!
-	// This completion routine is only used for STO arithmetic (plain STO
-	// handled in generic_sto()), so we can simply work around the problem
-	// by saving I and J and restoring them afterward.
+	// and J to 1. This is *not* the desired behavior for STO+, STO-, and
+	// STO/. (It is correct for STO and STO*, since those can cause the
+	// destination's dimensions to change.)
 	int4 i = matedit_i;
 	int4 j = matedit_j;
 	store_var(temp_arg.val.text, temp_arg.length, res);
-	matedit_i = i;
-	matedit_j = j;
+	if (preserve_ij) {
+	    matedit_i = i;
+	    matedit_j = j;
+	}
     }
 }
 
@@ -558,8 +567,7 @@ int generic_sto(arg_struct *arg, char operation) {
 		    case 'L': oldval = reg_lastx; break;
 		}
 		temp_arg = *arg;
-		return apply_sto_operation(operation, reg_x, oldval,
-						generic_sto_completion);
+		return apply_sto_operation(operation, oldval);
 	    }
 	}
 	case ARGTYPE_STR: {
@@ -584,8 +592,7 @@ int generic_sto(arg_struct *arg, char operation) {
 		if (oldval == NULL)
 		    return ERR_NONEXISTENT;
 		temp_arg = *arg;
-		return apply_sto_operation(operation, reg_x, oldval,
-						generic_sto_completion);
+		return apply_sto_operation(operation, oldval);
 	    }
 	}
 	default:

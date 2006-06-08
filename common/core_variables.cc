@@ -57,6 +57,8 @@ vartype *new_real(phloat value) {
     pool_real *r;
     if (realpool == NULL) {
 	r = (pool_real *) malloc(sizeof(pool_real));
+	if (r == NULL)
+	    return NULL;
 	r->r.type = TYPE_REAL;
     } else {
 	r = realpool;
@@ -70,6 +72,8 @@ vartype *new_complex(phloat re, phloat im) {
     pool_complex *c;
     if (complexpool == NULL) {
 	c = (pool_complex *) malloc(sizeof(pool_complex));
+	if (c == NULL)
+	    return NULL;
 	c->c.type = TYPE_COMPLEX;
     } else {
 	c = complexpool;
@@ -84,6 +88,8 @@ vartype *new_string(const char *text, int length) {
     pool_string *s;
     if (stringpool == NULL) {
 	s = (pool_string *) malloc(sizeof(pool_string));
+	if (s == NULL)
+	    return NULL;
 	s->s.type = TYPE_STRING;
     } else {
 	s = stringpool;
@@ -100,12 +106,18 @@ vartype *new_string(const char *text, int length) {
 vartype *new_realmatrix(int4 rows, int4 columns) {
     vartype_realmatrix *rm = (vartype_realmatrix *)
 					malloc(sizeof(vartype_realmatrix));
+    if (rm == NULL)
+	return NULL;
     int4 i, sz;
     rm->type = TYPE_REALMATRIX;
     rm->rows = rows;
     rm->columns = columns;
     sz = rows * columns;
     rm->array = (realmatrix_data *) malloc(sizeof(realmatrix_data));
+    if (rm->array == NULL) {
+	free(rm);
+	return NULL;
+    }
     rm->array->data = (phloat *) malloc(sz * sizeof(phloat));
     if (rm->array->data == NULL) {
 	/* Oops */
@@ -132,12 +144,18 @@ vartype *new_realmatrix(int4 rows, int4 columns) {
 vartype *new_complexmatrix(int4 rows, int4 columns) {
     vartype_complexmatrix *cm = (vartype_complexmatrix *)
 					malloc(sizeof(vartype_complexmatrix));
+    if (cm == NULL)
+	return NULL;
     int4 i, sz;
     cm->type = TYPE_COMPLEXMATRIX;
     cm->rows = rows;
     cm->columns = columns;
     sz = rows * columns * 2;
     cm->array = (complexmatrix_data *) malloc(sizeof(complexmatrix_data));
+    if (cm->array == NULL) {
+	free(cm);
+	return NULL;
+    }
     cm->array->data = (phloat *) malloc(sz * sizeof(phloat));
     if (cm->array->data == NULL) {
 	/* Oops */
@@ -292,6 +310,8 @@ int disentangle(vartype *v) {
 	    else {
 		realmatrix_data *md = (realmatrix_data *)
 					malloc(sizeof(realmatrix_data));
+		if (md == NULL)
+		    return 0;
 		int4 sz = rm->rows * rm->columns;
 		int4 i;
 		md->data = (phloat *) malloc(sz * sizeof(phloat));
@@ -322,6 +342,8 @@ int disentangle(vartype *v) {
 	    else {
 		complexmatrix_data *md = (complexmatrix_data *)
 					    malloc(sizeof(complexmatrix_data));
+		if (md == NULL)
+		    return 0;
 		int4 sz = cm->rows * cm->columns * 2;
 		int4 i;
 		md->data = (phloat *) malloc(sz * sizeof(phloat));
@@ -378,6 +400,7 @@ void store_var(const char *name, int namelength, vartype *value) {
 	    vars_capacity += 25;
 	    vars = (var_struct *)
 			realloc(vars, vars_capacity * sizeof(var_struct));
+	    // TODO - handle memory allocation failure
 	}
 	varindex = vars_count++;
 	vars[varindex].length = namelength;

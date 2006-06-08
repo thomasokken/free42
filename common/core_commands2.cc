@@ -1584,6 +1584,9 @@ int docmd_end(arg_struct *arg) {
 }
 
 int docmd_number(arg_struct *arg) {
+    new_x = new_real(arg->val_d);
+    if (new_x == NULL)
+	return ERR_INSUFFICIENT_MEMORY;
     if (flags.f.stack_lift_disable)
 	free_vartype(reg_x);
     else {
@@ -1592,7 +1595,7 @@ int docmd_number(arg_struct *arg) {
 	reg_z = reg_y;
 	reg_y = reg_x;
     }
-    reg_x = new_real(arg->val_d);
+    reg_x = new_x;
     return ERR_NONE;
 }
 
@@ -1725,13 +1728,20 @@ int docmd_dim_t(arg_struct *arg) {
 	return ERR_ALPHA_DATA_IS_INVALID;
     else
 	return ERR_INVALID_TYPE;
+    new_y = new_real(rows);
+    new_x = new_real(columns);
+    if (new_x == NULL || new_y == NULL) {
+	free_vartype(new_x);
+	free_vartype(new_y);
+	return ERR_INSUFFICIENT_MEMORY;
+    }
     free_vartype(reg_lastx);
     reg_lastx = reg_x;
     free_vartype(reg_t);
     reg_t = reg_z;
     reg_z = reg_y;
-    reg_y = new_real(rows);
-    reg_x = new_real(columns);
+    reg_y = new_y;
+    reg_x = new_x;
     return ERR_NONE;
 }
 

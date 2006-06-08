@@ -322,6 +322,7 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	read_key_map(keymapfilename);
 
 	printout = (char *) malloc(PRINT_SIZE);
+	// TODO - handle memory allocation failure
 	FILE *printfile = fopen(printfilename, "rb");
     if (printfile != NULL) {
 		int n = fread(&printout_bottom, 1, sizeof(int), printfile);
@@ -1002,6 +1003,7 @@ static LRESULT CALLBACK ExportProgram(HWND hDlg, UINT message, WPARAM wParam, LP
 					sel_prog_count = SendMessage(list, LB_GETSELCOUNT, 0, 0);
 					if (sel_prog_count > 0) {
 						sel_prog_list = (int *) malloc(sel_prog_count * sizeof(int));
+						// TODO - handle memory allocation failure
 						SendMessage(list, LB_GETSELITEMS, sel_prog_count, (long) sel_prog_list);
 					}
 					EndDialog(hDlg, 1);
@@ -2030,6 +2032,7 @@ static void read_key_map(const char *keymapfilename) {
 			if (keymap_length == kmcap) {
 				kmcap += 50;
 				keymap = (keymap_entry *) realloc(keymap, kmcap * sizeof(keymap_entry));
+				// TODO - handle memory allocation failure
 			}
 			memcpy(keymap + (keymap_length++), entry, sizeof(keymap_entry));
 		}

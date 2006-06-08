@@ -372,6 +372,7 @@ void skin_load(char *skinname, const char *basedir, long *width, long *height) {
 					if (nkeys == keys_cap) {
 						keys_cap += 50;
 						keylist = (SkinKey *) realloc(keylist, keys_cap * sizeof(SkinKey));
+						// TODO - handle memory allocation failure
 					}
 					key = keylist + nkeys;
 					key->code = keynum;
@@ -409,6 +410,7 @@ void skin_load(char *skinname, const char *basedir, long *width, long *height) {
 						/* Macro code out of range; ignore this macro */
 						break;
 					macro = (SkinMacro *) malloc(sizeof(SkinMacro));
+					// TODO - handle memory allocation failure
 					macro->code = n;
 				} else if (len < SKIN_MAX_MACRO_LENGTH) {
 					if (n < 1 || n > 37) {
@@ -450,6 +452,7 @@ void skin_load(char *skinname, const char *basedir, long *width, long *height) {
 				if (keymap_length == kmcap) {
 					kmcap += 50;
 					keymap = (keymap_entry *) realloc(keymap, kmcap * sizeof(keymap_entry));
+					// TODO - handle memory allocation failure
 				}
 				memcpy(keymap + (keymap_length++), entry, sizeof(keymap_entry));
 			}
@@ -488,6 +491,7 @@ void skin_load(char *skinname, const char *basedir, long *width, long *height) {
 	disp_bytesperline = ((131 * display_scale.x + 15) >> 3) & ~1;
 	size = disp_bytesperline * 16 * display_scale.y;
 	disp_bitmap = (unsigned char *) malloc(size);
+	// TODO - handle memory allocation failure
 	memset(disp_bitmap, 255, size);
 }
 
@@ -526,6 +530,7 @@ int skin_init_image(int type, int ncolors, const SkinColor *colors,
 	}
 
 	skin_bitmap = (unsigned char *) malloc(skin_bytesperline * height);
+	// TODO - handle memory allocation failure
 	skin_width = width;
 	skin_height = height;
 	skin_y = 0;
@@ -568,6 +573,7 @@ void skin_finish_image() {
 		RGBQUAD *cmap;
 		int i;
 		bh = (BITMAPV4HEADER *) malloc(sizeof(BITMAPV4HEADER) + skin_ncolors * sizeof(RGBQUAD));
+		// TODO - handle memory allocation failure
 		cmap = (RGBQUAD *) (bh + 1);
 		for (i = 0; i < skin_ncolors; i++) {
 			cmap[i].rgbRed = skin_colors[i].r;
@@ -579,6 +585,7 @@ void skin_finish_image() {
 		RGBQUAD *cmap;
 		int i;
 		bh = (BITMAPV4HEADER *) malloc(sizeof(BITMAPV4HEADER) + 256 * sizeof(RGBQUAD));
+		// TODO - handle memory allocation failure
 		cmap = (RGBQUAD *) (bh + 1);
 		for (i = 0; i < 256; i++) {
 			cmap[i].rgbRed = cmap[i].rgbGreen = cmap[i].rgbBlue = i;
@@ -586,6 +593,7 @@ void skin_finish_image() {
 		}
 	} else
 		bh = (BITMAPV4HEADER *) malloc(sizeof(BITMAPV4HEADER));
+		// TODO - handle memory allocation failure
 
 	bh->bV4Size = sizeof(BITMAPV4HEADER);
 	bh->bV4Width = skin_width;
