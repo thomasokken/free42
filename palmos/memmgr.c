@@ -21,6 +21,8 @@
 #include <MemGlue.h>
 
 void *malloc(size_t n) {
+    if (n == 0)
+	n = 1;
     return MemGluePtrNew(n);
 }
 

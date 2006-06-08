@@ -1,5 +1,7 @@
 ??-??-????: version 1.4.23
 
+* PalmOS version: fixed a bug that would cause reading the state file to fail
+  if there were no variables.
 * GTK version: the position of the print-out window would not be remembered if
   it was closed when the application exited. It appears that the
   gtk_window_get_position() function returns the original postition (from the
