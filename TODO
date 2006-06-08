@@ -1,4 +1,5 @@
-Motif (free42bin.exe, Cygwin) crashes while saving RT.
+Motif (free42bin.exe, Cygwin) crashes while saving RT. (Cygwin bug? The
+GTK version does not crash...)
 
 When I SOLVE the function LBL "CC" MVAR "X" RCL "X" RCL "X" X^2 - / 1 -
 the sign reversal is not flagged, but it also returns X and Xprev that are
