@@ -14,6 +14,10 @@ may not free up any memory at all!
 Revisit STO arithmetic. What does the HP-42S do when matrix-matrix STOx causes
 the dimensions of the indexed matrix to change? How about STOx that does not
 cause such a change? Etc.
+UPDATE: STO+, STO-, and STO/, do NOT change I and J -- probably because those
+operations can never change the dimensions of the destination matrix. STO* on
+the other hand *does* reset IJ, even in those cases when the destination's
+dimensions remain unchanged.
 
 Pressing any key during PSE should halt program execution and execute the
 keystroke.
