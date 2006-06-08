@@ -1,17 +1,23 @@
-Motif (free42bin.exe, Cygwin) crashes while saving RT. (Cygwin bug? The
-GTK version does not crash...)
+The Motif version, when built under Cygwin, crashes while exporting programs.
+It seems like getting the selection from the list box is not working.
+Lesstif bug?
 
-When I SOLVE the function LBL "CC" MVAR "X" RCL "X" RCL "X" X^2 - / 1 -
-the sign reversal is not flagged, but it also returns X and Xprev that are
-equal to each other -- that seems wrong.
-
-Pressing any key during PSE should halt program execution and execute the
-keystroke.
-
-GTK and Motif versions: /proc/acpi support for battery status checking.
+When I SOLVE the function LBL "CC" MVAR "X" RCL "X" RCL "X" X^2 - / 1 - END
+with starting values 2.3 and 2.7, it returns X and Xprev that are equal to each
+other -- that seems wrong. (Note that it also fails to flag the sign reversal,
+but that is a separate issue (see below).)
 
 SOLVE: detect more sign reversals (not just the ones where the sign reversal
-brackets a domain error).
+brackets a domain error). This isn't strictly a bug, since it is mathematically
+impossible to reliably tell poles from zeroes (the real HP-42S doesn't always
+get it right either), but there is clearly some room for improvement.
+
+Pressing any key during PSE should halt program execution and execute the
+keystroke. This could be a bit tricky to implement because the current PSE
+implementation simply freezes the UI for 1 second; proper keyboard handling
+will require a whole new core state (similar to the GETKEY state).
+
+GTK and Motif versions: /proc/acpi support for battery status checking.
 
 PalmOS version: hardware keyboard mapping, using a keymap.txt file and skin-
 specific mappings in the *.layout file, like the other Free42 versions.
