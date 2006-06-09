@@ -1,4 +1,4 @@
-08-06-2006: version 1.4.23
+09-06-2006: version 1.4.23
 
 * PalmOS version: fixed a bug that would cause reading the state file to fail
   if there were no variables.
