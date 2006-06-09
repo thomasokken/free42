@@ -2,11 +2,6 @@ The Motif version, when built under Cygwin, crashes while exporting programs.
 It seems like getting the selection from the list box is not working; it looks
 like a Lesstif bug.
 
-When I SOLVE the function LBL "CC" MVAR "X" RCL "X" RCL "X" X^2 - / 1 - END
-with starting values 2.3 and 2.7, it returns X and Xprev that are equal to each
-other -- that seems wrong. (Note that it also fails to flag the sign reversal,
-but that is a separate issue (see below).)
-
 SOLVE: detect more sign reversals (not just the ones where the sign reversal
 brackets a domain error). This isn't strictly a bug, since it is mathematically
 impossible to reliably tell poles from zeroes (the real HP-42S doesn't always

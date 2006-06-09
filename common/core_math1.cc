@@ -395,7 +395,7 @@ static int finish_solve(int message) {
 }
 
 int return_to_solve(int failure) {
-    phloat f, slope, s, prev_f = solve.curr_f;
+    phloat f, slope, s, xnew, prev_f = solve.curr_f;
     uint4 now_time;
 
     if (solve.state == 0)
@@ -725,9 +725,10 @@ int return_to_solve(int failure) {
 	    solve.fxm = f;
 	    if (solve.fx1 < solve.fx2)
 		s = -s;
-	    solve.x3 = solve.xm + (solve.xm - solve.x1) * (solve.fxm / s);
-	    if (solve.x3 == solve.x1 || solve.x3 == solve.x2)
+	    xnew = solve.xm + (solve.xm - solve.x1) * (solve.fxm / s);
+	    if (xnew == solve.x1 || xnew == solve.x2)
 		return finish_solve(SOLVE_ROOT);
+	    solve.x3 = xnew;
 	    return call_solve_fn(3, 7);
 
 	case 7:

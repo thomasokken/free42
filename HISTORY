@@ -1,3 +1,8 @@
+??-??-????: version 1.4.24
+
+* Under certain conditions, SOLVE would return not the final value in X, but
+  the previous one (which is also returned in Y). Fixed.
+
 09-06-2006: version 1.4.23
 
 * PalmOS version: fixed a bug that would cause reading the state file to fail
