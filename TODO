@@ -1,6 +1,7 @@
 The Motif version, when built under Cygwin, crashes while exporting programs.
-Getting the selection from the list box is not working; it looks like a bug in
-the Cygwin Lesstif library.
+Getting the selection from the list box is not working; I think one of the
+resources I'm querying is specific to Motif 2.0, and the problem may be that
+the Cygwin Lesstif library is Motif 1.* compatible only.
 
 SOLVE: detect more sign reversals (not just the ones where the sign reversal
 brackets a domain error). This isn't strictly a bug, since it is mathematically

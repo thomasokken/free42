@@ -2,6 +2,9 @@
 
 * Under certain conditions, SOLVE would return not the final value in X, but
   the previous one (which is also returned in Y). Fixed.
+* Pocket PC version: now building the CAB files using the Cabwiz.exe from the
+  PPC 2002 SDK, instead of the PPC 2003 SDK. Hopefully this will fix the
+  problem of Free42 not installing properly on some PPC 2002 devices.
 
 09-06-2006: version 1.4.23
 
