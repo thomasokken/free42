@@ -1,14 +1,3 @@
-A while back, one user (I don't remember his name or email, unfortunately)
-reported that Free42 did not work right on his Pocket PC 2002 machine: the menu
-bar was present but empty. When he built Free42 from source (using eVC++ 3.0)
-and installed it, the menu bar was OK.
-It is strange that no one else reported this bug, but anyway, it might be
-caused by the fact that I'm still building the CAB files using the Cabwiz.exe
-from the PPC 2003 SDK; I never thought to switch to the one from the PPC 2002
-SDK when I switched from eVC++ 4.0 to 3.0.
-With the next release, start using the PPC 2002 version of Cabwiz; hopefully
-that will fix the problem. It shouldn't cause any new ones, at least...
-
 The Motif version, when built under Cygwin, crashes while exporting programs.
 Getting the selection from the list box is not working; it looks like a bug in
 the Cygwin Lesstif library.

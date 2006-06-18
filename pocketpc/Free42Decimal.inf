@@ -12,19 +12,19 @@ InstallDir  = %CE1%\Free42     ; "\Program Files\Free42" (default install direct
 ;VersionMin 		= 3.0
 ;VersionMax		= 5.0
 
-[CEDevice.PPC2003_ARM]
+[CEDevice.PPC2002_ARM]
 ProcessorType           = 2577      ; ARM CPU
 
-[CEDevice.PPC2003_x86]
+[CEDevice.PPC2002_x86]
 ProcessorType           = 686      ; x86 CPU for emulator
 
 ;[SourceDisksNames]              	; CPU-independent files
 ;1 = ,"Common Files",,"..\skins"     	; files are in the relative path "."
 
-[SourceDisksNames.PPC2003_ARM]   	; ARM-specific files for Pocket PC 2003
+[SourceDisksNames.PPC2002_ARM]   	; ARM-specific files for Pocket PC 2002
 2 = ,"PPC ARM Files",,"ARMV4RelDecimal" 	; files are in the relative path "ARMV4RelDecimal"
 
-[SourceDisksNames.PPC2003_x86]
+[SourceDisksNames.PPC2002_x86]
 2 = ,"PPC x86 Files",,"emulatorRelDecimal" 	; files are in the relative path "emulatorRelDecimal"
 
 [SourceDisksFiles]

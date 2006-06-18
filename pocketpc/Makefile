@@ -1,4 +1,5 @@
-CABWIZ = "/cygdrive/c/Program Files/Windows CE Tools/wce420/Pocket PC 2003/Tools/CabWiz.exe"
+CABWIZ = "/cygdrive/c/Windows CE Tools/wce300/Pocket PC 2002/support/ActiveSync/windows ce application installation/cabwiz/Cabwiz.exe"
+#CABWIZ = "/cygdrive/c/Program Files/Windows CE Tools/wce420/Pocket PC 2003/Tools/CabWiz.exe"
 
 default: skins.cpp keymap.cpp
 
@@ -15,12 +16,12 @@ keymap.cpp: keymap2cpp keymap.txt
 	./keymap2cpp
 
 package: ARMV4RelDecimal/Free42Decimal.exe ARMV4RelBinary/Free42Binary.exe
-	$(CABWIZ) Free42Decimal.inf /cpu PPC2003_ARM
-	$(CABWIZ) Free42Binary.inf /cpu PPC2003_ARM
+	$(CABWIZ) Free42Decimal.inf /cpu PPC2002_ARM
+	$(CABWIZ) Free42Binary.inf /cpu PPC2002_ARM
 	mkdir Free42PocketPC
 	cp README.txt Free42PocketPC
-	cp Free42Decimal.PPC2003_ARM.CAB Free42PocketPC/Free42Decimal.cab
-	cp Free42Binary.PPC2003_ARM.CAB Free42PocketPC/Free42Binary.cab
+	cp Free42Decimal.PPC2002_ARM.CAB Free42PocketPC/Free42Decimal.cab
+	cp Free42Binary.PPC2002_ARM.CAB Free42PocketPC/Free42Binary.cab
 	rm -f Free42PocketPC.zip
 	zip -r Free42PocketPC.zip Free42PocketPC
 	rm -rf Free42PocketPC
