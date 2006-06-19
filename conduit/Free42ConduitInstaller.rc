@@ -121,14 +121,14 @@ BEGIN
             //VALUE "Comments", "\0"
             //VALUE "CompanyName", "\0"
             VALUE "FileDescription", "Installs the Free42 Conduit\0"
-            VALUE "FileVersion", "1.4.24d\0"
+            VALUE "FileVersion", "1.4.24\0"
             VALUE "InternalName", "Free42ConduitInstaller\0"
             VALUE "LegalCopyright", "Copyright © 2004-2006 Thomas Okken\0"
             //VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "Free42ConduitInstaller.exe\0"
             //VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "Free42ConduitInstaller\0"
-            VALUE "ProductVersion", "1.4.24d\0"
+            VALUE "ProductVersion", "1.4.24\0"
             //VALUE "SpecialBuild", "\0"
         END
     END
