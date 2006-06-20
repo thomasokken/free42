@@ -1,17 +1,12 @@
-The Motif version, when built under Cygwin, crashes while exporting programs.
-Getting the selection from the list box is not working; I think one of the
-resources I'm querying is specific to Motif 2.0, and the problem may be that
-the Cygwin Lesstif library is Motif 1.* compatible only.
+Pressing any key during PSE should halt program execution and execute the
+keystroke. This could be a bit tricky to implement because the current PSE
+implementation simply freezes the UI for 1 second; proper keyboard handling
+will require a whole new core state (similar to the GETKEY state).
 
 SOLVE: detect more sign reversals (not just the ones where the sign reversal
 brackets a domain error). This isn't strictly a bug, since it is mathematically
 impossible to reliably tell poles from zeroes (the real HP-42S doesn't always
 get it right either), but there is clearly some room for improvement.
-
-Pressing any key during PSE should halt program execution and execute the
-keystroke. This could be a bit tricky to implement because the current PSE
-implementation simply freezes the UI for 1 second; proper keyboard handling
-will require a whole new core state (similar to the GETKEY state).
 
 GTK and Motif versions: /proc/acpi support for battery status checking.
 

@@ -1828,12 +1828,15 @@ static Widget make_file_select_dialog(const char *title, const char *pattern,
 static void selProgButtonCB(Widget w, XtPointer ud, XtPointer cd) {
     int id = (int) ud;
     int count;
+    int *positions;
 
     XtUnmanageChild(program_select_dialog);
     if (id == 1)
 	return;
-    XtVaGetValues(program_list, XmNselectedPositionCount, &count, NULL);
 
+    if (!XmListGetSelectedPos(program_list, &positions, &count))
+	return;
+    XtFree((char *) positions);
     if (count == 0)
 	return;
 
@@ -1923,11 +1926,10 @@ static void exportFileCB(Widget w, XtPointer ud, XtPointer cd) {
 
 static void do_export(Widget w, XtPointer ud, XtPointer cd) {
     int count, i;
-    unsigned int *positions, *p2;
+    int *positions, *p2;
 
-    XtVaGetValues(program_list, XmNselectedPositionCount, &count,
-				XmNselectedPositions, &positions,
-				NULL);
+    if (!XmListGetSelectedPos(program_list, &positions, &count))
+	return;
     if (count == 0)
 	return;
 
@@ -1939,17 +1941,18 @@ static void do_export(Widget w, XtPointer ud, XtPointer cd) {
 		 export_file_name, strerror(err), err);
 	show_message("Message", buf);
     } else {
-	p2 = (unsigned int *) malloc(count * sizeof(unsigned int));
+	p2 = (int *) malloc(count * sizeof(int));
 	// TODO - handle memory allocation failure
 	for (i = 0; i < count; i++)
 	    p2[i] = positions[i] - 1;
-	core_export_programs(count, (int *) p2, NULL);
+	core_export_programs(count, p2, NULL);
 	free(p2);
 	if (export_file != NULL) {
 	    fclose(export_file);
 	    export_file = NULL;
 	}
     }
+    XtFree((char *) positions);
 }
 
 static void importProgramCB(Widget w, XtPointer ud, XtPointer cd) {
@@ -2462,7 +2465,7 @@ static void aboutCB(Widget w, XtPointer ud, XtPointer cd) {
 	Widget button;
 	XmString s;
 
-	s = XmStringCreateLtoR("Free42 1.4.24\n(C) 2004-2006 Thomas Okken\nthomas_okken@yahoo.com\nhttp://home.planet.nl/~demun000/thomas_projects/free42/", XmFONTLIST_DEFAULT_TAG);
+	s = XmStringCreateLtoR("Free42 1.4.25\n(C) 2004-2006 Thomas Okken\nthomas_okken@yahoo.com\nhttp://home.planet.nl/~demun000/thomas_projects/free42/", XmFONTLIST_DEFAULT_TAG);
 	XtSetArg(args[0], XmNmessageString, s);
 	XtSetArg(args[1], XmNtitle, "About Free42");
 	XtSetArg(args[2], XmNsymbolPixmap, icon);

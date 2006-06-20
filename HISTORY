@@ -1,3 +1,11 @@
+20-06-2006: version 1.4.25
+
+* Motif version: now gets the selected items from the Export Program dialog
+  using the XmListGetSelectedPos() function, rather than using the
+  selectedPositionCount and selectedPositions resources; those resources are
+  a Motif 2.0 feature, and are not supported by the Lesstif library. With this
+  change, Export Program now works with Lesstif as well as with OpenMotif.
+
 19-06-2006: version 1.4.24
 
 * Under certain conditions, SOLVE would return not the final value in X, but
