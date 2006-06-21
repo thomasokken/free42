@@ -1,4 +1,4 @@
-20-06-2006: version 1.4.25
+21-06-2006: version 1.4.25
 
 * Motif version: now gets the selected items from the Export Program dialog
   using the XmListGetSelectedPos() function, rather than using the

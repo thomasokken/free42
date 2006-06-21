@@ -26,7 +26,7 @@ make -e BCD_MATH=1
 cd ..
 
 # Clean up crap that may have been left lying around
-rm -rf Free42PalmOS* Free42Windows* Free42Linux* tmp free42.tgz Free42Skins.zip Free42PalmOSSkins.zip history.html todo.html
+rm -rf Free42PalmOS* Free42Windows* Free42Linux* tmp free42.tgz Free42Skins.zip Free42PalmOSSkins.zip history.html
 
 # PalmOS package
 mkdir Free42PalmOS
@@ -82,6 +82,7 @@ mkdir tmp
 cd tmp
 cvs checkout free42
 find . -type d -name CVS -prune -exec rm -rf {} \;
+rm -f free42/package free42/TODO
 zip -j ../Free42Skins.zip free42/skins/*
 zip -j ../Free42PocketPCSkins.zip free42/ppcskins/*
 tar cvfz ../free42.tgz free42
@@ -93,7 +94,6 @@ cd util
 cc -o txt2html txt2html.c
 cd ..
 util/txt2html "Free42 HISTORY" <HISTORY >history.html
-util/txt2html "Free42 TODO" <TODO >todo.html
 cp palmos/Free42PalmOSSkins.zip .
-tar cvf package.tar Free42PalmOS.zip Free42Windows.zip Free42Linux.tgz free42.tgz Free42Skins.zip Free42PocketPCSkins.zip Free42PalmOSSkins.zip history.html todo.html
-rm Free42PalmOS.zip Free42Windows.zip Free42Linux.tgz free42.tgz Free42Skins.zip Free42PocketPCSkins.zip Free42PalmOSSkins.zip history.html todo.html
+tar cvf package.tar Free42PalmOS.zip Free42Windows.zip Free42Linux.tgz free42.tgz Free42Skins.zip Free42PocketPCSkins.zip Free42PalmOSSkins.zip history.html
+rm Free42PalmOS.zip Free42Windows.zip Free42Linux.tgz free42.tgz Free42Skins.zip Free42PocketPCSkins.zip Free42PalmOSSkins.zip history.html
