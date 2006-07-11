@@ -1,6 +1,3 @@
-Pasting a real number causes a Fatal Exception in the ARM version (Decimal;
-maybe also Binary). The 68k version is OK -- at least under POSE.
-
 Pressing any key during PSE should halt program execution and execute the
 keystroke. This could be a bit tricky to implement because the current PSE
 implementation simply freezes the UI for 1 second; proper keyboard handling

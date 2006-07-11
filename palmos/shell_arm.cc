@@ -246,8 +246,7 @@ void core_copy(char *buf, int buflen) {
 }
 
 void core_paste(const char *s) {
-    const char *ss = (const char *) ByteSwap32(s);
-    PealCall(m, p_core_paste, (void *) ss);
+    PealCall(m, p_core_paste, (void *) s);
 }
 
 void redisplay() {

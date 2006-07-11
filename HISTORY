@@ -1,3 +1,8 @@
+11-07-2006: version 1.4.26
+
+* PalmOS ARM version: Paste didn't work; it caused a Fatal Exception instead.
+  Fixed.
+
 21-06-2006: version 1.4.25
 
 * Motif version: now gets the selected items from the Export Program dialog
