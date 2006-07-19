@@ -1,0 +1,54 @@
+#!/bin/sh
+
+ln -s ../common/free42.h
+ln -s ../common/core_commands1.cc core_commands1.cpp
+ln -s ../common/core_commands1.h
+ln -s ../common/core_commands2.cc core_commands2.cpp
+ln -s ../common/core_commands2.h
+ln -s ../common/core_commands3.cc core_commands3.cpp
+ln -s ../common/core_commands3.h
+ln -s ../common/core_commands4.cc core_commands4.cpp
+ln -s ../common/core_commands4.h
+ln -s ../common/core_commands5.cc core_commands5.cpp
+ln -s ../common/core_commands5.h
+ln -s ../common/core_commands6.cc core_commands6.cpp
+ln -s ../common/core_commands6.h
+ln -s ../common/core_display.cc core_display.cpp
+ln -s ../common/core_display.h
+ln -s ../common/core_globals.cc core_globals.cpp
+ln -s ../common/core_globals.h
+ln -s ../common/core_helpers.cc core_helpers.cpp
+ln -s ../common/core_helpers.h
+ln -s ../common/core_keydown.cc core_keydown.cpp
+ln -s ../common/core_keydown.h
+ln -s ../common/core_linalg1.cc core_linalg1.cpp
+ln -s ../common/core_linalg1.h
+ln -s ../common/core_linalg2.cc core_linalg2.cpp
+ln -s ../common/core_linalg2.h
+ln -s ../common/core_main.cc core_main.cpp
+ln -s ../common/core_main.h
+ln -s ../common/core_math1.cc core_math1.cpp
+ln -s ../common/core_math1.h
+ln -s ../common/core_math2.cc core_math2.cpp
+ln -s ../common/core_math2.h
+ln -s ../common/core_phloat.cc core_phloat.cpp
+ln -s ../common/core_phloat.h
+ln -s ../common/core_sto_rcl.cc core_sto_rcl.cpp
+ln -s ../common/core_sto_rcl.h
+ln -s ../common/core_tables.cc core_tables.cpp
+ln -s ../common/core_tables.h
+ln -s ../common/core_variables.cc core_variables.cpp
+ln -s ../common/core_variables.h
+ln -s ../common/shell.h
+ln -s ../common/shell_loadimage.cc shell_loadimage.cpp
+ln -s ../common/shell_loadimage.h
+ln -s ../common/shell_spool.cc shell_spool.cpp
+ln -s ../common/shell_spool.h
+ln -s ../common/skin2cc.cc skin2cpp.cpp
+ln -s ../common/keymap2cc.cc keymap2cpp.cpp
+ln -s ../common/bcd.cc bcd.cpp
+ln -s ../common/bcd.h
+ln -s ../common/bcdfloat.cc bcdfloat.cpp
+ln -s ../common/bcdfloat.h
+ln -s ../common/bcdmath.cc bcdmath.cpp
+ln -s ../common/bcdmath.h
