@@ -49,7 +49,7 @@ public:
     int32_t addend(void) const;
     const Symbol *symbol(void) const;
 
-    Elf32_Rela Relocation::asElf(const SymbolTable& symtab) const;
+    Elf32_Rela asElf(const SymbolTable& symtab) const;
 };
 
 #endif

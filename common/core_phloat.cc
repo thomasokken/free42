@@ -555,7 +555,7 @@ Phloat fabs(Phloat p) {
 Phloat pow(Phloat x, Phloat y) {
     Phloat res;
     if (!y.bcd.isSpecial()) {
-	int iy = ifloor(y.bcd);
+	int iy = BCDFloat::ifloor(&y.bcd);
 	BCDFloat by(iy);
 	if (BCDFloat::equal(&y.bcd, &by)) {
 	    res.bcd = pow(BCD(x.bcd), iy).ref_->v_;

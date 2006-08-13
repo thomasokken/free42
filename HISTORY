@@ -1,3 +1,8 @@
+??-??-????: version 1.4.27
+
+* A couple of minor fixes for building the Linux and PalmOS/ARM versions under
+  Fedora Core 5 with gcc/g++ 4.1.1.
+
 11-07-2006: version 1.4.26
 
 * PalmOS ARM version: Paste didn't work; it caused a Fatal Exception instead.
