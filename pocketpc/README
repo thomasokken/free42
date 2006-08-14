@@ -4,6 +4,9 @@ the 'pocketpc' directory. Next, run 'make'; this compiles and runs the skin2cpp
 and keymap2cpp programs, which take care of compiling skins and keyboard map
 into the executable.
 
+If you modify any of the files from 'common', you must copy them back using the
+copy-back script before committing to CVS.
+
 Once these preparations are done, you can run eMbedded Visual C++. Open the
 Free42.vcw workspace. This workspace contains two projects: Free42Binary and
 Free42Decimal; these build the Binary and Decimal versions of Free42,

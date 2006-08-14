@@ -1,10 +1,7 @@
-I developed the Windows shell for Free42 using Visual C++, running under
-Windows 98 SE, running under Win4Lin 3.0.
-Because I run Windows under Linux, I can use symlinks and keep all the common
-files in the 'common' directory. If you want to use these sources on a regular
-Windows installation, you should copy the files from 'common' to 'windows'
-using the copy-files script; if you're using Win4Lin, you can use the
-'make-symlinks' script to create all the required links.
+I keep all the common files in the 'common' directory. In order to build the
+Windows version, you must first copy these files from 'common' to 'windows'
+using the copy-files script; if you modify any of them, you must copy them
+back using the copy-back script before committing the changes to CVS.
 
 Note: the Free42 workspace contains four projects: Free42Binary, Free42Decimal,
 keymap2cpp, and skin2cpp. Before building Free42Binary and Free42Decimal, you
@@ -12,10 +9,10 @@ must build keymap2cpp and skin2cpp and run them; this creates the keymap.cpp
 and skins.cpp files, which contain the default keymap and the skins to be
 compiled into the Free42 executable.
 
-Update: as an alternative, you can also build the Windows version using MinGW
-now. Run copy-files or make-symlinks to get the stuff from the 'common'
-directory; then say 'make' to build the binary version, or 'make -e BCD_MATH=1'
-to build the decimal version. Note that the /mingw/bin directory must be ahead
-of /usr/bin in PATH in order to run the MinGW versions of g++ etc. instead of
-the usual Cygwin versions.
+As an alternative, you can also build the Windows version using MinGW.
+Run copy-files to get the stuff from the 'common' directory; then say
+'make' to build the binary version, or 'make -e BCD_MATH=1' to build the
+decimal version. Note that the /mingw/bin directory must be ahead of /usr/bin
+in PATH in order to run the MinGW versions of g++ etc. instead of the usual
+Cygwin versions.
 To build debug versions, add "-e CFG=Debug" to the make command.
