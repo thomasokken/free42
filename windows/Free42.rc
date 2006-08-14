@@ -1,6 +1,7 @@
 //Microsoft Developer Studio generated resource script.
 //
 #include "resource.h"
+#include "..\VERSION.rc"
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
@@ -95,7 +96,7 @@ CAPTION "About Free42"
 FONT 8, "System"
 BEGIN
     ICON            IDI_FREE42,IDC_STATIC,9,7,20,20
-    LTEXT           "Free42 1.4.27",IDC_STATIC,31,4,99,8,SS_NOPREFIX
+    LTEXT           FREE42_VERSION_1,IDC_STATIC,31,4,99,8,SS_NOPREFIX
     LTEXT           "(C) 2004-2006 Thomas Okken",IDC_STATIC,31,17,98,8
     LTEXT           "thomas_okken@yahoo.com",IDC_STATIC,31,26,100,8
     LTEXT           "http://home.planet.nl/~demun000/thomas_projects/free42/",
@@ -218,8 +219,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,4,27,0
- PRODUCTVERSION 1,4,27,0
+ FILEVERSION FREE42_VERSION_3
+ PRODUCTVERSION FREE42_VERSION_3
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -237,14 +238,14 @@ BEGIN
             //VALUE "Comments", "\0"
             //VALUE "CompanyName", "\0"
             VALUE "FileDescription", "HP-42S Calculator Clone\0"
-            VALUE "FileVersion", "1.4.27\0"
+            VALUE "FileVersion", FREE42_VERSION_2
             VALUE "InternalName", "Free42\0"
             VALUE "LegalCopyright", "Copyright © 2004-2006 Thomas Okken\0"
             //VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "Free42.exe\0"
             //VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "Free42\0"
-            VALUE "ProductVersion", "1.4.27\0"
+            VALUE "ProductVersion", FREE42_VERSION_2
             //VALUE "SpecialBuild", "\0"
         END
     END
