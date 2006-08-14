@@ -1,5 +1,5 @@
-vcvars32
-copy-files
+call vcvars32
+call copy-files
 msdev keymap2cpp.dsp /make "keymap2cpp - Win32 Release" /rebuild
 Release\keymap2cpp
 msdev skin2cpp.dsp /make "skin2cpp - Win32 Release" /rebuild
