@@ -1,0 +1,30 @@
+#!/bin/sh -e
+
+unset BCD_MATH
+cd gtk
+make cleaner
+make
+make clean
+make -e BCD_MATH=1
+cd ../motif
+make cleaner
+make
+make clean
+make -e BCD_MATH=1
+cd ..
+rm -rf Free42Linux*
+mkdir Free42Linux
+mkdir Free42Linux/gtk
+mkdir Free42Linux/motif
+cp gtk/README Free42Linux/gtk
+cp gtk/free42bin Free42Linux/gtk
+cp gtk/free42dec Free42Linux/gtk
+strip Free42Linux/gtk/free42bin
+strip Free42Linux/gtk/free42dec
+cp motif/README Free42Linux/motif
+cp motif/free42bin Free42Linux/motif
+cp motif/free42dec Free42Linux/motif
+strip Free42Linux/motif/free42bin
+strip Free42Linux/motif/free42dec
+tar cvfz Free42Linux.tgz Free42Linux
+rm -rf Free42Linux
