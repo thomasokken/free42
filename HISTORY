@@ -1,7 +1,14 @@
 ??-??-????: version 1.4.27
 
-* A couple of minor fixes for building the Linux and PalmOS/ARM versions under
-  Fedora Core 5 with gcc/g++ 4.1.1.
+* I just upgraded my Linux system from Fedora Core 3 to 5, which, among other
+  things, meant moving from g++ 3.4.4 to 4.1.1. As it turned out, g++ 4.1.1 was
+  unhappy about two lines of code, affecting the Linux and PalmOS ARM versions.
+  Fixed.
+* Automated inserting the version number (Linux, PalmOS, and MacDashboard only,
+  so far). I now only have to change one file, the new VERSION file, instead of
+  manually changing the version number in 5 places in 3 files.
+  Still left to do: automate the remaining 18 places, in the 4 *.rc files for
+  the Windows, Pocket PC, Conduit, and ConduitInstaller builds.
 
 11-07-2006: version 1.4.26
 

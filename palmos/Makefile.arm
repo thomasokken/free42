@@ -111,6 +111,9 @@ shell: $(OBJS) shell-sections.s shell-sections.ld
 		-lnoexcept -lPalmOSGlue \
 		shell-sections.s shell-sections.ld
 	
+shell.rcp: shell.rcp.in
+	sed "s/%VERSION%/$(shell cat ../VERSION)/g" shell.rcp.in > shell.rcp
+
 shell.ro: shell.rcp
 	pilrc -MD -q -allowEditID -ro -o shell.ro shell.rcp
 
@@ -157,14 +160,14 @@ skin2prc: skin2prc.cc skin2prc.h
 
 clean:
 	rm -f `ls *.prc | grep -v '^free42'` \
-		shell shell.ro armcore armcore.ro *.o *.i *.ii *.s *.d \
-		*.out *.grc shell.gdb `find . -type l` \
+		shell shell.rcp shell.ro armcore armcore.ro *.o *.i *.ii \
+		*.s *.d *.out *.grc shell.gdb `find . -type l` \
 		shell-sections.s shell-sections.ld symlinks* \
 		skin2prc skin2prc.exe tmp_skin.*
 
 cleaner:
-	rm -f *.prc shell shell.ro armcore armcore.ro *.o *.i *.ii *.s *.d \
-		*.out *.grc shell.gdb `find . -type l` \
+	rm -f *.prc shell shell.rcp shell.ro armcore armcore.ro *.o *.i *.ii \
+		*.s *.d *.out *.grc shell.gdb `find . -type l` \
 		shell-sections.s shell-sections.ld symlinks* \
 		skin2prc skin2prc.exe tmp_skin.* Free42PalmOSSkins.zip
 

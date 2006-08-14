@@ -16,7 +16,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ###############################################################################
 
-CXXFLAGS := -MMD -Wall -g -fno-exceptions -fno-rtti $(shell pkg-config --cflags gtk+-2.0)
+CXXFLAGS := -MMD -Wall -g -fno-exceptions -fno-rtti $(shell pkg-config --cflags gtk+-2.0) -DVERSION="\"$(shell cat ../VERSION)\""
 LDFLAGS = 
 LIBS := $(shell pkg-config --libs gtk+-2.0)
 

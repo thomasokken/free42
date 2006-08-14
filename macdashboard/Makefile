@@ -43,6 +43,7 @@ endif
 
 Free42.wdgt: free42 keymap.txt
 	cp -rv Widget.Template Free42.wdgt
+	sed -i "s/%VERSION%/$(shell cat ../VERSION)/g" Free42.wdgt/Free42.html
 	cp keymap.txt Free42.wdgt
 	- mkdir Free42.wdgt/bin
 	cp free42 Free42.wdgt/bin
