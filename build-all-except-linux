@@ -29,8 +29,8 @@ cp palmos/free42bin_arm.prc Free42PalmOS
 cp palmos/free42dec_arm.prc Free42PalmOS
 cp conduit/Release/Free42ConduitInstaller.exe Free42PalmOS
 cp conduit/Release/Free42Conduit.dll Free42PalmOS
-cp /cydrive/c/cdk403/Common/Bin/condmgr.dll Free42PalmOS
-cp /cydrive/c/cdk403/Common/Bin/HSAPI.dll Free42PalmOS
+cp /cygdrive/c/cdk403/Common/Bin/condmgr.dll Free42PalmOS
+cp /cygdrive/c/cdk403/Common/Bin/HSAPI.dll Free42PalmOS
 zip -r Free42PalmOS.zip Free42PalmOS
 rm -rf Free42PalmOS
 cp palmos/Free42PalmOSSkins.zip .
