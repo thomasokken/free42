@@ -33,6 +33,7 @@ cd ../pocketpc
 cmd /c copy-files.bat
 make
 cmd /c build-all.bat
+cd ..
 
 # Clean up crap that may have been left lying around
 rm -rf Free42PalmOS* Free42PocketPC* Free42Windows Free42Skins.zip free42.tgz history.html tmp

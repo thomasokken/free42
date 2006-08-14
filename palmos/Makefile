@@ -123,35 +123,35 @@ shell.ro: shell.rcp
 	pilrc -MD -q -allowEditID -ro -o shell.ro shell.rcp
 
 Original.prc: skin2prc
-	./make-skin ../palmskins/Original.layout \
+	sh make-skin ../palmskins/Original.layout \
 		../palmskins/Original.gif 100 500 1 72 Original off 1
 
 Reverse.prc: skin2prc
-	./make-skin ../palmskins/Reverse.layout \
+	sh make-skin ../palmskins/Reverse.layout \
 		../palmskins/Reverse.gif 1000 2000 1 72 Reverse off 1
 
 Standard.prc: skin2prc
-	./make-skin ../palmskins/Standard.layout \
+	sh make-skin ../palmskins/Standard.layout \
 		../palmskins/Standard.gif 1000 2000 1,4,8 72 Standard off 1
 
 StandardHD.prc: skin2prc
-	./make-skin ../palmskins/StandardHD.layout \
+	sh make-skin ../palmskins/StandardHD.layout \
 		../palmskins/StandardHD.gif 1000 2000 1,4,8 144 StandardHD off 2
 
 SemiReal42.prc: skin2prc
-	./make-skin ../palmskins/SemiReal42.layout \
+	sh make-skin ../palmskins/SemiReal42.layout \
 		../palmskins/SemiReal42.gif 1000 2000 1,4,8 72 SemiReal42 off 1
 
 SemiReal42HD.prc: skin2prc
-	./make-skin ../palmskins/SemiReal42HD.layout \
+	sh make-skin ../palmskins/SemiReal42HD.layout \
 		../palmskins/SemiReal42HD.gif 1000 2000 1,4,8 144 SemiReal42HD off 2
 
 SemiAuto42HD.prc: skin2prc
-	./make-skin ../palmskins/SemiAuto42HD.layout \
+	sh make-skin ../palmskins/SemiAuto42HD.layout \
 		../palmskins/SemiAuto42HD.gif 1000 2000 1,4,8 144 SemiAuto42HD off 2
 
 Ehrling42sm.prc: skin2prc
-	./make-skin ../palmskins/Ehrling42sm.layout \
+	sh make-skin ../palmskins/Ehrling42sm.layout \
 		../palmskins/Ehrling42sm.gif 1000 2000 1,4,8 144 Ehrling42sm off 2
 
 Free42PalmOSSkins.zip: Reverse.prc Standard.prc StandardHD.prc SemiReal42.prc SemiReal42HD.prc SemiAuto42HD.prc Ehrling42sm.prc
