@@ -3,8 +3,10 @@
 # This script builds and packages everything except the Linux version.
 # It should be run in a Cygwin bash shell (under MS Windows, obviously).
 
-# Rebuild everything
 unset BCD_MATH
+rm -f package.tar
+
+# Rebuild PalmOS version, Conduit, and PalmOS skins
 cd palmos
 make cleaner
 make
@@ -15,30 +17,10 @@ make -f Makefile.arm
 make clean
 make -f Makefile.arm -e BCD_MATH=1
 make Free42PalmOSSkins.zip
-cd ../gtk
-make cleaner
-make
-make clean
-make -e BCD_MATH=1
-cd ../motif
-make cleaner
-make
-make clean
-make -e BCD_MATH=1
-cd ../windows
-cmd /c build-all.bat
 cd ../conduit
 cmd /c build-all.bat
-cd ../pocketpc
-cmd /c copy-files.bat
-make
-cmd /c build-all.bat
 cd ..
-
-# Clean up crap that may have been left lying around
-rm -rf Free42PalmOS* Free42PocketPC* Free42Windows Free42Skins.zip free42.tgz history.html tmp
-
-# PalmOS package
+rm -rf Free42PalmOS Free42PalmOS.zip Free42PalmOSSkins.zip
 mkdir Free42PalmOS
 cp palmos/README.txt Free42PalmOS
 cp palmos/free42bin_68k.prc Free42PalmOS
@@ -51,16 +33,27 @@ cp /cydrive/c/cdk403/Common/Bin/condmgr.dll Free42PalmOS
 cp /cydrive/c/cdk403/Common/Bin/HSAPI.dll Free42PalmOS
 zip -r Free42PalmOS.zip Free42PalmOS
 rm -rf Free42PalmOS
+cp palmos/Free42PalmOSSkins.zip .
 
-# Pocket PC package
+# Rebuild Pocket PC version
+cd pocketpc
+cmd /c copy-files.bat
+make
+cmd /c build-all.bat
+cd ..
+rm -rf Free42PocketPC Free42PocketPC.zip
 mkdir Free42PocketPC
 cp pocketpc/README.txt Free42PocketPC
-cp pocketpc/Free42Decimal.PPC2002_ARM.CAB Free42PocketPC/Free42Decimal.cab
 cp pocketpc/Free42Binary.PPC2002_ARM.CAB Free42PocketPC/Free42Binary.cab
+cp pocketpc/Free42Decimal.PPC2002_ARM.CAB Free42PocketPC/Free42Decimal.cab
 zip -r Free42PocketPC.zip Free42PocketPC
 rm -rf Free42PocketPC
 
-# Windows package -- Visual C++
+# Rebuild Windows version using Visual C++
+cd windows
+cmd /c build-all.bat
+cd ..
+rm -rf Free42Windows Free42Windows.zip
 mkdir Free42Windows
 cp windows/README.txt Free42Windows
 cp windows/ReleaseBinary/Free42Binary.exe Free42Windows
@@ -68,7 +61,14 @@ cp windows/ReleaseDecimal/Free42Decimal.exe Free42Windows
 zip -r Free42Windows.zip Free42Windows
 rm -rf Free42Windows
 
-# Windows package -- MinGW
+# Rebuild Windows version using MinGW
+# cd windows
+# make cleaner
+# PATH="/mingw/bin:$PATH" make
+# make clean
+# PATH="/mingw/bin:$PATH" make -e BCD_MATH=1
+# cd ..
+# rm -rf Free42Windows Free42Windows.zip
 # mkdir Free42Windows
 # cp windows/README.txt Free42Windows
 # cp windows/Free42Binary.exe Free42Windows
@@ -78,24 +78,8 @@ rm -rf Free42Windows
 # zip -r Free42Windows.zip Free42Windows
 # rm -rf Free42Windows
 
-# Linux package
-# mkdir Free42Linux
-# mkdir Free42Linux/gtk
-# mkdir Free42Linux/motif
-# cp gtk/README Free42Linux/gtk
-# cp gtk/free42bin Free42Linux/gtk
-# cp gtk/free42dec Free42Linux/gtk
-# strip Free42Linux/gtk/free42bin
-# strip Free42Linux/gtk/free42dec
-# cp motif/README Free42Linux/motif
-# cp motif/free42bin Free42Linux/motif
-# cp motif/free42dec Free42Linux/motif
-# strip Free42Linux/motif/free42bin
-# strip Free42Linux/motif/free42dec
-# tar cvfz Free42Linux.tgz Free42Linux
-# rm -rf Free42Linux
-
-# Source package
+# Source package, and Windows/Unix and Pocket PC skins packages
+rm -rf tmp free42.tgz Free42Skins.zip Free42PocketPCSkins.zip
 mkdir tmp
 cd tmp
 cvs checkout free42
@@ -112,6 +96,5 @@ cd util
 cc -o txt2html txt2html.c
 cd ..
 util/txt2html "Free42 HISTORY" <HISTORY >history.html
-cp palmos/Free42PalmOSSkins.zip .
 tar cvf package.tar Free42PalmOS.zip Free42PalmOSSkins.zip Free42PocketPC.zip Free42PocketPCSkins.zip Free42Windows.zip Free42Skins.zip free42.tgz history.html
 rm Free42PalmOS.zip Free42PalmOSSkins.zip Free42PocketPC.zip Free42PocketPCSkins.zip Free42Windows.zip Free42Skins.zip free42.tgz history.html
