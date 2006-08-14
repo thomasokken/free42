@@ -30,7 +30,9 @@ cmd /c build-all.bat
 cd ../conduit
 cmd /c build-all.bat
 cd ../pocketpc
-./build-all
+cmd /c copy-files.bat
+make
+cmd /c build-all.bat
 
 # Clean up crap that may have been left lying around
 rm -rf Free42PalmOS* Free42PocketPC* Free42Windows Free42Skins.zip free42.tgz history.html tmp
