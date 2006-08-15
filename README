@@ -47,7 +47,7 @@ If your build fails due to a missing sincos(), add -DNO_SINCOS to the
 CXXFLAGS in the Makefile.
 
 -------------
-Fedora Core 3 and Cygwin: this is what I use for development; the Unix version
+Fedora Core 5 and Cygwin: this is what I use for development; the Unix version
 builds with no changes.
 
 -------

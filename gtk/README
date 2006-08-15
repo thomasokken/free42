@@ -26,8 +26,8 @@ Remove free42dec, free42bin, and the $HOME/.free42 directory and its contents.
 
 
 NOTE: The binary in this package was built on a PC running Fedora Core
-release 3, and it is dynamically linked against glibc version 2.3.6, libstdc++
-version 3.4.4, and GTK+ version 2.4.14. If your system has different
+release 5, and it is dynamically linked against glibc version 2.4, libstdc++
+version 4.1.1, and GTK+ version 2.8.20. If your system has different
 versions of these libraries, the binary in this package may not work. In this
 case, please download the Free42 source package and compile Free42 using your
 installation's own compiler and libraries.
