@@ -63,6 +63,7 @@ rm -rf Free42Windows
 
 # Rebuild Windows version using MinGW
 # cd windows
+# cmd /c copy-files.bat
 # make cleaner
 # PATH="/mingw/bin:$PATH" make
 # make clean
@@ -73,8 +74,8 @@ rm -rf Free42Windows
 # cp windows/README.txt Free42Windows
 # cp windows/Free42Binary.exe Free42Windows
 # cp windows/Free42Decimal.exe Free42Windows
-# /mingw/bin/strip windows/Free42Binary.exe
-# /mingw/bin/strip windows/Free42Decimal.exe
+# /mingw/bin/strip Free42Windows/Free42Binary.exe
+# /mingw/bin/strip Free42Windows/Free42Decimal.exe
 # zip -r Free42Windows.zip Free42Windows
 # rm -rf Free42Windows
 
