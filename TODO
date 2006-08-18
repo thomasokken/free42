@@ -1,8 +1,16 @@
 Decimal version: SQRT(2) returns 1.414213562373095048801688, should be
-1.414213562373095048801689. Compare the result from bc(1) with scale > 24.
-(Amusing but probably irrelevant detail: bc with scale=24 returns the same
-erroneous result as Free42 Decimal!)
-Note: this bug existed even before the 25-digit patch (version 1.4.22).
+1.414213562373095048801689. Apparently, BCDFloat::sqrt() simply stops after
+computing P digits of the result, rather than computing one extra and then
+rounding (only needed if the most significant base-10000 digit of the result is
+between 1 and 9, of course).
+I haven't investigated yet if it is possible to fix this by simply going
+through the digit loop one extra time -- it is possible that this will cause
+problems if the precision in the temporaries is exhausted.
+I should probably bring this to Hugh Steers' attention; if it can't be fixed
+easily, then possible solutions will probably involve using the new
+higher-precision BCDDouble type for temporaries; this also opens up the
+possibility of using Newton's method, which might be faster than the 'long
+division' algorithm.
 
 Pressing any key during PSE should halt program execution and execute the
 keystroke. This could be a bit tricky to implement because the current PSE
