@@ -1,3 +1,7 @@
+Windows version: MEM screws up if available memory is >= 2 gig.
+MEMORYSTATUS.dwAvailPhys is an unsigned quantity, while shell_get_mem()
+assumed signed.
+
 Decimal version: SQRT(2) returns 1.414213562373095048801688, should be
 1.414213562373095048801689. Apparently, BCDFloat::sqrt() simply stops after
 computing P digits of the result, rather than computing one extra and then
