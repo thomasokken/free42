@@ -910,16 +910,18 @@ void string2buf(char *buf, int buflen, int *bufptr, const char *s, int slen) {
 }
 
 int int2string(int4 n, char *buf, int buflen) {
-    int4 pt = 1;
+    uint4 pt = 1;
+    uint4 u;
     int count = 0;
     if (n < 0) {
 	char2buf(buf, buflen, &count, '-');
-	n = -n;
-    }
-    while (pt * 10 <= n)
+	u = -n;
+    } else
+	u = n;
+    while (u / pt >= 10)
 	pt *= 10;
     while (pt != 0) {
-	char2buf(buf, buflen, &count, (char) ('0' + (n / pt) % 10));
+	char2buf(buf, buflen, &count, (char) ('0' + (u / pt) % 10));
 	pt /= 10;
     }
     return count;

@@ -1,10 +1,16 @@
-??-??-????: version 1.4.27
+21-08-2006: version 1.4.27
 
-* I just upgraded my Linux system from Fedora Core 3 to 5, which, among other
-  things, meant moving from g++ 3.4.4 to 4.1.1. As it turned out, g++ 4.1.1 was
-  unhappy about two lines of code, affecting the Linux and PalmOS ARM versions.
-  Fixed.
-* Automated inserting the version number. Instead of having to going through 9
+* The int2string() function did not handle numbers with more than 9 digits
+  correctly. This caused MEM to display gibberish on machines with more than
+  999,999,999 bytes of available physical memory.
+  (Note that MEM will still display an incorrect result if available memory is
+  more than 2,147,483,647 bytes -- which is the largest number that can be
+  represented in a signed 32-bit integer.)
+* I recently upgraded my Linux system from Fedora Core 3 to 5, which, among
+  other things, meant moving from g++ 3.4.4 to 4.1.1. As it turned out, g++
+  4.1.1 was unhappy about two lines of code, affecting the Linux and PalmOS ARM
+  versions. Fixed.
+* Automated inserting the version number. Instead of having to go through 9
   source files, to manually change the version number in a total of 23 places,
   I now only have to update VERSION and VERSION.rc.
   Less hassle for me, and fewer redundant deltas in CVS. :-)
