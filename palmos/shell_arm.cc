@@ -61,7 +61,7 @@ static void arm_shell_delay(int4 duration);
 static void arm_shell_request_timeout3(int4 delay);
 static int4 arm_shell_read_saved_state(arg_shell_read_saved_state *arg);
 static int4 arm_shell_write_saved_state(arg_shell_write_saved_state *arg);
-static int4 arm_shell_get_mem();
+static uint4 arm_shell_get_mem();
 static int4 arm_shell_low_battery();
 static void arm_shell_powerdown();
 static double *arm_shell_random_seed();
@@ -297,7 +297,7 @@ static int4 arm_shell_write_saved_state(arg_shell_write_saved_state *arg) {
     return shell_write_saved_state(arg->buf, arg->nbytes);
 }
 
-static int4 arm_shell_get_mem() {
+static uint4 arm_shell_get_mem() {
     return shell_get_mem();
 }
 

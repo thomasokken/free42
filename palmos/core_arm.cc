@@ -244,8 +244,8 @@ bool shell_write_saved_state(const void *buf, int4 nbytes) {
     return (bool) gCall68KFuncP(gEmulStateP, p_shell_write_saved_state, &pptr, 4);
 }
 
-int4 shell_get_mem() {
-    return (int4) gCall68KFuncP(gEmulStateP, p_shell_get_mem, NULL, 0);
+uint4 shell_get_mem() {
+    return (uint4) gCall68KFuncP(gEmulStateP, p_shell_get_mem, NULL, 0);
 }
 
 int shell_low_battery() {

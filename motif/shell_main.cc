@@ -3058,16 +3058,16 @@ bool shell_write_saved_state(const void *buf, int4 nbytes) {
     }
 }
 
-int shell_get_mem() {
+uint4 shell_get_mem() {
     FILE *meminfo = fopen("/proc/meminfo", "r");
     char line[1024];
-    int bytes = 0;
+    uint4 bytes = 0;
     if (meminfo == NULL)
 	return 0;
     while (fgets(line, 1024, meminfo) != NULL) {
 	if (strncmp(line, "MemFree:", 8) == 0) {
-	    int kbytes;
-	    if (sscanf(line + 8, "%d", &kbytes) == 1)
+	    unsigned int kbytes;
+	    if (sscanf(line + 8, "%u", &kbytes) == 1)
 		bytes = 1024 * kbytes;
 	    break;
 	}

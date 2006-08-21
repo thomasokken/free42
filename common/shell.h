@@ -116,7 +116,7 @@ bool shell_write_saved_state(const void *buf, int4 nbytes) SHELL1_SECT;
 /* shell_get_mem()
  * Callback to get the amount of free memory in bytes.
  */
-int4 shell_get_mem() SHELL1_SECT;
+uint4 shell_get_mem() SHELL1_SECT;
 
 /* shell_low_battery()
  * Callback to find out if the battery is low. Used to emulate flag 49 and the

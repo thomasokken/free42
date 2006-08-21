@@ -304,7 +304,7 @@ bool shell_write_saved_state(const void *buf, int4 nbytes) {
     }
 }
 
-Int32 shell_get_mem() {
+UInt32 shell_get_mem() {
     UInt32 freeBytes, maxBlock;
     MemHeapFreeBytes(0, &freeBytes, &maxBlock);
     return freeBytes;

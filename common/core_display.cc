@@ -1543,12 +1543,12 @@ static void draw_catalog() {
 }
 
 void display_mem() {
-    int4 bytes = shell_get_mem();
+    uint4 bytes = shell_get_mem();
     char buf[16];
     int buflen;
     clear_display();
     draw_string(0, 0, "Available Memory:", 17);
-    buflen = int2string(bytes, buf, 16);
+    buflen = uint2string(bytes, buf, 16);
     draw_string(0, 1, buf, buflen);
     draw_string(buflen + 1, 1, "Bytes", 5);
     flush_display();

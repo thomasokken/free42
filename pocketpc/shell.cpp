@@ -1633,7 +1633,7 @@ bool shell_write_saved_state(const void *buf, int4 nbytes) {
     }
 }
 
-int4 shell_get_mem() {
+uint4 shell_get_mem() {
 	MEMORYSTATUS memstat;
 	GlobalMemoryStatus(&memstat);
 	return memstat.dwAvailPhys;
