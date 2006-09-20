@@ -1,3 +1,6 @@
+PalmOS version: add explanation to README.txt about skins -- why they won't
+work off an SD card, how to install them properly, yada yada yada.
+
 PocketPC version: full-screen skin support
 
 Decimal version: SQRT(2) returns 1.414213562373095048801688, should be
