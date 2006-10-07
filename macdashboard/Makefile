@@ -16,9 +16,9 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ###############################################################################
 
-CXXFLAGS = -MMD -DNO_SINCOS -Wall -g -fno-exceptions -fno-rtti
-LDFLAGS =
-LIBS = -lm
+CXXFLAGS = -DNO_SINCOS -arch ppc -arch i386 -Wall -g -fno-exceptions -fno-rtti
+LDFLAGS = -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk
+LIBS = -arch ppc -arch i386 -lm
 
 SRCS = shell.cc shell_spool.cc \
 	core_main.cc core_commands1.cc core_commands2.cc \
@@ -43,7 +43,7 @@ endif
 
 Free42.wdgt: free42 keymap.txt
 	cp -rv Widget.Template Free42.wdgt
-	sed -i "s/%VERSION%/$(shell cat ../VERSION)/g" Free42.wdgt/Free42.html
+	sed -e "s/%VERSION%/$(shell cat ../VERSION)/g" < Widget.Template/Free42.html> Free42.wdgt/Free42.html
 	cp keymap.txt Free42.wdgt
 	- mkdir Free42.wdgt/bin
 	cp free42 Free42.wdgt/bin
