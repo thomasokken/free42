@@ -1,3 +1,7 @@
+Add information about keyboard mapping to README.txt files (all versions).
+Don't necessarily go into detail about how to customize the mapping, but *do*
+list all the default mappings.
+
 PalmOS version: add explanation to README.txt about skins -- why they won't
 work off an SD card, how to install them properly, yada yada yada.
 
