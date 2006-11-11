@@ -1,3 +1,8 @@
+11-11-2006: (no new code release)
+
+* Added "Realism" skin for high-density (320x320 and higher) PalmOS devices
+  (Free42PalmOSSkins.zip package). Contributed by Curtis Cameron.
+
 21-08-2006: version 1.4.27
 
 * The int2string() function did not handle numbers with more than 9 digits
