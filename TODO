@@ -17,6 +17,7 @@ Test case, by Les Wright (leslie.wright@alumni.uwo.ca):
     Set LLIM=0, ULIM=0.1, ACC=1e-10.
 
 Should return 1.85087393020e-45, not 1.99327123166e-45.
+See common/core_math1.cc, line 1130 or thereabouts.
 
 Add information about keyboard mapping to README.txt files (all versions).
 Don't necessarily go into detail about how to customize the mapping, but *do*
