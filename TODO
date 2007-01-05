@@ -1,3 +1,23 @@
+INTEG: ACC should be treated as a *relative* error bound, not an absolute one.
+See page 203 of the HP-42S manual.
+Test case, by Les Wright (leslie.wright@alumni.uwo.ca):
+
+    LBL "FF"
+    MVAR "X"
+    RCL "X"
+    X^2
+    1/X
+    ENTER
+    ENTER
+    +/-
+    e^X
+    *
+    RTN
+
+    Set LLIM=0, ULIM=0.1, ACC=1e-10.
+
+Should return 1.85087393020e-45, not 1.99327123166e-45.
+
 Add information about keyboard mapping to README.txt files (all versions).
 Don't necessarily go into detail about how to customize the mapping, but *do*
 list all the default mappings.
