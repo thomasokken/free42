@@ -1123,11 +1123,11 @@ int return_to_integ(int failure) {
 	     * nasty cases (x*exp(-x), exp(-x)/x) work right.
 	     */
 	    if (integ.n > 3) {
-		integ.eps = (integ.c[integ.i] - integ.prev_int)
-							* integ.b * 0.75;
-		if (integ.eps < 0)
-		    integ.eps = -integ.eps;
-		if (integ.eps <= integ.acc)
+		phloat diff = integ.c[integ.i] - integ.prev_int;
+		integ.eps = diff * integ.b * 0.75;
+		diff = fabs(diff);
+		phloat mag = (fabs(integ.c[integ.i]) + fabs(integ.prev_int)) / 2.0;
+		if (mag == 0 || diff / mag <= integ.acc)
 		    return finish_integ();
 	    }
 
