@@ -1,3 +1,9 @@
+06-01-2007: version 1.4.28
+
+* INTEG used to treat ACC as an absolute error bound, but that is not
+  consistent with the behavior of the real HP-42S. Fixed; it is now treated as
+  a relative error.
+
 11-11-2006: (no new code release)
 
 * Added "Realism" skin for high-density (320x320 and higher) PalmOS devices
