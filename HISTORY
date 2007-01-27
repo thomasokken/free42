@@ -1,3 +1,10 @@
+27-01-2007: version 1.4.29
+
+* Decimal version: did not handle numbers without mantissa correctly while
+  importing programs (i.e. lines like "E4"; see the notes for version 1.3.5).
+  The binary version has handled this kind of thing correctly since version
+  1.3.5, but the decimal version did not. Fixed.
+
 06-01-2007: version 1.4.28
 
 * INTEG used to treat ACC as an absolute error bound, but that is not

@@ -97,6 +97,19 @@ int string2phloat(const char *buf, int buflen, phloat *d) {
 	}
 	buf2[buflen2++] = c;
     }
+
+    if (!in_mant && mantdigits == 0) {
+	// A number like "E4"; not something the HP-41 or HP42S (or Free42, for
+	// that matter) will actually allow you to enter into a program, but
+	// the real calcs do accept this kind of thing (synthetically), and
+	// supply a mantissa of 1 (just like when you start number entry by
+	// pressing EEX (HP-41) or E (HP-42S).
+	for (int i = buflen2 - 1; i >= 0; i--)
+	    buf2[i + 1] = buf2[i];
+	buf2[0] = '1';
+	buflen2++;
+    }
+
     buf2[buflen2] = 0;
     BCDFloat b(buf2);
     if (b.isInf())
