@@ -1,3 +1,9 @@
+14-02-2007: version 1.4.30
+
+* INTEG reported the difference between the final iteration and the one before
+  in the Y register (the error estimate), but without taking the absolute
+  value first. As a result, the reported accuracy could be negative. Fixed.
+
 27-01-2007: version 1.4.29
 
 * Decimal version: did not handle numbers without mantissa correctly while
