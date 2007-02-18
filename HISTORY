@@ -1,7 +1,7 @@
 18-02-2007: version 1.4.31
 
-* Floating-point addition would return an incorrectly rounded result under
-  certain circumstances. Fixed.
+* Decimal version: Floating-point addition would return an incorrectly rounded
+  result under certain circumstances. Fixed.
 
 14-02-2007: version 1.4.30
 
