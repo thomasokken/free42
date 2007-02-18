@@ -668,7 +668,7 @@ void BCDFloat::_uadd(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
             ++ea;
         }
 
-	if (c->_round25(true)) ++ea;
+	if (c->_round25(ca)) ++ea;
         if (ea > EXPLIMIT) *c = posInf();
         else c->exp(ea);
     }
