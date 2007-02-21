@@ -60,28 +60,6 @@ typedef struct {
 
 static solve_state solve;
 
-#if 0 /* Simpson's Rule */
-
-/* Integrator */
-typedef struct {
-    int version;
-    char prgm_name[7];
-    int prgm_length;
-    char active_prgm_name[7];
-    int active_prgm_length;
-    char var_name[7];
-    int var_length;
-    int keep_running;
-    int prev_prgm;
-    int4 prev_pc;
-    int state;
-    phloat llim, ulim, acc;
-    phloat h, integral, prev_integral;
-    int i, n;
-} integ_state;
-
-#else /* Romberg */
-
 #define ROMB_MAX 20
 
 /* Integrator */
@@ -107,8 +85,6 @@ typedef struct {
     phloat t, u;
     phloat prev_int;
 } integ_state;
-
-#endif
 
 static integ_state integ;
 
@@ -788,169 +764,6 @@ void get_integ_var(char *name, int *length) {
     string_copy(name, length, integ.var_name, integ.var_length);
 }
 
-#if 0 /* Simpson's Rule */
-
-static int call_integ_fn() MATH1_SECT;
-static int call_integ_fn() {
-    int err, i;
-    arg_struct arg;
-    phloat x = integ.llim + integ.h * integ.i;
-    vartype *v = recall_var(integ.var_name, integ.var_length);
-    if (v == NULL || v->type != TYPE_REAL) {
-	v = new_real(x);
-	if (v == NULL)
-	    return ERR_INSUFFICIENT_MEMORY;
-	store_var(integ.var_name, integ.var_length, v);
-    } else
-	((vartype_real *) v)->x = x;
-    arg.type = ARGTYPE_STR;
-    arg.length = integ.active_prgm_length;
-    for (i = 0; i < arg.length; i++)
-	arg.val.text[i] = integ.active_prgm_name[i];
-    err = docmd_gto(&arg);
-    if (err != ERR_NONE) {
-	free_vartype(v);
-	return err;
-    }
-    push_rtn_addr(-3, 0);
-    return ERR_RUN;
-}
-
-int start_integ(const char *name, int length) {
-    vartype *v;
-    if (integ_active())
-	return ERR_INTEG_INTEG;
-    v = recall_var("LLIM", 4);
-    if (v == NULL)
-	return ERR_NONEXISTENT;
-    else if (v->type == TYPE_STRING)
-	return ERR_ALPHA_DATA_IS_INVALID;
-    else if (v->type != TYPE_REAL)
-	return ERR_INVALID_TYPE;
-    integ.llim = ((vartype_real *) v)->x;
-    v = recall_var("ULIM", 4);
-    if (v == NULL)
-	return ERR_NONEXISTENT;
-    else if (v->type == TYPE_STRING)
-	return ERR_ALPHA_DATA_IS_INVALID;
-    else if (v->type != TYPE_REAL)
-	return ERR_INVALID_TYPE;
-    integ.ulim = ((vartype_real *) v)->x;
-    v = recall_var("ACC", 3);
-    if (v == NULL)
-	integ.acc = 0;
-    else if (v->type == TYPE_STRING)
-	return ERR_ALPHA_DATA_IS_INVALID;
-    else if (v->type != TYPE_REAL)
-	return ERR_INVALID_TYPE;
-    else
-	integ.acc = ((vartype_real *) v)->x;
-    if (integ.acc < 0)
-	integ.acc = 0;
-    string_copy(integ.var_name, &integ.var_length, name, length);
-    string_copy(integ.active_prgm_name, &integ.active_prgm_length,
-		integ.prgm_name, integ.prgm_length);
-    integ.prev_prgm = current_prgm;
-    integ.prev_pc = pc;
-    integ.integral = 0;
-    integ.n = 10;
-    integ.i = 0;
-    integ.h = (integ.ulim - integ.llim) / integ.n;
-    integ.state = 1;
-    integ.keep_running = program_running();
-    if (!integ.keep_running) {
-	clear_row(0);
-	draw_string(0, 0, "Integrating", 11);
-	flush_display();
-	flags.f.message = 1;
-	flags.f.two_line_message = 0;
-    }
-    return call_integ_fn();
-}
-
-static int finish_integ() MATH1_SECT;
-static int finish_integ() {
-    vartype *v;
-    int saved_trace = flags.f.trace_print;
-    integ.state = 0;
-
-    v = new_real(integ.integral);
-    if (v == NULL)
-	return ERR_INSUFFICIENT_MEMORY;
-    flags.f.trace_print = 0;
-    recall_result(v);
-    flags.f.trace_print = saved_trace;
-
-    current_prgm = integ.prev_prgm;
-    pc = integ.prev_pc;
-
-    if (!integ.keep_running) {
-	char buf[22];
-	int bufptr = 0;
-	string2buf(buf, 22, &bufptr, "\003=", 2);
-	bufptr += vartype2string(v, buf + bufptr, 22 - bufptr);
-	clear_row(0);
-	draw_string(0, 0, buf, bufptr);
-	flush_display();
-	flags.f.message = 1;
-	flags.f.two_line_message = 0;
-	if (flags.f.trace_print && flags.f.printer_exists)
-	    print_wide(buf, 2, buf + 2, bufptr - 2);
-	return ERR_STOP;
-    } else
-	return ERR_NONE;
-}
-
-int return_to_integ(int failure) {
-    /* TODO -- better algorithm... This one uses Simpson's rule, initially
-     * with 10 steps (h = (ulim - llim) / 10), then keeps halving the step
-     * size until two successive approximations are no more than 'acc'
-     * apart. The HP-42S uses a smarter algorithm which uses local error
-     * estimates to refine the step size only where needed (i.e. where the
-     * derivative of the integrand is high).
-     */
-
-    phloat y;
-    if (failure || reg_x->type != TYPE_REAL)
-	y = 0;
-    else
-	y = ((vartype_real *) reg_x)->x;
-
-    switch (integ.state) {
-	case 0:
-	    return ERR_INTERNAL_ERROR;
-	case 1:
-	case 2:
-	    if (integ.i == 0 || integ.i == integ.n)
-		integ.integral += (integ.h * 0.3333333333333333333333333) * y;
-	    else if (integ.i % 2 == 0)
-		integ.integral += (integ.h * 0.6666666666666666666666667) * y;
-	    else
-		integ.integral += (integ.h * 1.333333333333333333333333) * y;
-	    if (integ.i == integ.n) {
-		if (integ.state == 2) {
-		    phloat eps = integ.prev_integral - integ.integral;
-		    if (eps < 0)
-			eps = -eps;
-		    if (eps <= integ.acc)
-			return finish_integ();
-		}
-		integ.prev_integral = integ.integral;
-		integ.integral = 0;
-		integ.n *= 2;
-		integ.i = 0;
-		integ.h = (integ.ulim - integ.llim) / integ.n;
-		integ.state = 2;
-	    } else
-		integ.i++;
-	    return call_integ_fn();
-	default:
-	    return ERR_INTERNAL_ERROR;
-    }
-}
-
-#else /* Romberg */
-
 static int call_integ_fn() MATH1_SECT;
 static int call_integ_fn() {
     int err, i;
@@ -1143,5 +956,3 @@ int return_to_integ(int failure) {
 	    return ERR_INTERNAL_ERROR;
     }
 }
-
-#endif /* Simpson's Rule / Romberg */
