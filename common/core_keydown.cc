@@ -43,6 +43,14 @@ static int is_number_key(int shift, int key) {
 		|| key == KEY_9 || key == KEY_DOT || key == KEY_E);
 }
 
+static int basekeys() KEYDOWN_SECT;
+static int basekeys() {
+    if (!baseapp)
+	return 0;
+    int *menu = get_front_menu();
+    return menu != NULL && (*menu == MENU_BASE || *menu == MENU_BASE_A_THRU_F || *menu == MENU_BASE_LOGIC);
+}
+
 static void set_solve_integ(int solve) KEYDOWN_SECT;
 static void set_solve_integ(int solve) {
     if (flags.f.prgm_mode || !mvar_prgms_exist()) {
@@ -208,7 +216,7 @@ void keydown(int shift, int key) {
 
     if (mode_number_entry
 	    && !is_number_key(shift, key)
-	    && (key != KEY_CHS || shift || baseapp || get_base() != 10)
+	    && (key != KEY_CHS || shift || basekeys() || get_base() != 10)
 	    && (key != KEY_BSP || shift)) {
 	/* Leaving number entry mode */
 	mode_number_entry = false;
@@ -2301,18 +2309,18 @@ void keydown_normal_mode(int shift, int key) {
 	    case KEY_TAN: command = CMD_TAN; break;
 	    case KEY_ENTER: command = CMD_ENTER; break;
 	    case KEY_SWAP: command = CMD_SWAP; break;
-	    case KEY_CHS: command = baseapp ? CMD_BASECHS : CMD_CHS; break;
+	    case KEY_CHS: command = basekeys() ? CMD_BASECHS : CMD_CHS; break;
 	    case KEY_BSP: command = CMD_CLX; break;
-	    case KEY_DIV: command = baseapp ? CMD_BASEDIV : CMD_DIV; break;
+	    case KEY_DIV: command = basekeys() ? CMD_BASEDIV : CMD_DIV; break;
 	    case KEY_DOWN: command = CMD_SST; break;
-	    case KEY_MUL: command = baseapp ? CMD_BASEMUL : CMD_MUL; break;
-	    case KEY_SUB: command = baseapp ? CMD_BASESUB : CMD_SUB; break;
+	    case KEY_MUL: command = basekeys() ? CMD_BASEMUL : CMD_MUL; break;
+	    case KEY_SUB: command = basekeys() ? CMD_BASESUB : CMD_SUB; break;
 	    case KEY_EXIT:
 		input_length = 0;
 		pending_command = CMD_CANCELLED;
 		return;
 	    case KEY_RUN: command = CMD_RUN; break;
-	    case KEY_ADD: command = baseapp ? CMD_BASEADD : CMD_ADD; break;
+	    case KEY_ADD: command = basekeys() ? CMD_BASEADD : CMD_ADD; break;
 	    default: command = CMD_NONE; break;
 	}
     } else {

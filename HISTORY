@@ -1,3 +1,10 @@
+27-02-2007: version 1.4.32
+
+* When the BASE application was active, the arithmetic keys and +/- would be
+  reassigned the BASE+, BASE-, BASE*, BASE/, and BASE+/- functions -- which is
+  good, but these assignments would stay in effect even if a non-application
+  menu was active on top of BASE, and that was wrong. Fixed now.
+
 18-02-2007: version 1.4.31
 
 * Decimal version: Floating-point addition would return an incorrectly rounded
