@@ -5,8 +5,6 @@ list all the default mappings.
 PalmOS version: add explanation to README.txt about skins -- why they won't
 work off an SD card, how to install them properly, yada yada yada.
 
-PocketPC version: full-screen skin support
-
 Decimal version: SQRT(2) returns 1.414213562373095048801688, should be
 1.414213562373095048801689. Apparently, BCDFloat::sqrt() simply stops after
 computing P digits of the result, rather than computing one extra and then
@@ -37,19 +35,3 @@ PalmOS version: hardware keyboard mapping, using a keymap.txt file and skin-
 specific mappings in the *.layout file, like the other Free42 versions.
 
 Plain text program import/export; HP-41 ROM image import.
-
-Import/export of variables.
-
-Directories.
-
-"Sticky" complex numbers, which remember the mode (polar or rectangular) they
-were entered in, and are always displayed in that mode.
-
-Algebraic equations, a la HP-27S.
-
-Fractions.
-
-Larger display; show more stack registers, program lines, etc., at once.
-
-Allow more digits in the display (FIX >= 12, etc.; also, allow entry of more
-than 12 digits when entering a number).
