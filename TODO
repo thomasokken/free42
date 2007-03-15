@@ -24,6 +24,11 @@ keystroke. This could be a bit tricky to implement because the current PSE
 implementation simply freezes the UI for 1 second; proper keyboard handling
 will require a whole new core state (similar to the GETKEY state).
 
+On the real HP-42S and Emu42, when running a program using XEQ and picking it
+from the program catalog, the menu stays up while the program runs (or rather,
+the display is not repainted). In Free42, the display is repainted before
+program execution begins. Purely cosmetic perhaps, but still a bug.
+
 SOLVE: detect more sign reversals (not just the ones where the sign reversal
 brackets a domain error). This isn't strictly a bug, since it is mathematically
 impossible to reliably tell poles from zeroes (the real HP-42S doesn't always
