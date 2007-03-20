@@ -1,3 +1,8 @@
+20-03-2007: (no new code release)
+
+* Added "StandardPPCsm" skin for 240x240 PocketPC devices
+  (Free42PocketPCSkins.zip package).
+
 27-02-2007: version 1.4.32
 
 * When the BASE application was active, the arithmetic keys and +/- would be
