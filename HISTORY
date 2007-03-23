@@ -1,3 +1,10 @@
+23-03-2007: version 1.4.33
+
+* PalmOS ARM version: would not run on some Palm Tungsten T models, because
+  they report an incorrect ROM version number. Made the version number check a
+  bit more lenient so that it will accept "Development" versions as well as
+  "Release" versions.
+
 20-03-2007: (no new code release)
 
 * Added "StandardPPCsm" skin for 240x240 PocketPC devices

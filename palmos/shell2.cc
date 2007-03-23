@@ -464,7 +464,7 @@ void misc_cleanup() {
 bool feature_set_3_5_present() {
     static int three_five_present = -1;
     if (three_five_present == -1) {
-	UInt32 neededRom = sysMakeROMVersion(3, 5, 0, sysROMStageRelease, 0);
+	UInt32 neededRom = sysMakeROMVersion(3, 5, 0, sysROMStageDevelopment, 0);
 	UInt32 presentRom;
 	Err err = FtrGet(sysFtrCreator, sysFtrNumROMVersion, &presentRom);
 	three_five_present = err == errNone && presentRom >= neededRom;
@@ -475,7 +475,7 @@ bool feature_set_3_5_present() {
 bool feature_set_4_0_present() {
     static int four_oh_present = -1;
     if (four_oh_present == -1) {
-	UInt32 neededRom = sysMakeROMVersion(4, 0, 0, sysROMStageRelease, 0);
+	UInt32 neededRom = sysMakeROMVersion(4, 0, 0, sysROMStageDevelopment, 0);
 	UInt32 presentRom;
 	Err err = FtrGet(sysFtrCreator, sysFtrNumROMVersion, &presentRom);
 	four_oh_present = err == errNone && presentRom >= neededRom;

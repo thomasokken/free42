@@ -464,7 +464,7 @@ UInt32 shell_main(UInt16 cmd, void *pbp, UInt16 flags) {
 	    #ifdef PALMOS_ARM_SHELL
 	    error = FtrGet(sysFtrCreator, sysFtrNumROMVersion, &ftr);
 	    if (error != errNone ||
-		    ftr < sysMakeROMVersion(5, 0, 0, sysROMStageRelease, 0)) {
+		    ftr < sysMakeROMVersion(5, 0, 0, sysROMStageDevelopment, 0)) {
 		ErrFatalDisplayIf(true,
 			"PalmOS version too old - must be 5.0 or later.");
 	    }
@@ -478,7 +478,7 @@ UInt32 shell_main(UInt16 cmd, void *pbp, UInt16 flags) {
 	    #else
 	    error = FtrGet(sysFtrCreator, sysFtrNumROMVersion, &ftr);
 	    if (error != errNone ||
-		    ftr < sysMakeROMVersion(3, 0, 0, sysROMStageRelease, 0)) {
+		    ftr < sysMakeROMVersion(3, 0, 0, sysROMStageDevelopment, 0)) {
 		ErrFatalDisplayIf(true,
 			"PalmOS version too old - must be 3.0 or later.");
 	    }
