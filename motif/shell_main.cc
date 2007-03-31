@@ -306,6 +306,7 @@ static void quit();
 static char *strclone(const char *s);
 static int is_file(const char *name);
 static void show_message(char *title, char *message);
+static void set_window_role(Widget w, const char *role);
 static void no_gnome_resize(Widget w);
 static void scroll_printout_to_bottom();
 static int get_window_pos(Widget w, int *x, int *y);
@@ -766,6 +767,7 @@ int main(int argc, char *argv[]) {
     XtAddCallback(w, XmNexposeCallback, expose_cb, NULL);
     XtAddCallback(w, XmNinputCallback, input_cb, NULL);
     XtRealizeWidget(mainwindow);
+    set_window_role(mainwindow, "Free42 Calculator");
     calc_widget = w;
     calc_canvas = XtWindow(w);
 
@@ -898,6 +900,7 @@ int main(int argc, char *argv[]) {
 									NULL);
 
     XtRealizeWidget(printwindow);
+    set_window_role(printwindow, "Free42 Print-Out");
 
     {
 	/* Prevent horizontal resizing */
@@ -1346,7 +1349,23 @@ static void show_message(char *title, char *message) {
 	XmStringFree(s);
     }
 
+    set_window_role(XtParent(msg), "Free42 Dialog");
     XtManageChild(msg);
+}
+
+static void set_window_role(Widget w, const char *role) {
+    static Atom WM_WINDOW_ROLE = None;
+
+    if (WM_WINDOW_ROLE == None)
+	WM_WINDOW_ROLE = XmInternAtom(display, "WM_WINDOW_ROLE", False);
+
+    XtRealizeWidget(w);
+    Window win = XtWindow(w);
+    XTextProperty textprop;
+    if (XStringListToTextProperty((char **) &role, 1, &textprop)) {
+	XSetTextProperty(display, win, &textprop, WM_WINDOW_ROLE);
+	XFree(textprop.value);
+    }
 }
 
 static void no_gnome_resize(Widget w) {
@@ -1558,6 +1577,8 @@ static void make_program_select_dialog() {
 			NULL);
     XmStringFree(s);
     XtAddCallback(button, XmNactivateCallback, selProgButtonCB, (XtPointer) 1);
+
+    set_window_role(XtParent(program_select_dialog), "Free42 Dialog");
 }
 
 /*********************************************/
@@ -1818,6 +1839,7 @@ static Widget make_file_select_dialog(const char *title, const char *pattern,
 
     XtAddCallback(fsd, XmNokCallback, callback, closure);
     XtAddCallback(fsd, XmNcancelCallback, callback, closure);
+    set_window_role(XtParent(fsd), "Free42 Dialog");
     return fsd;
 }
 
@@ -1913,6 +1935,8 @@ static void exportFileCB(Widget w, XtPointer ud, XtPointer cd) {
 		b = XmMessageBoxGetChild(overwrite_confirm_dialog,
 						XmDIALOG_OK_BUTTON);
 		XtAddCallback(b, XmNactivateCallback, do_export, NULL);
+		set_window_role(XtParent(overwrite_confirm_dialog),
+						"Free42 Dialog");
 	    } else
 		XtVaSetValues(overwrite_confirm_dialog,
 			      XmNmessageString, s, NULL);
@@ -2239,6 +2263,8 @@ static void make_prefs_dialog() {
 			NULL);
     XmStringFree(s);
     XtAddCallback(button, XmNactivateCallback, prefsButtonCB, (XtPointer) 3);
+
+    set_window_role(XtParent(prefsdialog), "Free42 Dialog");
 }
 
 
@@ -2481,6 +2507,7 @@ static void aboutCB(Widget w, XtPointer ud, XtPointer cd) {
 	XtUnmanageChild(button);
 	button = XmMessageBoxGetChild(about, XmDIALOG_HELP_BUTTON);
 	XtUnmanageChild(button);
+	set_window_role(XtParent(about), "Free42 Dialog");
     }
 
     XtManageChild(about);

@@ -1,3 +1,11 @@
+??-??-????: version 1.4.34
+
+* GTK and Motif versions: now set the WM_WINDOW_ROLE property on all top-level
+  windows, to allow window managers to use different policies on the various
+  windows depending on their role. This property is set to "Free42 Calculator"
+  for the main window, "Free42 Print-Out" for the print-out window, and to
+  "Free42 Dialog" for all dialogs.
+
 23-03-2007: version 1.4.33
 
 * PalmOS ARM version: would not run on some Palm Tungsten T models, because
@@ -7,7 +15,7 @@
 
 20-03-2007: (no new code release)
 
-* Added "StandardPPCsm" skin for 240x240 PocketPC devices
+* Added "StandardPPCsm" skin for 240x240 Pocket PC devices
   (Free42PocketPCSkins.zip package).
 
 27-02-2007: version 1.4.32

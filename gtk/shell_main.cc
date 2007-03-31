@@ -278,6 +278,7 @@ int main(int argc, char *argv[]) {
     mainwindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_icon(GTK_WINDOW(mainwindow), icon);
     gtk_window_set_title(GTK_WINDOW(mainwindow), TITLE);
+    gtk_window_set_role(GTK_WINDOW(mainwindow), "Free42 Calculator");
     gtk_window_set_resizable(GTK_WINDOW(mainwindow), FALSE);
     no_mwm_resize_borders(mainwindow);
     g_signal_connect(G_OBJECT(mainwindow), "delete_event",
@@ -365,6 +366,7 @@ int main(int argc, char *argv[]) {
     printwindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_icon(GTK_WINDOW(printwindow), icon);
     gtk_window_set_title(GTK_WINDOW(printwindow), "Free42 Print-Out");
+    gtk_window_set_role(GTK_WINDOW(printwindow), "Free42 Print-Out");
     g_signal_connect(G_OBJECT(printwindow), "delete_event",
 		     G_CALLBACK(delete_print_cb), NULL);
 
@@ -777,6 +779,7 @@ static void show_message(char *title, char *message) {
 					    GTK_BUTTONS_OK,
 					    message);
     gtk_window_set_title(GTK_WINDOW(msg), title);
+    gtk_window_set_role(GTK_WINDOW(msg), "Free42 Dialog");
     gtk_dialog_run(GTK_DIALOG(msg));
     gtk_widget_destroy(msg);
 }
@@ -871,6 +874,7 @@ static void exportProgramCB() {
     // TODO: does this leak list-stores? Or is everything taken case of by the
     // GObject reference-counting stuff?
 
+    gtk_window_set_role(GTK_WINDOW(sel_dialog), "Free42 Dialog");
     bool cancelled = gtk_dialog_run(GTK_DIALOG(sel_dialog)) != GTK_RESPONSE_ACCEPT;
     gtk_widget_hide(sel_dialog);
     if (cancelled)
@@ -887,6 +891,7 @@ static void exportProgramCB() {
 		true, mainwindow);
 
     char *filename = NULL;
+    gtk_window_set_role(GTK_WINDOW(save_dialog), "Free42 Dialog");
     if (gtk_dialog_run(GTK_DIALOG(save_dialog)) == GTK_RESPONSE_ACCEPT)
 	filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(save_dialog));
     gtk_widget_hide(GTK_WIDGET(save_dialog));
@@ -909,6 +914,7 @@ static void exportProgramCB() {
 						GTK_BUTTONS_YES_NO,
 						buf);
 	gtk_window_set_title(GTK_WINDOW(msg), "Replace?");
+	gtk_window_set_role(GTK_WINDOW(msg), "Free42 Dialog");
 	cancelled = gtk_dialog_run(GTK_DIALOG(msg)) != GTK_RESPONSE_YES;
 	gtk_widget_destroy(msg);
 	if (cancelled)
@@ -989,6 +995,7 @@ static void importProgramCB() {
 		"Program Files (*.raw)\0*.[Rr][Aa][Ww]\0All Files (*.*)\0*\0",
 		false, mainwindow);
 
+    gtk_window_set_role(GTK_WINDOW(dialog), "Free42 Dialog");
     bool cancelled = gtk_dialog_run(GTK_DIALOG(dialog)) != GTK_RESPONSE_ACCEPT;
     gtk_widget_hide(dialog);
     if (cancelled)
@@ -1057,6 +1064,7 @@ static void browse_file(GtkButton *button, gpointer cd) {
 	gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(save_dialog), filename);
     gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(save_dialog), filename);
 
+    gtk_window_set_role(GTK_WINDOW(save_dialog), "Free42 Dialog");
     if (gtk_dialog_run(GTK_DIALOG(save_dialog)) == GTK_RESPONSE_ACCEPT) {
 	filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(save_dialog));
 
@@ -1148,6 +1156,7 @@ static void preferencesCB() {
     snprintf(maxlen, 6, "%d", state.printerGifMaxLength);
 	gtk_entry_set_text(GTK_ENTRY(gifheight), maxlen);
 
+    gtk_window_set_role(GTK_WINDOW(dialog), "Free42 Dialog");
     if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
 	core_settings.matrix_singularmatrix = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(singularmatrix));
 	core_settings.matrix_outofrange = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(matrixoutofrange));
@@ -1247,6 +1256,7 @@ static void aboutCB() {
 	gtk_widget_show_all(GTK_WIDGET(about));
     }
 
+    gtk_window_set_role(GTK_WINDOW(about), "Free42 Dialog");
     gtk_dialog_run(GTK_DIALOG(about));
     gtk_widget_hide(GTK_WIDGET(about));
 }
