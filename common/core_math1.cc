@@ -310,6 +310,26 @@ static int finish_solve(int message) {
 
     solve.state = 0;
 
+    if (solve.which == -1) {
+	/* Ridders was terminated because it wasn't making progress; this does
+	 * not necessarily mean that x3 is the best guess so far. So, to be
+	 * sure, select the value with the lowest absulute function value.
+	 */
+	phloat t1 = fabs(solve.fx1);
+	phloat t2 = fabs(solve.fx2);
+	phloat t3 = fabs(solve.curr_f);
+	phloat t;
+	if (t1 < t2) {
+	    solve.which = 1;
+	    t = t1;
+	} else {
+	    solve.which = 2;
+	    t = t2;
+	}
+	if (t3 < t)
+	    solve.which = 3;
+    }
+
     v = recall_var(solve.var_name, solve.var_length);
     ((vartype_real *) v)->x = solve.which == 1 ? solve.x1 :
 				solve.which == 2 ? solve.x2 : solve.x3;
@@ -691,19 +711,23 @@ int return_to_solve(int failure) {
 	    if (failure)
 		goto do_bisection;
 	    s = sqrt(f * f - solve.fx1 * solve.fx2);
-	    if (s == 0)
+	    if (s == 0) {
 		/* Mathematically impossible, but numerically possible if
 		 * the function is so close to zero that f^2 underflows.
 		 * We could handle this better but this seems adequate.
 		 */
+		solve.which = -1;
 		return finish_solve(SOLVE_ROOT);
+	    }
 	    solve.xm = solve.x3;
 	    solve.fxm = f;
 	    if (solve.fx1 < solve.fx2)
 		s = -s;
 	    xnew = solve.xm + (solve.xm - solve.x1) * (solve.fxm / s);
-	    if (xnew == solve.x1 || xnew == solve.x2)
+	    if (xnew == solve.x1 || xnew == solve.x2) {
+		solve.which = -1;
 		return finish_solve(SOLVE_ROOT);
+	    }
 	    solve.x3 = xnew;
 	    return call_solve_fn(3, 7);
 
@@ -732,9 +756,10 @@ int return_to_solve(int failure) {
 	    }
 	    do_ridders:
 	    solve.x3 = (solve.x1 + solve.x2) / 2;
-	    if (solve.x3 == solve.x1 || solve.x3 == solve.x2)
+	    if (solve.x3 == solve.x1 || solve.x3 == solve.x2) {
+		solve.which = -1;
 		return finish_solve(SOLVE_ROOT);
-	    else
+	    } else
 		return call_solve_fn(3, 6);
 
 	default:

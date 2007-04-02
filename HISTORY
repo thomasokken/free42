@@ -1,5 +1,11 @@
-??-??-????: version 1.4.34
+01-04-2007: version 1.4.34
 
+* SOLVER: when the Ridders algorithm made no further progress, because the
+  interpolated value coincided with one of the interval's endpoints, it would
+  use the interpolated value as the final estimate of the root, without
+  checking if it was in fact the best estimate; the best estimate can
+  sometimes be the opposite endpoint. Added a check to make sure the best
+  estimate is returned.
 * GTK and Motif versions: now set the WM_WINDOW_ROLE property on all top-level
   windows, to allow window managers to use different policies on the various
   windows depending on their role. This property is set to "Free42 Calculator"
