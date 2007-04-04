@@ -6,6 +6,9 @@ program execution begins. Purely cosmetic perhaps, but still a bug.
 Make '\' act as R/S even in ALPHA mode. R/S is important, and the backslash is
 not, in the HP-42S part of the universe, anyway.
 
+Just a thought: optionally treat XEQ overflowing the RTN stack as an error (not
+just when a return-to-solve or return-to-integ is lost, but in *all* cases).
+
 Add information about keyboard mapping to README.txt files (all versions).
 Don't necessarily go into detail about how to customize the mapping, but *do*
 list all the default mappings.
