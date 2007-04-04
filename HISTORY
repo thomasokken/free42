@@ -1,3 +1,8 @@
+04-04-2007: (no new code release)
+
+* The "Standard" skin for the PalmOS version (Free42PalmOSSkins.zip package)
+  had the labels for SST and BST switched. Fixed.
+  
 01-04-2007: version 1.4.34
 
 * SOLVER: when the Ridders algorithm made no further progress, because the
