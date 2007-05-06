@@ -1,3 +1,8 @@
+??-??-????: version 1.4.35
+
+* Binary version: AIP would mangle some numbers; the underlying function to
+  extract the digit in a number's units position was broken. Fixed.
+
 04-04-2007: (no new code release)
 
 * The "Standard" skin for the PalmOS version (Free42PalmOSSkins.zip package)

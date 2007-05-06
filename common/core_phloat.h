@@ -43,7 +43,7 @@ struct hp_string {
 
 #define p_isinf isinf
 #define p_isnan isnan
-#define to_digit(x) (((int) (x)) % 10)
+#define to_digit(x) ((int) fmod((x), 10.0))
 #define to_char(x) ((char) (x))
 #define to_int(x) ((int) (x))
 #define to_int4(x) ((int4) (x))
