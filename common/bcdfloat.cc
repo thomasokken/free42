@@ -681,7 +681,7 @@ void BCDFloat::_usub(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
     bool neg = false;
 
     int d = ea - eb;
-    if (d >= P) {
+    if (d > P) {
         /* `b' is insignificant */
         *c = *a;
 	if (c->neg())
@@ -691,12 +691,12 @@ void BCDFloat::_usub(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
         int i;
         int ca = 0;
         int v;
-	if (d > 0 && b->d_[P-d] >= BASE/2)
+	if (d > 1 && b->d_[P+1-d] >= BASE/2)
 	    ca = 1;
-        for (i = P-1; i >= 0; --i) {
-            v = a->d_[i];
+        for (i = P; i >= 0; --i) {
+            v = i == P ? 0 : a->d_[i];
             int j = i-d;
-            if (j >= 0) v -= b->d_[j];
+            if (j >= 0 && j < P) v -= b->d_[j];
             v -= ca;
             ca = 0;
             if (v < 0) {
@@ -710,7 +710,7 @@ void BCDFloat::_usub(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
         if (ca) {
             /* overall borrow, need to complement number */
             ca = 1;
-            for (i = P-1; i >= 0; --i) {
+            for (i = P; i >= 0; --i) {
                 v = BASE-1 - c->d_[i] + ca;
                 ca = 0;
                 if (v >= BASE) {
@@ -723,7 +723,7 @@ void BCDFloat::_usub(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
         }
 
 	i = 0;
-	while (i < P && c->d_[i] == 0)
+	while (i <= P && c->d_[i] == 0)
 	    i++;
 	if (i > 0) {
 	    e -= i;
@@ -733,20 +733,24 @@ void BCDFloat::_usub(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
 		e = 0;
 	    } else {
 		int j;
-		for (j = 0; j < P - i; j++)
+		for (j = 0; j <= P - i; j++)
 		    c->d_[j] = c->d_[j + i];
-		for (j = P - i; j < P; j++)
+		for (j = P + 1 - i; j <= P; j++)
 		    c->d_[j] = 0;
 	    }
-	} else if (i == P) {
+	} else if (i == P + 1) {
 	    /* is zero */
 	    e = 0;
 	}
 
-        if (e > EXPLIMIT) *c = posInf();
-        else c->exp(e);
+        if (e > EXPLIMIT)
+	    *c = posInf();
+        else {
+	    if (c->_round25(true))
+		e++;
+	    c->exp(e);
+	}
         if (neg) c->negate();
-	c->_round25(false);
     }
 }
 

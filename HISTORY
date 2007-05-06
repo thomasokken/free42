@@ -1,7 +1,11 @@
-??-??-????: version 1.4.35
+06-05-2007: version 1.4.35
 
 * Binary version: AIP would mangle some numbers; the underlying function to
   extract the digit in a number's units position was broken. Fixed.
+* Decimal version: Modified BCDFloat::_usub() so that it performs the
+  subtraction using an extended (8-digit) mantissa. This fixes the behavior of
+  borderline cases like 0.9999999999999999999999999 - 1 (used to yield 0, now
+  -1e-25) and 1 - 1e-25 (used to yield 1, now 0.9999999999999999999999999).
 
 04-04-2007: (no new code release)
 
