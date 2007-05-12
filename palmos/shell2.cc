@@ -2299,7 +2299,7 @@ static void do_import() {
     core_import_programs(NULL);
 #else
     // ...but 68k machines are not.
-    progress = PrgStartDialog("Importing Program", progress_text_cb, NULL);
+    progress = PrgStartDialogV31("Importing Program", progress_text_cb);
     PrgUpdateDialog(progress, errNone, 0, "Importing...", true);
     core_import_programs(progress_report_cb);
     PrgStopDialog(progress, true);
@@ -2417,7 +2417,7 @@ static void do_export() {
     }
 #else
     // ...but 68k machines are not.
-    progress = PrgStartDialog("Exporting Program", progress_text_cb, NULL);
+    progress = PrgStartDialogV31("Exporting Program", progress_text_cb);
     PrgUpdateDialog(progress, errNone, 0, "Exporting...", true);
     int cancelled;
     cancelled = core_export_programs(np, selprog.prog_sel, progress_report_cb);

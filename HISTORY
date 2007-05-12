@@ -1,3 +1,10 @@
+12-05-2007: version 1.4.36
+
+* PalmOS 68k version: under PalmOS < 3.2, importing and exporting programs
+  would cause a crash, because I was using a Progress Manager API that did not
+  yet exist in those versions. Fixed now; as it turns out, I never needed that
+  newer API in the first place; the PalmOS 3.0 version does the job just fine.
+
 06-05-2007: version 1.4.35
 
 * Binary version: AIP would mangle some numbers; the underlying function to
