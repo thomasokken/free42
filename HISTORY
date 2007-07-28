@@ -2,6 +2,8 @@
 
 * Added "Ehrling42ss240sq" and "SemiReal240sq" skins for 240x240 Pocket PC
   devices (Free42PocketPCSkins.zip package).
+* Added information about keyboard mapping to the README files for Pocket PC,
+  Windows, Motif, and GTK.
 
 12-05-2007: version 1.4.36
 

@@ -1,3 +1,12 @@
+PC keyboard mapping: currently, all PC keyboard keys that generate printable
+ASCII characters generate those characters when ALPHA mode is active. This is
+nice because it makes it easy to enter text, but it has the undesirable side
+effect of overriding some other mappings that would be useful in ALPHA mode,
+e.g. '\' for R/S, 'm' for ASTO, etc. It would be nice to have a way to be able
+to use the normal mappings in ALPHA mode as well, perhaps by using a special
+modifier, e.g. <Win>-\ for R/S, <Win>-m for ASTO, etc., where <Win> is the
+Windows key, or Meta, or whatever is available.
+
 On the real HP-42S and Emu42, when running a program using XEQ and picking it
 from the program catalog, the menu stays up while the program runs (or rather,
 the display is not repainted). In Free42, the display is repainted before
