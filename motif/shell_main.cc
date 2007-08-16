@@ -58,15 +58,6 @@
 #include "icon.xpm"
 
 
-/* For casting pointers to integers without upsetting the */
-/* compiler in the case that sizeof(void *) > sizeof(int) */
-
-#if sizeof(int) >= sizeof(void *)
-#define pint int
-#else
-#define pint long
-#endif
-
 /* public globals */
 
 Display *display;
@@ -1857,7 +1848,7 @@ static Widget make_file_select_dialog(const char *title, const char *pattern,
 /***************************************/
 
 static void selProgButtonCB(Widget w, XtPointer ud, XtPointer cd) {
-    pint id = (pint) ud;
+    int id = (int) (long) ud;
     int count;
     int *positions;
 
@@ -2278,7 +2269,7 @@ static void make_prefs_dialog() {
 
 
 static void prefsButtonCB(Widget w, XtPointer ud, XtPointer cd) {
-    pint id = (pint) ud;
+    int id = (int) (long) ud;
     char *s, *old;
 
     switch (id) {

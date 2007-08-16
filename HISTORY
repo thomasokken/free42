@@ -4,9 +4,12 @@
   considers the loss of precision that occurs when casting a void* to an int to
   be a fatal error, and motif/shell_main.cc used such casts in two places
   (those casts were legit -- not a bug!). I fixed shell_main.cc so that it
-  casts to a long instead if sizeof(void*) > sizeof(int). I'm only updating the
-  free42.tgz package, and not releasing any new executables, since this code
-  change does not actually affect any of the existing builds.
+  first casts to a long, then to an int: the loss of precision when casting
+  between integer types is not frowned upon, so this should compile anywhere
+  with no errors or warnings.
+  I'm only updating the free42.tgz package, and not releasing any new
+  executables, since this code change does not actually affect any of the
+  existing builds.
 
 28-07-2007: (no new code release)
 
