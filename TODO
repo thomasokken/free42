@@ -1,3 +1,7 @@
+PalmOS version: the application icon does not seem to have a proper mask.
+When the Z22's launcher highlights it, the whole icon disappears.
+Noticed this with Free42, Life, Filez...
+
 PC keyboard mapping: currently, all PC keyboard keys that generate printable
 ASCII characters generate those characters when ALPHA mode is active. This is
 nice because it makes it easy to enter text, but it has the undesirable side
