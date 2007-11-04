@@ -1,3 +1,9 @@
+Running multiple instances of Free42 can be confusing, because of what happens
+to the state file on exit and whatnot. How about adding some code that prevents
+multiple instances (for those OSes where this could happen) and offer the user
+a configuration option that allows them to specify whether or not they want the
+currently active instance to be raised to the top instead.
+
 PalmOS version: the application icon does not seem to have a proper mask.
 When the Z22's launcher highlights it, the whole icon disappears.
 Noticed this with Free42, Life, Filez...
