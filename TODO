@@ -1,3 +1,11 @@
+On the Z22, the print-out window is not scrolled all the way to the bottom
+initially. On the m100, it is. First guess: I'm calculating the scroll bar
+position wrong, by assuming that the Z22 has a 320x320 screen -- yes, the Z22
+does have the high-density feature set, but it does not have a high-density
+screen. Been there before with the high-density skins showing up in the Skin
+menu; probably need the same kind of fix here.
+Update: on the T|E2, output is not scrolled all the way to the bottom either!
+
 Running multiple instances of Free42 can be confusing, because of what happens
 to the state file on exit and whatnot. How about adding some code that prevents
 multiple instances (for those OSes where this could happen) and offer the user
