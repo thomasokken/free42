@@ -1,3 +1,7 @@
+08-12-2007: version 1.4.37
+
+* Changed the homepage URL to http://free42.sourceforge.net/.
+
 15-08-2007: (no new code release)
 
 * The Motif version did not compile under Ubuntu 64-bit; its version of g++

@@ -385,9 +385,7 @@ begin
   label "Version %VERSION%" autoid at (prevleft prevbottom)
   label "\251 2004-2007 Thomas Okken" autoid at (18 55)
   label "thomas_okken@yahoo.com" autoid at (prevleft prevbottom)
-  label "http://home.planet.nl/" autoid at (prevleft prevbottom+10)
-  label "~demun000/" autoid at (prevleft+20 prevbottom)
-  label "thomas_projects/free42/" autoid at (prevleft prevbottom)
+  label "http://free42.sourceforge.net/" autoid at (prevleft prevbottom+10)
   button "OK" id ok_id at (center 136 36 auto)
 end
 
