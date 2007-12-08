@@ -126,7 +126,7 @@ BEGIN
     LTEXT           "(C) 2004-2007 Thomas Okken",IDC_STATIC,13,28,97,8
     LTEXT           FREE42_VERSION_4,IDC_STATIC,40,13,54,8
     LTEXT           "thomas_okken@yahoo.com",IDC_STATIC,13,37,89,8
-    LTEXT           "http://free42.sourceforge.net/",IDC_STATIC,13,50,73,8
+    LTEXT           "http://free42.sourceforge.net/",IDC_STATIC,13,50,100,8
     PUSHBUTTON      "OK",IDOK,41,81,41,14
 END
 
