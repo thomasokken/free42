@@ -1,3 +1,9 @@
+14-12-2007: version 1.4.38
+
+* Windows version: implemented single-instance option. This is on by default.
+  PalmOS is single-tasking, and Pocket PC enforces single-instance behavior for
+  all applications, so this option does not apply to those environments.
+
 08-12-2007: version 1.4.37
 
 * Changed the homepage URL to http://free42.sourceforge.net/.

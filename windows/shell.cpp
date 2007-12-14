@@ -100,7 +100,7 @@ static int keymap_length = 0;
 static keymap_entry *keymap = NULL;
 
 
-#define SHELL_VERSION 5
+#define SHELL_VERSION 6
 
 typedef struct state {
 	BOOL extras;
@@ -116,6 +116,7 @@ typedef struct state {
 	int printerGifMaxLength;
 	char skinName[FILENAMELEN];
 	BOOL alwaysOnTop;
+	BOOL singleInstance;
 } state_type;
 
 static state_type state;
@@ -208,6 +209,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 	LoadString(hInstance, IDS_PRINTOUT_TITLE, szPrintOutTitle, MAX_LOADSTRING);
 	LoadString(hInstance, IDC_FREE42, szMainWindowClass, MAX_LOADSTRING);
 	LoadString(hInstance, IDC_FREE42_PRINTOUT, szPrintOutWindowClass, MAX_LOADSTRING);
+
 	MyRegisterClass(hInstance);
 
 	// Perform application initialization:
@@ -356,6 +358,14 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		init_shell_state(-1);
 		init_mode = 0;
     }
+
+	if (state.singleInstance) {
+		HWND hPrevWnd = FindWindow(szMainWindowClass, szMainTitle);
+		if (hPrevWnd != NULL) {
+			SetForegroundWindow(hPrevWnd);
+			return FALSE;
+		}
+	}
 
 	skin_load(state.skinName, free42dirname, &r.right, &r.bottom);
 	r.top = 0;
@@ -1045,6 +1055,10 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
 				ctl = GetDlgItem(hDlg, IDC_ALWAYSONTOP);
 				SendMessage(ctl, BM_SETCHECK, 1, 0);
 			}
+			if (state.singleInstance) {
+				ctl = GetDlgItem(hDlg, IDC_SINGLEINSTANCE);
+				SendMessage(ctl, BM_SETCHECK, 1, 0);
+			}
 			if (state.printerToTxtFile) {
 				ctl = GetDlgItem(hDlg, IDC_PRINTER_TXT);
 				SendMessage(ctl, BM_SETCHECK, 1, 0);
@@ -1083,6 +1097,8 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
 						if (hPrintOutWnd != NULL)
 							SetWindowPos(hPrintOutWnd, alwaysOnTop ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 					}
+					ctl = GetDlgItem(hDlg, IDC_SINGLEINSTANCE);
+					state.singleInstance = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
 
 					ctl = GetDlgItem(hDlg, IDC_PRINTER_TXT);
 					state.printerToTxtFile = SendMessage(ctl, BM_GETCHECK, 0, 0);
@@ -2066,10 +2082,13 @@ static void init_shell_state(int4 version) {
 			state.skinName[0] = 0;
 			// fall through
 		case 4:
-			state.alwaysOnTop = 0;
+			state.alwaysOnTop = FALSE;
 			// fall through
 		case 5:
-			// current version (SHELL_VERSION = 5),
+			state.singleInstance = TRUE;
+			// fall through
+		case 6:
+			// current version (SHELL_VERSION = 6),
 			// so nothing to do here since everything
 			// was initialized from the state file.
 			;
