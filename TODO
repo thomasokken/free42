@@ -1,3 +1,6 @@
+When BASE is active, Paste should parse the clipboard using the selected base.
+Currently, it always uses base 10, and that is confusing and inconvenient.
+
 On the Z22, the print-out window is not scrolled all the way to the bottom
 initially. On the m100, it is. First guess: I'm calculating the scroll bar
 position wrong, by assuming that the Z22 has a 320x320 screen -- yes, the Z22
@@ -35,10 +38,6 @@ not, in the HP-42S part of the universe, anyway.
 
 Just a thought: optionally treat XEQ overflowing the RTN stack as an error (not
 just when a return-to-solve or return-to-integ is lost, but in *all* cases).
-
-Add information about keyboard mapping to README.txt files (all versions).
-Don't necessarily go into detail about how to customize the mapping, but *do*
-list all the default mappings.
 
 PalmOS version: add explanation to README.txt about skins -- why they won't
 work off an SD card, how to install them properly, yada yada yada.
