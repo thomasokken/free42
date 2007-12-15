@@ -205,6 +205,18 @@ int main(int argc, char *argv[]) {
     if (argc >= 3 && strcmp(argv[1], "-skin") == 0)
 	skin_arg = argv[2];
 
+    /*********************************************************/
+    /***** Ignore SIGUSR1 until we're ready to handle it *****/
+    /*********************************************************/
+
+    struct sigaction act;
+    act.sa_handler = SIG_IGN;
+    sigemptyset(&act.sa_mask);
+    sigaddset(&act.sa_mask, SIGUSR1);
+    act.sa_flags = 0;
+    sigaction(SIGUSR1, &act, NULL);
+
+
     /*****************************************************/
     /***** Try to create the $HOME/.free42 directory *****/
     /*****************************************************/
@@ -519,7 +531,6 @@ int main(int argc, char *argv[]) {
 	    (GIOFlags) (g_io_channel_get_flags(channel) | G_IO_FLAG_NONBLOCK), &err);
 	g_io_add_watch(channel, G_IO_IN, gt_signal_handler, NULL);
 
-	struct sigaction act;
 	act.sa_handler = int_term_handler;
 	sigemptyset(&act.sa_mask);
 	sigaddset(&act.sa_mask, SIGINT);

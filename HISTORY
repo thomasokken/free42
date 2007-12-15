@@ -1,3 +1,10 @@
+15-12-2007: version 1.4.40
+
+* The 'Paste' command now handles binary, octal, and hexadecimal values when
+  the calculator is in the respective base modes. Note that 'Copy' has
+  supported non-decimal bases since times immemorial, so this simply makes
+  clipboard handling consistent at last.
+
 15-12-2007: version 1.4.39
 
 * Windows version: the single-instance option did not work when the previous

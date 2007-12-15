@@ -389,6 +389,17 @@ int main(int argc, char *argv[]) {
     char *skin_arg = NULL;
 
 
+    /*********************************************************/
+    /***** Ignore SIGUSR1 until we're ready to handle it *****/
+    /*********************************************************/
+
+    act.sa_handler = SIG_IGN;
+    sigemptyset(&act.sa_mask);
+    sigaddset(&act.sa_mask, SIGUSR1);
+    act.sa_flags = 0;
+    sigaction(SIGUSR1, &act, NULL);
+
+
     /*************************************/
     /***** X-related initializations *****/
     /*************************************/

@@ -1973,6 +1973,54 @@ void core_paste(const char *buf) {
     int i, s1, e1, s2, e2;
     vartype *v;
 
+    int base = get_base();
+    if (base != 10) {
+	int bpd = base == 2 ? 1 : base == 8 ? 3 : 4;
+	int bits = 0;
+	bool neg = false;
+	int8 n = 0;
+	i = 0;
+	while (buf[i] == ' ')
+	    i++;
+	if (buf[i] == '-') {
+	    neg = true;
+	    i++;
+	}
+	while (bits < 36) {
+	    char c = buf[i++];
+	    if (c == 0)
+		break;
+	    int d;
+	    if (base == 16) {
+		if (c >= '0' && c <= '9')
+		    d = c - '0';
+		else if (c >= 'A' && c <= 'F')
+		    d = c - 'A' + 10;
+		else if (c >= 'a' && c <= 'f')
+		    d = c - 'a' + 10;
+		else
+		    break;
+	    } else {
+		if (c >= 0 && c < '0' + base)
+		    d = c - '0';
+		else
+		    break;
+	    }
+	    n = n << bpd | d;
+	    bits += bpd;
+	}
+	if (bits == 0)
+	    goto paste_string;
+	if (neg)
+	    n = -n;
+	if ((n & LL(0x800000000)) == 0)
+	    n &= LL(0x7ffffffff);
+	else
+	    n |= LL(0xfffffff000000000);
+	v = new_real((phloat) n);
+	goto paste;
+    }
+
     /* Try matching " %g i %g " */
     i = 0;
     while (buf[i] == ' ')
@@ -2081,6 +2129,7 @@ void core_paste(const char *buf) {
     if (e1 != s1 && parse_phloat(buf + s1, e1 - s1, &re))
 	v = new_real(re);
     else {
+	paste_string:
 	int len = 0;
 	while (len < 6 && buf[len] != 0)
 	    len++;

@@ -1234,11 +1234,11 @@ static int hms_add_or_sub(bool add) {
 	double rx, ry, res;
 	int8 ix, iy, ixhr, iyhr, ires, ireshr;
 
-	rx = floor(phloat_d(x));
-	ry = floor(phloat_d(y));
+	rx = floor(x);
+	ry = floor(y);
 	res = add ? ry + rx : ry - rx;
-	ix = (int8) (((phloat_d(x) - rx) * 1000000000000.0) + 0.5);
-	iy = (int8) (((phloat_d(y) - ry) * 1000000000000.0) + 0.5);
+	ix = (int8) (((x - rx) * 1000000000000.0) + 0.5);
+	iy = (int8) (((y - ry) * 1000000000000.0) + 0.5);
 	ixhr = ix % LL(10000000000);
 	iyhr = iy % LL(10000000000);
 	ix /= LL(10000000000);

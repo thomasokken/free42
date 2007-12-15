@@ -1,16 +1,3 @@
-GTK and Motif versions: I'm currently ungrabbing the server before setting up
-the SIGUSR1 handler. That opens up the possibility that I might receive a USR1
-signal before I'm ready to handle it, which could very well happen when two
-Free42 processes are started simultaneously.
-I should either defer ungrabbing the server until the USR1 handler is
-registered, or move the code that sets up the USR1 handler up (to just after
-the top-level window has been realized), or, temporarily ignore USR1 between
-deciding not to *send* one and being ready to *receive* one. I think option 3
-is probably the right one.
-
-When BASE is active, Paste should parse the clipboard using the selected base.
-Currently, it always uses base 10, and that is confusing and inconvenient.
-
 On the Z22, the print-out window is not scrolled all the way to the bottom
 initially. On the m100, it is. First guess: I'm calculating the scroll bar
 position wrong, by assuming that the Z22 has a 320x320 screen -- yes, the Z22

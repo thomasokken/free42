@@ -39,8 +39,6 @@ struct hp_string {
 
 #define phloat double
 
-#define phloat_d(x) (x)
-
 #define p_isinf isinf
 #define p_isnan isnan
 #define to_digit(x) ((int) fmod((x), 10.0))
@@ -59,7 +57,6 @@ double bcd2double(const short *p);
 
 
 #define phloat Phloat
-#define phloat_d(x) ((x).b)
 
 class Phloat {
     public:
