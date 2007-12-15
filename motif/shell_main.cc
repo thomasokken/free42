@@ -34,12 +34,14 @@
 #include <Xm/Text.h>
 #include <Xm/ToggleB.h>
 #include <X11/Xmu/Editres.h>
+#include <X11/Xmu/WinUtil.h>
 #define XK_MISCELLANY 1
 #include <X11/keysymdef.h>
 #include <X11/xpm.h>
 #include <ctype.h>
 #include <dirent.h>
 #include <errno.h>
+#include <pwd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -242,7 +244,7 @@ static int gif_lines;
 static XtAppContext appcontext;
 static Widget appshell, mainwindow, printwindow, print_da, print_sb;
 static Widget prefsdialog = NULL, prefs_matrix_singularmatrix,
-		prefs_matrix_outofrange,
+		prefs_matrix_outofrange, prefs_single_instance,
 		prefs_printer_txt, prefs_printer_txt_name, prefs_raw_text,
 		prefs_printer_gif, prefs_printer_gif_name,
 		prefs_printer_gif_height;
@@ -278,7 +280,8 @@ static XtWorkProcId reminder_id;
 static FILE *statefile = NULL;
 static char statefilename[FILENAMELEN];
 static char printfilename[FILENAMELEN];
-static XtSignalId term_sig_id;
+static XtSignalId int_term_sig_id;
+static XtSignalId usr1_sig_id;
 
 static int print_repaint_pending = 0;
 static XtWorkProcId print_repaint_id;
@@ -302,6 +305,8 @@ static int x_error_handler(Display *display, XErrorEvent *event);
 static int x_io_error_handler(Display *display);
 static void int_term_handler(int sig);
 static void xt_int_term_handler(XtPointer closure, XtSignalId *id);
+static void usr1_handler(int sig);
+static void xt_usr1_handler(XtPointer closure, XtSignalId *id);
 static void quit();
 static char *strclone(const char *s);
 static int is_file(const char *name);
@@ -491,6 +496,53 @@ int main(int argc, char *argv[]) {
     } else {
 	init_shell_state(-1);
 	init_mode = 0;
+    }
+
+
+    /*******************************************************/
+    /***** Enforce single-instance mode, if applicable *****/
+    /*******************************************************/
+
+    Atom FREE42_HOST_AND_USER;
+    char *appid;
+    if (state.singleInstance) {
+	int appid_len = _POSIX_HOST_NAME_MAX + _POSIX_LOGIN_NAME_MAX + 2;
+	appid = (char *) malloc(appid_len);
+	gethostname(appid, appid_len);
+	strcat(appid, "|");
+	strcat(appid, getpwuid(getuid())->pw_name);
+	FREE42_HOST_AND_USER = XInternAtom(display, "FREE42_HOST_AND_USER", False);
+	XGrabServer(display);
+	Window root;
+	Window parent;
+	Window *children;
+	unsigned int nchildren;
+	if (XQueryTree(display, rootwindow, &root, &parent, &children, &nchildren) != 0) {
+	    for (unsigned int i = 0; i < nchildren; i++) {
+		Window win = children[i];
+		Window cwin = XmuClientWindow(display, win);
+		XTextProperty prop;
+		XGetTextProperty(display, cwin, &prop, FREE42_HOST_AND_USER);
+		if (prop.value != NULL) {
+		    char **list;
+		    int nitems;
+		    XTextPropertyToStringList(&prop, &list, &nitems);
+		    if (nitems > 0 && strcmp(list[0], appid) == 0) {
+			pid_t pid;
+			if (sscanf(list[1], "%d", &pid) == 1) {
+			    kill(pid, SIGUSR1);
+			    XUngrabServer(display);
+			    return 0;
+			}
+		    }
+		    if (list != NULL)
+			XFree(list);
+		    XFree(prop.value);
+		}
+	    }
+	}
+	if (children != NULL)
+	    XFree(children);
     }
 
 
@@ -771,6 +823,20 @@ int main(int argc, char *argv[]) {
     calc_widget = w;
     calc_canvas = XtWindow(w);
 
+    if (state.singleInstance) {
+	char *list[2];
+	char pidstr[11];
+	sprintf(pidstr, "%u", getpid());
+	list[0] = appid;
+	list[1] = pidstr;
+	XTextProperty prop;
+	XStringListToTextProperty(list, 2, &prop);
+	XSetTextProperty(display, XtWindow(mainwindow), &prop, FREE42_HOST_AND_USER);
+	XFree(prop.value);
+	XUngrabServer(display);
+	free(appid);
+    }
+
 
     /**************************************/
     /***** Build the print-out window *****/
@@ -947,7 +1013,7 @@ int main(int argc, char *argv[]) {
 	XtAppAddTimeOut(appcontext, 60000, battery_checker, NULL);
     }
 
-    term_sig_id = XtAppAddSignal(appcontext, xt_int_term_handler, NULL);
+    int_term_sig_id = XtAppAddSignal(appcontext, xt_int_term_handler, NULL);
     act.sa_handler = int_term_handler;
     sigemptyset(&act.sa_mask);
     sigaddset(&act.sa_mask, SIGINT);
@@ -955,6 +1021,13 @@ int main(int argc, char *argv[]) {
     act.sa_flags = 0;
     sigaction(SIGINT, &act, NULL);
     sigaction(SIGTERM, &act, NULL);
+
+    usr1_sig_id = XtAppAddSignal(appcontext, xt_usr1_handler, NULL);
+    act.sa_handler = usr1_handler;
+    sigemptyset(&act.sa_mask);
+    sigaddset(&act.sa_mask, SIGUSR1);
+    act.sa_flags = 0;
+    sigaction(SIGUSR1, &act, NULL);
     XtAppMainLoop(appcontext);
     return 0;
 }
@@ -1109,7 +1182,10 @@ static void init_shell_state(int4 version) {
 	    state.skinName[0] = 0;
 	    /* fall through */
 	case 3:
-	    /* current version (SHELL_VERSION = 3),
+	    state.singleInstance = 0;
+	    /* fall through */
+	case 4:
+	    /* current version (SHELL_VERSION = 4),
 	     * so nothing to do here since everything
 	     * was initialized from the state file.
 	     */
@@ -1232,11 +1308,28 @@ static int x_io_error_handler(Display *display) {
 }
 
 static void int_term_handler(int sig) {
-    XtNoticeSignal(term_sig_id);
+    XtNoticeSignal(int_term_sig_id);
 }
 
 static void xt_int_term_handler(XtPointer closure, XtSignalId *id) {
     quit();
+}
+
+static void usr1_handler(int sig) {
+    XtNoticeSignal(usr1_sig_id);
+}
+
+static void xt_usr1_handler(XtPointer closure, XtSignalId *id) {
+    XGrabServer(display);
+    Window win = XtWindow(mainwindow);
+    XWindowAttributes atts;
+    XGetWindowAttributes(display, win, &atts);
+    if (atts.map_state == IsViewable) {
+	XRaiseWindow(display, win);
+	XSetInputFocus(display, win, RevertToNone, CurrentTime);
+    } else
+	XMapRaised(display, win);
+    XUngrabServer(display);
 }
 
 static void quit() {
@@ -2044,6 +2137,8 @@ static void preferencesCB(Widget w, XtPointer ud, XtPointer cd) {
 			   core_settings.matrix_singularmatrix, False);
     XmToggleButtonSetState(prefs_matrix_outofrange,
 			   core_settings.matrix_outofrange, False);
+    XmToggleButtonSetState(prefs_single_instance,
+			   state.singleInstance, False);
     XmToggleButtonSetState(prefs_printer_txt, state.printerToTxtFile, False);
     XmTextSetString(prefs_printer_txt_name, state.printerTxtFileName);
     XmToggleButtonSetState(prefs_raw_text, core_settings.raw_text, False);
@@ -2098,6 +2193,19 @@ static void make_prefs_dialog() {
 			NULL);
     XmStringFree(s);
 
+    s = XmStringCreateLocalized("Single instance");
+    prefs_single_instance = XtVaCreateManagedWidget(
+			"SingleInstance",
+			xmToggleButtonWidgetClass,
+			prefsdialog,
+			XmNlabelString, s,
+			XmNnavigationType, XmEXCLUSIVE_TAB_GROUP,
+			XmNtopAttachment, XmATTACH_WIDGET,
+			XmNtopWidget, prefs_matrix_outofrange,
+			XmNleftAttachment, XmATTACH_FORM,
+			NULL);
+    XmStringFree(s);
+
     s = XmStringCreateLocalized("Print to text file:");
     prefs_printer_txt = XtVaCreateManagedWidget(
 			"Printer_TXT",
@@ -2106,7 +2214,7 @@ static void make_prefs_dialog() {
 			XmNlabelString, s,
 			XmNnavigationType, XmEXCLUSIVE_TAB_GROUP,
 			XmNtopAttachment, XmATTACH_WIDGET,
-			XmNtopWidget, prefs_matrix_outofrange,
+			XmNtopWidget, prefs_single_instance,
 			XmNtopOffset, 10,
 			XmNleftAttachment, XmATTACH_FORM,
 			NULL);
@@ -2308,6 +2416,8 @@ static void prefsButtonCB(Widget w, XtPointer ud, XtPointer cd) {
 		XmToggleButtonGetState(prefs_matrix_singularmatrix);
 	    core_settings.matrix_outofrange =
 		XmToggleButtonGetState(prefs_matrix_outofrange);
+	    state.singleInstance =
+		XmToggleButtonGetState(prefs_single_instance);
 	    core_settings.raw_text =
 		XmToggleButtonGetState(prefs_raw_text);
 

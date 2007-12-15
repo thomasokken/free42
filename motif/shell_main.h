@@ -36,7 +36,7 @@ extern Window calc_canvas;
 extern int allow_paint;
 
 
-#define SHELL_VERSION 3
+#define SHELL_VERSION 4
 
 typedef struct state_type {
     int extras;
@@ -49,6 +49,7 @@ typedef struct state_type {
     int mainWindowX, mainWindowY;
     int printWindowX, printWindowY, printWindowHeight;
     char skinName[FILENAMELEN];
+    int singleInstance;
 };
 
 extern state_type state;
