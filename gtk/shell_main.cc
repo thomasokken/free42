@@ -16,9 +16,13 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <X11/Xlib.h>
+#include <X11/Xmu/WinUtil.h>
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
+#include <gdk/gdkx.h>
 #include <errno.h>
+#include <pwd.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -119,7 +123,8 @@ static void init_shell_state(int4 version);
 static int read_shell_state(int4 *version);
 static int write_shell_state();
 static void int_term_handler(int sig);
-static gboolean gt_term_handler(GIOChannel *source, GIOCondition condition,
+static void usr1_handler(int sig);
+static gboolean gt_signal_handler(GIOChannel *source, GIOCondition condition,
 							    gpointer data);
 static void quit();
 static char *strclone(const char *s);
@@ -269,6 +274,54 @@ int main(int argc, char *argv[]) {
     }
 
 
+    /*******************************************************/
+    /***** Enforce single-instance mode, if applicable *****/
+    /*******************************************************/
+
+    Atom FREE42_HOST_AND_USER;
+    char *appid;
+    if (state.singleInstance) {
+	int appid_len = _POSIX_HOST_NAME_MAX + _POSIX_LOGIN_NAME_MAX + 2;
+	appid = (char *) malloc(appid_len);
+	gethostname(appid, appid_len);
+	strcat(appid, "|");
+	strcat(appid, getpwuid(getuid())->pw_name);
+	Display *display = GDK_DISPLAY();
+	FREE42_HOST_AND_USER = XInternAtom(display, "FREE42_HOST_AND_USER", False);
+	//XGrabServer(display);
+	Window root;
+	Window parent;
+	Window *children;
+	unsigned int nchildren;
+	if (XQueryTree(display, GDK_ROOT_WINDOW(), &root, &parent, &children, &nchildren) != 0) {
+	    for (unsigned int i = 0; i < nchildren; i++) {
+		Window win = children[i];
+		Window cwin = XmuClientWindow(display, win);
+		XTextProperty prop;
+		XGetTextProperty(display, cwin, &prop, FREE42_HOST_AND_USER);
+		if (prop.value != NULL) {
+		    char **list;
+		    int nitems;
+		    XTextPropertyToStringList(&prop, &list, &nitems);
+		    if (nitems > 0 && strcmp(list[0], appid) == 0) {
+			pid_t pid;
+			if (sscanf(list[1], "%d", &pid) == 1) {
+			    kill(pid, SIGUSR1);
+			    //XUngrabServer(display);
+			    return 0;
+			}
+		    }
+		    if (list != NULL)
+			XFree(list);
+		    XFree(prop.value);
+		}
+	    }
+	}
+	if (children != NULL)
+	    XFree(children);
+    }
+
+
     /*********************************/
     /***** Build the main window *****/
     /*********************************/
@@ -327,6 +380,22 @@ int main(int argc, char *argv[]) {
     g_signal_connect(G_OBJECT(w), "key-press-event", G_CALLBACK(key_cb), NULL);
     g_signal_connect(G_OBJECT(w), "key-release-event", G_CALLBACK(key_cb), NULL);
     calc_widget = w;
+
+    if (state.singleInstance) {
+	gtk_widget_realize(mainwindow);
+	char *list[2];
+	char pidstr[11];
+	sprintf(pidstr, "%u", getpid());
+	list[0] = appid;
+	list[1] = pidstr;
+	XTextProperty prop;
+	XStringListToTextProperty(list, 2, &prop);
+	Display *display = GDK_DISPLAY();
+	XSetTextProperty(display, GDK_WINDOW_XWINDOW(mainwindow->window), &prop, FREE42_HOST_AND_USER);
+	XFree(prop.value);
+	//XUngrabServer(display);
+	free(appid);
+    }
 
 
     /**************************************/
@@ -434,14 +503,15 @@ int main(int argc, char *argv[]) {
     }
 
     if (pipe(pype) != 0)
-	fprintf(stderr, "Could not create pipe for signal handler; not catching INT and TERM signals.\n");
+	fprintf(stderr, "Could not create pipe for signal handler; not catching signals.\n");
     else {
 	GIOChannel *channel = g_io_channel_unix_new(pype[0]);
 	GError *err = NULL;
 	g_io_channel_set_encoding(channel, NULL, &err);
 	g_io_channel_set_flags(channel,     
 	    (GIOFlags) (g_io_channel_get_flags(channel) | G_IO_FLAG_NONBLOCK), &err);
-	g_io_add_watch(channel, G_IO_IN, gt_term_handler, NULL);
+	g_io_add_watch(channel, G_IO_IN, gt_signal_handler, NULL);
+
 	struct sigaction act;
 	act.sa_handler = int_term_handler;
 	sigemptyset(&act.sa_mask);
@@ -450,6 +520,12 @@ int main(int argc, char *argv[]) {
 	act.sa_flags = 0;
 	sigaction(SIGINT, &act, NULL);
 	sigaction(SIGTERM, &act, NULL);
+
+	act.sa_handler = usr1_handler;
+	sigemptyset(&act.sa_mask);
+	sigaddset(&act.sa_mask, SIGUSR1);
+	act.sa_flags = 0;
+	sigaction(SIGUSR1, &act, NULL);
     }
     gtk_main();
     return 0;
@@ -605,7 +681,10 @@ static void init_shell_state(int4 version) {
 	    state.skinName[0] = 0;
 	    /* fall through */
 	case 3:
-	    /* current version (SHELL_VERSION = 3),
+	    state.singleInstance = 0;
+	    /* fall through */
+	case 4:
+	    /* current version (SHELL_VERSION = 4),
 	     * so nothing to do here since everything
 	     * was initialized from the state file.
 	     */
@@ -673,13 +752,27 @@ static int write_shell_state() {
 }
 
 static void int_term_handler(int sig) {
-    write(pype[1], "\n", 1);
+    write(pype[1], "1\n", 2);
 }
 
-static gboolean gt_term_handler(GIOChannel *source, GIOCondition condition,
+static void usr1_handler(int sig) {
+    write(pype[1], "2\n", 2);
+}
+
+static gboolean gt_signal_handler(GIOChannel *source, GIOCondition condition,
 							    gpointer data) {
-    quit();
-    return FALSE;
+    char buf[1];
+    if (read(pype[0], buf, 1) == 1)
+	if (buf[0] == '1')
+	    quit();
+	else {
+	    //gtk_widget_show(mainwindow);
+	    gtk_window_present(GTK_WINDOW(mainwindow));
+	    //gdk_window_deiconify(mainwindow->window);
+	    //gdk_window_raise(mainwindow->window);
+	    gdk_window_focus(mainwindow->window, GDK_CURRENT_TIME);
+	}
+    return TRUE;
 }
 
 static void quit() {
@@ -814,7 +907,9 @@ static void quitCB() {
 }
 
 static void showPrintOutCB() {
-    gtk_widget_show(printwindow);
+    //gtk_widget_show(printwindow);
+    gtk_window_present(GTK_WINDOW(printwindow));
+    gdk_window_focus(printwindow->window, GDK_CURRENT_TIME);
     state.printWindowKnown = 1;
     state.printWindowMapped = 1;
 }
@@ -1089,6 +1184,7 @@ static void preferencesCB() {
     static GtkWidget *dialog = NULL;
     static GtkWidget *singularmatrix;
     static GtkWidget *matrixoutofrange;
+    static GtkWidget *singleinstance;
     static GtkWidget *printtotext;
     static GtkWidget *textpath;
     static GtkWidget *rawtext;
@@ -1114,24 +1210,26 @@ static void preferencesCB() {
 	gtk_table_attach(GTK_TABLE(table), singularmatrix, 0, 4, 0, 1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
 	matrixoutofrange = gtk_check_button_new_with_label("Overflows during matrix operations yield \"Out of Range\" error");
 	gtk_table_attach(GTK_TABLE(table), matrixoutofrange, 0, 4, 1, 2, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+	singleinstance = gtk_check_button_new_with_label("Single instance");
+	gtk_table_attach(GTK_TABLE(table), singleinstance, 0, 4, 2, 3, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
 	printtotext = gtk_check_button_new_with_label("Print to text file:");
-	gtk_table_attach(GTK_TABLE(table), printtotext, 0, 1, 2, 3, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+	gtk_table_attach(GTK_TABLE(table), printtotext, 0, 1, 3, 4, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
 	textpath = gtk_entry_new();
-	gtk_table_attach(GTK_TABLE(table), textpath, 1, 3, 2, 3, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+	gtk_table_attach(GTK_TABLE(table), textpath, 1, 3, 3, 4, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
 	GtkWidget *browse1 = gtk_button_new_with_label("Browse...");
-	gtk_table_attach(GTK_TABLE(table), browse1, 3, 4, 2, 3, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+	gtk_table_attach(GTK_TABLE(table), browse1, 3, 4, 3, 4, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
 	rawtext = gtk_check_button_new_with_label("Raw text");
-	gtk_table_attach(GTK_TABLE(table), rawtext, 1, 3, 3, 4, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+	gtk_table_attach(GTK_TABLE(table), rawtext, 1, 3, 4, 5, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
 	printtogif = gtk_check_button_new_with_label("Print to GIF file:");
-	gtk_table_attach(GTK_TABLE(table), printtogif, 0, 1, 4, 5, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+	gtk_table_attach(GTK_TABLE(table), printtogif, 0, 1, 5, 6, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
 	gifpath = gtk_entry_new();
-	gtk_table_attach(GTK_TABLE(table), gifpath, 1, 3, 4, 5, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+	gtk_table_attach(GTK_TABLE(table), gifpath, 1, 3, 5, 6, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
 	GtkWidget *browse2 = gtk_button_new_with_label("Browse...");
-	gtk_table_attach(GTK_TABLE(table), browse2, 3, 4, 4, 5, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+	gtk_table_attach(GTK_TABLE(table), browse2, 3, 4, 5, 6, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
 	GtkWidget *label = gtk_label_new("Maximum GIF height (pixels):");
-	gtk_table_attach(GTK_TABLE(table), label, 1, 2, 5, 6, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+	gtk_table_attach(GTK_TABLE(table), label, 1, 2, 6, 7, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
 	gifheight = gtk_entry_new_with_max_length(5);
-	gtk_table_attach(GTK_TABLE(table), gifheight, 2, 3, 5, 6, (GtkAttachOptions) (GTK_SHRINK), (GtkAttachOptions) 0, 3, 3);
+	gtk_table_attach(GTK_TABLE(table), gifheight, 2, 3, 6, 7, (GtkAttachOptions) (GTK_SHRINK), (GtkAttachOptions) 0, 3, 3);
 
 	g_signal_connect(G_OBJECT(browse1), "clicked", G_CALLBACK(browse_file),
 		(gpointer) new browse_file_info("Select Text File Name",
@@ -1147,6 +1245,7 @@ static void preferencesCB() {
 
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(singularmatrix), core_settings.matrix_singularmatrix);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(matrixoutofrange), core_settings.matrix_outofrange);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(singleinstance), state.singleInstance);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(printtotext), state.printerToTxtFile);
     gtk_entry_set_text(GTK_ENTRY(textpath), state.printerTxtFileName);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(rawtext), core_settings.raw_text);
@@ -1160,6 +1259,7 @@ static void preferencesCB() {
     if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
 	core_settings.matrix_singularmatrix = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(singularmatrix));
 	core_settings.matrix_outofrange = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(matrixoutofrange));
+	state.singleInstance = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(singleinstance));
 	core_settings.raw_text = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(rawtext));
 
 	state.printerToTxtFile = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(printtotext));

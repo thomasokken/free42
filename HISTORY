@@ -1,8 +1,8 @@
 14-12-2007: version 1.4.38
 
-* Windows and Motif versions: implemented single-instance option. This is on by
-  default in the Windows version, but off by default in the Motif version,
-  since many window managers won't let clients raise themselves.
+* Windows, GTK and Motif versions: implemented single-instance option. This is
+  on by default in the Windows version, but off by default in the GTK and Motif
+  versions, since many X11 window managers won't let clients raise themselves.
   (PalmOS is single-tasking, and Pocket PC enforces single-instance behavior
   for all applications, so this option does not apply to those environments.)
 

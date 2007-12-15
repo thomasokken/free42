@@ -16,9 +16,9 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ###############################################################################
 
-CXXFLAGS := -MMD -Wall -g -fno-exceptions -fno-rtti $(shell pkg-config --cflags gtk+-2.0) -DVERSION="\"$(shell cat ../VERSION)\""
-LDFLAGS = 
-LIBS := $(shell pkg-config --libs gtk+-2.0)
+CXXFLAGS := -MMD -Wall -g -I/usr/X11R6/include -fno-exceptions -fno-rtti $(shell pkg-config --cflags gtk+-2.0) -DVERSION="\"$(shell cat ../VERSION)\""
+LDFLAGS = -L/usr/X11R6/lib
+LIBS := -lXmu $(shell pkg-config --libs gtk+-2.0)
 
 SRCS = shell_main.cc shell_skin.cc skins.cc keymap.cc shell_loadimage.cc \
 	shell_spool.cc core_main.cc core_commands1.cc core_commands2.cc \
