@@ -59,6 +59,13 @@
 #include "core_display.h"
 #include "icon.xpm"
 
+#ifndef _POSIX_HOST_NAME_MAX
+#define _POSIX_HOST_NAME_MAX 255
+#endif
+#ifndef _POSIX_LOGIN_NAME_MAX
+#define _POSIX_LOGIN_NAME_MAX 255
+#endif
+
 
 /* public globals */
 

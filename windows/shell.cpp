@@ -362,6 +362,8 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	if (state.singleInstance) {
 		HWND hPrevWnd = FindWindow(szMainWindowClass, szMainTitle);
 		if (hPrevWnd != NULL) {
+			if (IsIconic(hPrevWnd))
+				OpenIcon(hPrevWnd);
 			SetForegroundWindow(hPrevWnd);
 			return FALSE;
 		}

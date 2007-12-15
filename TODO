@@ -1,6 +1,3 @@
-The single-instance option in the Windows version is still not OK; it does not
-deiconify the window. Compare the Show Print-Out option?
-
 When BASE is active, Paste should parse the clipboard using the selected base.
 Currently, it always uses base 10, and that is confusing and inconvenient.
 

@@ -1,3 +1,8 @@
+15-12-2007: version 1.4.39
+
+* Windows version: the single-instance option did not work when the previous
+  instance was minimized. Fixed.
+
 14-12-2007: version 1.4.38
 
 * Windows, GTK and Motif versions: implemented single-instance option. This is
