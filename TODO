@@ -1,3 +1,6 @@
+The single-instance option in the Windows version is still not OK; it does not
+deiconify the window. Compare the Show Print-Out option?
+
 When BASE is active, Paste should parse the clipboard using the selected base.
 Currently, it always uses base 10, and that is confusing and inconvenient.
 
@@ -8,12 +11,6 @@ does have the high-density feature set, but it does not have a high-density
 screen. Been there before with the high-density skins showing up in the Skin
 menu; probably need the same kind of fix here.
 Update: on the T|E2, output is not scrolled all the way to the bottom either!
-
-Running multiple instances of Free42 can be confusing, because of what happens
-to the state file on exit and whatnot. How about adding some code that prevents
-multiple instances (for those OSes where this could happen) and offer the user
-a configuration option that allows them to specify whether or not they want the
-currently active instance to be raised to the top instead.
 
 PalmOS version: the application icon does not seem to have a proper mask.
 When the Z22's launcher highlights it, the whole icon disappears.
