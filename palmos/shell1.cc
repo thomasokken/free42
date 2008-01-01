@@ -1,6 +1,6 @@
 /*****************************************************************************
  * Free42 -- an HP-42S calculator simulator
- * Copyright (C) 2004-2007  Thomas Okken
+ * Copyright (C) 2004-2008  Thomas Okken
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2,
@@ -93,16 +93,27 @@ UInt32 PilotMain(UInt16 cmd, void *pbp, UInt16 flags) {
 
 static void open_printout() SHELL1_SECT;
 static void open_printout() {
+    int retry = 1;
+    do_retry:
     LocalID id = DmFindDatabase(0, "Free42Print");
+    Err err;
     if (id == 0) {
-	Err err = DmCreateDatabase(0, "Free42Print", 'Fk42', 'Prnt', false);
+	err = DmCreateDatabase(0, "Free42Print", 'Fk42', 'Prnt', false);
 	if (err != errNone)
 	    ErrFatalDisplayIf(true, "Can't create printout database.");
 	id = DmFindDatabase(0, "Free42Print");
     }
     printdb = DmOpenDatabase(0, id, dmModeReadWrite);
-    if (printdb == 0)
-	ErrFatalDisplayIf(true, "Can't open printout database.");
+    if (printdb == 0) {
+	if (!retry) {
+	    char msg[50];
+	    StrPrintF(msg, "Can't open printout database (%04x).", err);
+	    ErrFatalDisplayIf(true, msg);
+	}
+	DmDeleteDatabase(0, id);
+	retry = 0;
+	goto do_retry;
+    }
     if (DmNumRecords(printdb) == 0) {
 	UInt16 index = 0;
 	printrec = DmNewRecord(printdb, &index, PRINT_SIZE + 2 * sizeof(int4));

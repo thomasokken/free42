@@ -1,3 +1,9 @@
+01-01-2008: version 1.4.41
+
+* PalmOS version: when opening the print-out database fails with a 0x0209 error
+  (database corrupt), it now deletes the database, creates a new one, and tries
+  again.
+
 15-12-2007: version 1.4.40
 
 * The 'Paste' command now handles binary, octal, and hexadecimal values when
