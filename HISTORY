@@ -1,3 +1,8 @@
+11-01-2008: (no new code release)
+
+* Added "Khor" skin for Windows and Unix versions (Free42Skins.zip package).
+  Contributed by Michael Khor.
+
 01-01-2008: version 1.4.41
 
 * PalmOS version: when opening the print-out database fails with a 0x0209 error
