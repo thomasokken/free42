@@ -1,6 +1,15 @@
 To use these skins, put them in the same directory as the Free42 executable
 (usually \Program Files\Free42).
 
+NOTE: If you're using ActiveSync to copy skins to your hand-held, make sure
+that it does not change the GIF files to a different format. If it does, the
+result will be that Free42 will find the *.layout files, and list them in its
+Skin menu, but any attempt to actually select those external skins will fail.
+In ActiveSync 4.5, go to Tools -> Advanced Tools -> Edit File Conversion
+Settings. In the settings window that pops up, click on the "Desktop to Device"
+tab, select file type GIF, click on the "Edit" button, choose "(null)(*.gif)"
+or "(No conversion)(*.gif)" from the drop down list, and click "OK".
+
 -------------------------------------------------------------------------------
 
 Free42 skin description (*.layout) file format:
