@@ -44,8 +44,18 @@ else
 EXE = free42bin
 endif
 
+ifdef OLPC
+CXXFLAGS += -DOLPC
+endif
+
 $(EXE): $(OBJS)
 	$(CXX) -o $(EXE) $(LDFLAGS) $(OBJS) $(LIBS)
+ifdef OLPC
+	tar xvfz Free42.activity.tgz
+	cp $(EXE) Free42.activity/bin
+	zip -r Free42.xo Free42.activity
+	rm -rf Free42.activity
+endif
 
 $(SRCS): symlinks
 

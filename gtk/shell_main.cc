@@ -134,6 +134,7 @@ static void usr1_handler(int sig);
 static gboolean gt_signal_handler(GIOChannel *source, GIOCondition condition,
 							    gpointer data);
 static void quit();
+static void set_window_property(GtkWidget *window, const char *prop_name, char *props[], int num_props);
 static char *strclone(const char *s);
 static bool is_file(const char *name);
 static void show_message(char *title, char *message);
@@ -200,8 +201,27 @@ static GtkItemFactoryEntry entries[] = {
 static gint num_entries = sizeof(entries) / sizeof(entries[0]);
 
 int main(int argc, char *argv[]) {
+#ifdef OLPC
+    const char *activityID = NULL, *bundleID = NULL;
+#endif
+
     gtk_init(&argc, &argv);
     char *skin_arg = NULL;
+    for (int i = 1; i < argc; i++) {
+	if (strcmp(argv[i], "-skin") == 0)
+	    skin_arg = ++i < argc ? argv[i] : NULL;
+#ifdef OLPC
+	else if (strcmp(argv[i], "-a") == 0)
+	    activityID = ++i < argc ? argv[i] : NULL;
+	else if (strcmp(argv[i], "-b") == 0)
+	    bundleID = ++i < argc ? argv[i] : NULL;
+#endif
+	else {
+	    fprintf(stderr, "Unrecognized option: %s\n", argv[i]);
+	    exit(1);
+	}
+    }
+
     if (argc >= 3 && strcmp(argv[1], "-skin") == 0)
 	skin_arg = argv[2];
 
@@ -221,6 +241,15 @@ int main(int argc, char *argv[]) {
     /***** Try to create the $HOME/.free42 directory *****/
     /*****************************************************/
 
+    char keymapfilename[FILENAMELEN];
+
+#ifdef OLPC
+    char *sar = getenv("SUGAR_ACTIVITY_ROOT");
+    snprintf(free42dirname, FILENAMELEN, "%s/data", sar);
+    snprintf(statefilename, FILENAMELEN, "%s/data/state", sar);
+    snprintf(printfilename, FILENAMELEN, "%s/data/print", sar);
+    snprintf(keymapfilename, FILENAMELEN, "%s/data/keymap", sar);
+#else
     bool free42dir_exists = false;
     char *home = getenv("HOME");
     snprintf(free42dirname, FILENAMELEN, "%s/.free42", home);
@@ -249,7 +278,6 @@ int main(int argc, char *argv[]) {
     } else
 	free42dir_exists = true;
 
-    char keymapfilename[FILENAMELEN];
     if (free42dir_exists) {
 	snprintf(statefilename, FILENAMELEN, "%s/.free42/state", home);
 	snprintf(printfilename, FILENAMELEN, "%s/.free42/print", home);
@@ -259,6 +287,7 @@ int main(int argc, char *argv[]) {
 	snprintf(printfilename, FILENAMELEN, "%s/.free42print", home);
 	snprintf(keymapfilename, FILENAMELEN, "%s/.free42keymap", home);
     }
+#endif
 
     
     /****************************/
@@ -297,7 +326,7 @@ int main(int argc, char *argv[]) {
     /***** Enforce single-instance mode, if applicable *****/
     /*******************************************************/
 
-    Atom FREE42_HOST_AND_USER;
+#if !defined(OLPC)
     char *appid;
     if (state.singleInstance) {
 	int appid_len = _POSIX_HOST_NAME_MAX + _POSIX_LOGIN_NAME_MAX + 2;
@@ -306,7 +335,7 @@ int main(int argc, char *argv[]) {
 	strcat(appid, "|");
 	strcat(appid, getpwuid(getuid())->pw_name);
 	Display *display = GDK_DISPLAY();
-	FREE42_HOST_AND_USER = XInternAtom(display, "FREE42_HOST_AND_USER", False);
+	Atom FREE42_HOST_AND_USER = XInternAtom(display, "FREE42_HOST_AND_USER", False);
 	//XGrabServer(display);
 	Window root;
 	Window parent;
@@ -339,6 +368,7 @@ int main(int argc, char *argv[]) {
 	if (children != NULL)
 	    XFree(children);
     }
+#endif
 
 
     /*********************************/
@@ -400,21 +430,30 @@ int main(int argc, char *argv[]) {
     g_signal_connect(G_OBJECT(w), "key-release-event", G_CALLBACK(key_cb), NULL);
     calc_widget = w;
 
+#ifdef OLPC
+    {
+	char *list[1];
+	if (activityID != NULL) {
+	    list[0] = (char *) activityID;
+	    set_window_property(mainwindow, "_SUGAR_ACTIVITY_ID", list, 1);
+	}
+	if (bundleID != NULL) {
+	    list[0] = (char *) bundleID;
+	    set_window_property(mainwindow, "_SUGAR_BUNDLE_ID", list, 1);
+	}
+    }
+#else
     if (state.singleInstance) {
-	gtk_widget_realize(mainwindow);
 	char *list[2];
 	char pidstr[11];
 	sprintf(pidstr, "%u", getpid());
 	list[0] = appid;
 	list[1] = pidstr;
-	XTextProperty prop;
-	XStringListToTextProperty(list, 2, &prop);
-	Display *display = GDK_DISPLAY();
-	XSetTextProperty(display, GDK_WINDOW_XWINDOW(mainwindow->window), &prop, FREE42_HOST_AND_USER);
-	XFree(prop.value);
-	//XUngrabServer(display);
+	set_window_property(mainwindow, "FREE42_HOST_AND_USER", list, 2);
 	free(appid);
+	//XUngrabServer(GDK_DISPLAY());
     }
+#endif
 
 
     /**************************************/
@@ -492,6 +531,19 @@ int main(int argc, char *argv[]) {
     gtk_widget_realize(print_widget);
     scroll_printout_to_bottom();
 
+#ifdef OLPC
+    {
+	char *list[1];
+	if (activityID != NULL) {
+	    list[0] = (char *) activityID;
+	    set_window_property(printwindow, "_SUGAR_ACTIVITY_ID", list, 1);
+	}
+	if (bundleID != NULL) {
+	    list[0] = (char *) bundleID;
+	    set_window_property(printwindow, "_SUGAR_BUNDLE_ID", list, 1);
+	}
+    }
+#endif
 
     /*************************************************/
     /***** Show main window & start the emulator *****/
@@ -650,6 +702,9 @@ static void read_key_map(const char *keymapfilename) {
 	keymapfile = fopen(keymapfilename, "wb");
 	if (keymapfile == NULL)
 	    return;
+#ifdef OLPC
+	chmod(keymapfilename, 0664);
+#endif
 	n = fwrite(keymap_filedata, 1, keymap_filesize, keymapfile);
 	if (n != keymap_filesize) {
 	    int err = errno;
@@ -799,6 +854,9 @@ static void quit() {
 
     printfile = fopen(printfilename, "w");
     if (printfile != NULL) {
+#ifdef OLPC
+	chmod(printfilename, 0664);
+#endif
 	length = printout_bottom - printout_top;
 	if (length < 0)
 	    length += PRINT_LINES;
@@ -858,8 +916,12 @@ static void quit() {
     }
 
     statefile = fopen(statefilename, "w");
-    if (statefile != NULL)
+    if (statefile != NULL) {
+#ifdef OLPC
+	chmod(statefilename, 0664);
+#endif
 	write_shell_state();
+    }
     core_quit();
     if (statefile != NULL)
 	fclose(statefile);
@@ -867,6 +929,16 @@ static void quit() {
     shell_spool_exit();
 
     exit(0);
+}
+
+static void set_window_property(GtkWidget *window, const char *prop_name, char *props[], int num_props) {
+    Display *display = GDK_DISPLAY();
+    gtk_widget_realize(window);
+    XTextProperty prop;
+    XStringListToTextProperty(props, num_props, &prop);
+    Atom PROP = XInternAtom(display, prop_name, False);
+    XSetTextProperty(display, GDK_WINDOW_XWINDOW(window->window), &prop, PROP);
+    XFree(prop.value);
 }
 
 static char *strclone(const char *s) {
@@ -1043,6 +1115,9 @@ static void exportProgramCB() {
 		export_file_name, strerror(err), err);
 	show_message("Message", buf);
     } else {
+#ifdef OLPC
+	chmod(export_file_name, 0664);
+#endif
 	int *p2 = (int *) malloc(count * sizeof(int));
 	// TODO - handle memory allocation failure
 	GList *rows = gtk_tree_selection_get_selected_rows(select, NULL);
@@ -2036,6 +2111,9 @@ void shell_print(const char *text, int length,
 		show_message("Message", buf);
 		goto done_print_txt;
 	    }
+#ifdef OLPC
+	    chmod(state.printerTxtFileName, 0664);
+#endif
 	}
 
 	shell_spool_txt(text, length, txt_writer, txt_newliner);
@@ -2095,6 +2173,9 @@ void shell_print(const char *text, int length,
 		show_message("Message", buf);
 		goto done_print_gif;
 	    }
+#ifdef OLPC
+	    chmod(print_gif_name, 0664);
+#endif
 	    if (!shell_start_gif(gif_writer, state.printerGifMaxLength)) {
 		state.printerToGifFile = 0;
 		show_message("Message", "Not enough memory for the GIF encoder.\nPrinting to GIF file disabled.");
