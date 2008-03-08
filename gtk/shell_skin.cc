@@ -172,7 +172,7 @@ static int skin_open(const char *name, int open_layout) {
     }
 
     /* name did not match a built-in skin; look for file */
-    snprintf(namebuf, 1024, "%s/.free42/%s.%s", getenv("HOME"), name,
+    snprintf(namebuf, 1024, "%s/%s.%s", free42dirname, name,
 					open_layout ? "layout" : "gif");
     external_file = fopen(namebuf, "r");
     return external_file != NULL;
