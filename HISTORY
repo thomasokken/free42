@@ -1,3 +1,9 @@
+10-03-2008: version 1.4.42
+
+* Pocket PC version: I added a HI_RES_AWARE resource so that Free42 will now be
+  able to take advantage of high-resolution displays without the help of
+  Tweaks2k2 or similar utilities.
+
 11-01-2008: (no new code release)
 
 * Added "Khor" skin for Windows and Unix versions (Free42Skins.zip package).

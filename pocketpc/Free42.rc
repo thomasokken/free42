@@ -31,6 +31,16 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // remains consistent on all systems.
 IDI_FREE42              ICON    DISCARDABLE     "Free42.ICO"
 
+/////////////////////////////////////////////////////////////////////////////
+//
+// CEUX
+//
+
+HI_RES_AWARE CEUX MOVEABLE PURE
+BEGIN
+    0x0001
+END
+
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
 //
