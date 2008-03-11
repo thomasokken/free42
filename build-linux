@@ -1,5 +1,7 @@
 #!/bin/sh -e
 
+VERSION=`cat VERSION`
+
 unset BCD_MATH
 cd gtk
 make cleaner
@@ -26,5 +28,5 @@ cp motif/free42bin Free42Linux/motif
 cp motif/free42dec Free42Linux/motif
 strip Free42Linux/motif/free42bin
 strip Free42Linux/motif/free42dec
-tar cvfz Free42Linux.tgz Free42Linux
+tar cvfz Free42Linux.$VERSION.tgz Free42Linux
 rm -rf Free42Linux
