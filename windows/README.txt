@@ -138,7 +138,7 @@ mappings override any other mappings that may be defined for those keys.
 
 What's the deal with the "Decimal" and "Binary"?
 
-Starting with version 1.4, Free42 comes in decimal and binary versions. The two
+Starting with release 1.4, Free42 comes in decimal and binary versions. The two
 look and behave identically; the only difference is the way they represent
 numbers internally.
 Free42 Decimal uses Hugh Steers' 7-digit base-10000 BCD20 library, which

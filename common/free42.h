@@ -172,7 +172,7 @@ double log10(double x) PHLOAT_SECT;
 #define uint unsigned int
 
 /* Magic number and version number for the state file.
- * State file versions correspond to application versions as follows:
+ * State file versions correspond to application releases as follows:
  * Version  0: 1.0    first release
  * Version  1: 1.0.13 "IP Hack" option
  * Version  2: 1.0.13 "singular matrix" and matrix "out of range" options

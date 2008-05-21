@@ -16,8 +16,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ###############################################################################
 
-CXXFLAGS = -DNO_SINCOS -arch ppc -arch i386 -Wall -g -fno-exceptions -fno-rtti
-LDFLAGS = -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk
+CXXFLAGS = -DNO_SINCOS -arch ppc -arch i386 -mmacosx-version-min=10.4 -Wall -g -fno-exceptions -fno-rtti
+LDFLAGS = -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4
 LIBS = -arch ppc -arch i386 -lm
 
 SRCS = shell.cc shell_spool.cc \

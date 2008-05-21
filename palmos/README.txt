@@ -142,7 +142,7 @@ you can download free at http://joselauro.com/42s.pdf.
 
 What's the deal with the "Decimal" and "Binary"?
 
-Starting with version 1.4, Free42 comes in decimal and binary versions. The two
+Starting with release 1.4, Free42 comes in decimal and binary versions. The two
 look and behave identically; the only difference is the way they represent
 numbers internally.
 Free42 Decimal (free42dec_68k.prc and free42dec_arm.prc) uses Hugh Steers'
@@ -170,7 +170,7 @@ Free42 Decimal (free42dec_68k.prc or free42dec_arm.prc).
 
 What's the deal with the "68K" and "ARM"?
 
-Starting with version 1.4.13, Free42 for PalmOS comes in 68K and ARM versions.
+Starting with release 1.4.13, Free42 for PalmOS comes in 68K and ARM versions.
 They look and behave identically, but the ARM version runs much faster.
 To be able to use the ARM version, you need a PalmOS PDA with an ARM CPU;
 currently, this includes all Palm models running PalmOS 5.0 or later (e.g.

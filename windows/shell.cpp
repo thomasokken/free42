@@ -1230,13 +1230,13 @@ static void get_home_dir(char *path, int pathlen, BOOL exedir_ok) {
 		RegCloseKey(k1);
 	}
 	
-// Starting with version 1.4, the default Free42 directory is the one
-// containing the executable. This means that users upgrading from versions
+// Starting with release 1.4, the default Free42 directory is the one
+// containing the executable. This means that users upgrading from releases
 // 1.1.15 through 1.2.5 will have to manually move their state file etc. from
 // <My Documents>\Free42, or manually set the Free42 directory to that location
 // in Preferences.
-// (Version 1.1.14 and earlier always used the executable's directory, so we'll
-// find it just fine; version 1.2.6 and later use the Registry to keep track of
+// (Releases 1.1.14 and earlier always used the executable's directory, so we'll
+// find it just fine; releases 1.2.6 and later use the Registry to keep track of
 // the Free42 directory location, so we'll find it just fine, too.)
 // It's an inconvenience, especially since there are probably still mirrors out there
 // that carry versions in that range, but for new users, this new default is much
@@ -1256,9 +1256,9 @@ static void get_home_dir(char *path, int pathlen, BOOL exedir_ok) {
 
 #if 0
 	// HomeDir not set: use "My Documents"\Free42 for backward compatibility
-	// with versions 1.1.15 and later. Versions 1.1.14 and earlier used different
+	// with releases 1.1.15 and later. Releases 1.1.14 and earlier used different
 	// names for the state and print-out files, and stored them in the executable's
-	// directory. Users upgrading from such old versions have to manually rename
+	// directory. Users upgrading from such old releases have to manually rename
 	// these files.
 	LPITEMIDLIST idlist;
 	char buf[MAX_PATH];

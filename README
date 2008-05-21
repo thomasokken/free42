@@ -14,7 +14,7 @@ no other decent place to put.
 
 -------------------------------------------------------------------------------
 Binary vs. Decimal
-Starting with version 1.4, Free42 can be built with binary or with decimal
+Starting with release 1.4, Free42 can be built with binary or with decimal
 floating point. Building the binary versions works as always (just say "make");
 to build the decimal versions, set the BCD_MATH environment variable, or use
 "make -e BCD_MATH=1".
