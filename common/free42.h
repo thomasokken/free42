@@ -184,9 +184,10 @@ double log10(double x) PHLOAT_SECT;
  * Version  8: 1.1.14 F42 file format and "HP-42S byte counts" option removed
  * Version  9: 1.4    decimal version; removed IP Hack
  * Version 10: 1.4.16 persistent shared matrices
+ * Version 11: 1.4.44 "Auto-Repeat" option
  */
 #define FREE42_MAGIC 0x466b3432
-#define FREE42_VERSION 10
+#define FREE42_VERSION 11
 
 
 #endif

@@ -2156,6 +2156,10 @@ bool load_state(int4 ver) {
 	    if (!read_int(&dummy)) return false;
 	}
     }
+    if (ver < 11)
+	core_settings.auto_repeat = true;
+    else
+	if (!read_bool(&core_settings.auto_repeat)) return false;
 
     if (!read_bool(&mode_clall)) return false;
     if (!read_bool(&mode_command_entry)) return false;
@@ -2291,6 +2295,7 @@ void save_state() {
     if (!write_bool(core_settings.matrix_singularmatrix)) return;
     if (!write_bool(core_settings.matrix_outofrange)) return;
     if (!write_bool(core_settings.raw_text)) return;
+    if (!write_bool(core_settings.auto_repeat)) return;
     if (!write_bool(mode_clall)) return;
     if (!write_bool(mode_command_entry)) return;
     if (!write_bool(mode_number_entry)) return;
@@ -2497,6 +2502,8 @@ void hard_reset(int bad_state_file) {
     mode_updown = false;
     mode_sigma_reg = 11;
     mode_goose = -1;
+
+    core_settings.auto_repeat = true;
 
     reset_math();
 

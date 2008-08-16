@@ -297,6 +297,7 @@ typedef struct {
 	bool matrix_singularmatrix;
 	bool matrix_outofrange;
 	bool raw_text;
+	bool auto_repeat;
 } core_settings_struct;
 
 extern core_settings_struct core_settings;

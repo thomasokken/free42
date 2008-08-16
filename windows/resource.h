@@ -28,22 +28,22 @@
 #define IDD_SELECTPROGRAM               140
 #define IDC_MATRIX_SINGULARMATRIX       1000
 #define IDC_MATRIX_OUTOFRANGE           1001
-#define IDC_PRINTER_TXT                 1002
-#define IDC_PRINTER_GIF                 1003
-#define IDC_PRINTER_TXT_NAME            1004
-#define IDC_PRINTER_GIF_NAME            1005
-#define IDC_PRINTER_TXT_BROWSE          1006
-#define IDC_PRINTER_GIF_BROWSE          1007
-#define IDC_IP_HACK                     1008
-#define IDC_DECIMAL                     1008
-#define IDC_PRINTER_GIF_HEIGHT          1009
-#define IDC_LIST1                       1010
-#define IDC_HP42S_SIZES                 1011
-#define IDC_RAW_TEXT                    1012
-#define IDC_HOMEDIR                     1013
-#define IDC_HOMEDIR_BROWSE              1014
-#define IDC_ALWAYSONTOP                 1015
-#define IDC_SINGLEINSTANCE              1016
+#define IDC_AUTO_REPEAT                 1002
+#define IDC_PRINTER_TXT                 1003
+#define IDC_PRINTER_GIF                 1004
+#define IDC_PRINTER_TXT_NAME            1005
+#define IDC_PRINTER_GIF_NAME            1006
+#define IDC_PRINTER_TXT_BROWSE          1007
+#define IDC_PRINTER_GIF_BROWSE          1008
+#define IDC_DECIMAL                     1009
+#define IDC_PRINTER_GIF_HEIGHT          1010
+#define IDC_LIST1                       1011
+#define IDC_HP42S_SIZES                 1012
+#define IDC_RAW_TEXT                    1013
+#define IDC_HOMEDIR                     1014
+#define IDC_HOMEDIR_BROWSE              1015
+#define IDC_ALWAYSONTOP                 1016
+#define IDC_SINGLEINSTANCE              1017
 #define IDM_SHOWPRINTOUT                32771
 #define IDM_CLEARPRINTOUT               32772
 #define IDM_PREFERENCES                 32773
@@ -60,7 +60,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        141
 #define _APS_NEXT_COMMAND_VALUE         32779
-#define _APS_NEXT_CONTROL_VALUE         1017
+#define _APS_NEXT_CONTROL_VALUE         1018
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

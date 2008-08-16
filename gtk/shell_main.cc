@@ -1277,6 +1277,7 @@ static void preferencesCB() {
     static GtkWidget *dialog = NULL;
     static GtkWidget *singularmatrix;
     static GtkWidget *matrixoutofrange;
+    static GtkWidget *autorepeat;
     static GtkWidget *singleinstance;
     static GtkWidget *printtotext;
     static GtkWidget *textpath;
@@ -1303,26 +1304,28 @@ static void preferencesCB() {
 	gtk_table_attach(GTK_TABLE(table), singularmatrix, 0, 4, 0, 1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
 	matrixoutofrange = gtk_check_button_new_with_label("Overflows during matrix operations yield \"Out of Range\" error");
 	gtk_table_attach(GTK_TABLE(table), matrixoutofrange, 0, 4, 1, 2, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+	autorepeat = gtk_check_button_new_with_label("Auto-Repeat for number entry and ALPHA mode");
+	gtk_table_attach(GTK_TABLE(table), autorepeat, 0, 4, 2, 3, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
 	singleinstance = gtk_check_button_new_with_label("Single instance");
-	gtk_table_attach(GTK_TABLE(table), singleinstance, 0, 4, 2, 3, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+	gtk_table_attach(GTK_TABLE(table), singleinstance, 0, 4, 3, 4, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
 	printtotext = gtk_check_button_new_with_label("Print to text file:");
-	gtk_table_attach(GTK_TABLE(table), printtotext, 0, 1, 3, 4, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+	gtk_table_attach(GTK_TABLE(table), printtotext, 0, 1, 4, 5, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
 	textpath = gtk_entry_new();
-	gtk_table_attach(GTK_TABLE(table), textpath, 1, 3, 3, 4, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+	gtk_table_attach(GTK_TABLE(table), textpath, 1, 3, 4, 5, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
 	GtkWidget *browse1 = gtk_button_new_with_label("Browse...");
-	gtk_table_attach(GTK_TABLE(table), browse1, 3, 4, 3, 4, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+	gtk_table_attach(GTK_TABLE(table), browse1, 3, 4, 4, 5, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
 	rawtext = gtk_check_button_new_with_label("Raw text");
-	gtk_table_attach(GTK_TABLE(table), rawtext, 1, 3, 4, 5, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+	gtk_table_attach(GTK_TABLE(table), rawtext, 1, 3, 5, 6, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
 	printtogif = gtk_check_button_new_with_label("Print to GIF file:");
-	gtk_table_attach(GTK_TABLE(table), printtogif, 0, 1, 5, 6, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+	gtk_table_attach(GTK_TABLE(table), printtogif, 0, 1, 6, 7, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
 	gifpath = gtk_entry_new();
-	gtk_table_attach(GTK_TABLE(table), gifpath, 1, 3, 5, 6, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+	gtk_table_attach(GTK_TABLE(table), gifpath, 1, 3, 6, 7, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
 	GtkWidget *browse2 = gtk_button_new_with_label("Browse...");
-	gtk_table_attach(GTK_TABLE(table), browse2, 3, 4, 5, 6, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+	gtk_table_attach(GTK_TABLE(table), browse2, 3, 4, 6, 7, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
 	GtkWidget *label = gtk_label_new("Maximum GIF height (pixels):");
-	gtk_table_attach(GTK_TABLE(table), label, 1, 2, 6, 7, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+	gtk_table_attach(GTK_TABLE(table), label, 1, 2, 7, 8, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
 	gifheight = gtk_entry_new_with_max_length(5);
-	gtk_table_attach(GTK_TABLE(table), gifheight, 2, 3, 6, 7, (GtkAttachOptions) (GTK_SHRINK), (GtkAttachOptions) 0, 3, 3);
+	gtk_table_attach(GTK_TABLE(table), gifheight, 2, 3, 7, 8, (GtkAttachOptions) (GTK_SHRINK), (GtkAttachOptions) 0, 3, 3);
 
 	g_signal_connect(G_OBJECT(browse1), "clicked", G_CALLBACK(browse_file),
 		(gpointer) new browse_file_info("Select Text File Name",
@@ -1338,6 +1341,7 @@ static void preferencesCB() {
 
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(singularmatrix), core_settings.matrix_singularmatrix);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(matrixoutofrange), core_settings.matrix_outofrange);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(autorepeat), core_settings.auto_repeat);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(singleinstance), state.singleInstance);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(printtotext), state.printerToTxtFile);
     gtk_entry_set_text(GTK_ENTRY(textpath), state.printerTxtFileName);
@@ -1352,6 +1356,7 @@ static void preferencesCB() {
     if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
 	core_settings.matrix_singularmatrix = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(singularmatrix));
 	core_settings.matrix_outofrange = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(matrixoutofrange));
+	core_settings.auto_repeat = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(autorepeat));
 	state.singleInstance = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(singleinstance));
 	core_settings.raw_text = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(rawtext));
 

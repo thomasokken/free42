@@ -204,8 +204,9 @@ begin
 
   checkbox "\"Singular Matrix\" error" id prefs_matrix_singularmatrix at (5 18 auto auto)
   checkbox "Matrix \"Out of Range\"" id prefs_matrix_outofrange at (5 prevbottom+2 auto auto)
+  checkbox "Auto-Repeat" id prefs_auto_repeat at (5 prevbottom+2 auto auto)
 
-  label "Print to..." autoid at (5 prevbottom+10)
+  label "Print to..." autoid at (5 prevbottom+4)
   checkbox "Memo:" id prefs_printer_memo at (5 prevbottom+2 auto auto)
   field id prefs_printer_memo_name at (prevright+2 prevtop 149-prevright 12) maxchars 255 underlined
   checkbox "Text:" id prefs_printer_txt at (5 prevbottom+2 auto auto)
@@ -218,7 +219,7 @@ begin
   label "Maximum GIF height:" autoid at (right@prevleft-2 prevtop)
   checkbox "Raw text" id raw_text_id at (right@151 prevbottom+2 auto auto)
 
-  formbitmap at (68 52) bitmap 3335
+  formbitmap at (68 57) bitmap 3335
   label ":" autoid at (prevright+12 prevtop+1)
   button "-" id sound_down_id at (prevright+4 prevtop+1 10 10)
   field id sound_field_id at (prevright+2 bottom@prevbottom+2 12 12) numeric rightalign maxchars 2
@@ -240,8 +241,9 @@ begin
 
   checkbox "\"Singular Matrix\" error" id prefs_matrix_singularmatrix at (5 18 auto auto)
   checkbox "Matrix \"Out of Range\"" id prefs_matrix_outofrange at (5 prevbottom+2 auto auto)
+  checkbox "Auto-Repeat" id prefs_auto_repeat at (5 prevbottom+2 auto auto)
 
-  label "Print to..." autoid at (5 prevbottom+10)
+  label "Print to..." autoid at (5 prevbottom+4)
   checkbox "Memo:" id prefs_printer_memo at (5 prevbottom+2 auto auto)
   field id prefs_printer_memo_name at (prevright+2 prevtop 149-prevright 12) maxchars 255 underlined
   checkbox "Text:" id prefs_printer_txt at (5 prevbottom+2 auto auto)

@@ -326,9 +326,11 @@ void keydown_number_entry(int shift, int key) {
 	cmdline_length--;
 	if (!flags.f.prgm_mode && base == 10)
 	    fix_thousands_separators(cmdline, &cmdline_length);
-	repeating = 2;
-	repeating_key = key;
-	repeating_shift = shift;
+	if (core_settings.auto_repeat) {
+	    repeating = 2;
+	    repeating_key = key;
+	    repeating_shift = shift;
+	}
     } else if (key == KEY_CHS) {
 	/* Check if mantissa or exponent gets the sign change */
 	int i;
@@ -467,9 +469,11 @@ void keydown_number_entry(int shift, int key) {
 	}
 	if (digit >= base)
 	    return;
-	repeating = 2;
-	repeating_key = key;
-	repeating_shift = shift;
+	if (core_settings.auto_repeat) {
+	    repeating = 2;
+	    repeating_key = key;
+	    repeating_shift = shift;
+	}
 	c = digit < 10 ? '0' + digit : 'A' + digit - 10;
 	cmdline[cmdline_length++] = c;
 	if (base == 10) {
@@ -1534,9 +1538,11 @@ void keydown_alpha_mode(int shift, int key) {
 	    if (reg_alpha_length == 44)
 		squeak();
 	}
-	repeating = 2;
-	repeating_key = c + 1024;
-	repeating_shift = 0;
+	if (core_settings.auto_repeat) {
+	    repeating = 2;
+	    repeating_key = c + 1024;
+	    repeating_shift = 0;
+	}
 
 	if (m != NULL)
 	    set_menu(MENULEVEL_ALPHA, m->parent);
@@ -1587,9 +1593,11 @@ void keydown_alpha_mode(int shift, int key) {
 	if (reg_alpha_length == 44)
 	    squeak();
     }
-    repeating = 2;
-    repeating_key = key;
-    repeating_shift = shift;
+    if (core_settings.auto_repeat) {
+	repeating = 2;
+	repeating_key = key;
+	repeating_shift = shift;
+    }
     redisplay();
     return;
     nocharkey2:
@@ -1628,9 +1636,11 @@ void keydown_alpha_mode(int shift, int key) {
 	if (flags.f.prgm_mode) {
 	    if (mode_alpha_entry) {
 		if (entered_string_length > 0) {
-		    repeating = 2;
-		    repeating_key = key;
-		    repeating_shift = shift;
+		    if (core_settings.auto_repeat) {
+			repeating = 2;
+			repeating_key = key;
+			repeating_shift = shift;
+		    }
 		    entered_string_length--;
 		} else
 		    finish_alpha_prgm_line();
@@ -1651,9 +1661,11 @@ void keydown_alpha_mode(int shift, int key) {
 	    return;
 	} else {
 	    if (mode_alpha_entry && reg_alpha_length > 0) {
-		repeating = 2;
-		repeating_key = key;
-		repeating_shift = shift;
+		if (core_settings.auto_repeat) {
+		    repeating = 2;
+		    repeating_key = key;
+		    repeating_shift = shift;
+		}
 		reg_alpha_length--;
 		redisplay();
 	    } else

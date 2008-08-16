@@ -935,6 +935,9 @@ Boolean form_handler(EventType *e) {
 		    i = FrmGetObjectIndex(form, prefs_matrix_outofrange);
 		    FrmSetControlValue(form, i,
 					core_settings.matrix_outofrange);
+		    i = FrmGetObjectIndex(form, prefs_auto_repeat);
+		    FrmSetControlValue(form, i,
+					core_settings.auto_repeat);
 		    i = FrmGetObjectIndex(form, raw_text_id);
 		    FrmSetControlValue(form, i, core_settings.raw_text);
 
@@ -992,6 +995,9 @@ Boolean form_handler(EventType *e) {
 					FrmGetControlValue(form, i);
 		    i = FrmGetObjectIndex(form, prefs_matrix_outofrange);
 		    core_settings.matrix_outofrange =
+					FrmGetControlValue(form, i);
+		    i = FrmGetObjectIndex(form, prefs_auto_repeat);
+		    core_settings.auto_repeat =
 					FrmGetControlValue(form, i);
 		    i = FrmGetObjectIndex(form, raw_text_id);
 		    core_settings.raw_text = FrmGetControlValue(form, i);

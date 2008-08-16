@@ -1,3 +1,13 @@
+16-08-2008: release 1.4.44
+
+* Made auto-repeat for number entry and ALPHA modes optional. The auto-repeat
+  feature, introduced in release 1.4.11, is not found on the real HP-42S, and
+  can cause problems if you don't expect this kind of behavior in a calculator.
+  It can now be turned off in the Preferences dialog, though the default is
+  still for it to be on.
+  Note that this is unrelated to the auto-repeat for the 'up' and 'down' keys,
+  which is authentic HP-42S behavior, and cannot be turned off.
+
 12-04-2008: release 1.4.43
 
 * MacDashboard version: fixed event handling so that program execution now

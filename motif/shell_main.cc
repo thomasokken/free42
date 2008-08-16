@@ -251,7 +251,7 @@ static int gif_lines;
 static XtAppContext appcontext;
 static Widget appshell, mainwindow, printwindow, print_da, print_sb;
 static Widget prefsdialog = NULL, prefs_matrix_singularmatrix,
-		prefs_matrix_outofrange, prefs_single_instance,
+		prefs_matrix_outofrange, prefs_auto_repeat, prefs_single_instance,
 		prefs_printer_txt, prefs_printer_txt_name, prefs_raw_text,
 		prefs_printer_gif, prefs_printer_gif_name,
 		prefs_printer_gif_height;
@@ -2155,6 +2155,8 @@ static void preferencesCB(Widget w, XtPointer ud, XtPointer cd) {
 			   core_settings.matrix_singularmatrix, False);
     XmToggleButtonSetState(prefs_matrix_outofrange,
 			   core_settings.matrix_outofrange, False);
+    XmToggleButtonSetState(prefs_auto_repeat,
+			   core_settings.auto_repeat, False);
     XmToggleButtonSetState(prefs_single_instance,
 			   state.singleInstance, False);
     XmToggleButtonSetState(prefs_printer_txt, state.printerToTxtFile, False);
@@ -2211,6 +2213,19 @@ static void make_prefs_dialog() {
 			NULL);
     XmStringFree(s);
 
+    s = XmStringCreateLocalized("Auto-Repeat for number entry and ALPHA mode");
+    prefs_auto_repeat = XtVaCreateManagedWidget(
+			"AutoRepeat",
+			xmToggleButtonWidgetClass,
+			prefsdialog,
+			XmNlabelString, s,
+			XmNnavigationType, XmEXCLUSIVE_TAB_GROUP,
+			XmNtopAttachment, XmATTACH_WIDGET,
+			XmNtopWidget, prefs_matrix_outofrange,
+			XmNleftAttachment, XmATTACH_FORM,
+			NULL);
+    XmStringFree(s);
+
     s = XmStringCreateLocalized("Single instance");
     prefs_single_instance = XtVaCreateManagedWidget(
 			"SingleInstance",
@@ -2219,7 +2234,7 @@ static void make_prefs_dialog() {
 			XmNlabelString, s,
 			XmNnavigationType, XmEXCLUSIVE_TAB_GROUP,
 			XmNtopAttachment, XmATTACH_WIDGET,
-			XmNtopWidget, prefs_matrix_outofrange,
+			XmNtopWidget, prefs_auto_repeat,
 			XmNleftAttachment, XmATTACH_FORM,
 			NULL);
     XmStringFree(s);
@@ -2434,6 +2449,8 @@ static void prefsButtonCB(Widget w, XtPointer ud, XtPointer cd) {
 		XmToggleButtonGetState(prefs_matrix_singularmatrix);
 	    core_settings.matrix_outofrange =
 		XmToggleButtonGetState(prefs_matrix_outofrange);
+	    core_settings.auto_repeat =
+		XmToggleButtonGetState(prefs_auto_repeat);
 	    state.singleInstance =
 		XmToggleButtonGetState(prefs_single_instance);
 	    core_settings.raw_text =

@@ -1003,6 +1003,10 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
 				ctl = GetDlgItem(hDlg, IDC_MATRIX_OUTOFRANGE);
 				SendMessage(ctl, BM_SETCHECK, 1, 0);
 			}
+			if (core_settings.auto_repeat) {
+				ctl = GetDlgItem(hDlg, IDC_AUTO_REPEAT);
+				SendMessage(ctl, BM_SETCHECK, 1, 0);
+			}
 			if (state.printerToTxtFile) {
 				ctl = GetDlgItem(hDlg, IDC_PRINTER_TXT);
 				SendMessage(ctl, BM_SETCHECK, 1, 0);
@@ -1030,6 +1034,8 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
 					core_settings.matrix_singularmatrix = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
 					ctl = GetDlgItem(hDlg, IDC_MATRIX_OUTOFRANGE);
 					core_settings.matrix_outofrange = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
+					ctl = GetDlgItem(hDlg, IDC_AUTO_REPEAT);
+					core_settings.auto_repeat = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
 
 					ctl = GetDlgItem(hDlg, IDC_PRINTER_TXT);
 					state.printerToTxtFile = SendMessage(ctl, BM_GETCHECK, 0, 0);
