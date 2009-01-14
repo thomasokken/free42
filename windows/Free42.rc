@@ -97,7 +97,7 @@ FONT 8, "System"
 BEGIN
     ICON            IDI_FREE42,IDC_STATIC,9,7,20,20
     LTEXT           FREE42_VERSION_1,IDC_STATIC,31,4,99,8,SS_NOPREFIX
-    LTEXT           "(C) 2004-2008 Thomas Okken",IDC_STATIC,31,17,98,8
+    LTEXT           "(C) 2004-2009 Thomas Okken",IDC_STATIC,31,17,98,8
     LTEXT           "thomas_okken@yahoo.com",IDC_STATIC,31,26,100,8
     LTEXT           "http://free42.sourceforge.net/",
                     IDC_STATIC,31,38,191,8
@@ -245,7 +245,7 @@ BEGIN
             VALUE "FileDescription", "HP-42S Calculator Clone\0"
             VALUE "FileVersion", FREE42_VERSION_2
             VALUE "InternalName", "Free42\0"
-            VALUE "LegalCopyright", "Copyright © 2004-2008 Thomas Okken\0"
+            VALUE "LegalCopyright", "Copyright © 2004-2009 Thomas Okken\0"
             //VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "Free42.exe\0"
             //VALUE "PrivateBuild", "\0"

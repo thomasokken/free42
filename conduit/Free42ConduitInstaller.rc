@@ -124,7 +124,7 @@ BEGIN
             VALUE "FileDescription", "Installs the Free42 Conduit\0"
             VALUE "FileVersion", FREE42_VERSION_2
             VALUE "InternalName", "Free42ConduitInstaller\0"
-            VALUE "LegalCopyright", "Copyright © 2004-2008 Thomas Okken\0"
+            VALUE "LegalCopyright", "Copyright © 2004-2009 Thomas Okken\0"
             //VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "Free42ConduitInstaller.exe\0"
             //VALUE "PrivateBuild", "\0"

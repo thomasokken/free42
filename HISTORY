@@ -1,3 +1,15 @@
+14-01-2009: (no new code release)
+
+* Added "Lienhard480x800" skin for 480x800 Pocket PC devices
+  (Free42PocketPCSkins.zip package). Contributed by Thomas Lienhard.
+* Added "Sven320x240mini" skin for 320x240 Pocket PC devices
+  (Free42PocketPCSkins.zip package). This skin only shows the keys for basic
+  arithmetic and stack manipulation, making the keys large enough to use easily
+  without a stylus. Contributed by Sven from Vienna.
+* Added "Ramos480x640" skin for 480x640 Pocket PC devices
+  (Free42PocketPCSkins.zip package). It has a distinctive, sparse look.
+  Contributed by Noe Ramos.
+
 16-08-2008: release 1.4.44
 
 * Made auto-repeat for number entry and ALPHA modes optional. The auto-repeat
