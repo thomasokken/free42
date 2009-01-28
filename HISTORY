@@ -1,3 +1,10 @@
+28-01-2009: release 1.4.45
+
+* ASTO IND ST X was broken; instead of storing the first 6 characters of the
+  ALPHA register into the register or variable pointed to by X, it stored them
+  into the variable pointed to by the first six characters of ALPHA itself.
+  Fixed.
+
 14-01-2009: (no new code release)
 
 * Added "Lienhard480x800" skin for 480x800 Pocket PC devices

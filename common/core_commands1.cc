@@ -473,21 +473,32 @@ int docmd_null(arg_struct *arg) {
 
 int docmd_asto(arg_struct *arg) {
     /* I'm lazy enough to spot that ASTO has exactly the same side effects as
-     * STO with the first 6 characters of ALPHA in ST X. If you're also aware
-     * that new_string() constructs a string of no more than 6 characters,
+     * STO with the first 6 characters of ALPHA in ST X (as long as the
+     * destination is not ST X or IND ST X). If you're also aware that
+     * new_string() constructs a string of no more than 6 characters,
      * you'll see that this code does the job quite nicely.
      */
     vartype *s = new_string(reg_alpha, reg_alpha_length);
     if (s == NULL)
 	return ERR_INSUFFICIENT_MEMORY;
     if (arg->type == ARGTYPE_STK && arg->val.stk == 'X') {
+	// Special case for ASTO ST X
 	free_vartype(reg_x);
 	reg_x = s;
 	return ERR_NONE;
     } else {
+	int err;
+	if (arg->type == ARGTYPE_IND_STK && arg->val.stk == 'X') {
+	    // Special case for ASTO IND ST X
+	    err = resolve_ind_arg(arg);
+	    if (err != ERR_NONE) {
+		free_vartype(s);
+		return err;
+	    }
+	}
 	vartype *saved_x = reg_x;
 	reg_x = s;
-	int err = docmd_sto(arg);
+	err = docmd_sto(arg);
 	free_vartype(s);
 	reg_x = saved_x;
 	return err;
