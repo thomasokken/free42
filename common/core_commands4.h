@@ -40,7 +40,6 @@ int docmd_stoel(arg_struct *arg) COMMANDS4_SECT;
 int docmd_stoij(arg_struct *arg) COMMANDS4_SECT;
 int docmd_tanh(arg_struct *arg) COMMANDS4_SECT;
 int docmd_trans(arg_struct *arg) COMMANDS4_SECT;
-int docmd_uvec(arg_struct *arg) COMMANDS4_SECT;
 int docmd_wrap(arg_struct *arg) COMMANDS4_SECT;
 int docmd_x_swap(arg_struct *arg) COMMANDS4_SECT;
 int docmd_left(arg_struct *arg) COMMANDS4_SECT;
