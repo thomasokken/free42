@@ -18,6 +18,7 @@
 
 #include <stdlib.h>
 
+#include "core_commands1.h"
 #include "core_commands2.h"
 #include "core_commands3.h"
 #include "core_commands4.h"
@@ -1413,15 +1414,10 @@ int docmd_uvec(arg_struct *arg) {
     phloat norm;
     int err;
     vartype *v;
-    /* Check for complex matrices explicitly; everything else
-     * is checked by fnrm(). NOTE: it's easy to make this function
-     * handle complex matrices as well (fnrm() already does) but
-     * since stage 1 of Free42 is all about HP-42S compatibility,
-     * and the HP-42S doesn't allow complex matrices for UVEC, we
-     * don't either.
-     */
     if (reg_x->type == TYPE_COMPLEXMATRIX)
 	return ERR_INVALID_TYPE;
+    if (reg_x->type == TYPE_COMPLEX)
+	return docmd_sign(arg);
     err = fnrm(reg_x, &norm);
     if (err != ERR_NONE)
 	return err;

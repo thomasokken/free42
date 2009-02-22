@@ -1,3 +1,8 @@
+??-??-????: release 1.4.46
+
+* UVEC returned Invalid Type for complex scalar arguments. Fixed; it now returns
+  z/|z| (same as the SIGN function for such arguments), like the real HP-42S.
+
 28-01-2009: release 1.4.45
 
 * ASTO IND ST X was broken; instead of storing the first 6 characters of the
