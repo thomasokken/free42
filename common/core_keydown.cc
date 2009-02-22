@@ -2020,7 +2020,7 @@ void keydown_normal_mode(int shift, int key) {
 				pending_command_arg.type = ARGTYPE_NONE;
 			    } else {
 				pending_command = CMD_NONE;
-				start_incomplete_command(cmd);
+				do_interactive(cmd);
 				return;
 			    }
 			}
