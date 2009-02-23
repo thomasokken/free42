@@ -25,7 +25,7 @@
 
 #include "bcd.h"
 
-BCD pi() BCD_SECT;
+//BCD pi() BCD_SECT;
 BCD sin(const BCD&) BCD_SECT;
 BCD cos(const BCD&) BCD_SECT;
 BCD tan(const BCD&) BCD_SECT;

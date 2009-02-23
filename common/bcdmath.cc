@@ -100,10 +100,14 @@ static Dig constTable[] =
     { 2, 5000, 0, 0, 0, 0, 0, 1 }, // 2.5
 };
 
+// Commented out because it clashes with a symbol in fp.h in CarbonCore
+// (Mac OS X and iPhone). Free42 doesn't use it anyway.
+/*
 BCD pi()
 {
     return *(const BCDFloat*)(constTable + BCD_CONST_PI);
 }
+*/
 
 static void sincosTaylor(const BCD& a, BCD& sa, BCD& ca, int n) BCD_SECT;
 static void sincosTaylor(const BCD& a, BCD& sa, BCD& ca, int n)

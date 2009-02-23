@@ -2205,33 +2205,33 @@ void keydown_normal_mode(int shift, int key) {
 		return;
 	    } else {
 		const menu_item_spec *mi = menus[menu].child + menukey;
-		int id = mi->menuid;
+		int cmd_id = mi->menuid;
 		const command_spec *cmd;
-		if ((id & 0x3000) == 0) {
-		    set_menu(level, id);
+		if ((cmd_id & 0x3000) == 0) {
+		    set_menu(level, cmd_id);
 		    redisplay();
 		    return;
 		}
 		if (menu == MENU_TOP_FCN && shift) {
 		    switch (menukey) {
-			case 0: id = CMD_SIGMASUB; break;
-			case 1: id = CMD_Y_POW_X; break;
-			case 2: id = CMD_SQUARE; break;
-			case 3: id = CMD_10_POW_X; break;
-			case 4: id = CMD_E_POW_X; break;
-			case 5: id = CMD_GTO; break;
+			case 0: cmd_id = CMD_SIGMASUB; break;
+			case 1: cmd_id = CMD_Y_POW_X; break;
+			case 2: cmd_id = CMD_SQUARE; break;
+			case 3: cmd_id = CMD_10_POW_X; break;
+			case 4: cmd_id = CMD_E_POW_X; break;
+			case 5: cmd_id = CMD_GTO; break;
 		    }
 		} else if (menu == MENU_PGM_FCN1 && menukey == 5 && shift)
-		    id = CMD_GTO;
+		    cmd_id = CMD_GTO;
 		else if (menu == MENU_STAT1 && menukey == 0 && shift)
-		    id = CMD_SIGMASUB;
+		    cmd_id = CMD_SIGMASUB;
 		else
-		    id &= 0xfff;
-		cmd = cmdlist(id);
+		    cmd_id &= 0xfff;
+		cmd = cmdlist(cmd_id);
 		if (level == MENULEVEL_TRANSIENT
 			|| (level == MENULEVEL_PLAIN && !mode_plainmenu_sticky))
 		    set_menu(level, MENU_NONE);
-		do_interactive(id);
+		do_interactive(cmd_id);
 		return;
 	    }
 	}
