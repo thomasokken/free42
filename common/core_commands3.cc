@@ -1416,15 +1416,18 @@ int docmd_uvec(arg_struct *arg) {
     vartype *v;
     if (reg_x->type == TYPE_COMPLEXMATRIX)
 	return ERR_INVALID_TYPE;
-    if (reg_x->type == TYPE_COMPLEX)
-	return docmd_sign(arg);
+    if (reg_x->type == TYPE_COMPLEX) {
+	vartype_complex *z = (vartype_complex *) reg_x;
+	if (z->re == 0 && z->im == 0)
+	    return ERR_INVALID_DATA;
+	else
+	    return docmd_sign(arg);
+    }
     err = fnrm(reg_x, &norm);
     if (err != ERR_NONE)
 	return err;
     if (norm == 0) {
-	v = dup_vartype(reg_x);
-	if (v == NULL)
-	    return ERR_INSUFFICIENT_MEMORY;
+	return ERR_INVALID_DATA;
     } else {
 	vartype_realmatrix *src = (vartype_realmatrix *) reg_x;
 	vartype_realmatrix *dst;
