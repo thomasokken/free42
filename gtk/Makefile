@@ -17,7 +17,7 @@
 ###############################################################################
 
 CXXFLAGS := -MMD -Wall -g -I/usr/X11R6/include -fno-exceptions -fno-rtti $(shell pkg-config --cflags gtk+-2.0) -DVERSION="\"$(shell cat ../VERSION)\""
-LDFLAGS = -L/usr/X11R6/lib
+LDFLAGS = -L/usr/X11R6/lib -Wl,--hash-style=both
 LIBS := -lXmu $(shell pkg-config --libs gtk+-2.0)
 
 SRCS = shell_main.cc shell_skin.cc skins.cc keymap.cc shell_loadimage.cc \

@@ -18,7 +18,7 @@
 
 VERSION = "\"$(shell cat ../VERSION)\""
 CXXFLAGS = -MMD -Wall -g -I/usr/X11R6/include -fno-exceptions -fno-rtti -DVERSION=$(VERSION)
-LDFLAGS = -L/usr/X11R6/lib
+LDFLAGS = -L/usr/X11R6/lib -Wl,--hash-style=both
 LIBS = -lm -lXm -lXt -lX11 -lXmu -lXpm
 
 #CXXFLAGS = -MMD -Wall -g -I/usr/local/lesstif/include -I/usr/X11R6/include -fno-exceptions -fno-rtti -DVERSION=$(VERSION)
