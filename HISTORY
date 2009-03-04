@@ -1,4 +1,4 @@
-??-??-????: release 1.4.47
+04-03-2009: release 1.4.47
 
 * Another UVEC bug: it should return Invalid Data when the magnitude of its
   argument (|z| for complex scalars, FNRM for real matrices) is zero. It
