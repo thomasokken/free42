@@ -4,7 +4,7 @@ Free42 is a complete re-implementation of the HP-42S scientific programmable
 RPN calculator, which was made from 1988 until 1995 by Hewlett-Packard.
 Free42 is a complete rewrite and contains no HP code whatsoever.
 At this time, the author supports versions that run on Pocket PC, Microsoft
-Windows, PalmOS, and Unix.
+Windows, PalmOS, Unix, and Mac OS X Dashboard.
 
 The PalmOS version of Free42 incorporates code that lets it create a virtual
 filesystem inside a PalmOS database. Within Free42, you can use this filesystem
