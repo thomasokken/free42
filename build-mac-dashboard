@@ -3,7 +3,7 @@
 VERSION=`cat VERSION`
 
 unset BCD_MATH
-cd MacDashboard
+cd macdashboard
 make clean
 make
 zip -r ../Free42Binary.zip Free42.wdgt
