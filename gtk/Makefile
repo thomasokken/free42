@@ -17,8 +17,12 @@
 ###############################################################################
 
 CXXFLAGS := -MMD -Wall -g -I/usr/X11R6/include -fno-exceptions -fno-rtti $(shell pkg-config --cflags gtk+-2.0) -DVERSION="\"$(shell cat ../VERSION)\""
-LDFLAGS = -L/usr/X11R6/lib -Wl,--hash-style=both
+LDFLAGS = -L/usr/X11R6/lib
 LIBS := -lXmu $(shell pkg-config --libs gtk+-2.0)
+
+ifeq "$(shell uname -s)" "Linux"
+LDFLAGS += -Wl,--hash-style=both
+endif
 
 SRCS = shell_main.cc shell_skin.cc skins.cc keymap.cc shell_loadimage.cc \
 	shell_spool.cc core_main.cc core_commands1.cc core_commands2.cc \
