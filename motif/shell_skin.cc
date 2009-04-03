@@ -266,8 +266,8 @@ static int get_real_depth() {
 	return d;
 
     d = depth;
-    if (d > visual->bits_per_rgb);
-    d = visual->bits_per_rgb;
+    if (d > visual->bits_per_rgb)
+	d = visual->bits_per_rgb;
     if (d > 8)
 	d = 8;
 
