@@ -1766,8 +1766,10 @@ static gboolean timeout2(gpointer cd) {
 }
 
 static gboolean timeout3(gpointer cd) {
-    core_timeout3(1);
+    bool keep_running = core_timeout3(1);
     timeout3_id = 0;
+    if (keep_running)
+	enable_reminder();
     return FALSE;
 }
 

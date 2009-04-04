@@ -576,6 +576,7 @@ int mode_alphamenu;
 int mode_commandmenu;
 bool mode_running;
 bool mode_getkey;
+bool mode_pause = false;
 bool mode_disable_stack_lift; /* transient */
 bool mode_varmenu;
 bool mode_updown;
@@ -2495,6 +2496,7 @@ void hard_reset(int bad_state_file) {
     mode_appmenu = MENU_NONE;
     mode_running = false;
     mode_getkey = false;
+    mode_pause = false;
     mode_varmenu = false;
     prgm_highlight_row = 0;
     varmenu_length = 0;

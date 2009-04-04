@@ -155,13 +155,15 @@ void core_keytimeout2() MAIN_SECT;
 /* core_timeout3()
  *
  * A wakeup call that the core can request by calling shell_request_timeout3().
- * Used to implement the brief linger period after MEM, SHOW, and shift-
- * VARMENU. The 'repaint' parameter says whether the callback is invoked
+ * Used to implement PSE and the brief linger period after MEM, SHOW, and
+ * shift-VARMENU. The 'repaint' parameter says whether the callback is invoked
  * because the timeout period expired (1), or because a key event is on its
  * way (0); if a key event is on its way, the emulator core should not repaint
  * the screen, in order to avoid flashing.
+ * If the function returns 'true', this means that the timeout was used for
+ * PSE, and the shell should resume program execution.
  */
-void core_timeout3(int repaint) MAIN_SECT;
+bool core_timeout3(int repaint) MAIN_SECT;
 
 /* core_keyup()
  *
@@ -322,7 +324,6 @@ bool program_running() MAIN_SECT;
 
 int want_to_run_again() MAIN_SECT;
 void do_interactive(int command) MAIN_SECT;
-void continue_running() MAIN_SECT;
 int find_builtin(const char *name, int namelen) MAIN_SECT;
 
 void sst() MAIN_SECT;

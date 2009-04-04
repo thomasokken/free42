@@ -195,10 +195,10 @@ void core_keytimeout2() {
     PealCall(m, p_core_keytimeout2, NULL);
 }
 
-void core_timeout3(int repaint) {
+bool core_timeout3(int repaint) {
     int4 p = repaint;
     p = ByteSwap32(p);
-    PealCall(m, p_core_timeout3, (void *) p);
+    return (bool) PealCall(m, p_core_timeout3, (void *) p);
 }
 
 int core_keyup() {

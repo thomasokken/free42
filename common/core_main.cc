@@ -39,6 +39,7 @@ static void set_shift(bool state) {
     }
 }
 
+static void continue_running() MAIN_SECT;
 static void stop_interruptible() MAIN_SECT;
 static int handle_error(int error) MAIN_SECT;
 
@@ -113,7 +114,16 @@ int core_keydown(int key, int *enqueued, int *repeat) {
 
     if (key == KEY_SHIFT) {
 	set_shift(!mode_shift);
-	return mode_running || keybuf_head != keybuf_tail;
+	return (mode_running && !mode_getkey && !mode_pause) || keybuf_head != keybuf_tail;
+    }
+
+    if (mode_pause) {
+	mode_pause = false;
+	set_running(false);
+	if (!mode_shift && (key == KEY_RUN || key == KEY_EXIT)) {
+	    redisplay();
+	    return 0;
+	}
     }
 
     if (mode_interruptible != NULL) {
@@ -190,7 +200,7 @@ int core_keydown(int key, int *enqueued, int *repeat) {
 	    set_shift(false);
 	}
 	continue_running();
-	if ((mode_running && !mode_getkey) || keybuf_tail != keybuf_head)
+	if ((mode_running && !mode_getkey && !mode_pause) || keybuf_tail != keybuf_head)
 	    return 1;
 	else {
 	    if (mode_getkey)
@@ -200,7 +210,7 @@ int core_keydown(int key, int *enqueued, int *repeat) {
 		 * purely because the HP-42S does it, too!)
 		 */
 		shell_annunciators(-1, -1, -1, 0, -1, -1);
-	    else
+	    else if (!mode_pause)
 		redisplay();
 	    return 0;
 	}
@@ -243,7 +253,7 @@ int core_keydown(int key, int *enqueued, int *repeat) {
 	    }
 	    set_shift(false);
 	}
-	return mode_running || keybuf_head != keybuf_tail;
+	return (mode_running && !mode_getkey) || keybuf_head != keybuf_tail;
     }
 
     /* No program is running, or it is running but waiting for a
@@ -312,7 +322,16 @@ void core_keytimeout2() {
     }
 }
 
-void core_timeout3(int repaint) {
+bool core_timeout3(int repaint) {
+    if (mode_pause) {
+	if (repaint) {
+	    /* The PSE ended normally */
+	    mode_pause = false;
+	    if (mode_goose >= 0)
+		mode_goose = -1 - mode_goose;
+	}
+	return true;
+    }
     /* Remove the output of SHOW, MEM, or shift-VARMENU from the display */
     if (pending_command == CMD_LINGER1)
 	pending_command = CMD_CANCELLED;
@@ -323,9 +342,15 @@ void core_timeout3(int repaint) {
 	if (repaint)
 	    redisplay();
     }
+    return false;
 }
 
 int core_keyup() {
+    if (mode_pause) {
+	/* The only way this can happen is if they key in question was Shift */
+	return 0;
+    }
+
     int error = ERR_NONE;
 
     if (pending_command == CMD_LINGER1 || pending_command == CMD_LINGER2) {
@@ -422,12 +447,14 @@ int core_keyup() {
 	set_running(true);
 	error = cmdlist(cmd)->handler(&arg);
 	set_running(false);
+	mode_pause = false;
     } else {
 	if ((flags.f.trace_print || flags.f.normal_print)
 		&& flags.f.printer_exists)
 	    print_command(pending_command, &pending_command_arg);
 	mode_disable_stack_lift = false;
 	error = cmdlist(pending_command)->handler(&pending_command_arg);
+	mode_pause = false;
     }
 
     if (error == ERR_INTERRUPTIBLE) {
@@ -437,9 +464,9 @@ int core_keyup() {
 
     handle_error(error);
     pending_command = CMD_NONE;
-    if (!mode_getkey)
+    if (!mode_getkey && !mode_pause)
 	redisplay();
-    return (mode_running && !mode_getkey) || keybuf_head != keybuf_tail;
+    return (mode_running && !mode_getkey && !mode_pause) || keybuf_head != keybuf_tail;
 }
 
 int core_allows_powerdown(int *want_cpu) {
@@ -2255,7 +2282,7 @@ void do_interactive(int command) {
     }
 }
 
-void continue_running() {
+static void continue_running() {
     int error;
     while (!shell_wants_cpu()) {
 	int cmd;
@@ -2273,6 +2300,10 @@ void continue_running() {
 	    print_program_line(current_prgm, oldpc);
 	mode_disable_stack_lift = false;
 	error = cmdlist(cmd)->handler(&arg);
+	if (mode_pause) {
+	    shell_request_timeout3(1000);
+	    return;
+	}
 	if (error == ERR_INTERRUPTIBLE)
 	    return;
 	if (!handle_error(error))

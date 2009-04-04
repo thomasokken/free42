@@ -490,13 +490,19 @@ int docmd_prompt(arg_struct *arg) {
 }
 
 int docmd_pse(arg_struct *arg) {
-    int saved_command = pending_command;
-    pending_command = CMD_NONE;
-    redisplay();
-    pending_command = saved_command;
-    shell_delay(1000);
-    if (mode_goose >= 0)
-	mode_goose = -1 - mode_goose;
+    if (program_running()) {
+	int saved_command = pending_command;
+	pending_command = CMD_NONE;
+	redisplay();
+	pending_command = saved_command;
+#ifdef OLD_PSE
+	shell_delay(1000);
+	if (mode_goose >= 0)
+	    mode_goose = -1 - mode_goose;
+#else
+	mode_pause = true;
+#endif
+    }
     return ERR_NONE;
 }
 

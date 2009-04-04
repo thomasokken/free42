@@ -595,7 +595,7 @@ UInt32 shell_main(UInt16 cmd, void *pbp, UInt16 flags) {
 		if (timeout3time != -1) {
 		    Int32 ticksLeft = timeout3time - now;
 		    if (ticksLeft <= 0) {
-			core_timeout3(1);
+			want_to_run = core_timeout3(1);
 			timeout3time = -1;
 		    } else {
 			if (ticksLeft < eventWaitTicks)
@@ -615,7 +615,7 @@ UInt32 shell_main(UInt16 cmd, void *pbp, UInt16 flags) {
 		else if (event.eType == nilEvent
 			|| event.eType == firstUserEvent) {
 		    int dummy1, dummy2;
-		    want_to_run = core_keydown(0, &dummy1, &dummy2);
+		    want_to_run = want_to_run && core_keydown(0, &dummy1, &dummy2);
 		} else {
 		    if (!SysHandleEvent(&event))
 			if (!MenuHandleEvent(NULL, &event, &error))

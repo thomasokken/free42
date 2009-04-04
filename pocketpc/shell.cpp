@@ -1245,8 +1245,13 @@ static VOID CALLBACK timeout2(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) 
 
 static VOID CALLBACK timeout3(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) {
 	KillTimer(NULL, timer3);
-	core_timeout3(1);
+	bool keep_running = core_timeout3(1);
 	timer3 = 0;
+	if (keep_running) {
+		running = 1;
+		// Post dummy message to get the message loop moving again
+		PostMessage(hMainWnd, WM_USER, 0, 0);
+	}
 }
 
 static VOID CALLBACK battery_checker(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) {

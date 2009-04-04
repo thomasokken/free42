@@ -3036,8 +3036,10 @@ static void timeout2(XtPointer closure, XtIntervalId *id) {
 }
 
 static void timeout3(XtPointer closure, XtIntervalId *id) {
-    core_timeout3(1);
+    bool keep_running = core_timeout3(1);
     timeout3_active = 0;
+    if (keep_running)
+	enable_reminder();
 }
 
 static void battery_checker(XtPointer closure, XtIntervalId *id) {

@@ -49,11 +49,6 @@ higher-precision BCDDouble type for temporaries; this also opens up the
 possibility of using Newton's method, which might be faster than the 'long
 division' algorithm.
 
-Pressing any key during PSE should halt program execution and execute the
-keystroke. This could be a bit tricky to implement because the current PSE
-implementation simply freezes the UI for 1 second; proper keyboard handling
-will require a whole new core state (similar to the GETKEY state).
-
 SOLVE: detect more sign reversals (not just the ones where the sign reversal
 brackets a domain error). This isn't strictly a bug, since it is mathematically
 impossible to reliably tell poles from zeroes (the real HP-42S doesn't always

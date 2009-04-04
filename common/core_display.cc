@@ -762,7 +762,7 @@ void fly_goose() {
 
     if (mode_goose < 0) {
 	clear_row(0);
-	mode_goose = (-1 - mode_goose) % 22;
+	mode_goose = (-mode_goose) % 22;
 	draw_char(mode_goose, 0, 6);
     } else {
 	draw_char(mode_goose, 0, ' ');

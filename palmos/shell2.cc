@@ -1280,7 +1280,7 @@ Boolean calcgadget_handler(struct FormGadgetTypeInCallback *gadgetP,
 		    Boolean down;
 		    int enqueued, repeat;
 
-		    if (keycode != 27 /* shift */) {
+		    if (keycode != 28 /* shift */) {
 			timeout3time = -1;
 			core_timeout3(0);
 		    }

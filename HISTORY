@@ -1,3 +1,10 @@
+04-04-2009: release 1.4.48
+
+* Fixed PSE; it no longer freezes the UI for one second, but uses a proper
+  timeout, so event processing can continue, and keystrokes during PSE have
+  the proper effect (of stopping program execution and then being handled
+  normally).
+
 04-03-2009: release 1.4.47
 
 * Another UVEC bug: it should return Invalid Data when the magnitude of its

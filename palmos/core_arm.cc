@@ -82,8 +82,7 @@ unsigned long arm_core_keytimeout2(void *p) {
 }
 
 unsigned long arm_core_timeout3(void *p) {
-    core_timeout3((int) p);
-    return 0;
+    return core_timeout3((int) p);
 }
 
 unsigned long arm_core_keyup(void *p) {

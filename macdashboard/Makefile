@@ -15,7 +15,7 @@
 # along with this program; if not, see http://www.gnu.org/licenses/.
 ###############################################################################
 
-CXXFLAGS = -DNO_SINCOS -arch ppc -arch i386 -mmacosx-version-min=10.4 -Wall -g -fno-exceptions -fno-rtti
+CXXFLAGS = -DNO_SINCOS -DOLD_PSE -arch ppc -arch i386 -mmacosx-version-min=10.4 -Wall -g -fno-exceptions -fno-rtti
 LDFLAGS = -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4
 LIBS = -arch ppc -arch i386 -lm
 
