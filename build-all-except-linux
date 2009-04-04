@@ -87,6 +87,7 @@ mkdir tmp
 cd tmp
 cvs checkout free42
 find . -type d -name CVS -prune -exec rm -rf {} \;
+find . -type f -name .cvsignore -exec rm -f {} \;
 zip -j ../Free42Skins.$VERSION.zip free42/skins/*
 zip -j ../Free42PocketPCSkins.$VERSION.zip free42/ppcskins/*
 tar cvfz ../free42.$VERSION.tgz free42
