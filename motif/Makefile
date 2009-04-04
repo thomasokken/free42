@@ -30,9 +30,9 @@ ifeq "$(shell uname -s)" "Linux"
 LDFLAGS += -Wl,--hash-style=both
 endif
 
-#CXXFLAGS = -MMD -Wall -g -I/usr/local/lesstif/include -I/usr/X11R6/include -fno-exceptions -fno-rtti -DVERSION=$(VERSION)
-#LDFLAGS = -L/usr/local/lesstif/lib -L/usr/X11R6/lib
-#LIBS = -lm -lXm -lXpm -lXmu
+ifeq "$(shell uname -s | sed 's/^\(......\).*/\1/')" "CYGWIN"
+LDFLAGS += -Wl,--enable-auto-import
+endif
 
 SRCS = shell_main.cc shell_skin.cc skins.cc keymap.cc shell_loadimage.cc \
 	shell_spool.cc core_main.cc core_commands1.cc core_commands2.cc \

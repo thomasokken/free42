@@ -9,21 +9,27 @@ Binary implementations of floating-point math routines, used in all binary
 Skins designed by, or based on original work of: Sebastien Carlier,
    Christoph Giesselink, Erik Ehrling, Jeff O., Michael Vogel,
    Klaus Reckermann, Egan Ford, Curtis Cameron, Michael Khor, Thomas Lienhard,
-   Sven from Vienna, and Noe Ramos.
+   Sven from Vienna, Noe Ramos, and Jerrod Hofferth.
 MacOS X Dashboard version by D. Jeff Dionne.
+iPhone version by Byron Foster; pop-up keyboard code by Susan Mackay.
 
 Testing: Vini Matangrano, Dave Johnson, Walter Bonin, Andres Rodriguez,
-   Jeff O., and Miguel Toro.
+   Jeff O., Miguel Toro, Les Wright, and many others.
 
-Couldn't have done it without: PRC-Tools by D. Jeff Dionne, with multi-segment
-debugging support by Ton van Overbeek; Peal by Greg Parker; Vim by Bram
-Moolenaar; DDD by Dorothea Luetkehaus and Andreas Zeller; NetPBM by Jef
-Poskanzer and others; gcc/g++ by Richard Stallman and others; Visual C++ and
-eMbedded Visual C++ by Microsoft; gdb, binutils, and too many other fine tools
-to name, by the Free Software Foundation and its contributors; the Linux kernel
-by Linus Torvalds and others; help and advice from many contributors to several
-Usenet newsgroups and various mailing lists; and of course, the inspiration for
-it all, the excellent HP-42S calculator by Hewlett-Packard.
+Free42 has benefited tremendously from, and probably wouldn't even exist today
+if it weren't for, these excellent pieces of Free Software: PRC-Tools by
+D. Jeff Dionne, with multi-segment debugging support by Ton van Overbeek; Peal
+by Greg Parker; Vim by Bram Moolenaar; DDD by Dorothea Luetkehaus and Andreas
+Zeller; NetPBM by Jef Poskanzer and others; gcc/g++ by Richard Stallman and
+others; gdb, binutils, and too many other fine tools to name, by the Free
+Software Foundation and its contributors; and the Linux kernel by Linus
+Torvalds and others.
+
+Many thanks to all concerned for the help and advice I received from many
+contributors to several Usenet newsgroups and various mailing lists.
+
+And of course, kudos to the inspiration for it all, the excellent HP-42S
+calculator by Hewlett-Packard.
 
 A big and continuing Thank You to all the many people whose names I did not
 record, who have sent me bug reports, words of encouragement, and donations.
