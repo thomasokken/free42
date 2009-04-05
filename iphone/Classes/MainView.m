@@ -80,7 +80,8 @@ static struct {
 }
 
 
-- (void)dealloc {
+- (void) dealloc {
+	NSLog(@"Shutting down!");
     [super dealloc];
 }
 

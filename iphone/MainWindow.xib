@@ -158,7 +158,7 @@
 					</object>
 					<string>{{833, 88}, {320, 480}}</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
-					<string>shell</string>
+					<string>shell_iphone</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 				</object>
 			</object>
@@ -204,7 +204,7 @@
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
-					<string key="className">shell</string>
+					<string key="className">shell_iphone</string>
 					<string key="superclassName">NSObject</string>
 					<object class="NSMutableDictionary" key="outlets">
 						<bool key="EncodedWithXMLCoder">YES</bool>
@@ -223,7 +223,7 @@
 					</object>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">Classes/shell.h</string>
+						<string key="minorKey">Classes/shell_iphone.h</string>
 					</object>
 				</object>
 			</object>
