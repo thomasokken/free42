@@ -15,16 +15,26 @@
  * along with this program; if not, see http://www.gnu.org/licenses/.
  *****************************************************************************/
 
-#import <UIKit/UIKit.h>
-#import "MainView.h"
+#import "shell_iphone.h"
 
-@interface shell : NSObject <UIApplicationDelegate> {
-    UIWindow *window;
-	MainView *view;
+@implementation shell_iphone
+
+@synthesize window;
+@synthesize view;
+
+
+- (void) applicationDidFinishLaunching:(UIApplication *)application {    
+
+    // Override point for customization after application launch
+    [window makeKeyAndVisible];
 }
 
-@property (nonatomic, retain) IBOutlet UIWindow *window;
-@property (nonatomic, retain) IBOutlet MainView *view;
+
+- (void) dealloc {
+    [window release];
+    [view release];
+    [super dealloc];
+}
+
 
 @end
-

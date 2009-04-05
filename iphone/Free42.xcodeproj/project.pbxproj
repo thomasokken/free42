@@ -7,12 +7,35 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1D3623260D0F684500981E51 /* shell.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D3623250D0F684500981E51 /* shell.m */; };
+		1D3623260D0F684500981E51 /* shell_iphone.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D3623250D0F684500981E51 /* shell_iphone.m */; };
 		1D60589B0D05DD56006BFB54 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
 		1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
 		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
 		288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765FC0DF74451002DB57D /* CoreGraphics.framework */; };
 		28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD733E0D9D9553002E5188 /* MainWindow.xib */; };
+		E91005CE0F893F8900B68C27 /* bcd.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005A20F893F8900B68C27 /* bcd.cc */; };
+		E91005CF0F893F8900B68C27 /* bcdfloat.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005A40F893F8900B68C27 /* bcdfloat.cc */; };
+		E91005D00F893F8900B68C27 /* bcdmath.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005A60F893F8900B68C27 /* bcdmath.cc */; };
+		E91005D10F893F8900B68C27 /* core_commands1.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005A80F893F8900B68C27 /* core_commands1.cc */; };
+		E91005D20F893F8900B68C27 /* core_commands2.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005AA0F893F8900B68C27 /* core_commands2.cc */; };
+		E91005D30F893F8900B68C27 /* core_commands3.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005AC0F893F8900B68C27 /* core_commands3.cc */; };
+		E91005D40F893F8900B68C27 /* core_commands4.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005AE0F893F8900B68C27 /* core_commands4.cc */; };
+		E91005D50F893F8900B68C27 /* core_commands5.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005B00F893F8900B68C27 /* core_commands5.cc */; };
+		E91005D60F893F8900B68C27 /* core_commands6.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005B20F893F8900B68C27 /* core_commands6.cc */; };
+		E91005D70F893F8900B68C27 /* core_display.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005B40F893F8900B68C27 /* core_display.cc */; };
+		E91005D80F893F8900B68C27 /* core_globals.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005B60F893F8900B68C27 /* core_globals.cc */; };
+		E91005D90F893F8900B68C27 /* core_helpers.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005B80F893F8900B68C27 /* core_helpers.cc */; };
+		E91005DA0F893F8900B68C27 /* core_keydown.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005BA0F893F8900B68C27 /* core_keydown.cc */; };
+		E91005DB0F893F8900B68C27 /* core_linalg1.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005BC0F893F8900B68C27 /* core_linalg1.cc */; };
+		E91005DC0F893F8900B68C27 /* core_linalg2.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005BE0F893F8900B68C27 /* core_linalg2.cc */; };
+		E91005DD0F893F8900B68C27 /* core_main.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005C00F893F8900B68C27 /* core_main.cc */; };
+		E91005DE0F893F8900B68C27 /* core_math1.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005C20F893F8900B68C27 /* core_math1.cc */; };
+		E91005DF0F893F8900B68C27 /* core_math2.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005C40F893F8900B68C27 /* core_math2.cc */; };
+		E91005E00F893F8900B68C27 /* core_phloat.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005C60F893F8900B68C27 /* core_phloat.cc */; };
+		E91005E10F893F8900B68C27 /* core_sto_rcl.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005C80F893F8900B68C27 /* core_sto_rcl.cc */; };
+		E91005E20F893F8900B68C27 /* core_tables.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005CA0F893F8900B68C27 /* core_tables.cc */; };
+		E91005E30F893F8900B68C27 /* core_variables.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005CC0F893F8900B68C27 /* core_variables.cc */; };
+		E93F2B560F894D9000CE8542 /* shell_spool.cc in Sources */ = {isa = PBXBuildFile; fileRef = E93F2B540F894D9000CE8542 /* shell_spool.cc */; };
 		E9B16D590F88DFE2002BB9B2 /* MainView.m in Sources */ = {isa = PBXBuildFile; fileRef = E9B16D580F88DFE2002BB9B2 /* MainView.m */; };
 		E9B16DFA0F88EE46002BB9B2 /* shell_loadimage.cc in Sources */ = {isa = PBXBuildFile; fileRef = E9B16DF80F88EE46002BB9B2 /* shell_loadimage.cc */; };
 		E9B16E040F88F015002BB9B2 /* shell_skin_iphone.m in Sources */ = {isa = PBXBuildFile; fileRef = E9B16E010F88F015002BB9B2 /* shell_skin_iphone.m */; };
@@ -21,8 +44,8 @@
 
 /* Begin PBXFileReference section */
 		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		1D3623240D0F684500981E51 /* shell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shell.h; sourceTree = "<group>"; };
-		1D3623250D0F684500981E51 /* shell.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = shell.m; sourceTree = "<group>"; };
+		1D3623240D0F684500981E51 /* shell_iphone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shell_iphone.h; sourceTree = "<group>"; };
+		1D3623250D0F684500981E51 /* shell_iphone.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = shell_iphone.m; sourceTree = "<group>"; };
 		1D6058910D05DD3D006BFB54 /* Free42.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Free42.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		288765FC0DF74451002DB57D /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -30,6 +53,54 @@
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		32CA4F630368D1EE00C91783 /* Free42_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Free42_Prefix.pch; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E91005810F893DB700B68C27 /* free42.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = free42.h; path = ../common/free42.h; sourceTree = SOURCE_ROOT; };
+		E910059A0F893F3E00B68C27 /* shell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shell.h; path = ../common/shell.h; sourceTree = SOURCE_ROOT; };
+		E91005A20F893F8900B68C27 /* bcd.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bcd.cc; path = ../common/bcd.cc; sourceTree = SOURCE_ROOT; };
+		E91005A30F893F8900B68C27 /* bcd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bcd.h; path = ../common/bcd.h; sourceTree = SOURCE_ROOT; };
+		E91005A40F893F8900B68C27 /* bcdfloat.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bcdfloat.cc; path = ../common/bcdfloat.cc; sourceTree = SOURCE_ROOT; };
+		E91005A50F893F8900B68C27 /* bcdfloat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bcdfloat.h; path = ../common/bcdfloat.h; sourceTree = SOURCE_ROOT; };
+		E91005A60F893F8900B68C27 /* bcdmath.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bcdmath.cc; path = ../common/bcdmath.cc; sourceTree = SOURCE_ROOT; };
+		E91005A70F893F8900B68C27 /* bcdmath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bcdmath.h; path = ../common/bcdmath.h; sourceTree = SOURCE_ROOT; };
+		E91005A80F893F8900B68C27 /* core_commands1.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_commands1.cc; path = ../common/core_commands1.cc; sourceTree = SOURCE_ROOT; };
+		E91005A90F893F8900B68C27 /* core_commands1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_commands1.h; path = ../common/core_commands1.h; sourceTree = SOURCE_ROOT; };
+		E91005AA0F893F8900B68C27 /* core_commands2.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_commands2.cc; path = ../common/core_commands2.cc; sourceTree = SOURCE_ROOT; };
+		E91005AB0F893F8900B68C27 /* core_commands2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_commands2.h; path = ../common/core_commands2.h; sourceTree = SOURCE_ROOT; };
+		E91005AC0F893F8900B68C27 /* core_commands3.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_commands3.cc; path = ../common/core_commands3.cc; sourceTree = SOURCE_ROOT; };
+		E91005AD0F893F8900B68C27 /* core_commands3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_commands3.h; path = ../common/core_commands3.h; sourceTree = SOURCE_ROOT; };
+		E91005AE0F893F8900B68C27 /* core_commands4.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_commands4.cc; path = ../common/core_commands4.cc; sourceTree = SOURCE_ROOT; };
+		E91005AF0F893F8900B68C27 /* core_commands4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_commands4.h; path = ../common/core_commands4.h; sourceTree = SOURCE_ROOT; };
+		E91005B00F893F8900B68C27 /* core_commands5.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_commands5.cc; path = ../common/core_commands5.cc; sourceTree = SOURCE_ROOT; };
+		E91005B10F893F8900B68C27 /* core_commands5.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_commands5.h; path = ../common/core_commands5.h; sourceTree = SOURCE_ROOT; };
+		E91005B20F893F8900B68C27 /* core_commands6.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_commands6.cc; path = ../common/core_commands6.cc; sourceTree = SOURCE_ROOT; };
+		E91005B30F893F8900B68C27 /* core_commands6.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_commands6.h; path = ../common/core_commands6.h; sourceTree = SOURCE_ROOT; };
+		E91005B40F893F8900B68C27 /* core_display.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_display.cc; path = ../common/core_display.cc; sourceTree = SOURCE_ROOT; };
+		E91005B50F893F8900B68C27 /* core_display.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_display.h; path = ../common/core_display.h; sourceTree = SOURCE_ROOT; };
+		E91005B60F893F8900B68C27 /* core_globals.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_globals.cc; path = ../common/core_globals.cc; sourceTree = SOURCE_ROOT; };
+		E91005B70F893F8900B68C27 /* core_globals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_globals.h; path = ../common/core_globals.h; sourceTree = SOURCE_ROOT; };
+		E91005B80F893F8900B68C27 /* core_helpers.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_helpers.cc; path = ../common/core_helpers.cc; sourceTree = SOURCE_ROOT; };
+		E91005B90F893F8900B68C27 /* core_helpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_helpers.h; path = ../common/core_helpers.h; sourceTree = SOURCE_ROOT; };
+		E91005BA0F893F8900B68C27 /* core_keydown.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_keydown.cc; path = ../common/core_keydown.cc; sourceTree = SOURCE_ROOT; };
+		E91005BB0F893F8900B68C27 /* core_keydown.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_keydown.h; path = ../common/core_keydown.h; sourceTree = SOURCE_ROOT; };
+		E91005BC0F893F8900B68C27 /* core_linalg1.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_linalg1.cc; path = ../common/core_linalg1.cc; sourceTree = SOURCE_ROOT; };
+		E91005BD0F893F8900B68C27 /* core_linalg1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_linalg1.h; path = ../common/core_linalg1.h; sourceTree = SOURCE_ROOT; };
+		E91005BE0F893F8900B68C27 /* core_linalg2.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_linalg2.cc; path = ../common/core_linalg2.cc; sourceTree = SOURCE_ROOT; };
+		E91005BF0F893F8900B68C27 /* core_linalg2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_linalg2.h; path = ../common/core_linalg2.h; sourceTree = SOURCE_ROOT; };
+		E91005C00F893F8900B68C27 /* core_main.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_main.cc; path = ../common/core_main.cc; sourceTree = SOURCE_ROOT; };
+		E91005C10F893F8900B68C27 /* core_main.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_main.h; path = ../common/core_main.h; sourceTree = SOURCE_ROOT; };
+		E91005C20F893F8900B68C27 /* core_math1.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_math1.cc; path = ../common/core_math1.cc; sourceTree = SOURCE_ROOT; };
+		E91005C30F893F8900B68C27 /* core_math1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_math1.h; path = ../common/core_math1.h; sourceTree = SOURCE_ROOT; };
+		E91005C40F893F8900B68C27 /* core_math2.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_math2.cc; path = ../common/core_math2.cc; sourceTree = SOURCE_ROOT; };
+		E91005C50F893F8900B68C27 /* core_math2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_math2.h; path = ../common/core_math2.h; sourceTree = SOURCE_ROOT; };
+		E91005C60F893F8900B68C27 /* core_phloat.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_phloat.cc; path = ../common/core_phloat.cc; sourceTree = SOURCE_ROOT; };
+		E91005C70F893F8900B68C27 /* core_phloat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_phloat.h; path = ../common/core_phloat.h; sourceTree = SOURCE_ROOT; };
+		E91005C80F893F8900B68C27 /* core_sto_rcl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_sto_rcl.cc; path = ../common/core_sto_rcl.cc; sourceTree = SOURCE_ROOT; };
+		E91005C90F893F8900B68C27 /* core_sto_rcl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_sto_rcl.h; path = ../common/core_sto_rcl.h; sourceTree = SOURCE_ROOT; };
+		E91005CA0F893F8900B68C27 /* core_tables.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_tables.cc; path = ../common/core_tables.cc; sourceTree = SOURCE_ROOT; };
+		E91005CB0F893F8900B68C27 /* core_tables.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_tables.h; path = ../common/core_tables.h; sourceTree = SOURCE_ROOT; };
+		E91005CC0F893F8900B68C27 /* core_variables.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_variables.cc; path = ../common/core_variables.cc; sourceTree = SOURCE_ROOT; };
+		E91005CD0F893F8900B68C27 /* core_variables.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_variables.h; path = ../common/core_variables.h; sourceTree = SOURCE_ROOT; };
+		E93F2B540F894D9000CE8542 /* shell_spool.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = shell_spool.cc; path = ../common/shell_spool.cc; sourceTree = SOURCE_ROOT; };
+		E93F2B550F894D9000CE8542 /* shell_spool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shell_spool.h; path = ../common/shell_spool.h; sourceTree = SOURCE_ROOT; };
 		E9B16D570F88DFE2002BB9B2 /* MainView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainView.h; sourceTree = "<group>"; };
 		E9B16D580F88DFE2002BB9B2 /* MainView.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = MainView.m; sourceTree = "<group>"; };
 		E9B16DF80F88EE46002BB9B2 /* shell_loadimage.cc */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; name = shell_loadimage.cc; path = ../common/shell_loadimage.cc; sourceTree = SOURCE_ROOT; tabWidth = 8; usesTabs = 1; };
@@ -61,8 +132,8 @@
 				E9B16E010F88F015002BB9B2 /* shell_skin_iphone.m */,
 				E9B16E020F88F015002BB9B2 /* shell_skin.h */,
 				E9B16E030F88F015002BB9B2 /* skins.cc */,
-				1D3623240D0F684500981E51 /* shell.h */,
-				1D3623250D0F684500981E51 /* shell.m */,
+				1D3623240D0F684500981E51 /* shell_iphone.h */,
+				1D3623250D0F684500981E51 /* shell_iphone.m */,
 				E9B16D570F88DFE2002BB9B2 /* MainView.h */,
 				E9B16D580F88DFE2002BB9B2 /* MainView.m */,
 			);
@@ -121,6 +192,54 @@
 		E9B16DF70F88ECCB002BB9B2 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				E93F2B540F894D9000CE8542 /* shell_spool.cc */,
+				E93F2B550F894D9000CE8542 /* shell_spool.h */,
+				E91005A20F893F8900B68C27 /* bcd.cc */,
+				E91005A30F893F8900B68C27 /* bcd.h */,
+				E91005A40F893F8900B68C27 /* bcdfloat.cc */,
+				E91005A50F893F8900B68C27 /* bcdfloat.h */,
+				E91005A60F893F8900B68C27 /* bcdmath.cc */,
+				E91005A70F893F8900B68C27 /* bcdmath.h */,
+				E91005A80F893F8900B68C27 /* core_commands1.cc */,
+				E91005A90F893F8900B68C27 /* core_commands1.h */,
+				E91005AA0F893F8900B68C27 /* core_commands2.cc */,
+				E91005AB0F893F8900B68C27 /* core_commands2.h */,
+				E91005AC0F893F8900B68C27 /* core_commands3.cc */,
+				E91005AD0F893F8900B68C27 /* core_commands3.h */,
+				E91005AE0F893F8900B68C27 /* core_commands4.cc */,
+				E91005AF0F893F8900B68C27 /* core_commands4.h */,
+				E91005B00F893F8900B68C27 /* core_commands5.cc */,
+				E91005B10F893F8900B68C27 /* core_commands5.h */,
+				E91005B20F893F8900B68C27 /* core_commands6.cc */,
+				E91005B30F893F8900B68C27 /* core_commands6.h */,
+				E91005B40F893F8900B68C27 /* core_display.cc */,
+				E91005B50F893F8900B68C27 /* core_display.h */,
+				E91005B60F893F8900B68C27 /* core_globals.cc */,
+				E91005B70F893F8900B68C27 /* core_globals.h */,
+				E91005B80F893F8900B68C27 /* core_helpers.cc */,
+				E91005B90F893F8900B68C27 /* core_helpers.h */,
+				E91005BA0F893F8900B68C27 /* core_keydown.cc */,
+				E91005BB0F893F8900B68C27 /* core_keydown.h */,
+				E91005BC0F893F8900B68C27 /* core_linalg1.cc */,
+				E91005BD0F893F8900B68C27 /* core_linalg1.h */,
+				E91005BE0F893F8900B68C27 /* core_linalg2.cc */,
+				E91005BF0F893F8900B68C27 /* core_linalg2.h */,
+				E91005C00F893F8900B68C27 /* core_main.cc */,
+				E91005C10F893F8900B68C27 /* core_main.h */,
+				E91005C20F893F8900B68C27 /* core_math1.cc */,
+				E91005C30F893F8900B68C27 /* core_math1.h */,
+				E91005C40F893F8900B68C27 /* core_math2.cc */,
+				E91005C50F893F8900B68C27 /* core_math2.h */,
+				E91005C60F893F8900B68C27 /* core_phloat.cc */,
+				E91005C70F893F8900B68C27 /* core_phloat.h */,
+				E91005C80F893F8900B68C27 /* core_sto_rcl.cc */,
+				E91005C90F893F8900B68C27 /* core_sto_rcl.h */,
+				E91005CA0F893F8900B68C27 /* core_tables.cc */,
+				E91005CB0F893F8900B68C27 /* core_tables.h */,
+				E91005CC0F893F8900B68C27 /* core_variables.cc */,
+				E91005CD0F893F8900B68C27 /* core_variables.h */,
+				E910059A0F893F3E00B68C27 /* shell.h */,
+				E91005810F893DB700B68C27 /* free42.h */,
 				E9B16DF80F88EE46002BB9B2 /* shell_loadimage.cc */,
 				E9B16DF90F88EE46002BB9B2 /* shell_loadimage.h */,
 			);
@@ -181,11 +300,34 @@
 			buildActionMask = 2147483647;
 			files = (
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
-				1D3623260D0F684500981E51 /* shell.m in Sources */,
+				1D3623260D0F684500981E51 /* shell_iphone.m in Sources */,
 				E9B16D590F88DFE2002BB9B2 /* MainView.m in Sources */,
 				E9B16DFA0F88EE46002BB9B2 /* shell_loadimage.cc in Sources */,
 				E9B16E040F88F015002BB9B2 /* shell_skin_iphone.m in Sources */,
 				E9B16E050F88F015002BB9B2 /* skins.cc in Sources */,
+				E91005CE0F893F8900B68C27 /* bcd.cc in Sources */,
+				E91005CF0F893F8900B68C27 /* bcdfloat.cc in Sources */,
+				E91005D00F893F8900B68C27 /* bcdmath.cc in Sources */,
+				E91005D10F893F8900B68C27 /* core_commands1.cc in Sources */,
+				E91005D20F893F8900B68C27 /* core_commands2.cc in Sources */,
+				E91005D30F893F8900B68C27 /* core_commands3.cc in Sources */,
+				E91005D40F893F8900B68C27 /* core_commands4.cc in Sources */,
+				E91005D50F893F8900B68C27 /* core_commands5.cc in Sources */,
+				E91005D60F893F8900B68C27 /* core_commands6.cc in Sources */,
+				E91005D70F893F8900B68C27 /* core_display.cc in Sources */,
+				E91005D80F893F8900B68C27 /* core_globals.cc in Sources */,
+				E91005D90F893F8900B68C27 /* core_helpers.cc in Sources */,
+				E91005DA0F893F8900B68C27 /* core_keydown.cc in Sources */,
+				E91005DB0F893F8900B68C27 /* core_linalg1.cc in Sources */,
+				E91005DC0F893F8900B68C27 /* core_linalg2.cc in Sources */,
+				E91005DD0F893F8900B68C27 /* core_main.cc in Sources */,
+				E91005DE0F893F8900B68C27 /* core_math1.cc in Sources */,
+				E91005DF0F893F8900B68C27 /* core_math2.cc in Sources */,
+				E91005E00F893F8900B68C27 /* core_phloat.cc in Sources */,
+				E91005E10F893F8900B68C27 /* core_sto_rcl.cc in Sources */,
+				E91005E20F893F8900B68C27 /* core_tables.cc in Sources */,
+				E91005E30F893F8900B68C27 /* core_variables.cc in Sources */,
+				E93F2B560F894D9000CE8542 /* shell_spool.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -224,6 +366,10 @@
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					NO_SINCOS,
+					BCD_MATH,
+				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				ONLY_ACTIVE_ARCH = YES;

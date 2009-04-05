@@ -21,8 +21,8 @@
 void skin_load(NSString *skinname, long *width, long *height);
 
 void skin_repaint();
+void skin_repaint_annunciator(int which, int state);
 /*
-void skin_repaint_annunciator(HDC hdc, HDC memdc, int which, int state);
 void skin_find_key(int x, int y, bool cshift, int *skey, int *ckey);
 int skin_find_skey(int ckey);
 unsigned char *skin_find_macro(int ckey);

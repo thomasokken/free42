@@ -19,10 +19,10 @@
 
 
 @interface MainView : UIView {
-	NSString *skin_name;
-	int skin_width, skin_height;
+	//
 }
 
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event;
+- (void) initialize;
+- (void) touchesBegan: (NSSet *) touches withEvent: (UIEvent *) event;
 
 @end

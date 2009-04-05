@@ -600,8 +600,8 @@ void skin_repaint() {
 	 */
 }
 
-/*
-void skin_repaint_annunciator(HDC hdc, HDC memdc, int which, int state) {
+void skin_repaint_annunciator(int which, int state) {
+	/*
 	if (!display_enabled)
 		return;
 	SkinAnnunciator *ann = annunciators + (which - 1);
@@ -623,8 +623,10 @@ void skin_repaint_annunciator(HDC hdc, HDC memdc, int which, int state) {
 		SetBkColor(hdc, old_bg);
 		SetTextColor(hdc, old_fg);
 	}
+	 */
 }
 
+/*
 void skin_find_key(int x, int y, bool cshift, int *skey, int *ckey) {
 	int i;
 	if (core_menu()
