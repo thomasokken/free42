@@ -24,5 +24,6 @@
 
 - (void) initialize;
 - (void) touchesBegan: (NSSet *) touches withEvent: (UIEvent *) event;
++ (void) quit;
 
 @end

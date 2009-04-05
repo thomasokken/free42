@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
 	char *homedir = (char *) malloc(1024);
 	[NSHomeDirectory() getCString:homedir maxLength:1024 encoding:NSUTF8StringEncoding];
 	strcat(homedir, "/Documents");
-	//NSLog([NSString stringWithCString:homedir encoding:NSUTF8StringEncoding]);
+	NSLog(@"home = %s", homedir);
 	chdir(homedir);
 	free(homedir);
 

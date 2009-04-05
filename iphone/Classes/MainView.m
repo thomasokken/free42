@@ -16,6 +16,7 @@
  *****************************************************************************/
 
 #import <UIKit/UIKit.h>
+#include <sys/stat.h>
 #include <sys/sysctl.h>
 
 #import "MainView.h"
@@ -30,6 +31,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 static void initialize2();
+static void quit2();
 
 static bool initialized;
 static NSString *skin_name;
@@ -85,9 +87,13 @@ static struct {
     [super dealloc];
 }
 
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+- (void) touchesBegan: (NSSet *) touches withEvent: (UIEvent *) event {
 	[super touchesBegan:touches withEvent:event];
 	[self setNeedsDisplay];
+}
+
++ (void) quit {
+	quit2();
 }
 
 - (void) initialize {
@@ -110,6 +116,7 @@ static struct {
 
 static int read_shell_state(int *version);
 static void init_shell_state(int version);
+static int write_shell_state();
 
 #define SHELL_VERSION 0
 
@@ -138,8 +145,10 @@ static void initialize2() {
 		init_mode = 0;
 	}
 	core_init(init_mode, version);
-	if (statefile != NULL)
+	if (statefile != NULL) {
 		fclose(statefile);
+		statefile = NULL;
+	}
 }
 
 static int read_shell_state(int *ver) {
@@ -200,8 +209,39 @@ static void init_shell_state(int version) {
     }
 }
 
+static void quit2() {
+	mkdir("config", 0755);
+    statefile = fopen("config/state", "w");
+    if (statefile != NULL)
+        write_shell_state();
+    core_quit();
+    if (statefile != NULL)
+        fclose(statefile);
+}
+
+static int write_shell_state() {
+    int magic = FREE42_MAGIC;
+    int version = FREE42_VERSION;
+    int state_size = sizeof(state);
+    int state_version = SHELL_VERSION;
+	
+    if (!shell_write_saved_state(&magic, sizeof(int)))
+        return 0;
+    if (!shell_write_saved_state(&version, sizeof(int)))
+        return 0;
+    if (!shell_write_saved_state(&state_size, sizeof(int)))
+        return 0;
+    if (!shell_write_saved_state(&state_version, sizeof(int)))
+        return 0;
+    if (!shell_write_saved_state(&state, sizeof(state)))
+        return 0;
+	
+    return 1;
+}
+
 void shell_blitter(const char *bits, int bytesperline, int x, int y,
 				   int width, int height) {
+	NSLog(@"shell_blitter(%d, %d, %d, %d)", x, y, width, height);
 	// TODO
 }
 
@@ -210,6 +250,7 @@ void shell_beeper(int frequency, int duration) {
 }
 
 void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
+	NSLog(@"shell_annunciators(updn=%d, shf=%d, prt=%d, run=%d, g=%d, rad=%d", updn, shf, prt, run, g, rad);
     if (updn != -1 && ann_updown != updn) {
 		ann_updown = updn;
 		skin_repaint_annunciator(1, ann_updown);

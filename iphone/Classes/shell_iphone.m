@@ -29,6 +29,10 @@
     [window makeKeyAndVisible];
 }
 
+- (void)applicationWillTerminate:(UIApplication *)application
+{
+	[MainView quit];
+}
 
 - (void) dealloc {
     [window release];
