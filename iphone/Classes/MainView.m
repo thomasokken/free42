@@ -22,6 +22,7 @@
 #import "MainView.h"
 #import "free42.h"
 #import "core_main.h"
+#import "core_display.h"
 #import "shell.h"
 #import "shell_skin_iphone.h"
 
@@ -32,8 +33,11 @@
 
 static void initialize2();
 static void quit2();
+static void enable_reminder();
+static void disable_reminder();
+static void shell_keydown();
+static void shell_keyup();
 
-static bool initialized;
 static NSString *skin_name;
 static int skin_width, skin_height;
 
@@ -48,10 +52,37 @@ static struct {
 	char skinName[FILENAMELEN];
 } state;
 
+static int quit_flag = 0;
+static int enqueued;
+
+static int ckey = 0;
+static int skey;
+static unsigned char *macro;
+static int mouse_key;
+
+#define WAIT_STATE_NONE 0
+#define WAIT_STATE_TIMEOUT1 1
+#define WAIT_STATE_TIMEOUT2 2
+#define WAIT_STATE_TIMEOUT3 3
+#define WAIT_STATE_REPEATER 4
+
+static int wait_state = WAIT_STATE_NONE;
+static bool reminder_active = false;
+
+static int ann_updown = 0;
+static int ann_shift = 0;
+static int ann_print = 0;
+static int ann_run = 0;
+static int ann_battery = 0;
+static int ann_g = 0;
+static int ann_rad = 0;
+
 ///////////////////////////////////////////////////////////////////////////////
 /////                    Ende ophphe ye olde C stuphphe                   /////
 ///////////////////////////////////////////////////////////////////////////////
 
+
+static MainView *mainView = nil;
 
 @implementation MainView
 
@@ -66,19 +97,9 @@ static struct {
 
 
 - (void)drawRect:(CGRect)rect {
-	if (!initialized)
+	if (mainView == nil)
 		[self initialize];
 	skin_repaint();
-	/*
-	CGContextRef myContext = UIGraphicsGetCurrentContext();
-	CGFloat color[4];
-	color[0] = (random() & 255) / 255.0;
-	color[1] = (random() & 255) / 255.0;
-	color[2] = (random() & 255) / 255.0;
-	color[3] = 1.0;
-	CGContextSetFillColor(myContext, color);
-	CGContextFillEllipseInRect(myContext, CGRectMake(10, 10, 300, 300));
-	*/
 }
 
 
@@ -89,7 +110,30 @@ static struct {
 
 - (void) touchesBegan: (NSSet *) touches withEvent: (UIEvent *) event {
 	[super touchesBegan:touches withEvent:event];
-	[self setNeedsDisplay];
+	if (ckey == 0) {
+		UITouch *touch = (UITouch *) [touches anyObject];
+		CGPoint p = [touch locationInView:self];
+		int x = (int) p.x;
+		int y = (int) p.y;
+		skin_find_key(x, y, ann_shift != 0, &skey, &ckey);
+		if (ckey != 0) {
+			macro = skin_find_macro(ckey);
+			shell_keydown();
+			mouse_key = 1;
+		}
+	}
+}
+
+- (void) touchesEnded: (NSSet *) touches withEvent: (UIEvent *) event {
+	[super touchesEnded:touches withEvent:event];
+	if (ckey != 0 && mouse_key)
+		shell_keyup();
+}
+
+- (void) touchesCancelled: (NSSet *) touches withEvent: (UIEvent *) event {
+	[super touchesEnded:touches withEvent:event];
+	if (ckey != 0 && mouse_key)
+		shell_keyup();
 }
 
 + (void) quit {
@@ -97,8 +141,8 @@ static struct {
 }
 
 - (void) initialize {
+	mainView = self;
 	initialize2();
-	initialized = true;
 	if (skin_name == nil) {
 		skin_name = @"Realistic";
 		long w, h;
@@ -106,6 +150,55 @@ static struct {
 		skin_width = w;
 		skin_height = h;
 	}	
+}
+
+- (void) reminder {
+	if (!reminder_active)
+		return;
+	int dummy1, dummy2;
+	int keep_running = core_keydown(0, &dummy1, &dummy2);
+	if (!keep_running)
+		reminder_active = false;
+	if (quit_flag)
+		quit2();
+	if (reminder_active)
+		[self performSelectorOnMainThread:@selector(reminder) withObject:NULL waitUntilDone:NO];
+}
+
+- (void) setWaitState:(int) newState afterDelay:(NSTimeInterval)delay {
+	[NSObject cancelPreviousPerformRequestsWithTarget:self];
+	wait_state = newState;
+	if (newState != WAIT_STATE_NONE)
+		[self performSelector:@selector(waitStateExpired) withObject:NULL afterDelay:delay];
+}
+
+- (void) waitStateExpired {
+	int which = wait_state;
+	wait_state = WAIT_STATE_NONE;
+	switch (which) {
+		case WAIT_STATE_NONE:
+			break;
+		case WAIT_STATE_TIMEOUT1:
+			if (ckey != 0) {
+				core_keytimeout1();
+				[self setWaitState:WAIT_STATE_TIMEOUT2 afterDelay:1.75];
+			}
+			break;
+		case WAIT_STATE_TIMEOUT2:
+			if (ckey != 0)
+				core_keytimeout2();
+			break;
+		case WAIT_STATE_TIMEOUT3:
+			core_timeout3(1);
+			break;
+		case WAIT_STATE_REPEATER:
+			int repeat = core_repeat();
+			if (repeat != 0)
+				[self setWaitState:WAIT_STATE_REPEATER afterDelay:(repeat == 1 ? 0.2 : 0.1)];
+			else
+				[self setWaitState:WAIT_STATE_TIMEOUT1 afterDelay:0.25];
+			break;
+	}
 }
 
 @end
@@ -121,14 +214,6 @@ static int write_shell_state();
 #define SHELL_VERSION 0
 
 static FILE* statefile;
-
-static int ann_updown = 0;
-static int ann_shift = 0;
-static int ann_print = 0;
-static int ann_run = 0;
-static int ann_battery = 0;
-static int ann_g = 0;
-static int ann_rad = 0;
 
 static void initialize2() {
 	statefile = fopen("config/state", "r");
@@ -180,7 +265,7 @@ static int read_shell_state(int *ver) {
     if (shell_read_saved_state(&state_version, sizeof(int)) != sizeof(int))
 		return 0;
     if (state_version < 0 || state_version > SHELL_VERSION)
-	/* Unknown shell state version */
+		/* Unknown shell state version */
 		return 0;
     if (shell_read_saved_state(&state, state_size) != state_size)
 		return 0;
@@ -217,6 +302,95 @@ static void quit2() {
     core_quit();
     if (statefile != NULL)
         fclose(statefile);
+	exit(0);
+}
+
+static void enable_reminder() {
+	if (reminder_active)
+		return;
+	reminder_active = true;
+	[mainView performSelectorOnMainThread:@selector(reminder) withObject:NULL waitUntilDone:NO];
+}
+
+static void disable_reminder() {
+	// Can't cancel stuff that was scheduled using performSelectorOnMainThread
+	// so just clearing this flag; reminder() checks it so even though we can't
+	// prevent reminder() from being called, at least we prevent it from doing
+	// anything.
+	reminder_active = false;
+}
+
+static void shell_keydown() {
+    int repeat, keep_running;
+    if (skey == -1)
+		skey = skin_find_skey(ckey);
+	skin_set_pressed_key(skey, mainView);
+    if (wait_state == WAIT_STATE_TIMEOUT3 && (macro != NULL || ckey != 28 /* KEY_SHIFT */)) {
+		[mainView setWaitState:WAIT_STATE_NONE afterDelay:0];
+		[NSObject cancelPreviousPerformRequestsWithTarget:mainView];
+		core_timeout3(0);
+    }
+	
+    if (macro != NULL) {
+		if (*macro == 0) {
+			squeak();
+			return;
+		}
+		bool one_key_macro = macro[1] == 0 || (macro[2] == 0 && macro[0] == 28);
+		if (!one_key_macro) {
+			skin_display_set_enabled(false);
+		}
+		while (*macro != 0) {
+			keep_running = core_keydown(*macro++, &enqueued, &repeat);
+			if (*macro != 0 && !enqueued)
+				core_keyup();
+		}
+		if (!one_key_macro) {
+			skin_display_set_enabled(true);
+			skin_repaint_display(mainView);
+			/*
+			skin_repaint_annunciator(1, ann_updown);
+			skin_repaint_annunciator(2, ann_shift);
+			skin_repaint_annunciator(3, ann_print);
+			skin_repaint_annunciator(4, ann_run);
+			skin_repaint_annunciator(5, ann_battery);
+			skin_repaint_annunciator(6, ann_g);
+			skin_repaint_annunciator(7, ann_rad);
+			*/
+			repeat = 0;
+		}
+    } else
+		keep_running = core_keydown(ckey, &enqueued, &repeat);
+	
+    if (quit_flag)
+		quit2();
+    if (keep_running)
+		enable_reminder();
+    else {
+		disable_reminder();
+		if (repeat != 0)
+			[mainView setWaitState:WAIT_STATE_REPEATER afterDelay:(repeat == 1 ? 1.0 : 0.5)];
+		else if (!enqueued)
+			[mainView setWaitState:WAIT_STATE_TIMEOUT1 afterDelay:0.25];
+		else
+			[mainView setWaitState:WAIT_STATE_NONE afterDelay:0];
+    }
+}
+
+static void shell_keyup() {
+	skin_set_pressed_key(-1, mainView);
+    ckey = 0;
+    skey = -1;
+	[mainView setWaitState:WAIT_STATE_NONE afterDelay:0];
+    if (!enqueued) {
+		int keep_running = core_keyup();
+		if (quit_flag)
+			quit2();
+		if (keep_running)
+			enable_reminder();
+		else
+			disable_reminder();
+    }
 }
 
 static int write_shell_state() {
@@ -239,10 +413,8 @@ static int write_shell_state() {
     return 1;
 }
 
-void shell_blitter(const char *bits, int bytesperline, int x, int y,
-				   int width, int height) {
-	NSLog(@"shell_blitter(%d, %d, %d, %d)", x, y, width, height);
-	// TODO
+void shell_blitter(const char *bits, int bytesperline, int x, int y, int width, int height) {
+	skin_display_blitter(bits, bytesperline, x, y, width, height, mainView);
 }
 
 void shell_beeper(int frequency, int duration) {
@@ -253,27 +425,27 @@ void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
 	NSLog(@"shell_annunciators(updn=%d, shf=%d, prt=%d, run=%d, g=%d, rad=%d", updn, shf, prt, run, g, rad);
     if (updn != -1 && ann_updown != updn) {
 		ann_updown = updn;
-		skin_repaint_annunciator(1, ann_updown);
+		skin_update_annunciator(1, ann_updown, mainView);
     }
     if (shf != -1 && ann_shift != shf) {
 		ann_shift = shf;
-		skin_repaint_annunciator(2, ann_shift);
+		skin_update_annunciator(2, ann_shift, mainView);
     }
     if (prt != -1 && ann_print != prt) {
 		ann_print = prt;
-		skin_repaint_annunciator(3, ann_print);
+		skin_update_annunciator(3, ann_print, mainView);
     }
     if (run != -1 && ann_run != run) {
 		ann_run = run;
-		skin_repaint_annunciator(4, ann_run);
+		skin_update_annunciator(4, ann_run, mainView);
     }
     if (g != -1 && ann_g != g) {
 		ann_g = g;
-		skin_repaint_annunciator(6, ann_g);
+		skin_update_annunciator(6, ann_g, mainView);
     }
     if (rad != -1 && ann_rad != rad) {
 		ann_rad = rad;
-		skin_repaint_annunciator(7, ann_rad);
+		skin_update_annunciator(7, ann_rad, mainView);
     }
 }
 
@@ -290,7 +462,7 @@ void shell_delay(int duration) {
 }
 
 void shell_request_timeout3(int delay) {
-	// TODO
+	[mainView setWaitState:WAIT_STATE_TIMEOUT3 afterDelay:(delay / 1000.0)];
 }
 
 int shell_read_saved_state(void *buf, int bufsize) {
@@ -343,7 +515,7 @@ int shell_low_battery() {
 }
 
 void shell_powerdown() {
-	// TODO
+	quit_flag = 1;
 }
 
 double shell_random_seed() {

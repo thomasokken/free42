@@ -23,7 +23,7 @@
 
 #include "shell_skin_iphone.h"
 #include "shell_loadimage.h"
-//#include "core_main.h"
+#include "core_main.h"
 
 
 /**************************/
@@ -65,8 +65,10 @@ static CGColorRef display_bg = NULL, display_fg = NULL;
 static SkinKey *keylist = NULL;
 static int nkeys = 0;
 static int keys_cap = 0;
+static int currently_pressed_key = -1;
 static SkinMacro *macrolist = NULL;
 static SkinAnnunciator annunciators[7];
+static int annunciator_state[7];
 
 static FILE *external_file;
 static long builtin_length;
@@ -78,9 +80,10 @@ static int skin_width, skin_height;
 static int skin_ncolors;
 static const SkinColor *skin_colors = NULL;
 static int skin_y;
+static CGImageRef skin_image = NULL;
 static unsigned char *skin_bitmap = NULL;
 static int skin_bytesperline;
-static CGImageRef skin_image = NULL;
+static CGImageRef disp_image = NULL;
 static unsigned char *disp_bitmap = NULL;
 static int disp_bytesperline;
 
@@ -274,6 +277,14 @@ void skin_rewind() {
 static void skin_close() {
 	if (external_file != NULL)
 		fclose(external_file);
+}
+
+static void MyProviderReleaseData(void *info,  const void *data, size_t size) {
+	free((void *) data);
+}
+
+static void MyProviderReleaseData2(void *info,  const void *data, size_t size) {
+	//free((void *) data);
 }
 
 void skin_load(NSString *nsskinname, long *width, long *height) {
@@ -483,6 +494,24 @@ void skin_load(NSString *nsskinname, long *width, long *height) {
 	/* (Re)build the display bitmap */
 	/********************************/
 
+	/*
+	if (disp_image != NULL) {
+		CGImageRelease(disp_image);
+		disp_image = NULL;
+		disp_bitmap = NULL;
+	}
+	disp_bytesperline = ((131 * display_scale.x + 15) >> 3) & ~1;
+	size = disp_bytesperline * 16 * display_scale.y;
+	disp_bitmap = (unsigned char *) malloc(size);
+	// TODO - handle memory allocation failure
+	memset(disp_bitmap, 255, size);
+	CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, disp_bitmap, size, MyProviderReleaseData);
+	CGColorSpaceRef color_space = CGColorSpaceCreateDeviceGray();
+	disp_image = CGImageCreate(131 * display_scale.x, 16 * display_scale.y, 1, 1, disp_bytesperline,
+							   color_space, kCGBitmapByteOrder32Big, provider, NULL, false, kCGRenderingIntentDefault);
+	CGDataProviderRelease(provider);
+	CGColorSpaceRelease(color_space);
+	*/
 	if (disp_bitmap != NULL)
 		free(disp_bitmap);
 	disp_bytesperline = ((131 * display_scale.x + 15) >> 3) & ~1;
@@ -511,8 +540,8 @@ int skin_init_image(int type, int ncolors, const SkinColor *colors,
 		case IMGTYPE_GRAY:
 			skin_bytesperline = width;
 			break;
-		case IMGTYPE_COLORMAPPED:
 		case IMGTYPE_TRUECOLOR:
+		case IMGTYPE_COLORMAPPED:
 			skin_bytesperline = width * 3;
 			break;
 		default:
@@ -531,7 +560,8 @@ void skin_put_pixels(unsigned const char *data) {
 	skin_y--;
 	unsigned char *dst = skin_bitmap + skin_y * skin_bytesperline;
 	if (skin_type == IMGTYPE_COLORMAPPED) {
-		for (int i = 0; i < skin_bytesperline; i++) {
+		int src_bytesperline = skin_bytesperline / 3;
+		for (int i = 0; i < src_bytesperline; i++) {
 			int index = data[i] & 255;
 			const SkinColor *c = skin_colors + index;
 			*dst++ = c->r;
@@ -540,10 +570,6 @@ void skin_put_pixels(unsigned const char *data) {
 		}
 	} else
 		memcpy(dst, data, skin_bytesperline);
-}
-
-static void MyProviderReleaseData(void *info,  const void *data, size_t size) {
-	free((void *) data);
 }
 
 void skin_finish_image() {
@@ -582,51 +608,94 @@ void skin_finish_image() {
 
 void skin_repaint() {
 	CGContextRef myContext = UIGraphicsGetCurrentContext();
-	CGContextDrawImage(myContext, CGRectMake(0, 0, skin_width, skin_height), skin_image);
-	/*
-	COLORREF old_bg, old_fg;
-	if (!make_dib(memdc))
-		return;
-	SelectObject(memdc, skin_dib);
-	if (skin_type == IMGTYPE_MONO) {
-		old_bg = SetBkColor(hdc, 0x00ffffff);
-		old_fg = SetTextColor(hdc, 0x00000000);
+	
+	// Paint black background (in case the skin is smaller than the available area)
+	// TODO: What *is* the available area?
+	CGFloat black[4] = { 0.0, 0.0, 0.0, 1.0 };
+	CGContextSetFillColor(myContext, black);
+	CGContextFillRect(myContext, CGRectMake(0, 0, 320, 480));
+	
+	// Redisplay skin
+	CGImageRef si = CGImageCreateWithImageInRect(skin_image, CGRectMake(skin.x, skin_height - (skin.y + skin.height), skin.width, skin.height));
+	CGContextDrawImage(myContext, CGRectMake(0, 0, skin.width, skin.height), si);
+	CGImageRelease(si);
+	
+	// Repaint pressed key, if any
+	if (currently_pressed_key != -1) {
+		if (currently_pressed_key >= -7 && currently_pressed_key <= -2) {
+			// Soft key
+			// TODO: How to deal with mono bitmaps, fg, bg colors?
+			/*
+			int x, y, w, h;
+			COLORREF old_bg, old_fg;
+			HBITMAP bitmap;
+			if (state) {
+			old_bg = SetBkColor(hdc, display_fg);
+			old_fg = SetTextColor(hdc, display_bg);
+			} else {
+			old_bg = SetBkColor(hdc, display_bg);
+			old_fg = SetTextColor(hdc, display_fg);
+			}
+			key = -1 - key;
+			x = (key - 1) * 22 * display_scale.x;
+			y = 9 * display_scale.y;
+			w = 131 * display_scale.x;
+			h = 16 * display_scale.y;
+			bitmap = CreateBitmap(w, h, 1, 1, disp_bitmap);
+			SelectObject(memdc, bitmap);
+			BitBlt(hdc, display_loc.x + x, display_loc.y + y,
+			21 * display_scale.x, 7 * display_scale.y,
+			memdc, x, y, SRCCOPY);
+			SetBkColor(hdc, old_bg);
+			SetTextColor(hdc, old_fg);
+			DeleteObject(bitmap);
+			return;
+			}
+			*/
+		} else if (currently_pressed_key >= 0 && currently_pressed_key < nkeys) {
+			SkinKey *k = keylist + currently_pressed_key;
+			CGImageRef key_image = CGImageCreateWithImageInRect(skin_image, CGRectMake(k->src.x, skin_height - (k->src.y + k->disp_rect.height), k->disp_rect.width, k->disp_rect.height));
+			CGContextDrawImage(myContext, CGRectMake(k->disp_rect.x, k->disp_rect.y, k->disp_rect.width, k->disp_rect.height), key_image);
+			CGImageRelease(key_image);
+		}
 	}
-	BitBlt(hdc, 0, 0, skin.width, skin.height, memdc, skin.x, skin.y, SRCCOPY);
-	if (skin_type == IMGTYPE_MONO) {
-		SetBkColor(hdc, old_bg);
-		SetTextColor(hdc, old_fg);
+	
+	// Repaint display
+	// TODO: how to apply display_fg and display_bg colors?
+	*disp_bitmap = 0xAA;
+	disp_bytesperline = ((131 * display_scale.x + 15) >> 3) & ~1;
+	int size = disp_bytesperline * 16 * display_scale.y;
+	CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, disp_bitmap, size, MyProviderReleaseData2);
+	CGColorSpaceRef color_space = CGColorSpaceCreateDeviceGray();
+	disp_image = CGImageCreate(131 * display_scale.x, 16 * display_scale.y, 1, 1, disp_bytesperline,
+							   color_space, kCGBitmapByteOrder32Big, provider, NULL, false, kCGRenderingIntentDefault);
+	CGDataProviderRelease(provider);
+	CGColorSpaceRelease(color_space);
+	CGContextDrawImage(myContext, CGRectMake(display_loc.x, display_loc.y, 131 * display_scale.x, 16 * display_scale.y), disp_image);
+	CGImageRelease(disp_image);
+
+	// Repaint annunciators
+	for (int i = 0; i < 7; i++) {
+		if (annunciator_state[i]) {
+			SkinAnnunciator *ann = annunciators + i;
+			CGImageRef ann_image = CGImageCreateWithImageInRect(skin_image, CGRectMake(ann->src.x, skin_height - (ann->src.y + ann->disp_rect.height), ann->disp_rect.width, ann->disp_rect.height));
+			CGContextDrawImage(myContext, CGRectMake(ann->disp_rect.x, ann->disp_rect.y, ann->disp_rect.width, ann->disp_rect.height), ann_image);
+			CGImageRelease(ann_image);
+		}
 	}
-	 */
 }
 
-void skin_repaint_annunciator(int which, int state) {
-	/*
-	if (!display_enabled)
+void skin_update_annunciator(int which, int state, UIView *view) {
+	if (which < 1 || which > 7)
 		return;
-	SkinAnnunciator *ann = annunciators + (which - 1);
-	COLORREF old_bg, old_fg;
-	if (!make_dib(memdc))
+	which--;
+	if (annunciator_state[which] == state)
 		return;
-	SelectObject(memdc, skin_dib);
-	if (skin_type == IMGTYPE_MONO) {
-		old_bg = SetBkColor(hdc, 0x00ffffff);
-		old_fg = SetTextColor(hdc, 0x00000000);
-	}
-	if (state)
-		BitBlt(hdc, ann->disp_rect.x, ann->disp_rect.y, ann->disp_rect.width, ann->disp_rect.height,
-			   memdc, ann->src.x, ann->src.y, SRCCOPY);
-	else
-		BitBlt(hdc, ann->disp_rect.x, ann->disp_rect.y, ann->disp_rect.width, ann->disp_rect.height,
-			   memdc, ann->disp_rect.x, ann->disp_rect.y, SRCCOPY);
-	if (skin_type == IMGTYPE_MONO) {
-		SetBkColor(hdc, old_bg);
-		SetTextColor(hdc, old_fg);
-	}
-	 */
+	annunciator_state[which] = state;
+	SkinRect *r = &annunciators[which].disp_rect;
+	[view setNeedsDisplayInRect:CGRectMake(r->x, r->y, r->width, r->height)];
 }
-
-/*
+	
 void skin_find_key(int x, int y, bool cshift, int *skey, int *ckey) {
 	int i;
 	if (core_menu()
@@ -672,6 +741,7 @@ unsigned char *skin_find_macro(int ckey) {
 	return NULL;
 }
 
+/*
 unsigned char *skin_keymap_lookup(int keycode, bool ctrl, bool alt, bool shift, bool cshift, bool *exact) {
 	int i;
 	unsigned char *macro = NULL;
@@ -691,67 +761,33 @@ unsigned char *skin_keymap_lookup(int keycode, bool ctrl, bool alt, bool shift, 
 	*exact = false;
 	return macro;
 }
+ */
 
-void skin_repaint_key(HDC hdc, HDC memdc, int key, int state) {
-	SkinKey *k;
-	COLORREF old_bg, old_fg;
-
-	if (key >= -7 && key <= -2) {
-		// Soft key
-		if (!display_enabled)
-			// Should never happen -- the display is only disabled during macro
-			// execution, and softkey events should be impossible to generate
-			// in that state. But, just staying on the safe side.
-			return;
-		int x, y, w, h;
-		HBITMAP bitmap;
-		if (state) {
-			old_bg = SetBkColor(hdc, display_fg);
-			old_fg = SetTextColor(hdc, display_bg);
-		} else {
-			old_bg = SetBkColor(hdc, display_bg);
-			old_fg = SetTextColor(hdc, display_fg);
-		}
-		key = -1 - key;
-		x = (key - 1) * 22 * display_scale.x;
-		y = 9 * display_scale.y;
-		w = 131 * display_scale.x;
-		h = 16 * display_scale.y;
-		bitmap = CreateBitmap(w, h, 1, 1, disp_bitmap);
-		SelectObject(memdc, bitmap);
-		BitBlt(hdc, display_loc.x + x, display_loc.y + y,
-			   21 * display_scale.x, 7 * display_scale.y,
-			   memdc, x, y, SRCCOPY);
-		SetBkColor(hdc, old_bg);
-		SetTextColor(hdc, old_fg);
-		DeleteObject(bitmap);
+static void invalidate_key(int key, UIView *view) {
+	if (key == -1)
 		return;
-	}
-
-	if (key < 0 || key >= nkeys)
-		return;
-	if (!make_dib(memdc))
-		return;
-	SelectObject(memdc, skin_dib);
-	k = keylist + key;
-	if (skin_type == IMGTYPE_MONO) {
-		old_bg = SetBkColor(hdc, 0x00ffffff);
-		old_fg = SetTextColor(hdc, 0x00000000);
-	}
-	if (state)
-		BitBlt(hdc, k->disp_rect.x, k->disp_rect.y, k->disp_rect.width, k->disp_rect.height,
-			   memdc, k->src.x, k->src.y, SRCCOPY);
-	else
-		BitBlt(hdc, k->disp_rect.x, k->disp_rect.y, k->disp_rect.width, k->disp_rect.height,
-			   memdc, k->disp_rect.x, k->disp_rect.y, SRCCOPY);
-	if (skin_type == IMGTYPE_MONO) {
-		SetBkColor(hdc, old_bg);
-		SetTextColor(hdc, old_fg);
+	if (key >= -2 && key <= -7) {
+		int k = -1 - key;
+		int x = (k - 1) * 22 * display_scale.x;
+		int y = 9 * display_scale.y;
+		int w = 131 * display_scale.x;
+		int h = 16 * display_scale.y;
+		[view setNeedsDisplayInRect:CGRectMake(x, y, w, h)];
+	} else if (key >= 0 && key < nkeys) {
+		SkinRect *r = &keylist[key].disp_rect;
+		[view setNeedsDisplayInRect:CGRectMake(r->x, r->y, r->width, r->height)];
 	}
 }
 
-void skin_display_blitter(HDC hdc, const char *bits, int bytesperline, int x, int y,
-									 int width, int height) {
+void skin_set_pressed_key(int key, UIView *view) {
+	if (key == currently_pressed_key)
+		return;
+	invalidate_key(currently_pressed_key, view);
+	currently_pressed_key = key;
+	invalidate_key(currently_pressed_key, view);
+}
+	
+void skin_display_blitter(const char *bits, int bytesperline, int x, int y, int width, int height, UIView *view) {
 	int h, v, hh, vv;
 	int sx = display_scale.x;
 	int sy = display_scale.y;
@@ -759,7 +795,8 @@ void skin_display_blitter(HDC hdc, const char *bits, int bytesperline, int x, in
 	for (v = y; v < y + height; v++)
 		for (h = x; h < x + width; h++) {
 			int pixel = (bits[v * bytesperline + (h >> 3)] & (1 << (h & 7))) == 0;
-			for (vv = v * sy; vv < (v + 1) * sy; vv++)
+			int v2 = 15 - v;
+			for (vv = v2 * sy; vv < (v2 + 1) * sy; vv++)
 				for (hh = h * sx; hh < (h + 1) * sx; hh++)
 					if (pixel)
 						disp_bitmap[vv * disp_bytesperline + (hh >> 3)] |= 128 >> (hh & 7);
@@ -767,42 +804,16 @@ void skin_display_blitter(HDC hdc, const char *bits, int bytesperline, int x, in
 						disp_bitmap[vv * disp_bytesperline + (hh >> 3)] &= ~(128 >> (hh & 7));
 		}
 	
-	if (display_enabled) {
-		HDC memdc = CreateCompatibleDC(hdc);
-		HBITMAP bitmap = CreateBitmap(131 * sx, 16 * sy, 1, 1, disp_bitmap);
-		SelectObject(memdc, bitmap);
-
-		COLORREF old_bg = SetBkColor(hdc, display_bg);
-		COLORREF old_fg = SetTextColor(hdc, display_fg);
-		BitBlt(hdc, display_loc.x + x * sx, display_loc.y + y * sy,
-					width * sx, height * sy, memdc, x * sx, y * sy, SRCCOPY);
-		SetBkColor(hdc, old_bg);
-		SetTextColor(hdc, old_fg);
-
-		DeleteDC(memdc);
-		DeleteObject(bitmap);
-	}
+	[view setNeedsDisplayInRect:CGRectMake(display_loc.x + x * sx, display_loc.y + y * sy, width * sx, height * sy)];
 }
 
-void skin_repaint_display(HDC hdc, HDC memdc) {
+void skin_repaint_display(UIView *view) {
 	if (!display_enabled)
+		// Prevent screen flashing during macro execution
 		return;
-	int w = 131 * display_scale.x;
-	int h = 16 * display_scale.y;
-	HBITMAP bitmap = CreateBitmap(w, h, 1, 1, disp_bitmap);
-
-	SelectObject(memdc, bitmap);
-
-	COLORREF old_bg = SetBkColor(hdc, display_bg);
-	COLORREF old_fg = SetTextColor(hdc, display_fg);
-	BitBlt(hdc, display_loc.x, display_loc.y, w, h, memdc, 0, 0, SRCCOPY);
-	SetBkColor(hdc, old_bg);
-	SetTextColor(hdc, old_fg);
-
-	DeleteObject(bitmap);
+	[view setNeedsDisplayInRect:CGRectMake(display_loc.x, display_loc.y, 131 * display_scale.x, 16 * display_scale.y)];
 }
 
 void skin_display_set_enabled(bool enable) {
 	display_enabled = enable;
 }
-*/

@@ -21,15 +21,12 @@
 void skin_load(NSString *skinname, long *width, long *height);
 
 void skin_repaint();
-void skin_repaint_annunciator(int which, int state);
-/*
+void skin_update_annunciator(int which, int state, UIView *view);
 void skin_find_key(int x, int y, bool cshift, int *skey, int *ckey);
 int skin_find_skey(int ckey);
 unsigned char *skin_find_macro(int ckey);
-unsigned char *skin_keymap_lookup(int keycode, bool ctrl, bool alt, bool shift, bool cshift, bool *exact);
-void skin_repaint_key(HDC hdc, HDC memdc, int key, int state);
-void skin_display_blitter(HDC hdc, const char *bits, int bytesperline, int x, int y,
-						  int width, int height);
-void skin_repaint_display(HDC hdc, HDC memdc);
+//unsigned char *skin_keymap_lookup(int keycode, bool ctrl, bool alt, bool shift, bool cshift, bool *exact);
+void skin_set_pressed_key(int skey, UIView *view);
+void skin_display_blitter(const char *bits, int bytesperline, int x, int y, int width, int height, UIView *view);
+void skin_repaint_display(UIView *view);
 void skin_display_set_enabled(bool enable);
-*/
