@@ -24,6 +24,7 @@
 #import "core_main.h"
 #import "core_display.h"
 #import "shell.h"
+#import "shell_iphone.h"
 #import "shell_skin_iphone.h"
 
 
@@ -117,6 +118,7 @@ static MainView *mainView = nil;
 		int y = (int) p.y;
 		skin_find_key(x, y, ann_shift != 0, &skey, &ckey);
 		if (ckey != 0) {
+			[shell_iphone playSound:11];
 			macro = skin_find_macro(ckey);
 			shell_keydown();
 			mouse_key = 1;
@@ -142,7 +144,6 @@ static MainView *mainView = nil;
 
 - (void) initialize {
 	mainView = self;
-	initialize2();
 	if (skin_name == nil) {
 		skin_name = @"Realistic";
 		long w, h;
@@ -150,6 +151,7 @@ static MainView *mainView = nil;
 		skin_width = w;
 		skin_height = h;
 	}	
+	initialize2();
 }
 
 - (void) reminder {
@@ -418,7 +420,16 @@ void shell_blitter(const char *bits, int bytesperline, int x, int y, int width, 
 }
 
 void shell_beeper(int frequency, int duration) {
-	// TODO
+	const int cutoff_freqs[] = { 164, 220, 243, 275, 293, 324, 366, 418, 438, 550 };
+	for (int i = 0; i < 10; i++) {
+		if (frequency <= cutoff_freqs[i]) {
+			[shell_iphone playSound:i];
+			shell_delay(250);
+			return;
+		}
+	}
+	[shell_iphone playSound:10];
+	shell_delay(125);
 }
 
 void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {

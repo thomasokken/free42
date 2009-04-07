@@ -36,6 +36,19 @@
 		E91005E20F893F8900B68C27 /* core_tables.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005CA0F893F8900B68C27 /* core_tables.cc */; };
 		E91005E30F893F8900B68C27 /* core_variables.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005CC0F893F8900B68C27 /* core_variables.cc */; };
 		E93F2B560F894D9000CE8542 /* shell_spool.cc in Sources */ = {isa = PBXBuildFile; fileRef = E93F2B540F894D9000CE8542 /* shell_spool.cc */; };
+		E98DD7510F8C198A0089D9FA /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E98DD7500F8C198A0089D9FA /* AudioToolbox.framework */; };
+		E98DD75B0F8C1A150089D9FA /* click.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD75A0F8C1A150089D9FA /* click.wav */; };
+		E98DD7670F8C1A210089D9FA /* squeak.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD75C0F8C1A210089D9FA /* squeak.wav */; };
+		E98DD7680F8C1A210089D9FA /* tone0.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD75D0F8C1A210089D9FA /* tone0.wav */; };
+		E98DD7690F8C1A210089D9FA /* tone1.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD75E0F8C1A210089D9FA /* tone1.wav */; };
+		E98DD76A0F8C1A210089D9FA /* tone2.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD75F0F8C1A210089D9FA /* tone2.wav */; };
+		E98DD76B0F8C1A210089D9FA /* tone3.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD7600F8C1A210089D9FA /* tone3.wav */; };
+		E98DD76C0F8C1A210089D9FA /* tone4.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD7610F8C1A210089D9FA /* tone4.wav */; };
+		E98DD76D0F8C1A210089D9FA /* tone5.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD7620F8C1A210089D9FA /* tone5.wav */; };
+		E98DD76E0F8C1A210089D9FA /* tone6.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD7630F8C1A210089D9FA /* tone6.wav */; };
+		E98DD76F0F8C1A210089D9FA /* tone7.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD7640F8C1A210089D9FA /* tone7.wav */; };
+		E98DD7700F8C1A210089D9FA /* tone8.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD7650F8C1A210089D9FA /* tone8.wav */; };
+		E98DD7710F8C1A210089D9FA /* tone9.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD7660F8C1A210089D9FA /* tone9.wav */; };
 		E9B16D590F88DFE2002BB9B2 /* MainView.m in Sources */ = {isa = PBXBuildFile; fileRef = E9B16D580F88DFE2002BB9B2 /* MainView.m */; };
 		E9B16DFA0F88EE46002BB9B2 /* shell_loadimage.cc in Sources */ = {isa = PBXBuildFile; fileRef = E9B16DF80F88EE46002BB9B2 /* shell_loadimage.cc */; };
 		E9B16E040F88F015002BB9B2 /* shell_skin_iphone.m in Sources */ = {isa = PBXBuildFile; fileRef = E9B16E010F88F015002BB9B2 /* shell_skin_iphone.m */; };
@@ -101,6 +114,19 @@
 		E91005CD0F893F8900B68C27 /* core_variables.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_variables.h; path = ../common/core_variables.h; sourceTree = SOURCE_ROOT; };
 		E93F2B540F894D9000CE8542 /* shell_spool.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = shell_spool.cc; path = ../common/shell_spool.cc; sourceTree = SOURCE_ROOT; };
 		E93F2B550F894D9000CE8542 /* shell_spool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shell_spool.h; path = ../common/shell_spool.h; sourceTree = SOURCE_ROOT; };
+		E98DD7500F8C198A0089D9FA /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+		E98DD75A0F8C1A150089D9FA /* click.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = click.wav; sourceTree = "<group>"; };
+		E98DD75C0F8C1A210089D9FA /* squeak.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = squeak.wav; sourceTree = "<group>"; };
+		E98DD75D0F8C1A210089D9FA /* tone0.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = tone0.wav; sourceTree = "<group>"; };
+		E98DD75E0F8C1A210089D9FA /* tone1.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = tone1.wav; sourceTree = "<group>"; };
+		E98DD75F0F8C1A210089D9FA /* tone2.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = tone2.wav; sourceTree = "<group>"; };
+		E98DD7600F8C1A210089D9FA /* tone3.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = tone3.wav; sourceTree = "<group>"; };
+		E98DD7610F8C1A210089D9FA /* tone4.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = tone4.wav; sourceTree = "<group>"; };
+		E98DD7620F8C1A210089D9FA /* tone5.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = tone5.wav; sourceTree = "<group>"; };
+		E98DD7630F8C1A210089D9FA /* tone6.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = tone6.wav; sourceTree = "<group>"; };
+		E98DD7640F8C1A210089D9FA /* tone7.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = tone7.wav; sourceTree = "<group>"; };
+		E98DD7650F8C1A210089D9FA /* tone8.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = tone8.wav; sourceTree = "<group>"; };
+		E98DD7660F8C1A210089D9FA /* tone9.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = tone9.wav; sourceTree = "<group>"; };
 		E9B16D570F88DFE2002BB9B2 /* MainView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainView.h; sourceTree = "<group>"; };
 		E9B16D580F88DFE2002BB9B2 /* MainView.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = MainView.m; sourceTree = "<group>"; };
 		E9B16DF80F88EE46002BB9B2 /* shell_loadimage.cc */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; name = shell_loadimage.cc; path = ../common/shell_loadimage.cc; sourceTree = SOURCE_ROOT; tabWidth = 8; usesTabs = 1; };
@@ -119,6 +145,7 @@
 				1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */,
 				1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */,
 				288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */,
+				E98DD7510F8C198A0089D9FA /* AudioToolbox.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -173,6 +200,18 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				E98DD75C0F8C1A210089D9FA /* squeak.wav */,
+				E98DD75D0F8C1A210089D9FA /* tone0.wav */,
+				E98DD75E0F8C1A210089D9FA /* tone1.wav */,
+				E98DD75F0F8C1A210089D9FA /* tone2.wav */,
+				E98DD7600F8C1A210089D9FA /* tone3.wav */,
+				E98DD7610F8C1A210089D9FA /* tone4.wav */,
+				E98DD7620F8C1A210089D9FA /* tone5.wav */,
+				E98DD7630F8C1A210089D9FA /* tone6.wav */,
+				E98DD7640F8C1A210089D9FA /* tone7.wav */,
+				E98DD7650F8C1A210089D9FA /* tone8.wav */,
+				E98DD7660F8C1A210089D9FA /* tone9.wav */,
+				E98DD75A0F8C1A150089D9FA /* click.wav */,
 				28AD733E0D9D9553002E5188 /* MainWindow.xib */,
 				8D1107310486CEB800E47090 /* Info.plist */,
 			);
@@ -182,6 +221,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				E98DD7500F8C198A0089D9FA /* AudioToolbox.framework */,
 				1DF5F4DF0D08C38300B7A737 /* UIKit.framework */,
 				1D30AB110D05D00D00671497 /* Foundation.framework */,
 				288765FC0DF74451002DB57D /* CoreGraphics.framework */,
@@ -289,6 +329,18 @@
 			buildActionMask = 2147483647;
 			files = (
 				28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */,
+				E98DD75B0F8C1A150089D9FA /* click.wav in Resources */,
+				E98DD7670F8C1A210089D9FA /* squeak.wav in Resources */,
+				E98DD7680F8C1A210089D9FA /* tone0.wav in Resources */,
+				E98DD7690F8C1A210089D9FA /* tone1.wav in Resources */,
+				E98DD76A0F8C1A210089D9FA /* tone2.wav in Resources */,
+				E98DD76B0F8C1A210089D9FA /* tone3.wav in Resources */,
+				E98DD76C0F8C1A210089D9FA /* tone4.wav in Resources */,
+				E98DD76D0F8C1A210089D9FA /* tone5.wav in Resources */,
+				E98DD76E0F8C1A210089D9FA /* tone6.wav in Resources */,
+				E98DD76F0F8C1A210089D9FA /* tone7.wav in Resources */,
+				E98DD7700F8C1A210089D9FA /* tone8.wav in Resources */,
+				E98DD7710F8C1A210089D9FA /* tone9.wav in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

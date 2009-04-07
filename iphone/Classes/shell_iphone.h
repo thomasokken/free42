@@ -26,5 +26,7 @@
 @property (nonatomic, retain) IBOutlet UIWindow *window;
 @property (nonatomic, retain) IBOutlet MainView *view;
 
++ (void) playSound: (int) which;
+
 @end
 

@@ -61,7 +61,8 @@ typedef struct {
 static SkinRect skin;
 static SkinPoint display_loc;
 static SkinPoint display_scale;
-static CGColorRef display_bg = NULL, display_fg = NULL;
+static unsigned char display_colormap[6];
+static unsigned char display_inverted_colormap[6];
 static SkinKey *keylist = NULL;
 static int nkeys = 0;
 static int keys_cap = 0;
@@ -83,7 +84,6 @@ static int skin_y;
 static CGImageRef skin_image = NULL;
 static unsigned char *skin_bitmap = NULL;
 static int skin_bytesperline;
-static CGImageRef disp_image = NULL;
 static unsigned char *disp_bitmap = NULL;
 static int disp_bytesperline;
 
@@ -345,21 +345,12 @@ void skin_load(NSString *nsskinname, long *width, long *height) {
 				display_loc.y = y;
 				display_scale.x = xscale;
 				display_scale.y = yscale;
-				CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
-				CGFloat components[3];
-				components[0] = ((bg >> 16) & 255) / 255.0;
-				components[1] = ((bg >> 8) & 255) / 255.0;
-				components[2] = (bg & 255) / 255.0;
-				if (display_bg != NULL)
-					CGColorRelease(display_bg);
-				display_bg = CGColorCreate(colorspace, components);
-				components[0] = ((fg >> 16) & 255) / 255.0;
-				components[1] = ((fg >> 8) & 255) / 255.0;
-				components[2] = (fg & 255) / 255.0;
-				if (display_fg != NULL)
-					CGColorRelease(display_fg);
-				display_fg = CGColorCreate(colorspace, components);
-				CGColorSpaceRelease(colorspace);
+				display_colormap[0] = display_inverted_colormap[3] = (bg >> 16) & 255;
+				display_colormap[1] = display_inverted_colormap[4] = (bg >> 8) & 255;
+				display_colormap[2] = display_inverted_colormap[5] = bg & 255;
+				display_colormap[3] = display_inverted_colormap[0] = (fg >> 16) & 255;
+				display_colormap[4] = display_inverted_colormap[1] = (fg >> 8) & 255;
+				display_colormap[5] = display_inverted_colormap[2] = fg & 255;
 			}
 		} else if (strncasecmp(line, "key:", 4) == 0) {
 			char keynumbuf[20];
@@ -494,24 +485,6 @@ void skin_load(NSString *nsskinname, long *width, long *height) {
 	/* (Re)build the display bitmap */
 	/********************************/
 
-	/*
-	if (disp_image != NULL) {
-		CGImageRelease(disp_image);
-		disp_image = NULL;
-		disp_bitmap = NULL;
-	}
-	disp_bytesperline = ((131 * display_scale.x + 15) >> 3) & ~1;
-	size = disp_bytesperline * 16 * display_scale.y;
-	disp_bitmap = (unsigned char *) malloc(size);
-	// TODO - handle memory allocation failure
-	memset(disp_bitmap, 255, size);
-	CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, disp_bitmap, size, MyProviderReleaseData);
-	CGColorSpaceRef color_space = CGColorSpaceCreateDeviceGray();
-	disp_image = CGImageCreate(131 * display_scale.x, 16 * display_scale.y, 1, 1, disp_bytesperline,
-							   color_space, kCGBitmapByteOrder32Big, provider, NULL, false, kCGRenderingIntentDefault);
-	CGDataProviderRelease(provider);
-	CGColorSpaceRelease(color_space);
-	*/
 	if (disp_bitmap != NULL)
 		free(disp_bitmap);
 	disp_bytesperline = ((131 * display_scale.x + 15) >> 3) & ~1;
@@ -620,59 +593,46 @@ void skin_repaint() {
 	CGContextDrawImage(myContext, CGRectMake(0, 0, skin.width, skin.height), si);
 	CGImageRelease(si);
 	
-	// Repaint pressed key, if any
-	if (currently_pressed_key != -1) {
-		if (currently_pressed_key >= -7 && currently_pressed_key <= -2) {
-			// Soft key
-			// TODO: How to deal with mono bitmaps, fg, bg colors?
-			/*
-			int x, y, w, h;
-			COLORREF old_bg, old_fg;
-			HBITMAP bitmap;
-			if (state) {
-			old_bg = SetBkColor(hdc, display_fg);
-			old_fg = SetTextColor(hdc, display_bg);
-			} else {
-			old_bg = SetBkColor(hdc, display_bg);
-			old_fg = SetTextColor(hdc, display_fg);
-			}
-			key = -1 - key;
-			x = (key - 1) * 22 * display_scale.x;
-			y = 9 * display_scale.y;
-			w = 131 * display_scale.x;
-			h = 16 * display_scale.y;
-			bitmap = CreateBitmap(w, h, 1, 1, disp_bitmap);
-			SelectObject(memdc, bitmap);
-			BitBlt(hdc, display_loc.x + x, display_loc.y + y,
-			21 * display_scale.x, 7 * display_scale.y,
-			memdc, x, y, SRCCOPY);
-			SetBkColor(hdc, old_bg);
-			SetTextColor(hdc, old_fg);
-			DeleteObject(bitmap);
-			return;
-			}
-			*/
-		} else if (currently_pressed_key >= 0 && currently_pressed_key < nkeys) {
-			SkinKey *k = keylist + currently_pressed_key;
-			CGImageRef key_image = CGImageCreateWithImageInRect(skin_image, CGRectMake(k->src.x, skin_height - (k->src.y + k->disp_rect.height), k->disp_rect.width, k->disp_rect.height));
-			CGContextDrawImage(myContext, CGRectMake(k->disp_rect.x, k->disp_rect.y, k->disp_rect.width, k->disp_rect.height), key_image);
-			CGImageRelease(key_image);
-		}
+	// Repaint pressed hard key, if any
+	if (currently_pressed_key >= 0 && currently_pressed_key < nkeys) {
+		SkinKey *k = keylist + currently_pressed_key;
+		CGImageRef key_image = CGImageCreateWithImageInRect(skin_image, CGRectMake(k->src.x, skin_height - (k->src.y + k->disp_rect.height), k->disp_rect.width, k->disp_rect.height));
+		CGContextDrawImage(myContext, CGRectMake(k->disp_rect.x, k->disp_rect.y, k->disp_rect.width, k->disp_rect.height), key_image);
+		CGImageRelease(key_image);
 	}
 	
-	// Repaint display
-	// TODO: how to apply display_fg and display_bg colors?
-	*disp_bitmap = 0xAA;
+	// Repaint display (and pressed softkey, if any)
 	disp_bytesperline = ((131 * display_scale.x + 15) >> 3) & ~1;
 	int size = disp_bytesperline * 16 * display_scale.y;
 	CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, disp_bitmap, size, MyProviderReleaseData2);
-	CGColorSpaceRef color_space = CGColorSpaceCreateDeviceGray();
-	disp_image = CGImageCreate(131 * display_scale.x, 16 * display_scale.y, 1, 1, disp_bytesperline,
-							   color_space, kCGBitmapByteOrder32Big, provider, NULL, false, kCGRenderingIntentDefault);
-	CGDataProviderRelease(provider);
-	CGColorSpaceRelease(color_space);
+	CGColorSpaceRef rgb_color_space = CGColorSpaceCreateDeviceRGB();
+
+	CGColorSpaceRef indexed_color_space = CGColorSpaceCreateIndexed(rgb_color_space, 1, display_colormap);
+	CGImageRef disp_image = CGImageCreate(131 * display_scale.x, 16 * display_scale.y, 1, 1, disp_bytesperline,
+							   indexed_color_space, kCGBitmapByteOrder32Big, provider, NULL, false, kCGRenderingIntentDefault);
+	CGColorSpaceRelease(indexed_color_space);
 	CGContextDrawImage(myContext, CGRectMake(display_loc.x, display_loc.y, 131 * display_scale.x, 16 * display_scale.y), disp_image);
 	CGImageRelease(disp_image);
+
+	if (currently_pressed_key >= -7 && currently_pressed_key <= -2) {
+		indexed_color_space = CGColorSpaceCreateIndexed(rgb_color_space, 1, display_inverted_colormap);
+		disp_image = CGImageCreate(131 * display_scale.x, 16 * display_scale.y, 1, 1, disp_bytesperline,
+											  indexed_color_space, kCGBitmapByteOrder32Big, provider, NULL, false, kCGRenderingIntentDefault);
+		CGColorSpaceRelease(indexed_color_space);
+		
+		int key = -1 - currently_pressed_key;
+		int x = (key - 1) * 22 * display_scale.x;
+		int y = 9 * display_scale.y;
+		int w = 0; // Not '21 * display_scale.x' because of the ol' upside-down thing
+		int h = 7 * display_scale.y;
+		CGImageRef softkey_image = CGImageCreateWithImageInRect(disp_image, CGRectMake(x, y, w, h));
+		CGContextDrawImage(myContext, CGRectMake(display_loc.x + x, display_loc.y + y, w, h), softkey_image);
+		CGImageRelease(softkey_image);
+		CGImageRelease(disp_image);
+	}
+
+	CGColorSpaceRelease(rgb_color_space);
+	CGDataProviderRelease(provider);
 
 	// Repaint annunciators
 	for (int i = 0; i < 7; i++) {
@@ -766,12 +726,13 @@ unsigned char *skin_keymap_lookup(int keycode, bool ctrl, bool alt, bool shift, 
 static void invalidate_key(int key, UIView *view) {
 	if (key == -1)
 		return;
-	if (key >= -2 && key <= -7) {
+	if (key >= -7 && key <= -2) {
 		int k = -1 - key;
-		int x = (k - 1) * 22 * display_scale.x;
-		int y = 9 * display_scale.y;
-		int w = 131 * display_scale.x;
-		int h = 16 * display_scale.y;
+		NSLog(@"Invalidating soft key %d", key);
+		int x = (k - 1) * 22 * display_scale.x + display_loc.x;
+		int y = 9 * display_scale.y + display_loc.y;
+		int w = 21 * display_scale.x;
+		int h = 7 * display_scale.y;
 		[view setNeedsDisplayInRect:CGRectMake(x, y, w, h)];
 	} else if (key >= 0 && key < nkeys) {
 		SkinRect *r = &keylist[key].disp_rect;
@@ -799,9 +760,9 @@ void skin_display_blitter(const char *bits, int bytesperline, int x, int y, int 
 			for (vv = v2 * sy; vv < (v2 + 1) * sy; vv++)
 				for (hh = h * sx; hh < (h + 1) * sx; hh++)
 					if (pixel)
-						disp_bitmap[vv * disp_bytesperline + (hh >> 3)] |= 128 >> (hh & 7);
-					else
 						disp_bitmap[vv * disp_bytesperline + (hh >> 3)] &= ~(128 >> (hh & 7));
+					else
+						disp_bitmap[vv * disp_bytesperline + (hh >> 3)] |= 128 >> (hh & 7);
 		}
 	
 	[view setNeedsDisplayInRect:CGRectMake(display_loc.x + x * sx, display_loc.y + y * sy, width * sx, height * sy)];
