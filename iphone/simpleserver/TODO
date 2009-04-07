@@ -1,0 +1,33 @@
+* I uploaded a 400 kilobyte jar file to my iPod; the upload appears to have
+  been successful, the file appears in directory listings and has the right
+  size. However, downloading it back to the Mac fails; the connection is closed
+  after about 170 kilobytes. What's going on?
+* Figure out a way to separate the Free42 stuff from the generic HTTP server
+  (or application server) stuff.
+* For "GET /memory/<num>", you can use a "Content-Disposition: attachment;
+  filename=blah.raw" header to prevent the default filename from being <num>.
+* I'm currently closing the client socket using shutdown(SHUT_WR), which avoids
+  the 'connection reset' mess that was happening with shutdown(SHUT_RDWR) and
+  with close(). But is it correct? Am I leaking sockets now?
+  UPDATE: It appears to be incorrect, and that I am leaking sockets now; read
+  carefully the explanation about 4xx response codes in RFC 2616, section 10.4.
+* How about support for web-based mkdir, rmdir, and rm -rf?
+* Implement HEAD, and return Last-Modified for all successful requests.
+* Implement If-Modified-Since handling in GET and HEAD.
+* Request methods OPTIONS, PUT, DELETE, TRACE, and CONNECT should all return
+  501 Not Implemented (N.B. RFC 2616 only *requires* GET and HEAD.)
+  Any request method other than those and GET, HEAD, and POST, should return
+  400 Bad Request. The same should also be returned for any request that cannot
+  be parsed at all.
+* The server does not seem to handle pathnames with spaces correctly. For
+  example, try "/Library/Application Support" on the iPod.
+* Can we run the server at port 80 on the iPod? If not, how about something
+  cute like 4242?
+* Get the version number compiled into simpleserver.c by using substitution
+  using sed, and add a Run Script build phase to perform the substitution. The
+  same mechanism could also be used to get the version number displayed in the
+  Options window.
+* http_error() should return a response body -- right now, whenever the server
+  reports a 404 or any other error, a Firefox user will only see a blank
+  screen. Maybe other browsers are more helpful, but this is bad behavior
+  regardless.
