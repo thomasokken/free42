@@ -299,10 +299,10 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "Free42" */;
 			buildPhases = (
+				E91CC1BE0F8C1DDE00EE702C /* ShellScript */,
 				1D60588D0D05DD3D006BFB54 /* Resources */,
 				1D60588E0D05DD3D006BFB54 /* Sources */,
 				1D60588F0D05DD3D006BFB54 /* Frameworks */,
-				E91CC1BE0F8C1DDE00EE702C /* ShellScript */,
 			);
 			buildRules = (
 			);
