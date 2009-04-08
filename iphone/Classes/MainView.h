@@ -25,5 +25,9 @@
 - (void) initialize;
 - (void) touchesBegan: (NSSet *) touches withEvent: (UIEvent *) event;
 + (void) quit;
+- (void) setTimeout:(int) which;
+- (void) cancelTimeout3;
+- (void) setRepeater:(int) delay;
+- (void) cancelRepeater;
 
 @end

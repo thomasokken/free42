@@ -61,13 +61,10 @@ static int skey;
 static unsigned char *macro;
 static int mouse_key;
 
-#define WAIT_STATE_NONE 0
-#define WAIT_STATE_TIMEOUT1 1
-#define WAIT_STATE_TIMEOUT2 2
-#define WAIT_STATE_TIMEOUT3 3
-#define WAIT_STATE_REPEATER 4
-
-static int wait_state = WAIT_STATE_NONE;
+static bool timeout_active = false;
+static int timeout_which;
+static bool timeout3_active = false;
+static bool repeater_active = false;
 static bool reminder_active = false;
 
 static int ann_updown = 0;
@@ -167,41 +164,67 @@ static MainView *mainView = nil;
 		[self performSelectorOnMainThread:@selector(reminder) withObject:NULL waitUntilDone:NO];
 }
 
-- (void) setWaitState:(int) newState afterDelay:(NSTimeInterval)delay {
-	[NSObject cancelPreviousPerformRequestsWithTarget:self];
-	wait_state = newState;
-	if (newState != WAIT_STATE_NONE)
-		[self performSelector:@selector(waitStateExpired) withObject:NULL afterDelay:delay];
+- (void) setTimeout:(int) which {
+	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(timeout_callback) object:NULL];
+	timeout_which = which;
+	timeout_active = true;
+	[self performSelector:@selector(timeout_callback) withObject:NULL afterDelay:(which == 1 ? 0.25 : 1.75)];
 }
 
-- (void) waitStateExpired {
-	int which = wait_state;
-	wait_state = WAIT_STATE_NONE;
-	switch (which) {
-		case WAIT_STATE_NONE:
-			break;
-		case WAIT_STATE_TIMEOUT1:
-			if (ckey != 0) {
-				core_keytimeout1();
-				[self setWaitState:WAIT_STATE_TIMEOUT2 afterDelay:1.75];
-			}
-			break;
-		case WAIT_STATE_TIMEOUT2:
-			if (ckey != 0)
-				core_keytimeout2();
-			break;
-		case WAIT_STATE_TIMEOUT3:
-			core_timeout3(1);
-			break;
-		case WAIT_STATE_REPEATER:
-			int repeat = core_repeat();
-			if (repeat != 0)
-				[self setWaitState:WAIT_STATE_REPEATER afterDelay:(repeat == 1 ? 0.2 : 0.1)];
-			else
-				[self setWaitState:WAIT_STATE_TIMEOUT1 afterDelay:0.25];
-			break;
+- (void) cancelTimeout {
+	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(timeout_callback) object:NULL];
+	timeout_active = false;
+}
+
+- (void) timeout_callback {
+	timeout_active = false;
+	if (ckey != 0) {
+		if (timeout_which == 1) {
+			NSLog(@"timeout1");
+			core_keytimeout1();
+			[self setTimeout:2];
+		} else if (timeout_which == 2) {
+			NSLog(@"timeout2");
+			core_keytimeout2();
+		}
 	}
 }
+
+- (void) setTimeout3: (int) delay {
+	[self cancelTimeout3];
+	[self performSelector:@selector(timeout3_callback) withObject:NULL afterDelay:(delay / 1000.0)];
+	timeout3_active = true;
+}
+
+- (void) cancelTimeout3 {
+	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(timeout3_callback) object:NULL];
+	timeout3_active = false;
+}
+	
+- (void) timeout3_callback {
+	timeout3_active = false;
+	core_timeout3(1);
+}
+
+- (void) setRepeater: (int) delay {
+	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(repeater_callback) object:NULL];
+	[self performSelector:@selector(repeater_callback) withObject:NULL afterDelay:(delay / 1000.0)];
+	repeater_active = true;
+}
+
+- (void) cancelRepeater {
+	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(repeater_callback) object:NULL];
+	repeater_active = false;
+}
+
+- (void) repeater_callback {
+	int repeat = core_repeat();
+	if (repeat != 0)
+		[self setRepeater:(repeat == 1 ? 200 : 100)];
+	else
+		[self setTimeout:1];
+}
+	
 
 @end
 
@@ -308,6 +331,8 @@ static void quit2() {
 }
 
 static void enable_reminder() {
+	[mainView cancelTimeout];
+	[mainView cancelRepeater];
 	if (reminder_active)
 		return;
 	reminder_active = true;
@@ -327,9 +352,8 @@ static void shell_keydown() {
     if (skey == -1)
 		skey = skin_find_skey(ckey);
 	skin_set_pressed_key(skey, mainView);
-    if (wait_state == WAIT_STATE_TIMEOUT3 && (macro != NULL || ckey != 28 /* KEY_SHIFT */)) {
-		[mainView setWaitState:WAIT_STATE_NONE afterDelay:0];
-		[NSObject cancelPreviousPerformRequestsWithTarget:mainView];
+    if (timeout3_active && (macro != NULL || ckey != 28 /* KEY_SHIFT */)) {
+		[mainView cancelTimeout3];
 		core_timeout3(0);
     }
 	
@@ -370,12 +394,12 @@ static void shell_keydown() {
 		enable_reminder();
     else {
 		disable_reminder();
+		[mainView cancelTimeout];
+		[mainView cancelRepeater];
 		if (repeat != 0)
-			[mainView setWaitState:WAIT_STATE_REPEATER afterDelay:(repeat == 1 ? 1.0 : 0.5)];
+			[mainView setRepeater:(repeat == 1 ? 1000 : 500)];
 		else if (!enqueued)
-			[mainView setWaitState:WAIT_STATE_TIMEOUT1 afterDelay:0.25];
-		else
-			[mainView setWaitState:WAIT_STATE_NONE afterDelay:0];
+			[mainView setTimeout:1];
     }
 }
 
@@ -383,7 +407,8 @@ static void shell_keyup() {
 	skin_set_pressed_key(-1, mainView);
     ckey = 0;
     skey = -1;
-	[mainView setWaitState:WAIT_STATE_NONE afterDelay:0];
+	[mainView cancelTimeout];
+	[mainView cancelRepeater];
     if (!enqueued) {
 		int keep_running = core_keyup();
 		if (quit_flag)
@@ -473,7 +498,7 @@ void shell_delay(int duration) {
 }
 
 void shell_request_timeout3(int delay) {
-	[mainView setWaitState:WAIT_STATE_TIMEOUT3 afterDelay:(delay / 1000.0)];
+	[mainView setTimeout3:delay];
 }
 
 int shell_read_saved_state(void *buf, int bufsize) {
