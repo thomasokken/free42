@@ -100,7 +100,6 @@ static MainView *mainView = nil;
 	skin_repaint();
 }
 
-
 - (void) dealloc {
 	NSLog(@"Shutting down!");
     [super dealloc];
@@ -161,7 +160,7 @@ static MainView *mainView = nil;
 	if (quit_flag)
 		quit2();
 	if (reminder_active)
-		[self performSelectorOnMainThread:@selector(reminder) withObject:NULL waitUntilDone:NO];
+		[self performSelector:@selector(reminder) withObject:NULL afterDelay:0];
 }
 
 - (void) setTimeout:(int) which {
@@ -180,11 +179,9 @@ static MainView *mainView = nil;
 	timeout_active = false;
 	if (ckey != 0) {
 		if (timeout_which == 1) {
-			NSLog(@"timeout1");
 			core_keytimeout1();
 			[self setTimeout:2];
 		} else if (timeout_which == 2) {
-			NSLog(@"timeout2");
 			core_keytimeout2();
 		}
 	}
@@ -203,7 +200,9 @@ static MainView *mainView = nil;
 	
 - (void) timeout3_callback {
 	timeout3_active = false;
-	core_timeout3(1);
+	bool keep_running = core_timeout3(1);
+	if (keep_running)
+		enable_reminder();
 }
 
 - (void) setRepeater: (int) delay {
@@ -336,7 +335,7 @@ static void enable_reminder() {
 	if (reminder_active)
 		return;
 	reminder_active = true;
-	[mainView performSelectorOnMainThread:@selector(reminder) withObject:NULL waitUntilDone:NO];
+	[mainView performSelector:@selector(reminder) withObject:NULL afterDelay:0];
 }
 
 static void disable_reminder() {
@@ -458,7 +457,6 @@ void shell_beeper(int frequency, int duration) {
 }
 
 void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
-	NSLog(@"shell_annunciators(updn=%d, shf=%d, prt=%d, run=%d, g=%d, rad=%d", updn, shf, prt, run, g, rad);
     if (updn != -1 && ann_updown != updn) {
 		ann_updown = updn;
 		skin_update_annunciator(1, ann_updown, mainView);
@@ -487,7 +485,9 @@ void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
 
 int shell_wants_cpu() {
 	// TODO
-	return 0;
+	static int count = 0;
+	count = (count + 1) % 10;
+	return count == 0;
 }
 
 void shell_delay(int duration) {

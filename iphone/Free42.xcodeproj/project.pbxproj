@@ -100,7 +100,7 @@
 		E91005BD0F893F8900B68C27 /* core_linalg1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_linalg1.h; path = ../common/core_linalg1.h; sourceTree = SOURCE_ROOT; };
 		E91005BE0F893F8900B68C27 /* core_linalg2.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_linalg2.cc; path = ../common/core_linalg2.cc; sourceTree = SOURCE_ROOT; };
 		E91005BF0F893F8900B68C27 /* core_linalg2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_linalg2.h; path = ../common/core_linalg2.h; sourceTree = SOURCE_ROOT; };
-		E91005C00F893F8900B68C27 /* core_main.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_main.cc; path = ../common/core_main.cc; sourceTree = SOURCE_ROOT; };
+		E91005C00F893F8900B68C27 /* core_main.cc */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_main.cc; path = ../common/core_main.cc; sourceTree = SOURCE_ROOT; tabWidth = 8; usesTabs = 1; };
 		E91005C10F893F8900B68C27 /* core_main.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_main.h; path = ../common/core_main.h; sourceTree = SOURCE_ROOT; };
 		E91005C20F893F8900B68C27 /* core_math1.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_math1.cc; path = ../common/core_math1.cc; sourceTree = SOURCE_ROOT; };
 		E91005C30F893F8900B68C27 /* core_math1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_math1.h; path = ../common/core_math1.h; sourceTree = SOURCE_ROOT; };

@@ -728,7 +728,6 @@ static void invalidate_key(int key, UIView *view) {
 		return;
 	if (key >= -7 && key <= -2) {
 		int k = -1 - key;
-		NSLog(@"Invalidating soft key %d", key);
 		int x = (k - 1) * 22 * display_scale.x + display_loc.x;
 		int y = 9 * display_scale.y + display_loc.y;
 		int w = 21 * display_scale.x;
