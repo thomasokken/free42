@@ -486,7 +486,7 @@ void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
 int shell_wants_cpu() {
 	// TODO
 	static int count = 0;
-	count = (count + 1) % 10;
+	count = (count + 1) % 100;
 	return count == 0;
 }
 
