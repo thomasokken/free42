@@ -547,6 +547,7 @@ void shell_print(const char *text, int length,
 	// TODO
 }
 
+/*
 int shell_write(const char *buf, int buflen) {
 	return 0;
 }
@@ -554,6 +555,7 @@ int shell_write(const char *buf, int buflen) {
 int shell_read(char *buf, int buflen) {
 	return -1;
 }
+*/
 
 shell_bcd_table_struct *shell_get_bcd_table() {
 	return NULL;
