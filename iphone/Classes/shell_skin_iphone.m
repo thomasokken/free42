@@ -579,26 +579,33 @@ void skin_finish_image() {
 	skin_bitmap = NULL;
 }
 
-void skin_repaint() {
+void skin_repaint(CGRect *rect) {
 	CGContextRef myContext = UIGraphicsGetCurrentContext();
 	
-	// Paint black background (in case the skin is smaller than the available area)
-	// TODO: What *is* the available area?
-	CGFloat black[4] = { 0.0, 0.0, 0.0, 1.0 };
-	CGContextSetFillColor(myContext, black);
-	CGContextFillRect(myContext, CGRectMake(0, 0, 320, 480));
+	// Optimize for the common case that *only* the display needs painting
+	bool paintOnlyDisplay = rect->origin.x >= display_loc.x && rect->origin.y >= display_loc.y
+				&& rect->origin.x + rect->size.width <= display_loc.x + display_scale.x * 131
+				&& rect->origin.y + rect->size.height <= display_loc.y + display_scale.y * 16;
 	
-	// Redisplay skin
-	CGImageRef si = CGImageCreateWithImageInRect(skin_image, CGRectMake(skin.x, skin_height - (skin.y + skin.height), skin.width, skin.height));
-	CGContextDrawImage(myContext, CGRectMake(0, 0, skin.width, skin.height), si);
-	CGImageRelease(si);
+	if (!paintOnlyDisplay) {
+		// Paint black background (in case the skin is smaller than the available area)
+		// TODO: What *is* the available area?
+		CGFloat black[4] = { 0.0, 0.0, 0.0, 1.0 };
+		CGContextSetFillColor(myContext, black);
+		CGContextFillRect(myContext, CGRectMake(0, 0, 320, 480));
+		
+		// Redisplay skin
+		CGImageRef si = CGImageCreateWithImageInRect(skin_image, CGRectMake(skin.x, skin_height - (skin.y + skin.height), skin.width, skin.height));
+		CGContextDrawImage(myContext, CGRectMake(0, 0, skin.width, skin.height), si);
+		CGImageRelease(si);
 	
-	// Repaint pressed hard key, if any
-	if (currently_pressed_key >= 0 && currently_pressed_key < nkeys) {
-		SkinKey *k = keylist + currently_pressed_key;
-		CGImageRef key_image = CGImageCreateWithImageInRect(skin_image, CGRectMake(k->src.x, skin_height - (k->src.y + k->disp_rect.height), k->disp_rect.width, k->disp_rect.height));
-		CGContextDrawImage(myContext, CGRectMake(k->disp_rect.x, k->disp_rect.y, k->disp_rect.width, k->disp_rect.height), key_image);
-		CGImageRelease(key_image);
+		// Repaint pressed hard key, if any
+		if (currently_pressed_key >= 0 && currently_pressed_key < nkeys) {
+			SkinKey *k = keylist + currently_pressed_key;
+			CGImageRef key_image = CGImageCreateWithImageInRect(skin_image, CGRectMake(k->src.x, skin_height - (k->src.y + k->disp_rect.height), k->disp_rect.width, k->disp_rect.height));
+			CGContextDrawImage(myContext, CGRectMake(k->disp_rect.x, k->disp_rect.y, k->disp_rect.width, k->disp_rect.height), key_image);
+			CGImageRelease(key_image);
+		}
 	}
 	
 	// Repaint display (and pressed softkey, if any)
@@ -634,18 +641,20 @@ void skin_repaint() {
 	CGColorSpaceRelease(rgb_color_space);
 	CGDataProviderRelease(provider);
 
-	// Repaint annunciators
-	for (int i = 0; i < 7; i++) {
-		if (annunciator_state[i]) {
-			SkinAnnunciator *ann = annunciators + i;
-			CGImageRef ann_image = CGImageCreateWithImageInRect(skin_image, CGRectMake(ann->src.x, skin_height - (ann->src.y + ann->disp_rect.height), ann->disp_rect.width, ann->disp_rect.height));
-			CGContextDrawImage(myContext, CGRectMake(ann->disp_rect.x, ann->disp_rect.y, ann->disp_rect.width, ann->disp_rect.height), ann_image);
-			CGImageRelease(ann_image);
+	if (!paintOnlyDisplay) {
+		// Repaint annunciators
+		for (int i = 0; i < 7; i++) {
+			if (annunciator_state[i]) {
+				SkinAnnunciator *ann = annunciators + i;
+				CGImageRef ann_image = CGImageCreateWithImageInRect(skin_image, CGRectMake(ann->src.x, skin_height - (ann->src.y + ann->disp_rect.height), ann->disp_rect.width, ann->disp_rect.height));
+				CGContextDrawImage(myContext, CGRectMake(ann->disp_rect.x, ann->disp_rect.y, ann->disp_rect.width, ann->disp_rect.height), ann_image);
+				CGImageRelease(ann_image);
+			}
 		}
 	}
 }
 
-void skin_update_annunciator(int which, int state, UIView *view) {
+void skin_update_annunciator(int which, int state, MainView *view) {
 	if (which < 1 || which > 7)
 		return;
 	which--;
@@ -653,7 +662,7 @@ void skin_update_annunciator(int which, int state, UIView *view) {
 		return;
 	annunciator_state[which] = state;
 	SkinRect *r = &annunciators[which].disp_rect;
-	[view setNeedsDisplayInRect:CGRectMake(r->x, r->y, r->width, r->height)];
+	[view setNeedsDisplayInRectSafely:CGRectMake(r->x, r->y, r->width, r->height)];
 }
 	
 void skin_find_key(int x, int y, bool cshift, int *skey, int *ckey) {
@@ -723,7 +732,7 @@ unsigned char *skin_keymap_lookup(int keycode, bool ctrl, bool alt, bool shift, 
 }
  */
 
-static void invalidate_key(int key, UIView *view) {
+static void invalidate_key(int key, MainView *view) {
 	if (key == -1)
 		return;
 	if (key >= -7 && key <= -2) {
@@ -732,14 +741,14 @@ static void invalidate_key(int key, UIView *view) {
 		int y = 9 * display_scale.y + display_loc.y;
 		int w = 21 * display_scale.x;
 		int h = 7 * display_scale.y;
-		[view setNeedsDisplayInRect:CGRectMake(x, y, w, h)];
+		[view setNeedsDisplayInRectSafely:CGRectMake(x, y, w, h)];
 	} else if (key >= 0 && key < nkeys) {
 		SkinRect *r = &keylist[key].disp_rect;
-		[view setNeedsDisplayInRect:CGRectMake(r->x, r->y, r->width, r->height)];
+		[view setNeedsDisplayInRectSafely:CGRectMake(r->x, r->y, r->width, r->height)];
 	}
 }
 
-void skin_set_pressed_key(int key, UIView *view) {
+void skin_set_pressed_key(int key, MainView *view) {
 	if (key == currently_pressed_key)
 		return;
 	invalidate_key(currently_pressed_key, view);
@@ -747,7 +756,7 @@ void skin_set_pressed_key(int key, UIView *view) {
 	invalidate_key(currently_pressed_key, view);
 }
 	
-void skin_display_blitter(const char *bits, int bytesperline, int x, int y, int width, int height, UIView *view) {
+void skin_display_blitter(const char *bits, int bytesperline, int x, int y, int width, int height, MainView *view) {
 	int h, v, hh, vv;
 	int sx = display_scale.x;
 	int sy = display_scale.y;
@@ -764,14 +773,14 @@ void skin_display_blitter(const char *bits, int bytesperline, int x, int y, int 
 						disp_bitmap[vv * disp_bytesperline + (hh >> 3)] |= 128 >> (hh & 7);
 		}
 	
-	[view setNeedsDisplayInRect:CGRectMake(display_loc.x + x * sx, display_loc.y + y * sy, width * sx, height * sy)];
+	[view setNeedsDisplayInRectSafely:CGRectMake(display_loc.x + x * sx, display_loc.y + y * sy, width * sx, height * sy)];
 }
 
-void skin_repaint_display(UIView *view) {
+void skin_repaint_display(MainView *view) {
 	if (!display_enabled)
 		// Prevent screen flashing during macro execution
 		return;
-	[view setNeedsDisplayInRect:CGRectMake(display_loc.x, display_loc.y, 131 * display_scale.x, 16 * display_scale.y)];
+	[view setNeedsDisplayInRectSafely:CGRectMake(display_loc.x, display_loc.y, 131 * display_scale.x, 16 * display_scale.y)];
 }
 
 void skin_display_set_enabled(bool enable) {

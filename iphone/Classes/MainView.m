@@ -16,10 +16,12 @@
  *****************************************************************************/
 
 #import <UIKit/UIKit.h>
-#include <sys/stat.h>
-#include <sys/sysctl.h>
+#import <sys/stat.h>
+#import <sys/sysctl.h>
+#import <pthread.h>
 
 #import "MainView.h"
+#import "MyRect.h"
 #import "free42.h"
 #import "core_main.h"
 #import "core_display.h"
@@ -32,10 +34,7 @@
 /////                         Ye olde C stuphphe                          /////
 ///////////////////////////////////////////////////////////////////////////////
 
-static void initialize2();
 static void quit2();
-static void enable_reminder();
-static void disable_reminder();
 static void shell_keydown();
 static void shell_keyup();
 
@@ -43,6 +42,14 @@ static NSString *skin_name;
 static int skin_width, skin_height;
 
 static const int FILENAMELEN = 1024;
+
+static int read_shell_state(int *version);
+static void init_shell_state(int version);
+static int write_shell_state();
+
+#define SHELL_VERSION 0
+
+static FILE* statefile;
 
 static struct {
 	int printerToTxtFile;
@@ -55,6 +62,10 @@ static struct {
 
 static int quit_flag = 0;
 static int enqueued;
+static int we_want_cpu = 0;
+static bool is_running = false;
+static pthread_mutex_t is_running_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t is_running_cond = PTHREAD_COND_INITIALIZER;
 
 static int ckey = 0;
 static int skey;
@@ -65,13 +76,12 @@ static bool timeout_active = false;
 static int timeout_which;
 static bool timeout3_active = false;
 static bool repeater_active = false;
-static bool reminder_active = false;
 
 static int ann_updown = 0;
 static int ann_shift = 0;
 static int ann_print = 0;
 static int ann_run = 0;
-static int ann_battery = 0;
+//static int ann_battery = 0;
 static int ann_g = 0;
 static int ann_rad = 0;
 
@@ -93,16 +103,44 @@ static MainView *mainView = nil;
     return self;
 }
 
+- (void) setNeedsDisplayInRectSafely2:(id) myrect {
+	CGRect r = [myrect rect];
+	[self setNeedsDisplayInRect:r];
+}
+
+- (void) setNeedsDisplayInRectSafely:(CGRect) rect {
+	if ([NSThread isMainThread])
+		[self setNeedsDisplayInRect:rect];
+	else
+		[self performSelectorOnMainThread:@selector(setNeedsDisplayInRectSafely2:) withObject:[MyRect rectWithCGRect:rect] waitUntilDone:NO];
+}
 
 - (void)drawRect:(CGRect)rect {
 	if (mainView == nil)
 		[self initialize];
-	skin_repaint();
+	skin_repaint(&rect);
 }
 
 - (void) dealloc {
 	NSLog(@"Shutting down!");
     [super dealloc];
+}
+
+- (void) touchesBegan3 {
+	[shell_iphone playSound:11];
+	macro = skin_find_macro(ckey);
+	shell_keydown();
+	mouse_key = 1;
+}
+
+- (void) touchesBegan2 {
+	we_want_cpu = 1;
+	pthread_mutex_lock(&is_running_mutex);
+	while (is_running)
+		pthread_cond_wait(&is_running_cond, &is_running_mutex);
+	pthread_mutex_unlock(&is_running_mutex);
+	we_want_cpu = 0;
+	[self performSelectorOnMainThread:@selector(touchesBegan3) withObject:NULL waitUntilDone:NO];
 }
 
 - (void) touchesBegan: (NSSet *) touches withEvent: (UIEvent *) event {
@@ -114,28 +152,54 @@ static MainView *mainView = nil;
 		int y = (int) p.y;
 		skin_find_key(x, y, ann_shift != 0, &skey, &ckey);
 		if (ckey != 0) {
-			[shell_iphone playSound:11];
-			macro = skin_find_macro(ckey);
-			shell_keydown();
-			mouse_key = 1;
+			if (is_running)
+				[self performSelectorInBackground:@selector(touchesBegan2) withObject:NULL];
+			else
+				[self touchesBegan3];
 		}
 	}
 }
 
+- (void) touchesEnded3 {
+	shell_keyup();
+}
+
+- (void) touchesEnded2 {
+	we_want_cpu = 1;
+	pthread_mutex_lock(&is_running_mutex);
+	while (is_running)
+		pthread_cond_wait(&is_running_cond, &is_running_mutex);
+	pthread_mutex_unlock(&is_running_mutex);
+	we_want_cpu = 0;
+	[self performSelectorOnMainThread:@selector(touchesEnded3) withObject:NULL waitUntilDone:NO];
+}
+
 - (void) touchesEnded: (NSSet *) touches withEvent: (UIEvent *) event {
 	[super touchesEnded:touches withEvent:event];
-	if (ckey != 0 && mouse_key)
-		shell_keyup();
+	if (ckey != 0 && mouse_key) {
+		if (is_running)
+			[self performSelectorInBackground:@selector(touchesEnded2) withObject:NULL];
+		else
+			[self touchesEnded3];
+	}
 }
 
 - (void) touchesCancelled: (NSSet *) touches withEvent: (UIEvent *) event {
-	[super touchesEnded:touches withEvent:event];
-	if (ckey != 0 && mouse_key)
-		shell_keyup();
+	[super touchesCancelled:touches withEvent:event];
+	if (ckey != 0 && mouse_key) {
+		if (is_running)
+			[self performSelectorInBackground:@selector(touchesEnded2) withObject:NULL];
+		else
+			[self touchesEnded3];
+	}
 }
 
 + (void) quit {
 	quit2();
+}
+
+- (void) startRunner {
+	[self performSelectorInBackground:@selector(runner) withObject:NULL];
 }
 
 - (void) initialize {
@@ -147,20 +211,43 @@ static MainView *mainView = nil;
 		skin_width = w;
 		skin_height = h;
 	}	
-	initialize2();
+	statefile = fopen("config/state", "r");
+	int init_mode, version;
+	if (statefile != NULL) {
+		if (read_shell_state(&version)) {
+			init_mode = 1;
+		} else {
+			init_shell_state(-1);
+			init_mode = 2;
+		}
+	} else {
+		init_shell_state(-1);
+		init_mode = 0;
+	}
+	core_init(init_mode, version);
+	if (statefile != NULL) {
+		fclose(statefile);
+		statefile = NULL;
+	}
+	int keep_running = core_powercycle();
+	if (keep_running)
+		[self startRunner];
 }
 
-- (void) reminder {
-	if (!reminder_active)
-		return;
+- (void) runner {
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	int dummy1, dummy2;
+	is_running = true;
 	int keep_running = core_keydown(0, &dummy1, &dummy2);
-	if (!keep_running)
-		reminder_active = false;
+	pthread_mutex_lock(&is_running_mutex);
+	is_running = false;
+	pthread_cond_signal(&is_running_cond);
+	pthread_mutex_unlock(&is_running_mutex);
 	if (quit_flag)
-		quit2();
-	if (reminder_active)
-		[self performSelector:@selector(reminder) withObject:NULL afterDelay:0];
+		[self performSelectorOnMainThread:@selector(quit) withObject:NULL waitUntilDone:NO];
+	else if (keep_running)
+		[self performSelectorOnMainThread:@selector(startRunner) withObject:NULL waitUntilDone:NO];
+	[pool release];
 }
 
 - (void) setTimeout:(int) which {
@@ -202,7 +289,7 @@ static MainView *mainView = nil;
 	timeout3_active = false;
 	bool keep_running = core_timeout3(1);
 	if (keep_running)
-		enable_reminder();
+		[self startRunner];
 }
 
 - (void) setRepeater: (int) delay {
@@ -223,42 +310,40 @@ static MainView *mainView = nil;
 	else
 		[self setTimeout:1];
 }
-	
+
+// The following is some wrapper code, to allow functions called by core_keydown()
+// while it is running in the background, to run in the main thread.
+
+static union {
+	struct {
+		int delay;
+	} shell_request_timeout3_args;
+	struct {
+		const char *text;
+		int length;
+		const char *bits;
+		int bytesperline;
+		int x, y, width, height;
+	} shell_print_args;
+} helper_args;
+
+static pthread_mutex_t shell_helper_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+- (void) shell_request_timeout3_helper {
+	[mainView setTimeout3:helper_args.shell_request_timeout3_args.delay];
+	pthread_mutex_unlock(&shell_helper_mutex);
+}
+
+- (void) shell_print_helper {
+	// TODO
+	pthread_mutex_unlock(&shell_helper_mutex);
+}
 
 @end
 
 ///////////////////////////////////////////////////////////////////////////////
 /////                   Here beginneth thy olde C code                    /////
 ///////////////////////////////////////////////////////////////////////////////
-
-static int read_shell_state(int *version);
-static void init_shell_state(int version);
-static int write_shell_state();
-
-#define SHELL_VERSION 0
-
-static FILE* statefile;
-
-static void initialize2() {
-	statefile = fopen("config/state", "r");
-	int init_mode, version;
-	if (statefile != NULL) {
-		if (read_shell_state(&version)) {
-			init_mode = 1;
-		} else {
-			init_shell_state(-1);
-			init_mode = 2;
-		}
-	} else {
-		init_shell_state(-1);
-		init_mode = 0;
-	}
-	core_init(init_mode, version);
-	if (statefile != NULL) {
-		fclose(statefile);
-		statefile = NULL;
-	}
-}
 
 static int read_shell_state(int *ver) {
     int magic;
@@ -329,23 +414,6 @@ static void quit2() {
 	exit(0);
 }
 
-static void enable_reminder() {
-	[mainView cancelTimeout];
-	[mainView cancelRepeater];
-	if (reminder_active)
-		return;
-	reminder_active = true;
-	[mainView performSelector:@selector(reminder) withObject:NULL afterDelay:0];
-}
-
-static void disable_reminder() {
-	// Can't cancel stuff that was scheduled using performSelectorOnMainThread
-	// so just clearing this flag; reminder() checks it so even though we can't
-	// prevent reminder() from being called, at least we prevent it from doing
-	// anything.
-	reminder_active = false;
-}
-
 static void shell_keydown() {
     int repeat, keep_running;
     if (skey == -1)
@@ -355,6 +423,15 @@ static void shell_keydown() {
 		[mainView cancelTimeout3];
 		core_timeout3(0);
     }
+	
+	// We temporarily set we_want_cpu to 'true', to force the calls
+	// to core_keydown() in this function to return quickly. This is
+	// necessary since this function runs on the main thread, and we
+	// can't peek ahead in the event queue while core_keydown() is
+	// hogging the CPU on the main thread. (The lack of something like
+	// EventAvail is an annoying omission of the iPhone API.)
+	
+	we_want_cpu = 1;
 	
     if (macro != NULL) {
 		if (*macro == 0) {
@@ -387,12 +464,13 @@ static void shell_keydown() {
     } else
 		keep_running = core_keydown(ckey, &enqueued, &repeat);
 	
+	we_want_cpu = 0;
+	
     if (quit_flag)
 		quit2();
-    if (keep_running)
-		enable_reminder();
+    else if (keep_running)
+		[mainView startRunner];
     else {
-		disable_reminder();
 		[mainView cancelTimeout];
 		[mainView cancelRepeater];
 		if (repeat != 0)
@@ -412,10 +490,8 @@ static void shell_keyup() {
 		int keep_running = core_keyup();
 		if (quit_flag)
 			quit2();
-		if (keep_running)
-			enable_reminder();
-		else
-			disable_reminder();
+		else if (keep_running)
+			[mainView startRunner];
     }
 }
 
@@ -457,37 +533,34 @@ void shell_beeper(int frequency, int duration) {
 }
 
 void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
-    if (updn != -1 && ann_updown != updn) {
+	if (updn != -1 && ann_updown != updn) {
 		ann_updown = updn;
 		skin_update_annunciator(1, ann_updown, mainView);
-    }
-    if (shf != -1 && ann_shift != shf) {
+	}
+	if (shf != -1 && ann_shift != shf) {
 		ann_shift = shf;
 		skin_update_annunciator(2, ann_shift, mainView);
-    }
-    if (prt != -1 && ann_print != prt) {
+	}
+	if (prt != -1 && ann_print != prt) {
 		ann_print = prt;
 		skin_update_annunciator(3, ann_print, mainView);
-    }
-    if (run != -1 && ann_run != run) {
+	}
+	if (run != -1 && ann_run != run) {
 		ann_run = run;
 		skin_update_annunciator(4, ann_run, mainView);
-    }
-    if (g != -1 && ann_g != g) {
+	}
+	if (g != -1 && ann_g != g) {
 		ann_g = g;
 		skin_update_annunciator(6, ann_g, mainView);
-    }
-    if (rad != -1 && ann_rad != rad) {
+	}
+	if (rad != -1 && ann_rad != rad) {
 		ann_rad = rad;
 		skin_update_annunciator(7, ann_rad, mainView);
-    }
+	}
 }
 
 int shell_wants_cpu() {
-	// TODO
-	static int count = 0;
-	count = (count + 1) % 100;
-	return count == 0;
+	return we_want_cpu;
 }
 
 void shell_delay(int duration) {
@@ -498,7 +571,9 @@ void shell_delay(int duration) {
 }
 
 void shell_request_timeout3(int delay) {
-	[mainView setTimeout3:delay];
+	pthread_mutex_lock(&shell_helper_mutex);
+	helper_args.shell_request_timeout3_args.delay = delay;
+	[mainView performSelectorOnMainThread:@selector(shell_request_timeout3_helper) withObject:NULL waitUntilDone:NO];
 }
 
 int shell_read_saved_state(void *buf, int bufsize) {
@@ -552,6 +627,7 @@ int shell_low_battery() {
 
 void shell_powerdown() {
 	quit_flag = 1;
+	we_want_cpu = 1;
 }
 
 double shell_random_seed() {
@@ -569,7 +645,8 @@ unsigned int shell_milliseconds() {
 void shell_print(const char *text, int length,
 				 const char *bits, int bytesperline,
 				 int x, int y, int width, int height) {
-	// TODO
+	pthread_mutex_lock(&shell_helper_mutex);
+	[mainView performSelectorOnMainThread:@selector(shell_print_helper) withObject:NULL waitUntilDone:NO];
 }
 
 /*

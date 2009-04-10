@@ -15,19 +15,23 @@
  * along with this program; if not, see http://www.gnu.org/licenses/.
  *****************************************************************************/
 
-#import <UIKit/UIKit.h>
-#import "MainView.h"
-#import "shell_skin.h"
+#import "MyRect.h"
 
-void skin_load(NSString *skinname, long *width, long *height);
 
-void skin_repaint(CGRect *rect);
-void skin_update_annunciator(int which, int state, MainView *view);
-void skin_find_key(int x, int y, bool cshift, int *skey, int *ckey);
-int skin_find_skey(int ckey);
-unsigned char *skin_find_macro(int ckey);
-//unsigned char *skin_keymap_lookup(int keycode, bool ctrl, bool alt, bool shift, bool cshift, bool *exact);
-void skin_set_pressed_key(int skey, MainView *view);
-void skin_display_blitter(const char *bits, int bytesperline, int x, int y, int width, int height, MainView *view);
-void skin_repaint_display(MainView *view);
-void skin_display_set_enabled(bool enable);
+@implementation MyRect
+
++ (id) rectWithCGRect:(CGRect) rect {
+	return [[MyRect alloc] initWithCGRect:rect];
+}
+
+- (id) initWithCGRect:(CGRect) r {
+	if (self != nil)
+		rect = r;
+	return self;
+}
+
+- (CGRect) rect {
+	return rect;
+}
+
+@end

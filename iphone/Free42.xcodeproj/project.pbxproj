@@ -51,6 +51,7 @@
 		E98DD76F0F8C1A210089D9FA /* tone7.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD7640F8C1A210089D9FA /* tone7.wav */; };
 		E98DD7700F8C1A210089D9FA /* tone8.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD7650F8C1A210089D9FA /* tone8.wav */; };
 		E98DD7710F8C1A210089D9FA /* tone9.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD7660F8C1A210089D9FA /* tone9.wav */; };
+		E9AEB0890F8FFA4500B369A7 /* MyRect.m in Sources */ = {isa = PBXBuildFile; fileRef = E9AEB0880F8FFA4500B369A7 /* MyRect.m */; };
 		E9B16D590F88DFE2002BB9B2 /* MainView.m in Sources */ = {isa = PBXBuildFile; fileRef = E9B16D580F88DFE2002BB9B2 /* MainView.m */; };
 		E9B16DFA0F88EE46002BB9B2 /* shell_loadimage.cc in Sources */ = {isa = PBXBuildFile; fileRef = E9B16DF80F88EE46002BB9B2 /* shell_loadimage.cc */; };
 		E9B16E040F88F015002BB9B2 /* shell_skin_iphone.m in Sources */ = {isa = PBXBuildFile; fileRef = E9B16E010F88F015002BB9B2 /* shell_skin_iphone.m */; };
@@ -131,6 +132,8 @@
 		E98DD7640F8C1A210089D9FA /* tone7.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = tone7.wav; sourceTree = "<group>"; };
 		E98DD7650F8C1A210089D9FA /* tone8.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = tone8.wav; sourceTree = "<group>"; };
 		E98DD7660F8C1A210089D9FA /* tone9.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = tone9.wav; sourceTree = "<group>"; };
+		E9AEB0870F8FFA4500B369A7 /* MyRect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyRect.h; sourceTree = "<group>"; };
+		E9AEB0880F8FFA4500B369A7 /* MyRect.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyRect.m; sourceTree = "<group>"; };
 		E9B16D570F88DFE2002BB9B2 /* MainView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainView.h; sourceTree = "<group>"; };
 		E9B16D580F88DFE2002BB9B2 /* MainView.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = MainView.m; sourceTree = "<group>"; };
 		E9B16DF80F88EE46002BB9B2 /* shell_loadimage.cc */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; name = shell_loadimage.cc; path = ../common/shell_loadimage.cc; sourceTree = SOURCE_ROOT; tabWidth = 8; usesTabs = 1; };
@@ -167,6 +170,8 @@
 				1D3623250D0F684500981E51 /* shell_iphone.m */,
 				E9B16D570F88DFE2002BB9B2 /* MainView.h */,
 				E9B16D580F88DFE2002BB9B2 /* MainView.m */,
+				E9AEB0870F8FFA4500B369A7 /* MyRect.h */,
+				E9AEB0880F8FFA4500B369A7 /* MyRect.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -405,6 +410,7 @@
 				E93F2B560F894D9000CE8542 /* shell_spool.cc in Sources */,
 				E91CC1D40F8C1FE900EE702C /* simpleserver.c in Sources */,
 				E91CC1D60F8C200800EE702C /* icons.c in Sources */,
+				E9AEB0890F8FFA4500B369A7 /* MyRect.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

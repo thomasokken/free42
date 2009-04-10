@@ -24,6 +24,7 @@
 
 - (void) initialize;
 - (void) touchesBegan: (NSSet *) touches withEvent: (UIEvent *) event;
+- (void) setNeedsDisplayInRectSafely:(CGRect) rect;
 + (void) quit;
 - (void) setTimeout:(int) which;
 - (void) cancelTimeout3;
