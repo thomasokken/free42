@@ -688,6 +688,10 @@ void skin_update_annunciator(int which, int state, MainView *view) {
 	[view setNeedsDisplayInRectSafely:CGRectMake(r->x, r->y, r->width, r->height)];
 }
 	
+bool skin_in_menu_area(int x, int y) {
+	return y < display_loc.y + display_scale.y * 8;
+}
+
 void skin_find_key(int x, int y, bool cshift, int *skey, int *ckey) {
 	int i;
 	if (core_menu()

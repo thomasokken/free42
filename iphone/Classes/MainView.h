@@ -18,11 +18,12 @@
 #import <UIKit/UIKit.h>
 
 
-@interface MainView : UIView {
+@interface MainView : UIView <UIActionSheetDelegate> {
 	//
 }
 
 - (void) initialize;
+- (void) actionSheet:(UIActionSheet *) actionSheet clickedButtonAtIndex:(NSInteger) buttonIndex;
 - (void) touchesBegan: (NSSet *) touches withEvent: (UIEvent *) event;
 - (void) setNeedsDisplayInRectSafely:(CGRect) rect;
 + (void) quit;

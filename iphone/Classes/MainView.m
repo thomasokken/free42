@@ -123,7 +123,7 @@ static MainView *mainView = nil;
 @implementation MainView
 
 
-- (id)initWithFrame:(CGRect)frame {
+- (id) initWithFrame:(CGRect)frame {
 	TRACE("initWithFrame");
     if (self = [super initWithFrame:frame]) {
         // Note: this does not get called when instantiated from a nib file,
@@ -146,7 +146,45 @@ static MainView *mainView = nil;
 		[self performSelectorOnMainThread:@selector(setNeedsDisplayInRectSafely2:) withObject:[MyRect rectWithCGRect:rect] waitUntilDone:NO];
 }
 
-- (void)drawRect:(CGRect)rect {
+- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+	switch (buttonIndex) {
+		case 0:
+			// Show Print-Out
+			[shell_iphone playSound:10];
+			break;
+		case 1:
+			// HTTP Server
+			[shell_iphone playSound:10];
+			break;
+		case 2:
+			// Select Skin
+			[shell_iphone playSound:10];
+			break;
+		case 3:
+			// Preferences
+			[shell_iphone playSound:10];
+			break;
+		case 4:
+			// About Free42
+			[shell_iphone playSound:10];
+			break;
+		case 5:
+			// Cancel
+			break;
+	}
+}
+
+- (void) showMenu {
+	UIActionSheet *menu =
+	[[UIActionSheet alloc] initWithTitle:nil//@"Main Menu"
+								delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil
+					   otherButtonTitles:@"Show Print-Out", @"HTTP Server", @"Select Skin", @"Preferences", @"About Free42", nil, nil];
+	
+	[menu showInView:self];
+	[menu release];
+}
+
+- (void) drawRect:(CGRect)rect {
 	TRACE("drawRect");
 	if (mainView == nil)
 		[self initialize];
@@ -181,11 +219,13 @@ static MainView *mainView = nil;
 - (void) touchesBegan: (NSSet *) touches withEvent: (UIEvent *) event {
 	TRACE("touchesBegan");
 	[super touchesBegan:touches withEvent:event];
-	if (ckey == 0) {
-		UITouch *touch = (UITouch *) [touches anyObject];
-		CGPoint p = [touch locationInView:self];
-		int x = (int) p.x;
-		int y = (int) p.y;
+	UITouch *touch = (UITouch *) [touches anyObject];
+	CGPoint p = [touch locationInView:self];
+	int x = (int) p.x;
+	int y = (int) p.y;
+	if (skin_in_menu_area(x, y)) {
+		[self showMenu];
+	} else if (ckey == 0) {
 		skin_find_key(x, y, ann_shift != 0, &skey, &ckey);
 		if (ckey != 0) {
 			if (is_running)

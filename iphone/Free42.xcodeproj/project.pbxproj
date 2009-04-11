@@ -51,6 +51,7 @@
 		E98DD76F0F8C1A210089D9FA /* tone7.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD7640F8C1A210089D9FA /* tone7.wav */; };
 		E98DD7700F8C1A210089D9FA /* tone8.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD7650F8C1A210089D9FA /* tone8.wav */; };
 		E98DD7710F8C1A210089D9FA /* tone9.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD7660F8C1A210089D9FA /* tone9.wav */; };
+		E98FA4840F913E2900DED348 /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = E98FA4830F913E2900DED348 /* icon.png */; };
 		E9AEB0890F8FFA4500B369A7 /* MyRect.m in Sources */ = {isa = PBXBuildFile; fileRef = E9AEB0880F8FFA4500B369A7 /* MyRect.m */; };
 		E9B16D590F88DFE2002BB9B2 /* MainView.m in Sources */ = {isa = PBXBuildFile; fileRef = E9B16D580F88DFE2002BB9B2 /* MainView.m */; };
 		E9B16DFA0F88EE46002BB9B2 /* shell_loadimage.cc in Sources */ = {isa = PBXBuildFile; fileRef = E9B16DF80F88EE46002BB9B2 /* shell_loadimage.cc */; };
@@ -132,6 +133,7 @@
 		E98DD7640F8C1A210089D9FA /* tone7.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = tone7.wav; sourceTree = "<group>"; };
 		E98DD7650F8C1A210089D9FA /* tone8.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = tone8.wav; sourceTree = "<group>"; };
 		E98DD7660F8C1A210089D9FA /* tone9.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = tone9.wav; sourceTree = "<group>"; };
+		E98FA4830F913E2900DED348 /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
 		E9AEB0870F8FFA4500B369A7 /* MyRect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyRect.h; sourceTree = "<group>"; };
 		E9AEB0880F8FFA4500B369A7 /* MyRect.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyRect.m; sourceTree = "<group>"; };
 		E9B16D570F88DFE2002BB9B2 /* MainView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainView.h; sourceTree = "<group>"; };
@@ -211,6 +213,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				E98FA4830F913E2900DED348 /* icon.png */,
 				E98DD75C0F8C1A210089D9FA /* squeak.wav */,
 				E98DD75D0F8C1A210089D9FA /* tone0.wav */,
 				E98DD75E0F8C1A210089D9FA /* tone1.wav */,
@@ -353,6 +356,7 @@
 				E98DD76F0F8C1A210089D9FA /* tone7.wav in Resources */,
 				E98DD7700F8C1A210089D9FA /* tone8.wav in Resources */,
 				E98DD7710F8C1A210089D9FA /* tone9.wav in Resources */,
+				E98FA4840F913E2900DED348 /* icon.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
