@@ -34,6 +34,33 @@
 /////                         Ye olde C stuphphe                          /////
 ///////////////////////////////////////////////////////////////////////////////
 
+static int level = 0;
+
+class Tracer {
+private:
+	const char *name;
+public:
+	Tracer(const char *name) {
+		this->name = name;
+		for (int i = 0; i < level; i++)
+			fprintf(stderr, " ");
+		fprintf(stderr, "ENTERING %s\n", name);
+		level++;
+	}
+	~Tracer() {
+		level--;
+		for (int i = 0; i < level; i++)
+			fprintf(stderr, " ");
+		fprintf(stderr, "EXITING %s\n", name);
+	}
+};
+
+#if 0
+#define TRACE(x) Tracer T(x)
+#else
+#define TRACE(x)
+#endif
+		
 static void quit2();
 static void shell_keydown();
 static void shell_keyup();
@@ -62,6 +89,7 @@ static struct {
 
 static int quit_flag = 0;
 static int enqueued;
+static int keep_running = 0;
 static int we_want_cpu = 0;
 static bool is_running = false;
 static pthread_mutex_t is_running_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -96,6 +124,7 @@ static MainView *mainView = nil;
 
 
 - (id)initWithFrame:(CGRect)frame {
+	TRACE("initWithFrame");
     if (self = [super initWithFrame:frame]) {
         // Note: this does not get called when instantiated from a nib file,
 		// so don't bother doing anything here!
@@ -104,11 +133,13 @@ static MainView *mainView = nil;
 }
 
 - (void) setNeedsDisplayInRectSafely2:(id) myrect {
+	TRACE("setNeedsDisplayInRectSafely2");
 	CGRect r = [myrect rect];
 	[self setNeedsDisplayInRect:r];
 }
 
 - (void) setNeedsDisplayInRectSafely:(CGRect) rect {
+	TRACE("setNeedsDisplayInRectSafely");
 	if ([NSThread isMainThread])
 		[self setNeedsDisplayInRect:rect];
 	else
@@ -116,17 +147,20 @@ static MainView *mainView = nil;
 }
 
 - (void)drawRect:(CGRect)rect {
+	TRACE("drawRect");
 	if (mainView == nil)
 		[self initialize];
 	skin_repaint(&rect);
 }
 
 - (void) dealloc {
+	TRACE("dealloc");
 	NSLog(@"Shutting down!");
     [super dealloc];
 }
 
 - (void) touchesBegan3 {
+	TRACE("touchesBegan3");
 	[shell_iphone playSound:11];
 	macro = skin_find_macro(ckey);
 	shell_keydown();
@@ -134,6 +168,7 @@ static MainView *mainView = nil;
 }
 
 - (void) touchesBegan2 {
+	TRACE("touchesBegan2");
 	we_want_cpu = 1;
 	pthread_mutex_lock(&is_running_mutex);
 	while (is_running)
@@ -144,6 +179,7 @@ static MainView *mainView = nil;
 }
 
 - (void) touchesBegan: (NSSet *) touches withEvent: (UIEvent *) event {
+	TRACE("touchesBegan");
 	[super touchesBegan:touches withEvent:event];
 	if (ckey == 0) {
 		UITouch *touch = (UITouch *) [touches anyObject];
@@ -161,10 +197,12 @@ static MainView *mainView = nil;
 }
 
 - (void) touchesEnded3 {
+	TRACE("touchesEnded3");
 	shell_keyup();
 }
 
 - (void) touchesEnded2 {
+	TRACE("touchesEnded2");
 	we_want_cpu = 1;
 	pthread_mutex_lock(&is_running_mutex);
 	while (is_running)
@@ -175,6 +213,7 @@ static MainView *mainView = nil;
 }
 
 - (void) touchesEnded: (NSSet *) touches withEvent: (UIEvent *) event {
+	TRACE("touchesEnded");
 	[super touchesEnded:touches withEvent:event];
 	if (ckey != 0 && mouse_key) {
 		if (is_running)
@@ -185,6 +224,7 @@ static MainView *mainView = nil;
 }
 
 - (void) touchesCancelled: (NSSet *) touches withEvent: (UIEvent *) event {
+	TRACE("touchesCancelled");
 	[super touchesCancelled:touches withEvent:event];
 	if (ckey != 0 && mouse_key) {
 		if (is_running)
@@ -195,14 +235,17 @@ static MainView *mainView = nil;
 }
 
 + (void) quit {
+	TRACE("quit");
 	quit2();
 }
 
 - (void) startRunner {
+	TRACE("startRunner");
 	[self performSelectorInBackground:@selector(runner) withObject:NULL];
 }
 
 - (void) initialize {
+	TRACE("initialize");
 	mainView = self;
 	if (skin_name == nil) {
 		skin_name = @"Realistic";
@@ -229,28 +272,30 @@ static MainView *mainView = nil;
 		fclose(statefile);
 		statefile = NULL;
 	}
-	int keep_running = core_powercycle();
+	keep_running = core_powercycle();
 	if (keep_running)
 		[self startRunner];
 }
 
 - (void) runner {
+	TRACE("runner");
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	int dummy1, dummy2;
 	is_running = true;
-	int keep_running = core_keydown(0, &dummy1, &dummy2);
+	keep_running = core_keydown(0, &dummy1, &dummy2);
 	pthread_mutex_lock(&is_running_mutex);
 	is_running = false;
 	pthread_cond_signal(&is_running_cond);
 	pthread_mutex_unlock(&is_running_mutex);
 	if (quit_flag)
 		[self performSelectorOnMainThread:@selector(quit) withObject:NULL waitUntilDone:NO];
-	else if (keep_running)
+	else if (keep_running && !we_want_cpu)
 		[self performSelectorOnMainThread:@selector(startRunner) withObject:NULL waitUntilDone:NO];
 	[pool release];
 }
 
 - (void) setTimeout:(int) which {
+	TRACE("setTimeout");
 	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(timeout_callback) object:NULL];
 	timeout_which = which;
 	timeout_active = true;
@@ -258,11 +303,13 @@ static MainView *mainView = nil;
 }
 
 - (void) cancelTimeout {
+	TRACE("cancelTimeout");
 	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(timeout_callback) object:NULL];
 	timeout_active = false;
 }
 
 - (void) timeout_callback {
+	TRACE("timeout_callback");
 	timeout_active = false;
 	if (ckey != 0) {
 		if (timeout_which == 1) {
@@ -275,35 +322,41 @@ static MainView *mainView = nil;
 }
 
 - (void) setTimeout3: (int) delay {
+	TRACE("setTimeout3");
 	[self cancelTimeout3];
 	[self performSelector:@selector(timeout3_callback) withObject:NULL afterDelay:(delay / 1000.0)];
 	timeout3_active = true;
 }
 
 - (void) cancelTimeout3 {
+	TRACE("cancelTimeout3");
 	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(timeout3_callback) object:NULL];
 	timeout3_active = false;
 }
 	
 - (void) timeout3_callback {
+	TRACE("timeout3_callback");
 	timeout3_active = false;
-	bool keep_running = core_timeout3(1);
+	keep_running = core_timeout3(1);
 	if (keep_running)
 		[self startRunner];
 }
 
 - (void) setRepeater: (int) delay {
+	TRACE("setRepeater");
 	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(repeater_callback) object:NULL];
 	[self performSelector:@selector(repeater_callback) withObject:NULL afterDelay:(delay / 1000.0)];
 	repeater_active = true;
 }
 
 - (void) cancelRepeater {
+	TRACE("cancelRepeater");
 	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(repeater_callback) object:NULL];
 	repeater_active = false;
 }
 
 - (void) repeater_callback {
+	TRACE("repeater_callback");
 	int repeat = core_repeat();
 	if (repeat != 0)
 		[self setRepeater:(repeat == 1 ? 200 : 100)];
@@ -330,11 +383,13 @@ static union {
 static pthread_mutex_t shell_helper_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 - (void) shell_request_timeout3_helper {
+	TRACE("shell_request_timeout3_helper");
 	[mainView setTimeout3:helper_args.shell_request_timeout3_args.delay];
 	pthread_mutex_unlock(&shell_helper_mutex);
 }
 
 - (void) shell_print_helper {
+	TRACE("shell_print_helper");
 	// TODO
 	pthread_mutex_unlock(&shell_helper_mutex);
 }
@@ -346,6 +401,7 @@ static pthread_mutex_t shell_helper_mutex = PTHREAD_MUTEX_INITIALIZER;
 ///////////////////////////////////////////////////////////////////////////////
 
 static int read_shell_state(int *ver) {
+	TRACE("read_shell_state");
     int magic;
     int version;
     int state_size;
@@ -385,6 +441,7 @@ static int read_shell_state(int *ver) {
 }
 
 static void init_shell_state(int version) {
+	TRACE("init_shell_state");
     switch (version) {
         case -1:
             state.printerToTxtFile = 0;
@@ -404,6 +461,7 @@ static void init_shell_state(int version) {
 }
 
 static void quit2() {
+	TRACE("quit2");
 	mkdir("config", 0755);
     statefile = fopen("config/state", "w");
     if (statefile != NULL)
@@ -415,7 +473,8 @@ static void quit2() {
 }
 
 static void shell_keydown() {
-    int repeat, keep_running;
+	TRACE("shell_keydown");
+    int repeat;
     if (skey == -1)
 		skey = skin_find_skey(ckey);
 	skin_set_pressed_key(skey, mainView);
@@ -430,9 +489,7 @@ static void shell_keydown() {
 	// can't peek ahead in the event queue while core_keydown() is
 	// hogging the CPU on the main thread. (The lack of something like
 	// EventAvail is an annoying omission of the iPhone API.)
-	
-	we_want_cpu = 1;
-	
+		
     if (macro != NULL) {
 		if (*macro == 0) {
 			squeak();
@@ -443,7 +500,9 @@ static void shell_keydown() {
 			skin_display_set_enabled(false);
 		}
 		while (*macro != 0) {
+			we_want_cpu = 1;
 			keep_running = core_keydown(*macro++, &enqueued, &repeat);
+			we_want_cpu = 0;
 			if (*macro != 0 && !enqueued)
 				core_keyup();
 		}
@@ -461,10 +520,11 @@ static void shell_keydown() {
 			*/
 			repeat = 0;
 		}
-    } else
+    } else {
+		we_want_cpu = 1;
 		keep_running = core_keydown(ckey, &enqueued, &repeat);
-	
-	we_want_cpu = 0;
+		we_want_cpu = 0;
+	}
 	
     if (quit_flag)
 		quit2();
@@ -481,21 +541,25 @@ static void shell_keydown() {
 }
 
 static void shell_keyup() {
+	TRACE("shell_keyup");
 	skin_set_pressed_key(-1, mainView);
     ckey = 0;
     skey = -1;
 	[mainView cancelTimeout];
 	[mainView cancelRepeater];
     if (!enqueued) {
-		int keep_running = core_keyup();
+		keep_running = core_keyup();
 		if (quit_flag)
 			quit2();
 		else if (keep_running)
 			[mainView startRunner];
-    }
+    } else if (keep_running) {
+		[mainView startRunner];
+	}
 }
 
 static int write_shell_state() {
+	TRACE("write_shell_state");
     int magic = FREE42_MAGIC;
     int version = FREE42_VERSION;
     int state_size = sizeof(state);
@@ -516,10 +580,12 @@ static int write_shell_state() {
 }
 
 void shell_blitter(const char *bits, int bytesperline, int x, int y, int width, int height) {
+	TRACE("shell_blitter");
 	skin_display_blitter(bits, bytesperline, x, y, width, height, mainView);
 }
 
 void shell_beeper(int frequency, int duration) {
+	TRACE("shell_beeper");
 	const int cutoff_freqs[] = { 164, 220, 243, 275, 293, 324, 366, 418, 438, 550 };
 	for (int i = 0; i < 10; i++) {
 		if (frequency <= cutoff_freqs[i]) {
@@ -533,6 +599,7 @@ void shell_beeper(int frequency, int duration) {
 }
 
 void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
+	TRACE("shell_annunciators");
 	if (updn != -1 && ann_updown != updn) {
 		ann_updown = updn;
 		skin_update_annunciator(1, ann_updown, mainView);
@@ -560,10 +627,12 @@ void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
 }
 
 int shell_wants_cpu() {
+	TRACE("shell_wants_cpu");
 	return we_want_cpu;
 }
 
 void shell_delay(int duration) {
+	TRACE("shell_delay");
     struct timespec ts;
     ts.tv_sec = duration / 1000;
     ts.tv_nsec = (duration % 1000) * 1000000;
@@ -571,12 +640,14 @@ void shell_delay(int duration) {
 }
 
 void shell_request_timeout3(int delay) {
+	TRACE("shell_request_timeout3");
 	pthread_mutex_lock(&shell_helper_mutex);
 	helper_args.shell_request_timeout3_args.delay = delay;
 	[mainView performSelectorOnMainThread:@selector(shell_request_timeout3_helper) withObject:NULL waitUntilDone:NO];
 }
 
 int shell_read_saved_state(void *buf, int bufsize) {
+	TRACE("shell_read_saved_state");
     if (statefile == NULL)
 		return -1;
     else {
@@ -591,6 +662,7 @@ int shell_read_saved_state(void *buf, int bufsize) {
 }
 
 bool shell_write_saved_state(const void *buf, int nbytes) {
+	TRACE("shell_write_saved_state");
     if (statefile == NULL)
 		return false;
     else {
@@ -606,6 +678,7 @@ bool shell_write_saved_state(const void *buf, int nbytes) {
 }
 
 unsigned int shell_get_mem() {
+	TRACE("shell_get_mem");
 	int mib[2];
 	unsigned int memsize;
 	size_t len;
@@ -621,22 +694,26 @@ unsigned int shell_get_mem() {
 }
 
 int shell_low_battery() {
+	TRACE("shell_low_battery");
 	// TODO
 	return 0;
 }
 
 void shell_powerdown() {
+	TRACE("shell_powerdown");
 	quit_flag = 1;
 	we_want_cpu = 1;
 }
 
 double shell_random_seed() {
+	TRACE("shell_random_seed");
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
 	return ((tv.tv_sec * 1000000L + tv.tv_usec) & 0xffffffffL) / 4294967296.0;
 }
 
 unsigned int shell_milliseconds() {
+	TRACE("shell_milliseconds");
 	struct timeval tv;
     gettimeofday(&tv, NULL);
     return (unsigned int) (tv.tv_sec * 1000L + tv.tv_usec / 1000);
@@ -645,6 +722,7 @@ unsigned int shell_milliseconds() {
 void shell_print(const char *text, int length,
 				 const char *bits, int bytesperline,
 				 int x, int y, int width, int height) {
+	TRACE("shell_print");
 	pthread_mutex_lock(&shell_helper_mutex);
 	[mainView performSelectorOnMainThread:@selector(shell_print_helper) withObject:NULL waitUntilDone:NO];
 }
@@ -660,14 +738,17 @@ int shell_read(char *buf, int buflen) {
 */
 
 shell_bcd_table_struct *shell_get_bcd_table() {
+	TRACE("shell_get_bcd_table");
 	return NULL;
 }
 
 shell_bcd_table_struct *shell_put_bcd_table(shell_bcd_table_struct *bcdtab,
 											unsigned int size) {
+	TRACE("shell_put_bcd_table");
 	return bcdtab;
 }
 
 void shell_release_bcd_table(shell_bcd_table_struct *bcdtab) {
+	TRACE("shell_release_bcd_table");
 	free(bcdtab);
 }
