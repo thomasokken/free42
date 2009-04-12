@@ -17,18 +17,9 @@
 
 #import <UIKit/UIKit.h>
 
-@interface MainView : UIView <UIActionSheetDelegate> {
-	//
-}
 
-- (void) initialize;
-- (void) actionSheet:(UIActionSheet *) actionSheet clickedButtonAtIndex:(NSInteger) buttonIndex;
-- (void) touchesBegan: (NSSet *) touches withEvent: (UIEvent *) event;
-- (void) setNeedsDisplayInRectSafely:(CGRect) rect;
-+ (void) quit;
-- (void) setTimeout:(int) which;
-- (void) cancelTimeout3;
-- (void) setRepeater:(int) delay;
-- (void) cancelRepeater;
+@interface AboutView : UIView {
+
+}
 
 @end

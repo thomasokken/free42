@@ -15,20 +15,28 @@
  * along with this program; if not, see http://www.gnu.org/licenses/.
  *****************************************************************************/
 
-#import <UIKit/UIKit.h>
+#import "AboutView.h"
 
-@interface MainView : UIView <UIActionSheetDelegate> {
-	//
+
+@implementation AboutView
+
+
+- (id)initWithFrame:(CGRect)frame {
+    if (self = [super initWithFrame:frame]) {
+        // Initialization code
+    }
+    return self;
 }
 
-- (void) initialize;
-- (void) actionSheet:(UIActionSheet *) actionSheet clickedButtonAtIndex:(NSInteger) buttonIndex;
-- (void) touchesBegan: (NSSet *) touches withEvent: (UIEvent *) event;
-- (void) setNeedsDisplayInRectSafely:(CGRect) rect;
-+ (void) quit;
-- (void) setTimeout:(int) which;
-- (void) cancelTimeout3;
-- (void) setRepeater:(int) delay;
-- (void) cancelRepeater;
+
+- (void)drawRect:(CGRect)rect {
+    // Drawing code
+}
+
+
+- (void)dealloc {
+    [super dealloc];
+}
+
 
 @end

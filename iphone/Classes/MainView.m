@@ -150,23 +150,23 @@ static MainView *mainView = nil;
 	switch (buttonIndex) {
 		case 0:
 			// Show Print-Out
-			[shell_iphone playSound:10];
+			[shell_iphone showPrintOut];
 			break;
 		case 1:
 			// HTTP Server
-			[shell_iphone playSound:10];
+			[shell_iphone showHttpServer];
 			break;
 		case 2:
 			// Select Skin
-			[shell_iphone playSound:10];
+			[shell_iphone showSelectSkin];
 			break;
 		case 3:
 			// Preferences
-			[shell_iphone playSound:10];
+			[shell_iphone showPreferences];
 			break;
 		case 4:
 			// About Free42
-			[shell_iphone playSound:10];
+			[shell_iphone showAbout];
 			break;
 		case 5:
 			// Cancel

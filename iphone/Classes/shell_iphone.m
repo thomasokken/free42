@@ -28,15 +28,24 @@ static SystemSoundID soundIDs[12];
 // From simpleserver.c
 void handle_client(int csock);
 
+static shell_iphone *instance;
 
 @implementation shell_iphone
 
 @synthesize window;
-@synthesize view;
+
+@synthesize containerView;
+@synthesize mainView;
+@synthesize printOutView;
+@synthesize httpServerView;
+@synthesize selectSkinView;
+@synthesize preferencesView;
+@synthesize aboutView;
 
 
 - (void) applicationDidFinishLaunching:(UIApplication *)application {
     // Override point for customization after application launch
+	instance = self;
 
 	const char *sound_names[] = { "tone0", "tone1", "tone2", "tone3", "tone4", "tone5", "tone6", "tone7", "tone8", "tone9", "squeak", "click" };
 	for (int i = 0; i < 12; i++) {
@@ -54,6 +63,12 @@ void handle_client(int csock);
 	// imports and exports are done while programs are running etc.
 	[self performSelectorInBackground:@selector(start_simple_server) withObject:NULL];
 	
+	[containerView addSubview:printOutView];
+	[containerView addSubview:httpServerView];
+	[containerView addSubview:selectSkinView];
+	[containerView addSubview:preferencesView];
+	[containerView addSubview:aboutView];
+	[containerView addSubview:mainView];
     [window makeKeyAndVisible];
 }
 
@@ -63,7 +78,12 @@ void handle_client(int csock);
 
 - (void) dealloc {
     [window release];
-    [view release];
+    [mainView release];
+    [printOutView release];
+    [httpServerView release];
+    [selectSkinView release];
+    [preferencesView release];
+    [aboutView release];
     [super dealloc];
 }
 
@@ -117,6 +137,54 @@ void handle_client(int csock);
 
 + (void) playSound: (int) which {
 	AudioServicesPlaySystemSound(soundIDs[which]);
+}
+
+- (void) showMain2 {
+	[containerView bringSubviewToFront:mainView];
+}
+
++ (void) showMain {
+	[instance showMain2];
+}
+
+- (void) showPrintOut2 {
+	[containerView bringSubviewToFront:printOutView];
+}
+
++ (void) showPrintOut {
+	[instance showPrintOut2];
+}
+
+- (void) showHttpServer2 {
+	[containerView bringSubviewToFront:httpServerView];
+}
+
++ (void) showHttpServer {
+	[instance showHttpServer2];
+}
+
+- (void) showSelectSkin2 {
+	[containerView bringSubviewToFront:selectSkinView];
+}
+
++ (void) showSelectSkin {
+	[instance showSelectSkin2];
+}
+
+- (void) showPreferences2 {
+	[containerView bringSubviewToFront:preferencesView];
+}
+
++ (void) showPreferences {
+	[instance showPreferences2];
+}
+
+- (void) showAbout2 {
+	[containerView bringSubviewToFront:aboutView];
+}
+
++ (void) showAbout {
+	[instance showAbout2];
 }
 
 @end
