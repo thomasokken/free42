@@ -62,6 +62,11 @@ static
 #endif
 void handle_client(int csock);
 
+#ifndef FREE42
+static
+#endif
+void errprintf(char *fmt, ...);
+
 static void sockprintf(int sock, char *fmt, ...);
 static void tbwrite(textbuf *tb, const char *data, int size);
 static void tbprintf(textbuf *tb, const char *fmt, ...);
@@ -112,17 +117,17 @@ void handle_client(int csock) {
 
     req = (char *) malloc(LINEBUFSIZE);
     if (req == NULL) {
-	fprintf(stderr, "Memory allocation failure while allocating line buffer\n");
+	errprintf("Memory allocation failure while allocating line buffer\n");
 	shutdown(csock, SHUT_WR);
 	return;
     }
 
     read_line(csock, req, LINEBUFSIZE);
-    fprintf(stderr, "%s\n", req);
+    errprintf("%s\n", req);
 
     url = strchr(req, ' ');
     if (url == NULL) {
-	fprintf(stderr, "Malformed HTTP request: \"%s\"\n", req);
+	errprintf("Malformed HTTP request: \"%s\"\n", req);
 	shutdown(csock, SHUT_WR);
 	free(req);
 	return;
@@ -130,7 +135,7 @@ void handle_client(int csock) {
 
     protocol = strchr(url + 1, ' ');
     if (protocol == NULL) {
-	fprintf(stderr, "Malformed HTTP request: \"%s\"\n", req);
+	errprintf("Malformed HTTP request: \"%s\"\n", req);
 	shutdown(csock, SHUT_WR);
 	free(req);
 	return;
@@ -139,7 +144,7 @@ void handle_client(int csock) {
     *url++ = 0;
     *protocol++ = 0;
     if (strncmp(protocol, "HTTP/", 5) != 0) {
-	fprintf(stderr, "Unsupported protocol: \"%s\"\n", protocol);
+	errprintf("Unsupported protocol: \"%s\"\n", protocol);
 	shutdown(csock, SHUT_WR);
 	free(req);
 	return;
@@ -150,10 +155,19 @@ void handle_client(int csock) {
     else if (strcmp(req, "POST") == 0)
 	do_post(csock, url);
     else
-	fprintf(stderr, "Unsupported method: \"%s\"\n", req);
+	errprintf("Unsupported method: \"%s\"\n", req);
     shutdown(csock, SHUT_WR);
     free(req);
 }
+
+#ifndef FREE42
+static void errprintf(char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    vfprintf(stderr, fmt, ap);
+    va_end;
+}
+#endif
 
 static void sockprintf(int sock, char *fmt, ...) {
     va_list ap;
@@ -165,7 +179,7 @@ static void sockprintf(int sock, char *fmt, ...) {
     sent = send(sock, text, strlen(text), 0);
     err = errno;
     if (sent != strlen(text))
-	fprintf(stderr, "send() only sent %d out of %d bytes: %s (%d)\n", sent, strlen(text),
+	errprintf("send() only sent %d out of %d bytes: %s (%d)\n", sent, strlen(text),
 		strerror(err), err);
     va_end(ap);
 }
@@ -897,13 +911,13 @@ int main(int argc, char *argv[]) {
     for (i = 1; i < argc; i++) {
 	if (strcmp(argv[i], "-p") == 0) {
 	    if (i == argc - 1 || sscanf(argv[i + 1], "%d", &port) != 1) {
-		fprintf(stderr, "Can't parse port number \"%s\"\n", argv[i + 1]);
+		errprintf("Can't parse port number \"%s\"\n", argv[i + 1]);
 		return 1;
 	    }
 	    i++;
 	} else if (strcmp(argv[i], "-b") == 0) {
 	    if (i == argc - 1 || sscanf(argv[i + 1], "%d", &backlog) != 1) {
-		fprintf(stderr, "Can't parse backlog number \"%s\"\n", argv[i + 1]);
+		errprintf("Can't parse backlog number \"%s\"\n", argv[i + 1]);
 		return 1;
 	    }
 	    i++;
@@ -913,12 +927,12 @@ int main(int argc, char *argv[]) {
 	    else
 		err = chdir(argv[i + 1]);
 	    if (err != 0) {
-		fprintf(stderr, "Can't chdir to docroot \"%s\"\n", argv[i + 1]);
+		errprintf("Can't chdir to docroot \"%s\"\n", argv[i + 1]);
 		return 1;
 	    }
 	    i++;
 	} else {
-	    fprintf(stderr, "Unrecognized option: \"%s\"\n", argv[i]);
+	    errprintf("Unrecognized option: \"%s\"\n", argv[i]);
 	    return 1;
 	}
     }
@@ -926,7 +940,7 @@ int main(int argc, char *argv[]) {
     ssock = socket(AF_INET, SOCK_STREAM, 0);
     if (ssock == -1) {
 	err = errno;
-	fprintf(stderr, "Could not create socket: %s (%d)\n", strerror(err), err);
+	errprintf("Could not create socket: %s (%d)\n", strerror(err), err);
 	return 1;
     }
 
@@ -936,14 +950,14 @@ int main(int argc, char *argv[]) {
     err = bind(ssock, (struct sockaddr *) &sa, sizeof(sa));
     if (err != 0) {
 	err = errno;
-	fprintf(stderr, "Could not bind socket to port %d: %s (%d)\n", port, strerror(err), err);
+	errprintf("Could not bind socket to port %d: %s (%d)\n", port, strerror(err), err);
 	return 1;
     }
 
     err = listen(ssock, backlog);
     if (err != 0) {
 	err = errno;
-	fprintf(stderr, "Could not listen (backlog = %d): %s (%d)\n", backlog, strerror(err), err);
+	errprintf("Could not listen (backlog = %d): %s (%d)\n", backlog, strerror(err), err);
 	return 1;
     }
 
@@ -953,11 +967,11 @@ int main(int argc, char *argv[]) {
 	csock = accept(ssock, (struct sockaddr *) &ca, &n);
 	if (csock == -1) {
 	    err = errno;
-	    fprintf(stderr, "Could not accept connection from client: %s (%d)\n", strerror(err), err);
+	    errprintf("Could not accept connection from client: %s (%d)\n", strerror(err), err);
 	    return 1;
 	}
 	inet_ntop(AF_INET, &ca.sin_addr, cname, sizeof(cname));
-	/*fprintf(stderr, "Accepted connection from %s\n", cname);*/
+	/*errprintf("Accepted connection from %s\n", cname);*/
 	handle_client(csock);
     }
     

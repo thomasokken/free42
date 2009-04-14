@@ -16,10 +16,12 @@
  *****************************************************************************/
 
 #import "PrintOutView.h"
+#import "shell_iphone.h"
 
 
 @implementation PrintOutView
 
+@synthesize doneButton;
 
 - (id)initWithFrame:(CGRect)frame {
     if (self = [super initWithFrame:frame]) {
@@ -28,11 +30,17 @@
     return self;
 }
 
-
 - (void)drawRect:(CGRect)rect {
     // Drawing code
 }
 
+- (void) raised {
+	// start-up code
+}
+
+- (IBAction) done {
+	[shell_iphone showMain];
+}
 
 - (void)dealloc {
     [super dealloc];

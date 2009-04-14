@@ -16,10 +16,14 @@
  *****************************************************************************/
 
 #import "AboutView.h"
+#import "shell_iphone.h"
 
 
 @implementation AboutView
 
+@synthesize doneButton;
+@synthesize versionLabel;
+@synthesize copyrightLabel;
 
 - (id)initWithFrame:(CGRect)frame {
     if (self = [super initWithFrame:frame]) {
@@ -28,11 +32,23 @@
     return self;
 }
 
+- (void) awakeFromNib {
+	// TODO
+	[versionLabel setText:@"Free42 1.4.49"];
+	[copyrightLabel setText:@"(C) 2004-2009 Thomas Okken"];
+}
 
 - (void)drawRect:(CGRect)rect {
     // Drawing code
 }
 
+- (void) raised {
+	// start-up code
+}
+
+- (IBAction) done {
+	[shell_iphone showMain];
+}
 
 - (void)dealloc {
     [super dealloc];

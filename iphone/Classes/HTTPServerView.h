@@ -19,7 +19,16 @@
 
 
 @interface HTTPServerView : UIView {
-
+	UIBarButtonItem *doneButton;
+	UILabel *urlLabel;
+	UITextView *logView;
 }
+
+@property (nonatomic, retain) IBOutlet UIBarButtonItem *doneButton;
+@property (nonatomic, retain) IBOutlet UILabel *urlLabel;
+@property (nonatomic, retain) IBOutlet UITextView *logView;
+
+- (void) raised;
+- (IBAction) done;
 
 @end

@@ -150,15 +150,15 @@
 		E9B16E030F88F015002BB9B2 /* skins.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = skins.cc; sourceTree = "<group>"; };
 		E9B16E840F8907E8002BB9B2 /* shell_skin_iphone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shell_skin_iphone.h; sourceTree = "<group>"; };
 		E9BA0E6F0F92239F0087EBFB /* PrintOutView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrintOutView.h; sourceTree = "<group>"; };
-		E9BA0E700F92239F0087EBFB /* PrintOutView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PrintOutView.m; sourceTree = "<group>"; };
+		E9BA0E700F92239F0087EBFB /* PrintOutView.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = PrintOutView.m; sourceTree = "<group>"; };
 		E9BA0E760F9224480087EBFB /* PreferencesView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesView.h; sourceTree = "<group>"; };
-		E9BA0E770F9224480087EBFB /* PreferencesView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreferencesView.m; sourceTree = "<group>"; };
+		E9BA0E770F9224480087EBFB /* PreferencesView.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = PreferencesView.m; sourceTree = "<group>"; };
 		E9BA0E7B0F92245E0087EBFB /* HTTPServerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPServerView.h; sourceTree = "<group>"; };
-		E9BA0E7C0F92245E0087EBFB /* HTTPServerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HTTPServerView.m; sourceTree = "<group>"; };
+		E9BA0E7C0F92245E0087EBFB /* HTTPServerView.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = HTTPServerView.m; sourceTree = "<group>"; };
 		E9BA0E7E0F9224700087EBFB /* SelectSkinView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectSkinView.h; sourceTree = "<group>"; };
-		E9BA0E7F0F9224700087EBFB /* SelectSkinView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SelectSkinView.m; sourceTree = "<group>"; };
+		E9BA0E7F0F9224700087EBFB /* SelectSkinView.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = SelectSkinView.m; sourceTree = "<group>"; };
 		E9BA0EAC0F9224F00087EBFB /* AboutView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AboutView.h; sourceTree = "<group>"; };
-		E9BA0EAD0F9224F00087EBFB /* AboutView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AboutView.m; sourceTree = "<group>"; };
+		E9BA0EAD0F9224F00087EBFB /* AboutView.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = AboutView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */

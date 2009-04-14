@@ -19,7 +19,12 @@
 
 
 @interface PreferencesView : UIView {
-
+	UIBarButtonItem *doneButton;
 }
+
+@property (nonatomic, retain) IBOutlet UIBarButtonItem *doneButton;
+
+- (void) raised;
+- (IBAction) done;
 
 @end

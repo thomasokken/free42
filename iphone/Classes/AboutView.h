@@ -17,9 +17,17 @@
 
 #import <UIKit/UIKit.h>
 
-
 @interface AboutView : UIView {
-
+	UIBarButtonItem *doneButton;
+	UILabel *versionLabel;
+	UILabel *copyrightLabel;
 }
+
+@property (nonatomic, retain) IBOutlet UIBarButtonItem *doneButton;
+@property (nonatomic, retain) IBOutlet UILabel *versionLabel;
+@property (nonatomic, retain) IBOutlet UILabel *copyrightLabel;
+
+- (void) raised;
+- (IBAction) done;
 
 @end
