@@ -19,7 +19,7 @@
 #import "MainView.h"
 #import "shell_skin.h"
 
-void skin_load(NSString *skinname, long *width, long *height);
+void skin_load(long *width, long *height);
 
 void skin_repaint(CGRect *rect);
 void skin_update_annunciator(int which, int state, MainView *view);

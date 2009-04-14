@@ -18,13 +18,19 @@
 #import <UIKit/UIKit.h>
 
 
-@interface SelectSkinView : UIView {
+@interface SelectSkinView : UIView <UITableViewDelegate, UITableViewDataSource> {
+	NSMutableArray *skinNames;
 	UIBarButtonItem *doneButton;
+	UITableView *skinTable;
 }
 
 @property (nonatomic, retain) IBOutlet UIBarButtonItem *doneButton;
+@property (nonatomic, retain) IBOutlet UITableView *skinTable;
 
 - (void) raised;
 - (IBAction) done;
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath;
+- (UITableViewCell *) tableView:(UITableView *)table cellForRowAtIndexPath:(NSIndexPath*) indexPath;
+- (NSInteger) tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section;
 
 @end

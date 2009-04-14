@@ -17,6 +17,21 @@
 
 #import <UIKit/UIKit.h>
 
+#define SHELL_VERSION 0
+#define FILENAMELEN 1024
+
+typedef struct state_type {
+	int printerToTxtFile;
+	int printerToGifFile;
+	char printerTxtFileName[FILENAMELEN];
+	char printerGifFileName[FILENAMELEN];
+	int printerGifMaxLength;
+	char skinName[FILENAMELEN];
+};
+
+extern state_type state;
+
+
 @interface MainView : UIView <UIActionSheetDelegate> {
 	//
 }
@@ -25,6 +40,7 @@
 - (void) actionSheet:(UIActionSheet *) actionSheet clickedButtonAtIndex:(NSInteger) buttonIndex;
 - (void) touchesBegan: (NSSet *) touches withEvent: (UIEvent *) event;
 - (void) setNeedsDisplayInRectSafely:(CGRect) rect;
++ (void) repaint;
 + (void) quit;
 - (void) setTimeout:(int) which;
 - (void) cancelTimeout3;

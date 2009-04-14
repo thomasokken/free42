@@ -15,6 +15,7 @@
  * along with this program; if not, see http://www.gnu.org/licenses/.
  *****************************************************************************/
 
+#import <sys/stat.h>
 #import <UIKit/UIKit.h>
 
 int main(int argc, char *argv[]) {
@@ -31,6 +32,7 @@ int main(int argc, char *argv[]) {
 	NSLog(@"home = %s", homedir);
 	chdir(homedir);
 	free(homedir);
+	mkdir("skins", 0755);
 
     int retVal = UIApplicationMain(argc, argv, nil, nil);
     [pool release];

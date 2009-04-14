@@ -65,27 +65,14 @@ static void quit2();
 static void shell_keydown();
 static void shell_keyup();
 
-static NSString *skin_name;
 static int skin_width, skin_height;
-
-static const int FILENAMELEN = 1024;
 
 static int read_shell_state(int *version);
 static void init_shell_state(int version);
 static int write_shell_state();
 
-#define SHELL_VERSION 0
-
+state_type state;
 static FILE* statefile;
-
-static struct {
-	int printerToTxtFile;
-	int printerToGifFile;
-	char printerTxtFileName[FILENAMELEN];
-	char printerGifFileName[FILENAMELEN];
-	int printerGifMaxLength;
-	char skinName[FILENAMELEN];
-} state;
 
 static int quit_flag = 0;
 static int enqueued;
@@ -274,6 +261,11 @@ static MainView *mainView = nil;
 	}
 }
 
++ (void) repaint {
+	TRACE("repaint");
+	[mainView setNeedsDisplay];
+}
+
 + (void) quit {
 	TRACE("quit");
 	quit2();
@@ -287,13 +279,6 @@ static MainView *mainView = nil;
 - (void) initialize {
 	TRACE("initialize");
 	mainView = self;
-	if (skin_name == nil) {
-		skin_name = @"Realistic";
-		long w, h;
-		skin_load(skin_name, &w, &h);
-		skin_width = w;
-		skin_height = h;
-	}	
 	statefile = fopen("config/state", "r");
 	int init_mode, version;
 	if (statefile != NULL) {
@@ -307,6 +292,12 @@ static MainView *mainView = nil;
 		init_shell_state(-1);
 		init_mode = 0;
 	}
+
+	long w, h;
+	skin_load(&w, &h);
+	skin_width = w;
+	skin_height = h;
+	
 	core_init(init_mode, version);
 	if (statefile != NULL) {
 		fclose(statefile);

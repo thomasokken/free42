@@ -229,7 +229,7 @@ static int skin_open(const char *skinname, int open_layout) {
 	}
 
 	/* name did not match a built-in skin; look for file */
-	sprintf(namebuf, "%s.%s", skinname, open_layout ? "layout" : "gif");
+	sprintf(namebuf, "skins/%s.%s", skinname, open_layout ? "layout" : "gif");
 	external_file = fopen(namebuf, "rb");
 	return external_file != NULL;
 }
@@ -287,24 +287,23 @@ static void MyProviderReleaseData2(void *info,  const void *data, size_t size) {
 	//free((void *) data);
 }
 
-void skin_load(NSString *nsskinname, long *width, long *height) {
+void skin_load(long *width, long *height) {
 	char line[1024];
 	int success;
 	int size;
 	int kmcap = 0;
 	int lineno = 0;
 
-	const char *skinname = [nsskinname cStringUsingEncoding:NSUTF8StringEncoding];
-	if (skinname[0] == 0) {
+	if (state.skinName[0] == 0) {
 		fallback_on_1st_builtin_skin:
-		skinname = skin_name[0];
+		strcpy(state.skinName, skin_name[0]);
 	}
 
 	/*************************/
 	/* Load skin description */
 	/*************************/
 
-	if (!skin_open(skinname, 1))
+	if (!skin_open(state.skinName, 1))
 		goto fallback_on_1st_builtin_skin;
 
 	if (keylist != NULL)
@@ -470,7 +469,7 @@ void skin_load(NSString *nsskinname, long *width, long *height) {
 	/* Load skin bitmap */
 	/********************/
 
-	if (!skin_open(skinname, 0))
+	if (!skin_open(state.skinName, 0))
 		goto fallback_on_1st_builtin_skin;
 
 	/* shell_loadimage() calls skin_getchar() and skin_rewind() to load the
