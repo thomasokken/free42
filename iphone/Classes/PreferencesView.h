@@ -20,11 +20,34 @@
 
 @interface PreferencesView : UIView {
 	UIBarButtonItem *doneButton;
+	UISwitch *singularMatrixSwitch;
+	UISwitch *matrixOutOfRangeSwitch;
+	UISwitch *autoRepeatSwitch;
+	UISwitch *printToTextSwitch;
+	UITextField *printToTextField;
+	UISwitch *rawTextSwitch;
+	UISwitch *printToGifSwitch;
+	UITextField *printToGifField;
+	UITextField *maxGifLengthField;
 }
 
 @property (nonatomic, retain) IBOutlet UIBarButtonItem *doneButton;
+@property (nonatomic, retain) IBOutlet UISwitch *singularMatrixSwitch;
+@property (nonatomic, retain) IBOutlet UISwitch *matrixOutOfRangeSwitch;
+@property (nonatomic, retain) IBOutlet UISwitch *autoRepeatSwitch;
+@property (nonatomic, retain) IBOutlet UISwitch *printToTextSwitch;
+@property (nonatomic, retain) IBOutlet UITextField *printToTextField;
+@property (nonatomic, retain) IBOutlet UISwitch *rawTextSwitch;
+@property (nonatomic, retain) IBOutlet UISwitch *printToGifSwitch;
+@property (nonatomic, retain) IBOutlet UITextField *printToGifField;
+@property (nonatomic, retain) IBOutlet UITextField *maxGifLengthField;
 
 - (void) raised;
 - (IBAction) done;
+- (IBAction) browseTextFile;
+- (IBAction) browseGifFile;
+- (IBAction) doImport;
+- (IBAction) doExport;
+- (IBAction) clearPrint;
 
 @end
