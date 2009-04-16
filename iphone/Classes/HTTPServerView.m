@@ -104,20 +104,18 @@ static int port;
 }
 
 - (IBAction) done {
-	if (port == 0)
-		return;
-	
-	mustStop = true;
-    int sock = socket(AF_INET, SOCK_STREAM, 0);
-	if (sock != -1) {
-		struct sockaddr_in sa;
-		sa.sin_family = AF_INET;
-		sa.sin_port = htons(port);
-		sa.sin_addr.s_addr = ip_addr;
-		connect(sock, (struct sockaddr *) &sa, sizeof(sa));
-		close(sock);
-	}
-		
+	if (port != 0) {
+		mustStop = true;
+		int sock = socket(AF_INET, SOCK_STREAM, 0);
+		if (sock != -1) {
+			struct sockaddr_in sa;
+			sa.sin_family = AF_INET;
+			sa.sin_port = htons(port);
+			sa.sin_addr.s_addr = ip_addr;
+			connect(sock, (struct sockaddr *) &sa, sizeof(sa));
+			close(sock);
+		}
+	}		
 	[shell_iphone showMain];
 }
 
@@ -179,6 +177,8 @@ static int port;
 	
 done:
 	port = 0;
+	if (ssock != -1)
+		close(ssock);
 	[instance performSelectorOnMainThread:@selector(displayHostAndPort) withObject:nil waitUntilDone:NO];
 	[pool release];
 }
