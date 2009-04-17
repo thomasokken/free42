@@ -17,7 +17,7 @@
 
 #import <UIKit/UIKit.h>
 
-#define SHELL_VERSION 0
+#define SHELL_VERSION 1
 #define FILENAMELEN 1024
 
 typedef struct state_type {
@@ -27,6 +27,7 @@ typedef struct state_type {
 	char printerGifFileName[FILENAMELEN];
 	int printerGifMaxLength;
 	char skinName[FILENAMELEN];
+	int popupKeyboard;
 };
 
 extern state_type state;

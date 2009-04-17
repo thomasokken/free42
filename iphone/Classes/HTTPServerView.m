@@ -20,6 +20,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <ifaddrs.h>
+#include <netdb.h>
 #include <stdarg.h>
 
 #import "HTTPServerView.h"
@@ -32,6 +33,7 @@ void errprintf(char *fmt, ...);
 static HTTPServerView *instance;
 static bool mustStop;
 static in_addr_t ip_addr;
+static NSString *hostname;
 static int port;
 
 @implementation HTTPServerView
@@ -73,6 +75,27 @@ static int port;
 					  (ip_addr >> 8) & 255,
 					  (ip_addr >> 16) & 255,
 					  (ip_addr >> 24) & 255);
+				struct hostent *h = gethostbyaddr(&sa->sin_addr, sizeof(sa->sin_addr), AF_INET);
+				if (h == NULL) {
+					int err = h_errno;
+					const char *s;
+					switch (err) {
+						case HOST_NOT_FOUND: s = "HOST_NOT_FOUND"; break;
+						case TRY_AGAIN: s = "TRY_AGAIN"; break;
+						case NO_RECOVERY: s = "NO_RECOVERY"; break;
+						case NO_DATA: s = "NO_DATA"; break;
+						default: s = "unexpected error code"; break;
+					}
+					NSLog(@"Could not determine my DNS hostname: %s", s);
+					hostname = [[NSString stringWithFormat:@"%d.%d.%d.%d",
+									ip_addr & 255,
+									(ip_addr >> 8) & 255,
+									(ip_addr >> 16) & 255,
+									(ip_addr >> 24) & 255] retain];
+				} else {
+					NSLog(@"My DNS hostname appears to be %s", h->h_name);
+					hostname = [[NSString stringWithCString:h->h_name] retain];
+				}
 				break;
 			}
 		}
@@ -92,14 +115,7 @@ static int port;
 	if (port == 0) {
 		[urlLabel setText:@"(not running)"];
 	} else {
-		// TODO: display hostname instead of IP address, if available;
-		// suppress the port number if it is 80 (yeah, right, are we root?)
-		[urlLabel setText:[NSString stringWithFormat:@"http://%d.%d.%d.%d:%d/",
-						   ip_addr & 255,
-						   (ip_addr >> 8) & 255,
-						   (ip_addr >> 16) & 255,
-						   (ip_addr >> 24) & 255,
-						   port]];
+		[urlLabel setText:[NSString stringWithFormat:@"http://%@:%d/", hostname, port]];
 	}
 }
 
@@ -156,7 +172,9 @@ static int port;
 		goto done;
     }
 	
+	errprintf("The server is listening on port %d.\n", port);
 	[instance performSelectorOnMainThread:@selector(displayHostAndPort) withObject:nil waitUntilDone:NO];
+	
     while (1) {
 		unsigned int n = sizeof(ca);
 		char cname[256];

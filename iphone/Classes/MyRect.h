@@ -17,6 +17,8 @@
 
 #import <Foundation/Foundation.h>
 
+// TODO: Get rid of this; the class I was looking for (for wrapping
+// arbitrary objects in an NSObject) is NSValue.
 
 @interface MyRect : NSObject {
 	CGRect rect;

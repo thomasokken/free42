@@ -17,8 +17,7 @@
 
 #import <UIKit/UIKit.h>
 
-
-@interface PreferencesView : UIView {
+@interface PreferencesView : UIView <UITextFieldDelegate> {
 	UIBarButtonItem *doneButton;
 	UISwitch *singularMatrixSwitch;
 	UISwitch *matrixOutOfRangeSwitch;
@@ -29,6 +28,7 @@
 	UISwitch *printToGifSwitch;
 	UITextField *printToGifField;
 	UITextField *maxGifLengthField;
+	UISwitch *popupKeyboardSwitch;
 }
 
 @property (nonatomic, retain) IBOutlet UIBarButtonItem *doneButton;
@@ -41,13 +41,14 @@
 @property (nonatomic, retain) IBOutlet UISwitch *printToGifSwitch;
 @property (nonatomic, retain) IBOutlet UITextField *printToGifField;
 @property (nonatomic, retain) IBOutlet UITextField *maxGifLengthField;
+@property (nonatomic, retain) IBOutlet UISwitch *popupKeyboardSwitch;
 
 - (void) raised;
+- (void) textFieldDidBeginEditing:(UITextField *)textField;
+- (void) textFieldDidEndEditing:(UITextField *)textField;
+- (BOOL) textFieldShouldReturn:(UITextField *)textField;
 - (IBAction) done;
 - (IBAction) browseTextFile;
 - (IBAction) browseGifFile;
-- (IBAction) doImport;
-- (IBAction) doExport;
-- (IBAction) clearPrint;
 
 @end

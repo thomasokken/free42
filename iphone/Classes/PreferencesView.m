@@ -32,6 +32,7 @@
 @synthesize printToGifSwitch;
 @synthesize printToGifField;
 @synthesize maxGifLengthField;
+@synthesize popupKeyboardSwitch;
 
 - (id) initWithFrame:(CGRect)frame {
     if (self = [super initWithFrame:frame]) {
@@ -54,6 +55,41 @@
 	[printToGifSwitch setOn:(state.printerToGifFile != 0)];
 	[printToGifField setText:[NSString stringWithCString:state.printerGifFileName encoding:NSUTF8StringEncoding]];
 	[maxGifLengthField setText:[NSString stringWithFormat:@"%d", state.printerGifMaxLength]];
+	[popupKeyboardSwitch setOn:(state.popupKeyboard != 0)];
+	
+	// watch the keyboard so we can adjust the user interface if necessary.
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+}
+
+static int keyboard_height = 0;
+static int view_offset = 0;
+
+- (void) keyboardWillShow:(NSNotification *)notif {
+	NSDictionary *userInfo = [notif userInfo];
+	NSValue *v = [userInfo objectForKey:UIKeyboardBoundsUserInfoKey];
+	CGRect r;
+	[v getValue:&r];
+	keyboard_height = r.size.height;
+}
+
+- (void) textFieldDidBeginEditing:(UITextField *)textField {
+	CGRect v_r = [self frame];
+	CGRect tf_r = [textField frame];
+	view_offset = v_r.origin.y + v_r.size.height - keyboard_height - tf_r.origin.y - tf_r.size.height - 5;
+	if (view_offset > 0)
+		view_offset = 0;
+	// TODO: Use animation
+	[self setCenter:CGPointMake([self center].x, [self center].y + view_offset)];
+}
+
+- (void) textFieldDidEndEditing:(UITextField *)textField {
+	// TODO: Use animation
+	[self setCenter:CGPointMake([self center].x, [self center].y - view_offset)];
+}
+
+- (BOOL) textFieldShouldReturn:(UITextField *)textField {
+	[textField resignFirstResponder];
+	return NO;
 }
 
 - (IBAction) browseTextFile {
@@ -64,19 +100,10 @@
 	[shell_iphone playSound:10];
 }
 
-- (IBAction) doImport {
-	[shell_iphone playSound:10];
-}
-
-- (IBAction) doExport {
-	[shell_iphone playSound:10];
-}
-
-- (IBAction) clearPrint {
-	[shell_iphone playSound:10];
-}
-
 - (IBAction) done {
+	// unregister for keyboard notifications while not visible.
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
+
 	core_settings.matrix_singularmatrix = singularMatrixSwitch.on;
 	core_settings.matrix_outofrange = matrixOutOfRangeSwitch.on;
 	core_settings.auto_repeat = autoRepeatSwitch.on;
@@ -97,6 +124,7 @@
 			state.printerGifMaxLength = 32767;
 	} else
 		state.printerGifMaxLength = 256;
+	state.popupKeyboard = popupKeyboardSwitch.on;
 	[shell_iphone showMain];
 }
 

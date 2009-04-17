@@ -133,42 +133,76 @@ static MainView *mainView = nil;
 		[self performSelectorOnMainThread:@selector(setNeedsDisplayInRectSafely2:) withObject:[MyRect rectWithCGRect:rect] waitUntilDone:NO];
 }
 
-- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
-	switch (buttonIndex) {
-		case 0:
-			// Show Print-Out
-			[shell_iphone showPrintOut];
-			break;
-		case 1:
-			// HTTP Server
-			[shell_iphone showHttpServer];
-			break;
-		case 2:
-			// Select Skin
-			[shell_iphone showSelectSkin];
-			break;
-		case 3:
-			// Preferences
-			[shell_iphone showPreferences];
-			break;
-		case 4:
-			// About Free42
-			[shell_iphone showAbout];
-			break;
-		case 5:
-			// Cancel
-			break;
-	}
-}
-
-- (void) showMenu {
+- (void) showMainMenu {
 	UIActionSheet *menu =
-	[[UIActionSheet alloc] initWithTitle:nil//@"Main Menu"
+	[[UIActionSheet alloc] initWithTitle:@"Main Menu"
 								delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil
-					   otherButtonTitles:@"Show Print-Out", @"HTTP Server", @"Select Skin", @"Preferences", @"About Free42", nil, nil];
+					   otherButtonTitles:@"Show Print-Out", @"Program Import & Export", @"Preferences", @"Select Skin", @"About Free42", nil, nil];
 	
 	[menu showInView:self];
 	[menu release];
+}
+
+- (void) showImportExportMenu {
+	UIActionSheet *menu =
+	[[UIActionSheet alloc] initWithTitle:@"Import & Export Menu"
+								delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil
+					   otherButtonTitles:@"Import Programs", @"Export Programs", @"HTTP Server", @"Back", nil, nil, nil];
+	
+	[menu showInView:self];
+	[menu release];
+}
+
+- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+	if ([[actionSheet title] isEqualToString:@"Main Menu"]) {
+		switch (buttonIndex) {
+			case 0:
+				// Show Print-Out
+				[shell_iphone showPrintOut];
+				break;
+			case 1:
+				// Program Import & Export
+				[self showImportExportMenu];
+				break;
+			case 2:
+				// Preferences
+				[shell_iphone showPreferences];
+				break;
+			case 3:
+				// Select Skin
+				[shell_iphone showSelectSkin];
+				break;
+			case 4:
+				// About Free42
+				[shell_iphone showAbout];
+				break;
+			case 5:
+				// Cancel
+				break;
+		}
+	} else {
+		switch (buttonIndex) {
+			case 0:
+				// Import Programs
+				[shell_iphone playSound:10];
+				break;
+			case 1:
+				// Export Programs
+				[shell_iphone playSound:10];
+				break;
+			case 2:
+				// HTTP Server
+				[shell_iphone showHttpServer];
+				break;
+			case 3:
+				// Back
+				[self showMainMenu];
+				break;
+			case 4:
+				// Cancel
+				break;
+		}
+	}
 }
 
 - (void) drawRect:(CGRect)rect {
@@ -211,7 +245,7 @@ static MainView *mainView = nil;
 	int x = (int) p.x;
 	int y = (int) p.y;
 	if (skin_in_menu_area(x, y)) {
-		[self showMenu];
+		[self showMainMenu];
 	} else if (ckey == 0) {
 		skin_find_key(x, y, ann_shift != 0, &skey, &ckey);
 		if (ckey != 0) {
@@ -483,7 +517,10 @@ static void init_shell_state(int version) {
             state.skinName[0] = 0;
             /* fall through */
         case 0:
-            /* current version (SHELL_VERSION = 0),
+			state.popupKeyboard = 0;
+			/* fall through */
+		case 1:
+            /* current version (SHELL_VERSION = 1),
              * so nothing to do here since everything
              * was initialized from the state file.
              */

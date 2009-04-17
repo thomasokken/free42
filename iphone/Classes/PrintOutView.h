@@ -19,12 +19,15 @@
 
 
 @interface PrintOutView : UIView {
+	UIBarButtonItem *clearButton;
 	UIBarButtonItem *doneButton;
 }
 
+@property (nonatomic, retain) IBOutlet UIBarButtonItem *clearButton;
 @property (nonatomic, retain) IBOutlet UIBarButtonItem *doneButton;
 
 - (void) raised;
+- (IBAction) clear;
 - (IBAction) done;
 
 @end

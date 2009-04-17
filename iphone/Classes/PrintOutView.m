@@ -21,6 +21,7 @@
 
 @implementation PrintOutView
 
+@synthesize clearButton;
 @synthesize doneButton;
 
 - (id)initWithFrame:(CGRect)frame {
@@ -36,6 +37,10 @@
 
 - (void) raised {
 	// start-up code
+}
+
+- (IBAction) clear {
+	// TODO
 }
 
 - (IBAction) done {
