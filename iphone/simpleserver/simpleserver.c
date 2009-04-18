@@ -73,7 +73,7 @@ static void tbprintf(textbuf *tb, const char *fmt, ...);
 static void do_get(int csock, const char *url);
 static void do_post(int csock, const char *url);
 static const char *canonicalize_url(const char *url);
-static int open_item(const char *url, void **ptr, int *type, int *filesize);
+static int open_item(const char *url, void **ptr, int *type, int *filesize, const char **real_name);
 static const char *get_mime(const char *ext);
 static void http_error(int csock, int err);
 
@@ -165,7 +165,7 @@ static void errprintf(char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
     vfprintf(stderr, fmt, ap);
-    va_end;
+    va_end(ap);
 }
 #endif
 
@@ -244,7 +244,8 @@ static void do_get(int csock, const char *url) {
 	return;
     }
 
-    err = open_item(url, &ptr, &type, &filesize);
+    const char *real_name = NULL;
+    err = open_item(url, &ptr, &type, &filesize, &real_name);
     if (err != 200) {
 	free((void *) url);
 	http_error(csock, err);
@@ -256,6 +257,8 @@ static void do_get(int csock, const char *url) {
 	sockprintf(csock, "Connection: close\r\n");
 	sockprintf(csock, "Content-Type: %s\r\n", get_mime(url));
 	sockprintf(csock, "Content-Length: %d\r\n", filesize);
+	if (real_name != NULL)
+	    sockprintf(csock, "Content-Disposition: attachment; filename=%s.raw\r\n", real_name);
 	sockprintf(csock, "\r\n");
 	if (type == 0)
 	    send(csock, ptr, filesize, 0);
@@ -714,7 +717,7 @@ int shell_write(const char *buf, int nbytes) {
  * type = 3: real directory; *ptr points to DIR*
  * The caller must close the FILE* or DIR* returned when type = 1 or 3.
  */
-static int open_item(const char *url, void **ptr, int *type, int *filesize) {
+static int open_item(const char *url, void **ptr, int *type, int *filesize, const char **real_name) {
     struct stat statbuf;
     int err;
     int i;
@@ -741,7 +744,7 @@ static int open_item(const char *url, void **ptr, int *type, int *filesize) {
 	 */
 	return 200;
     }
-    if (strcmp(url, "memory/") == 0) {
+    if (strncmp(url, "memory/", 7) == 0) {
 #define NAMEBUFSIZE 1024
 #define MAXPROGS 255
 	static char buf[NAMEBUFSIZE];
@@ -756,11 +759,16 @@ static int open_item(const char *url, void **ptr, int *type, int *filesize) {
 		break;
 	}
 	names[i] = NULL;
-	*type = 2;
-	*ptr = names;
-	return 200;
-    }
-    if (strncmp(url, "memory/", 7) == 0) {
+	
+	if (strcmp(url, "memory/") == 0) {
+	    /* GET /memory/ => return the directory listing */
+	    *type = 2;
+	    *ptr = names;
+	    return 200;
+	}
+
+	/* GET /memory/<program_number> => return the program */
+	
 	/* We treat the remainder of the URL as a decimal number,
 	 * representing a 0-based index into the list of programs.
 	 * TODO: In the other versions of Free42, we can always be
@@ -771,24 +779,45 @@ static int open_item(const char *url, void **ptr, int *type, int *filesize) {
 	 * I think, but dereferencing bad pointers and/or writing
 	 * insane amounts of data are definite possibilities.
 	 */
-	int n;
-	if (sscanf(url + 7, "%d", &n) != 1)
+	int idx;
+	if (sscanf(url + 7, "%d", &idx) != 1)
 	    return 404;
-	if (n < 0)
+	if (idx < 0 || idx >= n)
 	    return 404;
-	/* TODO -- this is where the range check would be nice! */
 	if (export_tb.buf != NULL)
 	    free(export_tb.buf);
 	export_tb.buf = NULL;
 	export_tb.size = 0;
 	export_tb.capacity = 0;
-	core_export_programs(1, &n, NULL);
+	core_export_programs(1, &idx, NULL);
 	if (export_tb.size == 0)
 	    return 404;
 	else {
 	    *ptr = export_tb.buf;
 	    *type = 0;
 	    *filesize = export_tb.size;
+	    /* names[idx] is one of:
+	     * 1) "NAME1" ["NAME2" ...]
+	     * 2) END
+	     * 3) .END.
+	     * we're tweaking this to return, respectively:
+	     * 1) NAME1
+	     * 2) END
+	     * 3) END
+	     */
+	    if (names[idx][0] == '"') {
+		/* One or more of "LBLNAME", separated by spaces */
+		char *secondquote = strchr(names[idx] + 1, '"');
+		*secondquote = 0;
+		*real_name = names[idx] + 1;
+	    } else if (names[idx][0] == '.') {
+		/* .END. */
+		names[idx][4] = 0;
+		*real_name = names[idx] + 1;
+	    } else {
+		/* END */
+		*real_name = names[idx];
+	    }
 	    return 200;
 	}
     }
@@ -862,6 +891,7 @@ static mime_rec mime_list[] = {
     { "txt", "text/plain" },
     { "htm", "text/html" },
     { "html", "text/html" },
+    { "layout", "text/plain" },
     { "raw", "application/octet-stream" },
     { NULL, "application/octet-stream" }
 };

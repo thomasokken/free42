@@ -190,6 +190,8 @@ static int port;
 		}
 		inet_ntop(AF_INET, &ca.sin_addr, cname, sizeof(cname));
 		errprintf("Accepted connection from %s\n", cname);
+		// TODO: call handle_client() on the main thread,
+		// so we don't have to deal with thread safety there
 		handle_client(csock);
     }
 	
