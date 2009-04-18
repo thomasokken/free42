@@ -78,13 +78,15 @@ static int view_offset = 0;
 	view_offset = v_r.origin.y + v_r.size.height - keyboard_height - tf_r.origin.y - tf_r.size.height - 5;
 	if (view_offset > 0)
 		view_offset = 0;
-	// TODO: Use animation
+	[UIView beginAnimations:@"foo" context:NULL];
 	[self setCenter:CGPointMake([self center].x, [self center].y + view_offset)];
+	[UIView commitAnimations];
 }
 
 - (void) textFieldDidEndEditing:(UITextField *)textField {
-	// TODO: Use animation
+	[UIView beginAnimations:@"foo" context:NULL];
 	[self setCenter:CGPointMake([self center].x, [self center].y - view_offset)];
+	[UIView commitAnimations];
 }
 
 - (BOOL) textFieldShouldReturn:(UITextField *)textField {
