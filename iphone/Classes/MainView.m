@@ -147,7 +147,7 @@ static MainView *mainView = nil;
 	UIActionSheet *menu =
 	[[UIActionSheet alloc] initWithTitle:@"Import & Export Menu"
 								delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil
-					   otherButtonTitles:@"Import Programs", @"Export Programs", @"HTTP Server", @"Back", nil, nil, nil];
+					   otherButtonTitles:@"HTTP Server", @"Import Programs", @"Export Programs", @"Back", nil, nil, nil];
 	
 	[menu showInView:self];
 	[menu release];
@@ -183,16 +183,16 @@ static MainView *mainView = nil;
 	} else {
 		switch (buttonIndex) {
 			case 0:
+				// HTTP Server
+				[shell_iphone showHttpServer];
+				break;
+			case 1:
 				// Import Programs
 				[shell_iphone playSound:10];
 				break;
-			case 1:
+			case 2:
 				// Export Programs
 				[shell_iphone playSound:10];
-				break;
-			case 2:
-				// HTTP Server
-				[shell_iphone showHttpServer];
 				break;
 			case 3:
 				// Back
