@@ -16,14 +16,16 @@
  *****************************************************************************/
 
 #import <UIKit/UIKit.h>
-#include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#import <ctype.h>
+#import <stdio.h>
+#import <stdlib.h>
+#import <string.h>
 
-#include "shell_skin_iphone.h"
-#include "shell_loadimage.h"
-#include "core_main.h"
+#import "MainView.h"
+#import "shell_skin_iphone.h"
+#import "shell_skin.h"
+#import "shell_loadimage.h"
+#import "core_main.h"
 
 
 /**************************/

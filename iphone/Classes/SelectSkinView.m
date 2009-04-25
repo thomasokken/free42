@@ -17,6 +17,7 @@
 
 #import <dirent.h>
 #import "SelectSkinView.h"
+#import "MainView.h"
 #import "shell_iphone.h"
 #import "shell_skin_iphone.h"
 #import "core_main.h"

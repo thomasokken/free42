@@ -16,12 +16,14 @@
  *****************************************************************************/
 
 #import <UIKit/UIKit.h>
-#import "MainView.h"
-#import "PrintOutView.h"
-#import "HTTPServerView.h"
-#import "SelectSkinView.h"
-#import "PreferencesView.h"
-#import "AboutView.h"
+
+@class MainView;
+@class PrintOutView;
+@class HTTPServerView;
+@class SelectSkinView;
+@class PreferencesView;
+@class AboutView;
+@class SelectFileView;
 
 @interface shell_iphone : NSObject <UIApplicationDelegate> {
     UIWindow *window;
@@ -32,6 +34,7 @@
 	SelectSkinView *selectSkinView;
 	PreferencesView *preferencesView;
 	AboutView *aboutView;
+	SelectFileView *selectFileView;
 }
 
 @property (nonatomic, retain) IBOutlet UIWindow *window;
@@ -42,6 +45,7 @@
 @property (nonatomic, retain) IBOutlet SelectSkinView *selectSkinView;
 @property (nonatomic, retain) IBOutlet PreferencesView *preferencesView;
 @property (nonatomic, retain) IBOutlet AboutView *aboutView;
+@property (nonatomic, retain) IBOutlet SelectFileView *selectFileView;
 
 + (void) playSound: (int) which;
 + (void) showMain;
@@ -50,6 +54,7 @@
 + (void) showSelectSkin;
 + (void) showPreferences;
 + (void) showAbout;
++ (void) showSelectFile;
 
 @end
 

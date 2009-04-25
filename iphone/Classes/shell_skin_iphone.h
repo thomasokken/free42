@@ -16,8 +16,8 @@
  *****************************************************************************/
 
 #import <UIKit/UIKit.h>
-#import "MainView.h"
-#import "shell_skin.h"
+
+@class MainView;
 
 void skin_load(long *width, long *height);
 

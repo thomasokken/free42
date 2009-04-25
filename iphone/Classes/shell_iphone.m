@@ -17,6 +17,13 @@
 
 #import <AudioToolbox/AudioServices.h>
 
+#import "MainView.h"
+#import "PrintOutView.h"
+#import "HTTPServerView.h"
+#import "SelectSkinView.h"
+#import "PreferencesView.h"
+#import "AboutView.h"
+#import "SelectFileView.h"
 #import "shell_iphone.h"
 
 static SystemSoundID soundIDs[12];
@@ -34,6 +41,7 @@ static shell_iphone *instance;
 @synthesize selectSkinView;
 @synthesize preferencesView;
 @synthesize aboutView;
+@synthesize selectFileView;
 
 
 - (void) applicationDidFinishLaunching:(UIApplication *)application {
@@ -54,6 +62,7 @@ static shell_iphone *instance;
 	[containerView addSubview:selectSkinView];
 	[containerView addSubview:preferencesView];
 	[containerView addSubview:aboutView];
+	[containerView addSubview:selectFileView];
 	[containerView addSubview:mainView];
     [window makeKeyAndVisible];
 }
@@ -128,6 +137,15 @@ static shell_iphone *instance;
 
 + (void) showAbout {
 	[instance showAbout2];
+}
+
+- (void) showSelectFile2 {
+	[selectFileView raised];
+	[containerView bringSubviewToFront:selectFileView];
+}
+
++ (void) showSelectFile {
+	[instance showSelectFile2];
 }
 
 @end
