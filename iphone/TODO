@@ -1,3 +1,11 @@
+SHELL:
+* OFF: shouldn't it just turn the power off, like the Palm version? If not, is
+  there a way to make an application quit with the same kind of "disappear
+  backwards" animation, like what takes place when you exit using the "home"
+  button?
+* Implement "glow" highlight like 42s.
+
+HTTP SERVER:
 * Figure out a way to separate the Free42 stuff from the generic HTTP server
   (or application server) stuff.
 * I'm currently closing the client socket using shutdown(SHUT_WR), which avoids

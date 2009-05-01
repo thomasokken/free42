@@ -20,6 +20,8 @@
 #import <sys/sysctl.h>
 #import <pthread.h>
 
+#import <AudioToolbox/AudioServices.h>
+
 #import "MainView.h"
 #import "MyRect.h"
 #import "free42.h"
@@ -28,6 +30,9 @@
 #import "shell.h"
 #import "shell_iphone.h"
 #import "shell_skin_iphone.h"
+
+// For "audio enable" flag
+#import "core_globals.h"
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -220,7 +225,11 @@ static MainView *mainView = nil;
 
 - (void) touchesBegan3 {
 	TRACE("touchesBegan3");
-	[shell_iphone playSound:11];
+	// TODO -- a separate Keyboard Clicks setting in Preferences would be better;
+	// figuring out how to read Settings -> General -> Sounds -> Keyboard Clicks
+	// would be better still!
+	if (flags.f.audio_enable)
+		AudioServicesPlaySystemSound(1105);
 	macro = skin_find_macro(ckey);
 	shell_keydown();
 	mouse_key = 1;
