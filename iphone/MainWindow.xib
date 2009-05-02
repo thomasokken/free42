@@ -262,7 +262,7 @@
 				<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
 			</object>
 			<object class="IBUIView" id="425754499">
-				<nil key="NSNextResponder"/>
+				<reference key="NSNextResponder"/>
 				<int key="NSvFlags">292</int>
 				<object class="NSMutableArray" key="NSSubviews">
 					<bool key="EncodedWithXMLCoder">YES</bool>
@@ -271,6 +271,7 @@
 						<int key="NSvFlags">290</int>
 						<string key="NSFrameSize">{320, 44}</string>
 						<reference key="NSSuperview" ref="425754499"/>
+						<reference key="NSWindow"/>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
 						<object class="NSArray" key="IBUIItems">
@@ -290,6 +291,7 @@
 						<int key="NSvFlags">292</int>
 						<string key="NSFrame">{{206, 58}, {94, 27}}</string>
 						<reference key="NSSuperview" ref="425754499"/>
+						<reference key="NSWindow"/>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClipsSubviews">YES</bool>
 						<bool key="IBUIMultipleTouchEnabled">YES</bool>
@@ -302,6 +304,7 @@
 						<int key="NSvFlags">292</int>
 						<string key="NSFrame">{{20, 61}, {178, 21}}</string>
 						<reference key="NSSuperview" ref="425754499"/>
+						<reference key="NSWindow"/>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClipsSubviews">YES</bool>
 						<bool key="IBUIUserInteractionEnabled">NO</bool>
@@ -316,6 +319,7 @@
 						<int key="NSvFlags">292</int>
 						<string key="NSFrame">{{206, 93}, {94, 27}}</string>
 						<reference key="NSSuperview" ref="425754499"/>
+						<reference key="NSWindow"/>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClipsSubviews">YES</bool>
 						<bool key="IBUIMultipleTouchEnabled">YES</bool>
@@ -328,6 +332,7 @@
 						<int key="NSvFlags">292</int>
 						<string key="NSFrame">{{20, 96}, {178, 21}}</string>
 						<reference key="NSSuperview" ref="425754499"/>
+						<reference key="NSWindow"/>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClipsSubviews">YES</bool>
 						<bool key="IBUIUserInteractionEnabled">NO</bool>
@@ -342,6 +347,7 @@
 						<int key="NSvFlags">292</int>
 						<string key="NSFrame">{{20, 131}, {178, 21}}</string>
 						<reference key="NSSuperview" ref="425754499"/>
+						<reference key="NSWindow"/>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClipsSubviews">YES</bool>
 						<bool key="IBUIUserInteractionEnabled">NO</bool>
@@ -356,6 +362,7 @@
 						<int key="NSvFlags">292</int>
 						<string key="NSFrame">{{206, 128}, {94, 27}}</string>
 						<reference key="NSSuperview" ref="425754499"/>
+						<reference key="NSWindow"/>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClipsSubviews">YES</bool>
 						<bool key="IBUIMultipleTouchEnabled">YES</bool>
@@ -368,6 +375,7 @@
 						<int key="NSvFlags">292</int>
 						<string key="NSFrame">{{20, 218}, {178, 21}}</string>
 						<reference key="NSSuperview" ref="425754499"/>
+						<reference key="NSWindow"/>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClipsSubviews">YES</bool>
 						<bool key="IBUIUserInteractionEnabled">NO</bool>
@@ -382,6 +390,7 @@
 						<int key="NSvFlags">292</int>
 						<string key="NSFrame">{{206, 215}, {94, 27}}</string>
 						<reference key="NSSuperview" ref="425754499"/>
+						<reference key="NSWindow"/>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClipsSubviews">YES</bool>
 						<bool key="IBUIMultipleTouchEnabled">YES</bool>
@@ -394,6 +403,7 @@
 						<int key="NSvFlags">292</int>
 						<string key="NSFrame">{{20, 250}, {236, 31}}</string>
 						<reference key="NSSuperview" ref="425754499"/>
+						<reference key="NSWindow"/>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
 						<int key="IBUIContentVerticalAlignment">0</int>
@@ -415,6 +425,7 @@
 						<int key="NSvFlags">292</int>
 						<string key="NSFrame">{{264, 250}, {36, 31}}</string>
 						<reference key="NSSuperview" ref="425754499"/>
+						<reference key="NSWindow"/>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
 						<int key="IBUIContentHorizontalAlignment">0</int>
@@ -440,6 +451,7 @@
 						<int key="NSvFlags">292</int>
 						<string key="NSFrame">{{264, 377}, {36, 31}}</string>
 						<reference key="NSSuperview" ref="425754499"/>
+						<reference key="NSWindow"/>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
 						<int key="IBUIContentHorizontalAlignment">0</int>
@@ -461,6 +473,7 @@
 						<int key="NSvFlags">292</int>
 						<string key="NSFrame">{{206, 342}, {94, 27}}</string>
 						<reference key="NSSuperview" ref="425754499"/>
+						<reference key="NSWindow"/>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClipsSubviews">YES</bool>
 						<bool key="IBUIMultipleTouchEnabled">YES</bool>
@@ -473,6 +486,7 @@
 						<int key="NSvFlags">292</int>
 						<string key="NSFrame">{{20, 377}, {236, 31}}</string>
 						<reference key="NSSuperview" ref="425754499"/>
+						<reference key="NSWindow"/>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
 						<int key="IBUIContentVerticalAlignment">0</int>
@@ -494,6 +508,7 @@
 						<int key="NSvFlags">292</int>
 						<string key="NSFrame">{{20, 345}, {178, 21}}</string>
 						<reference key="NSSuperview" ref="425754499"/>
+						<reference key="NSWindow"/>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClipsSubviews">YES</bool>
 						<bool key="IBUIUserInteractionEnabled">NO</bool>
@@ -508,6 +523,7 @@
 						<int key="NSvFlags">292</int>
 						<string key="NSFrame">{{20, 292}, {178, 21}}</string>
 						<reference key="NSSuperview" ref="425754499"/>
+						<reference key="NSWindow"/>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClipsSubviews">YES</bool>
 						<bool key="IBUIUserInteractionEnabled">NO</bool>
@@ -522,6 +538,7 @@
 						<int key="NSvFlags">292</int>
 						<string key="NSFrame">{{206, 289}, {94, 27}}</string>
 						<reference key="NSSuperview" ref="425754499"/>
+						<reference key="NSWindow"/>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClipsSubviews">YES</bool>
 						<bool key="IBUIMultipleTouchEnabled">YES</bool>
@@ -534,6 +551,7 @@
 						<int key="NSvFlags">292</int>
 						<string key="NSFrame">{{206, 416}, {94, 31}}</string>
 						<reference key="NSSuperview" ref="425754499"/>
+						<reference key="NSWindow"/>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
 						<int key="IBUIContentVerticalAlignment">0</int>
@@ -557,6 +575,7 @@
 						<int key="NSvFlags">292</int>
 						<string key="NSFrame">{{20, 421}, {178, 21}}</string>
 						<reference key="NSSuperview" ref="425754499"/>
+						<reference key="NSWindow"/>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClipsSubviews">YES</bool>
 						<bool key="IBUIUserInteractionEnabled">NO</bool>
@@ -571,6 +590,7 @@
 						<int key="NSvFlags">292</int>
 						<string key="NSFrame">{{20, 166}, {178, 21}}</string>
 						<reference key="NSSuperview" ref="425754499"/>
+						<reference key="NSWindow"/>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClipsSubviews">YES</bool>
 						<bool key="IBUIUserInteractionEnabled">NO</bool>
@@ -585,6 +605,7 @@
 						<int key="NSvFlags">292</int>
 						<string key="NSFrame">{{206, 163}, {94, 27}}</string>
 						<reference key="NSSuperview" ref="425754499"/>
+						<reference key="NSWindow"/>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClipsSubviews">YES</bool>
 						<bool key="IBUIMultipleTouchEnabled">YES</bool>
@@ -594,6 +615,8 @@
 					</object>
 				</object>
 				<string key="NSFrameSize">{320, 460}</string>
+				<reference key="NSSuperview"/>
+				<reference key="NSWindow"/>
 				<object class="NSColor" key="IBUIBackgroundColor">
 					<int key="NSColorSpace">3</int>
 					<bytes key="NSWhite">MC42MDA4MDY0NwA</bytes>
@@ -781,10 +804,11 @@
 							<bytes key="NSWhite">MAA</bytes>
 							<reference key="NSCustomColorSpace" ref="886969903"/>
 						</object>
-						<bool key="IBUIClearsOnBeginEditing">YES</bool>
 						<bool key="IBUIAdjustsFontSizeToFit">YES</bool>
 						<float key="IBUIMinimumFontSize">1.700000e+01</float>
-						<object class="IBUITextInputTraits" key="IBUITextInputTraits"/>
+						<object class="IBUITextInputTraits" key="IBUITextInputTraits">
+							<int key="IBUIAutocorrectionType">1</int>
+						</object>
 					</object>
 					<object class="IBUIButton" id="678059741">
 						<reference key="NSNextResponder" ref="861499924"/>
@@ -2204,16 +2228,12 @@
 						<object class="NSMutableArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>cancel</string>
-							<string>down</string>
 							<string>mkDir</string>
 							<string>selectFile</string>
 							<string>typeChanged</string>
-							<string>up</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>id</string>
-							<string>id</string>
 							<string>id</string>
 							<string>id</string>
 							<string>id</string>
