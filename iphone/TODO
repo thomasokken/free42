@@ -3,6 +3,8 @@ SHELL:
   there a way to make an application quit with the same kind of "disappear
   backwards" animation, like what takes place when you exit using the "home"
   button?
+* Use UIApplication.idleTimerDisabled to prevent the screen from dimming while
+  a lengthy operation is in progress.
 * Implement "glow" highlight like 42s.
 
 HTTP SERVER:
@@ -23,10 +25,6 @@ HTTP SERVER:
   be parsed at all.
 * The server does not seem to handle pathnames with spaces correctly. For
   example, try "/Library/Application Support" on the iPod.
-* Get the version number compiled into simpleserver.c by using substitution
-  using sed, and add a Run Script build phase to perform the substitution. The
-  same mechanism could also be used to get the version number displayed in the
-  Options window.
 * http_error() should return a response body -- right now, whenever the server
   reports a 404 or any other error, a Firefox user will only see a blank
   screen. Maybe other browsers are more helpful, but this is bad behavior

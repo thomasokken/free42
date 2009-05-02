@@ -18,7 +18,7 @@
 #import <UIKit/UIKit.h>
 
 
-@interface SelectFileView : UIView <UITextFieldDelegate> {
+@interface SelectFileView : UIView <UITextFieldDelegate, UITableViewDelegate, UITableViewDataSource> {
 	UINavigationItem *navigationItem;
 	UILabel *directoryLabel;
 	UITableView *directoryListingView;
@@ -39,11 +39,12 @@
 - (void) textFieldDidBeginEditing:(UITextField *)textField;
 - (void) textFieldDidEndEditing:(UITextField *)textField;
 - (BOOL) textFieldShouldReturn:(UITextField *)textField;
+- (NSIndexPath *)tableView:(UITableView *)tableView willSelectRowAtIndexPath:(NSIndexPath *)indexPath;
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath;
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section;
 - (IBAction) selectFile;
 - (IBAction) cancel;
 - (IBAction) mkDir;
-- (IBAction) up;
-- (IBAction) down;
 - (IBAction) typeChanged;
 
 @end

@@ -56,14 +56,13 @@
 		E9B16DFA0F88EE46002BB9B2 /* shell_loadimage.cc in Sources */ = {isa = PBXBuildFile; fileRef = E9B16DF80F88EE46002BB9B2 /* shell_loadimage.cc */; };
 		E9B16E040F88F015002BB9B2 /* shell_skin_iphone.m in Sources */ = {isa = PBXBuildFile; fileRef = E9B16E010F88F015002BB9B2 /* shell_skin_iphone.m */; };
 		E9B16E050F88F015002BB9B2 /* skins.cc in Sources */ = {isa = PBXBuildFile; fileRef = E9B16E030F88F015002BB9B2 /* skins.cc */; };
+		E9B1D9230FAC7C51000EB4CD /* VERSION in Resources */ = {isa = PBXBuildFile; fileRef = E9B1D9220FAC7C51000EB4CD /* VERSION */; };
 		E9BA0E710F92239F0087EBFB /* PrintOutView.m in Sources */ = {isa = PBXBuildFile; fileRef = E9BA0E700F92239F0087EBFB /* PrintOutView.m */; };
 		E9BA0E780F9224480087EBFB /* PreferencesView.m in Sources */ = {isa = PBXBuildFile; fileRef = E9BA0E770F9224480087EBFB /* PreferencesView.m */; };
 		E9BA0E7D0F92245E0087EBFB /* HTTPServerView.m in Sources */ = {isa = PBXBuildFile; fileRef = E9BA0E7C0F92245E0087EBFB /* HTTPServerView.m */; };
 		E9BA0E800F9224700087EBFB /* SelectSkinView.m in Sources */ = {isa = PBXBuildFile; fileRef = E9BA0E7F0F9224700087EBFB /* SelectSkinView.m */; };
 		E9BA0EAE0F9224F00087EBFB /* AboutView.m in Sources */ = {isa = PBXBuildFile; fileRef = E9BA0EAD0F9224F00087EBFB /* AboutView.m */; };
 		E9CD216B0FA39C41008E1E65 /* SelectFileView.m in Sources */ = {isa = PBXBuildFile; fileRef = E9CD216A0FA39C41008E1E65 /* SelectFileView.m */; };
-		E9CD218C0FA3AC6F008E1E65 /* down.png in Resources */ = {isa = PBXBuildFile; fileRef = E9CD218B0FA3AC6F008E1E65 /* down.png */; };
-		E9CD218E0FA3AC7F008E1E65 /* up.png in Resources */ = {isa = PBXBuildFile; fileRef = E9CD218D0FA3AC7F008E1E65 /* up.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -150,6 +149,7 @@
 		E9B16E020F88F015002BB9B2 /* shell_skin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shell_skin.h; sourceTree = "<group>"; };
 		E9B16E030F88F015002BB9B2 /* skins.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = skins.cc; sourceTree = "<group>"; };
 		E9B16E840F8907E8002BB9B2 /* shell_skin_iphone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shell_skin_iphone.h; sourceTree = "<group>"; };
+		E9B1D9220FAC7C51000EB4CD /* VERSION */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = VERSION; path = ../VERSION; sourceTree = SOURCE_ROOT; };
 		E9BA0E6F0F92239F0087EBFB /* PrintOutView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrintOutView.h; sourceTree = "<group>"; };
 		E9BA0E700F92239F0087EBFB /* PrintOutView.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = PrintOutView.m; sourceTree = "<group>"; };
 		E9BA0E760F9224480087EBFB /* PreferencesView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesView.h; sourceTree = "<group>"; };
@@ -162,8 +162,6 @@
 		E9BA0EAD0F9224F00087EBFB /* AboutView.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = AboutView.m; sourceTree = "<group>"; };
 		E9CD21690FA39C41008E1E65 /* SelectFileView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectFileView.h; sourceTree = "<group>"; };
 		E9CD216A0FA39C41008E1E65 /* SelectFileView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SelectFileView.m; sourceTree = "<group>"; };
-		E9CD218B0FA3AC6F008E1E65 /* down.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = down.png; sourceTree = "<group>"; };
-		E9CD218D0FA3AC7F008E1E65 /* up.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = up.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -245,8 +243,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				E9CD218D0FA3AC7F008E1E65 /* up.png */,
-				E9CD218B0FA3AC6F008E1E65 /* down.png */,
+				E9B1D9220FAC7C51000EB4CD /* VERSION */,
 				E98FA4830F913E2900DED348 /* icon.png */,
 				E98DD75C0F8C1A210089D9FA /* squeak.wav */,
 				E98DD75D0F8C1A210089D9FA /* tone0.wav */,
@@ -389,8 +386,7 @@
 				E98DD7700F8C1A210089D9FA /* tone8.wav in Resources */,
 				E98DD7710F8C1A210089D9FA /* tone9.wav in Resources */,
 				E98FA4840F913E2900DED348 /* icon.png in Resources */,
-				E9CD218C0FA3AC6F008E1E65 /* down.png in Resources */,
-				E9CD218E0FA3AC7F008E1E65 /* up.png in Resources */,
+				E9B1D9230FAC7C51000EB4CD /* VERSION in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

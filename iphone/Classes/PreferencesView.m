@@ -18,6 +18,7 @@
 #import "PreferencesView.h"
 #import "shell_iphone.h"
 #import "MainView.h"
+#import "SelectFileView.h"
 #import "core_main.h"
 
 @implementation PreferencesView
@@ -95,11 +96,21 @@ static int view_offset = 0;
 }
 
 - (IBAction) browseTextFile {
-	[shell_iphone playSound:10];
+	[SelectFileView raiseWithTitle:@"Select Text File Name" selectTitle:@"OK" types:@"txt,*" selectDir:NO callbackObject:self callbackSelector:@selector(browseTextFileCB:)];
+}
+
+- (void) browseTextFileCB:(NSString *) path {
+	[printToTextField setText:path];
+	// TODO
 }
 
 - (IBAction) browseGifFile {
-	[shell_iphone playSound:10];
+	[SelectFileView raiseWithTitle:@"Select GIF File Name" selectTitle:@"OK" types:@"gif,*" selectDir:NO callbackObject:self callbackSelector:@selector(browseGifFileCB:)];
+}
+
+- (void) browseGifFileCB:(NSString *) path {
+	[printToGifField setText:path];
+	// TODO
 }
 
 - (IBAction) done {

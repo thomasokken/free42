@@ -33,8 +33,7 @@
 }
 
 - (void) awakeFromNib {
-	// TODO
-	[versionLabel setText:@"Free42 1.4.49"];
+	[versionLabel setText:[NSString stringWithFormat:@"Free42 %s", [shell_iphone getVersion]]];
 	[copyrightLabel setText:@"(C) 2004-2009 Thomas Okken"];
 }
 

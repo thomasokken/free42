@@ -31,10 +31,7 @@
 
 #ifdef FREE42
 #include "../../common/core_main.h"
-#endif
-
-#ifndef VERSION
-#define VERSION ""
+const char *get_version();
 #endif
 
 /* TODO:
@@ -421,7 +418,7 @@ static void do_get(int csock, const char *url) {
 	tbprintf(&tb, "    <input type=\"submit\" value=\"Submit\">\n");
 	tbprintf(&tb, "   </form></td></tr>\n");
 	tbprintf(&tb, "   <tr><th colspan=\"4\"><hr></th></tr></table>\n");
-	tbprintf(&tb, "  <address>Free42 " VERSION " HTTP Server</address>\n");
+	tbprintf(&tb, "  <address>Free42 %s HTTP Server</address>\n", get_version());
 	tbprintf(&tb, " </body>\n");
 	tbprintf(&tb, "</html>\n");
 

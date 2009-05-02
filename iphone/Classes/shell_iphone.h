@@ -55,6 +55,7 @@
 + (void) showPreferences;
 + (void) showAbout;
 + (void) showSelectFile;
++ (const char *) getVersion;
 
 @end
 
