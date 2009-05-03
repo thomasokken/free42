@@ -240,6 +240,18 @@ int core_powercycle() MAIN_SECT;
  */
 int core_list_programs(char *buf, int bufsize) MAIN_SECT;
 
+/* core_program_size()
+ * This function returns the size of a program, specified by its index.
+ * The indexes correspond to those returned by core_list_programs(). The caller
+ * should *only* use those indexes; any indexes outside of that range will
+ * cause weirdness and mayhem.
+ * The size returned by this function does not include the 3 bytes for the
+ * END; this matches what the HP-42S displays on line 00, but the caller should
+ * be aware that the actual byte stream produced by core_export_programs() will
+ * be 3 bytes longer.
+ */
+int4 core_program_size(int prgm_index) MAIN_SECT;
+
 /* core_export_programs()
  *
  * This function is called by the shell after the user has selected a nonempty
@@ -317,7 +329,6 @@ extern int repeating_key;
 /* Other functions */
 /*******************/
 
-int4 hp42s_size(int prgm_index) MAIN_SECT;
 void set_alpha_entry(bool state) MAIN_SECT;
 void set_running(bool state) MAIN_SECT;
 bool program_running() MAIN_SECT;

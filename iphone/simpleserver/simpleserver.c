@@ -329,7 +329,7 @@ static void do_get(int csock, const char *url) {
 		while (di != NULL) {
 		    if (strcmp(di->name, "memory") == 0) {
 			di->type = 2;
-			strcpy(di->mtime, "?");
+			strcpy(di->mtime, "-");
 			found = 2;
 			break;
 		    }
@@ -339,7 +339,7 @@ static void do_get(int csock, const char *url) {
 		    di = (dir_item *) malloc(sizeof(dir_item));
 		    di->name = (char *) malloc(7);
 		    strcpy(di->name, "memory");
-		    strcpy(di->mtime, "?");
+		    strcpy(di->mtime, "-");
 		    di->type = 2;
 		    di->next = dir_list;
 		    dir_list = di;
@@ -351,12 +351,13 @@ static void do_get(int csock, const char *url) {
 	    /* type == 2: fake directory for /memory */
 	    char **name = (char **) ptr;
 	    dir_item *dir_tail;
+	    int prgm_index = 0;
 	    while (*name != NULL) {
 		dir_item *di = (dir_item *) malloc(sizeof(dir_item));
 		di->name = *name;
-		di->size = 0;
+		di->size = core_program_size(prgm_index++) + 3;
 		di->type = 1;
-		strcpy(di->mtime, "?");
+		strcpy(di->mtime, "-");
 		di->next = NULL;
 		if (dir_list == NULL)
 		    dir_list = di;

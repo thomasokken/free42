@@ -916,7 +916,7 @@ static int export_hp42s(int index, int (*progress_report)(const char *)) {
     return cancel;
 }
 
-int4 hp42s_size(int prgm_index) {
+int4 core_program_size(int prgm_index) {
     int4 pc = 0;
     int cmd;
     arg_struct arg;

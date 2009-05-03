@@ -956,7 +956,7 @@ static int prgmline2buf(char *buf, int len, int4 line, int highlight,
     }
 
     if (line == 0) {
-	int4 size = hp42s_size(current_prgm);
+	int4 size = core_program_size(current_prgm);
 	string2buf(buf, len, &bufptr, "{ ", 2);
 	bufptr += int2string(size, buf + bufptr, len - bufptr);
 	string2buf(buf, len, &bufptr, "-Byte Prgm }", 12);
