@@ -23,6 +23,7 @@
 
 @synthesize clearButton;
 @synthesize doneButton;
+@synthesize scrollView;
 
 - (id)initWithFrame:(CGRect)frame {
     if (self = [super initWithFrame:frame]) {

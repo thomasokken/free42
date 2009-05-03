@@ -18,13 +18,15 @@
 #import <UIKit/UIKit.h>
 
 
-@interface PrintOutView : UIView {
+@interface PrintOutView : UIView <UIScrollViewDelegate> {
 	UIBarButtonItem *clearButton;
 	UIBarButtonItem *doneButton;
+	UIScrollView *scrollView;
 }
 
 @property (nonatomic, retain) IBOutlet UIBarButtonItem *clearButton;
 @property (nonatomic, retain) IBOutlet UIBarButtonItem *doneButton;
+@property (nonatomic, retain) IBOutlet UIScrollView *scrollView;
 
 - (void) raised;
 - (IBAction) clear;
