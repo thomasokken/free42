@@ -26,7 +26,7 @@
 #import "SelectFileView.h"
 #import "shell_iphone.h"
 
-static SystemSoundID soundIDs[12];
+static SystemSoundID soundIDs[11];
 
 static shell_iphone *instance;
 static char version[32] = "";
@@ -49,8 +49,8 @@ static char version[32] = "";
     // Override point for customization after application launch
 	instance = self;
 
-	const char *sound_names[] = { "tone0", "tone1", "tone2", "tone3", "tone4", "tone5", "tone6", "tone7", "tone8", "tone9", "squeak", "click" };
-	for (int i = 0; i < 12; i++) {
+	const char *sound_names[] = { "tone0", "tone1", "tone2", "tone3", "tone4", "tone5", "tone6", "tone7", "tone8", "tone9", "squeak" };
+	for (int i = 0; i < 11; i++) {
 		NSString *name = [NSString stringWithCString:sound_names[i]];
 		NSString *path = [[NSBundle mainBundle] pathForResource:name ofType:@"wav"];
 		OSStatus status = AudioServicesCreateSystemSoundID((CFURLRef)[NSURL fileURLWithPath:path], &soundIDs[i]);
