@@ -1,3 +1,9 @@
+05-05-2009: (no new code release)
+
+* Added "Ramos240x400" skin for 240x400 Pocket PC devices
+  (Free42PocketPCSkins.zip package). Contributed by Miguel Toro; based on
+  Ramos480x640 by Noe Ramos.
+
 04-04-2009: release 1.4.48
 
 * Fixed PSE; it no longer freezes the UI for one second, but uses a proper
