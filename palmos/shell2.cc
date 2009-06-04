@@ -127,15 +127,23 @@ static void make_skin_list() {
     int i, n;
 
     bool allow_hd = false;
-    bool allow_tall = false;
+    // As of 1.4.49, I'm allowing tall skins regardless of the shape
+    // of the physical screen. The condition that height should be greater
+    // than width has the effect of suppressing tall skins on landscape
+    // screens, i.e., on the Tapwave Zodiac.
+    // Since the code that manages the dynamic input area is protected by
+    // an API feature check, nothing bad should happen if someone were to
+    // try to use a tall skin on a square screen; it won't be usable but
+    // it shouldn't crash.
+    bool allow_tall = true;
     if (feature_set_high_density_present()) {
 	UInt32 attr;
 	WinScreenGetAttribute(winScreenDensity, &attr);
 	allow_hd = attr == kDensityDouble;
-	UInt32 sw, sh;
-	WinScreenGetAttribute(winScreenWidth, &sw);
-	WinScreenGetAttribute(winScreenHeight, &sh);
-	allow_tall = sh > sw;
+	//UInt32 sw, sh;
+	//WinScreenGetAttribute(winScreenWidth, &sw);
+	//WinScreenGetAttribute(winScreenHeight, &sh);
+	//allow_tall = sh > sw;
     }
 
     if (buf == NULL)

@@ -1,3 +1,11 @@
+??-??-????: release 1.4.49
+
+* PalmOS version: tall skins can now be selected on all devices, regardless of
+  whether they have tall screens or not. On most devices, this isn't useful,
+  but the tallness check had the effect of suppressing the 320x450 Ehrling42sm
+  skin on the Tapwave Zodiac, which has a 480x320 screen; the result was that
+  you couldn't use that skin even if you switched to portrait mode.
+
 05-05-2009: (no new code release)
 
 * Added "Ramos240x400" skin for 240x400 Pocket PC devices
