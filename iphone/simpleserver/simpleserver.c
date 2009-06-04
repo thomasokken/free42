@@ -350,7 +350,7 @@ static void do_get(int csock, const char *url) {
 	} else {
 	    /* type == 2: fake directory for /memory */
 	    char **name = (char **) ptr;
-	    dir_item *dir_tail;
+	    dir_item *dir_tail = NULL;
 	    int prgm_index = 0;
 	    while (*name != NULL) {
 		dir_item *di = (dir_item *) malloc(sizeof(dir_item));
