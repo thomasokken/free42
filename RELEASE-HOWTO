@@ -5,11 +5,12 @@ Thomas Okken, 3/4/2009
 particular, check free42/HISTORY to see if it includes the new version number
 and shows it with the correct date and the most recent changes.
 
-2. Under Mac OS X, run free42/build-mac-desktop; this creates the MacDashboard
-package, Free42MacDashboard.<version>.zip. Under Linux, run free42/build-linux;
-this creates the linux package, Free42Linux.<version>.tgz. Under Windows, run
-free42/build-all-except-linux; this creates package.tar, which in turn contains
-the binaries packages for PalmOS, Pocket PC, and Windows
+2. Under Mac OS X, run free42/build-mac-dashboard; this creates the MacDashboard
+package, Free42MacDashboard.<version>.zip. Under Linux, run
+free42/build-gtk-motif; this creates the linux package,
+Free42Linux.<version>.tgz. Under Windows, run
+free42/build-palmos-pocketpc-windows; this creates package.tar, which in turn
+contains the binaries packages for PalmOS, Pocket PC, and Windows
 (Free42PalmOS.<version>.zip, Free42PocketPC.<version>.zip, and
  Free42Windows.<version>.zip), the skins packages for PalmOS, Pocket PC, and
 Windows/Linux (Free42PalmOSSkins.<version>.zip,
