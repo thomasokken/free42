@@ -197,7 +197,7 @@ int docmd_basediv(arg_struct *arg) {
 	return err;
     if ((err = get_base_param(reg_y, &y)) != ERR_NONE)
 	return err;
-    if (y == 0)
+    if (x == 0)
 	return ERR_DIVIDE_BY_0;
     res = y / x;
     if ((err = base_range_check(&res)) != ERR_NONE)

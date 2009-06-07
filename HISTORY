@@ -1,5 +1,8 @@
-??-??-????: release 1.4.49
+08-06-2009: release 1.4.49
 
+* BASE/ tried to catch division by zero by looking at Y instead of X. Oops! The
+  result was that 0/1 would return "Divide by 0" and 1/0 would cause Free42 to
+  crash. Fixed.
 * PalmOS version: tall skins can now be selected on all devices, regardless of
   whether they have tall screens or not. On most devices, this isn't useful,
   but the tallness check had the effect of suppressing the 320x450 Ehrling42sm
