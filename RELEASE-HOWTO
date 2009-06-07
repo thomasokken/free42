@@ -20,8 +20,8 @@ free42/TODO (history.html and todo.html).
 
 3. Go to the Free42 home page at SourceForge, click the link at the end of the
 "Supported Platforms" paragraph to go to the project management page, and log
-in as thomasokken; under My Projects, click Free42; in the menu, click Admin ->
-File Releases.
+in as thomasokken; in the package list, click Free42; on the package page,
+click Manage Packages / Releases.
 
 4. Click "Add Release" for the Free42 package. For the release name, enter the
 Free42 release number, e.g. "1.4.47" (without the quotes). Click "Create This
