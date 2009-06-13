@@ -1,4 +1,9 @@
-08-06-2009: release 1.4.49
+13-06-2009: (no new code release)
+
+* Added "Realistic42s240x400" skin for 240x400 Pocket PC devices
+  (Free42PocketPCSkins.zip package). Conributed by Denis Cesar.
+
+07-06-2009: release 1.4.49
 
 * BASE/ tried to catch division by zero by looking at Y instead of X. Oops! The
   result was that 0/1 would return "Divide by 0" and 1/0 would cause Free42 to
