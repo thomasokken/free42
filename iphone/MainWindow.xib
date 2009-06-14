@@ -2,13 +2,13 @@
 <archive type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="7.03">
 	<data>
 		<int key="IBDocument.SystemTarget">528</int>
-		<string key="IBDocument.SystemVersion">9G55</string>
+		<string key="IBDocument.SystemVersion">9J61</string>
 		<string key="IBDocument.InterfaceBuilderVersion">677</string>
-		<string key="IBDocument.AppKitVersion">949.43</string>
+		<string key="IBDocument.AppKitVersion">949.46</string>
 		<string key="IBDocument.HIToolboxVersion">353.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="221"/>
+			<integer value="65"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -74,7 +74,7 @@
 				<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
 			</object>
 			<object class="IBUIView" id="167011239">
-				<nil key="NSNextResponder"/>
+				<reference key="NSNextResponder"/>
 				<int key="NSvFlags">292</int>
 				<object class="NSMutableArray" key="NSSubviews">
 					<bool key="EncodedWithXMLCoder">YES</bool>
@@ -100,7 +100,7 @@
 					<object class="IBUIImageView" id="809153037">
 						<reference key="NSNextResponder" ref="167011239"/>
 						<int key="NSvFlags">274</int>
-						<string key="NSFrame">{{20, 70}, {48, 48}}</string>
+						<string key="NSFrame">{{20, 70}, {57, 57}}</string>
 						<reference key="NSSuperview" ref="167011239"/>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
@@ -114,7 +114,7 @@
 					<object class="IBUILabel" id="279623685">
 						<reference key="NSNextResponder" ref="167011239"/>
 						<int key="NSvFlags">292</int>
-						<string key="NSFrame">{{20, 126}, {280, 21}}</string>
+						<string key="NSFrame">{{20, 135}, {280, 21}}</string>
 						<reference key="NSSuperview" ref="167011239"/>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClipsSubviews">YES</bool>
@@ -131,7 +131,7 @@
 					<object class="IBUILabel" id="570860089">
 						<reference key="NSNextResponder" ref="167011239"/>
 						<int key="NSvFlags">292</int>
-						<string key="NSFrame">{{20, 170}, {280, 21}}</string>
+						<string key="NSFrame">{{20, 179}, {280, 21}}</string>
 						<reference key="NSSuperview" ref="167011239"/>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClipsSubviews">YES</bool>
@@ -145,7 +145,7 @@
 					<object class="IBUILabel" id="925949528">
 						<reference key="NSNextResponder" ref="167011239"/>
 						<int key="NSvFlags">292</int>
-						<string key="NSFrame">{{20, 199}, {280, 21}}</string>
+						<string key="NSFrame">{{20, 208}, {280, 21}}</string>
 						<reference key="NSSuperview" ref="167011239"/>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClipsSubviews">YES</bool>
@@ -159,7 +159,7 @@
 					<object class="IBUILabel" id="636454757">
 						<reference key="NSNextResponder" ref="167011239"/>
 						<int key="NSvFlags">292</int>
-						<string key="NSFrame">{{20, 228}, {280, 21}}</string>
+						<string key="NSFrame">{{20, 237}, {280, 21}}</string>
 						<reference key="NSSuperview" ref="167011239"/>
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClipsSubviews">YES</bool>
@@ -172,6 +172,7 @@
 					</object>
 				</object>
 				<string key="NSFrameSize">{320, 460}</string>
+				<reference key="NSSuperview"/>
 				<object class="NSColor" key="IBUIBackgroundColor">
 					<int key="NSColorSpace">3</int>
 					<bytes key="NSWhite">MC42MDA4MDY0NwA</bytes>
@@ -601,7 +602,7 @@
 				<bool key="IBUIClearsContextBeforeDrawing">NO</bool>
 			</object>
 			<object class="IBUIView" id="871925477">
-				<reference key="NSNextResponder"/>
+				<nil key="NSNextResponder"/>
 				<int key="NSvFlags">292</int>
 				<object class="NSMutableArray" key="NSSubviews">
 					<bool key="EncodedWithXMLCoder">YES</bool>
@@ -639,7 +640,6 @@
 					</object>
 				</object>
 				<string key="NSFrameSize">{320, 460}</string>
-				<reference key="NSSuperview"/>
 				<object class="NSColor" key="IBUIBackgroundColor">
 					<int key="NSColorSpace">3</int>
 					<bytes key="NSWhite">MQA</bytes>
@@ -1418,11 +1418,11 @@
 						<object class="NSMutableArray" key="children">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<reference ref="860132148"/>
-							<reference ref="809153037"/>
-							<reference ref="279623685"/>
 							<reference ref="570860089"/>
 							<reference ref="925949528"/>
 							<reference ref="636454757"/>
+							<reference ref="809153037"/>
+							<reference ref="279623685"/>
 						</object>
 						<reference key="parent" ref="957960031"/>
 					</object>
