@@ -2,6 +2,9 @@ syntax:regexp
 
 \.DS_Store
 
+^CVS/
+/CVS/
+
 ^gtk/.*\.d
 ^gtk/keymap2cc
 ^gtk/keymap.cc
@@ -26,8 +29,10 @@ syntax:regexp
 ^macdashboard/Free42.wdgt
 ^macdashboard/free42
 ^macdashboard/symlinks
+^macdashboard/.*\.o
 
 ^motif/.*\.d
+^motif/.*\.o
 ^motif/keymap2cc
 ^motif/keymap.cc
 ^motif/skin2cc
