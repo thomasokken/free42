@@ -28,7 +28,7 @@
 
 // From simpleserver.c
 void handle_client(int csock);
-void errprintf(char *fmt, ...);
+void errprintf(const char *fmt, ...);
 
 static HTTPServerView *instance;
 static bool mustStop;
@@ -211,7 +211,7 @@ done:
 	[logView scrollRangeToVisible:r];
 }
 
-void errprintf(char *fmt, ...) {
+void errprintf(const char *fmt, ...) {
 	va_list ap;
     char text[1024];
     va_start(ap, fmt);

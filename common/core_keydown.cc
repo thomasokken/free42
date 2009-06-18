@@ -74,8 +74,8 @@ static void set_solve_integ(int solve) {
     redisplay();
 }
 
-static void view(char *varname, int varlength) KEYDOWN_SECT;
-static void view(char *varname, int varlength) {
+static void view(const char *varname, int varlength) KEYDOWN_SECT;
+static void view(const char *varname, int varlength) {
     arg_struct arg;
     int i, err;
     arg.type = ARGTYPE_STR;
@@ -882,7 +882,7 @@ void keydown_command_entry(int shift, int key) {
     } else if (mode_commandmenu == MENU_INTEG_PARAMS) {
 	int menukey = find_menu_key(key);
 	if (menukey != -1) {
-	    char *name;
+	    const char *name;
 	    int length, i;
 	    switch (menukey) {
 		case 0: name = "LLIM"; length = 4; break;
@@ -2167,7 +2167,7 @@ void keydown_normal_mode(int shift, int key) {
 		return;
 	    } else if (menu == MENU_INTEG_PARAMS) {
 		if (menukey <= 2) {
-		    char *name;
+		    const char *name;
 		    int length;
 		    switch (menukey) {
 			case 0: name = "LLIM"; length = 4; break;

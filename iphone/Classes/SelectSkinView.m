@@ -88,7 +88,7 @@ extern const char *skin_name[];
 	int n = [indexPath indexAtPosition:1];
 	NSString *s = [skinNames objectAtIndex:n];
 	UITableViewCell *cell = [[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:nil];
-	[cell setText:s];
+	cell.textLabel.text = s;
 	return cell;
 }
 

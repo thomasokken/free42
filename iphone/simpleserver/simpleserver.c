@@ -62,9 +62,9 @@ void handle_client(int csock);
 #ifndef FREE42
 static
 #endif
-void errprintf(char *fmt, ...);
+void errprintf(const char *fmt, ...);
 
-static void sockprintf(int sock, char *fmt, ...);
+static void sockprintf(int sock, const char *fmt, ...);
 static void tbwrite(textbuf *tb, const char *data, int size);
 static void tbprintf(textbuf *tb, const char *fmt, ...);
 static void do_get(int csock, const char *url);
@@ -158,7 +158,7 @@ void handle_client(int csock) {
 }
 
 #ifndef FREE42
-static void errprintf(char *fmt, ...) {
+static void errprintf(const char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
     vfprintf(stderr, fmt, ap);
@@ -166,7 +166,7 @@ static void errprintf(char *fmt, ...) {
 }
 #endif
 
-static void sockprintf(int sock, char *fmt, ...) {
+static void sockprintf(int sock, const char *fmt, ...) {
     va_list ap;
     char text[LINEBUFSIZE];
     ssize_t sent;

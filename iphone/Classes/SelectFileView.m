@@ -163,7 +163,7 @@ static int view_offset = 0;
 	if (dirList == NULL || n >= [dirList count])
 		return nil;
 	UITableViewCell *cell = [[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:nil];
-	cell.text = [dirList objectAtIndex:n];
+	cell.textLabel.text = [dirList objectAtIndex:n];
 	return cell;
 }
 

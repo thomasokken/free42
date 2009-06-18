@@ -283,7 +283,7 @@ int start_solve(const char *name, int length, phloat x1, phloat x2) {
 }
 
 typedef struct {
-    char *text;
+    const char *text;
     int length;
 } message_spec;
 

@@ -1058,7 +1058,7 @@ int vartype2string(const vartype *v, char *buf, int buflen) {
 	}
 
 	default: {
-	    char *msg = "UnsuppVarType";
+	    const char *msg = "UnsuppVarType";
 	    int msglen = 13;
 	    int i;
 	    for (i = 0; i < msglen; i++)

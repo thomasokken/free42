@@ -1088,7 +1088,7 @@ int docmd_x_ge_y(arg_struct *arg) {
 }
 
 typedef struct {
-    char *text;
+    const char *text;
     int length;
 } sigma_label_spec;
 

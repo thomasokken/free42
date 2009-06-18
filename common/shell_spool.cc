@@ -21,7 +21,7 @@
 #include "core_main.h"
 
 int hp2ascii(char *dst, const char *src, int srclen) {
-    char *esc;
+    const char *esc;
     unsigned char c;
     int s, d = 0;
     for (s = 0; s < srclen; s++) {

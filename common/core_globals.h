@@ -62,7 +62,7 @@
 #define ERR_NO_VARIABLES           31
 
 typedef struct {
-    char *text;
+    const char *text;
     int length;
 } error_spec;
 
