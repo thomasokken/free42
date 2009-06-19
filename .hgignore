@@ -26,6 +26,8 @@ syntax:regexp
 ^iphone.?/simpleserver/simpleserver
 ^iphone.?/simpleserver/simpleserver.dSYM
 
+^mac/build
+
 ^macdashboard/Free42.wdgt
 ^macdashboard/free42
 ^macdashboard/symlinks
