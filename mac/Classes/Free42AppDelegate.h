@@ -17,7 +17,11 @@
 
 #import <Cocoa/Cocoa.h>
 
-int main(int argc, char *argv[])
-{
-    return NSApplicationMain(argc,  (const char **) argv);
+
+@interface Free42AppDelegate : NSObject {
 }
+
+- (void)applicationDidFinishLaunching:(NSNotification *)aNotification;
+- (void)applicationWillTerminate:(NSNotification *)aNotification;
+
+@end

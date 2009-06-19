@@ -15,9 +15,17 @@
  * along with this program; if not, see http://www.gnu.org/licenses/.
  *****************************************************************************/
 
-#import <Cocoa/Cocoa.h>
+#import "Free42AppDelegate.h"
 
-int main(int argc, char *argv[])
-{
-    return NSApplicationMain(argc,  (const char **) argv);
+
+@implementation Free42AppDelegate
+
+- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+	NSLog(@"Application did finish launching!!!");
 }
+
+- (void)applicationWillTerminate:(NSNotification *)aNotification {
+	NSLog(@"Application will terminate!!!");
+}
+
+@end

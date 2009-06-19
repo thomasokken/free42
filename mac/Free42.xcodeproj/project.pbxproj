@@ -12,6 +12,31 @@
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		E942DD170FEBEFB600CA75AD /* icon-64x64.png in Resources */ = {isa = PBXBuildFile; fileRef = E942DD160FEBEFB600CA75AD /* icon-64x64.png */; };
+		E959D3DD0FEC09C4007C56A4 /* Free42AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E959D3DC0FEC09C4007C56A4 /* Free42AppDelegate.m */; };
+		E959D42C0FEC0A44007C56A4 /* bcd.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D3FA0FEC0A44007C56A4 /* bcd.cc */; };
+		E959D42D0FEC0A44007C56A4 /* bcdfloat.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D3FC0FEC0A44007C56A4 /* bcdfloat.cc */; };
+		E959D42E0FEC0A44007C56A4 /* bcdmath.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D3FE0FEC0A44007C56A4 /* bcdmath.cc */; };
+		E959D42F0FEC0A44007C56A4 /* core_commands1.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4000FEC0A44007C56A4 /* core_commands1.cc */; };
+		E959D4300FEC0A44007C56A4 /* core_commands2.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4020FEC0A44007C56A4 /* core_commands2.cc */; };
+		E959D4310FEC0A44007C56A4 /* core_commands3.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4040FEC0A44007C56A4 /* core_commands3.cc */; };
+		E959D4320FEC0A44007C56A4 /* core_commands4.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4060FEC0A44007C56A4 /* core_commands4.cc */; };
+		E959D4330FEC0A44007C56A4 /* core_commands5.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4080FEC0A44007C56A4 /* core_commands5.cc */; };
+		E959D4340FEC0A44007C56A4 /* core_commands6.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D40A0FEC0A44007C56A4 /* core_commands6.cc */; };
+		E959D4350FEC0A44007C56A4 /* core_display.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D40C0FEC0A44007C56A4 /* core_display.cc */; };
+		E959D4360FEC0A44007C56A4 /* core_globals.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D40E0FEC0A44007C56A4 /* core_globals.cc */; };
+		E959D4370FEC0A44007C56A4 /* core_helpers.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4100FEC0A44007C56A4 /* core_helpers.cc */; };
+		E959D4380FEC0A44007C56A4 /* core_keydown.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4120FEC0A44007C56A4 /* core_keydown.cc */; };
+		E959D4390FEC0A44007C56A4 /* core_linalg1.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4140FEC0A44007C56A4 /* core_linalg1.cc */; };
+		E959D43A0FEC0A44007C56A4 /* core_linalg2.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4160FEC0A44007C56A4 /* core_linalg2.cc */; };
+		E959D43B0FEC0A44007C56A4 /* core_main.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4180FEC0A44007C56A4 /* core_main.cc */; };
+		E959D43C0FEC0A44007C56A4 /* core_math1.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D41A0FEC0A44007C56A4 /* core_math1.cc */; };
+		E959D43D0FEC0A44007C56A4 /* core_math2.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D41C0FEC0A44007C56A4 /* core_math2.cc */; };
+		E959D43E0FEC0A44007C56A4 /* core_phloat.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D41E0FEC0A44007C56A4 /* core_phloat.cc */; };
+		E959D43F0FEC0A44007C56A4 /* core_sto_rcl.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4200FEC0A44007C56A4 /* core_sto_rcl.cc */; };
+		E959D4400FEC0A44007C56A4 /* core_tables.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4220FEC0A44007C56A4 /* core_tables.cc */; };
+		E959D4410FEC0A44007C56A4 /* core_variables.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4240FEC0A44007C56A4 /* core_variables.cc */; };
+		E959D4420FEC0A44007C56A4 /* shell_loadimage.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4280FEC0A44007C56A4 /* shell_loadimage.cc */; };
+		E959D4430FEC0A44007C56A4 /* shell_spool.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D42A0FEC0A44007C56A4 /* shell_spool.cc */; };
 		E97C41390FEBC6BE00772516 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = E97C41380FEBC6BE00772516 /* icon.icns */; };
 /* End PBXBuildFile section */
 
@@ -27,6 +52,58 @@
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* Free42.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Free42.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E942DD160FEBEFB600CA75AD /* icon-64x64.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-64x64.png"; sourceTree = "<group>"; };
+		E959D3DC0FEC09C4007C56A4 /* Free42AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Free42AppDelegate.m; path = Classes/Free42AppDelegate.m; sourceTree = "<group>"; };
+		E959D3DE0FEC09CF007C56A4 /* Free42AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Free42AppDelegate.h; path = Classes/Free42AppDelegate.h; sourceTree = "<group>"; };
+		E959D3FA0FEC0A44007C56A4 /* bcd.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bcd.cc; path = ../common/bcd.cc; sourceTree = SOURCE_ROOT; };
+		E959D3FB0FEC0A44007C56A4 /* bcd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bcd.h; path = ../common/bcd.h; sourceTree = SOURCE_ROOT; };
+		E959D3FC0FEC0A44007C56A4 /* bcdfloat.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bcdfloat.cc; path = ../common/bcdfloat.cc; sourceTree = SOURCE_ROOT; };
+		E959D3FD0FEC0A44007C56A4 /* bcdfloat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bcdfloat.h; path = ../common/bcdfloat.h; sourceTree = SOURCE_ROOT; };
+		E959D3FE0FEC0A44007C56A4 /* bcdmath.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bcdmath.cc; path = ../common/bcdmath.cc; sourceTree = SOURCE_ROOT; };
+		E959D3FF0FEC0A44007C56A4 /* bcdmath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bcdmath.h; path = ../common/bcdmath.h; sourceTree = SOURCE_ROOT; };
+		E959D4000FEC0A44007C56A4 /* core_commands1.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_commands1.cc; path = ../common/core_commands1.cc; sourceTree = SOURCE_ROOT; };
+		E959D4010FEC0A44007C56A4 /* core_commands1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_commands1.h; path = ../common/core_commands1.h; sourceTree = SOURCE_ROOT; };
+		E959D4020FEC0A44007C56A4 /* core_commands2.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_commands2.cc; path = ../common/core_commands2.cc; sourceTree = SOURCE_ROOT; };
+		E959D4030FEC0A44007C56A4 /* core_commands2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_commands2.h; path = ../common/core_commands2.h; sourceTree = SOURCE_ROOT; };
+		E959D4040FEC0A44007C56A4 /* core_commands3.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_commands3.cc; path = ../common/core_commands3.cc; sourceTree = SOURCE_ROOT; };
+		E959D4050FEC0A44007C56A4 /* core_commands3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_commands3.h; path = ../common/core_commands3.h; sourceTree = SOURCE_ROOT; };
+		E959D4060FEC0A44007C56A4 /* core_commands4.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_commands4.cc; path = ../common/core_commands4.cc; sourceTree = SOURCE_ROOT; };
+		E959D4070FEC0A44007C56A4 /* core_commands4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_commands4.h; path = ../common/core_commands4.h; sourceTree = SOURCE_ROOT; };
+		E959D4080FEC0A44007C56A4 /* core_commands5.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_commands5.cc; path = ../common/core_commands5.cc; sourceTree = SOURCE_ROOT; };
+		E959D4090FEC0A44007C56A4 /* core_commands5.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_commands5.h; path = ../common/core_commands5.h; sourceTree = SOURCE_ROOT; };
+		E959D40A0FEC0A44007C56A4 /* core_commands6.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_commands6.cc; path = ../common/core_commands6.cc; sourceTree = SOURCE_ROOT; };
+		E959D40B0FEC0A44007C56A4 /* core_commands6.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_commands6.h; path = ../common/core_commands6.h; sourceTree = SOURCE_ROOT; };
+		E959D40C0FEC0A44007C56A4 /* core_display.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_display.cc; path = ../common/core_display.cc; sourceTree = SOURCE_ROOT; };
+		E959D40D0FEC0A44007C56A4 /* core_display.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_display.h; path = ../common/core_display.h; sourceTree = SOURCE_ROOT; };
+		E959D40E0FEC0A44007C56A4 /* core_globals.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_globals.cc; path = ../common/core_globals.cc; sourceTree = SOURCE_ROOT; };
+		E959D40F0FEC0A44007C56A4 /* core_globals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_globals.h; path = ../common/core_globals.h; sourceTree = SOURCE_ROOT; };
+		E959D4100FEC0A44007C56A4 /* core_helpers.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_helpers.cc; path = ../common/core_helpers.cc; sourceTree = SOURCE_ROOT; };
+		E959D4110FEC0A44007C56A4 /* core_helpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_helpers.h; path = ../common/core_helpers.h; sourceTree = SOURCE_ROOT; };
+		E959D4120FEC0A44007C56A4 /* core_keydown.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_keydown.cc; path = ../common/core_keydown.cc; sourceTree = SOURCE_ROOT; };
+		E959D4130FEC0A44007C56A4 /* core_keydown.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_keydown.h; path = ../common/core_keydown.h; sourceTree = SOURCE_ROOT; };
+		E959D4140FEC0A44007C56A4 /* core_linalg1.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_linalg1.cc; path = ../common/core_linalg1.cc; sourceTree = SOURCE_ROOT; };
+		E959D4150FEC0A44007C56A4 /* core_linalg1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_linalg1.h; path = ../common/core_linalg1.h; sourceTree = SOURCE_ROOT; };
+		E959D4160FEC0A44007C56A4 /* core_linalg2.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_linalg2.cc; path = ../common/core_linalg2.cc; sourceTree = SOURCE_ROOT; };
+		E959D4170FEC0A44007C56A4 /* core_linalg2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_linalg2.h; path = ../common/core_linalg2.h; sourceTree = SOURCE_ROOT; };
+		E959D4180FEC0A44007C56A4 /* core_main.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_main.cc; path = ../common/core_main.cc; sourceTree = SOURCE_ROOT; };
+		E959D4190FEC0A44007C56A4 /* core_main.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_main.h; path = ../common/core_main.h; sourceTree = SOURCE_ROOT; };
+		E959D41A0FEC0A44007C56A4 /* core_math1.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_math1.cc; path = ../common/core_math1.cc; sourceTree = SOURCE_ROOT; };
+		E959D41B0FEC0A44007C56A4 /* core_math1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_math1.h; path = ../common/core_math1.h; sourceTree = SOURCE_ROOT; };
+		E959D41C0FEC0A44007C56A4 /* core_math2.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_math2.cc; path = ../common/core_math2.cc; sourceTree = SOURCE_ROOT; };
+		E959D41D0FEC0A44007C56A4 /* core_math2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_math2.h; path = ../common/core_math2.h; sourceTree = SOURCE_ROOT; };
+		E959D41E0FEC0A44007C56A4 /* core_phloat.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_phloat.cc; path = ../common/core_phloat.cc; sourceTree = SOURCE_ROOT; };
+		E959D41F0FEC0A44007C56A4 /* core_phloat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_phloat.h; path = ../common/core_phloat.h; sourceTree = SOURCE_ROOT; };
+		E959D4200FEC0A44007C56A4 /* core_sto_rcl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_sto_rcl.cc; path = ../common/core_sto_rcl.cc; sourceTree = SOURCE_ROOT; };
+		E959D4210FEC0A44007C56A4 /* core_sto_rcl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_sto_rcl.h; path = ../common/core_sto_rcl.h; sourceTree = SOURCE_ROOT; };
+		E959D4220FEC0A44007C56A4 /* core_tables.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_tables.cc; path = ../common/core_tables.cc; sourceTree = SOURCE_ROOT; };
+		E959D4230FEC0A44007C56A4 /* core_tables.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_tables.h; path = ../common/core_tables.h; sourceTree = SOURCE_ROOT; };
+		E959D4240FEC0A44007C56A4 /* core_variables.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_variables.cc; path = ../common/core_variables.cc; sourceTree = SOURCE_ROOT; };
+		E959D4250FEC0A44007C56A4 /* core_variables.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_variables.h; path = ../common/core_variables.h; sourceTree = SOURCE_ROOT; };
+		E959D4260FEC0A44007C56A4 /* free42.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = free42.h; path = ../common/free42.h; sourceTree = SOURCE_ROOT; };
+		E959D4270FEC0A44007C56A4 /* shell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shell.h; path = ../common/shell.h; sourceTree = SOURCE_ROOT; };
+		E959D4280FEC0A44007C56A4 /* shell_loadimage.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = shell_loadimage.cc; path = ../common/shell_loadimage.cc; sourceTree = SOURCE_ROOT; };
+		E959D4290FEC0A44007C56A4 /* shell_loadimage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shell_loadimage.h; path = ../common/shell_loadimage.h; sourceTree = SOURCE_ROOT; };
+		E959D42A0FEC0A44007C56A4 /* shell_spool.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = shell_spool.cc; path = ../common/shell_spool.cc; sourceTree = SOURCE_ROOT; };
+		E959D42B0FEC0A44007C56A4 /* shell_spool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shell_spool.h; path = ../common/shell_spool.h; sourceTree = SOURCE_ROOT; };
 		E97C41380FEBC6BE00772516 /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = icon.icns; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -45,6 +122,8 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				E959D3DE0FEC09CF007C56A4 /* Free42AppDelegate.h */,
+				E959D3DC0FEC09C4007C56A4 /* Free42AppDelegate.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -78,6 +157,7 @@
 		29B97314FDCFA39411CA2CEA /* Free42 */ = {
 			isa = PBXGroup;
 			children = (
+				E959D3F90FEC0A0B007C56A4 /* Common */,
 				080E96DDFE201D6D7F000001 /* Classes */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
@@ -115,6 +195,63 @@
 				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		E959D3F90FEC0A0B007C56A4 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				E959D3FA0FEC0A44007C56A4 /* bcd.cc */,
+				E959D3FB0FEC0A44007C56A4 /* bcd.h */,
+				E959D3FC0FEC0A44007C56A4 /* bcdfloat.cc */,
+				E959D3FD0FEC0A44007C56A4 /* bcdfloat.h */,
+				E959D3FE0FEC0A44007C56A4 /* bcdmath.cc */,
+				E959D3FF0FEC0A44007C56A4 /* bcdmath.h */,
+				E959D4000FEC0A44007C56A4 /* core_commands1.cc */,
+				E959D4010FEC0A44007C56A4 /* core_commands1.h */,
+				E959D4020FEC0A44007C56A4 /* core_commands2.cc */,
+				E959D4030FEC0A44007C56A4 /* core_commands2.h */,
+				E959D4040FEC0A44007C56A4 /* core_commands3.cc */,
+				E959D4050FEC0A44007C56A4 /* core_commands3.h */,
+				E959D4060FEC0A44007C56A4 /* core_commands4.cc */,
+				E959D4070FEC0A44007C56A4 /* core_commands4.h */,
+				E959D4080FEC0A44007C56A4 /* core_commands5.cc */,
+				E959D4090FEC0A44007C56A4 /* core_commands5.h */,
+				E959D40A0FEC0A44007C56A4 /* core_commands6.cc */,
+				E959D40B0FEC0A44007C56A4 /* core_commands6.h */,
+				E959D40C0FEC0A44007C56A4 /* core_display.cc */,
+				E959D40D0FEC0A44007C56A4 /* core_display.h */,
+				E959D40E0FEC0A44007C56A4 /* core_globals.cc */,
+				E959D40F0FEC0A44007C56A4 /* core_globals.h */,
+				E959D4100FEC0A44007C56A4 /* core_helpers.cc */,
+				E959D4110FEC0A44007C56A4 /* core_helpers.h */,
+				E959D4120FEC0A44007C56A4 /* core_keydown.cc */,
+				E959D4130FEC0A44007C56A4 /* core_keydown.h */,
+				E959D4140FEC0A44007C56A4 /* core_linalg1.cc */,
+				E959D4150FEC0A44007C56A4 /* core_linalg1.h */,
+				E959D4160FEC0A44007C56A4 /* core_linalg2.cc */,
+				E959D4170FEC0A44007C56A4 /* core_linalg2.h */,
+				E959D4180FEC0A44007C56A4 /* core_main.cc */,
+				E959D4190FEC0A44007C56A4 /* core_main.h */,
+				E959D41A0FEC0A44007C56A4 /* core_math1.cc */,
+				E959D41B0FEC0A44007C56A4 /* core_math1.h */,
+				E959D41C0FEC0A44007C56A4 /* core_math2.cc */,
+				E959D41D0FEC0A44007C56A4 /* core_math2.h */,
+				E959D41E0FEC0A44007C56A4 /* core_phloat.cc */,
+				E959D41F0FEC0A44007C56A4 /* core_phloat.h */,
+				E959D4200FEC0A44007C56A4 /* core_sto_rcl.cc */,
+				E959D4210FEC0A44007C56A4 /* core_sto_rcl.h */,
+				E959D4220FEC0A44007C56A4 /* core_tables.cc */,
+				E959D4230FEC0A44007C56A4 /* core_tables.h */,
+				E959D4240FEC0A44007C56A4 /* core_variables.cc */,
+				E959D4250FEC0A44007C56A4 /* core_variables.h */,
+				E959D4260FEC0A44007C56A4 /* free42.h */,
+				E959D4270FEC0A44007C56A4 /* shell.h */,
+				E959D4280FEC0A44007C56A4 /* shell_loadimage.cc */,
+				E959D4290FEC0A44007C56A4 /* shell_loadimage.h */,
+				E959D42A0FEC0A44007C56A4 /* shell_spool.cc */,
+				E959D42B0FEC0A44007C56A4 /* shell_spool.h */,
+			);
+			name = Common;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -175,6 +312,31 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D11072D0486CEB800E47090 /* main.m in Sources */,
+				E959D3DD0FEC09C4007C56A4 /* Free42AppDelegate.m in Sources */,
+				E959D42C0FEC0A44007C56A4 /* bcd.cc in Sources */,
+				E959D42D0FEC0A44007C56A4 /* bcdfloat.cc in Sources */,
+				E959D42E0FEC0A44007C56A4 /* bcdmath.cc in Sources */,
+				E959D42F0FEC0A44007C56A4 /* core_commands1.cc in Sources */,
+				E959D4300FEC0A44007C56A4 /* core_commands2.cc in Sources */,
+				E959D4310FEC0A44007C56A4 /* core_commands3.cc in Sources */,
+				E959D4320FEC0A44007C56A4 /* core_commands4.cc in Sources */,
+				E959D4330FEC0A44007C56A4 /* core_commands5.cc in Sources */,
+				E959D4340FEC0A44007C56A4 /* core_commands6.cc in Sources */,
+				E959D4350FEC0A44007C56A4 /* core_display.cc in Sources */,
+				E959D4360FEC0A44007C56A4 /* core_globals.cc in Sources */,
+				E959D4370FEC0A44007C56A4 /* core_helpers.cc in Sources */,
+				E959D4380FEC0A44007C56A4 /* core_keydown.cc in Sources */,
+				E959D4390FEC0A44007C56A4 /* core_linalg1.cc in Sources */,
+				E959D43A0FEC0A44007C56A4 /* core_linalg2.cc in Sources */,
+				E959D43B0FEC0A44007C56A4 /* core_main.cc in Sources */,
+				E959D43C0FEC0A44007C56A4 /* core_math1.cc in Sources */,
+				E959D43D0FEC0A44007C56A4 /* core_math2.cc in Sources */,
+				E959D43E0FEC0A44007C56A4 /* core_phloat.cc in Sources */,
+				E959D43F0FEC0A44007C56A4 /* core_sto_rcl.cc in Sources */,
+				E959D4400FEC0A44007C56A4 /* core_tables.cc in Sources */,
+				E959D4410FEC0A44007C56A4 /* core_variables.cc in Sources */,
+				E959D4420FEC0A44007C56A4 /* shell_loadimage.cc in Sources */,
+				E959D4430FEC0A44007C56A4 /* shell_spool.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
