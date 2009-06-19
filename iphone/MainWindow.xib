@@ -136,7 +136,7 @@
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClipsSubviews">YES</bool>
 						<bool key="IBUIUserInteractionEnabled">NO</bool>
-						<string key="IBUIText">(C) 2004-2084 Thomas Okken</string>
+						<string type="base64-UTF8" key="IBUIText">wqkgMjAwNC0yMDg0IFRob21hcyBPa2tlbg</string>
 						<reference key="IBUITextColor" ref="916630806"/>
 						<nil key="IBUIHighlightedColor"/>
 						<int key="IBUIBaselineAdjustment">1</int>
@@ -236,7 +236,7 @@
 						<int key="NSvFlags">292</int>
 						<string key="NSFrame">{{5, 113}, {310, 342}}</string>
 						<reference key="NSSuperview" ref="572963196"/>
-						<object class="NSColor" key="IBUIBackgroundColor">
+						<object class="NSColor" key="IBUIBackgroundColor" id="236546981">
 							<int key="NSColorSpace">3</int>
 							<bytes key="NSWhite">MAA</bytes>
 						</object>
@@ -253,6 +253,7 @@
 							<int key="NSColorSpace">1</int>
 							<bytes key="NSRGB">MSAxIDAAA</bytes>
 						</object>
+						<object class="IBUITextInputTraits" key="IBUITextInputTraits"/>
 					</object>
 				</object>
 				<string key="NSFrameSize">{320, 460}</string>
@@ -435,6 +436,7 @@
 							<int key="NSColorSpace">1</int>
 							<bytes key="NSRGB">MC4xOTYwNzg0MyAwLjMwOTgwMzkzIDAuNTIxNTY4NjYAA</bytes>
 						</object>
+						<reference key="IBUINormalTitleShadowColor" ref="236546981"/>
 					</object>
 					<object class="IBUIButton" id="100902097">
 						<reference key="NSNextResponder" ref="425754499"/>
@@ -456,6 +458,7 @@
 							<int key="NSColorSpace">1</int>
 							<bytes key="NSRGB">MC4xOTYwNzg0MyAwLjMwOTgwMzkzIDAuNTIxNTY4NjYAA</bytes>
 						</object>
+						<reference key="IBUINormalTitleShadowColor" ref="236546981"/>
 					</object>
 					<object class="IBUISwitch" id="958326478">
 						<reference key="NSNextResponder" ref="425754499"/>
@@ -725,6 +728,7 @@
 							<int key="NSColorSpace">1</int>
 							<bytes key="NSRGB">MC4xOTYwNzg0MyAwLjMwOTgwMzkzIDAuNTIxNTY4NjYAA</bytes>
 						</object>
+						<reference key="IBUINormalTitleShadowColor" ref="236546981"/>
 					</object>
 					<object class="IBUINavigationBar" id="281420752">
 						<reference key="NSNextResponder" ref="861499924"/>
@@ -817,6 +821,7 @@
 							<int key="NSColorSpace">1</int>
 							<bytes key="NSRGB">MC4xOTYwNzg0MyAwLjMwOTgwMzkzIDAuNTIxNTY4NjYAA</bytes>
 						</object>
+						<reference key="IBUINormalTitleShadowColor" ref="236546981"/>
 					</object>
 					<object class="IBUISegmentedControl" id="891524585">
 						<reference key="NSNextResponder" ref="861499924"/>
@@ -2351,5 +2356,6 @@
 		<int key="IBDocument.localizationMode">0</int>
 		<string key="IBDocument.LastKnownRelativeProjectPath">Free42.xcodeproj</string>
 		<int key="IBDocument.defaultPropertyAccessControl">3</int>
+		<string key="IBCocoaTouchPluginVersion">3.0</string>
 	</data>
 </archive>
