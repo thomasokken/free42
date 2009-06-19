@@ -37,6 +37,8 @@
 		E959D4410FEC0A44007C56A4 /* core_variables.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4240FEC0A44007C56A4 /* core_variables.cc */; };
 		E959D4420FEC0A44007C56A4 /* shell_loadimage.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4280FEC0A44007C56A4 /* shell_loadimage.cc */; };
 		E959D4430FEC0A44007C56A4 /* shell_spool.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D42A0FEC0A44007C56A4 /* shell_spool.cc */; };
+		E97714BA0FEC0C2B00F8CA16 /* skins.cc in Sources */ = {isa = PBXBuildFile; fileRef = E97714B90FEC0C2B00F8CA16 /* skins.cc */; };
+		E97714CD0FEC0E9A00F8CA16 /* shell_skin.m in Sources */ = {isa = PBXBuildFile; fileRef = E97714CC0FEC0E9A00F8CA16 /* shell_skin.m */; };
 		E97C41390FEBC6BE00772516 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = E97C41380FEBC6BE00772516 /* icon.icns */; };
 /* End PBXBuildFile section */
 
@@ -45,14 +47,14 @@
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		13E42FB307B3F0F600E4EEF1 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
 		1DDD58150DA1D0A300B32029 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MainMenu.xib; sourceTree = "<group>"; };
-		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = main.m; sourceTree = "<group>"; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		32CA4F630368D1EE00C91783 /* Free42_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Free42_Prefix.pch; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* Free42.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Free42.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E942DD160FEBEFB600CA75AD /* icon-64x64.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-64x64.png"; sourceTree = "<group>"; };
-		E959D3DC0FEC09C4007C56A4 /* Free42AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Free42AppDelegate.m; path = Classes/Free42AppDelegate.m; sourceTree = "<group>"; };
+		E959D3DC0FEC09C4007C56A4 /* Free42AppDelegate.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = Free42AppDelegate.m; path = Classes/Free42AppDelegate.m; sourceTree = "<group>"; };
 		E959D3DE0FEC09CF007C56A4 /* Free42AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Free42AppDelegate.h; path = Classes/Free42AppDelegate.h; sourceTree = "<group>"; };
 		E959D3FA0FEC0A44007C56A4 /* bcd.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bcd.cc; path = ../common/bcd.cc; sourceTree = SOURCE_ROOT; };
 		E959D3FB0FEC0A44007C56A4 /* bcd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bcd.h; path = ../common/bcd.h; sourceTree = SOURCE_ROOT; };
@@ -104,6 +106,9 @@
 		E959D4290FEC0A44007C56A4 /* shell_loadimage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shell_loadimage.h; path = ../common/shell_loadimage.h; sourceTree = SOURCE_ROOT; };
 		E959D42A0FEC0A44007C56A4 /* shell_spool.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = shell_spool.cc; path = ../common/shell_spool.cc; sourceTree = SOURCE_ROOT; };
 		E959D42B0FEC0A44007C56A4 /* shell_spool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shell_spool.h; path = ../common/shell_spool.h; sourceTree = SOURCE_ROOT; };
+		E97714B90FEC0C2B00F8CA16 /* skins.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = skins.cc; path = Classes/skins.cc; sourceTree = "<group>"; };
+		E97714CB0FEC0E9A00F8CA16 /* shell_skin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shell_skin.h; path = Classes/shell_skin.h; sourceTree = "<group>"; };
+		E97714CC0FEC0E9A00F8CA16 /* shell_skin.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = shell_skin.m; path = Classes/shell_skin.m; sourceTree = "<group>"; };
 		E97C41380FEBC6BE00772516 /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = icon.icns; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -122,6 +127,9 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				E97714CB0FEC0E9A00F8CA16 /* shell_skin.h */,
+				E97714CC0FEC0E9A00F8CA16 /* shell_skin.m */,
+				E97714B90FEC0C2B00F8CA16 /* skins.cc */,
 				E959D3DE0FEC09CF007C56A4 /* Free42AppDelegate.h */,
 				E959D3DC0FEC09C4007C56A4 /* Free42AppDelegate.m */,
 			);
@@ -337,6 +345,8 @@
 				E959D4410FEC0A44007C56A4 /* core_variables.cc in Sources */,
 				E959D4420FEC0A44007C56A4 /* shell_loadimage.cc in Sources */,
 				E959D4430FEC0A44007C56A4 /* shell_spool.cc in Sources */,
+				E97714BA0FEC0C2B00F8CA16 /* skins.cc in Sources */,
+				E97714CD0FEC0E9A00F8CA16 /* shell_skin.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -399,8 +409,13 @@
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					BCD_MATH,
+					NO_SINCOS,
+				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				"New Setting" = "";
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
 				SDKROOT = macosx10.5;
@@ -412,8 +427,13 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					BCD_MATH,
+					NO_SINCOS,
+				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				"New Setting" = "";
 				PREBINDING = NO;
 				SDKROOT = macosx10.5;
 			};

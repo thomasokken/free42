@@ -17,7 +17,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-
 @interface Free42AppDelegate : NSObject {
 }
 
