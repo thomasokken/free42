@@ -15,11 +15,38 @@
  * along with this program; if not, see http://www.gnu.org/licenses/.
  *****************************************************************************/
 
-#ifndef SHELL_SKIN_H
-#define SHELL_SKIN_H 1
+#ifdef __OBJC__
+
+#import <Cocoa/Cocoa.h>
 
 /*void skin_menu_update(Widget w, XtPointer ud, XtPointer cd);*/
-void skin_load(int *width, int *height);
+void skin_load(long *width, long *height);
+
+#define KEYMAP_MAX_MACRO_LENGTH 31
+typedef struct {
+    bool ctrl;
+	bool alt;
+    bool shift; 
+    bool cshift; 
+    int keycode;
+    unsigned char macro[KEYMAP_MAX_MACRO_LENGTH + 1];
+} keymap_entry;
+
+void skin_repaint(NSRect *rect);
+void skin_update_annunciator(int which, int state);
+void skin_find_key(int x, int y, bool cshift, int *key, int *code);
+int skin_find_skey(int ckey);
+unsigned char *skin_find_macro(int ckey);
+/*unsigned char *skin_keymap_lookup(KeySym ks, bool printable,
+				  bool ctrl, bool alt, bool shift, bool cshift,
+				  bool *exact);*/
+void skin_set_pressed_key(int skey);
+void skin_display_blitter(const char *bits, int bytesperline, int x, int y,
+	                             int width, int height);
+void skin_repaint_display();
+void skin_display_set_enabled(bool enable);
+
+#endif
 
 typedef struct {
     unsigned char r, g, b, pad;
@@ -33,22 +60,7 @@ typedef struct {
 int skin_getchar();
 void skin_rewind();
 int skin_init_image(int type, int ncolors, const SkinColor *colors,
-		    int width, int height);
+					int width, int height);
 void skin_put_pixels(unsigned const char *data);
 void skin_finish_image();
 
-void skin_repaint();
-void skin_repaint_annunciator(int which, int state);
-void skin_find_key(int x, int y, bool cshift, int *key, int *code);
-int skin_find_skey(int ckey);
-unsigned char *skin_find_macro(int ckey);
-/*unsigned char *skin_keymap_lookup(KeySym ks, bool printable,
-				  bool ctrl, bool alt, bool shift, bool cshift,
-				  bool *exact);*/
-void skin_repaint_key(int key, int state);
-void skin_display_blitter(const char *bits, int bytesperline, int x, int y,
-	                             int width, int height);
-void skin_repaint_display();
-void skin_display_set_enabled(bool enable);
-
-#endif

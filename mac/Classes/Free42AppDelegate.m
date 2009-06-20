@@ -15,37 +15,280 @@
  * along with this program; if not, see http://www.gnu.org/licenses/.
  *****************************************************************************/
 
+#import <sys/stat.h>
 #import <sys/time.h>
-#import "Free42AppDelegate.h"
 #import "free42.h"
 #import "shell.h"
+#import "shell_skin.h"
+#import "core_main.h"
+#import "core_display.h"
+#import "Free42AppDelegate.h"
 
-#define FILENAMELEN 256
 
-static Free42AppDelegate *delegate = NULL;
+static Free42AppDelegate *instance = NULL;
+
+state_type state;
+char free42dirname[FILENAMELEN];
+
+static int quit_flag = 0;
+static int enqueued;
 
 static char statefilename[FILENAMELEN];
+static char printfilename[FILENAMELEN];
 static FILE *statefile = NULL;
 static char export_file_name[FILENAMELEN];
 static FILE *export_file = NULL;
 static FILE *import_file = NULL;
 
+static int ckey = 0;
+static int skey;
+static unsigned char *macro;
+static int mouse_key;
+static int timeout_active = 0;
+static int timeout3_active = 0;
+
+static int ann_updown = 0;
+static int ann_shift = 0;
+static int ann_print = 0;
+static int ann_run = 0;
+//static int ann_battery = 0;
+static int ann_g = 0;
+static int ann_rad = 0;
+
 static void show_message(char *title, char *message);
+static void init_shell_state(int4 ver);
+static int read_shell_state(int4 *ver);
+static int write_shell_state();
+
+static void enable_reminder();
+static void disable_reminder();
 
 	
 @implementation Free42AppDelegate
 
+@synthesize mainWindow;
+@synthesize printWindow;
+@synthesize preferencesWindow;
+@synthesize selectProgramsWindow;
+@synthesize aboutWindow;
+
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-	NSLog(@"Application did finish launching!!!");
-	delegate = self;
+	instance = self;
+
+	/*****************************************************/
+	/***** Try to create the $HOME/.free42 directory *****/
+	/*****************************************************/
+	
+	int free42dir_exists = 0;
+	char *home = getenv("HOME");
+	struct stat st;
+	char keymapfilename[FILENAMELEN];
+	
+	snprintf(free42dirname, FILENAMELEN, "%s/.free42", home);
+	if (stat(free42dirname, &st) == -1 || !S_ISDIR(st.st_mode)) {
+		mkdir(free42dirname, 0755);
+		if (stat(free42dirname, &st) == 0 && S_ISDIR(st.st_mode))
+			free42dir_exists = 1;
+	} else
+		free42dir_exists = 1;
+	
+	if (free42dir_exists) {
+		snprintf(statefilename, FILENAMELEN, "%s/.free42/state", home);
+		snprintf(printfilename, FILENAMELEN, "%s/.free42/print", home);
+		snprintf(keymapfilename, FILENAMELEN, "%s/.free42/keymap", home);
+	} else {
+		statefilename[0] = 0;
+		printfilename[0] = 0;
+		keymapfilename[0] = 0;
+	}
+	
+	
+	/****************************/
+	/***** Read the key map *****/
+	/****************************/
+	
+	// TODO!
+	
+	
+	/***********************************************************/
+	/***** Open the state file and read the shell settings *****/
+	/***********************************************************/
+	
+	int4 version;
+	int init_mode;
+	if (free42dir_exists)
+		statefile = fopen(statefilename, "r");
+	else
+		statefile = NULL;
+	if (statefile != NULL) {
+		if (read_shell_state(&version)) {
+			init_mode = 1;
+		} else {
+			init_shell_state(-1);
+			init_mode = 2;
+		}
+	} else {
+		init_shell_state(-1);
+		init_mode = 0;
+	}
+	
+	long win_width, win_height;
+	skin_load(&win_width, &win_height);
+	NSSize sz;
+	sz.width = win_width;
+	sz.height = win_height;
+	[mainWindow setContentSize:sz];
+	
+	if (state.mainWindowKnown) {
+		NSPoint pt;
+		pt.x = state.mainWindowX;
+		pt.y = state.mainWindowY;
+		[mainWindow setFrameOrigin:pt];
+	}
+	
+	[mainWindow makeKeyAndOrderFront:self];
+	
+	core_init(init_mode, version);
+	if (statefile != NULL) {
+		fclose(statefile);
+		statefile = NULL;
+	}
+	if (core_powercycle())
+		enable_reminder();
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
-	NSLog(@"Application will terminate!!!");
+	state.mainWindowX = (int) mainWindow.frame.origin.x;
+	state.mainWindowY = (int) mainWindow.frame.origin.y;
+	state.mainWindowKnown = 1;
+}
+
+- (void)repeater_callback {
+	// TODO!
+}
+
+- (void)timeout1_callback {
+	// TODO!
+}
+	
+- (void)timeout2_callback {
+	// TODO!
+}
+
+- (void)timeout3_callback {
+	bool keep_running = core_timeout3(1);
+    timeout3_active = 0;
+    if (keep_running)
+        enable_reminder();
 }
 
 @end
 
+static void shell_keydown() {
+    int repeat, keep_running;
+    if (skey == -1)
+        skey = skin_find_skey(ckey);
+    skin_set_pressed_key(skey);
+    if (timeout3_active && (macro != NULL || ckey != 28 /* KEY_SHIFT */)) {
+		[NSObject cancelPreviousPerformRequestsWithTarget:instance selector:@selector(timeout3_callback) object:NULL];
+        timeout3_active = 0;
+        core_timeout3(0);
+    }
+	
+    if (macro != NULL) {
+        if (*macro == 0) {
+            squeak();
+            return;
+        }
+        bool one_key_macro = macro[1] == 0 || (macro[2] == 0 && macro[0] == 28);
+        if (!one_key_macro)
+            skin_display_set_enabled(false);
+        while (*macro != 0) {
+            keep_running = core_keydown(*macro++, &enqueued, &repeat);
+            if (*macro != 0 && !enqueued)
+                core_keyup();
+        }
+        if (!one_key_macro) {
+            skin_display_set_enabled(true);
+            skin_repaint_display();
+			/*
+            skin_repaint_annunciator(1, ann_updown);
+            skin_repaint_annunciator(2, ann_shift);
+            skin_repaint_annunciator(3, ann_print);
+            skin_repaint_annunciator(4, ann_run);
+            skin_repaint_annunciator(5, ann_battery);
+            skin_repaint_annunciator(6, ann_g);
+            skin_repaint_annunciator(7, ann_rad);
+			*/
+            repeat = 0;
+        }
+    } else
+        keep_running = core_keydown(ckey, &enqueued, &repeat);
+	
+    if (quit_flag)
+        [NSApp terminate];
+    if (keep_running)
+        enable_reminder();
+    else {
+        disable_reminder();
+        if (timeout_active) {
+            [NSObject cancelPreviousPerformRequestsWithTarget:instance selector:@selector(timeout1_callback) object:NULL];
+            [NSObject cancelPreviousPerformRequestsWithTarget:instance selector:@selector(timeout2_callback) object:NULL];
+            [NSObject cancelPreviousPerformRequestsWithTarget:instance selector:@selector(repeater_callback) object:NULL];
+			timeout_active = 0;
+		}
+        if (repeat != 0) {
+			[instance performSelector:@selector(repeater_callback) withObject:NULL afterDelay:(repeat == 1 ? 1.0 : 0.5)];
+            timeout_active = 1;
+        } else if (!enqueued) {
+			[instance performSelector:@selector(timeout1_callback) withObject:NULL afterDelay:0.25];
+            timeout_active = 1;
+        }
+    }
+}
+
+static void shell_keyup() {
+    skin_set_pressed_key(-1);
+    ckey = 0;
+    skey = -1;
+    if (timeout_active) {
+		[NSObject cancelPreviousPerformRequestsWithTarget:instance selector:@selector(timeout1_callback) object:NULL];
+		[NSObject cancelPreviousPerformRequestsWithTarget:instance selector:@selector(timeout2_callback) object:NULL];
+		[NSObject cancelPreviousPerformRequestsWithTarget:instance selector:@selector(repeater_callback) object:NULL];
+        timeout_active = 0;
+    }
+    if (!enqueued) {
+        int keep_running = core_keyup();
+        if (quit_flag)
+            [NSApp terminate];
+        if (keep_running)
+            enable_reminder();
+        else
+            disable_reminder();
+    }
+}
+
+void calc_mousedown(int x, int y) {
+	skin_find_key(x, y, ann_shift != 0, &skey, &ckey);
+	if (ckey != 0) {
+		macro = skin_find_macro(ckey);
+		shell_keydown();
+		mouse_key = 1;
+	}
+}
+
+void calc_mouseup() {
+	if (ckey != 0 && mouse_key)
+		shell_keyup();
+}
+
+static void enable_reminder() {
+	// TODO!
+}
+
+static void disable_reminder() {
+	// TODO!
+}
 
 static void show_message(char *title, char *message) {
 	// TODO!
@@ -87,15 +330,38 @@ uint4 shell_get_mem() {
 }
 
 void shell_blitter(const char *bits, int bytesperline, int x, int y, int width, int height) {
-	// TODO!
+	skin_display_blitter(bits, bytesperline, x, y, width, height);
 }
 
 void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
-	// TODO!
+	if (updn != -1 && ann_updown != updn) {
+		ann_updown = updn;
+		skin_update_annunciator(1, ann_updown);
+	}
+	if (shf != -1 && ann_shift != shf) {
+		ann_shift = shf;
+		skin_update_annunciator(2, ann_shift);
+	}
+	if (prt != -1 && ann_print != prt) {
+		ann_print = prt;
+		skin_update_annunciator(3, ann_print);
+	}
+	if (run != -1 && ann_run != run) {
+		ann_run = run;
+		skin_update_annunciator(4, ann_run);
+	}
+	if (g != -1 && ann_g != g) {
+		ann_g = g;
+		skin_update_annunciator(6, ann_g);
+	}
+	if (rad != -1 && ann_rad != rad) {
+		ann_rad = rad;
+		skin_update_annunciator(7, ann_rad);
+	}
 }
 
 void shell_powerdown() {
-	// TODO!
+	quit_flag = 1;
 }
 
 void shell_print(const char *text, int length,
@@ -105,7 +371,9 @@ void shell_print(const char *text, int length,
 }
 
 void shell_request_timeout3(int delay) {
-	// TODO!
+	[NSObject cancelPreviousPerformRequestsWithTarget:instance selector:@selector(timeout3_callback) object:NULL];
+	[instance performSelector:@selector(timeout3_callback) withObject:NULL afterDelay:(delay / 1000.0)];
+	timeout3_active = 1;
 }
 
 shell_bcd_table_struct *shell_get_bcd_table() {
@@ -185,4 +453,84 @@ int shell_wants_cpu() {
 	static bool want = false;
 	want = !want;
 	return want ? 1 : 0;
+}
+
+static void init_shell_state(int4 version) {
+    switch (version) {
+        case -1:
+            state.printerToTxtFile = 0;
+            state.printerToGifFile = 0;
+            state.printerTxtFileName[0] = 0;
+            state.printerGifFileName[0] = 0;
+            state.printerGifMaxLength = 256;
+            state.mainWindowKnown = 0;
+            state.printWindowKnown = 0;
+            state.skinName[0] = 0;
+            /* fall through */
+        case 0:
+            /* current version (SHELL_VERSION = 4),
+             * so nothing to do here since everything
+             * was initialized from the state file.
+             */
+            ;
+    }
+}
+
+static int read_shell_state(int4 *ver) {
+	int4 magic;
+	int4 version;
+	int4 state_size;
+	int4 state_version;
+	
+	if (shell_read_saved_state(&magic, sizeof(int4)) != sizeof(int4))
+		return 0;
+	if (magic != FREE42_MAGIC)
+		return 0;
+	
+	if (shell_read_saved_state(&version, sizeof(int4)) != sizeof(int4))
+		return 0;
+	if (version == 0) {
+		/* State file version 0 does not contain shell state,
+		 * only core state, so we just hard-init the shell.
+		 */
+		init_shell_state(-1);
+		*ver = version;
+		return 1;
+	} else if (version > FREE42_VERSION)
+	/* Unknown state file version */
+		return 0;
+	
+	if (shell_read_saved_state(&state_size, sizeof(int4)) != sizeof(int4))
+		return 0;
+	if (shell_read_saved_state(&state_version, sizeof(int4)) != sizeof(int4))
+		return 0;
+	if (state_version < 0 || state_version > SHELL_VERSION)
+	/* Unknown shell state version */
+		return 0;
+	if (shell_read_saved_state(&state, state_size) != state_size)
+		return 0;
+	
+	init_shell_state(state_version);
+	*ver = version;
+	return 1;
+}
+
+static int write_shell_state() {
+	int4 magic = FREE42_MAGIC;
+	int4 version = FREE42_VERSION;
+	int4 state_size = sizeof(state_type);
+	int4 state_version = SHELL_VERSION;
+	
+	if (!shell_write_saved_state(&magic, sizeof(int4)))
+		return 0;
+	if (!shell_write_saved_state(&version, sizeof(int4)))
+		return 0;
+	if (!shell_write_saved_state(&state_size, sizeof(int4)))
+		return 0;
+	if (!shell_write_saved_state(&state_version, sizeof(int4)))
+		return 0;
+	if (!shell_write_saved_state(&state, sizeof(state_type)))
+		return 0;
+	
+	return 1;
 }

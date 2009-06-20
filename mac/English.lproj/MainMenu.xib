@@ -8,12 +8,7 @@
 		<string key="IBDocument.HIToolboxVersion">353.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="508"/>
-			<integer value="484"/>
-			<integer value="458"/>
-			<integer value="371"/>
-			<integer value="29"/>
-			<integer value="502"/>
+			<integer value="372"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -295,7 +290,7 @@
 				<int key="NSWindowStyleMask">7</int>
 				<int key="NSWindowBacking">2</int>
 				<string key="NSWindowRect">{{27, 645}, {480, 360}}</string>
-				<int key="NSWTFlags">1946157056</int>
+				<int key="NSWTFlags">1677721600</int>
 				<string key="NSWindowTitle">Free42</string>
 				<string key="NSWindowClass">NSWindow</string>
 				<nil key="NSViewClass"/>
@@ -307,10 +302,10 @@
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="NSCustomView" id="866003388">
 							<reference key="NSNextResponder" ref="439893737"/>
-							<int key="NSvFlags">268</int>
+							<int key="NSvFlags">274</int>
 							<string key="NSFrameSize">{480, 360}</string>
 							<reference key="NSSuperview" ref="439893737"/>
-							<string key="NSClassName">NSView</string>
+							<string key="NSClassName">CalcView</string>
 						</object>
 					</object>
 					<string key="NSFrameSize">{480, 360}</string>
@@ -323,7 +318,7 @@
 				<string key="NSClassName">NSFontManager</string>
 			</object>
 			<object class="NSWindowTemplate" id="109426252">
-				<int key="NSWindowStyleMask">7</int>
+				<int key="NSWindowStyleMask">3</int>
 				<int key="NSWindowBacking">2</int>
 				<string key="NSWindowRect">{{90, 729}, {490, 216}}</string>
 				<int key="NSWTFlags">1610612736</int>
@@ -332,7 +327,7 @@
 				<nil key="NSViewClass"/>
 				<string key="NSWindowContentMaxSize">{3.40282e+38, 3.40282e+38}</string>
 				<object class="NSView" key="NSWindowView" id="442867808">
-					<reference key="NSNextResponder"/>
+					<nil key="NSNextResponder"/>
 					<int key="NSvFlags">256</int>
 					<object class="NSMutableArray" key="NSSubviews">
 						<bool key="EncodedWithXMLCoder">YES</bool>
@@ -617,13 +612,12 @@ cg</string>
 						</object>
 					</object>
 					<string key="NSFrameSize">{490, 216}</string>
-					<reference key="NSSuperview"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1680, 1028}}</string>
 				<string key="NSMaxSize">{3.40282e+38, 3.40282e+38}</string>
 			</object>
 			<object class="NSWindowTemplate" id="812058987">
-				<int key="NSWindowStyleMask">7</int>
+				<int key="NSWindowStyleMask">3</int>
 				<int key="NSWindowBacking">2</int>
 				<string key="NSWindowRect">{{188, 562}, {280, 270}}</string>
 				<int key="NSWTFlags">1610612736</int>
@@ -632,7 +626,7 @@ cg</string>
 				<nil key="NSViewClass"/>
 				<string key="NSWindowContentMaxSize">{3.40282e+38, 3.40282e+38}</string>
 				<object class="NSView" key="NSWindowView" id="821420394">
-					<reference key="NSNextResponder"/>
+					<nil key="NSNextResponder"/>
 					<int key="NSvFlags">256</int>
 					<object class="NSMutableArray" key="NSSubviews">
 						<bool key="EncodedWithXMLCoder">YES</bool>
@@ -759,7 +753,6 @@ cg</string>
 									</object>
 									<string key="NSFrame">{{1, 17}, {223, 152}}</string>
 									<reference key="NSSuperview" ref="955622470"/>
-									<reference key="NSNextKeyView" ref="194687160"/>
 									<reference key="NSDocView" ref="194687160"/>
 									<reference key="NSBGColor" ref="980722501"/>
 									<int key="NScvFlags">4</int>
@@ -793,7 +786,6 @@ cg</string>
 									</object>
 									<string key="NSFrame">{{1, 0}, {223, 17}}</string>
 									<reference key="NSSuperview" ref="955622470"/>
-									<reference key="NSNextKeyView" ref="115756499"/>
 									<reference key="NSDocView" ref="115756499"/>
 									<reference key="NSBGColor" ref="980722501"/>
 									<int key="NScvFlags">4</int>
@@ -802,7 +794,6 @@ cg</string>
 							</object>
 							<string key="NSFrame">{{20, 55}, {240, 170}}</string>
 							<reference key="NSSuperview" ref="821420394"/>
-							<reference key="NSNextKeyView" ref="356394399"/>
 							<int key="NSsFlags">18</int>
 							<reference key="NSVScroller" ref="611875487"/>
 							<reference key="NSHScroller" ref="501668295"/>
@@ -869,7 +860,6 @@ cg</string>
 						</object>
 					</object>
 					<string key="NSFrameSize">{280, 270}</string>
-					<reference key="NSSuperview"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1680, 1028}}</string>
 				<string key="NSMaxSize">{3.40282e+38, 3.40282e+38}</string>
@@ -884,7 +874,7 @@ cg</string>
 				<nil key="NSViewClass"/>
 				<string key="NSWindowContentMaxSize">{3.40282e+38, 3.40282e+38}</string>
 				<object class="NSView" key="NSWindowView" id="268578629">
-					<reference key="NSNextResponder"/>
+					<nil key="NSNextResponder"/>
 					<int key="NSvFlags">256</int>
 					<object class="NSMutableArray" key="NSSubviews">
 						<bool key="EncodedWithXMLCoder">YES</bool>
@@ -908,7 +898,6 @@ cg</string>
 									</object>
 									<string key="NSFrame">{{1, 1}, {303, 571}}</string>
 									<reference key="NSSuperview" ref="697515662"/>
-									<reference key="NSNextKeyView" ref="1024426908"/>
 									<reference key="NSDocView" ref="1024426908"/>
 									<reference key="NSBGColor" ref="472997826"/>
 									<int key="NScvFlags">4</int>
@@ -936,7 +925,6 @@ cg</string>
 							</object>
 							<string key="NSFrame">{{-1, -1}, {320, 573}}</string>
 							<reference key="NSSuperview" ref="268578629"/>
-							<reference key="NSNextKeyView" ref="850266668"/>
 							<int key="NSsFlags">18</int>
 							<reference key="NSVScroller" ref="211344457"/>
 							<reference key="NSHScroller" ref="275350724"/>
@@ -944,7 +932,6 @@ cg</string>
 						</object>
 					</object>
 					<string key="NSFrameSize">{318, 571}</string>
-					<reference key="NSSuperview"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1680, 1028}}</string>
 				<string key="NSMaxSize">{3.40282e+38, 3.40282e+38}</string>
@@ -959,7 +946,7 @@ cg</string>
 				<nil key="NSViewClass"/>
 				<string key="NSWindowContentMaxSize">{3.40282e+38, 3.40282e+38}</string>
 				<object class="NSView" key="NSWindowView" id="227547605">
-					<reference key="NSNextResponder"/>
+					<nil key="NSNextResponder"/>
 					<int key="NSvFlags">256</int>
 					<object class="NSMutableArray" key="NSSubviews">
 						<bool key="EncodedWithXMLCoder">YES</bool>
@@ -1061,7 +1048,6 @@ cg</string>
 						</object>
 					</object>
 					<string key="NSFrameSize">{243, 189}</string>
-					<reference key="NSSuperview"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1680, 1028}}</string>
 				<string key="NSMaxSize">{3.40282e+38, 3.40282e+38}</string>
@@ -1136,6 +1122,46 @@ cg</string>
 						<reference key="destination" ref="166655372"/>
 					</object>
 					<int key="connectionID">522</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">aboutWindow</string>
+						<reference key="source" ref="166655372"/>
+						<reference key="destination" ref="1018352726"/>
+					</object>
+					<int key="connectionID">524</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">mainWindow</string>
+						<reference key="source" ref="166655372"/>
+						<reference key="destination" ref="972006081"/>
+					</object>
+					<int key="connectionID">526</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">preferencesWindow</string>
+						<reference key="source" ref="166655372"/>
+						<reference key="destination" ref="109426252"/>
+					</object>
+					<int key="connectionID">527</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">printWindow</string>
+						<reference key="source" ref="166655372"/>
+						<reference key="destination" ref="490161412"/>
+					</object>
+					<int key="connectionID">528</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">selectProgramsWindow</string>
+						<reference key="source" ref="166655372"/>
+						<reference key="destination" ref="812058987"/>
+					</object>
+					<int key="connectionID">529</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -2062,7 +2088,7 @@ cg</string>
 					<string>{{6, 978}, {478, 20}}</string>
 					<string>{{87, 180}, {480, 360}}</string>
 					<string>{{87, 180}, {480, 360}}</string>
-					<reference ref="9"/>
+					<boolean value="NO" id="6"/>
 					<string>{{33, 99}, {480, 360}}</string>
 					<string>{3.40282e+38, 3.40282e+38}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -2077,7 +2103,7 @@ cg</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>{{286, 294}, {490, 216}}</string>
 					<string>{{286, 294}, {490, 216}}</string>
-					<boolean value="NO" id="6"/>
+					<reference ref="6"/>
 					<string>{196, 240}</string>
 					<string>{{357, 418}, {480, 270}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -2190,17 +2216,44 @@ cg</string>
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">523</int>
+			<int key="maxID">529</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
 				<bool key="EncodedWithXMLCoder">YES</bool>
 				<object class="IBPartialClassDescription">
-					<string key="className">Free42AppDelegate</string>
-					<string key="superclassName">NSObject</string>
+					<string key="className">CalcView</string>
+					<string key="superclassName">NSView</string>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">Free42AppDelegate.h</string>
+						<string key="minorKey">Classes/CalcView.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">Free42AppDelegate</string>
+					<string key="superclassName">NSObject</string>
+					<object class="NSMutableDictionary" key="outlets">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSMutableArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>aboutWindow</string>
+							<string>mainWindow</string>
+							<string>preferencesWindow</string>
+							<string>printWindow</string>
+							<string>selectProgramsWindow</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>NSWindow</string>
+							<string>NSWindow</string>
+							<string>NSWindow</string>
+							<string>NSWindow</string>
+							<string>NSWindow</string>
+						</object>
+					</object>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">Classes/Free42AppDelegate.h</string>
 					</object>
 				</object>
 			</object>

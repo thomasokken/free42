@@ -17,8 +17,41 @@
 
 #import <Cocoa/Cocoa.h>
 
+#define FILENAMELEN 256
+#define SHELL_VERSION 0
+
+typedef struct state_type {
+    int printerToTxtFile;
+    int printerToGifFile;
+    char printerTxtFileName[FILENAMELEN];
+    char printerGifFileName[FILENAMELEN];
+    int printerGifMaxLength;
+    char mainWindowKnown, printWindowKnown, printWindowMapped;
+    int mainWindowX, mainWindowY;
+    int printWindowX, printWindowY, printWindowHeight;
+    char skinName[FILENAMELEN];
+};
+
+extern state_type state;
+
+extern char free42dirname[FILENAMELEN];
+
+void calc_mousedown(int x, int y);
+void calc_mouseup();
+
 @interface Free42AppDelegate : NSObject {
+	NSWindow *mainWindow;
+	NSWindow *printWindow;
+	NSWindow *preferencesWindow;
+	NSWindow *selectProgramsWindow;
+	NSWindow *aboutWindow;
 }
+
+@property (nonatomic, retain) IBOutlet NSWindow *mainWindow;
+@property (nonatomic, retain) IBOutlet NSWindow *printWindow;
+@property (nonatomic, retain) IBOutlet NSWindow *preferencesWindow;
+@property (nonatomic, retain) IBOutlet NSWindow *selectProgramsWindow;
+@property (nonatomic, retain) IBOutlet NSWindow *aboutWindow;
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification;
 - (void)applicationWillTerminate:(NSNotification *)aNotification;
