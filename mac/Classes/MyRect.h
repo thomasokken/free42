@@ -15,12 +15,17 @@
  * along with this program; if not, see http://www.gnu.org/licenses/.
  *****************************************************************************/
 
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 
+// TODO: Get rid of this; the class I was looking for (for wrapping
+// arbitrary objects in an NSObject) is NSValue.
 
-@interface CalcView : NSView {
+@interface MyRect : NSObject {
+	CGRect rect;
 }
 
-- (void) setNeedsDisplayInRectSafely:(CGRect) rect;
++ (id) rectWithCGRect:(CGRect) rect;
+- (id) initWithCGRect:(CGRect) rect;
+- (CGRect) rect;
 
 @end

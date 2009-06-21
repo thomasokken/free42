@@ -15,12 +15,23 @@
  * along with this program; if not, see http://www.gnu.org/licenses/.
  *****************************************************************************/
 
-#import <Cocoa/Cocoa.h>
+#import "MyRect.h"
 
 
-@interface CalcView : NSView {
+@implementation MyRect
+
++ (id) rectWithCGRect:(CGRect) rect {
+	return [[MyRect alloc] initWithCGRect:rect];
 }
 
-- (void) setNeedsDisplayInRectSafely:(CGRect) rect;
+- (id) initWithCGRect:(CGRect) r {
+	if (self != nil)
+		rect = r;
+	return self;
+}
+
+- (CGRect) rect {
+	return rect;
+}
 
 @end

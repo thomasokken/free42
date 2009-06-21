@@ -17,6 +17,7 @@
 
 #import "CalcView.h"
 #import "Free42AppDelegate.h"
+#import "MyRect.h"
 #import "shell_skin.h"
 
 @implementation CalcView
@@ -42,4 +43,27 @@
 	calc_mouseup();
 }
 	
+- (void) setNeedsDisplayInRectSafely2:(id) myrect {
+	MyRect *mr = (MyRect *) myrect;
+	CGRect cr = [mr rect];
+	NSRect invalRect;
+	invalRect.origin.x = cr.origin.x;
+	invalRect.origin.y = cr.origin.y;
+	invalRect.size.width = cr.size.width;
+	invalRect.size.height = cr.size.height;
+	[self setNeedsDisplayInRect:invalRect];
+}
+
+- (void) setNeedsDisplayInRectSafely:(CGRect) rect {
+	if ([NSThread isMainThread]) {
+		NSRect invalRect;
+		invalRect.origin.x = rect.origin.x;
+		invalRect.origin.y = rect.origin.y;
+		invalRect.size.width = rect.size.width;
+		invalRect.size.height = rect.size.height;
+		[self setNeedsDisplayInRect:invalRect];
+	} else
+		[self performSelectorOnMainThread:@selector(setNeedsDisplayInRectSafely2:) withObject:[MyRect rectWithCGRect:rect] waitUntilDone:NO];
+}
+
 @end

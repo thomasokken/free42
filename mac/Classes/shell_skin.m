@@ -19,6 +19,7 @@
 #import "shell_loadimage.h"
 #import "core_main.h"
 #import "Free42AppDelegate.h"
+#import "CalcView.h"
 
 /**************************/
 /* Skin description stuff */
@@ -439,13 +440,11 @@ void skin_load(long *width, long *height) {
 	for (int i = 0; i < 7; i++) {
 		SkinAnnunciator *ann = annunciators + i;
 		ann->disp_rect.y = skin.height - (ann->disp_rect.y + ann->disp_rect.height);
-		ann->src.y = skin.height - (ann->src.y + ann->disp_rect.height);
 	}
 	for (int i = 0; i < nkeys; i++) {
 		SkinKey *key = keylist + i;
 		key->sens_rect.y = skin.height - (key->sens_rect.y + key->sens_rect.height);
 		key->disp_rect.y = skin.height - (key->disp_rect.y + key->disp_rect.height);
-		key->src.y = skin.height - (key->src.y + key->disp_rect.height);
 	}
 	
 	skin_close();
@@ -582,11 +581,6 @@ void skin_repaint(NSRect *rect) {
 			&& rect->origin.y + rect->size.height <= display_loc.y + display_scale.y * 16;
 	
 	if (!paintOnlyDisplay) {
-		// Paint black background (in case the skin is smaller than the available area)
-		// TODO: What *is* the available area?
-		CGContextSetRGBFillColor(myContext, 0.0, 0.0, 0.0, 1.0);
-		CGContextFillRect(myContext, CGRectMake(0, 0, 320, 480));
-		
 		// Redisplay skin
 		CGImageRef si = CGImageCreateWithImageInRect(skin_image, CGRectMake(skin.x, skin.y, skin.width, skin.height));
 		CGContextDrawImage(myContext, CGRectMake(0, 0, skin.width, skin.height), si);
@@ -657,7 +651,7 @@ void skin_repaint(NSRect *rect) {
 		for (int i = 0; i < 7; i++) {
 			if (annunciator_state[i]) {
 				SkinAnnunciator *ann = annunciators + i;
-				CGImageRef ann_image = CGImageCreateWithImageInRect(skin_image, CGRectMake(ann->src.x, skin_height - (ann->src.y + ann->disp_rect.height), ann->disp_rect.width, ann->disp_rect.height));
+				CGImageRef ann_image = CGImageCreateWithImageInRect(skin_image, CGRectMake(ann->src.x, ann->src.y, ann->disp_rect.width, ann->disp_rect.height));
 				CGContextDrawImage(myContext, CGRectMake(ann->disp_rect.x, ann->disp_rect.y, ann->disp_rect.width, ann->disp_rect.height), ann_image);
 				CGImageRelease(ann_image);
 			}
@@ -673,12 +667,8 @@ void skin_update_annunciator(int which, int state) {
 		return;
 	annunciator_state[which] = state;
 	SkinRect *r = &annunciators[which].disp_rect;
-	NSRect invalRect;
-	invalRect.origin.x = r->x;
-	invalRect.origin.y = r->y;
-	invalRect.size.width = r->width;
-	invalRect.size.height = r->height;
-	[((Free42AppDelegate *) [NSApp delegate]).mainWindow.contentView setNeedsDisplayInRect:invalRect];
+	Free42AppDelegate *delegate = (Free42AppDelegate *) [NSApp delegate];
+	[delegate.calcView setNeedsDisplayInRectSafely:CGRectMake(r->x, r->y, r->width, r->height)];
 }
 
 void skin_find_key(int x, int y, bool cshift, int *skey, int *ckey) {
@@ -735,20 +725,12 @@ static void invalidate_key(int key) {
 		int y = 9 * display_scale.y + display_loc.y;
 		int w = 21 * display_scale.x;
 		int h = 7 * display_scale.y;
-		NSRect invalRect;
-		invalRect.origin.x = x;
-		invalRect.origin.y = y;
-		invalRect.size.width = w;
-		invalRect.size.height = h;
-		[((Free42AppDelegate *) [NSApp delegate]).mainWindow.contentView setNeedsDisplayInRect:invalRect];
+		Free42AppDelegate *delegate = (Free42AppDelegate *) [NSApp delegate];
+		[delegate.calcView setNeedsDisplayInRectSafely:CGRectMake(x, y, w, h)];
 	} else if (key >= 0 && key < nkeys) {
 		SkinRect *r = &keylist[key].disp_rect;
-		NSRect invalRect;
-		invalRect.origin.x = r->x;
-		invalRect.origin.y = r->y;
-		invalRect.size.width = r->width;
-		invalRect.size.height = r->height;
-		[((Free42AppDelegate *) [NSApp delegate]).mainWindow.contentView setNeedsDisplayInRect:invalRect];
+		Free42AppDelegate *delegate = (Free42AppDelegate *) [NSApp delegate];
+		[delegate.calcView setNeedsDisplayInRectSafely:CGRectMake(r->x, r->y, r->width, r->height)];
 	}
 }
 
@@ -772,24 +754,19 @@ void skin_display_blitter(const char *bits, int bytesperline, int x, int y, int 
 				disp_bitmap[v * disp_bytesperline + (h >> 3)] |= 128 >> (h & 7);
 		}
 	
-	NSRect invalRect;
-	invalRect.origin.x = display_loc.x + x * display_scale.x;
-	invalRect.origin.y = skin.height - (display_loc.y + (y + height) * display_scale.y);
-	invalRect.size.width = width * display_scale.x;
-	invalRect.size.height = height * display_scale.y;
-	[((Free42AppDelegate *) [NSApp delegate]).mainWindow.contentView setNeedsDisplayInRect:invalRect];
+	Free42AppDelegate *delegate = (Free42AppDelegate *) [NSApp delegate];
+	[delegate.calcView setNeedsDisplayInRectSafely:CGRectMake(display_loc.x + x * display_scale.x,
+												 display_loc.y + y * display_scale.y,
+												 width * display_scale.x,
+												 height * display_scale.y)];
 }
 
 void skin_repaint_display() {
 	if (!display_enabled)
 		// Prevent screen flashing during macro execution
 		return;
-	NSRect invalRect;
-	invalRect.origin.x = display_loc.x;
-	invalRect.origin.y = display_loc.y;
-	invalRect.size.width = 131 * display_scale.x;
-	invalRect.size.height = 16 * display_scale.y;
-	[((Free42AppDelegate *) [NSApp delegate]).mainWindow.contentView setNeedsDisplayInRect:invalRect];
+	Free42AppDelegate *delegate = (Free42AppDelegate *) [NSApp delegate];
+	[delegate.calcView setNeedsDisplayInRectSafely:CGRectMake(display_loc.x, display_loc.y, 131 * display_scale.x, 16 * display_scale.y)];
 }
 
 void skin_display_set_enabled(bool enable) {

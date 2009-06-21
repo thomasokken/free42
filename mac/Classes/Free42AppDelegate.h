@@ -39,8 +39,11 @@ extern char free42dirname[FILENAMELEN];
 void calc_mousedown(int x, int y);
 void calc_mouseup();
 
+@class CalcView;
+
 @interface Free42AppDelegate : NSObject {
 	NSWindow *mainWindow;
+	CalcView *calcView;
 	NSWindow *printWindow;
 	NSWindow *preferencesWindow;
 	NSWindow *selectProgramsWindow;
@@ -48,6 +51,7 @@ void calc_mouseup();
 }
 
 @property (nonatomic, retain) IBOutlet NSWindow *mainWindow;
+@property (nonatomic, retain) IBOutlet CalcView *calcView;
 @property (nonatomic, retain) IBOutlet NSWindow *printWindow;
 @property (nonatomic, retain) IBOutlet NSWindow *preferencesWindow;
 @property (nonatomic, retain) IBOutlet NSWindow *selectProgramsWindow;

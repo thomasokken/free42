@@ -41,6 +41,7 @@
 		E97714CD0FEC0E9A00F8CA16 /* shell_skin.m in Sources */ = {isa = PBXBuildFile; fileRef = E97714CC0FEC0E9A00F8CA16 /* shell_skin.m */; };
 		E97C41390FEBC6BE00772516 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = E97C41380FEBC6BE00772516 /* icon.icns */; };
 		E9B649340FED513800EC9B91 /* CalcView.m in Sources */ = {isa = PBXBuildFile; fileRef = E9B649330FED513800EC9B91 /* CalcView.m */; };
+		E9BA6AD50FEEAE2100370EF8 /* MyRect.m in Sources */ = {isa = PBXBuildFile; fileRef = E9BA6AD40FEEAE2100370EF8 /* MyRect.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -113,6 +114,8 @@
 		E97C41380FEBC6BE00772516 /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = icon.icns; sourceTree = "<group>"; };
 		E9B649320FED513800EC9B91 /* CalcView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CalcView.h; path = Classes/CalcView.h; sourceTree = "<group>"; };
 		E9B649330FED513800EC9B91 /* CalcView.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = CalcView.m; path = Classes/CalcView.m; sourceTree = "<group>"; };
+		E9BA6AD30FEEAE2100370EF8 /* MyRect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MyRect.h; path = Classes/MyRect.h; sourceTree = "<group>"; };
+		E9BA6AD40FEEAE2100370EF8 /* MyRect.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MyRect.m; path = Classes/MyRect.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -130,6 +133,8 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				E9BA6AD30FEEAE2100370EF8 /* MyRect.h */,
+				E9BA6AD40FEEAE2100370EF8 /* MyRect.m */,
 				E9B649320FED513800EC9B91 /* CalcView.h */,
 				E9B649330FED513800EC9B91 /* CalcView.m */,
 				E97714CB0FEC0E9A00F8CA16 /* shell_skin.h */,
@@ -353,6 +358,7 @@
 				E97714BA0FEC0C2B00F8CA16 /* skins.cc in Sources */,
 				E97714CD0FEC0E9A00F8CA16 /* shell_skin.m in Sources */,
 				E9B649340FED513800EC9B91 /* CalcView.m in Sources */,
+				E9BA6AD50FEEAE2100370EF8 /* MyRect.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
