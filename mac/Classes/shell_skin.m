@@ -635,7 +635,7 @@ void skin_repaint(NSRect *rect) {
 		}
 		for (int v = y1; v < y2; v++) {
 			for (int h = x1; h < x2; h++) {
-				int pixel = (disp_bitmap[(15 - v) * disp_bytesperline + (h >> 3)] & (128 >> (h & 7))) != 0;
+				int pixel = (disp_bitmap[v * disp_bytesperline + (h >> 3)] & (128 >> (h & 7))) != 0;
 				if (softkey_pressed && h >= skx1 && h < skx2 && v >= sky1 && v < sky2)
 					pixel = !pixel;
 				if (pixel)
@@ -749,16 +749,16 @@ void skin_display_blitter(const char *bits, int bytesperline, int x, int y, int 
 		for (h = x; h < x + width; h++) {
 			int pixel = (bits[v * bytesperline + (h >> 3)] & (1 << (h & 7))) == 0;
 			if (pixel)
-				disp_bitmap[v * disp_bytesperline + (h >> 3)] &= ~(128 >> (h & 7));
+				disp_bitmap[(15 - v) * disp_bytesperline + (h >> 3)] &= ~(128 >> (h & 7));
 			else
-				disp_bitmap[v * disp_bytesperline + (h >> 3)] |= 128 >> (h & 7);
+				disp_bitmap[(15 - v) * disp_bytesperline + (h >> 3)] |= 128 >> (h & 7);
 		}
 	
 	Free42AppDelegate *delegate = (Free42AppDelegate *) [NSApp delegate];
 	[delegate.calcView setNeedsDisplayInRectSafely:CGRectMake(display_loc.x + x * display_scale.x,
-												 display_loc.y + y * display_scale.y,
-												 width * display_scale.x,
-												 height * display_scale.y)];
+															  display_loc.y + (16 - y - height) * display_scale.y,
+															  width * display_scale.x,
+															  height * display_scale.y)];
 }
 
 void skin_repaint_display() {
