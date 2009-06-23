@@ -1,4 +1,8 @@
 SHELL:
+* Interrupting programs doesn't seem to work properly. For example, when you
+  try to interrupt the MT.raw test with R/S during DET, the "running"
+  annunciator stays on, and I've observed subsequent weirdness including
+  crashing.
 * OFF: shouldn't it just turn the power off, like the Palm version? If not, is
   there a way to make an application quit with the same kind of "disappear
   backwards" animation, like what takes place when you exit using the "home"
