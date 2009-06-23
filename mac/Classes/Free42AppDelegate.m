@@ -181,6 +181,35 @@ static void shell_keyup();
         fclose(statefile);
 }
 
+- (IBAction) importPrograms:(id)sender {
+	NSOpenPanel* openDlg = [NSOpenPanel openPanel];
+	[openDlg setCanChooseFiles:YES];
+	[openDlg setCanChooseDirectories:NO];
+	if ([openDlg runModalForDirectory:nil file:nil] == NSOKButton) {
+		NSArray* files = [openDlg filenames];
+		for (int i = 0; i < [files count]; i++) {
+			NSString* fileName = [files objectAtIndex:i];
+			char cFileName[1024];
+			[fileName getCString:cFileName maxLength:1024 encoding:NSUTF8StringEncoding];
+			import_file = fopen(cFileName, "r");
+			if (import_file == NULL) {
+				char buf[1000];
+				int err = errno;
+				snprintf(buf, 1000, "Could not open \"%s\" for reading:\n%s (%d)",
+						 cFileName, strerror(err), err);
+				show_message("Message", buf);
+			} else {
+				core_import_programs(NULL);
+				redisplay();
+				if (import_file != NULL) {
+					fclose(import_file);
+					import_file = NULL;
+				}
+			}
+		}
+	}
+}
+
 - (void) mouseDown3 {
 	macro = skin_find_macro(ckey);
 	shell_keydown();
