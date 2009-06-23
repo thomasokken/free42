@@ -1,3 +1,8 @@
+It looks like interrupting programs in the middle of a long DET operation
+doesn't work. I noticed this in the new Mac version, but the Windows version
+seems to have the same problem, so it looks like I need to re-examine all
+the shells.
+
 Add a feature for importing and exporting variables from and to CSV files.
 
 The "print" annunciator should be more noticeable -- make it linger a bit.
