@@ -48,6 +48,8 @@ void calc_mouseup();
 	NSWindow *preferencesWindow;
 	NSWindow *selectProgramsWindow;
 	NSWindow *aboutWindow;
+	NSTextField *aboutVersion;
+	NSTextField *aboutCopyright;
 }
 
 @property (nonatomic, retain) IBOutlet NSWindow *mainWindow;
@@ -56,9 +58,15 @@ void calc_mouseup();
 @property (nonatomic, retain) IBOutlet NSWindow *preferencesWindow;
 @property (nonatomic, retain) IBOutlet NSWindow *selectProgramsWindow;
 @property (nonatomic, retain) IBOutlet NSWindow *aboutWindow;
+@property (nonatomic, retain) IBOutlet NSTextField *aboutVersion;
+@property (nonatomic, retain) IBOutlet NSTextField *aboutCopyright;
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification;
 - (void)applicationWillTerminate:(NSNotification *)aNotification;
+- (IBAction) showAbout:(id)sender;
 - (IBAction) importPrograms:(id)sender;
+- (IBAction) exportPrograms:(id)sender;
+- (IBAction) menuNeedsUpdate:(NSMenu *)menu;
+- (void) selectSkin:(id)sender;
 
 @end

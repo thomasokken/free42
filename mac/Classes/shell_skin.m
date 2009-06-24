@@ -15,6 +15,7 @@
  * along with this program; if not, see http://www.gnu.org/licenses/.
  *****************************************************************************/
 
+#import <dirent.h>
 #import "shell_skin.h"
 #import "shell_loadimage.h"
 #import "core_main.h"
@@ -194,6 +195,62 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
 		return NULL;
 }
 
+static int case_insens_comparator(const void *a, const void *b) {
+    return strcasecmp(*(const char **) a, *(const char **) b);
+}
+
+void skin_menu_update(NSMenu *skinMenu) {
+	while ([skinMenu numberOfItems] > 0)
+		[skinMenu removeItemAtIndex:0];
+    
+	for (int i = 0; i < skin_count; i++) {
+		NSString *name = [NSString stringWithCString:skin_name[i] encoding:NSUTF8StringEncoding];
+		NSMenuItem *item = [skinMenu addItemWithTitle:name action: @selector(selectSkin:) keyEquivalent: @""];
+		if (strcasecmp(skin_name[i], state.skinName) == 0)
+			[item setState:NSOnState];
+	}
+	
+	DIR *dir = opendir(free42dirname);
+    if (dir == NULL)
+        return;
+	
+	struct dirent *dent;
+	char *skinname[100];
+    int nskins = 0;
+    int have_separator = 0;
+	
+    while ((dent = readdir(dir)) != NULL && nskins < 100) {
+        int namelen = strlen(dent->d_name);
+        char *skn;
+        if (namelen < 7)
+            continue;
+        if (strcmp(dent->d_name + namelen - 7, ".layout") != 0)
+            continue;
+        skn = (char *) malloc(namelen - 6);
+        // TODO - handle memory allocation failure
+        memcpy(skn, dent->d_name, namelen - 7);
+        skn[namelen - 7] = 0;
+        skinname[nskins++] = skn;
+    }
+    closedir(dir);
+	
+    qsort(skinname, nskins, sizeof(char *), case_insens_comparator);
+    for (int i = 0; i < nskins; i++) {
+        for (int j = 0; j < skin_count; j++)
+            if (strcmp(skinname[i], skin_name[j]) == 0)
+                goto skip;
+        if (!have_separator) {
+			[skinMenu addItem:[NSMenuItem separatorItem]];
+            have_separator = 1;
+        }
+		NSString *name = [NSString stringWithCString:skinname[i] encoding:NSUTF8StringEncoding];
+		NSMenuItem *item = [skinMenu addItemWithTitle:name action: @selector(selectSkin:) keyEquivalent: @""];
+		if (strcasecmp(skinname[i], state.skinName) == 0)
+			[item setState:NSOnState];
+	skip:
+        free(skinname[i]);
+    }
+}
 
 static int skin_open(const char *skinname, int open_layout) {
 	int i;
@@ -216,7 +273,7 @@ static int skin_open(const char *skinname, int open_layout) {
 	}
 	
 	/* name did not match a built-in skin; look for file */
-	sprintf(namebuf, "skins/%s.%s", skinname, open_layout ? "layout" : "gif");
+	sprintf(namebuf, "%s/.free42/%s.%s", getenv("HOME"), skinname, open_layout ? "layout" : "gif");
 	external_file = fopen(namebuf, "rb");
 	return external_file != NULL;
 }

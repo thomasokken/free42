@@ -19,7 +19,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-/*void skin_menu_update(Widget w, XtPointer ud, XtPointer cd);*/
+void skin_menu_update(NSMenu *skinMenu);
 void skin_load(long *width, long *height);
 
 #define KEYMAP_MAX_MACRO_LENGTH 31

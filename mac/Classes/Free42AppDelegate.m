@@ -79,6 +79,8 @@ static void shell_keyup();
 @synthesize preferencesWindow;
 @synthesize selectProgramsWindow;
 @synthesize aboutWindow;
+@synthesize aboutVersion;
+@synthesize aboutCopyright;
 
 - (void) startRunner {
 	[self performSelectorInBackground:@selector(runner) withObject:NULL];
@@ -181,6 +183,14 @@ static void shell_keyup();
         fclose(statefile);
 }
 
+- (IBAction) showAbout:(id)sender {
+	// TODO: Add the VERSION file to the application bundle and read the version
+	// number from it
+	[aboutVersion setStringValue:@"Free42 1.4.49"];
+	[aboutCopyright setStringValue:@"© 2004-2009 Thomas Okken"];
+	[aboutWindow makeKeyAndOrderFront:self];
+}
+
 - (IBAction) importPrograms:(id)sender {
 	NSOpenPanel* openDlg = [NSOpenPanel openPanel];
 	[openDlg setCanChooseFiles:YES];
@@ -208,6 +218,32 @@ static void shell_keyup();
 			}
 		}
 	}
+}
+
+- (IBAction) exportPrograms:(id)sender {
+	NSBeep();
+}
+
+- (IBAction) menuNeedsUpdate:(NSMenu *)menu {
+	skin_menu_update(menu);
+}
+
+- (void) selectSkin:(id)sender {
+	NSMenuItem *item = (NSMenuItem *) sender;
+	NSString *name = [item title];
+	[name getCString:state.skinName maxLength:FILENAMELEN encoding:NSUTF8StringEncoding];
+	long w, h;
+	skin_load(&w, &h);
+	core_repaint_display();
+	NSSize sz;
+	sz.width = w;
+	sz.height = h;
+	NSRect frame = [mainWindow frame];
+	NSPoint p;
+	p.x = frame.origin.x;
+	p.y = frame.origin.y + frame.size.height;
+	[mainWindow setContentSize:sz];
+	[mainWindow setFrameTopLeftPoint:p];
 }
 
 - (void) mouseDown3 {
