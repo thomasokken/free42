@@ -12,6 +12,7 @@
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		E942DD170FEBEFB600CA75AD /* icon-64x64.png in Resources */ = {isa = PBXBuildFile; fileRef = E942DD160FEBEFB600CA75AD /* icon-64x64.png */; };
+		E94E1BEC0FF391DA0074CA65 /* VERSION in Resources */ = {isa = PBXBuildFile; fileRef = E94E1BEB0FF391DA0074CA65 /* VERSION */; };
 		E959D3DD0FEC09C4007C56A4 /* Free42AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E959D3DC0FEC09C4007C56A4 /* Free42AppDelegate.m */; };
 		E959D42C0FEC0A44007C56A4 /* bcd.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D3FA0FEC0A44007C56A4 /* bcd.cc */; };
 		E959D42D0FEC0A44007C56A4 /* bcdfloat.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D3FC0FEC0A44007C56A4 /* bcdfloat.cc */; };
@@ -56,6 +57,7 @@
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* Free42.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Free42.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E942DD160FEBEFB600CA75AD /* icon-64x64.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-64x64.png"; sourceTree = "<group>"; };
+		E94E1BEB0FF391DA0074CA65 /* VERSION */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = VERSION; path = ../VERSION; sourceTree = SOURCE_ROOT; };
 		E959D3DC0FEC09C4007C56A4 /* Free42AppDelegate.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = Free42AppDelegate.m; path = Classes/Free42AppDelegate.m; sourceTree = "<group>"; };
 		E959D3DE0FEC09CF007C56A4 /* Free42AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Free42AppDelegate.h; path = Classes/Free42AppDelegate.h; sourceTree = "<group>"; };
 		E959D3FA0FEC0A44007C56A4 /* bcd.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bcd.cc; path = ../common/bcd.cc; sourceTree = SOURCE_ROOT; };
@@ -197,6 +199,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				E94E1BEB0FF391DA0074CA65 /* VERSION */,
 				E942DD160FEBEFB600CA75AD /* icon-64x64.png */,
 				E97C41380FEBC6BE00772516 /* icon.icns */,
 				8D1107310486CEB800E47090 /* Info.plist */,
@@ -319,6 +322,7 @@
 				1DDD58160DA1D0A300B32029 /* MainMenu.xib in Resources */,
 				E97C41390FEBC6BE00772516 /* icon.icns in Resources */,
 				E942DD170FEBEFB600CA75AD /* icon-64x64.png in Resources */,
+				E94E1BEC0FF391DA0074CA65 /* VERSION in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -184,9 +184,8 @@ static void shell_keyup();
 }
 
 - (IBAction) showAbout:(id)sender {
-	// TODO: Add the VERSION file to the application bundle and read the version
-	// number from it
-	[aboutVersion setStringValue:@"Free42 1.4.49"];
+	const char *version = [Free42AppDelegate getVersion];
+	[aboutVersion setStringValue:[NSString stringWithFormat:@"Free42 %s", version]];
 	[aboutCopyright setStringValue:@"© 2004-2009 Thomas Okken"];
 	[aboutWindow makeKeyAndOrderFront:self];
 }
@@ -222,6 +221,19 @@ static void shell_keyup();
 
 - (IBAction) exportPrograms:(id)sender {
 	NSBeep();
+}
+
+static char version[32] = "";
+
++ (const char *) getVersion {
+	if (version[0] == 0) {
+		NSString *path = [[NSBundle mainBundle] pathForResource:@"VERSION" ofType:nil];
+		const char *cpath = [path cStringUsingEncoding:NSUTF8StringEncoding];
+		FILE *vfile = fopen(cpath, "r");
+		fscanf(vfile, "%s", version);
+		fclose(vfile);
+	}
+	return version;
 }
 
 - (IBAction) menuNeedsUpdate:(NSMenu *)menu {
