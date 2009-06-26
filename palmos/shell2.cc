@@ -2288,7 +2288,7 @@ static void do_import() {
     int err;
 
     path[0] = 0;
-    if (!select_file("Import Program", "Open", "Program Files (*.raw)\0raw\0All Files (*.*)\0*\0\0", path, FILENAMELEN))
+    if (!select_file("Import Programs", "Open", "Program Files (*.raw)\0raw\0All Files (*.*)\0*\0\0", path, FILENAMELEN))
 	return;
 
     err = fsa_resolve(path, &import_file, 0, NULL);
@@ -2391,7 +2391,7 @@ static void do_export() {
 	goto done_export;
 
     path[0] = 0;
-    if (!select_file("Export Program", "Save", "Program Files (*.raw)\0raw\0All Files (*.*)\0*\0\0", path, FILENAMELEN))
+    if (!select_file("Export Programs", "Save", "Program Files (*.raw)\0raw\0All Files (*.*)\0*\0\0", path, FILENAMELEN))
 	goto done_export;
 
     err = fsa_resolve(path, &dir, 1, basename);

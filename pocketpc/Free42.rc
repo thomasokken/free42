@@ -97,8 +97,8 @@ BEGIN
     BEGIN
         MENUITEM "Show Print-Out",              IDM_SHOWPRINTOUT
         MENUITEM SEPARATOR
-        MENUITEM "Import Program...",           IDM_IMPORTPROGRAM
-        MENUITEM "Export Program...",           IDM_EXPORTPROGRAM
+        MENUITEM "Import Programs...",          IDM_IMPORTPROGRAM
+        MENUITEM "Export Programs...",          IDM_EXPORTPROGRAM
         MENUITEM SEPARATOR
         MENUITEM "Clear Print-Out",             IDM_CLEARPRINTOUT
         MENUITEM "Preferences...",              IDM_PREFERENCES
@@ -170,7 +170,7 @@ END
 
 IDD_SELECTPROGRAM DIALOG DISCARDABLE  8, 5, 120, 130
 STYLE WS_POPUP | WS_CAPTION
-CAPTION "Export Program"
+CAPTION "Export Programs"
 FONT 8, "System"
 BEGIN
     LTEXT           "Select Programs to Export:",IDC_STATIC,7,7,106,8

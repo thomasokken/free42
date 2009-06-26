@@ -1300,7 +1300,7 @@ static void export_program() {
 	 * sel_prog_list is an array of integers containing the item numbers.
 	 */
 	if (!browse_file(hMainWnd,
-					 _T("Export Program"),
+					 _T("Export Programs"),
 					 1,
 					 _T("Program Files (*.raw)\0*.raw\0All Files (*.*)\0*.*\0\0"),
 					 _T("raw"),
@@ -1328,7 +1328,7 @@ static void import_program() {
 	TCHAR buf[FILENAMELEN];
 	buf[0] = 0;
 	if (!browse_file(hMainWnd,
-					 _T("Import Program"),
+					 _T("Import Programs"),
 					 0,
 					 _T("Program Files (*.raw)\0*.raw\0All Files (*.*)\0*.*\0\0"),
 					 NULL,

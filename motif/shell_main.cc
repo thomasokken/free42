@@ -664,7 +664,7 @@ int main(int argc, char *argv[]) {
 			  menu,
 			  NULL, 0);
 
-    s = XmStringCreateLocalized("Import Program...");
+    s = XmStringCreateLocalized("Import Programs...");
     button = XtVaCreateManagedWidget("ImportProgram",
 				     xmPushButtonWidgetClass,
 				     menu,
@@ -673,7 +673,7 @@ int main(int argc, char *argv[]) {
     XmStringFree(s);
     XtAddCallback(button, XmNactivateCallback, importProgramCB, NULL);
 
-    s = XmStringCreateLocalized("Export Program...");
+    s = XmStringCreateLocalized("Export Programs...");
     button = XtVaCreateManagedWidget("ExportProgram",
 				     xmPushButtonWidgetClass,
 				     menu,
@@ -1614,7 +1614,7 @@ static void make_program_select_dialog() {
     Widget label, button, panel;
     XmString s;
 
-    XtSetArg(args[0], XmNtitle, "Export Program");
+    XtSetArg(args[0], XmNtitle, "Export Programs");
     XtSetArg(args[1], XmNdialogStyle, XmDIALOG_FULL_APPLICATION_MODAL);
     XtSetArg(args[2], XmNmwmFunctions,
 		        MWM_FUNC_ALL | MWM_FUNC_RESIZE | MWM_FUNC_MAXIMIZE);
@@ -1974,7 +1974,7 @@ static void selProgButtonCB(Widget w, XtPointer ud, XtPointer cd) {
 
     if (export_dialog == NULL) {
 	export_dialog = make_file_select_dialog(
-					"Export Program",
+					"Export Programs",
 					"Program Files (*.raw)\0raw\0"
 					    "All Files (*.*)\0*\0\0",
 					mainwindow,
@@ -2092,7 +2092,7 @@ static void do_export(Widget w, XtPointer ud, XtPointer cd) {
 static void importProgramCB(Widget w, XtPointer ud, XtPointer cd) {
     if (import_dialog == NULL) {
 	import_dialog = make_file_select_dialog(
-					"Import Program",
+					"Import Programs",
 					"Program Files (*.raw)\0raw\0"
 					    "All Files (*.*)\0*\0\0",
 					mainwindow,

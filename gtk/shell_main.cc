@@ -182,8 +182,8 @@ static GtkItemFactoryEntry entries[] = {
     { "/File", NULL, NULL, 0, "<Branch>" },
     { "/File/Show Print-Out", NULL, showPrintOutCB, 0, "<Item>" },
     { "/File/sep1", NULL, NULL, 0, "<Separator>" },
-    { "/File/Import Program...", NULL, importProgramCB, 0, "<Item>" },
-    { "/File/Export Program...", NULL, exportProgramCB, 0, "<Item>" },
+    { "/File/Import Programs...", NULL, importProgramCB, 0, "<Item>" },
+    { "/File/Export Programs...", NULL, exportProgramCB, 0, "<Item>" },
     { "/File/sep2", NULL, NULL, 0, "<Separator>" },
     { "/File/Clear Print-Out", NULL, clearPrintOutCB, 0, "<Item>" },
     { "/File/Preferences...", NULL, preferencesCB, 0, "<Item>" },
@@ -1010,7 +1010,7 @@ static void exportProgramCB() {
 
     if (sel_dialog == NULL) {
 	sel_dialog = gtk_dialog_new_with_buttons(
-			    "Export Program",
+			    "Export Programs",
 			    GTK_WINDOW(mainwindow),
 			    GTK_DIALOG_MODAL,
 			    GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
@@ -1070,7 +1070,7 @@ static void exportProgramCB() {
 
     static GtkWidget *save_dialog = NULL;
     if (save_dialog == NULL)
-	save_dialog = make_file_select_dialog("Export Program",
+	save_dialog = make_file_select_dialog("Export Programs",
 		"Program Files (*.raw)\0*.[Rr][Aa][Ww]\0All Files (*.*)\0*\0",
 		true, mainwindow);
 
@@ -1178,7 +1178,7 @@ static void importProgramCB() {
     static GtkWidget *dialog = NULL;
 
     if (dialog == NULL)
-	dialog = make_file_select_dialog("Import Program",
+	dialog = make_file_select_dialog("Import Programs",
 		"Program Files (*.raw)\0*.[Rr][Aa][Ww]\0All Files (*.*)\0*\0",
 		false, mainwindow);
 

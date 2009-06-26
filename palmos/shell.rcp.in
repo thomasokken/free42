@@ -44,8 +44,8 @@ begin
   begin
     menuitem "Print-Out" id printform_id
     menuitem separator
-    menuitem "Import Program..." id importprogram_id
-    menuitem "Export Program..." id exportprogram_id
+    menuitem "Import Programs..." id importprogram_id
+    menuitem "Export Programs..." id exportprogram_id
     menuitem separator
     menuitem "Clear Print-Out" id clearprintout_id
     menuitem "Preferences..." id prefsform1_id
@@ -86,8 +86,8 @@ begin
   begin
     menuitem "Calculator" id calcform_id
     menuitem separator
-    menuitem "Import Program..." id importprogram_id
-    menuitem "Export Program..." id exportprogram_id
+    menuitem "Import Programs..." id importprogram_id
+    menuitem "Export Programs..." id exportprogram_id
     menuitem separator
     menuitem "Clear Print-Out" id clearprintout_id
     menuitem "Preferences..." id prefsform1_id
@@ -126,7 +126,7 @@ form id selectprogram_id at (2 2 156 156)
 frame modal
 defaultbtnid cancel_id
 begin
-  title "Export Program"
+  title "Export Programs"
 
   label "Select Programs to Export:" autoid at (5 18)
   table id progtable_id at (5 prevbottom+2 140 100) rows 9 columns 2 columnwidths 11 129
