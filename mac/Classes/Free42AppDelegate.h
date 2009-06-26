@@ -39,6 +39,7 @@ extern char free42dirname[FILENAMELEN];
 void calc_mousedown(int x, int y);
 void calc_mouseup();
 
+@class ProgramListDelegate;
 @class CalcView;
 
 @interface Free42AppDelegate : NSObject {
@@ -47,6 +48,7 @@ void calc_mouseup();
 	NSWindow *printWindow;
 	NSWindow *preferencesWindow;
 	NSWindow *selectProgramsWindow;
+	ProgramListDelegate *programListDelegate;
 	NSWindow *aboutWindow;
 	NSTextField *aboutVersion;
 	NSTextField *aboutCopyright;
@@ -57,6 +59,7 @@ void calc_mouseup();
 @property (nonatomic, retain) IBOutlet NSWindow *printWindow;
 @property (nonatomic, retain) IBOutlet NSWindow *preferencesWindow;
 @property (nonatomic, retain) IBOutlet NSWindow *selectProgramsWindow;
+@property (nonatomic, retain) IBOutlet ProgramListDelegate *programListDelegate;
 @property (nonatomic, retain) IBOutlet NSWindow *aboutWindow;
 @property (nonatomic, retain) IBOutlet NSTextField *aboutVersion;
 @property (nonatomic, retain) IBOutlet NSTextField *aboutCopyright;
@@ -64,6 +67,7 @@ void calc_mouseup();
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification;
 - (void)applicationWillTerminate:(NSNotification *)aNotification;
 - (IBAction) showAbout:(id)sender;
+- (IBAction) showPreferences:(id)sender;
 - (IBAction) importPrograms:(id)sender;
 - (IBAction) exportPrograms:(id)sender;
 + (const char *) getVersion;

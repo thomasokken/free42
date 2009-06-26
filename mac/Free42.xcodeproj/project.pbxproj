@@ -43,6 +43,7 @@
 		E97C41390FEBC6BE00772516 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = E97C41380FEBC6BE00772516 /* icon.icns */; };
 		E9B649340FED513800EC9B91 /* CalcView.m in Sources */ = {isa = PBXBuildFile; fileRef = E9B649330FED513800EC9B91 /* CalcView.m */; };
 		E9BA6AD50FEEAE2100370EF8 /* MyRect.m in Sources */ = {isa = PBXBuildFile; fileRef = E9BA6AD40FEEAE2100370EF8 /* MyRect.m */; };
+		E9BB633D0FF418DD00E7EF10 /* ProgramListDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E9BB633C0FF418DD00E7EF10 /* ProgramListDelegate.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -118,6 +119,8 @@
 		E9B649330FED513800EC9B91 /* CalcView.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = CalcView.m; path = Classes/CalcView.m; sourceTree = "<group>"; };
 		E9BA6AD30FEEAE2100370EF8 /* MyRect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MyRect.h; path = Classes/MyRect.h; sourceTree = "<group>"; };
 		E9BA6AD40FEEAE2100370EF8 /* MyRect.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MyRect.m; path = Classes/MyRect.m; sourceTree = "<group>"; };
+		E9BB633B0FF418DD00E7EF10 /* ProgramListDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ProgramListDelegate.h; path = Classes/ProgramListDelegate.h; sourceTree = "<group>"; };
+		E9BB633C0FF418DD00E7EF10 /* ProgramListDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ProgramListDelegate.m; path = Classes/ProgramListDelegate.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -135,6 +138,8 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				E9BB633B0FF418DD00E7EF10 /* ProgramListDelegate.h */,
+				E9BB633C0FF418DD00E7EF10 /* ProgramListDelegate.m */,
 				E9BA6AD30FEEAE2100370EF8 /* MyRect.h */,
 				E9BA6AD40FEEAE2100370EF8 /* MyRect.m */,
 				E9B649320FED513800EC9B91 /* CalcView.h */,
@@ -363,6 +368,7 @@
 				E97714CD0FEC0E9A00F8CA16 /* shell_skin.m in Sources */,
 				E9B649340FED513800EC9B91 /* CalcView.m in Sources */,
 				E9BA6AD50FEEAE2100370EF8 /* MyRect.m in Sources */,
+				E9BB633D0FF418DD00E7EF10 /* ProgramListDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
