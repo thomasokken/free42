@@ -270,6 +270,29 @@ static void shell_keyup();
 	}
 }
 
+- (IBAction) doCopy:(id)sender {
+	NSPasteboard *pb = [NSPasteboard generalPasteboard];
+	NSArray *types = [NSArray arrayWithObjects: NSStringPboardType, nil];
+	[pb declareTypes:types owner:self];
+	char buf[100];
+	core_copy(buf, 100);
+	NSString *txt = [NSString stringWithCString:buf encoding:NSUTF8StringEncoding];
+	[pb setString:txt forType:NSStringPboardType];
+}
+
+- (IBAction) doPaste:(id)sender {
+	NSPasteboard *pb = [NSPasteboard generalPasteboard];
+	NSArray *types = [NSArray arrayWithObjects: NSStringPboardType, nil];
+	NSString *bestType = [pb availableTypeFromArray:types];
+	if (bestType != nil) {
+		NSString *txt = [pb stringForType:NSStringPboardType];
+		char buf[100];
+		[txt getCString:buf maxLength:100 encoding:NSUTF8StringEncoding];
+		core_paste(buf);
+		redisplay();
+	}
+}
+
 static char version[32] = "";
 
 + (const char *) getVersion {

@@ -8,7 +8,6 @@
 		<string key="IBDocument.HIToolboxVersion">353.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="565"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -818,7 +817,7 @@ cg</string>
 				<nil key="NSViewClass"/>
 				<string key="NSWindowContentMaxSize">{3.40282e+38, 3.40282e+38}</string>
 				<object class="NSView" key="NSWindowView" id="673879441">
-					<reference key="NSNextResponder"/>
+					<nil key="NSNextResponder"/>
 					<int key="NSvFlags">256</int>
 					<object class="NSMutableArray" key="NSSubviews">
 						<bool key="EncodedWithXMLCoder">YES</bool>
@@ -960,7 +959,6 @@ cg</string>
 									</object>
 									<string key="NSFrame">{{1, 1}, {238, 133}}</string>
 									<reference key="NSSuperview" ref="402238243"/>
-									<reference key="NSNextKeyView" ref="87017866"/>
 									<reference key="NSDocView" ref="87017866"/>
 									<reference key="NSBGColor" ref="980722501"/>
 									<int key="NScvFlags">4</int>
@@ -987,7 +985,6 @@ cg</string>
 							</object>
 							<string key="NSFrame">{{20, 60}, {240, 135}}</string>
 							<reference key="NSSuperview" ref="673879441"/>
-							<reference key="NSNextKeyView" ref="674310039"/>
 							<int key="NSsFlags">562</int>
 							<reference key="NSVScroller" ref="801948105"/>
 							<reference key="NSHScroller" ref="583233016"/>
@@ -1036,7 +1033,6 @@ cg</string>
 						</object>
 					</object>
 					<string key="NSFrameSize">{280, 240}</string>
-					<reference key="NSSuperview"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1680, 1028}}</string>
 				<string key="NSMaxSize">{3.40282e+38, 3.40282e+38}</string>
@@ -1048,22 +1044,6 @@ cg</string>
 		<object class="IBObjectContainer" key="IBDocument.Objects">
 			<object class="NSMutableArray" key="connectionRecords">
 				<bool key="EncodedWithXMLCoder">YES</bool>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
-						<string key="label">copy:</string>
-						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="860595796"/>
-					</object>
-					<int key="connectionID">224</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
-						<string key="label">paste:</string>
-						<reference key="source" ref="1014"/>
-						<reference key="destination" ref="29853731"/>
-					</object>
-					<int key="connectionID">226</int>
-				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
 						<string key="label">hide:</string>
@@ -1247,6 +1227,22 @@ cg</string>
 						<reference key="destination" ref="816262872"/>
 					</object>
 					<int key="connectionID">590</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">doCopy:</string>
+						<reference key="source" ref="166655372"/>
+						<reference key="destination" ref="860595796"/>
+					</object>
+					<int key="connectionID">591</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">doPaste:</string>
+						<reference key="source" ref="166655372"/>
+						<reference key="destination" ref="29853731"/>
+					</object>
+					<int key="connectionID">592</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -2296,7 +2292,7 @@ cg</string>
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">590</int>
+			<int key="maxID">592</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -2316,6 +2312,8 @@ cg</string>
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="NSMutableArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>doCopy:</string>
+							<string>doPaste:</string>
 							<string>exportPrograms:</string>
 							<string>exportProgramsCancel:</string>
 							<string>exportProgramsOK:</string>
@@ -2327,6 +2325,8 @@ cg</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>id</string>
+							<string>id</string>
 							<string>id</string>
 							<string>id</string>
 							<string>id</string>
