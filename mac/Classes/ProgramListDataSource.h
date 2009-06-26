@@ -18,7 +18,7 @@
 #import <Cocoa/Cocoa.h>
 
 
-@interface ProgramListDelegate : NSObject {
+@interface ProgramListDataSource : NSObject {
 	int count;
 	bool *selected;
 	NSString **names;

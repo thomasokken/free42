@@ -24,7 +24,7 @@
 #import "core_main.h"
 #import "core_display.h"
 #import "Free42AppDelegate.h"
-#import "ProgramListDelegate.h"
+#import "ProgramListDataSource.h"
 
 
 static Free42AppDelegate *instance = NULL;
@@ -79,7 +79,8 @@ static void shell_keyup();
 @synthesize printWindow;
 @synthesize preferencesWindow;
 @synthesize selectProgramsWindow;
-@synthesize programListDelegate;
+@synthesize programListView;
+@synthesize programListDataSource;
 @synthesize aboutWindow;
 @synthesize aboutVersion;
 @synthesize aboutCopyright;
@@ -228,7 +229,8 @@ static void shell_keyup();
 - (IBAction) exportPrograms:(id)sender {
 	char buf[10000];
 	int count = core_list_programs(buf, 10000);
-	[programListDelegate setProgramNames:buf count:count];
+	[programListDataSource setProgramNames:buf count:count];
+	[programListView reloadData];
 	[selectProgramsWindow makeKeyAndOrderFront:self];
 #if 0
 	XmString *stringtab;
