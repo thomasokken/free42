@@ -80,6 +80,15 @@ static void shell_keyup();
 @synthesize calcView;
 @synthesize printWindow;
 @synthesize preferencesWindow;
+@synthesize prefsSingularMatrix;
+@synthesize prefsMatrixOutOfRange;
+@synthesize prefsAutoRepeat;
+@synthesize prefsPrintText;
+@synthesize prefsPrintTextFile;
+@synthesize prefsPrintTextRaw;
+@synthesize prefsPrintGIF;
+@synthesize prefsPrintGIFFile;
+@synthesize prefsPrintGIFMaxHeight;
 @synthesize selectProgramsWindow;
 @synthesize programListView;
 @synthesize programListDataSource;
@@ -204,9 +213,11 @@ static void shell_keyup();
 
 - (void)windowWillClose:(NSNotification *)notification {
 	NSWindow *window = [notification object];
-	if (window == aboutWindow || window == preferencesWindow || window == selectProgramsWindow)
+	if (window == aboutWindow || window == preferencesWindow || window == selectProgramsWindow) {
 		[NSApp stopModal];
-	else if (window == mainWindow)
+		if (window == preferencesWindow)
+			[instance getPreferences];
+	} else if (window == mainWindow)
 		[NSApp terminate:nil];
 }
 
@@ -219,6 +230,15 @@ static void shell_keyup();
 
 - (IBAction) showPreferences:(id)sender {
 	[NSApp runModalForWindow:preferencesWindow];
+}
+
+- (void) getPreferences {
+}
+
+- (IBAction) browsePrintTextFile:(id)sender {
+}
+
+- (IBAction) browsePrintGIFFile:(id)sender {
 }
 
 - (IBAction) importPrograms:(id)sender {

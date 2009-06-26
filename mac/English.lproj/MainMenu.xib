@@ -8,6 +8,7 @@
 		<string key="IBDocument.HIToolboxVersion">353.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
+			<integer value="459"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -325,7 +326,7 @@
 				<nil key="NSViewClass"/>
 				<string key="NSWindowContentMaxSize">{3.40282e+38, 3.40282e+38}</string>
 				<object class="NSView" key="NSWindowView" id="442867808">
-					<nil key="NSNextResponder"/>
+					<reference key="NSNextResponder"/>
 					<int key="NSvFlags">256</int>
 					<object class="NSMutableArray" key="NSSubviews">
 						<bool key="EncodedWithXMLCoder">YES</bool>
@@ -610,6 +611,7 @@ cg</string>
 						</object>
 					</object>
 					<string key="NSFrameSize">{490, 216}</string>
+					<reference key="NSSuperview"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1680, 1028}}</string>
 				<string key="NSMaxSize">{3.40282e+38, 3.40282e+38}</string>
@@ -1277,6 +1279,94 @@ cg</string>
 						<reference key="destination" ref="166655372"/>
 					</object>
 					<int key="connectionID">597</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">prefsAutoRepeat</string>
+						<reference key="source" ref="166655372"/>
+						<reference key="destination" ref="934864164"/>
+					</object>
+					<int key="connectionID">600</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">prefsPrintText</string>
+						<reference key="source" ref="166655372"/>
+						<reference key="destination" ref="473505419"/>
+					</object>
+					<int key="connectionID">601</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">prefsPrintTextFile</string>
+						<reference key="source" ref="166655372"/>
+						<reference key="destination" ref="813789113"/>
+					</object>
+					<int key="connectionID">602</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">browsePrintTextFile:</string>
+						<reference key="source" ref="166655372"/>
+						<reference key="destination" ref="829334052"/>
+					</object>
+					<int key="connectionID">603</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">prefsPrintTextRaw</string>
+						<reference key="source" ref="166655372"/>
+						<reference key="destination" ref="626912113"/>
+					</object>
+					<int key="connectionID">604</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">prefsPrintGIF</string>
+						<reference key="source" ref="166655372"/>
+						<reference key="destination" ref="475615216"/>
+					</object>
+					<int key="connectionID">605</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">prefsPrintGIFFile</string>
+						<reference key="source" ref="166655372"/>
+						<reference key="destination" ref="468930604"/>
+					</object>
+					<int key="connectionID">606</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">browsePrintGIFFile:</string>
+						<reference key="source" ref="166655372"/>
+						<reference key="destination" ref="587570620"/>
+					</object>
+					<int key="connectionID">607</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">prefsPrintGIFMaxHeight</string>
+						<reference key="source" ref="166655372"/>
+						<reference key="destination" ref="906983359"/>
+					</object>
+					<int key="connectionID">608</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">prefsSingularMatrix</string>
+						<reference key="source" ref="166655372"/>
+						<reference key="destination" ref="886080995"/>
+					</object>
+					<int key="connectionID">609</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">prefsMatrixOutOfRange</string>
+						<reference key="source" ref="166655372"/>
+						<reference key="destination" ref="229162275"/>
+					</object>
+					<int key="connectionID">610</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -2213,8 +2303,8 @@ cg</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>{{731, 689}, {64, 6}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{286, 295}, {490, 216}}</string>
-					<string>{{286, 295}, {490, 216}}</string>
+					<string>{{502, 615}, {490, 216}}</string>
+					<string>{{502, 615}, {490, 216}}</string>
 					<reference ref="6"/>
 					<string>{196, 240}</string>
 					<string>{{357, 418}, {480, 270}}</string>
@@ -2326,7 +2416,7 @@ cg</string>
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">597</int>
+			<int key="maxID">610</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -2346,6 +2436,8 @@ cg</string>
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="NSMutableArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>browsePrintGIFFile:</string>
+							<string>browsePrintTextFile:</string>
 							<string>doCopy:</string>
 							<string>doPaste:</string>
 							<string>exportPrograms:</string>
@@ -2359,6 +2451,8 @@ cg</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>id</string>
+							<string>id</string>
 							<string>id</string>
 							<string>id</string>
 							<string>id</string>
@@ -2381,6 +2475,15 @@ cg</string>
 							<string>calcView</string>
 							<string>mainWindow</string>
 							<string>preferencesWindow</string>
+							<string>prefsAutoRepeat</string>
+							<string>prefsMatrixOutOfRange</string>
+							<string>prefsPrintGIF</string>
+							<string>prefsPrintGIFFile</string>
+							<string>prefsPrintGIFMaxHeight</string>
+							<string>prefsPrintText</string>
+							<string>prefsPrintTextFile</string>
+							<string>prefsPrintTextRaw</string>
+							<string>prefsSingularMatrix</string>
 							<string>printWindow</string>
 							<string>programListDataSource</string>
 							<string>programListView</string>
@@ -2394,6 +2497,15 @@ cg</string>
 							<string>CalcView</string>
 							<string>NSWindow</string>
 							<string>NSWindow</string>
+							<string>NSButton</string>
+							<string>NSButton</string>
+							<string>NSButton</string>
+							<string>NSTextField</string>
+							<string>NSTextField</string>
+							<string>NSButton</string>
+							<string>NSTextField</string>
+							<string>NSButton</string>
+							<string>NSButton</string>
 							<string>NSWindow</string>
 							<string>ProgramListDataSource</string>
 							<string>NSTableView</string>

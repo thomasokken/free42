@@ -163,17 +163,17 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				E9BB633B0FF418DD00E7EF10 /* ProgramListDataSource.h */,
-				E9BB633C0FF418DD00E7EF10 /* ProgramListDataSource.m */,
-				E9BA6AD30FEEAE2100370EF8 /* MyRect.h */,
-				E9BA6AD40FEEAE2100370EF8 /* MyRect.m */,
 				E9B649320FED513800EC9B91 /* CalcView.h */,
 				E9B649330FED513800EC9B91 /* CalcView.m */,
+				E959D3DE0FEC09CF007C56A4 /* Free42AppDelegate.h */,
+				E959D3DC0FEC09C4007C56A4 /* Free42AppDelegate.m */,
+				E9BA6AD30FEEAE2100370EF8 /* MyRect.h */,
+				E9BA6AD40FEEAE2100370EF8 /* MyRect.m */,
+				E9BB633B0FF418DD00E7EF10 /* ProgramListDataSource.h */,
+				E9BB633C0FF418DD00E7EF10 /* ProgramListDataSource.m */,
 				E97714CB0FEC0E9A00F8CA16 /* shell_skin.h */,
 				E97714CC0FEC0E9A00F8CA16 /* shell_skin.m */,
 				E97714B90FEC0C2B00F8CA16 /* skins.cc */,
-				E959D3DE0FEC09CF007C56A4 /* Free42AppDelegate.h */,
-				E959D3DC0FEC09C4007C56A4 /* Free42AppDelegate.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -230,6 +230,12 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				E942DD160FEBEFB600CA75AD /* icon-64x64.png */,
+				E97C41380FEBC6BE00772516 /* icon.icns */,
+				8D1107310486CEB800E47090 /* Info.plist */,
+				1DDD58140DA1D0A300B32029 /* MainMenu.xib */,
+				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
+				E9B079250FF548690021B83D /* squeak.wav */,
 				E9B079270FF548770021B83D /* tone0.wav */,
 				E9B079280FF548770021B83D /* tone1.wav */,
 				E9B079290FF548770021B83D /* tone2.wav */,
@@ -240,13 +246,7 @@
 				E9B0792E0FF548770021B83D /* tone7.wav */,
 				E9B0792F0FF548770021B83D /* tone8.wav */,
 				E9B079300FF548770021B83D /* tone9.wav */,
-				E9B079250FF548690021B83D /* squeak.wav */,
 				E94E1BEB0FF391DA0074CA65 /* VERSION */,
-				E942DD160FEBEFB600CA75AD /* icon-64x64.png */,
-				E97C41380FEBC6BE00772516 /* icon.icns */,
-				8D1107310486CEB800E47090 /* Info.plist */,
-				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
-				1DDD58140DA1D0A300B32029 /* MainMenu.xib */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
