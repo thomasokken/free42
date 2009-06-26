@@ -202,15 +202,23 @@ static void shell_keyup();
         fclose(statefile);
 }
 
+- (void)windowWillClose:(NSNotification *)notification {
+	NSWindow *window = [notification object];
+	if (window == aboutWindow || window == preferencesWindow || window == selectProgramsWindow)
+		[NSApp stopModal];
+	else if (window == mainWindow)
+		[NSApp terminate:nil];
+}
+
 - (IBAction) showAbout:(id)sender {
 	const char *version = [Free42AppDelegate getVersion];
 	[aboutVersion setStringValue:[NSString stringWithFormat:@"Free42 %s", version]];
 	[aboutCopyright setStringValue:@"© 2004-2009 Thomas Okken"];
-	[aboutWindow makeKeyAndOrderFront:self];
+	[NSApp runModalForWindow:aboutWindow];
 }
 
 - (IBAction) showPreferences:(id)sender {
-	[preferencesWindow makeKeyAndOrderFront:self];
+	[NSApp runModalForWindow:preferencesWindow];
 }
 
 - (IBAction) importPrograms:(id)sender {
@@ -247,14 +255,16 @@ static void shell_keyup();
 	int count = core_list_programs(buf, 10000);
 	[programListDataSource setProgramNames:buf count:count];
 	[programListView reloadData];
-	[selectProgramsWindow makeKeyAndOrderFront:self];
+	[NSApp runModalForWindow:selectProgramsWindow];
 }
 
 - (IBAction) exportProgramsCancel:(id)sender {
+	[NSApp stopModal];
 	[selectProgramsWindow orderOut:self];
 }
 
 - (IBAction) exportProgramsOK:(id)sender {
+	[NSApp stopModal];
 	[selectProgramsWindow orderOut:self];
 	bool *selection = [programListDataSource getSelection];
 	int count = [programListDataSource numberOfRowsInTableView:nil];
@@ -535,7 +545,7 @@ static void shell_keydown() {
 	}
 	
     if (quit_flag)
-		[NSApp terminate];
+		[NSApp terminate:nil];
     else if (keep_running)
 		[instance startRunner];
     else {
@@ -557,7 +567,7 @@ static void shell_keyup() {
     if (!enqueued) {
 		keep_running = core_keyup();
 		if (quit_flag)
-			[NSApp terminate];
+			[NSApp terminate:nil];
 		else if (keep_running)
 			[instance startRunner];
     } else if (keep_running) {

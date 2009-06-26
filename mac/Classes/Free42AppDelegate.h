@@ -68,6 +68,8 @@ void calc_mouseup();
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification;
 - (void)applicationWillTerminate:(NSNotification *)aNotification;
+- (void)windowWillClose:(NSNotification *)notification;
+
 - (IBAction) showAbout:(id)sender;
 - (IBAction) showPreferences:(id)sender;
 - (IBAction) importPrograms:(id)sender;
