@@ -229,16 +229,48 @@ static void shell_keyup();
 }
 
 - (IBAction) showPreferences:(id)sender {
+	[prefsSingularMatrix setState:core_settings.matrix_singularmatrix];
+	[prefsMatrixOutOfRange setState:core_settings.matrix_outofrange];
+	[prefsAutoRepeat setState:core_settings.auto_repeat];
+	[prefsPrintText setState:state.printerToTxtFile];
+	[prefsPrintTextFile setStringValue:[NSString stringWithCString:state.printerTxtFileName encoding:NSUTF8StringEncoding]];
+	[prefsPrintTextRaw setState:core_settings.raw_text];
+	[prefsPrintGIF setState:state.printerToGifFile];
+	[prefsPrintGIFFile setStringValue:[NSString stringWithCString:state.printerGifFileName encoding:NSUTF8StringEncoding]];
+	[prefsPrintGIFMaxHeight setStringValue:[NSString stringWithFormat:@"%d", state.printerGifMaxLength]];
 	[NSApp runModalForWindow:preferencesWindow];
 }
 
 - (void) getPreferences {
+	core_settings.matrix_singularmatrix = [prefsSingularMatrix state];
+	core_settings.matrix_outofrange = [prefsMatrixOutOfRange state];
+	core_settings.auto_repeat = [prefsAutoRepeat state];
+	state.printerToTxtFile = [prefsPrintText state];
+	[[prefsPrintTextFile stringValue] getCString:state.printerTxtFileName maxLength:FILENAMELEN encoding:NSUTF8StringEncoding];
+	core_settings.raw_text = [prefsPrintTextRaw state];
+	state.printerToGifFile = [prefsPrintGIF state];
+	[[prefsPrintGIFFile stringValue] getCString:state.printerGifFileName maxLength:FILENAMELEN encoding:NSUTF8StringEncoding];
+	char buf[50];
+	[[prefsPrintGIFMaxHeight stringValue] getCString:buf maxLength:50 encoding:NSUTF8StringEncoding];
+	if (sscanf(buf, "%d", &state.printerGifMaxLength) == 1) {
+		if (state.printerGifMaxLength < 32)
+			state.printerGifMaxLength = 32;
+		else if (state.printerGifMaxLength > 32767)
+			state.printerGifMaxLength = 32767;
+	} else
+		state.printerGifMaxLength = 256;
 }
 
 - (IBAction) browsePrintTextFile:(id)sender {
+	NSSavePanel *saveDlg = [NSSavePanel savePanel];
+	if ([saveDlg runModalForDirectory:nil file:nil] == NSOKButton)
+		[prefsPrintTextFile setStringValue:[saveDlg filename]];
 }
 
 - (IBAction) browsePrintGIFFile:(id)sender {
+	NSSavePanel *saveDlg = [NSSavePanel savePanel];
+	if ([saveDlg runModalForDirectory:nil file:nil] == NSOKButton)
+		[prefsPrintGIFFile setStringValue:[saveDlg filename]];
 }
 
 - (IBAction) importPrograms:(id)sender {
