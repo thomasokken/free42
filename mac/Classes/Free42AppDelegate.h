@@ -72,6 +72,8 @@ void calc_mouseup();
 - (IBAction) showPreferences:(id)sender;
 - (IBAction) importPrograms:(id)sender;
 - (IBAction) exportPrograms:(id)sender;
+- (IBAction) exportProgramsCancel:(id)sender;
+- (IBAction) exportProgramsOK:(id)sender;
 + (const char *) getVersion;
 - (IBAction) menuNeedsUpdate:(NSMenu *)menu;
 - (void) selectSkin:(id)sender;

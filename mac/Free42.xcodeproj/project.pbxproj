@@ -118,9 +118,9 @@
 		E9B649320FED513800EC9B91 /* CalcView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CalcView.h; path = Classes/CalcView.h; sourceTree = "<group>"; };
 		E9B649330FED513800EC9B91 /* CalcView.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = CalcView.m; path = Classes/CalcView.m; sourceTree = "<group>"; };
 		E9BA6AD30FEEAE2100370EF8 /* MyRect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MyRect.h; path = Classes/MyRect.h; sourceTree = "<group>"; };
-		E9BA6AD40FEEAE2100370EF8 /* MyRect.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MyRect.m; path = Classes/MyRect.m; sourceTree = "<group>"; };
+		E9BA6AD40FEEAE2100370EF8 /* MyRect.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = MyRect.m; path = Classes/MyRect.m; sourceTree = "<group>"; };
 		E9BB633B0FF418DD00E7EF10 /* ProgramListDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ProgramListDataSource.h; path = Classes/ProgramListDataSource.h; sourceTree = "<group>"; };
-		E9BB633C0FF418DD00E7EF10 /* ProgramListDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ProgramListDataSource.m; path = Classes/ProgramListDataSource.m; sourceTree = "<group>"; };
+		E9BB633C0FF418DD00E7EF10 /* ProgramListDataSource.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = ProgramListDataSource.m; path = Classes/ProgramListDataSource.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */

@@ -21,14 +21,12 @@
 @implementation ProgramListDataSource
 
 - (void) awakeFromNib {
-	NSLog(@"ProgramListDataSource.awakeFromNib");
 	count = 0;
 	selected = NULL;
 	names = NULL;
 }
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView {
-	NSLog(@"ProgramListDataSource.numberOfRowsInTableView => %d", count);
 	return count;
 }
 
@@ -48,7 +46,6 @@
 }
 
 - (void) setProgramNames:(const char *)newNames count:(int)newCount {
-	NSLog(@"ProgramListDataSource.setProgramNames");
 	if (names != NULL) {
 		for (int i = 0; i < count; i++)
 			[names[i] release];
@@ -60,7 +57,7 @@
 	selected = (bool *) malloc(count * sizeof(bool));
 	const char *p = newNames;
 	for (int i = 0; i < newCount; i++) {
-		names[i] = [NSString stringWithCString:p encoding:NSUTF8StringEncoding];
+		names[i] = [[NSString stringWithCString:p encoding:NSUTF8StringEncoding] retain];
 		selected[i] = false;
 		p += strlen(p) + 1;
 	}

@@ -232,28 +232,42 @@ static void shell_keyup();
 	[programListDataSource setProgramNames:buf count:count];
 	[programListView reloadData];
 	[selectProgramsWindow makeKeyAndOrderFront:self];
-#if 0
-	XmString *stringtab;
-	char *p = buf;
-	int i;
+}
 
-	stringtab = (XmString *) malloc(count * sizeof(XmString));
-	// TODO - handle memory allocation failure
-	for (i = 0; i < count; i++) {
-		stringtab[i] = XmStringCreateLocalized(p);
-		p += strlen(p) + 1;
+- (IBAction) exportProgramsCancel:(id)sender {
+	[selectProgramsWindow orderOut:self];
+}
+
+- (IBAction) exportProgramsOK:(id)sender {
+	[selectProgramsWindow orderOut:self];
+	bool *selection = [programListDataSource getSelection];
+	int count = [programListDataSource numberOfRowsInTableView:nil];
+	NSSavePanel *saveDlg = [NSSavePanel savePanel];
+	if ([saveDlg runModalForDirectory:nil file:nil] == NSOKButton) {
+		NSString *fileName = [saveDlg filename];
+		char cFileName[1024];
+		[fileName getCString:cFileName maxLength:1024 encoding:NSUTF8StringEncoding];
+		export_file = fopen(cFileName, "w");
+		if (export_file == NULL) {
+			char buf[1000];
+			int err = errno;
+			snprintf(buf, 1000, "Could not open \"%s\" for writing:\n%s (%d)",
+					 cFileName, strerror(err), err);
+			show_message("Message", buf);
+		} else {
+			int *indexes = (int *) malloc(count * sizeof(int));
+			int selectionSize = 0;
+			for (int i = 0; i < count; i++)
+				if (selection[i])
+					indexes[selectionSize++] = i;
+			core_export_programs(selectionSize, indexes, NULL);
+			free(indexes);
+			if (export_file != NULL) {
+				fclose(export_file);
+				export_file = NULL;
+			}
+		}
 	}
-	XtVaSetValues(program_list, XmNitemCount, count,
-				  XmNitems, stringtab,
-				  NULL);
-	XmListDeselectAllItems(program_list);
-	for (i = 0; i < count; i++)
-		XmStringFree(stringtab[i]);
-	free(stringtab);
-
-	XtManageChild(program_select_dialog);
-	no_gnome_resize(XtParent(program_select_dialog));
-#endif
 }
 
 static char version[32] = "";
