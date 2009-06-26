@@ -687,8 +687,8 @@ void skin_repaint(NSRect *rect) {
 		if (softkey_pressed) {
 			skx1 = (-2 - currently_pressed_key) * 22;
 			skx2 = skx1 + 21;
-			sky1 = 9;
-			sky2 = 16;
+			sky1 = 0;
+			sky2 = 7;
 		}
 		for (int v = y1; v < y2; v++) {
 			for (int h = x1; h < x2; h++) {
@@ -733,8 +733,8 @@ void skin_find_key(int x, int y, bool cshift, int *skey, int *ckey) {
 	if (core_menu()
 			&& x >= display_loc.x
 			&& x < display_loc.x + 131 * display_scale.x
-			&& y >= display_loc.y + 9 * display_scale.y
-			&& y < display_loc.y + 16 * display_scale.y) {
+			&& y >= display_loc.y
+			&& y < display_loc.y + 8 * display_scale.y) {
 		int softkey = (x - display_loc.x) / (22 * display_scale.x) + 1;
 		*skey = -1 - softkey;
 		*ckey = softkey;
@@ -779,7 +779,7 @@ static void invalidate_key(int key) {
 	if (key >= -7 && key <= -2) {
 		int k = -1 - key;
 		int x = (k - 1) * 22 * display_scale.x + display_loc.x;
-		int y = 9 * display_scale.y + display_loc.y;
+		int y = display_loc.y;
 		int w = 21 * display_scale.x;
 		int h = 7 * display_scale.y;
 		Free42AppDelegate *delegate = (Free42AppDelegate *) [NSApp delegate];
