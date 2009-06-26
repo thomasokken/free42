@@ -1,2 +1,3 @@
 OFF doesn't work.
+Clicking the close button on the main window should exit the app.
 About, Export Programs, and Preferences, should all be modal.
