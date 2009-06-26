@@ -2,5 +2,4 @@ OFF doesn't work.
 Clicking the close button on the main window should exit the app.
 Preferences.
 About, Export Programs, and Preferences, should all be modal.
-BEEP & TONE.
 Printer emulation & spooling.

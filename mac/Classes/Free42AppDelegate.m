@@ -15,6 +15,7 @@
  * along with this program; if not, see http://www.gnu.org/licenses/.
  *****************************************************************************/
 
+#import <AudioToolbox/AudioServices.h>
 #import <sys/stat.h>
 #import <sys/time.h>
 #import <pthread.h>
@@ -28,6 +29,7 @@
 
 
 static Free42AppDelegate *instance = NULL;
+static SystemSoundID soundIDs[11];
 
 state_type state;
 char free42dirname[FILENAMELEN];
@@ -92,6 +94,20 @@ static void shell_keyup();
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
 	instance = self;
 
+	/****************************/
+	/***** Create sound IDs *****/
+	/****************************/
+	
+	const char *sound_names[] = { "tone0", "tone1", "tone2", "tone3", "tone4", "tone5", "tone6", "tone7", "tone8", "tone9", "squeak" };
+	for (int i = 0; i < 11; i++) {
+		NSString *name = [NSString stringWithCString:sound_names[i]];
+		NSString *path = [[NSBundle mainBundle] pathForResource:name ofType:@"wav"];
+		OSStatus status = AudioServicesCreateSystemSoundID((CFURLRef)[NSURL fileURLWithPath:path], &soundIDs[i]);
+		if (status)
+			NSLog(@"error loading sound:  %d", name);
+	}
+		
+	
 	/*****************************************************/
 	/***** Try to create the $HOME/.free42 directory *****/
 	/*****************************************************/
@@ -582,8 +598,16 @@ double shell_random_seed() {
 }
 
 void shell_beeper(int frequency, int duration) {
-	// TODO!
-	NSBeep();
+	const int cutoff_freqs[] = { 164, 220, 243, 275, 293, 324, 366, 418, 438, 550 };
+	for (int i = 0; i < 10; i++) {
+		if (frequency <= cutoff_freqs[i]) {
+			AudioServicesPlaySystemSound(soundIDs[i]);
+			shell_delay(250);
+			return;
+		}
+	}
+	AudioServicesPlaySystemSound(soundIDs[10]);
+	shell_delay(125);
 }
 
 int shell_low_battery() {
