@@ -1,4 +1,10 @@
 SHELL:
+* For the built-in skins, just include the actual files in the bundle, and
+  forget about the skins2cc awkwardness. The only thing that would have to be
+  customized is the code that figures out which skins are available in the
+  bundle; this could simply be a text file, also in the bundle, or, if there is
+  an API that supports this reasonably conveniently, we could simply enumerate
+  the *.layout files at the bundle's top level.
 * Interrupting programs doesn't seem to work properly. For example, when you
   try to interrupt the MT.raw test with R/S during DET, the "running"
   annunciator stays on, and I've observed subsequent weirdness including

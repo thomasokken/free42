@@ -1,2 +1,9 @@
 Keyboard mapping.
 Printer emulation & spooling.
+
+For the built-in skins and keymap, just include the actual files in the bundle,
+and forget about the skins2cc and keymap2cc awkwardness. The only thing that
+would have to be customized is the code that figures out which skins are
+available in the bundle; this could simply be a text file, also in the bundle,
+or, if there is an API that supports this reasonably conveniently, we could
+simply enumerate the *.layout files at the bundle's top level.
