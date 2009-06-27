@@ -42,6 +42,18 @@
 - (void)mouseUp:(NSEvent *)theEvent {
 	calc_mouseup();
 }
+
+- (void)keyDown:(NSEvent *)theEvent {
+	if ([theEvent isARepeat])
+		return;
+	NSLog(@"keyCode=\"%@\", modifiers=%x", [theEvent keyCode], [theEvent modifierFlags]);
+}
+
+- (void)keyUp:(NSEvent *)theEvent {
+	if ([theEvent isARepeat])
+		return;
+	NSLog(@"keyCode=\"%@\", modifiers=%x", [theEvent keyCode], [theEvent modifierFlags]);
+}
 	
 - (void) setNeedsDisplayInRectSafely2:(id) myrect {
 	MyRect *mr = (MyRect *) myrect;

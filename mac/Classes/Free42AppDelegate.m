@@ -26,6 +26,7 @@
 #import "core_display.h"
 #import "Free42AppDelegate.h"
 #import "ProgramListDataSource.h"
+#import "CalcView.h"
 
 
 static Free42AppDelegate *instance = NULL;
@@ -404,6 +405,7 @@ static char version[32] = "";
 	p.y = frame.origin.y + frame.size.height;
 	[mainWindow setContentSize:sz];
 	[mainWindow setFrameTopLeftPoint:p];
+	[calcView setNeedsDisplayInRectSafely:CGRectMake(0, 0, w, h)];
 }
 
 - (void) mouseDown3 {
