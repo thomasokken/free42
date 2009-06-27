@@ -290,6 +290,7 @@ static bool is_file(const char *name);
     }
 	
     shell_spool_exit();
+	
 	state.mainWindowX = (int) mainWindow.frame.origin.x;
 	state.mainWindowY = (int) mainWindow.frame.origin.y;
 	state.mainWindowKnown = 1;

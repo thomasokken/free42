@@ -28,6 +28,7 @@
 #import "core_main.h"
 #import "core_display.h"
 #import "shell.h"
+#import "shell_spool.h"
 #import "shell_iphone.h"
 #import "shell_skin_iphone.h"
 
@@ -104,6 +105,19 @@ static int ann_run = 0;
 //static int ann_battery = 0;
 static int ann_g = 0;
 static int ann_rad = 0;
+
+static FILE *print_txt = NULL;
+static FILE *print_gif = NULL;
+static char print_gif_name[FILENAMELEN];
+static int gif_seq = -1;
+static int gif_lines;
+
+static void show_message(const char *title, const char *message);
+static void txt_writer(const char *text, int length);
+static void txt_newliner();
+static void gif_seeker(int4 pos);
+static void gif_writer(const char *text, int length);
+static bool is_file(const char *name);
 
 ///////////////////////////////////////////////////////////////////////////////
 /////                    Ende ophphe ye olde C stuphphe                   /////
@@ -539,6 +553,58 @@ static void init_shell_state(int version) {
 
 static void quit2() {
 	TRACE("quit2");
+
+#if 0
+    FILE *printfile;
+    int n, length;
+	
+    printfile = fopen(printfilename, "w");
+    if (printfile != NULL) {
+		length = printout_bottom - printout_top;
+		if (length < 0)
+			length += PRINT_LINES;
+		n = fwrite(&length, 1, sizeof(int), printfile);
+		if (n != sizeof(int))
+			goto failed;
+		if (printout_bottom >= printout_top) {
+			n = fwrite(print_bitmap + PRINT_BYTESPERLINE * printout_top,
+					   1, PRINT_BYTESPERLINE * length, printfile);
+			if (n != PRINT_BYTESPERLINE * length)
+				goto failed;
+		} else {
+			n = fwrite(print_bitmap + PRINT_BYTESPERLINE * printout_top,
+					   1, PRINT_SIZE - PRINT_BYTESPERLINE * printout_top,
+					   printfile);
+			if (n != PRINT_SIZE - PRINT_BYTESPERLINE * printout_top)
+				goto failed;
+			n = fwrite(print_bitmap, 1,
+					   PRINT_BYTESPERLINE * printout_bottom, printfile);
+			if (n != PRINT_BYTESPERLINE * printout_bottom)
+				goto failed;
+		}
+		
+		fclose(printfile);
+		goto done;
+		
+	failed:
+		fclose(printfile);
+		remove(printfilename);
+		
+	done:
+		;
+    }
+#endif
+	
+    if (print_txt != NULL)
+		fclose(print_txt);
+	
+    if (print_gif != NULL) {
+		shell_finish_gif(gif_seeker, gif_writer);
+		fclose(print_gif);
+    }
+	
+    shell_spool_exit();
+
 	mkdir("config", 0755);
     statefile = fopen("config/state", "w");
     if (statefile != NULL)
@@ -800,8 +866,149 @@ void shell_print(const char *text, int length,
 				 const char *bits, int bytesperline,
 				 int x, int y, int width, int height) {
 	TRACE("shell_print");
-	pthread_mutex_lock(&shell_helper_mutex);
-	[mainView performSelectorOnMainThread:@selector(shell_print_helper) withObject:NULL waitUntilDone:NO];
+//	pthread_mutex_lock(&shell_helper_mutex);
+//	[mainView performSelectorOnMainThread:@selector(shell_print_helper) withObject:NULL waitUntilDone:NO];
+
+#if 0
+    int xx, yy;
+    int oldlength, newlength;
+	
+    for (yy = 0; yy < height; yy++) {
+		int4 Y = (printout_bottom + 2 * yy) % PRINT_LINES;
+		for (xx = 0; xx < 143; xx++) {
+			int bit, px, py;
+			if (xx < width) {
+				char c = bits[(y + yy) * bytesperline + ((x + xx) >> 3)];
+				bit = (c & (1 << ((x + xx) & 7))) != 0;
+			} else
+				bit = 0;
+			for (px = xx * 2; px < (xx + 1) * 2; px++)
+				for (py = Y; py < Y + 2; py++)
+					if (bit)
+						print_bitmap[py * PRINT_BYTESPERLINE + (px >> 3)]
+						|= 1 << (px & 7);
+					else
+						print_bitmap[py * PRINT_BYTESPERLINE + (px >> 3)]
+						&= ~(1 << (px & 7));
+		}
+    }
+	
+    oldlength = printout_bottom - printout_top;
+    if (oldlength < 0)
+		oldlength += PRINT_LINES;
+    printout_bottom = (printout_bottom + 2 * height) % PRINT_LINES;
+    newlength = oldlength + 2 * height;
+	
+    if (newlength >= PRINT_LINES) {
+		int offset;
+		printout_top = (printout_bottom + 2) % PRINT_LINES;
+		newlength = PRINT_LINES - 2;
+		if (newlength != oldlength)
+			gtk_widget_set_size_request(print_widget, 286, newlength);
+		scroll_printout_to_bottom();
+		offset = 2 * height - newlength + oldlength;
+		if (print_gc == NULL)
+			print_gc = gdk_gc_new(print_widget->window);
+		gdk_draw_drawable(print_widget->window, print_gc, print_widget->window,
+						  0, offset, 0, 0, 286, oldlength - offset);
+		repaint_printout(0, newlength - 2 * height, 286, 2 * height);
+    } else {
+		gtk_widget_set_size_request(print_widget, 286, newlength);
+		// The resize request does not take effect immediately;
+		// if I call scroll_printout_to_bottom() now, the scrolling will take
+		// place *before* the resizing, leaving the scroll bar in the wrong
+		// position.
+		// I work around this by using a callback to finish the job.
+		g_signal_connect(G_OBJECT(print_widget), "configure-event",
+						 G_CALLBACK(print_widget_grew),
+						 (gpointer) new print_growth_info(oldlength, 2 * height));
+    }
+#endif
+	
+    if (state.printerToTxtFile) {
+		int err;
+		char buf[1000];
+		
+		if (print_txt == NULL) {
+			print_txt = fopen(state.printerTxtFileName, "a");
+			if (print_txt == NULL) {
+				err = errno;
+				state.printerToTxtFile = 0;
+				snprintf(buf, 1000, "Can't open \"%s\" for output:\n%s (%d)\nPrinting to text file disabled.", state.printerTxtFileName, strerror(err), err);
+				show_message("Message", buf);
+				goto done_print_txt;
+			}
+		}
+		
+		shell_spool_txt(text, length, txt_writer, txt_newliner);
+	done_print_txt:;
+    }
+	
+    if (state.printerToGifFile) {
+		int err;
+		char buf[1000];
+		
+		if (print_gif != NULL
+			&& gif_lines + height > state.printerGifMaxLength) {
+			shell_finish_gif(gif_seeker, gif_writer);
+			fclose(print_gif);
+			print_gif = NULL;
+		}
+		
+		if (print_gif == NULL) {
+			while (1) {
+				int len, p;
+				
+				gif_seq = (gif_seq + 1) % 10000;
+				
+				strcpy(print_gif_name, state.printerGifFileName);
+				len = strlen(print_gif_name);
+				
+				/* Strip ".gif" extension, if present */
+				if (len >= 4 &&
+					strcasecmp(print_gif_name + len - 4, ".gif") == 0) {
+					len -= 4;
+					print_gif_name[len] = 0;
+				}
+				
+				/* Strip ".[0-9]+", if present */
+				p = len;
+				while (p > 0 && print_gif_name[p] >= '0'
+					   && print_gif_name[p] <= '9')
+					p--;
+				if (p < len && p >= 0 && print_gif_name[p] == '.')
+					print_gif_name[p] = 0;
+				
+				/* Make sure we have enough space for the ".nnnn.gif" */
+				p = 1000 - 10;
+				print_gif_name[p] = 0;
+				p = strlen(print_gif_name);
+				snprintf(print_gif_name + p, 6, ".%04d", gif_seq);
+				strcat(print_gif_name, ".gif");
+				
+				if (!is_file(print_gif_name))
+					break;
+			}
+			print_gif = fopen(print_gif_name, "w+");
+			if (print_gif == NULL) {
+				err = errno;
+				state.printerToGifFile = 0;
+				snprintf(buf, 1000, "Can't open \"%s\" for output:\n%s (%d)\nPrinting to GIF file disabled.", print_gif_name, strerror(err), err);
+				show_message("Message", buf);
+				goto done_print_gif;
+			}
+			if (!shell_start_gif(gif_writer, state.printerGifMaxLength)) {
+				state.printerToGifFile = 0;
+				show_message("Message", "Not enough memory for the GIF encoder.\nPrinting to GIF file disabled.");
+				goto done_print_gif;
+			}
+			gif_lines = 0;
+		}
+		
+		shell_spool_gif(bits, bytesperline, x, y, width, height, gif_writer);
+		gif_lines += height;
+	done_print_gif:;
+    }
 }
 
 /*
@@ -828,4 +1035,68 @@ shell_bcd_table_struct *shell_put_bcd_table(shell_bcd_table_struct *bcdtab,
 void shell_release_bcd_table(shell_bcd_table_struct *bcdtab) {
 	TRACE("shell_release_bcd_table");
 	free(bcdtab);
+}
+
+/* Callbacks used by shell_print() and shell_spool_txt() / shell_spool_gif() */
+
+static void show_message(const char *title, const char *message) {
+	// TODO!
+	fprintf(stderr, "%s\n", message);
+}
+
+static void txt_writer(const char *text, int length) {
+    int n;
+    if (print_txt == NULL)
+		return;
+    n = fwrite(text, 1, length, print_txt);
+    if (n != length) {
+		char buf[1000];
+		state.printerToTxtFile = 0;
+		fclose(print_txt);
+		print_txt = NULL;
+		snprintf(buf, 1000, "Error while writing to \"%s\".\nPrinting to text file disabled", state.printerTxtFileName);
+		show_message("Message", buf);
+    }
+}   
+
+static void txt_newliner() {
+    if (print_txt == NULL)
+		return;
+    fputc('\n', print_txt);
+    fflush(print_txt);
+}   
+
+static void gif_seeker(int4 pos) {
+    if (print_gif == NULL)
+		return;
+    if (fseek(print_gif, pos, SEEK_SET) == -1) {
+		char buf[1000];
+		state.printerToGifFile = 0;
+		fclose(print_gif);
+		print_gif = NULL;
+		snprintf(buf, 1000, "Error while seeking \"%s\".\nPrinting to GIF file disabled", print_gif_name);
+		show_message("Message", buf);
+    }
+}
+
+static void gif_writer(const char *text, int length) {
+    int n;
+    if (print_gif == NULL)
+		return;
+    n = fwrite(text, 1, length, print_gif);
+    if (n != length) {
+		char buf[1000];
+		state.printerToGifFile = 0;
+		fclose(print_gif);
+		print_gif = NULL;
+		snprintf(buf, 1000, "Error while writing to \"%s\".\nPrinting to GIF file disabled", print_gif_name);
+		show_message("Message", buf);
+    }
+}
+
+static bool is_file(const char *name) {
+    struct stat st;
+    if (stat(name, &st) == -1)
+		return false;
+    return S_ISREG(st.st_mode);
 }
