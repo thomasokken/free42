@@ -1,4 +1,5 @@
 SHELL:
+* Printer emulation.
 * For the icons used by simpleserver, how about including them in the bundle?
   That would get rid of the additional build task.
 * Interrupting programs doesn't seem to work properly. For example, when you
