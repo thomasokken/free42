@@ -44,12 +44,14 @@ void calc_keymodifierschanged(NSUInteger flags);
 	
 @class ProgramListDataSource;
 @class CalcView;
+@class PrintView;
 
 @interface Free42AppDelegate : NSObject {
 	NSWindow *mainWindow;
 	CalcView *calcView;
 	
 	NSWindow *printWindow;
+	PrintView *printView;
 	
 	NSWindow *preferencesWindow;
 	NSButton *prefsSingularMatrix;
@@ -74,6 +76,7 @@ void calc_keymodifierschanged(NSUInteger flags);
 @property (nonatomic, retain) IBOutlet NSWindow *mainWindow;
 @property (nonatomic, retain) IBOutlet CalcView *calcView;
 @property (nonatomic, retain) IBOutlet NSWindow *printWindow;
+@property (nonatomic, retain) IBOutlet PrintView *printView;
 @property (nonatomic, retain) IBOutlet NSWindow *preferencesWindow;
 @property (nonatomic, retain) IBOutlet NSButton *prefsSingularMatrix;
 @property (nonatomic, retain) IBOutlet NSButton *prefsMatrixOutOfRange;
@@ -100,6 +103,8 @@ void calc_keymodifierschanged(NSUInteger flags);
 - (void) getPreferences;
 - (IBAction) browsePrintTextFile:(id)sender;
 - (IBAction) browsePrintGIFFile:(id)sender;
+- (IBAction) showPrintOut:(id)sender;
+- (IBAction) clearPrintOut:(id)sender;
 - (IBAction) importPrograms:(id)sender;
 - (IBAction) exportPrograms:(id)sender;
 - (IBAction) exportProgramsCancel:(id)sender;

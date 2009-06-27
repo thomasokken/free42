@@ -58,6 +58,7 @@
 		E9B0793A0FF548770021B83D /* tone9.wav in Resources */ = {isa = PBXBuildFile; fileRef = E9B079300FF548770021B83D /* tone9.wav */; };
 		E9B0795E0FF54A170021B83D /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E9B0795D0FF54A170021B83D /* AudioToolbox.framework */; };
 		E9B649340FED513800EC9B91 /* CalcView.m in Sources */ = {isa = PBXBuildFile; fileRef = E9B649330FED513800EC9B91 /* CalcView.m */; };
+		E9B9F6820FF6C1E60003CAF6 /* PrintView.m in Sources */ = {isa = PBXBuildFile; fileRef = E9B9F6810FF6C1E60003CAF6 /* PrintView.m */; };
 		E9BA6AD50FEEAE2100370EF8 /* MyRect.m in Sources */ = {isa = PBXBuildFile; fileRef = E9BA6AD40FEEAE2100370EF8 /* MyRect.m */; };
 		E9BB633D0FF418DD00E7EF10 /* ProgramListDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = E9BB633C0FF418DD00E7EF10 /* ProgramListDataSource.m */; };
 		E9E335DE0FF67A1D006A40AD /* keymap.txt in Resources */ = {isa = PBXBuildFile; fileRef = E9E335DD0FF67A1D006A40AD /* keymap.txt */; };
@@ -150,6 +151,8 @@
 		E9B0795D0FF54A170021B83D /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		E9B649320FED513800EC9B91 /* CalcView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CalcView.h; path = Classes/CalcView.h; sourceTree = "<group>"; };
 		E9B649330FED513800EC9B91 /* CalcView.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = CalcView.m; path = Classes/CalcView.m; sourceTree = "<group>"; };
+		E9B9F6800FF6C1E60003CAF6 /* PrintView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PrintView.h; path = Classes/PrintView.h; sourceTree = "<group>"; };
+		E9B9F6810FF6C1E60003CAF6 /* PrintView.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = PrintView.m; path = Classes/PrintView.m; sourceTree = "<group>"; };
 		E9BA6AD30FEEAE2100370EF8 /* MyRect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MyRect.h; path = Classes/MyRect.h; sourceTree = "<group>"; };
 		E9BA6AD40FEEAE2100370EF8 /* MyRect.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = MyRect.m; path = Classes/MyRect.m; sourceTree = "<group>"; };
 		E9BB633B0FF418DD00E7EF10 /* ProgramListDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ProgramListDataSource.h; path = Classes/ProgramListDataSource.h; sourceTree = "<group>"; };
@@ -179,6 +182,8 @@
 				E959D3DC0FEC09C4007C56A4 /* Free42AppDelegate.m */,
 				E9BA6AD30FEEAE2100370EF8 /* MyRect.h */,
 				E9BA6AD40FEEAE2100370EF8 /* MyRect.m */,
+				E9B9F6800FF6C1E60003CAF6 /* PrintView.h */,
+				E9B9F6810FF6C1E60003CAF6 /* PrintView.m */,
 				E9BB633B0FF418DD00E7EF10 /* ProgramListDataSource.h */,
 				E9BB633C0FF418DD00E7EF10 /* ProgramListDataSource.m */,
 				E97714CB0FEC0E9A00F8CA16 /* shell_skin.h */,
@@ -437,6 +442,7 @@
 				E9B649340FED513800EC9B91 /* CalcView.m in Sources */,
 				E9BA6AD50FEEAE2100370EF8 /* MyRect.m in Sources */,
 				E9BB633D0FF418DD00E7EF10 /* ProgramListDataSource.m in Sources */,
+				E9B9F6820FF6C1E60003CAF6 /* PrintView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

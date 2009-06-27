@@ -85,6 +85,7 @@ static void shell_keyup();
 @synthesize mainWindow;
 @synthesize calcView;
 @synthesize printWindow;
+@synthesize printView;
 @synthesize preferencesWindow;
 @synthesize prefsSingularMatrix;
 @synthesize prefsMatrixOutOfRange;
@@ -194,6 +195,26 @@ static void shell_keyup();
 		[mainWindow setFrameOrigin:pt];
 	}
 	
+	sz.width = 301;
+	sz.height = state.printWindowKnown ? state.printWindowHeight : 600;
+	[printWindow setContentSize:sz];
+	
+	if (state.printWindowKnown) {
+		NSPoint pt;
+		pt.x = state.printWindowX;
+		pt.y = state.printWindowY;
+		[printWindow setFrameOrigin:pt];
+	}
+	
+	NSRect f;
+	f.origin.x = 0;
+	f.origin.y = 0;
+	f.size.width = 286;
+	f.size.height = 1000;
+	[printView setFrame:f];
+	
+	if (state.printWindowMapped)
+		[printWindow makeKeyAndOrderFront:self];
 	[mainWindow makeKeyAndOrderFront:self];
 	
 	core_init(init_mode, version);
@@ -209,6 +230,10 @@ static void shell_keyup();
 	state.mainWindowX = (int) mainWindow.frame.origin.x;
 	state.mainWindowY = (int) mainWindow.frame.origin.y;
 	state.mainWindowKnown = 1;
+	state.printWindowX = (int) printWindow.frame.origin.x;
+	state.printWindowY = (int) printWindow.frame.origin.y;
+	state.printWindowHeight = (int) [[printWindow contentView] frame].size.height;
+	state.printWindowKnown = 1;
     statefile = fopen(statefilename, "w");
     if (statefile != NULL)
         write_shell_state();
@@ -225,6 +250,8 @@ static void shell_keyup();
 			[instance getPreferences];
 	} else if (window == mainWindow)
 		[NSApp terminate:nil];
+	else if (window == printWindow)
+		state.printWindowMapped = 0;
 }
 
 - (IBAction) showAbout:(id)sender {
@@ -277,6 +304,16 @@ static void shell_keyup();
 	NSSavePanel *saveDlg = [NSSavePanel savePanel];
 	if ([saveDlg runModalForDirectory:nil file:nil] == NSOKButton)
 		[prefsPrintGIFFile setStringValue:[saveDlg filename]];
+}
+
+- (IBAction) showPrintOut:(id)sender {
+	if (!state.printWindowMapped) {
+		[printWindow makeKeyAndOrderFront:self];
+		state.printWindowMapped = 1;
+	}
+}
+
+- (IBAction) clearPrintOut:(id)sender {
 }
 
 - (IBAction) importPrograms:(id)sender {
