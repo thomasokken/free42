@@ -182,10 +182,16 @@ static int case_insens_comparator(const void *a, const void *b) {
     return strcasecmp(*(const char **) a, *(const char **) b);
 }
 
+typedef struct stringnode {
+	struct stringnode *next;
+	char string[1];
+} stringnode;
+
 void skin_menu_update(NSMenu *skinMenu) {
 	while ([skinMenu numberOfItems] > 0)
 		[skinMenu removeItemAtIndex:0];
     
+	stringnode *namelist = NULL;
 	char buf[1024];
 	NSString *path = [[NSBundle mainBundle] pathForResource:@"builtin_skins" ofType:@"txt"];
 	[path getCString:buf maxLength:1024 encoding:NSUTF8StringEncoding];
@@ -197,6 +203,11 @@ void skin_menu_update(NSMenu *skinMenu) {
 		NSMenuItem *item = [skinMenu addItemWithTitle:name action: @selector(selectSkin:) keyEquivalent: @""];
 		if (strcasecmp(cname, state.skinName) == 0)
 			[item setState:NSOnState];
+		stringnode *n = (stringnode *) malloc(sizeof(stringnode) + strlen(cname));
+        // TODO - handle memory allocation failure
+		n->next = namelist;
+		strcpy(n->string, cname);
+		namelist = n;
 	}
 	fclose(builtins);
 	
@@ -214,15 +225,29 @@ void skin_menu_update(NSMenu *skinMenu) {
         char *skn;
         if (namelen < 7)
             continue;
-        if (strcasecmp(dent->d_name + namelen - 7, ".layout") != 0)
+		namelen -= 7;
+        if (strcasecmp(dent->d_name + namelen, ".layout") != 0)
             continue;
-        skn = (char *) malloc(namelen - 6);
+		stringnode *n = namelist;
+		while (n != NULL) {
+			if (strlen(n->string) == namelen && strncasecmp(n->string, dent->d_name, namelen) == 0)
+				goto skip;
+			n = n->next;
+		}
+        skn = (char *) malloc(namelen + 1);
         // TODO - handle memory allocation failure
-        memcpy(skn, dent->d_name, namelen - 7);
-        skn[namelen - 7] = 0;
+        memcpy(skn, dent->d_name, namelen);
+        skn[namelen] = 0;
         skinname[nskins++] = skn;
+		skip:;
     }
     closedir(dir);
+	
+	while (namelist != NULL) {
+		stringnode *n = namelist;
+		namelist = namelist->next;
+		free(n);
+	}
 	
     qsort(skinname, nskins, sizeof(char *), case_insens_comparator);
     for (int i = 0; i < nskins; i++) {

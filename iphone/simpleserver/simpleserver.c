@@ -923,8 +923,15 @@ static void http_error(int csock, int err) {
     sockprintf(csock, "Connection: close\r\n");
     sockprintf(csock, "\r\n");
     /* TODO: Descriptive response body */
+    sockprintf(csock, "<html>\r\n");
+    sockprintf(csock, "<head>\r\n");
+    sockprintf(csock, "<title>%d %s</title>\r\n", err, msg);
+    sockprintf(csock, "</head>\r\n");
+    sockprintf(csock, "<body>\r\n");
     sockprintf(csock, "<h1>%d %s</h1>\r\n", err, msg);
     sockprintf(csock, "This error page is under construction.\r\n");
+    sockprintf(csock, "</body>\r\n");
+    sockprintf(csock, "</html>\r\n");
 }
 
 #ifdef STANDALONE

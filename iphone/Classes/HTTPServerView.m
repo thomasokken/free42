@@ -94,7 +94,7 @@ static int port;
 									(ip_addr >> 24) & 255] retain];
 				} else {
 					NSLog(@"My DNS hostname appears to be %s", h->h_name);
-					hostname = [[NSString stringWithCString:h->h_name] retain];
+					hostname = [[NSString stringWithCString:h->h_name encoding:NSUTF8StringEncoding] retain];
 				}
 				break;
 			}

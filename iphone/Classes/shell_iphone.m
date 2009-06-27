@@ -51,7 +51,7 @@ static char version[32] = "";
 
 	const char *sound_names[] = { "tone0", "tone1", "tone2", "tone3", "tone4", "tone5", "tone6", "tone7", "tone8", "tone9", "squeak" };
 	for (int i = 0; i < 11; i++) {
-		NSString *name = [NSString stringWithCString:sound_names[i]];
+		NSString *name = [NSString stringWithCString:sound_names[i] encoding:NSUTF8StringEncoding];
 		NSString *path = [[NSBundle mainBundle] pathForResource:name ofType:@"wav"];
 		OSStatus status = AudioServicesCreateSystemSoundID((CFURLRef)[NSURL fileURLWithPath:path], &soundIDs[i]);
 		if (status)

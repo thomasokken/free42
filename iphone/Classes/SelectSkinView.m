@@ -57,17 +57,23 @@
 	while (fgets(buf, 1024, builtins) != NULL) {
 		char *context;
 		char *name = strtok_r(buf, " \t\r\n", &context);
-		[skinNames addObject:[NSString stringWithCString:name]];
+		[skinNames addObject:[NSString stringWithCString:name encoding:NSUTF8StringEncoding]];
 	}
 	fclose(builtins);
 	DIR *dir = opendir("skins");
 	struct dirent *d;
+	int num_builtin_skins = [skinNames count];
 	while ((d = readdir(dir)) != NULL) {
 		int len = strlen(d->d_name);
 		if (len < 8 || strcmp(d->d_name + len - 7, ".layout") != 0)
 			continue;
 		d->d_name[len - 7] = 0;
-		[skinNames addObject:[NSString stringWithCString:d->d_name]];
+		NSString *s = [NSString stringWithCString:d->d_name encoding:NSUTF8StringEncoding];
+		for (int i = 0; i < num_builtin_skins; i++)
+			if ([s caseInsensitiveCompare:[skinNames objectAtIndex:i]] == 0)
+				goto skip;
+		[skinNames addObject:s];
+		skip:;
 	}
 	closedir(dir);
 	[skinTable reloadData];

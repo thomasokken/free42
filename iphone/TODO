@@ -1,15 +1,10 @@
 SHELL:
-* Suppress skins whose names match built-in ones from the menu.
 * For the icons used by simpleserver, how about including them in the bundle?
   That would get rid of the additional build task.
 * Interrupting programs doesn't seem to work properly. For example, when you
   try to interrupt the MT.raw test with R/S during DET, the "running"
   annunciator stays on, and I've observed subsequent weirdness including
   crashing.
-* OFF: shouldn't it just turn the power off, like the Palm version? If not, is
-  there a way to make an application quit with the same kind of "disappear
-  backwards" animation, like what takes place when you exit using the "home"
-  button?
 * Use UIApplication.idleTimerDisabled to prevent the screen from dimming while
   a lengthy operation is in progress.
 * Implement "glow" highlight like 42s.
@@ -32,7 +27,4 @@ HTTP SERVER:
   be parsed at all.
 * The server does not seem to handle pathnames with spaces correctly. For
   example, try "/Library/Application Support" on the iPod.
-* http_error() should return a response body -- right now, whenever the server
-  reports a 404 or any other error, a Firefox user will only see a blank
-  screen. Maybe other browsers are more helpful, but this is bad behavior
-  regardless.
+* http_error() should return a nicer response body.
