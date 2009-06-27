@@ -22,10 +22,6 @@
 #import "shell_skin_iphone.h"
 #import "core_main.h"
 
-// From skins.cc
-extern int skin_count;
-extern const char *skin_name[];
-
 
 @implementation SelectSkinView
 
@@ -54,8 +50,16 @@ extern const char *skin_name[];
 	// TODO: highlight the currently selected skin
 	// TODO: separator between built-in and external skins
 	[skinNames removeAllObjects];
-	for (int i = 0; i < skin_count; i++)
-		[skinNames addObject:[NSString stringWithCString:skin_name[i]]];
+	char buf[1024];
+	NSString *path = [[NSBundle mainBundle] pathForResource:@"builtin_skins" ofType:@"txt"];
+	[path getCString:buf maxLength:1024 encoding:NSUTF8StringEncoding];
+	FILE *builtins = fopen(buf, "r");
+	while (fgets(buf, 1024, builtins) != NULL) {
+		char *context;
+		char *name = strtok_r(buf, " \t\r\n", &context);
+		[skinNames addObject:[NSString stringWithCString:name]];
+	}
+	fclose(builtins);
 	DIR *dir = opendir("skins");
 	struct dirent *d;
 	while ((d = readdir(dir)) != NULL) {

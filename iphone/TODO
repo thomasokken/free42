@@ -1,10 +1,5 @@
 SHELL:
-* For the built-in skins, just include the actual files in the bundle, and
-  forget about the skins2cc awkwardness. The only thing that would have to be
-  customized is the code that figures out which skins are available in the
-  bundle; this could simply be a text file, also in the bundle, or, if there is
-  an API that supports this reasonably conveniently, we could simply enumerate
-  the *.layout files at the bundle's top level.
+* Suppress skins whose names match built-in ones from the menu.
 * For the icons used by simpleserver, how about including them in the bundle?
   That would get rid of the additional build task.
 * Interrupting programs doesn't seem to work properly. For example, when you
