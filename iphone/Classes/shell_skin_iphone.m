@@ -74,9 +74,6 @@ static SkinAnnunciator annunciators[7];
 static int annunciator_state[7];
 
 static FILE *external_file;
-static long builtin_length;
-static long builtin_pos;
-static const unsigned char *builtin_file;
 
 static int skin_type;
 static int skin_width, skin_height;
@@ -201,7 +198,6 @@ static int skin_open(const char *skinname, int open_layout) {
 	char buf[1024];
 
 	/* Look for built-in skin first */
-	/* Look for built-in skin first */
 	NSString *path = [[NSBundle mainBundle] pathForResource:@"builtin_skins" ofType:@"txt"];
 	[path getCString:buf maxLength:1024 encoding:NSUTF8StringEncoding];
 	FILE *builtins = fopen(buf, "r");
@@ -227,12 +223,7 @@ static int skin_open(const char *skinname, int open_layout) {
 }
 
 int skin_getchar() {
-	if (external_file != NULL)
-		return fgetc(external_file);
-	else if (builtin_pos < builtin_length)
-		return builtin_file[builtin_pos++];
-	else
-		return EOF;
+	return fgetc(external_file);
 }
 
 static int skin_gets(char *buf, int buflen) {
@@ -259,16 +250,8 @@ static int skin_gets(char *buf, int buflen) {
 	return p > 1 || !eof;
 }
 
-void skin_rewind() {
-	if (external_file != NULL)
-		rewind(external_file);
-	else
-		builtin_pos = 0;
-}
-
 static void skin_close() {
-	if (external_file != NULL)
-		fclose(external_file);
+	fclose(external_file);
 }
 
 static void MyProviderReleaseData(void *info,  const void *data, size_t size) {
@@ -471,8 +454,8 @@ void skin_load(long *width, long *height) {
 	if (!skin_open(state.skinName, 0))
 		goto fallback_on_1st_builtin_skin;
 
-	/* shell_loadimage() calls skin_getchar() and skin_rewind() to load the
-	 * image from the compiled-in or on-disk file; it calls skin_init_image(),
+	/* shell_loadimage() calls skin_getchar() to load the image from the
+	 * compiled-in or on-disk file; it calls skin_init_image(),
 	 * skin_put_pixels(), and skin_finish_image() to create the in-memory
 	 * representation.
 	 */

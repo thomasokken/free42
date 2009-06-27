@@ -210,13 +210,6 @@ static int skin_gets(char *buf, int buflen) {
     return p > 1 || !eof;
 }
 
-void skin_rewind() {
-    if (external_file != NULL)
-	rewind(external_file);
-    else
-	builtin_pos = 0;
-}
-
 static void skin_close() {
     if (external_file != NULL)
 	fclose(external_file);
@@ -463,8 +456,8 @@ void skin_load(int *width, int *height) {
     if (!skin_open(state.skinName, 0))
 	goto fallback_on_1st_builtin_skin;
 
-    /* shell_loadimage() calls skin_getchar() and skin_rewind() to load the
-     * image from the compiled-in or on-disk file; it calls skin_init_image(),
+    /* shell_loadimage() calls skin_getchar() to load the image from the
+     * compiled-in or on-disk file; it calls skin_init_image(),
      * skin_put_pixels(), and skin_finish_image() to create the in-memory
      * representation.
      */
