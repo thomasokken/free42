@@ -56,6 +56,7 @@
 		E9B649340FED513800EC9B91 /* CalcView.m in Sources */ = {isa = PBXBuildFile; fileRef = E9B649330FED513800EC9B91 /* CalcView.m */; };
 		E9BA6AD50FEEAE2100370EF8 /* MyRect.m in Sources */ = {isa = PBXBuildFile; fileRef = E9BA6AD40FEEAE2100370EF8 /* MyRect.m */; };
 		E9BB633D0FF418DD00E7EF10 /* ProgramListDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = E9BB633C0FF418DD00E7EF10 /* ProgramListDataSource.m */; };
+		E9E335DE0FF67A1D006A40AD /* keymap.txt in Resources */ = {isa = PBXBuildFile; fileRef = E9E335DD0FF67A1D006A40AD /* keymap.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -145,6 +146,7 @@
 		E9BA6AD40FEEAE2100370EF8 /* MyRect.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = MyRect.m; path = Classes/MyRect.m; sourceTree = "<group>"; };
 		E9BB633B0FF418DD00E7EF10 /* ProgramListDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ProgramListDataSource.h; path = Classes/ProgramListDataSource.h; sourceTree = "<group>"; };
 		E9BB633C0FF418DD00E7EF10 /* ProgramListDataSource.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = ProgramListDataSource.m; path = Classes/ProgramListDataSource.m; sourceTree = "<group>"; };
+		E9E335DD0FF67A1D006A40AD /* keymap.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = keymap.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -233,8 +235,9 @@
 				E942DD160FEBEFB600CA75AD /* icon-64x64.png */,
 				E97C41380FEBC6BE00772516 /* icon.icns */,
 				8D1107310486CEB800E47090 /* Info.plist */,
-				1DDD58140DA1D0A300B32029 /* MainMenu.xib */,
 				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
+				E9E335DD0FF67A1D006A40AD /* keymap.txt */,
+				1DDD58140DA1D0A300B32029 /* MainMenu.xib */,
 				E9B079250FF548690021B83D /* squeak.wav */,
 				E9B079270FF548770021B83D /* tone0.wav */,
 				E9B079280FF548770021B83D /* tone1.wav */,
@@ -376,6 +379,7 @@
 				E9B079380FF548770021B83D /* tone7.wav in Resources */,
 				E9B079390FF548770021B83D /* tone8.wav in Resources */,
 				E9B0793A0FF548770021B83D /* tone9.wav in Resources */,
+				E9E335DE0FF67A1D006A40AD /* keymap.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

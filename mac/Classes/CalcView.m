@@ -34,6 +34,10 @@
 	skin_repaint(&rect);
 }
 
+- (BOOL) acceptsFirstResponder {
+	return YES;
+}
+
 - (void)mouseDown:(NSEvent *)theEvent {
 	NSPoint loc = [theEvent locationInWindow];
 	calc_mousedown((int) loc.x, (int) loc.y);
@@ -43,18 +47,34 @@
 	calc_mouseup();
 }
 
+static NSString *unicode(NSString *src) {
+	char buf[1024] = "";
+	int len = [src length];
+	for (int i = 0; i < len; i++) {
+		unsigned short c = [src characterAtIndex:i];
+		if (i > 0)
+			strcat(buf, " ");
+		sprintf(buf + strlen(buf), "0x%x", c);
+	}
+	return [NSString stringWithCString:buf encoding:NSUTF8StringEncoding];
+}
+
 - (void)keyDown:(NSEvent *)theEvent {
 	if ([theEvent isARepeat])
 		return;
-	NSLog(@"keyCode=\"%@\", modifiers=%x", [theEvent keyCode], [theEvent modifierFlags]);
+	calc_keydown([theEvent characters], [theEvent modifierFlags], [theEvent keyCode]);
 }
 
 - (void)keyUp:(NSEvent *)theEvent {
 	if ([theEvent isARepeat])
 		return;
-	NSLog(@"keyCode=\"%@\", modifiers=%x", [theEvent keyCode], [theEvent modifierFlags]);
+	calc_keyup([theEvent characters], [theEvent modifierFlags], [theEvent keyCode]);
 }
-	
+
+- (void)flagsChanged:(NSEvent *)theEvent {
+	calc_keymodifierschanged([theEvent modifierFlags]);
+}
+
 - (void) setNeedsDisplayInRectSafely2:(id) myrect {
 	MyRect *mr = (MyRect *) myrect;
 	CGRect cr = [mr rect];

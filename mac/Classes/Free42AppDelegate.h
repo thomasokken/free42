@@ -38,7 +38,10 @@ extern char free42dirname[FILENAMELEN];
 
 void calc_mousedown(int x, int y);
 void calc_mouseup();
-
+void calc_keydown(NSString *characters, NSUInteger flags, unsigned short keycode);
+void calc_keyup(NSString *characters, NSUInteger flags, unsigned short keycode);
+void calc_keymodifierschanged(NSUInteger flags);
+	
 @class ProgramListDataSource;
 @class CalcView;
 

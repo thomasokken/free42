@@ -28,18 +28,19 @@ typedef struct {
 	bool alt;
     bool shift; 
     bool cshift; 
-    int keycode;
+    unsigned short keychar;
     unsigned char macro[KEYMAP_MAX_MACRO_LENGTH + 1];
 } keymap_entry;
+keymap_entry *parse_keymap_entry(char *line, int lineno);
 
 void skin_repaint(NSRect *rect);
 void skin_update_annunciator(int which, int state);
 void skin_find_key(int x, int y, bool cshift, int *key, int *code);
 int skin_find_skey(int ckey);
 unsigned char *skin_find_macro(int ckey);
-/*unsigned char *skin_keymap_lookup(KeySym ks, bool printable,
+unsigned char *skin_keymap_lookup(unsigned short keychar, bool printable,
 				  bool ctrl, bool alt, bool shift, bool cshift,
-				  bool *exact);*/
+				  bool *exact);
 void skin_set_pressed_key(int skey);
 void skin_display_blitter(const char *bits, int bytesperline, int x, int y,
 	                             int width, int height);

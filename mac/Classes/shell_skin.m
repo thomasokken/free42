@@ -111,7 +111,7 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
 	char *p;
 	static keymap_entry entry;
 	
-	p =  strchr(line, '#');
+	p = strchr(line, '#');
 	if (p != NULL)
 		*p = 0;
 	p = strchr(line, '\n');
@@ -129,7 +129,7 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
 		bool alt = false;
 		bool shift = false;
 		bool cshift = false;
-		int keycode = 0;
+		unsigned short keychar = 0;
 		int done = 0;
 		unsigned char macro[KEYMAP_MAX_MACRO_LENGTH + 1];
 		int macrolen = 0;
@@ -151,13 +151,12 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
 			else if (strcasecmp(tok, "cshift") == 0)
 				cshift = true;
 			else {
-				char *endptr;
-				long k = strtol(tok, &endptr, 10);
-				if (k < 1 || *endptr != 0) {
+				if (strlen(tok) == 1)
+					keychar = (unsigned char) *tok;
+				else if (sscanf(tok, "0x%hx", &keychar) != 1) {
 					NSLog(@"Keymap, line %d: Bad keycode.", lineno);
 					return NULL;
 				}
-				keycode = k;
 				done = 1;
 			}
 			tok = strtok(NULL, " \t");
@@ -188,7 +187,7 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
 		entry.alt = alt;
 		entry.shift = shift;
 		entry.cshift = cshift;
-		entry.keycode = keycode;
+		entry.keychar = keychar;
 		strcpy((char *) entry.macro, (const char *) macro);
 		return &entry;
 	} else
@@ -776,6 +775,28 @@ unsigned char *skin_find_macro(int ckey) {
 		m = m->next;
 	}
 	return NULL;
+}
+
+unsigned char *skin_keymap_lookup(unsigned short keychar, bool printable,
+								  bool ctrl, bool alt, bool shift, bool cshift,
+								  bool *exact) {
+    int i;
+    unsigned char *macro = NULL;
+    for (i = 0; i < keymap_length; i++) {
+		keymap_entry *entry = keymap + i;
+		if (ctrl == entry->ctrl
+			&& alt == entry->alt
+			&& (printable || shift == entry->shift)
+			&& keychar == entry->keychar) {
+			macro = entry->macro;
+			if (cshift == entry->cshift) {
+				*exact = true;
+				return macro;
+			}
+		}
+    }
+    *exact = false;
+    return macro;
 }
 
 static void invalidate_key(int key) {

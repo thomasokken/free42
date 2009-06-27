@@ -54,6 +54,10 @@ static int ckey = 0;
 static int skey;
 static unsigned char *macro;
 static int mouse_key;
+static unsigned short active_keycode = -1;
+static int just_pressed_shift = 0;
+static int keymap_length = 0;
+static keymap_entry *keymap = NULL;
 
 static bool timeout_active = false;
 static int timeout_which;
@@ -69,6 +73,7 @@ static int ann_g = 0;
 static int ann_rad = 0;
 
 static void show_message(char *title, char *message);
+static void read_key_map(const char *keymapfilename);
 static void init_shell_state(int4 ver);
 static int read_shell_state(int4 *ver);
 static int write_shell_state();
@@ -138,7 +143,7 @@ static void shell_keyup();
 	if (free42dir_exists) {
 		snprintf(statefilename, FILENAMELEN, "%s/.free42/state", home);
 		snprintf(printfilename, FILENAMELEN, "%s/.free42/print", home);
-		snprintf(keymapfilename, FILENAMELEN, "%s/.free42/keymap", home);
+		snprintf(keymapfilename, FILENAMELEN, "%s/.free42/keymap.txt", home);
 	} else {
 		statefilename[0] = 0;
 		printfilename[0] = 0;
@@ -150,7 +155,7 @@ static void shell_keyup();
 	/***** Read the key map *****/
 	/****************************/
 	
-	// TODO!
+	read_key_map(keymapfilename);
 	
 	
 	/***********************************************************/
@@ -650,6 +655,151 @@ void calc_mouseup() {
 	}
 }
 
+void calc_keydown(NSString *characters, NSUInteger flags, unsigned short keycode) {
+	if (ckey != 0 && mouse_key)
+		return;
+	
+	int len = [characters length];
+	if (len == 0)
+		return;
+	unsigned short c = [characters characterAtIndex:0];
+	
+	bool printable = len == 1 && c >= 32 && c <= 126;
+	just_pressed_shift = 0;
+	
+	bool ctrl = (flags & NSControlKeyMask) != 0;
+	bool alt = (flags & NSAlternateKeyMask) != 0;
+	bool shift = (flags & (NSShiftKeyMask | NSAlphaShiftKeyMask)) != 0;
+	bool cshift = ann_shift != 0;
+	
+	if (ckey != 0) {
+		shell_keyup();
+		active_keycode = -1;
+	}
+	
+	if (!ctrl && !alt) {
+		if (printable && core_alpha_menu()) {
+			if (c >= 'a' && c <= 'z')
+				c = c + 'A' - 'a';
+			else if (c >= 'A' && c <= 'Z')
+				c = c + 'a' - 'A';
+			ckey = 1024 + c;
+			skey = -1;
+			macro = NULL;
+			shell_keydown();
+			mouse_key = 0;
+			active_keycode = keycode;
+			return;
+		} else if (core_hex_menu() && ((c >= 'a' && c <= 'f')
+									   || (c >= 'A' && c <= 'F'))) {
+			if (c >= 'a' && c <= 'f')
+				ckey = c - 'a' + 1;
+			else
+				ckey = c - 'A' + 1;
+			skey = -1;
+			macro = NULL;
+			shell_keydown();
+			mouse_key = 0;
+			active_keycode = keycode;
+			return;
+		}
+	}
+	
+	bool exact;
+	unsigned char *key_macro = skin_keymap_lookup(c, printable,
+												  ctrl, alt, shift, cshift, &exact);
+	if (key_macro == NULL || !exact) {
+		for (int i = 0; i < keymap_length; i++) {
+			keymap_entry *entry = keymap + i;
+			if (ctrl == entry->ctrl
+				&& alt == entry->alt
+				&& (printable || shift == entry->shift)
+				&& c == entry->keychar) {
+				if (cshift == entry->cshift) {
+					key_macro = entry->macro;
+					break;
+				} else {
+					if (key_macro == NULL)
+						key_macro = entry->macro;
+				}
+			}
+		}
+	}
+	if (key_macro != NULL) {
+		// A keymap entry is a sequence of zero or more calculator
+		// keystrokes (1..37) and/or macros (38..255). We expand
+		// macros here before invoking shell_keydown().
+		// If the keymap entry is one key, or two keys with the
+		// first being 'shift', we highlight the key in question
+		// by setting ckey; otherwise, we set ckey to -10, which
+		// means no skin key will be highlighted.
+		ckey = -10;
+		skey = -1;
+		if (key_macro[0] != 0)
+			if (key_macro[1] == 0)
+				ckey = key_macro[0];
+			else if (key_macro[2] == 0 && key_macro[0] == 28)
+				ckey = key_macro[1];
+		bool needs_expansion = false;
+		for (int j = 0; key_macro[j] != 0; j++)
+			if (key_macro[j] > 37) {
+				needs_expansion = true;
+				break;
+			}
+		if (needs_expansion) {
+			static unsigned char macrobuf[1024];
+			int p = 0;
+			for (int j = 0; key_macro[j] != 0 && p < 1023; j++) {
+				int c = key_macro[j];
+				if (c <= 37)
+					macrobuf[p++] = c;
+				else {
+					unsigned char *m = skin_find_macro(c);
+					if (m != NULL)
+						while (*m != 0 && p < 1023)
+							macrobuf[p++] = *m++;
+				}
+			}
+			macrobuf[p] = 0;
+			macro = macrobuf;
+		} else
+			macro = key_macro;
+		shell_keydown();
+		mouse_key = 0;
+		active_keycode = keycode;
+	}
+}
+
+void calc_keyup(NSString *characters, NSUInteger flags, unsigned short keycode) {
+	if (ckey != 0) {
+	    if (!mouse_key && keycode == active_keycode) {
+			shell_keyup();
+			active_keycode = -1;
+	    }
+	}
+}
+
+void calc_keymodifierschanged(NSUInteger flags) {
+	static bool shift_was_down = false;
+	bool shift_is_down = (flags & NSShiftKeyMask) != 0;
+	if (shift_is_down == shift_was_down)
+		return;
+	shift_was_down = shift_is_down;
+	if (shift_is_down) {
+		// Shift pressed
+		just_pressed_shift = 1;
+	} else {
+		// Shift released
+		if (ckey == 0 && just_pressed_shift) {
+			ckey = 28;
+			skey = -1;
+			macro = NULL;
+			shell_keydown();
+			shell_keyup();
+		}
+	}
+}
+
 static void show_message(char *title, char *message) {
 	// TODO!
 	fprintf(stderr, "%s\n", message);
@@ -818,6 +968,47 @@ int shell_read(char *buf, int4 buflen) {
 
 int shell_wants_cpu() {
 	return we_want_cpu;
+}
+
+static void read_key_map(const char *keymapfilename) {
+	FILE *keymapfile = fopen(keymapfilename, "r");
+	int kmcap = 0;
+	char line[1024];
+	int lineno = 0;
+
+	if (keymapfile == NULL) {
+		/* Try to create default keymap file */
+		keymapfile = fopen(keymapfilename, "wb");
+		if (keymapfile == NULL)
+			return;
+		NSString *path = [[NSBundle mainBundle] pathForResource:@"keymap" ofType:@"txt"];
+		[path getCString:line maxLength:1024 encoding:NSUTF8StringEncoding];
+		FILE *builtin_keymapfile = fopen(line, "r");
+		int n;
+		while ((n = fread(line, 1, 1024, builtin_keymapfile)) > 0)
+			fwrite(line, 1, n, keymapfile);
+		fclose(builtin_keymapfile);
+		fclose(keymapfile);
+
+		keymapfile = fopen(keymapfilename, "r");
+		if (keymapfile == NULL)
+			return;
+	}
+
+	while (fgets(line, 1024, keymapfile) != NULL) {
+		keymap_entry *entry = parse_keymap_entry(line, ++lineno);
+		if (entry == NULL)
+			continue;
+		/* Create new keymap entry */
+		if (keymap_length == kmcap) {
+			kmcap += 50;
+			keymap = (keymap_entry *) realloc(keymap, kmcap * sizeof(keymap_entry));
+			// TODO - handle memory allocation failure
+		}
+		memcpy(keymap + (keymap_length++), entry, sizeof(keymap_entry));
+	}
+
+	fclose(keymapfile);
 }
 
 static void init_shell_state(int4 version) {
