@@ -1,3 +1,13 @@
+The whole flag 11 thing seems flaky on several platforms.
+Also, what about programs that set flag 11, then do OFF, and do the same the
+moment that they're running at the next power-on? That kind of thing would be
+the old evil never-be-able-to-use-this-thing-again evil.
+I think we should have some kind of check for the case where the calc does OFF
+without ever having handled any kind of user events since power-on; it should
+either refuse to power off, or clear flag 11 before powering off, or do some
+kind of user interaction to give the user a chance to break this potentially
+inescapable cycle.
+
 It looks like interrupting programs in the middle of a long DET operation
 doesn't work. I noticed this in the new Mac version, but the Windows version
 seems to have the same problem, so it looks like I need to re-examine all
