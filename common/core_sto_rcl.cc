@@ -1005,7 +1005,7 @@ int map_binary(const vartype *src1, const vartype *src2, vartype **dst,
 		    if (dm == NULL)
 			return ERR_INSUFFICIENT_MEMORY;
 		    size = 2 * sm->rows * sm->columns;
-		    for (i = 0; i < size; i++) {
+		    for (i = 0; i < size; i += 2) {
 			error = mcc(sm->array->data[i],
 				    sm->array->data[i + 1],
 				    ((vartype_complex *) src2)->re,
