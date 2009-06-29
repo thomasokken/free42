@@ -1065,13 +1065,13 @@ int map_binary(const vartype *src1, const vartype *src2, vartype **dst,
 		    if (dm == NULL)
 			return ERR_INSUFFICIENT_MEMORY;
 		    size = 2 * sm1->rows * sm1->columns;
-		    for (i = 0; i < size; i++) {
-			error = mcc(sm1->array->data[i * 2],
-				    sm1->array->data[i * 2 + 1],
-				    sm2->array->data[i * 2],
-				    sm2->array->data[i * 2 + 1],
-				    &dm->array->data[i * 2],
-				    &dm->array->data[i * 2 + 1]);
+		    for (i = 0; i < size; i += 2) {
+			error = mcc(sm1->array->data[i],
+				    sm1->array->data[i + 1],
+				    sm2->array->data[i],
+				    sm2->array->data[i + 1],
+				    &dm->array->data[i],
+				    &dm->array->data[i + 1]);
 			if (error != ERR_NONE) {
 			    free_vartype((vartype *) dm);
 			    return error;
