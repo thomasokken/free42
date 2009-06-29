@@ -1010,8 +1010,8 @@ int map_binary(const vartype *src1, const vartype *src2, vartype **dst,
 				    sm->array->data[i + 1],
 				    ((vartype_complex *) src2)->re,
 				    ((vartype_complex *) src2)->im,
-				    &dm->array->data[i * 2],
-				    &dm->array->data[i * 2 + 1]);
+				    &dm->array->data[i],
+				    &dm->array->data[i + 1]);
 			if (error != ERR_NONE) {
 			    free_vartype((vartype *) dm);
 			    return error;
