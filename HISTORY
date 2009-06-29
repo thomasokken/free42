@@ -1,3 +1,9 @@
+29-06-2009: release 1.4.50
+
+* Adding two complex matrices, or adding a complex scalar in Y to a complex
+  matrix in X, would cause memory corruption, resulting in a crash soon after.
+  Fixed.
+
 13-06-2009: (no new code release)
 
 * Added "Realistic42s240x400" skin for 240x400 Pocket PC devices
