@@ -34,7 +34,7 @@
 
 - (void) awakeFromNib {
 	[versionLabel setText:[NSString stringWithFormat:@"Free42 %s", [shell_iphone getVersion]]];
-	[copyrightLabel setText:@"(C) 2004-2009 Thomas Okken"];
+	[copyrightLabel setText:@"© 2004-2009 Thomas Okken"];
 }
 
 - (void)drawRect:(CGRect)rect {
