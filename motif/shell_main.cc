@@ -2635,7 +2635,7 @@ static void aboutCB(Widget w, XtPointer ud, XtPointer cd) {
 	Widget button;
 	XmString s;
 
-	s = XmStringCreateLtoR("Free42 " VERSION "\n(C) 2004-2009 Thomas Okken\nthomas_okken@yahoo.com\nhttp://free42.sourceforge.net/", XmFONTLIST_DEFAULT_TAG);
+	s = XmStringCreateLtoR("Free42 " VERSION "\n(C) 2004-2009 Thomas Okken\nthomas_okken@yahoo.com\nhttp://thomasokken.com/free42/", XmFONTLIST_DEFAULT_TAG);
 	XtSetArg(args[0], XmNmessageString, s);
 	XtSetArg(args[1], XmNtitle, "About Free42");
 	XtSetArg(args[2], XmNsymbolPixmap, icon);

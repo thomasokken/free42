@@ -167,4 +167,4 @@ Free42 is (C) 2004-2009, by Thomas Okken
 BCD support (C) 2005, by Hugh Steers / voidware
 Contact the author at thomas_okken@yahoo.com
 Look for updates, and versions for other operating systems, at
-http://free42.sourceforge.net/
+http://thomasokken.com/free42/

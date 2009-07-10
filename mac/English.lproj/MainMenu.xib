@@ -796,7 +796,7 @@ cg</string>
 							<object class="NSTextFieldCell" key="NSCell" id="808584628">
 								<int key="NSCellFlags">68288064</int>
 								<int key="NSCellFlags2">272630784</int>
-								<string key="NSContents">http://free42.sourceforge.net/</string>
+								<string key="NSContents">http://thomasokken.com/free42/</string>
 								<reference key="NSSupport" ref="297796364"/>
 								<reference key="NSControlView" ref="1037649357"/>
 								<reference key="NSBackgroundColor" ref="472997826"/>

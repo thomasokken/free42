@@ -164,7 +164,7 @@
 						<bool key="IBUIOpaque">NO</bool>
 						<bool key="IBUIClipsSubviews">YES</bool>
 						<bool key="IBUIUserInteractionEnabled">NO</bool>
-						<string key="IBUIText">http://free42.sourceforge.net/</string>
+						<string key="IBUIText">http://thomasokken.com/free42/</string>
 						<reference key="IBUITextColor" ref="916630806"/>
 						<nil key="IBUIHighlightedColor"/>
 						<int key="IBUIBaselineAdjustment">1</int>
