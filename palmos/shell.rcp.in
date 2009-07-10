@@ -383,7 +383,7 @@ frame modal
 begin
   formbitmap at (10 18) bitmap 3333
   label "Free42" autoid at (37 15) font 2
-  label "Version %VERSION%" autoid at (prevleft prevbottom)
+  label "Release %VERSION%" autoid at (prevleft prevbottom)
   label "\251 2004-2009 Thomas Okken" autoid at (10 55)
   label "thomas_okken@yahoo.com" autoid at (prevleft prevbottom)
   label "http://thomasokken.com/free42/" autoid at (prevleft prevbottom+10)
