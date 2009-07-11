@@ -131,12 +131,12 @@ STYLE WS_POPUP | WS_CAPTION
 CAPTION "About Free42"
 FONT 8, "System"
 BEGIN
-    ICON            IDI_FREE42,IDC_STATIC,15,4,21,20
-    LTEXT           "Free42",IDC_STATIC,40,4,37,8,SS_NOPREFIX
-    LTEXT           "© 2004-2009 Thomas Okken",IDC_STATIC,13,28,97,8
-    LTEXT           FREE42_VERSION_4,IDC_STATIC,40,13,54,8
-    LTEXT           "thomas_okken@yahoo.com",IDC_STATIC,13,37,89,8
-    LTEXT           "http://thomasokken.com/free42/",IDC_STATIC,13,50,100,8
+    ICON            IDI_FREE42,IDC_STATIC,7,4,21,20
+    LTEXT           "Free42",IDC_STATIC,34,4,37,8,SS_NOPREFIX
+    LTEXT           "© 2004-2009 Thomas Okken",IDC_STATIC,7,28,97,8
+    LTEXT           FREE42_VERSION_4,IDC_STATIC,34,13,54,8
+    LTEXT           "thomas_okken@yahoo.com",IDC_STATIC,7,37,89,8
+    LTEXT           "http://thomasokken.com/free42/",IDC_STATIC,7,50,107,8
     PUSHBUTTON      "OK",IDOK,41,81,41,14
 END
 
