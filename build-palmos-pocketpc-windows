@@ -3,8 +3,6 @@
 # This script builds and packages everything except the Linux version.
 # It should be run in a Cygwin bash shell (under MS Windows, obviously).
 
-VERSION=`cat VERSION`
-
 unset BCD_MATH
 rm -f package.tar
 
@@ -33,9 +31,9 @@ cp conduit/Release/Free42ConduitInstaller.exe Free42PalmOS
 cp conduit/Release/Free42Conduit.dll Free42PalmOS
 cp /cygdrive/c/cdk403/Common/Bin/condmgr.dll Free42PalmOS
 cp /cygdrive/c/cdk403/Common/Bin/HSAPI.dll Free42PalmOS
-zip -r Free42PalmOS.$VERSION.zip Free42PalmOS
+zip -r Free42PalmOS.zip Free42PalmOS
 rm -rf Free42PalmOS
-cp palmos/Free42PalmOSSkins.zip Free42PalmOSSkins.$VERSION.zip
+cp palmos/Free42PalmOSSkins.zip Free42PalmOSSkins.zip
 
 # Rebuild Pocket PC version
 cd pocketpc
@@ -48,7 +46,7 @@ mkdir Free42PocketPC
 cp pocketpc/README.txt Free42PocketPC
 cp pocketpc/Free42Binary.PPC2002_ARM.CAB Free42PocketPC/Free42Binary.cab
 cp pocketpc/Free42Decimal.PPC2002_ARM.CAB Free42PocketPC/Free42Decimal.cab
-zip -r Free42PocketPC.$VERSION.zip Free42PocketPC
+zip -r Free42PocketPC.zip Free42PocketPC
 rm -rf Free42PocketPC
 
 # Rebuild Windows version using Visual C++
@@ -60,7 +58,7 @@ mkdir Free42Windows
 cp windows/README.txt Free42Windows
 cp windows/ReleaseBinary/Free42Binary.exe Free42Windows
 cp windows/ReleaseDecimal/Free42Decimal.exe Free42Windows
-zip -r Free42Windows.$VERSION.zip Free42Windows
+zip -r Free42Windows.zip Free42Windows
 rm -rf Free42Windows
 
 # Rebuild Windows version using MinGW
@@ -88,9 +86,9 @@ cd tmp
 cvs checkout free42
 find . -type d -name CVS -prune -exec rm -rf {} \;
 find . -type f -name .cvsignore -exec rm -f {} \;
-zip -j ../Free42Skins.$VERSION.zip free42/skins/*
-zip -j ../Free42PocketPCSkins.$VERSION.zip free42/ppcskins/*
-tar cvfz ../free42.$VERSION.tgz free42
+zip -j ../Free42Skins.zip free42/skins/*
+zip -j ../Free42PocketPCSkins.zip free42/ppcskins/*
+tar cvfz ../free42.tgz free42
 cd ..
 rm -rf tmp
 
@@ -100,5 +98,5 @@ cc -o txt2html txt2html.c
 cd ..
 util/txt2html "Free42 HISTORY" <HISTORY >history.html
 util/txt2html "Free42 TODO" <TODO >todo.html
-tar cvf package.tar Free42PalmOS.$VERSION.zip Free42PalmOSSkins.$VERSION.zip Free42PocketPC.$VERSION.zip Free42PocketPCSkins.$VERSION.zip Free42Windows.$VERSION.zip Free42Skins.$VERSION.zip free42.$VERSION.tgz history.html todo.html
-rm Free42PalmOS.$VERSION.zip Free42PalmOSSkins.$VERSION.zip Free42PocketPC.$VERSION.zip Free42PocketPCSkins.$VERSION.zip Free42Windows.$VERSION.zip Free42Skins.$VERSION.zip free42.$VERSION.tgz history.html todo.html
+tar cvf package.tar Free42PalmOS.zip Free42PalmOSSkins.zip Free42PocketPC.zip Free42PocketPCSkins.zip Free42Windows.zip Free42Skins.zip free42.tgz history.html todo.html
+rm Free42PalmOS.zip Free42PalmOSSkins.zip Free42PocketPC.zip Free42PocketPCSkins.zip Free42Windows.zip Free42Skins.zip free42.tgz history.html todo.html

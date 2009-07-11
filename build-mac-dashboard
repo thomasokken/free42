@@ -1,7 +1,5 @@
 #!/bin/sh -e
 
-VERSION=`cat VERSION`
-
 unset BCD_MATH
 cd macdashboard
 make clean
@@ -11,5 +9,5 @@ make clean
 make -e BCD_MATH=1
 zip -r ../Free42Decimal.zip Free42.wdgt
 cd ..
-zip Free42MacDashboard.$VERSION.zip Free42Binary.zip Free42Decimal.zip
+zip Free42MacDashboard.zip Free42Binary.zip Free42Decimal.zip
 rm Free42Binary.zip Free42Decimal.zip
