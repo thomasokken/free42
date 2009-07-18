@@ -108,7 +108,7 @@
 						<bool key="IBUIUserInteractionEnabled">NO</bool>
 						<object class="NSCustomResource" key="IBUIImage">
 							<string key="NSClassName">NSImage</string>
-							<string key="NSResourceName">icon.png</string>
+							<string key="NSResourceName">about-icon.png</string>
 						</object>
 					</object>
 					<object class="IBUILabel" id="279623685">
