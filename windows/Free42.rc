@@ -242,7 +242,7 @@ BEGIN
         BEGIN
             //VALUE "Comments", "\0"
             //VALUE "CompanyName", "\0"
-            VALUE "FileDescription", "HP-42S Calculator Clone\0"
+            VALUE "FileDescription", "HP-42S Calculator Simulator\0"
             VALUE "FileVersion", FREE42_VERSION_2
             VALUE "InternalName", "Free42\0"
             VALUE "LegalCopyright", "Copyright © 2004-2009 Thomas Okken\0"
