@@ -1,12 +1,3 @@
-Change the icon background (the transparent bit) to be white. It's currently
-black, and that doesn't look very nice on the iPhone and in the Motif version.
-On the other platforms, it doesn't matter, because they all display the icon
-on a neutral background; the problem with Motif is that it doesn't handle
-transparency (noticed this with Linux/Lesstif and Mac/OpenMotif), and the
-problem with the iPhone is that it uses a black background by default (which
-ends up looking not so great because the calculator itself is already very
-dark).
-
 The whole flag 11 thing seems flaky on several platforms.
 Also, what about programs that set flag 11, then do OFF, and do the same the
 moment that they're running at the next power-on? That kind of thing would be
@@ -21,6 +12,8 @@ It looks like interrupting programs in the middle of a long DET operation
 doesn't work. I noticed this in the new Mac version, but the Windows version
 seems to have the same problem, so it looks like I need to re-examine all
 the shells.
+
+Add keyboard click option for the Pocket PC version.
 
 Add a feature for importing and exporting variables from and to CSV files.
 
