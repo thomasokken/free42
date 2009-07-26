@@ -50,3 +50,6 @@ del bcdfloat.cpp
 del bcdfloat.h
 del bcdmath.cpp
 del bcdmath.h
+del bcd2.h
+del bcdfloat2.cpp
+del bcdfloat2.h

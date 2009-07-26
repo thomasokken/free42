@@ -35,8 +35,8 @@ OBJS = shell1.o shell2.o shell_spool.o myglue.o filesys.o memmgr.o \
 
 ifdef BCD_MATH
 CXXFLAGS += -DBCD_MATH
-SRCS += bcdfloat.cc bcd.cc bcdmath.cc
-OBJS += bcdfloat.o bcd.o bcdmath.o
+SRCS += bcdfloat.cc bcd.cc bcdmath.cc bcdfloat2.cc
+OBJS += bcdfloat.o bcd.o bcdmath.o bcdfloat2.o
 SHELL_DEF = shell_dec.def
 TARGET = free42dec_68k.prc
 else
@@ -99,6 +99,9 @@ symlinks:
 	ln -s ../common/bcdfloat.h
 	ln -s ../common/bcdmath.cc
 	ln -s ../common/bcdmath.h
+	ln -s ../common/bcd2.h
+	ln -s ../common/bcdfloat2.cc
+	ln -s ../common/bcdfloat2.h
 	touch symlinks
 
 shell-sections.s shell-sections.ld: $(SHELL_DEF)

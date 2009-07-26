@@ -90,6 +90,9 @@ symlinks:
 	ln -s ../common/bcdfloat.h
 	ln -s ../common/bcdmath.cc
 	ln -s ../common/bcdmath.h
+	ln -s ../common/bcd2.h
+	ln -s ../common/bcdfloat2.cc
+	ln -s ../common/bcdfloat2.h
 	touch symlinks
 
 symlinks.arm:

@@ -36,8 +36,8 @@ OBJS = shell.o shell_spool.o \
 
 ifdef BCD_MATH
 CXXFLAGS += -DBCD_MATH
-SRCS += bcdfloat.cc bcd.cc bcdmath.cc
-OBJS += bcdfloat.o bcd.o bcdmath.o
+SRCS += bcdfloat.cc bcd.cc bcdmath.cc bcdfloat2.cc
+OBJS += bcdfloat.o bcd.o bcdmath.o bcdfloat2.o
 endif
 
 Free42.wdgt: free42 keymap.txt
@@ -112,6 +112,9 @@ symlinks:
 	ln -s ../common/bcdfloat.h
 	ln -s ../common/bcdmath.cc
 	ln -s ../common/bcdmath.h
+	ln -s ../common/bcd2.h
+	ln -s ../common/bcdfloat2.cc
+	ln -s ../common/bcdfloat2.h
 	touch symlinks
 
 clean: FORCE

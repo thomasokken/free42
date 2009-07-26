@@ -40,8 +40,8 @@ OBJS = shell_main.o shell_skin.o skins.o keymap.o shell_loadimage.o \
 
 ifdef BCD_MATH
 CXXFLAGS += -DBCD_MATH
-SRCS += bcdfloat.cc bcd.cc bcdmath.cc
-OBJS += bcdfloat.o bcd.o bcdmath.o
+SRCS += bcdfloat.cc bcd.cc bcdmath.cc bcdfloat2.cc
+OBJS += bcdfloat.o bcd.o bcdmath.o bcdfloat2.o
 EXE = free42dec
 else
 EXE = free42bin
@@ -131,6 +131,9 @@ symlinks:
 	ln -s ../common/bcdfloat.h
 	ln -s ../common/bcdmath.cc
 	ln -s ../common/bcdmath.h
+	ln -s ../common/bcd2.h
+	ln -s ../common/bcdfloat2.cc
+	ln -s ../common/bcdfloat2.h
 	touch symlinks
 
 clean: FORCE

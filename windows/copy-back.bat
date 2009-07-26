@@ -51,5 +51,8 @@ copy bcdfloat.cpp ..\common\bcdfloat.cc
 copy bcdfloat.h ..\common
 copy bcdmath.cpp ..\common\bcdmath.cc
 copy bcdmath.h ..\common
+copy bcd2.h ..\common
+copy bcdfloat2.cpp ..\common\bcdfloat2.cc
+copy bcdfloat2.h ..\common
 copy inprt2txt.c ..\util
 copy rom2raw.c ..\util

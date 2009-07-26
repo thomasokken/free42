@@ -50,3 +50,6 @@ copy ..\common\bcdfloat.cc bcdfloat.cpp
 copy ..\common\bcdfloat.h .
 copy ..\common\bcdmath.cc bcdmath.cpp
 copy ..\common\bcdmath.h .
+copy ..\common\bcd2.h .
+copy ..\common\bcdfloat2.cc bcdfloat2.cpp
+copy ..\common\bcdfloat2.h .
