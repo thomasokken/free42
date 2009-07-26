@@ -552,7 +552,7 @@ BCD exp(const BCD& v)
     
     if (v.isZero()) return 1;
 
-    bool neg = v.isNeg();
+    //bool neg = v.isNeg();
 
     BCD ln2(*(const BCDFloat*)(constTable + BCD_CONST_LN2));
     BCD n = trunc(v/ln2);

@@ -67,6 +67,7 @@
 		E9BA0EAE0F9224F00087EBFB /* AboutView.m in Sources */ = {isa = PBXBuildFile; fileRef = E9BA0EAD0F9224F00087EBFB /* AboutView.m */; };
 		E9C92F8B0FE424FE00DC292C /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = E9C92F8A0FE424FE00DC292C /* Default.png */; };
 		E9CD216B0FA39C41008E1E65 /* SelectFileView.m in Sources */ = {isa = PBXBuildFile; fileRef = E9CD216A0FA39C41008E1E65 /* SelectFileView.m */; };
+		E9CFD938101CD39500C26700 /* bcdfloat2.cc in Sources */ = {isa = PBXBuildFile; fileRef = E9CFD936101CD39500C26700 /* bcdfloat2.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -170,6 +171,9 @@
 		E9C92F8A0FE424FE00DC292C /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
 		E9CD21690FA39C41008E1E65 /* SelectFileView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectFileView.h; sourceTree = "<group>"; };
 		E9CD216A0FA39C41008E1E65 /* SelectFileView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SelectFileView.m; sourceTree = "<group>"; };
+		E9CFD935101CD39500C26700 /* bcd2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bcd2.h; path = ../common/bcd2.h; sourceTree = SOURCE_ROOT; };
+		E9CFD936101CD39500C26700 /* bcdfloat2.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bcdfloat2.cc; path = ../common/bcdfloat2.cc; sourceTree = SOURCE_ROOT; };
+		E9CFD937101CD39500C26700 /* bcdfloat2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bcdfloat2.h; path = ../common/bcdfloat2.h; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -288,6 +292,9 @@
 		E9B16DF70F88ECCB002BB9B2 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				E9CFD935101CD39500C26700 /* bcd2.h */,
+				E9CFD936101CD39500C26700 /* bcdfloat2.cc */,
+				E9CFD937101CD39500C26700 /* bcdfloat2.h */,
 				E93F2B540F894D9000CE8542 /* shell_spool.cc */,
 				E93F2B550F894D9000CE8542 /* shell_spool.h */,
 				E91005A20F893F8900B68C27 /* bcd.cc */,
@@ -467,6 +474,7 @@
 				E9BA0E800F9224700087EBFB /* SelectSkinView.m in Sources */,
 				E9BA0EAE0F9224F00087EBFB /* AboutView.m in Sources */,
 				E9CD216B0FA39C41008E1E65 /* SelectFileView.m in Sources */,
+				E9CFD938101CD39500C26700 /* bcdfloat2.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
