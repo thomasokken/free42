@@ -99,6 +99,10 @@ SOURCE=.\bcdfloat.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\bcdfloat2.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\bcdmath.cpp
 # End Source File
 # Begin Source File
@@ -228,7 +232,15 @@ SOURCE=.\bcd.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\bcd2.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\bcdfloat.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\bcdfloat2.h
 # End Source File
 # Begin Source File
 

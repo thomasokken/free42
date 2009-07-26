@@ -1,6 +1,9 @@
 Fix the new BCD code to be PalmOS 68k compatible: segment declarations, and
 change 'int' to 'int4' wherever 2 bytes are insufficient.
 
+The Mac Dashboard version doesn't recognize the multiply and divide keys on
+the numeric keypad.
+
 The whole flag 11 thing seems flaky on several platforms.
 Also, what about programs that set flag 11, then do OFF, and do the same the
 moment that they're running at the next power-on? That kind of thing would be
