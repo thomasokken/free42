@@ -41,6 +41,8 @@
 #define BCD_CONST_TEN      (BCD_CONST_TWOHALF + 1)
 #define BCD_CONST_SINPOLY (BCD_CONST_TEN+1)
 #define BCD_CONST_COSPOLY (BCD_CONST_SINPOLY+7)
+#define BCD_CONST_LOGPOLY (BCD_CONST_COSPOLY+7)
+#define BCD_CONST_LOGCK   (BCD_CONST_LOGPOLY+4)
 
 
 typedef unsigned short Dig[P+1];
@@ -118,6 +120,79 @@ static const Dig constTable[] =
     { 27, 5573, 1920, 9146, 3795, 4381, 778, 65535&EXPMASKNEG },
     { 2087, 6734, 8250, 8148, 2157, 8695, 5067, 32766&EXPMASKNEG },
     { 11, 4543, 2933, 7975, 7024, 4861, 9252, 65534&EXPMASKNEG },
+
+    // log(x) polynomial
+    { 833, 3333, 3333, 3333, 3333, 3200, 4980, 0 },
+    { 125, 0, 0, 0, 1767, 3000, 0, 0 },
+    { 22, 3214, 2856, 3634, 1290, 0, 0, 0 },
+    { 4, 3404, 1799, 7690, 0, 0, 0, 0 },
+
+    // log(ck) constants, ck = 1+k/64, k = 1..64;
+    { 155, 418, 6535, 9652, 5415, 854, 460, 0 },
+    { 307, 7165, 8666, 7536, 8837, 1028, 2075, 0 },
+    { 458, 953, 6031, 2942, 316, 6679, 2676, 0 },
+    { 606, 2462, 1816, 4348, 4258, 606, 1320, 0 },
+    { 752, 2342, 1237, 5875, 2569, 8605, 3399, 0 },
+    { 896, 1215, 8689, 6871, 3261, 9951, 4693, 0 },
+    { 1037, 9679, 3681, 6435, 6482, 6061, 8037, 0 },
+    { 1177, 8303, 5656, 3834, 5453, 8794, 1094, 0 },
+    { 1315, 7635, 7788, 7192, 7258, 8716, 1286, 0 },
+    { 1451, 8200, 9844, 4978, 9728, 1935, 637, 0 },
+    { 1586, 503, 176, 6385, 8409, 3371, 1746, 0 },
+    { 1718, 5025, 6926, 6592, 2234, 98, 9460, 0 },
+    { 1849, 2233, 8494, 119, 9266, 3903, 5926, 0 },
+    { 1978, 2574, 3329, 9198, 8036, 2572, 711, 0 },
+    { 2105, 6476, 9107, 3496, 3766, 9552, 8127, 0 },
+    { 2231, 4355, 1314, 2097, 5576, 6295, 903, 0 },
+    { 2355, 6607, 1312, 7669, 907, 7588, 2189, 0 },
+    { 2478, 3616, 3904, 5812, 5678, 602, 7657, 0 },
+    { 2599, 5752, 4436, 9260, 6697, 2079, 4945, 0 },
+    { 2719, 3371, 5483, 6417, 5883, 1669, 4945, 0 },
+    { 2837, 6817, 3130, 6445, 9834, 6901, 2223, 0 },
+    { 2954, 6421, 2893, 8358, 7638, 6681, 9060, 0 },
+    { 3070, 2503, 5294, 9118, 6207, 5124, 5405, 0 },
+    { 3184, 5373, 1118, 5346, 1581, 247, 2135, 0 },
+    { 3297, 5328, 6372, 4679, 8181, 4422, 8119, 0 },
+    { 3409, 2658, 6970, 5932, 1030, 5089, 1997, 0 },
+    { 3519, 7642, 3157, 1781, 8465, 5447, 4562, 0 },
+    { 3629, 549, 3689, 3684, 5313, 7824, 3459, 0 },
+    { 3737, 1640, 9793, 5840, 8082, 1016, 8327, 0 },
+    { 3844, 1169, 8910, 3320, 3973, 4790, 624, 0 },
+    { 3949, 9380, 8240, 8689, 7810, 6394, 363, 0 },
+    { 4054, 6510, 8108, 1643, 8197, 8013, 1154, 0 },
+    { 4158, 2789, 5143, 7109, 6561, 3328, 8929, 0 },
+    { 4260, 8439, 5310, 9000, 6312, 4544, 8795, 0 },
+    { 4362, 3676, 6774, 9180, 7034, 9041, 3230, 0 },
+    { 4462, 8710, 2628, 4195, 1153, 2590, 1806, 0 },
+    { 4562, 3743, 3481, 5875, 9438, 805, 5381, 0 },
+    { 4660, 8972, 9924, 5992, 2455, 8619, 2475, 0 },
+    { 4758, 4590, 4869, 9639, 1426, 5209, 5863, 0 },
+    { 4855, 781, 5781, 7008, 780, 1791, 771, 0 },
+    { 4950, 7726, 6797, 8515, 1459, 7964, 5848, 0 },
+    { 5045, 5601, 752, 3952, 8705, 8308, 5317, 0 },
+    { 5139, 4575, 1102, 2343, 1680, 1006, 882, 0 },
+    { 5232, 4814, 3764, 5478, 3651, 6807, 2249, 0 },
+    { 5324, 6479, 8869, 4718, 4387, 3923, 7234, 0 },
+    { 5415, 9728, 2432, 7443, 7157, 6542, 3039, 0 },
+    { 5506, 4711, 7952, 6622, 7925, 9948, 1792, 0 },
+    { 5596, 1578, 7935, 4226, 8627, 888, 5005, 0 },
+    { 5685, 473, 5352, 6687, 1207, 8738, 7648, 0 },
+    { 5773, 1536, 5034, 8236, 431, 8112, 615, 0 },
+    { 5860, 4904, 5003, 5782, 890, 4119, 4362, 0 },
+    { 5947, 710, 7746, 6927, 8951, 4343, 5465, 0 },
+    { 6032, 9085, 1438, 842, 6234, 585, 1866, 0 },
+    { 6118, 154, 1105, 9929, 352, 9889, 7664, 0 },
+    { 6202, 4040, 9751, 8575, 2885, 1494, 6325, 0 },
+    { 6286, 865, 9422, 3741, 3774, 4308, 2057, 0 },
+    { 6369, 746, 2237, 692, 3162, 494, 4271, 0 },
+    { 6451, 3796, 1373, 5847, 166, 5228, 4961, 0 },
+    { 6533, 127, 2012, 7456, 3875, 8615, 8812, 0 },
+    { 6613, 9848, 2245, 3650, 826, 235, 8387, 0 },
+    { 6694, 3065, 3942, 6292, 6729, 8885, 2709, 0 },
+    { 6773, 9882, 3591, 8061, 4080, 9682, 6099, 0 },
+    { 6853, 400, 3098, 9194, 1654, 4048, 789, 0 },
+    { 6931, 4718, 559, 9453, 941, 7232, 1214, 0 },
+
 };
 
 #define BCD2_CONST_LANCZOS 0
@@ -526,69 +601,122 @@ static BCD _ln1p(const BCD& a)
     return s1;
 }
 
+static BCD logPoly(const BCD& r)
+{
+    /*
+      MiniMaxApproximation[
+      If[r > 0, Log[(1 + Sqrt[r]/2)/(1 - Sqrt[r]/2)]/Sqrt[r], 
+      1], {r, {0, 1/128}, 3, 0}, WorkingPrecision -> 30]
+
+      produces p(r), so ln((1+r/2)/(1-r/2)) ~ p(r^2)*r
+      
+      BUT, it's not very good, seeing about |e| ~ 1.25e-14
+    */
+
+    /* p(r) =
+       r + 0.08333333333333335805 r^3 + 0.0124999999978878 r^5 + 
+       0.002232197165 r^7
+       max error <= 0.27e-24.
+       Elementary Algorithms. Jean-Michel Muller. p57.
+    */
+
+    /*
+      p(r) = 
+    r + 0.0833333333333333333332004980000 r^3 + 
+        0.0125000000000000176730000000000 r^5 + 
+        0.00223214285636341290000000000000 r^7 + 
+        0.000434041799769000000000000000000 r^9
+
+        max error <= 0.80e-30.
+        Elementary Algorithms. Jean-Michel Muller. p57.
+        relative error max of 3e-28.
+    */
+
+
+    BCD r2 = r*r;
+    BCD pr;
+    horner((const BCDFloat*)(constTable + BCD_CONST_LOGPOLY), r2, 4, pr);
+    return (pr*r2 + 1)*r;
+}
+
 BCD log(const BCD& v)
 {
     /* natural logarithm */
     if (v.isNeg()) return BCDFloat::nan();
     if (v.isSpecial()) return v;
     if (v.isZero()) return BCDFloat::negInf();
+    
+    BCD lna;
+    BCD2 a2;
+    bool negAnswer = false;
 
-    // deal with cases close to 1.
-    BCD pointzerotwo(*(const BCDFloat*)(constTable + BCD_CONST_HUNDREDTH));
-    BCD d1 = v - 1;
-    if (fabs(d1) <= pointzerotwo) return _ln1p(d1);
+    if (v < 1)
+    {
+        // v in (0,1) map to (1,inf) and negate final answer
+        a2 = BCD2(1)/v;
+        negAnswer = true;
+    }
+    else 
+        a2 = v;
 
-    BCD a = v;
-    int p10 = (a.exponent()-1)*4;
-    a.setExponent(1);
+    // have a in [1,inf)
 
-    unsigned int d = a.digit(0);
-    BCD ten(10U);
+    // extract the power of 10 from the exponent
+    int p10 = (a2.exponent()-1)*4;
+    a2.setExponent(1);
+
+    // divide out the biggest digit to leave a number < 10
+    unsigned int d = a2.digit(0);
+    int dnorm = 1;
     while (d >= 10)
     {
-        a /= ten;
-        p10++;
+        ++p10; // adjust the 10's count
+        dnorm *= 10;
         d /= 10;
     }
-
+        
+    // divide by 2 until < 2, keep a count of the 2's
     int p2 = 0;
-    BCD two(2U);
     while (d > 1)
     {
-        a /= two;
-        ++p2;
+        ++p2; // adjust the 2s count
+        dnorm <<= 1;
         d >>= 1;
     }
 
-    BCD2 oneotwo(*(const BCDFloat*)(constTable + BCD_CONST_ONEOTWO)); // 1.02
-    int pr2 = 2;
-    BCD2 a2 = a;
-    while (a2 > oneotwo) 
+    // finally divide the original number by the dnorm to take out
+    // the 10s and 2s, leaving a value not bigger than 2.
+    if (dnorm > 1)
+        a2 /= dnorm;
+
+    // we have a in (1+delta,2]
+    // ln(v) = ln(a) + p10*ln10 + p2*ln2;
+
+    // find ck where ck = 1+k/64, k=1,2,..64 with |x-ck| <= 1/128
+    BCD2 a21 = a2 - 1;
+    BCD half(*(const BCDFloat*)(constTable + BCD_CONST_HALF));
+    int4 k = ifloor(a21.asBCD()*64 + half); // round to nearest k
+    
+    // set r = 2*(a - ck)/(a + ck)
+    BCD2 dk = BCD(k)/64;
+    BCD r = ((a21 - dk)/(a2 + 1 + dk)).asBCD();
+
+    // now, ln(a/ck) = ln((1+r/2)/(1-r/2)) = logPoly(r);
+    lna = logPoly(r*2);
+
+    // ln(a) = ln(ck) + ln(a/ck);
+    if (k)
     {
-        pr2 <<= 1;
-        a2 = sqrt(a2);  // 6 roots max.
+        BCD lnck(*(const BCDFloat*)(constTable + BCD_CONST_LOGCK + k - 1));
+        lna += lnck;
     }
-
-    /* use series
-     * ln(x) = 2(u+u^3/3+u^5/5 + ...) where u = (x-1)/(x+1) 
-     */
-
-    BCD t = ((a2-1)/(a2+1)).asBCD();
-    BCD s = t;
-    a = t*t;
-
-    int i;
-    for (i = 3; i < 12; i += 2)
-    { // only 5 terms needed
-        t *= a;
-        s += t/i;
-    }
-
-
+    
     BCD ln10(*(const BCDFloat*)(constTable + BCD_CONST_LN10));
     BCD ln2(*(const BCDFloat*)(constTable + BCD_CONST_LN2));
-    return s*pr2 + p10*ln10 + p2*ln2;
+    lna += p10*ln10 + p2*ln2;
 
+    if (negAnswer) lna.negate();
+    return lna;
 }
 
 BCD atan(const BCD& v)
