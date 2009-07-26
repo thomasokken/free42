@@ -382,6 +382,7 @@ DEP_CPP_BCD_C=\
 	
 NODEP_CPP_BCD_C=\
 	".\MathLib.h"\
+	".\mathlib\math.h"\
 	
 
 !ENDIF 
@@ -445,6 +446,70 @@ DEP_CPP_BCDFL=\
 	
 NODEP_CPP_BCDFL=\
 	".\MathLib.h"\
+	".\mathlib\math.h"\
+	
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\bcdfloat2.cpp
+
+!IF  "$(CFG)" == "Free42Decimal - Win32 (WCE emulator) Release"
+
+!ELSEIF  "$(CFG)" == "Free42Decimal - Win32 (WCE emulator) Debug"
+
+!ELSEIF  "$(CFG)" == "Free42Decimal - Win32 (WCE ARMV4) Release"
+
+!ELSEIF  "$(CFG)" == "Free42Decimal - Win32 (WCE ARMV4) Debug"
+
+!ELSEIF  "$(CFG)" == "Free42Decimal - Win32 (WCE ARM) Debug"
+
+DEP_CPP_BCDFLO=\
+	".\bcdfloat.h"\
+	".\bcdfloat2.h"\
+	".\free42.h"\
+	
+NODEP_CPP_BCDFLO=\
+	".\MathLib.h"\
+	".\mathlib\math.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Decimal - Win32 (WCE ARM) Release"
+
+DEP_CPP_BCDFLO=\
+	".\bcdfloat.h"\
+	".\bcdfloat2.h"\
+	".\free42.h"\
+	
+NODEP_CPP_BCDFLO=\
+	".\MathLib.h"\
+	".\mathlib\math.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Decimal - Win32 (WCE x86) Debug"
+
+DEP_CPP_BCDFLO=\
+	".\bcdfloat.h"\
+	".\bcdfloat2.h"\
+	".\free42.h"\
+	
+NODEP_CPP_BCDFLO=\
+	".\MathLib.h"\
+	".\mathlib\math.h"\
+	
+
+!ELSEIF  "$(CFG)" == "Free42Decimal - Win32 (WCE x86) Release"
+
+DEP_CPP_BCDFLO=\
+	".\bcdfloat.h"\
+	".\bcdfloat2.h"\
+	".\free42.h"\
+	
+NODEP_CPP_BCDFLO=\
+	".\MathLib.h"\
+	".\mathlib\math.h"\
 	
 
 !ENDIF 
@@ -512,12 +577,15 @@ NODEP_CPP_BCDMA=\
 
 DEP_CPP_BCDMA=\
 	".\bcd.h"\
+	".\bcd2.h"\
 	".\bcdfloat.h"\
+	".\bcdfloat2.h"\
 	".\bcdmath.h"\
 	".\free42.h"\
 	
 NODEP_CPP_BCDMA=\
 	".\MathLib.h"\
+	".\mathlib\math.h"\
 	
 
 !ENDIF 
@@ -641,6 +709,7 @@ DEP_CPP_CORE_=\
 	
 NODEP_CPP_CORE_=\
 	".\MathLib.h"\
+	".\mathlib\math.h"\
 	
 
 !ENDIF 
@@ -769,6 +838,7 @@ DEP_CPP_CORE_C=\
 	
 NODEP_CPP_CORE_C=\
 	".\MathLib.h"\
+	".\mathlib\math.h"\
 	
 
 !ENDIF 
@@ -880,6 +950,7 @@ NODEP_CPP_CORE_CO=\
 
 DEP_CPP_CORE_CO=\
 	".\bcdfloat.h"\
+	".\core_commands1.h"\
 	".\core_commands2.h"\
 	".\core_commands3.h"\
 	".\core_commands4.h"\
@@ -897,6 +968,7 @@ DEP_CPP_CORE_CO=\
 	
 NODEP_CPP_CORE_CO=\
 	".\MathLib.h"\
+	".\mathlib\math.h"\
 	
 
 !ENDIF 
@@ -1015,6 +1087,7 @@ DEP_CPP_CORE_COM=\
 	
 NODEP_CPP_CORE_COM=\
 	".\MathLib.h"\
+	".\mathlib\math.h"\
 	
 
 !ENDIF 
@@ -1133,6 +1206,7 @@ DEP_CPP_CORE_COMM=\
 	
 NODEP_CPP_CORE_COMM=\
 	".\MathLib.h"\
+	".\mathlib\math.h"\
 	
 
 !ENDIF 
@@ -1246,6 +1320,7 @@ DEP_CPP_CORE_COMMA=\
 	
 NODEP_CPP_CORE_COMMA=\
 	".\MathLib.h"\
+	".\mathlib\math.h"\
 	
 
 !ENDIF 
@@ -1354,6 +1429,7 @@ DEP_CPP_CORE_D=\
 	
 NODEP_CPP_CORE_D=\
 	".\MathLib.h"\
+	".\mathlib\math.h"\
 	
 
 !ENDIF 
@@ -1472,6 +1548,7 @@ DEP_CPP_CORE_G=\
 	
 NODEP_CPP_CORE_G=\
 	".\MathLib.h"\
+	".\mathlib\math.h"\
 	
 
 !ENDIF 
@@ -1580,6 +1657,7 @@ DEP_CPP_CORE_H=\
 	
 NODEP_CPP_CORE_H=\
 	".\MathLib.h"\
+	".\mathlib\math.h"\
 	
 
 !ENDIF 
@@ -1703,6 +1781,7 @@ DEP_CPP_CORE_K=\
 	
 NODEP_CPP_CORE_K=\
 	".\MathLib.h"\
+	".\mathlib\math.h"\
 	
 
 !ENDIF 
@@ -1801,6 +1880,7 @@ DEP_CPP_CORE_L=\
 	
 NODEP_CPP_CORE_L=\
 	".\MathLib.h"\
+	".\mathlib\math.h"\
 	
 
 !ENDIF 
@@ -1889,6 +1969,7 @@ DEP_CPP_CORE_LI=\
 	
 NODEP_CPP_CORE_LI=\
 	".\MathLib.h"\
+	".\mathlib\math.h"\
 	
 
 !ENDIF 
@@ -2022,6 +2103,7 @@ DEP_CPP_CORE_M=\
 	
 NODEP_CPP_CORE_M=\
 	".\MathLib.h"\
+	".\mathlib\math.h"\
 	
 
 !ENDIF 
@@ -2135,6 +2217,7 @@ DEP_CPP_CORE_MA=\
 	
 NODEP_CPP_CORE_MA=\
 	".\MathLib.h"\
+	".\mathlib\math.h"\
 	
 
 !ENDIF 
@@ -2218,6 +2301,7 @@ DEP_CPP_CORE_MAT=\
 	
 NODEP_CPP_CORE_MAT=\
 	".\MathLib.h"\
+	".\mathlib\math.h"\
 	
 
 !ENDIF 
@@ -2316,6 +2400,7 @@ DEP_CPP_CORE_P=\
 	
 NODEP_CPP_CORE_P=\
 	".\MathLib.h"\
+	".\mathlib\math.h"\
 	
 
 !ENDIF 
@@ -2414,6 +2499,7 @@ DEP_CPP_CORE_S=\
 	
 NODEP_CPP_CORE_S=\
 	".\MathLib.h"\
+	".\mathlib\math.h"\
 	
 
 !ENDIF 
@@ -2522,6 +2608,7 @@ DEP_CPP_CORE_T=\
 	
 NODEP_CPP_CORE_T=\
 	".\MathLib.h"\
+	".\mathlib\math.h"\
 	
 
 !ENDIF 
@@ -2615,6 +2702,7 @@ DEP_CPP_CORE_V=\
 	
 NODEP_CPP_CORE_V=\
 	".\MathLib.h"\
+	".\mathlib\math.h"\
 	
 
 !ENDIF 
@@ -2719,6 +2807,7 @@ DEP_CPP_MATHF=\
 	
 NODEP_CPP_MATHF=\
 	".\MathLib.h"\
+	".\mathlib\math.h"\
 	
 
 !ENDIF 
@@ -2839,11 +2928,11 @@ DEP_CPP_SHELL=\
 	".\shell_skin.h"\
 	".\shell_spool.h"\
 	".\StdAfx.h"\
-	{$(INCLUDE)}"aygshell.h"\
-	{$(INCLUDE)}"sipapi.h"\
 	
 NODEP_CPP_SHELL=\
+	".\ipapi.h"\
 	".\MathLib.h"\
+	".\ygshell.h"\
 	
 
 !ELSEIF  "$(CFG)" == "Free42Decimal - Win32 (WCE x86) Release"
@@ -2861,11 +2950,12 @@ DEP_CPP_SHELL=\
 	".\shell_skin.h"\
 	".\shell_spool.h"\
 	".\StdAfx.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
 	
 NODEP_CPP_SHELL=\
-	".\ipapi.h"\
 	".\MathLib.h"\
-	".\ygshell.h"\
+	".\mathlib\math.h"\
 	
 
 !ENDIF 
@@ -2982,6 +3072,7 @@ DEP_CPP_SHELL_S=\
 	
 NODEP_CPP_SHELL_S=\
 	".\MathLib.h"\
+	".\mathlib\math.h"\
 	
 
 !ENDIF 
@@ -3050,6 +3141,7 @@ DEP_CPP_SHELL_SP=\
 	
 NODEP_CPP_SHELL_SP=\
 	".\MathLib.h"\
+	".\mathlib\math.h"\
 	
 
 !ENDIF 
@@ -3159,7 +3251,15 @@ SOURCE=.\bcd.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\bcd2.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\bcdfloat.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\bcdfloat2.h
 # End Source File
 # Begin Source File
 

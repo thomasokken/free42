@@ -95,7 +95,8 @@ BCDFloat::BCDFloat(const char* s)
     if (!startp)
     {
         // check for Inf before fail
-        if (!strnicmp(s, "inf", 3))
+        //if (!strnicmp(s, "inf", 3))
+	if ((s[0] == 'i' || s[0] == 'I') && (s[1] == 'n' || s[1] == 'N') && (s[2] == 'f' || s[2] == 'F'))
         {
             *this = posInf();
             if (neg) negate();
