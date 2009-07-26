@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005 voidware ltd.
+ * Copyright (c) 2005-2009 voidware ltd.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -20,100 +20,33 @@
  * IN THE SOFTWARE.
  */
 
+extern "C"
+{
 #include <stdlib.h>
+}
+
 #include "bcd.h"
 
-BCDRef* BCDRef::pool_ = 0;
-
-BCDRef* BCDRef::_alloc()
-{
-    BCDRef* ref = pool_;
-    if (ref) {
-        pool_ = pool_->next_;
-    }
-    else {
-	ref = (BCDRef *) malloc(sizeof(BCDRef));
-    }
-    return ref;
-}
-
-/* A little hack to force the pooled BCDRef instances to be deleted.
- * This avoids the memory leak warnings that POSE will otherwise display on app
- * exit; I don't want to simply ignore those warnings, because one day they
- * might just alert me to a *real* memory leak.
- */
-struct PoolCleaner {
-    ~PoolCleaner() BCD_SECT;
-    int foo;
-};
-static PoolCleaner poolCleanerInstance;
-
-PoolCleaner::~PoolCleaner() {
-    BCDRef *r = BCDRef::pool_;
-    while (r != 0) {
-	BCDRef *r2 = r;
-	r = r->next_;
-	free(r2);
-    }
-}
-
-char BCD::buf_[64];
-
-#ifndef PALMOS
-const char* BCD::asString() const
-{
-    if (ref_) {
-        ref_->v_.asString(buf_);
-    }
-    else *buf_ = 0;
-    return buf_;
-}
-#endif
-
-BCD fabs(const BCD& a)
-{
-    if (a.isNeg()) return -a;
-    return a;
-}
+char BCD::_buf[64];
 
 BCD sqrt(const BCD& a)
 {
-    BCDRef* t = BCDRef::_alloc();
-    if (!BCDFloat::sqrt(&a.ref_->v_, &t->v_)) {
-        t->v_ = BCDFloat::nan();
-    }
-    return t;
+    BCD c;
+    if (!BCDFloat::sqrt(&a._v, &c._v))
+        c._v = BCDFloat::nan();
+    return c;
 }
 
-BCD floor(const BCD& a)
-{ 
-    /* floor, largest integer <= a.
-     * eg floor(2.1) = 2.
-     *    floor(-2.1) = -3.
-     */
-    if (a.isSpecial()) return a;
-
-    BCDRef* t = BCDRef::_alloc();    
-    BCDFloat::floor(&a.ref_->v_, &t->v_);
-    return t;
-}
-
-BCD trunc(const BCD& a)
+const char* BCD::asStringFmt(Format fmt, int precision) const
 {
-    /* truncate towards zero.
-     * trunc(2.1) = 2.
-     * trunc(-2.1) = -2
-     */
+    const BCD* bp = this;
+    BCD rv;
+    if ((fmt & BCDFloat::format_truncate) == 0)
+    {
+        rv = round(precision);
+        bp = &rv;
 
-    if (a.isSpecial()) return a;
-
-    BCDRef* t = BCDRef::_alloc();    
-    BCDFloat::trunc(&a.ref_->v_, &t->v_);
-    return t;
-}
-
-BCD frac(const BCD& a)
-{ 
-    if (a.isSpecial()) return a;
-    return a - trunc(a);
+    }
+    bp->_v.asStringFmt(_buf, fmt, precision);
+    return _buf;
 }

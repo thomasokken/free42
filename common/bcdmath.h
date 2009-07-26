@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005 voidware ltd.
+ * Copyright (c) 2005-2009 voidware ltd.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -39,10 +39,18 @@ BCD asin(const BCD&) BCD_SECT;
 BCD acos(const BCD&) BCD_SECT;
 BCD modtwopi(const BCD&) BCD_SECT;
 BCD log10(const BCD&) BCD_SECT;
+BCD sqrt(const BCD&);
 BCD hypot(const BCD& a, const BCD& b) BCD_SECT;
 BCD fmod(const BCD& a, const BCD& b) BCD_SECT;
 BCD ln1p(const BCD&) BCD_SECT;
 BCD expm1(const BCD&) BCD_SECT;
 BCD gammaFactorial(const BCD&) BCD_SECT;
+BCD gammaln(const BCD&);
+BCD sinh(const BCD&);
+BCD cosh(const BCD&);
+BCD tanh(const BCD&);
+BCD ceil(const BCD&);
+void sincos(const BCD& v, BCD* sinv, BCD* cosv);
+void sinhcosh(const BCD& a, BCD* sinha, BCD* cosha);
 
 #endif // bcdmath

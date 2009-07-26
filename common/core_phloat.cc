@@ -375,62 +375,62 @@ double to_double(Phloat p) {
 
 Phloat sin(Phloat p) {
     Phloat res;
-    res.bcd = sin(BCD(p.bcd)).ref_->v_;
+    res.bcd = sin(BCD(p.bcd))._v;
     return res;
 }
 
 Phloat cos(Phloat p) {
     Phloat res;
-    res.bcd = cos(BCD(p.bcd)).ref_->v_;
+    res.bcd = cos(BCD(p.bcd))._v;
     return res;
 }
 
 Phloat tan(Phloat p) {
     Phloat res;
-    res.bcd = tan(BCD(p.bcd)).ref_->v_;
+    res.bcd = tan(BCD(p.bcd))._v;
     return res;
 }
 
 Phloat asin(Phloat p) {
     Phloat res;
-    res.bcd = asin(BCD(p.bcd)).ref_->v_;
+    res.bcd = asin(BCD(p.bcd))._v;
     return res;
 }
 
 Phloat acos(Phloat p) {
     Phloat res;
-    res.bcd = acos(BCD(p.bcd)).ref_->v_;
+    res.bcd = acos(BCD(p.bcd))._v;
     return res;
 }
 
 Phloat atan(Phloat p) {
     Phloat res;
-    res.bcd = atan(BCD(p.bcd)).ref_->v_;
+    res.bcd = atan(BCD(p.bcd))._v;
     return res;
 }
 
 void sincos(Phloat phi, Phloat *s, Phloat *c) {
     BCD p(phi.bcd);
-    s->bcd = sin(p).ref_->v_;
-    c->bcd = cos(p).ref_->v_;
+    s->bcd = sin(p)._v;
+    c->bcd = cos(p)._v;
 }
 
 Phloat hypot(Phloat x, Phloat y) {
     Phloat res;
-    res.bcd = hypot(BCD(x.bcd), BCD(y.bcd)).ref_->v_;
+    res.bcd = hypot(BCD(x.bcd), BCD(y.bcd))._v;
     return res;
 }
 
 Phloat atan2(Phloat x, Phloat y) {
     Phloat res;
-    res.bcd = atan2(BCD(x.bcd), BCD(y.bcd)).ref_->v_;
+    res.bcd = atan2(BCD(x.bcd), BCD(y.bcd))._v;
     return res;
 }
 
 Phloat sinh(Phloat p) {
     // (exp(x)-exp(-x))/2
-    BCDFloat temp1 = exp(BCD(p.bcd)).ref_->v_;
-    BCDFloat temp2 = exp(BCD((-p).bcd)).ref_->v_;
+    BCDFloat temp1 = exp(BCD(p.bcd))._v;
+    BCDFloat temp2 = exp(BCD((-p).bcd))._v;
     BCDFloat temp3;
     BCDFloat::sub(&temp1, &temp2, &temp3);
     const BCDFloat two(2);
@@ -441,8 +441,8 @@ Phloat sinh(Phloat p) {
 
 Phloat cosh(Phloat p) {
     // (exp(x)+exp(-x))/2
-    BCDFloat temp1 = exp(BCD(p.bcd)).ref_->v_;
-    BCDFloat temp2 = exp(BCD((-p).bcd)).ref_->v_;
+    BCDFloat temp1 = exp(BCD(p.bcd))._v;
+    BCDFloat temp2 = exp(BCD((-p).bcd))._v;
     BCDFloat temp3;
     BCDFloat::add(&temp1, &temp2, &temp3);
     const BCDFloat two(2);
@@ -453,8 +453,8 @@ Phloat cosh(Phloat p) {
 
 Phloat tanh(Phloat p) {
     // (exp(x)-exp(-x))/(exp(x)+exp(-x))
-    BCDFloat temp1 = exp(BCD(p.bcd)).ref_->v_;
-    BCDFloat temp2 = exp(BCD((-p).bcd)).ref_->v_;
+    BCDFloat temp1 = exp(BCD(p.bcd))._v;
+    BCDFloat temp2 = exp(BCD((-p).bcd))._v;
     BCDFloat temp3;
     BCDFloat::sub(&temp1, &temp2, &temp3);
     if (temp3.isInf())
@@ -473,10 +473,10 @@ Phloat asinh(Phloat p) {
     BCDFloat temp2;
     const BCDFloat one(1);
     BCDFloat::add(&temp1, &one, &temp2);
-    temp1 = sqrt(BCD(temp2)).ref_->v_;
+    temp1 = sqrt(BCD(temp2))._v;
     BCDFloat::add(&temp1, &p.bcd, &temp2);
     Phloat res;
-    res.bcd = log(BCD(temp2)).ref_->v_;
+    res.bcd = log(BCD(temp2))._v;
     return res;
 }
 
@@ -487,10 +487,10 @@ Phloat acosh(Phloat p) {
     BCDFloat temp2;
     const BCDFloat one(1);
     BCDFloat::sub(&temp1, &one, &temp2);
-    temp1 = sqrt(BCD(temp2)).ref_->v_;
+    temp1 = sqrt(BCD(temp2))._v;
     BCDFloat::add(&temp1, &p.bcd, &temp2);
     Phloat res;
-    res.bcd = log(BCD(temp2)).ref_->v_;
+    res.bcd = log(BCD(temp2))._v;
     return res;
 }
 
@@ -501,7 +501,7 @@ Phloat atanh(Phloat p) {
     BCDFloat::add(&one, &p.bcd, &temp1);
     BCDFloat::sub(&one, &p.bcd, &temp2);
     BCDFloat::div(&temp1, &temp2, &temp3);
-    temp1 = log(BCD(temp3)).ref_->v_;
+    temp1 = log(BCD(temp3))._v;
     Phloat res;
     const BCDFloat two(2);
     BCDFloat::div(&temp1, &two, &res.bcd);
@@ -510,50 +510,50 @@ Phloat atanh(Phloat p) {
 
 Phloat log(Phloat p) {
     Phloat res;
-    res.bcd = log(BCD(p.bcd)).ref_->v_;
+    res.bcd = log(BCD(p.bcd))._v;
     return res;
 }
 
 Phloat log1p(Phloat p) {
     Phloat res;
-    res.bcd = ln1p(BCD(p.bcd)).ref_->v_;
+    res.bcd = ln1p(BCD(p.bcd))._v;
     return res;
 }
 
 Phloat log10(Phloat p) {
     Phloat res;
-    res.bcd = log10(BCD(p.bcd)).ref_->v_;
+    res.bcd = log10(BCD(p.bcd))._v;
     return res;
 }
 
 Phloat exp(Phloat p) {
     Phloat res;
-    res.bcd = exp(BCD(p.bcd)).ref_->v_;
+    res.bcd = exp(BCD(p.bcd))._v;
     return res;
 }
 
 Phloat expm1(Phloat p) {
     Phloat res;
-    res.bcd = expm1(BCD(p.bcd)).ref_->v_;
+    res.bcd = expm1(BCD(p.bcd))._v;
     return res;
 }
 
 Phloat gamma(Phloat p) {
     --p;
     Phloat res;
-    res.bcd = gammaFactorial(BCD(p.bcd)).ref_->v_;
+    res.bcd = gammaFactorial(BCD(p.bcd))._v;
     return res;
 }
 
 Phloat sqrt(Phloat p) {
     Phloat res;
-    res.bcd = sqrt(BCD(p.bcd)).ref_->v_;
+    res.bcd = sqrt(BCD(p.bcd))._v;
     return res;
 }
 
 Phloat fmod(Phloat x, Phloat y) {
     Phloat res;
-    res.bcd = fmod(BCD(x.bcd), BCD(y.bcd)).ref_->v_;
+    res.bcd = fmod(BCD(x.bcd), BCD(y.bcd))._v;
     return res;
 }
 
@@ -570,11 +570,11 @@ Phloat pow(Phloat x, Phloat y) {
 	int iy = BCDFloat::ifloor(&y.bcd);
 	BCDFloat by(iy);
 	if (BCDFloat::equal(&y.bcd, &by)) {
-	    res.bcd = pow(BCD(x.bcd), iy).ref_->v_;
+	    res.bcd = pow(BCD(x.bcd), iy)._v;
 	    return res;
 	}
     }
-    res.bcd = pow(BCD(x.bcd), BCD(y.bcd)).ref_->v_;
+    res.bcd = pow(BCD(x.bcd), BCD(y.bcd))._v;
     return res;
 }
 
