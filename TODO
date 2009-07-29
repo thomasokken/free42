@@ -1,5 +1,7 @@
 Fix the new BCD code to be PalmOS 68k compatible: segment declarations, and
 change 'int' to 'int4' wherever 2 bytes are insufficient.
+Also, find out why the PLOT/SUN test case is hanging with the new code; punt
+to Hugh if necessary.
 
 The whole flag 11 thing seems flaky on several platforms.
 Also, what about programs that set flag 11, then do OFF, and do the same the
