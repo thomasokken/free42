@@ -65,11 +65,11 @@ int BCDFloat2::_round25()
     if (d_[0] < 10)
         v = d_[P2-1] + (d_[P2] >= 5000);
     else if (d_[0] < 100)
-        v = (((d_[P2-1]+5)*3277)>>15)*10;
+        v = (((((int4) d_[P2-1])+5)*3277)>>15)*10;
     else if (d_[0] < 1000)
-        v = (((d_[P2-1]+50)*5243)>>19)*100;
+        v = (((((int4) d_[P2-1])+50)*5243)>>19)*100;
     else
-        v = (((d_[P2-1]+500)*8389)>>23)*1000;
+        v = (((((int4) d_[P2-1])+500)*8389)>>23)*1000;
 
     i = P2-1;
     while (v >= BASE)
@@ -824,7 +824,7 @@ bool BCDFloat2::sqrt(const BCDFloat2* a, BCDFloat2* r)
     
     BCDFloat2 rr(r1);
     BCDFloat2 t, t2;
-    BCDFloat2 two(2U);
+    BCDFloat2 two(2);
     if (res)
     {
         if (!rr.isSpecial())

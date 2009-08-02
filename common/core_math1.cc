@@ -755,7 +755,7 @@ int return_to_solve(int failure) {
 	    }
 	    do_ridders:
 	    solve.x3 = (solve.x1 + solve.x2) / 2;
-	    if (solve.x3 == solve.x1 || solve.x3 == solve.x2) {
+	    if (solve.x3 <= solve.x1 || solve.x3 >= solve.x2) {
 		solve.which = -1;
 		return finish_solve(SOLVE_ROOT);
 	    } else

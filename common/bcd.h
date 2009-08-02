@@ -32,8 +32,11 @@ struct BCD
     // Constructors
     BCD() {}
     BCD(const char* s) : _v(s) {}
+#if defined(PALMOS) && !defined(PALMOS_ARM)
+    BCD(int v) : _v(v) {}
+#endif
     BCD(int4 v) : _v(v) {}
-    BCD(uint4 v) : _v(v) {}
+    //BCD(uint4 v) : _v(v) {}
     BCD(const BCDFloatData& bf) : _v(bf) {}
 
     int                 exponent() const { return _v.exp(); }
@@ -134,11 +137,13 @@ struct BCD
         if (a.isSpecial()) return a;
         return a - trunc(a);
     }
+#ifndef PALMOS
     const char*         asString() const
     {
         _v.asString(_buf);
         return _buf;
     }
+#endif
 
     static BCD          epsilon(int n)
     {
@@ -147,7 +152,9 @@ struct BCD
         return v;
     }
 
+#ifndef PALMOS
     const char*         asStringFmt(Format fmt, int precision) const;
+#endif
 
     bool                isZero() const { return _v.isZero(); }
     bool                isNeg() const { return _v.neg(); }

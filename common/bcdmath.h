@@ -39,18 +39,18 @@ BCD asin(const BCD&) BCD_SECT;
 BCD acos(const BCD&) BCD_SECT;
 BCD modtwopi(const BCD&) BCD_SECT;
 BCD log10(const BCD&) BCD_SECT;
-BCD sqrt(const BCD&);
+BCD sqrt(const BCD&) BCD_SECT;
 BCD hypot(const BCD& a, const BCD& b) BCD_SECT;
 BCD fmod(const BCD& a, const BCD& b) BCD_SECT;
 BCD ln1p(const BCD&) BCD_SECT;
 BCD expm1(const BCD&) BCD_SECT;
 BCD gammaFactorial(const BCD&) BCD_SECT;
-BCD gammaln(const BCD&);
-BCD sinh(const BCD&);
-BCD cosh(const BCD&);
-BCD tanh(const BCD&);
-BCD ceil(const BCD&);
-void sincos(const BCD& v, BCD* sinv, BCD* cosv);
-void sinhcosh(const BCD& a, BCD* sinha, BCD* cosha);
+BCD gammaln(const BCD&) BCD_SECT;
+BCD sinh(const BCD&) BCD_SECT;
+BCD cosh(const BCD&) BCD_SECT;
+BCD tanh(const BCD&) BCD_SECT;
+BCD ceil(const BCD&) BCD_SECT;
+void sincos(const BCD& v, BCD* sinv, BCD* cosv) BCD_SECT;
+void sinhcosh(const BCD& a, BCD* sinha, BCD* cosha) BCD_SECT;
 
 #endif // bcdmath

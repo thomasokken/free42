@@ -321,11 +321,11 @@ int BCDFloat::_round25()
     if (d_[0] < 10)
         v = d_[P-1] + (d_[P] >= 5000);
     else if (d_[0] < 100)
-        v = (((d_[P-1]+5)*3277)>>15)*10;
+        v = (((((int4) d_[P-1])+5)*3277)>>15)*10;
     else if (d_[0] < 1000)
-        v = (((d_[P-1]+50)*5243)>>19)*100;
+        v = (((((int4) d_[P-1])+50)*5243)>>19)*100;
     else
-        v = (((d_[P-1]+500)*8389)>>23)*1000;
+        v = (((((int4) d_[P-1])+500)*8389)>>23)*1000;
 
     i = P-1;
     while (v >= BASE)
@@ -1087,6 +1087,7 @@ void BCDFloat::div(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
     }
 }
 
+static int root0(int v) BCD_SECT;
 static int root0(int v)
 {
     /* integer root for x<= 9999 */

@@ -32,6 +32,9 @@ struct BCD2
     // Constructors
     BCD2() {}
     BCD2(int4 v) : _v(v) {}
+#if defined(PALMOS) && !defined(PALMOS_ARM)
+    BCD2(int v) : _v(v) {}
+#endif
     BCD2(uint4 v) : _v(v) {}
 
     BCD2(const BCDFloatData2& bf) : _v(bf) {}
