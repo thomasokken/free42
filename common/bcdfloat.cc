@@ -207,18 +207,18 @@ void BCDFloat::_fromUInt(uint4 v)
         d_[0] = v;
         d_[P] = 1;
     }
-    else if (v < BASE*BASE) 
+    else if (v < ((int4)BASE)*BASE) 
     {
         d_[0] = v/BASE;
-        d_[1] = v - d_[0]*BASE;
+        d_[1] = v - d_[0]*((int4)BASE);
         d_[P] = 2;
     }
     else 
     {
-        d_[0] = v/(BASE*BASE);
-        v -= d_[0]*(BASE*BASE);
+        d_[0] = v/(((int4)BASE)*BASE);
+        v -= d_[0]*(((int4)BASE)*BASE);
         d_[1] = v/BASE;
-        d_[2] = v - d_[1]*BASE;
+        d_[2] = v - d_[1]*((int4)BASE);
         d_[P] = 3;
     }
 }
@@ -879,7 +879,7 @@ void BCDFloat::mul(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
             if (v >= BASE) 
             {
                 ca = v / BASE;
-                v = v - ca*BASE;
+                v = v - ca*((int4)BASE);
             }
             acc.d_[j] = v;
         }
@@ -979,7 +979,7 @@ void BCDFloat::div(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
         BCDFloat acc;
         BCDFloat b1;
 
-        u = BASE/(b->d_[0]+1);
+        u = ((int4)BASE)/(b->d_[0]+1);
 
         if (u != 1) {
             /* prenormialise `a' and move into acc using spare digit */
@@ -989,7 +989,7 @@ void BCDFloat::div(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
                 ca = 0;
                 if (v >= BASE) {
                     ca = v/BASE;
-                    v -= ca*BASE;
+                    v -= ca*((int4)BASE);
                 }
                 acc.d_[i] = v;
             }
@@ -1002,7 +1002,7 @@ void BCDFloat::div(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
                 ca = 0;
                 if (v >= BASE) {
                     ca = v/BASE;
-                    v -= ca*BASE;
+                    v -= ca*((int4)BASE);
                 }
                 b1.d_[i] = v;
             }
@@ -1019,7 +1019,7 @@ void BCDFloat::div(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
         for (;;) {
             if (acc.d_[0] == b1.d_[0]) q = BASE-1;
             else {
-                v = acc.d_[0]*BASE + acc.d_[1];
+                v = acc.d_[0]*((int4)BASE) + acc.d_[1];
                 q = v/b1.d_[0];
 
                 while (b1.d_[1]*q > ((v - q*b1.d_[0])*BASE + acc.d_[2])) {
@@ -1045,7 +1045,7 @@ void BCDFloat::div(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
                     ca = 0;
                     if (v < 0) {
                         ca = (-v + BASE-1)/BASE;
-                        v += ca*BASE;
+                        v += ca*((int4)BASE);
                     }
                     acc.d_[i] = v;
                 }
@@ -1162,7 +1162,7 @@ bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
                 if (v >= BASE) 
                 {
                     ca = v/BASE;
-                    v -= ca*BASE;
+                    v -= ca*((int4)BASE);
                 }
                 t.d_[i] = v;
             }
@@ -1188,13 +1188,13 @@ bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
             if (ts == as) 
             {
                 if (ts > 1)
-                    q = (((int4) acc.d_[0])*BASE + acc.d_[1])/(((int4) t.d_[0])*BASE+t.d_[1]);
+                    q = (((int4) acc.d_[0])*((int4)BASE) + acc.d_[1])/(((int4) t.d_[0])*((int4)BASE)+t.d_[1]);
                 else
                     q = ((int4)acc.d_[0])/t.d_[0];
             }
             else if (as > ts) 
             {
-                q = (((int4) acc.d_[0])*BASE + acc.d_[1])/t.d_[0];
+                q = (((int4) acc.d_[0])*((int4)BASE) + acc.d_[1])/t.d_[0];
             }
 
             if (q) 
@@ -1216,7 +1216,7 @@ bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
                         if (v >= BASE) 
                         {
                             ca = v/BASE;
-                            v -= ca*BASE;
+                            v -= ca*((int4)BASE);
                         }
                         u.d_[i] = v;
                     }
@@ -1429,8 +1429,7 @@ void BCDFloat::mul2(const unsigned short* ad, int ea,
 {
     int ca;
     int i, j;
-    int u;
-    int4 v;
+    int4 u, v;
 
     unsigned short acc[2*P+1];
 
@@ -1451,7 +1450,7 @@ void BCDFloat::mul2(const unsigned short* ad, int ea,
             if (v >= BASE) 
             {
                 ca = v / BASE;
-                v = v - ca*BASE;
+                v = v - ca*((int4)BASE);
             }
             acc[j] = v;
         }

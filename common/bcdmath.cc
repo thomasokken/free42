@@ -363,7 +363,7 @@ void sincos(const BCD& v, BCD* sinv, BCD* cosv)
     /* calculate sin(v), cos(v) or both as requested.
      */
     BCD a;
-    int k;
+    int4 k;
     int neg = v.isNeg();
 
     /* arrange a >= 0 */
@@ -406,7 +406,7 @@ void sincos(const BCD& v, BCD* sinv, BCD* cosv)
     BCD* cap = 0;
 
     k &= 64-1;  // wrap around at 2pi
-    int q = k/16; // q is the quadrant.
+    int4 q = k/16; // q is the quadrant.
 
     k &= 15; // index into table.
 
