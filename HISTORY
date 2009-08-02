@@ -2,7 +2,7 @@
 
 * Merged Hugh Steers' latest BCD code. This provides more accurate
   transcendentals and some bug fixes.
-* MacDashboard version: now recognizes '*' and '/' on the numeric keypad.
+* MacDashboard version: now recognizes '*' and '+' on the numeric keypad.
 
 10-07-2009: release 1.4.51
 
