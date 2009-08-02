@@ -27,10 +27,10 @@
 
 
 // Section attribute -- something like
-// #define BCD_SECT __attribute__ ((section ("BcdSect")))
+// #define BCD1_SECT __attribute__ ((section ("BcdSect")))
 // Only needed when building a multi-segment PalmOS executable.
-#ifndef BCD_SECT
-#define BCD_SECT
+#ifndef BCD1_SECT
+#define BCD1_SECT
 #endif
 
 
@@ -154,8 +154,8 @@ struct BCDFloat: public BCDFloatData
         }
     }
 #endif
-    BCDFloat(int8) BCD_SECT;
-    BCDFloat(double) BCD_SECT;
+    BCDFloat(int8) BCD1_SECT;
+    BCDFloat(double) BCD1_SECT;
     BCDFloat(uint4 v)
     {
         _init();
@@ -191,7 +191,7 @@ struct BCDFloat: public BCDFloatData
 
     bool                isNan() const { return (d_[P]&0x4000) != 0; }
     bool                isInf() const { return (d_[P]&0x2000) != 0; }
-    bool                isInteger() const BCD_SECT;
+    bool                isInteger() const BCD1_SECT;
 
     void                ldexp(unsigned int mant, int e)
     {
@@ -201,13 +201,13 @@ struct BCDFloat: public BCDFloatData
         exp(e);
     }
 
-    static void         add(const BCDFloat* a, const BCDFloat* b, BCDFloat* c) BCD_SECT;
-    static void         sub(const BCDFloat* a, const BCDFloat* b, BCDFloat* c) BCD_SECT;
-    static void         mul(const BCDFloat* a, const BCDFloat* b, BCDFloat* c) BCD_SECT;
-    static void         div(const BCDFloat* a, const BCDFloat* b, BCDFloat* c) BCD_SECT;
-    static bool         sqrt(const BCDFloat* a, BCDFloat* ra) BCD_SECT;
+    static void         add(const BCDFloat* a, const BCDFloat* b, BCDFloat* c) BCD1_SECT;
+    static void         sub(const BCDFloat* a, const BCDFloat* b, BCDFloat* c) BCD1_SECT;
+    static void         mul(const BCDFloat* a, const BCDFloat* b, BCDFloat* c) BCD1_SECT;
+    static void         div(const BCDFloat* a, const BCDFloat* b, BCDFloat* c) BCD1_SECT;
+    static bool         sqrt(const BCDFloat* a, BCDFloat* ra) BCD1_SECT;
 
-    static int          cmp(const BCDFloat *a, const BCDFloat *b) BCD_SECT;
+    static int          cmp(const BCDFloat *a, const BCDFloat *b) BCD1_SECT;
     static bool         lt(const BCDFloat* a, const BCDFloat* b)
     {
         /* true iff a < b */
@@ -247,31 +247,31 @@ struct BCDFloat: public BCDFloatData
         trunc(x, &a);
         return a.asInt();
     }
-    static bool         floor(const BCDFloat* a, BCDFloat* c) BCD_SECT;
-    static bool         trunc(const BCDFloat* a, BCDFloat* c) BCD_SECT;
+    static bool         floor(const BCDFloat* a, BCDFloat* c) BCD1_SECT;
+    static bool         trunc(const BCDFloat* a, BCDFloat* c) BCD1_SECT;
 
-    void                _init() BCD_SECT;
+    void                _init() BCD1_SECT;
     static void         _uadd(const BCDFloat* a, const BCDFloat* b,
-                              BCDFloat* c) BCD_SECT;
+                              BCDFloat* c) BCD1_SECT;
     static void         _usub(const BCDFloat* a, const BCDFloat* b,
-                              BCDFloat* c) BCD_SECT;
-    void                _rshift() BCD_SECT;
-    void                _lshift() BCD_SECT;
-    int                 _round25() BCD_SECT;
+                              BCDFloat* c) BCD1_SECT;
+    void                _rshift() BCD1_SECT;
+    void                _lshift() BCD1_SECT;
+    int                 _round25() BCD1_SECT;
 #ifndef PALMOS
     void                _asString(char* buf, Format fmt, int precision) const;
 #endif
-    void                _fromUInt(uint4) BCD_SECT;
-    void                _roundDigits(unsigned int precision, BCDFloat* v) const BCD_SECT;
+    void                _fromUInt(uint4) BCD1_SECT;
+    void                _roundDigits(unsigned int precision, BCDFloat* v) const BCD1_SECT;
     static const BCDFloat& posInf() { return *(BCDFloat*)posInfD_; }
     static const BCDFloat& negInf() { return *(BCDFloat*)negInfD_; }
     static const BCDFloat& nan() { return *(BCDFloat*)nanD_; }
-    static void         epsilon(int n, BCDFloat* v) BCD_SECT;
+    static void         epsilon(int n, BCDFloat* v) BCD1_SECT;
 
     static void         mul2(const unsigned short* ad, int ea,
                              const unsigned short* bd, int eb,
-                             unsigned short* cd, int& ec) BCD_SECT;
-    int4                asInt() const BCD_SECT;
+                             unsigned short* cd, int& ec) BCD1_SECT;
+    int4                asInt() const BCD1_SECT;
     
 
     static unsigned short posInfD_[P+1];

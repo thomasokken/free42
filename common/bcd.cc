@@ -29,14 +29,6 @@ extern "C"
 
 char BCD::_buf[64];
 
-BCD sqrt(const BCD& a)
-{
-    BCD c;
-    if (!BCDFloat::sqrt(&a._v, &c._v))
-        c._v = BCDFloat::nan();
-    return c;
-}
-
 #ifndef PALMOS
 const char* BCD::asStringFmt(Format fmt, int precision) const
 {

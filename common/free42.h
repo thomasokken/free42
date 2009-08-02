@@ -56,7 +56,8 @@ extern "C" {
 #define STO_RCL_SECT __attribute__ ((section ("StoRcl")))
 #define TABLES_SECT __attribute__ ((section ("Tables")))
 #define VARIABLES_SECT __attribute__ ((section ("Variabls")))
-#define BCD_SECT __attribute__ ((section ("BcdFloat")))
+#define BCD1_SECT __attribute__ ((section ("BcdFlt1")))
+#define BCD2_SECT __attribute__ ((section ("BcdFlt2")))
 #define int2 Int16
 #define uint2 UInt16
 #define int4 Int32
@@ -94,7 +95,8 @@ extern "C" {
 #define STO_RCL_SECT
 #define TABLES_SECT
 #define VARIABLES_SECT
-#define BCD_SECT
+#define BCD1_SECT
+#define BCD2_SECT
 #define int2 short
 #define uint2 unsigned short
 #define int4 int

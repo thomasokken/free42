@@ -97,7 +97,7 @@ struct BCDFloat2: public BCDFloatData2
 
     bool                isNan() const { return (d_[P2]&0x4000) != 0; }
     bool                isInf() const { return (d_[P2]&0x2000) != 0; }
-    bool                isInteger() const BCD_SECT;
+    bool                isInteger() const BCD2_SECT;
 
     void                asBCD(BCDFloat* v) const
     {
@@ -115,12 +115,12 @@ struct BCDFloat2: public BCDFloatData2
         exp(e);
     }
 
-    static void         add(const BCDFloat2* a, const BCDFloat2* b, BCDFloat2* c) BCD_SECT;
-    static void         sub(const BCDFloat2* a, const BCDFloat2* b, BCDFloat2* c) BCD_SECT;
-    static void         mul(const BCDFloat2* a, const BCDFloat2* b, BCDFloat2* c) BCD_SECT;
-    static void         div(const BCDFloat2* a, const BCDFloat2* b, BCDFloat2* c) BCD_SECT;
-    static bool         sqrt(const BCDFloat2* a, BCDFloat2* ra) BCD_SECT;
-    static int          cmp(const BCDFloat2 *a, const BCDFloat2 *b) BCD_SECT;
+    static void         add(const BCDFloat2* a, const BCDFloat2* b, BCDFloat2* c) BCD2_SECT;
+    static void         sub(const BCDFloat2* a, const BCDFloat2* b, BCDFloat2* c) BCD2_SECT;
+    static void         mul(const BCDFloat2* a, const BCDFloat2* b, BCDFloat2* c) BCD2_SECT;
+    static void         div(const BCDFloat2* a, const BCDFloat2* b, BCDFloat2* c) BCD2_SECT;
+    static bool         sqrt(const BCDFloat2* a, BCDFloat2* ra) BCD2_SECT;
+    static int          cmp(const BCDFloat2 *a, const BCDFloat2 *b) BCD2_SECT;
     static bool         lt(const BCDFloat2* a, const BCDFloat2* b)
     {
         /* true iff a < b */
@@ -166,26 +166,26 @@ struct BCDFloat2: public BCDFloatData2
         return a.asInt();
     }
 
-    static bool         floor(const BCDFloat2* a, BCDFloat2* c) BCD_SECT;
-    static bool         trunc(const BCDFloat2* a, BCDFloat2* c) BCD_SECT;
+    static bool         floor(const BCDFloat2* a, BCDFloat2* c) BCD2_SECT;
+    static bool         trunc(const BCDFloat2* a, BCDFloat2* c) BCD2_SECT;
 
-    void                _init() BCD_SECT;
+    void                _init() BCD2_SECT;
     static void         _uadd(const BCDFloat2* a, const BCDFloat2* b,
-                              BCDFloat2* c) BCD_SECT;
+                              BCDFloat2* c) BCD2_SECT;
     static void         _usub(const BCDFloat2* a, const BCDFloat2* b,
-                              BCDFloat2* c) BCD_SECT;
-    void                _rshift() BCD_SECT;
-    void                _lshift() BCD_SECT;
-    int                 _round25()BCD_SECT;
-    void                _fromUInt(uint4) BCD_SECT;
+                              BCDFloat2* c) BCD2_SECT;
+    void                _rshift() BCD2_SECT;
+    void                _lshift() BCD2_SECT;
+    int                 _round25()BCD2_SECT;
+    void                _fromUInt(uint4) BCD2_SECT;
 
 
     static const BCDFloat2& posInf() { return *(BCDFloat2*)posInfD_; }
     static const BCDFloat2& negInf() { return *(BCDFloat2*)negInfD_; }
     static const BCDFloat2& nan() { return *(BCDFloat2*)nanD_; }
-    static void         epsilon(int n, BCDFloat2* v) BCD_SECT;
+    static void         epsilon(int n, BCDFloat2* v) BCD2_SECT;
 
-    int4                asInt() const BCD_SECT;
+    int4                asInt() const BCD2_SECT;
     
 
     static unsigned short posInfD_[P2+1];

@@ -286,7 +286,7 @@ BCD pi2()
     return *(const BCDFloat*)(constTable + BCD_CONST_PI2);
 }
 
-static void horner(const BCDFloat* coef, BCD& x, int n, BCD& res) BCD_SECT;
+static void horner(const BCDFloat* coef, BCD& x, int n, BCD& res) BCD2_SECT;
 static void horner(const BCDFloat* coef, BCD& x, int n, BCD& res)
 {
     int i;
@@ -299,7 +299,7 @@ static void horner(const BCDFloat* coef, BCD& x, int n, BCD& res)
     }
 }
 
-static void sinPoly(const BCD& a, BCD& sa) BCD_SECT;
+static void sinPoly(const BCD& a, BCD& sa) BCD2_SECT;
 static void sinPoly(const BCD& a, BCD& sa)
 {
     /* calculate sin(a) for |a| <= pi/32 
@@ -328,7 +328,7 @@ static void sinPoly(const BCD& a, BCD& sa)
     sa = a*(1+y*py);
 }
 
-static void cosPoly(const BCD& a, BCD& ca) BCD_SECT;
+static void cosPoly(const BCD& a, BCD& ca) BCD2_SECT;
 static void cosPoly(const BCD& a, BCD& ca)
 {
     /*
@@ -500,7 +500,7 @@ BCD tan(const BCD& v)
     return s/c;
 }
 
-static BCD expTaylor(const BCD& a, int n) BCD_SECT;
+static BCD expTaylor(const BCD& a, int n) BCD2_SECT;
 static BCD expTaylor(const BCD& a, int n)
 {
     BCD t = a;
@@ -587,7 +587,7 @@ BCD exp(const BCD& v)
     return pow(er, k)*pow(BCD(2), n);
 }
 
-static BCD _ln1p(const BCD& a) BCD_SECT;
+static BCD _ln1p(const BCD& a) BCD2_SECT;
 static BCD _ln1p(const BCD& a)
 {
     /* otherwise use a series that converges for small arguments */
@@ -613,7 +613,7 @@ static BCD _ln1p(const BCD& a)
     return s1;
 }
 
-static BCD logPoly(const BCD& r) BCD_SECT;
+static BCD logPoly(const BCD& r) BCD2_SECT;
 static BCD logPoly(const BCD& r)
 {
     /*
@@ -996,6 +996,14 @@ BCD log10(const BCD& v)
     return log(v) / ln10;
 }
 
+BCD sqrt(const BCD& a)
+{
+    BCD c;
+    if (!BCDFloat::sqrt(&a._v, &c._v))
+        c._v = BCDFloat::nan();
+    return c;
+}
+
 BCD hypot(const BCD& a, const BCD& b)
 {
     // return sqrt(a^2 + b^2)
@@ -1063,7 +1071,7 @@ BCD ln1p(const BCD& a)
 #define K 12
 #define GG 12
 
-static void _gammaFactorialAux(const BCD& z, BCD& t1, BCD& t2, BCD& s) BCD_SECT;
+static void _gammaFactorialAux(const BCD& z, BCD& t1, BCD& t2, BCD& s) BCD2_SECT;
 static void _gammaFactorialAux(const BCD& z, BCD& t1, BCD& t2, BCD& s)
 {
     /* calculate gamma(z+1) = z! for z > 0
@@ -1097,7 +1105,7 @@ static void _gammaFactorialAux(const BCD& z, BCD& t1, BCD& t2, BCD& s)
 }
 
 
-static BCD _gammaFactorial(const BCD& z) BCD_SECT;
+static BCD _gammaFactorial(const BCD& z) BCD2_SECT;
 static BCD _gammaFactorial(const BCD& z)
 {
     BCD t1, t2, s;

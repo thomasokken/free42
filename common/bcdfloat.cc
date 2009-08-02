@@ -1087,7 +1087,7 @@ void BCDFloat::div(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
     }
 }
 
-static int root0(int v) BCD_SECT;
+static int root0(int v) BCD1_SECT;
 static int root0(int v)
 {
     /* integer root for x<= 9999 */
