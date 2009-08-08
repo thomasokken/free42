@@ -1,4 +1,4 @@
-??-??-????: release 1.4.52
+08-08-2009: release 1.4.52
 
 * Merged Hugh Steers' latest BCD code. This provides more accurate
   transcendentals and some bug fixes.

@@ -1,20 +1,25 @@
-Fix the new BCD code to be PalmOS 68k compatible: change 'int' to 'int4'
-wherever 2 bytes are insufficient.
+There has been a report of program indices going out of sync -- see
+http://groups.google.com/group/iphone42s/browse_thread/thread/a5c821e46376ac65
+http://groups.google.com/group/iphone42s/browse_thread/thread/c7615637140bbda0
+http://groups.google.com/group/iphone42s/browse_thread/thread/fadc61ed7b07f436
 
 The whole flag 11 thing seems flaky on several platforms.
-Also, what about programs that set flag 11, then do OFF, and do the same the
-moment that they're running at the next power-on? That kind of thing would be
-the old evil never-be-able-to-use-this-thing-again evil.
+Also, what about  LBL "NASTY"  SF 11  OFF  GTO "NASTY"  ?
 I think we should have some kind of check for the case where the calc does OFF
 without ever having handled any kind of user events since power-on; it should
 either refuse to power off, or clear flag 11 before powering off, or do some
 kind of user interaction to give the user a chance to break this potentially
 inescapable cycle.
 
-It looks like interrupting programs in the middle of a long DET operation
-doesn't work. I noticed this in the new Mac version, but the Windows version
-seems to have the same problem, so it looks like I need to re-examine all
-the shells.
+Add clock/timer functions for all platforms. Model them after the HP-41 time
+module (with CX extensions), if possible -- that would also provide an obvious
+way of making it source code compatible with the 41.
+
+Add accelerometer, location services, and heading (compass) support for the
+iPhone & iPod touch.
+
+The ALPHA register should be larger when Byron's 4-line mode is active.
+Also, AVIEW should be modified to fully support the 4-line display.
 
 Add keyboard click option for the Pocket PC version.
 

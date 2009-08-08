@@ -1294,7 +1294,9 @@ bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
             }
         }
     }
-    r->exp(e >= -1 ? (e + 1) / 2 : e / 2);
+    e = e >= -1 ? (e + 1) / 2 : e / 2;
+    if (r->_round25()) ++e;
+    r->exp(e);
     return true;
 }
 

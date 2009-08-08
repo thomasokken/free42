@@ -15,6 +15,13 @@
  * along with this program; if not, see http://www.gnu.org/licenses/.
  *****************************************************************************/
 
+// to enable debug out
+//#define WINDOWS_DEBUG
+
+#ifdef WINDOWS_DEBUG
+#include <windows.h> 
+#endif 
+
 #include <stdlib.h>
 
 #include "core_math1.h"
@@ -59,6 +66,8 @@ typedef struct {
 
 static solve_state solve;
 
+#define ROMB_K 5
+// 1/2 million evals max!
 #define ROMB_MAX 20
 
 /* Integrator */
@@ -76,13 +85,15 @@ typedef struct {
     int state;
     phloat llim, ulim, acc;
     phloat a, b, eps;
-    int n, m, i;
+    int n, m, i, k;
     phloat h, sum;
-    phloat c[ROMB_MAX+1];
+    phloat c[ROMB_K];
+    phloat s[ROMB_K+1];
     int nsteps;
     phloat p;
     phloat t, u;
     phloat prev_int;
+    int evalCount;
 } integ_state;
 
 static integ_state integ;
@@ -388,6 +399,20 @@ static int finish_solve(int message) {
 
     return solve.keep_running ? ERR_NONE : ERR_STOP;
 }
+
+#ifdef WINDOWS_DEBUG
+static void printout(const phloat& p, const char* s) {
+    char buf[256];
+    buf[0] = 0;
+    if (s) {
+        strcpy(buf, s);
+        strcat(buf, " ");
+    }
+    p.bcd.asString(buf + strlen(buf));
+    strcat(buf, "\n");
+    OutputDebugString(buf);
+}
+#endif
 
 int return_to_solve(int failure) {
     phloat f, slope, s, xnew, prev_f = solve.curr_f;
@@ -755,6 +780,18 @@ int return_to_solve(int failure) {
 	    }
 	    do_ridders:
 	    solve.x3 = (solve.x1 + solve.x2) / 2;
+	    // TODO: The following termination condition should really be
+	    //
+	    //  if (solve.x3 == solve.x1 || solve.x3 == solve.x2)
+	    //
+	    // since it is mathematically impossible for x3 to lie outside the
+	    // interval [x1, x2], but due to decimal round-off, it is, in fact,
+	    // possible, e.g. consider x1 = 7...2016 and x2 = 7...2018; this
+	    // results in x3 = 7...2015. Fixing this will require either
+	    // extended-precision math for solver internals, or at least a
+	    // slightly smarter implementation of the midpoint calculation,
+	    // e.g. fall back on x3 = x1 + (x2 - x1) / 2 if x3 = (x1 + x2) / 2
+	    // returns an incorrect result. 
 	    if (solve.x3 <= solve.x1 || solve.x3 >= solve.x2) {
 		solve.which = -1;
 		return finish_solve(SOLVE_ROOT);
@@ -854,11 +891,13 @@ int start_integ(const char *name, int length) {
     integ.a = integ.llim;
     integ.b = integ.ulim - integ.llim;
     integ.h = 2;
-    integ.c[0] = 0;
     integ.prev_int = 0;
     integ.nsteps = 1;
-    integ.n = 0;
+    integ.n = 1;
     integ.state = 1;
+    integ.s[0] = 0;
+    integ.k = 1;
+    integ.evalCount = 0;
 
     integ.keep_running = program_running();
     if (!integ.keep_running) {
@@ -877,7 +916,11 @@ static int finish_integ() {
     int saved_trace = flags.f.trace_print;
     integ.state = 0;
 
-    x = new_real(integ.c[integ.i] * integ.b * 0.75);
+#ifdef WINDOWS_DEBUG
+    printout(integ.evalCount, "integ eval count");
+#endif
+
+    x = new_real(integ.sum * integ.b * 0.75);
     y = new_real(integ.eps);
     if (x == NULL || y == NULL) {
 	free_vartype(x);
@@ -916,67 +959,69 @@ static int finish_integ() {
 
 int return_to_integ(int failure) {
     switch (integ.state) {
-	case 0:
-	    return ERR_INTERNAL_ERROR;
+    case 0:
+        return ERR_INTERNAL_ERROR;
 
-	case 1:
-	    integ.state = 2;
+    case 1:
+        integ.state = 2;
 
-	    loop1:
+    loop1:
 
-	    integ.p = integ.h / 2 - 1;
-	    integ.sum = 0.0;
-	    integ.i = 0;
+        integ.p = integ.h / 2 - 1;
+        integ.sum = 0.0;
+        integ.i = 0;
 
-		loop2:
+    loop2:
 
-		integ.t = 1 - integ.p * integ.p;
-		integ.u = integ.p + integ.t * integ.p / 2;
-		integ.u = (integ.u * integ.b + integ.b) / 2 + integ.a;
-		return call_integ_fn();
+        integ.t = 1 - integ.p * integ.p;
+        integ.u = integ.p + integ.t * integ.p / 2;
+        integ.u = (integ.u * integ.b + integ.b) / 2 + integ.a;
+        ++integ.evalCount;
+        return call_integ_fn();
 
-	case 2:
-		if (!failure && reg_x->type == TYPE_REAL)
-		    integ.sum += integ.t * ((vartype_real *) reg_x)->x;
-		integ.p += integ.h;
-		if (++integ.i < integ.nsteps)
-		    goto loop2;
+    case 2:
+        if (!failure && reg_x->type == TYPE_REAL)
+            integ.sum += integ.t * ((vartype_real *) reg_x)->x;
+        integ.p += integ.h;
+        if (++integ.i < integ.nsteps)
+            goto loop2;
 
-	    integ.p = 4;
-	    integ.t = integ.c[0];
-	    integ.c[0] = (integ.c[0] + integ.h * integ.sum) / 2.0;
-	    for (integ.i = 0; integ.i <= integ.n; integ.i++) {
-		integ.u = integ.c[integ.i + 1];
-		integ.c[integ.i + 1] =
-			(integ.p * integ.c[integ.i] - integ.t) / (integ.p - 1);
-		integ.t = integ.u;
-		integ.p *= 4;
-	    }
+        // update integral moving resuslt
+        integ.prev_int = (integ.prev_int + integ.sum*integ.h)/2;
+        integ.s[integ.k++] = integ.prev_int;
 
-	    /* NOTE: I'm delaying the convergence check until the 5th
-	     * iteration, just to make sure we don't jump to conclusions
-	     * after having only sampled a handful of data points.
-	     * Maybe that's cheating, but it's necessary to make certain
-	     * nasty cases (x*exp(-x), exp(-x)/x) work right.
-	     */
-	    if (integ.n > 3) {
-		phloat diff = fabs(integ.c[integ.i] - integ.prev_int);
-		integ.eps = diff * integ.b * 0.75;
-		phloat mag = (fabs(integ.c[integ.i]) + fabs(integ.prev_int)) / 2.0;
-		if (mag == 0 || diff / mag <= integ.acc)
-		    return finish_integ();
-	    }
+        if (integ.n >= ROMB_K-1) {
+            int i, m;
+            int ns = ROMB_K-1;
+            phloat dm = 1;
+            for (i = 0; i < ROMB_K; ++i) integ.c[i] = integ.s[i];
+            integ.sum = integ.s[ns];
+            for (m = 1; m < ROMB_K; ++m) {
+                dm /= 4;
+                for (i = 0; i < ROMB_K-m; ++i)
+                    integ.c[i] = (integ.c[i+1]-integ.c[i]*dm*4)/(1-dm);
+                integ.eps = integ.c[--ns]*dm;
+                integ.sum += integ.eps;
+            }
 
-	    integ.prev_int = integ.c[integ.i];
-	    integ.nsteps <<= 1;
-	    integ.h /= 2.0;
+	    integ.eps = fabs(integ.eps);
+            if (integ.eps <= integ.acc*fabs(integ.sum)) {
+                // done!
+                return finish_integ();
+            }
 
-	    if (++integ.n < ROMB_MAX)
-		goto loop1;
-	    else
-		return finish_integ();
+            for (i = 0; i < ROMB_K-1; ++i) integ.s[i] = integ.s[i+1];
+            integ.k = ROMB_K-1;
+        }
 
-	default:
-	    return ERR_INTERNAL_ERROR;
+        integ.nsteps <<= 1;
+        integ.h /= 2.0;
+
+        if (++integ.n >= ROMB_MAX)
+            return finish_integ(); // too many
+        
+        goto loop1;
+    default:
+        return ERR_INTERNAL_ERROR;
     }
 }
