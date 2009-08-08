@@ -1,5 +1,14 @@
 08-08-2009: release 1.4.52
 
+* New: Mac version. This is a native application, not a Dashboard widget; it
+  is functionally identical to the PC versions (Windows, GTK, and Motif).
+  The print-out window doesn't work yet, though printing to files does;
+  everything else is working. The print-out window will be finished in a two
+  or three weeks, barring the unforeseen. I'm releasing the app in this
+  incomplete state because I feel it is stable and usable, and should be a
+  big improvement for those currently using the Dashboard widget.
+  This is a Universal application, so it should run on PowerPC and Intel-
+  based Macs. It requires Mac OS X 10.5 or later.
 * Decimal version: Merged Hugh Steers' latest BCD code. This provides more
   accurate transcendentals and some bug fixes.
 * Also, Hugh improved the error estimate for the Romberg integration code;
