@@ -1,7 +1,9 @@
 08-08-2009: release 1.4.52
 
-* Merged Hugh Steers' latest BCD code. This provides more accurate
-  transcendentals and some bug fixes.
+* Decimal version: Merged Hugh Steers' latest BCD code. This provides more
+  accurate transcendentals and some bug fixes.
+* Also, Hugh improved the error estimate for the Romberg integration code;
+  it now converges more quickly in many cases.
 * MacDashboard version: now recognizes '*' and '+' on the numeric keypad.
 
 10-07-2009: release 1.4.51

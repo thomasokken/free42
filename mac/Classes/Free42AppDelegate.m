@@ -343,11 +343,28 @@ static bool is_file(const char *name);
 	core_settings.matrix_outofrange = [prefsMatrixOutOfRange state];
 	core_settings.auto_repeat = [prefsAutoRepeat state];
 	state.printerToTxtFile = [prefsPrintText state];
-	[[prefsPrintTextFile stringValue] getCString:state.printerTxtFileName maxLength:FILENAMELEN encoding:NSUTF8StringEncoding];
+	char buf[FILENAMELEN];
+	[[prefsPrintTextFile stringValue] getCString:buf maxLength:FILENAMELEN encoding:NSUTF8StringEncoding];
+	int len = strlen(buf);
+	if (len > 0 && (len < 4 || strcasecmp(buf + len - 4, ".txt") != 0))
+		strcat(buf, ".txt");
+	if (print_txt != NULL && (!state.printerToTxtFile || strcasecmp(state.printerTxtFileName, buf) != 0)) {
+		fclose(print_txt);
+		print_txt = NULL;
+	}
+	strcpy(state.printerTxtFileName, buf);
 	core_settings.raw_text = [prefsPrintTextRaw state];
 	state.printerToGifFile = [prefsPrintGIF state];
-	[[prefsPrintGIFFile stringValue] getCString:state.printerGifFileName maxLength:FILENAMELEN encoding:NSUTF8StringEncoding];
-	char buf[50];
+	[[prefsPrintGIFFile stringValue] getCString:buf maxLength:FILENAMELEN encoding:NSUTF8StringEncoding];
+	len = strlen(buf);
+	if (len > 0 && (len < 4 || strcasecmp(buf + len - 4, ".gif") != 0))
+		strcat(buf, ".gif");
+	if (print_gif != NULL && (!state.printerToGifFile || strcasecmp(state.printerGifFileName, buf) != 0)) {
+		shell_finish_gif(gif_seeker, gif_writer);
+		fclose(print_gif);
+		print_gif = NULL;
+	}
+	strcpy(state.printerGifFileName, buf);
 	[[prefsPrintGIFMaxHeight stringValue] getCString:buf maxLength:50 encoding:NSUTF8StringEncoding];
 	if (sscanf(buf, "%d", &state.printerGifMaxLength) == 1) {
 		if (state.printerGifMaxLength < 32)
