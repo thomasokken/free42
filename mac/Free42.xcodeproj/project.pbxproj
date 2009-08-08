@@ -476,7 +476,7 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		C01FCF4B08A954540054247B /* Debug */ = {
+		C01FCF4B08A954540054247B /* Debug Binary */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -491,9 +491,9 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				PRODUCT_NAME = Free42;
 			};
-			name = Debug;
+			name = "Debug Binary";
 		};
-		C01FCF4C08A954540054247B /* Release */ = {
+		C01FCF4C08A954540054247B /* Release Binary */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -505,9 +505,39 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				PRODUCT_NAME = Free42;
 			};
-			name = Release;
+			name = "Release Binary";
 		};
-		C01FCF4F08A954540054247B /* Debug */ = {
+		C01FCF4F08A954540054247B /* Debug Binary */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = NO_SINCOS;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				"New Setting" = "";
+				ONLY_ACTIVE_ARCH = YES;
+				PREBINDING = NO;
+				SDKROOT = macosx10.5;
+			};
+			name = "Debug Binary";
+		};
+		C01FCF5008A954540054247B /* Release Binary */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_PREPROCESSOR_DEFINITIONS = NO_SINCOS;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				"New Setting" = "";
+				PREBINDING = NO;
+				SDKROOT = macosx10.5;
+			};
+			name = "Release Binary";
+		};
+		E9937380102DE5B300B94F08 /* Debug Decimal */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
@@ -524,9 +554,26 @@
 				PREBINDING = NO;
 				SDKROOT = macosx10.5;
 			};
-			name = Debug;
+			name = "Debug Decimal";
 		};
-		C01FCF5008A954540054247B /* Release */ = {
+		E9937381102DE5B300B94F08 /* Debug Decimal */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = Free42_Prefix.pch;
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(HOME)/Applications";
+				PRODUCT_NAME = Free42;
+			};
+			name = "Debug Decimal";
+		};
+		E9937382102DE5D900B94F08 /* Release Decimal */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
@@ -541,7 +588,21 @@
 				PREBINDING = NO;
 				SDKROOT = macosx10.5;
 			};
-			name = Release;
+			name = "Release Decimal";
+		};
+		E9937383102DE5D900B94F08 /* Release Decimal */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = Free42_Prefix.pch;
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(HOME)/Applications";
+				PRODUCT_NAME = Free42;
+			};
+			name = "Release Decimal";
 		};
 /* End XCBuildConfiguration section */
 
@@ -549,20 +610,24 @@
 		C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "Free42" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				C01FCF4B08A954540054247B /* Debug */,
-				C01FCF4C08A954540054247B /* Release */,
+				C01FCF4B08A954540054247B /* Debug Binary */,
+				E9937381102DE5B300B94F08 /* Debug Decimal */,
+				C01FCF4C08A954540054247B /* Release Binary */,
+				E9937383102DE5D900B94F08 /* Release Decimal */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = "Release Decimal";
 		};
 		C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Free42" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				C01FCF4F08A954540054247B /* Debug */,
-				C01FCF5008A954540054247B /* Release */,
+				C01FCF4F08A954540054247B /* Debug Binary */,
+				E9937380102DE5B300B94F08 /* Debug Decimal */,
+				C01FCF5008A954540054247B /* Release Binary */,
+				E9937382102DE5D900B94F08 /* Release Decimal */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = "Release Decimal";
 		};
 /* End XCConfigurationList section */
 	};

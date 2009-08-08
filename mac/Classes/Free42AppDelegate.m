@@ -194,6 +194,11 @@ static bool is_file(const char *name);
 		init_mode = 0;
 	}
 	
+#ifdef BCD_MATH
+	[mainWindow setTitle:@"Free42 Decimal"];
+#else
+	[mainWindow setTitle:@"Free42 Binary"];
+#endif
 	long win_width, win_height;
 	skin_load(&win_width, &win_height);
 	NSSize sz;
