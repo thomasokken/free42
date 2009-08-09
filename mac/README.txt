@@ -9,25 +9,22 @@ Windows, PalmOS, Unix, and Mac OS X (application and Dashboard widget).
 
 Installing Free42:
 
-Copy Free42Decimal.exe (or Free42Binary.exe, or both) to wherever you want it,
-e.g. create a directory "C:\Program Files\Free42" and put it there.
+Copy Free42 Decimal (or Free42 Binary, or both) to wherever you want it, e.g.
+in /Applications or somewhere in your home directory.
 When Free42 runs, it will create three additional files; they are state.bin,
 print.bin, and keymap.txt, and they are used to store the calculator's internal
-state, the contents of the print-out window, and the PC keyboard map,
-respectively.
-By default, these additional files will be stored in the same directory as
-Free42.exe, but you may specify a different directory if you wish. To do so, go
-to the Preferences dialog, and change the "Free42 Directory" setting.
-
+state, the contents of the print-out window, and the keyboard map,
+respectively. These files will be stored in a directory named .free42 within
+your home directory.
 Free42 comes with two skins built in, but you may use different ones, by
-storing them in either the "Free42 Directory" (as specified in the Preferences
-dialog), or the directory where Free42.exe is located.
+placing them in the $HOME/.free42 directory. They will show up in the Skin
+menu immediately.
 
 
 Uninstalling Free42:
 
-Remove Free42Decimal.exe, Free42Binary.exe, and the Free42 directory and its
-contents, and any shortcuts you have created to point to Free42.exe.
+Remove Free42 Decimal, Free42 Binary, and the $HOME/.free42 directory and its
+contents.exe.
 
 
 Documentation
@@ -144,7 +141,7 @@ numbers internally.
 Free42 Decimal uses Hugh Steers' 7-digit base-10000 BCD20 library, which
 effectively gives 25 decimal digits of precision, with exponents ranging from
 -10000 to +9999. Each number consumes 16 bytes of memory.
-Free42 Binary uses the PC's FPU; it represents numbers as IEEE-754 compatible
+Free42 Binary uses the Mac's FPU; it represents numbers as IEEE-754 compatible
 double precision binary floating point, which consumes 8 bytes per number, and
 gives an effective precision of nearly 16 decimal digits, with exponents
 ranging from -308 to +307 (actually, exponents can be less than -308; such

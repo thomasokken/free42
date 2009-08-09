@@ -4,7 +4,7 @@ Free42 is a complete re-implementation of the HP-42S scientific programmable
 RPN calculator, which was made from 1988 until 1995 by Hewlett-Packard.
 Free42 is a complete rewrite and contains no HP code whatsoever.
 At this time, the author supports versions that run on Pocket PC, Microsoft
-Windows, PalmOS, Unix, and Mac OS X Dashboard.
+Windows, PalmOS, Unix, and Mac OS X (application and Dashboard widget).
 
 
 Installing Free42:
@@ -142,8 +142,7 @@ look and behave identically; the only difference is the way they represent
 numbers internally.
 Free42 Decimal uses Hugh Steers' 7-digit base-10000 BCD20 library, which
 effectively gives 25 decimal digits of precision, with exponents ranging from
--10000 to +9999. Transcendental functions are evaluated to about 20 digits;
-each number consumes 16 bytes of memory.
+-10000 to +9999. Each number consumes 16 bytes of memory.
 Free42 Binary uses the PC's FPU; it represents numbers as IEEE-754 compatible
 double precision binary floating point, which consumes 8 bytes per number, and
 gives an effective precision of nearly 16 decimal digits, with exponents
@@ -163,7 +162,7 @@ Free42 Decimal.
 
 
 Free42 is (C) 2004-2009, by Thomas Okken
-BCD support (C) 2005, by Hugh Steers / voidware
+BCD support (C) 2005-2009, by Hugh Steers / voidware
 Contact the author at thomas_okken@yahoo.com
 Look for updates, and versions for other operating systems, at
 http://thomasokken.com/free42/

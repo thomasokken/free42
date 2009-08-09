@@ -8,6 +8,7 @@ xcodebuild -project Free42.xcodeproj -target Free42 -configuration "Release Deci
 mkdir tmp
 mv "build/Release Binary/Free42.app" "tmp/Free42 Binary.app"
 mv "build/Release Decimal/Free42.app" "tmp/Free42 Decimal.app"
+cp README.txt tmp
 cd tmp
 zip -r ../../Free42Mac.zip "Free42 Binary.app" "Free42 Decimal.app"
 cd ..
