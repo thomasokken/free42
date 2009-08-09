@@ -43,7 +43,17 @@ int docmd_enter(arg_struct *arg) {
     vartype *v = dup_vartype(reg_x);
     if (v == NULL)
 	return ERR_INSUFFICIENT_MEMORY;
+#ifdef BIGSTACK
+    if (mode_bigstack)
+    {
+	free_vartype(reg_top);
+	SHIFT_BIG_STACK_UP
+    }
+    else
+	free_vartype(reg_t);
+#else
     free_vartype(reg_t);
+#endif
     reg_t = reg_z;
     reg_z = reg_y;
     reg_y = v;
@@ -65,7 +75,17 @@ int docmd_rdn(arg_struct *arg) {
     reg_x = reg_y;
     reg_y = reg_z;
     reg_z = reg_t;
+#ifdef BIGSTACK
+    if (mode_bigstack)
+    {
+	SHIFT_BIG_STACK_DOWN;
+	reg_top = temp;
+    }
+    else
+	reg_t = temp;
+#else
     reg_t = temp;
+#endif
     if (flags.f.trace_print && flags.f.printer_exists)
 	docmd_prx(NULL);
     return ERR_NONE;
@@ -183,7 +203,18 @@ int docmd_complex(arg_struct *arg) {
 	    reg_x = v;
 	    free_vartype(reg_y);
 	    reg_y = reg_z;
+#ifdef BIGSTACK
+	    if (mode_bigstack)
+	    {
+		reg_z = reg_t;
+		SHIFT_BIG_STACK_DOWN
+		reg_top = dup_vartype(reg_top);
+	    }
+	    else
+		reg_z = dup_vartype(reg_t);
+#else
 	    reg_z = dup_vartype(reg_t);
+#endif
 	    break;
 	}
 	case TYPE_COMPLEX: {
@@ -196,7 +227,17 @@ int docmd_complex(arg_struct *arg) {
 	    }
 	    free_vartype(reg_lastx);
 	    reg_lastx = reg_x;
+#ifdef BIGSTACK
+	    if (mode_bigstack)
+	    {
+		free_vartype(reg_top);
+		SHIFT_BIG_STACK_UP
+	    }
+	    else
+		free_vartype(reg_t);
+#else
 	    free_vartype(reg_t);
+#endif
 	    reg_t = reg_z;
 	    reg_z = reg_y;
 	    if (flags.f.polar) {
@@ -259,7 +300,18 @@ int docmd_complex(arg_struct *arg) {
 		reg_lastx = reg_x;
 		free_vartype(reg_y);
 		reg_y = reg_z;
+#ifdef BIGSTACK
+		if (mode_bigstack)
+		{
+		    reg_z = reg_t;
+		    SHIFT_BIG_STACK_DOWN
+		    reg_top = dup_vartype(reg_top);
+		}
+		else
+		    reg_z = dup_vartype(reg_t);
+#else
 		reg_z = dup_vartype(reg_t);
+#endif
 		reg_x = (vartype *) cm;
 		break;
 	    }
@@ -299,7 +351,17 @@ int docmd_complex(arg_struct *arg) {
 	    }
 	    free_vartype(reg_lastx);
 	    reg_lastx = reg_x;
+#ifdef BIGSTACK
+	    if (mode_bigstack)
+	    {
+		free_vartype(reg_top);
+		SHIFT_BIG_STACK_UP
+	    }
+	    else
+		free_vartype(reg_t);
+#else
 	    free_vartype(reg_t);
+#endif
 	    reg_t = reg_z;
 	    reg_z = reg_y;
 	    reg_y = (vartype *) re_m;
@@ -680,6 +742,43 @@ int docmd_clv(arg_struct *arg) {
 }
 
 int docmd_clst(arg_struct *arg) {
+#ifdef BIGSTACK
+	if (mode_bigstack)
+	{
+		free_vartype(reg_top);
+		free_vartype(reg_14);
+		free_vartype(reg_13);
+		free_vartype(reg_12);
+		free_vartype(reg_11);
+		free_vartype(reg_10);
+		free_vartype(reg_9);
+		free_vartype(reg_8);
+		free_vartype(reg_7);
+		free_vartype(reg_6);
+		free_vartype(reg_5);
+		free_vartype(reg_4);
+		free_vartype(reg_3);
+		free_vartype(reg_2);
+		free_vartype(reg_1);
+		free_vartype(reg_0);
+		reg_0 = new_real(0);
+		reg_1 = new_real(0);
+		reg_2 = new_real(0);
+		reg_3 = new_real(0);
+		reg_4 = new_real(0);
+		reg_5 = new_real(0);
+		reg_6 = new_real(0);
+		reg_7 = new_real(0);
+		reg_8 = new_real(0);
+		reg_9 = new_real(0);
+		reg_10 = new_real(0);
+		reg_11 = new_real(0);
+		reg_12 = new_real(0);
+		reg_13 = new_real(0);
+		reg_14 = new_real(0);
+		reg_top = new_real(0);
+	}
+#endif
     free_vartype(reg_x);
     free_vartype(reg_y);
     free_vartype(reg_z);
@@ -754,6 +853,40 @@ int docmd_clall(arg_struct *arg) {
     vartype *regs;
 
     /* Clear all registers */
+#ifdef BIGSTACK
+    free_vartype(reg_top);
+    free_vartype(reg_14);
+    free_vartype(reg_13);
+    free_vartype(reg_12);
+    free_vartype(reg_11);
+    free_vartype(reg_10);
+    free_vartype(reg_9);
+    free_vartype(reg_8);
+    free_vartype(reg_7);
+    free_vartype(reg_6);
+    free_vartype(reg_5);
+    free_vartype(reg_4);
+    free_vartype(reg_3);
+    free_vartype(reg_2);
+    free_vartype(reg_1);
+    free_vartype(reg_0);
+    reg_0 = new_real(0);
+    reg_1 = new_real(0);
+    reg_2 = new_real(0);
+    reg_3 = new_real(0);
+    reg_4 = new_real(0);
+    reg_5 = new_real(0);
+    reg_6 = new_real(0);
+    reg_7 = new_real(0);
+    reg_8 = new_real(0);
+    reg_9 = new_real(0);
+    reg_10 = new_real(0);
+    reg_11 = new_real(0);
+    reg_12 = new_real(0);
+    reg_13 = new_real(0);
+    reg_14 = new_real(0);
+    reg_top = new_real(0);    
+#endif
     free_vartype(reg_x);
     free_vartype(reg_y);
     free_vartype(reg_z);

@@ -186,9 +186,10 @@ double log10(double x) PHLOAT_SECT;
  * Version  9: 1.4    decimal version; removed IP Hack
  * Version 10: 1.4.16 persistent shared matrices
  * Version 11: 1.4.44 "Auto-Repeat" option
+ * Version 12: 1.4.51 Conditional compilation of extended stack, BIGSTACK
  */
 #define FREE42_MAGIC 0x466b3432
-#define FREE42_VERSION 11
+#define FREE42_VERSION 12
 
 
 #endif

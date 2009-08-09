@@ -444,10 +444,9 @@ static void aview_helper() {
     line_length[line] = i - line_start[line];
     flags.f.message = 1;
     flags.f.two_line_message = line == 1;
+    clear_row(0);
     if (flags.f.two_line_message || program_running())
-	clear_display();
-    else
-	clear_row(0);
+	clear_row(1);
     for (i = 0; i <= line; i++)
 	draw_string(0, i, reg_alpha + line_start[i], line_length[i]);
     flush_display();
@@ -1289,6 +1288,43 @@ int docmd_prstk(arg_struct *arg) {
 	return ERR_PRINTING_IS_DISABLED;
     shell_annunciators(-1, -1, 1, -1, -1, -1);
     print_text(NULL, 0, 1);
+#if BIGSTACK
+    if (mode_bigstack)
+    {
+	len = vartype2string(reg_top, buf, 100);
+	print_wide("~=", 2, buf, len);
+	len = vartype2string(reg_14, buf, 100);
+	print_wide("~=", 2, buf, len);
+	len = vartype2string(reg_13, buf, 100);
+	print_wide("~=", 2, buf, len);
+	len = vartype2string(reg_12, buf, 100);
+	print_wide("~=", 2, buf, len);
+	len = vartype2string(reg_11, buf, 100);
+	print_wide("~=", 2, buf, len);
+	len = vartype2string(reg_10, buf, 100);
+	print_wide("~=", 2, buf, len);
+	len = vartype2string(reg_9, buf, 100);
+	print_wide("~=", 2, buf, len);
+	len = vartype2string(reg_8, buf, 100);
+	print_wide("~=", 2, buf, len);
+	len = vartype2string(reg_7, buf, 100);
+	print_wide("~=", 2, buf, len);
+	len = vartype2string(reg_6, buf, 100);
+	print_wide("~=", 2, buf, len);
+	len = vartype2string(reg_5, buf, 100);
+	print_wide("~=", 2, buf, len);
+	len = vartype2string(reg_4, buf, 100);
+	print_wide("~=", 2, buf, len);
+	len = vartype2string(reg_3, buf, 100);
+	print_wide("~=", 2, buf, len);
+	len = vartype2string(reg_2, buf, 100);
+	print_wide("~=", 2, buf, len);
+	len = vartype2string(reg_1, buf, 100);
+	print_wide("1=", 2, buf, len);
+	len = vartype2string(reg_0, buf, 100);
+	print_wide("0=", 2, buf, len);
+    }	 
+#endif
     len = vartype2string(reg_t, buf, 100);
     print_wide("T=", 2, buf, len);
     len = vartype2string(reg_z, buf, 100);
@@ -1595,7 +1631,17 @@ int docmd_number(arg_struct *arg) {
     if (flags.f.stack_lift_disable)
 	free_vartype(reg_x);
     else {
+#ifdef BIGSTACK
+	if (mode_bigstack)
+	{
+	    free_vartype(reg_top);
+	    SHIFT_BIG_STACK_UP
+	}
+	else
+	    free_vartype(reg_t);
+#else
 	free_vartype(reg_t);
+#endif
 	reg_t = reg_z;
 	reg_z = reg_y;
 	reg_y = reg_x;
@@ -1694,8 +1740,18 @@ int docmd_newmat(arg_struct *arg) {
 }
 
 int docmd_rup(arg_struct *arg) {
-    vartype *temp = reg_x;
+    vartype *temp = reg_x;    
+#ifdef BIGSTACK
+    if (mode_bigstack)
+    {
+	reg_x = reg_top;
+	SHIFT_BIG_STACK_UP
+    }
+    else
+	reg_x = reg_t;
+#else
     reg_x = reg_t;
+#endif
     reg_t = reg_z;
     reg_z = reg_y;
     reg_y = temp;
@@ -1742,7 +1798,17 @@ int docmd_dim_t(arg_struct *arg) {
     }
     free_vartype(reg_lastx);
     reg_lastx = reg_x;
+#if BIGSTACK
+    if (mode_bigstack)
+    {
+	free_vartype(reg_top);
+	SHIFT_BIG_STACK_UP
+    }
+    else
+	free_vartype(reg_t);
+#else
     free_vartype(reg_t);
+#endif
     reg_t = reg_z;
     reg_z = reg_y;
     reg_y = new_y;

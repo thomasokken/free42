@@ -137,7 +137,17 @@ void recall_result(vartype *v) {
     if (flags.f.stack_lift_disable)
 	free_vartype(reg_x);
     else {
+#ifdef BIGSTACK
+	if (mode_bigstack)
+	{
+	    free_vartype(reg_top);
+	    SHIFT_BIG_STACK_UP
+	}
+	else
+	    free_vartype(reg_t);
+#else	     
 	free_vartype(reg_t);
+#endif
 	reg_t = reg_z;
 	reg_z = reg_y;
 	reg_y = reg_x;
@@ -149,13 +159,41 @@ void recall_result(vartype *v) {
 
 void recall_two_results(vartype *x, vartype *y) {
     if (flags.f.stack_lift_disable) {
+#ifdef BIGSTACK
+	if (mode_bigstack)
+	{
+	    free_vartype(reg_top);
+	    SHIFT_BIG_STACK_UP
+	}
+	else
+	    free_vartype(reg_t);
+#else
 	free_vartype(reg_t);
+#endif
 	free_vartype(reg_x);
 	reg_t = reg_z;
 	reg_z = reg_y;
     } else {
+#ifdef BIGSTACK
+	if (mode_bigstack)
+	{
+	    free_vartype(reg_top);
+	    SHIFT_BIG_STACK_UP
+	    free_vartype(reg_top);
+	    SHIFT_BIG_STACK_UP
+		
+		/* reg_t has been coppied to both reg_0 and reg_1 at this point so correct */
+		reg_0 = reg_z;
+	}
+	else
+	{
+	    free_vartype(reg_t);
+	    free_vartype(reg_z);
+	}
+#else
 	free_vartype(reg_t);
 	free_vartype(reg_z);
+#endif
 	reg_t = reg_y;
 	reg_z = reg_x;
     }
@@ -179,7 +217,18 @@ void binary_result(vartype *x) {
     reg_x = x;
     free_vartype(reg_y);
     reg_y = reg_z;
+#ifdef BIGSTACK
+    if (mode_bigstack)
+    {
+	reg_z = reg_t;
+	SHIFT_BIG_STACK_DOWN
+	reg_top = dup_vartype(reg_top);
+    }
+    else
+	reg_z = dup_vartype(reg_t);
+#else
     reg_z = dup_vartype(reg_t);
+#endif
     if (flags.f.trace_print && flags.f.printer_exists)
 	docmd_prx(NULL);
 }
