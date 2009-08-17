@@ -1,3 +1,9 @@
+17-08-2009: release 1.4.53
+
+* Decimal version: fixed a bug in the subtract routine that could cause
+  incorrect, malformed results in some cases, e.g. 4 ENTER 3 / 1 - 3 * 1 -
+  returned -:.E-25.
+
 08-08-2009: release 1.4.52
 
 * New: Mac version. This is a native application, not a Dashboard widget; it

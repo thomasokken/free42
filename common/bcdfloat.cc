@@ -716,8 +716,12 @@ void BCDFloat::_usub(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
         /* first insignificant digit my be used for rounding */
         if (d > 0)
         {
-            v = BASE - b->d_[j];
-            ca = 1;
+            v = b->d_[j];
+            if (v)
+            {
+                v = BASE - v;
+                ca = 1;
+            }
         }
         c->d_[P] = v;
 
