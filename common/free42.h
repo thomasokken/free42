@@ -157,6 +157,10 @@ extern "C" void sincos(double x, double *sinx, double *cosx) HELPERS_SECT;
 
 #endif
 
+// the iPhone SDK does not define 'finite' so we create a macro wrapper
+#if !defined(BCD_MATH) && defined(IPHONE)
+#define finite(x) isfinite(x)
+#endif
 
 #if defined(PALMOS) && defined(BCD_MATH)
 // Compatibility hacks for the sake of core_phloat and bcdfloat. I don't want
