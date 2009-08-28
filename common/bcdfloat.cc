@@ -284,7 +284,7 @@ BCDFloat::BCDFloat(double d) {
 	_init();
     } else {
 	int exp = (((int) ::floor(log10(d))) & ~3) >> 2;
-	d_[P] = (exp + 1) & 0x7FFF;
+	d_[P] = (exp + 1) & EXPMASK;
 	double m = pow(100.0, (double) exp);
 	d /= m;
 	d /= m;

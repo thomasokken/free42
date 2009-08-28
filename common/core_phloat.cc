@@ -676,30 +676,28 @@ BCDFloat double2bcd(double d, bool round /* = false */) {
 }
 
 double bcd2double(BCDFloat b) {
-    unsigned short exp = b.d_[P];
     double zero = 0;
+    bool neg = b.neg();
 
 #if defined(WINDOWS) && !defined(__GNUC__)
-    if (exp == 0x3000)
-	return HUGE_VAL; // NaN
-    else if (exp == 0x3FFF)
-	return HUGE_VAL; // Inf
-    else if (exp == 0xBFFF)
-	return -HUGE_VAL; // -Inf
+    // No support for NaN or infinities
+    if (b.isNan())
+	return HUGE_VAL;
+    else if (b.isInf())
+	return neg ? -HUGE_VAL : HUGE_VAL;
 #else
-    if (exp == 0x3000)
-	return 0 / zero; // NaN
-    else if (exp == 0x3FFF)
-	return 1 / zero; // Inf
-    else if (exp == 0xBFFF)
-	return -1 / zero; // -Inf
+    if (b.isNan())
+	return 0 / zero;
+    else if (b.isInf())
+	return neg ? -1 / zero : 1 / zero;
 #endif
 
     if (b.d_[0] == 0)
 	return 0;
 
-    bool neg = (exp & 0x8000) != 0;
-    exp = (exp << 1) >> 1;
+    // Get rid of neg, nan, and inf flags in exponent, and extend
+    // sign of the remaining 13 bits
+    short exp = (((short) b.d_[P]) << 3) >> 3;
 
     // Make sure we get exact results for integers
     if (exp > 0 && exp <= 4) {
@@ -708,7 +706,7 @@ double bcd2double(BCDFloat b) {
 	    if (b.d_[j] != 0)
 		goto noninteger;
 	int8 n = 0;
-	for (j = 0; j < (short) exp; j++)
+	for (j = 0; j < exp; j++)
 	    n = n * 10000 + b.d_[j];
 	return (double) (neg ? -n : n);
     }
@@ -1511,29 +1509,25 @@ int string2phloat(const char *buf, int buflen, phloat *d) {
 
 double bcd2double(const short *p) {
     short exp = p[P];
+    bool neg = (exp & 0x8000) != 0;
     double zero = 0;
 
 #if defined(WINDOWS) && !defined(__GNUC__)
-    if (exp == 0x3000)
+    if ((exp & 0x4000) != 0)
 	return HUGE_VAL; // NaN
-    else if (exp == 0x3FFF)
-	return HUGE_VAL; // Inf
-    else if (exp == (short) 0xBFFF)
-	return -HUGE_VAL; // -Inf
+    else if ((exp & 0x2000) != 0)
+	return neg ? -HUGE_VAL : HUGE_VAL; // -Inf or Inf
 #else
-    if (exp == 0x3000)
+    if ((exp & 0x4000) != 0)
 	return 0 / zero; // NaN
-    else if (exp == 0x3FFF)
-	return 1 / zero; // Inf
-    else if (exp == (short) 0xBFFF)
-	return -1 / zero; // -Inf
+    else if ((exp & 0x2000) != 0)
+	return neg ? -1 / zero : 1 / zero; // -Inf or Inf
 #endif
 
     if (p[0] == 0)
 	return 0;
 
-    bool neg = (exp & 0x8000) != 0;
-    exp = ((short) (exp << 1)) >> 1;
+    exp = ((short) (exp << 3)) >> 3;
 
     // Make sure we get exact results for integers
     if (exp > 0 && exp <= 5) {

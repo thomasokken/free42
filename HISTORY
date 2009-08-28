@@ -1,3 +1,16 @@
+28-08-2009: release 1.4.54
+
+* The new BCDFloat code, introduced in version 1.4.52, uses a different
+  convention for representing NaN and infinities: instead of using special
+  values in the exponent, it now uses dedicated flags, and has a narrower
+  exponent field. The code that converts between decimal and binary, when
+  switching between Free42 Decimal and Free42 Binary while keeping the same
+  state file, did not deal with this new convention, and, as a result,
+  switching between those versions could cause numbers to become NaN or
+  Infinity when they shouldn't.
+  This release fixes this. It is only relevant to those who switch between
+  Free42 Decimal and Free42 Binary.
+
 17-08-2009: release 1.4.53
 
 * Decimal version: fixed a bug in the subtract routine that could cause
