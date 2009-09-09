@@ -9,6 +9,13 @@ sufficient to alert the user that the app isn't responsive yet.
 
 Build Mac version compatible with 10.4.
 
+The Mac version should store its state in ~/Library/Preferences/Free42, not
+~/.free42. Also, it could use /Library/Application Support/Free42 for shared
+skins.
+
+The Mac Dashboard version is ugly; how hard would it be to replace its skin
+with something nicer?
+
 Create Android version (this should be possible now with the recently released
 Native Development Kit).
 
