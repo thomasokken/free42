@@ -49,7 +49,7 @@ struct hp_string {
 
 #define PI 3.1415926535897932384626433
 #define P 7
-double bcd2double(const short *p);
+double bcd2double(short *p, bool old_bcd);
 
 
 #else // BCD_MATH
@@ -154,7 +154,7 @@ bool operator==(int4 x, Phloat y) PHLOAT_SECT;
 extern Phloat PI;
 
 BCDFloat double2bcd(double d, bool round = false) PHLOAT_SECT;
-double bcd2double(BCDFloat b) PHLOAT_SECT;
+double bcd2double(BCDFloat b, bool old_bcd) PHLOAT_SECT;
 
 
 #endif // BCD_MATH
@@ -171,6 +171,8 @@ int phloat2string(phloat d, char *buf, int buflen,
 		  int base_mode, int digits, int dispmode,
 		  int thousandssep) PHLOAT_SECT;
 int string2phloat(const char *buf, int buflen, phloat *d) PHLOAT_SECT;
+
+void bcdfloat_old2new(void *bcd) PHLOAT_SECT;
 
 
 #endif

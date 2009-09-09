@@ -1,3 +1,18 @@
+07-09-2009: release 1.4.55
+
+* Switching from a version using the old BCDFloat code (1.4.51 or earlier) to a
+  version using the new code (1.4.52 or later) wasn't handled properly; it
+  should handle the change in how Infinities and NaNs are represented, but it
+  didn't. This is related to the problem fixed in 1.4.54.
+  Starting with this version, all state files created by versions 1.4.50 and
+  older are assumed to contain old-style BCDFloat, and state files created by
+  versions 1.4.51 and newer are assumed to contain new-style BCDFloat.
+  This means that BCDFloat numbers in state files created by versions 1.4.51-54
+  may be mis-interpreted. There is no way to handle 1.4.51-54 state files
+  reliably; if you have used any of those versions at any time, it is
+  recommended to do a CLALL and reload all programs and data, to ensure no
+  inappropriate BCDFloat values remain.
+
 28-08-2009: release 1.4.54
 
 * The new BCDFloat code, introduced in version 1.4.52, uses a different

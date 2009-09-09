@@ -370,7 +370,7 @@ int8 to_int8(Phloat p) {
 }
 
 double to_double(Phloat p) {
-    return bcd2double(p.bcd);
+    return bcd2double(p.bcd, false);
 }
 
 Phloat sin(Phloat p) {
@@ -675,7 +675,10 @@ BCDFloat double2bcd(double d, bool round /* = false */) {
     return res;
 }
 
-double bcd2double(BCDFloat b) {
+double bcd2double(BCDFloat b, bool old_bcd) {
+    if (old_bcd)
+	bcdfloat_old2new(b.d_);
+
     double zero = 0;
     bool neg = b.neg();
 
@@ -1507,7 +1510,10 @@ int string2phloat(const char *buf, int buflen, phloat *d) {
     }
 }
 
-double bcd2double(const short *p) {
+double bcd2double(short *p, bool old_bcd) {
+    if (old_bcd)
+	bcdfloat_old2new(p);
+
     short exp = p[P];
     bool neg = (exp & 0x8000) != 0;
     double zero = 0;
@@ -2067,3 +2073,21 @@ double log10(double x) {
 }
 
 #endif
+
+void bcdfloat_old2new(void *bcd) {
+    // Convert old (<= 1.4.51) BCDFloat, where NaN is signalled by
+    // (exp & 0x7FFF) == 0x3000, and Infinity is signalled by
+    // (exp & 0x7FFF) == 0x3FFF, to the new (>= 1.4.52) BCDFloat, where NaN is
+    // signalled by (exp & 0x4000) != 0 and Infinity is signalled by
+    // (exp & 0x2000) != 0 (and the exponent field is 2 bits narrower).
+    short *p = (short *) bcd;
+    short uexp = p[P] & 0x7FFF;
+    if (uexp == 0x3000)
+	// NaN
+	p[P] = 0x4000;
+    else if (uexp == 0x3FFF)
+	// Infinity
+	p[P] = (p[P] & 0x8000) | 0x2000;
+    else
+	p[P] = p[P] & 0x9FFF;
+}

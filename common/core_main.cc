@@ -586,8 +586,9 @@ int core_powercycle() {
 	}
     }
 
-    if (need_redisplay || bin_dec_mode_switch) {
+    if (need_redisplay || bin_dec_mode_switch || state_file_has_old_bcd) {
 	bin_dec_mode_switch = false;
+	state_file_has_old_bcd = false;
 	redisplay();
     }
     return mode_running;

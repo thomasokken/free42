@@ -178,6 +178,7 @@ double log10(double x) PHLOAT_SECT;
 
 /* Magic number and version number for the state file.
  * State file versions correspond to application releases as follows:
+ * 
  * Version  0: 1.0    first release
  * Version  1: 1.0.13 "IP Hack" option
  * Version  2: 1.0.13 "singular matrix" and matrix "out of range" options
@@ -191,9 +192,30 @@ double log10(double x) PHLOAT_SECT;
  * Version 10: 1.4.16 persistent shared matrices
  * Version 11: 1.4.44 "Auto-Repeat" option
  * Version 12: 1.4.51 Conditional compilation of extended stack, BIGSTACK
+ * 
+ *  ========== NOTE: BCD20 Upgrade in Free42 1.4.52 ==========
+ *  In version 1.4.52, I upgraded to a new version of BCD20, without realizing
+ *  that it uses a slightly different storage format (NaN and Inifinity are now
+ *  encoded using two flags in the exponent field, rather than using magical
+ *  exponent values; the exponent field was narrowed by 2 bits to accomodate
+ *  these flags).
+ *  I should have bumped the state file version then, and introduced new code
+ *  to convert BCDFloat numbers from the old format to the new. Once I
+ *  discovered this oversight, 1.4.52-54 were already released.
+ *  In 1.4.55, I introduced code to convert old-style BCDFloat to new-style if
+ *  the state file version is less than 12, i.e. created by Free42 1.4.50 or
+ *  earlier. This means that state files created by 1.4.51-54 are not handled
+ *  correctly; unfortunately, this is the best I can do.
+ *  The good news is that any upgrade path that doesn't include versions
+ *  1.4.52-54 will be handled correctly, now and in the future.
+ *  Note that 1.4.55 does introduce a new state file version; this is to
+ *  prevent downgrading from 1.4.55 to 1.4.51-54 and ending up with mangled
+ *  BCDFloats all over again.
+ * 
+ * Version 13: 1.4.55 New-style BCDFloat now official (see NOTE above).
  */
 #define FREE42_MAGIC 0x466b3432
-#define FREE42_VERSION 12
+#define FREE42_VERSION 13
 
 
 #endif
