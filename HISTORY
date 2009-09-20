@@ -1,5 +1,12 @@
-07-09-2009: release 1.4.55
+21-09-2009: release 1.4.55
 
+* Some improvements in the new BCDFloat code:
+  . LOG (common log) is now precise for powers of 10.
+  . MOD function now works for large arguments.
+  . rounding fix in multiply now gets 1/3*3-1 and 10/3*3-10 the same answer,
+    10/7*7-10 is not the same, but this is correct (it depends on where you cut
+    off the number).
+  . optimisations to subtract routine.
 * Switching from a version using the old BCDFloat code (1.4.51 or earlier) to a
   version using the new code (1.4.52 or later) wasn't handled properly; it
   should handle the change in how Infinities and NaNs are represented, but it

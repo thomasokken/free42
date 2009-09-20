@@ -312,32 +312,13 @@ void BCDFloat2::_usub(const BCDFloat2* a, const BCDFloat2* b, BCDFloat2* c)
         i = P2-1;
 
 	ca = 0;
-        v = 0;
-
-        /* first insignificant digit my be used for rounding */
-        if (d > 0)
-        {
-            v = BASE - b->d_[j];
-            ca = 1;
-        }
-        c->d_[P2] = v;
-
+        c->d_[P2] = 0;
         while (j > 0)
         {
             v = a->d_[i] - b->d_[--j] - ca;
             ca = 0;
-            if (v < 0) {
-                ca = 1;
-                v += BASE;
-            }
-            c->d_[i] = v;
-            --i;
-        }
-        while (i >= 0)
-        {
-            v = a->d_[i] - ca;
-            ca = 0;
-            if (v < 0) {
+            if (v < 0) 
+            {
                 ca = 1;
                 v += BASE;
             }
@@ -345,19 +326,54 @@ void BCDFloat2::_usub(const BCDFloat2* a, const BCDFloat2* b, BCDFloat2* c)
             --i;
         }
 
-        if (ca) 
+        if (ca)
         {
-            /* overall borrow, need to complement number */
-            for (i = P2; i >= 0; --i) {
-                v = BASE-1 - c->d_[i] + ca;
-                ca = 0;
-                if (v >= BASE) {
-                    ca = 1;
-                    v -= BASE;
+            while (i >= 0)
+            {
+                v = a->d_[i];
+                if (v)
+                {
+                    // carry absorbed
+                    c->d_[i] = v - 1;
+                    
+                    // copy remainder
+                    while (i > 0) { --i; c->d_[i] = a->d_[i]; }
+
+                    // NB: i == 0
+                    break;
                 }
-                c->d_[i] = v;
+                else
+                {
+                    c->d_[i] = BASE-1;
+                    --i;
+                }
             }
-            neg = true;
+
+            if (i < 0) // carry all the way up
+            {
+                /* overall borrow, need to complement number */
+                for (i = P2; i >= 0; --i) 
+                {
+                    v = BASE-1 - c->d_[i] + ca;
+                    ca = 0;
+                    if (v >= BASE) 
+                    {
+                        ca = 1;
+                        v -= BASE;
+                    }
+                    c->d_[i] = v;
+                }
+                neg = true;
+            }
+        }
+        else
+        {
+            // copy remainder of number over
+            while (i >= 0)
+            {
+                c->d_[i] = a->d_[i];
+                --i;
+            }
         }
 
         int e = a->exp();
@@ -372,11 +388,14 @@ void BCDFloat2::_usub(const BCDFloat2* a, const BCDFloat2* b, BCDFloat2* c)
             else 
             {
                 e -= i;
-                if (e <= -EXPLIMIT) {
+                if (e <= -EXPLIMIT) 
+                {
                     /* underflow */
                     c->d_[0] = 0;
                     e = 0;
-                } else {
+                }
+                else 
+                {
                     int j;
                     for (j = 0; j <= P2 - i; j++)
                         c->d_[j] = c->d_[j + i];
@@ -386,7 +405,8 @@ void BCDFloat2::_usub(const BCDFloat2* a, const BCDFloat2* b, BCDFloat2* c)
             }
         }
 
-        if (c->_round25()) ++e;
+        // cant happen
+        // if (c->_round25()) ++e;
 
         if (e > EXPLIMIT) *c = posInf();
         else c->exp(e);
@@ -503,11 +523,15 @@ void BCDFloat2::mul(const BCDFloat2* a, const BCDFloat2* b, BCDFloat2* c)
     }
 
     if (!c->d_[0]) 
+    {
         c->_lshift();
+        c->d_[P2] = 0;
+    }
     else 
+    {
         ++ea;
-
-    if (c->_round25()) ++ea;
+        if (c->_round25()) ++ea;
+    }
 
     ea += eb - 1;
     if (ea <= -EXPLIMIT) c->_init();
