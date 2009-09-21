@@ -96,23 +96,6 @@ static const_if_not_palm_68k Dig constTable[] =
     { 2, 5000, 0, 0, 0, 0, 0, 1 },  // 2.5
     { 10, 0, 0, 0, 0, 0, 0, 1 },  // 10
 
-#if 0
-    // Lanczos terms for gamma
-    { 3, 7948, 6229, 8882, 1576, 6137, 571, 2 },
-    { 6, 1191, 9133, 3435, 268, 9475, 3696, 32770&EXPMASKNEG },
-    { 3, 1935, 3139, 9365, 7178, 9732, 6587, 2 },
-    { 1, 648, 2204, 9659, 4145, 5971, 637, 32770&EXPMASKNEG },
-    { 2215, 7659, 2545, 9700, 1065, 2640, 839, 1 },
-    { 277, 3434, 9002, 3102, 315, 6808, 5633, 32769&EXPMASKNEG },
-    { 19, 7504, 4798, 8896, 954, 2464, 2454, 1 },
-    { 7351, 4584, 5326, 3110, 3427, 1541, 972, 32768&EXPMASKNEG },
-    { 125, 201, 6315, 9372, 8926, 576, 1395, 0 },
-    { 7710, 2871, 8096, 9904, 7327, 526, 2403, 65535&EXPMASKNEG },
-    { 10, 9373, 7115, 9701, 7175, 1506, 3503, 32767&EXPMASKNEG },
-    { 11, 2406, 1022, 3182, 8735, 6453, 7307, 65534&EXPMASKNEG },
-    { 2, 7709, 5759, 7224, 6395, 7358, 7375, 32766&EXPMASKNEG },
-#endif
-    
     // sin(x) polynomial
     { 1666, 6666, 6666, 6666, 6666, 6666, 6365, 32768&EXPMASKNEG },
     { 83, 3333, 3333, 3333, 3333, 3303, 1985, 0 },
@@ -1103,9 +1086,22 @@ BCD fmod(const BCD& a, const BCD& b)
         int em = m.exponent() - 1;
         int ev = v.exponent() - 1;
 
-        v.setExponent(1);
-        m.setExponent(1);
-        
+        int t = 1;
+        v.setExponent(t);
+        while (!v.isInteger())
+        {
+            v.setExponent(++t);
+            --ev;
+        }
+
+        t = 1;
+        m.setExponent(t);
+        while (em > ev || !m.isInteger())
+        {
+            m.setExponent(++t);
+            --em;
+        }
+
         // peform mod of mantissa
         c = v - m*trunc(v/m);
     
