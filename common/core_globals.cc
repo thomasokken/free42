@@ -1023,7 +1023,6 @@ static bool unpersist_vartype(vartype **v) {
 			for (int4 i = 0; i < size; i++)
 			    if (!rm->array->is_string[i])
 				bcdfloat_old2new(rm->array->data[i].bcd.d_);
-		    }
 		#endif
 	    }
 	    if (shared) {
