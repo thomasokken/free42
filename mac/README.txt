@@ -14,17 +14,17 @@ in /Applications or somewhere in your home directory.
 When Free42 runs, it will create three additional files; they are state.bin,
 print.bin, and keymap.txt, and they are used to store the calculator's internal
 state, the contents of the print-out window, and the keyboard map,
-respectively. These files will be stored in a directory named .free42 within
-your home directory.
+respectively. These files will be stored in the directory
+$HOME/Library/Application Support/Free42.
 Free42 comes with two skins built in, but you may use different ones, by
-placing them in the $HOME/.free42 directory. They will show up in the Skin
-menu immediately.
+placing them in the directory $HOME/Library/Application Support/Free42. They
+will show up in the Skin menu immediately.
 
 
 Uninstalling Free42:
 
-Remove Free42 Decimal, Free42 Binary, and the $HOME/.free42 directory and its
-contents.exe.
+Remove Free42 Decimal, Free42 Binary, and the directory
+$HOME/Library/Application Support/Free42 and its contents.
 
 
 Documentation

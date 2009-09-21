@@ -286,7 +286,7 @@ static int skin_open(const char *skinname, int open_layout) {
 	fclose(builtins);
 	
 	/* name did not match a built-in skin; look for file */
-	sprintf(buf, "%s/.free42/%s.%s", getenv("HOME"), skinname, open_layout ? "layout" : "gif");
+	sprintf(buf, "%s/Library/Application Support/Free42/%s.%s", getenv("HOME"), skinname, open_layout ? "layout" : "gif");
 	external_file = fopen(buf, "rb");
 	return external_file != NULL;
 }

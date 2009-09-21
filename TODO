@@ -6,10 +6,6 @@ http://groups.google.com/group/iphone42s/browse_thread/thread/fadc61ed7b07f436
 Build Mac version compatible with 10.4 and perhaps also 10.3.9, if doable
 without rewriting too much.
 
-The Mac version should store its state in ~/Library/Preferences/Free42, not
-~/.free42. Also, it could use /Library/Application Support/Free42 for shared
-skins.
-
 In the iPhone versions (iphone and iphone2), add functions to query Location
 Services (GPS) and the accelerometer.
 This functionality should be optional, for perfect 42S compatibility.

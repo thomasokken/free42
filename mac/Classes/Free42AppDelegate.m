@@ -137,27 +137,35 @@ static bool is_file(const char *name);
 	}
 		
 	
-	/*****************************************************/
-	/***** Try to create the $HOME/.free42 directory *****/
-	/*****************************************************/
+	/********************************************************************************/
+	/***** Try to create the $HOME/Library/Application Support/Free42 directory *****/
+	/********************************************************************************/
 	
 	int free42dir_exists = 0;
 	char *home = getenv("HOME");
 	struct stat st;
 	char keymapfilename[FILENAMELEN];
+	char oldfree42dirname[FILENAMELEN];
 	
-	snprintf(free42dirname, FILENAMELEN, "%s/.free42", home);
+	snprintf(free42dirname, FILENAMELEN, "%s/Library/Application Support/Free42", home);
 	if (stat(free42dirname, &st) == -1 || !S_ISDIR(st.st_mode)) {
-		mkdir(free42dirname, 0755);
+		// Free42 directory does not exist. If $HOME/.free42 does exist, rename it and use
+		// it instead (for compatibility with versions <= 1.4.54); else, create a new
+		// Free42 directory.
+		snprintf(oldfree42dirname, FILENAMELEN, "%s/.free42", home);
+		if (stat(oldfree42dirname, &st) == 0 && S_ISDIR(st.st_mode))
+			rename(oldfree42dirname, free42dirname);
+		else
+			mkdir(free42dirname, 0755);
 		if (stat(free42dirname, &st) == 0 && S_ISDIR(st.st_mode))
 			free42dir_exists = 1;
 	} else
 		free42dir_exists = 1;
 	
 	if (free42dir_exists) {
-		snprintf(statefilename, FILENAMELEN, "%s/.free42/state", home);
-		snprintf(printfilename, FILENAMELEN, "%s/.free42/print", home);
-		snprintf(keymapfilename, FILENAMELEN, "%s/.free42/keymap.txt", home);
+		snprintf(statefilename, FILENAMELEN, "%s/Library/Application Support/Free42/state", home);
+		snprintf(printfilename, FILENAMELEN, "%s/Library/Application Support/Free42/print", home);
+		snprintf(keymapfilename, FILENAMELEN, "%s/Library/Application Support/Free42/keymap.txt", home);
 	} else {
 		statefilename[0] = 0;
 		printfilename[0] = 0;

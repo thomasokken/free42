@@ -19,6 +19,9 @@
   reliably; if you have used any of those versions at any time, it is
   recommended to do a CLALL and reload all programs and data, to ensure no
   inappropriate BCDFloat values remain.
+* Mac version: now uses $HOME/Library/Application Support/Free42 instead of
+  $HOME/.free42 for persistent state, keymap, and skins. If this directory
+  does not exist, but $HOME/.free42 does, the latter is renamed to the former.
 
 28-08-2009: release 1.4.54
 
