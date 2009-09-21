@@ -3,10 +3,6 @@ http://groups.google.com/group/iphone42s/browse_thread/thread/a5c821e46376ac65
 http://groups.google.com/group/iphone42s/browse_thread/thread/c7615637140bbda0
 http://groups.google.com/group/iphone42s/browse_thread/thread/fadc61ed7b07f436
 
-Make the iphone2 start-up screen match the default skin, i.e. not darkened as
-it is now. The dark screen looks strange; the "Loading..." text should be
-sufficient to alert the user that the app isn't responsive yet.
-
 Build Mac version compatible with 10.4 and perhaps also 10.3.9, if doable
 without rewriting too much.
 
