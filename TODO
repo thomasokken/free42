@@ -3,8 +3,7 @@ http://groups.google.com/group/iphone42s/browse_thread/thread/a5c821e46376ac65
 http://groups.google.com/group/iphone42s/browse_thread/thread/c7615637140bbda0
 http://groups.google.com/group/iphone42s/browse_thread/thread/fadc61ed7b07f436
 
-Build Mac version compatible with 10.4 and perhaps also 10.3.9, if doable
-without rewriting too much.
+Build Mac version compatible with OS X 10.4.
 
 In the iPhone versions (iphone and iphone2), add functions to query Location
 Services (GPS) and the accelerometer.
