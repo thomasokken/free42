@@ -1,4 +1,4 @@
-21-09-2009: release 1.4.55
+10-10-2009: release 1.4.55
 
 * Some improvements in the new BCDFloat code:
   . LOG (common log) is now precise for powers of 10.
