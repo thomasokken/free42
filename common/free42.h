@@ -209,9 +209,10 @@ double log10(double x) PHLOAT_SECT;
  *  transition from <= 1.4.51 Decimal to 1.4.52-54 Decimal may still be
  *  corrupted, and the only way to be safe is to do CLALL and reload all
  *  programs and data in that case.
+ *
+ * Version 13: 1.4.55 Dynamically sized BIGSTACK
  */
 #define FREE42_MAGIC 0x466b3432
-#define FREE42_VERSION 12
-
+#define FREE42_VERSION 13
 
 #endif

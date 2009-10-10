@@ -183,6 +183,10 @@ extern error_spec errors[];
 #define MENU_INTEG         62
 #define MENU_INTEG_PARAMS  63
 
+#ifdef BIGSTACK
+#define MENU_CLEAR3        64
+#endif
+
 
 typedef struct {
     int menuid;
@@ -263,42 +267,22 @@ typedef struct {
 
 #ifdef BIGSTACK
 
-#define SHIFT_BIG_STACK_UP \
-reg_top = reg_14; \
-reg_14 = reg_13; \
-reg_13 = reg_12; \
-reg_12 = reg_11; \
-reg_11 = reg_10; \
-reg_10 = reg_9; \
-reg_9 = reg_8; \
-reg_8 = reg_7; \
-reg_7 = reg_6; \
-reg_6 = reg_5; \
-reg_5 = reg_4; \
-reg_4 = reg_3; \
-reg_3 = reg_2; \
-reg_2 = reg_1; \
-reg_1 = reg_0; \
-reg_0 = reg_t;
+struct stack_item_struct {
+    vartype* var;
+    struct stack_item_struct* next;
+};
+typedef struct stack_item_struct stack_item;
+extern stack_item* bigstack_head;
 
-#define SHIFT_BIG_STACK_DOWN \
-reg_t = reg_0; \
-reg_0 = reg_1; \
-reg_1 = reg_2; \
-reg_2 = reg_3; \
-reg_3 = reg_4; \
-reg_4 = reg_5; \
-reg_5 = reg_6; \
-reg_6 = reg_7; \
-reg_7 = reg_8; \
-reg_8 = reg_9; \
-reg_9 = reg_10; \
-reg_10 = reg_11; \
-reg_11 = reg_12; \
-reg_12 = reg_13; \
-reg_13 = reg_14; \
-reg_14 = reg_top;
+/* used to test double tap of BSP for drop command */
+extern int last_pending_command;
 
+stack_item* new_stack_item(vartype* v) GLOBALS_SECT;
+void free_stack_item(stack_item* si) GLOBALS_SECT;
+void shift_big_stack_up() GLOBALS_SECT;
+void shift_big_stack_down() GLOBALS_SECT;
+void clean_stack_item_pool() GLOBALS_SECT;
+int big_stack_verify() GLOBALS_SECT;
 #endif
 
 /******************/
@@ -310,24 +294,6 @@ extern vartype *reg_x;
 extern vartype *reg_y;
 extern vartype *reg_z;
 extern vartype *reg_t;
-#ifdef BIGSTACK
-extern vartype *reg_0;
-extern vartype *reg_1;
-extern vartype *reg_2;
-extern vartype *reg_3;
-extern vartype *reg_4;
-extern vartype *reg_5;
-extern vartype *reg_6;
-extern vartype *reg_7;
-extern vartype *reg_8;
-extern vartype *reg_9;
-extern vartype *reg_10;
-extern vartype *reg_11;
-extern vartype *reg_12;
-extern vartype *reg_13;
-extern vartype *reg_14;
-extern vartype *reg_top;
-#endif
 extern vartype *reg_lastx;
 extern int reg_alpha_length;
 extern char reg_alpha[44];
@@ -486,8 +452,13 @@ extern bool mode_updown;
 extern int4 mode_sigma_reg;
 extern int mode_goose;
 #if BIGSTACK
-extern bool mode_bigstack;
+extern bool mode_rpl_enter; // This is not being used at this point,
+			    // uses flags.f.f32 now.
+extern int stacksize;
 #endif
+
+// Indicates if we are currently executing the cllcd command
+extern bool cllcd_cmd;
 
 extern phloat entered_number;
 extern int entered_string_length;

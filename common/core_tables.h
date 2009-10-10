@@ -350,8 +350,12 @@
 #define CMD_MIN         312
 #define CMD_FIND        313
 #define CMD_XROM        314
+#ifdef BIGSTACK
+#define CMD_DROP        315
+#define CMD_SENTINEL    316
+#else
 #define CMD_SENTINEL    315
-
+#endif
 
 /* command_spec.argtype */
 

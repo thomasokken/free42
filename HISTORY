@@ -28,8 +28,10 @@
   ---------+-----+-----+-----+-----+-----+-----+-----+-----
    <=51 dec|  +  |  +  |  -  |  +  |  -  |  -  |  +  |  +
    <=51 bin|  +  |  +  |  -  |  +  |  +  |  +  |  +  |  +
-   >=52 dec|  c  |  c  |  +  |  -  |  +  |  +  |  +  |  +
-   >=52 bin|  c  |  c  |  -  |  +  |  +  |  +  |  +  |  +
+  52-54 dec|  c  |  c  |  +  |  -  |  +  |  +  |  +  |  +
+  52-54 bin|  c  |  c  |  -  |  +  |  +  |  +  |  +  |  +
+   >=55 dec|  c  |  c  |  c  |  c  |  c  |  c  |  +  |  +
+   >=55 bin|  c  |  c  |  c  |  c  |  c  |  c  |  +  |  +
 
   LEGEND: This chart shows compatibility between Free42 state file versions. To
   check if version A will correctly handle state files produced by version B,

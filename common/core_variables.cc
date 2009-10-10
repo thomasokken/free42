@@ -527,3 +527,4 @@ int matrix_copy(vartype *dst, const vartype *src) {
     } else
 	return ERR_INVALID_TYPE;
 }
+

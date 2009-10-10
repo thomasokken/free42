@@ -1661,6 +1661,12 @@ void redisplay() {
     int avail_rows = 2;
     int i;
 
+    if (cllcd_cmd) {
+	// If we are processing an cllcd command, then don't draw anything.
+	cllcd_cmd = false;
+	return;
+    }
+    
     if (mode_clall) {
 	clear_display();
 	draw_string(0, 0, "Clear All Memory?", 17);

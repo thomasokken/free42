@@ -61,6 +61,26 @@ int command2buf(char *buf, int len, int cmd, const arg_struct *arg) DISPLAY_SECT
 #define MENULEVEL_PLAIN     3
 #define MENULEVEL_APP       4
 
+#ifdef BIGLCD
+
+#define MAX_DISPLAY_ROWS 10
+// Number of LCD rows we have to display
+extern int dispRows; 
+// True if we are to ignore the menu state for sst or bst operations
+extern bool ignore_menu;
+// True if we are overlaying menu labels onto the calc keys, freeing an lcd row
+extern bool menuKeys;
+
+extern void display_t(int);
+extern void display_z(int);
+extern void display_0(int);
+extern void display_1(int);
+extern void large_display_prgm_line(int row, int line_offset, 
+									int line_disp_offset, bool dispGoose);
+#else
+#define MAX_DISPLAY_ROWS 2
+#endif
+
 int appmenu_exitcallback_1(int menuid) COMMANDS3_SECT;
 int appmenu_exitcallback_2(int menuid) COMMANDS5_SECT;
 int appmenu_exitcallback_3(int menuid) COMMANDS4_SECT;

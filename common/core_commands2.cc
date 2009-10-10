@@ -50,6 +50,15 @@ int docmd_sf(arg_struct *arg) {
     if (virtual_flags[num] == '1')
 	return virtual_flag_handler(FLAGOP_SF, num);
     else {
+#ifdef BIGSTACK
+	// If we are switching to the dynamic stack, and the size of the
+	// stack is 3, but we have since placed a non-zero value in reg_t
+	// then include this new value in the dynamic stack by increasing
+	// the size.
+	if (num == 32 && !flags.f.f32 && stacksize == 3
+	          && (reg_t->type != TYPE_REAL || ((vartype_real*)reg_t)->x != 0))
+	    stacksize = 4;
+#endif
 	flags.farray[num] = 1;
 	if (num == 30)
 	    /* This is the stack_lift_disable flag.
@@ -726,7 +735,7 @@ int docmd_agraph(arg_struct *arg) {
 		phloat y = ((vartype_real *) reg_y)->x;
 		draw_pattern(x, y, reg_alpha, reg_alpha_length);
 		flush_display();
-		flags.f.message = flags.f.two_line_message = 1;
+		cllcd_cmd = true;
 		return ERR_NONE;
 	    } else if (reg_y->type == TYPE_STRING)
 		return ERR_ALPHA_DATA_IS_INVALID;
@@ -738,7 +747,7 @@ int docmd_agraph(arg_struct *arg) {
 	    phloat y = ((vartype_complex *) reg_y)->im;
 	    draw_pattern(x, y, reg_alpha, reg_alpha_length);
 	    flush_display();
-	    flags.f.message = flags.f.two_line_message = 1;
+	    cllcd_cmd = true;
 	    return ERR_NONE;
 	}
 	case TYPE_COMPLEXMATRIX: {
@@ -749,7 +758,7 @@ int docmd_agraph(arg_struct *arg) {
 		draw_pattern(cm->array->data[i], cm->array->data[i + 1],
 			     reg_alpha, reg_alpha_length);
 	    flush_display();
-	    flags.f.message = flags.f.two_line_message = 1;
+	    cllcd_cmd = true;
 	    return ERR_NONE;
 	}
 	case TYPE_STRING:
@@ -770,18 +779,18 @@ static void pixel_helper(phloat dx, phloat dy) {
     if (x < 0) {
 	x = -x;
 	if (x >= 1 && x <= 131)
-	    for (i = 0; i < 16; i++)
+	    for (i = 0; i < MAX_DISPLAY_ROWS*8; i++)
 		draw_pixel(x - 1, i);
 	dot = 0;
     }
     if (y < 0) {
 	y = -y;
-	if (y >= 1 && y <= 16)
+	if (y >= 1 && y <= MAX_DISPLAY_ROWS*8)
 	    for (i = 0; i < 131; i++)
 		draw_pixel(i, y - 1);
 	dot = 0;
     }
-    if (dot && x >= 1 && x <= 131 && y >= 1 && y <= 16)
+    if (dot && x >= 1 && x <= 131 && y >= 1 && y <= MAX_DISPLAY_ROWS*8)
 	draw_pixel(x - 1, y - 1);
 }
 
@@ -791,7 +800,7 @@ int docmd_pixel(arg_struct *arg) {
 	    pixel_helper(((vartype_real *) reg_x)->x,
 			 ((vartype_real *) reg_y)->x);
 	    flush_display();
-	    flags.f.message = flags.f.two_line_message = 1;
+	    cllcd_cmd = true;  // Tells redisplay() not to clear the display
 	    return ERR_NONE;
 	} else if (reg_y->type == TYPE_STRING)
 	    return ERR_ALPHA_DATA_IS_INVALID;
@@ -801,7 +810,7 @@ int docmd_pixel(arg_struct *arg) {
 	pixel_helper(((vartype_complex *) reg_x)->re,
 		     ((vartype_complex *) reg_x)->im);
 	flush_display();
-	flags.f.message = flags.f.two_line_message = 1;
+	cllcd_cmd = true;
 	return ERR_NONE;
     } else if (reg_x->type == TYPE_COMPLEXMATRIX) {
 	vartype_complexmatrix *m = (vartype_complexmatrix *) reg_x;
@@ -810,7 +819,7 @@ int docmd_pixel(arg_struct *arg) {
 	for (i = 0; i < size; i += 2)
 	    pixel_helper(m->array->data[i], m->array->data[i + 1]);
 	flush_display();
-	flags.f.message = flags.f.two_line_message = 1;
+	cllcd_cmd = true;
 	return ERR_NONE;
     } else if (reg_x->type == TYPE_STRING)
 	return ERR_ALPHA_DATA_IS_INVALID;
@@ -1289,44 +1298,26 @@ int docmd_prstk(arg_struct *arg) {
     shell_annunciators(-1, -1, 1, -1, -1, -1);
     print_text(NULL, 0, 1);
 #if BIGSTACK
-    if (mode_bigstack)
-    {
-	len = vartype2string(reg_top, buf, 100);
+    if (flags.f.f32 && bigstack_head != NULL) {
+	vartype* lastvar = NULL;
+	stack_item *si = NULL;
+	while(si != bigstack_head) {
+	  si = bigstack_head;
+	  while(si->next != NULL && si->next->var != lastvar)
+	      si = si->next;
+	  lastvar = si->var;
+	  len = vartype2string(lastvar, buf, 100);
+	  print_wide("~=", 2, buf, len);
+  	}
+    }
+    if (stacksize > 3) {
+	len = vartype2string(reg_t, buf, 100);
 	print_wide("~=", 2, buf, len);
-	len = vartype2string(reg_14, buf, 100);
-	print_wide("~=", 2, buf, len);
-	len = vartype2string(reg_13, buf, 100);
-	print_wide("~=", 2, buf, len);
-	len = vartype2string(reg_12, buf, 100);
-	print_wide("~=", 2, buf, len);
-	len = vartype2string(reg_11, buf, 100);
-	print_wide("~=", 2, buf, len);
-	len = vartype2string(reg_10, buf, 100);
-	print_wide("~=", 2, buf, len);
-	len = vartype2string(reg_9, buf, 100);
-	print_wide("~=", 2, buf, len);
-	len = vartype2string(reg_8, buf, 100);
-	print_wide("~=", 2, buf, len);
-	len = vartype2string(reg_7, buf, 100);
-	print_wide("~=", 2, buf, len);
-	len = vartype2string(reg_6, buf, 100);
-	print_wide("~=", 2, buf, len);
-	len = vartype2string(reg_5, buf, 100);
-	print_wide("~=", 2, buf, len);
-	len = vartype2string(reg_4, buf, 100);
-	print_wide("~=", 2, buf, len);
-	len = vartype2string(reg_3, buf, 100);
-	print_wide("~=", 2, buf, len);
-	len = vartype2string(reg_2, buf, 100);
-	print_wide("~=", 2, buf, len);
-	len = vartype2string(reg_1, buf, 100);
-	print_wide("1=", 2, buf, len);
-	len = vartype2string(reg_0, buf, 100);
-	print_wide("0=", 2, buf, len);
-    }	 
-#endif
+    }
+#else    
     len = vartype2string(reg_t, buf, 100);
     print_wide("T=", 2, buf, len);
+#endif
     len = vartype2string(reg_z, buf, 100);
     print_wide("Z=", 2, buf, len);
     len = vartype2string(reg_y, buf, 100);
@@ -1632,11 +1623,8 @@ int docmd_number(arg_struct *arg) {
 	free_vartype(reg_x);
     else {
 #ifdef BIGSTACK
-	if (mode_bigstack)
-	{
-	    free_vartype(reg_top);
-	    SHIFT_BIG_STACK_UP
-	}
+	if (flags.f.f32)
+	    shift_big_stack_up();
 	else
 	    free_vartype(reg_t);
 #else
@@ -1742,17 +1730,39 @@ int docmd_newmat(arg_struct *arg) {
 int docmd_rup(arg_struct *arg) {
     vartype *temp = reg_x;    
 #ifdef BIGSTACK
-    if (mode_bigstack)
+    if (flags.f.f32 && stacksize > 4)
     {
-	reg_x = reg_top;
-	SHIFT_BIG_STACK_UP
+	stack_item *si = new_stack_item(reg_t);
+	si->next = bigstack_head;
+	bigstack_head = si;
+	stack_item *prevsi = si;
+	while (si->next != NULL) {
+	    prevsi = si;
+	    si = si->next;
+	}
+	assert(si != prevsi);
+	prevsi->next = NULL;
+	reg_x = si->var;
+	free_stack_item(si);
+	reg_t = reg_z;
     }
-    else
-	reg_x = reg_t;
+    else {
+	assert(flags.f.f32 && bigstack_head == NULL || !flags.f.f32);
+	if (!flags.f.f32 || stacksize == 4) {
+	    reg_x = reg_t;
+	    reg_t = reg_z;
+	}
+	else {
+	    assert(stacksize == 3);
+	    reg_x = reg_z;
+	}
+	
+    }
+    assert(big_stack_verify() == 0);	
 #else
     reg_x = reg_t;
-#endif
     reg_t = reg_z;
+#endif
     reg_z = reg_y;
     reg_y = temp;
     if (flags.f.trace_print && flags.f.printer_exists)
@@ -1799,11 +1809,8 @@ int docmd_dim_t(arg_struct *arg) {
     free_vartype(reg_lastx);
     reg_lastx = reg_x;
 #if BIGSTACK
-    if (mode_bigstack)
-    {
-	free_vartype(reg_top);
-	SHIFT_BIG_STACK_UP
-    }
+    if (flags.f.f32)
+	shift_big_stack_up();
     else
 	free_vartype(reg_t);
 #else

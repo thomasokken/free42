@@ -81,22 +81,12 @@ void core_quit() {
     free_vartype(reg_z);
     free_vartype(reg_t);
 #if BIGSTACK
-    free_vartype(reg_0);
-    free_vartype(reg_1);
-    free_vartype(reg_2);
-    free_vartype(reg_3);
-    free_vartype(reg_4);
-    free_vartype(reg_5);
-    free_vartype(reg_6);
-    free_vartype(reg_7);
-    free_vartype(reg_8);
-    free_vartype(reg_9);
-    free_vartype(reg_10);
-    free_vartype(reg_11);
-    free_vartype(reg_12);
-    free_vartype(reg_13);
-    free_vartype(reg_14);
-    free_vartype(reg_top);
+    while(bigstack_head != NULL)
+    {		
+	shift_big_stack_down();
+	free_vartype(reg_t);
+    }
+    clean_stack_item_pool();
 #endif
     free_vartype(reg_lastx);
     purge_all_vars();
@@ -320,8 +310,16 @@ void core_keytimeout1() {
 	display_command(0);
 	/* If the program catalog was left up by GTO or XEQ,
 	 * don't paint over it */
+#ifdef BIGLCD
+	/*  display_x(1) addresses non overlay menus such that the menu is replaced
+	    with displaying the x register, if we are not using overlay menus or
+	    the display is greater then 2 lines then we don't need this */
+	if (dispRows <= 2 && (mode_transientmenu == MENU_NONE || pending_command == CMD_NULL))
+	    display_x(1);
+#else	
 	if (mode_transientmenu == MENU_NONE || pending_command == CMD_NULL)
 	    display_x(1);
+#endif	
 	flush_display();
     }
 }
@@ -334,6 +332,9 @@ void core_keytimeout2() {
 	    && (cmdlist(pending_command)->flags & FLAG_NO_SHOW) == 0) {
 	clear_row(0);
 	draw_string(0, 0, "NULL", 4);
+#ifdef BIGLCD
+	if (dispRows <= 2)
+#endif
 	display_x(1);
 	flush_display();
 	pending_command = CMD_CANCELLED;
@@ -2276,7 +2277,11 @@ void do_interactive(int command) {
 	    store_command_after(&pc, command, &arg);
 	    if (command == CMD_END)
 		pc = 0;
+#ifdef BIGLCD	  
+	    prgm_highlight_row = get_next_highlight_row();
+#else
 	    prgm_highlight_row = 1;
+#endif
 	    redisplay();
 	} else {
 	    incomplete_saved_pc = pc;
@@ -2284,8 +2289,12 @@ void do_interactive(int command) {
 	    if (pc == -1)
 		pc = 0;
 	    else if (prgms[current_prgm].text[pc] != CMD_END)
-		pc += get_command_length(current_prgm, pc);
+		pc += get_command_length(current_prgm, pc);	  
+#ifdef BIGLCD
+	    prgm_highlight_row = get_next_highlight_row();
+#else
 	    prgm_highlight_row = 1;
+#endif
 	    start_incomplete_command(command);
 	}
     } else {
@@ -2583,7 +2592,12 @@ void finish_command_entry(bool refresh) {
 	    if (inserting_an_end)
 		/* current_prgm was already incremented by store_command() */
 		pc = 0;
+#ifdef BIGLCD
+	    if (!incomplete_command)
+	    prgm_highlight_row = get_next_highlight_row();
+#else
 	    prgm_highlight_row = 1;
+#endif
 	    pending_command = CMD_NONE;
 	    redisplay();
 	} 
@@ -2686,9 +2700,13 @@ void start_alpha_prgm_line() {
 	pc = 0;
     else if (prgms[current_prgm].text[pc] != CMD_END)
 	pc += get_command_length(current_prgm, pc);
+#ifdef BIGLCD
+    prgm_highlight_row = get_next_highlight_row();
+#else
     prgm_highlight_row = 1;
     if (cmdline_row == 1)
 	display_prgm_line(0, -1);
+#endif
     entered_string_length = 0;
     mode_alpha_entry = true;
 }
@@ -2705,7 +2723,9 @@ void finish_alpha_prgm_line() {
 	for (i = 0; i < entered_string_length; i++)
 	    arg.val.text[i] = entered_string[i];
 	store_command(pc, CMD_STRING, &arg);
+#ifndef BIGLCD
 	prgm_highlight_row = 1;
+#endif
     }
     mode_alpha_entry = false;
 }
