@@ -7,21 +7,42 @@
     10/7*7-10 is not the same, but this is correct (it depends on where you cut
     off the number).
   . optimisations to subtract routine.
+* Mac version: now uses $HOME/Library/Application Support/Free42 instead of
+  $HOME/.free42 for persistent state, keymap, and skins. If this directory
+  does not exist, but $HOME/.free42 does, the latter is renamed to the former.
 * Switching from a version using the old BCDFloat code (1.4.51 or earlier) to a
   version using the new code (1.4.52 or later) wasn't handled properly; it
   should handle the change in how Infinities and NaNs are represented, but it
   didn't. This is related to the problem fixed in 1.4.54.
-  Starting with this version, all state files created by versions 1.4.50 and
+  Starting with this version, all state files created by versions 1.4.51 and
   older are assumed to contain old-style BCDFloat, and state files created by
-  versions 1.4.51 and newer are assumed to contain new-style BCDFloat.
-  This means that BCDFloat numbers in state files created by versions 1.4.51-54
-  may be mis-interpreted. There is no way to handle 1.4.51-54 state files
-  reliably; if you have used any of those versions at any time, it is
-  recommended to do a CLALL and reload all programs and data, to ensure no
-  inappropriate BCDFloat values remain.
-* Mac version: now uses $HOME/Library/Application Support/Free42 instead of
-  $HOME/.free42 for persistent state, keymap, and skins. If this directory
-  does not exist, but $HOME/.free42 does, the latter is renamed to the former.
+  versions 1.4.52 and newer are assumed to contain new-style BCDFloat.
+  This means that BCDFloat numbers created by all previous versions of Free42
+  Decimal will now be interpreted correctly, however, any state file that has
+  become damaged by upgrading from <= 1.4.51 Decimal to 1.4.52-54 will still
+  be damaged, and the only way to make sure no such damage remains is to do
+  CLALL and reload all programs and data.
+
+         to| <=51| <=51|52-53|52-53|  54 |  54 | >=55| >=55
+  from     | dec | bin | dec | bin | dec | bin | dec | bin
+  ---------+-----+-----+-----+-----+-----+-----+-----+-----
+   <=51 dec|  +  |  +  |  -  |  +  |  -  |  -  |  +  |  +
+   <=51 bin|  +  |  +  |  -  |  +  |  +  |  +  |  +  |  +
+   >=52 dec|  c  |  c  |  +  |  -  |  +  |  +  |  +  |  +
+   >=52 bin|  c  |  c  |  -  |  +  |  +  |  +  |  +  |  +
+
+  LEGEND: This chart shows compatibility between Free42 state file versions. To
+  check if version A will correctly handle state files produced by version B,
+  check the cell at column A, row B. The numbers 51..55 in the chart refer to
+  Free42 releases 1.4.51 through 1.4.55.
+  A 'c' means you will get a "State File Corrupt" message; "+" means the state
+  file will be read correctly, and "-" means the state file will be read, but
+  some numbers will be converted incorrectly.
+  Note that once the Free42 state has become damaged by an upgrade marked with
+  "-" in this chart, it will stay damaged; so, for example, upgrading from
+  1.4.51 Decimal to 1.4.52 Decimal, and then to 1.4.55 Decimal, may result in a
+  damaged state, while upgrading from 1.4.51 Decimal to 1.4.55 Decimal directly
+  will not.
 
 28-08-2009: release 1.4.54
 
