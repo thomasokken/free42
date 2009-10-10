@@ -2295,8 +2295,6 @@ bool load_state(int4 ver) {
 
     state_bool_is_int = ver < 9;
 
-    // NOTE: The following mis-identifies the BCD version for state files
-    // created by Free42 versions 1.4.51-54; see free42.h for details.
     #ifdef BCD_MATH
 	if (ver < 9) {
 	    bin_dec_mode_switch = true;
