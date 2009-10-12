@@ -1029,10 +1029,94 @@ BCD hypot(const BCD& a, const BCD& b)
     }
 }
 
+static BCD powfmod(const BCD& a, int4 n, const BCD& fm)
+{
+    // ASSUME n >= 0
+    // ASSUME a >= 0, fm > 0
+    if (n == 0) return 1;
+    BCD s;
+    BCD r = a;
+    s = 1;
+    /* Use binary exponentiation */
+    for (;;) 
+    {
+        if (n & 1)
+        {
+            s *= r;
+            if (s >= fm)
+            {
+                BCD q = trunc(s/fm);
+                s -= q*fm;
+            }
+        }
+        n >>= 1;
+        if (!n) break;
+        r *= r;
+        if (r >= fm) 
+        {
+            BCD q = trunc(r/fm);
+            r -= q*fm;
+        }
+    }
+    return s;
+}
+
 BCD fmod(const BCD& a, const BCD& b)
 {
-    BCD c = a - b * trunc(a / b);
-    if (a == trunc(a) && b == trunc(b) && !(c == trunc(c))) {
+    BCD v = a;
+    bool neg = v.isNeg();
+    if (neg) v.negate();
+
+    BCD m = b;
+    if (m.isNeg()) m.negate();
+
+    BCD c;
+    if (v < b)
+    {
+        c = v;
+    }
+    else
+    {
+        int em = m.exponent() - 1;
+        int ev = v.exponent() - 1;
+
+        int t = 1;
+        v.setExponent(t);
+        while (!v.isInteger())
+        {
+            v.setExponent(++t);
+            --ev;
+        }
+
+        t = 1;
+        m.setExponent(t);
+        while (em > ev || !m.isInteger())
+        {
+            m.setExponent(++t);
+            --em;
+        }
+
+        // peform mod of mantissa
+        c = v - m*trunc(v/m);
+    
+        int e = ev - em;
+        if (e > 0)
+        {
+            // fold in exponent
+            c *= powfmod(BCD(10), e<<2, m);
+            if (c > m)
+                c -= trunc(c/m)*m;
+        }
+
+        if (em)
+            c.setExponent(c.exponent() + em);
+    }
+
+    // restore sign
+    if (neg) c.negate();
+    
+    if (a.isInteger() && b.isInteger() && !c.isInteger())
+    {
 	// Numerator and denominator are both integral;
 	// in this case we force the result to be integral as well.
 	BCD half(*(const BCDFloat*)(constTable + BCD_CONST_HALF));
