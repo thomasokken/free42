@@ -1,3 +1,9 @@
+10-12-2009: release 1.4.56
+
+* The new LOG implementation introduced in Decimal version 1.4.55 was broken
+  rolling back to 1.4.54 version. (Note that this means that powers of 10 do
+  not yield exact results, but at least everything *else* is OK again now.)
+
 10-10-2009: release 1.4.55
 
 * Some improvements in the new BCDFloat code:

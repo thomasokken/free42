@@ -32,8 +32,7 @@
 #define BCD_CONST_LN2    (BCD_CONST_COSTAB+8)
 #define BCD_CONST_ONEOTWO (BCD_CONST_LN2+1)
 #define BCD_CONST_LN10    (BCD_CONST_ONEOTWO+1)
-#define BCD_CONST_LN2OLN10 (BCD_CONST_ONEOTWO+2)
-#define BCD_CONST_ATANLIM (BCD_CONST_LN2OLN10+1)
+#define BCD_CONST_ATANLIM (BCD_CONST_LN10+1)
 #define BCD_CONST_PIBY32A (BCD_CONST_ATANLIM+1)
 #define BCD_CONST_PIBY32B (BCD_CONST_PIBY32A+1)
 #define BCD_CONST_HUNDREDTH (BCD_CONST_PIBY32B+1)
@@ -86,7 +85,6 @@ static const_if_not_palm_68k Dig constTable[] =
     { 6931, 4718, 559, 9453, 941, 7232, 1215, 0 }, // ln(2)
     { 1, 200, 0, 0, 0, 0, 0, 1 }, // 1.02
     { 2, 3025, 8509, 2994, 456, 8401, 7991, 1 }, // ln(10)
-    { 3010, 2999, 5663, 9811, 9521, 3738, 8947, 0 }, // ln(2)/ln(10)
     { 1000, 0, 0, 0, 0, 0, 0, 0 },  // 0.1 atan limit
 
     { 981, 7477, 424, 0, 0, 0, 0, 0 }, // pi/32 part A
@@ -96,6 +94,23 @@ static const_if_not_palm_68k Dig constTable[] =
     { 2, 5000, 0, 0, 0, 0, 0, 1 },  // 2.5
     { 10, 0, 0, 0, 0, 0, 0, 1 },  // 10
 
+#if 0
+    // Lanczos terms for gamma
+    { 3, 7948, 6229, 8882, 1576, 6137, 571, 2 },
+    { 6, 1191, 9133, 3435, 268, 9475, 3696, 32770&EXPMASKNEG },
+    { 3, 1935, 3139, 9365, 7178, 9732, 6587, 2 },
+    { 1, 648, 2204, 9659, 4145, 5971, 637, 32770&EXPMASKNEG },
+    { 2215, 7659, 2545, 9700, 1065, 2640, 839, 1 },
+    { 277, 3434, 9002, 3102, 315, 6808, 5633, 32769&EXPMASKNEG },
+    { 19, 7504, 4798, 8896, 954, 2464, 2454, 1 },
+    { 7351, 4584, 5326, 3110, 3427, 1541, 972, 32768&EXPMASKNEG },
+    { 125, 201, 6315, 9372, 8926, 576, 1395, 0 },
+    { 7710, 2871, 8096, 9904, 7327, 526, 2403, 65535&EXPMASKNEG },
+    { 10, 9373, 7115, 9701, 7175, 1506, 3503, 32767&EXPMASKNEG },
+    { 11, 2406, 1022, 3182, 8735, 6453, 7307, 65534&EXPMASKNEG },
+    { 2, 7709, 5759, 7224, 6395, 7358, 7375, 32766&EXPMASKNEG },
+#endif
+    
     // sin(x) polynomial
     { 1666, 6666, 6666, 6666, 6666, 6666, 6365, 32768&EXPMASKNEG },
     { 83, 3333, 3333, 3333, 3333, 3303, 1985, 0 },
@@ -528,38 +543,6 @@ BCD pow(const BCD& a, int4 n)
     return s;
 }
 
-static BCD powfmod(const BCD& a, int4 n, const BCD& fm)
-{
-    // ASSUME n >= 0
-    // ASSUME a >= 0, fm > 0
-    if (n == 0) return 1;
-    BCD s;
-    BCD r = a;
-    s = 1;
-    /* Use binary exponentiation */
-    for (;;) 
-    {
-        if (n & 1)
-        {
-            s *= r;
-            if (s >= fm)
-            {
-                BCD q = trunc(s/fm);
-                s -= q*fm;
-            }
-        }
-        n >>= 1;
-        if (!n) break;
-        r *= r;
-        if (r >= fm) 
-        {
-            BCD q = trunc(r/fm);
-            r -= q*fm;
-        }
-    }
-    return s;
-}
-
 BCD exp(const BCD& v)
 {
     /* write v = k*r + n*ln(2)
@@ -669,22 +652,22 @@ static BCD logPoly(const BCD& r)
     return (pr*r2 + 1)*r;
 }
 
-
-static BCD _log(const BCD& v, int4& p10, int4& p2, bool& neg)
+BCD log(const BCD& v)
 {
+    /* natural logarithm */
     if (v.isNeg()) return BCDFloat::nan();
     if (v.isSpecial()) return v;
     if (v.isZero()) return BCDFloat::negInf();
     
     BCD lna;
     BCD2 a2;
-    neg = false;
+    bool negAnswer = false;
 
     if (v < 1)
     {
         // v in (0,1) map to (1,inf) and negate final answer
         a2 = BCD2(1)/v;
-        neg = true;
+        negAnswer = true;
     }
     else 
         a2 = v;
@@ -692,7 +675,7 @@ static BCD _log(const BCD& v, int4& p10, int4& p2, bool& neg)
     // have a in [1,inf)
 
     // extract the power of 10 from the exponent
-    p10 = (a2.exponent()-1)*4;
+    int p10 = (a2.exponent()-1)*4;
     a2.setExponent(1);
 
     // divide out the biggest digit to leave a number < 10
@@ -706,7 +689,7 @@ static BCD _log(const BCD& v, int4& p10, int4& p2, bool& neg)
     }
         
     // divide by 2 until < 2, keep a count of the 2's
-    p2 = 0;
+    int p2 = 0;
     while (d > 1)
     {
         ++p2; // adjust the 2s count
@@ -740,40 +723,14 @@ static BCD _log(const BCD& v, int4& p10, int4& p2, bool& neg)
         BCD lnck(*(const BCDFloat*)(constTable + BCD_CONST_LOGCK + k - 1));
         lna += lnck;
     }
+    
+    BCD ln10(*(const BCDFloat*)(constTable + BCD_CONST_LN10));
+    BCD ln2(*(const BCDFloat*)(constTable + BCD_CONST_LN2));
+    lna += p10*ln10 + p2*ln2;
+
+    if (negAnswer) lna.negate();
     return lna;
 }
-
-BCD log(const BCD& v)
-{
-    /* natural logarithm */
-    int4 p10, p2;
-    bool neg;
-    BCD lv = _log(v, p10, p2, neg);
-    if (!lv.isSpecial())
-    {
-        BCD ln10(*(const BCDFloat*)(constTable + BCD_CONST_LN10));
-        BCD ln2(*(const BCDFloat*)(constTable + BCD_CONST_LN2));
-        lv += p10*ln10 + p2*ln2;
-        if (neg) lv.negate();
-    }
-    return lv;
-}
-
-BCD log10(const BCD& v)
-{
-    /* common log */
-    int4 p10, p2;
-    bool neg;
-    BCD lv = _log(v, p10, p2, neg);
-    if (!lv.isSpecial())
-    {
-        BCD ln2Oln10(*(const BCDFloat*)(constTable + BCD_CONST_LN2OLN10));
-        lv += p10 + p2*ln2Oln10;
-        if (neg) lv.negate();
-    }
-    return lv;
-}
-
 
 BCD atan(const BCD& v)
 {
@@ -969,10 +926,10 @@ BCD modtwopi(const BCD& a)
     int i;
 
     /* copy digits of manstissa as double precision */
-    for (i = 0; i < P; ++i) xd[i] = a.digit(i);
-
-    while (i <= 2*P) // clear extended digits.
-    {
+    for (i = 0; i < P; ++i) {
+        xd[i] = a.digit(i);
+    }
+    while (i <= 2*P) { // clear extended digits.
         xd[i] = 0;
         ++i;
     }
@@ -1033,6 +990,11 @@ BCD modtwopi(const BCD& a)
     return b * pi2;
 }
 
+BCD log10(const BCD& v)
+{
+    BCD ln10(*(const BCDFloat*)(constTable + BCD_CONST_LN10));
+    return log(v) / ln10;
+}
 
 BCD sqrt(const BCD& a)
 {
@@ -1069,60 +1031,8 @@ BCD hypot(const BCD& a, const BCD& b)
 
 BCD fmod(const BCD& a, const BCD& b)
 {
-    BCD v = a;
-    bool neg = v.isNeg();
-    if (neg) v.negate();
-
-    BCD m = b;
-    if (m.isNeg()) m.negate();
-
-    BCD c;
-    if (v < b)
-    {
-        c = v;
-    }
-    else
-    {
-        int em = m.exponent() - 1;
-        int ev = v.exponent() - 1;
-
-        int t = 1;
-        v.setExponent(t);
-        while (!v.isInteger())
-        {
-            v.setExponent(++t);
-            --ev;
-        }
-
-        t = 1;
-        m.setExponent(t);
-        while (em > ev || !m.isInteger())
-        {
-            m.setExponent(++t);
-            --em;
-        }
-
-        // peform mod of mantissa
-        c = v - m*trunc(v/m);
-    
-        int e = ev - em;
-        if (e > 0)
-        {
-            // fold in exponent
-            c *= powfmod(BCD(10), e<<2, m);
-            if (c > m)
-                c -= trunc(c/m)*m;
-        }
-
-        if (em)
-            c.setExponent(c.exponent() + em);
-    }
-
-    // restore sign
-    if (neg) c.negate();
-    
-    if (a.isInteger() && b.isInteger() && !c.isInteger())
-    {
+    BCD c = a - b * trunc(a / b);
+    if (a == trunc(a) && b == trunc(b) && !(c == trunc(c))) {
 	// Numerator and denominator are both integral;
 	// in this case we force the result to be integral as well.
 	BCD half(*(const BCDFloat*)(constTable + BCD_CONST_HALF));
