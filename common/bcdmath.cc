@@ -32,7 +32,8 @@
 #define BCD_CONST_LN2    (BCD_CONST_COSTAB+8)
 #define BCD_CONST_ONEOTWO (BCD_CONST_LN2+1)
 #define BCD_CONST_LN10    (BCD_CONST_ONEOTWO+1)
-#define BCD_CONST_ATANLIM (BCD_CONST_LN10+1)
+#define BCD_CONST_LN2OLN10 (BCD_CONST_ONEOTWO+2)
+#define BCD_CONST_ATANLIM (BCD_CONST_LN2OLN10+1)
 #define BCD_CONST_PIBY32A (BCD_CONST_ATANLIM+1)
 #define BCD_CONST_PIBY32B (BCD_CONST_PIBY32A+1)
 #define BCD_CONST_HUNDREDTH (BCD_CONST_PIBY32B+1)
@@ -43,6 +44,7 @@
 #define BCD_CONST_COSPOLY (BCD_CONST_SINPOLY+7)
 #define BCD_CONST_LOGPOLY (BCD_CONST_COSPOLY+7)
 #define BCD_CONST_LOGCK   (BCD_CONST_LOGPOLY+4)
+#define BCD_CONST_EXP1    (BCD_CONST_LOGCK+64)
 
 
 typedef unsigned short Dig[P+1];
@@ -85,6 +87,7 @@ static const_if_not_palm_68k Dig constTable[] =
     { 6931, 4718, 559, 9453, 941, 7232, 1215, 0 }, // ln(2)
     { 1, 200, 0, 0, 0, 0, 0, 1 }, // 1.02
     { 2, 3025, 8509, 2994, 456, 8401, 7991, 1 }, // ln(10)
+    { 3010, 2999, 5663, 9811, 9521, 3738, 8947, 0 }, // ln(2)/ln(10)
     { 1000, 0, 0, 0, 0, 0, 0, 0 },  // 0.1 atan limit
 
     { 981, 7477, 424, 0, 0, 0, 0, 0 }, // pi/32 part A
@@ -94,23 +97,6 @@ static const_if_not_palm_68k Dig constTable[] =
     { 2, 5000, 0, 0, 0, 0, 0, 1 },  // 2.5
     { 10, 0, 0, 0, 0, 0, 0, 1 },  // 10
 
-#if 0
-    // Lanczos terms for gamma
-    { 3, 7948, 6229, 8882, 1576, 6137, 571, 2 },
-    { 6, 1191, 9133, 3435, 268, 9475, 3696, 32770&EXPMASKNEG },
-    { 3, 1935, 3139, 9365, 7178, 9732, 6587, 2 },
-    { 1, 648, 2204, 9659, 4145, 5971, 637, 32770&EXPMASKNEG },
-    { 2215, 7659, 2545, 9700, 1065, 2640, 839, 1 },
-    { 277, 3434, 9002, 3102, 315, 6808, 5633, 32769&EXPMASKNEG },
-    { 19, 7504, 4798, 8896, 954, 2464, 2454, 1 },
-    { 7351, 4584, 5326, 3110, 3427, 1541, 972, 32768&EXPMASKNEG },
-    { 125, 201, 6315, 9372, 8926, 576, 1395, 0 },
-    { 7710, 2871, 8096, 9904, 7327, 526, 2403, 65535&EXPMASKNEG },
-    { 10, 9373, 7115, 9701, 7175, 1506, 3503, 32767&EXPMASKNEG },
-    { 11, 2406, 1022, 3182, 8735, 6453, 7307, 65534&EXPMASKNEG },
-    { 2, 7709, 5759, 7224, 6395, 7358, 7375, 32766&EXPMASKNEG },
-#endif
-    
     // sin(x) polynomial
     { 1666, 6666, 6666, 6666, 6666, 6666, 6365, 32768&EXPMASKNEG },
     { 83, 3333, 3333, 3333, 3333, 3303, 1985, 0 },
@@ -201,6 +187,8 @@ static const_if_not_palm_68k Dig constTable[] =
     { 6853, 400, 3098, 9194, 1654, 4048, 789, 0 },
     { 6931, 4718, 559, 9453, 941, 7232, 1214, 0 },
 
+    // e = 2.7182 8182 8459 0452 3536 0287 4713 5266 2497 7572 470936999
+    { 2, 7182, 8182, 8459, 452, 3536, 287, 1 }, // exp(1)
 };
 
 #define BCD2_CONST_LANCZOS 0
@@ -357,6 +345,32 @@ static void cosPoly(const BCD& a, BCD& ca)
     horner((const BCDFloat*)(constTable + BCD_CONST_COSPOLY), y, 7, py);
     ca = 1+y*py;
 }
+#define K 12
+#define GG 12
+static BCD _expm1(const BCD& a)
+{
+    BCD t(1U);
+    unsigned int d = 2;
+
+    BCD2 s(1U);
+    BCD2 s1;
+    BCD ss;
+
+    for (;;) 
+    {
+        t *= a/d;
+        s1 = s + t;
+        ss = s1.asBCD();
+        if (ss == s.asBCD()) 
+        {
+            ss *= a; 
+            break;
+        }
+        s = s1;
+        ++d;
+    }
+    return ss;
+}
 
 void sincos(const BCD& v, BCD* sinv, BCD* cosv)
 {
@@ -500,46 +514,35 @@ BCD tan(const BCD& v)
     return s/c;
 }
 
-static BCD expTaylor(const BCD& a, int n) BCD2_SECT;
-static BCD expTaylor(const BCD& a, int n)
+static BCD powfmod(const BCD& a, int4 n, const BCD& fm)
 {
-    BCD t = a;
-    BCD s = t + 1;
-    int i = 1;
-    while (i < n) 
-    {
-        t = t*a/(++i);
-        s += t;
-    }
-    return s;
-}
-
-
-BCD pow(const BCD& a, int4 n)
-{
-    int4 m;
+    // ASSUME n >= 0
+    // ASSUME a >= 0, fm > 0
     if (n == 0) return 1;
-    m = (n < 0) ? -n : n;
-
     BCD s;
-    if (m > 1) 
+    BCD r = a;
+    s = 1;
+    /* Use binary exponentiation */
+    for (;;) 
     {
-        BCD r = a;
-        s = 1;
-        /* Use binary exponentiation */
-        for (;;) 
+        if (n & 1)
         {
-            if (m & 1) s *= r;
-            m >>= 1;
-            if (!m) break;
-            r *= r;
+            s *= r;
+            if (s >= fm)
+            {
+                BCD q = trunc(s/fm);
+                s -= q*fm;
+            }
         }
-    } else { s = a; }
-
-    /* Compute the reciprocal if n is negative. */
-    if (n < 0) 
-        return 1/s;
-
+        n >>= 1;
+        if (!n) break;
+        r *= r;
+        if (r >= fm) 
+        {
+            BCD q = trunc(r/fm);
+            r -= q*fm;
+        }
+    }
     return s;
 }
 
@@ -563,8 +566,6 @@ BCD exp(const BCD& v)
     
     if (v.isZero()) return 1;
 
-    //bool neg = v.isNeg();
-
     BCD ln2(*(const BCDFloat*)(constTable + BCD_CONST_LN2));
     BCD n = trunc(v/ln2);
 
@@ -579,12 +580,16 @@ BCD exp(const BCD& v)
         return 0;
     }
 
+    int ni = itrunc(n);
     int k = 64;
     BCD r = (v - n*ln2)/k;
     
-    /* error bounded by x^10/10! where x = ln(2)/k */
-    BCD er = expTaylor(r, 9);
-    return pow(er, k)*pow(BCD(2), n);
+    BCD t1 = _expm1(r);
+    BCD er = t1 + 1;
+    BCD del = t1 - (er - 1);
+    t1 = pow(er,k);
+    er = t1 + t1/er*del*k;      // correction factor
+    return er*pow(BCD(2), ni);
 }
 
 static BCD _ln1p(const BCD& a) BCD2_SECT;
@@ -652,22 +657,22 @@ static BCD logPoly(const BCD& r)
     return (pr*r2 + 1)*r;
 }
 
-BCD log(const BCD& v)
+
+static BCD _log(const BCD& v, int4& p10, int4& p2, bool& neg)
 {
-    /* natural logarithm */
     if (v.isNeg()) return BCDFloat::nan();
     if (v.isSpecial()) return v;
     if (v.isZero()) return BCDFloat::negInf();
     
     BCD lna;
     BCD2 a2;
-    bool negAnswer = false;
+    neg = false;
 
     if (v < 1)
     {
         // v in (0,1) map to (1,inf) and negate final answer
         a2 = BCD2(1)/v;
-        negAnswer = true;
+        neg = true;
     }
     else 
         a2 = v;
@@ -675,7 +680,7 @@ BCD log(const BCD& v)
     // have a in [1,inf)
 
     // extract the power of 10 from the exponent
-    int p10 = (a2.exponent()-1)*4;
+    p10 = (a2.exponent()-1)*4;
     a2.setExponent(1);
 
     // divide out the biggest digit to leave a number < 10
@@ -689,7 +694,7 @@ BCD log(const BCD& v)
     }
         
     // divide by 2 until < 2, keep a count of the 2's
-    int p2 = 0;
+    p2 = 0;
     while (d > 1)
     {
         ++p2; // adjust the 2s count
@@ -723,14 +728,51 @@ BCD log(const BCD& v)
         BCD lnck(*(const BCDFloat*)(constTable + BCD_CONST_LOGCK + k - 1));
         lna += lnck;
     }
-    
-    BCD ln10(*(const BCDFloat*)(constTable + BCD_CONST_LN10));
-    BCD ln2(*(const BCDFloat*)(constTable + BCD_CONST_LN2));
-    lna += p10*ln10 + p2*ln2;
-
-    if (negAnswer) lna.negate();
     return lna;
 }
+
+BCD ln10constant()
+{
+    return (*(const BCDFloat*)(constTable + BCD_CONST_LN10));
+}
+
+BCD halfConstant()
+{
+    return (*(const BCDFloat*)(constTable + BCD_CONST_HALF));
+}
+
+BCD log(const BCD& v)
+{
+    /* natural logarithm */
+    int4 p10, p2;
+    bool neg;
+    BCD lv = _log(v, p10, p2, neg);
+    if (!lv.isSpecial())
+    {
+        BCD ln10(*(const BCDFloat*)(constTable + BCD_CONST_LN10));
+        BCD ln2(*(const BCDFloat*)(constTable + BCD_CONST_LN2));
+        lv += p10*ln10 + p2*ln2;
+        if (neg) lv.negate();
+    }
+    return lv;
+}
+
+BCD log10(const BCD& v)
+{
+    /* common log */
+    int4 p10, p2;
+    bool neg;
+    BCD lv = _log(v, p10, p2, neg);
+    if (!lv.isSpecial())
+    {
+        BCD ln2Oln10(*(const BCDFloat*)(constTable + BCD_CONST_LN2OLN10));
+        BCD ln10(*(const BCDFloat*)(constTable + BCD_CONST_LN10));
+        lv = lv/ln10 + p10 + p2*ln2Oln10;
+        if (neg) lv.negate();
+    }
+    return lv;
+}
+
 
 BCD atan(const BCD& v)
 {
@@ -926,10 +968,10 @@ BCD modtwopi(const BCD& a)
     int i;
 
     /* copy digits of manstissa as double precision */
-    for (i = 0; i < P; ++i) {
-        xd[i] = a.digit(i);
-    }
-    while (i <= 2*P) { // clear extended digits.
+    for (i = 0; i < P; ++i) xd[i] = a.digit(i);
+
+    while (i <= 2*P) // clear extended digits.
+    {
         xd[i] = 0;
         ++i;
     }
@@ -990,19 +1032,6 @@ BCD modtwopi(const BCD& a)
     return b * pi2;
 }
 
-BCD log10(const BCD& v)
-{
-    BCD ln10(*(const BCDFloat*)(constTable + BCD_CONST_LN10));
-    return log(v) / ln10;
-}
-
-BCD sqrt(const BCD& a)
-{
-    BCD c;
-    if (!BCDFloat::sqrt(&a._v, &c._v))
-        c._v = BCDFloat::nan();
-    return c;
-}
 
 BCD hypot(const BCD& a, const BCD& b)
 {
@@ -1027,38 +1056,6 @@ BCD hypot(const BCD& a, const BCD& b)
         t = a/b;
         return fb*sqrt(t*t+1);
     }
-}
-
-static BCD powfmod(const BCD& a, int4 n, const BCD& fm)
-{
-    // ASSUME n >= 0
-    // ASSUME a >= 0, fm > 0
-    if (n == 0) return 1;
-    BCD s;
-    BCD r = a;
-    s = 1;
-    /* Use binary exponentiation */
-    for (;;) 
-    {
-        if (n & 1)
-        {
-            s *= r;
-            if (s >= fm)
-            {
-                BCD q = trunc(s/fm);
-                s -= q*fm;
-            }
-        }
-        n >>= 1;
-        if (!n) break;
-        r *= r;
-        if (r >= fm) 
-        {
-            BCD q = trunc(r/fm);
-            r -= q*fm;
-        }
-    }
-    return s;
 }
 
 BCD fmod(const BCD& a, const BCD& b)
@@ -1152,8 +1149,10 @@ BCD ln1p(const BCD& a)
 }
 
 
-#define K 12
-#define GG 12
+const BCDFloat2* lanczConstants()
+{
+    return (const BCDFloat2*)(constTable2 + BCD2_CONST_LANCZOS);
+}
 
 static void _gammaFactorialAux(const BCD& z, BCD& t1, BCD& t2, BCD& s) BCD2_SECT;
 static void _gammaFactorialAux(const BCD& z, BCD& t1, BCD& t2, BCD& s)
@@ -1170,7 +1169,8 @@ static void _gammaFactorialAux(const BCD& z, BCD& t1, BCD& t2, BCD& s)
     BCD2 t, s2;
     int i;
 
-    const BCDFloat2* lancz = (const BCDFloat2*)(constTable2 + BCD2_CONST_LANCZOS);
+    const BCDFloat2* lancz = lanczConstants();
+
     s2 = lancz[0];
 
     t = 1;
@@ -1256,20 +1256,7 @@ BCD expm1(const BCD& a)
     if (fabs(a) >= pointzerotwo)
         return exp(a)-1;
 
-    BCD t = 1;
-    BCD d = 2;
-    BCD s = 1;
-    BCD s1;
-
-    for (;;) 
-    {
-        t = t*a/d;
-        s1 = s + t;
-        if (s1 == s) break;
-        s = s1;
-        ++d;
-    }
-    return s*a;
+    return _expm1(a);
 }
 
 BCD sinh(const BCD& a)

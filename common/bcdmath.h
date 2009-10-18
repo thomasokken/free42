@@ -25,14 +25,17 @@
 
 #include "bcd.h"
 
-//BCD pi() BCD2_SECT;
+BCD pi() BCD2_SECT;
+BCD pi2() BCD2_SECT; // 2pi
+BCD ln10constant() BCD2_SECT;
+BCD halfConstant() BCD2_SECT;
 BCD sin(const BCD&) BCD2_SECT;
 BCD cos(const BCD&) BCD2_SECT;
 BCD tan(const BCD&) BCD2_SECT;
 BCD exp(const BCD&) BCD2_SECT;
 BCD log(const BCD&) BCD2_SECT;
 BCD atan(const BCD&) BCD2_SECT;
-BCD pow(const BCD&, int4 n) BCD2_SECT;
+
 BCD pow(const BCD&, const BCD&) BCD2_SECT;
 BCD atan2(const BCD& y, const BCD& x) BCD2_SECT;
 BCD asin(const BCD&) BCD2_SECT;

@@ -36,15 +36,764 @@ double log10(double x);
 #endif
 
 
-int BCDFloat::decade_[4] = { 1000, 100, 10, 1 };
-unsigned short BCDFloat::posInfD_[P+1] = { 0, 0, 0, 0, 0, 0, 0, 0x2000 };
+int BCDDecade[4] = { 1000, 100, 10, 1 };
+
+unsigned short BCDFloat::posInfD_[P+1] = { 0, 0, 0, 0, 0, 0, 0, POS_INF_EXP };
 unsigned short BCDFloat::negInfD_[P+1] = { 0, 0, 0, 0, 0, 0, 0, 0xA000 };
 unsigned short BCDFloat::nanD_[P+1] =    { 0, 0, 0, 0, 0, 0, 0, 0x4000 };
 
 void BCDFloat::_init()
 {
+    for (int i = 0; i <= P; ++i) d_[i] = 0;
+}
+
+int bcd_round(unsigned short* d, int pn) 
+{
+    // round d_[P] into the mantissa
+    if (d[pn] >= 5000)
+    {
+        int i = pn-1;
+        int v = d[i] + 1;
+        while (v >= BASE)
+        {
+            d[i] = (unsigned short)(v - BASE);
+            if (!i)
+            {
+                // shift
+                for (i = pn; i > 0; --i) d[i] = d[i-1];
+                d[0] = 1;
+                return 1;
+            }
+            v = d[--i]+1;
+        }
+        d[i] = v;
+    }
+    return 0;
+}
+
+int bcd_round25(unsigned short* d, int pn) 
+{
+    // round d_[P] into the mantissa and mask off digits after 25.
+    int i = pn-1;
+    int v;
+    if (d[0] < 10)
+        v = d[i] + (d[pn] >= 5000);
+    else if (d[0] < 100)
+        v = (((d[i]+5)*3277)>>15)*10;
+    else if (d[0] < 1000)
+        v = (((d[i]+50)*5243)>>19)*100;
+    else
+        v = (((d[i]+500)*8389)>>23)*1000;
+
+    while (v >= BASE)
+    {
+        d[i] = (unsigned short)(v - BASE);
+        if (!i)
+        {
+            // shift
+            for (i = pn; i > 0; --i) d[i] = d[i-1];
+            d[0] = 1;
+            return 1;
+        }
+        v = d[--i]+1;
+    }
+    d[i] = v;
+    return 0;
+}
+
+
+
+void bcd_uadd(const unsigned short* a,
+              const unsigned short* b,
+              unsigned short* c,
+              int pn)
+{
+    int ea = GET_EXP(a, pn);
+    int eb = GET_EXP(b, pn);
+    int d = ea - eb;
     int i;
-    for (i = 0; i <= P; ++i) d_[i] = 0;
+        
+    if (d <= pn) // otherwise `b' is insignificant
+    {
+        int ca;
+        int v;
+        int j = pn-d;
+        i = pn-1;
+
+        // copy in first insignificant digit used by final rounding
+        v = 0;
+        if (d > 0) v = b[j]; 
+        c[pn] = v;
+
+        ca = 0;
+        while (j > 0) // perform addition of overlapping terms
+        {
+            v = a[i] + b[--j] + ca;
+            ca = 0;
+            if (v >= BASE)
+            {
+                v -= BASE;
+                ca = 1;
+            }
+            c[i] = v;
+            --i;
+        }
+
+        while (i >= 0) // remainder non-overlap terms
+        {
+            v = a[i] + ca;
+            ca = 0;
+            if (v >= BASE)
+            {
+                v -= BASE;
+                ca = 1;
+            }
+            c[i] = v;
+            --i;
+        }
+
+        if (ca)
+        {
+            /* overall carry, shift down and round */
+            for (i = pn; i > 0; --i) c[i] = c[i-1];
+            c[0] = ca;
+            ++ea;
+        }
+
+        if (bcd_round25(c, pn)) ++ea;
+        if (ea > EXPLIMIT)
+        {
+            // overflow
+            for (i = 0; i < pn; ++i) c[i] = 0;
+            ea = POS_INF_EXP;
+        }
+        SET_EXP(c, pn, ea);
+    }
+    else
+    {
+        for (i = 0; i <= pn; ++i) c[i] = a[i];
+        CLEAR_SIGN(c, pn);
+    }
+}
+
+void bcd_usub(const unsigned short* a,
+              const unsigned short* b,
+              unsigned short* c,
+              int pn)
+{
+    int ea = GET_EXP(a, pn);
+    int eb = GET_EXP(b, pn);
+    bool neg = false;
+    int i;
+
+    int d = ea - eb;
+    if (d <= pn)
+    {
+        int ca;
+        int v;
+
+        int j = pn-d;
+        i = pn-1;
+
+        ca = 0;
+        c[pn] = 0;
+        while (j > 0)
+        {
+            v = a[i] - b[--j] - ca;
+            ca = 0;
+            if (v < 0) 
+            {
+                ca = 1;
+                v += BASE;
+            }
+            c[i] = v;
+            --i;
+        }
+
+        if (ca)
+        {
+            while (i >= 0)
+            {
+                v = a[i];
+                if (v)
+                {
+                    // carry absorbed
+                    c[i] = v - 1;
+                    
+                    // copy remainder
+                    while (i > 0) { --i; c[i] = a[i]; }
+
+                    // NB: i == 0
+                    break;
+                }
+                else
+                    c[i--] = BASE-1;
+            }
+
+            if (i < 0) // carry all the way up
+            {
+                /* overall borrow, need to complement number */
+                for (i = pn; i >= 0; --i) 
+                {
+                    v = BASE-1 - c[i] + ca;
+                    ca = 0;
+                    if (v >= BASE) 
+                    {
+                        ca = 1;
+                        v -= BASE;
+                    }
+                    c[i] = v;
+                }
+                neg = true;
+            }
+        }
+        else
+        {
+            // copy remainder of number over
+            while (i >= 0) { c[i] = a[i]; --i; }
+        }
+
+        int e = ea;
+        i = 0;
+        while (c[i] == 0 && i <= pn) i++;
+
+        if (i > 0) 
+        {
+            if (i == pn+1)
+            {
+                /* is zero */
+                e = 0;
+            }
+            else 
+            {
+                e -= i;
+                if (e <= -EXPLIMIT) 
+                {
+                    /* underflow */
+                    c[0] = 0;
+                    e = 0;
+                }
+                else 
+                {
+                    int j;
+                    for (j = 0; j <= pn - i; j++) c[j] = c[j + i];
+                    for (; j <= pn; j++) c[j] = 0;
+                }
+            }
+        }
+
+        // cant happen
+        // if (c->_round25()) ++e;
+
+        if (e > EXPLIMIT) // not sure this can happen
+        {
+            for (i = 0; i < pn; ++i) c[i] = 0;
+            ea = POS_INF_EXP;
+        }
+        SET_EXP(c, pn, e);
+        if (neg) NEGATE_SIGN(c, pn);
+    }
+    else
+    {
+        /* `b' is insignificant */
+        for (i = 0; i <= pn; ++i) c[i] = a[i];
+        CLEAR_SIGN(c, pn);
+    }
+}
+
+void bcd_add(const unsigned short* a,
+             const unsigned short* b,
+             unsigned short* c,
+             int pn)
+{
+    int i;
+    if (GET_SPECIAL(a, pn) | GET_SPECIAL(b, pn))
+    {
+        for (i = 0; i < pn; ++i) c[i] = 0;
+        c[pn] = NAN_EXP;
+
+        /* inf + inf = inf
+         * -inf + (-inf) = -inf
+         */
+        if (!(GET_NAN(a,pn) | GET_NAN(b,pn)))
+        {
+            if (GET_INF(a,pn))
+            {
+                if (!GET_INF(b,pn) || (a[pn] == b[pn]))
+                {
+                    // inf + x = inf
+                    c[pn] = a[pn];
+                }
+            }
+            else
+            {
+                // b is inf
+                c[pn] = b[pn];
+            }
+        }
+    }
+    else
+    {
+        int ea = GET_EXP(a,pn);
+        int eb = GET_EXP(b,pn);
+
+        bool na = GET_NEG_NORM(a,pn);
+        bool nb = GET_NEG_NORM(b,pn);
+        bool sub = na != nb;
+
+        if (sub) 
+        {
+            if (ea >= eb) 
+                bcd_usub(a, b, c, pn);
+            else 
+            {
+                bcd_usub(b, a, c, pn);
+                na = nb;
+            }
+        }
+        else 
+        {
+            if (ea >= eb) bcd_uadd(a, b, c, pn);
+            else bcd_uadd(b, a, c, pn);
+        }
+        if (na) NEGATE_SIGN(c,pn);
+    }
+}
+
+void bcd_sub(const unsigned short* a,
+             const unsigned short* b,
+             unsigned short* c,
+             int pn)
+{
+    int i;
+    if (GET_SPECIAL(a, pn) | GET_SPECIAL(b, pn))
+    {
+        for (i = 0; i < pn; ++i) c[i] = 0;
+
+        /* all others -> nan */
+        c[pn] = NAN_EXP;
+            
+        if (!(GET_NAN(a,pn) | GET_NAN(b,pn)))
+        {
+            if (GET_INF(a,pn))
+            {
+                if (!GET_INF(b,pn) || (a[pn] != b[pn]))
+                {
+                    /* -inf - (inf) = -inf
+                     * inf - (-inf) = inf
+                     */
+                    c[pn] = a[pn];
+                }
+            }
+            else 
+            {
+                // b is inf
+                c[pn] = NEG_INF_EXP;
+            }
+        }
+    }
+    else
+    {
+        bool na = GET_NEG_NORM(a,pn);
+        bool nb = GET_NEG_NORM(b,pn);
+        bool sub = (na == nb);
+
+        int ea = GET_EXP(a,pn);
+        int eb = GET_EXP(b,pn);
+
+        if (sub) 
+        {
+            if (ea >= eb) 
+            {
+                bcd_usub(a, b, c, pn);
+                if (na) NEGATE_SIGN(c,pn);
+            }
+            else 
+            {
+                bcd_usub(b, a, c, pn);
+                if (!na) NEGATE_SIGN(c,pn);
+            }
+        }
+        else 
+        {
+            if (ea >= eb) bcd_uadd(a, b, c, pn);
+            else bcd_uadd(b, a, c, pn);
+            if (na) NEGATE_SIGN(c,pn);
+        }
+    }
+}
+
+void bcd_mul(const unsigned short* a,
+             const unsigned short* b,
+             unsigned short* c,
+             int pn)
+{
+
+    // zero flags assuming not special
+    bool az = GET_ZERO_NORM(a,pn);
+    bool bz = GET_ZERO_NORM(b,pn);
+
+    // neg flag assuming non-zero and non-special
+    int na = GET_NEG_BIT(a,pn);
+    int nb = GET_NEG_BIT(b,pn);
+
+    int i;
+    for (i = 0; i <= pn; ++i) c[i] = 0;
+
+    if (GET_SPECIAL(a,pn) | GET_SPECIAL(b,pn))
+    {
+        /* all others -> nan */
+        c[pn] = NAN_EXP;
+
+        if (!(GET_NAN(a,pn) | GET_NAN(b,pn)))
+        {
+            if ((GET_INF(a,pn) && (GET_INF(b,pn) || (!bz))) || !az)
+            {
+                // inf * inf -> inf
+                // inf * non-zero -> inf
+                // non-zero * inf -> inf
+                c[pn] = POS_INF_EXP;
+                if (na != nb) NEGATE_SIGN(c, pn);
+            }
+        }
+    }
+    else if (!az && !bz)
+    {        
+        int ca;
+        int i, j;
+        int4 u, v;
+
+        int ea = GET_EXP(a,pn);
+        int eb = GET_EXP(b,pn);
+
+        unsigned short acc[MAX_P+1];
+        for (i = 0; i <= pn; ++i) acc[i] = 0;
+
+        for (i = pn-1; i >= 0; --i) 
+        {
+            bcd_round(c, pn);
+            for (j = pn; j > 0; --j) c[j] = c[j-1];
+            c[0] = 0;
+        
+            u = a[i];
+            if (!u) continue;
+
+            ca = 0;
+            for (j = pn; j > 0; --j) 
+            {
+                v = b[j-1] * u + ca;
+                ca = 0;
+                if (v >= BASE) 
+                {
+                    ca = v / BASE;
+                    v = v - ca*BASE;
+                }
+                acc[j] = v;
+            }
+            acc[0] = ca;
+
+            /* now add acc into c */
+            ca = 0;
+            for (j = pn; j >= 0; --j) 
+            {
+                v = c[j] + acc[j] + ca;
+                ca = 0;
+                if (v >= BASE) 
+                {
+                    ca = 1;
+                    v -= BASE;
+                }
+                c[j] = v;
+            }
+            /* won't be any overall carry */
+        }
+
+        if (!c[0]) 
+        {
+            for (i = 0; i < pn; ++i) c[i] = c[i+1]; 
+            c[pn] = 0;
+        }
+        else 
+        {
+            ++ea;
+            if (bcd_round25(c,pn)) ++ea;
+        }
+
+        ea += eb - 1;
+        if (ea <= -EXPLIMIT || ea > EXPLIMIT)
+        {
+            for (i = 0; i <= pn; ++i) c[i] = 0; // underflow
+            if (ea > EXPLIMIT) c[pn] = POS_INF_EXP;  // overflow           
+        }
+        else 
+        {
+            SET_EXP(c,pn,ea);
+            
+            /* fix sign */
+            if (na != nb) NEGATE_SIGN(c,pn);
+        }
+    }
+}
+
+void bcd_div(const unsigned short* a,
+             const unsigned short* b,
+             unsigned short* c,
+             int pn)
+{
+
+    int as = GET_SPECIAL(a,pn);
+    int bs = GET_SPECIAL(b,pn);
+        
+    // zero flags assuming not special
+    int az = GET_ZERO_NORM(a,pn) && !as;
+    int bz = GET_ZERO_NORM(b,pn) && !bs;
+
+    // neg assuming non-special
+    int na = GET_NEG_BIT(a,pn) && !az;
+    int nb = GET_NEG_BIT(b,pn) && !bz;
+    int i;
+
+    if (as | bs | az | bz)
+    {
+        for (i = 0; i < pn; ++i) c[i] = 0;
+
+        /* all others -> nan */
+        c[pn] = NAN_EXP;
+
+        if (!(GET_NAN(a,pn) | GET_NAN(b,pn)))
+        {
+            if (GET_INF(a,pn) | bz)
+            {
+                // inf/inf -> nan
+                if (!GET_INF(b,pn) && !az)
+                {
+                    // inf/x -> inf
+                    if (na == nb) c[pn] = POS_INF_EXP;
+                    else c[pn] = NEG_INF_EXP;
+                }
+            }
+            else if (GET_INF(b,pn) | az)
+            { 
+                // x/inf -> 0
+                c[pn] = 0;
+            }
+        }
+    }
+    else
+    {
+        int4 u, v;
+        int ca;
+        int j = 0;
+        int4 q;
+
+        int ea = GET_EXP(a,pn);
+        int eb = GET_EXP(b,pn);
+
+        unsigned short acc[MAX_P+1];
+        unsigned short b1[MAX_P+1];
+        
+        u = BASE/(b[0]+1);
+
+        if (u != 1) 
+        {
+            /* prenormialise `a' and move into acc using spare digit */
+            ca = 0;
+            for (i = pn; i > 0; --i) 
+            {
+                v = a[i-1]*u + ca;
+                ca = 0;
+                if (v >= BASE) 
+                {
+                    ca = v/BASE;
+                    v -= ca*BASE;
+                }
+                acc[i] = v;
+            }
+            acc[0] = ca;
+
+            /* prenormalise `b' into b1 */
+            ca = 0;
+            for (i = pn-1; i >= 0; --i) 
+            {
+                v = b[i]*u + ca;
+                ca = 0;
+                if (v >= BASE) 
+                {
+                    ca = v/BASE;
+                    v -= ca*BASE;
+                }
+                b1[i] = v;
+            }
+        }
+        else 
+        {
+            /* u is often 1 */
+            for (i = pn-1; i >= 0; --i) 
+            {
+                acc[i+1] = a[i];
+                b1[i] = b[i];
+            }
+            acc[0] = 0;
+        }
+
+        for (;;) 
+        {
+            if (acc[0] == b1[0]) q = BASE-1;
+            else 
+            {
+                v = acc[0]*BASE + acc[1];
+                q = v/b1[0];
+                while (b1[1]*q > ((v - q*b1[0])*BASE + acc[2])) --q;
+            }
+
+            if (!q && !j) 
+            {
+                /* first quotient digit is zero. can gain extra
+                 * accuracy by ignoring this and adjusting exponent.
+                 */
+                --ea;
+            }
+            else 
+            {
+                if (j == pn) 
+                {
+                    c[j] = q;
+                    break;
+                }
+
+                ca = 0;
+                for (i = pn; i > 0; --i) 
+                {
+                    v = acc[i] - b1[i-1]*q - ca;
+                    ca = 0;
+                    if (v < 0) 
+                    {
+                        ca = (-v + BASE-1)/BASE;
+                        v += ca*BASE;
+                    }
+                    acc[i] = v;
+                }
+                v = acc[0] - ca;
+
+                if (v) 
+                {
+                    /* the infamous add back correction */
+                    ca = 0;
+                    for (i = pn; i > 0; --i) 
+                    {
+                        v = acc[i] + b1[i-1] + ca;
+                        ca = 0;
+                        if (v >= BASE) 
+                        {
+                            ca = 1;
+                            v -= BASE;
+                        }
+                        acc[i] = v;
+                    }
+                    q--;
+                }
+                if (q == 0 && j == 0)
+                    --ea;
+                else
+                    c[j++] = q;
+            }
+
+            // left shift
+            for (i = 0; i < pn; ++i) acc[i] = acc[i+1]; 
+            acc[pn] = 0;
+        }
+
+        if (bcd_round25(c, pn)) ++ea;
+        
+        ea -= eb - 1;
+        if (ea <= -EXPLIMIT || ea > EXPLIMIT)
+        {
+            for (i = 0; i <= pn; ++i) c[i] = 0;
+            if (ea > EXPLIMIT) c[pn] = POS_INF_EXP;
+        }
+        else SET_EXP(c, pn, ea);
+        if (na != nb) NEGATE_SIGN(c, pn);
+    }
+}
+
+int bcd_cmp(const unsigned short* a, 
+            const unsigned short* b,
+            int pn)
+{
+    // zero flags assuming not special
+    int az = GET_ZERO_NORM(a,pn);
+    int bz = GET_ZERO_NORM(b,pn);
+
+    // neg 
+    int na = GET_NEG_BIT(a,pn) && !az;
+    int nb = GET_NEG_BIT(b,pn) && !bz;
+
+    if (na != nb)
+        return na ? -1 : 1;
+
+    if (GET_NAN(a,pn) | GET_NAN(b,pn))
+    {
+        // NaNs are not equal to anything, even themselves;
+        // ALL comparisions involving them should return 'false'
+        // (except '!=', which should return 'true').
+        // So, I return a special value here.
+        return 2;
+    }
+    
+    // If a and b are both negative, switch them. This way, I can
+    // ignore signs in the remainder of this method.
+    if (na) 
+    {
+        const unsigned short* t = a;
+        a = b;
+        b = t;
+    }
+
+    if (GET_INF(a, pn)) return GET_INF(b,pn) ? 0 : 1;
+    if (GET_INF(b,pn)) return -1;
+        
+    if (az)
+        return bz ? 0 : -1;
+
+    if (bz)
+        return 1;
+    
+    int ea = GET_EXP(a,pn);
+    int eb = GET_EXP(b,pn);
+    if (ea != eb)
+        return ea < eb ? -1 : 1;
+
+    for (int i = 0; i < pn; i++) {
+        int da = a[i];
+        int db = b[i];
+        if (da != db)
+            return da < db ? -1 : 1;
+    }
+    return 0;
+}
+
+void bcd_fromUInt(unsigned short* d, int pn, uint4 v)
+{
+    /* quicker to deal with cases separately */
+    if (v < BASE) 
+    {
+        d[0] = v;
+        d[pn] = 1;
+    }
+    else if (v < BASE*BASE) 
+    {
+        d[0] = (unsigned short)(v/BASE);
+        d[1] = (unsigned short)(v - d[0]*BASE);
+        d[pn] = 2;
+    }
+    else 
+    {
+        d[0] = (unsigned short)(v/(BASE*BASE));
+        v -= d[0]*(BASE*BASE);
+        d[1] = (unsigned short)(v/BASE);
+        d[2] = (unsigned short)(v - d[1]*BASE);
+        d[pn] = 3;
+    }
 }
 
 BCDFloat::BCDFloat(const char* s)
@@ -101,7 +850,7 @@ BCDFloat::BCDFloat(const char* s)
             *this = posInf();
             if (neg) negate();
         }
-	return;
+        return;
     }
 
     bool eneg = false;
@@ -162,7 +911,7 @@ BCDFloat::BCDFloat(const char* s)
             {
                 if (*p != '.') 
                 {
-                    d += (*p - '0')*decade_[i];
+                    d += (*p - '0')*BCDDecade[i];
                     ++i;
                 }
                 ++p;
@@ -196,30 +945,6 @@ BCDFloat::BCDFloat(const char* s)
             else exp(e);
             if (neg) negate();
         }
-    }
-}
-
-void BCDFloat::_fromUInt(uint4 v)
-{
-    /* quicker to deal with cases separately */
-    if (v < BASE) 
-    {
-        d_[0] = v;
-        d_[P] = 1;
-    }
-    else if (v < ((int4)BASE)*BASE) 
-    {
-        d_[0] = v/BASE;
-        d_[1] = v - d_[0]*((int4)BASE);
-        d_[P] = 2;
-    }
-    else 
-    {
-        d_[0] = v/(((int4)BASE)*BASE);
-        v -= d_[0]*(((int4)BASE)*BASE);
-        d_[1] = v/BASE;
-        d_[2] = v - d_[1]*((int4)BASE);
-        d_[P] = 3;
     }
 }
 
@@ -312,45 +1037,6 @@ BCDFloat::BCDFloat(double d) {
         }
     }
 }
-
-int BCDFloat::_round25() 
-{
-    // round d_[P] into the mantissa and mask off digits after 25.
-    int i;
-    int v;
-    if (d_[0] < 10)
-        v = d_[P-1] + (d_[P] >= 5000);
-    else if (d_[0] < 100)
-        v = (((((int4) d_[P-1])+5)*3277)>>15)*10;
-    else if (d_[0] < 1000)
-        v = (((((int4) d_[P-1])+50)*5243)>>19)*100;
-    else
-        v = (((((int4) d_[P-1])+500)*8389)>>23)*1000;
-
-    i = P-1;
-    while (v >= BASE)
-    {
-        d_[i] = v - BASE;
-        if (!i)
-        {
-            // shift
-            _rshift();
-            d_[0] = 1;
-            return 1;
-        }
-        v = d_[--i]+1;
-    }
-    d_[i] = v;
-    return 0;
-}
-
-void BCDFloat::epsilon(int n, BCDFloat* v)
-{
-    // generate 10^-n, 
-    int m = decade_[(n-1) & 3];
-    v->ldexp(m, -(n>>2));
-}
-
 void BCDFloat::_roundDigits(unsigned int precision, BCDFloat* v) const
 {
     if (!isSpecial() && !isZero() && precision < 25)
@@ -365,7 +1051,7 @@ void BCDFloat::_roundDigits(unsigned int precision, BCDFloat* v) const
         if (d_[0] >= 1000) --precision;
         --precision; // units
 
-        int m = decade_[precision & 3] * 5;
+        int m = BCDDecade[precision & 3] * 5;
         rv.ldexp(m, exp() - (precision>>2) - 1);
 
         // ignores signs
@@ -494,628 +1180,12 @@ void BCDFloat::_asString(char* buf, Format fmt, int precision) const
 }
 #endif // !PALMOS
 
-void BCDFloat::add(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
-{
-    if (a->isZero()) 
-    {
-        *c = *b;
-        return;
-    }
-    if (b->isZero()) 
-    {
-        *c = *a;
-        return;
-    }
 
-    if (a->isSpecial() || b->isSpecial()) 
-    {
-        /* inf + inf = inf
-         * -inf + (-inf) = -inf
-         */
-        bool done = false;
-        if (!a->isNan() && !b->isNan()) {
-            if (a->isInf()) {
-                if (b->isInf()) {
-                    if (a->d_[P] == b->d_[P]) { *c = *a; done = true; }
-                }
-                else {
-                    *c = *a;
-                    done = true; // inf + x = inf
-                }
-            }
-            else { // b is inf
-                *c = *b;
-                done = true; // x + inf = inf
-            }
-        }
-
-        if (!done) {
-            /* all others -> nan */
-            *c = nan();
-        }
-        return;
-    }
-
-    int ea = a->exp();
-    int eb = b->exp();
-
-    bool na = a->neg();
-    bool nb = b->neg();
-    bool sub = na != nb;
-
-    if (sub) 
-    {
-        if (ea >= eb) 
-            _usub(a, b, c);
-        else 
-        {
-            _usub(b, a, c);
-            na = nb;
-        }
-    }
-    else 
-    {
-        if (ea >= eb) _uadd(a, b, c);
-        else _uadd(b, a, c);
-    }
-    if (na) c->negate();
-}
-
-void BCDFloat::sub(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
-{
-    if (a->isZero()) 
-    {
-        *c = *b;
-        c->negate();
-        return;
-    }
-    if (b->isZero()) 
-    {
-        *c = *a;
-        return;
-    }
-
-    if (a->isSpecial() || b->isSpecial()) {
-        bool done = false;
-        if (!a->isNan() && !b->isNan()) {
-            if (a->isInf()) {
-                if (b->isInf()) {
-                    /* -inf - (inf) = -inf
-                     * inf - (-inf) = inf
-                     */
-                    if (a->d_[P] != b->d_[P]) { *c = *a; done = true; }
-                }
-                else { // a inf && !b inf
-                    *c = *a;
-                    done = true; // inf - x = inf
-                }
-            }
-            else { // b is inf
-                *c = *b;
-                c->negate();
-                done = true; // x - inf = -inf
-            }
-        }
-
-        if (!done) {
-            /* all others -> nan */
-            *c = nan();
-        }
-        return;
-    }
-
-    bool na = a->neg();
-    bool nb = b->neg();
-    bool sub = (na == nb);
-
-    int ea = a->exp();
-    int eb = b->exp();
-
-    if (sub) {
-        if (ea >= eb) {
-            _usub(a, b, c);
-            if (na) c->negate();
-        }
-        else {
-            _usub(b, a, c);
-            if (!na) c->negate();
-        }
-    }
-    else {
-        if (ea >= eb) _uadd(a, b, c);
-        else _uadd(b, a, c);
-
-        if (na) c->negate();
-    }
-}
-
-void BCDFloat::_uadd(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
-{
-    int ea = a->exp();
-    int eb = b->exp();
-    int d = ea - eb;
-
-    if (d <= P) // otherwise `b' is insignificant
-    {
-        int i;
-        int ca;
-        int v;
-        int j = P-d;
-        i = P-1;
-
-        // copy in first insignificant digit used by final rounding
-        v = 0;
-        if (d > 0) v = b->d_[j]; 
-        c->d_[P] = v;
-
-        ca = 0;
-        while (j > 0) // perform addition of overlapping terms
-        {
-            v = a->d_[i] + b->d_[--j] + ca;
-            ca = 0;
-            if (v >= BASE)
-            {
-                v -= BASE;
-                ca = 1;
-            }
-            c->d_[i] = v;
-            --i;
-        }
-
-        while (i >= 0) // remainder non-overlap terms
-        {
-            v = a->d_[i] + ca;
-            ca = 0;
-            if (v >= BASE)
-            {
-                v -= BASE;
-                ca = 1;
-            }
-            c->d_[i] = v;
-            --i;
-        }
-
-        if (ca)
-        {
-            /* overall carry, shift down and round */
-            c->_rshift();
-            c->d_[0] = ca;
-            ++ea;
-        }
-
-        if (c->_round25()) ++ea;
-        if (ea > EXPLIMIT) *c = posInf();
-        else c->exp(ea);
-    }
-    else
-    {
-        *c = *a;
-        c->clearSign();
-    }
-}
-
-void BCDFloat::_usub(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
-{
-    int ea = a->exp();
-    int eb = b->exp();
-    bool neg = false;
-
-    int d = ea - eb;
-    if (d <= P)
-    {
-        int i;
-        int ca;
-        int v;
-
-        int j = P-d;
-        i = P-1;
-
-	ca = 0;
-        c->d_[P] = 0;
-        while (j > 0)
-        {
-            v = a->d_[i] - b->d_[--j] - ca;
-            ca = 0;
-            if (v < 0) 
-            {
-                ca = 1;
-                v += BASE;
-            }
-            c->d_[i] = v;
-            --i;
-        }
-
-        if (ca)
-        {
-            while (i >= 0)
-            {
-                v = a->d_[i];
-                if (v)
-                {
-                    // carry absorbed
-                    c->d_[i] = v - 1;
-                    
-                    // copy remainder
-                    while (i > 0) { --i; c->d_[i] = a->d_[i]; }
-
-                    // NB: i == 0
-                    break;
-                }
-                else
-                {
-                    c->d_[i] = BASE-1;
-                    --i;
-                }
-            }
-
-            if (i < 0) // carry all the way up
-            {
-                /* overall borrow, need to complement number */
-                for (i = P; i >= 0; --i) 
-                {
-                    v = BASE-1 - c->d_[i] + ca;
-                    ca = 0;
-                    if (v >= BASE) 
-                    {
-                        ca = 1;
-                        v -= BASE;
-                    }
-                    c->d_[i] = v;
-                }
-                neg = true;
-            }
-        }
-        else
-        {
-            // copy remainder of number over
-            while (i >= 0)
-            {
-                c->d_[i] = a->d_[i];
-                --i;
-            }
-        }
-
-        int e = a->exp();
-        i = 0;
-        while (c->d_[i] == 0 && i <= P) i++;
-        if (i > 0) 
-        {
-            if (i == P+1)
-            {
-                /* is zero */
-                e = 0;
-            }
-            else 
-            {
-                e -= i;
-                if (e <= -EXPLIMIT) 
-                {
-                    /* underflow */
-                    c->d_[0] = 0;
-                    e = 0;
-                }
-                else 
-                {
-                    int j;
-                    for (j = 0; j <= P - i; j++)
-                        c->d_[j] = c->d_[j + i];
-                    for (; j <= P; j++)
-                        c->d_[j] = 0;
-                }
-            }
-        }
-
-        // cant happen
-        // if (c->_round25()) ++e;
-
-        if (e > EXPLIMIT) *c = posInf();
-        else c->exp(e);
-        if (neg) c->negate();
-    }
-    else
-    {
-        /* `b' is insignificant */
-        *c = *a;
-        c->clearSign();
-    }
-}
-
-void BCDFloat::mul(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
-
-{
-    int na = a->neg();
-    int nb = b->neg();
-
-    bool az = a->isZero();
-    bool bz = b->isZero();
-
-    if (a->isSpecial() || b->isSpecial()) 
-    {
-        bool done = false;
-        if (!a->isNan() && !b->isNan()) 
-        {
-            if (a->isInf()) 
-            {
-                if (b->isInf()) 
-                {
-                    *c = posInf();
-                    done = true;
-                }
-                else 
-                {
-                    if (!bz) 
-                    {   // inf * 0 = nan
-                        *c = posInf();
-                        done = true; // inf * x = inf, x != 0
-                    }
-                }
-            }
-            else 
-            { // b is inf
-                if (!az)
-                { // 0 * inf = nan
-                    *c = posInf();
-                    done = true; // x * inf = inf, x != 0
-                }
-            }
-        }
-
-        if (!done) 
-            /* all others -> nan */
-            *c = nan();
-        else 
-            if (na != nb) c->negate();            
-
-        return;
-    }
-
-    c->_init();
-
-    // quit now if either is zero.
-    if (az || bz) return; 
-
-    int ca;
-    int i, j;
-    int4 u, v;
-
-    int ea = a->exp();
-    int eb = b->exp();
-    BCDFloat acc;
-
-    for (i = P-1; i >= 0; --i) 
-    {
-        c->_round25(); // wont carry
-        c->_rshift();
-        c->d_[0] = 0;
-        
-        u = a->d_[i];
-        if (!u) continue;
-
-        ca = 0;
-        for (j = P; j > 0; --j) 
-        {
-            v = b->d_[j-1] * u + ca;
-            ca = 0;
-            if (v >= BASE) 
-            {
-                ca = v / BASE;
-                v = v - ca*((int4)BASE);
-            }
-            acc.d_[j] = v;
-        }
-        acc.d_[0] = ca;
-
-        /* now add acc into c */
-        ca = 0;
-        for (j = P; j >= 0; --j) 
-        {
-            v = c->d_[j] + acc.d_[j] + ca;
-            ca = 0;
-            if (v >= BASE) 
-            {
-                ca = 1;
-                v -= BASE;
-            }
-            c->d_[j] = v;
-        }
-
-        /* won't be any overall carry */
-    }
-
-    if (!c->d_[0]) 
-    {
-        c->_lshift();
-        c->d_[P] = 0;
-    }
-    else 
-    {
-        ++ea;
-        if (c->_round25()) ++ea;
-    }
-
-    ea += eb - 1;
-    if (ea <= -EXPLIMIT) c->_init();
-    else 
-    {
-        if (ea > EXPLIMIT) *c = posInf();
-        else c->exp(ea);
-
-        /* fix sign */
-        if (na != nb) c->negate();
-    }
-}
-
-void BCDFloat::div(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
-{
-    int na = a->neg();
-    int nb = b->neg();
-
-    if (a->isSpecial() || b->isSpecial()) {
-        bool done = false;
-        if (!a->isNan() && !b->isNan()) {
-            if (a->isInf()) {
-                if (b->isInf()) {
-                    /* inf / inf = nan */
-                }
-                else {
-                    *c = posInf();
-                    if (na != nb) c->negate();            
-                    done = true; // inf / x = inf
-                }
-            }
-            else { // b is inf
-                /* x/inf = 0 */
-                c->_init();
-                done = true;
-            }
-        }
-
-        if (!done) {
-            /* all others -> nan */
-            *c = nan();
-        }
-        return;
-    }
-
-    int4 u, v;
-    int ca;
-    int j = 0;
-    int i;
-    int4 q;
-
-    bool az = a->isZero();
-    bool bz = b->isZero();
-    if (az || bz) {
-        if (az) {
-            if (bz) *c = nan();
-            else c->_init();
-        }
-        else { // bz && !az
-            *c = posInf();
-            if (a->neg()) c->negate();
-        }
-    }
-    else {
-        int ea = a->exp();
-        int eb = b->exp();
-
-
-        BCDFloat acc;
-        BCDFloat b1;
-
-        u = ((int4)BASE)/(b->d_[0]+1);
-
-        if (u != 1) {
-            /* prenormialise `a' and move into acc using spare digit */
-            ca = 0;
-            for (i = P; i > 0; --i) {
-                v = a->d_[i-1]*u + ca;
-                ca = 0;
-                if (v >= BASE) {
-                    ca = v/BASE;
-                    v -= ca*((int4)BASE);
-                }
-                acc.d_[i] = v;
-            }
-            acc.d_[0] = ca;
-
-            /* prenormalise `b' into b1 */
-            ca = 0;
-            for (i = P-1; i >= 0; --i) {
-                v = b->d_[i]*u + ca;
-                ca = 0;
-                if (v >= BASE) {
-                    ca = v/BASE;
-                    v -= ca*((int4)BASE);
-                }
-                b1.d_[i] = v;
-            }
-        }
-        else {
-            /* u is often 1 */
-            for (i = P-1; i >= 0; --i) {
-                acc.d_[i+1] = a->d_[i];
-                b1.d_[i] = b->d_[i];
-            }
-            acc.d_[0] = 0;
-        }
-
-        for (;;) {
-            if (acc.d_[0] == b1.d_[0]) q = BASE-1;
-            else {
-                v = acc.d_[0]*((int4)BASE) + acc.d_[1];
-                q = v/b1.d_[0];
-
-                while (b1.d_[1]*q > ((v - q*b1.d_[0])*BASE + acc.d_[2])) {
-                    --q;
-                }
-            }
-
-            if (!q && !j) {
-                /* first quotient digit is zero. can gain extra
-                 * accuracy by ignoring this and adjusting exponent.
-                 */
-                --ea;
-            }
-            else {
-                if (j == P) {
-                    c->d_[j] = q;
-                    break;
-                }
-
-                ca = 0;
-                for (i = P; i > 0; --i) {
-                    v = acc.d_[i] - b1.d_[i-1]*q - ca;
-                    ca = 0;
-                    if (v < 0) {
-                        ca = (-v + BASE-1)/BASE;
-                        v += ca*((int4)BASE);
-                    }
-                    acc.d_[i] = v;
-                }
-                v = acc.d_[0] - ca;
-
-                if (v) {
-                    /* the infamous add back correction */
-                    ca = 0;
-                    for (i = P; i > 0; --i) {
-                        v = acc.d_[i] + b1.d_[i-1] + ca;
-                        ca = 0;
-                        if (v >= BASE) {
-                            ca = 1;
-                            v -= BASE;
-                        }
-                        acc.d_[i] = v;
-                    }
-                    q--;
-                }
-                if (q == 0 && j == 0)
-                    --ea;
-                else
-                    c->d_[j++] = q;
-            }
-
-            acc._lshift();
-            acc.d_[P] = 0;
-        }
-
-        if (c->_round25()) ++ea;
-        
-        ea -= eb - 1;
-        if (ea <= -EXPLIMIT) c->_init();
-        else {
-            if (ea > EXPLIMIT) *c = posInf();
-            else c->exp(ea);
-            if (na != nb) c->negate();
-        }
-    }
-}
-
-static int root0(int v) BCD1_SECT;
-static int root0(int v)
+static unsigned int isqrt(int v) BCD1_SECT;
+static unsigned int isqrt(int v)
 {
     /* integer root for x<= 9999 */
-    int x = 0;
+    unsigned int x = 0;
     int b = 1<<7;
     do {
         x ^= b;  
@@ -1150,7 +1220,7 @@ bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
 
     int e = a->exp();
 
-    v = root0(a->d_[0]);
+    v = isqrt(a->d_[0]);
 
     rodd = !(e & 1);
     r->d_[0] = v;
@@ -1322,52 +1392,6 @@ bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
     if (r->_round25()) ++e;
     r->exp(e);
     return true;
-}
-
-int BCDFloat::cmp(const BCDFloat *a, const BCDFloat *b)
-{
-    if (a->isNan() || b->isNan())
-	// NaNs are not equal to anything, even themselves;
-	// ALL comparisions involving them should return 'false'
-	// (except '!=', which should return 'true').
-	// So, I return a special value here.
-	return 2;
-
-    bool sa = a->neg();
-    bool sb = b->neg();
-    if (sa != sb)
-	return sa ? -1 : 1;
-
-    // If a and b are both negative, switch them. This way, I can
-    // ignore signs in the remainder of this method.
-    if (sa) {
-	const BCDFloat *tmp = a;
-	a = b;
-	b = tmp;
-    }
-
-    if (a->isInf())
-	return b->isInf() ? 0 : 1;
-    if (b->isInf())
-	return -1;
-
-    if (a->isZero())
-	return b->isZero() ? 0 : -1;
-    if (b->isZero())
-	return 1;
-
-    int ea = a->exp();
-    int eb = b->exp();
-    if (ea != eb)
-	return ea < eb ? -1 : 1;
-
-    for (int i = 0; i < P; i++) {
-	int da = a->d_[i];
-	int db = b->d_[i];
-	if (da != db)
-	    return da < db ? -1 : 1;
-    }
-    return 0;
 }
 
 bool BCDFloat::trunc(const BCDFloat* a, BCDFloat* c)

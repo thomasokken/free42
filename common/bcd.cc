@@ -25,9 +25,18 @@ extern "C"
 #include <stdlib.h>
 }
 
-#include "bcd.h"
+#include "bcd2.h"
 
 char BCD::_buf[64];
+
+BCD sqrt(const BCD& a)
+{
+    BCD c;
+    if (!BCDFloat::sqrt(&a._v, &c._v))
+        c._v = BCDFloat::nan();
+    return c;
+}
+
 
 #ifndef PALMOS
 const char* BCD::asStringFmt(Format fmt, int precision) const
@@ -44,3 +53,29 @@ const char* BCD::asStringFmt(Format fmt, int precision) const
     return _buf;
 }
 #endif
+
+BCD pow(const BCD& a, int4 n)
+{
+    int4 m;
+    if (n == 0) return 1U;
+    m = (n < 0) ? -n : n;
+
+    BCD2 s;
+    if (m > 1) 
+    {
+        BCD2 r = a;
+        s = 1U;
+        /* Use binary exponentiation */
+        for (;;) 
+        {
+            if (m & 1) s *= r;
+            m >>= 1;
+            if (!m) break;
+            r *= r;
+        }
+    } else { s = a; }
+
+    /* Compute the reciprocal if n is negative. */
+    BCD s1 = s.asBCD();
+    return n < 0 ? 1U/s1 : s1;
+}

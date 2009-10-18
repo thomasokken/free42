@@ -112,6 +112,58 @@ struct BCDFloatData
     unsigned short      d_[P+1];  
 };
 
+#define MAX_P        2*(P+1)
+#define POS_INF_EXP  0x2000
+#define NEG_INF_EXP  0xA000
+#define NAN_EXP      0x4000
+#define GET_EXP(_d, _p) (((short)((_d)[_p] << 3)) >> 3)
+#define SET_EXP(_d, _p, _v) ((_d)[_p] = (_v) & EXPMASK)
+#define CLEAR_SIGN(_d, _p) ((_d)[_p] &= ~NEG)
+#define NEGATE_SIGN(_d, _p) ((_d)[_p] ^= NEG)
+#define GET_SPECIAL(_d, _p) ((_d)[_p]&0x6000)
+#define GET_NAN(_d, _p) ((_d)[_p]&NAN_EXP)
+#define GET_INF(_d, _p) ((_d)[_p]&0x2000)
+#define GET_NEG_BIT(_d, _p) ((_d)[_p]&NEG)
+
+// zero assuming normal (non-special)
+#define GET_ZERO_NORM(_d, _p) ((_d)[0] == 0)
+
+// negative assuming non-special
+#define GET_NEG_NORM(_d, _p) (GET_NEG_BIT(_d, _p) && !GET_ZERO_NORM(_d,_p))
+
+int bcd_round(unsigned short* d, int pn);
+int bcd_round25(unsigned short* d, int pn);
+void bcd_uadd(const unsigned short* a,
+              const unsigned short* b,
+              unsigned short* c,
+              int pn);
+void bcd_usub(const unsigned short* a,
+              const unsigned short* b,
+              unsigned short* c,
+              int pn);
+void bcd_add(const unsigned short* a,
+             const unsigned short* b,
+             unsigned short* c,
+             int pn);
+void bcd_sub(const unsigned short* a,
+             const unsigned short* b,
+             unsigned short* c,
+             int pn);
+void bcd_mul(const unsigned short* a,
+             const unsigned short* b,
+             unsigned short* c,
+             int pn);
+void bcd_div(const unsigned short* a,
+             const unsigned short* b,
+             unsigned short* c,
+             int pn);
+int bcd_cmp(const unsigned short* a, 
+            const unsigned short* b,
+            int pn);
+void bcd_fromUInt(unsigned short* d, int pn, uint4 v);
+unsigned int isqrt(unsigned int v);
+extern int BCDDecade[4];
+
 struct BCDFloat: public BCDFloatData
 {
     enum Format
@@ -176,21 +228,21 @@ struct BCDFloat: public BCDFloatData
         _asString(buf, fmt, precision); 
     }
 #endif 
-    int                 exp() const { return ((short)(d_[P] << 3)) >> 3; }
-    void                exp(int v) { d_[P] = v & EXPMASK; }
+    int                 exp() const { return GET_EXP(d_, P); }
+    void                exp(int v) { SET_EXP(d_, P, v); }
     bool                neg() const
     { return (d_[P]& NEG) && (d_[0] != 0 || isInf()); }
             
     void                setSign() { d_[P] |= NEG; }
-    void                clearSign() { d_[P] &= ~NEG; }
-    void                negate() { d_[P] ^= NEG; }
-    bool                isSpecial() const { return (d_[P]&0x6000) != 0; } 
+    void                clearSign() { CLEAR_SIGN(d_, P); }
+    void                negate() { NEGATE_SIGN(d_, P); }
+    bool                isSpecial() const { return GET_SPECIAL(d_,P) != 0; } 
 
     bool                isZero() const
                         { return d_[0] == 0 && !isSpecial(); }
 
-    bool                isNan() const { return (d_[P]&0x4000) != 0; }
-    bool                isInf() const { return (d_[P]&0x2000) != 0; }
+    bool                isNan() const { return GET_NAN(d_,P) != 0; }
+    bool                isInf() const { return GET_INF(d_,P) != 0; }
     bool                isInteger() const BCD1_SECT;
 
     void                ldexp(unsigned int mant, int e)
@@ -201,39 +253,55 @@ struct BCDFloat: public BCDFloatData
         exp(e);
     }
 
-    static void         add(const BCDFloat* a, const BCDFloat* b, BCDFloat* c) BCD1_SECT;
-    static void         sub(const BCDFloat* a, const BCDFloat* b, BCDFloat* c) BCD1_SECT;
-    static void         mul(const BCDFloat* a, const BCDFloat* b, BCDFloat* c) BCD1_SECT;
-    static void         div(const BCDFloat* a, const BCDFloat* b, BCDFloat* c) BCD1_SECT;
+    static void         add(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
+    {
+        bcd_add(a->d_, b->d_, c->d_, P);
+    }
+
+    static void         sub(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
+    {
+        bcd_sub(a->d_, b->d_, c->d_, P);
+    }
+
+    static void         mul(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
+    {
+        bcd_mul(a->d_, b->d_, c->d_, P);
+    }
+
+    static void         div(const BCDFloat* a, const BCDFloat* b, BCDFloat* c)
+    {
+        bcd_div(a->d_, b->d_, c->d_, P);
+    }
+    
     static bool         sqrt(const BCDFloat* a, BCDFloat* ra) BCD1_SECT;
 
-    static int          cmp(const BCDFloat *a, const BCDFloat *b) BCD1_SECT;
     static bool         lt(const BCDFloat* a, const BCDFloat* b)
     {
         /* true iff a < b */
-        return cmp(a, b) == -1;
+        return bcd_cmp(a->d_, b->d_, P) < 0;
     }
     static bool         le(const BCDFloat* a, const BCDFloat* b)
     {
         /* true iff a <= b */
-        int res = cmp(a, b);
-        return res == -1 || res == 0;
+        return bcd_cmp(a->d_, b->d_, P) <= 0;
     }
     static bool         gt(const BCDFloat* a, const BCDFloat* b)
     {
         /* true iff a > b */
-        return cmp(a, b) == 1;
+        return bcd_cmp(a->d_, b->d_, P) > 0;
     }
+
     static bool         ge(const BCDFloat* a, const BCDFloat* b)
     {
         /* true iff a >= b */
-        int res = cmp(a, b);
-        return res == 1 || res == 0;
+        return bcd_cmp(a->d_, b->d_, P) >= 0;
     }
+
     static bool         equal(const BCDFloat* a, const BCDFloat* b)
     {
-        return cmp(a, b) == 0;
+        return bcd_cmp(a->d_, b->d_, P) == 0;
     }
+
     static int4         ifloor(const BCDFloat* x) 
     {
         BCDFloat a;
@@ -251,22 +319,29 @@ struct BCDFloat: public BCDFloatData
     static bool         trunc(const BCDFloat* a, BCDFloat* c) BCD1_SECT;
 
     void                _init() BCD1_SECT;
-    static void         _uadd(const BCDFloat* a, const BCDFloat* b,
-                              BCDFloat* c) BCD1_SECT;
-    static void         _usub(const BCDFloat* a, const BCDFloat* b,
-                              BCDFloat* c) BCD1_SECT;
-    void                _rshift() BCD1_SECT;
-    void                _lshift() BCD1_SECT;
-    int                 _round25() BCD1_SECT;
+    static void         _uadd(const BCDFloat* a,
+                              const BCDFloat* b,
+                              BCDFloat* c)
+    {
+        bcd_uadd(a->d_, b->d_, c->d_, P);
+    }
+
+    int                 _round25() { return bcd_round25(d_, P); }
 #ifndef PALMOS
     void                _asString(char* buf, Format fmt, int precision) const;
 #endif
-    void                _fromUInt(uint4) BCD1_SECT;
+    void                _fromUInt(uint4 v) { bcd_fromUInt(d_, P, v); }
     void                _roundDigits(unsigned int precision, BCDFloat* v) const BCD1_SECT;
     static const BCDFloat& posInf() { return *(BCDFloat*)posInfD_; }
     static const BCDFloat& negInf() { return *(BCDFloat*)negInfD_; }
     static const BCDFloat& nan() { return *(BCDFloat*)nanD_; }
-    static void         epsilon(int n, BCDFloat* v) BCD1_SECT;
+
+    static void         epsilon(int n, BCDFloat* v)
+    {
+        // generate 10^-n, 
+        int m = BCDDecade[(n-1) & 3];
+        v->ldexp(m, -(n>>2));
+    }
 
     static void         mul2(const unsigned short* ad, int ea,
                              const unsigned short* bd, int eb,
@@ -277,19 +352,6 @@ struct BCDFloat: public BCDFloatData
     static unsigned short posInfD_[P+1];
     static unsigned short negInfD_[P+1];
     static unsigned short nanD_[P+1];
-    static int            decade_[4];
 };
-
-inline void BCDFloat::_rshift()
-{
-    int i;
-    for (i = P; i > 0; --i) d_[i] = d_[i-1];
-}
-
-inline void BCDFloat::_lshift()
-{
-    int i;
-    for (i = 0; i < P; ++i) d_[i] = d_[i+1]; 
-}
 
 #endif 

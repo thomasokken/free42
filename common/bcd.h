@@ -36,7 +36,7 @@ struct BCD
     BCD(int v) : _v(v) {}
 #endif
     BCD(int4 v) : _v(v) {}
-    //BCD(uint4 v) : _v(v) {}
+    BCD(uint4 v) : _v(v) {}
     BCD(const BCDFloatData& bf) : _v(bf) {}
 
     int                 exponent() const { return _v.exp(); }
@@ -194,6 +194,8 @@ struct BCD
     BCDFloat            _v;
     static char         _buf[64];
 };
+
+BCD pow(const BCD& a, int4 n);
 
 inline bool operator==(const BCDFloatData& a, const BCDFloatData& b)
 {

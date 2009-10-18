@@ -164,7 +164,7 @@ struct BCD2
 
     void                negate() { _v.negate(); }
 
-    static BCD2          inf() { return BCDFloat2::posInf(); }
+    void                makeInf() { _v.makeInf(); }
 
 
     // Comparision
@@ -180,6 +180,34 @@ struct BCD2
                         { return BCDFloat2::gt(&a._v, &b._v); }
     friend bool         operator>=(const BCD2& a, const BCD2& b)
                         { return BCDFloat2::ge(&a._v, &b._v); }
+
+    friend BCD2 pow(const BCD2& a, int4 n)
+    {
+        int4 m;
+        if (n == 0) return 1;
+        m = (n < 0) ? -n : n;
+
+        BCD2 s;
+        if (m > 1) 
+        {
+            BCD2 r = a;
+            s = 1;
+            /* Use binary exponentiation */
+            for (;;) 
+            {
+                if (m & 1) s *= r;
+                m >>= 1;
+                if (!m) break;
+                r *= r;
+            }
+        } else { s = a; }
+
+        /* Compute the reciprocal if n is negative. */
+        if (n < 0) 
+            return 1/s;
+
+        return s;
+    }
 
     BCDFloat2            _v;
 };
@@ -218,7 +246,7 @@ inline BCD2 sqrt(const BCD2& a)
 {
     BCD2 c;
     if (!BCDFloat2::sqrt(&a._v, &c._v))
-        c._v = BCDFloat2::nan();
+        c._v.makeNAN();
     return c;
 }
 

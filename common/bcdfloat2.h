@@ -115,41 +115,65 @@ struct BCDFloat2: public BCDFloatData2
         exp(e);
     }
 
-    static void         add(const BCDFloat2* a, const BCDFloat2* b, BCDFloat2* c) BCD2_SECT;
-    static void         sub(const BCDFloat2* a, const BCDFloat2* b, BCDFloat2* c) BCD2_SECT;
-    static void         mul(const BCDFloat2* a, const BCDFloat2* b, BCDFloat2* c) BCD2_SECT;
-    static void         div(const BCDFloat2* a, const BCDFloat2* b, BCDFloat2* c) BCD2_SECT;
-    static bool         sqrt(const BCDFloat2* a, BCDFloat2* ra) BCD2_SECT;
-    static int          cmp(const BCDFloat2 *a, const BCDFloat2 *b) BCD2_SECT;
+    static void         add(const BCDFloat2* a, const BCDFloat2* b, BCDFloat2* c)
+    {
+        bcd_add(a->d_, b->d_, c->d_, P2);
+    }
+    static void         sub(const BCDFloat2* a, const BCDFloat2* b, BCDFloat2* c)
+    {
+        bcd_sub(a->d_, b->d_, c->d_, P2);
+    }
+
+    static void         mul(const BCDFloat2* a, const BCDFloat2* b, BCDFloat2* c)
+    {
+        bcd_mul(a->d_, b->d_, c->d_, P2);
+    }
+
+    static void         div(const BCDFloat2* a, const BCDFloat2* b, BCDFloat2* c)
+    {
+        bcd_div(a->d_, b->d_, c->d_, P2);
+    }
+
+    void                makeInf()
+    {
+        _init();
+        d_[P2] = POS_INF_EXP;
+    }
+
+    void                makeNAN()
+    {
+        _init();
+        d_[P2] = NAN_EXP;
+    }
+
+    static bool         sqrt(const BCDFloat2* a, BCDFloat2* ra) ;
     static bool         lt(const BCDFloat2* a, const BCDFloat2* b)
     {
         /* true iff a < b */
-        return cmp(a, b) == -1;
+        return bcd_cmp(a->d_, b->d_, P2) < 0;
     }
 
     static bool         le(const BCDFloat2* a, const BCDFloat2* b)
     {
         /* true iff a <= b */
-        int res = cmp(a, b);
-        return res == -1 || res == 0;
+        return bcd_cmp(a->d_, b->d_, P2) <= 0;
     }
 
     static bool         gt(const BCDFloat2* a, const BCDFloat2* b)
     {
         /* true iff a > b */
-        return cmp(a, b) == 1;
+        return bcd_cmp(a->d_, b->d_, P2) > 0;
     }
 
     static bool         ge(const BCDFloat2* a, const BCDFloat2* b)
     {
         /* true iff a >= b */
-        int res = cmp(a, b);
-        return res == 1 || res == 0;
+        return bcd_cmp(a->d_, b->d_, P2) >= 0;
     }
 
     static bool         equal(const BCDFloat2* a, const BCDFloat2* b)
     {
-        return cmp(a, b) == 0;
+        return bcd_cmp(a->d_, b->d_, P2) == 0;
     }
 
     static int4         ifloor(const BCDFloat2* x) 
@@ -170,40 +194,22 @@ struct BCDFloat2: public BCDFloatData2
     static bool         trunc(const BCDFloat2* a, BCDFloat2* c) BCD2_SECT;
 
     void                _init() BCD2_SECT;
-    static void         _uadd(const BCDFloat2* a, const BCDFloat2* b,
-                              BCDFloat2* c) BCD2_SECT;
-    static void         _usub(const BCDFloat2* a, const BCDFloat2* b,
-                              BCDFloat2* c) BCD2_SECT;
-    void                _rshift() BCD2_SECT;
-    void                _lshift() BCD2_SECT;
-    int                 _round25()BCD2_SECT;
-    void                _fromUInt(uint4) BCD2_SECT;
+	
+    int                 _round25()
+    {
+        return bcd_round25(d_, P2);
+    }
+    void                _fromUInt(uint4 v) { bcd_fromUInt(d_, P2, v); }
 
 
-    static const BCDFloat2& posInf() { return *(BCDFloat2*)posInfD_; }
-    static const BCDFloat2& negInf() { return *(BCDFloat2*)negInfD_; }
-    static const BCDFloat2& nan() { return *(BCDFloat2*)nanD_; }
-    static void         epsilon(int n, BCDFloat2* v) BCD2_SECT;
+    static void         epsilon(int n, BCDFloat2* v)
+    {
+        // generate 10^-n, 
+        int m = BCDDecade[(n-1) & 3];
+        v->ldexp(m, -(n>>2));
+    }
 
     int4                asInt() const BCD2_SECT;
-    
-
-    static unsigned short posInfD_[P2+1];
-    static unsigned short negInfD_[P2+1];
-    static unsigned short nanD_[P2+1];
-    static int            decade_[4];
 };
-
-inline void BCDFloat2::_rshift()
-{
-    int i;
-    for (i = P2; i > 0; --i) d_[i] = d_[i-1];
-}
-
-inline void BCDFloat2::_lshift()
-{
-    int i;
-    for (i = 0; i < P2; ++i) d_[i] = d_[i+1]; 
-}
 
 #endif 
