@@ -1,3 +1,10 @@
+10-19-2009: release 1.4.57
+
+* New LOG code (again), for exact results when the argument is a power of 10.
+  The bug from version 1.4.55 is fixed.
+* Subtract would lose one digit of precision for edge cases like
+  1 - 0.9999999999999999999999999; fixed.
+
 10-12-2009: release 1.4.56
 
 * The new LOG implementation introduced in Decimal version 1.4.55 was broken;

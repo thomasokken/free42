@@ -196,7 +196,16 @@ void bcd_usub(const unsigned short* a,
         i = pn-1;
 
         ca = 0;
-        c[pn] = 0;
+        v = 0;
+
+        /* first insignificant digit my be used for rounding */
+        if (d > 0)
+        {
+            v = BASE - b[j];
+            ca = 1;
+        }
+        c[pn] = v;
+
         while (j > 0)
         {
             v = a[i] - b[--j] - ca;
@@ -282,8 +291,7 @@ void bcd_usub(const unsigned short* a,
             }
         }
 
-        // cant happen
-        // if (c->_round25()) ++e;
+        if (bcd_round25(c, pn)) ++e;
 
         if (e > EXPLIMIT) // not sure this can happen
         {
