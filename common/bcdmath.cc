@@ -347,12 +347,13 @@ static void cosPoly(const BCD& a, BCD& ca)
 }
 #define K 12
 #define GG 12
+static BCD _expm1(const BCD& a) BCD2_SECT;
 static BCD _expm1(const BCD& a)
 {
-    BCD t(1U);
-    unsigned int d = 2;
+    BCD t(1);
+    int d = 2;
 
-    BCD2 s(1U);
+    BCD2 s(1);
     BCD2 s1;
     BCD ss;
 
@@ -514,6 +515,7 @@ BCD tan(const BCD& v)
     return s/c;
 }
 
+static BCD powfmod(const BCD& a, int4 n, const BCD& fm) BCD2_SECT;
 static BCD powfmod(const BCD& a, int4 n, const BCD& fm)
 {
     // ASSUME n >= 0
@@ -658,6 +660,7 @@ static BCD logPoly(const BCD& r)
 }
 
 
+static BCD _log(const BCD& v, int4& p10, int4& p2, bool& neg) BCD2_SECT;
 static BCD _log(const BCD& v, int4& p10, int4& p2, bool& neg)
 {
     if (v.isNeg()) return BCDFloat::nan();

@@ -116,7 +116,7 @@ bool BCDFloat2::sqrt(const BCDFloat2* a, BCDFloat2* r)
     
     BCDFloat2 rr(r1);
     BCDFloat2 t, t2;
-    BCDFloat2 two(2U);
+    BCDFloat2 two(2);
     if (res)
     {
         if (!rr.isSpecial())

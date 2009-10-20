@@ -79,11 +79,11 @@ int bcd_round25(unsigned short* d, int pn)
     if (d[0] < 10)
         v = d[i] + (d[pn] >= 5000);
     else if (d[0] < 100)
-        v = (((d[i]+5)*3277)>>15)*10;
+        v = ((((int4) d[i]+5)*3277)>>15)*10;
     else if (d[0] < 1000)
-        v = (((d[i]+50)*5243)>>19)*100;
+        v = ((((int4) d[i]+50)*5243)>>19)*100;
     else
-        v = (((d[i]+500)*8389)>>23)*1000;
+        v = ((((int4) d[i]+500)*8389)>>23)*1000;
 
     while (v >= BASE)
     {
@@ -788,7 +788,7 @@ void bcd_fromUInt(unsigned short* d, int pn, uint4 v)
         d[0] = v;
         d[pn] = 1;
     }
-    else if (v < BASE*BASE) 
+    else if (v < ((int4) BASE)*BASE) 
     {
         d[0] = (unsigned short)(v/BASE);
         d[1] = (unsigned short)(v - d[0]*BASE);
@@ -796,8 +796,8 @@ void bcd_fromUInt(unsigned short* d, int pn, uint4 v)
     }
     else 
     {
-        d[0] = (unsigned short)(v/(BASE*BASE));
-        v -= d[0]*(BASE*BASE);
+        d[0] = (unsigned short)(v/(((int4) BASE)*BASE));
+        v -= d[0]*(((int4) BASE)*BASE);
         d[1] = (unsigned short)(v/BASE);
         d[2] = (unsigned short)(v - d[1]*BASE);
         d[pn] = 3;
@@ -1189,15 +1189,15 @@ void BCDFloat::_asString(char* buf, Format fmt, int precision) const
 #endif // !PALMOS
 
 
-static unsigned int isqrt(int v) BCD1_SECT;
-static unsigned int isqrt(int v)
+static unsigned int isqrt(unsigned int v) BCD_SECT;
+static unsigned int isqrt(unsigned int v)
 {
     /* integer root for x<= 9999 */
     unsigned int x = 0;
     int b = 1<<7;
     do {
         x ^= b;  
-        if (x*x > v ) x ^= b;
+        if (x*x > v) x ^= b;
     } while (b >>=1);
     return x;
 }

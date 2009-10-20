@@ -1,3 +1,6 @@
+Check if the new BCD20 code still handles comparisons with Infinities and NANs
+correctly.
+
 There has been a report of program indices going out of sync -- see
 http://groups.google.com/group/iphone42s/browse_thread/thread/a5c821e46376ac65
 http://groups.google.com/group/iphone42s/browse_thread/thread/c7615637140bbda0

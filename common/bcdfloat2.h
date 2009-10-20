@@ -97,7 +97,7 @@ struct BCDFloat2: public BCDFloatData2
 
     bool                isNan() const { return (d_[P2]&0x4000) != 0; }
     bool                isInf() const { return (d_[P2]&0x2000) != 0; }
-    bool                isInteger() const BCD2_SECT;
+    bool                isInteger() const BCD_SECT;
 
     void                asBCD(BCDFloat* v) const
     {
@@ -146,7 +146,7 @@ struct BCDFloat2: public BCDFloatData2
         d_[P2] = NAN_EXP;
     }
 
-    static bool         sqrt(const BCDFloat2* a, BCDFloat2* ra) ;
+    static bool         sqrt(const BCDFloat2* a, BCDFloat2* ra) BCD_SECT;
     static bool         lt(const BCDFloat2* a, const BCDFloat2* b)
     {
         /* true iff a < b */
@@ -190,10 +190,10 @@ struct BCDFloat2: public BCDFloatData2
         return a.asInt();
     }
 
-    static bool         floor(const BCDFloat2* a, BCDFloat2* c) BCD2_SECT;
-    static bool         trunc(const BCDFloat2* a, BCDFloat2* c) BCD2_SECT;
+    static bool         floor(const BCDFloat2* a, BCDFloat2* c) BCD_SECT;
+    static bool         trunc(const BCDFloat2* a, BCDFloat2* c) BCD_SECT;
 
-    void                _init() BCD2_SECT;
+    void                _init() BCD_SECT;
 	
     int                 _round25()
     {
@@ -209,7 +209,7 @@ struct BCDFloat2: public BCDFloatData2
         v->ldexp(m, -(n>>2));
     }
 
-    int4                asInt() const BCD2_SECT;
+    int4                asInt() const BCD_SECT;
 };
 
 #endif 

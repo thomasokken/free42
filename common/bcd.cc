@@ -57,14 +57,14 @@ const char* BCD::asStringFmt(Format fmt, int precision) const
 BCD pow(const BCD& a, int4 n)
 {
     int4 m;
-    if (n == 0) return 1U;
+    if (n == 0) return 1;
     m = (n < 0) ? -n : n;
 
     BCD2 s;
     if (m > 1) 
     {
         BCD2 r = a;
-        s = 1U;
+        s = 1;
         /* Use binary exponentiation */
         for (;;) 
         {
@@ -77,5 +77,5 @@ BCD pow(const BCD& a, int4 n)
 
     /* Compute the reciprocal if n is negative. */
     BCD s1 = s.asBCD();
-    return n < 0 ? 1U/s1 : s1;
+    return n < 0 ? 1/s1 : s1;
 }
