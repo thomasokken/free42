@@ -2,6 +2,8 @@ The new BCD20 code doesn't handle NaN correctly in number comparisons.
 Comparisons involving NaN should *always* return false, except for X!=Y?,
 which should *always* return true.
 
+CLV doesn't work from the CUSTOM menu.
+
 There has been a report of program indices going out of sync -- see
 http://groups.google.com/group/iphone42s/browse_thread/thread/a5c821e46376ac65
 http://groups.google.com/group/iphone42s/browse_thread/thread/c7615637140bbda0
@@ -21,6 +23,10 @@ with something nicer?
 
 Create Android version (this should be possible now with the recently released
 Native Development Kit).
+
+PalmOS: Flag 11 doesn't work on power cycle: After exit and restart, it does
+work; after power cycle, the "running" annunciator comes on, but the program
+does not actually run. Sounds like the event queue needs to be prodded.
 
 The whole flag 11 thing seems flaky on several platforms.
 Also, what about  LBL "NASTY"  SF 11  OFF  GTO "NASTY"  ?
