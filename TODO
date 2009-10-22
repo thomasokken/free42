@@ -2,7 +2,15 @@ The new BCD20 code doesn't handle NaN correctly in number comparisons.
 Comparisons involving NaN should *always* return false, except for X!=Y?,
 which should *always* return true.
 
+BCD20: LOG returns NaN for 1e-10000.
+
+Do complete code review to see if we're using int4 instead of int where
+necessary.
+
 CLV doesn't work from the CUSTOM menu.
+
+42S (iphone) showing lines instead of bytes on line 00. Not really my business,
+but shouldn't that be optional? Byte counts can be useful.
 
 There has been a report of program indices going out of sync -- see
 http://groups.google.com/group/iphone42s/browse_thread/thread/a5c821e46376ac65
