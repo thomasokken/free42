@@ -27,42 +27,6 @@
 #include "core_tables.h"
 #include "core_variables.h"
 #include "shell.h"
-#include "core_globals.h"
-
-#if BIGLCD
-/* Return the total number of lines the current program the pc points to has. */
-int num_prgm_lines()
-{
-	int tmppc = 0;
-	int tmpline = 1;
-	// Calc what line the end of the program is at
-	while (prgms[current_prgm].text[tmppc] != CMD_END) {
-		tmppc += get_command_length(current_prgm, tmppc);
-		tmpline++;
-	}
-	return tmpline;	
-}
-
-/* increment prgm_highlight_row to the next row of a large display. */
-int get_next_highlight_row()
-{
-    int highlight_row = prgm_highlight_row;
-    if (dispRows == 2) return 1;
-    int availRows = dispRows;
-	// Adjust availRows to the number of rows we really have
-    if (core_menu() && !menuKeys) availRows--;
-    if (num_prgm_lines() < availRows)
-         highlight_row++;
-	int line = pc2line(pc);
-	// Look for the special case that the program fits within the view
-	// but the row should not be incremented, for example from an imcomplete command
-	if (line < availRows && highlight_row > line)
-		highlight_row = line;
-    if (highlight_row >= availRows)
-	highlight_row = availRows - 1;
-    return highlight_row;
-}
-#endif
 
 
 static int is_number_key(int shift, int key) KEYDOWN_SECT;
@@ -260,29 +224,10 @@ void keydown(int shift, int key) {
 	    arg.type = ARGTYPE_DOUBLE;
 	    arg.val_d = entered_number;
 	    store_command(pc, CMD_NUMBER, &arg);
-#ifdef BIGLCD	    
-	    if (dispRows == 2)
-		prgm_highlight_row = 1;
-#else
 	    prgm_highlight_row = 1;
-#endif
-		
 	} else if ((flags.f.trace_print || flags.f.normal_print)
 		&& flags.f.printer_exists)
 	    deferred_print = 1;
-#ifdef BIGSTACK
-	if (mode_rpl_enter && key == KEY_ENTER)
-	{
-	    if ((flags.f.trace_print || flags.f.normal_print)
-		    && flags.f.printer_exists)
-			print_command(CMD_ENTER, &pending_command_arg);			
-	    // If rpl entry and we are finishing number entry, then we exit here
-	    // instead of continueing on which would insert and ENTER command also
-	    pending_command = CMD_NONE;
-	    redisplay();
-	    return;
-	}	
-#endif
     }
 
     if (mode_command_entry && shift && (key == KEY_UP || key == KEY_DOWN)) {
@@ -299,33 +244,6 @@ void keydown(int shift, int key) {
 	repeating_key = key;
     }
 
-#ifdef BIGLCD
-    // User ignore_menu for the case we are scrolling the program
-    // view, and don't want to be effected by the menu.
-    if (flags.f.prgm_mode && (key == KEY_UP || key == KEY_DOWN)
-	    && (shift || ignore_menu || get_front_menu() == NULL)) {
-	/* Stepping through the program in prgm mode */
-	if (flags.f.prgm_mode && mode_alpha_entry)
-	    finish_alpha_prgm_line();
-	clear_all_rtns();
-	/* bst and sst assume 2 line display, so we use tmpline to work around this */
-	int tmpline = prgm_highlight_row;
-	if (key == KEY_UP) {
-            tmpline--;
-	    bst();
-        } else {
-            tmpline++;
-	    sst();
-	}
-	if (dispRows > 2) {
-	    prgm_highlight_row = tmpline;
-	    if (pc == -1)
-		prgm_highlight_row = 0;
-	}		     
-	redisplay();
-	return;
-    }
-#else
     if (flags.f.prgm_mode && (key == KEY_UP || key == KEY_DOWN)
 	    && (shift || get_front_menu() == NULL)) {
 	/* Stepping through the program in prgm mode */
@@ -339,7 +257,6 @@ void keydown(int shift, int key) {
 	redisplay();
 	return;
     }    
-#endif
     
     if (!flags.f.prgm_mode && key == KEY_UP
 	    && (shift || get_front_menu() == NULL)) {
@@ -366,12 +283,6 @@ void keydown(int shift, int key) {
 	keydown_alpha_mode(shift, key);
     else
 	keydown_normal_mode(shift, key);
-
-#if BIGSTACK	
-	// Used to track the last commnd to implement drop on the second
-	// click of KEY_BSP
-    last_pending_command = pending_command;
-#endif
 }
 
 void keydown_number_entry(int shift, int key) {
@@ -401,16 +312,7 @@ void keydown_number_entry(int shift, int key) {
 	mode_number_entry = false;
 	if (flags.f.prgm_mode) {
 	    pc = line2pc(pc2line(pc) - 1);
-#ifdef BIGLCD	    
-	    if (dispRows > 2) {
-		prgm_highlight_row--;
-		if (prgm_highlight_row < 0) prgm_highlight_row = 0;
-	    }
-	    else
-		prgm_highlight_row = 0;
-#else
 	    prgm_highlight_row = 0;
-#endif
 	    redisplay();
 	    return;
 	} else {
@@ -467,16 +369,7 @@ void keydown_number_entry(int shift, int key) {
 		    if (flags.f.prgm_mode) {
 			mode_number_entry = false;
 			pc = line2pc(pc2line(pc) - 1);
-#ifdef BIGLCD			
-			if (dispRows > 2) {
-			    prgm_highlight_row--;
-			    if (prgm_highlight_row < 0) prgm_highlight_row = 0;
-			}
-			else
 			    prgm_highlight_row = 0;
-#else
-			prgm_highlight_row = 0;
-#endif			
 			redisplay();
 			return;
 		    } else {
@@ -1758,16 +1651,7 @@ void keydown_alpha_mode(int shift, int key) {
 		    delete_command(pc);
 		    pc = line2pc(line - 1);
 		}
-#ifdef BIGLCD		
-		if (dispRows > 2) {
-		    prgm_highlight_row--;
-		    if (prgm_highlight_row < 0) prgm_highlight_row = 0;
-		}
-		else
 		    prgm_highlight_row = 0;
-#else
-		prgm_highlight_row = 0;
-#endif		
 		if (mode_alphamenu != MENU_ALPHA1
 			&& mode_alphamenu != MENU_ALPHA2)
 		    set_menu(MENULEVEL_ALPHA, menus[mode_alphamenu].parent);
@@ -1890,58 +1774,22 @@ void keydown_normal_mode(int shift, int key) {
 	if (deferred_print)
 	    print_command(CMD_NULL, NULL);
 	cmdline_length = 0;
-#ifdef BIGLCD	
-	if (get_front_menu() != NULL && ! menuKeys)
-	    cmdline_row = dispRows - 2;
-	else
-	    cmdline_row = dispRows - 1;
-#else
 	if (get_front_menu() != NULL)
 	    cmdline_row = 0;
 	else
 	    cmdline_row = 1;
-#endif	
 	mode_number_entry = true;
 	if (flags.f.prgm_mode) {
 	    if (pc == -1)
 		pc = 0;
 	    else if (prgms[current_prgm].text[pc] != CMD_END)
 		pc += get_command_length(current_prgm, pc);
-#ifdef BIGLCD	    
-	    if (dispRows == 2) {		   
 		prgm_highlight_row = 1;
 		if (cmdline_row == 1)
 		    display_prgm_line(0, -1);
-	    } else /* large display */{
-			prgm_highlight_row = get_next_highlight_row();
-			int r = 0;			
-			int l = 0;
-			int lineOffset = 0;
-			while (r <= cmdline_row) {
-			  if (r != prgm_highlight_row) {
-			      large_display_prgm_line(r, l-prgm_highlight_row, lineOffset, false);
-			      l++;  
-			  }
-			  else lineOffset = 1;
-			  r++;
-			}
-			cmdline_row = prgm_highlight_row;
-		}
-#else
-	    prgm_highlight_row = 1;
-	    if (cmdline_row == 1)
-		display_prgm_line(0, -1);
-#endif	    
 	} else {
 	    if (!flags.f.stack_lift_disable) {
-#ifdef BIGSTACK
-                if (flags.f.f32)
-                    shift_big_stack_up();
-                else
-                    free_vartype(reg_t);
-#else
 		free_vartype(reg_t);
-#endif
 		reg_t = reg_z;
 		reg_z = reg_y;
 		reg_y = dup_vartype(reg_x);
@@ -1949,22 +1797,9 @@ void keydown_normal_mode(int shift, int key) {
 		flags.f.stack_lift_disable = 0;
 	    flags.f.numeric_data_input = 1;
 	    mode_varmenu = false;
-#ifdef BIGLCD	    
-	    if (cmdline_row == dispRows - 1)
-            {
-                int row = 0;
-				if (dispRows > 5) display_1(row++);
-				if (dispRows > 4) display_0(row++);
-				if (dispRows > 3) display_t(row++);
-                if (dispRows > 2) display_z(row++);
-				display_y(row);
-            }
-            else
-#else
 	    if (cmdline_row == 1)
 		display_y(0);
 	    else
-#endif		
 		/* Force repaint of menu; it could be hidden due to a recent
 		 * two-line AVIEW command */
 		redisplay();
@@ -1981,22 +1816,7 @@ void keydown_normal_mode(int shift, int key) {
 		|| prgms[current_prgm].text[pc] != CMD_END)
 	    delete_command(pc);
 	pc = line2pc(line - 1);
-#ifdef BIGLCD	
-	if (dispRows > 2) {
-		int availRows = dispRows;
-		if (core_menu() && !menuKeys) availRows--;
-		int line = pc2line(pc);
-		if (line < prgm_highlight_row) {
-			prgm_highlight_row--;
-		}	
-		
-	    if (prgm_highlight_row < 0) prgm_highlight_row = 0;
-	}
-	else
-	    prgm_highlight_row = 0;
-#else
 	prgm_highlight_row = 0;
-#endif	
 	redisplay();
 	return;
     }
@@ -2501,11 +2321,7 @@ void keydown_normal_mode(int shift, int key) {
 	    case KEY_ENTER: command = CMD_ENTER; break;
 	    case KEY_SWAP: command = CMD_SWAP; break;
 	    case KEY_CHS: command = basekeys() ? CMD_BASECHS : CMD_CHS; break;
-#ifdef BIGSTACK			
-	    case KEY_BSP: command = CMD_CLX; if (last_pending_command == CMD_CLX) command = CMD_DROP; break;
-#else			
 	    case KEY_BSP: command = CMD_CLX; break;
-#endif			
 	    case KEY_DIV: command = basekeys() ? CMD_BASEDIV : CMD_DIV; break;
 	    case KEY_DOWN: command = CMD_SST; break;
 	    case KEY_MUL: command = basekeys() ? CMD_BASEMUL : CMD_MUL; break;

@@ -347,9 +347,6 @@ static const command_spec cmd_array[] =
     { /* MIN */         "[MIN]",                5, docmd_min,         0x0000a6ea, ARG_NONE,  FLAG_NONE },
     { /* FIND */        "[FIND]",               6, docmd_find,        0x0000a6ec, ARG_NONE,  FLAG_NONE },
     { /* XROM */        "XROM",                 4, docmd_xrom,        0x01000000, ARG_OTHER, FLAG_HIDDEN }
-#ifdef BIGSTACK
-   ,{ /* DROP */        "DROP",                 4, docmd_drop,        0x0000a271, ARG_NONE,  FLAG_NONE }
-#endif    
 };
 
 /*

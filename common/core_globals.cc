@@ -241,22 +241,14 @@ menu_spec menus[] = {
 			{ 0x2000 + CMD_ALL,      0, "" },
 			{ 0x2000 + CMD_RDXDOT,   0, "" },
 			{ 0x2000 + CMD_RDXCOMMA, 0, "" } } },
-#ifdef BIGSTACK
-    { /* MENU_CLEAR1 */ MENU_NONE, MENU_CLEAR2, MENU_CLEAR3,
-#else
     { /* MENU_CLEAR1 */ MENU_NONE, MENU_CLEAR2, MENU_CLEAR2,
-#endif
 		      { { 0x1000 + CMD_CLSIGMA, 0, "" },
 			{ 0x1000 + CMD_CLP,     0, "" },
 			{ 0x1000 + CMD_CLV,     0, "" },
 			{ 0x1000 + CMD_CLST,    0, "" },
 			{ 0x1000 + CMD_CLA,     0, "" },
 			{ 0x1000 + CMD_CLX,     0, "" } } },
-#ifdef BIGSTACK      
-    { /* MENU_CLEAR2 */ MENU_NONE, MENU_CLEAR3, MENU_CLEAR1,
-#else
     { /* MENU_CLEAR2 */ MENU_NONE, MENU_CLEAR1, MENU_CLEAR1,
-#endif      
 		      { { 0x1000 + CMD_CLRG,   0, "" },
 			{ 0x1000 + CMD_DEL,    0, "" },
 			{ 0x1000 + CMD_CLKEYS, 0, "" },
@@ -521,16 +513,7 @@ menu_spec menus[] = {
 			{ 0,                 3, "ACC"  },
 			{ 0x1000 + CMD_NULL, 0, ""     },
 			{ 0x1000 + CMD_NULL, 0, ""     },
-			{ 0,                 1, "\003" } } },
-#ifdef BIGSTACK
-    { /* MENU_CLEAR3 */ MENU_NONE, MENU_CLEAR1, MENU_CLEAR2,
-		      { { 0x1000 + CMD_DROP, 0, "" },
-			{ 0x1000 + CMD_NULL, 0, "" },
-			{ 0x1000 + CMD_NULL, 0, "" },
-			{ 0x1000 + CMD_NULL, 0, "" },
-			{ 0x1000 + CMD_NULL, 0, "" },
-			{ 0x1000 + CMD_NULL, 0, "" } } },
-#endif
+			{ 0,                 1, "\003" } } }
 };
 
 
@@ -599,16 +582,6 @@ bool mode_varmenu;
 bool mode_updown;
 int4 mode_sigma_reg;
 int mode_goose;
-
-#if BIGSTACK
-stack_item *bigstack_head = NULL;
-/* True if we are currently operating with the extended stack */
-bool mode_rpl_enter = false;
-int stacksize = 4;  /* stack size is always at least 4 */
-int last_pending_command = CMD_NONE;
-#endif
-
-bool cllcd_cmd = false;
 
 phloat entered_number;
 int entered_string_length;
@@ -1102,9 +1075,7 @@ static bool persist_globals() {
     array_list_capacity = 0;
     array_list = NULL;
     bool ret = false;
-#if BIGSTACK
-    stack_item *si = bigstack_head;
-#endif	
+
     if (!persist_vartype(reg_x))
 	goto done;
     if (!persist_vartype(reg_y))
@@ -1115,22 +1086,8 @@ static bool persist_globals() {
 	goto done;
     if (!persist_vartype(reg_lastx))
 	goto done;
-#if BIGSTACK
-    if (!write_bool(true)) /* Yes, big stack block exists */
-	goto done;
-    if (!write_int(stacksize))
-	goto done;
-    while (si != NULL) {
-	if (!persist_vartype(si->var))
-	    goto done;
-	si = si->next;
-    }
-    if (!write_bool(mode_rpl_enter))
-	goto done;	
-#else
     if (!write_bool(false))  /* No, big stack block does not exist */
 	goto done;    
-#endif    
     if (!write_int(reg_alpha_length))
 	goto done;
     if (!shell_write_saved_state(reg_alpha, 44))
@@ -1196,7 +1153,6 @@ static bool unpersist_globals(int4 ver) {
     array_list_capacity = 0;
     array_list = NULL;
     bool ret = false;
-    bool bigstack = false;
 
     free_vartype(reg_x);
     if (!unpersist_vartype(&reg_x))
@@ -1215,42 +1171,12 @@ static bool unpersist_globals(int4 ver) {
 	goto done;
 
     if (ver >= 12) {
-	/* we are on atleast version 12, so this block exists */
+	/* BIGSTACK -- iphone only; no longer used in Free42 proper */
+	bool bigstack;
 	if (!read_bool(&bigstack))
 	    goto done;
     }    
-#ifdef BIGSTACK
-    if (bigstack)
-    {	
-	stacksize = 20; /* backward compatible pre version 13 big stack */
     
-	if (ver >= 13) {
-	    if (!read_int(&stacksize))
-		goto done;
-	    while(bigstack_head != NULL)
-	    {		
-		shift_big_stack_down();
-		free_vartype(reg_t);
-	    }	    
-	}
-	int i = stacksize - 4;
-	stack_item *lastsi = NULL;
-	while (i-- > 0) {
-	    vartype *v = NULL;
-	    if (!unpersist_vartype(&v))
-		goto done;	    
-	    stack_item *si = new_stack_item(v);
-	    si->next = NULL;
-	    if (lastsi == NULL)
-		bigstack_head = si;
-	    else 
-		lastsi->next = si;
-	    lastsi = si;
-	}
-	if (!read_bool(&mode_rpl_enter))
-	    goto done;
-    }
-#endif
     if (!read_int(&reg_alpha_length)) {
 	reg_alpha_length = 0;
 	goto done;
@@ -2493,13 +2419,6 @@ void hard_reset(int bad_state_file) {
     free_vartype(reg_y);
     free_vartype(reg_z);
     free_vartype(reg_t);
-#ifdef BIGSTACK
-    while(bigstack_head != NULL)
-    {
-		shift_big_stack_down();
-		free_vartype(reg_t);
-    }	
-#endif
     free_vartype(reg_lastx);
     reg_x = new_real(0);
     reg_y = new_real(0);
@@ -2945,111 +2864,3 @@ static bool convert_programs() {
 
     return true;
 }
-
-#ifdef BIGSTACK
-
-static stack_item* stack_item_pool = NULL;
-static int MAX_STACK_SIZE = 40;
-
-stack_item* new_stack_item(vartype* v) {
-    stack_item* si = NULL;
-    if (stack_item_pool == NULL)
-	si = (stack_item*)malloc(sizeof(stack_item));
-    else {	
-	si = stack_item_pool;
-	stack_item_pool = si->next;
-    }
-    si->var = v;
-    si->next = NULL;
-    return si;
-}
-
-void free_stack_item(stack_item* si) {
-    si->next = stack_item_pool;	
-    stack_item_pool = si;    
-	si->var = NULL;
-}
-
-/* Debug method to verify the integrity of the stack */
-int big_stack_verify() {
-	stack_item *si = bigstack_head;
-	int size = 0;
-	while (si != NULL) {
-	    si = si->next;
-	    size++;
-	    /* If size is crazy big then we are probably in an infinite loop. */
-	    if (size > MAX_STACK_SIZE*10) {
-		return 1;
-	    }
-	}
-	if (size > 0 && size + 4 != stacksize) {
-	    return 2;
-	}
-	if (stacksize > MAX_STACK_SIZE)  {
-	    return 3;
-	}
-	if (stacksize < 3) {
-	    return 5;
-	}
-	
-	return 0;
-}
-
-void shift_big_stack_up() {
-    stacksize++;
-    if (stacksize > 4) {
-	stack_item* si = new_stack_item(reg_t);
-	si->next = bigstack_head;
-	bigstack_head = si;
-	
-	if (stacksize > MAX_STACK_SIZE) {
-	    /* Stack has grown too big, so remove last element, not
-	       the most efficient method, but well behaving programs
-	       should not trash the stack either */
-	    si = bigstack_head;
-	    while (si->next->next != NULL)
-		si = si->next;
-		free_vartype(si->next->var);
-	    free_stack_item(si->next);
-	    si->next = NULL;
-	    stacksize--;
-	    assert(stacksize == MAX_STACK_SIZE);
-	}	
-    }
-    else {
-	if (stacksize == 4 && reg_z->type == TYPE_REAL && ((vartype_real*)reg_z)->x == 0)
-	    stacksize --;
-	assert(stacksize == 3 || stacksize == 4);
-	/* We can't move reg_t into the extended stack so we free it
-	   here, calling code depends on this behavior */
-	free_vartype(reg_t);
-    }
-    assert(big_stack_verify() == 0);    
-}
-
-void shift_big_stack_down() {
-    stacksize--;
-    if (bigstack_head == NULL) {
-	reg_t = new_real(0);
-	if (stacksize < 3) stacksize = 3;
-    }
-    else {
-	assert(stacksize >= 4);
-	reg_t = bigstack_head->var;
-	stack_item* si = bigstack_head;
-	bigstack_head = si->next;
-	free_stack_item(si);
-    }
-    assert(big_stack_verify() == 0);
-}
-
-void clean_stack_item_pool() {
-    while (stack_item_pool != NULL)
-    {
-	stack_item *si = stack_item_pool;
-	stack_item_pool = stack_item_pool->next;
-	free(si);
-    }    
-}
-#endif
-

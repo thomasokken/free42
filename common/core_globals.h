@@ -183,10 +183,6 @@ extern error_spec errors[];
 #define MENU_INTEG         62
 #define MENU_INTEG_PARAMS  63
 
-#ifdef BIGSTACK
-#define MENU_CLEAR3        64
-#endif
-
 
 typedef struct {
     int menuid;
@@ -264,26 +260,6 @@ typedef struct {
     int length;
     char text[6];
 } vartype_string;
-
-#ifdef BIGSTACK
-
-struct stack_item_struct {
-    vartype* var;
-    struct stack_item_struct* next;
-};
-typedef struct stack_item_struct stack_item;
-extern stack_item* bigstack_head;
-
-/* used to test double tap of BSP for drop command */
-extern int last_pending_command;
-
-stack_item* new_stack_item(vartype* v) GLOBALS_SECT;
-void free_stack_item(stack_item* si) GLOBALS_SECT;
-void shift_big_stack_up() GLOBALS_SECT;
-void shift_big_stack_down() GLOBALS_SECT;
-void clean_stack_item_pool() GLOBALS_SECT;
-int big_stack_verify() GLOBALS_SECT;
-#endif
 
 /******************/
 /* Emulator state */
@@ -451,14 +427,6 @@ extern bool mode_varmenu;
 extern bool mode_updown;
 extern int4 mode_sigma_reg;
 extern int mode_goose;
-#if BIGSTACK
-extern bool mode_rpl_enter; // This is not being used at this point,
-			    // uses flags.f.f32 now.
-extern int stacksize;
-#endif
-
-// Indicates if we are currently executing the cllcd command
-extern bool cllcd_cmd;
 
 extern phloat entered_number;
 extern int entered_string_length;

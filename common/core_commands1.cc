@@ -43,22 +43,11 @@ int docmd_enter(arg_struct *arg) {
     vartype *v = dup_vartype(reg_x);
     if (v == NULL)
 	return ERR_INSUFFICIENT_MEMORY;
-#ifdef BIGSTACK
-    if (flags.f.f32)
-    {
-	shift_big_stack_up();
-    }
-    else
-	free_vartype(reg_t);
-    // Stack lift is always disabled when running programs, legacy behavior.
-    mode_disable_stack_lift = mode_running || !mode_rpl_enter;
-#else
     free_vartype(reg_t);
-    mode_disable_stack_lift = true;
-#endif
     reg_t = reg_z;
     reg_z = reg_y;
     reg_y = v;
+    mode_disable_stack_lift = true;
     return ERR_NONE;
 }
 
@@ -71,55 +60,12 @@ int docmd_swap(arg_struct *arg) {
     return ERR_NONE;
 }
 
-#ifdef BIGSTACK
-int docmd_drop(arg_struct *arg)
-{
-    free_vartype(reg_x);
-    reg_x = reg_y;
-    reg_y = reg_z;
-    reg_z = reg_t;
-    if (flags.f.f32)
-	shift_big_stack_down();
-    else
-	reg_t = dup_vartype(reg_t);
-    return ERR_NONE;
-}
-#endif	
-
 int docmd_rdn(arg_struct *arg) {
     vartype *temp = reg_x;
     reg_x = reg_y;
     reg_y = reg_z;
-#ifdef BIGSTACK
-    assert(big_stack_verify() == 0);
-    if (flags.f.f32 && stacksize > 4) {
-	reg_z = reg_t;
-	stack_item *si = bigstack_head;
-	reg_t = si->var;
-	while(si->next != NULL)
-	    si = si->next;
-	si->next = new_stack_item(temp);
-	si->next->next = NULL;
-	si = bigstack_head;
-	bigstack_head = bigstack_head->next;
-	free_stack_item(si);
-    }
-    else {	
-	assert(flags.f.f32 && bigstack_head == NULL || !flags.f.f32);
-	if (!flags.f.f32 || stacksize == 4) {
-	    reg_z = reg_t;
-	    reg_t = temp;
-	}
-	else {
-	    assert(stacksize == 3);
-	    reg_z = temp;
-	}
-    }
-    assert(big_stack_verify() == 0);
-#else
     reg_z = reg_t;
     reg_t = temp;
-#endif
     if (flags.f.trace_print && flags.f.printer_exists)
 	docmd_prx(NULL);
     return ERR_NONE;
@@ -237,17 +183,7 @@ int docmd_complex(arg_struct *arg) {
 	    reg_x = v;
 	    free_vartype(reg_y);
 	    reg_y = reg_z;
-#ifdef BIGSTACK
-	    if (flags.f.f32)
-	    {
-		reg_z = reg_t;
-		shift_big_stack_down();
-	    }
-	    else
-		reg_z = dup_vartype(reg_t);
-#else
 	    reg_z = dup_vartype(reg_t);
-#endif
 	    break;
 	}
 	case TYPE_COMPLEX: {
@@ -260,14 +196,7 @@ int docmd_complex(arg_struct *arg) {
 	    }
 	    free_vartype(reg_lastx);
 	    reg_lastx = reg_x;
-#ifdef BIGSTACK
-	    if (flags.f.f32)
-		shift_big_stack_up();
-	    else
-		free_vartype(reg_t);
-#else
 	    free_vartype(reg_t);
-#endif
 	    reg_t = reg_z;
 	    reg_z = reg_y;
 	    if (flags.f.polar) {
@@ -330,17 +259,7 @@ int docmd_complex(arg_struct *arg) {
 		reg_lastx = reg_x;
 		free_vartype(reg_y);
 		reg_y = reg_z;
-#ifdef BIGSTACK
-		if (flags.f.f32)
-		{
-		    reg_z = reg_t;
-		    shift_big_stack_down();
-		}
-		else
-		    reg_z = dup_vartype(reg_t);
-#else
 		reg_z = dup_vartype(reg_t);
-#endif
 		reg_x = (vartype *) cm;
 		break;
 	    }
@@ -380,14 +299,7 @@ int docmd_complex(arg_struct *arg) {
 	    }
 	    free_vartype(reg_lastx);
 	    reg_lastx = reg_x;
-#ifdef BIGSTACK
-	    if (flags.f.f32)
-		shift_big_stack_up();
-	    else
-		free_vartype(reg_t);
-#else
 	    free_vartype(reg_t);
-#endif
 	    reg_t = reg_z;
 	    reg_z = reg_y;
 	    reg_y = (vartype *) re_m;
@@ -772,18 +684,6 @@ int docmd_clst(arg_struct *arg) {
     free_vartype(reg_y);
     free_vartype(reg_z);
     free_vartype(reg_t);
-#ifdef BIGSTACK
-	if (flags.f.f32)
-	{
-	    while(bigstack_head != NULL)
-	    {		
-		shift_big_stack_down();
-		free_vartype(reg_t);
-	    }	    
-	    stacksize = 3;
-	}
-	assert(big_stack_verify() == 0);
-#endif
     reg_x = new_real(0);
     reg_y = new_real(0);
     reg_z = new_real(0);
@@ -840,8 +740,8 @@ int docmd_clkeys(arg_struct *arg) {
 int docmd_cllcd(arg_struct *arg) {
     clear_display();
     flush_display();
-	// Indicate to redisplay() not to draw anything.
-	cllcd_cmd = true;
+    flags.f.message = 1;
+    flags.f.two_line_message = 1;
     return ERR_NONE;
 }
 
@@ -858,14 +758,6 @@ int docmd_clall(arg_struct *arg) {
     free_vartype(reg_y);
     free_vartype(reg_z);
     free_vartype(reg_t);
-#ifdef BIGSTACK
-    while(bigstack_head != NULL)
-    {
-	shift_big_stack_down();
-	free_vartype(reg_t);
-    }
-    stacksize = 3;
-#endif
     free_vartype(reg_lastx);
     reg_x = new_real(0);
     reg_y = new_real(0);

@@ -191,7 +191,8 @@ double log10(double x) PHLOAT_SECT;
  * Version  9: 1.4    decimal version; removed IP Hack
  * Version 10: 1.4.16 persistent shared matrices
  * Version 11: 1.4.44 "Auto-Repeat" option
- * Version 12: 1.4.52 BIGSTACK; new BCDFloat format (Inf and NaN flags)
+ * Version 12: 1.4.52 BIGSTACK (iphone only);
+ *                    new BCDFloat format (Inf and NaN flags)
  * 
  *  ========== NOTE: BCD20 Upgrade in Free42 1.4.52 ==========
  *  In version 1.4.52, I upgraded to a new version of BCD20, without realizing
@@ -210,9 +211,10 @@ double log10(double x) PHLOAT_SECT;
  *  corrupted, and the only way to be safe is to do CLALL and reload all
  *  programs and data in that case.
  *
- * Version 13: 1.4.55 Dynamically sized BIGSTACK
+ * Version 13: 1.4.55 Dynamically sized BIGSTACK (iphone only)
  */
 #define FREE42_MAGIC 0x466b3432
 #define FREE42_VERSION 13
+
 
 #endif
