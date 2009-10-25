@@ -1,6 +1,4 @@
-The new BCD20 code doesn't handle NaN correctly in number comparisons.
-Comparisons involving NaN should *always* return false, except for X!=Y?,
-which should *always* return true.
+The new BCD20 code doesn't seem to handle negative infinity.
 
 BCD20: LOG returns NaN for 1e-10000.
 
