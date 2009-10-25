@@ -120,10 +120,10 @@ struct BCDFloatData
 #define SET_EXP(_d, _p, _v) ((_d)[_p] = (_v) & EXPMASK)
 #define CLEAR_SIGN(_d, _p) ((_d)[_p] &= ~NEG)
 #define NEGATE_SIGN(_d, _p) ((_d)[_p] ^= NEG)
-#define GET_SPECIAL(_d, _p) ((_d)[_p]&0x6000)
-#define GET_NAN(_d, _p) ((_d)[_p]&NAN_EXP)
-#define GET_INF(_d, _p) ((_d)[_p]&0x2000)
-#define GET_NEG_BIT(_d, _p) ((_d)[_p]&NEG)
+#define GET_SPECIAL(_d, _p) (((_d)[_p]&0x6000) != 0)
+#define GET_NAN(_d, _p) (((_d)[_p]&NAN_EXP) != 0)
+#define GET_INF(_d, _p) (((_d)[_p]&0x2000) != 0)
+#define GET_NEG_BIT(_d, _p) (((_d)[_p]&NEG) != 0)
 
 // zero assuming normal (non-special)
 #define GET_ZERO_NORM(_d, _p) ((_d)[0] == 0)
@@ -287,13 +287,14 @@ struct BCDFloat: public BCDFloatData
     static bool         gt(const BCDFloat* a, const BCDFloat* b)
     {
         /* true iff a > b */
-        return bcd_cmp(a->d_, b->d_, P) > 0;
+        return bcd_cmp(a->d_, b->d_, P) == 1;
     }
 
     static bool         ge(const BCDFloat* a, const BCDFloat* b)
     {
         /* true iff a >= b */
-        return bcd_cmp(a->d_, b->d_, P) >= 0;
+        int res = bcd_cmp(a->d_, b->d_, P);
+	return res == 0 || res == 1;
     }
 
     static bool         equal(const BCDFloat* a, const BCDFloat* b)

@@ -162,13 +162,14 @@ struct BCDFloat2: public BCDFloatData2
     static bool         gt(const BCDFloat2* a, const BCDFloat2* b)
     {
         /* true iff a > b */
-        return bcd_cmp(a->d_, b->d_, P2) > 0;
+        return bcd_cmp(a->d_, b->d_, P2) == -1;
     }
 
     static bool         ge(const BCDFloat2* a, const BCDFloat2* b)
     {
         /* true iff a >= b */
-        return bcd_cmp(a->d_, b->d_, P2) >= 0;
+        int res = bcd_cmp(a->d_, b->d_, P2);
+	return res == 0 || res == 1;
     }
 
     static bool         equal(const BCDFloat2* a, const BCDFloat2* b)

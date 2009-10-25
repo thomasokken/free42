@@ -315,7 +315,7 @@ void bcd_add(const unsigned short* a,
              int pn)
 {
     int i;
-    if (GET_SPECIAL(a, pn) | GET_SPECIAL(b, pn))
+    if (GET_SPECIAL(a, pn) || GET_SPECIAL(b, pn))
     {
         for (i = 0; i < pn; ++i) c[i] = 0;
         c[pn] = NAN_EXP;
@@ -323,7 +323,7 @@ void bcd_add(const unsigned short* a,
         /* inf + inf = inf
          * -inf + (-inf) = -inf
          */
-        if (!(GET_NAN(a,pn) | GET_NAN(b,pn)))
+        if (!(GET_NAN(a,pn) || GET_NAN(b,pn)))
         {
             if (GET_INF(a,pn))
             {
@@ -374,14 +374,14 @@ void bcd_sub(const unsigned short* a,
              int pn)
 {
     int i;
-    if (GET_SPECIAL(a, pn) | GET_SPECIAL(b, pn))
+    if (GET_SPECIAL(a, pn) || GET_SPECIAL(b, pn))
     {
         for (i = 0; i < pn; ++i) c[i] = 0;
 
         /* all others -> nan */
         c[pn] = NAN_EXP;
             
-        if (!(GET_NAN(a,pn) | GET_NAN(b,pn)))
+        if (!(GET_NAN(a,pn) || GET_NAN(b,pn)))
         {
             if (GET_INF(a,pn))
             {
@@ -448,12 +448,12 @@ void bcd_mul(const unsigned short* a,
     int i;
     for (i = 0; i <= pn; ++i) c[i] = 0;
 
-    if (GET_SPECIAL(a,pn) | GET_SPECIAL(b,pn))
+    if (GET_SPECIAL(a,pn) || GET_SPECIAL(b,pn))
     {
         /* all others -> nan */
         c[pn] = NAN_EXP;
 
-        if (!(GET_NAN(a,pn) | GET_NAN(b,pn)))
+        if (!(GET_NAN(a,pn) || GET_NAN(b,pn)))
         {
             if ((GET_INF(a,pn) && (GET_INF(b,pn) || (!bz))) || !az)
             {
@@ -561,16 +561,16 @@ void bcd_div(const unsigned short* a,
     int nb = GET_NEG_BIT(b,pn) && !bz;
     int i;
 
-    if (as | bs | az | bz)
+    if (as || bs || az || bz)
     {
         for (i = 0; i < pn; ++i) c[i] = 0;
 
         /* all others -> nan */
         c[pn] = NAN_EXP;
 
-        if (!(GET_NAN(a,pn) | GET_NAN(b,pn)))
+        if (!(GET_NAN(a,pn) || GET_NAN(b,pn)))
         {
-            if (GET_INF(a,pn) | bz)
+            if (GET_INF(a,pn) || bz)
             {
                 // inf/inf -> nan
                 if (!GET_INF(b,pn) && !az)
@@ -580,7 +580,7 @@ void bcd_div(const unsigned short* a,
                     else c[pn] = NEG_INF_EXP;
                 }
             }
-            else if (GET_INF(b,pn) | az)
+            else if (GET_INF(b,pn) || az)
             { 
                 // x/inf -> 0
                 c[pn] = 0;
@@ -728,6 +728,15 @@ int bcd_cmp(const unsigned short* a,
             const unsigned short* b,
             int pn)
 {
+    if (GET_NAN(a,pn) || GET_NAN(b,pn))
+    {
+        // NaNs are not equal to anything, even themselves;
+        // ALL comparisions involving them should return 'false'
+        // (except '!=', which should return 'true').
+        // So, I return a special value here.
+        return 2;
+    }
+    
     // zero flags assuming not special
     int az = GET_ZERO_NORM(a,pn);
     int bz = GET_ZERO_NORM(b,pn);
@@ -739,15 +748,6 @@ int bcd_cmp(const unsigned short* a,
     if (na != nb)
         return na ? -1 : 1;
 
-    if (GET_NAN(a,pn) | GET_NAN(b,pn))
-    {
-        // NaNs are not equal to anything, even themselves;
-        // ALL comparisions involving them should return 'false'
-        // (except '!=', which should return 'true').
-        // So, I return a special value here.
-        return 2;
-    }
-    
     // If a and b are both negative, switch them. This way, I can
     // ignore signs in the remainder of this method.
     if (na) 
