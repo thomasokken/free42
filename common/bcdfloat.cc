@@ -1189,7 +1189,7 @@ void BCDFloat::_asString(char* buf, Format fmt, int precision) const
 #endif // !PALMOS
 
 
-static unsigned int isqrt(unsigned int v) BCD_SECT;
+static unsigned int isqrt(unsigned int v) BCD1_SECT;
 static unsigned int isqrt(unsigned int v)
 {
     /* integer root for x<= 9999 */

@@ -195,7 +195,7 @@ struct BCD
     static char         _buf[64];
 };
 
-BCD pow(const BCD& a, int4 n) BCD_SECT;
+BCD pow(const BCD& a, int4 n) BCD1_SECT;
 
 inline bool operator==(const BCDFloatData& a, const BCDFloatData& b)
 {
