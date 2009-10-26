@@ -1,5 +1,3 @@
-The new BCD20 code doesn't seem to handle negative infinity.
-
 BCD20: LOG returns NaN for 1e-10000.
 
 Do complete code review to see if we're using int4 instead of int where

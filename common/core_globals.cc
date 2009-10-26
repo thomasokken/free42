@@ -2829,11 +2829,8 @@ static bool convert_programs() {
 			for (j = 0; j < (int) sizeof(fake_bcd); j++)
 			    *b++ = prgm->text[pc++];
 			double dbl = bcd2double(bcd.d_, state_file_has_old_bcd);
-			int inf = isinf(dbl);
-			if (inf > 0)
-			    dbl = POS_HUGE_PHLOAT;
-			else if (inf < 0)
-			    dbl = NEG_HUGE_PHLOAT;
+			if (isinf(dbl))
+			    dbl = dbl > 0 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
 			else if (dbl == 0) {
 			    if (bcd.d_[0] != 0)
 				if ((bcd.d_[P] & 0x8000) == 0)

@@ -738,8 +738,8 @@ int bcd_cmp(const unsigned short* a,
     }
     
     // zero flags assuming not special
-    int az = GET_ZERO_NORM(a,pn);
-    int bz = GET_ZERO_NORM(b,pn);
+    int az = GET_ZERO_NORM(a,pn) && !GET_INF(a,pn);
+    int bz = GET_ZERO_NORM(b,pn) && !GET_INF(b,pn);
 
     // neg 
     int na = GET_NEG_BIT(a,pn) && !az;
@@ -987,12 +987,8 @@ BCDFloat::BCDFloat(double d) {
 	*this = BCDFloat::nan();
 	return;
     }
-    int inf = isinf(d);
-    if (inf > 0) {
-	*this = BCDFloat::posInf();
-	return;
-    } else if (inf < 0) {
-	*this = BCDFloat::negInf();
+    if (isinf(d)) {
+	*this = d > 0 ? BCDFloat::posInf() : BCDFloat::negInf();
 	return;
     }
 
