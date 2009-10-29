@@ -1,3 +1,8 @@
+Change the background image for the Mac OS X Dashboard version: change the
+color from that yucky green to #C0C0C0 grey, and change the opacity to totally
+opaque. Don't get rid of *all* opacity: it's still needed for the rounded
+corners.
+
 BCD20: LOG returns NaN for 1e-10000.
 
 Do complete code review to see if we're using int4 instead of int where
