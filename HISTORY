@@ -1,3 +1,8 @@
+??-??-????: release 1.4.59
+
+* MacDashboard version: changed the background from green to gray, and changed
+  the transparency to fully opaque.
+
 24-10-2009: release 1.4.58
 
 * Removed Byron's BIGSTACK and BIGLCD hacks; these will be maintained in a
