@@ -1991,6 +1991,9 @@ void keydown_normal_mode(int shift, int key) {
 				    redisplay();
 				    return;
 				}
+				pending_command = CMD_NONE;
+				do_interactive(cmd);
+				return;
 			    } else if (cmd == CMD_SST && flags.f.prgm_mode) {
 				sst();
 				pending_command = CMD_NONE;
