@@ -1,7 +1,11 @@
-??-??-????: release 1.4.59
+31-10-2009: release 1.4.59
 
 * MacDashboard version: changed the background from green to gray, and changed
   the transparency to fully opaque.
+* PalmOS Decimal version builds & works again; fixed the SQRT crash and the
+  divide bug (caused by 16-bit integer overflow, oops).
+* Decimal version: re-fixed the subtract bug which had originally been fixed in
+  1.4.53, but reappeared in the great BCDFloat/BCDFloat2 refactoring.
 
 24-10-2009: release 1.4.58
 

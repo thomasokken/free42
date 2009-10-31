@@ -196,6 +196,7 @@ struct BCD
 };
 
 BCD pow(const BCD& a, int4 n) BCD1_SECT;
+BCD sqrt(const BCD&) BCD1_SECT;
 
 inline bool operator==(const BCDFloatData& a, const BCDFloatData& b)
 {

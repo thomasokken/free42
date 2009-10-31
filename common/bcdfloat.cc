@@ -201,8 +201,12 @@ void bcd_usub(const unsigned short* a,
         /* first insignificant digit my be used for rounding */
         if (d > 0)
         {
-            v = BASE - b[j];
-            ca = 1;
+	    v = b[j];
+	    if (v)
+	    {
+		v = BASE - v;
+		ca = 1;
+	    }
         }
         c[pn] = v;
 
@@ -649,7 +653,7 @@ void bcd_div(const unsigned short* a,
             if (acc[0] == b1[0]) q = BASE-1;
             else 
             {
-                v = acc[0]*BASE + acc[1];
+                v = acc[0]*((int4)BASE) + acc[1];
                 q = v/b1[0];
                 while (b1[1]*q > ((v - q*b1[0])*BASE + acc[2])) --q;
             }
