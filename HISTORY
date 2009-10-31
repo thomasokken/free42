@@ -6,6 +6,7 @@
   divide bug (caused by 16-bit integer overflow, oops).
 * Decimal version: re-fixed the subtract bug which had originally been fixed in
   1.4.53, but reappeared in the great BCDFloat/BCDFloat2 refactoring.
+* Decimal version: 1e-10000 LOG and 1e-10000 LN returned <Not a Number>. Fixed.
 * CLV and PRV didn't work from the CUSTOM menu, potentially even causing a
   crash. Fixed.
 

@@ -1,5 +1,3 @@
-BCD20: LOG returns NaN for 1e-10000.
-
 In the iPhone version, add functions to query Location Services (GPS),
 accelerometer, and compass. This functionality should be optional, for perfect
 42S compatibility.

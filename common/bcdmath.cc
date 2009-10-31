@@ -676,6 +676,12 @@ static BCD _log(const BCD& v, int4& p10, int4& p2, bool& neg)
         // v in (0,1) map to (1,inf) and negate final answer
         a2 = BCD2(1)/v;
         neg = true;
+	if (a2.isInf()) {
+	    // This only happens if v = 1e-10000
+	    p10 = 10000;
+	    p2 = 0;
+	    return 0;
+	}
     }
     else 
         a2 = v;
