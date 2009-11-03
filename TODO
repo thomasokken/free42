@@ -35,6 +35,9 @@ PalmOS version: the application icon does not seem to have a proper mask.
 When the Z22's launcher highlights it, the whole icon disappears.
 Noticed this with Free42, Life, Filez...
 
+PalmOS version: turning off spooling to GIF appears not to flush the file, so
+you end up with a truncated GIF file.
+
 Make '\' act as R/S even in ALPHA mode. R/S is important, and the backslash is
 not, in the HP-42S part of the universe, anyway.
 
