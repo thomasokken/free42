@@ -44,20 +44,6 @@ not, in the HP-42S part of the universe, anyway.
 PalmOS version: add explanation to README.txt about skins -- why they won't
 work off an SD card, how to install them properly, yada yada yada.
 
-Decimal version: SQRT(2) returns 1.414213562373095048801688, should be
-1.414213562373095048801689. Apparently, BCDFloat::sqrt() simply stops after
-computing P digits of the result, rather than computing one extra and then
-rounding (only needed if the most significant base-10000 digit of the result is
-between 1 and 9, of course).
-I haven't investigated yet if it is possible to fix this by simply going
-through the digit loop one extra time -- it is possible that this will cause
-problems if the precision in the temporaries is exhausted.
-I should probably bring this to Hugh Steers' attention; if it can't be fixed
-easily, then possible solutions will probably involve using the new
-higher-precision BCDDouble type for temporaries; this also opens up the
-possibility of using Newton's method, which might be faster than the 'long
-division' algorithm.
-
 SOLVE: detect more sign reversals (not just the ones where the sign reversal
 brackets a domain error). This isn't strictly a bug, since it is mathematically
 impossible to reliably tell poles from zeroes (the real HP-42S doesn't always

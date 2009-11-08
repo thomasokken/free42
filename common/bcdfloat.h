@@ -120,16 +120,22 @@ struct BCDFloatData
 #define SET_EXP(_d, _p, _v) ((_d)[_p] = (_v) & EXPMASK)
 #define CLEAR_SIGN(_d, _p) ((_d)[_p] &= ~NEG)
 #define NEGATE_SIGN(_d, _p) ((_d)[_p] ^= NEG)
-#define GET_SPECIAL(_d, _p) (((_d)[_p]&0x6000) != 0)
-#define GET_NAN(_d, _p) (((_d)[_p]&NAN_EXP) != 0)
-#define GET_INF(_d, _p) (((_d)[_p]&0x2000) != 0)
-#define GET_NEG_BIT(_d, _p) (((_d)[_p]&NEG) != 0)
+#define GET_SPECIAL(_d, _p) ((_d)[_p]&0x6000)
+#define GET_NAN(_d, _p) ((_d)[_p]&NAN_EXP)
+#define GET_INF(_d, _p) ((_d)[_p]&0x2000)
+#define GET_NEG_BIT(_d, _p) ((_d)[_p]&NEG)
 
 // zero assuming normal (non-special)
 #define GET_ZERO_NORM(_d, _p) ((_d)[0] == 0)
 
+// is zero generally
+#define IS_ZERO(_d, _p)  \
+    (GET_ZERO_NORM(_d, _p) && GET_SPECIAL(_d, _p) == 0)
+
 // negative assuming non-special
 #define GET_NEG_NORM(_d, _p) (GET_NEG_BIT(_d, _p) && !GET_ZERO_NORM(_d,_p))
+
+
 
 int bcd_round(unsigned short* d, int pn) BCD1_SECT;
 int bcd_round25(unsigned short* d, int pn) BCD1_SECT;
@@ -236,9 +242,7 @@ struct BCDFloat: public BCDFloatData
     void                clearSign() { CLEAR_SIGN(d_, P); }
     void                negate() { NEGATE_SIGN(d_, P); }
     bool                isSpecial() const { return GET_SPECIAL(d_,P) != 0; } 
-
-    bool                isZero() const
-                        { return d_[0] == 0 && !isSpecial(); }
+    bool                isZero() const { return IS_ZERO(d_, P); }
 
     bool                isNan() const { return GET_NAN(d_,P) != 0; }
     bool                isInf() const { return GET_INF(d_,P) != 0; }

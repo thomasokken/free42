@@ -201,12 +201,12 @@ void bcd_usub(const unsigned short* a,
         /* first insignificant digit my be used for rounding */
         if (d > 0)
         {
-	    v = b[j];
-	    if (v)
-	    {
-		v = BASE - v;
-		ca = 1;
-	    }
+            v = b[j];
+            if (v)
+            {
+                v = BASE - v;
+                ca = 1;
+            }
         }
         c[pn] = v;
 
@@ -319,7 +319,7 @@ void bcd_add(const unsigned short* a,
              int pn)
 {
     int i;
-    if (GET_SPECIAL(a, pn) || GET_SPECIAL(b, pn))
+    if (GET_SPECIAL(a, pn) | GET_SPECIAL(b, pn))
     {
         for (i = 0; i < pn; ++i) c[i] = 0;
         c[pn] = NAN_EXP;
@@ -327,7 +327,7 @@ void bcd_add(const unsigned short* a,
         /* inf + inf = inf
          * -inf + (-inf) = -inf
          */
-        if (!(GET_NAN(a,pn) || GET_NAN(b,pn)))
+        if (!(GET_NAN(a,pn) | GET_NAN(b,pn)))
         {
             if (GET_INF(a,pn))
             {
@@ -346,14 +346,24 @@ void bcd_add(const unsigned short* a,
     }
     else
     {
+        if (GET_ZERO_NORM(a, pn))
+        {
+            for (i = 0; i <= pn; ++i) c[i] = b[i];
+            return;
+        }
+        if (GET_ZERO_NORM(b,pn))
+        {
+            for (i = 0; i <= pn; ++i) c[i] = a[i];
+            return;
+        }
+
         int ea = GET_EXP(a,pn);
         int eb = GET_EXP(b,pn);
 
         bool na = GET_NEG_NORM(a,pn);
         bool nb = GET_NEG_NORM(b,pn);
-        bool sub = na != nb;
 
-        if (sub) 
+        if (na != nb) // sub
         {
             if (ea >= eb) 
                 bcd_usub(a, b, c, pn);
@@ -378,14 +388,14 @@ void bcd_sub(const unsigned short* a,
              int pn)
 {
     int i;
-    if (GET_SPECIAL(a, pn) || GET_SPECIAL(b, pn))
+    if (GET_SPECIAL(a, pn) | GET_SPECIAL(b, pn))
     {
         for (i = 0; i < pn; ++i) c[i] = 0;
 
         /* all others -> nan */
         c[pn] = NAN_EXP;
             
-        if (!(GET_NAN(a,pn) || GET_NAN(b,pn)))
+        if (!(GET_NAN(a,pn) | GET_NAN(b,pn)))
         {
             if (GET_INF(a,pn))
             {
@@ -406,14 +416,26 @@ void bcd_sub(const unsigned short* a,
     }
     else
     {
+        if (GET_ZERO_NORM(a, pn))
+        {
+            for (i = 0; i <= pn; ++i) c[i] = b[i];
+            NEGATE_SIGN(c,pn);
+            return;
+        }
+
+        if (GET_ZERO_NORM(b,pn))
+        {
+            for (i = 0; i <= pn; ++i) c[i] = a[i];
+            return;
+        }
+
         bool na = GET_NEG_NORM(a,pn);
         bool nb = GET_NEG_NORM(b,pn);
-        bool sub = (na == nb);
 
         int ea = GET_EXP(a,pn);
         int eb = GET_EXP(b,pn);
 
-        if (sub) 
+        if (na == nb) // sub
         {
             if (ea >= eb) 
             {
@@ -452,12 +474,12 @@ void bcd_mul(const unsigned short* a,
     int i;
     for (i = 0; i <= pn; ++i) c[i] = 0;
 
-    if (GET_SPECIAL(a,pn) || GET_SPECIAL(b,pn))
+    if (GET_SPECIAL(a,pn) | GET_SPECIAL(b,pn))
     {
         /* all others -> nan */
         c[pn] = NAN_EXP;
 
-        if (!(GET_NAN(a,pn) || GET_NAN(b,pn)))
+        if (!(GET_NAN(a,pn) | GET_NAN(b,pn)))
         {
             if ((GET_INF(a,pn) && (GET_INF(b,pn) || (!bz))) || !az)
             {
@@ -565,16 +587,16 @@ void bcd_div(const unsigned short* a,
     int nb = GET_NEG_BIT(b,pn) && !bz;
     int i;
 
-    if (as || bs || az || bz)
+    if (as | bs | az | bz)
     {
         for (i = 0; i < pn; ++i) c[i] = 0;
 
         /* all others -> nan */
         c[pn] = NAN_EXP;
 
-        if (!(GET_NAN(a,pn) || GET_NAN(b,pn)))
+        if (!(GET_NAN(a,pn) | GET_NAN(b,pn)))
         {
-            if (GET_INF(a,pn) || bz)
+            if (GET_INF(a,pn) | bz)
             {
                 // inf/inf -> nan
                 if (!GET_INF(b,pn) && !az)
@@ -584,7 +606,7 @@ void bcd_div(const unsigned short* a,
                     else c[pn] = NEG_INF_EXP;
                 }
             }
-            else if (GET_INF(b,pn) || az)
+            else if (GET_INF(b,pn) | az)
             { 
                 // x/inf -> 0
                 c[pn] = 0;
@@ -1204,24 +1226,26 @@ static unsigned int isqrt(unsigned int v)
 
 bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
 {
-    if (a->neg()) return false;
+    if (a->neg() || a->isNan()) return false;
     if (a->isInf()) 
     {
         *r = *a;  // sqrt(inf) = inf
         return true;
     }
-    if (a->isNan()) return false;
 
-    BCDFloat acc;
-    BCDFloat t;
     int rs;
-    int as;
-    int ts;
     int4 v;
     int rodd;
     int4 q;
 
-    BCDFloat u;
+    // acc, t and u get one more digit of workspace.
+    unsigned short acc[P+2];
+    int as;    
+
+    unsigned short t[P+2];
+    int ts;
+
+    unsigned short u[P+2];
     int us = 0;
 
     r->_init();
@@ -1236,8 +1260,8 @@ bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
     rs = 1;
 
     as = 0;
-    acc.d_[0] = a->d_[0] - v*v;
-    if (acc.d_[0]) ++as;
+    acc[0] = a->d_[0] - v*v;
+    if (acc[0]) ++as;
 
     int i;
     int j = 1;
@@ -1246,10 +1270,10 @@ bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
     for (;;) 
     {
         /* bring in the next digit */
-        acc.d_[as] = j < P ? a->d_[j++] : 0;
+        acc[as] = j < P ? a->d_[j++] : 0;
 
         q = 0;
-        if (acc.d_[0]) 
+        if (acc[0]) 
         {
             ++as;
         
@@ -1266,18 +1290,18 @@ bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
                     ca = v/BASE;
                     v -= ca*((int4)BASE);
                 }
-                t.d_[i] = v;
+                t[i] = v;
             }
-            t.d_[i] = ca;
+            t[0] = ca;
             ++ts;
 
-            while (!t.d_[0]) 
+            while (!t[0])
             {
-                for (i = 0; i < ts; ++i) t.d_[i] = t.d_[i+1];
+                for (i = 0; i < ts; ++i) t[i] = t[i+1];
                 --ts;
             }
 
-            if (ts > P) 
+            if (ts > P+1) 
             {
                 /* rarely, the tempory size can become bigger than
                  * we can handle. this can only happen on the last
@@ -1290,13 +1314,13 @@ bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
             if (ts == as) 
             {
                 if (ts > 1)
-                    q = (((int4) acc.d_[0])*((int4)BASE) + acc.d_[1])/(((int4) t.d_[0])*((int4)BASE)+t.d_[1]);
+                    q = (((int4) acc[0])*((int4)BASE) + acc[1])/(((int4) t[0])*((int4)BASE)+t[1]);
                 else
-                    q = ((int4)acc.d_[0])/t.d_[0];
+                    q = ((int4)acc[0])/t[0];
             }
             else if (as > ts) 
             {
-                q = (((int4) acc.d_[0])*((int4)BASE) + acc.d_[1])/t.d_[0];
+                q = (((int4) acc[0])*((int4)BASE) + acc[1])/t[0];
             }
 
             if (q) 
@@ -1304,7 +1328,7 @@ bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
                 if (q > 99) q = 99;
         
                 /* t = t + q */
-                t.d_[ts-1] += q;  // cant carry
+                t[ts-1] += q;  // cant carry
 
                 for (;;) 
                 {
@@ -1313,19 +1337,19 @@ bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
                     us = ts;
                     for (i = ts; i > 0; --i) 
                     {
-                        v = t.d_[i-1]*q + ca;
+                        v = t[i-1]*q + ca;
                         ca = 0;
                         if (v >= BASE) 
                         {
                             ca = v/BASE;
                             v -= ca*((int4)BASE);
                         }
-                        u.d_[i] = v;
+                        u[i] = v;
                     }
-                    u.d_[i] = ca;
+                    u[0] = ca;
                     if (ca) ++us;
                     else 
-                        for (i = 0; i < us; ++i) u.d_[i] = u.d_[i+1];
+                        for (i = 0; i < us; ++i) u[i] = u[i+1];
                 
                     /* determine whether u > acc. if so then q was too
                      * big.
@@ -1335,7 +1359,7 @@ bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
                     {
                         for (i = 0; i < as; ++i) 
                         {
-                            int d = u.d_[i] - acc.d_[i];
+                            int d = u[i] - acc[i];
                             if (d > 0) 
                             {
                                 fail = true;
@@ -1350,7 +1374,7 @@ bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
 
                     /* decrease q by 1 and try again */
                     q -= 1;
-                    --t.d_[ts-1]; // adjust for new q
+                    --t[ts-1]; // adjust for new q
                 }
             }
         }
@@ -1360,7 +1384,7 @@ bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
             /* can accommodate 2 more digits in current size */
             r->d_[rs-1] += q;
             rodd = 0;
-            if (rs == P) break;
+            if (rs == P+1) break;
         }
         else 
         {
@@ -1378,20 +1402,20 @@ bool BCDFloat::sqrt(const BCDFloat* a, BCDFloat* r)
             k = us;
             for (i = as-1; i >= 0; --i) 
             {
-                v = acc.d_[i] - ca;
-                if (k > 0) v -= u.d_[--k];
+                v = acc[i] - ca;
+                if (k > 0) v -= u[--k];
                 ca = 0;
                 if (v < 0) 
                 {
                     v += BASE;
                     ca = 1;
                 }
-                acc.d_[i] = v;
+                acc[i] = v;
             }
 
-            while (!acc.d_[0]) 
+            while (!acc[0]) 
             {
-                for (i = 0; i < as; ++i) acc.d_[i] = acc.d_[i+1];            
+                for (i = 0; i < as; ++i) acc[i] = acc[i+1];            
                 if (!--as) break;
             }
         }

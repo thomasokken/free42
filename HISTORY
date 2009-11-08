@@ -1,3 +1,13 @@
+??-??-????: release 1.4.60
+
+* Decimal version: SQRT could be off by 1 in the final digit. It now computes
+  one additional digit and rounds it into the mantissa, which should make it
+  accurate in all cases.
+* The BCDFloat add and subtract functions could return denormalized results
+  when one of the arguments was zero. Free42 would not display these
+  denormalized numbers correctly, leading to strange results like 1.0001 LOG
+  returning something that looked like zero but wasn't. This is now fixed.
+
 31-10-2009: release 1.4.59
 
 * MacDashboard version: changed the background from green to gray, and changed
