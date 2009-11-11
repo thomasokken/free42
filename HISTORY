@@ -1,3 +1,11 @@
+08-11-2009: (no new code release)
+
+* Added HP42CY skin to the Free42Skins.zip package. This skin includes many
+  macros to map additional functions to the keyboard. Contributed by Guenny.
+* Added kacskin and kacskin_yellow skins to the Free42Skins.zip package.
+  These are slightly modified versions of Michaels HP, and may be easier to
+  read on some screens. Contributed by Keith Carangelo.
+
 08-11-2009: release 1.4.60
 
 * Decimal version: SQRT could be off by 1 in the final digit. It now computes
