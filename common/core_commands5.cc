@@ -1024,12 +1024,10 @@ int docmd_to_oct(arg_struct *arg) {
 	#ifdef BCD_MATH
 	    phloat oct = 0, mul = 1;
 	    while (dec != 0) {
-		int digit = to_digit(dec);
-		if (digit > 7)
-		    return ERR_INVALID_DATA;
-		dec = floor(dec / 10);
+		int digit = to_int(fmod(dec, 8));
+		dec = floor(dec / 8);
 		oct += digit * mul;
-		mul *= 8;
+		mul *= 10;
 	    }
 	    res = neg ? -oct : oct;
 	#else

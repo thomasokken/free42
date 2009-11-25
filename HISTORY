@@ -1,3 +1,8 @@
+25-11-2009: release 1.4.61
+
+* Decimal version: ->OCT (decimal-to-octal conversion) was broken; it actually
+  converted octal to decimal. Fixed.
+
 11-11-2009: (no new code release)
 
 * Added HP42CY skin to the Free42Skins.zip package. This skin includes many
