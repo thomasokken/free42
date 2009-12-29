@@ -6,10 +6,12 @@ LU Decomposition and back-substitution code, and Ridders' root-refinement
    algorithm, based on sample code from "Numerical Recipes in C".
 Binary implementations of floating-point math routines, used in all binary
    builds, developed at SunPro, a Sun Microsystems business.
-Skins designed by, or based on original work of: Sebastien Carlier,
-   Christoph Giesselink, Erik Ehrling, Jeff O., Michael Vogel,
-   Klaus Reckermann, Egan Ford, Curtis Cameron, Michael Khor, Thomas Lienhard,
-   Sven from Vienna, Noe Ramos, and Jerrod Hofferth.
+Skins designed by, or based on original work of: Christoph Giesselink,
+   Curtis Cameron, Denis Cesar, Egan Ford, Erik Ehrling, Guenny, Jeff O.,
+   Jerrod Hofferth, Keith Carangelo, Klaus Reckermann, Michael Khor,
+   Michael Vogel, Miguel Toro, Noe Ramos, Sebastien Carlier, Sven from Vienna,
+   and Thomas Lienhard,
+
 MacOS X Dashboard version by D. Jeff Dionne.
 iPhone version by Byron Foster; pop-up keyboard code by Susan Mackay.
 

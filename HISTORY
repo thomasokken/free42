@@ -1,3 +1,9 @@
+29-12-2009: (no new code release)
+
+* Added HP-41 skin to the Free42Skins.zip package. This skin mimics the HP-41
+  layout, and includes many macros to map additional functions to the keyboard.
+  Contributed by Guenny.
+
 25-11-2009: release 1.4.61
 
 * Decimal version: ->OCT (decimal-to-octal conversion) was broken; it actually
@@ -150,7 +156,7 @@
 13-06-2009: (no new code release)
 
 * Added "Realistic42s240x400" skin for 240x400 Pocket PC devices
-  (Free42PocketPCSkins.zip package). Conributed by Denis Cesar.
+  (Free42PocketPCSkins.zip package). Contributed by Denis Cesar.
 
 07-06-2009: release 1.4.49
 
