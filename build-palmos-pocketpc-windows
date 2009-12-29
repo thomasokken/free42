@@ -20,7 +20,7 @@ make Free42PalmOSSkins.zip
 cd ../conduit
 cmd /c build-all.bat
 cd ..
-rm -rf Free42PalmOS Free42PalmOS.*.zip Free42PalmOSSkins.*.zip
+rm -rf Free42PalmOS Free42PalmOS.zip Free42PalmOSSkins.zip
 mkdir Free42PalmOS
 cp palmos/README.txt Free42PalmOS
 cp palmos/free42bin_68k.prc Free42PalmOS
@@ -41,7 +41,7 @@ cmd /c copy-files.bat
 make
 cmd /c build-all.bat
 cd ..
-rm -rf Free42PocketPC Free42PocketPC.*.zip
+rm -rf Free42PocketPC Free42PocketPC.zip
 mkdir Free42PocketPC
 cp pocketpc/README.txt Free42PocketPC
 cp pocketpc/Free42Binary.PPC2002_ARM.CAB Free42PocketPC/Free42Binary.cab
@@ -53,7 +53,7 @@ rm -rf Free42PocketPC
 cd windows
 cmd /c build-all.bat
 cd ..
-rm -rf Free42Windows Free42Windows.*.zip
+rm -rf Free42Windows Free42Windows.zip
 mkdir Free42Windows
 cp windows/README.txt Free42Windows
 cp windows/ReleaseBinary/Free42Binary.exe Free42Windows
@@ -80,7 +80,7 @@ rm -rf Free42Windows
 # rm -rf Free42Windows
 
 # Source package, and Windows/Unix and Pocket PC skins packages
-rm -rf tmp free42.*.tgz Free42Skins.*.zip Free42PocketPCSkins.*.zip
+rm -rf tmp free42.tgz Free42Skins.zip Free42PocketPCSkins.zip Free42iPhoneSkins.zip
 mkdir tmp
 cd tmp
 cvs checkout free42
@@ -88,6 +88,7 @@ find . -type d -name CVS -prune -exec rm -rf {} \;
 find . -type f -name .cvsignore -exec rm -f {} \;
 zip -j ../Free42Skins.zip free42/skins/*
 zip -j ../Free42PocketPCSkins.zip free42/ppcskins/*
+zip -j ../Free42iPhoneSkins.zip free42/iphoneskins/*
 tar cvfz ../free42.tgz free42
 cd ..
 rm -rf tmp
@@ -98,5 +99,5 @@ cc -o txt2html txt2html.c
 cd ..
 util/txt2html "Free42 HISTORY" <HISTORY >history.html
 util/txt2html "Free42 TODO" <TODO >todo.html
-tar cvf package.tar Free42PalmOS.zip Free42PalmOSSkins.zip Free42PocketPC.zip Free42PocketPCSkins.zip Free42Windows.zip Free42Skins.zip free42.tgz history.html todo.html
-rm Free42PalmOS.zip Free42PalmOSSkins.zip Free42PocketPC.zip Free42PocketPCSkins.zip Free42Windows.zip Free42Skins.zip free42.tgz history.html todo.html
+tar cvf package.tar Free42PalmOS.zip Free42PalmOSSkins.zip Free42PocketPC.zip Free42PocketPCSkins.zip Free42iPhoneSkins.zip Free42Windows.zip Free42Skins.zip free42.tgz history.html todo.html
+rm Free42PalmOS.zip Free42PalmOSSkins.zip Free42PocketPC.zip Free42PocketPCSkins.zip Free42iPhoneSkins.zip Free42Windows.zip Free42Skins.zip free42.tgz history.html todo.html
