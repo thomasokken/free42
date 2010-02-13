@@ -22,6 +22,7 @@
 #include <ifaddrs.h>
 #include <netdb.h>
 #include <stdarg.h>
+#include <pthread.h>
 
 #import "HTTPServerView.h"
 #import "shell_iphone.h"
@@ -53,6 +54,35 @@ static int port;
     // Drawing code
 }
 
+static pthread_t getHostNameThread;
+static struct sockaddr_in *sa;
+
+static void *getHostName(void *dummy) {
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	
+	struct hostent *h = gethostbyaddr(&sa->sin_addr, sizeof(sa->sin_addr), AF_INET);
+	if (h == NULL) {
+		int err = h_errno;
+		const char *s;
+		switch (err) {
+			case HOST_NOT_FOUND: s = "HOST_NOT_FOUND"; break;
+			case TRY_AGAIN: s = "TRY_AGAIN"; break;
+			case NO_RECOVERY: s = "NO_RECOVERY"; break;
+			case NO_DATA: s = "NO_DATA"; break;
+			default: s = "unexpected error code"; break;
+		}
+		NSLog(@"Could not determine my DNS hostname: %s", s);
+		
+	} else {
+		NSLog(@"My DNS hostname appears to be %s", h->h_name);
+		hostname = [[NSString stringWithCString:h->h_name encoding:NSUTF8StringEncoding] retain];
+	}
+	
+	[pool release];
+	static int result = 0;
+	return &result;
+}
+
 - (void) awakeFromNib {
 	ip_addr = 0;
 
@@ -68,34 +98,15 @@ static int port;
 					first = false;
 					continue;
 				}
-				struct sockaddr_in *sa = (struct sockaddr_in *) item->ifa_addr;
+				sa = (struct sockaddr_in *) item->ifa_addr;
 				ip_addr = sa->sin_addr.s_addr;
-				NSLog(@"My IP address appears to be %d.%d.%d.%d",
-					  ip_addr & 255,
-					  (ip_addr >> 8) & 255,
-					  (ip_addr >> 16) & 255,
-					  (ip_addr >> 24) & 255);
-				struct hostent *h = gethostbyaddr(&sa->sin_addr, sizeof(sa->sin_addr), AF_INET);
-				if (h == NULL) {
-					int err = h_errno;
-					const char *s;
-					switch (err) {
-						case HOST_NOT_FOUND: s = "HOST_NOT_FOUND"; break;
-						case TRY_AGAIN: s = "TRY_AGAIN"; break;
-						case NO_RECOVERY: s = "NO_RECOVERY"; break;
-						case NO_DATA: s = "NO_DATA"; break;
-						default: s = "unexpected error code"; break;
-					}
-					NSLog(@"Could not determine my DNS hostname: %s", s);
-					hostname = [[NSString stringWithFormat:@"%d.%d.%d.%d",
-									ip_addr & 255,
-									(ip_addr >> 8) & 255,
-									(ip_addr >> 16) & 255,
-									(ip_addr >> 24) & 255] retain];
-				} else {
-					NSLog(@"My DNS hostname appears to be %s", h->h_name);
-					hostname = [[NSString stringWithCString:h->h_name encoding:NSUTF8StringEncoding] retain];
-				}
+				hostname = [[NSString stringWithFormat:@"%d.%d.%d.%d",
+							 ip_addr & 255,
+							 (ip_addr >> 8) & 255,
+							 (ip_addr >> 16) & 255,
+							 (ip_addr >> 24) & 255] retain];
+				NSLog(@"My IP address appears to be %@", hostname);
+				pthread_create(&getHostNameThread, NULL, getHostName, NULL);
 				break;
 			}
 		}
