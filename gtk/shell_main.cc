@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Free42 -- an HP-42S calculator simulator
-// Copyright (C) 2004-2009  Thomas Okken
+// Copyright (C) 2004-2010  Thomas Okken
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2,
@@ -1448,7 +1448,7 @@ static void aboutCB() {
 	gtk_container_add(GTK_CONTAINER(container), box);
 	GtkWidget *image = gtk_image_new_from_pixbuf(icon);
 	gtk_box_pack_start(GTK_BOX(box), image, FALSE, FALSE, 10);
-	GtkWidget *label = gtk_label_new("Free42 " VERSION "\n(C) 2004-2009 Thomas Okken\nthomas_okken@yahoo.com\nhttp://thomasokken.com/free42/");
+	GtkWidget *label = gtk_label_new("Free42 " VERSION "\n(C) 2004-2010 Thomas Okken\nthomas_okken@yahoo.com\nhttp://thomasokken.com/free42/");
 	gtk_box_pack_start(GTK_BOX(box), label, FALSE, FALSE, 10);
 	gtk_widget_show_all(GTK_WIDGET(about));
     }

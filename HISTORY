@@ -1,3 +1,9 @@
+XX-XX-XXXX: release 1.4.62
+
+* iPhone version: the hostname lookup for the HTTP Server window is now done in
+  a background thread, so that a slow or malfunctioning DNS server no longer
+  causes the app to freeze on startup.
+
 29-12-2009: (no new code release)
 
 * Added HP-41 skin to the Free42Skins.zip package. This skin mimics the HP-41
