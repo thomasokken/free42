@@ -23,18 +23,6 @@ Add a feature for importing and exporting variables from and to CSV files.
 
 The "print" annunciator should be more noticeable -- make it linger a bit.
 
-On the Z22, the print-out window is not scrolled all the way to the bottom
-initially. On the m100, it is. First guess: I'm calculating the scroll bar
-position wrong, by assuming that the Z22 has a 320x320 screen -- yes, the Z22
-does have the high-density feature set, but it does not have a high-density
-screen. Been there before with the high-density skins showing up in the Skin
-menu; probably need the same kind of fix here.
-Update: on the T|E2, output is not scrolled all the way to the bottom either!
-
-PalmOS version: the application icon does not seem to have a proper mask.
-When the Z22's launcher highlights it, the whole icon disappears.
-Noticed this with Free42, Life, Filez...
-
 PalmOS version: turning off spooling to GIF appears not to flush the file, so
 you end up with a truncated GIF file.
 

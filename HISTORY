@@ -1,5 +1,7 @@
 XX-XX-XXXX: release 1.4.62
 
+* Windows version: now has an option in the Preferences screen to map the
+  Calculator key, found on many newer keyboards, to launch Free42.
 * iPhone version: the hostname lookup for the HTTP Server window is now done in
   a background thread, so that a slow or malfunctioning DNS server no longer
   causes the app to freeze on startup.

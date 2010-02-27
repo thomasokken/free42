@@ -99,7 +99,7 @@ static int keymap_length = 0;
 static keymap_entry *keymap = NULL;
 
 
-#define SHELL_VERSION 6
+#define SHELL_VERSION 7
 
 typedef struct state {
 	BOOL extras;
@@ -116,6 +116,7 @@ typedef struct state {
 	char skinName[FILENAMELEN];
 	BOOL alwaysOnTop;
 	BOOL singleInstance;
+	BOOL calculatorKey;
 } state_type;
 
 static state_type state;
@@ -161,6 +162,7 @@ static LRESULT CALLBACK	Preferences(HWND, UINT, WPARAM, LPARAM);
 static void set_home_dir(const char *path);
 static void get_home_dir(char *path, int pathlen, BOOL exedir_ok);
 static void config_home_dir(HWND owner, char *buf, int bufsize);
+static void mapCalculatorKey();
 static void copy();
 static void paste();
 static void Quit();
@@ -1060,6 +1062,10 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
 				ctl = GetDlgItem(hDlg, IDC_ALWAYSONTOP);
 				SendMessage(ctl, BM_SETCHECK, 1, 0);
 			}
+			if (state.calculatorKey) {
+				ctl = GetDlgItem(hDlg, IDC_CALCULATOR_KEY);
+				SendMessage(ctl, BM_SETCHECK, 1, 0);
+			}
 			if (state.singleInstance) {
 				ctl = GetDlgItem(hDlg, IDC_SINGLEINSTANCE);
 				SendMessage(ctl, BM_SETCHECK, 1, 0);
@@ -1104,6 +1110,11 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
 						if (hPrintOutWnd != NULL)
 							SetWindowPos(hPrintOutWnd, alwaysOnTop ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 					}
+					ctl = GetDlgItem(hDlg, IDC_CALCULATOR_KEY);
+					BOOL prevCalculatorKey = state.calculatorKey;
+					state.calculatorKey = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
+					if (state.calculatorKey != prevCalculatorKey)
+						mapCalculatorKey();
 					ctl = GetDlgItem(hDlg, IDC_SINGLEINSTANCE);
 					state.singleInstance = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
 
@@ -1304,6 +1315,41 @@ static void config_home_dir(HWND owner, char *buf, int bufsize) {
 		LPMALLOC imalloc;
 		if (SHGetMalloc(&imalloc) == NOERROR)
 			imalloc->Free(idlist);
+	}
+}
+
+static void mapCalculatorKey() {
+	char path[MAX_PATH];
+	if (state.calculatorKey) {
+		// Get current executable's path
+		GetModuleFileName(0, path, MAX_PATH - 1);
+	} else {
+		// Windows default
+		strcpy(path, "calc.exe");
+	}
+	HKEY k1, k2, k3, k4, k5, k6, k7;
+	DWORD disp;
+	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "SOFTWARE", 0, KEY_QUERY_VALUE, &k1) == ERROR_SUCCESS) {
+		if (RegCreateKeyEx(k1, "Microsoft", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k2, &disp) == ERROR_SUCCESS) {
+			if (RegCreateKeyEx(k2, "Windows", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k3, &disp) == ERROR_SUCCESS) {
+				if (RegCreateKeyEx(k3, "CurrentVersion", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k4, &disp) == ERROR_SUCCESS) {
+					if (RegCreateKeyEx(k4, "Explorer", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k5, &disp) == ERROR_SUCCESS) {
+						if (RegCreateKeyEx(k5, "AppKey", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k6, &disp) == ERROR_SUCCESS) {
+							if (RegCreateKeyEx(k6, "18", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k7, &disp) == ERROR_SUCCESS) {
+								RegSetValueEx(k7, "ShellExecute", 0, REG_SZ, (const unsigned char *) path, strlen(path) + 1);
+								RegCloseKey(k7);
+							}
+							RegCloseKey(k6);
+						}
+						RegCloseKey(k5);
+					}
+					RegCloseKey(k4);
+				}
+				RegCloseKey(k3);
+			}
+			RegCloseKey(k2);
+		}
+		RegCloseKey(k1);
 	}
 }
 
@@ -2101,7 +2147,10 @@ static void init_shell_state(int4 version) {
 			state.singleInstance = TRUE;
 			// fall through
 		case 6:
-			// current version (SHELL_VERSION = 6),
+			state.calculatorKey = FALSE;
+			// fall through
+		case 7:
+			// current version (SHELL_VERSION = 7),
 			// so nothing to do here since everything
 			// was initialized from the state file.
 			;
