@@ -5,6 +5,11 @@ XX-XX-XXXX: release 1.4.62
 * iPhone version: the hostname lookup for the HTTP Server window is now done in
   a background thread, so that a slow or malfunctioning DNS server no longer
   causes the app to freeze on startup.
+* When EDITN was active, you could overwrite the edited matrix with a scalar
+  using STO, or delete it using CLV -- and then you would be stuck in the
+  Matrix Editor, and even CLALL couldn't get you out. Fixed; you will now get
+  the Restricted Operation message when you try to change or delete the active
+  matrix behind EDITN's back.
 
 29-12-2009: (no new code release)
 

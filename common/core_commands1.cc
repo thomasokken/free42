@@ -672,6 +672,18 @@ int docmd_clv(arg_struct *arg) {
 	    return err;
     }
     if (arg->type == ARGTYPE_STR) {
+	/* When EDITN is active, don't allow the matrix being
+	 * edited to be deleted. */
+	if (matedit_mode == 3 && arg->length == matedit_length) {
+	    bool equal = true;
+	    for (int i = 0; i < arg->length; i++)
+		if (arg->val.text[i] != matedit_name[i]) {
+		    equal = false;
+		    break;
+		}
+	    if (equal)
+		return ERR_RESTRICTED_OPERATION;
+	}
 	purge_var(arg->val.text, arg->length);
 	remove_shadow(arg->val.text, arg->length);
 	return ERR_NONE;

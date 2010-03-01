@@ -813,6 +813,16 @@ int appmenu_exitcallback_1(int menuid) {
 	     * was unsuccessful.
 	     */
 	    err = ERR_NONE;
+	if (err == ERR_NONEXISTENT)
+	    /* This can happen when the user overwrites the indexed
+	     * matrix with a scalar. The fact that that is even possible
+	     * is a bug; attempting to do that, or to CLV it, should
+	     * cause a Restricted Operation message.
+	     * This code is a workaround to allow users to escape from
+	     * the Matrix Editor once its state has become hosed in the
+	     * above manner. We could remove this hack eventually. (TODO)
+	     */
+	    err = ERR_NONE;
 	if (err != ERR_NONE) {
 	    /* Reinstate the callback so we'll get called again when
 	     * the user tries to leave again. */
