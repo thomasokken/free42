@@ -1037,6 +1037,35 @@ void shell_release_bcd_table(shell_bcd_table_struct *bcdtab) {
 	free(bcdtab);
 }
 
+int shell_get_acceleration(double *x, double *y, double *z) {
+	// TODO!
+	*x = 10;
+	*y = 20;
+	*z = 30;
+	return 1;
+}
+
+int shell_get_location(double *lat, double *lon, double *lat_lon_acc, double *elev, double *elev_acc) {
+	// TODO!
+	*lat = 100;
+	*lon = 200;
+	*lat_lon_acc = 300;
+	*elev = 400;
+	*elev_acc = 500;
+	return 1;
+}
+
+int shell_get_heading(double *mag_heading, double *true_heading, double *acc, double *x, double *y, double *z) {
+	// TODO!
+	*mag_heading = 1000;
+	*true_heading = 2000;
+	*acc = 3000;
+	*x = 4000;
+	*y = 5000;
+	*z = 6000;
+	return 1;
+}
+
 /* Callbacks used by shell_print() and shell_spool_txt() / shell_spool_gif() */
 
 static void show_message(const char *title, const char *message) {

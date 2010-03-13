@@ -206,6 +206,44 @@ shell_bcd_table_struct *shell_put_bcd_table(shell_bcd_table_struct *bcdtab,
 					    uint4 size) SHELL1_SECT;
 void shell_release_bcd_table(shell_bcd_table_struct *bcdtab) SHELL1_SECT;
 
+#ifdef IPHONE
+/* shell_get_acceleration()
+ * shell_get_location()
+ * shell_get_heading()
+ *
+ * These functions were added to support the iPhone's accelerometer, GPS, and
+ * compass. Shells on platforms that do not provide this functionality should
+ * return 0; a return value of 1 indicates success (though not necessarily
+ * accuracy!).
+ *
+ * The units used here match those on the iPhone; implementations on other
+ * platforms should transform their units to match iPhone conventions. This
+ * probably won't be an issue in practice, since the iPhone's units match
+ * established international standards, the one exception being acceleration,
+ * which it expresses in units of Earth gravities rather than the standard
+ * m/s^2. TODO: what is the exact conversion factor used by the iPhone?
+ * 
+ * shell_get_acceleration: x, y, z in g's (see above). Looking at the device
+ * in portrait orientation, positive x points to the right, positive y points
+ * up, and positive z points toward the user.
+ * shell_get_location: lat and lon are in decimal degrees, with N and E
+ * positive; lat_lon_acc, elev, and elev_acc are in meters. TODO: what is
+ * elev relative to?
+ * shell_get_heading: mag_heading and true_heading are in decimal degrees,
+ * along the y axis (using the same coordinate system as described above),
+ * with 0 being N, 90 being E, etc., acc is in decimal degrees, and x, y, and z
+ * are magnetic deviation (again using the same coordinate system as above),
+ * in microteslas, but normalized to the range -128..128. TODO: What's this
+ * "normalization"? I hope they mean "clipped", because otherwise you wouldn't
+ * have a unit, yet they claim the unit is microteslas.
+ */
+int shell_get_acceleration(double *x, double *y, double *z) SHELL1_SECT;
+int shell_get_location(double *lat, double *lon, double *lat_lon_acc,
+				double *elev, double *elev_acc) SHELL1_SECT;
+int shell_get_heading(double *mag_heading, double *true_heading, double *acc,
+				double *x, double *y, double *z) SHELL1_SECT;
+#endif
+
 #ifdef DEBUG
 void logtofile(const char *message) SHELL1_SECT;
 void lognumber(int4 num) SHELL1_SECT;

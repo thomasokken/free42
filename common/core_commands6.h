@@ -36,4 +36,10 @@ int docmd_square(arg_struct *arg) COMMANDS6_SECT;
 int docmd_inv(arg_struct *arg) COMMANDS6_SECT;
 int docmd_y_pow_x(arg_struct *arg) COMMANDS6_SECT;
 
+#ifdef IPHONE
+int docmd_accel(arg_struct *arg) COMMANDS6_SECT;
+int docmd_locat(arg_struct *arg) COMMANDS6_SECT;
+int docmd_heading(arg_struct *arg) COMMANDS6_SECT;
+#endif
+
 #endif

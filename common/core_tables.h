@@ -350,7 +350,29 @@
 #define CMD_MIN         312
 #define CMD_FIND        313
 #define CMD_XROM        314
-#define CMD_SENTINEL    315
+/* Underhill's COPAN extensions */
+#define CMD_OPENF       315
+#define CMD_CLOSEF      316
+#define CMD_READP       317
+#define CMD_WRITEP      318
+#define CMD_GETXY       319
+#define CMD_PUTXY       320
+#define CMD_CLRP        321
+#define CMD_CLRD        322
+#define CMD_APPD        323
+#define CMD_GETN        324
+#define CMD_PUTN        325
+#define CMD_GETZ        326
+#define CMD_PUTZ        327
+#define CMD_DELP        328
+/* Byron Foster's Bigstack extension */
+#define CMD_DROP        329
+/* iPhone hardware support */
+#define CMD_ACCEL       330
+#define CMD_LOCAT       331
+#define CMD_HEADING     332
+
+#define CMD_SENTINEL    333
 
 
 /* command_spec.argtype */

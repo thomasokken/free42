@@ -25,6 +25,9 @@
 #include "core_sto_rcl.h"
 #include "core_variables.h"
 
+#ifdef IPHONE
+#include "shell_main.h"
+#endif
 
 /********************************************************/
 /* Implementations of HP-42S built-in functions, part 6 */
@@ -1002,3 +1005,101 @@ int docmd_y_pow_x(arg_struct *arg) {
 	}
     }
 }
+
+#ifdef IPHONE
+int docmd_accel(arg_struct *arg) {
+    double x, y, z;
+    int err = shell_get_acceleration(&x, &y, &z);
+    if (err == 0)
+	return ERR_NONEXISTENT;
+    vartype *new_x = new_real(x);
+    vartype *new_y = new_real(y);
+    vartype *new_z = new_real(z);
+    if (new_x == NULL || new_y == NULL || new_z == NULL) {
+	free_vartype(new_x);
+	free_vartype(new_y);
+	free_vartype(new_z);
+	return ERR_INSUFFICIENT_MEMORY;
+    }
+    free_vartype(reg_t);
+    free_vartype(reg_z);
+    if (flags.f.stack_lift_disable) {
+	free_vartype(reg_x);
+	reg_t = reg_y;
+    } else {
+	free_vartype(reg_y);
+	reg_t = reg_x;
+    }
+    reg_z = new_z;
+    reg_y = new_y;
+    reg_x = new_x;
+    if (flags.f.trace_print && flags.f.printer_exists)
+	docmd_prx(NULL);
+    return ERR_NONE;
+}
+
+int docmd_locat(arg_struct *arg) {
+    double lat, lon, lat_lon_acc, elev, elev_acc;
+    int err = shell_get_location(&lat, &lon, &lat_lon_acc, &elev, &elev_acc);
+    if (err == 0)
+	return ERR_NONEXISTENT;
+    vartype *new_x = new_real(lat);
+    vartype *new_y = new_real(lon);
+    vartype *new_z = new_real(elev);
+    vartype *new_t = new_realmatrix(1, 2);
+    if (new_x == NULL || new_y == NULL || new_z == NULL || new_t == NULL) {
+	free_vartype(new_x);
+	free_vartype(new_y);
+	free_vartype(new_z);
+	free_vartype(new_t);
+	return ERR_INSUFFICIENT_MEMORY;
+    }
+    vartype_realmatrix *rm = (vartype_realmatrix) new_t;
+    rm->array->data[0] = lat_lon_acc;
+    rm->array->data[1] = elev_acc;
+    free_vartype(reg_t);
+    free_vartype(reg_z);
+    free_vartype(reg_y);
+    free_vartype(reg_x);
+    reg_t = new_t;
+    reg_z = new_z;
+    reg_y = new_y;
+    reg_x = new_x;
+    if (flags.f.trace_print && flags.f.printer_exists)
+	docmd_prx(NULL);
+    return ERR_NONE;
+}
+
+int docmd_heading(arg_struct *arg) {
+    double mag_heading, true_heading, acc, x, y, z;
+    int err = shell_get_heading(&mag_heading, &true_heading, &acc, &x, &y, &z);
+    if (err == 0)
+	return ERR_NONEXISTENT;
+    vartype *new_x = new_real(mag_heading);
+    vartype *new_y = new_real(true_heading);
+    vartype *new_z = new_real(acc);
+    vartype *new_t = new_realmatrix(1, 3);
+    if (new_x == NULL || new_y == NULL || new_z == NULL || new_t == NULL) {
+	free_vartype(new_x);
+	free_vartype(new_y);
+	free_vartype(new_z);
+	free_vartype(new_t);
+	return ERR_INSUFFICIENT_MEMORY;
+    }
+    vartype_realmatrix *rm = (vartype_realmatrix) new_t;
+    rm->array->data[0] = x;
+    rm->array->data[1] = y;
+    rm->array->data[2] = z;
+    free_vartype(reg_t);
+    free_vartype(reg_z);
+    free_vartype(reg_y);
+    free_vartype(reg_x);
+    reg_t = new_t;
+    reg_z = new_z;
+    reg_y = new_y;
+    reg_x = new_x;
+    if (flags.f.trace_print && flags.f.printer_exists)
+	docmd_prx(NULL);
+    return ERR_NONE;
+}
+#endif

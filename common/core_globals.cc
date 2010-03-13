@@ -682,6 +682,9 @@ static void update_label_table(int prgm, int4 pc, int inserted) GLOBALS_SECT;
 static void invalidate_lclbls(int prgm_index) GLOBALS_SECT;
 static int pc_line_convert(int4 loc, int loc_is_pc) GLOBALS_SECT;
 static bool convert_programs() GLOBALS_SECT;
+#ifdef IPHONE
+static void convert_bigstack_drop() GLOBALS_SECT;
+#endif
 
 
 static bool array_list_grow() {
@@ -1307,6 +1310,13 @@ static bool unpersist_globals(int4 ver) {
 	    clear_all_prgms();
 	    goto done;
 	}
+#ifdef IPHONE
+    if (ver == 12 || ver == 13) {
+	// CMD_DROP redefined from 315 to 329, to resolve clash with
+	// Underhill's COPAN extensions.
+	convert_bigstack_drop();
+    }
+#endif
     rebuild_label_table();
     ret = true;
 
@@ -2861,3 +2871,60 @@ static bool convert_programs() {
 
     return true;
 }
+
+#ifdef IPHONE
+static void convert_bigstack_drop() {
+    // This function is called when we've read an iPhone version state file
+    // with version number 12 or 13. In those two versions, the DROP command
+    // was at index 315 of the commands table, but that conflicted with
+    // Underhill's COPAN extensions. In version 14 and later, I moved DROP
+    // to index 329 to fix this clash. This will allow all extensions to
+    // coexist in the future, should someone want to merge them all into one
+    // build at some point -- and even if that never happens, at least now
+    // all programs in all versions are encoded identically.
+
+    for (int i = 0; i < prgms_count; i++) {
+	int pc = 0;
+	prgm_struct *prgm = prgms + i;
+	while (true) {
+	    int command = prgm->text[pc++];
+	    int argtype = prgm->text[pc++];
+	    command |= (argtype & 240) << 4;
+	    argtype &= 15;
+
+	    if (command == CMD_END)
+		break;
+	    if (command == 315) { // Pre-version-14 value of CMD_DROP
+		prgm->text[pc - 2] = CMD_DROP;
+		prgm->text[pc - 1] = (CMD_DROP & 0xF00) >> 4 | argtype;
+	    }
+	    if ((command == CMD_GTO || command == CMD_XEQ)
+		    && (argtype == ARGTYPE_NUM || argtype == ARGTYPE_LCLBL)) {
+		pc += 4;
+	    }
+	    switch (argtype) {
+		case ARGTYPE_NUM:
+		case ARGTYPE_NEG_NUM:
+		case ARGTYPE_IND_NUM: {
+		    while ((prgm->text[pc++] & 128) == 0);
+		    break;
+		}
+		case ARGTYPE_STK:
+		case ARGTYPE_IND_STK:
+		case ARGTYPE_COMMAND:
+		case ARGTYPE_LCLBL:
+		    pc++;
+		    break;
+		case ARGTYPE_STR:
+		case ARGTYPE_IND_STR: {
+		    pc += prgm->text[pc] + 1;
+		    break;
+		}
+		case ARGTYPE_DOUBLE:
+		    pc += sizeof(phloat);
+		    break;
+	    }
+	}
+    }
+}
+#endif

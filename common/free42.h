@@ -212,9 +212,14 @@ double log10(double x) PHLOAT_SECT;
  *  programs and data in that case.
  *
  * Version 13: 1.4.55 Dynamically sized BIGSTACK (iphone only)
+ * Version 14: 1.4.63 Moved BIGSTACK DROP command from index 315 to 329, to fix
+ *                    the clash with Underhill's COPAN extensions. The iPhone
+ *                    version, when reading a state file with version 12 or 13,
+ *                    scans all programs and renumbers DROP where necessary.
+ *                    All other versions can ignore this version number change.
  */
 #define FREE42_MAGIC 0x466b3432
-#define FREE42_VERSION 13
+#define FREE42_VERSION 14
 
 
 #endif

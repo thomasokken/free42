@@ -1,3 +1,9 @@
+??-??-????: release 1.4.63
+
+* iPhone version: implemented ACCEL, LOCAT, and HEADING functions, for querying
+  the device's accelerometer, location services (GPS on the 3G and 3GS; WiFi-
+  based on all other models), and compass (3GS only).
+
 07-03-2010: release 1.4.62
 
 * Windows version: now has an option in the Preferences screen to map the
