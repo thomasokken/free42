@@ -40,6 +40,7 @@
 		E91005E30F893F8900B68C27 /* core_variables.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005CC0F893F8900B68C27 /* core_variables.cc */; };
 		E91CC1D40F8C1FE900EE702C /* simpleserver.c in Sources */ = {isa = PBXBuildFile; fileRef = E91CC1D30F8C1FE900EE702C /* simpleserver.c */; };
 		E91CC1D60F8C200800EE702C /* icons.c in Sources */ = {isa = PBXBuildFile; fileRef = E91CC1D50F8C200800EE702C /* icons.c */; };
+		E92BCF39114C420900832FAD /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E92BCF38114C420900832FAD /* CoreLocation.framework */; };
 		E93F2B560F894D9000CE8542 /* shell_spool.cc in Sources */ = {isa = PBXBuildFile; fileRef = E93F2B540F894D9000CE8542 /* shell_spool.cc */; };
 		E94DE6C61011E9AE005E6B19 /* about-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = E94DE6C51011E9AE005E6B19 /* about-icon.png */; };
 		E98DD7510F8C198A0089D9FA /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E98DD7500F8C198A0089D9FA /* AudioToolbox.framework */; };
@@ -132,6 +133,7 @@
 		E91005CD0F893F8900B68C27 /* core_variables.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_variables.h; path = ../common/core_variables.h; sourceTree = SOURCE_ROOT; };
 		E91CC1D30F8C1FE900EE702C /* simpleserver.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; indentWidth = 4; name = simpleserver.c; path = simpleserver/simpleserver.c; sourceTree = "<group>"; tabWidth = 8; usesTabs = 1; };
 		E91CC1D50F8C200800EE702C /* icons.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = icons.c; path = simpleserver/icons.c; sourceTree = "<group>"; };
+		E92BCF38114C420900832FAD /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = /System/Library/Frameworks/CoreLocation.framework; sourceTree = "<absolute>"; };
 		E93F2B540F894D9000CE8542 /* shell_spool.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = shell_spool.cc; path = ../common/shell_spool.cc; sourceTree = SOURCE_ROOT; };
 		E93F2B550F894D9000CE8542 /* shell_spool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shell_spool.h; path = ../common/shell_spool.h; sourceTree = SOURCE_ROOT; };
 		E94DE6C51011E9AE005E6B19 /* about-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "about-icon.png"; sourceTree = "<group>"; };
@@ -185,6 +187,7 @@
 				1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */,
 				288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */,
 				E98DD7510F8C198A0089D9FA /* AudioToolbox.framework in Frameworks */,
+				E92BCF39114C420900832FAD /* CoreLocation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -285,6 +288,7 @@
 				1DF5F4DF0D08C38300B7A737 /* UIKit.framework */,
 				1D30AB110D05D00D00671497 /* Foundation.framework */,
 				288765FC0DF74451002DB57D /* CoreGraphics.framework */,
+				E92BCF38114C420900832FAD /* CoreLocation.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -514,6 +518,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					IPHONE,
 					NO_SINCOS,
 					BCD_MATH,
 					FREE42,
@@ -533,6 +538,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					IPHONE,
 					NO_SINCOS,
 					BCD_MATH,
 					FREE42,

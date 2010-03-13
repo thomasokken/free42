@@ -26,7 +26,7 @@
 #include "core_variables.h"
 
 #ifdef IPHONE
-#include "shell_main.h"
+#include "shell.h"
 #endif
 
 /********************************************************/
@@ -1054,7 +1054,7 @@ int docmd_locat(arg_struct *arg) {
 	free_vartype(new_t);
 	return ERR_INSUFFICIENT_MEMORY;
     }
-    vartype_realmatrix *rm = (vartype_realmatrix) new_t;
+    vartype_realmatrix *rm = (vartype_realmatrix *) new_t;
     rm->array->data[0] = lat_lon_acc;
     rm->array->data[1] = elev_acc;
     free_vartype(reg_t);
@@ -1086,7 +1086,7 @@ int docmd_heading(arg_struct *arg) {
 	free_vartype(new_t);
 	return ERR_INSUFFICIENT_MEMORY;
     }
-    vartype_realmatrix *rm = (vartype_realmatrix) new_t;
+    vartype_realmatrix *rm = (vartype_realmatrix *) new_t;
     rm->array->data[0] = x;
     rm->array->data[1] = y;
     rm->array->data[2] = z;

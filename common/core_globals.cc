@@ -2895,8 +2895,8 @@ static void convert_bigstack_drop() {
 	    if (command == CMD_END)
 		break;
 	    if (command == 315) { // Pre-version-14 value of CMD_DROP
-		prgm->text[pc - 2] = CMD_DROP;
-		prgm->text[pc - 1] = (CMD_DROP & 0xF00) >> 4 | argtype;
+		prgm->text[pc - 2] = (unsigned char) CMD_DROP;
+		prgm->text[pc - 1] = (unsigned char) ((CMD_DROP & 0xF00) >> 4 | argtype);
 	    }
 	    if ((command == CMD_GTO || command == CMD_XEQ)
 		    && (argtype == ARGTYPE_NUM || argtype == ARGTYPE_LCLBL)) {
