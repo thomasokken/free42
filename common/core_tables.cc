@@ -391,6 +391,15 @@ static const command_spec cmd_array[] =
      * them will raise a Nonexistent error, but you will see the function
      * *names* from this table in the actual program listings, regardless of
      * whether the extensions are present or not.
+     * UPDATE: To support "pure" HP-42S behavior, all extensions can be
+     * disabled at runtime, using the core_settings.enable_ext_* flags.
+     * When an extension is disabled, its commands disappear from the FCN
+     * catalog, are not recognized by XEQ, are displayed as their XROM
+     * equivalents in programs, and raise a Nonexistent error when trying to
+     * execute them from programs.
+     * When a shell disables or enables an extension in response to the user
+     * changing a setting in the Preferences dialog, it should call redisplay()
+     * to make sure the display reflects the new setting.
      */
 
     /* Underhill's COPAN */

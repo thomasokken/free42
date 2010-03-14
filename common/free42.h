@@ -218,7 +218,7 @@ double log10(double x) PHLOAT_SECT;
  *                    scans all programs and renumbers DROP where necessary.
  *                    All other versions can ignore this version number change.
  * Version 15: 1.4.63 "Enable Extension" options for COPAN, BIGSTACK, ACCEL,
- *                    LOCAT, and HEADING
+ *                    LOCAT, HEADING, and HP-41 Time
  */
 #define FREE42_MAGIC 0x466b3432
 #define FREE42_VERSION 15
