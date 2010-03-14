@@ -2213,6 +2213,14 @@ bool load_state(int4 ver) {
 	core_settings.auto_repeat = true;
     else
 	if (!read_bool(&core_settings.auto_repeat)) return false;
+    if (ver < 15)
+	#if defined(COPAN) || defined(BIGSTACK) || defined(IPHONE)
+	    core_settings.enable_extensions = true;
+	#else
+	    core_settings.enable_extensions = false;
+	#endif
+    else
+	if (!read_bool(&core_settings.enable_extensions)) return false;
 
     if (!read_bool(&mode_clall)) return false;
     if (!read_bool(&mode_command_entry)) return false;

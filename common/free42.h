@@ -217,9 +217,10 @@ double log10(double x) PHLOAT_SECT;
  *                    version, when reading a state file with version 12 or 13,
  *                    scans all programs and renumbers DROP where necessary.
  *                    All other versions can ignore this version number change.
+ * Version 15: 1.4.63 "Enable Extensions" option
  */
 #define FREE42_MAGIC 0x466b3432
-#define FREE42_VERSION 14
+#define FREE42_VERSION 15
 
 
 #endif

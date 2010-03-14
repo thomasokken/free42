@@ -307,10 +307,11 @@ void core_paste(const char *s) MAIN_SECT;
  * allow the user to view and change these settings.
  */
 typedef struct {
-	bool matrix_singularmatrix;
-	bool matrix_outofrange;
-	bool raw_text;
-	bool auto_repeat;
+    bool matrix_singularmatrix;
+    bool matrix_outofrange;
+    bool raw_text;
+    bool auto_repeat;
+    bool enable_extensions;
 } core_settings_struct;
 
 extern core_settings_struct core_settings;
