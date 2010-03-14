@@ -2213,14 +2213,35 @@ bool load_state(int4 ver) {
 	core_settings.auto_repeat = true;
     else
 	if (!read_bool(&core_settings.auto_repeat)) return false;
-    if (ver < 15)
-	#if defined(COPAN) || defined(BIGSTACK) || defined(IPHONE)
-	    core_settings.enable_extensions = true;
+    if (ver < 15) {
+	#if defined(COPAN)
+	    core_settings.enable_ext_copan = true;
 	#else
-	    core_settings.enable_extensions = false;
+	    core_settings.enable_ext_copan = false;
 	#endif
-    else
-	if (!read_bool(&core_settings.enable_extensions)) return false;
+	#if defined(BIGSTACK)
+	    core_settings.enable_ext_bigstack = true;
+	#else
+	    core_settings.enable_ext_bigstack = false;
+	#endif
+	#if defined(IPHONE)
+	    core_settings.enable_ext_accel = true;
+	    core_settings.enable_ext_locat = true;
+	    core_settings.enable_ext_heading = true;
+	#else
+	    core_settings.enable_ext_accel = false;
+	    core_settings.enable_ext_locat = false;
+	    core_settings.enable_ext_heading = false;
+	#endif
+	core_settings.enable_ext_time = true;
+    } else {
+	if (!read_bool(&core_settings.enable_ext_copan)) return false;
+	if (!read_bool(&core_settings.enable_ext_bigstack)) return false;
+	if (!read_bool(&core_settings.enable_ext_accel)) return false;
+	if (!read_bool(&core_settings.enable_ext_locat)) return false;
+	if (!read_bool(&core_settings.enable_ext_heading)) return false;
+	if (!read_bool(&core_settings.enable_ext_time)) return false;
+    }
 
     if (!read_bool(&mode_clall)) return false;
     if (!read_bool(&mode_command_entry)) return false;
@@ -2357,6 +2378,12 @@ void save_state() {
     if (!write_bool(core_settings.matrix_outofrange)) return;
     if (!write_bool(core_settings.raw_text)) return;
     if (!write_bool(core_settings.auto_repeat)) return;
+    if (!write_bool(core_settings.enable_ext_copan)) return;
+    if (!write_bool(core_settings.enable_ext_bigstack)) return;
+    if (!write_bool(core_settings.enable_ext_accel)) return;
+    if (!write_bool(core_settings.enable_ext_locat)) return;
+    if (!write_bool(core_settings.enable_ext_heading)) return;
+    if (!write_bool(core_settings.enable_ext_time)) return;
     if (!write_bool(mode_clall)) return;
     if (!write_bool(mode_command_entry)) return;
     if (!write_bool(mode_number_entry)) return;
@@ -2566,6 +2593,26 @@ void hard_reset(int bad_state_file) {
     mode_goose = -1;
 
     core_settings.auto_repeat = true;
+    #if defined(COPAN)
+	core_settings.enable_ext_copan = true;
+    #else
+	core_settings.enable_ext_copan = false;
+    #endif
+    #if defined(BIGSTACK)
+	core_settings.enable_ext_bigstack = true;
+    #else
+	core_settings.enable_ext_bigstack = false;
+    #endif
+    #if defined(IPHONE)
+	core_settings.enable_ext_accel = true;
+	core_settings.enable_ext_locat = true;
+	core_settings.enable_ext_heading = true;
+    #else
+	core_settings.enable_ext_accel = false;
+	core_settings.enable_ext_locat = false;
+	core_settings.enable_ext_heading = false;
+    #endif
+    core_settings.enable_ext_time = true;
 
     reset_math();
 

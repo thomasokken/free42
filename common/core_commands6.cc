@@ -1006,8 +1006,17 @@ int docmd_y_pow_x(arg_struct *arg) {
     }
 }
 
+//////////////////////////////////////////////////////////////////////////
+/////     Accelerometer, Location Services, and Compass support      /////
+///// iPhone only, for now. In order to compile this, the shell must /////
+/////   provide shell_get_acceleration() etc., and those are only    /////
+/////             implemented in the iPhone shell so far.            /////
+//////////////////////////////////////////////////////////////////////////
+
 #ifdef IPHONE
 int docmd_accel(arg_struct *arg) {
+    if (!core_settings.enable_ext_accel)
+	return ERR_NONEXISTENT;
     double x, y, z;
     int err = shell_get_acceleration(&x, &y, &z);
     if (err == 0)
@@ -1039,6 +1048,8 @@ int docmd_accel(arg_struct *arg) {
 }
 
 int docmd_locat(arg_struct *arg) {
+    if (!core_settings.enable_ext_locat)
+	return ERR_NONEXISTENT;
     double lat, lon, lat_lon_acc, elev, elev_acc;
     int err = shell_get_location(&lat, &lon, &lat_lon_acc, &elev, &elev_acc);
     if (err == 0)
@@ -1071,6 +1082,8 @@ int docmd_locat(arg_struct *arg) {
 }
 
 int docmd_heading(arg_struct *arg) {
+    if (!core_settings.enable_ext_heading)
+	return ERR_NONEXISTENT;
     double mag_heading, true_heading, acc, x, y, z;
     int err = shell_get_heading(&mag_heading, &true_heading, &acc, &x, &y, &z);
     if (err == 0)
@@ -1103,3 +1116,211 @@ int docmd_heading(arg_struct *arg) {
     return ERR_NONE;
 }
 #endif
+
+/////////////////////////////////////////////////
+///// HP-41 Time Module & CX Time emulation /////
+/////////////////////////////////////////////////
+
+int docmd_adate(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_almcat(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_almnow(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_atime(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_atime24(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_clk12(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_clk24(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_clkt(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_clktd(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_clock(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_correct(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_date(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_date_plus(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_ddays(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_dmy(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_dow(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_mdy(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_rclaf(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_rclsw(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_runsw(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_setaf(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_setdate(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_setime(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_setsw(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_stopsw(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_sw(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_t_plus_x(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_time(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_xyzalm(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_clalma(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_clalmx(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_clralms(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_rclalm(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_swpt(arg_struct *arg) {
+    if (!core_settings.enable_ext_time)
+	return ERR_NONEXISTENT;
+    return ERR_NOT_YET_IMPLEMENTED;
+}

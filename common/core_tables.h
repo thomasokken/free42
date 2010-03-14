@@ -371,8 +371,43 @@
 #define CMD_ACCEL       330
 #define CMD_LOCAT       331
 #define CMD_HEADING     332
+/* HP-41 Time Module & CX Time */
+#define CMD_ADATE       333
+#define CMD_ALMCAT      334
+#define CMD_ALMNOW      335
+#define CMD_ATIME       336
+#define CMD_ATIME24     337
+#define CMD_CLK12       338
+#define CMD_CLK24       339
+#define CMD_CLKT        340
+#define CMD_CLKTD       341
+#define CMD_CLOCK       342
+#define CMD_CORRECT     343
+#define CMD_DATE        344
+#define CMD_DATE_PLUS   345
+#define CMD_DDAYS       346
+#define CMD_DMY         347
+#define CMD_DOW         348
+#define CMD_MDY         349
+#define CMD_RCLAF       350
+#define CMD_RCLSW       351
+#define CMD_RUNSW       352
+#define CMD_SETAF       353
+#define CMD_SETDATE     354
+#define CMD_SETIME      355
+#define CMD_SETSW       356
+#define CMD_STOPSW      357
+#define CMD_SW          358
+#define CMD_T_PLUS_X    359
+#define CMD_TIME        360
+#define CMD_XYZALM      361
+#define CMD_CLALMA      362
+#define CMD_CLALMX      363
+#define CMD_CLRALMS     364
+#define CMD_RCLALM      365
+#define CMD_SWPT        366
 
-#define CMD_SENTINEL    333
+#define CMD_SENTINEL    367
 
 
 /* command_spec.argtype */
