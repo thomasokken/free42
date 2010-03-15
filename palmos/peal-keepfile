@@ -32,6 +32,7 @@ p_shell_low_battery
 p_shell_powerdown
 p_shell_random_seed
 p_shell_milliseconds
+p_shell_get_time_date
 p_shell_print
 p_shell_write
 p_shell_read

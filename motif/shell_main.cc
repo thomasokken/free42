@@ -3488,6 +3488,19 @@ void shell_release_bcd_table(shell_bcd_table_struct *bcdtab) {
     free(bcdtab);
 }
 
+void shell_get_time_date(uint4 *time, uint4 *date, int *weekday) {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    struct tm tms;
+    localtime_r(&tv.tv_sec, &tms);
+    if (time != NULL)
+	*time = ((tms.tm_hour * 100 + tms.tm_min) * 100 + tms.tm_sec) * 100 + tv.tv_usec / 10000;
+    if (date != NULL)
+	*date = ((tms.tm_year + 1900) * 100 + tms.tm_mon + 1) * 100 + tms.tm_mday;
+    if (weekday != NULL)
+	*weekday = tms.tm_wday;
+}
+
 #if 1
 void logtofile(const char *message) {
     printf("%s\n", message);

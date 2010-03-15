@@ -863,6 +863,19 @@ unsigned int shell_milliseconds() {
     return (unsigned int) (tv.tv_sec * 1000L + tv.tv_usec / 1000);
 }
 
+void shell_get_time_date(uint4 *time, uint4 *date, int *weekday) {
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	struct tm tms;
+	localtime_r(&tv.tv_sec, &tms);
+	if (time != NULL)
+		*time = ((tms.tm_hour * 100 + tms.tm_min) * 100 + tms.tm_sec) * 100 + tv.tv_usec / 10000;
+	if (date != NULL)
+		*date = ((tms.tm_year + 1900) * 100 + tms.tm_mon + 1) * 100 + tms.tm_mday;
+	if (weekday != NULL)
+		*weekday = tms.tm_wday;
+}
+
 void shell_print(const char *text, int length,
 				 const char *bits, int bytesperline,
 				 int x, int y, int width, int height) {

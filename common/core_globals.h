@@ -427,6 +427,9 @@ extern bool mode_varmenu;
 extern bool mode_updown;
 extern int4 mode_sigma_reg;
 extern int mode_goose;
+extern bool mode_time_clktd;
+extern bool mode_time_clk24;
+extern bool mode_time_dmy;
 
 extern phloat entered_number;
 extern int entered_string_length;

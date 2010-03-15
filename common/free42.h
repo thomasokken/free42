@@ -219,9 +219,10 @@ double log10(double x) PHLOAT_SECT;
  *                    All other versions can ignore this version number change.
  * Version 15: 1.4.63 "Enable Extension" options for COPAN, BIGSTACK, ACCEL,
  *                    LOCAT, HEADING, and HP-41 Time
+ * Version 16: 1.4.63 time and date format flags
  */
 #define FREE42_MAGIC 0x466b3432
-#define FREE42_VERSION 15
+#define FREE42_VERSION 16
 
 
 #endif

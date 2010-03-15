@@ -81,6 +81,12 @@ struct arg_shell_write_saved_state {
     int4 nbytes;
 };
 
+struct arg_shell_get_time_date {
+    uint4 time;
+    uint4 date;
+    int2 weekday;
+};
+
 struct arg_shell_print {
     const char *text;
     int2 length;

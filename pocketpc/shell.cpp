@@ -1682,6 +1682,17 @@ uint4 shell_milliseconds() {
 	return GetTickCount();
 }
 
+void shell_get_time_date(uint4 *time, uint4 *date, int *weekday) {
+	SYSTEMTIME st;
+	GetLocalTime(&st);
+	if (time != NULL)
+		*time = st.wHour * 1000000 + st.wMinute * 10000 + st.wSecond * 100 + st.wMilliseconds / 10;
+	if (date != NULL)
+		*date = st.wYear * 10000 + st.wMonth * 100 + st.wDay;
+	if (weekday != NULL)
+		*weekday = st.wDayOfWeek;
+}
+
 void shell_print(const char *text, int length,
 		 const char *bits, int bytesperline,
 		 int x, int y, int width, int height) {

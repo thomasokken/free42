@@ -19,15 +19,13 @@
 
 #include "core_commands2.h"
 #include "core_commands6.h"
+#include "core_display.h"
 #include "core_helpers.h"
 #include "core_main.h"
 #include "core_math2.h"
 #include "core_sto_rcl.h"
 #include "core_variables.h"
-
-#ifdef IPHONE
 #include "shell.h"
-#endif
 
 /********************************************************/
 /* Implementations of HP-42S built-in functions, part 6 */
@@ -1154,25 +1152,29 @@ int docmd_atime24(arg_struct *arg) {
 int docmd_clk12(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
 	return ERR_NONEXISTENT;
-    return ERR_NOT_YET_IMPLEMENTED;
+    mode_time_clk24 = false;
+    return ERR_NONE;
 }
 
 int docmd_clk24(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
 	return ERR_NONEXISTENT;
-    return ERR_NOT_YET_IMPLEMENTED;
+    mode_time_clk24 = true;
+    return ERR_NONE;
 }
 
 int docmd_clkt(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
 	return ERR_NONEXISTENT;
-    return ERR_NOT_YET_IMPLEMENTED;
+    mode_time_clktd = false;
+    return ERR_NONE;
 }
 
 int docmd_clktd(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
 	return ERR_NONEXISTENT;
-    return ERR_NOT_YET_IMPLEMENTED;
+    mode_time_clktd = true;
+    return ERR_NONE;
 }
 
 int docmd_clock(arg_struct *arg) {
@@ -1187,10 +1189,60 @@ int docmd_correct(arg_struct *arg) {
     return ERR_NOT_YET_IMPLEMENTED;
 }
 
+static char weekdaynames[] = "SUNMONTUEWEDTHUFRISAT";
+
 int docmd_date(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
 	return ERR_NONEXISTENT;
-    return ERR_NOT_YET_IMPLEMENTED;
+    uint4 date;
+    int weekday;
+    shell_get_time_date(NULL, &date, &weekday);
+    int y = date / 10000;
+    int m = date / 100 % 100;
+    int d = date % 100;
+    if (mode_time_dmy)
+	date = y + m * 10000 + d * 1000000;
+    else
+	date = y + m * 1000000 + d * 10000;
+    vartype *new_x = new_real((int4) date);
+    if (new_x == NULL)
+	return ERR_INSUFFICIENT_MEMORY;
+    ((vartype_real *) new_x)->x /= 1000000;
+    recall_result(new_x);
+    if (!program_running()) {
+	/* Note: I'm not completely faithful to the HP-41 here. It formats the
+	 * date as "14.03.2010 SUN" in DMY mode, and as "03/14/2010:SU" in MDY
+	 * mode. I mimic the former, but the latter I changed to
+	 * "03/14/2010 SUN"; the MDY display format used on the HP-41 is the
+	 * way it is because that was all they could fit in its 12-character
+	 * display. (Note that the periods in the DMY format and the colon in
+	 * the MDY format don't take up a character position on the HP-41.)
+	 */
+	char buf[22];
+	int bufptr = 0;
+	int n = mode_time_dmy ? d : m;
+	if (n < 10)
+	    char2buf(buf, 22, &bufptr, '0');
+	bufptr += int2string(n, buf + bufptr, 22 - bufptr);
+	char2buf(buf, 22, &bufptr, mode_time_dmy ? ':' : '/');
+	n = mode_time_dmy ? m : d;
+	if (n < 10)
+	    char2buf(buf, 22, &bufptr, '0');
+	bufptr += int2string(n, buf + bufptr, 22 - bufptr);
+	char2buf(buf, 22, &bufptr, mode_time_dmy ? ':' : '/');
+	bufptr += int2string(y, buf + bufptr, 22 - bufptr);
+	char2buf(buf, 22, &bufptr, ' ');
+	string2buf(buf, 22, &bufptr, weekdaynames + weekday * 3, 3);
+	clear_row(0);
+	draw_string(0, 0, buf, bufptr);
+	flush_display();
+	flags.f.message = 1;
+	flags.f.two_line_message = 0;
+    }
+    /* TODO: Trace-mode printing. What should I print, the contents of X,
+     * or, when not in a running program, the nicely formatted date?
+     */
+    return ERR_NONE;
 }
 
 int docmd_date_plus(arg_struct *arg) {
@@ -1208,7 +1260,8 @@ int docmd_ddays(arg_struct *arg) {
 int docmd_dmy(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
 	return ERR_NONEXISTENT;
-    return ERR_NOT_YET_IMPLEMENTED;
+    mode_time_dmy = true;
+    return ERR_NONE;
 }
 
 int docmd_dow(arg_struct *arg) {
@@ -1220,7 +1273,8 @@ int docmd_dow(arg_struct *arg) {
 int docmd_mdy(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
 	return ERR_NONEXISTENT;
-    return ERR_NOT_YET_IMPLEMENTED;
+    mode_time_dmy = false;
+    return ERR_NONE;
 }
 
 int docmd_rclaf(arg_struct *arg) {
@@ -1286,7 +1340,52 @@ int docmd_t_plus_x(arg_struct *arg) {
 int docmd_time(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
 	return ERR_NONEXISTENT;
-    return ERR_NOT_YET_IMPLEMENTED;
+    uint4 time;
+    shell_get_time_date(&time, NULL, NULL);
+    vartype *new_x = new_real((int4) time);
+    if (new_x == NULL)
+	return ERR_INSUFFICIENT_MEMORY;
+    ((vartype_real *) new_x)->x /= 1000000;
+    recall_result(new_x);
+    if (!program_running()) {
+	int h = time / 1000000;
+	bool am;
+	if (!mode_time_clk24) {
+	    am = h < 12;
+	    h = h % 12;
+	    if (h == 0)
+		h = 12;
+	}
+	int m = time / 10000 % 100;
+	int s = time / 100 % 100;
+	char buf[22];
+	int bufptr = 0;
+	if (h < 10)
+	    char2buf(buf, 22, &bufptr, ' ');
+	bufptr += int2string(h, buf + bufptr, 22 - bufptr);
+	char2buf(buf, 22, &bufptr, ':');
+	if (m < 10)
+	    char2buf(buf, 22, &bufptr, '0');
+	bufptr += int2string(m, buf + bufptr, 22 - bufptr);
+	char2buf(buf, 22, &bufptr, ':');
+	if (s < 10)
+	    char2buf(buf, 22, &bufptr, '0');
+	bufptr += int2string(s, buf + bufptr, 22 - bufptr);
+	if (!mode_time_clk24) {
+	    char2buf(buf, 22, &bufptr, ' ');
+	    char2buf(buf, 22, &bufptr, am ? 'A' : 'P');
+	    char2buf(buf, 22, &bufptr, 'M');
+	}
+	clear_row(0);
+	draw_string(0, 0, buf, bufptr);
+	flush_display();
+	flags.f.message = 1;
+	flags.f.two_line_message = 0;
+    }
+    /* TODO: Trace-mode printing. What should I print, the contents of X,
+     * or, when not in a running program, the nicely formatted time?
+     */
+    return ERR_NONE;
 }
 
 int docmd_xyzalm(arg_struct *arg) {

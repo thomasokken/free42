@@ -65,6 +65,7 @@ static int4 arm_shell_low_battery();
 static void arm_shell_powerdown();
 static double *arm_shell_random_seed();
 static int4 arm_shell_milliseconds();
+static void arm_shell_get_time_date(arg_shell_get_time_date *arg);
 static void arm_shell_print(arg_shell_print *arg);
 static int4 arm_shell_write(arg_shell_write *arg);
 static int4 arm_shell_read(arg_shell_read *arg);
@@ -131,6 +132,7 @@ void core_init(int read_state, int4 version) {
     p = (void **) PealLookupSymbol(m, "p_shell_powerdown"); *p = (void *) ByteSwap32(arm_shell_powerdown);
     p = (void **) PealLookupSymbol(m, "p_shell_random_seed"); *p = (void *) ByteSwap32(arm_shell_random_seed);
     p = (void **) PealLookupSymbol(m, "p_shell_milliseconds"); *p = (void *) ByteSwap32(arm_shell_milliseconds);
+    p = (void **) PealLookupSymbol(m, "p_shell_get_time_date"); *p = (void *) ByteSwap32(arm_shell_get_time_date);
     p = (void **) PealLookupSymbol(m, "p_shell_print"); *p = (void *) ByteSwap32(arm_shell_print);
     p = (void **) PealLookupSymbol(m, "p_shell_write"); *p = (void *) ByteSwap32(arm_shell_write);
     p = (void **) PealLookupSymbol(m, "p_shell_read"); *p = (void *) ByteSwap32(arm_shell_read);
@@ -315,6 +317,10 @@ static double *arm_shell_random_seed() {
 
 static int4 arm_shell_milliseconds() {
     return shell_milliseconds();
+}
+
+static void arm_shell_get_time_date(arg_shell_get_time_date *arg) {
+    shell_get_time_date(&arg->time, &arg->date, (int *) &arg->weekday);
 }
 
 static void arm_shell_print(arg_shell_print *arg) {

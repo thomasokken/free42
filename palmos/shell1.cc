@@ -351,6 +351,18 @@ uint4 shell_milliseconds() {
     return (uint4) (((uint8) TimGetTicks()) * 1000 / SysTicksPerSecond());
 }
 
+void shell_get_time_date(uint4 *time, uint4 *date, int *weekday) {
+    UInt32 secs = TimGetSeconds();
+    DateTimeType dt;
+    TimSecondsToDateTime(secs, &dt);
+    if (time != NULL)
+	*time = dt.hour * 1000000 + dt.minute * 10000L + dt.second * 100;
+    if (date != NULL)
+	*date = dt.year * 10000L + dt.month * 100 + dt.day;
+    if (weekday != NULL)
+	*weekday = dt.weekDay;
+}
+
 void shell_print(const char *text, int length,
 		 const char *bits, int bytesperline,
 		 int x, int y, int width, int height) {

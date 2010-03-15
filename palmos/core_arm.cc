@@ -151,6 +151,7 @@ unsigned long p_shell_low_battery;
 unsigned long p_shell_powerdown;
 unsigned long p_shell_random_seed;
 unsigned long p_shell_milliseconds;
+unsigned long p_shell_get_time_date;
 unsigned long p_shell_print;
 unsigned long p_shell_write;
 unsigned long p_shell_read;
@@ -270,6 +271,18 @@ double shell_random_seed() {
 
 uint4 shell_milliseconds() {
     return (uint4) gCall68KFuncP(gEmulStateP, p_shell_milliseconds, NULL, 0);
+}
+
+void shell_get_time_date(uint4 *time, uint4 *date, int *weekday) {
+    arg_shell_get_time_date arg;
+    unsigned long pptr = ByteSwap32(&arg);
+    gCall68KFuncP(gEmulStateP, p_shell_get_time_date, &pptr, 4);
+    if (time != NULL)
+	*time = ByteSwap32(arg.time);
+    if (date != NULL)
+	*date = ByteSwap32(arg.date);
+    if (weekday != NULL)
+	*weekday = ByteSwap16(arg.weekday);
 }
 
 void shell_print(const char *text, int length,

@@ -244,6 +244,14 @@ int shell_get_heading(double *mag_heading, double *true_heading, double *acc,
 				double *x, double *y, double *z) SHELL1_SECT;
 #endif
 
+/* shell_get_time_date()
+ *
+ * Get the current time and date. The date should be provided formatted as
+ * YYYYMMDD, and the time should be provided formatted as HHMMSSss (24-hour).
+ * The weekday is a number from 0 to 6, with 0 being Sunday.
+ */
+void shell_get_time_date(uint4 *time, uint4 *date, int *weekday) SHELL1_SECT;
+
 #ifdef DEBUG
 void logtofile(const char *message) SHELL1_SECT;
 void lognumber(int4 num) SHELL1_SECT;
