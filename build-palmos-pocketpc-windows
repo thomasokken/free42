@@ -93,6 +93,12 @@ tar cvfz ../free42.tgz free42
 cd ..
 rm -rf tmp
 
+# "Upstream" source package, for Fedora or other Linux distros
+# Has all non-Linux versions, and all skins containing the HP logo, removed
+cd upstream
+sh ./build-upstream
+cd ..
+
 # Wrap it all up...
 cd util
 cc -o txt2html txt2html.c

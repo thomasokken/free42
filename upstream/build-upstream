@@ -1,0 +1,15 @@
+#!/bin/sh
+rm -rf temp
+mkdir temp
+cd temp
+cvs checkout free42
+for i in `cat ../remove`
+do
+    rm -rf free42/$i
+done
+( cd ../replace ; tar cf - . ) | ( cd free42 ; tar xf - )
+find . -type d -name CVS -prune -exec rm -rf {} \;
+find . -type f -name .cvsignore -exec rm -f {} \;
+tar cvfz ../../free42-nologo-`cat ../../VERSION`.tgz free42
+cd ..
+rm -rf temp
