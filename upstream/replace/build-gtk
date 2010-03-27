@@ -7,7 +7,7 @@ make
 make clean
 make -e BCD_MATH=1
 cd ..
-rm -rf Free42Linux*
+rm -rf Free42Linux
 mkdir Free42Linux
 cp gtk/README Free42Linux
 cp gtk/free42bin Free42Linux
