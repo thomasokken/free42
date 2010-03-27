@@ -1,5 +1,7 @@
 #!/bin/sh -e
 
+mkdir -p packages
+
 cd mac
 rm -rf "build/Release Binary"
 rm -rf "build/Release Decimal"
@@ -10,7 +12,7 @@ mv "build/Release Binary/Free42.app" "tmp/Free42 Binary.app"
 mv "build/Release Decimal/Free42.app" "tmp/Free42 Decimal.app"
 cp README.txt tmp
 cd tmp
-zip -r ../../Free42Mac.zip "Free42 Binary.app" "Free42 Decimal.app" README.txt
+zip -r ../../packages/Free42Mac.zip "Free42 Binary.app" "Free42 Decimal.app" README.txt
 cd ..
 rm -rf tmp
 cd ..
@@ -24,5 +26,5 @@ make clean
 make -e BCD_MATH=1
 zip -r ../Free42Decimal.zip Free42.wdgt
 cd ..
-zip Free42MacDashboard.zip Free42Binary.zip Free42Decimal.zip
+zip packages/Free42MacDashboard.zip Free42Binary.zip Free42Decimal.zip
 rm Free42Binary.zip Free42Decimal.zip

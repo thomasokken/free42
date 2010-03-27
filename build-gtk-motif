@@ -12,7 +12,7 @@ make
 make clean
 make -e BCD_MATH=1
 cd ..
-rm -rf Free42Linux*
+rm -rf Free42Linux
 mkdir Free42Linux
 mkdir Free42Linux/gtk
 mkdir Free42Linux/motif
@@ -26,5 +26,6 @@ cp motif/free42bin Free42Linux/motif
 cp motif/free42dec Free42Linux/motif
 strip Free42Linux/motif/free42bin
 strip Free42Linux/motif/free42dec
-tar cvfz Free42Linux.tgz Free42Linux
+mkdir -p packages
+tar cvfz packages/Free42Linux.tgz Free42Linux
 rm -rf Free42Linux

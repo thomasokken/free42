@@ -10,6 +10,7 @@ done
 ( cd ../replace ; tar cf - . ) | ( cd free42 ; tar xf - )
 find . -type d -name CVS -prune -exec rm -rf {} \;
 find . -type f -name .cvsignore -exec rm -f {} \;
-tar cvfz ../../free42-nologo-`cat ../../VERSION`.tgz free42
+mkdir -p ../../packages
+tar cvfz ../../packages/free42-nologo-`cat ../../VERSION`.tgz free42
 cd ..
 rm -rf temp

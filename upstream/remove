@@ -3,6 +3,8 @@ build-gtk-motif
 build-mac
 build-palmos-pocketpc-windows
 conduit
+gtk/Free42.activity
+gtk/Free42.activity.tgz
 iphone
 iphone2
 iphoneskins
