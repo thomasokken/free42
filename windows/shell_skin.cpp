@@ -44,7 +44,7 @@ typedef struct {
 	SkinPoint src;
 } SkinKey;
 
-#define SKIN_MAX_MACRO_LENGTH 31
+#define SKIN_MAX_MACRO_LENGTH 63
 
 typedef struct _SkinMacro {
 	int code;

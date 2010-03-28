@@ -3,6 +3,16 @@
 * iPhone version: implemented ACCEL, LOCAT, and HEADING functions, for querying
   the device's accelerometer, location services (GPS on the 3G and 3GS; WiFi-
   based on all other models), and compass (3GS only).
+* All versions except Mac Dashboard: for skins, increased the maximum macro
+  length from 31 to 63. The old limit was too small to allow macros that step
+  forward all the way to the end of the FCN catalog, and supporting such macros
+  is necessary now that the length of the FCN catalog is no longer fixed at 42
+  rows.
+* Also, changed several macros in the HP-41 and HP42CY skins where the FCN
+  catalog was being traversed backwards, replacing N repetitions of "up" with
+  42-N repetitions of "down", so they will work correctly in the presence of an
+  extended FCN catalog. (None of the other skins currently in the Free42
+  repository traverse the FCN catalog backwards, so they don't need updating.)
 
 07-03-2010: release 1.4.62
 
