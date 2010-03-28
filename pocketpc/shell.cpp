@@ -682,31 +682,6 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 					shell_keyup();
 					active_keycode = 0;
 				}
-				if (printable && core_alpha_menu()) {
-					if (keyChar >= 'a' && keyChar <= 'z')
-						keyChar = keyChar + 'A' - 'a';
-					else if (keyChar >= 'A' && keyChar <= 'Z')
-						keyChar = keyChar + 'a' - 'A';
-					ckey = 1024 + keyChar;
-					skey = -1;
-					macro = NULL;
-					shell_keydown();
-					mouse_key = false;
-					active_keycode = virtKey;
-					break;
-				} else if (core_hex_menu() && ((keyChar >= 'a' && keyChar <= 'f')
-							|| (keyChar >= 'A' && keyChar <= 'F'))) {
-					if (keyChar >= 'a' && keyChar <= 'f')
-						ckey = keyChar - 'a' + 1;
-					else
-						ckey = keyChar - 'A' + 1;
-					skey = -1;
-					macro = NULL;
-					shell_keydown();
-					mouse_key = false;
-					active_keycode = virtKey;
-					break;
-				}
 
 				bool exact;
 				bool cshift_down = ann_shift != 0;
@@ -728,6 +703,39 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 						}
 					}
 				}
+
+				if (key_macro == NULL || (key_macro[0] != 36 || key_macro[1] != 0)
+						&& (key_macro[0] != 28 || key_macro[1] != 36 || key_macro[2] != 0)) {
+					// The test above is to make sure that whatever mapping is in
+					// effect for R/S will never be overridden by the special cases
+					// for the ALPHA and A..F menus.
+					if (printable && core_alpha_menu()) {
+						if (keyChar >= 'a' && keyChar <= 'z')
+							keyChar = keyChar + 'A' - 'a';
+						else if (keyChar >= 'A' && keyChar <= 'Z')
+							keyChar = keyChar + 'a' - 'A';
+						ckey = 1024 + keyChar;
+						skey = -1;
+						macro = NULL;
+						shell_keydown();
+						mouse_key = false;
+						active_keycode = virtKey;
+						break;
+					} else if (core_hex_menu() && ((keyChar >= 'a' && keyChar <= 'f')
+								|| (keyChar >= 'A' && keyChar <= 'F'))) {
+						if (keyChar >= 'a' && keyChar <= 'f')
+							ckey = keyChar - 'a' + 1;
+						else
+							ckey = keyChar - 'A' + 1;
+						skey = -1;
+						macro = NULL;
+						shell_keydown();
+						mouse_key = false;
+						active_keycode = virtKey;
+						break;
+					}
+				}
+
 				if (key_macro != NULL) {
 					// A keymap entry is a sequence of zero or more calculator
 					// keystrokes (1..37) and/or macros (38..255). We expand

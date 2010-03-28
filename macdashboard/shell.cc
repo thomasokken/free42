@@ -585,34 +585,41 @@ main(int argc, char *argv[])
 	    alt = (keyno & 0x20000) != 0;
 	    shift = (keyno & 0x40000) != 0;
 	    keyno &= 0xffff;
-	    if (!ctrl && !alt) {
-		if (core_alpha_menu() && keyno >= 32 && keyno <= 126) {
-		    if (keyno >= 'a' && keyno <= 'z')
-			keyno = keyno + 'A' - 'a';
-		    else if (keyno >= 'A' && keyno <= 'Z')
-			keyno = keyno + 'a' - 'A';
-		    keep_running = core_keydown(keyno + 1024, &queue, &repeat);
-		    if (!queue)
-			keep_running = core_keyup();
-		    break;
-		} else if (core_hex_menu() && ((keyno >= 'a' && keyno <= 'f') || (keyno >= 'A' && keyno <= 'F'))) {
-		    if (keyno >= 'a' && keyno <= 'f')
-			keyno -= 'a' - 1;
-		    else
-			keyno -= 'A' - 1;
-		    keep_running = core_keydown(keyno, &queue, &repeat);
-		    if (!queue)
-			keep_running = core_keyup();
-		    break;
+	    macro = skin_keymap_lookup(keyno, ctrl, alt, shift);
+	    if (macro == NULL || (macro[0] != 36 || macro[1] != 0)
+		    && (macro[0] != 28 || macro[1] != 36 || macro[2] != 0)) {
+		// The test above is to make sure that whatever mapping is in
+		// effect for R/S will never be overridden by the special cases
+		// for the ALPHA and A..F menus.
+		if (!ctrl && !alt) {
+		    if (core_alpha_menu() && keyno >= 32 && keyno <= 126) {
+			if (keyno >= 'a' && keyno <= 'z')
+			    keyno = keyno + 'A' - 'a';
+			else if (keyno >= 'A' && keyno <= 'Z')
+			    keyno = keyno + 'a' - 'A';
+			keep_running = core_keydown(keyno + 1024, &queue, &repeat);
+			if (!queue)
+			    keep_running = core_keyup();
+			goto done;
+		    } else if (core_hex_menu() && ((keyno >= 'a' && keyno <= 'f') || (keyno >= 'A' && keyno <= 'F'))) {
+			if (keyno >= 'a' && keyno <= 'f')
+			    keyno -= 'a' - 1;
+			else
+			    keyno -= 'A' - 1;
+			keep_running = core_keydown(keyno, &queue, &repeat);
+			if (!queue)
+			    keep_running = core_keyup();
+			goto done;
+		    }
 		}
 	    }
-	    macro = skin_keymap_lookup(keyno, ctrl, alt, shift);
 	    for (; macro && *macro; macro++) {
 		keyno = *macro;
 		keep_running = core_keydown(keyno, &queue, &repeat);
 		if (!queue)
 		    keep_running = core_keyup();
 	    }
+	    done:
 	    break;
 	case 'P':
 	    core_paste(cmd + 1);

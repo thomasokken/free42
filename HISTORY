@@ -20,6 +20,7 @@
   simply substitute POS_HUGE_VAL in such cases, but that was incorrect; it
   should report Out of Range or substitute POS_HUGE_VAL depending on the
   setting of flag 24. Fixed.
+* R/S can now be pressed using the PC keyboard even when ALPHA mode is active.
 
 07-03-2010: release 1.4.62
 

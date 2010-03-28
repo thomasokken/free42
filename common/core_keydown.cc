@@ -656,6 +656,30 @@ void keydown_command_entry(int shift, int key) {
 	    return;
 	}
     }
+
+    if ((incomplete_command == CMD_ASTO || incomplete_command == CMD_ARCL)
+	    && incomplete_length == 1 && mode_commandmenu == MENU_NONE
+	    && mode_alphamenu >= MENU_ALPHA1 && mode_alphamenu <= MENU_ALPHA_MISC2) {
+	/* A similar oddity are ASTO and ARCL, when entered using the
+	 * STO and RCL keys while ALPHA mode is active. Initially,
+	 * you'll get a menu of all variables, but when you type a
+	 * digit, the variables menu disappears, and the ALPHA menu
+	 * returns... but we still want 0-9 to be treated as numeric.
+	 */
+	switch (key - 1024) {
+	    case '0': key = KEY_0; break;
+	    case '1': key = KEY_1; break;
+	    case '2': key = KEY_2; break;
+	    case '3': key = KEY_3; break;
+	    case '4': key = KEY_4; break;
+	    case '5': key = KEY_5; break;
+	    case '6': key = KEY_6; break;
+	    case '7': key = KEY_7; break;
+	    case '8': key = KEY_8; break;
+	    case '9': key = KEY_9; break;
+	}
+    }
+
     
     /* Another oddity: ASSIGN... */
     if (incomplete_argtype == ARG_CKEY) {

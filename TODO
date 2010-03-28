@@ -5,6 +5,11 @@ while the Linux (FC6) and Cygwin builds crash, and they use Lesstif.
 Sounds like some evil interaction with the callback I use to populate the menu;
 maybe Lesstif just doesn't like me repopulating the menu in the map callback.
 
+iPhone version: it is possible to disable the sleep timer using
+[UIApplication sharedApplication].idleTimerDisabled = YES;
+This would be a good thing to use to prevent auto-poweroff while a program
+is running.
+
 PalmOS: Flag 11 doesn't work on power cycle: After exit and restart, it does
 work; after power cycle, the "running" annunciator comes on, but the program
 does not actually run. Sounds like the event queue needs to be prodded.
@@ -20,6 +25,3 @@ inescapable cycle.
 Add keyboard click option for the Pocket PC version.
 
 Add a feature for importing and exporting variables from and to CSV files.
-
-Make '\' act as R/S even in ALPHA mode. R/S is important, and the backslash is
-not, in the HP-42S part of the universe, anyway.

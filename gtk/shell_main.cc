@@ -1611,35 +1611,6 @@ static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
 		active_keycode = 0;
 	    }
 
-	    if (!ctrl && !alt) {
-		char c = event->string[0];
-		if (printable && core_alpha_menu()) {
-		    if (c >= 'a' && c <= 'z')
-			c = c + 'A' - 'a';
-		    else if (c >= 'A' && c <= 'Z')
-			c = c + 'a' - 'A';
-		    ckey = 1024 + c;
-		    skey = -1;
-		    macro = NULL;
-		    shell_keydown();
-		    mouse_key = false;
-		    active_keycode = event->hardware_keycode;
-		    return TRUE;
-		} else if (core_hex_menu() && ((c >= 'a' && c <= 'f')
-					    || (c >= 'A' && c <= 'F'))) {
-		    if (c >= 'a' && c <= 'f')
-			ckey = c - 'a' + 1;
-		    else
-			ckey = c - 'A' + 1;
-		    skey = -1;
-		    macro = NULL;
-		    shell_keydown();
-		    mouse_key = false;
-		    active_keycode = event->hardware_keycode;
-		    return TRUE;
-		}
-	    }
-
 	    bool exact;
 	    unsigned char *key_macro = skin_keymap_lookup(event->keyval,
 				printable, ctrl, alt, shift, cshift, &exact);
@@ -1660,6 +1631,42 @@ static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
 		    }
 		}
 	    }
+
+	    if (key_macro == NULL || (key_macro[0] != 36 || key_macro[1] != 0)
+		    && (key_macro[0] != 28 || key_macro[1] != 36 || key_macro[2] != 0)) {
+		// The test above is to make sure that whatever mapping is in
+		// effect for R/S will never be overridden by the special cases
+		// for the ALPHA and A..F menus.
+		if (!ctrl && !alt) {
+		    char c = event->string[0];
+		    if (printable && core_alpha_menu()) {
+			if (c >= 'a' && c <= 'z')
+			    c = c + 'A' - 'a';
+			else if (c >= 'A' && c <= 'Z')
+			    c = c + 'a' - 'A';
+			ckey = 1024 + c;
+			skey = -1;
+			macro = NULL;
+			shell_keydown();
+			mouse_key = false;
+			active_keycode = event->hardware_keycode;
+			return TRUE;
+		    } else if (core_hex_menu() && ((c >= 'a' && c <= 'f')
+						|| (c >= 'A' && c <= 'F'))) {
+			if (c >= 'a' && c <= 'f')
+			    ckey = c - 'a' + 1;
+			else
+			    ckey = c - 'A' + 1;
+			skey = -1;
+			macro = NULL;
+			shell_keydown();
+			mouse_key = false;
+			active_keycode = event->hardware_keycode;
+			return TRUE;
+		    }
+		}
+	    }
+
 	    if (key_macro != NULL) {
 		// A keymap entry is a sequence of zero or more calculator
 		// keystrokes (1..37) and/or macros (38..255). We expand
