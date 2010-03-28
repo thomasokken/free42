@@ -194,24 +194,30 @@ int docmd_complex(arg_struct *arg) {
 		free_vartype(new_y);
 		return ERR_INSUFFICIENT_MEMORY;
 	    }
-	    free_vartype(reg_lastx);
-	    reg_lastx = reg_x;
-	    free_vartype(reg_t);
-	    reg_t = reg_z;
-	    reg_z = reg_y;
 	    if (flags.f.polar) {
 		phloat r, phi;
-		int inf;
 		generic_r2p(((vartype_complex *) reg_x)->re,
 			    ((vartype_complex *) reg_x)->im, &r, &phi);
-		if ((inf = p_isinf(r)) != 0)
-		    r = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
+		if (p_isinf(r) != 0) {
+		    if (flags.f.range_error_ignore)
+			r = POS_HUGE_PHLOAT;
+		    else {
+			free_vartype(new_x);
+			free_vartype(new_y);
+			return ERR_OUT_OF_RANGE;
+		    }
+		}
 		((vartype_real *) new_y)->x = r;
 		((vartype_real *) new_x)->x = phi;
 	    } else {
 		((vartype_real *) new_y)->x = ((vartype_complex *) reg_x)->re;
 		((vartype_real *) new_x)->x = ((vartype_complex *) reg_x)->im;
 	    }
+	    free_vartype(reg_lastx);
+	    reg_lastx = reg_x;
+	    free_vartype(reg_t);
+	    reg_t = reg_z;
+	    reg_z = reg_y;
 	    reg_y = new_y;
 	    reg_x = new_x;
 	    break;
@@ -283,11 +289,16 @@ int docmd_complex(arg_struct *arg) {
 	    if (flags.f.polar) {
 		for (i = 0; i < sz; i++) {
 		    phloat r, phi;
-		    int inf;
 		    generic_r2p(cm->array->data[2 * i],
 				cm->array->data[2 * i + 1], &r, &phi);
-		    if ((inf = p_isinf(r)) != 0)
-			r = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
+		    if (p_isinf(r) != 0)
+			if (flags.f.range_error_ignore)
+			    r = POS_HUGE_PHLOAT;
+			else {
+			    free_vartype((vartype *) re_m);
+			    free_vartype((vartype *) im_m);
+			    return ERR_OUT_OF_RANGE;
+			}
 		    re_m->array->data[i] = r;
 		    im_m->array->data[i] = phi;
 		}

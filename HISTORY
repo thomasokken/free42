@@ -15,6 +15,11 @@
   repository traverse the FCN catalog backwards, so they don't need updating.)
 * PalmOS version: turning off printing did not flush the GIF file, so you'd end
   up with a truncated image. Fixed.
+* When COMPLEX is executed with a complex number or complex matrix in X, and
+  POLAR mode is active, it is possible for range errors to occur. Free42 would
+  simply substitute POS_HUGE_VAL in such cases, but that was incorrect; it
+  should report Out of Range or substitute POS_HUGE_VAL depending on the
+  setting of flag 24. Fixed.
 
 07-03-2010: release 1.4.62
 
