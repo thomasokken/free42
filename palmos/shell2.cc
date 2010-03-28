@@ -928,6 +928,7 @@ Boolean form_handler(EventType *e) {
 		    ControlType *ctl;
 		    char buf[20], *s;
 		    UInt16 i, min, max, value, pagesize;
+		    Boolean newPrinterToGifFile;
 
 		    form = FrmInitForm(feature_set_3_5_present() ?
 					prefsform2_id : prefsform1_id);
@@ -1035,15 +1036,16 @@ Boolean form_handler(EventType *e) {
 		    state.printerTxtFileName[FILENAMELEN - 1] = 0;
 
 		    i = FrmGetObjectIndex(form, prefs_printer_gif);
-		    state.printerToGifFile = FrmGetControlValue(form, i);
+		    newPrinterToGifFile = FrmGetControlValue(form, i);
 		    i = FrmGetObjectIndex(form, prefs_printer_gif_name);
 		    fld = (FieldType *) FrmGetObjectPtr(form, i);
 		    s = FldGetTextPtr(fld);
-		    if (!state.printerToGifFile ||
+		    if (!newPrinterToGifFile ||
 			   StrCaselessCompare(state.printerGifFileName, s) != 0)
 			close_gif(1);
 		    StrNCopy(state.printerGifFileName, s, FILENAMELEN - 1);
 		    state.printerGifFileName[FILENAMELEN - 1] = 0;
+		    state.printerToGifFile = newPrinterToGifFile;
 
 		    i = FrmGetObjectIndex(form, prefs_printer_gif_height);
 		    fld = (FieldType *) FrmGetObjectPtr(form, i);

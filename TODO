@@ -1,5 +1,9 @@
-All versions: implement the Time Module functions, as far as possible.
-This functionality should be optional, for perfect 42S compatibility.
+Motif version: activating the Skin menu by clicking on it, as opposed to the
+old-Mac-style press-hold-drag-release cycle, often causes a crash.
+Could be a Lesstif bug: the Mac build appears immune, and it uses OpenMotif,
+while the Linux (FC6) and Cygwin builds crash, and they use Lesstif.
+Sounds like some evil interaction with the callback I use to populate the menu;
+maybe Lesstif just doesn't like me repopulating the menu in the map callback.
 
 PalmOS: Flag 11 doesn't work on power cycle: After exit and restart, it does
 work; after power cycle, the "running" annunciator comes on, but the program
@@ -17,18 +21,5 @@ Add keyboard click option for the Pocket PC version.
 
 Add a feature for importing and exporting variables from and to CSV files.
 
-The "print" annunciator should be more noticeable -- make it linger a bit.
-
-PalmOS version: turning off spooling to GIF appears not to flush the file, so
-you end up with a truncated GIF file.
-
 Make '\' act as R/S even in ALPHA mode. R/S is important, and the backslash is
 not, in the HP-42S part of the universe, anyway.
-
-PalmOS version: add explanation to README.txt about skins -- why they won't
-work off an SD card, how to install them properly, yada yada yada.
-
-SOLVE: detect more sign reversals (not just the ones where the sign reversal
-brackets a domain error). This isn't strictly a bug, since it is mathematically
-impossible to reliably tell poles from zeroes (the real HP-42S doesn't always
-get it right either), but there is clearly some room for improvement.

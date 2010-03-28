@@ -13,6 +13,8 @@
   42-N repetitions of "down", so they will work correctly in the presence of an
   extended FCN catalog. (None of the other skins currently in the Free42
   repository traverse the FCN catalog backwards, so they don't need updating.)
+* PalmOS version: turning off printing did not flush the GIF file, so you'd end
+  up with a truncated image. Fixed.
 
 07-03-2010: release 1.4.62
 
