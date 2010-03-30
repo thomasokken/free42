@@ -45,6 +45,7 @@
 		E959D4430FEC0A44007C56A4 /* shell_spool.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D42A0FEC0A44007C56A4 /* shell_spool.cc */; };
 		E97714CD0FEC0E9A00F8CA16 /* shell_skin.m in Sources */ = {isa = PBXBuildFile; fileRef = E97714CC0FEC0E9A00F8CA16 /* shell_skin.m */; };
 		E97C41390FEBC6BE00772516 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = E97C41380FEBC6BE00772516 /* icon.icns */; };
+		E99FDE2F11624FFA004DB479 /* core_commands7.cc in Sources */ = {isa = PBXBuildFile; fileRef = E99FDE2D11624FFA004DB479 /* core_commands7.cc */; };
 		E9AF94D1101CD2FA00E69F47 /* bcdfloat2.cc in Sources */ = {isa = PBXBuildFile; fileRef = E9AF94CF101CD2FA00E69F47 /* bcdfloat2.cc */; };
 		E9B079260FF548690021B83D /* squeak.wav in Resources */ = {isa = PBXBuildFile; fileRef = E9B079250FF548690021B83D /* squeak.wav */; };
 		E9B079310FF548770021B83D /* tone0.wav in Resources */ = {isa = PBXBuildFile; fileRef = E9B079270FF548770021B83D /* tone0.wav */; };
@@ -138,6 +139,8 @@
 		E97714CB0FEC0E9A00F8CA16 /* shell_skin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shell_skin.h; path = Classes/shell_skin.h; sourceTree = "<group>"; };
 		E97714CC0FEC0E9A00F8CA16 /* shell_skin.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = shell_skin.m; path = Classes/shell_skin.m; sourceTree = "<group>"; };
 		E97C41380FEBC6BE00772516 /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = icon.icns; sourceTree = "<group>"; };
+		E99FDE2D11624FFA004DB479 /* core_commands7.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_commands7.cc; path = ../common/core_commands7.cc; sourceTree = SOURCE_ROOT; };
+		E99FDE2E11624FFA004DB479 /* core_commands7.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_commands7.h; path = ../common/core_commands7.h; sourceTree = SOURCE_ROOT; };
 		E9AF94CE101CD2FA00E69F47 /* bcd2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bcd2.h; path = ../common/bcd2.h; sourceTree = SOURCE_ROOT; };
 		E9AF94CF101CD2FA00E69F47 /* bcdfloat2.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bcdfloat2.cc; path = ../common/bcdfloat2.cc; sourceTree = SOURCE_ROOT; };
 		E9AF94D0101CD2FA00E69F47 /* bcdfloat2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bcdfloat2.h; path = ../common/bcdfloat2.h; sourceTree = SOURCE_ROOT; };
@@ -308,6 +311,8 @@
 				E959D4090FEC0A44007C56A4 /* core_commands5.h */,
 				E959D40A0FEC0A44007C56A4 /* core_commands6.cc */,
 				E959D40B0FEC0A44007C56A4 /* core_commands6.h */,
+				E99FDE2D11624FFA004DB479 /* core_commands7.cc */,
+				E99FDE2E11624FFA004DB479 /* core_commands7.h */,
 				E959D40C0FEC0A44007C56A4 /* core_display.cc */,
 				E959D40D0FEC0A44007C56A4 /* core_display.h */,
 				E959D40E0FEC0A44007C56A4 /* core_globals.cc */,
@@ -451,6 +456,7 @@
 				E9BB633D0FF418DD00E7EF10 /* ProgramListDataSource.m in Sources */,
 				E9B9F6820FF6C1E60003CAF6 /* PrintView.m in Sources */,
 				E9AF94D1101CD2FA00E69F47 /* bcdfloat2.cc in Sources */,
+				E99FDE2F11624FFA004DB479 /* core_commands7.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -17,6 +17,7 @@
 
 #include <stdlib.h>
 
+#include "core_commands2.h"
 #include "core_commands7.h"
 #include "core_display.h"
 #include "core_helpers.h"
