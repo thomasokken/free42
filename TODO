@@ -1,5 +1,5 @@
 PalmOS version: The ARM builds need to be tested because I had to extend the
-core/shell interfact to support the TIME and DATE functions.
+core/shell interface to support the TIME and DATE functions.
 Holding off on the PalmOS release until these things are done.
 
 Motif version: activating the Skin menu by clicking on it, as opposed to the
