@@ -7,8 +7,6 @@ a segment overflow. Also, the ARM builds need to be tested because I had to
 extend the core/shell interfact to support the TIME and DATE functions.
 Holding off on the 1.4.63 PalmOS release until these things are done.
 
-42s: merge latest changes into forked files where necessary.
-
 Motif version: activating the Skin menu by clicking on it, as opposed to the
 old-Mac-style press-hold-drag-release cycle, often causes a crash.
 Could be a Lesstif bug: the Mac build appears immune, and it uses OpenMotif,
