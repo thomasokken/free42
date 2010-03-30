@@ -1121,13 +1121,12 @@ int docmd_heading(arg_struct *arg) {
 
 static int date2comps(phloat x, int4 *yy, int4 *mm, int4 *dd) COMMANDS6_SECT;
 static int date2comps(phloat x, int4 *yy, int4 *mm, int4 *dd) {
-#ifdef BCD_MATH
     int4 m = to_int4(floor(x));
+#ifdef BCD_MATH
     int4 d = to_int4(floor((x - m) * 100));
     int4 y = to_int4(x * 1000000) % 10000;
 #else
-    int4 m = to_int4(loor(x));
-    int4 r = to_int4(floor((x - m) * 100000000 + 0.5));
+    int4 r = (int4) floor((x - m) * 100000000 + 0.5);
     r /= 100;
     int4 d = r / 10000;
     int4 y = r % 10000;
