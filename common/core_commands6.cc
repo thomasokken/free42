@@ -1122,12 +1122,12 @@ int docmd_heading(arg_struct *arg) {
 static int date2comps(phloat x, int4 *yy, int4 *mm, int4 *dd) COMMANDS6_SECT;
 static int date2comps(phloat x, int4 *yy, int4 *mm, int4 *dd) {
 #ifdef BCD_MATH
-    int4 m = (int4) floor(x);
-    int4 d = (int4) floor((x - m) * 100);
-    int4 y = x * 1000000 % 10000;
+    int4 m = to_int4(floor(x));
+    int4 d = to_int4(floor((x - m) * 100));
+    int4 y = to_int4(x * 1000000) % 10000;
 #else
-    int4 m = (int4) floor(x);
-    int4 r = (int4) floor((x - m) * 100000000 + 0.5);
+    int4 m = to_int4(loor(x));
+    int4 r = to_int4(floor((x - m) * 100000000 + 0.5));
     r /= 100;
     int4 d = r / 10000;
     int4 y = r % 10000;
@@ -1349,7 +1349,7 @@ int docmd_date_plus(arg_struct *arg) {
     err = greg2jd(y, m, d, &jd);
     if (err != ERR_NONE)
 	return err;
-    jd += (int4) floor(days);
+    jd += to_int4(floor(days));
     err = jd2greg(jd, &y, &m, &d);
     if (err != ERR_NONE)
 	return err;
@@ -1369,6 +1369,10 @@ int docmd_ddays(arg_struct *arg) {
     if (reg_x->type == TYPE_STRING)
 	return ERR_ALPHA_DATA_IS_INVALID;
     if (reg_x->type != TYPE_REAL)
+	return ERR_INVALID_TYPE;
+    if (reg_y->type == TYPE_STRING)
+	return ERR_ALPHA_DATA_IS_INVALID;
+    if (reg_y->type != TYPE_REAL)
 	return ERR_INVALID_TYPE;
 
     phloat date1 = ((vartype_real *) reg_y)->x;
