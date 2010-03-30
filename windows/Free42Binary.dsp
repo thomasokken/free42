@@ -114,6 +114,10 @@ SOURCE=.\core_commands6.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\core_commands7.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\core_display.cpp
 # End Source File
 # Begin Source File
@@ -232,6 +236,10 @@ SOURCE=.\core_commands5.h
 # Begin Source File
 
 SOURCE=.\core_commands6.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\core_commands7.h
 # End Source File
 # Begin Source File
 

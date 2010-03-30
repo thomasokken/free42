@@ -11,6 +11,8 @@ copy core_commands5.cpp ..\common\core_commands5.cc
 copy core_commands5.h ..\common
 copy core_commands6.cpp ..\common\core_commands6.cc
 copy core_commands6.h ..\common
+copy core_commands7.cpp ..\common\core_commands7.cc
+copy core_commands7.h ..\common
 copy core_display.cpp ..\common\core_display.cc
 copy core_display.h ..\common
 copy core_globals.cpp ..\common\core_globals.cc

@@ -36,17 +36,17 @@ endif
 SRCS = shell_main.cc shell_skin.cc skins.cc keymap.cc shell_loadimage.cc \
 	shell_spool.cc core_main.cc core_commands1.cc core_commands2.cc \
 	core_commands3.cc core_commands4.cc core_commands5.cc \
-	core_commands6.cc core_display.cc core_globals.cc core_helpers.cc \
-	core_keydown.cc core_linalg1.cc core_linalg2.cc core_math1.cc \
-	core_math2.cc core_phloat.cc core_sto_rcl.cc core_tables.cc \
-	core_variables.cc
+	core_commands6.cc core_commands7.cc core_display.cc core_globals.cc \
+	core_helpers.cc core_keydown.cc core_linalg1.cc core_linalg2.cc \
+	core_math1.cc core_math2.cc core_phloat.cc core_sto_rcl.cc \
+	core_tables.cc core_variables.cc
 OBJS = shell_main.o shell_skin.o skins.o keymap.o shell_loadimage.o \
 	shell_spool.o core_main.o core_commands1.o core_commands2.o \
 	core_commands3.o core_commands4.o core_commands5.o \
-	core_commands6.o core_display.o core_globals.o core_helpers.o \
-	core_keydown.o core_linalg1.o core_linalg2.o core_math1.o \
-	core_math2.o core_phloat.o core_sto_rcl.o core_tables.o \
-	core_variables.o
+	core_commands6.o core_commands7.o core_display.o core_globals.o \
+	core_helpers.o core_keydown.o core_linalg1.o core_linalg2.o \
+	core_math1.o core_math2.o core_phloat.o core_sto_rcl.o \
+	core_tables.o core_variables.o
 
 ifdef BCD_MATH
 CXXFLAGS += -DBCD_MATH
@@ -93,6 +93,8 @@ symlinks:
 	ln -s ../common/core_commands5.h
 	ln -s ../common/core_commands6.cc
 	ln -s ../common/core_commands6.h
+	ln -s ../common/core_commands7.cc
+	ln -s ../common/core_commands7.h
 	ln -s ../common/core_display.cc
 	ln -s ../common/core_display.h
 	ln -s ../common/core_globals.cc

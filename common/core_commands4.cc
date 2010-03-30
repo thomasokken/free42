@@ -26,6 +26,10 @@
 #include "core_sto_rcl.h"
 #include "core_variables.h"
 
+/********************************************************/
+/* Implementations of HP-42S built-in functions, part 4 */
+/********************************************************/
+
 int docmd_insr(arg_struct *arg) {
     vartype *m, *newx;
     vartype_realmatrix *rm;

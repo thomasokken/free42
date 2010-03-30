@@ -40,6 +40,7 @@ extern "C" {
 #define COMMANDS4_SECT __attribute__ ((section ("Commnds4")))
 #define COMMANDS5_SECT __attribute__ ((section ("Commnds5")))
 #define COMMANDS6_SECT __attribute__ ((section ("Commnds6")))
+#define COMMANDS7_SECT __attribute__ ((section ("Commnds7")))
 #ifdef PALMOS_ARM_SHELL
 #define DISPLAY_SECT
 #else
@@ -83,6 +84,7 @@ extern "C" {
 #define COMMANDS4_SECT
 #define COMMANDS5_SECT
 #define COMMANDS6_SECT
+#define COMMANDS7_SECT
 #define DISPLAY_SECT
 #define GLOBALS_SECT
 #define HELPERS_SECT

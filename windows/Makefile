@@ -63,6 +63,7 @@ SOURCE_FILES= \
 	core_commands4.cpp \
 	core_commands5.cpp \
 	core_commands6.cpp \
+	core_commands7.cpp \
 	core_display.cpp \
 	core_globals.cpp \
 	core_helpers.cpp \
@@ -92,6 +93,7 @@ HEADER_FILES= \
 	core_commands4.h \
 	core_commands5.h \
 	core_commands6.h \
+	core_commands7.h \
 	core_display.h \
 	core_globals.h \
 	core_helpers.h \

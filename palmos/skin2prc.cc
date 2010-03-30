@@ -34,7 +34,7 @@ char gif[256] = "";
 FILE *script = NULL;
 FILE *rcp = NULL;
 
-#define SKIN_MAX_MACRO_LENGTH 63
+#define SKIN_MAX_MACRO_LENGTH 31
 
 typedef struct _SkinMacro {
     int code;

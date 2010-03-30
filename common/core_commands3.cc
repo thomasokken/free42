@@ -29,6 +29,10 @@
 #include "core_sto_rcl.h"
 #include "core_variables.h"
 
+/********************************************************/
+/* Implementations of HP-42S built-in functions, part 3 */
+/********************************************************/
+
 static int mappable_acosh_r(phloat x, phloat *y) COMMANDS3_SECT;
 static int mappable_acosh_r(phloat x, phloat *y) {
     if (x >= 1) {

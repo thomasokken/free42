@@ -26,6 +26,10 @@
 #include "core_sto_rcl.h"
 #include "core_variables.h"
 
+/********************************************************/
+/* Implementations of HP-42S built-in functions, part 5 */
+/********************************************************/
+
 int appmenu_exitcallback_2(int menuid) {
     if (menuid == MENU_BASE
 	    || menuid == MENU_BASE_A_THRU_F

@@ -24,6 +24,7 @@
 #include "core_commands4.h"
 #include "core_commands5.h"
 #include "core_commands6.h"
+#include "core_commands7.h"
 
 
 #ifndef COPAN

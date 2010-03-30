@@ -1,11 +1,6 @@
-PalmOS version: cranking up the maximum macro length in skin2prc.cc would
-appear to change the format of a skin. Do I need to bump the skin version and
-add special handling for it in the application proper?
-
-PalmOS version: the 68k Decimal build is currently (1.4.63) failing because of
-a segment overflow. Also, the ARM builds need to be tested because I had to
-extend the core/shell interfact to support the TIME and DATE functions.
-Holding off on the 1.4.63 PalmOS release until these things are done.
+PalmOS version: The ARM builds need to be tested because I had to extend the
+core/shell interfact to support the TIME and DATE functions.
+Holding off on the PalmOS release until these things are done.
 
 Motif version: activating the Skin menu by clicking on it, as opposed to the
 old-Mac-style press-hold-drag-release cycle, often causes a crash.
