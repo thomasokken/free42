@@ -1119,6 +1119,83 @@ int docmd_heading(arg_struct *arg) {
 ///// HP-41 Time Module & CX Time emulation /////
 /////////////////////////////////////////////////
 
+static int date2comps(phloat x, int4 *yy, int4 *mm, int4 *dd) COMMANDS6_SECT;
+static int date2comps(phloat x, int4 *yy, int4 *mm, int4 *dd) {
+#ifdef BCD_MATH
+    int4 m = (int4) floor(x);
+    int4 d = (int4) floor((x - m) * 100);
+    int4 y = x * 1000000 % 10000;
+#else
+    int4 m = (int4) floor(x);
+    int4 r = (int4) floor((x - m) * 100000000 + 0.5);
+    r /= 100;
+    int4 d = r / 10000;
+    int4 y = r % 10000;
+#endif
+
+    if (mode_time_dmy) {
+	int4 t = m;
+	m = d;
+	d = t;
+    }
+
+    if (y < 1582 || y > 4320 || m < 1 || m > 12 || d < 1 || d > 31)
+	return ERR_INVALID_DATA;
+    if ((m == 4 || m == 6 || m == 9 || m == 11) && d == 31)
+	return ERR_INVALID_DATA;
+    if (m == 2 && d > ((y % 4 == 0 && (y % 100 != 0 || y % 400 == 0)) ? 29 : 28))
+	return ERR_INVALID_DATA;
+    if (y == 1582 && (m < 10 || m == 10 && d < 15)
+	    || y == 4320 && (m > 9 || m == 9 && d > 10))
+	return ERR_INVALID_DATA;
+
+    *yy = y;
+    *mm = m;
+    *dd = d;
+    return ERR_NONE;
+}
+
+static phloat comps2date(int4 y, int4 m, int4 d) COMMANDS6_SECT;
+static phloat comps2date(int4 y, int4 m, int4 d) {
+    if (mode_time_dmy) {
+	int4 t = m;
+	m = d;
+	d = t;
+    }
+    return phloat(m * 1000000 + d * 10000 + y) / 1000000;
+}
+
+/* Gregorian Date <-> Day Number conversion functions
+ * Algorithm due to Henry F. Fliegel and Thomas C. Van Flandern,
+ * Communications of the ACM, Vol. 11, No. 10 (October, 1968).
+ */
+static int greg2jd(int4 y, int4 m, int4 d, int4 *jd) COMMANDS6_SECT;
+static int greg2jd(int4 y, int4 m, int4 d, int4 *jd) {
+    *jd = ( 1461 * ( y + 4800 + ( m - 14 ) / 12 ) ) / 4 +
+	  ( 367 * ( m - 2 - 12 * ( ( m - 14 ) / 12 ) ) ) / 12 -
+	  ( 3 * ( ( y + 4900 + ( m - 14 ) / 12 ) / 100 ) ) / 4 +
+	  d - 32075;
+    return ERR_NONE;
+}
+
+static int jd2greg(int4 jd, int4 *y, int4 *m, int4 *d) COMMANDS6_SECT;
+static int jd2greg(int4 jd, int4 *y, int4 *m, int4 *d) {
+    if (jd < 2299161 || jd > 3299160)
+	return ERR_OUT_OF_RANGE;
+    int4 l = jd + 68569;
+    int4 n = ( 4 * l ) / 146097;
+    l = l - ( 146097 * n + 3 ) / 4;
+    int4 i = ( 4000 * ( l + 1 ) ) / 1461001;
+    l = l - ( 1461 * i ) / 4 + 31;
+    int4 j = ( 80 * l ) / 2447;
+    *d = l - ( 2447 * j ) / 80;
+    l = j / 11;
+    *m = j + 2 - ( 12 * l );
+    *y = 100 * ( n - 49 ) + i + l;
+    return ERR_NONE;
+}
+
+
 int docmd_adate(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
 	return ERR_NONEXISTENT;
@@ -1248,13 +1325,77 @@ int docmd_date(arg_struct *arg) {
 int docmd_date_plus(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
 	return ERR_NONEXISTENT;
-    return ERR_NOT_YET_IMPLEMENTED;
+    // TODO: Accept real matrices as well?
+    if (reg_x->type == TYPE_STRING)
+	return ERR_ALPHA_DATA_IS_INVALID;
+    if (reg_x->type != TYPE_REAL)
+	return ERR_INVALID_TYPE;
+    if (reg_y->type == TYPE_STRING)
+	return ERR_ALPHA_DATA_IS_INVALID;
+    if (reg_y->type != TYPE_REAL)
+	return ERR_INVALID_TYPE;
+
+    phloat date = ((vartype_real *) reg_y)->x;
+    if (date < 0 || date > 100)
+	return ERR_INVALID_DATA;
+    phloat days = ((vartype_real *) reg_x)->x;
+    if (days < -1000000 || days > 1000000)
+	return ERR_OUT_OF_RANGE;
+
+    int4 y, m, d, jd;
+    int err = date2comps(date, &y, &m, &d);
+    if (err != ERR_NONE)
+	return err;
+    err = greg2jd(y, m, d, &jd);
+    if (err != ERR_NONE)
+	return err;
+    jd += (int4) floor(days);
+    err = jd2greg(jd, &y, &m, &d);
+    if (err != ERR_NONE)
+	return err;
+    date = comps2date(y, m, d);
+
+    vartype *new_x = new_real(date);
+    if (new_x == NULL)
+	return ERR_INSUFFICIENT_MEMORY;
+    binary_result(new_x);
+    return ERR_NONE;
 }
 
 int docmd_ddays(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
 	return ERR_NONEXISTENT;
-    return ERR_NOT_YET_IMPLEMENTED;
+    // TODO: Accept real matrices as well?
+    if (reg_x->type == TYPE_STRING)
+	return ERR_ALPHA_DATA_IS_INVALID;
+    if (reg_x->type != TYPE_REAL)
+	return ERR_INVALID_TYPE;
+
+    phloat date1 = ((vartype_real *) reg_y)->x;
+    if (date1 < 0 || date1 > 100)
+	return ERR_INVALID_DATA;
+    phloat date2 = ((vartype_real *) reg_x)->x;
+    if (date2 < 0 || date2 > 100)
+	return ERR_INVALID_DATA;
+    int4 y, m, d, jd1, jd2;
+    int err = date2comps(date1, &y, &m, &d);
+    if (err != ERR_NONE)
+	return err;
+    err = greg2jd(y, m, d, &jd1);
+    if (err != ERR_NONE)
+	return err;
+    err = date2comps(date2, &y, &m, &d);
+    if (err != ERR_NONE)
+	return err;
+    err = greg2jd(y, m, d, &jd2);
+    if (err != ERR_NONE)
+	return err;
+
+    vartype *new_x = new_real(jd2 - jd1);
+    if (new_x == NULL)
+	return ERR_INSUFFICIENT_MEMORY;
+    binary_result(new_x);
+    return ERR_NONE;
 }
 
 int docmd_dmy(arg_struct *arg) {
@@ -1267,7 +1408,39 @@ int docmd_dmy(arg_struct *arg) {
 int docmd_dow(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
 	return ERR_NONEXISTENT;
-    return ERR_NOT_YET_IMPLEMENTED;
+    // TODO: Accept real matrices as well?
+    if (reg_x->type == TYPE_STRING)
+	return ERR_ALPHA_DATA_IS_INVALID;
+    if (reg_x->type != TYPE_REAL)
+	return ERR_INVALID_TYPE;
+
+    phloat x = ((vartype_real *) reg_x)->x;
+    if (x < 0 || x > 100)
+	return ERR_INVALID_DATA;
+
+    int4 y, m, d, jd;
+    int err = date2comps(x, &y, &m, &d);
+    if (err != ERR_NONE)
+	return err;
+    err = greg2jd(y, m, d, &jd);
+    if (err != ERR_NONE)
+	return err;
+    jd = (jd + 1) % 7;
+
+    vartype *new_x = new_real(jd);
+    if (new_x == NULL)
+	return ERR_INSUFFICIENT_MEMORY;
+    unary_result(new_x);
+
+    if (!program_running()) {
+	clear_row(0);
+	draw_string(0, 0, weekdaynames + jd * 3, 3);
+	flush_display();
+	flags.f.message = 1;
+	flags.f.two_line_message = 0;
+    }
+
+    return ERR_NONE;
 }
 
 int docmd_mdy(arg_struct *arg) {

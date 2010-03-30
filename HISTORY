@@ -1,3 +1,7 @@
+??-??-????: release 1.4.64
+
+* Implemented some more Time Module functions: DATE+, DDAYS, and DOW.
+
 28-03-2010: release 1.4.63
 
 * iPhone version: implemented ACCEL, LOCAT, and HEADING functions, for querying
