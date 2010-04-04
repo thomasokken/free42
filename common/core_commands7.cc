@@ -423,7 +423,6 @@ int docmd_correct(arg_struct *arg) {
 	return ERR_NONEXISTENT;
     // No-op; we use the underlying platform's clock, and we don't
     // try to mess with it.
-    // TODO: Error checking: reject invalid dates
     return ERR_NONE;
 }
 
@@ -620,7 +619,6 @@ int docmd_rclaf(arg_struct *arg) {
 	return ERR_NONEXISTENT;
     // No-op; we use the underlying platform's clock, and we don't
     // try to mess with it.
-    // TODO: Error checking: reject invalid dates
     vartype *v = new_real(0);
     if (v == NULL)
 	return ERR_INSUFFICIENT_MEMORY;
@@ -645,7 +643,6 @@ int docmd_setaf(arg_struct *arg) {
 	return ERR_NONEXISTENT;
     // No-op; we use the underlying platform's clock, and we don't
     // try to mess with it.
-    // TODO: Error checking: reject invalid dates
     return ERR_NONE;
 }
 
@@ -654,7 +651,6 @@ int docmd_setdate(arg_struct *arg) {
 	return ERR_NONEXISTENT;
     // No-op; we use the underlying platform's clock, and we don't
     // try to mess with it.
-    // TODO: Error checking: reject invalid dates
     return ERR_NONE;
 }
 
@@ -663,7 +659,6 @@ int docmd_setime(arg_struct *arg) {
 	return ERR_NONEXISTENT;
     // No-op; we use the underlying platform's clock, and we don't
     // try to mess with it.
-    // TODO: Error checking: reject invalid times
     return ERR_NONE;
 }
 
@@ -690,7 +685,6 @@ int docmd_t_plus_x(arg_struct *arg) {
 	return ERR_NONEXISTENT;
     // No-op; we use the underlying platform's clock, and we don't
     // try to mess with it.
-    // TODO: Error checking: reject invalid time offsets
     return ERR_NONE;
 }
 
