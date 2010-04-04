@@ -219,7 +219,62 @@ static int jd2greg(int4 jd, int4 *y, int4 *m, int4 *d) {
 int docmd_adate(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
 	return ERR_NONEXISTENT;
-    return ERR_NOT_YET_IMPLEMENTED;
+    if (reg_x->type == TYPE_STRING)
+	return ERR_ALPHA_DATA_IS_INVALID;
+    if (reg_x->type != TYPE_REAL)
+	return ERR_INVALID_TYPE;
+
+    phloat x = ((vartype_real *) reg_x)->x;
+    if (x < 0)
+	x = -x;
+    if (x >= 100)
+	return ERR_INVALID_DATA;
+    int m = to_int(floor(x));
+    int4 dy = to_int4(floor((x - floor(x)) * 1000000));
+    int d = (int) (dy / 10000);
+    int c = (int) (dy / 100 % 100);
+    int y = (int) (dy % 100);
+
+    int digits;
+    if (flags.f.fix_or_all && flags.f.eng_or_all)
+	digits = 11;
+    else {
+	digits = 0;
+	if (flags.f.digits_bit3)
+	    digits += 8;
+	if (flags.f.digits_bit2)
+	    digits += 4;
+	if (flags.f.digits_bit1)
+	    digits += 2;
+	if (flags.f.digits_bit0)
+	    digits += 1;
+    }
+
+    char buf[10];
+    int bufptr = 0;
+    if (m < 10)
+	char2buf(buf, 10, &bufptr, '0');
+    bufptr += int2string(m, buf + bufptr, 10 - bufptr);
+    if (digits > 0) {
+	char2buf(buf, 10, &bufptr, mode_time_dmy ? '.' : '/');
+	if (d < 10)
+	    char2buf(buf, 10, &bufptr, '0');
+	bufptr += int2string(d, buf + bufptr, 10 - bufptr);
+	if (digits > 2) {
+	    char2buf(buf, 10, &bufptr, mode_time_dmy ? '.' : '/');
+	    if (digits > 4) {
+		if (c < 10)
+		    char2buf(buf, 10, &bufptr, '0');
+		bufptr += int2string(c, buf + bufptr, 10 - bufptr);
+	    }
+	    if (y < 10)
+		char2buf(buf, 10, &bufptr, '0');
+	    bufptr += int2string(y, buf + bufptr, 10 - bufptr);
+	}
+    }
+
+    append_alpha_string(buf, bufptr, 0);
+    return ERR_NONE;
 }
 
 int docmd_almcat(arg_struct *arg) {
@@ -237,13 +292,96 @@ int docmd_almnow(arg_struct *arg) {
 int docmd_atime(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
 	return ERR_NONEXISTENT;
-    return ERR_NOT_YET_IMPLEMENTED;
+    if (reg_x->type == TYPE_STRING)
+	return ERR_ALPHA_DATA_IS_INVALID;
+    if (reg_x->type != TYPE_REAL)
+	return ERR_INVALID_TYPE;
+
+    phloat x = ((vartype_real *) reg_x)->x;
+    bool neg = x < 0;
+    if (neg)
+	x = -x;
+    if (x >= 100)
+	return ERR_INVALID_DATA;
+    int h = to_int(floor(x));
+    if (h == 0)
+	neg = false;
+    int4 ms = to_int4(floor((x - floor(x)) * 1000000));
+    int m = (int) (ms / 10000);
+    int s = (int) (ms / 100 % 100);
+    int cs = (int) (ms % 100);
+    bool am = false;
+    bool pm = false;
+
+    if (mode_time_clk24) {
+	if (neg && h >= 1 && h <= 11)
+	    h += 12;
+    } else if (h < 24) {
+	if (!neg && h < 12)
+	    am = true;
+	else
+	    pm = true;
+	if (h == 0)
+	    h = 12;
+	else if (h > 12)
+	    h -= 12;
+    }
+
+    int digits;
+    if (flags.f.fix_or_all && flags.f.eng_or_all)
+	digits = 11;
+    else {
+	digits = 0;
+	if (flags.f.digits_bit3)
+	    digits += 8;
+	if (flags.f.digits_bit2)
+	    digits += 4;
+	if (flags.f.digits_bit1)
+	    digits += 2;
+	if (flags.f.digits_bit0)
+	    digits += 1;
+    }
+
+    char buf[14];
+    int bufptr = 0;
+    if (h < 10)
+	char2buf(buf, 14, &bufptr, mode_time_clk24 ? '0' : ' ');
+    bufptr += int2string(h, buf + bufptr, 14 - bufptr);
+    if (digits > 0) {
+	char2buf(buf, 14, &bufptr, ':');
+	if (m < 10)
+	    char2buf(buf, 14, &bufptr, '0');
+	bufptr += int2string(m, buf + bufptr, 14 - bufptr);
+	if (digits > 2) {
+	    char2buf(buf, 14, &bufptr, ':');
+	    if (s < 10)
+		char2buf(buf, 14, &bufptr, '0');
+	    bufptr += int2string(s, buf + bufptr, 14 - bufptr);
+	    if (digits > 4) {
+		char2buf(buf, 14, &bufptr, '.');
+		if (cs < 10)
+		    char2buf(buf, 14, &bufptr, '0');
+		bufptr += int2string(cs, buf + bufptr, 14 - bufptr);
+	    }
+	}
+    }
+    if (am)
+	string2buf(buf, 14, &bufptr, " AM", 3);
+    else if (pm)
+	string2buf(buf, 14, &bufptr, " PM", 3);
+    append_alpha_string(buf, bufptr, 0);
+
+    return ERR_NONE;
 }
 
 int docmd_atime24(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
 	return ERR_NONEXISTENT;
-    return ERR_NOT_YET_IMPLEMENTED;
+    bool saved_clk24 = mode_time_clk24;
+    mode_time_clk24 = true;
+    int res = docmd_atime(arg);
+    mode_time_clk24 = saved_clk24;
+    return res;
 }
 
 int docmd_clk12(arg_struct *arg) {
@@ -283,7 +421,10 @@ int docmd_clock(arg_struct *arg) {
 int docmd_correct(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
 	return ERR_NONEXISTENT;
-    return ERR_NOT_YET_IMPLEMENTED;
+    // No-op; we use the underlying platform's clock, and we don't
+    // try to mess with it.
+    // TODO: Error checking: reject invalid dates
+    return ERR_NONE;
 }
 
 static char weekdaynames[] = "SUNMONTUEWEDTHUFRISAT";
@@ -477,7 +618,14 @@ int docmd_mdy(arg_struct *arg) {
 int docmd_rclaf(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
 	return ERR_NONEXISTENT;
-    return ERR_NOT_YET_IMPLEMENTED;
+    // No-op; we use the underlying platform's clock, and we don't
+    // try to mess with it.
+    // TODO: Error checking: reject invalid dates
+    vartype *v = new_real(0);
+    if (v == NULL)
+	return ERR_INSUFFICIENT_MEMORY;
+    recall_result(v);
+    return ERR_NONE;
 }
 
 int docmd_rclsw(arg_struct *arg) {
@@ -495,19 +643,28 @@ int docmd_runsw(arg_struct *arg) {
 int docmd_setaf(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
 	return ERR_NONEXISTENT;
-    return ERR_NOT_YET_IMPLEMENTED;
+    // No-op; we use the underlying platform's clock, and we don't
+    // try to mess with it.
+    // TODO: Error checking: reject invalid dates
+    return ERR_NONE;
 }
 
 int docmd_setdate(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
 	return ERR_NONEXISTENT;
-    return ERR_NOT_YET_IMPLEMENTED;
+    // No-op; we use the underlying platform's clock, and we don't
+    // try to mess with it.
+    // TODO: Error checking: reject invalid dates
+    return ERR_NONE;
 }
 
 int docmd_setime(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
 	return ERR_NONEXISTENT;
-    return ERR_NOT_YET_IMPLEMENTED;
+    // No-op; we use the underlying platform's clock, and we don't
+    // try to mess with it.
+    // TODO: Error checking: reject invalid times
+    return ERR_NONE;
 }
 
 int docmd_setsw(arg_struct *arg) {
@@ -531,7 +688,10 @@ int docmd_sw(arg_struct *arg) {
 int docmd_t_plus_x(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
 	return ERR_NONEXISTENT;
-    return ERR_NOT_YET_IMPLEMENTED;
+    // No-op; we use the underlying platform's clock, and we don't
+    // try to mess with it.
+    // TODO: Error checking: reject invalid time offsets
+    return ERR_NONE;
 }
 
 int docmd_time(arg_struct *arg) {

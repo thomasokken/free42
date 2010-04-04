@@ -1,3 +1,8 @@
+??-??-????: release 1.4.65
+
+* Implemented some more Time Module functions: ADATE, ATIME, ATIME24, CORRECT,
+  RCLAF, SETAF, SETDATE, SETIME, T+X.
+
 30-03-2010: release 1.4.64
 
 * Implemented some more Time Module functions: DATE+, DDAYS, and DOW.
