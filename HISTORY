@@ -1,3 +1,8 @@
+??-??-????: release 1.4.66
+
+* In DMY mode, DATE would display dates as DD:MM:YYYY, but that should be
+  DD.MM.YYYY. Fixed.
+
 03-04-2010: release 1.4.65
 
 * Implemented some more Time Module functions: ADATE, ATIME, ATIME24, CORRECT,
