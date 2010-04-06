@@ -461,12 +461,12 @@ int docmd_date(arg_struct *arg) {
 	if (n < 10)
 	    char2buf(buf, 22, &bufptr, '0');
 	bufptr += int2string(n, buf + bufptr, 22 - bufptr);
-	char2buf(buf, 22, &bufptr, mode_time_dmy ? ':' : '/');
+	char2buf(buf, 22, &bufptr, mode_time_dmy ? '.' : '/');
 	n = mode_time_dmy ? m : d;
 	if (n < 10)
 	    char2buf(buf, 22, &bufptr, '0');
 	bufptr += int2string(n, buf + bufptr, 22 - bufptr);
-	char2buf(buf, 22, &bufptr, mode_time_dmy ? ':' : '/');
+	char2buf(buf, 22, &bufptr, mode_time_dmy ? '.' : '/');
 	bufptr += int2string(y, buf + bufptr, 22 - bufptr);
 	char2buf(buf, 22, &bufptr, ' ');
 	string2buf(buf, 22, &bufptr, weekdaynames + weekday * 3, 3);
