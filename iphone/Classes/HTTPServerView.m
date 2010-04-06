@@ -120,6 +120,7 @@ static void *getHostName(void *dummy) {
 	[urlLabel setText:@"(not running)"];
 	[logView setText:@""];
 	[self performSelectorInBackground:@selector(start_simple_server) withObject:NULL];
+	[UIApplication sharedApplication].idleTimerDisabled = YES;
 }
 
 - (void) displayHostAndPort {
@@ -131,6 +132,7 @@ static void *getHostName(void *dummy) {
 }
 
 - (IBAction) done {
+	[UIApplication sharedApplication].idleTimerDisabled = NO;
 	if (port != 0) {
 		mustStop = true;
 		int sock = socket(AF_INET, SOCK_STREAM, 0);
