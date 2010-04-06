@@ -1,3 +1,7 @@
+Mac Dashboard version: I'm getting Memory Clear after rebooting. It looks like
+the state file isn't getting read, or something else is not working properly
+during startup.
+
 PalmOS version: The ARM builds need to be tested because I had to extend the
 core/shell interface to support the TIME and DATE functions.
 Holding off on the PalmOS release until these things are done.
