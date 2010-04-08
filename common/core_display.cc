@@ -1375,12 +1375,12 @@ static int fcn_cat[] = {
 };
 
 typedef struct {
-    const int first_cmd;
-    const int last_cmd;
-    const bool *enable_flag;
-} extension;
+    int first_cmd;
+    int last_cmd;
+    bool *enable_flag;
+} extension_struct;
 
-static extension extensions[] = {
+static extension_struct extensions[] = {
     { CMD_OPENF,   CMD_DELP,    &core_settings.enable_ext_copan    },
     { CMD_DROP,    CMD_DROP,    &core_settings.enable_ext_bigstack },
     { CMD_ACCEL,   CMD_ACCEL,   &core_settings.enable_ext_accel    },
