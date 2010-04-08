@@ -7,8 +7,8 @@
   HP-41 Time Module that are actually useful in Free42.
   The functions that I decided not to implement after all are the following:
   Live clock display: CLKT CLKTD CLOCK
-  Stopwatch: RCLSW RUNSW SETSW STOPSW SW SWPT
-  Alarms: ALMCAT ALMNOW XYZALM CLALMA CLALMX CLRALMS RCLALM
+  Stopwatch: RCLSW RUNSW SETSW STOPSW SW
+  Alarms: ALMCAT ALMNOW XYZALM
   Clock control: CORRECT RCLAF SETAF SETDATE SETIME T+X
 * In DMY mode, DATE would display dates as DD:MM:YYYY, but that should be
   DD.MM.YYYY. Fixed.
