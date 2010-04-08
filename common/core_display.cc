@@ -1374,11 +1374,11 @@ static int fcn_cat[] = {
     CMD_LEFT,     CMD_UP,        CMD_DOWN,     CMD_RIGHT,      CMD_PERCENT, CMD_PERCENT_CH
 };
 
-struct extension {
+typedef struct {
     const int first_cmd;
     const int last_cmd;
     const bool *enable_flag;
-};
+} extension;
 
 static extension extensions[] = {
     { CMD_OPENF,   CMD_DELP,    &core_settings.enable_ext_copan    },
