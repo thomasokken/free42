@@ -1374,6 +1374,22 @@ static int fcn_cat[] = {
     CMD_LEFT,     CMD_UP,        CMD_DOWN,     CMD_RIGHT,      CMD_PERCENT, CMD_PERCENT_CH
 };
 
+struct extension {
+    const int first_cmd;
+    const int last_cmd;
+    const bool *enable_flag;
+};
+
+static extension extensions[] = {
+    { CMD_OPENF,   CMD_DELP,    &core_settings.enable_ext_copan    },
+    { CMD_DROP,    CMD_DROP,    &core_settings.enable_ext_bigstack },
+    { CMD_ACCEL,   CMD_ACCEL,   &core_settings.enable_ext_accel    },
+    { CMD_LOCAT,   CMD_LOCAT,   &core_settings.enable_ext_locat    },
+    { CMD_HEADING, CMD_HEADING, &core_settings.enable_ext_heading  },
+    { CMD_ADATE,   CMD_SWPT,    &core_settings.enable_ext_time     },
+    { CMD_NULL,    CMD_NULL,    NULL                               }
+};
+
 static void draw_catalog() DISPLAY_SECT;
 static void draw_catalog() {
     int catsect = get_cat_section();
@@ -1444,84 +1460,58 @@ static void draw_catalog() {
 	mode_updown = catalogmenu_rows[catindex] > 1;
 	shell_annunciators(mode_updown, -1, -1, -1, -1, -1);
     } else if (catsect == CATSECT_FCN) {
-	int fcn_cat_rows = 252;
-	if (core_settings.enable_ext_copan)
-	    fcn_cat_rows += 14;
-	if (core_settings.enable_ext_bigstack)
-	    fcn_cat_rows++;
-	if (core_settings.enable_ext_accel)
-	    fcn_cat_rows++;
-	if (core_settings.enable_ext_locat)
-	    fcn_cat_rows++;
-	if (core_settings.enable_ext_heading)
-	    fcn_cat_rows++;
-	if (core_settings.enable_ext_time)
-	    fcn_cat_rows += 34;
-	fcn_cat_rows = (fcn_cat_rows + 5) / 6;
-
-	int i;
-	catalogmenu_rows[catindex] = fcn_cat_rows;
-	if (catalogmenu_row[catindex] >= catalogmenu_rows[catindex])
-	    catalogmenu_row[catindex] = catalogmenu_rows[catindex] - 1;
-	for (i = 0; i < 6; i++) {
-	    int fcn_index = catalogmenu_row[catindex] * 6 + i;
-	    int cmd;
-	    if (catalogmenu_row[catindex] < 42)
-		/* Original HP-42S catalog; always available */
-		cmd = fcn_cat[fcn_index];
-	    else {
-		fcn_index -= 252;
-		if (core_settings.enable_ext_copan) {
-		    if (fcn_index < 14) {
-			cmd = CMD_OPENF + fcn_index;
-			goto found;
-		    }
-		    fcn_index -= 14;
-		}
-		if (core_settings.enable_ext_bigstack) {
-		    if (fcn_index == 0) {
-			cmd = CMD_DROP;
-			goto found;
-		    }
-		    fcn_index--;
-		}
-		if (core_settings.enable_ext_accel) {
-		    if (fcn_index == 0) {
-			cmd = CMD_ACCEL;
-			goto found;
-		    }
-		    fcn_index--;
-		}
-		if (core_settings.enable_ext_locat) {
-		    if (fcn_index == 0) {
-			cmd = CMD_LOCAT;
-			goto found;
-		    }
-		    fcn_index--;
-		}
-		if (core_settings.enable_ext_heading) {
-		    if (fcn_index == 0) {
-			cmd = CMD_HEADING;
-			goto found;
-		    }
-		    fcn_index--;
-		}
-		if (core_settings.enable_ext_time) {
-		    if (fcn_index < 34) {
-			cmd = CMD_ADATE + fcn_index;
-			goto found;
-		    }
-		    fcn_index -= 34;
-		}
-		cmd = -1;
-		found:;
-	    }
-	    catalogmenu_item[catindex][i] = cmd;
-	    if (cmd == -1)
-		draw_key(i, 0, 0, "", 0);
-	    else
+	int desired_row = catalogmenu_row[catindex];
+	if (desired_row < 42) {
+	    for (int i = 0; i < 6; i++) {
+		int cmd = fcn_cat[desired_row * 6 + i];
+		catalogmenu_item[catindex][i] = cmd;
 		draw_key(i, 0, 1, cmdlist(cmd)->name,
 				  cmdlist(cmd)->name_length);
+	    }
+	    // Setting number of rows to a ridiculously large value;
+	    // this value only comes into play when the user presses "up"
+	    // while on the first row of the FCN catalog, and the extension-handling
+	    // code in the desired_row >= 42 case takes care of handling the
+	    // ever-changing number of rows in this menu, and will clip the row
+	    // number to the actual number of rows.
+	    catalogmenu_rows[catindex] = 1000;
+	} else {
+	    int curr_row = 41;
+	    int curr_pos = 5;
+	    bool menu_full = false;
+	    int menu_length = 0;
+	    for (int extno = 0; extensions[extno].first_cmd != CMD_NULL; extno++) {
+		if (extensions[extno].enable_flag == NULL || *extensions[extno].enable_flag) {
+		    for (int cmd = extensions[extno].first_cmd; cmd <= extensions[extno].last_cmd; cmd++) {
+			if ((cmdlist(cmd)->flags & FLAG_HIDDEN) == 0) {
+			    if (curr_pos == 5) {
+				curr_pos = 0;
+				curr_row++;
+			    } else
+				curr_pos++;
+			    if (menu_full)
+				goto done;
+			    catalogmenu_item[catindex][curr_pos] = cmd;
+			    catalogmenu_row[catindex] = curr_row;
+			    menu_length = curr_pos + 1;
+			    if (curr_pos == 5 && curr_row == desired_row)
+				menu_full = true;
+			}
+		    }
+		}
+	    }
+	    done:
+	    catalogmenu_rows[catindex] = curr_row + 1;
+	    for (int i = 0; i < 6; i++) {
+		if (i >= menu_length)
+		    catalogmenu_item[catindex][i] = -1;
+		int cmd = catalogmenu_item[catindex][i];
+		if (cmd == -1)
+		    draw_key(i, 0, 0, "", 0);
+		else
+		    draw_key(i, 0, 1, cmdlist(cmd)->name,
+				      cmdlist(cmd)->name_length);
+	    }
 	}
 	mode_updown = true;
 	shell_annunciators(1, -1, -1, -1, -1, -1);
@@ -2167,7 +2157,8 @@ int command2buf(char *buf, int len, int cmd, const arg_struct *arg) {
 	    || !core_settings.enable_ext_accel && cmd == CMD_ACCEL
 	    || !core_settings.enable_ext_locat && cmd == CMD_LOCAT
 	    || !core_settings.enable_ext_heading && cmd == CMD_HEADING
-	    || !core_settings.enable_ext_time && cmd >= CMD_ADATE && cmd <= CMD_SWPT) {
+	    || !core_settings.enable_ext_time && cmd >= CMD_ADATE && cmd <= CMD_SWPT
+	    || (cmdlist(cmd)->hp42s_code & 0xfffff800) == 0x0000a000 && (cmdlist(cmd)->flags & FLAG_HIDDEN) != 0) {
 	xrom_arg = cmdlist(cmd)->hp42s_code;
 	cmd = CMD_XROM;
     } else if (cmd == CMD_XROM)

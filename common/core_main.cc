@@ -1644,6 +1644,8 @@ void core_import_programs(int (*progress_report)(const char *)) {
 		code = (((unsigned int) byte1) << 8) | byte2;
 		for (i = 0; i < CMD_SENTINEL; i++)
 		    if (cmdlist(i)->hp42s_code == code) {
+			if ((cmdlist(i)->flags & FLAG_HIDDEN) != 0)
+			    break;
 			cmd = i;
 			arg.type = ARGTYPE_NONE;
 			goto store;

@@ -1,4 +1,15 @@
-??-??-????: release 1.4.66
+08-04-2010: release 1.4.66
+
+* Removed the "Not Yet Implemented" Time functions; I decided not to implement
+  them. They're also gone from the FCN catalog.
+  The ADATE, ATIME, ATIME24, CLK12, CLK24, DATE, DATE+, DDAYS, DMY, DOW, MDY,
+  and TIME functions remain; those are the time/date-related functions from the
+  HP-41 Time Module that are actually useful in Free42.
+  The functions that I decided not to implement after all are the following:
+  Live clock display: CLKT CLKTD CLOCK
+  Stopwatch: RCLSW RUNSW SETSW STOPSW SW SWPT
+  Alarms: ALMCAT ALMNOW XYZALM CLALMA CLALMX CLRALMS RCLALM
+  Clock control: CORRECT RCLAF SETAF SETDATE SETIME T+X
 
 * In DMY mode, DATE would display dates as DD:MM:YYYY, but that should be
   DD.MM.YYYY. Fixed.
