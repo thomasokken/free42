@@ -10,7 +10,6 @@
   Stopwatch: RCLSW RUNSW SETSW STOPSW SW SWPT
   Alarms: ALMCAT ALMNOW XYZALM CLALMA CLALMX CLRALMS RCLALM
   Clock control: CORRECT RCLAF SETAF SETDATE SETIME T+X
-
 * In DMY mode, DATE would display dates as DD:MM:YYYY, but that should be
   DD.MM.YYYY. Fixed.
 
