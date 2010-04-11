@@ -181,6 +181,15 @@ static int view_offset = 0;
 	NSString *fullName = [NSString stringWithFormat:@"%@/%@", dirName, [nameField text]];
 	// Get rid of the leading "./"
 	fullName = [fullName substringFromIndex:2];
+	// If the selected type is not All Files (*), append file type, if necessary
+	if ([fullName length] > 0) {
+		NSString *suffix = [typeSelector titleForSegmentAtIndex:[typeSelector selectedSegmentIndex]];
+		if ([suffix compare:@"*"] != NSOrderedSame) {
+			suffix = [NSString stringWithFormat:@".%@", suffix];
+			if (![[fullName lowercaseString] hasSuffix:[suffix lowercaseString]])
+				fullName = [fullName stringByAppendingString:suffix];
+		}
+	}
 	[callbackObject performSelector:callbackSelector withObject:fullName];
 	[callbackObject release];
 	[dirName release];

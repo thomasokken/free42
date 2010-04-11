@@ -100,8 +100,9 @@ static int view_offset = 0;
 }
 
 - (void) browseTextFileCB:(NSString *) path {
+	if ([path length] > 0 && ![[path lowercaseString] hasSuffix:@".txt"])
+		path = [path stringByAppendingString:@".txt"];
 	[printToTextField setText:path];
-	// TODO
 }
 
 - (IBAction) browseGifFile {
@@ -109,8 +110,9 @@ static int view_offset = 0;
 }
 
 - (void) browseGifFileCB:(NSString *) path {
+	if ([path length] > 0 && ![[path lowercaseString] hasSuffix:@".gif"])
+		path = [path stringByAppendingString:@".gif"];
 	[printToGifField setText:path];
-	// TODO
 }
 
 - (IBAction) done {
@@ -122,10 +124,14 @@ static int view_offset = 0;
 	core_settings.auto_repeat = autoRepeatSwitch.on;
 	state.printerToTxtFile = printToTextSwitch.on;
 	NSString *s = [printToTextField text];
+	if ([s length] > 0 && ![[s lowercaseString] hasSuffix:@".txt"])
+		s = [s stringByAppendingString:@".txt"];
 	[s getCString:state.printerTxtFileName maxLength:FILENAMELEN encoding:NSUTF8StringEncoding];
 	core_settings.raw_text = rawTextSwitch.on;
 	state.printerToGifFile = printToGifSwitch.on;
 	s = [printToGifField text];
+	if ([s length] > 0 && ![[s lowercaseString] hasSuffix:@".gif"])
+		s = [s stringByAppendingString:@".gif"];
 	[s getCString:state.printerGifFileName maxLength:FILENAMELEN encoding:NSUTF8StringEncoding];
 	s = [maxGifLengthField text];
 	char buf[32];
