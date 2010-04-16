@@ -5,6 +5,7 @@ extensions to file names automagically when appropriate.
 iPhone version: implement print-out window.
 Implement program import/export to local files.
 Implement pop-up keyboard for ALPHA mode text entry.
+Implement copy & paste.
 
 Motif version: activating the Skin menu by clicking on it, as opposed to the
 old-Mac-style press-hold-drag-release cycle, often causes a crash.
@@ -17,6 +18,15 @@ iPhone version: it is possible to disable the sleep timer using
 [UIApplication sharedApplication].idleTimerDisabled = YES;
 This would be a good thing to use to prevent auto-poweroff while a program
 is running.
+
+iPhone version: leaving the HTTP Server doesn't always manage to close the
+server socket. The result can be (1) reopening the HTTP Server fails to bind
+the socket to the desired port, or (2) the app hangs, presumably while trying
+to connect to the socket to tell the server to shut down. In both cases, the
+server loop appears to be hanging, which in turn must have something to do
+with the fact that it handles all connections on a single thread: when handling
+one connection never terminates for whatever reason, all subsequent operations
+either fail (case #1, above) or hang (case #2, above).
 
 PalmOS: Flag 11 doesn't work on power cycle: After exit and restart, it does
 work; after power cycle, the "running" annunciator comes on, but the program
