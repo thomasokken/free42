@@ -1,6 +1,10 @@
 Mac version: implement print-out window.
 Modify the file selection dialogs so they have a file type menu, and add
 extensions to file names automagically when appropriate.
+Pressing Command-N, or any Command-key combination that isn't defined in the
+menu, causes Free42 to act as if the key were pressed without Command, and
+never released... after which, the keyboard is unresponsive to mouse clicks,
+and you need to press some other keyboard key to unfreeze it.
 
 iPhone version: implement print-out window.
 Implement program import/export to local files.
