@@ -10,6 +10,7 @@ iPhone version: implement print-out window.
 Implement program import/export to local files.
 Implement pop-up keyboard for ALPHA mode text entry.
 Implement copy & paste.
+Implement URL decoding for HTTP requests (filenames with spaces, etc.)
 
 Motif version: activating the Skin menu by clicking on it, as opposed to the
 old-Mac-style press-hold-drag-release cycle, often causes a crash.
