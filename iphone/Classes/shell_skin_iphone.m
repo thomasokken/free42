@@ -77,6 +77,7 @@ static FILE *external_file;
 
 static int skin_type;
 static int skin_width, skin_height;
+static int skin_scale;
 static int skin_ncolors;
 static const SkinColor *skin_colors = NULL;
 static int skin_y;
@@ -512,6 +513,7 @@ int skin_init_image(int type, int ncolors, const SkinColor *colors,
 	// TODO - handle memory allocation failure
 	skin_width = width;
 	skin_height = height;
+	skin_scale = width <= 320 ? 1 : 2;
 	skin_y = skin_height;
 	return skin_bitmap != NULL;
 }
@@ -572,7 +574,12 @@ void skin_finish_image() {
 }
 
 void skin_repaint(CGRect *rect) {
+	rect->origin.x *= skin_scale;
+	rect->origin.y *= skin_scale;
+	rect->size.width *= skin_scale;
+	rect->size.height *= skin_scale;
 	CGContextRef myContext = UIGraphicsGetCurrentContext();
+	CGContextScaleCTM(myContext, 1.0 / skin_scale, 1.0 / skin_scale);
 	
 	// Optimize for the common case that *only* the display needs painting
 	bool paintOnlyDisplay = rect->origin.x >= display_loc.x && rect->origin.y >= display_loc.y
@@ -671,14 +678,18 @@ void skin_update_annunciator(int which, int state, MainView *view) {
 		return;
 	annunciator_state[which] = state;
 	SkinRect *r = &annunciators[which].disp_rect;
-	[view setNeedsDisplayInRectSafely:CGRectMake(r->x, r->y, r->width, r->height)];
+	[view setNeedsDisplayInRectSafely:CGRectMake(r->x / skin_scale, r->y / skin_scale, r->width / skin_scale, r->height / skin_scale)];
 }
 	
 bool skin_in_menu_area(int x, int y) {
+	x *= skin_scale;
+	y *= skin_scale;
 	return y < display_loc.y + display_scale.y * 8;
 }
 
 void skin_find_key(int x, int y, bool cshift, int *skey, int *ckey) {
+	x *= skin_scale;
+	y *= skin_scale;
 	int i;
 	if (core_menu()
 			&& x >= display_loc.x
@@ -754,10 +765,10 @@ static void invalidate_key(int key, MainView *view) {
 		int y = 9 * display_scale.y + display_loc.y;
 		int w = 21 * display_scale.x;
 		int h = 7 * display_scale.y;
-		[view setNeedsDisplayInRectSafely:CGRectMake(x, y, w, h)];
+		[view setNeedsDisplayInRectSafely:CGRectMake(x / skin_scale, y / skin_scale, w / skin_scale, h / skin_scale)];
 	} else if (key >= 0 && key < nkeys) {
 		SkinRect *r = &keylist[key].disp_rect;
-		[view setNeedsDisplayInRectSafely:CGRectMake(r->x, r->y, r->width, r->height)];
+		[view setNeedsDisplayInRectSafely:CGRectMake(r->x / skin_scale, r->y / skin_scale, r->width / skin_scale, r->height / skin_scale)];
 	}
 }
 
@@ -781,17 +792,17 @@ void skin_display_blitter(const char *bits, int bytesperline, int x, int y, int 
 				disp_bitmap[v * disp_bytesperline + (h >> 3)] |= 128 >> (h & 7);
 		}
 	
-	[view setNeedsDisplayInRectSafely:CGRectMake(display_loc.x + x * display_scale.x,
-												 display_loc.y + y * display_scale.y,
-												 width * display_scale.x,
-												 height * display_scale.y)];
+	[view setNeedsDisplayInRectSafely:CGRectMake((display_loc.x + x * display_scale.x) / skin_scale,
+												 (display_loc.y + y * display_scale.y) / skin_scale,
+												 (width * display_scale.x) / skin_scale,
+												 (height * display_scale.y) / skin_scale)];
 }
 
 void skin_repaint_display(MainView *view) {
 	if (!display_enabled)
 		// Prevent screen flashing during macro execution
 		return;
-	[view setNeedsDisplayInRectSafely:CGRectMake(display_loc.x, display_loc.y, 131 * display_scale.x, 16 * display_scale.y)];
+	[view setNeedsDisplayInRectSafely:CGRectMake(display_loc.x / skin_scale, display_loc.y / skin_scale, 131 * display_scale.x / skin_scale, 16 * display_scale.y / skin_scale)];
 }
 
 void skin_display_set_enabled(bool enable) {

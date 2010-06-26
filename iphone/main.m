@@ -16,6 +16,7 @@
  *****************************************************************************/
 
 #import <sys/stat.h>
+#import <unistd.h>
 #import <UIKit/UIKit.h>
 
 int main(int argc, char *argv[]) {

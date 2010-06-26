@@ -21,6 +21,7 @@
 #include <netinet/in.h>
 #include <ifaddrs.h>
 #include <netdb.h>
+#include <unistd.h>
 #include <stdarg.h>
 #include <pthread.h>
 
