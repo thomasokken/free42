@@ -3,6 +3,11 @@
 * iPhone version: added support for 640x920 skins.
 * Added Silver And Blue skin to Free42PocketPCSkins.zip package. Contributed by
   David Geiger.
+* The SST and BST key labels were switched in these skins:
+  ppcskins/Andy480x800.gif ppcskins/Ramos240x400.gif ppcskins/Ramos480x640.gif
+  ppcskins/SilverAndBlue.gif ppcskins/StandardPPC.gif
+  ppcskins/StandardPPCsm.gif skins/Andy480x800.gif
+  Fixed.
 
 08-04-2010: release 1.4.66
 
