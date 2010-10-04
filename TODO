@@ -1,3 +1,7 @@
+Windows version: after switching windows using Alt-Tab, sometimes Free42
+stops responding to the keyboard. Maybe it sees alt-down and then never the
+alt-up?
+
 Mac version: implement print-out window.
 Modify the file selection dialogs so they have a file type menu, and add
 extensions to file names automagically when appropriate.
