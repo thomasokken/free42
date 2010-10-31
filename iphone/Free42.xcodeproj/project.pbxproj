@@ -67,6 +67,7 @@
 		E9BA0E7D0F92245E0087EBFB /* HTTPServerView.m in Sources */ = {isa = PBXBuildFile; fileRef = E9BA0E7C0F92245E0087EBFB /* HTTPServerView.m */; };
 		E9BA0E800F9224700087EBFB /* SelectSkinView.m in Sources */ = {isa = PBXBuildFile; fileRef = E9BA0E7F0F9224700087EBFB /* SelectSkinView.m */; };
 		E9BA0EAE0F9224F00087EBFB /* AboutView.m in Sources */ = {isa = PBXBuildFile; fileRef = E9BA0EAD0F9224F00087EBFB /* AboutView.m */; };
+		E9C061C7127CED07000427AA /* icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E9C061C6127CED07000427AA /* icon@2x.png */; };
 		E9C92F8B0FE424FE00DC292C /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = E9C92F8A0FE424FE00DC292C /* Default.png */; };
 		E9CD216B0FA39C41008E1E65 /* SelectFileView.m in Sources */ = {isa = PBXBuildFile; fileRef = E9CD216A0FA39C41008E1E65 /* SelectFileView.m */; };
 		E9CFD938101CD39500C26700 /* bcdfloat2.cc in Sources */ = {isa = PBXBuildFile; fileRef = E9CFD936101CD39500C26700 /* bcdfloat2.cc */; };
@@ -173,6 +174,7 @@
 		E9BA0E7F0F9224700087EBFB /* SelectSkinView.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = SelectSkinView.m; sourceTree = "<group>"; };
 		E9BA0EAC0F9224F00087EBFB /* AboutView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AboutView.h; sourceTree = "<group>"; };
 		E9BA0EAD0F9224F00087EBFB /* AboutView.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = AboutView.m; sourceTree = "<group>"; };
+		E9C061C6127CED07000427AA /* icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon@2x.png"; sourceTree = "<group>"; };
 		E9C92F8A0FE424FE00DC292C /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
 		E9CD21690FA39C41008E1E65 /* SelectFileView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectFileView.h; sourceTree = "<group>"; };
 		E9CD216A0FA39C41008E1E65 /* SelectFileView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SelectFileView.m; sourceTree = "<group>"; };
@@ -260,6 +262,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				E9C061C6127CED07000427AA /* icon@2x.png */,
 				E94DE6C51011E9AE005E6B19 /* about-icon.png */,
 				E9C92F8A0FE424FE00DC292C /* Default.png */,
 				E98FA4830F913E2900DED348 /* icon.png */,
@@ -386,7 +389,14 @@
 			isa = PBXProject;
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Free42" */;
 			compatibilityVersion = "Xcode 3.1";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* CustomTemplate */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -420,6 +430,7 @@
 				E9031C920FF68FCD0023F9EC /* Ehrling42sm.gif in Resources */,
 				E9031C930FF68FCD0023F9EC /* Ehrling42sm.layout in Resources */,
 				E94DE6C61011E9AE005E6B19 /* about-icon.png in Resources */,
+				E9C061C7127CED07000427AA /* icon@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -533,7 +544,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
-				SDKROOT = iphonesimulator3.2;
+				SDKROOT = iphoneos4.1;
 			};
 			name = Debug;
 		};

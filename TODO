@@ -1,3 +1,6 @@
+iPhone version: change app id back to com.yourcompany.* (it's currently
+okkosoft.* so that I can use the SAFE profiles).
+
 Windows version: after switching windows using Alt-Tab, sometimes Free42
 stops responding to the keyboard. Maybe it sees alt-down and then never the
 alt-up?
