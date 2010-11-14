@@ -16,11 +16,24 @@
 
 package com.thomasokken.free42;
 
+import java.io.File;
+import java.io.InputStream;
+
 import android.app.Activity;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -35,29 +48,19 @@ public class Free42Activity extends Activity {
     
     static final private int BACK_ID = Menu.FIRST;
     static final private int CLEAR_ID = Menu.FIRST + 1;
-
-    private EditText mEditor;
     
-    public Free42Activity() {
-    }
+    private Free42View view;
+    private Bitmap skin;
 
     /** Called with the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Inflate our UI from its XML layout description.
-        setContentView(R.layout.skeleton_activity);
-
-        // Find the text editor view inside the layout, because we
-        // want to do various programmatic things with it.
-        mEditor = (EditText) findViewById(R.id.editor);
-
-        // Hook up button presses to the appropriate event handler.
-        ((Button) findViewById(R.id.back)).setOnClickListener(mBackListener);
-        ((Button) findViewById(R.id.clear)).setOnClickListener(mClearListener);
+        view = new Free42View(this);
+        setContentView(view);
         
-        mEditor.setText(getText(R.string.main_label));
+    	InputStream is = getClass().getResourceAsStream("Ehrling42sm.gif");
+    	skin = new BitmapDrawable(is).getBitmap();
     }
 
     /**
@@ -93,7 +96,7 @@ public class Free42Activity extends Activity {
 
         // Before showing the menu, we need to decide whether the clear
         // item is enabled depending on whether there is text to clear.
-        menu.findItem(CLEAR_ID).setVisible(mEditor.getText().length() > 0);
+        //menu.findItem(CLEAR_ID).setVisible(canvas.getText().length() > 0);
 
         return true;
     }
@@ -108,7 +111,7 @@ public class Free42Activity extends Activity {
             finish();
             return true;
         case CLEAR_ID:
-            mEditor.setText("");
+            //canvas.setText("");
             return true;
         }
 
@@ -129,7 +132,41 @@ public class Free42Activity extends Activity {
      */
     OnClickListener mClearListener = new OnClickListener() {
         public void onClick(View v) {
-            mEditor.setText("");
+            //canvas.setText("");
         }
     };
+    
+    private class Free42View extends View {
+
+    	public Free42View(Context context) {
+    		super(context);
+    		// TODO Auto-generated constructor stub
+    	}
+
+    	public Free42View(Context context, AttributeSet attrs) {
+    		super(context, attrs);
+    		// TODO Auto-generated constructor stub
+    	}
+
+    	public Free42View(Context context, AttributeSet attrs, int defStyle) {
+    		super(context, attrs, defStyle);
+    		// TODO Auto-generated constructor stub
+    	}
+
+    	private int width = -1;
+    	private int height = -1;
+    	
+    	@Override
+    	protected void onDraw(Canvas canvas) {
+    		Paint p = new Paint();
+    		canvas.drawBitmap(skin, 0, 0, p);
+    	}
+    	
+    	@Override
+    	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+    		width = w;
+    		height = h;
+    		postInvalidate();
+    	}
+    }
 }
