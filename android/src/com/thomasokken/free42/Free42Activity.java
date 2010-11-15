@@ -366,65 +366,36 @@ public class Free42Activity extends Activity {
 		return (int) (new Date().getTime() - startTime);
 	}
 	
-///** shell_print()
-// * Printer emulation. The first 2 parameters are the plain text version of the
-// * data to be printed; the remaining 6 parameters are the bitmap version. The
-// * former is used for text-mode copying and for spooling to text files; the
-// * latter is used for graphics-mode coopying, spooling to image files, and
-// * on-screen display.
-// */
-//void shell_print(const char *text, int length,
-//		 const char *bits, int bytesperline,
-//		 int x, int y, int width, int height) SHELL1_SECT;
-//
-///** shell_write()
-// *
-// * Callback for core_export_programs(). Returns 0 if a problem occurred;
-// * core_export_programs() should abort in that case.
-// */
-//int shell_write(const char *buf, int4 buflen) SHELL1_SECT;
-//
-///** shell_read()
-// *
-// * Callback for core_import_programs(). Returns the number of bytes actually
-// * read. Returns -1 if an error occurred; a return value of 0 signifies end of
-// * input.
-// */
-//int4 shell_read(char *buf, int4 buflen) SHELL1_SECT;
-//
-///** shell_get_bcd_table()
-// * shell_put_bcd_table()
-// * shell_release_bcd_table()
-// * shell_bcd_table_struct
-// *
-// * On platforms where computing the BCD conversion table is slow, these
-// * functions should be implemented so they save the table in persistent
-// * storage. On other platforms, they can be no-ops.
-// * shell_get_bcd_table() returns NULL if no BCD table image was found.
-// */
-//typedef struct {
-//    double pos_huge_double;
-//    double neg_huge_double;
-//    double pos_tiny_double;
-//    double neg_tiny_double;
-//    int2 max_pow2;
-//    int2 min_pow2;
-//    uint4 pos_pow2exp_offset; /* Offsets are from the end of this struct */
-//    uint4 neg_pow2mant_offset;/* pos_pow2mant_offset is implicitly 0 */
-//    uint4 neg_pow2exp_offset;
-//} shell_bcd_table_struct;
-//
-//shell_bcd_table_struct *shell_get_bcd_table() SHELL1_SECT;
-//shell_bcd_table_struct *shell_put_bcd_table(shell_bcd_table_struct *bcdtab,
-//					    uint4 size) SHELL1_SECT;
-//void shell_release_bcd_table(shell_bcd_table_struct *bcdtab) SHELL1_SECT;
-//
-///** shell_get_time_date()
-// *
-// * Get the current time and date. The date should be provided formatted as
-// * YYYYMMDD, and the time should be provided formatted as HHMMSSss (24-hour).
-// * The weekday is a number from 0 to 6, with 0 being Sunday.
-// */
-//void shell_get_time_date(uint4 *time, uint4 *date, int *weekday) SHELL1_SECT;
-
+	/** shell_print()
+	 * Printer emulation. The first 2 parameters are the plain text version of the
+	 * data to be printed; the remaining 6 parameters are the bitmap version. The
+	 * former is used for text-mode copying and for spooling to text files; the
+	 * latter is used for graphics-mode coopying, spooling to image files, and
+	 * on-screen display.
+	 */
+	public void shell_print(byte[] text, byte[] bits, int bytesperline,
+			 int x, int y, int width, int height) {
+		// TODO
+	}
+	
+	/** shell_write()
+	 *
+	 * Callback for core_export_programs(). Returns 0 if a problem occurred;
+	 * core_export_programs() should abort in that case.
+	 */
+	public int shell_write(byte[] buf) {
+		// TODO
+		return 0;
+	}
+	
+	/** shell_read()
+	 *
+	 * Callback for core_import_programs(). Returns the number of bytes actually
+	 * read. Returns -1 if an error occurred; a return value of 0 signifies end of
+	 * input.
+	 */
+	public int shell_read(byte[] buf) {
+		// TODO
+		return -1;
+	}
 }
