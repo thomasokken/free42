@@ -17,20 +17,21 @@
 
 package com.thomasokken.free42;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 
@@ -49,12 +50,13 @@ public class Free42Activity extends Activity {
     }
 
     private native void nativeInit();
-    private native String stringFromJNI();
     private native void redisplay();
     
     private Free42View view;
+    private SkinLayout layout;
     private Bitmap skin;
     private Bitmap display;
+    private long startTime = new Date().getTime();
 
     /** Called with the activity is first created. */
     @Override
@@ -63,11 +65,16 @@ public class Free42Activity extends Activity {
         view = new Free42View(this);
         setContentView(view);
         
-    	InputStream is = getClass().getResourceAsStream("Ehrling42sm.gif");
+        InputStream is = getClass().getResourceAsStream("Ehrling42sm.layout");
+        try {
+        	layout = new SkinLayout(is);
+        } catch (IOException e) {
+        	// TODO
+        }
+    	is = getClass().getResourceAsStream("Ehrling42sm.gif");
     	skin = new BitmapDrawable(is).getBitmap();
     	display = Bitmap.createBitmap(131, 16, Bitmap.Config.ARGB_8888);
     	
-		//String s = stringFromJNI();
     	nativeInit();
     }
 
@@ -158,24 +165,38 @@ public class Free42Activity extends Activity {
     		super(context, attrs, defStyle);
     	}
 
-    	private int width = -1;
-    	private int height = -1;
-    	
     	@Override
     	protected void onDraw(Canvas canvas) {
     		Paint p = new Paint();
     		canvas.drawBitmap(skin, 0, 0, p);
-    		Rect src = new Rect(0, 0, 131, 16);
-    		Rect dst = new Rect(29, 38, 291, 86);
-    		canvas.drawBitmap(display, src, dst, p);
+    		layout.skin_repaint_display(canvas, display);
     	}
     	
     	@Override
-    	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-    		width = w;
-    		height = h;
-    		postInvalidate();
+    	public boolean onTouchEvent(MotionEvent e) {
+    		int what = e.getAction();
+    		if (what != MotionEvent.ACTION_DOWN && what != MotionEvent.ACTION_UP)
+    			return false;
+    		int x = (int) e.getX();
+    		int y = (int) e.getY();
+    		IntHolder skeyHolder = new IntHolder();
+    		IntHolder ckeyHolder = new IntHolder();
+    		layout.skin_find_key(false, x, y, false, skeyHolder, ckeyHolder);
+    		int skey = skeyHolder.value;
+    		int ckey = ckeyHolder.value;
+    		System.out.println((what == MotionEvent.ACTION_DOWN ? "down" : "up") + " (" + x + ", " + y + ") skey=" + skey + " ckey=" + ckey);
+    		return true;
     	}
+    	
+//    	private int width = -1;
+//    	private int height = -1;
+//    	
+//    	@Override
+//    	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+//    		width = w;
+//    		height = h;
+//    		postInvalidate();
+//    	}
     }
 
 	/** shell_blitter()
@@ -201,125 +222,150 @@ public class Free42Activity extends Activity {
 	 * height of the area to be repainted.
 	 */
     public void shell_blitter(byte[] bits, int bytesperline, int x, int y, int width, int height) {
-    	// TODO -- This is just to get started; obviously not terribly efficient yet
-    	int hmax = x + width;
-    	int vmax = y + height;
-    	for (int v = y; v < vmax; v++)
-    		for (int h = x; h < hmax; h++) {
-    			boolean bitSet = (bits[(h >> 3) + v * bytesperline] & (1 << (h & 7))) != 0;
-    			display.setPixel(h, v, bitSet ? Color.BLACK : Color.WHITE);
-    		}
+    	layout.skin_display_blitter(display, bits, bytesperline, x, y, width, height);
     	view.postInvalidate(); // TODO -- only invalidate as much as necessary!
     }
 
-///** shell_beeper()
-// * Callback invoked by the emulator core to play a sound.
-// * The first parameter is the frequency in Hz; the second is the
-// * duration in ms. The sound volume is up to the GUI to control.
-// * Sound playback should be synchronous (the beeper function should
-// * not return until the sound has finished), if possible.
-// */
-//void shell_beeper(int frequency, int duration) SHELL1_SECT;
-//
-///** shell_annunciators()
-// * Callback invoked by the emulator core to change the state of the display
-// * annunciators (up/down, shift, print, run, battery, (g)rad).
-// * Every parameter can have values 0 (turn off), 1 (turn on), or -1 (leave
-// * unchanged).
-// * The battery annunciator is missing from the list; this is the only one of
-// * the lot that the emulator core does not actually have any control over, and
-// * so the shell is expected to handle that one by itself.
-// */
-//void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) SHELL1_SECT;
-//
-///** shell_wants_cpu()
-// *
-// * Callback used by the emulator core to check for pending events.
-// * It calls this periodically during long operations, such as running a
-// * user program, or the solver, etc. The shell should not handle any events
-// * in this call! If there are pending events, it should return 1; the currently
-// * active invocation of core_keydown() or core_keyup() will then return
-// * immediately (with a return value of 1, to indicate that it would like to get
-// * the CPU back as soon as possible).
-// */
-//int shell_wants_cpu() SHELL1_SECT;
-//
-///** Callback to suspend execution for the given number of milliseconds. No event
-// * processing will take place during the wait, so the core can call this
-// * without having to worry about core_keydown() etc. being re-entered.
-// */
-//void shell_delay(int duration) SHELL1_SECT;
-//
-///** Callback to ask the shell to call core_timeout3() after the given number of
-// * milliseconds. If there are keystroke events during that time, the timeout is
-// * cancelled. (Pressing 'shift' does not cancel the timeout.)
-// * This function supports the delay after SHOW, MEM, and shift-VARMENU.
-// */
-//void shell_request_timeout3(int delay) SHELL1_SECT;
-//
-///** shell_read_saved_state()
-// *
-// * Callback to read from the saved state. The function will read up to n
-// * bytes into the buffer pointed to by buf, and return the number of bytes
-// * actually read. The function returns -1 if an error was encountered; a return
-// * value of 0 signifies the end of input.
-// * The emulator core should only call this function from core_init(), and only
-// * if core_init() was called with an argument of 1. (Nothing horrible will
-// * happen if you try to call this function during other contexts, but you will
-// * always get an error then.)
-// */
-//int4 shell_read_saved_state(void *buf, int4 bufsize) SHELL1_SECT;
-//
-///** shell_write_saved_state()
-// * Callback to dump the saved state to persistent storage.
-// * Returns 1 on success, 0 on error.
-// * The emulator core should only call this function from core_quit(). (Nothing
-// * horrible will happen if you try to call this function during other contexts,
-// * but you will always get an error then.)
-// */
-//bool shell_write_saved_state(const void *buf, int4 nbytes) SHELL1_SECT;
-//
-///** shell_get_mem()
-// * Callback to get the amount of free memory in bytes.
-// */
-//uint4 shell_get_mem() SHELL1_SECT;
-//
-///** shell_low_battery()
-// * Callback to find out if the battery is low. Used to emulate flag 49 and the
-// * battery annunciator, and also taken into account when deciding whether or
-// * not to allow a power-down -- so as long as the shell provides a functional
-// * implementation of shell_low_battery(), it can leave the decision on how to
-// * respond to sysNotifySleepRequestEvent to core_allows_powerdown().
-// */
-//int shell_low_battery() SHELL1_SECT;
-//
-///** shell_powerdown()
-// * Callback to tell the shell that the emulator wants to power down.
-// * Only called in response to OFF (shift-EXIT or the OFF command); automatic
-// * power-off is left to the OS and/or shell.
-// */
-//void shell_powerdown() SHELL1_SECT;
-//
-///** shell_random_seed()
-// * When SEED is invoked with X = 0, the random number generator should be
-// * seeded to a random value; the emulator core calls this function to obtain
-// * it. The shell should construct a double in the range [0, 1) in a random
-// * manner, using the real-time clock or some other source of randomness.
-// * Note that distribution is not very important; the value will only be used to
-// * seed the RNG. What's important that using shell_random_seed() guarantees
-// * that the RNG will be initialized to a different sequence. This matters for
-// * applications like games where you don't want the same sequence of cards
-// * dealt each time.
-// */
-//double shell_random_seed() SHELL1_SECT;
-//
-///** shell_milliseconds()
-// * Returns an elapsed-time value in milliseconds. The caller should make no
-// * assumptions as to what this value is relative to; it is only intended to
-// * allow the emulator core make short-term elapsed-time measurements.
-// */
-//uint4 shell_milliseconds() SHELL1_SECT;
-//
+	/** shell_beeper()
+	 * Callback invoked by the emulator core to play a sound.
+	 * The first parameter is the frequency in Hz; the second is the
+	 * duration in ms. The sound volume is up to the GUI to control.
+	 * Sound playback should be synchronous (the beeper function should
+	 * not return until the sound has finished), if possible.
+	 */
+	public void shell_beeper(int frequency, int duration) {
+		// TODO
+	}
+	
+	/** shell_annunciators()
+	 * Callback invoked by the emulator core to change the state of the display
+	 * annunciators (up/down, shift, print, run, battery, (g)rad).
+	 * Every parameter can have values 0 (turn off), 1 (turn on), or -1 (leave
+	 * unchanged).
+	 * The battery annunciator is missing from the list; this is the only one of
+	 * the lot that the emulator core does not actually have any control over, and
+	 * so the shell is expected to handle that one by itself.
+	 */
+	public void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
+		// TODO
+	}
+	
+	/** shell_wants_cpu()
+	 *
+	 * Callback used by the emulator core to check for pending events.
+	 * It calls this periodically during long operations, such as running a
+	 * user program, or the solver, etc. The shell should not handle any events
+	 * in this call! If there are pending events, it should return 1; the currently
+	 * active invocation of core_keydown() or core_keyup() will then return
+	 * immediately (with a return value of 1, to indicate that it would like to get
+	 * the CPU back as soon as possible).
+	 */
+	public int shell_wants_cpu() {
+		// TODO
+		return 1;
+	}
+	
+	/** Callback to suspend execution for the given number of milliseconds. No event
+	 * processing will take place during the wait, so the core can call this
+	 * without having to worry about core_keydown() etc. being re-entered.
+	 */
+	public void shell_delay(int duration) {
+		try {
+			Thread.sleep(duration);
+		} catch (InterruptedException e) {}
+	}
+	
+	/** Callback to ask the shell to call core_timeout3() after the given number of
+	 * milliseconds. If there are keystroke events during that time, the timeout is
+	 * cancelled. (Pressing 'shift' does not cancel the timeout.)
+	 * This function supports the delay after SHOW, MEM, and shift-VARMENU.
+	 */
+	public void shell_request_timeout3(int delay) {
+		// TODO
+	}
+	
+	/** shell_read_saved_state()
+	 *
+	 * Callback to read from the saved state. The function will read up to n
+	 * bytes into the buffer pointed to by buf, and return the number of bytes
+	 * actually read. The function returns -1 if an error was encountered; a return
+	 * value of 0 signifies the end of input.
+	 * The emulator core should only call this function from core_init(), and only
+	 * if core_init() was called with an argument of 1. (Nothing horrible will
+	 * happen if you try to call this function during other contexts, but you will
+	 * always get an error then.)
+	 */
+	public int shell_read_saved_state(byte[] buf) {
+		// TODO
+		return -1;
+	}
+	
+	/** shell_write_saved_state()
+	 * Callback to dump the saved state to persistent storage.
+	 * Returns 1 on success, 0 on error.
+	 * The emulator core should only call this function from core_quit(). (Nothing
+	 * horrible will happen if you try to call this function during other contexts,
+	 * but you will always get an error then.)
+	 */
+	public int shell_write_saved_state(byte[] buf) {
+		// TODO
+		return 0;
+	}
+	
+	/** shell_get_mem()
+	 * Callback to get the amount of free memory in bytes.
+	 */
+	public int shell_get_mem() {
+		// TODO
+		return 42;
+	}
+	
+	/** shell_low_battery()
+	 * Callback to find out if the battery is low. Used to emulate flag 49 and the
+	 * battery annunciator, and also taken into account when deciding whether or
+	 * not to allow a power-down -- so as long as the shell provides a functional
+	 * implementation of shell_low_battery(), it can leave the decision on how to
+	 * respond to sysNotifySleepRequestEvent to core_allows_powerdown().
+	 */
+	public int shell_low_battery() {
+		// TODO
+		return 0;
+	}
+	
+	/** shell_powerdown()
+	 * Callback to tell the shell that the emulator wants to power down.
+	 * Only called in response to OFF (shift-EXIT or the OFF command); automatic
+	 * power-off is left to the OS and/or shell.
+	 */
+	public void shell_powerdown() {
+		// TODO
+	}
+	
+	/** shell_random_seed()
+	 * When SEED is invoked with X = 0, the random number generator should be
+	 * seeded to a random value; the emulator core calls this function to obtain
+	 * it. The shell should construct a double in the range [0, 1) in a random
+	 * manner, using the real-time clock or some other source of randomness.
+	 * Note that distribution is not very important; the value will only be used to
+	 * seed the RNG. What's important that using shell_random_seed() guarantees
+	 * that the RNG will be initialized to a different sequence. This matters for
+	 * applications like games where you don't want the same sequence of cards
+	 * dealt each time.
+	 */
+	public double shell_random_seed() {
+		long t = new Date().getTime();
+		return (t % 1000000000) / 1000000000d;
+	}
+	
+	/** shell_milliseconds()
+	 * Returns an elapsed-time value in milliseconds. The caller should make no
+	 * assumptions as to what this value is relative to; it is only intended to
+	 * allow the emulator core make short-term elapsed-time measurements.
+	 */
+	public int shell_milliseconds() {
+		return (int) (new Date().getTime() - startTime);
+	}
+	
 ///** shell_print()
 // * Printer emulation. The first 2 parameters are the plain text version of the
 // * data to be printed; the remaining 6 parameters are the bitmap version. The

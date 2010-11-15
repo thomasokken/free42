@@ -47,9 +47,9 @@ public class SkinLayout {
 
 	private static class SkinKey {
 	    int code, shifted_code;
-	    SkinRect sens_rect;
-	    SkinRect disp_rect;
-	    SkinPoint src;
+	    SkinRect sens_rect = new SkinRect();
+	    SkinRect disp_rect = new SkinRect();
+	    SkinPoint src = new SkinPoint();
 	}
 
 	private static class SkinMacro {
@@ -58,8 +58,8 @@ public class SkinLayout {
 	}
 
 	private static class SkinAnnunciator {
-		SkinRect disp_rect;
-		SkinPoint src;
+		SkinRect disp_rect = new SkinRect();
+		SkinPoint src = new SkinPoint();
 	}
 
 	private SkinRect skin = new SkinRect();
@@ -69,6 +69,7 @@ public class SkinLayout {
 	private SkinKey[] keylist = null;
 	private SkinMacro[] macrolist = null;
 	private SkinAnnunciator[] annunciators = new SkinAnnunciator[7];
+	private boolean display_enabled = true;
 
 	public SkinLayout(InputStream is) throws IOException {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
@@ -106,8 +107,8 @@ public class SkinLayout {
 					int y = Integer.parseInt(tok.nextToken());
 					int xscale = Integer.parseInt(tok.nextToken());
 					int yscale = Integer.parseInt(tok.nextToken());
-					int bg = Integer.parseInt(tok.nextToken(), 16);
-					int fg = Integer.parseInt(tok.nextToken(), 16);
+					int bg = Integer.parseInt(tok.nextToken(), 16) | 0xff000000;
+					int fg = Integer.parseInt(tok.nextToken(), 16) | 0xff000000;
 					display_loc.x = x;
 					display_loc.y = y;
 					display_scale.x = xscale;
@@ -206,7 +207,8 @@ public class SkinLayout {
 			    	int act_x = Integer.parseInt(tok.nextToken());
 			    	int act_y = Integer.parseInt(tok.nextToken());
 			    	if (annnum >= 1 && annnum <= 7) {
-			    		SkinAnnunciator ann = annunciators[annnum - 1];
+			    		SkinAnnunciator ann = new SkinAnnunciator();
+			    		annunciators[annnum - 1] = ann;
 					    ann.disp_rect.x = disp_x;
 					    ann.disp_rect.y = disp_y;
 					    ann.disp_rect.width = disp_width;
@@ -237,7 +239,9 @@ public class SkinLayout {
 		macrolist = tempmacrolist.toArray(new SkinMacro[0]);
     }
 	
-	public void repaint_annunciator(Canvas canvas, Bitmap skin, int which, boolean state) {
+	public void skin_repaint_annunciator(Canvas canvas, Bitmap skin, int which, boolean state) {
+		if (!display_enabled)
+			return;
 		SkinAnnunciator ann = annunciators[which - 1];
 		Paint p = new Paint();
 		if (state) {
@@ -263,11 +267,12 @@ public class SkinLayout {
 	    }
 		int i = 0;
 		for (SkinKey k : keylist) {
+			i++;
 			int rx = x - k.sens_rect.x;
 			int ry = y - k.sens_rect.y;
 			if (rx >= 0 && rx < k.sens_rect.width
 					&& ry >= 0 && ry < k.sens_rect.height) {
-			    skey.value = i++;
+			    skey.value = i;
 			    ckey.value = cshift ? k.shifted_code : k.code;
 			    return;
 			}
@@ -312,127 +317,85 @@ public class SkinLayout {
 //    *exact = false;
 //    return macro;
 //}
-//
-//void skin_repaint_key(int key, bool state) {
-//    SkinKey *k;
-//
-//    if (key >= -7 && key <= -2) {
-//	/* Soft key */
-//	if (!display_enabled)
-//	    // Should never happen -- the display is only disabled during macro
-//	    // execution, and softkey events should be impossible to generate
-//	    // in that state. But, just staying on the safe side.
-//	    return;
-//	key = -1 - key;
-//	int x = (key - 1) * 22 * display_scale.x;
-//	int y = 9 * display_scale.y;
-//	int width = 21 * display_scale.x;
-//	int height = 7 * display_scale.y;
-//	if (state) {
-//	    // Construct a temporary pixbuf, create the inverted version of
-//	    // the affected screen rectangle there, and blit it
-//	    GdkPixbuf *tmpbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, FALSE, 8,
-//					       width, height);
-//	    int s_bpl = gdk_pixbuf_get_rowstride(disp_image);
-//	    int d_bpl = gdk_pixbuf_get_rowstride(tmpbuf);
-//	    guchar *s1 = gdk_pixbuf_get_pixels(disp_image) + x * 3 + s_bpl * y;
-//	    guchar *d1 = gdk_pixbuf_get_pixels(tmpbuf);
-//	    for (int v = 0; v < height; v++) {
-//		guchar *src = s1;
-//		guchar *dst = d1;
-//		for (int h = 0; h < width; h++) {
-//		    unsigned char r = *src++;
-//		    unsigned char g = *src++;
-//		    unsigned char b = *src++;
-//		    if (r == display_bg.r && g == display_bg.g && b == display_bg.b) {
-//			*dst++ = display_fg.r;
-//			*dst++ = display_fg.g;
-//			*dst++ = display_fg.b;
-//		    } else {
-//			*dst++ = display_bg.r;
-//			*dst++ = display_bg.g;
-//			*dst++ = display_bg.b;
-//		    }
-//		}
-//		s1 += s_bpl;
-//		d1 += d_bpl;
-//	    }
-//	    gdk_draw_pixbuf(calc_widget->window, NULL, tmpbuf,
-//			    0, 0,
-//			    display_loc.x + x, display_loc.y + y,
-//			    width, height,
-//			    GDK_RGB_DITHER_NONE, 0, 0);
-//	} else {
-//	    // Repaint the screen
-//	    gdk_draw_pixbuf(calc_widget->window, NULL, disp_image,
-//			    x, y,
-//			    display_loc.x + x, display_loc.y + y,
-//			    width, height,
-//			    GDK_RGB_DITHER_NONE, 0, 0);
-//	}
-//	return;
-//    }
-//
-//    if (key < 0 || key >= nkeys)
-//	return;
-//    k = keylist + key;
-//    if (state)
-//	gdk_draw_pixbuf(calc_widget->window, NULL, skin_image,
-//			k->src.x, k->src.y,
-//			k->disp_rect.x, k->disp_rect.y,
-//			k->disp_rect.width, k->disp_rect.height,
-//			GDK_RGB_DITHER_MAX,
-//			k->disp_rect.x, k->disp_rect.y);
-//    else
-//	gdk_draw_pixbuf(calc_widget->window, NULL, skin_image,
-//			k->disp_rect.x, k->disp_rect.y,
-//			k->disp_rect.x, k->disp_rect.y,
-//			k->disp_rect.width, k->disp_rect.height,
-//			GDK_RGB_DITHER_MAX,
-//			k->disp_rect.x, k->disp_rect.y);
-//}
-//
-//void skin_display_blitter(const char *bits, int bytesperline, int x, int y,
-//				     int width, int height) {
-//    guchar *pix = gdk_pixbuf_get_pixels(disp_image);
-//    int disp_bpl = gdk_pixbuf_get_rowstride(disp_image);
-//    int sx = display_scale.x;
-//    int sy = display_scale.y;
-//
-//    for (int v = y; v < y + height; v++)
-//	for (int h = x; h < x + width; h++) {
-//	    SkinColor c;
-//	    if ((bits[v * bytesperline + (h >> 3)] & (1 << (h & 7))) != 0)
-//		c = display_fg;
-//	    else
-//		c = display_bg;
-//	    for (int vv = v * sy; vv < (v + 1) * sy; vv++) {
-//		guchar *p = pix + disp_bpl * vv;
-//		for (int hh = h * sx; hh < (h + 1) * sx; hh++) {
-//		    guchar *p2 = p + hh * 3;
-//		    p2[0] = c.r;
-//		    p2[1] = c.g;
-//		    p2[2] = c.b;
-//		}
-//	    }
-//	}
-//    if (allow_paint && display_enabled)
-//	gdk_draw_pixbuf(calc_widget->window, NULL, disp_image,
-//			x * sx, y * sy,
-//			display_loc.x + x * sx, display_loc.y + y * sy,
-//			width * sx, height * sy,
-//			GDK_RGB_DITHER_NONE, 0, 0);
-//}
-//
-//void skin_repaint_display() {
-//    if (display_enabled)
-//	gdk_draw_pixbuf(calc_widget->window, NULL, disp_image,
-//			0, 0, display_loc.x, display_loc.y,
-//			131 * display_scale.x, 16 * display_scale.y,
-//			GDK_RGB_DITHER_NONE, 0, 0);
-//}
-//
-//void skin_display_set_enabled(bool enable) {
-//    display_enabled = enable;
-//}
+	
+	public void skin_repaint_key(Canvas canvas, Bitmap skin, Bitmap display, int key, boolean state) {
+	    if (key >= -7 && key <= -2) {
+			/* Soft key */
+			if (!display_enabled)
+			    // Should never happen -- the display is only disabled during macro
+			    // execution, and softkey events should be impossible to generate
+			    // in that state. But, just staying on the safe side.
+			    return;
+			key = -1 - key;
+			Rect dst = new Rect(display_loc.x + (key - 1) * 22 * display_scale.x,
+								display_loc.y + 9 * display_scale.y,
+								display_loc.x + ((key - 1) * 22 + 21) * display_scale.x,
+								display_loc.y + 16 * display_scale.y);
+			if (state) {
+			    // Construct a temporary Bitmap, create the inverted version of
+			    // the affected screen rectangle there, and blit it
+				Bitmap invSoftkey = Bitmap.createBitmap(21, 7, Bitmap.Config.ARGB_8888);
+				for (int v = 0; v < 7; v++)
+					for (int h = 0; h < 21; h++) {
+						int color = display.getPixel(h + (key - 1) * 22, v + 9);
+						color = color == display_bg ? display_fg : display_bg;
+						invSoftkey.setPixel(h, v, color);
+					}
+				Rect src = new Rect(0, 0, 21, 7);
+				Paint p = new Paint();
+				canvas.drawBitmap(display, src, dst, p);
+			} else {
+			    // Repaint the screen
+				Rect src = new Rect((key - 1) * 22, 9, (key - 1) * 22 + 21, 16);
+				Paint p = new Paint();
+				canvas.drawBitmap(display, src, dst, p);
+			}
+			return;
+	    }
+	
+	    if (key < 0 || key >= keylist.length)
+	    	return;
+	    SkinKey k = keylist[key];
+    	Rect dst = new Rect(k.disp_rect.x,
+    						k.disp_rect.y,
+    						k.disp_rect.x + k.disp_rect.width,
+    						k.disp_rect.y + k.disp_rect.height);
+	    Rect src;
+	    if (state)
+	    	src = new Rect(k.src.x,
+	    				   k.src.y,
+	    				   k.src.x + k.disp_rect.width,
+	    				   k.src.y + k.disp_rect.height);
+	    else
+	    	src = dst;
+	    Paint p = new Paint();
+	    canvas.drawBitmap(display, src, dst, p);
+	}
+	
+	public void skin_display_blitter(Bitmap display, byte[] bits, int bytesperline, int x, int y, int width, int height) {
+    	// TODO -- This is just to get started; obviously not terribly efficient yet
+    	int hmax = x + width;
+    	int vmax = y + height;
+    	for (int v = y; v < vmax; v++)
+    		for (int h = x; h < hmax; h++) {
+    			boolean bitSet = (bits[(h >> 3) + v * bytesperline] & (1 << (h & 7))) != 0;
+    			display.setPixel(h, v, bitSet ? display_fg : display_bg);
+    		}
+	}
+
+	public void skin_repaint_display(Canvas canvas, Bitmap display) {
+	    if (display_enabled) {
+	    	Rect src = new Rect(0, 0, 131, 16);
+	    	Rect dst = new Rect(display_loc.x,
+	    						display_loc.y,
+	    						display_loc.x + 131 * display_scale.x,
+	    						display_loc.y + 16 * display_scale.y);
+	    	Paint p = new Paint();
+	    	canvas.drawBitmap(display, src, dst, p);
+	    }
+	}
+	
+	public void skin_display_set_enabled(boolean enable) {
+	    display_enabled = enable;
+	}
 }
