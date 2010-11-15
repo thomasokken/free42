@@ -141,5 +141,5 @@ double shell_random_seed() {
 int4 shell_milliseconds() {
     jclass klass = g_env->GetObjectClass(g_activity);
     jmethodID mid = g_env->GetMethodID(klass, "shell_milliseconds", "(V)I");
-    return g_env->CallDoubleMethod(g_activity, mid);
+    return g_env->CallIntMethod(g_activity, mid);
 }
