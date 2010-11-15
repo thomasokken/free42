@@ -49,9 +49,6 @@ public class Free42Activity extends Activity {
     	System.loadLibrary("free42");
     }
 
-    private native void nativeInit();
-    private native void redisplay();
-    
     private Free42View view;
     private SkinLayout layout;
     private Bitmap skin;
@@ -76,6 +73,7 @@ public class Free42Activity extends Activity {
     	display = Bitmap.createBitmap(131, 16, Bitmap.Config.ARGB_8888);
     	
     	nativeInit();
+    	core_init(0, 0);
     }
 
     /**
@@ -185,6 +183,13 @@ public class Free42Activity extends Activity {
     		int skey = skeyHolder.value;
     		int ckey = ckeyHolder.value;
     		System.out.println((what == MotionEvent.ACTION_DOWN ? "down" : "up") + " (" + x + ", " + y + ") skey=" + skey + " ckey=" + ckey);
+    		
+    		if (what == MotionEvent.ACTION_DOWN) {
+    			IntHolder enqueued = new IntHolder();
+    			IntHolder repeat = new IntHolder();
+    			core_keydown(ckey, enqueued, repeat);
+    		} else
+    			core_keyup();
     		return true;
     	}
     	
@@ -199,7 +204,55 @@ public class Free42Activity extends Activity {
 //    	}
     }
 
-	/** shell_blitter()
+    
+    ///////////////////////////////////////////
+    ///// Stubs for shell->core interface /////
+    ///////////////////////////////////////////
+    
+    private native void nativeInit();
+    private native void core_init(int read_state, int version);
+    private native void quit();
+    private native void core_repaint_display();
+    private native boolean core_menu();
+    private native boolean core_alpha_menu();
+    private native boolean core_hex_menu();
+    private native boolean core_keydown(int key, IntHolder enqueued, IntHolder repeat);
+    private native int core_repeat();
+    private native void core_keytimeout1();
+    private native void core_keytimeout2();
+    private native boolean core_timeout3(int repaint);
+    private native boolean core_keyup();
+    private native boolean core_allows_powerdown(IntHolder want_cpu);
+    private native boolean core_powercycle();
+    private native int core_list_programs(byte[] buf);
+    private native int core_program_size(int prgm_index);
+    private native boolean core_export_programs(int[] indexes);
+    private native void core_import_programs();
+    private native String core_copy();
+    private native void core_paste(String s);
+    private native void getCoreSettings(CoreSettings settings);
+    private native void putCoreSettings(CoreSettings settings);
+    private native void redisplay();
+
+    private static class CoreSettings {
+		public boolean matrix_singularmatrix;
+		public boolean matrix_outofrange;
+		public boolean raw_text;
+		public boolean auto_repeat;
+		public boolean enable_ext_copan;
+		public boolean enable_ext_bigstack;
+		public boolean enable_ext_accel;
+		public boolean enable_ext_locat;
+		public boolean enable_ext_heading;
+		public boolean enable_ext_time;
+    }
+
+    ///////////////////////////////////////////////////
+    ///// Implementation of core->shell interface /////
+    ///////////////////////////////////////////////////
+    
+	/**
+	 * shell_blitter()
 	 *
 	 * Callback invoked by the emulator core to cause the display, or some portion
 	 * of it, to be repainted.
@@ -226,7 +279,8 @@ public class Free42Activity extends Activity {
     	view.postInvalidate(); // TODO -- only invalidate as much as necessary!
     }
 
-	/** shell_beeper()
+	/**
+	 * shell_beeper()
 	 * Callback invoked by the emulator core to play a sound.
 	 * The first parameter is the frequency in Hz; the second is the
 	 * duration in ms. The sound volume is up to the GUI to control.
@@ -237,7 +291,8 @@ public class Free42Activity extends Activity {
 		// TODO
 	}
 	
-	/** shell_annunciators()
+	/**
+	 * shell_annunciators()
 	 * Callback invoked by the emulator core to change the state of the display
 	 * annunciators (up/down, shift, print, run, battery, (g)rad).
 	 * Every parameter can have values 0 (turn off), 1 (turn on), or -1 (leave
@@ -250,7 +305,8 @@ public class Free42Activity extends Activity {
 		// TODO
 	}
 	
-	/** shell_wants_cpu()
+	/**
+	 * shell_wants_cpu()
 	 *
 	 * Callback used by the emulator core to check for pending events.
 	 * It calls this periodically during long operations, such as running a
@@ -265,7 +321,8 @@ public class Free42Activity extends Activity {
 		return 1;
 	}
 	
-	/** Callback to suspend execution for the given number of milliseconds. No event
+	/**
+	 * Callback to suspend execution for the given number of milliseconds. No event
 	 * processing will take place during the wait, so the core can call this
 	 * without having to worry about core_keydown() etc. being re-entered.
 	 */
@@ -275,7 +332,8 @@ public class Free42Activity extends Activity {
 		} catch (InterruptedException e) {}
 	}
 	
-	/** Callback to ask the shell to call core_timeout3() after the given number of
+	/**
+	 * Callback to ask the shell to call core_timeout3() after the given number of
 	 * milliseconds. If there are keystroke events during that time, the timeout is
 	 * cancelled. (Pressing 'shift' does not cancel the timeout.)
 	 * This function supports the delay after SHOW, MEM, and shift-VARMENU.
@@ -284,7 +342,8 @@ public class Free42Activity extends Activity {
 		// TODO
 	}
 	
-	/** shell_read_saved_state()
+	/**
+	 * shell_read_saved_state()
 	 *
 	 * Callback to read from the saved state. The function will read up to n
 	 * bytes into the buffer pointed to by buf, and return the number of bytes
@@ -300,7 +359,8 @@ public class Free42Activity extends Activity {
 		return -1;
 	}
 	
-	/** shell_write_saved_state()
+	/**
+	 * shell_write_saved_state()
 	 * Callback to dump the saved state to persistent storage.
 	 * Returns 1 on success, 0 on error.
 	 * The emulator core should only call this function from core_quit(). (Nothing
@@ -312,7 +372,8 @@ public class Free42Activity extends Activity {
 		return 0;
 	}
 	
-	/** shell_get_mem()
+	/**
+	 * shell_get_mem()
 	 * Callback to get the amount of free memory in bytes.
 	 */
 	public int shell_get_mem() {
@@ -320,7 +381,8 @@ public class Free42Activity extends Activity {
 		return 42;
 	}
 	
-	/** shell_low_battery()
+	/**
+	 * shell_low_battery()
 	 * Callback to find out if the battery is low. Used to emulate flag 49 and the
 	 * battery annunciator, and also taken into account when deciding whether or
 	 * not to allow a power-down -- so as long as the shell provides a functional
@@ -332,7 +394,8 @@ public class Free42Activity extends Activity {
 		return 0;
 	}
 	
-	/** shell_powerdown()
+	/**
+	 * shell_powerdown()
 	 * Callback to tell the shell that the emulator wants to power down.
 	 * Only called in response to OFF (shift-EXIT or the OFF command); automatic
 	 * power-off is left to the OS and/or shell.
@@ -341,7 +404,8 @@ public class Free42Activity extends Activity {
 		// TODO
 	}
 	
-	/** shell_random_seed()
+	/**
+	 * shell_random_seed()
 	 * When SEED is invoked with X = 0, the random number generator should be
 	 * seeded to a random value; the emulator core calls this function to obtain
 	 * it. The shell should construct a double in the range [0, 1) in a random
@@ -357,7 +421,8 @@ public class Free42Activity extends Activity {
 		return (t % 1000000000) / 1000000000d;
 	}
 	
-	/** shell_milliseconds()
+	/**
+	 * shell_milliseconds()
 	 * Returns an elapsed-time value in milliseconds. The caller should make no
 	 * assumptions as to what this value is relative to; it is only intended to
 	 * allow the emulator core make short-term elapsed-time measurements.
@@ -366,7 +431,8 @@ public class Free42Activity extends Activity {
 		return (int) (new Date().getTime() - startTime);
 	}
 	
-	/** shell_print()
+	/**
+	 * shell_print()
 	 * Printer emulation. The first 2 parameters are the plain text version of the
 	 * data to be printed; the remaining 6 parameters are the bitmap version. The
 	 * former is used for text-mode copying and for spooling to text files; the
@@ -378,7 +444,8 @@ public class Free42Activity extends Activity {
 		// TODO
 	}
 	
-	/** shell_write()
+	/**
+	 * shell_write()
 	 *
 	 * Callback for core_export_programs(). Returns 0 if a problem occurred;
 	 * core_export_programs() should abort in that case.
@@ -388,7 +455,8 @@ public class Free42Activity extends Activity {
 		return 0;
 	}
 	
-	/** shell_read()
+	/**
+	 * shell_read()
 	 *
 	 * Callback for core_import_programs(). Returns the number of bytes actually
 	 * read. Returns -1 if an error occurred; a return value of 0 signifies end of
