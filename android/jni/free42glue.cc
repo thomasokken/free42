@@ -17,6 +17,8 @@
 
 #include <string.h>
 #include <jni.h>
+#include <sys/time.h>
+#include <time.h>
 #include "shell.h"
 #include "core_main.h"
 #include "core_display.h"
@@ -143,4 +145,64 @@ uint4 shell_milliseconds() {
     jclass klass = g_env->GetObjectClass(g_activity);
     jmethodID mid = g_env->GetMethodID(klass, "shell_milliseconds", "(V)I");
     return g_env->CallIntMethod(g_activity, mid);
+}
+
+void shell_print(const char *text, int length,
+		 const char *bits, int bytesperline,
+		 int x, int y, int width, int height) {
+    jclass klass = g_env->GetObjectClass(g_activity);
+    jmethodID mid = g_env->GetMethodID(klass, "shell_print", "([B[BIIIII)V");
+    jbyteArray text2 = g_env->NewByteArray(length);
+    g_env->SetByteArrayRegion(text2, 0, length, (const jbyte *) text);
+    int bitmapsize = bytesperline * height;
+    jbyteArray bits2 = g_env->NewByteArray(bitmapsize);
+    g_env->SetByteArrayRegion(bits2, 0, bitmapsize, (const jbyte *) bits);
+    g_env->CallVoidMethod(g_activity, mid, text2);
+    // TODO: Release the arrays?
+}
+
+int shell_write(const char *buf, int4 bufsize) {
+    jclass klass = g_env->GetObjectClass(g_activity);
+    jmethodID mid = g_env->GetMethodID(klass, "shell_write", "([B)I");
+    jbyteArray buf2 = g_env->NewByteArray(bufsize);
+    g_env->SetByteArrayRegion(buf2, 0, bufsize, (const jbyte *) buf);
+    return g_env->CallIntMethod(g_activity, mid, buf2);
+    // TODO: Release the array?
+}
+
+int shell_read(char *buf, int4 bufsize) {
+    jclass klass = g_env->GetObjectClass(g_activity);
+    jmethodID mid = g_env->GetMethodID(klass, "shell_read", "([B)I");
+    jbyteArray buf2 = g_env->NewByteArray(bufsize);
+    int n = g_env->CallIntMethod(g_activity, mid, buf2);
+    if (n > 0)
+	g_env->GetByteArrayRegion(buf2, 0, n, (jbyte *) buf);
+    return n;
+    // TODO: Release the array?
+}
+
+shell_bcd_table_struct *shell_get_bcd_table() {
+    return NULL;
+}
+
+shell_bcd_table_struct *shell_put_bcd_table(shell_bcd_table_struct *bcdtab,
+					    uint4 size) {
+    return bcdtab;
+}
+
+void shell_release_bcd_table(shell_bcd_table_struct *bcdtab) {
+    free(bcdtab);
+}
+
+void shell_get_time_date(uint4 *time, uint4 *date, int *weekday) {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    struct tm tms;
+    localtime_r(&tv.tv_sec, &tms);
+    if (time != NULL)
+	*time = ((tms.tm_hour * 100 + tms.tm_min) * 100 + tms.tm_sec) * 100 + tv.tv_usec / 10000;
+    if (date != NULL)
+	*date = ((tms.tm_year + 1900) * 100 + tms.tm_mon + 1) * 100 + tms.tm_mday;
+    if (weekday != NULL)
+	*weekday = tms.tm_wday;
 }
