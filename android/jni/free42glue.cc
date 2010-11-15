@@ -17,8 +17,9 @@
 
 #include <string.h>
 #include <jni.h>
-#include <core_main.h>
-#include <core_display.h>
+#include "shell.h"
+#include "core_main.h"
+#include "core_display.h"
 
 static JNIEnv *g_env;
 static jobject g_activity;
@@ -79,7 +80,7 @@ int shell_wants_cpu() {
     // into the Java environment after every single program line.
     jclass klass = g_env->GetObjectClass(g_activity);
     jmethodID mid = g_env->GetMethodID(klass, "shell_wants_cpu", "(V)I");
-    return g_env->CallIntMethod(g_activity, mid, updn, shf, prt, run, g, rad);
+    return g_env->CallIntMethod(g_activity, mid);
 }
 
 void shell_delay(int duration) {
@@ -91,7 +92,7 @@ void shell_delay(int duration) {
 void shell_request_timeout3(int delay) {
     jclass klass = g_env->GetObjectClass(g_activity);
     jmethodID mid = g_env->GetMethodID(klass, "shell_request_timeout3", "(I)V");
-    g_env->CallVoidMethod(g_activity, mid, duration);
+    g_env->CallVoidMethod(g_activity, mid, delay);
 }
 
 int shell_read_saved_state(void *buf, int4 bufsize) {
@@ -100,12 +101,12 @@ int shell_read_saved_state(void *buf, int4 bufsize) {
     jbyteArray buf2 = g_env->NewByteArray(bufsize);
     int n = g_env->CallIntMethod(g_activity, mid, buf2);
     if (n > 0)
-	g_env->GetByteArrayRegion(buf2, 0, n, (const jbyte *) buf);
+	g_env->GetByteArrayRegion(buf2, 0, n, (jbyte *) buf);
     return n;
     // TODO: Release the array?
 }
 
-int shell_write_saved_state(const void *buf, int4 bufsize) {
+bool shell_write_saved_state(const void *buf, int4 bufsize) {
     jclass klass = g_env->GetObjectClass(g_activity);
     jmethodID mid = g_env->GetMethodID(klass, "shell_write_saved_state", "([B)I");
     jbyteArray buf2 = g_env->NewByteArray(bufsize);
@@ -114,7 +115,7 @@ int shell_write_saved_state(const void *buf, int4 bufsize) {
     // TODO: Release the array?
 }
 
-int shell_get_mem() {
+unsigned int shell_get_mem() {
     jclass klass = g_env->GetObjectClass(g_activity);
     jmethodID mid = g_env->GetMethodID(klass, "shell_get_mem", "(V)I");
     return g_env->CallIntMethod(g_activity, mid);
@@ -126,7 +127,7 @@ int shell_low_battery() {
     return g_env->CallIntMethod(g_activity, mid);
 }
 
-int shell_powerdown() {
+void shell_powerdown() {
     jclass klass = g_env->GetObjectClass(g_activity);
     jmethodID mid = g_env->GetMethodID(klass, "shell_powerdown", "(V)V");
     g_env->CallVoidMethod(g_activity, mid);
@@ -138,7 +139,7 @@ double shell_random_seed() {
     return g_env->CallDoubleMethod(g_activity, mid);
 }
 
-int4 shell_milliseconds() {
+uint4 shell_milliseconds() {
     jclass klass = g_env->GetObjectClass(g_activity);
     jmethodID mid = g_env->GetMethodID(klass, "shell_milliseconds", "(V)I");
     return g_env->CallIntMethod(g_activity, mid);
