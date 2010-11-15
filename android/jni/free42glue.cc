@@ -241,7 +241,7 @@ void shell_blitter(const char *bits, int bytesperline, int x, int y,
 		         int width, int height) {
     jclass klass = g_env->GetObjectClass(g_activity);
     jmethodID mid = g_env->GetMethodID(klass, "shell_blitter", "([BIIIII)V");
-    int size = bytesperline * height;
+    int size = bytesperline * (y + height);
     jbyteArray bits2 = g_env->NewByteArray(size);
     g_env->SetByteArrayRegion(bits2, 0, size, (const jbyte *) bits);
     g_env->CallVoidMethod(g_activity, mid, bits2, bytesperline, x, y, width, height);
