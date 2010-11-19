@@ -19,6 +19,8 @@
 #include <jni.h>
 #include <sys/time.h>
 #include <time.h>
+#include <stdio.h>
+#include <stdarg.h>
 #include "shell.h"
 #include "core_main.h"
 #include "core_display.h"
@@ -387,4 +389,18 @@ void shell_get_time_date(uint4 *time, uint4 *date, int *weekday) {
 	*date = ((tms.tm_year + 1900) * 100 + tms.tm_mon + 1) * 100 + tms.tm_mday;
     if (weekday != NULL)
 	*weekday = tms.tm_wday;
+}
+
+void shell_logprintf(const char *format, ...) {
+    va_list ap;
+    va_start(ap, format);
+
+    jclass klass = g_env->GetObjectClass(g_activity);
+    jmethodID mid = g_env->GetMethodID(klass, "shell_log", "(Ljava/lang/String;)V");
+    char buf[1000];
+    vsprintf(buf, format, ap);
+    jstring s = g_env->NewStringUTF(buf);
+    g_env->CallVoidMethod(g_activity, mid, s);
+
+    va_end(ap);
 }
