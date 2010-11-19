@@ -179,7 +179,7 @@ public class Free42Activity extends Activity {
     		int y = (int) e.getY();
     		IntHolder skeyHolder = new IntHolder();
     		IntHolder ckeyHolder = new IntHolder();
-    		layout.skin_find_key(false, x, y, false, skeyHolder, ckeyHolder);
+    		layout.skin_find_key(core_menu(), x, y, false, skeyHolder, ckeyHolder);
     		int skey = skeyHolder.value;
     		int ckey = ckeyHolder.value;
     		System.out.println((what == MotionEvent.ACTION_DOWN ? "down" : "up") + " (" + x + ", " + y + ") skey=" + skey + " ckey=" + ckey);
