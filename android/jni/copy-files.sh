@@ -50,7 +50,5 @@ cp ~/free42/common/core_variables.cc core_variables.cc
 cp ~/free42/common/core_variables.h core_variables.h
 cp ~/free42/common/free42.h free42.h
 cp ~/free42/common/shell.h shell.h
-cp ~/free42/common/shell_loadimage.cc shell_loadimage.cc
-cp ~/free42/common/shell_loadimage.h shell_loadimage.h
 cp ~/free42/common/shell_spool.cc shell_spool.cc
 cp ~/free42/common/shell_spool.h shell_spool.h
