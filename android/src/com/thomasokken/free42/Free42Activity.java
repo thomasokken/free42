@@ -466,4 +466,8 @@ public class Free42Activity extends Activity {
 		// TODO
 		return -1;
 	}
+	
+	public void shell_log(String s) {
+		System.err.println(s);
+	}
 }
