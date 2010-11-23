@@ -17,8 +17,11 @@
 
 package com.thomasokken.free42;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
 import android.app.Activity;
@@ -45,6 +48,8 @@ public class Free42Activity extends Activity {
     static final private int BACK_ID = Menu.FIRST;
     static final private int CLEAR_ID = Menu.FIRST + 1;
 
+    private static final int SHELL_VERSION = 0;
+    
     static {
     	System.loadLibrary("free42");
     }
@@ -54,6 +59,16 @@ public class Free42Activity extends Activity {
     private Bitmap skin;
     private Bitmap display;
     private long startTime = new Date().getTime();
+    
+    // The stream used by shell_read_saved_state()
+    private InputStream stateFileInputStream;
+    private OutputStream stateFileOutputStream;
+    
+    // Persistent state
+    boolean printToGif;
+    String printToGifFileName = "";
+    boolean printToTxt;
+    String printToTxtFileName = "";
 
     /** Called with the activity is first created. */
     @Override
@@ -71,9 +86,28 @@ public class Free42Activity extends Activity {
     	is = getClass().getResourceAsStream("Ehrling42sm.gif");
     	skin = new BitmapDrawable(is).getBitmap();
     	display = Bitmap.createBitmap(131, 16, Bitmap.Config.ARGB_8888);
+
+    	int init_mode;
+		IntHolder version = new IntHolder();
+    	try {
+    		stateFileInputStream = openFileInput("state");
+    	} catch (FileNotFoundException e) {
+    		stateFileInputStream = null;
+    	}
+    	if (stateFileInputStream != null) {
+            if (read_shell_state(version))
+                init_mode = 1;
+            else {
+                init_shell_state(-1);
+                init_mode = 2;
+            }
+        } else {
+            init_shell_state(-1);
+            init_mode = 0;
+        }
     	
     	nativeInit();
-    	core_init(0, 0);
+    	core_init(init_mode, version.value);
     }
 
     /**
@@ -82,6 +116,128 @@ public class Free42Activity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+    }
+    
+    /**
+     * Called exactly once, when the application instance is about to be
+     * destroyed.
+     */
+    @Override
+    protected void onDestroy() {
+    	super.onDestroy();
+    	// Write state file
+    	try {
+    		stateFileOutputStream = openFileOutput("state", Context.MODE_PRIVATE);
+    	} catch (FileNotFoundException e) {
+    		stateFileOutputStream = null;
+    	}
+    	if (stateFileOutputStream != null) {
+    		write_shell_state();
+    		core_quit();
+    	}
+    	if (stateFileOutputStream != null)
+    		try {
+    			stateFileOutputStream.close();
+    		} catch (IOException e) {}
+    		stateFileOutputStream = null;
+    }
+    
+    private boolean read_shell_state(IntHolder version) {
+    	try {
+    		if (state_read_int() != FREE42_MAGIC())
+    			return false;
+    		version.value = state_read_int();
+    		if (version.value < 0 || version.value > FREE42_VERSION())
+    			return false;
+    		int shell_version = state_read_int();
+    		printToGif = state_read_boolean();
+    	    printToGifFileName = state_read_string();
+    	    printToTxt = state_read_boolean();
+    	    printToTxtFileName = state_read_string();
+    		init_shell_state(shell_version);
+    	} catch (IllegalArgumentException e) {
+    		return false;
+    	}
+    	return true;
+    }
+    
+    private void init_shell_state(int shell_version) {
+    	switch (shell_version) {
+    	case -1:
+    	    printToGif = false;
+    	    printToGifFileName = "";
+    	    printToTxt = false;
+    	    printToTxtFileName = "";
+    	    // fall through
+    	case 0:
+			// current version (SHELL_VERSION = 0),
+			// so nothing to do here since everything
+			// was initialized from the state file.
+    		;
+    	}
+    }
+
+    private void write_shell_state() {
+    	try {
+    		state_write_int(FREE42_MAGIC());
+    		state_write_int(FREE42_VERSION());
+    		state_write_int(SHELL_VERSION);
+    		state_write_boolean(printToGif);
+    		state_write_string(printToGifFileName);
+    		state_write_boolean(printToTxt);
+    		state_write_string(printToTxtFileName);
+    	} catch (IllegalArgumentException e) {}
+    }
+    
+	private byte[] int_buf = new byte[4];
+    private int state_read_int() throws IllegalArgumentException {
+    	if (shell_read_saved_state(int_buf) != 4)
+    		throw new IllegalArgumentException();
+    	return (int_buf[0] << 24) | ((int_buf[1] & 255) << 16) | ((int_buf[2] & 255) << 8) | (int_buf[3] & 255);
+    }
+    private void state_write_int(int i) throws IllegalArgumentException {
+    	int_buf[0] = (byte) (i >> 24);
+    	int_buf[1] = (byte) (i >> 16);
+    	int_buf[2] = (byte) (i >> 8);
+    	int_buf[3] = (byte) i;
+    	if (!shell_write_saved_state(int_buf))
+    		throw new IllegalArgumentException();
+    }
+    
+	private byte[] boolean_buf = new byte[1];
+    private boolean state_read_boolean() throws IllegalArgumentException {
+    	if (shell_read_saved_state(boolean_buf) != 1)
+    		throw new IllegalArgumentException();
+    	return boolean_buf[0] != 0;
+    }
+    private void state_write_boolean(boolean b) throws IllegalArgumentException {
+    	boolean_buf[0] = (byte) (b ? 1 : 0);
+    	if (!shell_write_saved_state(boolean_buf))
+    		throw new IllegalArgumentException();
+    }
+    
+    private String state_read_string() throws IllegalArgumentException {
+    	int length = state_read_int();
+    	byte[] buf = new byte[length];
+    	if (length > 0 && shell_read_saved_state(buf) != length)
+    		throw new IllegalArgumentException();
+    	try {
+    		return new String(buf, "UTF-8");
+    	} catch (UnsupportedEncodingException e) {
+    		// Won't happen; UTF-8 is always supported.
+    		return null;
+    	}
+    }
+    private void state_write_string(String s) throws IllegalArgumentException {
+    	byte[] buf;
+    	try {
+    		buf = s.getBytes("UTF-8");
+    	} catch (UnsupportedEncodingException e) {
+    		// Won't happen; UTF-8 is always supported.
+    		throw new IllegalArgumentException();
+    	}
+    	state_write_int(buf.length);
+    	shell_write_saved_state(buf);
     }
 
     /**
@@ -205,13 +361,20 @@ public class Free42Activity extends Activity {
     }
 
     
+    //////////////////////////////////////////////////////////////////////////
+    ///// Stubs for accessing the FREE42_MAGIC and FREE42_VERSION macros /////
+    //////////////////////////////////////////////////////////////////////////
+    
+    private native int FREE42_MAGIC();
+    private native int FREE42_VERSION();
+    
     ///////////////////////////////////////////
     ///// Stubs for shell->core interface /////
     ///////////////////////////////////////////
     
     private native void nativeInit();
     private native void core_init(int read_state, int version);
-    private native void quit();
+    private native void core_quit();
     private native void core_repaint_display();
     private native boolean core_menu();
     private native boolean core_alpha_menu();
@@ -355,21 +518,47 @@ public class Free42Activity extends Activity {
 	 * always get an error then.)
 	 */
 	public int shell_read_saved_state(byte[] buf) {
-		// TODO
-		return -1;
+		if (stateFileInputStream == null)
+			return -1;
+		try {
+			int n = stateFileInputStream.read(buf);
+			if (n <= 0) {
+				stateFileInputStream.close();
+				stateFileInputStream = null;
+				return 0;
+			} else
+				return n;
+		} catch (IOException e) {
+			try {
+				stateFileInputStream.close();
+			} catch (IOException e2) {}
+			stateFileInputStream = null;
+			return -1;
+		}
 	}
 	
 	/**
 	 * shell_write_saved_state()
 	 * Callback to dump the saved state to persistent storage.
-	 * Returns 1 on success, 0 on error.
+	 * Returns 'true' on success, 'false' on error.
 	 * The emulator core should only call this function from core_quit(). (Nothing
 	 * horrible will happen if you try to call this function during other contexts,
 	 * but you will always get an error then.)
 	 */
-	public int shell_write_saved_state(byte[] buf) {
+	public boolean shell_write_saved_state(byte[] buf) {
 		// TODO
-		return 0;
+		if (stateFileOutputStream == null)
+			return false;
+		try {
+			stateFileOutputStream.write(buf);
+			return true;
+		} catch (IOException e) {
+			try {
+				stateFileOutputStream.close();
+			} catch (IOException e2) {}
+			stateFileOutputStream = null;
+			return false;
+		}
 	}
 	
 	/**

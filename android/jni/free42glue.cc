@@ -40,6 +40,22 @@ Java_com_thomasokken_free42_Free42Activity_nativeInit(JNIEnv *env, jobject thiz)
 }
 
 
+/*******************************************************************/
+/* A couple of functions to enable the Java code to get the values */
+/* of the FREE42_MAGIC and FREE42_VERSION macros.                  */
+/*******************************************************************/
+
+extern "C" jint
+Java_com_thomasokken_free42_Free42Activity_FREE42_1MAGIC(JNIEnv *env, jobject thiz) {
+    return FREE42_MAGIC;
+}
+
+extern "C" jint
+Java_com_thomasokken_free42_Free42Activity_FREE42_1VERSION(JNIEnv *env, jobject thiz) {
+    return FREE42_VERSION;
+}
+
+
 /**********************************************************/
 /* Here followeth the stubs for the core_main.h interface */
 /**********************************************************/
@@ -294,10 +310,10 @@ int shell_read_saved_state(void *buf, int4 bufsize) {
 
 bool shell_write_saved_state(const void *buf, int4 bufsize) {
     jclass klass = g_env->GetObjectClass(g_activity);
-    jmethodID mid = g_env->GetMethodID(klass, "shell_write_saved_state", "([B)I");
+    jmethodID mid = g_env->GetMethodID(klass, "shell_write_saved_state", "([B)Z");
     jbyteArray buf2 = g_env->NewByteArray(bufsize);
     g_env->SetByteArrayRegion(buf2, 0, bufsize, (const jbyte *) buf);
-    return g_env->CallIntMethod(g_activity, mid, buf2);
+    return g_env->CallBooleanMethod(g_activity, mid, buf2);
     // TODO: Release the array?
 }
 
