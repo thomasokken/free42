@@ -603,7 +603,6 @@ public class Free42Activity extends Activity {
 	 * but you will always get an error then.)
 	 */
 	public boolean shell_write_saved_state(byte[] buf) {
-		// TODO
 		if (stateFileOutputStream == null)
 			return false;
 		try {
