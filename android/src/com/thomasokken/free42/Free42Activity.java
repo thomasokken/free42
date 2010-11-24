@@ -28,7 +28,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.util.AttributeSet;
@@ -57,7 +57,6 @@ public class Free42Activity extends Activity {
     private Free42View view;
     private SkinLayout layout;
     private Bitmap skin;
-    private Bitmap display;
     private long startTime = new Date().getTime();
     
     // The stream used by shell_read_saved_state()
@@ -98,7 +97,7 @@ public class Free42Activity extends Activity {
         }
     	is = getClass().getResourceAsStream("Ehrling42sm.gif");
     	skin = new BitmapDrawable(is).getBitmap();
-    	display = Bitmap.createBitmap(131, 16, Bitmap.Config.ARGB_8888);
+    	layout.setSkinBitmap(skin);
 
     	int init_mode;
 		IntHolder version = new IntHolder();
@@ -236,9 +235,7 @@ public class Free42Activity extends Activity {
 
     	@Override
     	protected void onDraw(Canvas canvas) {
-    		Paint p = new Paint();
-    		canvas.drawBitmap(skin, 0, 0, p);
-    		layout.skin_repaint_display(canvas, display);
+    		layout.skin_repaint(canvas);
     	}
     	
     	@Override
@@ -497,8 +494,8 @@ public class Free42Activity extends Activity {
 	 * height of the area to be repainted.
 	 */
     public void shell_blitter(byte[] bits, int bytesperline, int x, int y, int width, int height) {
-    	layout.skin_display_blitter(display, bits, bytesperline, x, y, width, height);
-    	view.postInvalidate(); // TODO -- only invalidate as much as necessary!
+    	Rect inval = layout.skin_display_blitter(bits, bytesperline, x, y, width, height);
+    	view.postInvalidate(inval.left, inval.top, inval.right, inval.bottom);
     }
 
 	/**
@@ -524,7 +521,9 @@ public class Free42Activity extends Activity {
 	 * so the shell is expected to handle that one by itself.
 	 */
 	public void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
-		// TODO
+    	Rect inval = layout.skin_annunciators(updn, shf, prt, run, g, rad);
+    	if (inval != null)
+    		view.postInvalidate(inval.left, inval.top, inval.right, inval.bottom);
 	}
 	
 	/**
@@ -624,8 +623,8 @@ public class Free42Activity extends Activity {
 	 * Callback to get the amount of free memory in bytes.
 	 */
 	public int shell_get_mem() {
-		// TODO
-		return 42;
+		long freeMem = Runtime.getRuntime().freeMemory();
+		return freeMem > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) freeMem;
 	}
 	
 	/**

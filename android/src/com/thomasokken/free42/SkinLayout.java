@@ -70,6 +70,9 @@ public class SkinLayout {
 	private SkinMacro[] macrolist = null;
 	private SkinAnnunciator[] annunciators = new SkinAnnunciator[7];
 	private boolean display_enabled = true;
+	private Bitmap skinBitmap;
+	private Bitmap display = Bitmap.createBitmap(131, 16, Bitmap.Config.ARGB_8888);
+	private boolean[] ann_state = new boolean[7];
 
 	public SkinLayout(InputStream is) throws IOException {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
@@ -239,6 +242,10 @@ public class SkinLayout {
 		macrolist = tempmacrolist.toArray(new SkinMacro[0]);
     }
 	
+	public void setSkinBitmap(Bitmap skinBitmap) {
+		this.skinBitmap = skinBitmap;
+	}
+	
 	public void skin_repaint_annunciator(Canvas canvas, Bitmap skin, int which, boolean state) {
 		if (!display_enabled)
 			return;
@@ -318,7 +325,7 @@ public class SkinLayout {
 //    return macro;
 //}
 	
-	public void skin_repaint_key(Canvas canvas, Bitmap skin, Bitmap display, int key, boolean state) {
+	public void skin_repaint_key(Canvas canvas, Bitmap skin, int key, boolean state) {
 	    if (key >= -7 && key <= -2) {
 			/* Soft key */
 			if (!display_enabled)
@@ -372,7 +379,7 @@ public class SkinLayout {
 	    canvas.drawBitmap(display, src, dst, p);
 	}
 	
-	public void skin_display_blitter(Bitmap display, byte[] bits, int bytesperline, int x, int y, int width, int height) {
+	public Rect skin_display_blitter(byte[] bits, int bytesperline, int x, int y, int width, int height) {
     	// TODO -- This is just to get started; obviously not terribly efficient yet
     	int hmax = x + width;
     	int vmax = y + height;
@@ -381,18 +388,88 @@ public class SkinLayout {
     			boolean bitSet = (bits[(h >> 3) + v * bytesperline] & (1 << (h & 7))) != 0;
     			display.setPixel(h, v, bitSet ? display_fg : display_bg);
     		}
+    	// Return a Rect telling the caller what part of the View needs to be invalidated
+    	return new Rect(display_loc.x + x * display_scale.x,
+    					display_loc.y + y * display_scale.y,
+    					display_loc.x + (x + width) * display_scale.x,
+    					display_loc.y + (y + height) * display_scale.y);
 	}
+	
+	public Rect skin_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
+		int minx = Integer.MAX_VALUE;
+		int miny = Integer.MAX_VALUE;
+		int maxx = Integer.MIN_VALUE;
+		int maxy = Integer.MIN_VALUE;
+		
+		int[] ann_arg = new int[] { updn, shf, prt, run, -1, g, rad };
+		for (int i = 0; i < 7; i++) {
+			int newState = ann_arg[i];
+			if (newState == (ann_state[i] ? 0 : 1)) {
+				ann_state[i] = !ann_state[i];
+				SkinRect ann_rect = annunciators[i].disp_rect;
+				if (minx > ann_rect.x)
+					minx = ann_rect.x;
+				if (miny > ann_rect.y)
+					miny = ann_rect.y;
+				if (maxx < ann_rect.x + ann_rect.width)
+					maxx = ann_rect.x + ann_rect.width;
+				if (maxy < ann_rect.y + ann_rect.height)
+					maxy = ann_rect.y + ann_rect.height;
+			}
+		}
+		if (minx == Integer.MAX_VALUE)
+			return null;
+		else
+			return new Rect(minx, miny, maxx, maxy);
+	}
+	
+	public void skin_repaint(Canvas canvas) {
+	    if (!display_enabled)
+	    	return;
 
-	public void skin_repaint_display(Canvas canvas, Bitmap display) {
-	    if (display_enabled) {
-	    	Rect src = new Rect(0, 0, 131, 16);
+	    Rect clip = canvas.getClipBounds();
+		boolean paintDisplay = false;
+		boolean paintSkin = false;
+    	Rect disp = new Rect(display_loc.x,
+							 display_loc.y,
+							 display_loc.x + 131 * display_scale.x,
+							 display_loc.y + 16 * display_scale.y);
+    	if (disp.contains(clip))
+    		paintDisplay = true;
+    	else {
+    		Rect sk = new Rect(0, 0, skin.width, skin.height);
+    		paintSkin = Rect.intersects(clip, sk);
+    		paintDisplay = Rect.intersects(clip, disp);
+    	}
+    	if (!paintDisplay && !paintSkin)
+    		return;
+		Paint p = new Paint();
+		
+		if (paintSkin) {
+			canvas.drawBitmap(skinBitmap, 0, 0, p);
+			for (int i = 0; i < 7; i++)
+				if (ann_state[i]) {
+					SkinAnnunciator ann = annunciators[i];
+					Rect src = new Rect(ann.src.x,
+										ann.src.y,
+										ann.src.x + ann.disp_rect.width,
+										ann.src.y + ann.disp_rect.height);
+					Rect dst = new Rect(ann.disp_rect.x,
+										ann.disp_rect.y,
+										ann.disp_rect.x + ann.disp_rect.width,
+										ann.disp_rect.y + ann.disp_rect.height);
+					canvas.drawBitmap(skinBitmap, src, dst, p);
+				}
+		}
+		
+		if (paintDisplay) {
+			Rect src = new Rect(0, 0, 131, 16);
 	    	Rect dst = new Rect(display_loc.x,
 	    						display_loc.y,
 	    						display_loc.x + 131 * display_scale.x,
 	    						display_loc.y + 16 * display_scale.y);
-	    	Paint p = new Paint();
 	    	canvas.drawBitmap(display, src, dst, p);
-	    }
+		}
 	}
 	
 	public void skin_display_set_enabled(boolean enable) {
