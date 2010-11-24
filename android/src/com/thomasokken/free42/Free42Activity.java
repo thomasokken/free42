@@ -64,13 +64,26 @@ public class Free42Activity extends Activity {
     private InputStream stateFileInputStream;
     private OutputStream stateFileOutputStream;
     
-    // Persistent state
+    // Stuff to run core_keydown() on a background thread
+    private Object coreThreadMonitor = new Object();
+    private CoreThread coreThread;
+    
+	public boolean enqueued;
+	public int repeat;
+	public boolean coreWantsCpu;
+
+	// Persistent state
     boolean printToGif;
     String printToGifFileName = "";
     boolean printToTxt;
     String printToTxtFileName = "";
 
-    /** Called with the activity is first created. */
+    
+    ///////////////////////////////////////////////////////
+    ///// Top-level code to interface with Android UI /////
+    ///////////////////////////////////////////////////////
+    
+    /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -141,6 +154,139 @@ public class Free42Activity extends Activity {
     		} catch (IOException e) {}
     		stateFileOutputStream = null;
     }
+    
+    /**
+     * Called when your activity's options menu needs to be created.
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+
+        // We are going to create two menus. Note that we assign them
+        // unique integer IDs, labels from our string resources, and
+        // given them shortcuts.
+        menu.add(0, BACK_ID, 0, R.string.back).setShortcut('0', 'b');
+        menu.add(0, CLEAR_ID, 0, R.string.clear).setShortcut('1', 'c');
+
+        return true;
+    }
+
+    /**
+     * Called right before your activity's option menu is displayed.
+     */
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+
+        // Before showing the menu, we need to decide whether the clear
+        // item is enabled depending on whether there is text to clear.
+        //menu.findItem(CLEAR_ID).setVisible(canvas.getText().length() > 0);
+
+        return true;
+    }
+
+    /**
+     * Called when a menu item is selected.
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+        case BACK_ID:
+            finish();
+            return true;
+        case CLEAR_ID:
+        	redisplay();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * A call-back for when the user presses the back button.
+     */
+    OnClickListener mBackListener = new OnClickListener() {
+        public void onClick(View v) {
+            finish();
+        }
+    };
+
+    /**
+     * A call-back for when the user presses the clear button.
+     */
+    OnClickListener mClearListener = new OnClickListener() {
+        public void onClick(View v) {
+            redisplay();
+        }
+    };
+    
+    private class Free42View extends View {
+
+    	public Free42View(Context context) {
+    		super(context);
+    	}
+
+    	public Free42View(Context context, AttributeSet attrs) {
+    		super(context, attrs);
+    	}
+
+    	public Free42View(Context context, AttributeSet attrs, int defStyle) {
+    		super(context, attrs, defStyle);
+    	}
+
+    	@Override
+    	protected void onDraw(Canvas canvas) {
+    		Paint p = new Paint();
+    		canvas.drawBitmap(skin, 0, 0, p);
+    		layout.skin_repaint_display(canvas, display);
+    	}
+    	
+    	@Override
+    	public boolean onTouchEvent(MotionEvent e) {
+    		int what = e.getAction();
+    		if (what != MotionEvent.ACTION_DOWN && what != MotionEvent.ACTION_UP)
+    			return true;
+    		
+    		if (what == MotionEvent.ACTION_DOWN) {
+	    		int x = (int) e.getX();
+	    		int y = (int) e.getY();
+	    		IntHolder skeyHolder = new IntHolder();
+	    		IntHolder ckeyHolder = new IntHolder();
+	    		layout.skin_find_key(core_menu(), x, y, false, skeyHolder, ckeyHolder);
+	    		int skey = skeyHolder.value;
+	    		int ckey = ckeyHolder.value;
+	    		if (ckey == 0)
+	    			return true;
+	    		endCoreThread();
+	    		coreThread = new CoreThread(ckey);
+	    		coreThread.start();
+    	    } else {
+	    		endCoreThread();
+    			coreWantsCpu = core_keyup();
+    			if (coreWantsCpu) {
+    				coreThread = new CoreThread(0);
+    				coreThread.start();
+    			}
+    	    }
+    			
+    		return true;
+    	}
+    	
+//    	private int width = -1;
+//    	private int height = -1;
+//    	
+//    	@Override
+//    	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+//    		width = w;
+//    		height = h;
+//    		postInvalidate();
+//    	}
+    }
+
+    
+    ////////////////////////////////////////////////////////////////////
+    ///// This section is where all the real 'shell' work is done. /////
+    ////////////////////////////////////////////////////////////////////
     
     private boolean read_shell_state(IntHolder version) {
     	try {
@@ -240,127 +386,40 @@ public class Free42Activity extends Activity {
     	shell_write_saved_state(buf);
     }
 
-    /**
-     * Called when your activity's options menu needs to be created.
-     */
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-
-        // We are going to create two menus. Note that we assign them
-        // unique integer IDs, labels from our string resources, and
-        // given them shortcuts.
-        menu.add(0, BACK_ID, 0, R.string.back).setShortcut('0', 'b');
-        menu.add(0, CLEAR_ID, 0, R.string.clear).setShortcut('1', 'c');
-
-        return true;
+    private class CoreThread extends Thread {
+    	private int keycode;
+    	public boolean enqueued;
+    	public int repeat;
+    	public boolean coreWantsCpu;
+    	public boolean shellWantsCpu;
+    	public CoreThread(int keycode) {
+    		this.keycode = keycode;
+    	}
+    	public void run() {
+    		BooleanHolder enqHolder = new BooleanHolder();
+    		IntHolder repHolder = new IntHolder();
+    		coreWantsCpu = core_keydown(keycode, enqHolder, repHolder);
+    		enqueued = enqHolder.value;
+    		repeat = repHolder.value;
+    	}
     }
-
-    /**
-     * Called right before your activity's option menu is displayed.
-     */
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-
-        // Before showing the menu, we need to decide whether the clear
-        // item is enabled depending on whether there is text to clear.
-        //menu.findItem(CLEAR_ID).setVisible(canvas.getText().length() > 0);
-
-        return true;
-    }
-
-    /**
-     * Called when a menu item is selected.
-     */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-        case BACK_ID:
-            finish();
-            return true;
-        case CLEAR_ID:
-        	redisplay();
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    /**
-     * A call-back for when the user presses the back button.
-     */
-    OnClickListener mBackListener = new OnClickListener() {
-        public void onClick(View v) {
-            finish();
-        }
-    };
-
-    /**
-     * A call-back for when the user presses the clear button.
-     */
-    OnClickListener mClearListener = new OnClickListener() {
-        public void onClick(View v) {
-            redisplay();
-        }
-    };
     
-    private class Free42View extends View {
-
-    	public Free42View(Context context) {
-    		super(context);
+    private void endCoreThread() {
+    	synchronized (coreThreadMonitor) {
+    		if (coreThread != null) {
+    			coreThread.shellWantsCpu = true;
+    			try {
+    				coreThread.join();
+    			} catch (InterruptedException e) {}
+    			enqueued = coreThread.enqueued;
+    			repeat = coreThread.repeat;
+    			coreWantsCpu = coreThread.coreWantsCpu;
+    			coreThread = null;
+    		}
     	}
-
-    	public Free42View(Context context, AttributeSet attrs) {
-    		super(context, attrs);
-    	}
-
-    	public Free42View(Context context, AttributeSet attrs, int defStyle) {
-    		super(context, attrs, defStyle);
-    	}
-
-    	@Override
-    	protected void onDraw(Canvas canvas) {
-    		Paint p = new Paint();
-    		canvas.drawBitmap(skin, 0, 0, p);
-    		layout.skin_repaint_display(canvas, display);
-    	}
-    	
-    	@Override
-    	public boolean onTouchEvent(MotionEvent e) {
-    		int what = e.getAction();
-    		if (what != MotionEvent.ACTION_DOWN && what != MotionEvent.ACTION_UP)
-    			return false;
-    		int x = (int) e.getX();
-    		int y = (int) e.getY();
-    		IntHolder skeyHolder = new IntHolder();
-    		IntHolder ckeyHolder = new IntHolder();
-    		layout.skin_find_key(core_menu(), x, y, false, skeyHolder, ckeyHolder);
-    		int skey = skeyHolder.value;
-    		int ckey = ckeyHolder.value;
-    		System.out.println((what == MotionEvent.ACTION_DOWN ? "down" : "up") + " (" + x + ", " + y + ") skey=" + skey + " ckey=" + ckey);
-    		
-    		if (what == MotionEvent.ACTION_DOWN) {
-    			IntHolder enqueued = new IntHolder();
-    			IntHolder repeat = new IntHolder();
-    			core_keydown(ckey, enqueued, repeat);
-    		} else
-    			core_keyup();
-    		return true;
-    	}
-    	
-//    	private int width = -1;
-//    	private int height = -1;
-//    	
-//    	@Override
-//    	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-//    		width = w;
-//    		height = h;
-//    		postInvalidate();
-//    	}
     }
-
     
+
     //////////////////////////////////////////////////////////////////////////
     ///// Stubs for accessing the FREE42_MAGIC and FREE42_VERSION macros /////
     //////////////////////////////////////////////////////////////////////////
@@ -379,7 +438,7 @@ public class Free42Activity extends Activity {
     private native boolean core_menu();
     private native boolean core_alpha_menu();
     private native boolean core_hex_menu();
-    private native boolean core_keydown(int key, IntHolder enqueued, IntHolder repeat);
+    private native boolean core_keydown(int key, BooleanHolder enqueued, IntHolder repeat);
     private native int core_repeat();
     private native void core_keytimeout1();
     private native void core_keytimeout2();
@@ -480,8 +539,7 @@ public class Free42Activity extends Activity {
 	 * the CPU back as soon as possible).
 	 */
 	public int shell_wants_cpu() {
-		// TODO
-		return 1;
+		return coreThread.shellWantsCpu ? 1 : 0;
 	}
 	
 	/**
