@@ -435,6 +435,10 @@ public class Free42Activity extends Activity {
 	private void repeater() {
 		if (key_timer != null)
 			key_timer.cancel();
+		if (ckey == 0) {
+			key_timer = null;
+			return;
+		}
 		key_timer = new Timer();
 		int repeat = core_repeat();
 		if (repeat != 0) {

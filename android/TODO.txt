@@ -27,4 +27,4 @@ I should probably do something to block event processing (ignore events?)
 if the shell is lagging behind. See what happens with auto-repeat -- in
 ALPHA mode it can cause a crash, on the Mac simulator at least.
 
-PSE and auto-repeat of 'up' and 'down' are broken, at least on the Mac.
+PSE is broken, at least on the Mac.
