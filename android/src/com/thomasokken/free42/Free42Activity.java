@@ -135,14 +135,6 @@ public class Free42Activity extends Activity {
     }
 
     /**
-     * Called when the activity is about to start interacting with the user.
-     */
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-    
-    /**
      * Called exactly once, when the application instance is about to be
      * destroyed.
      */
@@ -159,11 +151,12 @@ public class Free42Activity extends Activity {
     		write_shell_state();
     		core_quit();
     	}
-    	if (stateFileOutputStream != null)
+    	if (stateFileOutputStream != null) {
     		try {
     			stateFileOutputStream.close();
     		} catch (IOException e) {}
     		stateFileOutputStream = null;
+    	}
     }
     
     /**
