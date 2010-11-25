@@ -23,6 +23,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import android.app.Activity;
 import android.content.Context;
@@ -30,6 +32,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.Menu;
@@ -39,9 +42,11 @@ import android.view.View;
 import android.view.View.OnClickListener;
 
 /**
- * This class provides a basic demonstration of how to write an Android
- * activity. Inside of its window, it places a single view: an EditText that
- * displays and edits some internal text.
+ * This Activity class contains most of the Free42 'shell' functionality;
+ * the skin-specific code is separated into the SkinLayout class.
+ * This class works in conjunction with free42glue.cc, which is the JNI-
+ * based interface to the Free42 'core' functionality (the core is
+ * C++ and porting it to Java is not practical, hence the use of JNI).
  */
 public class Free42Activity extends Activity {
     
@@ -59,17 +64,24 @@ public class Free42Activity extends Activity {
     private Bitmap skin;
     private long startTime = new Date().getTime();
     
-    // The stream used by shell_read_saved_state()
+    // Streams for reading and writing the state file
     private InputStream stateFileInputStream;
     private OutputStream stateFileOutputStream;
     
-    // Stuff to run core_keydown() on a background thread
-    private Object coreThreadMonitor = new Object();
-    private CoreThread coreThread;
+    // Streams for program import and export
+    private InputStream importInputStream;
+    private OutputStream exportOutputStream;
     
-	public boolean enqueued;
-	public int repeat;
-	public boolean coreWantsCpu;
+    // Stuff to run core_keydown() on a background thread
+    private CoreThread coreThread;
+    private Object coreThreadMonitor = new Object();
+    
+	private boolean enqueued;
+	private int repeat;
+	private boolean coreWantsCpu;
+	
+	private Timer timer3;
+	private Object timer3monitor = new Object();
 
 	// Persistent state
     boolean printToGif;
@@ -155,7 +167,7 @@ public class Free42Activity extends Activity {
     }
     
     /**
-     * Called when your activity's options menu needs to be created.
+     * Called when the activity's options menu needs to be created.
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -171,7 +183,7 @@ public class Free42Activity extends Activity {
     }
 
     /**
-     * Called right before your activity's option menu is displayed.
+     * Called right before the activity's option menu is displayed.
      */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -255,6 +267,14 @@ public class Free42Activity extends Activity {
 	    		if (ckey == 0)
 	    			return true;
 	    		endCoreThread();
+	    		synchronized (timer3monitor) {
+//		            if (timer3 != null && (macro != NULL || ckey != 28 /* SHIFT */)) {
+			        if (timer3 != null && ckey != 28 /* SHIFT */) {
+			        	timer3.cancel();
+		                timer3 = null;
+		                core_timeout3(0);
+		            }
+	    		}
 	    		coreThread = new CoreThread(ckey);
 	    		coreThread.start();
     	    } else {
@@ -507,8 +527,21 @@ public class Free42Activity extends Activity {
 	 * not return until the sound has finished), if possible.
 	 */
 	public void shell_beeper(int frequency, int duration) {
-		// TODO
+        for (int i = 0; i < 10; i++) {
+                if (frequency <= cutoff_freqs[i]) {
+	                	MediaPlayer mp = MediaPlayer.create(this, sound_ids[i]);
+	                    mp.start();
+                        shell_delay(250);
+                        return;
+                }
+        }
+    	MediaPlayer mp = MediaPlayer.create(this, sound_ids[10]);
+        mp.start();
+        shell_delay(125);
 	}
+
+	private final int[] cutoff_freqs = { 164, 220, 243, 275, 293, 324, 366, 418, 438, 550 };
+	private final int[] sound_ids = { R.raw.tone0, R.raw.tone1, R.raw.tone2, R.raw.tone3, R.raw.tone4, R.raw.tone5, R.raw.tone6, R.raw.tone7, R.raw.tone8, R.raw.tone9, R.raw.squeak };
 	
 	/**
 	 * shell_annunciators()
@@ -559,7 +592,28 @@ public class Free42Activity extends Activity {
 	 * This function supports the delay after SHOW, MEM, and shift-VARMENU.
 	 */
 	public void shell_request_timeout3(int delay) {
-		// TODO
+		synchronized (timer3monitor) {
+			if (timer3 != null)
+				timer3.cancel();
+			timer3 = new Timer();
+			TimerTask task = new TimerTask() {
+				public void run() {
+					timeout3();
+				}
+			};
+			Date when = new Date(new Date().getTime() + delay);
+			timer3.schedule(task, when);
+		}
+	}
+	
+	private void timeout3() {
+		synchronized (timer3monitor) {
+			if (timer3 != null)
+				timer3.cancel();
+			timer3 = null;
+		}
+		endCoreThread();
+		core_timeout3(1);
 	}
 	
 	/**
@@ -646,7 +700,7 @@ public class Free42Activity extends Activity {
 	 * power-off is left to the OS and/or shell.
 	 */
 	public void shell_powerdown() {
-		// TODO
+        finish();
 	}
 	
 	/**
@@ -696,8 +750,18 @@ public class Free42Activity extends Activity {
 	 * core_export_programs() should abort in that case.
 	 */
 	public int shell_write(byte[] buf) {
-		// TODO
-		return 0;
+		if (exportOutputStream == null)
+			return 0;
+		try {
+			exportOutputStream.write(buf);
+			return 1;
+		} catch (IOException e) {
+			try {
+				exportOutputStream.close();
+			} catch (IOException e2) {}
+			exportOutputStream = null;
+			return 0;
+		}
 	}
 	
 	/**
@@ -708,8 +772,23 @@ public class Free42Activity extends Activity {
 	 * input.
 	 */
 	public int shell_read(byte[] buf) {
-		// TODO
-		return -1;
+		if (importInputStream == null)
+			return -1;
+		try {
+			int n = importInputStream.read(buf);
+			if (n <= 0) {
+				importInputStream.close();
+				importInputStream = null;
+				return 0;
+			} else
+				return n;
+		} catch (IOException e) {
+			try {
+				importInputStream.close();
+			} catch (IOException e2) {}
+			importInputStream = null;
+			return -1;
+		}
 	}
 	
 	public void shell_log(String s) {
