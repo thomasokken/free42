@@ -96,13 +96,13 @@ public class Free42Activity extends Activity {
         view = new Free42View(this);
         setContentView(view);
         
-        InputStream is = getClass().getResourceAsStream("HP42CY.layout");
+        InputStream is = getClass().getResourceAsStream("Ehrling42sm.layout");
         try {
         	layout = new SkinLayout(is);
         } catch (IOException e) {
         	// Won't happen -- Ehrling42sm is a built-in resource.
         }
-    	is = getClass().getResourceAsStream("HP42CY.gif");
+    	is = getClass().getResourceAsStream("Ehrling42sm.gif");
     	skin = new BitmapDrawable(is).getBitmap();
     	layout.setSkinBitmap(skin);
 
