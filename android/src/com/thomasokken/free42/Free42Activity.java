@@ -39,7 +39,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 
 /**
  * This Activity class contains most of the Free42 'shell' functionality;
@@ -50,8 +49,8 @@ import android.view.View.OnClickListener;
  */
 public class Free42Activity extends Activity {
     
-    static final private int BACK_ID = Menu.FIRST;
-    static final private int CLEAR_ID = Menu.FIRST + 1;
+	private static final int BACK_ID = Menu.FIRST;
+	private static final int CLEAR_ID = Menu.FIRST + 1;
 
     private static final int SHELL_VERSION = 0;
     
@@ -83,19 +82,18 @@ public class Free42Activity extends Activity {
 	private Object timer3monitor = new Object();
 
 	// Persistent state
-    boolean printToGif;
-    String printToGifFileName = "";
-    boolean printToTxt;
-    String printToTxtFileName = "";
+	private boolean printToGif;
+	private String printToGifFileName = "";
+	private boolean printToTxt;
+	private String printToTxtFileName = "";
 
     
     ///////////////////////////////////////////////////////
     ///// Top-level code to interface with Android UI /////
     ///////////////////////////////////////////////////////
     
-    /** Called when the activity is first created. */
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         view = new Free42View(this);
         setContentView(view);
@@ -133,10 +131,6 @@ public class Free42Activity extends Activity {
     	core_init(init_mode, version.value);
     }
 
-    /**
-     * Called exactly once, when the application instance is about to be
-     * destroyed.
-     */
     @Override
     protected void onDestroy() {
     	super.onDestroy();
@@ -158,9 +152,6 @@ public class Free42Activity extends Activity {
     	}
     }
     
-    /**
-     * Called when the activity's options menu needs to be created.
-     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
@@ -174,9 +165,6 @@ public class Free42Activity extends Activity {
         return true;
     }
 
-    /**
-     * Called right before the activity's option menu is displayed.
-     */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
@@ -188,9 +176,6 @@ public class Free42Activity extends Activity {
         return true;
     }
 
-    /**
-     * Called when a menu item is selected.
-     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -206,33 +191,18 @@ public class Free42Activity extends Activity {
     }
 
     /**
-     * A call-back for when the user presses the back button.
+     * This class is the Activity's interface to the Android UI.
+     * Most of the actual hard work is not done here, but in the
+     * Activity.
      */
-    OnClickListener mBackListener = new OnClickListener() {
-        public void onClick(View v) {
-            finish();
-        }
-    };
-
-    /**
-     * A call-back for when the user presses the clear button.
-     */
-    OnClickListener mClearListener = new OnClickListener() {
-        public void onClick(View v) {
-            redisplay();
-        }
-    };
-    
     private class Free42View extends View {
 
     	public Free42View(Context context) {
     		super(context);
     	}
-
     	public Free42View(Context context, AttributeSet attrs) {
     		super(context, attrs);
     	}
-
     	public Free42View(Context context, AttributeSet attrs, int defStyle) {
     		super(context, attrs, defStyle);
     	}
@@ -280,16 +250,6 @@ public class Free42Activity extends Activity {
     			
     		return true;
     	}
-    	
-//    	private int width = -1;
-//    	private int height = -1;
-//    	
-//    	@Override
-//    	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-//    		width = w;
-//    		height = h;
-//    		postInvalidate();
-//    	}
     }
 
     
