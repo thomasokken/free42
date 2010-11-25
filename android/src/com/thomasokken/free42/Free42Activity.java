@@ -62,7 +62,6 @@ public class Free42Activity extends Activity {
     private Free42View view;
     private SkinLayout layout;
     private Bitmap skin;
-    private long startTime = new Date().getTime();
     
     // Streams for reading and writing the state file
     private InputStream stateFileInputStream;
@@ -401,7 +400,6 @@ public class Free42Activity extends Activity {
     	public boolean enqueued;
     	public int repeat;
     	public boolean coreWantsCpu;
-    	public boolean shellWantsCpu;
     	public CoreThread(int keycode) {
     		this.keycode = keycode;
     	}
@@ -417,7 +415,7 @@ public class Free42Activity extends Activity {
     private void endCoreThread() {
     	synchronized (coreThreadMonitor) {
     		if (coreThread != null) {
-    			coreThread.shellWantsCpu = true;
+    			core_keydown_finish();
     			try {
     				coreThread.join();
     			} catch (InterruptedException e) {}
@@ -442,6 +440,8 @@ public class Free42Activity extends Activity {
     ///////////////////////////////////////////
     
     private native void nativeInit();
+    private native void core_keydown_finish();
+    
     private native void core_init(int read_state, int version);
     private native void core_quit();
     private native void core_repaint_display();
@@ -524,13 +524,17 @@ public class Free42Activity extends Activity {
 			if (frequency <= cutoff_freqs[i]) {
 				MediaPlayer mp = MediaPlayer.create(this, sound_ids[i]);
 				mp.start();
-				shell_delay(250);
+				try {
+					Thread.sleep(250);
+				} catch (InterruptedException e) {}
 				return;
 			}
 		}
 		MediaPlayer mp = MediaPlayer.create(this, sound_ids[10]);
 		mp.start();
-		shell_delay(125);
+		try {
+			Thread.sleep(125);
+		} catch (InterruptedException e) {}
 	}
 
 	private final int[] cutoff_freqs = { 164, 220, 243, 275, 293, 324, 366, 418, 438, 550 };
@@ -550,32 +554,6 @@ public class Free42Activity extends Activity {
     	Rect inval = layout.skin_annunciators(updn, shf, prt, run, g, rad);
     	if (inval != null)
     		view.postInvalidate(inval.left, inval.top, inval.right, inval.bottom);
-	}
-	
-	/**
-	 * shell_wants_cpu()
-	 *
-	 * Callback used by the emulator core to check for pending events.
-	 * It calls this periodically during long operations, such as running a
-	 * user program, or the solver, etc. The shell should not handle any events
-	 * in this call! If there are pending events, it should return 1; the currently
-	 * active invocation of core_keydown() or core_keyup() will then return
-	 * immediately (with a return value of 1, to indicate that it would like to get
-	 * the CPU back as soon as possible).
-	 */
-	public int shell_wants_cpu() {
-		return coreThread.shellWantsCpu ? 1 : 0;
-	}
-	
-	/**
-	 * Callback to suspend execution for the given number of milliseconds. No event
-	 * processing will take place during the wait, so the core can call this
-	 * without having to worry about core_keydown() etc. being re-entered.
-	 */
-	public void shell_delay(int duration) {
-		try {
-			Thread.sleep(duration);
-		} catch (InterruptedException e) {}
 	}
 	
 	/**
@@ -711,16 +689,6 @@ public class Free42Activity extends Activity {
 	public double shell_random_seed() {
 		long t = new Date().getTime();
 		return (t % 1000000000) / 1000000000d;
-	}
-	
-	/**
-	 * shell_milliseconds()
-	 * Returns an elapsed-time value in milliseconds. The caller should make no
-	 * assumptions as to what this value is relative to; it is only intended to
-	 * allow the emulator core make short-term elapsed-time measurements.
-	 */
-	public int shell_milliseconds() {
-		return (int) (new Date().getTime() - startTime);
 	}
 	
 	/**

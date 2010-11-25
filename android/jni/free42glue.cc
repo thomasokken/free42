@@ -50,6 +50,10 @@ class Tracer {
 */
 
 
+/**********************************************/
+/* Some stuff to help native->java callbacks. */
+/**********************************************/
+
 static jobject g_activity;
 static JavaVM *vm;
 
@@ -83,6 +87,20 @@ Java_com_thomasokken_free42_Free42Activity_FREE42_1MAGIC(JNIEnv *env, jobject th
 extern "C" jint
 Java_com_thomasokken_free42_Free42Activity_FREE42_1VERSION(JNIEnv *env, jobject thiz) {
     return FREE42_VERSION;
+}
+
+
+/*********************************************************************/
+/* Since JNI calls are very expensive, I avoid polling the shell to  */
+/* find out if core_keydown() should return, and instead rely on the */
+/* shell to tell the core, through the following function.           */
+/*********************************************************************/
+
+static bool finish_flag = false;
+
+extern "C" void
+Java_com_thomasokken_free42_Free42Activity_core_1keydown_1finish(JNIEnv *env, jobject thiz) {
+    finish_flag = true;
 }
 
 
@@ -129,6 +147,7 @@ Java_com_thomasokken_free42_Free42Activity_core_1hex_1menu(JNIEnv *env, jobject 
 extern "C" jboolean
 Java_com_thomasokken_free42_Free42Activity_core_1keydown(JNIEnv *env, jobject thiz, jint key, jobject enqueued, jobject repeat) {
     //Tracer T("core_keydown");
+    finish_flag = false;
     int enq, rep;
     jboolean ret = core_keydown(key, &enq, &rep);
     jclass klass = env->GetObjectClass(enqueued);
@@ -347,32 +366,14 @@ void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
 }
 
 int shell_wants_cpu() {
-    // I'm cheating a bit here: the core calls this function after every
-    // program line, and the overhead from all those JNI calls adds up.
-    // By only calling the shell on every 10th call, I reduce this overhead
-    // by 90%; the only downside is that after the user presses R/S, the
-    // program may keep running 9 lines too far. Oh, well.
-    static int n = 0;
-    if (++n < 10)
-	return 0;
-    n = 0;
-
-    JNIEnv *env = getJniEnv();
-    jclass klass = env->GetObjectClass(g_activity);
-    jmethodID mid = env->GetMethodID(klass, "shell_wants_cpu", "()I");
-    int ret = env->CallIntMethod(g_activity, mid);
-    // Delete local references
-    env->DeleteLocalRef(klass);
-    return ret;
+    return finish_flag;
 }
 
 void shell_delay(int duration) {
-    JNIEnv *env = getJniEnv();
-    jclass klass = env->GetObjectClass(g_activity);
-    jmethodID mid = env->GetMethodID(klass, "shell_delay", "(I)V");
-    env->CallVoidMethod(g_activity, mid, duration);
-    // Delete local references
-    env->DeleteLocalRef(klass);
+    struct timespec ts;
+    ts.tv_sec = duration / 1000;
+    ts.tv_nsec = (duration % 1000) * 1000000;
+    nanosleep(&ts, NULL);
 }
 
 void shell_request_timeout3(int delay) {
@@ -451,13 +452,9 @@ double shell_random_seed() {
 }
 
 uint4 shell_milliseconds() {
-    JNIEnv *env = getJniEnv();
-    jclass klass = env->GetObjectClass(g_activity);
-    jmethodID mid = env->GetMethodID(klass, "shell_milliseconds", "()I");
-    uint4 ret = env->CallIntMethod(g_activity, mid);
-    // Delete local references
-    env->DeleteLocalRef(klass);
-    return ret;
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return (uint4) (tv.tv_sec * 1000L + tv.tv_usec / 1000);
 }
 
 void shell_print(const char *text, int length,
