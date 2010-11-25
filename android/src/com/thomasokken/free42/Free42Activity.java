@@ -105,7 +105,7 @@ public class Free42Activity extends Activity {
         try {
         	layout = new SkinLayout(is);
         } catch (IOException e) {
-        	// TODO
+        	// Won't happen -- Ehrling42sm is a built-in resource.
         }
     	is = getClass().getResourceAsStream("Ehrling42sm.gif");
     	skin = new BitmapDrawable(is).getBitmap();
@@ -689,7 +689,7 @@ public class Free42Activity extends Activity {
 	 * respond to sysNotifySleepRequestEvent to core_allows_powerdown().
 	 */
 	public int shell_low_battery() {
-		// TODO
+		// TODO -- see android.os.BatteryManager
 		return 0;
 	}
 	
