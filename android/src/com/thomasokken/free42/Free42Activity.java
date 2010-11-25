@@ -73,10 +73,10 @@ public class Free42Activity extends Activity {
     // Stuff to run core_keydown() on a background thread
     private CoreThread coreThread;
     
-	private boolean enqueued;
-	private int repeat;
 	private boolean coreWantsCpu;
 	
+	private int ckey;
+	private Timer key_timer;
 	private Timer timer3;
 
 	// Persistent state
@@ -224,7 +224,7 @@ public class Free42Activity extends Activity {
 	    		IntHolder ckeyHolder = new IntHolder();
 	    		layout.skin_find_key(core_menu(), x, y, skeyHolder, ckeyHolder);
 	    		int skey = skeyHolder.value;
-	    		int ckey = ckeyHolder.value;
+	    		ckey = ckeyHolder.value;
 	    		System.out.println("ckey=" + ckey + " skey=" + skey);
 	    		if (ckey == 0)
 	    			return true;
@@ -238,32 +238,60 @@ public class Free42Activity extends Activity {
 		        Rect inval = layout.set_active_key(skey);
 		        if (inval != null)
 		        	invalidate(inval);
-		        if (macro == null)
+		        boolean running;
+				BooleanHolder enqueued = new BooleanHolder();
+				IntHolder repeat = new IntHolder();
+		        if (macro == null) {
 		        	// Plain ol' key
-		        	start_core_keydown(ckey);
-		        else {
+					running = core_keydown(ckey, enqueued, repeat, true);
+		        } else {
 					boolean one_key_macro = macro.length == 1 || (macro.length == 2 && macro[0] == 28);
 					if (!one_key_macro)
 						layout.skin_display_set_enabled(false);
-					BooleanHolder enqueued = new BooleanHolder();
-					IntHolder repeat = new IntHolder();
 					for (int i = 0; i < macro.length - 1; i++) {
 						core_keydown(macro[i] & 255, enqueued, repeat, true);
 						if (!enqueued.value)
 							core_keyup();
 					}
-					start_core_keydown(macro[macro.length - 1] & 255);
+					running = core_keydown(macro[macro.length - 1] & 255, enqueued, repeat, true);
 					if (!one_key_macro)
 						layout.skin_display_set_enabled(true);
 		        }
+		        if (running)
+		        	start_core_keydown();
+		        else {
+		    		if (key_timer != null)
+		    			key_timer.cancel();
+		        	if (repeat.value != 0) {
+		        		key_timer = new Timer();
+		        		TimerTask task = new TimerTask() {
+		        			public void run() {
+		        				repeater();
+		        			}
+		        		};
+		        		Date when = new Date(new Date().getTime() + (repeat.value == 1 ? 1000 : 500));
+		        		key_timer.schedule(task, when);
+		        	} else if (!enqueued.value) {
+		        		key_timer = new Timer();
+		        		TimerTask task = new TimerTask() {
+		        			public void run() {
+		        				timeout1();
+		        			}
+		        		};
+		        		Date when = new Date(new Date().getTime() + 250);
+		        		key_timer.schedule(task, when);       		
+		        	} else
+		        		key_timer = null;
+		        }
     	    } else {
+    	    	ckey = 0;
     	    	Rect inval = layout.set_active_key(-1);
     	    	if (inval != null)
     	    		invalidate(inval);
 	    		end_core_keydown();
     			coreWantsCpu = core_keyup();
     			if (coreWantsCpu)
-    		        start_core_keydown(0);
+    		        start_core_keydown();
     	    }
     			
     		return true;
@@ -374,24 +402,20 @@ public class Free42Activity extends Activity {
     }
 
     private class CoreThread extends Thread {
-    	private int keycode;
     	public boolean enqueued;
     	public int repeat;
     	public boolean coreWantsCpu;
-    	public CoreThread(int keycode) {
-    		this.keycode = keycode;
-    	}
     	public void run() {
     		BooleanHolder enqHolder = new BooleanHolder();
     		IntHolder repHolder = new IntHolder();
-    		coreWantsCpu = core_keydown(keycode, enqHolder, repHolder, false);
+    		coreWantsCpu = core_keydown(0, enqHolder, repHolder, false);
     		enqueued = enqHolder.value;
     		repeat = repHolder.value;
     	}
     }
     
-    private void start_core_keydown(int ckey) {
-    	coreThread = new CoreThread(ckey);
+    private void start_core_keydown() {
+    	coreThread = new CoreThread();
     	coreThread.start();
     }
     
@@ -401,8 +425,6 @@ public class Free42Activity extends Activity {
 			try {
 				coreThread.join();
 			} catch (InterruptedException e) {}
-			enqueued = coreThread.enqueued;
-			repeat = coreThread.repeat;
 			coreWantsCpu = coreThread.coreWantsCpu;
 			coreThread = null;
 		} else {
@@ -410,6 +432,63 @@ public class Free42Activity extends Activity {
 		}
     }
     
+	private void repeater() {
+		if (key_timer != null)
+			key_timer.cancel();
+		key_timer = new Timer();
+		int repeat = core_repeat();
+		if (repeat != 0) {
+			TimerTask task = new TimerTask() {
+				public void run() {
+					repeater();
+				}
+			};
+			Date when = new Date(new Date().getTime() + (repeat == 1 ? 200 : 100));
+			key_timer.schedule(task, when);
+		} else {
+			TimerTask task = new TimerTask() {
+				public void run() {
+					timeout1();
+				}
+			};
+			Date when = new Date(new Date().getTime() + 250);
+			key_timer.schedule(task, when);
+		}
+	}
+
+	private void timeout1() {
+		if (key_timer != null)
+			key_timer.cancel();
+		if (ckey != 0) {
+			key_timer = new Timer();
+			core_keytimeout1();
+			TimerTask task = new TimerTask() {
+				public void run() {
+					timeout2();
+				}
+			};
+			Date when = new Date(new Date().getTime() + 1750);
+			key_timer.schedule(task, when);
+		} else
+			key_timer = null;
+	}
+
+	private void timeout2() {
+		if (key_timer != null)
+			key_timer.cancel();
+		key_timer = null;
+		if (ckey != 0)
+			core_keytimeout2();
+	}
+
+	private void timeout3() {
+		if (timer3 != null)
+			timer3.cancel();
+		timer3 = null;
+		end_core_keydown();
+		core_timeout3(1);
+	}
+	
 
     //////////////////////////////////////////////////////////////////////////
     ///// Stubs for accessing the FREE42_MAGIC and FREE42_VERSION macros /////
@@ -556,14 +635,6 @@ public class Free42Activity extends Activity {
 		};
 		Date when = new Date(new Date().getTime() + delay);
 		timer3.schedule(task, when);
-	}
-	
-	private void timeout3() {
-		if (timer3 != null)
-			timer3.cancel();
-		timer3 = null;
-		end_core_keydown();
-		core_timeout3(1);
 	}
 	
 	/**
