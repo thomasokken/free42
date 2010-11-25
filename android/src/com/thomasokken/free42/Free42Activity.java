@@ -491,6 +491,12 @@ public class Free42Activity extends Activity {
 		timer3 = null;
 		end_core_keydown();
 		core_timeout3(1);
+		// Resume program after PSE
+		BooleanHolder enqueued = new BooleanHolder();
+		IntHolder repeat = new IntHolder();
+		boolean running = core_keydown(0, enqueued, repeat, true);
+		if (running)
+			start_core_keydown();
 	}
 	
 
@@ -596,6 +602,9 @@ public class Free42Activity extends Activity {
 				return;
 			}
 		}
+		// TODO: This crashes after a while, apparently because it
+		// runs out of file descriptors (on the Mac, anyway).
+		// I probably need to dispose the MediaPlayer.
 		MediaPlayer mp = MediaPlayer.create(this, sound_ids[10]);
 		mp.start();
 		try {

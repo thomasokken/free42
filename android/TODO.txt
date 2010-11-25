@@ -22,9 +22,3 @@ updating the progress report when the solver is running interactively;
 all it would take is for those two places in the code to detect
 unlikely values of (startTime - shell_milliseconds()) and assume the nearest
 likely alternative, a la Y2K.
-
-I should probably do something to block event processing (ignore events?)
-if the shell is lagging behind. See what happens with auto-repeat -- in
-ALPHA mode it can cause a crash, on the Mac simulator at least.
-
-PSE is broken, at least on the Mac.
