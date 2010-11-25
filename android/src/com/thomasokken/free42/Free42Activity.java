@@ -72,14 +72,12 @@ public class Free42Activity extends Activity {
     
     // Stuff to run core_keydown() on a background thread
     private CoreThread coreThread;
-    private Object coreThreadMonitor = new Object();
     
 	private boolean enqueued;
 	private int repeat;
 	private boolean coreWantsCpu;
 	
 	private Timer timer3;
-	private Object timer3monitor = new Object();
 
 	// Persistent state
 	private boolean printToGif;
@@ -98,13 +96,13 @@ public class Free42Activity extends Activity {
         view = new Free42View(this);
         setContentView(view);
         
-        InputStream is = getClass().getResourceAsStream("Ehrling42sm.layout");
+        InputStream is = getClass().getResourceAsStream("HP42CY.layout");
         try {
         	layout = new SkinLayout(is);
         } catch (IOException e) {
         	// Won't happen -- Ehrling42sm is a built-in resource.
         }
-    	is = getClass().getResourceAsStream("Ehrling42sm.gif");
+    	is = getClass().getResourceAsStream("HP42CY.gif");
     	skin = new BitmapDrawable(is).getBitmap();
     	layout.setSkinBitmap(skin);
 
@@ -133,6 +131,7 @@ public class Free42Activity extends Activity {
 
     @Override
     protected void onDestroy() {
+    	end_core_keydown();
     	super.onDestroy();
     	// Write state file
     	try {
@@ -223,29 +222,48 @@ public class Free42Activity extends Activity {
 	    		int y = (int) e.getY();
 	    		IntHolder skeyHolder = new IntHolder();
 	    		IntHolder ckeyHolder = new IntHolder();
-	    		layout.skin_find_key(core_menu(), x, y, false, skeyHolder, ckeyHolder);
+	    		layout.skin_find_key(core_menu(), x, y, skeyHolder, ckeyHolder);
 	    		int skey = skeyHolder.value;
 	    		int ckey = ckeyHolder.value;
+	    		System.out.println("ckey=" + ckey + " skey=" + skey);
 	    		if (ckey == 0)
 	    			return true;
-	    		endCoreThread();
-	    		synchronized (timer3monitor) {
-//		            if (timer3 != null && (macro != NULL || ckey != 28 /* SHIFT */)) {
-			        if (timer3 != null && ckey != 28 /* SHIFT */) {
-			        	timer3.cancel();
-		                timer3 = null;
-		                core_timeout3(0);
-		            }
-	    		}
-	    		coreThread = new CoreThread(ckey);
-	    		coreThread.start();
+	    		end_core_keydown();
+	        	byte[] macro = layout.skin_find_macro(ckey);
+	            if (timer3 != null && (macro != null || ckey != 28 /* SHIFT */)) {
+		        	timer3.cancel();
+	                timer3 = null;
+	                core_timeout3(0);
+	            }
+		        Rect inval = layout.set_active_key(skey);
+		        if (inval != null)
+		        	invalidate(inval);
+		        if (macro == null)
+		        	// Plain ol' key
+		        	start_core_keydown(ckey);
+		        else {
+					boolean one_key_macro = macro.length == 1 || (macro.length == 2 && macro[0] == 28);
+					if (!one_key_macro)
+						layout.skin_display_set_enabled(false);
+					BooleanHolder enqueued = new BooleanHolder();
+					IntHolder repeat = new IntHolder();
+					for (int i = 0; i < macro.length - 1; i++) {
+						core_keydown(macro[i] & 255, enqueued, repeat, true);
+						if (!enqueued.value)
+							core_keyup();
+					}
+					start_core_keydown(macro[macro.length - 1] & 255);
+					if (!one_key_macro)
+						layout.skin_display_set_enabled(true);
+		        }
     	    } else {
-	    		endCoreThread();
+    	    	Rect inval = layout.set_active_key(-1);
+    	    	if (inval != null)
+    	    		invalidate(inval);
+	    		end_core_keydown();
     			coreWantsCpu = core_keyup();
-    			if (coreWantsCpu) {
-    				coreThread = new CoreThread(0);
-    				coreThread.start();
-    			}
+    			if (coreWantsCpu)
+    		        start_core_keydown(0);
     	    }
     			
     		return true;
@@ -366,25 +384,30 @@ public class Free42Activity extends Activity {
     	public void run() {
     		BooleanHolder enqHolder = new BooleanHolder();
     		IntHolder repHolder = new IntHolder();
-    		coreWantsCpu = core_keydown(keycode, enqHolder, repHolder);
+    		coreWantsCpu = core_keydown(keycode, enqHolder, repHolder, false);
     		enqueued = enqHolder.value;
     		repeat = repHolder.value;
     	}
     }
     
-    private void endCoreThread() {
-    	synchronized (coreThreadMonitor) {
-    		if (coreThread != null) {
-    			core_keydown_finish();
-    			try {
-    				coreThread.join();
-    			} catch (InterruptedException e) {}
-    			enqueued = coreThread.enqueued;
-    			repeat = coreThread.repeat;
-    			coreWantsCpu = coreThread.coreWantsCpu;
-    			coreThread = null;
-    		}
-    	}
+    private void start_core_keydown(int ckey) {
+    	coreThread = new CoreThread(ckey);
+    	coreThread.start();
+    }
+    
+    private void end_core_keydown() {
+		if (coreThread != null) {
+			core_keydown_finish();
+			try {
+				coreThread.join();
+			} catch (InterruptedException e) {}
+			enqueued = coreThread.enqueued;
+			repeat = coreThread.repeat;
+			coreWantsCpu = coreThread.coreWantsCpu;
+			coreThread = null;
+		} else {
+			coreWantsCpu = false;
+		}
     }
     
 
@@ -408,7 +431,7 @@ public class Free42Activity extends Activity {
     private native boolean core_menu();
     private native boolean core_alpha_menu();
     private native boolean core_hex_menu();
-    private native boolean core_keydown(int key, BooleanHolder enqueued, IntHolder repeat);
+    private native boolean core_keydown(int key, BooleanHolder enqueued, IntHolder repeat, boolean immediate_return);
     private native int core_repeat();
     private native void core_keytimeout1();
     private native void core_keytimeout2();
@@ -523,27 +546,23 @@ public class Free42Activity extends Activity {
 	 * This function supports the delay after SHOW, MEM, and shift-VARMENU.
 	 */
 	public void shell_request_timeout3(int delay) {
-		synchronized (timer3monitor) {
-			if (timer3 != null)
-				timer3.cancel();
-			timer3 = new Timer();
-			TimerTask task = new TimerTask() {
-				public void run() {
-					timeout3();
-				}
-			};
-			Date when = new Date(new Date().getTime() + delay);
-			timer3.schedule(task, when);
-		}
+		if (timer3 != null)
+			timer3.cancel();
+		timer3 = new Timer();
+		TimerTask task = new TimerTask() {
+			public void run() {
+				timeout3();
+			}
+		};
+		Date when = new Date(new Date().getTime() + delay);
+		timer3.schedule(task, when);
 	}
 	
 	private void timeout3() {
-		synchronized (timer3monitor) {
-			if (timer3 != null)
-				timer3.cancel();
-			timer3 = null;
-		}
-		endCoreThread();
+		if (timer3 != null)
+			timer3.cancel();
+		timer3 = null;
+		end_core_keydown();
 		core_timeout3(1);
 	}
 	
