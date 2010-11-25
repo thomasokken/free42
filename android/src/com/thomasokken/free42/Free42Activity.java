@@ -527,17 +527,17 @@ public class Free42Activity extends Activity {
 	 * not return until the sound has finished), if possible.
 	 */
 	public void shell_beeper(int frequency, int duration) {
-        for (int i = 0; i < 10; i++) {
-                if (frequency <= cutoff_freqs[i]) {
-	                	MediaPlayer mp = MediaPlayer.create(this, sound_ids[i]);
-	                    mp.start();
-                        shell_delay(250);
-                        return;
-                }
-        }
-    	MediaPlayer mp = MediaPlayer.create(this, sound_ids[10]);
-        mp.start();
-        shell_delay(125);
+		for (int i = 0; i < 10; i++) {
+			if (frequency <= cutoff_freqs[i]) {
+				MediaPlayer mp = MediaPlayer.create(this, sound_ids[i]);
+				mp.start();
+				shell_delay(250);
+				return;
+			}
+		}
+		MediaPlayer mp = MediaPlayer.create(this, sound_ids[10]);
+		mp.start();
+		shell_delay(125);
 	}
 
 	private final int[] cutoff_freqs = { 164, 220, 243, 275, 293, 324, 366, 418, 438, 550 };

@@ -1,0 +1,7 @@
+Call endCoreThread on entry to any event handler: onTouch, onDraw, etc., and
+any timer callback.
+Note the value of coreWantsCpu.
+On exit of the event handler, restart the core thread if necessary.
+Doing it this way, you can be sure that the core thread is never running while
+you're executing your event handling code -- which is exactly how the
+core/shell interface was designed to work.
