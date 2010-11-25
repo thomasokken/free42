@@ -15,3 +15,10 @@ core_timeout3()
 core_keyup()
 core_allows_powerdown() -- the want_cpu parameter
 core_powercycle()
+
+It would be nice if we would handle the shell_milliseconds()
+wrap-around. This function is only used for flying the goose and
+updating the progress report when the solver is running interactively;
+all it would take is for those two places in the code to detect
+unlikely values of (startTime - shell_milliseconds()) and assume the nearest
+likely alternative, a la Y2K.
