@@ -31,6 +31,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 
 public class SkinLayout {
 
@@ -77,176 +78,183 @@ public class SkinLayout {
 	private boolean[] ann_state = new boolean[7];
 	private int active_key = -1;
 
-	public SkinLayout(InputStream is) throws IOException {
-		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-		String line;
-		int lineno = 0;
-		List<SkinKey> tempkeylist = new ArrayList<SkinKey>();
-		List<SkinMacro> tempmacrolist = new ArrayList<SkinMacro>();
-		lineloop:
-		while ((line = reader.readLine()) != null) {
-			lineno++;
-			line = line.trim();
-			if (line.length() == 0 || line.charAt(0) == '#')
-				continue;
-			String lcline = line.toLowerCase();
-			if (lcline.startsWith("skin:")) {
-			    StringTokenizer tok = new StringTokenizer(line.substring(5), ", \t");
-			    try {
-			    	int x = Integer.parseInt(tok.nextToken());
-			    	int y = Integer.parseInt(tok.nextToken());
-			    	int width = Integer.parseInt(tok.nextToken());
-			    	int height = Integer.parseInt(tok.nextToken());
-			    	skin.x = x;
-			    	skin.y = y;
-			    	skin.width = width;
-			    	skin.height = height;
-			    } catch (NoSuchElementException e) {
-			    	// ignore
-			    } catch (NumberFormatException e) {
-			    	// ignore
-			    }
-			} else if (lcline.startsWith("display:")) {
-				StringTokenizer tok = new StringTokenizer(line.substring(8), ", \t");
-				try {
-					int x = Integer.parseInt(tok.nextToken());
-					int y = Integer.parseInt(tok.nextToken());
-					int xscale = Integer.parseInt(tok.nextToken());
-					int yscale = Integer.parseInt(tok.nextToken());
-					int bg = Integer.parseInt(tok.nextToken(), 16) | 0xff000000;
-					int fg = Integer.parseInt(tok.nextToken(), 16) | 0xff000000;
-					display_loc.x = x;
-					display_loc.y = y;
-					display_scale.x = xscale;
-					display_scale.y = yscale;
-					display_bg = bg;
-					display_fg = fg;
-			    } catch (NoSuchElementException e) {
-			    	// ignore
-			    } catch (NumberFormatException e) {
-			    	// ignore
-				}
-			} else if (lcline.startsWith("key:")) {
-			    int keynum, shifted_keynum;
-
-			    line = line.substring(4).trim();
-				int sp = line.indexOf(' ');
-				if (sp == -1)
+	public SkinLayout(String skinName) {
+		try {
+			InputStream is = getClass().getResourceAsStream(skinName + ".gif");
+			if (is == null)
+				throw new IllegalArgumentException("No image found for skin " + skinName);
+	    	skinBitmap = new BitmapDrawable(is).getBitmap();
+			is = getClass().getResourceAsStream(skinName + ".layout");
+			if (is == null)
+				throw new IllegalArgumentException("No layout found for skin " + skinName);
+			BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+			String line;
+			int lineno = 0;
+			List<SkinKey> tempkeylist = new ArrayList<SkinKey>();
+			List<SkinMacro> tempmacrolist = new ArrayList<SkinMacro>();
+			lineloop:
+			while ((line = reader.readLine()) != null) {
+				lineno++;
+				line = line.trim();
+				if (line.length() == 0 || line.charAt(0) == '#')
 					continue;
-				String keynumstr = line.substring(0, sp);
-				int comma = keynumstr.indexOf(',');
-				try {
-					if (comma == -1) {
-						keynum = shifted_keynum = Integer.parseInt(keynumstr);
-					} else {
-						keynum = Integer.parseInt(keynumstr.substring(0, comma));
-						shifted_keynum = Integer.parseInt(keynumstr.substring(comma + 1));
-					}
-				} catch (NumberFormatException e) {
-					continue;
-				}
-
-				StringTokenizer tok = new StringTokenizer(line.substring(sp + 1), ", \t");
-				try {
-					int sens_x = Integer.parseInt(tok.nextToken());
-					int sens_y = Integer.parseInt(tok.nextToken());
-					int sens_width = Integer.parseInt(tok.nextToken());
-					int sens_height = Integer.parseInt(tok.nextToken());
-					int disp_x = Integer.parseInt(tok.nextToken());
-					int disp_y = Integer.parseInt(tok.nextToken());
-					int disp_width = Integer.parseInt(tok.nextToken());
-					int disp_height = Integer.parseInt(tok.nextToken());
-					int act_x = Integer.parseInt(tok.nextToken());
-					int act_y = Integer.parseInt(tok.nextToken());
-					SkinKey key = new SkinKey();
-					key.code = keynum;
-					key.shifted_code = shifted_keynum;
-					key.sens_rect.x = sens_x;
-					key.sens_rect.y = sens_y;
-					key.sens_rect.width = sens_width;
-					key.sens_rect.height = sens_height;
-					key.disp_rect.x = disp_x;
-					key.disp_rect.y = disp_y;
-					key.disp_rect.width = disp_width;
-					key.disp_rect.height = disp_height;
-					key.src.x = act_x;
-					key.src.y = act_y;
-					tempkeylist.add(key);
-			    } catch (NoSuchElementException e) {
-			    	// ignore
-			    } catch (NumberFormatException e) {
-			    	// ignore
-				}
-			} else if (lcline.startsWith("macro:")) {
-				StringTokenizer tok = new StringTokenizer(line.substring(6), " \t");
-				List<Byte> blist = new ArrayList<Byte>();
-				while (tok.hasMoreTokens()) {
-					String t = tok.nextToken();
-					int n;
+				String lcline = line.toLowerCase();
+				if (lcline.startsWith("skin:")) {
+				    StringTokenizer tok = new StringTokenizer(line.substring(5), ", \t");
+				    try {
+				    	int x = Integer.parseInt(tok.nextToken());
+				    	int y = Integer.parseInt(tok.nextToken());
+				    	int width = Integer.parseInt(tok.nextToken());
+				    	int height = Integer.parseInt(tok.nextToken());
+				    	skin.x = x;
+				    	skin.y = y;
+				    	skin.width = width;
+				    	skin.height = height;
+				    } catch (NoSuchElementException e) {
+				    	// ignore
+				    } catch (NumberFormatException e) {
+				    	// ignore
+				    }
+				} else if (lcline.startsWith("display:")) {
+					StringTokenizer tok = new StringTokenizer(line.substring(8), ", \t");
 					try {
-						n = Integer.parseInt(t);
-					} catch (NumberFormatException e) {
-						continue lineloop;
+						int x = Integer.parseInt(tok.nextToken());
+						int y = Integer.parseInt(tok.nextToken());
+						int xscale = Integer.parseInt(tok.nextToken());
+						int yscale = Integer.parseInt(tok.nextToken());
+						int bg = Integer.parseInt(tok.nextToken(), 16) | 0xff000000;
+						int fg = Integer.parseInt(tok.nextToken(), 16) | 0xff000000;
+						display_loc.x = x;
+						display_loc.y = y;
+						display_scale.x = xscale;
+						display_scale.y = yscale;
+						display_bg = bg;
+						display_fg = fg;
+				    } catch (NoSuchElementException e) {
+				    	// ignore
+				    } catch (NumberFormatException e) {
+				    	// ignore
 					}
-					if (blist.isEmpty() ? (n < 38 || n > 255) : (n < 1 || n > 37))
-						/* Macro code out of range; ignore this macro */
-						continue lineloop;
-					blist.add((byte) n);
-				}
-				if (blist.isEmpty())
-					continue;
-				SkinMacro macro = new SkinMacro();
-				macro.code = blist.remove(0) & 255;
-				macro.macro = new byte[blist.size()];
-				int i = 0;
-				for (byte b : blist)
-					macro.macro[i++] = b;
-				tempmacrolist.add(macro);
-			} else if (lcline.startsWith("annunciator:")) {
-			    StringTokenizer tok = new StringTokenizer(line.substring(12), ", \t");
-			    try {
-			    	int annnum = Integer.parseInt(tok.nextToken());
-			    	int disp_x = Integer.parseInt(tok.nextToken());
-			    	int disp_y = Integer.parseInt(tok.nextToken());
-			    	int disp_width = Integer.parseInt(tok.nextToken());
-			    	int disp_height = Integer.parseInt(tok.nextToken());
-			    	int act_x = Integer.parseInt(tok.nextToken());
-			    	int act_y = Integer.parseInt(tok.nextToken());
-			    	if (annnum >= 1 && annnum <= 7) {
-			    		SkinAnnunciator ann = new SkinAnnunciator();
-			    		annunciators[annnum - 1] = ann;
-					    ann.disp_rect.x = disp_x;
-					    ann.disp_rect.y = disp_y;
-					    ann.disp_rect.width = disp_width;
-					    ann.disp_rect.height = disp_height;
-					    ann.src.x = act_x;
-					    ann.src.y = act_y;
-			    	}
-			    } catch (NoSuchElementException e) {
-			    	// ignore
-			    } catch (NumberFormatException e) {
-			    	// ignore
-			    }
-			} else if (line.indexOf(':') != -1) {
-				// TODO: Embedded keyboard mappings
-//			    keymap_entry *entry = parse_keymap_entry(line, lineno);
-//			    if (entry != NULL) {
-//					if (keymap_length == kmcap) {
-//					    kmcap += 50;
-//					    keymap = (keymap_entry *)
-//							realloc(keymap, kmcap * sizeof(keymap_entry));
-//					}
-//					memcpy(keymap + (keymap_length++), entry, sizeof(keymap_entry));
-//			    }
-			}
-		}
-		keylist = tempkeylist.toArray(new SkinKey[0]);
-		macrolist = tempmacrolist.toArray(new SkinMacro[0]);
-    }
+				} else if (lcline.startsWith("key:")) {
+				    int keynum, shifted_keynum;
 	
-	public void setSkinBitmap(Bitmap skinBitmap) {
-		this.skinBitmap = skinBitmap;
-	}
+				    line = line.substring(4).trim();
+					int sp = line.indexOf(' ');
+					if (sp == -1)
+						continue;
+					String keynumstr = line.substring(0, sp);
+					int comma = keynumstr.indexOf(',');
+					try {
+						if (comma == -1) {
+							keynum = shifted_keynum = Integer.parseInt(keynumstr);
+						} else {
+							keynum = Integer.parseInt(keynumstr.substring(0, comma));
+							shifted_keynum = Integer.parseInt(keynumstr.substring(comma + 1));
+						}
+					} catch (NumberFormatException e) {
+						continue;
+					}
+	
+					StringTokenizer tok = new StringTokenizer(line.substring(sp + 1), ", \t");
+					try {
+						int sens_x = Integer.parseInt(tok.nextToken());
+						int sens_y = Integer.parseInt(tok.nextToken());
+						int sens_width = Integer.parseInt(tok.nextToken());
+						int sens_height = Integer.parseInt(tok.nextToken());
+						int disp_x = Integer.parseInt(tok.nextToken());
+						int disp_y = Integer.parseInt(tok.nextToken());
+						int disp_width = Integer.parseInt(tok.nextToken());
+						int disp_height = Integer.parseInt(tok.nextToken());
+						int act_x = Integer.parseInt(tok.nextToken());
+						int act_y = Integer.parseInt(tok.nextToken());
+						SkinKey key = new SkinKey();
+						key.code = keynum;
+						key.shifted_code = shifted_keynum;
+						key.sens_rect.x = sens_x;
+						key.sens_rect.y = sens_y;
+						key.sens_rect.width = sens_width;
+						key.sens_rect.height = sens_height;
+						key.disp_rect.x = disp_x;
+						key.disp_rect.y = disp_y;
+						key.disp_rect.width = disp_width;
+						key.disp_rect.height = disp_height;
+						key.src.x = act_x;
+						key.src.y = act_y;
+						tempkeylist.add(key);
+				    } catch (NoSuchElementException e) {
+				    	// ignore
+				    } catch (NumberFormatException e) {
+				    	// ignore
+					}
+				} else if (lcline.startsWith("macro:")) {
+					StringTokenizer tok = new StringTokenizer(line.substring(6), " \t");
+					List<Byte> blist = new ArrayList<Byte>();
+					while (tok.hasMoreTokens()) {
+						String t = tok.nextToken();
+						int n;
+						try {
+							n = Integer.parseInt(t);
+						} catch (NumberFormatException e) {
+							continue lineloop;
+						}
+						if (blist.isEmpty() ? (n < 38 || n > 255) : (n < 1 || n > 37))
+							/* Macro code out of range; ignore this macro */
+							continue lineloop;
+						blist.add((byte) n);
+					}
+					if (blist.isEmpty())
+						continue;
+					SkinMacro macro = new SkinMacro();
+					macro.code = blist.remove(0) & 255;
+					macro.macro = new byte[blist.size()];
+					int i = 0;
+					for (byte b : blist)
+						macro.macro[i++] = b;
+					tempmacrolist.add(macro);
+				} else if (lcline.startsWith("annunciator:")) {
+				    StringTokenizer tok = new StringTokenizer(line.substring(12), ", \t");
+				    try {
+				    	int annnum = Integer.parseInt(tok.nextToken());
+				    	int disp_x = Integer.parseInt(tok.nextToken());
+				    	int disp_y = Integer.parseInt(tok.nextToken());
+				    	int disp_width = Integer.parseInt(tok.nextToken());
+				    	int disp_height = Integer.parseInt(tok.nextToken());
+				    	int act_x = Integer.parseInt(tok.nextToken());
+				    	int act_y = Integer.parseInt(tok.nextToken());
+				    	if (annnum >= 1 && annnum <= 7) {
+				    		SkinAnnunciator ann = new SkinAnnunciator();
+				    		annunciators[annnum - 1] = ann;
+						    ann.disp_rect.x = disp_x;
+						    ann.disp_rect.y = disp_y;
+						    ann.disp_rect.width = disp_width;
+						    ann.disp_rect.height = disp_height;
+						    ann.src.x = act_x;
+						    ann.src.y = act_y;
+				    	}
+				    } catch (NoSuchElementException e) {
+				    	// ignore
+				    } catch (NumberFormatException e) {
+				    	// ignore
+				    }
+				} else if (line.indexOf(':') != -1) {
+					// TODO: Embedded keyboard mappings
+	//			    keymap_entry *entry = parse_keymap_entry(line, lineno);
+	//			    if (entry != NULL) {
+	//					if (keymap_length == kmcap) {
+	//					    kmcap += 50;
+	//					    keymap = (keymap_entry *)
+	//							realloc(keymap, kmcap * sizeof(keymap_entry));
+	//					}
+	//					memcpy(keymap + (keymap_length++), entry, sizeof(keymap_entry));
+	//			    }
+				}
+			}
+			keylist = tempkeylist.toArray(new SkinKey[0]);
+			macrolist = tempmacrolist.toArray(new SkinMacro[0]);
+		} catch (IOException e) {
+			throw new IllegalArgumentException(e);
+		}
+    }
 	
 	public void skin_repaint_annunciator(Canvas canvas, Bitmap skin, int which, boolean state) {
 		if (!display_enabled)

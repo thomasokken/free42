@@ -28,10 +28,8 @@ import java.util.TimerTask;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.AttributeSet;
@@ -60,19 +58,17 @@ public class Free42Activity extends Activity {
 
     private Free42View view;
     private SkinLayout layout;
-    private Bitmap skin;
     
     // Streams for reading and writing the state file
     private InputStream stateFileInputStream;
     private OutputStream stateFileOutputStream;
     
     // Streams for program import and export
-    private InputStream importInputStream;
-    private OutputStream exportOutputStream;
+    private InputStream programsInputStream;
+    private OutputStream programsOutputStream;
     
     // Stuff to run core_keydown() on a background thread
     private CoreThread coreThread;
-    
 	private boolean coreWantsCpu;
 	
 	private int ckey;
@@ -93,19 +89,10 @@ public class Free42Activity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        layout = new SkinLayout("Ehrling42sm");
         view = new Free42View(this);
         setContentView(view);
         
-        InputStream is = getClass().getResourceAsStream("Ehrling42sm.layout");
-        try {
-        	layout = new SkinLayout(is);
-        } catch (IOException e) {
-        	// Won't happen -- Ehrling42sm is a built-in resource.
-        }
-    	is = getClass().getResourceAsStream("Ehrling42sm.gif");
-    	skin = new BitmapDrawable(is).getBitmap();
-    	layout.setSkinBitmap(skin);
-
     	int init_mode;
 		IntHolder version = new IntHolder();
     	try {
@@ -127,6 +114,12 @@ public class Free42Activity extends Activity {
     	
     	nativeInit();
     	core_init(init_mode, version.value);
+    	if (stateFileInputStream != null) {
+    		try {
+    			stateFileInputStream.close();
+    		} catch (IOException e) {}
+    		stateFileInputStream = null;
+    	}
     }
 
     @Override
@@ -225,7 +218,6 @@ public class Free42Activity extends Activity {
 	    		layout.skin_find_key(core_menu(), x, y, skeyHolder, ckeyHolder);
 	    		int skey = skeyHolder.value;
 	    		ckey = ckeyHolder.value;
-	    		System.out.println("ckey=" + ckey + " skey=" + skey);
 	    		if (ckey == 0)
 	    			return true;
 	    		end_core_keydown();
@@ -774,16 +766,16 @@ public class Free42Activity extends Activity {
 	 * core_export_programs() should abort in that case.
 	 */
 	public int shell_write(byte[] buf) {
-		if (exportOutputStream == null)
+		if (programsOutputStream == null)
 			return 0;
 		try {
-			exportOutputStream.write(buf);
+			programsOutputStream.write(buf);
 			return 1;
 		} catch (IOException e) {
 			try {
-				exportOutputStream.close();
+				programsOutputStream.close();
 			} catch (IOException e2) {}
-			exportOutputStream = null;
+			programsOutputStream = null;
 			return 0;
 		}
 	}
@@ -796,21 +788,21 @@ public class Free42Activity extends Activity {
 	 * input.
 	 */
 	public int shell_read(byte[] buf) {
-		if (importInputStream == null)
+		if (programsInputStream == null)
 			return -1;
 		try {
-			int n = importInputStream.read(buf);
+			int n = programsInputStream.read(buf);
 			if (n <= 0) {
-				importInputStream.close();
-				importInputStream = null;
+				programsInputStream.close();
+				programsInputStream = null;
 				return 0;
 			} else
 				return n;
 		} catch (IOException e) {
 			try {
-				importInputStream.close();
+				programsInputStream.close();
 			} catch (IOException e2) {}
-			importInputStream = null;
+			programsInputStream = null;
 			return -1;
 		}
 	}
