@@ -256,21 +256,6 @@ public class SkinLayout {
 		}
     }
 	
-	public void repaint_annunciator(Canvas canvas, Bitmap skin, int which, boolean state) {
-		if (!display_enabled)
-			return;
-		SkinAnnunciator ann = annunciators[which - 1];
-		Paint p = new Paint();
-		if (state) {
-			Rect src = new Rect(ann.src.x, ann.src.y, ann.src.x + ann.disp_rect.width, ann.src.y + ann.disp_rect.height);
-			Rect dst = new Rect(ann.disp_rect.x, ann.disp_rect.y, ann.disp_rect.x + ann.disp_rect.width, ann.disp_rect.y + ann.disp_rect.height);
-			canvas.drawBitmap(skin, src, dst, p);
-		} else {
-			Rect r = new Rect(ann.disp_rect.x, ann.disp_rect.y, ann.disp_rect.x + ann.disp_rect.width, ann.disp_rect.y + ann.disp_rect.height);
-			canvas.drawBitmap(skin, r, r, p);
-		}
-	}
-	
 	public Rect set_active_key(int skey) {
 		Rect r1 = getKeyRect(active_key);
 		Rect r2 = getKeyRect(skey);
