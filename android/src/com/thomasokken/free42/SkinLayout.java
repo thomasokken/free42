@@ -256,7 +256,7 @@ public class SkinLayout {
 		}
     }
 	
-	public void skin_repaint_annunciator(Canvas canvas, Bitmap skin, int which, boolean state) {
+	public void repaint_annunciator(Canvas canvas, Bitmap skin, int which, boolean state) {
 		if (!display_enabled)
 			return;
 		SkinAnnunciator ann = annunciators[which - 1];
@@ -295,7 +295,7 @@ public class SkinLayout {
 			return null;
 	}
 
-	public void skin_find_key(boolean menu_active, int x, int y, IntHolder skey, IntHolder ckey) {
+	public void find_key(boolean menu_active, int x, int y, IntHolder skey, IntHolder ckey) {
 		if (menu_active
 			    && x >= display_loc.x
 			    && x < display_loc.x + 131 * display_scale.x
@@ -321,7 +321,7 @@ public class SkinLayout {
 	    ckey.value = 0;
 	}
 
-	public int skin_find_skey(int ckey) {
+	public int find_skey(int ckey) {
 	    int i;
 	    for (i = 0; i < keylist.length; i++)
 		if (keylist[i].code == ckey || keylist[i].shifted_code == ckey)
@@ -329,7 +329,7 @@ public class SkinLayout {
 	    return -1;
 	}
 
-	public byte[] skin_find_macro(int ckey) {
+	public byte[] find_macro(int ckey) {
 		for (SkinMacro macro : macrolist)
 			if (macro.code == ckey)
 				return macro.macro;
@@ -358,7 +358,7 @@ public class SkinLayout {
 //    return macro;
 //}
 	
-	private void skin_repaint_key(Canvas canvas, Bitmap skin, int key, boolean state) {
+	private void repaint_key(Canvas canvas, Bitmap skin, int key, boolean state) {
 	    if (key >= -7 && key <= -2) {
 			/* Soft key */
 			if (!display_enabled)
@@ -412,7 +412,7 @@ public class SkinLayout {
 	    canvas.drawBitmap(skin, src, dst, p);
 	}
 	
-	public Rect skin_display_blitter(byte[] bits, int bytesperline, int x, int y, int width, int height) {
+	public Rect display_blitter(byte[] bits, int bytesperline, int x, int y, int width, int height) {
     	int hmax = x + width;
     	int vmax = y + height;
     	int[] buf = display_buffer.array();
@@ -430,7 +430,7 @@ public class SkinLayout {
     					display_loc.y + (y + height) * display_scale.y);
 	}
 	
-	public Rect skin_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
+	public Rect update_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
 		int minx = Integer.MAX_VALUE;
 		int miny = Integer.MAX_VALUE;
 		int maxx = Integer.MIN_VALUE;
@@ -458,7 +458,7 @@ public class SkinLayout {
 			return new Rect(minx, miny, maxx, maxy);
 	}
 	
-	public void skin_repaint(Canvas canvas) {
+	public void repaint(Canvas canvas) {
 	    Rect clip = canvas.getClipBounds();
 		boolean paintDisplay = false;
 		boolean paintSkin = false;
@@ -495,7 +495,7 @@ public class SkinLayout {
 						canvas.drawBitmap(skinBitmap, src, dst, p);
 					}
 			if (active_key >= 0)
-				skin_repaint_key(canvas, skinBitmap, active_key, true);
+				repaint_key(canvas, skinBitmap, active_key, true);
 		}
 		
 		if (paintDisplay) {
@@ -506,11 +506,11 @@ public class SkinLayout {
 	    						display_loc.y + 16 * display_scale.y);
 	    	canvas.drawBitmap(display, src, dst, p);
 			if (active_key >= -7 && active_key <= -2)
-				skin_repaint_key(canvas, skinBitmap, active_key, true);
+				repaint_key(canvas, skinBitmap, active_key, true);
 		}
 	}
 	
-	public Rect skin_display_set_enabled(boolean enable) {
+	public Rect set_display_enabled(boolean enable) {
 		if (display_enabled)
 			return null;
 	    display_enabled = enable;

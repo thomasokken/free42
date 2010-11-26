@@ -57,7 +57,7 @@ public class Free42Activity extends Activity {
     }
 
     private Free42View view;
-    private SkinLayout layout;
+    private SkinLayout skin;
     
     // Streams for reading and writing the state file
     private InputStream stateFileInputStream;
@@ -89,7 +89,7 @@ public class Free42Activity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        layout = new SkinLayout("Ehrling42sm");
+        skin = new SkinLayout("Ehrling42sm");
         view = new Free42View(this);
         setContentView(view);
         
@@ -201,7 +201,7 @@ public class Free42Activity extends Activity {
 
     	@Override
     	protected void onDraw(Canvas canvas) {
-    		layout.skin_repaint(canvas);
+    		skin.repaint(canvas);
     	}
     	
     	@Override
@@ -215,19 +215,19 @@ public class Free42Activity extends Activity {
 	    		int y = (int) e.getY();
 	    		IntHolder skeyHolder = new IntHolder();
 	    		IntHolder ckeyHolder = new IntHolder();
-	    		layout.skin_find_key(core_menu(), x, y, skeyHolder, ckeyHolder);
+	    		skin.find_key(core_menu(), x, y, skeyHolder, ckeyHolder);
 	    		int skey = skeyHolder.value;
 	    		ckey = ckeyHolder.value;
 	    		if (ckey == 0)
 	    			return true;
 	    		end_core_keydown();
-	        	byte[] macro = layout.skin_find_macro(ckey);
+	        	byte[] macro = skin.find_macro(ckey);
 	            if (timer3 != null && (macro != null || ckey != 28 /* SHIFT */)) {
 		        	timer3.cancel();
 	                timer3 = null;
 	                core_timeout3(0);
 	            }
-		        Rect inval = layout.set_active_key(skey);
+		        Rect inval = skin.set_active_key(skey);
 		        if (inval != null)
 		        	invalidate(inval);
 		        boolean running;
@@ -239,7 +239,7 @@ public class Free42Activity extends Activity {
 		        } else {
 					boolean one_key_macro = macro.length == 1 || (macro.length == 2 && macro[0] == 28);
 					if (!one_key_macro)
-						layout.skin_display_set_enabled(false);
+						skin.set_display_enabled(false);
 					for (int i = 0; i < macro.length - 1; i++) {
 						core_keydown(macro[i] & 255, enqueued, repeat, true);
 						if (!enqueued.value)
@@ -247,7 +247,7 @@ public class Free42Activity extends Activity {
 					}
 					running = core_keydown(macro[macro.length - 1] & 255, enqueued, repeat, true);
 					if (!one_key_macro)
-						layout.skin_display_set_enabled(true);
+						skin.set_display_enabled(true);
 		        }
 		        if (running)
 		        	start_core_keydown();
@@ -277,7 +277,7 @@ public class Free42Activity extends Activity {
 		        }
     	    } else {
     	    	ckey = 0;
-    	    	Rect inval = layout.set_active_key(-1);
+    	    	Rect inval = skin.set_active_key(-1);
     	    	if (inval != null)
     	    		invalidate(inval);
 	    		end_core_keydown();
@@ -571,7 +571,7 @@ public class Free42Activity extends Activity {
 	 * height of the area to be repainted.
 	 */
     public void shell_blitter(byte[] bits, int bytesperline, int x, int y, int width, int height) {
-    	Rect inval = layout.skin_display_blitter(bits, bytesperline, x, y, width, height);
+    	Rect inval = skin.display_blitter(bits, bytesperline, x, y, width, height);
     	view.postInvalidate(inval.left, inval.top, inval.right, inval.bottom);
     }
 
@@ -618,7 +618,7 @@ public class Free42Activity extends Activity {
 	 * so the shell is expected to handle that one by itself.
 	 */
 	public void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
-    	Rect inval = layout.skin_annunciators(updn, shf, prt, run, g, rad);
+    	Rect inval = skin.update_annunciators(updn, shf, prt, run, g, rad);
     	if (inval != null)
     		view.postInvalidate(inval.left, inval.top, inval.right, inval.bottom);
 	}
