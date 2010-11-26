@@ -511,9 +511,11 @@ public class SkinLayout {
 	}
 	
 	public Rect set_display_enabled(boolean enable) {
-		if (display_enabled)
+		if (display_enabled == enable)
 			return null;
 	    display_enabled = enable;
+	    if (!display_enabled)
+	    	return null;
 	    Rect r = new Rect(display_loc.x, display_loc.y, display_loc.x + 131 * display_scale.x, display_loc.y + 16 * display_scale.y);
 	    for (int i = 0; i < 7; i++) {
 	    	SkinRect a = annunciators[i].disp_rect;

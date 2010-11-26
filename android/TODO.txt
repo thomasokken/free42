@@ -22,3 +22,6 @@ updating the progress report when the solver is running interactively;
 all it would take is for those two places in the code to detect
 unlikely values of (startTime - shell_milliseconds()) and assume the nearest
 likely alternative, a la Y2K.
+
+Use an UncaughtExceptionHandler so the weirdness doesn't disappear into the
+bit bucket.
