@@ -191,25 +191,6 @@ Java_com_thomasokken_free42_Free42Activity_core_1keyup(JNIEnv *env, jobject thiz
 }
 
 extern "C" jboolean
-Java_com_thomasokken_free42_Free42Activity_core_1allows_1powerdown(JNIEnv *env, jobject thiz, jobject want_cpu) {
-    //Tracer T("core_allows_powerdown");
-    int wantCpu, *wantCpuPtr;
-    jfieldID wantCpuFid;
-    if (want_cpu == NULL) {
-	wantCpuPtr = NULL;
-    } else {
-	jclass klass = env->GetObjectClass(want_cpu);
-	wantCpuFid = env->GetFieldID(klass, "value", "I");
-	wantCpu = env->GetIntField(want_cpu, wantCpuFid);
-	wantCpuPtr = &wantCpu;
-    }
-    jboolean ret = core_allows_powerdown(wantCpuPtr);
-    if (want_cpu != NULL)
-	env->SetIntField(want_cpu, wantCpuFid, wantCpu);
-    return ret;
-}
-
-extern "C" jboolean
 Java_com_thomasokken_free42_Free42Activity_core_1powercycle(JNIEnv *env, jobject thiz) {
     //Tracer T("core_powercycle");
     return core_powercycle();

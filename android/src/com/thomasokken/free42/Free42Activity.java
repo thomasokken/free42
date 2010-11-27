@@ -131,6 +131,9 @@ public class Free42Activity extends Activity {
     		} catch (IOException e) {}
     		stateFileInputStream = null;
     	}
+    	
+    	if (core_powercycle())
+    		/* TODO: Start program running */;
     }
 
     @Override
@@ -629,7 +632,6 @@ public class Free42Activity extends Activity {
     private native void core_keytimeout2();
     private native boolean core_timeout3(int repaint);
     private native boolean core_keyup();
-    private native boolean core_allows_powerdown(IntHolder want_cpu);
     private native boolean core_powercycle();
     private native int core_list_programs(byte[] buf);
     private native int core_program_size(int prgm_index);
