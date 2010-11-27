@@ -28,8 +28,6 @@ import java.util.TimerTask;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnDismissListener;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
@@ -708,7 +706,7 @@ public class Free42Activity extends Activity {
 			}
 		}
 		// TODO: This crashes after a while, apparently because it
-		// runs out of file descriptors (on the Mac, anyway).
+		// runs out of file descriptors.
 		// I probably need to dispose the MediaPlayer.
 		MediaPlayer mp = MediaPlayer.create(this, sound_ids[10]);
 		mp.start();
