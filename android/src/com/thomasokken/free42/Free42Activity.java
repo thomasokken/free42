@@ -168,7 +168,11 @@ public class Free42Activity extends Activity {
         menu.add(0, MENU_ID_IMPORT, 0, "Import");
         menu.add(0, MENU_ID_EXPORT, 0, "Export");
         menu.add(0, MENU_ID_PREFERENCES, 0, "Prefs");
-
+        menu.getItem(0).setIcon(R.drawable.copy);
+        menu.getItem(1).setIcon(R.drawable.paste);
+        menu.getItem(4).setIcon(android.R.drawable.ic_menu_save);
+        menu.getItem(5).setIcon(android.R.drawable.ic_menu_preferences);
+        
         return true;
     }
 
