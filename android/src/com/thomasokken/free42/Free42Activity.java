@@ -28,11 +28,14 @@ import java.util.TimerTask;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnDismissListener;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.text.ClipboardManager;
 import android.util.AttributeSet;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -48,10 +51,14 @@ import android.view.View;
  */
 public class Free42Activity extends Activity {
     
-	private static final int BACK_ID = Menu.FIRST;
-	private static final int CLEAR_ID = Menu.FIRST + 1;
+	private static final int MENU_ID_COPY = Menu.FIRST;
+	private static final int MENU_ID_PASTE = Menu.FIRST + 1;
+	private static final int MENU_ID_FLIP_CALC_PRINTOUT = Menu.FIRST + 2;
+	private static final int MENU_ID_IMPORT = Menu.FIRST + 3;
+	private static final int MENU_ID_EXPORT = Menu.FIRST + 4;
+	private static final int MENU_ID_PREFERENCES = Menu.FIRST + 5;
 
-    private static final int SHELL_VERSION = 0;
+    private static final int SHELL_VERSION = 1;
     
     static {
     	System.loadLibrary("free42");
@@ -60,6 +67,8 @@ public class Free42Activity extends Activity {
     private CalcView calcView;
     private SkinLayout skin;
     private PrintView printView;
+    private boolean printViewShowing;
+    private PreferencesDialog preferencesDialog;
     
     // Streams for reading and writing the state file
     private InputStream stateFileInputStream;
@@ -78,11 +87,12 @@ public class Free42Activity extends Activity {
 	private Timer timer3;
 
 	// Persistent state
-	private boolean printToGif;
-	private String printToGifFileName = "";
 	private boolean printToTxt;
 	private String printToTxtFileName = "";
-
+	private boolean printToGif;
+	private String printToGifFileName = "";
+	private int maxGifHeight = 256;
+	
     
     ///////////////////////////////////////////////////////
     ///// Top-level code to interface with Android UI /////
@@ -151,22 +161,12 @@ public class Free42Activity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
 
-        // We are going to create two menus. Note that we assign them
-        // unique integer IDs, labels from our string resources, and
-        // given them shortcuts.
-        menu.add(0, BACK_ID, 0, R.string.back).setShortcut('0', 'b');
-        menu.add(0, CLEAR_ID, 0, R.string.clear).setShortcut('1', 'c');
-
-        return true;
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-
-        // Before showing the menu, we need to decide whether the clear
-        // item is enabled depending on whether there is text to clear.
-        //menu.findItem(CLEAR_ID).setVisible(canvas.getText().length() > 0);
+        menu.add(0, MENU_ID_COPY, 0, "Copy");
+        menu.add(0, MENU_ID_PASTE, 0, "Paste");
+        menu.add(0, MENU_ID_FLIP_CALC_PRINTOUT, 0, "Calc/Print");
+        menu.add(0, MENU_ID_IMPORT, 0, "Import");
+        menu.add(0, MENU_ID_EXPORT, 0, "Export");
+        menu.add(0, MENU_ID_PREFERENCES, 0, "Prefs");
 
         return true;
     }
@@ -174,17 +174,92 @@ public class Free42Activity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-        case BACK_ID:
-            finish();
+        case MENU_ID_COPY:
+            doCopy();
             return true;
-        case CLEAR_ID:
-        	redisplay();
+        case MENU_ID_PASTE:
+        	doPaste();
+            return true;
+        case MENU_ID_FLIP_CALC_PRINTOUT:
+        	doFlipCalcPrintout();
+            return true;
+        case MENU_ID_IMPORT:
+        	doImport();
+            return true;
+        case MENU_ID_EXPORT:
+        	doExport();
+            return true;
+        case MENU_ID_PREFERENCES:
+        	doPreferences();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+    private void doCopy() {
+    	ClipboardManager clip = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+    	clip.setText(core_copy());
+    }
+    
+    private void doPaste() {
+    	ClipboardManager clip = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+    	if (clip.hasText())
+    		core_paste(clip.getText().toString());
+    }
+    
+    private void doFlipCalcPrintout() {
+    	printViewShowing = !printViewShowing;
+    	setContentView(printViewShowing ? printView : calcView);
+    }
+    
+    private void doImport() {
+    	// TODO
+    }
+    
+    private void doExport() {
+    	// TODO
+    }
+    
+    private void doPreferences() {
+    	if (preferencesDialog == null) {
+    		preferencesDialog = new PreferencesDialog(this);
+    		preferencesDialog.setOkListener(new PreferencesDialog.OkListener() {
+    			public void okPressed() {
+    				doPreferencesDismissed();
+    			}
+    		});
+    	}
+    	
+    	CoreSettings cs = new CoreSettings();
+    	getCoreSettings(cs);
+    	preferencesDialog.setSingularMatrixError(cs.matrix_singularmatrix);
+    	preferencesDialog.setMatrixOutOfRange(cs.matrix_outofrange);
+    	preferencesDialog.setAutoRepeat(cs.auto_repeat);
+    	preferencesDialog.setPrintToText(printToTxt);
+    	preferencesDialog.setPrintToTextFileName(printToTxtFileName);
+    	preferencesDialog.setRawText(cs.raw_text);
+    	preferencesDialog.setPrintToGif(printToGif);
+    	preferencesDialog.setPrintToGifFileName(printToGifFileName);
+    	preferencesDialog.setMaxGifHeight(maxGifHeight);
+    	preferencesDialog.show();
+    }
+    	
+    private void doPreferencesDismissed() {
+    	CoreSettings cs = new CoreSettings();
+    	getCoreSettings(cs);
+    	cs.matrix_singularmatrix = preferencesDialog.getSingularMatrixError();
+    	cs.matrix_outofrange = preferencesDialog.getMatrixOutOfRange();
+    	cs.auto_repeat = preferencesDialog.getAutoRepeat();
+    	printToTxt = preferencesDialog.getPrintToText();
+    	printToTxtFileName = preferencesDialog.getPrintToTextFileName();
+    	cs.raw_text = preferencesDialog.getRawText();
+    	printToGif = preferencesDialog.getPrintToGif();
+    	printToGifFileName = preferencesDialog.getPrintToGifFileName();
+    	maxGifHeight = preferencesDialog.getMaxGifHeight();
+    	putCoreSettings(cs);
+    }
+    
     /**
      * This class is calculator view used by the Free42 Activity.
      * Note that most of the heavy lifting takes place in the
@@ -339,6 +414,8 @@ public class Free42Activity extends Activity {
     	    printToGifFileName = state_read_string();
     	    printToTxt = state_read_boolean();
     	    printToTxtFileName = state_read_string();
+    	    if (shell_version >= 1)
+    	    	maxGifHeight = state_read_int();
     		init_shell_state(shell_version);
     	} catch (IllegalArgumentException e) {
     		return false;
@@ -355,6 +432,9 @@ public class Free42Activity extends Activity {
     	    printToTxtFileName = "";
     	    // fall through
     	case 0:
+    		maxGifHeight = 256;
+    	    // fall through
+    	case 1:
 			// current version (SHELL_VERSION = 0),
 			// so nothing to do here since everything
 			// was initialized from the state file.
@@ -371,6 +451,7 @@ public class Free42Activity extends Activity {
     		state_write_string(printToGifFileName);
     		state_write_boolean(printToTxt);
     		state_write_string(printToTxtFileName);
+    		state_write_int(maxGifHeight);
     	} catch (IllegalArgumentException e) {}
     }
     

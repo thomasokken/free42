@@ -25,3 +25,5 @@ likely alternative, a la Y2K.
 
 Use an UncaughtExceptionHandler so the weirdness doesn't disappear into the
 bit bucket.
+
+INVRT hangs? At least it does when I try it with a 1x1 matrix.

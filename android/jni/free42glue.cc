@@ -269,25 +269,25 @@ extern "C" void
 Java_com_thomasokken_free42_Free42Activity_getCoreSettings(JNIEnv *env, jobject thiz, jobject settings) {
     //Tracer T("getCoreSettings");
     jclass klass = env->GetObjectClass(settings);
-    jfieldID fid = env->GetFieldID(klass, "matrix_singularmatrix", "B");
+    jfieldID fid = env->GetFieldID(klass, "matrix_singularmatrix", "Z");
     env->SetBooleanField(settings, fid, core_settings.matrix_singularmatrix);
-    fid = env->GetFieldID(klass, "matrix_outofrange", "B");
+    fid = env->GetFieldID(klass, "matrix_outofrange", "Z");
     env->SetBooleanField(settings, fid, core_settings.matrix_outofrange);
-    fid = env->GetFieldID(klass, "raw_text", "B");
+    fid = env->GetFieldID(klass, "raw_text", "Z");
     env->SetBooleanField(settings, fid, core_settings.raw_text);
-    fid = env->GetFieldID(klass, "auto_repeat", "B");
+    fid = env->GetFieldID(klass, "auto_repeat", "Z");
     env->SetBooleanField(settings, fid, core_settings.auto_repeat);
-    fid = env->GetFieldID(klass, "enable_ext_copan", "B");
+    fid = env->GetFieldID(klass, "enable_ext_copan", "Z");
     env->SetBooleanField(settings, fid, core_settings.enable_ext_copan);
-    fid = env->GetFieldID(klass, "enable_ext_bigstack", "B");
+    fid = env->GetFieldID(klass, "enable_ext_bigstack", "Z");
     env->SetBooleanField(settings, fid, core_settings.enable_ext_bigstack);
-    fid = env->GetFieldID(klass, "enable_ext_accel", "B");
+    fid = env->GetFieldID(klass, "enable_ext_accel", "Z");
     env->SetBooleanField(settings, fid, core_settings.enable_ext_accel);
-    fid = env->GetFieldID(klass, "enable_ext_locat", "B");
+    fid = env->GetFieldID(klass, "enable_ext_locat", "Z");
     env->SetBooleanField(settings, fid, core_settings.enable_ext_locat);
-    fid = env->GetFieldID(klass, "enable_ext_heading", "B");
+    fid = env->GetFieldID(klass, "enable_ext_heading", "Z");
     env->SetBooleanField(settings, fid, core_settings.enable_ext_heading);
-    fid = env->GetFieldID(klass, "enable_ext_time", "B");
+    fid = env->GetFieldID(klass, "enable_ext_time", "Z");
     env->SetBooleanField(settings, fid, core_settings.enable_ext_time);
 }
 
@@ -295,25 +295,25 @@ extern "C" void
 Java_com_thomasokken_free42_Free42Activity_putCoreSettings(JNIEnv *env, jobject thiz, jobject settings) {
     //Tracer T("putCoreSettings");
     jclass klass = env->GetObjectClass(settings);
-    jfieldID fid = env->GetFieldID(klass, "matrix_singularmatrix", "B");
+    jfieldID fid = env->GetFieldID(klass, "matrix_singularmatrix", "Z");
     core_settings.matrix_singularmatrix = env->GetBooleanField(settings, fid);
-    fid = env->GetFieldID(klass, "matrix_outofrange", "B");
+    fid = env->GetFieldID(klass, "matrix_outofrange", "Z");
     core_settings.matrix_outofrange = env->GetBooleanField(settings, fid);
-    fid = env->GetFieldID(klass, "raw_text", "B");
+    fid = env->GetFieldID(klass, "raw_text", "Z");
     core_settings.raw_text = env->GetBooleanField(settings, fid);
-    fid = env->GetFieldID(klass, "auto_repeat", "B");
+    fid = env->GetFieldID(klass, "auto_repeat", "Z");
     core_settings.auto_repeat = env->GetBooleanField(settings, fid);
-    fid = env->GetFieldID(klass, "enable_ext_copan", "B");
+    fid = env->GetFieldID(klass, "enable_ext_copan", "Z");
     core_settings.enable_ext_copan = env->GetBooleanField(settings, fid);
-    fid = env->GetFieldID(klass, "enable_ext_bigstack", "B");
+    fid = env->GetFieldID(klass, "enable_ext_bigstack", "Z");
     core_settings.enable_ext_bigstack = env->GetBooleanField(settings, fid);
-    fid = env->GetFieldID(klass, "enable_ext_accel", "B");
+    fid = env->GetFieldID(klass, "enable_ext_accel", "Z");
     core_settings.enable_ext_accel = env->GetBooleanField(settings, fid);
-    fid = env->GetFieldID(klass, "enable_ext_locat", "B");
+    fid = env->GetFieldID(klass, "enable_ext_locat", "Z");
     core_settings.enable_ext_locat = env->GetBooleanField(settings, fid);
-    fid = env->GetFieldID(klass, "enable_ext_heading", "B");
+    fid = env->GetFieldID(klass, "enable_ext_heading", "Z");
     core_settings.enable_ext_heading = env->GetBooleanField(settings, fid);
-    fid = env->GetFieldID(klass, "enable_ext_time", "B");
+    fid = env->GetFieldID(klass, "enable_ext_time", "Z");
     core_settings.enable_ext_time = env->GetBooleanField(settings, fid);
 }
 
