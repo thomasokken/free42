@@ -45,6 +45,8 @@ public class PreferencesDialog extends Dialog {
 			RelativeLayout rl = new RelativeLayout(context);
 			addView(rl);
 			
+			// TODO: Skin selector
+			
 			singularMatrixCB = new CheckBox(context);
 			singularMatrixCB.setId(1);
 			singularMatrixCB.setText("Singular Matrix Error");
@@ -66,7 +68,7 @@ public class PreferencesDialog extends Dialog {
 			
 			printToTextCB = new CheckBox(context);
 			printToTextCB.setId(4);
-			printToTextCB.setText("Print to Text");
+			printToTextCB.setText("Print to Text:");
 			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 			lp.addRule(RelativeLayout.BELOW, autoRepeatCB.getId());
 			rl.addView(printToTextCB, lp);
@@ -86,7 +88,7 @@ public class PreferencesDialog extends Dialog {
 			
 			printToGifCB = new CheckBox(context);
 			printToGifCB.setId(7);
-			printToGifCB.setText("Print to GIF");
+			printToGifCB.setText("Print to GIF:");
 			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 			lp.addRule(RelativeLayout.BELOW, rawTextCB.getId());
 			rl.addView(printToGifCB, lp);
