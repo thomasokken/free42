@@ -145,9 +145,10 @@ Java_com_thomasokken_free42_Free42Activity_core_1hex_1menu(JNIEnv *env, jobject 
 }
 
 extern "C" jboolean
-Java_com_thomasokken_free42_Free42Activity_core_1keydown(JNIEnv *env, jobject thiz, jint key, jobject enqueued, jobject repeat) {
+Java_com_thomasokken_free42_Free42Activity_core_1keydown(JNIEnv *env, jobject thiz,
+			    jint key, jobject enqueued, jobject repeat, jboolean immediate_return) {
     //Tracer T("core_keydown");
-    finish_flag = false;
+    finish_flag = immediate_return;
     int enq, rep;
     jboolean ret = core_keydown(key, &enq, &rep);
     jclass klass = env->GetObjectClass(enqueued);

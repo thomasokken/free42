@@ -29,6 +29,7 @@ import java.util.TimerTask;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -56,8 +57,9 @@ public class Free42Activity extends Activity {
     	System.loadLibrary("free42");
     }
 
-    private Free42View view;
+    private CalcView calcView;
     private SkinLayout skin;
+    private PrintView printView;
     
     // Streams for reading and writing the state file
     private InputStream stateFileInputStream;
@@ -90,8 +92,9 @@ public class Free42Activity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         skin = new SkinLayout("Ehrling42sm");
-        view = new Free42View(this);
-        setContentView(view);
+        calcView = new CalcView(this);
+        setContentView(calcView);
+        printView = new PrintView(this);
         
     	int init_mode;
 		IntHolder version = new IntHolder();
@@ -183,19 +186,19 @@ public class Free42Activity extends Activity {
     }
 
     /**
-     * This class is the Activity's interface to the Android UI.
-     * Most of the actual hard work is not done here, but in the
-     * Activity.
+     * This class is calculator view used by the Free42 Activity.
+     * Note that most of the heavy lifting takes place in the
+     * Activity, not here.
      */
-    private class Free42View extends View {
+    private class CalcView extends View {
 
-    	public Free42View(Context context) {
+    	public CalcView(Context context) {
     		super(context);
     	}
-    	public Free42View(Context context, AttributeSet attrs) {
+    	public CalcView(Context context, AttributeSet attrs) {
     		super(context, attrs);
     	}
-    	public Free42View(Context context, AttributeSet attrs, int defStyle) {
+    	public CalcView(Context context, AttributeSet attrs, int defStyle) {
     		super(context, attrs, defStyle);
     	}
 
@@ -286,6 +289,35 @@ public class Free42Activity extends Activity {
     		        start_core_keydown();
     	    }
     			
+    		return true;
+    	}
+    }
+
+    /**
+     * This class is the print-out view used by the Free42 Activity.
+     * Note that most of the heavy lifting takes place in the
+     * Activity, not here.
+     */
+    private class PrintView extends View {
+
+    	public PrintView(Context context) {
+    		super(context);
+    	}
+    	public PrintView(Context context, AttributeSet attrs) {
+    		super(context, attrs);
+    	}
+    	public PrintView(Context context, AttributeSet attrs, int defStyle) {
+    		super(context, attrs, defStyle);
+    	}
+
+    	@Override
+    	protected void onDraw(Canvas canvas) {
+    		Paint p = new Paint();
+    		canvas.drawText("Hello, world!", 20, 20, p);
+    	}
+    	
+    	@Override
+    	public boolean onTouchEvent(MotionEvent e) {
     		return true;
     	}
     }
@@ -572,7 +604,7 @@ public class Free42Activity extends Activity {
 	 */
     public void shell_blitter(byte[] bits, int bytesperline, int x, int y, int width, int height) {
     	Rect inval = skin.display_blitter(bits, bytesperline, x, y, width, height);
-    	view.postInvalidate(inval.left, inval.top, inval.right, inval.bottom);
+    	calcView.postInvalidate(inval.left, inval.top, inval.right, inval.bottom);
     }
 
 	/**
@@ -620,7 +652,7 @@ public class Free42Activity extends Activity {
 	public void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
     	Rect inval = skin.update_annunciators(updn, shf, prt, run, g, rad);
     	if (inval != null)
-    		view.postInvalidate(inval.left, inval.top, inval.right, inval.bottom);
+    		calcView.postInvalidate(inval.left, inval.top, inval.right, inval.bottom);
 	}
 	
 	/**
