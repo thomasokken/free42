@@ -701,35 +701,25 @@ public class Free42Activity extends Activity {
 	 * not return until the sound has finished), if possible.
 	 */
 	public void shell_beeper(int frequency, int duration) {
-		synchronized (beeperMonitor) {
-			int sound_number = 10;
-			for (int i = 0; i < 10; i++) {
-				if (frequency <= cutoff_freqs[i]) {
-					sound_number = i;
-					break;
-				}
+		int sound_number = 10;
+		for (int i = 0; i < 10; i++) {
+			if (frequency <= cutoff_freqs[i]) {
+				sound_number = i;
+				break;
 			}
-			beeperBusy = true;
-			MediaPlayer mp = MediaPlayer.create(this, sound_ids[sound_number]);
-			mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-				public void onCompletion(MediaPlayer player) {
-					synchronized (beeperMonitor) {
-						beeperBusy = false;
-						beeperMonitor.notify();
-					}
-				}
-			});
-			mp.start();
-			while (beeperBusy)
-				try {
-					beeperMonitor.wait();
-				} catch (InterruptedException e) {}
-			mp.release();
 		}
+		MediaPlayer mp = MediaPlayer.create(this, sound_ids[sound_number]);
+		mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+			public void onCompletion(MediaPlayer player) {
+				player.release();
+			}
+		});
+		mp.start();
+		try {
+			Thread.sleep(sound_number == 10 ? 125 : 250);
+		} catch (InterruptedException e) {}
 	}
 
-	private Object beeperMonitor = new Object();
-	private boolean beeperBusy;
 	private final int[] cutoff_freqs = { 164, 220, 243, 275, 293, 324, 366, 418, 438, 550 };
 	private final int[] sound_ids = { R.raw.tone0, R.raw.tone1, R.raw.tone2, R.raw.tone3, R.raw.tone4, R.raw.tone5, R.raw.tone6, R.raw.tone7, R.raw.tone8, R.raw.tone9, R.raw.squeak };
 	
