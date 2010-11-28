@@ -35,6 +35,7 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.text.ClipboardManager;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -157,6 +158,16 @@ public class Free42Activity extends Activity {
     		stateFileOutputStream = null;
     	}
     }
+	
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (printViewShowing && keyCode == KeyEvent.KEYCODE_BACK) {
+			doFlipCalcPrintout();
+			return true;
+		} else {
+			return super.onKeyDown(keyCode, event);
+		}
+	}
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -164,12 +175,14 @@ public class Free42Activity extends Activity {
 
         menu.add(0, MENU_ID_COPY, 0, "Copy");
         menu.add(0, MENU_ID_PASTE, 0, "Paste");
-        menu.add(0, MENU_ID_FLIP_CALC_PRINTOUT, 0, "Calc/Print");
+        menu.add(0, MENU_ID_FLIP_CALC_PRINTOUT, 0, "Print-Out");
         menu.add(0, MENU_ID_IMPORT, 0, "Import");
         menu.add(0, MENU_ID_EXPORT, 0, "Export");
-        menu.add(0, MENU_ID_PREFERENCES, 0, "Prefs");
+        menu.add(0, MENU_ID_PREFERENCES, 0, "Preferences");
         menu.getItem(0).setIcon(R.drawable.copy);
         menu.getItem(1).setIcon(R.drawable.paste);
+        menu.getItem(2).setIcon(R.drawable.printer);
+        menu.getItem(3).setIcon(android.R.drawable.ic_menu_upload);
         menu.getItem(4).setIcon(android.R.drawable.ic_menu_save);
         menu.getItem(5).setIcon(android.R.drawable.ic_menu_preferences);
         
