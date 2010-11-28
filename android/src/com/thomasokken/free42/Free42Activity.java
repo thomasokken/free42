@@ -209,8 +209,10 @@ public class Free42Activity extends Activity {
     
     private void doPaste() {
     	ClipboardManager clip = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-    	if (clip.hasText())
+    	if (clip.hasText()) {
     		core_paste(clip.getText().toString());
+    		redisplay();
+    	}
     }
     
     private void doFlipCalcPrintout() {
