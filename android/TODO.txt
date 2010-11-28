@@ -1,21 +1,3 @@
-Call endCoreThread() on entry to any event handler: onTouch, onDraw, etc.,
-and any timer callback.
-Note the value of coreWantsCpu.
-On exit of the event handler, restart the core thread if necessary.
-Doing it this way, you can be sure that the core thread is never running while
-you're executing your event handling code -- which is exactly how the
-core/shell interface was designed to work.
-
-To keep programs running, make sure to handle the returns from these
-functions:
-(or check if these functions' returns are relevant to begin with)
-
-core_keydown()
-core_timeout3()
-core_keyup()
-core_allows_powerdown() -- the want_cpu parameter
-core_powercycle()
-
 It would be nice if we would handle the shell_milliseconds()
 wrap-around. This function is only used for flying the goose and
 updating the progress report when the solver is running interactively;
@@ -26,4 +8,5 @@ likely alternative, a la Y2K.
 Use an UncaughtExceptionHandler so the weirdness doesn't disappear into the
 bit bucket.
 
-INVRT hangs? At least it does when I try it with a 1x1 matrix.
+The INVRT fix seems to have the undesirable side effect of delaying the
+appearance of the "running" annunciator.
