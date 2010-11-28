@@ -150,7 +150,10 @@ Java_com_thomasokken_free42_Free42Activity_core_1keydown(JNIEnv *env, jobject th
     //Tracer T("core_keydown");
     finish_flag = immediate_return;
     int enq, rep;
-    jboolean ret = core_keydown(key, &enq, &rep);
+    jboolean ret;
+    do {
+	ret = core_keydown(key, &enq, &rep);
+    } while (ret && !finish_flag);
     jclass klass = env->GetObjectClass(enqueued);
     jfieldID fid = env->GetFieldID(klass, "value", "Z");
     env->SetBooleanField(enqueued, fid, enq);
