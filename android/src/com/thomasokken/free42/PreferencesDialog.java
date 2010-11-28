@@ -101,7 +101,7 @@ public class PreferencesDialog extends Dialog {
 			
 			TextView label = new TextView(context);
 			label.setId(9);
-			label.setText("Max. Height:");
+			label.setText("Max. GIF Height:");
 			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 			lp.addRule(RelativeLayout.BELOW, printToGifFileNameTF.getId());
 			rl.addView(label, lp);
