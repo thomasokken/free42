@@ -8,5 +8,10 @@ likely alternative, a la Y2K.
 Use an UncaughtExceptionHandler so the weirdness doesn't disappear into the
 bit bucket.
 
-The INVRT fix seems to have the undesirable side effect of delaying the
-appearance of the "running" annunciator.
+Hitting EXIT while the TS program is running (a loop with BEEP) causes
+everything to freeze. Yikes.
+
+The shell_beeper() slowness can probably be fixed by allowing one tone
+to remain in progress while the function returns, i.e. don't wait for
+the tone to finish before allowing program execution to resume, just
+wait for it to finish before starting the next tone.
