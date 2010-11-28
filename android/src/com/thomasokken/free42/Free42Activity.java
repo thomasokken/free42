@@ -701,26 +701,35 @@ public class Free42Activity extends Activity {
 	 * not return until the sound has finished), if possible.
 	 */
 	public void shell_beeper(int frequency, int duration) {
-		for (int i = 0; i < 10; i++) {
-			if (frequency <= cutoff_freqs[i]) {
-				MediaPlayer mp = MediaPlayer.create(this, sound_ids[i]);
-				mp.start();
-				try {
-					Thread.sleep(250);
-				} catch (InterruptedException e) {}
-				return;
+		synchronized (beeperMonitor) {
+			int sound_number = 10;
+			for (int i = 0; i < 10; i++) {
+				if (frequency <= cutoff_freqs[i]) {
+					sound_number = i;
+					break;
+				}
 			}
+			beeperBusy = true;
+			MediaPlayer mp = MediaPlayer.create(this, sound_ids[sound_number]);
+			mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+				public void onCompletion(MediaPlayer player) {
+					synchronized (beeperMonitor) {
+						beeperBusy = false;
+						beeperMonitor.notify();
+					}
+				}
+			});
+			mp.start();
+			while (beeperBusy)
+				try {
+					beeperMonitor.wait();
+				} catch (InterruptedException e) {}
+			mp.release();
 		}
-		// TODO: This crashes after a while, apparently because it
-		// runs out of file descriptors.
-		// I probably need to dispose the MediaPlayer.
-		MediaPlayer mp = MediaPlayer.create(this, sound_ids[10]);
-		mp.start();
-		try {
-			Thread.sleep(125);
-		} catch (InterruptedException e) {}
 	}
 
+	private Object beeperMonitor = new Object();
+	private boolean beeperBusy;
 	private final int[] cutoff_freqs = { 164, 220, 243, 275, 293, 324, 366, 418, 438, 550 };
 	private final int[] sound_ids = { R.raw.tone0, R.raw.tone1, R.raw.tone2, R.raw.tone3, R.raw.tone4, R.raw.tone5, R.raw.tone6, R.raw.tone7, R.raw.tone8, R.raw.tone9, R.raw.squeak };
 	
