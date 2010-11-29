@@ -29,17 +29,19 @@ import java.util.TimerTask;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.Paint.Style;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.text.ClipboardManager;
-import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ScrollView;
 
 /**
  * This Activity class contains most of the Free42 'shell' functionality;
@@ -66,6 +68,7 @@ public class Free42Activity extends Activity {
     private CalcView calcView;
     private SkinLayout skin;
     private PrintView printView;
+    private ScrollView printScrollView;
     private boolean printViewShowing;
     private PreferencesDialog preferencesDialog;
     
@@ -104,6 +107,8 @@ public class Free42Activity extends Activity {
         calcView = new CalcView(this);
         setContentView(calcView);
         printView = new PrintView(this);
+        printScrollView = new ScrollView(this);
+        printScrollView.addView(printView);
         
     	int init_mode;
 		IntHolder version = new IntHolder();
@@ -157,6 +162,7 @@ public class Free42Activity extends Activity {
     		} catch (IOException e) {}
     		stateFileOutputStream = null;
     	}
+    	printView.dump();
     }
 	
 	@Override
@@ -230,7 +236,7 @@ public class Free42Activity extends Activity {
     
     private void doFlipCalcPrintout() {
     	printViewShowing = !printViewShowing;
-    	setContentView(printViewShowing ? printView : calcView);
+    	setContentView(printViewShowing ? printScrollView : calcView);
     }
     
     private void doImport() {
@@ -290,13 +296,7 @@ public class Free42Activity extends Activity {
     	public CalcView(Context context) {
     		super(context);
     	}
-    	public CalcView(Context context, AttributeSet attrs) {
-    		super(context, attrs);
-    	}
-    	public CalcView(Context context, AttributeSet attrs, int defStyle) {
-    		super(context, attrs, defStyle);
-    	}
-
+    	
     	@Override
     	protected void onDraw(Canvas canvas) {
     		skin.repaint(canvas);
@@ -394,26 +394,121 @@ public class Free42Activity extends Activity {
      * Activity, not here.
      */
     private class PrintView extends View {
+    	
+    	private static final int BYTESPERLINE = 18;
+    	private static final int LINES = 16384;
+    	
+    	private byte[] buffer = new byte[LINES * BYTESPERLINE];
+    	private int top, bottom;
+    	private int printHeight;
 
     	public PrintView(Context context) {
     		super(context);
+    		InputStream printInputStream = null;
+    		try {
+    			printInputStream = openFileInput("print");
+    			byte[] intBuf = new byte[4];
+    			if (printInputStream.read(intBuf) != 4)
+    				throw new IOException();
+    			int len = (intBuf[0] << 24) | ((intBuf[1] & 255) << 16) | ((intBuf[2] & 255) << 8) | (intBuf[3] & 255);
+    			int n = printInputStream.read(buffer, 0, len);
+    			if (n != len)
+    				throw new IOException();
+    			top = 0;
+    			bottom = len;
+    		} catch (IOException e) {
+    			top = bottom = 0;
+    		} finally {
+    			if (printInputStream != null)
+    				try {
+    					printInputStream.close();
+    				} catch (IOException e2) {}
+    		}
+
+    		printHeight = bottom / BYTESPERLINE;
     	}
-    	public PrintView(Context context, AttributeSet attrs) {
-    		super(context, attrs);
-    	}
-    	public PrintView(Context context, AttributeSet attrs, int defStyle) {
-    		super(context, attrs, defStyle);
+
+    	@Override
+    	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+    		setMeasuredDimension(286, printHeight * 2);
     	}
 
     	@Override
     	protected void onDraw(Canvas canvas) {
     		Paint p = new Paint();
-    		canvas.drawText("Hello, world!", 20, 20, p);
+    		p.setColor(Color.RED);
+    		p.setStyle(Style.FILL);
+    		canvas.drawRect(canvas.getClipBounds(), p);
+    		//canvas.drawText("Hello, world!", 20, 20, p);
     	}
     	
     	@Override
     	public boolean onTouchEvent(MotionEvent e) {
     		return true;
+    	}
+    	
+    	public int getPrintHeight() {
+    		return printHeight;
+    	}
+    	
+    	public void print(byte[] bits, int bytesperline, int x, int y, int width, int height) {
+			int oldPrintHeight = printHeight;
+    		for (int yy = y; yy < y + height; yy++) {
+    			for (int xx = 0; xx < BYTESPERLINE; xx++)
+    				buffer[bottom + xx] = 0;
+    			for (int xx = x; xx < x + width; xx++) {
+    				boolean set = (bits[xx >> 3] & (1 << (xx & 7))) != 0;
+    				if (set)
+    					buffer[bottom + (xx >> 3)] |= 1 << (xx & 7);
+    			}
+    			bottom += BYTESPERLINE;
+    			printHeight++;
+    			if (bottom >= buffer.length)
+    				bottom = 0;
+    			if (bottom == top) {
+    				top += BYTESPERLINE;
+    				printHeight--;
+    				if (top >= buffer.length)
+    					top = 0;
+    			}
+    		}
+			if (printHeight != oldPrintHeight)
+				printScrollView.requestLayout();
+    	}
+    	
+    	public void clear() {
+    		top = bottom = 0;
+    		printHeight = 0;
+			printScrollView.requestLayout();
+    	}
+    	
+    	public void dump() {
+    		OutputStream printOutputStream = null;
+    		try {
+    			printOutputStream = openFileOutput("print", Context.MODE_PRIVATE);
+    			int len = bottom - top;
+    			if (len < 0)
+    				len += buffer.length;
+    			byte[] intBuf = new byte[4];
+    			intBuf[0] = (byte) (len >> 24);
+    			intBuf[1] = (byte) (len >> 16);
+    			intBuf[2] = (byte) (len >> 8);
+    			intBuf[3] = (byte) len;
+    			printOutputStream.write(intBuf);
+    			if (top <= bottom)
+    				printOutputStream.write(buffer, top, bottom - top);
+    			else {
+    				printOutputStream.write(buffer, top, buffer.length - top);
+    				printOutputStream.write(buffer, 0, bottom);
+    			}
+    		} catch (IOException e) {
+    			// Ignore
+    		} finally {
+    			if (printOutputStream != null)
+    				try {
+    					printOutputStream.close();
+    				} catch (IOException e2) {}
+    		}
     	}
     }
 
@@ -886,8 +981,9 @@ public class Free42Activity extends Activity {
 	 * on-screen display.
 	 */
 	public void shell_print(byte[] text, byte[] bits, int bytesperline,
-			 int x, int y, int width, int height) {
-		// TODO
+							int x, int y, int width, int height) {
+		// TODO: printing to files
+		printView.print(bits, bytesperline, x, y, width, height);
 	}
 	
 	/**
