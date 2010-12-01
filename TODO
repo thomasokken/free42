@@ -5,6 +5,10 @@ Easy enough to fix, but make sure that the new code restores the
 HKEY_LOCAL_MACHINE key so that people won't have to use regedit to get rid of
 the Free42 mapping!
 
+Another Windows "Calculator Key" issue: it doesn't seem to work in multi-
+language installs. Some other registry key overriding the obvious one, it
+seems.
+
 iPhone version: change app id back to com.yourcompany.* (it's currently
 okkosoft.* so that I can use the SAFE profiles).
 
