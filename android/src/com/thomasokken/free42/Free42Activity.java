@@ -144,6 +144,7 @@ public class Free42Activity extends Activity {
 
     @Override
     protected void onDestroy() {
+    	new Exception().printStackTrace();
     	end_core_keydown();
     	super.onDestroy();
     	// Write state file
@@ -318,6 +319,7 @@ public class Free42Activity extends Activity {
 	    		ckey = ckeyHolder.value;
 	    		if (ckey == 0)
 	    			return true;
+	    		click();
 	    		end_core_keydown();
 	        	byte[] macro = skin.find_macro(ckey);
 	            if (timer3 != null && (macro != null || ckey != 28 /* SHIFT */)) {
@@ -717,6 +719,16 @@ public class Free42Activity extends Activity {
 		boolean running = core_keydown(0, enqueued, repeat, true);
 		if (running)
 			start_core_keydown();
+	}
+	
+	private void click() {
+		MediaPlayer mp = MediaPlayer.create(this, R.raw.click);
+		mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+			public void onCompletion(MediaPlayer player) {
+				player.release();
+			}
+		});
+		mp.start();
 	}
 	
 
