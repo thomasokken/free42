@@ -722,13 +722,15 @@ public class Free42Activity extends Activity {
 	}
 	
 	private void click() {
-		MediaPlayer mp = MediaPlayer.create(this, R.raw.click);
-		mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-			public void onCompletion(MediaPlayer player) {
-				player.release();
-			}
-		});
-		mp.start();
+		if (core_is_audio_enabled()) {
+			MediaPlayer mp = MediaPlayer.create(this, R.raw.click);
+			mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+				public void onCompletion(MediaPlayer player) {
+					player.release();
+				}
+			});
+			mp.start();
+		}
 	}
 	
 
@@ -738,6 +740,7 @@ public class Free42Activity extends Activity {
     
     private native int FREE42_MAGIC();
     private native int FREE42_VERSION();
+    private native boolean core_is_audio_enabled();
     
     ///////////////////////////////////////////
     ///// Stubs for shell->core interface /////
