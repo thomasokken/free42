@@ -48,7 +48,7 @@
 #define docmd_drop docmd_xrom
 #endif
 
-#ifndef IPHONE
+#if !defined(ANDROID) && !defined(IPHONE)
 #define docmd_accel docmd_xrom
 #define docmd_locat docmd_xrom
 #define docmd_heading docmd_xrom

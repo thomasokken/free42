@@ -32,7 +32,7 @@
 /////             implemented in the iPhone shell so far.            /////
 //////////////////////////////////////////////////////////////////////////
 
-#ifdef IPHONE
+#if defined(ANDROID) || defined(IPHONE)
 int docmd_accel(arg_struct *arg) {
     if (!core_settings.enable_ext_accel)
 	return ERR_NONEXISTENT;

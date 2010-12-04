@@ -21,7 +21,7 @@
 #include "free42.h"
 #include "core_globals.h"
 
-#ifdef IPHONE
+#if defined(ANDROID) || defined(IPHONE)
 int docmd_accel(arg_struct *arg) COMMANDS7_SECT;
 int docmd_locat(arg_struct *arg) COMMANDS7_SECT;
 int docmd_heading(arg_struct *arg) COMMANDS7_SECT;

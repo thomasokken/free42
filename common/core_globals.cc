@@ -2247,7 +2247,7 @@ bool load_state(int4 ver) {
 	#else
 	    core_settings.enable_ext_bigstack = false;
 	#endif
-	#if defined(IPHONE)
+	#if defined(ANDROID) || defined(IPHONE)
 	    core_settings.enable_ext_accel = true;
 	    core_settings.enable_ext_locat = true;
 	    core_settings.enable_ext_heading = true;
@@ -2629,7 +2629,7 @@ void hard_reset(int bad_state_file) {
     #else
 	core_settings.enable_ext_bigstack = false;
     #endif
-    #if defined(IPHONE)
+    #if defined(ANDROID) || defined(IPHONE)
 	core_settings.enable_ext_accel = true;
 	core_settings.enable_ext_locat = true;
 	core_settings.enable_ext_heading = true;
