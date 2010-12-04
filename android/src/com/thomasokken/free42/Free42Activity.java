@@ -562,8 +562,14 @@ public class Free42Activity extends Activity {
 						printView.requestLayout();
 					}
 				});
-			} else
-				printView.postInvalidate();
+			} else {
+				mainHandler.post(new Runnable() {
+					public void run() {
+						printView.invalidate();
+			    		printScrollView.fullScroll(View.FOCUS_DOWN);
+					}
+				});
+			}
     	}
     	
     	public void clear() {
