@@ -37,7 +37,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.graphics.Paint.Style;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -509,7 +508,7 @@ public class Free42Activity extends Activity {
     		IntBuffer tmpBuffer = IntBuffer.allocate(src_width * src_height);
     		int[] tmpArray = tmpBuffer.array();
     		for (int y = 0; y < src_height; y++) {
-				int yy = y + src_y + top;
+				int yy = y + src_y + (top / BYTESPERLINE);
 				if (yy >= printHeight)
 					yy -= printHeight;
     			for (int x = 0; x < src_width; x++) {
