@@ -509,8 +509,8 @@ public class Free42Activity extends Activity {
     		int[] tmpArray = tmpBuffer.array();
     		for (int y = 0; y < src_height; y++) {
 				int yy = y + src_y + (top / BYTESPERLINE);
-				if (yy >= printHeight)
-					yy -= printHeight;
+				if (yy >= LINES)
+					yy -= LINES;
     			for (int x = 0; x < src_width; x++) {
     				int xx = x + src_x;
     				boolean set = (buffer[yy * BYTESPERLINE + (xx >> 3)] & (1 << (xx & 7))) != 0;
@@ -565,10 +565,10 @@ public class Free42Activity extends Activity {
 			} else {
 				mainHandler.post(new Runnable() {
 					public void run() {
-						printView.invalidate();
 			    		printScrollView.fullScroll(View.FOCUS_DOWN);
 					}
 				});
+				printView.postInvalidate();
 			}
     	}
     	
