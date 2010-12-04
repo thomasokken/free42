@@ -1,4 +1,5 @@
 VERSION.rc
+android
 build-gtk-motif
 build-mac
 build-palmos-pocketpc-windows
