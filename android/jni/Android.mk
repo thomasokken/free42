@@ -16,6 +16,7 @@
 #############################################################################
 
 LOCAL_PATH := $(call my-dir)
+VERSION = "\"$(shell cat ../../VERSION)\""
 
 include $(CLEAR_VARS)
 
@@ -25,6 +26,6 @@ include $(CLEAR_VARS)
 LOCAL_MODULE    := free42
 LOCAL_SRC_FILES := free42glue.cc core_commands1.cc core_commands2.cc core_commands3.cc core_commands4.cc core_commands5.cc core_commands6.cc core_commands7.cc core_display.cc core_globals.cc core_helpers.cc core_keydown.cc core_linalg1.cc core_linalg2.cc core_main.cc core_math1.cc core_math2.cc core_phloat.cc core_sto_rcl.cc core_tables.cc core_variables.cc shell_spool.cc
 LOCAL_CPP_EXTENSION := .cc
-LOCAL_CPPFLAGS := -DNO_SINCOS -Wall -fno-exceptions -fno-rtti -fsigned-char
+LOCAL_CPPFLAGS := -DANDROID -DVERSION=$(VERSION) -DNO_SINCOS -Wall -fno-exceptions -fno-rtti -fsigned-char
 
 include $(BUILD_SHARED_LIBRARY)

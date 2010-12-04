@@ -475,13 +475,13 @@ public class Free42Activity extends Activity {
     			}
     		}
 			if (printHeight != oldPrintHeight)
-				printScrollView.requestLayout();
+				printView.requestLayout();
     	}
     	
     	public void clear() {
     		top = bottom = 0;
     		printHeight = 0;
-			printScrollView.requestLayout();
+			printView.requestLayout();
     	}
     	
     	public void dump() {
@@ -740,6 +740,7 @@ public class Free42Activity extends Activity {
     
     private native int FREE42_MAGIC();
     private native int FREE42_VERSION();
+    private native String FREE42_RELEASE();
     private native boolean core_is_audio_enabled();
     
     ///////////////////////////////////////////
@@ -1047,6 +1048,32 @@ public class Free42Activity extends Activity {
 			programsInputStream = null;
 			return -1;
 		}
+	}
+	
+	public int shell_get_acceleration(DoubleHolder x, DoubleHolder y, DoubleHolder z) {
+		x.value = 111;
+		y.value = 222;
+		z.value = 333;
+		return 1;
+	}
+	
+	public int shell_get_location(DoubleHolder lat, DoubleHolder lon, DoubleHolder lat_lon_acc, DoubleHolder elev, DoubleHolder elev_acc) {
+		lat.value = 111;
+		lon.value = 222;
+		lat_lon_acc.value = 333;
+		elev.value = 444;
+		elev_acc.value = 555;
+		return 1;
+	}
+	
+	public int shell_get_heading(DoubleHolder mag_heading, DoubleHolder true_heading, DoubleHolder heading_acc, DoubleHolder x, DoubleHolder y, DoubleHolder z) {
+		mag_heading.value = 111;
+		true_heading.value = 222;
+		heading_acc.value = 333;
+		x.value = 444;
+		y.value = 555;
+		z.value = 666;
+		return 1;
 	}
 	
 	public void shell_log(String s) {

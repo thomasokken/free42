@@ -90,6 +90,11 @@ Java_com_thomasokken_free42_Free42Activity_FREE42_1VERSION(JNIEnv *env, jobject 
     return FREE42_VERSION;
 }
 
+extern "C" jstring
+Java_com_thomasokken_free42_Free42Activity_FREE42_1RELEASE(JNIEnv *env, jobject thiz) {
+    return env->NewStringUTF(VERSION);
+}
+
 extern "C" jboolean
 Java_com_thomasokken_free42_Free42Activity_core_1is_1audio_1enabled(JNIEnv *env, jobject thiz) {
     return flags.f.audio_enable;
@@ -504,6 +509,89 @@ shell_bcd_table_struct *shell_put_bcd_table(shell_bcd_table_struct *bcdtab,
 
 void shell_release_bcd_table(shell_bcd_table_struct *bcdtab) {
     free(bcdtab);
+}
+
+int shell_get_acceleration(double *x, double *y, double *z) {
+    JNIEnv *env = getJniEnv();
+    jclass klass1 = env->FindClass("com/thomasokken/free42/DoubleHolder");
+    jmethodID mid = env->GetMethodID(klass1, "<init>", "()V");
+    jobject x_h = env->NewObject(klass1, mid);
+    jobject y_h = env->NewObject(klass1, mid);
+    jobject z_h = env->NewObject(klass1, mid);
+    jclass klass2 = env->GetObjectClass(g_activity);
+    mid = env->GetMethodID(klass2, "shell_get_acceleration", "(Lcom/thomasokken/free42/DoubleHolder;Lcom/thomasokken/free42/DoubleHolder;Lcom/thomasokken/free42/DoubleHolder;)I");
+    int ret = env->CallIntMethod(g_activity, mid, x_h, y_h, z_h);
+    jfieldID fid = env->GetFieldID(klass1, "value", "D");
+    *x = env->GetDoubleField(x_h, fid);
+    *y = env->GetDoubleField(y_h, fid);
+    *z = env->GetDoubleField(z_h, fid);
+    env->DeleteLocalRef(klass1);
+    env->DeleteLocalRef(x_h);
+    env->DeleteLocalRef(y_h);
+    env->DeleteLocalRef(z_h);
+    env->DeleteLocalRef(klass2);
+    return ret;
+}
+
+int shell_get_location(double *lat, double *lon, double *lat_lon_acc,
+					    double *elev, double *elev_acc) {
+    JNIEnv *env = getJniEnv();
+    jclass klass1 = env->FindClass("com/thomasokken/free42/DoubleHolder");
+    jmethodID mid = env->GetMethodID(klass1, "<init>", "()V");
+    jobject lat_h = env->NewObject(klass1, mid);
+    jobject lon_h = env->NewObject(klass1, mid);
+    jobject lat_lon_acc_h = env->NewObject(klass1, mid);
+    jobject elev_h = env->NewObject(klass1, mid);
+    jobject elev_acc_h = env->NewObject(klass1, mid);
+    jclass klass2 = env->GetObjectClass(g_activity);
+    mid = env->GetMethodID(klass2, "shell_get_location", "(Lcom/thomasokken/free42/DoubleHolder;Lcom/thomasokken/free42/DoubleHolder;Lcom/thomasokken/free42/DoubleHolder;Lcom/thomasokken/free42/DoubleHolder;Lcom/thomasokken/free42/DoubleHolder;)I");
+    int ret = env->CallIntMethod(g_activity, mid, lat_h, lon_h, lat_lon_acc_h, elev_h, elev_acc_h);
+    jfieldID fid = env->GetFieldID(klass1, "value", "D");
+    *lat = env->GetDoubleField(lat_h, fid);
+    *lon = env->GetDoubleField(lon_h, fid);
+    *lat_lon_acc = env->GetDoubleField(lat_lon_acc_h, fid);
+    *elev = env->GetDoubleField(elev_h, fid);
+    *elev_acc = env->GetDoubleField(elev_acc_h, fid);
+    env->DeleteLocalRef(klass1);
+    env->DeleteLocalRef(lat_h);
+    env->DeleteLocalRef(lon_h);
+    env->DeleteLocalRef(lat_lon_acc_h);
+    env->DeleteLocalRef(elev_h);
+    env->DeleteLocalRef(elev_acc_h);
+    env->DeleteLocalRef(klass2);
+    return ret;
+}
+
+int shell_get_heading(double *mag_heading, double *true_heading, double *acc,
+					    double *x, double *y, double *z) {
+    JNIEnv *env = getJniEnv();
+    jclass klass1 = env->FindClass("com/thomasokken/free42/DoubleHolder");
+    jmethodID mid = env->GetMethodID(klass1, "<init>", "()V");
+    jobject mag_heading_h = env->NewObject(klass1, mid);
+    jobject true_heading_h = env->NewObject(klass1, mid);
+    jobject acc_h = env->NewObject(klass1, mid);
+    jobject x_h = env->NewObject(klass1, mid);
+    jobject y_h = env->NewObject(klass1, mid);
+    jobject z_h = env->NewObject(klass1, mid);
+    jclass klass2 = env->GetObjectClass(g_activity);
+    mid = env->GetMethodID(klass2, "shell_get_heading", "(Lcom/thomasokken/free42/DoubleHolder;Lcom/thomasokken/free42/DoubleHolder;Lcom/thomasokken/free42/DoubleHolder;Lcom/thomasokken/free42/DoubleHolder;Lcom/thomasokken/free42/DoubleHolder;Lcom/thomasokken/free42/DoubleHolder;)I");
+    int ret = env->CallIntMethod(g_activity, mid, mag_heading_h, true_heading_h, acc_h, x_h, y_h, z_h);
+    jfieldID fid = env->GetFieldID(klass1, "value", "D");
+    *mag_heading = env->GetDoubleField(mag_heading_h, fid);
+    *true_heading = env->GetDoubleField(true_heading_h, fid);
+    *acc = env->GetDoubleField(acc_h, fid);
+    *x = env->GetDoubleField(x_h, fid);
+    *y = env->GetDoubleField(y_h, fid);
+    *z = env->GetDoubleField(z_h, fid);
+    env->DeleteLocalRef(klass1);
+    env->DeleteLocalRef(mag_heading_h);
+    env->DeleteLocalRef(true_heading_h);
+    env->DeleteLocalRef(acc_h);
+    env->DeleteLocalRef(x_h);
+    env->DeleteLocalRef(y_h);
+    env->DeleteLocalRef(z_h);
+    env->DeleteLocalRef(klass2);
+    return ret;
 }
 
 void shell_get_time_date(uint4 *time, uint4 *date, int *weekday) {
