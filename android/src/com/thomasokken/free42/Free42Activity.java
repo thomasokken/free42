@@ -27,14 +27,26 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Paint.Style;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Looper;
 import android.text.ClipboardManager;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -87,6 +99,8 @@ public class Free42Activity extends Activity {
 	private int ckey;
 	private Timer key_timer;
 	private Timer timer3;
+	
+	private boolean low_battery;
 
 	// Persistent state
 	private boolean printToTxt;
@@ -139,7 +153,33 @@ public class Free42Activity extends Activity {
     	}
     	
     	if (core_powercycle())
-    		/* TODO: Start program running */;
+    		start_core_keydown();
+    	
+    	// Add battery monitor if API >= 4. Lower API levels don't provide
+    	// Intent.ACTION_BATTERY_OKAY, and I haven't figured out yet how to
+    	// know when to turn off the low-bat annunciator without it.
+    	// It may be possible to derive the information from the ACTION_BATTERY_CHANGED
+    	// intent, but they sure don't make it very obvious how.
+    	String ACTION_BATTERY_OKAY;
+    	try {
+    		ACTION_BATTERY_OKAY = (String) Intent.class.getField("ACTION_BATTERY_OKAY").get(null);
+    	} catch (Exception e) {
+    		ACTION_BATTERY_OKAY = null;
+    	}
+    	if (ACTION_BATTERY_OKAY != null) {
+	    	BroadcastReceiver br = new BroadcastReceiver() {
+				public void onReceive(Context ctx, Intent intent) {
+					low_battery = intent.getAction().equals(Intent.ACTION_BATTERY_LOW);
+			    	Rect inval = skin.update_annunciators(-1, -1, -1, -1, low_battery ? 1 : 0, -1, -1);
+			    	if (inval != null)
+			    		calcView.postInvalidate(inval.left, inval.top, inval.right, inval.bottom);
+				}
+	    	};
+	    	IntentFilter iff = new IntentFilter();
+	    	iff.addAction(Intent.ACTION_BATTERY_LOW);
+	    	iff.addAction(ACTION_BATTERY_OKAY);
+	    	registerReceiver(br, iff);
+    	}
     }
 
     @Override
@@ -860,7 +900,7 @@ public class Free42Activity extends Activity {
 	 * so the shell is expected to handle that one by itself.
 	 */
 	public void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
-    	Rect inval = skin.update_annunciators(updn, shf, prt, run, g, rad);
+    	Rect inval = skin.update_annunciators(updn, shf, prt, run, -1, g, rad);
     	if (inval != null)
     		calcView.postInvalidate(inval.left, inval.top, inval.right, inval.bottom);
 	}
@@ -957,8 +997,7 @@ public class Free42Activity extends Activity {
 	 * respond to sysNotifySleepRequestEvent to core_allows_powerdown().
 	 */
 	public int shell_low_battery() {
-		// TODO -- see android.os.BatteryManager
-		return 0;
+		return low_battery ? 1 : 0;
 	}
 	
 	/**
@@ -1050,30 +1089,150 @@ public class Free42Activity extends Activity {
 		}
 	}
 	
+	private boolean accel_inited, accel_exists;
+	private double accel_x, accel_y, accel_z;
+	
 	public int shell_get_acceleration(DoubleHolder x, DoubleHolder y, DoubleHolder z) {
-		x.value = 111;
-		y.value = 222;
-		z.value = 333;
-		return 1;
+		if (!accel_inited) {
+			accel_inited = true;
+			SensorManager sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+			Sensor s = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+			if (s == null)
+				return 0;
+			boolean success = sm.registerListener(new SensorEventListener() {
+						public void onAccuracyChanged(Sensor sensor, int accuracy) {
+							// Don't care
+						}
+						public void onSensorChanged(SensorEvent event) {
+							// Transform the measurments to conform to the iPhone
+							// conventions. TODO: Verify this on a real phone!
+							accel_x = event.values[0] / -9.80665;
+							accel_y = event.values[1] / -9.80665;
+							accel_z = event.values[2] / -9.80665;
+						}
+					}, s, SensorManager.SENSOR_DELAY_NORMAL);
+			if (!success)
+				return 0;
+			accel_exists = true;
+		}
+		
+		if (accel_exists) {
+			x.value = accel_x;
+			y.value = accel_y;
+			z.value = accel_z;
+			return 1;
+		} else {
+			return 0;
+		}
 	}
+
+	private boolean locat_inited, locat_exists;
+	private double locat_lat, locat_lon, locat_lat_lon_acc, locat_elev, locat_elev_acc;
 	
 	public int shell_get_location(DoubleHolder lat, DoubleHolder lon, DoubleHolder lat_lon_acc, DoubleHolder elev, DoubleHolder elev_acc) {
-		lat.value = 111;
-		lon.value = 222;
-		lat_lon_acc.value = 333;
-		elev.value = 444;
-		elev_acc.value = 555;
-		return 1;
+		if (!locat_inited) {
+			locat_inited = true;
+			LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+			Criteria cr = new Criteria();
+			cr.setAccuracy(Criteria.ACCURACY_FINE);
+			String provider = lm.getBestProvider(cr, true);
+			if (provider == null) {
+				locat_exists = false;
+				return 0;
+			}
+			LocationListener ll = new LocationListener() {
+				public void onLocationChanged(Location location) {
+					// TODO: Verify units etc.
+					locat_lat = location.getLatitude();
+					locat_lon = location.getLongitude();
+					locat_lat_lon_acc = location.getAccuracy();
+					locat_elev = location.getAltitude();
+					locat_elev_acc = location.hasAltitude() ? locat_lat_lon_acc : -1;
+				}
+				public void onProviderDisabled(String provider) {
+					// Ignore
+				}
+				public void onProviderEnabled(String provider) {
+					// Ignore
+				}
+				public void onStatusChanged(String provider, int status,
+						Bundle extras) {
+					// Ignore
+				}
+			};
+			try {
+				lm.requestLocationUpdates(provider, 60000, 1, ll, Looper.getMainLooper());
+			} catch (IllegalArgumentException e) {
+				return 0;
+			} catch (SecurityException e) {
+				return 0;
+			}
+			locat_exists = true;
+		}
+		
+		if (locat_exists) {
+			lat.value = locat_lat;
+			lon.value = locat_lon;
+			lat_lon_acc.value = locat_lat_lon_acc;
+			elev.value = locat_elev;
+			elev_acc.value = locat_elev_acc;
+			return 1;
+		} else
+			return 0;
 	}
 	
-	public int shell_get_heading(DoubleHolder mag_heading, DoubleHolder true_heading, DoubleHolder heading_acc, DoubleHolder x, DoubleHolder y, DoubleHolder z) {
-		mag_heading.value = 111;
-		true_heading.value = 222;
-		heading_acc.value = 333;
-		x.value = 444;
-		y.value = 555;
-		z.value = 666;
-		return 1;
+	private boolean heading_inited, heading_exists;
+	private double heading_mag, heading_true, heading_acc, heading_x, heading_y, heading_z;
+	
+	public int shell_get_heading(DoubleHolder mag_heading, DoubleHolder true_heading, DoubleHolder acc_heading, DoubleHolder x, DoubleHolder y, DoubleHolder z) {
+		if (!heading_inited) {
+			heading_inited = true;
+			SensorManager sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+			Sensor s1 = sm.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+			Sensor s2 = sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+			if (s1 == null)
+				return 0;
+			SensorEventListener listener = new SensorEventListener() {
+						public void onAccuracyChanged(Sensor sensor, int accuracy) {
+							// Don't care
+						}
+						public void onSensorChanged(SensorEvent event) {
+							// TODO: Verify this on a real phone, and
+							// check if the orientation matches the iPhone.
+							// There doesn't seem to be an API to obtain true
+							// heading, so I should set true_heading to 0
+							// and heading_acc to -1; the current code just
+							// exists to let me investigate the components
+							// returned by Orientation events.
+							if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
+								heading_mag = event.values[0];
+								heading_true = event.values[1];
+								heading_acc = event.values[2];
+							} else {
+								heading_x = event.values[0];
+								heading_y = event.values[1];
+								heading_z = event.values[2];
+							}
+						}
+					};
+			boolean success = sm.registerListener(listener, s1, SensorManager.SENSOR_DELAY_UI);
+			if (!success)
+				return 0;
+			sm.registerListener(listener, s2, SensorManager.SENSOR_DELAY_UI);
+			heading_exists = true;
+		}
+		
+		if (heading_exists) {
+			mag_heading.value = heading_mag;
+			true_heading.value = heading_true;
+			acc_heading.value = heading_acc;
+			x.value = heading_x;
+			y.value = heading_y;
+			z.value = heading_z;
+			return 1;
+		} else {
+			return 0;
+		}
 	}
 	
 	public void shell_log(String s) {

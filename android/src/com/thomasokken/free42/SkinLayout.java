@@ -415,13 +415,13 @@ public class SkinLayout {
     					display_loc.y + (y + height) * display_scale.y);
 	}
 	
-	public Rect update_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
+	public Rect update_annunciators(int updn, int shf, int prt, int run, int lowbat, int g, int rad) {
 		int minx = Integer.MAX_VALUE;
 		int miny = Integer.MAX_VALUE;
 		int maxx = Integer.MIN_VALUE;
 		int maxy = Integer.MIN_VALUE;
 		
-		int[] ann_arg = new int[] { updn, shf, prt, run, -1, g, rad };
+		int[] ann_arg = new int[] { updn, shf, prt, run, lowbat, g, rad };
 		for (int i = 0; i < 7; i++) {
 			int newState = ann_arg[i];
 			if (newState == (ann_state[i] ? 0 : 1)) {
