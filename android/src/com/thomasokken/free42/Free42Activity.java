@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.IntBuffer;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -31,6 +32,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -46,6 +48,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.text.ClipboardManager;
 import android.view.KeyEvent;
@@ -83,6 +86,7 @@ public class Free42Activity extends Activity {
     private ScrollView printScrollView;
     private boolean printViewShowing;
     private PreferencesDialog preferencesDialog;
+    private Handler mainHandler;
     
     // Streams for reading and writing the state file
     private InputStream stateFileInputStream;
@@ -117,11 +121,13 @@ public class Free42Activity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mainHandler = new Handler();
         skin = new SkinLayout("Ehrling42sm");
         calcView = new CalcView(this);
         setContentView(calcView);
         printView = new PrintView(this);
         printScrollView = new ScrollView(this);
+        printScrollView.setBackgroundColor(Color.LTGRAY);
         printScrollView.addView(printView);
         
     	int init_mode;
@@ -184,7 +190,6 @@ public class Free42Activity extends Activity {
 
     @Override
     protected void onDestroy() {
-    	new Exception().printStackTrace();
     	end_core_keydown();
     	super.onDestroy();
     	// Write state file
@@ -477,16 +482,54 @@ public class Free42Activity extends Activity {
 
     	@Override
     	protected void onDraw(Canvas canvas) {
-    		Paint p = new Paint();
-    		p.setColor(Color.RED);
-    		p.setStyle(Style.FILL);
-    		canvas.drawRect(canvas.getClipBounds(), p);
-    		//canvas.drawText("Hello, world!", 20, 20, p);
+    		try {
+    			onDraw2(canvas);
+    		} catch (Exception e) {
+    			e.printStackTrace();
+    		}
+    	}
+    	protected void onDraw2(Canvas canvas) {
+    		Rect clip = canvas.getClipBounds();
+    		
+    		// Extend the clip rectangle so that it doesn't include any half
+    		// or quarter pixels
+    		clip.left &= ~1;
+    		clip.top &= ~1;
+    		if ((clip.right & 1) != 0)
+    			clip.right++;
+    		if ((clip.bottom & 1) != 0)
+    			clip.bottom++;
+    		
+    		// Construct a temporary bitmap
+    		int src_x = clip.left / 2;
+    		int src_y = clip.top / 2;
+    		int src_width = (clip.right - clip.left) / 2;
+    		int src_height = (clip.bottom - clip.top) / 2;
+    		Bitmap tmpBitmap = Bitmap.createBitmap(src_width, src_height, Bitmap.Config.ARGB_8888);
+    		IntBuffer tmpBuffer = IntBuffer.allocate(src_width * src_height);
+    		int[] tmpArray = tmpBuffer.array();
+    		for (int y = 0; y < src_height; y++) {
+				int yy = y + src_y + top;
+				if (yy >= printHeight)
+					yy -= printHeight;
+    			for (int x = 0; x < src_width; x++) {
+    				int xx = x + src_x;
+    				boolean set = (buffer[yy * BYTESPERLINE + (xx >> 3)] & (1 << (xx & 7))) != 0;
+    				tmpArray[y * src_width + x] = set ? Color.BLACK : Color.WHITE;
+    			}
+    		}
+    		tmpBitmap.copyPixelsFromBuffer(tmpBuffer);
+    		canvas.drawBitmap(tmpBitmap, new Rect(0, 0, src_width, src_height), clip, new Paint());
     	}
     	
     	@Override
     	public boolean onTouchEvent(MotionEvent e) {
     		return true;
+    	}
+    	
+    	@Override
+    	public void onSizeChanged(int w, int h, int oldw, int oldh) {
+    		printScrollView.fullScroll(View.FOCUS_DOWN);
     	}
     	
     	public int getPrintHeight() {
@@ -499,7 +542,7 @@ public class Free42Activity extends Activity {
     			for (int xx = 0; xx < BYTESPERLINE; xx++)
     				buffer[bottom + xx] = 0;
     			for (int xx = x; xx < x + width; xx++) {
-    				boolean set = (bits[xx >> 3] & (1 << (xx & 7))) != 0;
+    				boolean set = (bits[yy * bytesperline + (xx >> 3)] & (1 << (xx & 7))) != 0;
     				if (set)
     					buffer[bottom + (xx >> 3)] |= 1 << (xx & 7);
     			}
@@ -514,8 +557,14 @@ public class Free42Activity extends Activity {
     					top = 0;
     			}
     		}
-			if (printHeight != oldPrintHeight)
-				printView.requestLayout();
+			if (printHeight != oldPrintHeight) {
+				mainHandler.post(new Runnable() {
+					public void run() {
+						printView.requestLayout();
+					}
+				});
+			} else
+				printView.postInvalidate();
     	}
     	
     	public void clear() {
