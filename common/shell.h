@@ -206,7 +206,7 @@ shell_bcd_table_struct *shell_put_bcd_table(shell_bcd_table_struct *bcdtab,
 					    uint4 size) SHELL1_SECT;
 void shell_release_bcd_table(shell_bcd_table_struct *bcdtab) SHELL1_SECT;
 
-#ifdef IPHONE
+#if defined(IPHONE) || defined(ANDROID)
 /* shell_get_acceleration()
  * shell_get_location()
  * shell_get_heading()
