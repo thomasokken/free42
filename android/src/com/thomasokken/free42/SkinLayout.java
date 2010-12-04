@@ -464,7 +464,8 @@ public class SkinLayout {
 		Paint p = new Paint();
 		
 		if (paintSkin) {
-			canvas.drawBitmap(skinBitmap, 0, 0, p);
+			canvas.drawBitmap(skinBitmap, new Rect(skin.x, skin.y, skin.x + skin.width, skin.y + skin.height),
+										  new Rect(0, 0, skin.width, skin.height), p);
 			if (display_enabled)
 				for (int i = 0; i < 7; i++)
 					if (ann_state[i]) {
