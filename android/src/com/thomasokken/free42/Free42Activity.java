@@ -390,6 +390,10 @@ public class Free42Activity extends Activity {
 							core_keyup();
 					}
 					running = core_keydown(macro[macro.length - 1] & 255, enqueued, repeat, true);
+					// TODO: Shouldn't the display be re-enabled *before* the last
+					// keystroke? Or, alternatively, should I force a full repaint
+					// after a macro finishes? How did I handle this in the other
+					// versions?
 					if (!one_key_macro)
 						skin.set_display_enabled(true);
 		        }
@@ -481,13 +485,13 @@ public class Free42Activity extends Activity {
 
     	@Override
     	protected void onDraw(Canvas canvas) {
-    		try {
-    			onDraw2(canvas);
-    		} catch (Exception e) {
-    			e.printStackTrace();
-    		}
-    	}
-    	protected void onDraw2(Canvas canvas) {
+//    		try {
+//    			onDraw2(canvas);
+//    		} catch (Exception e) {
+//    			e.printStackTrace();
+//    		}
+//    	}
+//    	protected void onDraw2(Canvas canvas) {
     		Rect clip = canvas.getClipBounds();
     		
     		// Extend the clip rectangle so that it doesn't include any half
@@ -517,6 +521,10 @@ public class Free42Activity extends Activity {
     				tmpArray[y * src_width + x] = set ? Color.BLACK : Color.WHITE;
     			}
     		}
+    		// TODO: You don't actually need a bitmap; Canvas has drawBitmap() methods
+    		// that draw straight from an int[]. That may save a copy operation, which
+    		// would help, speed-wise, and, if nothing else, would make the code a bit
+    		// simpler without hurting performance.
     		tmpBitmap.copyPixelsFromBuffer(tmpBuffer);
     		canvas.drawBitmap(tmpBitmap, new Rect(0, 0, src_width, src_height), clip, new Paint());
     	}
@@ -531,9 +539,9 @@ public class Free42Activity extends Activity {
     		printScrollView.fullScroll(View.FOCUS_DOWN);
     	}
     	
-    	public int getPrintHeight() {
-    		return printHeight;
-    	}
+//    	public int getPrintHeight() {
+//    		return printHeight;
+//    	}
     	
     	public void print(byte[] bits, int bytesperline, int x, int y, int width, int height) {
 			int oldPrintHeight = printHeight;
@@ -563,6 +571,11 @@ public class Free42Activity extends Activity {
 					}
 				});
 			} else {
+				// TODO: Is it faster to invalidate before scrolling instead of
+				// after? Seems like it might be. Another option to consider is
+				// calling invalidate() (*not* postInvalidate()) from the Runnable.
+				// No sense in over-thinking this, I guess; time for some
+				// actual experimentation and measurements.
 				mainHandler.post(new Runnable() {
 					public void run() {
 			    		printScrollView.fullScroll(View.FOCUS_DOWN);
@@ -718,15 +731,11 @@ public class Free42Activity extends Activity {
     }
 
     private class CoreThread extends Thread {
-    	public boolean enqueued;
-    	public int repeat;
     	public boolean coreWantsCpu;
     	public void run() {
-    		BooleanHolder enqHolder = new BooleanHolder();
-    		IntHolder repHolder = new IntHolder();
-    		coreWantsCpu = core_keydown(0, enqHolder, repHolder, false);
-    		enqueued = enqHolder.value;
-    		repeat = repHolder.value;
+    		BooleanHolder enqueued = new BooleanHolder();
+    		IntHolder repeat = new IntHolder();
+    		coreWantsCpu = core_keydown(0, enqueued, repeat, false);
     	}
     }
     
@@ -883,6 +892,14 @@ public class Free42Activity extends Activity {
     ///////////////////////////////////////////////////
     ///// Implementation of core->shell interface /////
     ///////////////////////////////////////////////////
+    
+    // TODO: Move shell_read_saved_state(), shell_write_saved_state(),
+    // shell_read(), and shell_write(), from the Java side to the native
+    // side; use buffering on the native side, and only perform large
+    // reads and writes on the Java side. This should cut down massively
+    // on the number of JNI calls during startup, shutdown, import, and
+    // export, respectively. Heck, maybe it'll even fix the "failing
+    // startup" problem -- you never know!
     
 	/**
 	 * shell_blitter()
@@ -1086,7 +1103,7 @@ public class Free42Activity extends Activity {
 	 * Printer emulation. The first 2 parameters are the plain text version of the
 	 * data to be printed; the remaining 6 parameters are the bitmap version. The
 	 * former is used for text-mode copying and for spooling to text files; the
-	 * latter is used for graphics-mode coopying, spooling to image files, and
+	 * latter is used for graphics-mode copying, spooling to image files, and
 	 * on-screen display.
 	 */
 	public void shell_print(byte[] text, byte[] bits, int bytesperline,
