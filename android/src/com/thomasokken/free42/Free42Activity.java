@@ -1175,8 +1175,9 @@ public class Free42Activity extends Activity {
 							// Don't care
 						}
 						public void onSensorChanged(SensorEvent event) {
-							// Transform the measurments to conform to the iPhone
-							// conventions. TODO: Verify this on a real phone!
+							// Transform the measurements to conform to the iPhone
+							// conventions. The conversion factor used here is the
+							// 'standard gravity'.
 							accel_x = event.values[0] / -9.80665;
 							accel_y = event.values[1] / -9.80665;
 							accel_z = event.values[2] / -9.80665;
