@@ -35,6 +35,7 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.hardware.Sensor;
@@ -177,7 +178,7 @@ public class Free42Activity extends Activity {
 					low_battery = intent.getAction().equals(Intent.ACTION_BATTERY_LOW);
 			    	Rect inval = skin.update_annunciators(-1, -1, -1, -1, low_battery ? 1 : 0, -1, -1);
 			    	if (inval != null)
-			    		calcView.postInvalidate(inval.left, inval.top, inval.right, inval.bottom);
+			    		calcView.postInvalidateScaled(inval.left, inval.top, inval.right, inval.bottom);
 				}
 	    	};
 	    	IntentFilter iff = new IntentFilter();
@@ -337,13 +338,24 @@ public class Free42Activity extends Activity {
      * Activity, not here.
      */
     private class CalcView extends View {
+    	
+    	private int width, height;
 
     	public CalcView(Context context) {
     		super(context);
     	}
-    	
+
+		@Override
+    	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+    		width = w;
+    		height = h;
+    	}
+
     	@Override
     	protected void onDraw(Canvas canvas) {
+    		Matrix matrix = canvas.getMatrix();
+    		matrix.preScale(((float) width) / skin.getWidth(), ((float) height) / skin.getHeight());
+    		canvas.setMatrix(matrix);
     		skin.repaint(canvas);
     	}
     	
@@ -354,8 +366,8 @@ public class Free42Activity extends Activity {
     			return true;
     		
     		if (what == MotionEvent.ACTION_DOWN) {
-	    		int x = (int) e.getX();
-	    		int y = (int) e.getY();
+	    		int x = (int) (e.getX() * skin.getWidth() / width);
+	    		int y = (int) (e.getY() * skin.getHeight() / height);
 	    		IntHolder skeyHolder = new IntHolder();
 	    		IntHolder ckeyHolder = new IntHolder();
 	    		skin.find_key(core_menu(), x, y, skeyHolder, ckeyHolder);
@@ -373,7 +385,7 @@ public class Free42Activity extends Activity {
 	            }
 		        Rect inval = skin.set_active_key(skey);
 		        if (inval != null)
-		        	invalidate(inval);
+		        	invalidateScaled(inval);
 		        boolean running;
 				BooleanHolder enqueued = new BooleanHolder();
 				IntHolder repeat = new IntHolder();
@@ -427,7 +439,7 @@ public class Free42Activity extends Activity {
     	    	ckey = 0;
     	    	Rect inval = skin.set_active_key(-1);
     	    	if (inval != null)
-    	    		invalidate(inval);
+    	    		invalidateScaled(inval);
 	    		end_core_keydown();
     			coreWantsCpu = core_keyup();
     			if (coreWantsCpu)
@@ -436,6 +448,22 @@ public class Free42Activity extends Activity {
     			
     		return true;
     	}
+    	
+    	public void postInvalidateScaled(int left, int top, int right, int bottom) {
+			left = (int) Math.floor(((double) left) * width / skin.getWidth());
+			top = (int) Math.floor(((double) top) * height / skin.getHeight());
+			right = (int) Math.ceil(((double) right) * width / skin.getWidth());
+			bottom = (int) Math.ceil(((double) bottom) * height / skin.getHeight());
+			postInvalidate(left, top, right, bottom);
+		}
+
+		private void invalidateScaled(Rect inval) {
+			inval.left = (int) Math.floor(((double) inval.left) * width / skin.getWidth());
+			inval.top = (int) Math.floor(((double) inval.top) * height / skin.getHeight());
+			inval.right = (int) Math.ceil(((double) inval.right) * width / skin.getWidth());
+			inval.bottom = (int) Math.ceil(((double) inval.bottom) * height / skin.getHeight());
+			invalidate(inval);
+		}
     }
 
     /**
@@ -926,7 +954,7 @@ public class Free42Activity extends Activity {
 	 */
     public void shell_blitter(byte[] bits, int bytesperline, int x, int y, int width, int height) {
     	Rect inval = skin.display_blitter(bits, bytesperline, x, y, width, height);
-    	calcView.postInvalidate(inval.left, inval.top, inval.right, inval.bottom);
+    	calcView.postInvalidateScaled(inval.left, inval.top, inval.right, inval.bottom);
     }
 
 	/**
@@ -973,7 +1001,7 @@ public class Free42Activity extends Activity {
 	public void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
     	Rect inval = skin.update_annunciators(updn, shf, prt, run, -1, g, rad);
     	if (inval != null)
-    		calcView.postInvalidate(inval.left, inval.top, inval.right, inval.bottom);
+    		calcView.postInvalidateScaled(inval.left, inval.top, inval.right, inval.bottom);
 	}
 	
 	/**

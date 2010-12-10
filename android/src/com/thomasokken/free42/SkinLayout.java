@@ -21,7 +21,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -74,7 +73,7 @@ public class SkinLayout {
 	private boolean display_enabled = true;
 	private Bitmap skinBitmap;
 	private Bitmap display = Bitmap.createBitmap(131, 16, Bitmap.Config.ARGB_8888);
-	private IntBuffer display_buffer = IntBuffer.allocate(131 * 16);
+	private int[] display_buffer = new int[131 * 16];
 	private boolean[] ann_state = new boolean[7];
 	private int active_key = -1;
 
@@ -256,6 +255,14 @@ public class SkinLayout {
 		}
     }
 	
+	public int getWidth() {
+		return skin.width;
+	}
+	
+	public int getHeight() {
+		return skin.height;
+	}
+	
 	public Rect set_active_key(int skey) {
 		Rect r1 = getKeyRect(active_key);
 		Rect r2 = getKeyRect(skey);
@@ -360,12 +367,14 @@ public class SkinLayout {
 			    // Construct a temporary Bitmap, create the inverted version of
 			    // the affected screen rectangle there, and blit it
 				Bitmap invSoftkey = Bitmap.createBitmap(21, 7, Bitmap.Config.ARGB_8888);
+				int[] invSoftkeyBuf = new int[21 * 7];
 				for (int v = 0; v < 7; v++)
 					for (int h = 0; h < 21; h++) {
 						int color = display.getPixel(h + (key - 1) * 22, v + 9);
 						color = color == display_bg ? display_fg : display_bg;
-						invSoftkey.setPixel(h, v, color);
+						invSoftkeyBuf[h + 21 * v] = color;
 					}
+				invSoftkey.setPixels(invSoftkeyBuf, 0, 21, 0, 0, 21, 7);
 				Rect src = new Rect(0, 0, 21, 7);
 				Paint p = new Paint();
 				canvas.drawBitmap(invSoftkey, src, dst, p);
@@ -400,13 +409,12 @@ public class SkinLayout {
 	public Rect display_blitter(byte[] bits, int bytesperline, int x, int y, int width, int height) {
     	int hmax = x + width;
     	int vmax = y + height;
-    	int[] buf = display_buffer.array();
     	for (int v = y; v < vmax; v++)
     		for (int h = x; h < hmax; h++) {
     			boolean bitSet = (bits[(h >> 3) + v * bytesperline] & (1 << (h & 7))) != 0;
-    			buf[v * 131 + h] = bitSet ? display_fg : display_bg;
+    			display_buffer[v * 131 + h] = bitSet ? display_fg : display_bg;
     		}
-    	display.copyPixelsFromBuffer(display_buffer);
+    	display.setPixels(display_buffer, 0, 131, x, y, width, height);
     	
     	// Return a Rect telling the caller what part of the View needs to be invalidated
     	return new Rect(display_loc.x + x * display_scale.x,
