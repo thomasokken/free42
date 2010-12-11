@@ -11,3 +11,5 @@ bit bucket.
 App goes kablooey on portrait/landscape switch.
 
 App dies on startup after having been exited using OFF or the BACK key.
+
+Keyboard support!
