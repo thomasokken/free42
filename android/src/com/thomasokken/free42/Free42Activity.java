@@ -39,7 +39,6 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.hardware.Sensor;
@@ -413,9 +412,7 @@ public class Free42Activity extends Activity {
 
     	@Override
     	protected void onDraw(Canvas canvas) {
-    		Matrix matrix = canvas.getMatrix();
-    		matrix.preScale(((float) width) / skin.getWidth(), ((float) height) / skin.getHeight());
-    		canvas.setMatrix(matrix);
+    		canvas.scale(((float) width) / skin.getWidth(), ((float) height) / skin.getHeight());
     		skin.repaint(canvas);
     	}
     	
