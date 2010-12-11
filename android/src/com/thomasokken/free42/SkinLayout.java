@@ -18,6 +18,8 @@
 package com.thomasokken.free42;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -74,18 +76,46 @@ public class SkinLayout {
 	private Bitmap skinBitmap;
 	private Bitmap display = Bitmap.createBitmap(131, 16, Bitmap.Config.ARGB_8888);
 	private int[] display_buffer = new int[131 * 16];
-	private boolean[] ann_state = new boolean[7];
+	private boolean[] ann_state;
 	private int active_key = -1;
 
 	public SkinLayout(String skinName) {
+		this(skinName, null);
+	}
+	
+	public SkinLayout(String skinName, boolean[] ann_state) {
+		if (ann_state == null)
+			this.ann_state = new boolean[7];
+		else
+			this.ann_state = ann_state;
+		
+		InputStream is = null;
 		try {
-			InputStream is = getClass().getResourceAsStream(skinName + ".gif");
-			if (is == null)
-				throw new IllegalArgumentException("No image found for skin " + skinName);
+			is = getClass().getResourceAsStream(skinName + ".gif");
+			boolean skinFromResource = true;
+			if (is == null) {
+				try {
+					is = new FileInputStream("/sdcard/Free42/" + skinName + ".gif");
+					skinFromResource = false;
+				} catch (FileNotFoundException e) {
+					throw new IllegalArgumentException("No image found for skin " + skinName);
+				}
+			}
 	    	skinBitmap = new BitmapDrawable(is).getBitmap();
-			is = getClass().getResourceAsStream(skinName + ".layout");
+	    	try {
+	    		is.close();
+	    	} catch (IOException e) {}
+	    	is = null;
+
+	    	if (skinFromResource)
+	    		is = getClass().getResourceAsStream(skinName + ".layout");
+	    	else
+	    		try {
+	    			is = new FileInputStream("/sdcard/Free42/" + skinName + ".layout");
+				} catch (FileNotFoundException e) {}
 			if (is == null)
-				throw new IllegalArgumentException("No layout found for skin " + skinName);
+				throw new IllegalArgumentException("No layout found for skin " + (skinFromResource ? "resource" : "file") + " " + skinName);
+			
 			BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 			String line;
 			int lineno = 0;
@@ -252,6 +282,11 @@ public class SkinLayout {
 			macrolist = tempmacrolist.toArray(new SkinMacro[0]);
 		} catch (IOException e) {
 			throw new IllegalArgumentException(e);
+		} finally {
+			if (is != null)
+				try {
+					is.close();
+				} catch (IOException e) {}
 		}
     }
 	
@@ -261,6 +296,10 @@ public class SkinLayout {
 	
 	public int getHeight() {
 		return skin.height;
+	}
+	
+	public boolean[] getAnnunciators() {
+		return ann_state;
 	}
 	
 	public Rect set_active_key(int skey) {

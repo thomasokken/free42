@@ -17,13 +17,17 @@
 
 package com.thomasokken.free42;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -55,6 +59,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.SubMenu;
 import android.view.View;
 import android.widget.ScrollView;
 
@@ -69,12 +74,14 @@ public class Free42Activity extends Activity {
     
 	private static final int MENU_ID_COPY = Menu.FIRST;
 	private static final int MENU_ID_PASTE = Menu.FIRST + 1;
-	private static final int MENU_ID_FLIP_CALC_PRINTOUT = Menu.FIRST + 2;
-	private static final int MENU_ID_IMPORT = Menu.FIRST + 3;
-	private static final int MENU_ID_EXPORT = Menu.FIRST + 4;
-	private static final int MENU_ID_PREFERENCES = Menu.FIRST + 5;
+	private static final int MENU_ID_PREFERENCES = Menu.FIRST + 2;
+	private static final int MENU_ID_FLIP_CALC_PRINTOUT = Menu.FIRST + 3;
+	private static final int MENU_ID_CLEAR_PRINTOUT = Menu.FIRST + 4;
+	private static final int MENU_ID_IMPORT = Menu.FIRST + 5;
+	private static final int MENU_ID_EXPORT = Menu.FIRST + 6;
+	private static final int MENU_ID_SKIN = Menu.FIRST + 7;
 
-    private static final int SHELL_VERSION = 1;
+    private static final int SHELL_VERSION = 2;
     
     static {
     	System.loadLibrary("free42");
@@ -112,6 +119,7 @@ public class Free42Activity extends Activity {
 	private boolean printToGif;
 	private String printToGifFileName = "";
 	private int maxGifHeight = 256;
+	private String skinName = "Standard";
 	
     
     ///////////////////////////////////////////////////////
@@ -122,7 +130,6 @@ public class Free42Activity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mainHandler = new Handler();
-        skin = new SkinLayout("Ehrling42sm");
         calcView = new CalcView(this);
         setContentView(calcView);
         printView = new PrintView(this);
@@ -149,6 +156,13 @@ public class Free42Activity extends Activity {
             init_mode = 0;
         }
     	
+    	try {
+    		skin = new SkinLayout(skinName);
+    	} catch (IllegalArgumentException e) {
+			skinName = "Standard";
+			skin = new SkinLayout(skinName);
+    	}
+
     	nativeInit();
     	core_init(init_mode, version.value);
     	if (stateFileInputStream != null) {
@@ -227,18 +241,42 @@ public class Free42Activity extends Activity {
 
         menu.add(0, MENU_ID_COPY, 0, "Copy");
         menu.add(0, MENU_ID_PASTE, 0, "Paste");
-        menu.add(0, MENU_ID_FLIP_CALC_PRINTOUT, 0, "Print-Out");
-        menu.add(0, MENU_ID_IMPORT, 0, "Import");
-        menu.add(0, MENU_ID_EXPORT, 0, "Export");
         menu.add(0, MENU_ID_PREFERENCES, 0, "Preferences");
+        menu.add(0, MENU_ID_FLIP_CALC_PRINTOUT, 0, "Print-Out");
+        menu.add(0, MENU_ID_CLEAR_PRINTOUT, 0, "Clear Print-Out");
+        menu.add(0, MENU_ID_IMPORT, 0, "Import Programs");
+        menu.add(0, MENU_ID_EXPORT, 0, "Export Programs");
+        SubMenu skinMenu = menu.addSubMenu(0, MENU_ID_SKIN, 0, "Select Skin");
+        skinMenu.add("Standard");
+        List<String> externalSkinNames = findExternalSkins();
+        for (String skinName : externalSkinNames)
+        	skinMenu.add(skinName);
         menu.getItem(0).setIcon(R.drawable.copy);
         menu.getItem(1).setIcon(R.drawable.paste);
-        menu.getItem(2).setIcon(R.drawable.printer);
-        menu.getItem(3).setIcon(android.R.drawable.ic_menu_upload);
-        menu.getItem(4).setIcon(android.R.drawable.ic_menu_save);
-        menu.getItem(5).setIcon(android.R.drawable.ic_menu_preferences);
+        menu.getItem(2).setIcon(android.R.drawable.ic_menu_preferences);
+        menu.getItem(3).setIcon(R.drawable.printer);
+        menu.getItem(4).setIcon(android.R.drawable.ic_menu_close_clear_cancel);
         
         return true;
+    }
+    
+    private List<String> findExternalSkins() {
+    	List<String> skinNames = new ArrayList<String>();
+    	File free42dir = new File("/sdcard/Free42");
+    	File[] files = free42dir.listFiles();
+    	if (files != null)
+    		for (File file : files) {
+    			if (!file.isFile())
+    				continue;
+    			String name = file.getName();
+    			if (!name.endsWith(".gif"))
+    				continue;
+    			name = name.substring(0, name.length() - 4);
+    			if (new File(free42dir, name + ".layout").isFile())
+    				skinNames.add(name);
+    		}
+    	Collections.sort(skinNames, String.CASE_INSENSITIVE_ORDER);
+    	return skinNames;
     }
 
     @Override
@@ -250,8 +288,14 @@ public class Free42Activity extends Activity {
         case MENU_ID_PASTE:
         	doPaste();
             return true;
+        case MENU_ID_PREFERENCES:
+        	doPreferences();
+            return true;
         case MENU_ID_FLIP_CALC_PRINTOUT:
         	doFlipCalcPrintout();
+            return true;
+        case MENU_ID_CLEAR_PRINTOUT:
+        	doClearPrintout();
             return true;
         case MENU_ID_IMPORT:
         	doImport();
@@ -259,9 +303,9 @@ public class Free42Activity extends Activity {
         case MENU_ID_EXPORT:
         	doExport();
             return true;
-        case MENU_ID_PREFERENCES:
-        	doPreferences();
-            return true;
+        case Menu.NONE:
+        	doSelectSkin(item.getTitle().toString());
+        	return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -285,12 +329,28 @@ public class Free42Activity extends Activity {
     	setContentView(printViewShowing ? printScrollView : calcView);
     }
     
+    private void doClearPrintout() {
+    	printView.clear();
+    }
+    
     private void doImport() {
     	// TODO
     }
     
     private void doExport() {
     	// TODO
+    }
+    
+    private void doSelectSkin(String skinName) {
+    	try {
+    		boolean[] annunciators = skin.getAnnunciators();
+    		skin = new SkinLayout(skinName, annunciators);
+        	this.skinName = skinName;
+        	calcView.invalidate();
+        	core_repaint_display();
+    	} catch (IllegalArgumentException e) {
+    		shell_beeper(1835, 125);
+    	}
     }
     
     private void doPreferences() {
@@ -513,13 +573,6 @@ public class Free42Activity extends Activity {
 
     	@Override
     	protected void onDraw(Canvas canvas) {
-//    		try {
-//    			onDraw2(canvas);
-//    		} catch (Exception e) {
-//    			e.printStackTrace();
-//    		}
-//    	}
-//    	protected void onDraw2(Canvas canvas) {
     		Rect clip = canvas.getClipBounds();
     		
     		// Extend the clip rectangle so that it doesn't include any half
@@ -566,10 +619,6 @@ public class Free42Activity extends Activity {
     	public void onSizeChanged(int w, int h, int oldw, int oldh) {
     		printScrollView.fullScroll(View.FOCUS_DOWN);
     	}
-    	
-//    	public int getPrintHeight() {
-//    		return printHeight;
-//    	}
     	
     	public void print(byte[] bits, int bytesperline, int x, int y, int width, int height) {
 			int oldPrintHeight = printHeight;
@@ -668,6 +717,8 @@ public class Free42Activity extends Activity {
     	    printToTxtFileName = state_read_string();
     	    if (shell_version >= 1)
     	    	maxGifHeight = state_read_int();
+    	    if (shell_version >= 2)
+    	    	skinName = state_read_string();
     		init_shell_state(shell_version);
     	} catch (IllegalArgumentException e) {
     		return false;
@@ -687,7 +738,10 @@ public class Free42Activity extends Activity {
     		maxGifHeight = 256;
     	    // fall through
     	case 1:
-			// current version (SHELL_VERSION = 0),
+    		skinName = "Standard";
+    		// fall through
+    	case 2:
+			// current version (SHELL_VERSION = 2),
 			// so nothing to do here since everything
 			// was initialized from the state file.
     		;
@@ -704,6 +758,7 @@ public class Free42Activity extends Activity {
     		state_write_boolean(printToTxt);
     		state_write_string(printToTxtFileName);
     		state_write_int(maxGifHeight);
+    		state_write_string(skinName);
     	} catch (IllegalArgumentException e) {}
     }
     
