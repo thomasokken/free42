@@ -26,10 +26,15 @@
 #include "core_display.h"
 
 
-/*
+#define GLUE_DEBUG 0
+
+#if GLUE_DEBUG
 static int level = 0;
 void shell_logprintf(const char *format, ...);
+#endif
+
 class Tracer {
+#if GLUE_DEBUG
     private:
 	const char *name;
     public:
@@ -46,8 +51,11 @@ class Tracer {
 		shell_logprintf("  ");
 	    shell_logprintf("EXITING  %s\n", name);
 	}
+#else
+    public:
+	Tracer(const char *) {}
+#endif
 };
-*/
 
 
 /**********************************************/
@@ -97,6 +105,7 @@ Java_com_thomasokken_free42_Free42Activity_FREE42_1RELEASE(JNIEnv *env, jobject 
 
 extern "C" jboolean
 Java_com_thomasokken_free42_Free42Activity_core_1is_1audio_1enabled(JNIEnv *env, jobject thiz) {
+    Tracer T("core_is_audio_enabled");
     return flags.f.audio_enable;
 }
 
@@ -111,6 +120,7 @@ static bool finish_flag = false;
 
 extern "C" void
 Java_com_thomasokken_free42_Free42Activity_core_1keydown_1finish(JNIEnv *env, jobject thiz) {
+    Tracer T("core_keydown_finish");
     finish_flag = true;
 }
 
@@ -121,44 +131,44 @@ Java_com_thomasokken_free42_Free42Activity_core_1keydown_1finish(JNIEnv *env, jo
 
 extern "C" void
 Java_com_thomasokken_free42_Free42Activity_core_1init(JNIEnv *env, jobject thiz, jint read_state, jint version) {
-    //Tracer T("core_init");
+    Tracer T("core_init");
     core_init(read_state, version);
 }
 
 extern "C" void
 Java_com_thomasokken_free42_Free42Activity_core_1quit(JNIEnv *env, jobject thiz) {
-    //Tracer T("core_quit");
+    Tracer T("core_quit");
     core_quit();
 }
 
 extern "C" void
 Java_com_thomasokken_free42_Free42Activity_core_1repaint_1display(JNIEnv *env, jobject thiz) {
-    //Tracer T("core_repaint_display");
+    Tracer T("core_repaint_display");
     core_repaint_display();
 }
 
 extern "C" jboolean
 Java_com_thomasokken_free42_Free42Activity_core_1menu(JNIEnv *env, jobject thiz) {
-    //Tracer T("core_menu");
+    Tracer T("core_menu");
     return core_menu();
 }
 
 extern "C" jboolean
 Java_com_thomasokken_free42_Free42Activity_core_1alpha_1menu(JNIEnv *env, jobject thiz) {
-    //Tracer T("core_alpha_menu");
+    Tracer T("core_alpha_menu");
     return core_alpha_menu();
 }
 
 extern "C" jboolean
 Java_com_thomasokken_free42_Free42Activity_core_1hex_1menu(JNIEnv *env, jobject thiz) {
-    //Tracer T("core_hex_menu");
+    Tracer T("core_hex_menu");
     return core_hex_menu();
 }
 
 extern "C" jboolean
 Java_com_thomasokken_free42_Free42Activity_core_1keydown(JNIEnv *env, jobject thiz,
 			    jint key, jobject enqueued, jobject repeat, jboolean immediate_return) {
-    //Tracer T("core_keydown");
+    Tracer T("core_keydown");
     finish_flag = immediate_return;
     int enq, rep;
     jboolean ret;
@@ -176,43 +186,43 @@ Java_com_thomasokken_free42_Free42Activity_core_1keydown(JNIEnv *env, jobject th
 
 extern "C" jint
 Java_com_thomasokken_free42_Free42Activity_core_1repeat(JNIEnv *env, jobject thiz) {
-    //Tracer T("core_repeat");
+    Tracer T("core_repeat");
     return core_repeat();
 }
 
 extern "C" void
 Java_com_thomasokken_free42_Free42Activity_core_1keytimeout1(JNIEnv *env, jobject thiz) {
-    //Tracer T("core_keytimeout1");
+    Tracer T("core_keytimeout1");
     core_keytimeout1();
 }
 
 extern "C" void
 Java_com_thomasokken_free42_Free42Activity_core_1keytimeout2(JNIEnv *env, jobject thiz) {
-    //Tracer T("core_keytimeout2");
+    Tracer T("core_keytimeout2");
     core_keytimeout2();
 }
 
 extern "C" jboolean
 Java_com_thomasokken_free42_Free42Activity_core_1timeout3(JNIEnv *env, jobject thiz, jint repaint) {
-    //Tracer T("core_timeout3");
+    Tracer T("core_timeout3");
     return core_timeout3(repaint);
 }
 
 extern "C" jboolean
 Java_com_thomasokken_free42_Free42Activity_core_1keyup(JNIEnv *env, jobject thiz) {
-    //Tracer T("core_keyup");
+    Tracer T("core_keyup");
     return core_keyup();
 }
 
 extern "C" jboolean
 Java_com_thomasokken_free42_Free42Activity_core_1powercycle(JNIEnv *env, jobject thiz) {
-    //Tracer T("core_powercycle");
+    Tracer T("core_powercycle");
     return core_powercycle();
 }
 
 extern "C" jint
 Java_com_thomasokken_free42_Free42Activity_core_1list_1programs(JNIEnv *env, jarray thiz, jbyteArray buf) {
-    //Tracer T("core_list_programs");
+    Tracer T("core_list_programs");
     int bufsize = env->GetArrayLength(buf);
     char *cbuf = (char *) malloc(bufsize);
     int ret = core_list_programs(cbuf, bufsize);
@@ -223,13 +233,13 @@ Java_com_thomasokken_free42_Free42Activity_core_1list_1programs(JNIEnv *env, jar
 
 extern "C" jint
 Java_com_thomasokken_free42_Free42Activity_core_1program_1size(JNIEnv *env, jobject thiz, jint prgm_index) {
-    //Tracer T("core_program_size");
+    Tracer T("core_program_size");
     return core_program_size(prgm_index);
 }
 
 extern "C" jboolean
 Java_com_thomasokken_free42_Free42Activity_core_1export_1programs(JNIEnv *env, jobject thiz, jintArray indexes) {
-    //Tracer T("core_export_programs");
+    Tracer T("core_export_programs");
     int count = env->GetArrayLength(indexes);
     int *indexes2 = (int *) malloc(count * sizeof(int));
     env->GetIntArrayRegion(indexes, 0, count, indexes2);
@@ -240,13 +250,13 @@ Java_com_thomasokken_free42_Free42Activity_core_1export_1programs(JNIEnv *env, j
 
 extern "C" void
 Java_com_thomasokken_free42_Free42Activity_core_1import_1programs(JNIEnv *env, jobject thiz) {
-    //Tracer T("core_import_programs");
+    Tracer T("core_import_programs");
     core_import_programs(NULL);
 }
 
 extern "C" jstring
 Java_com_thomasokken_free42_Free42Activity_core_1copy(JNIEnv *env, jobject thiz) {
-    //Tracer T("core_copy");
+    Tracer T("core_copy");
     char buf[100];
     core_copy(buf, 100);
     return env->NewStringUTF(buf);
@@ -254,7 +264,7 @@ Java_com_thomasokken_free42_Free42Activity_core_1copy(JNIEnv *env, jobject thiz)
 
 extern "C" void
 Java_com_thomasokken_free42_Free42Activity_core_1paste(JNIEnv *env, jobject thiz, jstring s) {
-    //Tracer T("core_paste");
+    Tracer T("core_paste");
     const char *buf = env->GetStringUTFChars(s, NULL);
     core_paste(buf);
     env->ReleaseStringUTFChars(s, buf);
@@ -262,7 +272,7 @@ Java_com_thomasokken_free42_Free42Activity_core_1paste(JNIEnv *env, jobject thiz
 
 extern "C" void
 Java_com_thomasokken_free42_Free42Activity_getCoreSettings(JNIEnv *env, jobject thiz, jobject settings) {
-    //Tracer T("getCoreSettings");
+    Tracer T("getCoreSettings");
     jclass klass = env->GetObjectClass(settings);
     jfieldID fid = env->GetFieldID(klass, "matrix_singularmatrix", "Z");
     env->SetBooleanField(settings, fid, core_settings.matrix_singularmatrix);
@@ -288,7 +298,7 @@ Java_com_thomasokken_free42_Free42Activity_getCoreSettings(JNIEnv *env, jobject 
 
 extern "C" void
 Java_com_thomasokken_free42_Free42Activity_putCoreSettings(JNIEnv *env, jobject thiz, jobject settings) {
-    //Tracer T("putCoreSettings");
+    Tracer T("putCoreSettings");
     jclass klass = env->GetObjectClass(settings);
     jfieldID fid = env->GetFieldID(klass, "matrix_singularmatrix", "Z");
     core_settings.matrix_singularmatrix = env->GetBooleanField(settings, fid);
@@ -314,7 +324,7 @@ Java_com_thomasokken_free42_Free42Activity_putCoreSettings(JNIEnv *env, jobject 
 
 extern "C" void
 Java_com_thomasokken_free42_Free42Activity_redisplay(JNIEnv *env, jobject thiz) {
-    //Tracer T("redisplay");
+    Tracer T("redisplay");
     redisplay();
 }
 
@@ -331,6 +341,7 @@ Java_com_thomasokken_free42_Free42Activity_redisplay(JNIEnv *env, jobject thiz) 
 
 void shell_blitter(const char *bits, int bytesperline, int x, int y,
 		         int width, int height) {
+    Tracer T("shell_blitter");
     JNIEnv *env = getJniEnv();
     jclass klass = env->GetObjectClass(g_activity);
     jmethodID mid = env->GetMethodID(klass, "shell_blitter", "([BIIIII)V");
@@ -344,6 +355,7 @@ void shell_blitter(const char *bits, int bytesperline, int x, int y,
 }
 
 void shell_beeper(int frequency, int duration) {
+    Tracer T("shell_beeper");
     JNIEnv *env = getJniEnv();
     jclass klass = env->GetObjectClass(g_activity);
     jmethodID mid = env->GetMethodID(klass, "shell_beeper", "(II)V");
@@ -353,6 +365,7 @@ void shell_beeper(int frequency, int duration) {
 }
 
 void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
+    Tracer T("shell_annunciators");
     JNIEnv *env = getJniEnv();
     jclass klass = env->GetObjectClass(g_activity);
     jmethodID mid = env->GetMethodID(klass, "shell_annunciators", "(IIIIII)V");
@@ -362,10 +375,12 @@ void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
 }
 
 int shell_wants_cpu() {
+    Tracer T("shell_wants_cpu");
     return finish_flag;
 }
 
 void shell_delay(int duration) {
+    Tracer T("shell_delay");
     struct timespec ts;
     ts.tv_sec = duration / 1000;
     ts.tv_nsec = (duration % 1000) * 1000000;
@@ -373,6 +388,7 @@ void shell_delay(int duration) {
 }
 
 void shell_request_timeout3(int delay) {
+    Tracer T("shell_request_timeout3");
     JNIEnv *env = getJniEnv();
     jclass klass = env->GetObjectClass(g_activity);
     jmethodID mid = env->GetMethodID(klass, "shell_request_timeout3", "(I)V");
@@ -382,6 +398,7 @@ void shell_request_timeout3(int delay) {
 }
 
 int shell_read_saved_state(void *buf, int4 bufsize) {
+    Tracer T("shell_read_saved_state");
     JNIEnv *env = getJniEnv();
     jclass klass = env->GetObjectClass(g_activity);
     jmethodID mid = env->GetMethodID(klass, "shell_read_saved_state", "([B)I");
@@ -396,6 +413,7 @@ int shell_read_saved_state(void *buf, int4 bufsize) {
 }
 
 bool shell_write_saved_state(const void *buf, int4 bufsize) {
+    Tracer T("shell_write_saved_state");
     JNIEnv *env = getJniEnv();
     jclass klass = env->GetObjectClass(g_activity);
     jmethodID mid = env->GetMethodID(klass, "shell_write_saved_state", "([B)Z");
@@ -409,6 +427,7 @@ bool shell_write_saved_state(const void *buf, int4 bufsize) {
 }
 
 unsigned int shell_get_mem() {
+    Tracer T("shell_get_mem");
     JNIEnv *env = getJniEnv();
     jclass klass = env->GetObjectClass(g_activity);
     jmethodID mid = env->GetMethodID(klass, "shell_get_mem", "()I");
@@ -419,6 +438,7 @@ unsigned int shell_get_mem() {
 }
 
 int shell_low_battery() {
+    Tracer T("shell_low_battery");
     JNIEnv *env = getJniEnv();
     jclass klass = env->GetObjectClass(g_activity);
     jmethodID mid = env->GetMethodID(klass, "shell_low_battery", "()I");
@@ -429,6 +449,7 @@ int shell_low_battery() {
 }
 
 void shell_powerdown() {
+    Tracer T("shell_powerdown");
     JNIEnv *env = getJniEnv();
     jclass klass = env->GetObjectClass(g_activity);
     jmethodID mid = env->GetMethodID(klass, "shell_powerdown", "()V");
@@ -438,6 +459,7 @@ void shell_powerdown() {
 }
 
 double shell_random_seed() {
+    Tracer T("shell_random_seed");
     JNIEnv *env = getJniEnv();
     jclass klass = env->GetObjectClass(g_activity);
     jmethodID mid = env->GetMethodID(klass, "shell_random_seed", "()D");
@@ -448,6 +470,7 @@ double shell_random_seed() {
 }
 
 uint4 shell_milliseconds() {
+    Tracer T("shell_milliseconds");
     struct timeval tv;
     gettimeofday(&tv, NULL);
     return (uint4) (tv.tv_sec * 1000L + tv.tv_usec / 1000);
@@ -456,6 +479,7 @@ uint4 shell_milliseconds() {
 void shell_print(const char *text, int length,
 		 const char *bits, int bytesperline,
 		 int x, int y, int width, int height) {
+    Tracer T("shell_print");
     JNIEnv *env = getJniEnv();
     jclass klass = env->GetObjectClass(g_activity);
     jmethodID mid = env->GetMethodID(klass, "shell_print", "([B[BIIIII)V");
@@ -472,6 +496,7 @@ void shell_print(const char *text, int length,
 }
 
 int shell_write(const char *buf, int4 bufsize) {
+    Tracer T("shell_write");
     JNIEnv *env = getJniEnv();
     jclass klass = env->GetObjectClass(g_activity);
     jmethodID mid = env->GetMethodID(klass, "shell_write", "([B)I");
@@ -485,6 +510,7 @@ int shell_write(const char *buf, int4 bufsize) {
 }
 
 int shell_read(char *buf, int4 bufsize) {
+    Tracer T("shell_read");
     JNIEnv *env = getJniEnv();
     jclass klass = env->GetObjectClass(g_activity);
     jmethodID mid = env->GetMethodID(klass, "shell_read", "([B)I");
@@ -499,19 +525,23 @@ int shell_read(char *buf, int4 bufsize) {
 }
 
 shell_bcd_table_struct *shell_get_bcd_table() {
+    Tracer T("shell_get_bcd_table");
     return NULL;
 }
 
 shell_bcd_table_struct *shell_put_bcd_table(shell_bcd_table_struct *bcdtab,
 					    uint4 size) {
+    Tracer T("shell_put_bcd_table");
     return bcdtab;
 }
 
 void shell_release_bcd_table(shell_bcd_table_struct *bcdtab) {
+    Tracer T("shell_release_bcd_table");
     free(bcdtab);
 }
 
 int shell_get_acceleration(double *x, double *y, double *z) {
+    Tracer T("shell_get_acceleration");
     JNIEnv *env = getJniEnv();
     jclass klass1 = env->FindClass("com/thomasokken/free42/DoubleHolder");
     jmethodID mid = env->GetMethodID(klass1, "<init>", "()V");
@@ -535,6 +565,7 @@ int shell_get_acceleration(double *x, double *y, double *z) {
 
 int shell_get_location(double *lat, double *lon, double *lat_lon_acc,
 					    double *elev, double *elev_acc) {
+    Tracer T("shell_get_location");
     JNIEnv *env = getJniEnv();
     jclass klass1 = env->FindClass("com/thomasokken/free42/DoubleHolder");
     jmethodID mid = env->GetMethodID(klass1, "<init>", "()V");
@@ -564,6 +595,7 @@ int shell_get_location(double *lat, double *lon, double *lat_lon_acc,
 
 int shell_get_heading(double *mag_heading, double *true_heading, double *acc,
 					    double *x, double *y, double *z) {
+    Tracer T("shell_get_heading");
     JNIEnv *env = getJniEnv();
     jclass klass1 = env->FindClass("com/thomasokken/free42/DoubleHolder");
     jmethodID mid = env->GetMethodID(klass1, "<init>", "()V");
@@ -595,6 +627,7 @@ int shell_get_heading(double *mag_heading, double *true_heading, double *acc,
 }
 
 void shell_get_time_date(uint4 *time, uint4 *date, int *weekday) {
+    Tracer T("shell_get_time_date");
     struct timeval tv;
     gettimeofday(&tv, NULL);
     struct tm tms;
