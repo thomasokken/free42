@@ -35,6 +35,7 @@
              can launch and interact with.  The "name" attribute is the
              name of the class within your package that implements this
              activity. -->
+        <!--<activity android:name="Free42Activity" android:theme="@android:style/Theme.NoTitleBar">-->
         <activity android:name="Free42Activity" android:theme="@android:style/Theme.NoTitleBar" android:screenOrientation="portrait">
 
             <!-- An IntentFilter tells the system when it should use your
