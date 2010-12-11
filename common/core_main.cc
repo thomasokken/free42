@@ -87,6 +87,10 @@ void core_quit() {
 	free(vars);
     clean_vartype_pools();
     phloat_cleanup();
+
+#ifdef ANDROID
+    reinitialize_globals();
+#endif
 }
 
 void core_repaint_display() {

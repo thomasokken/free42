@@ -3009,3 +3009,47 @@ static void convert_bigstack_drop() {
     }
 }
 #endif
+
+#ifdef ANDROID
+void reinitialize_globals() {
+    /* The Android version may call core_init() after core_quit(), in other
+     * words, the globals may live for more than one session. This caused
+     * crashes in the initial builds, because of course global initializers
+     * are only invoked once, and core_quit() did not bother to clean things
+     * up so that core_init() would be able to run safely.
+     * In my defense, this wasn't sloppy coding; core_quit() does deallocate
+     * everything -- I've tested Free42 for memory leaks using POSE many
+     * times, and it is solid in that regard. The dangling pointers left
+     * by core_quit() are never a problem as long as core_init() and
+     * core_quit() are only called once per process.
+     * Anyway: the following are re-initializations of some globals that
+     * could cause double-free() memory corruption, or other (less fatal, but
+     * still annoying) misbehaviors if left as they are.
+     */
+    reg_x = NULL;
+    reg_y = NULL;
+    reg_z = NULL;
+    reg_t = NULL;
+    reg_lastx = NULL;
+    reg_alpha_length = 0;
+    vars_capacity = 0;
+    vars_count = 0;
+    vars = NULL;
+    prgms_capacity = 0;
+    prgms_count = 0;
+    prgms = NULL;
+    labels_capacity = 0;
+    labels_count = 0;
+    labels = NULL;
+    current_prgm = -1;
+    prgm_highlight_row = 0;
+    mode_interruptible = NULL;
+    mode_pause = false;
+    baseapp = 0;
+    deferred_print = 0;
+    keybuf_head = 0;
+    keybuf_tail = 0;
+    remove_program_catalog = 0;
+    rtn_sp = 0;
+}
+#endif

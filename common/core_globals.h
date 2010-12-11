@@ -541,5 +541,8 @@ bool read_arg(arg_struct *arg, bool old) GLOBALS_SECT;
 bool read_phloat(phloat *d) GLOBALS_SECT;
 bool write_phloat(phloat d) GLOBALS_SECT;
 
+#ifdef ANDROID
+void reinitialize_globals();
+#endif
 
 #endif
