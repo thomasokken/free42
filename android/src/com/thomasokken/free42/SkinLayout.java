@@ -453,7 +453,7 @@ public class SkinLayout {
     			boolean bitSet = (bits[(h >> 3) + v * bytesperline] & (1 << (h & 7))) != 0;
     			display_buffer[v * 131 + h] = bitSet ? display_fg : display_bg;
     		}
-    	display.setPixels(display_buffer, 0, 131, x, y, width, height);
+    	display.setPixels(display_buffer, x + 131 * y, 131, x, y, width, height);
     	
     	// Return a Rect telling the caller what part of the View needs to be invalidated
     	return new Rect(display_loc.x + x * display_scale.x,

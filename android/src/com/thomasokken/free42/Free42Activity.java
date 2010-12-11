@@ -1391,6 +1391,6 @@ public class Free42Activity extends Activity {
 	}
 	
 	public void shell_log(String s) {
-		System.err.println(s);
+		System.err.print(s);
 	}
 }
