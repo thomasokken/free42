@@ -973,14 +973,6 @@ public class Free42Activity extends Activity {
     ///// Implementation of core->shell interface /////
     ///////////////////////////////////////////////////
     
-    // TODO: Move shell_read_saved_state(), shell_write_saved_state(),
-    // shell_read(), and shell_write(), from the Java side to the native
-    // side; use buffering on the native side, and only perform large
-    // reads and writes on the Java side. This should cut down massively
-    // on the number of JNI calls during startup, shutdown, import, and
-    // export, respectively. Heck, maybe it'll even fix the "failing
-    // startup" problem -- you never know!
-    
 	/**
 	 * shell_blitter()
 	 *

@@ -8,8 +8,4 @@ likely alternative, a la Y2K.
 Use an UncaughtExceptionHandler so the weirdness doesn't disappear into the
 bit bucket.
 
-App goes kablooey on portrait/landscape switch.
-
-App dies on startup after having been exited using OFF or the BACK key.
-
 Keyboard support!
