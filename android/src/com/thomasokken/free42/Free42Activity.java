@@ -32,6 +32,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -60,7 +61,9 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.SubMenu;
 import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
+import android.widget.TextView;
 
 /**
  * This Activity class contains most of the Free42 'shell' functionality;
@@ -79,6 +82,7 @@ public class Free42Activity extends Activity {
 	private static final int MENU_ID_IMPORT = Menu.FIRST + 5;
 	private static final int MENU_ID_EXPORT = Menu.FIRST + 6;
 	private static final int MENU_ID_SKIN = Menu.FIRST + 7;
+	private static final int MENU_ID_ABOUT = Menu.FIRST + 8;
 
     private static final int SHELL_VERSION = 2;
     
@@ -252,6 +256,7 @@ public class Free42Activity extends Activity {
         List<String> externalSkinNames = findExternalSkins();
         for (String skinName : externalSkinNames)
         	skinMenu.add(skinName);
+        menu.add(0, MENU_ID_ABOUT, 0, "About Free42");
         menu.getItem(0).setIcon(R.drawable.copy);
         menu.getItem(1).setIcon(R.drawable.paste);
         menu.getItem(2).setIcon(android.R.drawable.ic_menu_preferences);
@@ -304,6 +309,9 @@ public class Free42Activity extends Activity {
         case MENU_ID_EXPORT:
         	doExport();
             return true;
+        case MENU_ID_ABOUT:
+        	doAbout();
+        	return true;
         case Menu.NONE:
         	doSelectSkin(item.getTitle().toString());
         	return true;
@@ -393,6 +401,34 @@ public class Free42Activity extends Activity {
     	putCoreSettings(cs);
     }
     
+    private void doAbout() {
+    	new AboutDialog(this).show();
+    }
+    
+    public class AboutDialog extends Dialog {
+    	private AboutView view;
+    	
+    	public AboutDialog(Context context) {
+    		super(context);
+    		view = new AboutView(context);
+    		setContentView(view);
+    		this.setTitle("Preferences");
+    	}
+    	
+    	private class AboutView extends RelativeLayout {
+    		public AboutView(Context context) {
+    			super(context);
+    			
+    			TextView label = new TextView(context);
+    			label.setText("Free42 " + FREE42_RELEASE());
+    			//LayoutParams lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+    			//lp.addRule(RelativeLayout.BELOW, printToGifFileNameTF.getId());
+    			//addView(label, lp);
+    			addView(label);
+
+    		}
+    	}
+    }
     /**
      * This class is calculator view used by the Free42 Activity.
      * Note that most of the heavy lifting takes place in the

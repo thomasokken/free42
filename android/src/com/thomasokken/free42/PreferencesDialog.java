@@ -62,8 +62,6 @@ public class PreferencesDialog extends Dialog {
 			RelativeLayout rl = new RelativeLayout(context);
 			addView(rl);
 			
-			// TODO: Skin selector
-			
 			singularMatrixCB = new CheckBox(context);
 			singularMatrixCB.setId(1);
 			singularMatrixCB.setText("Singular Matrix Error");
