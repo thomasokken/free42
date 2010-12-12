@@ -13,3 +13,12 @@ Keyboard support!
 Scan not only /sdcard/Free42 but also /sdcard/free42 while looking for skins
 (or any other activity, for that matter) -- just to avoid problems with OSes
 that have different ideas about FAT32 case handling or whatever.
+
+Print-out performance: Is it faster to invalidate before scrolling instead of
+after? Seems like it might be. Another option to consider is calling
+invalidate() (*not* postInvalidate()) from the Runnable. No sense in over-
+thinking this, I guess; time for some actual experimentation and measurements.
+
+Macro execution: Shouldn't the display be re-enabled *before* the last
+keystroke? Or, alternatively, should I force a full repaint after a macro
+finishes? How did I handle this in the other versions?

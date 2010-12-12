@@ -61,6 +61,8 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.SubMenu;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -412,19 +414,62 @@ public class Free42Activity extends Activity {
     		super(context);
     		view = new AboutView(context);
     		setContentView(view);
-    		this.setTitle("Preferences");
+    		this.setTitle("About Free42");
     	}
     	
     	private class AboutView extends RelativeLayout {
     		public AboutView(Context context) {
     			super(context);
     			
-    			TextView label = new TextView(context);
-    			label.setText("Free42 " + FREE42_RELEASE());
-    			//LayoutParams lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-    			//lp.addRule(RelativeLayout.BELOW, printToGifFileNameTF.getId());
-    			//addView(label, lp);
-    			addView(label);
+    			ImageView icon = new ImageView(context);
+    			icon.setId(1);
+    			icon.setImageResource(R.drawable.icon);
+    			addView(icon);
+    			
+    			TextView label1 = new TextView(context);
+    			label1.setId(2);
+    			label1.setText("Free42 " + FREE42_RELEASE());
+    			LayoutParams lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+    			lp.addRule(RelativeLayout.ALIGN_TOP, icon.getId());
+    			lp.addRule(RelativeLayout.RIGHT_OF, icon.getId());
+    			addView(label1, lp);
+
+    			TextView label2 = new TextView(context);
+    			label2.setId(3);
+    			label2.setText("(C) 2004-2010 Thomas Okken");
+    			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+    			lp.addRule(RelativeLayout.ALIGN_LEFT, label1.getId());
+    			lp.addRule(RelativeLayout.BELOW, label1.getId());
+    			addView(label2, lp);
+
+    			TextView label3 = new TextView(context);
+    			label3.setId(4);
+    			label3.setText("thomas_okken@yahoo.com");
+    			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+    			lp.addRule(RelativeLayout.ALIGN_LEFT, label2.getId());
+    			lp.addRule(RelativeLayout.BELOW, label2.getId());
+    			addView(label3, lp);
+
+    			TextView label4 = new TextView(context);
+    			label4.setId(5);
+    			label4.setText("http://thomasokken.com/free42/");
+    			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+    			lp.addRule(RelativeLayout.ALIGN_LEFT, label3.getId());
+    			lp.addRule(RelativeLayout.BELOW, label3.getId());
+    			addView(label4, lp);
+
+    			Button okB = new Button(context);
+    			okB.setId(6);
+    			okB.setText("OK");
+    			okB.setOnClickListener(new OnClickListener() {
+    				public void onClick(View view) {
+    					AboutDialog.this.hide();
+    				}
+    			});
+    			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+    			lp.addRule(RelativeLayout.BELOW, label4.getId());
+    			lp.addRule(RelativeLayout.CENTER_HORIZONTAL);
+    			addView(okB, lp);
 
     		}
     	}
@@ -497,10 +542,6 @@ public class Free42Activity extends Activity {
 							core_keyup();
 					}
 					running = core_keydown(macro[macro.length - 1] & 255, enqueued, repeat, true);
-					// TODO: Shouldn't the display be re-enabled *before* the last
-					// keystroke? Or, alternatively, should I force a full repaint
-					// after a macro finishes? How did I handle this in the other
-					// versions?
 					if (!one_key_macro)
 						skin.set_display_enabled(true);
 		        }
@@ -654,10 +695,6 @@ public class Free42Activity extends Activity {
     				tmpArray[y * src_width + x] = set ? Color.BLACK : Color.WHITE;
     			}
     		}
-    		// TODO: You don't actually need a bitmap; Canvas has drawBitmap() methods
-    		// that draw straight from an int[]. That may save a copy operation, which
-    		// would help, speed-wise, and, if nothing else, would make the code a bit
-    		// simpler without hurting performance.
     		tmpBitmap.copyPixelsFromBuffer(tmpBuffer);
     		canvas.drawBitmap(tmpBitmap, new Rect(0, 0, src_width, src_height), clip, new Paint());
     	}
@@ -700,11 +737,6 @@ public class Free42Activity extends Activity {
 					}
 				});
 			} else {
-				// TODO: Is it faster to invalidate before scrolling instead of
-				// after? Seems like it might be. Another option to consider is
-				// calling invalidate() (*not* postInvalidate()) from the Runnable.
-				// No sense in over-thinking this, I guess; time for some
-				// actual experimentation and measurements.
 				mainHandler.post(new Runnable() {
 					public void run() {
 			    		printScrollView.fullScroll(View.FOCUS_DOWN);
