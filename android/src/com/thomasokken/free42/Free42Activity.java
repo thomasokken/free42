@@ -82,6 +82,8 @@ public class Free42Activity extends Activity {
 
     private static final int SHELL_VERSION = 2;
     
+    private static final int PRINT_BACKGROUND_COLOR = Color.LTGRAY;
+    
     static {
     	System.loadLibrary("free42");
     }
@@ -133,7 +135,7 @@ public class Free42Activity extends Activity {
         setContentView(calcView);
         printView = new PrintView(this);
         printScrollView = new ScrollView(this);
-        printScrollView.setBackgroundColor(Color.LTGRAY);
+        printScrollView.setBackgroundColor(PRINT_BACKGROUND_COLOR);
         printScrollView.addView(printView);
         
     	int init_mode;
@@ -565,12 +567,29 @@ public class Free42Activity extends Activity {
 
     	@Override
     	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-    		setMeasuredDimension(286, printHeight * 2);
+    		// Pretending our height is never zero, to keep the HTC Aria
+    		// from throwing a fit. See also the printHeight == 0 case in
+    		// onDraw().
+    		setMeasuredDimension(286, Math.max(printHeight, 1) * 2);
     	}
 
     	@Override
     	protected void onDraw(Canvas canvas) {
     		Rect clip = canvas.getClipBounds();
+    		
+    		if (printHeight == 0) {
+    			// onMeasure() pretends that our height isn't really zero
+    			// even if printHeight == 0; this is to prevent the HTC Aria
+    			// from freaking out. Because of this pretense, we now have
+    			// to paint something, even though there isn't anything to
+    			// paint... So we just paint the clip rectangle using the
+    			// scroll view's background color.
+    			Paint p = new Paint();
+    			p.setColor(PRINT_BACKGROUND_COLOR);
+    			p.setStyle(Paint.Style.FILL);
+    			canvas.drawRect(clip, p);
+    			return;
+    		}
     		
     		// Extend the clip rectangle so that it doesn't include any half
     		// or quarter pixels
