@@ -9,3 +9,7 @@ Use an UncaughtExceptionHandler so the weirdness doesn't disappear into the
 bit bucket.
 
 Keyboard support!
+
+Scan not only /sdcard/Free42 but also /sdcard/free42 while looking for skins
+(or any other activity, for that matter) -- just to avoid problems with OSes
+that have different ideas about FAT32 case handling or whatever.
