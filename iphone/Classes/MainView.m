@@ -1101,7 +1101,7 @@ static double hdg_mag = 0, hdg_true = 0, hdg_acc = 0, hdg_x = 0, hdg_y = 0, hdg_
 }
 
 - (BOOL)locationManagerShouldDisplayHeadingCalibration:(CLLocationManager *)manager {
-	return NO;
+	return YES;
 }
 
 @end
