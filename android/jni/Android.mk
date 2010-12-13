@@ -24,8 +24,8 @@ include $(CLEAR_VARS)
 # to LOCAL_SRC_FILES, and add -DBCD_MATH to LOCAL_CPPFLAGS.
 
 LOCAL_MODULE    := free42
-LOCAL_SRC_FILES := free42glue.cc core_commands1.cc core_commands2.cc core_commands3.cc core_commands4.cc core_commands5.cc core_commands6.cc core_commands7.cc core_display.cc core_globals.cc core_helpers.cc core_keydown.cc core_linalg1.cc core_linalg2.cc core_main.cc core_math1.cc core_math2.cc core_phloat.cc core_sto_rcl.cc core_tables.cc core_variables.cc shell_spool.cc
+LOCAL_SRC_FILES := free42glue.cc bcd.cc bcdfloat.cc bcdfloat2.cc bcdmath.cc core_commands1.cc core_commands2.cc core_commands3.cc core_commands4.cc core_commands5.cc core_commands6.cc core_commands7.cc core_display.cc core_globals.cc core_helpers.cc core_keydown.cc core_linalg1.cc core_linalg2.cc core_main.cc core_math1.cc core_math2.cc core_phloat.cc core_sto_rcl.cc core_tables.cc core_variables.cc shell_spool.cc
 LOCAL_CPP_EXTENSION := .cc
-LOCAL_CPPFLAGS := -DANDROID -DVERSION=$(VERSION) -DNO_SINCOS -Wall -fno-exceptions -fno-rtti -fsigned-char -g
+LOCAL_CPPFLAGS := -DBCD_MATH -DANDROID -DVERSION=$(VERSION) -DNO_SINCOS -Wall -fno-exceptions -fno-rtti -fsigned-char -g
 
 include $(BUILD_SHARED_LIBRARY)
