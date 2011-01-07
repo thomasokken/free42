@@ -19,6 +19,7 @@ package com.thomasokken.free42;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -93,6 +94,8 @@ public class Free42Activity extends Activity {
     static {
     	System.loadLibrary("free42");
     }
+    
+    private static boolean brokenMediaPlayer = false;
 
     private CalcView calcView;
     private SkinLayout skin;
@@ -992,14 +995,63 @@ public class Free42Activity extends Activity {
 	}
 	
 	private void click() {
-		if (core_is_audio_enabled()) {
-			MediaPlayer mp = MediaPlayer.create(this, R.raw.click);
-			mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-				public void onCompletion(MediaPlayer player) {
-					player.release();
+		if (core_is_audio_enabled())
+			playSound(11, R.raw.click, 0);
+	}
+	
+	private void playSound(int index, int id, int duration) {
+		if (!brokenMediaPlayer) {
+			try {
+				MediaPlayer mp = MediaPlayer.create(this, id);
+				mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+					public void onCompletion(MediaPlayer player) {
+						player.release();
+					}
+				});
+				mp.start();
+			} catch (Exception e) {
+				// Happens on Archos 5
+				brokenMediaPlayer = true;
+			}
+		}
+		if (brokenMediaPlayer) {
+			String fileName = "/sdcard/tmp.free42sound." + index;
+			if (!new File(fileName).exists()) {
+				InputStream is = null;
+				OutputStream os = null;
+				try {
+					is = getResources().openRawResource(id);
+					os = new FileOutputStream(fileName);
+					byte[] buf = new byte[1024];
+					int n;
+					while ((n = is.read(buf)) != -1)
+						os.write(buf, 0, n);
+				} catch (IOException e) {
+					// It wasn't meant to be. Give up.
+					new File(fileName).delete();
+					return;
+				} finally {
+					if (is != null)
+						try {
+							is.close();
+						} catch (IOException e) {}
+					if (os != null)
+						try {
+							os.close();
+						} catch (IOException e) {}
 				}
-			});
-			mp.start();
+			}
+			try {
+				MediaPlayer mp = new MediaPlayer();
+				mp.setDataSource(fileName);
+				mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+					public void onCompletion(MediaPlayer player) {
+						player.release();
+					}
+				});
+				mp.prepare();
+				mp.start();
+			} catch (IOException e) {}
 		}
 	}
 	
@@ -1104,13 +1156,7 @@ public class Free42Activity extends Activity {
 				break;
 			}
 		}
-		MediaPlayer mp = MediaPlayer.create(this, sound_ids[sound_number]);
-		mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-			public void onCompletion(MediaPlayer player) {
-				player.release();
-			}
-		});
-		mp.start();
+		playSound(sound_number, sound_ids[sound_number], sound_number == 10 ? 125 : 250);
 		try {
 			Thread.sleep(sound_number == 10 ? 125 : 250);
 		} catch (InterruptedException e) {}

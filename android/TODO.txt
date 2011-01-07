@@ -22,3 +22,9 @@ thinking this, I guess; time for some actual experimentation and measurements.
 Macro execution: Shouldn't the display be re-enabled *before* the last
 keystroke? Or, alternatively, should I force a full repaint after a macro
 finishes? How did I handle this in the other versions?
+
+On the Archos 5, the display bitmap is rendered blurry. You'd think that
+Paint.setAntiAlias(false) and Paint.setFilterBitmap(false) would fix that, but
+they don't. It looks like I'll have to create a full-resolution off-screen
+bitmap and then blit that, like on the iPhone. Yuk.
+This affects the print-out window, too. More yuk.
