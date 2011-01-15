@@ -162,7 +162,7 @@ If you don't fully understand the above, it is best to play safe and use
 Free42 Decimal.
 
 
-Free42 is (C) 2004-2010, by Thomas Okken
+Free42 is (C) 2004-2011, by Thomas Okken
 BCD support (C) 2005-2009, by Hugh Steers / voidware
 Contact the author at thomas_okken@yahoo.com
 Look for updates, and versions for other operating systems, at
