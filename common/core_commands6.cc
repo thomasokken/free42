@@ -283,11 +283,7 @@ static int mappable_asin_r(phloat x, phloat *y) {
 static int mappable_asin_c(phloat xre, phloat xim, phloat *yre, phloat *yim)
 								COMMANDS6_SECT;
 static int mappable_asin_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
-    phloat tre, tim;
-    int err = math_asinh_acosh(-xim, xre, &tre, &tim, 1);
-    *yre = tim;
-    *yim = -tre;
-    return err;
+    return math_asinh_acosh(xim, xre, yim, yre, 1);
 }
 
 int docmd_asin(arg_struct *arg) {
