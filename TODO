@@ -1,5 +1,5 @@
 Android version: the auto-repeat code appears to be broken; it causes lots of
-spurious keystrokes. This is easily reproducable even in the simulator.
+spurious keystrokes. This is easily reproducible even in the simulator.
 
 Windows version: the "Calculator Key" option should probably set
 \HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\AppKey\18\ShellExecute,
@@ -11,9 +11,6 @@ the Free42 mapping!
 Another Windows "Calculator Key" issue: it doesn't seem to work in multi-
 language installs. Some other registry key overriding the obvious one, it
 seems.
-
-iPhone version: change app id back to com.yourcompany.* (it's currently
-okkosoft.* so that I can use the SAFE profiles).
 
 Pocket PC version: add options to hide the title and menu bars.
 
