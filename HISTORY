@@ -1,4 +1,4 @@
-09-03-2011: release 1.4.67
+13-03-2011: release 1.4.67
 
 * ASIN returned incorrect results for large complex arguments. Fixed.
 * iPhone version: added support for 640x920 skins.
