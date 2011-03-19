@@ -62,67 +62,99 @@ public class PreferencesDialog extends Dialog {
 			RelativeLayout rl = new RelativeLayout(context);
 			addView(rl);
 			
+			int id = 1;
+			
 			singularMatrixCB = new CheckBox(context);
-			singularMatrixCB.setId(1);
+			singularMatrixCB.setId(id++);
 			singularMatrixCB.setText("Singular Matrix Error");
 			rl.addView(singularMatrixCB);
 			
 			matrixOutOfRangeCB = new CheckBox(context);
-			matrixOutOfRangeCB.setId(2);
+			matrixOutOfRangeCB.setId(id++);
 			matrixOutOfRangeCB.setText("Matrix Out Of Range");
 			RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 			lp.addRule(RelativeLayout.BELOW, singularMatrixCB.getId());
 			rl.addView(matrixOutOfRangeCB, lp);
 			
 			autoRepeatCB = new CheckBox(context);
-			autoRepeatCB.setId(3);
+			autoRepeatCB.setId(id++);
 			autoRepeatCB.setText("Auto-Repeat");
 			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 			lp.addRule(RelativeLayout.BELOW, matrixOutOfRangeCB.getId());
 			rl.addView(autoRepeatCB, lp);
 			
 			printToTextCB = new CheckBox(context);
-			printToTextCB.setId(4);
+			printToTextCB.setId(id++);
 			printToTextCB.setText("Print to Text:");
 			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 			lp.addRule(RelativeLayout.BELOW, autoRepeatCB.getId());
 			rl.addView(printToTextCB, lp);
 			
-			printToTextFileNameTF = new EditText(context);
-			printToTextFileNameTF.setId(5);
-			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			Button browseTextB = new Button(context);
+			browseTextB.setId(id++);
+			browseTextB.setText("...");
+			browseTextB.setOnClickListener(new OnClickListener() {
+				public void onClick(View view) {
+					browseTextFileName(view.getContext());
+				}
+			});
+			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 			lp.addRule(RelativeLayout.BELOW, printToTextCB.getId());
+			lp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+			rl.addView(browseTextB, lp);
+			
+			printToTextFileNameTF = new EditText(context);
+			printToTextFileNameTF.setId(id++);
+			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			lp.addRule(RelativeLayout.BELOW, printToTextCB.getId());
+			lp.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+			lp.addRule(RelativeLayout.LEFT_OF, browseTextB.getId());
 			rl.addView(printToTextFileNameTF, lp);
 			
 			rawTextCB = new CheckBox(context);
-			rawTextCB.setId(6);
+			rawTextCB.setId(id++);
 			rawTextCB.setText("Raw Text");
 			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 			lp.addRule(RelativeLayout.BELOW, printToTextFileNameTF.getId());
 			rl.addView(rawTextCB, lp);
 			
 			printToGifCB = new CheckBox(context);
-			printToGifCB.setId(7);
+			printToGifCB.setId(id++);
 			printToGifCB.setText("Print to GIF:");
 			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 			lp.addRule(RelativeLayout.BELOW, rawTextCB.getId());
 			rl.addView(printToGifCB, lp);
 			
-			printToGifFileNameTF = new EditText(context);
-			printToGifFileNameTF.setId(8);
-			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			Button browseGifB = new Button(context);
+			browseGifB.setId(id++);
+			browseGifB.setText("...");
+			browseGifB.setOnClickListener(new OnClickListener() {
+				public void onClick(View view) {
+					browseGifFileName(view.getContext());
+				}
+			});
+			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 			lp.addRule(RelativeLayout.BELOW, printToGifCB.getId());
+			lp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+			rl.addView(browseGifB, lp);
+			
+			printToGifFileNameTF = new EditText(context);
+			printToGifFileNameTF.setId(id++);
+			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			lp.addRule(RelativeLayout.BELOW, printToGifCB.getId());
+			lp.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+			lp.addRule(RelativeLayout.LEFT_OF, browseGifB.getId());
 			rl.addView(printToGifFileNameTF, lp);
 			
 			TextView label = new TextView(context);
-			label.setId(9);
+			label.setId(id++);
 			label.setText("Max. GIF Height:");
 			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 			lp.addRule(RelativeLayout.BELOW, printToGifFileNameTF.getId());
 			rl.addView(label, lp);
 
 			maxGifHeightTF = new EditText(context);
-			maxGifHeightTF.setId(10);
+			maxGifHeightTF.setId(id++);
 			maxGifHeightTF.setText("t");
 			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 			lp.addRule(RelativeLayout.BELOW, printToGifFileNameTF.getId());
@@ -130,7 +162,7 @@ public class PreferencesDialog extends Dialog {
 			rl.addView(maxGifHeightTF, lp);
 			
 			Button okB = new Button(context);
-			okB.setId(11);
+			okB.setId(id++);
 			okB.setText("OK");
 			okB.setOnClickListener(new OnClickListener() {
 				public void onClick(View view) {
@@ -144,7 +176,7 @@ public class PreferencesDialog extends Dialog {
 			rl.addView(okB, lp);
 
 			Button cancelB = new Button(context);
-			cancelB.setId(12);
+			cancelB.setId(id++);
 			cancelB.setText("Cancel");
 			cancelB.setOnClickListener(new OnClickListener() {
 				public void onClick(View view) {
@@ -156,6 +188,28 @@ public class PreferencesDialog extends Dialog {
 			lp.addRule(RelativeLayout.RIGHT_OF, okB.getId());
 			rl.addView(cancelB, lp);
 		}
+	}
+	
+	private void browseTextFileName(Context context) {
+		FileSelectionDialog fsd = new FileSelectionDialog(context, new String[] { "txt", "*" });
+		fsd.setPath(printToTextFileNameTF.getText().toString());
+		fsd.setOkListener(new FileSelectionDialog.OkListener() {
+			public void okPressed(String path) {
+				printToTextFileNameTF.setText(path);
+			}
+		});
+		fsd.show();
+	}
+	
+	private void browseGifFileName(Context context) {
+		FileSelectionDialog fsd = new FileSelectionDialog(context, new String[] { "gif", "*" });
+		fsd.setPath(printToGifFileNameTF.getText().toString());
+		fsd.setOkListener(new FileSelectionDialog.OkListener() {
+			public void okPressed(String path) {
+				printToGifFileNameTF.setText(path);
+			}
+		});
+		fsd.show();
 	}
 	
 	public void setSingularMatrixError(boolean b) {

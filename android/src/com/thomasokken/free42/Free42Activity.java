@@ -91,6 +91,8 @@ public class Free42Activity extends Activity {
     
     private static final int PRINT_BACKGROUND_COLOR = Color.LTGRAY;
     
+    public static Free42Activity instance;
+    
     static {
     	System.loadLibrary("free42");
     }
@@ -139,6 +141,7 @@ public class Free42Activity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        instance = this;
         mainHandler = new Handler();
         calcView = new CalcView(this);
         setContentView(calcView);
@@ -372,7 +375,7 @@ public class Free42Activity extends Activity {
     		preferencesDialog = new PreferencesDialog(this);
     		preferencesDialog.setOkListener(new PreferencesDialog.OkListener() {
     			public void okPressed() {
-    				doPreferencesDismissed();
+    				doPreferencesOk();
     			}
     		});
     	}
@@ -391,7 +394,7 @@ public class Free42Activity extends Activity {
     	preferencesDialog.show();
     }
     	
-    private void doPreferencesDismissed() {
+    private void doPreferencesOk() {
     	CoreSettings cs = new CoreSettings();
     	getCoreSettings(cs);
     	cs.matrix_singularmatrix = preferencesDialog.getSingularMatrixError();
