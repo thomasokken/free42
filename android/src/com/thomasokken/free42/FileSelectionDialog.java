@@ -9,6 +9,7 @@ import java.util.StringTokenizer;
 import android.app.Dialog;
 import android.content.Context;
 import android.database.DataSetObserver;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Adapter;
@@ -26,7 +27,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 
 public class FileSelectionDialog extends Dialog {
-	private FileSelView view;
+	//private FileSelView view;
 	private Spinner dirListSpinner;
 	private ListView dirView;
 	private Spinner fileTypeSpinner;
@@ -40,8 +41,77 @@ public class FileSelectionDialog extends Dialog {
 	
 	public FileSelectionDialog(Context ctx, String[] types) {
 		super(ctx);
-		view = new FileSelView(ctx, types);
-		setContentView(view);
+		setContentView(R.layout.file_selection_dialog);
+		dirListSpinner = (Spinner) findViewById(R.id.dirListSpinner);
+		dirListSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+			public void onItemSelected(AdapterView<?> view, View parent, int position, long id) {
+				Adapter a = view.getAdapter();
+				if (position == a.getCount() - 1)
+					return;
+				StringBuffer pathBuf = new StringBuffer("/");
+				for (int i = 1; i <= position; i++) {
+					pathBuf.append(a.getItem(i));
+					pathBuf.append("/");
+				}
+				setPath(pathBuf.toString());
+			}
+			public void onNothingSelected(AdapterView<?> arg0) {
+				// Shouldn't happen
+			}
+		});
+		fileTypeSpinner = (Spinner) findViewById(R.id.fileTypeSpinner);
+		ArrayAdapter<String> aa = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, types);
+		fileTypeSpinner.setAdapter(aa);
+		fileTypeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+			public void onItemSelected(AdapterView<?> view, View parent, int position, long id) {
+				String type = (String) view.getAdapter().getItem(position);
+				if (type.equals("*"))
+					type = null;
+				DirListAdapter dla = (DirListAdapter) dirView.getAdapter();
+				if (dla != null)
+					dla.setType(type);
+			}
+			public void onNothingSelected(AdapterView<?> arg0) {
+				// Shouldn't happen
+			}
+		});
+		fileNameTF = (EditText) findViewById(R.id.fileNameTF);
+		upButton = (Button) findViewById(R.id.upButton);
+		upButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View view) {
+				doUp();
+			}
+		});
+		mkdirButton = (Button) findViewById(R.id.mkdirButton);
+		mkdirButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View view) {
+				doMkDir();
+			}
+		});
+		okButton = (Button) findViewById(R.id.okButton);
+		okButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View view) {
+				if (okListener != null)
+					okListener.okPressed(currentPath + fileNameTF.getText().toString());
+				FileSelectionDialog.this.dismiss();
+			}
+		});
+		cancelButton = (Button) findViewById(R.id.cancelButton);
+		cancelButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View view) {
+				FileSelectionDialog.this.dismiss();
+			}
+		});
+		dirView = (ListView) findViewById(R.id.dirView);
+		dirView.setOnItemClickListener(new OnItemClickListener() {
+			public void onItemClick(AdapterView<?> view, View parent, int position, long id) {
+				File item = (File) view.getAdapter().getItem(position);
+				if (item.isDirectory())
+					setPath(item.getAbsolutePath());
+				else
+					fileNameTF.setText(item.getName());
+			}
+		});
 		setTitle("Select File");
 		setPath("/");
 	}
@@ -104,143 +174,12 @@ public class FileSelectionDialog extends Dialog {
 	}
 	
 	private void doMkDir() {
-		// TODO
-	}
-	
-	private class FileSelView extends RelativeLayout {
-		public FileSelView(Context ctx, String[] types) {
-			super(ctx);
-			
-			int id = 1;
-			
-			dirListSpinner = new Spinner(ctx);
-			dirListSpinner.setId(id++);
-			dirListSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
-				public void onItemSelected(AdapterView<?> view, View parent, int position, long id) {
-					Adapter a = view.getAdapter();
-					if (position == a.getCount() - 1)
-						return;
-					StringBuffer pathBuf = new StringBuffer("/");
-					for (int i = 1; i <= position; i++) {
-						pathBuf.append(a.getItem(i));
-						pathBuf.append("/");
-					}
-					setPath(pathBuf.toString());
-				}
-				public void onNothingSelected(AdapterView<?> arg0) {
-					// Shouldn't happen
-				}
-			});
-			RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-			lp.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-			lp.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-			addView(dirListSpinner, lp);
-
-			fileTypeSpinner = new Spinner(ctx);
-			fileTypeSpinner.setId(id++);
-			ArrayAdapter<String> aa = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, types);
-			fileTypeSpinner.setAdapter(aa);
-			fileTypeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
-				public void onItemSelected(AdapterView<?> view, View parent, int position, long id) {
-					String type = (String) view.getAdapter().getItem(position);
-					if (type.equals("*"))
-						type = null;
-					DirListAdapter dla = (DirListAdapter) dirView.getAdapter();
-					if (dla != null)
-						dla.setType(type);
-				}
-				public void onNothingSelected(AdapterView<?> arg0) {
-					// Shouldn't happen
-				}
-			});
-			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-			lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-			lp.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-			addView(fileTypeSpinner, lp);
-
-			fileNameTF = new EditText(ctx);
-			fileNameTF.setId(id++);
-			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-			lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-			lp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-			lp.addRule(RelativeLayout.RIGHT_OF, fileTypeSpinner.getId());
-			addView(fileNameTF, lp);
-
-			RelativeLayout buttonBox = new RelativeLayout(ctx);
-			buttonBox.setId(id++);
-			upButton = new Button(ctx);
-			upButton.setId(id++);
-			upButton.setText("Up");
-			upButton.setOnClickListener(new OnClickListener() {
-				public void onClick(View view) {
-					doUp();
-				}
-			});
-			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-			lp.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-			lp.addRule(RelativeLayout.CENTER_HORIZONTAL);
-			buttonBox.addView(upButton, lp);
-			mkdirButton = new Button(ctx);
-			mkdirButton.setId(id++);
-			mkdirButton.setText("MkDir");
-			mkdirButton.setOnClickListener(new OnClickListener() {
-				public void onClick(View view) {
-					doMkDir();
-				}
-			});
-			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-			lp.addRule(RelativeLayout.BELOW, upButton.getId());
-			lp.addRule(RelativeLayout.CENTER_HORIZONTAL);
-			buttonBox.addView(mkdirButton, lp);
-			okButton = new Button(ctx);
-			okButton.setId(id++);
-			okButton.setText("OK");
-			okButton.setOnClickListener(new OnClickListener() {
-				public void onClick(View view) {
-					if (okListener != null)
-						okListener.okPressed(currentPath + fileNameTF.getText().toString());
-					FileSelectionDialog.this.dismiss();
-				}
-			});
-			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-			lp.addRule(RelativeLayout.BELOW, mkdirButton.getId());
-			lp.addRule(RelativeLayout.CENTER_HORIZONTAL);
-			buttonBox.addView(okButton, lp);
-			cancelButton = new Button(ctx);
-			cancelButton.setId(id++);
-			cancelButton.setText("Cancel");
-			cancelButton.setOnClickListener(new OnClickListener() {
-				public void onClick(View view) {
-					FileSelectionDialog.this.dismiss();
-				}
-			});
-			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-			lp.addRule(RelativeLayout.BELOW, okButton.getId());
-			lp.addRule(RelativeLayout.CENTER_HORIZONTAL);
-			buttonBox.addView(cancelButton, lp);
-			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-			lp.addRule(RelativeLayout.BELOW, dirListSpinner.getId());
-			lp.addRule(RelativeLayout.ABOVE, fileTypeSpinner.getId());
-			lp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-			addView(buttonBox, lp);
-
-			dirView = new ListView(ctx);
-			dirView.setId(id++);
-			dirView.setOnItemClickListener(new OnItemClickListener() {
-				public void onItemClick(AdapterView<?> view, View parent, int position, long id) {
-					File item = (File) view.getAdapter().getItem(position);
-					if (item.isDirectory())
-						setPath(item.getAbsolutePath());
-					else
-						fileNameTF.setText(item.getName());
-				}
-			});
-			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-			lp.addRule(RelativeLayout.BELOW, dirListSpinner.getId());
-			lp.addRule(RelativeLayout.ABOVE, fileTypeSpinner.getId());
-			lp.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-			lp.addRule(RelativeLayout.LEFT_OF, buttonBox.getId());
-			addView(dirView, lp);
+		String dirName = fileNameTF.getText().toString();
+		if (dirName != null && dirName.length() > 0) {
+			File newDir = new File(currentPath + dirName);
+			newDir.mkdir();
+			if (newDir.isDirectory())
+				setPath(newDir.getAbsolutePath());
 		}
 	}
 	
@@ -292,31 +231,14 @@ public class FileSelectionDialog extends Dialog {
 			File item = items[position];
 			if (convertView == null) {
 				Context context = parent.getContext();
-				RelativeLayout view = new RelativeLayout(context);
-    			ImageView icon = new ImageView(context);
-    			icon.setId(1);
+				LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				convertView = inflater.inflate(R.layout.file_selection_dialog_row, null);
+    			ImageView icon = (ImageView) convertView.findViewById(R.id.fdrowimage);
     			icon.setImageResource(item.isDirectory() ? R.drawable.folder : R.drawable.document);
-    			RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-    			lp.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-    			lp.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-    			lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-    			view.addView(icon, lp);
-    			TextView text = new TextView(context);
-    			text.setId(2);
-    			text.setText(item.getName());
-    			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-    			lp.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-    			lp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-    			lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-    			lp.addRule(RelativeLayout.RIGHT_OF, icon.getId());
-    			view.addView(text, lp);
-    			return view;
-			} else {
-				RelativeLayout view = (RelativeLayout) convertView;
-				TextView text = (TextView) view.getChildAt(1);
-				text.setText(item.getName());
-				return view;
 			}
+			TextView text = (TextView) convertView.findViewById(R.id.fdrowtext);
+			text.setText(item.getName());
+			return convertView;
 		}
 
 		@Override

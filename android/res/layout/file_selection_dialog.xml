@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<RelativeLayout android:id="@+id/fileSelView"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical" android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+        
+    <Spinner android:id="@+id/dirListSpinner"
+    		android:layout_width="wrap_content" android:layout_height="wrap_content"
+    		android:layout_alignParentTop="true"
+    		android:layout_alignParentLeft="true"/>
+    
+    <Spinner android:id="@+id/fileTypeSpinner"
+    		android:layout_width="wrap_content" android:layout_height="wrap_content"
+    		android:layout_alignParentBottom="true"
+    		android:layout_alignParentLeft="true"/>
+    		
+    <EditText android:id="@+id/fileNameTF"
+    		android:layout_width="wrap_content" android:layout_height="wrap_content"
+    		android:layout_alignParentBottom="true"
+    		android:layout_alignParentRight="true"
+    		android:layout_toRightOf="@+id/fileTypeSpinner"/>
+
+	<LinearLayout android:id="@+id/centerBox"
+    		android:layout_width="wrap_content" android:layout_height="wrap_content"
+    		android:layout_below="@+id/dirListSpinner"
+    		android:layout_above="@+id/fileTypeSpinner"
+    		android:layout_alignParentLeft="true"
+    		android:layout_alignParentRight="true">
+
+	    <ListView android:id="@+id/dirView" android:background="#f00"
+	    		android:layout_width="fill_parent" android:layout_height="fill_parent"
+	    		android:layout_weight="1"/>
+	
+	    <RelativeLayout android:id="@+id/buttonBox" android:background="#0f0"
+	    		android:layout_width="wrap_content" android:layout_height="wrap_content"
+	    		android:gravity="center_vertical"
+	    		android:layout_weight="0">
+	    		
+	    	<Button android:id="@+id/upButton"
+	    			android:text="Up"
+		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		    		android:layout_alignParentTop="true"
+		    		android:layout_centerHorizontal="true"/>
+	    		
+	    	<Button android:id="@+id/mkdirButton"
+	    			android:text="MkDir"
+		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		    		android:layout_below="@+id/upButton"
+		    		android:layout_centerHorizontal="true"/>
+	    		
+	    	<Button android:id="@+id/okButton"
+	    			android:text="OK"
+		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		    		android:layout_below="@+id/mkdirButton"
+		    		android:layout_centerHorizontal="true"/>
+	    		
+	    	<Button android:id="@+id/cancelButton"
+	    			android:text="Cancel"
+		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		    		android:layout_below="@+id/okButton"
+		    		android:layout_centerHorizontal="true"/>
+	    		
+	    </RelativeLayout>
+    
+    </LinearLayout>
+    
+</RelativeLayout>
