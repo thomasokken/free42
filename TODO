@@ -4,6 +4,8 @@ the high-res icon and skins work on the retina display, but the app doesn't
 multi-task. Is it possible to support multitasking while building with an old
 SDK?
 
+iPhone version: the HTTP server interface should provide a way to delete files.
+
 Android version: the auto-repeat code appears to be broken; it causes lots of
 spurious keystrokes. This is easily reproducible even in the simulator.
 
