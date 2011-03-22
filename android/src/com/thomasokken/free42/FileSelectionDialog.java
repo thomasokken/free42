@@ -205,27 +205,22 @@ public class FileSelectionDialog extends Dialog {
 			}
 		}
 
-		@Override
 		public int getCount() {
 			return items.length;
 		}
 
-		@Override
 		public Object getItem(int position) {
 			return items[position];
 		}
 
-		@Override
 		public long getItemId(int position) {
 			return position;
 		}
 
-		@Override
 		public int getItemViewType(int position) {
 			return items[position].isDirectory() ? 0 : 1;
 		}
 
-		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			File item = items[position];
 			if (convertView == null) {
@@ -240,41 +235,34 @@ public class FileSelectionDialog extends Dialog {
 			return convertView;
 		}
 
-		@Override
 		public int getViewTypeCount() {
 			return 2;
 		}
 
-		@Override
 		public boolean hasStableIds() {
 			return true;
 		}
 
-		@Override
 		public boolean isEmpty() {
 			return items.length == 0;
 		}
 
-		@Override
 		public void registerDataSetObserver(DataSetObserver observer) {
 			synchronized (observers) {
 				observers.add(observer);
 			}
 		}
 
-		@Override
 		public void unregisterDataSetObserver(DataSetObserver observer) {
 			synchronized (observers) {
 				observers.add(observer);
 			}
 		}
 
-		@Override
 		public boolean areAllItemsEnabled() {
 			return false;
 		}
 
-		@Override
 		public boolean isEnabled(int position) {
 			File item = items[position];
 			return item.isDirectory() || type == null || item.getName().endsWith("." + type);

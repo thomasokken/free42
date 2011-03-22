@@ -28,12 +28,12 @@
     		android:layout_alignParentRight="true">
 
 	    <ListView android:id="@+id/dirView" android:background="#f00"
-	    		android:layout_width="fill_parent" android:layout_height="fill_parent"
+	    		android:layout_width="0px" android:layout_height="fill_parent"
 	    		android:layout_weight="1"/>
 	
 	    <RelativeLayout android:id="@+id/buttonBox" android:background="#0f0"
 	    		android:layout_width="wrap_content" android:layout_height="wrap_content"
-	    		android:gravity="center_vertical"
+	    		android:layout_gravity="center"
 	    		android:layout_weight="0">
 	    		
 	    	<Button android:id="@+id/upButton"
