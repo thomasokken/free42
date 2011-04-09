@@ -16,21 +16,3 @@
 			android:textSize="23dp"/>
 
 </RelativeLayout>
-
-<!--
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-		android:layout_width="fill_parent" android:layout_height="fill_parent">
-
-	<ImageView android:id="@+id/fdrowimage"
-			android:layout_height="35dp" android:layout_width="wrap_content"
-    		android:layout_weight="0"
-			android:paddingRight="5dp" android:paddingLeft="3dp"/>
-			
-	<TextView android:id="@+id/fdrowtext"
-			android:layout_width="0px" android:layout_height="35dp"
-    		android:layout_weight="1"
-			android:textSize="23dp"/>
-
-</LinearLayout>
--->

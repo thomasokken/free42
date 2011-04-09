@@ -23,12 +23,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.RelativeLayout;
-import android.widget.ScrollView;
-import android.widget.TextView;
 
 public class PreferencesDialog extends Dialog {
-	private PrefsView view;
 	private CheckBox singularMatrixCB;
 	private CheckBox matrixOutOfRangeCB;
 	private CheckBox autoRepeatCB;
@@ -42,9 +38,43 @@ public class PreferencesDialog extends Dialog {
 	
 	public PreferencesDialog(Context context) {
 		super(context);
-		view = new PrefsView(context);
-		setContentView(view);
-		this.setTitle("Preferences");
+		setContentView(R.layout.preferences_dialog);
+		singularMatrixCB = (CheckBox) findViewById(R.id.singularMatrixCB);
+		matrixOutOfRangeCB = (CheckBox) findViewById(R.id.matrixOutOfRangeCB);
+		autoRepeatCB = (CheckBox) findViewById(R.id.autoRepeatCB);
+		printToTextCB = (CheckBox) findViewById(R.id.printToTextCB);
+		Button browseTextB = (Button) findViewById(R.id.browseTextB);
+		browseTextB.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View view) {
+				browseTextFileName(view.getContext());
+			}
+		});
+		printToTextFileNameTF = (EditText) findViewById(R.id.printToTextFileNameTF);
+		rawTextCB = (CheckBox) findViewById(R.id.rawTextCB);
+		printToGifCB = (CheckBox) findViewById(R.id.printToGifCB);
+		Button browseGifB = (Button) findViewById(R.id.browseGifB);
+		browseGifB.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View view) {
+				browseGifFileName(view.getContext());
+			}
+		});
+		printToGifFileNameTF = (EditText) findViewById(R.id.printToGifFileNameTF);
+		maxGifHeightTF = (EditText) findViewById(R.id.maxGifHeightTF);
+		Button okB = (Button) findViewById(R.id.okB);
+		okB.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View view) {
+				if (okListener != null)
+					okListener.okPressed();
+				PreferencesDialog.this.hide();
+			}
+		});
+		Button cancelB = (Button) findViewById(R.id.cancelB);
+		cancelB.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View view) {
+				PreferencesDialog.this.hide();
+			}
+		});
+		setTitle("Preferences");
 	}
 	
 	public interface OkListener {
@@ -53,141 +83,6 @@ public class PreferencesDialog extends Dialog {
 
 	public void setOkListener(OkListener okListener) {
 		this.okListener = okListener;
-	}
-	
-	private class PrefsView extends ScrollView {
-		public PrefsView(Context context) {
-			super(context);
-			
-			RelativeLayout rl = new RelativeLayout(context);
-			addView(rl);
-			
-			int id = 1;
-			
-			singularMatrixCB = new CheckBox(context);
-			singularMatrixCB.setId(id++);
-			singularMatrixCB.setText("Singular Matrix Error");
-			rl.addView(singularMatrixCB);
-			
-			matrixOutOfRangeCB = new CheckBox(context);
-			matrixOutOfRangeCB.setId(id++);
-			matrixOutOfRangeCB.setText("Matrix Out Of Range");
-			RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-			lp.addRule(RelativeLayout.BELOW, singularMatrixCB.getId());
-			rl.addView(matrixOutOfRangeCB, lp);
-			
-			autoRepeatCB = new CheckBox(context);
-			autoRepeatCB.setId(id++);
-			autoRepeatCB.setText("Auto-Repeat");
-			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-			lp.addRule(RelativeLayout.BELOW, matrixOutOfRangeCB.getId());
-			rl.addView(autoRepeatCB, lp);
-			
-			printToTextCB = new CheckBox(context);
-			printToTextCB.setId(id++);
-			printToTextCB.setText("Print to Text:");
-			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-			lp.addRule(RelativeLayout.BELOW, autoRepeatCB.getId());
-			rl.addView(printToTextCB, lp);
-			
-			Button browseTextB = new Button(context);
-			browseTextB.setId(id++);
-			browseTextB.setText("...");
-			browseTextB.setOnClickListener(new OnClickListener() {
-				public void onClick(View view) {
-					browseTextFileName(view.getContext());
-				}
-			});
-			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-			lp.addRule(RelativeLayout.BELOW, printToTextCB.getId());
-			lp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-			rl.addView(browseTextB, lp);
-			
-			printToTextFileNameTF = new EditText(context);
-			printToTextFileNameTF.setId(id++);
-			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-			lp.addRule(RelativeLayout.BELOW, printToTextCB.getId());
-			lp.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-			lp.addRule(RelativeLayout.LEFT_OF, browseTextB.getId());
-			rl.addView(printToTextFileNameTF, lp);
-			
-			rawTextCB = new CheckBox(context);
-			rawTextCB.setId(id++);
-			rawTextCB.setText("Raw Text");
-			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-			lp.addRule(RelativeLayout.BELOW, printToTextFileNameTF.getId());
-			rl.addView(rawTextCB, lp);
-			
-			printToGifCB = new CheckBox(context);
-			printToGifCB.setId(id++);
-			printToGifCB.setText("Print to GIF:");
-			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-			lp.addRule(RelativeLayout.BELOW, rawTextCB.getId());
-			rl.addView(printToGifCB, lp);
-			
-			Button browseGifB = new Button(context);
-			browseGifB.setId(id++);
-			browseGifB.setText("...");
-			browseGifB.setOnClickListener(new OnClickListener() {
-				public void onClick(View view) {
-					browseGifFileName(view.getContext());
-				}
-			});
-			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-			lp.addRule(RelativeLayout.BELOW, printToGifCB.getId());
-			lp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-			rl.addView(browseGifB, lp);
-			
-			printToGifFileNameTF = new EditText(context);
-			printToGifFileNameTF.setId(id++);
-			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-			lp.addRule(RelativeLayout.BELOW, printToGifCB.getId());
-			lp.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-			lp.addRule(RelativeLayout.LEFT_OF, browseGifB.getId());
-			rl.addView(printToGifFileNameTF, lp);
-			
-			TextView label = new TextView(context);
-			label.setId(id++);
-			label.setText("Max. GIF Height:");
-			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-			lp.addRule(RelativeLayout.BELOW, printToGifFileNameTF.getId());
-			rl.addView(label, lp);
-
-			maxGifHeightTF = new EditText(context);
-			maxGifHeightTF.setId(id++);
-			maxGifHeightTF.setText("t");
-			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-			lp.addRule(RelativeLayout.BELOW, printToGifFileNameTF.getId());
-			lp.addRule(RelativeLayout.RIGHT_OF, label.getId());
-			rl.addView(maxGifHeightTF, lp);
-			
-			Button okB = new Button(context);
-			okB.setId(id++);
-			okB.setText("OK");
-			okB.setOnClickListener(new OnClickListener() {
-				public void onClick(View view) {
-					if (okListener != null)
-						okListener.okPressed();
-					PreferencesDialog.this.hide();
-				}
-			});
-			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-			lp.addRule(RelativeLayout.BELOW, maxGifHeightTF.getId());
-			rl.addView(okB, lp);
-
-			Button cancelB = new Button(context);
-			cancelB.setId(id++);
-			cancelB.setText("Cancel");
-			cancelB.setOnClickListener(new OnClickListener() {
-				public void onClick(View view) {
-					PreferencesDialog.this.hide();
-				}
-			});
-			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-			lp.addRule(RelativeLayout.BELOW, maxGifHeightTF.getId());
-			lp.addRule(RelativeLayout.RIGHT_OF, okB.getId());
-			rl.addView(cancelB, lp);
-		}
 	}
 	
 	private void browseTextFileName(Context context) {
