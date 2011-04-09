@@ -201,7 +201,12 @@ static void invrt_completion(int error, vartype *res) {
 }
 
 int docmd_invrt(arg_struct *arg) {
-    return linalg_inv(reg_x, invrt_completion);
+    if (reg_x->type == TYPE_REAL || reg_x->type == TYPE_COMPLEX)
+	return ERR_INVALID_TYPE;
+    else if (reg_x->type == TYPE_STRING)
+	return ERR_ALPHA_DATA_IS_INVALID;
+    else
+	return linalg_inv(reg_x, invrt_completion);
 }
 
 int docmd_j_add(arg_struct *arg) {
