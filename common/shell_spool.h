@@ -18,11 +18,15 @@
 #ifndef SHELL_SPOOL_H
 #define SHELL_SPOOL_H 1
 
+#ifndef ANDROID
+
 #include "free42.h"
 
 typedef void (*file_seeker)(int4 pos);
 typedef void (*file_writer)(const char *text, int length);
 typedef void (*file_newliner)();
+
+#endif
 
 /* hp2ascii()
  *
@@ -32,6 +36,8 @@ typedef void (*file_newliner)();
  * above 130.
  */
 int hp2ascii(char *dst, const char *src, int srclen);
+
+#ifndef ANDROID
 
 /* shell_spool_txt()
  *
@@ -76,5 +82,7 @@ void shell_finish_gif(file_seeker seeker, file_writer writer);
  * Cleans up spooler's private data. Call this just before application exit.
  */
 void shell_spool_exit();
+
+#endif
 
 #endif

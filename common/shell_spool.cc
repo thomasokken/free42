@@ -15,10 +15,14 @@
  * along with this program; if not, see http://www.gnu.org/licenses/.
  *****************************************************************************/
 
+#ifndef ANDROID
+
 #include <stdlib.h>
 
 #include "shell_spool.h"
 #include "core_main.h"
+
+#endif
 
 int hp2ascii(char *dst, const char *src, int srclen) {
     const char *esc;
@@ -109,6 +113,8 @@ int hp2ascii(char *dst, const char *src, int srclen) {
     }
     return d;
 }
+
+#ifndef ANDROID
 
 void shell_spool_txt(const char *text, int length,
 		     file_writer writer, file_newliner newliner) {
@@ -422,3 +428,5 @@ void shell_spool_exit() {
 	g = NULL;
     }
 }
+
+#endif
