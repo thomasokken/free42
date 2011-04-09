@@ -1,3 +1,6 @@
+ACCEL, LOCAT, and HEADING don't work on a lot of devices. I guess I'll have
+to bite the bullet and rewrite them using those ugly new APIs.
+
 It would be nice if we would handle the shell_milliseconds()
 wrap-around. This function is only used for flying the goose and
 updating the progress report when the solver is running interactively;

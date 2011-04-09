@@ -1196,8 +1196,8 @@ public class Free42Activity extends Activity {
     private native void core_quit();
     private native void core_repaint_display();
     private native boolean core_menu();
-    private native boolean core_alpha_menu();
-    private native boolean core_hex_menu();
+    //private native boolean core_alpha_menu();
+    //private native boolean core_hex_menu();
     private native boolean core_keydown(int key, BooleanHolder enqueued, IntHolder repeat, boolean immediate_return);
     private native int core_repeat();
     private native void core_keytimeout1();
@@ -1206,7 +1206,7 @@ public class Free42Activity extends Activity {
     private native boolean core_keyup();
     private native boolean core_powercycle();
     private native int core_list_programs(byte[] buf);
-    private native int core_program_size(int prgm_index);
+    //private native int core_program_size(int prgm_index);
     private native boolean core_export_programs(int[] indexes);
     private native void core_import_programs();
     private native String core_copy();
