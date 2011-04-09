@@ -24,6 +24,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -129,11 +130,6 @@ public class Free42Activity extends Activity {
 	private boolean low_battery;
 
 	// Persistent state
-	private boolean printToTxt;
-	private String printToTxtFileName = "";
-	private boolean printToGif;
-	private String printToGifFileName = "";
-	private int maxGifHeight = 256;
 	private String skinName = "Standard";
 	
     
@@ -188,6 +184,10 @@ public class Free42Activity extends Activity {
     		stateFileInputStream = null;
     	}
     	
+    	CoreSettings cs = new CoreSettings();
+    	getCoreSettings(cs);
+    	ShellSpool.rawText = cs.raw_text;
+    	
     	if (core_powercycle())
     		start_core_keydown();
     	
@@ -239,6 +239,21 @@ public class Free42Activity extends Activity {
     		stateFileOutputStream = null;
     	}
     	printView.dump();
+    	if (printTxtStream != null) {
+    		try {
+    			printTxtStream.close();
+    		} catch (IOException e) {}
+    		printTxtStream = null;
+    	}
+    	if (printGifFile != null) {
+    		try {
+    			ShellSpool.shell_finish_gif(printGifFile);
+    		} catch (IOException e) {}
+    		try {
+    			printGifFile.close();
+    		} catch (IOException e) {}
+    		printGifFile = null;
+    	}
     }
 	
 	@Override
@@ -502,12 +517,12 @@ public class Free42Activity extends Activity {
     	preferencesDialog.setSingularMatrixError(cs.matrix_singularmatrix);
     	preferencesDialog.setMatrixOutOfRange(cs.matrix_outofrange);
     	preferencesDialog.setAutoRepeat(cs.auto_repeat);
-    	preferencesDialog.setPrintToText(printToTxt);
-    	preferencesDialog.setPrintToTextFileName(printToTxtFileName);
+    	preferencesDialog.setPrintToText(ShellSpool.printToTxt);
+    	preferencesDialog.setPrintToTextFileName(ShellSpool.printToTxtFileName);
     	preferencesDialog.setRawText(cs.raw_text);
-    	preferencesDialog.setPrintToGif(printToGif);
-    	preferencesDialog.setPrintToGifFileName(printToGifFileName);
-    	preferencesDialog.setMaxGifHeight(maxGifHeight);
+    	preferencesDialog.setPrintToGif(ShellSpool.printToGif);
+    	preferencesDialog.setPrintToGifFileName(ShellSpool.printToGifFileName);
+    	preferencesDialog.setMaxGifHeight(ShellSpool.maxGifHeight);
     	preferencesDialog.show();
     }
     	
@@ -517,13 +532,35 @@ public class Free42Activity extends Activity {
     	cs.matrix_singularmatrix = preferencesDialog.getSingularMatrixError();
     	cs.matrix_outofrange = preferencesDialog.getMatrixOutOfRange();
     	cs.auto_repeat = preferencesDialog.getAutoRepeat();
-    	printToTxt = preferencesDialog.getPrintToText();
-    	printToTxtFileName = preferencesDialog.getPrintToTextFileName();
-    	cs.raw_text = preferencesDialog.getRawText();
-    	printToGif = preferencesDialog.getPrintToGif();
-    	printToGifFileName = preferencesDialog.getPrintToGifFileName();
-    	maxGifHeight = preferencesDialog.getMaxGifHeight();
     	putCoreSettings(cs);
+
+    	ShellSpool.rawText = cs.raw_text = preferencesDialog.getRawText();
+    	ShellSpool.maxGifHeight = preferencesDialog.getMaxGifHeight();
+
+    	boolean newPrintEnabled = preferencesDialog.getPrintToText();
+    	String newFileName = preferencesDialog.getPrintToTextFileName();
+    	if (printTxtStream != null && (!newPrintEnabled || !newFileName.equals(ShellSpool.printToTxtFileName))) {
+    		try {
+    			printTxtStream.close();
+    		} catch (IOException e) {}
+    		printTxtStream = null;
+    	}
+    	ShellSpool.printToTxt = newPrintEnabled;
+    	ShellSpool.printToTxtFileName = newFileName;
+    	
+    	newPrintEnabled = preferencesDialog.getPrintToGif();
+    	newFileName = preferencesDialog.getPrintToGifFileName();
+    	if (printGifFile != null && (!newPrintEnabled || !newFileName.equals(ShellSpool.printToGifFileName))) {
+    		try {
+    			ShellSpool.shell_finish_gif(printGifFile);
+    		} catch (IOException e) {}
+    		try {
+    			printGifFile.close();
+    		} catch (IOException e) {}
+    		printGifFile = null;
+    	}
+    	ShellSpool.printToGif = newPrintEnabled;
+    	ShellSpool.printToGifFileName = newFileName;
     }
     
     private void doAbout() {
@@ -918,12 +955,12 @@ public class Free42Activity extends Activity {
     		if (version.value < 0 || version.value > FREE42_VERSION())
     			return false;
     		int shell_version = state_read_int();
-    		printToGif = state_read_boolean();
-    	    printToGifFileName = state_read_string();
-    	    printToTxt = state_read_boolean();
-    	    printToTxtFileName = state_read_string();
+    		ShellSpool.printToGif = state_read_boolean();
+    		ShellSpool.printToGifFileName = state_read_string();
+    		ShellSpool.printToTxt = state_read_boolean();
+    		ShellSpool.printToTxtFileName = state_read_string();
     	    if (shell_version >= 1)
-    	    	maxGifHeight = state_read_int();
+    	    	ShellSpool.maxGifHeight = state_read_int();
     	    if (shell_version >= 2)
     	    	skinName = state_read_string();
     		init_shell_state(shell_version);
@@ -936,13 +973,13 @@ public class Free42Activity extends Activity {
     private void init_shell_state(int shell_version) {
     	switch (shell_version) {
     	case -1:
-    	    printToGif = false;
-    	    printToGifFileName = "";
-    	    printToTxt = false;
-    	    printToTxtFileName = "";
+    		ShellSpool.printToGif = false;
+    		ShellSpool.printToGifFileName = "";
+    		ShellSpool.printToTxt = false;
+    		ShellSpool.printToTxtFileName = "";
     	    // fall through
     	case 0:
-    		maxGifHeight = 256;
+    		ShellSpool.maxGifHeight = 256;
     	    // fall through
     	case 1:
     		skinName = "Standard";
@@ -960,11 +997,11 @@ public class Free42Activity extends Activity {
     		state_write_int(FREE42_MAGIC());
     		state_write_int(FREE42_VERSION());
     		state_write_int(SHELL_VERSION);
-    		state_write_boolean(printToGif);
-    		state_write_string(printToGifFileName);
-    		state_write_boolean(printToTxt);
-    		state_write_string(printToTxtFileName);
-    		state_write_int(maxGifHeight);
+    		state_write_boolean(ShellSpool.printToGif);
+    		state_write_string(ShellSpool.printToGifFileName);
+    		state_write_boolean(ShellSpool.printToTxt);
+    		state_write_string(ShellSpool.printToTxtFileName);
+    		state_write_int(ShellSpool.maxGifHeight);
     		state_write_string(skinName);
     	} catch (IllegalArgumentException e) {}
     }
@@ -1423,6 +1460,11 @@ public class Free42Activity extends Activity {
 		return (t % 1000000000) / 1000000000d;
 	}
 	
+	private OutputStream printTxtStream;
+	private RandomAccessFile printGifFile;
+	private int gif_lines;
+	private int gif_seq = 0;
+	
 	/**
 	 * shell_print()
 	 * Printer emulation. The first 2 parameters are the plain text version of the
@@ -1433,8 +1475,91 @@ public class Free42Activity extends Activity {
 	 */
 	public void shell_print(byte[] text, byte[] bits, int bytesperline,
 							int x, int y, int width, int height) {
-		// TODO: printing to files
 		printView.print(bits, bytesperline, x, y, width, height);
+
+		if (ShellSpool.printToTxt) {
+			try {
+				if (printTxtStream == null)
+					printTxtStream = new FileOutputStream(ShellSpool.printToTxtFileName);
+				ShellSpool.shell_spool_txt(text, printTxtStream);
+			} catch (IOException e) {
+				if (printTxtStream != null) {
+					try {
+						printTxtStream.close();
+					} catch (IOException e2) {}
+					printTxtStream = null;
+				}
+				ShellSpool.printToTxt = false;
+				alert("An error occurred while printing to " + ShellSpool.printToTxtFileName + ": " + e.getMessage()
+						+ "\nPrinting to text file disabled.");
+			}
+		}
+		
+	    if (ShellSpool.printToGif) {
+	    	if (printGifFile != null && gif_lines + height > ShellSpool.maxGifHeight) {
+	    		try {
+	    			ShellSpool.shell_finish_gif(printGifFile);
+	    		} catch (IOException e) {}
+	    		try {
+	    			printGifFile.close();
+	    		} catch (IOException e) {}
+	    		printGifFile = null;
+	    	}
+
+    		String name = null;
+	    	if (printGifFile == null) {
+	    	    while (true) {
+		    		gif_seq = (gif_seq + 1) % 10000;
+	
+		    		name = ShellSpool.printToGifFileName;
+		    		int len = name.length();
+
+		    		/* Strip ".gif" extension, if present */
+		    		if (len >= 4 && name.substring(len - 4).equals(".gif")) {
+		    			name = name.substring(0, len - 4);
+		    			len -= 4;
+		    		}
+	
+		    		/* Strip ".[0-9]+", if present */
+		    		while (len > 0) {
+		    			char c = name.charAt(len - 1);
+		    			if (c >= '0' && c <= '9')
+		    				name = name.substring(0, --len);
+		    			else
+		    				break;
+		    		}
+		    		if (name.charAt(len - 1) == '.')
+		    			name = name.substring(0, --len);
+
+		    		String seq = "000" + gif_seq;
+		    		seq = seq.substring(seq.length() - 4);
+		    		name += "." + seq + ".gif";
+	
+		    		if (!new File(name).exists())
+		    		    break;
+	    	    }
+	    	}
+
+	    	try {
+	    		if (name != null) {
+	    	    	printGifFile = new RandomAccessFile(name, "rw");
+	    	    	gif_lines = 0;
+	    	    	ShellSpool.shell_start_gif(printGifFile, ShellSpool.maxGifHeight);
+	    		}
+	    		ShellSpool.shell_spool_gif(bits, bytesperline, x, y, width, height, printGifFile);
+		    	gif_lines += height;
+    	    } catch (IOException e) {
+				if (printGifFile != null) {
+					try {
+						printGifFile.close();
+					} catch (IOException e2) {}
+					printGifFile = null;
+				}
+				ShellSpool.printToGif = false;
+				alert("An error occurred while printing to " + ShellSpool.printToGifFileName + ": " + e.getMessage()
+						+ "\nPrinting to GIF file disabled.");
+    	    }
+	    }
 	}
 	
 	/**
