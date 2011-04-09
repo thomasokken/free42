@@ -27,40 +27,33 @@
     		android:layout_alignParentLeft="true"
     		android:layout_alignParentRight="true">
 
-	    <ListView android:id="@+id/dirView" android:background="#f00"
+	    <ListView android:id="@+id/dirView"
 	    		android:layout_width="0px" android:layout_height="fill_parent"
 	    		android:layout_weight="1"/>
 	
-	    <RelativeLayout android:id="@+id/buttonBox" android:background="#0f0"
+	    <LinearLayout android:id="@+id/buttonBox"
 	    		android:layout_width="wrap_content" android:layout_height="wrap_content"
+	    		android:orientation="vertical"
 	    		android:layout_gravity="center"
 	    		android:layout_weight="0">
 	    		
 	    	<Button android:id="@+id/upButton"
 	    			android:text="Up"
-		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		    		android:layout_alignParentTop="true"
-		    		android:layout_centerHorizontal="true"/>
+		    		android:layout_width="fill_parent" android:layout_height="wrap_content"/>
 	    		
 	    	<Button android:id="@+id/mkdirButton"
 	    			android:text="MkDir"
-		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		    		android:layout_below="@+id/upButton"
-		    		android:layout_centerHorizontal="true"/>
+		    		android:layout_width="fill_parent" android:layout_height="wrap_content"/>
 	    		
 	    	<Button android:id="@+id/okButton"
 	    			android:text="OK"
-		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		    		android:layout_below="@+id/mkdirButton"
-		    		android:layout_centerHorizontal="true"/>
+		    		android:layout_width="fill_parent" android:layout_height="wrap_content"/>
 	    		
 	    	<Button android:id="@+id/cancelButton"
 	    			android:text="Cancel"
-		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		    		android:layout_below="@+id/okButton"
-		    		android:layout_centerHorizontal="true"/>
+		    		android:layout_width="fill_parent" android:layout_height="wrap_content"/>
 	    		
-	    </RelativeLayout>
+	    </LinearLayout>
     
     </LinearLayout>
     
