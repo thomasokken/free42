@@ -18,6 +18,7 @@
 package com.thomasokken.free42;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -33,9 +34,11 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
@@ -351,11 +354,125 @@ public class Free42Activity extends Activity {
     }
     
     private void doImport() {
-    	// TODO
+		FileSelectionDialog fsd = new FileSelectionDialog(this, new String[] { "raw", "*" });
+		fsd.setPath("/sdcard");
+		fsd.setOkListener(new FileSelectionDialog.OkListener() {
+			public void okPressed(String path) {
+				doImport2(path);
+			}
+		});
+		fsd.show();
     }
     
+    private void doImport2(String path) {
+    	try {
+    		programsInputStream = new FileInputStream(path);
+    	} catch (IOException e) {
+    		alert("Import failed: " + e.getMessage());
+    		return;
+    	}
+    	core_import_programs();
+    	if (programsInputStream != null) {
+    		try {
+    			programsInputStream.close();
+    		} catch (IOException e) {}
+    		programsInputStream = null;
+    	}
+    }
+    
+    private boolean[] selectedProgramIndexes;
+    
+    private void alert(String message) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage(message);
+		builder.setPositiveButton("OK", null);
+		builder.create().show();
+    }
+
     private void doExport() {
-    	// TODO
+    	byte[] buf = new byte[10000];
+    	int n = core_list_programs(buf);
+    	String[] names = new String[n];
+    	int begin = 0;
+    	for (int i = 0; i < n; i++) {
+    		int end = begin;
+    		while (buf[end] != 0)
+    			end++;
+    		try {
+    			names[i] = new String(buf, begin, end - begin, "UTF-8");
+    		} catch (UnsupportedEncodingException e) {}
+    		begin = end + 1;
+    	}
+
+    	selectedProgramIndexes = new boolean[n];
+    	
+    	AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    	builder.setTitle("Select Programs");
+    	builder.setMultiChoiceItems(names, selectedProgramIndexes, new DialogInterface.OnMultiChoiceClickListener() {
+			public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+				// I don't have to do anything here; the only reason why
+				// I create this listener is because if I pass 'null'
+				// instead, the selectedProgramIndexes array never gets
+				// updated.
+			}
+    	});
+    	DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				doProgramSelectionClick(dialog, which);
+			}
+    	};
+    	builder.setPositiveButton("OK", listener);
+    	builder.setNegativeButton("Cancel", null);
+    	builder.create().show();
+    }
+    
+    private void doProgramSelectionClick(DialogInterface dialog, int which) {
+    	if (which == DialogInterface.BUTTON_POSITIVE) {
+	    	boolean none = true;
+	    	for (int i = 0; i < selectedProgramIndexes.length; i++)
+	    		if (selectedProgramIndexes[i]) {
+	    			none = false;
+	    			break;
+	    		}
+	    	if (!none) {
+	    		FileSelectionDialog fsd = new FileSelectionDialog(this, new String[] { "raw", "*" });
+	    		fsd.setPath("/sdcard");
+	    		fsd.setOkListener(new FileSelectionDialog.OkListener() {
+	    			public void okPressed(String path) {
+	    				doExport2(path);
+	    			}
+	    		});
+	    		fsd.show();
+	    	}
+    	}
+    	dialog.dismiss();
+    }
+    
+    private void doExport2(String path) {
+    	try {
+    		programsOutputStream = new FileOutputStream(path);
+    	} catch (IOException e) {
+    		alert("Export failed: " + e.getMessage());
+    		return;
+    	}
+    	
+    	int n = 0;
+    	for (int i = 0; i < selectedProgramIndexes.length; i++)
+    		if (selectedProgramIndexes[i])
+    			n++;
+    	int[] selection = new int[n];
+    	n = 0;
+    	for (int i = 0; i < selectedProgramIndexes.length; i++)
+    		if (selectedProgramIndexes[i])
+    			selection[n++] = i;
+    	core_export_programs(selection);
+    	
+    	if (programsOutputStream != null) {
+    		try {
+    			programsOutputStream.close();
+    		} catch (IOException e) {}
+    		programsOutputStream = null;
+    	}
     }
     
     private void doSelectSkin(String skinName) {

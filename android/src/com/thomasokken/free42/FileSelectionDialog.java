@@ -26,7 +26,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 
 public class FileSelectionDialog extends Dialog {
-	//private FileSelView view;
 	private Spinner dirListSpinner;
 	private ListView dirView;
 	private Spinner fileTypeSpinner;
@@ -255,7 +254,7 @@ public class FileSelectionDialog extends Dialog {
 
 		public void unregisterDataSetObserver(DataSetObserver observer) {
 			synchronized (observers) {
-				observers.add(observer);
+				observers.remove(observer);
 			}
 		}
 
