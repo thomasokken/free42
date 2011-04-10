@@ -12,9 +12,6 @@ SDK?
 
 iPhone version: the HTTP server interface should provide a way to delete files.
 
-Android version: the auto-repeat code appears to be broken; it causes lots of
-spurious keystrokes. This is easily reproducible even in the simulator.
-
 Windows version: the "Calculator Key" option should probably set
 \HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\AppKey\18\ShellExecute,
 not \HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\AppKey\18\ShellExecute.
