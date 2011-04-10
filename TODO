@@ -1,3 +1,7 @@
+Android and iPhone versions: add option to disable key click. Hmm, what about
+the PalmOS and Pocket PC versions? There have also been requests for 'vibrate'
+feedback for key presses. I hate that myself but it takes all sorts. :-)
+
 Android version:
 * The "Print-Out" menu option needs a better icon.
 * No landscape mode support yet.
