@@ -80,7 +80,7 @@ import android.widget.TextView;
  * C++ and porting it to Java is not practical, hence the use of JNI).
  */
 public class Free42Activity extends Activity {
-    
+
 	private static final int MENU_ID_COPY = Menu.FIRST;
 	private static final int MENU_ID_PASTE = Menu.FIRST + 1;
 	private static final int MENU_ID_PREFERENCES = Menu.FIRST + 2;
@@ -665,6 +665,11 @@ public class Free42Activity extends Activity {
     		if (what != MotionEvent.ACTION_DOWN && what != MotionEvent.ACTION_UP)
     			return true;
     		
+    		if (key_timer != null) {
+    			key_timer.cancel();
+    			key_timer = null;
+    		}
+    		
     		if (what == MotionEvent.ACTION_DOWN) {
 	    		int x = (int) (e.getX() * skin.getWidth() / width);
 	    		int y = (int) (e.getY() * skin.getHeight() / height);
@@ -708,8 +713,6 @@ public class Free42Activity extends Activity {
 		        if (running)
 		        	start_core_keydown();
 		        else {
-		    		if (key_timer != null)
-		    			key_timer.cancel();
 		        	if (repeat.value != 0) {
 		        		key_timer = new Timer();
 		        		TimerTask task = new TimerTask() {
@@ -728,8 +731,7 @@ public class Free42Activity extends Activity {
 		        		};
 		        		Date when = new Date(new Date().getTime() + 250);
 		        		key_timer.schedule(task, when);       		
-		        	} else
-		        		key_timer = null;
+		        	}
 		        }
     	    } else {
     	    	ckey = 0;
