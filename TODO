@@ -7,6 +7,7 @@ Android version:
 * No landscape mode support yet.
 * ACCEL, LOCAT, and HEADING don't work on a lot of devices. I'll have to
   rewrite them using the new APIs (ugh).
+* Add support for physical keyboards.
 
 iPhone version: the App Store build is built using the 3.0 SDK, in order to be
 compatible with the widest possible variety of devices. This works, and even
@@ -85,7 +86,5 @@ without ever having handled any kind of user events since power-on; it should
 either refuse to power off, or clear flag 11 before powering off, or do some
 kind of user interaction to give the user a chance to break this potentially
 inescapable cycle.
-
-Add keyboard click option for the Pocket PC version.
 
 Add a feature for importing and exporting variables from and to CSV files.
