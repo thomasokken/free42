@@ -8,6 +8,7 @@ Android version:
 * ACCEL, LOCAT, and HEADING don't work on a lot of devices. I'll have to
   rewrite them using the new APIs (ugh).
 * Add support for physical keyboards.
+* Implement pop-up keyboard for ALPHA mode text entry.
 
 iPhone version: the App Store build is built using the 3.0 SDK, in order to be
 compatible with the widest possible variety of devices. This works, and even
