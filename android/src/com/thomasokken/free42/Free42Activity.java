@@ -221,7 +221,6 @@ public class Free42Activity extends Activity {
     @Override
     protected void onDestroy() {
     	end_core_keydown();
-    	super.onDestroy();
     	// Write state file
     	try {
     		stateFileOutputStream = openFileOutput("state", Context.MODE_PRIVATE);
@@ -254,6 +253,7 @@ public class Free42Activity extends Activity {
     		} catch (IOException e) {}
     		printGifFile = null;
     	}
+    	super.onDestroy();
     }
 	
 	@Override
