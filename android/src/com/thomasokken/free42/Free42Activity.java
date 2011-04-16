@@ -169,9 +169,11 @@ public class Free42Activity extends Activity {
         }
 
     	skin = null;
-    	try {
-    		skin = new SkinLayout(externalSkinName);
-    	} catch (IllegalArgumentException e) {}
+    	if (skinName.length() == 0 && externalSkinName.length() > 0) {
+	    	try {
+	    		skin = new SkinLayout(externalSkinName);
+	    	} catch (IllegalArgumentException e) {}
+    	}
     	if (skin == null) {
     		try {
     			skin = new SkinLayout(skinName);
@@ -512,9 +514,10 @@ public class Free42Activity extends Activity {
     	try {
     		boolean[] annunciators = skin.getAnnunciators();
     		skin = new SkinLayout(skinName, annunciators);
-        	if (skinName.startsWith("/"))
+        	if (skinName.startsWith("/")) {
         		externalSkinName = skinName;
-        	else
+        		this.skinName = "";
+        	} else
         		this.skinName = skinName;
         	calcView.invalidate();
         	core_repaint_display();
@@ -1012,6 +1015,7 @@ public class Free42Activity extends Activity {
     		state_write_string(ShellSpool.printToTxtFileName);
     		state_write_int(ShellSpool.maxGifHeight);
     		state_write_string(skinName);
+    		state_write_string(externalSkinName);
     	} catch (IllegalArgumentException e) {}
     }
     
