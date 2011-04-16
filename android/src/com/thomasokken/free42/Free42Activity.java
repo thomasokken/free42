@@ -31,8 +31,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -124,14 +122,17 @@ public class Free42Activity extends Activity {
 	private boolean coreWantsCpu;
 	
 	private int ckey;
-	private Timer key_timer;
-	private Timer timer3;
+	private boolean timeout3_active;
 	
 	private boolean low_battery;
 
 	// Persistent state
 	private String skinName = "Standard";
 	
+	private final Runnable RepeaterCaller = new Runnable() { public void run() { repeater(); } };
+	private final Runnable Timeout1Caller = new Runnable() { public void run() { timeout1(); } };
+	private final Runnable Timeout2Caller = new Runnable() { public void run() { timeout2(); } };
+	private final Runnable Timeout3Caller = new Runnable() { public void run() { timeout3(); } };
     
     ///////////////////////////////////////////////////////
     ///// Top-level code to interface with Android UI /////
@@ -290,6 +291,17 @@ public class Free42Activity extends Activity {
         menu.getItem(4).setIcon(android.R.drawable.ic_menu_close_clear_cancel);
         
         return true;
+    }
+    
+    private void cancelRepeaterAndTimeouts1And2() {
+    	mainHandler.removeCallbacks(RepeaterCaller);
+    	mainHandler.removeCallbacks(Timeout1Caller);
+    	mainHandler.removeCallbacks(Timeout2Caller);
+    }
+    
+    private void cancelTimeout3() {
+    	mainHandler.removeCallbacks(Timeout3Caller);
+    	timeout3_active = false;
     }
     
     private List<String> findExternalSkins() {
@@ -665,10 +677,7 @@ public class Free42Activity extends Activity {
     		if (what != MotionEvent.ACTION_DOWN && what != MotionEvent.ACTION_UP)
     			return true;
     		
-    		if (key_timer != null) {
-    			key_timer.cancel();
-    			key_timer = null;
-    		}
+    		cancelRepeaterAndTimeouts1And2();
     		
     		if (what == MotionEvent.ACTION_DOWN) {
 	    		int x = (int) (e.getX() * skin.getWidth() / width);
@@ -683,9 +692,8 @@ public class Free42Activity extends Activity {
 	    		click();
 	    		end_core_keydown();
 	        	byte[] macro = skin.find_macro(ckey);
-	            if (timer3 != null && (macro != null || ckey != 28 /* SHIFT */)) {
-		        	timer3.cancel();
-	                timer3 = null;
+	            if (timeout3_active && (macro != null || ckey != 28 /* SHIFT */)) {
+	            	cancelTimeout3();
 	                core_timeout3(0);
 	            }
 		        Rect inval = skin.set_active_key(skey);
@@ -713,25 +721,10 @@ public class Free42Activity extends Activity {
 		        if (running)
 		        	start_core_keydown();
 		        else {
-		        	if (repeat.value != 0) {
-		        		key_timer = new Timer();
-		        		TimerTask task = new TimerTask() {
-		        			public void run() {
-		        				repeater();
-		        			}
-		        		};
-		        		Date when = new Date(new Date().getTime() + (repeat.value == 1 ? 1000 : 500));
-		        		key_timer.schedule(task, when);
-		        	} else if (!enqueued.value) {
-		        		key_timer = new Timer();
-		        		TimerTask task = new TimerTask() {
-		        			public void run() {
-		        				timeout1();
-		        			}
-		        		};
-		        		Date when = new Date(new Date().getTime() + 250);
-		        		key_timer.schedule(task, when);       		
-		        	}
+		        	if (repeat.value != 0)
+		        		mainHandler.postDelayed(RepeaterCaller, repeat.value == 1 ? 1000 : 500);
+		        	else if (!enqueued.value)
+		        		mainHandler.postDelayed(Timeout1Caller, 250);
 		        }
     	    } else {
     	    	ckey = 0;
@@ -1087,62 +1080,32 @@ public class Free42Activity extends Activity {
     }
     
 	private void repeater() {
-		if (key_timer != null)
-			key_timer.cancel();
-		if (ckey == 0) {
-			key_timer = null;
+		cancelRepeaterAndTimeouts1And2();
+		if (ckey == 0)
 			return;
-		}
-		key_timer = new Timer();
 		int repeat = core_repeat();
-		if (repeat != 0) {
-			TimerTask task = new TimerTask() {
-				public void run() {
-					repeater();
-				}
-			};
-			Date when = new Date(new Date().getTime() + (repeat == 1 ? 200 : 100));
-			key_timer.schedule(task, when);
-		} else {
-			TimerTask task = new TimerTask() {
-				public void run() {
-					timeout1();
-				}
-			};
-			Date when = new Date(new Date().getTime() + 250);
-			key_timer.schedule(task, when);
-		}
+		if (repeat != 0)
+			mainHandler.postDelayed(RepeaterCaller, repeat == 1 ? 200 : 100);
+		else
+			mainHandler.postDelayed(Timeout1Caller, 250);
 	}
 
 	private void timeout1() {
-		if (key_timer != null)
-			key_timer.cancel();
+		cancelRepeaterAndTimeouts1And2();
 		if (ckey != 0) {
-			key_timer = new Timer();
 			core_keytimeout1();
-			TimerTask task = new TimerTask() {
-				public void run() {
-					timeout2();
-				}
-			};
-			Date when = new Date(new Date().getTime() + 1750);
-			key_timer.schedule(task, when);
-		} else
-			key_timer = null;
+			mainHandler.postDelayed(Timeout2Caller, 1750);
+		}
 	}
 
 	private void timeout2() {
-		if (key_timer != null)
-			key_timer.cancel();
-		key_timer = null;
+		cancelRepeaterAndTimeouts1And2();
 		if (ckey != 0)
 			core_keytimeout2();
 	}
 
 	private void timeout3() {
-		if (timer3 != null)
-			timer3.cancel();
-		timer3 = null;
+		cancelTimeout3();
 		end_core_keydown();
 		core_timeout3(1);
 		// Resume program after PSE
@@ -1347,16 +1310,9 @@ public class Free42Activity extends Activity {
 	 * This function supports the delay after SHOW, MEM, and shift-VARMENU.
 	 */
 	public void shell_request_timeout3(int delay) {
-		if (timer3 != null)
-			timer3.cancel();
-		timer3 = new Timer();
-		TimerTask task = new TimerTask() {
-			public void run() {
-				timeout3();
-			}
-		};
-		Date when = new Date(new Date().getTime() + delay);
-		timer3.schedule(task, when);
+		cancelTimeout3();
+		mainHandler.postDelayed(Timeout3Caller, delay);
+		timeout3_active = true;
 	}
 	
 	/**
