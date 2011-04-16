@@ -2,6 +2,11 @@
 
 * INVRT did not perform any type checks, leading to badness when it was applied
   to anything that wasn't a matrix. Fixed.
+* Android version: the keyboard timer code had a race condition that could
+  cause a NullPointerException and crash the app. Fixed.
+* Android version: in Free42Activity.onDestroy(), moved the super.onDestroy()
+  call from the beginning of the method to the end. This should make the code
+  more robust, so the state file is written reliably on exit.
 
 10-04-2011: (no new code release)
 
