@@ -27,10 +27,7 @@ import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.nio.IntBuffer;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -62,7 +59,6 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.SubMenu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -84,12 +80,14 @@ public class Free42Activity extends Activity {
 	private static final int MENU_ID_PREFERENCES = Menu.FIRST + 2;
 	private static final int MENU_ID_FLIP_CALC_PRINTOUT = Menu.FIRST + 3;
 	private static final int MENU_ID_CLEAR_PRINTOUT = Menu.FIRST + 4;
-	private static final int MENU_ID_IMPORT = Menu.FIRST + 5;
-	private static final int MENU_ID_EXPORT = Menu.FIRST + 6;
-	private static final int MENU_ID_SKIN = Menu.FIRST + 7;
-	private static final int MENU_ID_ABOUT = Menu.FIRST + 8;
+	private static final int MENU_ID_ABOUT = Menu.FIRST + 5;
+	private static final int MENU_ID_IMPORT = Menu.FIRST + 6;
+	private static final int MENU_ID_EXPORT = Menu.FIRST + 7;
+	private static final int MENU_ID_SKIN = Menu.FIRST + 8;
 
-    private static final int SHELL_VERSION = 2;
+	private static final String[] builtinSkinNames = new String[] { "Standard" };
+	
+    private static final int SHELL_VERSION = 3;
     
     private static final int PRINT_BACKGROUND_COLOR = Color.LTGRAY;
     
@@ -127,10 +125,11 @@ public class Free42Activity extends Activity {
 	private boolean low_battery;
 
 	// Persistent state
-	private String skinName = "Standard";
+	private String skinName = builtinSkinNames[0];
+	private String externalSkinName = "";
 	
-	private final Runnable RepeaterCaller = new Runnable() { public void run() { repeater(); } };
-	private final Runnable Timeout1Caller = new Runnable() { public void run() { timeout1(); } };
+	private final Runnable repeaterCaller = new Runnable() { public void run() { repeater(); } };
+	private final Runnable timeout1Caller = new Runnable() { public void run() { timeout1(); } };
 	private final Runnable Timeout2Caller = new Runnable() { public void run() { timeout2(); } };
 	private final Runnable Timeout3Caller = new Runnable() { public void run() { timeout3(); } };
     
@@ -168,12 +167,21 @@ public class Free42Activity extends Activity {
             init_shell_state(-1);
             init_mode = 0;
         }
-    	
+
+    	skin = null;
     	try {
-    		skin = new SkinLayout(skinName);
-    	} catch (IllegalArgumentException e) {
-			skinName = "Standard";
-			skin = new SkinLayout(skinName);
+    		skin = new SkinLayout(externalSkinName);
+    	} catch (IllegalArgumentException e) {}
+    	if (skin == null) {
+    		try {
+    			skin = new SkinLayout(skinName);
+    		} catch (IllegalArgumentException e) {}
+    	}
+    	if (skin == null) {
+    		skinName = builtinSkinNames[0];
+    		try {
+    			skin = new SkinLayout(skinName);
+    		} catch (IllegalArgumentException e) {}
     	}
 
     	nativeInit();
@@ -276,14 +284,14 @@ public class Free42Activity extends Activity {
         menu.add(0, MENU_ID_PREFERENCES, 0, "Preferences");
         menu.add(0, MENU_ID_FLIP_CALC_PRINTOUT, 0, "Print-Out");
         menu.add(0, MENU_ID_CLEAR_PRINTOUT, 0, "Clear Print-Out");
+        menu.add(0, MENU_ID_ABOUT, 0, "About Free42");
         menu.add(0, MENU_ID_IMPORT, 0, "Import Programs");
         menu.add(0, MENU_ID_EXPORT, 0, "Export Programs");
-        SubMenu skinMenu = menu.addSubMenu(0, MENU_ID_SKIN, 0, "Select Skin");
-        skinMenu.add("Standard");
-        List<String> externalSkinNames = findExternalSkins();
-        for (String skinName : externalSkinNames)
-        	skinMenu.add(skinName);
-        menu.add(0, MENU_ID_ABOUT, 0, "About Free42");
+        
+        for (int i = 0; i < builtinSkinNames.length; i++)
+        	menu.add(0, MENU_ID_SKIN + i, 0, "Select \"" + builtinSkinNames[i] + "\"");
+        menu.add(0, MENU_ID_SKIN + builtinSkinNames.length, 0, "Select Other...");
+
         menu.getItem(0).setIcon(R.drawable.copy);
         menu.getItem(1).setIcon(R.drawable.paste);
         menu.getItem(2).setIcon(android.R.drawable.ic_menu_preferences);
@@ -294,8 +302,8 @@ public class Free42Activity extends Activity {
     }
     
     private void cancelRepeaterAndTimeouts1And2() {
-    	mainHandler.removeCallbacks(RepeaterCaller);
-    	mainHandler.removeCallbacks(Timeout1Caller);
+    	mainHandler.removeCallbacks(repeaterCaller);
+    	mainHandler.removeCallbacks(timeout1Caller);
     	mainHandler.removeCallbacks(Timeout2Caller);
     }
     
@@ -304,25 +312,6 @@ public class Free42Activity extends Activity {
     	timeout3_active = false;
     }
     
-    private List<String> findExternalSkins() {
-    	List<String> skinNames = new ArrayList<String>();
-    	File free42dir = new File("/sdcard/Free42");
-    	File[] files = free42dir.listFiles();
-    	if (files != null)
-    		for (File file : files) {
-    			if (!file.isFile())
-    				continue;
-    			String name = file.getName();
-    			if (!name.endsWith(".gif"))
-    				continue;
-    			name = name.substring(0, name.length() - 4);
-    			if (new File(free42dir, name + ".layout").isFile())
-    				skinNames.add(name);
-    		}
-    	Collections.sort(skinNames, String.CASE_INSENSITIVE_ORDER);
-    	return skinNames;
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -341,23 +330,40 @@ public class Free42Activity extends Activity {
         case MENU_ID_CLEAR_PRINTOUT:
         	doClearPrintout();
             return true;
+        case MENU_ID_ABOUT:
+        	doAbout();
+        	return true;
         case MENU_ID_IMPORT:
         	doImport();
             return true;
         case MENU_ID_EXPORT:
         	doExport();
             return true;
-        case MENU_ID_ABOUT:
-        	doAbout();
-        	return true;
-        case Menu.NONE:
-        	doSelectSkin(item.getTitle().toString());
-        	return true;
+        default:
+        	int index = item.getItemId() - MENU_ID_SKIN;
+        	if (index >= 0 && index < builtinSkinNames.length) {
+        		doSelectSkin(builtinSkinNames[index]);
+        		return true;
+        	} else if (index == builtinSkinNames.length) {
+        		FileSelectionDialog fsd = new FileSelectionDialog(this, new String[] { "layout", "*" });
+        		if (externalSkinName.length() == 0)
+        			fsd.setPath("/sdcard/Free42");
+        		else
+        			fsd.setPath(externalSkinName + ".layout");
+        		fsd.setOkListener(new FileSelectionDialog.OkListener() {
+        			public void okPressed(String path) {
+        				if (path.endsWith(".layout"))
+        					doSelectSkin(path.substring(0, path.length() - 7));
+        			}
+        		});
+        		fsd.show();
+        		return true;
+        	}
         }
 
         return super.onOptionsItemSelected(item);
     }
-
+    
     private void doCopy() {
     	ClipboardManager clip = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
     	clip.setText(core_copy());
@@ -506,7 +512,10 @@ public class Free42Activity extends Activity {
     	try {
     		boolean[] annunciators = skin.getAnnunciators();
     		skin = new SkinLayout(skinName, annunciators);
-        	this.skinName = skinName;
+        	if (skinName.startsWith("/"))
+        		externalSkinName = skinName;
+        	else
+        		this.skinName = skinName;
         	calcView.invalidate();
         	core_repaint_display();
     	} catch (IllegalArgumentException e) {
@@ -722,9 +731,9 @@ public class Free42Activity extends Activity {
 		        	start_core_keydown();
 		        else {
 		        	if (repeat.value != 0)
-		        		mainHandler.postDelayed(RepeaterCaller, repeat.value == 1 ? 1000 : 500);
+		        		mainHandler.postDelayed(repeaterCaller, repeat.value == 1 ? 1000 : 500);
 		        	else if (!enqueued.value)
-		        		mainHandler.postDelayed(Timeout1Caller, 250);
+		        		mainHandler.postDelayed(timeout1Caller, 250);
 		        }
     	    } else {
     	    	ckey = 0;
@@ -958,6 +967,8 @@ public class Free42Activity extends Activity {
     	    	ShellSpool.maxGifHeight = state_read_int();
     	    if (shell_version >= 2)
     	    	skinName = state_read_string();
+    	    if (shell_version >= 3)
+    	    	externalSkinName = state_read_string();
     		init_shell_state(shell_version);
     	} catch (IllegalArgumentException e) {
     		return false;
@@ -980,7 +991,10 @@ public class Free42Activity extends Activity {
     		skinName = "Standard";
     		// fall through
     	case 2:
-			// current version (SHELL_VERSION = 2),
+    		externalSkinName = "/sdcard/Free42/" + skinName;
+    		// fall through
+    	case 3:
+			// current version (SHELL_VERSION = 3),
 			// so nothing to do here since everything
 			// was initialized from the state file.
     		;
@@ -1085,9 +1099,9 @@ public class Free42Activity extends Activity {
 			return;
 		int repeat = core_repeat();
 		if (repeat != 0)
-			mainHandler.postDelayed(RepeaterCaller, repeat == 1 ? 200 : 100);
+			mainHandler.postDelayed(repeaterCaller, repeat == 1 ? 200 : 100);
 		else
-			mainHandler.postDelayed(Timeout1Caller, 250);
+			mainHandler.postDelayed(timeout1Caller, 250);
 	}
 
 	private void timeout1() {

@@ -19,7 +19,6 @@ package com.thomasokken.free42;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -91,30 +90,34 @@ public class SkinLayout {
 		
 		InputStream is = null;
 		try {
-			is = getClass().getResourceAsStream(skinName + ".gif");
-			boolean skinFromResource = true;
-			if (is == null) {
-				try {
-					is = new FileInputStream("/sdcard/Free42/" + skinName + ".gif");
-					skinFromResource = false;
-				} catch (FileNotFoundException e) {
-					throw new IllegalArgumentException("No image found for skin " + skinName);
-				}
-			}
-	    	skinBitmap = new BitmapDrawable(is).getBitmap();
-	    	try {
-	    		is.close();
-	    	} catch (IOException e) {}
-	    	is = null;
-
-	    	if (skinFromResource)
-	    		is = getClass().getResourceAsStream(skinName + ".layout");
-	    	else
-	    		try {
-	    			is = new FileInputStream("/sdcard/Free42/" + skinName + ".layout");
-				} catch (FileNotFoundException e) {}
+			if (skinName.startsWith("/"))
+				is = new FileInputStream(skinName + ".gif");
+			else
+				is = getClass().getResourceAsStream(skinName + ".gif");
 			if (is == null)
-				throw new IllegalArgumentException("No layout found for skin " + (skinFromResource ? "resource" : "file") + " " + skinName);
+				throw new IOException();
+	    	skinBitmap = new BitmapDrawable(is).getBitmap();
+		} catch (IOException e) {
+			throw new IllegalArgumentException("No image found for skin " + skinName);
+		} finally {
+			if (is != null)
+				try {
+					is.close();
+				} catch (IOException e) {}
+		}
+
+		is = null;
+		try {
+			try {
+				if (skinName.startsWith("/"))
+	    			is = new FileInputStream(skinName + ".layout");
+				else
+		    		is = getClass().getResourceAsStream(skinName + ".layout");
+				if (is == null)
+					throw new IOException();
+			} catch (IOException e) {
+				throw new IllegalArgumentException("No layout found for skin " + skinName);
+			}
 			
 			BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 			String line;
