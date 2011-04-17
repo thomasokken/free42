@@ -293,8 +293,8 @@ public class Free42Activity extends Activity {
         menu.add(0, MENU_ID_EXPORT, 0, "Export Programs");
         
         for (int i = 0; i < builtinSkinNames.length; i++)
-        	menu.add(0, MENU_ID_SKIN + i, 0, "Select \"" + builtinSkinNames[i] + "\"");
-        menu.add(0, MENU_ID_SKIN + builtinSkinNames.length, 0, "Select Other...");
+        	menu.add(0, MENU_ID_SKIN + i, 0, "Skin: \"" + builtinSkinNames[i] + "\"");
+        menu.add(0, MENU_ID_SKIN + builtinSkinNames.length, 0, "Skin: Other...");
 
         menu.getItem(0).setIcon(R.drawable.copy);
         menu.getItem(1).setIcon(R.drawable.paste);
