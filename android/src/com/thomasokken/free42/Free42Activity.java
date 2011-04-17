@@ -37,6 +37,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -180,10 +181,11 @@ public class Free42Activity extends Activity {
     		} catch (IllegalArgumentException e) {}
     	}
     	if (skin == null) {
-    		skinName = builtinSkinNames[0];
     		try {
-    			skin = new SkinLayout(skinName);
-    		} catch (IllegalArgumentException e) {}
+    			skin = new SkinLayout(builtinSkinNames[0]);
+    		} catch (IllegalArgumentException e) {
+    			// This one should never fail; we're loading a built-in skin.
+    		}
     	}
 
     	nativeInit();
@@ -612,7 +614,11 @@ public class Free42Activity extends Activity {
     			
     			TextView label1 = new TextView(context);
     			label1.setId(2);
-    			label1.setText("Free42 " + FREE42_RELEASE());
+    			String version = "";
+				try {
+					version = " " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+				} catch (NameNotFoundException e) {}
+    			label1.setText("Free42" + version);
     			LayoutParams lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
     			lp.addRule(RelativeLayout.ALIGN_TOP, icon.getId());
     			lp.addRule(RelativeLayout.RIGHT_OF, icon.getId());
@@ -1202,7 +1208,6 @@ public class Free42Activity extends Activity {
     
     private native int FREE42_MAGIC();
     private native int FREE42_VERSION();
-    private native String FREE42_RELEASE();
     private native boolean core_is_audio_enabled();
     
     ///////////////////////////////////////////

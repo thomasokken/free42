@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 		  package="com.thomasokken.free42"
-		  android:versionCode="2"
-		  android:versionName="1.4.67.1">
+		  android:versionCode="3"
+		  android:versionName="1.4.67.2">
   <application android:label="Free42"
 			   android:icon="@drawable/icon"
-			   android:debuggable="false">
+			   android:debuggable="true">
     <activity android:name="Free42Activity"
 			  android:theme="@android:style/Theme.NoTitleBar"
 			  android:screenOrientation="portrait">

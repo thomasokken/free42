@@ -98,11 +98,6 @@ Java_com_thomasokken_free42_Free42Activity_FREE42_1VERSION(JNIEnv *env, jobject 
     return FREE42_VERSION;
 }
 
-extern "C" jstring
-Java_com_thomasokken_free42_Free42Activity_FREE42_1RELEASE(JNIEnv *env, jobject thiz) {
-    return env->NewStringUTF(VERSION);
-}
-
 extern "C" jboolean
 Java_com_thomasokken_free42_Free42Activity_core_1is_1audio_1enabled(JNIEnv *env, jobject thiz) {
     Tracer T("core_is_audio_enabled");
