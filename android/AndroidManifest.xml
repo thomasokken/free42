@@ -5,7 +5,7 @@
 		  android:versionName="1.4.67.3">
   <application android:label="Free42"
 			   android:icon="@drawable/icon"
-			   android:debuggable="true">
+			   android:debuggable="false">
     <activity android:name="Free42Activity"
 			  android:theme="@android:style/Theme.NoTitleBar"
 			  android:screenOrientation="portrait">
