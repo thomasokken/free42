@@ -38,6 +38,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -88,7 +89,7 @@ public class Free42Activity extends Activity {
 
 	private static final String[] builtinSkinNames = new String[] { "Standard" };
 	
-    private static final int SHELL_VERSION = 3;
+    private static final int SHELL_VERSION = 4;
     
     private static final int PRINT_BACKGROUND_COLOR = Color.LTGRAY;
     
@@ -126,8 +127,10 @@ public class Free42Activity extends Activity {
 	private boolean low_battery;
 
 	// Persistent state
-	private String skinName = builtinSkinNames[0];
-	private String externalSkinName = "";
+	private int orientation = 0; // 0=portrait, 1=landscape
+	private String[] skinName = new String[] { builtinSkinNames[0], builtinSkinNames[0] };
+	private String[] externalSkinName = new String[2];
+	private boolean keyClicksEnabled = true;
 	
 	private final Runnable repeaterCaller = new Runnable() { public void run() { repeater(); } };
 	private final Runnable timeout1Caller = new Runnable() { public void run() { timeout1(); } };
@@ -142,6 +145,10 @@ public class Free42Activity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         instance = this;
+        
+        Configuration conf = getResources().getConfiguration();
+        orientation = conf.orientation == Configuration.ORIENTATION_LANDSCAPE ? 1 : 0;
+        
         mainHandler = new Handler();
         calcView = new CalcView(this);
         setContentView(calcView);
@@ -170,14 +177,14 @@ public class Free42Activity extends Activity {
         }
 
     	skin = null;
-    	if (skinName.length() == 0 && externalSkinName.length() > 0) {
+    	if (skinName[orientation].length() == 0 && externalSkinName[orientation].length() > 0) {
 	    	try {
-	    		skin = new SkinLayout(externalSkinName);
+	    		skin = new SkinLayout(externalSkinName[orientation]);
 	    	} catch (IllegalArgumentException e) {}
     	}
     	if (skin == null) {
     		try {
-    			skin = new SkinLayout(skinName);
+    			skin = new SkinLayout(skinName[orientation]);
     		} catch (IllegalArgumentException e) {}
     	}
     	if (skin == null) {
@@ -350,10 +357,10 @@ public class Free42Activity extends Activity {
         		return true;
         	} else if (index == builtinSkinNames.length) {
         		FileSelectionDialog fsd = new FileSelectionDialog(this, new String[] { "layout", "*" });
-        		if (externalSkinName.length() == 0)
+        		if (externalSkinName[orientation].length() == 0)
         			fsd.setPath("/sdcard/Free42");
         		else
-        			fsd.setPath(externalSkinName + ".layout");
+        			fsd.setPath(externalSkinName[orientation] + ".layout");
         		fsd.setOkListener(new FileSelectionDialog.OkListener() {
         			public void okPressed(String path) {
         				if (path.endsWith(".layout"))
@@ -517,10 +524,10 @@ public class Free42Activity extends Activity {
     		boolean[] annunciators = skin.getAnnunciators();
     		skin = new SkinLayout(skinName, annunciators);
         	if (skinName.startsWith("/")) {
-        		externalSkinName = skinName;
-        		this.skinName = "";
+        		externalSkinName[orientation] = skinName;
+        		this.skinName[orientation] = "";
         	} else
-        		this.skinName = skinName;
+        		this.skinName[orientation] = skinName;
         	calcView.invalidate();
         	core_repaint_display();
     	} catch (IllegalArgumentException e) {
@@ -543,6 +550,7 @@ public class Free42Activity extends Activity {
     	preferencesDialog.setSingularMatrixError(cs.matrix_singularmatrix);
     	preferencesDialog.setMatrixOutOfRange(cs.matrix_outofrange);
     	preferencesDialog.setAutoRepeat(cs.auto_repeat);
+    	preferencesDialog.setKeyClicks(keyClicksEnabled);
     	preferencesDialog.setPrintToText(ShellSpool.printToTxt);
     	preferencesDialog.setPrintToTextFileName(ShellSpool.printToTxtFileName);
     	preferencesDialog.setRawText(cs.raw_text);
@@ -558,6 +566,7 @@ public class Free42Activity extends Activity {
     	cs.matrix_singularmatrix = preferencesDialog.getSingularMatrixError();
     	cs.matrix_outofrange = preferencesDialog.getMatrixOutOfRange();
     	cs.auto_repeat = preferencesDialog.getAutoRepeat();
+    	keyClicksEnabled = preferencesDialog.getKeyClicks();
     	putCoreSettings(cs);
 
     	ShellSpool.rawText = cs.raw_text = preferencesDialog.getRawText();
@@ -975,9 +984,18 @@ public class Free42Activity extends Activity {
     	    if (shell_version >= 1)
     	    	ShellSpool.maxGifHeight = state_read_int();
     	    if (shell_version >= 2)
-    	    	skinName = state_read_string();
+    	    	skinName[0] = state_read_string();
     	    if (shell_version >= 3)
-    	    	externalSkinName = state_read_string();
+    	    	externalSkinName[0] = state_read_string();
+    	    if (shell_version >= 4) {
+    	    	skinName[1] = state_read_string();
+    	    	externalSkinName[1] = state_read_string();
+    	    	keyClicksEnabled = state_read_boolean();
+    	    } else {
+    	    	skinName[1] = skinName[0];
+    	    	externalSkinName[1] = externalSkinName[0];
+    	    	keyClicksEnabled = true;
+    	    }
     		init_shell_state(shell_version);
     	} catch (IllegalArgumentException e) {
     		return false;
@@ -997,13 +1015,18 @@ public class Free42Activity extends Activity {
     		ShellSpool.maxGifHeight = 256;
     	    // fall through
     	case 1:
-    		skinName = "Standard";
+    		skinName[0] = "Standard";
     		// fall through
     	case 2:
-    		externalSkinName = "/sdcard/Free42/" + skinName;
+    		externalSkinName[0] = "/sdcard/Free42/" + skinName[0];
     		// fall through
     	case 3:
-			// current version (SHELL_VERSION = 3),
+    		skinName[1] = skinName[0];
+    		externalSkinName[1] = externalSkinName[0];
+    		keyClicksEnabled = true;
+    		// fall through
+    	case 4:
+			// current version (SHELL_VERSION = 4),
 			// so nothing to do here since everything
 			// was initialized from the state file.
     		;
@@ -1020,8 +1043,11 @@ public class Free42Activity extends Activity {
     		state_write_boolean(ShellSpool.printToTxt);
     		state_write_string(ShellSpool.printToTxtFileName);
     		state_write_int(ShellSpool.maxGifHeight);
-    		state_write_string(skinName);
-    		state_write_string(externalSkinName);
+    		state_write_string(skinName[0]);
+    		state_write_string(externalSkinName[0]);
+    		state_write_string(skinName[1]);
+    		state_write_string(externalSkinName[1]);
+    		state_write_boolean(keyClicksEnabled);
     	} catch (IllegalArgumentException e) {}
     }
     
@@ -1141,7 +1167,7 @@ public class Free42Activity extends Activity {
 	}
 	
 	private void click() {
-		if (core_is_audio_enabled())
+		if (keyClicksEnabled)
 			playSound(11, R.raw.click, 0);
 	}
 	
@@ -1208,7 +1234,6 @@ public class Free42Activity extends Activity {
     
     private native int FREE42_MAGIC();
     private native int FREE42_VERSION();
-    private native boolean core_is_audio_enabled();
     
     ///////////////////////////////////////////
     ///// Stubs for shell->core interface /////

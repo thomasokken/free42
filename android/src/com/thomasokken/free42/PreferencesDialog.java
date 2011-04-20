@@ -28,6 +28,7 @@ public class PreferencesDialog extends Dialog {
 	private CheckBox singularMatrixCB;
 	private CheckBox matrixOutOfRangeCB;
 	private CheckBox autoRepeatCB;
+	private CheckBox keyClicksCB;
 	private CheckBox printToTextCB;
 	private EditText printToTextFileNameTF;
 	private CheckBox rawTextCB;
@@ -42,6 +43,7 @@ public class PreferencesDialog extends Dialog {
 		singularMatrixCB = (CheckBox) findViewById(R.id.singularMatrixCB);
 		matrixOutOfRangeCB = (CheckBox) findViewById(R.id.matrixOutOfRangeCB);
 		autoRepeatCB = (CheckBox) findViewById(R.id.autoRepeatCB);
+		keyClicksCB = (CheckBox) findViewById(R.id.keyClicksCB);
 		printToTextCB = (CheckBox) findViewById(R.id.printToTextCB);
 		Button browseTextB = (Button) findViewById(R.id.browseTextB);
 		browseTextB.setOnClickListener(new View.OnClickListener() {
@@ -129,6 +131,14 @@ public class PreferencesDialog extends Dialog {
 	
 	public boolean getAutoRepeat() {
 		return autoRepeatCB.isChecked();
+	}
+	
+	public void setKeyClicks(boolean b) {
+		keyClicksCB.setChecked(b);
+	}
+	
+	public boolean getKeyClicks() {
+		return keyClicksCB.isChecked();
 	}
 	
 	public void setPrintToText(boolean b) {

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 		  package="com.thomasokken.free42"
-		  android:versionCode="5"
-		  android:versionName="1.4.67.4">
+		  android:versionCode="6"
+		  android:versionName="1.4.67.5">
   <application android:label="Free42"
 			   android:icon="@drawable/icon"
-			   android:debuggable="false">
+			   android:debuggable="true">
     <activity android:name="Free42Activity"
 			  android:theme="@android:style/Theme.NoTitleBar"
-			  android:screenOrientation="portrait">
+			  android:screenOrientation="sensor">
 	  <intent-filter>
 		<action android:name="android.intent.action.MAIN"/>
 		<category android:name="android.intent.category.LAUNCHER"/>

@@ -24,10 +24,16 @@
 	    		android:layout_below="@+id/matrixOutOfRangeCB"
 	    		android:layout_alignParentLeft="true"/>
 	        
+	    <CheckBox android:id="@+id/keyClicksCB"
+	    		android:layout_width="wrap_content" android:layout_height="wrap_content"
+	    		android:text="Enable Key Clicks"
+	    		android:layout_below="@+id/autoRepeatCB"
+	    		android:layout_alignParentLeft="true"/>
+	        
 	    <CheckBox android:id="@+id/printToTextCB"
 	    		android:layout_width="wrap_content" android:layout_height="wrap_content"
 	    		android:text="Print to Text"
-	    		android:layout_below="@+id/autoRepeatCB"
+	    		android:layout_below="@+id/keyClicksCB"
 	    		android:layout_alignParentLeft="true"/>
 	    
 	    <Button android:id="@+id/browseTextB"
