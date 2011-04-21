@@ -7,6 +7,8 @@
 * Android version: in Free42Activity.onDestroy(), moved the super.onDestroy()
   call from the beginning of the method to the end. This should make the code
   more robust, so the state file is written reliably on exit.
+* Android version: implemented landscape mode support.
+* Android version: implemented "enable key click" setting in Preferences.
 
 10-04-2011: (no new code release)
 

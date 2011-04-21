@@ -1,10 +1,9 @@
-Android and iPhone versions: add option to disable key click. Hmm, what about
-the PalmOS and Pocket PC versions? There have also been requests for 'vibrate'
-feedback for key presses. I hate that myself but it takes all sorts. :-)
+iPhone version: add option to disable key click. Hmm, what about the PalmOS and
+Pocket PC versions? There have also been requests for 'vibrate' feedback for
+key presses. I hate that myself but it takes all sorts. :-)
 
 Android version:
 * The "Print-Out" menu option needs a better icon.
-* No landscape mode support yet.
 * ACCEL, LOCAT, and HEADING don't work on a lot of devices. I'll have to
   rewrite them using the new APIs (ugh).
 * Add support for physical keyboards.
