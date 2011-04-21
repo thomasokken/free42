@@ -1,4 +1,4 @@
-20-04-2011: release 1.4.68 (Android: 1.4.67.5)
+20-04-2011: release 1.4.68
 
 * INVRT did not perform any type checks, leading to badness when it was applied
   to anything that wasn't a matrix. Fixed.
