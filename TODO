@@ -8,8 +8,6 @@ Android version:
   rewrite them using the new APIs (ugh).
 * Add support for physical keyboards.
 * Implement pop-up keyboard for ALPHA mode text entry.
-* Allow the user to select the skins directory, rather than relying exclusively
-  on the hard-coded /sdcard/Free42 path (which doesn't work everywhere).
 
 iPhone version: the App Store build is built using the 3.0 SDK, in order to be
 compatible with the widest possible variety of devices. This works, and even
