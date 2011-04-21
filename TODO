@@ -3,6 +3,7 @@ Pocket PC versions? There have also been requests for 'vibrate' feedback for
 key presses. I hate that myself but it takes all sorts. :-)
 
 Android version:
+* Add separate landscape layout for file selection dialog.
 * The "Print-Out" menu option needs a better icon.
 * ACCEL, LOCAT, and HEADING don't work on a lot of devices. I'll have to
   rewrite them using the new APIs (ugh).
