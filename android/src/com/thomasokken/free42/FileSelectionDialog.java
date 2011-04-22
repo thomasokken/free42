@@ -182,19 +182,21 @@ public class FileSelectionDialog extends Dialog {
 	}
 	
 	private static class DirListAdapter implements ListAdapter {
-		private File[] items;
+		private File[] allItems, items;
 		private String type;
 		private List<DataSetObserver> observers = new ArrayList<DataSetObserver>();
 		
 		public DirListAdapter(File[] items, String type) {
-			this.items = items;
+			allItems = items;
 			this.type = type;
+			filterItems();
 		}
 		
 		public void setType(String type) {
 			boolean changed = type == null ? this.type != null : !type.equals(this.type);
 			this.type = type;
 			if (changed) {
+				filterItems();
 				DataSetObserver[] dsoArray;
 				synchronized (observers) {
 					dsoArray = observers.toArray(new DataSetObserver[observers.size()]);
@@ -202,6 +204,14 @@ public class FileSelectionDialog extends Dialog {
 				for (DataSetObserver dso : dsoArray)
 					dso.onChanged();
 			}
+		}
+		
+		private void filterItems() {
+			List<File> list = new ArrayList<File>();
+			for (File file : allItems)
+				if (file.isDirectory() || type == null || file.getName().endsWith("." + type))
+					list.add(file);
+			items = list.toArray(new File[list.size()]);
 		}
 
 		public int getCount() {
@@ -259,12 +269,11 @@ public class FileSelectionDialog extends Dialog {
 		}
 
 		public boolean areAllItemsEnabled() {
-			return false;
+			return true;
 		}
 
 		public boolean isEnabled(int position) {
-			File item = items[position];
-			return item.isDirectory() || type == null || item.getName().endsWith("." + type);
+			return true;
 		}
 	}
 }
