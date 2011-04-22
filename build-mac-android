@@ -37,8 +37,7 @@ sed 's/android:debuggable="[^"]*"/android:debuggable="false"/' < AndroidManifest
 mv TMP AndroidManifest.xml
 # TODO: version number & version code
 cd jni
-# TODO: copy files from ../common instead of ~/free42/common
-sh ./copy-files.sh
+sh ./copy-files-release.sh
 /android-ndk-r4b/ndk-build
 cd ..
 ant release
