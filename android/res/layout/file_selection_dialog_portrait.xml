@@ -19,41 +19,41 @@
     		android:layout_alignParentRight="true"
     		android:layout_toRightOf="@+id/fileTypeSpinner"/>
 
-	<LinearLayout android:id="@+id/centerBox"
+    <LinearLayout android:id="@+id/buttonBox"
     		android:layout_width="wrap_content" android:layout_height="wrap_content"
-    		android:layout_below="@+id/dirListSpinner"
-    		android:layout_above="@+id/fileTypeSpinner"
+    		android:orientation="horizontal"
+    		android:layout_gravity="center"
     		android:layout_alignParentLeft="true"
-    		android:layout_alignParentRight="true">
-
-	    <ListView android:id="@+id/dirView"
+    		android:layout_alignParentRight="true"
+    		android:layout_above="@+id/fileNameTF">
+    		
+    	<Button android:id="@+id/upButton"
+    			android:text="Up"
 	    		android:layout_width="0px" android:layout_height="fill_parent"
 	    		android:layout_weight="1"/>
-	
-	    <LinearLayout android:id="@+id/buttonBox"
-	    		android:layout_width="wrap_content" android:layout_height="wrap_content"
-	    		android:orientation="vertical"
-	    		android:layout_gravity="center"
-	    		android:layout_weight="0">
-	    		
-	    	<Button android:id="@+id/upButton"
-	    			android:text="Up"
-		    		android:layout_width="fill_parent" android:layout_height="wrap_content"/>
-	    		
-	    	<Button android:id="@+id/mkdirButton"
-	    			android:text="MkDir"
-		    		android:layout_width="fill_parent" android:layout_height="wrap_content"/>
-	    		
-	    	<Button android:id="@+id/okButton"
-	    			android:text="OK"
-		    		android:layout_width="fill_parent" android:layout_height="wrap_content"/>
-	    		
-	    	<Button android:id="@+id/cancelButton"
-	    			android:text="Cancel"
-		    		android:layout_width="fill_parent" android:layout_height="wrap_content"/>
-	    		
-	    </LinearLayout>
-    
+    		
+    	<Button android:id="@+id/mkdirButton"
+    			android:text="MkDir"
+	    		android:layout_width="0px" android:layout_height="fill_parent"
+	    		android:layout_weight="1"/>
+    		
+    	<Button android:id="@+id/okButton"
+    			android:text="OK"
+	    		android:layout_width="0px" android:layout_height="fill_parent"
+	    		android:layout_weight="1"/>
+    		
+    	<Button android:id="@+id/cancelButton"
+    			android:text="Cancel"
+	    		android:layout_width="0px" android:layout_height="fill_parent"
+	    		android:layout_weight="1"/>
+    		
     </LinearLayout>
-    
+
+    <ListView android:id="@+id/dirView"
+    		android:layout_width="fill_parent" android:layout_height="fill_parent"
+    		android:layout_alignParentLeft="true"
+    		android:layout_alignParentRight="true"
+    		android:layout_below="@+id/dirListSpinner"
+    		android:layout_above="@+id/buttonBox"/>
+	
 </RelativeLayout>

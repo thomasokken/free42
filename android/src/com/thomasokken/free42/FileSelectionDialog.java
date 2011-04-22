@@ -8,6 +8,7 @@ import java.util.StringTokenizer;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.database.DataSetObserver;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,7 +40,8 @@ public class FileSelectionDialog extends Dialog {
 	
 	public FileSelectionDialog(Context ctx, String[] types) {
 		super(ctx);
-		setContentView(R.layout.file_selection_dialog);
+        boolean landscape = ctx.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+		setContentView(landscape ? R.layout.file_selection_dialog_landscape : R.layout.file_selection_dialog_portrait);
 		dirListSpinner = (Spinner) findViewById(R.id.dirListSpinner);
 		dirListSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 			public void onItemSelected(AdapterView<?> view, View parent, int position, long id) {
