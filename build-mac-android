@@ -28,3 +28,20 @@ zip -r ../Free42Decimal.zip Free42.wdgt
 cd ..
 zip packages/Free42MacDashboard.zip Free42Binary.zip Free42Decimal.zip
 rm Free42Binary.zip Free42Decimal.zip
+
+mkdir android-tmp
+cd android-tmp
+cvs checkout free42
+cd free42/android
+sed 's/android:debuggable="[^"]*"/android:debuggable="false"/' < AndroidManifest.xml > TMP
+mv TMP AndroidManifest.xml
+# TODO: version number & version code
+cd jni
+# TODO: copy files from ../common instead of ~/free42/common
+sh ./copy-files.sh
+/android-ndk-r4b/ndk-build
+cd ..
+ant release
+mv bin/Free42Android-release.apk ../../../packages/Free42Android.apk
+cd ../../..
+rm -rf android-tmp
