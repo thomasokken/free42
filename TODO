@@ -8,8 +8,6 @@ Android version:
   rewrite them using the new APIs (ugh).
 * Add support for physical keyboards.
 * Implement pop-up keyboard for ALPHA mode text entry.
-* Add Preferences setting for screen orientation: lock portrait, lock
-  landscape, or use the sensor.
 
 iPhone version: the App Store build is built using the 3.0 SDK, in order to be
 compatible with the widest possible variety of devices. This works, and even
