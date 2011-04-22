@@ -19,16 +19,20 @@ package com.thomasokken.free42;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.Spinner;
 
 public class PreferencesDialog extends Dialog {
 	private CheckBox singularMatrixCB;
 	private CheckBox matrixOutOfRangeCB;
 	private CheckBox autoRepeatCB;
 	private CheckBox keyClicksCB;
+	private Spinner orientationSP;
 	private CheckBox printToTextCB;
 	private EditText printToTextFileNameTF;
 	private CheckBox rawTextCB;
@@ -44,6 +48,10 @@ public class PreferencesDialog extends Dialog {
 		matrixOutOfRangeCB = (CheckBox) findViewById(R.id.matrixOutOfRangeCB);
 		autoRepeatCB = (CheckBox) findViewById(R.id.autoRepeatCB);
 		keyClicksCB = (CheckBox) findViewById(R.id.keyClicksCB);
+		orientationSP = (Spinner) findViewById(R.id.orientationSpinner);
+		String[] values = new String[] { "Automatic", "Portrait", "Landscape" };
+		ArrayAdapter<String> aa = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, values);
+		orientationSP.setAdapter(aa);
 		printToTextCB = (CheckBox) findViewById(R.id.printToTextCB);
 		Button browseTextB = (Button) findViewById(R.id.browseTextB);
 		browseTextB.setOnClickListener(new View.OnClickListener() {
@@ -139,6 +147,31 @@ public class PreferencesDialog extends Dialog {
 	
 	public boolean getKeyClicks() {
 		return keyClicksCB.isChecked();
+	}
+	
+	public void setOrientation(int orientation) {
+		switch (orientation) {
+			case ActivityInfo.SCREEN_ORIENTATION_PORTRAIT:
+				orientation = 1;
+				break;
+			case ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE:
+				orientation = 2;
+				break;
+			case ActivityInfo.SCREEN_ORIENTATION_SENSOR:
+			default:
+				orientation = 0;
+				break;
+		}
+		orientationSP.setSelection(orientation);
+	}
+	
+	public int getOrientation() {
+		int orientation = orientationSP.getSelectedItemPosition();
+		switch (orientation) {
+			case 1: return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+			case 2: return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+			case 0: default: return ActivityInfo.SCREEN_ORIENTATION_SENSOR;
+		}
 	}
 	
 	public void setPrintToText(boolean b) {

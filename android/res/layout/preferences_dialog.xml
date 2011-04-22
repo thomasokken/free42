@@ -1,100 +1,139 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-		android:layout_width="fill_parent" android:layout_height="fill_parent">
-
-	<RelativeLayout
-	        android:orientation="vertical" android:layout_width="fill_parent"
-	        android:layout_height="wrap_content">
-	        
-	    <CheckBox android:id="@+id/singularMatrixCB"
-	    		android:layout_width="wrap_content" android:layout_height="wrap_content"
-	    		android:text="Singular Matrix Error"
-	    		android:layout_alignParentTop="true"
-	    		android:layout_alignParentLeft="true"/>
-	        
-	    <CheckBox android:id="@+id/matrixOutOfRangeCB"
-	    		android:layout_width="wrap_content" android:layout_height="wrap_content"
-	    		android:text="Matrix Out Of Range"
-	    		android:layout_below="@+id/singularMatrixCB"
-	    		android:layout_alignParentLeft="true"/>
-	        
-	    <CheckBox android:id="@+id/autoRepeatCB"
-	    		android:layout_width="wrap_content" android:layout_height="wrap_content"
-	    		android:text="Auto-Repeat"
-	    		android:layout_below="@+id/matrixOutOfRangeCB"
-	    		android:layout_alignParentLeft="true"/>
-	        
-	    <CheckBox android:id="@+id/keyClicksCB"
-	    		android:layout_width="wrap_content" android:layout_height="wrap_content"
-	    		android:text="Enable Key Clicks"
-	    		android:layout_below="@+id/autoRepeatCB"
-	    		android:layout_alignParentLeft="true"/>
-	        
-	    <CheckBox android:id="@+id/printToTextCB"
-	    		android:layout_width="wrap_content" android:layout_height="wrap_content"
-	    		android:text="Print to Text"
-	    		android:layout_below="@+id/keyClicksCB"
-	    		android:layout_alignParentLeft="true"/>
-	    
-	    <Button android:id="@+id/browseTextB"
-	    		android:layout_width="wrap_content" android:layout_height="wrap_content"
-	    		android:text="..."
-	    		android:layout_below="@+id/printToTextCB"
-	    		android:layout_alignParentRight="true"/>
-	        
-	    <EditText android:id="@+id/printToTextFileNameTF"
-	    		android:layout_width="fill_parent" android:layout_height="wrap_content"
-	    		android:layout_below="@+id/printToTextCB"
-	    		android:layout_alignParentLeft="true"
-	    		android:layout_toLeftOf="@+id/browseTextB"/>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		android:layout_width="fill_parent" android:layout_height="fill_parent"
+		android:orientation="vertical">
 	
-	    <CheckBox android:id="@+id/rawTextCB"
-	    		android:layout_width="wrap_content" android:layout_height="wrap_content"
-	    		android:text="Raw Text"
-	    		android:layout_below="@+id/printToTextFileNameTF"
-	    		android:layout_alignParentLeft="true"/>
-	    
-	    <CheckBox android:id="@+id/printToGifCB"
-	    		android:layout_width="wrap_content" android:layout_height="wrap_content"
-	    		android:text="Print to GIF"
-	    		android:layout_below="@+id/rawTextCB"
-	    		android:layout_alignParentLeft="true"/>
-	    
-	    <Button android:id="@+id/browseGifB"
-	    		android:layout_width="wrap_content" android:layout_height="wrap_content"
-	    		android:text="..."
-	    		android:layout_below="@+id/printToGifCB"
-	    		android:layout_alignParentRight="true"/>
-	        
-	    <EditText android:id="@+id/printToGifFileNameTF"
-	    		android:layout_width="fill_parent" android:layout_height="wrap_content"
-	    		android:layout_below="@+id/printToGifCB"
-	    		android:layout_alignParentLeft="true"
-	    		android:layout_toLeftOf="@+id/browseGifB"/>
-	    		
-		<TextView android:id="@+id/maxGifHeightL"
-	    		android:layout_width="wrap_content" android:layout_height="wrap_content"
-	   			android:text="Max. GIF Height:"
-	   			android:layout_below="@+id/printToGifFileNameTF"
-	   			android:layout_alignParentLeft="true"/>
-	   
-		<EditText android:id="@+id/maxGifHeightTF"
-	    		android:layout_width="wrap_content" android:layout_height="wrap_content"
-				android:layout_below="@+id/printToGifFileNameTF"
-				android:layout_toRightOf="@+id/maxGifHeightL"/>
-		
+	<LinearLayout android:id="@+id/buttonBox"
+			android:orientation="horizontal"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:layout_alignParentLeft="true"
+			android:layout_alignParentRight="true"
+			android:layout_alignParentBottom="true"
+			android:layout_gravity="center">
+
 		<Button android:id="@+id/okB"
-	    		android:layout_width="wrap_content" android:layout_height="wrap_content"
+	    		android:layout_width="0px" android:layout_height="wrap_content"
+	    		android:layout_weight="1"
 				android:text="OK"
 				android:layout_below="@+id/maxGifHeightTF"
 				android:layout_alignParentLeft="true"/>
 		
 		<Button android:id="@+id/cancelB"
-	    		android:layout_width="wrap_content" android:layout_height="wrap_content"
+	    		android:layout_width="0px" android:layout_height="wrap_content"
+	    		android:layout_weight="1"
 				android:text="Cancel"
 				android:layout_below="@+id/maxGifHeightTF"
 				android:layout_toRightOf="@+id/okB"/>
+	
+	</LinearLayout>
 
-	</RelativeLayout>
+	<ScrollView
+			android:layout_width="fill_parent" android:layout_height="fill_parent"
+			android:layout_alignParentLeft="true"
+			android:layout_alignParentRight="true"
+			android:layout_alignParentTop="true"
+			android:layout_above="@+id/buttonBox">
+	
+		<RelativeLayout
+		        android:orientation="vertical" android:layout_width="fill_parent"
+		        android:layout_height="wrap_content">
+		        
+		    <CheckBox android:id="@+id/singularMatrixCB"
+		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		    		android:text="Singular Matrix Error"
+		    		android:layout_alignParentTop="true"
+		    		android:layout_alignParentLeft="true"/>
+		        
+		    <CheckBox android:id="@+id/matrixOutOfRangeCB"
+		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		    		android:text="Matrix Out Of Range"
+		    		android:layout_below="@+id/singularMatrixCB"
+		    		android:layout_alignParentLeft="true"/>
+		        
+		    <CheckBox android:id="@+id/autoRepeatCB"
+		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		    		android:text="Auto-Repeat"
+		    		android:layout_below="@+id/matrixOutOfRangeCB"
+		    		android:layout_alignParentLeft="true"/>
+		        
+		    <CheckBox android:id="@+id/keyClicksCB"
+		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		    		android:text="Enable Key Clicks"
+		    		android:layout_below="@+id/autoRepeatCB"
+		    		android:layout_alignParentLeft="true"/>
+		        
+		    <LinearLayout android:id="@+id/orientationBox"
+		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		    		android:layout_below="@+id/keyClicksCB"
+		    		android:layout_alignParentLeft="true"
+		    		android:orientation="horizontal">
+	
+				<TextView
+			    		android:layout_width="wrap_content" android:layout_height="wrap_content"
+			   			android:text="Orientation:"/>
+		   
+			    <Spinner android:id="@+id/orientationSpinner"
+			    		android:layout_width="wrap_content" android:layout_height="wrap_content"
+			    		android:layout_alignParentTop="true"
+			    		android:layout_alignParentLeft="true"/>
+			    		
+			</LinearLayout>
+	
+		    <CheckBox android:id="@+id/printToTextCB"
+		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		    		android:text="Print to Text"
+		    		android:layout_below="@+id/orientationBox"
+		    		android:layout_alignParentLeft="true"/>
+		    
+		    <Button android:id="@+id/browseTextB"
+		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		    		android:text="..."
+		    		android:layout_below="@+id/printToTextCB"
+		    		android:layout_alignParentRight="true"/>
+		        
+		    <EditText android:id="@+id/printToTextFileNameTF"
+		    		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		    		android:layout_below="@+id/printToTextCB"
+		    		android:layout_alignParentLeft="true"
+		    		android:layout_toLeftOf="@+id/browseTextB"/>
+		
+		    <CheckBox android:id="@+id/rawTextCB"
+		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		    		android:text="Raw Text"
+		    		android:layout_below="@+id/printToTextFileNameTF"
+		    		android:layout_alignParentLeft="true"/>
+		    
+		    <CheckBox android:id="@+id/printToGifCB"
+		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		    		android:text="Print to GIF"
+		    		android:layout_below="@+id/rawTextCB"
+		    		android:layout_alignParentLeft="true"/>
+		    
+		    <Button android:id="@+id/browseGifB"
+		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		    		android:text="..."
+		    		android:layout_below="@+id/printToGifCB"
+		    		android:layout_alignParentRight="true"/>
+		        
+		    <EditText android:id="@+id/printToGifFileNameTF"
+		    		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		    		android:layout_below="@+id/printToGifCB"
+		    		android:layout_alignParentLeft="true"
+		    		android:layout_toLeftOf="@+id/browseGifB"/>
+		    		
+			<TextView android:id="@+id/maxGifHeightL"
+		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		   			android:text="Max. GIF Height:"
+		   			android:layout_below="@+id/printToGifFileNameTF"
+		   			android:layout_alignParentLeft="true"/>
+		   
+			<EditText android:id="@+id/maxGifHeightTF"
+		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
+					android:layout_below="@+id/printToGifFileNameTF"
+					android:layout_toRightOf="@+id/maxGifHeightL"/>
+			
+		</RelativeLayout>
+	
+	</ScrollView>
 
-</ScrollView>
+</RelativeLayout>			

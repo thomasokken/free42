@@ -37,6 +37,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -89,7 +90,7 @@ public class Free42Activity extends Activity {
 
 	private static final String[] builtinSkinNames = new String[] { "Standard" };
 	
-    private static final int SHELL_VERSION = 4;
+    private static final int SHELL_VERSION = 5;
     
     private static final int PRINT_BACKGROUND_COLOR = Color.LTGRAY;
     
@@ -131,11 +132,12 @@ public class Free42Activity extends Activity {
 	private String[] skinName = new String[] { builtinSkinNames[0], builtinSkinNames[0] };
 	private String[] externalSkinName = new String[2];
 	private boolean keyClicksEnabled = true;
+	private int preferredOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
 	
 	private final Runnable repeaterCaller = new Runnable() { public void run() { repeater(); } };
 	private final Runnable timeout1Caller = new Runnable() { public void run() { timeout1(); } };
-	private final Runnable Timeout2Caller = new Runnable() { public void run() { timeout2(); } };
-	private final Runnable Timeout3Caller = new Runnable() { public void run() { timeout3(); } };
+	private final Runnable timeout2Caller = new Runnable() { public void run() { timeout2(); } };
+	private final Runnable timeout3Caller = new Runnable() { public void run() { timeout3(); } };
     
     ///////////////////////////////////////////////////////
     ///// Top-level code to interface with Android UI /////
@@ -236,6 +238,9 @@ public class Free42Activity extends Activity {
 	    	iff.addAction(ACTION_BATTERY_OKAY);
 	    	registerReceiver(br, iff);
     	}
+    	
+    	if (preferredOrientation != this.getRequestedOrientation())
+    		setRequestedOrientation(preferredOrientation);
     }
 
     @Override
@@ -315,11 +320,11 @@ public class Free42Activity extends Activity {
     private void cancelRepeaterAndTimeouts1And2() {
     	mainHandler.removeCallbacks(repeaterCaller);
     	mainHandler.removeCallbacks(timeout1Caller);
-    	mainHandler.removeCallbacks(Timeout2Caller);
+    	mainHandler.removeCallbacks(timeout2Caller);
     }
     
     private void cancelTimeout3() {
-    	mainHandler.removeCallbacks(Timeout3Caller);
+    	mainHandler.removeCallbacks(timeout3Caller);
     	timeout3_active = false;
     }
     
@@ -551,6 +556,7 @@ public class Free42Activity extends Activity {
     	preferencesDialog.setMatrixOutOfRange(cs.matrix_outofrange);
     	preferencesDialog.setAutoRepeat(cs.auto_repeat);
     	preferencesDialog.setKeyClicks(keyClicksEnabled);
+    	preferencesDialog.setOrientation(preferredOrientation);
     	preferencesDialog.setPrintToText(ShellSpool.printToTxt);
     	preferencesDialog.setPrintToTextFileName(ShellSpool.printToTxtFileName);
     	preferencesDialog.setRawText(cs.raw_text);
@@ -567,6 +573,8 @@ public class Free42Activity extends Activity {
     	cs.matrix_outofrange = preferencesDialog.getMatrixOutOfRange();
     	cs.auto_repeat = preferencesDialog.getAutoRepeat();
     	keyClicksEnabled = preferencesDialog.getKeyClicks();
+    	int oldOrientation = preferredOrientation;
+    	preferredOrientation = preferencesDialog.getOrientation();
     	putCoreSettings(cs);
 
     	ShellSpool.rawText = cs.raw_text = preferencesDialog.getRawText();
@@ -596,6 +604,9 @@ public class Free42Activity extends Activity {
     	}
     	ShellSpool.printToGif = newPrintEnabled;
     	ShellSpool.printToGifFileName = newFileName;
+    	
+    	if (preferredOrientation != oldOrientation)
+    		setRequestedOrientation(preferredOrientation);
     }
     
     private void doAbout() {
@@ -996,6 +1007,10 @@ public class Free42Activity extends Activity {
     	    	externalSkinName[1] = externalSkinName[0];
     	    	keyClicksEnabled = true;
     	    }
+    	    if (shell_version >= 5)
+    	    	preferredOrientation = state_read_int();
+    	    else
+    	    	preferredOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
     		init_shell_state(shell_version);
     	} catch (IllegalArgumentException e) {
     		return false;
@@ -1026,7 +1041,10 @@ public class Free42Activity extends Activity {
     		keyClicksEnabled = true;
     		// fall through
     	case 4:
-			// current version (SHELL_VERSION = 4),
+    		preferredOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
+    		// fall through
+    	case 5:
+			// current version (SHELL_VERSION = 5),
 			// so nothing to do here since everything
 			// was initialized from the state file.
     		;
@@ -1048,6 +1066,7 @@ public class Free42Activity extends Activity {
     		state_write_string(skinName[1]);
     		state_write_string(externalSkinName[1]);
     		state_write_boolean(keyClicksEnabled);
+    		state_write_int(preferredOrientation);
     	} catch (IllegalArgumentException e) {}
     }
     
@@ -1144,7 +1163,7 @@ public class Free42Activity extends Activity {
 		cancelRepeaterAndTimeouts1And2();
 		if (ckey != 0) {
 			core_keytimeout1();
-			mainHandler.postDelayed(Timeout2Caller, 1750);
+			mainHandler.postDelayed(timeout2Caller, 1750);
 		}
 	}
 
@@ -1359,7 +1378,7 @@ public class Free42Activity extends Activity {
 	 */
 	public void shell_request_timeout3(int delay) {
 		cancelTimeout3();
-		mainHandler.postDelayed(Timeout3Caller, delay);
+		mainHandler.postDelayed(timeout3Caller, delay);
 		timeout3_active = true;
 	}
 	
