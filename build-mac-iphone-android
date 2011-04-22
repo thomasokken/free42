@@ -29,6 +29,15 @@ cd ..
 zip packages/Free42MacDashboard.zip Free42Binary.zip Free42Decimal.zip
 rm Free42Binary.zip Free42Decimal.zip
 
+cd iphone
+rm -rf build/Distribution-iphoneos
+echo "======== ATTENTION: Possible Password Prompt ========"
+security unlock-keychain /Users/thomas/Library/Keychains/login.keychain
+xcodebuild -project Free42.xcodeproj -target Free42 -configuration Distribution build
+cd build/Distribution-iphoneos
+zip -r --symlinks ../../../packages/Free42.app.zip Free42.app
+cd ../../..
+
 mkdir android-tmp
 cd android-tmp
 cvs checkout free42
@@ -48,6 +57,7 @@ cd jni
 sh ./copy-files-release.sh
 /android-ndk-r4b/ndk-build
 cd ..
+echo "======== ATTENTION: Possible Password Prompt ========"
 ant release
 mv bin/Free42Android-release.apk ../../../packages/Free42Android.apk
 cd ../../..

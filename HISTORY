@@ -1,3 +1,11 @@
+22-04-2011: release 1.4.69 (Android only)
+
+* Added "orientation" option in Preferences, allowing the user to lock the app
+  in landscape or portrait mode.
+* Improved the layout of the file selection and Preferences dialogs.
+* The file selection dialog no longer disables files that don't match the
+  filter; it now hides them.
+
 20-04-2011: release 1.4.68
 
 * INVRT did not perform any type checks, leading to badness when it was applied
