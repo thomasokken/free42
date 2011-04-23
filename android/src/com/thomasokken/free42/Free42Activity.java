@@ -1289,12 +1289,12 @@ public class Free42Activity extends Activity {
 		public boolean matrix_outofrange;
 		public boolean raw_text;
 		public boolean auto_repeat;
-		@SuppressWarnings("unused") public boolean enable_ext_copan;
-		@SuppressWarnings("unused") public boolean enable_ext_bigstack;
-		@SuppressWarnings("unused") public boolean enable_ext_accel;
-		@SuppressWarnings("unused") public boolean enable_ext_locat;
-		@SuppressWarnings("unused") public boolean enable_ext_heading;
-		@SuppressWarnings("unused") public boolean enable_ext_time;
+		public boolean enable_ext_copan;
+		public boolean enable_ext_bigstack;
+		public boolean enable_ext_accel;
+		public boolean enable_ext_locat;
+		public boolean enable_ext_heading;
+		public boolean enable_ext_time;
     }
 
     ///////////////////////////////////////////////////
