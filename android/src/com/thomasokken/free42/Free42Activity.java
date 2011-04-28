@@ -421,6 +421,7 @@ public class Free42Activity extends Activity {
     		return;
     	}
     	core_import_programs();
+    	redisplay();
     	if (programsInputStream != null) {
     		try {
     			programsInputStream.close();
