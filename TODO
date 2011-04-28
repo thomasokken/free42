@@ -11,6 +11,16 @@ Android version:
 * Add an option to display skins unscaled, i.e. map them pixel for pixel
   (or with pixel doubling or tripling when possible).
 
+All versions: make sure Free42 saves its state when the OS shuts down. The
+Android, iOS, and PalmOS versions should be OK because the OS controls their
+life-cycle anyway,  but the desktop and Pocket PC versions probably need to
+deal with OS shutdown explicitly. Even the Linux version may need some
+attention; while it performs a graceful exit on SIGINT, it may also be killed
+by the X server shutting down, and if that causes an X I/O error, that makes
+Free42 send itself a QUIT signal, which causes a core dump (this is good for
+debugging but probably should be changed to sending an INT signal for release
+builds).
+
 iPhone version: the App Store build is built using the 3.0 SDK, in order to be
 compatible with the widest possible variety of devices. This works, and even
 the high-res icon and skins work on the retina display, but the app doesn't
