@@ -40,14 +40,14 @@ cd ../../..
 
 mkdir android-tmp
 cd android-tmp
-cvs checkout free42
+svn checkout free42/trunk free42
 cd free42/android
 sed 's/android:debuggable="[^"]*"/android:debuggable="false"/' < AndroidManifest.xml > TMP
 mv TMP AndroidManifest.xml
 VERSION_CODE=`cat version.code`
 VERSION_CODE=`expr $VERSION_CODE + 1`
 echo $VERSION_CODE > version.code
-cvs commit -m 'Automatic version.code bump' version.code
+svn commit -m 'Automatic version.code bump' version.code
 sed "s/android:versionCode=\"[^\"]*\"/android:versionCode=\"$VERSION_CODE\"/" < AndroidManifest.xml > TMP
 mv TMP AndroidManifest.xml
 VERSION_NAME=`cat ../VERSION`
