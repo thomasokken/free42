@@ -3,16 +3,19 @@ Pocket PC versions? There have also been requests for 'vibrate' feedback for
 key presses. I hate that myself but it takes all sorts. :-)
 
 Android version:
+* Add android:installLocation property to the manifest, to support installing
+  the app on external memory (SD card) under Android 2.2 or later. See
+  http://developer.android.com/guide/appendix/install-location.html
+* Add an option to display skins scaled to their maximum size while maintaining
+  aspect ratio, or to display skins without any scaling.
+* The display looks blurry on some devices. Buffering it at device resolution,
+  rather than at 42S resolution, would fix that (same as how the iPhone version
+  handles this).
 * The "Print-Out" menu option needs a better icon.
 * ACCEL, LOCAT, and HEADING don't work on a lot of devices. I'll have to
   rewrite them using the new APIs (ugh).
 * Add support for physical keyboards.
 * Implement pop-up keyboard for ALPHA mode text entry.
-* The display looks blurry on some devices. Buffering it at device resolution,
-  rather than at 42S resolution, would fix that (same as how the iPhone version
-  handles this).
-* Add an option to display skins scaled to their maximum size while maintaining
-  aspect ratio, or to display skins without any scaling.
 
 All versions: make sure Free42 saves its state when the OS shuts down. The
 Android, iOS, and PalmOS versions should be OK because the OS controls their
