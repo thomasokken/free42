@@ -8,8 +8,11 @@ Android version:
   rewrite them using the new APIs (ugh).
 * Add support for physical keyboards.
 * Implement pop-up keyboard for ALPHA mode text entry.
-* Add an option to display skins unscaled, i.e. map them pixel for pixel
-  (or with pixel doubling or tripling when possible).
+* The display looks blurry on some devices. Buffering it at device resolution,
+  rather than at 42S resolution, would fix that (same as how the iPhone version
+  handles this).
+* Add an option to display skins scaled to their maximum size while maintaining
+  aspect ratio, or to display skins without any scaling.
 
 All versions: make sure Free42 saves its state when the OS shuts down. The
 Android, iOS, and PalmOS versions should be OK because the OS controls their
