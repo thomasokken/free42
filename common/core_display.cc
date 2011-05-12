@@ -1462,6 +1462,7 @@ static void draw_catalog() {
     } else if (catsect == CATSECT_FCN) {
 	int desired_row = catalogmenu_row[catindex];
 	if (desired_row < 42) {
+	    standard_fcn:
 	    for (int i = 0; i < 6; i++) {
 		int cmd = fcn_cat[desired_row * 6 + i];
 		catalogmenu_item[catindex][i] = cmd;
@@ -1480,10 +1481,12 @@ static void draw_catalog() {
 	    int curr_pos = 5;
 	    bool menu_full = false;
 	    int menu_length = 0;
+	    bool no_extensions = true;
 	    for (int extno = 0; extensions[extno].first_cmd != CMD_NULL; extno++) {
 		if (extensions[extno].enable_flag == NULL || *extensions[extno].enable_flag) {
 		    for (int cmd = extensions[extno].first_cmd; cmd <= extensions[extno].last_cmd; cmd++) {
 			if ((cmdlist(cmd)->flags & FLAG_HIDDEN) == 0) {
+			    no_extensions = false;
 			    if (curr_pos == 5) {
 				curr_pos = 0;
 				curr_row++;
@@ -1499,6 +1502,10 @@ static void draw_catalog() {
 			}
 		    }
 		}
+	    }
+	    if (no_extensions) {
+		desired_row = catalogmenu_row[catindex] = desired_row == 42 ? 0 : 41;
+		goto standard_fcn;
 	    }
 	    done:
 	    catalogmenu_rows[catindex] = curr_row + 1;
