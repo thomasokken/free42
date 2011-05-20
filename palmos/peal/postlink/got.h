@@ -26,6 +26,7 @@
 #define GOT_H
 
 #include <stdint.h>
+#include <stdlib.h>
 #include <vector>
 
 using namespace std;

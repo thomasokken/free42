@@ -26,6 +26,7 @@
 #define STRINGTABLE_H
 
 #include <string.h>
+#include <stdlib.h>
 
 #include <vector>
 #include <string>
