@@ -40,7 +40,7 @@ cd ../../..
 
 mkdir android-tmp
 cd android-tmp
-svn checkout free42/trunk free42
+svn checkout svn://macmini/free42/trunk free42
 cd free42/android
 sed 's/android:debuggable="[^"]*"/android:debuggable="false"/' < AndroidManifest.xml > TMP
 mv TMP AndroidManifest.xml
