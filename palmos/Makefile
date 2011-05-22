@@ -129,40 +129,40 @@ shell.ro: shell.rcp
 	pilrc -MD -q -allowEditID -ro -o shell.ro shell.rcp
 
 Original.prc: skin2prc
-	sh make-skin ../palmskins/Original.layout \
-		../palmskins/Original.gif 100 500 1 72 Original off 1
+	sh make-skin ../palmosskins/Original.layout \
+		../palmosskins/Original.gif 100 500 1 72 Original off 1
 
 Reverse.prc: skin2prc
-	sh make-skin ../palmskins/Reverse.layout \
-		../palmskins/Reverse.gif 1000 2000 1 72 Reverse off 1
+	sh make-skin ../palmosskins/Reverse.layout \
+		../palmosskins/Reverse.gif 1000 2000 1 72 Reverse off 1
 
 Standard.prc: skin2prc
-	sh make-skin ../palmskins/Standard.layout \
-		../palmskins/Standard.gif 1000 2000 1,4,8 72 Standard off 1
+	sh make-skin ../palmosskins/Standard.layout \
+		../palmosskins/Standard.gif 1000 2000 1,4,8 72 Standard off 1
 
 StandardHD.prc: skin2prc
-	sh make-skin ../palmskins/StandardHD.layout \
-		../palmskins/StandardHD.gif 1000 2000 1,4,8 144 StandardHD off 2
+	sh make-skin ../palmosskins/StandardHD.layout \
+		../palmosskins/StandardHD.gif 1000 2000 1,4,8 144 StandardHD off 2
 
 SemiReal42.prc: skin2prc
-	sh make-skin ../palmskins/SemiReal42.layout \
-		../palmskins/SemiReal42.gif 1000 2000 1,4,8 72 SemiReal42 off 1
+	sh make-skin ../palmosskins/SemiReal42.layout \
+		../palmosskins/SemiReal42.gif 1000 2000 1,4,8 72 SemiReal42 off 1
 
 SemiReal42HD.prc: skin2prc
-	sh make-skin ../palmskins/SemiReal42HD.layout \
-		../palmskins/SemiReal42HD.gif 1000 2000 1,4,8 144 SemiReal42HD off 2
+	sh make-skin ../palmosskins/SemiReal42HD.layout \
+		../palmosskins/SemiReal42HD.gif 1000 2000 1,4,8 144 SemiReal42HD off 2
 
 SemiAuto42HD.prc: skin2prc
-	sh make-skin ../palmskins/SemiAuto42HD.layout \
-		../palmskins/SemiAuto42HD.gif 1000 2000 1,4,8 144 SemiAuto42HD off 2
+	sh make-skin ../palmosskins/SemiAuto42HD.layout \
+		../palmosskins/SemiAuto42HD.gif 1000 2000 1,4,8 144 SemiAuto42HD off 2
 
 Realism.prc: skin2prc
-	sh make-skin ../palmskins/Realism.layout \
-		../palmskins/Realism.gif 1000 2000 1,4,8 144 Realism off 2
+	sh make-skin ../palmosskins/Realism.layout \
+		../palmosskins/Realism.gif 1000 2000 1,4,8 144 Realism off 2
 
 Ehrling42sm.prc: skin2prc
-	sh make-skin ../palmskins/Ehrling42sm.layout \
-		../palmskins/Ehrling42sm.gif 1000 2000 1,4,8 144 Ehrling42sm off 2
+	sh make-skin ../palmosskins/Ehrling42sm.layout \
+		../palmosskins/Ehrling42sm.gif 1000 2000 1,4,8 144 Ehrling42sm off 2
 
 Free42PalmOSSkins.zip: Reverse.prc Standard.prc StandardHD.prc SemiReal42.prc SemiReal42HD.prc SemiAuto42HD.prc Realism.prc Ehrling42sm.prc
 	rm -f Free42PalmOSSkins.zip

@@ -110,8 +110,9 @@ cd tmp
 svn checkout svn://macmini/free42/trunk free42
 find . -type d -name .svn -prune -exec rm -rf {} \;
 zip -j ../packages/Free42Skins.zip free42/skins/*
-zip -j ../packages/Free42PocketPCSkins.zip free42/ppcskins/*
+zip -j ../packages/Free42PocketPCSkins.zip free42/pocketpcskins/*
 zip -j ../packages/Free42iPhoneSkins.zip free42/iphoneskins/*
+zip -j ../packages/Free42AndroidSkins.zip free42/androidskins/*
 tar cvfz ../packages/free42.tgz free42
 cd ..
 rm -rf tmp

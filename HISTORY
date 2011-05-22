@@ -1,3 +1,10 @@
+22-05-2011: (no new code release)
+
+* Added Free42AndroidSkins.zip skins, for skins designed for Android-based
+  devices; added HTC4800 skin for HTC Desire HD or other Android devices with
+  480x800 screens. Skin contributed by Michael Vogel, based on an iPhone skin
+  for iPhone by Jerrod Hofferth.
+
 22-04-2011: release 1.4.69 (Android only)
 
 * Added "orientation" option in Preferences, allowing the user to lock the app
