@@ -1,10 +1,9 @@
 VERSION.rc
 android
 build-gtk-motif
-build-mac
-build-palmos-pocketpc-windows
+build-mac-iphone
+build-palmos-pocketpc-windows-android
 conduit
-gtk/Free42.activity
 gtk/Free42.activity.tgz
 iphone
 iphoneskins
