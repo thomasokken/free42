@@ -5,6 +5,7 @@ int main(int argc, char *argv[]) {
     printf("<html>\n"
 	   "<head>\n"
 	   "  <title>%s</title>\n"
+	   "  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n"
 	   "<head>\n"
 	   "<body>\n"
 	   "<h3>%s</h3>\n"
