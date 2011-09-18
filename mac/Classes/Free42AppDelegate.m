@@ -590,6 +590,10 @@ static char version[32] = "";
 	[pool release];
 }
 
+- (void) quit {
+	[NSApp terminate:nil];
+}
+
 - (void) setTimeout:(int) which {
 	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(timeout_callback) object:NULL];
 	timeout_which = which;
@@ -1031,6 +1035,7 @@ void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
 
 void shell_powerdown() {
 	quit_flag = 1;
+	we_want_cpu = 1;
 }
 
 void shell_print(const char *text, int length,
