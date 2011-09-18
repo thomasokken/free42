@@ -30,15 +30,23 @@ phloat math_random() {
     return random_number;
 }
 
-int math_asinh_acosh(phloat xre, phloat xim,
-			    phloat *yre, phloat *yim, int do_asinh) {
+int math_asinh(phloat xre, phloat xim, phloat *yre, phloat *yim) {
 
     /* TODO: review; and deal with overflows in intermediate results */
     phloat are, aim, br, bphi;
 
-    /* a = z ^ 2 +- 1 */
-    are = xre * xre - xim * xim;
-    if (do_asinh) are += 1; else are -= 1;
+    /* If re(x)<0, we calculate asinh(x)=-asinh(-x); this avoids the loss of
+     * significance in x+sqrt(x^2+1) when x is large and sqrt(x^2+1) approaches
+     * -x.
+     */
+    int neg = xre < 0;
+    if (neg) {
+	xre = -xre;
+	xim = -xim;
+    }
+
+    /* a = x ^ 2 + 1 */
+    are = xre * xre - xim * xim + 1;
     aim = 2 * xre * xim;
 
     /* b = sqrt(a) */
@@ -53,6 +61,39 @@ int math_asinh_acosh(phloat xre, phloat xim,
     /* y = log(a) */
     *yre = log(hypot(are, aim));
     *yim = atan2(aim, are);
+    if (neg) {
+	*yre = -*yre;
+	*yim = -*yim;
+    }
+    return ERR_NONE;
+}
+
+int math_acosh(phloat xre, phloat xim, phloat *yre, phloat *yim) {
+
+    /* TODO: review; and deal with overflows in intermediate results */
+    phloat ar, aphi, are, aim, br, bphi, bre, bim, cre, cim;
+
+    /* a = sqrt(x + 1) */
+    ar = sqrt(hypot(xre + 1, xim));
+    aphi = atan2(xim, xre + 1) / 2;
+    sincos(aphi, &aim, &are);
+    are *= ar;
+    aim *= ar;
+
+    /* b = sqrt(x - 1) */
+    br = sqrt(hypot(xre - 1, xim));
+    bphi = atan2(xim, xre - 1) / 2;
+    sincos(bphi, &bim, &bre);
+    bre *= br;
+    bim *= br;
+
+    /* c = x + a * b */
+    cre = xre + are * bre - aim * bim;
+    cim = xim + are * bim + aim * bre;
+
+    /* y = log(c) */
+    *yre = log(hypot(cre, cim));
+    *yim = atan2(cim, cre);
     return ERR_NONE;
 }
 

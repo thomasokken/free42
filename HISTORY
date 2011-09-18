@@ -1,3 +1,8 @@
+18-09-2011: release 1.4.70
+
+* Fixed several bugs in complex ASIN, ASINH, ACOS, and ACOSH.
+* Android version: better printer icon in the main menu, by Günter Schink.
+
 11-06-2011: (no new code release)
 
 * Added two new skins to the Android skins package, designed for the Samsung

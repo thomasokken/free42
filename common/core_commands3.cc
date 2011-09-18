@@ -45,7 +45,7 @@ static int mappable_acosh_r(phloat x, phloat *y) {
 static int mappable_acosh_c(phloat xre, phloat xim, phloat *yre, phloat *yim)
 								COMMANDS3_SECT;
 static int mappable_acosh_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
-    return math_asinh_acosh(xre, xim, yre, yim, 0);
+    return math_acosh(xre, xim, yre, yim);
 }
 
 int docmd_acosh(arg_struct *arg) {
@@ -59,7 +59,7 @@ int docmd_acosh(arg_struct *arg) {
 		return ERR_INVALID_DATA;
 	    else {
 		phloat re, im;
-		int err = math_asinh_acosh(x, 0, &re, &im, 0);
+		int err = math_acosh(x, 0, &re, &im);
 		if (err != ERR_NONE)
 		    return err;
 		v = new_complex(re, im);
@@ -150,7 +150,7 @@ static int mappable_asinh_r(phloat x, phloat *y) {
 static int mappable_asinh_c(phloat xre, phloat xim, phloat *yre, phloat *yim)
 								COMMANDS3_SECT;
 static int mappable_asinh_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
-    return math_asinh_acosh(xre, xim, yre, yim, 1);
+    return math_asinh(xre, xim, yre, yim);
 }
 
 int docmd_asinh(arg_struct *arg) {

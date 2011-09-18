@@ -283,7 +283,11 @@ static int mappable_asin_r(phloat x, phloat *y) {
 static int mappable_asin_c(phloat xre, phloat xim, phloat *yre, phloat *yim)
 								COMMANDS6_SECT;
 static int mappable_asin_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
-    return math_asinh_acosh(xim, xre, yim, yre, 1);
+    phloat tre, tim;
+    int err = math_asinh(-xim, xre, &tre, &tim);
+    *yre = tim;
+    *yim = -tre;
+    return err;
 }
 
 int docmd_asin(arg_struct *arg) {
@@ -296,7 +300,6 @@ int docmd_asin(arg_struct *arg) {
 	    if (flags.f.real_result_only)
 		return ERR_INVALID_DATA;
 	    else {
-		/* TODO: review */
 		if (x > 0)
 		    v = new_complex(PI / 2, -acosh(x));
 		else
@@ -327,7 +330,7 @@ static int mappable_acos_c(phloat xre, phloat xim, phloat *yre, phloat *yim)
 								COMMANDS6_SECT;
 static int mappable_acos_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     phloat tre, tim;
-    int err = math_asinh_acosh(xre, xim, &tre, &tim, 0);
+    int err = math_acosh(xre, xim, &tre, &tim);
     *yre = tim;
     *yim = -tre;
     return err;
