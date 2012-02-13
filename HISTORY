@@ -1,3 +1,9 @@
+12-02-2012: release 1.4.70a
+
+* Android version: fixed app manifest to make the app work with screens other
+  than 320x480. This should fix the problem of skins not filling the whole
+  screen on some devices.
+
 18-09-2011: release 1.4.70
 
 * Fixed several bugs in complex ASIN, ASINH, ACOS, and ACOSH.
