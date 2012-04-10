@@ -1,3 +1,17 @@
+09-04-2012: release 1.4.70b
+
+* Android version: fixed app manifest so the app no longer obtains the
+  READ_PHONE_STATE permission, which it never needed anyway.
+  Some background: Apps targeted at Android 1.5 automatically get
+  READ_PHONE_STATE and WRITE_EXTERNAL_STORAGE when installed in Android 1.6 or
+  higher, without the user being told, and this tends to look under-handed to
+  users who aren't aware of what's going on. Free42 now targets 1.6, which
+  means it doesn't get any permissions silently.
+  It does now request WRITE_EXTERNAL_STORAGE, because it needs it for printing
+  to files and for exporting programs.
+  Note that the app still runs on 1.5 and later; the requirements for running
+  it have not changed.
+
 12-02-2012: release 1.4.70a
 
 * Android version: fixed app manifest to make the app work with screens other
