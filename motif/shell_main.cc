@@ -1,6 +1,6 @@
 /*****************************************************************************
  * Free42 -- an HP-42S calculator simulator
- * Copyright (C) 2004-2011  Thomas Okken
+ * Copyright (C) 2004-2012  Thomas Okken
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2,
@@ -2635,7 +2635,7 @@ static void aboutCB(Widget w, XtPointer ud, XtPointer cd) {
 	Widget button;
 	XmString s;
 
-	s = XmStringCreateLtoR("Free42 " VERSION "\n(C) 2004-2011 Thomas Okken\nthomas_okken@yahoo.com\nhttp://thomasokken.com/free42/", XmFONTLIST_DEFAULT_TAG);
+	s = XmStringCreateLtoR("Free42 " VERSION "\n(C) 2004-2012 Thomas Okken\nthomas_okken@yahoo.com\nhttp://thomasokken.com/free42/", XmFONTLIST_DEFAULT_TAG);
 	XtSetArg(args[0], XmNmessageString, s);
 	XtSetArg(args[1], XmNtitle, "About Free42");
 	XtSetArg(args[2], XmNsymbolPixmap, icon);

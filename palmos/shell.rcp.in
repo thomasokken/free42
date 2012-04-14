@@ -1,6 +1,6 @@
 /*****************************************************************************
  * Free42 -- an HP-42S calculator simulator
- * Copyright (C) 2004-2011  Thomas Okken
+ * Copyright (C) 2004-2012  Thomas Okken
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2,
@@ -384,7 +384,7 @@ begin
   formbitmap at (10 18) bitmap 3333
   label "Free42" autoid at (37 15) font 2
   label "Release %VERSION%" autoid at (prevleft prevbottom)
-  label "\251 2004-2011 Thomas Okken" autoid at (10 55)
+  label "\251 2004-2012 Thomas Okken" autoid at (10 55)
   label "thomas_okken@yahoo.com" autoid at (prevleft prevbottom)
   label "http://thomasokken.com/free42/" autoid at (prevleft prevbottom+10)
   button "OK" id ok_id at (center 136 36 auto)

@@ -1,6 +1,6 @@
 /*****************************************************************************
  * Free42 -- an HP-42S calculator simulator
- * Copyright (C) 2004-2011  Thomas Okken
+ * Copyright (C) 2004-2012  Thomas Okken
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2,
@@ -863,9 +863,9 @@ phloat fix_hms(phloat x) {
     if (neg)
 	x = -x;
     if (x == x + 1)
-	return x;
+	return neg ? -x : x;
     if (x < 0.0059)
-	return x;
+	return neg ? -x : x;
     #ifdef BCD_MATH
 	if (floor(fmod(x * 10000, 100)) == 60)
 	    x += sec_corr;

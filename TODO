@@ -19,6 +19,8 @@ Android version:
 * Add support for physical keyboards.
 * Implement pop-up keyboard for ALPHA mode text entry.
 
+Haptic feedback option.
+
 All versions: make sure Free42 saves its state when the OS shuts down. The
 Android, iOS, and PalmOS versions should be OK because the OS controls their
 life-cycle anyway,  but the desktop and Pocket PC versions probably need to

@@ -1,3 +1,9 @@
+14-04-2012: release 1.4.71
+
+* HMS+ and HMS- would return results with the wrong sign under certain
+  circumstances: result < 0 and |result| < 59 seconds, or result < 0 and
+  |result| > maximum integer. Fixed.
+
 09-04-2012: release 1.4.70b
 
 * Android version: fixed app manifest so the app no longer obtains the
