@@ -377,6 +377,7 @@
 			isa = PBXProject;
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Free42" */;
 			compatibilityVersion = "Xcode 3.1";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
 				English,
@@ -531,7 +532,7 @@
 				"New Setting" = "";
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
-				SDKROOT = macosx10.5;
+				SDKROOT = macosx10.6;
 			};
 			name = "Debug Binary";
 		};
@@ -545,7 +546,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				"New Setting" = "";
 				PREBINDING = NO;
-				SDKROOT = macosx10.5;
+				SDKROOT = macosx10.6;
 			};
 			name = "Release Binary";
 		};
@@ -564,7 +565,7 @@
 				"New Setting" = "";
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
-				SDKROOT = macosx10.5;
+				SDKROOT = macosx10.6;
 			};
 			name = "Debug Decimal";
 		};
@@ -598,7 +599,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				"New Setting" = "";
 				PREBINDING = NO;
-				SDKROOT = macosx10.5;
+				SDKROOT = macosx10.6;
 			};
 			name = "Release Decimal";
 		};
