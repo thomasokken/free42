@@ -90,7 +90,7 @@ public class Free42Activity extends Activity {
 
 	private static final String[] builtinSkinNames = new String[] { "Standard" };
 	
-    private static final int SHELL_VERSION = 5;
+    private static final int SHELL_VERSION = 6;
     
     private static final int PRINT_BACKGROUND_COLOR = Color.LTGRAY;
     
@@ -133,6 +133,8 @@ public class Free42Activity extends Activity {
 	private String[] externalSkinName = new String[2];
 	private boolean keyClicksEnabled = true;
 	private int preferredOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
+	private boolean skinSmoothing = true;
+	private boolean displaySmoothing = false;
 	
 	private final Runnable repeaterCaller = new Runnable() { public void run() { repeater(); } };
 	private final Runnable timeout1Caller = new Runnable() { public void run() { timeout1(); } };
@@ -181,17 +183,17 @@ public class Free42Activity extends Activity {
     	skin = null;
     	if (skinName[orientation].length() == 0 && externalSkinName[orientation].length() > 0) {
 	    	try {
-	    		skin = new SkinLayout(externalSkinName[orientation]);
+	    		skin = new SkinLayout(externalSkinName[orientation], skinSmoothing, displaySmoothing);
 	    	} catch (IllegalArgumentException e) {}
     	}
     	if (skin == null) {
     		try {
-    			skin = new SkinLayout(skinName[orientation]);
+    			skin = new SkinLayout(skinName[orientation], skinSmoothing, displaySmoothing);
     		} catch (IllegalArgumentException e) {}
     	}
     	if (skin == null) {
     		try {
-    			skin = new SkinLayout(builtinSkinNames[0]);
+    			skin = new SkinLayout(builtinSkinNames[0], skinSmoothing, displaySmoothing);
     		} catch (IllegalArgumentException e) {
     			// This one should never fail; we're loading a built-in skin.
     		}
@@ -528,7 +530,7 @@ public class Free42Activity extends Activity {
     private void doSelectSkin(String skinName) {
     	try {
     		boolean[] annunciators = skin.getAnnunciators();
-    		skin = new SkinLayout(skinName, annunciators);
+    		skin = new SkinLayout(skinName, skinSmoothing, displaySmoothing, annunciators);
         	if (skinName.startsWith("/")) {
         		externalSkinName[orientation] = skinName;
         		this.skinName[orientation] = "";
@@ -558,6 +560,8 @@ public class Free42Activity extends Activity {
     	preferencesDialog.setAutoRepeat(cs.auto_repeat);
     	preferencesDialog.setKeyClicks(keyClicksEnabled);
     	preferencesDialog.setOrientation(preferredOrientation);
+    	preferencesDialog.setSkinSmoothing(skinSmoothing);
+    	preferencesDialog.setDisplaySmoothing(displaySmoothing);
     	preferencesDialog.setPrintToText(ShellSpool.printToTxt);
     	preferencesDialog.setPrintToTextFileName(ShellSpool.printToTxtFileName);
     	preferencesDialog.setRawText(cs.raw_text);
@@ -605,6 +609,15 @@ public class Free42Activity extends Activity {
     	}
     	ShellSpool.printToGif = newPrintEnabled;
     	ShellSpool.printToGifFileName = newFileName;
+    	
+    	boolean newSkinSmoothing = preferencesDialog.getSkinSmoothing();
+    	boolean newDisplaySmoothing = preferencesDialog.getDisplaySmoothing();
+    	if (newSkinSmoothing != skinSmoothing || newDisplaySmoothing != displaySmoothing) {
+    		skinSmoothing = newSkinSmoothing;
+    		displaySmoothing = newDisplaySmoothing;
+    		skin.setSmoothing(skinSmoothing, displaySmoothing);
+    		calcView.invalidate();
+    	}
     	
     	if (preferredOrientation != oldOrientation)
     		setRequestedOrientation(preferredOrientation);
@@ -1012,6 +1025,13 @@ public class Free42Activity extends Activity {
     	    	preferredOrientation = state_read_int();
     	    else
     	    	preferredOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
+    	    if (shell_version >= 6) {
+    	    	skinSmoothing = state_read_boolean();
+    	    	displaySmoothing = state_read_boolean();
+    	    } else {
+    	    	skinSmoothing = true;
+    	    	displaySmoothing = false;
+    	    }
     		init_shell_state(shell_version);
     	} catch (IllegalArgumentException e) {
     		return false;
@@ -1045,7 +1065,11 @@ public class Free42Activity extends Activity {
     		preferredOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
     		// fall through
     	case 5:
-			// current version (SHELL_VERSION = 5),
+    		skinSmoothing = true;
+    		displaySmoothing = false;
+    		// fall through
+    	case 6:
+			// current version (SHELL_VERSION = 6),
 			// so nothing to do here since everything
 			// was initialized from the state file.
     		;
@@ -1068,6 +1092,8 @@ public class Free42Activity extends Activity {
     		state_write_string(externalSkinName[1]);
     		state_write_boolean(keyClicksEnabled);
     		state_write_int(preferredOrientation);
+    		state_write_boolean(skinSmoothing);
+    		state_write_boolean(displaySmoothing);
     	} catch (IllegalArgumentException e) {}
     }
     

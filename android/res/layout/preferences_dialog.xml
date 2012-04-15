@@ -79,10 +79,22 @@
 			    		
 			</LinearLayout>
 	
+		    <CheckBox android:id="@+id/skinSmoothingCB"
+		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		    		android:text="Skin Smoothing"
+		    		android:layout_below="@+id/orientationBox"
+		    		android:layout_alignParentLeft="true"/>
+		    
+		    <CheckBox android:id="@+id/displaySmoothingCB"
+		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		    		android:text="Display Smoothing"
+		    		android:layout_below="@+id/skinSmoothingCB"
+		    		android:layout_alignParentLeft="true"/>
+		    
 		    <CheckBox android:id="@+id/printToTextCB"
 		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
 		    		android:text="Print to Text"
-		    		android:layout_below="@+id/orientationBox"
+		    		android:layout_below="@+id/displaySmoothingCB"
 		    		android:layout_alignParentLeft="true"/>
 		    
 		    <Button android:id="@+id/browseTextB"

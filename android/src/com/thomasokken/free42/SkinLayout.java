@@ -77,12 +77,16 @@ public class SkinLayout {
 	private int[] display_buffer = new int[131 * 16];
 	private boolean[] ann_state;
 	private int active_key = -1;
+	private boolean skinSmoothing;
+	private boolean displaySmoothing;
 
-	public SkinLayout(String skinName) {
-		this(skinName, null);
+	public SkinLayout(String skinName, boolean skinSmoothing, boolean displaySmoothing) {
+		this(skinName, skinSmoothing, displaySmoothing, null);
 	}
 	
-	public SkinLayout(String skinName, boolean[] ann_state) {
+	public SkinLayout(String skinName, boolean skinSmoothing, boolean displaySmoothing, boolean[] ann_state) {
+		this.skinSmoothing = skinSmoothing;
+		this.displaySmoothing = displaySmoothing;
 		if (ann_state == null)
 			this.ann_state = new boolean[7];
 		else
@@ -293,6 +297,11 @@ public class SkinLayout {
 		}
     }
 	
+	public void setSmoothing(boolean skinSmoothing, boolean displaySmoothing) {
+		this.skinSmoothing = skinSmoothing;
+		this.displaySmoothing = displaySmoothing;
+	}
+	
 	public int getWidth() {
 		return skin.width;
 	}
@@ -419,11 +428,15 @@ public class SkinLayout {
 				invSoftkey.setPixels(invSoftkeyBuf, 0, 21, 0, 0, 21, 7);
 				Rect src = new Rect(0, 0, 21, 7);
 				Paint p = new Paint();
+				p.setAntiAlias(displaySmoothing);
+				p.setFilterBitmap(displaySmoothing);
 				canvas.drawBitmap(invSoftkey, src, dst, p);
 			} else {
 			    // Repaint the screen
 				Rect src = new Rect((key - 1) * 22, 9, (key - 1) * 22 + 21, 16);
 				Paint p = new Paint();
+				p.setAntiAlias(displaySmoothing);
+				p.setFilterBitmap(displaySmoothing);
 				canvas.drawBitmap(display, src, dst, p);
 			}
 			return;
@@ -445,6 +458,8 @@ public class SkinLayout {
 	    else
 	    	src = dst;
 	    Paint p = new Paint();
+	    p.setAntiAlias(skinSmoothing);
+	    p.setFilterBitmap(skinSmoothing);
 	    canvas.drawBitmap(skin, src, dst, p);
 	}
 	
@@ -514,6 +529,8 @@ public class SkinLayout {
 		Paint p = new Paint();
 		
 		if (paintSkin) {
+			p.setAntiAlias(skinSmoothing);
+			p.setFilterBitmap(skinSmoothing);
 			canvas.drawBitmap(skinBitmap, new Rect(skin.x, skin.y, skin.x + skin.width, skin.y + skin.height),
 										  new Rect(0, 0, skin.width, skin.height), p);
 			if (display_enabled)
@@ -528,6 +545,8 @@ public class SkinLayout {
 											ann.disp_rect.y,
 											ann.disp_rect.x + ann.disp_rect.width,
 											ann.disp_rect.y + ann.disp_rect.height);
+						p.setAntiAlias(displaySmoothing);
+						p.setFilterBitmap(displaySmoothing);
 						canvas.drawBitmap(skinBitmap, src, dst, p);
 					}
 			if (active_key >= 0)
@@ -540,6 +559,8 @@ public class SkinLayout {
 	    						display_loc.y,
 	    						display_loc.x + 131 * display_scale.x,
 	    						display_loc.y + 16 * display_scale.y);
+	    	p.setAntiAlias(displaySmoothing);
+	    	p.setFilterBitmap(displaySmoothing);
 	    	canvas.drawBitmap(display, src, dst, p);
 			if (active_key >= -7 && active_key <= -2)
 				repaint_key(canvas, skinBitmap, active_key, true);

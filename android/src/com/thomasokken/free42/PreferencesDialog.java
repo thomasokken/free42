@@ -33,6 +33,8 @@ public class PreferencesDialog extends Dialog {
 	private CheckBox autoRepeatCB;
 	private CheckBox keyClicksCB;
 	private Spinner orientationSP;
+	private CheckBox skinSmoothingCB;
+	private CheckBox displaySmoothingCB;
 	private CheckBox printToTextCB;
 	private EditText printToTextFileNameTF;
 	private CheckBox rawTextCB;
@@ -52,6 +54,8 @@ public class PreferencesDialog extends Dialog {
 		String[] values = new String[] { "Automatic", "Portrait", "Landscape" };
 		ArrayAdapter<String> aa = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, values);
 		orientationSP.setAdapter(aa);
+		skinSmoothingCB = (CheckBox) findViewById(R.id.skinSmoothingCB);
+		displaySmoothingCB = (CheckBox) findViewById(R.id.displaySmoothingCB);
 		printToTextCB = (CheckBox) findViewById(R.id.printToTextCB);
 		Button browseTextB = (Button) findViewById(R.id.browseTextB);
 		browseTextB.setOnClickListener(new View.OnClickListener() {
@@ -172,6 +176,22 @@ public class PreferencesDialog extends Dialog {
 			case 2: return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
 			case 0: default: return ActivityInfo.SCREEN_ORIENTATION_SENSOR;
 		}
+	}
+	
+	public void setSkinSmoothing(boolean b) {
+		skinSmoothingCB.setChecked(b);
+	}
+	
+	public boolean getSkinSmoothing() {
+		return skinSmoothingCB.isChecked();
+	}
+	
+	public void setDisplaySmoothing(boolean b) {
+		displaySmoothingCB.setChecked(b);
+	}
+	
+	public boolean getDisplaySmoothing() {
+		return displaySmoothingCB.isChecked();
 	}
 	
 	public void setPrintToText(boolean b) {
