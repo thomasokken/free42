@@ -90,7 +90,7 @@ public class Free42Activity extends Activity {
 
 	private static final String[] builtinSkinNames = new String[] { "Standard" };
 	
-    private static final int SHELL_VERSION = 6;
+    private static final int SHELL_VERSION = 7;
     
     private static final int PRINT_BACKGROUND_COLOR = Color.LTGRAY;
     
@@ -131,10 +131,11 @@ public class Free42Activity extends Activity {
 	private int orientation = 0; // 0=portrait, 1=landscape
 	private String[] skinName = new String[] { builtinSkinNames[0], builtinSkinNames[0] };
 	private String[] externalSkinName = new String[2];
+	private boolean[] skinSmoothing = new boolean[2];
+	private boolean[] displaySmoothing = new boolean[2];
+
 	private boolean keyClicksEnabled = true;
 	private int preferredOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
-	private boolean skinSmoothing = true;
-	private boolean displaySmoothing = false;
 	
 	private final Runnable repeaterCaller = new Runnable() { public void run() { repeater(); } };
 	private final Runnable timeout1Caller = new Runnable() { public void run() { timeout1(); } };
@@ -183,17 +184,17 @@ public class Free42Activity extends Activity {
     	skin = null;
     	if (skinName[orientation].length() == 0 && externalSkinName[orientation].length() > 0) {
 	    	try {
-	    		skin = new SkinLayout(externalSkinName[orientation], skinSmoothing, displaySmoothing);
+	    		skin = new SkinLayout(externalSkinName[orientation], skinSmoothing[orientation], displaySmoothing[orientation]);
 	    	} catch (IllegalArgumentException e) {}
     	}
     	if (skin == null) {
     		try {
-    			skin = new SkinLayout(skinName[orientation], skinSmoothing, displaySmoothing);
+    			skin = new SkinLayout(skinName[orientation], skinSmoothing[orientation], displaySmoothing[orientation]);
     		} catch (IllegalArgumentException e) {}
     	}
     	if (skin == null) {
     		try {
-    			skin = new SkinLayout(builtinSkinNames[0], skinSmoothing, displaySmoothing);
+    			skin = new SkinLayout(builtinSkinNames[0], skinSmoothing[orientation], displaySmoothing[orientation]);
     		} catch (IllegalArgumentException e) {
     			// This one should never fail; we're loading a built-in skin.
     		}
@@ -530,7 +531,7 @@ public class Free42Activity extends Activity {
     private void doSelectSkin(String skinName) {
     	try {
     		boolean[] annunciators = skin.getAnnunciators();
-    		skin = new SkinLayout(skinName, skinSmoothing, displaySmoothing, annunciators);
+    		skin = new SkinLayout(skinName, skinSmoothing[orientation], displaySmoothing[orientation], annunciators);
         	if (skinName.startsWith("/")) {
         		externalSkinName[orientation] = skinName;
         		this.skinName[orientation] = "";
@@ -560,8 +561,8 @@ public class Free42Activity extends Activity {
     	preferencesDialog.setAutoRepeat(cs.auto_repeat);
     	preferencesDialog.setKeyClicks(keyClicksEnabled);
     	preferencesDialog.setOrientation(preferredOrientation);
-    	preferencesDialog.setSkinSmoothing(skinSmoothing);
-    	preferencesDialog.setDisplaySmoothing(displaySmoothing);
+    	preferencesDialog.setSkinSmoothing(skinSmoothing[orientation]);
+    	preferencesDialog.setDisplaySmoothing(displaySmoothing[orientation]);
     	preferencesDialog.setPrintToText(ShellSpool.printToTxt);
     	preferencesDialog.setPrintToTextFileName(ShellSpool.printToTxtFileName);
     	preferencesDialog.setRawText(cs.raw_text);
@@ -612,10 +613,10 @@ public class Free42Activity extends Activity {
     	
     	boolean newSkinSmoothing = preferencesDialog.getSkinSmoothing();
     	boolean newDisplaySmoothing = preferencesDialog.getDisplaySmoothing();
-    	if (newSkinSmoothing != skinSmoothing || newDisplaySmoothing != displaySmoothing) {
-    		skinSmoothing = newSkinSmoothing;
-    		displaySmoothing = newDisplaySmoothing;
-    		skin.setSmoothing(skinSmoothing, displaySmoothing);
+    	if (newSkinSmoothing != skinSmoothing[orientation] || newDisplaySmoothing != displaySmoothing[orientation]) {
+    		skinSmoothing[orientation] = newSkinSmoothing;
+    		displaySmoothing[orientation] = newDisplaySmoothing;
+    		skin.setSmoothing(newSkinSmoothing, newDisplaySmoothing);
     		calcView.invalidate();
     	}
     	
@@ -1026,11 +1027,12 @@ public class Free42Activity extends Activity {
     	    else
     	    	preferredOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
     	    if (shell_version >= 6) {
-    	    	skinSmoothing = state_read_boolean();
-    	    	displaySmoothing = state_read_boolean();
-    	    } else {
-    	    	skinSmoothing = true;
-    	    	displaySmoothing = false;
+    	    	skinSmoothing[0] = state_read_boolean();
+    	    	displaySmoothing[0] = state_read_boolean();
+    	    }
+    	    if (shell_version >= 7) {
+    	    	skinSmoothing[1] = state_read_boolean();
+    	    	displaySmoothing[1] = state_read_boolean();
     	    }
     		init_shell_state(shell_version);
     	} catch (IllegalArgumentException e) {
@@ -1065,11 +1067,15 @@ public class Free42Activity extends Activity {
     		preferredOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
     		// fall through
     	case 5:
-    		skinSmoothing = true;
-    		displaySmoothing = false;
+    		skinSmoothing[0] = true;
+    		displaySmoothing[0] = false;
     		// fall through
     	case 6:
-			// current version (SHELL_VERSION = 6),
+    		skinSmoothing[1] = skinSmoothing[0];
+    		displaySmoothing[1] = displaySmoothing[0];
+    		// fall through
+    	case 7:
+			// current version (SHELL_VERSION = 7),
 			// so nothing to do here since everything
 			// was initialized from the state file.
     		;
@@ -1092,8 +1098,10 @@ public class Free42Activity extends Activity {
     		state_write_string(externalSkinName[1]);
     		state_write_boolean(keyClicksEnabled);
     		state_write_int(preferredOrientation);
-    		state_write_boolean(skinSmoothing);
-    		state_write_boolean(displaySmoothing);
+    		state_write_boolean(skinSmoothing[0]);
+    		state_write_boolean(displaySmoothing[0]);
+    		state_write_boolean(skinSmoothing[1]);
+    		state_write_boolean(displaySmoothing[1]);
     	} catch (IllegalArgumentException e) {}
     }
     
