@@ -1,7 +1,0 @@
-This directory contains the source code for the math part of MathLib (not the
-shared-library bits), which in turn is from Sun's libfm and GNU libm.
-This code is here for the ARM version of Free42 Binary for PalmOS. The 68K
-version uses MathLib, but for the ARM version, that would be a performance
-killer -- if you're going the ARM-native route, it makes more sense to compile
-the FP code as ARM code, too. This adds about 100 kilobytes to the executable,
-but it's worth it because of the speed boost.

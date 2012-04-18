@@ -1,2 +1,0 @@
-application { "Free42" Fk42 }
-multiple code { Shell1 Shell2 FileSys Main Helpers }

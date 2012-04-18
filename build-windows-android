@@ -6,49 +6,6 @@
 unset BCD_MATH
 mkdir -p packages
 
-# Rebuild PalmOS version, Conduit, and PalmOS skins
-cd palmos
-make cleaner
-make
-make clean
-make -e BCD_MATH=1
-make clean
-make -f Makefile.arm
-make clean
-make -f Makefile.arm -e BCD_MATH=1
-make Free42PalmOSSkins.zip
-cd ../conduit
-cmd /c build-all.bat
-cd ..
-rm -rf Free42PalmOS
-mkdir Free42PalmOS
-cp palmos/README.txt Free42PalmOS
-cp palmos/free42bin_68k.prc Free42PalmOS
-cp palmos/free42dec_68k.prc Free42PalmOS
-cp palmos/free42bin_arm.prc Free42PalmOS
-cp palmos/free42dec_arm.prc Free42PalmOS
-cp conduit/Release/Free42ConduitInstaller.exe Free42PalmOS
-cp conduit/Release/Free42Conduit.dll Free42PalmOS
-cp /cygdrive/c/cdk403/Common/Bin/condmgr.dll Free42PalmOS
-cp /cygdrive/c/cdk403/Common/Bin/HSAPI.dll Free42PalmOS
-zip -r packages/Free42PalmOS.zip Free42PalmOS
-rm -rf Free42PalmOS
-cp palmos/Free42PalmOSSkins.zip packages/Free42PalmOSSkins.zip
-
-# Rebuild Pocket PC version
-cd pocketpc
-cmd /c copy-files.bat
-make
-cmd /c build-all.bat
-cd ..
-rm -rf Free42PocketPC
-mkdir Free42PocketPC
-cp pocketpc/README.txt Free42PocketPC
-cp pocketpc/Free42Binary.PPC2002_ARM.CAB Free42PocketPC/Free42Binary.cab
-cp pocketpc/Free42Decimal.PPC2002_ARM.CAB Free42PocketPC/Free42Decimal.cab
-zip -r packages/Free42PocketPC.zip Free42PocketPC
-rm -rf Free42PocketPC
-
 # Rebuild Windows version using Visual C++
 cd windows
 cmd /c build-all.bat
@@ -104,13 +61,12 @@ mv bin/Free42Android-release.apk ../../../packages/Free42Android.apk
 cd ../../..
 rm -rf android-tmp
 
-# Source package, and Windows/Unix and Pocket PC skins packages
+# Source package, and Windows/Unix skins packages
 mkdir tmp
 cd tmp
 svn checkout svn://macmini/free42/trunk free42
 find . -type d -name .svn -prune -exec rm -rf {} \;
 zip -j ../packages/Free42Skins.zip free42/skins/*
-zip -j ../packages/Free42PocketPCSkins.zip free42/pocketpcskins/*
 zip -j ../packages/Free42iPhoneSkins.zip free42/iphoneskins/*
 zip -j ../packages/Free42AndroidSkins.zip free42/androidskins/*
 tar cvfz ../packages/free42.tgz free42
