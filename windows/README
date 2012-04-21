@@ -8,11 +8,3 @@ keymap2cpp, and skin2cpp. Before building Free42Binary and Free42Decimal, you
 must build keymap2cpp and skin2cpp and run them; this creates the keymap.cpp
 and skins.cpp files, which contain the default keymap and the skins to be
 compiled into the Free42 executable.
-
-As an alternative, you can also build the Windows version using MinGW.
-Run copy-files to get the stuff from the 'common' directory; then say
-'make' to build the binary version, or 'make -e BCD_MATH=1' to build the
-decimal version. Note that the /mingw/bin directory must be ahead of /usr/bin
-in PATH in order to run the MinGW versions of g++ etc. instead of the usual
-Cygwin versions.
-To build debug versions, add "-e CFG=Debug" to the make command.
