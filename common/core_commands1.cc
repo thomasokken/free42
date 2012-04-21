@@ -1238,7 +1238,7 @@ int docmd_rnd(arg_struct *arg) {
 	if (flags.f.digits_bit2) digits += 4;
 	if (flags.f.digits_bit1) digits += 2;
 	if (flags.f.digits_bit0) digits += 1;
-	rnd_multiplier = pow(10, digits);
+	rnd_multiplier = pow(10.0, digits);
 	err = map_unary(reg_x, &v, mappable_rnd_r, mappable_rnd_c);
 	if (err == ERR_NONE)
 	    unary_result(v);

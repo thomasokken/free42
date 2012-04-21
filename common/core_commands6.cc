@@ -416,7 +416,7 @@ static int mappable_log_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
 	    *yre = log10(h) + 4;
 	} else
 	    *yre = log10(h);
-	*yim = atan2(xim, xre) / log(10);
+	*yim = atan2(xim, xre) / log(10.0);
 	return ERR_NONE;
     }
 }
@@ -432,7 +432,7 @@ int docmd_log(arg_struct *arg) {
 	    if (flags.f.real_result_only)
 		return ERR_INVALID_DATA;
 	    else {
-		vartype *r = new_complex(log10(-x->x), PI / log(10));
+		vartype *r = new_complex(log10(-x->x), PI / log(10.0));
 		if (r == NULL)
 		    return ERR_INSUFFICIENT_MEMORY;
 		else {
@@ -474,7 +474,7 @@ static int mappable_10_pow_x_c(phloat xre, phloat xim,
 static int mappable_10_pow_x_c(phloat xre, phloat xim, phloat *yre, phloat *yim){
     int inf;
     phloat h;
-    xim *= log(10);
+    xim *= log(10.0);
     if ((inf = p_isinf(xim)) != 0)
 	xim = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
     h = pow(10, xre);
