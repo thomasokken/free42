@@ -111,7 +111,7 @@ extern "C" {
 
 #define int8 __int64
 #define uint8 unsigned __int64
-#define LL(x) x
+#define LL(x) x##LL
 
 	/* MSVC++ 6.0 lacks a few math functions that Free42 needs.
 	 * I've defined workarounds in mathfudge.c. NOTE: my versions
