@@ -1,12 +1,15 @@
 #!/bin/sh -e
 
-# This script builds and packages everything except the Linux version.
+# This script builds and packages the Windows and Android versions,
+# and the Generic, iPhone, and Android skins packages, and the Upstream
+# source package.
 # It should be run in a Cygwin bash shell (under MS Windows, obviously).
 
 unset BCD_MATH
 mkdir -p packages
 
-# Rebuild Windows version using Visual C++
+# Build Windows version
+
 cd windows
 cmd /c build-all.bat
 cd ..
@@ -18,23 +21,7 @@ cp windows/ReleaseDecimal/Free42Decimal.exe Free42Windows
 zip -r packages/Free42Windows.zip Free42Windows
 rm -rf Free42Windows
 
-# Rebuild Windows version using MinGW
-# cd windows
-# cmd /c copy-files.bat
-# make cleaner
-# PATH="/mingw/bin:$PATH" make
-# make clean
-# PATH="/mingw/bin:$PATH" make -e BCD_MATH=1
-# cd ..
-# rm -rf Free42Windows
-# mkdir Free42Windows
-# cp windows/README.txt Free42Windows
-# cp windows/Free42Binary.exe Free42Windows
-# cp windows/Free42Decimal.exe Free42Windows
-# /mingw/bin/strip Free42Windows/Free42Binary.exe
-# /mingw/bin/strip Free42Windows/Free42Decimal.exe
-# zip -r packages/Free42Windows.zip Free42Windows
-# rm -rf Free42Windows
+# Build Android version
 
 mkdir android-tmp
 cd android-tmp
