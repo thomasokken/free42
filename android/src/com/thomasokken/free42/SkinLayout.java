@@ -131,8 +131,11 @@ public class SkinLayout {
 			lineloop:
 			while ((line = reader.readLine()) != null) {
 				lineno++;
+				int pound = line.indexOf('#');
+				if (pound != -1)
+					line = line.substring(0, pound);
 				line = line.trim();
-				if (line.length() == 0 || line.charAt(0) == '#')
+				if (line.length() == 0)
 					continue;
 				String lcline = line.toLowerCase();
 				if (lcline.startsWith("skin:")) {
