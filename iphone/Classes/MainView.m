@@ -68,7 +68,8 @@ public:
 #define TRACE(x)
 #endif
 		
-static void quit2();
+static void quit2(bool really_quit);
+static void leaveBackground2();
 static void shell_keydown();
 static void shell_keyup();
 
@@ -326,7 +327,17 @@ static MainView *mainView = nil;
 
 + (void) quit {
 	TRACE("quit");
-	quit2();
+	quit2(true);
+}
+
++ (void) enterBackground {
+	TRACE("enterBackground");
+	quit2(false);
+}
+
++ (void) leaveBackground {
+	TRACE("leaveBackground");
+	leaveBackground2();
 }
 
 - (void) startRunner {
@@ -552,7 +563,7 @@ static void init_shell_state(int version) {
     }
 }
 
-static void quit2() {
+static void quit2(bool really_quit) {
 	TRACE("quit2");
 
 #if 0
@@ -610,10 +621,18 @@ static void quit2() {
     statefile = fopen("config/state", "w");
     if (statefile != NULL)
         write_shell_state();
-    core_quit();
+    if (really_quit)
+        core_quit();
+    else
+        core_enter_background();
     if (statefile != NULL)
         fclose(statefile);
-	exit(0);
+    if (really_quit)
+        exit(0);
+}
+
+static void leaveBackground2() {
+    core_leave_background();
 }
 
 static void shell_keydown() {
@@ -671,7 +690,7 @@ static void shell_keydown() {
 	}
 	
     if (quit_flag)
-		quit2();
+		quit2(true);
     else if (keep_running)
 		[mainView startRunner];
     else {
@@ -694,7 +713,7 @@ static void shell_keyup() {
     if (!enqueued) {
 		keep_running = core_keyup();
 		if (quit_flag)
-			quit2();
+			quit2(true);
 		else if (keep_running)
 			[mainView startRunner];
     } else if (keep_running) {

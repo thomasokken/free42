@@ -55,7 +55,7 @@ static char version[32] = "";
 		NSString *path = [[NSBundle mainBundle] pathForResource:name ofType:@"wav"];
 		OSStatus status = AudioServicesCreateSystemSoundID((CFURLRef)[NSURL fileURLWithPath:path], &soundIDs[i]);
 		if (status)
-			NSLog(@"error loading sound:  %d", name);
+			NSLog(@"error loading sound: %@", name);
 	}
 	
 	[containerView addSubview:printOutView];
@@ -68,7 +68,15 @@ static char version[32] = "";
     [window makeKeyAndVisible];
 }
 
-- (void)applicationWillTerminate:(UIApplication *)application {
+- (void) applicationDidEnterBackground:(UIApplication *)application {
+    [MainView enterBackground];
+}
+
+- (void) applicationWillEnterForeground:(UIApplication *)application {
+    [MainView leaveBackground];
+}
+
+- (void) applicationWillTerminate:(UIApplication *)application {
 	[MainView quit];
 }
 

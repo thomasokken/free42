@@ -37,6 +37,28 @@
  */
 void core_init(int read_state, int4 version) MAIN_SECT;
 
+#ifdef IPHONE
+
+/* core_enter_background()
+ *
+ * This function is called when the iPhone app has been placed in background
+ * mode. It writes the state, just like core_quit(), but it doesn't perform
+ * any cleanup, so the app can resume instantly if it is brought back to
+ * the foreground. If the app is killed while in the background, nothing is
+ * lost.
+ */
+void core_enter_background();
+
+/* core_leave_background()
+ *
+ * This function is called when the iPhone app is about to be brought back to
+ * the foreground. This is where flag 11 (auto-execute on power-on) could be
+ * handled. The current implementation does nothing.
+ */
+void core_leave_background();
+
+#endif
+
 /* core_quit()
  *
  * This function shuts down the emulator core. The core should save its state

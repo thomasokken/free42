@@ -43,6 +43,8 @@ extern state_type state;
 - (void) setNeedsDisplayInRectSafely:(CGRect) rect;
 + (void) repaint;
 + (void) quit;
++ (void) enterBackground;
++ (void) leaveBackground;
 - (void) setTimeout:(int) which;
 - (void) cancelTimeout3;
 - (void) setRepeater:(int) delay;
