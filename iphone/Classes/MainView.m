@@ -69,7 +69,6 @@ public:
 #endif
 		
 static void quit2(bool really_quit);
-static void leaveBackground2();
 static void shell_keydown();
 static void shell_keyup();
 
@@ -337,7 +336,9 @@ static MainView *mainView = nil;
 
 + (void) leaveBackground {
 	TRACE("leaveBackground");
-	leaveBackground2();
+    keep_running = core_powercycle();
+	if (keep_running)
+		[mainView startRunner];
 }
 
 - (void) startRunner {
@@ -629,10 +630,6 @@ static void quit2(bool really_quit) {
         fclose(statefile);
     if (really_quit)
         exit(0);
-}
-
-static void leaveBackground2() {
-    core_powercycle();
 }
 
 static void shell_keydown() {
