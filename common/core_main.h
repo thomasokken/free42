@@ -49,14 +49,6 @@ void core_init(int read_state, int4 version) MAIN_SECT;
  */
 void core_enter_background();
 
-/* core_leave_background()
- *
- * This function is called when the iPhone app is about to be brought back to
- * the foreground. This is where flag 11 (auto-execute on power-on) could be
- * handled. The current implementation does nothing.
- */
-void core_leave_background();
-
 #endif
 
 /* core_quit()

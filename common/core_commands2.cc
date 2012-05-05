@@ -1843,6 +1843,9 @@ int docmd_on(arg_struct *arg) {
 }
 
 int docmd_off(arg_struct *arg) {
+    if (program_running() && no_keystrokes_yet)
+	return ERR_SUSPICIOUS_OFF;
+    set_running(false);
     shell_powerdown();
     return ERR_NONE;
 }

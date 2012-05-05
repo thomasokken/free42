@@ -76,17 +76,8 @@ void core_init(int read_saved_state, int4 version) {
 void core_enter_background() {
     if (mode_interruptible != NULL)
 	stop_interruptible();
+    set_running(false);
     save_state();
-}
-
-void core_leave_background() {
-    // TODO: Resume program if flag 11 is set. I'll deal with this later; flag
-    // 11 needs a thorough revisit (in all Free42 versions!) but it's such an
-    // obscure feature that I just can't feel a great deal of urgency about it.
-    // Also, it's dangerous: LBL "YIKES"  SF 11  OFF  GTO "YIKES"
-    // and none of the current versions provide any kind of help of breaking
-    // out of such loops. Something that detects that OFF is executed without
-    // any user activity after power-on may be adequate.
 }
 #endif
 
@@ -133,6 +124,9 @@ int core_keydown(int key, int *enqueued, int *repeat) {
 
     *enqueued = 0;
     *repeat = 0;
+
+    if (key != 0)
+	no_keystrokes_yet = false;
 
     if (key == KEY_SHIFT) {
 	set_shift(!mode_shift);
@@ -528,6 +522,8 @@ int core_powercycle() {
 
     if (mode_interruptible != NULL)
 	stop_interruptible();
+
+    no_keystrokes_yet = true;
 
     keybuf_tail = keybuf_head;
     set_shift(false);
@@ -2752,7 +2748,7 @@ static int handle_error(int error) {
 	    set_running(false);
 	    return 0;
 	} else if (error != ERR_NONE && error != ERR_YES) {
-	    if (flags.f.error_ignore) {
+	    if (flags.f.error_ignore && error != ERR_SUSPICIOUS_OFF) {
 		flags.f.error_ignore = 0;
 		return 1;
 	    }

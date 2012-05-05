@@ -1,6 +1,13 @@
-??-??-????: release 1.4.73
+05-05-2012: release 1.4.73
 
 * iPhone version: now writes state file when moved to background.
+* OFF now refuses to shut down Free42 if there have been no keystrokes since
+  the application was started. It will stop program execution and display
+  the message "Suspicious OFF" instead.
+  This prevents code like LBL "OOPS"  SF 11  OFF  GTO "OOPS" from locking the
+  user out.
+* Decimal version: overflows would return zero in some cases, i.e.
+  9E9999 ENTER +. Fixed.
 
 15-04-2012: release 1.4.72
 

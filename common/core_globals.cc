@@ -61,7 +61,8 @@ error_spec errors[] = {
     { /* INTERRUPTED */            "Interrupted",             11 },
     { /* PRINTING_IS_DISABLED */   "Printing Is Disabled",    20 },
     { /* INTERRUPTIBLE */          NULL,                       0 },
-    { /* NO_VARIABLES */           "No Variables",            12 }
+    { /* NO_VARIABLES */           "No Variables",            12 },
+    { /* SUSPICIOUS_OFF */         "Suspicious OFF",          14 }
 };
 
 
@@ -645,6 +646,17 @@ int keybuf[16];
 int remove_program_catalog = 0;
 bool bin_dec_mode_switch;
 bool state_file_has_old_bcd;
+
+/* No user interaction: we keep track of whether or not the user
+ * has pressed any keys since powering up, and we don't allow
+ * programmatic OFF until they have. The reason is that we want
+ * to prevent nastiness like
+ *
+ *   LBL "YIKES"  SF 11  OFF  GTO "YIKES"
+ *
+ * from locking the user out.
+ */
+bool no_keystrokes_yet;
 
 
 /*******************/

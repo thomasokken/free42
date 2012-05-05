@@ -117,7 +117,8 @@ struct BCDFloatData
 #define NEG_INF_EXP  0xA000
 #define NAN_EXP      0x4000
 #define GET_EXP(_d, _p) (((short)((_d)[_p] << 3)) >> 3)
-#define SET_EXP(_d, _p, _v) ((_d)[_p] = (_v) & EXPMASK)
+//#define SET_EXP(_d, _p, _v) ((_d)[_p] = (_v) & EXPMASK) <- wrong, this doesn't let you set the exponent to (POS|NEG)_INF_EXP
+#define SET_EXP(_d, _p, _v) ((_d)[_p] = (_v))
 #define CLEAR_SIGN(_d, _p) ((_d)[_p] &= ~NEG)
 #define NEGATE_SIGN(_d, _p) ((_d)[_p] ^= NEG)
 #define GET_SPECIAL(_d, _p) ((_d)[_p]&0x6000)

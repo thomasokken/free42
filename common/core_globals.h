@@ -60,6 +60,7 @@
 #define ERR_PRINTING_IS_DISABLED   29
 #define ERR_INTERRUPTIBLE          30
 #define ERR_NO_VARIABLES           31
+#define ERR_SUSPICIOUS_OFF         32
 
 typedef struct {
     const char *text;
@@ -503,6 +504,8 @@ extern int keybuf[16];
 extern int remove_program_catalog;
 extern bool bin_dec_mode_switch;
 extern bool state_file_has_old_bcd;
+
+extern bool no_keystrokes_yet;
 
 
 /*********************/

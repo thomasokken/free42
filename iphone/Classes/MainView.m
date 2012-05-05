@@ -632,7 +632,7 @@ static void quit2(bool really_quit) {
 }
 
 static void leaveBackground2() {
-    core_leave_background();
+    core_powercycle();
 }
 
 static void shell_keydown() {
