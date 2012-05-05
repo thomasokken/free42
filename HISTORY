@@ -1,3 +1,7 @@
+05-05-2012: release 1.4.74
+
+* Decimal version: the overflow fix in 1.4.73 was incorrect. This one works.
+
 05-05-2012: release 1.4.73
 
 * iPhone version: now writes state file when moved to background.
