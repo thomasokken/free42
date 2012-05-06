@@ -436,10 +436,20 @@ public class Free42Activity extends Activity {
     private boolean[] selectedProgramIndexes;
     
     private void alert(String message) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage(message);
-		builder.setPositiveButton("OK", null);
-		builder.create().show();
+    	runOnUiThread(new Alerter(message));
+    }
+    
+    private class Alerter implements Runnable {
+    	private String message;
+    	public Alerter(String message) {
+    		this.message = message;
+    	}
+    	public void run() {
+			AlertDialog.Builder builder = new AlertDialog.Builder(Free42Activity.this);
+			builder.setMessage(message);
+			builder.setPositiveButton("OK", null);
+			builder.create().show();
+    	}
     }
 
     private void doExport() {
