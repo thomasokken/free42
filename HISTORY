@@ -1,3 +1,8 @@
+06-05-2012: release 1.4.74a
+
+* Android version: fixed a couple of bugs that could cause crashes while
+  printing.
+
 05-05-2012: release 1.4.74
 
 * Decimal version: the overflow fix in 1.4.73 was incorrect. This one works.
