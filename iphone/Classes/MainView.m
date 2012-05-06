@@ -329,6 +329,11 @@ static MainView *mainView = nil;
 	quit2(true);
 }
 
+- (void) quitB {
+    TRACE("quitB");
+    quit2(true);
+}
+
 + (void) enterBackground {
 	TRACE("enterBackground");
 	quit2(false);
@@ -389,7 +394,7 @@ static MainView *mainView = nil;
 	pthread_cond_signal(&is_running_cond);
 	pthread_mutex_unlock(&is_running_mutex);
 	if (quit_flag)
-		[self performSelectorOnMainThread:@selector(quit) withObject:NULL waitUntilDone:NO];
+		[self performSelectorOnMainThread:@selector(quitB) withObject:NULL waitUntilDone:NO];
 	else if (keep_running && !we_want_cpu)
 		[self performSelectorOnMainThread:@selector(startRunner) withObject:NULL waitUntilDone:NO];
 	[pool release];
