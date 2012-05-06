@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="Free42Android" default="help">
 
+<!-- see http://code.google.com/p/android/issues/detail?id=19567 -->
+<presetdef name="signjar">
+  <signjar sigalg="MD5withRSA" digestalg="SHA1" />
+</presetdef>
+
     <!-- The local.properties file is created and updated by the 'android' tool.
          It contains the path to the SDK. It should *NOT* be checked into
          Version Control Systems. -->
