@@ -1598,7 +1598,7 @@ public class Free42Activity extends Activity {
 		    			else
 		    				break;
 		    		}
-		    		if (name.charAt(len - 1) == '.')
+		    		if (len > 0 && name.charAt(len - 1) == '.')
 		    			name = name.substring(0, --len);
 
 		    		String seq = "000" + gif_seq;
