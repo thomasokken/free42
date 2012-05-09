@@ -52,13 +52,6 @@ Implement pop-up keyboard for ALPHA mode text entry.
 Implement copy & paste.
 Implement URL decoding for HTTP requests (filenames with spaces, etc.)
 
-Motif version: activating the Skin menu by clicking on it, as opposed to the
-old-Mac-style press-hold-drag-release cycle, often causes a crash.
-Could be a Lesstif bug: the Mac build appears immune, and it uses OpenMotif,
-while the Linux (FC6) and Cygwin builds crash, and they use Lesstif.
-Sounds like some evil interaction with the callback I use to populate the menu;
-maybe Lesstif just doesn't like me repopulating the menu in the map callback.
-
 iPhone version: it is possible to disable the sleep timer using
 [UIApplication sharedApplication].idleTimerDisabled = YES;
 This would be a good thing to use to prevent auto-poweroff while a program
