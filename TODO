@@ -27,12 +27,6 @@ Free42 send itself a QUIT signal, which causes a core dump (this is good for
 debugging but probably should be changed to sending an INT signal for release
 builds).
 
-iPhone version: the App Store build is built using the 3.0 SDK, in order to be
-compatible with the widest possible variety of devices. This works, and even
-the high-res icon and skins work on the retina display, but the app doesn't
-multi-task. Is it possible to support multitasking while building with an old
-SDK?
-
 iPhone version: the HTTP server interface should provide a way to delete files.
 
 Windows version: the "Calculator Key" option should probably set
