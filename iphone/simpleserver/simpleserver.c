@@ -979,6 +979,16 @@ int main(int argc, char *argv[]) {
 	return 1;
     }
 
+    // TODO: This doesn't seem to work on iOS:
+    // Try starting the HTTP server, connect with a browser on the PC, click
+    // on the 'memory' link, kill the browser, kill Free42, restart Free42,
+    // restart the HTTP server.
+    // It will say that the address is already in use.
+    // Why? Isn't that exactly what SO_REUSEADDR is supposed to prevent?
+    int optval = 1;
+    setsockopt(ssock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+    // END(TODO)
+
     sa.sin_family = AF_INET;
     sa.sin_port = htons(port);
     sa.sin_addr.s_addr = INADDR_ANY;
