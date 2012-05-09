@@ -5,7 +5,7 @@ iPhone and Android versions:
 * Haptic feedback option.
 
 Android version:
-* (Always) keep an eye on crash reports at market.android.com/publish.
+* The key click is flaky on some devices. Why?
 * Add android:installLocation property to the manifest, to support installing
   the app on external memory (SD card) under Android 2.2 or later. See
   http://developer.android.com/guide/appendix/install-location.html
