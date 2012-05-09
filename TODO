@@ -1,5 +1,3 @@
-Verify flag 11 behavior in Windows, Mac, and Android versions.
-
 iPhone and Android versions:
 * Add option to disable key click.
 * Haptic feedback option.
