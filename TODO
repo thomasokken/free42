@@ -14,6 +14,7 @@ Android version:
   rewrite them using the new APIs (ugh).
 * Add support for physical keyboards.
 * Implement pop-up keyboard for ALPHA mode text entry.
+* Scale print-out (the current 2:1 scaling is a bit small on large screens)
 
 iPhone version: the HTTP server interface should provide a way to delete files.
 
