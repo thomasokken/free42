@@ -1,3 +1,18 @@
+iPhone version: leaving the HTTP Server doesn't always manage to close the
+server socket. The result can be (1) reopening the HTTP Server fails to bind
+the socket to the desired port, or (2) the app hangs, presumably while trying
+to connect to the socket to tell the server to shut down. In both cases, the
+server loop appears to be hanging, which in turn must have something to do
+with the fact that it handles all connections on a single thread: when handling
+one connection never terminates for whatever reason, all subsequent operations
+either fail (case #1, above) or hang (case #2, above).
+UPDATE: This can be fixed by adding the following after the socket() call:
++-----------------------------------------------------------------------+
+| int optval = 1;                                                       |
+| setsockopt(ssock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)); |
++-----------------------------------------------------------------------+
+Add these lines, test, and include them in the next release.
+
 iPhone and Android versions:
 * Add option to disable key click.
 * Haptic feedback option.
@@ -56,15 +71,6 @@ iPhone version: it is possible to disable the sleep timer using
 [UIApplication sharedApplication].idleTimerDisabled = YES;
 This would be a good thing to use to prevent auto-poweroff while a program
 is running.
-
-iPhone version: leaving the HTTP Server doesn't always manage to close the
-server socket. The result can be (1) reopening the HTTP Server fails to bind
-the socket to the desired port, or (2) the app hangs, presumably while trying
-to connect to the socket to tell the server to shut down. In both cases, the
-server loop appears to be hanging, which in turn must have something to do
-with the fact that it handles all connections on a single thread: when handling
-one connection never terminates for whatever reason, all subsequent operations
-either fail (case #1, above) or hang (case #2, above).
 
 Add a feature for importing and exporting variables from and to CSV files.
 
