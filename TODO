@@ -46,16 +46,6 @@ Another Windows "Calculator Key" issue: it doesn't seem to work in multi-
 language installs. Some other registry key overriding the obvious one, it
 seems.
 
-Windows version: after switching windows using Alt-Tab, sometimes Free42
-stops responding to the keyboard. Maybe it sees alt-down and then never the
-alt-up?
-UPDATE: My diagnosis appears to be correct. Also note that the problem
-appears to be 100% reproducible in Windows 7, and that V41 and XP Paint are
-similarly affected (and presumably anything else that uses the classic
-menu bar as well).
-Sounds like a Windows bug, but I guess the onus will be on me to come up
-with a workaround.
-
 Mac version: implement print-out window.
 Modify the file selection dialogs so they have a file type menu, and add
 extensions to file names automagically when appropriate.
