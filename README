@@ -46,6 +46,10 @@ to be specified explicitly. Additional libraries may also be needed.
 If your build fails due to a missing sincos(), add -DNO_SINCOS to the
 CXXFLAGS in the Makefile.
 
+The Makefiles were all written for GNU make. On Linux, this is usually the
+default anyway, but if you're using FreeBSD or other BSD derivatives, you may
+have to use 'gmake' instead of 'make'.
+
 -------------
 Fedora Core 5 and Cygwin: this is what I use for development; the Unix version
 builds with no changes.
@@ -53,33 +57,6 @@ builds with no changes.
 -------
 MacOS X: Needs LIBS = -lm -lXm -lXpm -lXp -lXmu -lXt -lX11
 Needs -DNO_SINCOS.
-
-
--------------------------------------------------------------------------------
-Debugging using POSE or PalmSim:
-
-First of all, make sure you have gdb with the multi-segment patches installed.
-You won't get anywhere trying to debug Free42 with the standard gdb included
-with PRC-tools. Free42 has lots of segments!
-
-On PalmSim, load gdbpanel.prc. Without this, gdb can't talk to the simulator.
-Launch gdbpanel, and check the "Enable stub" checkbox.
-If you're using POSE, you do not need gdbpanel.
-
-Load free42bin.prc or free42dec.prc on the simulator.
-Start the simulator, but don't start Free42 yet
-
-Make sure you have a symlink 'gdb' pointing to /usr/bin/m68k-palmos-gdb
-in $PATH, overriding the usual 'gdb'
-Start DDD, and open 'shell' (not the PRC!)
-Ignore the message about crt0.c not being found -- doesn't seem to be a
-problem.
-Type 'target pilot localhost:2000'.
-
-Start Free42 on the simulator. The debugger will now say 'program received
-signal SIGSTOP' and stop at an automatic breakpoint at the beginning of
-PilotMain.
-Happy debugging!
 
 
 -------------------------------------------------------------------------------
