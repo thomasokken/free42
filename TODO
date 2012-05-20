@@ -9,7 +9,6 @@ Android version:
   http://developer.android.com/guide/appendix/install-location.html
 * Add an option to display skins scaled to their maximum size while maintaining
   aspect ratio, or to display skins without any scaling.
-* The "Print-Out" menu option needs a better icon.
 * ACCEL, LOCAT, and HEADING don't work on a lot of devices. I'll have to
   rewrite them using the new APIs (ugh).
 * Add support for physical keyboards.
