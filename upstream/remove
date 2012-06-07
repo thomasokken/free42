@@ -3,7 +3,7 @@ android
 androidskins
 build-gtk-motif
 build-mac-iphone
-build-palmos-pocketpc-windows-android
+build-windows-android
 conduit
 gtk/Free42.activity.tgz
 iphone
