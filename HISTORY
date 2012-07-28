@@ -1,3 +1,7 @@
+29-07-2012: release 1.4.74b
+
+* Android version: now writes state file when moved to background.
+
 06-05-2012: release 1.4.74a
 
 * Android version: fixed a couple of bugs that could cause crashes while

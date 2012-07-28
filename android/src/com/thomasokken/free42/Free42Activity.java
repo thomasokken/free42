@@ -213,9 +213,6 @@ public class Free42Activity extends Activity {
     	getCoreSettings(cs);
     	ShellSpool.rawText = cs.raw_text;
     	
-    	if (core_powercycle())
-    		start_core_keydown();
-    	
     	// Add battery monitor if API >= 4. Lower API levels don't provide
     	// Intent.ACTION_BATTERY_OKAY, and I haven't figured out yet how to
     	// know when to turn off the low-bat annunciator without it.
@@ -245,9 +242,16 @@ public class Free42Activity extends Activity {
     	if (preferredOrientation != this.getRequestedOrientation())
     		setRequestedOrientation(preferredOrientation);
     }
+    
+    @Override
+    protected void onResume() {
+    	super.onResume();
+    	if (core_powercycle())
+    		start_core_keydown();
+    }
 
     @Override
-    protected void onDestroy() {
+    protected void onPause() {
     	end_core_keydown();
     	// Write state file
     	try {
@@ -257,7 +261,7 @@ public class Free42Activity extends Activity {
     	}
     	if (stateFileOutputStream != null) {
     		write_shell_state();
-    		core_quit();
+    		core_enter_background();
     	}
     	if (stateFileOutputStream != null) {
     		try {
@@ -281,6 +285,16 @@ public class Free42Activity extends Activity {
     		} catch (IOException e) {}
     		printGifFile = null;
     	}
+    	super.onPause();
+    }
+    
+    @Override
+    protected void onDestroy() {
+    	// N.B. In the Android build, core_quit() does not write the
+    	// core state; we assume that onPause() has been called previously,
+    	// and its core_enter_background() call takes care of saving state.
+    	// All this core_quit() call does it free up memory.
+    	core_quit();
     	super.onDestroy();
     }
 	
@@ -1307,6 +1321,7 @@ public class Free42Activity extends Activity {
     private native void core_keydown_finish();
     
     private native void core_init(int read_state, int version);
+    private native void core_enter_background();
     private native void core_quit();
     private native void core_repaint_display();
     private native boolean core_menu();

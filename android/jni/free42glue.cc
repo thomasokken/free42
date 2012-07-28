@@ -124,6 +124,12 @@ Java_com_thomasokken_free42_Free42Activity_core_1init(JNIEnv *env, jobject thiz,
 }
 
 extern "C" void
+Java_com_thomasokken_free42_Free42Activity_core_1enter_1background(JNIEnv *env, jobject thiz) {
+    Tracer T("core_enter_background");
+    core_enter_background();
+}
+
+extern "C" void
 Java_com_thomasokken_free42_Free42Activity_core_1quit(JNIEnv *env, jobject thiz) {
     Tracer T("core_quit");
     core_quit();

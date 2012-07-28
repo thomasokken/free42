@@ -72,7 +72,7 @@ void core_init(int read_saved_state, int4 version) {
 		       flags.f.rad || flags.f.grad);
 }
 
-#ifdef IPHONE
+#if defined(IPHONE) || defined(ANDROID)
 void core_enter_background() {
     if (mode_interruptible != NULL)
 	stop_interruptible();
@@ -82,9 +82,14 @@ void core_enter_background() {
 #endif
 
 void core_quit() {
+#ifndef ANDROID
+    // In Android, core_enter_background() is always called
+    // before core_quit().
+    // TODO: Does that apply to the iPhone verson as well?
     if (mode_interruptible != NULL)
 	stop_interruptible();
     save_state();
+#endif
     free_vartype(reg_x);
     free_vartype(reg_y);
     free_vartype(reg_z);

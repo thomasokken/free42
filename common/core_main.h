@@ -37,7 +37,7 @@
  */
 void core_init(int read_state, int4 version) MAIN_SECT;
 
-#ifdef IPHONE
+#if defined(IPHONE) || defined(ANDROID)
 
 /* core_enter_background()
  *
