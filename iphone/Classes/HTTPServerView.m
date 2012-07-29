@@ -106,6 +106,7 @@ static void *getHostName(void *dummy) {
 							 (ip_addr >> 8) & 255,
 							 (ip_addr >> 16) & 255,
 							 (ip_addr >> 24) & 255] retain];
+                ipStr = [[NSString stringWithString:hostname] retain];
 				NSLog(@"My IP address appears to be %@", hostname);
 				pthread_create(&getHostNameThread, NULL, getHostName, NULL);
 				break;
@@ -129,6 +130,7 @@ static void *getHostName(void *dummy) {
 		[urlLabel setText:@"(not running)"];
 	} else {
 		[urlLabel setText:[NSString stringWithFormat:@"http://%@:%d/", hostname, port]];
+        alternateUrl = [[NSString stringWithFormat:@"http:/%@:%d/", ipStr, port] retain];
 	}
 }
 
@@ -147,6 +149,17 @@ static void *getHostName(void *dummy) {
 		}
 	}		
 	[shell_iphone showMain];
+}
+
+- (void) touchesBegan: (NSSet *) touches withEvent: (UIEvent *) event {
+    if ([touches count] == 1 && CGRectContainsPoint([urlLabel frame], [((UITouch *) [touches anyObject]) locationInView:self])) {
+        NSString *temp = [urlLabel text];
+        if (alternateUrl != nil && ![temp isEqualToString:@"(not running"]) {
+            [urlLabel setText:alternateUrl];
+            alternateUrl = [temp retain];
+        }
+    }
+    [super touchesBegan:touches withEvent:event];
 }
 
 - (void)dealloc {

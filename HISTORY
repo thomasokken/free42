@@ -1,3 +1,8 @@
+??-??-????: release 1.4.75
+
+* iPhone version: in the HTTP Server view, tapping on the server URL switches
+  between the DNS name and the IP address.
+
 29-07-2012: release 1.4.74b
 
 * Android version: now writes state file when moved to background.

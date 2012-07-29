@@ -22,6 +22,8 @@
 	UIBarButtonItem *doneButton;
 	UILabel *urlLabel;
 	UITextView *logView;
+    NSString *ipStr;
+    NSString *alternateUrl;
 }
 
 @property (nonatomic, retain) IBOutlet UIBarButtonItem *doneButton;
@@ -30,5 +32,6 @@
 
 - (void) raised;
 - (IBAction) done;
+- (void) touchesBegan: (NSSet *) touches withEvent: (UIEvent *) event;
 
 @end
