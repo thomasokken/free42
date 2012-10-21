@@ -1899,9 +1899,13 @@ void shell_blitter(const char *bits, int bytesperline, int x, int y,
 
 void shell_beeper(int frequency, int duration) {
 #ifdef AUDIO_ALSA
+    const char *display_name = gdk_display_get_name(gdk_display_get_default());
+    if (display_name == NULL || display_name[0] == ':')
 	alsa_beeper(frequency, duration);
+    else
+	gdk_beep();
 #else
-    	gdk_beep();
+    gdk_beep();
 #endif
 }
 
