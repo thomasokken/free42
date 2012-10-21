@@ -215,12 +215,9 @@ static bool audio_init() {
     if (libasound_state == 2)
 	return false;
 
-    pthread_mutex_lock(&closer_mutex);
     gettimeofday(&last_use, NULL);
-    if (audio_initialized) {
-	pthread_mutex_unlock(&closer_mutex);
+    if (audio_initialized)
 	return true;
-    }
 
     int err;
 
@@ -245,14 +242,12 @@ static bool audio_init() {
     } else {
 	fail:
 	fprintf (stderr, "cannot open audio device %s (%s)\n", audio_device, _dl_snd_strerror(err));
-	pthread_mutex_unlock(&closer_mutex);
 	return false;
     }
 
     audio_initialized = true;
 
     pthread_create(&closer_thread, NULL, closer, NULL);
-    pthread_mutex_unlock(&closer_mutex);
     return true;
 }
 
@@ -277,8 +272,11 @@ static int xrun_recovery(snd_pcm_t *handle, int err)
 }
 
 bool alsa_beeper(int frequency, int duration) {
-    if(!audio_init())
+    pthread_mutex_lock(&closer_mutex);
+    if(!audio_init()) {
+	pthread_mutex_unlock(&closer_mutex);
 	return false;
+    }
 
     /* roughly benchmark the function so that we can return only after the
      * sound has been played */
@@ -349,5 +347,6 @@ bool alsa_beeper(int frequency, int duration) {
 	if(duration > 0) usleep(duration * 1000);
     }
 
+    pthread_mutex_unlock(&closer_mutex);
     return true;
 }
