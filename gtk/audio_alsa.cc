@@ -215,7 +215,6 @@ static bool audio_init() {
     if (libasound_state == 2)
 	return false;
 
-    gettimeofday(&last_use, NULL);
     if (audio_initialized)
 	return true;
 
@@ -347,6 +346,7 @@ bool alsa_beeper(int frequency, int duration) {
 	if(duration > 0) usleep(duration * 1000);
     }
 
+    gettimeofday(&last_use, NULL);
     pthread_mutex_unlock(&closer_mutex);
     return true;
 }
