@@ -18,6 +18,6 @@
 #ifndef AUDIO_ALSA_H
 #define AUDIO_ALSA_H 1
 
-extern void alsa_beeper(int frequency, int duration);
+bool alsa_beeper(int frequency, int duration);
 
 #endif
