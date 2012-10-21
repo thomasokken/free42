@@ -46,6 +46,10 @@
 #define _POSIX_LOGIN_NAME_MAX 255
 #endif
 
+#ifdef AUDIO_ALSA
+#include "audio_alsa.h"
+#endif
+
 
 /* These are global because the skin code uses them a lot */
 
@@ -1894,7 +1898,11 @@ void shell_blitter(const char *bits, int bytesperline, int x, int y,
 }
 
 void shell_beeper(int frequency, int duration) {
-    gdk_beep();
+#ifdef AUDIO_ALSA
+	alsa_beeper(frequency, duration);
+#else
+    	gdk_beep();
+#endif
 }
 
 void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {

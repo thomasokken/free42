@@ -47,6 +47,13 @@ else
 EXE = free42bin
 endif
 
+ifdef AUDIO_ALSA
+CXXFLAGS += -DAUDIO_ALSA
+SRCS += audio_alsa.cc
+OBJS += audio_alsa.o
+LIBS += -lasound
+endif
+
 ifdef OLPC
 CXXFLAGS += -DOLPC
 endif
