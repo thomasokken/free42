@@ -46,7 +46,6 @@ static int (*_dl_snd_pcm_hw_params_set_buffer_size_near)(snd_pcm_t *pcm, snd_pcm
 static int (*_dl_snd_pcm_hw_params_set_channels)(snd_pcm_t *pcm, snd_pcm_hw_params_t *params, unsigned int val);
 static int (*_dl_snd_pcm_hw_params_set_format)(snd_pcm_t *pcm, snd_pcm_hw_params_t *params, snd_pcm_format_t val);
 static int (*_dl_snd_pcm_hw_params_set_rate_near)(snd_pcm_t *pcm, snd_pcm_hw_params_t *params, unsigned int *val, int *dir);
-static size_t (*_dl_snd_pcm_hw_params_sizeof)(void);
 static int (*_dl_snd_pcm_open)(snd_pcm_t **pcm, const char *name, snd_pcm_stream_t stream, int mode);
 static int (*_dl_snd_pcm_prepare)(snd_pcm_t *pcm);
 static int (*_dl_snd_pcm_resume)(snd_pcm_t *pcm);
@@ -57,7 +56,6 @@ static int (*_dl_snd_pcm_sw_params_current)(snd_pcm_t *pcm, snd_pcm_sw_params_t 
 static int (*_dl_snd_pcm_sw_params_get_boundary)(const snd_pcm_sw_params_t *params, snd_pcm_uframes_t *val);
 static int (*_dl_snd_pcm_sw_params_set_silence_size)(snd_pcm_t *pcm, snd_pcm_sw_params_t *params, snd_pcm_uframes_t val);
 static int (*_dl_snd_pcm_sw_params_set_silence_threshold)(snd_pcm_t *pcm, snd_pcm_sw_params_t *params, snd_pcm_uframes_t val);
-static size_t (*_dl_snd_pcm_sw_params_sizeof)(void);
 static snd_pcm_sframes_t (*_dl_snd_pcm_writei)(snd_pcm_t *pcm, const void *buffer, snd_pcm_uframes_t size);
 static const char *(*_dl_snd_strerror)(int errnum);
 
@@ -188,7 +186,6 @@ static bool open_libasound() {
     *((void **) &_dl_snd_pcm_hw_params_set_channels) = dlsym(lib, "snd_pcm_hw_params_set_channels");
     *((void **) &_dl_snd_pcm_hw_params_set_format) = dlsym(lib, "snd_pcm_hw_params_set_format");
     *((void **) &_dl_snd_pcm_hw_params_set_rate_near) = dlsym(lib, "snd_pcm_hw_params_set_rate_near");
-    *((void **) &_dl_snd_pcm_hw_params_sizeof) = dlsym(lib, "snd_pcm_hw_params_sizeof");
     *((void **) &_dl_snd_pcm_open) = dlsym(lib, "snd_pcm_open");
     *((void **) &_dl_snd_pcm_prepare) = dlsym(lib, "snd_pcm_prepare");
     *((void **) &_dl_snd_pcm_resume) = dlsym(lib, "snd_pcm_resume");
@@ -199,7 +196,6 @@ static bool open_libasound() {
     *((void **) &_dl_snd_pcm_sw_params_get_boundary) = dlsym(lib, "snd_pcm_sw_params_get_boundary");
     *((void **) &_dl_snd_pcm_sw_params_set_silence_size) = dlsym(lib, "snd_pcm_sw_params_set_silence_size");
     *((void **) &_dl_snd_pcm_sw_params_set_silence_threshold) = dlsym(lib, "snd_pcm_sw_params_set_silence_threshold");
-    *((void **) &_dl_snd_pcm_sw_params_sizeof) = dlsym(lib, "snd_pcm_sw_params_sizeof");
     *((void **) &_dl_snd_pcm_writei) = dlsym(lib, "snd_pcm_writei");
     *((void **) &_dl_snd_strerror) = dlsym(lib, "snd_strerror");
     if (dlerror() == NULL)
