@@ -57,7 +57,6 @@ ifdef AUDIO_ALSA
 CXXFLAGS += -DAUDIO_ALSA -DALSALIB="\"libasound.so.2\""
 SRCS += audio_alsa.cc
 OBJS += audio_alsa.o
-#LIBS += -lasound
 endif
 
 ifdef OLPC
