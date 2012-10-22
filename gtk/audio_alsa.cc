@@ -168,7 +168,7 @@ static void *closer(void *) {
 static bool open_libasound() {
     void *lib = dlopen(ALSALIB, RTLD_NOW);
     if (lib == NULL) {
-	fprintf(stderr, "Could not open %s;\nusing gdk_beep() for BEEP and TONE.\n", ALSALIB);
+	fprintf(stderr, "Could not open " ALSALIB "\nusing gdk_beep() for BEEP and TONE.\n");
 	return false;
     }
     *((void **) &_dl_snd_pcm_close) = dlsym(lib, "snd_pcm_close");
@@ -200,7 +200,7 @@ static bool open_libasound() {
     *((void **) &_dl_snd_strerror) = dlsym(lib, "snd_strerror");
     if (dlerror() == NULL)
 	return true;
-    fprintf(stderr, "Could not load all required symbols from %s;\nusing gdk_beep() for BEEP and TONE.\n", ALSALIB);
+    fprintf(stderr, "Could not load all required symbols from " ALSALIB "\nusing gdk_beep() for BEEP and TONE.\n");
     dlclose(lib);
     return false;
 }
