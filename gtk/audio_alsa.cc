@@ -20,7 +20,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <alsa/asoundlib.h>
-#include <math.h>
 #include <sys/time.h>
 #include <pthread.h>
 #include <dlfcn.h>
