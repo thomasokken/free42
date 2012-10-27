@@ -130,7 +130,7 @@ static void *getHostName(void *dummy) {
 		[urlLabel setText:@"(not running)"];
 	} else {
 		[urlLabel setText:[NSString stringWithFormat:@"http://%@:%d/", hostname, port]];
-        alternateUrl = [[NSString stringWithFormat:@"http:/%@:%d/", ipStr, port] retain];
+        alternateUrl = [[NSString stringWithFormat:@"http://%@:%d/", ipStr, port] retain];
 	}
 }
 
