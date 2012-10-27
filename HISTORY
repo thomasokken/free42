@@ -1,7 +1,9 @@
-??-??-????: release 1.4.75
+27-10-2012: release 1.4.75
 
 * iPhone version: in the HTTP Server view, tapping on the server URL switches
   between the DNS name and the IP address.
+* GTK version: now uses ALSA to play BEEP and TONE sounds (but not when running
+  on remote displays).
 
 29-07-2012: release 1.4.74b
 
