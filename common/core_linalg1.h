@@ -21,12 +21,10 @@
 #include "core_globals.h"
 
 int linalg_div(const vartype *left, const vartype *right,
-			     void (*completion)(int, vartype *)) LINALG1_SECT;
+			     void (*completion)(int, vartype *));
 int linalg_mul(const vartype *left, const vartype *right,
-			     void (*completion)(int, vartype *)) LINALG1_SECT;
-int linalg_inv(const vartype *src, void (*completion)(int, vartype *))
-								 LINALG1_SECT;
-int linalg_det(const vartype *src, void (*completion)(int, vartype *))
-								 LINALG1_SECT;
+			     void (*completion)(int, vartype *));
+int linalg_inv(const vartype *src, void (*completion)(int, vartype *));
+int linalg_det(const vartype *src, void (*completion)(int, vartype *));
 
 #endif

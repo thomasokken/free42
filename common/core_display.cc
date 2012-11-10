@@ -543,11 +543,9 @@ static int appmenu_exitcallback;
 /* Private function prototypes */
 /*******************************/
 
-static void mark_dirty(int top, int left, int bottom, int right)
-							    DISPLAY_SECT;
-static void fill_rect(int x, int y, int width, int height, int color)
-							    DISPLAY_SECT;
-static int get_cat_index() DISPLAY_SECT;
+static void mark_dirty(int top, int left, int bottom, int right);
+static void fill_rect(int x, int y, int width, int height, int color);
+static int get_cat_index();
 
 
 bool persist_display() {
@@ -871,8 +869,6 @@ static void fill_rect(int x, int y, int width, int height, int color) {
 }
 
 static void draw_key(int n, int highlight, int hide_meta,
-			    const char *s, int length) DISPLAY_SECT;
-static void draw_key(int n, int highlight, int hide_meta,
 			    const char *s, int length) {
     int swidth = 0;
     int len = 0;
@@ -940,8 +936,6 @@ void clear_row(int row) {
     fill_rect(0, row * 8, 131, 8, 0);
 }
 
-static int prgmline2buf(char *buf, int len, int4 line, int highlight,
-			int cmd, arg_struct *arg) DISPLAY_SECT;
 static int prgmline2buf(char *buf, int len, int4 line, int highlight,
 			int cmd, arg_struct *arg) {
     int bufptr = 0;
@@ -1390,7 +1384,6 @@ static extension_struct extensions[] = {
     { CMD_NULL,    CMD_NULL,    NULL                               }
 };
 
-static void draw_catalog() DISPLAY_SECT;
 static void draw_catalog() {
     int catsect = get_cat_section();
     int catindex = get_cat_index();
@@ -2010,7 +2003,7 @@ typedef struct {
 } prp_data_struct;
 
 static prp_data_struct *prp_data;
-static int print_program_worker(int interrupted) DISPLAY_SECT;
+static int print_program_worker(int interrupted);
 
 int print_program(int prgm_index, int4 pc, int4 lines, int normal) {
     prp_data_struct *dat = (prp_data_struct *) malloc(sizeof(prp_data_struct));

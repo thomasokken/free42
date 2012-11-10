@@ -140,7 +140,6 @@ int docmd_heading(arg_struct *arg) {
 ///// HP-41 Time Module & CX Time emulation /////
 /////////////////////////////////////////////////
 
-static int date2comps(phloat x, int4 *yy, int4 *mm, int4 *dd) COMMANDS7_SECT;
 static int date2comps(phloat x, int4 *yy, int4 *mm, int4 *dd) {
     int4 m = to_int4(floor(x));
 #ifdef BCD_MATH
@@ -175,7 +174,6 @@ static int date2comps(phloat x, int4 *yy, int4 *mm, int4 *dd) {
     return ERR_NONE;
 }
 
-static phloat comps2date(int4 y, int4 m, int4 d) COMMANDS7_SECT;
 static phloat comps2date(int4 y, int4 m, int4 d) {
     if (mode_time_dmy) {
 	int4 t = m;
@@ -189,7 +187,6 @@ static phloat comps2date(int4 y, int4 m, int4 d) {
  * Algorithm due to Henry F. Fliegel and Thomas C. Van Flandern,
  * Communications of the ACM, Vol. 11, No. 10 (October, 1968).
  */
-static int greg2jd(int4 y, int4 m, int4 d, int4 *jd) COMMANDS7_SECT;
 static int greg2jd(int4 y, int4 m, int4 d, int4 *jd) {
     *jd = ( 1461 * ( y + 4800 + ( m - 14 ) / 12 ) ) / 4 +
 	  ( 367 * ( m - 2 - 12 * ( ( m - 14 ) / 12 ) ) ) / 12 -
@@ -198,7 +195,6 @@ static int greg2jd(int4 y, int4 m, int4 d, int4 *jd) {
     return ERR_NONE;
 }
 
-static int jd2greg(int4 jd, int4 *y, int4 *m, int4 *d) COMMANDS7_SECT;
 static int jd2greg(int4 jd, int4 *y, int4 *m, int4 *d) {
     if (jd < 2299161 || jd > 3299160)
 	return ERR_OUT_OF_RANGE;

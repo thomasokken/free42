@@ -51,13 +51,13 @@ typedef int (*mappable_cc)(phloat xre, phloat xim, phloat yre, phloat yim,
 /****************************************************************/
 
 int generic_div(const vartype *x, const vartype *y,
-			    void (*completion)(int, vartype *)) STO_RCL_SECT;
+			    void (*completion)(int, vartype *));
 int generic_mul(const vartype *x, const vartype *y,
-			    void (*completion)(int, vartype *)) STO_RCL_SECT;
-int generic_sub(const vartype *x, const vartype *y, vartype **res) STO_RCL_SECT;
-int generic_add(const vartype *x, const vartype *y, vartype **res) STO_RCL_SECT;
-int generic_rcl(arg_struct *arg, vartype **dst) STO_RCL_SECT;
-int generic_sto(arg_struct *arg, char operation) STO_RCL_SECT;
+			    void (*completion)(int, vartype *));
+int generic_sub(const vartype *x, const vartype *y, vartype **res);
+int generic_add(const vartype *x, const vartype *y, vartype **res);
+int generic_rcl(arg_struct *arg, vartype **dst);
+int generic_sto(arg_struct *arg, char operation);
 
 
 /**********************************************/
@@ -65,46 +65,36 @@ int generic_sto(arg_struct *arg, char operation) STO_RCL_SECT;
 /* to arbitrary parameter types               */
 /**********************************************/
 
-int map_unary(const vartype *src, vartype **dst, mappable_r, mappable_c mc)
-							    STO_RCL_SECT;
+int map_unary(const vartype *src, vartype **dst, mappable_r, mappable_c mc);
 int map_binary(const vartype *src1, const vartype *src2, vartype **dst,
-	    mappable_rr mrr, mappable_rc mrc, mappable_cr mcr, mappable_cc mcc)
-							    STO_RCL_SECT;
+	    mappable_rr mrr, mappable_rc mrc, mappable_cr mcr, mappable_cc mcc);
 
 /**************************************************************/
 /* Operators that can be used by the mapping functions, above */
 /**************************************************************/
 
-int div_rr(phloat x, phloat y, phloat *z) STO_RCL_SECT;
-int div_rc(phloat x, phloat yre, phloat yim, phloat *zre, phloat *zim)
-								STO_RCL_SECT;
-int div_cr(phloat xre, phloat xim, phloat y, phloat *zre, phloat *zim)
-								STO_RCL_SECT;
+int div_rr(phloat x, phloat y, phloat *z);
+int div_rc(phloat x, phloat yre, phloat yim, phloat *zre, phloat *zim);
+int div_cr(phloat xre, phloat xim, phloat y, phloat *zre, phloat *zim);
 int div_cc(phloat xre, phloat xim, phloat yre, phloat yim,
-				    phloat *zre, phloat *zim) STO_RCL_SECT;
+				    phloat *zre, phloat *zim);
 
-int mul_rr(phloat x, phloat y, phloat *z) STO_RCL_SECT;
-int mul_rc(phloat x, phloat yre, phloat yim, phloat *zre, phloat *zim)
-								STO_RCL_SECT;
-int mul_cr(phloat xre, phloat xim, phloat y, phloat *zre, phloat *zim)
-								STO_RCL_SECT;
+int mul_rr(phloat x, phloat y, phloat *z);
+int mul_rc(phloat x, phloat yre, phloat yim, phloat *zre, phloat *zim);
+int mul_cr(phloat xre, phloat xim, phloat y, phloat *zre, phloat *zim);
 int mul_cc(phloat xre, phloat xim, phloat yre, phloat yim,
-				    phloat *zre, phloat *zim) STO_RCL_SECT;
+				    phloat *zre, phloat *zim);
 
-int sub_rr(phloat x, phloat y, phloat *z) STO_RCL_SECT;
-int sub_rc(phloat x, phloat yre, phloat yim, phloat *zre, phloat *zim)
-								STO_RCL_SECT;
-int sub_cr(phloat xre, phloat xim, phloat y, phloat *zre, phloat *zim)
-								STO_RCL_SECT;
+int sub_rr(phloat x, phloat y, phloat *z);
+int sub_rc(phloat x, phloat yre, phloat yim, phloat *zre, phloat *zim);
+int sub_cr(phloat xre, phloat xim, phloat y, phloat *zre, phloat *zim);
 int sub_cc(phloat xre, phloat xim, phloat yre, phloat yim,
-				    phloat *zre, phloat *zim) STO_RCL_SECT;
+				    phloat *zre, phloat *zim);
 
-int add_rr(phloat x, phloat y, phloat *z) STO_RCL_SECT;
-int add_rc(phloat x, phloat yre, phloat yim, phloat *zre, phloat *zim)
-								STO_RCL_SECT;
-int add_cr(phloat xre, phloat xim, phloat y, phloat *zre, phloat *zim)
-								STO_RCL_SECT;
+int add_rr(phloat x, phloat y, phloat *z);
+int add_rc(phloat x, phloat yre, phloat yim, phloat *zre, phloat *zim);
+int add_cr(phloat xre, phloat xim, phloat y, phloat *zre, phloat *zim);
 int add_cc(phloat xre, phloat xim, phloat yre, phloat yim,
-				    phloat *zre, phloat *zim) STO_RCL_SECT;
+				    phloat *zre, phloat *zim);
 
 #endif

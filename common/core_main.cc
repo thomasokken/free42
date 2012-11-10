@@ -31,7 +31,6 @@
 #include "shell_spool.h"
 
 
-static void set_shift(bool state) MAIN_SECT;
 static void set_shift(bool state) {
     if (mode_shift != state) {
 	mode_shift = state;
@@ -39,9 +38,9 @@ static void set_shift(bool state) {
     }
 }
 
-static void continue_running() MAIN_SECT;
-static void stop_interruptible() MAIN_SECT;
-static int handle_error(int error) MAIN_SECT;
+static void continue_running();
+static void stop_interruptible();
+static int handle_error(int error);
 
 int repeating = 0;
 int repeating_shift;
@@ -380,7 +379,16 @@ int core_keyup() {
     }
 
     if (pending_command == CMD_SILENT_OFF) {
+#ifdef IPHONE
+	if (off_enabled())
+	    shell_powerdown();
+	else {
+	    set_running(false);
+	    squeak();
+	}
+#else
 	shell_powerdown();
+#endif
 	pending_command = CMD_NONE;
 	return 0;
     }
@@ -650,8 +658,6 @@ int core_list_programs(char *buf, int bufsize) {
     return count;
 }
 
-static int export_hp42s(int index, int (*progress_report)(const char *))
-								    MAIN_SECT;
 static int export_hp42s(int index, int (*progress_report)(const char *)) {
     int4 pc = 0;
     int cmd;
@@ -1520,7 +1526,6 @@ static int hp42ext[] = {
 };
 
 
-static int getbyte(char *buf, int *bufptr, int *buflen, int maxlen) MAIN_SECT;
 static int getbyte(char *buf, int *bufptr, int *buflen, int maxlen) {
     if (*bufptr == *buflen) {
 	*buflen = shell_read(buf, maxlen);
@@ -1970,7 +1975,6 @@ void core_copy(char *buf, int buflen) {
     }
 }
 
-static bool is_number_char(char c) MAIN_SECT;
 static bool is_number_char(char c) {
     return (c >= '0' && c <= '9')
 	|| c == '.' || c == ','
@@ -1978,7 +1982,6 @@ static bool is_number_char(char c) {
 	|| c == 'e' || c == 'E' || c == 24;
 }
 
-static bool parse_phloat(const char *p, int len, phloat *res) MAIN_SECT;
 static bool parse_phloat(const char *p, int len, phloat *res) {
     // We can't pass the string on to string2phloat() unchanged, because
     // that function is picky: it does not allow '+' signs, and it does

@@ -21,19 +21,19 @@
 #include "free42.h"
 #include "core_globals.h"
 
-int docmd_sin(arg_struct *arg) COMMANDS6_SECT;
-int docmd_cos(arg_struct *arg) COMMANDS6_SECT;
-int docmd_tan(arg_struct *arg) COMMANDS6_SECT;
-int docmd_asin(arg_struct *arg) COMMANDS6_SECT;
-int docmd_acos(arg_struct *arg) COMMANDS6_SECT;
-int docmd_atan(arg_struct *arg) COMMANDS6_SECT;
-int docmd_log(arg_struct *arg) COMMANDS6_SECT;
-int docmd_10_pow_x(arg_struct *arg) COMMANDS6_SECT;
-int docmd_ln(arg_struct *arg) COMMANDS6_SECT;
-int docmd_e_pow_x(arg_struct *arg) COMMANDS6_SECT;
-int docmd_sqrt(arg_struct *arg) COMMANDS6_SECT;
-int docmd_square(arg_struct *arg) COMMANDS6_SECT;
-int docmd_inv(arg_struct *arg) COMMANDS6_SECT;
-int docmd_y_pow_x(arg_struct *arg) COMMANDS6_SECT;
+int docmd_sin(arg_struct *arg);
+int docmd_cos(arg_struct *arg);
+int docmd_tan(arg_struct *arg);
+int docmd_asin(arg_struct *arg);
+int docmd_acos(arg_struct *arg);
+int docmd_atan(arg_struct *arg);
+int docmd_log(arg_struct *arg);
+int docmd_10_pow_x(arg_struct *arg);
+int docmd_ln(arg_struct *arg);
+int docmd_e_pow_x(arg_struct *arg);
+int docmd_sqrt(arg_struct *arg);
+int docmd_square(arg_struct *arg);
+int docmd_inv(arg_struct *arg);
+int docmd_y_pow_x(arg_struct *arg);
 
 #endif

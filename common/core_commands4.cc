@@ -194,7 +194,6 @@ int docmd_insr(arg_struct *arg) {
     return ERR_NONE;
 }
 
-static void invrt_completion(int error, vartype *res) COMMANDS4_SECT;
 static void invrt_completion(int error, vartype *res) {
     if (error == ERR_NONE)
 	unary_result(res);
@@ -264,7 +263,6 @@ int docmd_j_sub(arg_struct *arg) {
     return ERR_NONE;
 }
 
-static int mappable_ln_1_x(phloat x, phloat *y) COMMANDS4_SECT;
 static int mappable_ln_1_x(phloat x, phloat *y) {
     if (x <= -1)
 	return ERR_INVALID_DATA;
@@ -703,7 +701,6 @@ int docmd_swap_r(arg_struct *arg) {
     }
 }
 
-static int mappable_sinh_r(phloat x, phloat *y) COMMANDS4_SECT;
 static int mappable_sinh_r(phloat x, phloat *y) {
     int inf;
     *y = sinh(x);
@@ -716,8 +713,6 @@ static int mappable_sinh_r(phloat x, phloat *y) {
     return ERR_NONE;
 }   
 
-static int mappable_sinh_c(phloat xre, phloat xim,
-	                             phloat *yre, phloat *yim) COMMANDS4_SECT;
 static int mappable_sinh_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     phloat sinhxre, coshxre;
     phloat sinxim, cosxim;
@@ -878,14 +873,11 @@ int docmd_stoij(arg_struct *arg) {
     return ERR_NONE;
 }
 
-static int mappable_tanh_r(phloat x, phloat *y) COMMANDS4_SECT;
 static int mappable_tanh_r(phloat x, phloat *y) {
     *y = tanh(x);
     return ERR_NONE;
 }   
 
-static int mappable_tanh_c(phloat xre, phloat xim,
-	                             phloat *yre, phloat *yim) COMMANDS4_SECT;
 static int mappable_tanh_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     phloat sinhxre, coshxre;
     phloat sinxim, cosxim;
@@ -1010,7 +1002,6 @@ int docmd_x_swap(arg_struct *arg) {
 #define DIR_UP    2
 #define DIR_DOWN  3
 
-static int matedit_move(int direction) COMMANDS4_SECT;
 static int matedit_move(int direction) {
     vartype *m, *v;
     vartype_realmatrix *rm;
@@ -1217,7 +1208,6 @@ int docmd_percent_ch(arg_struct *arg) {
 
 static vartype *matx_v;
 
-static void matx_completion(int error, vartype *res) COMMANDS4_SECT;
 static void matx_completion(int error, vartype *res) {
     if (error != ERR_NONE) {
 	free_vartype(matx_v);
@@ -1253,7 +1243,6 @@ static void matx_completion(int error, vartype *res) {
     matedit_j = 0;
 }
 
-static int matabx(int which) COMMANDS4_SECT;
 static int matabx(int which) {
     vartype *mat, *v;
 
@@ -1412,7 +1401,6 @@ int docmd_simq(arg_struct *arg) {
     return ERR_NONE;
 }
 
-static int max_min_helper(int do_max) COMMANDS4_SECT;
 static int max_min_helper(int do_max) {
     vartype *m;
     vartype_realmatrix *rm;

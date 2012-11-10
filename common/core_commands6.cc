@@ -27,7 +27,6 @@
 /* Implementations of HP-42S built-in functions, part 6 */
 /********************************************************/
 
-static int mappable_sin_r(phloat x, phloat *y) COMMANDS6_SECT;
 static int mappable_sin_r(phloat x, phloat *y) {
     if (flags.f.rad) {
 	*y = sin(x);
@@ -59,8 +58,6 @@ static int mappable_sin_r(phloat x, phloat *y) {
     return ERR_NONE;
 }
 
-static int mappable_sin_c(phloat xre, phloat xim,
-			     phloat *yre, phloat *yim) COMMANDS6_SECT;
 static int mappable_sin_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     /* NOTE: DEG/RAD/GRAD mode does not apply here. */
     phloat sinxre, cosxre;
@@ -97,7 +94,6 @@ int docmd_sin(arg_struct *arg) {
 	return ERR_ALPHA_DATA_IS_INVALID;
 }
 
-static int mappable_cos_r(phloat x, phloat *y) COMMANDS6_SECT;
 static int mappable_cos_r(phloat x, phloat *y) {
     if (flags.f.rad) {
 	*y = cos(x);
@@ -129,8 +125,6 @@ static int mappable_cos_r(phloat x, phloat *y) {
     return ERR_NONE;
 }
 
-static int mappable_cos_c(phloat xre, phloat xim,
-			     phloat *yre, phloat *yim) COMMANDS6_SECT;
 static int mappable_cos_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     /* NOTE: DEG/RAD/GRAD mode does not apply here. */
     phloat sinxre, cosxre;
@@ -167,7 +161,6 @@ int docmd_cos(arg_struct *arg) {
 	return ERR_ALPHA_DATA_IS_INVALID;
 }
 
-static int mappable_tan_r(phloat x, phloat *y) COMMANDS6_SECT;
 static int mappable_tan_r(phloat x, phloat *y) {
     int inf = 1;
     if (flags.f.rad) {
@@ -213,8 +206,6 @@ static int mappable_tan_r(phloat x, phloat *y) {
     return ERR_NONE;
 }
 
-static int mappable_tan_c(phloat xre, phloat xim,
-			     phloat *yre, phloat *yim) COMMANDS6_SECT;
 static int mappable_tan_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     /* NOTE: DEG/RAD/GRAD mode does not apply here. */
     phloat sinxre, cosxre;
@@ -272,7 +263,6 @@ int docmd_tan(arg_struct *arg) {
 	return ERR_ALPHA_DATA_IS_INVALID;
 }
 
-static int mappable_asin_r(phloat x, phloat *y) COMMANDS6_SECT;
 static int mappable_asin_r(phloat x, phloat *y) {
     if (x < -1 || x > 1)
 	return ERR_INVALID_DATA;
@@ -280,8 +270,6 @@ static int mappable_asin_r(phloat x, phloat *y) {
     return ERR_NONE;
 }
 
-static int mappable_asin_c(phloat xre, phloat xim, phloat *yre, phloat *yim)
-								COMMANDS6_SECT;
 static int mappable_asin_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     phloat tre, tim;
     int err = math_asinh(-xim, xre, &tre, &tim);
@@ -318,7 +306,6 @@ int docmd_asin(arg_struct *arg) {
     return ERR_NONE;
 }
 
-static int mappable_acos_r(phloat x, phloat *y) COMMANDS6_SECT;
 static int mappable_acos_r(phloat x, phloat *y) {
     if (x < -1 || x > 1)
 	return ERR_INVALID_DATA;
@@ -326,8 +313,6 @@ static int mappable_acos_r(phloat x, phloat *y) {
     return ERR_NONE;
 }
 
-static int mappable_acos_c(phloat xre, phloat xim, phloat *yre, phloat *yim)
-								COMMANDS6_SECT;
 static int mappable_acos_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     phloat tre, tim;
     int err = math_acosh(xre, xim, &tre, &tim);
@@ -365,14 +350,11 @@ int docmd_acos(arg_struct *arg) {
     return ERR_NONE;
 }
 
-static int mappable_atan_r(phloat x, phloat *y) COMMANDS6_SECT;
 static int mappable_atan_r(phloat x, phloat *y) {
     *y = rad_to_angle(atan(x));
     return ERR_NONE;
 }
 
-static int mappable_atan_c(phloat xre, phloat xim, phloat *yre, phloat *yim)
-								COMMANDS6_SECT;
 static int mappable_atan_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     phloat tre, tim;
     int err = math_atanh(xim, -xre, &tre, &tim);
@@ -393,7 +375,6 @@ int docmd_atan(arg_struct *arg) {
     }
 }
 
-static int mappable_log_r(phloat x, phloat *y) COMMANDS6_SECT;
 static int mappable_log_r(phloat x, phloat *y) {
     if (x <= 0)
 	return ERR_INVALID_DATA;
@@ -403,8 +384,6 @@ static int mappable_log_r(phloat x, phloat *y) {
     }
 }
 
-static int mappable_log_c(phloat xre, phloat xim,
-			     phloat *yre, phloat *yim) COMMANDS6_SECT;
 static int mappable_log_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     phloat h = hypot(xre, xim);
     if (h == 0)
@@ -458,7 +437,6 @@ int docmd_log(arg_struct *arg) {
     }
 }
 
-static int mappable_10_pow_x_r(phloat x, phloat *y) COMMANDS6_SECT;
 static int mappable_10_pow_x_r(phloat x, phloat *y) {
     *y = pow(10, x);
     if (p_isinf(*y) != 0) {
@@ -469,8 +447,6 @@ static int mappable_10_pow_x_r(phloat x, phloat *y) {
     return ERR_NONE;
 }
 
-static int mappable_10_pow_x_c(phloat xre, phloat xim,
-			     phloat *yre, phloat *yim) COMMANDS6_SECT;
 static int mappable_10_pow_x_c(phloat xre, phloat xim, phloat *yre, phloat *yim){
     int inf;
     phloat h;
@@ -514,7 +490,6 @@ int docmd_10_pow_x(arg_struct *arg) {
 	return ERR_ALPHA_DATA_IS_INVALID;
 }
 
-static int mappable_ln_r(phloat x, phloat *y) COMMANDS6_SECT;
 static int mappable_ln_r(phloat x, phloat *y) {
     if (x <= 0)
 	return ERR_INVALID_DATA;
@@ -524,8 +499,6 @@ static int mappable_ln_r(phloat x, phloat *y) {
     }
 }
 
-static int mappable_ln_c(phloat xre, phloat xim,
-			     phloat *yre, phloat *yim) COMMANDS6_SECT;
 static int mappable_ln_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     phloat h = hypot(xre, xim);
     if (h == 0)
@@ -579,7 +552,6 @@ int docmd_ln(arg_struct *arg) {
     }
 }
 
-static int mappable_e_pow_x_r(phloat x, phloat *y) COMMANDS6_SECT;
 static int mappable_e_pow_x_r(phloat x, phloat *y) {
     *y = exp(x);
     if (p_isinf(*y) != 0) {
@@ -590,8 +562,6 @@ static int mappable_e_pow_x_r(phloat x, phloat *y) {
     return ERR_NONE;
 }
 
-static int mappable_e_pow_x_c(phloat xre, phloat xim,
-			     phloat *yre, phloat *yim) COMMANDS6_SECT;
 static int mappable_e_pow_x_c(phloat xre, phloat xim, phloat *yre, phloat *yim){
     phloat h = exp(xre);
     int inf = p_isinf(h);
@@ -630,7 +600,6 @@ int docmd_e_pow_x(arg_struct *arg) {
 	return ERR_ALPHA_DATA_IS_INVALID;
 }
 
-static int mappable_sqrt_r(phloat x, phloat *y) COMMANDS6_SECT;
 static int mappable_sqrt_r(phloat x, phloat *y) {
     if (x < 0)
 	return ERR_INVALID_DATA;
@@ -640,8 +609,6 @@ static int mappable_sqrt_r(phloat x, phloat *y) {
     }
 }
 
-static int mappable_sqrt_c(phloat xre, phloat xim, phloat *yre, phloat *yim)
-								COMMANDS6_SECT;
 static int mappable_sqrt_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     /* TODO: review -- is there a better way, without all the trig? */
     phloat r = sqrt(hypot(xre, xim));
@@ -679,7 +646,6 @@ int docmd_sqrt(arg_struct *arg) {
     }
 }
 
-static int mappable_square_r(phloat x, phloat *y) COMMANDS6_SECT;
 static int mappable_square_r(phloat x, phloat *y) {
     phloat r = x * x;
     int inf;
@@ -693,8 +659,6 @@ static int mappable_square_r(phloat x, phloat *y) {
     return ERR_NONE;
 }
 
-static int mappable_square_c(phloat xre, phloat xim,
-			     phloat *yre, phloat *yim) COMMANDS6_SECT;
 static int mappable_square_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     phloat rre = xre * xre - xim * xim;
     phloat rim = 2 * xre * xim;
@@ -728,7 +692,6 @@ int docmd_square(arg_struct *arg) {
     }
 }
 
-static int mappable_inv_r(phloat x, phloat *y) COMMANDS6_SECT;
 static int mappable_inv_r(phloat x, phloat *y) {
     int inf;
     if (x == 0)
@@ -742,8 +705,6 @@ static int mappable_inv_r(phloat x, phloat *y) {
     return ERR_NONE;
 }
 
-static int mappable_inv_c(phloat xre, phloat xim,
-			     phloat *yre, phloat *yim) COMMANDS6_SECT;
 static int mappable_inv_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     int inf;
     phloat h = hypot(xre, xim);

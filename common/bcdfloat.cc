@@ -22,18 +22,8 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "bcdfloat.h"
-
-#ifdef PALMOS
-// We take the following three functions from core_phloat.cc, rather than from
-// the standard library, because in the case of the PalmOS Decimal build, the
-// standard library isn't there.
-double pow(double x, double y);
-double floor(double x);
-double log10(double x);
-#else
 #include <math.h>
-#endif
+#include "bcdfloat.h"
 
 
 int BCDDecade[4] = { 1000, 100, 10, 1 };
@@ -1094,7 +1084,6 @@ void BCDFloat::_roundDigits(unsigned int precision, BCDFloat* v) const
         *v = *this;
 }
 
-#ifndef PALMOS
 void BCDFloat::_asString(char* buf, Format fmt, int precision) const
 {
     char* p = buf;
@@ -1208,10 +1197,8 @@ void BCDFloat::_asString(char* buf, Format fmt, int precision) const
 #endif
      }
 }
-#endif // !PALMOS
 
 
-static unsigned int isqrt(unsigned int v) BCD1_SECT;
 static unsigned int isqrt(unsigned int v)
 {
     /* integer root for x<= 9999 */

@@ -670,6 +670,13 @@ static int rtn_sp = 0;
 static int rtn_prgm[MAX_RTNS];
 static int4 rtn_pc[MAX_RTNS];
 
+#ifdef IPHONE
+/* For iPhone, we disable OFF by default, to satisfy App Store
+ * policy, but we allow users to enable it using a magic value
+ * in the X register. This flag determines OFF behavior.
+ */
+static bool off_enable_flag = false;
+#endif
 
 typedef struct {
     int type;
@@ -682,23 +689,23 @@ static int array_list_capacity;
 static void **array_list;
 
 
-static bool read_int(int *n) GLOBALS_SECT;
-static bool write_int(int n) GLOBALS_SECT;
-static bool read_int4(int4 *n) GLOBALS_SECT;
-static bool write_int4(int4 n) GLOBALS_SECT;
-static bool read_bool(bool *n) GLOBALS_SECT;
-static bool write_bool(bool n) GLOBALS_SECT;
+static bool read_int(int *n);
+static bool write_int(int n);
+static bool read_int4(int4 *n);
+static bool write_int4(int4 n);
+static bool read_bool(bool *n);
+static bool write_bool(bool n);
 
-static bool array_list_grow() GLOBALS_SECT;
-static int array_list_search(void *array) GLOBALS_SECT;
-static bool persist_vartype(vartype *v) GLOBALS_SECT;
-static bool unpersist_vartype(vartype **v) GLOBALS_SECT;
-static void update_label_table(int prgm, int4 pc, int inserted) GLOBALS_SECT;
-static void invalidate_lclbls(int prgm_index) GLOBALS_SECT;
-static int pc_line_convert(int4 loc, int loc_is_pc) GLOBALS_SECT;
-static bool convert_programs() GLOBALS_SECT;
+static bool array_list_grow();
+static int array_list_search(void *array);
+static bool persist_vartype(vartype *v);
+static bool unpersist_vartype(vartype **v);
+static void update_label_table(int prgm, int4 pc, int inserted);
+static void invalidate_lclbls(int prgm_index);
+static int pc_line_convert(int4 loc, int loc_is_pc);
+static bool convert_programs();
 #ifdef IPHONE
-static void convert_bigstack_drop() GLOBALS_SECT;
+static void convert_bigstack_drop();
 #endif
 
 
@@ -1086,7 +1093,6 @@ static bool unpersist_vartype(vartype **v) {
     }
 }
 
-static bool persist_globals() GLOBALS_SECT;
 static bool persist_globals() {
     int i;
     array_count = 0;
@@ -1162,6 +1168,10 @@ static bool persist_globals() {
 	goto done;
     if (!shell_write_saved_state(&rtn_pc, MAX_RTNS * sizeof(int4)))
 	goto done;
+#ifdef IPHONE
+    if (!write_bool(off_enable_flag))
+	goto done;
+#endif
     ret = true;
 
     done:
@@ -1169,7 +1179,6 @@ static bool persist_globals() {
     return ret;
 }
 
-static bool unpersist_globals(int4 ver) GLOBALS_SECT;
 static bool unpersist_globals(int4 ver) {
     int4 n;
     int i;
@@ -1340,6 +1349,12 @@ static bool unpersist_globals(int4 ver) {
     if (shell_read_saved_state(rtn_pc, MAX_RTNS * sizeof(int4))
 	    != MAX_RTNS * sizeof(int4))
 	goto done;
+#ifdef IPHONE
+    if (ver >= 17)
+	if (!read_bool(&off_enable_flag))
+	    goto done;
+#endif
+
     if (bin_dec_mode_switch)
 	if (!convert_programs()) {
 	    clear_all_prgms();
@@ -3063,5 +3078,23 @@ void reinitialize_globals() {
     keybuf_tail = 0;
     remove_program_catalog = 0;
     rtn_sp = 0;
+}
+#endif
+
+#ifdef IPHONE
+bool off_enabled() {
+    if (off_enable_flag)
+	return true;
+    if (reg_x->type != TYPE_STRING)
+	return false;
+    vartype_string *str = (vartype_string *) reg_x;
+    off_enable_flag = str->length == 6
+		      && str->text[0] == 'Y'
+		      && str->text[1] == 'E'
+		      && str->text[2] == 'S'
+		      && str->text[3] == 'O'
+		      && str->text[4] == 'F'
+		      && str->text[5] == 'F';
+    return off_enable_flag;
 }
 #endif

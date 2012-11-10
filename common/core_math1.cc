@@ -99,8 +99,8 @@ typedef struct {
 static integ_state integ;
 
 
-static void reset_solve() MATH1_SECT;
-static void reset_integ() MATH1_SECT;
+static void reset_solve();
+static void reset_integ();
 
 
 bool persist_math() {
@@ -173,7 +173,6 @@ static void reset_solve() {
     solve.state = 0;
 }
 
-static int find_shadow(const char *name, int length) MATH1_SECT;
 static int find_shadow(const char *name, int length) {
     int i;
     for (i = 0; i < NUM_SHADOWS; i++)
@@ -228,7 +227,6 @@ void set_solve_prgm(const char *name, int length) {
     string_copy(solve.prgm_name, &solve.prgm_length, name, length);
 }
 
-static int call_solve_fn(int which, int state) MATH1_SECT;
 static int call_solve_fn(int which, int state) {
     int err, i;
     arg_struct arg;
@@ -312,7 +310,6 @@ static const message_spec solve_message[] = {
     { "Constant?",      9 }
 };
 
-static int finish_solve(int message) MATH1_SECT;
 static int finish_solve(int message) {
     vartype *v, *new_x, *new_y, *new_z, *new_t;
     arg_struct arg;
@@ -825,7 +822,6 @@ void get_integ_var(char *name, int *length) {
     string_copy(name, length, integ.var_name, integ.var_length);
 }
 
-static int call_integ_fn() MATH1_SECT;
 static int call_integ_fn() {
     int err, i;
     arg_struct arg;
@@ -910,7 +906,6 @@ int start_integ(const char *name, int length) {
     return return_to_integ(0);
 }
 
-static int finish_integ() MATH1_SECT;
 static int finish_integ() {
     vartype *x, *y;
     int saved_trace = flags.f.trace_print;

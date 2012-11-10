@@ -38,7 +38,6 @@ BCD sqrt(const BCD& a)
 }
 
 
-#ifndef PALMOS
 const char* BCD::asStringFmt(Format fmt, int precision) const
 {
     const BCD* bp = this;
@@ -52,7 +51,6 @@ const char* BCD::asStringFmt(Format fmt, int precision) const
     bp->_v.asStringFmt(_buf, fmt, precision);
     return _buf;
 }
-#endif
 
 BCD pow(const BCD& a, int4 n)
 {

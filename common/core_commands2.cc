@@ -220,7 +220,6 @@ int docmd_perm(arg_struct *arg) {
 	return ERR_INVALID_TYPE;
 }
 
-static int mappable_fact(phloat x, phloat *y) COMMANDS2_SECT;
 static int mappable_fact(phloat x, phloat *y) {
     phloat f = 1;
     if (x < 0 || x != floor(x))
@@ -419,7 +418,6 @@ int docmd_view(arg_struct *arg) {
     return view_helper(arg, 1);
 }
 
-static void aview_helper() COMMANDS2_SECT;
 static void aview_helper() {
 #define DISP_ROWS 2
 #define DISP_COLUMNS 22
@@ -505,7 +503,6 @@ int docmd_pse(arg_struct *arg) {
     return ERR_NONE;
 }
 
-static int generic_loop_helper(phloat *x, bool isg) COMMANDS2_SECT;
 static int generic_loop_helper(phloat *x, bool isg) {
     phloat t;
     int8 i, j, k;
@@ -582,7 +579,6 @@ static int generic_loop_helper(phloat *x, bool isg) {
     }
 }
 
-static int generic_loop(arg_struct *arg, bool isg) COMMANDS2_SECT;
 static int generic_loop(arg_struct *arg, bool isg) {
     int err;
     if (arg->type == ARGTYPE_IND_NUM
@@ -759,7 +755,6 @@ int docmd_agraph(arg_struct *arg) {
     }
 }
 
-static void pixel_helper(phloat dx, phloat dy) COMMANDS2_SECT;
 static void pixel_helper(phloat dx, phloat dy) {
     dx = dx < 0 ? -floor(-dx + 0.5) : floor(dx + 0.5);
     dy = dy < 0 ? -floor(-dy + 0.5) : floor(dy + 0.5);
@@ -1184,7 +1179,7 @@ int docmd_prp(arg_struct *arg) {
 
 static vartype *prv_var;
 static int4 prv_index;
-static int prv_worker(int interrupted) COMMANDS2_SECT;
+static int prv_worker(int interrupted);
 
 int docmd_prv(arg_struct *arg) {
     if (arg->type == ARGTYPE_IND_NUM || arg->type == ARGTYPE_IND_STK
@@ -1369,7 +1364,7 @@ int docmd_prx(arg_struct *arg) {
 
 static int prusr_state;
 static int prusr_index;
-static int prusr_worker(int interrupted) COMMANDS2_SECT;
+static int prusr_worker(int interrupted);
 
 int docmd_prusr(arg_struct *arg) {
     if (!flags.f.printer_enable && program_running())
@@ -1749,7 +1744,6 @@ int docmd_dim_t(arg_struct *arg) {
     return ERR_NONE;
 }
 
-static int assign_helper(int num, arg_struct *arg) COMMANDS2_SECT;
 static int assign_helper(int num, arg_struct *arg) {
     if (arg->type == ARGTYPE_COMMAND) {
 	/* For backward compatibility only; we don't allow this type
@@ -1843,6 +1837,12 @@ int docmd_on(arg_struct *arg) {
 }
 
 int docmd_off(arg_struct *arg) {
+#ifdef IPHONE
+    if (!off_enabled()) {
+	squeak();
+	return ERR_STOP;
+    }
+#endif
     if (program_running() && no_keystrokes_yet)
 	return ERR_SUSPICIOUS_OFF;
     set_running(false);

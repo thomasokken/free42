@@ -488,7 +488,7 @@ typedef struct {
 } command_spec;
 
 
-const command_spec *cmdlist(int index) TABLES_SECT;
+const command_spec *cmdlist(int index);
 
 
 #endif

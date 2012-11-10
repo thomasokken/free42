@@ -315,7 +315,6 @@ w6  = -1.63092934096575273989e-03; /* 0xBF5AB89D, 0x0B9E43E4 */
 
 static /*const*/ double zero=  0.00000000000000000000e+00;
 
-static double sin_pi(double x) MATH2_SECT;
 static double sin_pi(double x) {
 	double y,z, absx;
 	int4 n;
@@ -356,7 +355,6 @@ static double sin_pi(double x) {
 	return -y;
 }
 
-static int math_lgamma(double x, double *gam, int *sgngam) MATH2_SECT;
 static int math_lgamma(double x, double *gam, int *sgngam) {
 	double t,y,z,nadj,p,p1,p2,p3,q,r,w;
 	double absx;

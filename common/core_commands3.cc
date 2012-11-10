@@ -33,7 +33,6 @@
 /* Implementations of HP-42S built-in functions, part 3 */
 /********************************************************/
 
-static int mappable_acosh_r(phloat x, phloat *y) COMMANDS3_SECT;
 static int mappable_acosh_r(phloat x, phloat *y) {
     if (x >= 1) {
 	*y = acosh(x);
@@ -42,8 +41,6 @@ static int mappable_acosh_r(phloat x, phloat *y) {
 	return ERR_INVALID_DATA;
 }
 
-static int mappable_acosh_c(phloat xre, phloat xim, phloat *yre, phloat *yim)
-								COMMANDS3_SECT;
 static int mappable_acosh_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     return math_acosh(xre, xim, yre, yim);
 }
@@ -141,14 +138,11 @@ int docmd_ashf(arg_struct *arg) {
     return ERR_NONE;
 }
 
-static int mappable_asinh_r(phloat x, phloat *y) COMMANDS3_SECT;
 static int mappable_asinh_r(phloat x, phloat *y) {
     *y = asinh(x);
     return ERR_NONE;
 }
 
-static int mappable_asinh_c(phloat xre, phloat xim, phloat *yre, phloat *yim)
-								COMMANDS3_SECT;
 static int mappable_asinh_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     return math_asinh(xre, xim, yre, yim);
 }
@@ -165,7 +159,6 @@ int docmd_asinh(arg_struct *arg) {
     }
 }
 
-static int mappable_atanh_r(phloat x, phloat *y) COMMANDS3_SECT;
 static int mappable_atanh_r(phloat x, phloat *y) {
     if (x == 1 || x == -1)
 	return ERR_INVALID_DATA;
@@ -228,7 +221,6 @@ int docmd_atox(arg_struct *arg) {
     return ERR_NONE;
 }
 
-static int mappable_cosh_r(phloat x, phloat *y) COMMANDS3_SECT;
 static int mappable_cosh_r(phloat x, phloat *y) {
     int inf;
     *y = cosh(x);
@@ -241,8 +233,6 @@ static int mappable_cosh_r(phloat x, phloat *y) {
     return ERR_NONE;
 }   
 
-static int mappable_cosh_c(phloat xre, phloat xim,
-	                             phloat *yre, phloat *yim) COMMANDS3_SECT;
 static int mappable_cosh_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     phloat sinhxre, coshxre;
     phloat sinxim, cosxim;
@@ -584,7 +574,6 @@ int docmd_delr(arg_struct *arg) {
     return ERR_NONE;
 }
 
-static void det_completion(int error, vartype *det) COMMANDS3_SECT;
 static void det_completion(int error, vartype *det) {
     if (error == ERR_NONE)
 	unary_result(det);
@@ -855,7 +844,6 @@ int appmenu_exitcallback_1(int menuid) {
     }
 }
 
-static int finish_edit() COMMANDS3_SECT;
 static int finish_edit() {
     if (matedit_mode == 2 || matedit_mode == 3)
 	/* Try to finish current interactive editing session using
@@ -969,7 +957,6 @@ int docmd_exitall(arg_struct *arg) {
     return set_menu_return_err(MENULEVEL_APP, MENU_NONE);
 }
 
-static int mappable_e_pow_x_1(phloat x, phloat *y) COMMANDS3_SECT;
 static int mappable_e_pow_x_1(phloat x, phloat *y) {
     *y = expm1(x);
     if (p_isinf(*y) != 0) {
@@ -994,7 +981,6 @@ int docmd_e_pow_x_1(arg_struct *arg) {
 	return ERR_INVALID_TYPE;
 }
 
-static int fnrm(vartype *m, phloat *norm) COMMANDS3_SECT;
 static int fnrm(vartype *m, phloat *norm) {
     if (m->type == TYPE_REALMATRIX) {
 	vartype_realmatrix *rm = (vartype_realmatrix *) m;
@@ -1154,7 +1140,6 @@ int docmd_grow(arg_struct *arg) {
     return ERR_NONE;
 }
 
-static int hms_add_or_sub(bool add) COMMANDS3_SECT;
 static int hms_add_or_sub(bool add) {
     if (reg_x->type == TYPE_STRING)
 	return ERR_ALPHA_DATA_IS_INVALID;

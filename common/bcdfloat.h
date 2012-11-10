@@ -26,14 +26,6 @@
 #include "free42.h"
 
 
-// Section attribute -- something like
-// #define BCD1_SECT __attribute__ ((section ("BcdFlt1")))
-// Only needed when building a multi-segment PalmOS executable.
-#ifndef BCD1_SECT
-#define BCD1_SECT
-#endif
-
-
 #define NEG 0x8000
 #define P 7
 #define BASE 10000
@@ -138,36 +130,36 @@ struct BCDFloatData
 
 
 
-int bcd_round(unsigned short* d, int pn) BCD1_SECT;
-int bcd_round25(unsigned short* d, int pn) BCD1_SECT;
+int bcd_round(unsigned short* d, int pn);
+int bcd_round25(unsigned short* d, int pn);
 void bcd_uadd(const unsigned short* a,
               const unsigned short* b,
               unsigned short* c,
-              int pn) BCD1_SECT;
+              int pn);
 void bcd_usub(const unsigned short* a,
               const unsigned short* b,
               unsigned short* c,
-              int pn) BCD1_SECT;
+              int pn);
 void bcd_add(const unsigned short* a,
              const unsigned short* b,
              unsigned short* c,
-             int pn) BCD1_SECT;
+             int pn);
 void bcd_sub(const unsigned short* a,
              const unsigned short* b,
              unsigned short* c,
-             int pn) BCD1_SECT;
+             int pn);
 void bcd_mul(const unsigned short* a,
              const unsigned short* b,
              unsigned short* c,
-             int pn) BCD1_SECT;
+             int pn);
 void bcd_div(const unsigned short* a,
              const unsigned short* b,
              unsigned short* c,
-             int pn) BCD1_SECT;
+             int pn);
 int bcd_cmp(const unsigned short* a, 
             const unsigned short* b,
-            int pn) BCD1_SECT;
-void bcd_fromUInt(unsigned short* d, int pn, uint4 v) BCD1_SECT;
+            int pn);
+void bcd_fromUInt(unsigned short* d, int pn, uint4 v);
 extern int BCDDecade[4];
 
 struct BCDFloat: public BCDFloatData
@@ -185,7 +177,7 @@ struct BCDFloat: public BCDFloatData
 	d_[4] = d4; d_[5] = d5; d_[6] = d6; d_[7] = d7;
     }
     BCDFloat() {} // Warning: not initialised.
-    BCDFloat(const char* s) BCD1_SECT;
+    BCDFloat(const char* s);
     BCDFloat(int4 v)
     {
         _init();
@@ -198,22 +190,8 @@ struct BCDFloat: public BCDFloatData
             if (neg) negate();
         }
     }
-#if defined(PALMOS) && !defined(PALMOS_ARM)
-    BCDFloat(int v)
-    {
-        _init();
-        if (v)
-        {
-            bool neg = v < 0;
-            if (neg)
-                v = -v;
-            _fromUInt((uint4)v);
-            if (neg) negate();
-        }
-    }
-#endif
-    BCDFloat(int8) BCD1_SECT;
-    BCDFloat(double) BCD1_SECT;
+    BCDFloat(int8);
+    BCDFloat(double);
     BCDFloat(uint4 v)
     {
         _init();
@@ -223,7 +201,6 @@ struct BCDFloat: public BCDFloatData
     BCDFloat(const BCDFloatData& d) { *this = *(BCDFloat*)&d; }
 
     // Features
-#ifndef PALMOS
     void                asString(char* buf) const
     { _asString(buf, format_normal, 0); }
 
@@ -233,7 +210,6 @@ struct BCDFloat: public BCDFloatData
     {
         _asString(buf, fmt, precision); 
     }
-#endif 
     int                 exp() const { return GET_EXP(d_, P); }
     void                exp(int v) { SET_EXP(d_, P, v); }
     bool                neg() const
@@ -247,7 +223,7 @@ struct BCDFloat: public BCDFloatData
 
     bool                isNan() const { return GET_NAN(d_,P) != 0; }
     bool                isInf() const { return GET_INF(d_,P) != 0; }
-    bool                isInteger() const BCD1_SECT;
+    bool                isInteger() const;
 
     void                ldexp(unsigned int mant, int e)
     {
@@ -277,7 +253,7 @@ struct BCDFloat: public BCDFloatData
         bcd_div(a->d_, b->d_, c->d_, P);
     }
     
-    static bool         sqrt(const BCDFloat* a, BCDFloat* ra) BCD1_SECT;
+    static bool         sqrt(const BCDFloat* a, BCDFloat* ra);
 
     static bool         lt(const BCDFloat* a, const BCDFloat* b)
     {
@@ -320,10 +296,10 @@ struct BCDFloat: public BCDFloatData
         trunc(x, &a);
         return a.asInt();
     }
-    static bool         floor(const BCDFloat* a, BCDFloat* c) BCD1_SECT;
-    static bool         trunc(const BCDFloat* a, BCDFloat* c) BCD1_SECT;
+    static bool         floor(const BCDFloat* a, BCDFloat* c);
+    static bool         trunc(const BCDFloat* a, BCDFloat* c);
 
-    void                _init() BCD1_SECT;
+    void                _init();
     static void         _uadd(const BCDFloat* a,
                               const BCDFloat* b,
                               BCDFloat* c)
@@ -332,11 +308,9 @@ struct BCDFloat: public BCDFloatData
     }
 
     int                 _round25() { return bcd_round25(d_, P); }
-#ifndef PALMOS
     void                _asString(char* buf, Format fmt, int precision) const;
-#endif
     void                _fromUInt(uint4 v) { bcd_fromUInt(d_, P, v); }
-    void                _roundDigits(unsigned int precision, BCDFloat* v) const BCD1_SECT;
+    void                _roundDigits(unsigned int precision, BCDFloat* v) const;
     static const BCDFloat& posInf() { return *(BCDFloat*)posInfD_; }
     static const BCDFloat& negInf() { return *(BCDFloat*)negInfD_; }
     static const BCDFloat& nan() { return *(BCDFloat*)nanD_; }
@@ -350,8 +324,8 @@ struct BCDFloat: public BCDFloatData
 
     static void         mul2(const unsigned short* ad, int ea,
                              const unsigned short* bd, int eb,
-                             unsigned short* cd, int& ec) BCD1_SECT;
-    int4                asInt() const BCD1_SECT;
+                             unsigned short* cd, int& ec);
+    int4                asInt() const;
     
 
     static unsigned short posInfD_[P+1];

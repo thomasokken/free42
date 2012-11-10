@@ -35,7 +35,7 @@
  * state file version number; otherwise its value is not used.
  * This is guaranteed to be the first function called on the emulator core.
  */
-void core_init(int read_state, int4 version) MAIN_SECT;
+void core_init(int read_state, int4 version);
 
 #if defined(IPHONE) || defined(ANDROID)
 
@@ -57,7 +57,7 @@ void core_enter_background();
  * using shell_write_saved_state().
  * This is guaranteed to be the last function called on the emulator core.
  */
-void core_quit() MAIN_SECT;
+void core_quit();
 
 /* core_repaint_display()
  *
@@ -67,7 +67,7 @@ void core_quit() MAIN_SECT;
  * The shell uses this function to re-generate the display after switching
  * skins.
  */
-void core_repaint_display() MAIN_SECT;
+void core_repaint_display();
 
 /* core_menu()
  *
@@ -75,7 +75,7 @@ void core_repaint_display() MAIN_SECT;
  * whether or not clicking in the display, to activate menu keys, is
  * enabled.
  */
-int core_menu() MAIN_SECT;
+int core_menu();
 
 /* core_alpha_menu()
  *
@@ -87,7 +87,7 @@ int core_menu() MAIN_SECT;
  * key events are translated sequences of HP-42S key events according to the
  * keymap file.
  */
-int core_alpha_menu() MAIN_SECT;
+int core_alpha_menu();
 
 /* core_hex_menu()
  *
@@ -97,7 +97,7 @@ int core_alpha_menu() MAIN_SECT;
  * Free42) are handled: in hex mode, 'A' through 'F' and 'a' through 'f' are
  * translated to keycodes 1 through 6, regardless of the keyboard map.
  */
-int core_hex_menu() MAIN_SECT;
+int core_hex_menu();
 
 /* core_keydown()
  *
@@ -133,7 +133,7 @@ int core_hex_menu() MAIN_SECT;
  * core_repeat() until the key is released. (1 requests a slow repeat rate, for
  * SST/BST; 2 requests a fast repeat rate, for number/alpha entry.)
  */
-int core_keydown(int key, int *enqueued, int *repeat) MAIN_SECT;
+int core_keydown(int key, int *enqueued, int *repeat);
 
 /* core_repeat()
  *
@@ -143,7 +143,7 @@ int core_keydown(int key, int *enqueued, int *repeat) MAIN_SECT;
  * a slow repeat rate, for SST/BST; or 2, which requests a fast repeat rate,
  * for number/alpha entry.
  */
-int core_repeat() MAIN_SECT;
+int core_repeat();
 
 /* core_keytimeout1()
  *
@@ -153,7 +153,7 @@ int core_repeat() MAIN_SECT;
  * For keys that do not execute immediately, this marks the moment when the
  * calculator displays the key's function name.
  */
-void core_keytimeout1() MAIN_SECT;
+void core_keytimeout1();
 
 /* core_keytimeout2()
  *
@@ -164,7 +164,7 @@ void core_keytimeout1() MAIN_SECT;
  * function name to displaying 'NULL' (informing the user that the key has been
  * annulled and so no operation will be performed when it is released).
  */
-void core_keytimeout2() MAIN_SECT;
+void core_keytimeout2();
 
 /* core_timeout3()
  *
@@ -177,7 +177,7 @@ void core_keytimeout2() MAIN_SECT;
  * If the function returns 'true', this means that the timeout was used for
  * PSE, and the shell should resume program execution.
  */
-bool core_timeout3(int repaint) MAIN_SECT;
+bool core_timeout3(int repaint);
 
 /* core_keyup()
  *
@@ -193,7 +193,7 @@ bool core_timeout3(int repaint) MAIN_SECT;
  * running a user program, and is only returning execution to the shell because
  * it has detected that there is a pending event.
  */
-int core_keyup() MAIN_SECT;
+int core_keyup();
 
 /* core_allows_powerdown()
  *
@@ -219,7 +219,7 @@ int core_keyup() MAIN_SECT;
  * it was waiting in GETKEY and now wants program execution to resume, it
  * should set *want_cpu to 1; otherwise it should set it to 0.
  */
-int core_allows_powerdown(int *want_cpu) MAIN_SECT;
+int core_allows_powerdown(int *want_cpu);
 
 /* core_powercycle()
  *
@@ -238,7 +238,7 @@ int core_allows_powerdown(int *want_cpu) MAIN_SECT;
  * to run again -- this will be true if flag 11 was set, so there's program
  * execution to be done.
  */
-int core_powercycle() MAIN_SECT;
+int core_powercycle();
 
 /* core_list_programs()
  *
@@ -252,7 +252,7 @@ int core_powercycle() MAIN_SECT;
  * programs to core_export_programs().
  * The function returns the number of items in the list, which is always >= 1.
  */
-int core_list_programs(char *buf, int bufsize) MAIN_SECT;
+int core_list_programs(char *buf, int bufsize);
 
 /* core_program_size()
  * This function returns the size of a program, specified by its index.
@@ -264,7 +264,7 @@ int core_list_programs(char *buf, int bufsize) MAIN_SECT;
  * be aware that the actual byte stream produced by core_export_programs() will
  * be 3 bytes longer.
  */
-int4 core_program_size(int prgm_index) MAIN_SECT;
+int4 core_program_size(int prgm_index);
 
 /* core_export_programs()
  *
@@ -284,7 +284,7 @@ int4 core_program_size(int prgm_index) MAIN_SECT;
  * value, since it will always be 0.
  */
 int core_export_programs(int count, const int *indexes,
-			 int (*progress_report)(const char *)) MAIN_SECT;
+			 int (*progress_report)(const char *));
 
 /* core_import_programs()
  *
@@ -296,14 +296,14 @@ int core_export_programs(int count, const int *indexes,
  * program files, it will be called to report the number of programs loaded.
  * If the callback returns zero, the import will abort.
  */
-void core_import_programs(int (*progress_report)(const char *)) MAIN_SECT;
+void core_import_programs(int (*progress_report)(const char *));
 
 /* core_copy()
  *
  * Returns a string representation of the contents of the X register.
  * Used by the shell to implement the Copy command.
  */
-void core_copy(char *buf, int buflen) MAIN_SECT;
+void core_copy(char *buf, int buflen);
 
 /* core_paste()
  *
@@ -312,7 +312,7 @@ void core_copy(char *buf, int buflen) MAIN_SECT;
  * a plain string.
  * Used by the shell to implement the Paste command.
  */
-void core_paste(const char *s) MAIN_SECT;
+void core_paste(const char *s);
 
 /* core_settings
  *
@@ -349,25 +349,25 @@ extern int repeating_key;
 /* Other functions */
 /*******************/
 
-void set_alpha_entry(bool state) MAIN_SECT;
-void set_running(bool state) MAIN_SECT;
-bool program_running() MAIN_SECT;
+void set_alpha_entry(bool state);
+void set_running(bool state);
+bool program_running();
 
-int want_to_run_again() MAIN_SECT;
-void do_interactive(int command) MAIN_SECT;
-int find_builtin(const char *name, int namelen) MAIN_SECT;
+int want_to_run_again();
+void do_interactive(int command);
+int find_builtin(const char *name, int namelen);
 
-void sst() MAIN_SECT;
-void bst() MAIN_SECT;
+void sst();
+void bst();
 
-void fix_thousands_separators(char *buf, int *bufptr) MAIN_SECT;
-int find_menu_key(int key) MAIN_SECT;
-void start_incomplete_command(int cmd_id) MAIN_SECT;
-void finish_command_entry(bool refresh) MAIN_SECT;
-void finish_xeq() MAIN_SECT;
-void start_alpha_prgm_line() MAIN_SECT;
-void finish_alpha_prgm_line() MAIN_SECT;
-int shiftcharacter(char c) MAIN_SECT;
+void fix_thousands_separators(char *buf, int *bufptr);
+int find_menu_key(int key);
+void start_incomplete_command(int cmd_id);
+void finish_command_entry(bool refresh);
+void finish_xeq();
+void start_alpha_prgm_line();
+void finish_alpha_prgm_line();
+int shiftcharacter(char c);
 
 
 #endif

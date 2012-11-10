@@ -20,10 +20,10 @@
 
 #include "free42.h"
 
-void keydown(int shift, int key) KEYDOWN_SECT;
-void keydown_number_entry(int shift, int key) KEYDOWN_SECT;
-void keydown_command_entry(int shift, int key) KEYDOWN_SECT;
-void keydown_alpha_mode(int shift, int key) KEYDOWN_SECT;
-void keydown_normal_mode(int shift, int key) KEYDOWN_SECT;
+void keydown(int shift, int key);
+void keydown_number_entry(int shift, int key);
+void keydown_command_entry(int shift, int key);
+void keydown_alpha_mode(int shift, int key);
+void keydown_normal_mode(int shift, int key);
 
 #endif

@@ -23,8 +23,8 @@
 #include "core_variables.h"
 
 
-static int apply_sto_operation(char operation, vartype *oldval) STO_RCL_SECT;
-static void generic_sto_completion(int error, vartype *res) STO_RCL_SECT;
+static int apply_sto_operation(char operation, vartype *oldval);
+static void generic_sto_completion(int error, vartype *res);
 
 static bool preserve_ij;
 

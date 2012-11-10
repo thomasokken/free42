@@ -20,23 +20,23 @@
 
 #include "core_phloat.h"
 
-vartype *new_real(phloat value) VARIABLES_SECT;
-vartype *new_complex(phloat re, phloat im) VARIABLES_SECT;
-vartype *new_string(const char *s, int slen) VARIABLES_SECT;
-vartype *new_realmatrix(int4 rows, int4 columns) VARIABLES_SECT;
-vartype *new_complexmatrix(int4 rows, int4 columns) VARIABLES_SECT;
-vartype *new_matrix_alias(vartype *m) VARIABLES_SECT;
-void free_vartype(vartype *v) VARIABLES_SECT;
-void clean_vartype_pools() VARIABLES_SECT;
-vartype *dup_vartype(const vartype *v) VARIABLES_SECT;
-int disentangle(vartype *v) VARIABLES_SECT;
-int lookup_var(const char *name, int namelength) VARIABLES_SECT;
-vartype *recall_var(const char *name, int namelength) VARIABLES_SECT;
-void store_var(const char *name, int namelength, vartype *value) VARIABLES_SECT;
-int purge_var(const char *name, int namelength) VARIABLES_SECT;
-void purge_all_vars() VARIABLES_SECT;
-int vars_exist(int real, int cpx, int matrix) VARIABLES_SECT;
-int contains_no_strings(const vartype_realmatrix *rm) VARIABLES_SECT;
-int matrix_copy(vartype *dst, const vartype *src) VARIABLES_SECT;
+vartype *new_real(phloat value);
+vartype *new_complex(phloat re, phloat im);
+vartype *new_string(const char *s, int slen);
+vartype *new_realmatrix(int4 rows, int4 columns);
+vartype *new_complexmatrix(int4 rows, int4 columns);
+vartype *new_matrix_alias(vartype *m);
+void free_vartype(vartype *v);
+void clean_vartype_pools();
+vartype *dup_vartype(const vartype *v);
+int disentangle(vartype *v);
+int lookup_var(const char *name, int namelength);
+vartype *recall_var(const char *name, int namelength);
+void store_var(const char *name, int namelength, vartype *value);
+int purge_var(const char *name, int namelength);
+void purge_all_vars();
+int vars_exist(int real, int cpx, int matrix);
+int contains_no_strings(const vartype_realmatrix *rm);
+int matrix_copy(vartype *dst, const vartype *src);
 
 #endif

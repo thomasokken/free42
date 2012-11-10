@@ -22,22 +22,22 @@
 #include "core_globals.h"
 
 #if defined(ANDROID) || defined(IPHONE)
-int docmd_accel(arg_struct *arg) COMMANDS7_SECT;
-int docmd_locat(arg_struct *arg) COMMANDS7_SECT;
-int docmd_heading(arg_struct *arg) COMMANDS7_SECT;
+int docmd_accel(arg_struct *arg);
+int docmd_locat(arg_struct *arg);
+int docmd_heading(arg_struct *arg);
 #endif
 
-int docmd_adate(arg_struct *arg) COMMANDS7_SECT;
-int docmd_atime(arg_struct *arg) COMMANDS7_SECT;
-int docmd_atime24(arg_struct *arg) COMMANDS7_SECT;
-int docmd_clk12(arg_struct *arg) COMMANDS7_SECT;
-int docmd_clk24(arg_struct *arg) COMMANDS7_SECT;
-int docmd_date(arg_struct *arg) COMMANDS7_SECT;
-int docmd_date_plus(arg_struct *arg) COMMANDS7_SECT;
-int docmd_ddays(arg_struct *arg) COMMANDS7_SECT;
-int docmd_dmy(arg_struct *arg) COMMANDS7_SECT;
-int docmd_dow(arg_struct *arg) COMMANDS7_SECT;
-int docmd_mdy(arg_struct *arg) COMMANDS7_SECT;
-int docmd_time(arg_struct *arg) COMMANDS7_SECT;
+int docmd_adate(arg_struct *arg);
+int docmd_atime(arg_struct *arg);
+int docmd_atime24(arg_struct *arg);
+int docmd_clk12(arg_struct *arg);
+int docmd_clk24(arg_struct *arg);
+int docmd_date(arg_struct *arg);
+int docmd_date_plus(arg_struct *arg);
+int docmd_ddays(arg_struct *arg);
+int docmd_dmy(arg_struct *arg);
+int docmd_dow(arg_struct *arg);
+int docmd_mdy(arg_struct *arg);
+int docmd_time(arg_struct *arg);
 
 #endif

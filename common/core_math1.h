@@ -21,22 +21,22 @@
 #include "free42.h"
 #include "core_phloat.h"
 
-bool persist_math() MATH1_SECT;
-bool unpersist_math(bool discard) MATH1_SECT;
-void reset_math() MATH1_SECT;
+bool persist_math();
+bool unpersist_math(bool discard);
+void reset_math();
 
-void put_shadow(const char *name, int length, phloat value) MATH1_SECT;
-int get_shadow(const char *name, int length, phloat *value) MATH1_SECT;
-void remove_shadow(const char *name, int length) MATH1_SECT;
-void set_solve_prgm(const char *name, int length) MATH1_SECT;
-int start_solve(const char *name, int length, phloat x1, phloat x2) MATH1_SECT;
-int return_to_solve(int failure) MATH1_SECT;
+void put_shadow(const char *name, int length, phloat value);
+int get_shadow(const char *name, int length, phloat *value);
+void remove_shadow(const char *name, int length);
+void set_solve_prgm(const char *name, int length);
+int start_solve(const char *name, int length, phloat x1, phloat x2);
+int return_to_solve(int failure);
 
-void set_integ_prgm(const char *name, int length) MATH1_SECT;
-void get_integ_prgm(char *name, int *length) MATH1_SECT;
-void set_integ_var(const char *name, int length) MATH1_SECT;
-void get_integ_var(char *name, int *length) MATH1_SECT;
-int start_integ(const char *name, int length) MATH1_SECT;
-int return_to_integ(int failure) MATH1_SECT;
+void set_integ_prgm(const char *name, int length);
+void get_integ_prgm(char *name, int *length);
+void set_integ_var(const char *name, int length);
+void get_integ_var(char *name, int *length);
+int start_integ(const char *name, int length);
+int return_to_integ(int failure);
 
 #endif

@@ -512,40 +512,43 @@ extern bool no_keystrokes_yet;
 /* Utility functions */
 /*********************/
 
-void clear_all_prgms() GLOBALS_SECT;
-int clear_prgm(const arg_struct *arg) GLOBALS_SECT;
-void clear_prgm_lines(int4 count) GLOBALS_SECT;
-void goto_dot_dot() GLOBALS_SECT;
-int mvar_prgms_exist() GLOBALS_SECT;
-int label_has_mvar(int lblindex) GLOBALS_SECT;
-int get_command_length(int prgm, int4 pc) GLOBALS_SECT;
-void get_next_command(int4 *pc, int *command, arg_struct *arg, int find_target)
-							    GLOBALS_SECT;
-void rebuild_label_table() GLOBALS_SECT;
-void delete_command(int4 pc) GLOBALS_SECT;
-void store_command(int4 pc, int command, arg_struct *arg) GLOBALS_SECT;
-void store_command_after(int4 *pc, int command, arg_struct *arg) GLOBALS_SECT;
-int4 pc2line(int4 pc) GLOBALS_SECT;
-int4 line2pc(int4 line) GLOBALS_SECT;
-int4 find_local_label(const arg_struct *arg) GLOBALS_SECT;
-int find_global_label(const arg_struct *arg, int *prgm, int4 *pc) GLOBALS_SECT;
-int push_rtn_addr(int prgm, int4 pc) GLOBALS_SECT;
-void pop_rtn_addr(int *prgm, int4 *pc) GLOBALS_SECT;
-void clear_all_rtns() GLOBALS_SECT;
-bool solve_active() GLOBALS_SECT;
-bool integ_active() GLOBALS_SECT;
-void unwind_stack_until_solve() GLOBALS_SECT;
+void clear_all_prgms();
+int clear_prgm(const arg_struct *arg);
+void clear_prgm_lines(int4 count);
+void goto_dot_dot();
+int mvar_prgms_exist();
+int label_has_mvar(int lblindex);
+int get_command_length(int prgm, int4 pc);
+void get_next_command(int4 *pc, int *command, arg_struct *arg, int find_target);
+void rebuild_label_table();
+void delete_command(int4 pc);
+void store_command(int4 pc, int command, arg_struct *arg);
+void store_command_after(int4 *pc, int command, arg_struct *arg);
+int4 pc2line(int4 pc);
+int4 line2pc(int4 line);
+int4 find_local_label(const arg_struct *arg);
+int find_global_label(const arg_struct *arg, int *prgm, int4 *pc);
+int push_rtn_addr(int prgm, int4 pc);
+void pop_rtn_addr(int *prgm, int4 *pc);
+void clear_all_rtns();
+bool solve_active();
+bool integ_active();
+void unwind_stack_until_solve();
 
-bool load_state(int4 version) GLOBALS_SECT;
-void save_state() GLOBALS_SECT;
-void hard_reset(int bad_state_file) GLOBALS_SECT;
+bool load_state(int4 version);
+void save_state();
+void hard_reset(int bad_state_file);
 
-bool read_arg(arg_struct *arg, bool old) GLOBALS_SECT;
-bool read_phloat(phloat *d) GLOBALS_SECT;
-bool write_phloat(phloat d) GLOBALS_SECT;
+bool read_arg(arg_struct *arg, bool old);
+bool read_phloat(phloat *d);
+bool write_phloat(phloat d);
 
 #ifdef ANDROID
 void reinitialize_globals();
+#endif
+
+#ifdef IPHONE
+bool off_enabled();
 #endif
 
 #endif

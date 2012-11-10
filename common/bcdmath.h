@@ -25,34 +25,34 @@
 
 #include "bcd.h"
 
-BCD pi() BCD2_SECT;
-BCD pi2() BCD2_SECT; // 2pi
-BCD ln10constant() BCD2_SECT;
-BCD halfConstant() BCD2_SECT;
-BCD sin(const BCD&) BCD2_SECT;
-BCD cos(const BCD&) BCD2_SECT;
-BCD tan(const BCD&) BCD2_SECT;
-BCD exp(const BCD&) BCD2_SECT;
-BCD log(const BCD&) BCD2_SECT;
-BCD atan(const BCD&) BCD2_SECT;
+BCD pi();
+BCD pi2(); // 2pi
+BCD ln10constant();
+BCD halfConstant();
+BCD sin(const BCD&);
+BCD cos(const BCD&);
+BCD tan(const BCD&);
+BCD exp(const BCD&);
+BCD log(const BCD&);
+BCD atan(const BCD&);
 
-BCD pow(const BCD&, const BCD&) BCD2_SECT;
-BCD atan2(const BCD& y, const BCD& x) BCD2_SECT;
-BCD asin(const BCD&) BCD2_SECT;
-BCD acos(const BCD&) BCD2_SECT;
-BCD modtwopi(const BCD&) BCD2_SECT;
-BCD log10(const BCD&) BCD2_SECT;
-BCD hypot(const BCD& a, const BCD& b) BCD2_SECT;
-BCD fmod(const BCD& a, const BCD& b) BCD2_SECT;
-BCD ln1p(const BCD&) BCD2_SECT;
-BCD expm1(const BCD&) BCD2_SECT;
-BCD gammaFactorial(const BCD&) BCD2_SECT;
-BCD gammaln(const BCD&) BCD2_SECT;
-BCD sinh(const BCD&) BCD2_SECT;
-BCD cosh(const BCD&) BCD2_SECT;
-BCD tanh(const BCD&) BCD2_SECT;
-BCD ceil(const BCD&) BCD2_SECT;
-void sincos(const BCD& v, BCD* sinv, BCD* cosv) BCD2_SECT;
-void sinhcosh(const BCD& a, BCD* sinha, BCD* cosha) BCD2_SECT;
+BCD pow(const BCD&, const BCD&);
+BCD atan2(const BCD& y, const BCD& x);
+BCD asin(const BCD&);
+BCD acos(const BCD&);
+BCD modtwopi(const BCD&);
+BCD log10(const BCD&);
+BCD hypot(const BCD& a, const BCD& b);
+BCD fmod(const BCD& a, const BCD& b);
+BCD ln1p(const BCD&);
+BCD expm1(const BCD&);
+BCD gammaFactorial(const BCD&);
+BCD gammaln(const BCD&);
+BCD sinh(const BCD&);
+BCD cosh(const BCD&);
+BCD tanh(const BCD&);
+BCD ceil(const BCD&);
+void sincos(const BCD& v, BCD* sinv, BCD* cosv);
+void sinhcosh(const BCD& a, BCD* sinha, BCD* cosha);
 
 #endif // bcdmath

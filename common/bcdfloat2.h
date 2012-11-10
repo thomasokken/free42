@@ -50,20 +50,6 @@ struct BCDFloat2: public BCDFloatData2
             if (neg) negate();
         }
     }
-#if defined(PALMOS) && !defined(PALMOS_ARM)
-    BCDFloat2(int v)
-    {
-        _init();
-        if (v)
-        {
-            bool neg = v < 0;
-            if (neg)
-                v = -v;
-            _fromUInt((uint4)v);
-            if (neg) negate();
-        }
-    }
-#endif
 
     BCDFloat2(uint4 v)
     {
@@ -97,7 +83,7 @@ struct BCDFloat2: public BCDFloatData2
 
     bool                isNan() const { return (d_[P2]&0x4000) != 0; }
     bool                isInf() const { return (d_[P2]&0x2000) != 0; }
-    bool                isInteger() const BCD1_SECT;
+    bool                isInteger() const;
 
     void                asBCD(BCDFloat* v) const
     {
@@ -146,7 +132,7 @@ struct BCDFloat2: public BCDFloatData2
         d_[P2] = NAN_EXP;
     }
 
-    static bool         sqrt(const BCDFloat2* a, BCDFloat2* ra) BCD1_SECT;
+    static bool         sqrt(const BCDFloat2* a, BCDFloat2* ra);
     static bool         lt(const BCDFloat2* a, const BCDFloat2* b)
     {
         /* true iff a < b */
@@ -191,10 +177,10 @@ struct BCDFloat2: public BCDFloatData2
         return a.asInt();
     }
 
-    static bool         floor(const BCDFloat2* a, BCDFloat2* c) BCD1_SECT;
-    static bool         trunc(const BCDFloat2* a, BCDFloat2* c) BCD1_SECT;
+    static bool         floor(const BCDFloat2* a, BCDFloat2* c);
+    static bool         trunc(const BCDFloat2* a, BCDFloat2* c);
 
-    void                _init() BCD1_SECT;
+    void                _init();
 	
     int                 _round25()
     {
@@ -210,7 +196,7 @@ struct BCDFloat2: public BCDFloatData2
         v->ldexp(m, -(n>>2));
     }
 
-    int4                asInt() const BCD1_SECT;
+    int4                asInt() const;
 };
 
 #endif 

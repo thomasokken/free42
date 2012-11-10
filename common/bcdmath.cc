@@ -50,15 +50,8 @@
 typedef unsigned short Dig[P+1];
 typedef unsigned short Dig2[P2+1];
 
-// This is a workaround for m68k-palmos-g++, which does not handle
-// const globals properly.
-#if defined(PALMOS) && !defined(PALMOS_ARM)
-#define const_if_not_palm_68k
-#else
-#define const_if_not_palm_68k const
-#endif
 
-static const_if_not_palm_68k Dig constTable[] = 
+static const Dig constTable[] = 
 {
     { 3, 1415, 9265, 3589, 7932, 3846, 2643, 1 }, // pi
     { 6, 2831, 8530, 7179, 5864, 7692, 5287, 1 }, // 2pi
@@ -193,7 +186,7 @@ static const_if_not_palm_68k Dig constTable[] =
 
 #define BCD2_CONST_LANCZOS 0
 
-static const_if_not_palm_68k Dig2 constTable2[] = 
+static const Dig2 constTable2[] = 
 {
     // double size Lanczos terms for gamma
 
@@ -274,7 +267,6 @@ BCD pi2()
     return *(const BCDFloat*)(constTable + BCD_CONST_PI2);
 }
 
-static void horner(const BCDFloat* coef, BCD& x, int n, BCD& res) BCD2_SECT;
 static void horner(const BCDFloat* coef, BCD& x, int n, BCD& res)
 {
     int i;
@@ -287,7 +279,6 @@ static void horner(const BCDFloat* coef, BCD& x, int n, BCD& res)
     }
 }
 
-static void sinPoly(const BCD& a, BCD& sa) BCD2_SECT;
 static void sinPoly(const BCD& a, BCD& sa)
 {
     /* calculate sin(a) for |a| <= pi/32 
@@ -316,7 +307,6 @@ static void sinPoly(const BCD& a, BCD& sa)
     sa = a*(1+y*py);
 }
 
-static void cosPoly(const BCD& a, BCD& ca) BCD2_SECT;
 static void cosPoly(const BCD& a, BCD& ca)
 {
     /*
@@ -347,7 +337,6 @@ static void cosPoly(const BCD& a, BCD& ca)
 }
 #define K 12
 #define GG 12
-static BCD _expm1(const BCD& a) BCD2_SECT;
 static BCD _expm1(const BCD& a)
 {
     BCD t(1);
@@ -515,7 +504,6 @@ BCD tan(const BCD& v)
     return s/c;
 }
 
-static BCD powfmod(const BCD& a, int4 n, const BCD& fm) BCD2_SECT;
 static BCD powfmod(const BCD& a, int4 n, const BCD& fm)
 {
     // ASSUME n >= 0
@@ -594,7 +582,6 @@ BCD exp(const BCD& v)
     return er*pow(BCD(2), ni);
 }
 
-static BCD _ln1p(const BCD& a) BCD2_SECT;
 static BCD _ln1p(const BCD& a)
 {
     /* otherwise use a series that converges for small arguments */
@@ -620,7 +607,6 @@ static BCD _ln1p(const BCD& a)
     return s1;
 }
 
-static BCD logPoly(const BCD& r) BCD2_SECT;
 static BCD logPoly(const BCD& r)
 {
     /*
@@ -660,7 +646,6 @@ static BCD logPoly(const BCD& r)
 }
 
 
-static BCD _log(const BCD& v, int4& p10, int4& p2, bool& neg) BCD2_SECT;
 static BCD _log(const BCD& v, int4& p10, int4& p2, bool& neg)
 {
     if (v.isNeg()) return BCDFloat::nan();
@@ -934,7 +919,7 @@ BCD pow(const BCD& x, const BCD& y)
 } 
 
 /* here are the first 1060 decimal digits of 1/2pi */
-static const_if_not_palm_68k unsigned short inv2pi[] = {
+static const unsigned short inv2pi[] = {
     1591, 5494, 3091, 8953, 3576, 8883,
     7633, 7251, 4362,  344, 5964, 5740, 4564, 4874, 7667, 3440, 5889,
     6797, 6342, 2653, 5090, 1138,  276, 6253,  859, 5607, 2842, 7267,
@@ -963,7 +948,7 @@ static const_if_not_palm_68k unsigned short inv2pi[] = {
 };
 
 /* double precision version of 2pi */
-static const_if_not_palm_68k unsigned short pi2dp[] = {
+static const unsigned short pi2dp[] = {
  6, 2831, 8530, 7179, 5864, 7692, 5286,
  7665, 5900, 5768, 3943, 3879, 8750, 2116, 4194
 };
@@ -1163,7 +1148,6 @@ const BCDFloat2* lanczConstants()
     return (const BCDFloat2*)(constTable2 + BCD2_CONST_LANCZOS);
 }
 
-static void _gammaFactorialAux(const BCD& z, BCD& t1, BCD& t2, BCD& s) BCD2_SECT;
 static void _gammaFactorialAux(const BCD& z, BCD& t1, BCD& t2, BCD& s)
 {
     /* calculate gamma(z+1) = z! for z > 0
@@ -1198,7 +1182,6 @@ static void _gammaFactorialAux(const BCD& z, BCD& t1, BCD& t2, BCD& s)
 }
 
 
-static BCD _gammaFactorial(const BCD& z) BCD2_SECT;
 static BCD _gammaFactorial(const BCD& z)
 {
     BCD t1, t2, s;

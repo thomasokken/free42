@@ -20,10 +20,10 @@
 
 #include "core_phloat.h"
 
-phloat math_random() MATH2_SECT;
-int math_asinh(phloat xre, phloat xim, phloat *yre, phloat *yim) MATH2_SECT;
-int math_acosh(phloat xre, phloat xim, phloat *yre, phloat *yim) MATH2_SECT;
-int math_atanh(phloat xre, phloat xim, phloat *yre, phloat *yim) MATH2_SECT;
-int math_gamma(phloat x, phloat *gamma) MATH2_SECT;
+phloat math_random();
+int math_asinh(phloat xre, phloat xim, phloat *yre, phloat *yim);
+int math_acosh(phloat xre, phloat xim, phloat *yre, phloat *yim);
+int math_atanh(phloat xre, phloat xim, phloat *yre, phloat *yim);
+int math_gamma(phloat x, phloat *gamma);
 
 #endif

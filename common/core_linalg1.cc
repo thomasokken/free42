@@ -32,21 +32,21 @@ static const vartype *linalg_div_left;
 static vartype *linalg_div_result;
 
 static int div_rr_completion1(int error, vartype_realmatrix *a, int4 *perm,
-				    phloat det) LINALG1_SECT;
+				    phloat det);
 static void div_rr_completion2(int error, vartype_realmatrix *a, int4 *perm,
-				    vartype_realmatrix *b) LINALG1_SECT;
+				    vartype_realmatrix *b);
 static int div_rc_completion1(int error, vartype_complexmatrix *a, int4 *perm,
-				    phloat det_re, phloat det_im) LINALG1_SECT;
+				    phloat det_re, phloat det_im);
 static void div_rc_completion2(int error, vartype_complexmatrix *a, int4 *perm,
-				    vartype_complexmatrix *b) LINALG1_SECT;
+				    vartype_complexmatrix *b);
 static int div_cr_completion1(int error, vartype_realmatrix *a, int4 *perm,
-				    phloat det) LINALG1_SECT;
+				    phloat det);
 static void div_cr_completion2(int error, vartype_realmatrix *a, int4 *perm,
-				    vartype_complexmatrix *b) LINALG1_SECT;
+				    vartype_complexmatrix *b);
 static int div_cc_completion1(int error, vartype_complexmatrix *a, int4 *perm,
-				    phloat det_re, phloat det_im) LINALG1_SECT;
+				    phloat det_re, phloat det_im);
 static void div_cc_completion2(int error, vartype_complexmatrix *a, int4 *perm,
-				    vartype_complexmatrix *b) LINALG1_SECT;
+				    vartype_complexmatrix *b);
 
 int linalg_div(const vartype *left, const vartype *right,
 				    void (*completion)(int, vartype *)) {
@@ -309,9 +309,7 @@ typedef struct {
 
 static mul_rr_data_struct *mul_rr_data;
 
-static int matrix_mul_rr(vartype_realmatrix *left, vartype_realmatrix *right,
-			 void (*completion)(int, vartype *)) LINALG1_SECT;
-static int matrix_mul_rr_worker(int interrupted) LINALG1_SECT;
+static int matrix_mul_rr_worker(int interrupted);
 
 static int matrix_mul_rr(vartype_realmatrix *left, vartype_realmatrix *right,
 			 void (*completion)(int, vartype *)) {
@@ -565,9 +563,7 @@ typedef struct {
 
 static mul_rc_data_struct *mul_rc_data;
 
-static int matrix_mul_rc(vartype_realmatrix *left, vartype_complexmatrix *right,
-			 void (*completion)(int, vartype *)) LINALG1_SECT;
-static int matrix_mul_rc_worker(int interrupted) LINALG1_SECT;
+static int matrix_mul_rc_worker(int interrupted);
 
 static int matrix_mul_rc(vartype_realmatrix *left, vartype_complexmatrix *right,
 			 void (*completion)(int, vartype *)) {
@@ -700,9 +696,7 @@ typedef struct {
 
 static mul_cr_data_struct *mul_cr_data;
 
-static int matrix_mul_cr(vartype_complexmatrix *left, vartype_realmatrix *right,
-			 void (*completion)(int, vartype *)) LINALG1_SECT;
-static int matrix_mul_cr_worker(int interrupted) LINALG1_SECT;
+static int matrix_mul_cr_worker(int interrupted);
 
 static int matrix_mul_cr(vartype_complexmatrix *left, vartype_realmatrix *right,
 			 void (*completion)(int, vartype *)) {
@@ -835,9 +829,7 @@ typedef struct {
 
 static mul_cc_data_struct *mul_cc_data;
 
-static int matrix_mul_cc(vartype_complexmatrix *left, vartype_complexmatrix *right,
-			 void (*completion)(int, vartype *)) LINALG1_SECT;
-static int matrix_mul_cc_worker(int interrupted) LINALG1_SECT;
+static int matrix_mul_cc_worker(int interrupted);
 
 static int matrix_mul_cc(vartype_complexmatrix *left, vartype_complexmatrix *right,
 			 void (*completion)(int, vartype *)) {
@@ -989,13 +981,13 @@ static void (*linalg_inv_completion)(int error, vartype *det);
 static vartype *linalg_inv_result;
 
 static int inv_r_completion1(int error, vartype_realmatrix *a, int4 *perm,
-				phloat det) LINALG1_SECT;
+				phloat det);
 static void inv_r_completion2(int error, vartype_realmatrix *a, int4 *perm,
-				vartype_realmatrix *b) LINALG1_SECT;
+				vartype_realmatrix *b);
 static int inv_c_completion1(int error, vartype_complexmatrix *a, int4 *perm,
-				phloat det_re, phloat det_im) LINALG1_SECT;
+				phloat det_re, phloat det_im);
 static void inv_c_completion2(int error, vartype_complexmatrix *a, int4 *perm,
-				vartype_complexmatrix *b) LINALG1_SECT;
+				vartype_complexmatrix *b);
 
 int linalg_inv(const vartype *src, void (*completion)(int, vartype *)) {
     int4 n;
@@ -1116,9 +1108,9 @@ static void (*linalg_det_completion)(int error, vartype *det);
 static bool linalg_det_prev_sm_err;
 
 static int det_r_completion(int error, vartype_realmatrix *a, int4 *perm,
-				    phloat det) LINALG1_SECT;
+				    phloat det);
 static int det_c_completion(int error, vartype_complexmatrix *a, int4 *perm,
-				    phloat det_re, phloat det_im) LINALG1_SECT;
+				    phloat det_re, phloat det_im);
 
 int linalg_det(const vartype *src, void (*completion)(int, vartype *)) {
     int4 n;

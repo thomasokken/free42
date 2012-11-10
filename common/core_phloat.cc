@@ -170,21 +170,6 @@ Phloat Phloat::operator=(Phloat p) {
     return *this;
 }
 
-#if defined(PALMOS) && !defined(PALMOS_ARM)
-
-/* public */
-Phloat::Phloat(int4 i) : bcd(i) {
-    // Nothing else to do
-}
-
-/* public */
-Phloat Phloat::operator=(int4 i) {
-    bcd = BCDFloat(i);
-    return *this;
-}
-
-#endif
-
 /* public */
 bool Phloat::operator==(Phloat p) const {
     return BCDFloat::equal(&bcd, &p.bcd);
@@ -340,7 +325,6 @@ int to_digit(Phloat p) {
     return ifloor(res);
 }
 
-static int8 mant(const BCDFloat &b) PHLOAT_SECT;
 static int8 mant(const BCDFloat &b) {
     int8 m = 0;
     int e = b.exp();
@@ -752,11 +736,11 @@ static double POS_TINY_DOUBLE;
 static double NEG_TINY_DOUBLE;
 
 static void bcd_add(char *dst_mant, int *dst_exp,
-		    const char *src_mant, int src_exp) PHLOAT_SECT;
+		    const char *src_mant, int src_exp);
 static int bcd_cmp(const char *dst_mant, int dst_exp,
-		   const char *src_mant, int src_exp) PHLOAT_SECT;
+		   const char *src_mant, int src_exp);
 static void bcd_sub(char *dst_mant, int *dst_exp,
-		    const char *src_mant, int src_exp) PHLOAT_SECT;
+		    const char *src_mant, int src_exp);
 
 
 /********************/
@@ -1635,11 +1619,7 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
 
     double d = to_double(pd);
     double mantissa;
-#if defined(PALMOS) && !defined(PALMOS_ARM)
-    Int16 exp;
-#else
     int exp;
-#endif
     int still_zero = 1;
 
     mantissa = frexp(d, &exp);
@@ -1995,84 +1975,6 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
 	return chars_so_far;
     }
 }
-
-#if defined(PALMOS) && defined(BCD_MATH)
-
-// Compatibility stuff - note that some of these are only partial
-// implementations. These are just hacks so that core_phloat and bcdfloat can
-// be compiled and run on Palms without MathLib.
-
-union double_words {
-    double d;
-    struct {
-	int4 hx, lx;
-    } w;
-};
-
-int isinf(double x) {
-    double_words dw;
-    dw.d = x;
-    dw.w.lx |= (dw.w.hx & 0x7fffffff) ^ 0x7ff00000;
-    dw.w.lx |= -dw.w.lx;
-    return ~(dw.w.lx >> 31) & (dw.w.hx >> 30);
-}
-
-int isnan(double x) {
-    double_words dw;
-    dw.d = x;
-    dw.w.hx &= 0x7fffffff;
-    dw.w.hx |= (uint4)(dw.w.lx|(-dw.w.lx))>>31;
-    dw.w.hx = 0x7ff00000 - dw.w.hx;
-    return (int)(((uint4)dw.w.hx)>>31);
-}
-
-double pow(double x, double y) {
-    // Only handles integer exponents
-    int4 exp = (int4) y;
-    bool neg = exp < 0;
-    if (neg)
-	exp = -exp;
-    double res = 1, factor = x;
-    while (exp != 0) {
-	if ((exp & 1) != 0)
-	    res *= factor;
-	exp >>= 1;
-	factor *= factor;
-    }
-    return neg ? 1 / res : res;
-}
-
-double floor(double x) {
-    // Yes, this is adequate, believe it or not: this only gets called on the
-    // result of our hacked log10() (see below), and that function implicitly
-    // "floors" its return value.
-    return x;
-}
-
-double log10(double x) {
-    // TODO: faster implementation. It doesn't matter all that much, since this
-    // function is only called for the state file conversion, but still, that
-    // conversion shouldn't take any longer than necessary either.
-    if (x <= 0) {
-	double zero = 0;
-	return x == 0 ? -1 / zero : 0 / zero;
-    }
-    int res = 0;
-    if (x < 1) {
-	while (x < 1) {
-	    x *= 10;
-	    res--;
-	}
-    } else {
-	while (x >= 10) {
-	    x /= 10;
-	    res++;
-	}
-    }
-    return (double) res;
-}
-
-#endif
 
 void bcdfloat_old2new(void *bcd) {
     // Convert old (<= 1.4.51) BCDFloat, where NaN is signalled by

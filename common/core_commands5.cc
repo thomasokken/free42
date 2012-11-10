@@ -44,7 +44,6 @@ int appmenu_exitcallback_2(int menuid) {
     return ERR_NONE;
 }
 
-static int base_helper(int base) COMMANDS5_SECT;
 static int base_helper(int base) {
     if (program_running()) {
 	int err = set_menu_return_err(MENULEVEL_APP, MENU_BASE);
@@ -245,7 +244,6 @@ static struct sum_struct {
     phloat ylnx;
 } sum;
 
-static int get_summation() COMMANDS5_SECT;
 static int get_summation() {
     /* Check if summation registers are OK */
     int4 first = mode_sigma_reg;
@@ -304,7 +302,6 @@ static struct model_struct {
 #define MODEL_EXP 2
 #define MODEL_PWR 3
 
-static int get_model_summation(int modl) COMMANDS5_SECT;
 static int get_model_summation(int modl) {
     int err = get_summation();
     if (err != ERR_NONE)
@@ -357,7 +354,6 @@ static int get_model_summation(int modl) {
     return ERR_NONE;
 }
 
-static int corr_helper(int modl, phloat *r) COMMANDS5_SECT;
 static int corr_helper(int modl, phloat *r) {
     phloat cov, varx, vary, v, tr;
     int err = get_model_summation(modl);
@@ -382,7 +378,6 @@ static int corr_helper(int modl, phloat *r) {
     return ERR_NONE;
 }
 
-static int slope_yint_helper() COMMANDS5_SECT;
 static int slope_yint_helper() {
     /* The caller should have made sure that 'model' is up to date
      * by calling get_model_summation() first.
@@ -406,7 +401,6 @@ static int slope_yint_helper() {
     return ERR_NONE;
 }
 
-static int get_model() COMMANDS5_SECT;
 static int get_model() {
     if (flags.f.lin_fit)
 	return MODEL_LIN;
@@ -477,7 +471,6 @@ int docmd_corr(arg_struct *arg) {
     return ERR_NONE;
 }
 
-static int mappable_fcstx(phloat x, phloat *y) COMMANDS5_SECT;
 static int mappable_fcstx(phloat x, phloat *y) {
     int inf;
     if (model.exp_after) {
@@ -515,7 +508,6 @@ int docmd_fcstx(arg_struct *arg) {
 	return ERR_INVALID_TYPE;
 }
 
-static int mappable_fcsty(phloat x, phloat *y) COMMANDS5_SECT;
 static int mappable_fcsty(phloat x, phloat *y) {
     int inf;
     if (model.ln_before) {
@@ -1056,7 +1048,6 @@ int docmd_to_oct(arg_struct *arg) {
 	return ERR_INVALID_TYPE;
 }
 
-static void accum(phloat *sum, phloat term, int weight) COMMANDS5_SECT;
 static void accum(phloat *sum, phloat term, int weight) {
     int inf;
     phloat s;
@@ -1069,8 +1060,6 @@ static void accum(phloat *sum, phloat term, int weight) {
     *sum = s;
 }
 
-static phloat sigma_helper_2(phloat *sigmaregs,
-			     phloat x, phloat y, int weight) COMMANDS5_SECT;
 static phloat sigma_helper_2(phloat *sigmaregs,
 			     phloat x, phloat y, int weight) {
 
@@ -1117,7 +1106,6 @@ static phloat sigma_helper_2(phloat *sigmaregs,
     return sigmaregs[5];
 }
 
-static int sigma_helper_1(int weight) COMMANDS5_SECT;
 static int sigma_helper_1(int weight) {
     /* Check if summation registers are OK */
     int4 first = mode_sigma_reg;

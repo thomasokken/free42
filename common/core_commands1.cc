@@ -115,7 +115,6 @@ int docmd_chs(arg_struct *arg) {
     return ERR_NONE;
 }
 
-static void docmd_div_completion(int error, vartype *res) COMMANDS1_SECT;
 static void docmd_div_completion(int error, vartype *res) {
     if (error == ERR_NONE)
 	binary_result(res);
@@ -125,7 +124,6 @@ int docmd_div(arg_struct *arg) {
     return generic_div(reg_x, reg_y, docmd_div_completion);
 }
 
-static void docmd_mul_completion(int error, vartype *res) COMMANDS1_SECT;
 static void docmd_mul_completion(int error, vartype *res) {
     if (error == ERR_NONE)
 	binary_result(res);
@@ -356,7 +354,6 @@ int docmd_rcl(arg_struct *arg) {
 /* Temporary for use by docmd_rcl_div() & docmd_rcl_mul() */
 static vartype *temp_v;
 
-static void docmd_rcl_div_completion(int error, vartype *res) COMMANDS1_SECT;
 static void docmd_rcl_div_completion(int error, vartype *res) {
     free_vartype(temp_v);
     if (error == ERR_NONE)
@@ -370,7 +367,6 @@ int docmd_rcl_div(arg_struct *arg) {
     return generic_div(temp_v, reg_x, docmd_rcl_div_completion);
 }
 
-static void docmd_rcl_mul_completion(int error, vartype *res) COMMANDS1_SECT;
 static void docmd_rcl_mul_completion(int error, vartype *res) {
     free_vartype(temp_v);
     if (error == ERR_NONE)
@@ -846,7 +842,6 @@ int docmd_pi(arg_struct *arg) {
     return ERR_NONE;
 }
 
-static int mappable_to_deg(phloat x, phloat *y) COMMANDS1_SECT;
 static int mappable_to_deg(phloat x, phloat *y) {
     phloat r;
     int inf;
@@ -874,7 +869,6 @@ int docmd_to_deg(arg_struct *arg) {
 	return ERR_INVALID_TYPE;
 }
 
-static int mappable_to_rad(phloat x, phloat *y) COMMANDS1_SECT;
 static int mappable_to_rad(phloat x, phloat *y) {
     *y = deg_to_rad(x);
     return ERR_NONE;
@@ -893,7 +887,6 @@ int docmd_to_rad(arg_struct *arg) {
 	return ERR_INVALID_TYPE;
 }
 
-static int mappable_to_hr(phloat x, phloat *y) COMMANDS1_SECT;
 static int mappable_to_hr(phloat x, phloat *y) {
     int neg = x < 0;
     phloat res;
@@ -950,7 +943,6 @@ int docmd_to_hr(arg_struct *arg) {
 	return ERR_INVALID_TYPE;
 }
 
-static int mappable_to_hms(phloat x, phloat *y) COMMANDS1_SECT;
 static int mappable_to_hms(phloat x, phloat *y) {
     int neg = x < 0;
     phloat r, t;
@@ -1119,7 +1111,6 @@ int docmd_to_pol(arg_struct *arg) {
 	return ERR_INVALID_TYPE;
 }
 
-static int mappable_ip(phloat x, phloat *y) COMMANDS1_SECT;
 static int mappable_ip(phloat x, phloat *y) {
     if (x < 0)
 	*y = -floor(-x);
@@ -1141,7 +1132,6 @@ int docmd_ip(arg_struct *arg) {
 	return ERR_INVALID_TYPE;
 }
 
-static int mappable_fp(phloat x, phloat *y) COMMANDS1_SECT;
 static int mappable_fp(phloat x, phloat *y) {
     if (x < 0)
 	*y = x + floor(-x);
@@ -1165,7 +1155,6 @@ int docmd_fp(arg_struct *arg) {
 
 static phloat rnd_multiplier;
 
-static int mappable_rnd_r(phloat x, phloat *y) COMMANDS1_SECT;
 static int mappable_rnd_r(phloat x, phloat *y) {
     if (flags.f.fix_or_all) {
 	if (flags.f.eng_or_all)
@@ -1218,8 +1207,6 @@ static int mappable_rnd_r(phloat x, phloat *y) {
     }
 }
 
-static int mappable_rnd_c(phloat xre, phloat xim, phloat *yre, phloat *yim)
-								COMMANDS1_SECT;
 static int mappable_rnd_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     int err = mappable_rnd_r(xre, yre);
     if (err != ERR_NONE)
@@ -1304,8 +1291,6 @@ int docmd_abs(arg_struct *arg) {
     }
 }
 
-static int mappable_sign(phloat xre, phloat xim, phloat *yre, phloat *yim)
-								COMMANDS1_SECT;
 static int mappable_sign(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     phloat h = hypot(xre, xim);
     if (h == 0) {

@@ -29,7 +29,6 @@
 #include "shell.h"
 
 
-static int is_number_key(int shift, int key) KEYDOWN_SECT;
 static int is_number_key(int shift, int key) {
     int *menu = get_front_menu();
     if (menu != NULL && *menu == MENU_BASE_A_THRU_F
@@ -42,7 +41,6 @@ static int is_number_key(int shift, int key) {
 		|| key == KEY_9 || key == KEY_DOT || key == KEY_E);
 }
 
-static int basekeys() KEYDOWN_SECT;
 static int basekeys() {
     if (!baseapp)
 	return 0;
@@ -50,7 +48,6 @@ static int basekeys() {
     return menu != NULL && (*menu == MENU_BASE || *menu == MENU_BASE_A_THRU_F || *menu == MENU_BASE_LOGIC);
 }
 
-static void set_solve_integ(int solve) KEYDOWN_SECT;
 static void set_solve_integ(int solve) {
     if (flags.f.prgm_mode || !mvar_prgms_exist()) {
 	set_menu(MENULEVEL_APP, solve ? MENU_SOLVE : MENU_INTEG);
@@ -74,7 +71,6 @@ static void set_solve_integ(int solve) {
     redisplay();
 }
 
-static void view(const char *varname, int varlength) KEYDOWN_SECT;
 static void view(const char *varname, int varlength) {
     arg_struct arg;
     int i, err;
@@ -593,7 +589,6 @@ void keydown_command_entry(int shift, int key) {
 	 * both possibilities and pick the right one.
 	 */
 
-#ifndef PALMOS
 	/* On the Palm, we accept 0-9 as alphanumeric in this case;
 	 * if the user wants numeric, it's easy enough to just tap
 	 * the appropriate keys on the virtual keyboard.
@@ -618,7 +613,6 @@ void keydown_command_entry(int shift, int key) {
 		case '8': key = KEY_8; break;
 		case '9': key = KEY_9; break;
 	    }
-#endif
 
 	if (key >= 1024
 	    || (key == KEY_SIGMA || key == KEY_INV || key == KEY_SQRT
