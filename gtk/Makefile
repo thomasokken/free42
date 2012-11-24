@@ -15,7 +15,7 @@
 # along with this program; if not, see http://www.gnu.org/licenses/.
 ###############################################################################
 
-CXXFLAGS := -MMD -Wall -g -I/usr/X11R6/include -fno-exceptions -fno-rtti $(shell pkg-config --cflags gtk+-2.0) -DVERSION="\"$(shell cat ../VERSION)\""
+CXXFLAGS := -MMD -Wall -Wno-parentheses -Wno-write-strings -g -I/usr/X11R6/include -fno-exceptions -fno-rtti $(shell pkg-config --cflags gtk+-2.0) -DVERSION="\"$(shell cat ../VERSION)\""
 LDFLAGS = -L/usr/X11R6/lib
 LIBS := -lXmu $(shell pkg-config --libs gtk+-2.0)
 

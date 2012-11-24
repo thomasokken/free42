@@ -27,7 +27,7 @@ extern bool allow_paint;
 
 #define SHELL_VERSION 4
 
-typedef struct state_type {
+struct state_type {
     int extras;
     int printerToTxtFile;
     int printerToGifFile;
