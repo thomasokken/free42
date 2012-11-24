@@ -57,6 +57,7 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Vibrator;
 import android.text.ClipboardManager;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -90,7 +91,7 @@ public class Free42Activity extends Activity {
 
 	private static final String[] builtinSkinNames = new String[] { "Standard" };
 	
-    private static final int SHELL_VERSION = 7;
+    private static final int SHELL_VERSION = 8;
     
     private static final int PRINT_BACKGROUND_COLOR = Color.LTGRAY;
     
@@ -135,6 +136,7 @@ public class Free42Activity extends Activity {
 	private boolean[] displaySmoothing = new boolean[2];
 
 	private boolean keyClicksEnabled = true;
+	private boolean keyVibrationEnabled = false;
 	private int preferredOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
 	
 	private final Runnable repeaterCaller = new Runnable() { public void run() { repeater(); } };
@@ -584,6 +586,7 @@ public class Free42Activity extends Activity {
     	preferencesDialog.setMatrixOutOfRange(cs.matrix_outofrange);
     	preferencesDialog.setAutoRepeat(cs.auto_repeat);
     	preferencesDialog.setKeyClicks(keyClicksEnabled);
+    	preferencesDialog.setKeyVibration(keyVibrationEnabled);
     	preferencesDialog.setOrientation(preferredOrientation);
     	preferencesDialog.setSkinSmoothing(skinSmoothing[orientation]);
     	preferencesDialog.setDisplaySmoothing(displaySmoothing[orientation]);
@@ -603,6 +606,7 @@ public class Free42Activity extends Activity {
     	cs.matrix_outofrange = preferencesDialog.getMatrixOutOfRange();
     	cs.auto_repeat = preferencesDialog.getAutoRepeat();
     	keyClicksEnabled = preferencesDialog.getKeyClicks();
+    	keyVibrationEnabled = preferencesDialog.getKeyVibration();
     	int oldOrientation = preferredOrientation;
     	preferredOrientation = preferencesDialog.getOrientation();
     	putCoreSettings(cs);
@@ -1058,6 +1062,8 @@ public class Free42Activity extends Activity {
     	    	skinSmoothing[1] = state_read_boolean();
     	    	displaySmoothing[1] = state_read_boolean();
     	    }
+    	    if (shell_version >= 8)
+    	    	keyVibrationEnabled = state_read_boolean();
     		init_shell_state(shell_version);
     	} catch (IllegalArgumentException e) {
     		return false;
@@ -1099,7 +1105,10 @@ public class Free42Activity extends Activity {
     		displaySmoothing[1] = displaySmoothing[0];
     		// fall through
     	case 7:
-			// current version (SHELL_VERSION = 7),
+    		keyVibrationEnabled = false;
+    		// fall through
+    	case 8:
+			// current version (SHELL_VERSION = 8),
 			// so nothing to do here since everything
 			// was initialized from the state file.
     		;
@@ -1126,6 +1135,7 @@ public class Free42Activity extends Activity {
     		state_write_boolean(displaySmoothing[0]);
     		state_write_boolean(skinSmoothing[1]);
     		state_write_boolean(displaySmoothing[1]);
+    		state_write_boolean(keyVibrationEnabled);
     	} catch (IllegalArgumentException e) {}
     }
     
@@ -1247,6 +1257,10 @@ public class Free42Activity extends Activity {
 	private void click() {
 		if (keyClicksEnabled)
 			playSound(11, R.raw.click, 0);
+		if (keyVibrationEnabled) {
+			Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+			v.vibrate(50);
+		}
 	}
 	
 	private void playSound(int index, int id, int duration) {
@@ -1349,12 +1363,12 @@ public class Free42Activity extends Activity {
 		public boolean matrix_outofrange;
 		public boolean raw_text;
 		public boolean auto_repeat;
-		public boolean enable_ext_copan;
-		public boolean enable_ext_bigstack;
-		public boolean enable_ext_accel;
-		public boolean enable_ext_locat;
-		public boolean enable_ext_heading;
-		public boolean enable_ext_time;
+		@SuppressWarnings("unused") public boolean enable_ext_copan;
+		@SuppressWarnings("unused") public boolean enable_ext_bigstack;
+		@SuppressWarnings("unused") public boolean enable_ext_accel;
+		@SuppressWarnings("unused") public boolean enable_ext_locat;
+		@SuppressWarnings("unused") public boolean enable_ext_heading;
+		@SuppressWarnings("unused") public boolean enable_ext_time;
     }
 
     ///////////////////////////////////////////////////

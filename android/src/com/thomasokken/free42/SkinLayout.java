@@ -125,12 +125,12 @@ public class SkinLayout {
 			
 			BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 			String line;
-			int lineno = 0;
+			//int lineno = 0;
 			List<SkinKey> tempkeylist = new ArrayList<SkinKey>();
 			List<SkinMacro> tempmacrolist = new ArrayList<SkinMacro>();
 			lineloop:
 			while ((line = reader.readLine()) != null) {
-				lineno++;
+				//lineno++;
 				int pound = line.indexOf('#');
 				if (pound != -1)
 					line = line.substring(0, pound);

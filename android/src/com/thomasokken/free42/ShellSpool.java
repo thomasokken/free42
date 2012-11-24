@@ -286,9 +286,9 @@ public class ShellSpool {
 						long xx = (((long) g.prefix) << 20) + (((long) pixel) << 12);
 						byte b1, b2, b3;
 						xx /= 997;
-						b1 = (byte) (x >> 16);
-						b2 = (byte) (x >> 8);
-						b3 = (byte) x;
+						b1 = (byte) (xx >> 16);
+						b2 = (byte) (xx >> 8);
+						b3 = (byte) xx;
 						hash_code = (byte) (b1 ^ b2 ^ b3);
 				    }
 				    hash_index = g.hash_head[hash_code & 255];

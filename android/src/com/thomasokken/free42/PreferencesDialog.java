@@ -32,6 +32,7 @@ public class PreferencesDialog extends Dialog {
 	private CheckBox matrixOutOfRangeCB;
 	private CheckBox autoRepeatCB;
 	private CheckBox keyClicksCB;
+	private CheckBox keyVibrationCB;
 	private Spinner orientationSP;
 	private CheckBox skinSmoothingCB;
 	private CheckBox displaySmoothingCB;
@@ -50,6 +51,7 @@ public class PreferencesDialog extends Dialog {
 		matrixOutOfRangeCB = (CheckBox) findViewById(R.id.matrixOutOfRangeCB);
 		autoRepeatCB = (CheckBox) findViewById(R.id.autoRepeatCB);
 		keyClicksCB = (CheckBox) findViewById(R.id.keyClicksCB);
+		keyVibrationCB = (CheckBox) findViewById(R.id.keyVibrationCB);
 		orientationSP = (Spinner) findViewById(R.id.orientationSpinner);
 		String[] values = new String[] { "Automatic", "Portrait", "Landscape" };
 		ArrayAdapter<String> aa = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, values);
@@ -151,6 +153,14 @@ public class PreferencesDialog extends Dialog {
 	
 	public boolean getKeyClicks() {
 		return keyClicksCB.isChecked();
+	}
+	
+	public void setKeyVibration(boolean b) {
+		keyVibrationCB.setChecked(b);
+	}
+	
+	public boolean getKeyVibration() {
+		return keyVibrationCB.isChecked();
 	}
 	
 	public void setOrientation(int orientation) {
