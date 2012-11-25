@@ -20,7 +20,7 @@
 #define SHELL_VERSION 1
 #define FILENAMELEN 1024
 
-typedef struct state_type {
+struct state_type {
 	int printerToTxtFile;
 	int printerToGifFile;
 	char printerTxtFileName[FILENAMELEN];

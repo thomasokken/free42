@@ -61,7 +61,7 @@ static int dirTypeCapacity = 0;
 	selectDir = sd;
 	callbackObject = [cb_id retain];
 	callbackSelector = cb_sel;
-	dirName = [[NSString stringWithString:@"."] retain];
+	dirName = @".";
 	[shell_iphone showSelectFile];
 }
 
