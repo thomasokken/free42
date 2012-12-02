@@ -502,6 +502,7 @@
 				GCC_PREFIX_HEADER = Free42_Prefix.pch;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				PRODUCT_NAME = Free42;
 			};
 			name = "Debug Binary";
@@ -516,6 +517,7 @@
 				GCC_PREFIX_HEADER = Free42_Prefix.pch;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				PRODUCT_NAME = Free42;
 			};
 			name = "Release Binary";
@@ -528,11 +530,13 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = NO_SINCOS;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_MISSING_PARENTHESES = NO;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				"New Setting" = "";
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
-				SDKROOT = macosx10.6;
+				SDKROOT = "";
 			};
 			name = "Debug Binary";
 		};
@@ -543,10 +547,12 @@
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_PREPROCESSOR_DEFINITIONS = NO_SINCOS;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_MISSING_PARENTHESES = NO;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				"New Setting" = "";
 				PREBINDING = NO;
-				SDKROOT = macosx10.6;
+				SDKROOT = "";
 			};
 			name = "Release Binary";
 		};
@@ -561,11 +567,13 @@
 					NO_SINCOS,
 				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_MISSING_PARENTHESES = NO;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				"New Setting" = "";
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
-				SDKROOT = macosx10.6;
+				SDKROOT = "";
 			};
 			name = "Debug Decimal";
 		};
@@ -582,6 +590,7 @@
 				GCC_PREFIX_HEADER = Free42_Prefix.pch;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				PRODUCT_NAME = Free42;
 			};
 			name = "Debug Decimal";
@@ -596,10 +605,12 @@
 					NO_SINCOS,
 				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_MISSING_PARENTHESES = NO;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				"New Setting" = "";
 				PREBINDING = NO;
-				SDKROOT = macosx10.6;
+				SDKROOT = "";
 			};
 			name = "Release Decimal";
 		};
@@ -613,6 +624,7 @@
 				GCC_PREFIX_HEADER = Free42_Prefix.pch;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				PRODUCT_NAME = Free42;
 			};
 			name = "Release Decimal";

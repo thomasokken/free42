@@ -79,7 +79,7 @@ static char print_gif_name[FILENAMELEN];
 static int gif_seq = -1;
 static int gif_lines;
 
-static void show_message(char *title, char *message);
+static void show_message(const char *title, const char *message);
 static void read_key_map(const char *keymapfilename);
 static void init_shell_state(int4 ver);
 static int read_shell_state(int4 *ver);
@@ -133,7 +133,7 @@ static bool is_file(const char *name);
 		NSString *path = [[NSBundle mainBundle] pathForResource:name ofType:@"wav"];
 		OSStatus status = AudioServicesCreateSystemSoundID((CFURLRef)[NSURL fileURLWithPath:path], &soundIDs[i]);
 		if (status)
-			NSLog(@"error loading sound:  %d", name);
+			NSLog(@"error loading sound:  %@", name);
 	}
 		
 	
@@ -942,7 +942,7 @@ void calc_keymodifierschanged(NSUInteger flags) {
 	}
 }
 
-static void show_message(char *title, char *message) {
+static void show_message(const char *title, const char *message) {
 	// TODO!
 	fprintf(stderr, "%s\n", message);
 }
