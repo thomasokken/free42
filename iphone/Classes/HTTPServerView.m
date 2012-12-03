@@ -33,7 +33,7 @@ void handle_client(int csock);
 void errprintf(const char *fmt, ...);
 
 static HTTPServerView *instance;
-static bool mustStop;
+static int pype[2];
 static in_addr_t ip_addr;
 static NSString *hostname;
 static int port;
@@ -118,7 +118,7 @@ static void *getHostName(void *dummy) {
 
 - (void) raised {
 	instance = self;
-	mustStop = false;
+	pipe(pype); // only fails if out of file descriptors
 	[urlLabel setText:@"(not running)"];
 	[logView setText:@""];
 	[self performSelectorInBackground:@selector(start_simple_server) withObject:NULL];
@@ -136,18 +136,7 @@ static void *getHostName(void *dummy) {
 
 - (IBAction) done {
 	[UIApplication sharedApplication].idleTimerDisabled = NO;
-	if (port != 0) {
-		mustStop = true;
-		int sock = socket(AF_INET, SOCK_STREAM, 0);
-		if (sock != -1) {
-			struct sockaddr_in sa;
-			sa.sin_family = AF_INET;
-			sa.sin_port = htons(port);
-			sa.sin_addr.s_addr = ip_addr;
-			connect(sock, (struct sockaddr *) &sa, sizeof(sa));
-			close(sock);
-		}
-	}		
+	write(pype[1], "1\n", 2);
 	[shell_iphone showMain];
 }
 
@@ -181,6 +170,10 @@ static void *getHostName(void *dummy) {
 		errprintf("Could not create socket: %s (%d)\n", strerror(err), err);
 		goto done;
     }
+    
+    int optval;
+    optval = 1;
+    setsockopt(ssock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
 	
     sa.sin_family = AF_INET;
     sa.sin_port = htons(port);
@@ -203,16 +196,27 @@ static void *getHostName(void *dummy) {
 	[instance performSelectorOnMainThread:@selector(displayHostAndPort) withObject:nil waitUntilDone:NO];
 	
     while (1) {
-		unsigned int n = sizeof(ca);
+		fd_set readset;
+        FD_ZERO(&readset);
+        FD_SET(ssock, &readset);
+        FD_SET(pype[0], &readset);
+        int nfds = (ssock > pype[0] ? ssock : pype[0]) + 1;
+        nfds = select(nfds, &readset, NULL, NULL, NULL);
+        if (nfds == -1) {
+			err = errno;
+			errprintf("Error in select() while waiting for connection: %s (%d)\n", strerror(err), err);
+			goto done;
+        }
+        if (FD_ISSET(pype[0], &readset))
+            goto done;
+        if (!FD_ISSET(ssock, &readset))
+            continue;
+        unsigned int n = sizeof(ca);
 		char cname[256];
-		csock = accept(ssock, (struct sockaddr *) &ca, &n);
+        csock = accept(ssock, (struct sockaddr *) &ca, &n);
 		if (csock == -1) {
 			err = errno;
 			errprintf("Could not accept connection from client: %s (%d)\n", strerror(err), err);
-			goto done;
-		}
-		if (mustStop) {
-			close(csock);
 			goto done;
 		}
 		inet_ntop(AF_INET, &ca.sin_addr, cname, sizeof(cname));
@@ -226,6 +230,8 @@ done:
 	port = 0;
 	if (ssock != -1)
 		close(ssock);
+    close(pype[0]);
+    close(pype[1]);
 	[instance performSelectorOnMainThread:@selector(displayHostAndPort) withObject:nil waitUntilDone:NO];
 	[pool release];
 }
