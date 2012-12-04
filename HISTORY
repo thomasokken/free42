@@ -1,3 +1,8 @@
+04-12-2012: release 1.4.75a
+
+* iPhone version: clicking Done on the HTTP Server window could cause the app
+  to freeze under certain circumstances. Fixed.
+
 24-11-2012: release 1.4.75
 
 * Android version: implemented haptic feedback option (vibrate on keypress).
