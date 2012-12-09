@@ -446,6 +446,11 @@ static void *mainWindowPresenter(void *) {
 }
 
 - (IBAction) clearPrintOut:(id)sender {
+    printout_top = printout_bottom = 0;
+    NSSize s;
+    s.width = 286;
+    s.height = 0;
+    [printView setFrameSize:s];
 }
 
 - (IBAction) importPrograms:(id)sender {
