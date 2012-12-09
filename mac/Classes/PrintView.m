@@ -37,7 +37,13 @@
     s.width = 286;
     s.height = height;
     [self setFrameSize:s];
-    // TODO: scroll to bottom
+    [self setNeedsDisplay:YES];
+    NSPoint p;
+    p.x = 0;
+    p.y = 0;
+    [self scrollPoint:p];
+    // TODO: When the print-out window is first presented, its
+    // scrollbar is out of sync with the view. Why?
 }
 
 - (void) updatePrintout:(id) params {
@@ -55,17 +61,22 @@
             s.height = newlength;
             [self setFrameSize:s];
         }
-        // TODO: scroll to bottom
+        NSPoint p;
+        p.x = 0;
+        p.y = 0;
+        [self scrollPoint:p];
         // TODO: Instead of repainting everything, copying the existing
         // print-out that merely has to move, may be more efficient
-        NSRect r = [self bounds];
-        [self setNeedsDisplayInRect:r];
+        [self setNeedsDisplay:YES];
     } else {
         NSSize s;
         s.width = 286;
         s.height = newlength;
         [self setFrameSize:s];
-        // TODO: scroll to bottom
+        NSPoint p;
+        p.x = 0;
+        p.y = 0;
+        [self scrollPoint:p];
         NSRect r;
         r.origin.x = 0;
         r.origin.y = oldlength;
