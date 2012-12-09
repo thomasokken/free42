@@ -28,9 +28,8 @@ Another Windows "Calculator Key" issue: it doesn't seem to work in multi-
 language installs. Some other registry key overriding the obvious one, it
 seems.
 
-Mac version: implement print-out window.
-Modify the file selection dialogs so they have a file type menu, and add
-extensions to file names automagically when appropriate.
+Mac version: Modify the file selection dialogs so they have a file type menu,
+and add extensions to file names automagically when appropriate.
 
 iPhone version: implement print-out window.
 Implement program import/export to local files.
