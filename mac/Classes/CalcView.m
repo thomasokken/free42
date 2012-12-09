@@ -17,7 +17,6 @@
 
 #import "CalcView.h"
 #import "Free42AppDelegate.h"
-#import "MyRect.h"
 #import "shell_skin.h"
 
 @implementation CalcView
@@ -75,15 +74,10 @@ static NSString *unicode(NSString *src) {
 	calc_keymodifierschanged([theEvent modifierFlags]);
 }
 
-- (void) setNeedsDisplayInRectSafely2:(id) myrect {
-	MyRect *mr = (MyRect *) myrect;
-	CGRect cr = [mr rect];
-	NSRect invalRect;
-	invalRect.origin.x = cr.origin.x;
-	invalRect.origin.y = cr.origin.y;
-	invalRect.size.width = cr.size.width;
-	invalRect.size.height = cr.size.height;
-	[self setNeedsDisplayInRect:invalRect];
+- (void) setNeedsDisplayInRectSafely2:(id) rect {
+    NSRect *r = (NSRect *) [((NSValue *) rect) pointerValue];
+	[self setNeedsDisplayInRect:*r];
+    delete r;
 }
 
 - (void) setNeedsDisplayInRectSafely:(CGRect) rect {
@@ -94,8 +88,14 @@ static NSString *unicode(NSString *src) {
 		invalRect.size.width = rect.size.width;
 		invalRect.size.height = rect.size.height;
 		[self setNeedsDisplayInRect:invalRect];
-	} else
-		[self performSelectorOnMainThread:@selector(setNeedsDisplayInRectSafely2:) withObject:[MyRect rectWithCGRect:rect] waitUntilDone:NO];
+	} else {
+        NSRect *r = new NSRect;
+        r->origin.x = rect.origin.x;
+        r->origin.y = rect.origin.y;
+        r->size.width = rect.size.width;
+        r->size.height = rect.size.height;
+		[self performSelectorOnMainThread:@selector(setNeedsDisplayInRectSafely2:) withObject:[NSValue valueWithPointer:r] waitUntilDone:NO];
+    }
 }
 
 @end

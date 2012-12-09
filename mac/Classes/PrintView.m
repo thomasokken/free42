@@ -16,7 +16,7 @@
  *****************************************************************************/
 
 #import "PrintView.h"
-#import "MyRect.h"
+#import "Free42AppDelegate.h"
 
 
 @implementation PrintView
@@ -29,35 +29,76 @@
     return self;
 }
 
+- (void) initialUpdate {
+    int height = printout_bottom - printout_top;
+    if (height < 0)
+        height += PRINT_LINES;
+    NSSize s;
+    s.width = 286;
+    s.height = height;
+    [self setFrameSize:s];
+    // TODO: scroll to bottom
+}
+
+- (void) updatePrintout:(id) params {
+    update_params *ppar = (update_params *) [((NSValue *) params) pointerValue];
+    int newlength = ppar->newlength;
+    int oldlength = ppar->oldlength;
+    int height = ppar->height;
+    delete ppar;
+    if (newlength >= PRINT_LINES) {
+        printout_top = (printout_bottom + 2) % PRINT_LINES;
+        newlength = PRINT_LINES - 2;
+        if (newlength != oldlength) {
+            NSSize s;
+            s.width = 286;
+            s.height = newlength;
+            [self setFrameSize:s];
+        }
+        // TODO: scroll to bottom
+        // TODO: Instead of repainting everything, copying the existing
+        // print-out that merely has to move, may be more efficient
+        NSRect r = [self bounds];
+        [self setNeedsDisplayInRect:r];
+    } else {
+        NSSize s;
+        s.width = 286;
+        s.height = newlength;
+        [self setFrameSize:s];
+        // TODO: scroll to bottom
+        NSRect r;
+        r.origin.x = 0;
+        r.origin.y = oldlength;
+        r.size.width = 286;
+        r.size.height = 2 * height;
+        [self setNeedsDisplayInRect:r];
+    }
+}
+
 - (void)drawRect:(NSRect)rect {
 	CGContextRef myContext = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
-	CGContextSetRGBFillColor(myContext, 1.0, 0.0, 0.0, 1.0);
-	CGContextFillRect(myContext, CGRectMake(10, 10, 30, 30));
-	CGContextFillRect(myContext, CGRectMake(0, 50, 286, 30));
-	CGContextFillRect(myContext, CGRectMake(1, 90, 284, 30));
-}
-
-- (void) setNeedsDisplayInRectSafely2:(id) myrect {
-	MyRect *mr = (MyRect *) myrect;
-	CGRect cr = [mr rect];
-	NSRect invalRect;
-	invalRect.origin.x = cr.origin.x;
-	invalRect.origin.y = cr.origin.y;
-	invalRect.size.width = cr.size.width;
-	invalRect.size.height = cr.size.height;
-	[self setNeedsDisplayInRect:invalRect];
-}
-
-- (void) setNeedsDisplayInRectSafely:(CGRect) rect {
-	if ([NSThread isMainThread]) {
-		NSRect invalRect;
-		invalRect.origin.x = rect.origin.x;
-		invalRect.origin.y = rect.origin.y;
-		invalRect.size.width = rect.size.width;
-		invalRect.size.height = rect.size.height;
-		[self setNeedsDisplayInRect:invalRect];
-	} else
-		[self performSelectorOnMainThread:@selector(setNeedsDisplayInRectSafely2:) withObject:[MyRect rectWithCGRect:rect] waitUntilDone:NO];
+	CGContextSetRGBFillColor(myContext, 1.0, 1.0, 1.0, 1.0);
+	CGContextFillRect(myContext, NSRectToCGRect(rect));
+    CGContextSetRGBFillColor(myContext, 0.0, 0.0, 0.0, 1.0);
+    int xmin = (int) rect.origin.x;
+    int xmax = (int) (rect.origin.x + rect.size.width);
+    int ymin = (int) rect.origin.y;
+    int ymax = (int) (rect.origin.y + rect.size.height);
+    int wh = [self bounds].size.height;
+    int length = printout_bottom - printout_top;
+    if (length < 0)
+        length += PRINT_LINES;
+    for (int v = ymin; v < ymax; v++) {
+        int v2 = wh - 1 - v; // because of OS X upside-down coordinate system
+        v2 = printout_top + v2;
+        if (v2 >= PRINT_LINES)
+            v2 -= PRINT_LINES;
+        for (int h = xmin; h < xmax; h++) {
+            int pixel = (print_bitmap[v2 * PRINT_BYTESPERLINE + (h >> 3)] & (1 << (h & 7))) != 0;
+            if (pixel)
+                CGContextFillRect(myContext, CGRectMake(h, v, 1, 1));
+        }
+    }
 }
 
 @end

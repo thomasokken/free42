@@ -36,6 +36,14 @@ extern state_type state;
 
 extern char free42dirname[FILENAMELEN];
 
+#define PRINT_LINES 30000
+#define PRINT_BYTESPERLINE 36
+#define PRINT_SIZE 1080000
+
+extern unsigned char *print_bitmap;
+extern int printout_top;
+extern int printout_bottom;
+
 void calc_mousedown(int x, int y);
 void calc_mouseup();
 void calc_keydown(NSString *characters, NSUInteger flags, unsigned short keycode);

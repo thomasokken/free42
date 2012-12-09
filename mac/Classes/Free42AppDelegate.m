@@ -28,6 +28,7 @@
 #import "Free42AppDelegate.h"
 #import "ProgramListDataSource.h"
 #import "CalcView.h"
+#import "PrintView.h"
 
 
 static Free42AppDelegate *instance = NULL;
@@ -72,6 +73,10 @@ static int ann_run = 0;
 //static int ann_battery = 0;
 static int ann_g = 0;
 static int ann_rad = 0;
+
+unsigned char *print_bitmap;
+int printout_top;
+int printout_bottom;
 
 static FILE *print_txt = NULL;
 static FILE *print_gif = NULL;
@@ -179,6 +184,29 @@ static bool is_file(const char *name);
 	
 	read_key_map(keymapfilename);
 	
+    /******************************/
+    /***** Read the print-out *****/
+    /******************************/
+
+    print_bitmap = (unsigned char *) malloc(PRINT_SIZE);
+    // TODO - handle memory allocation failure
+    
+    FILE *printfile = fopen(printfilename, "r");
+    if (printfile != NULL) {
+        int n = fread(&printout_bottom, 1, sizeof(int), printfile);
+        if (n == sizeof(int)) {
+            int bytes = printout_bottom * PRINT_BYTESPERLINE;
+            n = fread(print_bitmap, 1, bytes, printfile);
+            if (n != bytes)
+                printout_bottom = 0;
+        } else
+            printout_bottom = 0;
+        fclose(printfile);
+    } else
+        printout_bottom = 0;
+    printout_top = 0;
+    for (int n = printout_bottom * PRINT_BYTESPERLINE; n < PRINT_SIZE; n++)
+        print_bitmap[n] = 0;
 	
 	/***********************************************************/
 	/***** Open the state file and read the shell settings *****/
@@ -224,6 +252,7 @@ static bool is_file(const char *name);
 	sz.width = 301;
 	sz.height = state.printWindowKnown ? state.printWindowHeight : 600;
 	[printWindow setContentSize:sz];
+    [printView initialUpdate];
 	
 	if (state.printWindowKnown) {
 		NSPoint pt;
@@ -231,13 +260,6 @@ static bool is_file(const char *name);
 		pt.y = state.printWindowY;
 		[printWindow setFrameOrigin:pt];
 	}
-	
-	NSRect f;
-	f.origin.x = 0;
-	f.origin.y = 0;
-	f.size.width = 286;
-	f.size.height = 1000;
-	[printView setFrame:f];
 	
 	if (state.printWindowMapped)
 		[printWindow makeKeyAndOrderFront:self];
@@ -253,7 +275,6 @@ static bool is_file(const char *name);
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
-#if 0
     FILE *printfile;
     int n, length;
 	
@@ -292,7 +313,6 @@ static bool is_file(const char *name);
 	done:
 		;
     }
-#endif
 	
     if (print_txt != NULL)
 		fclose(print_txt);
@@ -655,31 +675,11 @@ static char version[32] = "";
 		[self setTimeout:1];
 }
 
-// The following is some wrapper code, to allow functions called by core_keydown()
-// while it is running in the background, to run in the main thread.
-
-static union {
-	struct {
-		int delay;
-	} shell_request_timeout3_args;
-	struct {
-		const char *text;
-		int length;
-		const char *bits;
-		int bytesperline;
-		int x, y, width, height;
-	} shell_print_args;
-} helper_args;
-
 static pthread_mutex_t shell_helper_mutex = PTHREAD_MUTEX_INITIALIZER;
+static int timeout3_delay;
 
 - (void) shell_request_timeout3_helper {
-	[self setTimeout3:helper_args.shell_request_timeout3_args.delay];
-	pthread_mutex_unlock(&shell_helper_mutex);
-}
-
-- (void) shell_print_helper {
-	// TODO
+	[self setTimeout3:timeout3_delay];
 	pthread_mutex_unlock(&shell_helper_mutex);
 }
 
@@ -1041,7 +1041,6 @@ void shell_powerdown() {
 void shell_print(const char *text, int length,
 				 const char *bits, int bytesperline,
 				 int x, int y, int width, int height) {
-#if 0
     int xx, yy;
     int oldlength, newlength;
 	
@@ -1071,31 +1070,11 @@ void shell_print(const char *text, int length,
     printout_bottom = (printout_bottom + 2 * height) % PRINT_LINES;
     newlength = oldlength + 2 * height;
 	
-    if (newlength >= PRINT_LINES) {
-		int offset;
-		printout_top = (printout_bottom + 2) % PRINT_LINES;
-		newlength = PRINT_LINES - 2;
-		if (newlength != oldlength)
-			gtk_widget_set_size_request(print_widget, 286, newlength);
-		scroll_printout_to_bottom();
-		offset = 2 * height - newlength + oldlength;
-		if (print_gc == NULL)
-			print_gc = gdk_gc_new(print_widget->window);
-		gdk_draw_drawable(print_widget->window, print_gc, print_widget->window,
-						  0, offset, 0, 0, 286, oldlength - offset);
-		repaint_printout(0, newlength - 2 * height, 286, 2 * height);
-    } else {
-		gtk_widget_set_size_request(print_widget, 286, newlength);
-		// The resize request does not take effect immediately;
-		// if I call scroll_printout_to_bottom() now, the scrolling will take
-		// place *before* the resizing, leaving the scroll bar in the wrong
-		// position.
-		// I work around this by using a callback to finish the job.
-		g_signal_connect(G_OBJECT(print_widget), "configure-event",
-						 G_CALLBACK(print_widget_grew),
-						 (gpointer) new print_growth_info(oldlength, 2 * height));
-    }
-#endif
+    update_params *params = new update_params;
+    params->oldlength = oldlength;
+    params->newlength = newlength;
+    params->height = height;
+    [instance.printView performSelectorOnMainThread:@selector(updatePrintout:) withObject:[NSValue valueWithPointer:params] waitUntilDone:NO];
 	
     if (state.printerToTxtFile) {
 		int err;
@@ -1185,7 +1164,7 @@ void shell_print(const char *text, int length,
 
 void shell_request_timeout3(int delay) {
 	pthread_mutex_lock(&shell_helper_mutex);
-	helper_args.shell_request_timeout3_args.delay = delay;
+	timeout3_delay = delay;
 	[instance performSelectorOnMainThread:@selector(shell_request_timeout3_helper) withObject:NULL waitUntilDone:NO];
 }
 

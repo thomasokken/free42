@@ -17,10 +17,16 @@
 
 #import <Cocoa/Cocoa.h>
 
+struct update_params {
+    int oldlength;
+    int newlength;
+    int height;
+};
 
 @interface PrintView : NSView {
 }
 
-- (void) setNeedsDisplayInRectSafely:(CGRect) rect;
+- (void) initialUpdate;
+- (void) updatePrintout:(id) params;
 
 @end
