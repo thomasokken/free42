@@ -455,7 +455,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd simpleserver\nmake icons.c\n";
+			shellScript = "touch main.m\ncd simpleserver\nmake icons.c\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

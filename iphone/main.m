@@ -18,10 +18,13 @@
 #import <sys/stat.h>
 #import <unistd.h>
 #import <UIKit/UIKit.h>
+#import "shell_iphone.h"
 
 int main(int argc, char *argv[]) {
     
     NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
+    
+    NSLog(@"Free42 %s, built %s %s", [shell_iphone getVersion], __DATE__, __TIME__);
 	
 	// This is so that the remainder of the Free42 code can assume that the current
 	// directory is the home directory; this will be the top-level directory that
