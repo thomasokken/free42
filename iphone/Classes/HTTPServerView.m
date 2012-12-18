@@ -89,27 +89,39 @@ static void *getHostName(void *dummy) {
 
 	[logView setFont:[UIFont fontWithName:@"CourierNewPSMT" size:12]];
 	
+    // TODO: This stuff should be done whenever the HTTP Server view
+    // is activated, not just when the app is started. It is possible
+    // for the network interfaces to get reconfigured even while the
+    // app is running, and it should be able to deal with that.
+    
 	struct ifaddrs *list;
 	if (getifaddrs(&list) == 0) {
-		bool first = true;
 		for (struct ifaddrs *item = list; item != NULL; item = item->ifa_next) {
 			if (item->ifa_addr->sa_family == AF_INET) {
-				if (first) {
-					// Skip the first interface; that's the loopback adapter
-					first = false;
-					continue;
-				}
-				sa = (struct sockaddr_in *) item->ifa_addr;
-				ip_addr = sa->sin_addr.s_addr;
-				hostname = [[NSString stringWithFormat:@"%d.%d.%d.%d",
-							 ip_addr & 255,
-							 (ip_addr >> 8) & 255,
-							 (ip_addr >> 16) & 255,
-							 (ip_addr >> 24) & 255] retain];
-                ipStr = [[NSString stringWithString:hostname] retain];
-				NSLog(@"My IP address appears to be %@", hostname);
-				pthread_create(&getHostNameThread, NULL, getHostName, NULL);
-				break;
+                {
+                    struct sockaddr_in *sa2 = (struct sockaddr_in *) item->ifa_addr;
+                    in_addr_t ip_addr2 = sa2->sin_addr.s_addr;
+                    NSString *hostname2 = [[NSString stringWithFormat:@"%d.%d.%d.%d",
+                                 ip_addr2 & 255,
+                                 (ip_addr2 >> 8) & 255,
+                                 (ip_addr2 >> 16) & 255,
+                                 (ip_addr2 >> 24) & 255] retain];
+                    NSString *ipStr2 = [[NSString stringWithString:hostname2] retain];
+                    NSLog(@"interface: %s (%@)", item->ifa_name, ipStr2);
+                }
+                if (strcmp(item->ifa_name, "en0") == 0) {
+                    sa = (struct sockaddr_in *) item->ifa_addr;
+                    ip_addr = sa->sin_addr.s_addr;
+                    hostname = [[NSString stringWithFormat:@"%d.%d.%d.%d",
+                                 ip_addr & 255,
+                                 (ip_addr >> 8) & 255,
+                                 (ip_addr >> 16) & 255,
+                                 (ip_addr >> 24) & 255] retain];
+                    ipStr = [[NSString stringWithString:hostname] retain];
+                    NSLog(@"My IP address appears to be %@", hostname);
+                    pthread_create(&getHostNameThread, NULL, getHostName, NULL);
+                    //break;
+                }
 			}
 		}
 		freeifaddrs(list);
@@ -175,6 +187,7 @@ static void *getHostName(void *dummy) {
     optval = 1;
     setsockopt(ssock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
 	
+    bzero(&sa, sizeof(sa));
     sa.sin_family = AF_INET;
     sa.sin_port = htons(port);
     sa.sin_addr.s_addr = INADDR_ANY;
@@ -237,7 +250,12 @@ done:
 }
 
 - (void) appendToLog:(NSString *) text {
-	[logView setText:[[logView text] stringByAppendingString:text]];
+    if (text == nil || [text length] == 0)
+        return;
+    NSString *temp = [logView text];
+    if (temp == nil)
+        temp = @"";
+	[logView setText:[temp stringByAppendingString:text]];
 	NSRange r;
 	r.location = [[logView text] length];
 	r.length = 0;

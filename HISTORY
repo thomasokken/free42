@@ -1,6 +1,8 @@
-??-??-????: release 1.4.75a
+17-12-2012: release 1.4.75b
 
-* Mac version: implemented print-out window.
+* iPhone version: fixed three issues with the HTTP Server (displaying the wrong
+  IP address, binding to the network incorrectly, and a crash when writing to
+  the on-screen log).
 
 04-12-2012: release 1.4.75a
 
