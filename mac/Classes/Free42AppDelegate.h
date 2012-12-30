@@ -105,6 +105,7 @@ void calc_keymodifierschanged(NSUInteger flags);
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification;
 - (void)applicationWillTerminate:(NSNotification *)aNotification;
 - (void)windowWillClose:(NSNotification *)notification;
+- (void)windowDidBecomeKey:(NSNotification *)notification;
 
 - (IBAction) showAbout:(id)sender;
 - (IBAction) showPreferences:(id)sender;

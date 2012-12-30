@@ -38,6 +38,7 @@
     s.height = height;
     [self setFrameSize:s];
     [self setNeedsDisplay:YES];
+    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate distantPast]];
     NSPoint p;
     p.x = 0;
     p.y = 0;

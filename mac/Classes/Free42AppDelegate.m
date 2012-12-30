@@ -34,8 +34,7 @@
 static Free42AppDelegate *instance = NULL;
 static SystemSoundID soundIDs[11];
 
-static pthread_t mainWindowPresenterThread;
-static void *mainWindowPresenter(void *);
+static bool launchingWithPrintoutVisible;
 
 state_type state;
 char free42dirname[FILENAMELEN];
@@ -265,12 +264,12 @@ static bool is_file(const char *name);
 	}
 	
 	if (state.printWindowMapped) {
+        launchingWithPrintoutVisible = true;
 		[printWindow makeKeyAndOrderFront:self];
-        // TODO: Can't I create and raise two windows on start-up,
-        // *without* having to resort to this kind of ugly hack?
-        pthread_create(&mainWindowPresenterThread, NULL, mainWindowPresenter, NULL);
-    } else
+    } else {
+        launchingWithPrintoutVisible = false;
         [mainWindow makeKeyAndOrderFront:self];
+    }
 	
 	core_init(init_mode, version);
 	if (statefile != NULL) {
@@ -279,19 +278,6 @@ static bool is_file(const char *name);
 	}
 	if (core_powercycle())
 		[self startRunner];
-}
-
-static void *mainWindowPresenter(void *) {
-    struct timespec ts;
-    ts.tv_sec = 0;
-    ts.tv_nsec = 100000000;
-    nanosleep(&ts, NULL);
-    [instance performSelectorOnMainThread:@selector(mainWindowPresenter2) withObject:nil waitUntilDone:NO];
-    return NULL;
-}
-
-- (void) mainWindowPresenter2 {
-    [mainWindow makeKeyAndOrderFront:self];
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
@@ -369,6 +355,14 @@ static void *mainWindowPresenter(void *) {
 		[NSApp terminate:nil];
 	else if (window == printWindow)
 		state.printWindowMapped = 0;
+}
+
+- (void)windowDidBecomeKey:(NSNotification *)notification {
+    NSWindow *window = [notification object];
+    if (launchingWithPrintoutVisible && window == printWindow) {
+        launchingWithPrintoutVisible = false;
+        [mainWindow performSelectorOnMainThread:@selector(makeKeyAndOrderFront:) withObject:self waitUntilDone:NO];
+    }
 }
 
 - (IBAction) showAbout:(id)sender {
