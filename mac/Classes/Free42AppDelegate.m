@@ -35,6 +35,7 @@ static Free42AppDelegate *instance = NULL;
 static SystemSoundID soundIDs[11];
 
 static bool launchingWithPrintoutVisible;
+static bool scrollPrintoutToBottomInitially = true;
 
 state_type state;
 char free42dirname[FILENAMELEN];
@@ -359,9 +360,15 @@ static bool is_file(const char *name);
 
 - (void)windowDidBecomeKey:(NSNotification *)notification {
     NSWindow *window = [notification object];
-    if (launchingWithPrintoutVisible && window == printWindow) {
-        launchingWithPrintoutVisible = false;
-        [mainWindow performSelectorOnMainThread:@selector(makeKeyAndOrderFront:) withObject:self waitUntilDone:NO];
+    if (window == printWindow) {
+        if (launchingWithPrintoutVisible) {
+            launchingWithPrintoutVisible = false;
+            [mainWindow performSelectorOnMainThread:@selector(makeKeyAndOrderFront:) withObject:self waitUntilDone:NO];
+        }
+        if (scrollPrintoutToBottomInitially) {
+            scrollPrintoutToBottomInitially = false;
+            [printView performSelectorOnMainThread:@selector(scrollToBottom) withObject:nil waitUntilDone:NO];
+        }
     }
 }
 

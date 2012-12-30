@@ -38,13 +38,15 @@
     s.height = height;
     [self setFrameSize:s];
     [self setNeedsDisplay:YES];
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate distantPast]];
+}
+
+- (void) scrollToBottom {
+    NSScrollView *scrollView = (NSScrollView *) [[self superview] superview];
+    scrollView.verticalScroller.floatValue = 1;
     NSPoint p;
     p.x = 0;
     p.y = 0;
     [self scrollPoint:p];
-    // TODO: When the print-out window is first presented, its
-    // scrollbar is out of sync with the view. Why?
 }
 
 - (void) updatePrintout:(id) params {

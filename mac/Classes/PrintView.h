@@ -28,5 +28,6 @@ struct update_params {
 
 - (void) initialUpdate;
 - (void) updatePrintout:(id) params;
+- (void) scrollToBottom;
 
 @end
