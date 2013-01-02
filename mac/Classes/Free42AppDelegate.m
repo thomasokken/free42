@@ -1,6 +1,6 @@
 /*****************************************************************************
  * Free42 -- an HP-42S calculator simulator
- * Copyright (C) 2004-2012  Thomas Okken
+ * Copyright (C) 2004-2013  Thomas Okken
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2,
@@ -375,7 +375,7 @@ static bool is_file(const char *name);
 - (IBAction) showAbout:(id)sender {
 	const char *version = [Free42AppDelegate getVersion];
 	[aboutVersion setStringValue:[NSString stringWithFormat:@"Free42 %s", version]];
-	[aboutCopyright setStringValue:@"© 2004-2012 Thomas Okken"];
+	[aboutCopyright setStringValue:@"© 2004-2013 Thomas Okken"];
 	[NSApp runModalForWindow:aboutWindow];
 }
 
@@ -1067,7 +1067,7 @@ void shell_print(const char *text, int length,
 				 int x, int y, int width, int height) {
     int xx, yy;
     int oldlength, newlength;
-	
+    
     for (yy = 0; yy < height; yy++) {
 		int4 Y = (printout_bottom + 2 * yy) % PRINT_LINES;
 		for (xx = 0; xx < 143; xx++) {
@@ -1087,7 +1087,7 @@ void shell_print(const char *text, int length,
 						&= ~(1 << (px & 7));
 		}
     }
-	
+    
     oldlength = printout_bottom - printout_top;
     if (oldlength < 0)
 		oldlength += PRINT_LINES;
@@ -1098,7 +1098,7 @@ void shell_print(const char *text, int length,
     params->oldlength = oldlength;
     params->newlength = newlength;
     params->height = height;
-    [instance.printView performSelectorOnMainThread:@selector(updatePrintout:) withObject:[NSValue valueWithPointer:params] waitUntilDone:NO];
+    [instance.printView performSelectorOnMainThread:@selector(updatePrintout:) withObject:[NSValue valueWithPointer:params] waitUntilDone:YES];
 	
     if (state.printerToTxtFile) {
 		int err;
