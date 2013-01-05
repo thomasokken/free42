@@ -1434,6 +1434,29 @@ static void pasteCB() {
     gtk_clipboard_request_text(clip, paste2, NULL);
 }
 
+static bool focus_ok_button(GtkWindow *window, GtkWidget *container) {
+    GList *children = gtk_container_get_children(GTK_CONTAINER(container));
+    if (children == NULL)
+	return false;
+    GList *child = children;
+    while (child != NULL) {
+	GtkWidget *w = (GtkWidget *) child->data;
+	if (GTK_IS_BUTTON(w) && !GTK_IS_LINK_BUTTON(w)) {
+	    gtk_window_set_focus(window, w);
+	    g_list_free(children);
+	    return true;
+	} else if (GTK_IS_CONTAINER(w)) {
+	    if (focus_ok_button(window, w)) {
+		g_list_free(children);
+		return true;
+	    }
+	}
+	child = child->next;
+    }
+    g_list_free(children);
+    return false;
+}
+
 static void aboutCB() {
     static GtkWidget *about = NULL;
 
@@ -1452,9 +1475,27 @@ static void aboutCB() {
 	gtk_container_add(GTK_CONTAINER(container), box);
 	GtkWidget *image = gtk_image_new_from_pixbuf(icon);
 	gtk_box_pack_start(GTK_BOX(box), image, FALSE, FALSE, 10);
-	GtkWidget *label = gtk_label_new("Free42 " VERSION "\n(C) 2004-2013 Thomas Okken\nthomas_okken@yahoo.com\nhttp://thomasokken.com/free42/");
-	gtk_box_pack_start(GTK_BOX(box), label, FALSE, FALSE, 10);
+	GtkWidget *box2 = gtk_vbox_new(FALSE, 0);
+	GtkWidget *version = gtk_label_new("Free42 " VERSION);
+	gtk_misc_set_alignment(GTK_MISC(version), 0, 0);
+	gtk_box_pack_start(GTK_BOX(box2), version, FALSE, FALSE, 10);
+	GtkWidget *author = gtk_label_new("(C) 2004-2013 Thomas Okken");
+	gtk_misc_set_alignment(GTK_MISC(author), 0, 0);
+	gtk_box_pack_start(GTK_BOX(box2), author, FALSE, FALSE, 0);
+	GtkWidget *websitelink = gtk_link_button_new("http://thomasokken.com/free42/");
+	GtkWidget *websitebox = gtk_hbox_new(FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(websitebox), websitelink, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(box2), websitebox, FALSE, FALSE, 0);
+	GtkWidget *forumlink = gtk_link_button_new("http://groups.google.com/group/free42discuss");
+	GtkWidget *forumbox = gtk_hbox_new(FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(forumbox), forumlink, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(box2), forumbox, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(box), box2, FALSE, FALSE, 0);
+	focus_ok_button(GTK_WINDOW(about), container);
 	gtk_widget_show_all(GTK_WIDGET(about));
+    } else {
+	GtkWidget *container = gtk_bin_get_child(GTK_BIN(about));
+	focus_ok_button(GTK_WINDOW(about), container);
     }
 
     gtk_window_set_role(GTK_WINDOW(about), "Free42 Dialog");
