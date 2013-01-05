@@ -991,10 +991,17 @@ static LRESULT CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPa
 			return TRUE;
 
 		case WM_COMMAND:
-			if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL) 
+			int id = LOWORD(wParam);
+			if (id == IDOK || id == IDCANCEL) 
 			{
-				EndDialog(hDlg, LOWORD(wParam));
+				EndDialog(hDlg, id);
 				return TRUE;
+			}
+			else if (id == IDC_WEBSITELINK || id == IDC_FORUMLINK)
+			{
+				char buf[256];
+				GetDlgItemText(hDlg, id, buf, 255);
+				ShellExecute(NULL, "open", buf, NULL, NULL, SW_SHOWNORMAL);
 			}
 			break;
 	}

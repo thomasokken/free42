@@ -45,6 +45,8 @@
 #define IDC_ALWAYSONTOP                 1016
 #define IDC_SINGLEINSTANCE              1017
 #define IDC_CALCULATOR_KEY              1018
+#define IDC_WEBSITELINK                 1019
+#define IDC_FORUMLINK                   1020
 #define IDM_SHOWPRINTOUT                32771
 #define IDM_CLEARPRINTOUT               32772
 #define IDM_PREFERENCES                 32773
@@ -61,7 +63,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        141
 #define _APS_NEXT_COMMAND_VALUE         32779
-#define _APS_NEXT_CONTROL_VALUE         1019
+#define _APS_NEXT_CONTROL_VALUE         1021
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif
