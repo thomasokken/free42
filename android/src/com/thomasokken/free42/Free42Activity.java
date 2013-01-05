@@ -59,6 +59,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Vibrator;
 import android.text.ClipboardManager;
+import android.text.SpannableString;
+import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -697,7 +700,10 @@ public class Free42Activity extends Activity {
 
     			TextView label3 = new TextView(context);
     			label3.setId(4);
-    			label3.setText("thomas_okken@yahoo.com");
+    			SpannableString s = new SpannableString("http://thomasokken.com/free42/");
+    			Linkify.addLinks(s, Linkify.WEB_URLS);
+    			label3.setText(s);
+    			label3.setMovementMethod(LinkMovementMethod.getInstance());
     			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
     			lp.addRule(RelativeLayout.ALIGN_LEFT, label2.getId());
     			lp.addRule(RelativeLayout.BELOW, label2.getId());
@@ -705,7 +711,10 @@ public class Free42Activity extends Activity {
 
     			TextView label4 = new TextView(context);
     			label4.setId(5);
-    			label4.setText("http://thomasokken.com/free42/");
+    			s = new SpannableString("http://groups.google.com/group/free42discuss");
+    			Linkify.addLinks(s, Linkify.WEB_URLS);
+    			label4.setText(s);
+    			label4.setMovementMethod(LinkMovementMethod.getInstance());
     			lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
     			lp.addRule(RelativeLayout.ALIGN_LEFT, label3.getId());
     			lp.addRule(RelativeLayout.BELOW, label3.getId());
