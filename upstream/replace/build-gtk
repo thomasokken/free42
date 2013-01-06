@@ -3,9 +3,9 @@
 unset BCD_MATH
 cd gtk
 make cleaner
-make
+make -e AUDIO_ALSA=1
 make clean
-make -e BCD_MATH=1
+make -e BCD_MATH=1 AUDIO_ALSA=1
 cd ..
 rm -rf Free42Linux
 mkdir Free42Linux
