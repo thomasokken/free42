@@ -16,8 +16,8 @@
  *****************************************************************************/
 
 #import "PreferencesView.h"
-#import "shell_iphone.h"
-#import "MainView.h"
+#import "Free42AppDelegate.h"
+#import "CalcView.h"
 #import "SelectFileView.h"
 #import "core_main.h"
 
@@ -144,7 +144,7 @@ static int view_offset = 0;
 	} else
 		state.printerGifMaxLength = 256;
 	state.popupKeyboard = popupKeyboardSwitch.on;
-	[shell_iphone showMain];
+	[Free42AppDelegate showMain];
 }
 
 - (void) dealloc {

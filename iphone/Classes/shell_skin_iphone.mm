@@ -21,7 +21,7 @@
 #import <stdlib.h>
 #import <string.h>
 
-#import "MainView.h"
+#import "CalcView.h"
 #import "shell_skin_iphone.h"
 #import "shell_skin.h"
 #import "shell_loadimage.h"
@@ -670,7 +670,7 @@ void skin_repaint(CGRect *rect) {
 	}
 }
 
-void skin_update_annunciator(int which, int state, MainView *view) {
+void skin_update_annunciator(int which, int state, CalcView *view) {
 	if (which < 1 || which > 7)
 		return;
 	which--;
@@ -756,7 +756,7 @@ unsigned char *skin_keymap_lookup(int keycode, bool ctrl, bool alt, bool shift, 
 }
  */
 
-static void invalidate_key(int key, MainView *view) {
+static void invalidate_key(int key, CalcView *view) {
 	if (key == -1)
 		return;
 	if (key >= -7 && key <= -2) {
@@ -772,7 +772,7 @@ static void invalidate_key(int key, MainView *view) {
 	}
 }
 
-void skin_set_pressed_key(int key, MainView *view) {
+void skin_set_pressed_key(int key, CalcView *view) {
 	if (key == currently_pressed_key)
 		return;
 	invalidate_key(currently_pressed_key, view);
@@ -780,7 +780,7 @@ void skin_set_pressed_key(int key, MainView *view) {
 	invalidate_key(currently_pressed_key, view);
 }
 	
-void skin_display_blitter(const char *bits, int bytesperline, int x, int y, int width, int height, MainView *view) {
+void skin_display_blitter(const char *bits, int bytesperline, int x, int y, int width, int height, CalcView *view) {
 	int h, v;
 
 	for (v = y; v < y + height; v++)
@@ -798,7 +798,7 @@ void skin_display_blitter(const char *bits, int bytesperline, int x, int y, int 
 												 (height * display_scale.y) / skin_scale)];
 }
 
-void skin_repaint_display(MainView *view) {
+void skin_repaint_display(CalcView *view) {
 	if (!display_enabled)
 		// Prevent screen flashing during macro execution
 		return;

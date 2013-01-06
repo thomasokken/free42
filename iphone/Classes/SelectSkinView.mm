@@ -17,8 +17,8 @@
 
 #import <dirent.h>
 #import "SelectSkinView.h"
-#import "MainView.h"
-#import "shell_iphone.h"
+#import "CalcView.h"
+#import "Free42AppDelegate.h"
 #import "shell_skin_iphone.h"
 #import "core_main.h"
 
@@ -80,7 +80,7 @@
 }
 
 - (IBAction) done {
-	[shell_iphone showMain];
+	[Free42AppDelegate showMain];
 }
 
 - (void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -90,14 +90,14 @@
 	long width, height;
 	skin_load(&width, &height);
 	core_repaint_display();
-	[MainView repaint];
+	[CalcView repaint];
 	[self done];
 }
 
 - (UITableViewCell *) tableView:(UITableView *)table cellForRowAtIndexPath:(NSIndexPath *) indexPath {
 	int n = [indexPath indexAtPosition:1];
 	NSString *s = [skinNames objectAtIndex:n];
-	UITableViewCell *cell = [[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:nil];
+	UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
 	cell.textLabel.text = s;
 	return cell;
 }

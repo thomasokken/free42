@@ -23,14 +23,14 @@
 #import <AudioToolbox/AudioServices.h>
 #import <CoreLocation/CoreLocation.h>
 
-#import "MainView.h"
-#import "MyRect.h"
+#import "CalcView.h"
+#import "PrintView.h"
+#import "Free42AppDelegate.h"
 #import "free42.h"
 #import "core_main.h"
 #import "core_display.h"
 #import "shell.h"
 #import "shell_spool.h"
-#import "shell_iphone.h"
 #import "shell_skin_iphone.h"
 
 // For "audio enable" flag
@@ -125,9 +125,9 @@ static bool is_file(const char *name);
 ///////////////////////////////////////////////////////////////////////////////
 
 
-static MainView *mainView = nil;
+static CalcView *calcView = nil;
 
-@implementation MainView
+@implementation CalcView
 
 
 - (id) initWithFrame:(CGRect)frame {
@@ -141,16 +141,23 @@ static MainView *mainView = nil;
 
 - (void) setNeedsDisplayInRectSafely2:(id) myrect {
 	TRACE("setNeedsDisplayInRectSafely2");
-	CGRect r = [myrect rect];
-	[self setNeedsDisplayInRect:r];
+	CGRect *r = (CGRect *) [((NSValue *) myrect) pointerValue];
+	[self setNeedsDisplayInRect:*r];
+	delete r;
 }
 
 - (void) setNeedsDisplayInRectSafely:(CGRect) rect {
 	TRACE("setNeedsDisplayInRectSafely");
 	if ([NSThread isMainThread])
 		[self setNeedsDisplayInRect:rect];
-	else
-		[self performSelectorOnMainThread:@selector(setNeedsDisplayInRectSafely2:) withObject:[MyRect rectWithCGRect:rect] waitUntilDone:NO];
+	else {
+		CGRect *r = new CGRect;
+		r->origin.x = rect.origin.x;
+		r->origin.y = rect.origin.y;
+		r->size.width = rect.size.width;
+		r->size.height = rect.size.height;
+		[self performSelectorOnMainThread:@selector(setNeedsDisplayInRectSafely2:) withObject:[NSValue valueWithPointer:r] waitUntilDone:NO];
+	}
 }
 
 - (void) showMainMenu {
@@ -178,7 +185,7 @@ static MainView *mainView = nil;
 		switch (buttonIndex) {
 			case 0:
 				// Show Print-Out
-				[shell_iphone showPrintOut];
+				[Free42AppDelegate showPrintOut];
 				break;
 			case 1:
 				// Program Import & Export
@@ -186,15 +193,15 @@ static MainView *mainView = nil;
 				break;
 			case 2:
 				// Preferences
-				[shell_iphone showPreferences];
+				[Free42AppDelegate showPreferences];
 				break;
 			case 3:
 				// Select Skin
-				[shell_iphone showSelectSkin];
+				[Free42AppDelegate showSelectSkin];
 				break;
 			case 4:
 				// About Free42
-				[shell_iphone showAbout];
+				[Free42AppDelegate showAbout];
 				break;
 			case 5:
 				// Cancel
@@ -204,15 +211,15 @@ static MainView *mainView = nil;
 		switch (buttonIndex) {
 			case 0:
 				// HTTP Server
-				[shell_iphone showHttpServer];
+				[Free42AppDelegate showHttpServer];
 				break;
 			case 1:
 				// Import Programs
-				[shell_iphone playSound:10];
+				[Free42AppDelegate playSound:10];
 				break;
 			case 2:
 				// Export Programs
-				[shell_iphone playSound:10];
+				[Free42AppDelegate playSound:10];
 				break;
 			case 3:
 				// Back
@@ -227,8 +234,6 @@ static MainView *mainView = nil;
 
 - (void) drawRect:(CGRect)rect {
 	TRACE("drawRect");
-	if (mainView == nil)
-		[self initialize];
 	skin_repaint(&rect);
 }
 
@@ -321,7 +326,7 @@ static MainView *mainView = nil;
 
 + (void) repaint {
 	TRACE("repaint");
-	[mainView setNeedsDisplay];
+	[calcView setNeedsDisplay];
 }
 
 + (void) quit {
@@ -343,7 +348,7 @@ static MainView *mainView = nil;
 	TRACE("leaveBackground");
     keep_running = core_powercycle();
 	if (keep_running)
-		[mainView startRunner];
+		[calcView startRunner];
 }
 
 - (void) startRunner {
@@ -351,9 +356,9 @@ static MainView *mainView = nil;
 	[self performSelectorInBackground:@selector(runner) withObject:NULL];
 }
 
-- (void) initialize {
-	TRACE("initialize");
-	mainView = self;
+- (void) awakeFromNib {
+	TRACE("awakeFromNib");
+	calcView = self;
 	statefile = fopen("config/state", "r");
 	int init_mode, version;
 	if (statefile != NULL) {
@@ -470,33 +475,12 @@ static MainView *mainView = nil;
 		[self setTimeout:1];
 }
 
-// The following is some wrapper code, to allow functions called by core_keydown()
-// while it is running in the background, to run in the main thread.
-
-static union {
-	struct {
-		int delay;
-	} shell_request_timeout3_args;
-	struct {
-		const char *text;
-		int length;
-		const char *bits;
-		int bytesperline;
-		int x, y, width, height;
-	} shell_print_args;
-} helper_args;
-
 static pthread_mutex_t shell_helper_mutex = PTHREAD_MUTEX_INITIALIZER;
+static int timeout3_delay;
 
 - (void) shell_request_timeout3_helper {
 	TRACE("shell_request_timeout3_helper");
-	[mainView setTimeout3:helper_args.shell_request_timeout3_args.delay];
-	pthread_mutex_unlock(&shell_helper_mutex);
-}
-
-- (void) shell_print_helper {
-	TRACE("shell_print_helper");
-	// TODO
+	[calcView setTimeout3:timeout3_delay];
 	pthread_mutex_unlock(&shell_helper_mutex);
 }
 
@@ -572,47 +556,8 @@ static void init_shell_state(int version) {
 static void quit2(bool really_quit) {
 	TRACE("quit2");
 
-#if 0
-    FILE *printfile;
-    int n, length;
-	
-    printfile = fopen(printfilename, "w");
-    if (printfile != NULL) {
-		length = printout_bottom - printout_top;
-		if (length < 0)
-			length += PRINT_LINES;
-		n = fwrite(&length, 1, sizeof(int), printfile);
-		if (n != sizeof(int))
-			goto failed;
-		if (printout_bottom >= printout_top) {
-			n = fwrite(print_bitmap + PRINT_BYTESPERLINE * printout_top,
-					   1, PRINT_BYTESPERLINE * length, printfile);
-			if (n != PRINT_BYTESPERLINE * length)
-				goto failed;
-		} else {
-			n = fwrite(print_bitmap + PRINT_BYTESPERLINE * printout_top,
-					   1, PRINT_SIZE - PRINT_BYTESPERLINE * printout_top,
-					   printfile);
-			if (n != PRINT_SIZE - PRINT_BYTESPERLINE * printout_top)
-				goto failed;
-			n = fwrite(print_bitmap, 1,
-					   PRINT_BYTESPERLINE * printout_bottom, printfile);
-			if (n != PRINT_BYTESPERLINE * printout_bottom)
-				goto failed;
-		}
-		
-		fclose(printfile);
-		goto done;
-		
-	failed:
-		fclose(printfile);
-		remove(printfilename);
-		
-	done:
-		;
-    }
-#endif
-	
+    [PrintView dump];
+    
     if (print_txt != NULL)
 		fclose(print_txt);
 	
@@ -642,9 +587,9 @@ static void shell_keydown() {
     int repeat;
     if (skey == -1)
 		skey = skin_find_skey(ckey);
-	skin_set_pressed_key(skey, mainView);
+	skin_set_pressed_key(skey, calcView);
     if (timeout3_active && (macro != NULL || ckey != 28 /* KEY_SHIFT */)) {
-		[mainView cancelTimeout3];
+		[calcView cancelTimeout3];
 		core_timeout3(0);
     }
 	
@@ -673,7 +618,7 @@ static void shell_keydown() {
 		}
 		if (!one_key_macro) {
 			skin_display_set_enabled(true);
-			skin_repaint_display(mainView);
+			skin_repaint_display(calcView);
 			/*
 			skin_repaint_annunciator(1, ann_updown);
 			skin_repaint_annunciator(2, ann_shift);
@@ -694,32 +639,32 @@ static void shell_keydown() {
     if (quit_flag)
 		quit2(true);
     else if (keep_running)
-		[mainView startRunner];
+		[calcView startRunner];
     else {
-		[mainView cancelTimeout];
-		[mainView cancelRepeater];
+		[calcView cancelTimeout];
+		[calcView cancelRepeater];
 		if (repeat != 0)
-			[mainView setRepeater:(repeat == 1 ? 1000 : 500)];
+			[calcView setRepeater:(repeat == 1 ? 1000 : 500)];
 		else if (!enqueued)
-			[mainView setTimeout:1];
+			[calcView setTimeout:1];
     }
 }
 
 static void shell_keyup() {
 	TRACE("shell_keyup");
-	skin_set_pressed_key(-1, mainView);
+	skin_set_pressed_key(-1, calcView);
     ckey = 0;
     skey = -1;
-	[mainView cancelTimeout];
-	[mainView cancelRepeater];
+	[calcView cancelTimeout];
+	[calcView cancelRepeater];
     if (!enqueued) {
 		keep_running = core_keyup();
 		if (quit_flag)
 			quit2(true);
 		else if (keep_running)
-			[mainView startRunner];
+			[calcView startRunner];
     } else if (keep_running) {
-		[mainView startRunner];
+		[calcView startRunner];
 	}
 }
 
@@ -746,7 +691,7 @@ static int write_shell_state() {
 
 void shell_blitter(const char *bits, int bytesperline, int x, int y, int width, int height) {
 	TRACE("shell_blitter");
-	skin_display_blitter(bits, bytesperline, x, y, width, height, mainView);
+	skin_display_blitter(bits, bytesperline, x, y, width, height, calcView);
 }
 
 void shell_beeper(int frequency, int duration) {
@@ -754,12 +699,12 @@ void shell_beeper(int frequency, int duration) {
 	const int cutoff_freqs[] = { 164, 220, 243, 275, 293, 324, 366, 418, 438, 550 };
 	for (int i = 0; i < 10; i++) {
 		if (frequency <= cutoff_freqs[i]) {
-			[shell_iphone playSound:i];
+			[Free42AppDelegate playSound:i];
 			shell_delay(250);
 			return;
 		}
 	}
-	[shell_iphone playSound:10];
+	[Free42AppDelegate playSound:10];
 	shell_delay(125);
 }
 
@@ -767,27 +712,27 @@ void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
 	TRACE("shell_annunciators");
 	if (updn != -1 && ann_updown != updn) {
 		ann_updown = updn;
-		skin_update_annunciator(1, ann_updown, mainView);
+		skin_update_annunciator(1, ann_updown, calcView);
 	}
 	if (shf != -1 && ann_shift != shf) {
 		ann_shift = shf;
-		skin_update_annunciator(2, ann_shift, mainView);
+		skin_update_annunciator(2, ann_shift, calcView);
 	}
 	if (prt != -1 && ann_print != prt) {
 		ann_print = prt;
-		skin_update_annunciator(3, ann_print, mainView);
+		skin_update_annunciator(3, ann_print, calcView);
 	}
 	if (run != -1 && ann_run != run) {
 		ann_run = run;
-		skin_update_annunciator(4, ann_run, mainView);
+		skin_update_annunciator(4, ann_run, calcView);
 	}
 	if (g != -1 && ann_g != g) {
 		ann_g = g;
-		skin_update_annunciator(6, ann_g, mainView);
+		skin_update_annunciator(6, ann_g, calcView);
 	}
 	if (rad != -1 && ann_rad != rad) {
 		ann_rad = rad;
-		skin_update_annunciator(7, ann_rad, mainView);
+		skin_update_annunciator(7, ann_rad, calcView);
 	}
 }
 
@@ -807,8 +752,8 @@ void shell_delay(int duration) {
 void shell_request_timeout3(int delay) {
 	TRACE("shell_request_timeout3");
 	pthread_mutex_lock(&shell_helper_mutex);
-	helper_args.shell_request_timeout3_args.delay = delay;
-	[mainView performSelectorOnMainThread:@selector(shell_request_timeout3_helper) withObject:NULL waitUntilDone:NO];
+	timeout3_delay = delay;
+	[calcView performSelectorOnMainThread:@selector(shell_request_timeout3_helper) withObject:NULL waitUntilDone:NO];
 }
 
 int shell_read_saved_state(void *buf, int bufsize) {
@@ -901,10 +846,7 @@ void shell_print(const char *text, int length,
 				 const char *bits, int bytesperline,
 				 int x, int y, int width, int height) {
 	TRACE("shell_print");
-//	pthread_mutex_lock(&shell_helper_mutex);
-//	[mainView performSelectorOnMainThread:@selector(shell_print_helper) withObject:NULL waitUntilDone:NO];
 
-#if 0
     int xx, yy;
     int oldlength, newlength;
 	
@@ -933,32 +875,12 @@ void shell_print(const char *text, int length,
 		oldlength += PRINT_LINES;
     printout_bottom = (printout_bottom + 2 * height) % PRINT_LINES;
     newlength = oldlength + 2 * height;
-	
-    if (newlength >= PRINT_LINES) {
-		int offset;
-		printout_top = (printout_bottom + 2) % PRINT_LINES;
-		newlength = PRINT_LINES - 2;
-		if (newlength != oldlength)
-			gtk_widget_set_size_request(print_widget, 286, newlength);
-		scroll_printout_to_bottom();
-		offset = 2 * height - newlength + oldlength;
-		if (print_gc == NULL)
-			print_gc = gdk_gc_new(print_widget->window);
-		gdk_draw_drawable(print_widget->window, print_gc, print_widget->window,
-						  0, offset, 0, 0, 286, oldlength - offset);
-		repaint_printout(0, newlength - 2 * height, 286, 2 * height);
-    } else {
-		gtk_widget_set_size_request(print_widget, 286, newlength);
-		// The resize request does not take effect immediately;
-		// if I call scroll_printout_to_bottom() now, the scrolling will take
-		// place *before* the resizing, leaving the scroll bar in the wrong
-		// position.
-		// I work around this by using a callback to finish the job.
-		g_signal_connect(G_OBJECT(print_widget), "configure-event",
-						 G_CALLBACK(print_widget_grew),
-						 (gpointer) new print_growth_info(oldlength, 2 * height));
-    }
-#endif
+    
+    update_params *params = new update_params;
+    params->oldlength = oldlength;
+    params->newlength = newlength;
+    params->height = height;
+    [[PrintView instance] performSelectorOnMainThread:@selector(updatePrintout:) withObject:[NSValue valueWithPointer:params] waitUntilDone:YES];
 	
     if (state.printerToTxtFile) {
 		int err;
@@ -1170,7 +1092,7 @@ int shell_get_heading(double *mag_heading, double *true_heading, double *acc, do
 		locMgr = [[CLLocationManager alloc] init];
 		locMgr.delegate = hwDel;
 	}
-	if (!locMgr.headingAvailable)
+	if (![CLLocationManager headingAvailable])
 		return 0;
 	if (!heading_active) {
 		locMgr.headingFilter = kCLHeadingFilterNone;

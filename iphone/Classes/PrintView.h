@@ -18,18 +18,44 @@
 #import <UIKit/UIKit.h>
 
 
-@interface PrintOutView : UIView <UIScrollViewDelegate> {
+struct update_params {
+    int oldlength;
+    int newlength;
+    int height;
+};
+
+#define PRINT_LINES 9000
+#define PRINT_BYTESPERLINE 36
+#define PRINT_SIZE 324000
+
+extern unsigned char *print_bitmap;
+extern int printout_top;
+extern int printout_bottom;
+
+@class PrintTileView;
+
+@interface PrintView : UIView <UIScrollViewDelegate> {
 	UIBarButtonItem *clearButton;
 	UIBarButtonItem *doneButton;
 	UIScrollView *scrollView;
+    PrintTileView *tile1;
+    PrintTileView *tile2;
 }
 
 @property (nonatomic, retain) IBOutlet UIBarButtonItem *clearButton;
 @property (nonatomic, retain) IBOutlet UIBarButtonItem *doneButton;
 @property (nonatomic, retain) IBOutlet UIScrollView *scrollView;
+@property (nonatomic, retain) IBOutlet PrintTileView *tile1;
+@property (nonatomic, retain) IBOutlet PrintTileView *tile2;
 
++ (PrintView *) instance;
+- (void) awakeFromNib;
 - (void) raised;
 - (IBAction) clear;
 - (IBAction) done;
+- (void) initialUpdate;
+- (void) updatePrintout:(id) params;
+- (void) scrollToBottom;
++ (void) dump;
 
 @end

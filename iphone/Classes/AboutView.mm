@@ -16,7 +16,7 @@
  *****************************************************************************/
 
 #import "AboutView.h"
-#import "shell_iphone.h"
+#import "Free42AppDelegate.h"
 
 
 @implementation AboutView
@@ -33,7 +33,7 @@
 }
 
 - (void) awakeFromNib {
-	[versionLabel setText:[NSString stringWithFormat:@"Free42 %s", [shell_iphone getVersion]]];
+	[versionLabel setText:[NSString stringWithFormat:@"Free42 %s", [Free42AppDelegate getVersion]]];
 	[copyrightLabel setText:@"© 2004-2013 Thomas Okken"];
 }
 
@@ -46,7 +46,7 @@
 }
 
 - (IBAction) done {
-	[shell_iphone showMain];
+	[Free42AppDelegate showMain];
 }
 
 - (void)dealloc {

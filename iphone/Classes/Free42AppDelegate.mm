@@ -17,27 +17,27 @@
 
 #import <AudioToolbox/AudioServices.h>
 
-#import "MainView.h"
-#import "PrintOutView.h"
+#import "CalcView.h"
+#import "PrintView.h"
 #import "HTTPServerView.h"
 #import "SelectSkinView.h"
 #import "PreferencesView.h"
 #import "AboutView.h"
 #import "SelectFileView.h"
-#import "shell_iphone.h"
+#import "Free42AppDelegate.h"
 
 static SystemSoundID soundIDs[11];
 
-static shell_iphone *instance;
+static Free42AppDelegate *instance;
 static char version[32] = "";
 
-@implementation shell_iphone
+@implementation Free42AppDelegate
 
 @synthesize window;
 
 @synthesize containerView;
-@synthesize mainView;
-@synthesize printOutView;
+@synthesize calcView;
+@synthesize printView;
 @synthesize httpServerView;
 @synthesize selectSkinView;
 @synthesize preferencesView;
@@ -58,32 +58,33 @@ static char version[32] = "";
 			NSLog(@"error loading sound: %@", name);
 	}
 	
-	[containerView addSubview:printOutView];
+	[containerView addSubview:printView];
 	[containerView addSubview:httpServerView];
 	[containerView addSubview:selectSkinView];
 	[containerView addSubview:preferencesView];
 	[containerView addSubview:aboutView];
 	[containerView addSubview:selectFileView];
-	[containerView addSubview:mainView];
+	[containerView addSubview:calcView];
+    [printView initialUpdate];
     [window makeKeyAndVisible];
 }
 
 - (void) applicationDidEnterBackground:(UIApplication *)application {
-    [MainView enterBackground];
+    [CalcView enterBackground];
 }
 
 - (void) applicationWillEnterForeground:(UIApplication *)application {
-    [MainView leaveBackground];
+    [CalcView leaveBackground];
 }
 
 - (void) applicationWillTerminate:(UIApplication *)application {
-	[MainView quit];
+	[CalcView quit];
 }
 
 - (void) dealloc {
     [window release];
-    [mainView release];
-    [printOutView release];
+    [calcView release];
+    [printView release];
     [httpServerView release];
     [selectSkinView release];
     [preferencesView release];
@@ -96,7 +97,7 @@ static char version[32] = "";
 }
 
 - (void) showMain2 {
-	[containerView bringSubviewToFront:mainView];
+	[containerView bringSubviewToFront:calcView];
 }
 
 + (void) showMain {
@@ -104,8 +105,8 @@ static char version[32] = "";
 }
 
 - (void) showPrintOut2 {
-	[printOutView raised];
-	[containerView bringSubviewToFront:printOutView];
+	[printView raised];
+	[containerView bringSubviewToFront:printView];
 }
 
 + (void) showPrintOut {
@@ -171,7 +172,7 @@ static char version[32] = "";
 // C version of getVersion, needed by the HTTP Server
 
 const char *get_version() {
-	return [shell_iphone getVersion];
+	return [Free42AppDelegate getVersion];
 }
 
 @end

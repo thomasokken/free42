@@ -17,19 +17,19 @@
 
 #import <UIKit/UIKit.h>
 
-@class MainView;
-@class PrintOutView;
+@class CalcView;
+@class PrintView;
 @class HTTPServerView;
 @class SelectSkinView;
 @class PreferencesView;
 @class AboutView;
 @class SelectFileView;
 
-@interface shell_iphone : NSObject <UIApplicationDelegate> {
+@interface Free42AppDelegate : NSObject <UIApplicationDelegate> {
     UIWindow *window;
 	UIView *containerView;
-	MainView *mainView;
-	PrintOutView *printOutView;
+	CalcView *calcView;
+	PrintView *printView;
 	HTTPServerView *httpServerView;
 	SelectSkinView *selectSkinView;
 	PreferencesView *preferencesView;
@@ -39,8 +39,8 @@
 
 @property (nonatomic, retain) IBOutlet UIWindow *window;
 @property (nonatomic, retain) IBOutlet UIView *containerView;
-@property (nonatomic, retain) IBOutlet MainView *mainView;
-@property (nonatomic, retain) IBOutlet PrintOutView *printOutView;
+@property (nonatomic, retain) IBOutlet CalcView *calcView;
+@property (nonatomic, retain) IBOutlet PrintView *printView;
 @property (nonatomic, retain) IBOutlet HTTPServerView *httpServerView;
 @property (nonatomic, retain) IBOutlet SelectSkinView *selectSkinView;
 @property (nonatomic, retain) IBOutlet PreferencesView *preferencesView;

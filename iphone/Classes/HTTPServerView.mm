@@ -26,7 +26,7 @@
 #include <pthread.h>
 
 #import "HTTPServerView.h"
-#import "shell_iphone.h"
+#import "Free42AppDelegate.h"
 
 // From simpleserver.c
 void handle_client(int csock);
@@ -109,7 +109,7 @@ static void *getHostName(void *dummy) {
                     NSString *ipStr2 = [[NSString stringWithString:hostname2] retain];
                     NSLog(@"interface: %s (%@)", item->ifa_name, ipStr2);
                 }
-                if (strcmp(item->ifa_name, "en0") == 0) {
+                if (strcmp(item->ifa_name, "en0") == 0 || strcmp(item->ifa_name, "en1") == 0) {
                     sa = (struct sockaddr_in *) item->ifa_addr;
                     ip_addr = sa->sin_addr.s_addr;
                     hostname = [[NSString stringWithFormat:@"%d.%d.%d.%d",
@@ -149,7 +149,7 @@ static void *getHostName(void *dummy) {
 - (IBAction) done {
 	[UIApplication sharedApplication].idleTimerDisabled = NO;
 	write(pype[1], "1\n", 2);
-	[shell_iphone showMain];
+	[Free42AppDelegate showMain];
 }
 
 - (void) touchesBegan: (NSSet *) touches withEvent: (UIEvent *) event {

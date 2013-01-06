@@ -17,7 +17,7 @@
 
 #import <dirent.h>
 #import <sys/stat.h>
-#import "shell_iphone.h"
+#import "Free42AppDelegate.h"
 #import "SelectFileView.h"
 
 @implementation SelectFileView
@@ -62,7 +62,7 @@ static int dirTypeCapacity = 0;
 	callbackObject = [cb_id retain];
 	callbackSelector = cb_sel;
 	dirName = @".";
-	[shell_iphone showSelectFile];
+	[Free42AppDelegate showSelectFile];
 }
 
 - (void) raised {
@@ -162,7 +162,7 @@ static int view_offset = 0;
 	int n = [indexPath indexAtPosition:1];
 	if (dirList == NULL || n >= [dirList count])
 		return nil;
-	UITableViewCell *cell = [[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:nil];
+	UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
 	cell.textLabel.text = [dirList objectAtIndex:n];
 	return cell;
 }

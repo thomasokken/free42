@@ -33,11 +33,11 @@ struct state_type {
 extern state_type state;
 
 
-@interface MainView : UIView <UIActionSheetDelegate> {
+@interface CalcView : UIView <UIActionSheetDelegate> {
 	//
 }
 
-- (void) initialize;
+- (void) awakeFromNib;
 - (void) actionSheet:(UIActionSheet *) actionSheet clickedButtonAtIndex:(NSInteger) buttonIndex;
 - (void) touchesBegan: (NSSet *) touches withEvent: (UIEvent *) event;
 - (void) setNeedsDisplayInRectSafely:(CGRect) rect;
