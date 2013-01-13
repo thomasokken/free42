@@ -28,10 +28,12 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <pthread.h>
 
 #ifdef FREE42
 #include "../../common/core_main.h"
 const char *get_version();
+static pthread_mutex_t shell_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 /* TODO:
@@ -64,13 +66,17 @@ static
 #endif
 void errprintf(const char *fmt, ...);
 
+typedef struct cleaner_base {
+    void (*doit)(struct cleaner_base *This);
+} cleaner_base;
+
 static void sockprintf(int sock, const char *fmt, ...);
 static void tbwrite(textbuf *tb, const char *data, int size);
 static void tbprintf(textbuf *tb, const char *fmt, ...);
 static void do_get(int csock, const char *url);
 static void do_post(int csock, const char *url);
 static const char *canonicalize_url(const char *url);
-static int open_item(const char *url, void **ptr, int *type, int *filesize, const char **real_name);
+static int open_item(const char *url, void **ptr, int *type, int *filesize, const char **real_name, cleaner_base **cleaner);
 static const char *get_mime(const char *ext);
 static void http_error(int csock, int err);
 
@@ -147,14 +153,17 @@ void handle_client(int csock) {
 	return;
     }
 
-    if (strcmp(req, "GET") == 0)
+    if (strcmp(req, "GET") == 0) {
 	do_get(csock, url);
-    else if (strcmp(req, "POST") == 0)
+	//errprintf("GET %s DONE\n", url);
+    } else if (strcmp(req, "POST") == 0) {
 	do_post(csock, url);
-    else
+	//errprintf("POST %s DONE\n", url);
+    } else
 	errprintf("Unsupported method: \"%s\"\n", req);
     shutdown(csock, SHUT_WR);
     free(req);
+    return;
 }
 
 #ifndef FREE42
@@ -242,7 +251,8 @@ static void do_get(int csock, const char *url) {
     }
 
     const char *real_name = NULL;
-    err = open_item(url, &ptr, &type, &filesize, &real_name);
+    cleaner_base *cleaner = NULL;
+    err = open_item(url, &ptr, &type, &filesize, &real_name, &cleaner);
     if (err != 200) {
 	free((void *) url);
 	http_error(csock, err);
@@ -257,21 +267,18 @@ static void do_get(int csock, const char *url) {
 	if (real_name != NULL)
 	    sockprintf(csock, "Content-Disposition: attachment; filename=%s.raw\r\n", real_name);
 	sockprintf(csock, "\r\n");
-	if (type == 0)
+	if (type == 0) {
 	    send(csock, ptr, filesize, 0);
-	else {
+	} else {
 	    FILE *file = (FILE *) ptr;
 	    while ((n = fread(buf, 1, LINEBUFSIZE, file)) > 0)
 		send(csock, buf, n, 0);
-	    fclose(file);
 	}
     } else if (url[strlen(url) - 1] != '/') {
 	sockprintf(csock, "HTTP/1.0 302 Moved Temporarily\r\n");
 	sockprintf(csock, "Connection: close\r\n");
 	sockprintf(csock, "Location: %s/\r\n", url);
 	sockprintf(csock, "\r\n");
-	if (type == 3)
-	    closedir((DIR *) ptr);
     } else {
 	struct dir_item *dir_list = NULL;
 	int dir_length = 0;
@@ -346,7 +353,6 @@ static void do_get(int csock, const char *url) {
 		    dir_length++;
 		}
 	    }
-#endif
 	} else {
 	    /* type == 2: fake directory for /memory */
 	    char **name = (char **) ptr;
@@ -367,6 +373,7 @@ static void do_get(int csock, const char *url) {
 		name++;
 		dir_length++;
 	    }
+#endif
 	}		
 	
 	dir_array = (dir_item **) malloc(dir_length * sizeof(dir_item *));
@@ -384,26 +391,99 @@ static void do_get(int csock, const char *url) {
 	tbprintf(&tb, "  <style type=\"text/css\">\n");
 	tbprintf(&tb, "   td { padding-left: 10px }\n");
 	tbprintf(&tb, "  </style>\n");
+	tbprintf(&tb, "  <script>\n");
+	tbprintf(&tb, "    function itemsSelected(name) {\n");
+	tbprintf(&tb, "        var count = 0\n");
+	tbprintf(&tb, "        var items = document.getElementsByName(name);\n");
+	tbprintf(&tb, "        for (var i = 0; i < items.length; i++)\n");
+	tbprintf(&tb, "            if (items[i].checked)\n");
+	tbprintf(&tb, "                count++;\n");
+	tbprintf(&tb, "        return count;\n");
+	tbprintf(&tb, "    }\n");
+	tbprintf(&tb, "    function selectAll() {\n");
+	tbprintf(&tb, "        var selAll = document.getElementsByName(\"selAll\")[0];\n");
+	tbprintf(&tb, "        var fns = document.getElementsByName(\"fn\");\n");
+	tbprintf(&tb, "        for (var i = 0; i < fns.length; i++)\n");
+	tbprintf(&tb, "            fns[i].checked = selAll.checked;\n");
+	tbprintf(&tb, "        var dns = document.getElementsByName(\"dn\");\n");
+	tbprintf(&tb, "        for (var i = 0; i < dns.length; i++)\n");
+	tbprintf(&tb, "            dns[i].checked = selAll.checked;\n");
+	tbprintf(&tb, "    }\n");
+	tbprintf(&tb, "    function selectOne() {\n");
+	tbprintf(&tb, "        var everythingSelected = true;\n");
+	tbprintf(&tb, "        var fns = document.getElementsByName(\"fn\");\n");
+	tbprintf(&tb, "        for (var i = 0; i < fns.length; i++)\n");
+	tbprintf(&tb, "            if (!fns[i].checked) {\n");
+	tbprintf(&tb, "                everythingSelected = false;\n");
+	tbprintf(&tb, "                break;\n");
+	tbprintf(&tb, "            }\n");
+	tbprintf(&tb, "        if (everythingSelected) {\n");
+	tbprintf(&tb, "            var dns = document.getElementsByName(\"dn\");\n");
+	tbprintf(&tb, "            for (var i = 0; i < dns.length; i++)\n");
+	tbprintf(&tb, "                if (!dns[i].checked) {\n");
+	tbprintf(&tb, "                    everythingSelected = false;\n");
+	tbprintf(&tb, "                    break;\n");
+	tbprintf(&tb, "                }\n");
+	tbprintf(&tb, "        }\n");
+	tbprintf(&tb, "        var selAll = document.getElementsByName(\"selAll\")[0]\n");
+	tbprintf(&tb, "        selAll.checked = everythingSelected;\n");
+	tbprintf(&tb, "    }\n");
+	tbprintf(&tb, "    function doUpload() {\n");
+	tbprintf(&tb, "        var fns = document.getElementsByName(\"fn\");\n");
+	tbprintf(&tb, "        for (var i = 0; i < fns.length; i++)\n");
+	tbprintf(&tb, "            fns[i].checked = false;\n");
+	tbprintf(&tb, "        var dns = document.getElementsByName(\"dn\");\n");
+	tbprintf(&tb, "        for (var i = 0; i < dns.length; i++)\n");
+	tbprintf(&tb, "            dns[i].checked = false;\n");
+	tbprintf(&tb, "        document.forms[0].submit();\n");
+	tbprintf(&tb, "    }\n");
+	tbprintf(&tb, "    function doDelete() {\n");
+	tbprintf(&tb, "        var nfiles = itemsSelected(\"fn\")\n");
+	tbprintf(&tb, "        var ndirs = itemsSelected(\"dn\")\n");
+	tbprintf(&tb, "        if (nfiles == 0 && ndirs == 0) {\n");
+	tbprintf(&tb, "            alert(\"You have selected nothing to delete.\");\n");
+	tbprintf(&tb, "            return;\n");
+	tbprintf(&tb, "        }\n");
+	tbprintf(&tb, "        var prompt = \"Are you sure you want to delete\";\n");
+	tbprintf(&tb, "        if (nfiles != 0)\n");
+	tbprintf(&tb, "            prompt += \" \" + nfiles + \" \" + (nfiles == 1 ? \"file\" : \"files\");\n");
+	tbprintf(&tb, "        if (nfiles != 0 && ndirs != 0)\n");
+	tbprintf(&tb, "            prompt += \" and\";\n");
+	tbprintf(&tb, "        if (ndirs != 0)\n");
+	tbprintf(&tb, "            prompt += \" \" + ndirs + \" \" + (ndirs == 1 ? \"directory\" : \"directories\");\n");
+	tbprintf(&tb, "        prompt += \"?\";\n");
+	tbprintf(&tb, "        if (confirm(prompt)) {\n");
+	tbprintf(&tb, "            var file = document.getElementsByName(\"filedata\")[0];\n");
+	tbprintf(&tb, "            file.value = \"\";\n");
+	tbprintf(&tb, "            document.forms[0].submit();\n");
+	tbprintf(&tb, "        }\n");
+	tbprintf(&tb, "    }\n");
+	tbprintf(&tb, "  </script>\n");
 	tbprintf(&tb, " </head>\n");
 	tbprintf(&tb, " <body>\n");
 	tbprintf(&tb, "  <h1>Index of %s</h1>\n", url);
-	tbprintf(&tb, "  <table><tr><th><img src=\"/icons/blank.gif\"></th><th>Name</th><th>Last modified</th><th>Size</th></tr><tr><th colspan=\"4\"><hr></th></tr>\n");
-	tbprintf(&tb, "   <tr><td valign=\"top\"><img src=\"/icons/back.gif\"></td><td><a href=\"..\">Parent directory</a></td><td>&nbsp;</td><td align=\"right\">&nbsp;</td></tr>\n");
+	tbprintf(&tb, "  <form method=\"post\" enctype=\"multipart/form-data\"><table><tr><td valign=\"top\"><img src=\"/icons/blank.gif\"></td><td><b>Name</b></td><td><b>Last modified</b></td><td align=\"right\"><b>Size</b></td><td>%s</td></tr><tr><th colspan=\"5\"><hr></th></tr>\n", strcmp(url, "/memory/") == 0 ? "&nbsp;" : "<input type=\"checkbox\" name=\"selAll\" value=\"foo\" onclick=\"selectAll()\">");
+	tbprintf(&tb, "   <tr><td valign=\"top\"><img src=\"/icons/back.gif\"></td><td><a href=\"..\">Parent directory</a></td><td>&nbsp;</td><td align=\"right\">&nbsp;</td><td>&nbsp;</td></tr>\n");
 
 	for (i = 0; i < dir_length; i++) {
 	    dir_item *di = dir_array[i];
 	    switch (di->type) {
 		case 0:
-		    tbprintf(&tb, "   <tr><td valign=\"top\"><img src=\"/icons/unknown.gif\"></td><td><a href=\"%s\">%s</a></td><td>?</td><td align=\"right\">?</td></tr>\n", di->name, di->name);
+		    tbprintf(&tb, "   <tr><td valign=\"top\"><img src=\"/icons/unknown.gif\"></td><td><a href=\"%s\">%s</a></td><td>?</td><td align=\"right\">?</td><td>&nbsp</td></tr>\n", di->name, di->name);
 		    break;
 		case 1:
 		    if (type == 2)
-			tbprintf(&tb, "   <tr><td valign=\"top\"><img src=\"/icons/text.gif\"></td><td><a href=\"%d\">%s</a></td><td>%s</td><td align=\"right\">%d</td></tr>\n", i, di->name, di->mtime, di->size);
+			tbprintf(&tb, "   <tr><td valign=\"top\"><img src=\"/icons/text.gif\"></td><td><a href=\"%d\">%s</a></td><td>%s</td><td align=\"right\">%d</td><td>&nbsp;</td></tr>\n", i, di->name, di->mtime, di->size);
 		    else
-			tbprintf(&tb, "   <tr><td valign=\"top\"><img src=\"/icons/text.gif\"></td><td><a href=\"%s\">%s</a></td><td>%s</td><td align=\"right\">%d</td></tr>\n", di->name, di->name, di->mtime, di->size);
+			tbprintf(&tb, "   <tr><td valign=\"top\"><img src=\"/icons/text.gif\"></td><td><a href=\"%s\">%s</a></td><td>%s</td><td align=\"right\">%d</td><td><input type=\"checkbox\" name=\"fn\" value=\"%s\" onclick=\"selectOne()\"></td></tr>\n", di->name, di->name, di->mtime, di->size, di->name);
 		    break;
 		case 2:
-		    tbprintf(&tb, "   <tr><td valign=\"top\"><img src=\"/icons/folder.gif\"></td><td><a href=\"%s\">%s</a></td><td>%s</td><td align=\"right\">-</td></tr>\n", di->name, di->name, di->mtime);
+#ifdef FREE42
+		    if (strcmp(url, "/") == 0 && strcmp(di->name, "memory") == 0)
+			tbprintf(&tb, "   <tr><td valign=\"top\"><img src=\"/icons/folder.gif\"></td><td><a href=\"%s/\">%s</a></td><td>%s</td><td align=\"right\">-</td><td>&nbsp;</td></tr>\n", di->name, di->name, di->mtime);
+		    else
+#endif
+			tbprintf(&tb, "   <tr><td valign=\"top\"><img src=\"/icons/folder.gif\"></td><td><a href=\"%s/\">%s</a></td><td>%s</td><td align=\"right\">-</td><td><input type=\"checkbox\" name=\"dn\" value=\"%s\" onclick=\"selectOne()\"></td></tr>\n", di->name, di->name, di->mtime, di->name);
 		    break;
 	    }
 	    if (type == 3)
@@ -412,14 +492,14 @@ static void do_get(int csock, const char *url) {
 	}
 	free(dir_array);
 
-	tbprintf(&tb, "   <tr><th colspan=\"4\"><hr></th></tr>\n");
-	tbprintf(&tb, "   <tr><td colspan=\"4\"><form method=\"post\" enctype=\"multipart/form-data\">\n");
-	tbprintf(&tb, "    Upload file:<p>\n");
-	tbprintf(&tb, "    <input type=\"file\" name=\"filedata\"><p>\n");
-	tbprintf(&tb, "    <input type=\"submit\" value=\"Submit\">\n");
-	tbprintf(&tb, "   </form></td></tr>\n");
-	tbprintf(&tb, "   <tr><th colspan=\"4\"><hr></th></tr></table>\n");
+	tbprintf(&tb, "   <tr><th colspan=\"5\"><hr></th></tr>\n");
+	tbprintf(&tb, "   <tr><td colspan=\"5\"><table><tr><td align=\"right\">Upload file:</td><td><input type=\"file\" name=\"filedata\">&nbsp;<input type=\"button\" value=\"Upload\" onclick=\"doUpload()\"></td></tr><tr><td align=\"right\">Delete files:</td><td><input type=\"button\" value=\"Delete\" onclick=\"doDelete()\"></td></tr></table></td></tr>\n");
+	tbprintf(&tb, "   <tr><th colspan=\"5\"><hr></th></tr></table></form>\n");
+#ifdef FREE42
 	tbprintf(&tb, "  <address>Free42 %s HTTP Server</address>\n", get_version());
+#else
+	tbprintf(&tb, "  <address>Thomas Okken's Simple Server</address>\n");
+#endif
 	tbprintf(&tb, " </body>\n");
 	tbprintf(&tb, "</html>\n");
 
@@ -432,12 +512,16 @@ static void do_get(int csock, const char *url) {
 	free(tb.buf);
     }
     free((void *) url);
+    if (cleaner != NULL)
+	cleaner->doit(cleaner);
 }
 
 // TODO: I could use one textbuffer for import *and* export;
 // those two things can't happen at the same time.
 // NOTE: We only read from this textbuf, we don't write;
 // we use 'capacity' as the read position.
+
+#ifdef FREE42
 
 static textbuf import_tb = { NULL, 0, 0 };
 
@@ -450,6 +534,41 @@ int shell_read(char *buf, int nbytes) {
     memcpy(buf, import_tb.buf + import_tb.capacity, bytes_copied);
     import_tb.capacity += bytes_copied;
     return bytes_copied;
+}
+
+#endif
+
+static int recursive_remove(const char *path) {
+    // We assume that 'path' refers to a directory
+    struct dirent *d;
+    struct stat statbuf;
+    DIR *dir = opendir(path);
+    if (dir == NULL)
+	return 0;
+    while ((d = readdir(dir)) != NULL) {
+	if (strcmp(d->d_name, ".") == 0 || strcmp(d->d_name, "..") == 0)
+	    continue;
+	char *newpath = (char *) malloc(strlen(path) + strlen(d->d_name) + 2);
+	strcpy(newpath, path);
+	strcat(newpath, "/");
+	strcat(newpath, d->d_name);
+	int success;
+	if (stat(newpath, &statbuf) == 0)
+	    if (S_ISDIR(statbuf.st_mode))
+		success = recursive_remove(newpath);
+	    else
+		success = remove(newpath) == 0;
+	else
+	    success = 0;
+	if (!success) {
+	    closedir(dir);
+	    free(newpath);
+	    return 0;
+	}
+	free(newpath);
+    }
+    closedir(dir);
+    return remove(path) == 0;
 }
 
 void do_post(int csock, const char *url) {
@@ -480,7 +599,7 @@ void do_post(int csock, const char *url) {
 	    while (*p == ' ')
 		p++;
 	    if (strncmp(p, "boundary=", 9) != 0) {
-		http_error(csock, 415);
+		http_error(csock, 400);
 		return;
 	    }
 	    p += 9;
@@ -504,13 +623,14 @@ void do_post(int csock, const char *url) {
      */
     read_line(csock, line, LINEBUFSIZE);
     if (strlen(line) + 2 != blen || strncmp(line, boundary + 2, blen - 2) != 0) {
-	http_error(csock, 415);
+	http_error(csock, 400);
 	return;
     }
 
     while (1) {
 	/* Loop over message parts */
 	char filename[LINEBUFSIZE] = "";
+	int action; // 0 = upload, 1 = delete file, 2 = delete dir
 	textbuf tb;
 	int bpos;
 
@@ -519,29 +639,42 @@ void do_post(int csock, const char *url) {
 	    read_line(csock, line, LINEBUFSIZE);
 	    if (strlen(line) == 0)
 		break;
-	    if (strncasecmp(line, "Content-Disposition: form-data; name=\"filedata\";", 48) == 0) {
-		char *p = strstr(line + 48, "filename=");
-		char *p2;
-		char q;
-		if (p == NULL) {
-		    http_error(csock, 415);
+	    if (strncasecmp(line, "Content-Disposition: form-data; name=\"", 38) == 0) {
+		char *p, *p2, q;
+		p = line + 38;
+		p2 = strchr(p, '"');
+		if (p2 == NULL) {
+		    http_error(csock, 400);
 		    return;
 		}
-		p += 9;
-		if (*p == '\'' || *p == '"')
-		    q = *p++;
-		else
-		    q = 0;
-		p2 = p + strlen(p);
-		while (p2 >= p)
-		    if (*p2 == '\\' || *p2 == '/') {
-			p = p2 + 1;
-			break;
-		    } else
-			p2--;
-		strcpy(filename, p);
-		if (q != 0 && filename[strlen(filename) - 1] == q)
-		    filename[strlen(filename) - 1] = 0;
+		*p2 = 0;
+		if (strcmp(p, "fn") == 0)
+		    action = 1;
+		else if (strcmp(p, "dn") == 0)
+		    action = 2;
+		else if (strcmp(p, "filedata") == 0) {
+		    action = 0;
+		    p = strstr(p2 + 1, "filename=");
+		    if (p == NULL) {
+			http_error(csock, 400);
+			return;
+		    }
+		    p += 9;
+		    if (*p == '\'' || *p == '"')
+			q = *p++;
+		    else
+			q = 0;
+		    p2 = p + strlen(p);
+		    while (p2 >= p)
+			if (*p2 == '\\' || *p2 == '/') {
+			    p = p2 + 1;
+			    break;
+			} else
+			    p2--;
+		    strcpy(filename, p);
+		    if (q != 0 && filename[strlen(filename) - 1] == q)
+			filename[strlen(filename) - 1] = 0;
+		}
 	    }
 	}
 
@@ -556,7 +689,7 @@ void do_post(int csock, const char *url) {
 	    int n = recv(csock, &c, 1, 0);
 	    if (n != 1)
 		break;
-	    if (*filename != 0)
+	    if (*filename != 0 || action != 0)
 		tbwrite(&tb, &c, 1);
 	    if (bpos == blen && (c == '\r' || c == '-'))
 		bpos++;
@@ -570,37 +703,67 @@ void do_post(int csock, const char *url) {
 		bpos = 0;
 	    if (bpos == blen + 2) {
 		/* Found the body delimiter! */
-		if (*filename != 0) {
+		if (*filename != 0 || action != 0) {
 		    tb.size -= blen + 2;
+#ifdef FREE42
 		    if (strcmp(url, "/memory/") == 0) {
-			// Import program straight to memory
-			import_tb.buf = tb.buf;
-			import_tb.size = tb.size;
-			import_tb.capacity = 0;
-			// TODO -- error message on failure
-			core_import_programs(NULL);
+			if (action == 0) {
+			    // Import program straight to memory
+			    pthread_mutex_lock(&shell_mutex);
+			    import_tb.buf = tb.buf;
+			    import_tb.size = tb.size;
+			    import_tb.capacity = 0;
+			    // TODO -- error message on failure
+			    core_import_programs(NULL);
+			    pthread_mutex_unlock(&shell_mutex);
+			}
 		    } else {
-			// Upload to file
-			strcpy(line, url + 1);
-			strcat(line, filename);
-			if (tb.size == 0)
-			    // Uploading zero-length file: delete destination
-			    unlink(line);
-			else {
-			    // Uploading nonempty file: create it
-			    FILE *f = fopen(line, "w");
-			    if (f == NULL) {
-				http_error(csock, 403);
+#endif
+			if (action == 0) {
+			    // Upload to file
+			    strcpy(line, url + 1);
+			    strcat(line, filename);
+			    if (tb.size == 0)
+				// Uploading zero-length file: delete destination
+				unlink(line);
+			    else {
+				// Uploading nonempty file: create it
+				FILE *f = fopen(line, "w");
+				if (f == NULL) {
+				    http_error(csock, 403);
+				    free(tb.buf);
+				    return;
+				}
+				fwrite(tb.buf, 1, tb.size, f);
+				fclose(f);
+			    }
+			} else {
+			    // action = 1 : delete file
+			    // action = 2 : delete directory
+			    // the filename is in the part body
+			    tb.buf[tb.size] = 0;
+			    if (strchr(tb.buf, '/') != NULL || strcmp(tb.buf, ".") == 0
+				    || strcmp(tb.buf, "..") == 0) {
+				// Trying to go outside the current directory
+				// or trying to delete . or ..
 				free(tb.buf);
+				http_error(csock, 403);
 				return;
 			    }
-			    fwrite(tb.buf, 1, tb.size, f);
-			    fclose(f);
+			    if (action == 1)
+				remove(tb.buf);
+			    else {
+				struct stat statbuf;
+				if (stat(tb.buf, &statbuf) == 0 && S_ISDIR(statbuf.st_mode))
+				    recursive_remove(tb.buf);
+			    }
 			}
+#ifdef FREE42
 		    }
+#endif
 		    free(tb.buf);
 		}
-		if (*filename != 0 || c == '-')
+		if (c == '-')
 		    goto done;
 		else
 		    break;
@@ -696,26 +859,99 @@ static const char *canonicalize_url(const char *url) {
     }
 }
 
+#ifdef FREE42
+
 static textbuf export_tb = { NULL, 0, 0 };
+
+static void export_buf_reset() {
+    if (export_tb.buf != NULL)
+	free(export_tb.buf);
+    export_tb.buf = NULL;
+    export_tb.size = 0;
+    export_tb.capacity = 0;
+}
 
 int shell_write(const char *buf, int nbytes) {
     tbwrite(&export_tb, buf, nbytes);
     return 1;
 }
 
+typedef struct {
+    cleaner_base base;
+    char *buf;
+    char **names;
+    void *ptr;
+} program_list_cleaner;
+
+static void program_list_cleaner_doit(cleaner_base *This) {
+    program_list_cleaner *c = (program_list_cleaner *) This;
+    free(c->buf);
+    free(c->names);
+    if (c->ptr != NULL)
+	free(c->ptr);
+    free(c);
+}
+
+static cleaner_base *new_program_list_cleaner(char *buf, char **names, void *ptr) {
+    program_list_cleaner *c = (program_list_cleaner *) malloc(sizeof(program_list_cleaner));
+    c->base.doit = program_list_cleaner_doit;
+    c->buf = buf;
+    c->names = names;
+    c->ptr = ptr;
+    return (cleaner_base *) c;
+}
+
+#endif
+
+typedef struct {
+    cleaner_base base;
+    FILE *f;
+} file_cleaner;
+
+static void file_cleaner_doit(cleaner_base *This) {
+    file_cleaner *c = (file_cleaner *) This;
+    fclose(c->f);
+    free(c);
+}
+
+static cleaner_base *new_file_cleaner(FILE *f) {
+    file_cleaner *c = (file_cleaner *) malloc(sizeof(file_cleaner));
+    c->base.doit = file_cleaner_doit;
+    c->f = f;
+    return (cleaner_base *) c;
+}
+
+typedef struct {
+    cleaner_base base;
+    DIR *d;
+} dir_cleaner;
+
+static void dir_cleaner_doit(cleaner_base *This) {
+    dir_cleaner *c = (dir_cleaner *) This;
+    closedir(c->d);
+    free(c);
+}
+
+static cleaner_base *new_dir_cleaner(DIR *d) {
+    dir_cleaner *c = (dir_cleaner *) malloc(sizeof(dir_cleaner));
+    c->base.doit = dir_cleaner_doit;
+    c->d = d;
+    return (cleaner_base *) c;
+}
 
 /*
  * Returns: an HTTP status code: 200, 403, 404, or 500.
  * 200 means everything is fine; 302 is used for redirects from /dirname to /dirname/;
  * everything else is an error (duh).
  * The return parameters ptr, type, and filesize are only meaningful for status 200:
- * type = 0: built-in icon; *ptr points to icon data; filesize is icon data size;
+ * type = 0: in-memory data; *ptr points to data; filesize is data size;
  * type = 1: regular file; *ptr points to FILE*, filesize is file size;
  * type = 2: fake directory; *ptr points to char**; dir end flagged by NULL
  * type = 3: real directory; *ptr points to DIR*
- * The caller must close the FILE* or DIR* returned when type = 1 or 3.
+ * The 'cleaner' parameter is return pointer to a cleanup structure. If open_item()
+ * sets it to something non-NULL, the caller must call cleaner->doit() before returning.
  */
-static int open_item(const char *url, void **ptr, int *type, int *filesize, const char **real_name) {
+static int open_item(const char *url, void **ptr, int *type, int *filesize, const char **real_name, cleaner_base **cleaner) {
     struct stat statbuf;
     int err;
     int i;
@@ -745,10 +981,13 @@ static int open_item(const char *url, void **ptr, int *type, int *filesize, cons
     if (strncmp(url, "memory/", 7) == 0) {
 #define NAMEBUFSIZE 1024
 #define MAXPROGS 255
-	static char buf[NAMEBUFSIZE];
-	static char *names[MAXPROGS + 1];
+	char *buf = (char *) malloc(NAMEBUFSIZE);
+	char **names = (char **) malloc((MAXPROGS + 1) * sizeof(char *));
 	int p = 0, i;
-	int n = core_list_programs(buf, NAMEBUFSIZE);
+	int n;
+	pthread_mutex_lock(&shell_mutex);
+	n = core_list_programs(buf, NAMEBUFSIZE);
+	pthread_mutex_unlock(&shell_mutex);
 	buf[NAMEBUFSIZE - 1] = 0;
 	for (i = 0; i < n; i++) {
 	    names[i] = buf + p;
@@ -762,6 +1001,7 @@ static int open_item(const char *url, void **ptr, int *type, int *filesize, cons
 	    /* GET /memory/ => return the directory listing */
 	    *type = 2;
 	    *ptr = names;
+	    *cleaner = new_program_list_cleaner(buf, names, NULL);
 	    return 200;
 	}
 
@@ -779,21 +1019,25 @@ static int open_item(const char *url, void **ptr, int *type, int *filesize, cons
 	 */
 	int idx;
 	if (sscanf(url + 7, "%d", &idx) != 1)
-	    return 404;
+	    goto return_404;
 	if (idx < 0 || idx >= n)
-	    return 404;
-	if (export_tb.buf != NULL)
-	    free(export_tb.buf);
-	export_tb.buf = NULL;
-	export_tb.size = 0;
-	export_tb.capacity = 0;
+	    goto return_404;
+	pthread_mutex_lock(&shell_mutex);
+	export_buf_reset();
 	core_export_programs(1, &idx, NULL);
-	if (export_tb.size == 0)
+	if (export_tb.size == 0) {
+	    export_buf_reset();
+	    pthread_mutex_unlock(&shell_mutex);
+	    return_404:
+	    free(buf);
+	    free(names);
 	    return 404;
-	else {
+	} else {
 	    *ptr = export_tb.buf;
+	    export_tb.buf = NULL;
 	    *type = 0;
 	    *filesize = export_tb.size;
+	    pthread_mutex_unlock(&shell_mutex);
 	    /* names[idx] is one of:
 	     * 1) "NAME1" ["NAME2" ...]
 	     * 2) END
@@ -816,6 +1060,7 @@ static int open_item(const char *url, void **ptr, int *type, int *filesize, cons
 		/* END */
 		*real_name = names[idx];
 	    }
+	    *cleaner = new_program_list_cleaner(buf, names, *ptr);
 	    return 200;
 	}
     }
@@ -848,10 +1093,10 @@ static int open_item(const char *url, void **ptr, int *type, int *filesize, cons
     }
 
     if (S_ISREG(statbuf.st_mode)) {
-	*ptr = fopen(url, "r");
+	FILE *f = fopen(url, "r");
 	*type = 1;
 	*filesize = statbuf.st_size;
-	if (*ptr == NULL) {
+	if (f == NULL) {
 	    /* We already know the file exists and is reachable, so
 	     * we only check for EACCES; any other error is reported
 	     * as an internal server error (500).
@@ -859,11 +1104,13 @@ static int open_item(const char *url, void **ptr, int *type, int *filesize, cons
 	    err = errno;
 	    return err == EACCES ? 403 : 500;
 	}
+	*ptr = f;
+	*cleaner = new_file_cleaner(f);
 	return 200;
     } else if (S_ISDIR(statbuf.st_mode)) {
-	*ptr = opendir(url);
+	DIR *d = opendir(url);
 	*type = 3;
-	if (*ptr == NULL) {
+	if (d == NULL) {
 	    /* We already know the file exists and is reachable, so
 	     * we only check for EACCES; any other error is reported
 	     * as an internal server error (500).
@@ -871,6 +1118,8 @@ static int open_item(const char *url, void **ptr, int *type, int *filesize, cons
 	    err = errno;
 	    return err == EACCES ? 403 : 500;
 	}
+	*ptr = d;
+	*cleaner = new_dir_cleaner(d);
 	return 200;
     } else
 	return 403;
@@ -912,6 +1161,7 @@ static void http_error(int csock, int err) {
     const char *msg;
     switch (err) {
 	case 200: msg = "OK"; break;
+	case 400: msg = "Bad Request"; break;
 	case 403: msg = "Forbidden"; break;
 	case 404: msg = "Not Found"; break;
 	case 415: msg = "Unsupported Media Type"; break;
@@ -935,6 +1185,12 @@ static void http_error(int csock, int err) {
 }
 
 #ifdef STANDALONE
+
+static void *handle_client_2(void *param) {
+    handle_client((int) param);
+    return NULL;
+}
+
 int main(int argc, char *argv[]) {
     int i;
     int port = 9090;
@@ -1007,8 +1263,9 @@ int main(int argc, char *argv[]) {
     }
 
     while (1) {
-	unsigned int n = sizeof(ca);
+	socklen_t n = sizeof(ca);
 	char cname[256];
+	pthread_t thread;
 	csock = accept(ssock, (struct sockaddr *) &ca, &n);
 	if (csock == -1) {
 	    err = errno;
@@ -1017,7 +1274,8 @@ int main(int argc, char *argv[]) {
 	}
 	inet_ntop(AF_INET, &ca.sin_addr, cname, sizeof(cname));
 	/*errprintf("Accepted connection from %s\n", cname);*/
-	handle_client(csock);
+	pthread_create(&thread, NULL, handle_client_2, (void *) csock);
+	pthread_detach(thread);
     }
     
     return 0;

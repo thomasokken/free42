@@ -1,7 +1,11 @@
-??-??-????: release 1.4.77
+13-01-2013: release 1.4.77
 
-* All versions: the links in the About boxes now actually work.
-* iPhone version: implemented print-out window.
+* iPhone version: the links in the About view now actually work.
+* iPhone version: implemented 'delete' in the HTTP Server.
+
+06-01-2013: release 1.4.77
+
+* All versions except iPhone: the links in the About boxes now actually work.
 
 01-01-2013: release 1.4.76
 

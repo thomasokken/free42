@@ -167,6 +167,11 @@ static void *getHostName(void *dummy) {
     [super dealloc];
 }
 
+static void *handle_client_2(void *param) {
+	handle_client((int) param);
+	return NULL;
+}
+
 - (void) start_simple_server {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
@@ -234,9 +239,9 @@ static void *getHostName(void *dummy) {
 		}
 		inet_ntop(AF_INET, &ca.sin_addr, cname, sizeof(cname));
 		errprintf("Accepted connection from %s\n", cname);
-		// TODO: call handle_client() on the main thread,
-		// so we don't have to deal with thread safety there
-		handle_client(csock);
+		pthread_t thread;
+		pthread_create(&thread, NULL, handle_client_2, (void *) csock);
+		pthread_detach(thread);
     }
 	
 done:

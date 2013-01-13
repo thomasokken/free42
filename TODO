@@ -15,8 +15,6 @@ Android version:
 * Implement pop-up keyboard for ALPHA mode text entry.
 * Scale print-out (the current 2:1 scaling is a bit small on large screens)
 
-iPhone version: the HTTP server interface should provide a way to delete files.
-
 Windows version: the "Calculator Key" option should probably set
 \HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\AppKey\18\ShellExecute,
 not \HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\AppKey\18\ShellExecute.
