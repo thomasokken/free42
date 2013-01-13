@@ -24,39 +24,69 @@
 #include <sys/time.h>
 #include <pthread.h>
 #include <dlfcn.h>
+#include <math.h>
 
 // We want to be able to run even if libasound is not present, so we have to
 // link it manually using dlopen() and dlsym(). These are the functions we are
 // going to need; the pointer names are the same as the actual function names
 // in libasound, with _dl_ prefixed.
 static int libasound_state = 0; // 0=closed, 1=open, 2=missing
-static int (*_dl_snd_pcm_close)(snd_pcm_t *pcm);
-static int (*_dl_snd_pcm_format_big_endian)(snd_pcm_format_t format);
-static int (*_dl_snd_pcm_format_physical_width)(snd_pcm_format_t format);
-static int (*_dl_snd_pcm_format_unsigned)(snd_pcm_format_t format);
-static int (*_dl_snd_pcm_format_width)(snd_pcm_format_t format);
-static int (*_dl_snd_pcm_hw_params)(snd_pcm_t *pcm, snd_pcm_hw_params_t *params);
-static int (*_dl_snd_pcm_hw_params_malloc)(snd_pcm_hw_params_t **ptr);
-static void (*_dl_snd_pcm_hw_params_free)(snd_pcm_hw_params_t *obj);
-static int (*_dl_snd_pcm_hw_params_any)(snd_pcm_t *pcm, snd_pcm_hw_params_t *params);
-static int (*_dl_snd_pcm_hw_params_get_buffer_size)(const snd_pcm_hw_params_t *params, snd_pcm_uframes_t *val);
-static int (*_dl_snd_pcm_hw_params_set_access)(snd_pcm_t *pcm, snd_pcm_hw_params_t *params, snd_pcm_access_t _access);
-static int (*_dl_snd_pcm_hw_params_set_buffer_size_near)(snd_pcm_t *pcm, snd_pcm_hw_params_t *params, snd_pcm_uframes_t *val);
-static int (*_dl_snd_pcm_hw_params_set_channels)(snd_pcm_t *pcm, snd_pcm_hw_params_t *params, unsigned int val);
-static int (*_dl_snd_pcm_hw_params_set_format)(snd_pcm_t *pcm, snd_pcm_hw_params_t *params, snd_pcm_format_t val);
-static int (*_dl_snd_pcm_hw_params_set_rate_near)(snd_pcm_t *pcm, snd_pcm_hw_params_t *params, unsigned int *val, int *dir);
-static int (*_dl_snd_pcm_open)(snd_pcm_t **pcm, const char *name, snd_pcm_stream_t stream, int mode);
-static int (*_dl_snd_pcm_prepare)(snd_pcm_t *pcm);
-static int (*_dl_snd_pcm_resume)(snd_pcm_t *pcm);
-static int (*_dl_snd_pcm_sw_params)(snd_pcm_t *pcm, snd_pcm_sw_params_t *params);
-static int (*_dl_snd_pcm_sw_params_malloc)(snd_pcm_sw_params_t **ptr);
-static void (*_dl_snd_pcm_sw_params_free)(snd_pcm_sw_params_t *obj);
-static int (*_dl_snd_pcm_sw_params_current)(snd_pcm_t *pcm, snd_pcm_sw_params_t *params);
-static int (*_dl_snd_pcm_sw_params_get_boundary)(const snd_pcm_sw_params_t *params, snd_pcm_uframes_t *val);
-static int (*_dl_snd_pcm_sw_params_set_silence_size)(snd_pcm_t *pcm, snd_pcm_sw_params_t *params, snd_pcm_uframes_t val);
-static int (*_dl_snd_pcm_sw_params_set_silence_threshold)(snd_pcm_t *pcm, snd_pcm_sw_params_t *params, snd_pcm_uframes_t val);
-static snd_pcm_sframes_t (*_dl_snd_pcm_writei)(snd_pcm_t *pcm, const void *buffer, snd_pcm_uframes_t size);
-static const char *(*_dl_snd_strerror)(int errnum);
+
+typedef int (*_ptr_snd_pcm_close)(snd_pcm_t *pcm);
+typedef int (*_ptr_snd_pcm_format_big_endian)(snd_pcm_format_t format);
+typedef int (*_ptr_snd_pcm_format_physical_width)(snd_pcm_format_t format);
+typedef int (*_ptr_snd_pcm_format_unsigned)(snd_pcm_format_t format);
+typedef int (*_ptr_snd_pcm_format_width)(snd_pcm_format_t format);
+typedef int (*_ptr_snd_pcm_hw_params)(snd_pcm_t *pcm, snd_pcm_hw_params_t *params);
+typedef int (*_ptr_snd_pcm_hw_params_malloc)(snd_pcm_hw_params_t **ptr);
+typedef void (*_ptr_snd_pcm_hw_params_free)(snd_pcm_hw_params_t *obj);
+typedef int (*_ptr_snd_pcm_hw_params_any)(snd_pcm_t *pcm, snd_pcm_hw_params_t *params);
+typedef int (*_ptr_snd_pcm_hw_params_get_buffer_size)(const snd_pcm_hw_params_t *params, snd_pcm_uframes_t *val);
+typedef int (*_ptr_snd_pcm_hw_params_set_access)(snd_pcm_t *pcm, snd_pcm_hw_params_t *params, snd_pcm_access_t _access);
+typedef int (*_ptr_snd_pcm_hw_params_set_buffer_size_near)(snd_pcm_t *pcm, snd_pcm_hw_params_t *params, snd_pcm_uframes_t *val);
+typedef int (*_ptr_snd_pcm_hw_params_set_channels)(snd_pcm_t *pcm, snd_pcm_hw_params_t *params, unsigned int val);
+typedef int (*_ptr_snd_pcm_hw_params_set_format)(snd_pcm_t *pcm, snd_pcm_hw_params_t *params, snd_pcm_format_t val);
+typedef int (*_ptr_snd_pcm_hw_params_set_rate_near)(snd_pcm_t *pcm, snd_pcm_hw_params_t *params, unsigned int *val, int *dir);
+typedef int (*_ptr_snd_pcm_open)(snd_pcm_t **pcm, const char *name, snd_pcm_stream_t stream, int mode);
+typedef int (*_ptr_snd_pcm_prepare)(snd_pcm_t *pcm);
+typedef int (*_ptr_snd_pcm_resume)(snd_pcm_t *pcm);
+typedef int (*_ptr_snd_pcm_sw_params)(snd_pcm_t *pcm, snd_pcm_sw_params_t *params);
+typedef int (*_ptr_snd_pcm_sw_params_malloc)(snd_pcm_sw_params_t **ptr);
+typedef void (*_ptr_snd_pcm_sw_params_free)(snd_pcm_sw_params_t *obj);
+typedef int (*_ptr_snd_pcm_sw_params_current)(snd_pcm_t *pcm, snd_pcm_sw_params_t *params);
+typedef int (*_ptr_snd_pcm_sw_params_get_boundary)(const snd_pcm_sw_params_t *params, snd_pcm_uframes_t *val);
+typedef int (*_ptr_snd_pcm_sw_params_set_silence_size)(snd_pcm_t *pcm, snd_pcm_sw_params_t *params, snd_pcm_uframes_t val);
+typedef int (*_ptr_snd_pcm_sw_params_set_silence_threshold)(snd_pcm_t *pcm, snd_pcm_sw_params_t *params, snd_pcm_uframes_t val);
+typedef snd_pcm_sframes_t (*_ptr_snd_pcm_writei)(snd_pcm_t *pcm, const void *buffer, snd_pcm_uframes_t size);
+typedef const char *(*_ptr_snd_strerror)(int errnum);
+
+_ptr_snd_pcm_close _dl_snd_pcm_close;
+_ptr_snd_pcm_format_big_endian _dl_snd_pcm_format_big_endian;
+_ptr_snd_pcm_format_physical_width _dl_snd_pcm_format_physical_width;
+_ptr_snd_pcm_format_unsigned _dl_snd_pcm_format_unsigned;
+_ptr_snd_pcm_format_width _dl_snd_pcm_format_width;
+_ptr_snd_pcm_hw_params _dl_snd_pcm_hw_params;
+_ptr_snd_pcm_hw_params_malloc _dl_snd_pcm_hw_params_malloc;
+_ptr_snd_pcm_hw_params_free _dl_snd_pcm_hw_params_free;
+_ptr_snd_pcm_hw_params_any _dl_snd_pcm_hw_params_any;
+_ptr_snd_pcm_hw_params_get_buffer_size _dl_snd_pcm_hw_params_get_buffer_size;
+_ptr_snd_pcm_hw_params_set_access _dl_snd_pcm_hw_params_set_access;
+_ptr_snd_pcm_hw_params_set_buffer_size_near _dl_snd_pcm_hw_params_set_buffer_size_near;
+_ptr_snd_pcm_hw_params_set_channels _dl_snd_pcm_hw_params_set_channels;
+_ptr_snd_pcm_hw_params_set_format _dl_snd_pcm_hw_params_set_format;
+_ptr_snd_pcm_hw_params_set_rate_near _dl_snd_pcm_hw_params_set_rate_near;
+_ptr_snd_pcm_open _dl_snd_pcm_open;
+_ptr_snd_pcm_prepare _dl_snd_pcm_prepare;
+_ptr_snd_pcm_resume _dl_snd_pcm_resume;
+_ptr_snd_pcm_sw_params _dl_snd_pcm_sw_params;
+_ptr_snd_pcm_sw_params_malloc _dl_snd_pcm_sw_params_malloc;
+_ptr_snd_pcm_sw_params_free _dl_snd_pcm_sw_params_free;
+_ptr_snd_pcm_sw_params_current _dl_snd_pcm_sw_params_current;
+_ptr_snd_pcm_sw_params_get_boundary _dl_snd_pcm_sw_params_get_boundary;
+_ptr_snd_pcm_sw_params_set_silence_size _dl_snd_pcm_sw_params_set_silence_size;
+_ptr_snd_pcm_sw_params_set_silence_threshold _dl_snd_pcm_sw_params_set_silence_threshold;
+_ptr_snd_pcm_writei _dl_snd_pcm_writei;
+_ptr_snd_strerror _dl_snd_strerror;
 
 #define TDIFF(begin,end) (((double)(end.tv_sec - begin.tv_sec)*1000.0) + ((end.tv_usec - begin.tv_usec)/1000.0))
 
@@ -170,33 +200,34 @@ static bool open_libasound() {
 	fprintf(stderr, "Could not open " ALSALIB "\nusing gdk_beep() for BEEP and TONE.\n");
 	return false;
     }
-    *((void **) &_dl_snd_pcm_close) = dlsym(lib, "snd_pcm_close");
-    *((void **) &_dl_snd_pcm_format_big_endian) = dlsym(lib, "snd_pcm_format_big_endian");
-    *((void **) &_dl_snd_pcm_format_physical_width) = dlsym(lib, "snd_pcm_format_physical_width");
-    *((void **) &_dl_snd_pcm_format_unsigned) = dlsym(lib, "snd_pcm_format_unsigned");
-    *((void **) &_dl_snd_pcm_format_width) = dlsym(lib, "snd_pcm_format_width");
-    *((void **) &_dl_snd_pcm_hw_params) = dlsym(lib, "snd_pcm_hw_params");
-    *((void **) &_dl_snd_pcm_hw_params_malloc) = dlsym(lib, "snd_pcm_hw_params_malloc");
-    *((void **) &_dl_snd_pcm_hw_params_free) = dlsym(lib, "snd_pcm_hw_params_free");
-    *((void **) &_dl_snd_pcm_hw_params_any) = dlsym(lib, "snd_pcm_hw_params_any");
-    *((void **) &_dl_snd_pcm_hw_params_get_buffer_size) = dlsym(lib, "snd_pcm_hw_params_get_buffer_size");
-    *((void **) &_dl_snd_pcm_hw_params_set_access) = dlsym(lib, "snd_pcm_hw_params_set_access");
-    *((void **) &_dl_snd_pcm_hw_params_set_buffer_size_near) = dlsym(lib, "snd_pcm_hw_params_set_buffer_size_near");
-    *((void **) &_dl_snd_pcm_hw_params_set_channels) = dlsym(lib, "snd_pcm_hw_params_set_channels");
-    *((void **) &_dl_snd_pcm_hw_params_set_format) = dlsym(lib, "snd_pcm_hw_params_set_format");
-    *((void **) &_dl_snd_pcm_hw_params_set_rate_near) = dlsym(lib, "snd_pcm_hw_params_set_rate_near");
-    *((void **) &_dl_snd_pcm_open) = dlsym(lib, "snd_pcm_open");
-    *((void **) &_dl_snd_pcm_prepare) = dlsym(lib, "snd_pcm_prepare");
-    *((void **) &_dl_snd_pcm_resume) = dlsym(lib, "snd_pcm_resume");
-    *((void **) &_dl_snd_pcm_sw_params) = dlsym(lib, "snd_pcm_sw_params");
-    *((void **) &_dl_snd_pcm_sw_params_malloc) = dlsym(lib, "snd_pcm_sw_params_malloc");
-    *((void **) &_dl_snd_pcm_sw_params_free) = dlsym(lib, "snd_pcm_sw_params_free");
-    *((void **) &_dl_snd_pcm_sw_params_current) = dlsym(lib, "snd_pcm_sw_params_current");
-    *((void **) &_dl_snd_pcm_sw_params_get_boundary) = dlsym(lib, "snd_pcm_sw_params_get_boundary");
-    *((void **) &_dl_snd_pcm_sw_params_set_silence_size) = dlsym(lib, "snd_pcm_sw_params_set_silence_size");
-    *((void **) &_dl_snd_pcm_sw_params_set_silence_threshold) = dlsym(lib, "snd_pcm_sw_params_set_silence_threshold");
-    *((void **) &_dl_snd_pcm_writei) = dlsym(lib, "snd_pcm_writei");
-    *((void **) &_dl_snd_strerror) = dlsym(lib, "snd_strerror");
+    _dl_snd_pcm_close = (_ptr_snd_pcm_close) dlsym(lib, "snd_pcm_close");
+    _dl_snd_pcm_format_big_endian = (_ptr_snd_pcm_format_big_endian) dlsym(lib, "snd_pcm_format_big_endian");
+    _dl_snd_pcm_format_physical_width = (_ptr_snd_pcm_format_physical_width) dlsym(lib, "snd_pcm_format_physical_width");
+    _dl_snd_pcm_format_unsigned = (_ptr_snd_pcm_format_unsigned) dlsym(lib, "snd_pcm_format_unsigned");
+    _dl_snd_pcm_format_width = (_ptr_snd_pcm_format_width) dlsym(lib, "snd_pcm_format_width");
+    _dl_snd_pcm_hw_params = (_ptr_snd_pcm_hw_params) dlsym(lib, "snd_pcm_hw_params");
+    _dl_snd_pcm_hw_params_malloc = (_ptr_snd_pcm_hw_params_malloc) dlsym(lib, "snd_pcm_hw_params_malloc");
+    _dl_snd_pcm_hw_params_free = (_ptr_snd_pcm_hw_params_free) dlsym(lib, "snd_pcm_hw_params_free");
+    _dl_snd_pcm_hw_params_any = (_ptr_snd_pcm_hw_params_any) dlsym(lib, "snd_pcm_hw_params_any");
+    _dl_snd_pcm_hw_params_get_buffer_size = (_ptr_snd_pcm_hw_params_get_buffer_size) dlsym(lib, "snd_pcm_hw_params_get_buffer_size");
+    _dl_snd_pcm_hw_params_set_access = (_ptr_snd_pcm_hw_params_set_access) dlsym(lib, "snd_pcm_hw_params_set_access");
+    _dl_snd_pcm_hw_params_set_buffer_size_near = (_ptr_snd_pcm_hw_params_set_buffer_size_near) dlsym(lib, "snd_pcm_hw_params_set_buffer_size_near");
+    _dl_snd_pcm_hw_params_set_channels = (_ptr_snd_pcm_hw_params_set_channels) dlsym(lib, "snd_pcm_hw_params_set_channels");
+    _dl_snd_pcm_hw_params_set_format = (_ptr_snd_pcm_hw_params_set_format) dlsym(lib, "snd_pcm_hw_params_set_format");
+    _dl_snd_pcm_hw_params_set_rate_near = (_ptr_snd_pcm_hw_params_set_rate_near) dlsym(lib, "snd_pcm_hw_params_set_rate_near");
+    _dl_snd_pcm_open = (_ptr_snd_pcm_open) dlsym(lib, "snd_pcm_open");
+    _dl_snd_pcm_prepare = (_ptr_snd_pcm_prepare) dlsym(lib, "snd_pcm_prepare");
+    _dl_snd_pcm_resume = (_ptr_snd_pcm_resume) dlsym(lib, "snd_pcm_resume");
+    _dl_snd_pcm_sw_params = (_ptr_snd_pcm_sw_params) dlsym(lib, "snd_pcm_sw_params");
+    _dl_snd_pcm_sw_params_malloc = (_ptr_snd_pcm_sw_params_malloc) dlsym(lib, "snd_pcm_sw_params_malloc");
+    _dl_snd_pcm_sw_params_free = (_ptr_snd_pcm_sw_params_free) dlsym(lib, "snd_pcm_sw_params_free");
+    _dl_snd_pcm_sw_params_current = (_ptr_snd_pcm_sw_params_current) dlsym(lib, "snd_pcm_sw_params_current");
+    _dl_snd_pcm_sw_params_get_boundary = (_ptr_snd_pcm_sw_params_get_boundary) dlsym(lib, "snd_pcm_sw_params_get_boundary");
+    _dl_snd_pcm_sw_params_set_silence_size = (_ptr_snd_pcm_sw_params_set_silence_size) dlsym(lib, "snd_pcm_sw_params_set_silence_size");
+    _dl_snd_pcm_sw_params_set_silence_threshold = (_ptr_snd_pcm_sw_params_set_silence_threshold) dlsym(lib, "snd_pcm_sw_params_set_silence_threshold");
+    _dl_snd_pcm_writei = (_ptr_snd_pcm_writei) dlsym(lib, "snd_pcm_writei");
+    _dl_snd_strerror = (_ptr_snd_strerror) dlsym(lib, "snd_strerror");
+
     if (dlerror() == NULL)
 	return true;
     fprintf(stderr, "Could not load all required symbols from " ALSALIB "\nusing gdk_beep() for BEEP and TONE.\n");
@@ -301,7 +332,7 @@ bool alsa_beeper(int frequency, int duration) {
 		v -= 1;
 	    else if (v >= 0.25)
 		v = 0.5 - v;
-	    res = v * maxval;
+	    res = (int) (v * maxval);
 	    if (to_unsigned)
 		res ^= 1U << (format_bits - 1);
 	    for(chn = 0; chn < audio_channels; chn ++) {
@@ -337,7 +368,7 @@ bool alsa_beeper(int frequency, int duration) {
 	free(buffer);
 
 	gettimeofday(&end, NULL);
-	duration -= TDIFF(begin, end);
+	duration -= (int) TDIFF(begin, end);
 	if(duration > 0) usleep(duration * 1000);
     }
 
