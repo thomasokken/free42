@@ -390,7 +390,7 @@ static void do_get(int csock, const char *url) {
 	tbprintf(&tb, "  <style type=\"text/css\">\n");
 	tbprintf(&tb, "   td { padding-left: 10px }\n");
 	tbprintf(&tb, "  </style>\n");
-	tbprintf(&tb, "  <script>\n");
+	tbprintf(&tb, "  <script type=\"text/javascript\">\n");
 	tbprintf(&tb, "    function itemsSelected(name) {\n");
 	tbprintf(&tb, "        var count = 0\n");
 	tbprintf(&tb, "        var items = document.getElementsByName(name);\n");
@@ -427,20 +427,37 @@ static void do_get(int csock, const char *url) {
 	tbprintf(&tb, "        var selAll = document.getElementsByName(\"selAll\")[0]\n");
 	tbprintf(&tb, "        selAll.checked = everythingSelected;\n");
 	tbprintf(&tb, "    }\n");
-	tbprintf(&tb, "    function doUpload() {\n");
+	tbprintf(&tb, "    function deselectAll() {\n");
 	tbprintf(&tb, "        var fns = document.getElementsByName(\"fn\");\n");
 	tbprintf(&tb, "        for (var i = 0; i < fns.length; i++)\n");
 	tbprintf(&tb, "            fns[i].checked = false;\n");
 	tbprintf(&tb, "        var dns = document.getElementsByName(\"dn\");\n");
 	tbprintf(&tb, "        for (var i = 0; i < dns.length; i++)\n");
 	tbprintf(&tb, "            dns[i].checked = false;\n");
-	tbprintf(&tb, "        document.forms[0].submit();\n");
+	tbprintf(&tb, "    }\n");
+	tbprintf(&tb, "    function clearFile() {\n");
+	tbprintf(&tb, "        var file = document.getElementsByName(\"filedata\")[0];\n");
+	tbprintf(&tb, "        file.value = \"\";\n");
+	tbprintf(&tb, "    }\n");
+	tbprintf(&tb, "    function clearDir() {\n");
+	tbprintf(&tb, "        var newDir = document.getElementsByName(\"newDir\")[0];\n");
+	tbprintf(&tb, "        newDir.value = \"\";\n");
+	tbprintf(&tb, "    }\n");
+	tbprintf(&tb, "    function doUpload() {\n");
+	tbprintf(&tb, "        var file = document.getElementsByName(\"filedata\")[0];\n");
+	tbprintf(&tb, "        if (file.value == \"\" || file.value == null)\n");
+	tbprintf(&tb, "            alert(\"You haven't selected a file to upload.\");\n");
+	tbprintf(&tb, "        else {\n");
+	tbprintf(&tb, "            deselectAll();\n");
+	tbprintf(&tb, "            clearDir();\n");
+	tbprintf(&tb, "            document.forms[0].submit();\n");
+	tbprintf(&tb, "        }\n");
 	tbprintf(&tb, "    }\n");
 	tbprintf(&tb, "    function doDelete() {\n");
 	tbprintf(&tb, "        var nfiles = itemsSelected(\"fn\")\n");
 	tbprintf(&tb, "        var ndirs = itemsSelected(\"dn\")\n");
 	tbprintf(&tb, "        if (nfiles == 0 && ndirs == 0) {\n");
-	tbprintf(&tb, "            alert(\"You have selected nothing to delete.\");\n");
+	tbprintf(&tb, "            alert(\"You haven't selected anything to delete.\");\n");
 	tbprintf(&tb, "            return;\n");
 	tbprintf(&tb, "        }\n");
 	tbprintf(&tb, "        var prompt = \"Are you sure you want to delete\";\n");
@@ -452,8 +469,18 @@ static void do_get(int csock, const char *url) {
 	tbprintf(&tb, "            prompt += \" \" + ndirs + \" \" + (ndirs == 1 ? \"directory\" : \"directories\");\n");
 	tbprintf(&tb, "        prompt += \"?\";\n");
 	tbprintf(&tb, "        if (confirm(prompt)) {\n");
-	tbprintf(&tb, "            var file = document.getElementsByName(\"filedata\")[0];\n");
-	tbprintf(&tb, "            file.value = \"\";\n");
+	tbprintf(&tb, "            clearDir();\n");
+	tbprintf(&tb, "            clearFile();\n");
+	tbprintf(&tb, "            document.forms[0].submit();\n");
+	tbprintf(&tb, "        }\n");
+	tbprintf(&tb, "    }\n");
+	tbprintf(&tb, "    function doMkdir() {\n");
+	tbprintf(&tb, "        var newDir = document.getElementsByName(\"newDir\")[0];\n");
+	tbprintf(&tb, "        if (newDir.value == \"\")\n");
+	tbprintf(&tb, "            alert(\"You haven't entered a name for the new directory.\");\n");
+	tbprintf(&tb, "        else {\n");
+	tbprintf(&tb, "            deselectAll();\n");
+	tbprintf(&tb, "            clearFile();\n");
 	tbprintf(&tb, "            document.forms[0].submit();\n");
 	tbprintf(&tb, "        }\n");
 	tbprintf(&tb, "    }\n");
@@ -492,7 +519,11 @@ static void do_get(int csock, const char *url) {
 	free(dir_array);
 
 	tbprintf(&tb, "   <tr><th colspan=\"5\"><hr></th></tr>\n");
-	tbprintf(&tb, "   <tr><td colspan=\"5\"><table><tr><td align=\"right\">Upload file:</td><td><input type=\"file\" name=\"filedata\">&nbsp;<input type=\"button\" value=\"Upload\" onclick=\"doUpload()\"></td></tr><tr><td align=\"right\">Delete files:</td><td><input type=\"button\" value=\"Delete\" onclick=\"doDelete()\"></td></tr></table></td></tr>\n");
+	tbprintf(&tb, "   <tr><td colspan=\"5\"><table>\n");
+	tbprintf(&tb, "    <tr><td align=\"right\">Upload file:</td><td><input type=\"file\" name=\"filedata\">&nbsp;<input type=\"button\" value=\"Upload\" onclick=\"doUpload()\"></td></tr>\n");
+	tbprintf(&tb, "    <tr><td align=\"right\">New directory:</td><td><input type=\"text\" name=\"newDir\">&nbsp;<input type=\"button\" value=\"Create\" onclick=\"doMkdir()\"></td></tr>");
+	tbprintf(&tb, "    <tr><td align=\"right\">Delete selected:</td><td><input type=\"button\" value=\"Delete\" onclick=\"doDelete()\"></td></tr>");
+	tbprintf(&tb, "   </table></td></tr>\n");
 	tbprintf(&tb, "   <tr><th colspan=\"5\"><hr></th></tr></table></form>\n");
 #ifdef FREE42
 	tbprintf(&tb, "  <address>Free42 %s HTTP Server</address>\n", get_version());
@@ -629,7 +660,7 @@ void do_post(int csock, const char *url) {
     while (1) {
 	/* Loop over message parts */
 	char filename[LINEBUFSIZE] = "";
-	int action; // 0 = upload, 1 = delete file, 2 = delete dir
+	int action; // 0 = upload, 1 = delete file, 2 = delete dir, 3 = mkdir
 	textbuf tb;
 	int bpos;
 
@@ -651,6 +682,8 @@ void do_post(int csock, const char *url) {
 		    action = 1;
 		else if (strcmp(p, "dn") == 0)
 		    action = 2;
+		else if (strcmp(p, "newDir") == 0)
+		    action = 3;
 		else if (strcmp(p, "filedata") == 0) {
 		    action = 0;
 		    p = strstr(p2 + 1, "filename=");
@@ -739,22 +772,26 @@ void do_post(int csock, const char *url) {
 			} else {
 			    // action = 1 : delete file
 			    // action = 2 : delete directory
+			    // action = 3 : make directory
 			    // the filename is in the part body
-			    tb.buf[tb.size] = 0;
-			    if (strchr(tb.buf, '/') != NULL || strcmp(tb.buf, ".") == 0
-				    || strcmp(tb.buf, "..") == 0) {
-				// Trying to go outside the current directory
-				// or trying to delete . or ..
-				free(tb.buf);
-				http_error(csock, 403);
-				return;
-			    }
-			    if (action == 1)
-				remove(tb.buf);
-			    else {
-				struct stat statbuf;
-				if (stat(tb.buf, &statbuf) == 0 && S_ISDIR(statbuf.st_mode))
-				    recursive_remove(tb.buf);
+			    if (tb.size > 0) {
+				tb.buf[tb.size] = 0;
+				if (strchr(tb.buf, '/') != NULL || strcmp(tb.buf, ".") == 0
+					|| strcmp(tb.buf, "..") == 0) {
+				    // Trying to go outside the current directory
+				    // or trying to delete . or ..
+				    free(tb.buf);
+				    http_error(csock, 403);
+				    return;
+				}
+				if (action == 1)
+				    remove(tb.buf);
+				else if (action == 2) {
+				    struct stat statbuf;
+				    if (stat(tb.buf, &statbuf) == 0 && S_ISDIR(statbuf.st_mode))
+					recursive_remove(tb.buf);
+				} else
+				    mkdir(tb.buf, 0755);
 			    }
 			}
 #ifdef FREE42
