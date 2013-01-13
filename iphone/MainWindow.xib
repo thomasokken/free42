@@ -805,7 +805,7 @@
 							<object class="IBUIView" id="520288834">
 								<reference key="NSNextResponder" ref="612783208"/>
 								<int key="NSvFlags">274</int>
-								<string key="NSFrameSize">{320, 221}</string>
+								<string key="NSFrame">{{10, 12}, {300, 199}}</string>
 								<reference key="NSSuperview" ref="612783208"/>
 								<reference key="NSWindow"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
@@ -819,7 +819,7 @@
 							<object class="IBUIView" id="764187391">
 								<reference key="NSNextResponder" ref="612783208"/>
 								<int key="NSvFlags">292</int>
-								<string key="NSFrame">{{0, 229}, {320, 192}}</string>
+								<string key="NSFrame">{{17, 219}, {287, 184}}</string>
 								<reference key="NSSuperview" ref="612783208"/>
 								<reference key="NSWindow"/>
 								<string key="NSReuseIdentifierKey">_NS:9</string>
@@ -834,6 +834,10 @@
 						<string key="NSFrame">{{0, 44}, {320, 416}}</string>
 						<reference key="NSSuperview" ref="871925477"/>
 						<reference key="NSWindow"/>
+						<object class="NSColor" key="IBUIBackgroundColor">
+							<int key="NSColorSpace">3</int>
+							<bytes key="NSWhite">MC42NjY2NjY2NjY3AA</bytes>
+						</object>
 						<bool key="IBUIClipsSubviews">YES</bool>
 						<bool key="IBUIMultipleTouchEnabled">YES</bool>
 						<string key="targetRuntimeIdentifier">IBCocoaTouchFramework</string>

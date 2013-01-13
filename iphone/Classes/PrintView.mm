@@ -61,6 +61,7 @@ int printout_bottom;
     printout_top = 0;
     for (int n = printout_bottom * PRINT_BYTESPERLINE; n < PRINT_SIZE; n++)
         print_bitmap[n] = 0;
+    [self repositionTiles:true];
 }
 
 - (void)dealloc {
@@ -71,32 +72,32 @@ int printout_bottom;
     return instance;
 }
 
-- (void)drawRect:(CGRect)rect {
-    // Drawing code
-}
-
-- (void) raised {
-	// start-up code
-}
-
 - (IBAction) clear {
-	// TODO
+	printout_top = printout_bottom = 0;
+    [self repositionTiles:false];
 }
 
 - (IBAction) done {
 	[Free42AppDelegate showMain];
 }
 
-- (void) initialUpdate {
-    
-}
-
 - (void) updatePrintout:(id) params {
-    
+    update_params *ppar = (update_params *) [((NSValue *) params) pointerValue];
+    int newlength = ppar->newlength;
+    //int oldlength = ppar->oldlength;
+    int height = ppar->height;
+    delete ppar;
+    if (newlength >= PRINT_LINES) {
+        printout_top = (printout_bottom + 2) % PRINT_LINES;
+        [self repositionTiles:true];
+        [scrollView scrollRectToVisible:CGRectMake(0, height, self.bounds.size.width, 0) animated:NO];
+    } else {
+        [self repositionTiles:false];
+    }
 }
 
-- (void) scrollToBottom {
-    
+- (void) scrollViewDidScroll:(UIScrollView *)scrollView {
+    [self repositionTiles:false];
 }
 
 + (void) dump {
@@ -138,6 +139,51 @@ int printout_bottom;
     done:
         ;
     }
+}
+
+- (void) repositionTiles:(bool)force {
+    CGPoint offset = scrollView.contentOffset;
+    CGSize size = scrollView.bounds.size;
+    int printHeight = printout_bottom - printout_top;
+    if (printHeight < 0)
+        printHeight += PRINT_LINES;
+    [scrollView setContentSize:CGSizeMake(self.bounds.size.width, printHeight)];
+    int tilePos = ((int) offset.y) / ((int) size.height);
+    CGRect tile1rect = CGRectMake(0, size.height * tilePos, size.width, size.height);
+    CGRect tile2rect = CGRectMake(0, size.height * (tilePos + 1), size.width, size.height);
+    int excessHeight = tile2rect.origin.y + tile2rect.size.height - printHeight;
+    if (excessHeight > 0) {
+        int oldHeight = (int) tile2rect.size.height;
+        int newHeight = oldHeight - excessHeight;
+        if (newHeight < 0)
+            newHeight = 0;
+        tile2rect.size.height = newHeight;
+        excessHeight -= oldHeight - newHeight;
+        if (excessHeight > 0) {
+            oldHeight = (int) tile1rect.size.height;
+            newHeight = oldHeight - excessHeight;
+            if (newHeight < 0)
+                newHeight = 0;
+            tile1rect.size.height = newHeight;
+        }
+    }
+    if ((tilePos & 1) != 0) {
+        CGRect temp = tile1rect;
+        tile1rect = tile2rect;
+        tile2rect = temp;
+    }
+    if (!CGRectEqualToRect([tile1 bounds], tile1rect)) {
+        NSLog(@"tile1 = (%d %d %d %d)", (int) tile1rect.origin.x, (int) tile1rect.origin.y, (int) tile1rect.size.width, (int) tile1rect.size.height);
+        [tile1 setBounds:tile1rect];
+        [tile1 setNeedsDisplay];
+    } else if (force)
+        [tile1 setNeedsDisplay];
+    if (!CGRectEqualToRect([tile2 bounds], tile2rect)) {
+        NSLog(@"tile2 = (%d %d %d %d)", (int) tile2rect.origin.x, (int) tile2rect.origin.y, (int) tile2rect.size.width, (int) tile2rect.size.height);
+        [tile2 setBounds:tile2rect];
+        [tile2 setNeedsDisplay];
+    } else if (force)
+        [tile2 setNeedsDisplay];
 }
 
 @end

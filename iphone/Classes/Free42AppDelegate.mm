@@ -65,7 +65,6 @@ static char version[32] = "";
 	[containerView addSubview:aboutView];
 	[containerView addSubview:selectFileView];
 	[containerView addSubview:calcView];
-    [printView initialUpdate];
     [window makeKeyAndVisible];
 }
 
@@ -105,7 +104,6 @@ static char version[32] = "";
 }
 
 - (void) showPrintOut2 {
-	[printView raised];
 	[containerView bringSubviewToFront:printView];
 }
 

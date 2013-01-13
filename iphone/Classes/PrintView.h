@@ -50,12 +50,11 @@ extern int printout_bottom;
 
 + (PrintView *) instance;
 - (void) awakeFromNib;
-- (void) raised;
 - (IBAction) clear;
 - (IBAction) done;
-- (void) initialUpdate;
 - (void) updatePrintout:(id) params;
-- (void) scrollToBottom;
 + (void) dump;
+- (void) scrollViewDidScroll:(UIScrollView *)scrollView;
+- (void) repositionTiles:(bool)force;
 
 @end

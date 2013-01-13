@@ -56,8 +56,6 @@
     int height = ppar->height;
     delete ppar;
     if (newlength >= PRINT_LINES) {
-        // TODO: This appears to be wrong. Nasty stuff happens
-        // when you print with a full buffer. Why?
         printout_top = (printout_bottom + 2) % PRINT_LINES;
         newlength = PRINT_LINES - 2;
         if (newlength != oldlength) {
