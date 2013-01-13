@@ -72,7 +72,7 @@ ifdef OLPC
 	rm -rf Free42.activity
 endif
 
-$(SRCS): symlinks
+$(SRCS) skin2cc.cc keymap2cc.cc skin2cc.conf: symlinks
 
 .cc.o:
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
@@ -90,64 +90,7 @@ keymap.cc: keymap2cc keymap.txt
 	./keymap2cc
 
 symlinks:
-	ln -s ../common/free42.h
-	ln -s ../common/core_commands1.cc
-	ln -s ../common/core_commands1.h
-	ln -s ../common/core_commands2.cc
-	ln -s ../common/core_commands2.h
-	ln -s ../common/core_commands3.cc
-	ln -s ../common/core_commands3.h
-	ln -s ../common/core_commands4.cc
-	ln -s ../common/core_commands4.h
-	ln -s ../common/core_commands5.cc
-	ln -s ../common/core_commands5.h
-	ln -s ../common/core_commands6.cc
-	ln -s ../common/core_commands6.h
-	ln -s ../common/core_commands7.cc
-	ln -s ../common/core_commands7.h
-	ln -s ../common/core_display.cc
-	ln -s ../common/core_display.h
-	ln -s ../common/core_globals.cc
-	ln -s ../common/core_globals.h
-	ln -s ../common/core_helpers.cc
-	ln -s ../common/core_helpers.h
-	ln -s ../common/core_keydown.cc
-	ln -s ../common/core_keydown.h
-	ln -s ../common/core_linalg1.cc
-	ln -s ../common/core_linalg1.h
-	ln -s ../common/core_linalg2.cc
-	ln -s ../common/core_linalg2.h
-	ln -s ../common/core_math1.cc
-	ln -s ../common/core_math1.h
-	ln -s ../common/core_math2.cc
-	ln -s ../common/core_math2.h
-	ln -s ../common/core_main.cc
-	ln -s ../common/core_main.h
-	ln -s ../common/core_phloat.cc
-	ln -s ../common/core_phloat.h
-	ln -s ../common/core_sto_rcl.cc
-	ln -s ../common/core_sto_rcl.h
-	ln -s ../common/core_tables.cc
-	ln -s ../common/core_tables.h
-	ln -s ../common/core_variables.cc
-	ln -s ../common/core_variables.h
-	ln -s ../common/shell.h
-	ln -s ../common/shell_loadimage.cc
-	ln -s ../common/shell_loadimage.h
-	ln -s ../common/shell_spool.cc
-	ln -s ../common/shell_spool.h
-	ln -s ../common/skin2cc.cc
-	ln -s ../common/skin2cc.conf
-	ln -s ../common/keymap2cc.cc
-	ln -s ../common/bcd.cc
-	ln -s ../common/bcd.h
-	ln -s ../common/bcdfloat.cc
-	ln -s ../common/bcdfloat.h
-	ln -s ../common/bcdmath.cc
-	ln -s ../common/bcdmath.h
-	ln -s ../common/bcd2.h
-	ln -s ../common/bcdfloat2.cc
-	ln -s ../common/bcdfloat2.h
+	for fn in `cd ../common; /bin/ls`; do ln -s ../common/$$fn; done
 	touch symlinks
 
 clean: FORCE
