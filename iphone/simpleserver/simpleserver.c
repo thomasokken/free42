@@ -784,14 +784,16 @@ void do_post(int csock, const char *url) {
 				    http_error(csock, 403);
 				    return;
 				}
+				strcpy(line, url + 1);
+				strcat(line, tb.buf);
 				if (action == 1)
-				    remove(tb.buf);
+				    remove(line);
 				else if (action == 2) {
 				    struct stat statbuf;
-				    if (stat(tb.buf, &statbuf) == 0 && S_ISDIR(statbuf.st_mode))
-					recursive_remove(tb.buf);
+				    if (stat(line, &statbuf) == 0 && S_ISDIR(statbuf.st_mode))
+					recursive_remove(line);
 				} else
-				    mkdir(tb.buf, 0755);
+				    mkdir(line, 0755);
 			    }
 			}
 #ifdef FREE42
