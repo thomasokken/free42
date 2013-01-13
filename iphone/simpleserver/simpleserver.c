@@ -325,7 +325,6 @@ static void do_get(int csock, const char *url) {
 		dir_list = di;
 		dir_length++;
 	    }
-	    closedir(dir);
 #ifdef FREE42
 	    if (strcmp(url, "/") == 0) {
 		/* Make sure there is a directory called "memory"; override

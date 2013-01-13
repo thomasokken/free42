@@ -268,12 +268,16 @@ done:
 }
 
 void errprintf(const char *fmt, ...) {
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    
 	va_list ap;
     char text[1024];
     va_start(ap, fmt);
     vsprintf(text, fmt, ap);
 	[instance performSelectorOnMainThread:@selector(appendToLog:) withObject:[NSString stringWithCString:text encoding:NSUTF8StringEncoding] waitUntilDone:NO];
 	va_end(ap);
+    
+    [pool release];
 }
 
 @end
