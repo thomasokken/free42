@@ -1,6 +1,10 @@
 iPhone version:
 * Add option to disable key click.
 * Haptic feedback option.
+* The pop-up keyboard handling in the Preferences and File Selection views is
+  broken. The screen often doesn't scroll up when the keyboard appears. That
+  should be fixed, and while you're at it, put those views inside scroll views,
+  so you can scroll them when the keyboard is visible.
 
 Android version:
 * The key click is flaky on some devices. Why?
