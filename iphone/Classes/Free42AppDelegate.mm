@@ -167,10 +167,4 @@ static char version[32] = "";
 	return version;
 }
 
-// C version of getVersion, needed by the HTTP Server
-
-const char *get_version() {
-	return [Free42AppDelegate getVersion];
-}
-
 @end

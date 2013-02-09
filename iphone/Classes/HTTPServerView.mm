@@ -280,4 +280,20 @@ void errprintf(const char *fmt, ...) {
     [pool release];
 }
 
+// C version of getVersion, needed by the HTTP Server
+
+const char *get_version() {
+	return [Free42AppDelegate getVersion];
+}
+
+char *make_temp_file() {
+	static int fileno = 0;
+	NSString *path = [NSString stringWithFormat:@"%@/tempzip.%d", NSTemporaryDirectory(), ++fileno];
+	const char *cpath = [path UTF8String];
+	int len = strlen(cpath);
+	char *ret = (char *) malloc(len + 1);
+	strcpy(ret, cpath);
+	return ret;
+}
+
 @end
