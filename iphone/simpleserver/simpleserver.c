@@ -466,14 +466,24 @@ static void do_get(int csock, const char *url) {
 	tbprintf(&tb, "        newDir.value = \"\";\n");
 	tbprintf(&tb, "    }\n");
 	tbprintf(&tb, "    function doUpload() {\n");
-	tbprintf(&tb, "        var file = document.getElementsByName(\"filedata\")[0];\n");
-	tbprintf(&tb, "        if (file.value == \"\" || file.value == null)\n");
+	tbprintf(&tb, "        var file = document.getElementsByName(\"filedata\")[0].value;\n");
+	tbprintf(&tb, "        if (file == \"\" || file == null) {\n");
 	tbprintf(&tb, "            alert(\"You haven't selected a file to upload.\");\n");
-	tbprintf(&tb, "        else {\n");
-	tbprintf(&tb, "            deselectAll();\n");
-	tbprintf(&tb, "            clearDir();\n");
-	tbprintf(&tb, "            document.forms[0].submit();\n");
+	tbprintf(&tb, "            return;\n");
 	tbprintf(&tb, "        }\n");
+#ifdef FREE42
+	if (strcmp(url, "/memory/") == 0) {
+	    tbprintf(&tb, "        file = file.toLowerCase();\n");
+	    tbprintf(&tb, "        var p = file.length - 4;\n");
+	    tbprintf(&tb, "        if (p < 0 || (file.substr(p, 4) != \".raw\" && file.substr(p, 4) != \".zip\")) {\n");
+	    tbprintf(&tb, "            alert(\"You can only upload *.raw or *.zip files to /memory/.\");\n");
+	    tbprintf(&tb, "            return;\n");
+	    tbprintf(&tb, "        }\n");
+	}
+#endif
+	tbprintf(&tb, "        deselectAll();\n");
+	tbprintf(&tb, "        clearDir();\n");
+	tbprintf(&tb, "        document.forms[0].submit();\n");
 	tbprintf(&tb, "    }\n");
 	tbprintf(&tb, "    function doDownload() {\n");
 	tbprintf(&tb, "        var nfiles = itemsSelected(\"fn\")\n");
@@ -488,6 +498,18 @@ static void do_get(int csock, const char *url) {
 	tbprintf(&tb, "        document.forms[0].submit();\n");
 	tbprintf(&tb, "    }\n");
 	tbprintf(&tb, "    function doDelete() {\n");
+#ifdef FREE42
+	if (strcmp(url, "/") == 0) {
+	    tbprintf(&tb, "        var dirChecks = document.getElementsByName(\"dn\");\n");
+	    tbprintf(&tb, "        for (var i = 0; i < dirChecks.length; i++) {\n");
+	    tbprintf(&tb, "            var dirCheck = dirChecks[i];\n");
+	    tbprintf(&tb, "            if (dirCheck.checked && dirCheck.value == \"memory\") {\n");
+	    tbprintf(&tb, "                alert(\"You can't delete /memory/.\");\n");
+	    tbprintf(&tb, "                return;\n");
+	    tbprintf(&tb, "            }\n");
+	    tbprintf(&tb, "        }\n");
+	}
+#endif
 	tbprintf(&tb, "        var nfiles = itemsSelected(\"fn\")\n");
 	tbprintf(&tb, "        var ndirs = itemsSelected(\"dn\")\n");
 	tbprintf(&tb, "        if (nfiles == 0 && ndirs == 0) {\n");
@@ -523,7 +545,7 @@ static void do_get(int csock, const char *url) {
 	tbprintf(&tb, " </head>\n");
 	tbprintf(&tb, " <body>\n");
 	tbprintf(&tb, "  <h1>Index of %s</h1>\n", url);
-	tbprintf(&tb, "  <form method=\"post\" enctype=\"multipart/form-data\"><input type=\"hidden\" name=\"what\" value=\"download\"><table><tr><td valign=\"top\"><img src=\"/icons/blank.gif\"></td><td><b>Name</b></td><td><b>Last modified</b></td><td align=\"right\"><b>Size</b></td><td>%s</td></tr><tr><th colspan=\"5\"><hr></th></tr>\n", strcmp(url, "/memory/") == 0 ? "&nbsp;" : "<input type=\"checkbox\" name=\"selAll\" value=\"foo\" onclick=\"selectAll()\">");
+	tbprintf(&tb, "  <form method=\"post\" enctype=\"multipart/form-data\"><input type=\"hidden\" name=\"what\" value=\"download\"><table><tr><td valign=\"top\"><img src=\"/icons/blank.gif\"></td><td><b>Name</b></td><td><b>Last modified</b></td><td align=\"right\"><b>Size</b></td><td><input type=\"checkbox\" name=\"selAll\" value=\"foo\" onclick=\"selectAll()\"></td></tr><tr><th colspan=\"5\"><hr></th></tr>\n");
 	tbprintf(&tb, "   <tr><td valign=\"top\"><img src=\"/icons/back.gif\"></td><td><a href=\"..\">Parent directory</a></td><td>&nbsp;</td><td align=\"right\">&nbsp;</td><td>&nbsp;</td></tr>\n");
 
 	for (i = 0; i < dir_length; i++) {
@@ -534,17 +556,12 @@ static void do_get(int csock, const char *url) {
 		    break;
 		case 1:
 		    if (type == 2)
-			tbprintf(&tb, "   <tr><td valign=\"top\"><img src=\"/icons/text.gif\"></td><td><a href=\"%d\">%s</a></td><td>%s</td><td align=\"right\">%d</td><td>&nbsp;</td></tr>\n", i, di->name, di->mtime, di->size);
+			tbprintf(&tb, "   <tr><td valign=\"top\"><img src=\"/icons/text.gif\"></td><td><a href=\"%d\">%s</a></td><td>%s</td><td align=\"right\">%d</td><td><input type=\"checkbox\" name=\"fn\" value=\"%d\" onclick=\"selectOne()\"></td></tr>\n", i, di->name, di->mtime, di->size, i);
 		    else
 			tbprintf(&tb, "   <tr><td valign=\"top\"><img src=\"/icons/text.gif\"></td><td><a href=\"%s\">%s</a></td><td>%s</td><td align=\"right\">%d</td><td><input type=\"checkbox\" name=\"fn\" value=\"%s\" onclick=\"selectOne()\"></td></tr>\n", di->name, di->name, di->mtime, di->size, di->name);
 		    break;
 		case 2:
-#ifdef FREE42
-		    if (strcmp(url, "/") == 0 && strcmp(di->name, "memory") == 0)
-			tbprintf(&tb, "   <tr><td valign=\"top\"><img src=\"/icons/folder.gif\"></td><td><a href=\"%s/\">%s</a></td><td>%s</td><td align=\"right\">-</td><td>&nbsp;</td></tr>\n", di->name, di->name, di->mtime);
-		    else
-#endif
-			tbprintf(&tb, "   <tr><td valign=\"top\"><img src=\"/icons/folder.gif\"></td><td><a href=\"%s/\">%s</a></td><td>%s</td><td align=\"right\">-</td><td><input type=\"checkbox\" name=\"dn\" value=\"%s\" onclick=\"selectOne()\"></td></tr>\n", di->name, di->name, di->mtime, di->name);
+		    tbprintf(&tb, "   <tr><td valign=\"top\"><img src=\"/icons/folder.gif\"></td><td><a href=\"%s/\">%s</a></td><td>%s</td><td align=\"right\">-</td><td><input type=\"checkbox\" name=\"dn\" value=\"%s\" onclick=\"selectOne()\"></td></tr>\n", di->name, di->name, di->mtime, di->name);
 		    break;
 	    }
 	    if (type == 3)
@@ -556,10 +573,9 @@ static void do_get(int csock, const char *url) {
 	tbprintf(&tb, "   <tr><th colspan=\"5\"><hr></th></tr>\n");
 	tbprintf(&tb, "   <tr><td colspan=\"5\"><table>\n");
 	tbprintf(&tb, "    <tr><td align=\"right\">Upload file:</td><td><input type=\"file\" name=\"filedata\">&nbsp;<input type=\"button\" value=\"Upload\" onclick=\"doUpload()\"></td></tr>\n");
-	if (strcmp(url, "/memory/") != 0) {
+	if (strncmp(url, "/memory/", 8) != 0)
 	    tbprintf(&tb, "    <tr><td align=\"right\">New directory:</td><td><input type=\"text\" name=\"newDir\">&nbsp;<input type=\"button\" value=\"Create\" onclick=\"doMkdir()\"></td></tr>");
-	    tbprintf(&tb, "    <tr><td align=\"right\">Selected items:</td><td><input type=\"button\" value=\"Download\" onclick=\"doDownload()\">&nbsp;<input type=\"button\" value=\"Delete\" onclick=\"doDelete()\"></td></tr>");
-	}
+	tbprintf(&tb, "    <tr><td align=\"right\">Selected items:</td><td><input type=\"button\" value=\"Download\" onclick=\"doDownload()\">&nbsp;<input type=\"button\" value=\"Delete\" onclick=\"doDelete()\"></td></tr>");
 	tbprintf(&tb, "   </table></td></tr>\n");
 	tbprintf(&tb, "   <tr><th colspan=\"5\"><hr></th></tr></table></form>\n");
 #ifdef FREE42
