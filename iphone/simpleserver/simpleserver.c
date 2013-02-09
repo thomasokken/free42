@@ -30,6 +30,7 @@
 #include <netinet/in.h>
 #include <utime.h>
 #include <pthread.h>
+#include <limits.h>
 
 #include "minizip_zip.h"
 #include "minizip_unzip.h"
@@ -891,11 +892,21 @@ void do_post(int csock, const char *url) {
 				    goto unzip_failed_1;
 				fwrite(tb.buf, 1, tb.size, f);
 				fclose(f);
-				zipFile zf = unzOpen(fn);
+				zipFile zf;
+				zf = unzOpen(fn);
 				if (zf == NULL)
 				    goto unzip_failed_2;
-				if (unzGoToFirstFile(zf) != UNZ_OK)
-				    goto unzip_failed_3;
+				if (unzGoToFirstFile(zf) != UNZ_OK) {
+				    unzip_failed_3:
+				    unzClose(zf);
+				    unzip_failed_2:
+				    remove(fn);
+				    unzip_failed_1:
+				    http_error(csock, 403);
+				    free(tb.buf);
+				    free(fn);
+				    return;
+				}
 				do {
 				    unz_file_info ufi;
 				    char filename[_POSIX_PATH_MAX];
@@ -912,24 +923,22 @@ void do_post(int csock, const char *url) {
 					    continue;
 					}
 					*slash = 0;
-					mkdir(filename, 0755);
+					strcpy(line, url + 1);
+					strcat(line, "/");
+					strcat(line, filename);
+					mkdir(line, 0755);
 					*slash = '/';
 					b = slash + 1;
 				    }
-				    FILE *f = fopen(filename, "w");
+				    strcpy(line, url + 1);
+				    strcat(line, "/");
+				    strcat(line, filename);
+				    FILE *f = fopen(line, "w");
 				    if (f != NULL) {
 					if (unzOpenCurrentFile(zf) != UNZ_OK) {
 					    fclose(f);
-					    remove(filename);
-					    unzip_failed_3:
-					    unzClose(zf);
-					    unzip_failed_2:
-					    remove(fn);
-					    unzip_failed_1:
-					    http_error(csock, 403);
-					    free(tb.buf);
-					    free(fn);
-					    return;
+					    remove(line);
+					    goto unzip_failed_3;
 					}
 					char *buf = (char *) malloc(8192);
 					int n;
@@ -950,7 +959,7 @@ void do_post(int csock, const char *url) {
 					struct utimbuf ub;
 					ub.actime = t;
 					ub.modtime = t;
-					utime(filename, &ub);
+					utime(line, &ub);
 				    }
 				} while (unzGoToNextFile(zf) == UNZ_OK);
 				unzClose(zf);
