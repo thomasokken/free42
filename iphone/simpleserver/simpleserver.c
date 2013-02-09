@@ -28,12 +28,35 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <utime.h>
 #include <pthread.h>
 
+#include "minizip_zip.h"
+#include "minizip_unzip.h"
+
 #ifdef FREE42
+
 #include "../../common/core_main.h"
 const char *get_version();
+char *make_temp_file();
 static pthread_mutex_t shell_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+#else
+
+static char *make_temp_file() {
+    char *path = (char *) malloc(19);
+    int fd;
+    strcpy(path, "/tmp/Free42.XXXXXX");
+    fd = mkstemp(path);
+    if (fd == -1) {
+	free(path);
+	return NULL;
+    } else {
+	close(fd);
+	return path;
+    }
+}
+
 #endif
 
 /* TODO:
@@ -131,26 +154,20 @@ void handle_client(int csock) {
     url = strchr(req, ' ');
     if (url == NULL) {
 	errprintf("Malformed HTTP request: \"%s\"\n", req);
-	shutdown(csock, SHUT_WR);
-	free(req);
-	return;
+	goto finish;
     }
 
     protocol = strchr(url + 1, ' ');
     if (protocol == NULL) {
 	errprintf("Malformed HTTP request: \"%s\"\n", req);
-	shutdown(csock, SHUT_WR);
-	free(req);
-	return;
+	goto finish;
     }
 
     *url++ = 0;
     *protocol++ = 0;
     if (strncmp(protocol, "HTTP/", 5) != 0) {
 	errprintf("Unsupported protocol: \"%s\"\n", protocol);
-	shutdown(csock, SHUT_WR);
-	free(req);
-	return;
+	goto finish;
     }
 
     if (strcmp(req, "GET") == 0) {
@@ -161,7 +178,11 @@ void handle_client(int csock) {
 	//errprintf("POST %s DONE\n", url);
     } else
 	errprintf("Unsupported method: \"%s\"\n", req);
+
+    finish:
     shutdown(csock, SHUT_WR);
+    while (recv(csock, req, LINEBUFSIZE, 0) > 0);
+    close(csock);
     free(req);
     return;
 }
@@ -260,7 +281,7 @@ static void do_get(int csock, const char *url) {
     }
 
     if (type == 0 || type == 1) {
-	sockprintf(csock, "HTTP/1.0 200 OK\r\n");
+	sockprintf(csock, "HTTP/1.1 200 OK\r\n");
 	sockprintf(csock, "Connection: close\r\n");
 	sockprintf(csock, "Content-Type: %s\r\n", get_mime(url));
 	sockprintf(csock, "Content-Length: %d\r\n", filesize);
@@ -275,7 +296,7 @@ static void do_get(int csock, const char *url) {
 		send(csock, buf, n, 0);
 	}
     } else if (url[strlen(url) - 1] != '/') {
-	sockprintf(csock, "HTTP/1.0 302 Moved Temporarily\r\n");
+	sockprintf(csock, "HTTP/1.1 302 Moved Temporarily\r\n");
 	sockprintf(csock, "Connection: close\r\n");
 	sockprintf(csock, "Location: %s/\r\n", url);
 	sockprintf(csock, "\r\n");
@@ -453,6 +474,18 @@ static void do_get(int csock, const char *url) {
 	tbprintf(&tb, "            document.forms[0].submit();\n");
 	tbprintf(&tb, "        }\n");
 	tbprintf(&tb, "    }\n");
+	tbprintf(&tb, "    function doDownload() {\n");
+	tbprintf(&tb, "        var nfiles = itemsSelected(\"fn\")\n");
+	tbprintf(&tb, "        var ndirs = itemsSelected(\"dn\")\n");
+	tbprintf(&tb, "        if (nfiles == 0 && ndirs == 0) {\n");
+	tbprintf(&tb, "            alert(\"You haven't selected anything to download.\");\n");
+	tbprintf(&tb, "            return;\n");
+	tbprintf(&tb, "        }\n");
+	tbprintf(&tb, "        clearDir();\n");
+	tbprintf(&tb, "        clearFile();\n");
+	tbprintf(&tb, "        document.forms[0].what.value = \"download\";\n");
+	tbprintf(&tb, "        document.forms[0].submit();\n");
+	tbprintf(&tb, "    }\n");
 	tbprintf(&tb, "    function doDelete() {\n");
 	tbprintf(&tb, "        var nfiles = itemsSelected(\"fn\")\n");
 	tbprintf(&tb, "        var ndirs = itemsSelected(\"dn\")\n");
@@ -471,6 +504,7 @@ static void do_get(int csock, const char *url) {
 	tbprintf(&tb, "        if (confirm(prompt)) {\n");
 	tbprintf(&tb, "            clearDir();\n");
 	tbprintf(&tb, "            clearFile();\n");
+	tbprintf(&tb, "            document.forms[0].what.value = \"delete\";\n");
 	tbprintf(&tb, "            document.forms[0].submit();\n");
 	tbprintf(&tb, "        }\n");
 	tbprintf(&tb, "    }\n");
@@ -488,7 +522,7 @@ static void do_get(int csock, const char *url) {
 	tbprintf(&tb, " </head>\n");
 	tbprintf(&tb, " <body>\n");
 	tbprintf(&tb, "  <h1>Index of %s</h1>\n", url);
-	tbprintf(&tb, "  <form method=\"post\" enctype=\"multipart/form-data\"><table><tr><td valign=\"top\"><img src=\"/icons/blank.gif\"></td><td><b>Name</b></td><td><b>Last modified</b></td><td align=\"right\"><b>Size</b></td><td>%s</td></tr><tr><th colspan=\"5\"><hr></th></tr>\n", strcmp(url, "/memory/") == 0 ? "&nbsp;" : "<input type=\"checkbox\" name=\"selAll\" value=\"foo\" onclick=\"selectAll()\">");
+	tbprintf(&tb, "  <form method=\"post\" enctype=\"multipart/form-data\"><input type=\"hidden\" name=\"what\" value=\"download\"><table><tr><td valign=\"top\"><img src=\"/icons/blank.gif\"></td><td><b>Name</b></td><td><b>Last modified</b></td><td align=\"right\"><b>Size</b></td><td>%s</td></tr><tr><th colspan=\"5\"><hr></th></tr>\n", strcmp(url, "/memory/") == 0 ? "&nbsp;" : "<input type=\"checkbox\" name=\"selAll\" value=\"foo\" onclick=\"selectAll()\">");
 	tbprintf(&tb, "   <tr><td valign=\"top\"><img src=\"/icons/back.gif\"></td><td><a href=\"..\">Parent directory</a></td><td>&nbsp;</td><td align=\"right\">&nbsp;</td><td>&nbsp;</td></tr>\n");
 
 	for (i = 0; i < dir_length; i++) {
@@ -521,8 +555,10 @@ static void do_get(int csock, const char *url) {
 	tbprintf(&tb, "   <tr><th colspan=\"5\"><hr></th></tr>\n");
 	tbprintf(&tb, "   <tr><td colspan=\"5\"><table>\n");
 	tbprintf(&tb, "    <tr><td align=\"right\">Upload file:</td><td><input type=\"file\" name=\"filedata\">&nbsp;<input type=\"button\" value=\"Upload\" onclick=\"doUpload()\"></td></tr>\n");
-	tbprintf(&tb, "    <tr><td align=\"right\">New directory:</td><td><input type=\"text\" name=\"newDir\">&nbsp;<input type=\"button\" value=\"Create\" onclick=\"doMkdir()\"></td></tr>");
-	tbprintf(&tb, "    <tr><td align=\"right\">Delete selected:</td><td><input type=\"button\" value=\"Delete\" onclick=\"doDelete()\"></td></tr>");
+	if (strcmp(url, "/memory/") != 0) {
+	    tbprintf(&tb, "    <tr><td align=\"right\">New directory:</td><td><input type=\"text\" name=\"newDir\">&nbsp;<input type=\"button\" value=\"Create\" onclick=\"doMkdir()\"></td></tr>");
+	    tbprintf(&tb, "    <tr><td align=\"right\">Selected items:</td><td><input type=\"button\" value=\"Download\" onclick=\"doDownload()\">&nbsp;<input type=\"button\" value=\"Delete\" onclick=\"doDelete()\"></td></tr>");
+	}
 	tbprintf(&tb, "   </table></td></tr>\n");
 	tbprintf(&tb, "   <tr><th colspan=\"5\"><hr></th></tr></table></form>\n");
 #ifdef FREE42
@@ -533,7 +569,7 @@ static void do_get(int csock, const char *url) {
 	tbprintf(&tb, " </body>\n");
 	tbprintf(&tb, "</html>\n");
 
-	sockprintf(csock, "HTTP/1.0 200 OK\r\n");
+	sockprintf(csock, "HTTP/1.1 200 OK\r\n");
 	sockprintf(csock, "Connection: close\r\n");
 	sockprintf(csock, "Content-Type: text/html\r\n");
 	sockprintf(csock, "Content-Length: %d\r\n", tb.size);
@@ -601,6 +637,75 @@ static int recursive_remove(const char *path) {
     return remove(path) == 0;
 }
 
+static void zip_one_file(const char *file, const char *path, zipFile z, char *buf, int bufsize) {
+    zip_fileinfo zfi;
+    struct stat st;
+    FILE *f;
+    struct tm stm;
+    int ret, n;
+
+    ret = stat(file, &st);
+    if (ret != 0 || !S_ISREG(st.st_mode))
+	return;
+    f = fopen(file, "r");
+    if (f == NULL)
+	return;
+
+    localtime_r(&st.st_mtime, &stm);
+    zfi.tmz_date.tm_sec = stm.tm_sec;
+    zfi.tmz_date.tm_min = stm.tm_min;
+    zfi.tmz_date.tm_hour = stm.tm_hour;
+    zfi.tmz_date.tm_mday = stm.tm_mday;
+    zfi.tmz_date.tm_mon = stm.tm_mon;
+    zfi.tmz_date.tm_year = stm.tm_year + 1900;
+    zfi.dosDate = 0;
+    zfi.internal_fa = 0;
+    zfi.external_fa = 0;
+
+    ret = zipOpenNewFileInZip(z, path, &zfi, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION);
+    // TODO: How to deal with the return value? zip.h doesn't say.
+    while ((n = fread(buf, 1, bufsize, f)) > 0)
+	zipWriteInFileInZip(z, buf, n);
+    fclose(f);
+    zipCloseFileInZip(z);
+}
+
+static void recursive_zip(const char *base_path, const char *zip_path, zipFile z, char *buf, int bufsize) {
+    char *full_path, *new_path;
+    DIR *dir;
+    struct dirent *d;
+    
+    full_path = (char *) malloc(strlen(base_path) + strlen(zip_path) + 2);
+    strcpy(full_path, base_path);
+    if (strlen(base_path) > 0)
+	strcat(full_path, "/");
+    strcat(full_path, zip_path);
+    dir = opendir(full_path);
+    while ((d = readdir(dir)) != NULL) {
+	struct stat st;
+	if (strcmp(d->d_name, ".") == 0 || strcmp(d->d_name, "..") == 0)
+	    continue;
+	new_path = (char *) malloc(strlen(full_path) + strlen(d->d_name) + 2);
+	strcpy(new_path, full_path);
+	strcat(new_path, "/");
+	strcat(new_path, d->d_name);
+	if (stat(new_path, &st) == 0) {
+	    char *new_zip_path = (char *) malloc(strlen(zip_path) + strlen(d->d_name) + 2);
+	    strcpy(new_zip_path, zip_path);
+	    strcat(new_zip_path, "/");
+	    strcat(new_zip_path, d->d_name);
+	    if (S_ISDIR(st.st_mode))
+		recursive_zip(base_path, new_zip_path, z, buf, bufsize);
+	    else if (S_ISREG(st.st_mode))
+		zip_one_file(new_path, new_zip_path, z, buf, bufsize);
+	    free(new_zip_path);
+	}
+	free(new_path);
+    }
+    closedir(dir);
+    free(full_path);
+}
+
 void do_post(int csock, const char *url) {
     char line[LINEBUFSIZE];
     char boundary[LINEBUFSIZE] = "";
@@ -657,10 +762,15 @@ void do_post(int csock, const char *url) {
 	return;
     }
 
+    int what = 1; // 1=download 2=delete
+    zipFile z = NULL;
+    char *zip_name;
+    char buf[8192];
+
     while (1) {
 	/* Loop over message parts */
 	char filename[LINEBUFSIZE] = "";
-	int action; // 0 = upload, 1 = delete file, 2 = delete dir, 3 = mkdir
+	int action; // 0 = upload, 1 = delete file, 2 = delete dir, 3 = mkdir, 4 = parse "what"
 	textbuf tb;
 	int bpos;
 
@@ -684,6 +794,8 @@ void do_post(int csock, const char *url) {
 		    action = 2;
 		else if (strcmp(p, "newDir") == 0)
 		    action = 3;
+		else if (strcmp(p, "what") == 0)
+		    action = 4;
 		else if (strcmp(p, "filedata") == 0) {
 		    action = 0;
 		    p = strstr(p2 + 1, "filename=");
@@ -752,23 +864,105 @@ void do_post(int csock, const char *url) {
 		    } else {
 #endif
 			if (action == 0) {
-			    // Upload to file
-			    strcpy(line, url + 1);
-			    strcat(line, filename);
-			    if (tb.size == 0)
-				// Uploading zero-length file: delete destination
-				unlink(line);
-			    else {
-				// Uploading nonempty file: create it
-				FILE *f = fopen(line, "w");
-				if (f == NULL) {
-				    http_error(csock, 403);
-				    free(tb.buf);
-				    return;
+			    int fnlen = strlen(filename);
+			    if (fnlen < 4 || strcasecmp(filename + fnlen - 4, ".zip") != 0) {
+				// Upload to file
+				strcpy(line, url + 1);
+				strcat(line, filename);
+				if (tb.size == 0)
+				    // Uploading zero-length file: delete destination
+				    unlink(line);
+				else {
+				    // Uploading nonempty file: create it
+				    FILE *f = fopen(line, "w");
+				    if (f == NULL) {
+					http_error(csock, 403);
+					free(tb.buf);
+					return;
+				    }
+				    fwrite(tb.buf, 1, tb.size, f);
+				    fclose(f);
 				}
+			    } else {
+				// Uploading zip file: unpack it on the fly
+				char *fn = make_temp_file();
+				FILE *f = fopen(fn, "w");
+				if (f == NULL)
+				    goto unzip_failed_1;
 				fwrite(tb.buf, 1, tb.size, f);
 				fclose(f);
+				zipFile zf = unzOpen(fn);
+				if (zf == NULL)
+				    goto unzip_failed_2;
+				if (unzGoToFirstFile(zf) != UNZ_OK)
+				    goto unzip_failed_3;
+				do {
+				    unz_file_info ufi;
+				    char filename[_POSIX_PATH_MAX];
+				    unzGetCurrentFileInfo(zf, &ufi, filename, _POSIX_PATH_MAX, NULL, 0, NULL, 0);
+				    while (filename[0] == '/')
+					memmove(filename, filename + 1, strlen(filename) - 1);
+				    char *b = filename;
+				    while (1) {
+					char *slash = strchr(b, '/');
+					if (slash == NULL)
+					    break;
+					if (slash == b) {
+					    b++;
+					    continue;
+					}
+					*slash = 0;
+					mkdir(filename, 0755);
+					*slash = '/';
+					b = slash + 1;
+				    }
+				    FILE *f = fopen(filename, "w");
+				    if (f != NULL) {
+					if (unzOpenCurrentFile(zf) != UNZ_OK) {
+					    fclose(f);
+					    remove(filename);
+					    unzip_failed_3:
+					    unzClose(zf);
+					    unzip_failed_2:
+					    remove(fn);
+					    unzip_failed_1:
+					    http_error(csock, 403);
+					    free(tb.buf);
+					    free(fn);
+					    return;
+					}
+					char *buf = (char *) malloc(8192);
+					int n;
+					while ((n = unzReadCurrentFile(zf, buf, 8192)) > 0)
+					    fwrite(buf, 1, n, f);
+					free(buf);
+					unzCloseCurrentFile(zf);
+					fclose(f);
+					struct tm stm;
+					stm.tm_sec = ufi.tmu_date.tm_sec;
+					stm.tm_min = ufi.tmu_date.tm_min;
+					stm.tm_hour = ufi.tmu_date.tm_hour;
+					stm.tm_mday = ufi.tmu_date.tm_mday;
+					stm.tm_mon = ufi.tmu_date.tm_mon;
+					stm.tm_year = ufi.tmu_date.tm_year - 1900;
+					stm.tm_isdst = -1;
+					time_t t = mktime(&stm);
+					struct utimbuf ub;
+					ub.actime = t;
+					ub.modtime = t;
+					utime(filename, &ub);
+				    }
+				} while (unzGoToNextFile(zf) == UNZ_OK);
+				unzClose(zf);
+				remove(fn);
+				free(fn);
 			    }
+			} else if (action == 4) {
+			    if (tb.size > 0) {
+				tb.buf[tb.size] = 0;
+				what = strcmp(tb.buf, "delete") == 0 ? 2 : 1;
+			    } else
+				what = 1;
 			} else {
 			    // action = 1 : delete file
 			    // action = 2 : delete directory
@@ -784,14 +978,31 @@ void do_post(int csock, const char *url) {
 				    http_error(csock, 403);
 				    return;
 				}
+				if ((action == 1 || action == 2) && what == 1 && z == NULL) {
+				    zip_name = make_temp_file();
+				    z = zipOpen(zip_name, APPEND_STATUS_CREATE);
+				    sockprintf(csock, "HTTP/1.1 200 OK\r\n");
+				    sockprintf(csock, "Connection: close\r\n");
+				    sockprintf(csock, "Content-Type: application/zip\r\n");
+				    sockprintf(csock, "Transfer-Encoding: chunked\r\n");
+				    sockprintf(csock, "Content-Disposition: attachment; filename=%s.zip\r\n", tb.buf);
+				    sockprintf(csock, "\r\n");
+				}
 				strcpy(line, url + 1);
 				strcat(line, tb.buf);
-				if (action == 1)
-				    remove(line);
-				else if (action == 2) {
+				if (action == 1) {
+				    if (z == NULL)
+					remove(line);
+				    else
+					zip_one_file(line, tb.buf, z, buf, 8192);
+				} else if (action == 2) {
 				    struct stat statbuf;
-				    if (stat(line, &statbuf) == 0 && S_ISDIR(statbuf.st_mode))
-					recursive_remove(line);
+				    if (stat(line, &statbuf) == 0 && S_ISDIR(statbuf.st_mode)) {
+					if (z == NULL)
+					    recursive_remove(line);
+					else
+					    recursive_zip(url + 1, tb.buf, z, buf, 8192);
+				    }
 				} else
 				    mkdir(line, 0755);
 			    }
@@ -810,10 +1021,25 @@ void do_post(int csock, const char *url) {
     }
     done:
 
-    sockprintf(csock, "HTTP/1.0 302 Moved Temporarily\r\n");
-    sockprintf(csock, "Connection: close\r\n");
-    sockprintf(csock, "Location: %s\r\n", url);
-    sockprintf(csock, "\r\n");
+    if (z != NULL) {
+	zipClose(z, NULL);
+	FILE *f = fopen(zip_name, "r");
+	int n;
+	while ((n = fread(buf, 1, 8192, f)) > 0) {
+	    sockprintf(csock, "%X\r\n", n);
+	    send(csock, buf, n, 0);
+	    sockprintf(csock, "\r\n");
+	}
+	sockprintf(csock, "0\r\n\r\n");
+	fclose(f);
+	remove(zip_name);
+	free(zip_name);
+    } else {
+	sockprintf(csock, "HTTP/1.1 302 Moved Temporarily\r\n");
+	sockprintf(csock, "Connection: close\r\n");
+	sockprintf(csock, "Location: %s\r\n", url);
+	sockprintf(csock, "\r\n");
+    }
     free((void *) url);
 }
 
@@ -1207,7 +1433,7 @@ static void http_error(int csock, int err) {
 	case 501: msg = "Not Implemented"; break;
 	default: msg = "Internal Server Error"; break;
     }
-    sockprintf(csock, "HTTP/1.0 %d %s\r\n", err, msg);
+    sockprintf(csock, "HTTP/1.1 %d %s\r\n", err, msg);
     sockprintf(csock, "Connection: close\r\n");
     sockprintf(csock, "\r\n");
     /* TODO: Descriptive response body */
