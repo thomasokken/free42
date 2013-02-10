@@ -1395,7 +1395,7 @@ void clear_all_prgms() {
 
 int clear_prgm(const arg_struct *arg) {
     int prgm_index;
-    int i, j;
+    int i;
     if (arg->type == ARGTYPE_LBLINDEX)
 	prgm_index = labels[arg->val.num].prgm;
     else if (arg->type == ARGTYPE_STR) {
@@ -1414,6 +1414,13 @@ int clear_prgm(const arg_struct *arg) {
 	    prgm_index = labels[i].prgm;
 	}
     }
+    return clear_prgm_by_index(prgm_index);
+}
+
+int clear_prgm_by_index(int prgm_index) {
+    int i, j;
+    if (prgm_index < 0 || prgm_index >= prgms_count)
+	return ERR_LABEL_NOT_FOUND;
     clear_all_rtns();
     if (prgm_index == current_prgm)
 	pc = -1;

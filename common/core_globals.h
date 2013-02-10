@@ -514,6 +514,7 @@ extern bool no_keystrokes_yet;
 
 void clear_all_prgms();
 int clear_prgm(const arg_struct *arg);
+int clear_prgm_by_index(int prgm_index);
 void clear_prgm_lines(int4 count);
 void goto_dot_dot();
 int mvar_prgms_exist();
