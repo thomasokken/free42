@@ -720,17 +720,17 @@ static char *prgm_name_list_make_unique(prgm_name_list *n, const char *name) {
 #define MAXPROGS 255
 
 // NOTE call this only when shell_mutex is locked
-static char *prgm_index_to_name(int index) {
+static char *prgm_index_to_name(int prgm_index) {
     char *buf = (char *) malloc(NAMEBUFSIZE);
     int n = core_list_programs(buf, NAMEBUFSIZE);
-    if (index < 0 || index >= n) {
+    if (prgm_index < 0 || prgm_index >= n) {
 	free(buf);
 	return NULL;
     }
     char *p = buf;
-    while (index > 0) {
+    while (prgm_index > 0) {
 	p += strlen(p) + 1;
-	index--;
+	prgm_index--;
     }
     if (*p != '"') {
 	// END or .END.
@@ -761,57 +761,54 @@ int shell_write(const char *buf, int nbytes) {
     return 1;
 }
 
-#endif
-
-static void zip_one_file(const char *file, const char *path, zipFile z, char *buf, int bufsize, prgm_name_list *namelist) {
-#ifdef FREE42
-    if (strncmp(file, "memory/", 7) == 0) {
-	if (strchr(file + 7, '/') != NULL)
-	    // Subdirectory of /memory/ ? I don't think so.
-	    return;
-	int index;
-	if (sscanf(file + 7, "%d", &index) != 1)
-	    // file not of the form /memory/<index>
-	    return;
-	pthread_mutex_lock(&shell_mutex);
-	char *name = prgm_index_to_name(index);
-	if (name != NULL) {
-	    export_buf_reset();
-	    core_export_programs(1, &index, NULL);
-	    if (export_tb.buf != NULL) {
-		char *name2 = prgm_name_list_find(namelist, name);
-		time_t t = time(NULL);
-		struct tm stm;
-		localtime_r(&t, &stm);
-		zip_fileinfo zfi;
-		zfi.tmz_date.tm_sec = stm.tm_sec;
-		zfi.tmz_date.tm_min = stm.tm_min;
-		zfi.tmz_date.tm_hour = stm.tm_hour;
-		zfi.tmz_date.tm_mday = stm.tm_mday;
-		zfi.tmz_date.tm_mon = stm.tm_mon;
-		zfi.tmz_date.tm_year = stm.tm_year + 1900;
-		zfi.dosDate = 0;
-		zfi.internal_fa = 0;
-		zfi.external_fa = 0;
-		char *name3 = (char *) malloc(strlen(name2) + 12);
-		strcpy(name3, "memory/");
-		strcat(name3, name2);
-		strcat(name3, ".raw");
-		int ret = zipOpenNewFileInZip(z, name3, &zfi, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION);
-		// TODO: How to deal with the return value? zip.h doesn't say.
-		zipWriteInFileInZip(z, export_tb.buf, export_tb.size);
-		zipCloseFileInZip(z);
-		free(name3);
-		free(name2);
-		export_buf_reset();
-	    }
-	    free(name);
-	}
-	pthread_mutex_unlock(&shell_mutex);
-	return;
+static int zip_program_2(int prgm_index, int is_all, zipFile z, char *buf, int bufsize, prgm_name_list *namelist) {
+    char *name = prgm_index_to_name(prgm_index);
+    if (name == NULL)
+	return 0;
+    export_buf_reset();
+    core_export_programs(1, &prgm_index, NULL);
+    if (export_tb.buf != NULL) {
+	char *name2 = prgm_name_list_find(namelist, name);
+	time_t t = time(NULL);
+	struct tm stm;
+	localtime_r(&t, &stm);
+	zip_fileinfo zfi;
+	zfi.tmz_date.tm_sec = stm.tm_sec;
+	zfi.tmz_date.tm_min = stm.tm_min;
+	zfi.tmz_date.tm_hour = stm.tm_hour;
+	zfi.tmz_date.tm_mday = stm.tm_mday;
+	zfi.tmz_date.tm_mon = stm.tm_mon;
+	zfi.tmz_date.tm_year = stm.tm_year + 1900;
+	zfi.dosDate = 0;
+	zfi.internal_fa = 0;
+	zfi.external_fa = 0;
+	char *name3 = (char *) malloc(strlen(name2) + 12);
+	strcpy(name3, is_all ? "memory/" : "");
+	strcat(name3, name2);
+	strcat(name3, ".raw");
+	int ret = zipOpenNewFileInZip(z, name3, &zfi, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION);
+	// TODO: How to deal with the return value? zip.h doesn't say.
+	zipWriteInFileInZip(z, export_tb.buf, export_tb.size);
+	zipCloseFileInZip(z);
+	free(name3);
+	free(name2);
+	export_buf_reset();
     }
+    free(name);
+}
+
+static void zip_program(int prgm_index, zipFile z, char *buf, int bufsize, prgm_name_list *namelist) {
+    pthread_mutex_lock(&shell_mutex);
+    if (prgm_index == -1)
+	while (zip_program_2(++prgm_index, 1, z, buf, bufsize, namelist));
+    else
+	zip_program_2(prgm_index, 0, z, buf, bufsize, namelist);
+    pthread_mutex_unlock(&shell_mutex);
+}
+
 #endif
     
+static void zip_one_file(const char *file, const char *path, zipFile z, char *buf, int bufsize) {
     zip_fileinfo zfi;
     struct stat st;
     FILE *f;
@@ -844,7 +841,7 @@ static void zip_one_file(const char *file, const char *path, zipFile z, char *bu
     zipCloseFileInZip(z);
 }
 
-static void recursive_zip(const char *base_path, const char *zip_path, zipFile z, char *buf, int bufsize, prgm_name_list *namelist) {
+static void recursive_zip(const char *base_path, const char *zip_path, zipFile z, char *buf, int bufsize) {
     char *full_path, *new_path;
     DIR *dir;
     struct dirent *d;
@@ -869,9 +866,9 @@ static void recursive_zip(const char *base_path, const char *zip_path, zipFile z
 	    strcat(new_zip_path, "/");
 	    strcat(new_zip_path, d->d_name);
 	    if (S_ISDIR(st.st_mode))
-		recursive_zip(base_path, new_zip_path, z, buf, bufsize, namelist);
+		recursive_zip(base_path, new_zip_path, z, buf, bufsize);
 	    else if (S_ISREG(st.st_mode))
-		zip_one_file(new_path, new_zip_path, z, buf, bufsize, namelist);
+		zip_one_file(new_path, new_zip_path, z, buf, bufsize);
 	    free(new_zip_path);
 	}
 	free(new_path);
@@ -940,12 +937,15 @@ void do_post(int csock, const char *url) {
     zipFile z = NULL;
     char *zip_name;
     char buf[8192];
+
+#ifdef FREE42
     // for deleting programs
     int program_index_offset = 0;
     // for preventing name clashes when exporting programs to zip file
     prgm_name_list *namelist = (prgm_name_list *) malloc(sizeof(prgm_name_list));
     namelist->name = NULL;
     namelist->next = NULL;
+#endif
 
     while (1) {
 	/* Loop over message parts */
@@ -970,7 +970,9 @@ void do_post(int csock, const char *url) {
 		p = line + 38;
 		p2 = strchr(p, '"');
 		if (p2 == NULL) {
+#ifdef FREE42
 		    prgm_name_list_clear(namelist);
+#endif
 		    http_error(csock, 400);
 		    return;
 		}
@@ -987,7 +989,9 @@ void do_post(int csock, const char *url) {
 		    action = 0;
 		    p = strstr(p2 + 1, "filename=");
 		    if (p == NULL) {
+#ifdef FREE42
 			prgm_name_list_clear(namelist);
+#endif
 			http_error(csock, 400);
 			return;
 		    }
@@ -1066,7 +1070,9 @@ void do_post(int csock, const char *url) {
 				FILE *f = fopen(line, "w");
 				if (f == NULL) {
 				    free(tb.buf);
+#ifdef FREE42
 				    prgm_name_list_clear(namelist);
+#endif
 				    http_error(csock, 403);
 				    return;
 				}
@@ -1095,7 +1101,9 @@ void do_post(int csock, const char *url) {
 				unzip_failed_1:
 				free(tb.buf);
 				free(fn);
+#ifdef FREE42
 				prgm_name_list_clear(namelist);
+#endif
 				http_error(csock, 403);
 				return;
 			    }
@@ -1203,7 +1211,9 @@ void do_post(int csock, const char *url) {
 				// Trying to go outside the current directory
 				// or trying to delete . or ..
 				free(tb.buf);
+#ifdef FREE42
 				prgm_name_list_clear(namelist);
+#endif
 				http_error(csock, 403);
 				return;
 			    }
@@ -1220,41 +1230,55 @@ void do_post(int csock, const char *url) {
 			    strcpy(line, url + 1);
 			    strcat(line, tb.buf);
 			    if (action == 1) {
-				if (z == NULL) {
 #ifdef FREE42
-				    if (strcmp(url, "/memory/") == 0) {
-					int index;
-					if (sscanf(tb.buf, "%d", &index) == 1) {
-					    index -= program_index_offset;
+				if (strncmp(url, "/memory/", 8) == 0) {
+				    if (z == NULL) {
+					int prgm_index;
+					if (sscanf(tb.buf, "%d", &prgm_index) == 1) {
+					    prgm_index -= program_index_offset;
 					    pthread_mutex_lock(&shell_mutex);
-					    if (clear_prgm_by_index(index) == 0)
+					    if (clear_prgm_by_index(prgm_index) == 0)
 
 						program_index_offset++;
 					    pthread_mutex_unlock(&shell_mutex);
 					}
-				    } else
-#endif
-					remove(line);
-				} else {
-				    zip_one_file(line, tb.buf, z, buf, 8192, namelist);
-				}
-			    } else if (action == 2) {
-				struct stat statbuf;
-				if (stat(line, &statbuf) == 0 && S_ISDIR(statbuf.st_mode)) {
-				    if (z == NULL) {
-#ifdef FREE42
-					if (strcmp(line, "memory") == 0 || strncmp(line, "memory/", 7) == 0) {
-					    free(tb.buf);
-					    prgm_name_list_clear(namelist);
-					    http_error(csock, 403);
-					    return;
-					}
-#endif
-					recursive_remove(line);
 				    } else {
-					recursive_zip(url + 1, tb.buf, z, buf, 8192, namelist);
+					int prgm_index;
+					if (sscanf(tb.buf, "%d", &prgm_index) == 1)
+					    zip_program(prgm_index, z, buf, 8192, namelist);
 				    }
+				} else {
+#endif
+				    if (z == NULL)
+					remove(line);
+				    else
+					zip_one_file(line, tb.buf, z, buf, 8192);
+#ifdef FREE42
 				}
+#endif
+			    } else if (action == 2) {
+#ifdef FREE42
+				if (strcmp(line, "memory") == 0 || strncmp(line, "memory/", 7) == 0) {
+				    if (z == NULL) {
+					free(tb.buf);
+					prgm_name_list_clear(namelist);
+					http_error(csock, 403);
+					return;
+				    } else {
+					zip_program(-1, z, buf, 8192, namelist);
+				    }
+				} else {
+#endif
+				    struct stat statbuf;
+				    if (stat(line, &statbuf) == 0 && S_ISDIR(statbuf.st_mode)) {
+					if (z == NULL)
+					    recursive_remove(line);
+					else
+					    recursive_zip(url + 1, tb.buf, z, buf, 8192);
+				    }
+#ifdef FREE42
+				}
+#endif
 			    } else {
 #ifdef FREE42
 				if (strncmp(url, "/memory/", 8) == 0) {
@@ -1299,7 +1323,9 @@ void do_post(int csock, const char *url) {
 	sockprintf(csock, "\r\n");
     }
     free((void *) url);
+#ifdef FREE42
     prgm_name_list_clear(namelist);
+#endif
 }
 
 static const char *canonicalize_url(const char *url) {
