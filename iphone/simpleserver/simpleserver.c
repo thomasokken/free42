@@ -1010,7 +1010,8 @@ void do_post(int csock, const char *url) {
 		    strcpy(filename, p);
 		    if (q != 0 && filename[strlen(filename) - 1] == q)
 			filename[strlen(filename) - 1] = 0;
-		}
+		} else
+		    action = -1;
 	    }
 	}
 
@@ -1200,9 +1201,8 @@ void do_post(int csock, const char *url) {
 			if (tb.size > 0) {
 			    tb.buf[tb.size] = 0;
 			    what = strcmp(tb.buf, "delete") == 0 ? 2 : 1;
-			} else
-			    what = 1;
-		    } else {
+			}
+		    } else if (action != -1) {
 			// action = 1 : download or delete file
 			// action = 2 : download or delete directory
 			// action = 3 : make directory
