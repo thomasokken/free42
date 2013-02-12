@@ -768,7 +768,7 @@ static int zip_program_2(int prgm_index, int is_all, zipFile z, char *buf, int b
     export_buf_reset();
     core_export_programs(1, &prgm_index, NULL);
     if (export_tb.buf != NULL) {
-	char *name2 = prgm_name_list_find(namelist, name);
+	char *name2 = prgm_name_list_make_unique(namelist, name);
 	time_t t = time(NULL);
 	struct tm stm;
 	localtime_r(&t, &stm);
@@ -791,7 +791,6 @@ static int zip_program_2(int prgm_index, int is_all, zipFile z, char *buf, int b
 	zipWriteInFileInZip(z, export_tb.buf, export_tb.size);
 	zipCloseFileInZip(z);
 	free(name3);
-	free(name2);
 	export_buf_reset();
     }
     free(name);
@@ -1227,7 +1226,18 @@ void do_post(int csock, const char *url) {
 				sockprintf(csock, "Connection: close\r\n");
 				sockprintf(csock, "Content-Type: application/zip\r\n");
 				sockprintf(csock, "Transfer-Encoding: chunked\r\n");
-				sockprintf(csock, "Content-Disposition: attachment; filename=%s.zip\r\n", tb.buf);
+#ifdef FREE42
+				if (strncmp(url, "/memory/", 8) == 0) {
+				    int prgm_index;
+				    char *prgm_name;
+				    if (sscanf(tb.buf, "%d", &prgm_index) == 1 && (prgm_name = prgm_index_to_name(prgm_index)) != NULL) {
+					sockprintf(csock, "Content-Disposition: attachment; filename=%s.zip\r\n", prgm_name);
+					free(prgm_name);
+				    } else
+					sockprintf(csock, "Content-Disposition: attachment; filename=program.zip\r\n");
+				} else
+#endif
+				    sockprintf(csock, "Content-Disposition: attachment; filename=%s.zip\r\n", tb.buf);
 				sockprintf(csock, "\r\n");
 			    }
 			    strcpy(line, url + 1);
