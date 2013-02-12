@@ -462,10 +462,16 @@ static void do_get(int csock, const char *url) {
 	tbprintf(&tb, "        var file = document.getElementsByName(\"filedata\")[0];\n");
 	tbprintf(&tb, "        file.value = \"\";\n");
 	tbprintf(&tb, "    }\n");
-	tbprintf(&tb, "    function clearDir() {\n");
-	tbprintf(&tb, "        var newDir = document.getElementsByName(\"newDir\")[0];\n");
-	tbprintf(&tb, "        newDir.value = \"\";\n");
-	tbprintf(&tb, "    }\n");
+#ifdef FREE42
+	if (strcmp(url, "/memory/") != 0) {
+#endif
+	    tbprintf(&tb, "    function clearDir() {\n");
+	    tbprintf(&tb, "        var newDir = document.getElementsByName(\"newDir\")[0];\n");
+	    tbprintf(&tb, "        newDir.value = \"\";\n");
+	    tbprintf(&tb, "    }\n");
+#ifdef FREE42
+	}
+#endif
 	tbprintf(&tb, "    function doUpload() {\n");
 	tbprintf(&tb, "        var file = document.getElementsByName(\"filedata\")[0].value;\n");
 	tbprintf(&tb, "        if (file == \"\" || file == null) {\n");
@@ -483,7 +489,10 @@ static void do_get(int csock, const char *url) {
 	}
 #endif
 	tbprintf(&tb, "        deselectAll();\n");
-	tbprintf(&tb, "        clearDir();\n");
+#ifdef FREE42
+	if (strcmp(url, "/memory/") != 0)
+#endif
+	    tbprintf(&tb, "        clearDir();\n");
 	tbprintf(&tb, "        document.forms[0].submit();\n");
 	tbprintf(&tb, "    }\n");
 	tbprintf(&tb, "    function doDownload() {\n");
@@ -493,7 +502,10 @@ static void do_get(int csock, const char *url) {
 	tbprintf(&tb, "            alert(\"You haven't selected anything to download.\");\n");
 	tbprintf(&tb, "            return;\n");
 	tbprintf(&tb, "        }\n");
-	tbprintf(&tb, "        clearDir();\n");
+#ifdef FREE42
+	if (strcmp(url, "/memory/") != 0)
+#endif
+	    tbprintf(&tb, "        clearDir();\n");
 	tbprintf(&tb, "        clearFile();\n");
 	tbprintf(&tb, "        document.forms[0].what.value = \"download\";\n");
 	tbprintf(&tb, "        document.forms[0].submit();\n");
@@ -526,7 +538,10 @@ static void do_get(int csock, const char *url) {
 	tbprintf(&tb, "            prompt += \" \" + ndirs + \" \" + (ndirs == 1 ? \"directory\" : \"directories\");\n");
 	tbprintf(&tb, "        prompt += \"?\";\n");
 	tbprintf(&tb, "        if (confirm(prompt)) {\n");
-	tbprintf(&tb, "            clearDir();\n");
+#ifdef FREE42
+	if (strcmp(url, "/memory/") != 0)
+#endif
+	    tbprintf(&tb, "            clearDir();\n");
 	tbprintf(&tb, "            clearFile();\n");
 	tbprintf(&tb, "            document.forms[0].what.value = \"delete\";\n");
 	tbprintf(&tb, "            document.forms[0].submit();\n");
@@ -663,7 +678,7 @@ typedef struct prgm_name_list {
 static void prgm_name_list_clear(prgm_name_list *n) {
     while (n != NULL) {
 	prgm_name_list *n2 = n->next;
-	if (n != NULL)
+	if (n->name != NULL)
 	    free(n->name);
 	free(n);
 	n = n2;
@@ -928,6 +943,8 @@ void do_post(int csock, const char *url) {
     int program_index_offset = 0;
     // for preventing name clashes when exporting programs to zip file
     prgm_name_list *namelist = (prgm_name_list *) malloc(sizeof(prgm_name_list));
+    namelist->name = NULL;
+    namelist->next = NULL;
 
     while (1) {
 	/* Loop over message parts */
