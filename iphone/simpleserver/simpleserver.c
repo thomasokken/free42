@@ -1124,7 +1124,8 @@ void do_post(int csock, const char *url) {
 				    }
 				    *slash = 0;
 				    strcpy(line, url + 1);
-				    strcat(line, "/");
+				    if (line[0] != 0)
+					strcat(line, "/");
 				    strcat(line, filename);
 #ifdef FREE42
 				    if (strcmp(line, "memory") != 0 && strncmp(line, "memory/", 7) != 0)
@@ -1134,7 +1135,8 @@ void do_post(int csock, const char *url) {
 				    b = slash + 1;
 				}
 				strcpy(line, url + 1);
-				strcat(line, "/");
+				if (line[0] != 0)
+				    strcat(line, "/");
 				strcat(line, filename);
 #ifdef FREE42
 				if (strncmp(line, "memory/", 7) == 0) {
