@@ -1149,6 +1149,7 @@ void do_post(int csock, const char *url) {
 					import_tb.capacity = 0;
 					while ((n = unzReadCurrentFile(zf, buf, 1024)) > 0)
 					    tbwrite(&import_tb, buf, n);
+					import_tb.capacity = 0;
 					// TODO -- error message on failure
 					core_import_programs(NULL);
 					if (import_tb.buf != NULL)
