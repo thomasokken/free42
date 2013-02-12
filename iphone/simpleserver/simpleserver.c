@@ -793,9 +793,10 @@ static void zip_one_file(const char *file, const char *path, zipFile z, char *bu
 		zfi.dosDate = 0;
 		zfi.internal_fa = 0;
 		zfi.external_fa = 0;
-		char *name3 = (char *) malloc(strlen(name2) + 8);
+		char *name3 = (char *) malloc(strlen(name2) + 12);
 		strcpy(name3, "memory/");
 		strcat(name3, name2);
+		strcat(name3, ".raw");
 		int ret = zipOpenNewFileInZip(z, name3, &zfi, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION);
 		// TODO: How to deal with the return value? zip.h doesn't say.
 		zipWriteInFileInZip(z, export_tb.buf, export_tb.size);
