@@ -5,7 +5,7 @@ CFLAGS = -Wall -g -DVERSION=$(VERSION) -DSTANDALONE=1
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 simpleserver: simpleserver.c icons.c minizip_zip.c minizip_unzip.c minizip_ioapi.c
-	$(CC) $(CFLAGS) -o simpleserver simpleserver.c icons.c minizip_zip.c minizip_unzip.c minizip_ioapi.c -lz -lpthread
+	$(CC) $(CFLAGS) -DNOCRYPT -DNOUNCRYPT -o simpleserver simpleserver.c icons.c minizip_zip.c minizip_unzip.c minizip_ioapi.c -lz -lpthread
 
 icons.c: icon2c icon2c.conf
 	./icon2c

@@ -14,7 +14,7 @@ Skins designed by, or based on original work of: Andy Hong,
 
 MacOS X Dashboard version by D. Jeff Dionne.
 
-The iPhone version's embedded HTTP server uses Minizip 1.01e, a zlib-based zip
+The iPhone version's embedded HTTP server uses Minizip 1.01h, a zlib-based zip
 creation and extraction package. Minizip is (C) by Gilles Vollant.
 
 Testing: Vini Matangrano, Dave Johnson, Walter Bonin, Andres Rodriguez,
