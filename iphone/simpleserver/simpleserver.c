@@ -615,28 +615,6 @@ static void do_get(int csock, const char *url) {
 	cleaner->doit(cleaner);
 }
 
-// TODO: I could use one textbuffer for import *and* export;
-// those two things can't happen at the same time.
-// NOTE: We only read from this textbuf, we don't write;
-// we use 'capacity' as the read position.
-
-#ifdef FREE42
-
-static textbuf import_tb = { NULL, 0, 0 };
-
-int shell_read(char *buf, int nbytes) {
-    if (import_tb.buf == NULL || import_tb.capacity >= import_tb.size)
-	return -1;
-    int bytes_copied = import_tb.size - import_tb.capacity;
-    if (nbytes < bytes_copied)
-	bytes_copied = nbytes;
-    memcpy(buf, import_tb.buf + import_tb.capacity, bytes_copied);
-    import_tb.capacity += bytes_copied;
-    return bytes_copied;
-}
-
-#endif
-
 static int recursive_remove(const char *path) {
     // We assume that 'path' refers to a directory
     struct dirent *d;
@@ -668,6 +646,26 @@ static int recursive_remove(const char *path) {
     }
     closedir(dir);
     return remove(path) == 0;
+}
+
+// TODO: I could use one textbuffer for import *and* export;
+// those two things can't happen at the same time.
+// NOTE: We only read from this textbuf, we don't write;
+// we use 'capacity' as the read position.
+
+#ifdef FREE42
+
+static textbuf import_tb = { NULL, 0, 0 };
+
+int shell_read(char *buf, int nbytes) {
+    if (import_tb.buf == NULL || import_tb.capacity >= import_tb.size)
+	return -1;
+    int bytes_copied = import_tb.size - import_tb.capacity;
+    if (nbytes < bytes_copied)
+	bytes_copied = nbytes;
+    memcpy(buf, import_tb.buf + import_tb.capacity, bytes_copied);
+    import_tb.capacity += bytes_copied;
+    return bytes_copied;
 }
 
 typedef struct prgm_name_list {
@@ -713,8 +711,6 @@ static char *prgm_name_list_make_unique(prgm_name_list *n, const char *name) {
 	i++;
     }
 }
-
-#ifdef FREE42
 
 #define NAMEBUFSIZE 1024
 #define MAXPROGS 255
