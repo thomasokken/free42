@@ -29,21 +29,27 @@
     return self;
 }
 
+- (void) awakeFromNib {
+    // Automatically redraw whenever our frame changes
+    self.contentMode = UIViewContentModeRedraw;
+}
+
 - (void)drawRect:(CGRect)rect
 {
+    //NSLog(@"tile.drawRect: %f %f %f %f", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
 	CGContextRef myContext = UIGraphicsGetCurrentContext();
 	CGContextSetRGBFillColor(myContext, 1.0, 1.0, 1.0, 1.0);
-	CGContextFillRect(myContext, rect);
+	//CGContextFillRect(myContext, rect);
     CGContextSetRGBFillColor(myContext, 0.0, 0.0, 0.0, 1.0);
     int xmin = (int) rect.origin.x;
-    int xmax = (int) (rect.origin.x + rect.size.width);
+    int xmax = (int) (rect.origin.x + 288);
     int ymin = (int) rect.origin.y;
     int ymax = (int) (rect.origin.y + rect.size.height);
     int length = printout_bottom - printout_top;
     if (length < 0)
         length += PRINT_LINES;
     for (int v = ymin; v < ymax; v++) {
-        int v2 = printout_top + v + self.bounds.origin.y;
+        int v2 = printout_top + v;
         if (v2 >= PRINT_LINES)
             v2 -= PRINT_LINES;
         for (int h = xmin; h < xmax; h++) {

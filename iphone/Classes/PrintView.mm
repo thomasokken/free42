@@ -62,6 +62,7 @@ int printout_bottom;
     for (int n = printout_bottom * PRINT_BYTESPERLINE; n < PRINT_SIZE; n++)
         print_bitmap[n] = 0;
     [self repositionTiles:true];
+    [self scrollToBottom];
 }
 
 - (void)dealloc {
@@ -85,15 +86,20 @@ int printout_bottom;
     update_params *ppar = (update_params *) [((NSValue *) params) pointerValue];
     int newlength = ppar->newlength;
     //int oldlength = ppar->oldlength;
-    int height = ppar->height;
+    //int height = ppar->height;
     delete ppar;
     if (newlength >= PRINT_LINES) {
         printout_top = (printout_bottom + 2) % PRINT_LINES;
         [self repositionTiles:true];
-        [scrollView scrollRectToVisible:CGRectMake(0, height, self.bounds.size.width, 0) animated:NO];
     } else {
         [self repositionTiles:false];
     }
+    [self scrollToBottom];
+}
+
+- (void) scrollToBottom {
+    CGPoint bottomOffset = CGPointMake(0, self.scrollView.contentSize.height - self.scrollView.bounds.size.height);
+    [self.scrollView setContentOffset:bottomOffset animated:NO];
 }
 
 - (void) scrollViewDidScroll:(UIScrollView *)scrollView {
@@ -173,15 +179,15 @@ int printout_bottom;
         tile2rect = temp;
     }
     if (!CGRectEqualToRect([tile1 bounds], tile1rect)) {
-        NSLog(@"tile1 = (%d %d %d %d)", (int) tile1rect.origin.x, (int) tile1rect.origin.y, (int) tile1rect.size.width, (int) tile1rect.size.height);
+        //NSLog(@"tile1 = (%d %d %d %d)", (int) tile1rect.origin.x, (int) tile1rect.origin.y, (int) tile1rect.size.width, (int) tile1rect.size.height);
         [tile1 setBounds:tile1rect];
-        [tile1 setNeedsDisplay];
+        [tile1 setFrame:tile1rect];
     } else if (force)
         [tile1 setNeedsDisplay];
     if (!CGRectEqualToRect([tile2 bounds], tile2rect)) {
-        NSLog(@"tile2 = (%d %d %d %d)", (int) tile2rect.origin.x, (int) tile2rect.origin.y, (int) tile2rect.size.width, (int) tile2rect.size.height);
+        //NSLog(@"tile2 = (%d %d %d %d)", (int) tile2rect.origin.x, (int) tile2rect.origin.y, (int) tile2rect.size.width, (int) tile2rect.size.height);
         [tile2 setBounds:tile2rect];
-        [tile2 setNeedsDisplay];
+        [tile2 setFrame:tile2rect];
     } else if (force)
         [tile2 setNeedsDisplay];
 }

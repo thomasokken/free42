@@ -53,6 +53,7 @@ extern int printout_bottom;
 - (IBAction) clear;
 - (IBAction) done;
 - (void) updatePrintout:(id) params;
+- (void) scrollToBottom;
 + (void) dump;
 - (void) scrollViewDidScroll:(UIScrollView *)scrollView;
 - (void) repositionTiles:(bool)force;

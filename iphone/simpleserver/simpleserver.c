@@ -782,7 +782,7 @@ static int zip_program_2(int prgm_index, int is_all, zipFile z, char *buf, int b
 	strcpy(name3, is_all ? "memory/" : "");
 	strcat(name3, name2);
 	strcat(name3, ".raw");
-	int ret = zipOpenNewFileInZip(z, name3, &zfi, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION);
+	/* int ret = */ zipOpenNewFileInZip(z, name3, &zfi, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION);
 	// TODO: How to deal with the return value? zip.h doesn't say.
 	zipWriteInFileInZip(z, export_tb.buf, export_tb.size);
 	zipCloseFileInZip(z);
@@ -790,6 +790,7 @@ static int zip_program_2(int prgm_index, int is_all, zipFile z, char *buf, int b
 	export_buf_reset();
     }
     free(name);
+    return 1;
 }
 
 static void zip_program(int prgm_index, zipFile z, char *buf, int bufsize, prgm_name_list *namelist) {

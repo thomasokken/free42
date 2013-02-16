@@ -1395,7 +1395,6 @@ void clear_all_prgms() {
 
 int clear_prgm(const arg_struct *arg) {
     int prgm_index;
-    int i;
     if (arg->type == ARGTYPE_LBLINDEX)
 	prgm_index = labels[arg->val.num].prgm;
     else if (arg->type == ARGTYPE_STR) {
