@@ -15,6 +15,7 @@
 		E9031C8F0FF68FB10023F9EC /* builtin_skins.txt in Resources */ = {isa = PBXBuildFile; fileRef = E9031C8E0FF68FB10023F9EC /* builtin_skins.txt */; };
 		E9031C920FF68FCD0023F9EC /* Ehrling42sm.gif in Resources */ = {isa = PBXBuildFile; fileRef = E9031C900FF68FCD0023F9EC /* Ehrling42sm.gif */; };
 		E9031C930FF68FCD0023F9EC /* Ehrling42sm.layout in Resources */ = {isa = PBXBuildFile; fileRef = E9031C910FF68FCD0023F9EC /* Ehrling42sm.layout */; };
+		E908D3ED16D04D92000710EB /* SelectProgramsView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E908D3EC16D04D92000710EB /* SelectProgramsView.mm */; };
 		E91005CE0F893F8900B68C27 /* bcd.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005A20F893F8900B68C27 /* bcd.cc */; };
 		E91005CF0F893F8900B68C27 /* bcdfloat.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005A40F893F8900B68C27 /* bcdfloat.cc */; };
 		E91005D00F893F8900B68C27 /* bcdmath.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005A60F893F8900B68C27 /* bcdmath.cc */; };
@@ -91,6 +92,8 @@
 		E9031C8E0FF68FB10023F9EC /* builtin_skins.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = builtin_skins.txt; sourceTree = "<group>"; };
 		E9031C900FF68FCD0023F9EC /* Ehrling42sm.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = Ehrling42sm.gif; path = ../iphoneskins/Ehrling42sm.gif; sourceTree = SOURCE_ROOT; };
 		E9031C910FF68FCD0023F9EC /* Ehrling42sm.layout */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Ehrling42sm.layout; path = ../iphoneskins/Ehrling42sm.layout; sourceTree = SOURCE_ROOT; };
+		E908D3EB16D04D92000710EB /* SelectProgramsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectProgramsView.h; sourceTree = "<group>"; };
+		E908D3EC16D04D92000710EB /* SelectProgramsView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SelectProgramsView.mm; sourceTree = "<group>"; };
 		E91005810F893DB700B68C27 /* free42.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = free42.h; path = ../common/free42.h; sourceTree = SOURCE_ROOT; };
 		E910059A0F893F3E00B68C27 /* shell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shell.h; path = ../common/shell.h; sourceTree = SOURCE_ROOT; };
 		E91005A20F893F8900B68C27 /* bcd.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bcd.cc; path = ../common/bcd.cc; sourceTree = SOURCE_ROOT; };
@@ -235,6 +238,8 @@
 				E9200DF51699E1EC001BC4B5 /* PrintView.mm */,
 				E9CD21690FA39C41008E1E65 /* SelectFileView.h */,
 				E977D07E1698FB4E00AA3FD9 /* SelectFileView.mm */,
+				E908D3EB16D04D92000710EB /* SelectProgramsView.h */,
+				E908D3EC16D04D92000710EB /* SelectProgramsView.mm */,
 				E9BA0E7E0F9224700087EBFB /* SelectSkinView.h */,
 				E977D07F1698FB4E00AA3FD9 /* SelectSkinView.mm */,
 				E9B16E020F88F015002BB9B2 /* shell_skin.h */,
@@ -531,6 +536,7 @@
 				E9F7136C16C5F1F0006A9553 /* minizip_ioapi.c in Sources */,
 				E9F7136D16C5F1F0006A9553 /* minizip_unzip.c in Sources */,
 				E9F7136E16C5F1F0006A9553 /* minizip_zip.c in Sources */,
+				E908D3ED16D04D92000710EB /* SelectProgramsView.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
