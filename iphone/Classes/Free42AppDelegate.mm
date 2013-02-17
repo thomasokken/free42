@@ -21,10 +21,12 @@
 #import "PrintView.h"
 #import "HTTPServerView.h"
 #import "SelectSkinView.h"
+#import "SelectProgramsView.h"
 #import "PreferencesView.h"
 #import "AboutView.h"
 #import "SelectFileView.h"
 #import "Free42AppDelegate.h"
+#import "core_main.h"
 
 static SystemSoundID soundIDs[11];
 
@@ -40,6 +42,7 @@ static char version[32] = "";
 @synthesize printView;
 @synthesize httpServerView;
 @synthesize selectSkinView;
+@synthesize selectProgramsView;
 @synthesize preferencesView;
 @synthesize aboutView;
 @synthesize selectFileView;
@@ -61,6 +64,7 @@ static char version[32] = "";
 	[containerView addSubview:printView];
 	[containerView addSubview:httpServerView];
 	[containerView addSubview:selectSkinView];
+    [containerView addSubview:selectProgramsView];
 	[containerView addSubview:preferencesView];
 	[containerView addSubview:aboutView];
 	[containerView addSubview:selectFileView];
@@ -89,6 +93,16 @@ static char version[32] = "";
     [preferencesView release];
     [aboutView release];
     [super dealloc];
+}
+
++ (void) showMessage:(NSString *) message {
+    UIAlertView *errorAlert = [[UIAlertView alloc] initWithTitle:@"Message"
+                                                         message:message
+                                                        delegate:nil
+                                               cancelButtonTitle:@"OK"
+                                               otherButtonTitles:nil];
+    [errorAlert show];
+    [errorAlert release];
 }
 
 + (void) playSound: (int) which {
@@ -167,4 +181,64 @@ static char version[32] = "";
 	return version;
 }
 
++ (void) doImport {
+    [SelectFileView raiseWithTitle:@"Import Programs" selectTitle:@"Import" types:@"raw,*" selectDir:NO callbackObject:instance callbackSelector:@selector(doImport2:)];
+}
+
+static FILE *import_file;
+
+static int my_shell_read(char *buf, int buflen) {
+    int4 nread;
+    if (import_file == NULL)
+        return -1;
+    nread = fread(buf, 1, buflen, import_file);
+    if (nread != buflen && ferror(import_file)) {
+        fclose(import_file);
+        import_file = NULL;
+        [Free42AppDelegate showMessage:@"An error occurred while reading the file; import was terminated prematurely."];
+        return -1;
+    } else
+        return nread;
+}
+
+- (void) doImport2:(NSString *) path {
+    import_file = fopen([path cStringUsingEncoding:NSUTF8StringEncoding], "r");
+    if (import_file == NULL) {
+        [Free42AppDelegate showMessage:@"The file could not be opened."];
+    } else {
+        import_programs(my_shell_read);
+        if (import_file != NULL) {
+            fclose(import_file);
+            import_file = NULL;
+        }
+    }
+}
+
++ (void) doExport {
+    [instance.selectProgramsView raised];
+    [instance.containerView bringSubviewToFront:instance.selectProgramsView];
+}
+
 @end
+
+static int (*writer_callback)(const char *buf, int buflen);
+
+int shell_write(const char *buf, int buflen) {
+    return writer_callback(buf, buflen);
+}
+
+void export_programs(int count, const int *indexes, int (*writer)(const char *buf, int buflen)) {
+    writer_callback = writer;
+    core_export_programs(count, indexes, NULL);
+}
+
+static int (*reader_callback)(char *buf, int buflen);
+
+int shell_read(char *buf, int buflen) {
+    return reader_callback(buf, buflen);
+}
+
+void import_programs(int (*reader)(char *buf, int buflen)) {
+    reader_callback = reader;
+    core_import_programs(NULL);
+}

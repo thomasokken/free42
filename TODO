@@ -33,8 +33,6 @@ seems.
 Mac version: Modify the file selection dialogs so they have a file type menu,
 and add extensions to file names automagically when appropriate.
 
-iPhone version: implement print-out window.
-Implement program import/export to local files.
 Implement pop-up keyboard for ALPHA mode text entry.
 Implement copy & paste.
 Implement URL decoding for HTTP requests (filenames with spaces, etc.)

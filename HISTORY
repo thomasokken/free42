@@ -1,8 +1,10 @@
-??-??-????: release 1.4.77
+17-02-2013: release 1.4.77
 
 * iPhone version: the links in the About view now actually work.
-* iPhone version: implemented 'make directory' and 'delete' in the HTTP Server.
+* iPhone version: implemented 'New directory' and 'Delete' in the HTTP Server.
 * iPhone version: implemented zip file upload and download in the HTTP Server.
+* iPhone version: implemented local program import/export.
+* iPhone version: implemented print-out window.
 
 06-01-2013: release 1.4.77
 

@@ -18,11 +18,11 @@
 #import <UIKit/UIKit.h>
 
 
-@interface SelectProgramsView : UIView <UITableViewDelegate, UITableViewDataSource> {
-	NSMutableArray *skinNames;
+@interface SelectProgramsView : UIView <UITableViewDataSource, UIAlertViewDelegate> {
+	NSMutableArray *programNames;
 	UIBarButtonItem *doneButton;
 	UIBarButtonItem *backButton;
-	UITableView *skinTable;
+	UITableView *programTable;
 }
 
 @property (nonatomic, retain) IBOutlet UIBarButtonItem *doneButton;
@@ -32,8 +32,8 @@
 - (void) raised;
 - (IBAction) done;
 - (IBAction) back;
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath;
 - (UITableViewCell *) tableView:(UITableView *)table cellForRowAtIndexPath:(NSIndexPath*) indexPath;
 - (NSInteger) tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section;
+- (void) alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex;
 
 @end

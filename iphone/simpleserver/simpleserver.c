@@ -39,6 +39,12 @@
 
 #include "../../common/core_main.h"
 #include "../../common/core_globals.h"
+
+/* These two are from Free42AppDelegate.h, which we can't include */
+/* because it's Objective-C and this file is supposed to be plain C */
+void export_programs(int count, const int *indexes, int (*writer)(const char *buf, int buflen));
+void import_programs(int (*reader)(char *buf, int buflen));
+
 const char *get_version();
 char *make_temp_file();
 static pthread_mutex_t shell_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -657,7 +663,7 @@ static int recursive_remove(const char *path) {
 
 static textbuf import_tb = { NULL, 0, 0 };
 
-int shell_read(char *buf, int nbytes) {
+static int my_shell_read(char *buf, int nbytes) {
     if (import_tb.buf == NULL || import_tb.capacity >= import_tb.size)
 	return -1;
     int bytes_copied = import_tb.size - import_tb.capacity;
@@ -752,7 +758,7 @@ static void export_buf_reset() {
     export_tb.capacity = 0;
 }
 
-int shell_write(const char *buf, int nbytes) {
+static int my_shell_write(const char *buf, int nbytes) {
     tbwrite(&export_tb, buf, nbytes);
     return 1;
 }
@@ -762,7 +768,7 @@ static int zip_program_2(int prgm_index, int is_all, zipFile z, char *buf, int b
     if (name == NULL)
 	return 0;
     export_buf_reset();
-    core_export_programs(1, &prgm_index, NULL);
+    export_programs(1, &prgm_index, my_shell_write);
     if (export_tb.buf != NULL) {
 	char *name2 = prgm_name_list_make_unique(namelist, name);
 	time_t t = time(NULL);
@@ -1058,7 +1064,7 @@ void do_post(int csock, const char *url) {
 				import_tb.size = tb.size;
 				import_tb.capacity = 0;
 				// TODO -- error message on failure
-				core_import_programs(NULL);
+				import_programs(my_shell_read);
 				pthread_mutex_unlock(&shell_mutex);
 			    } else {
 #endif

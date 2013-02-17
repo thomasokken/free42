@@ -16,9 +16,11 @@
  *****************************************************************************/
 
 #import <dirent.h>
+#import <sys/stat.h>
 #import "SelectProgramsView.h"
 #import "CalcView.h"
 #import "Free42AppDelegate.h"
+#import "SelectFileView.h"
 #import "shell_skin_iphone.h"
 #import "core_main.h"
 
@@ -38,7 +40,7 @@
 
 - (id) initWithCoder:(NSCoder *)coder {
 	[super initWithCoder:coder];
-	skinNames = [[NSMutableArray arrayWithCapacity:10] retain];
+	programNames = [[NSMutableArray arrayWithCapacity:10] retain];
 	return self;
 }
 
@@ -48,67 +50,109 @@
 
 - (void) raised {
 	// This gets called just before the view is raised, every time
-	// TODO: highlight the currently selected skin
-	// TODO: separator between built-in and external skins
-	[skinNames removeAllObjects];
+	[programNames removeAllObjects];
 	char buf[1024];
-	NSString *path = [[NSBundle mainBundle] pathForResource:@"builtin_skins" ofType:@"txt"];
-	[path getCString:buf maxLength:1024 encoding:NSUTF8StringEncoding];
-	FILE *builtins = fopen(buf, "r");
-	while (fgets(buf, 1024, builtins) != NULL) {
-		char *context;
-		char *name = strtok_r(buf, " \t\r\n", &context);
-		[skinNames addObject:[NSString stringWithCString:name encoding:NSUTF8StringEncoding]];
-	}
-	fclose(builtins);
-	DIR *dir = opendir("skins");
-	struct dirent *d;
-	int num_builtin_skins = [skinNames count];
-	while ((d = readdir(dir)) != NULL) {
-		int len = strlen(d->d_name);
-		if (len < 8 || strcmp(d->d_name + len - 7, ".layout") != 0)
-			continue;
-		d->d_name[len - 7] = 0;
-		NSString *s = [NSString stringWithCString:d->d_name encoding:NSUTF8StringEncoding];
-		for (int i = 0; i < num_builtin_skins; i++)
-			if ([s caseInsensitiveCompare:[skinNames objectAtIndex:i]] == 0)
-				goto skip;
-		[skinNames addObject:s];
-		skip:;
-	}
-	closedir(dir);
+    int count = core_list_programs(buf, 1024);
+    char *p = buf;
+    for (int i = 0; i < count; i++) {
+        // TODO: I'm using ISO-8859-1 encoding, but of course that's wrong.
+        // I should write an HP-to-UTF8 translator to do this properly.
+        [programNames addObject:[NSString stringWithCString:p encoding:NSISOLatin1StringEncoding]];
+        p += strlen(p) + 1;
+    }
 	[programTable reloadData];
 }
 
 - (IBAction) done {
+    // OK
+    // Need to raise the main window now, in case the SelectFileView is cancelled
 	[Free42AppDelegate showMain];
+    NSArray *selection = [programTable indexPathsForSelectedRows];
+    if (selection == nil)
+        return;
+    [SelectFileView raiseWithTitle:@"Select Program File Name" selectTitle:@"OK" types:@"raw,*" selectDir:NO callbackObject:self callbackSelector:@selector(doExport:)];
+}
+
+static FILE *export_file = NULL;
+static NSString *export_path = nil;
+
+static int my_shell_write(const char *buf, int buflen) {
+    int written;
+    if (export_file == NULL)
+        return 0;
+    written = fwrite(buf, 1, buflen, export_file);
+    if (written != buflen) {
+        [Free42AppDelegate showMessage:@"Export failed; there was an error writing to the file."];
+        fclose(export_file);
+        export_file = NULL;
+        return 0;
+    } else
+        return 1;
+}
+
+- (void) doExport:(NSString *) path {
+    if (export_path != nil)
+        [export_path release];
+    export_path = [path retain];
+    
+    const char *cpath = [path cStringUsingEncoding:NSUTF8StringEncoding];
+    struct stat st;
+    if (stat(cpath, &st) == 0) {
+        UIAlertView *errorAlert = [[UIAlertView alloc] initWithTitle:@"File Exists"
+                                                             message:@"File exists; overwrite?"
+                                                            delegate:self
+                                                   cancelButtonTitle:@"Cancel"
+                                                   otherButtonTitles:@"OK", nil];
+        [errorAlert show];
+        [errorAlert release];
+        return;
+    } else
+        [self doExport2];
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    if (buttonIndex == 1)
+        [self doExport2];
+}
+
+- (void) doExport2 {
+    export_file = fopen([export_path cStringUsingEncoding:NSUTF8StringEncoding], "w");
+    if (export_file == NULL) {
+        [Free42AppDelegate showMessage:@"Export failed; could not create the file."];
+        return;
+    }
+    NSArray *selection = [programTable indexPathsForSelectedRows];
+    int count = [selection count];
+    int *indexes = new int[count];
+    for (int i = 0; i < count; i++) {
+        NSIndexPath *index = (NSIndexPath *) [selection objectAtIndex:i];
+        indexes[i] = [index indexAtPosition:1];
+    }
+    export_programs(count, indexes, my_shell_write);
+    delete[] indexes;
+    if (export_file != NULL) {
+        fclose(export_file);
+        export_file = NULL;
+    }
+    [export_path release];
+    export_path = nil;
 }
 
 - (IBAction) back {
+    // Cancel
 	[Free42AppDelegate showMain];
-}
-
-- (void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-	int n = [indexPath indexAtPosition:1];
-	NSString *name = [skinNames objectAtIndex:n];
-	[name getCString:state.skinName maxLength:FILENAMELEN encoding:NSUTF8StringEncoding];
-	long width, height;
-	skin_load(&width, &height);
-	core_repaint_display();
-	[CalcView repaint];
-	[self done];
 }
 
 - (UITableViewCell *) tableView:(UITableView *)table cellForRowAtIndexPath:(NSIndexPath *) indexPath {
 	int n = [indexPath indexAtPosition:1];
-	NSString *s = [skinNames objectAtIndex:n];
+	NSString *s = [programNames objectAtIndex:n];
 	UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
 	cell.textLabel.text = s;
 	return cell;
 }
 
 - (NSInteger) tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section {
-	int n = [skinNames count];
+	int n = [programNames count];
 	return n;
 }
 

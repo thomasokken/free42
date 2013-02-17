@@ -215,11 +215,11 @@ static CalcView *calcView = nil;
 				break;
 			case 1:
 				// Import Programs
-				[Free42AppDelegate playSound:10];
+				[Free42AppDelegate doImport];
 				break;
 			case 2:
 				// Export Programs
-				[Free42AppDelegate playSound:10];
+				[Free42AppDelegate doExport];
 				break;
 			case 3:
 				// Back
