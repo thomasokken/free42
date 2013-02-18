@@ -1,3 +1,15 @@
+Android version:
+* The key click is flaky on some devices. Why?
+* Add android:installLocation property to the manifest, to support installing
+  the app on external memory (SD card) under Android 2.2 or later. See
+  http://developer.android.com/guide/appendix/install-location.html
+* Support arbitrary skin scaling and positioning.
+* ACCEL, LOCAT, and HEADING don't work on a lot of devices. I'll have to
+  rewrite them using the new APIs (ugh).
+* Add support for physical keyboards.
+* Implement pop-up keyboard for ALPHA mode text entry.
+* Scale print-out (the current 2:1 scaling is a bit small on large screens)
+
 iPhone version:
 * Add option to disable key click.
 * Haptic feedback option.
@@ -5,48 +17,37 @@ iPhone version:
   broken. The screen often doesn't scroll up when the keyboard appears. That
   should be fixed, and while you're at it, put those views inside scroll views,
   so you can scroll them when the keyboard is visible.
-
-Android version:
-* The key click is flaky on some devices. Why?
-* Add android:installLocation property to the manifest, to support installing
-  the app on external memory (SD card) under Android 2.2 or later. See
-  http://developer.android.com/guide/appendix/install-location.html
-* Add an option to display skins scaled to their maximum size while maintaining
-  aspect ratio, or to display skins without any scaling.
-* ACCEL, LOCAT, and HEADING don't work on a lot of devices. I'll have to
-  rewrite them using the new APIs (ugh).
-* Add support for physical keyboards.
 * Implement pop-up keyboard for ALPHA mode text entry.
-* Scale print-out (the current 2:1 scaling is a bit small on large screens)
+* Implement copy & paste.
+* Implement URL decoding for HTTP requests (filenames with spaces, etc.)
+* Support iPad, iPad mini, and iPhone 5 (screen size issues, and take advantage
+  of big screens to show the calculator and print-out side-by-side).
+* Support arbitrary skin scaling and positioning.
 
-Windows version: the "Calculator Key" option should probably set
-\HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\AppKey\18\ShellExecute,
-not \HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\AppKey\18\ShellExecute.
-Easy enough to fix, but make sure that the new code restores the
-HKEY_LOCAL_MACHINE key so that people won't have to use regedit to get rid of
-the Free42 mapping!
+Windows version:
+* The "Calculator Key" option should probably set
+  \HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\AppKey\18\ShellExecute,
+  not \HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\AppKey\18\ShellExecute.
+  Easy enough to fix, but make sure that the new code restores the
+  HKEY_LOCAL_MACHINE key so that people won't have to use regedit to get rid of
+  the old Free42 mapping!
+* Another "Calculator Key" issue: it doesn't seem to work in multi-language
+  installs. Some other registry key overriding the obvious one, it seems. But
+  maybe that'll be fixed by dealing with the issue above.
 
-Another Windows "Calculator Key" issue: it doesn't seem to work in multi-
-language installs. Some other registry key overriding the obvious one, it
-seems.
+Mac version:
+* Modify the file selection dialogs so they have a file type menu, and add
+  extensions to file names automagically when appropriate.
 
-Mac version: Modify the file selection dialogs so they have a file type menu,
-and add extensions to file names automagically when appropriate.
+All versions:
+* Add a feature for importing and exporting variables from and to CSV files.
+* It would be nice if we would handle the shell_milliseconds() wrap-around.
+  This function is only used for flying the goose and updating the progress
+  report when the solver is running interactively; all it would take is for
+  those two places in the code to detect unlikely values of
+  (startTime - shell_milliseconds()) and assume the nearest likely alternative,
+  a la Y2K.
 
-Implement pop-up keyboard for ALPHA mode text entry.
-Implement copy & paste.
-Implement URL decoding for HTTP requests (filenames with spaces, etc.)
-
-iPhone version: it is possible to disable the sleep timer using
-[UIApplication sharedApplication].idleTimerDisabled = YES;
-This would be a good thing to use to prevent auto-poweroff while a program
-is running.
-
-Add a feature for importing and exporting variables from and to CSV files.
-
-It would be nice if we would handle the shell_milliseconds()
-wrap-around. This function is only used for flying the goose and
-updating the progress report when the solver is running interactively;
-all it would take is for those two places in the code to detect
-unlikely values of (startTime - shell_milliseconds()) and assume the nearest
-likely alternative, a la Y2K.
+The "Wouldn't It Be Nice" Department:
+* Algebraic equations.
+* Units, like on the HP-48G, where units are attached to values.
