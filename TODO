@@ -9,9 +9,6 @@ Android version:
 * Add support for physical keyboards.
 * Implement pop-up keyboard for ALPHA mode text entry.
 * Scale print-out (the current 2:1 scaling is a bit small on large screens)
-* When the app is suspended while the HTTP server is active, shut down the HTTP
-  server. I think this is the one remaining issue that causes the server port
-  to be unavailable on HTTP server startup.
 
 iPhone version:
 * Add option to disable key click.
@@ -26,6 +23,9 @@ iPhone version:
 * Support iPad, iPad mini, and iPhone 5 (screen size issues, and take advantage
   of big screens to show the calculator and print-out side-by-side).
 * Support arbitrary skin scaling and positioning.
+* When the app is suspended while the HTTP server is active, shut down the HTTP
+  server. I think this is the one remaining issue that causes the server port
+  to be unavailable on HTTP server startup.
 
 Windows version:
 * The "Calculator Key" option should probably set
