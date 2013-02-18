@@ -2,7 +2,8 @@ VERSION.rc
 android
 androidskins
 build-gtk-motif
-build-mac-iphone
+build-iphone
+build-mac
 build-windows-android
 conduit
 gtk/Free42.activity.tgz
