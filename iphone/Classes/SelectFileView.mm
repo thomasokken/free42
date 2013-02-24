@@ -204,7 +204,10 @@ static int view_offset = 0;
 }
 
 - (IBAction) mkDir {
-	//
+    NSString *fullName = [NSString stringWithFormat:@"%@/%@", dirName, [nameField text]];
+    const char *cpath = [fullName cStringUsingEncoding:NSUTF8StringEncoding];
+    mkdir(cpath, 0755);
+    [self typeChanged];
 }
 
 - (IBAction) typeChanged {

@@ -49,5 +49,7 @@ extern state_type state;
 - (void) cancelTimeout3;
 - (void) setRepeater:(int) delay;
 - (void) cancelRepeater;
++ (void) stopTextPrinting;
++ (void) stopGifPrinting;
 
 @end

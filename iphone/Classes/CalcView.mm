@@ -484,6 +484,21 @@ static int timeout3_delay;
 	pthread_mutex_unlock(&shell_helper_mutex);
 }
 
++ (void) stopTextPrinting {
+    if (print_txt != NULL) {
+        fclose(print_txt);
+        print_txt = NULL;
+    }
+}
+
++ (void) stopGifPrinting {
+    if (print_gif != NULL) {
+        shell_finish_gif(gif_seeker, gif_writer);
+        fclose(print_gif);
+        print_gif = NULL;
+    }
+}
+
 @end
 
 ///////////////////////////////////////////////////////////////////////////////

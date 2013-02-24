@@ -1,3 +1,10 @@
+??-??-????: release 1.4.78
+
+* iPhone version: "Make Directory" in the file selection dialogs didn't work.
+* iPhone version: when the user turns off printing to text or to GIF in the
+  Preferences, or changes the print-out file name, the existing files are now
+  promptly flushed and closed.
+
 17-02-2013: release 1.4.77
 
 * iPhone version: the links in the About view now actually work.

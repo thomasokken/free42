@@ -119,6 +119,7 @@ static int view_offset = 0;
 	// unregister for keyboard notifications while not visible.
 	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
 
+    char buf[FILENAMELEN];
 	core_settings.matrix_singularmatrix = singularMatrixSwitch.on;
 	core_settings.matrix_outofrange = matrixOutOfRangeSwitch.on;
 	core_settings.auto_repeat = autoRepeatSwitch.on;
@@ -126,23 +127,29 @@ static int view_offset = 0;
 	NSString *s = [printToTextField text];
 	if ([s length] > 0 && ![[s lowercaseString] hasSuffix:@".txt"])
 		s = [s stringByAppendingString:@".txt"];
+    strcpy(buf, state.printerTxtFileName);
 	[s getCString:state.printerTxtFileName maxLength:FILENAMELEN encoding:NSUTF8StringEncoding];
 	core_settings.raw_text = rawTextSwitch.on;
+    if (!state.printerToTxtFile || strcmp(buf, state.printerTxtFileName) != 0)
+        [CalcView stopTextPrinting];
 	state.printerToGifFile = printToGifSwitch.on;
 	s = [printToGifField text];
 	if ([s length] > 0 && ![[s lowercaseString] hasSuffix:@".gif"])
 		s = [s stringByAppendingString:@".gif"];
+    strcpy(buf, state.printerGifFileName);
 	[s getCString:state.printerGifFileName maxLength:FILENAMELEN encoding:NSUTF8StringEncoding];
 	s = [maxGifLengthField text];
-	char buf[32];
-	[s getCString:buf maxLength:32 encoding:NSUTF8StringEncoding];
-	if (sscanf(buf, "%d", &state.printerGifMaxLength) == 1) {
+    char numbuf[32];
+	[s getCString:numbuf maxLength:32 encoding:NSUTF8StringEncoding];
+	if (sscanf(numbuf, "%d", &state.printerGifMaxLength) == 1) {
 		if (state.printerGifMaxLength < 32)
 			state.printerGifMaxLength = 32;
 		else if (state.printerGifMaxLength > 32767)
 			state.printerGifMaxLength = 32767;
 	} else
 		state.printerGifMaxLength = 256;
+    if (!state.printerToGifFile || strcmp(buf, state.printerGifFileName) != 0)
+        [CalcView stopGifPrinting];
 	state.popupKeyboard = popupKeyboardSwitch.on;
 	[Free42AppDelegate showMain];
 }
