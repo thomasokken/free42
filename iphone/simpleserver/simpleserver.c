@@ -1700,7 +1700,9 @@ static const char *get_mime(const char *filename) {
 	if (mr->ext == NULL)
 	    return mr->mime;
 	extlen = strlen(mr->ext);
-	if (filenamelen >= extlen && strcmp(filename + filenamelen - extlen, mr->ext) == 0)
+	if (filenamelen > extlen
+		&& filename[filenamelen - extlen - 1] == '.'
+		&& strcmp(filename + filenamelen - extlen, mr->ext) == 0)
 	    return mr->mime;
     }
 }
