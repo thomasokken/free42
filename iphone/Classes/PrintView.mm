@@ -156,6 +156,10 @@ int printout_bottom;
     [scrollView setContentSize:CGSizeMake(self.bounds.size.width, printHeight)];
     int tilePos = ((int) offset.y) / ((int) size.height);
     CGRect tile1rect = CGRectMake(0, size.height * tilePos, size.width, size.height);
+    if (tile1rect.origin.y < 0) {
+        tile1rect.size.height += tile1rect.origin.y;
+        tile1rect.origin.y = 0;
+    }
     CGRect tile2rect = CGRectMake(0, size.height * (tilePos + 1), size.width, size.height);
     int excessHeight = tile2rect.origin.y + tile2rect.size.height - printHeight;
     if (excessHeight > 0) {
