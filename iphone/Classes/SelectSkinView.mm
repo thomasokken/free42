@@ -47,9 +47,10 @@
 
 - (void) raised {
 	// This gets called just before the view is raised, every time
-	// TODO: highlight the currently selected skin
 	// TODO: separator between built-in and external skins
 	[skinNames removeAllObjects];
+	int index = 0;
+	int selectedIndex = -1;
 	char buf[1024];
 	NSString *path = [[NSBundle mainBundle] pathForResource:@"builtin_skins" ofType:@"txt"];
 	[path getCString:buf maxLength:1024 encoding:NSUTF8StringEncoding];
@@ -58,6 +59,9 @@
 		char *context;
 		char *name = strtok_r(buf, " \t\r\n", &context);
 		[skinNames addObject:[NSString stringWithCString:name encoding:NSUTF8StringEncoding]];
+		if (strcasecmp(name, state.skinName) == 0)
+			selectedIndex = index;
+		index++;
 	}
 	fclose(builtins);
 	DIR *dir = opendir("skins");
@@ -73,10 +77,18 @@
 			if ([s caseInsensitiveCompare:[skinNames objectAtIndex:i]] == 0)
 				goto skip;
 		[skinNames addObject:s];
+		if (strcasecmp(d->d_name, state.skinName) == 0)
+			selectedIndex = index;
+		index++;
 		skip:;
 	}
 	closedir(dir);
 	[skinTable reloadData];
+	if (selectedIndex != -1) {
+        NSUInteger indexes[2] = { 0, selectedIndex };
+        NSIndexPath *path = [NSIndexPath indexPathWithIndexes:indexes length:2];
+        [skinTable cellForRowAtIndexPath:path].accessoryType = UITableViewCellAccessoryCheckmark;
+	}
 }
 
 - (IBAction) done {

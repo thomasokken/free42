@@ -24,11 +24,18 @@ iPhone version:
 * Support iPad, iPad mini, and iPhone 5 (screen size issues, and take advantage
   of big screens to show the calculator and print-out side-by-side).
 * Support arbitrary skin scaling and positioning.
+* Support landscape mode.
 * When the app is suspended while the HTTP server is active, shut down the HTTP
   server. I think this is the one remaining issue that causes the server port
   to be unavailable on HTTP server startup.
 * Implement better visual feedback for which key is pressed.
-* In the skin menu, show a check mark next to the currently selected skin.
+* Instead of the automatic Default.png on start-up, show a screenshot of the
+  most recent app state, with the word "Loading" painted on top. This way,
+  users that do not use the Standard skin will not get the jarring transition
+  from Standard to their selected skin.
+  Of course, whether all this is doable will depend on how quickly we can load
+  and display a PNG (before the heavy lifting of initializing the emulator core
+  and reading the skin GIF).
 
 Windows version:
 * The "Calculator Key" option should probably set

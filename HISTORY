@@ -1,9 +1,12 @@
-??-??-????: release 1.4.78
+02-03-2013: release 1.4.77a
 
-* iPhone version: "Make Directory" in the file selection dialogs didn't work.
+* iPhone version: fixed "Make Directory" in the file selection dialogs.
 * iPhone version: when the user turns off printing to text or to GIF in the
   Preferences, or changes the print-out file name, the existing files are now
   promptly flushed and closed.
+* iPhone version: fixed "garbage" in print-out window.
+* iPhone version: now highlights the currently selected skin in the Select Skin
+  menu.
 
 17-02-2013: release 1.4.77
 
