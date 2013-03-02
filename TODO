@@ -9,6 +9,7 @@ Android version:
 * Add support for physical keyboards.
 * Implement pop-up keyboard for ALPHA mode text entry.
 * Scale print-out (the current 2:1 scaling is a bit small on large screens)
+* Implement better visual feedback for which key is pressed.
 
 iPhone version:
 * Add option to disable key click.
@@ -26,6 +27,8 @@ iPhone version:
 * When the app is suspended while the HTTP server is active, shut down the HTTP
   server. I think this is the one remaining issue that causes the server port
   to be unavailable on HTTP server startup.
+* Implement better visual feedback for which key is pressed.
+* In the skin menu, show a check mark next to the currently selected skin.
 
 Windows version:
 * The "Calculator Key" option should probably set
