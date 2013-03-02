@@ -47,6 +47,7 @@ Mac version:
 
 GTK version:
 * The display may not get repainted properly when switching skins.
+* Add support for the Unity dock.
 
 All versions:
 * Add a feature for importing and exporting variables from and to CSV files.
