@@ -339,7 +339,7 @@ int main(int argc, char *argv[]) {
 	strcat(appid, getpwuid(getuid())->pw_name);
 	Display *display = GDK_DISPLAY();
 	Atom FREE42_HOST_AND_USER = XInternAtom(display, "FREE42_HOST_AND_USER", False);
-	//XGrabServer(display);
+	XGrabServer(display);
 	Window root;
 	Window parent;
 	Window *children;
@@ -358,7 +358,7 @@ int main(int argc, char *argv[]) {
 			pid_t pid;
 			if (sscanf(list[1], "%d", &pid) == 1) {
 			    kill(pid, SIGUSR1);
-			    //XUngrabServer(display);
+			    XUngrabServer(display);
 			    return 0;
 			}
 		    }
@@ -454,7 +454,7 @@ int main(int argc, char *argv[]) {
 	list[1] = pidstr;
 	set_window_property(mainwindow, "FREE42_HOST_AND_USER", list, 2);
 	free(appid);
-	//XUngrabServer(GDK_DISPLAY());
+	XUngrabServer(GDK_DISPLAY());
     }
 #endif
 
