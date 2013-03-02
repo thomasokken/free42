@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
 	return 1;
     }
     fseek(inp, 0, SEEK_END);
-    fprintf(out, "long keymap_filesize = %d;\n\n\n", ftell(inp));
+    fprintf(out, "long keymap_filesize = %ld;\n\n\n", ftell(inp));
     fclose(inp);
 
 

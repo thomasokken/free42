@@ -963,6 +963,7 @@ static void show_message(char *title, char *message) {
 					    GTK_DIALOG_MODAL,
 					    GTK_MESSAGE_ERROR,
 					    GTK_BUTTONS_OK,
+					    "%s",
 					    message);
     gtk_window_set_title(GTK_WINDOW(msg), title);
     gtk_window_set_role(GTK_WINDOW(msg), "Free42 Dialog");
@@ -1094,13 +1095,12 @@ static void exportProgramCB() {
 	appendSuffix(export_file_name, ".raw");
 
     if (is_file(export_file_name)) {
-	char buf[1000];
-	snprintf(buf, 1000, "Replace existing \"%s\"?", export_file_name);
 	GtkWidget *msg = gtk_message_dialog_new(GTK_WINDOW(mainwindow),
 						GTK_DIALOG_MODAL,
 						GTK_MESSAGE_QUESTION,
 						GTK_BUTTONS_YES_NO,
-						buf);
+						"Replace existing \"%s\"?",
+						export_file_name);
 	gtk_window_set_title(GTK_WINDOW(msg), "Replace?");
 	gtk_window_set_role(GTK_WINDOW(msg), "Free42 Dialog");
 	cancelled = gtk_dialog_run(GTK_DIALOG(msg)) != GTK_RESPONSE_YES;

@@ -160,7 +160,7 @@ int main(int argc, char *argv[]) {
 	    return 1;
 	}
 	fseek(inp, 0, SEEK_END);
-	fprintf(out, "    %d%s\n", ftell(inp), i < nskins - 1 ? "," : "");
+	fprintf(out, "    %ld%s\n", ftell(inp), i < nskins - 1 ? "," : "");
 	fclose(inp);
     }
     fprintf(out, "};\n\n\n");
@@ -216,7 +216,7 @@ int main(int argc, char *argv[]) {
 	    return 1;
 	}
 	fseek(inp, 0, SEEK_END);
-	fprintf(out, "    %d%s\n", ftell(inp), i < nskins - 1 ? "," : "");
+	fprintf(out, "    %ld%s\n", ftell(inp), i < nskins - 1 ? "," : "");
 	fclose(inp);
     }
     fprintf(out, "};\n\n\n");
