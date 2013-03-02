@@ -45,6 +45,9 @@ Mac version:
 * Modify the file selection dialogs so they have a file type menu, and add
   extensions to file names automagically when appropriate.
 
+GTK version:
+* The display may not get repainted properly when switching skins.
+
 All versions:
 * Add a feature for importing and exporting variables from and to CSV files.
 * It would be nice if we would handle the shell_milliseconds() wrap-around.
