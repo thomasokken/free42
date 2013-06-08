@@ -36,6 +36,10 @@ iPhone version:
   Of course, whether all this is doable will depend on how quickly we can load
   and display a PNG (before the heavy lifting of initializing the emulator core
   and reading the skin GIF).
+* In the HTTP server view, make it clearer that it can't be used if there's no
+  WiFi. Don't show a URL containing some bogus 3G hostname or whatever. Also,
+  deal with the possibility of WiFi becoming active or inactive while Free42 is
+  running.
 
 Windows version:
 * The "Calculator Key" option should probably set
