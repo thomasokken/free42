@@ -1,5 +1,6 @@
 # Color skin for Free42 (Windows and Unix)
 # By Jeff O., coloured by KR
+# Revised by KD0GLS
 
 Skin: 0,0,276,327
 Display: 7,20 2 3 688068 0b2327
@@ -42,10 +43,10 @@ Key: 35 105,290,55,36 113,298,39,21 113,297
 Key: 36 160,290,55,36 168,298,39,21 168,297
 Key: 37 215,290,55,36 223,298,39,21 223,297
 
-Annunciator: 1 8,5,19,11 8,328
-Annunciator: 2 30,5,22,11 30,328
-Annunciator: 3 54,5,25,11 54,328
-Annunciator: 4 81,5,17,11 81,328
-Annunciator: 5 100,2,22,11 100,320
-Annunciator: 6 123,2,6,11 123,320
-Annunciator: 7 129,2,19,11 129,320
+Annunciator: 1   8,5,19,11   8,328
+Annunciator: 2  30,5,22,11  30,328
+Annunciator: 3  54,5,25,11  54,328
+Annunciator: 4  81,5,17,11  81,328
+Annunciator: 5 100,5,22,11 100,328
+Annunciator: 6 123,5,06,11 123,328
+Annunciator: 7 129,5,19,11 129,328
