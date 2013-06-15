@@ -12,6 +12,7 @@ Android version:
 * Implement better visual feedback for which key is pressed.
 
 iPhone version:
+* Downgrade to older Xcode so I can get back to supporting iOS 3.1.3.
 * Add option to disable key click.
 * Haptic feedback option.
 * The pop-up keyboard handling in the Preferences and File Selection views is
@@ -42,6 +43,8 @@ iPhone version:
   running.
 
 Windows version:
+* Figure out how to do command-line build, or just downgrade to VC++ 6.0. It's
+  not like I *need* anything newer, and if 6.0 and 2012 can coexist, why not?
 * Detect failure to create keymap.txt, state.bin, and print.bin, and display a
   helpful message when this occurs. (The most common scenario is probably people
   dropping Free42.exe into Program Files without creating a subdirectory.)
