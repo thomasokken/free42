@@ -42,6 +42,9 @@ iPhone version:
   running.
 
 Windows version:
+* Detect failure to create keymap.txt, state.bin, and print.bin, and display a
+  helpful message when this occurs. (The most common scenario is probably people
+  dropping Free42.exe into Program Files without creating a subdirectory.)
 * The "Calculator Key" option should probably set
   \HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\AppKey\18\ShellExecute,
   not \HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\AppKey\18\ShellExecute.
