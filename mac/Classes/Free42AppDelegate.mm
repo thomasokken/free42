@@ -1155,7 +1155,7 @@ void shell_print(const char *text, int length,
 					print_gif_name[p] = 0;
 				
 				/* Make sure we have enough space for the ".nnnn.gif" */
-				p = 1000 - 10;
+				p = FILENAMELEN - 10;
 				print_gif_name[p] = 0;
 				p = strlen(print_gif_name);
 				snprintf(print_gif_name + p, 6, ".%04d", gif_seq);
