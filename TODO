@@ -1,4 +1,6 @@
 Android version:
+* Sometimes, with some skins, a one-pixel horizontal line appears above the
+  display. Off-by-one error in the blitting call?
 * The key click is flaky on some devices. Why?
 * Add android:installLocation property to the manifest, to support installing
   the app on external memory (SD card) under Android 2.2 or later. See
