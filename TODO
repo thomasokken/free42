@@ -71,6 +71,7 @@ All versions:
   those two places in the code to detect unlikely values of
   (startTime - shell_milliseconds()) and assume the nearest likely alternative,
   a la Y2K.
+* Display "decimal" or "binary" in the About box, with the version number.
 
 The "Wouldn't It Be Nice" Department:
 * Algebraic equations.
