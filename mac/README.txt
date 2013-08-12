@@ -19,6 +19,9 @@ $HOME/Library/Application Support/Free42.
 Free42 comes with two skins built in, but you may use different ones, by
 placing them in the directory $HOME/Library/Application Support/Free42. They
 will show up in the Skin menu immediately.
+Note: in OS X 10.7 (Lion) and later, the $HOME/Library directory is hidden in
+the Finder by default. You can make it visible by opening a terminal and
+running this command: chflags nohidden ~/Library
 
 
 Uninstalling Free42:
