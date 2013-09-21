@@ -1,3 +1,9 @@
+??-??-????: release 1.4.78
+
+* All versions except Android: while parsing macros in skin layout files, tab
+  characters were not recognized as whitespace and caused parsing to fail.
+  Fixed.
+
 15-06-2013: (no new code release)
 
 * Three new skins, and many tweaks to existing skins, contributed by KD0GLS.

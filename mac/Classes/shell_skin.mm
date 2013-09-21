@@ -439,7 +439,7 @@ void skin_load(long *width, long *height) {
 				}
 			}
 		} else if (strncasecmp(line, "macro:", 6) == 0) {
-			char *tok = strtok(line + 6, " ");
+			char *tok = strtok(line + 6, " \t");
 			int len = 0;
 			SkinMacro *macro = NULL;
 			while (tok != NULL) {
@@ -469,7 +469,7 @@ void skin_load(long *width, long *height) {
 					}
 					macro->macro[len++] = (unsigned char) n;
 				}
-				tok = strtok(NULL, " ");
+				tok = strtok(NULL, " \t");
 			}
 			if (macro != NULL) {
 				macro->macro[len++] = 0;
