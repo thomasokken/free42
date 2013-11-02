@@ -203,6 +203,30 @@ static GtkItemFactoryEntry entries[] = {
 
 static gint num_entries = sizeof(entries) / sizeof(entries[0]);
 
+static GtkItemFactoryEntry entries_compactmenu[] = {
+    { "/Menu", NULL, NULL, 0, "<Branch>" },
+    { "/Menu/File", NULL, NULL, 0, "<Branch>" },
+    { "/Menu/File/Show Print-Out", NULL, showPrintOutCB, 0, "<Item>" },
+    { "/Menu/File/sep1", NULL, NULL, 0, "<Separator>" },
+    { "/Menu/File/Import Programs...", NULL, importProgramCB, 0, "<Item>" },
+    { "/Menu/File/Export Programs...", NULL, exportProgramCB, 0, "<Item>" },
+    { "/Menu/File/sep2", NULL, NULL, 0, "<Separator>" },
+    { "/Menu/File/Clear Print-Out", NULL, clearPrintOutCB, 0, "<Item>" },
+    { "/Menu/File/Preferences...", NULL, preferencesCB, 0, "<Item>" },
+    { "/Menu/File/sep3", NULL, NULL, 0, "<Separator>" },
+    { "/Menu/File/Quit", "<CTRL>Q", quitCB, 0, "<Item>" },
+    { "/Menu/Edit", NULL, NULL, 0, "<Branch>" },
+    { "/Menu/Edit/Copy", "<CTRL>C", copyCB, 0, "<Item>" },
+    { "/Menu/Edit/Paste", "<CTRL>V", pasteCB, 0, "<Item>" },
+    { "/Menu/Skin", NULL, NULL, 0, "<Branch>" },
+    { "/Menu/Help", NULL, NULL, 0, "<Branch>" },
+    { "/Menu/Help/About Free42...", NULL, aboutCB, 0, "<Item>" }
+};
+
+static gint num_entries_compactmenu = sizeof(entries_compactmenu) / sizeof(entries_compactmenu[0]);
+
+static int use_compactmenu = 0;
+
 int main(int argc, char *argv[]) {
 #ifdef OLPC
     const char *activityID = NULL, *bundleID = NULL;
@@ -213,6 +237,8 @@ int main(int argc, char *argv[]) {
     for (int i = 1; i < argc; i++) {
 	if (strcmp(argv[i], "-skin") == 0)
 	    skin_arg = ++i < argc ? argv[i] : NULL;
+	else if (strcmp(argv[i], "-compactmenu") == 0)
+	    use_compactmenu = 1;
 #ifdef OLPC
 	else if (strcmp(argv[i], "-a") == 0)
 	    activityID = ++i < argc ? argv[i] : NULL;
@@ -395,7 +421,10 @@ int main(int argc, char *argv[]) {
     GtkAccelGroup *acc_grp = gtk_accel_group_new();
     GtkItemFactory *fac = gtk_item_factory_new(GTK_TYPE_MENU_BAR,
 					       "<Main>", acc_grp);
-    gtk_item_factory_create_items(fac, num_entries, entries, NULL);
+    if (use_compactmenu)
+	gtk_item_factory_create_items(fac, num_entries_compactmenu, entries_compactmenu, NULL);
+    else
+	gtk_item_factory_create_items(fac, num_entries, entries, NULL);
     gtk_window_add_accel_group(GTK_WINDOW(mainwindow), acc_grp);
     GtkWidget *menubar = gtk_item_factory_get_widget(fac, "<Main>");
 
@@ -404,6 +433,12 @@ int main(int argc, char *argv[]) {
     // available skins; this callback is invoked when the menu is about to
     // be mapped.
     GList *children = gtk_container_get_children(GTK_CONTAINER(menubar));
+    if (use_compactmenu) {
+	GtkMenuItem *menu_btn = (GtkMenuItem *) children->data;
+	g_list_free(children);
+	GtkMenu *menu = (GtkMenu *) gtk_menu_item_get_submenu(menu_btn);
+	children = gtk_container_get_children(GTK_CONTAINER(menu));
+    }
     GtkMenuItem *skin_btn = (GtkMenuItem *) children->next->next->data;
     g_list_free(children);
 
