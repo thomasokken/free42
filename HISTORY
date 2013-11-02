@@ -3,6 +3,8 @@
 * All versions except Android: while parsing macros in skin layout files, tab
   characters were not recognized as whitespace and caused parsing to fail.
   Fixed.
+* GTK version did not repaint the skin when it was switched from one skin to
+  another with the same width and height. Fixed.
 
 15-06-2013: (no new code release)
 

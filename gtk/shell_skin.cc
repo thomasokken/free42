@@ -147,6 +147,7 @@ static void selectSkinCB(GtkWidget *w, gpointer cd) {
 	skin_load(&w, &h);
 	core_repaint_display();
 	gtk_widget_set_size_request(calc_widget, w, h);
+	gtk_widget_queue_draw(calc_widget);
     }
 }
 
