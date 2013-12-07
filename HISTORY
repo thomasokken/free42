@@ -6,6 +6,15 @@
 * GTK version did not repaint the skin when it was switched from one skin to
   another with the same width and height. Fixed.
 
+07-12-2013: release 1.4.77a
+
+* Android version: The "external storage" filesystem is no longer referred to
+  by the hard-coded path /sdcard, but using the external storage directory name
+  provided by the Environment. This should help prevent problems like exporting
+  programs and then not being able to find them from the PC.
+* The file selection dialog will now append the file extension if the filename
+  doesn't include it already.
+
 15-06-2013: (no new code release)
 
 * Three new skins, and many tweaks to existing skins, contributed by KD0GLS.
