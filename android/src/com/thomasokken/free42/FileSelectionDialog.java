@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
-
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -90,9 +90,20 @@ public class FileSelectionDialog extends Dialog {
 		});
 		okButton = (Button) findViewById(R.id.okButton);
 		okButton.setOnClickListener(new View.OnClickListener() {
+			@SuppressLint("DefaultLocale")
 			public void onClick(View view) {
-				if (okListener != null)
-					okListener.okPressed(currentPath + fileNameTF.getText().toString());
+				if (okListener != null) {
+					String name = fileNameTF.getText().toString();
+					DirListAdapter dla = (DirListAdapter) dirView.getAdapter();
+					if (dla != null) {
+						String type = dla.getType();
+						if (type != null) {
+							if (!name.toLowerCase().endsWith("." + type.toLowerCase()))
+								name += "." + type;
+						}
+					}
+					okListener.okPressed(currentPath + name);
+				}
 				FileSelectionDialog.this.dismiss();
 			}
 		});
@@ -206,6 +217,10 @@ public class FileSelectionDialog extends Dialog {
 				for (DataSetObserver dso : dsoArray)
 					dso.onChanged();
 			}
+		}
+		
+		public String getType() {
+			return type;
 		}
 		
 		private void filterItems() {

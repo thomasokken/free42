@@ -28,7 +28,7 @@ import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.nio.IntBuffer;
 import java.util.Date;
-
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -55,6 +55,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Vibrator;
@@ -385,7 +386,7 @@ public class Free42Activity extends Activity {
         	} else if (index == builtinSkinNames.length) {
         		FileSelectionDialog fsd = new FileSelectionDialog(this, new String[] { "layout", "*" });
         		if (externalSkinName[orientation].length() == 0)
-        			fsd.setPath("/sdcard/Free42");
+        			fsd.setPath(topStorageDir() + "/Free42");
         		else
         			fsd.setPath(externalSkinName[orientation] + ".layout");
         		fsd.setOkListener(new FileSelectionDialog.OkListener() {
@@ -426,7 +427,7 @@ public class Free42Activity extends Activity {
     
     private void doImport() {
 		FileSelectionDialog fsd = new FileSelectionDialog(this, new String[] { "raw", "*" });
-		fsd.setPath("/sdcard");
+		fsd.setPath(topStorageDir());
 		fsd.setOkListener(new FileSelectionDialog.OkListener() {
 			public void okPressed(String path) {
 				doImport2(path);
@@ -518,7 +519,7 @@ public class Free42Activity extends Activity {
 	    		}
 	    	if (!none) {
 	    		FileSelectionDialog fsd = new FileSelectionDialog(this, new String[] { "raw", "*" });
-	    		fsd.setPath("/sdcard");
+	    		fsd.setPath(topStorageDir());
 	    		fsd.setOkListener(new FileSelectionDialog.OkListener() {
 	    			public void okPressed(String path) {
 	    				doExport2(path);
@@ -895,7 +896,8 @@ public class Free42Activity extends Activity {
     		setMeasuredDimension(286, Math.max(printHeight, 1) * 2);
     	}
 
-    	@Override
+    	@SuppressLint("DrawAllocation")
+		@Override
     	protected void onDraw(Canvas canvas) {
     		Rect clip = canvas.getClipBounds();
     		
@@ -1095,7 +1097,7 @@ public class Free42Activity extends Activity {
     		skinName[0] = "Standard";
     		// fall through
     	case 2:
-    		externalSkinName[0] = "/sdcard/Free42/" + skinName[0];
+    		externalSkinName[0] = topStorageDir() + "/Free42/" + skinName[0];
     		// fall through
     	case 3:
     		skinName[1] = skinName[0];
@@ -1288,7 +1290,7 @@ public class Free42Activity extends Activity {
 			}
 		}
 		if (brokenMediaPlayer) {
-			String fileName = "/sdcard/tmp.free42sound." + index;
+			String fileName = topStorageDir() + "/tmp.free42sound." + index;
 			if (!new File(fileName).exists()) {
 				InputStream is = null;
 				OutputStream os = null;
@@ -1326,6 +1328,10 @@ public class Free42Activity extends Activity {
 				mp.start();
 			} catch (IOException e) {}
 		}
+	}
+	
+	private static String topStorageDir() {
+		return Environment.getExternalStorageDirectory().getAbsolutePath();
 	}
 	
 
