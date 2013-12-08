@@ -5,7 +5,6 @@
 # source package.
 # It should be run in a Cygwin bash shell (under MS Windows, obviously).
 
-unset BCD_MATH
 mkdir -p packages
 
 # Build Windows version
@@ -20,33 +19,6 @@ cp windows/ReleaseBinary/Free42Binary.exe Free42Windows
 cp windows/ReleaseDecimal/Free42Decimal.exe Free42Windows
 zip -r packages/Free42Windows.zip Free42Windows
 rm -rf Free42Windows
-
-# Build Android version
-
-mkdir android-tmp
-cd android-tmp
-svn checkout svn://macmini/free42/trunk free42
-cd free42/android
-sed 's/android:debuggable="[^"]*"/android:debuggable="false"/' < AndroidManifest.xml > TMP
-mv TMP AndroidManifest.xml
-VERSION_CODE=`cat version.code`
-VERSION_CODE=`expr $VERSION_CODE + 1`
-echo $VERSION_CODE > version.code
-svn commit -m 'Automatic version.code bump' version.code
-sed "s/android:versionCode=\"[^\"]*\"/android:versionCode=\"$VERSION_CODE\"/" < AndroidManifest.xml > TMP
-mv TMP AndroidManifest.xml
-VERSION_NAME=`cat ../VERSION`
-sed "s/android:versionName=\"[^\"]*\"/android:versionName=\"$VERSION_NAME\"/" < AndroidManifest.xml > TMP
-mv TMP AndroidManifest.xml
-cd jni
-sh ./copy-files-release.sh
-/cygdrive/c/opt/android-ndk-r8/ndk-build
-cd ..
-echo "======== ATTENTION: Possible Password Prompt ========"
-ant release
-mv bin/Free42Android-release.apk ../../../packages/Free42Android.apk
-cd ../../..
-rm -rf android-tmp
 
 # Source package, and Windows/Unix skins packages
 mkdir tmp
