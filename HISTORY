@@ -1,10 +1,13 @@
-??-??-????: release 1.4.78
+08-12-2013: release 1.4.78
 
 * All versions except Android: while parsing macros in skin layout files, tab
   characters were not recognized as whitespace and caused parsing to fail.
   Fixed.
 * GTK version did not repaint the skin when it was switched from one skin to
   another with the same width and height. Fixed.
+* Windows version: downgraded my build environment from Visual C++ 2012 to 6.0.
+  This means the Free42 build for Windows will run on older versions of Windows
+  again.
 
 07-12-2013: release 1.4.77a
 

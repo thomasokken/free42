@@ -10,17 +10,16 @@ mkdir -p packages
 
 # Build Windows version
 
-echo "NOTE: Windows command-line build needs to be rewritten using msbuild."
-#cd windows
-#cmd /c build-all.bat
-#cd ..
-#rm -rf Free42Windows
-#mkdir Free42Windows
-#cp windows/README.txt Free42Windows
-#cp windows/ReleaseBinary/Free42Binary.exe Free42Windows
-#cp windows/ReleaseDecimal/Free42Decimal.exe Free42Windows
-#zip -r packages/Free42Windows.zip Free42Windows
-#rm -rf Free42Windows
+cd windows
+cmd /c build-all.bat
+cd ..
+rm -rf Free42Windows
+mkdir Free42Windows
+cp windows/README.txt Free42Windows
+cp windows/ReleaseBinary/Free42Binary.exe Free42Windows
+cp windows/ReleaseDecimal/Free42Decimal.exe Free42Windows
+zip -r packages/Free42Windows.zip Free42Windows
+rm -rf Free42Windows
 
 # Build Android version
 
