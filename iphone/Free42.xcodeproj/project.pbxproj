@@ -48,6 +48,7 @@
 		E93F2B560F894D9000CE8542 /* shell_spool.cc in Sources */ = {isa = PBXBuildFile; fileRef = E93F2B540F894D9000CE8542 /* shell_spool.cc */; };
 		E94C3CFE132DAB0A00880A45 /* Entitlements.plist in Resources */ = {isa = PBXBuildFile; fileRef = E94C3CFD132DAB0A00880A45 /* Entitlements.plist */; };
 		E94DE6C61011E9AE005E6B19 /* about-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = E94DE6C51011E9AE005E6B19 /* about-icon.png */; };
+		E95AEACD185541F8004A384B /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E95AEACC185541F8004A384B /* Default-568h@2x.png */; };
 		E977D0841698FB4E00AA3FD9 /* AboutView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E977D0781698FB4E00AA3FD9 /* AboutView.mm */; };
 		E977D0851698FB4E00AA3FD9 /* HTTPServerView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E977D0791698FB4E00AA3FD9 /* HTTPServerView.mm */; };
 		E977D0881698FB4E00AA3FD9 /* PreferencesView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E977D07C1698FB4E00AA3FD9 /* PreferencesView.mm */; };
@@ -155,6 +156,7 @@
 		E93F2B550F894D9000CE8542 /* shell_spool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shell_spool.h; path = ../common/shell_spool.h; sourceTree = SOURCE_ROOT; };
 		E94C3CFD132DAB0A00880A45 /* Entitlements.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Entitlements.plist; sourceTree = "<group>"; };
 		E94DE6C51011E9AE005E6B19 /* about-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "about-icon.png"; sourceTree = "<group>"; };
+		E95AEACC185541F8004A384B /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		E977D0781698FB4E00AA3FD9 /* AboutView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AboutView.mm; sourceTree = "<group>"; };
 		E977D0791698FB4E00AA3FD9 /* HTTPServerView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HTTPServerView.mm; sourceTree = "<group>"; };
 		E977D07C1698FB4E00AA3FD9 /* PreferencesView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PreferencesView.mm; sourceTree = "<group>"; };
@@ -297,6 +299,7 @@
 				E9C061C6127CED07000427AA /* icon@2x.png */,
 				E94DE6C51011E9AE005E6B19 /* about-icon.png */,
 				E9C92F8A0FE424FE00DC292C /* Default.png */,
+				E95AEACC185541F8004A384B /* Default-568h@2x.png */,
 				E98FA4830F913E2900DED348 /* icon.png */,
 				8D1107310486CEB800E47090 /* Info.plist */,
 				28AD733E0D9D9553002E5188 /* MainWindow.xib */,
@@ -467,6 +470,7 @@
 				E94DE6C61011E9AE005E6B19 /* about-icon.png in Resources */,
 				E9C061C7127CED07000427AA /* icon@2x.png in Resources */,
 				E94C3CFE132DAB0A00880A45 /* Entitlements.plist in Resources */,
+				E95AEACD185541F8004A384B /* Default-568h@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
