@@ -1,3 +1,17 @@
+All versions:
+
+* The real HP-42S performs unbiased rounding, a.k.a. round-to-even. This means
+  that 10,000,000,000 + 0.5 -> 10,000,000,000 while 10,000,000,000 + 1.5 ->
+  10,000,000,002.
+  In Free42 Decimal, the mantissa is 13 digits wider, so replace 1e11 with 1e24
+  in the above test case.
+  In Free42 Decimal, unbiased rounding will have to be implemented by modifying
+  the appropriate routines in the BCD20 library.
+  In Free42 Binary, no changes should be necessary since it uses the underlying
+  platform's floating-point hardware or libraries, and those are all IEEE-754
+  compliant nowadays. (IEEE-754 specifies round-to-even as the default rounding
+  behavior.)
+
 Android version:
 * Sometimes, with some skins, a one-pixel horizontal line appears above the
   display. Off-by-one error in the blitting call?
