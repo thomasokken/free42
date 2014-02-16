@@ -99,7 +99,6 @@ void core_quit() {
     if (vars != NULL)
 	free(vars);
     clean_vartype_pools();
-    phloat_cleanup();
 
 #ifdef ANDROID
     reinitialize_globals();

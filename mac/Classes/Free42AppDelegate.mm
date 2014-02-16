@@ -1192,19 +1192,6 @@ void shell_request_timeout3(int delay) {
 	[instance performSelectorOnMainThread:@selector(shell_request_timeout3_helper) withObject:NULL waitUntilDone:NO];
 }
 
-shell_bcd_table_struct *shell_get_bcd_table() {
-	return NULL;
-}
-
-shell_bcd_table_struct *shell_put_bcd_table(shell_bcd_table_struct *bcdtab,
-                                            uint4 size) {
-	return bcdtab;
-}
-
-void shell_release_bcd_table(shell_bcd_table_struct *bcdtab) {
-	free(bcdtab);
-}
-
 int4 shell_read_saved_state(void *buf, int4 bufsize) {
 	if (statefile == NULL)
 		return -1;

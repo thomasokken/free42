@@ -518,22 +518,6 @@ int shell_read(char *buf, int4 bufsize) {
     return n;
 }
 
-shell_bcd_table_struct *shell_get_bcd_table() {
-    Tracer T("shell_get_bcd_table");
-    return NULL;
-}
-
-shell_bcd_table_struct *shell_put_bcd_table(shell_bcd_table_struct *bcdtab,
-					    uint4 size) {
-    Tracer T("shell_put_bcd_table");
-    return bcdtab;
-}
-
-void shell_release_bcd_table(shell_bcd_table_struct *bcdtab) {
-    Tracer T("shell_release_bcd_table");
-    free(bcdtab);
-}
-
 int shell_get_acceleration(double *x, double *y, double *z) {
     Tracer T("shell_get_acceleration");
     JNIEnv *env = getJniEnv();

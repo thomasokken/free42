@@ -2323,19 +2323,6 @@ int shell_read(char *buf, int4 buflen) {
 	return nread;
 }
 
-shell_bcd_table_struct *shell_get_bcd_table() {
-    return NULL;
-}
-
-shell_bcd_table_struct *shell_put_bcd_table(shell_bcd_table_struct *bcdtab,
-					    uint4 size) {
-    return bcdtab;
-}
-
-void shell_release_bcd_table(shell_bcd_table_struct *bcdtab) {
-    free(bcdtab);
-}
-
 void shell_get_time_date(uint4 *time, uint4 *date, int *weekday) {
     struct timeval tv;
     gettimeofday(&tv, NULL);

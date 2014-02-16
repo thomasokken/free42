@@ -2083,19 +2083,6 @@ int4 shell_read(char *buf, int4 buflen) {
 		return nread;
 }
 
-shell_bcd_table_struct *shell_get_bcd_table() {
-        return NULL;
-}
-
-shell_bcd_table_struct *shell_put_bcd_table(shell_bcd_table_struct* bcdtab,
-					    uint4 size) {
-        return bcdtab;
-}
-
-void shell_release_bcd_table(shell_bcd_table_struct *bcdtab) {
-	free(bcdtab);
-}
-
 extern long keymap_filesize;
 extern char keymap_filedata[];
 

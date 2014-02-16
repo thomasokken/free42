@@ -160,7 +160,6 @@ extern phloat POS_TINY_PHLOAT;
 extern phloat NEG_TINY_PHLOAT;
 
 void phloat_init();
-void phloat_cleanup();
 int phloat2string(phloat d, char *buf, int buflen,
 		  int base_mode, int digits, int dispmode,
 		  int thousandssep);

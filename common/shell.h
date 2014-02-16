@@ -179,33 +179,6 @@ int shell_write(const char *buf, int4 buflen);
  */
 int4 shell_read(char *buf, int4 buflen);
 
-/* shell_get_bcd_table()
- * shell_put_bcd_table()
- * shell_release_bcd_table()
- * shell_bcd_table_struct
- *
- * On platforms where computing the BCD conversion table is slow, these
- * functions should be implemented so they save the table in persistent
- * storage. On other platforms, they can be no-ops.
- * shell_get_bcd_table() returns NULL if no BCD table image was found.
- */
-typedef struct {
-    double pos_huge_double;
-    double neg_huge_double;
-    double pos_tiny_double;
-    double neg_tiny_double;
-    int2 max_pow2;
-    int2 min_pow2;
-    uint4 pos_pow2exp_offset; /* Offsets are from the end of this struct */
-    uint4 neg_pow2mant_offset;/* pos_pow2mant_offset is implicitly 0 */
-    uint4 neg_pow2exp_offset;
-} shell_bcd_table_struct;
-
-shell_bcd_table_struct *shell_get_bcd_table();
-shell_bcd_table_struct *shell_put_bcd_table(shell_bcd_table_struct *bcdtab,
-					    uint4 size);
-void shell_release_bcd_table(shell_bcd_table_struct *bcdtab);
-
 #if defined(ANDROID) || defined(IPHONE)
 /* shell_get_acceleration()
  * shell_get_location()

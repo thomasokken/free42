@@ -993,22 +993,6 @@ int shell_read(char *buf, int buflen) {
 }
 */
 
-shell_bcd_table_struct *shell_get_bcd_table() {
-	TRACE("shell_get_bcd_table");
-	return NULL;
-}
-
-shell_bcd_table_struct *shell_put_bcd_table(shell_bcd_table_struct *bcdtab,
-											unsigned int size) {
-	TRACE("shell_put_bcd_table");
-	return bcdtab;
-}
-
-void shell_release_bcd_table(shell_bcd_table_struct *bcdtab) {
-	TRACE("shell_release_bcd_table");
-	free(bcdtab);
-}
-
 //////////////////////////////////////////////////////////////////////
 /////   Accelerometer, Location Services, and Compass support    /////
 ///// Be sure to keep this in sync between both iPhone versions! /////
