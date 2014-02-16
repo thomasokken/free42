@@ -697,7 +697,7 @@ double bcd2double(BCDFloat b, bool old_bcd) {
 	} else
 	    cp += 4;
     }
-    sprintf(cp, "e%d", exp);
+    sprintf(cp, "e%d", exp * 4 - 1);
     double res;
     sscanf(decstr, "%le", &res);
     return res;
@@ -715,7 +715,6 @@ void phloat_init() {
 }
 
 int string2phloat(const char *buf, int buflen, phloat *d) {
-    // TODO
     /* Convert string to phloat.
      * Return values:
      * 0: no error
@@ -829,7 +828,8 @@ int string2phloat(const char *buf, int buflen, phloat *d) {
 	return mant_sign ? 2 : 1;
     if (res == 0.0)
 	return mant_sign ? 4 : 3;
-    return res;
+    *d = res;
+    return 0;
 }
 
 double bcd2double(short *p, bool old_bcd) {
@@ -872,7 +872,7 @@ double bcd2double(short *p, bool old_bcd) {
 	} else
 	    cp += 4;
     }
-    sprintf(cp, "e%d", exp);
+    sprintf(cp, "e%d", exp * 4 - 1);
     double res;
     sscanf(decstr, "%le", &res);
     return res;
