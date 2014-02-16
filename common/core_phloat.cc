@@ -710,7 +710,18 @@ double bcd2double(BCDFloat b, bool old_bcd) {
 void phloat_init() {
     POS_HUGE_PHLOAT = DBL_MAX;
     NEG_HUGE_PHLOAT = -POS_HUGE_PHLOAT;
+#ifndef WINDOWS
     POS_TINY_PHLOAT = nextafter(0.0, 1.0);
+#else
+    double d = 1;
+    while (1) {
+	double d2 = d / 2;
+	if (d2 == 0)
+	    break;
+	d = d2;
+    }
+    POS_TINY_PHLOAT = d;
+#endif
     NEG_TINY_PHLOAT = -POS_TINY_PHLOAT;
 }
 
@@ -817,7 +828,7 @@ int string2phloat(const char *buf, int buflen, phloat *d) {
     char *cp = decstr;
     if (mant_sign)
 	*cp++ = '-';
-    for (int i = 0; i < 16; i++) {
+    for (i = 0; i < 16; i++) {
 	*cp++ = mantissa[i] + '0';
 	if (i == 0)
 	    *cp++ = '.';
