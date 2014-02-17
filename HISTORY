@@ -1,3 +1,10 @@
+??-??-????: release 1.4.79
+
+* All versions: replaced the old binary-to-decimal and decimal-to-binary
+  conversions with code that uses the standard C library's equivalent
+  functionality. This fixes final-digit errors in the Binary version, and also
+  final-digit errors when switching from the Decimal to the Binary version.
+
 08-12-2013: release 1.4.78
 
 * All versions except Android: while parsing macros in skin layout files, tab
