@@ -366,6 +366,11 @@ typedef struct {
     char name[7];
     vartype *value;
 } var_struct;
+typedef struct {
+    unsigned char length;
+    char name[7];
+    int4 value;
+} var_struct_32bit;
 extern int vars_capacity;
 extern int vars_count;
 extern var_struct *vars;
@@ -377,6 +382,12 @@ typedef struct {
     int lclbl_invalid;
     unsigned char *text;
 } prgm_struct;
+typedef struct {
+    int4 capacity;
+    int4 size;
+    int lclbl_invalid;
+    int4 text;
+} prgm_struct_32bit;
 extern int prgms_capacity;
 extern int prgms_count;
 extern prgm_struct *prgms;

@@ -1130,15 +1130,17 @@ static bool persist_globals() {
 	goto done;
     if (!write_int(vars_count))
 	goto done;
-    if (!shell_write_saved_state(vars, vars_count * sizeof(var_struct)))
-	goto done;
+    for (i = 0; i < vars_count; i++)
+	if (!shell_write_saved_state(vars + i, sizeof(var_struct_32bit)))
+	    goto done;
     for (i = 0; i < vars_count; i++)
 	if (!persist_vartype(vars[i].value))
 	    goto done;
     if (!write_int(prgms_count))
 	goto done;
-    if (!shell_write_saved_state(prgms, prgms_count * sizeof(prgm_struct)))
-	goto done;
+    for (i = 0; i < prgms_count; i++)
+	if (!shell_write_saved_state(prgms + i, sizeof(prgm_struct_32bit)))
+	    goto done;
     for (i = 0; i < prgms_count; i++)
 	if (!shell_write_saved_state(prgms[i].text, prgms[i].size))
 	    goto done;
@@ -1180,7 +1182,6 @@ static bool persist_globals() {
 }
 
 static bool unpersist_globals(int4 ver) {
-    int4 n;
     int i;
     array_count = 0;
     array_list_capacity = 0;
@@ -1252,18 +1253,18 @@ static bool unpersist_globals(int4 ver) {
 	vars_count = 0;
 	goto done;
     }
-    n = vars_count * sizeof(var_struct);
-    vars = (var_struct *) malloc(n);
+    vars = (var_struct *) malloc(vars_count * sizeof(var_struct));
     if (vars == NULL) {
 	vars_count = 0;
 	goto done;
     }
-    if (shell_read_saved_state(vars, n) != n) {
-	free(vars);
-	vars = NULL;
-	vars_count = 0;
-	goto done;
-    }
+    for (i = 0; i < vars_count; i++)
+	if (shell_read_saved_state(vars + i, sizeof(var_struct_32bit)) != sizeof(var_struct_32bit)) {
+	    free(vars);
+	    vars = NULL;
+	    vars_count = 0;
+	    goto done;
+	}
     vars_capacity = vars_count;
     for (i = 0; i < vars_count; i++)
 	vars[i].value = NULL;
@@ -1281,18 +1282,18 @@ static bool unpersist_globals(int4 ver) {
 	prgms_count = 0;
 	goto done;
     }
-    n = prgms_count * sizeof(prgm_struct);
-    prgms = (prgm_struct *) malloc(n);
+    prgms = (prgm_struct *) malloc(prgms_count * sizeof(prgm_struct));
     if (prgms == NULL) {
 	prgms_count = 0;
 	goto done;
     }
-    if (shell_read_saved_state(prgms, n) != n) {
-	free(prgms);
-	prgms = NULL;
-	prgms_count = 0;
-	goto done;
-    }
+    for (i = 0; i < prgms_count; i++)
+	if (shell_read_saved_state(prgms + i, sizeof(prgm_struct_32bit)) != sizeof(prgm_struct_32bit)) {
+	    free(prgms);
+	    prgms = NULL;
+	    prgms_count = 0;
+	    goto done;
+	}
     prgms_capacity = prgms_count;
     for (i = 0; i < prgms_count; i++) {
 	prgms[i].capacity = prgms[i].size;
