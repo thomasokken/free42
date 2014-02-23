@@ -923,11 +923,6 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
     int bcd_exponent = 0;
     int bcd_mantissa_sign = 0;
 
-    if (pd < 0) {
-	pd = -pd;
-	bcd_mantissa_sign = 1;
-    }
-
     char decstr[50];
 
 #ifndef BCD_MATH
