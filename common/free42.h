@@ -132,9 +132,11 @@ extern "C" void sincos(double x, double *sinx, double *cosx);
  *                    LOCAT, HEADING, and HP-41 Time
  * Version 16: 1.4.63 time and date format flags
  * Version 17: 1.4.65 iPhone "OFF enable" flag
+ * Version 18: 1.4.79 Replaced BCD20 with Intel's Decimal Floating Point
+ *                    Library v.2.1.
  */
 #define FREE42_MAGIC 0x466b3432
-#define FREE42_VERSION 17
+#define FREE42_VERSION 18
 
 
 #endif

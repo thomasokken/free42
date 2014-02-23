@@ -1109,8 +1109,6 @@ int docmd_prsigma(arg_struct *arg) {
     int4 size, max, i;
     char buf[100];
     int bufptr;
-    int dispmode;
-    int digits = 0;
 
     if (regs == NULL)
 	return ERR_NONEXISTENT;
@@ -1127,19 +1125,6 @@ int docmd_prsigma(arg_struct *arg) {
     if (!flags.f.printer_exists)
 	return ERR_PRINTING_IS_DISABLED;
 
-    if (flags.f.fix_or_all)
-	dispmode = flags.f.eng_or_all ? 3 : 0;
-    else
-	dispmode = flags.f.eng_or_all ? 2 : 1;
-    if (flags.f.digits_bit3)
-	digits += 8;
-    if (flags.f.digits_bit2)
-	digits += 4;
-    if (flags.f.digits_bit1)
-	digits += 2;
-    if (flags.f.digits_bit0)
-	digits += 1;
-    
     shell_annunciators(-1, -1, 1, -1, -1, -1);
     print_text(NULL, 0, 1);
     for (i = 0; i < nr; i++) {

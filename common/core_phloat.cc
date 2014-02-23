@@ -23,8 +23,12 @@
 #include "core_phloat.h"
 #include "core_helpers.h"
 #include "shell.h"
-#include "bcd.h"
-#include "bcdmath.h"
+
+#ifndef BCD_MATH
+// We need these locally for BID128->double conversion
+#include "bid_conf.h"
+#include "bid_functions.h"
+#endif
 
 
 phloat POS_HUGE_PHLOAT;
@@ -33,28 +37,63 @@ phloat POS_TINY_PHLOAT;
 phloat NEG_TINY_PHLOAT;
 
 
+/* Note: this function does not handle infinities or NaN */
+static void bcdfloat2string(short *p, char *buf) {
+    short exp = p[7];
+    bool neg = (exp & 0x8000) != 0;
+    exp = ((short) (exp << 3)) >> 3;
+    if (neg)
+	*buf++ = '-';
+    for (int i = 0; i < 7; i++) {
+	short d = p[i];
+	sprintf(buf, "%04d", d);
+	if (i == 0) {
+	    for (int j = 4; j >= 2; j--)
+		buf[j] = buf[j - 1];
+	    buf[1] = '.';
+	    buf += 5;
+	} else
+	    buf += 4;
+    }
+    sprintf(buf, "e%d", exp * 4 - 1);
+}
+
+static void bcdfloat_old2new(void *bcd) {
+    // Convert old (<= 1.4.51) BCDFloat, where NaN is signalled by
+    // (exp & 0x7FFF) == 0x3000, and Infinity is signalled by
+    // (exp & 0x7FFF) == 0x3FFF, to the new (>= 1.4.52) BCDFloat, where NaN is
+    // signalled by (exp & 0x4000) != 0 and Infinity is signalled by
+    // (exp & 0x2000) != 0 (and the exponent field is 2 bits narrower).
+    short *p = (short *) bcd;
+    short uexp = p[7] & 0x7FFF;
+    if (uexp == 0x3000)
+	// NaN
+	p[7] = 0x4000;
+    else if (uexp == 0x3FFF)
+	// Infinity
+	p[7] = (p[7] & 0x8000) | 0x2000;
+    else
+	p[7] = p[7] & 0x9FFF;
+}
+
+
 #ifdef BCD_MATH
 
 
 void phloat_init() {
-    POS_HUGE_PHLOAT.bcd.d_[0] = 9999;
-    POS_HUGE_PHLOAT.bcd.d_[1] = 9999;
-    POS_HUGE_PHLOAT.bcd.d_[2] = 9999;
-    POS_HUGE_PHLOAT.bcd.d_[3] = 9999;
-    POS_HUGE_PHLOAT.bcd.d_[4] = 9999;
-    POS_HUGE_PHLOAT.bcd.d_[5] = 9999;
-    POS_HUGE_PHLOAT.bcd.d_[6] = 9000;
-    POS_HUGE_PHLOAT.bcd.d_[7] = 2500;
-    NEG_HUGE_PHLOAT = -POS_HUGE_PHLOAT;
-    POS_TINY_PHLOAT.bcd.d_[0] = 1;
-    POS_TINY_PHLOAT.bcd.d_[1] = 0;
-    POS_TINY_PHLOAT.bcd.d_[2] = 0;
-    POS_TINY_PHLOAT.bcd.d_[3] = 0;
-    POS_TINY_PHLOAT.bcd.d_[4] = 0;
-    POS_TINY_PHLOAT.bcd.d_[5] = 0;
-    POS_TINY_PHLOAT.bcd.d_[6] = 0;
-    POS_TINY_PHLOAT.bcd.d_[7] = (unsigned short) -2499;
-    NEG_TINY_PHLOAT = -POS_TINY_PHLOAT;
+    BID_UINT128 posinf, neginf, zero, poshuge, neghuge, postiny, negtiny;
+    bid128_from_string(&posinf, "+Inf");
+    bid128_from_string(&neginf, "-Inf");
+    int z = 0;
+    bid128_from_int32(&zero, &z);
+    bid128_nextafter(&poshuge, &posinf, &zero);
+    bid128_nextafter(&neghuge, &neginf, &zero);
+    bid128_nextafter(&postiny, &zero, &posinf);
+    bid128_nextafter(&negtiny, &zero, &neginf);
+    POS_HUGE_PHLOAT = poshuge;
+    NEG_HUGE_PHLOAT = neghuge;
+    POS_TINY_PHLOAT = postiny;
+    NEG_TINY_PHLOAT = negtiny;
 }
 
 int string2phloat(const char *buf, int buflen, phloat *d) {
@@ -108,170 +147,192 @@ int string2phloat(const char *buf, int buflen, phloat *d) {
     }
 
     buf2[buflen2] = 0;
-    BCDFloat b(buf2);
-    if (b.isInf())
-	return b.neg() ? 2 : 1;
-    if (!zero && b.isZero())
-	return b.neg() ? 4 : 3;
-    d->bcd = b;
+    BID_UINT128 b;
+    bid128_from_string(&b, buf2);
+    int r;
+    if (bid128_isInf(&r, &b), r)
+	return (bid128_isSigned(&r, &b), r) ? 2 : 1;
+    if (!zero && (bid128_isZero(&r, &b), r))
+	return (bid128_isSigned(&r, &b), r) ? 4 : 3;
+    *d = b;
     return 0;
 }
 
 /* public */
+Phloat::Phloat(const char *str) {
+    bid128_from_string(&val, (char *) str);
+}
+
+/* public */
 Phloat::Phloat(int numer, int denom) {
-    BCDFloat n(numer);
-    BCDFloat d(denom);
-    BCDFloat::div(&n, &d, &bcd);
+    BID_UINT128 n, d;
+    bid128_from_int32(&n, &numer);
+    bid128_from_int32(&d, &denom);
+    bid128_div(&val, &n, &d);
 }
 
 /* public */
 Phloat::Phloat(int i) {
-    bcd = BCDFloat(i);
+    bid128_from_int32(&val, &i);
 }
 
 /* public */
-Phloat::Phloat(int8 i) : bcd(i) {
-    // Nothing else to do
+Phloat::Phloat(int8 i) {
+    bid128_from_int64(&val, &i);
 }
 
 /* public */
 Phloat::Phloat(double d) {
-    bcd = double2bcd(d);
+    binary64_to_bid128(&val, &d);
 }
 
 /* public */
 Phloat::Phloat(const Phloat &p) {
-    bcd = p.bcd;
+    val = p.val;
 }
 
 /* public */
 Phloat Phloat::operator=(int i) {
-    bcd = BCDFloat(i);
+    bid128_from_int32(&val, &i);
     return *this;
 }
 
 /* public */
 Phloat Phloat::operator=(int8 i) {
-    bcd = BCDFloat(i);
+    bid128_from_int64(&val, &i);
     return *this;
 }
 
 /* public */
 Phloat Phloat::operator=(double d) {
-    bcd = double2bcd(d);
+    binary64_to_bid128(&val, &d);
     return *this;
 }
 
 /* public */
 Phloat Phloat::operator=(Phloat p) {
-    bcd = p.bcd;
+    val = p.val;
     return *this;
 }
 
 /* public */
 bool Phloat::operator==(Phloat p) const {
-    return BCDFloat::equal(&bcd, &p.bcd);
+    int r;
+    bid128_quiet_equal(&r, (BID_UINT128 *) &val, &p.val);
+    return (bool) r;
 }
 
 /* public */
 bool Phloat::operator!=(Phloat p) const {
-    return !BCDFloat::equal(&bcd, &p.bcd);
+    int r;
+    bid128_quiet_not_equal(&r, (BID_UINT128 *) &val, &p.val);
+    return (bool) r;
 }
 
 /* public */
 bool Phloat::operator<(Phloat p) const {
-    return BCDFloat::lt(&bcd, &p.bcd);
+    int r;
+    bid128_quiet_less(&r, (BID_UINT128 *) &val, &p.val);
+    return (bool) r;
 }
 
 /* public */
 bool Phloat::operator<=(Phloat p) const {
-    return BCDFloat::le(&bcd, &p.bcd);
+    int r;
+    bid128_quiet_less_equal(&r, (BID_UINT128 *) &val, &p.val);
+    return (bool) r;
 }
 
 /* public */
 bool Phloat::operator>(Phloat p) const {
-    return BCDFloat::gt(&bcd, &p.bcd);
+    int r;
+    bid128_quiet_greater(&r, (BID_UINT128 *) &val, &p.val);
+    return (bool) r;
 }
 
 /* public */
 bool Phloat::operator>=(Phloat p) const {
-    return BCDFloat::ge(&bcd, &p.bcd);
+    int r;
+    bid128_quiet_greater_equal(&r, (BID_UINT128 *) &val, &p.val);
+    return (bool) r;
 }
 
 /* public */
 Phloat Phloat::operator-() const {
-    Phloat res(*this);
-    res.bcd.negate();
-    return res;
+    BID_UINT128 res;
+    bid128_negate(&res, (BID_UINT128 *) &val);
+    return Phloat(res);
 }
 
 /* public */
 Phloat Phloat::operator*(Phloat p) const {
-    Phloat res;
-    BCDFloat::mul(&bcd, &p.bcd, &res.bcd);
-    return res;
+    BID_UINT128 res;
+    bid128_mul(&res, (BID_UINT128 *) &val, &p.val);
+    return Phloat(res);
 }
 
 /* public */
 Phloat Phloat::operator/(Phloat p) const {
-    Phloat res;
-    BCDFloat::div(&bcd, &p.bcd, &res.bcd);
-    return res;
+    BID_UINT128 res;
+    bid128_div(&res, (BID_UINT128 *) &val, &p.val);
+    return Phloat(res);
 }
 
 /* public */
 Phloat Phloat::operator+(Phloat p) const {
-    Phloat res;
-    BCDFloat::add(&bcd, &p.bcd, &res.bcd);
-    return res;
+    BID_UINT128 res;
+    bid128_add(&res, (BID_UINT128 *) &val, &p.val);
+    return Phloat(res);
 }
 
 /* public */
 Phloat Phloat::operator-(Phloat p) const {
-    Phloat res;
-    BCDFloat::sub(&bcd, &p.bcd, &res.bcd);
-    return res;
+    BID_UINT128 res;
+    bid128_sub(&res, (BID_UINT128 *) &val, &p.val);
+    return Phloat(res);
 }
 
 /* public */
 Phloat Phloat::operator*=(Phloat p) {
-    BCDFloat temp;
-    BCDFloat::mul(&bcd, &p.bcd, &temp);
-    bcd = temp;
+    BID_UINT128 res;
+    bid128_mul(&res, &val, &p.val);
+    val = res;
     return *this;
 }
 
 /* public */
 Phloat Phloat::operator/=(Phloat p) {
-    BCDFloat temp;
-    BCDFloat::div(&bcd, &p.bcd, &temp);
-    bcd = temp;
+    BID_UINT128 res;
+    bid128_div(&res, &val, &p.val);
+    val = res;
     return *this;
 }
 
 /* public */
 Phloat Phloat::operator+=(Phloat p) {
-    BCDFloat temp;
-    BCDFloat::add(&bcd, &p.bcd, &temp);
-    bcd = temp;
+    BID_UINT128 res;
+    bid128_add(&res, &val, &p.val);
+    val = res;
     return *this;
 }
 
 /* public */
 Phloat Phloat::operator-=(Phloat p) {
-    BCDFloat temp;
-    BCDFloat::sub(&bcd, &p.bcd, &temp);
-    bcd = temp;
+    BID_UINT128 res;
+    bid128_sub(&res, &val, &p.val);
+    val = res;
     return *this;
 }
 
 /* public */
 Phloat Phloat::operator++() {
     // prefix
-    const BCDFloat one(1);
-    BCDFloat temp;
-    BCDFloat::add(&bcd, &one, &temp);
-    bcd = temp;
+    BID_UINT128 one;
+    int d1 = 1;
+    bid128_from_int32(&one, &d1);
+    BID_UINT128 temp;
+    bid128_add(&temp, &val, &one);
+    val = temp;
     return *this;
 }
 
@@ -279,20 +340,22 @@ Phloat Phloat::operator++() {
 Phloat Phloat::operator++(int) {
     // postfix
     Phloat old = *this;
-    const BCDFloat one(1);
-    BCDFloat temp;
-    BCDFloat::add(&bcd, &one, &temp);
-    bcd = temp;
+    BID_UINT128 one;
+    int d1 = 1;
+    bid128_from_int32(&one, &d1);
+    bid128_add(&val, &old.val, &one);
     return old;
 }
 
 /* public */
 Phloat Phloat::operator--() {
     // prefix
-    const BCDFloat one(1);
-    BCDFloat temp;
-    BCDFloat::sub(&bcd, &one, &temp);
-    bcd = temp;
+    BID_UINT128 one;
+    int d1 = 1;
+    bid128_from_int32(&one, &d1);
+    BID_UINT128 temp;
+    bid128_sub(&temp, &val, &one);
+    val = temp;
     return *this;
 }
 
@@ -300,407 +363,306 @@ Phloat Phloat::operator--() {
 Phloat Phloat::operator--(int) {
     // postfix
     Phloat old = *this;
-    const BCDFloat one(1);
-    BCDFloat temp;
-    BCDFloat::sub(&bcd, &one, &temp);
-    bcd = temp;
+    BID_UINT128 one;
+    int d1 = 1;
+    bid128_from_int32(&one, &d1);
+    bid128_sub(&val, &old.val, &one);
     return old;
 }
 
 int p_isinf(Phloat p) {
-    if (p.bcd.isInf())
-	return p.bcd.neg() ? -1 : 1;
+    int r;
+    if (bid128_isInf(&r, &p.val), r)
+	return (bid128_isSigned(&r, &p.val), r) ? -1 : 1;
     else
 	return 0;
 }
 
 int p_isnan(Phloat p) {
-    return p.bcd.isNan() ? 1 : 0;
+    int r;
+    bid128_isNaN(&r, &p.val);
+    return r;
 }
 
 int to_digit(Phloat p) {
-    BCD res = trunc(fmod(BCD(p.bcd), 10));
-    return ifloor(res);
-}
-
-static int8 mant(const BCDFloat &b) {
-    int8 m = 0;
-    int e = b.exp();
-    if (e > P)
-	e = P;
-    for (int i = 0; i < e; i++)
-	m = m * 10000 + b.d_[i];
-    if (b.neg())
-	m = -m;
-    return m;
+    BID_UINT128 ten, res;
+    int d10 = 10;
+    bid128_from_int32(&ten, &d10);
+    bid128_rem(&res, &p.val, &ten);
+    int ires;
+    bid128_to_int32_floor(&ires, &res);
+    return ires;
 }
 
 char to_char(Phloat p) {
-    return (char) mant(p.bcd);
+    unsigned int res;
+    bid128_to_uint32_floor(&res, &p.val);
+    return (char) res;
 }
 
 int to_int(Phloat p) {
-    return (int) mant(p.bcd);
+    unsigned int res;
+    bid128_to_uint32_floor(&res, &p.val);
+    return (int) res;
 }
 
 int4 to_int4(Phloat p) {
-    return (int4) mant(p.bcd);
+    unsigned int res;
+    bid128_to_uint32_floor(&res, &p.val);
+    return (int4) res;
 }
 
 int8 to_int8(Phloat p) {
-    return (int8) mant(p.bcd);
+    int8 res;
+    bid128_to_int64_floor(&res, &p.val);
+    return res;
 }
 
 double to_double(Phloat p) {
-    return bcd2double(p.bcd, false);
+    double res;
+    bid128_to_binary64(&res, &p.val);
+    return res;
 }
 
 Phloat sin(Phloat p) {
-    Phloat res;
-    res.bcd = sin(BCD(p.bcd))._v;
-    return res;
+    BID_UINT128 res;
+    bid128_sin(&res, &p.val);
+    return Phloat(res);
 }
 
 Phloat cos(Phloat p) {
-    Phloat res;
-    res.bcd = cos(BCD(p.bcd))._v;
-    return res;
+    BID_UINT128 res;
+    bid128_cos(&res, &p.val);
+    return Phloat(res);
 }
 
 Phloat tan(Phloat p) {
-    Phloat res;
-    res.bcd = tan(BCD(p.bcd))._v;
-    return res;
+    BID_UINT128 res;
+    bid128_tan(&res, &p.val);
+    return Phloat(res);
 }
 
 Phloat asin(Phloat p) {
-    Phloat res;
-    res.bcd = asin(BCD(p.bcd))._v;
-    return res;
+    BID_UINT128 res;
+    bid128_asin(&res, &p.val);
+    return Phloat(res);
 }
 
 Phloat acos(Phloat p) {
-    Phloat res;
-    res.bcd = acos(BCD(p.bcd))._v;
-    return res;
+    BID_UINT128 res;
+    bid128_acos(&res, &p.val);
+    return Phloat(res);
 }
 
 Phloat atan(Phloat p) {
-    Phloat res;
-    res.bcd = atan(BCD(p.bcd))._v;
-    return res;
+    BID_UINT128 res;
+    bid128_atan(&res, &p.val);
+    return Phloat(res);
 }
 
 void sincos(Phloat phi, Phloat *s, Phloat *c) {
-    BCD p(phi.bcd);
-    s->bcd = sin(p)._v;
-    c->bcd = cos(p)._v;
+    bid128_sin(&s->val, &phi.val);
+    bid128_cos(&c->val, &phi.val);
 }
 
 Phloat hypot(Phloat x, Phloat y) {
-    Phloat res;
-    res.bcd = hypot(BCD(x.bcd), BCD(y.bcd))._v;
-    return res;
+    BID_UINT128 res;
+    bid128_hypot(&res, &x.val, &y.val);
+    return Phloat(res);
 }
 
 Phloat atan2(Phloat x, Phloat y) {
-    Phloat res;
-    res.bcd = atan2(BCD(x.bcd), BCD(y.bcd))._v;
-    return res;
+    BID_UINT128 res;
+    bid128_atan2(&res, &x.val, &y.val);
+    return Phloat(res);
 }
 
 Phloat sinh(Phloat p) {
-    // (exp(x)-exp(-x))/2
-    BCDFloat temp1 = exp(BCD(p.bcd))._v;
-    BCDFloat temp2 = exp(BCD((-p).bcd))._v;
-    BCDFloat temp3;
-    BCDFloat::sub(&temp1, &temp2, &temp3);
-    const BCDFloat two(2);
-    Phloat res;
-    BCDFloat::div(&temp3, &two, &res.bcd);
-    return res;
+    BID_UINT128 res;
+    bid128_sinh(&res, &p.val);
+    return Phloat(res);
 }
 
 Phloat cosh(Phloat p) {
-    // (exp(x)+exp(-x))/2
-    BCDFloat temp1 = exp(BCD(p.bcd))._v;
-    BCDFloat temp2 = exp(BCD((-p).bcd))._v;
-    BCDFloat temp3;
-    BCDFloat::add(&temp1, &temp2, &temp3);
-    const BCDFloat two(2);
-    Phloat res;
-    BCDFloat::div(&temp3, &two, &res.bcd);
-    return res;
+    BID_UINT128 res;
+    bid128_cosh(&res, &p.val);
+    return Phloat(res);
 }
 
 Phloat tanh(Phloat p) {
-    // (exp(x)-exp(-x))/(exp(x)+exp(-x))
-    BCDFloat temp1 = exp(BCD(p.bcd))._v;
-    BCDFloat temp2 = exp(BCD((-p).bcd))._v;
-    BCDFloat temp3;
-    BCDFloat::sub(&temp1, &temp2, &temp3);
-    if (temp3.isInf())
-	return temp3.neg() ? -1 : 1;
-    BCDFloat temp4;
-    BCDFloat::add(&temp1, &temp2, &temp4);
-    Phloat res;
-    BCDFloat::div(&temp3, &temp4, &res.bcd);
-    return res;
+    BID_UINT128 res;
+    bid128_tanh(&res, &p.val);
+    return Phloat(res);
 }
 
 Phloat asinh(Phloat p) {
-    // log(sqrt(x^2+1)+x)
-    BCDFloat temp1;
-    BCDFloat::mul(&p.bcd, &p.bcd, &temp1);
-    BCDFloat temp2;
-    const BCDFloat one(1);
-    BCDFloat::add(&temp1, &one, &temp2);
-    temp1 = sqrt(BCD(temp2))._v;
-    BCDFloat::add(&temp1, &p.bcd, &temp2);
-    Phloat res;
-    res.bcd = log(BCD(temp2))._v;
-    return res;
+    BID_UINT128 res;
+    bid128_asinh(&res, &p.val);
+    return Phloat(res);
 }
 
 Phloat acosh(Phloat p) {
-    // log(sqrt(x^2-1)+x)
-    BCDFloat temp1;
-    BCDFloat::mul(&p.bcd, &p.bcd, &temp1);
-    BCDFloat temp2;
-    const BCDFloat one(1);
-    BCDFloat::sub(&temp1, &one, &temp2);
-    temp1 = sqrt(BCD(temp2))._v;
-    BCDFloat::add(&temp1, &p.bcd, &temp2);
-    Phloat res;
-    res.bcd = log(BCD(temp2))._v;
-    return res;
+    BID_UINT128 res;
+    bid128_acosh(&res, &p.val);
+    return Phloat(res);
 }
 
 Phloat atanh(Phloat p) {
-    // log((1+x)/(1-x))/2
-    const BCDFloat one(1);
-    BCDFloat temp1, temp2, temp3;
-    BCDFloat::add(&one, &p.bcd, &temp1);
-    BCDFloat::sub(&one, &p.bcd, &temp2);
-    BCDFloat::div(&temp1, &temp2, &temp3);
-    temp1 = log(BCD(temp3))._v;
-    Phloat res;
-    const BCDFloat two(2);
-    BCDFloat::div(&temp1, &two, &res.bcd);
-    return res;
+    BID_UINT128 res;
+    bid128_atanh(&res, &p.val);
+    return Phloat(res);
 }
 
 Phloat log(Phloat p) {
-    Phloat res;
-    res.bcd = log(BCD(p.bcd))._v;
-    return res;
+    BID_UINT128 res;
+    bid128_log(&res, &p.val);
+    return Phloat(res);
 }
 
 Phloat log1p(Phloat p) {
-    Phloat res;
-    res.bcd = ln1p(BCD(p.bcd))._v;
-    return res;
+    BID_UINT128 res;
+    bid128_log1p(&res, &p.val);
+    return Phloat(res);
 }
 
 Phloat log10(Phloat p) {
-    Phloat res;
-    res.bcd = log10(BCD(p.bcd))._v;
-    return res;
+    BID_UINT128 res;
+    bid128_log10(&res, &p.val);
+    return Phloat(res);
 }
 
 Phloat exp(Phloat p) {
-    Phloat res;
-    res.bcd = exp(BCD(p.bcd))._v;
-    return res;
+    BID_UINT128 res;
+    bid128_exp(&res, &p.val);
+    return Phloat(res);
 }
 
 Phloat expm1(Phloat p) {
-    Phloat res;
-    res.bcd = expm1(BCD(p.bcd))._v;
-    return res;
+    BID_UINT128 res;
+    bid128_expm1(&res, &p.val);
+    return Phloat(res);
 }
 
 Phloat gamma(Phloat p) {
     --p;
-    Phloat res;
-    res.bcd = gammaFactorial(BCD(p.bcd))._v;
-    return res;
+    BID_UINT128 res;
+    bid128_tgamma(&res, &p.val);
+    return Phloat(res);
 }
 
 Phloat sqrt(Phloat p) {
-    Phloat res;
-    res.bcd = sqrt(BCD(p.bcd))._v;
-    return res;
+    BID_UINT128 res;
+    bid128_sqrt(&res, &p.val);
+    return Phloat(res);
 }
 
 Phloat fmod(Phloat x, Phloat y) {
-    Phloat res;
-    res.bcd = fmod(BCD(x.bcd), BCD(y.bcd))._v;
-    return res;
+    BID_UINT128 res;
+    bid128_rem(&res, &x.val, &y.val);
+    return Phloat(res);
 }
 
 Phloat fabs(Phloat p) {
-    Phloat res(p);
-    if (!res.bcd.isNan() && res.bcd.neg())
-	res.bcd.negate();
-    return res;
+    BID_UINT128 res;
+    bid128_abs(&res, &p.val);
+    return Phloat(res);
 }
 
 Phloat pow(Phloat x, Phloat y) {
-    Phloat res;
-    if (!y.bcd.isSpecial()) {
-	int iy = BCDFloat::ifloor(&y.bcd);
-	BCDFloat by(iy);
-	if (BCDFloat::equal(&y.bcd, &by)) {
-	    res.bcd = pow(BCD(x.bcd), iy)._v;
-	    return res;
-	}
-    }
-    res.bcd = pow(BCD(x.bcd), BCD(y.bcd))._v;
-    return res;
+    BID_UINT128 res;
+    bid128_pow(&res, &x.val, &y.val);
+    return Phloat(res);
 }
 
 Phloat floor(Phloat p) {
-    Phloat res;
-    BCDFloat::floor(&p.bcd, &res.bcd);
-    return res;
+    BID_UINT128 res;
+    bid128_round_integral_zero(&res, &p.val);
+    return Phloat(res);
 }
 
 Phloat operator*(int x, Phloat y) {
-    Phloat res;
-    BCDFloat bx(x);
-    BCDFloat::mul(&bx, &y.bcd, &res.bcd);
-    return res;
+    BID_UINT128 xx, res;
+    bid128_from_int32(&xx, &x);
+    bid128_mul(&res, &xx, &y.val);
+    return Phloat(res);
 }
 
 Phloat operator/(int x, Phloat y) {
-    Phloat res;
-    BCDFloat bx(x);
-    BCDFloat::div(&bx, &y.bcd, &res.bcd);
-    return res;
+    BID_UINT128 xx, res;
+    bid128_from_int32(&xx, &x);
+    bid128_div(&res, &xx, &y.val);
+    return Phloat(res);
 }
 
 Phloat operator/(double x, Phloat y) {
-    Phloat res;
-    BCDFloat bx = double2bcd(x);
-    BCDFloat::div(&bx, &y.bcd, &res.bcd);
-    return res;
+    BID_UINT128 xx, res;
+    binary64_to_bid128(&xx, &x);
+    bid128_mul(&res, &xx, &y.val);
+    return Phloat(res);
 }
 
 Phloat operator+(int x, Phloat y) {
-    Phloat res;
-    BCDFloat bx(x);
-    BCDFloat::add(&bx, &y.bcd, &res.bcd);
-    return res;
+    BID_UINT128 xx, res;
+    bid128_from_int32(&xx, &x);
+    bid128_add(&res, &xx, &y.val);
+    return Phloat(res);
 }
 
 Phloat operator-(int x, Phloat y) {
-    Phloat res;
-    BCDFloat bx(x);
-    BCDFloat::sub(&bx, &y.bcd, &res.bcd);
-    return res;
+    BID_UINT128 xx, res;
+    bid128_from_int32(&xx, &x);
+    bid128_sub(&res, &xx, &y.val);
+    return Phloat(res);
 }
 
 bool operator==(int4 x, Phloat y) {
-    BCDFloat bx(x);
-    return BCDFloat::equal(&bx, &y.bcd);
+    BID_UINT128 xx;
+    bid128_from_int32(&xx, &x);
+    int r;
+    bid128_quiet_equal(&r, &xx, &y.val);
+    return (bool) r;
 }
 
-Phloat PI(BCDFloat(3, 1415, 9265, 3589, 7932, 3846, 2643, 1));
+Phloat PI("3.141592653589793238462643383279508");
 
-BCDFloat double2bcd(double d, bool round /* = false */) {
-    BCDFloat res(d);
-    if (round && !res.isSpecial()) {
-	// This is used when converting programs from a Free42 Binary state
-	// file. Number literals in programs are rounded to 12 digits, so
-	// what you see really is what you get; without this hack, you'd
-	// get stuff like 0.9 turning into 0.8999999+ but still *looking*
-	// like 0.9!
-	int i;
-	for (i = 4; i < P; i++)
-	    res.d_[i] = 0;
-	unsigned short s = res.d_[0];
-	unsigned short d;
-	if (s < 10)
-	    d = 10;
-	else if (s < 100)
-	    d = 100;
-	else if (s < 1000)
-	    d = 1000;
-	else
-	    d = 10000;
-	s = res.d_[3];
-	unsigned short r = s % d;
-	if (r >= d >> 1)
-	    s += d;
-	s -= r;
-	bool carry = s >= 10000;
-	if (carry)
-	    s -= 10000;
-	res.d_[3] = s;
-	for (i = 2; carry && i >= 0; i--) {
-	    s = res.d_[i] + 1;
-	    carry = s >= 10000;
-	    if (carry)
-		s -= 10000;
-	    res.d_[i] = s;
-	}
-	if (carry) {
-	    for (i = 3; i >= 0; i--)
-		res.d_[i + 1] = res.d_[i];
-	    res.d_[0] = 1;
-	    res.d_[P]++;
-	    // No need to check if the exponent is overflowing; the range
-	    // of 'double' is too small to cause such problems here.
-	}
+BID_UINT128 double_to_12_digit_decimal(double d) {
+    if (d == 0) {
+	BID_UINT128 res;
+	int zero = 0;
+	bid128_from_int32(&res, &zero);
+	return res;
     }
-    return res;
-}
-
-double bcd2double(BCDFloat b, bool old_bcd) {
-    if (old_bcd)
-	bcdfloat_old2new(b.d_);
-
-    double zero = 0;
-    bool neg = b.neg();
-
-#if defined(WINDOWS) && !defined(__GNUC__)
-    // No support for NaN or infinities
-    if (b.isNan())
-	return HUGE_VAL;
-    else if (b.isInf())
-	return neg ? -HUGE_VAL : HUGE_VAL;
-#else
-    if (b.isNan())
-	return 0 / zero;
-    else if (b.isInf())
-	return neg ? -1 / zero : 1 / zero;
-#endif
-
-    if (b.d_[0] == 0)
-	return 0;
-
-    short exp = (((short) b.d_[P]) << 3) >> 3;
-
-    char decstr[35];
-    char *cp = decstr;
+    bool neg = d < 0;
     if (neg)
-	*cp++ = '-';
-    for (int i = 0; i < P; i++) {
-	short d = b.d_[i];
-	sprintf(cp, "%04d", d);
-	if (i == 0) {
-	    for (int j = 4; j >= 2; j--)
-		cp[j] = cp[j - 1];
-	    cp[1] = '.';
-	    cp += 5;
-	} else
-	    cp += 4;
-    }
-    sprintf(cp, "e%d", exp * 4 - 1);
-    double res;
-    sscanf(decstr, "%le", &res);
-    return res;
+	d = -d;
+    BID_UINT128 bd, exp, wiper, temp, temp2;
+    binary64_to_bid128(&bd, &d);
+    bid128_log10(&temp, &bd);
+    bid128_round_integral_negative(&exp, &temp);
+    int twenty_two = 22;
+    bid128_from_int32(&temp, &twenty_two);
+    bid128_add(&temp2, &exp, &temp);
+    int ten = 10;
+    bid128_from_int32(&temp, &ten);
+    bid128_pow(&wiper, &temp, &temp2);
+    bid128_add(&temp, &bd, &wiper);
+    bid128_sub(&bd, &temp, &wiper);
+    if (neg) {
+	bid128_negate(&temp, &bd);
+	return temp;
+    } else
+	return bd;
+}
+
+void update_decimal(BID_UINT128 *val) {
+    if (state_file_number_format == NUMBER_FORMAT_BID128)
+	return;
+    short *p = (short *) val;
+    if (state_file_number_format == NUMBER_FORMAT_BCD20_OLD)
+	bcdfloat_old2new(p);
+    char decstr[35];
+    bcdfloat2string(p, decstr);
+    bid128_from_string(val, decstr);
 }
 
 
@@ -843,50 +805,57 @@ int string2phloat(const char *buf, int buflen, phloat *d) {
     return 0;
 }
 
-double bcd2double(short *p, bool old_bcd) {
-    if (old_bcd)
+double decimal2double(char *data, bool pin_magnitude /* = false */) {
+    if (state_file_number_format == NUMBER_FORMAT_BID128) {
+	double res;
+	BID_UINT128 *b = (BID_UINT128 *) data;
+	bid128_to_binary64(&res, b);
+	if (isnan(res) || !pin_magnitude)
+	    return res;
+	int r;
+	if (res == 0 && !(bid128_isZero(&r, b), r))
+	    return (bid128_isSigned(&r, b), r) ? NEG_TINY_PHLOAT : POS_TINY_PHLOAT;
+	int inf = isinf(res);
+	return inf == 0 ? res : inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
+    }
+
+    // BCD20_OLD or BCD20_NEW
+    short *p = (short *) data;
+    if (state_file_number_format == NUMBER_FORMAT_BCD20_OLD)
 	bcdfloat_old2new(p);
 
-    short exp = p[P];
+    short exp = p[7];
     bool neg = (exp & 0x8000) != 0;
     double zero = 0;
 
 #if defined(WINDOWS) && !defined(__GNUC__)
-    if ((exp & 0x4000) != 0)
-	return HUGE_VAL; // NaN
-    else if ((exp & 0x2000) != 0)
-	return neg ? -HUGE_VAL : HUGE_VAL; // -Inf or Inf
+    if ((exp & 0x4000) != 0) // NaN
+	return POS_HUGE_PHLOAT;
+    else if ((exp & 0x2000) != 0) // -Inf or Inf
+	return neg ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 #else
-    if ((exp & 0x4000) != 0)
-	return 0 / zero; // NaN
-    else if ((exp & 0x2000) != 0)
-	return neg ? -1 / zero : 1 / zero; // -Inf or Inf
+    if ((exp & 0x4000) != 0) // NaN
+	return 0 / zero;
+    else if ((exp & 0x2000) != 0) // -Inf or Inf
+	if (pin_magnitude)
+	    return neg ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
+	else
+	    return neg ? -1 / zero : 1 / zero;
 #endif
 
     if (p[0] == 0)
 	return 0;
 
-    exp = ((short) (exp << 3)) >> 3;
-
     char decstr[35];
-    char *cp = decstr;
-    if (neg)
-	*cp++ = '-';
-    for (int i = 0; i < P; i++) {
-	short d = p[i];
-	sprintf(cp, "%04d", d);
-	if (i == 0) {
-	    for (int j = 4; j >= 2; j--)
-		cp[j] = cp[j - 1];
-	    cp[1] = '.';
-	    cp += 5;
-	} else
-	    cp += 4;
-    }
-    sprintf(cp, "e%d", exp * 4 - 1);
+    bcdfloat2string(p, decstr);
     double res;
     sscanf(decstr, "%le", &res);
-    return res;
+    if (isnan(res) || !pin_magnitude)
+	return res;
+    else if (res == 0)
+	return neg ? NEG_TINY_PHLOAT : POS_TINY_PHLOAT;
+    else
+	return res;
 }
 
 
@@ -959,14 +928,21 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
 	bcd_mantissa_sign = 1;
     }
 
-#ifndef BCD_MATH
+    char decstr[50];
 
-    char decstr[32];
+#ifndef BCD_MATH
     double d = to_double(pd);
     sprintf(decstr, "%.15e", d);
+#else
+    bid128_to_string(decstr, &pd.val);
+#endif
+
     char *p = decstr;
     int mant_index = 0;
     bcd_mantissa_sign = 0;
+    bool seen_dot = false;
+    bool in_leading_zeroes = true;
+    int exp_offset = -1;
 
     while (*p != 0) {
 	char c = *p++;
@@ -974,51 +950,35 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
 	    bcd_mantissa_sign = 1;
 	    continue;
 	}
-	if (c == '.')
+	if (c == '+')
 	    continue;
-	if (c == 'e') {
+	if (c == '.') {
+	    seen_dot = true;
+	    continue;
+	}
+	if (c == 'e' || c == 'E') {
 	    sscanf(p, "%d", &bcd_exponent);
+	    bcd_exponent += exp_offset;
 	    break;
 	}
 	// Can only be decimal digit at this point
-	bcd_mantissa[mant_index++] = c - '0';
+	if (c == '0') {
+	    if (in_leading_zeroes)
+		continue;
+	} else
+	    in_leading_zeroes = false;
+	if (!seen_dot)
+	    exp_offset++;
+	if (mant_index < 16)
+	    bcd_mantissa[mant_index++] = c - '0';
     }
-
-#else // BCD_MATH
-
-    if (pd != 0) {
-	int offset, pos = 0;
-	if (pd.bcd.d_[0] >= 1000)
-	    offset = 0;
-	else if (pd.bcd.d_[0] >= 100)
-	    offset = 1;
-	else if (pd.bcd.d_[0] >= 10)
-	    offset = 2;
-	else
-	    offset = 3;
-	bcd_exponent = pd.bcd.exp() * 4 - 1 - offset;
-	for (int i = 0; i < 5; i++) {
-	    short s = pd.bcd.d_[i];
-	    for (int j = 0; j < 4; j++) {
-		if (pos == 16)
-		    break;
-		if (offset == 0)
-		    bcd_mantissa[pos++] = s / 1000;
-		else
-		    offset--;
-		s = (s % 1000) * 10;
-	    }
-	}
-    }
-
-#endif // BCD_MATH
 
     if (dispmode == 0 || dispmode == 3) {
 
 	/* FIX and ALL modes */
 
-	char norm_ip[12];
-	char norm_fp[27];
+	char norm_ip[12] = "\0\0\0\0\0\0\0\0\0\0\0";
+	char norm_fp[27] = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
 
 	int i;
 	int int_digits, frac_digits;
@@ -1028,11 +988,6 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
 	    digits2 = digits;
 	else
 	    digits2 = 11;
-
-	for (i = 0; i < 12; i++)
-	    norm_ip[i] = 0;
-	for (i = 0; i < 27; i++)
-	    norm_fp[i] = 0;
 
 	if (bcd_exponent > 11 || -bcd_exponent > digits2 + 1)
 	    goto do_sci;
@@ -1311,22 +1266,4 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
 
 	return chars_so_far;
     }
-}
-
-void bcdfloat_old2new(void *bcd) {
-    // Convert old (<= 1.4.51) BCDFloat, where NaN is signalled by
-    // (exp & 0x7FFF) == 0x3000, and Infinity is signalled by
-    // (exp & 0x7FFF) == 0x3FFF, to the new (>= 1.4.52) BCDFloat, where NaN is
-    // signalled by (exp & 0x4000) != 0 and Infinity is signalled by
-    // (exp & 0x2000) != 0 (and the exponent field is 2 bits narrower).
-    short *p = (short *) bcd;
-    short uexp = p[P] & 0x7FFF;
-    if (uexp == 0x3000)
-	// NaN
-	p[P] = 0x4000;
-    else if (uexp == 0x3FFF)
-	// Infinity
-	p[P] = (p[P] & 0x8000) | 0x2000;
-    else
-	p[P] = p[P] & 0x9FFF;
 }

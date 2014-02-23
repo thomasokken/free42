@@ -513,8 +513,12 @@ extern int keybuf_tail;
 extern int keybuf[16];
 
 extern int remove_program_catalog;
-extern bool bin_dec_mode_switch;
-extern bool state_file_has_old_bcd;
+
+#define NUMBER_FORMAT_BINARY 0
+#define NUMBER_FORMAT_BCD20_OLD 1
+#define NUMBER_FORMAT_BCD20_NEW 2
+#define NUMBER_FORMAT_BID128 3
+extern int state_file_number_format;
 
 extern bool no_keystrokes_yet;
 

@@ -2228,7 +2228,6 @@ void keydown_normal_mode(int shift, int key) {
 	    } else {
 		const menu_item_spec *mi = menus[menu].child + menukey;
 		int cmd_id = mi->menuid;
-		const command_spec *cmd;
 		if ((cmd_id & 0x3000) == 0) {
 		    set_menu(level, cmd_id);
 		    redisplay();
@@ -2249,7 +2248,6 @@ void keydown_normal_mode(int shift, int key) {
 		    cmd_id = CMD_SIGMASUB;
 		else
 		    cmd_id &= 0xfff;
-		cmd = cmdlist(cmd_id);
 		if (level == MENULEVEL_TRANSIENT
 			|| (level == MENULEVEL_PLAIN && !mode_plainmenu_sticky))
 		    set_menu(level, MENU_NONE);

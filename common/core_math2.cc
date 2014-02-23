@@ -20,8 +20,8 @@
 
 phloat math_random() {
 #ifdef BCD_MATH
-    const Phloat n1(BCDFloat(9821, 0, 0, 0, 0, 0, 0, 1));
-    const Phloat n2(BCDFloat(2113, 2700, 0, 0, 0, 0, 0, 0));
+    const Phloat n1("9821");
+    const Phloat n2("0.211327");
     random_number = random_number * n1 + n2;
 #else
     random_number = random_number * 9821 + 0.211327;

@@ -21,7 +21,8 @@
 
 #include "free42.h"
 #ifdef BCD_MATH
-#include "bcdfloat.h"
+#include "bid_conf.h"
+#include "bid_functions.h"
 #endif
 
 // A little hack to allow storing 6-character strings in a phloat
@@ -49,7 +50,8 @@ struct hp_string {
 
 #define PI 3.1415926535897932384626433
 #define P 7
-double bcd2double(short *p, bool old_bcd);
+
+double decimal2double(char *data, bool pin_magnitude = false);
 
 
 #else // BCD_MATH
@@ -59,15 +61,17 @@ double bcd2double(short *p, bool old_bcd);
 
 class Phloat {
     public:
-	BCDFloat bcd;
+	BID_UINT128 val;
 
 	Phloat() {}
-	Phloat(BCDFloat b) : bcd(b) {}
+	Phloat(const BID_UINT128 &b) : val(b) {}
+	Phloat(const char *str);
 	Phloat(int numer, int denom);
 	Phloat(int i);
 	Phloat(int8 i);
 	Phloat(double d);
 	Phloat(const Phloat &p);
+	Phloat operator=(const BID_UINT128 &b) { val = b; return *this; }
 	Phloat operator=(int i);
 	Phloat operator=(int8 i);
 	Phloat operator=(double d);
@@ -147,8 +151,8 @@ bool operator==(int4 x, Phloat y);
 
 extern Phloat PI;
 
-BCDFloat double2bcd(double d, bool round = false);
-double bcd2double(BCDFloat b, bool old_bcd);
+BID_UINT128 double_to_12_digit_decimal(double d);
+void update_decimal(BID_UINT128 *val);
 
 
 #endif // BCD_MATH
@@ -164,8 +168,6 @@ int phloat2string(phloat d, char *buf, int buflen,
 		  int base_mode, int digits, int dispmode,
 		  int thousandssep);
 int string2phloat(const char *buf, int buflen, phloat *d);
-
-void bcdfloat_old2new(void *bcd);
 
 
 #endif

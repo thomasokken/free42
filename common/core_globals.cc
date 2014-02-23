@@ -644,8 +644,8 @@ int keybuf_tail = 0;
 int keybuf[16];
 
 int remove_program_catalog = 0;
-bool bin_dec_mode_switch;
-bool state_file_has_old_bcd;
+
+int state_file_number_format;
 
 /* No user interaction: we keep track of whether or not the user
  * has pressed any keys since powering up, and we don't allow
@@ -704,8 +704,17 @@ static void update_label_table(int prgm, int4 pc, int inserted);
 static void invalidate_lclbls(int prgm_index);
 static int pc_line_convert(int4 loc, int loc_is_pc);
 static bool convert_programs();
+#ifdef BCD_MATH
+static void update_decimal_in_programs();
+#endif
 #ifdef IPHONE
 static void convert_bigstack_drop();
+#endif
+
+#ifdef BCD_MATH
+#define bin_dec_mode_switch() ( state_file_number_format == NUMBER_FORMAT_BINARY )
+#else
+#define bin_dec_mode_switch() ( state_file_number_format != NUMBER_FORMAT_BINARY )
 #endif
 
 
@@ -819,7 +828,7 @@ static bool persist_vartype(vartype *v) {
 // in the case it needs to convert the state file.
 
 struct fake_bcd {
-    short d_[P+1];
+    char data[16];
 };
 
 struct bin_real {
@@ -856,7 +865,7 @@ static bool unpersist_vartype(vartype **v) {
 	    vartype_real *r = (vartype_real *) new_real(0);
 	    if (r == NULL)
 		return false;
-	    if (bin_dec_mode_switch) {
+	    if (bin_dec_mode_switch()) {
 		#ifdef BCD_MATH
 		    int n = sizeof(bin_real) - sizeof(int);
 		    bin_real br;
@@ -872,7 +881,7 @@ static bool unpersist_vartype(vartype **v) {
 			free_vartype((vartype *) r);
 			return false;
 		    }
-		    r->x = bcd2double(dr.x.d_, state_file_has_old_bcd);
+		    r->x = decimal2double(dr.x.data);
 		#endif
 	    } else {
 		int n = sizeof(vartype_real) - sizeof(int);
@@ -881,8 +890,7 @@ static bool unpersist_vartype(vartype **v) {
 		    return false;
 		}
 		#ifdef BCD_MATH
-		    if (state_file_has_old_bcd)
-			bcdfloat_old2new(r->x.bcd.d_);
+		    update_decimal(&r->x.val);
 		#endif
 	    }
 	    *v = (vartype *) r;
@@ -892,7 +900,7 @@ static bool unpersist_vartype(vartype **v) {
 	    vartype_complex *c = (vartype_complex *) new_complex(0, 0);
 	    if (c == NULL)
 		return false;
-	    if (bin_dec_mode_switch) {
+	    if (bin_dec_mode_switch()) {
 		#ifdef BCD_MATH
 		    int n = sizeof(bin_complex) - sizeof(int);
 		    bin_complex bc;
@@ -909,8 +917,8 @@ static bool unpersist_vartype(vartype **v) {
 			free_vartype((vartype *) c);
 			return false;
 		    }
-		    c->re = bcd2double(dc.re.d_, state_file_has_old_bcd);
-		    c->im = bcd2double(dc.im.d_, state_file_has_old_bcd);
+		    c->re = decimal2double(dc.re.data);
+		    c->im = decimal2double(dc.im.data);
 		#endif
 	    } else {
 		int n = sizeof(vartype_complex) - sizeof(int);
@@ -919,10 +927,8 @@ static bool unpersist_vartype(vartype **v) {
 		    return false;
 		}
 		#ifdef BCD_MATH
-		    if (state_file_has_old_bcd) {
-			bcdfloat_old2new(c->re.bcd.d_);
-			bcdfloat_old2new(c->im.bcd.d_);
-		    }
+		    update_decimal(&c->re.val);
+		    update_decimal(&c->im.val);
 		#endif
 	    }
 	    *v = (vartype *) c;
@@ -962,7 +968,7 @@ static bool unpersist_vartype(vartype **v) {
 	    vartype_realmatrix *rm = (vartype_realmatrix *) new_realmatrix(mp.rows, mp.columns);
 	    if (rm == NULL)
 		return false;
-	    if (bin_dec_mode_switch) {
+	    if (bin_dec_mode_switch()) {
 		int4 size = mp.rows * mp.columns;
 		#ifdef BCD_MATH
 		    int phsz = sizeof(double);
@@ -1004,7 +1010,7 @@ static bool unpersist_vartype(vartype **v) {
 			    for (int j = 0; j < 7; j++)
 				*dst++ = *src++;
 			} else {
-			    rm->array->data[i] = bcd2double((short *) (temp + phsz * i), state_file_has_old_bcd);
+			    rm->array->data[i] = decimal2double((char *) (temp + phsz * i));
 			}
 		    }
 		#endif
@@ -1021,10 +1027,10 @@ static bool unpersist_vartype(vartype **v) {
 		    return false;
 		}
 		#ifdef BCD_MATH
-		    if (state_file_has_old_bcd)
+		    if (state_file_number_format != NUMBER_FORMAT_BID128)
 			for (int4 i = 0; i < size; i++)
 			    if (!rm->array->is_string[i])
-				bcdfloat_old2new(rm->array->data[i].bcd.d_);
+				update_decimal(&rm->array->data[i].val);
 		#endif
 	    }
 	    if (shared) {
@@ -1059,7 +1065,7 @@ static bool unpersist_vartype(vartype **v) {
 					new_complexmatrix(mp.rows, mp.columns);
 	    if (cm == NULL)
 		return false;
-	    if (bin_dec_mode_switch) {
+	    if (bin_dec_mode_switch()) {
 		int4 size = 2 * mp.rows * mp.columns;
 		for (int4 i = 0; i < size; i++)
 		    if (!read_phloat(cm->array->data + i)) {
@@ -1073,9 +1079,9 @@ static bool unpersist_vartype(vartype **v) {
 		    return false;
 		}
 		#ifdef BCD_MATH
-		    if (state_file_has_old_bcd)
+		    if (state_file_number_format != NUMBER_FORMAT_BID128)
 			for (int4 i = 0; i < size; i++)
-			    bcdfloat_old2new(cm->array->data[i].bcd.d_);
+			    update_decimal(&cm->array->data[i].val);
 		#endif
 	    }
 	    if (shared) {
@@ -1356,11 +1362,18 @@ static bool unpersist_globals(int4 ver) {
 	    goto done;
 #endif
 
-    if (bin_dec_mode_switch)
+    if (bin_dec_mode_switch())
 	if (!convert_programs()) {
 	    clear_all_prgms();
 	    goto done;
 	}
+
+#ifdef BCD_MATH
+    if (state_file_number_format == NUMBER_FORMAT_BCD20_OLD
+	    || state_file_number_format == NUMBER_FORMAT_BCD20_NEW)
+	update_decimal_in_programs();
+#endif
+
 #ifdef IPHONE
     if (ver == 12 || ver == 13) {
 	// CMD_DROP redefined from 315 to 329, to resolve clash with
@@ -2184,7 +2197,7 @@ static bool write_bool(bool b) {
 }
 
 bool read_phloat(phloat *d) {
-    if (bin_dec_mode_switch) {
+    if (bin_dec_mode_switch()) {
 	#ifdef BCD_MATH
 	    double dbl;
 	    if (shell_read_saved_state(&dbl, sizeof(double)) != sizeof(double))
@@ -2192,19 +2205,17 @@ bool read_phloat(phloat *d) {
 	    *d = dbl;
 	    return true;
 	#else
-	    short bcd[P + 1];
-	    if (shell_read_saved_state(bcd, (P + 1) * sizeof(short))
-		    != (P + 1) * sizeof(short))
+	    char data[16];
+	    if (shell_read_saved_state(data, 16) != 16)
 		return false;
-	    *d = bcd2double(bcd, state_file_has_old_bcd);
+	    *d = decimal2double(data);
 	    return true;
 	#endif
     } else {
 	if (shell_read_saved_state(d, sizeof(phloat)) != sizeof(phloat))
 	    return false;
 	#ifdef BCD_MATH
-	    if (state_file_has_old_bcd)
-		bcdfloat_old2new(d->bcd.d_);
+	    update_decimal(&d->val);
 	#endif
 	return true;
     }
@@ -2224,27 +2235,20 @@ bool load_state(int4 ver) {
 
     state_bool_is_int = ver < 9;
 
-    #ifdef BCD_MATH
-	if (ver < 9) {
-	    bin_dec_mode_switch = true;
-	    state_file_has_old_bcd = false;
-	} else {
-	    bool state_is_decimal;
-	    if (!read_bool(&state_is_decimal)) return false;
-	    bin_dec_mode_switch = !state_is_decimal;
-	    state_file_has_old_bcd = state_is_decimal && ver < 12;
-	}
-    #else
-	if (ver < 9) {
-	    bin_dec_mode_switch = false;
-	    state_file_has_old_bcd = false;
-	} else {
-	    bool state_is_decimal;
-	    if (!read_bool(&state_is_decimal)) return false;
-	    bin_dec_mode_switch = state_is_decimal;
-	    state_file_has_old_bcd = state_is_decimal && ver < 12;
-	}
-    #endif
+    if (ver < 9) {
+	state_file_number_format = NUMBER_FORMAT_BINARY;
+    } else {
+	bool state_is_decimal;
+	if (!read_bool(&state_is_decimal)) return false;
+	if (!state_is_decimal)
+	    state_file_number_format = NUMBER_FORMAT_BINARY;
+	else if (ver < 12)
+	    state_file_number_format = NUMBER_FORMAT_BCD20_OLD;
+	else if (ver < 18)
+	    state_file_number_format = NUMBER_FORMAT_BCD20_NEW;
+	else
+	    state_file_number_format = NUMBER_FORMAT_BID128;
+    }
 
     if (ver < 2) {
 	core_settings.matrix_singularmatrix = false;
@@ -2408,8 +2412,13 @@ bool load_state(int4 ver) {
 	}
     }
 
-    if (!unpersist_math(bin_dec_mode_switch))
+#ifdef BCD_MATH
+    if (!unpersist_math(state_file_number_format != NUMBER_FORMAT_BID128))
 	return false;
+#else
+    if (!unpersist_math(state_file_number_format != NUMBER_FORMAT_BINARY))
+	return false;
+#endif
 
     if (!read_int4(&magic)) return false;
     if (magic != FREE42_MAGIC)
@@ -2752,7 +2761,7 @@ bool read_arg(arg_struct *arg, bool old) {
 	    *d++ = *s++;
 	arg->val_d = old_arg.val.d;
 	return true;
-    } else if (bin_dec_mode_switch) {
+    } else if (bin_dec_mode_switch()) {
 	#ifdef BCD_MATH
 	    bin_arg_struct ba;
 	    if (shell_read_saved_state(&ba, sizeof(bin_arg_struct))
@@ -2778,7 +2787,7 @@ bool read_arg(arg_struct *arg, bool old) {
 	    char *s = (char *) &da.val;
 	    for (unsigned int i = 0; i < sizeof(da.val); i++)
 		*d++ = *s++;
-	    arg->val_d = bcd2double(da.val_d.d_, state_file_has_old_bcd);
+	    arg->val_d = decimal2double(da.val_d.data);
 	#endif
 	return true;
     } else {
@@ -2943,26 +2952,17 @@ static bool convert_programs() {
 			oldpc -= growth;
 
 			phloat p;
-			p.bcd = double2bcd(d, true);
+			p.val = double_to_12_digit_decimal(d);
 			b = (unsigned char *) &p;
 			for (j = 0; j < (int) sizeof(phloat); j++)
 			    prgm->text[pc++] = *b++;
 		    #else
-			fake_bcd bcd;
+			fake_bcd dec;
 			int j;
-			unsigned char *b = (unsigned char *) &bcd;
+			unsigned char *b = (unsigned char *) &dec;
 			for (j = 0; j < (int) sizeof(fake_bcd); j++)
 			    *b++ = prgm->text[pc++];
-			double dbl = bcd2double(bcd.d_, state_file_has_old_bcd);
-			if (isinf(dbl))
-			    dbl = dbl > 0 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
-			else if (dbl == 0) {
-			    if (bcd.d_[0] != 0)
-				if ((bcd.d_[P] & 0x8000) == 0)
-				    dbl = POS_TINY_PHLOAT;
-				else
-				    dbl = NEG_TINY_PHLOAT;
-			}
+			double dbl = decimal2double(dec.data, true);
 
 			pc -= sizeof(fake_bcd);
 			b = (unsigned char *) &dbl;
@@ -2986,6 +2986,70 @@ static bool convert_programs() {
 
     return true;
 }
+
+#ifdef BCD_MATH
+static void update_decimal_in_programs() {
+    // This function is called after reading a decimal state file,
+    // if the number format in that state file doesn't match the current one.
+
+    int saved_prgm = current_prgm;
+    int4 saved_pc = pc;
+    int i, j;
+
+    for (i = 0; i < prgms_count; i++) {
+	current_prgm = i;
+	pc = 0;
+	prgm_struct *prgm = prgms + i;
+	while (true) {
+	    int command = prgm->text[pc++];
+	    int argtype = prgm->text[pc++];
+	    command |= (argtype & 240) << 4;
+	    argtype &= 15;
+
+	    if (command == CMD_END)
+		break;
+	    if ((command == CMD_GTO || command == CMD_XEQ)
+		    && (argtype == ARGTYPE_NUM || argtype == ARGTYPE_LCLBL)) {
+		// Skip local label offsets
+		pc += 4;
+	    }
+	    switch (argtype) {
+		case ARGTYPE_NUM:
+		case ARGTYPE_NEG_NUM:
+		case ARGTYPE_IND_NUM: {
+		    while ((prgm->text[pc++] & 128) == 0);
+		    break;
+		}
+		case ARGTYPE_STK:
+		case ARGTYPE_IND_STK:
+		case ARGTYPE_COMMAND:
+		case ARGTYPE_LCLBL:
+		    pc++;
+		    break;
+		case ARGTYPE_STR:
+		case ARGTYPE_IND_STR: {
+		    pc += prgm->text[pc] + 1;
+		    break;
+		}
+		case ARGTYPE_DOUBLE:
+		    BID_UINT128 dec;
+		    char *p = (char *) &dec;
+		    for (j = 0; j < 16; j++)
+			*p++ = prgm->text[pc++];
+		    update_decimal(&dec);
+		    p -= 16;
+		    pc -= 16;
+		    for (j = 0; j < 16; j++)
+			prgm->text[pc++] = *p++;
+		    break;
+	    }
+	}
+    }
+
+    current_prgm = saved_prgm;
+    pc = saved_pc;
+}
+#endif
 
 #ifdef IPHONE
 static void convert_bigstack_drop() {

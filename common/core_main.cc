@@ -598,11 +598,14 @@ int core_powercycle() {
 	}
     }
 
-    if (need_redisplay || bin_dec_mode_switch || state_file_has_old_bcd) {
-	bin_dec_mode_switch = false;
-	state_file_has_old_bcd = false;
+#ifdef BCD_MATH
+    if (need_redisplay || state_file_number_format != NUMBER_FORMAT_BID128)
 	redisplay();
-    }
+#else
+    if (need_redisplay || state_file_number_format != NUMBER_FORMAT_BINARY)
+	redisplay();
+#endif
+
     return mode_running;
 }
 
@@ -951,7 +954,8 @@ int4 core_program_size(int prgm_index) {
     arg_struct arg;
     int saved_prgm = current_prgm;
     uint4 hp42s_code;
-    unsigned char code_flags, code_name, code_std_1, code_std_2;
+    unsigned char code_flags, code_std_1;
+    //unsigned char code_name, code_std_2;
     int4 size = 0;
 
     current_prgm = prgm_index;
@@ -959,9 +963,9 @@ int4 core_program_size(int prgm_index) {
 	get_next_command(&pc, &cmd, &arg, 0);
 	hp42s_code = cmdlist(cmd)->hp42s_code;
 	code_flags = hp42s_code >> 24;
-	code_name = hp42s_code >> 16;
+	//code_name = hp42s_code >> 16;
 	code_std_1 = hp42s_code >> 8;
-	code_std_2 = hp42s_code;
+	//code_std_2 = hp42s_code;
 	switch (code_flags) {
 	    case 1:
 		/* A command that requires some special attention */

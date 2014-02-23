@@ -15,9 +15,26 @@
 # along with this program; if not, see http://www.gnu.org/licenses/.
 ###############################################################################
 
-CXXFLAGS := -MMD -Wall -Wno-parentheses -Wno-write-strings -g -I/usr/X11R6/include -fno-exceptions -fno-rtti $(shell pkg-config --cflags gtk+-2.0) -DVERSION="\"$(shell cat ../VERSION)\""
+CXXFLAGS := -MMD \
+	    -Wall \
+	    -Wno-parentheses \
+	    -Wno-write-strings \
+	    -g \
+	    -I/usr/X11R6/include \
+	    -fno-exceptions \
+	    -fno-rtti \
+	    $(shell pkg-config --cflags gtk+-2.0) \
+	    -DVERSION="\"$(shell cat ../VERSION)\"" \
+	    -DDECIMAL_CALL_BY_REFERENCE=1 \
+	    -DDECIMAL_GLOBAL_ROUNDING=1 \
+	    -DDECIMAL_GLOBAL_ROUNDING_ACCESS_FUNCTIONS=1 \
+	    -DDECIMAL_GLOBAL_EXCEPTION_FLAGS=1 \
+	    -DDECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS=1 \
+	    -DUNCHANGED_BINARY_STATUS_FLAGS=0 \
+	    -D_WCHAR_T_DEFINED
+
 LDFLAGS = -L/usr/X11R6/lib
-LIBS := -lXmu $(shell pkg-config --libs gtk+-2.0)
+LIBS := gcc111libbid.a -lXmu $(shell pkg-config --libs gtk+-2.0)
 
 ifeq "$(shell uname -s)" "Linux"
 LDFLAGS += -Wl,--hash-style=both
@@ -40,8 +57,6 @@ OBJS = shell_main.o shell_skin.o skins.o keymap.o shell_loadimage.o \
 
 ifdef BCD_MATH
 CXXFLAGS += -DBCD_MATH
-SRCS += bcdfloat.cc bcd.cc bcdmath.cc bcdfloat2.cc
-OBJS += bcdfloat.o bcd.o bcdmath.o bcdfloat2.o
 EXE = free42dec
 else
 EXE = free42bin
