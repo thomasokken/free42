@@ -952,8 +952,10 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
 	    continue;
 	}
 	if (c == 'e' || c == 'E') {
-	    sscanf(p, "%d", &bcd_exponent);
-	    bcd_exponent += exp_offset;
+	    if (!in_leading_zeroes) {
+		sscanf(p, "%d", &bcd_exponent);
+		bcd_exponent += exp_offset;
+	    }
 	    break;
 	}
 	// Can only be decimal digit at this point
