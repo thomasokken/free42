@@ -47,14 +47,5 @@ del shell_spool.h
 del skin2cpp.cpp
 del skin2cpp.conf
 del keymap2cpp.cpp
-del bcd.cpp
-del bcd.h
-del bcdfloat.cpp
-del bcdfloat.h
-del bcdmath.cpp
-del bcdmath.h
-del bcd2.h
-del bcdfloat2.cpp
-del bcdfloat2.h
-del inprt2txt.c
-del rom2raw.c
+del bid_conf.h
+del bid_functions.h

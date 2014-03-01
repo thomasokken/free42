@@ -47,14 +47,5 @@ copy shell_spool.h ..\common
 copy skin2cpp.cpp ..\common\skin2cc.cc
 copy skin2cpp.conf ..\common\skin2cc.conf
 copy keymap2cpp.cpp ..\common\keymap2cc.cc
-copy bcd.cpp ..\common\bcd.cc
-copy bcd.h ..\common
-copy bcdfloat.cpp ..\common\bcdfloat.cc
-copy bcdfloat.h ..\common
-copy bcdmath.cpp ..\common\bcdmath.cc
-copy bcdmath.h ..\common
-copy bcd2.h ..\common
-copy bcdfloat2.cpp ..\common\bcdfloat2.cc
-copy bcdfloat2.h ..\common
-copy inprt2txt.c ..\util
-copy rom2raw.c ..\util
+copy bid_conf.h ..\common
+copy bid_functions.h ..\common
