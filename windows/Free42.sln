@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual C++ Express 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Free42 Binary", "Free42 Binary.vcproj", "{DF1D5B05-23C8-432A-94BF-ACC78831C191}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Free42Binary", "Free42Binary.vcproj", "{DF1D5B05-23C8-432A-94BF-ACC78831C191}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Free42 Decimal", "Free42 Decimal.vcproj", "{1757EC64-6C3D-413F-855B-32605476D747}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Free42Decimal", "Free42Decimal.vcproj", "{1757EC64-6C3D-413F-855B-32605476D747}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "keymap2cpp", "keymap2cpp.vcproj", "{FAF177C2-8585-4D8C-857E-221124A1D490}"
 EndProject

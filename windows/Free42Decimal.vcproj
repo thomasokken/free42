@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="Free42 Decimal"
+	Name="Free42Decimal"
 	ProjectGUID="{1757EC64-6C3D-413F-855B-32605476D747}"
 	RootNamespace="Free42Decimal"
 	Keyword="Win32Proj"

@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="Free42 Binary"
+	Name="Free42Binary"
 	ProjectGUID="{DF1D5B05-23C8-432A-94BF-ACC78831C191}"
 	RootNamespace="Free42Binary"
 	Keyword="Win32Proj"

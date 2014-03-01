@@ -15,8 +15,8 @@ cd ..
 rm -rf Free42Windows
 mkdir Free42Windows
 cp windows/README.txt Free42Windows
-cp "windows/Release/Free42 Binary.exe" Free42Windows
-cp "windows/Release/Free42 Decimal.exe" Free42Windows
+cp windows/Release/Free42Binary.exe Free42Windows
+cp windows/Release/Free42Decimal.exe Free42Windows
 zip -r packages/Free42Windows.zip Free42Windows
 rm -rf Free42Windows
 
