@@ -219,42 +219,42 @@ Phloat Phloat::operator=(Phloat p) {
 bool Phloat::operator==(Phloat p) const {
     int r;
     bid128_quiet_equal(&r, (BID_UINT128 *) &val, &p.val);
-    return (bool) r;
+    return r != 0;
 }
 
 /* public */
 bool Phloat::operator!=(Phloat p) const {
     int r;
     bid128_quiet_not_equal(&r, (BID_UINT128 *) &val, &p.val);
-    return (bool) r;
+    return r != 0;
 }
 
 /* public */
 bool Phloat::operator<(Phloat p) const {
     int r;
     bid128_quiet_less(&r, (BID_UINT128 *) &val, &p.val);
-    return (bool) r;
+    return r != 0;
 }
 
 /* public */
 bool Phloat::operator<=(Phloat p) const {
     int r;
     bid128_quiet_less_equal(&r, (BID_UINT128 *) &val, &p.val);
-    return (bool) r;
+    return r != 0;
 }
 
 /* public */
 bool Phloat::operator>(Phloat p) const {
     int r;
     bid128_quiet_greater(&r, (BID_UINT128 *) &val, &p.val);
-    return (bool) r;
+    return r != 0;
 }
 
 /* public */
 bool Phloat::operator>=(Phloat p) const {
     int r;
     bid128_quiet_greater_equal(&r, (BID_UINT128 *) &val, &p.val);
-    return (bool) r;
+    return r != 0;
 }
 
 /* public */
@@ -620,7 +620,7 @@ bool operator==(int4 x, Phloat y) {
     bid128_from_int32(&xx, &x);
     int r;
     bid128_quiet_equal(&r, &xx, &y.val);
-    return (bool) r;
+    return r != 0;
 }
 
 Phloat PI("3.141592653589793238462643383279508");

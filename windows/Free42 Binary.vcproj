@@ -61,6 +61,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalOptions="/NODEFAULTLIB:libcmt.lib"
+				AdditionalDependencies="cl111libbid.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -134,6 +136,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalOptions="/NODEFAULTLIB:libcmt.lib"
+				AdditionalDependencies="cl111libbid.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -284,6 +288,10 @@
 				RelativePath=".\skins.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\StdAfx.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -404,6 +412,10 @@
 			</File>
 			<File
 				RelativePath=".\shell_spool.h"
+				>
+			</File>
+			<File
+				RelativePath=".\StdAfx.h"
 				>
 			</File>
 		</Filter>
