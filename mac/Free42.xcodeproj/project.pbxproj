@@ -519,7 +519,7 @@
 		C01FCF4F08A954540054247B /* Debug Binary */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -539,13 +539,14 @@
 				"New Setting" = "";
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = "";
+				VALID_ARCHS = x86_64;
 			};
 			name = "Debug Binary";
 		};
 		C01FCF5008A954540054247B /* Release Binary */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					NO_SINCOS,
@@ -563,13 +564,14 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				"New Setting" = "";
 				SDKROOT = "";
+				VALID_ARCHS = x86_64;
 			};
 			name = "Release Binary";
 		};
 		E9937380102DE5B300B94F08 /* Debug Decimal */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -590,6 +592,7 @@
 				"New Setting" = "";
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = "";
+				VALID_ARCHS = x86_64;
 			};
 			name = "Debug Decimal";
 		};
@@ -618,7 +621,7 @@
 		E9937382102DE5D900B94F08 /* Release Decimal */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					BCD_MATH,
@@ -637,6 +640,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				"New Setting" = "";
 				SDKROOT = "";
+				VALID_ARCHS = x86_64;
 			};
 			name = "Release Decimal";
 		};
