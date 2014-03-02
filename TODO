@@ -59,6 +59,10 @@ iPhone version:
   running.
 
 Windows version:
+* The default Free42 Directory should be under the user's home directory. It's
+  fine to look for skins in the executable's directory as well, but the state
+  should be in a place where an unprivileged app can write. Anything else is no
+  longer acceptable since Windows Vista.
 * Figure out how to do command-line build, or just downgrade to VC++ 6.0. It's
   not like I *need* anything newer, and if 6.0 and 2012 can coexist, why not?
 * Detect failure to create keymap.txt, state.bin, and print.bin, and display a
