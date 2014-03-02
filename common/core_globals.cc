@@ -28,6 +28,12 @@
 #include "core_variables.h"
 #include "shell.h"
 
+#ifndef BCD_MATH
+// We need these locally for BID128->double conversion
+#include "bid_conf.h"
+#include "bid_functions.h"
+#endif
+
 
 error_spec errors[] = {
     { /* NONE */                   NULL,                       0 },
@@ -743,10 +749,18 @@ static bool persist_vartype(vartype *v) {
 	return shell_write_saved_state(&type, sizeof(int));
     }
     switch (v->type) {
-	case TYPE_REAL:
-	    return shell_write_saved_state(v, sizeof(vartype_real));
-	case TYPE_COMPLEX:
-	    return shell_write_saved_state(v, sizeof(vartype_complex));
+	case TYPE_REAL: {
+	    if (!shell_write_saved_state(v, sizeof(int)))
+		return false;
+	    vartype_real *r = (vartype_real *) v;
+	    return shell_write_saved_state(&r->x, sizeof(phloat));
+	}
+	case TYPE_COMPLEX: {
+	    if (!shell_write_saved_state(v, sizeof(int)))
+		return false;
+	    vartype_complex *c = (vartype_complex *) v;
+	    return shell_write_saved_state(&c->re, 2 * sizeof(phloat));
+	}
 	case TYPE_STRING:
 	    return shell_write_saved_state(v, sizeof(vartype_string));
 	case TYPE_REALMATRIX: {
@@ -831,27 +845,6 @@ struct fake_bcd {
     char data[16];
 };
 
-struct bin_real {
-    int type;
-    double x;
-};
-
-struct bin_complex {
-    int type;
-    double re, im;
-};
-
-struct dec_real {
-    int type;
-    fake_bcd x;
-};
-
-struct dec_complex {
-    int type;
-    fake_bcd re, im;
-};
-
-
 static bool unpersist_vartype(vartype **v) {
     int type;
     if (shell_read_saved_state(&type, sizeof(int)) != sizeof(int))
@@ -867,25 +860,23 @@ static bool unpersist_vartype(vartype **v) {
 		return false;
 	    if (bin_dec_mode_switch()) {
 		#ifdef BCD_MATH
-		    int n = sizeof(bin_real) - sizeof(int);
-		    bin_real br;
-		    if (shell_read_saved_state(&br.type + 1, n) != n) {
+		    double x;
+		    if (shell_read_saved_state(&x, 8) != 8) {
 			free_vartype((vartype *) r);
 			return false;
 		    }
-		    r->x = br.x;
+		    r->x = x;
 		#else
-		    int n = sizeof(dec_real) - sizeof(int);
-		    dec_real dr;
-		    if (shell_read_saved_state(&dr.type + 1, n) != n) {
+		    BID_UINT128 x;
+		    if (shell_read_saved_state(&x, 16) != 16) {
 			free_vartype((vartype *) r);
 			return false;
 		    }
-		    r->x = decimal2double(dr.x.data);
+		    r->x = decimal2double(&x);
 		#endif
 	    } else {
-		int n = sizeof(vartype_real) - sizeof(int);
-		if (shell_read_saved_state(&r->type + 1, n) != n) {
+		if (shell_read_saved_state(&r->x, sizeof(phloat))
+			!= sizeof(phloat)) {
 		    free_vartype((vartype *) r);
 		    return false;
 		}
@@ -902,27 +893,25 @@ static bool unpersist_vartype(vartype **v) {
 		return false;
 	    if (bin_dec_mode_switch()) {
 		#ifdef BCD_MATH
-		    int n = sizeof(bin_complex) - sizeof(int);
-		    bin_complex bc;
-		    if (shell_read_saved_state(&bc.type + 1, n) != n) {
+		    double parts[2];
+		    if (shell_read_saved_state(parts, 16) != 16) {
 			free_vartype((vartype *) c);
 			return false;
 		    }
-		    c->re = bc.re;
-		    c->im = bc.im;
+		    c->re = parts[0];
+		    c->im = parts[1];
 		#else
-		    int n = sizeof(dec_complex) - sizeof(int);
-		    dec_complex dc;
-		    if (shell_read_saved_state(&dc.type + 1, n) != n) {
+		    BID_UINT128 parts[2];
+		    if (shell_read_saved_state(parts, 32) != 32) {
 			free_vartype((vartype *) c);
 			return false;
 		    }
-		    c->re = decimal2double(dc.re.data);
-		    c->im = decimal2double(dc.im.data);
+		    c->re = decimal2double(parts);
+		    c->im = decimal2double(parts + 1);
 		#endif
 	    } else {
-		int n = sizeof(vartype_complex) - sizeof(int);
-		if (shell_read_saved_state(&c->type + 1, n) != n) {
+		if (shell_read_saved_state(&c->re, 2 * sizeof(phloat))
+			!= 2 * sizeof(phloat)) {
 		    free_vartype((vartype *) c);
 		    return false;
 		}

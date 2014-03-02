@@ -51,7 +51,7 @@ struct hp_string {
 #define PI 3.1415926535897932384626433
 #define P 7
 
-double decimal2double(char *data, bool pin_magnitude = false);
+double decimal2double(void *data, bool pin_magnitude = false);
 
 
 #else // BCD_MATH

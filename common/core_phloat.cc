@@ -817,7 +817,7 @@ int string2phloat(const char *buf, int buflen, phloat *d) {
     return 0;
 }
 
-double decimal2double(char *data, bool pin_magnitude /* = false */) {
+double decimal2double(void *data, bool pin_magnitude /* = false */) {
     if (state_file_number_format == NUMBER_FORMAT_BID128) {
 	double res;
 	BID_UINT128 *b = (BID_UINT128 *) data;
