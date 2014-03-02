@@ -556,6 +556,7 @@ void save_state();
 void hard_reset(int bad_state_file);
 
 bool read_arg(arg_struct *arg, bool old);
+bool write_arg(const arg_struct *arg);
 bool read_phloat(phloat *d);
 bool write_phloat(phloat d);
 

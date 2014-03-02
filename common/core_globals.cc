@@ -2471,7 +2471,7 @@ void save_state() {
     if (!shell_write_saved_state(entered_string, 15)) return;
 
     if (!write_int(pending_command)) return;
-    if (!shell_write_saved_state(&pending_command_arg, sizeof(arg_struct))) return;
+    if (!write_arg(&pending_command_arg)) return;
     if (!write_int(xeq_invisible)) return;
 
     if (!write_int(incomplete_command)) return;
@@ -2499,7 +2499,7 @@ void save_state() {
 
     if (!shell_write_saved_state(input_name, 11)) return;
     if (!write_int(input_length)) return;
-    if (!shell_write_saved_state(&input_arg, sizeof(arg_struct))) return;
+    if (!write_arg(&input_arg)) return;
 
     if (!write_int(baseapp)) return;
 
@@ -2791,9 +2791,39 @@ bool read_arg(arg_struct *arg, bool old) {
 	#endif
 	return true;
     } else {
+	#if BCD_MATH
+	// For explanation, see the comment in write_arg()
+	if (shell_read_saved_state(arg, sizeof(dec_arg_struct))
+		!= sizeof(dec_arg_struct))
+	    return false;
+	int offset = sizeof(arg_struct) - sizeof(dec_arg_struct);
+	if (offset != 0) {
+	    char *s = ((char *) arg) + sizeof(dec_arg_struct);
+	    char *d = ((char *) arg) + sizeof(arg_struct);
+	    for (unsigned int i = 0; i < 16; i++)
+		*--d = *--s;
+	}
+	return true;
+	#else
 	return shell_read_saved_state(arg, sizeof(arg_struct))
 	    == sizeof(arg_struct);
+	#endif
     }
+}
+
+bool write_arg(const arg_struct *arg) {
+#ifdef BCD_MATH
+    // The introduction of BID_UINT128 changed the alignment in arg_struct.
+    // BCDFloat was an array of 8 shorts, so was aligned on a 2-byte boundary,
+    // while BID_UINT128 is aligned on a 16-byte boundary. For compatibility,
+    // we eliminate the extra 8 bytes while writing.
+    int firstpartlen = sizeof(dec_arg_struct) - 16;
+    if (!shell_write_saved_state(arg, firstpartlen))
+	return false;
+    return shell_write_saved_state(&arg->val_d, 16);
+#else
+    return shell_write_saved_state(arg, sizeof(arg_struct));
+#endif
 }
 
 static bool convert_programs() {

@@ -561,8 +561,9 @@ bool persist_display() {
 	return false;
     if (!shell_write_saved_state(custommenu_label, 126))
 	return false;
-    if (!shell_write_saved_state(progmenu_arg, 9 * sizeof(arg_struct)))
-	return false;
+    for (int i = 0; i < 9; i++)
+	if (!write_arg(progmenu_arg + i))
+	    return false;
     if (!shell_write_saved_state(progmenu_is_gto, 9 * sizeof(int)))
 	return false;
     if (!shell_write_saved_state(progmenu_length, 6 * sizeof(int)))
