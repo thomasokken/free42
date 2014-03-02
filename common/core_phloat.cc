@@ -559,7 +559,19 @@ Phloat sqrt(Phloat p) {
 Phloat fmod(Phloat x, Phloat y) {
     BID_UINT128 res;
     bid128_rem(&res, &x.val, &y.val);
-    return Phloat(res);
+    int numer_sign, denom_sign, res_sign;
+    bid128_isSigned(&numer_sign, &x.val);
+    bid128_isSigned(&denom_sign, &y.val);
+    bid128_isSigned(&res_sign, &res);
+    if (numer_sign ^ res_sign) {
+	BID_UINT128 r2;
+	if (denom_sign ^ res_sign)
+	    bid128_add(&r2, &res, &y.val);
+	else
+	    bid128_sub(&r2, &res, &y.val);
+	return Phloat(r2);
+    } else
+        return Phloat(res);
 }
 
 Phloat fabs(Phloat p) {
