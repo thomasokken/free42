@@ -623,7 +623,7 @@ bool operator==(int4 x, Phloat y) {
     return r != 0;
 }
 
-Phloat PI("3.141592653589793238462643383279508");
+Phloat PI("3.141592653589793238462643383279503");
 
 BID_UINT128 double_to_12_digit_decimal(double d) {
     if (d == 0) {
