@@ -387,10 +387,21 @@ int p_isnan(Phloat p) {
 int to_digit(Phloat p) {
     BID_UINT128 ten, res;
     int d10 = 10;
+    int ires;
     bid128_from_int32(&ten, &d10);
     bid128_rem(&res, &p.val, &ten);
-    int ires;
-    bid128_to_int32_floor(&ires, &res);
+    int numer_sign, res_sign;
+    bid128_isSigned(&numer_sign, &p.val);
+    bid128_isSigned(&res_sign, &res);
+    if (numer_sign ^ res_sign) {
+	BID_UINT128 r2;
+	if (res_sign)
+	    bid128_add(&r2, &res, &ten);
+	else
+	    bid128_sub(&r2, &res, &ten);
+	bid128_to_int32_floor(&ires, &r2);
+    } else
+	bid128_to_int32_floor(&ires, &res);
     return ires;
 }
 
