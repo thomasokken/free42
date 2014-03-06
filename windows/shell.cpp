@@ -772,7 +772,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 				shift_down = false;
 				if (ckey == 0 && just_pressed_shift) {
 					ckey = 28;
-					skey = 1;
+					skey = -1;
 					macro = NULL;
 					shell_keydown();
 					shell_keyup();
