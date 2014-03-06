@@ -16,23 +16,19 @@
  *****************************************************************************/
 
 #include <math.h>
+#include <float.h>
 #include "free42.h"
 
 int isnan(double x) {
-	return 0;
+	return _isnan(x);
 }
 
 int finite(double x) {
-	return x != HUGE_VAL && x != -HUGE_VAL;
+	return _finite(x);
 }
 
 int isinf(double x) {
-	if (x == HUGE_VAL)
-		return 1;
-	else if (x == -HUGE_VAL)
-		return -1;
-	else
-		return 0;
+	return _finite(x) || _isnan(x) ? 0 : x < 0 ? -1 : 1;
 }
 
 void sincos(double x, double *sinx, double *cosx) {

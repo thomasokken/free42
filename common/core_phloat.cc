@@ -850,12 +850,6 @@ double decimal2double(void *data, bool pin_magnitude /* = false */) {
     bool neg = (exp & 0x8000) != 0;
     double zero = 0;
 
-#if defined(WINDOWS) && !defined(__GNUC__)
-    if ((exp & 0x4000) != 0) // NaN
-	return POS_HUGE_PHLOAT;
-    else if ((exp & 0x2000) != 0) // -Inf or Inf
-	return neg ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
-#else
     if ((exp & 0x4000) != 0) // NaN
 	return 0 / zero;
     else if ((exp & 0x2000) != 0) // -Inf or Inf
@@ -863,7 +857,6 @@ double decimal2double(void *data, bool pin_magnitude /* = false */) {
 	    return neg ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 	else
 	    return neg ? -1 / zero : 1 / zero;
-#endif
 
     if (p[0] == 0)
 	return 0;
