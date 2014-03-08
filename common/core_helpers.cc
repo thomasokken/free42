@@ -699,47 +699,74 @@ void generic_p2r(phloat r, phloat phi, phloat *re, phloat *im) {
     *im = r * tim;
 }
 
-static phloat sin_or_cos_deg_or_grad(phloat x, bool do_sin, bool do_deg) {
+static phloat sin_or_cos_deg(phloat x, bool do_sin) {
     bool neg = false;
     if (x < 0) {
 	x = -x;
 	if (do_sin)
 	    neg = true;
     }
-    x = fmod(x, do_deg ? 360 : 400);
-    if (x >= (do_deg ? 180 : 200)) {
-	x -= do_deg ? 180 : 200;
+    x = fmod(x, 360);
+    if (x >= 180) {
+	x -= 180;
 	neg = !neg;
     }
-    if (x >= (do_deg ? 90 : 100)) {
-	x -= do_deg ? 90 : 100;
+    if (x >= 90) {
+	x -= 90;
 	do_sin = !do_sin;
 	if (do_sin)
 	    neg = !neg;
     }
-    if (x >= (do_deg ? 45 : 50)) {
-	x = (do_deg ? 90 : 100) - x;
+    if (x > 45) {
+	x = 90 - x;
 	do_sin = !do_sin;
     }
-    x /= (do_deg ? 180 : 200) / PI;
+    x /= 180 / PI;
     phloat r = do_sin ? sin(x) : cos(x);
     return neg ? -r : r;
 }
 
 phloat sin_deg(phloat x) {
-    return sin_or_cos_deg_or_grad(x, true, true);
-}
-
-phloat sin_grad(phloat x) {
-    return sin_or_cos_deg_or_grad(x, true, false);
+    return sin_or_cos_deg(x, true, true);
 }
 
 phloat cos_deg(phloat x) {
-    return sin_or_cos_deg_or_grad(x, false, true);
+    return sin_or_cos_deg(x, false, true);
+}
+
+static phloat sin_or_cos_grad(phloat x, bool do_sin) {
+    bool neg = false;
+    if (x < 0) {
+	x = -x;
+	if (do_sin)
+	    neg = true;
+    }
+    x = fmod(x, 400);
+    if (x >= 200) {
+	x -= 200;
+	neg = !neg;
+    }
+    if (x >= 100) {
+	x -= 100;
+	do_sin = !do_sin;
+	if (do_sin)
+	    neg = !neg;
+    }
+    if (x > 50) {
+	x = 100 - x;
+	do_sin = !do_sin;
+    }
+    x /= 200 / PI;
+    phloat r = do_sin ? sin(x) : cos(x);
+    return neg ? -r : r;
+}
+
+phloat sin_grad(phloat x) {
+    return sin_or_cos_grad(x, true, false);
 }
 
 phloat cos_grad(phloat x) {
-    return sin_or_cos_deg_or_grad(x, false, false);
+    return sin_or_cos_grad(x, false, false);
 }
 
 int dimension_array(const char *name, int namelen, int4 rows, int4 columns) {
