@@ -63,6 +63,8 @@ Mac version:
   extensions to file names automagically when appropriate.
 
 All versions:
+* Add an option or magic keystroke to make SHOW show full precision when there
+  is a real number in X -- i.e., 16 digits for binary and 34 for decimal.
 * It would be nice if we would handle the shell_milliseconds() wrap-around.
   This function is only used for flying the goose and updating the progress
   report when the solver is running interactively; all it would take is for
