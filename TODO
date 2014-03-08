@@ -1,17 +1,3 @@
-All versions:
-
-* The real HP-42S performs unbiased rounding, a.k.a. round-to-even. This means
-  that 10,000,000,000 + 0.5 -> 10,000,000,000 while 10,000,000,000 + 1.5 ->
-  10,000,000,002.
-  In Free42 Decimal, the mantissa is 13 digits wider, so replace 1e11 with 1e24
-  in the above test case.
-  In Free42 Decimal, unbiased rounding will have to be implemented by modifying
-  the appropriate routines in the BCD20 library.
-  In Free42 Binary, no changes should be necessary since it uses the underlying
-  platform's floating-point hardware or libraries, and those are all IEEE-754
-  compliant nowadays. (IEEE-754 specifies round-to-even as the default rounding
-  behavior.)
-
 Android version:
 * Sometimes, with some skins, a one-pixel horizontal line appears above the
   display. Off-by-one error in the blitting call?
@@ -59,15 +45,6 @@ iPhone version:
   running.
 
 Windows version:
-* The default Free42 Directory should be under the user's home directory. It's
-  fine to look for skins in the executable's directory as well, but the state
-  should be in a place where an unprivileged app can write. Anything else is no
-  longer acceptable since Windows Vista.
-* Figure out how to do command-line build, or just downgrade to VC++ 6.0. It's
-  not like I *need* anything newer, and if 6.0 and 2012 can coexist, why not?
-* Detect failure to create keymap.txt, state.bin, and print.bin, and display a
-  helpful message when this occurs. (The most common scenario is probably people
-  dropping Free42.exe into Program Files without creating a subdirectory.)
 * The "Calculator Key" option should probably set
   \HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\AppKey\18\ShellExecute,
   not \HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\AppKey\18\ShellExecute.
@@ -85,12 +62,7 @@ Mac version:
 * Modify the file selection dialogs so they have a file type menu, and add
   extensions to file names automagically when appropriate.
 
-GTK version:
-* The display may not get repainted properly when switching skins.
-* Add support for the Unity dock.
-
 All versions:
-* Add a feature for importing and exporting variables from and to CSV files.
 * It would be nice if we would handle the shell_milliseconds() wrap-around.
   This function is only used for flying the goose and updating the progress
   report when the solver is running interactively; all it would take is for
@@ -100,5 +72,6 @@ All versions:
 * Display "decimal" or "binary" in the About box, with the version number.
 
 The "Wouldn't It Be Nice" Department:
+* Add a feature for importing and exporting variables from and to CSV files.
 * Algebraic equations.
 * Units, like on the HP-48G, where units are attached to values.

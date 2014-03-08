@@ -1,11 +1,17 @@
-??-??-????: release 1.4.79
+??-??-????: release 1.5
 
+* Decimal version: switched from BCD20 to Intel's Decimal Floating-Point
+  Library v2.1.
 * Binary version: replaced the old binary-to-decimal and decimal-to-binary
   conversions with code that uses the standard C library's equivalent
   functionality. This fixes final-digit errors in the Binary version, and also
   final-digit errors when switching from the Decimal to the Binary version.
-* Decimal version: switched from BCD20 to Intel's Decimal Floating-Point
-  Library v2.1.
+* All versions: added angle reduction code to make SIN, COS, and ->REC more
+  accurate in DEG and GRAD modes.
+* Windows version: now uses %APPDATA%\Free42 as the default Free42 directory
+  (for storing state.bin, print.bin, and keymap.txt). This avoids permissions
+  problems when people install the executable in a directory to which they
+  don't have write access (like the popular choice C:\Program Files).
 
 08-12-2013: release 1.4.78
 

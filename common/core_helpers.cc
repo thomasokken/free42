@@ -727,11 +727,11 @@ static phloat sin_or_cos_deg(phloat x, bool do_sin) {
 }
 
 phloat sin_deg(phloat x) {
-    return sin_or_cos_deg(x, true, true);
+    return sin_or_cos_deg(x, true);
 }
 
 phloat cos_deg(phloat x) {
-    return sin_or_cos_deg(x, false, true);
+    return sin_or_cos_deg(x, false);
 }
 
 static phloat sin_or_cos_grad(phloat x, bool do_sin) {
@@ -762,11 +762,11 @@ static phloat sin_or_cos_grad(phloat x, bool do_sin) {
 }
 
 phloat sin_grad(phloat x) {
-    return sin_or_cos_grad(x, true, false);
+    return sin_or_cos_grad(x, true);
 }
 
 phloat cos_grad(phloat x) {
-    return sin_or_cos_grad(x, false, false);
+    return sin_or_cos_grad(x, false);
 }
 
 int dimension_array(const char *name, int namelen, int4 rows, int4 columns) {
