@@ -28,33 +28,12 @@
 /********************************************************/
 
 static int mappable_sin_r(phloat x, phloat *y) {
-    if (flags.f.rad) {
+    if (flags.f.rad)
 	*y = sin(x);
-    } else if (flags.f.grad) {
-	x = fmod(x, 400);
-	if (x < 0)
-	    x += 400;
-	if (x == 0 || x == 200)
-	    *y = 0;
-	else if (x == 100)
-	    *y = 1;
-	else if (x == 300)
-	    *y = -1;
-	else
-	    *y = sin(x / (200 / PI));
-    } else {
-	x = fmod(x, 360);
-	if (x < 0)
-	    x += 360;
-	if (x == 0 || x == 180)
-	    *y = 0;
-	else if (x == 90)
-	    *y = 1;
-	else if (x == 270)
-	    *y = -1;
-	else
-	    *y = sin(x / (180 / PI));
-    }
+    else if (flags.f.grad)
+	*y = sin_grad(x);
+    else
+	*y = sin_deg(x);
     return ERR_NONE;
 }
 
@@ -95,33 +74,12 @@ int docmd_sin(arg_struct *arg) {
 }
 
 static int mappable_cos_r(phloat x, phloat *y) {
-    if (flags.f.rad) {
+    if (flags.f.rad)
 	*y = cos(x);
-    } else if (flags.f.grad) {
-	x = fmod(x, 400);
-	if (x < 0)
-	    x += 400;
-	if (x == 0)
-	    *y = 1;
-	else if (x == 100 || x == 300)
-	    *y = 0;
-	else if (x == 200)
-	    *y = -1;
-	else
-	    *y = cos(x / (200 / PI));
-    } else {
-	x = fmod(x, 360);
-	if (x < 0)
-	    x += 360;
-	if (x == 0)
-	    *y = 1;
-	else if (x == 90 || x == 270)
-	    *y = 0;
-	else if (x == 180)
-	    *y = -1;
-	else
-	    *y = cos(x / (180 / PI));
-    }
+    else if (flags.f.grad)
+	*y = cos_grad(x);
+    else
+	*y = cos_deg(x);
     return ERR_NONE;
 }
 

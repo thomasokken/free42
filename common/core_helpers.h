@@ -69,6 +69,11 @@ void print_command(int cmd, const arg_struct *arg);
 void generic_r2p(phloat re, phloat im, phloat *r, phloat *phi);
 void generic_p2r(phloat r, phloat phi, phloat *re, phloat *im);
 
+phloat sin_deg(phloat x);
+phloat sin_grad(phloat x);
+phloat cos_deg(phloat x);
+phloat cos_grad(phloat x);
+
 /***********************/
 /* Miscellaneous stuff */
 /***********************/
