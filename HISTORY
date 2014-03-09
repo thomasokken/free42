@@ -1,4 +1,4 @@
-??-??-????: release 1.5
+09-03-2014: release 1.5
 
 * Decimal version: switched from BCD20 to Intel's Decimal Floating-Point
   Library v2.1.
