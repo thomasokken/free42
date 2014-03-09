@@ -705,7 +705,7 @@ static bool write_bool(bool n);
 static bool array_list_grow();
 static int array_list_search(void *array);
 static bool persist_vartype(vartype *v);
-static bool unpersist_vartype(vartype **v);
+static bool unpersist_vartype(vartype **v, bool padded);
 static void update_label_table(int prgm, int4 pc, int inserted);
 static void invalidate_lclbls(int prgm_index);
 static int pc_line_convert(int4 loc, int loc_is_pc);
@@ -845,7 +845,7 @@ struct fake_bcd {
     char data[16];
 };
 
-static bool unpersist_vartype(vartype **v) {
+static bool unpersist_vartype(vartype **v, bool padded) {
     int type;
     if (shell_read_saved_state(&type, sizeof(int)) != sizeof(int))
 	return false;
@@ -860,6 +860,13 @@ static bool unpersist_vartype(vartype **v) {
 		return false;
 	    if (bin_dec_mode_switch()) {
 		#ifdef BCD_MATH
+		    if (padded) {
+			int4 dummy;
+			if (shell_read_saved_state(&dummy, 4) != 4) {
+			    free_vartype((vartype *) r);
+			    return false;
+			}
+		    }
 		    double x;
 		    if (shell_read_saved_state(&x, 8) != 8) {
 			free_vartype((vartype *) r);
@@ -875,6 +882,15 @@ static bool unpersist_vartype(vartype **v) {
 		    r->x = decimal2double(&x);
 		#endif
 	    } else {
+		#ifndef BCD_MATH
+		    if (padded) {
+			int4 dummy;
+			if (shell_read_saved_state(&dummy, 4) != 4) {
+			    free_vartype((vartype *) r);
+			    return false;
+			}
+		    }
+		#endif
 		if (shell_read_saved_state(&r->x, sizeof(phloat))
 			!= sizeof(phloat)) {
 		    free_vartype((vartype *) r);
@@ -893,6 +909,13 @@ static bool unpersist_vartype(vartype **v) {
 		return false;
 	    if (bin_dec_mode_switch()) {
 		#ifdef BCD_MATH
+		    if (padded) {
+			int4 dummy;
+			if (shell_read_saved_state(&dummy, 4) != 4) {
+			    free_vartype((vartype *) c);
+			    return false;
+			}
+		    }
 		    double parts[2];
 		    if (shell_read_saved_state(parts, 16) != 16) {
 			free_vartype((vartype *) c);
@@ -910,6 +933,15 @@ static bool unpersist_vartype(vartype **v) {
 		    c->im = decimal2double(parts + 1);
 		#endif
 	    } else {
+		#ifndef BCD_MATH
+		    if (padded) {
+			int4 dummy;
+			if (shell_read_saved_state(&dummy, 4) != 4) {
+			    free_vartype((vartype *) c);
+			    return false;
+			}
+		    }
+		#endif
 		if (shell_read_saved_state(&c->re, 2 * sizeof(phloat))
 			!= 2 * sizeof(phloat)) {
 		    free_vartype((vartype *) c);
@@ -1184,21 +1216,22 @@ static bool unpersist_globals(int4 ver) {
     array_list_capacity = 0;
     array_list = NULL;
     bool ret = false;
+    bool padded = ver < 18;
 
     free_vartype(reg_x);
-    if (!unpersist_vartype(&reg_x))
+    if (!unpersist_vartype(&reg_x, padded))
 	goto done;
     free_vartype(reg_y);
-    if (!unpersist_vartype(&reg_y))
+    if (!unpersist_vartype(&reg_y, padded))
 	goto done;
     free_vartype(reg_z);
-    if (!unpersist_vartype(&reg_z))
+    if (!unpersist_vartype(&reg_z, padded))
 	goto done;
     free_vartype(reg_t);
-    if (!unpersist_vartype(&reg_t))
+    if (!unpersist_vartype(&reg_t, padded))
 	goto done;
     free_vartype(reg_lastx);
-    if (!unpersist_vartype(&reg_lastx))
+    if (!unpersist_vartype(&reg_lastx, padded))
 	goto done;
 
     if (ver >= 12) {
@@ -1266,7 +1299,7 @@ static bool unpersist_globals(int4 ver) {
     for (i = 0; i < vars_count; i++)
 	vars[i].value = NULL;
     for (i = 0; i < vars_count; i++)
-	if (!unpersist_vartype(&vars[i].value)) {
+	if (!unpersist_vartype(&vars[i].value, padded)) {
 	    purge_all_vars();
 	    goto done;
 	}
@@ -2341,7 +2374,7 @@ bool load_state(int4 ver) {
     if (!read_int(&matedit_mode)) return false;
     if (shell_read_saved_state(matedit_name, 7) != 7) return false;
     if (!read_int(&matedit_length)) return false;
-    if (!unpersist_vartype(&matedit_x)) return false;
+    if (!unpersist_vartype(&matedit_x, ver < 18)) return false;
     if (!read_int4(&matedit_i)) return false;
     if (!read_int4(&matedit_j)) return false;
     if (!read_int(&matedit_prev_appmenu)) return false;
