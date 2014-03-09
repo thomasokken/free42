@@ -141,15 +141,14 @@ What's the deal with the "Decimal" and "Binary"?
 Starting with release 1.4, Free42 comes in decimal and binary versions. The two
 look and behave identically; the only difference is the way they represent
 numbers internally.
-Free42 Decimal uses Hugh Steers' 7-digit base-10000 BCD20 library, which
-effectively gives 25 decimal digits of precision, with exponents ranging from
--10000 to +9999. Each number consumes 16 bytes of memory.
-Free42 Binary uses the PC's FPU; it represents numbers as IEEE-754 compatible
-double precision binary floating point, which consumes 8 bytes per number, and
-gives an effective precision of nearly 16 decimal digits, with exponents
-ranging from -308 to +307 (actually, exponents can be less than -308; such
-small numbers are "denormalized" and don't have the full precision of
-"normalized" numbers).
+Free42 Decimal (free42dec) uses the Intel Decimal Floating-Point Math Library;
+it uses IEEE-754-2008 quadruple precision decimal floating point, which
+consumes 16 bytes per number, and gives 34 decimal digits of precision, with
+exponents ranging from -6143 to +6144.
+Free42 Binary (free42bin) uses the PC's FPU; it represents numbers as IEEE-754
+compatible double precision binary floating point, which consumes 8 bytes per
+number, and gives an effective precision of nearly 16 decimal digits, with
+exponents ranging from -308 to +308.
 The binary version has the advantage of being much faster than the decimal
 version; also, it uses less memory. However, numbers such as 0.1 (one-tenth)
 cannot be represented exactly in binary, since they are repeating fractions
@@ -162,8 +161,7 @@ If you don't fully understand the above, it is best to play safe and use
 Free42 Decimal.
 
 
-Free42 is (C) 2004-2013, by Thomas Okken
-BCD support (C) 2005-2009, by Hugh Steers / voidware
+Free42 is (C) 2004-2014, by Thomas Okken
 Contact the author at thomas_okken@yahoo.com
 Look for updates, and versions for other operating systems, at
 http://thomasokken.com/free42/
