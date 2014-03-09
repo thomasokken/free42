@@ -1068,9 +1068,11 @@ static bool unpersist_vartype(vartype **v) {
 		    return false;
 		}
 		#ifdef BCD_MATH
-		    if (state_file_number_format != NUMBER_FORMAT_BID128)
+		    if (state_file_number_format != NUMBER_FORMAT_BID128) {
+			size = mp.rows * mp.columns;
 			for (int4 i = 0; i < size; i++)
 			    update_decimal(&cm->array->data[i].val);
+		    }
 		#endif
 	    }
 	    if (shared) {
