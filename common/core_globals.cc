@@ -1216,7 +1216,11 @@ static bool unpersist_globals(int4 ver) {
     array_list_capacity = 0;
     array_list = NULL;
     bool ret = false;
+#ifdef WINDOWS
     bool padded = ver < 18;
+#else
+    bool padded = false;
+#endif
 
     free_vartype(reg_x);
     if (!unpersist_vartype(&reg_x, padded))
