@@ -63,6 +63,9 @@ Mac version:
   extensions to file names automagically when appropriate.
 
 All versions:
+* Change state file format to something forward- and cross-platform-compatible.
+* Add special-case code to produce exact results for trigs and inverse trigs
+  in DEG and GRAD modes -- cases like sin(30) or acos(0.5).
 * Add an option or magic keystroke to make SHOW show full precision when there
   is a real number in X -- i.e., 16 digits for binary and 34 for decimal.
 * It would be nice if we would handle the shell_milliseconds() wrap-around.
