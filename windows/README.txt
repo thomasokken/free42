@@ -141,11 +141,11 @@ What's the deal with the "Decimal" and "Binary"?
 Starting with release 1.4, Free42 comes in decimal and binary versions. The two
 look and behave identically; the only difference is the way they represent
 numbers internally.
-Free42 Decimal (free42dec) uses the Intel Decimal Floating-Point Math Library;
+Free42 Decimal uses the Intel Decimal Floating-Point Math Library;
 it uses IEEE-754-2008 quadruple precision decimal floating point, which
 consumes 16 bytes per number, and gives 34 decimal digits of precision, with
 exponents ranging from -6143 to +6144.
-Free42 Binary (free42bin) uses the PC's FPU; it represents numbers as IEEE-754
+Free42 Binary uses the PC's FPU; it represents numbers as IEEE-754
 compatible double precision binary floating point, which consumes 8 bytes per
 number, and gives an effective precision of nearly 16 decimal digits, with
 exponents ranging from -308 to +308.
