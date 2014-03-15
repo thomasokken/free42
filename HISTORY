@@ -4,6 +4,14 @@
   and GRAD modes for trivial parameters (asin(1), asin(-1), acos(0), atan(1),
   atan(-1), atan(infinity).
 * Now displaying signed zero as zero, so you won't see -0 any more.
+* Windows version: removed the "Free42 Directory" setting from the Preferences.
+  The application now looks for a file or directory named "portable" in the
+  directory where Free42Decimal.exe or Free42Binary.exe itself is located; if
+  it exists, the state.bin, print.bin, and keymap.txt files will be stored in
+  this directory as well, and skins will only be loaded from this directory. If
+  there is no "portable" item in the executable's directory, it will store
+  state.bin, print.bin, and keymap.txt in %APPDATA%\Free42, and it will load
+  skins from that directory, and from the executable's directory.
 
 09-03-2014: release 1.5
 

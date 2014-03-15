@@ -159,8 +159,7 @@ static LRESULT CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 static LRESULT CALLBACK	ExportProgram(HWND, UINT, WPARAM, LPARAM);
 static int browse_file(HWND owner, char *title, int save, char *filter, char *defExt, char *buf, int buflen);
 static LRESULT CALLBACK	Preferences(HWND, UINT, WPARAM, LPARAM);
-static void set_home_dir(const char *path);
-static void get_home_dir(char *path, int pathlen, BOOL exedir_ok);
+static void get_home_dir(char *path, int pathlen);
 static void config_home_dir(HWND owner, char *buf, int bufsize);
 static void mapCalculatorKey();
 static void copy();
@@ -314,7 +313,7 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
     /***** Try to create the Free42 directory *****/
     /**********************************************/
 
-	get_home_dir(free42dirname, FILENAMELEN, TRUE);
+	get_home_dir(free42dirname, FILENAMELEN);
     _mkdir(free42dirname);
 
 	char keymapfilename[FILENAMELEN];
@@ -1100,9 +1099,6 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
 			}
 			SetDlgItemText(hDlg, IDC_PRINTER_GIF_NAME, state.printerGifFileName);
 			SetDlgItemInt(hDlg, IDC_PRINTER_GIF_HEIGHT, state.printerGifMaxLength, TRUE);
-			char buf[MAX_PATH];
-			get_home_dir(buf, MAX_PATH, FALSE);
-			SetDlgItemText(hDlg, IDC_HOMEDIR, buf);
 			return TRUE;
 		}
 
@@ -1164,9 +1160,6 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
 						print_gif = NULL;
 					}
 					strcpy(state.printerGifFileName, buf);
-					char buf2[MAX_PATH];
-					GetDlgItemText(hDlg, IDC_HOMEDIR, buf2, MAX_PATH - 1);
-					set_home_dir(buf2);
 					// fall through
 				}
 				case IDCANCEL:
@@ -1198,13 +1191,6 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
 						SetDlgItemText(hDlg, IDC_PRINTER_GIF_NAME, buf);
 					return TRUE;
 				}
-				case IDC_HOMEDIR_BROWSE: {
-					char buf[MAX_PATH];
-					GetDlgItemText(hDlg, IDC_HOMEDIR, buf, MAX_PATH - 1);
-					config_home_dir(hDlg, buf, MAX_PATH);
-					SetDlgItemText(hDlg, IDC_HOMEDIR, buf);
-					return TRUE;
-				}
 			}
 			break;
 		}
@@ -1226,23 +1212,6 @@ static int browse_file(HWND owner, char *title, int save, char *filter, char *de
 	ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
 	ofn.lpstrDefExt = defExt;
 	return save ? GetSaveFileName(&ofn) : GetOpenFileName(&ofn);
-}
-
-static void set_home_dir(const char *path) {
-	HKEY k1, k2, k3;
-	DWORD disp;
-	if (path[0] == 0)
-		path = ":";
-	if (RegOpenKeyEx(HKEY_CURRENT_USER, "Software", 0, KEY_QUERY_VALUE, &k1) == ERROR_SUCCESS) {
-		if (RegCreateKeyEx(k1, "Thomas Okken Software", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k2, &disp) == ERROR_SUCCESS) {
-			if (RegCreateKeyEx(k2, "Free42", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k3, &disp) == ERROR_SUCCESS) {
-				RegSetValueEx(k3, "HomeDir", 0, REG_SZ, (const unsigned char *) path, strlen(path) + 1);
-				RegCloseKey(k3);
-			}
-			RegCloseKey(k2);
-		}
-		RegCloseKey(k1);
-	}
 }
 
 static void move_state_file(char *olddir, char *newdir, char *filename) {
@@ -1277,75 +1246,58 @@ static void move_state_file(char *olddir, char *newdir, char *filename) {
 	remove(oldfile);
 }
 
-static void get_home_dir(char *path, int pathlen, BOOL appdata_ok) {
-	HKEY k1, k2, k3;
-	path[0] = 0;
-	BOOL found = FALSE;
-	
-	if (RegOpenKeyEx(HKEY_CURRENT_USER, "Software", 0, KEY_QUERY_VALUE, &k1) == ERROR_SUCCESS) {
-		if (RegOpenKeyEx(k1, "Thomas Okken Software", 0, KEY_QUERY_VALUE, &k2) == ERROR_SUCCESS) {
-			if (RegOpenKeyEx(k2, "Free42", 0, KEY_QUERY_VALUE, &k3) == ERROR_SUCCESS) {
-				DWORD type, len = pathlen;
-				if (RegQueryValueEx(k3, "HomeDir", NULL, &type, (unsigned char *) path, &len) == ERROR_SUCCESS && type == REG_SZ)
-					found = TRUE;
-				RegCloseKey(k3);
+static void get_home_dir(char *path, int pathlen) {
+	// Starting with release 1.5.1, changing the Free42 directory is no longer
+	// supported. Instead, Free42 looks for a file or directory named 'portable'
+	// in the executable's directory; if it exists, this is where the state files
+	// will also be stored, and this will be the only directory searched for skins.
+	// If there is no 'portable', then the state files will be stored under
+	// %APPDATA%\Free42, and skins will be searched for in that directory as well,
+	// *and* in the executable's direcory.
+
+	char exepath[FILENAMELEN];
+	GetModuleFileName(0, exepath, FILENAMELEN);
+	char *lastbackslash = strrchr(exepath, '\\');
+	if (lastbackslash != 0) {
+		lastbackslash[1] = '*';
+		lastbackslash[2] = 0;
+	}
+
+	WIN32_FIND_DATA wfd;
+	HANDLE search = FindFirstFile(exepath, &wfd);
+	bool use_exedir = false;
+	if (search != INVALID_HANDLE_VALUE) {
+		do {
+			if (_stricmp(wfd.cFileName, "portable") == 0) {
+				use_exedir = true;
+				break;
 			}
-			RegCloseKey(k2);
-		}
-		RegCloseKey(k1);
-	}
-	
-	// In release 1.5, the default Free42 directory was changed from being the one
-	// containing the executable, to %APPDATA%\Free42. If we detect an unset or blank
-	// home directory, we change it to the new default, and attempt to copy state
-	// files from the old location to the new. Blank/unset HomeDir is no longer
-	// allowed; to indicate "default", we now use the magic value ":".
-
-	if (path[0] == 0) {
-		strcpy(path, ":");
-		set_home_dir(path);
-		char oldpath[FILENAMELEN];
-		GetModuleFileName(0, oldpath, FILENAMELEN);
-		char *lastbackslash = strrchr(oldpath, '\\');
-		if (lastbackslash != 0) {
-			*lastbackslash = 0;
-			LPITEMIDLIST idlist;
-			char newpath[MAX_PATH];
-			if (SHGetSpecialFolderLocation(NULL, CSIDL_APPDATA, &idlist) == NOERROR) {
-				if (!SHGetPathFromIDList(idlist, newpath))
-					strcpy(newpath, "C:");
-				strncat(newpath, "\\Free42", MAX_PATH - 1);
-				newpath[MAX_PATH - 1] = 0;
-				LPMALLOC imalloc;
-				if (SHGetMalloc(&imalloc) == NOERROR)
-					imalloc->Free(idlist);
-			} else
-				strcpy(newpath, "C:\\Free42");
-			move_state_file(oldpath, newpath, "state.bin");
-			move_state_file(oldpath, newpath, "print.bin");
-			move_state_file(oldpath, newpath, "keymap.txt");
-		}
+		} while (FindNextFile(search, &wfd));
+		FindClose(search);
 	}
 
-	if (strcmp(path, ":") == 0) {
-		if (appdata_ok) {
-			LPITEMIDLIST idlist;
-			char buf[MAX_PATH];
-			if (SHGetSpecialFolderLocation(NULL, CSIDL_APPDATA, &idlist) == NOERROR) {
-				if (!SHGetPathFromIDList(idlist, buf))
-					strcpy(buf, "C:");
-				strncat(buf, "\\Free42", MAX_PATH - 1);
-				buf[MAX_PATH - 1] = 0;
-				LPMALLOC imalloc;
-				if (SHGetMalloc(&imalloc) == NOERROR)
-					imalloc->Free(idlist);
-			} else
-				strcpy(buf, "C:\\Free42");
-			strncpy(path, buf, pathlen - 1);
-			path[pathlen - 1] = 0;
-		} else {
-			path[0] = 0;
-		}
+	if (use_exedir) {
+		*lastbackslash = 0;
+		strncpy(path, exepath, pathlen);
+		path[pathlen - 1] = 0;
+		return;
+	}
+
+	LPITEMIDLIST idlist;
+	char newpath[MAX_PATH];
+	if (SHGetSpecialFolderLocation(NULL, CSIDL_APPDATA, &idlist) == NOERROR) {
+		if (!SHGetPathFromIDList(idlist, newpath))
+			strcpy(newpath, "C:");
+		strncat(newpath, "\\Free42", MAX_PATH - 1);
+		newpath[MAX_PATH - 1] = 0;
+		LPMALLOC imalloc;
+		if (SHGetMalloc(&imalloc) == NOERROR)
+			imalloc->Free(idlist);
+		strncpy(path, newpath, pathlen);
+		path[pathlen - 1] = 0;
+	} else {
+		strncpy(path, "C:\\Free42", pathlen);
+		path[pathlen - 1] = 0;
 	}
 }
 
