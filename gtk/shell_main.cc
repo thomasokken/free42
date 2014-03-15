@@ -228,10 +228,6 @@ static gint num_entries_compactmenu = sizeof(entries_compactmenu) / sizeof(entri
 static int use_compactmenu = 0;
 
 int main(int argc, char *argv[]) {
-#ifdef OLPC
-    const char *activityID = NULL, *bundleID = NULL;
-#endif
-
     gtk_init(&argc, &argv);
     char *skin_arg = NULL;
     for (int i = 1; i < argc; i++) {
@@ -239,12 +235,6 @@ int main(int argc, char *argv[]) {
 	    skin_arg = ++i < argc ? argv[i] : NULL;
 	else if (strcmp(argv[i], "-compactmenu") == 0)
 	    use_compactmenu = 1;
-#ifdef OLPC
-	else if (strcmp(argv[i], "-a") == 0)
-	    activityID = ++i < argc ? argv[i] : NULL;
-	else if (strcmp(argv[i], "-b") == 0)
-	    bundleID = ++i < argc ? argv[i] : NULL;
-#endif
 	else {
 	    fprintf(stderr, "Unrecognized option: %s\n", argv[i]);
 	    exit(1);
@@ -272,13 +262,6 @@ int main(int argc, char *argv[]) {
 
     char keymapfilename[FILENAMELEN];
 
-#ifdef OLPC
-    char *sar = getenv("SUGAR_ACTIVITY_ROOT");
-    snprintf(free42dirname, FILENAMELEN, "%s/data", sar);
-    snprintf(statefilename, FILENAMELEN, "%s/data/state", sar);
-    snprintf(printfilename, FILENAMELEN, "%s/data/print", sar);
-    snprintf(keymapfilename, FILENAMELEN, "%s/data/keymap", sar);
-#else
     bool free42dir_exists = false;
     char *home = getenv("HOME");
     snprintf(free42dirname, FILENAMELEN, "%s/.free42", home);
@@ -316,7 +299,6 @@ int main(int argc, char *argv[]) {
 	snprintf(printfilename, FILENAMELEN, "%s/.free42print", home);
 	snprintf(keymapfilename, FILENAMELEN, "%s/.free42keymap", home);
     }
-#endif
 
     
     /****************************/
@@ -355,7 +337,6 @@ int main(int argc, char *argv[]) {
     /***** Enforce single-instance mode, if applicable *****/
     /*******************************************************/
 
-#if !defined(OLPC)
     char *appid;
     if (state.singleInstance) {
 	int appid_len = _POSIX_HOST_NAME_MAX + _POSIX_LOGIN_NAME_MAX + 2;
@@ -397,7 +378,6 @@ int main(int argc, char *argv[]) {
 	if (children != NULL)
 	    XFree(children);
     }
-#endif
 
 
     /*********************************/
@@ -468,19 +448,6 @@ int main(int argc, char *argv[]) {
     g_signal_connect(G_OBJECT(w), "key-release-event", G_CALLBACK(key_cb), NULL);
     calc_widget = w;
 
-#ifdef OLPC
-    {
-	char *list[1];
-	if (activityID != NULL) {
-	    list[0] = (char *) activityID;
-	    set_window_property(mainwindow, "_SUGAR_ACTIVITY_ID", list, 1);
-	}
-	if (bundleID != NULL) {
-	    list[0] = (char *) bundleID;
-	    set_window_property(mainwindow, "_SUGAR_BUNDLE_ID", list, 1);
-	}
-    }
-#else
     if (state.singleInstance) {
 	char *list[2];
 	char pidstr[11];
@@ -491,7 +458,6 @@ int main(int argc, char *argv[]) {
 	free(appid);
 	XUngrabServer(GDK_DISPLAY());
     }
-#endif
 
 
     /**************************************/
@@ -569,19 +535,6 @@ int main(int argc, char *argv[]) {
     gtk_widget_realize(print_widget);
     scroll_printout_to_bottom();
 
-#ifdef OLPC
-    {
-	char *list[1];
-	if (activityID != NULL) {
-	    list[0] = (char *) activityID;
-	    set_window_property(printwindow, "_SUGAR_ACTIVITY_ID", list, 1);
-	}
-	if (bundleID != NULL) {
-	    list[0] = (char *) bundleID;
-	    set_window_property(printwindow, "_SUGAR_BUNDLE_ID", list, 1);
-	}
-    }
-#endif
 
     /*************************************************/
     /***** Show main window & start the emulator *****/
@@ -740,9 +693,6 @@ static void read_key_map(const char *keymapfilename) {
 	keymapfile = fopen(keymapfilename, "wb");
 	if (keymapfile == NULL)
 	    return;
-#ifdef OLPC
-	chmod(keymapfilename, 0664);
-#endif
 	n = fwrite(keymap_filedata, 1, keymap_filesize, keymapfile);
 	if (n != keymap_filesize) {
 	    int err = errno;
@@ -892,9 +842,6 @@ static void quit() {
 
     printfile = fopen(printfilename, "w");
     if (printfile != NULL) {
-#ifdef OLPC
-	chmod(printfilename, 0664);
-#endif
 	length = printout_bottom - printout_top;
 	if (length < 0)
 	    length += PRINT_LINES;
@@ -955,9 +902,6 @@ static void quit() {
 
     statefile = fopen(statefilename, "w");
     if (statefile != NULL) {
-#ifdef OLPC
-	chmod(statefilename, 0664);
-#endif
 	write_shell_state();
     }
     core_quit();
@@ -1153,9 +1097,6 @@ static void exportProgramCB() {
 		export_file_name, strerror(err), err);
 	show_message("Message", buf);
     } else {
-#ifdef OLPC
-	chmod(export_file_name, 0664);
-#endif
 	int *p2 = (int *) malloc(count * sizeof(int));
 	// TODO - handle memory allocation failure
 	GList *rows = gtk_tree_selection_get_selected_rows(select, NULL);
@@ -2213,9 +2154,6 @@ void shell_print(const char *text, int length,
 		show_message("Message", buf);
 		goto done_print_txt;
 	    }
-#ifdef OLPC
-	    chmod(state.printerTxtFileName, 0664);
-#endif
 	}
 
 	shell_spool_txt(text, length, txt_writer, txt_newliner);
@@ -2275,9 +2213,6 @@ void shell_print(const char *text, int length,
 		show_message("Message", buf);
 		goto done_print_gif;
 	    }
-#ifdef OLPC
-	    chmod(print_gif_name, 0664);
-#endif
 	    if (!shell_start_gif(gif_writer, state.printerGifMaxLength)) {
 		state.printerToGifFile = 0;
 		show_message("Message", "Not enough memory for the GIF encoder.\nPrinting to GIF file disabled.");
