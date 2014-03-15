@@ -1,3 +1,10 @@
+15-03-2014: release 1.5.1
+
+* All versions: fixed ASIN, ACOS, and ATAN so they return exact results in DEG
+  and GRAD modes for trivial parameters (asin(1), asin(-1), acos(0), atan(1),
+  atan(-1), atan(infinity).
+* Now displaying signed zero as zero, so you won't see -0 any more.
+
 09-03-2014: release 1.5
 
 * Decimal version: switched from BCD20 to Intel's Decimal Floating-Point

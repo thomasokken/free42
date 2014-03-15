@@ -120,7 +120,6 @@ int docmd_cos(arg_struct *arg) {
 }
 
 static int mappable_tan_r(phloat x, phloat *y) {
-    int inf = 1;
     if (flags.f.rad) {
 	*y = tan(x);
     } else if (flags.f.grad) {
@@ -152,12 +151,10 @@ static int mappable_tan_r(phloat x, phloat *y) {
 	else
 	    *y = tan(x / (180 / PI));
     }
-    if (p_isnan(*y))
-	goto infinite;
-    if ((inf = p_isinf(*y)) != 0) {
+    if (p_isnan(*y) || p_isinf(*y) != 0) {
 	infinite:
 	if (flags.f.range_error_ignore)
-	    *y = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
+	    *y = POS_HUGE_PHLOAT;
 	else
 	    return ERR_OUT_OF_RANGE;
     }
@@ -224,6 +221,15 @@ int docmd_tan(arg_struct *arg) {
 static int mappable_asin_r(phloat x, phloat *y) {
     if (x < -1 || x > 1)
 	return ERR_INVALID_DATA;
+    if (!flags.f.rad) {
+	if (x == 1) {
+	    *y = flags.f.grad ? 100 : 90;
+	    return ERR_NONE;
+	} else if (x == -1) {
+	    *y = flags.f.grad ? -100 : -90;
+	    return ERR_NONE;
+	}
+    }
     *y = rad_to_angle(asin(x));
     return ERR_NONE;
 }
@@ -267,7 +273,10 @@ int docmd_asin(arg_struct *arg) {
 static int mappable_acos_r(phloat x, phloat *y) {
     if (x < -1 || x > 1)
 	return ERR_INVALID_DATA;
-    *y = rad_to_angle(acos(x));
+    if (!flags.f.rad && x == 0)
+	*y = flags.f.grad ? 100 : 90;
+    else
+	*y = rad_to_angle(acos(x));
     return ERR_NONE;
 }
 
@@ -309,6 +318,18 @@ int docmd_acos(arg_struct *arg) {
 }
 
 static int mappable_atan_r(phloat x, phloat *y) {
+    if (!flags.f.rad) {
+	if (p_isinf(x)) {
+	    *y = flags.f.grad ? 100 : 90;
+	    return ERR_NONE;
+	} else if (x == 1) {
+	    *y = flags.f.grad ? 50 : 45;
+	    return ERR_NONE;
+	} else if (x == -1) {
+	    *y = flags.f.grad ? -50 : -45;
+	    return ERR_NONE;
+	}
+    }
     *y = rad_to_angle(atan(x));
     return ERR_NONE;
 }

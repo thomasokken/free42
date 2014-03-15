@@ -879,6 +879,9 @@ double decimal2double(void *data, bool pin_magnitude /* = false */) {
 
 int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
 			 int dispmode, int thousandssep) {
+    if (pd == 0)
+	pd = 0; // Suppress signed zero
+
     int chars_so_far = 0;
 
     if (p_isnan(pd)) {
