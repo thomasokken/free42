@@ -15,19 +15,24 @@ When Free42 runs, it will create three additional files; they are state.bin,
 print.bin, and keymap.txt, and they are used to store the calculator's internal
 state, the contents of the print-out window, and the PC keyboard map,
 respectively.
-By default, these additional files will be stored in the same directory as
-Free42.exe, but you may specify a different directory if you wish. To do so, go
-to the Preferences dialog, and change the "Free42 Directory" setting.
+By default, these additional files will be stored in %APPDATA%\Free42, which is
+typically C:\Users\<YourUserName>\AppData\Roaming\Free42.
+If you want to run Free42 from a removable drive, like a USB stick, and keep
+the state.bin, print.bin, and keymap.txt file with Free42 on that drive, create
+a file named "portable" in the same directory as Free42Decimal.exe or
+Free42Binary.exe. When Free42 sees this file, it will ignore %APPDATA%\Free42
+and keep those files in its own directory.
 
 Free42 comes with two skins built in, but you may use different ones, by
-storing them in either the "Free42 Directory" (as specified in the Preferences
-dialog), or the directory where Free42.exe is located.
+storing them in the directory where Free42Decimal.exe or Free42Binary are
+located, or (if not running from a removable drive with the "portable" file),
+in %APPDATA%\Free42.
 
 
 Uninstalling Free42:
 
-Remove Free42Decimal.exe, Free42Binary.exe, and the Free42 directory and its
-contents, and any shortcuts you have created to point to Free42.exe.
+Remove Free42Decimal.exe, Free42Binary.exe, and %APPDATA%\Free42 and its
+contents.
 
 
 Documentation
