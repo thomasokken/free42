@@ -28,6 +28,13 @@ storing them in the directory where Free42Decimal.exe or Free42Binary are
 located, or (if not running from a removable drive with the "portable" file),
 in %APPDATA%\Free42.
 
+If, when you try to run Free42, Windows says "This application has failed to
+start because the application configuration was incorrect. Reinstalling the
+application may fix this problem," then you also need to download and install
+the Microsoft Visual C++ 2008 Redistributable Package. 
+You can download this package from
+http://www.microsoft.com/en-us/download/details.aspx?id=29
+
 
 Uninstalling Free42:
 
