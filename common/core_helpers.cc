@@ -717,12 +717,17 @@ static phloat sin_or_cos_deg(phloat x, bool do_sin) {
 	if (do_sin)
 	    neg = !neg;
     }
-    if (x > 45) {
-	x = 90 - x;
-	do_sin = !do_sin;
+    phloat r;
+    if (x == 45)
+	r = sqrt(0.5);
+    else {
+	if (x > 45) {
+	    x = 90 - x;
+	    do_sin = !do_sin;
+	}
+	x /= 180 / PI;
+	r = do_sin ? sin(x) : cos(x);
     }
-    x /= 180 / PI;
-    phloat r = do_sin ? sin(x) : cos(x);
     return neg ? -r : r;
 }
 
@@ -752,12 +757,17 @@ static phloat sin_or_cos_grad(phloat x, bool do_sin) {
 	if (do_sin)
 	    neg = !neg;
     }
-    if (x > 50) {
-	x = 100 - x;
-	do_sin = !do_sin;
+    phloat r;
+    if (x == 50)
+	r = sqrt(0.5);
+    else {
+	if (x > 50) {
+	    x = 100 - x;
+	    do_sin = !do_sin;
+	}
+	x /= 200 / PI;
+	r = do_sin ? sin(x) : cos(x);
     }
-    x /= 200 / PI;
-    phloat r = do_sin ? sin(x) : cos(x);
     return neg ? -r : r;
 }
 

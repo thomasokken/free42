@@ -257,8 +257,11 @@ int docmd_asin(arg_struct *arg) {
 		else
 		    v = new_complex(-PI / 2, acosh(-x));
 	    }
-	} else
-	    v = new_real(rad_to_angle(asin(x)));
+	} else {
+	    v = new_real(0);
+	    if (v != NULL)
+		mappable_asin_r(x, &((vartype_real *) v)->x);
+	}
 	if (v == NULL)
 	    return ERR_INSUFFICIENT_MEMORY;
     } else {
@@ -304,8 +307,11 @@ int docmd_acos(arg_struct *arg) {
 		else
 		    v = new_complex(PI, -acosh(-x));
 	    }
-	} else
-	    v = new_real(rad_to_angle(acos(x)));
+	} else {
+	    v = new_real(0);
+	    if (v != NULL)
+		mappable_acos_r(x, &((vartype_real *) v)->x);
+	}
 	if (v == NULL)
 	    return ERR_INSUFFICIENT_MEMORY;
     } else {

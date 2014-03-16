@@ -399,33 +399,33 @@ int to_digit(Phloat p) {
 	    bid128_add(&r2, &res, &ten);
 	else
 	    bid128_sub(&r2, &res, &ten);
-	bid128_to_int32_floor(&ires, &r2);
+	bid128_to_int32_xint(&ires, &r2);
     } else
-	bid128_to_int32_floor(&ires, &res);
+	bid128_to_int32_xint(&ires, &res);
     return ires;
 }
 
 char to_char(Phloat p) {
-    unsigned int res;
-    bid128_to_uint32_floor(&res, &p.val);
+    int4 res;
+    bid128_to_int32_xint(&res, &p.val);
     return (char) res;
 }
 
 int to_int(Phloat p) {
-    unsigned int res;
-    bid128_to_uint32_floor(&res, &p.val);
+    int4 res;
+    bid128_to_int32_xint(&res, &p.val);
     return (int) res;
 }
 
 int4 to_int4(Phloat p) {
-    unsigned int res;
-    bid128_to_uint32_floor(&res, &p.val);
-    return (int4) res;
+    int4 res;
+    bid128_to_int32_xint(&res, &p.val);
+    return res;
 }
 
 int8 to_int8(Phloat p) {
     int8 res;
-    bid128_to_int64_floor(&res, &p.val);
+    bid128_to_int64_xint(&res, &p.val);
     return res;
 }
 
@@ -590,10 +590,85 @@ Phloat fabs(Phloat p) {
     return Phloat(res);
 }
 
-Phloat pow(Phloat x, Phloat y) {
-    BID_UINT128 res;
-    bid128_pow(&res, &x.val, &y.val);
-    return Phloat(res);
+Phloat pow(Phloat y, Phloat x) {
+    BID_UINT128 temp, res;
+    bid128_round_integral_negative(&temp, &x.val);
+    int r;
+    bid128_quiet_equal(&r, &temp, &x.val);
+    if (r != 0) {
+	// Integral power. bid128_pow doesn't handle these very well,
+	// so I'm using repeated squaring instead. This way at least
+	// we get exact results for integral powers of ten!
+	if (x < -2147483647.0 || x > 2147483647.0)
+	    // For really huge exponents, the repeated-squaring
+	    // algorithm for integer exponents loses its accuracy
+	    // and speed advantage, and we switch to the
+	    // library's bid128_pow() instead.
+	    goto noninteger_exponent;
+	int4 ex = to_int4(x);
+	bool exp_even = (ex & 1) == 0;
+	bid128_isZero(&r, &y.val);
+	if (r != 0) {
+	    if (ex < 0) {
+		BID_UINT128 zero;
+		int izero = 0;
+		bid128_from_int32(&zero, &izero);
+		bid128_div(&res, &zero, &zero); // 0/0 -> NaN
+		return res;
+	    } else if (ex == 0)
+		return 1;
+	    else
+		return 0;
+	}
+	int ione = 1;
+	bid128_from_int32(&res, &ione);
+	BID_UINT128 yy;
+	if (ex < 0) {
+	    bid128_div(&yy, &res, &y.val);
+	    ex = -ex;
+	} else
+	    yy = y.val;
+	while (true) {
+	    BID_UINT128 tmp;
+	    if ((ex & 1) != 0) {
+		bid128_mul(&tmp, &res, &yy);
+		res = tmp;
+		int inf;
+		if ((inf = p_isinf(res)) != 0) {
+		    // We're stopping early, because the final result
+		    // is definitely infinity, but we have to make sure
+		    // we get the sign right, since we're not doing the
+		    // full set of multiplications.
+		    if (exp_even) {
+			if (inf < 0) {
+			    bid128_negate(&tmp, &res);
+			    return tmp;
+			} else
+			    return res;
+		    } else {
+			bid128_isSigned(&r, &y.val);
+			if (((r != 0) ^ (inf < 0)) != 0) {
+			    bid128_negate(&tmp, &res);
+			    return tmp;
+			} else
+			    return res;
+		    }
+		}
+		bid128_isZero(&r, &res);
+		if (r != 0)
+		    return res;
+	    }
+	    ex >>= 1;
+	    if (ex == 0)
+		return res;
+	    bid128_mul(&tmp, &yy, &yy);
+	    yy = tmp;
+	}
+    } else {
+	noninteger_exponent:
+	bid128_pow(&res, &y.val, &x.val);
+	return Phloat(res);
+    }
 }
 
 Phloat floor(Phloat p) {
