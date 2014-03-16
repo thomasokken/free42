@@ -1,3 +1,9 @@
+16-03-2014: release 1.5.2
+
+* Decimal version: fixed Y^X for complex Y and negative integral X.
+* Decimal version: made Y^X and 10^X for real Y and integral X more accurate.
+* All versions: sin(45°) now equals cos(45°), and sin(50grad) = cos(50grad).
+
 15-03-2014: release 1.5.1
 
 * All versions: fixed ASIN, ACOS, and ATAN so they return exact results in DEG
