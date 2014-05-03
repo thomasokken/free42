@@ -17,6 +17,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 #include <float.h>
 
@@ -905,7 +906,13 @@ int string2phloat(const char *buf, int buflen, phloat *d) {
 double decimal2double(void *data, bool pin_magnitude /* = false */) {
     if (state_file_number_format == NUMBER_FORMAT_BID128) {
 	double res;
-	BID_UINT128 *b = (BID_UINT128 *) data;
+	BID_UINT128 *b, b2;
+	if ((((int) data) & 15) != 0) {
+	    //b2 = *((BID_UINT128 *) data);
+	    memcpy(&b2, data, 16);
+	    b = &b2;
+	} else
+	    b = (BID_UINT128 *) data;
 	bid128_to_binary64(&res, b);
 	if (isnan(res) || !pin_magnitude)
 	    return res;
