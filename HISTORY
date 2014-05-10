@@ -1,3 +1,7 @@
+10-05-2014: release 1.4.78 (Android only)
+
+* Fixed the LOCAT function, by adding the ACCESS_FINE_LOCATION permission.
+
 16-03-2014: release 1.5.2
 
 * Decimal version: fixed Y^X for complex Y and negative integral X.
