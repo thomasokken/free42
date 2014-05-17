@@ -1340,45 +1340,53 @@ int docmd_simq(arg_struct *arg) {
 	return ERR_DIMENSION_ERROR;
 
     m = recall_var("MATA", 4);
-    if (m == NULL) {
-	mata = new_realmatrix(dim, dim);
-	if (mata == NULL)
-	    return ERR_INSUFFICIENT_MEMORY;
-    } else {
+    if (m != NULL && (m->type == TYPE_REALMATRIX || m->type == TYPE_COMPLEXMATRIX)) {
 	mata = dup_vartype(m);
 	if (mata == NULL)
 	    return ERR_INSUFFICIENT_MEMORY;
 	err = dimension_array_ref(mata, dim, dim);
 	if (err != ERR_NONE)
-	    return err;
+	    goto abort_and_free_a;
+    } else {
+	mata = new_realmatrix(dim, dim);
+	if (mata == NULL)
+	    return ERR_INSUFFICIENT_MEMORY;
     }
 
     m = recall_var("MATB", 4);
-    if (m == NULL) {
-	matb = new_realmatrix(dim, 1);
-	if (matb == NULL)
-	    return ERR_INSUFFICIENT_MEMORY;
-    } else {
+    if (m != NULL && (m->type == TYPE_REALMATRIX || m->type == TYPE_COMPLEXMATRIX)) {
 	matb = dup_vartype(m);
-	if (matb == NULL)
-	    return ERR_INSUFFICIENT_MEMORY;
+	if (matb == NULL) {
+	    err = ERR_INSUFFICIENT_MEMORY;
+	    goto abort_and_free_a;
+	}
 	err = dimension_array_ref(matb, dim, 1);
 	if (err != ERR_NONE)
-	    return err;
+	    goto abort_and_free_a_b;
+    } else {
+	matb = new_realmatrix(dim, 1);
+	if (matb == NULL) {
+	    err = ERR_INSUFFICIENT_MEMORY;
+	    goto abort_and_free_a;
+	}
     }
 
     m = recall_var("MATX", 4);
-    if (m == NULL) {
-	matx = new_realmatrix(dim, 1);
-	if (matx == NULL)
-	    return ERR_INSUFFICIENT_MEMORY;
-    } else {
+    if (m != NULL && (m->type == TYPE_REALMATRIX || m->type == TYPE_COMPLEXMATRIX)) {
 	matx = dup_vartype(m);
-	if (matx == NULL)
-	    return ERR_INSUFFICIENT_MEMORY;
+	if (matx == NULL) {
+	    err = ERR_INSUFFICIENT_MEMORY;
+	    goto abort_and_free_a_b;
+	}
 	err = dimension_array_ref(matx, dim, 1);
 	if (err != ERR_NONE)
-	    return err;
+	    goto abort_and_free_a_b_x;
+    } else {
+	matx = new_realmatrix(dim, 1);
+	if (matx == NULL) {
+	    err = ERR_INSUFFICIENT_MEMORY;
+	    goto abort_and_free_a_b;
+	}
     }
 
     err = set_menu_return_err(MENULEVEL_APP, MENU_MATRIX_SIMQ);
@@ -1389,9 +1397,12 @@ int docmd_simq(arg_struct *arg) {
 	 * they're in the matrix editor? SIMQ has the 'hidden'
 	 * command property. Oh, well, better safe than sorry...)
 	 */
-	free_vartype(mata);
-	free_vartype(matb);
+	abort_and_free_a_b_x:
 	free_vartype(matx);
+	abort_and_free_a_b:
+	free_vartype(matb);
+	abort_and_free_a:
+	free_vartype(mata);
 	return err;
     }
 

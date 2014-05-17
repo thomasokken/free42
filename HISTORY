@@ -1,3 +1,8 @@
+??-??-????: release 1.5.3
+
+* Fixed crash in SIMQ if any of MATA, MATB, or MATX already existed and was a
+  scalar or string.
+
 10-05-2014: release 1.4.78 (Android only)
 
 * Fixed the LOCAT function, by adding the ACCESS_FINE_LOCATION permission.
