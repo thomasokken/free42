@@ -79,6 +79,11 @@ extern "C" void sincos(double x, double *sinx, double *cosx);
 #define finite(x) isfinite(x)
 #endif
 
+// Android doesn't appear to provide log2
+#if defined(ANDROID)
+extern "C" double log2(double x);
+#endif
+
 
 #define uint unsigned int
 
