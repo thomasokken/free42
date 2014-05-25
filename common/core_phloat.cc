@@ -907,7 +907,7 @@ double decimal2double(void *data, bool pin_magnitude /* = false */) {
     if (state_file_number_format == NUMBER_FORMAT_BID128) {
 	double res;
 	BID_UINT128 *b, b2;
-	if ((((int) data) & 15) != 0) {
+	if ((((size_t) data) & 15) != 0) {
 	    //b2 = *((BID_UINT128 *) data);
 	    memcpy(&b2, data, 16);
 	    b = &b2;
