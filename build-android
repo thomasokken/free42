@@ -25,7 +25,7 @@ sed "s/android:versionName=\"[^\"]*\"/android:versionName=\"$VERSION_NAME\"/" < 
 mv TMP AndroidManifest.xml
 cd jni
 sh ./copy-files-release.sh
-/opt/android-ndk-r8/ndk-build
+/cygdrive/c/opt/android-ndk-r9d/ndk-build
 cd ..
 echo "======== ATTENTION: Possible Password Prompt ========"
 ant release
