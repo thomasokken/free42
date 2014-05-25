@@ -1,4 +1,4 @@
-??-??-????: release 1.5.3
+25-05-2014: release 1.5.3
 
 * Fixed crash in SIMQ if any of MATA, MATB, or MATX already existed and was a
   scalar or string.
