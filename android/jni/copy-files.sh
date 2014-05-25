@@ -1,13 +1,6 @@
 #!/bin/sh
-cp ~/free42/common/bcd.cc bcd.cc
-cp ~/free42/common/bcd.h bcd.h
-cp ~/free42/common/bcd2.h bcd2.h
-cp ~/free42/common/bcdfloat.cc bcdfloat.cc
-cp ~/free42/common/bcdfloat.h bcdfloat.h
-cp ~/free42/common/bcdfloat2.cc bcdfloat2.cc
-cp ~/free42/common/bcdfloat2.h bcdfloat2.h
-cp ~/free42/common/bcdmath.cc bcdmath.cc
-cp ~/free42/common/bcdmath.h bcdmath.h
+cp ~/free42/common/bid_conf.h bid_conf.h
+cp ~/free42/common/bid_functions.h bid_functions.h
 cp ~/free42/common/core_commands1.cc core_commands1.cc
 cp ~/free42/common/core_commands1.h core_commands1.h
 cp ~/free42/common/core_commands2.cc core_commands2.cc
