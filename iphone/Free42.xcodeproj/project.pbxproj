@@ -389,7 +389,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "Free42" */;
 			buildPhases = (
-				E91CC1BE0F8C1DDE00EE702C /* ShellScript */,
+				E91CC1BE0F8C1DDE00EE702C /* Run Script */,
 				1D60588D0D05DD3D006BFB54 /* Resources */,
 				1D60588E0D05DD3D006BFB54 /* Sources */,
 				1D60588F0D05DD3D006BFB54 /* Frameworks */,
@@ -463,13 +463,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		E91CC1BE0F8C1DDE00EE702C /* ShellScript */ = {
+		E91CC1BE0F8C1DDE00EE702C /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
+			name = "Run Script";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -545,6 +546,7 @@
 					"$(PROJECT_DIR)",
 				);
 				PRODUCT_NAME = Free42;
+				VALID_ARCHS = armv7;
 			};
 			name = Debug;
 		};
@@ -562,6 +564,7 @@
 					"$(PROJECT_DIR)",
 				);
 				PRODUCT_NAME = Free42;
+				VALID_ARCHS = armv7;
 			};
 			name = Release;
 		};
@@ -573,6 +576,7 @@
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					IPHONE,
+					FREE42,
 					NO_SINCOS,
 					BCD_MATH,
 					"DECIMAL_CALL_BY_REFERENCE=1",
@@ -603,6 +607,7 @@
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					IPHONE,
+					FREE42,
 					NO_SINCOS,
 					BCD_MATH,
 					"DECIMAL_CALL_BY_REFERENCE=1",
@@ -632,6 +637,7 @@
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					IPHONE,
+					FREE42,
 					NO_SINCOS,
 					BCD_MATH,
 					"DECIMAL_CALL_BY_REFERENCE=1",
@@ -666,6 +672,7 @@
 					"$(PROJECT_DIR)",
 				);
 				PRODUCT_NAME = Free42;
+				VALID_ARCHS = armv7;
 			};
 			name = Distribution;
 		};
