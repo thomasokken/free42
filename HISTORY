@@ -1,3 +1,9 @@
+21-06-2014: release 1.5.3a (Android only)
+
+* Made GPS optional. When I added the ACCESS_FINE_LOCATION permission in
+  1.4.78, that had the side effect of making GPS a requirement. In 1.5.3a,
+  the app manifest explicitly states that the GPS is not required.
+
 25-05-2014: release 1.5.3
 
 * Fixed crash in SIMQ if any of MATA, MATB, or MATX already existed and was a
