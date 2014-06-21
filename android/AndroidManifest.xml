@@ -16,21 +16,7 @@
 	</activity>
   </application>
   
-  <!-- Technically, Free42 only needs SDK version 3 (Android 1.5), but if  -->
-  <!-- you use that as the targetSdkVersion, the app will automatically    -->
-  <!-- receive WRITE_EXTERNAL_STORAGE and READ_PHONE_STATE. We want the    -->
-  <!-- former for exporting and printing to the SD card, but we don't need -->
-  <!-- the latter, and the fact that we're *getting* READ_PHONE_STATE even -->
-  <!-- though there is no mention of this on the Android Market nor during -->
-  <!-- installation (you can see it *after* installation, but only if you  -->
-  <!-- bother to look) makes the app look suspicious in the eyes of some   -->
-  <!-- users. And who can blame them? I get that Android >= 1.6 wants to   -->
-  <!-- automatically grant those two permissions to Android 1.5 apps, for  -->
-  <!-- backward compatibility with the Android 1.5 environment where *all* -->
-  <!-- apps had those permissions implicitly, but it should tell the user  -->
-  <!-- that it is doing so during the install.                             -->
-  
-  <uses-sdk android:minSdkVersion="3" android:targetSdkVersion="4"/>
+  <uses-sdk android:minSdkVersion="3" android:targetSdkVersion="5"/>
   <uses-feature android:name="android.hardware.location.gps"
   				android:required="false"/>
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
