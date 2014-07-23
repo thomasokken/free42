@@ -1,6 +1,6 @@
 22-07-2014: release 1.5.4
 
-* Fixed ACOS: it would return 0 for acos(-1).
+* Decimal version: Fixed ACOS. It would return 0 for acos(-1).
 
 21-06-2014: release 1.5.3a (Android only)
 
