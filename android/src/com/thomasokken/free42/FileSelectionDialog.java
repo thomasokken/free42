@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -90,7 +89,6 @@ public class FileSelectionDialog extends Dialog {
 		});
 		okButton = (Button) findViewById(R.id.okButton);
 		okButton.setOnClickListener(new View.OnClickListener() {
-			@SuppressLint("DefaultLocale")
 			public void onClick(View view) {
 				if (okListener != null) {
 					String name = fileNameTF.getText().toString();

@@ -28,7 +28,6 @@ import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.nio.IntBuffer;
 import java.util.Date;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -896,7 +895,6 @@ public class Free42Activity extends Activity {
     		setMeasuredDimension(286, Math.max(printHeight, 1) * 2);
     	}
 
-    	@SuppressLint("DrawAllocation")
 		@Override
     	protected void onDraw(Canvas canvas) {
     		Rect clip = canvas.getClipBounds();
