@@ -61,13 +61,21 @@ static char version[32] = "";
 			NSLog(@"error loading sound: %@", name);
 	}
 	
+	printView.frame = containerView.bounds;
 	[containerView addSubview:printView];
+	httpServerView.frame = containerView.bounds;
 	[containerView addSubview:httpServerView];
+	selectSkinView.frame = containerView.bounds;
 	[containerView addSubview:selectSkinView];
+	selectProgramsView.frame = containerView.bounds;
     [containerView addSubview:selectProgramsView];
+	preferencesView.frame = containerView.bounds;
 	[containerView addSubview:preferencesView];
+	aboutView.frame = containerView.bounds;
 	[containerView addSubview:aboutView];
+	selectFileView.frame = containerView.bounds;
 	[containerView addSubview:selectFileView];
+	calcView.frame = containerView.bounds;
 	[containerView addSubview:calcView];
     [window makeKeyAndVisible];
 }
