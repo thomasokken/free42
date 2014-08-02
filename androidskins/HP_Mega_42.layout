@@ -1,0 +1,373 @@
+# --------------------------------------------------------------------------------------
+#	Title:			HP - mega42.layout
+#	Description:	Skin for Free42 (Android|iPad)
+#						Not suitable for Phone use as it requires a  minimum 7" screen,
+#						in Landscape mode, to be realistically usable.
+#	Created by: 	Chris Roper.
+#	Creation Date:	2013/09/13
+# --------------------------------------------------------------------------------------
+#	NOTES:
+#		Inspired by the HP VOYAGER Series interface design it utilises the additional
+#		screen real-estate of a tablet device, in landscape mode, to allow for extra keys.
+#		
+#		Keys are grouped, within reason, according to use and supple background shading 
+#		nay be used to visually emphasise and separate the groups.
+#		
+#		System Function / User Interface Keys have been moved off the Keyboard into the 
+#		Display area. 
+#		
+#			The all important CATALOG function is now the HP LOGO, giving it prominence 
+#			and making it accessible with one touch. 
+#		
+#			SHIFT LOGO is a short cut to CLEAR ALL (a stand in for RESET).
+#		
+#			UP/DOWN - BST/SST are to the Left of the display.
+#
+#			To the right of the Display:
+#
+#				USER is the equivalent of CUSTOM on the HP42s and displays the USER Menu.
+#				ASN ( SHIFT USER ) is Assign and is used to build the USER mode Menu.
+#
+#				abc is the ALPHA function and switches the Display into Alphanumeric mode.
+#				VIEW ( SHIFT abc ) allows the contents of any Register or Stack location
+#				to be displayed without disturbing the current stack.
+#			
+#			SHIFT and EXIT remain on the lower left of the keyboard. The only change is
+#			that SHIFT EXIT no longer hides (turns OFF) the Calculator, as this functionality 
+#			is redundant on Tablet Devices, and allows for Exiting a Menu regardless of the 
+#			current SHIFT State, without accidentally hiding the calculator.
+#		
+#		The right hand side of the Keyboard provides the primary calculator functions.
+#
+#		Several Key Names have been implemented in the more traditional HP mnemonic form
+#		i.e.  E  becomes EEX
+#			 +/- becomes CHS
+#			 
+#		Functions have been re assigned for a logical pairing as well as to expose 
+#		common functions that the Original HP42s hid within the menu structure.
+#		i.e. %CH is SHIFT % 
+#			 MOD is SHIFT DIV
+#			 ABS is SHIFT CHS
+#			 etc.
+#
+#		DEG, RAD and GRAD modes have been assigned to the same row as the TRIG functions
+#		but the MODES menu has been retained for the more esoteric functions as SHIFT 5.
+#
+#		The DISP menu is redundant as the functions ALL, FIX, SCI and ENG are now on the 
+#		top row of the Numeric Entry area. The Radix functions, however, have not been 
+#		exposed as they tend to be set once and left. If you would like to change the 
+#		Radix, use the following:
+
+#			CF 28 - Use Comma as Decimals Separator
+#			SF 28 - Use Point as Decimals Separator
+#		
+#		Stack and Data Storage functions have been grouped to the left of the ENTER key.
+#       The useful, but oft overlooked, X Exchange Register (X<>R) function has been
+#       exposed as SHIFT X<>Y and an R-UP Key has been added to compliment R-DOWN.
+#       
+#		Programming functions have been grouped in the lower left of the keyboard and
+#		many, thought not all, functions have been exposed to speed up programming. To
+#		access the rest, the PGM.FCN Menu has been moved to SHIFT ADD, logically 
+#		placing it next to SHIFT R/S, in place of the CATALOG Menu (now on the LOGO).
+#
+#		The Advanced Functions SOLVE, STAT, PROB, MATRIX, INTEGRATE and PRINT now have
+#		dedicated Keys. They are to the upper left of the Keyboard and share the row 
+#		with the Trig Functions.
+#		
+#		The MENU Keys remain on the Top Row directly below the display, as it should be,
+#		and the TOP.FCN has been more logically located to the left of the MENU Keys,
+# 		i.e. SHIFT SOLVE
+#
+# --------------------------------------------------------------------------------------
+#
+#		Designer Comment
+#
+#		Having been an avid user of HP Calculators from the HP25 up to and including my 
+#		current 15C and 16C models, I gave up on HP when they began producing the
+#		Graphical Models with far too much complexity for easy day to day use.
+#		As a result many users of Modern HP Calculators may find the Labels I have used
+#		to be some what retro, but this Skin is aimed at the HP die-hards like myself, 
+#		and not the generation that were unfortunately saddled with the likes of a HP49G.
+#		
+#		I disliked and, therefore, overlooked the original HP42s because of the MENU 
+#		System hiding many common functions, FREE42 and the NEXUS 7 tablet have allowed 
+#		me to redress that. This Skin represents what I consider to be the Ultimate HP
+#		Programmable calculator, the one I have been dreaming of ever since the HP15C
+#		was released. Hence the name HP-mega.
+#		
+#		I have tried to follow HP Design practices, but also to utilise the ability of a
+#		Tablet Device to enhance functionality. Whilst this implementation requires
+#		59 Keys, vs the 37 of the original HP42S, I have attempted to avoid clutter and
+#		improve usability by logically grouping the keys. 
+#		
+#		Personally I find it speeds up use as a calculator, requiring less hunt and pick
+#		or having to access Menus, reduces the dependence on the User Guide, and makes it
+#		at least as useful as my HP15C in daily use.
+#		
+#		For advanced users it also speeds up and enhances programming when used as a 
+#		Programmable device in the field. 
+#
+#		Any comments or bug reports  may be sent to caroper@gmail.com.
+#		I hope you enjoy using this skin as much as I did developing it.
+#
+#		Last but in no way least:
+#
+#			My thanks and eternal gratitude go to Thomas Okken for what is by far the 
+#			best HP Calculator simulator ever written and my awe that he did all of 
+#			this work for FREE. His work has finally allowed me to own my dream HP 
+#			Calculator after all these years.
+#
+#		Cheers
+#		Chris
+#		http://caroper.blogspot.com/
+#
+# --------------------------------------------------------------------------------------
+# VISUAL SETTINGS
+# --------------------------------------------------------------------------------------
+Skin: 0,0,1280,798
+Display: 150,66 5 7 D5D8D5 303632
+Annunciator: 1  160,36,48,30    0,800 # Scroll Up-Down
+Annunciator: 2  210,36,48,30   48,800 # Shift
+Annunciator: 3  260,36,48,30   96,800 # Printing
+Annunciator: 4  310,36,48,30  144,800 # Busy
+Annunciator: 5  360,36,48,30  192,800 # Battery	 
+Annunciator: 6  410,36,48,30  240,800 # GRAD
+Annunciator: 7  460,36,48,30  288,800 # RAD
+# --------------------------------------------------------------------------------------
+# SYSTEM FUNCTION KEY - LOGO
+# --------------------------------------------------------------------------------------
+	Key: 254,255 1150,24,84,84	 1150,24,84,84	 1150, 28	#  CAT  |  CLEAR ALL
+# --------------------------------------------------------------------------------------
+# Navigation Keys
+# --------------------------------------------------------------------------------------
+# LEFT OF DISPLAY
+	Key: 18      30, 26,80,80	  30, 26,80,80	  30, 34	#   UP  |  BST
+	Key: 23      30,104,80,80	  30,104,80,80	  30,108	#  DOWN |  SST
+# RIGHT OF DISPLAY
+	Key: 38,138 846, 26,80,80	 846, 26,80,80	 846, 34	#  USER |  ASSIGN
+	Key: 39,139 846,104,80,80	 846,104,80 80	 846,108	#  abc  |  VIEW
+# KEYBOARD
+	Key: 33,133  30,664,96,96	  30,664,96,96	  30,670	#  EXIT |  EXIT 
+	Key: 28      30,552,96,96	  30,552,96,96	  30,558	# SHIFT |
+# --------------------------------------------------------------------------------------
+# Numeric Entry Keys	
+# --------------------------------------------------------------------------------------
+	Key: 19,119  816,330,96,96	 816,330,96,96	 816,334	#   7   |  DEC
+	Key: 20,120  928,330,96,96	 928,330,96,96	 928,334	#   8   |  RAD
+	Key: 21,121 1040,330,96,96	1040,330,96,96	1040,334	#   9   |  GRD
+	Key: 24,124  816,440,96,96	 816,440,96,96 	 816,444	#   4   |  SIGN 
+	Key: 25,125  928,440,96,96	 928,440,96,96 	 928,444	#   5   |  MODE 
+	Key: 26,126 1040,440,96,96	1040,440,96,96	1040,444	#   6   |  MEAN
+	Key: 29,129  816,550,96,96	 816,550,96,96 	 816,554	#   1   |  SF
+	Key: 30,130  928,550,96,96	 928,550,96,96 	 928,554	#   2   |  CF
+	Key: 31,131 1040,550,96,96	1040,550,96,96	1040,554	#   3   |  FS?
+	Key: 34,134  816,664,96,96	 816,664,96,96	 816,668	#   0   |  INT
+	Key: 35,135  928,664,96,96	 928,664,96,96	 928,668	# POINT |  FRAC
+# --------------------------------------------------------------------------------------
+# Entry Control Keys
+# --------------------------------------------------------------------------------------
+	Key: 15,115  704,330,96, 96	 704,330,96, 96	 704,334	#  CHS  |  ABS  
+	Key: 16,116  704,440,96, 96	 704,440,96, 96  704,444	#  EEX  |  RAND# 
+	Key: 13,113  704,550,96,208	 704,550,96,208  704,554	# ENTER |  LAST X
+	Key: 17      596,550,96, 96	 596,550,96, 96, 596,554	#  BSP  |  CLEAR
+# --------------------------------------------------------------------------------------
+# Arithmetic Keys
+# --------------------------------------------------------------------------------------
+	Key: 40,140 1150,220,96,96	1150,220,96,96	1050,225	#   %   |  %CH
+	Key: 22,122 1150,330,96, 96	1150,330,96,96	1150,334	#  DIV  |  MOD  
+	Key: 27,127 1150,440,96, 96	1150,440,96,96	1150,444	#  MUL  |  BASE  
+	Key: 32,132 1150,550,96, 96	1150,550,96,96	1150,554	#  SUB  |  FC?  
+	Key: 37,137 1150,664,96, 96	1150,664,96,96	1150,668	#  ADD  |  PGM.FCN  
+# --------------------------------------------------------------------------------------
+ STACK / REGISTER KEYS
+# --------------------------------------------------------------------------------------
+	Key: 14,114  480,554,96,96	 480,554,96,96	 480,564	#  x<>y |  x<>Reg
+	Key: 7,107   480,664,96,96	 480,664,96,96	 480,668	#  STO  |  LBL		
+	Key: 8,108   596,664,96,96	 596,664,96,96	 596,668	#  RCL  |  RET
+	Key: 41,141  370,554,96,96	 370,554,96,96	 370,564	#  RU   |  END
+	Key: 9,109   370,664,96,96	 370,664,96,96	 370,668	#  RD   |  GOT
+# --------------------------------------------------------------------------------------
+# MENU KEYS
+# --------------------------------------------------------------------------------------
+	Key: 1       144,220,96,96	 144,220,96,96	  144,224	#  E+   |  E- 
+	Key: 2       256,220,96,96	 256,220,96,96	  256,224	#  1/X  |  Y^X
+	Key: 3       368,220,96,96	 368,220,96,96	  368,224	#  ROOT |  X^2
+	Key: 4       480,220,96,96	 480,220,96,96	  480,224	#  LOG  |  10^X
+	Key: 5       592,220,96,96	 592,220,96,96	  592,224	#  LN   |  e^X
+	Key: 6,106   704,220,96,96	 704,220,96,96	  704,224	#  XEQ  |  ALL
+# --------------------------------------------------------------------------------------
+# MISC TOP ROW
+# --------------------------------------------------------------------------------------
+	Key: 42,142   32,220,96,96	  32,220,96,96	  32,224	# SOLVE |  Top.Fcn
+	Key: 43,143  816,220,96,96	 816,220,96,96	  816,224	# CONV  |  FIX
+	Key: 44,144  928,220,96,96	 928,220,96,96	  928,224	#  PI   |  RCI
+	Key: 45,145 1040,220,96,96	1040,220,96,96	  928,224	#  X!   |  ENG
+# --------------------------------------------------------------------------------------
+# TRIG FUNCTIONS
+# --------------------------------------------------------------------------------------
+	Key: 10  	 370,330,96,96	 370,330,96,96	  370,334	#  SIN  |  ASIN
+	Key: 11  	 480,330,96,96	 480,330,96,96	  480,334	#  COS  |  ACOS
+	Key: 12  	 592,330,96,96	 592,330,96,96	  592,334	#  TAN  |  ATAN
+# --------------------------------------------------------------------------------------
+# ADVANCED FUNCTION KEYS
+# --------------------------------------------------------------------------------------
+	Key: 46,146   32,330,96,96	  32,330,96,96	   32,334	#  STAT |  PRINT 
+	Key: 47,147  142,330,96,96	 142,330,96,96	  142,334	#  PROB |  S(fx)
+	Key: 48,148  256,330,96,96	 256,330,96,96	  256,334	#  MTRX |  DIM 
+# --------------------------------------------------------------------------------------
+# PROGRAMMING FUNCTIONS
+# --------------------------------------------------------------------------------------
+	Key: 36     1040,664,96,96	1040,664,96,96	1040,668	#  R/S  |  PROG
+	Key: 49,149  256,550,96,96	 256,550,96,96	 256,554	#  X>=0 |  X<=0
+	Key: 50,150  256,664,96,96	 256,664,96,96	 256,668	#  X==0 |  X<>0	
+	Key: 51,151   32,440,96,96	  32,440,96,96    32,444	#  MVAR |  VARMNU
+	Key: 52,152  144,440,96,96	 144,440,96,96   144,444	#  X>Y  |  X<Y
+	Key: 53,153  256,440,96,96	 256,440,96,96	 256,444	#  X>0  |  X<0
+	Key: 54,154  370,440,96,96	 370,440,96,96	 370,444	#  ISG  |  DSE
+	Key: 55,155  480,440,96,96	 480,440,96,96	 480,444	# PRMPT |  PAUSE
+	Key: 56,156  592,440,96,96	 592,440,96,96	 592,444	#  CPLX |  CPXRES
+	Key: 57,157  144,550,96,96	 144,550,96,96	 144,554	#  X>=Y |  X<=Y
+	Key: 58,158  144,664,96,96	 144,664,96,96	 144,668	#  X==Y |  X<>Y
+# --------------------------------------------------------------------------------------
+# KEY / MACRO MAP | 01 -> 37 ORIGIONAL | 38 -> 59 EXTRA | 1xx == SHIFTED xx
+# --------------------------------------------------------------------------------------
+			 __ 							   __              __
+			|18|	                          |38|			 |254|
+			 UP							   USER / ASN      CAT / DISP
+			----            DISPLAY           ----			 |255|
+			|23|                              |39|           
+			 DN								abc / VIEW  
+			 __   __   __   __   __   __   __   __   __   __   __
+			|42| |01| |02| |03| |04| |05| |06| |43| |44| |45| |40|
+			SOLV  E+  1/X  ROOT LOG   LN  XEQ  CNV   PI   X!   %  
+	    	 __   __   __   __   __   __   __   __   __   __   __
+			|46| |47| |48| |10| |11| |12| |15| |19| |20| |21| |22|
+			STAT PROB MTRX SIN  COS  TAN  CHS   7    8    9    /
+			 __   __   __   __   __   __   __   __   __   __   __
+			|51| |52| |53| |54| |55| |56| |16| |24| |25| |26| |27|
+			ISG  X>Y  X>0  MVAR PMPT CPLX EEX   4    5    6    X
+			 __   __   __   __   __   __   __   __   __   __   __
+			|28| |57| |49| |41| |14| |17| |  | |29| |30| |31| |32|
+			SHFT X>=Y X>=0  RU  X><Y BSP  ENT   1    2    3    -
+			 __   __   __   __   __   __  |13|  __   __   __   __
+			|33| |58| |50| |09| |07| |08| |__| |34| |35| |36| |37| 
+			EXIT X=Y  X=0   RD  STO  RCL  ENT   0    .   R/S   + 
+
+# --------------------------------------------------------------------------------------
+# SYSTEM FUNCTION MACROS - LOGO   KEY		IMPLIED 		SEQUANCE		COMMENT 
+# --------------------------------------------------------------------------------------
+	Macro: 254 28 37 			# LOGO CAT			( 		SHIFT + ) 
+	Macro: 255    17 23 6		# LOGO DISP	[SHIFT]	( 		EEX )		USED ONLY TO CHANGE RADIX
+	Macro: 133 28 33			# EXIT		[SHIFT] ( SHIFT EXIT )		DIASABLE SHIFT EXIT
+# --------------------------------------------------------------------------------------
+# Navigation MACROS				  KEY		IMPLIED 		SEQUANCE		COMMENT 
+# --------------------------------------------------------------------------------------
+	Macro: 38  28 30			# USER				( SHIFT 8 )			SHOW CUSTOM MENU
+	Macro: 138    29			# ASSIGN	[SHIFT]	(       1 )			ASSIGN TO USER MENU
+	Macro: 39  28 13			# abc				( SHIFT ENTER )		ALPHA MODE
+	Macro: 139    31 4			# VIEW		[SHIFT]	(       3 LOG )			
+# --------------------------------------------------------------------------------------
+# Numeric Entry MACROS		  	KEY			IMPLIED 		SEQUANCE		COMMENT 
+# --------------------------------------------------------------------------------------
+	Macro: 119    15 1			# DEG		[SHIFT]	(       CHS E+ )			
+	Macro: 120    15 2			# RAD		[SHIFT] (       CHS 1/X )			
+	Macro: 121    15 3			# GRD		[SHIFT] (       CHS ROOT )
+	Macro: 125    15			# MODE		[SHIFT] (       CHS )
+	Macro: 126    22 3			# MEAN		[SHIFT] (       DIV LN )
+	Macro: 134    25 23 1		# INT		[SHIFT] (       5 DN E+ )			
+	Macro: 135    25 23 2		# FRAC		[SHIFT] (       5 DN 1/X )	
+# --------------------------------------------------------------------------------------
+# Entry Control MACROS	  		KEY			IMPLIED 		SEQUANCE		COMMENT 
+# --------------------------------------------------------------------------------------
+	Macro: 115    25 18 4		# ABS		[SHIFT] (       CONVERT UP LOG )
+	Macro: 116    27 5			# RAND#     [SHIFT] (       MUL LN )
+	Macro: 113    14			# LAST X 	[SHIFT] (        X<>Y )	
+    Macro: 125    22 5			# STDV      [SHIFT] (       DIV LN ) 
+	Macro: 126    22 3			# MEAN      [SHIFT] (       DIV ROOT )	
+	Macro: 127    24			# BASE 		[SHIFT] (       4 )
+# --------------------------------------------------------------------------------------
+# Arithmetic MACROS	  			KEY			IMPLIED 		SEQUANCE		COMMENT 
+# --------------------------------------------------------------------------------------
+	Macro: 40  28 8 			# % 				( SHIFT RCL )
+	Macro: 140 28 6 13 28 8 1 3 2 3 13	 			
+								# DELTA % 	[SHIFT] ( SHIFT XEQ ENTER SHIFT RCL E+ ROOT 1/X ROOT ENTER )
+# --------------------------------------------------------------------------------------
+# STACK / REGISTER MACROS	  	KEY			IMPLIED 		SEQUANCE		COMMENT 
+# --------------------------------------------------------------------------------------
+	Macro: 114 28 6 13 6 2 18 3 3 3 4 13
+								# x<>Reg	[SHIFT] ( SHIFT XEQ ENTER XEQ 1/X ROOT ROOT ROOT LOG ENTER )
+	Macro: 41     8 35 6 		# RU				(       RCL POINT XEQ)
+	Macro: 148    21 23 4 		# DIM 		[SHIFT] (       9 RD LOG )
+# --------------------------------------------------------------------------------------
+# MISC TOP ROW MACROS	  		KEY			IMPLIED 		SEQUANCE		COMMENT 
+# --------------------------------------------------------------------------------------
+	Macro: 106    16 4 		    # ALL		[SHIFT]	(       EEX LOG )			
+	Macro: 42  28 19			# SOLVE				( SHIFT 7 )	
+	Macro: 142    34				# TOP.FCN	[SHIFT]	(       0 )		
+	Macro: 43  28 25			# CNV				( SHIFT 5 )
+	Macro: 143    16 1 			# FIX		[SHIFT]	(       EEX  E+ )	
+	Macro: 44  28 9				# PI				( SHIFT RD )
+	Macro: 144    16 2 			# SCI		[SHIFT]	(       EEX  1/X )			
+	Macro: 45  28 27 3 			# !X				( SHIFT MUL ROOT )		
+	Macro: 145    16 3 			# ENG		[SHIFT]	(       EEX  ROOT )
+# --------------------------------------------------------------------------------------
+# PROGRAMMING FUNCTION MACROS	KEY			IMPLIED 		SEQUANCE		COMMENT 
+# --------------------------------------------------------------------------------------
+	Macro: 107    31 1 			# LBL		[SHIFT]	( 		3 E+ )
+	Macro: 108    31 2 			# RET		[SHIFT]	( 		3 1/X)
+	Macro: 109    6 			# GTO		[SHIFT]	( 		EXQ )
+	Macro: 124 28 6 13 5 2 2 4 2 2 4 1 13
+								# SIGN  	[SHIFT] ( 		+ E+ RD(28) XEQ )
+	Macro: 129    26 1 			# SF		[SHIFT]	( 		6 E+ )
+	Macro: 130    26 2			# CF		[SHIFT]	( 		6 1/X )
+	Macro: 131    26 3			# FS?		[SHIFT]	( 		6 ROOT )
+	Macro: 132    26 4			# FC?		[SHIFT]	( 		6 LOG )
+	Macro: 141    31 3			# INPUT		[SHIFT]	(       3 ROOT ) 				
+	Macro: 49  28 31 23 1 6		# X >= 0		 []	( SHIFT 3 DN E+ XEQ )
+	Macro: 149    31 23 1 5		# X <= 0	[SHIFT]	(       3 DN E+ LN )
+	Macro: 50  28 31 23 1 1		# X == 0		 []	( SHIFT 3 DN E+ E+ )
+	Macro: 150    31 23 1 2  	# X <> 0	[SHIFT]	(       3 DN E+ 1/X )
+	Macro: 52  28 31 23 2 4		# X > Y			 []	( SHIFT 3 DN 1/X LOG )
+	Macro: 152    31 23 2 3		# X < Y		[SHIFT]	(       3 DN 1/X ROOT )
+	Macro: 53  28 31 23 1 4		# X > 0			 []	( SHIFT 3 DN E+ LOG )
+	Macro: 153    31 23 1 4		# X < 0		[SHIFT]	( 		3 DN E+ ROOT )
+	Macro: 54  28 31 23 23 23 1 # MVAR			 []	( SHIFT 3 DN DN DN E+ )
+	Macro: 154    31 23 23 23 2	# VARMENU	[SHIFT]	( 		3 DN DN DN 1/X )
+	Macro: 51  28 31 23 5 		# ISG			 []	( SHIFT 3 DN LN )
+	Macro: 151    31 23 6		# DSE		[SHIFT]	(       3 DN XEQ )
+	Macro: 55  28 31 23 3       # PROMPT 		 []	( SHIFT 3 DN ROOT )
+	Macro: 155    31 23 4       # PAUSE     [SHIFT]	(       3 DN LOG )
+	Macro: 56  7				# CPLX		[SHIFT] (       STO )
+	Macro: 156 28 6 13 1 3 4 3 6 2 5 1 1 5 5 2 13
+								# CPXRES	[SHIFT] ( 		+ E+ RD RD RD RD RD RD RD RD LOG )
+	Macro: 58  28 31 23 2 1		# X == Y		 []	( SHIFT 3 DN 1/X E+ )
+	Macro: 158    31 23 2 2		# X <> Y	[SHIFT]	( 		3 DN 1/X 1/X )
+# --------------------------------------------------------------------------------------
+# ADVANCED FUNCTION MACROS	  	KEY			IMPLIED 		SEQUANCE		COMMENT 
+# --------------------------------------------------------------------------------------
+	Macro: 147 20				# Sf(x)		[SHIFT]	(       9 ) 
+	Macro: 137    31            # PGM.FCN   [SHIFT] (       3 )
+	Macro: 46  28 22			# STAT			 []	( SHIFT	DIV ) 
+	Macro: 146 32				# PRINT		[SHIFT]	(       SUB ) 
+	Macro: 47  28 27			# PROB			 []	( SHIFT	MUL ) 
+	Macro: 48  28 21			# MATRIX		 []	( SHIFT	9 ) 
+# --------------------------------------------------------------------------------------
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,17 +1,12 @@
 Free42 is (C) 2004-2014 by Thomas Okken, except:
 
 Decimal math: Intel Decimal Floating-Point Math Library 2.0u1.
+Decimal math in versions 1.4.*: BCD20 Library by Hugh Steers.
 INTEG: Romberg integration implementation based on code by Hugh Steers.
 LU Decomposition and back-substitution code, and Ridders' root-refinement
    algorithm, based on sample code from "Numerical Recipes in C".
 Binary implementations of floating-point math routines, used in all binary
    builds, developed at SunPro, a Sun Microsystems business.
-Skins designed by, or based on original work of: Andy Hong,
-   Christoph Giesselink, cjw, Curtis Cameron, David Geiger, Denis Cesar,
-   Egan Ford, Erik Ehrling, Guenny, Jeff O., Javier Goizueta, Jerrod Hofferth,
-   KD0GLS, Keith Carangelo, Klaus Reckermann, Michael Khor, Michael Vogel,
-   Miguel Toro, Noe Ramos, Sebastien Carlier, Sven from Vienna,
-   Thomas Lienhard, and Tyge Loevset.
 
 MacOS X Dashboard version by D. Jeff Dionne.
 

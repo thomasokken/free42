@@ -60,8 +60,9 @@ All versions:
 * When a "State File Corrupt" occurs, make a copy of the unloved state file,
   so it doesn't get nuked on exit.
 * Change state file format to something forward- and cross-platform-compatible.
-* Add special-case code to produce exact results for trigs and inverse trigs
-  in DEG and GRAD modes -- cases like sin(30) or acos(0.5).
+* Fix behavior of TAN and TANH for large complex arguments. Currently, those
+  return NaNs, because infinities are divided by infinities. It looks like the
+  real 42S simply pretends Inf/Inf == 1 for those cases.
 * Add an option or magic keystroke to make SHOW show full precision when there
   is a real number in X -- i.e., 16 digits for binary and 34 for decimal.
 * It would be nice if we would handle the shell_milliseconds() wrap-around.
