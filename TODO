@@ -15,15 +15,11 @@ iPhone version:
 * Downgrade to older Xcode so I can get back to supporting iOS 3.1.3.
 * Add option to disable key click.
 * Haptic feedback option.
-* The pop-up keyboard handling in the Preferences and File Selection views is
-  broken. The screen often doesn't scroll up when the keyboard appears. That
-  should be fixed, and while you're at it, put those views inside scroll views,
-  so you can scroll them when the keyboard is visible.
 * Implement pop-up keyboard for ALPHA mode text entry.
 * Implement copy & paste.
 * Implement URL decoding for HTTP requests (filenames with spaces, etc.)
-* Support iPad, iPad mini, and iPhone 5 (screen size issues, and take advantage
-  of big screens to show the calculator and print-out side-by-side).
+* Support iPad, and iPad mini (screen size issues, and take advantage of big
+  screens to show the calculator and print-out side-by-side).
 * Support arbitrary skin scaling and positioning.
 * Support landscape mode.
 * When the app is suspended while the HTTP server is active, shut down the HTTP

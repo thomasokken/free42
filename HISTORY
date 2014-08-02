@@ -1,3 +1,7 @@
+??-??-????: release 1.5.4a (iPhone only)
+
+* Fixed keyboard handling in the Preferences and Select File dialogs.
+
 22-07-2014: release 1.5.4
 
 * Decimal version: Fixed ACOS. It would return 0 for acos(-1).
