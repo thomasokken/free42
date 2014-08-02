@@ -34,10 +34,13 @@
 @synthesize printToGifField;
 @synthesize maxGifLengthField;
 @synthesize popupKeyboardSwitch;
+@synthesize scrollView;
+@synthesize contentView;
 
 - (id) initWithFrame:(CGRect)frame {
     if (self = [super initWithFrame:frame]) {
         // Initialization code
+		activeField = nil;
     }
     return self;
 }
@@ -59,35 +62,48 @@
 	[popupKeyboardSwitch setOn:(state.popupKeyboard != 0)];
 	
 	// watch the keyboard so we can adjust the user interface if necessary.
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidShow:) name:UIKeyboardDidShowNotification object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
+    if ([[self gestureRecognizers] count] == 0) {
+        UITapGestureRecognizer* tapBackground = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideKeyboard)];
+        [tapBackground setNumberOfTapsRequired:1];
+        tapBackground.cancelsTouchesInView = NO;
+        [self addGestureRecognizer:tapBackground];
+    }
+    scrollView.contentSize = contentView.frame.size;
 }
 
-static int keyboard_height = 0;
-static int view_offset = 0;
-
-- (void) keyboardWillShow:(NSNotification *)notif {
+- (void) keyboardDidShow:(NSNotification *)notif {
 	NSDictionary *userInfo = [notif userInfo];
-	NSValue *v = [userInfo objectForKey:UIKeyboardBoundsUserInfoKey];
-	CGRect r;
-	[v getValue:&r];
-	keyboard_height = r.size.height;
+	CGSize kbSize = [[userInfo objectForKey:UIKeyboardFrameBeginUserInfoKey] CGRectValue].size;
+
+	UIEdgeInsets contentInsets = UIEdgeInsetsMake(0.0, 0.0, kbSize.height, 0.0);
+	scrollView.contentInset = contentInsets;
+	scrollView.scrollIndicatorInsets = contentInsets;
+
+	// If active text field is hidden by keyboard, scroll it so it's visible
+	CGRect aRect = self.frame;
+	aRect.size.height -= kbSize.height;
+	if (activeField != nil && !CGRectContainsPoint(aRect, activeField.frame.origin)) {
+        CGRect vr = activeField.frame;
+        vr.origin.y += vr.size.height;
+		[self.scrollView scrollRectToVisible:vr animated:YES];
+    }
+}
+
+- (void) keyboardWillHide:(NSNotification *)notif {
+	UIEdgeInsets contentInsets = UIEdgeInsetsZero;
+	scrollView.contentInset = contentInsets;
+	scrollView.scrollIndicatorInsets = contentInsets;
 }
 
 - (void) textFieldDidBeginEditing:(UITextField *)textField {
-	CGRect v_r = [self frame];
-	CGRect tf_r = [textField frame];
-	view_offset = v_r.origin.y + v_r.size.height - keyboard_height - tf_r.origin.y - tf_r.size.height - 5;
-	if (view_offset > 0)
-		view_offset = 0;
-	[UIView beginAnimations:@"foo" context:NULL];
-	[self setCenter:CGPointMake([self center].x, [self center].y + view_offset)];
-	[UIView commitAnimations];
+	activeField = textField;
 }
 
 - (void) textFieldDidEndEditing:(UITextField *)textField {
-	[UIView beginAnimations:@"foo" context:NULL];
-	[self setCenter:CGPointMake([self center].x, [self center].y - view_offset)];
-	[UIView commitAnimations];
+	if (activeField == textField)
+		activeField = nil;
 }
 
 - (BOOL) textFieldShouldReturn:(UITextField *)textField {
@@ -95,7 +111,13 @@ static int view_offset = 0;
 	return NO;
 }
 
+- (void)hideKeyboard {
+    [self endEditing:YES];
+}
+
 - (IBAction) browseTextFile {
+    if (activeField != nil)
+        [activeField resignFirstResponder];
 	[SelectFileView raiseWithTitle:@"Select Text File Name" selectTitle:@"OK" types:@"txt,*" selectDir:NO callbackObject:self callbackSelector:@selector(browseTextFileCB:)];
 }
 
@@ -106,6 +128,8 @@ static int view_offset = 0;
 }
 
 - (IBAction) browseGifFile {
+    if (activeField != nil)
+        [activeField resignFirstResponder];
 	[SelectFileView raiseWithTitle:@"Select GIF File Name" selectTitle:@"OK" types:@"gif,*" selectDir:NO callbackObject:self callbackSelector:@selector(browseGifFileCB:)];
 }
 
@@ -116,8 +140,11 @@ static int view_offset = 0;
 }
 
 - (IBAction) done {
+    [self endEditing:YES];
+    
 	// unregister for keyboard notifications while not visible.
-	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardDidShowNotification object:nil];
+	[[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
 
     char buf[FILENAMELEN];
 	core_settings.matrix_singularmatrix = singularMatrixSwitch.on;

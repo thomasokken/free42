@@ -25,6 +25,9 @@
 	UITextField *nameField;
 	UISegmentedControl *typeSelector;
 	UIButton *selectFileButton;
+	UIScrollView *scrollView;
+	UIView *contentView;
+	UITextField *activeField;
 }
 
 @property (nonatomic, retain) IBOutlet UINavigationItem *navigationItem;
@@ -33,6 +36,8 @@
 @property (nonatomic, retain) IBOutlet UITextField *nameField;
 @property (nonatomic, retain) IBOutlet UISegmentedControl *typeSelector;
 @property (nonatomic, retain) IBOutlet UIButton *selectFileButton;
+@property (nonatomic, retain) IBOutlet UIScrollView *scrollView;
+@property (nonatomic, retain) IBOutlet UIView *contentView;
 
 + (void) raiseWithTitle:(NSString *)wt selectTitle:(NSString *)st types:(NSString *)t selectDir:(BOOL)sd callbackObject:(id)cb_id callbackSelector:(SEL)cb_sel;
 - (void) raised;
