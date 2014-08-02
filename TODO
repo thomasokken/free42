@@ -12,6 +12,16 @@ Android version:
 * Implement better visual feedback for which key is pressed.
 
 iPhone version:
+* Print-Out won't scroll all the way to the bottom. You can see the bottom-most
+  line when you pull up, but once you release, it scrolls out of sight.
+* In iOS 7, when the pop-up keyboard covers the active text field, the screen
+  is not scrolled far enough upwards for it to become fully visible. Coordinate
+  issue? Do I need the iOS 6/7 Deltas on all the top-level views?
+* Preferences looks a bit ugly in iOS 7, because the now-much-smaller switches
+  no longer line up with the right margin. How do I create a settings screen
+  that looks more like the iOS Settings app?
+* Suppress too-large skins from the Select Skin view. Also, on initial start-
+  up, select a size-appropriate one, not just the first skin in the list.
 * Downgrade to older Xcode so I can get back to supporting iOS 3.1.3.
 * Add option to disable key click.
 * Haptic feedback option.
