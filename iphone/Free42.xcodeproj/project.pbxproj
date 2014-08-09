@@ -12,8 +12,6 @@
 		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
 		288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765FC0DF74451002DB57D /* CoreGraphics.framework */; };
 		28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD733E0D9D9553002E5188 /* MainWindow.xib */; };
-		E900BCB9198D96B4004A889C /* Hofferth4in.gif in Resources */ = {isa = PBXBuildFile; fileRef = E900BCB7198D96B4004A889C /* Hofferth4in.gif */; };
-		E900BCBA198D96B4004A889C /* Hofferth4in.layout in Resources */ = {isa = PBXBuildFile; fileRef = E900BCB8198D96B4004A889C /* Hofferth4in.layout */; };
 		E9031C8F0FF68FB10023F9EC /* builtin_skins.txt in Resources */ = {isa = PBXBuildFile; fileRef = E9031C8E0FF68FB10023F9EC /* builtin_skins.txt */; };
 		E9031C920FF68FCD0023F9EC /* Ehrling42sm.gif in Resources */ = {isa = PBXBuildFile; fileRef = E9031C900FF68FCD0023F9EC /* Ehrling42sm.gif */; };
 		E9031C930FF68FCD0023F9EC /* Ehrling42sm.layout in Resources */ = {isa = PBXBuildFile; fileRef = E9031C910FF68FCD0023F9EC /* Ehrling42sm.layout */; };
@@ -73,6 +71,8 @@
 		E9B16DFA0F88EE46002BB9B2 /* shell_loadimage.cc in Sources */ = {isa = PBXBuildFile; fileRef = E9B16DF80F88EE46002BB9B2 /* shell_loadimage.cc */; };
 		E9B1D9230FAC7C51000EB4CD /* VERSION in Resources */ = {isa = PBXBuildFile; fileRef = E9B1D9220FAC7C51000EB4CD /* VERSION */; };
 		E9C061C7127CED07000427AA /* icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E9C061C6127CED07000427AA /* icon@2x.png */; };
+		E9C255DC1996B9C1007634C9 /* Ehrling42sl.gif in Resources */ = {isa = PBXBuildFile; fileRef = E9C255DA1996B9C1007634C9 /* Ehrling42sl.gif */; };
+		E9C255DD1996B9C1007634C9 /* Ehrling42sl.layout in Resources */ = {isa = PBXBuildFile; fileRef = E9C255DB1996B9C1007634C9 /* Ehrling42sl.layout */; };
 		E9C92F8B0FE424FE00DC292C /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = E9C92F8A0FE424FE00DC292C /* Default.png */; };
 		E9F7136C16C5F1F0006A9553 /* minizip_ioapi.c in Sources */ = {isa = PBXBuildFile; fileRef = E9F7136616C5F1F0006A9553 /* minizip_ioapi.c */; };
 		E9F7136D16C5F1F0006A9553 /* minizip_unzip.c in Sources */ = {isa = PBXBuildFile; fileRef = E9F7136816C5F1F0006A9553 /* minizip_unzip.c */; settings = {COMPILER_FLAGS = "-DNOUNCRYPT"; }; };
@@ -89,8 +89,6 @@
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		32CA4F630368D1EE00C91783 /* Free42_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Free42_Prefix.pch; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		E900BCB7198D96B4004A889C /* Hofferth4in.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = Hofferth4in.gif; path = ../iphoneskins/Hofferth4in.gif; sourceTree = "<group>"; };
-		E900BCB8198D96B4004A889C /* Hofferth4in.layout */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Hofferth4in.layout; path = ../iphoneskins/Hofferth4in.layout; sourceTree = "<group>"; };
 		E9031C8E0FF68FB10023F9EC /* builtin_skins.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = builtin_skins.txt; sourceTree = "<group>"; };
 		E9031C900FF68FCD0023F9EC /* Ehrling42sm.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = Ehrling42sm.gif; path = ../iphoneskins/Ehrling42sm.gif; sourceTree = SOURCE_ROOT; };
 		E9031C910FF68FCD0023F9EC /* Ehrling42sm.layout */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Ehrling42sm.layout; path = ../iphoneskins/Ehrling42sm.layout; sourceTree = SOURCE_ROOT; };
@@ -188,6 +186,8 @@
 		E9BA0E7E0F9224700087EBFB /* SelectSkinView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectSkinView.h; sourceTree = "<group>"; };
 		E9BA0EAC0F9224F00087EBFB /* AboutView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AboutView.h; sourceTree = "<group>"; };
 		E9C061C6127CED07000427AA /* icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon@2x.png"; sourceTree = "<group>"; };
+		E9C255DA1996B9C1007634C9 /* Ehrling42sl.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = Ehrling42sl.gif; path = ../iphoneskins/Ehrling42sl.gif; sourceTree = "<group>"; };
+		E9C255DB1996B9C1007634C9 /* Ehrling42sl.layout */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Ehrling42sl.layout; path = ../iphoneskins/Ehrling42sl.layout; sourceTree = "<group>"; };
 		E9C92F8A0FE424FE00DC292C /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
 		E9CD21690FA39C41008E1E65 /* SelectFileView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectFileView.h; sourceTree = "<group>"; };
 		E9F7136616C5F1F0006A9553 /* minizip_ioapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = minizip_ioapi.c; path = simpleserver/minizip_ioapi.c; sourceTree = "<group>"; };
@@ -314,8 +314,8 @@
 				E9031C8E0FF68FB10023F9EC /* builtin_skins.txt */,
 				E9031C900FF68FCD0023F9EC /* Ehrling42sm.gif */,
 				E9031C910FF68FCD0023F9EC /* Ehrling42sm.layout */,
-				E900BCB7198D96B4004A889C /* Hofferth4in.gif */,
-				E900BCB8198D96B4004A889C /* Hofferth4in.layout */,
+				E9C255DA1996B9C1007634C9 /* Ehrling42sl.gif */,
+				E9C255DB1996B9C1007634C9 /* Ehrling42sl.layout */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -449,18 +449,18 @@
 				E98DD76B0F8C1A210089D9FA /* tone3.wav in Resources */,
 				E98DD76C0F8C1A210089D9FA /* tone4.wav in Resources */,
 				E98DD76D0F8C1A210089D9FA /* tone5.wav in Resources */,
+				E9C255DC1996B9C1007634C9 /* Ehrling42sl.gif in Resources */,
 				E98DD76E0F8C1A210089D9FA /* tone6.wav in Resources */,
 				E98DD76F0F8C1A210089D9FA /* tone7.wav in Resources */,
 				E98DD7700F8C1A210089D9FA /* tone8.wav in Resources */,
 				E98DD7710F8C1A210089D9FA /* tone9.wav in Resources */,
 				E98FA4840F913E2900DED348 /* icon.png in Resources */,
+				E9C255DD1996B9C1007634C9 /* Ehrling42sl.layout in Resources */,
 				E9B1D9230FAC7C51000EB4CD /* VERSION in Resources */,
 				E9C92F8B0FE424FE00DC292C /* Default.png in Resources */,
-				E900BCBA198D96B4004A889C /* Hofferth4in.layout in Resources */,
 				E9031C8F0FF68FB10023F9EC /* builtin_skins.txt in Resources */,
 				E9031C920FF68FCD0023F9EC /* Ehrling42sm.gif in Resources */,
 				E9031C930FF68FCD0023F9EC /* Ehrling42sm.layout in Resources */,
-				E900BCB9198D96B4004A889C /* Hofferth4in.gif in Resources */,
 				E94DE6C61011E9AE005E6B19 /* about-icon.png in Resources */,
 				E9C061C7127CED07000427AA /* icon@2x.png in Resources */,
 				E94C3CFE132DAB0A00880A45 /* Entitlements.plist in Resources */,

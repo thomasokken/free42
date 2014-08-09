@@ -26,6 +26,7 @@
 - (id)initWithCoder:(NSCoder *)decoder {
     [super initWithCoder:decoder];
     [self addTarget:self action:@selector(buttonClicked) forControlEvents:UIControlEventTouchUpInside];
+    [self setTitleColor:[UIColor colorWithRed:0.933 green:0.0 blue:0.0 alpha:1.0] forState:UIControlStateHighlighted];
     return self;
 }
 
