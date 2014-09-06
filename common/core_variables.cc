@@ -55,13 +55,13 @@ static pool_string *stringpool = NULL;
 vartype *new_real(phloat value) {
     pool_real *r;
     if (realpool == NULL) {
-	r = (pool_real *) malloc(sizeof(pool_real));
-	if (r == NULL)
-	    return NULL;
-	r->r.type = TYPE_REAL;
+        r = (pool_real *) malloc(sizeof(pool_real));
+        if (r == NULL)
+            return NULL;
+        r->r.type = TYPE_REAL;
     } else {
-	r = realpool;
-	realpool = realpool->next;
+        r = realpool;
+        realpool = realpool->next;
     }
     r->r.x = value;
     return (vartype *) r;
@@ -70,13 +70,13 @@ vartype *new_real(phloat value) {
 vartype *new_complex(phloat re, phloat im) {
     pool_complex *c;
     if (complexpool == NULL) {
-	c = (pool_complex *) malloc(sizeof(pool_complex));
-	if (c == NULL)
-	    return NULL;
-	c->c.type = TYPE_COMPLEX;
+        c = (pool_complex *) malloc(sizeof(pool_complex));
+        if (c == NULL)
+            return NULL;
+        c->c.type = TYPE_COMPLEX;
     } else {
-	c = complexpool;
-	complexpool = complexpool->next;
+        c = complexpool;
+        complexpool = complexpool->next;
     }
     c->c.re = re;
     c->c.im = im;
@@ -86,27 +86,27 @@ vartype *new_complex(phloat re, phloat im) {
 vartype *new_string(const char *text, int length) {
     pool_string *s;
     if (stringpool == NULL) {
-	s = (pool_string *) malloc(sizeof(pool_string));
-	if (s == NULL)
-	    return NULL;
-	s->s.type = TYPE_STRING;
+        s = (pool_string *) malloc(sizeof(pool_string));
+        if (s == NULL)
+            return NULL;
+        s->s.type = TYPE_STRING;
     } else {
-	s = stringpool;
-	stringpool = stringpool->next;
+        s = stringpool;
+        stringpool = stringpool->next;
     }
     int i;
     s->s.type = TYPE_STRING;
     s->s.length = length > 6 ? 6 : length;
     for (i = 0; i < s->s.length; i++)
-	s->s.text[i] = text[i];
+        s->s.text[i] = text[i];
     return (vartype *) s;
 }
 
 vartype *new_realmatrix(int4 rows, int4 columns) {
     vartype_realmatrix *rm = (vartype_realmatrix *)
-					malloc(sizeof(vartype_realmatrix));
+                                        malloc(sizeof(vartype_realmatrix));
     if (rm == NULL)
-	return NULL;
+        return NULL;
     int4 i, sz;
     rm->type = TYPE_REALMATRIX;
     rm->rows = rows;
@@ -114,37 +114,37 @@ vartype *new_realmatrix(int4 rows, int4 columns) {
     sz = rows * columns;
     rm->array = (realmatrix_data *) malloc(sizeof(realmatrix_data));
     if (rm->array == NULL) {
-	free(rm);
-	return NULL;
+        free(rm);
+        return NULL;
     }
     rm->array->data = (phloat *) malloc(sz * sizeof(phloat));
     if (rm->array->data == NULL) {
-	/* Oops */
-	free(rm->array);
-	free(rm);
-	return NULL;
+        /* Oops */
+        free(rm->array);
+        free(rm);
+        return NULL;
     }
     rm->array->is_string = (char *) malloc(sz);
     if (rm->array->is_string == NULL) {
-	/* Oops */
-	free(rm->array->data);
-	free(rm->array);
-	free(rm);
-	return NULL;
+        /* Oops */
+        free(rm->array->data);
+        free(rm->array);
+        free(rm);
+        return NULL;
     }
     for (i = 0; i < sz; i++)
-	rm->array->data[i] = 0;
+        rm->array->data[i] = 0;
     for (i = 0; i < sz; i++)
-	rm->array->is_string[i] = 0;
+        rm->array->is_string[i] = 0;
     rm->array->refcount = 1;
     return (vartype *) rm;
 }
 
 vartype *new_complexmatrix(int4 rows, int4 columns) {
     vartype_complexmatrix *cm = (vartype_complexmatrix *)
-					malloc(sizeof(vartype_complexmatrix));
+                                        malloc(sizeof(vartype_complexmatrix));
     if (cm == NULL)
-	return NULL;
+        return NULL;
     int4 i, sz;
     cm->type = TYPE_COMPLEXMATRIX;
     cm->rows = rows;
@@ -152,217 +152,217 @@ vartype *new_complexmatrix(int4 rows, int4 columns) {
     sz = rows * columns * 2;
     cm->array = (complexmatrix_data *) malloc(sizeof(complexmatrix_data));
     if (cm->array == NULL) {
-	free(cm);
-	return NULL;
+        free(cm);
+        return NULL;
     }
     cm->array->data = (phloat *) malloc(sz * sizeof(phloat));
     if (cm->array->data == NULL) {
-	/* Oops */
-	free(cm->array);
-	free(cm);
-	return NULL;
+        /* Oops */
+        free(cm->array);
+        free(cm);
+        return NULL;
     }
     for (i = 0; i < sz; i++)
-	cm->array->data[i] = 0;
+        cm->array->data[i] = 0;
     cm->array->refcount = 1;
     return (vartype *) cm;
 }
 
 vartype *new_matrix_alias(vartype *m) {
     if (m->type == TYPE_REALMATRIX) {
-	vartype_realmatrix *rm1 = (vartype_realmatrix *) m;
-	vartype_realmatrix *rm2 = (vartype_realmatrix *)
-					malloc(sizeof(vartype_realmatrix));
-	if (rm2 == NULL)
-	    return NULL;
-	*rm2 = *rm1;
-	rm2->array->refcount++;
-	return (vartype *) rm2;
+        vartype_realmatrix *rm1 = (vartype_realmatrix *) m;
+        vartype_realmatrix *rm2 = (vartype_realmatrix *)
+                                        malloc(sizeof(vartype_realmatrix));
+        if (rm2 == NULL)
+            return NULL;
+        *rm2 = *rm1;
+        rm2->array->refcount++;
+        return (vartype *) rm2;
     } else if (m->type == TYPE_COMPLEXMATRIX) {
-	vartype_complexmatrix *cm1 = (vartype_complexmatrix *) m;
-	vartype_complexmatrix *cm2 = (vartype_complexmatrix *)
-					malloc(sizeof(vartype_complexmatrix));
-	if (cm2 == NULL)
-	    return NULL;
-	*cm2 = *cm1;
-	cm2->array->refcount++;
-	return (vartype *) cm2;
+        vartype_complexmatrix *cm1 = (vartype_complexmatrix *) m;
+        vartype_complexmatrix *cm2 = (vartype_complexmatrix *)
+                                        malloc(sizeof(vartype_complexmatrix));
+        if (cm2 == NULL)
+            return NULL;
+        *cm2 = *cm1;
+        cm2->array->refcount++;
+        return (vartype *) cm2;
     } else
-	return NULL;
+        return NULL;
 }
 
 void free_vartype(vartype *v) {
     if (v == NULL)
-	return;
+        return;
     switch (v->type) {
-	case TYPE_REAL: {
-	    pool_real *r = (pool_real *) v;
-	    r->next = realpool;
-	    realpool = r;
-	    break;
-	}
-	case TYPE_COMPLEX: {
-	    pool_complex *c = (pool_complex *) v;
-	    c->next = complexpool;
-	    complexpool = c;
-	    break;
-	}
-	case TYPE_STRING: {
-	    pool_string *s = (pool_string *) v;
-	    s->next = stringpool;
-	    stringpool = s;
-	    break;
-	}
-	case TYPE_REALMATRIX: {
-	    vartype_realmatrix *rm = (vartype_realmatrix *) v;
-	    if (--(rm->array->refcount) == 0) {
-		free(rm->array->data);
-		free(rm->array->is_string);
-		free(rm->array);
-	    }
-	    free(rm);
-	    break;
-	}
-	case TYPE_COMPLEXMATRIX: {
-	    vartype_complexmatrix *cm = (vartype_complexmatrix *) v;
-	    if (--(cm->array->refcount) == 0) {
-		free(cm->array->data);
-		free(cm->array);
-	    }
-	    free(cm);
-	    break;
-	}
+        case TYPE_REAL: {
+            pool_real *r = (pool_real *) v;
+            r->next = realpool;
+            realpool = r;
+            break;
+        }
+        case TYPE_COMPLEX: {
+            pool_complex *c = (pool_complex *) v;
+            c->next = complexpool;
+            complexpool = c;
+            break;
+        }
+        case TYPE_STRING: {
+            pool_string *s = (pool_string *) v;
+            s->next = stringpool;
+            stringpool = s;
+            break;
+        }
+        case TYPE_REALMATRIX: {
+            vartype_realmatrix *rm = (vartype_realmatrix *) v;
+            if (--(rm->array->refcount) == 0) {
+                free(rm->array->data);
+                free(rm->array->is_string);
+                free(rm->array);
+            }
+            free(rm);
+            break;
+        }
+        case TYPE_COMPLEXMATRIX: {
+            vartype_complexmatrix *cm = (vartype_complexmatrix *) v;
+            if (--(cm->array->refcount) == 0) {
+                free(cm->array->data);
+                free(cm->array);
+            }
+            free(cm);
+            break;
+        }
     }
 }
 
 void clean_vartype_pools() {
     while (realpool != NULL) {
-	pool_real *r = realpool;
-	realpool = r->next;
-	free(r);
+        pool_real *r = realpool;
+        realpool = r->next;
+        free(r);
     }
     while (complexpool != NULL) {
-	pool_complex *c = complexpool;
-	complexpool = c->next;
-	free(c);
+        pool_complex *c = complexpool;
+        complexpool = c->next;
+        free(c);
     }
     while (stringpool != NULL) {
-	pool_string *s = stringpool;
-	stringpool = s->next;
-	free(s);
+        pool_string *s = stringpool;
+        stringpool = s->next;
+        free(s);
     }
 }
 
 vartype *dup_vartype(const vartype *v) {
     if (v == NULL)
-	return NULL;
+        return NULL;
     switch (v->type) {
-	case TYPE_REAL: {
-	    vartype_real *r = (vartype_real *) v;
-	    return new_real(r->x);
-	}
-	case TYPE_COMPLEX: {
-	    vartype_complex *c = (vartype_complex *) v;
-	    return new_complex(c->re, c->im);
-	}
-	case TYPE_REALMATRIX: {
-	    vartype_realmatrix *rm = (vartype_realmatrix *) v;
-	    vartype_realmatrix *rm2 = (vartype_realmatrix *)
-					malloc(sizeof(vartype_realmatrix));
-	    if (rm2 == NULL)
-		return NULL;
-	    rm2->type = TYPE_REALMATRIX;
-	    rm2->rows = rm->rows;
-	    rm2->columns = rm->columns;
-	    rm2->array = rm->array;
-	    rm->array->refcount++;
-	    return (vartype *) rm2;
-	}
-	case TYPE_COMPLEXMATRIX: {
-	    vartype_complexmatrix *cm = (vartype_complexmatrix *) v;
-	    vartype_complexmatrix *cm2 = (vartype_complexmatrix *)
-					malloc(sizeof(vartype_complexmatrix));
-	    if (cm2 == NULL)
-		return NULL;
-	    cm2->type = TYPE_COMPLEXMATRIX;
-	    cm2->rows = cm->rows;
-	    cm2->columns = cm->columns;
-	    cm2->array = cm->array;
-	    cm->array->refcount++;
-	    return (vartype *) cm2;
-	}
-	case TYPE_STRING: {
-	    vartype_string *s = (vartype_string *) v;
-	    return new_string(s->text, s->length);
-	}
-	default:
-	    return NULL;
+        case TYPE_REAL: {
+            vartype_real *r = (vartype_real *) v;
+            return new_real(r->x);
+        }
+        case TYPE_COMPLEX: {
+            vartype_complex *c = (vartype_complex *) v;
+            return new_complex(c->re, c->im);
+        }
+        case TYPE_REALMATRIX: {
+            vartype_realmatrix *rm = (vartype_realmatrix *) v;
+            vartype_realmatrix *rm2 = (vartype_realmatrix *)
+                                        malloc(sizeof(vartype_realmatrix));
+            if (rm2 == NULL)
+                return NULL;
+            rm2->type = TYPE_REALMATRIX;
+            rm2->rows = rm->rows;
+            rm2->columns = rm->columns;
+            rm2->array = rm->array;
+            rm->array->refcount++;
+            return (vartype *) rm2;
+        }
+        case TYPE_COMPLEXMATRIX: {
+            vartype_complexmatrix *cm = (vartype_complexmatrix *) v;
+            vartype_complexmatrix *cm2 = (vartype_complexmatrix *)
+                                        malloc(sizeof(vartype_complexmatrix));
+            if (cm2 == NULL)
+                return NULL;
+            cm2->type = TYPE_COMPLEXMATRIX;
+            cm2->rows = cm->rows;
+            cm2->columns = cm->columns;
+            cm2->array = cm->array;
+            cm->array->refcount++;
+            return (vartype *) cm2;
+        }
+        case TYPE_STRING: {
+            vartype_string *s = (vartype_string *) v;
+            return new_string(s->text, s->length);
+        }
+        default:
+            return NULL;
     }
 }
 
 int disentangle(vartype *v) {
     switch (v->type) {
-	case TYPE_REALMATRIX: {
-	    vartype_realmatrix *rm = (vartype_realmatrix *) v;
-	    if (rm->array->refcount == 1)
-		return 1;
-	    else {
-		realmatrix_data *md = (realmatrix_data *)
-					malloc(sizeof(realmatrix_data));
-		if (md == NULL)
-		    return 0;
-		int4 sz = rm->rows * rm->columns;
-		int4 i;
-		md->data = (phloat *) malloc(sz * sizeof(phloat));
-		if (md->data == NULL) {
-		    free(md);
-		    return 0;
-		}
-		md->is_string = (char *) malloc(sz);
-		if (md->is_string == NULL) {
-		    free(md->data);
-		    free(md);
-		    return 0;
-		}
-		for (i = 0; i < sz; i++)
-		    md->data[i] = rm->array->data[i];
-		for (i = 0; i < sz; i++)
-		    md->is_string[i] = rm->array->is_string[i];
-		md->refcount = 1;
-		rm->array->refcount--;
-		rm->array = md;
-		return 1;
-	    }
-	}
-	case TYPE_COMPLEXMATRIX: {
-	    vartype_complexmatrix *cm = (vartype_complexmatrix *) v;
-	    if (cm->array->refcount == 1)
-		return 1;
-	    else {
-		complexmatrix_data *md = (complexmatrix_data *)
-					    malloc(sizeof(complexmatrix_data));
-		if (md == NULL)
-		    return 0;
-		int4 sz = cm->rows * cm->columns * 2;
-		int4 i;
-		md->data = (phloat *) malloc(sz * sizeof(phloat));
-		if (md->data == NULL) {
-		    free(md);
-		    return 0;
-		}
-		for (i = 0; i < sz; i++)
-		    md->data[i] = cm->array->data[i];
-		md->refcount = 1;
-		cm->array->refcount--;
-		cm->array = md;
-		return 1;
-	    }
-	}
-	case TYPE_REAL:
-	case TYPE_COMPLEX:
-	case TYPE_STRING:
-	default:
-	    return 1;
+        case TYPE_REALMATRIX: {
+            vartype_realmatrix *rm = (vartype_realmatrix *) v;
+            if (rm->array->refcount == 1)
+                return 1;
+            else {
+                realmatrix_data *md = (realmatrix_data *)
+                                        malloc(sizeof(realmatrix_data));
+                if (md == NULL)
+                    return 0;
+                int4 sz = rm->rows * rm->columns;
+                int4 i;
+                md->data = (phloat *) malloc(sz * sizeof(phloat));
+                if (md->data == NULL) {
+                    free(md);
+                    return 0;
+                }
+                md->is_string = (char *) malloc(sz);
+                if (md->is_string == NULL) {
+                    free(md->data);
+                    free(md);
+                    return 0;
+                }
+                for (i = 0; i < sz; i++)
+                    md->data[i] = rm->array->data[i];
+                for (i = 0; i < sz; i++)
+                    md->is_string[i] = rm->array->is_string[i];
+                md->refcount = 1;
+                rm->array->refcount--;
+                rm->array = md;
+                return 1;
+            }
+        }
+        case TYPE_COMPLEXMATRIX: {
+            vartype_complexmatrix *cm = (vartype_complexmatrix *) v;
+            if (cm->array->refcount == 1)
+                return 1;
+            else {
+                complexmatrix_data *md = (complexmatrix_data *)
+                                            malloc(sizeof(complexmatrix_data));
+                if (md == NULL)
+                    return 0;
+                int4 sz = cm->rows * cm->columns * 2;
+                int4 i;
+                md->data = (phloat *) malloc(sz * sizeof(phloat));
+                if (md->data == NULL) {
+                    free(md);
+                    return 0;
+                }
+                for (i = 0; i < sz; i++)
+                    md->data[i] = cm->array->data[i];
+                md->refcount = 1;
+                cm->array->refcount--;
+                cm->array = md;
+                return 1;
+            }
+        }
+        case TYPE_REAL:
+        case TYPE_COMPLEX:
+        case TYPE_STRING:
+        default:
+            return 1;
     }
 }
 
@@ -372,13 +372,13 @@ int lookup_var(const char *name, int namelength) {
      */
     int i, j;
     for (i = 0; i < vars_count; i++) {
-	if (vars[i].length == namelength) {
-	    for (j = 0; j < namelength; j++)
-		if (vars[i].name[j] != name[j])
-		    goto nomatch;
-	    return i;
-	}
-	nomatch:;
+        if (vars[i].length == namelength) {
+            for (j = 0; j < namelength; j++)
+                if (vars[i].name[j] != name[j])
+                    goto nomatch;
+            return i;
+        }
+        nomatch:;
     }
     return -1;
 }
@@ -386,46 +386,46 @@ int lookup_var(const char *name, int namelength) {
 vartype *recall_var(const char *name, int namelength) {
     int varindex = lookup_var(name, namelength);
     if (varindex == -1)
-	return NULL;
+        return NULL;
     else
-	return vars[varindex].value;
+        return vars[varindex].value;
 }
 
 void store_var(const char *name, int namelength, vartype *value) {
     int varindex = lookup_var(name, namelength);
     int i;
     if (varindex == -1) {
-	if (vars_count == vars_capacity) {
-	    vars_capacity += 25;
-	    vars = (var_struct *)
-			realloc(vars, vars_capacity * sizeof(var_struct));
-	    // TODO - handle memory allocation failure
-	}
-	varindex = vars_count++;
-	vars[varindex].length = namelength;
-	for (i = 0; i < namelength; i++)
-	    vars[varindex].name[i] = name[i];
+        if (vars_count == vars_capacity) {
+            vars_capacity += 25;
+            vars = (var_struct *)
+                        realloc(vars, vars_capacity * sizeof(var_struct));
+            // TODO - handle memory allocation failure
+        }
+        varindex = vars_count++;
+        vars[varindex].length = namelength;
+        for (i = 0; i < namelength; i++)
+            vars[varindex].name[i] = name[i];
     } else {
-	if (matedit_mode != 0 &&
-		string_equals(name, namelength, matedit_name, matedit_length)) {
-	    /* We're replacing the indexed matrix; need to reset I and J */
-	    /* TODO: proper handling of modes 2 and 3 (edit & editn); this code
-	     * really only takes care of the mode 1 case, because it does not
-	     * deal with the contents of X, nor with leaving the editor if the
-	     * replacement value is not a matrix (or is that forbidden? Maybe
-	     * that should cause a "Restricted Operation" error... And that
-	     * means I'll have to fix store_var() so that it returns an error
-	     * code -- which it should anyway; right now it does not check for
-	     * memory allocation failure when growing the variables array, and
-	     * that is evil).
-	     */
-	    if (value->type == TYPE_REALMATRIX
-			|| value->type == TYPE_COMPLEXMATRIX)
-		matedit_i = matedit_j = 0;
-	    else
-		matedit_mode = 0;
-	}
-	free_vartype(vars[varindex].value);
+        if (matedit_mode != 0 &&
+                string_equals(name, namelength, matedit_name, matedit_length)) {
+            /* We're replacing the indexed matrix; need to reset I and J */
+            /* TODO: proper handling of modes 2 and 3 (edit & editn); this code
+             * really only takes care of the mode 1 case, because it does not
+             * deal with the contents of X, nor with leaving the editor if the
+             * replacement value is not a matrix (or is that forbidden? Maybe
+             * that should cause a "Restricted Operation" error... And that
+             * means I'll have to fix store_var() so that it returns an error
+             * code -- which it should anyway; right now it does not check for
+             * memory allocation failure when growing the variables array, and
+             * that is evil).
+             */
+            if (value->type == TYPE_REALMATRIX
+                        || value->type == TYPE_COMPLEXMATRIX)
+                matedit_i = matedit_j = 0;
+            else
+                matedit_mode = 0;
+        }
+        free_vartype(vars[varindex].value);
     }
     vars[varindex].value = value;
     update_catalog();
@@ -435,10 +435,10 @@ int purge_var(const char *name, int namelength) {
     int varindex = lookup_var(name, namelength);
     int i;
     if (varindex == -1)
-	return 0;
+        return 0;
     free_vartype(vars[varindex].value);
     for (i = varindex; i < vars_count - 1; i++)
-	vars[i] = vars[i + 1];
+        vars[i] = vars[i + 1];
     vars_count--;
     update_catalog();
     return 1;
@@ -447,32 +447,32 @@ int purge_var(const char *name, int namelength) {
 void purge_all_vars() {
     int i;
     for (i = 0; i < vars_count; i++)
-	free_vartype(vars[i].value);
+        free_vartype(vars[i].value);
     vars_count = 0;
 }
 
 int vars_exist(int real, int cpx, int matrix) {
     int i;
     for (i = 0; i < vars_count; i++) {
-	switch (vars[i].value->type) {
-	    case TYPE_REAL:
-	    case TYPE_STRING:
-		if (real)
-		    return 1;
-		else
-		    break;
-	    case TYPE_COMPLEX:
-		if (cpx)
-		    return 1;
-		else
-		    break;
-	    case TYPE_REALMATRIX:
-	    case TYPE_COMPLEXMATRIX:
-		if (matrix)
-		    return 1;
-		else
-		    break;
-	}
+        switch (vars[i].value->type) {
+            case TYPE_REAL:
+            case TYPE_STRING:
+                if (real)
+                    return 1;
+                else
+                    break;
+            case TYPE_COMPLEX:
+                if (cpx)
+                    return 1;
+                else
+                    break;
+            case TYPE_REALMATRIX:
+            case TYPE_COMPLEXMATRIX:
+                if (matrix)
+                    return 1;
+                else
+                    break;
+        }
     }
     return 0;
 }
@@ -481,49 +481,49 @@ int contains_no_strings(const vartype_realmatrix *rm) {
     int4 size = rm->rows * rm->columns;
     int4 i;
     for (i = 0; i < size; i++)
-	if (rm->array->is_string[i])
-	    return 0;
+        if (rm->array->is_string[i])
+            return 0;
     return 1;
 }
 
 int matrix_copy(vartype *dst, const vartype *src) {
     int4 size, i;
     if (src->type == TYPE_REALMATRIX) {
-	vartype_realmatrix *s = (vartype_realmatrix *) src;
-	if (dst->type == TYPE_REALMATRIX) {
-	    vartype_realmatrix *d = (vartype_realmatrix *) dst;
-	    if (s->rows != d->rows || s->columns != d->columns)
-		return ERR_DIMENSION_ERROR;
-	    size = s->rows * s->columns;
-	    for (i = 0; i < size; i++) {
-		d->array->is_string[i] = s->array->is_string[i];
-		d->array->data[i] = s->array->data[i];
-	    }
-	    return ERR_NONE;
-	} else if (dst->type == TYPE_COMPLEXMATRIX) {
-	    vartype_complexmatrix *d = (vartype_complexmatrix *) dst;
-	    if (s->rows != d->rows || s->columns != d->columns)
-		return ERR_DIMENSION_ERROR;
-	    if (!contains_no_strings(s))
-		return ERR_ALPHA_DATA_IS_INVALID;
-	    size = s->rows * s->columns;
-	    for (i = 0; i < size; i++) {
-		d->array->data[2 * i] = s->array->data[i];
-		d->array->data[2 * i + 1] = 0;
-	    }
-	    return ERR_NONE;
-	} else
-	    return ERR_INVALID_TYPE;
+        vartype_realmatrix *s = (vartype_realmatrix *) src;
+        if (dst->type == TYPE_REALMATRIX) {
+            vartype_realmatrix *d = (vartype_realmatrix *) dst;
+            if (s->rows != d->rows || s->columns != d->columns)
+                return ERR_DIMENSION_ERROR;
+            size = s->rows * s->columns;
+            for (i = 0; i < size; i++) {
+                d->array->is_string[i] = s->array->is_string[i];
+                d->array->data[i] = s->array->data[i];
+            }
+            return ERR_NONE;
+        } else if (dst->type == TYPE_COMPLEXMATRIX) {
+            vartype_complexmatrix *d = (vartype_complexmatrix *) dst;
+            if (s->rows != d->rows || s->columns != d->columns)
+                return ERR_DIMENSION_ERROR;
+            if (!contains_no_strings(s))
+                return ERR_ALPHA_DATA_IS_INVALID;
+            size = s->rows * s->columns;
+            for (i = 0; i < size; i++) {
+                d->array->data[2 * i] = s->array->data[i];
+                d->array->data[2 * i + 1] = 0;
+            }
+            return ERR_NONE;
+        } else
+            return ERR_INVALID_TYPE;
     } else if (src->type == TYPE_COMPLEXMATRIX
-		    && dst->type == TYPE_COMPLEXMATRIX) {
-	vartype_complexmatrix *s = (vartype_complexmatrix *) src;
-	vartype_complexmatrix *d = (vartype_complexmatrix *) dst;
-	if (s->rows != d->rows || s->columns != d->columns)
-	    return ERR_DIMENSION_ERROR;
-	size = s->rows * s->columns * 2;
-	for (i = 0; i < size; i++)
-	    d->array->data[i] = s->array->data[i];
-	return ERR_NONE;
+                    && dst->type == TYPE_COMPLEXMATRIX) {
+        vartype_complexmatrix *s = (vartype_complexmatrix *) src;
+        vartype_complexmatrix *d = (vartype_complexmatrix *) dst;
+        if (s->rows != d->rows || s->columns != d->columns)
+            return ERR_DIMENSION_ERROR;
+        size = s->rows * s->columns * 2;
+        for (i = 0; i < size; i++)
+            d->array->data[i] = s->array->data[i];
+        return ERR_NONE;
     } else
-	return ERR_INVALID_TYPE;
+        return ERR_INVALID_TYPE;
 }

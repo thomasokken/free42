@@ -49,36 +49,36 @@ void calc_mouseup();
 void calc_keydown(NSString *characters, NSUInteger flags, unsigned short keycode);
 void calc_keyup(NSString *characters, NSUInteger flags, unsigned short keycode);
 void calc_keymodifierschanged(NSUInteger flags);
-	
+    
 @class ProgramListDataSource;
 @class CalcView;
 @class PrintView;
 
 @interface Free42AppDelegate : NSObject {
-	NSWindow *mainWindow;
-	CalcView *calcView;
-	
-	NSWindow *printWindow;
-	PrintView *printView;
-	
-	NSWindow *preferencesWindow;
-	NSButton *prefsSingularMatrix;
-	NSButton *prefsMatrixOutOfRange;
-	NSButton *prefsAutoRepeat;
-	NSButton *prefsPrintText;
-	NSTextField *prefsPrintTextFile;
-	NSButton *prefsPrintTextRaw;
-	NSButton *prefsPrintGIF;
-	NSTextField *prefsPrintGIFFile;
-	NSTextField *prefsPrintGIFMaxHeight;
-	
-	NSWindow *selectProgramsWindow;
-	NSTableView *programListView;
-	ProgramListDataSource *programListDataSource;
-	
-	NSWindow *aboutWindow;
-	NSTextField *aboutVersion;
-	NSTextField *aboutCopyright;
+    NSWindow *mainWindow;
+    CalcView *calcView;
+    
+    NSWindow *printWindow;
+    PrintView *printView;
+    
+    NSWindow *preferencesWindow;
+    NSButton *prefsSingularMatrix;
+    NSButton *prefsMatrixOutOfRange;
+    NSButton *prefsAutoRepeat;
+    NSButton *prefsPrintText;
+    NSTextField *prefsPrintTextFile;
+    NSButton *prefsPrintTextRaw;
+    NSButton *prefsPrintGIF;
+    NSTextField *prefsPrintGIFFile;
+    NSTextField *prefsPrintGIFMaxHeight;
+    
+    NSWindow *selectProgramsWindow;
+    NSTableView *programListView;
+    ProgramListDataSource *programListDataSource;
+    
+    NSWindow *aboutWindow;
+    NSTextField *aboutVersion;
+    NSTextField *aboutCopyright;
 }
 
 @property (nonatomic, retain) IBOutlet NSWindow *mainWindow;

@@ -37,9 +37,9 @@
 - (void)drawRect:(CGRect)rect
 {
     //NSLog(@"tile.drawRect: %f %f %f %f", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
-	CGContextRef myContext = UIGraphicsGetCurrentContext();
-	CGContextSetRGBFillColor(myContext, 1.0, 1.0, 1.0, 1.0);
-	//CGContextFillRect(myContext, rect);
+    CGContextRef myContext = UIGraphicsGetCurrentContext();
+    CGContextSetRGBFillColor(myContext, 1.0, 1.0, 1.0, 1.0);
+    //CGContextFillRect(myContext, rect);
     CGContextSetRGBFillColor(myContext, 0.0, 0.0, 0.0, 1.0);
     int xmin = (int) rect.origin.x;
     int xmax = (int) (rect.origin.x + 288);

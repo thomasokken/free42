@@ -44,27 +44,27 @@ int main() {
     int htop, h1, h2, h3, h4, h5, h6, hbot;
 
     for (i = 0; i < 256; i++)
-	keys[i].line = 0;
+        keys[i].line = 0;
 
     while (fgets(buf, 1000, stdin) != NULL) {
-	int x, y, width, height, chars;
+        int x, y, width, height, chars;
 
-	line++;
-	if (strncasecmp(buf, "key:", 4) != 0) {
-	    strcpy(lines[line], buf);
-	    continue;
-	}
-	if (sscanf(buf + 4, "%d %d , %d , %d , %d%n", &key, &x, &y, &width, &height, &chars) != 5) {
-	    fprintf(stderr, "Bad key spec in line %d; ignoring.\n", line);
-	    strcpy(lines[line], buf);
-	    continue;
-	}
-	keys[key].left = x;
-	keys[key].right = x + width;
-	keys[key].top = y;
-	keys[key].bottom = y + height;
-	keys[key].line = line;
-	strcpy(lines[line], buf + chars + 4);
+        line++;
+        if (strncasecmp(buf, "key:", 4) != 0) {
+            strcpy(lines[line], buf);
+            continue;
+        }
+        if (sscanf(buf + 4, "%d %d , %d , %d , %d%n", &key, &x, &y, &width, &height, &chars) != 5) {
+            fprintf(stderr, "Bad key spec in line %d; ignoring.\n", line);
+            strcpy(lines[line], buf);
+            continue;
+        }
+        keys[key].left = x;
+        keys[key].right = x + width;
+        keys[key].top = y;
+        keys[key].bottom = y + height;
+        keys[key].line = line;
+        strcpy(lines[line], buf + chars + 4);
     }
 
     /* Find the positions of the vertical lines separating the keys
@@ -127,17 +127,17 @@ int main() {
     /* Find the positions of the horizontal lines separating the keys
      */
     h1 = (keys[1].bottom + keys[2].bottom + keys[3].bottom + keys[4].bottom + keys[5].bottom + keys[6].bottom
-	    + keys[7].top + keys[8].top + keys[9].top + keys[10].top + keys[11].top + keys[12].top) / 12;
+            + keys[7].top + keys[8].top + keys[9].top + keys[10].top + keys[11].top + keys[12].top) / 12;
     h2 = ((keys[7].bottom + keys[8].bottom + keys[9].bottom + keys[10].bottom + keys[11].bottom + keys[12].bottom) * 5
-	    + (keys[13].top + keys[14].top + keys[15].top + keys[16].top + keys[17].top) * 6) / 60;
+            + (keys[13].top + keys[14].top + keys[15].top + keys[16].top + keys[17].top) * 6) / 60;
     h3 = (keys[13].bottom + keys[14].bottom + keys[15].bottom + keys[16].bottom + keys[17].bottom
-	    + keys[18].top + keys[19].top + keys[20].top + keys[21].top + keys[22].top) / 10;
+            + keys[18].top + keys[19].top + keys[20].top + keys[21].top + keys[22].top) / 10;
     h4 = (keys[18].bottom + keys[19].bottom + keys[20].bottom + keys[21].bottom + keys[22].bottom
-	    + keys[23].top + keys[24].top + keys[25].top + keys[26].top + keys[27].top) / 10;
+            + keys[23].top + keys[24].top + keys[25].top + keys[26].top + keys[27].top) / 10;
     h5 = (keys[23].bottom + keys[24].bottom + keys[25].bottom + keys[26].bottom + keys[27].bottom
-	    + keys[28].top + keys[29].top + keys[30].top + keys[31].top + keys[32].top) / 10;
+            + keys[28].top + keys[29].top + keys[30].top + keys[31].top + keys[32].top) / 10;
     h6 = (keys[28].bottom + keys[29].bottom + keys[30].bottom + keys[31].bottom + keys[32].bottom
-	    + keys[33].top + keys[34].top + keys[35].top + keys[36].top + keys[37].top) / 10;
+            + keys[33].top + keys[34].top + keys[35].top + keys[36].top + keys[37].top) / 10;
 
     /* Set the top margin to be as far down as possible, while still
      * extending all the topmost keys' top edges at least as far as their
@@ -215,11 +215,11 @@ int main() {
     /* Print the modified skin file */
     key = 1;
     for (i = 1; i <= line; i++) {
-	if (keys[key].line == i) {
-	    printf("Key: %d %d,%d,%d,%d", key, keys[key].left, keys[key].top, keys[key].right - keys[key].left, keys[key].bottom - keys[key].top);
-	    key++;
-	}
-	printf(lines[i]);
+        if (keys[key].line == i) {
+            printf("Key: %d %d,%d,%d,%d", key, keys[key].left, keys[key].top, keys[key].right - keys[key].left, keys[key].bottom - keys[key].top);
+            key++;
+        }
+        printf(lines[i]);
     }
     fflush(stdout);
 }

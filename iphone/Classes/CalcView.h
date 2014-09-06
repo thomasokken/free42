@@ -21,20 +21,20 @@
 #define FILENAMELEN 1024
 
 struct state_type {
-	int printerToTxtFile;
-	int printerToGifFile;
-	char printerTxtFileName[FILENAMELEN];
-	char printerGifFileName[FILENAMELEN];
-	int printerGifMaxLength;
-	char skinName[FILENAMELEN];
-	int popupKeyboard;
+    int printerToTxtFile;
+    int printerToGifFile;
+    char printerTxtFileName[FILENAMELEN];
+    char printerGifFileName[FILENAMELEN];
+    int printerGifMaxLength;
+    char skinName[FILENAMELEN];
+    int popupKeyboard;
 };
 
 extern state_type state;
 
 
 @interface CalcView : UIView <UIActionSheetDelegate> {
-	//
+    //
 }
 
 - (void) awakeFromNib;

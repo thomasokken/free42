@@ -35,9 +35,9 @@ extern int printout_bottom;
 @class PrintTileView;
 
 @interface PrintView : UIView <UIScrollViewDelegate> {
-	UIBarButtonItem *clearButton;
-	UIBarButtonItem *doneButton;
-	UIScrollView *scrollView;
+    UIBarButtonItem *clearButton;
+    UIBarButtonItem *doneButton;
+    UIScrollView *scrollView;
     PrintTileView *tile1;
     PrintTileView *tile2;
 }

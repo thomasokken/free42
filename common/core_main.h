@@ -284,7 +284,7 @@ int4 core_program_size(int prgm_index);
  * value, since it will always be 0.
  */
 int core_export_programs(int count, const int *indexes,
-			 int (*progress_report)(const char *));
+                         int (*progress_report)(const char *));
 
 /* core_import_programs()
  *

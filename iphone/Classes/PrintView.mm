@@ -74,12 +74,12 @@ int printout_bottom;
 }
 
 - (IBAction) clear {
-	printout_top = printout_bottom = 0;
+    printout_top = printout_bottom = 0;
     [self repositionTiles:false];
 }
 
 - (IBAction) done {
-	[Free42AppDelegate showMain];
+    [Free42AppDelegate showMain];
 }
 
 - (void) updatePrintout:(id) params {

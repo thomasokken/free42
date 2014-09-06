@@ -19,9 +19,9 @@
 
 
 @interface ProgramListDataSource : NSObject {
-	int count;
-	bool *selected;
-	NSString **names;
+    int count;
+    bool *selected;
+    NSString **names;
 }
 
 - (void) awakeFromNib;

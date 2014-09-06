@@ -25,20 +25,20 @@ using namespace std;
 
 class ebmlreader {
     private:
-	istream *is;
-	stack<uint32_t> size_stack;
-	bool read_vint(uint32_t *n);
+        istream *is;
+        stack<uint32_t> size_stack;
+        bool read_vint(uint32_t *n);
 
     public:
-	ebmlreader(istream *is) {
-	    this->is = is;
-	}
-	bool get_element(uint32_t *id, uint32_t *size);
-	bool skip_body(uint32_t size);
-	bool get_int_body(uint32_t size, uint64_t *n);
-	bool get_float_body(uint32_t size, double *f);
-	bool get_string_body(uint32_t size, char *buf);
-	bool get_data_body(uint32_t size, char *buf);
+        ebmlreader(istream *is) {
+            this->is = is;
+        }
+        bool get_element(uint32_t *id, uint32_t *size);
+        bool skip_body(uint32_t size);
+        bool get_int_body(uint32_t size, uint64_t *n);
+        bool get_float_body(uint32_t size, double *f);
+        bool get_string_body(uint32_t size, char *buf);
+        bool get_data_body(uint32_t size, char *buf);
 };
 
 #endif

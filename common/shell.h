@@ -43,7 +43,7 @@
  * height of the area to be repainted.
  */
 void shell_blitter(const char *bits, int bytesperline, int x, int y,
-			     int width, int height);
+                             int width, int height);
 
 /* shell_beeper()
  * Callback invoked by the emulator core to play a sound.
@@ -161,8 +161,8 @@ uint4 shell_milliseconds();
  * on-screen display.
  */
 void shell_print(const char *text, int length,
-		 const char *bits, int bytesperline,
-		 int x, int y, int width, int height);
+                 const char *bits, int bytesperline,
+                 int x, int y, int width, int height);
 
 /* shell_write()
  *
@@ -212,9 +212,9 @@ int4 shell_read(char *buf, int4 buflen);
  */
 int shell_get_acceleration(double *x, double *y, double *z);
 int shell_get_location(double *lat, double *lon, double *lat_lon_acc,
-				double *elev, double *elev_acc);
+                                double *elev, double *elev_acc);
 int shell_get_heading(double *mag_heading, double *true_heading, double *acc,
-				double *x, double *y, double *z);
+                                double *x, double *y, double *z);
 #endif
 
 /* shell_get_time_date()

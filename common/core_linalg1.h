@@ -21,9 +21,9 @@
 #include "core_globals.h"
 
 int linalg_div(const vartype *left, const vartype *right,
-			     void (*completion)(int, vartype *));
+                             void (*completion)(int, vartype *));
 int linalg_mul(const vartype *left, const vartype *right,
-			     void (*completion)(int, vartype *));
+                             void (*completion)(int, vartype *));
 int linalg_inv(const vartype *src, void (*completion)(int, vartype *));
 int linalg_det(const vartype *src, void (*completion)(int, vartype *));
 

@@ -19,9 +19,9 @@
 
 
 @interface HTTPServerView : UIView {
-	UIBarButtonItem *doneButton;
-	UILabel *urlLabel;
-	UITextView *logView;
+    UIBarButtonItem *doneButton;
+    UILabel *urlLabel;
+    UITextView *logView;
     NSString *ipStr;
     NSString *alternateUrl;
 }

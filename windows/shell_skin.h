@@ -23,7 +23,7 @@
 void skin_load(char *skinname, const char *basedir, long *width, long *height);
 
 typedef struct {
-	unsigned char r, g, b, pad;
+    unsigned char r, g, b, pad;
 } SkinColor;
 
 #define IMGTYPE_MONO 1
@@ -34,7 +34,7 @@ typedef struct {
 #define KEYMAP_MAX_MACRO_LENGTH 31
 typedef struct {
     bool ctrl;
-	bool alt;
+    bool alt;
     bool shift; 
     bool cshift; 
     int keycode;
@@ -46,7 +46,7 @@ keymap_entry *parse_keymap_entry(char *line, int lineno);
 int skin_getchar();
 void skin_rewind();
 int skin_init_image(int type, int ncolors, const SkinColor *colors,
-					int width, int height);
+                    int width, int height);
 void skin_put_pixels(unsigned const char *data);
 void skin_finish_image();
 
@@ -58,7 +58,7 @@ unsigned char *skin_find_macro(int ckey);
 unsigned char *skin_keymap_lookup(int keycode, bool ctrl, bool alt, bool shift, bool cshift, bool *exact);
 void skin_repaint_key(HDC hdc, HDC memdc, int key, int state);
 void skin_display_blitter(HDC hdc, const char *bits, int bytesperline, int x, int y,
-						  int width, int height);
+                          int width, int height);
 void skin_repaint_display(HDC hdc, HDC memdc);
 void skin_display_set_enabled(bool enable);
 

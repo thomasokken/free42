@@ -19,15 +19,15 @@
 
 
 @interface SelectFileView : UIView <UITextFieldDelegate, UITableViewDelegate, UITableViewDataSource> {
-	UINavigationItem *navigationItem;
-	UILabel *directoryLabel;
-	UITableView *directoryListingView;
-	UITextField *nameField;
-	UISegmentedControl *typeSelector;
-	UIButton *selectFileButton;
-	UIScrollView *scrollView;
-	UIView *contentView;
-	UITextField *activeField;
+    UINavigationItem *navigationItem;
+    UILabel *directoryLabel;
+    UITableView *directoryListingView;
+    UITextField *nameField;
+    UISegmentedControl *typeSelector;
+    UIButton *selectFileButton;
+    UIScrollView *scrollView;
+    UIView *contentView;
+    UITextField *activeField;
 }
 
 @property (nonatomic, retain) IBOutlet UINavigationItem *navigationItem;

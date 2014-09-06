@@ -32,20 +32,20 @@ void ebmlwriter::write_vint(uint64_t n) {
     uint64_t lim = 0x80;
     int len = 1;
     while (true) {
-	if (n < lim - 1)
-	    break;
-	lim <<= 7;
-	len++;
-	if (len == 9) {
-	    fprintf(stderr, "ebmlwriter::write_vint(): arg %lu too large\n", (unsigned long) n);
-	    write_unknown();
-	    return;
-	}
+        if (n < lim - 1)
+            break;
+        lim <<= 7;
+        len++;
+        if (len == 9) {
+            fprintf(stderr, "ebmlwriter::write_vint(): arg %lu too large\n", (unsigned long) n);
+            write_unknown();
+            return;
+        }
     }
     n |= lim;
     len <<= 3;
     while ((len -= 8) >= 0)
-	*os << (char) (n >> len);
+        *os << (char) (n >> len);
 }
 
 /* public */
@@ -53,20 +53,20 @@ void ebmlwriter::write_vsint(int64_t n) {
     int64_t lim = 0x40;
     int len = 1;
     while (true) {
-	if (n < lim && n > -lim)
-	    break;
-	lim <<= 7;
-	len++;
-	if (len == 9) {
-	    fprintf(stderr, "ebmlwriter::write_vsint(): arg %ld too large\n", (long) n);
-	    write_unknown();
-	    return;
-	}
+        if (n < lim && n > -lim)
+            break;
+        lim <<= 7;
+        len++;
+        if (len == 9) {
+            fprintf(stderr, "ebmlwriter::write_vsint(): arg %ld too large\n", (long) n);
+            write_unknown();
+            return;
+        }
     }
     n = (n + lim - 1) | (lim << 1);
     len <<= 3;
     while ((len -= 8) >= 0)
-	*os << (char) (n >> len);
+        *os << (char) (n >> len);
 }
 
 /* public */
@@ -83,10 +83,10 @@ static int vint_size(uint64_t n) {
     uint64_t lim = 0x80;
     int len = 1;
     while (len < 9) {
-	if (n < lim - 1)
-	    return len;
-	lim <<= 7;
-	len++;
+        if (n < lim - 1)
+            return len;
+        lim <<= 7;
+        len++;
     }
     return 9;
 }
@@ -101,14 +101,14 @@ void ebmlwriter::end_element() {
     string s = oss->str();
     int size = s.size();
     if (chunked && os_stack.empty()) {
-	int chunksize = vint_size(id) + vint_size(size) + size;
-	*os << hex << chunksize << "\r\n";
+        int chunksize = vint_size(id) + vint_size(size) + size;
+        *os << hex << chunksize << "\r\n";
     }
     write_vint(id);
     write_vint(size);
     write_data(size, s.data());
     if (chunked && os_stack.empty())
-	*os << "\r\n";
+        *os << "\r\n";
     os->flush();
     delete oss;
 }
@@ -119,14 +119,14 @@ void ebmlwriter::write_int_element(uint32_t id, uint64_t n) {
     int len = 0;
     bool nz = false;
     for (int i = 56; i >= 0; i -= 8) {
-	char c = (char) (n >> i);
-	if (c != 0)
-	    nz = true;
-	if (nz)
-	    buf[len++] = c;
+        char c = (char) (n >> i);
+        if (c != 0)
+            nz = true;
+        if (nz)
+            buf[len++] = c;
     }
     if (len == 0)
-	buf[len++] = 0;
+        buf[len++] = 0;
     write_vint(id);
     write_vint(len);
     os->write(buf, len);
@@ -134,8 +134,8 @@ void ebmlwriter::write_int_element(uint32_t id, uint64_t n) {
 
 static bool is_little_endian() {
     union {
-	uint32_t i;
-	char c[4];
+        uint32_t i;
+        char c[4];
     } u;
     u.i = 0x01020304;
     return u.c[0] == 4; 
@@ -147,33 +147,33 @@ void ebmlwriter::write_float_element(uint32_t id, double f) {
     float ff = f;
     double fff = ff;
     if (f == fff) {
-	union {
-	    float f;
-	    char buf[4];
-	} u;
-	u.f = ff;
-	write_vint(4);
-	if (is_little_endian())
-	    for (int i = 0; i < 2; i++) {
-		char t = u.buf[i];
-		u.buf[i] = u.buf[3 - i];
-		u.buf[3 - i] = t;
-	    }
-	os->write(u.buf, 4);
+        union {
+            float f;
+            char buf[4];
+        } u;
+        u.f = ff;
+        write_vint(4);
+        if (is_little_endian())
+            for (int i = 0; i < 2; i++) {
+                char t = u.buf[i];
+                u.buf[i] = u.buf[3 - i];
+                u.buf[3 - i] = t;
+            }
+        os->write(u.buf, 4);
     } else {
-	union {
-	    double d;
-	    char buf[8];
-	} u;
-	u.d = f;
-	write_vint(8);
-	if (is_little_endian())
-	    for (int i = 0; i < 4; i++) {
-		char t = u.buf[i];
-		u.buf[i] = u.buf[7 - i];
-		u.buf[7 - i] = t;
-	    }
-	os->write(u.buf, 8);
+        union {
+            double d;
+            char buf[8];
+        } u;
+        u.d = f;
+        write_vint(8);
+        if (is_little_endian())
+            for (int i = 0; i < 4; i++) {
+                char t = u.buf[i];
+                u.buf[i] = u.buf[7 - i];
+                u.buf[7 - i] = t;
+            }
+        os->write(u.buf, 8);
     }
 }
 
@@ -195,15 +195,15 @@ void ebmlwriter::write_data_element(uint32_t id, int length, const char *buf) {
 /* public */
 void ebmlwriter::start_element_with_unknown_length(uint32_t id) {
     if (!os_stack.empty()) {
-	fprintf(stderr, "ebmlwriter::start_element_with_unknown_length(): not at top level: stacksize = %u\n", (unsigned int) os_stack.size());
-	return;
+        fprintf(stderr, "ebmlwriter::start_element_with_unknown_length(): not at top level: stacksize = %u\n", (unsigned int) os_stack.size());
+        return;
     }
     if (chunked && os_stack.empty()) {
-	int chunksize = vint_size(id) + 1;
-	*os << hex << chunksize << "\r\n";
+        int chunksize = vint_size(id) + 1;
+        *os << hex << chunksize << "\r\n";
     }
     write_vint(id);
     write_unknown();
     if (chunked && os_stack.empty())
-	*os << "\r\n";
+        *os << "\r\n";
 }

@@ -47,7 +47,7 @@ int hp2ascii(char *dst, const char *src, int srclen);
  * independent.
  */
 void shell_spool_txt(const char *text, int length,
-		     file_writer writer, file_newliner newliner);
+                     file_writer writer, file_newliner newliner);
 
 /* shell_start_gif()
  *
@@ -66,8 +66,8 @@ int shell_start_gif(file_writer writer, int provisional_height);
  * independent.
  */
 void shell_spool_gif(const char *bits, int bytesperline,
-		     int x, int y, int width, int height,
-		     file_writer writer);
+                     int x, int y, int width, int height,
+                     file_writer writer);
 
 /* shell_finish_gif()
  *

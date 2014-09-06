@@ -36,9 +36,9 @@
 }
 
 - (id) initWithCoder:(NSCoder *)coder {
-	[super initWithCoder:coder];
-	skinNames = [[NSMutableArray arrayWithCapacity:10] retain];
-	return self;
+    [super initWithCoder:coder];
+    skinNames = [[NSMutableArray arrayWithCapacity:10] retain];
+    return self;
 }
 
 - (void) drawRect:(CGRect)rect {
@@ -46,77 +46,77 @@
 }
 
 - (void) raised {
-	// This gets called just before the view is raised, every time
-	// TODO: separator between built-in and external skins
-	[skinNames removeAllObjects];
-	int index = 0;
-	int selectedIndex = -1;
-	char buf[1024];
-	NSString *path = [[NSBundle mainBundle] pathForResource:@"builtin_skins" ofType:@"txt"];
-	[path getCString:buf maxLength:1024 encoding:NSUTF8StringEncoding];
-	FILE *builtins = fopen(buf, "r");
-	while (fgets(buf, 1024, builtins) != NULL) {
-		char *context;
-		char *name = strtok_r(buf, " \t\r\n", &context);
-		[skinNames addObject:[NSString stringWithCString:name encoding:NSUTF8StringEncoding]];
-		if (strcasecmp(name, state.skinName) == 0)
-			selectedIndex = index;
-		index++;
-	}
-	fclose(builtins);
-	DIR *dir = opendir("skins");
-	struct dirent *d;
-	int num_builtin_skins = [skinNames count];
-	while ((d = readdir(dir)) != NULL) {
-		int len = strlen(d->d_name);
-		if (len < 8 || strcmp(d->d_name + len - 7, ".layout") != 0)
-			continue;
-		d->d_name[len - 7] = 0;
-		NSString *s = [NSString stringWithCString:d->d_name encoding:NSUTF8StringEncoding];
-		for (int i = 0; i < num_builtin_skins; i++)
-			if ([s caseInsensitiveCompare:[skinNames objectAtIndex:i]] == 0)
-				goto skip;
-		[skinNames addObject:s];
-		if (strcasecmp(d->d_name, state.skinName) == 0)
-			selectedIndex = index;
-		index++;
-		skip:;
-	}
-	closedir(dir);
-	[skinTable reloadData];
-	if (selectedIndex != -1) {
+    // This gets called just before the view is raised, every time
+    // TODO: separator between built-in and external skins
+    [skinNames removeAllObjects];
+    int index = 0;
+    int selectedIndex = -1;
+    char buf[1024];
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"builtin_skins" ofType:@"txt"];
+    [path getCString:buf maxLength:1024 encoding:NSUTF8StringEncoding];
+    FILE *builtins = fopen(buf, "r");
+    while (fgets(buf, 1024, builtins) != NULL) {
+        char *context;
+        char *name = strtok_r(buf, " \t\r\n", &context);
+        [skinNames addObject:[NSString stringWithCString:name encoding:NSUTF8StringEncoding]];
+        if (strcasecmp(name, state.skinName) == 0)
+            selectedIndex = index;
+        index++;
+    }
+    fclose(builtins);
+    DIR *dir = opendir("skins");
+    struct dirent *d;
+    int num_builtin_skins = [skinNames count];
+    while ((d = readdir(dir)) != NULL) {
+        int len = strlen(d->d_name);
+        if (len < 8 || strcmp(d->d_name + len - 7, ".layout") != 0)
+            continue;
+        d->d_name[len - 7] = 0;
+        NSString *s = [NSString stringWithCString:d->d_name encoding:NSUTF8StringEncoding];
+        for (int i = 0; i < num_builtin_skins; i++)
+            if ([s caseInsensitiveCompare:[skinNames objectAtIndex:i]] == 0)
+                goto skip;
+        [skinNames addObject:s];
+        if (strcasecmp(d->d_name, state.skinName) == 0)
+            selectedIndex = index;
+        index++;
+        skip:;
+    }
+    closedir(dir);
+    [skinTable reloadData];
+    if (selectedIndex != -1) {
         NSUInteger indexes[2] = { 0, selectedIndex };
         NSIndexPath *path = [NSIndexPath indexPathWithIndexes:indexes length:2];
         [skinTable cellForRowAtIndexPath:path].accessoryType = UITableViewCellAccessoryCheckmark;
-	}
+    }
 }
 
 - (IBAction) done {
-	[Free42AppDelegate showMain];
+    [Free42AppDelegate showMain];
 }
 
 - (void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-	int n = [indexPath indexAtPosition:1];
-	NSString *name = [skinNames objectAtIndex:n];
-	[name getCString:state.skinName maxLength:FILENAMELEN encoding:NSUTF8StringEncoding];
-	long width, height;
-	skin_load(&width, &height);
-	core_repaint_display();
-	[CalcView repaint];
-	[self done];
+    int n = [indexPath indexAtPosition:1];
+    NSString *name = [skinNames objectAtIndex:n];
+    [name getCString:state.skinName maxLength:FILENAMELEN encoding:NSUTF8StringEncoding];
+    long width, height;
+    skin_load(&width, &height);
+    core_repaint_display();
+    [CalcView repaint];
+    [self done];
 }
 
 - (UITableViewCell *) tableView:(UITableView *)table cellForRowAtIndexPath:(NSIndexPath *) indexPath {
-	int n = [indexPath indexAtPosition:1];
-	NSString *s = [skinNames objectAtIndex:n];
-	UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
-	cell.textLabel.text = s;
-	return cell;
+    int n = [indexPath indexAtPosition:1];
+    NSString *s = [skinNames objectAtIndex:n];
+    UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
+    cell.textLabel.text = s;
+    return cell;
 }
 
 - (NSInteger) tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section {
-	int n = [skinNames count];
-	return n;
+    int n = [skinNames count];
+    return n;
 }
 
 - (void) dealloc {

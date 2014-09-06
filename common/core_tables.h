@@ -466,11 +466,11 @@ typedef struct {
     unsigned char length;
     int4 target;
     union {
-	int4 num;
-	char text[15];
-	char stk;
-	int cmd; /* For backward compatibility only! */
-	char lclbl;
+        int4 num;
+        char text[15];
+        char stk;
+        int cmd; /* For backward compatibility only! */
+        char lclbl;
     } val;
     // This used to be a member of the 'val' union, but once I changed it
     // from 'double' to 'phloat', that was no longer possible.

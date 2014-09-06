@@ -50,33 +50,33 @@ static char version[32] = "";
 
 - (void) applicationDidFinishLaunching:(UIApplication *)application {
     // Override point for customization after application launch
-	instance = self;
+    instance = self;
 
-	const char *sound_names[] = { "tone0", "tone1", "tone2", "tone3", "tone4", "tone5", "tone6", "tone7", "tone8", "tone9", "squeak" };
-	for (int i = 0; i < 11; i++) {
-		NSString *name = [NSString stringWithCString:sound_names[i] encoding:NSUTF8StringEncoding];
-		NSString *path = [[NSBundle mainBundle] pathForResource:name ofType:@"wav"];
-		OSStatus status = AudioServicesCreateSystemSoundID((CFURLRef)[NSURL fileURLWithPath:path], &soundIDs[i]);
-		if (status)
-			NSLog(@"error loading sound: %@", name);
-	}
-	
-	printView.frame = containerView.bounds;
-	[containerView addSubview:printView];
-	httpServerView.frame = containerView.bounds;
-	[containerView addSubview:httpServerView];
-	selectSkinView.frame = containerView.bounds;
-	[containerView addSubview:selectSkinView];
-	selectProgramsView.frame = containerView.bounds;
+    const char *sound_names[] = { "tone0", "tone1", "tone2", "tone3", "tone4", "tone5", "tone6", "tone7", "tone8", "tone9", "squeak" };
+    for (int i = 0; i < 11; i++) {
+        NSString *name = [NSString stringWithCString:sound_names[i] encoding:NSUTF8StringEncoding];
+        NSString *path = [[NSBundle mainBundle] pathForResource:name ofType:@"wav"];
+        OSStatus status = AudioServicesCreateSystemSoundID((CFURLRef)[NSURL fileURLWithPath:path], &soundIDs[i]);
+        if (status)
+            NSLog(@"error loading sound: %@", name);
+    }
+    
+    printView.frame = containerView.bounds;
+    [containerView addSubview:printView];
+    httpServerView.frame = containerView.bounds;
+    [containerView addSubview:httpServerView];
+    selectSkinView.frame = containerView.bounds;
+    [containerView addSubview:selectSkinView];
+    selectProgramsView.frame = containerView.bounds;
     [containerView addSubview:selectProgramsView];
-	preferencesView.frame = containerView.bounds;
-	[containerView addSubview:preferencesView];
-	aboutView.frame = containerView.bounds;
-	[containerView addSubview:aboutView];
-	selectFileView.frame = containerView.bounds;
-	[containerView addSubview:selectFileView];
-	calcView.frame = containerView.bounds;
-	[containerView addSubview:calcView];
+    preferencesView.frame = containerView.bounds;
+    [containerView addSubview:preferencesView];
+    aboutView.frame = containerView.bounds;
+    [containerView addSubview:aboutView];
+    selectFileView.frame = containerView.bounds;
+    [containerView addSubview:selectFileView];
+    calcView.frame = containerView.bounds;
+    [containerView addSubview:calcView];
     [window makeKeyAndVisible];
 }
 
@@ -89,7 +89,7 @@ static char version[32] = "";
 }
 
 - (void) applicationWillTerminate:(UIApplication *)application {
-	[CalcView quit];
+    [CalcView quit];
 }
 
 - (void) dealloc {
@@ -114,79 +114,79 @@ static char version[32] = "";
 }
 
 + (void) playSound: (int) which {
-	AudioServicesPlaySystemSound(soundIDs[which]);
+    AudioServicesPlaySystemSound(soundIDs[which]);
 }
 
 - (void) showMain2 {
-	[containerView bringSubviewToFront:calcView];
+    [containerView bringSubviewToFront:calcView];
 }
 
 + (void) showMain {
-	[instance showMain2];
+    [instance showMain2];
 }
 
 - (void) showPrintOut2 {
-	[containerView bringSubviewToFront:printView];
+    [containerView bringSubviewToFront:printView];
 }
 
 + (void) showPrintOut {
-	[instance showPrintOut2];
+    [instance showPrintOut2];
 }
 
 - (void) showHttpServer2 {
-	[httpServerView raised];
-	[containerView bringSubviewToFront:httpServerView];
+    [httpServerView raised];
+    [containerView bringSubviewToFront:httpServerView];
 }
 
 + (void) showHttpServer {
-	[instance showHttpServer2];
+    [instance showHttpServer2];
 }
 
 - (void) showSelectSkin2 {
-	[selectSkinView raised];
-	[containerView bringSubviewToFront:selectSkinView];
+    [selectSkinView raised];
+    [containerView bringSubviewToFront:selectSkinView];
 }
 
 + (void) showSelectSkin {
-	[instance showSelectSkin2];
+    [instance showSelectSkin2];
 }
 
 - (void) showPreferences2 {
-	[preferencesView raised];
-	[containerView bringSubviewToFront:preferencesView];
+    [preferencesView raised];
+    [containerView bringSubviewToFront:preferencesView];
 }
 
 + (void) showPreferences {
-	[instance showPreferences2];
+    [instance showPreferences2];
 }
 
 - (void) showAbout2 {
-	[aboutView raised];
-	[containerView bringSubviewToFront:aboutView];
+    [aboutView raised];
+    [containerView bringSubviewToFront:aboutView];
 }
 
 + (void) showAbout {
-	[instance showAbout2];
+    [instance showAbout2];
 }
 
 - (void) showSelectFile2 {
-	[selectFileView raised];
-	[containerView bringSubviewToFront:selectFileView];
+    [selectFileView raised];
+    [containerView bringSubviewToFront:selectFileView];
 }
 
 + (void) showSelectFile {
-	[instance showSelectFile2];
+    [instance showSelectFile2];
 }
 
 + (const char *) getVersion {
-	if (version[0] == 0) {
-		NSString *path = [[NSBundle mainBundle] pathForResource:@"VERSION" ofType:nil];
-		const char *cpath = [path cStringUsingEncoding:NSUTF8StringEncoding];
-		FILE *vfile = fopen(cpath, "r");
-		fscanf(vfile, "%s", version);
-		fclose(vfile);
-	}	
-	return version;
+    if (version[0] == 0) {
+        NSString *path = [[NSBundle mainBundle] pathForResource:@"VERSION" ofType:nil];
+        const char *cpath = [path cStringUsingEncoding:NSUTF8StringEncoding];
+        FILE *vfile = fopen(cpath, "r");
+        fscanf(vfile, "%s", version);
+        fclose(vfile);
+    }   
+    return version;
 }
 
 + (void) doImport {

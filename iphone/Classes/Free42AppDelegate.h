@@ -28,15 +28,15 @@
 
 @interface Free42AppDelegate : NSObject <UIApplicationDelegate> {
     UIWindow *window;
-	UIView *containerView;
-	CalcView *calcView;
-	PrintView *printView;
-	HTTPServerView *httpServerView;
-	SelectSkinView *selectSkinView;
-	SelectProgramsView *selectProgramsView;
-	PreferencesView *preferencesView;
-	AboutView *aboutView;
-	SelectFileView *selectFileView;
+    UIView *containerView;
+    CalcView *calcView;
+    PrintView *printView;
+    HTTPServerView *httpServerView;
+    SelectSkinView *selectSkinView;
+    SelectProgramsView *selectProgramsView;
+    PreferencesView *preferencesView;
+    AboutView *aboutView;
+    SelectFileView *selectFileView;
 }
 
 @property (nonatomic, retain) IBOutlet UIWindow *window;

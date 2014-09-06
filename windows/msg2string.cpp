@@ -225,12 +225,12 @@ const char *msg2string(unsigned int msg) {
 #ifdef _DEBUG
     int i = 0;
     while (1) {
-		unsigned int id = defs[i].id;
-		if (id == 0xFFFF)
-			break;
-		if (id == msg)
-			return defs[i].name;
-		i++;
+        unsigned int id = defs[i].id;
+        if (id == 0xFFFF)
+            break;
+        if (id == msg)
+            return defs[i].name;
+        i++;
     }
 #endif
     sprintf(buf, "0x%04x", msg);

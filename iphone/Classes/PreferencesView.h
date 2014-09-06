@@ -18,20 +18,20 @@
 #import <UIKit/UIKit.h>
 
 @interface PreferencesView : UIView <UITextFieldDelegate> {
-	UIBarButtonItem *doneButton;
-	UISwitch *singularMatrixSwitch;
-	UISwitch *matrixOutOfRangeSwitch;
-	UISwitch *autoRepeatSwitch;
-	UISwitch *printToTextSwitch;
-	UITextField *printToTextField;
-	UISwitch *rawTextSwitch;
-	UISwitch *printToGifSwitch;
-	UITextField *printToGifField;
-	UITextField *maxGifLengthField;
-	UISwitch *popupKeyboardSwitch;
-	UIScrollView *scrollView;
-	UIView *contentView;
-	UITextField *activeField;
+    UIBarButtonItem *doneButton;
+    UISwitch *singularMatrixSwitch;
+    UISwitch *matrixOutOfRangeSwitch;
+    UISwitch *autoRepeatSwitch;
+    UISwitch *printToTextSwitch;
+    UITextField *printToTextField;
+    UISwitch *rawTextSwitch;
+    UISwitch *printToGifSwitch;
+    UITextField *printToGifField;
+    UITextField *maxGifLengthField;
+    UISwitch *popupKeyboardSwitch;
+    UIScrollView *scrollView;
+    UIView *contentView;
+    UITextField *activeField;
 }
 
 @property (nonatomic, retain) IBOutlet UIBarButtonItem *doneButton;

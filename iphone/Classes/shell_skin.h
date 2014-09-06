@@ -16,7 +16,7 @@
  *****************************************************************************/
 
 typedef struct {
-	unsigned char r, g, b, pad;
+    unsigned char r, g, b, pad;
 } SkinColor;
 
 #define IMGTYPE_MONO 1
@@ -27,7 +27,7 @@ typedef struct {
 #define KEYMAP_MAX_MACRO_LENGTH 31
 typedef struct {
     bool ctrl;
-	bool alt;
+    bool alt;
     bool shift; 
     bool cshift; 
     int keycode;
@@ -39,6 +39,6 @@ keymap_entry *parse_keymap_entry(char *line, int lineno);
 int skin_getchar();
 void skin_rewind();
 int skin_init_image(int type, int ncolors, const SkinColor *colors,
-					int width, int height);
+                    int width, int height);
 void skin_put_pixels(unsigned const char *data);
 void skin_finish_image();

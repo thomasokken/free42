@@ -102,21 +102,21 @@ static keymap_entry *keymap = NULL;
 #define SHELL_VERSION 7
 
 typedef struct state {
-	BOOL extras;
-	WINDOWPLACEMENT mainPlacement;
-	int mainPlacementValid;
-	WINDOWPLACEMENT printOutPlacement;
-	int printOutPlacementValid;
-	int printOutOpen;
-	int printerToTxtFile;
-	int printerToGifFile;
-	char printerTxtFileName[FILENAMELEN];
-	char printerGifFileName[FILENAMELEN];
-	int printerGifMaxLength;
-	char skinName[FILENAMELEN];
-	BOOL alwaysOnTop;
-	BOOL singleInstance;
-	BOOL calculatorKey;
+    BOOL extras;
+    WINDOWPLACEMENT mainPlacement;
+    int mainPlacementValid;
+    WINDOWPLACEMENT printOutPlacement;
+    int printOutPlacementValid;
+    int printOutOpen;
+    int printerToTxtFile;
+    int printerToGifFile;
+    char printerTxtFileName[FILENAMELEN];
+    char printerGifFileName[FILENAMELEN];
+    int printerGifMaxLength;
+    char skinName[FILENAMELEN];
+    BOOL alwaysOnTop;
+    BOOL singleInstance;
+    BOOL calculatorKey;
 } state_type;
 
 static state_type state;
@@ -153,12 +153,12 @@ static int ann_rad = 0;
 // Foward declarations of functions included in this code module:
 static void MyRegisterClass(HINSTANCE hInstance);
 static BOOL InitInstance(HINSTANCE, int);
-static LRESULT CALLBACK	MainWndProc(HWND, UINT, WPARAM, LPARAM);
+static LRESULT CALLBACK MainWndProc(HWND, UINT, WPARAM, LPARAM);
 static LRESULT CALLBACK PrintOutWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-static LRESULT CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
-static LRESULT CALLBACK	ExportProgram(HWND, UINT, WPARAM, LPARAM);
+static LRESULT CALLBACK About(HWND, UINT, WPARAM, LPARAM);
+static LRESULT CALLBACK ExportProgram(HWND, UINT, WPARAM, LPARAM);
 static int browse_file(HWND owner, char *title, int save, char *filter, char *defExt, char *buf, int buflen);
-static LRESULT CALLBACK	Preferences(HWND, UINT, WPARAM, LPARAM);
+static LRESULT CALLBACK Preferences(HWND, UINT, WPARAM, LPARAM);
 static void get_home_dir(char *path, int pathlen);
 static void config_home_dir(HWND owner, char *buf, int bufsize);
 static void mapCalculatorKey();
@@ -197,46 +197,46 @@ int APIENTRY WinMain(HINSTANCE hInstance,
                      LPSTR     lpCmdLine,
                      int       nCmdShow)
 {
-	MSG msg;
-	HACCEL hAccelTable;
+    MSG msg;
+    HACCEL hAccelTable;
 
-	// Initialize global strings
+    // Initialize global strings
 #ifdef BCD_MATH
-	LoadString(hInstance, IDS_APP_TITLE_DEC, szMainTitle, MAX_LOADSTRING);
+    LoadString(hInstance, IDS_APP_TITLE_DEC, szMainTitle, MAX_LOADSTRING);
 #else
-	LoadString(hInstance, IDS_APP_TITLE_BIN, szMainTitle, MAX_LOADSTRING);
+    LoadString(hInstance, IDS_APP_TITLE_BIN, szMainTitle, MAX_LOADSTRING);
 #endif
-	LoadString(hInstance, IDS_PRINTOUT_TITLE, szPrintOutTitle, MAX_LOADSTRING);
-	LoadString(hInstance, IDC_FREE42, szMainWindowClass, MAX_LOADSTRING);
-	LoadString(hInstance, IDC_FREE42_PRINTOUT, szPrintOutWindowClass, MAX_LOADSTRING);
+    LoadString(hInstance, IDS_PRINTOUT_TITLE, szPrintOutTitle, MAX_LOADSTRING);
+    LoadString(hInstance, IDC_FREE42, szMainWindowClass, MAX_LOADSTRING);
+    LoadString(hInstance, IDC_FREE42_PRINTOUT, szPrintOutWindowClass, MAX_LOADSTRING);
 
-	MyRegisterClass(hInstance);
+    MyRegisterClass(hInstance);
 
-	// Perform application initialization:
-	if (!InitInstance (hInstance, nCmdShow)) 
-	{
-		return FALSE;
-	}
+    // Perform application initialization:
+    if (!InitInstance (hInstance, nCmdShow)) 
+    {
+        return FALSE;
+    }
 
-	hAccelTable = LoadAccelerators(hInstance, (LPCTSTR)IDC_FREE42);
+    hAccelTable = LoadAccelerators(hInstance, (LPCTSTR)IDC_FREE42);
 
-	// Main message loop:
-	while (1) {
-		while (running && !PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
-			int dummy1, dummy2;
-			running = core_keydown(0, &dummy1, &dummy2);
-		}
-		if (!GetMessage(&msg, NULL, 0, 0)) 
-			break;
-		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg)) 
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-	}
+    // Main message loop:
+    while (1) {
+        while (running && !PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
+            int dummy1, dummy2;
+            running = core_keydown(0, &dummy1, &dummy2);
+        }
+        if (!GetMessage(&msg, NULL, 0, 0)) 
+            break;
+        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg)) 
+        {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+    }
 
-	Quit();
-	return msg.wParam;
+    Quit();
+    return msg.wParam;
 }
 
 
@@ -256,39 +256,39 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 //
 static void MyRegisterClass(HINSTANCE hInstance)
 {
-	WNDCLASSEX wcex1, wcex2;
+    WNDCLASSEX wcex1, wcex2;
 
-	wcex1.cbSize = sizeof(WNDCLASSEX); 
+    wcex1.cbSize = sizeof(WNDCLASSEX); 
 
-	wcex1.style			= CS_HREDRAW | CS_VREDRAW;
-	wcex1.lpfnWndProc	= (WNDPROC) MainWndProc;
-	wcex1.cbClsExtra	= 0;
-	wcex1.cbWndExtra	= 0;
-	wcex1.hInstance		= hInstance;
-	wcex1.hIcon			= LoadIcon(hInstance, (LPCTSTR) IDI_FREE42);
-	wcex1.hCursor		= LoadCursor(NULL, IDC_ARROW);
-	wcex1.hbrBackground	= (HBRUSH) (COLOR_WINDOW+1);
-	wcex1.lpszMenuName	= (LPCSTR) IDC_FREE42;
-	wcex1.lpszClassName	= szMainWindowClass;
-	wcex1.hIconSm		= LoadIcon(wcex1.hInstance, (LPCTSTR) IDI_SMALL);
+    wcex1.style         = CS_HREDRAW | CS_VREDRAW;
+    wcex1.lpfnWndProc   = (WNDPROC) MainWndProc;
+    wcex1.cbClsExtra    = 0;
+    wcex1.cbWndExtra    = 0;
+    wcex1.hInstance     = hInstance;
+    wcex1.hIcon         = LoadIcon(hInstance, (LPCTSTR) IDI_FREE42);
+    wcex1.hCursor       = LoadCursor(NULL, IDC_ARROW);
+    wcex1.hbrBackground = (HBRUSH) (COLOR_WINDOW+1);
+    wcex1.lpszMenuName  = (LPCSTR) IDC_FREE42;
+    wcex1.lpszClassName = szMainWindowClass;
+    wcex1.hIconSm       = LoadIcon(wcex1.hInstance, (LPCTSTR) IDI_SMALL);
 
-	RegisterClassEx(&wcex1);
+    RegisterClassEx(&wcex1);
 
-	wcex2.cbSize = sizeof(WNDCLASSEX); 
+    wcex2.cbSize = sizeof(WNDCLASSEX); 
 
-	wcex2.style			= CS_HREDRAW | CS_VREDRAW;
-	wcex2.lpfnWndProc	= (WNDPROC) PrintOutWndProc;
-	wcex2.cbClsExtra	= 0;
-	wcex2.cbWndExtra	= 0;
-	wcex2.hInstance		= hInstance;
-	wcex2.hIcon			= LoadIcon(hInstance, (LPCTSTR) IDI_FREE42);
-	wcex2.hCursor		= LoadCursor(NULL, IDC_ARROW);
-	wcex2.hbrBackground	= (HBRUSH) (COLOR_WINDOW+1);
-	wcex2.lpszMenuName	= NULL;
-	wcex2.lpszClassName	= szPrintOutWindowClass;
-	wcex2.hIconSm		= LoadIcon(wcex2.hInstance, (LPCTSTR) IDI_SMALL);
+    wcex2.style         = CS_HREDRAW | CS_VREDRAW;
+    wcex2.lpfnWndProc   = (WNDPROC) PrintOutWndProc;
+    wcex2.cbClsExtra    = 0;
+    wcex2.cbWndExtra    = 0;
+    wcex2.hInstance     = hInstance;
+    wcex2.hIcon         = LoadIcon(hInstance, (LPCTSTR) IDI_FREE42);
+    wcex2.hCursor       = LoadCursor(NULL, IDC_ARROW);
+    wcex2.hbrBackground = (HBRUSH) (COLOR_WINDOW+1);
+    wcex2.lpszMenuName  = NULL;
+    wcex2.lpszClassName = szPrintOutWindowClass;
+    wcex2.hIconSm       = LoadIcon(wcex2.hInstance, (LPCTSTR) IDI_SMALL);
 
-	RegisterClassEx(&wcex2);
+    RegisterClassEx(&wcex2);
 }
 
 //
@@ -303,190 +303,190 @@ static void MyRegisterClass(HINSTANCE hInstance)
 //
 static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-	RECT r;
+    RECT r;
 
-	hInst = hInstance; // Store instance handle in our global variable
+    hInst = hInstance; // Store instance handle in our global variable
 
-	srand(GetTickCount());
+    srand(GetTickCount());
 
     /**********************************************/
     /***** Try to create the Free42 directory *****/
     /**********************************************/
 
-	get_home_dir(free42dirname, FILENAMELEN);
+    get_home_dir(free42dirname, FILENAMELEN);
     _mkdir(free42dirname);
 
-	char keymapfilename[FILENAMELEN];
-	sprintf(statefilename, "%s\\state.bin", free42dirname);
-	sprintf(printfilename, "%s\\print.bin", free42dirname);
-	sprintf(keymapfilename, "%s\\keymap.txt", free42dirname);
+    char keymapfilename[FILENAMELEN];
+    sprintf(statefilename, "%s\\state.bin", free42dirname);
+    sprintf(printfilename, "%s\\print.bin", free42dirname);
+    sprintf(keymapfilename, "%s\\keymap.txt", free42dirname);
 
-	read_key_map(keymapfilename);
+    read_key_map(keymapfilename);
 
-	printout = (char *) malloc(PRINT_SIZE);
-	// TODO - handle memory allocation failure
-	FILE *printfile = fopen(printfilename, "rb");
+    printout = (char *) malloc(PRINT_SIZE);
+    // TODO - handle memory allocation failure
+    FILE *printfile = fopen(printfilename, "rb");
     if (printfile != NULL) {
-		int n = fread(&printout_bottom, 1, sizeof(int), printfile);
-		if (n == sizeof(int)) {
-			int bytes = printout_bottom * PRINT_BYTESPERLINE;
-			n = fread(printout, 1, bytes, printfile);
-			if (n != bytes)
-				printout_bottom = 0;
-		} else
-			printout_bottom = 0;
-		fclose(printfile);
+        int n = fread(&printout_bottom, 1, sizeof(int), printfile);
+        if (n == sizeof(int)) {
+            int bytes = printout_bottom * PRINT_BYTESPERLINE;
+            n = fread(printout, 1, bytes, printfile);
+            if (n != bytes)
+                printout_bottom = 0;
+        } else
+            printout_bottom = 0;
+        fclose(printfile);
     } else
-		printout_bottom = 0;
+        printout_bottom = 0;
     printout_top = 0;
     for (int n = printout_bottom * PRINT_BYTESPERLINE; n < PRINT_SIZE; n++)
-		printout[n] = 0;
-	printout_pos = printout_bottom;
+        printout[n] = 0;
+    printout_pos = printout_bottom;
 
-	int init_mode;
-	int4 version;
+    int init_mode;
+    int4 version;
 
     statefile = fopen(statefilename, "rb");
     if (statefile != NULL) {
-		if (read_shell_state(&version))
-			init_mode = 1;
-		else {
-			init_shell_state(-1);
-			init_mode = 2;
-		}
+        if (read_shell_state(&version))
+            init_mode = 1;
+        else {
+            init_shell_state(-1);
+            init_mode = 2;
+        }
     } else {
-		init_shell_state(-1);
-		init_mode = 0;
+        init_shell_state(-1);
+        init_mode = 0;
     }
 
-	if (state.singleInstance) {
-		HWND hPrevWnd = FindWindow(szMainWindowClass, szMainTitle);
-		if (hPrevWnd != NULL) {
-			if (IsIconic(hPrevWnd))
-				OpenIcon(hPrevWnd);
-			SetForegroundWindow(hPrevWnd);
-			return FALSE;
-		}
-	}
+    if (state.singleInstance) {
+        HWND hPrevWnd = FindWindow(szMainWindowClass, szMainTitle);
+        if (hPrevWnd != NULL) {
+            if (IsIconic(hPrevWnd))
+                OpenIcon(hPrevWnd);
+            SetForegroundWindow(hPrevWnd);
+            return FALSE;
+        }
+    }
 
-	skin_load(state.skinName, free42dirname, &r.right, &r.bottom);
-	r.top = 0;
-	r.left = 0;
-	AdjustWindowRect(&r, WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX|WS_OVERLAPPED, 1);
+    skin_load(state.skinName, free42dirname, &r.right, &r.bottom);
+    r.top = 0;
+    r.left = 0;
+    AdjustWindowRect(&r, WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX|WS_OVERLAPPED, 1);
 
-	hMainWnd = CreateWindow(szMainWindowClass, szMainTitle,
-							WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX|WS_OVERLAPPED,
-							CW_USEDEFAULT, 0, r.right - r.left, r.bottom - r.top,
-							NULL, NULL, hInstance, NULL);
+    hMainWnd = CreateWindow(szMainWindowClass, szMainTitle,
+                            WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX|WS_OVERLAPPED,
+                            CW_USEDEFAULT, 0, r.right - r.left, r.bottom - r.top,
+                            NULL, NULL, hInstance, NULL);
 
-	if (hMainWnd == NULL)
-		return FALSE;
+    if (hMainWnd == NULL)
+        return FALSE;
 
-	core_init(init_mode, version);
-	if (statefile != NULL) {
-		fclose(statefile);
-		statefile = NULL;
-	}
+    core_init(init_mode, version);
+    if (statefile != NULL) {
+        fclose(statefile);
+        statefile = NULL;
+    }
 
-	if (state.mainPlacementValid) {
-		// Fix the size, in case the saved settings are not appropriate
-		// for the current desktop properties (the decor dimensions may
-		// be different).
-		RECT *r2 = &state.mainPlacement.rcNormalPosition;
-		r2->right = r2->left + r.right - r.left;
-		r2->bottom = r2->top + r.bottom - r.top;
-		SetWindowPlacement(hMainWnd, &state.mainPlacement);
-	}
-	if (state.alwaysOnTop)
-		SetWindowPos(hMainWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-	ShowWindow(hMainWnd, nCmdShow);
-	UpdateWindow(hMainWnd);
+    if (state.mainPlacementValid) {
+        // Fix the size, in case the saved settings are not appropriate
+        // for the current desktop properties (the decor dimensions may
+        // be different).
+        RECT *r2 = &state.mainPlacement.rcNormalPosition;
+        r2->right = r2->left + r.right - r.left;
+        r2->bottom = r2->top + r.bottom - r.top;
+        SetWindowPlacement(hMainWnd, &state.mainPlacement);
+    }
+    if (state.alwaysOnTop)
+        SetWindowPos(hMainWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+    ShowWindow(hMainWnd, nCmdShow);
+    UpdateWindow(hMainWnd);
 
-	if (state.printOutOpen) {
-		show_printout();
-		BringWindowToTop(hMainWnd);
-	}
+    if (state.printOutOpen) {
+        show_printout();
+        BringWindowToTop(hMainWnd);
+    }
 
-	if (core_powercycle())
-		running = 1;
-	SetTimer(NULL, 0, 60000, battery_checker);
+    if (core_powercycle())
+        running = 1;
+    SetTimer(NULL, 0, 60000, battery_checker);
 
-	return TRUE;
+    return TRUE;
 }
 
 static void shell_keydown() {
-	if (ckey != 0) {
-		HDC hdc = GetDC(hMainWnd);
-		HDC memdc = CreateCompatibleDC(hdc);
-		if (skey == -1)
-			skey = skin_find_skey(ckey);
-		skin_repaint_key(hdc, memdc, skey, 1);
-		DeleteObject(memdc);
-		ReleaseDC(hMainWnd, hdc);
-	}
-	if (timer != 0) {
-		KillTimer(NULL, timer);
-		timer = 0;
-	}
-	if (timer3 != 0 && (macro != NULL || ckey != 28 /* SHIFT */)) {
-		KillTimer(NULL, timer3);
-		timer3 = 0; 
-		core_timeout3(0);
-	}
-	int repeat;
-	if (macro != NULL) {
-		if (*macro == 0) {
-			squeak();
-			return;
-		}
-		bool one_key_macro = macro[1] == 0 || (macro[2] == 0 && macro[0] == 28);
-		if (!one_key_macro)
-			skin_display_set_enabled(false);
-		while (*macro != 0) {
-			running = core_keydown(*macro++, &enqueued, &repeat);
-			if (*macro != 0 && !enqueued)
-				core_keyup();
-		}
-		if (!one_key_macro) {
-			skin_display_set_enabled(true);
-			HDC hdc = GetDC(hMainWnd);
-			HDC memdc = CreateCompatibleDC(hdc);
-			skin_repaint_display(hdc, memdc);
-			skin_repaint_annunciator(hdc, memdc, 1, ann_updown);
-			skin_repaint_annunciator(hdc, memdc, 2, ann_shift);
-			skin_repaint_annunciator(hdc, memdc, 3, ann_print);
-			skin_repaint_annunciator(hdc, memdc, 4, ann_run);
-			skin_repaint_annunciator(hdc, memdc, 5, ann_battery);
-			skin_repaint_annunciator(hdc, memdc, 6, ann_g);
-			skin_repaint_annunciator(hdc, memdc, 7, ann_rad);
-			DeleteDC(memdc);
-			ReleaseDC(hMainWnd, hdc);
-			repeat = 0;
-		}
-	} else
-		running = core_keydown(ckey, &enqueued, &repeat);
-	if (!running) {
-		if (repeat != 0)
-			timer = SetTimer(NULL, 0, repeat == 1 ? 1000 : 500, repeater);
-		else if (!enqueued)
-			timer = SetTimer(NULL, 0, 250, timeout1);
-	}
+    if (ckey != 0) {
+        HDC hdc = GetDC(hMainWnd);
+        HDC memdc = CreateCompatibleDC(hdc);
+        if (skey == -1)
+            skey = skin_find_skey(ckey);
+        skin_repaint_key(hdc, memdc, skey, 1);
+        DeleteObject(memdc);
+        ReleaseDC(hMainWnd, hdc);
+    }
+    if (timer != 0) {
+        KillTimer(NULL, timer);
+        timer = 0;
+    }
+    if (timer3 != 0 && (macro != NULL || ckey != 28 /* SHIFT */)) {
+        KillTimer(NULL, timer3);
+        timer3 = 0; 
+        core_timeout3(0);
+    }
+    int repeat;
+    if (macro != NULL) {
+        if (*macro == 0) {
+            squeak();
+            return;
+        }
+        bool one_key_macro = macro[1] == 0 || (macro[2] == 0 && macro[0] == 28);
+        if (!one_key_macro)
+            skin_display_set_enabled(false);
+        while (*macro != 0) {
+            running = core_keydown(*macro++, &enqueued, &repeat);
+            if (*macro != 0 && !enqueued)
+                core_keyup();
+        }
+        if (!one_key_macro) {
+            skin_display_set_enabled(true);
+            HDC hdc = GetDC(hMainWnd);
+            HDC memdc = CreateCompatibleDC(hdc);
+            skin_repaint_display(hdc, memdc);
+            skin_repaint_annunciator(hdc, memdc, 1, ann_updown);
+            skin_repaint_annunciator(hdc, memdc, 2, ann_shift);
+            skin_repaint_annunciator(hdc, memdc, 3, ann_print);
+            skin_repaint_annunciator(hdc, memdc, 4, ann_run);
+            skin_repaint_annunciator(hdc, memdc, 5, ann_battery);
+            skin_repaint_annunciator(hdc, memdc, 6, ann_g);
+            skin_repaint_annunciator(hdc, memdc, 7, ann_rad);
+            DeleteDC(memdc);
+            ReleaseDC(hMainWnd, hdc);
+            repeat = 0;
+        }
+    } else
+        running = core_keydown(ckey, &enqueued, &repeat);
+    if (!running) {
+        if (repeat != 0)
+            timer = SetTimer(NULL, 0, repeat == 1 ? 1000 : 500, repeater);
+        else if (!enqueued)
+            timer = SetTimer(NULL, 0, 250, timeout1);
+    }
 }
 
 static void shell_keyup() {
-	HDC hdc = GetDC(hMainWnd);
-	HDC memdc = CreateCompatibleDC(hdc);
-	skin_repaint_key(hdc, memdc, skey, 0);
-	DeleteObject(memdc);
-	ReleaseDC(hMainWnd, hdc);
-	ckey = 0;
-	skey = -1;
-	if (timer != 0) {
-		KillTimer(NULL, timer);
-		timer = 0;
-	}
-	if (!enqueued)
-		running = core_keyup();
+    HDC hdc = GetDC(hMainWnd);
+    HDC memdc = CreateCompatibleDC(hdc);
+    skin_repaint_key(hdc, memdc, skey, 0);
+    DeleteObject(memdc);
+    ReleaseDC(hMainWnd, hdc);
+    ckey = 0;
+    skey = -1;
+    if (timer != 0) {
+        KillTimer(NULL, timer);
+        timer = 0;
+    }
+    if (!enqueued)
+        running = core_keyup();
 }
 
 //
@@ -494,398 +494,398 @@ static void shell_keyup() {
 //
 //  PURPOSE:  Processes messages for the main window.
 //
-//  WM_COMMAND	- process the application menu
-//  WM_PAINT	- Paint the main window
-//  WM_DESTROY	- post a quit message and return
+//  WM_COMMAND  - process the application menu
+//  WM_PAINT    - Paint the main window
+//  WM_DESTROY  - post a quit message and return
 //
 //
 static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-	//static FILE *logfile = fopen("C:\\Windows\\Desktop\\log.txt", "w");
-	//fprintf(logfile, "message=%s wParam=0x%x lParam=0x%lx\n", msg2string(message), wParam, lParam);
-	//fflush(logfile);
+    //static FILE *logfile = fopen("C:\\Windows\\Desktop\\log.txt", "w");
+    //fprintf(logfile, "message=%s wParam=0x%x lParam=0x%lx\n", msg2string(message), wParam, lParam);
+    //fflush(logfile);
 
-	switch (message) {
-		case WM_COMMAND: {
-			int wmId    = LOWORD(wParam); 
-			int wmEvent = HIWORD(wParam); 
-			// Parse the menu selections:
-			switch (wmId) {
-				case IDM_SHOWPRINTOUT:
-					show_printout();
-					break;
-				case IDM_EXPORTPROGRAM:
-					export_program();
-					break;
-				case IDM_IMPORTPROGRAM:
-					import_program();
-					break;
-				case IDM_CLEARPRINTOUT:
-					clear_printout();
-					break;
-				case IDM_PREFERENCES:
-					DialogBox(hInst, (LPCTSTR)IDD_PREFERENCES, hWnd, (DLGPROC)Preferences);
-					break;
-				case IDM_EXIT:
-					DestroyWindow(hWnd);
-					break;
-				case ID_EDIT_COPY:
-					copy();
-					break;
-				case ID_EDIT_PASTE:
-					paste();
-					break;
-				case IDM_ABOUT:
-					DialogBox(hInst, (LPCTSTR)IDD_ABOUTBOX, hWnd, (DLGPROC)About);
-					break;
-				default:
-					if (wmId >= 40000) {
-						// 'Skin' menu
-						HMENU mainmenu = GetMenu(hWnd);
-						HMENU skinmenu = GetSubMenu(mainmenu, 2);
-						MENUITEMINFO mii;
-						mii.cbSize = sizeof(MENUITEMINFO);
-						mii.fMask = MIIM_TYPE;
-						mii.cch = FILENAMELEN;
-						mii.dwTypeData = state.skinName;
-						GetMenuItemInfo(skinmenu, wmId, FALSE, &mii);
+    switch (message) {
+        case WM_COMMAND: {
+            int wmId    = LOWORD(wParam); 
+            int wmEvent = HIWORD(wParam); 
+            // Parse the menu selections:
+            switch (wmId) {
+                case IDM_SHOWPRINTOUT:
+                    show_printout();
+                    break;
+                case IDM_EXPORTPROGRAM:
+                    export_program();
+                    break;
+                case IDM_IMPORTPROGRAM:
+                    import_program();
+                    break;
+                case IDM_CLEARPRINTOUT:
+                    clear_printout();
+                    break;
+                case IDM_PREFERENCES:
+                    DialogBox(hInst, (LPCTSTR)IDD_PREFERENCES, hWnd, (DLGPROC)Preferences);
+                    break;
+                case IDM_EXIT:
+                    DestroyWindow(hWnd);
+                    break;
+                case ID_EDIT_COPY:
+                    copy();
+                    break;
+                case ID_EDIT_PASTE:
+                    paste();
+                    break;
+                case IDM_ABOUT:
+                    DialogBox(hInst, (LPCTSTR)IDD_ABOUTBOX, hWnd, (DLGPROC)About);
+                    break;
+                default:
+                    if (wmId >= 40000) {
+                        // 'Skin' menu
+                        HMENU mainmenu = GetMenu(hWnd);
+                        HMENU skinmenu = GetSubMenu(mainmenu, 2);
+                        MENUITEMINFO mii;
+                        mii.cbSize = sizeof(MENUITEMINFO);
+                        mii.fMask = MIIM_TYPE;
+                        mii.cch = FILENAMELEN;
+                        mii.dwTypeData = state.skinName;
+                        GetMenuItemInfo(skinmenu, wmId, FALSE, &mii);
 
-						// The following is really just skin_load(), followed by
-						// resizing the window. Unfortunately, I couldn't find a
-						// function that resizes a window without setting its position
-						// at the same time, hence the contortions.
-						RECT r;
-						GetWindowRect(hWnd, &r);
-						long width, height;
-						skin_load(state.skinName, free42dirname, &width, &height);
-						core_repaint_display();
-						r.right = r.left + width;
-						r.bottom = r.top + height;
-						LONG dx = r.left;
-						LONG dy = r.top;
-						AdjustWindowRect(&r, WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX|WS_OVERLAPPED, 1);
-						dx -= r.left;
-						dy -= r.top;
-						OffsetRect(&r, dx, dy);
-						MoveWindow(hWnd, r.left, r.top, r.right - r.left, r.bottom - r.top, TRUE);
-						SetRect(&r, 0, 0, width, height);
-						InvalidateRect(hWnd, &r, FALSE);
-						break;
-					}
-					return DefWindowProc(hWnd, message, wParam, lParam);
-			}
-			break;
-		}
-		case WM_PAINT: {
-			PAINTSTRUCT ps;
-			HDC hdc = BeginPaint(hWnd, &ps);
-			HDC memdc = CreateCompatibleDC(hdc);
-			skin_repaint(hdc, memdc);
-			skin_repaint_display(hdc, memdc);
-			skin_repaint_annunciator(hdc, memdc, 1, ann_updown);
-			skin_repaint_annunciator(hdc, memdc, 2, ann_shift);
-			skin_repaint_annunciator(hdc, memdc, 3, ann_print);
-			skin_repaint_annunciator(hdc, memdc, 4, ann_run);
-			skin_repaint_annunciator(hdc, memdc, 5, ann_battery);
-			skin_repaint_annunciator(hdc, memdc, 6, ann_g);
-			skin_repaint_annunciator(hdc, memdc, 7, ann_rad);
-			if (ckey != 0)
-				skin_repaint_key(hdc, memdc, skey, 1);
-			DeleteDC(memdc);
-			EndPaint(hWnd, &ps);
-			break;
-		}
-		case WM_LBUTTONDOWN: {
-			if (ckey == 0) {
-				int x = LOWORD(lParam);  // horizontal position of cursor
-				int y = HIWORD(lParam);  // vertical position of cursor
-				skin_find_key(x, y, ann_shift != 0, &skey, &ckey);
-				if (ckey != 0) {
-					macro = skin_find_macro(ckey);
-					shell_keydown();
-					mouse_key = true;
-				}
-			}
-			break;
-		}
-		case WM_LBUTTONUP:
-			if (ckey != 0 && mouse_key)
-				shell_keyup();
-			break;
-		case WM_KEYDOWN:
-		case WM_CHAR:
-		case WM_SYSKEYDOWN:
-		case WM_SYSCHAR: {
-			static int virtKey = 0;
-			int keyChar;
-			if ((lParam & (1 << 30)) != 0)
-				// Auto-repeat event; ignore.
-				break;
-			if (message == WM_KEYDOWN || message == WM_SYSKEYDOWN) {
-				keyChar = 0;
-				virtKey = (int) wParam;
-			} else
-				keyChar = (int) wParam;
-			just_pressed_shift = false;
-			if (virtKey == 17) {
-				ctrl_down = true;
-				goto do_default;
-			} else if (virtKey == 18) {
-				alt_down = true;
-				goto do_default;
-			} else if (virtKey == 16) {
-				shift_down = true;
-				just_pressed_shift = true;
-				goto do_default;
-			}
-			if ((message == WM_KEYDOWN || message == WM_SYSKEYDOWN)
-					&& !ctrl_down
-					&& (virtKey == 8 // Backspace
-					|| virtKey == 9 // Tab
-					|| virtKey == 13 // Enter
-					|| (virtKey == 27 && !shift_down) // Escape
-					|| virtKey == 32 // Space
-					|| (virtKey >= 48 && virtKey < 112)
-					|| (virtKey >= 0xB0 && virtKey < 0xF0)))
-				// Keystrokes that will be followed by a WM_CHAR
-				// message; we defer handling them until then.
-				break;
+                        // The following is really just skin_load(), followed by
+                        // resizing the window. Unfortunately, I couldn't find a
+                        // function that resizes a window without setting its position
+                        // at the same time, hence the contortions.
+                        RECT r;
+                        GetWindowRect(hWnd, &r);
+                        long width, height;
+                        skin_load(state.skinName, free42dirname, &width, &height);
+                        core_repaint_display();
+                        r.right = r.left + width;
+                        r.bottom = r.top + height;
+                        LONG dx = r.left;
+                        LONG dy = r.top;
+                        AdjustWindowRect(&r, WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX|WS_OVERLAPPED, 1);
+                        dx -= r.left;
+                        dy -= r.top;
+                        OffsetRect(&r, dx, dy);
+                        MoveWindow(hWnd, r.left, r.top, r.right - r.left, r.bottom - r.top, TRUE);
+                        SetRect(&r, 0, 0, width, height);
+                        InvalidateRect(hWnd, &r, FALSE);
+                        break;
+                    }
+                    return DefWindowProc(hWnd, message, wParam, lParam);
+            }
+            break;
+        }
+        case WM_PAINT: {
+            PAINTSTRUCT ps;
+            HDC hdc = BeginPaint(hWnd, &ps);
+            HDC memdc = CreateCompatibleDC(hdc);
+            skin_repaint(hdc, memdc);
+            skin_repaint_display(hdc, memdc);
+            skin_repaint_annunciator(hdc, memdc, 1, ann_updown);
+            skin_repaint_annunciator(hdc, memdc, 2, ann_shift);
+            skin_repaint_annunciator(hdc, memdc, 3, ann_print);
+            skin_repaint_annunciator(hdc, memdc, 4, ann_run);
+            skin_repaint_annunciator(hdc, memdc, 5, ann_battery);
+            skin_repaint_annunciator(hdc, memdc, 6, ann_g);
+            skin_repaint_annunciator(hdc, memdc, 7, ann_rad);
+            if (ckey != 0)
+                skin_repaint_key(hdc, memdc, skey, 1);
+            DeleteDC(memdc);
+            EndPaint(hWnd, &ps);
+            break;
+        }
+        case WM_LBUTTONDOWN: {
+            if (ckey == 0) {
+                int x = LOWORD(lParam);  // horizontal position of cursor
+                int y = HIWORD(lParam);  // vertical position of cursor
+                skin_find_key(x, y, ann_shift != 0, &skey, &ckey);
+                if (ckey != 0) {
+                    macro = skin_find_macro(ckey);
+                    shell_keydown();
+                    mouse_key = true;
+                }
+            }
+            break;
+        }
+        case WM_LBUTTONUP:
+            if (ckey != 0 && mouse_key)
+                shell_keyup();
+            break;
+        case WM_KEYDOWN:
+        case WM_CHAR:
+        case WM_SYSKEYDOWN:
+        case WM_SYSCHAR: {
+            static int virtKey = 0;
+            int keyChar;
+            if ((lParam & (1 << 30)) != 0)
+                // Auto-repeat event; ignore.
+                break;
+            if (message == WM_KEYDOWN || message == WM_SYSKEYDOWN) {
+                keyChar = 0;
+                virtKey = (int) wParam;
+            } else
+                keyChar = (int) wParam;
+            just_pressed_shift = false;
+            if (virtKey == 17) {
+                ctrl_down = true;
+                goto do_default;
+            } else if (virtKey == 18) {
+                alt_down = true;
+                goto do_default;
+            } else if (virtKey == 16) {
+                shift_down = true;
+                just_pressed_shift = true;
+                goto do_default;
+            }
+            if ((message == WM_KEYDOWN || message == WM_SYSKEYDOWN)
+                    && !ctrl_down
+                    && (virtKey == 8 // Backspace
+                    || virtKey == 9 // Tab
+                    || virtKey == 13 // Enter
+                    || (virtKey == 27 && !shift_down) // Escape
+                    || virtKey == 32 // Space
+                    || (virtKey >= 48 && virtKey < 112)
+                    || (virtKey >= 0xB0 && virtKey < 0xF0)))
+                // Keystrokes that will be followed by a WM_CHAR
+                // message; we defer handling them until then.
+                break;
 
-			if (ckey == 0 || !mouse_key) {
-				int i;
-				bool printable = keyChar >= 32 && keyChar <= 126;
-				if (ckey != 0) {
-					shell_keyup();
-					active_keycode = 0;
-				}
+            if (ckey == 0 || !mouse_key) {
+                int i;
+                bool printable = keyChar >= 32 && keyChar <= 126;
+                if (ckey != 0) {
+                    shell_keyup();
+                    active_keycode = 0;
+                }
 
-				bool exact;
-				bool cshift_down = ann_shift != 0;
-				unsigned char *key_macro = skin_keymap_lookup(virtKey, ctrl_down, alt_down, shift_down, cshift_down, &exact);
-				if (key_macro == NULL || !exact) {
-					for (i = 0; i < keymap_length; i++) {
-						keymap_entry *entry = keymap + i;
-						if (ctrl_down == entry->ctrl
-								&& alt_down == entry->alt
-								&& shift_down == entry->shift
-								&& virtKey == entry->keycode) {
-							if (cshift_down == entry->cshift) {
-								key_macro = entry->macro;
-								break;
-							} else {
-								if (key_macro == NULL)
-									key_macro = entry->macro;
-							}
-						}
-					}
-				}
+                bool exact;
+                bool cshift_down = ann_shift != 0;
+                unsigned char *key_macro = skin_keymap_lookup(virtKey, ctrl_down, alt_down, shift_down, cshift_down, &exact);
+                if (key_macro == NULL || !exact) {
+                    for (i = 0; i < keymap_length; i++) {
+                        keymap_entry *entry = keymap + i;
+                        if (ctrl_down == entry->ctrl
+                                && alt_down == entry->alt
+                                && shift_down == entry->shift
+                                && virtKey == entry->keycode) {
+                            if (cshift_down == entry->cshift) {
+                                key_macro = entry->macro;
+                                break;
+                            } else {
+                                if (key_macro == NULL)
+                                    key_macro = entry->macro;
+                            }
+                        }
+                    }
+                }
 
-				if (key_macro == NULL || (key_macro[0] != 36 || key_macro[1] != 0)
-						&& (key_macro[0] != 28 || key_macro[1] != 36 || key_macro[2] != 0)) {
-					// The test above is to make sure that whatever mapping is in
-					// effect for R/S will never be overridden by the special cases
-					// for the ALPHA and A..F menus.
-					if (printable && core_alpha_menu()) {
-						if (keyChar >= 'a' && keyChar <= 'z')
-							keyChar = keyChar + 'A' - 'a';
-						else if (keyChar >= 'A' && keyChar <= 'Z')
-							keyChar = keyChar + 'a' - 'A';
-						ckey = 1024 + keyChar;
-						skey = -1;
-						macro = NULL;
-						shell_keydown();
-						mouse_key = false;
-						active_keycode = virtKey;
-						break;
-					} else if (core_hex_menu() && ((keyChar >= 'a' && keyChar <= 'f')
-								|| (keyChar >= 'A' && keyChar <= 'F'))) {
-						if (keyChar >= 'a' && keyChar <= 'f')
-							ckey = keyChar - 'a' + 1;
-						else
-							ckey = keyChar - 'A' + 1;
-						skey = -1;
-						macro = NULL;
-						shell_keydown();
-						mouse_key = false;
-						active_keycode = virtKey;
-						break;
-					}
-				}
+                if (key_macro == NULL || (key_macro[0] != 36 || key_macro[1] != 0)
+                        && (key_macro[0] != 28 || key_macro[1] != 36 || key_macro[2] != 0)) {
+                    // The test above is to make sure that whatever mapping is in
+                    // effect for R/S will never be overridden by the special cases
+                    // for the ALPHA and A..F menus.
+                    if (printable && core_alpha_menu()) {
+                        if (keyChar >= 'a' && keyChar <= 'z')
+                            keyChar = keyChar + 'A' - 'a';
+                        else if (keyChar >= 'A' && keyChar <= 'Z')
+                            keyChar = keyChar + 'a' - 'A';
+                        ckey = 1024 + keyChar;
+                        skey = -1;
+                        macro = NULL;
+                        shell_keydown();
+                        mouse_key = false;
+                        active_keycode = virtKey;
+                        break;
+                    } else if (core_hex_menu() && ((keyChar >= 'a' && keyChar <= 'f')
+                                || (keyChar >= 'A' && keyChar <= 'F'))) {
+                        if (keyChar >= 'a' && keyChar <= 'f')
+                            ckey = keyChar - 'a' + 1;
+                        else
+                            ckey = keyChar - 'A' + 1;
+                        skey = -1;
+                        macro = NULL;
+                        shell_keydown();
+                        mouse_key = false;
+                        active_keycode = virtKey;
+                        break;
+                    }
+                }
 
-				if (key_macro != NULL) {
-					// A keymap entry is a sequence of zero or more calculator
-					// keystrokes (1..37) and/or macros (38..255). We expand
-					// macros here before invoking shell_keydown().
-					// If the keymap entry is one key, or two keys with the
-					// first being 'shift', we highlight the key in question
-					// by setting ckey; otherwise, we set ckey to -10, which
-					// means no skin key will be highlighted.
-					ckey = -10;
-					skey = -1;
-					if (key_macro[0] != 0)
-						if (key_macro[1] == 0)
-							ckey = key_macro[0];
-						else if (key_macro[2] == 0 && key_macro[0] == 28)
-							ckey = key_macro[1];
-					bool needs_expansion = false;
-					for (int j = 0; key_macro[j] != 0; j++)
-						if (key_macro[j] > 37) {
-							needs_expansion = true;
-							break;
-						}
-					if (needs_expansion) {
-						static unsigned char macrobuf[1024];
-						int p = 0;
-						for (int j = 0; key_macro[j] != 0 && p < 1023; j++) {
-							int c = key_macro[j];
-							if (c <= 37)
-								macrobuf[p++] = c;
-							else {
-								unsigned char *m = skin_find_macro(c);
-								if (m != NULL)
-									while (*m != 0 && p < 1023)
-										macrobuf[p++] = *m++;
-							}
-						}
-						macrobuf[p] = 0;
-						macro = macrobuf;
-					} else
-						macro = key_macro;
-					shell_keydown();
-					mouse_key = false;
-					active_keycode = virtKey;
-					break;
-				}
-			}
-			goto do_default;
-		}
-		case WM_KEYUP:
-		case WM_SYSKEYUP: {
-			int virtKey = (int) wParam;
-			if (virtKey == 17) {
-				ctrl_down = false;
-				goto do_default;
-			} else if (virtKey == 18) {
-				alt_down = false;
-				goto do_default;
-			} else if (virtKey == 16) {
-				shift_down = false;
-				if (ckey == 0 && just_pressed_shift) {
-					ckey = 28;
-					skey = -1;
-					macro = NULL;
-					shell_keydown();
-					shell_keyup();
-				}
-				goto do_default;
-			}
-			if (ckey != 0 && !mouse_key && virtKey == active_keycode) {
-				shell_keyup();
-				active_keycode = 0;
-			}
-			goto do_default;
-		}
-		case WM_DESTROY:
-			GetWindowPlacement(hMainWnd, &state.mainPlacement);
-			state.mainPlacementValid = 1;
-			if (state.printOutOpen) {
-				GetWindowPlacement(hPrintOutWnd, &state.printOutPlacement);
-				state.printOutPlacementValid = 1;
-			}
-			placement_saved = 1;
-			PostQuitMessage(0);
-			break;
-		case WM_INITMENUPOPUP: {
-			if (HIWORD(lParam) != 0 || LOWORD(lParam) != 2)
-				// HIWORD(lParam) is nonzero if the system menu is selected;
-				// LOWORD(lParam) is the index of the selected menu.
-				// I want to update the 'Skin' menu, which is at index 2;
-				// any other index I don't care about, since those other menus
-				// are all static.
-				break;
-			HMENU menu = (HMENU) wParam;
-			UINT id = 40000;
-			if (state.skinName[0] == 0)
-				strcpy(state.skinName, skin_name[0]);
+                if (key_macro != NULL) {
+                    // A keymap entry is a sequence of zero or more calculator
+                    // keystrokes (1..37) and/or macros (38..255). We expand
+                    // macros here before invoking shell_keydown().
+                    // If the keymap entry is one key, or two keys with the
+                    // first being 'shift', we highlight the key in question
+                    // by setting ckey; otherwise, we set ckey to -10, which
+                    // means no skin key will be highlighted.
+                    ckey = -10;
+                    skey = -1;
+                    if (key_macro[0] != 0)
+                        if (key_macro[1] == 0)
+                            ckey = key_macro[0];
+                        else if (key_macro[2] == 0 && key_macro[0] == 28)
+                            ckey = key_macro[1];
+                    bool needs_expansion = false;
+                    for (int j = 0; key_macro[j] != 0; j++)
+                        if (key_macro[j] > 37) {
+                            needs_expansion = true;
+                            break;
+                        }
+                    if (needs_expansion) {
+                        static unsigned char macrobuf[1024];
+                        int p = 0;
+                        for (int j = 0; key_macro[j] != 0 && p < 1023; j++) {
+                            int c = key_macro[j];
+                            if (c <= 37)
+                                macrobuf[p++] = c;
+                            else {
+                                unsigned char *m = skin_find_macro(c);
+                                if (m != NULL)
+                                    while (*m != 0 && p < 1023)
+                                        macrobuf[p++] = *m++;
+                            }
+                        }
+                        macrobuf[p] = 0;
+                        macro = macrobuf;
+                    } else
+                        macro = key_macro;
+                    shell_keydown();
+                    mouse_key = false;
+                    active_keycode = virtKey;
+                    break;
+                }
+            }
+            goto do_default;
+        }
+        case WM_KEYUP:
+        case WM_SYSKEYUP: {
+            int virtKey = (int) wParam;
+            if (virtKey == 17) {
+                ctrl_down = false;
+                goto do_default;
+            } else if (virtKey == 18) {
+                alt_down = false;
+                goto do_default;
+            } else if (virtKey == 16) {
+                shift_down = false;
+                if (ckey == 0 && just_pressed_shift) {
+                    ckey = 28;
+                    skey = -1;
+                    macro = NULL;
+                    shell_keydown();
+                    shell_keyup();
+                }
+                goto do_default;
+            }
+            if (ckey != 0 && !mouse_key && virtKey == active_keycode) {
+                shell_keyup();
+                active_keycode = 0;
+            }
+            goto do_default;
+        }
+        case WM_DESTROY:
+            GetWindowPlacement(hMainWnd, &state.mainPlacement);
+            state.mainPlacementValid = 1;
+            if (state.printOutOpen) {
+                GetWindowPlacement(hPrintOutWnd, &state.printOutPlacement);
+                state.printOutPlacementValid = 1;
+            }
+            placement_saved = 1;
+            PostQuitMessage(0);
+            break;
+        case WM_INITMENUPOPUP: {
+            if (HIWORD(lParam) != 0 || LOWORD(lParam) != 2)
+                // HIWORD(lParam) is nonzero if the system menu is selected;
+                // LOWORD(lParam) is the index of the selected menu.
+                // I want to update the 'Skin' menu, which is at index 2;
+                // any other index I don't care about, since those other menus
+                // are all static.
+                break;
+            HMENU menu = (HMENU) wParam;
+            UINT id = 40000;
+            if (state.skinName[0] == 0)
+                strcpy(state.skinName, skin_name[0]);
 
-			int i;
-			for (i = GetMenuItemCount(menu) - 1; i >= 0; i--)
-				RemoveMenu(menu, i, MF_BYPOSITION);
+            int i;
+            for (i = GetMenuItemCount(menu) - 1; i >= 0; i--)
+                RemoveMenu(menu, i, MF_BYPOSITION);
 
-			for (i = 0; i < skin_count; i++) {
-				UINT flags = 0;
-				if (strcmp(state.skinName, skin_name[i]) == 0)
-					flags = MF_CHECKED;
-				AppendMenu(menu, flags, id++, skin_name[i]);
-			}
+            for (i = 0; i < skin_count; i++) {
+                UINT flags = 0;
+                if (strcmp(state.skinName, skin_name[i]) == 0)
+                    flags = MF_CHECKED;
+                AppendMenu(menu, flags, id++, skin_name[i]);
+            }
 
-			int have_separator = 0;
-			char path[MAX_PATH];
-			path[MAX_PATH - 1] = 0;
-			WIN32_FIND_DATA wfd;
-			int n = 0;
-			char name[100][MAX_PATH];
+            int have_separator = 0;
+            char path[MAX_PATH];
+            path[MAX_PATH - 1] = 0;
+            WIN32_FIND_DATA wfd;
+            int n = 0;
+            char name[100][MAX_PATH];
 
-			strncpy(path, free42dirname, MAX_PATH - 1);
-			strncat(path, "\\*.layout", MAX_PATH - 1);
-			path[MAX_PATH - 1] = 0;
-			HANDLE search = FindFirstFile(path, &wfd);
-			if (search != INVALID_HANDLE_VALUE) {
-				do {
-					if ((wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
-						wfd.cFileName[strlen(wfd.cFileName) - 7] = 0;
-						strcpy(name[n++], wfd.cFileName);
-					}
-				} while (FindNextFile(search, &wfd));
-				FindClose(search);
-			}
+            strncpy(path, free42dirname, MAX_PATH - 1);
+            strncat(path, "\\*.layout", MAX_PATH - 1);
+            path[MAX_PATH - 1] = 0;
+            HANDLE search = FindFirstFile(path, &wfd);
+            if (search != INVALID_HANDLE_VALUE) {
+                do {
+                    if ((wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
+                        wfd.cFileName[strlen(wfd.cFileName) - 7] = 0;
+                        strcpy(name[n++], wfd.cFileName);
+                    }
+                } while (FindNextFile(search, &wfd));
+                FindClose(search);
+            }
 
-			// Search executable's directory
-			char exedir[MAX_PATH];
-			GetModuleFileName(0, exedir, MAX_PATH - 1);
-			char *lastbackslash = strrchr(exedir, '\\');
-			if (lastbackslash != 0)
-				*lastbackslash = 0;
-			else
-				strcpy(exedir, "C:");
-			if (_stricmp(exedir, free42dirname) != 0) {
-				strncat(exedir, "\\*.layout", MAX_PATH - 1);
-				exedir[MAX_PATH - 1] = 0;
-				search = FindFirstFile(exedir, &wfd);
-				if (search != INVALID_HANDLE_VALUE) {
-					do {
-						if ((wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
-							wfd.cFileName[strlen(wfd.cFileName) - 7] = 0;
-							strcpy(name[n++], wfd.cFileName);
-						}
-					} while (FindNextFile(search, &wfd));
-					FindClose(search);
-				}
-			}
+            // Search executable's directory
+            char exedir[MAX_PATH];
+            GetModuleFileName(0, exedir, MAX_PATH - 1);
+            char *lastbackslash = strrchr(exedir, '\\');
+            if (lastbackslash != 0)
+                *lastbackslash = 0;
+            else
+                strcpy(exedir, "C:");
+            if (_stricmp(exedir, free42dirname) != 0) {
+                strncat(exedir, "\\*.layout", MAX_PATH - 1);
+                exedir[MAX_PATH - 1] = 0;
+                search = FindFirstFile(exedir, &wfd);
+                if (search != INVALID_HANDLE_VALUE) {
+                    do {
+                        if ((wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
+                            wfd.cFileName[strlen(wfd.cFileName) - 7] = 0;
+                            strcpy(name[n++], wfd.cFileName);
+                        }
+                    } while (FindNextFile(search, &wfd));
+                    FindClose(search);
+                }
+            }
 
-			qsort(name, n, MAX_PATH, (int (*)(const void *, const void *)) _stricmp);
-			for (i = 0; i < n; i++) {
-				UINT flags;
-				int j;
-				if (i > 0 && _stricmp(name[i], name[i - 1]) == 0)
-					goto skip;
-				for (j = 0; j < skin_count; j++)
-					if (_stricmp(name[i], skin_name[j]) == 0)
-						goto skip;
-				if (!have_separator) {
-					AppendMenu(menu, MF_SEPARATOR, 0, NULL);
-					have_separator = 1;
-				}
-				flags = 0;
-				if (_stricmp(state.skinName, name[i]) == 0)
-					flags = MF_CHECKED;
-				AppendMenu(menu, flags, id++, name[i]);
-				skip:;
-			}
-			break;
-		}
-		default:
-		do_default:
-			return DefWindowProc(hWnd, message, wParam, lParam);
+            qsort(name, n, MAX_PATH, (int (*)(const void *, const void *)) _stricmp);
+            for (i = 0; i < n; i++) {
+                UINT flags;
+                int j;
+                if (i > 0 && _stricmp(name[i], name[i - 1]) == 0)
+                    goto skip;
+                for (j = 0; j < skin_count; j++)
+                    if (_stricmp(name[i], skin_name[j]) == 0)
+                        goto skip;
+                if (!have_separator) {
+                    AppendMenu(menu, MF_SEPARATOR, 0, NULL);
+                    have_separator = 1;
+                }
+                flags = 0;
+                if (_stricmp(state.skinName, name[i]) == 0)
+                    flags = MF_CHECKED;
+                AppendMenu(menu, flags, id++, name[i]);
+                skip:;
+            }
+            break;
+        }
+        default:
+        do_default:
+            return DefWindowProc(hWnd, message, wParam, lParam);
    }
    return 0;
 }
@@ -895,873 +895,873 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 //
 //  PURPOSE:  Processes messages for the print-out window.
 //
-//  WM_COMMAND	- process the application menu
-//  WM_PAINT	- Paint the main window
-//  WM_DESTROY	- post a quit message and return
+//  WM_COMMAND  - process the application menu
+//  WM_PAINT    - Paint the main window
+//  WM_DESTROY  - post a quit message and return
 //
 //
 static LRESULT CALLBACK PrintOutWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch (message) 
-	{
-		case WM_PAINT: {
-			RECT r;
-			if (GetUpdateRect(hWnd, &r, FALSE)) {
-				PAINTSTRUCT ps;
-				HDC hdc = BeginPaint(hWnd, &ps);
-				repaint_printout(hdc, 1, r.left, r.top, r.right - r.left, r.bottom - r.top, 0);
-				EndPaint(hWnd, &ps);
-				break;
-			}
-		}
-		case WM_DESTROY:
-			GetWindowPlacement(hPrintOutWnd, &state.printOutPlacement);
-			state.printOutPlacementValid = 1;
-			state.printOutOpen = 0;
-			hPrintOutWnd = NULL;
-			return 0;
-		case WM_SIZING: {
-			LPRECT r = (LPRECT) lParam;
-			switch (wParam) {
-				case WMSZ_BOTTOMLEFT:
-				case WMSZ_TOPLEFT:
-				case WMSZ_LEFT:
-					r->left = r->right - printOutWidth;
-					break;
-				case WMSZ_BOTTOMRIGHT:
-				case WMSZ_TOPRIGHT:
-				case WMSZ_RIGHT:
-					r->right = r->left + printOutWidth;
-			}
-			return 1;
-		}
-		case WM_SIZE:
-			if (wParam == SIZE_MAXIMIZED || wParam == SIZE_RESTORED) {
-				printOutHeight = HIWORD(lParam);
-				printout_length_changed();
-			}
-			return 0;
-		case WM_VSCROLL: {
-			int scroll_code = LOWORD(wParam);
-			SCROLLINFO si;
-			si.cbSize = sizeof(SCROLLINFO);
-			si.fMask = SIF_ALL;
-			GetScrollInfo(hPrintOutWnd, SB_VERT, &si);
-			int pos;
-			int p = si.nPage;
-			if (p > 0)
-				p--;
-			int maxpos = si.nMax - p;
-			switch (scroll_code) {
-				case SB_TOP: pos = si.nMin; break;
-				case SB_BOTTOM: pos = si.nMax; break;
-				case SB_LINEUP: pos = printout_pos - 18; break;
-				case SB_LINEDOWN: pos = printout_pos + 18; break;
-				case SB_PAGEUP: pos = printout_pos - printOutHeight + 18; break;
-				case SB_PAGEDOWN: pos = printout_pos + printOutHeight - 18; break;
-				case SB_THUMBPOSITION:
-				case SB_THUMBTRACK: pos = HIWORD(wParam); break;
-				default: pos = printout_pos;
-			}
-			if (pos < 0)
-				pos = 0;
-			else if (pos > maxpos)
-				pos = maxpos;
-			if (pos != printout_pos) {
-				int oldpos = printout_pos;
-				printout_pos = pos;
-				SetScrollPos(hPrintOutWnd, SB_VERT, printout_pos, TRUE);
-				printout_scrolled(oldpos - printout_pos);
-			}
-			return 0;
-		}
-		default:
-			return DefWindowProc(hWnd, message, wParam, lParam);
-	}
-	return 0;
+    switch (message) 
+    {
+        case WM_PAINT: {
+            RECT r;
+            if (GetUpdateRect(hWnd, &r, FALSE)) {
+                PAINTSTRUCT ps;
+                HDC hdc = BeginPaint(hWnd, &ps);
+                repaint_printout(hdc, 1, r.left, r.top, r.right - r.left, r.bottom - r.top, 0);
+                EndPaint(hWnd, &ps);
+                break;
+            }
+        }
+        case WM_DESTROY:
+            GetWindowPlacement(hPrintOutWnd, &state.printOutPlacement);
+            state.printOutPlacementValid = 1;
+            state.printOutOpen = 0;
+            hPrintOutWnd = NULL;
+            return 0;
+        case WM_SIZING: {
+            LPRECT r = (LPRECT) lParam;
+            switch (wParam) {
+                case WMSZ_BOTTOMLEFT:
+                case WMSZ_TOPLEFT:
+                case WMSZ_LEFT:
+                    r->left = r->right - printOutWidth;
+                    break;
+                case WMSZ_BOTTOMRIGHT:
+                case WMSZ_TOPRIGHT:
+                case WMSZ_RIGHT:
+                    r->right = r->left + printOutWidth;
+            }
+            return 1;
+        }
+        case WM_SIZE:
+            if (wParam == SIZE_MAXIMIZED || wParam == SIZE_RESTORED) {
+                printOutHeight = HIWORD(lParam);
+                printout_length_changed();
+            }
+            return 0;
+        case WM_VSCROLL: {
+            int scroll_code = LOWORD(wParam);
+            SCROLLINFO si;
+            si.cbSize = sizeof(SCROLLINFO);
+            si.fMask = SIF_ALL;
+            GetScrollInfo(hPrintOutWnd, SB_VERT, &si);
+            int pos;
+            int p = si.nPage;
+            if (p > 0)
+                p--;
+            int maxpos = si.nMax - p;
+            switch (scroll_code) {
+                case SB_TOP: pos = si.nMin; break;
+                case SB_BOTTOM: pos = si.nMax; break;
+                case SB_LINEUP: pos = printout_pos - 18; break;
+                case SB_LINEDOWN: pos = printout_pos + 18; break;
+                case SB_PAGEUP: pos = printout_pos - printOutHeight + 18; break;
+                case SB_PAGEDOWN: pos = printout_pos + printOutHeight - 18; break;
+                case SB_THUMBPOSITION:
+                case SB_THUMBTRACK: pos = HIWORD(wParam); break;
+                default: pos = printout_pos;
+            }
+            if (pos < 0)
+                pos = 0;
+            else if (pos > maxpos)
+                pos = maxpos;
+            if (pos != printout_pos) {
+                int oldpos = printout_pos;
+                printout_pos = pos;
+                SetScrollPos(hPrintOutWnd, SB_VERT, printout_pos, TRUE);
+                printout_scrolled(oldpos - printout_pos);
+            }
+            return 0;
+        }
+        default:
+            return DefWindowProc(hWnd, message, wParam, lParam);
+    }
+    return 0;
 }
 
 // Mesage handler for about box.
 static LRESULT CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch (message)
-	{
-		case WM_INITDIALOG:
-			return TRUE;
+    switch (message)
+    {
+        case WM_INITDIALOG:
+            return TRUE;
 
-		case WM_COMMAND:
-			int id = LOWORD(wParam);
-			if (id == IDOK || id == IDCANCEL) 
-			{
-				EndDialog(hDlg, id);
-				return TRUE;
-			}
-			else if (id == IDC_WEBSITELINK || id == IDC_FORUMLINK)
-			{
-				char buf[256];
-				GetDlgItemText(hDlg, id, buf, 255);
-				ShellExecute(NULL, "open", buf, NULL, NULL, SW_SHOWNORMAL);
-			}
-			break;
-	}
+        case WM_COMMAND:
+            int id = LOWORD(wParam);
+            if (id == IDOK || id == IDCANCEL) 
+            {
+                EndDialog(hDlg, id);
+                return TRUE;
+            }
+            else if (id == IDC_WEBSITELINK || id == IDC_FORUMLINK)
+            {
+                char buf[256];
+                GetDlgItemText(hDlg, id, buf, 255);
+                ShellExecute(NULL, "open", buf, NULL, NULL, SW_SHOWNORMAL);
+            }
+            break;
+    }
     return FALSE;
 }
 
 // Mesage handler for Export Program dialog.
 static LRESULT CALLBACK ExportProgram(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch (message) {
-		case WM_INITDIALOG: {
-			HWND list = GetDlgItem(hDlg, IDC_LIST1);
-			char buf[10000];
-			int count = core_list_programs(buf, 10000);
-			char *p = buf;
-			for (int i = 0; i < count; i++) {
-				SendMessage(list, LB_ADDSTRING, 0, (long) p);
-				p += strlen(p) + 1;
-			}
-			return TRUE;
-		}
-		case WM_COMMAND: {
-			int cmd = LOWORD(wParam);
-			switch (cmd) {
-				case IDOK: {
-					HWND list = GetDlgItem(hDlg, IDC_LIST1);
-					sel_prog_count = SendMessage(list, LB_GETSELCOUNT, 0, 0);
-					if (sel_prog_count > 0) {
-						sel_prog_list = (int *) malloc(sel_prog_count * sizeof(int));
-						// TODO - handle memory allocation failure
-						SendMessage(list, LB_GETSELITEMS, sel_prog_count, (long) sel_prog_list);
-					}
-					EndDialog(hDlg, 1);
-					return TRUE;
-				}
-				case IDCANCEL: {
-					EndDialog(hDlg, 0);
-					return FALSE;
-				}
-			}
-			return FALSE;
-		}
-	}
-	return FALSE;
+    switch (message) {
+        case WM_INITDIALOG: {
+            HWND list = GetDlgItem(hDlg, IDC_LIST1);
+            char buf[10000];
+            int count = core_list_programs(buf, 10000);
+            char *p = buf;
+            for (int i = 0; i < count; i++) {
+                SendMessage(list, LB_ADDSTRING, 0, (long) p);
+                p += strlen(p) + 1;
+            }
+            return TRUE;
+        }
+        case WM_COMMAND: {
+            int cmd = LOWORD(wParam);
+            switch (cmd) {
+                case IDOK: {
+                    HWND list = GetDlgItem(hDlg, IDC_LIST1);
+                    sel_prog_count = SendMessage(list, LB_GETSELCOUNT, 0, 0);
+                    if (sel_prog_count > 0) {
+                        sel_prog_list = (int *) malloc(sel_prog_count * sizeof(int));
+                        // TODO - handle memory allocation failure
+                        SendMessage(list, LB_GETSELITEMS, sel_prog_count, (long) sel_prog_list);
+                    }
+                    EndDialog(hDlg, 1);
+                    return TRUE;
+                }
+                case IDCANCEL: {
+                    EndDialog(hDlg, 0);
+                    return FALSE;
+                }
+            }
+            return FALSE;
+        }
+    }
+    return FALSE;
 }
 
 // Mesage handler for preferences dialog.
 static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	// TODO: track focus changes so that we can force the IDC_PRINTER_GIF_HEIGHT
-	// text field to contain a legal value whenever it loses focus.
-	// Question: HOW do you track focus changes? I don't know what message
-	// to look for.
+    // TODO: track focus changes so that we can force the IDC_PRINTER_GIF_HEIGHT
+    // text field to contain a legal value whenever it loses focus.
+    // Question: HOW do you track focus changes? I don't know what message
+    // to look for.
 
-	switch (message)
-	{
-		case WM_INITDIALOG: {
-			// Initialize the dialog from the prefs structures
-			HWND ctl;
-			if (core_settings.matrix_singularmatrix) {
-				ctl = GetDlgItem(hDlg, IDC_MATRIX_SINGULARMATRIX);
-				SendMessage(ctl, BM_SETCHECK, 1, 0);
-			}
-			if (core_settings.matrix_outofrange) {
-				ctl = GetDlgItem(hDlg, IDC_MATRIX_OUTOFRANGE);
-				SendMessage(ctl, BM_SETCHECK, 1, 0);
-			}
-			if (core_settings.auto_repeat) {
-				ctl = GetDlgItem(hDlg, IDC_AUTO_REPEAT);
-				SendMessage(ctl, BM_SETCHECK, 1, 0);
-			}
-			if (state.alwaysOnTop) {
-				ctl = GetDlgItem(hDlg, IDC_ALWAYSONTOP);
-				SendMessage(ctl, BM_SETCHECK, 1, 0);
-			}
-			if (state.calculatorKey) {
-				ctl = GetDlgItem(hDlg, IDC_CALCULATOR_KEY);
-				SendMessage(ctl, BM_SETCHECK, 1, 0);
-			}
-			if (state.singleInstance) {
-				ctl = GetDlgItem(hDlg, IDC_SINGLEINSTANCE);
-				SendMessage(ctl, BM_SETCHECK, 1, 0);
-			}
-			if (state.printerToTxtFile) {
-				ctl = GetDlgItem(hDlg, IDC_PRINTER_TXT);
-				SendMessage(ctl, BM_SETCHECK, 1, 0);
-			}
-			SetDlgItemText(hDlg, IDC_PRINTER_TXT_NAME, state.printerTxtFileName);
-			if (core_settings.raw_text) {
-				ctl = GetDlgItem(hDlg, IDC_RAW_TEXT);
-				SendMessage(ctl, BM_SETCHECK, 1, 0);
-			}
-			if (state.printerToGifFile) {
-				ctl = GetDlgItem(hDlg, IDC_PRINTER_GIF);
-				SendMessage(ctl, BM_SETCHECK, 1, 0);
-			}
-			SetDlgItemText(hDlg, IDC_PRINTER_GIF_NAME, state.printerGifFileName);
-			SetDlgItemInt(hDlg, IDC_PRINTER_GIF_HEIGHT, state.printerGifMaxLength, TRUE);
-			return TRUE;
-		}
+    switch (message)
+    {
+        case WM_INITDIALOG: {
+            // Initialize the dialog from the prefs structures
+            HWND ctl;
+            if (core_settings.matrix_singularmatrix) {
+                ctl = GetDlgItem(hDlg, IDC_MATRIX_SINGULARMATRIX);
+                SendMessage(ctl, BM_SETCHECK, 1, 0);
+            }
+            if (core_settings.matrix_outofrange) {
+                ctl = GetDlgItem(hDlg, IDC_MATRIX_OUTOFRANGE);
+                SendMessage(ctl, BM_SETCHECK, 1, 0);
+            }
+            if (core_settings.auto_repeat) {
+                ctl = GetDlgItem(hDlg, IDC_AUTO_REPEAT);
+                SendMessage(ctl, BM_SETCHECK, 1, 0);
+            }
+            if (state.alwaysOnTop) {
+                ctl = GetDlgItem(hDlg, IDC_ALWAYSONTOP);
+                SendMessage(ctl, BM_SETCHECK, 1, 0);
+            }
+            if (state.calculatorKey) {
+                ctl = GetDlgItem(hDlg, IDC_CALCULATOR_KEY);
+                SendMessage(ctl, BM_SETCHECK, 1, 0);
+            }
+            if (state.singleInstance) {
+                ctl = GetDlgItem(hDlg, IDC_SINGLEINSTANCE);
+                SendMessage(ctl, BM_SETCHECK, 1, 0);
+            }
+            if (state.printerToTxtFile) {
+                ctl = GetDlgItem(hDlg, IDC_PRINTER_TXT);
+                SendMessage(ctl, BM_SETCHECK, 1, 0);
+            }
+            SetDlgItemText(hDlg, IDC_PRINTER_TXT_NAME, state.printerTxtFileName);
+            if (core_settings.raw_text) {
+                ctl = GetDlgItem(hDlg, IDC_RAW_TEXT);
+                SendMessage(ctl, BM_SETCHECK, 1, 0);
+            }
+            if (state.printerToGifFile) {
+                ctl = GetDlgItem(hDlg, IDC_PRINTER_GIF);
+                SendMessage(ctl, BM_SETCHECK, 1, 0);
+            }
+            SetDlgItemText(hDlg, IDC_PRINTER_GIF_NAME, state.printerGifFileName);
+            SetDlgItemInt(hDlg, IDC_PRINTER_GIF_HEIGHT, state.printerGifMaxLength, TRUE);
+            return TRUE;
+        }
 
-		case WM_COMMAND: {
-			int cmd = LOWORD(wParam);
-			switch (cmd) {
-				case IDOK: {
-					// Update the prefs structures from the dialog
-					HWND ctl = GetDlgItem(hDlg, IDC_MATRIX_SINGULARMATRIX);
-					core_settings.matrix_singularmatrix = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
-					ctl = GetDlgItem(hDlg, IDC_MATRIX_OUTOFRANGE);
-					core_settings.matrix_outofrange = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
-					ctl = GetDlgItem(hDlg, IDC_AUTO_REPEAT);
-					core_settings.auto_repeat = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
-					ctl = GetDlgItem(hDlg, IDC_ALWAYSONTOP);
-					BOOL alwaysOnTop = SendMessage(ctl, BM_GETCHECK, 0, 0);
-					if (alwaysOnTop != state.alwaysOnTop) {
-						state.alwaysOnTop = alwaysOnTop;
-						SetWindowPos(hMainWnd, alwaysOnTop ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-						if (hPrintOutWnd != NULL)
-							SetWindowPos(hPrintOutWnd, alwaysOnTop ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-					}
-					ctl = GetDlgItem(hDlg, IDC_CALCULATOR_KEY);
-					BOOL prevCalculatorKey = state.calculatorKey;
-					state.calculatorKey = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
-					if (state.calculatorKey != prevCalculatorKey)
-						mapCalculatorKey();
-					ctl = GetDlgItem(hDlg, IDC_SINGLEINSTANCE);
-					state.singleInstance = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
+        case WM_COMMAND: {
+            int cmd = LOWORD(wParam);
+            switch (cmd) {
+                case IDOK: {
+                    // Update the prefs structures from the dialog
+                    HWND ctl = GetDlgItem(hDlg, IDC_MATRIX_SINGULARMATRIX);
+                    core_settings.matrix_singularmatrix = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
+                    ctl = GetDlgItem(hDlg, IDC_MATRIX_OUTOFRANGE);
+                    core_settings.matrix_outofrange = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
+                    ctl = GetDlgItem(hDlg, IDC_AUTO_REPEAT);
+                    core_settings.auto_repeat = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
+                    ctl = GetDlgItem(hDlg, IDC_ALWAYSONTOP);
+                    BOOL alwaysOnTop = SendMessage(ctl, BM_GETCHECK, 0, 0);
+                    if (alwaysOnTop != state.alwaysOnTop) {
+                        state.alwaysOnTop = alwaysOnTop;
+                        SetWindowPos(hMainWnd, alwaysOnTop ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+                        if (hPrintOutWnd != NULL)
+                            SetWindowPos(hPrintOutWnd, alwaysOnTop ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+                    }
+                    ctl = GetDlgItem(hDlg, IDC_CALCULATOR_KEY);
+                    BOOL prevCalculatorKey = state.calculatorKey;
+                    state.calculatorKey = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
+                    if (state.calculatorKey != prevCalculatorKey)
+                        mapCalculatorKey();
+                    ctl = GetDlgItem(hDlg, IDC_SINGLEINSTANCE);
+                    state.singleInstance = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
 
-					ctl = GetDlgItem(hDlg, IDC_PRINTER_TXT);
-					state.printerToTxtFile = SendMessage(ctl, BM_GETCHECK, 0, 0);
-					char buf[FILENAMELEN];
-					GetDlgItemText(hDlg, IDC_PRINTER_TXT_NAME, buf, FILENAMELEN - 1);
-					int len = strlen(buf);
-					if (len > 0 && (len < 4 || _stricmp(buf + len - 4, ".txt") != 0))
-						strcat(buf, ".txt");
-					if (print_txt != NULL && (!state.printerToTxtFile
-							|| _stricmp(state.printerTxtFileName, buf) != 0)) {
-						fclose(print_txt);
-						print_txt = NULL;
-					}
-					strcpy(state.printerTxtFileName, buf);
-					ctl = GetDlgItem(hDlg, IDC_RAW_TEXT);
-					core_settings.raw_text = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
-					ctl = GetDlgItem(hDlg, IDC_PRINTER_GIF);
-					state.printerToGifFile = SendMessage(ctl, BM_GETCHECK, 0, 0);
-					BOOL success;
-					int maxlen = (int) GetDlgItemInt(hDlg, IDC_PRINTER_GIF_HEIGHT, &success, TRUE);
-					state.printerGifMaxLength = !success ? 256 : maxlen < 32 ? 32 : maxlen > 32767 ? 32767 : maxlen;
-					GetDlgItemText(hDlg, IDC_PRINTER_GIF_NAME, buf, FILENAMELEN - 1);
-					len = strlen(buf);
-					if (len > 0 && (len < 4 || _stricmp(buf + len - 4, ".gif") != 0))
-						strcat(buf, ".gif");
-				    if (print_gif != NULL && (!state.printerToGifFile
-							|| _stricmp(state.printerGifFileName, buf) != 0)) {
-						shell_finish_gif(gif_seeker, gif_writer);
-						fclose(print_gif);
-						print_gif = NULL;
-					}
-					strcpy(state.printerGifFileName, buf);
-					// fall through
-				}
-				case IDCANCEL:
-					EndDialog(hDlg, LOWORD(wParam));
-					return TRUE;
-				case IDC_PRINTER_TXT_BROWSE: {
-					char buf[FILENAMELEN];
-					GetDlgItemText(hDlg, IDC_PRINTER_TXT_NAME, buf, FILENAMELEN - 1);
-					if (browse_file(hDlg,
-									"Select Text File Name",
-									1,
-									"Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0\0",
-									"txt",
-									buf,
-									FILENAMELEN))
-						SetDlgItemText(hDlg, IDC_PRINTER_TXT_NAME, buf);
-					return TRUE;
-				}
-				case IDC_PRINTER_GIF_BROWSE: {
-					char buf[FILENAMELEN];
-					GetDlgItemText(hDlg, IDC_PRINTER_GIF_NAME, buf, FILENAMELEN - 1);
-					if (browse_file(hDlg,
-									"Select GIF File Name",
-									1,
-									"GIF Files (*.gif)\0*.gif\0All Files (*.*)\0*.*\0\0",
-									"gif",
-									buf,
-									FILENAMELEN))
-						SetDlgItemText(hDlg, IDC_PRINTER_GIF_NAME, buf);
-					return TRUE;
-				}
-			}
-			break;
-		}
-	}
+                    ctl = GetDlgItem(hDlg, IDC_PRINTER_TXT);
+                    state.printerToTxtFile = SendMessage(ctl, BM_GETCHECK, 0, 0);
+                    char buf[FILENAMELEN];
+                    GetDlgItemText(hDlg, IDC_PRINTER_TXT_NAME, buf, FILENAMELEN - 1);
+                    int len = strlen(buf);
+                    if (len > 0 && (len < 4 || _stricmp(buf + len - 4, ".txt") != 0))
+                        strcat(buf, ".txt");
+                    if (print_txt != NULL && (!state.printerToTxtFile
+                            || _stricmp(state.printerTxtFileName, buf) != 0)) {
+                        fclose(print_txt);
+                        print_txt = NULL;
+                    }
+                    strcpy(state.printerTxtFileName, buf);
+                    ctl = GetDlgItem(hDlg, IDC_RAW_TEXT);
+                    core_settings.raw_text = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
+                    ctl = GetDlgItem(hDlg, IDC_PRINTER_GIF);
+                    state.printerToGifFile = SendMessage(ctl, BM_GETCHECK, 0, 0);
+                    BOOL success;
+                    int maxlen = (int) GetDlgItemInt(hDlg, IDC_PRINTER_GIF_HEIGHT, &success, TRUE);
+                    state.printerGifMaxLength = !success ? 256 : maxlen < 32 ? 32 : maxlen > 32767 ? 32767 : maxlen;
+                    GetDlgItemText(hDlg, IDC_PRINTER_GIF_NAME, buf, FILENAMELEN - 1);
+                    len = strlen(buf);
+                    if (len > 0 && (len < 4 || _stricmp(buf + len - 4, ".gif") != 0))
+                        strcat(buf, ".gif");
+                    if (print_gif != NULL && (!state.printerToGifFile
+                            || _stricmp(state.printerGifFileName, buf) != 0)) {
+                        shell_finish_gif(gif_seeker, gif_writer);
+                        fclose(print_gif);
+                        print_gif = NULL;
+                    }
+                    strcpy(state.printerGifFileName, buf);
+                    // fall through
+                }
+                case IDCANCEL:
+                    EndDialog(hDlg, LOWORD(wParam));
+                    return TRUE;
+                case IDC_PRINTER_TXT_BROWSE: {
+                    char buf[FILENAMELEN];
+                    GetDlgItemText(hDlg, IDC_PRINTER_TXT_NAME, buf, FILENAMELEN - 1);
+                    if (browse_file(hDlg,
+                                    "Select Text File Name",
+                                    1,
+                                    "Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0\0",
+                                    "txt",
+                                    buf,
+                                    FILENAMELEN))
+                        SetDlgItemText(hDlg, IDC_PRINTER_TXT_NAME, buf);
+                    return TRUE;
+                }
+                case IDC_PRINTER_GIF_BROWSE: {
+                    char buf[FILENAMELEN];
+                    GetDlgItemText(hDlg, IDC_PRINTER_GIF_NAME, buf, FILENAMELEN - 1);
+                    if (browse_file(hDlg,
+                                    "Select GIF File Name",
+                                    1,
+                                    "GIF Files (*.gif)\0*.gif\0All Files (*.*)\0*.*\0\0",
+                                    "gif",
+                                    buf,
+                                    FILENAMELEN))
+                        SetDlgItemText(hDlg, IDC_PRINTER_GIF_NAME, buf);
+                    return TRUE;
+                }
+            }
+            break;
+        }
+    }
     return FALSE;
 }
 
 static int browse_file(HWND owner, char *title, int save, char *filter, char *defExt, char *buf, int buflen) {
-	OPENFILENAME ofn;
-	ofn.lStructSize = sizeof(OPENFILENAME);
-	ofn.hwndOwner = owner;
-	ofn.lpstrFilter = filter;
-	ofn.lpstrCustomFilter = NULL;
-	ofn.lpstrFile = buf;
-	ofn.nMaxFile = buflen;
-	ofn.lpstrFileTitle = NULL;
-	ofn.lpstrInitialDir = NULL;
-	ofn.lpstrTitle = title;
-	ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
-	ofn.lpstrDefExt = defExt;
-	return save ? GetSaveFileName(&ofn) : GetOpenFileName(&ofn);
+    OPENFILENAME ofn;
+    ofn.lStructSize = sizeof(OPENFILENAME);
+    ofn.hwndOwner = owner;
+    ofn.lpstrFilter = filter;
+    ofn.lpstrCustomFilter = NULL;
+    ofn.lpstrFile = buf;
+    ofn.nMaxFile = buflen;
+    ofn.lpstrFileTitle = NULL;
+    ofn.lpstrInitialDir = NULL;
+    ofn.lpstrTitle = title;
+    ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
+    ofn.lpstrDefExt = defExt;
+    return save ? GetSaveFileName(&ofn) : GetOpenFileName(&ofn);
 }
 
 static void move_state_file(char *olddir, char *newdir, char *filename) {
-	char oldfile[FILENAMELEN];
-	char newfile[FILENAMELEN];
-	char buf[1024];
-	FILE *in, *out;
-	int n;
+    char oldfile[FILENAMELEN];
+    char newfile[FILENAMELEN];
+    char buf[1024];
+    FILE *in, *out;
+    int n;
 
-	strcpy(oldfile, olddir);
-	strcat(oldfile, "\\");
-	strcat(oldfile, filename);
-	strcpy(newfile, newdir);
-	strcat(newfile, "\\");
-	strcat(newfile, filename);
+    strcpy(oldfile, olddir);
+    strcat(oldfile, "\\");
+    strcat(oldfile, filename);
+    strcpy(newfile, newdir);
+    strcat(newfile, "\\");
+    strcat(newfile, filename);
 
-	in = fopen(oldfile, "r");
-	if (in == NULL)
-		return;
-	CreateDirectory(newdir, NULL);
-	out = fopen(newfile, "w");
-	if (out == NULL) {
-		fclose(in);
-		return;
-	}
+    in = fopen(oldfile, "r");
+    if (in == NULL)
+        return;
+    CreateDirectory(newdir, NULL);
+    out = fopen(newfile, "w");
+    if (out == NULL) {
+        fclose(in);
+        return;
+    }
 
-	while ((n = fread(buf, 1, 1024, in)) > 0)
-		fwrite(buf, 1, n, out);
+    while ((n = fread(buf, 1, 1024, in)) > 0)
+        fwrite(buf, 1, n, out);
 
-	fclose(in);
-	fclose(out);
-	remove(oldfile);
+    fclose(in);
+    fclose(out);
+    remove(oldfile);
 }
 
 static void get_home_dir(char *path, int pathlen) {
-	// Starting with release 1.5.1, changing the Free42 directory is no longer
-	// supported. Instead, Free42 looks for a file or directory named 'portable'
-	// in the executable's directory; if it exists, this is where the state files
-	// will also be stored, and this will be the only directory searched for skins.
-	// If there is no 'portable', then the state files will be stored under
-	// %APPDATA%\Free42, and skins will be searched for in that directory as well,
-	// *and* in the executable's direcory.
+    // Starting with release 1.5.1, changing the Free42 directory is no longer
+    // supported. Instead, Free42 looks for a file or directory named 'portable'
+    // in the executable's directory; if it exists, this is where the state files
+    // will also be stored, and this will be the only directory searched for skins.
+    // If there is no 'portable', then the state files will be stored under
+    // %APPDATA%\Free42, and skins will be searched for in that directory as well,
+    // *and* in the executable's direcory.
 
-	char exepath[FILENAMELEN];
-	GetModuleFileName(0, exepath, FILENAMELEN);
-	char *lastbackslash = strrchr(exepath, '\\');
-	if (lastbackslash != 0) {
-		lastbackslash[1] = '*';
-		lastbackslash[2] = 0;
-	}
+    char exepath[FILENAMELEN];
+    GetModuleFileName(0, exepath, FILENAMELEN);
+    char *lastbackslash = strrchr(exepath, '\\');
+    if (lastbackslash != 0) {
+        lastbackslash[1] = '*';
+        lastbackslash[2] = 0;
+    }
 
-	WIN32_FIND_DATA wfd;
-	HANDLE search = FindFirstFile(exepath, &wfd);
-	bool use_exedir = false;
-	if (search != INVALID_HANDLE_VALUE) {
-		do {
-			if (_stricmp(wfd.cFileName, "portable") == 0) {
-				use_exedir = true;
-				break;
-			}
-		} while (FindNextFile(search, &wfd));
-		FindClose(search);
-	}
+    WIN32_FIND_DATA wfd;
+    HANDLE search = FindFirstFile(exepath, &wfd);
+    bool use_exedir = false;
+    if (search != INVALID_HANDLE_VALUE) {
+        do {
+            if (_stricmp(wfd.cFileName, "portable") == 0) {
+                use_exedir = true;
+                break;
+            }
+        } while (FindNextFile(search, &wfd));
+        FindClose(search);
+    }
 
-	if (use_exedir) {
-		*lastbackslash = 0;
-		strncpy(path, exepath, pathlen);
-		path[pathlen - 1] = 0;
-		return;
-	}
+    if (use_exedir) {
+        *lastbackslash = 0;
+        strncpy(path, exepath, pathlen);
+        path[pathlen - 1] = 0;
+        return;
+    }
 
-	LPITEMIDLIST idlist;
-	char newpath[MAX_PATH];
-	if (SHGetSpecialFolderLocation(NULL, CSIDL_APPDATA, &idlist) == NOERROR) {
-		if (!SHGetPathFromIDList(idlist, newpath))
-			strcpy(newpath, "C:");
-		strncat(newpath, "\\Free42", MAX_PATH - 1);
-		newpath[MAX_PATH - 1] = 0;
-		LPMALLOC imalloc;
-		if (SHGetMalloc(&imalloc) == NOERROR)
-			imalloc->Free(idlist);
-		strncpy(path, newpath, pathlen);
-		path[pathlen - 1] = 0;
-	} else {
-		strncpy(path, "C:\\Free42", pathlen);
-		path[pathlen - 1] = 0;
-	}
+    LPITEMIDLIST idlist;
+    char newpath[MAX_PATH];
+    if (SHGetSpecialFolderLocation(NULL, CSIDL_APPDATA, &idlist) == NOERROR) {
+        if (!SHGetPathFromIDList(idlist, newpath))
+            strcpy(newpath, "C:");
+        strncat(newpath, "\\Free42", MAX_PATH - 1);
+        newpath[MAX_PATH - 1] = 0;
+        LPMALLOC imalloc;
+        if (SHGetMalloc(&imalloc) == NOERROR)
+            imalloc->Free(idlist);
+        strncpy(path, newpath, pathlen);
+        path[pathlen - 1] = 0;
+    } else {
+        strncpy(path, "C:\\Free42", pathlen);
+        path[pathlen - 1] = 0;
+    }
 }
 
 static void config_home_dir(HWND owner, char *buf, int bufsize) {
-	BROWSEINFO binfo;
-	char msg[MAX_PATH + 100];
-	sprintf(msg, "Select Free42 directory\n(currently %s)", *buf == 0 ? "unset" : buf);
-	binfo.hwndOwner = owner;
-	binfo.pidlRoot = NULL;
-	binfo.pszDisplayName = buf;
-	binfo.lpszTitle = msg;
-	binfo.ulFlags = BIF_RETURNONLYFSDIRS;
-	binfo.lpfn = NULL;
-	binfo.lParam = 0;
-	LPITEMIDLIST idlist = SHBrowseForFolder(&binfo);
-	if (idlist != NULL) {
-		char buf2[MAX_PATH];
-		if (SHGetPathFromIDList(idlist, buf2)) {
-			strncpy(buf, buf2, bufsize - 1);
-			buf[bufsize - 1] = 0;
-		}
-		LPMALLOC imalloc;
-		if (SHGetMalloc(&imalloc) == NOERROR)
-			imalloc->Free(idlist);
-	}
+    BROWSEINFO binfo;
+    char msg[MAX_PATH + 100];
+    sprintf(msg, "Select Free42 directory\n(currently %s)", *buf == 0 ? "unset" : buf);
+    binfo.hwndOwner = owner;
+    binfo.pidlRoot = NULL;
+    binfo.pszDisplayName = buf;
+    binfo.lpszTitle = msg;
+    binfo.ulFlags = BIF_RETURNONLYFSDIRS;
+    binfo.lpfn = NULL;
+    binfo.lParam = 0;
+    LPITEMIDLIST idlist = SHBrowseForFolder(&binfo);
+    if (idlist != NULL) {
+        char buf2[MAX_PATH];
+        if (SHGetPathFromIDList(idlist, buf2)) {
+            strncpy(buf, buf2, bufsize - 1);
+            buf[bufsize - 1] = 0;
+        }
+        LPMALLOC imalloc;
+        if (SHGetMalloc(&imalloc) == NOERROR)
+            imalloc->Free(idlist);
+    }
 }
 
 static void mapCalculatorKey() {
-	char path[MAX_PATH];
-	if (state.calculatorKey) {
-		// Get current executable's path
-		GetModuleFileName(0, path, MAX_PATH - 1);
-	} else {
-		// Windows default
-		strcpy(path, "calc.exe");
-	}
-	HKEY k1, k2, k3, k4, k5, k6, k7;
-	DWORD disp;
-	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "SOFTWARE", 0, KEY_QUERY_VALUE, &k1) == ERROR_SUCCESS) {
-		if (RegCreateKeyEx(k1, "Microsoft", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k2, &disp) == ERROR_SUCCESS) {
-			if (RegCreateKeyEx(k2, "Windows", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k3, &disp) == ERROR_SUCCESS) {
-				if (RegCreateKeyEx(k3, "CurrentVersion", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k4, &disp) == ERROR_SUCCESS) {
-					if (RegCreateKeyEx(k4, "Explorer", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k5, &disp) == ERROR_SUCCESS) {
-						if (RegCreateKeyEx(k5, "AppKey", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k6, &disp) == ERROR_SUCCESS) {
-							if (RegCreateKeyEx(k6, "18", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k7, &disp) == ERROR_SUCCESS) {
-								RegSetValueEx(k7, "ShellExecute", 0, REG_SZ, (const unsigned char *) path, strlen(path) + 1);
-								RegCloseKey(k7);
-							}
-							RegCloseKey(k6);
-						}
-						RegCloseKey(k5);
-					}
-					RegCloseKey(k4);
-				}
-				RegCloseKey(k3);
-			}
-			RegCloseKey(k2);
-		}
-		RegCloseKey(k1);
-	}
+    char path[MAX_PATH];
+    if (state.calculatorKey) {
+        // Get current executable's path
+        GetModuleFileName(0, path, MAX_PATH - 1);
+    } else {
+        // Windows default
+        strcpy(path, "calc.exe");
+    }
+    HKEY k1, k2, k3, k4, k5, k6, k7;
+    DWORD disp;
+    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "SOFTWARE", 0, KEY_QUERY_VALUE, &k1) == ERROR_SUCCESS) {
+        if (RegCreateKeyEx(k1, "Microsoft", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k2, &disp) == ERROR_SUCCESS) {
+            if (RegCreateKeyEx(k2, "Windows", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k3, &disp) == ERROR_SUCCESS) {
+                if (RegCreateKeyEx(k3, "CurrentVersion", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k4, &disp) == ERROR_SUCCESS) {
+                    if (RegCreateKeyEx(k4, "Explorer", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k5, &disp) == ERROR_SUCCESS) {
+                        if (RegCreateKeyEx(k5, "AppKey", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k6, &disp) == ERROR_SUCCESS) {
+                            if (RegCreateKeyEx(k6, "18", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k7, &disp) == ERROR_SUCCESS) {
+                                RegSetValueEx(k7, "ShellExecute", 0, REG_SZ, (const unsigned char *) path, strlen(path) + 1);
+                                RegCloseKey(k7);
+                            }
+                            RegCloseKey(k6);
+                        }
+                        RegCloseKey(k5);
+                    }
+                    RegCloseKey(k4);
+                }
+                RegCloseKey(k3);
+            }
+            RegCloseKey(k2);
+        }
+        RegCloseKey(k1);
+    }
 }
 
 static void copy() {
-	if (!OpenClipboard(hMainWnd))
-		return;
-	char buf[100];
-	core_copy(buf, 100);
-	int len = strlen(buf) + 1;
-	HGLOBAL h = GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, len);
-	if (h != NULL) {
-		void *p = GlobalLock(h);
-		memcpy(p, buf, len);
-		GlobalUnlock(h);
-		EmptyClipboard();
-		if (SetClipboardData(CF_TEXT, h) == NULL)
-			GlobalFree(h);
-	}
-	CloseClipboard();
+    if (!OpenClipboard(hMainWnd))
+        return;
+    char buf[100];
+    core_copy(buf, 100);
+    int len = strlen(buf) + 1;
+    HGLOBAL h = GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, len);
+    if (h != NULL) {
+        void *p = GlobalLock(h);
+        memcpy(p, buf, len);
+        GlobalUnlock(h);
+        EmptyClipboard();
+        if (SetClipboardData(CF_TEXT, h) == NULL)
+            GlobalFree(h);
+    }
+    CloseClipboard();
 }
 
 static void paste() {
-	if (!OpenClipboard(hMainWnd))
-		return;
-	HANDLE h = GetClipboardData(CF_TEXT);
-	if (h != NULL) {
-		char *p = (char *) GlobalLock(h);
-		if (p != NULL) {
-			core_paste(p);
-			redisplay();
-			GlobalUnlock(h);
-		}
-	}
-	CloseClipboard();
+    if (!OpenClipboard(hMainWnd))
+        return;
+    HANDLE h = GetClipboardData(CF_TEXT);
+    if (h != NULL) {
+        char *p = (char *) GlobalLock(h);
+        if (p != NULL) {
+            core_paste(p);
+            redisplay();
+            GlobalUnlock(h);
+        }
+    }
+    CloseClipboard();
 }
 
 static void Quit() {
     FILE *printfile = fopen(printfilename, "wb");
     if (printfile != NULL) {
-		int length = printout_bottom - printout_top;
-		if (length < 0)
-			length += PRINT_LINES;
-		int n = fwrite(&length, 1, sizeof(int), printfile);
-		if (n != sizeof(int))
-			goto failed;
-		if (printout_bottom >= printout_top) {
-			n = fwrite(printout + PRINT_BYTESPERLINE * printout_top,
-						   1, PRINT_BYTESPERLINE * length, printfile);
-			if (n != PRINT_BYTESPERLINE * length)
-				goto failed;
-		} else {
-			n = fwrite(printout + PRINT_BYTESPERLINE * printout_top,
-						   1, PRINT_SIZE - PRINT_BYTESPERLINE * printout_top,
-							printfile);
-			if (n != PRINT_SIZE - PRINT_BYTESPERLINE * printout_top)
-				goto failed;
-			n = fwrite(printout, 1,
-						   PRINT_BYTESPERLINE * printout_bottom, printfile);
-			if (n != PRINT_BYTESPERLINE * printout_bottom)
-				goto failed;
-		}
+        int length = printout_bottom - printout_top;
+        if (length < 0)
+            length += PRINT_LINES;
+        int n = fwrite(&length, 1, sizeof(int), printfile);
+        if (n != sizeof(int))
+            goto failed;
+        if (printout_bottom >= printout_top) {
+            n = fwrite(printout + PRINT_BYTESPERLINE * printout_top,
+                           1, PRINT_BYTESPERLINE * length, printfile);
+            if (n != PRINT_BYTESPERLINE * length)
+                goto failed;
+        } else {
+            n = fwrite(printout + PRINT_BYTESPERLINE * printout_top,
+                           1, PRINT_SIZE - PRINT_BYTESPERLINE * printout_top,
+                            printfile);
+            if (n != PRINT_SIZE - PRINT_BYTESPERLINE * printout_top)
+                goto failed;
+            n = fwrite(printout, 1,
+                           PRINT_BYTESPERLINE * printout_bottom, printfile);
+            if (n != PRINT_BYTESPERLINE * printout_bottom)
+                goto failed;
+        }
 
-		fclose(printfile);
-		goto done;
+        fclose(printfile);
+        goto done;
 
-		failed:
-		fclose(printfile);
-		remove(printfilename);
+        failed:
+        fclose(printfile);
+        remove(printfilename);
 
-		done:
-		;
+        done:
+        ;
     }
 
-	statefile = fopen(statefilename, "wb");
-	if (statefile != NULL) {
-		if (!placement_saved) {
-			GetWindowPlacement(hMainWnd, &state.mainPlacement);
-			state.mainPlacementValid = 1;
-			if (state.printOutOpen) {
-				GetWindowPlacement(hPrintOutWnd, &state.printOutPlacement);
-				state.printOutPlacementValid = 1;
-			}
-		}
-		write_shell_state();
-	}
-	core_quit();
-	if (statefile != NULL)
-		fclose(statefile);
+    statefile = fopen(statefilename, "wb");
+    if (statefile != NULL) {
+        if (!placement_saved) {
+            GetWindowPlacement(hMainWnd, &state.mainPlacement);
+            state.mainPlacementValid = 1;
+            if (state.printOutOpen) {
+                GetWindowPlacement(hPrintOutWnd, &state.printOutPlacement);
+                state.printOutPlacementValid = 1;
+            }
+        }
+        write_shell_state();
+    }
+    core_quit();
+    if (statefile != NULL)
+        fclose(statefile);
 
     if (print_txt != NULL)
-		fclose(print_txt);
+        fclose(print_txt);
     
     if (print_gif != NULL) {
-		shell_finish_gif(gif_seeker, gif_writer);
-		fclose(print_gif);
+        shell_finish_gif(gif_seeker, gif_writer);
+        fclose(print_gif);
     }
 
     shell_spool_exit();
 }
 
 static VOID CALLBACK repeater(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) {
-	KillTimer(NULL, timer);
-	int repeat = core_repeat();
-	if (repeat != 0)
-		timer = SetTimer(NULL, 0, repeat == 1 ? 200 : 100, repeater);
-	else
-		timer = SetTimer(NULL, 0, 250, timeout1);
+    KillTimer(NULL, timer);
+    int repeat = core_repeat();
+    if (repeat != 0)
+        timer = SetTimer(NULL, 0, repeat == 1 ? 200 : 100, repeater);
+    else
+        timer = SetTimer(NULL, 0, 250, timeout1);
 }
 
 static VOID CALLBACK timeout1(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) {
-	KillTimer(NULL, timer);
-	if (ckey != 0) {
-		core_keytimeout1();
-		timer = SetTimer(NULL, 0, 1750, timeout2);
-	} else
-		timer = 0;
+    KillTimer(NULL, timer);
+    if (ckey != 0) {
+        core_keytimeout1();
+        timer = SetTimer(NULL, 0, 1750, timeout2);
+    } else
+        timer = 0;
 }
 
 static VOID CALLBACK timeout2(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) {
-	KillTimer(NULL, timer);
-	if (ckey != 0)
-		core_keytimeout2();
-	timer = 0;
+    KillTimer(NULL, timer);
+    if (ckey != 0)
+        core_keytimeout2();
+    timer = 0;
 }
 
 static VOID CALLBACK timeout3(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) {
-	KillTimer(NULL, timer3);
-	bool keep_running = core_timeout3(1);
-	timer3 = 0;
-	if (keep_running) {
-		running = 1;
-		// Post dummy message to get the message loop moving again
-	    PostMessage(hMainWnd, WM_USER, 0, 0);
-	}
+    KillTimer(NULL, timer3);
+    bool keep_running = core_timeout3(1);
+    timer3 = 0;
+    if (keep_running) {
+        running = 1;
+        // Post dummy message to get the message loop moving again
+        PostMessage(hMainWnd, WM_USER, 0, 0);
+    }
 }
 
 static VOID CALLBACK battery_checker(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) {
-	shell_low_battery();
+    shell_low_battery();
 }
 
 static void show_printout() {
-	if (hPrintOutWnd != NULL) {
-		if (IsIconic(hPrintOutWnd))
-			OpenIcon(hPrintOutWnd);
-		BringWindowToTop(hPrintOutWnd);
-		return;
-	}
+    if (hPrintOutWnd != NULL) {
+        if (IsIconic(hPrintOutWnd))
+            OpenIcon(hPrintOutWnd);
+        BringWindowToTop(hPrintOutWnd);
+        return;
+    }
 
-	RECT r;
-	SetRect(&r, 0, 0, 286, 600);
-	printOutHeight = r.bottom - r.top;
-	AdjustWindowRect(&r, WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX
-							/*|WS_MAXIMIZEBOX*/|WS_SIZEBOX|WS_OVERLAPPED, 0);
+    RECT r;
+    SetRect(&r, 0, 0, 286, 600);
+    printOutHeight = r.bottom - r.top;
+    AdjustWindowRect(&r, WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX
+                            /*|WS_MAXIMIZEBOX*/|WS_SIZEBOX|WS_OVERLAPPED, 0);
 
-	// TODO: It would be nice if zooming the print-out window would stretch
-	// it to the full height of the screen, while leaving its width set to
-	// 'printOutWidth'. To do this, I think I'll have to provide my own
-	// implementation of the maximize function (maximize box & the maximize
-	// item in the window menu), but I don't know how to hook that in. It
-	// must be possible, because Snood does it, but I have no idea how.
-	// Anyway, since "standard" maximizing (full screen) is not appropriate for
-	// the printout window, I just disable the maximize box for now.
+    // TODO: It would be nice if zooming the print-out window would stretch
+    // it to the full height of the screen, while leaving its width set to
+    // 'printOutWidth'. To do this, I think I'll have to provide my own
+    // implementation of the maximize function (maximize box & the maximize
+    // item in the window menu), but I don't know how to hook that in. It
+    // must be possible, because Snood does it, but I have no idea how.
+    // Anyway, since "standard" maximizing (full screen) is not appropriate for
+    // the printout window, I just disable the maximize box for now.
 
-	int sbwidth = GetSystemMetrics(SM_CXVSCROLL);
+    int sbwidth = GetSystemMetrics(SM_CXVSCROLL);
 
-	printOutWidth = r.right - r.left + sbwidth;
-	hPrintOutWnd = CreateWindow(szPrintOutWindowClass, szPrintOutTitle,
-							WS_CAPTION|WS_SYSMENU|WS_VSCROLL|WS_MINIMIZEBOX
-								/*|WS_MAXIMIZEBOX*/|WS_SIZEBOX|WS_OVERLAPPED,
-							CW_USEDEFAULT, 0, printOutWidth, printOutHeight,
-							NULL, NULL, hInst, NULL);
+    printOutWidth = r.right - r.left + sbwidth;
+    hPrintOutWnd = CreateWindow(szPrintOutWindowClass, szPrintOutTitle,
+                            WS_CAPTION|WS_SYSMENU|WS_VSCROLL|WS_MINIMIZEBOX
+                                /*|WS_MAXIMIZEBOX*/|WS_SIZEBOX|WS_OVERLAPPED,
+                            CW_USEDEFAULT, 0, printOutWidth, printOutHeight,
+                            NULL, NULL, hInst, NULL);
 
-	if (state.printOutPlacementValid) {
-		// Fix the width, in case the saved settings are not appropriate
-		// for the current desktop properties (the decor dimensions may
-		// be different).
-		RECT *r2 = &state.printOutPlacement.rcNormalPosition;
-		r2->right = r2->left + printOutWidth;
-		SetWindowPlacement(hPrintOutWnd, &state.printOutPlacement);
-	}
-	if (state.alwaysOnTop)
-		SetWindowPos(hPrintOutWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+    if (state.printOutPlacementValid) {
+        // Fix the width, in case the saved settings are not appropriate
+        // for the current desktop properties (the decor dimensions may
+        // be different).
+        RECT *r2 = &state.printOutPlacement.rcNormalPosition;
+        r2->right = r2->left + printOutWidth;
+        SetWindowPlacement(hPrintOutWnd, &state.printOutPlacement);
+    }
+    if (state.alwaysOnTop)
+        SetWindowPos(hPrintOutWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 
-	printout_length_changed();
+    printout_length_changed();
 
-	printout_scroll_to_bottom(0);
+    printout_scroll_to_bottom(0);
 
-	ShowWindow(hPrintOutWnd, SW_SHOW);
-	UpdateWindow(hPrintOutWnd);
-	state.printOutOpen = 1;
+    ShowWindow(hPrintOutWnd, SW_SHOW);
+    UpdateWindow(hPrintOutWnd);
+    state.printOutOpen = 1;
 }
 
 static void export_program() {
-	if (!DialogBox(hInst, (LPCTSTR)IDD_SELECTPROGRAM, hMainWnd, (DLGPROC)ExportProgram))
-		return;
-	/* The sel_prog_count global now has the number of selected items;
-	 * sel_prog_list is an array of integers containing the item numbers.
-	 */
-	if (!browse_file(hMainWnd,
-					 "Export Programs",
-					 1,
-					 "Program Files (*.raw)\0*.raw\0All Files (*.*)\0*.*\0\0",
-					 "raw",
-					 export_file_name,
-					 FILENAMELEN))
-		return;
+    if (!DialogBox(hInst, (LPCTSTR)IDD_SELECTPROGRAM, hMainWnd, (DLGPROC)ExportProgram))
+        return;
+    /* The sel_prog_count global now has the number of selected items;
+     * sel_prog_list is an array of integers containing the item numbers.
+     */
+    if (!browse_file(hMainWnd,
+                     "Export Programs",
+                     1,
+                     "Program Files (*.raw)\0*.raw\0All Files (*.*)\0*.*\0\0",
+                     "raw",
+                     export_file_name,
+                     FILENAMELEN))
+        return;
 
-	export_file = fopen(export_file_name, "wb");
-	if (export_file == NULL) {
-		int err = errno;
-		char buf[1000];
-		sprintf(buf, "Can't open \"%s\" for output: %s (%d)", export_file_name, strerror(err), err);
-		MessageBox(hMainWnd, buf, "Message", MB_ICONWARNING);
-	} else {
-		core_export_programs(sel_prog_count, sel_prog_list, NULL);
-		if (export_file != NULL) {
-			fclose(export_file);
-			export_file = NULL;
-		}
-	}
+    export_file = fopen(export_file_name, "wb");
+    if (export_file == NULL) {
+        int err = errno;
+        char buf[1000];
+        sprintf(buf, "Can't open \"%s\" for output: %s (%d)", export_file_name, strerror(err), err);
+        MessageBox(hMainWnd, buf, "Message", MB_ICONWARNING);
+    } else {
+        core_export_programs(sel_prog_count, sel_prog_list, NULL);
+        if (export_file != NULL) {
+            fclose(export_file);
+            export_file = NULL;
+        }
+    }
 
-	free(sel_prog_list);
+    free(sel_prog_list);
 }
 
 static void import_program() {
-	char buf[FILENAMELEN];
-	buf[0] = 0;
-	if (!browse_file(hMainWnd,
-					 "Import Programs",
-					 0,
-					 "Program Files (*.raw)\0*.raw\0All Files (*.*)\0*.*\0\0",
-					 NULL,
-					 buf,
-					 FILENAMELEN))
-		return;
+    char buf[FILENAMELEN];
+    buf[0] = 0;
+    if (!browse_file(hMainWnd,
+                     "Import Programs",
+                     0,
+                     "Program Files (*.raw)\0*.raw\0All Files (*.*)\0*.*\0\0",
+                     NULL,
+                     buf,
+                     FILENAMELEN))
+        return;
 
-	import_file = fopen(buf, "rb");
-	if (import_file == NULL) {
-		char buf[1000];
-		int err = errno;
-		sprintf(buf, "Could not open \"%s\" for reading: %s (%d)", buf, strerror(err), err);
-		MessageBox(hMainWnd, buf, "Message", MB_ICONWARNING);
-	} else {
-		core_import_programs(NULL);
-		redisplay();
-		if (import_file != NULL) {
-			fclose(import_file);
-			import_file = NULL;
-		}
-	}
+    import_file = fopen(buf, "rb");
+    if (import_file == NULL) {
+        char buf[1000];
+        int err = errno;
+        sprintf(buf, "Could not open \"%s\" for reading: %s (%d)", buf, strerror(err), err);
+        MessageBox(hMainWnd, buf, "Message", MB_ICONWARNING);
+    } else {
+        core_import_programs(NULL);
+        redisplay();
+        if (import_file != NULL) {
+            fclose(import_file);
+            import_file = NULL;
+        }
+    }
 }
 
 static void clear_printout() {
-	printout_top = 0;
-	printout_bottom = 0;
-	printout_pos = 0;
-	printout_length_changed();
-	if (hPrintOutWnd != NULL)
-		InvalidateRect(hPrintOutWnd, NULL, FALSE);
+    printout_top = 0;
+    printout_bottom = 0;
+    printout_pos = 0;
+    printout_length_changed();
+    if (hPrintOutWnd != NULL)
+        InvalidateRect(hPrintOutWnd, NULL, FALSE);
 
-	if (print_gif != NULL) {
-		shell_finish_gif(gif_seeker, gif_writer);
-		fclose(print_gif);
-		print_gif = NULL;
+    if (print_gif != NULL) {
+        shell_finish_gif(gif_seeker, gif_writer);
+        fclose(print_gif);
+        print_gif = NULL;
     }
 }
 
 static void repaint_printout(int x, int y, int width, int height, int validate) {
-	HDC hdc = GetDC(hPrintOutWnd);
-	repaint_printout(hdc, 0, x, y, width, height, validate);
-	ReleaseDC(hPrintOutWnd, hdc);
+    HDC hdc = GetDC(hPrintOutWnd);
+    repaint_printout(hdc, 0, x, y, width, height, validate);
+    ReleaseDC(hPrintOutWnd, hdc);
 }
 
 static void repaint_printout(HDC hdc, int destpos, int x, int y,
-							 int width, int height, int validate) {
-	HDC memdc;
-	HBITMAP bitmap;
-	int xdest, ydest;
+                             int width, int height, int validate) {
+    HDC memdc;
+    HBITMAP bitmap;
+    int xdest, ydest;
 
-	if (destpos) {
-		xdest = x;
-		ydest = y;
-		y = ydest + printout_pos;
-	} else {
-		xdest = x;
-		ydest = y - printout_pos;
-	}
-
-	int printout_length = printout_bottom - printout_top;
-	if (printout_length < 0)
-		printout_length += PRINT_LINES;
-	if (y + height > printout_length) {
-		RECT r;
-		SetRect(&r, xdest, printout_length - printout_pos,
-					xdest + width, ydest + height);
-		HBRUSH brush = (HBRUSH) GetStockObject(GRAY_BRUSH);
-		SelectObject(hdc, brush);
-		FillRect(hdc, &r, brush);
-		if (y >= printout_length)
-			return;
-		height = printout_length - y;
-	}
-
-	memdc = CreateCompatibleDC(hdc);
-	bitmap = CreateBitmap(286, PRINT_LINES, 1, 1, printout);
-	SelectObject(memdc, bitmap);
-
-    if (printout_bottom >= printout_top)
-		/* The buffer is not wrapped */
-		BitBlt(hdc, xdest, ydest, width, height,
-				memdc, x, printout_top + y, SRCCOPY);
-    else {
-		/* The buffer is wrapped */
-		if (printout_top + y < PRINT_LINES) {
-			if (printout_top + y + height <= PRINT_LINES)
-				/* The rectangle is in the lower part of the buffer */
-				BitBlt(hdc, xdest, ydest, width, height,
-						memdc, x, printout_top + y, SRCCOPY);
-			else {
-				/* The rectangle spans both parts of the buffer */
-				int part1_height = PRINT_LINES - printout_top - y;
-				int part2_height = height - part1_height;
-				BitBlt(hdc, xdest, ydest, width, part1_height,
-						memdc, x, printout_top + y, SRCCOPY);
-				BitBlt(hdc, xdest, ydest + part1_height, width, part2_height,
-						memdc, x, 0, SRCCOPY);
-			}
-		} else
-			/* The rectangle is in the upper part of the buffer */
-			BitBlt(hdc, xdest, ydest, width, height,
-					memdc, x, y + printout_top - PRINT_LINES, SRCCOPY);
+    if (destpos) {
+        xdest = x;
+        ydest = y;
+        y = ydest + printout_pos;
+    } else {
+        xdest = x;
+        ydest = y - printout_pos;
     }
 
-	DeleteDC(memdc);
-	DeleteObject(bitmap);
+    int printout_length = printout_bottom - printout_top;
+    if (printout_length < 0)
+        printout_length += PRINT_LINES;
+    if (y + height > printout_length) {
+        RECT r;
+        SetRect(&r, xdest, printout_length - printout_pos,
+                    xdest + width, ydest + height);
+        HBRUSH brush = (HBRUSH) GetStockObject(GRAY_BRUSH);
+        SelectObject(hdc, brush);
+        FillRect(hdc, &r, brush);
+        if (y >= printout_length)
+            return;
+        height = printout_length - y;
+    }
 
-	if (validate) {
-		RECT r;
-		SetRect(&r, xdest, ydest, xdest + width, ydest + height);
-		ValidateRect(hPrintOutWnd, &r);
-	}
+    memdc = CreateCompatibleDC(hdc);
+    bitmap = CreateBitmap(286, PRINT_LINES, 1, 1, printout);
+    SelectObject(memdc, bitmap);
+
+    if (printout_bottom >= printout_top)
+        /* The buffer is not wrapped */
+        BitBlt(hdc, xdest, ydest, width, height,
+                memdc, x, printout_top + y, SRCCOPY);
+    else {
+        /* The buffer is wrapped */
+        if (printout_top + y < PRINT_LINES) {
+            if (printout_top + y + height <= PRINT_LINES)
+                /* The rectangle is in the lower part of the buffer */
+                BitBlt(hdc, xdest, ydest, width, height,
+                        memdc, x, printout_top + y, SRCCOPY);
+            else {
+                /* The rectangle spans both parts of the buffer */
+                int part1_height = PRINT_LINES - printout_top - y;
+                int part2_height = height - part1_height;
+                BitBlt(hdc, xdest, ydest, width, part1_height,
+                        memdc, x, printout_top + y, SRCCOPY);
+                BitBlt(hdc, xdest, ydest + part1_height, width, part2_height,
+                        memdc, x, 0, SRCCOPY);
+            }
+        } else
+            /* The rectangle is in the upper part of the buffer */
+            BitBlt(hdc, xdest, ydest, width, height,
+                    memdc, x, y + printout_top - PRINT_LINES, SRCCOPY);
+    }
+
+    DeleteDC(memdc);
+    DeleteObject(bitmap);
+
+    if (validate) {
+        RECT r;
+        SetRect(&r, xdest, ydest, xdest + width, ydest + height);
+        ValidateRect(hPrintOutWnd, &r);
+    }
 }
 
 static void printout_scrolled(int offset) {
-	RECT client;
-	GetClientRect(hPrintOutWnd, &client);
-	ScrollWindowEx(hPrintOutWnd, 0, offset, &client, &client, NULL, NULL, SW_INVALIDATE);
+    RECT client;
+    GetClientRect(hPrintOutWnd, &client);
+    ScrollWindowEx(hPrintOutWnd, 0, offset, &client, &client, NULL, NULL, SW_INVALIDATE);
 }
 
 static void printout_scroll_to_bottom(int offset) {
-	SCROLLINFO si;
-	si.cbSize = sizeof(SCROLLINFO);
-	si.fMask = SIF_POS | SIF_RANGE | SIF_PAGE;
-	GetScrollInfo(hPrintOutWnd, SB_VERT, &si);
-	si.fMask = SIF_POS;
-	int p = si.nPage;
-	int oldpos = si.nPos;
-	if (p > 0)
-		p--;
-	si.nPos = si.nMax - p;
-	printout_pos = si.nPos;
-	SetScrollInfo(hPrintOutWnd, SB_VERT, &si, TRUE);
-	printout_scrolled(oldpos - printout_pos - offset);
+    SCROLLINFO si;
+    si.cbSize = sizeof(SCROLLINFO);
+    si.fMask = SIF_POS | SIF_RANGE | SIF_PAGE;
+    GetScrollInfo(hPrintOutWnd, SB_VERT, &si);
+    si.fMask = SIF_POS;
+    int p = si.nPage;
+    int oldpos = si.nPos;
+    if (p > 0)
+        p--;
+    si.nPos = si.nMax - p;
+    printout_pos = si.nPos;
+    SetScrollInfo(hPrintOutWnd, SB_VERT, &si, TRUE);
+    printout_scrolled(oldpos - printout_pos - offset);
 }
 
 static void printout_length_changed() {
-	SCROLLINFO si;
-	si.cbSize = sizeof(SCROLLINFO);
-	si.fMask = SIF_POS;
-	GetScrollInfo(hPrintOutWnd, SB_VERT, &si);
-	
-	int printout_length = printout_bottom - printout_top;
-	if (printout_length < 0)
-		printout_length += PRINT_LINES;
+    SCROLLINFO si;
+    si.cbSize = sizeof(SCROLLINFO);
+    si.fMask = SIF_POS;
+    GetScrollInfo(hPrintOutWnd, SB_VERT, &si);
+    
+    int printout_length = printout_bottom - printout_top;
+    if (printout_length < 0)
+        printout_length += PRINT_LINES;
 
-	si.fMask = SIF_ALL | SIF_DISABLENOSCROLL;
-	si.nMin = 0;
-	si.nMax = printout_length > 0 ? printout_length - 1 : 0;
-	si.nPage = printout_length < printOutHeight ? printout_length : printOutHeight;
-	
-	int p = si.nPage;
-	if (p > 0)
-		p--;
-	int maxpos = si.nMax - p;
-	if (si.nPos > maxpos)
-		si.nPos = maxpos;
+    si.fMask = SIF_ALL | SIF_DISABLENOSCROLL;
+    si.nMin = 0;
+    si.nMax = printout_length > 0 ? printout_length - 1 : 0;
+    si.nPage = printout_length < printOutHeight ? printout_length : printOutHeight;
+    
+    int p = si.nPage;
+    if (p > 0)
+        p--;
+    int maxpos = si.nMax - p;
+    if (si.nPos > maxpos)
+        si.nPos = maxpos;
 
-	printout_pos = si.nPos;
-	SetScrollInfo(hPrintOutWnd, SB_VERT, &si, TRUE);
+    printout_pos = si.nPos;
+    SetScrollInfo(hPrintOutWnd, SB_VERT, &si, TRUE);
 }
 
 void shell_blitter(const char *bits, int bytesperline, int x, int y,
-				   int width, int height) {
-	HDC hdc = GetDC(hMainWnd);
-	skin_display_blitter(hdc, bits, bytesperline, x, y, width, height);
-	if (skey >= -7 && skey <= -2) {
-		HDC memdc = CreateCompatibleDC(hdc);
-		skin_repaint_key(hdc, memdc, skey, 1);
-		DeleteObject(memdc);
-	}
-	ReleaseDC(hMainWnd, hdc);
+                   int width, int height) {
+    HDC hdc = GetDC(hMainWnd);
+    skin_display_blitter(hdc, bits, bytesperline, x, y, width, height);
+    if (skey >= -7 && skey <= -2) {
+        HDC memdc = CreateCompatibleDC(hdc);
+        skin_repaint_key(hdc, memdc, skey, 1);
+        DeleteObject(memdc);
+    }
+    ReleaseDC(hMainWnd, hdc);
 }
 
 void shell_beeper(int frequency, int duration) {
-	Beep(frequency, duration);
+    Beep(frequency, duration);
 }
 
 /* shell_annunciators()
@@ -1774,45 +1774,45 @@ void shell_beeper(int frequency, int duration) {
  * so the shell is expected to handle that one by itself.
  */
 void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
-	HDC hdc = GetDC(hMainWnd);
-	HDC memdc = CreateCompatibleDC(hdc);
+    HDC hdc = GetDC(hMainWnd);
+    HDC memdc = CreateCompatibleDC(hdc);
 
     if (updn != -1 && ann_updown != updn) {
-		ann_updown = updn;
-		skin_repaint_annunciator(hdc, memdc, 1, ann_updown);
+        ann_updown = updn;
+        skin_repaint_annunciator(hdc, memdc, 1, ann_updown);
     }
     if (shf != -1 && ann_shift != shf) {
-		ann_shift = shf;
-		skin_repaint_annunciator(hdc, memdc, 2, ann_shift);
+        ann_shift = shf;
+        skin_repaint_annunciator(hdc, memdc, 2, ann_shift);
     }
     if (prt != -1 && ann_print != prt) {
-		ann_print = prt;
-		skin_repaint_annunciator(hdc, memdc, 3, ann_print);
+        ann_print = prt;
+        skin_repaint_annunciator(hdc, memdc, 3, ann_print);
     }
     if (run != -1 && ann_run != run) {
-		ann_run = run;
-		skin_repaint_annunciator(hdc, memdc, 4, ann_run);
+        ann_run = run;
+        skin_repaint_annunciator(hdc, memdc, 4, ann_run);
     }
     if (g != -1 && ann_g != g) {
-		ann_g = g;
-		skin_repaint_annunciator(hdc, memdc, 6, ann_g);
+        ann_g = g;
+        skin_repaint_annunciator(hdc, memdc, 6, ann_g);
     }
     if (rad != -1 && ann_rad != rad) {
-		ann_rad = rad;
-		skin_repaint_annunciator(hdc, memdc, 7, ann_rad);
+        ann_rad = rad;
+        skin_repaint_annunciator(hdc, memdc, 7, ann_rad);
     }
 
-	DeleteDC(memdc);
-	ReleaseDC(hMainWnd, hdc);
+    DeleteDC(memdc);
+    ReleaseDC(hMainWnd, hdc);
 }
 
 int shell_wants_cpu() {
-	MSG msg;
-	return PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE) != 0;
+    MSG msg;
+    return PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE) != 0;
 }
 
 void shell_delay(int duration) {
-	Sleep(duration);
+    Sleep(duration);
 }
 
 /* Callback to ask the shell to call core_timeout3() after the given number of
@@ -1821,9 +1821,9 @@ void shell_delay(int duration) {
  * This function supports the delay after SHOW, MEM, and shift-VARMENU.
  */
 void shell_request_timeout3(int delay) {
-	if (timer3 != 0)
-		KillTimer(NULL, timer3);
-	timer3 = SetTimer(NULL, 0, delay, timeout3);
+    if (timer3 != 0)
+        KillTimer(NULL, timer3);
+    timer3 = SetTimer(NULL, 0, delay, timeout3);
 }
 
 int4 shell_read_saved_state(void *buf, int4 bufsize) {
@@ -1856,310 +1856,310 @@ bool shell_write_saved_state(const void *buf, int4 nbytes) {
 }
 
 uint4 shell_get_mem() {
-	MEMORYSTATUS memstat;
-	GlobalMemoryStatus(&memstat);
-	return memstat.dwAvailPhys;
+    MEMORYSTATUS memstat;
+    GlobalMemoryStatus(&memstat);
+    return memstat.dwAvailPhys;
 }
 
 int shell_low_battery() {
-	SYSTEM_POWER_STATUS powerstat;
-	int lowbat;
-	if (!GetSystemPowerStatus(&powerstat))
-		lowbat = 0; // getting power status failed; assume we're fine
-	else
-		lowbat = powerstat.ACLineStatus == 0 // offline
-				&& (powerstat.BatteryFlag & 6) != 0; // low or critical
-	if (ann_battery != lowbat) {
-		ann_battery = lowbat;
-		HDC hdc = GetDC(hMainWnd);
-		HDC memdc = CreateCompatibleDC(hdc);
-		skin_repaint_annunciator(hdc, memdc, 5, ann_battery);
-		DeleteDC(memdc);
-		ReleaseDC(hMainWnd, hdc);
-	}
-	return lowbat;
+    SYSTEM_POWER_STATUS powerstat;
+    int lowbat;
+    if (!GetSystemPowerStatus(&powerstat))
+        lowbat = 0; // getting power status failed; assume we're fine
+    else
+        lowbat = powerstat.ACLineStatus == 0 // offline
+                && (powerstat.BatteryFlag & 6) != 0; // low or critical
+    if (ann_battery != lowbat) {
+        ann_battery = lowbat;
+        HDC hdc = GetDC(hMainWnd);
+        HDC memdc = CreateCompatibleDC(hdc);
+        skin_repaint_annunciator(hdc, memdc, 5, ann_battery);
+        DeleteDC(memdc);
+        ReleaseDC(hMainWnd, hdc);
+    }
+    return lowbat;
 }
 
 void shell_powerdown() {
-	PostQuitMessage(0);
+    PostQuitMessage(0);
 }
 
 double shell_random_seed() {
-	return ((double) rand()) / (RAND_MAX + 1.0);
+    return ((double) rand()) / (RAND_MAX + 1.0);
 }
 
 uint4 shell_milliseconds() {
-	return GetTickCount();
+    return GetTickCount();
 }
 
 void shell_get_time_date(uint4 *time, uint4 *date, int *weekday) {
-	SYSTEMTIME st;
-	GetLocalTime(&st);
-	if (time != NULL)
-		*time = st.wHour * 1000000 + st.wMinute * 10000 + st.wSecond * 100 + st.wMilliseconds / 10;
-	if (date != NULL)
-		*date = st.wYear * 10000 + st.wMonth * 100 + st.wDay;
-	if (weekday != NULL)
-		*weekday = st.wDayOfWeek;
+    SYSTEMTIME st;
+    GetLocalTime(&st);
+    if (time != NULL)
+        *time = st.wHour * 1000000 + st.wMinute * 10000 + st.wSecond * 100 + st.wMilliseconds / 10;
+    if (date != NULL)
+        *date = st.wYear * 10000 + st.wMonth * 100 + st.wDay;
+    if (weekday != NULL)
+        *weekday = st.wDayOfWeek;
 }
 
 void shell_print(const char *text, int length,
-		 const char *bits, int bytesperline,
-		 int x, int y, int width, int height) {
+         const char *bits, int bytesperline,
+         int x, int y, int width, int height) {
     int xx, yy;
     int oldlength, newlength;
 
     for (yy = 0; yy < height; yy++) {
-		int4 Y = (printout_bottom + 2 * yy) % PRINT_LINES;
-		for (xx = 0; xx < 143; xx++) {
-			int bit, px, py;
-			if (xx < width) {
-				char c = bits[(y + yy) * bytesperline + ((x + xx) >> 3)];
-				bit = (c & (1 << ((x + xx) & 7))) != 0;
-			} else
-				bit = 0;
-			for (px = xx * 2; px < (xx + 1) * 2; px++)
-				for (py = Y; py < Y + 2; py++)
-					if (!bit)
-						printout[py * PRINT_BYTESPERLINE + (px >> 3)]
-							|= 128 >> (px & 7);
-					else
-						printout[py * PRINT_BYTESPERLINE + (px >> 3)]
-							&= ~(128 >> (px & 7));
-		}
+        int4 Y = (printout_bottom + 2 * yy) % PRINT_LINES;
+        for (xx = 0; xx < 143; xx++) {
+            int bit, px, py;
+            if (xx < width) {
+                char c = bits[(y + yy) * bytesperline + ((x + xx) >> 3)];
+                bit = (c & (1 << ((x + xx) & 7))) != 0;
+            } else
+                bit = 0;
+            for (px = xx * 2; px < (xx + 1) * 2; px++)
+                for (py = Y; py < Y + 2; py++)
+                    if (!bit)
+                        printout[py * PRINT_BYTESPERLINE + (px >> 3)]
+                            |= 128 >> (px & 7);
+                    else
+                        printout[py * PRINT_BYTESPERLINE + (px >> 3)]
+                            &= ~(128 >> (px & 7));
+        }
     }
 
     oldlength = printout_bottom - printout_top;
     if (oldlength < 0)
-		oldlength += PRINT_LINES;
+        oldlength += PRINT_LINES;
     printout_bottom = (printout_bottom + 2 * height) % PRINT_LINES;
     newlength = oldlength + 2 * height;
 
-	if (newlength >= PRINT_LINES) {
-		printout_top = (printout_bottom + 2) % PRINT_LINES;
-		newlength = PRINT_LINES - 2;
-		if (hPrintOutWnd != NULL) {
-			if (newlength != oldlength)
-				printout_length_changed();
-			printout_scroll_to_bottom(2 * height + oldlength - newlength);
-			repaint_printout(0, newlength - 2 * height, 286, 2 * height, 1);
-		}
-	} else {
-		if (hPrintOutWnd != NULL) {
-			printout_length_changed();
-			printout_scroll_to_bottom(0);
-			repaint_printout(0, oldlength, 286, 2 * height, 1);
-		}
-	}
+    if (newlength >= PRINT_LINES) {
+        printout_top = (printout_bottom + 2) % PRINT_LINES;
+        newlength = PRINT_LINES - 2;
+        if (hPrintOutWnd != NULL) {
+            if (newlength != oldlength)
+                printout_length_changed();
+            printout_scroll_to_bottom(2 * height + oldlength - newlength);
+            repaint_printout(0, newlength - 2 * height, 286, 2 * height, 1);
+        }
+    } else {
+        if (hPrintOutWnd != NULL) {
+            printout_length_changed();
+            printout_scroll_to_bottom(0);
+            repaint_printout(0, oldlength, 286, 2 * height, 1);
+        }
+    }
 
     if (state.printerToTxtFile) {
-		int err;
-		char buf[1000];
+        int err;
+        char buf[1000];
 
-		if (print_txt == NULL) {
-			print_txt = fopen(state.printerTxtFileName, "ab");
-			if (print_txt == NULL) {
-				err = errno;
-				state.printerToTxtFile = 0;
-				sprintf(buf, "Can't open \"%s\" for output: %s (%d)\nPrinting to TXT file disabled.", state.printerTxtFileName, strerror(err), err);
-				MessageBox(hMainWnd, buf, "Message", MB_ICONWARNING);
-				goto done_print_txt;
-			}
-		}
+        if (print_txt == NULL) {
+            print_txt = fopen(state.printerTxtFileName, "ab");
+            if (print_txt == NULL) {
+                err = errno;
+                state.printerToTxtFile = 0;
+                sprintf(buf, "Can't open \"%s\" for output: %s (%d)\nPrinting to TXT file disabled.", state.printerTxtFileName, strerror(err), err);
+                MessageBox(hMainWnd, buf, "Message", MB_ICONWARNING);
+                goto done_print_txt;
+            }
+        }
 
-		shell_spool_txt(text, length, txt_writer, txt_newliner);
-		done_print_txt:;
+        shell_spool_txt(text, length, txt_writer, txt_newliner);
+        done_print_txt:;
     }
 
     if (state.printerToGifFile) {
-		int err;
-		char buf[1000];
-		
-		if (print_gif != NULL
-			&& gif_lines + height > state.printerGifMaxLength) {
-			shell_finish_gif(gif_seeker, gif_writer);
-			fclose(print_gif);
-			print_gif = NULL;
-		}
+        int err;
+        char buf[1000];
+        
+        if (print_gif != NULL
+            && gif_lines + height > state.printerGifMaxLength) {
+            shell_finish_gif(gif_seeker, gif_writer);
+            fclose(print_gif);
+            print_gif = NULL;
+        }
 
-		if (print_gif == NULL) {
-			while (1) {
-				int len, p;
-				FILE *testfile;
+        if (print_gif == NULL) {
+            while (1) {
+                int len, p;
+                FILE *testfile;
 
-				gif_seq = (gif_seq + 1) % 10000;
+                gif_seq = (gif_seq + 1) % 10000;
 
-				strcpy(print_gif_name, state.printerGifFileName);
-				len = strlen(print_gif_name);
+                strcpy(print_gif_name, state.printerGifFileName);
+                len = strlen(print_gif_name);
 
-				/* Strip ".gif" extension, if present */
-				if (len >= 4 &&
-					_stricmp(print_gif_name + len - 4, ".gif") == 0) {
-					len -= 4;
-					print_gif_name[len] = 0;
-				}
+                /* Strip ".gif" extension, if present */
+                if (len >= 4 &&
+                    _stricmp(print_gif_name + len - 4, ".gif") == 0) {
+                    len -= 4;
+                    print_gif_name[len] = 0;
+                }
 
-				/* Strip ".[0-9]+", if present */
-				p = len;
-				while (p > 0 && print_gif_name[p] >= '0' && print_gif_name[p] <= '9')
-					p--;
-				if (p < len && p >= 0 && print_gif_name[p] == '.')
-					print_gif_name[p] = 0;
+                /* Strip ".[0-9]+", if present */
+                p = len;
+                while (p > 0 && print_gif_name[p] >= '0' && print_gif_name[p] <= '9')
+                    p--;
+                if (p < len && p >= 0 && print_gif_name[p] == '.')
+                    print_gif_name[p] = 0;
 
-				/* Make sure we have enough space for the ".nnnn.gif" */
-				p = FILENAMELEN - 10;
-				print_gif_name[p] = 0;
-				p = strlen(print_gif_name);
-				sprintf(print_gif_name + p, ".%04d", gif_seq);
-				strcat(print_gif_name, ".gif");
-				
-				/* I know, I know, the civilized thing to do would be to
-				 * use stat(2) to find out if the file exists. Another time.
-				 * (TODO)
-				 */
-				testfile = fopen(print_gif_name, "rb");
-				if (testfile != NULL)
-					fclose(testfile);
-				else
-					break;
-			}
-			print_gif = fopen(print_gif_name, "w+b");
-			if (print_gif == NULL) {
-				err = errno;
-				state.printerToGifFile = 0;
-				sprintf(buf, "Can't open \"%s\" for output: %s (%d)\nPrinting to GIF file disabled.", print_gif_name, strerror(err), err);
-				MessageBox(hMainWnd, buf, "Message", MB_ICONWARNING);
-				goto done_print_gif;
-			}
-			if (!shell_start_gif(gif_writer, state.printerGifMaxLength)) {
-				state.printerToGifFile = 0;
-				MessageBox(hMainWnd, "Not enough memory for the GIF encoder.\nPrinting to GIF file disabled.", "Message", MB_ICONWARNING);
-				goto done_print_gif;
-			}
-			gif_lines = 0;
-		}
+                /* Make sure we have enough space for the ".nnnn.gif" */
+                p = FILENAMELEN - 10;
+                print_gif_name[p] = 0;
+                p = strlen(print_gif_name);
+                sprintf(print_gif_name + p, ".%04d", gif_seq);
+                strcat(print_gif_name, ".gif");
+                
+                /* I know, I know, the civilized thing to do would be to
+                 * use stat(2) to find out if the file exists. Another time.
+                 * (TODO)
+                 */
+                testfile = fopen(print_gif_name, "rb");
+                if (testfile != NULL)
+                    fclose(testfile);
+                else
+                    break;
+            }
+            print_gif = fopen(print_gif_name, "w+b");
+            if (print_gif == NULL) {
+                err = errno;
+                state.printerToGifFile = 0;
+                sprintf(buf, "Can't open \"%s\" for output: %s (%d)\nPrinting to GIF file disabled.", print_gif_name, strerror(err), err);
+                MessageBox(hMainWnd, buf, "Message", MB_ICONWARNING);
+                goto done_print_gif;
+            }
+            if (!shell_start_gif(gif_writer, state.printerGifMaxLength)) {
+                state.printerToGifFile = 0;
+                MessageBox(hMainWnd, "Not enough memory for the GIF encoder.\nPrinting to GIF file disabled.", "Message", MB_ICONWARNING);
+                goto done_print_gif;
+            }
+            gif_lines = 0;
+        }
 
-		shell_spool_gif(bits, bytesperline, x, y, width, height, gif_writer);
-		gif_lines += height;
-		done_print_gif:;
+        shell_spool_gif(bits, bytesperline, x, y, width, height, gif_writer);
+        gif_lines += height;
+        done_print_gif:;
     }
 }
 
 int shell_write(const char *buf, int4 buflen) {
     int4 written;
     if (export_file == NULL)
-		return 0;
+        return 0;
     written = fwrite(buf, 1, buflen, export_file);
     if (written != buflen) {
-		char buf[1000];
-		fclose(export_file);
-		export_file = NULL;
-		sprintf(buf, "Writing \"%s\" failed.", export_file_name);
-		MessageBox(hMainWnd, buf, "Message", MB_ICONWARNING);
-		return 0;
+        char buf[1000];
+        fclose(export_file);
+        export_file = NULL;
+        sprintf(buf, "Writing \"%s\" failed.", export_file_name);
+        MessageBox(hMainWnd, buf, "Message", MB_ICONWARNING);
+        return 0;
     } else
-		return 1;
+        return 1;
 }
 
 int4 shell_read(char *buf, int4 buflen) {
     int4 nread;
     if (import_file == NULL)
-		return -1;
+        return -1;
     nread = fread(buf, 1, buflen, import_file);
     if (nread != buflen && ferror(import_file)) {
-		fclose(import_file);
-		import_file = NULL;
-		MessageBox(hMainWnd, "An error occurred; import was terminated prematurely.", "Message", MB_ICONWARNING);
-		return -1;
+        fclose(import_file);
+        import_file = NULL;
+        MessageBox(hMainWnd, "An error occurred; import was terminated prematurely.", "Message", MB_ICONWARNING);
+        return -1;
     } else
-		return nread;
+        return nread;
 }
 
 extern long keymap_filesize;
 extern char keymap_filedata[];
 
 static void read_key_map(const char *keymapfilename) {
-	FILE *keymapfile = fopen(keymapfilename, "r");
-	int kmcap = 0;
-	char line[1024];
-	int lineno = 0;
+    FILE *keymapfile = fopen(keymapfilename, "r");
+    int kmcap = 0;
+    char line[1024];
+    int lineno = 0;
 
-	if (keymapfile == NULL) {
-		/* Try to create default keymap file */
-		long n;
+    if (keymapfile == NULL) {
+        /* Try to create default keymap file */
+        long n;
 
-		keymapfile = fopen(keymapfilename, "wb");
-		if (keymapfile == NULL)
-			return;
-		n = fwrite(keymap_filedata, 1, keymap_filesize, keymapfile);
-		if (n != keymap_filesize) {
-			int err = errno;
-			fprintf(stderr, "Error writing \"%s\": %s (%d)\n",
-							keymapfilename, strerror(err), err);
-		}
-		fclose(keymapfile);
+        keymapfile = fopen(keymapfilename, "wb");
+        if (keymapfile == NULL)
+            return;
+        n = fwrite(keymap_filedata, 1, keymap_filesize, keymapfile);
+        if (n != keymap_filesize) {
+            int err = errno;
+            fprintf(stderr, "Error writing \"%s\": %s (%d)\n",
+                            keymapfilename, strerror(err), err);
+        }
+        fclose(keymapfile);
 
-		keymapfile = fopen(keymapfilename, "r");
-		if (keymapfile == NULL)
-			return;
-	}
+        keymapfile = fopen(keymapfilename, "r");
+        if (keymapfile == NULL)
+            return;
+    }
 
-	while (fgets(line, 1024, keymapfile) != NULL) {
-		lineno++;
-		keymap_entry *entry = parse_keymap_entry(line, lineno);
-		if (entry != NULL) {
-			/* Create new keymap entry */
-			if (keymap_length == kmcap) {
-				kmcap += 50;
-				keymap = (keymap_entry *) realloc(keymap, kmcap * sizeof(keymap_entry));
-				// TODO - handle memory allocation failure
-			}
-			memcpy(keymap + (keymap_length++), entry, sizeof(keymap_entry));
-		}
-	}
+    while (fgets(line, 1024, keymapfile) != NULL) {
+        lineno++;
+        keymap_entry *entry = parse_keymap_entry(line, lineno);
+        if (entry != NULL) {
+            /* Create new keymap entry */
+            if (keymap_length == kmcap) {
+                kmcap += 50;
+                keymap = (keymap_entry *) realloc(keymap, kmcap * sizeof(keymap_entry));
+                // TODO - handle memory allocation failure
+            }
+            memcpy(keymap + (keymap_length++), entry, sizeof(keymap_entry));
+        }
+    }
 
-	fclose(keymapfile);
+    fclose(keymapfile);
 }
 
 static void init_shell_state(int4 version) {
-	switch (version) {
-		case -1:
-			state.extras = 0;
-			// fall through
-		case 0:
-			state.mainPlacement.length = sizeof(WINDOWPLACEMENT);
-			state.mainPlacementValid = 0;
-			state.printOutPlacement.length = sizeof(WINDOWPLACEMENT);
-			state.printOutPlacementValid = 0;
-			state.printOutOpen = 0;
-			// fall through
-		case 1:
-			state.printerToTxtFile = 0;
-			state.printerToGifFile = 0;
-			state.printerTxtFileName[0] = 0;
-			state.printerGifFileName[0] = 0;
-			// fall through
-		case 2:
-			state.printerGifMaxLength = 256;
-			// fall through
-		case 3:
-			state.skinName[0] = 0;
-			// fall through
-		case 4:
-			state.alwaysOnTop = FALSE;
-			// fall through
-		case 5:
-			state.singleInstance = TRUE;
-			// fall through
-		case 6:
-			state.calculatorKey = FALSE;
-			// fall through
-		case 7:
-			// current version (SHELL_VERSION = 7),
-			// so nothing to do here since everything
-			// was initialized from the state file.
-			;
-	}
+    switch (version) {
+        case -1:
+            state.extras = 0;
+            // fall through
+        case 0:
+            state.mainPlacement.length = sizeof(WINDOWPLACEMENT);
+            state.mainPlacementValid = 0;
+            state.printOutPlacement.length = sizeof(WINDOWPLACEMENT);
+            state.printOutPlacementValid = 0;
+            state.printOutOpen = 0;
+            // fall through
+        case 1:
+            state.printerToTxtFile = 0;
+            state.printerToGifFile = 0;
+            state.printerTxtFileName[0] = 0;
+            state.printerGifFileName[0] = 0;
+            // fall through
+        case 2:
+            state.printerGifMaxLength = 256;
+            // fall through
+        case 3:
+            state.skinName[0] = 0;
+            // fall through
+        case 4:
+            state.alwaysOnTop = FALSE;
+            // fall through
+        case 5:
+            state.singleInstance = TRUE;
+            // fall through
+        case 6:
+            state.calculatorKey = FALSE;
+            // fall through
+        case 7:
+            // current version (SHELL_VERSION = 7),
+            // so nothing to do here since everything
+            // was initialized from the state file.
+            ;
+    }
 }
 
 static int read_shell_state(int4 *ver) {
@@ -2179,23 +2179,23 @@ static int read_shell_state(int4 *ver) {
         /* Unknown state file version */
         return 0;
 
-	if (version > 0) {
-		if (shell_read_saved_state(&state_size, sizeof(int4)) != sizeof(int4))
-			return 0;
-		if (shell_read_saved_state(&state_version, sizeof(int4)) != sizeof(int4))
-			return 0;
-		if (state_version < 0 || state_version > SHELL_VERSION)
-			/* Unknown shell state version */
-			return 0;
-		if (shell_read_saved_state(&state, state_size) != state_size)
-			return 0;
-		// Initialize the parts of the shell state
-		// that were NOT read from the state file
-		init_shell_state(state_version);
-	} else
-		init_shell_state(-1);
+    if (version > 0) {
+        if (shell_read_saved_state(&state_size, sizeof(int4)) != sizeof(int4))
+            return 0;
+        if (shell_read_saved_state(&state_version, sizeof(int4)) != sizeof(int4))
+            return 0;
+        if (state_version < 0 || state_version > SHELL_VERSION)
+            /* Unknown shell state version */
+            return 0;
+        if (shell_read_saved_state(&state, state_size) != state_size)
+            return 0;
+        // Initialize the parts of the shell state
+        // that were NOT read from the state file
+        init_shell_state(state_version);
+    } else
+        init_shell_state(-1);
 
-	*ver = version;
+    *ver = version;
     return 1;
 }
 
@@ -2224,49 +2224,49 @@ static int write_shell_state() {
 static void txt_writer(const char *text, int length) {
     int n;
     if (print_txt == NULL)
-		return;
+        return;
     n = fwrite(text, 1, length, print_txt);
     if (n != length) {
-		char buf[1000];
-		state.printerToTxtFile = 0;
-		fclose(print_txt);
-		print_txt = NULL;
-		sprintf(buf, "Error while writing to \"%s\".\nPrinting to TXT file disabled", state.printerTxtFileName);
-		MessageBox(hMainWnd, buf, "Message", MB_ICONWARNING);
+        char buf[1000];
+        state.printerToTxtFile = 0;
+        fclose(print_txt);
+        print_txt = NULL;
+        sprintf(buf, "Error while writing to \"%s\".\nPrinting to TXT file disabled", state.printerTxtFileName);
+        MessageBox(hMainWnd, buf, "Message", MB_ICONWARNING);
     }
 }
 
 static void txt_newliner() {
     if (print_txt == NULL)
-		return;
+        return;
     fputs("\r\n", print_txt);
     fflush(print_txt);
 }
 
 static void gif_seeker(int4 pos) {
     if (print_gif == NULL)
-		return;
+        return;
     if (fseek(print_gif, pos, SEEK_SET) == -1) {
-		char buf[1000];
-		state.printerToGifFile = 0;
-		fclose(print_gif);
-		print_gif = NULL;
-		sprintf(buf, "Error while seeking \"%s\".\nPrinting to GIF file disabled", print_gif_name);
-		MessageBox(hMainWnd, buf, "Message", MB_ICONWARNING);
+        char buf[1000];
+        state.printerToGifFile = 0;
+        fclose(print_gif);
+        print_gif = NULL;
+        sprintf(buf, "Error while seeking \"%s\".\nPrinting to GIF file disabled", print_gif_name);
+        MessageBox(hMainWnd, buf, "Message", MB_ICONWARNING);
     }
 }
 
 static void gif_writer(const char *text, int length) {
     int n;
     if (print_gif == NULL)
-		return;
+        return;
     n = fwrite(text, 1, length, print_gif);
     if (n != length) {
-		char buf[1000];
-		state.printerToGifFile = 0;
-		fclose(print_gif);
-		print_gif = NULL;
-		sprintf(buf, "Error while writing to \"%s\".\nPrinting to GIF file disabled", print_gif_name);
-		MessageBox(hMainWnd, buf, "Message", MB_ICONWARNING);
+        char buf[1000];
+        state.printerToGifFile = 0;
+        fclose(print_gif);
+        print_gif = NULL;
+        sprintf(buf, "Error while writing to \"%s\".\nPrinting to GIF file disabled", print_gif_name);
+        MessageBox(hMainWnd, buf, "Message", MB_ICONWARNING);
     }
 }

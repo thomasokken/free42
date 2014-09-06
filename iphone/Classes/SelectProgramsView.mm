@@ -39,9 +39,9 @@
 }
 
 - (id) initWithCoder:(NSCoder *)coder {
-	[super initWithCoder:coder];
-	programNames = [[NSMutableArray arrayWithCapacity:10] retain];
-	return self;
+    [super initWithCoder:coder];
+    programNames = [[NSMutableArray arrayWithCapacity:10] retain];
+    return self;
 }
 
 - (void) drawRect:(CGRect)rect {
@@ -49,9 +49,9 @@
 }
 
 - (void) raised {
-	// This gets called just before the view is raised, every time
-	[programNames removeAllObjects];
-	char buf[1024];
+    // This gets called just before the view is raised, every time
+    [programNames removeAllObjects];
+    char buf[1024];
     int count = core_list_programs(buf, 1024);
     char *p = buf;
     for (int i = 0; i < count; i++) {
@@ -60,13 +60,13 @@
         [programNames addObject:[NSString stringWithCString:p encoding:NSISOLatin1StringEncoding]];
         p += strlen(p) + 1;
     }
-	[programTable reloadData];
+    [programTable reloadData];
 }
 
 - (IBAction) done {
     // OK
     // Need to raise the main window now, in case the SelectFileView is cancelled
-	[Free42AppDelegate showMain];
+    [Free42AppDelegate showMain];
     NSArray *selection = [programTable indexPathsForSelectedRows];
     if (selection == nil)
         return;
@@ -140,20 +140,20 @@ static int my_shell_write(const char *buf, int buflen) {
 
 - (IBAction) back {
     // Cancel
-	[Free42AppDelegate showMain];
+    [Free42AppDelegate showMain];
 }
 
 - (UITableViewCell *) tableView:(UITableView *)table cellForRowAtIndexPath:(NSIndexPath *) indexPath {
-	int n = [indexPath indexAtPosition:1];
-	NSString *s = [programNames objectAtIndex:n];
-	UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
-	cell.textLabel.text = s;
-	return cell;
+    int n = [indexPath indexAtPosition:1];
+    NSString *s = [programNames objectAtIndex:n];
+    UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
+    cell.textLabel.text = s;
+    return cell;
 }
 
 - (NSInteger) tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section {
-	int n = [programNames count];
-	return n;
+    int n = [programNames count];
+    return n;
 }
 
 - (void) dealloc {

@@ -19,10 +19,10 @@
 
 
 @interface SelectProgramsView : UIView <UITableViewDataSource, UIAlertViewDelegate> {
-	NSMutableArray *programNames;
-	UIBarButtonItem *doneButton;
-	UIBarButtonItem *backButton;
-	UITableView *programTable;
+    NSMutableArray *programNames;
+    UIBarButtonItem *doneButton;
+    UIBarButtonItem *backButton;
+    UITableView *programTable;
 }
 
 @property (nonatomic, retain) IBOutlet UIBarButtonItem *doneButton;

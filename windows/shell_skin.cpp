@@ -30,31 +30,31 @@
 /**************************/
 
 typedef struct {
-	int x, y;
+    int x, y;
 } SkinPoint;
 
 typedef struct {
-	int x, y, width, height;
+    int x, y, width, height;
 } SkinRect;
 
 typedef struct {
-	int code, shifted_code;
-	SkinRect sens_rect;
-	SkinRect disp_rect;
-	SkinPoint src;
+    int code, shifted_code;
+    SkinRect sens_rect;
+    SkinRect disp_rect;
+    SkinPoint src;
 } SkinKey;
 
 #define SKIN_MAX_MACRO_LENGTH 63
 
 typedef struct _SkinMacro {
-	int code;
-	unsigned char macro[SKIN_MAX_MACRO_LENGTH + 1];
-	struct _SkinMacro *next;
+    int code;
+    unsigned char macro[SKIN_MAX_MACRO_LENGTH + 1];
+    struct _SkinMacro *next;
 } SkinMacro;
 
 typedef struct {
-	SkinRect disp_rect;
-	SkinPoint src;
+    SkinRect disp_rect;
+    SkinPoint src;
 } SkinAnnunciator;
 
 static SkinRect skin;
@@ -108,91 +108,91 @@ extern unsigned char *skin_bitmap_data[];
 /*****************/
 
 keymap_entry *parse_keymap_entry(char *line, int lineno) {
-	char *p;
-	static keymap_entry entry;
+    char *p;
+    static keymap_entry entry;
 
-	p =  strchr(line, '#');
-	if (p != NULL)
-		*p = 0;
-	p = strchr(line, '\n');
-	if (p != NULL)
-		*p = 0;
-	p = strchr(line, '\r');
-	if (p != NULL)
-		*p = 0;
+    p =  strchr(line, '#');
+    if (p != NULL)
+        *p = 0;
+    p = strchr(line, '\n');
+    if (p != NULL)
+        *p = 0;
+    p = strchr(line, '\r');
+    if (p != NULL)
+        *p = 0;
 
-	p = strchr(line, ':');
-	if (p != NULL) {
-		char *val = p + 1;
-		char *tok;
-		bool ctrl = false;
-		bool alt = false;
-		bool shift = false;
-		bool cshift = false;
-		int keycode = 0;
-		int done = 0;
-		unsigned char macro[KEYMAP_MAX_MACRO_LENGTH + 1];
-		int macrolen = 0;
+    p = strchr(line, ':');
+    if (p != NULL) {
+        char *val = p + 1;
+        char *tok;
+        bool ctrl = false;
+        bool alt = false;
+        bool shift = false;
+        bool cshift = false;
+        int keycode = 0;
+        int done = 0;
+        unsigned char macro[KEYMAP_MAX_MACRO_LENGTH + 1];
+        int macrolen = 0;
 
-		/* Parse keycode */
-		*p = 0;
-		tok = strtok(line, " \t");
-		while (tok != NULL) {
-			if (done) {
-				fprintf(stderr, "Keymap, line %d: Excess tokens in key spec.\n", lineno);
-				return NULL;
-			}
-			if (_stricmp(tok, "ctrl") == 0)
-				ctrl = true;
-			else if (_stricmp(tok, "alt") == 0)
-				alt = true;
-			else if (_stricmp(tok, "shift") == 0)
-				shift = true;
-			else if (_stricmp(tok, "cshift") == 0)
-				cshift = true;
-			else {
-				char *endptr;
-				long k = strtol(tok, &endptr, 10);
-				if (k < 1 || *endptr != 0) {
-					fprintf(stderr, "Keymap, line %d: Bad keycode.\n", lineno);
-					return NULL;
-				}
-				keycode = k;
-				done = 1;
-			}
-			tok = strtok(NULL, " \t");
-		}
-		if (!done) {
-			fprintf(stderr, "Keymap, line %d: Unrecognized keycode.\n", lineno);
-			return NULL;
-		}
+        /* Parse keycode */
+        *p = 0;
+        tok = strtok(line, " \t");
+        while (tok != NULL) {
+            if (done) {
+                fprintf(stderr, "Keymap, line %d: Excess tokens in key spec.\n", lineno);
+                return NULL;
+            }
+            if (_stricmp(tok, "ctrl") == 0)
+                ctrl = true;
+            else if (_stricmp(tok, "alt") == 0)
+                alt = true;
+            else if (_stricmp(tok, "shift") == 0)
+                shift = true;
+            else if (_stricmp(tok, "cshift") == 0)
+                cshift = true;
+            else {
+                char *endptr;
+                long k = strtol(tok, &endptr, 10);
+                if (k < 1 || *endptr != 0) {
+                    fprintf(stderr, "Keymap, line %d: Bad keycode.\n", lineno);
+                    return NULL;
+                }
+                keycode = k;
+                done = 1;
+            }
+            tok = strtok(NULL, " \t");
+        }
+        if (!done) {
+            fprintf(stderr, "Keymap, line %d: Unrecognized keycode.\n", lineno);
+            return NULL;
+        }
 
-		/* Parse macro */
-		tok = strtok(val, " \t");
-		while (tok != NULL) {
-			char *endptr;
-			long k = strtol(tok, &endptr, 10);
-			if (*endptr != 0 || k < 1 || k > 255) {
-				fprintf(stderr, "Keymap, line %d: Bad value (%s) in macro.\n", lineno, tok);
-				return NULL;
-			} else if (macrolen == KEYMAP_MAX_MACRO_LENGTH) {
-				fprintf(stderr, "Keymap, line %d: Macro too long (max=%d).\n", lineno, KEYMAP_MAX_MACRO_LENGTH);
-				return NULL;
-			} else
-				macro[macrolen++] = (unsigned char) k;
-			tok = strtok(NULL, " \t");
-		}
-		macro[macrolen] = 0;
+        /* Parse macro */
+        tok = strtok(val, " \t");
+        while (tok != NULL) {
+            char *endptr;
+            long k = strtol(tok, &endptr, 10);
+            if (*endptr != 0 || k < 1 || k > 255) {
+                fprintf(stderr, "Keymap, line %d: Bad value (%s) in macro.\n", lineno, tok);
+                return NULL;
+            } else if (macrolen == KEYMAP_MAX_MACRO_LENGTH) {
+                fprintf(stderr, "Keymap, line %d: Macro too long (max=%d).\n", lineno, KEYMAP_MAX_MACRO_LENGTH);
+                return NULL;
+            } else
+                macro[macrolen++] = (unsigned char) k;
+            tok = strtok(NULL, " \t");
+        }
+        macro[macrolen] = 0;
 
-		entry.ctrl = ctrl;
-		entry.alt = alt;
-		entry.shift = shift;
-		entry.cshift = cshift;
-		entry.keycode = keycode;
-		strcpy((char *) entry.macro, (const char *) macro);
-		return &entry;
-	} else
-		return NULL;
+        entry.ctrl = ctrl;
+        entry.alt = alt;
+        entry.shift = shift;
+        entry.cshift = cshift;
+        entry.keycode = keycode;
+        strcpy((char *) entry.macro, (const char *) macro);
+        return &entry;
+    } else
+        return NULL;
 }
 
 
@@ -206,659 +206,659 @@ static void skin_close();
 
 
 static int skin_open(const char *skinname, const char *basedir, int open_layout) {
-	int i;
-	char namebuf[1024];
-	char exedir[MAX_PATH];
-	char *lastbackslash;
+    int i;
+    char namebuf[1024];
+    char exedir[MAX_PATH];
+    char *lastbackslash;
 
-	/* Look for built-in skin first */
-	for (i = 0; i < skin_count; i++) {
-		if (strcmp(skinname, skin_name[i]) == 0) {
-			external_file = NULL;
-			builtin_pos = 0;
-			if (open_layout) {
-				builtin_length = skin_layout_size[i];
-				builtin_file = skin_layout_data[i];
-			} else {
-				builtin_length = skin_bitmap_size[i];
-				builtin_file = skin_bitmap_data[i];
-			}
-			return 1;
-		}
-	}
+    /* Look for built-in skin first */
+    for (i = 0; i < skin_count; i++) {
+        if (strcmp(skinname, skin_name[i]) == 0) {
+            external_file = NULL;
+            builtin_pos = 0;
+            if (open_layout) {
+                builtin_length = skin_layout_size[i];
+                builtin_file = skin_layout_data[i];
+            } else {
+                builtin_length = skin_bitmap_size[i];
+                builtin_file = skin_bitmap_data[i];
+            }
+            return 1;
+        }
+    }
 
-	/* name did not match a built-in skin; look for file */
-	sprintf(namebuf, "%s\\%s.%s", basedir, skinname,
-										open_layout ? "layout" : "gif");
-	external_file = fopen(namebuf, "rb");
-	if (external_file != NULL)
-		return 1;
+    /* name did not match a built-in skin; look for file */
+    sprintf(namebuf, "%s\\%s.%s", basedir, skinname,
+                                        open_layout ? "layout" : "gif");
+    external_file = fopen(namebuf, "rb");
+    if (external_file != NULL)
+        return 1;
 
-	/* name did not match in home dir; now try in exe dir */
-	GetModuleFileName(0, exedir, MAX_PATH - 1);
-	lastbackslash = strrchr(exedir, '\\');
-	if (lastbackslash != 0)
-		*lastbackslash = 0;
-	else
-		strcpy(exedir, "C:");
-	sprintf(namebuf, "%s\\%s.%s", exedir, skinname,
-										open_layout ? "layout" : "gif");
-	external_file = fopen(namebuf, "rb");
-	return external_file != NULL;
+    /* name did not match in home dir; now try in exe dir */
+    GetModuleFileName(0, exedir, MAX_PATH - 1);
+    lastbackslash = strrchr(exedir, '\\');
+    if (lastbackslash != 0)
+        *lastbackslash = 0;
+    else
+        strcpy(exedir, "C:");
+    sprintf(namebuf, "%s\\%s.%s", exedir, skinname,
+                                        open_layout ? "layout" : "gif");
+    external_file = fopen(namebuf, "rb");
+    return external_file != NULL;
 }
 
 int skin_getchar() {
-	if (external_file != NULL)
-		return fgetc(external_file);
-	else if (builtin_pos < builtin_length)
-		return builtin_file[builtin_pos++];
-	else
-		return EOF;
+    if (external_file != NULL)
+        return fgetc(external_file);
+    else if (builtin_pos < builtin_length)
+        return builtin_file[builtin_pos++];
+    else
+        return EOF;
 }
 
 static int skin_gets(char *buf, int buflen) {
-	int p = 0;
-	int eof = -1;
-	int comment = 0;
-	while (p < buflen - 1) {
-		int c = skin_getchar();
-		if (eof == -1)
-			eof = c == EOF;
-		if (c == EOF || c == '\n' || c == '\r')
-			break;
-		/* Remove comments */
-		if (c == '#')
-			comment = 1;
-		if (comment)
-			continue;
-		/* Suppress leading spaces */
-		if (p == 0 && isspace(c))
-			continue;
-		buf[p++] = c;
-	}
-	buf[p++] = 0;
-	return p > 1 || !eof;
+    int p = 0;
+    int eof = -1;
+    int comment = 0;
+    while (p < buflen - 1) {
+        int c = skin_getchar();
+        if (eof == -1)
+            eof = c == EOF;
+        if (c == EOF || c == '\n' || c == '\r')
+            break;
+        /* Remove comments */
+        if (c == '#')
+            comment = 1;
+        if (comment)
+            continue;
+        /* Suppress leading spaces */
+        if (p == 0 && isspace(c))
+            continue;
+        buf[p++] = c;
+    }
+    buf[p++] = 0;
+    return p > 1 || !eof;
 }
 
 static void skin_close() {
-	if (external_file != NULL)
-		fclose(external_file);
+    if (external_file != NULL)
+        fclose(external_file);
 }
 
 void skin_load(char *skinname, const char *basedir, long *width, long *height) {
-	char line[1024];
-	int success;
-	int size;
-	int kmcap = 0;
-	int lineno = 0;
+    char line[1024];
+    int success;
+    int size;
+    int kmcap = 0;
+    int lineno = 0;
 
-	if (skinname[0] == 0) {
-		fallback_on_1st_builtin_skin:
-		strcpy(skinname, skin_name[0]);
-	}
+    if (skinname[0] == 0) {
+        fallback_on_1st_builtin_skin:
+        strcpy(skinname, skin_name[0]);
+    }
 
-	/*************************/
-	/* Load skin description */
-	/*************************/
+    /*************************/
+    /* Load skin description */
+    /*************************/
 
-	if (!skin_open(skinname, basedir, 1))
-		goto fallback_on_1st_builtin_skin;
+    if (!skin_open(skinname, basedir, 1))
+        goto fallback_on_1st_builtin_skin;
 
-	if (keylist != NULL)
-		free(keylist);
-	keylist = NULL;
-	nkeys = 0;
-	keys_cap = 0;
+    if (keylist != NULL)
+        free(keylist);
+    keylist = NULL;
+    nkeys = 0;
+    keys_cap = 0;
 
-	while (macrolist != NULL) {
-		SkinMacro *m = macrolist->next;
-		free(macrolist);
-		macrolist = m;
-	}
+    while (macrolist != NULL) {
+        SkinMacro *m = macrolist->next;
+        free(macrolist);
+        macrolist = m;
+    }
 
-	if (keymap != NULL)
-	    free(keymap);
-	keymap = NULL;
-	keymap_length = 0;
+    if (keymap != NULL)
+        free(keymap);
+    keymap = NULL;
+    keymap_length = 0;
 
-	while (skin_gets(line, 1024)) {
-		lineno++;
-		if (*line == 0)
-			continue;
-		if (_strnicmp(line, "skin:", 5) == 0) {
-			int x, y, width, height;
-			if (sscanf(line + 5, " %d,%d,%d,%d", &x, &y, &width, &height) == 4){
-				skin.x = x;
-				skin.y = y;
-				skin.width = width;
-				skin.height = height;
-			}
-		} else if (_strnicmp(line, "display:", 8) == 0) {
-			int x, y, xscale, yscale;
-			unsigned long bg, fg;
-			if (sscanf(line + 8, " %d,%d %d %d %lx %lx", &x, &y,
-											&xscale, &yscale, &bg, &fg) == 6) {
-				display_loc.x = x;
-				display_loc.y = y;
-				display_scale.x = xscale;
-				display_scale.y = yscale;
-				display_bg = ((bg >> 16) & 255) | (bg & 0x0FF00) | ((bg & 255) << 16);
-				display_fg = ((fg >> 16) & 255) | (fg & 0x0FF00) | ((fg & 255) << 16);
-			}
-		} else if (_strnicmp(line, "key:", 4) == 0) {
-			char keynumbuf[20];
-			int keynum, shifted_keynum;
-			int sens_x, sens_y, sens_width, sens_height;
-			int disp_x, disp_y, disp_width, disp_height;
-			int act_x, act_y;
-			if (sscanf(line + 4, " %s %d,%d,%d,%d %d,%d,%d,%d %d,%d",
-								 keynumbuf,
-								 &sens_x, &sens_y, &sens_width, &sens_height,
-								 &disp_x, &disp_y, &disp_width, &disp_height,
-								 &act_x, &act_y) == 11) {
-				int n = sscanf(keynumbuf, "%d,%d", &keynum, &shifted_keynum);
-				if (n > 0) {
-					if (n == 1)
-						shifted_keynum = keynum;
-					SkinKey *key;
-					if (nkeys == keys_cap) {
-						keys_cap += 50;
-						keylist = (SkinKey *) realloc(keylist, keys_cap * sizeof(SkinKey));
-						// TODO - handle memory allocation failure
-					}
-					key = keylist + nkeys;
-					key->code = keynum;
-					key->shifted_code = shifted_keynum;
-					key->sens_rect.x = sens_x;
-					key->sens_rect.y = sens_y;
-					key->sens_rect.width = sens_width;
-					key->sens_rect.height = sens_height;
-					key->disp_rect.x = disp_x;
-					key->disp_rect.y = disp_y;
-					key->disp_rect.width = disp_width;
-					key->disp_rect.height = disp_height;
-					key->src.x = act_x;
-					key->src.y = act_y;
-					nkeys++;
-				}
-			}
-		} else if (_strnicmp(line, "macro:", 6) == 0) {
-			char *tok = strtok(line + 6, " \t");
-			int len = 0;
-			SkinMacro *macro = NULL;
-			while (tok != NULL) {
-				char *endptr;
-				long n = strtol(tok, &endptr, 10);
-				if (*endptr != 0) {
-					/* Not a proper number; ignore this macro */
-					if (macro != NULL) {
-						free(macro);
-						macro = NULL;
-						break;
-					}
-				}
-				if (macro == NULL) {
-					if (n < 38 || n > 255)
-						/* Macro code out of range; ignore this macro */
-						break;
-					macro = (SkinMacro *) malloc(sizeof(SkinMacro));
-					// TODO - handle memory allocation failure
-					macro->code = n;
-				} else if (len < SKIN_MAX_MACRO_LENGTH) {
-					if (n < 1 || n > 37) {
-						/* Key code out of range; ignore this macro */
-						free(macro);
-						macro = NULL;
-						break;
-					}
-					macro->macro[len++] = (unsigned char) n;
-				}
-				tok = strtok(NULL, " \t");
-			}
-			if (macro != NULL) {
-				macro->macro[len++] = 0;
-				macro->next = macrolist;
-				macrolist = macro;
-			}
-		} else if (_strnicmp(line, "annunciator:", 12) == 0) {
-			int annnum;
-			int disp_x, disp_y, disp_width, disp_height;
-			int act_x, act_y;
-			if (sscanf(line + 12, " %d %d,%d,%d,%d %d,%d",
-								  &annnum,
-								  &disp_x, &disp_y, &disp_width, &disp_height,
-								  &act_x, &act_y) == 7) {
-				if (annnum >= 1 && annnum <= 7) {
-					SkinAnnunciator *ann = annunciators + (annnum - 1);
-					ann->disp_rect.x = disp_x;
-					ann->disp_rect.y = disp_y;
-					ann->disp_rect.width = disp_width;
-					ann->disp_rect.height = disp_height;
-					ann->src.x = act_x;
-					ann->src.y = act_y;
-				}
-			}
-		} else if (strchr(line, ':') != 0) {
-			keymap_entry *entry = parse_keymap_entry(line, lineno);
-			if (entry != NULL) {
-				if (keymap_length == kmcap) {
-					kmcap += 50;
-					keymap = (keymap_entry *) realloc(keymap, kmcap * sizeof(keymap_entry));
-					// TODO - handle memory allocation failure
-				}
-				memcpy(keymap + (keymap_length++), entry, sizeof(keymap_entry));
-			}
-		}
-	}
+    while (skin_gets(line, 1024)) {
+        lineno++;
+        if (*line == 0)
+            continue;
+        if (_strnicmp(line, "skin:", 5) == 0) {
+            int x, y, width, height;
+            if (sscanf(line + 5, " %d,%d,%d,%d", &x, &y, &width, &height) == 4){
+                skin.x = x;
+                skin.y = y;
+                skin.width = width;
+                skin.height = height;
+            }
+        } else if (_strnicmp(line, "display:", 8) == 0) {
+            int x, y, xscale, yscale;
+            unsigned long bg, fg;
+            if (sscanf(line + 8, " %d,%d %d %d %lx %lx", &x, &y,
+                                            &xscale, &yscale, &bg, &fg) == 6) {
+                display_loc.x = x;
+                display_loc.y = y;
+                display_scale.x = xscale;
+                display_scale.y = yscale;
+                display_bg = ((bg >> 16) & 255) | (bg & 0x0FF00) | ((bg & 255) << 16);
+                display_fg = ((fg >> 16) & 255) | (fg & 0x0FF00) | ((fg & 255) << 16);
+            }
+        } else if (_strnicmp(line, "key:", 4) == 0) {
+            char keynumbuf[20];
+            int keynum, shifted_keynum;
+            int sens_x, sens_y, sens_width, sens_height;
+            int disp_x, disp_y, disp_width, disp_height;
+            int act_x, act_y;
+            if (sscanf(line + 4, " %s %d,%d,%d,%d %d,%d,%d,%d %d,%d",
+                                 keynumbuf,
+                                 &sens_x, &sens_y, &sens_width, &sens_height,
+                                 &disp_x, &disp_y, &disp_width, &disp_height,
+                                 &act_x, &act_y) == 11) {
+                int n = sscanf(keynumbuf, "%d,%d", &keynum, &shifted_keynum);
+                if (n > 0) {
+                    if (n == 1)
+                        shifted_keynum = keynum;
+                    SkinKey *key;
+                    if (nkeys == keys_cap) {
+                        keys_cap += 50;
+                        keylist = (SkinKey *) realloc(keylist, keys_cap * sizeof(SkinKey));
+                        // TODO - handle memory allocation failure
+                    }
+                    key = keylist + nkeys;
+                    key->code = keynum;
+                    key->shifted_code = shifted_keynum;
+                    key->sens_rect.x = sens_x;
+                    key->sens_rect.y = sens_y;
+                    key->sens_rect.width = sens_width;
+                    key->sens_rect.height = sens_height;
+                    key->disp_rect.x = disp_x;
+                    key->disp_rect.y = disp_y;
+                    key->disp_rect.width = disp_width;
+                    key->disp_rect.height = disp_height;
+                    key->src.x = act_x;
+                    key->src.y = act_y;
+                    nkeys++;
+                }
+            }
+        } else if (_strnicmp(line, "macro:", 6) == 0) {
+            char *tok = strtok(line + 6, " \t");
+            int len = 0;
+            SkinMacro *macro = NULL;
+            while (tok != NULL) {
+                char *endptr;
+                long n = strtol(tok, &endptr, 10);
+                if (*endptr != 0) {
+                    /* Not a proper number; ignore this macro */
+                    if (macro != NULL) {
+                        free(macro);
+                        macro = NULL;
+                        break;
+                    }
+                }
+                if (macro == NULL) {
+                    if (n < 38 || n > 255)
+                        /* Macro code out of range; ignore this macro */
+                        break;
+                    macro = (SkinMacro *) malloc(sizeof(SkinMacro));
+                    // TODO - handle memory allocation failure
+                    macro->code = n;
+                } else if (len < SKIN_MAX_MACRO_LENGTH) {
+                    if (n < 1 || n > 37) {
+                        /* Key code out of range; ignore this macro */
+                        free(macro);
+                        macro = NULL;
+                        break;
+                    }
+                    macro->macro[len++] = (unsigned char) n;
+                }
+                tok = strtok(NULL, " \t");
+            }
+            if (macro != NULL) {
+                macro->macro[len++] = 0;
+                macro->next = macrolist;
+                macrolist = macro;
+            }
+        } else if (_strnicmp(line, "annunciator:", 12) == 0) {
+            int annnum;
+            int disp_x, disp_y, disp_width, disp_height;
+            int act_x, act_y;
+            if (sscanf(line + 12, " %d %d,%d,%d,%d %d,%d",
+                                  &annnum,
+                                  &disp_x, &disp_y, &disp_width, &disp_height,
+                                  &act_x, &act_y) == 7) {
+                if (annnum >= 1 && annnum <= 7) {
+                    SkinAnnunciator *ann = annunciators + (annnum - 1);
+                    ann->disp_rect.x = disp_x;
+                    ann->disp_rect.y = disp_y;
+                    ann->disp_rect.width = disp_width;
+                    ann->disp_rect.height = disp_height;
+                    ann->src.x = act_x;
+                    ann->src.y = act_y;
+                }
+            }
+        } else if (strchr(line, ':') != 0) {
+            keymap_entry *entry = parse_keymap_entry(line, lineno);
+            if (entry != NULL) {
+                if (keymap_length == kmcap) {
+                    kmcap += 50;
+                    keymap = (keymap_entry *) realloc(keymap, kmcap * sizeof(keymap_entry));
+                    // TODO - handle memory allocation failure
+                }
+                memcpy(keymap + (keymap_length++), entry, sizeof(keymap_entry));
+            }
+        }
+    }
 
-	skin_close();
+    skin_close();
 
-	/********************/
-	/* Load skin bitmap */
-	/********************/
+    /********************/
+    /* Load skin bitmap */
+    /********************/
 
-	if (!skin_open(skinname, basedir, 0))
-		goto fallback_on_1st_builtin_skin;
+    if (!skin_open(skinname, basedir, 0))
+        goto fallback_on_1st_builtin_skin;
 
-	/* shell_loadimage() calls skin_getchar() to load the image from the
-	 * compiled-in or on-disk file; it calls skin_init_image(),
-	 * skin_put_pixels(), and skin_finish_image() to create the in-memory
-	 * representation.
-	 */
-	success = shell_loadimage();
-	skin_close();
+    /* shell_loadimage() calls skin_getchar() to load the image from the
+     * compiled-in or on-disk file; it calls skin_init_image(),
+     * skin_put_pixels(), and skin_finish_image() to create the in-memory
+     * representation.
+     */
+    success = shell_loadimage();
+    skin_close();
 
-	if (!success)
-		goto fallback_on_1st_builtin_skin;
+    if (!success)
+        goto fallback_on_1st_builtin_skin;
 
-	*width = skin.width;
-	*height = skin.height;
+    *width = skin.width;
+    *height = skin.height;
 
-	/********************************/
-	/* (Re)build the display bitmap */
-	/********************************/
+    /********************************/
+    /* (Re)build the display bitmap */
+    /********************************/
 
-	if (disp_bitmap != NULL)
-		free(disp_bitmap);
-	disp_bytesperline = ((131 * display_scale.x + 15) >> 3) & ~1;
-	size = disp_bytesperline * 16 * display_scale.y;
-	disp_bitmap = (unsigned char *) malloc(size);
-	// TODO - handle memory allocation failure
-	memset(disp_bitmap, 255, size);
+    if (disp_bitmap != NULL)
+        free(disp_bitmap);
+    disp_bytesperline = ((131 * display_scale.x + 15) >> 3) & ~1;
+    size = disp_bytesperline * 16 * display_scale.y;
+    disp_bitmap = (unsigned char *) malloc(size);
+    // TODO - handle memory allocation failure
+    memset(disp_bitmap, 255, size);
 }
 
 int skin_init_image(int type, int ncolors, const SkinColor *colors,
-					int width, int height) {
-	if (skin_bitmap != NULL) {
-		free(skin_bitmap);
-		skin_bitmap = NULL;
-	}
-	if (skin_dib != NULL) {
-		DeleteObject(skin_dib);
-		skin_dib = NULL;
-	}
-	if (skin_header != NULL) {
-		free(skin_header);
-		skin_header = NULL;
-	}
+                    int width, int height) {
+    if (skin_bitmap != NULL) {
+        free(skin_bitmap);
+        skin_bitmap = NULL;
+    }
+    if (skin_dib != NULL) {
+        DeleteObject(skin_dib);
+        skin_dib = NULL;
+    }
+    if (skin_header != NULL) {
+        free(skin_header);
+        skin_header = NULL;
+    }
 
-	skin_type = type;
-	skin_ncolors = ncolors;
-	skin_colors = colors;
-	
-	switch (type) {
-		case IMGTYPE_MONO:
-			skin_bytesperline = ((width + 15) >> 3) & ~1;
-			break;
-		case IMGTYPE_GRAY:
-		case IMGTYPE_COLORMAPPED:
-			skin_bytesperline = (width + 3) & ~3;
-			break;
-		case IMGTYPE_TRUECOLOR:
-			skin_bytesperline = (width * 3 + 3) & ~3;
-			break;
-		default:
-			return 0;
-	}
+    skin_type = type;
+    skin_ncolors = ncolors;
+    skin_colors = colors;
+    
+    switch (type) {
+        case IMGTYPE_MONO:
+            skin_bytesperline = ((width + 15) >> 3) & ~1;
+            break;
+        case IMGTYPE_GRAY:
+        case IMGTYPE_COLORMAPPED:
+            skin_bytesperline = (width + 3) & ~3;
+            break;
+        case IMGTYPE_TRUECOLOR:
+            skin_bytesperline = (width * 3 + 3) & ~3;
+            break;
+        default:
+            return 0;
+    }
 
-	skin_bitmap = (unsigned char *) malloc(skin_bytesperline * height);
-	// TODO - handle memory allocation failure
-	skin_width = width;
-	skin_height = height;
-	skin_y = 0;
-	return skin_bitmap != NULL;
+    skin_bitmap = (unsigned char *) malloc(skin_bytesperline * height);
+    // TODO - handle memory allocation failure
+    skin_width = width;
+    skin_height = height;
+    skin_y = 0;
+    return skin_bitmap != NULL;
 }
 
 void skin_put_pixels(unsigned const char *data) {
-	unsigned char *dst = skin_bitmap + skin_y * skin_bytesperline;
-	if (skin_type == IMGTYPE_MONO) {
-		int i;
-		for (i = 0; i < skin_bytesperline; i++) {
-			unsigned char c = data[i];
-			c = (c >> 7) | ((c >> 5) & 2) | ((c >> 3) & 4) | ((c >> 1) & 8)
-				| ((c << 1) & 16) | ((c << 3) & 32) | ((c << 5) & 64) | (c << 7);
-			dst[i] = c;
-		}
-	} else if (skin_type == IMGTYPE_TRUECOLOR) {
-		int i;
-		for (i = 0; i < skin_width; i++) {
-			data++;
-			*dst++ = *data++;
-			*dst++ = *data++;
-			*dst++ = *data++;
-		}
-	} else
-		memcpy(dst, data, skin_bytesperline);
-	skin_y++;
+    unsigned char *dst = skin_bitmap + skin_y * skin_bytesperline;
+    if (skin_type == IMGTYPE_MONO) {
+        int i;
+        for (i = 0; i < skin_bytesperline; i++) {
+            unsigned char c = data[i];
+            c = (c >> 7) | ((c >> 5) & 2) | ((c >> 3) & 4) | ((c >> 1) & 8)
+                | ((c << 1) & 16) | ((c << 3) & 32) | ((c << 5) & 64) | (c << 7);
+            dst[i] = c;
+        }
+    } else if (skin_type == IMGTYPE_TRUECOLOR) {
+        int i;
+        for (i = 0; i < skin_width; i++) {
+            data++;
+            *dst++ = *data++;
+            *dst++ = *data++;
+            *dst++ = *data++;
+        }
+    } else
+        memcpy(dst, data, skin_bytesperline);
+    skin_y++;
 }
 
 void skin_finish_image() {
-	BITMAPV4HEADER *bh;
-	
-	if (skin_type == IMGTYPE_MONO) {
-		skin_dib = CreateBitmap(skin_width, skin_height, 1, 1, skin_bitmap);
-		skin_header = NULL;
-		return;
-	}
+    BITMAPV4HEADER *bh;
+    
+    if (skin_type == IMGTYPE_MONO) {
+        skin_dib = CreateBitmap(skin_width, skin_height, 1, 1, skin_bitmap);
+        skin_header = NULL;
+        return;
+    }
 
-	if (skin_type == IMGTYPE_COLORMAPPED) {
-		RGBQUAD *cmap;
-		int i;
-		bh = (BITMAPV4HEADER *) malloc(sizeof(BITMAPV4HEADER) + skin_ncolors * sizeof(RGBQUAD));
-		// TODO - handle memory allocation failure
-		cmap = (RGBQUAD *) (bh + 1);
-		for (i = 0; i < skin_ncolors; i++) {
-			cmap[i].rgbRed = skin_colors[i].r;
-			cmap[i].rgbGreen = skin_colors[i].g;
-			cmap[i].rgbBlue = skin_colors[i].b;
-			cmap[i].rgbReserved = 0;
-		}
-	} else if (skin_type == IMGTYPE_GRAY) {
-		RGBQUAD *cmap;
-		int i;
-		bh = (BITMAPV4HEADER *) malloc(sizeof(BITMAPV4HEADER) + 256 * sizeof(RGBQUAD));
-		// TODO - handle memory allocation failure
-		cmap = (RGBQUAD *) (bh + 1);
-		for (i = 0; i < 256; i++) {
-			cmap[i].rgbRed = cmap[i].rgbGreen = cmap[i].rgbBlue = i;
-			cmap[i].rgbReserved = 0;
-		}
-	} else
-		bh = (BITMAPV4HEADER *) malloc(sizeof(BITMAPV4HEADER));
-		// TODO - handle memory allocation failure
+    if (skin_type == IMGTYPE_COLORMAPPED) {
+        RGBQUAD *cmap;
+        int i;
+        bh = (BITMAPV4HEADER *) malloc(sizeof(BITMAPV4HEADER) + skin_ncolors * sizeof(RGBQUAD));
+        // TODO - handle memory allocation failure
+        cmap = (RGBQUAD *) (bh + 1);
+        for (i = 0; i < skin_ncolors; i++) {
+            cmap[i].rgbRed = skin_colors[i].r;
+            cmap[i].rgbGreen = skin_colors[i].g;
+            cmap[i].rgbBlue = skin_colors[i].b;
+            cmap[i].rgbReserved = 0;
+        }
+    } else if (skin_type == IMGTYPE_GRAY) {
+        RGBQUAD *cmap;
+        int i;
+        bh = (BITMAPV4HEADER *) malloc(sizeof(BITMAPV4HEADER) + 256 * sizeof(RGBQUAD));
+        // TODO - handle memory allocation failure
+        cmap = (RGBQUAD *) (bh + 1);
+        for (i = 0; i < 256; i++) {
+            cmap[i].rgbRed = cmap[i].rgbGreen = cmap[i].rgbBlue = i;
+            cmap[i].rgbReserved = 0;
+        }
+    } else
+        bh = (BITMAPV4HEADER *) malloc(sizeof(BITMAPV4HEADER));
+        // TODO - handle memory allocation failure
 
-	bh->bV4Size = sizeof(BITMAPV4HEADER);
-	bh->bV4Width = skin_width;
-	bh->bV4Height = -skin_height;
-	bh->bV4Planes = 1;
-	switch (skin_type) {
-		case IMGTYPE_MONO:
-			bh->bV4BitCount = 1;
-			bh->bV4ClrUsed = 0;
-			break;
-		case IMGTYPE_GRAY:
-			bh->bV4BitCount = 8;
-			bh->bV4ClrUsed = 256;
-			break;
-		case IMGTYPE_COLORMAPPED:
-			bh->bV4BitCount = 8;
-			bh->bV4ClrUsed = skin_ncolors;
-			break;
-		case IMGTYPE_TRUECOLOR:
-			bh->bV4BitCount = 24;
-			bh->bV4ClrUsed = 0;
-			break;
-	}
-	bh->bV4V4Compression = BI_RGB;
-	bh->bV4SizeImage = skin_bytesperline * skin_height;
-	bh->bV4XPelsPerMeter = 2835;
-	bh->bV4YPelsPerMeter = 2835;
-	bh->bV4ClrImportant = 0;
-	/* bh->bV4RedMask, bh->bV4GreenMask, bh->bV4BlueMask, bh->bV4AlphaMask: unused */
-	//bh->bV4CSType = LCS_WINDOWS_COLOR_SPACE;
-	bh->bV4CSType = LCS_CALIBRATED_RGB;
-	/* bh->bV4Endpoints, bh->bV4GammaRed, bh->bV4GammaGreen, bh->bV4GammaBlue: unused */
-	
-	skin_header = bh;
+    bh->bV4Size = sizeof(BITMAPV4HEADER);
+    bh->bV4Width = skin_width;
+    bh->bV4Height = -skin_height;
+    bh->bV4Planes = 1;
+    switch (skin_type) {
+        case IMGTYPE_MONO:
+            bh->bV4BitCount = 1;
+            bh->bV4ClrUsed = 0;
+            break;
+        case IMGTYPE_GRAY:
+            bh->bV4BitCount = 8;
+            bh->bV4ClrUsed = 256;
+            break;
+        case IMGTYPE_COLORMAPPED:
+            bh->bV4BitCount = 8;
+            bh->bV4ClrUsed = skin_ncolors;
+            break;
+        case IMGTYPE_TRUECOLOR:
+            bh->bV4BitCount = 24;
+            bh->bV4ClrUsed = 0;
+            break;
+    }
+    bh->bV4V4Compression = BI_RGB;
+    bh->bV4SizeImage = skin_bytesperline * skin_height;
+    bh->bV4XPelsPerMeter = 2835;
+    bh->bV4YPelsPerMeter = 2835;
+    bh->bV4ClrImportant = 0;
+    /* bh->bV4RedMask, bh->bV4GreenMask, bh->bV4BlueMask, bh->bV4AlphaMask: unused */
+    //bh->bV4CSType = LCS_WINDOWS_COLOR_SPACE;
+    bh->bV4CSType = LCS_CALIBRATED_RGB;
+    /* bh->bV4Endpoints, bh->bV4GammaRed, bh->bV4GammaGreen, bh->bV4GammaBlue: unused */
+    
+    skin_header = bh;
 }
 
 static int make_dib(HDC hdc) {
-	void *bits;
-	if (skin_type == IMGTYPE_MONO) {
-		/* Not using a DIB, but a regular monochrome bitmap;
-		 * this bitmap was already created in skin_finish_image(),
-		 * since, unlike a DIB, no DC is required to create it.
-		 */
-		return 1;
-	}
-	if (skin_header == NULL)
-		return 0;
-	if (skin_dib == NULL) {
-		skin_dib = CreateDIBSection(hdc, (BITMAPINFO *) skin_header, DIB_RGB_COLORS, &bits, NULL, 0);
-		if (skin_dib == NULL)
-			return 0;
-		memcpy(bits, skin_bitmap, skin_bytesperline * skin_height);
-		free(skin_bitmap);
-		skin_bitmap = NULL;
-	}
-	return 1;
+    void *bits;
+    if (skin_type == IMGTYPE_MONO) {
+        /* Not using a DIB, but a regular monochrome bitmap;
+         * this bitmap was already created in skin_finish_image(),
+         * since, unlike a DIB, no DC is required to create it.
+         */
+        return 1;
+    }
+    if (skin_header == NULL)
+        return 0;
+    if (skin_dib == NULL) {
+        skin_dib = CreateDIBSection(hdc, (BITMAPINFO *) skin_header, DIB_RGB_COLORS, &bits, NULL, 0);
+        if (skin_dib == NULL)
+            return 0;
+        memcpy(bits, skin_bitmap, skin_bytesperline * skin_height);
+        free(skin_bitmap);
+        skin_bitmap = NULL;
+    }
+    return 1;
 }
 
 void skin_repaint(HDC hdc, HDC memdc) {
-	COLORREF old_bg, old_fg;
-	if (!make_dib(memdc))
-		return;
-	SelectObject(memdc, skin_dib);
-	if (skin_type == IMGTYPE_MONO) {
-		old_bg = SetBkColor(hdc, 0x00ffffff);
-		old_fg = SetTextColor(hdc, 0x00000000);
-	}
-	BitBlt(hdc, 0, 0, skin.width, skin.height, memdc, skin.x, skin.y, SRCCOPY);
-	if (skin_type == IMGTYPE_MONO) {
-		SetBkColor(hdc, old_bg);
-		SetTextColor(hdc, old_fg);
-	}
+    COLORREF old_bg, old_fg;
+    if (!make_dib(memdc))
+        return;
+    SelectObject(memdc, skin_dib);
+    if (skin_type == IMGTYPE_MONO) {
+        old_bg = SetBkColor(hdc, 0x00ffffff);
+        old_fg = SetTextColor(hdc, 0x00000000);
+    }
+    BitBlt(hdc, 0, 0, skin.width, skin.height, memdc, skin.x, skin.y, SRCCOPY);
+    if (skin_type == IMGTYPE_MONO) {
+        SetBkColor(hdc, old_bg);
+        SetTextColor(hdc, old_fg);
+    }
 }
 
 void skin_repaint_annunciator(HDC hdc, HDC memdc, int which, int state) {
-	if (!display_enabled)
-		return;
-	SkinAnnunciator *ann = annunciators + (which - 1);
-	COLORREF old_bg, old_fg;
-	if (!make_dib(memdc))
-		return;
-	SelectObject(memdc, skin_dib);
-	if (skin_type == IMGTYPE_MONO) {
-		old_bg = SetBkColor(hdc, 0x00ffffff);
-		old_fg = SetTextColor(hdc, 0x00000000);
-	}
-	if (state)
-		BitBlt(hdc, ann->disp_rect.x, ann->disp_rect.y, ann->disp_rect.width, ann->disp_rect.height,
-			   memdc, ann->src.x, ann->src.y, SRCCOPY);
-	else
-		BitBlt(hdc, ann->disp_rect.x, ann->disp_rect.y, ann->disp_rect.width, ann->disp_rect.height,
-			   memdc, ann->disp_rect.x, ann->disp_rect.y, SRCCOPY);
-	if (skin_type == IMGTYPE_MONO) {
-		SetBkColor(hdc, old_bg);
-		SetTextColor(hdc, old_fg);
-	}
+    if (!display_enabled)
+        return;
+    SkinAnnunciator *ann = annunciators + (which - 1);
+    COLORREF old_bg, old_fg;
+    if (!make_dib(memdc))
+        return;
+    SelectObject(memdc, skin_dib);
+    if (skin_type == IMGTYPE_MONO) {
+        old_bg = SetBkColor(hdc, 0x00ffffff);
+        old_fg = SetTextColor(hdc, 0x00000000);
+    }
+    if (state)
+        BitBlt(hdc, ann->disp_rect.x, ann->disp_rect.y, ann->disp_rect.width, ann->disp_rect.height,
+               memdc, ann->src.x, ann->src.y, SRCCOPY);
+    else
+        BitBlt(hdc, ann->disp_rect.x, ann->disp_rect.y, ann->disp_rect.width, ann->disp_rect.height,
+               memdc, ann->disp_rect.x, ann->disp_rect.y, SRCCOPY);
+    if (skin_type == IMGTYPE_MONO) {
+        SetBkColor(hdc, old_bg);
+        SetTextColor(hdc, old_fg);
+    }
 }
 
 void skin_find_key(int x, int y, bool cshift, int *skey, int *ckey) {
-	int i;
-	if (core_menu()
-			&& x >= display_loc.x
-			&& x < display_loc.x + 131 * display_scale.x
-			&& y >= display_loc.y + 9 * display_scale.y
-			&& y < display_loc.y + 16 * display_scale.y) {
-		int softkey = (x - display_loc.x) / (22 * display_scale.x) + 1;
-		*skey = -1 - softkey;
-		*ckey = softkey;
-		return;
-	}
-	for (i = 0; i < nkeys; i++) {
-		SkinKey *k = keylist + i;
-		int rx = x - k->sens_rect.x;
-		int ry = y - k->sens_rect.y;
-		if (rx >= 0 && rx < k->sens_rect.width
-				&& ry >= 0 && ry < k->sens_rect.height) {
-			*skey = i;
-			*ckey = cshift ? k->shifted_code : k->code;
-			return;
-		}
-	}
-	*skey = -1;
-	*ckey = 0;
+    int i;
+    if (core_menu()
+            && x >= display_loc.x
+            && x < display_loc.x + 131 * display_scale.x
+            && y >= display_loc.y + 9 * display_scale.y
+            && y < display_loc.y + 16 * display_scale.y) {
+        int softkey = (x - display_loc.x) / (22 * display_scale.x) + 1;
+        *skey = -1 - softkey;
+        *ckey = softkey;
+        return;
+    }
+    for (i = 0; i < nkeys; i++) {
+        SkinKey *k = keylist + i;
+        int rx = x - k->sens_rect.x;
+        int ry = y - k->sens_rect.y;
+        if (rx >= 0 && rx < k->sens_rect.width
+                && ry >= 0 && ry < k->sens_rect.height) {
+            *skey = i;
+            *ckey = cshift ? k->shifted_code : k->code;
+            return;
+        }
+    }
+    *skey = -1;
+    *ckey = 0;
 }
 
 int skin_find_skey(int ckey) {
-	int i;
-	for (i = 0; i < nkeys; i++)
-		if (keylist[i].code == ckey || keylist[i].shifted_code == ckey)
-			return i;
-	return -1;
+    int i;
+    for (i = 0; i < nkeys; i++)
+        if (keylist[i].code == ckey || keylist[i].shifted_code == ckey)
+            return i;
+    return -1;
 }
 
 unsigned char *skin_find_macro(int ckey) {
-	SkinMacro *m = macrolist;
-	while (m != NULL) {
-		if (m->code == ckey)
-			return m->macro;
-		m = m->next;
-	}
-	return NULL;
+    SkinMacro *m = macrolist;
+    while (m != NULL) {
+        if (m->code == ckey)
+            return m->macro;
+        m = m->next;
+    }
+    return NULL;
 }
 
 unsigned char *skin_keymap_lookup(int keycode, bool ctrl, bool alt, bool shift, bool cshift, bool *exact) {
-	int i;
-	unsigned char *macro = NULL;
-	for (i = 0; i < keymap_length; i++) {
-		keymap_entry *entry = keymap + i;
-		if (keycode == entry->keycode
-				&& ctrl == entry->ctrl
-				&& alt == entry->alt
-				&& shift == entry->shift) {
-			macro = entry->macro;
-			if (cshift == entry->cshift) {
-				*exact = true;
-				return macro;
-			}
-		}
-	}
-	*exact = false;
-	return macro;
+    int i;
+    unsigned char *macro = NULL;
+    for (i = 0; i < keymap_length; i++) {
+        keymap_entry *entry = keymap + i;
+        if (keycode == entry->keycode
+                && ctrl == entry->ctrl
+                && alt == entry->alt
+                && shift == entry->shift) {
+            macro = entry->macro;
+            if (cshift == entry->cshift) {
+                *exact = true;
+                return macro;
+            }
+        }
+    }
+    *exact = false;
+    return macro;
 }
 
 void skin_repaint_key(HDC hdc, HDC memdc, int key, int state) {
-	SkinKey *k;
-	COLORREF old_bg, old_fg;
+    SkinKey *k;
+    COLORREF old_bg, old_fg;
 
-	if (key >= -7 && key <= -2) {
-		/* Soft key */
-		if (!display_enabled)
-			// Should never happen -- the display is only disabled during macro
-			// execution, and softkey events should be impossible to generate
-			// in that state. But, just staying on the safe side.
-			return;
-		int x, y, w, h;
-		HBITMAP bitmap;
-		if (state) {
-			old_bg = SetBkColor(hdc, display_fg);
-			old_fg = SetTextColor(hdc, display_bg);
-		} else {
-			old_bg = SetBkColor(hdc, display_bg);
-			old_fg = SetTextColor(hdc, display_fg);
-		}
-		key = -1 - key;
-		x = (key - 1) * 22 * display_scale.x;
-		y = 9 * display_scale.y;
-		w = 131 * display_scale.x;
-		h = 16 * display_scale.y;
-		bitmap = CreateBitmap(w, h, 1, 1, disp_bitmap);
-		SelectObject(memdc, bitmap);
-		BitBlt(hdc, display_loc.x + x, display_loc.y + y,
-			   21 * display_scale.x, 7 * display_scale.y,
-			   memdc, x, y, SRCCOPY);
-		SetBkColor(hdc, old_bg);
-		SetTextColor(hdc, old_fg);
-		DeleteObject(bitmap);
-		return;
-	}
+    if (key >= -7 && key <= -2) {
+        /* Soft key */
+        if (!display_enabled)
+            // Should never happen -- the display is only disabled during macro
+            // execution, and softkey events should be impossible to generate
+            // in that state. But, just staying on the safe side.
+            return;
+        int x, y, w, h;
+        HBITMAP bitmap;
+        if (state) {
+            old_bg = SetBkColor(hdc, display_fg);
+            old_fg = SetTextColor(hdc, display_bg);
+        } else {
+            old_bg = SetBkColor(hdc, display_bg);
+            old_fg = SetTextColor(hdc, display_fg);
+        }
+        key = -1 - key;
+        x = (key - 1) * 22 * display_scale.x;
+        y = 9 * display_scale.y;
+        w = 131 * display_scale.x;
+        h = 16 * display_scale.y;
+        bitmap = CreateBitmap(w, h, 1, 1, disp_bitmap);
+        SelectObject(memdc, bitmap);
+        BitBlt(hdc, display_loc.x + x, display_loc.y + y,
+               21 * display_scale.x, 7 * display_scale.y,
+               memdc, x, y, SRCCOPY);
+        SetBkColor(hdc, old_bg);
+        SetTextColor(hdc, old_fg);
+        DeleteObject(bitmap);
+        return;
+    }
 
-	if (key < 0 || key >= nkeys)
-		return;
-	if (!make_dib(memdc))
-		return;
-	SelectObject(memdc, skin_dib);
-	k = keylist + key;
-	if (skin_type == IMGTYPE_MONO) {
-		old_bg = SetBkColor(hdc, 0x00ffffff);
-		old_fg = SetTextColor(hdc, 0x00000000);
-	}
-	if (state)
-		BitBlt(hdc, k->disp_rect.x, k->disp_rect.y, k->disp_rect.width, k->disp_rect.height,
-			   memdc, k->src.x, k->src.y, SRCCOPY);
-	else
-		BitBlt(hdc, k->disp_rect.x, k->disp_rect.y, k->disp_rect.width, k->disp_rect.height,
-			   memdc, k->disp_rect.x, k->disp_rect.y, SRCCOPY);
-	if (skin_type == IMGTYPE_MONO) {
-		SetBkColor(hdc, old_bg);
-		SetTextColor(hdc, old_fg);
-	}
+    if (key < 0 || key >= nkeys)
+        return;
+    if (!make_dib(memdc))
+        return;
+    SelectObject(memdc, skin_dib);
+    k = keylist + key;
+    if (skin_type == IMGTYPE_MONO) {
+        old_bg = SetBkColor(hdc, 0x00ffffff);
+        old_fg = SetTextColor(hdc, 0x00000000);
+    }
+    if (state)
+        BitBlt(hdc, k->disp_rect.x, k->disp_rect.y, k->disp_rect.width, k->disp_rect.height,
+               memdc, k->src.x, k->src.y, SRCCOPY);
+    else
+        BitBlt(hdc, k->disp_rect.x, k->disp_rect.y, k->disp_rect.width, k->disp_rect.height,
+               memdc, k->disp_rect.x, k->disp_rect.y, SRCCOPY);
+    if (skin_type == IMGTYPE_MONO) {
+        SetBkColor(hdc, old_bg);
+        SetTextColor(hdc, old_fg);
+    }
 }
 
 void skin_display_blitter(HDC hdc, const char *bits, int bytesperline, int x, int y,
-									 int width, int height) {
-	int h, v, hh, vv;
-	int sx = display_scale.x;
-	int sy = display_scale.y;
+                                     int width, int height) {
+    int h, v, hh, vv;
+    int sx = display_scale.x;
+    int sy = display_scale.y;
 
-	for (v = y; v < y + height; v++)
-		for (h = x; h < x + width; h++) {
-			int pixel = (bits[v * bytesperline + (h >> 3)] & (1 << (h & 7))) == 0;
-			for (vv = v * sy; vv < (v + 1) * sy; vv++)
-				for (hh = h * sx; hh < (h + 1) * sx; hh++)
-					if (pixel)
-						disp_bitmap[vv * disp_bytesperline + (hh >> 3)] |= 128 >> (hh & 7);
-					else
-						disp_bitmap[vv * disp_bytesperline + (hh >> 3)] &= ~(128 >> (hh & 7));
-		}
-	
-	if (display_enabled) {
-		HDC memdc = CreateCompatibleDC(hdc);
-		HBITMAP bitmap = CreateBitmap(131 * sx, 16 * sy, 1, 1, disp_bitmap);
-		SelectObject(memdc, bitmap);
+    for (v = y; v < y + height; v++)
+        for (h = x; h < x + width; h++) {
+            int pixel = (bits[v * bytesperline + (h >> 3)] & (1 << (h & 7))) == 0;
+            for (vv = v * sy; vv < (v + 1) * sy; vv++)
+                for (hh = h * sx; hh < (h + 1) * sx; hh++)
+                    if (pixel)
+                        disp_bitmap[vv * disp_bytesperline + (hh >> 3)] |= 128 >> (hh & 7);
+                    else
+                        disp_bitmap[vv * disp_bytesperline + (hh >> 3)] &= ~(128 >> (hh & 7));
+        }
+    
+    if (display_enabled) {
+        HDC memdc = CreateCompatibleDC(hdc);
+        HBITMAP bitmap = CreateBitmap(131 * sx, 16 * sy, 1, 1, disp_bitmap);
+        SelectObject(memdc, bitmap);
 
-		COLORREF old_bg = SetBkColor(hdc, display_bg);
-		COLORREF old_fg = SetTextColor(hdc, display_fg);
-		BitBlt(hdc, display_loc.x + x * sx, display_loc.y + y * sy,
-					width * sx, height * sy, memdc, x * sx, y * sy, SRCCOPY);
-		SetBkColor(hdc, old_bg);
-		SetTextColor(hdc, old_fg);
+        COLORREF old_bg = SetBkColor(hdc, display_bg);
+        COLORREF old_fg = SetTextColor(hdc, display_fg);
+        BitBlt(hdc, display_loc.x + x * sx, display_loc.y + y * sy,
+                    width * sx, height * sy, memdc, x * sx, y * sy, SRCCOPY);
+        SetBkColor(hdc, old_bg);
+        SetTextColor(hdc, old_fg);
 
-		DeleteDC(memdc);
-		DeleteObject(bitmap);
-	}
+        DeleteDC(memdc);
+        DeleteObject(bitmap);
+    }
 }
 
 void skin_repaint_display(HDC hdc, HDC memdc) {
-	if (!display_enabled)
-		return;
-	int w = 131 * display_scale.x;
-	int h = 16 * display_scale.y;
-	HBITMAP bitmap = CreateBitmap(w, h, 1, 1, disp_bitmap);
+    if (!display_enabled)
+        return;
+    int w = 131 * display_scale.x;
+    int h = 16 * display_scale.y;
+    HBITMAP bitmap = CreateBitmap(w, h, 1, 1, disp_bitmap);
 
-	SelectObject(memdc, bitmap);
+    SelectObject(memdc, bitmap);
 
-	COLORREF old_bg = SetBkColor(hdc, display_bg);
-	COLORREF old_fg = SetTextColor(hdc, display_fg);
-	BitBlt(hdc, display_loc.x, display_loc.y, w, h, memdc, 0, 0, SRCCOPY);
-	SetBkColor(hdc, old_bg);
-	SetTextColor(hdc, old_fg);
+    COLORREF old_bg = SetBkColor(hdc, display_bg);
+    COLORREF old_fg = SetTextColor(hdc, display_fg);
+    BitBlt(hdc, display_loc.x, display_loc.y, w, h, memdc, 0, 0, SRCCOPY);
+    SetBkColor(hdc, old_bg);
+    SetTextColor(hdc, old_fg);
 
-	DeleteObject(bitmap);
+    DeleteObject(bitmap);
 }
 
 void skin_display_set_enabled(bool enable) {
-	display_enabled = enable;
+    display_enabled = enable;
 }

@@ -35,54 +35,54 @@
 #if defined(ANDROID) || defined(IPHONE)
 int docmd_accel(arg_struct *arg) {
     if (!core_settings.enable_ext_accel)
-	return ERR_NONEXISTENT;
+        return ERR_NONEXISTENT;
     double x, y, z;
     int err = shell_get_acceleration(&x, &y, &z);
     if (err == 0)
-	return ERR_NONEXISTENT;
+        return ERR_NONEXISTENT;
     vartype *new_x = new_real(x);
     vartype *new_y = new_real(y);
     vartype *new_z = new_real(z);
     if (new_x == NULL || new_y == NULL || new_z == NULL) {
-	free_vartype(new_x);
-	free_vartype(new_y);
-	free_vartype(new_z);
-	return ERR_INSUFFICIENT_MEMORY;
+        free_vartype(new_x);
+        free_vartype(new_y);
+        free_vartype(new_z);
+        return ERR_INSUFFICIENT_MEMORY;
     }
     free_vartype(reg_t);
     free_vartype(reg_z);
     if (flags.f.stack_lift_disable) {
-	free_vartype(reg_x);
-	reg_t = reg_y;
+        free_vartype(reg_x);
+        reg_t = reg_y;
     } else {
-	free_vartype(reg_y);
-	reg_t = reg_x;
+        free_vartype(reg_y);
+        reg_t = reg_x;
     }
     reg_z = new_z;
     reg_y = new_y;
     reg_x = new_x;
     if (flags.f.trace_print && flags.f.printer_exists)
-	docmd_prx(NULL);
+        docmd_prx(NULL);
     return ERR_NONE;
 }
 
 int docmd_locat(arg_struct *arg) {
     if (!core_settings.enable_ext_locat)
-	return ERR_NONEXISTENT;
+        return ERR_NONEXISTENT;
     double lat, lon, lat_lon_acc, elev, elev_acc;
     int err = shell_get_location(&lat, &lon, &lat_lon_acc, &elev, &elev_acc);
     if (err == 0)
-	return ERR_NONEXISTENT;
+        return ERR_NONEXISTENT;
     vartype *new_x = new_real(lat);
     vartype *new_y = new_real(lon);
     vartype *new_z = new_real(elev);
     vartype *new_t = new_realmatrix(1, 2);
     if (new_x == NULL || new_y == NULL || new_z == NULL || new_t == NULL) {
-	free_vartype(new_x);
-	free_vartype(new_y);
-	free_vartype(new_z);
-	free_vartype(new_t);
-	return ERR_INSUFFICIENT_MEMORY;
+        free_vartype(new_x);
+        free_vartype(new_y);
+        free_vartype(new_z);
+        free_vartype(new_t);
+        return ERR_INSUFFICIENT_MEMORY;
     }
     vartype_realmatrix *rm = (vartype_realmatrix *) new_t;
     rm->array->data[0] = lat_lon_acc;
@@ -96,27 +96,27 @@ int docmd_locat(arg_struct *arg) {
     reg_y = new_y;
     reg_x = new_x;
     if (flags.f.trace_print && flags.f.printer_exists)
-	docmd_prx(NULL);
+        docmd_prx(NULL);
     return ERR_NONE;
 }
 
 int docmd_heading(arg_struct *arg) {
     if (!core_settings.enable_ext_heading)
-	return ERR_NONEXISTENT;
+        return ERR_NONEXISTENT;
     double mag_heading, true_heading, acc, x, y, z;
     int err = shell_get_heading(&mag_heading, &true_heading, &acc, &x, &y, &z);
     if (err == 0)
-	return ERR_NONEXISTENT;
+        return ERR_NONEXISTENT;
     vartype *new_x = new_real(mag_heading);
     vartype *new_y = new_real(true_heading);
     vartype *new_z = new_real(acc);
     vartype *new_t = new_realmatrix(1, 3);
     if (new_x == NULL || new_y == NULL || new_z == NULL || new_t == NULL) {
-	free_vartype(new_x);
-	free_vartype(new_y);
-	free_vartype(new_z);
-	free_vartype(new_t);
-	return ERR_INSUFFICIENT_MEMORY;
+        free_vartype(new_x);
+        free_vartype(new_y);
+        free_vartype(new_z);
+        free_vartype(new_t);
+        return ERR_INSUFFICIENT_MEMORY;
     }
     vartype_realmatrix *rm = (vartype_realmatrix *) new_t;
     rm->array->data[0] = x;
@@ -131,7 +131,7 @@ int docmd_heading(arg_struct *arg) {
     reg_y = new_y;
     reg_x = new_x;
     if (flags.f.trace_print && flags.f.printer_exists)
-	docmd_prx(NULL);
+        docmd_prx(NULL);
     return ERR_NONE;
 }
 #endif
@@ -153,20 +153,20 @@ static int date2comps(phloat x, int4 *yy, int4 *mm, int4 *dd) {
 #endif
 
     if (mode_time_dmy) {
-	int4 t = m;
-	m = d;
-	d = t;
+        int4 t = m;
+        m = d;
+        d = t;
     }
 
     if (y < 1582 || y > 4320 || m < 1 || m > 12 || d < 1 || d > 31)
-	return ERR_INVALID_DATA;
+        return ERR_INVALID_DATA;
     if ((m == 4 || m == 6 || m == 9 || m == 11) && d == 31)
-	return ERR_INVALID_DATA;
+        return ERR_INVALID_DATA;
     if (m == 2 && d > ((y % 4 == 0 && (y % 100 != 0 || y % 400 == 0)) ? 29 : 28))
-	return ERR_INVALID_DATA;
+        return ERR_INVALID_DATA;
     if (y == 1582 && (m < 10 || m == 10 && d < 15)
-	    || y == 4320 && (m > 9 || m == 9 && d > 10))
-	return ERR_INVALID_DATA;
+            || y == 4320 && (m > 9 || m == 9 && d > 10))
+        return ERR_INVALID_DATA;
 
     *yy = y;
     *mm = m;
@@ -176,9 +176,9 @@ static int date2comps(phloat x, int4 *yy, int4 *mm, int4 *dd) {
 
 static phloat comps2date(int4 y, int4 m, int4 d) {
     if (mode_time_dmy) {
-	int4 t = m;
-	m = d;
-	d = t;
+        int4 t = m;
+        m = d;
+        d = t;
     }
     return phloat(m * 1000000 + d * 10000 + y) / 1000000;
 }
@@ -189,15 +189,15 @@ static phloat comps2date(int4 y, int4 m, int4 d) {
  */
 static int greg2jd(int4 y, int4 m, int4 d, int4 *jd) {
     *jd = ( 1461 * ( y + 4800 + ( m - 14 ) / 12 ) ) / 4 +
-	  ( 367 * ( m - 2 - 12 * ( ( m - 14 ) / 12 ) ) ) / 12 -
-	  ( 3 * ( ( y + 4900 + ( m - 14 ) / 12 ) / 100 ) ) / 4 +
-	  d - 32075;
+          ( 367 * ( m - 2 - 12 * ( ( m - 14 ) / 12 ) ) ) / 12 -
+          ( 3 * ( ( y + 4900 + ( m - 14 ) / 12 ) / 100 ) ) / 4 +
+          d - 32075;
     return ERR_NONE;
 }
 
 static int jd2greg(int4 jd, int4 *y, int4 *m, int4 *d) {
     if (jd < 2299161 || jd > 3299160)
-	return ERR_OUT_OF_RANGE;
+        return ERR_OUT_OF_RANGE;
     int4 l = jd + 68569;
     int4 n = ( 4 * l ) / 146097;
     l = l - ( 146097 * n + 3 ) / 4;
@@ -214,17 +214,17 @@ static int jd2greg(int4 jd, int4 *y, int4 *m, int4 *d) {
 
 int docmd_adate(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
-	return ERR_NONEXISTENT;
+        return ERR_NONEXISTENT;
     if (reg_x->type == TYPE_STRING)
-	return ERR_ALPHA_DATA_IS_INVALID;
+        return ERR_ALPHA_DATA_IS_INVALID;
     if (reg_x->type != TYPE_REAL)
-	return ERR_INVALID_TYPE;
+        return ERR_INVALID_TYPE;
 
     phloat x = ((vartype_real *) reg_x)->x;
     if (x < 0)
-	x = -x;
+        x = -x;
     if (x >= 100)
-	return ERR_INVALID_DATA;
+        return ERR_INVALID_DATA;
     int m = to_int(floor(x));
     int4 dy = to_int4(floor((x - floor(x)) * 1000000));
     int d = (int) (dy / 10000);
@@ -233,40 +233,40 @@ int docmd_adate(arg_struct *arg) {
 
     int digits;
     if (flags.f.fix_or_all && flags.f.eng_or_all)
-	digits = 11;
+        digits = 11;
     else {
-	digits = 0;
-	if (flags.f.digits_bit3)
-	    digits += 8;
-	if (flags.f.digits_bit2)
-	    digits += 4;
-	if (flags.f.digits_bit1)
-	    digits += 2;
-	if (flags.f.digits_bit0)
-	    digits += 1;
+        digits = 0;
+        if (flags.f.digits_bit3)
+            digits += 8;
+        if (flags.f.digits_bit2)
+            digits += 4;
+        if (flags.f.digits_bit1)
+            digits += 2;
+        if (flags.f.digits_bit0)
+            digits += 1;
     }
 
     char buf[10];
     int bufptr = 0;
     if (m < 10)
-	char2buf(buf, 10, &bufptr, '0');
+        char2buf(buf, 10, &bufptr, '0');
     bufptr += int2string(m, buf + bufptr, 10 - bufptr);
     if (digits > 0) {
-	char2buf(buf, 10, &bufptr, mode_time_dmy ? '.' : '/');
-	if (d < 10)
-	    char2buf(buf, 10, &bufptr, '0');
-	bufptr += int2string(d, buf + bufptr, 10 - bufptr);
-	if (digits > 2) {
-	    char2buf(buf, 10, &bufptr, mode_time_dmy ? '.' : '/');
-	    if (digits > 4) {
-		if (c < 10)
-		    char2buf(buf, 10, &bufptr, '0');
-		bufptr += int2string(c, buf + bufptr, 10 - bufptr);
-	    }
-	    if (y < 10)
-		char2buf(buf, 10, &bufptr, '0');
-	    bufptr += int2string(y, buf + bufptr, 10 - bufptr);
-	}
+        char2buf(buf, 10, &bufptr, mode_time_dmy ? '.' : '/');
+        if (d < 10)
+            char2buf(buf, 10, &bufptr, '0');
+        bufptr += int2string(d, buf + bufptr, 10 - bufptr);
+        if (digits > 2) {
+            char2buf(buf, 10, &bufptr, mode_time_dmy ? '.' : '/');
+            if (digits > 4) {
+                if (c < 10)
+                    char2buf(buf, 10, &bufptr, '0');
+                bufptr += int2string(c, buf + bufptr, 10 - bufptr);
+            }
+            if (y < 10)
+                char2buf(buf, 10, &bufptr, '0');
+            bufptr += int2string(y, buf + bufptr, 10 - bufptr);
+        }
     }
 
     append_alpha_string(buf, bufptr, 0);
@@ -275,21 +275,21 @@ int docmd_adate(arg_struct *arg) {
 
 int docmd_atime(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
-	return ERR_NONEXISTENT;
+        return ERR_NONEXISTENT;
     if (reg_x->type == TYPE_STRING)
-	return ERR_ALPHA_DATA_IS_INVALID;
+        return ERR_ALPHA_DATA_IS_INVALID;
     if (reg_x->type != TYPE_REAL)
-	return ERR_INVALID_TYPE;
+        return ERR_INVALID_TYPE;
 
     phloat x = ((vartype_real *) reg_x)->x;
     bool neg = x < 0;
     if (neg)
-	x = -x;
+        x = -x;
     if (x >= 100)
-	return ERR_INVALID_DATA;
+        return ERR_INVALID_DATA;
     int h = to_int(floor(x));
     if (h == 0)
-	neg = false;
+        neg = false;
     int4 ms = to_int4(floor((x - floor(x)) * 1000000));
     int m = (int) (ms / 10000);
     int s = (int) (ms / 100 % 100);
@@ -298,61 +298,61 @@ int docmd_atime(arg_struct *arg) {
     bool pm = false;
 
     if (mode_time_clk24) {
-	if (neg && h >= 1 && h <= 11)
-	    h += 12;
+        if (neg && h >= 1 && h <= 11)
+            h += 12;
     } else if (h < 24) {
-	if (!neg && h < 12)
-	    am = true;
-	else
-	    pm = true;
-	if (h == 0)
-	    h = 12;
-	else if (h > 12)
-	    h -= 12;
+        if (!neg && h < 12)
+            am = true;
+        else
+            pm = true;
+        if (h == 0)
+            h = 12;
+        else if (h > 12)
+            h -= 12;
     }
 
     int digits;
     if (flags.f.fix_or_all && flags.f.eng_or_all)
-	digits = 11;
+        digits = 11;
     else {
-	digits = 0;
-	if (flags.f.digits_bit3)
-	    digits += 8;
-	if (flags.f.digits_bit2)
-	    digits += 4;
-	if (flags.f.digits_bit1)
-	    digits += 2;
-	if (flags.f.digits_bit0)
-	    digits += 1;
+        digits = 0;
+        if (flags.f.digits_bit3)
+            digits += 8;
+        if (flags.f.digits_bit2)
+            digits += 4;
+        if (flags.f.digits_bit1)
+            digits += 2;
+        if (flags.f.digits_bit0)
+            digits += 1;
     }
 
     char buf[14];
     int bufptr = 0;
     if (h < 10)
-	char2buf(buf, 14, &bufptr, mode_time_clk24 ? '0' : ' ');
+        char2buf(buf, 14, &bufptr, mode_time_clk24 ? '0' : ' ');
     bufptr += int2string(h, buf + bufptr, 14 - bufptr);
     if (digits > 0) {
-	char2buf(buf, 14, &bufptr, ':');
-	if (m < 10)
-	    char2buf(buf, 14, &bufptr, '0');
-	bufptr += int2string(m, buf + bufptr, 14 - bufptr);
-	if (digits > 2) {
-	    char2buf(buf, 14, &bufptr, ':');
-	    if (s < 10)
-		char2buf(buf, 14, &bufptr, '0');
-	    bufptr += int2string(s, buf + bufptr, 14 - bufptr);
-	    if (digits > 4) {
-		char2buf(buf, 14, &bufptr, '.');
-		if (cs < 10)
-		    char2buf(buf, 14, &bufptr, '0');
-		bufptr += int2string(cs, buf + bufptr, 14 - bufptr);
-	    }
-	}
+        char2buf(buf, 14, &bufptr, ':');
+        if (m < 10)
+            char2buf(buf, 14, &bufptr, '0');
+        bufptr += int2string(m, buf + bufptr, 14 - bufptr);
+        if (digits > 2) {
+            char2buf(buf, 14, &bufptr, ':');
+            if (s < 10)
+                char2buf(buf, 14, &bufptr, '0');
+            bufptr += int2string(s, buf + bufptr, 14 - bufptr);
+            if (digits > 4) {
+                char2buf(buf, 14, &bufptr, '.');
+                if (cs < 10)
+                    char2buf(buf, 14, &bufptr, '0');
+                bufptr += int2string(cs, buf + bufptr, 14 - bufptr);
+            }
+        }
     }
     if (am)
-	string2buf(buf, 14, &bufptr, " AM", 3);
+        string2buf(buf, 14, &bufptr, " AM", 3);
     else if (pm)
-	string2buf(buf, 14, &bufptr, " PM", 3);
+        string2buf(buf, 14, &bufptr, " PM", 3);
     append_alpha_string(buf, bufptr, 0);
 
     return ERR_NONE;
@@ -360,7 +360,7 @@ int docmd_atime(arg_struct *arg) {
 
 int docmd_atime24(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
-	return ERR_NONEXISTENT;
+        return ERR_NONEXISTENT;
     bool saved_clk24 = mode_time_clk24;
     mode_time_clk24 = true;
     int res = docmd_atime(arg);
@@ -370,14 +370,14 @@ int docmd_atime24(arg_struct *arg) {
 
 int docmd_clk12(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
-	return ERR_NONEXISTENT;
+        return ERR_NONEXISTENT;
     mode_time_clk24 = false;
     return ERR_NONE;
 }
 
 int docmd_clk24(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
-	return ERR_NONEXISTENT;
+        return ERR_NONEXISTENT;
     mode_time_clk24 = true;
     return ERR_NONE;
 }
@@ -386,7 +386,7 @@ static char weekdaynames[] = "SUNMONTUEWEDTHUFRISAT";
 
 int docmd_date(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
-	return ERR_NONEXISTENT;
+        return ERR_NONEXISTENT;
     uint4 date;
     int weekday;
     shell_get_time_date(NULL, &date, &weekday);
@@ -394,43 +394,43 @@ int docmd_date(arg_struct *arg) {
     int m = date / 100 % 100;
     int d = date % 100;
     if (mode_time_dmy)
-	date = y + m * 10000L + d * 1000000;
+        date = y + m * 10000L + d * 1000000;
     else
-	date = y + m * 1000000 + d * 10000L;
+        date = y + m * 1000000 + d * 10000L;
     vartype *new_x = new_real((int4) date);
     if (new_x == NULL)
-	return ERR_INSUFFICIENT_MEMORY;
+        return ERR_INSUFFICIENT_MEMORY;
     ((vartype_real *) new_x)->x /= 1000000;
     recall_result(new_x);
     if (!program_running()) {
-	/* Note: I'm not completely faithful to the HP-41 here. It formats the
-	 * date as "14.03.2010 SUN" in DMY mode, and as "03/14/2010:SU" in MDY
-	 * mode. I mimic the former, but the latter I changed to
-	 * "03/14/2010 SUN"; the MDY display format used on the HP-41 is the
-	 * way it is because that was all they could fit in its 12-character
-	 * display. (Note that the periods in the DMY format and the colon in
-	 * the MDY format don't take up a character position on the HP-41.)
-	 */
-	char buf[22];
-	int bufptr = 0;
-	int n = mode_time_dmy ? d : m;
-	if (n < 10)
-	    char2buf(buf, 22, &bufptr, '0');
-	bufptr += int2string(n, buf + bufptr, 22 - bufptr);
-	char2buf(buf, 22, &bufptr, mode_time_dmy ? '.' : '/');
-	n = mode_time_dmy ? m : d;
-	if (n < 10)
-	    char2buf(buf, 22, &bufptr, '0');
-	bufptr += int2string(n, buf + bufptr, 22 - bufptr);
-	char2buf(buf, 22, &bufptr, mode_time_dmy ? '.' : '/');
-	bufptr += int2string(y, buf + bufptr, 22 - bufptr);
-	char2buf(buf, 22, &bufptr, ' ');
-	string2buf(buf, 22, &bufptr, weekdaynames + weekday * 3, 3);
-	clear_row(0);
-	draw_string(0, 0, buf, bufptr);
-	flush_display();
-	flags.f.message = 1;
-	flags.f.two_line_message = 0;
+        /* Note: I'm not completely faithful to the HP-41 here. It formats the
+         * date as "14.03.2010 SUN" in DMY mode, and as "03/14/2010:SU" in MDY
+         * mode. I mimic the former, but the latter I changed to
+         * "03/14/2010 SUN"; the MDY display format used on the HP-41 is the
+         * way it is because that was all they could fit in its 12-character
+         * display. (Note that the periods in the DMY format and the colon in
+         * the MDY format don't take up a character position on the HP-41.)
+         */
+        char buf[22];
+        int bufptr = 0;
+        int n = mode_time_dmy ? d : m;
+        if (n < 10)
+            char2buf(buf, 22, &bufptr, '0');
+        bufptr += int2string(n, buf + bufptr, 22 - bufptr);
+        char2buf(buf, 22, &bufptr, mode_time_dmy ? '.' : '/');
+        n = mode_time_dmy ? m : d;
+        if (n < 10)
+            char2buf(buf, 22, &bufptr, '0');
+        bufptr += int2string(n, buf + bufptr, 22 - bufptr);
+        char2buf(buf, 22, &bufptr, mode_time_dmy ? '.' : '/');
+        bufptr += int2string(y, buf + bufptr, 22 - bufptr);
+        char2buf(buf, 22, &bufptr, ' ');
+        string2buf(buf, 22, &bufptr, weekdaynames + weekday * 3, 3);
+        clear_row(0);
+        draw_string(0, 0, buf, bufptr);
+        flush_display();
+        flags.f.message = 1;
+        flags.f.two_line_message = 0;
     }
     /* TODO: Trace-mode printing. What should I print, the contents of X,
      * or, when not in a running program, the nicely formatted date?
@@ -440,124 +440,124 @@ int docmd_date(arg_struct *arg) {
 
 int docmd_date_plus(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
-	return ERR_NONEXISTENT;
+        return ERR_NONEXISTENT;
     // TODO: Accept real matrices as well?
     if (reg_x->type == TYPE_STRING)
-	return ERR_ALPHA_DATA_IS_INVALID;
+        return ERR_ALPHA_DATA_IS_INVALID;
     if (reg_x->type != TYPE_REAL)
-	return ERR_INVALID_TYPE;
+        return ERR_INVALID_TYPE;
     if (reg_y->type == TYPE_STRING)
-	return ERR_ALPHA_DATA_IS_INVALID;
+        return ERR_ALPHA_DATA_IS_INVALID;
     if (reg_y->type != TYPE_REAL)
-	return ERR_INVALID_TYPE;
+        return ERR_INVALID_TYPE;
 
     phloat date = ((vartype_real *) reg_y)->x;
     if (date < 0 || date > 100)
-	return ERR_INVALID_DATA;
+        return ERR_INVALID_DATA;
     phloat days = ((vartype_real *) reg_x)->x;
     if (days < -1000000 || days > 1000000)
-	return ERR_OUT_OF_RANGE;
+        return ERR_OUT_OF_RANGE;
 
     int4 y, m, d, jd;
     int err = date2comps(date, &y, &m, &d);
     if (err != ERR_NONE)
-	return err;
+        return err;
     err = greg2jd(y, m, d, &jd);
     if (err != ERR_NONE)
-	return err;
+        return err;
     jd += to_int4(floor(days));
     err = jd2greg(jd, &y, &m, &d);
     if (err != ERR_NONE)
-	return err;
+        return err;
     date = comps2date(y, m, d);
 
     vartype *new_x = new_real(date);
     if (new_x == NULL)
-	return ERR_INSUFFICIENT_MEMORY;
+        return ERR_INSUFFICIENT_MEMORY;
     binary_result(new_x);
     return ERR_NONE;
 }
 
 int docmd_ddays(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
-	return ERR_NONEXISTENT;
+        return ERR_NONEXISTENT;
     // TODO: Accept real matrices as well?
     if (reg_x->type == TYPE_STRING)
-	return ERR_ALPHA_DATA_IS_INVALID;
+        return ERR_ALPHA_DATA_IS_INVALID;
     if (reg_x->type != TYPE_REAL)
-	return ERR_INVALID_TYPE;
+        return ERR_INVALID_TYPE;
     if (reg_y->type == TYPE_STRING)
-	return ERR_ALPHA_DATA_IS_INVALID;
+        return ERR_ALPHA_DATA_IS_INVALID;
     if (reg_y->type != TYPE_REAL)
-	return ERR_INVALID_TYPE;
+        return ERR_INVALID_TYPE;
 
     phloat date1 = ((vartype_real *) reg_y)->x;
     if (date1 < 0 || date1 > 100)
-	return ERR_INVALID_DATA;
+        return ERR_INVALID_DATA;
     phloat date2 = ((vartype_real *) reg_x)->x;
     if (date2 < 0 || date2 > 100)
-	return ERR_INVALID_DATA;
+        return ERR_INVALID_DATA;
     int4 y, m, d, jd1, jd2;
     int err = date2comps(date1, &y, &m, &d);
     if (err != ERR_NONE)
-	return err;
+        return err;
     err = greg2jd(y, m, d, &jd1);
     if (err != ERR_NONE)
-	return err;
+        return err;
     err = date2comps(date2, &y, &m, &d);
     if (err != ERR_NONE)
-	return err;
+        return err;
     err = greg2jd(y, m, d, &jd2);
     if (err != ERR_NONE)
-	return err;
+        return err;
 
     vartype *new_x = new_real(jd2 - jd1);
     if (new_x == NULL)
-	return ERR_INSUFFICIENT_MEMORY;
+        return ERR_INSUFFICIENT_MEMORY;
     binary_result(new_x);
     return ERR_NONE;
 }
 
 int docmd_dmy(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
-	return ERR_NONEXISTENT;
+        return ERR_NONEXISTENT;
     mode_time_dmy = true;
     return ERR_NONE;
 }
 
 int docmd_dow(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
-	return ERR_NONEXISTENT;
+        return ERR_NONEXISTENT;
     // TODO: Accept real matrices as well?
     if (reg_x->type == TYPE_STRING)
-	return ERR_ALPHA_DATA_IS_INVALID;
+        return ERR_ALPHA_DATA_IS_INVALID;
     if (reg_x->type != TYPE_REAL)
-	return ERR_INVALID_TYPE;
+        return ERR_INVALID_TYPE;
 
     phloat x = ((vartype_real *) reg_x)->x;
     if (x < 0 || x > 100)
-	return ERR_INVALID_DATA;
+        return ERR_INVALID_DATA;
 
     int4 y, m, d, jd;
     int err = date2comps(x, &y, &m, &d);
     if (err != ERR_NONE)
-	return err;
+        return err;
     err = greg2jd(y, m, d, &jd);
     if (err != ERR_NONE)
-	return err;
+        return err;
     jd = (jd + 1) % 7;
 
     vartype *new_x = new_real(jd);
     if (new_x == NULL)
-	return ERR_INSUFFICIENT_MEMORY;
+        return ERR_INSUFFICIENT_MEMORY;
     unary_result(new_x);
 
     if (!program_running()) {
-	clear_row(0);
-	draw_string(0, 0, weekdaynames + jd * 3, 3);
-	flush_display();
-	flags.f.message = 1;
-	flags.f.two_line_message = 0;
+        clear_row(0);
+        draw_string(0, 0, weekdaynames + jd * 3, 3);
+        flush_display();
+        flags.f.message = 1;
+        flags.f.two_line_message = 0;
     }
 
     return ERR_NONE;
@@ -565,55 +565,55 @@ int docmd_dow(arg_struct *arg) {
 
 int docmd_mdy(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
-	return ERR_NONEXISTENT;
+        return ERR_NONEXISTENT;
     mode_time_dmy = false;
     return ERR_NONE;
 }
 
 int docmd_time(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
-	return ERR_NONEXISTENT;
+        return ERR_NONEXISTENT;
     uint4 time;
     shell_get_time_date(&time, NULL, NULL);
     vartype *new_x = new_real((int4) time);
     if (new_x == NULL)
-	return ERR_INSUFFICIENT_MEMORY;
+        return ERR_INSUFFICIENT_MEMORY;
     ((vartype_real *) new_x)->x /= 1000000;
     recall_result(new_x);
     if (!program_running()) {
-	int h = time / 1000000;
-	bool am;
-	if (!mode_time_clk24) {
-	    am = h < 12;
-	    h = h % 12;
-	    if (h == 0)
-		h = 12;
-	}
-	int m = time / 10000 % 100;
-	int s = time / 100 % 100;
-	char buf[22];
-	int bufptr = 0;
-	if (h < 10)
-	    char2buf(buf, 22, &bufptr, ' ');
-	bufptr += int2string(h, buf + bufptr, 22 - bufptr);
-	char2buf(buf, 22, &bufptr, ':');
-	if (m < 10)
-	    char2buf(buf, 22, &bufptr, '0');
-	bufptr += int2string(m, buf + bufptr, 22 - bufptr);
-	char2buf(buf, 22, &bufptr, ':');
-	if (s < 10)
-	    char2buf(buf, 22, &bufptr, '0');
-	bufptr += int2string(s, buf + bufptr, 22 - bufptr);
-	if (!mode_time_clk24) {
-	    char2buf(buf, 22, &bufptr, ' ');
-	    char2buf(buf, 22, &bufptr, am ? 'A' : 'P');
-	    char2buf(buf, 22, &bufptr, 'M');
-	}
-	clear_row(0);
-	draw_string(0, 0, buf, bufptr);
-	flush_display();
-	flags.f.message = 1;
-	flags.f.two_line_message = 0;
+        int h = time / 1000000;
+        bool am;
+        if (!mode_time_clk24) {
+            am = h < 12;
+            h = h % 12;
+            if (h == 0)
+                h = 12;
+        }
+        int m = time / 10000 % 100;
+        int s = time / 100 % 100;
+        char buf[22];
+        int bufptr = 0;
+        if (h < 10)
+            char2buf(buf, 22, &bufptr, ' ');
+        bufptr += int2string(h, buf + bufptr, 22 - bufptr);
+        char2buf(buf, 22, &bufptr, ':');
+        if (m < 10)
+            char2buf(buf, 22, &bufptr, '0');
+        bufptr += int2string(m, buf + bufptr, 22 - bufptr);
+        char2buf(buf, 22, &bufptr, ':');
+        if (s < 10)
+            char2buf(buf, 22, &bufptr, '0');
+        bufptr += int2string(s, buf + bufptr, 22 - bufptr);
+        if (!mode_time_clk24) {
+            char2buf(buf, 22, &bufptr, ' ');
+            char2buf(buf, 22, &bufptr, am ? 'A' : 'P');
+            char2buf(buf, 22, &bufptr, 'M');
+        }
+        clear_row(0);
+        draw_string(0, 0, buf, bufptr);
+        flush_display();
+        flags.f.message = 1;
+        flags.f.two_line_message = 0;
     }
     /* TODO: Trace-mode printing. What should I print, the contents of X,
      * or, when not in a running program, the nicely formatted time?

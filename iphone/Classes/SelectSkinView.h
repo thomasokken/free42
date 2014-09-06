@@ -19,9 +19,9 @@
 
 
 @interface SelectSkinView : UIView <UITableViewDelegate, UITableViewDataSource> {
-	NSMutableArray *skinNames;
-	UIBarButtonItem *doneButton;
-	UITableView *skinTable;
+    NSMutableArray *skinNames;
+    UIBarButtonItem *doneButton;
+    UITableView *skinTable;
 }
 
 @property (nonatomic, retain) IBOutlet UIBarButtonItem *doneButton;

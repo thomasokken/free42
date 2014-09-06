@@ -584,16 +584,16 @@ GAMMA        A0 74
 RAN          A0 71
 SEED         A0 73
 LBL          CF nn (LBL 00-14: 01-0F; LBL "": Cm mm Fn) (note that CE and CF
-	      are X<> nn and LBL nn, so that limits the possible values of mmm;
-	      the label name has an extra byte prepended which the 41C uses for
-	      key assignment)
+              are X<> nn and LBL nn, so that limits the possible values of mmm;
+              the label name has an extra byte prepended which the 41C uses for
+              key assignment)
 RTN          85
 INPUT        F2 D0 nn (INPUT IND: F2 EE nn; INPUT "": Fn C5;
-			INPUT IND "": Fn CD)
+                        INPUT IND "": Fn CD)
 VIEW         98 nn (VIEW "": Fn 80; VIEW IND nn: Fn 88)
 AVIEW        7E
 XEQ          Em mm nn (XEQ IND nn: AE nn (nn bit 7 set);
-			XEQ "": 1E Fn; XEQ IND "": Fn AF)
+                        XEQ "": 1E Fn; XEQ IND "": Fn AF)
 PROMPT       8E
 PSE          89
 ISG          96 nn (ISG "": Fn 96; ISG IND nn: Fn 9E)
@@ -641,13 +641,13 @@ TRACE        A7 5D
 SIGMAADD     47
 SIGMASUB     48
 GTO          Dm mm nn (GTO 00-14: B1-BF; GTO IND nn: AE nn (nn bit 7 clear);
-			GTO "": 1D Fn; GTO IND "": Fn AE)
+                        GTO "": 1D Fn; GTO IND "": Fn AE)
 END          Cm mm ?? (mmm < E00; ?? is not Fn (cuz that's LBL ""), but what?)
 NUMBER       0-9: 10-19; .: 1A; E: 1B; -: 1C; conseq num lines sep by NULL (00)
 STRING       Fn, except when n > 0 and the next byte has bit 7 set (or at least
-	     is one of the special values that define HP-42S extensions with
-	     parameters) (but for the purpose of instruction length finding, it
-	     makes no difference: that is always n+1)
+             is one of the special values that define HP-42S extensions with
+             parameters) (but for the purpose of instruction length finding, it
+             makes no difference: that is always n+1)
 RUN          n/a
 SST          n/a
 GTODOT       F3 F2 nn nn (GTO . "": Fn F4) (ill)
@@ -819,12 +819,12 @@ SPARE1       AF (TODO: what's this?)
 SPARE2       B0 (TODO: what's this?)
 XFCN         Fn F1 (TODO: what's this?) (apparently, always says "Nonexistent")
 XROM         A[0-7] nn (bits 2-0 of byte 1 plus bits 7-6 of byte 2 are the ROM
-	     ID; bits 5-0 of byte 2 are the instruction number. The instruction
-	     is displayed as XROM nn,mm with nn and mm in 2 decimal digits.
-	     When executed, always says "Nonexistent".
-	     Note: when decoding functions, the check for XROM should come
-	     *last*, because all the parameterless HP-42S extensions are
-	     encoded in XROM space.
+             ID; bits 5-0 of byte 2 are the instruction number. The instruction
+             is displayed as XROM nn,mm with nn and mm in 2 decimal digits.
+             When executed, always says "Nonexistent".
+             Note: when decoding functions, the check for XROM should come
+             *last*, because all the parameterless HP-42S extensions are
+             encoded in XROM space.
 ===============================================================================
 */
 

@@ -90,9 +90,9 @@
 }
 
 - (void)drawRect:(NSRect)rect {
-	CGContextRef myContext = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
-	CGContextSetRGBFillColor(myContext, 1.0, 1.0, 1.0, 1.0);
-	CGContextFillRect(myContext, NSRectToCGRect(rect));
+    CGContextRef myContext = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
+    CGContextSetRGBFillColor(myContext, 1.0, 1.0, 1.0, 1.0);
+    CGContextFillRect(myContext, NSRectToCGRect(rect));
     CGContextSetRGBFillColor(myContext, 0.0, 0.0, 0.0, 1.0);
     int xmin = (int) rect.origin.x;
     int xmax = (int) (rect.origin.x + rect.size.width);

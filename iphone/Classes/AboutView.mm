@@ -33,8 +33,8 @@
 }
 
 - (void) awakeFromNib {
-	[versionLabel setText:[NSString stringWithFormat:@"Free42 %s", [Free42AppDelegate getVersion]]];
-	[copyrightLabel setText:@"© 2004-2014 Thomas Okken"];
+    [versionLabel setText:[NSString stringWithFormat:@"Free42 %s", [Free42AppDelegate getVersion]]];
+    [copyrightLabel setText:@"© 2004-2014 Thomas Okken"];
 }
 
 - (void)drawRect:(CGRect)rect {
@@ -42,11 +42,11 @@
 }
 
 - (void) raised {
-	// start-up code
+    // start-up code
 }
 
 - (IBAction) done {
-	[Free42AppDelegate showMain];
+    [Free42AppDelegate showMain];
 }
 
 - (void)dealloc {

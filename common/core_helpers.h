@@ -61,9 +61,9 @@ int base_range_check(int8 *n);
 void print_text(const char *text, int length, int left_justified);
 void print_lines(const char *text, int length, int left_justified);
 void print_right(const char *left, int leftlen,
-		 const char *right, int rightlen);
+                 const char *right, int rightlen);
 void print_wide(const char *left, int leftlen,
-		const char *right, int rightlen);
+                const char *right, int rightlen);
 void print_command(int cmd, const arg_struct *arg);
 
 void generic_r2p(phloat re, phloat im, phloat *r, phloat *phi);

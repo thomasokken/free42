@@ -61,40 +61,40 @@ double decimal2double(void *data, bool pin_magnitude = false);
 
 class Phloat {
     public:
-	BID_UINT128 val;
+        BID_UINT128 val;
 
-	Phloat() {}
-	Phloat(const BID_UINT128 &b) : val(b) {}
-	Phloat(const char *str);
-	Phloat(int numer, int denom);
-	Phloat(int i);
-	Phloat(int8 i);
-	Phloat(double d);
-	Phloat(const Phloat &p);
-	Phloat operator=(const BID_UINT128 &b) { val = b; return *this; }
-	Phloat operator=(int i);
-	Phloat operator=(int8 i);
-	Phloat operator=(double d);
-	Phloat operator=(Phloat p);
-	bool operator==(Phloat p) const;
-	bool operator!=(Phloat p) const;
-	bool operator<(Phloat p) const;
-	bool operator<=(Phloat p) const;
-	bool operator>(Phloat p) const;
-	bool operator>=(Phloat p) const;
-	Phloat operator-() const;
-	Phloat operator*(Phloat p) const;
-	Phloat operator/(Phloat p) const;
-	Phloat operator+(Phloat p) const;
-	Phloat operator-(Phloat p) const;
-	Phloat operator*=(Phloat p);
-	Phloat operator/=(Phloat p);
-	Phloat operator+=(Phloat p);
-	Phloat operator-=(Phloat p);
-	Phloat operator++(); // prefix
-	Phloat operator++(int); // postfix
-	Phloat operator--(); // prefix
-	Phloat operator--(int); // postfix
+        Phloat() {}
+        Phloat(const BID_UINT128 &b) : val(b) {}
+        Phloat(const char *str);
+        Phloat(int numer, int denom);
+        Phloat(int i);
+        Phloat(int8 i);
+        Phloat(double d);
+        Phloat(const Phloat &p);
+        Phloat operator=(const BID_UINT128 &b) { val = b; return *this; }
+        Phloat operator=(int i);
+        Phloat operator=(int8 i);
+        Phloat operator=(double d);
+        Phloat operator=(Phloat p);
+        bool operator==(Phloat p) const;
+        bool operator!=(Phloat p) const;
+        bool operator<(Phloat p) const;
+        bool operator<=(Phloat p) const;
+        bool operator>(Phloat p) const;
+        bool operator>=(Phloat p) const;
+        Phloat operator-() const;
+        Phloat operator*(Phloat p) const;
+        Phloat operator/(Phloat p) const;
+        Phloat operator+(Phloat p) const;
+        Phloat operator-(Phloat p) const;
+        Phloat operator*=(Phloat p);
+        Phloat operator/=(Phloat p);
+        Phloat operator+=(Phloat p);
+        Phloat operator-=(Phloat p);
+        Phloat operator++(); // prefix
+        Phloat operator++(int); // postfix
+        Phloat operator--(); // prefix
+        Phloat operator--(int); // postfix
 };
 
 // I can't simply overload isinf() and isnan(), because the Linux math.h
@@ -165,8 +165,8 @@ extern phloat NEG_TINY_PHLOAT;
 
 void phloat_init();
 int phloat2string(phloat d, char *buf, int buflen,
-		  int base_mode, int digits, int dispmode,
-		  int thousandssep);
+                  int base_mode, int digits, int dispmode,
+                  int thousandssep);
 int string2phloat(const char *buf, int buflen, phloat *d);
 
 

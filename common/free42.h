@@ -34,31 +34,31 @@
 
 #if defined(WINDOWS) && !defined(__GNUC__)
 
-	/* MSVC++ 6.0 lacks a few math functions that Free42 needs.
-	 * I've defined workarounds in mathfudge.c. NOTE: my versions
-	 * of isnan(), finite(), and isinf() are a bit lame -- I *think*
-	 * they handle infinities properly, but definitely not NaNs
-	 * (although NaNs shouldn't be much of a problem because the Free42
-	 * code mostly tries to avoid them, rather than detect them after
-	 * the fact).
-	 */
+        /* MSVC++ 6.0 lacks a few math functions that Free42 needs.
+         * I've defined workarounds in mathfudge.c. NOTE: my versions
+         * of isnan(), finite(), and isinf() are a bit lame -- I *think*
+         * they handle infinities properly, but definitely not NaNs
+         * (although NaNs shouldn't be much of a problem because the Free42
+         * code mostly tries to avoid them, rather than detect them after
+         * the fact).
+         */
 #ifdef __cplusplus
-	extern "C" {
+        extern "C" {
 #endif
-		int isnan(double x);
-		int finite(double x);
-		int isinf(double x);
-		void sincos(double x, double *sinx, double *cosx);
-		double asinh(double x);
-		double acosh(double x);
-		double atanh(double x);
-		double expm1(double x);
-		double log1p(double x);
+                int isnan(double x);
+                int finite(double x);
+                int isinf(double x);
+                void sincos(double x, double *sinx, double *cosx);
+                double asinh(double x);
+                double acosh(double x);
+                double atanh(double x);
+                double expm1(double x);
+                double log1p(double x);
 #ifdef _WIN32_WCE
-		double hypot(double x, double y);
+                double hypot(double x, double y);
 #endif
 #ifdef __cplusplus
-	}
+        }
 #endif
 #else
 

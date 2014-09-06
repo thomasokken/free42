@@ -27,25 +27,25 @@ bool ebmlreader::read_vint(uint32_t *n) {
     char sc;
     is->read(&sc, 1);
     if (!is->good() || sc == 0)
-	return false;
+        return false;
     unsigned char c = sc;
     unsigned char mask = 0x80;
     int size = 0;
     while ((c & mask) == 0) {
-	size += 8;
-	mask >>= 1;
+        size += 8;
+        mask >>= 1;
     }
     c -= mask;
     bool unknown = c == mask - 1;
     uint32_t nn = ((uint32_t) c) << size;
     while ((size -= 8) >= 0) {
-	is->read(&sc, 1);
-	if (!is->good())
-	    return false;
-	c = sc;
-	nn |= ((uint32_t) c) << size;
-	if (c != 0xff)
-	    unknown = false;
+        is->read(&sc, 1);
+        if (!is->good())
+            return false;
+        c = sc;
+        nn |= ((uint32_t) c) << size;
+        if (c != 0xff)
+            unknown = false;
     }
     *n = unknown ? (uint32_t) -1 : nn;
     return true;
@@ -65,15 +65,15 @@ bool ebmlreader::skip_body(uint32_t size) {
 /* public */
 bool ebmlreader::get_int_body(uint32_t size, uint64_t *n) {
     if (size > 8)
-	return false;
+        return false;
     uint64_t nn = 0;
     for (uint32_t i = 0; i < size; i++) {
-	char sc;
-	is->read(&sc, 1);
-	if (!is->good())
-	    return false;
-	unsigned char c = sc;
-	nn = (nn << 8) | c;
+        char sc;
+        is->read(&sc, 1);
+        if (!is->good())
+            return false;
+        unsigned char c = sc;
+        nn = (nn << 8) | c;
     }
     *n = nn;
     return true;
@@ -82,31 +82,31 @@ bool ebmlreader::get_int_body(uint32_t size, uint64_t *n) {
 /* public */
 bool ebmlreader::get_float_body(uint32_t size, double *f) {
     if (size == 4) {
-	uint32_t b = 0;
-	for (int i = 0; i < 4; i++) {
-	    char sc;
-	    is->read(&sc, 1);
-	    if (!is->good())
-		return false;
-	    unsigned char c = sc;
-	    b = (b << 8) | c;
-	}
-	*f = *(float *) &b;
-	return true;
+        uint32_t b = 0;
+        for (int i = 0; i < 4; i++) {
+            char sc;
+            is->read(&sc, 1);
+            if (!is->good())
+                return false;
+            unsigned char c = sc;
+            b = (b << 8) | c;
+        }
+        *f = *(float *) &b;
+        return true;
     } else if (size == 8) {
-	uint64_t b = 0;
-	for (int i = 0; i < 8; i++) {
-	    char sc;
-	    is->read(&sc, 1);
-	    if (!is->good())
-		return false;
-	    unsigned char c = sc;
-	    b = (b << 8) | c;
-	}
-	*f = *(double *) &b;
-	return true;
+        uint64_t b = 0;
+        for (int i = 0; i < 8; i++) {
+            char sc;
+            is->read(&sc, 1);
+            if (!is->good())
+                return false;
+            unsigned char c = sc;
+            b = (b << 8) | c;
+        }
+        *f = *(double *) &b;
+        return true;
     } else {
-	return false;
+        return false;
     }
 }
 
