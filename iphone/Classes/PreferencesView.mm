@@ -81,13 +81,9 @@
     scrollView.contentInset = contentInsets;
     scrollView.scrollIndicatorInsets = contentInsets;
 
-    // If active text field is hidden by keyboard, scroll it so it's visible
-    CGRect aRect = self.frame;
-    aRect.size.height -= kbSize.height;
-    if (activeField != nil && !CGRectContainsPoint(aRect, activeField.frame.origin)) {
-        CGRect vr = activeField.frame;
-        [self.scrollView scrollRectToVisible:vr animated:YES];
-    }
+    // Make sure the active field is visible
+    if (activeField != nil)
+        [self.scrollView scrollRectToVisible:activeField.frame animated:YES];
 }
 
 - (void) keyboardWillHide:(NSNotification *)notif {
