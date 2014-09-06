@@ -1,4 +1,4 @@
-??-??-????: release 1.5.4a (iPhone only)
+06-09-2014: release 1.5.4a (iPhone only)
 
 * Fixed keyboard handling in the Preferences and Select File dialogs.
 * Fixed scrolling behavior (in 1.5.4, windows were sized 20 pixels beyond the
