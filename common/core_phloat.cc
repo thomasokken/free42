@@ -83,8 +83,8 @@ static void bcdfloat_old2new(void *bcd) {
 
 void phloat_init() {
     BID_UINT128 posinf, neginf, zero, poshuge, neghuge, postiny, negtiny;
-    bid128_from_string(&posinf, "+Inf");
-    bid128_from_string(&neginf, "-Inf");
+    bid128_from_string(&posinf, (char *) "+Inf");
+    bid128_from_string(&neginf, (char *) "-Inf");
     int z = 0;
     bid128_from_int32(&zero, &z);
     bid128_nextafter(&poshuge, &posinf, &zero);

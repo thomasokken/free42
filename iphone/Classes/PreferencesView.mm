@@ -86,7 +86,6 @@
     aRect.size.height -= kbSize.height;
     if (activeField != nil && !CGRectContainsPoint(aRect, activeField.frame.origin)) {
         CGRect vr = activeField.frame;
-        vr.origin.y += vr.size.height;
         [self.scrollView scrollRectToVisible:vr animated:YES];
     }
 }
