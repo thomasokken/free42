@@ -4,7 +4,8 @@
 * Fixed scrolling behavior (in 1.5.4, windows were sized 20 pixels beyond the
   bottom of the screen, making the bottommost bit of scroll views drop off the
   screen).
-* Added 4" skin for iPhone 5.
+* Added 4" skin for iPhone 5, and added code to select the best-fitting built-
+  in skin on first launch.
 
 22-07-2014: release 1.5.4
 

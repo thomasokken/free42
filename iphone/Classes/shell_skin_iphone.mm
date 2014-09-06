@@ -195,6 +195,30 @@ static int skin_gets(char *buf, int buflen);
 static void skin_close();
 
 
+static void get_builtin_skin_size(const char *skinname, long *w, long *h) {
+    char line[1024];
+    NSString *skinpath = [[NSBundle mainBundle] pathForResource:[NSString stringWithCString:skinname encoding:NSUTF8StringEncoding]
+                                                                 ofType:@"layout"];
+    [skinpath getCString:line maxLength:1024 encoding:NSUTF8StringEncoding];
+    FILE *f = fopen(line, "r");
+    while (fgets(line, 1024, f) != NULL) {
+        if (*line == 0)
+            continue;
+        if (strncasecmp(line, "skin:", 5) == 0) {
+            int x, y, width, height;
+            if (sscanf(line + 5, " %d,%d,%d,%d", &x, &y, &width, &height) == 4) {
+                *w = width;
+                *h = height;
+                fclose(f);
+                return;
+            }
+        }
+    }
+    // Should never happen
+    fclose(f);
+    *w = *h = 0;
+}
+
 static int skin_open(const char *skinname, int open_layout) {
     char buf[1024];
 
@@ -271,14 +295,32 @@ void skin_load(long *width, long *height) {
     int lineno = 0;
 
     if (state.skinName[0] == 0) {
-        fallback_on_1st_builtin_skin:
+        fallback_on_best_builtin_skin:
         NSString *path = [[NSBundle mainBundle] pathForResource:@"builtin_skins" ofType:@"txt"];
         [path getCString:line maxLength:1024 encoding:NSUTF8StringEncoding];
         FILE *builtins = fopen(line, "r");
-        fgets(line, 1024, builtins);
-        char *context;
-        char *cname = strtok_r(line, " \t\r\n", &context);
-        strcpy(state.skinName, cname);
+        long bestwidth = 0, bestheight = 0;
+        long scrwidth = (long) [UIScreen mainScreen].bounds.size.width;
+        long scrheight = (long) [UIScreen mainScreen].bounds.size.height;
+        while (fgets(line, 1024, builtins) != NULL) {
+            char *context;
+            strtok_r(line, " \t\r\n", &context);
+            char *fname = strtok_r(NULL, " \t\r\n", &context);
+            long w, h;
+            get_builtin_skin_size(fname, &w, &h);
+            if (w > 320) {
+                w /= 2;
+                h /= 2;
+            }
+            if ((w > bestwidth && h >= bestheight
+                    || w >= bestwidth && h > bestheight)
+                    && w <= scrwidth && h <= scrheight) {
+                bestwidth = w;
+                bestheight = h;
+                char *name = strtok_r(line, " \t\r\n", &context);
+                strcpy(state.skinName, name);
+            }
+        }
         fclose(builtins);
     }
 
@@ -287,7 +329,7 @@ void skin_load(long *width, long *height) {
     /*************************/
 
     if (!skin_open(state.skinName, 1))
-        goto fallback_on_1st_builtin_skin;
+        goto fallback_on_best_builtin_skin;
 
     if (keylist != NULL)
         free(keylist);
@@ -453,7 +495,7 @@ void skin_load(long *width, long *height) {
     /********************/
 
     if (!skin_open(state.skinName, 0))
-        goto fallback_on_1st_builtin_skin;
+        goto fallback_on_best_builtin_skin;
 
     /* shell_loadimage() calls skin_getchar() to load the image from the
      * compiled-in or on-disk file; it calls skin_init_image(),
@@ -464,7 +506,7 @@ void skin_load(long *width, long *height) {
     skin_close();
 
     if (!success)
-        goto fallback_on_1st_builtin_skin;
+        goto fallback_on_best_builtin_skin;
 
     *width = skin.width;
     *height = skin.height;
