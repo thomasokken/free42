@@ -1,6 +1,9 @@
 ??-??-????: release 1.5.4a (iPhone only)
 
 * Fixed keyboard handling in the Preferences and Select File dialogs.
+* Fixed scrolling behavior (in 1.5.4, windows were sized 20 pixels beyond the
+  bottom of the screen, making the bottommost bit of scroll views drop off the
+  screen).
 * Added 4" skin for iPhone 5.
 
 22-07-2014: release 1.5.4

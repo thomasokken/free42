@@ -12,17 +12,11 @@ Android version:
 * Implement better visual feedback for which key is pressed.
 
 iPhone version:
-* Print-Out won't scroll all the way to the bottom. You can see the bottom-most
-  line when you pull up, but once you release, it scrolls out of sight.
-* In iOS 7, when the pop-up keyboard covers the active text field, the screen
-  is not scrolled far enough upwards for it to become fully visible. Coordinate
-  issue? Do I need the iOS 6/7 Deltas on all the top-level views?
 * Preferences looks a bit ugly in iOS 7, because the now-much-smaller switches
   no longer line up with the right margin. How do I create a settings screen
   that looks more like the iOS Settings app?
 * Suppress too-large skins from the Select Skin view. Also, on initial start-
   up, select a size-appropriate one, not just the first skin in the list.
-* Downgrade to older Xcode so I can get back to supporting iOS 3.1.3.
 * Add option to disable key click.
 * Haptic feedback option.
 * Implement pop-up keyboard for ALPHA mode text entry.
@@ -36,13 +30,6 @@ iPhone version:
   server. I think this is the one remaining issue that causes the server port
   to be unavailable on HTTP server startup.
 * Implement better visual feedback for which key is pressed.
-* Instead of the automatic Default.png on start-up, show a screenshot of the
-  most recent app state, with the word "Loading" painted on top. This way,
-  users that do not use the Standard skin will not get the jarring transition
-  from Standard to their selected skin.
-  Of course, whether all this is doable will depend on how quickly we can load
-  and display a PNG (before the heavy lifting of initializing the emulator core
-  and reading the skin GIF).
 * In the HTTP server view, make it clearer that it can't be used if there's no
   WiFi. Don't show a URL containing some bogus 3G hostname or whatever. Also,
   deal with the possibility of WiFi becoming active or inactive while Free42 is

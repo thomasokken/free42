@@ -37,7 +37,6 @@ static char version[32] = "";
 
 @synthesize window;
 
-@synthesize containerView;
 @synthesize calcView;
 @synthesize printView;
 @synthesize httpServerView;
@@ -61,22 +60,24 @@ static char version[32] = "";
             NSLog(@"error loading sound: %@", name);
     }
     
-    printView.frame = containerView.bounds;
-    [containerView addSubview:printView];
-    httpServerView.frame = containerView.bounds;
-    [containerView addSubview:httpServerView];
-    selectSkinView.frame = containerView.bounds;
-    [containerView addSubview:selectSkinView];
-    selectProgramsView.frame = containerView.bounds;
-    [containerView addSubview:selectProgramsView];
-    preferencesView.frame = containerView.bounds;
-    [containerView addSubview:preferencesView];
-    aboutView.frame = containerView.bounds;
-    [containerView addSubview:aboutView];
-    selectFileView.frame = containerView.bounds;
-    [containerView addSubview:selectFileView];
-    calcView.frame = containerView.bounds;
-    [containerView addSubview:calcView];
+    CGRect bounds = CGRectMake(window.bounds.origin.x, window.bounds.origin.y + 20,
+                                window.bounds.size.width, window.bounds.size.height - 20);
+    printView.frame = bounds;
+    [window addSubview:printView];
+    httpServerView.frame = bounds;
+    [window addSubview:httpServerView];
+    selectSkinView.frame = bounds;
+    [window addSubview:selectSkinView];
+    selectProgramsView.frame = bounds;
+    [window addSubview:selectProgramsView];
+    preferencesView.frame = bounds;
+    [window addSubview:preferencesView];
+    aboutView.frame = bounds;
+    [window addSubview:aboutView];
+    selectFileView.frame = bounds;
+    [window addSubview:selectFileView];
+    calcView.frame = bounds;
+    [window addSubview:calcView];
     [window makeKeyAndVisible];
 }
 
@@ -118,7 +119,7 @@ static char version[32] = "";
 }
 
 - (void) showMain2 {
-    [containerView bringSubviewToFront:calcView];
+    [window bringSubviewToFront:calcView];
 }
 
 + (void) showMain {
@@ -126,7 +127,7 @@ static char version[32] = "";
 }
 
 - (void) showPrintOut2 {
-    [containerView bringSubviewToFront:printView];
+    [window bringSubviewToFront:printView];
 }
 
 + (void) showPrintOut {
@@ -135,7 +136,7 @@ static char version[32] = "";
 
 - (void) showHttpServer2 {
     [httpServerView raised];
-    [containerView bringSubviewToFront:httpServerView];
+    [window bringSubviewToFront:httpServerView];
 }
 
 + (void) showHttpServer {
@@ -144,7 +145,7 @@ static char version[32] = "";
 
 - (void) showSelectSkin2 {
     [selectSkinView raised];
-    [containerView bringSubviewToFront:selectSkinView];
+    [window bringSubviewToFront:selectSkinView];
 }
 
 + (void) showSelectSkin {
@@ -153,7 +154,7 @@ static char version[32] = "";
 
 - (void) showPreferences2 {
     [preferencesView raised];
-    [containerView bringSubviewToFront:preferencesView];
+    [window bringSubviewToFront:preferencesView];
 }
 
 + (void) showPreferences {
@@ -162,7 +163,7 @@ static char version[32] = "";
 
 - (void) showAbout2 {
     [aboutView raised];
-    [containerView bringSubviewToFront:aboutView];
+    [window bringSubviewToFront:aboutView];
 }
 
 + (void) showAbout {
@@ -171,7 +172,7 @@ static char version[32] = "";
 
 - (void) showSelectFile2 {
     [selectFileView raised];
-    [containerView bringSubviewToFront:selectFileView];
+    [window bringSubviewToFront:selectFileView];
 }
 
 + (void) showSelectFile {
@@ -224,7 +225,7 @@ static int my_shell_read(char *buf, int buflen) {
 
 + (void) doExport {
     [instance.selectProgramsView raised];
-    [instance.containerView bringSubviewToFront:instance.selectProgramsView];
+    [instance.window bringSubviewToFront:instance.selectProgramsView];
 }
 
 @end

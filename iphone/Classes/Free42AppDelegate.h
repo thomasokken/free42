@@ -28,7 +28,6 @@
 
 @interface Free42AppDelegate : NSObject <UIApplicationDelegate> {
     UIWindow *window;
-    UIView *containerView;
     CalcView *calcView;
     PrintView *printView;
     HTTPServerView *httpServerView;
@@ -40,7 +39,6 @@
 }
 
 @property (nonatomic, retain) IBOutlet UIWindow *window;
-@property (nonatomic, retain) IBOutlet UIView *containerView;
 @property (nonatomic, retain) IBOutlet CalcView *calcView;
 @property (nonatomic, retain) IBOutlet PrintView *printView;
 @property (nonatomic, retain) IBOutlet HTTPServerView *httpServerView;
