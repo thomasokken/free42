@@ -18,9 +18,9 @@
 package com.thomasokken.free42;
 
 public class BooleanHolder {
-	public boolean value;
-	public BooleanHolder() {}
-	public BooleanHolder(boolean value) {
-		this.value = value;
-	}
+    public boolean value;
+    public BooleanHolder() {}
+    public BooleanHolder(boolean value) {
+        this.value = value;
+    }
 }

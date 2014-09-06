@@ -18,9 +18,9 @@
 package com.thomasokken.free42;
 
 public class DoubleHolder {
-	public double value;
-	public DoubleHolder() {}
-	public DoubleHolder(double value) {
-		this.value = value;
-	}
+    public double value;
+    public DoubleHolder() {}
+    public DoubleHolder(double value) {
+        this.value = value;
+    }
 }

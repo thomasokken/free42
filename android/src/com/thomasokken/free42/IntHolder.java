@@ -18,9 +18,9 @@
 package com.thomasokken.free42;
 
 public class IntHolder {
-	public int value;
-	public IntHolder() {}
-	public IntHolder(int value) {
-		this.value = value;
-	}
+    public int value;
+    public IntHolder() {}
+    public IntHolder(int value) {
+        this.value = value;
+    }
 }

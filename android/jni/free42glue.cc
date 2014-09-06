@@ -36,24 +36,24 @@ void shell_logprintf(const char *format, ...);
 class Tracer {
 #if GLUE_DEBUG
     private:
-	const char *name;
+        const char *name;
     public:
-	Tracer(const char *name) {
-	    this->name = name;
-	    for (int i = 0; i < level; i++)
-		shell_logprintf("  ");
-	    shell_logprintf("ENTERING %s\n", name);
-	    level++;
-	}
-	~Tracer() {
-	    --level;
-	    for (int i = 0; i < level; i++)
-		shell_logprintf("  ");
-	    shell_logprintf("EXITING  %s\n", name);
-	}
+        Tracer(const char *name) {
+            this->name = name;
+            for (int i = 0; i < level; i++)
+                shell_logprintf("  ");
+            shell_logprintf("ENTERING %s\n", name);
+            level++;
+        }
+        ~Tracer() {
+            --level;
+            for (int i = 0; i < level; i++)
+                shell_logprintf("  ");
+            shell_logprintf("EXITING  %s\n", name);
+        }
 #else
     public:
-	Tracer(const char *) {}
+        Tracer(const char *) {}
 #endif
 };
 
@@ -161,13 +161,13 @@ Java_com_thomasokken_free42_Free42Activity_core_1hex_1menu(JNIEnv *env, jobject 
 
 extern "C" jboolean
 Java_com_thomasokken_free42_Free42Activity_core_1keydown(JNIEnv *env, jobject thiz,
-			    jint key, jobject enqueued, jobject repeat, jboolean immediate_return) {
+                            jint key, jobject enqueued, jobject repeat, jboolean immediate_return) {
     Tracer T("core_keydown");
     finish_flag = immediate_return;
     int enq, rep;
     jboolean ret;
     do {
-	ret = core_keydown(key, &enq, &rep);
+        ret = core_keydown(key, &enq, &rep);
     } while (ret && !finish_flag);
     jclass klass = env->GetObjectClass(enqueued);
     jfieldID fid = env->GetFieldID(klass, "value", "Z");
@@ -334,7 +334,7 @@ Java_com_thomasokken_free42_Free42Activity_redisplay(JNIEnv *env, jobject thiz) 
 // to a "ReferenceTable overflow" eventually while running programs.
 
 void shell_blitter(const char *bits, int bytesperline, int x, int y,
-		         int width, int height) {
+                         int width, int height) {
     Tracer T("shell_blitter");
     JNIEnv *env = getJniEnv();
     jclass klass = env->GetObjectClass(g_activity);
@@ -399,7 +399,7 @@ int shell_read_saved_state(void *buf, int4 bufsize) {
     jbyteArray buf2 = env->NewByteArray(bufsize);
     int n = env->CallIntMethod(g_activity, mid, buf2);
     if (n > 0)
-	env->GetByteArrayRegion(buf2, 0, n, (jbyte *) buf);
+        env->GetByteArrayRegion(buf2, 0, n, (jbyte *) buf);
     // Delete local references
     env->DeleteLocalRef(klass);
     env->DeleteLocalRef(buf2);
@@ -471,8 +471,8 @@ uint4 shell_milliseconds() {
 }
 
 void shell_print(const char *text, int length,
-		 const char *bits, int bytesperline,
-		 int x, int y, int width, int height) {
+                 const char *bits, int bytesperline,
+                 int x, int y, int width, int height) {
     Tracer T("shell_print");
     JNIEnv *env = getJniEnv();
     jclass klass = env->GetObjectClass(g_activity);
@@ -511,7 +511,7 @@ int shell_read(char *buf, int4 bufsize) {
     jbyteArray buf2 = env->NewByteArray(bufsize);
     int n = env->CallIntMethod(g_activity, mid, buf2);
     if (n > 0)
-	env->GetByteArrayRegion(buf2, 0, n, (jbyte *) buf);
+        env->GetByteArrayRegion(buf2, 0, n, (jbyte *) buf);
     // Delete local references
     env->DeleteLocalRef(klass);
     env->DeleteLocalRef(buf2);
@@ -542,7 +542,7 @@ int shell_get_acceleration(double *x, double *y, double *z) {
 }
 
 int shell_get_location(double *lat, double *lon, double *lat_lon_acc,
-					    double *elev, double *elev_acc) {
+                                            double *elev, double *elev_acc) {
     Tracer T("shell_get_location");
     JNIEnv *env = getJniEnv();
     jclass klass1 = env->FindClass("com/thomasokken/free42/DoubleHolder");
@@ -572,7 +572,7 @@ int shell_get_location(double *lat, double *lon, double *lat_lon_acc,
 }
 
 int shell_get_heading(double *mag_heading, double *true_heading, double *acc,
-					    double *x, double *y, double *z) {
+                                            double *x, double *y, double *z) {
     Tracer T("shell_get_heading");
     JNIEnv *env = getJniEnv();
     jclass klass1 = env->FindClass("com/thomasokken/free42/DoubleHolder");
@@ -611,11 +611,11 @@ void shell_get_time_date(uint4 *time, uint4 *date, int *weekday) {
     struct tm tms;
     localtime_r(&tv.tv_sec, &tms);
     if (time != NULL)
-	*time = ((tms.tm_hour * 100 + tms.tm_min) * 100 + tms.tm_sec) * 100 + tv.tv_usec / 10000;
+        *time = ((tms.tm_hour * 100 + tms.tm_min) * 100 + tms.tm_sec) * 100 + tv.tv_usec / 10000;
     if (date != NULL)
-	*date = ((tms.tm_year + 1900) * 100 + tms.tm_mon + 1) * 100 + tms.tm_mday;
+        *date = ((tms.tm_year + 1900) * 100 + tms.tm_mon + 1) * 100 + tms.tm_mday;
     if (weekday != NULL)
-	*weekday = tms.tm_wday;
+        *weekday = tms.tm_wday;
 }
 
 void shell_logprintf(const char *format, ...) {

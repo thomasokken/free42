@@ -35,7 +35,7 @@ typedef struct {
 int skin_getchar();
 void skin_rewind();
 int skin_init_image(int type, int ncolors, const SkinColor *colors,
-		    int width, int height);
+                    int width, int height);
 void skin_put_pixels(unsigned const char *data);
 void skin_finish_image();
 
@@ -45,11 +45,11 @@ void skin_find_key(int x, int y, bool cshift, int *key, int *code);
 int skin_find_skey(int ckey);
 unsigned char *skin_find_macro(int ckey);
 unsigned char *skin_keymap_lookup(guint keyval, bool printable,
-				  bool ctrl, bool alt, bool shift, bool cshift,
-				  bool *exact);
+                                  bool ctrl, bool alt, bool shift, bool cshift,
+                                  bool *exact);
 void skin_repaint_key(int key, bool state);
 void skin_display_blitter(const char *bits, int bytesperline, int x, int y,
-	                             int width, int height);
+                                     int width, int height);
 void skin_repaint_display();
 void skin_display_set_enabled(bool enable);
 

@@ -110,38 +110,38 @@ static int audio_set_hw_params(snd_pcm_hw_params_t *hw_params) {
     snd_pcm_uframes_t size;
 
     if ((err = _dl_snd_pcm_hw_params_any (playback_handle, hw_params)) < 0) {
-	fprintf (stderr, "cannot initialize hardware parameter structure (%s)\n", _dl_snd_strerror (err));
-	return err;
+        fprintf (stderr, "cannot initialize hardware parameter structure (%s)\n", _dl_snd_strerror (err));
+        return err;
     }
     if ((err = _dl_snd_pcm_hw_params_set_access (playback_handle, hw_params, SND_PCM_ACCESS_RW_INTERLEAVED)) < 0) {
-	fprintf (stderr, "cannot set access type (%s)\n", _dl_snd_strerror (err));
-	return err;
+        fprintf (stderr, "cannot set access type (%s)\n", _dl_snd_strerror (err));
+        return err;
     }
     if ((err = _dl_snd_pcm_hw_params_set_format (playback_handle, hw_params, audio_format)) < 0) {
-	fprintf (stderr, "cannot set sample format (%s)\n", _dl_snd_strerror (err));
-	return err;
+        fprintf (stderr, "cannot set sample format (%s)\n", _dl_snd_strerror (err));
+        return err;
     }
     if ((err = _dl_snd_pcm_hw_params_set_rate_near (playback_handle, hw_params, &audio_sample_rate, 0)) < 0) {
-	fprintf (stderr, "cannot set sample rate (%s)\n", _dl_snd_strerror (err));
-	return err;
+        fprintf (stderr, "cannot set sample rate (%s)\n", _dl_snd_strerror (err));
+        return err;
     }
     if ((err = _dl_snd_pcm_hw_params_set_channels (playback_handle, hw_params, audio_channels)) < 0) {
-	fprintf (stderr, "cannot set channel count (%s)\n", _dl_snd_strerror (err));
-	return err;
+        fprintf (stderr, "cannot set channel count (%s)\n", _dl_snd_strerror (err));
+        return err;
     }
     // set audio buffer size to about 125ms
     buffer_size = (audio_sample_rate + 7) / 8;
     if((err = _dl_snd_pcm_hw_params_set_buffer_size_near(playback_handle, hw_params, &buffer_size)) < 0) {
-	printf("Unable to set buffer size %li for playback: %s\n", buffer_size, _dl_snd_strerror(err));
-	return err;
+        printf("Unable to set buffer size %li for playback: %s\n", buffer_size, _dl_snd_strerror(err));
+        return err;
     }
     if ((err = _dl_snd_pcm_hw_params (playback_handle, hw_params)) < 0) {
-	fprintf (stderr, "cannot set parameters (%s)\n", _dl_snd_strerror (err));
-	return err;
+        fprintf (stderr, "cannot set parameters (%s)\n", _dl_snd_strerror (err));
+        return err;
     }
     if((err = _dl_snd_pcm_hw_params_get_buffer_size(hw_params, &size)) < 0) {
-	printf("Unable to get buffer size for playback: %s\n", _dl_snd_strerror(err));
-	return err;
+        printf("Unable to get buffer size for playback: %s\n", _dl_snd_strerror(err));
+        return err;
     }
     buffer_size = size;
     return 0;
@@ -162,15 +162,15 @@ static int audio_set_sw_params(snd_pcm_sw_params_t *sw_params) {
     }
     if((err = _dl_snd_pcm_sw_params_get_boundary(sw_params, &boundary)) < 0) {
         fprintf(stderr, "unable to get ring pointer boundary for playback: %s\n", _dl_snd_strerror(err));
-	return err;
+        return err;
     }
     if((err = _dl_snd_pcm_sw_params_set_silence_size(playback_handle, sw_params, boundary)) < 0) {
-	fprintf(stderr, "Unable to set silence size playback: %s\n", _dl_snd_strerror(err));
-	return err;
+        fprintf(stderr, "Unable to set silence size playback: %s\n", _dl_snd_strerror(err));
+        return err;
     }
     if ((err = _dl_snd_pcm_sw_params (playback_handle, sw_params)) < 0) {
-	fprintf (stderr, "cannot set sw parameters (%s)\n", _dl_snd_strerror (err));
-	return err;
+        fprintf (stderr, "cannot set sw parameters (%s)\n", _dl_snd_strerror (err));
+        return err;
     }
 
     return 0;
@@ -179,14 +179,14 @@ static int audio_set_sw_params(snd_pcm_sw_params_t *sw_params) {
 static void *closer(void *) {
     pthread_mutex_lock(&closer_mutex);
     while (true) {
-	struct timespec when;
-	when.tv_sec = last_use.tv_sec + 5;
-	when.tv_nsec = last_use.tv_usec * 1000L;
-	struct timeval now;
-	gettimeofday(&now, NULL);
-	if (when.tv_sec < now.tv_sec || when.tv_sec == now.tv_sec && when.tv_nsec < now.tv_usec * 1000L)
-	    break;
-	pthread_cond_timedwait(&closer_cond, &closer_mutex, &when);
+        struct timespec when;
+        when.tv_sec = last_use.tv_sec + 5;
+        when.tv_nsec = last_use.tv_usec * 1000L;
+        struct timeval now;
+        gettimeofday(&now, NULL);
+        if (when.tv_sec < now.tv_sec || when.tv_sec == now.tv_sec && when.tv_nsec < now.tv_usec * 1000L)
+            break;
+        pthread_cond_timedwait(&closer_cond, &closer_mutex, &when);
     }
     _dl_snd_pcm_close(playback_handle);
     audio_initialized = false;
@@ -197,8 +197,8 @@ static void *closer(void *) {
 static bool open_libasound() {
     void *lib = dlopen(ALSALIB, RTLD_NOW);
     if (lib == NULL) {
-	fprintf(stderr, "Could not open " ALSALIB "\nusing gdk_beep() for BEEP and TONE.\n");
-	return false;
+        fprintf(stderr, "Could not open " ALSALIB "\nusing gdk_beep() for BEEP and TONE.\n");
+        return false;
     }
     _dl_snd_pcm_close = (_ptr_snd_pcm_close) dlsym(lib, "snd_pcm_close");
     _dl_snd_pcm_format_big_endian = (_ptr_snd_pcm_format_big_endian) dlsym(lib, "snd_pcm_format_big_endian");
@@ -229,7 +229,7 @@ static bool open_libasound() {
     _dl_snd_strerror = (_ptr_snd_strerror) dlsym(lib, "snd_strerror");
 
     if (dlerror() == NULL)
-	return true;
+        return true;
     fprintf(stderr, "Could not load all required symbols from " ALSALIB "\nusing gdk_beep() for BEEP and TONE.\n");
     dlclose(lib);
     return false;
@@ -237,37 +237,37 @@ static bool open_libasound() {
 
 static bool audio_init() {
     if (libasound_state == 0)
-	libasound_state = open_libasound() ? 1 : 2;
+        libasound_state = open_libasound() ? 1 : 2;
     if (libasound_state == 2)
-	return false;
+        return false;
 
     if (audio_initialized)
-	return true;
+        return true;
 
     int err;
 
     if ((err = _dl_snd_pcm_open(&playback_handle, audio_device, SND_PCM_STREAM_PLAYBACK, 0)) == 0) {
-	snd_pcm_hw_params_t *hw_params;
-	_dl_snd_pcm_hw_params_malloc(&hw_params);
-	err = audio_set_hw_params(hw_params);
-	_dl_snd_pcm_hw_params_free(hw_params);
-	if (err < 0) {
-	    _dl_snd_pcm_close(playback_handle);
-	    goto fail;
-	}
+        snd_pcm_hw_params_t *hw_params;
+        _dl_snd_pcm_hw_params_malloc(&hw_params);
+        err = audio_set_hw_params(hw_params);
+        _dl_snd_pcm_hw_params_free(hw_params);
+        if (err < 0) {
+            _dl_snd_pcm_close(playback_handle);
+            goto fail;
+        }
 
-	snd_pcm_sw_params_t *sw_params;
-	_dl_snd_pcm_sw_params_malloc(&sw_params);
-	err = audio_set_sw_params(sw_params);
-	_dl_snd_pcm_sw_params_free(sw_params);
-	if (err < 0) {
-	    _dl_snd_pcm_close(playback_handle);
-	    goto fail;
-	}
+        snd_pcm_sw_params_t *sw_params;
+        _dl_snd_pcm_sw_params_malloc(&sw_params);
+        err = audio_set_sw_params(sw_params);
+        _dl_snd_pcm_sw_params_free(sw_params);
+        if (err < 0) {
+            _dl_snd_pcm_close(playback_handle);
+            goto fail;
+        }
     } else {
-	fail:
-	fprintf (stderr, "cannot open audio device %s (%s)\n", audio_device, _dl_snd_strerror(err));
-	return false;
+        fail:
+        fprintf (stderr, "cannot open audio device %s (%s)\n", audio_device, _dl_snd_strerror(err));
+        return false;
     }
 
     audio_initialized = true;
@@ -279,19 +279,19 @@ static bool audio_init() {
 static int xrun_recovery(snd_pcm_t *handle, int err)
 {
     if (err == -EPIPE) {    /* under-run */
-	err = _dl_snd_pcm_prepare(handle);
-	if (err < 0)
-	    fprintf(stderr, "Can't recovery from underrun, prepare failed: %s\n", _dl_snd_strerror(err));
-	return 0;
+        err = _dl_snd_pcm_prepare(handle);
+        if (err < 0)
+            fprintf(stderr, "Can't recovery from underrun, prepare failed: %s\n", _dl_snd_strerror(err));
+        return 0;
     } else if (err == -ESTRPIPE) {
-	while ((err = _dl_snd_pcm_resume(handle)) == -EAGAIN)
-	    sleep(1);       /* wait until the suspend flag is released */
-	if (err < 0) {
-	    err = _dl_snd_pcm_prepare(handle);
-	    if (err < 0)
-		fprintf(stderr, "Can't recovery from suspend, prepare failed: %s\n", _dl_snd_strerror(err));
-	}
-	return 0;
+        while ((err = _dl_snd_pcm_resume(handle)) == -EAGAIN)
+            sleep(1);       /* wait until the suspend flag is released */
+        if (err < 0) {
+            err = _dl_snd_pcm_prepare(handle);
+            if (err < 0)
+                fprintf(stderr, "Can't recovery from suspend, prepare failed: %s\n", _dl_snd_strerror(err));
+        }
+        return 0;
     }
     return err;
 }
@@ -299,8 +299,8 @@ static int xrun_recovery(snd_pcm_t *handle, int err)
 bool alsa_beeper(int frequency, int duration) {
     pthread_mutex_lock(&closer_mutex);
     if(!audio_init()) {
-	pthread_mutex_unlock(&closer_mutex);
-	return false;
+        pthread_mutex_unlock(&closer_mutex);
+        return false;
     }
 
     /* roughly benchmark the function so that we can return only after the
@@ -321,55 +321,55 @@ bool alsa_beeper(int frequency, int duration) {
     bufferSize = numSamples * audio_channels * phys_bps;
     buffer = (char *)malloc(bufferSize);
     if(buffer != NULL) {
-	// generate a triangle waveform
-	p = buffer;
-	for(x = 0; x < numSamples; x++) {
-	    int res, i, chn;
-	    double v;
+        // generate a triangle waveform
+        p = buffer;
+        for(x = 0; x < numSamples; x++) {
+            int res, i, chn;
+            double v;
 
-	    v = fmod(((double) x) / audio_sample_rate * frequency, 1);
-	    if (v >= 0.75)
-		v -= 1;
-	    else if (v >= 0.25)
-		v = 0.5 - v;
-	    res = (int) (v * maxval);
-	    if (to_unsigned)
-		res ^= 1U << (format_bits - 1);
-	    for(chn = 0; chn < audio_channels; chn ++) {
-		if (big_endian) {
-		    for (i = 0; i < bps; i++)
-			*(p + phys_bps - 1 - i) = (res >> i * 8) & 0xff;
-		} else {
-		    for (i = 0; i < bps; i++)
-			*(p + i)  = (res >>  i * 8) & 0xff;
-		}
-		p += phys_bps;
-	    }
-	}
+            v = fmod(((double) x) / audio_sample_rate * frequency, 1);
+            if (v >= 0.75)
+                v -= 1;
+            else if (v >= 0.25)
+                v = 0.5 - v;
+            res = (int) (v * maxval);
+            if (to_unsigned)
+                res ^= 1U << (format_bits - 1);
+            for(chn = 0; chn < audio_channels; chn ++) {
+                if (big_endian) {
+                    for (i = 0; i < bps; i++)
+                        *(p + phys_bps - 1 - i) = (res >> i * 8) & 0xff;
+                } else {
+                    for (i = 0; i < bps; i++)
+                        *(p + i)  = (res >>  i * 8) & 0xff;
+                }
+                p += phys_bps;
+            }
+        }
 
-	/* play the waveform */
-	p = buffer;
-	while(numSamples > 0) {
-	    if((err = _dl_snd_pcm_writei (playback_handle, p, numSamples)) < 0) {
-		if(err == -EAGAIN) {
-		    continue;
-		}
-		if((err = xrun_recovery(playback_handle, err)) < 0) {
-		    fprintf (stderr, "write to audio interface failed (%s)\n", _dl_snd_strerror (err));
-		    break;
-		}
-	    }
-	    else {
-		numSamples -= err;
-		p += err * phys_bps * audio_channels;
-	    }
-	}
+        /* play the waveform */
+        p = buffer;
+        while(numSamples > 0) {
+            if((err = _dl_snd_pcm_writei (playback_handle, p, numSamples)) < 0) {
+                if(err == -EAGAIN) {
+                    continue;
+                }
+                if((err = xrun_recovery(playback_handle, err)) < 0) {
+                    fprintf (stderr, "write to audio interface failed (%s)\n", _dl_snd_strerror (err));
+                    break;
+                }
+            }
+            else {
+                numSamples -= err;
+                p += err * phys_bps * audio_channels;
+            }
+        }
 
-	free(buffer);
+        free(buffer);
 
-	gettimeofday(&end, NULL);
-	duration -= (int) TDIFF(begin, end);
-	if(duration > 0) usleep(duration * 1000);
+        gettimeofday(&end, NULL);
+        duration -= (int) TDIFF(begin, end);
+        if(duration > 0) usleep(duration * 1000);
     }
 
     gettimeofday(&last_use, NULL);
