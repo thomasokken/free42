@@ -49,6 +49,8 @@ Windows version:
   maybe that'll be fixed by dealing with the issue above.
 
 Mac version:
+* When you resize the print-out window, the bottom of the print-out doesn't get
+  updated, until you either print something or bouce the app.
 * Modify the file selection dialogs so they have a file type menu, and add
   extensions to file names automagically when appropriate.
 
