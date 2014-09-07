@@ -13,13 +13,11 @@ int main() {
         fprintf(stderr, "Can't open Info.plist\n");
         return 1;
     }
-    char version_string[100];
-    if (fscanf(versionfile, "%99s", version_string) != 1) {
+    char version[100];
+    if (fscanf(versionfile, "%99s", version) != 1) {
         fprintf(stderr, "Can't read version number\n");
         return 1;
     }
-    char version[100];
-    strcpy(version, version_string);
     int vlen = strlen(version);
     if (vlen == 0) {
         fprintf(stderr, "Version is empty\n");
@@ -31,6 +29,10 @@ int main() {
         char *p = version + vlen;
         sprintf(p, "%d", ((int) c) - 96);
     }
+    char short_version[100];
+    char *dot = strchr(version, '.');
+    strncpy(short_version, version, dot - version);
+    strcat(short_version, dot + 1);
     int state = 0;
     char line[1024], newline[1024];
     FILE *newinfoplistfile = fopen("Info.plist.new", "w");
@@ -57,7 +59,7 @@ int main() {
                 len = p - line;
                 memcpy(newline, line, len);
                 newline[len] = 0;
-                strcat(newline, state == 1 ? version : version_string);
+                strcat(newline, state == 1 ? version : short_version);
                 strcat(newline, p2);
                 strcpy(line, newline);
                 success |= state;
@@ -66,11 +68,10 @@ int main() {
         }
         fputs(line, newinfoplistfile);
     }
-    success = state == 3;
 done:
     fclose(infoplistfile);
     fclose(newinfoplistfile);
-    if (success) { 
+    if (success == 3) { 
         rename("Info.plist.new", "Info.plist");
         return 0;
     } else {
