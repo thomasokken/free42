@@ -13,11 +13,13 @@ int main() {
         fprintf(stderr, "Can't open Info.plist\n");
         return 1;
     }
-    char version[100];
-    if (fscanf(versionfile, "%99s", version) != 1) {
+    char version_string[100];
+    if (fscanf(versionfile, "%99s", version_string) != 1) {
         fprintf(stderr, "Can't read version number\n");
         return 1;
     }
+    char version[100];
+    strcpy(version, version_string);
     int vlen = strlen(version);
     if (vlen == 0) {
         fprintf(stderr, "Version is empty\n");
@@ -40,8 +42,11 @@ int main() {
             case 0:
                 if (strstr(line, "<key>CFBundleVersion</key>") != NULL)
                     state = 1;
+                else if (strstr(line, "<key>CFBundleShortVersionString</key>") != NULL)
+                    state = 2;
                 break;
             case 1:
+            case 2:
                 p = strstr(line, "<string>");
                 if (p == NULL)
                     goto done;
@@ -52,15 +57,16 @@ int main() {
                 len = p - line;
                 memcpy(newline, line, len);
                 newline[len] = 0;
-                strcat(newline, version);
+                strcat(newline, state == 1 ? version : version_string);
                 strcat(newline, p2);
                 strcpy(line, newline);
-                state = 2;
+                success |= state;
+                state = 0;
                 break;
         }
         fputs(line, newinfoplistfile);
     }
-    success = state == 2;
+    success = state == 3;
 done:
     fclose(infoplistfile);
     fclose(newinfoplistfile);
@@ -69,7 +75,7 @@ done:
         return 0;
     } else {
         remove("Info.plist.new");
-        fprintf(stderr, "Updating CFBundleVersion in Info.plist failed.\n");
+        fprintf(stderr, "Updating CFBundleVersion or CFBundleShortVersionString in Info.plist failed.\n");
         return 1;
     }
 }
