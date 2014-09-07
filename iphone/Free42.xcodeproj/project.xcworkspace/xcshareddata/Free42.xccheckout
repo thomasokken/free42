@@ -5,32 +5,32 @@
 	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
 	<false/>
 	<key>IDESourceControlProjectIdentifier</key>
-	<string>0447CC8E-1170-4770-866E-BA4A2553A191</string>
+	<string>3F8090FA-8211-4A5D-8DB2-EA57854FFDA2</string>
 	<key>IDESourceControlProjectName</key>
 	<string>Free42</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
-		<key>39BF577B-3643-41D1-BCE9-A1F1DA2FB27C</key>
-		<string>svn://macmini/free42/trunk</string>
+		<key>BC67B4B0-BA5C-4B37-99E0-59ECB6AAB31E</key>
+		<string>svn://air/free42/trunk</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
 	<string>iphone/Free42.xcodeproj/project.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
-		<key>39BF577B-3643-41D1-BCE9-A1F1DA2FB27C</key>
+		<key>BC67B4B0-BA5C-4B37-99E0-59ECB6AAB31E</key>
 		<string>../../..</string>
 	</dict>
 	<key>IDESourceControlProjectRepositoryRootDictionary</key>
 	<dict>
-		<key>39BF577B-3643-41D1-BCE9-A1F1DA2FB27C</key>
-		<string>svn://macmini</string>
+		<key>BC67B4B0-BA5C-4B37-99E0-59ECB6AAB31E</key>
+		<string>svn://air</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>svn://macmini/free42/trunk/iphone/Free42.xcodeproj</string>
+	<string>svn://air/free42/trunk/iphone/Free42.xcodeproj</string>
 	<key>IDESourceControlProjectVersion</key>
 	<integer>110</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>39BF577B-3643-41D1-BCE9-A1F1DA2FB27C</string>
+	<string>BC67B4B0-BA5C-4B37-99E0-59ECB6AAB31E</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
@@ -43,7 +43,7 @@
 			<key>IDESourceControlRepositoryTrunkRelativeLocationKey</key>
 			<string>free42/trunk</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>39BF577B-3643-41D1-BCE9-A1F1DA2FB27C</string>
+			<string>BC67B4B0-BA5C-4B37-99E0-59ECB6AAB31E</string>
 			<key>IDESourceControlWCCName</key>
 			<string>free42</string>
 		</dict>
