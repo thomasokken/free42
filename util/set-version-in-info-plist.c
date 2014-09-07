@@ -29,6 +29,10 @@ int main() {
         char *p = version + vlen;
         sprintf(p, "%d", ((int) c) - 96);
     }
+    char short_version[100];
+    char *dot = strchr(version, '.');
+    strncpy(short_version, version, dot - version);
+    strcat(short_version, dot + 1);
     int state = 0;
     char line[1024], newline[1024];
     FILE *newinfoplistfile = fopen("Info.plist.new", "w");
@@ -40,8 +44,11 @@ int main() {
             case 0:
                 if (strstr(line, "<key>CFBundleVersion</key>") != NULL)
                     state = 1;
+                else if (strstr(line, "<key>CFBundleShortVersionString</key>") != NULL)
+                    state = 2;
                 break;
             case 1:
+            case 2:
                 p = strstr(line, "<string>");
                 if (p == NULL)
                     goto done;
@@ -52,24 +59,24 @@ int main() {
                 len = p - line;
                 memcpy(newline, line, len);
                 newline[len] = 0;
-                strcat(newline, version);
+                strcat(newline, state == 1 ? version : short_version);
                 strcat(newline, p2);
                 strcpy(line, newline);
-                state = 2;
+                success |= state;
+                state = 0;
                 break;
         }
         fputs(line, newinfoplistfile);
     }
-    success = state == 2;
 done:
     fclose(infoplistfile);
     fclose(newinfoplistfile);
-    if (success) { 
+    if (success == 3) { 
         rename("Info.plist.new", "Info.plist");
         return 0;
     } else {
         remove("Info.plist.new");
-        fprintf(stderr, "Updating CFBundleVersion in Info.plist failed.\n");
+        fprintf(stderr, "Updating CFBundleVersion or CFBundleShortVersionString in Info.plist failed.\n");
         return 1;
     }
 }
