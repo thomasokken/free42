@@ -1572,7 +1572,7 @@ static int open_item(const char *url, void **ptr, int *type, int *filesize, cons
             goto return_404;
         pthread_mutex_lock(&shell_mutex);
         export_buf_reset();
-        core_export_programs(1, &idx, NULL);
+        export_programs(1, &idx, my_shell_write);
         if (export_tb.size == 0) {
             export_buf_reset();
             pthread_mutex_unlock(&shell_mutex);

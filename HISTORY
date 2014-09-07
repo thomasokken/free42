@@ -1,3 +1,8 @@
+??-??-????: release 1.5.4b (iPhone only)
+
+* Fixed downloading individual programs from the HTTP interface. This got
+  broken in release 1.4.77, while implementing local file download.
+
 06-09-2014: release 1.5.4a (iPhone only)
 
 * Fixed keyboard handling in the Preferences and Select File dialogs.
