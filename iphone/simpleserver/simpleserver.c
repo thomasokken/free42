@@ -1156,7 +1156,7 @@ void do_post(int csock, const char *url) {
                                             tbwrite(&import_tb, buf, n);
                                         import_tb.capacity = 0;
                                         // TODO -- error message on failure
-                                        core_import_programs(NULL);
+                                        import_programs(my_shell_read);
                                         if (import_tb.buf != NULL)
                                             free(import_tb.buf);
                                         pthread_mutex_unlock(&shell_mutex);

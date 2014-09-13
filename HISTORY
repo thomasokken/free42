@@ -1,7 +1,10 @@
-??-??-????: release 1.5.4b (iPhone only)
+??-??-????: release 1.5.4b (iPhone and Android)
 
-* Fixed downloading individual programs from the HTTP interface. This got
-  broken in release 1.4.77, while implementing local file download.
+* iPhone version: HTTP server: Fixed downloading individual programs from, and
+  uploading zip files of programs to, the /memory directory. This got broken in
+  release 1.4.77, while implementing local file download.
+* Android version: printing to text would truncate the file whenever it was
+  reopened, opening it for writing rather than appending. Fixed.
 
 06-09-2014: release 1.5.4a (iPhone only)
 
