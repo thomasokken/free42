@@ -6,6 +6,11 @@
 * Android version: printing to text would truncate the file whenever it was
   reopened, opening it for writing rather than appending. Fixed.
 
+23-09-2014: (no new code release)
+
+* Added nova1_1096 skin, for iPhone 5, to the Free42iPhoneSkins package.
+  Contributed by Andrew Novinc.
+
 06-09-2014: release 1.5.4a (iPhone only)
 
 * Fixed keyboard handling in the Preferences and Select File dialogs.
