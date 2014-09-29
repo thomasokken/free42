@@ -1,4 +1,9 @@
 Android version:
+* Sometimes, the app saves the state file after reinitialize_globals(). How is
+  this possible, and how to prevent it? N.B. This is one cause, and quite
+  possibly the only one, of the native-code crash in vartype2string() called
+  from display_y(); it's dereferencing reg_y while it is NULL, leading to a
+  segmentation fault.
 * Sometimes, with some skins, a one-pixel horizontal line appears above the
   display. Off-by-one error in the blitting call?
 * The key click is flaky on some devices. Why?
