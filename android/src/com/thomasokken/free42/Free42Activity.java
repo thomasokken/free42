@@ -141,7 +141,7 @@ public class Free42Activity extends Activity {
 
     private boolean keyClicksEnabled = true;
     private boolean keyVibrationEnabled = false;
-    private int preferredOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
+    private int preferredOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
     
     private final Runnable repeaterCaller = new Runnable() { public void run() { repeater(); } };
     private final Runnable timeout1Caller = new Runnable() { public void run() { timeout1(); } };
@@ -1063,7 +1063,7 @@ public class Free42Activity extends Activity {
             if (shell_version >= 5)
                 preferredOrientation = state_read_int();
             else
-                preferredOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
+                preferredOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
             if (shell_version >= 6) {
                 skinSmoothing[0] = state_read_boolean();
                 displaySmoothing[0] = state_read_boolean();
@@ -1104,7 +1104,7 @@ public class Free42Activity extends Activity {
             keyClicksEnabled = true;
             // fall through
         case 4:
-            preferredOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
+            preferredOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
             // fall through
         case 5:
             skinSmoothing[0] = true;

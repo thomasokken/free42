@@ -171,7 +171,7 @@ public class PreferencesDialog extends Dialog {
             case ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE:
                 orientation = 2;
                 break;
-            case ActivityInfo.SCREEN_ORIENTATION_SENSOR:
+            case ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED:
             default:
                 orientation = 0;
                 break;
@@ -184,7 +184,7 @@ public class PreferencesDialog extends Dialog {
         switch (orientation) {
             case 1: return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
             case 2: return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-            case 0: default: return ActivityInfo.SCREEN_ORIENTATION_SENSOR;
+            case 0: default: return ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
         }
     }
     
