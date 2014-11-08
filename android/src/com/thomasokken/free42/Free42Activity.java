@@ -26,8 +26,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
 import java.nio.IntBuffer;
 import java.util.Date;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -206,7 +208,7 @@ public class Free42Activity extends Activity {
             }
         }
 
-        nativeInit(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
+        nativeInit();
         core_init(init_mode, version.value);
         if (stateFileInputStream != null) {
             try {
@@ -1345,7 +1347,7 @@ public class Free42Activity extends Activity {
     ///// Stubs for shell->core interface /////
     ///////////////////////////////////////////
     
-    private native void nativeInit(boolean lollipop);
+    private native void nativeInit();
     private native void core_keydown_finish();
     
     private native void core_init(int read_state, int version);

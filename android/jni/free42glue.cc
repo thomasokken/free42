@@ -71,10 +71,7 @@ Java_com_thomasokken_free42_Free42Activity_nativeInit(JNIEnv *env, jobject thiz,
      * Java methods. The JNIEnv pointer is thread-local, so I don't cache it;
      * use the getJniEnv() function, defined below, to retrieve it when needed.
      */
-    if (lollipop)
-        g_activity = env->NewGlobalRef(thiz);
-    else
-        g_activity = thiz;
+    g_activity = env->NewGlobalRef(thiz);
     env->GetJavaVM(&vm);
 }
 
