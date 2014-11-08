@@ -66,12 +66,15 @@ static jobject g_activity;
 static JavaVM *vm;
 
 extern "C" void
-Java_com_thomasokken_free42_Free42Activity_nativeInit(JNIEnv *env, jobject thiz) {
+Java_com_thomasokken_free42_Free42Activity_nativeInit(JNIEnv *env, jobject thiz, jboolean lollipop) {
     /* I'm hanging on to the Free42Activity pointer so I can use it to call
      * Java methods. The JNIEnv pointer is thread-local, so I don't cache it;
      * use the getJniEnv() function, defined below, to retrieve it when needed.
      */
-    g_activity = env->NewGlobalRef(thiz);
+    if (lollipop)
+        g_activity = env->NewGlobalRef(thiz);
+    else
+        g_activity = thiz;
     env->GetJavaVM(&vm);
 }
 

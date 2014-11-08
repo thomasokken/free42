@@ -53,6 +53,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -205,7 +206,7 @@ public class Free42Activity extends Activity {
             }
         }
 
-        nativeInit();
+        nativeInit(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
         core_init(init_mode, version.value);
         if (stateFileInputStream != null) {
             try {
@@ -1344,7 +1345,7 @@ public class Free42Activity extends Activity {
     ///// Stubs for shell->core interface /////
     ///////////////////////////////////////////
     
-    private native void nativeInit();
+    private native void nativeInit(boolean lollipop);
     private native void core_keydown_finish();
     
     private native void core_init(int read_state, int version);
