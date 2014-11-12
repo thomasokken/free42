@@ -14,7 +14,7 @@
 		<string>svn://air/free42/trunk</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>iphone/Free42.xcodeproj/project.xcworkspace</string>
+	<string>iphone/Free42.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>96669c20-d509-4c9b-8ce2-72ad0d363326++4407</key>
@@ -26,7 +26,7 @@
 		<string>svn://air</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>svn://air/free42/trunk/iphone/Free42.xcodeproj/project.xcworkspace</string>
+	<string>svn://air/free42/trunk/iphone/Free42.xcodeproj</string>
 	<key>IDESourceControlProjectVersion</key>
 	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
@@ -34,14 +34,8 @@
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
-			<key>IDESourceControlRepositoryBranchesRelativeLocationKey</key>
-			<string>free42/branches</string>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.subversion</string>
-			<key>IDESourceControlRepositoryTagsRelativeLocationKey</key>
-			<string>free42/tags</string>
-			<key>IDESourceControlRepositoryTrunkRelativeLocationKey</key>
-			<string>free42/trunk</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
 			<string>96669c20-d509-4c9b-8ce2-72ad0d363326++4407</string>
 			<key>IDESourceControlWCCName</key>
