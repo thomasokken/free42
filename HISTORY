@@ -1,5 +1,7 @@
-??-??-????: release 1.5.4b (iPhone only)
+12-11-2014: release 1.5.5
 
+* Decimal version: entering a number with an empty exponent (e.g. 1E or 1E-)
+  would yield <Not a Number>. Fixed.
 * iPhone version: HTTP server: Fixed downloading individual programs from, and
   uploading zip files of programs to, the /memory directory. This got broken in
   release 1.4.77, while implementing local file download.

@@ -115,6 +115,7 @@ int string2phloat(const char *buf, int buflen, phloat *d) {
     int buflen2 = 0;
     char sep = flags.f.decimal_point ? ',' : '.';
     int mantdigits = 0;
+    int expdigits = 0;
     bool in_mant = true;
     bool zero = true;
     for (int i = 0; i < buflen; i++) {
@@ -126,11 +127,15 @@ int string2phloat(const char *buf, int buflen, phloat *d) {
         else if (c == 24) {
             c = 'E';
             in_mant = false;
-        } else if (in_mant && c >= '0' && c <= '9') {
-            if (++mantdigits > 12)
-                return 5;
-            if (c != '0')
-                zero = false;
+        } else if (c >= '0' && c <= '9') {
+            if (in_mant) {
+                if (++mantdigits > 12)
+                    return 5;
+                if (c != '0')
+                    zero = false;
+            } else {
+                expdigits++;
+            }
         }
         buf2[buflen2++] = c;
     }
@@ -146,6 +151,9 @@ int string2phloat(const char *buf, int buflen, phloat *d) {
         buf2[0] = '1';
         buflen2++;
     }
+
+    if (!in_mant && expdigits == 0)
+        buf2[buflen2++] = '0';
 
     buf2[buflen2] = 0;
     BID_UINT128 b;
