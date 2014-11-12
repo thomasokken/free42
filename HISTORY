@@ -5,6 +5,8 @@
 * iPhone version: HTTP server: Fixed downloading individual programs from, and
   uploading zip files of programs to, the /memory directory. This got broken in
   release 1.4.77, while implementing local file download.
+* Android version: when the screen orientation was set to "automatic", it would
+  not honor any system-wide orientation lock. Fixed.
 
 08-11-2014: release 1.5.4a (Android only)
 
