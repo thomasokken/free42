@@ -128,9 +128,9 @@ static bool is_file(const char *name);
     [self performSelectorInBackground:@selector(runner) withObject:NULL];
 }
 
-- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+- (void)applicationWillFinishLaunching:(NSNotification *)aNotification {
     instance = self;
-
+    
     /****************************/
     /***** Create sound IDs *****/
     /****************************/
@@ -143,7 +143,7 @@ static bool is_file(const char *name);
         if (status)
             NSLog(@"error loading sound:  %@", name);
     }
-        
+    
     
     /********************************************************************************/
     /***** Try to create the $HOME/Library/Application Support/Free42 directory *****/
@@ -190,7 +190,7 @@ static bool is_file(const char *name);
     /******************************/
     /***** Read the print-out *****/
     /******************************/
-
+    
     print_bitmap = (unsigned char *) malloc(PRINT_SIZE);
     // TODO - handle memory allocation failure
     
@@ -210,6 +210,9 @@ static bool is_file(const char *name);
     printout_top = 0;
     for (int n = printout_bottom * PRINT_BYTESPERLINE; n < PRINT_SIZE; n++)
         print_bitmap[n] = 0;
+}
+
+- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     
     /***********************************************************/
     /***** Open the state file and read the shell settings *****/
@@ -217,7 +220,7 @@ static bool is_file(const char *name);
     
     int4 version;
     int init_mode;
-    if (free42dir_exists)
+    if (statefilename[0] != 0)
         statefile = fopen(statefilename, "r");
     else
         statefile = NULL;
