@@ -27,6 +27,8 @@ import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.nio.IntBuffer;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.Date;
 
 import android.app.Activity;
@@ -1571,6 +1573,19 @@ public class Free42Activity extends Activity {
     public double shell_random_seed() {
         long t = new Date().getTime();
         return (t % 1000000000) / 1000000000d;
+    }
+    
+    /**
+     * shell_decimal_point()/* shell_decimal_point()
+	 * Returns 1 if the host environment's locale uses a dot as the decimal
+	 * separator, and 0 if it uses comma. The core_copy() and core_paste()
+	 * functions use this information to format and interpret numbers per the
+	 * current locale.
+     */
+    public int shell_decimal_point() {
+    	DecimalFormat df = new DecimalFormat();
+    	DecimalFormatSymbols dfsym = df.getDecimalFormatSymbols();
+    	return dfsym.getDecimalSeparator() == ',' ? 0 : 1;
     }
     
     private OutputStream printTxtStream;

@@ -470,6 +470,17 @@ uint4 shell_milliseconds() {
     return (uint4) (tv.tv_sec * 1000L + tv.tv_usec / 1000);
 }
 
+int shell_decimal_point() {
+    Tracer T("shell_decimal_point");
+    JNIEnv *env = getJniEnv();
+    jclass klass = env->GetObjectClass(g_activity);
+    jmethodID mid = env->GetMethodID(klass, "shell_decimal_point", "()I");
+    unsigned int ret = env->CallIntMethod(g_activity, mid);
+    // Delete local references
+    env->DeleteLocalRef(klass);
+    return ret;
+}
+
 void shell_print(const char *text, int length,
                  const char *bits, int bytesperline,
                  int x, int y, int width, int height) {
