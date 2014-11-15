@@ -21,6 +21,7 @@
 #include <gdk/gdkkeysyms.h>
 #include <gdk/gdkx.h>
 #include <errno.h>
+#include <locale.h>
 #include <pwd.h>
 #include <signal.h>
 #include <stdio.h>
@@ -2067,6 +2068,11 @@ uint4 shell_milliseconds() {
     struct timeval tv;               
     gettimeofday(&tv, NULL);
     return (uint4) (tv.tv_sec * 1000L + tv.tv_usec / 1000);
+}
+
+int shell_decimal_point() {
+    struct lconv *loc = localeconv();
+    return loc->decimal_point[0] == ',' ? 0 : 1;
 }
 
 struct print_growth_info {
