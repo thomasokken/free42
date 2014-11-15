@@ -2612,7 +2612,7 @@ void hard_reset(int bad_state_file) {
     flags.f.error_ignore = 0;
     flags.f.audio_enable = 1;
     /* flags.f.VIRTUAL_custom_menu = 0; */
-    flags.f.decimal_point = 1;
+    flags.f.decimal_point = shell_decimal_point(); // HP-42S sets this to 1 on hard reset
     flags.f.thousands_separators = 1;
     flags.f.stack_lift_disable = 0;
     flags.f.f31 = flags.f.f32 = flags.f.f33 = 0;
