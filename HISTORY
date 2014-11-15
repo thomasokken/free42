@@ -1,3 +1,11 @@
+??-??-????: release 1.5.6
+
+* iPhone version: implemented Copy and Paste.
+* In all versions, fixed Copy and Paste so that they conform the the host
+  environment's setting for decimal point or comma. Number representation
+  within Free42 is still controlled by flags 28 and 29, but the decimal and
+  thousands separators are now converted according to the system's locale.
+
 12-11-2014: release 1.5.5
 
 * Decimal version: entering a number with an empty exponent (e.g. 1E or 1E-)

@@ -164,7 +164,7 @@ static CalcView *calcView = nil;
     UIActionSheet *menu =
     [[UIActionSheet alloc] initWithTitle:@"Main Menu"
                                 delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil
-                       otherButtonTitles:@"Show Print-Out", @"Program Import & Export", @"Preferences", @"Select Skin", @"About Free42", nil, nil];
+                       otherButtonTitles:@"Show Print-Out", @"Program Import & Export", @"Preferences", @"Select Skin", @"Copy", @"Paste", @"About Free42", nil];
     
     [menu showInView:self];
     [menu release];
@@ -174,7 +174,7 @@ static CalcView *calcView = nil;
     UIActionSheet *menu =
     [[UIActionSheet alloc] initWithTitle:@"Import & Export Menu"
                                 delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil
-                       otherButtonTitles:@"HTTP Server", @"Import Programs", @"Export Programs", @"Back", nil, nil, nil];
+                       otherButtonTitles:@"HTTP Server", @"Import Programs", @"Export Programs", @"Back", nil];
     
     [menu showInView:self];
     [menu release];
@@ -200,10 +200,18 @@ static CalcView *calcView = nil;
                 [Free42AppDelegate showSelectSkin];
                 break;
             case 4:
+                // Copy
+                [self doCopy];
+                break;
+            case 5:
+                // Paste
+                [self doPaste];
+                break;
+            case 6:
                 // About Free42
                 [Free42AppDelegate showAbout];
                 break;
-            case 5:
+            case 7:
                 // Cancel
                 break;
         }
@@ -349,6 +357,23 @@ static CalcView *calcView = nil;
     keep_running = core_powercycle();
     if (keep_running)
         [calcView startRunner];
+}
+
+- (void) doCopy {
+    char buf[100];
+    core_copy(buf, 100);
+    NSString *txt = [NSString stringWithCString:buf encoding:NSUTF8StringEncoding];
+    UIPasteboard *pb = [UIPasteboard generalPasteboard];
+    [pb setString:txt];
+}
+
+- (void) doPaste {
+    UIPasteboard *pb = [UIPasteboard generalPasteboard];
+    NSString *txt = [pb string];
+    char buf[100];
+    [txt getCString:buf maxLength:100 encoding:NSUTF8StringEncoding];
+    core_paste(buf);
+    redisplay();
 }
 
 - (void) startRunner {
@@ -842,6 +867,10 @@ unsigned int shell_milliseconds() {
     struct timeval tv;
     gettimeofday(&tv, NULL);
     return (unsigned int) (tv.tv_sec * 1000L + tv.tv_usec / 1000);
+}
+
+int shell_decimal_point() {
+    return ![[[NSLocale currentLocale] objectForKey:NSLocaleDecimalSeparator] isEqualToString:@","];
 }
 
 void shell_get_time_date(uint4 *time, uint4 *date, int *weekday) {

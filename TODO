@@ -24,7 +24,6 @@ iPhone version:
 * Add option to disable key click.
 * Haptic feedback option.
 * Implement pop-up keyboard for ALPHA mode text entry.
-* Implement copy & paste.
 * Implement URL decoding for HTTP requests (filenames with spaces, etc.)
 * Support iPad, and iPad mini (screen size issues, and take advantage of big
   screens to show the calculator and print-out side-by-side).

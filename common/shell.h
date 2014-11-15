@@ -153,6 +153,14 @@ double shell_random_seed();
  */
 uint4 shell_milliseconds();
 
+/* shell_decimal_point()
+ * Returns 1 if the host environment's locale uses a dot as the decimal
+ * separator, and 0 if it uses comma. The core_copy() and core_paste()
+ * functions use this information to format and interpret numbers per the
+ * current locale.
+ */
+int shell_decimal_point();
+
 /* shell_print()
  * Printer emulation. The first 2 parameters are the plain text version of the
  * data to be printed; the remaining 6 parameters are the bitmap version. The

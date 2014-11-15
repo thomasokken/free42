@@ -1004,6 +1004,10 @@ uint4 shell_milliseconds() {
     return (uint4) (tv.tv_sec * 1000L + tv.tv_usec / 1000);
 }
 
+int shell_decimal_point() {
+    return ![[[NSLocale currentLocale] objectForKey:NSLocaleDecimalSeparator] isEqualToString:@","];
+}
+
 void shell_get_time_date(uint4 *time, uint4 *date, int *weekday) {
     struct timeval tv;
     gettimeofday(&tv, NULL);

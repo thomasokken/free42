@@ -1970,11 +1970,17 @@ void core_import_programs(int (*progress_report)(const char *)) {
 void core_copy(char *buf, int buflen) {
     int len = vartype2string(reg_x, buf, buflen - 1);
     buf[len] = 0;
+    bool comma_dot_swap = shell_decimal_point() != flags.f.decimal_point;
     if (reg_x->type == TYPE_REAL || reg_x->type == TYPE_COMPLEX) {
         /* Convert small-caps 'E' to regular 'e' */
         while (--len >= 0)
             if (buf[len] == 24)
                 buf[len] = 'e';
+            else if (comma_dot_swap)
+                if (buf[len] == ',')
+                    buf[len] = '.';
+                else if (buf[len] == '.')
+                    buf[len] = ',';
     }
 }
 
@@ -2026,10 +2032,32 @@ static bool parse_phloat(const char *p, int len, phloat *res) {
         return false;
 }
 
-void core_paste(const char *buf) {
+void core_paste(const char *sbuf) {
     phloat re, im;
     int i, s1, e1, s2, e2;
     vartype *v;
+    const char *buf;
+
+    if (shell_decimal_point() != flags.f.decimal_point) {
+        const char *p = sbuf;
+        int sz = 0;
+        while (*p++ != 0)
+            sz++;
+        char *locbuf = (char *) malloc(sz + 1);
+        const char *src = sbuf;
+        char *dst = locbuf;
+        char c;
+        do {
+            c = *src++;
+            if (c == '.')
+                c = ',';
+            else if (c == ',')
+                c = '.';
+            *dst++ = c;
+        } while (c != 0);
+        buf = locbuf;
+    } else
+        buf = sbuf;
 
     int base = get_base();
     if (base != 10) {
@@ -2195,6 +2223,8 @@ void core_paste(const char *buf) {
     }
 
     paste:
+    if (buf != sbuf)
+        free((void *) buf);
     if (v == NULL) {
         squeak();
         return;

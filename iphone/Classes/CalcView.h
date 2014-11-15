@@ -45,6 +45,8 @@ extern state_type state;
 + (void) quit;
 + (void) enterBackground;
 + (void) leaveBackground;
+- (void) doCopy;
+- (void) doPaste;
 - (void) setTimeout:(int) which;
 - (void) cancelTimeout3;
 - (void) setRepeater:(int) delay;
