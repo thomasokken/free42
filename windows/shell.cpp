@@ -1892,6 +1892,12 @@ uint4 shell_milliseconds() {
     return GetTickCount();
 }
 
+int shell_decimal_point() {
+    TCHAR buf[4];
+    GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, buf, 4);
+    return buf[0] == ',' ? 0 : 1;
+}
+
 void shell_get_time_date(uint4 *time, uint4 *date, int *weekday) {
     SYSTEMTIME st;
     GetLocalTime(&st);
