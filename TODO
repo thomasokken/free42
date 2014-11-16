@@ -57,6 +57,11 @@ Mac version:
   updated, until you either print something or bouce the app.
 * Modify the file selection dialogs so they have a file type menu, and add
   extensions to file names automagically when appropriate.
+* Implement low-battery checker.
+
+Linux version:
+* Update low-battery checker to work with /proc/acpi/battery and
+  /sys/class/power_supply.
 
 All versions:
 * When a "State File Corrupt" occurs, make a copy of the unloved state file,
@@ -74,6 +79,10 @@ All versions:
   (startTime - shell_milliseconds()) and assume the nearest likely alternative,
   a la Y2K.
 * Display "decimal" or "binary" in the About box, with the version number.
+* Copy and paste should perform number-to-string and string-to-number using
+  locale-sensitive conversions. Also, look into nice stuff like copying and
+  pasting raw numbers (i.e. avoiding the string conversions when possible),
+  complex numbers, and matrices.
 
 The "Wouldn't It Be Nice" Department:
 * Add a feature for importing and exporting variables from and to CSV files.

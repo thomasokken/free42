@@ -1576,27 +1576,15 @@ public class Free42Activity extends Activity {
     }
     
     /**
-     * shell_numeric_format()
-     * Returns an integer from 0 to 3, which should be interpreted as a two-bit
-     * binary number, as follows:
-     * bit 0 = 0 : decimal separator is comma
-     * bit 0 = 1 : decimal separator is dot
-     * bit 1 = 0 : do not use thousands separators
-     * bit 1 = 1 : do use thousands separators
-     * This number will be used to set the initial values of flags 28 and 29 on
-     * hard_reset(), i.e., when the state file does not yet exist, or is corrupt.
-     * These bits are determined as follows:
-     * bit 0 = locale.decimal != ',' &amp;&amp; locale.thousands != '.'
-     * bit 1 = locale.thousands == '.' || locale.thousands == ','
+     * shell_decimal_point()
+     * Returns 0 if the host's locale uses comma as the decimal separator;
+     * returns 1 if it uses dot or anything else.
+     * Used to initialize flag 28 on hard reset.
      */
-    public int shell_numeric_format() {
+    public int shell_decimal_point() {
         DecimalFormat df = new DecimalFormat();
         DecimalFormatSymbols dfsym = df.getDecimalFormatSymbols();
-        char dec = dfsym.getDecimalSeparator();
-        char thou = dfsym.getGroupingSeparator();
-        boolean f28 = dec != ',' && thou != '.';
-        boolean f29 = thou == '.' || thou == ',';
-        return (f28 ? 1 : 0) | (f29 ? 2 : 0);
+        return dfsym.getDecimalSeparator() == ',' ? 0 : 1;
     }
     
     private OutputStream printTxtStream;

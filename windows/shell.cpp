@@ -1892,13 +1892,10 @@ uint4 shell_milliseconds() {
     return GetTickCount();
 }
 
-int shell_numeric_format() {
-    TCHAR dec[4], thou[4];
+int shell_decimal_point() {
+    TCHAR dec[4];
     GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, dec, 4);
-    GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_STHOUSAND, thou, 4);
-    int f28 = strcmp(dec, ",") != 0 && strcmp(thou, ".") != 0;
-    int f29 = strcmp(thou, ".") == 0 || strcmp(thou, ",") == 0;
-    return f28 | f29 << 1;
+    return strcmp(dec, ",") == 0 ? 0 : 1;
 }
 
 void shell_get_time_date(uint4 *time, uint4 *date, int *weekday) {
