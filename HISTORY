@@ -1,10 +1,8 @@
 ??-??-????: release 1.5.6
 
 * iPhone version: implemented Copy and Paste.
-* In all versions, fixed Copy and Paste so that they conform the the host
-  environment's setting for decimal point or comma. Number representation
-  within Free42 is still controlled by flags 28 and 29, but the decimal and
-  thousands separators are now converted according to the system's locale.
+* In all versions, on hard reset, now initializing flags 28 and 29 (decimal
+  point/comma and thousands separators on/off) to match the host's locale.
 
 12-11-2014: release 1.5.5
 

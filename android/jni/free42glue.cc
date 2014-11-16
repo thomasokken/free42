@@ -470,11 +470,11 @@ uint4 shell_milliseconds() {
     return (uint4) (tv.tv_sec * 1000L + tv.tv_usec / 1000);
 }
 
-int shell_decimal_point() {
-    Tracer T("shell_decimal_point");
+int shell_numeric_format() {
+    Tracer T("shell_numeric_format");
     JNIEnv *env = getJniEnv();
     jclass klass = env->GetObjectClass(g_activity);
-    jmethodID mid = env->GetMethodID(klass, "shell_decimal_point", "()I");
+    jmethodID mid = env->GetMethodID(klass, "shell_numeric_format", "()I");
     unsigned int ret = env->CallIntMethod(g_activity, mid);
     // Delete local references
     env->DeleteLocalRef(klass);

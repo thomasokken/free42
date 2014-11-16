@@ -153,13 +153,20 @@ double shell_random_seed();
  */
 uint4 shell_milliseconds();
 
-/* shell_decimal_point()
- * Returns 1 if the host environment's locale uses a dot as the decimal
- * separator, and 0 if it uses comma. The core_copy() and core_paste()
- * functions use this information to format and interpret numbers per the
- * current locale.
+/* shell_numeric_format()
+ * Returns an integer from 0 to 3, which should be interpreted as a two-bit
+ * binary number, as follows:
+ * bit 0 = 0 : decimal separator is comma
+ * bit 0 = 1 : decimal separator is dot
+ * bit 1 = 0 : do not use thousands separators
+ * bit 1 = 1 : do use thousands separators
+ * This number will be used to set the initial values of flags 28 and 29 on
+ * hard_reset(), i.e., when the state file does not yet exist, or is corrupt.
+ * These bits are determined as follows:
+ * bit 0 = locale.decimal != ',' && locale.thousands != '.'
+ * bit 1 = locale.thousands == '.' || locale.thousands == ','
  */
-int shell_decimal_point();
+int shell_numeric_format();
 
 /* shell_print()
  * Printer emulation. The first 2 parameters are the plain text version of the

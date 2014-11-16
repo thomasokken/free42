@@ -2070,9 +2070,11 @@ uint4 shell_milliseconds() {
     return (uint4) (tv.tv_sec * 1000L + tv.tv_usec / 1000);
 }
 
-int shell_decimal_point() {
+int shell_numeric_format() {
     struct lconv *loc = localeconv();
-    return loc->decimal_point[0] == ',' ? 0 : 1;
+    int f28 = strcmp(loc->decimal_point, ",") != 0 && strcmp(loc->thousands_sep, ".") != 0;
+    int f29 = strcmp(loc->thousands_sep, ".") == 0 || strcmp(loc->thousands_sep, ",") == 0;
+    return f28 | f29 << 1;
 }
 
 struct print_growth_info {

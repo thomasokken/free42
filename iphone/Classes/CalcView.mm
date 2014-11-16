@@ -843,12 +843,6 @@ unsigned int shell_get_mem() {
     return memsize;
 }
 
-int shell_low_battery() {
-    TRACE("shell_low_battery");
-    // TODO
-    return 0;
-}
-
 void shell_powerdown() {
     TRACE("shell_powerdown");
     quit_flag = 1;
@@ -869,8 +863,13 @@ unsigned int shell_milliseconds() {
     return (unsigned int) (tv.tv_sec * 1000L + tv.tv_usec / 1000);
 }
 
-int shell_decimal_point() {
-    return ![[[NSLocale currentLocale] objectForKey:NSLocaleDecimalSeparator] isEqualToString:@","];
+int shell_numeric_format() {
+    NSLocale *loc = [NSLocale currentLocale];
+    NSString *dec = [loc objectForKey:NSLocaleDecimalSeparator];
+    NSString *thou = [loc objectForKey:NSLocaleGroupingSeparator];
+    int f28 = ![dec isEqualToString:@","] && ![thou isEqualToString:@"."];
+    int f29 = [thou isEqualToString:@"."] || [thou isEqualToString:@","];
+    return f28 | f29 << 1;
 }
 
 void shell_get_time_date(uint4 *time, uint4 *date, int *weekday) {

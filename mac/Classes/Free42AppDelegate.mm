@@ -1004,8 +1004,13 @@ uint4 shell_milliseconds() {
     return (uint4) (tv.tv_sec * 1000L + tv.tv_usec / 1000);
 }
 
-int shell_decimal_point() {
-    return ![[[NSLocale currentLocale] objectForKey:NSLocaleDecimalSeparator] isEqualToString:@","];
+int shell_numeric_format() {
+    NSLocale *loc = [NSLocale currentLocale];
+    NSString *dec = [loc objectForKey:NSLocaleDecimalSeparator];
+    NSString *thou = [loc objectForKey:NSLocaleGroupingSeparator];
+    int f28 = ![dec isEqualToString:@","] && ![thou isEqualToString:@"."];
+    int f29 = [thou isEqualToString:@"."] || [thou isEqualToString:@","];
+    return f28 | f29 << 1;
 }
 
 void shell_get_time_date(uint4 *time, uint4 *date, int *weekday) {

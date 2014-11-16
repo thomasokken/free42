@@ -26,6 +26,8 @@
 #import "AboutView.h"
 #import "SelectFileView.h"
 #import "Free42AppDelegate.h"
+#import "shell.h"
+#import "shell_skin_iphone.h"
 #import "core_main.h"
 
 static SystemSoundID soundIDs[11];
@@ -79,6 +81,9 @@ static char version[32] = "";
     calcView.frame = bounds;
     [window addSubview:calcView];
     [window makeKeyAndVisible];
+    
+    [[UIDevice currentDevice] setBatteryMonitoringEnabled:YES];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(batteryLevelChanged) name:UIDeviceBatteryLevelDidChangeNotification object:nil];
 }
 
 - (void) applicationDidEnterBackground:(UIApplication *)application {
@@ -91,6 +96,25 @@ static char version[32] = "";
 
 - (void) applicationWillTerminate:(UIApplication *)application {
     [CalcView quit];
+}
+
+static BOOL battery_is_low = NO;
+static BOOL battery_is_low_ann = NO;
+
+- (void) batteryLevelChanged {
+    BOOL low = [[UIDevice currentDevice] batteryLevel] <= 0.2;
+    if (low != battery_is_low) {
+        battery_is_low = low;
+        shell_low_battery();
+    }
+}
+
+int shell_low_battery() {
+    if (battery_is_low_ann != battery_is_low) {
+        battery_is_low_ann = battery_is_low;
+        skin_update_annunciator(5, battery_is_low, instance.calcView);
+    }
+    return battery_is_low;
 }
 
 - (void) dealloc {
