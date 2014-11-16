@@ -84,6 +84,7 @@ static char version[32] = "";
     
     [[UIDevice currentDevice] setBatteryMonitoringEnabled:YES];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(batteryLevelChanged) name:UIDeviceBatteryLevelDidChangeNotification object:nil];
+    [self batteryLevelChanged];
 }
 
 - (void) applicationDidEnterBackground:(UIApplication *)application {
@@ -91,6 +92,7 @@ static char version[32] = "";
 }
 
 - (void) applicationWillEnterForeground:(UIApplication *)application {
+    [self batteryLevelChanged];
     [CalcView leaveBackground];
 }
 
@@ -102,7 +104,7 @@ static BOOL battery_is_low = NO;
 static BOOL battery_is_low_ann = NO;
 
 - (void) batteryLevelChanged {
-    BOOL low = [[UIDevice currentDevice] batteryLevel] <= 0.2;
+    BOOL low = [[UIDevice currentDevice] batteryLevel] < 0.205;
     if (low != battery_is_low) {
         battery_is_low = low;
         shell_low_battery();
