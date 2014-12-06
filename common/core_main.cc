@@ -2203,6 +2203,8 @@ void core_paste(const char *buf) {
             mode_number_entry = false;
         recall_result(v);
         flags.f.stack_lift_disable = 0;
+        flags.f.message = 0;
+        flags.f.two_line_message = 0;
     }
     redisplay();
 }

@@ -1,8 +1,9 @@
 ??-??-????: release 1.5.6
 
 * iPhone version: implemented Copy and Paste.
-* In all versions, on hard reset, now initializing flags 28 and 29 (decimal
-  point/comma and thousands separators on/off) to match the host's locale.
+* All versions, on hard reset, now initializing flag 28 (decimal point/comma)
+  to match the host's locale.
+* Paste didn't clear the message flags. Fixed.
 
 12-11-2014: release 1.5.5
 
