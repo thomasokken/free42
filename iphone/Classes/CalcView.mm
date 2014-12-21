@@ -1095,6 +1095,8 @@ int shell_get_location(double *lat, double *lon, double *lat_lon_acc, double *el
     if (locMgr == NULL) {
         locMgr = [[CLLocationManager alloc] init];
         locMgr.delegate = hwDel;
+        if ([locMgr respondsToSelector:@selector(requestWhenInUseAuthorization)])
+            [locMgr requestWhenInUseAuthorization];
     }
     if (!location_active) {
         locMgr.distanceFilter = kCLDistanceFilterNone;
