@@ -562,6 +562,7 @@
 				);
 				PRODUCT_NAME = Free42;
 				PROVISIONING_PROFILE = "c3426ab6-2f2d-42ee-b01f-91527fbca099";
+				TARGETED_DEVICE_FAMILY = 1;
 				VALID_ARCHS = armv7;
 			};
 			name = Debug;
@@ -583,6 +584,7 @@
 				);
 				PRODUCT_NAME = Free42;
 				PROVISIONING_PROFILE = "c3426ab6-2f2d-42ee-b01f-91527fbca099";
+				TARGETED_DEVICE_FAMILY = 1;
 				VALID_ARCHS = armv7;
 			};
 			name = Release;
@@ -694,6 +696,7 @@
 				);
 				PRODUCT_NAME = Free42;
 				PROVISIONING_PROFILE = "c3426ab6-2f2d-42ee-b01f-91527fbca099";
+				TARGETED_DEVICE_FAMILY = 1;
 				VALID_ARCHS = armv7;
 			};
 			name = Distribution;

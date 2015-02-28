@@ -17,6 +17,7 @@ Android version:
 * Implement better visual feedback for which key is pressed.
 
 iPhone version:
+* Mention iTunes file transfer in the Import/Export documentation page.
 * Preferences looks a bit ugly in iOS 7, because the now-much-smaller switches
   no longer line up with the right margin. How do I create a settings screen
   that looks more like the iOS Settings app?
