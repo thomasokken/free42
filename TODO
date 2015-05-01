@@ -63,6 +63,7 @@ Mac version:
 Linux version:
 * Update low-battery checker to work with /proc/acpi/battery and
   /sys/class/power_supply.
+* Try to get Skin menu to work with Unity's indicator-appmenu.
 
 All versions:
 * When a "State File Corrupt" occurs, make a copy of the unloved state file,
