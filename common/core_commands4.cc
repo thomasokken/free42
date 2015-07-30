@@ -191,6 +191,7 @@ int docmd_insr(arg_struct *arg) {
         free_vartype(reg_x);
         reg_x = newx;
     }
+    mode_disable_stack_lift = true;
     return ERR_NONE;
 }
 

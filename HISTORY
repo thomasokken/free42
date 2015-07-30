@@ -1,3 +1,7 @@
+????-??-??: release 1.5.7
+
+* INSR should disable stack lift, but didn't. Fixed.
+
 2014-12-21: release 1.5.6
 
 * iPhone version: implemented Copy and Paste.
