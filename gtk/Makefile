@@ -1,6 +1,6 @@
 ###############################################################################
 # Free42 -- an HP-42S calculator simulator
-# Copyright (C) 2004-2014  Thomas Okken
+# Copyright (C) 2004-2015  Thomas Okken
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2,
@@ -33,7 +33,11 @@ CXXFLAGS := -MMD \
 	    -D_WCHAR_T_DEFINED
 
 LDFLAGS = -L/usr/X11R6/lib
+ifeq "$(shell uname -s)" "Darwin"
+LIBS := gcc111libbid-mac-x64.a -lXmu $(shell pkg-config --libs gtk+-2.0)
+else
 LIBS := gcc111libbid-$(shell uname -m).a -lXmu $(shell pkg-config --libs gtk+-2.0)
+endif
 
 ifeq "$(shell uname -s)" "Linux"
 LDFLAGS += -Wl,--hash-style=both

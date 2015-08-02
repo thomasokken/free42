@@ -1,6 +1,6 @@
 /*****************************************************************************
  * Free42 -- an HP-42S calculator simulator
- * Copyright (C) 2004-2014  Thomas Okken
+ * Copyright (C) 2004-2015  Thomas Okken
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2,
@@ -378,7 +378,7 @@ static bool is_file(const char *name);
 - (IBAction) showAbout:(id)sender {
     const char *version = [Free42AppDelegate getVersion];
     [aboutVersion setStringValue:[NSString stringWithFormat:@"Free42 %s", version]];
-    [aboutCopyright setStringValue:@"© 2004-2014 Thomas Okken"];
+    [aboutCopyright setStringValue:@"© 2004-2015 Thomas Okken"];
     [NSApp runModalForWindow:aboutWindow];
 }
 
