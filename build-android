@@ -12,8 +12,6 @@ mkdir android-tmp
 cd android-tmp
 svn checkout svn://air/free42/trunk free42
 cd free42/android
-sed 's/android:debuggable="[^"]*"/android:debuggable="false"/' < AndroidManifest.xml > TMP
-mv TMP AndroidManifest.xml
 VERSION_CODE=`cat version.code`
 VERSION_CODE=`expr $VERSION_CODE + 1`
 echo $VERSION_CODE > version.code
@@ -25,7 +23,7 @@ sed "s/android:versionName=\"[^\"]*\"/android:versionName=\"$VERSION_NAME\"/" < 
 mv TMP AndroidManifest.xml
 cd jni
 sh ./copy-files-release.sh
-/cygdrive/c/opt/android-ndk-r9d/ndk-build
+/opt/android-ndk-r9/ndk-build
 cd ..
 echo "======== ATTENTION: Possible Password Prompt ========"
 ant release
