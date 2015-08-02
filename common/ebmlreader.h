@@ -1,6 +1,6 @@
 /*****************************************************************************
  * Free42 -- an HP-42S calculator simulator
- * Copyright (C) 2004-2014  Thomas Okken
+ * Copyright (C) 2004-2015  Thomas Okken
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2,
@@ -19,26 +19,32 @@
 #define EBMLREADER_H
 
 #include <stdint.h>
-#include <istream>
-#include <stack>
+#include <vector>
 using namespace std;
+
+class ifstream;
 
 class ebmlreader {
     private:
-        istream *is;
-        stack<uint32_t> size_stack;
-        bool read_vint(uint32_t *n);
+        ifstream *is;
+        vector<uint4> size_stack;
+        uint4 current_size;
+        bool is_good;
+        bool read_vint(uint4 *n, uint4 *nbytes);
+        bool ebmlreader::bytes_read(uint4 size);
 
     public:
-        ebmlreader(istream *is) {
-            this->is = is;
-        }
-        bool get_element(uint32_t *id, uint32_t *size);
-        bool skip_body(uint32_t size);
-        bool get_int_body(uint32_t size, uint64_t *n);
-        bool get_float_body(uint32_t size, double *f);
-        bool get_string_body(uint32_t size, char *buf);
-        bool get_data_body(uint32_t size, char *buf);
+        ebmlreader(const char *filename);
+        ~ebmlreader();
+        bool good();
+        void set_bad();
+        int depth();
+        bool get_element(uint4 *id, uint4 *size);
+        bool skip_body(uint4 size);
+        bool get_int_body(uint4 size, uint8 *n);
+        bool get_float_body(uint4 size, double *f);
+        bool get_string_body(uint4 size, char *buf);
+        bool get_data_body(uint4 size, char *buf);
 };
 
 #endif
