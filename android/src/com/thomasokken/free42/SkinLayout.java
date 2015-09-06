@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
@@ -137,7 +138,7 @@ public class SkinLayout {
                 line = line.trim();
                 if (line.length() == 0)
                     continue;
-                String lcline = line.toLowerCase();
+                String lcline = line.toLowerCase(Locale.US);
                 if (lcline.startsWith("skin:")) {
                     StringTokenizer tok = new StringTokenizer(line.substring(5), ", \t");
                     try {

@@ -3,20 +3,8 @@
 		  package="com.thomasokken.free42"
 		  android:versionCode="21"
 		  android:versionName="1.4.74a">
-  <application android:label="Free42"
-			   android:icon="@drawable/icon"
-			   android:debuggable="true">
-    <activity android:name="Free42Activity"
-			  android:theme="@android:style/Theme.NoTitleBar"
-			  android:screenOrientation="sensor">
-	  <intent-filter>
-		<action android:name="android.intent.action.MAIN"/>
-		<category android:name="android.intent.category.LAUNCHER"/>
-	  </intent-filter>
-	</activity>
-  </application>
   
-  <uses-sdk android:minSdkVersion="3" android:targetSdkVersion="10"/>
+  <uses-sdk android:minSdkVersion="3" android:targetSdkVersion="11"/>
   <uses-feature android:name="android.hardware.location.gps"
   				android:required="false"/>
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -26,4 +14,18 @@
   <supports-screens android:smallScreens="true"
   					android:normalScreens="true"
   					android:largeScreens="true"/>
+  
+  <application android:label="Free42"
+               android:icon="@drawable/icon"
+               android:debuggable="true">
+    <activity android:name="Free42Activity"
+              android:theme="@android:style/Theme.NoTitleBar"
+              android:screenOrientation="sensor">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity>
+  </application>
+
 </manifest>

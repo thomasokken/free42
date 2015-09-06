@@ -31,6 +31,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Date;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -61,7 +62,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Vibrator;
-import android.text.ClipboardManager;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
@@ -405,13 +405,15 @@ public class Free42Activity extends Activity {
         return super.onOptionsItemSelected(item);
     }
     
+    @SuppressWarnings("deprecation")
     private void doCopy() {
-        ClipboardManager clip = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        android.text.ClipboardManager clip = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         clip.setText(core_copy());
     }
     
+    @SuppressWarnings("deprecation")
     private void doPaste() {
-        ClipboardManager clip = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        android.text.ClipboardManager clip = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         if (clip.hasText()) {
             core_paste(clip.getText().toString());
             redisplay();
@@ -764,6 +766,7 @@ public class Free42Activity extends Activity {
             skin.repaint(canvas);
         }
         
+        @SuppressLint("ClickableViewAccessibility")
         @Override
         public boolean onTouchEvent(MotionEvent e) {
             int what = e.getAction();
@@ -898,6 +901,7 @@ public class Free42Activity extends Activity {
             setMeasuredDimension(286, Math.max(printHeight, 1) * 2);
         }
 
+        @SuppressLint("DrawAllocation")
         @Override
         protected void onDraw(Canvas canvas) {
             Rect clip = canvas.getClipBounds();
@@ -947,6 +951,7 @@ public class Free42Activity extends Activity {
             canvas.drawBitmap(tmpBitmap, new Rect(0, 0, src_width, src_height), clip, new Paint());
         }
         
+        @SuppressLint("ClickableViewAccessibility")
         @Override
         public boolean onTouchEvent(MotionEvent e) {
             return true;
