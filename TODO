@@ -66,6 +66,7 @@ Linux version:
 * Try to get Skin menu to work with Unity's indicator-appmenu.
 
 All versions:
+* Add link to 42s.pdf in the About box.
 * Binary version: ADATE: 10.102010 => 10/10/2009. Binary round-off problem.
 * Add a command that turns on everything in the display -- all pixels and all
   annunciators -- to help with testing skins.
