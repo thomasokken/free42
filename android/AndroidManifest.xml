@@ -4,7 +4,7 @@
 		  android:versionCode="21"
 		  android:versionName="1.4.74a">
   
-  <uses-sdk android:minSdkVersion="3" android:targetSdkVersion="11"/>
+  <uses-sdk android:minSdkVersion="11" android:targetSdkVersion="11"/>
   <uses-feature android:name="android.hardware.location.gps"
   				android:required="false"/>
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -16,9 +16,9 @@
   					android:largeScreens="true"/>
   
   <application android:label="Free42"
-               android:icon="@drawable/icon">
+               android:icon="@drawable/icon"
+               android:allowBackup="true">
     <activity android:name="Free42Activity"
-              android:theme="@android:style/Theme.NoTitleBar"
               android:screenOrientation="sensor">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>

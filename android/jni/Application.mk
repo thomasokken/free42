@@ -1,1 +1,1 @@
-APP_PLATFORM := android-3
+APP_PLATFORM := android-11
