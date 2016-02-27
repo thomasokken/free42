@@ -61,10 +61,10 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Vibrator;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
+import android.view.HapticFeedbackConstants;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -752,6 +752,7 @@ public class Free42Activity extends Activity {
 
         public CalcView(Context context) {
             super(context);
+            this.setHapticFeedbackEnabled(true);
         }
 
         @Override
@@ -1274,10 +1275,8 @@ public class Free42Activity extends Activity {
     private void click() {
         if (keyClicksEnabled)
             playSound(11, R.raw.click, 0);
-        if (keyVibrationEnabled) {
-            Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-            v.vibrate(50);
-        }
+        if (keyVibrationEnabled)
+            calcView.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
     }
     
     private void playSound(int index, int id, int duration) {

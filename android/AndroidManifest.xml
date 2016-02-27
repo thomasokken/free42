@@ -16,8 +16,7 @@
   					android:largeScreens="true"/>
   
   <application android:label="Free42"
-               android:icon="@drawable/icon"
-               android:debuggable="true">
+               android:icon="@drawable/icon">
     <activity android:name="Free42Activity"
               android:theme="@android:style/Theme.NoTitleBar"
               android:screenOrientation="sensor">
