@@ -41,6 +41,7 @@ endif
 
 ifeq "$(shell uname -s)" "Linux"
 LDFLAGS += -Wl,--hash-style=both
+LIBS += -lpthread
 endif
 
 SRCS = shell_main.cc shell_skin.cc skins.cc keymap.cc shell_loadimage.cc \
