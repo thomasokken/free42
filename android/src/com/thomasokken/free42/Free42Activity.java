@@ -67,6 +67,7 @@ import android.text.util.Linkify;
 import android.view.HapticFeedbackConstants;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -84,16 +85,6 @@ import android.widget.TextView;
  * C++ and porting it to Java is not practical, hence the use of JNI).
  */
 public class Free42Activity extends Activity {
-
-    private static final int MENU_ID_COPY = Menu.FIRST;
-    private static final int MENU_ID_PASTE = Menu.FIRST + 1;
-    private static final int MENU_ID_PREFERENCES = Menu.FIRST + 2;
-    private static final int MENU_ID_FLIP_CALC_PRINTOUT = Menu.FIRST + 3;
-    private static final int MENU_ID_CLEAR_PRINTOUT = Menu.FIRST + 4;
-    private static final int MENU_ID_ABOUT = Menu.FIRST + 5;
-    private static final int MENU_ID_IMPORT = Menu.FIRST + 6;
-    private static final int MENU_ID_EXPORT = Menu.FIRST + 7;
-    private static final int MENU_ID_SKIN = Menu.FIRST + 8;
 
     private static final String[] builtinSkinNames = new String[] { "Standard" };
     
@@ -318,26 +309,12 @@ public class Free42Activity extends Activity {
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
 
-        menu.add(0, MENU_ID_COPY, 0, "Copy");
-        menu.add(0, MENU_ID_PASTE, 0, "Paste");
-        menu.add(0, MENU_ID_PREFERENCES, 0, "Preferences");
-        menu.add(0, MENU_ID_FLIP_CALC_PRINTOUT, 0, "Print-Out");
-        menu.add(0, MENU_ID_CLEAR_PRINTOUT, 0, "Clear Print-Out");
-        menu.add(0, MENU_ID_ABOUT, 0, "About Free42");
-        menu.add(0, MENU_ID_IMPORT, 0, "Import Programs");
-        menu.add(0, MENU_ID_EXPORT, 0, "Export Programs");
-        
         for (int i = 0; i < builtinSkinNames.length; i++)
-            menu.add(0, MENU_ID_SKIN + i, 0, "Skin: \"" + builtinSkinNames[i] + "\"");
-        menu.add(0, MENU_ID_SKIN + builtinSkinNames.length, 0, "Skin: Other...");
-
-        menu.getItem(0).setIcon(R.drawable.copy);
-        menu.getItem(1).setIcon(R.drawable.paste);
-        menu.getItem(2).setIcon(android.R.drawable.ic_menu_preferences);
-        menu.getItem(3).setIcon(R.drawable.printer);
-        menu.getItem(4).setIcon(android.R.drawable.ic_menu_close_clear_cancel);
+            menu.add(Menu.NONE, Menu.NONE, i, "Skin: \"" + builtinSkinNames[i] + "\"");
+        menu.add(Menu.NONE, Menu.NONE, builtinSkinNames.length, "Skin: Other...");
         
         return true;
     }
@@ -356,32 +333,32 @@ public class Free42Activity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-        case MENU_ID_COPY:
+        case R.id.mi_copy:
             doCopy();
             return true;
-        case MENU_ID_PASTE:
+        case R.id.mi_paste:
             doPaste();
             return true;
-        case MENU_ID_PREFERENCES:
+        case R.id.mi_preferences:
             doPreferences();
             return true;
-        case MENU_ID_FLIP_CALC_PRINTOUT:
+        case R.id.mi_flip_calc_printout:
             doFlipCalcPrintout();
             return true;
-        case MENU_ID_CLEAR_PRINTOUT:
+        case R.id.mi_clear_printout:
             doClearPrintout();
             return true;
-        case MENU_ID_ABOUT:
+        case R.id.mi_about:
             doAbout();
             return true;
-        case MENU_ID_IMPORT:
+        case R.id.mi_import:
             doImport();
             return true;
-        case MENU_ID_EXPORT:
+        case R.id.mi_export:
             doExport();
             return true;
         default:
-            int index = item.getItemId() - MENU_ID_SKIN;
+            int index = item.getOrder();
             if (index >= 0 && index < builtinSkinNames.length) {
                 doSelectSkin(builtinSkinNames[index]);
                 return true;
