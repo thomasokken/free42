@@ -13,9 +13,9 @@ cd android-tmp
 svn checkout svn://mactv/free42/trunk free42
 cd free42/android
 VERSION_CODE=`cat version.code`
-VERSION_CODE=`expr $VERSION_CODE + 1`
-echo $VERSION_CODE > version.code
-svn commit -m 'Automatic version.code bump' version.code
+# VERSION_CODE=`expr $VERSION_CODE + 1`
+# echo $VERSION_CODE > version.code
+# svn commit -m 'Automatic version.code bump' version.code
 sed "s/android:versionCode=\"[^\"]*\"/android:versionCode=\"$VERSION_CODE\"/" < AndroidManifest.xml > TMP
 mv TMP AndroidManifest.xml
 VERSION_NAME=`cat ../VERSION`
