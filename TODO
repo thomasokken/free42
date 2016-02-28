@@ -17,6 +17,9 @@ Android version:
 * Implement better visual feedback for which key is pressed.
 
 iPhone version:
+* Implement dynamic layout, to better support arbitrary screen sizes. Right now
+  we're still hard-coded for iPhone <= 5/5c/5s.
+* Build 64-bit code. Not because it's useful, but because this is now required.
 * Mention iTunes file transfer in the Import/Export documentation page.
 * Preferences looks a bit ugly in iOS 7, because the now-much-smaller switches
   no longer line up with the right margin. How do I create a settings screen

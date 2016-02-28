@@ -1,12 +1,9 @@
-????-??-??: release 1.5.7
+2016-02-28: release 1.5.7
 
 * INSR should disable stack lift, but didn't. Fixed.
 * Android version: added Action Bar, reluctantly embracing the reality of
   devices with no menu button (or hard-to-find menu buttons, like the "press
   and hold the task switch button" behavior on some devices).
-* iPhone version: changed screen layouts to support arbitrary screen sizes.
-* iPhone version: added 64-bit code, not because it's useful, but because it's
-  now mandatory.
 
 2014-12-21: release 1.5.6
 
