@@ -161,7 +161,7 @@ If you don't fully understand the above, it is best to play safe and use
 Free42 Decimal.
 
 
-Free42 is (C) 2004-2015, by Thomas Okken
+Free42 is (C) 2004-2016, by Thomas Okken
 Contact the author at thomas_okken@yahoo.com
 Look for updates, and versions for other operating systems, at
 http://thomasokken.com/free42/
