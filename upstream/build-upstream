@@ -2,7 +2,7 @@
 rm -rf temp
 mkdir temp
 cd temp
-svn checkout svn://air/free42/trunk free42
+svn checkout svn://mactv/free42/trunk free42
 for i in `cat ../remove`
 do
     rm -rf free42/$i
