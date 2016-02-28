@@ -10,7 +10,7 @@ mkdir -p packages
 
 mkdir android-tmp
 cd android-tmp
-svn checkout svn://air/free42/trunk free42
+svn checkout svn://mactv/free42/trunk free42
 cd free42/android
 VERSION_CODE=`cat version.code`
 VERSION_CODE=`expr $VERSION_CODE + 1`

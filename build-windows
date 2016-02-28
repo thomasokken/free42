@@ -23,7 +23,7 @@ rm -rf Free42Windows
 # Source package, and Windows/Unix skins packages
 mkdir tmp
 cd tmp
-svn checkout svn://air/free42/trunk free42
+svn checkout svn://mactv/free42/trunk free42
 find . -type d -name .svn -prune -exec rm -rf {} \;
 zip -j ../packages/Free42Skins.zip free42/skins/*
 zip -j ../packages/Free42iPhoneSkins.zip free42/iphoneskins/*
