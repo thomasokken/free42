@@ -2,7 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 		  package="com.thomasokken.free42"
 		  android:versionCode="21"
-		  android:versionName="1.4.74a">
+		  android:versionName="1.4.74a"
+          android:installLocation="auto">
   
   <uses-sdk android:minSdkVersion="11" android:targetSdkVersion="11"/>
   <uses-feature android:name="android.hardware.location.gps"

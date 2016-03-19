@@ -88,7 +88,7 @@ public class Free42Activity extends Activity {
 
     private static final String[] builtinSkinNames = new String[] { "Standard" };
     
-    private static final int SHELL_VERSION = 8;
+    private static final int SHELL_VERSION = 9;
     
     private static final int PRINT_BACKGROUND_COLOR = Color.LTGRAY;
     
@@ -135,6 +135,7 @@ public class Free42Activity extends Activity {
     private boolean keyClicksEnabled = true;
     private boolean keyVibrationEnabled = false;
     private int preferredOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+    private int style = android.R.style.Theme;
     
     private final Runnable repeaterCaller = new Runnable() { public void run() { repeater(); } };
     private final Runnable timeout1Caller = new Runnable() { public void run() { timeout1(); } };
@@ -149,17 +150,6 @@ public class Free42Activity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         instance = this;
-        
-        Configuration conf = getResources().getConfiguration();
-        orientation = conf.orientation == Configuration.ORIENTATION_LANDSCAPE ? 1 : 0;
-        
-        mainHandler = new Handler();
-        calcView = new CalcView(this);
-        setContentView(calcView);
-        printView = new PrintView(this);
-        printScrollView = new ScrollView(this);
-        printScrollView.setBackgroundColor(PRINT_BACKGROUND_COLOR);
-        printScrollView.addView(printView);
         
         int init_mode;
         IntHolder version = new IntHolder();
@@ -180,6 +170,20 @@ public class Free42Activity extends Activity {
             init_mode = 0;
         }
 
+        if (style != android.R.style.Theme)
+            setTheme(style);
+        
+        Configuration conf = getResources().getConfiguration();
+        orientation = conf.orientation == Configuration.ORIENTATION_LANDSCAPE ? 1 : 0;
+        
+        mainHandler = new Handler();
+        calcView = new CalcView(this);
+        setContentView(calcView);
+        printView = new PrintView(this);
+        printScrollView = new ScrollView(this);
+        printScrollView.setBackgroundColor(PRINT_BACKGROUND_COLOR);
+        printScrollView.addView(printView);
+        
         skin = null;
         if (skinName[orientation].length() == 0 && externalSkinName[orientation].length() > 0) {
             try {
@@ -573,6 +577,7 @@ public class Free42Activity extends Activity {
         preferencesDialog.setKeyClicks(keyClicksEnabled);
         preferencesDialog.setKeyVibration(keyVibrationEnabled);
         preferencesDialog.setOrientation(preferredOrientation);
+        preferencesDialog.setStyle(style);
         preferencesDialog.setSkinSmoothing(skinSmoothing[orientation]);
         preferencesDialog.setDisplaySmoothing(displaySmoothing[orientation]);
         preferencesDialog.setPrintToText(ShellSpool.printToTxt);
@@ -594,6 +599,7 @@ public class Free42Activity extends Activity {
         keyVibrationEnabled = preferencesDialog.getKeyVibration();
         int oldOrientation = preferredOrientation;
         preferredOrientation = preferencesDialog.getOrientation();
+        style = preferencesDialog.getStyle();
         putCoreSettings(cs);
 
         ShellSpool.rawText = cs.raw_text = preferencesDialog.getRawText();
@@ -1059,6 +1065,10 @@ public class Free42Activity extends Activity {
             }
             if (shell_version >= 8)
                 keyVibrationEnabled = state_read_boolean();
+            if (shell_version >= 9)
+                style = state_read_int();
+            else
+                style = android.R.style.Theme;
             init_shell_state(shell_version);
         } catch (IllegalArgumentException e) {
             return false;
@@ -1103,7 +1113,10 @@ public class Free42Activity extends Activity {
             keyVibrationEnabled = false;
             // fall through
         case 8:
-            // current version (SHELL_VERSION = 8),
+            style = android.R.style.Theme;
+            // fall through
+        case 9:
+            // current version (SHELL_VERSION = 9),
             // so nothing to do here since everything
             // was initialized from the state file.
             ;
@@ -1131,6 +1144,7 @@ public class Free42Activity extends Activity {
             state_write_boolean(skinSmoothing[1]);
             state_write_boolean(displaySmoothing[1]);
             state_write_boolean(keyVibrationEnabled);
+            state_write_int(style);
         } catch (IllegalArgumentException e) {}
     }
     

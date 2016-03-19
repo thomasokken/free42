@@ -34,6 +34,7 @@ public class PreferencesDialog extends Dialog {
     private CheckBox keyClicksCB;
     private CheckBox keyVibrationCB;
     private Spinner orientationSP;
+    private Spinner styleSP;
     private CheckBox skinSmoothingCB;
     private CheckBox displaySmoothingCB;
     private CheckBox printToTextCB;
@@ -56,6 +57,10 @@ public class PreferencesDialog extends Dialog {
         String[] values = new String[] { "Automatic", "Portrait", "Landscape" };
         ArrayAdapter<String> aa = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, values);
         orientationSP.setAdapter(aa);
+        styleSP = (Spinner) findViewById(R.id.styleSpinner);
+        values = new String[] { "Normal", "No Title", "Full Screen" };
+        aa = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, values);
+        styleSP.setAdapter(aa);
         skinSmoothingCB = (CheckBox) findViewById(R.id.skinSmoothingCB);
         displaySmoothingCB = (CheckBox) findViewById(R.id.displaySmoothingCB);
         printToTextCB = (CheckBox) findViewById(R.id.printToTextCB);
@@ -185,6 +190,31 @@ public class PreferencesDialog extends Dialog {
             case 1: return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
             case 2: return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
             case 0: default: return ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+        }
+    }
+    
+    public void setStyle(int style) {
+        switch (style) {
+            case android.R.style.Theme_NoTitleBar:
+                style = 1;
+                break;
+            case android.R.style.Theme_NoTitleBar_Fullscreen:
+                style = 2;
+                break;
+            case android.R.style.Theme:
+            default:
+                style = 0;
+                break;
+        }
+        styleSP.setSelection(style);
+    }
+    
+    public int getStyle() {
+        int orientation = styleSP.getSelectedItemPosition();
+        switch (orientation) {
+            case 1: return android.R.style.Theme_NoTitleBar;
+            case 2: return android.R.style.Theme_NoTitleBar_Fullscreen;
+            case 0: default: return android.R.style.Theme;
         }
     }
     

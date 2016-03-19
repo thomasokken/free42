@@ -85,10 +85,31 @@
 			    		
 			</LinearLayout>
 	
+            <LinearLayout android:id="@+id/styleBox"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_below="@+id/orientationBox"
+                    android:layout_alignParentLeft="true"
+                    android:orientation="horizontal">
+    
+                <TextView
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Style:"/>
+           
+                <Spinner android:id="@+id/styleSpinner"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentLeft="true"/>
+                        
+                <TextView
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text=" (requires restart)"/>
+           
+            </LinearLayout>
+    
 		    <CheckBox android:id="@+id/skinSmoothingCB"
 		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
 		    		android:text="Skin Smoothing"
-		    		android:layout_below="@+id/orientationBox"
+		    		android:layout_below="@+id/styleBox"
 		    		android:layout_alignParentLeft="true"/>
 		    
 		    <CheckBox android:id="@+id/displaySmoothingCB"
