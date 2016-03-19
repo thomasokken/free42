@@ -1,3 +1,10 @@
+2016-03-19: release 1.5.7a (Android only)
+
+* Made the action/title bar optional.
+* Added full-screen mode (removes action/title bar and status bar).
+* Added installLocation=auto to the manifest, so the app can now be installed
+  on an SD card.
+
 2016-02-28: release 1.5.7
 
 * INSR should disable stack lift, but didn't. Fixed.
@@ -110,7 +117,7 @@
   This means the Free42 build for Windows will run on older versions of Windows
   again.
 
-2013-12-07: release 1.4.77a
+2013-12-07: release 1.4.77a (Android only)
 
 * Android version: The "external storage" filesystem is no longer referred to
   by the hard-coded path /sdcard, but using the external storage directory name
@@ -130,7 +137,7 @@
 
 * Galaxy_Nexus skin to Android skins package. Contributed by Andrew Novinc.
 
-2013-03-02: release 1.4.77a
+2013-03-02: release 1.4.77a (iPhone only)
 
 * iPhone version: fixed "Make Directory" in the file selection dialogs.
 * iPhone version: when the user turns off printing to text or to GIF in the
@@ -156,13 +163,13 @@
 
 * Mac version: implemented print-out window.
 
-2012-12-17: release 1.4.75b
+2012-12-17: release 1.4.75b (iPhone only)
 
 * iPhone version: fixed three issues with the HTTP Server (displaying the wrong
   IP address, binding to the network incorrectly, and a crash when writing to
   the on-screen log).
 
-2012-12-04: release 1.4.75a
+2012-12-04: release 1.4.75a (iPhone only)
 
 * iPhone version: clicking Done on the HTTP Server window could cause the app
   to freeze under certain circumstances. Fixed.
@@ -178,11 +185,11 @@
 * GTK version: now uses ALSA to play BEEP and TONE sounds (but not when running
   on remote displays).
 
-2012-07-29: release 1.4.74b
+2012-07-29: release 1.4.74b (Android only)
 
 * Android version: now writes state file when moved to background.
 
-2012-05-06: release 1.4.74a
+2012-05-06: release 1.4.74a (Android only)
 
 * Android version: fixed a couple of bugs that could cause crashes while
   printing.
@@ -213,7 +220,7 @@
   circumstances: result < 0 and |result| < 59 seconds, or result < 0 and
   |result| > maximum integer. Fixed.
 
-2012-04-09: release 1.4.70b
+2012-04-09: release 1.4.70b (Android only)
 
 * Android version: fixed app manifest so the app no longer obtains the
   READ_PHONE_STATE permission, which it never needed anyway.
@@ -227,7 +234,7 @@
   Note that the app still runs on 1.5 and later; the requirements for running
   it have not changed.
 
-2012-02-12: release 1.4.70a
+2012-02-12: release 1.4.70a (Android only)
 
 * Android version: fixed app manifest to make the app work with screens other
   than 320x480. This should fix the problem of skins not filling the whole
