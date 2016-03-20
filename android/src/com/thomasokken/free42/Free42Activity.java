@@ -56,15 +56,16 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Vibrator;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
-import android.view.HapticFeedbackConstants;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -124,6 +125,7 @@ public class Free42Activity extends Activity {
     private boolean timeout3_active;
     
     private boolean low_battery;
+    private BroadcastReceiver lowBatteryReceiver;
 
     // Persistent state
     private int orientation = 0; // 0=portrait, 1=landscape
@@ -228,7 +230,7 @@ public class Free42Activity extends Activity {
             ACTION_BATTERY_OKAY = null;
         }
         if (ACTION_BATTERY_OKAY != null) {
-            BroadcastReceiver br = new BroadcastReceiver() {
+            lowBatteryReceiver = new BroadcastReceiver() {
                 public void onReceive(Context ctx, Intent intent) {
                     low_battery = intent.getAction().equals(Intent.ACTION_BATTERY_LOW);
                     Rect inval = skin.update_annunciators(-1, -1, -1, -1, low_battery ? 1 : 0, -1, -1);
@@ -239,7 +241,7 @@ public class Free42Activity extends Activity {
             IntentFilter iff = new IntentFilter();
             iff.addAction(Intent.ACTION_BATTERY_LOW);
             iff.addAction(ACTION_BATTERY_OKAY);
-            registerReceiver(br, iff);
+            registerReceiver(lowBatteryReceiver, iff);
         }
         
         if (preferredOrientation != this.getRequestedOrientation())
@@ -298,6 +300,10 @@ public class Free42Activity extends Activity {
         // and its core_enter_background() call takes care of saving state.
         // All this core_quit() call does it free up memory.
         core_quit();
+        if (lowBatteryReceiver != null) {
+            unregisterReceiver(lowBatteryReceiver);
+            lowBatteryReceiver = null;
+        }
         super.onDestroy();
     }
     
@@ -386,13 +392,11 @@ public class Free42Activity extends Activity {
         return super.onOptionsItemSelected(item);
     }
     
-    @SuppressWarnings("deprecation")
     private void doCopy() {
         android.text.ClipboardManager clip = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         clip.setText(core_copy());
     }
     
-    @SuppressWarnings("deprecation")
     private void doPaste() {
         android.text.ClipboardManager clip = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         if (clip.hasText()) {
@@ -735,7 +739,6 @@ public class Free42Activity extends Activity {
 
         public CalcView(Context context) {
             super(context);
-            this.setHapticFeedbackEnabled(true);
         }
 
         @Override
@@ -1266,8 +1269,10 @@ public class Free42Activity extends Activity {
     private void click() {
         if (keyClicksEnabled)
             playSound(11, R.raw.click, 0);
-        if (keyVibrationEnabled)
-            calcView.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+        if (keyVibrationEnabled) {
+            Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+            v.vibrate(50);
+        }
     }
     
     private void playSound(int index, int id, int duration) {
