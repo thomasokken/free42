@@ -149,16 +149,16 @@ typedef struct {
     int initial_clear;
     int really_done;
 
+    int width;
     int height;
 } gif_data;
 
 static gif_data *g;
 
 
-int shell_start_gif(file_writer writer, int provisional_height) {
+int shell_start_gif(file_writer writer, int width, int provisional_height) {
     char buf[29];
     char *p = buf, c;
-    int width = 143;
     int height = provisional_height;
     int i;
 
@@ -245,6 +245,7 @@ int shell_start_gif(file_writer writer, int provisional_height) {
     g->initial_clear = 1;
     g->really_done = 0;
 
+    g->width = width;
     g->height = 0;
 
     c = g->codesize;
@@ -263,7 +264,7 @@ void shell_spool_gif(const char *bits, int bytesperline,
 
     for (v = y; v < y + height || (v == y && height == 0); v++) {
         int done = v == y && height == 0;
-        for (h = 0; h < 143; h++) {
+        for (h = 0; h < g->width; h++) {
             int new_code;
             unsigned char hash_code;
             int hash_index;

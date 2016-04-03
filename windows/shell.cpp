@@ -2037,7 +2037,7 @@ void shell_print(const char *text, int length,
                 MessageBox(hMainWnd, buf, "Message", MB_ICONWARNING);
                 goto done_print_gif;
             }
-            if (!shell_start_gif(gif_writer, state.printerGifMaxLength)) {
+            if (!shell_start_gif(gif_writer, 143, state.printerGifMaxLength)) {
                 state.printerToGifFile = 0;
                 MessageBox(hMainWnd, "Not enough memory for the GIF encoder.\nPrinting to GIF file disabled.", "Message", MB_ICONWARNING);
                 goto done_print_gif;
