@@ -132,6 +132,7 @@ symlinks:
 clean: FORCE
 	rm -f `find . -type l` free42 \
 		keymap2cc keymap.cc \
+		set-version-in-info-plist set-version-in-info-plist.c \
 		*.o *.d *.i *.ii *.s symlinks core.*
 	rm -rf Free42.wdgt
 
