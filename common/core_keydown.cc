@@ -2179,6 +2179,9 @@ void keydown_normal_mode(int shift, int key) {
                         (cmdlist(pending_command)->flags & FLAG_IMMED) == 0) {
                     store_command_after(&pc, pending_command,
                                             &pending_command_arg);
+                    if (pending_command == CMD_END)
+                        /* current_prgm was already incremented by store_command() */
+                        pc = 0;
                     prgm_highlight_row = 1;
                     pending_command = CMD_NONE;
                     if (level == MENULEVEL_TRANSIENT

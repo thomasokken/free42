@@ -1,3 +1,9 @@
+2016-04-03: release 1.5.8
+
+* Entering an END into a program using the CUSTOM menu would leave the program
+  counter at an invalid value, leading to memory corruption, state file
+  corruption, and crashes. Fixed.
+
 2016-03-19: release 1.5.7a (Android only)
 
 * Made the action/title bar optional.
