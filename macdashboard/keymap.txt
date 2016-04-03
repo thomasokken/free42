@@ -1,0 +1,89 @@
+# Default key mapping table for Free42 (Mac OS Widget version)
+#
+# Format: [Ctrl|Alt|Shift]* <KeyCode> : <macro>
+# <KeyCode> is a numeric Mac OS key code; <macro> is a sequence of zero or
+# more HP-42S key codes. The HP-42S key codes must be between 1 and 255;
+# codes 1..37 correspond to actual keys on the calculator's keyboard, while
+# codes 38..255 can be used to refer to extra keys defined by customized skins.
+#
+# Anything from a "#" until the end of the line is a comment, and is ignored.
+# White space (Space, Tab) separates tokens in the key map, but is otherwise
+# ignored.
+
+63236           : 1       # menu key 1
+63237           : 2       # menu key 2
+63238           : 3       # menu key 3
+63239           : 4       # menu key 4
+63240           : 5       # menu key 5
+63241           : 6       # menu key 6
+97              : 1       # Sigma+ ("Accumulate")
+Shift 65        : 28 1    # Sigma-
+118             : 2       # 1/X ("inVerse")
+Shift 86        : 28 2    # Y^X
+Shift 94        : 28 2    # Y^X
+113             : 3       # sqrt(X) ("sQuare root")
+Shift 81        : 28 3    # X^2
+111             : 4       # LOG ("lOg, not Ln")
+Shift 79        : 28 4    # 10^X
+108              : 5       # LN ("Ln, not lOg")
+Shift 76        : 28 5    # E^X
+120             : 6       # XEQ
+Shift 88        : 28 6    # GTO
+109             : 7       # STO (m as in memory)
+Shift 77        : 28 7    # COMPLEX
+114             : 8       # RCL
+Shift 82        : 28 8    # %
+100             : 9       # RDN (d as in down)
+Shift 68        : 28 9    # PI
+115             : 10      # SIN
+Shift 83        : 28 10   # ASIN
+99              : 11      # COS
+Shift 67        : 28 11   # ACOS
+116             : 12      # TAN
+Shift 84        : 28 12   # ATAN
+13              : 13      # ENTER
+Shift 13        : 28 13   # ALPHA
+119             : 14      # X<>Y ("sWap")
+Shift 87        : 28 14   # LASTX
+110             : 15      # +/- ("Negative")
+Shift 78        : 28 15   # MODES
+101             : 16      # E
+Shift 69        : 28 16   # DISP
+8               : 17      # <-
+Shift 8         : 28 17   # CLEAR
+63232           : 18      # up
+Shift 63232     : 28 18   # BST
+55              : 19      # 7
+56              : 20      # 8
+57              : 21      # 9
+47              : 22      # divide
+Shift 63        : 28 22   # STAT
+63233           : 23      # down
+Shift 63233     : 28 23   # SST
+52              : 24      # 4
+Shift 36        : 28 24   # BASE
+53              : 25      # 5
+54              : 26      # 6
+42              : 27      # multiply
+Shift 42        : 27      # multiply
+Ctrl 56         : 28 27   # PROB ("*" is already shifted so we have to do something odd here)
+49              : 29      # 1
+Shift 33        : 28 29   # ASSIGN
+50              : 30      # 2
+Shift 64        : 28 30   # CUSTOM
+51              : 31      # 3
+Shift 35        : 28 31   # PGM.FCN
+45              : 32      # -
+Shift 95        : 28 32   # PRINT
+27              : 33      # EXIT
+Shift 27        : 28 33   # OFF
+48              : 34      # 0
+Shift 41        : 28 34   # TOP.FCN
+46              : 35      # .
+Shift 62        : 28 35   # SHOW
+Shift 60        : 28 35   # SHOW
+92              : 36      # R/S
+Shift 124       : 28 36   # PRGM
+43              : 37      # +
+Shift 43        : 37      # +
+61              : 28 37   # CATALOG ("+" is already shifted so we have to do something odd here)
