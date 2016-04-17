@@ -1,8 +1,14 @@
-2016-04-03: release 1.5.8
+2016-04-17: release 1.5.8
 
 * Entering an END into a program using the CUSTOM menu would leave the program
   counter at an invalid value, leading to memory corruption, state file
   corruption, and crashes. Fixed.
+* Android version: changed haptic feedback code back to using the old API.
+* Android version: changed targetSdkVersion from 3.0 to 2.2. This should make
+  the menu reliably accessible in all Android versions and with all display
+  styles.
+* Resurrected the Mac OS X Dashboard version; the display repaint logic now
+  supports Yosemite (10.10) and later.
 
 2016-03-19: release 1.5.7a (Android only)
 
