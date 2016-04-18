@@ -341,6 +341,10 @@ public class SkinLayout {
         } else
             return null;
     }
+    
+    public boolean in_menu_area(int x, int y) {
+        return y < display_loc.y + display_scale.y * 8;
+    }
 
     public void find_key(boolean menu_active, int x, int y, IntHolder skey, IntHolder ckey) {
         if (menu_active

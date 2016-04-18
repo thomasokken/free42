@@ -1,3 +1,7 @@
+2016-04-17: release 1.5.8a (Android only)
+
+* Tapping in the top half of the display now brings up the app's option menu.
+
 2016-04-17: release 1.5.8
 
 * Entering an END into a program using the CUSTOM menu would leave the program

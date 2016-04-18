@@ -765,6 +765,10 @@ public class Free42Activity extends Activity {
             if (what == MotionEvent.ACTION_DOWN) {
                 int x = (int) (e.getX() * skin.getWidth() / width);
                 int y = (int) (e.getY() * skin.getHeight() / height);
+                if (skin.in_menu_area(x, y)) {
+                    Free42Activity.this.openOptionsMenu();
+                    return true;
+                }
                 IntHolder skeyHolder = new IntHolder();
                 IntHolder ckeyHolder = new IntHolder();
                 skin.find_key(core_menu(), x, y, skeyHolder, ckeyHolder);
