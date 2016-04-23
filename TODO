@@ -6,7 +6,6 @@ Android version:
   segmentation fault.
 * Sometimes, with some skins, a one-pixel horizontal line appears above the
   display. Off-by-one error in the blitting call?
-* The key click is flaky on some devices. Why?
 * Support arbitrary skin scaling and positioning.
 * Add support for physical keyboards.
 * Implement pop-up keyboard for ALPHA mode text entry.
