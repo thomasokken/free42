@@ -1,3 +1,9 @@
+????-??-??: release 1.5.8b (Android only)
+
+* Print-Out is now scaled to make better use of available screen width.
+* Fixed key clicks.
+* Implemented Reverse Portrait (upside-down) mode.
+
 2016-04-17: release 1.5.8a (Android only)
 
 * Tapping in the top half of the display now brings up the app's option menu.

@@ -57,7 +57,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -108,6 +108,9 @@ public class Free42Activity extends Activity {
     private boolean printViewShowing;
     private PreferencesDialog preferencesDialog;
     private Handler mainHandler;
+    
+    private SoundPool soundPool;
+    private int[] soundIds;
     
     // Streams for reading and writing the state file
     private InputStream stateFileInputStream;
@@ -246,6 +249,12 @@ public class Free42Activity extends Activity {
         
         if (preferredOrientation != this.getRequestedOrientation())
             setRequestedOrientation(preferredOrientation);
+
+        soundPool = new SoundPool(1, AudioManager.STREAM_SYSTEM, 0);
+        int[] soundResourceIds = { R.raw.tone0, R.raw.tone1, R.raw.tone2, R.raw.tone3, R.raw.tone4, R.raw.tone5, R.raw.tone6, R.raw.tone7, R.raw.tone8, R.raw.tone9, R.raw.squeak, R.raw.click };
+        soundIds = new int[soundResourceIds.length];
+        for (int i = 0; i < soundResourceIds.length; i++)
+            soundIds[i] = soundPool.load(this, soundResourceIds[i], 1);
     }
     
     @Override
@@ -857,6 +866,7 @@ public class Free42Activity extends Activity {
         private byte[] buffer = new byte[LINES * BYTESPERLINE];
         private int top, bottom;
         private int printHeight;
+        private int scale;
 
         public PrintView(Context context) {
             super(context);
@@ -882,6 +892,10 @@ public class Free42Activity extends Activity {
             }
 
             printHeight = bottom / BYTESPERLINE;
+            int screenWidth = getWindowManager().getDefaultDisplay().getWidth();
+            scale = screenWidth / 143;
+            if (scale == 0)
+                scale = 1;
         }
 
         @Override
@@ -889,7 +903,7 @@ public class Free42Activity extends Activity {
             // Pretending our height is never zero, to keep the HTC Aria
             // from throwing a fit. See also the printHeight == 0 case in
             // onDraw().
-            setMeasuredDimension(286, Math.max(printHeight, 1) * 2);
+            setMeasuredDimension(143 * scale, Math.max(printHeight, 1) * scale);
         }
 
         @SuppressLint("DrawAllocation")
@@ -911,20 +925,18 @@ public class Free42Activity extends Activity {
                 return;
             }
             
-            // Extend the clip rectangle so that it doesn't include any half
-            // or quarter pixels
-            clip.left &= ~1;
-            clip.top &= ~1;
-            if ((clip.right & 1) != 0)
-                clip.right++;
-            if ((clip.bottom & 1) != 0)
-                clip.bottom++;
+            // Extend the clip rectangle so that it doesn't include any
+            // fractional pixels
+            clip.left = clip.left / scale * scale;
+            clip.top = clip.top / scale * scale;
+            clip.right = (clip.right + scale - 1) / scale * scale;
+            clip.bottom = (clip.bottom + scale - 1) / scale * scale;
             
             // Construct a temporary bitmap
-            int src_x = clip.left / 2;
-            int src_y = clip.top / 2;
-            int src_width = (clip.right - clip.left) / 2;
-            int src_height = (clip.bottom - clip.top) / 2;
+            int src_x = clip.left / scale;
+            int src_y = clip.top / scale;
+            int src_width = (clip.right - clip.left) / scale;
+            int src_height = (clip.bottom - clip.top) / scale;
             Bitmap tmpBitmap = Bitmap.createBitmap(src_width, src_height, Bitmap.Config.ARGB_8888);
             IntBuffer tmpBuffer = IntBuffer.allocate(src_width * src_height);
             int[] tmpArray = tmpBuffer.array();
@@ -1272,67 +1284,16 @@ public class Free42Activity extends Activity {
     
     private void click() {
         if (keyClicksEnabled)
-            playSound(11, R.raw.click, 0);
+            playSound(11, 0);
         if (keyVibrationEnabled) {
             Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
             v.vibrate(50);
         }
     }
     
-    private void playSound(int index, int id, int duration) {
-        if (!brokenMediaPlayer) {
-            try {
-                MediaPlayer mp = MediaPlayer.create(this, id);
-                mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                    public void onCompletion(MediaPlayer player) {
-                        player.release();
-                    }
-                });
-                mp.start();
-            } catch (Exception e) {
-                // Happens on Archos 5
-                brokenMediaPlayer = true;
-            }
-        }
-        if (brokenMediaPlayer) {
-            String fileName = topStorageDir() + "/tmp.free42sound." + index;
-            if (!new File(fileName).exists()) {
-                InputStream is = null;
-                OutputStream os = null;
-                try {
-                    is = getResources().openRawResource(id);
-                    os = new FileOutputStream(fileName);
-                    byte[] buf = new byte[1024];
-                    int n;
-                    while ((n = is.read(buf)) != -1)
-                        os.write(buf, 0, n);
-                } catch (IOException e) {
-                    // It wasn't meant to be. Give up.
-                    new File(fileName).delete();
-                    return;
-                } finally {
-                    if (is != null)
-                        try {
-                            is.close();
-                        } catch (IOException e) {}
-                    if (os != null)
-                        try {
-                            os.close();
-                        } catch (IOException e) {}
-                }
-            }
-            try {
-                MediaPlayer mp = new MediaPlayer();
-                mp.setDataSource(fileName);
-                mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                    public void onCompletion(MediaPlayer player) {
-                        player.release();
-                    }
-                });
-                mp.prepare();
-                mp.start();
-            } catch (IOException e) {}
-        }
+    
+    private void playSound(int index, int duration) {
+        soundPool.play(soundIds[index], 1f, 1f, 0, 0, 1f);
     }
     
     private static String topStorageDir() {
@@ -1439,14 +1400,13 @@ public class Free42Activity extends Activity {
                 break;
             }
         }
-        playSound(sound_number, sound_ids[sound_number], sound_number == 10 ? 125 : 250);
+        playSound(sound_number, sound_number == 10 ? 125 : 250);
         try {
             Thread.sleep(sound_number == 10 ? 125 : 250);
         } catch (InterruptedException e) {}
     }
 
     private final int[] cutoff_freqs = { 164, 220, 243, 275, 293, 324, 366, 418, 438, 550 };
-    private final int[] sound_ids = { R.raw.tone0, R.raw.tone1, R.raw.tone2, R.raw.tone3, R.raw.tone4, R.raw.tone5, R.raw.tone6, R.raw.tone7, R.raw.tone8, R.raw.tone9, R.raw.squeak };
     
     /**
      * shell_annunciators()

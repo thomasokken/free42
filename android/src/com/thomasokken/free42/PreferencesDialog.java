@@ -28,6 +28,19 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 public class PreferencesDialog extends Dialog {
+    private static boolean reversePortraitSupported;
+    private static final int reversePortraitConstant;
+    static {
+        reversePortraitSupported = true;
+        int tmp = 0;
+        try {
+            tmp = ActivityInfo.class.getField("SCREEN_ORIENTATION_REVERSE_PORTRAIT").getInt(null);
+        } catch (Exception e) {
+            reversePortraitSupported = false;
+        }
+        reversePortraitConstant = tmp;
+    }
+    
     private CheckBox singularMatrixCB;
     private CheckBox matrixOutOfRangeCB;
     private CheckBox autoRepeatCB;
@@ -54,7 +67,11 @@ public class PreferencesDialog extends Dialog {
         keyClicksCB = (CheckBox) findViewById(R.id.keyClicksCB);
         keyVibrationCB = (CheckBox) findViewById(R.id.keyVibrationCB);
         orientationSP = (Spinner) findViewById(R.id.orientationSpinner);
-        String[] values = new String[] { "Automatic", "Portrait", "Landscape" };
+        String[] values;
+        if (reversePortraitSupported)
+            values = new String[] { "Automatic", "Portrait", "Reverse Portrait", "Landscape" };
+        else
+            values = new String[] { "Automatic", "Portrait", "Landscape" };
         ArrayAdapter<String> aa = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, values);
         orientationSP.setAdapter(aa);
         styleSP = (Spinner) findViewById(R.id.styleSpinner);
@@ -169,28 +186,41 @@ public class PreferencesDialog extends Dialog {
     }
     
     public void setOrientation(int orientation) {
-        switch (orientation) {
-            case ActivityInfo.SCREEN_ORIENTATION_PORTRAIT:
+        if (reversePortraitSupported) {
+            if (orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
                 orientation = 1;
-                break;
-            case ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE:
+            else if (orientation == reversePortraitConstant)
                 orientation = 2;
-                break;
-            case ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED:
-            default:
+            else if (orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+                orientation = 3;
+            else
                 orientation = 0;
-                break;
+        } else {
+            if (orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+                orientation = 1;
+            else if (orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+                orientation = 2;
+            else
+                orientation = 0;
         }
         orientationSP.setSelection(orientation);
     }
     
     public int getOrientation() {
         int orientation = orientationSP.getSelectedItemPosition();
-        switch (orientation) {
-            case 1: return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-            case 2: return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-            case 0: default: return ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
-        }
+        if (reversePortraitSupported)
+            switch (orientation) {
+                case 1: return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+                case 2: return reversePortraitConstant;
+                case 3: return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+                case 0: default: return ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+            }
+        else
+            switch (orientation) {
+                case 1: return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+                case 2: return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+                case 0: default: return ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+            }
     }
     
     public void setStyle(int style) {

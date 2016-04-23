@@ -10,7 +10,6 @@ Android version:
 * Support arbitrary skin scaling and positioning.
 * Add support for physical keyboards.
 * Implement pop-up keyboard for ALPHA mode text entry.
-* Scale print-out (the current 2:1 scaling is a bit small on large screens)
 * Implement better visual feedback for which key is pressed.
 
 iPhone version:
