@@ -174,6 +174,6 @@ Free42 Decimal.
 
 
 Free42 is (C) 2004-2016, by Thomas Okken
-Contact the author at thomas_okken@yahoo.com
+Contact the author at thomasokken@gmail.com
 Look for updates, and versions for other operating systems, at
 http://thomasokken.com/free42/
