@@ -13,6 +13,6 @@
 			android:layout_alignTop="@+id/fdrowimage"
 			android:layout_alignBottom="@+id/fdrowimage"
 			android:gravity="center_vertical"
-			android:textSize="23dp"/>
+			android:textSize="23sp"/>
 
 </RelativeLayout>

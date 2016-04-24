@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.StringTokenizer;
 import android.app.Dialog;
 import android.content.Context;
@@ -96,7 +97,7 @@ public class FileSelectionDialog extends Dialog {
                     if (dla != null) {
                         String type = dla.getType();
                         if (type != null) {
-                            if (!name.toLowerCase().endsWith("." + type.toLowerCase()))
+                            if (!name.toLowerCase(Locale.getDefault()).endsWith("." + type.toLowerCase(Locale.getDefault())))
                                 name += "." + type;
                         }
                     }

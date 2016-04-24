@@ -14,16 +14,12 @@
 		<Button android:id="@+id/okB"
 	    		android:layout_width="0px" android:layout_height="wrap_content"
 	    		android:layout_weight="1"
-				android:text="OK"
-				android:layout_below="@+id/maxGifHeightTF"
-				android:layout_alignParentLeft="true"/>
+				android:text="OK"/>
 		
 		<Button android:id="@+id/cancelB"
 	    		android:layout_width="0px" android:layout_height="wrap_content"
 	    		android:layout_weight="1"
-				android:text="Cancel"
-				android:layout_below="@+id/maxGifHeightTF"
-				android:layout_toRightOf="@+id/okB"/>
+				android:text="Cancel"/>
 	
 	</LinearLayout>
 
@@ -79,9 +75,7 @@
 			   			android:text="Orientation:"/>
 		   
 			    <Spinner android:id="@+id/orientationSpinner"
-			    		android:layout_width="wrap_content" android:layout_height="wrap_content"
-			    		android:layout_alignParentTop="true"
-			    		android:layout_alignParentLeft="true"/>
+			    		android:layout_width="wrap_content" android:layout_height="wrap_content"/>
 			    		
 			</LinearLayout>
 	
@@ -96,9 +90,7 @@
                         android:text="Style:"/>
            
                 <Spinner android:id="@+id/styleSpinner"
-                        android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_alignParentTop="true"
-                        android:layout_alignParentLeft="true"/>
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                         
                 <TextView
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -134,7 +126,8 @@
 		    		android:layout_width="fill_parent" android:layout_height="wrap_content"
 		    		android:layout_below="@+id/printToTextCB"
 		    		android:layout_alignParentLeft="true"
-		    		android:layout_toLeftOf="@+id/browseTextB"/>
+		    		android:layout_toLeftOf="@+id/browseTextB"
+		    		android:inputType="text"/>
 		
 		    <CheckBox android:id="@+id/rawTextCB"
 		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -158,7 +151,8 @@
 		    		android:layout_width="fill_parent" android:layout_height="wrap_content"
 		    		android:layout_below="@+id/printToGifCB"
 		    		android:layout_alignParentLeft="true"
-		    		android:layout_toLeftOf="@+id/browseGifB"/>
+		    		android:layout_toLeftOf="@+id/browseGifB"
+		    		android:inputType="text"/>
 		    		
 			<TextView android:id="@+id/maxGifHeightL"
 		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -169,7 +163,8 @@
 			<EditText android:id="@+id/maxGifHeightTF"
 		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
 					android:layout_below="@+id/printToGifFileNameTF"
-					android:layout_toRightOf="@+id/maxGifHeightL"/>
+					android:layout_toRightOf="@+id/maxGifHeightL"
+					android:inputType="number"/>
 			
 		</RelativeLayout>
 	
