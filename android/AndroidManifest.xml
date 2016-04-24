@@ -20,6 +20,7 @@
                android:icon="@drawable/icon"
                android:allowBackup="true">
     <activity android:name="Free42Activity"
+              android:theme="@android:style/Theme.NoTitleBar"
               android:screenOrientation="sensor">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>

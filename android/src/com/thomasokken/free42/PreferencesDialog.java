@@ -30,6 +30,9 @@ import android.widget.Spinner;
 public class PreferencesDialog extends Dialog {
     private static boolean reversePortraitSupported;
     private static final int reversePortraitConstant;
+    public static boolean immersiveModeSupported;
+    public static final int immersiveModeFlags;
+    
     static {
         reversePortraitSupported = true;
         int tmp = 0;
@@ -39,6 +42,22 @@ public class PreferencesDialog extends Dialog {
             reversePortraitSupported = false;
         }
         reversePortraitConstant = tmp;
+        
+        immersiveModeSupported = true;
+        tmp = 0;
+        try {
+            String[] fields = { "SYSTEM_UI_FLAG_LAYOUT_STABLE",
+                                "SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION",
+                                "SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN",
+                                "SYSTEM_UI_FLAG_HIDE_NAVIGATION",
+                                "SYSTEM_UI_FLAG_FULLSCREEN",
+                                "SYSTEM_UI_FLAG_IMMERSIVE_STICKY" };
+            for (String field : fields)
+                tmp |= View.class.getField(field).getInt(null);
+        } catch (Exception e) {
+            immersiveModeSupported = false;
+        }
+        immersiveModeFlags = tmp;
     }
     
     private CheckBox singularMatrixCB;
@@ -75,7 +94,10 @@ public class PreferencesDialog extends Dialog {
         ArrayAdapter<String> aa = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, values);
         orientationSP.setAdapter(aa);
         styleSP = (Spinner) findViewById(R.id.styleSpinner);
-        values = new String[] { "Normal", "No Title", "Full Screen" };
+        if (immersiveModeSupported)
+            values = new String[] { "Normal", "No Status", "Full Screen" };
+        else
+            values = new String[] { "Normal", "No Status" };
         aa = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, values);
         styleSP.setAdapter(aa);
         skinSmoothingCB = (CheckBox) findViewById(R.id.skinSmoothingCB);
@@ -224,28 +246,13 @@ public class PreferencesDialog extends Dialog {
     }
     
     public void setStyle(int style) {
-        switch (style) {
-            case android.R.style.Theme_NoTitleBar:
-                style = 1;
-                break;
-            case android.R.style.Theme_NoTitleBar_Fullscreen:
-                style = 2;
-                break;
-            case android.R.style.Theme:
-            default:
-                style = 0;
-                break;
-        }
+        if (style == 2 && !immersiveModeSupported)
+            style = 1;
         styleSP.setSelection(style);
     }
     
     public int getStyle() {
-        int orientation = styleSP.getSelectedItemPosition();
-        switch (orientation) {
-            case 1: return android.R.style.Theme_NoTitleBar;
-            case 2: return android.R.style.Theme_NoTitleBar_Fullscreen;
-            case 0: default: return android.R.style.Theme;
-        }
+        return styleSP.getSelectedItemPosition();
     }
     
     public void setSkinSmoothing(boolean b) {

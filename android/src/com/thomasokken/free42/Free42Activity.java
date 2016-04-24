@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
 import java.nio.IntBuffer;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -99,8 +100,6 @@ public class Free42Activity extends Activity {
         System.loadLibrary("free42");
     }
     
-    private static boolean brokenMediaPlayer = false;
-
     private CalcView calcView;
     private SkinLayout skin;
     private PrintView printView;
@@ -140,7 +139,7 @@ public class Free42Activity extends Activity {
     private boolean keyClicksEnabled = true;
     private boolean keyVibrationEnabled = false;
     private int preferredOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
-    private int style = android.R.style.Theme;
+    private int style = 0;
     
     private final Runnable repeaterCaller = new Runnable() { public void run() { repeater(); } };
     private final Runnable timeout1Caller = new Runnable() { public void run() { timeout1(); } };
@@ -175,8 +174,14 @@ public class Free42Activity extends Activity {
             init_mode = 0;
         }
 
-        if (style != android.R.style.Theme)
-            setTheme(style);
+        if (style == 1)
+            setTheme(android.R.style.Theme_NoTitleBar_Fullscreen);
+        else if (style == 2) {
+            try {
+                Method m = View.class.getMethod("setSystemUiVisibility", int.class);
+                m.invoke(getWindow().getDecorView(), PreferencesDialog.immersiveModeFlags);
+            } catch (Exception e) {}
+        }
         
         Configuration conf = getResources().getConfiguration();
         orientation = conf.orientation == Configuration.ORIENTATION_LANDSCAPE ? 1 : 0;
@@ -262,6 +267,17 @@ public class Free42Activity extends Activity {
         super.onResume();
         if (core_powercycle())
             start_core_keydown();
+    }
+    
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (style == 2) {
+            try {
+                Method m = View.class.getMethod("setSystemUiVisibility", int.class);
+                m.invoke(getWindow().getDecorView(), PreferencesDialog.immersiveModeFlags);
+            } catch (Exception e) {}
+        }
     }
 
     @Override
@@ -1084,10 +1100,13 @@ public class Free42Activity extends Activity {
             }
             if (shell_version >= 8)
                 keyVibrationEnabled = state_read_boolean();
-            if (shell_version >= 9)
+            if (shell_version >= 9) {
                 style = state_read_int();
-            else
-                style = android.R.style.Theme;
+                int maxStyle = PreferencesDialog.immersiveModeSupported ? 2 : 1;
+                if (style > maxStyle)
+                    style = maxStyle;
+            } else
+                style = 0;
             init_shell_state(shell_version);
         } catch (IllegalArgumentException e) {
             return false;
@@ -1132,7 +1151,7 @@ public class Free42Activity extends Activity {
             keyVibrationEnabled = false;
             // fall through
         case 8:
-            style = android.R.style.Theme;
+            style = 0;
             // fall through
         case 9:
             // current version (SHELL_VERSION = 9),
