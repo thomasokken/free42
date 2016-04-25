@@ -4,8 +4,6 @@ Android version:
   possibly the only one, of the native-code crash in vartype2string() called
   from display_y(); it's dereferencing reg_y while it is NULL, leading to a
   segmentation fault.
-* Sometimes, with some skins, a one-pixel horizontal line appears above the
-  display. Off-by-one error in the blitting call?
 * Support arbitrary skin scaling and positioning.
 * Add support for physical keyboards.
 * Implement pop-up keyboard for ALPHA mode text entry.

@@ -1,3 +1,14 @@
+2016-04-25: release 1.5.8d (Android only)
+
+* Fixed the thin black lines that would sometimes appear around the display.
+* In full-screen mode, swiping down from the top would post the menu, because
+  the initial touch would be in the same area that Free42 watches as the menu
+  trigger. I changed the code so that the trigger only fires if the user lifts
+  their finger while still inside that critical area, which will only happen
+  if the downward swipe is very short.
+* Fixed the top-of-screen menu trigger so that it no longer sabotages keys
+  that are also in that area, as in the HP_Mega_42 skin.
+
 2016-04-24: release 1.5.8c (Android only)
 
 * Implemented true full-screen mode. This hides the navigation bar as well the

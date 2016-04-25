@@ -761,6 +761,7 @@ public class Free42Activity extends Activity {
     private class CalcView extends View {
         
         private int width, height;
+        private boolean possibleMenuEvent = false;
 
         public CalcView(Context context) {
             super(context);
@@ -790,17 +791,16 @@ public class Free42Activity extends Activity {
             if (what == MotionEvent.ACTION_DOWN) {
                 int x = (int) (e.getX() * skin.getWidth() / width);
                 int y = (int) (e.getY() * skin.getHeight() / height);
-                if (skin.in_menu_area(x, y)) {
-                    Free42Activity.this.openOptionsMenu();
-                    return true;
-                }
                 IntHolder skeyHolder = new IntHolder();
                 IntHolder ckeyHolder = new IntHolder();
                 skin.find_key(core_menu(), x, y, skeyHolder, ckeyHolder);
                 int skey = skeyHolder.value;
                 ckey = ckeyHolder.value;
-                if (ckey == 0)
+                if (ckey == 0) {
+                    if (skin.in_menu_area(x, y))
+                        this.possibleMenuEvent = true;
                     return true;
+                }
                 click();
                 end_core_keydown();
                 byte[] macro = skin.find_macro(ckey);
@@ -839,6 +839,13 @@ public class Free42Activity extends Activity {
                         mainHandler.postDelayed(timeout1Caller, 250);
                 }
             } else {
+                if (possibleMenuEvent) {
+                    possibleMenuEvent = false;
+                    int x = (int) (e.getX() * skin.getWidth() / width);
+                    int y = (int) (e.getY() * skin.getHeight() / height);
+                    if (skin.in_menu_area(x, y))
+                        Free42Activity.this.openOptionsMenu();
+                }
                 ckey = 0;
                 Rect inval = skin.set_active_key(-1);
                 if (inval != null)
@@ -857,7 +864,7 @@ public class Free42Activity extends Activity {
             top = (int) Math.floor(((double) top) * height / skin.getHeight());
             right = (int) Math.ceil(((double) right) * width / skin.getWidth());
             bottom = (int) Math.ceil(((double) bottom) * height / skin.getHeight());
-            postInvalidate(left, top, right, bottom);
+            postInvalidate(left - 1, top - 1, right + 2, bottom + 2);
         }
 
         private void invalidateScaled(Rect inval) {
@@ -865,6 +872,7 @@ public class Free42Activity extends Activity {
             inval.top = (int) Math.floor(((double) inval.top) * height / skin.getHeight());
             inval.right = (int) Math.ceil(((double) inval.right) * width / skin.getWidth());
             inval.bottom = (int) Math.ceil(((double) inval.bottom) * height / skin.getHeight());
+            inval.inset(-1, -1);
             invalidate(inval);
         }
     }
