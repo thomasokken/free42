@@ -1,3 +1,8 @@
+2016-04-26: release 1.5.8e (Android only)
+
+* The previous fix for the thin-black-line problem didn't do the job on some
+  devices. Here's another fix that should do a better job.
+
 2016-04-25: release 1.5.8d (Android only)
 
 * Fixed the thin black lines that would sometimes appear around the display.
