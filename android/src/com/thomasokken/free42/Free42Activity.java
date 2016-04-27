@@ -1407,16 +1407,6 @@ public class Free42Activity extends Activity {
      * height of the area to be repainted.
      */
     public void shell_blitter(byte[] bits, int bytesperline, int x, int y, int width, int height) {
-        // Because of fractional scaling, painting only a part of the
-        // display can result in things shifting slightly, and/or black
-        // lines around the edges of the repainted area. By repainting
-        // the entire display on every update, I'm trying to avoid those
-        // cosmetic flaws. Fortunately, the performance penalty of drawing
-        // more pixels is insignificant on today's devices.
-        x = 0;
-        y = 0;
-        width = 131;
-        height = 16;
         Rect inval = skin.display_blitter(bits, bytesperline, x, y, width, height);
         calcView.postInvalidateScaled(inval.left, inval.top, inval.right, inval.bottom);
     }

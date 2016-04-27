@@ -339,6 +339,16 @@ void shell_blitter(const char *bits, int bytesperline, int x, int y,
     JNIEnv *env = getJniEnv();
     jclass klass = env->GetObjectClass(g_activity);
     jmethodID mid = env->GetMethodID(klass, "shell_blitter", "([BIIIII)V");
+    // Because of fractional scaling, painting only a part of the
+    // display can result in things shifting slightly, and/or black
+    // lines around the edges of the repainted area. By repainting
+    // the entire display on every update, I'm trying to avoid those
+    // cosmetic flaws. Fortunately, the performance penalty of drawing
+    // more pixels is insignificant on today's devices.
+    x = 0;
+    y = 0;
+    width = 131;
+    height = 16;
     int size = bytesperline * (y + height);
     jbyteArray bits2 = env->NewByteArray(size);
     env->SetByteArrayRegion(bits2, 0, size, (const jbyte *) bits);

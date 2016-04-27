@@ -1,3 +1,7 @@
+2016-04-26: release 1.5.8f (Android only)
+
+* Fixed crash in 1.5.8e
+
 2016-04-26: release 1.5.8e (Android only)
 
 * The previous fix for the thin-black-line problem didn't do the job on some
