@@ -1,6 +1,7 @@
 2016-04-26: release 1.5.8f (Android only)
 
-* Fixed crash in 1.5.8e
+* Rolled back 8e, which was a disaster; it didn't fix the remaining black
+  line issues, but it did cause crashes everywhere.
 
 2016-04-26: release 1.5.8e (Android only)
 
