@@ -864,7 +864,8 @@ public class Free42Activity extends Activity {
             top = (int) Math.floor(((double) top) * height / skin.getHeight());
             right = (int) Math.ceil(((double) right) * width / skin.getWidth());
             bottom = (int) Math.ceil(((double) bottom) * height / skin.getHeight());
-            postInvalidate(left - 1, top - 1, right + 1, bottom + 1);
+            postInvalidate(left - 1, top - 1, right + 2, bottom + 2);
+            postInvalidate();
         }
 
         private void invalidateScaled(Rect inval) {
