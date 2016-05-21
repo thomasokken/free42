@@ -1,3 +1,12 @@
+????-??-??: release 1.5.9
+
+* Now building the Intel Decimal Floating-Point Math Library from source for
+  all targets. In terms of the end user, this makes no difference, but it will
+  make life easier for people who want to port Free42 to platforms that I don't
+  support myself (FreeBSD, Solaris, etc.); those platforms were left out in the
+  cold when I started using the Intel library and only provided pre-built
+  binaries for the supported platforms.
+
 2016-04-26: release 1.5.8f (Android only)
 
 * Rolled back 8e, which was a disaster; it didn't fix the remaining black

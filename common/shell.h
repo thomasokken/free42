@@ -232,10 +232,13 @@ int shell_get_heading(double *mag_heading, double *true_heading, double *acc,
  */
 void shell_get_time_date(uint4 *time, uint4 *date, int *weekday);
 
-#ifdef DEBUG
-void logtofile(const char *message);
-void lognumber(int4 num);
-void logdouble(double num);
-#endif
+/* shell_log()
+ *
+ * Writes text to some place where log output should go, typically Standard
+ * Output on systems where this is easy to access, and the system's usual
+ * logging facility otherwise.
+ * Note: non-debug versions of Free42 should never use this.
+ */
+void shell_log(const char *message);
 
 #endif

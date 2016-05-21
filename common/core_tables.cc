@@ -461,7 +461,10 @@ static const command_spec cmd_array[] =
     { /* CLALMX */      "CLAL\315X",            6, docmd_xrom,        0x0000a6a0, ARG_NONE,  FLAG_HIDDEN },
     { /* CLRALMS */     "CLRALMS",              7, docmd_xrom,        0x0000a6a1, ARG_NONE,  FLAG_HIDDEN },
     { /* RCLALM */      "RCLALM",               6, docmd_xrom,        0x0000a6a2, ARG_NONE,  FLAG_HIDDEN },
-    { /* SWPT */        "SWPT",                 4, docmd_xrom,        0x0000a6a3, ARG_NONE,  FLAG_HIDDEN }
+    { /* SWPT */        "SWPT",                 4, docmd_xrom,        0x0000a6a3, ARG_NONE,  FLAG_HIDDEN },
+
+    /* Intel Decimal Floating-Point Math Library: self-test */
+    { /* FPTEST */     "FPT\305ST",             6, docmd_fptest,      0x0000a7d2, ARG_NONE,  FLAG_NONE }
 };
 
 /*

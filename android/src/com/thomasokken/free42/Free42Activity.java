@@ -1377,6 +1377,7 @@ public class Free42Activity extends Activity {
         @SuppressWarnings("unused") public boolean enable_ext_locat;
         @SuppressWarnings("unused") public boolean enable_ext_heading;
         @SuppressWarnings("unused") public boolean enable_ext_time;
+        @SuppressWarnings("unused") public boolean enable_ext_fptest;
     }
 
     ///////////////////////////////////////////////////

@@ -406,8 +406,9 @@
 #define CMD_CLRALMS     364
 #define CMD_RCLALM      365
 #define CMD_SWPT        366
+#define CMD_FPTEST      367
 
-#define CMD_SENTINEL    367
+#define CMD_SENTINEL    368
 
 
 /* command_spec.argtype */

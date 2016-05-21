@@ -2331,6 +2331,11 @@ bool load_state(int4 ver) {
         if (!read_bool(&core_settings.enable_ext_heading)) return false;
         if (!read_bool(&core_settings.enable_ext_time)) return false;
     }
+    #if defined (FREE42_FPTEST)
+        core_settings.enable_ext_fptest = true;
+    #else
+        core_settings.enable_ext_fptest = false;
+    #endif
 
     if (!read_bool(&mode_clall)) return false;
     if (!read_bool(&mode_command_entry)) return false;
@@ -2710,6 +2715,11 @@ void hard_reset(int bad_state_file) {
         core_settings.enable_ext_heading = false;
     #endif
     core_settings.enable_ext_time = true;
+    #if defined (FREE42_FPTEST)
+        core_settings.enable_ext_fptest = true;
+    #else
+        core_settings.enable_ext_fptest = false;
+    #endif
 
     reset_math();
 

@@ -331,6 +331,7 @@ typedef struct {
     bool enable_ext_locat;
     bool enable_ext_heading;
     bool enable_ext_time;
+    bool enable_ext_fptest;
 } core_settings_struct;
 
 extern core_settings_struct core_settings;

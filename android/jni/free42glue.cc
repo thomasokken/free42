@@ -288,6 +288,8 @@ Java_com_thomasokken_free42_Free42Activity_getCoreSettings(JNIEnv *env, jobject 
     env->SetBooleanField(settings, fid, core_settings.enable_ext_heading);
     fid = env->GetFieldID(klass, "enable_ext_time", "Z");
     env->SetBooleanField(settings, fid, core_settings.enable_ext_time);
+    fid = env->GetFieldID(klass, "enable_ext_fptest", "Z");
+    env->SetBooleanField(settings, fid, core_settings.enable_ext_fptest);
 }
 
 extern "C" void
@@ -314,6 +316,8 @@ Java_com_thomasokken_free42_Free42Activity_putCoreSettings(JNIEnv *env, jobject 
     core_settings.enable_ext_heading = env->GetBooleanField(settings, fid);
     fid = env->GetFieldID(klass, "enable_ext_time", "Z");
     core_settings.enable_ext_time = env->GetBooleanField(settings, fid);
+    fid = env->GetFieldID(klass, "enable_ext_fptest", "Z");
+    core_settings.enable_ext_fptest = env->GetBooleanField(settings, fid);
 }
 
 extern "C" void

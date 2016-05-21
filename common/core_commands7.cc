@@ -16,6 +16,9 @@
  *****************************************************************************/
 
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdarg.h>
 
 #include "core_commands2.h"
 #include "core_commands7.h"
@@ -620,3 +623,58 @@ int docmd_time(arg_struct *arg) {
      */
     return ERR_NONE;
 }
+
+////////////////////////////////////////////////////////////////
+///// Intel Decimal Floating-Point Math Library: self-test /////
+////////////////////////////////////////////////////////////////
+
+#ifdef FREE42_FPTEST
+
+static int tests_lineno;
+extern const char *readtest_lines[];
+
+extern "C" {
+    int readtest_main(int argc, char *argv[]);
+
+    int tests_eof() {
+        return readtest_lines[tests_lineno] == NULL;
+    }
+
+    void tests_readline(char *buf, int bufsize) {
+        const char *line = readtest_lines[tests_lineno++];
+        strncpy(buf, line, bufsize - 1);
+        buf[bufsize - 1] = 0;
+    }
+
+    int testlogprintf(const char *fmt, ...) {
+        int c;
+        va_list ap;
+        char text[1024];
+        va_start(ap, fmt);
+        c = vsprintf(text, fmt, ap);
+        shell_log(text);
+        va_end(ap);
+        return c;
+    }
+}
+
+int docmd_fptest(arg_struct *arg) {
+    if (!core_settings.enable_ext_fptest)
+        return ERR_NONEXISTENT;
+    tests_lineno = 0;
+    char *argv[] = { (char *) "readtest", NULL };
+    int result = readtest_main(1, argv);
+    vartype *v = new_real(result);
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    recall_result(v);
+    return ERR_NONE;
+}
+
+#else
+
+int docmd_fptest(arg_struct *arg) {
+    return ERR_NONEXISTENT;
+}
+
+#endif

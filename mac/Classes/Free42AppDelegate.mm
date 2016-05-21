@@ -1260,6 +1260,10 @@ int shell_read(char *buf, int4 buflen) {
         return nread;
 }
 
+void shell_log(const char *message) {
+    NSLog(@"%s", message);
+}
+
 int shell_wants_cpu() {
     return we_want_cpu;
 }

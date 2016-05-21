@@ -2400,6 +2400,7 @@ int find_builtin(const char *name, int namelen) {
         if (i == CMD_LOCAT && !core_settings.enable_ext_locat) i++;
         if (i == CMD_HEADING && !core_settings.enable_ext_heading) i++;
         if (i == CMD_ADATE && !core_settings.enable_ext_time) i += 34;
+        if (i == CMD_FPTEST && !core_settings.enable_ext_fptest) i++;
         if (i == CMD_SENTINEL)
             break;
         if ((cmdlist(i)->flags & FLAG_HIDDEN) != 0)
