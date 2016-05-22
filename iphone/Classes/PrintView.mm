@@ -16,7 +16,7 @@
  *****************************************************************************/
 
 #import "PrintView.h"
-#import "Free42AppDelegate.h"
+#import "RootViewController.h"
 
 
 @implementation PrintView
@@ -79,7 +79,7 @@ int printout_bottom;
 }
 
 - (IBAction) done {
-    [Free42AppDelegate showMain];
+    [RootViewController showMain];
 }
 
 - (void) updatePrintout:(id) params {

@@ -18,7 +18,7 @@
 #import <dirent.h>
 #import "SelectSkinView.h"
 #import "CalcView.h"
-#import "Free42AppDelegate.h"
+#import "RootViewController.h"
 #import "shell_skin_iphone.h"
 #import "core_main.h"
 
@@ -92,7 +92,7 @@
 }
 
 - (IBAction) done {
-    [Free42AppDelegate showMain];
+    [RootViewController showMain];
 }
 
 - (void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {

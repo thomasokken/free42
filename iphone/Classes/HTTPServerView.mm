@@ -27,6 +27,7 @@
 
 #import "HTTPServerView.h"
 #import "Free42AppDelegate.h"
+#import "RootViewController.h"
 
 // From simpleserver.c
 void handle_client(int csock);
@@ -149,7 +150,7 @@ static void *getHostName(void *dummy) {
 - (IBAction) done {
     [UIApplication sharedApplication].idleTimerDisabled = NO;
     write(pype[1], "1\n", 2);
-    [Free42AppDelegate showMain];
+    [RootViewController showMain];
 }
 
 - (void) touchesBegan: (NSSet *) touches withEvent: (UIEvent *) event {

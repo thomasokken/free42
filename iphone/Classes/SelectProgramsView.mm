@@ -19,7 +19,7 @@
 #import <sys/stat.h>
 #import "SelectProgramsView.h"
 #import "CalcView.h"
-#import "Free42AppDelegate.h"
+#import "RootViewController.h"
 #import "SelectFileView.h"
 #import "shell_skin_iphone.h"
 #import "core_main.h"
@@ -66,7 +66,7 @@
 - (IBAction) done {
     // OK
     // Need to raise the main window now, in case the SelectFileView is cancelled
-    [Free42AppDelegate showMain];
+    [RootViewController showMain];
     NSArray *selection = [programTable indexPathsForSelectedRows];
     if (selection == nil)
         return;
@@ -82,7 +82,7 @@ static int my_shell_write(const char *buf, int buflen) {
         return 0;
     written = fwrite(buf, 1, buflen, export_file);
     if (written != buflen) {
-        [Free42AppDelegate showMessage:@"Export failed; there was an error writing to the file."];
+        [RootViewController showMessage:@"Export failed; there was an error writing to the file."];
         fclose(export_file);
         export_file = NULL;
         return 0;
@@ -118,7 +118,7 @@ static int my_shell_write(const char *buf, int buflen) {
 - (void) doExport2 {
     export_file = fopen([export_path cStringUsingEncoding:NSUTF8StringEncoding], "w");
     if (export_file == NULL) {
-        [Free42AppDelegate showMessage:@"Export failed; could not create the file."];
+        [RootViewController showMessage:@"Export failed; could not create the file."];
         return;
     }
     NSArray *selection = [programTable indexPathsForSelectedRows];
@@ -140,7 +140,7 @@ static int my_shell_write(const char *buf, int buflen) {
 
 - (IBAction) back {
     // Cancel
-    [Free42AppDelegate showMain];
+    [RootViewController showMain];
 }
 
 - (UITableViewCell *) tableView:(UITableView *)table cellForRowAtIndexPath:(NSIndexPath *) indexPath {

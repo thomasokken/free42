@@ -17,6 +17,7 @@
 
 #import "AboutView.h"
 #import "Free42AppDelegate.h"
+#import "RootViewController.h"
 
 
 @implementation AboutView
@@ -46,7 +47,7 @@
 }
 
 - (IBAction) done {
-    [Free42AppDelegate showMain];
+    [RootViewController showMain];
 }
 
 - (void)dealloc {

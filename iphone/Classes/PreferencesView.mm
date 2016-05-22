@@ -16,9 +16,9 @@
  *****************************************************************************/
 
 #import "PreferencesView.h"
-#import "Free42AppDelegate.h"
 #import "CalcView.h"
 #import "SelectFileView.h"
+#import "RootViewController.h"
 #import "core_main.h"
 
 @implementation PreferencesView
@@ -173,7 +173,7 @@
     if (!state.printerToGifFile || strcmp(buf, state.printerGifFileName) != 0)
         [CalcView stopGifPrinting];
     state.popupKeyboard = popupKeyboardSwitch.on;
-    [Free42AppDelegate showMain];
+    [RootViewController showMain];
 }
 
 - (void) dealloc {

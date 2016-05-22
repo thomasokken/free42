@@ -239,9 +239,9 @@
 		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
-				E93469F31CF0CCAB00B0762F /* readtest.c */,
 				32CA4F630368D1EE00C91783 /* Free42_Prefix.pch */,
 				E9792540169888F200598A02 /* main.mm */,
+				E93469F31CF0CCAB00B0762F /* readtest.c */,
 				E93469F11CF0C68600B0762F /* readtest_lines.cc */,
 			);
 			name = "Other Sources";

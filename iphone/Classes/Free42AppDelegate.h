@@ -17,51 +17,14 @@
 
 #import <UIKit/UIKit.h>
 
-@class CalcView;
-@class PrintView;
-@class HTTPServerView;
-@class SelectSkinView;
-@class SelectProgramsView;
-@class PreferencesView;
-@class AboutView;
-@class SelectFileView;
+@class RootViewController;
 
 @interface Free42AppDelegate : NSObject <UIApplicationDelegate> {
-    UIWindow *window;
-    CalcView *calcView;
-    PrintView *printView;
-    HTTPServerView *httpServerView;
-    SelectSkinView *selectSkinView;
-    SelectProgramsView *selectProgramsView;
-    PreferencesView *preferencesView;
-    AboutView *aboutView;
-    SelectFileView *selectFileView;
+    RootViewController *rootViewController;
 }
 
-@property (nonatomic, retain) IBOutlet UIWindow *window;
-@property (nonatomic, retain) IBOutlet CalcView *calcView;
-@property (nonatomic, retain) IBOutlet PrintView *printView;
-@property (nonatomic, retain) IBOutlet HTTPServerView *httpServerView;
-@property (nonatomic, retain) IBOutlet SelectSkinView *selectSkinView;
-@property (nonatomic, retain) IBOutlet SelectProgramsView *selectProgramsView;
-@property (nonatomic, retain) IBOutlet PreferencesView *preferencesView;
-@property (nonatomic, retain) IBOutlet AboutView *aboutView;
-@property (nonatomic, retain) IBOutlet SelectFileView *selectFileView;
+@property (nonatomic, retain) IBOutlet RootViewController *rootViewController;
 
-+ (void) showMessage:(NSString *) message;
-+ (void) playSound: (int) which;
-+ (void) showMain;
-+ (void) showPrintOut;
-+ (void) showHttpServer;
-+ (void) showSelectSkin;
-+ (void) showPreferences;
-+ (void) showAbout;
-+ (void) showSelectFile;
 + (const char *) getVersion;
-+ (void) doImport;
-+ (void) doExport;
 
 @end
-
-void export_programs(int count, const int *indexes, int (*writer)(const char *buf, int buflen));
-void import_programs(int (*reader)(char *buf, int buflen));

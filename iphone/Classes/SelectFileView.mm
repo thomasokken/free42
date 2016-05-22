@@ -17,7 +17,7 @@
 
 #import <dirent.h>
 #import <sys/stat.h>
-#import "Free42AppDelegate.h"
+#import "RootViewController.h"
 #import "SelectFileView.h"
 
 @implementation SelectFileView
@@ -65,7 +65,7 @@ static int dirTypeCapacity = 0;
     callbackObject = [cb_id retain];
     callbackSelector = cb_sel;
     dirName = @".";
-    [Free42AppDelegate showSelectFile];
+    [RootViewController showSelectFile];
 }
 
 - (void) raised {

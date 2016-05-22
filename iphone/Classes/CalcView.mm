@@ -25,7 +25,7 @@
 
 #import "CalcView.h"
 #import "PrintView.h"
-#import "Free42AppDelegate.h"
+#import "RootViewController.h"
 #import "free42.h"
 #import "core_main.h"
 #import "core_display.h"
@@ -185,7 +185,7 @@ static CalcView *calcView = nil;
         switch (buttonIndex) {
             case 0:
                 // Show Print-Out
-                [Free42AppDelegate showPrintOut];
+                [RootViewController showPrintOut];
                 break;
             case 1:
                 // Program Import & Export
@@ -193,11 +193,11 @@ static CalcView *calcView = nil;
                 break;
             case 2:
                 // Preferences
-                [Free42AppDelegate showPreferences];
+                [RootViewController showPreferences];
                 break;
             case 3:
                 // Select Skin
-                [Free42AppDelegate showSelectSkin];
+                [RootViewController showSelectSkin];
                 break;
             case 4:
                 // Copy
@@ -209,7 +209,7 @@ static CalcView *calcView = nil;
                 break;
             case 6:
                 // About Free42
-                [Free42AppDelegate showAbout];
+                [RootViewController showAbout];
                 break;
             case 7:
                 // Cancel
@@ -219,15 +219,15 @@ static CalcView *calcView = nil;
         switch (buttonIndex) {
             case 0:
                 // HTTP Server
-                [Free42AppDelegate showHttpServer];
+                [RootViewController showHttpServer];
                 break;
             case 1:
                 // Import Programs
-                [Free42AppDelegate doImport];
+                [RootViewController doImport];
                 break;
             case 2:
                 // Export Programs
-                [Free42AppDelegate doExport];
+                [RootViewController doExport];
                 break;
             case 3:
                 // Back
@@ -739,12 +739,12 @@ void shell_beeper(int frequency, int duration) {
     const int cutoff_freqs[] = { 164, 220, 243, 275, 293, 324, 366, 418, 438, 550 };
     for (int i = 0; i < 10; i++) {
         if (frequency <= cutoff_freqs[i]) {
-            [Free42AppDelegate playSound:i];
+            [RootViewController playSound:i];
             shell_delay(250);
             return;
         }
     }
-    [Free42AppDelegate playSound:10];
+    [RootViewController playSound:10];
     shell_delay(125);
 }
 
@@ -774,6 +774,10 @@ void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
         ann_rad = rad;
         skin_update_annunciator(7, ann_rad, calcView);
     }
+}
+
+void shell_log(const char *message) {
+    NSLog(@"%s", message);
 }
 
 int shell_wants_cpu() {
