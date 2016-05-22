@@ -1,5 +1,5 @@
 VERSION = "\"$(shell cat ../../VERSION)\""
-CFLAGS = -Wall -g -DVERSION=$(VERSION) -DSTANDALONE=1
+CFLAGS = -Wall -g -DVERSION=$(VERSION) -DSTANDALONE=1 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk
 
 .c.o:
 	$(CC) $(CFLAGS) -c -o $@ $<
