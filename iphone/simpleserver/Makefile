@@ -1,5 +1,5 @@
 VERSION = "\"$(shell cat ../../VERSION)\""
-CFLAGS = -Wall -g -DVERSION=$(VERSION) -DSTANDALONE=1 -arch i386 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk
+CFLAGS = -Wall -g -DVERSION=$(VERSION) -DSTANDALONE=1
 
 .c.o:
 	$(CC) $(CFLAGS) -c -o $@ $<
@@ -11,6 +11,7 @@ icons.c: icon2c icon2c.conf
 	./icon2c
 
 icon2c: icon2c.c
+        /usr/bin/cc -o icon2c icon2c.c
 
 clean: FORCE
 	rm -rf icon2c icon2c.exe icons.c simpleserver simpleserver.exe \
