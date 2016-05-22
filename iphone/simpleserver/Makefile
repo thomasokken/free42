@@ -11,7 +11,7 @@ icons.c: icon2c icon2c.conf
 	./icon2c
 
 icon2c: icon2c.c
-        /usr/bin/cc -o icon2c icon2c.c
+	/usr/bin/cc -o icon2c icon2c.c
 
 clean: FORCE
 	rm -rf icon2c icon2c.exe icons.c simpleserver simpleserver.exe \
