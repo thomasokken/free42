@@ -11,7 +11,7 @@ icons.c: icon2c icon2c.conf
 	./icon2c
 
 icon2c: icon2c.c
-	$(CC) $(CFLAGS) -arch i386 -isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk -o icon2c icon2c.c
+	env -i /usr/bin/cc -o icon2c icon2c.c
 
 clean: FORCE
 	rm -rf icon2c icon2c.exe icons.c simpleserver simpleserver.exe \
