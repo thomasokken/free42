@@ -406,8 +406,8 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1D6058960D05DD3E006BFB54 /* Build configuration list for PBXNativeTarget "Free42" */;
 			buildPhases = (
-				E91CC1BE0F8C1DDE00EE702C /* Run Script */,
 				E997E4A91CF0F9DB009939CE /* ShellScript */,
+				E91CC1BE0F8C1DDE00EE702C /* Run Script */,
 				1D60588D0D05DD3D006BFB54 /* Resources */,
 				1D60588E0D05DD3D006BFB54 /* Sources */,
 				1D60588F0D05DD3D006BFB54 /* Frameworks */,
@@ -499,7 +499,7 @@
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
+			shellPath = "/bin/sh -x";
 			shellScript = "touch main.m\ncd simpleserver\nmake icons.c\n";
 		};
 		E997E4A91CF0F9DB009939CE /* ShellScript */ = {
@@ -512,7 +512,7 @@
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
+			shellPath = "/bin/sh -x";
 			shellScript = "if [ -f gcc111libbid.a ]; then exit 0; fi\nARCHS=(armv7 i386)\nLIBNAMES=\nfor ARCH in ${ARCHS[@]}; do\n  rm -rf IntelRDFPMathLib20U1\n  tar xvfz ../inteldecimal/IntelRDFPMathLib20U1.tar.gz\n  cd IntelRDFPMathLib20U1\n  patch -p0 <../intel-lib-iphone-$ARCH.patch\n  cd LIBRARY\n  make CC=gcc CALL_BY_REF=1 GLOBAL_RND=1 GLOBAL_FLAGS=1 UNCHANGED_BINARY_FLAGS=0\n  mv libbid.a ../../gcc111libbid-$ARCH.a\n  LIBNAMES=\"$LIBNAMES gcc111libbid-$ARCH.a\"\n  cd ../..\ndone\nlipo -create $LIBNAMES -output gcc111libbid.a\n( echo '#ifdef FREE42_FPTEST'; echo 'const char *readtest_lines[] = {'; tr -d '\\r' < IntelRDFPMathLib20U1/TESTS/readtest.in | sed 's/^\\(.*\\)$/\"\\1\",/'; echo '0 };'; echo '#endif' ) > readtest_lines.cc\n";
 		};
 /* End PBXShellScriptBuildPhase section */
