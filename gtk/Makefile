@@ -15,29 +15,27 @@
 # along with this program; if not, see http://www.gnu.org/licenses/.
 ###############################################################################
 
-CXXFLAGS := -MMD \
-	    -Wall \
-	    -Wno-parentheses \
-	    -Wno-write-strings \
-	    -g \
-	    -I/usr/X11R6/include \
-	    -fno-exceptions \
-	    -fno-rtti \
-	    $(shell pkg-config --cflags gtk+-2.0) \
-	    -DVERSION="\"$(shell cat ../VERSION)\"" \
-	    -DDECIMAL_CALL_BY_REFERENCE=1 \
-	    -DDECIMAL_GLOBAL_ROUNDING=1 \
-	    -DDECIMAL_GLOBAL_ROUNDING_ACCESS_FUNCTIONS=1 \
-	    -DDECIMAL_GLOBAL_EXCEPTION_FLAGS=1 \
-	    -DDECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS=1 \
-	    -D_WCHAR_T_DEFINED
+CFLAGS = -MMD \
+	 -Wall \
+	 -Wno-parentheses \
+	 -Wno-write-strings \
+	 -g \
+	 -I/usr/X11R6/include \
+	 $(shell pkg-config --cflags gtk+-2.0) \
+	 -DVERSION="\"$(shell cat ../VERSION)\"" \
+	 -DDECIMAL_CALL_BY_REFERENCE=1 \
+	 -DDECIMAL_GLOBAL_ROUNDING=1 \
+	 -DDECIMAL_GLOBAL_ROUNDING_ACCESS_FUNCTIONS=1 \
+	 -DDECIMAL_GLOBAL_EXCEPTION_FLAGS=1 \
+	 -DDECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS=1
+
+CXXFLAGS = $(CFLAGS) \
+	 -fno-exceptions \
+	 -fno-rtti \
+	 -D_WCHAR_T_DEFINED
 
 LDFLAGS = -L/usr/X11R6/lib
-ifeq "$(shell uname -s)" "Darwin"
-LIBS := gcc111libbid-mac-x64.a -lXmu $(shell pkg-config --libs gtk+-2.0)
-else
-LIBS := gcc111libbid-$(shell uname -m).a -lXmu $(shell pkg-config --libs gtk+-2.0)
-endif
+LIBS = gcc111libbid.a -lXmu $(shell pkg-config --libs gtk+-2.0)
 
 ifeq "$(shell uname -s)" "Linux"
 LDFLAGS += -Wl,--hash-style=both
@@ -66,6 +64,12 @@ else
 EXE = free42bin
 endif
 
+ifdef FREE42_FPTEST
+CFLAGS += -DFREE42_FPTEST
+SRCS += readtest.c readtest_lines.cc
+OBJS += readtest.o readtest_lines.o
+endif
+
 ifdef AUDIO_ALSA
 # Note: the name of the libasound shared library that is usually compiled into
 # the executable is defined in the corresponding *.la file, in the 'dlname'
@@ -86,6 +90,9 @@ $(SRCS) skin2cc.cc keymap2cc.cc skin2cc.conf: symlinks
 .cc.o:
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
+readtest.o: readtest.c
+	$(CC) $(CFLAGS) -I IntelRDFPMathLib20U1/TESTS -D__intptr_t_defined -DLINUX -c -o $@ $<
+
 skin2cc: skin2cc.cc
 	$(CXX) -o skin2cc skin2cc.cc
 
@@ -100,20 +107,28 @@ keymap.cc: keymap2cc keymap.txt
 
 symlinks:
 	for fn in `cd ../common; /bin/ls`; do ln -s ../common/$$fn; done
+	sh ./build-intel-lib.sh
+	ln -s IntelRDFPMathLib20U1/TESTS/readtest.c
 	touch symlinks
 
 clean: FORCE
 	rm -f `find . -type l` \
 		skin2cc skin2cc.exe skins.cc \
 		keymap2cc keymap2cc.exe keymap.cc \
+	        readtest_lines.cc \
+	        gcc111libbid.a \
 		*.o *.d *.i *.ii *.s symlinks core.*
+	rm -rf IntelRDFPMathLib20U1
 
 cleaner: FORCE
 	rm -f `find . -type l` \
 		free42bin free42bin.exe free42dec free42dec.exe \
 		skin2cc skin2cc.exe skins.cc \
 		keymap2cc keymap2cc.exe keymap.cc \
+	        readtest_lines.cc \
+	        gcc111libbid.a \
 		*.o *.d *.i *.ii *.s symlinks core.*
+	rm -rf IntelRDFPMathLib20U1
 
 FORCE:
 

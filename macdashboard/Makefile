@@ -84,8 +84,8 @@ $(SRCS): symlinks
 .cc.o:
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-readtest.o:
-	$(CC) $(CFLAGS) -I IntelRDFPMathLib20U1/TESTS -D__intptr_t_defined -DLINUX -c -o readtest.o readtest.c
+readtest.o: readtest.c
+	$(CC) $(CFLAGS) -I IntelRDFPMathLib20U1/TESTS -D__intptr_t_defined -DLINUX -c -o $@ $<
 
 symlinks:
 	ln -s ../common/free42.h

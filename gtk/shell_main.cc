@@ -2233,6 +2233,15 @@ void shell_print(const char *text, int length,
     }
 }
 
+static FILE *logfile = NULL;
+
+void shell_log(const char *message) {
+    if (logfile == NULL)
+        logfile = fopen("free42.log", "w");
+    fprintf(logfile, "%s\n", message);
+    fflush(logfile);
+}
+
 int shell_write(const char *buf, int4 buflen) {
     int4 written;
     if (export_file == NULL)
