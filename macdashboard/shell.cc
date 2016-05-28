@@ -313,6 +313,15 @@ void shell_print(const char *text, int length,
 		 int x, int y, int width, int height) {
 }
 
+static FILE *logfile = NULL;
+
+void shell_log(const char *message) {
+    if (logfile == NULL)
+        logfile = fopen("/tmp/free42-widget.log", "w");
+    fprintf(logfile, "%s\n", message);
+    fflush(logfile);
+}
+
 keymap_entry *parse_keymap_entry(char *line, int lineno) {
     char *p;
     static keymap_entry entry;

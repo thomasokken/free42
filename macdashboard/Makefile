@@ -15,20 +15,23 @@
 # along with this program; if not, see http://www.gnu.org/licenses/.
 ###############################################################################
 
-CXXFLAGS = -DNO_SINCOS \
-	   -DOLD_PSE \
-	   -arch i386 \
-	   -mmacosx-version-min=10.4 \
-	   -Wall \
-	   -g \
+CFLAGS = -DNO_SINCOS \
+	 -DOLD_PSE \
+	 -arch i386 \
+	 -mmacosx-version-min=10.4 \
+	 -Wall \
+         -Wno-parentheses \
+	 -g \
+	 -DDECIMAL_CALL_BY_REFERENCE=1 \
+	 -DDECIMAL_GLOBAL_ROUNDING=1 \
+	 -DDECIMAL_GLOBAL_ROUNDING_ACCESS_FUNCTIONS=1 \
+	 -DDECIMAL_GLOBAL_EXCEPTION_FLAGS=1 \
+	 -DDECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS=1 \
+	 -D_WCHAR_T_DEFINED
+
+CXXFLAGS = $(CFLAGS) \
            -fno-exceptions \
-	   -fno-rtti \
-	   -DDECIMAL_CALL_BY_REFERENCE=1 \
-	   -DDECIMAL_GLOBAL_ROUNDING=1 \
-	   -DDECIMAL_GLOBAL_ROUNDING_ACCESS_FUNCTIONS=1 \
-	   -DDECIMAL_GLOBAL_EXCEPTION_FLAGS=1 \
-	   -DDECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS=1 \
-	   -D_WCHAR_T_DEFINED
+	   -fno-rtti
 
 LDFLAGS = -Wl,-syslibroot,/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk \
           -mmacosx-version-min=10.4
@@ -50,7 +53,13 @@ OBJS = shell.o shell_spool.o \
 	core_sto_rcl.o core_tables.o core_variables.o
 
 ifdef BCD_MATH
-CXXFLAGS += -DBCD_MATH
+CFLAGS += -DBCD_MATH
+endif
+
+ifdef FREE42_FPTEST
+CFLAGS += -DFREE42_FPTEST
+SRCS += readtest.c readtest_lines.cc
+OBJS += readtest.o readtest_lines.o
 endif
 
 Free42.wdgt: free42 keymap.txt
@@ -74,7 +83,10 @@ $(SRCS): symlinks
 
 .cc.o:
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
-	
+
+readtest.o:
+	$(CC) $(CFLAGS) -I IntelRDFPMathLib20U1/TESTS -D__intptr_t_defined -DLINUX -c -o readtest.o readtest.c
+
 symlinks:
 	ln -s ../common/free42.h
 	ln -s ../common/core_commands1.cc
@@ -127,13 +139,16 @@ symlinks:
 	ln -s ../common/keymap2cc.cc
 	ln -s ../common/bid_conf.h
 	ln -s ../common/bid_functions.h
+	sh ./build-intel-lib.sh
+	ln -s IntelRDFPMathLib20U1/TESTS/readtest.c
 	touch symlinks
 
 clean: FORCE
 	rm -f `find . -type l` free42 \
-		keymap2cc keymap.cc \
+		keymap2cc keymap.cc readtest_lines.cc \
 		set-version-in-info-plist set-version-in-info-plist.c \
-		*.o *.d *.i *.ii *.s symlinks core.*
+		*.o *.d *.i *.ii *.s *.a symlinks core.*
 	rm -rf Free42.wdgt
+	rm -rf IntelRDFPMathLib20U1
 
 FORCE:
