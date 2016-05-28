@@ -400,8 +400,8 @@ static CalcView *calcView = nil;
 
     long w, h;
     skin_load(&w, &h);
-    skin_width = w;
-    skin_height = h;
+    skin_width = (int) w;
+    skin_height = (int) h;
     
     core_init(init_mode, version);
     if (statefile != NULL) {
@@ -805,13 +805,13 @@ int shell_read_saved_state(void *buf, int bufsize) {
     if (statefile == NULL)
         return -1;
     else {
-        int n = fread(buf, 1, bufsize, statefile);
+        size_t n = fread(buf, 1, bufsize, statefile);
         if (n != bufsize && ferror(statefile)) {
             fclose(statefile);
             statefile = NULL;
             return -1;
         } else
-            return n;
+            return (int) n;
     }
 }
 
@@ -820,7 +820,7 @@ bool shell_write_saved_state(const void *buf, int nbytes) {
     if (statefile == NULL)
         return false;
     else {
-        int n = fwrite(buf, 1, nbytes, statefile);
+        size_t n = fwrite(buf, 1, nbytes, statefile);
         if (n != nbytes) {
             fclose(statefile);
             remove("config/state");
@@ -958,7 +958,7 @@ void shell_print(const char *text, int length,
         
         if (print_gif == NULL) {
             while (1) {
-                int len, p;
+                ssize_t len, p;
                 
                 gif_seq = (gif_seq + 1) % 10000;
                 
@@ -1150,7 +1150,7 @@ static void show_message(const char *title, const char *message) {
 }
 
 static void txt_writer(const char *text, int length) {
-    int n;
+    size_t n;
     if (print_txt == NULL)
         return;
     n = fwrite(text, 1, length, print_txt);
@@ -1185,7 +1185,7 @@ static void gif_seeker(int4 pos) {
 }
 
 static void gif_writer(const char *text, int length) {
-    int n;
+    size_t n;
     if (print_gif == NULL)
         return;
     n = fwrite(text, 1, length, print_gif);

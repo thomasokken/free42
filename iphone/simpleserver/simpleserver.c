@@ -75,8 +75,8 @@ static char *make_temp_file() {
 
 typedef struct {
     char *buf;
-    int size;
-    int capacity;
+    ssize_t size;
+    ssize_t capacity;
 } textbuf;
 
 #define LINEBUFSIZE 1024
@@ -102,7 +102,7 @@ typedef struct cleaner_base {
 } cleaner_base;
 
 static void sockprintf(int sock, const char *fmt, ...);
-static void tbwrite(textbuf *tb, const char *data, int size);
+static void tbwrite(textbuf *tb, const char *data, ssize_t size);
 static void tbprintf(textbuf *tb, const char *fmt, ...);
 static void do_get(int csock, const char *url);
 static void do_post(int csock, const char *url);
@@ -115,7 +115,7 @@ static void read_line(int csock, char *buf, int bufsize) {
     int p = 0;
     int afterCR = 0;
     while (1) {
-        int n = recv(csock, buf + p, 1, 0);
+        ssize_t n = recv(csock, buf + p, 1, 0);
         if (n == -1) {
             buf[p] = 0;
             break;
@@ -219,9 +219,9 @@ static void sockprintf(int sock, const char *fmt, ...) {
     va_end(ap);
 }
 
-static void tbwrite(textbuf *tb, const char *data, int size) {
+static void tbwrite(textbuf *tb, const char *data, ssize_t size) {
     if (tb->size + size > tb->capacity) {
-        int newcapacity = tb->capacity == 0 ? 1024 : (tb->capacity << 1);
+        ssize_t newcapacity = tb->capacity == 0 ? 1024 : (tb->capacity << 1);
         while (newcapacity < tb->size + size)
             newcapacity <<= 1;
         char *newbuf = (char *) realloc(tb->buf, newcapacity);
@@ -252,7 +252,7 @@ static void tbprintf(textbuf *tb, const char *fmt, ...) {
 
 typedef struct dir_item {
     char *name;
-    int size;
+    size_t size;
     int type; /* 0=unknown, 1=file, 2=dir */
     char mtime[64];
     struct dir_item *next;
@@ -271,7 +271,7 @@ static void do_get(int csock, const char *url) {
     int filesize;
     DIR *dir;
     char buf[LINEBUFSIZE];
-    int n;
+    size_t n;
 
     url = canonicalize_url(url);
     if (url == NULL) {
@@ -666,12 +666,12 @@ static textbuf import_tb = { NULL, 0, 0 };
 static int my_shell_read(char *buf, int nbytes) {
     if (import_tb.buf == NULL || import_tb.capacity >= import_tb.size)
         return -1;
-    int bytes_copied = import_tb.size - import_tb.capacity;
+    ssize_t bytes_copied = import_tb.size - import_tb.capacity;
     if (nbytes < bytes_copied)
         bytes_copied = nbytes;
     memcpy(buf, import_tb.buf + import_tb.capacity, bytes_copied);
     import_tb.capacity += bytes_copied;
-    return bytes_copied;
+    return (int) bytes_copied;
 }
 
 typedef struct prgm_name_list {
@@ -740,7 +740,7 @@ static char *prgm_index_to_name(int prgm_index) {
         return strdup("END");
     }
     char *q = strchr(p + 1, '"');
-    int len = q - p - 1;
+    intptr_t len = q - p - 1;
     char *name = (char *) malloc(len + 1);
     memcpy(name, p + 1, len);
     name[len] = 0;
@@ -790,7 +790,7 @@ static int zip_program_2(int prgm_index, int is_all, zipFile z, char *buf, int b
         strcat(name3, ".raw");
         /* int ret = */ zipOpenNewFileInZip(z, name3, &zfi, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION);
         // TODO: How to deal with the return value? zip.h doesn't say.
-        zipWriteInFileInZip(z, export_tb.buf, export_tb.size);
+        zipWriteInFileInZip(z, export_tb.buf, (unsigned int) export_tb.size);
         zipCloseFileInZip(z);
         free(name3);
         export_buf_reset();
@@ -815,7 +815,8 @@ static void zip_one_file(const char *file, const char *path, zipFile z, char *bu
     struct stat st;
     FILE *f;
     struct tm stm;
-    int ret, n;
+    int ret;
+    ssize_t n;
 
     ret = stat(file, &st);
     if (ret != 0 || !S_ISREG(st.st_mode))
@@ -838,7 +839,7 @@ static void zip_one_file(const char *file, const char *path, zipFile z, char *bu
     ret = zipOpenNewFileInZip(z, path, &zfi, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION);
     // TODO: How to deal with the return value? zip.h doesn't say.
     while ((n = fread(buf, 1, bufsize, f)) > 0)
-        zipWriteInFileInZip(z, buf, n);
+        zipWriteInFileInZip(z, buf, (unsigned int) n);
     fclose(f);
     zipCloseFileInZip(z);
 }
@@ -882,7 +883,7 @@ static void recursive_zip(const char *base_path, const char *zip_path, zipFile z
 void do_post(int csock, const char *url) {
     char line[LINEBUFSIZE];
     char boundary[LINEBUFSIZE] = "";
-    int blen;
+    size_t blen;
 
     url = canonicalize_url(url);
     if (url == NULL) {
@@ -1025,7 +1026,7 @@ void do_post(int csock, const char *url) {
 
         while (1) {
             char c;
-            int n = recv(csock, &c, 1, 0);
+            ssize_t n = recv(csock, &c, 1, 0);
             if (n != 1)
                 break;
             if (*filename != 0 || action != 0)
@@ -1045,7 +1046,7 @@ void do_post(int csock, const char *url) {
                 if (*filename != 0 || action != 0) {
                     tb.size -= blen + 2;
                     if (action == 0) {
-                        int fnlen = strlen(filename);
+                        size_t fnlen = strlen(filename);
                         if (fnlen < 4 || strcasecmp(filename + fnlen - 4, ".zip") != 0) {
                             // Upload to file
 #ifdef FREE42
@@ -1322,7 +1323,7 @@ void do_post(int csock, const char *url) {
     if (z != NULL) {
         zipClose(z, NULL);
         FILE *f = fopen(zip_name, "r");
-        int n;
+        ssize_t n;
         while ((n = fread(buf, 1, 8192, f)) > 0) {
             sockprintf(csock, "%X\r\n", n);
             send(csock, buf, n, 0);
@@ -1584,7 +1585,7 @@ static int open_item(const char *url, void **ptr, int *type, int *filesize, cons
             *ptr = export_tb.buf;
             export_tb.buf = NULL;
             *type = 0;
-            *filesize = export_tb.size;
+            *filesize = (int) export_tb.size;
             pthread_mutex_unlock(&shell_mutex);
             /* names[idx] is one of:
              * 1) "NAME1" ["NAME2" ...]
@@ -1619,7 +1620,7 @@ static int open_item(const char *url, void **ptr, int *type, int *filesize, cons
         if (strcmp(url, icon_name[i]) == 0) {
             *ptr = icon_data[i];
             *type = 0;
-            *filesize = icon_size[i];
+            *filesize = (int) icon_size[i];
             return 200;
         }
     }
@@ -1643,7 +1644,7 @@ static int open_item(const char *url, void **ptr, int *type, int *filesize, cons
     if (S_ISREG(statbuf.st_mode)) {
         FILE *f = fopen(url, "r");
         *type = 1;
-        *filesize = statbuf.st_size;
+        *filesize = (int) statbuf.st_size;
         if (f == NULL) {
             /* We already know the file exists and is reachable, so
              * we only check for EACCES; any other error is reported
@@ -1693,8 +1694,8 @@ static mime_rec mime_list[] = {
 
 static const char *get_mime(const char *filename) {
     int i = 0;
-    int filenamelen = strlen(filename);
-    int extlen;
+    size_t filenamelen = strlen(filename);
+    size_t extlen;
     while (1) {
         mime_rec *mr = &mime_list[i++];
         if (mr->ext == NULL)
@@ -1737,7 +1738,7 @@ static void http_error(int csock, int err) {
 #ifdef STANDALONE
 
 static void *handle_client_2(void *param) {
-    handle_client((int) param);
+    handle_client((int) (intptr_t) param);
     return NULL;
 }
 

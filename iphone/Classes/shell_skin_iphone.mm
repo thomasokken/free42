@@ -147,7 +147,7 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
                     NSLog(@"Keymap, line %d: Bad keycode.", lineno);
                     return NULL;
                 }
-                keycode = k;
+                keycode = (int) k;
                 done = 1;
             }
             tok = strtok(NULL, " \t");
@@ -440,7 +440,7 @@ void skin_load(long *width, long *height) {
                         break;
                     macro = (SkinMacro *) malloc(sizeof(SkinMacro));
                     // TODO - handle memory allocation failure
-                    macro->code = n;
+                    macro->code = (int) n;
                 } else if (len < SKIN_MAX_MACRO_LENGTH) {
                     if (n < 1 || n > 37) {
                         /* Key code out of range; ignore this macro */

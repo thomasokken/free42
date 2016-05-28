@@ -77,7 +77,7 @@ static FILE *export_file = NULL;
 static NSString *export_path = nil;
 
 static int my_shell_write(const char *buf, int buflen) {
-    int written;
+    size_t written;
     if (export_file == NULL)
         return 0;
     written = fwrite(buf, 1, buflen, export_file);
@@ -122,13 +122,13 @@ static int my_shell_write(const char *buf, int buflen) {
         return;
     }
     NSArray *selection = [programTable indexPathsForSelectedRows];
-    int count = [selection count];
+    NSUInteger count = [selection count];
     int *indexes = new int[count];
     for (int i = 0; i < count; i++) {
         NSIndexPath *index = (NSIndexPath *) [selection objectAtIndex:i];
-        indexes[i] = [index indexAtPosition:1];
+        indexes[i] = (int) [index indexAtPosition:1];
     }
-    export_programs(count, indexes, my_shell_write);
+    export_programs((int) count, indexes, my_shell_write);
     delete[] indexes;
     if (export_file != NULL) {
         fclose(export_file);
@@ -144,7 +144,7 @@ static int my_shell_write(const char *buf, int buflen) {
 }
 
 - (UITableViewCell *) tableView:(UITableView *)table cellForRowAtIndexPath:(NSIndexPath *) indexPath {
-    int n = [indexPath indexAtPosition:1];
+    NSUInteger n = [indexPath indexAtPosition:1];
     NSString *s = [programNames objectAtIndex:n];
     UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
     cell.textLabel.text = s;
@@ -152,7 +152,7 @@ static int my_shell_write(const char *buf, int buflen) {
 }
 
 - (NSInteger) tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section {
-    int n = [programNames count];
+    NSUInteger n = [programNames count];
     return n;
 }
 

@@ -90,7 +90,7 @@ static int dirTypeCapacity = 0;
     
     [typeSelector removeAllSegments];
     NSArray *ta = [types componentsSeparatedByString:@","];
-    int tc = [ta count];
+    NSUInteger tc = [ta count];
     if (tc == 0)
         typeSelector.enabled = NO;
     else {
@@ -148,7 +148,7 @@ static int dirTypeCapacity = 0;
 }
 
 - (NSIndexPath *)tableView:(UITableView *)tableView willSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    int n = [indexPath indexAtPosition:1];
+    NSUInteger n = [indexPath indexAtPosition:1];
     if (dirList == NULL || n >= [dirList count])
         return nil;
     NSString *item = [dirList objectAtIndex:n];
@@ -174,7 +174,7 @@ static int dirTypeCapacity = 0;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    int n = [indexPath indexAtPosition:1];
+    NSUInteger n = [indexPath indexAtPosition:1];
     if (dirList == NULL || n >= [dirList count])
         return nil;
     UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
@@ -268,9 +268,9 @@ static int dirTypeCapacity = 0;
         if (err == 0 && (S_ISREG(s.st_mode) || S_ISDIR(s.st_mode))) {
             if (S_ISREG(s.st_mode) && strcmp(typeStr, "*") != 0) {
                 // Check file suffix
-                int flen = strlen(d->d_name);
-                int slen = strlen(typeStr);
-                if (flen - slen <= 0)
+                size_t flen = strlen(d->d_name);
+                size_t slen = strlen(typeStr);
+                if (flen <= slen)
                     continue;
                 if (d->d_name[flen - slen - 1] != '.' || strcasecmp(d->d_name + (flen - slen), typeStr) != 0)
                     continue;

@@ -66,9 +66,9 @@
     fclose(builtins);
     DIR *dir = opendir("skins");
     struct dirent *d;
-    int num_builtin_skins = [skinNames count];
+    NSUInteger num_builtin_skins = [skinNames count];
     while ((d = readdir(dir)) != NULL) {
-        int len = strlen(d->d_name);
+        size_t len = strlen(d->d_name);
         if (len < 8 || strcmp(d->d_name + len - 7, ".layout") != 0)
             continue;
         d->d_name[len - 7] = 0;
@@ -96,7 +96,7 @@
 }
 
 - (void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    int n = [indexPath indexAtPosition:1];
+    NSUInteger n = [indexPath indexAtPosition:1];
     NSString *name = [skinNames objectAtIndex:n];
     [name getCString:state.skinName maxLength:FILENAMELEN encoding:NSUTF8StringEncoding];
     long width, height;
@@ -107,7 +107,7 @@
 }
 
 - (UITableViewCell *) tableView:(UITableView *)table cellForRowAtIndexPath:(NSIndexPath *) indexPath {
-    int n = [indexPath indexAtPosition:1];
+    NSUInteger n = [indexPath indexAtPosition:1];
     NSString *s = [skinNames objectAtIndex:n];
     UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
     cell.textLabel.text = s;
@@ -115,7 +115,7 @@
 }
 
 - (NSInteger) tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section {
-    int n = [skinNames count];
+    NSUInteger n = [skinNames count];
     return n;
 }
 

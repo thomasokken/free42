@@ -47,7 +47,7 @@ int printout_bottom;
     
     FILE *printfile = fopen("config/print", "r");
     if (printfile != NULL) {
-        int n = fread(&printout_bottom, 1, sizeof(int), printfile);
+        size_t n = fread(&printout_bottom, 1, sizeof(int), printfile);
         if (n == sizeof(int)) {
             int bytes = printout_bottom * PRINT_BYTESPERLINE;
             n = fread(print_bitmap, 1, bytes, printfile);
@@ -108,7 +108,7 @@ int printout_bottom;
 
 + (void) dump {
     FILE *printfile;
-    int n, length;
+    ssize_t n, length;
     
     printfile = fopen("config/print", "w");
     if (printfile != NULL) {

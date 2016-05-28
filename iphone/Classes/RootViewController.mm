@@ -194,7 +194,7 @@ int shell_low_battery() {
 static FILE *import_file;
 
 static int my_shell_read(char *buf, int buflen) {
-    int4 nread;
+    ssize_t nread;
     if (import_file == NULL)
         return -1;
     nread = fread(buf, 1, buflen, import_file);
@@ -204,7 +204,7 @@ static int my_shell_read(char *buf, int buflen) {
         [RootViewController showMessage:@"An error occurred while reading the file; import was terminated prematurely."];
         return -1;
     } else
-        return nread;
+        return (int) nread;
 }
 
 - (void) doImport2:(NSString *) path {

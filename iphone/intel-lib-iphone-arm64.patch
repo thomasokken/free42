@@ -13,7 +13,7 @@
   _CFLAGS_OS     := $(call HostOsTypeSelect, -DLINUX, -DWINDOWS)
   _CFLAGS_ARCH   := $(call HostArchTypeSelect,-Dia32,-DITANIUM -Dia64, -Defi2)
   _CFLAGS_CC     :=
-! _CFLAGS_OPT    := -arch i386
+! _CFLAGS_OPT    := -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk
       
   ifeq ($(BID_BIG_ENDIAN),true)
       _CFLAGS_CONFIG += -DBID_BIG_ENDIAN=1
@@ -77,7 +77,7 @@
 ! #        $(error Don't know how to determine architecture for $(IML_HOST_OS))
 ! #    endif
 ! #endif
-! _HOST_ARCH := x86
+! _HOST_ARCH := x86_64
   
   ARCH_ALIAS := x86  ia64 EM64T x86_64 i686 amd64 Intel64 sun4u
   ARCH_LIST  := IA32 IA64 EFI2  EFI2   IA32 EFI2  EFI2    EFI2
