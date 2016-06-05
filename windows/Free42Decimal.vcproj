@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;WINDOWS;BCD_MATH;DECIMAL_CALL_BY_REFERENCE=1;DECIMAL_GLOBAL_ROUNDING=1;DECIMAL_GLOBAL_ROUNDING_ACCESS_FUNCTIONS=1;DECIMAL_GLOBAL_EXCEPTION_FLAGS=1;DECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS=1"
+				PreprocessorDefinitions="WIN32;_DEBUG;FREE42_FPTEST;_WINDOWS;WINDOWS;BCD_MATH;DECIMAL_CALL_BY_REFERENCE=1;DECIMAL_GLOBAL_ROUNDING=1;DECIMAL_GLOBAL_ROUNDING_ACCESS_FUNCTIONS=1;DECIMAL_GLOBAL_EXCEPTION_FLAGS=1;DECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS=1"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -267,6 +267,38 @@
 			<File
 				RelativePath=".\msg2string.cpp"
 				>
+			</File>
+			<File
+				RelativePath=".\readtest.c"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalOptions="-I IntelRDFPMathLib20U1/TESTS"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalOptions="-I IntelRDFPMathLib20U1/TESTS"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\readtest_lines.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalOptions="/bigobj"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\shell.cpp"

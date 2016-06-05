@@ -49,3 +49,7 @@ del skin2cpp.conf
 del keymap2cpp.cpp
 del bid_conf.h
 del bid_functions.h
+rmdir /s /q IntelRDFPMathLib20U1
+del readtest.c
+del readtest_lines.cpp
+del cl111libbid.lib

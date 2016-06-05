@@ -2276,3 +2276,12 @@ static void gif_writer(const char *text, int length) {
         MessageBox(hMainWnd, buf, "Message", MB_ICONWARNING);
     }
 }
+
+static FILE *logfile = NULL;
+
+void shell_log(const char *message) {
+	if (logfile == NULL)
+		logfile = fopen("free42.log", "w");
+	fprintf(logfile, "%s\n", message);
+	fflush(logfile);
+}

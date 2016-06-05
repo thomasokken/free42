@@ -8,3 +8,8 @@ keymap2cpp, and skin2cpp. Before building Free42Binary and Free42Decimal, you
 must build keymap2cpp and skin2cpp and run them; this creates the keymap.cpp
 and skins.cpp files, which contain the default keymap and the skins to be
 compiled into the Free42 executable.
+
+Starting with version 1.5.9, the Windows build of Free42 builds the Intel
+Floating-Point library from source. Run build-intel-lib.sh to build the
+library; if successful, this will create a file named cl111libbid.lib,
+containing x86 objects.
