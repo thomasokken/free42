@@ -10,6 +10,7 @@ mkdir -p packages
 # Build Windows version
 
 cd windows
+sh ./build-intel-lib.sh
 cmd /c build-all.bat
 cd ..
 rm -rf Free42Windows
