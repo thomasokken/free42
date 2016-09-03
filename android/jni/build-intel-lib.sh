@@ -4,8 +4,9 @@ if [ -f libgcc111libbid.a ]; then exit 0; fi
 
 mkdir bin
 export PATH="`/bin/pwd`/bin:$PATH"
-ln -s "/opt/android-ndk-r10e/toolchains/arm-linux-androideabi-4.9/prebuilt/darwin-x86_64/bin/arm-linux-androideabi-gcc" bin/gcc
-export MAKE="/opt/android-ndk-r10e/prebuilt/darwin-x86_64/bin/make"
+ln -s "/opt/android-ndk/toolchains/arm-linux-androideabi-4.9/prebuilt/darwin-x86_64/bin/arm-linux-androideabi-gcc" bin/gcc
+ln -s "/opt/android-ndk/toolchains/arm-linux-androideabi-4.9/prebuilt/darwin-x86_64/bin/arm-linux-androideabi-ar" bin/ar
+export MAKE="/opt/android-ndk/prebuilt/darwin-x86_64/bin/make"
 
 if [ -f ../../inteldecimal/IntelRDFPMathLib20U1.tar.gz ]
 then
