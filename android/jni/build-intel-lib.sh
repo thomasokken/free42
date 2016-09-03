@@ -1,5 +1,4 @@
 #!/bin/sh
-/bin/pwd >> /tmp/pwd
 
 if [ -f libgcc111libbid.a ]; then exit 0; fi
 
