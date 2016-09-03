@@ -15,15 +15,15 @@
 # along with this program; if not, see http://www.gnu.org/licenses/.
 #############################################################################
 
-# Build Intel library
-$(info $(shell ./build-intel-lib.sh))
-
 LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
 LOCAL_MODULE := gcc111libbid
 LOCAL_SRC_FILES := libgcc111libbid.a
+
+libgcc111libbid.a: FORCE
+	./build-intel-lib.sh
 
 include $(PREBUILT_STATIC_LIBRARY)
 
