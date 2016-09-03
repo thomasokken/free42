@@ -6,6 +6,8 @@
   support myself (FreeBSD, Solaris, etc.); those platforms were left out in the
   cold when I started using the Intel library and only provided pre-built
   binaries for the supported platforms.
+* Implemented range reduction for more accurate TAN in DEG and GRAD modes.
+* Android version: now handles orientation change more efficiently.
 
 2016-04-26: release 1.5.8f (Android only)
 

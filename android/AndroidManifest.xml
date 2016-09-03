@@ -21,7 +21,8 @@
                android:allowBackup="true">
     <activity android:name="Free42Activity"
               android:theme="@android:style/Theme.NoTitleBar"
-              android:screenOrientation="sensor">
+              android:screenOrientation="sensor"
+              android:configChanges="orientation">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
         <category android:name="android.intent.category.LAUNCHER"/>

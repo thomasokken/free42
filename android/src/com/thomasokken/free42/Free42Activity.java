@@ -354,6 +354,33 @@ public class Free42Activity extends Activity {
         return true;
     }
     
+    @Override
+    public void onConfigurationChanged(Configuration newConf) {
+        super.onConfigurationChanged(newConf);
+        orientation = newConf.orientation == Configuration.ORIENTATION_LANDSCAPE ? 1 : 0;
+        boolean[] ann_state = skin.getAnnunciators();
+        skin = null;
+        if (skinName[orientation].length() == 0 && externalSkinName[orientation].length() > 0) {
+            try {
+                skin = new SkinLayout(externalSkinName[orientation], skinSmoothing[orientation], displaySmoothing[orientation],ann_state);
+            } catch (IllegalArgumentException e) {}
+        }
+        if (skin == null) {
+            try {
+                skin = new SkinLayout(skinName[orientation], skinSmoothing[orientation], displaySmoothing[orientation],ann_state);
+            } catch (IllegalArgumentException e) {}
+        }
+        if (skin == null) {
+            try {
+                skin = new SkinLayout(builtinSkinNames[0], skinSmoothing[orientation], displaySmoothing[orientation],ann_state);
+            } catch (IllegalArgumentException e) {
+                // This one should never fail; we're loading a built-in skin.
+            }
+        }
+        calcView.invalidate();
+        core_repaint_display();
+    }
+    
     private void cancelRepeaterAndTimeouts1And2() {
         mainHandler.removeCallbacks(repeaterCaller);
         mainHandler.removeCallbacks(timeout1Caller);

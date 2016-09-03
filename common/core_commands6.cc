@@ -123,33 +123,49 @@ static int mappable_tan_r(phloat x, phloat *y) {
     if (flags.f.rad) {
         *y = tan(x);
     } else if (flags.f.grad) {
+        bool neg = false;
+        if (x < 0) {
+            x = -x;
+            neg = true;
+        }
+        // [0 200[
         x = fmod(x, 200);
-        if (x < 0)
-            x += 200;
-        if (x == 0)
-            *y = 0;
-        else if (x == 50)
-            *y = 1;
-        else if (x == 100)
+        if (x == 100)
             goto infinite;
-        else if (x == 150)
-            *y = -1;
+        // TAN(x+100gon) = -TAN(100gon-x)
+        if (x > 100) {
+            x = 200 - x;
+            neg = !neg;
+        }
+        // to improve accuracy for x close to 100gon
+        if (x > 89)
+            *y = 1 / tan((100 - x) / (200 / PI));
         else
-            *y = tan(x / (200 / PI));
+            *y = tan(x / (200 / PI)); 
+        if (neg)
+            *y = -(*y);
     } else {
+        bool neg = false;
+        if (x < 0) {
+            x = -x;
+            neg = true;
+        }
+        // [0 180[
         x = fmod(x, 180);
-        if (x < 0)
-            x += 180;
-        if (x == 0)
-            *y = 0;
-        else if (x == 45)
-            *y = 1;
-        else if (x == 90)
+        if (x == 90)
             goto infinite;
-        else if (x == 135)
-            *y = -1;
+        // TAN(x+90°) = -TAN(90°-x)
+        if (x > 90) {
+            x = 180 - x;
+            neg = !neg;
+        }
+        // to improve accuracy for x close to 90°
+        if (x > 80)
+            *y = 1 / tan((90 - x) / (180 / PI));
         else
-            *y = tan(x / (180 / PI));
+            *y = tan(x / (180 / PI)); 
+        if (neg)
+            *y = -(*y);
     }
     if (p_isnan(*y) || p_isinf(*y) != 0) {
         infinite:

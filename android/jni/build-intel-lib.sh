@@ -7,7 +7,12 @@ export PATH="`/bin/pwd`/bin:$PATH"
 ln -s "/opt/android-ndk-r10e/toolchains/arm-linux-androideabi-4.9/prebuilt/darwin-x86_64/bin/arm-linux-androideabi-gcc" bin/gcc
 export MAKE="/opt/android-ndk-r10e/prebuilt/darwin-x86_64/bin/make"
 
-tar xvfz ../../inteldecimal/IntelRDFPMathLib20U1.tar.gz
+if [ -f ../../inteldecimal/IntelRDFPMathLib20U1.tar.gz ]
+then
+    tar xvfz ../../inteldecimal/IntelRDFPMathLib20U1.tar.gz
+else
+    tar xvfz $HOME/free42/inteldecimal/IntelRDFPMathLib20U1.tar.gz
+fi
 cd IntelRDFPMathLib20U1
 patch -p0 <../intel-lib-android-armv7.patch
 cd LIBRARY
