@@ -22,9 +22,6 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := gcc111libbid
 LOCAL_SRC_FILES := libgcc111libbid.a
 
-libgcc111libbid.a: FORCE
-	./build-intel-lib.sh
-
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)

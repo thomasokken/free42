@@ -23,6 +23,7 @@ sed "s/android:versionName=\"[^\"]*\"/android:versionName=\"$VERSION_NAME\"/" < 
 mv TMP AndroidManifest.xml
 cd jni
 sh ./copy-files-release.sh
+sh ./build-intel-lib.sh
 /opt/android-ndk/ndk-build
 cd ..
 echo "======== ATTENTION: Possible Password Prompt ========"
