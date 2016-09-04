@@ -731,7 +731,7 @@ int docmd_agraph(arg_struct *arg) {
         }
         case TYPE_COMPLEX: {
             phloat x = ((vartype_complex *) reg_x)->re;
-            phloat y = ((vartype_complex *) reg_y)->im;
+            phloat y = ((vartype_complex *) reg_x)->im;
             draw_pattern(x, y, reg_alpha, reg_alpha_length);
             flush_display();
             flags.f.message = flags.f.two_line_message = 1;
