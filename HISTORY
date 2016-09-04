@@ -1,4 +1,4 @@
-????-??-??: release 1.5.9
+2016-09-04: release 1.5.9 (Android, Windows, Mac, and Linux)
 
 * Now building the Intel Decimal Floating-Point Math Library from source for
   all targets. In terms of the end user, this makes no difference, but it will
