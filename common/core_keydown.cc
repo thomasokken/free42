@@ -2151,7 +2151,11 @@ void keydown_normal_mode(int shift, int key) {
                 } else if (catsect == CATSECT_FCN) {
                     int cmd = get_cat_item(menukey);
                     if (cmd == -1)
-                        cmd = CMD_NULL;
+                        if (flags.f.prgm_mode) {
+                            pending_command = CMD_NULL;
+                            return;
+                        } else
+                            cmd = CMD_NULL;
                     if (level == MENULEVEL_TRANSIENT
                             || !mode_plainmenu_sticky)
                         set_menu(level, MENU_NONE);
