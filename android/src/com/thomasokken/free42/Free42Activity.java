@@ -88,7 +88,7 @@ import android.widget.TextView;
  */
 public class Free42Activity extends Activity {
 
-    private static final String[] builtinSkinNames = new String[] { "Standard" };
+    private static final String[] builtinSkinNames = new String[] { "Standard", "Landscape" };
     
     private static final int SHELL_VERSION = 9;
     
@@ -1167,8 +1167,8 @@ public class Free42Activity extends Activity {
             externalSkinName[0] = topStorageDir() + "/Free42/" + skinName[0];
             // fall through
         case 3:
-            skinName[1] = skinName[0];
-            externalSkinName[1] = externalSkinName[0];
+            skinName[1] = "Landscape";
+            externalSkinName[1] = topStorageDir() + "/Free42/" + skinName[1];
             keyClicksEnabled = true;
             // fall through
         case 4:

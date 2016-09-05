@@ -1,3 +1,8 @@
+????-??-??: release 1.5.11
+
+* Android version: added landscape skin; made it the default for landscape mode
+  in new installs.
+
 2016-09-04: release 1.5.10 (Android, Windows, Mac, and Linux)
 
 * Fixed AGRAPH bug with complex number in X.
