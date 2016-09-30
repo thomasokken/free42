@@ -62,6 +62,16 @@ Linux version:
 * Try to get Skin menu to work with Unity's indicator-appmenu.
 
 All versions:
+* Write print-outs with UTF-8 encoding instead of ISO-8859-1 (including BOM).
+  This should make more editors handle the files correctly; think files that
+  are mostly ASCII, with only the multiply and divide signs being non-ASCII.
+  Such files can (apparently) be mis-identified as UTF-8.
+  Actually writing UTF-8 with BOM makes recognition robust, and offers the
+  advantage of being able to use the magic of Unicode to handle things like
+  arrows and less-or-equals signs, etc.
+  Also, use CRLF line terminators instead of LF, in *all* versions. People do
+  sometimes create print-outs with non-Windows versions and then transfer them
+  to Windows, and then Notepad is just lying in wait, ready to be stupid.
 * Add link to 42s.pdf in the About box.
 * Binary version: ADATE: 10.102010 => 10/10/2009. Binary round-off problem.
 * Add a command that turns on everything in the display -- all pixels and all
