@@ -651,6 +651,7 @@ public class Free42Activity extends Activity {
         cs.matrix_singularmatrix = preferencesDialog.getSingularMatrixError();
         cs.matrix_outofrange = preferencesDialog.getMatrixOutOfRange();
         cs.auto_repeat = preferencesDialog.getAutoRepeat();
+        cs.raw_text = preferencesDialog.getRawText();
         keyClicksEnabled = preferencesDialog.getKeyClicks();
         keyVibrationEnabled = preferencesDialog.getKeyVibration();
         int oldOrientation = preferredOrientation;
@@ -658,7 +659,7 @@ public class Free42Activity extends Activity {
         style = preferencesDialog.getStyle();
         putCoreSettings(cs);
 
-        ShellSpool.rawText = cs.raw_text = preferencesDialog.getRawText();
+        ShellSpool.rawText = cs.raw_text;
         ShellSpool.maxGifHeight = preferencesDialog.getMaxGifHeight();
 
         boolean newPrintEnabled = preferencesDialog.getPrintToText();
