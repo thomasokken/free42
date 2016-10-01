@@ -54,7 +54,7 @@ static void set_solve_integ(int solve) {
         if (!flags.f.prgm_mode)
             display_error(ERR_NO_MENU_VARIABLES, 0);
     } else {
-        int err = set_menu_return_err(MENULEVEL_APP, MENU_CATALOG);
+        int err = set_menu_return_err(MENULEVEL_APP, MENU_CATALOG, false);
         if (err == ERR_NONE) {
             set_cat_section(solve ? CATSECT_PGM_SOLVE : CATSECT_PGM_INTEG);
             move_cat_row(0);

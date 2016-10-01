@@ -60,14 +60,14 @@ int command2buf(char *buf, int len, int cmd, const arg_struct *arg);
 #define MENULEVEL_PLAIN     3
 #define MENULEVEL_APP       4
 
-int appmenu_exitcallback_1(int menuid);
-int appmenu_exitcallback_2(int menuid);
-int appmenu_exitcallback_3(int menuid);
-int appmenu_exitcallback_4(int menuid);
-int appmenu_exitcallback_5(int menuid);
+int appmenu_exitcallback_1(int menuid, bool exitall);
+int appmenu_exitcallback_2(int menuid, bool exitall);
+int appmenu_exitcallback_3(int menuid, bool exitall);
+int appmenu_exitcallback_4(int menuid, bool exitall);
+int appmenu_exitcallback_5(int menuid, bool exitall);
 
 void set_menu(int level, int menuid);
-int set_menu_return_err(int level, int menuid);
+int set_menu_return_err(int level, int menuid, bool exitall);
 void set_appmenu_exitcallback(int callback_id);
 void set_plainmenu(int menuid);
 void set_catalog_menu(int direction);

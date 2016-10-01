@@ -30,10 +30,11 @@
 /* Implementations of HP-42S built-in functions, part 5 */
 /********************************************************/
 
-int appmenu_exitcallback_2(int menuid) {
-    if (menuid == MENU_BASE
-            || menuid == MENU_BASE_A_THRU_F
-            || menuid == MENU_BASE_LOGIC) {
+int appmenu_exitcallback_2(int menuid, bool exitall) {
+    if ((menuid == MENU_BASE
+                || menuid == MENU_BASE_A_THRU_F
+                || menuid == MENU_BASE_LOGIC)
+            && !exitall) {
         mode_appmenu = menuid;
         set_appmenu_exitcallback(2);
     } else {
@@ -46,7 +47,7 @@ int appmenu_exitcallback_2(int menuid) {
 
 static int base_helper(int base) {
     if (program_running()) {
-        int err = set_menu_return_err(MENULEVEL_APP, MENU_BASE);
+        int err = set_menu_return_err(MENULEVEL_APP, MENU_BASE, false);
         if (err != ERR_NONE)
             return err;
         set_appmenu_exitcallback(2);
@@ -783,8 +784,8 @@ int docmd_pgmint(arg_struct *arg) {
         return ERR_INVALID_TYPE;
 }
 
-int appmenu_exitcallback_3(int menuid) {
-    if (menuid == MENU_NONE) {
+int appmenu_exitcallback_3(int menuid, bool exitall) {
+    if (menuid == MENU_NONE && !exitall) {
         set_menu(MENULEVEL_APP, MENU_CATALOG);
         set_cat_section(CATSECT_PGM_SOLVE);
     } else
@@ -810,8 +811,8 @@ int docmd_pgmslvi(arg_struct *arg) {
         return ERR_INVALID_TYPE;
 }
 
-int appmenu_exitcallback_4(int menuid) {
-    if (menuid == MENU_NONE) {
+int appmenu_exitcallback_4(int menuid, bool exitall) {
+    if (menuid == MENU_NONE && !exitall) {
         set_menu(MENULEVEL_APP, MENU_CATALOG);
         set_cat_section(CATSECT_PGM_INTEG);
     } else
@@ -819,8 +820,8 @@ int appmenu_exitcallback_4(int menuid) {
     return ERR_NONE;
 }
 
-int appmenu_exitcallback_5(int menuid) {
-    if (menuid == MENU_NONE) {
+int appmenu_exitcallback_5(int menuid, bool exitall) {
+    if (menuid == MENU_NONE && !exitall) {
         get_integ_prgm(varmenu, &varmenu_length);
         varmenu_row = 0;
         varmenu_role = 2;

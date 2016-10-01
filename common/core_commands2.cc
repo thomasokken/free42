@@ -866,7 +866,7 @@ int docmd_varmenu(arg_struct *arg) {
         varmenu[i] = arg->val.text[i];
     varmenu_row = 0;
     varmenu_role = 0;
-    return set_menu_return_err(MENULEVEL_APP, MENU_VARMENU);
+    return set_menu_return_err(MENULEVEL_APP, MENU_VARMENU, false);
 }
 
 int docmd_getkey(arg_struct *arg) {

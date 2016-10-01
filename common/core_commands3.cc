@@ -787,7 +787,7 @@ int matedit_get_dim(int4 *rows, int4 *columns) {
 /* NOTE: this is a callback for set_menu(); it is declared in
  * core_display.h but defined here.
  */
-int appmenu_exitcallback_1(int menuid) {
+int appmenu_exitcallback_1(int menuid, bool exitall) {
     if (menuid == MENU_MATRIX_EDIT1 || menuid == MENU_MATRIX_EDIT2) {
         /* Just switching menus within the editor */
         mode_appmenu = menuid;
@@ -836,7 +836,7 @@ int appmenu_exitcallback_1(int menuid) {
          * callbacks just before invoking them), so these set_menu() calls
          * won't fail.
          */
-        if (menuid == MENU_NONE)
+        if (menuid == MENU_NONE && !exitall)
             set_menu(MENULEVEL_APP, matedit_prev_appmenu);
         else
             set_menu(MENULEVEL_APP, menuid);
@@ -851,7 +851,7 @@ static int finish_edit() {
          * return its error status to set_menu(), which passes it
          * on to us.
          */
-        return set_menu_return_err(MENULEVEL_APP, MENU_NONE);
+        return set_menu_return_err(MENULEVEL_APP, MENU_NONE, false);
     else
         return ERR_NONE;
 }
@@ -954,7 +954,7 @@ int docmd_editn(arg_struct *arg) {
 }
 
 int docmd_exitall(arg_struct *arg) {
-    return set_menu_return_err(MENULEVEL_APP, MENU_NONE);
+    return set_menu_return_err(MENULEVEL_APP, MENU_NONE, true);
 }
 
 static int mappable_e_pow_x_1(phloat x, phloat *y) {

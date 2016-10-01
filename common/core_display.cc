@@ -1237,7 +1237,7 @@ done:
     draw_string(0, row, buf, bufptr);
 }
 
-static int set_appmenu(int menuid) {
+static int set_appmenu(int menuid, bool exitall) {
     if (mode_appmenu != MENU_NONE && appmenu_exitcallback != 0) {
         /* We delegate the set_menu() call to the callback,
          * but only once. If the callback wants to stay active,
@@ -1251,11 +1251,11 @@ static int set_appmenu(int menuid) {
          * and pointers to code do not have that property.
          */
         switch (cb) {
-            case 1: return appmenu_exitcallback_1(menuid);
-            case 2: return appmenu_exitcallback_2(menuid);
-            case 3: return appmenu_exitcallback_3(menuid);
-            case 4: return appmenu_exitcallback_4(menuid);
-            case 5: return appmenu_exitcallback_5(menuid);
+            case 1: return appmenu_exitcallback_1(menuid, exitall);
+            case 2: return appmenu_exitcallback_2(menuid, exitall);
+            case 3: return appmenu_exitcallback_3(menuid, exitall);
+            case 4: return appmenu_exitcallback_4(menuid, exitall);
+            case 5: return appmenu_exitcallback_5(menuid, exitall);
             default: return ERR_INTERNAL_ERROR;
         }
     } else {
@@ -1279,7 +1279,7 @@ void draw_varmenu() {
     for (i = 0; i < arg.length; i++)
         arg.val.text[i] = varmenu[i];
     if (!find_global_label(&arg, &prgm, &pc)) {
-        set_appmenu(MENU_NONE);
+        set_appmenu(MENU_NONE, false);
         varmenu_length = 0;
         return;
     }
@@ -1291,7 +1291,7 @@ void draw_varmenu() {
         num_mvars++;
     if (num_mvars == 0) {
         current_prgm = saved_prgm;
-        set_appmenu(MENU_NONE);
+        set_appmenu(MENU_NONE, false);
         varmenu_length = 0;
         return;
     }
@@ -2264,14 +2264,14 @@ static int get_cat_index() {
 }
 
 void set_menu(int level, int menuid) {
-    int err = set_menu_return_err(level, menuid);
+    int err = set_menu_return_err(level, menuid, false);
     if (err != ERR_NONE) {
         display_error(err, 1);
         flush_display();
     }
 }
 
-int set_menu_return_err(int level, int menuid) {
+int set_menu_return_err(int level, int menuid, bool exitall) {
     int *newmenu;
     int err;
 
@@ -2289,7 +2289,7 @@ int set_menu_return_err(int level, int menuid) {
             mode_plainmenu = menuid;
             goto lbl_00;
         case MENULEVEL_APP:
-            err = set_appmenu(menuid);
+            err = set_appmenu(menuid, exitall);
             if (err != ERR_NONE)
                 return err;
     }

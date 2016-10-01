@@ -1390,7 +1390,7 @@ int docmd_simq(arg_struct *arg) {
         }
     }
 
-    err = set_menu_return_err(MENULEVEL_APP, MENU_MATRIX_SIMQ);
+    err = set_menu_return_err(MENULEVEL_APP, MENU_MATRIX_SIMQ, false);
     if (err != ERR_NONE) {
         /* Didn't work; we're stuck in the matrix editor
          * waiting for the user to put something valid into X.
