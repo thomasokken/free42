@@ -1627,7 +1627,12 @@ public class Free42Activity extends Activity {
         if (ShellSpool.printToTxt) {
             try {
                 if (printTxtStream == null)
-                    printTxtStream = new FileOutputStream(ShellSpool.printToTxtFileName, true);
+                    if (new File(ShellSpool.printToTxtFileName).exists()) {
+                        printTxtStream = new FileOutputStream(ShellSpool.printToTxtFileName, true);
+                    } else {
+                        printTxtStream = new FileOutputStream(ShellSpool.printToTxtFileName);
+                        printTxtStream.write(new byte[] { (byte) 0xEF, (byte) 0xBB, (byte) 0xBF });
+                    }
                 ShellSpool.shell_spool_txt(text, printTxtStream);
             } catch (IOException e) {
                 if (printTxtStream != null) {

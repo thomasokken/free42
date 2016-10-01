@@ -1971,6 +1971,8 @@ void shell_print(const char *text, int length,
                 MessageBox(hMainWnd, buf, "Message", MB_ICONWARNING);
                 goto done_print_txt;
             }
+            if (ftell(print_txt) == 0)
+                fwrite("\357\273\277", 1, 3, print_txt);
         }
 
         shell_spool_txt(text, length, txt_writer, txt_newliner);
@@ -2280,8 +2282,8 @@ static void gif_writer(const char *text, int length) {
 static FILE *logfile = NULL;
 
 void shell_log(const char *message) {
-	if (logfile == NULL)
-		logfile = fopen("free42.log", "w");
-	fprintf(logfile, "%s\n", message);
-	fflush(logfile);
+    if (logfile == NULL)
+        logfile = fopen("free42.log", "w");
+    fprintf(logfile, "%s\n", message);
+    fflush(logfile);
 }
