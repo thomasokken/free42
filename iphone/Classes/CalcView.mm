@@ -1167,6 +1167,7 @@ static void txt_writer(const char *text, int length) {
 static void txt_newliner() {
     if (print_txt == NULL)
         return;
+    fputc('\r', print_txt);
     fputc('\n', print_txt);
     fflush(print_txt);
 }   

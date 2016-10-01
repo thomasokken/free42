@@ -38,79 +38,41 @@ public class ShellSpool {
                 c &= 127;
             String esc;
             switch (c) {
-                /* NOTE: this code performs the following 12 translations
-                 * that are not ASCII, but seem to be widely accepted --
-                 * that is, they looked OK when I tried them in several
-                 * fonts in Windows and Linux, and in Memo Pad on the Palm:
-                 *
-                 *   0: 247 (0367) divide
-                 *   1: 215 (0327) multiply
-                 *   8: 191 (0277) upside-down question mark
-                 *  17: 181 (0265) lowercase mu
-                 *  18: 163 (0243) sterling
-                 *  19: 176 (0260) degree
-                 *  20: 197 (0305) Aring
-                 *  21: 209 (0321) Ntilde
-                 *  22: 196 (0304) Aumlaut
-                 *  25: 198 (0306) AE
-                 *  28: 214 (0326) Oumlaut
-                 *  29: 220 (0334) Uumlaut
-                 *
-                 * Two additional candidates are these:
-                 *
-                 *  26: 133 (0205) ellipsis
-                 *  31: 149 (0225) bullet
-                 *
-                 * I'm not using those last two because support for them is not
-                 * as good: they exist in Times New Roman and Adobe Courier
-                 * (tested on Windows and Linux, respectively) and on the Palm,
-                 * but are missing from Windows Fixedsys (the default Notepad
-                 * font, so that is a concern!) and X11 lucidatypewriter and
-                 * fixed.
-                 * Note that 133 and 149 are both in the 128-159 range, that
-                 * is, the Ctrl+Meta range, which is unused in many fonts.
-                 * Eventually, I should probably support several translation
-                 * modes: raw, pure ASCII (only emit codes 32-126 and 10),
-                 * non-pure as below, and more aggressive non-pure (using the
-                 * ellipsis and fatdot codes, and maybe others). Then again,
-                 * maybe not. :-)
-                 */
-                case  0:   esc = "\367"; break;
-                case  1:   esc = "\327"; break;
-                case  2:   esc = "\\sqrt"; break;
-                case  3:   esc = "\\int"; break;
-                case  4:   esc = "\\gray1"; break;
-                case  5:   esc = "\\Sigma"; break;
-                case  6:   esc = ">"; break;
-                case  7:   esc = "\\pi"; break;
-                case  8:   esc = "\277"; break;
-                case  9:   esc = "<="; break;
-                case 11:   esc = ">="; break;
-                case 12:   esc = "!="; break;
-                case 13:   esc = "\\r"; break;
-                case 14:   esc = "v"; break;
-                case 15:   esc = "->"; break;
-                case 16:   esc = "<-"; break;
-                case 17:   esc = "\265"; break;
-                case 18:   esc = "\243"; break;
-                case 19:   esc = "\260"; break;
-                case 20:   esc = "\305"; break;
-                case 21:   esc = "\321"; break;
-                case 22:   esc = "\304"; break;
-                case 23:   esc = "\\angle"; break;
-                case 24:   esc = "E"; break;
-                case 25:   esc = "\306"; break;
-                case 26:   esc = "..."; break;
-                case 27:   esc = "\\esc"; break;
-                case 28:   esc = "\326"; break;
-                case 29:   esc = "\334"; break;
-                case 30:   esc = "\\gray2"; break;
-                case 31:   esc = "\\bullet"; break;
-                case '\\': esc = "\\\\"; break;
-                case 127:  esc = "|-"; break;
+                case  0:   esc = "\303\267"; break;
+                case  1:   esc = "\303\227"; break;
+                case  2:   esc = "\342\210\232"; break;
+                case  3:   esc = "\342\210\253"; break;
+                case  4:   esc = "\342\226\222"; break;
+                case  5:   esc = "\316\243"; break;
+                case  6:   esc = "\342\226\266"; break;
+                case  7:   esc = "\317\200"; break;
+                case  8:   esc = "\302\277"; break;
+                case  9:   esc = "\342\211\244"; break;
+                case 11:   esc = "\342\211\245"; break;
+                case 12:   esc = "\342\211\240"; break;
+                case 13:   esc = "\342\206\265"; break;
+                case 14:   esc = "\342\206\223"; break;
+                case 15:   esc = "\342\206\222"; break;
+                case 16:   esc = "\342\206\220"; break;
+                case 17:   esc = "\316\274"; break;
+                case 18:   esc = "\302\243"; break;
+                case 19:   esc = "\302\260"; break;
+                case 20:   esc = "\303\205"; break;
+                case 21:   esc = "\303\221"; break;
+                case 22:   esc = "\303\204"; break;
+                case 23:   esc = "\342\210\241"; break;
+                case 24:   esc = "\341\264\207"; break;
+                case 25:   esc = "\303\206"; break;
+                case 26:   esc = "\342\200\246"; break;
+                case 27:   esc = "[ESC]"; break;
+                case 28:   esc = "\303\226"; break;
+                case 29:   esc = "\303\234"; break;
+                case 30:   esc = "\342\226\222"; break;
+                case 31:   esc = "\342\200\242"; break;
+                case 127:  esc = "\342\224\234"; break;
                 case 128:  esc = ":"; break;
-                case 129:  esc = "y"; break;
-                case 138:  esc = "\\LF"; break;
+                case 129:  esc = "\312\217"; break;
+                case 138:  esc = "[LF]"; break;
                 default:   buf.append((char) c); continue;
             }
             buf.append(esc);
@@ -123,6 +85,7 @@ public class ShellSpool {
             stream.write(text);
         else
             stream.write(hp2ascii(text).getBytes());
+        stream.write(13);
         stream.write(10);
     }
 

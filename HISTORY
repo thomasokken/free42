@@ -3,6 +3,8 @@
 * Android version: added landscape skin; made it the default for landscape mode
   in new installs.
 * Android version: didn't save the "raw text" print setting. Fixed.
+* Print-to-text now emits UTF-8 encoded text, not ISO-8859-1.
+* Print-to-text now emits CRLF line separators on all platforms.
 
 2016-09-04: release 1.5.10 (Android, Windows, Mac, and Linux)
 
