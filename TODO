@@ -12,7 +12,6 @@ Android version:
 iPhone version:
 * Implement dynamic layout, to better support arbitrary screen sizes. Right now
   we're still hard-coded for iPhone <= 5/5c/5s.
-* Build 64-bit code. Not because it's useful, but because this is now required.
 * Mention iTunes file transfer in the Import/Export documentation page.
 * Preferences looks a bit ugly in iOS 7, because the now-much-smaller switches
   no longer line up with the right margin. How do I create a settings screen
@@ -62,7 +61,8 @@ Linux version:
 * Try to get Skin menu to work with Unity's indicator-appmenu.
 
 All versions:
-* Plain text print-outs should be written with a UTF-8 BOM at the beginning.
+* EXITALL doesn't work correctly when the matrix editor, VARMENU, or INTEG's
+  parameter menu (LLIM/ULIM/ACC/INTEG) are active.
 * Add link to 42s.pdf in the About box.
 * Binary version: ADATE: 10.102010 => 10/10/2009. Binary round-off problem.
 * Add a command that turns on everything in the display -- all pixels and all
