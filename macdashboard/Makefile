@@ -33,7 +33,7 @@ CXXFLAGS = $(CFLAGS) \
            -fno-exceptions \
 	   -fno-rtti
 
-LDFLAGS = -Wl,-syslibroot,/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk \
+LDFLAGS = -Wl,-syslibroot,/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk \
           -mmacosx-version-min=10.4
 LIBS = -arch i386 -lm gcc111libbid.a
 
