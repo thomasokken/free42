@@ -1,4 +1,4 @@
-????-??-??: release 1.5.12
+2016-10-03: release 1.5.12
 
 * Android version: Fixed UTF-8 printing, which was broken in 1.5.11.
 * All versions: when printing to text, up-arrow now looks like an up-arrow,
