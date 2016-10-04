@@ -30,7 +30,7 @@ public class ShellSpool {
     public static String printToGifFileName = "";
     public static int maxGifHeight = 256;
 
-    public static String hp2ascii(byte[] src) {
+    public static byte[] hp2utf8(byte[] src) {
         StringBuffer buf = new StringBuffer();
         for (int i = 0; i < src.length; i++) {
             int c = src[i] & 255;
@@ -38,53 +38,59 @@ public class ShellSpool {
                 c &= 127;
             String esc;
             switch (c) {
-                case  0:   esc = "\303\267"; break;
-                case  1:   esc = "\303\227"; break;
-                case  2:   esc = "\342\210\232"; break;
-                case  3:   esc = "\342\210\253"; break;
-                case  4:   esc = "\342\226\222"; break;
-                case  5:   esc = "\316\243"; break;
-                case  6:   esc = "\342\226\266"; break;
-                case  7:   esc = "\317\200"; break;
-                case  8:   esc = "\302\277"; break;
-                case  9:   esc = "\342\211\244"; break;
-                case 11:   esc = "\342\211\245"; break;
-                case 12:   esc = "\342\211\240"; break;
-                case 13:   esc = "\342\206\265"; break;
-                case 14:   esc = "\342\206\223"; break;
-                case 15:   esc = "\342\206\222"; break;
-                case 16:   esc = "\342\206\220"; break;
-                case 17:   esc = "\316\274"; break;
-                case 18:   esc = "\302\243"; break;
-                case 19:   esc = "\302\260"; break;
-                case 20:   esc = "\303\205"; break;
-                case 21:   esc = "\303\221"; break;
-                case 22:   esc = "\303\204"; break;
-                case 23:   esc = "\342\210\241"; break;
-                case 24:   esc = "\341\264\207"; break;
-                case 25:   esc = "\303\206"; break;
-                case 26:   esc = "\342\200\246"; break;
+                case  0:   esc = "\u00f7"; break;
+                case  1:   esc = "\u00d7"; break;
+                case  2:   esc = "\u221a"; break;
+                case  3:   esc = "\u222b"; break;
+                case  4:   esc = "\u2592"; break;
+                case  5:   esc = "\u03a3"; break;
+                case  6:   esc = "\u25b6"; break;
+                case  7:   esc = "\u03c0"; break;
+                case  8:   esc = "\u00bf"; break;
+                case  9:   esc = "\u2264"; break;
+                case 11:   esc = "\u2265"; break;
+                case 12:   esc = "\u2260"; break;
+                case 13:   esc = "\u21b5"; break;
+                case 14:   esc = "\u2193"; break;
+                case 15:   esc = "\u2192"; break;
+                case 16:   esc = "\u2190"; break;
+                case 17:   esc = "\u03bc"; break;
+                case 18:   esc = "\u00a3"; break;
+                case 19:   esc = "\u00b0"; break;
+                case 20:   esc = "\u00c5"; break;
+                case 21:   esc = "\u00d1"; break;
+                case 22:   esc = "\u00c4"; break;
+                case 23:   esc = "\u2221"; break;
+                case 24:   esc = "\u1d07"; break;
+                case 25:   esc = "\u00c6"; break;
+                case 26:   esc = "\u2026"; break;
                 case 27:   esc = "[ESC]"; break;
-                case 28:   esc = "\303\226"; break;
-                case 29:   esc = "\303\234"; break;
-                case 30:   esc = "\342\226\222"; break;
-                case 31:   esc = "\342\200\242"; break;
-                case 127:  esc = "\342\224\234"; break;
+                case 28:   esc = "\u00d6"; break;
+                case 29:   esc = "\u00dc"; break;
+                case 30:   esc = "\u2592"; break;
+                case 31:   esc = "\u2022"; break;
+                case 94:   esc = "\u2191"; break;
+                case 127:  esc = "\u251c"; break;
                 case 128:  esc = ":"; break;
-                case 129:  esc = "\312\217"; break;
+                case 129:  esc = "\u028f"; break;
                 case 138:  esc = "[LF]"; break;
                 default:   buf.append((char) c); continue;
             }
             buf.append(esc);
         }
-        return buf.toString();
+        try {
+            return buf.toString().getBytes("UTF-8");
+        } catch (IOException e) {
+            // Won't happen
+            return null;
+        }
     }
 
     public static void shell_spool_txt(byte[] text, OutputStream stream) throws IOException {
         if (rawText)
             stream.write(text);
         else
-            stream.write(hp2ascii(text).getBytes());
+            stream.write(hp2utf8(text));
         stream.write(13);
         stream.write(10);
     }

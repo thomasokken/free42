@@ -1,3 +1,9 @@
+????-??-??: release 1.5.12
+
+* Android version: Fixed UTF-8 printing, which was broken in 1.5.11.
+* All versions: when printing to text, up-arrow now looks like an up-arrow,
+  instead of a caret.
+
 2016-10-01: release 1.5.11
 
 * EXITALL didn't always exit all menus. Fixed.

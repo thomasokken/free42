@@ -64,6 +64,7 @@ int hp2ascii(char *dst, const char *src, int srclen) {
             case 29:   esc = "\303\234"; break;
             case 30:   esc = "\342\226\222"; break;
             case 31:   esc = "\342\200\242"; break;
+            case 94:   esc = "\342\206\221"; break;
             case 127:  esc = "\342\224\234"; break;
             case 128:  esc = ":"; break;
             case 129:  esc = "\312\217"; break;
