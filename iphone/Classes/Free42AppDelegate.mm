@@ -32,7 +32,7 @@ static char version[32] = "";
     instance = self;
 
     [[UIDevice currentDevice] setBatteryMonitoringEnabled:YES];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(batteryLevelChanged) name:UIDeviceBatteryLevelDidChangeNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:rootViewController selector:@selector(batteryLevelChanged) name:UIDeviceBatteryLevelDidChangeNotification object:nil];
     [rootViewController batteryLevelChanged];
 }
 
