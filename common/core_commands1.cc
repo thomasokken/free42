@@ -683,7 +683,7 @@ int docmd_clv(arg_struct *arg) {
          * edited to be deleted; when deleting the indexed
          * matrix, set IJ to (1, 1). */
         if ((matedit_mode == 1 || matedit_mode == 3)
-                && string_equal(arg->val.text, arg->length, matedit_name, matedit_length)) {
+                && string_equals(arg->val.text, arg->length, matedit_name, matedit_length)) {
             if (matedit_mode == 1)
                 matedit_i = matedit_j = 0;
             else
