@@ -1,3 +1,11 @@
+2017-01-15: release 1.5.13
+
+* When DIM or SIZE resize the indexed matrix, IJ should be set to (1, 1), and
+  when DIM or SIZE try to resize the matrix currently being edited by EDITN,
+  they should return a "Restricted Operation" error. Neither happened, creating
+  the potential for memory corruption if IJ ended up pointing outside the
+  matrix' data array. Fixed.
+
 2016-10-03: release 1.5.12
 
 * Android version: Fixed UTF-8 printing, which was broken in 1.5.11.

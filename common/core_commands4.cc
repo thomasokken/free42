@@ -226,7 +226,7 @@ int docmd_j_add(arg_struct *arg) {
                     err = dimension_array_ref(matedit_x, rows + 1, columns);
                 else
                     err = dimension_array(matedit_name, matedit_length,
-                                            rows + 1, columns);
+                                            rows + 1, columns, false);
                 if (err != ERR_NONE) {
                     matedit_i = oldi;
                     matedit_j = oldj;
@@ -1068,7 +1068,7 @@ static int matedit_move(int direction) {
                                                       rows + 1, columns);
                         else
                             err = dimension_array(matedit_name, matedit_length,
-                                                  rows + 1, columns);
+                                                  rows + 1, columns, false);
                         if (err != ERR_NONE)
                             return err;
                         new_i = rows++;
@@ -1405,6 +1405,19 @@ int docmd_simq(arg_struct *arg) {
         abort_and_free_a:
         free_vartype(mata);
         return err;
+    }
+
+    if (matedit_mode == 1 || matedit_mode == 3) {
+        // Note: matedit_mode cannot be EDITN at this point,
+        // because SIMQ is a non-programmable, non-assignable command
+        // that isn't reachable while the matrix editor is active.
+        // Still, we're following the 'better safe than sorry' dictum,
+        // as per the previous comment.
+        if (string_equals(matedit_name, matedit_length, "MATA", 4)
+                || string_equals(matedit_name, matedit_length, "MATB", 4)
+                || string_equals(matedit_name, matedit_length, "MATX", 4)) {
+            matedit_i = matedit_j = 0;
+        }
     }
 
     store_var("MATX", 4, matx);

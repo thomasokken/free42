@@ -98,6 +98,11 @@ part (undocumented and not very useful), and accept real and complex matrices
 in Y with weird results. I'd say the complex and matrix cases are all bugs,
 resulting from a missing parameter type check.
 
+If MATA, MATB, or MATX is the indexed matrix, and SIMQ resizes it to a smaller
+size, IJ aren't set to (1, 1) as they usually are when the indexed matrix is
+resized (though DIM or SIZE). As a result, IJ can end up pointing outside the
+allocated elements, and RCLEL and STOEL can then produce wacky results.
+
 HP-42S bugs that others have found:
 
 When COMB or PERM are invoked with bad arguments (e.g. X > Y), "Invalid Data"

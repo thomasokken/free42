@@ -239,14 +239,14 @@ void string_copy(char *dst, int *dstlen, const char *src, int srclen) {
         dst[i] = src[i];
 }
 
-int string_equals(const char *s1, int s1len, const char *s2, int s2len) {
+bool string_equals(const char *s1, int s1len, const char *s2, int s2len) {
     int i;
     if (s1len != s2len)
-        return 0;
+        return false;
     for (i = 0; i < s1len; i++)
         if (s1[i] != s2[i])
-            return 0;
-    return 1;
+            return false;
+    return true;
 }
 
 int virtual_flag_handler(int flagop, int flagnum) {
@@ -779,7 +779,16 @@ phloat cos_grad(phloat x) {
     return sin_or_cos_grad(x, false);
 }
 
-int dimension_array(const char *name, int namelen, int4 rows, int4 columns) {
+int dimension_array(const char *name, int namelen, int4 rows, int4 columns, bool check_matedit) {
+    if (check_matedit
+            && (matedit_mode == 1 || matedit_mode == 3)
+            && string_equals(name, namelen, matedit_name, matedit_length)) {
+        if (matedit_mode == 1)
+            matedit_i = matedit_j = 0;
+        else
+            return ERR_RESTRICTED_OPERATION;
+    }
+
     vartype *matrix = recall_var(name, namelen);
     /* NOTE: 'size' will only ever be 0 when we're called from
      * docmd_size(); docmd_dim() does not allow 0-size matrices.

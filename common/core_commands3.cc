@@ -623,7 +623,7 @@ int docmd_dim(arg_struct *arg) {
         y = -y;
     if (y >= 2147483648.0)
         return ERR_INSUFFICIENT_MEMORY;
-    return dimension_array(arg->val.text, arg->length, to_int(y), to_int(x));
+    return dimension_array(arg->val.text, arg->length, to_int(y), to_int(x), true);
 }
 
 int docmd_dot(arg_struct *arg) {

@@ -42,7 +42,7 @@ void append_alpha_char(char c);
 void append_alpha_string(const char *buf, int buflen, int reverse);
 
 void string_copy(char *dst, int *dstlen, const char *src, int srclen);
-int string_equals(const char *s1, int s1len, const char *s2, int s2len);
+bool string_equals(const char *s1, int s1len, const char *s2, int s2len);
 
 #define FLAGOP_SF 0
 #define FLAGOP_CF 1
@@ -78,7 +78,7 @@ phloat cos_grad(phloat x);
 /* Miscellaneous stuff */
 /***********************/
 
-int dimension_array(const char *name, int namelen, int4 rows, int4 columns);
+int dimension_array(const char *name, int namelen, int4 rows, int4 columns, bool check_matedit);
 int dimension_array_ref(vartype *matrix, int4 rows, int4 columns);
 
 phloat fix_hms(phloat x);
