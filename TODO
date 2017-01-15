@@ -8,6 +8,7 @@ Android version:
 * Add support for physical keyboards.
 * Implement pop-up keyboard for ALPHA mode text entry.
 * Implement better visual feedback for which key is pressed.
+* Implement ON / flag 44.
 
 iPhone version:
 * Implement dynamic layout, to better support arbitrary screen sizes. Right now
@@ -33,6 +34,7 @@ iPhone version:
   WiFi. Don't show a URL containing some bogus 3G hostname or whatever. Also,
   deal with the possibility of WiFi becoming active or inactive while Free42 is
   running.
+* Implement ON / flag 44.
 
 Windows version:
 * The "Calculator Key" option should probably set
@@ -61,6 +63,10 @@ Linux version:
 * Try to get Skin menu to work with Unity's indicator-appmenu.
 
 All versions:
+* Fix remaining issues with modifying the indexed/edited matrix. 1.5.13 fixed
+  DIM, SIZE, CLV, and SIMQ, but replacing the matrix is probably still not
+  handled correctly. See the comment in docmd_editn(); probably code change
+  required in store_var().
 * Add link to 42s.pdf in the About box.
 * Binary version: ADATE: 10.102010 => 10/10/2009. Binary round-off problem.
 * Add a command that turns on everything in the display -- all pixels and all
