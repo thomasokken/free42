@@ -67,6 +67,8 @@ All versions:
   DIM, SIZE, CLV, and SIMQ, but replacing the matrix is probably still not
   handled correctly. See the comment in docmd_editn(); probably code change
   required in store_var().
+* CLALL should exit all menus, including the matrix editor, and it should set
+  matedit_mode to 0.
 * Add link to 42s.pdf in the About box.
 * Binary version: ADATE: 10.102010 => 10/10/2009. Binary round-off problem.
 * Add a command that turns on everything in the display -- all pixels and all
