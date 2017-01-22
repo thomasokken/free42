@@ -787,7 +787,7 @@ int docmd_clall(arg_struct *arg) {
      * is guaranteed not to fail because there's 0 in X,
      * and that is always valid).
      */
-    set_menu(MENULEVEL_APP, MENU_NONE);
+    set_menu_return_err(MENULEVEL_APP, MENU_NONE, true);
     flags.f.prgm_mode = 0;
 
     /* Clear all programs and variables */

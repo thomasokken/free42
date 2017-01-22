@@ -582,26 +582,28 @@ int generic_sto(arg_struct *arg, char operation) {
                         && reg_x->type != TYPE_COMPLEXMATRIX)
                     return ERR_RESTRICTED_OPERATION;
                 /* When EDITN is active, don't allow the matrix being
-                 * edited to be overwritten by a string or scalar. */
-                if (matedit_mode == 3 && arg->length == matedit_length
-                        && (reg_x->type == TYPE_REAL
-                            || reg_x->type == TYPE_COMPLEX
-                            || reg_x->type == TYPE_STRING)) {
-                    bool equal = true;
-                    for (int i = 0; i < arg->length; i++)
-                        if (arg->val.text[i] != matedit_name[i]) {
-                            equal = false;
-                            break;
-                        }
-                    if (equal)
+                 * edited to be overwritten. */
+                if (matedit_mode == 3 && string_equals(arg->val.text,
+                            arg->length, matedit_name, matedit_length))
                         return ERR_RESTRICTED_OPERATION;
-                }
                 newval = dup_vartype(reg_x);
                 if (newval == NULL)
                     return ERR_INSUFFICIENT_MEMORY;
                 store_var(arg->val.text, arg->length, newval);
                 return ERR_NONE;
             } else {
+                /* When EDITN is active, don't allow the matrix being edited to
+                 * be multiplied by another matrix, since this could cause the
+                 * target's dimensions to change. Note that this restriction is
+                 * applied even if the target's dimensions would not, in fact,
+                 * change. */
+                if (operation == '*'
+                        && (reg_x->type == TYPE_REALMATRIX
+                            || reg_x->type == TYPE_COMPLEXMATRIX)
+                        && matedit_mode == 3
+                        && string_equals(arg->val.text,
+                                arg->length, matedit_name, matedit_length))
+                    return ERR_RESTRICTED_OPERATION;
                 vartype *oldval = recall_var(arg->val.text, arg->length);
                 if (oldval == NULL)
                     return ERR_NONEXISTENT;
