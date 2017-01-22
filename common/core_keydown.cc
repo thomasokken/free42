@@ -1999,6 +1999,7 @@ void keydown_normal_mode(int shift, int key) {
                                 pending_command = CMD_XEQ;
                             else if (cmd == CMD_CLALLa) {
                                 mode_clall = true;
+                                set_menu(MENULEVEL_ALPHA, MENU_NONE);
                                 pending_command = CMD_NONE;
                                 redisplay();
                                 return;
