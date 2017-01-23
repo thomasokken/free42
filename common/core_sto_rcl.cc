@@ -573,11 +573,7 @@ int generic_sto(arg_struct *arg, char operation) {
             if (operation == 0) {
                 vartype *newval;
                 /* Only allow matrices to be stored in "REGS" */
-                if (arg->length == 4
-                        && arg->val.text[0] == 'R'
-                        && arg->val.text[1] == 'E'
-                        && arg->val.text[2] == 'G'
-                        && arg->val.text[3] == 'S'
+                if (string_equals(arg->val.text, arg->length, "REGS", 4)
                         && reg_x->type != TYPE_REALMATRIX
                         && reg_x->type != TYPE_COMPLEXMATRIX)
                     return ERR_RESTRICTED_OPERATION;
