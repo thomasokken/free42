@@ -63,6 +63,10 @@ Linux version:
 * Try to get Skin menu to work with Unity's indicator-appmenu.
 
 All versions:
+* When EDITN is active on "REGS", and you do SIZE, you get "Restricted
+  Operation", which is correct, but if you then hit EXIT, you don't just leave
+  the matrix editor, you leave the MATRIX application altogether. This does
+  not happen when you do STO "REGS" or CLV "REGS".
 * Add link to 42s.pdf in the About box.
 * Binary version: ADATE: 10.102010 => 10/10/2009. Binary round-off problem.
 * Add a command that turns on everything in the display -- all pixels and all
