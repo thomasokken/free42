@@ -788,6 +788,10 @@ int docmd_clall(arg_struct *arg) {
      * and that is always valid).
      */
     set_menu_return_err(MENULEVEL_APP, MENU_NONE, true);
+    // Clear X again, in case EDIT was active
+    free_vartype(reg_x);
+    reg_x = new_real(0);
+
     flags.f.prgm_mode = 0;
 
     /* Clear all programs and variables */
