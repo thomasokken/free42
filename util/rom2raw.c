@@ -128,6 +128,18 @@ xrom_spec hp42s_xroms[] = {
     /* XROM 25,28 */ 0x65C, 1, "POSA",      /* Extended Functions */
     /* XROM 25,47 */ 0x66F, 1, "XTOA",      /* Extended Functions */
     /* XROM 25,56 */ 0x678, 1, "SigmaREG?", /* CX Extended Functions */
+    /* XROM 26,01 */ 0x681, 1, "ADATE",     /* Time */
+    /* XROM 26,04 */ 0x684, 1, "ATIME",     /* Time */
+    /* XROM 26,05 */ 0x685, 1, "ATIME24",   /* Time */
+    /* XROM 26,06 */ 0x686, 1, "CLK12",     /* Time */
+    /* XROM 26,07 */ 0x687, 1, "CLK24",     /* Time */
+    /* XROM 26,12 */ 0x68C, 1, "DATE",      /* Time */
+    /* XROM 26,13 */ 0x68D, 1, "DATE+",     /* Time */
+    /* XROM 26,14 */ 0x68E, 1, "DDAYS",     /* Time */
+    /* XROM 26,15 */ 0x68F, 1, "DMY",       /* Time */
+    /* XROM 26,16 */ 0x690, 1, "DOW",       /* Time */
+    /* XROM 26,17 */ 0x691, 1, "MDY",       /* Time */
+    /* XROM 26,28 */ 0x69C, 1, "TIME",      /* Time */
     /* XROM 27,09 */ 0x6C9, 0, "TRANS",
     /* XROM 27,10 */ 0x6CA, 0, "CROSS",
     /* XROM 27,11 */ 0x6CB, 0, "DOT",
@@ -176,6 +188,10 @@ xrom_spec hp42s_xroms[] = {
     /* XROM 29,35 */ 0x763, 0, "CLLCD",
     /* XROM 29,36 */ 0x764, 0, "AGRAPH",
     /* XROM 29,37 */ 0x765, 0, "PIXEL",
+    /* XROM 31,15 */ 0x7CF, 0, "ACCEL",     /* Free42 Android/iOS extension */
+    /* XROM 31,16 */ 0x7D0, 0, "LOCAT",     /* Free42 Android/iOS extension */
+    /* XROM 31,17 */ 0x7D1, 0, "HEADING",   /* Free42 Android/iOS extension */
+    /* XROM 31,18 */ 0x7D2, 0, "FPTEST",    /* Free42 Intel FP test suite */
     /* sentinel */      -1, 0, NULL
 };
 
