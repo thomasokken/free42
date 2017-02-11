@@ -50,14 +50,6 @@ The Makefiles were all written for GNU make. On Linux, this is usually the
 default anyway, but if you're using FreeBSD or other BSD derivatives, you may
 have to use 'gmake' instead of 'make'.
 
--------------
-Fedora Core 5 and Cygwin: this is what I use for development; the Unix version
-builds with no changes.
-
--------
-MacOS X: Needs LIBS = -lm -lXm -lXpm -lXp -lXmu -lXt -lX11
-Needs -DNO_SINCOS.
-
 
 -------------------------------------------------------------------------------
 About the character sets:
