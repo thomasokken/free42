@@ -1218,6 +1218,7 @@ static bool unpersist_globals(int4 ver) {
 #else
     bool padded = false;
 #endif
+    char tmp_dmy = 2;
 
     free_vartype(reg_x);
     if (!unpersist_vartype(&reg_x, padded))
@@ -1258,7 +1259,6 @@ static bool unpersist_globals(int4 ver) {
         mode_goose = -1;
         goto done;
     }
-    char tmp_dmy = 2;
     if (ver >= 16) {
         if (!read_bool(&mode_time_clktd)) {
             mode_time_clktd = false;
