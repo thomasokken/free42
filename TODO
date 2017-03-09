@@ -47,7 +47,7 @@ Windows version:
   release the mouse button. The key stays pressed; apparently the mouse-up is
   not handled in this case.
 * What would it take to fix the Alt-Tab problem? How do you create a "new"
-  style menu bar?
+  style menu bar? This may be relevant: https://msdn.microsoft.com/en-us/library/windows/desktop/hh270423(v=vs.85).aspx
 
 Mac version:
 * When you resize the print-out window, the bottom of the print-out shows stuff
