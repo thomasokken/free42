@@ -1258,6 +1258,7 @@ static bool unpersist_globals(int4 ver) {
         mode_goose = -1;
         goto done;
     }
+    char tmp_dmy = 2;
     if (ver >= 16) {
         if (!read_bool(&mode_time_clktd)) {
             mode_time_clktd = false;
@@ -1269,16 +1270,16 @@ static bool unpersist_globals(int4 ver) {
         }
         if (ver < 19) {
             bool dmy;
-            if (!read_bool(&dmy)) {
-                flags.f.dmy = 0;
+            if (!read_bool(&dmy))
                 goto done;
-            }
-            flags.f.dmy = dmy ? 1 : 0;
+            tmp_dmy = dmy ? 1 : 0;
         }
     }
     if (shell_read_saved_state(&flags, sizeof(flags_struct))
             != sizeof(flags_struct))
         goto done;
+    if (tmp_dmy != 2)
+        flags.f.dmy = tmp_dmy;
     vars_capacity = 0;
     if (vars != NULL) {
         free(vars);
