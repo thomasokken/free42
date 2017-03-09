@@ -752,6 +752,9 @@ void draw_pattern(phloat dx, phloat dy, const char *pattern, int pattern_width){
 void fly_goose() {
     static uint4 lastgoosetime = 0;
     uint4 goosetime = shell_milliseconds();
+    if (goosetime < lastgoosetime)
+        // shell_millisends() wrapped around
+        lastgoosetime = 0;
     if (goosetime - 100 < lastgoosetime)
         /* No goose movements if the most recent one was less than 100 ms
          * ago; in other words, maximum goose speed is 10 positions/second

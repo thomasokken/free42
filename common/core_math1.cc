@@ -438,6 +438,9 @@ int return_to_solve(int failure) {
     }
 
     now_time = shell_milliseconds();
+    if (now_time < solve.last_disp_time)
+        // shell_milliseconds() wrapped around
+        solve.last_disp_time = 0;
     if (!solve.keep_running && solve.state > 1
                                 && now_time >= solve.last_disp_time + 250) {
         /* Put on a show so the user won't think we're just drinking beer
