@@ -228,8 +228,18 @@ static gint num_entries_compactmenu = sizeof(entries_compactmenu) / sizeof(entri
 
 static int use_compactmenu = 0;
 
+static bool decimal_point;
+
 int main(int argc, char *argv[]) {
     gtk_init(&argc, &argv);
+
+    // Capture state of decimal_point, which may have been changed by
+    // gtk_init(), and then set it to the C locale, because the binary/decimal
+    // conversions expect a decimal point, not a comma.
+    struct lconv *loc = localeconv();
+    decimal_point = strcmp(loc->decimal_point, ",") != 0;
+    setlocale(LC_NUMERIC, "C");
+
     char *skin_arg = NULL;
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-skin") == 0)
@@ -2072,8 +2082,7 @@ uint4 shell_milliseconds() {
 }
 
 int shell_decimal_point() {
-    struct lconv *loc = localeconv();
-    return strcmp(loc->decimal_point, ",") == 0 ? 0 : 1;
+    return decimal_point ? 1 : 0;
 }
 
 struct print_growth_info {

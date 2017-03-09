@@ -1,3 +1,11 @@
+????-??-??: release 1.5.14
+
+* GTK version, Free42 Binary only: Some (recent?) versions of GTK set the
+  LC_NUMERIC locale, which Free42 expects to always be "C". This causes number
+  entry and display to be messed up in locales where the decimal is not ".",
+  including most of Europe. I added code to force LC_NUMERIC back to "C" after
+  gtk_init(), fixing this problem.
+
 2017-01-22: release 1.5.13
 
 * When DIM, SIZE, or SIMQ resize the indexed matrix, and when CLV deletes the
