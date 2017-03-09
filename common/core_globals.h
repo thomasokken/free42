@@ -306,7 +306,8 @@ typedef union {
         char decimal_point;
         char thousands_separators;
         char stack_lift_disable;
-        char f31; char f32; char f33;
+        char dmy; /* Time Module DMY mode */
+        char f32; char f33;
         char agraph_control1; /* 0 (default): dst = dst | src, 1: dst = src, */
         char agraph_control0; /* 2: dst = dst & ~src, 3: dst = dst ^ src */
         char digits_bit3;
@@ -441,7 +442,6 @@ extern int4 mode_sigma_reg;
 extern int mode_goose;
 extern bool mode_time_clktd;
 extern bool mode_time_clk24;
-extern bool mode_time_dmy;
 
 extern phloat entered_number;
 extern int entered_string_length;

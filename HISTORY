@@ -1,5 +1,7 @@
 ????-??-??: release 1.5.14
 
+* The Time Module functions used to keep track of MDY/DMY modes using an
+  invisible flag. For better HP-41 compatibility, they now use flag 31.
 * GTK version, Free42 Binary only: Some (recent?) versions of GTK set the
   LC_NUMERIC locale, which Free42 expects to always be "C". This causes number
   entry and display to be messed up in locales where the decimal is not ".",
