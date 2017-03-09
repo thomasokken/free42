@@ -43,7 +43,6 @@ iPhone version:
 * Implement ON / flag 44.
 
 Windows version:
-* Remove the "Calculator Key" option.
 * Press a key with the mouse, then move the mouse outside of the window, then
   release the mouse button. The key stays pressed; apparently the mouse-up is
   not handled in this case.
