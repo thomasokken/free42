@@ -51,8 +51,9 @@ Windows version:
   style menu bar?
 
 Mac version:
-* When you resize the print-out window, the bottom of the print-out doesn't get
-  updated, until you either print something or bouce the app.
+* When you resize the print-out window, the bottom of the print-out shows stuff
+  from the top of the print-out, and it keeps doing that until you restart the
+  app. Seems like bounding rectangles getting out of sync.
 * Modify the file selection dialogs so they have a file type menu, and add
   extensions to file names automagically when appropriate.
 * Implement low-battery checker.
