@@ -794,7 +794,8 @@ void phloat_init() {
     POS_TINY_PHLOAT = d;
 #endif
     NEG_TINY_PHLOAT = -POS_TINY_PHLOAT;
-    NAN_PHLOAT = 0.0 / 0.0;
+    double zero = 0.0;
+    NAN_PHLOAT = zero / 0.0;
 }
 
 int string2phloat(const char *buf, int buflen, phloat *d) {
