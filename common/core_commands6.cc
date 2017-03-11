@@ -199,6 +199,11 @@ static int mappable_tan_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
         } else
             return ERR_OUT_OF_RANGE;
     }
+    if (p_isinf(d) != 0) {
+        *yre = 0;
+        *yim = xim < 0 ? -1 : 1;
+        return ERR_NONE;
+    }
     *yre = sinxre2 / d;
     *yim = sinhxim2 / d;
     int inf;

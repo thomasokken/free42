@@ -900,6 +900,11 @@ static int mappable_tanh_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
         } else
             return ERR_OUT_OF_RANGE;
     }
+    if (p_isinf(d) != 0) {
+        *yre = xre < 0 ? -1 : 1;
+        *yim = 0;
+        return ERR_NONE;
+    }
     *yre = sinhxre2 / d;
     *yim = sinxim2 / d;
     int inf;
