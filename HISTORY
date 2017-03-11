@@ -1,9 +1,10 @@
-????-??-??: release 1.5.14
+2017-03-11: release 1.5.14
 
+* Changed complex TAN and TANH to use more accurate formulae.
 * The Time Module functions used to keep track of MDY/DMY modes using an
   invisible flag. For better HP-41 compatibility, they now use flag 31.
 * Android version: Made state file writing more robust. If writing the state
-  file fails, it now keeps the previous one, instead of leaving behing a
+  file fails, it now keeps the previous one, instead of leaving behind a
   partial or corrupt one.
 * GTK version, Free42 Binary only: Some (recent?) versions of GTK set the
   LC_NUMERIC locale, which Free42 expects to always be "C". This causes number

@@ -880,39 +880,35 @@ static int mappable_tanh_r(phloat x, phloat *y) {
 }   
 
 static int mappable_tanh_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
-    phloat sinhxre, coshxre;
-    phloat sinxim, cosxim;
-    phloat re_sinh, re_cosh, im_sinh, im_cosh, abs_cosh;
-    int inf;
-
-    sinhxre = sinh(xre);
-    coshxre = cosh(xre);
-    sincos(xim, &sinxim, &cosxim);
-
-    re_sinh = sinhxre * cosxim;
-    im_sinh = coshxre * sinxim;
-    re_cosh = coshxre * cosxim;
-    im_cosh = sinhxre * sinxim;
-    abs_cosh = hypot(re_cosh, im_cosh);
-
-    if (abs_cosh == 0) {
+    phloat xim2 = xim * 2;
+    if (p_isnan(xre) || p_isnan(xim) || p_isinf(xim2)) {
+        *yre = NAN_PHLOAT;
+        *yim = NAN_PHLOAT;
+        return ERR_NONE;
+    }
+    phloat xre2 = xre * 2;
+    phloat sinhxre2 = sinh(xre2);
+    phloat coshxre2 = cosh(xre2);
+    phloat sinxim2, cosxim2;
+    sincos(xim2, &sinxim2, &cosxim2);
+    phloat d = coshxre2 + cosxim2;
+    if (d == 0) {
         if (flags.f.range_error_ignore) {
-            *yre = re_sinh * im_sinh + re_cosh * im_cosh > 0 ? POS_HUGE_PHLOAT
-                                                             : NEG_HUGE_PHLOAT;
-            *yim = im_sinh * re_cosh - re_sinh * im_cosh > 0 ? POS_HUGE_PHLOAT
-                                                             : NEG_HUGE_PHLOAT;
+            *yre = POS_HUGE_PHLOAT;
+            *yim = POS_HUGE_PHLOAT;
+            return ERR_NONE;
         } else
             return ERR_OUT_OF_RANGE;
     }
-
-    *yre = (re_sinh * re_cosh + im_sinh * im_cosh) / abs_cosh / abs_cosh;
+    *yre = sinhxre2 / d;
+    *yim = sinxim2 / d;
+    int inf;
     if ((inf = p_isinf(*yre)) != 0) {
         if (flags.f.range_error_ignore)
             *yre = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
         else
             return ERR_OUT_OF_RANGE;
     }
-    *yim = (im_sinh * re_cosh - re_sinh * im_cosh) / abs_cosh / abs_cosh;
     if ((inf = p_isinf(*yim)) != 0) {
         if (flags.f.range_error_ignore)
             *yim = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;

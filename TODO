@@ -1,9 +1,4 @@
 Android version:
-* Since I can't seem to figure out why occasional State File Corrupt errors
-  occur, make the app more robust against them by not overwriting the current
-  state file while writing the new one. This way, when a state file turns out
-  to be corrupt, the app can fall back on the previous one. The user still ends
-  up losing whatever they did during their last session, but not *everything*.
 * Sometimes, the app saves the state file after reinitialize_globals(). How is
   this possible, and how to prevent it? N.B. This is one cause, and quite
   possibly the only one, of the native-code crash in vartype2string() called
@@ -72,12 +67,4 @@ All versions:
   annunciators -- to help with testing skins.
 * When a "State File Corrupt" occurs, make a copy of the unloved state file,
   so it doesn't get nuked on exit.
-* Fix behavior of TAN and TANH for large complex arguments. Currently, those
-  return NaNs, because infinities are divided by infinities. It looks like the
-  real 42S simply pretends Inf/Inf == 1 for those cases.
-  See https://groups.google.com/forum/#!topic/free42discuss/u-Qw8A9-PKg
 * Display "decimal" or "binary" in the About box, with the version number.
-* Copy and paste should perform number-to-string and string-to-number using
-  locale-sensitive conversions. Also, look into nice stuff like copying and
-  pasting raw numbers (i.e. avoiding the string conversions when possible),
-  complex numbers, and matrices.

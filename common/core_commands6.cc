@@ -179,47 +179,41 @@ static int mappable_tan_r(phloat x, phloat *y) {
 
 static int mappable_tan_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     /* NOTE: DEG/RAD/GRAD mode does not apply here. */
-    phloat sinxre, cosxre;
-    phloat sinhxim, coshxim;
-    phloat re_sin, im_sin, re_cos, im_cos, abs_cos;
-    int inf;
-
-    sincos(xre, &sinxre, &cosxre);
-    sinhxim = sinh(xim);
-    coshxim = cosh(xim);
-
-    re_sin = sinxre * coshxim;
-    im_sin = cosxre * sinhxim;
-    re_cos = cosxre * coshxim;
-    im_cos = -sinxre * sinhxim;
-    abs_cos = hypot(re_cos, im_cos);
-
-    if (abs_cos == 0) {
+    phloat xre2 = xre * 2;
+    if (p_isnan(xre) || p_isnan(xim) || p_isinf(xre2)) {
+        *yre = NAN_PHLOAT;
+        *yim = NAN_PHLOAT;
+        return ERR_NONE;
+    }
+    phloat xim2 = xim * 2;
+    phloat sinxre2, cosxre2;
+    sincos(xre2, &sinxre2, &cosxre2);
+    phloat sinhxim2 = sinh(xim2);
+    phloat coshxim2 = cosh(xim2);
+    phloat d = cosxre2 + coshxim2;
+    if (d == 0) {
         if (flags.f.range_error_ignore) {
-            *yre = re_sin * re_cos + im_sin * im_cos > 0 ? POS_HUGE_PHLOAT
-                                                         : NEG_HUGE_PHLOAT;
-            *yim = im_sin * re_cos - re_sin * im_cos > 0 ? POS_HUGE_PHLOAT
-                                                         : NEG_HUGE_PHLOAT;
+            *yre = POS_HUGE_PHLOAT;
+            *yim = POS_HUGE_PHLOAT;
             return ERR_NONE;
         } else
             return ERR_OUT_OF_RANGE;
     }
-
-    *yre = (re_sin * re_cos + im_sin * im_cos) / abs_cos / abs_cos;
+    *yre = sinxre2 / d;
+    *yim = sinhxim2 / d;
+    int inf;
     if ((inf = p_isinf(*yre)) != 0) {
         if (flags.f.range_error_ignore)
             *yre = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
         else
             return ERR_OUT_OF_RANGE;
     }
-    *yim = (im_sin * re_cos - re_sin * im_cos) / abs_cos / abs_cos;
     if ((inf = p_isinf(*yim)) != 0) {
         if (flags.f.range_error_ignore)
             *yim = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
         else
             return ERR_OUT_OF_RANGE;
     }
-
     return ERR_NONE;
 }
 

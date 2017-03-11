@@ -162,6 +162,7 @@ extern phloat POS_HUGE_PHLOAT;
 extern phloat NEG_HUGE_PHLOAT;
 extern phloat POS_TINY_PHLOAT;
 extern phloat NEG_TINY_PHLOAT;
+extern phloat NAN_PHLOAT;
 
 void phloat_init();
 int phloat2string(phloat d, char *buf, int buflen,
