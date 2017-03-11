@@ -11,6 +11,8 @@
   entry and display to be messed up in locales where the decimal is not ".",
   including most of Europe. I added code to force LC_NUMERIC back to "C" after
   gtk_init(), fixing this problem.
+* Binary version: Fixed binary round-off problem in ADATE (for example,
+  10.102010 would be rendered as 10/10/2009).
 
 2017-01-22: release 1.5.13
 

@@ -228,11 +228,19 @@ int docmd_adate(arg_struct *arg) {
         x = -x;
     if (x >= 100)
         return ERR_INVALID_DATA;
-    int m = to_int(floor(x));
-    int4 dy = to_int4(floor((x - floor(x)) * 1000000));
-    int d = (int) (dy / 10000);
-    int c = (int) (dy / 100 % 100);
-    int y = (int) (dy % 100);
+
+    int4 m = to_int4(floor(x));
+#ifdef BCD_MATH
+    int4 d = to_int4(floor((x - m) * 100));
+    int4 y = to_int4(x * 1000000) % 10000;
+#else
+    int4 r = (int4) floor((x - m) * 100000000 + 0.5);
+    r /= 100;
+    int4 d = r / 10000;
+    int4 y = r % 10000;
+#endif
+    int c = y / 100;
+    y %= 100;
 
     int digits;
     if (flags.f.fix_or_all && flags.f.eng_or_all)

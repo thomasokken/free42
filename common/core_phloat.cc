@@ -36,6 +36,7 @@ phloat POS_HUGE_PHLOAT;
 phloat NEG_HUGE_PHLOAT;
 phloat POS_TINY_PHLOAT;
 phloat NEG_TINY_PHLOAT;
+phloat NAN_PHLOAT;
 
 
 /* Note: this function does not handle infinities or NaN */
