@@ -59,8 +59,6 @@ Linux version:
 
 All versions:
 * Add a feature for importing and exporting variables from and to CSV files.
-* Make SHOW show full precision when there is a real number in X -- i.e., 16
-  digits for binary and 34 for decimal.
 * Add link to 42s.pdf in the About box.
 * Add a command that turns on everything in the display -- all pixels and all
   annunciators -- to help with testing skins.

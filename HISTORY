@@ -1,3 +1,8 @@
+????-??-??: release 1.5.15
+
+* SHOW now shows full precision: 34 digits in Free42 Decimal, and 16 digits in
+  Free42 Binary.
+
 2017-03-11: release 1.5.14
 
 * Changed complex TAN and TANH to use more accurate formulae.
