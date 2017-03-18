@@ -3022,7 +3022,7 @@ static bool convert_programs() {
                         oldpc -= growth;
 
                         phloat p;
-                        p.val = double_to_12_digit_decimal(d);
+                        p.val = double_to_16_digit_decimal(d);
                         b = (unsigned char *) &p;
                         for (j = 0; j < (int) sizeof(phloat); j++)
                             prgm->text[pc++] = *b++;

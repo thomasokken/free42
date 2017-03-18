@@ -706,7 +706,7 @@ Phloat operator/(int x, Phloat y) {
 Phloat operator/(double x, Phloat y) {
     BID_UINT128 xx, res;
     binary64_to_bid128(&xx, &x);
-    bid128_mul(&res, &xx, &y.val);
+    bid128_div(&res, &xx, &y.val);
     return Phloat(res);
 }
 
@@ -734,33 +734,12 @@ bool operator==(int4 x, Phloat y) {
 
 Phloat PI("3.141592653589793238462643383279503");
 
-BID_UINT128 double_to_12_digit_decimal(double d) {
-    if (d == 0) {
-        BID_UINT128 res;
-        int zero = 0;
-        bid128_from_int32(&res, &zero);
-        return res;
-    }
-    bool neg = d < 0;
-    if (neg)
-        d = -d;
-    BID_UINT128 bd, exp, wiper, temp, temp2;
-    binary64_to_bid128(&bd, &d);
-    bid128_log10(&temp, &bd);
-    bid128_round_integral_negative(&exp, &temp);
-    int twenty_two = 22;
-    bid128_from_int32(&temp, &twenty_two);
-    bid128_add(&temp2, &exp, &temp);
-    int ten = 10;
-    bid128_from_int32(&temp, &ten);
-    bid128_pow(&wiper, &temp, &temp2);
-    bid128_add(&temp, &bd, &wiper);
-    bid128_sub(&bd, &temp, &wiper);
-    if (neg) {
-        bid128_negate(&temp, &bd);
-        return temp;
-    } else
-        return bd;
+BID_UINT128 double_to_16_digit_decimal(double d) {
+    BID_UINT64 tmp;
+    binary64_to_bid64(&tmp, &d);
+    BID_UINT128 res;
+    bid64_to_bid128(&res, &tmp);
+    return res;
 }
 
 void update_decimal(BID_UINT128 *val) {

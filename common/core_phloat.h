@@ -151,7 +151,7 @@ bool operator==(int4 x, Phloat y);
 
 extern Phloat PI;
 
-BID_UINT128 double_to_12_digit_decimal(double d);
+BID_UINT128 double_to_16_digit_decimal(double d);
 void update_decimal(BID_UINT128 *val);
 
 
