@@ -393,7 +393,7 @@ int core_keyup() {
     }
 
     if (pending_command == CMD_NONE)
-        return mode_running || keybuf_head != keybuf_tail;
+        return mode_running || mode_interruptible != NULL || keybuf_head != keybuf_tail;
 
     if (remove_program_catalog) {
         if (mode_transientmenu == MENU_CATALOG)
@@ -487,6 +487,7 @@ int core_keyup() {
 
     if (error == ERR_INTERRUPTIBLE) {
         shell_annunciators(-1, -1, -1, 1, -1, -1);
+        pending_command = CMD_NONE;
         return 1;
     }
 
