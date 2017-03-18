@@ -38,6 +38,12 @@ phloat POS_TINY_PHLOAT;
 phloat NEG_TINY_PHLOAT;
 phloat NAN_PHLOAT;
 
+#ifdef BCD_MATH
+#define MAX_MANT_DIGITS 34
+#else
+#define MAX_MANT_DIGITS 16
+#endif
+
 
 /* Note: this function does not handle infinities or NaN */
 static void bcdfloat2string(short *p, char *buf) {
@@ -113,7 +119,7 @@ int string2phloat(const char *buf, int buflen, phloat *d) {
     // First, convert from HP-42S format to bcdfloat format:
     // strip thousands separators, convert comma to dot if
     // appropriate, and convert char(24) to 'E'.
-    // Also, reject numbers with more than 12 digits in the mantissa.
+    // Also, reject numbers with more than MAX_MANT_DIGITS digits in the mantissa.
     char buf2[100];
     int buflen2 = 0;
     char sep = flags.f.decimal_point ? ',' : '.';
@@ -132,7 +138,7 @@ int string2phloat(const char *buf, int buflen, phloat *d) {
             in_mant = false;
         } else if (c >= '0' && c <= '9') {
             if (in_mant) {
-                if (++mantdigits > 12)
+                if (++mantdigits > MAX_MANT_DIGITS)
                     return 5;
                 if (c != '0')
                     zero = false;
@@ -832,8 +838,8 @@ int string2phloat(const char *buf, int buflen, phloat *d) {
                 continue;
             }
             /* Once we get here, c should be a digit */
-            if (++mant_digits > 12)
-                /* Too many digits! We only allow the user to enter 12. */
+            if (++mant_digits > MAX_MANT_DIGITS)
+                /* Too many digits! We only allow the user to enter 16 (binary) or 34 (decimal). */
                 return 5;
             if (c == '0' && skipping_zeroes)
                 continue;
@@ -1010,12 +1016,6 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
 
         decimal_after_all:;
     }
-
-#ifdef BCD_MATH
-#define MAX_MANT_DIGITS 34
-#else
-#define MAX_MANT_DIGITS 16
-#endif
 
     char bcd_mantissa[MAX_MANT_DIGITS];
     memset(bcd_mantissa, 0, MAX_MANT_DIGITS);
