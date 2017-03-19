@@ -350,7 +350,7 @@
 #define CMD_MIN         312
 #define CMD_FIND        313
 #define CMD_XROM        314
-/* Underhill's COPAN extensions */
+/* Underhill's COPAN extensions (Obsolete) */
 #define CMD_OPENF       315
 #define CMD_CLOSEF      316
 #define CMD_READP       317
@@ -365,7 +365,7 @@
 #define CMD_GETZ        326
 #define CMD_PUTZ        327
 #define CMD_DELP        328
-/* Byron Foster's Bigstack extension */
+/* Byron Foster's Bigstack extension (Obsolete) */
 #define CMD_DROP        329
 /* iPhone hardware support */
 #define CMD_ACCEL       330
@@ -406,6 +406,7 @@
 #define CMD_CLRALMS     364
 #define CMD_RCLALM      365
 #define CMD_SWPT        366
+/* Intel Decimal Floating-Point Math Library: self-test */
 #define CMD_FPTEST      367
 
 #define CMD_SENTINEL    368

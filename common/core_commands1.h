@@ -88,8 +88,4 @@ int docmd_abs(arg_struct *arg);
 int docmd_sign(arg_struct *arg);
 int docmd_mod(arg_struct *arg);
 
-#ifdef BIGSTACK
-int docmd_drop(arg_struct *arg);
-#endif
-
 #endif

@@ -712,9 +712,6 @@ static bool convert_programs();
 #ifdef BCD_MATH
 static void update_decimal_in_programs();
 #endif
-#ifdef IPHONE
-static void convert_bigstack_drop();
-#endif
 
 #ifdef BCD_MATH
 #define bin_dec_mode_switch() ( state_file_number_format == NUMBER_FORMAT_BINARY )
@@ -1237,7 +1234,7 @@ static bool unpersist_globals(int4 ver) {
         goto done;
 
     if (ver >= 12) {
-        /* BIGSTACK -- iphone only; no longer used in Free42 proper */
+        /* BIGSTACK -- obsolete */
         bool bigstack;
         if (!read_bool(&bigstack))
             goto done;
@@ -1404,13 +1401,6 @@ static bool unpersist_globals(int4 ver) {
         update_decimal_in_programs();
 #endif
 
-#ifdef IPHONE
-    if (ver == 12 || ver == 13) {
-        // CMD_DROP redefined from 315 to 329, to resolve clash with
-        // Underhill's COPAN extensions.
-        convert_bigstack_drop();
-    }
-#endif
     rebuild_label_table();
     ret = true;
 
@@ -2305,16 +2295,8 @@ bool load_state(int4 ver) {
     else
         if (!read_bool(&core_settings.auto_repeat)) return false;
     if (ver < 15) {
-        #if defined(COPAN)
-            core_settings.enable_ext_copan = true;
-        #else
-            core_settings.enable_ext_copan = false;
-        #endif
-        #if defined(BIGSTACK)
-            core_settings.enable_ext_bigstack = true;
-        #else
-            core_settings.enable_ext_bigstack = false;
-        #endif
+        core_settings.enable_ext_copan = false;
+        core_settings.enable_ext_bigstack = false;
         #if defined(ANDROID) || defined(IPHONE)
             core_settings.enable_ext_accel = true;
             core_settings.enable_ext_locat = true;
@@ -2697,16 +2679,8 @@ void hard_reset(int bad_state_file) {
     mode_time_clk24 = false;
 
     core_settings.auto_repeat = true;
-    #if defined(COPAN)
-        core_settings.enable_ext_copan = true;
-    #else
-        core_settings.enable_ext_copan = false;
-    #endif
-    #if defined(BIGSTACK)
-        core_settings.enable_ext_bigstack = true;
-    #else
-        core_settings.enable_ext_bigstack = false;
-    #endif
+    core_settings.enable_ext_copan = false;
+    core_settings.enable_ext_bigstack = false;
     #if defined(ANDROID) || defined(IPHONE)
         core_settings.enable_ext_accel = true;
         core_settings.enable_ext_locat = true;
@@ -3118,63 +3092,6 @@ static void update_decimal_in_programs() {
 
     current_prgm = saved_prgm;
     pc = saved_pc;
-}
-#endif
-
-#ifdef IPHONE
-static void convert_bigstack_drop() {
-    // This function is called when we've read an iPhone version state file
-    // with version number 12 or 13. In those two versions, the DROP command
-    // was at index 315 of the commands table, but that conflicted with
-    // Underhill's COPAN extensions. In version 14 and later, I moved DROP
-    // to index 329 to fix this clash. This will allow all extensions to
-    // coexist in the future, should someone want to merge them all into one
-    // build at some point -- and even if that never happens, at least now
-    // all programs in all versions are encoded identically.
-
-    for (int i = 0; i < prgms_count; i++) {
-        int pc = 0;
-        prgm_struct *prgm = prgms + i;
-        while (true) {
-            int command = prgm->text[pc++];
-            int argtype = prgm->text[pc++];
-            command |= (argtype & 240) << 4;
-            argtype &= 15;
-
-            if (command == CMD_END)
-                break;
-            if (command == 315) { // Pre-version-14 value of CMD_DROP
-                prgm->text[pc - 2] = (unsigned char) CMD_DROP;
-                prgm->text[pc - 1] = (unsigned char) ((CMD_DROP & 0xF00) >> 4 | argtype);
-            }
-            if ((command == CMD_GTO || command == CMD_XEQ)
-                    && (argtype == ARGTYPE_NUM || argtype == ARGTYPE_LCLBL)) {
-                pc += 4;
-            }
-            switch (argtype) {
-                case ARGTYPE_NUM:
-                case ARGTYPE_NEG_NUM:
-                case ARGTYPE_IND_NUM: {
-                    while ((prgm->text[pc++] & 128) == 0);
-                    break;
-                }
-                case ARGTYPE_STK:
-                case ARGTYPE_IND_STK:
-                case ARGTYPE_COMMAND:
-                case ARGTYPE_LCLBL:
-                    pc++;
-                    break;
-                case ARGTYPE_STR:
-                case ARGTYPE_IND_STR: {
-                    pc += prgm->text[pc] + 1;
-                    break;
-                }
-                case ARGTYPE_DOUBLE:
-                    pc += sizeof(phloat);
-                    break;
-            }
-        }
-    }
 }
 #endif
 
