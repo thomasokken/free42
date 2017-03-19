@@ -16,6 +16,7 @@
  *****************************************************************************/
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "core_display.h"
 #include "core_commands2.h"
@@ -941,7 +942,7 @@ void clear_row(int row) {
 }
 
 static int prgmline2buf(char *buf, int len, int4 line, int highlight,
-                        int cmd, arg_struct *arg) {
+                        int cmd, arg_struct *arg, bool shift_left = false) {
     int bufptr = 0;
     if (line != -1) {
         if (line < 10)
@@ -973,11 +974,27 @@ static int prgmline2buf(char *buf, int len, int4 line, int highlight,
         string2buf(buf, len, &bufptr, ".END.", 5);
     } else if (cmd == CMD_NUMBER) {
         char *num = phloat2program(arg->val_d);
-        char c;
-        while ((c = *num++) != 0 && bufptr < len)
-            buf[bufptr++] = c;
-        if (c != 0)
-            buf[bufptr - 1] = 26;
+        int numlen = strlen(num);
+        if (bufptr + numlen <= len) {
+            memcpy(buf + bufptr, num, numlen);
+            bufptr += numlen;
+        } else {
+            if (shift_left) {
+                buf[0] = 26;
+                if (numlen >= len - 1) {
+                    memcpy(buf + 1, num + numlen - len + 1, len - 1);
+                } else {
+                    int off = bufptr + numlen - len;
+                    memmove(buf + 1, buf + off + 1, bufptr - off - 1);
+                    bufptr -= off;
+                    memcpy(buf + bufptr, num, len - bufptr);
+                }
+            } else {
+                memcpy(buf + bufptr, num, len - bufptr - 1);
+                buf[len - 1] = 26;
+            }
+            bufptr = len;
+        }
     } else if (cmd == CMD_STRING) {
         int append = arg->length > 0 && arg->val.text[0] == 127;
         if (append)
@@ -1030,7 +1047,7 @@ void display_prgm_line(int row, int line_offset) {
         /* Should not get offset == -1 when at line 0! */
     }
 
-    bufptr = prgmline2buf(buf, len, tmpline, line_offset == 0, cmd, &arg);
+    bufptr = prgmline2buf(buf, len, tmpline, line_offset == 0, cmd, &arg, row == -1);
 
     if (row == -1) {
         clear_display();
@@ -1614,6 +1631,62 @@ void display_mem() {
     flush_display();
 }
 
+static int procrustean_phloat2string(phloat d, char *buf, int buflen) {
+    char tbuf[100];
+    int tbuflen = phloat2string(d, tbuf, 100, 0, 0, 3,
+                                flags.f.thousands_separators, false);
+    if (tbuflen <= buflen) {
+        memcpy(buf, tbuf, tbuflen);
+        return tbuflen;
+    }
+    if (flags.f.thousands_separators) {
+        tbuflen = phloat2string(d, tbuf, 100, 0, 0, 3, 0, false);
+        if (tbuflen <= buflen) {
+            memcpy(buf, tbuf, tbuflen);
+            return tbuflen;
+        }
+    }
+    int epos = 0;
+    while (epos < tbuflen && tbuf[epos] != 24)
+        epos++;
+    if (epos == tbuflen) {
+        int dpos = buflen - 2;
+        char dec = flags.f.decimal_point ? '.' : ',';
+        while (dpos >= 0 && tbuf[dpos] != dec)
+            dpos--;
+        if (dpos != -1) {
+            memcpy(buf, tbuf, buflen - 1);
+            buf[buflen - 1] = 26;
+            return buflen;
+        }
+        tbuflen = phloat2string(d, tbuf, 100, 0, MAX_MANT_DIGITS - 1, 1, 0, false);
+        epos = 0;
+        int zero_since = -1;
+        while (epos < tbuflen && tbuf[epos] != 24) {
+            if (tbuf[epos] == '0') {
+                if (zero_since == -1)
+                    zero_since = epos;
+            } else {
+                zero_since = -1;
+            }
+            epos++;
+        }
+        if (zero_since != -1) {
+            memmove(tbuf + zero_since, tbuf + epos, tbuflen - epos);
+            tbuflen -= epos - zero_since;
+        }
+        if (tbuflen <= buflen) {
+            memcpy(buf, tbuf, tbuflen);
+            return tbuflen;
+        }
+    }
+    int expsize = tbuflen - epos;
+    memcpy(buf, tbuf, buflen - expsize - 1);
+    buf[buflen - expsize - 1] = 26;
+    memcpy(buf + buflen - expsize, tbuf + epos, expsize);
+    return buflen;
+}
+
 void show() {
     if (flags.f.prgm_mode)
         display_prgm_line(-1, 0);
@@ -1626,14 +1699,17 @@ void show() {
             draw_string(0, 1, reg_alpha + 22, reg_alpha_length - 22);
         }
     } else {
-        char buf[44];
+        char buf[45];
         int bufptr;
         clear_display();
         switch (reg_x->type) {
             case TYPE_REAL: {
-                bufptr = phloat2string(((vartype_real *) reg_x)->x, buf, 44,
+                bufptr = phloat2string(((vartype_real *) reg_x)->x, buf, 45,
                                        2, 0, 3,
-                                       flags.f.thousands_separators);
+                                       flags.f.thousands_separators, false);
+                if (bufptr == 45)
+                    bufptr = phloat2string(((vartype_real *) reg_x)->x, buf,
+                                           44, 2, 0, 3, 0, false);
                 if (bufptr <= 22)
                     draw_string(0, 0, buf, bufptr);
                 else {
@@ -1660,13 +1736,9 @@ void show() {
                     x = c->re;
                     y = c->im;
                 }
-                bufptr = phloat2string(x, buf, 22,
-                                       0, 0, 3,
-                                       flags.f.thousands_separators);
+                bufptr = procrustean_phloat2string(x, buf, 22);
                 draw_string(0, 0, buf, bufptr);
-                bufptr = phloat2string(y, buf, 22,
-                                       0, 0, 3,
-                                       flags.f.thousands_separators);
+                bufptr = procrustean_phloat2string(y, buf, 21);
                 if (flags.f.polar) {
                     draw_char(0, 1, 23);
                     draw_string(1, 1, buf, bufptr);

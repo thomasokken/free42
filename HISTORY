@@ -1,7 +1,8 @@
 ????-??-??: release 1.5.15
 
-* SHOW now shows full precision: 34 digits in Free42 Decimal, and 16 digits in
-  Free42 Binary.
+* Instead of being limited to 12 mantissa digits, full precision (34 digits in
+  the Decimal version, 16 digits in Binary) is now supported for number entry
+  and SHOW.
 
 2017-03-11: release 1.5.14
 

@@ -33,6 +33,12 @@ struct hp_string {
 #define phloat_text(x) (((hp_string *) &(x))->text)
 #define phloat_length(x) (((hp_string *) &(x))->length)
 
+#ifdef BCD_MATH
+#define MAX_MANT_DIGITS 34
+#else
+#define MAX_MANT_DIGITS 16
+#endif
+
 
 #ifndef BCD_MATH
 
@@ -151,7 +157,6 @@ bool operator==(int4 x, Phloat y);
 
 extern Phloat PI;
 
-BID_UINT128 double_to_16_digit_decimal(double d);
 void update_decimal(BID_UINT128 *val);
 
 
@@ -167,7 +172,7 @@ extern phloat NAN_PHLOAT;
 void phloat_init();
 int phloat2string(phloat d, char *buf, int buflen,
                   int base_mode, int digits, int dispmode,
-                  int thousandssep);
+                  int thousandssep, bool twelve_digits = true);
 int string2phloat(const char *buf, int buflen, phloat *d);
 
 

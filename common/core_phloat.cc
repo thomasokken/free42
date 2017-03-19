@@ -38,12 +38,6 @@ phloat POS_TINY_PHLOAT;
 phloat NEG_TINY_PHLOAT;
 phloat NAN_PHLOAT;
 
-#ifdef BCD_MATH
-#define MAX_MANT_DIGITS 34
-#else
-#define MAX_MANT_DIGITS 16
-#endif
-
 
 /* Note: this function does not handle infinities or NaN */
 static void bcdfloat2string(short *p, char *buf) {
@@ -201,7 +195,9 @@ Phloat::Phloat(int8 i) {
 
 /* public */
 Phloat::Phloat(double d) {
-    binary64_to_bid128(&val, &d);
+    BID_UINT64 tmp;
+    binary64_to_bid64(&tmp, &d);
+    bid64_to_bid128(&val, &tmp);
 }
 
 /* public */
@@ -223,7 +219,9 @@ Phloat Phloat::operator=(int8 i) {
 
 /* public */
 Phloat Phloat::operator=(double d) {
-    binary64_to_bid128(&val, &d);
+    BID_UINT64 tmp;
+    binary64_to_bid64(&tmp, &d);
+    bid64_to_bid128(&val, &tmp);
     return *this;
 }
 
@@ -711,7 +709,9 @@ Phloat operator/(int x, Phloat y) {
 
 Phloat operator/(double x, Phloat y) {
     BID_UINT128 xx, res;
-    binary64_to_bid128(&xx, &x);
+    BID_UINT64 tmp;
+    binary64_to_bid64(&tmp, &x);
+    bid64_to_bid128(&xx, &tmp);
     bid128_div(&res, &xx, &y.val);
     return Phloat(res);
 }
@@ -739,14 +739,6 @@ bool operator==(int4 x, Phloat y) {
 }
 
 Phloat PI("3.141592653589793238462643383279503");
-
-BID_UINT128 double_to_16_digit_decimal(double d) {
-    BID_UINT64 tmp;
-    binary64_to_bid64(&tmp, &d);
-    BID_UINT128 res;
-    bid64_to_bid128(&res, &tmp);
-    return res;
-}
 
 void update_decimal(BID_UINT128 *val) {
     if (state_file_number_format == NUMBER_FORMAT_BID128)
@@ -958,7 +950,7 @@ double decimal2double(void *data, bool pin_magnitude /* = false */) {
 
 
 int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
-                         int dispmode, int thousandssep) {
+                         int dispmode, int thousandssep, bool twelve_digits) {
     if (pd == 0)
         pd = 0; // Suppress signed zero
 
@@ -1069,7 +1061,7 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
             bcd_mantissa[mant_index++] = c - '0';
     }
 
-    int max_int_digits = base_mode == 2 ? MAX_MANT_DIGITS : 12;
+    int max_int_digits = twelve_digits ? 12 : MAX_MANT_DIGITS;
     int max_frac_digits = MAX_MANT_DIGITS + max_int_digits - 1;
 
     if (dispmode == 0 || dispmode == 3) {

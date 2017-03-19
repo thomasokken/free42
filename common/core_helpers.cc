@@ -1165,15 +1165,15 @@ char *phloat2program(phloat d) {
     /* Converts a phloat to its most compact representation;
      * used for generating HP-42S style number literals in programs.
      */
-    static char allbuf[25];
-    static char scibuf[25];
+    static char allbuf[50];
+    static char scibuf[50];
     int alllen;
     int scilen;
     char dot = flags.f.decimal_point ? '.' : ',';
     int decimal, zeroes, last_nonzero, exponent;
     int i;
-    alllen = phloat2string(d, allbuf, 24, 0, 0, 3, 0);
-    scilen = phloat2string(d, scibuf, 24, 0, 11, 1, 0);
+    alllen = phloat2string(d, allbuf, 49, 0, 0, 3, 0, false);
+    scilen = phloat2string(d, scibuf, 49, 0, MAX_MANT_DIGITS - 1, 1, 0, false);
     /* Shorten SCI representation by removing trailing zeroes,
      * and decreasing the exponent until the decimal point
      * shifts out of the mantissa.
@@ -1240,7 +1240,7 @@ char *phloat2program(phloat d) {
                 if (neg)
                     ex = -ex;
                 scilen += int2string(ex, scibuf + exponent,
-                                        50 - exponent);
+                                        49 - exponent);
             }
         }
     }

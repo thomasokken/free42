@@ -2995,8 +2995,7 @@ static bool convert_programs() {
                         prgm->size += growth;
                         oldpc -= growth;
 
-                        phloat p;
-                        p.val = double_to_16_digit_decimal(d);
+                        phloat p(d);
                         b = (unsigned char *) &p;
                         for (j = 0; j < (int) sizeof(phloat); j++)
                             prgm->text[pc++] = *b++;
