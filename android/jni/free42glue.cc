@@ -633,20 +633,22 @@ void shell_get_time_date(uint4 *time, uint4 *date, int *weekday) {
         *weekday = tms.tm_wday;
 }
 
-void shell_logprintf(const char *format, ...) {
-    va_list ap;
-    va_start(ap, format);
-
+void shell_log(const char *message) {
     JNIEnv *env = getJniEnv();
     jclass klass = env->GetObjectClass(g_activity);
     jmethodID mid = env->GetMethodID(klass, "shell_log", "(Ljava/lang/String;)V");
-    char buf[1000];
-    vsprintf(buf, format, ap);
-    jstring s = env->NewStringUTF(buf);
+    jstring s = env->NewStringUTF(message);
     env->CallVoidMethod(g_activity, mid, s);
     // Delete local references
     env->DeleteLocalRef(klass);
     env->DeleteLocalRef(s);
+}
 
+void shell_logprintf(const char *format, ...) {
+    va_list ap;
+    va_start(ap, format);
+    char buf[1000];
+    vsprintf(buf, format, ap);
+    shell_log(buf);
     va_end(ap);
 }
