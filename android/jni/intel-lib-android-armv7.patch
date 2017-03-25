@@ -1770,3 +1770,22 @@
   }
   
 + #endif /* FREE42_FPTEST */
+*** orig/TESTS/test_bid_functions.h	2011-07-11 19:47:24.000000000 -0400
+--- TESTS/test_bid_functions.h	2017-03-25 19:19:57.000000000 -0400
+***************
+*** 156,162 ****
+  ///////////////////////////////////////////////////////
+  //  This section may move to fenv_support.h
+  
+! #if !defined(__FENV_H_INCLUDED) && !defined (_FENV_H) && !defined(_FENV_INCLUDED)          /* Otherwise we already defined fexcept_t type */
+  #if defined(__ECL) || defined(__ECC)            /* Intel(R) Itanium(R) architecture */
+  /* Default 64-bit Floating Point Status Register   */
+  #if defined(__linux__)
+--- 156,162 ----
+  ///////////////////////////////////////////////////////
+  //  This section may move to fenv_support.h
+  
+! #if !defined(__FENV_H_INCLUDED) && !defined (_FENV_H_) && !defined(_FENV_INCLUDED)          /* Otherwise we already defined fexcept_t type */
+  #if defined(__ECL) || defined(__ECC)            /* Intel(R) Itanium(R) architecture */
+  /* Default 64-bit Floating Point Status Register   */
+  #if defined(__linux__)
