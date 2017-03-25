@@ -30,6 +30,12 @@
 #include "shell.h"
 #include "shell_spool.h"
 
+#ifndef BCD_MATH
+// We need these locally for BID128->double conversion
+#include "bid_conf.h"
+#include "bid_functions.h"
+#endif
+
 
 static void set_shift(bool state) {
     if (mode_shift != state) {
@@ -668,7 +674,7 @@ static int export_hp42s(int index, int (*progress_report)(const char *)) {
     int saved_prgm = current_prgm;
     uint4 hp42s_code;
     unsigned char code_flags, code_name, code_std_1, code_std_2;
-    char cmdbuf[25];
+    char cmdbuf[50];
     int cmdlen;
     char buf[1000];
     int buflen = 0;
@@ -1607,14 +1613,13 @@ void core_import_programs(int (*progress_report)(const char *)) {
                 goto skip;
             else if (byte1 >= 0x10 && byte1 <= 0x1C) {
                 /* Number */
-                char numbuf[19];
+                char numbuf[50];
                 int numlen = 0;
-                int s2d_err;
                 do {
                     if (byte1 == 0x1A)
-                        byte1 = flags.f.decimal_point ? '.' : ',';
+                        byte1 = '.';
                     else if (byte1 == 0x1B)
-                        byte1 = 24;
+                        byte1 = 'E';
                     else if (byte1 == 0x1C)
                         byte1 = '-';
                     else
@@ -1626,26 +1631,39 @@ void core_import_programs(int (*progress_report)(const char *)) {
                     done_flag = 1;
                 else if (byte1 != 0x00)
                     pos--;
-                s2d_err = string2phloat(numbuf, numlen, &arg.val_d);
-                switch (s2d_err) {
-                    case 0: /* OK */
-                        break;
-                    case 1: /* +overflow */
+                numbuf[numlen++] = 0;
+#ifdef BCD_MATH
+                arg.val_d = Phloat(numbuf);
+                int s = p_isinf(arg.val_d);
+                if (s > 0)
+                    arg.val_d = POS_HUGE_PHLOAT;
+                else if (s < 0)
+                    arg.val_d = NEG_HUGE_PHLOAT;
+#else
+                BID_UINT128 d;
+                bid128_from_string(&d, numbuf);
+                bid128_to_binary64(&arg.val_d, &d);
+                if (arg.val_d == 0) {
+                    int zero = 0;
+                    BID_UINT128 z;
+                    bid128_from_int32(&z, &zero);
+                    int r;
+                    bid128_quiet_equal(&r, &d, &z);
+                    if (!r) {
+                        bid128_isSigned(&r, &d);
+                        if (r)
+                            arg.val_d = NEG_TINY_PHLOAT;
+                        else
+                            arg.val_d = POS_TINY_PHLOAT;
+                    }
+                } else {
+                    int s = p_isinf(arg.val_d);
+                    if (s > 0)
                         arg.val_d = POS_HUGE_PHLOAT;
-                        break;
-                    case 2: /* -overflow */
+                    else if (s < 0)
                         arg.val_d = NEG_HUGE_PHLOAT;
-                        break;
-                    case 3: /* +underflow */
-                        arg.val_d = POS_TINY_PHLOAT;
-                        break;
-                    case 4: /* -underflow */
-                        arg.val_d = NEG_TINY_PHLOAT;
-                        break;
-                    case 5: /* error */
-                        arg.val_d = 0;
-                        break;
                 }
+#endif
                 cmd = CMD_NUMBER;
                 arg.type = ARGTYPE_DOUBLE;
             } else if (byte1 == 0x1D || byte1 == 0x1E) {
@@ -1969,7 +1987,7 @@ void core_import_programs(int (*progress_report)(const char *)) {
 }
 
 void core_copy(char *buf, int buflen) {
-    int len = vartype2string(reg_x, buf, buflen - 1);
+    int len = vartype2string(reg_x, buf, buflen - 1, MAX_MANT_DIGITS);
     buf[len] = 0;
     if (reg_x->type == TYPE_REAL || reg_x->type == TYPE_COMPLEX) {
         /* Convert small-caps 'E' to regular 'e' */
@@ -1989,7 +2007,7 @@ static bool is_number_char(char c) {
 static bool parse_phloat(const char *p, int len, phloat *res) {
     // We can't pass the string on to string2phloat() unchanged, because
     // that function is picky: it does not allow '+' signs, and it does
-    // not allow the mantissa to be more than 12 digits long (including
+    // not allow the mantissa to be more than 34 or 16 digits long (including
     // leading zeroes). So, we massage the string a bit to make it
     // comply with those restrictions.
     char buf[100];
@@ -2006,7 +2024,7 @@ static bool parse_phloat(const char *p, int len, phloat *res) {
             in_mant = false;
             buf[i++] = 24;
         } else if (c >= '0' && c <= '9') {
-            if (!in_mant || mant_digits++ < 12)
+            if (!in_mant || mant_digits++ < MAX_MANT_DIGITS)
                 buf[i++] = c;
         } else
             buf[i++] = c;

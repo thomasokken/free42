@@ -58,7 +58,8 @@ Linux version:
 * Try to get Skin menu to work with Unity's indicator-appmenu.
 
 All versions:
-* Implement full-precision copy & paste.
+* Copy & Paste should handle ALPHA and PRGM.
+* Copy & Paste should handle matrices.
 * Add a feature for importing and exporting variables from and to CSV files.
 * Add link to 42s.pdf in the About box.
 * Add a command that turns on everything in the display -- all pixels and all

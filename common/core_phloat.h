@@ -172,7 +172,7 @@ extern phloat NAN_PHLOAT;
 void phloat_init();
 int phloat2string(phloat d, char *buf, int buflen,
                   int base_mode, int digits, int dispmode,
-                  int thousandssep, bool twelve_digits = true);
+                  int thousandssep, int max_mant_digits = 12);
 int string2phloat(const char *buf, int buflen, phloat *d);
 
 

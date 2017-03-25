@@ -87,7 +87,7 @@ void char2buf(char *buf, int buflen, int *bufptr, char c);
 void string2buf(char *buf, int buflen, int *bufptr, const char *s, int slen);
 int uint2string(uint4 n, char *buf, int buflen);
 int int2string(int4 n, char *buf, int buflen);
-int vartype2string(const vartype *v, char *buf, int buflen);
+int vartype2string(const vartype *v, char *buf, int buflen, int max_mant_digits = 12);
 char *phloat2program(phloat d);
 int easy_phloat2string(phloat d, char *buf, int buflen, int base_mode);
 int ip2revstring(phloat d, char *buf, int buflen);

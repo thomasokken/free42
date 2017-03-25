@@ -950,7 +950,7 @@ double decimal2double(void *data, bool pin_magnitude /* = false */) {
 
 
 int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
-                         int dispmode, int thousandssep, bool twelve_digits) {
+                         int dispmode, int thousandssep, int max_mant_digits) {
     if (pd == 0)
         pd = 0; // Suppress signed zero
 
@@ -1061,7 +1061,7 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
             bcd_mantissa[mant_index++] = c - '0';
     }
 
-    int max_int_digits = twelve_digits ? 12 : MAX_MANT_DIGITS;
+    int max_int_digits = max_mant_digits;
     int max_frac_digits = MAX_MANT_DIGITS + max_int_digits - 1;
 
     if (dispmode == 0 || dispmode == 3) {

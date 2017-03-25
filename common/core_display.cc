@@ -1634,13 +1634,13 @@ void display_mem() {
 static int procrustean_phloat2string(phloat d, char *buf, int buflen) {
     char tbuf[100];
     int tbuflen = phloat2string(d, tbuf, 100, 0, 0, 3,
-                                flags.f.thousands_separators, false);
+                                flags.f.thousands_separators, MAX_MANT_DIGITS);
     if (tbuflen <= buflen) {
         memcpy(buf, tbuf, tbuflen);
         return tbuflen;
     }
     if (flags.f.thousands_separators) {
-        tbuflen = phloat2string(d, tbuf, 100, 0, 0, 3, 0, false);
+        tbuflen = phloat2string(d, tbuf, 100, 0, 0, 3, 0, MAX_MANT_DIGITS);
         if (tbuflen <= buflen) {
             memcpy(buf, tbuf, tbuflen);
             return tbuflen;
@@ -1659,7 +1659,7 @@ static int procrustean_phloat2string(phloat d, char *buf, int buflen) {
             buf[buflen - 1] = 26;
             return buflen;
         }
-        tbuflen = phloat2string(d, tbuf, 100, 0, MAX_MANT_DIGITS - 1, 1, 0, false);
+        tbuflen = phloat2string(d, tbuf, 100, 0, MAX_MANT_DIGITS - 1, 1, 0, MAX_MANT_DIGITS);
         epos = 0;
         int zero_since = -1;
         while (epos < tbuflen && tbuf[epos] != 24) {
@@ -1706,10 +1706,10 @@ void show() {
             case TYPE_REAL: {
                 bufptr = phloat2string(((vartype_real *) reg_x)->x, buf, 45,
                                        2, 0, 3,
-                                       flags.f.thousands_separators, false);
+                                       flags.f.thousands_separators, MAX_MANT_DIGITS);
                 if (bufptr == 45)
                     bufptr = phloat2string(((vartype_real *) reg_x)->x, buf,
-                                           44, 2, 0, 3, 0, false);
+                                           44, 2, 0, 3, 0, MAX_MANT_DIGITS);
                 if (bufptr <= 22)
                     draw_string(0, 0, buf, bufptr);
                 else {
