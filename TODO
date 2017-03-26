@@ -58,8 +58,15 @@ Linux version:
 * Try to get Skin menu to work with Unity's indicator-appmenu.
 
 All versions:
-* Copy & Paste should handle ALPHA and PRGM.
-* Copy & Paste should handle matrices.
+* Copy & Paste:
+  X, matrix:   support copy/paste between Free42 and spreadsheets
+  X, string:   convert between HP-42S and UTF-8 encodings
+  ALPHA:       convert between HP-42S and UTF-8 encodings
+  PRGM, copy:  put output of PRP "" on the clipboard; no special behavior for
+               NORM or TRACE modes; no line breaking
+  PRGM, paste: accept text from the clipboard and parse it like txt2raw; accept
+               URLs and load them as raw files if they look like raw files, and
+               parse them like txt2raw otherwise
 * Add a feature for importing and exporting variables from and to CSV files.
 * Add link to 42s.pdf in the About box.
 * Add a command that turns on everything in the display -- all pixels and all
