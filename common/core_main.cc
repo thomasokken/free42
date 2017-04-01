@@ -1987,16 +1987,28 @@ void core_import_programs(int (*progress_report)(const char *)) {
 }
 
 char *core_copy() {
-    char *buf = (char *) malloc(100);
-    int len = vartype2string(reg_x, buf, 99, MAX_MANT_DIGITS);
-    buf[len] = 0;
-    if (reg_x->type == TYPE_REAL || reg_x->type == TYPE_COMPLEX) {
+    if (flags.f.prgm_mode) {
+        // TODO: Print program to in-memory buffer and return that
+        return NULL;
+    } else if (flags.f.alpha_mode) {
+        // TODO: Copy ALPHA register to in-memory buffer and return that
+        return NULL;
+    } else if (reg_x->type == TYPE_REAL || reg_x->type == TYPE_COMPLEX) {
+        char *buf = (char *) malloc(100);
+        int len = vartype2string(reg_x, buf, 99, MAX_MANT_DIGITS);
+        buf[len] = 0;
         /* Convert small-caps 'E' to regular 'e' */
         while (--len >= 0)
             if (buf[len] == 24)
                 buf[len] = 'e';
+        return buf;
+    } else if (reg_x->type == TYPE_STRING) {
+        // TODO: Convert to UTF-8 and return
+        return NULL;
+    } else { // reg_x->type == TYPE_REALMATRIX || reg_x->type == TYPE_COMPLEXMATRIX
+        // TODO: Render as tab-separated UTF-8 encoded text
+        return NULL;
     }
-    return buf;
 }
 
 static bool is_number_char(char c) {
