@@ -1302,7 +1302,8 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
             m_digits = digits;
 
             sci_round:
-            carry = norm_mantissa[m_digits + 1] >= 5;
+            carry = m_digits + 1 < MAX_MANT_DIGITS
+                    && norm_mantissa[m_digits + 1] >= 5;
             for (i = m_digits + 1; i < MAX_MANT_DIGITS; i++)
                 norm_mantissa[i] = 0;
             if (carry) {
