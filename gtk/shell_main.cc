@@ -1397,18 +1397,19 @@ static void appendSuffix(char *path, char *suffix) {
 }
 
 static void copyCB() {
-    char buf[100];
-    core_copy(buf, 100);
+    char *buf = core_copy();
     GtkClipboard *clip = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
     gtk_clipboard_set_text(clip, buf, -1);
     clip = gtk_clipboard_get(GDK_SELECTION_PRIMARY);
     gtk_clipboard_set_text(clip, buf, -1);
+    free(buf);
 }
 
 static void paste2(GtkClipboard *clip, const gchar *text, gpointer cd) {
     if (text != NULL) {
         core_paste(text);
         redisplay();
+        // TODO: Should 'text' be freed (with g_free()) here?
     }
 }
 

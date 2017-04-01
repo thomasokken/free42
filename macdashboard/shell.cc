@@ -145,9 +145,10 @@ void shell_blitter(const char *bits, int bytesperline, int x, int y,
     printf("d");
     flush();
 
-    core_copy(buf, sizeof(buf));
+    char *buf = core_copy();
     printf("x%s", buf);
     flush();
+    free(buf);
 }
 
 void shell_beeper(int frequency, int duration)

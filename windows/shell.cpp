@@ -1318,8 +1318,7 @@ static void config_home_dir(HWND owner, char *buf, int bufsize) {
 static void copy() {
     if (!OpenClipboard(hMainWnd))
         return;
-    char buf[100];
-    core_copy(buf, 100);
+    char *buf = core_copy();
     int len = strlen(buf) + 1;
     HGLOBAL h = GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, len);
     if (h != NULL) {
@@ -1331,6 +1330,7 @@ static void copy() {
             GlobalFree(h);
     }
     CloseClipboard();
+    free(buf);
 }
 
 static void paste() {

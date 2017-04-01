@@ -1986,8 +1986,9 @@ void core_import_programs(int (*progress_report)(const char *)) {
     flags.f.normal_print = saved_normal;
 }
 
-void core_copy(char *buf, int buflen) {
-    int len = vartype2string(reg_x, buf, buflen - 1, MAX_MANT_DIGITS);
+char *core_copy() {
+    char *buf = (char *) malloc(100);
+    int len = vartype2string(reg_x, buf, 99, MAX_MANT_DIGITS);
     buf[len] = 0;
     if (reg_x->type == TYPE_REAL || reg_x->type == TYPE_COMPLEX) {
         /* Convert small-caps 'E' to regular 'e' */
@@ -1995,6 +1996,7 @@ void core_copy(char *buf, int buflen) {
             if (buf[len] == 24)
                 buf[len] = 'e';
     }
+    return buf;
 }
 
 static bool is_number_char(char c) {

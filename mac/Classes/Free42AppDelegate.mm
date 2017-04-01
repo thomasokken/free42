@@ -536,10 +536,10 @@ static bool is_file(const char *name);
     NSPasteboard *pb = [NSPasteboard generalPasteboard];
     NSArray *types = [NSArray arrayWithObjects: NSStringPboardType, nil];
     [pb declareTypes:types owner:self];
-    char buf[100];
-    core_copy(buf, 100);
+    char *buf = core_copy();
     NSString *txt = [NSString stringWithCString:buf encoding:NSUTF8StringEncoding];
     [pb setString:txt forType:NSStringPboardType];
+    free(buf);
 }
 
 - (IBAction) doPaste:(id)sender {

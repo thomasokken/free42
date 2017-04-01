@@ -360,11 +360,11 @@ static CalcView *calcView = nil;
 }
 
 - (void) doCopy {
-    char buf[100];
-    core_copy(buf, 100);
+    char *buf = core_copy();
     NSString *txt = [NSString stringWithCString:buf encoding:NSUTF8StringEncoding];
     UIPasteboard *pb = [UIPasteboard generalPasteboard];
     [pb setString:txt];
+    free(buf);
 }
 
 - (void) doPaste {

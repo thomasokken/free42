@@ -251,9 +251,10 @@ Java_com_thomasokken_free42_Free42Activity_core_1import_1programs(JNIEnv *env, j
 extern "C" jstring
 Java_com_thomasokken_free42_Free42Activity_core_1copy(JNIEnv *env, jobject thiz) {
     Tracer T("core_copy");
-    char buf[100];
-    core_copy(buf, 100);
-    return env->NewStringUTF(buf);
+    char *buf = core_copy();
+    jstring s = env->NewStringUTF(buf);
+    free(buf);
+    return s;
 }
 
 extern "C" void

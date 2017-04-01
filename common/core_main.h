@@ -302,8 +302,9 @@ void core_import_programs(int (*progress_report)(const char *));
  *
  * Returns a string representation of the contents of the X register.
  * Used by the shell to implement the Copy command.
+ * The caller should free the returned text using free(3).
  */
-void core_copy(char *buf, int buflen);
+char *core_copy();
 
 /* core_paste()
  *
