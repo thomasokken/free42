@@ -1413,11 +1413,7 @@ static void paste2(GtkClipboard *clip, const gchar *text, gpointer cd) {
 }
 
 static void pasteCB() {
-#ifdef GDK_WINDOWING_X11
-    GtkClipboard *clip = gtk_clipboard_get(GDK_SELECTION_PRIMARY);
-#else
     GtkClipboard *clip = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
-#endif
     gtk_clipboard_request_text(clip, paste2, NULL);
 }
 
