@@ -1,8 +1,8 @@
-????-??-??: release 1.5.15
+2017-04-01: release 1.5.15
 
 * Instead of being limited to 12 mantissa digits, full precision (34 digits in
-  the Decimal version, 16 digits in Binary) is now supported for number entry
-  and SHOW.
+  the Decimal version, 16 digits in Binary) is now supported for number entry,
+  SHOW, Copy, and Paste.
 
 2017-03-11: release 1.5.14
 
