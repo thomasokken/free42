@@ -2028,49 +2028,15 @@ static int complex2buf(char *buf, phloat re, phloat im, bool always_rect) {
     return bufptr;
 }
 
-typedef struct {
-    char *buf;
-    ssize_t size;
-    ssize_t capacity;
-} textbuf;
-
-static void tbwrite(textbuf *tb, const char *data, ssize_t size) {
-    if (tb->size + size > tb->capacity) {
-        ssize_t newcapacity = tb->capacity == 0 ? 1024 : (tb->capacity << 1);
-        while (newcapacity < tb->size + size)
-            newcapacity <<= 1;
-        char *newbuf = (char *) realloc(tb->buf, newcapacity);
-        if (newbuf == NULL) {
-            /* Bummer! Let's just append as much as we can */
-            memcpy(tb->buf + tb->size, data, tb->capacity - tb->size);
-            tb->size = tb->capacity;
-        } else {
-            tb->buf = newbuf;
-            tb->capacity = newcapacity;
-            memcpy(tb->buf + tb->size, data, size);
-            tb->size += size;
-        }
-    } else {
-        memcpy(tb->buf + tb->size, data, size);
-        tb->size += size;
-    }
-}
-
-/*
-static void tbprintf(textbuf *tb, const char *fmt, ...) {
-    va_list ap;
-    char text[LINEBUFSIZE];
-    va_start(ap, fmt);
-    vsprintf(text, fmt, ap);
-    tbwrite(tb, text, strlen(text));
-    va_end(ap);
-}
-*/
-
 char *core_copy() {
     if (flags.f.prgm_mode) {
-        // TODO: Print program to in-memory buffer and return that
-        return NULL;
+        textbuf tb;
+        tb.buf = NULL;
+        tb.size = 0;
+        tb.capacity = 0;
+        tb_print_current_program(&tb);
+        tb.buf[tb.size] = 0;
+        return tb.buf;
     } else if (flags.f.alpha_mode) {
         char *buf = (char *) malloc(5 * reg_alpha_length + 1);
         int bufptr = hp2ascii(buf, reg_alpha, reg_alpha_length);

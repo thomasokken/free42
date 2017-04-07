@@ -54,6 +54,15 @@ int print_program(int prgm_index, int4 pc, int4 lines, int normal);
 void print_program_line(int prgm_index, int4 pc);
 int command2buf(char *buf, int len, int cmd, const arg_struct *arg);
 
+typedef struct {
+    char *buf;
+    ssize_t size;
+    ssize_t capacity;
+} textbuf;
+
+void tbwrite(textbuf *tb, const char *data, ssize_t size);
+void tb_print_current_program(textbuf *tb);
+
 #define MENULEVEL_COMMAND   0
 #define MENULEVEL_ALPHA     1
 #define MENULEVEL_TRANSIENT 2

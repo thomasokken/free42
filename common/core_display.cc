@@ -25,6 +25,7 @@
 #include "core_tables.h"
 #include "core_variables.h"
 #include "shell.h"
+#include "shell_spool.h"
 
 
 /********************/
@@ -942,7 +943,8 @@ void clear_row(int row) {
 }
 
 static int prgmline2buf(char *buf, int len, int4 line, int highlight,
-                        int cmd, arg_struct *arg, bool shift_left = false) {
+                        int cmd, arg_struct *arg, bool shift_left = false,
+                        bool highlight_final_end = true) {
     int bufptr = 0;
     if (line != -1) {
         if (line < 10)
@@ -970,7 +972,8 @@ static int prgmline2buf(char *buf, int len, int4 line, int highlight,
             string2buf(buf, len, &bufptr, entered_string, entered_string_length);
         }
         char2buf(buf, len, &bufptr, '_');
-    } else if (cmd == CMD_END && current_prgm == prgms_count - 1) {
+    } else if (highlight_final_end && cmd == CMD_END
+                    && current_prgm == prgms_count - 1) {
         string2buf(buf, len, &bufptr, ".END.", 5);
     } else if (cmd == CMD_NUMBER) {
         char *num = phloat2program(arg->val_d);
@@ -1007,6 +1010,50 @@ static int prgmline2buf(char *buf, int len, int4 line, int highlight,
         bufptr += command2buf(buf + bufptr, len - bufptr, cmd, arg);
 
     return bufptr;
+}
+
+void tbwrite(textbuf *tb, const char *data, ssize_t size) {
+    if (tb->size + size > tb->capacity) {
+        ssize_t newcapacity = tb->capacity == 0 ? 1024 : (tb->capacity << 1);
+        while (newcapacity < tb->size + size)
+            newcapacity <<= 1;
+        char *newbuf = (char *) realloc(tb->buf, newcapacity);
+        if (newbuf == NULL) {
+            /* Bummer! Let's just append as much as we can */
+            memcpy(tb->buf + tb->size, data, tb->capacity - tb->size);
+            tb->size = tb->capacity;
+        } else {
+            tb->buf = newbuf;
+            tb->capacity = newcapacity;
+            memcpy(tb->buf + tb->size, data, size);
+            tb->size += size;
+        }
+    } else {
+        memcpy(tb->buf + tb->size, data, size);
+        tb->size += size;
+    }
+}
+
+void tb_print_current_program(textbuf *tb) {
+    int4 pc = 0;
+    int line = 0;
+    int cmd;
+    arg_struct arg;
+    bool end = false;
+    char buf[100];
+    char utf8buf[500];
+    do {
+        if (line > 0) {
+            get_next_command(&pc, &cmd, &arg, 0);
+            if (cmd == CMD_END)
+                end = true;
+        }
+        int len = prgmline2buf(buf, 100, line, cmd == CMD_LBL, cmd, &arg, false, false);
+        int utf8len = hp2ascii(utf8buf, buf, len);
+        utf8buf[utf8len++] = '\n';
+        tbwrite(tb, utf8buf, utf8len);
+        line++;
+    } while (!end);
 }
 
 void display_prgm_line(int row, int line_offset) {
