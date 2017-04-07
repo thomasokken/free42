@@ -1,3 +1,7 @@
+????-??-??: release 1.5.16
+
+* Copy & Paste now handle matrices, ALPHA mode, and PRGM mode.
+
 2017-04-01: release 1.5.15
 
 * Instead of being limited to 12 mantissa digits, full precision (34 digits in

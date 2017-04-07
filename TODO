@@ -59,7 +59,7 @@ Linux version:
 
 All versions:
 * Copy & Paste:
-  X, matrix:   support copy/paste between Free42 and spreadsheets
+  X, matrix:   support paste from spreadsheets
   X, string:   convert between HP-42S and UTF-8 encodings
   ALPHA:       convert between HP-42S and UTF-8 encodings
   PRGM, copy:  put output of PRP "" on the clipboard; no special behavior for

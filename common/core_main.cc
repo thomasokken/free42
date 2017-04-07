@@ -16,6 +16,8 @@
  *****************************************************************************/
 
 #include <stdlib.h>
+#include <string.h>
+#include <stdarg.h>
 
 #include "core_main.h"
 #include "core_commands2.h"
@@ -1986,27 +1988,156 @@ void core_import_programs(int (*progress_report)(const char *)) {
     flags.f.normal_print = saved_normal;
 }
 
+static int real2buf(char *buf, phloat x) {
+    int bufptr = phloat2string(x, buf, 49,
+            2, 0, 3, flags.f.thousands_separators, MAX_MANT_DIGITS);
+    /* Convert small-caps 'E' to regular 'e' */
+    for (int i = 0; i < bufptr; i++)
+        if (buf[i] == 24)
+            buf[i] = 'e';
+    return bufptr;
+}
+
+static int complex2buf(char *buf, phloat re, phloat im, bool always_rect) {
+    bool polar = !always_rect && flags.f.polar;
+    phloat x, y;
+    if (polar) {
+        generic_r2p(re, im, &x, &y);
+        if (p_isinf(x))
+            x = POS_HUGE_PHLOAT;
+    } else {
+        x = re;
+        y = im;
+    }
+    int bufptr = phloat2string(x, buf, 99, 2, 0, 3,
+                flags.f.thousands_separators, MAX_MANT_DIGITS);
+    if (polar) {
+        string2buf(buf, 99, &bufptr, " \342\210\240 ", 5);
+    } else {
+        if (y >= 0)
+            buf[bufptr++] = '+';
+    }
+    bufptr += phloat2string(y, buf + bufptr, 99 - bufptr, 2, 0, 3,
+                flags.f.thousands_separators, MAX_MANT_DIGITS);
+    if (!polar)
+        buf[bufptr++] = 'i';
+    /* Convert small-caps 'E' to regular 'e' */
+    for (int i = 0; i < bufptr; i++)
+        if (buf[i] == 24)
+            buf[i] = 'e';
+    return bufptr;
+}
+
+typedef struct {
+    char *buf;
+    ssize_t size;
+    ssize_t capacity;
+} textbuf;
+
+static void tbwrite(textbuf *tb, const char *data, ssize_t size) {
+    if (tb->size + size > tb->capacity) {
+        ssize_t newcapacity = tb->capacity == 0 ? 1024 : (tb->capacity << 1);
+        while (newcapacity < tb->size + size)
+            newcapacity <<= 1;
+        char *newbuf = (char *) realloc(tb->buf, newcapacity);
+        if (newbuf == NULL) {
+            /* Bummer! Let's just append as much as we can */
+            memcpy(tb->buf + tb->size, data, tb->capacity - tb->size);
+            tb->size = tb->capacity;
+        } else {
+            tb->buf = newbuf;
+            tb->capacity = newcapacity;
+            memcpy(tb->buf + tb->size, data, size);
+            tb->size += size;
+        }
+    } else {
+        memcpy(tb->buf + tb->size, data, size);
+        tb->size += size;
+    }
+}
+
+/*
+static void tbprintf(textbuf *tb, const char *fmt, ...) {
+    va_list ap;
+    char text[LINEBUFSIZE];
+    va_start(ap, fmt);
+    vsprintf(text, fmt, ap);
+    tbwrite(tb, text, strlen(text));
+    va_end(ap);
+}
+*/
+
 char *core_copy() {
     if (flags.f.prgm_mode) {
         // TODO: Print program to in-memory buffer and return that
         return NULL;
     } else if (flags.f.alpha_mode) {
-        // TODO: Copy ALPHA register to in-memory buffer and return that
-        return NULL;
-    } else if (reg_x->type == TYPE_REAL || reg_x->type == TYPE_COMPLEX) {
+        char *buf = (char *) malloc(5 * reg_alpha_length + 1);
+        int bufptr = hp2ascii(buf, reg_alpha, reg_alpha_length);
+        buf[bufptr] = 0;
+        return buf;
+    } else if (reg_x->type == TYPE_REAL) {
+        char *buf = (char *) malloc(50);
+        int bufptr = real2buf(buf, ((vartype_real *) reg_x)->x);
+        buf[bufptr] = 0;
+        return buf;
+    } else if (reg_x->type == TYPE_COMPLEX) {
         char *buf = (char *) malloc(100);
-        int len = vartype2string(reg_x, buf, 99, MAX_MANT_DIGITS);
-        buf[len] = 0;
-        /* Convert small-caps 'E' to regular 'e' */
-        while (--len >= 0)
-            if (buf[len] == 24)
-                buf[len] = 'e';
+        vartype_complex *c = (vartype_complex *) reg_x;
+        int bufptr = complex2buf(buf, c->re, c->im, false);
+        buf[bufptr] = 0;
         return buf;
     } else if (reg_x->type == TYPE_STRING) {
-        // TODO: Convert to UTF-8 and return
-        return NULL;
-    } else { // reg_x->type == TYPE_REALMATRIX || reg_x->type == TYPE_COMPLEXMATRIX
-        // TODO: Render as tab-separated UTF-8 encoded text
+        vartype_string *s = (vartype_string *) reg_x;
+        char *buf = (char *) malloc(5 * s->length + 1);
+        int bufptr = hp2ascii(buf, s->text, s->length);
+        buf[bufptr] = 0;
+        return buf;
+    } else if (reg_x->type == TYPE_REALMATRIX) {
+        vartype_realmatrix *rm = (vartype_realmatrix *) reg_x;
+        phloat *data = rm->array->data;
+        char *is_string = rm->array->is_string;
+        textbuf tb;
+        tb.buf = NULL;
+        tb.size = 0;
+        tb.capacity = 0;
+        char buf[50];
+        int n = 0;
+        for (int r = 0; r < rm->rows; r++) {
+            for (int c = 0; c < rm->columns; c++) {
+                int bufptr;
+                if (is_string[n])
+                    bufptr = hp2ascii(buf, phloat_text(data[n]), phloat_length(data[n]));
+                else
+                    bufptr = real2buf(buf, data[n]);
+                buf[bufptr++] = c == rm->columns - 1 ? '\n' : '\t';
+                tbwrite(&tb, buf, bufptr);
+                n++;
+            }
+        }
+        tb.buf[tb.size] = 0;
+        return tb.buf;
+    } else if (reg_x->type == TYPE_COMPLEXMATRIX) {
+        vartype_complexmatrix *cm = (vartype_complexmatrix *) reg_x;
+        phloat *data = cm->array->data;
+        textbuf tb;
+        tb.buf = NULL;
+        tb.size = 0;
+        tb.capacity = 0;
+        char buf[100];
+        int n = 0;
+        for (int r = 0; r < cm->rows; r++) {
+            for (int c = 0; c < cm->columns; c++) {
+                int bufptr = complex2buf(buf, data[n], data[n + 1], true);
+                buf[bufptr++] = c == cm->columns - 1 ? '\n' : '\t';
+                tbwrite(&tb, buf, bufptr);
+                n += 2;
+            }
+        }
+        tb.buf[tb.size] = 0;
+        return tb.buf;
+    } else {
+        // Shouldn't happen: unrecognized data type
         return NULL;
     }
 }
