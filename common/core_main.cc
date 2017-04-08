@@ -2646,8 +2646,8 @@ void core_paste(const char *buf) {
             }
             int pos = 0;
             int spos = 0;
-            int p = 0, col = 0;
-            do {
+            int p = 0, row = 0, col = 0;
+            while (row < rows) {
                 c = buf[pos++];
                 if (c == 0 || c == '\t' || c == '\n') {
                     int cellsize = pos - spos - 1;
@@ -2709,6 +2709,7 @@ void core_paste(const char *buf) {
                                 p++;
                             }
                             col = 0;
+                            row++;
                         }
                     } else {
                         switch (type) {
@@ -2735,10 +2736,13 @@ void core_paste(const char *buf) {
                                 p += 2;
                             }
                             col = 0;
+                            row++;
                         }
                     }
                 }
-            } while (c != 0);
+                if (c == 0)
+                    break;
+            }
 
             free(asciibuf);
             free(hpbuf);
