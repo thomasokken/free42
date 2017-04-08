@@ -1049,6 +1049,9 @@ void tb_print_current_program(textbuf *tb) {
                 end = true;
         }
         int len = prgmline2buf(buf, 100, line, cmd == CMD_LBL, cmd, &arg, false, false);
+        for (int i = 0; i < len; i++)
+            if (buf[i] == 10)
+                buf[i] = 138;
         int utf8len = hp2ascii(utf8buf, buf, len);
         utf8buf[utf8len++] = '\n';
         tbwrite(tb, utf8buf, utf8len);
