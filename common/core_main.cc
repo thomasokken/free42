@@ -2035,7 +2035,7 @@ char *core_copy() {
         tb.size = 0;
         tb.capacity = 0;
         tb_print_current_program(&tb);
-        tb.buf[tb.size] = 0;
+        tb_write_null(&tb);
         return tb.buf;
     } else if (flags.f.alpha_mode) {
         char *buf = (char *) malloc(5 * reg_alpha_length + 1);
@@ -2077,11 +2077,11 @@ char *core_copy() {
                 else
                     bufptr = real2buf(buf, data[n]);
                 buf[bufptr++] = c == rm->columns - 1 ? '\n' : '\t';
-                tbwrite(&tb, buf, bufptr);
+                tb_write(&tb, buf, bufptr);
                 n++;
             }
         }
-        tb.buf[tb.size] = 0;
+        tb_write_null(&tb);
         return tb.buf;
     } else if (reg_x->type == TYPE_COMPLEXMATRIX) {
         vartype_complexmatrix *cm = (vartype_complexmatrix *) reg_x;
@@ -2096,11 +2096,11 @@ char *core_copy() {
             for (int c = 0; c < cm->columns; c++) {
                 int bufptr = complex2buf(buf, data[n], data[n + 1], true);
                 buf[bufptr++] = c == cm->columns - 1 ? '\n' : '\t';
-                tbwrite(&tb, buf, bufptr);
+                tb_write(&tb, buf, bufptr);
                 n += 2;
             }
         }
-        tb.buf[tb.size] = 0;
+        tb_write_null(&tb);
         return tb.buf;
     } else {
         // Shouldn't happen: unrecognized data type

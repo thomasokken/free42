@@ -60,7 +60,8 @@ typedef struct {
     ssize_t capacity;
 } textbuf;
 
-void tbwrite(textbuf *tb, const char *data, ssize_t size);
+void tb_write(textbuf *tb, const char *data, ssize_t size);
+void tb_write_null(textbuf *tb);
 void tb_print_current_program(textbuf *tb);
 
 #define MENULEVEL_COMMAND   0
