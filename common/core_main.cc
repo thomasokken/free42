@@ -2156,6 +2156,171 @@ static bool parse_phloat(const char *p, int len, phloat *res) {
         return false;
 }
 
+/* NOTE: The destination buffer should be able to store maxchars + 4
+ * characters, because of how we parse [LF] and [ESC].
+ */
+static int ascii2hp(char *dst, const char *src, int maxchars) {
+    int srcpos = 0, dstpos = 0;
+    // state machine for detecting [LF] and [ESC]:
+    // 0: ''
+    // 1: '['
+    // 2: '[L'
+    // 3: '[LF'
+    // 4: '[E'
+    // 5: '[ES'
+    // 6: '[ESC'
+    int state = 0;
+    while (dstpos < maxchars + (state == 0 ? 0 : 4)) {
+        char c = src[srcpos++];
+        retry:
+        if (c == 0)
+            break;
+        int code;
+        if ((c & 0x80) == 0) {
+            code = c;
+        } else if ((c & 0xc0) == 0x80) {
+            // Unexpected continuation byte
+            continue;
+        } else {
+            int len;
+            if ((c & 0xe0) == 0xc0) {
+                len = 1;
+                code = c & 0x1f;
+            } else if ((c & 0xf0) == 0xe0) {
+                len = 2;
+                code = c & 0x0f;
+            } else if ((c & 0xf8) == 0xf0) {
+                len = 3;
+                code = c & 0x07;
+            } else {
+                // Invalid UTF-8
+                continue;
+            }
+            while (len-- > 0) {
+                c = src[srcpos++];
+                if ((c & 0xc0) != 0x80)
+                    // Unexpected non-continuation byte
+                    goto retry;
+                code = code << 6 | c & 0x3f;
+            }
+            // Perform the inverse of the translation in hp2ascii()
+            switch (code) {
+                case 0x00f7: code =   0; break;
+                case 0x00d7: code =   1; break;
+                case 0x221a: code =   2; break;
+                case 0x222b: code =   3; break;
+                case 0x2592: code =   4; break;
+                case 0x03a3: code =   5; break;
+                case 0x25b6: code =   6; break;
+                case 0x03c0: code =   7; break;
+                case 0x00bf: code =   8; break;
+                case 0x2264: code =   9; break;
+                case 0x2265: code =  11; break;
+                case 0x2260: code =  12; break;
+                case 0x21b5: code =  13; break;
+                case 0x2193: code =  14; break;
+                case 0x2192: code =  15; break;
+                case 0x2190: code =  16; break;
+                case 0x03bc: code =  17; break;
+                case 0x00a3: code =  18; break;
+                case 0x00b0: code =  19; break;
+                case 0x00c5: code =  20; break;
+                case 0x00d1: code =  21; break;
+                case 0x00c4: code =  22; break;
+                case 0x2221: code =  23; break;
+                case 0x1d07: code =  24; break;
+                case 0x00c6: code =  25; break;
+                case 0x2026: code =  26; break;
+                case 0x00d6: code =  28; break;
+                case 0x00dc: code =  29; break;
+                case 0x2022: code =  31; break;
+                case 0x2191: code =  94; break;
+                case 0x251c: code = 127; break;
+                case 0x028f: code = 129; break;
+                default:
+                    // Anything outside of the printable ASCII range or LF or
+                    // ESC is not representable, so we replace it with bullets,
+                    // except for CR, which we skip.
+                    if (code == 13)
+                        continue;
+                    if (code < 32 && code != 10 && code != 27 || code > 126)
+                        c = 31;
+            }
+        }
+        switch (state) {
+            case 0:
+                if (code == '[')
+                    state = 1;
+                break;
+            case 1:
+                if (code == 'L')
+                    state = 2;
+                else if (code == 'E')
+                    state = 4;
+                else
+                    state = 0;
+                break;
+            case 2:
+                if (code == 'F')
+                    state = 3;
+                else
+                    state = 0;
+                break;
+            case 3:
+                if (code == ']') {
+                    code = 138;
+                    dstpos -= 3;
+                }
+                state = 0;
+                break;
+            case 4:
+                if (code == 'S')
+                    state = 5;
+                else
+                    state = 0;
+                break;
+            case 5:
+                if (code == 'C')
+                    state = 6;
+                else
+                    state = 0;
+                break;
+            case 6:
+                if (code == ']') {
+                    code = 27;
+                    dstpos -= 4;
+                }
+                state = 0;
+                break;
+        }
+        dst[dstpos++] = (char) code;
+    }
+    return dstpos > maxchars ? maxchars : dstpos;
+}
+
+void core_paste(const char *buf) {
+    if (flags.f.prgm_mode) {
+        squeak();
+        return;
+    } else if (flags.f.alpha_mode) {
+        char hpbuf[48];
+        int len = ascii2hp(hpbuf, buf, 44);
+        int tlen = len + reg_alpha_length;
+        if (tlen > 44) {
+            int off = tlen - 44;
+            memmove(reg_alpha, reg_alpha + off, off);
+            reg_alpha_length -= off;
+        }
+        memcpy(reg_alpha + reg_alpha_length, hpbuf, len);
+        reg_alpha_length += len;
+    } else {
+        squeak();
+        return;
+    }
+    redisplay();
+}
+
+#if 0
 void core_paste(const char *buf) {
     phloat re, im;
     int i, s1, e1, s2, e2;
@@ -2338,6 +2503,7 @@ void core_paste(const char *buf) {
     }
     redisplay();
 }
+#endif
 
 void set_alpha_entry(bool state) {
     mode_alpha_entry = state;
