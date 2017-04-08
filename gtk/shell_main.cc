@@ -1409,7 +1409,7 @@ static void paste2(GtkClipboard *clip, const gchar *text, gpointer cd) {
     if (text != NULL) {
         core_paste(text);
         redisplay();
-        // TODO: Should 'text' be freed (with g_free()) here?
+        // GTK will free the text once the callback returns.
     }
 }
 
