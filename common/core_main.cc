@@ -2367,9 +2367,10 @@ static vartype *parse_base(const char *buf, int len) {
         i++;
     }
     while (bits < 36) {
-        char c = buf[i++];
+        char c = buf[i];
         if (c == 0)
             break;
+        i++;
         int d;
         if (base == 16) {
             if (c >= '0' && c <= '9')
@@ -2379,16 +2380,20 @@ static vartype *parse_base(const char *buf, int len) {
             else if (c >= 'a' && c <= 'f')
                 d = c - 'a' + 10;
             else
-                break;
+                return NULL;
         } else {
             if (c >= 0 && c < '0' + base)
                 d = c - '0';
             else
-                break;
+                return NULL;
         }
         n = n << bpd | d;
         bits += bpd;
     }
+    while (buf[i] == ' ')
+        i++;
+    if (buf[i] != 0)
+        return NULL;
     if (bits == 0)
         return NULL;
     if (neg)
@@ -2595,14 +2600,19 @@ void core_paste(const char *buf) {
         } else if (rows == 1 && cols == 1) {
             // Scalar
             int len = strlen(buf);
+            char *asciibuf = (char *) malloc(len + 1);
+            strcpy(asciibuf, buf);
+            if (asciibuf[len - 1] == '\n')
+                asciibuf[--len] = 0;
             char *hpbuf = (char *) malloc(len + 4);
-            len = ascii2hp(hpbuf, buf, len);
-            vartype *v = parse_base(hpbuf, len);
+            len = ascii2hp(hpbuf, asciibuf, len);
+            free(asciibuf);
+            v = parse_base(hpbuf, len);
             if (v == NULL) {
                 phloat re, im;
                 char s[6];
                 int slen;
-                int type = parse_scalar(buf, strlen(buf), &re, &im, s, &slen);
+                int type = parse_scalar(hpbuf, len, &re, &im, s, &slen);
                 switch (type) {
                     case TYPE_REAL:
                         v = new_real(re);
