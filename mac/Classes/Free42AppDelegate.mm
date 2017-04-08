@@ -537,7 +537,7 @@ static bool is_file(const char *name);
     NSArray *types = [NSArray arrayWithObjects: NSStringPboardType, nil];
     [pb declareTypes:types owner:self];
     char *buf = core_copy();
-    NSString *txt = [NSString stringWithCString:buf encoding:NSUTF8StringEncoding];
+    NSString *txt = [NSString stringWithUTF8String:buf];
     [pb setString:txt forType:NSStringPboardType];
     free(buf);
 }
@@ -548,10 +548,8 @@ static bool is_file(const char *name);
     NSString *bestType = [pb availableTypeFromArray:types];
     if (bestType != nil) {
         NSString *txt = [pb stringForType:NSStringPboardType];
-        char buf[100];
-        [txt getCString:buf maxLength:100 encoding:NSUTF8StringEncoding];
+        const char *buf = [txt UTF8String];
         core_paste(buf);
-        redisplay();
     }
 }
 

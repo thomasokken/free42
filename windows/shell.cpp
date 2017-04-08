@@ -1319,29 +1319,55 @@ static void copy() {
     if (!OpenClipboard(hMainWnd))
         return;
     char *buf = core_copy();
-    int len = strlen(buf) + 1;
-    HGLOBAL h = GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, len);
+    if (buf == NULL)
+        return;
+    int len = strlen(buf);
+    if (len == 0) {
+        free(buf);
+        return;
+    }
+    int wlen = MultiByteToWideChar(CP_UTF8, MB_PRECOMPOSED, buf, len, NULL, 0);
+    if (wlen == 0) {
+        free(buf);
+        return;
+    }
+    wchar_t *wbuf = (wchar_t *) malloc(wlen * 2);
+    if (wbuf == NULL) {
+        free(buf);
+        return;
+    }
+    MultiByteToWideChar(CP_UTF8, 0, buf, len, wbuf, wlen);
+    HGLOBAL h = GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, wlen);
     if (h != NULL) {
         void *p = GlobalLock(h);
-        memcpy(p, buf, len);
+        memcpy(p, wbuf, wlen);
         GlobalUnlock(h);
         EmptyClipboard();
-        if (SetClipboardData(CF_TEXT, h) == NULL)
+        if (SetClipboardData(CF_UNICODETEXT, h) == NULL)
             GlobalFree(h);
     }
     CloseClipboard();
+    free(wbuf);
     free(buf);
 }
 
 static void paste() {
     if (!OpenClipboard(hMainWnd))
         return;
-    HANDLE h = GetClipboardData(CF_TEXT);
+    HANDLE h = GetClipboardData(CF_UNICODETEXT);
     if (h != NULL) {
-        char *p = (char *) GlobalLock(h);
-        if (p != NULL) {
-            core_paste(p);
-            redisplay();
+        wchar_t *wbuf = (wchar_t *) GlobalLock(h);
+        if (wbuf != NULL) {
+            int wlen = wcslen(wbuf);
+            int len = WideCharToMultiByte(CP_UTF8, 0, wbuf, wlen, NULL, 0, NULL, NULL);
+            if (len != 0) {
+                char *buf = (char *) malloc(len);
+                if (buf != NULL) {
+                    WideCharToMultiByte(CP_UTF8, 0, wbuf, wlen, buf, len, NULL, NULL);
+                    core_paste(buf);
+                    free(buf);
+                }
+            }
             GlobalUnlock(h);
         }
     }
