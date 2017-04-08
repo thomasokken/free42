@@ -2108,11 +2108,63 @@ char *core_copy() {
     }
 }
 
-static bool is_number_char(char c) {
-    return (c >= '0' && c <= '9')
-        || c == '.' || c == ','
-        || c == '+' || c == '-'
-        || c == 'e' || c == 'E' || c == 24;
+static int scan_number(const char *buf, int len, int pos) {
+    // 0: before number
+    // 1: in mantissa, before decimal
+    // 2: in mantissa, after decimal
+    // 3: after E
+    // 4: in exponent
+    int state = 0;
+    char dec = flags.f.decimal_point ? '.' : ',';
+    char sep = flags.f.decimal_point ? ',' : '.';
+    for (int p = pos; p < len; p++) {
+        char c = buf[p];
+        switch (state) {
+            case 0:
+                if ((c >= '0' && c <= '9')
+                        || c == '+' || c == '-'
+                        || c == sep)
+                    state = 1;
+                else if (c == dec)
+                    state = 2;
+                else if (c == 'e' || c == 'E' || c == 24)
+                    state = 3;
+                else
+                    return p;
+                break;
+            case 1:
+                if ((c >= '0' && c <= '9') || c == sep)
+                    /* state = 1 */;
+                else if (c == dec)
+                    state = 2;
+                else if (c == 'e' || c == 'E' || c == 24)
+                    state = 3;
+                else
+                    return p;
+                break;
+            case 2:
+                if (c >= '0' && c <= '9')
+                    /* state = 2 */;
+                else if (c == 'e' || c == 'E' || c == 24)
+                    state = 3;
+                else
+                    return p;
+                break;
+            case 3:
+                if ((c >= '0' && c <= '9')
+                        || c == '+' || c == '-')
+                    state = 4;
+                else
+                    return p;
+            case 4:
+                if (c >= '0' && c <= '9')
+                    /* state = 4 */;
+                else
+                    return p;
+                break;
+        }
+    }
+    return len;
 }
 
 static bool parse_phloat(const char *p, int len, phloat *res) {
@@ -2352,59 +2404,57 @@ static int parse_scalar(const char *buf, int len, phloat *re, phloat *im, char *
     int i, s1, e1, s2, e2;
     bool polar = false;
 
-#define SAFEBUF(i) ((i) < (len) ? (buf[i]) : (0xff))
-
     /* Try matching " %g <angle> %g " */
     i = 0;
-    while (SAFEBUF(i) == ' ')
+    while (i < len && buf[i] == ' ')
         i++;
     s1 = i;
-    while (is_number_char(SAFEBUF(i)))
-        i++;
+    i = scan_number(buf, len, i);
     e1 = i;
     if (e1 == s1)
         goto attempt_2;
-    while (SAFEBUF(i) == ' ')
+    while (i < len && buf[i] == ' ')
         i++;
-    if (SAFEBUF(i) == 23)
+    if (i < len && buf[i] == 23)
         i++;
     else
         goto attempt_2;
-    while (SAFEBUF(i) == ' ')
+    while (i < len && buf[i] == ' ')
         i++;
     s2 = i;
-    while (is_number_char(SAFEBUF(i)))
-        i++;
+    i = scan_number(buf, len, i);
     e2 = i;
     if (e2 == s2)
+        goto attempt_2;
+    while (i < len && buf[i] == ' ')
+        i++;
+    if (i < len)
         goto attempt_2;
     polar = true;
     goto finish_complex;
 
-    /* Try matching " %g + %g i " */
+    /* Try matching " %g[+-]%gi " */
     attempt_2:
     i = 0;
-    while (SAFEBUF(i) == ' ')
+    while (i < len && buf[i] == ' ')
         i++;
     s1 = i;
-    while (is_number_char(SAFEBUF(i)))
-        i++;
+    i = scan_number(buf, len, i);
     e1 = i;
     if (e1 == s1)
         goto attempt_3;
-    while (SAFEBUF(i) == ' ')
-        i++;
-    if (SAFEBUF(i) == '+')
+    s2 = i;
+    i = scan_number(buf, len, i);
+    e2 = i;
+    if (e2 == s2)
+        goto attempt_3;
+    if (i < len && (buf[i] == 'i' || buf[i] == 'I'))
         i++;
     else
         goto attempt_3;
-    while (SAFEBUF(i) == ' ')
+    while (i < len && buf[i] == ' ')
         i++;
-    s2 = i;
-    while (is_number_char(SAFEBUF(i)))
-        i++;
-    e2 = i;
-    if (e2 == s2)
+    if (i < len)
         goto attempt_3;
     goto finish_complex;
 
@@ -2415,34 +2465,43 @@ static int parse_scalar(const char *buf, int len, phloat *re, phloat *im, char *
      */
     attempt_3:
     i = 0;
-    while (SAFEBUF(i) == ' ')
+    while (i < len && buf[i] == ' ')
         i++;
-    if (SAFEBUF(i) == '(')
+    if (i < len && buf[i] == '(')
         i++;
     else
         goto attempt_4;
-    while (SAFEBUF(i) == ' ')
+    while (i < len && buf[i] == ' ')
         i++;
     s1 = i;
-    while (is_number_char(SAFEBUF(i)))
-        i++;
+    i = scan_number(buf, len, i);
     e1 = i;
     if (e1 == s1)
         goto attempt_4;
-    while (SAFEBUF(i) == ' ')
+    while (i < len && buf[i] == ' ')
         i++;
-    if (SAFEBUF(i) == ',' || SAFEBUF(i) == ':' || SAFEBUF(i) == ';')
+    if (i < len || (buf[i] == ',' || buf[i] == ':' || buf[i] == ';'))
         i++;
     else
         goto attempt_4;
-    while (SAFEBUF(i) == ' ')
+    while (i < len && buf[i] == ' ')
         i++;
     s2 = i;
-    while (is_number_char(SAFEBUF(i)))
-        i++;
+    i = scan_number(buf, len, i);
     e2 = i;
     if (e2 == s2)
         goto attempt_4;
+    while (i < len && buf[i] == ' ')
+        i++;
+    if (i < len && buf[i] == ')')
+        i++;
+    else
+        goto attempt_4;
+    while (i < len && buf[i] == ' ')
+        i++;
+    if (i < len)
+        goto attempt_4;
+
     finish_complex:
     if (!parse_phloat(buf + s1, e1 - s1, re))
         goto attempt_4;
@@ -2455,21 +2514,26 @@ static int parse_scalar(const char *buf, int len, phloat *re, phloat *im, char *
     /* Try matching " %g " */
     attempt_4:
     i = 0;
-    while (SAFEBUF(i) == ' ')
+    while (i < len && buf[i] == ' ')
         i++;
     s1 = i;
-    while (is_number_char(SAFEBUF(i)))
-        i++;
+    i = scan_number(buf, len, i);
     e1 = i;
-    if (e1 != s1 && parse_phloat(buf + s1, e1 - s1, re))
+    if (e1 == s1)
+        goto finish_string;
+    while (i < len && buf[i] == ' ')
+        i++;
+    if (i < len)
+        goto finish_string;
+    if (parse_phloat(buf + s1, e1 - s1, re))
         return TYPE_REAL;
-    else {
-        if (len > 6)
-            len = 6;
-        memcpy(s, buf, len);
-        *slen = len;
-        return TYPE_STRING;
-    }
+
+    finish_string:
+    if (len > 6)
+        len = 6;
+    memcpy(s, buf, len);
+    *slen = len;
+    return TYPE_STRING;
 }
 
 void core_paste(const char *buf) {
@@ -2582,7 +2646,7 @@ void core_paste(const char *buf) {
             }
             int pos = 0;
             int spos = 0;
-            int p = 0, col = 1;
+            int p = 0, col = 0;
             do {
                 c = buf[pos++];
                 if (c == 0 || c == '\t' || c == '\n') {
@@ -2624,7 +2688,7 @@ void core_paste(const char *buf) {
                                 p *= 2;
                                 data[p] = re;
                                 data[p + 1] = im;
-                                break;
+                                goto finish_complex_cell;
                             case TYPE_STRING:
                                 if (slen == 0) {
                                     data[p] = 0;
@@ -2661,6 +2725,7 @@ void core_paste(const char *buf) {
                                 data[p + 1] = 0;
                                 break;
                         }
+                        finish_complex_cell:
                         p += 2;
                         col++;
                         if (c == 0 || c == '\n') {
