@@ -2253,7 +2253,7 @@ static int ascii2hp(char *dst, const char *src, int maxchars) {
     // 5: '[ES'
     // 6: '[ESC'
     int state = 0;
-    while (dstpos < maxchars + (state == 0 ? 0 : 4)) {
+    while (dstpos < maxchars + (state == 0 ? 1 : 4)) {
         char c = src[srcpos++];
         retry:
         if (c == 0)
@@ -2335,14 +2335,14 @@ static int ascii2hp(char *dst, const char *src, int maxchars) {
                 break;
             case 0x0308:
                 if (dstpos > 0) {
-                    char c = dst[dstpos - 1];
-                    if (c == 'A') {
+                    char k = dst[dstpos - 1];
+                    if (k == 'A') {
                         code = 22;
                         dstpos--;
-                    } else if (c == 'O') {
+                    } else if (k == 'O') {
                         code = 28;
                         dstpos--;
-                    } else if (c == 'U') {
+                    } else if (k == 'U') {
                         code = 29;
                         dstpos--;
                     } else {
@@ -2372,7 +2372,7 @@ static int ascii2hp(char *dst, const char *src, int maxchars) {
                     continue;
                 }
                 if (code < 32 && code != 10 && code != 27 || code > 126)
-                    c = 31;
+                    code = 31;
                 break;
         }
         switch (state) {
