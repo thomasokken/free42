@@ -1012,9 +1012,9 @@ static int prgmline2buf(char *buf, int len, int4 line, int highlight,
     return bufptr;
 }
 
-void tb_write(textbuf *tb, const char *data, ssize_t size) {
+void tb_write(textbuf *tb, const char *data, size_t size) {
     if (tb->size + size > tb->capacity) {
-        ssize_t newcapacity = tb->capacity == 0 ? 1024 : (tb->capacity << 1);
+        size_t newcapacity = tb->capacity == 0 ? 1024 : (tb->capacity << 1);
         while (newcapacity < tb->size + size)
             newcapacity <<= 1;
         char *newbuf = (char *) realloc(tb->buf, newcapacity);
@@ -1058,6 +1058,7 @@ void tb_print_current_program(textbuf *tb) {
             if (buf[i] == 10)
                 buf[i] = 138;
         int utf8len = hp2ascii(utf8buf, buf, len);
+        utf8buf[utf8len++] = '\r';
         utf8buf[utf8len++] = '\n';
         tb_write(tb, utf8buf, utf8len);
         line++;

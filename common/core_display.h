@@ -56,11 +56,11 @@ int command2buf(char *buf, int len, int cmd, const arg_struct *arg);
 
 typedef struct {
     char *buf;
-    ssize_t size;
-    ssize_t capacity;
+    size_t size;
+    size_t capacity;
 } textbuf;
 
-void tb_write(textbuf *tb, const char *data, ssize_t size);
+void tb_write(textbuf *tb, const char *data, size_t size);
 void tb_write_null(textbuf *tb);
 void tb_print_current_program(textbuf *tb);
 

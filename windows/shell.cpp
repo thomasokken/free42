@@ -1324,8 +1324,8 @@ static void copy() {
     int len = strlen(buf);
     if (len == 0)
         goto fail2;
-    int wlen = MultiByteToWideChar(CP_UTF8, MB_PRECOMPOSED, buf, len, NULL, 0);
-    if (wlen == 0)
+    int wlen = MultiByteToWideChar(CP_UTF8, 0, buf, len + 1, NULL, 0);
+	if (wlen == 0)
         goto fail2;
     HGLOBAL h = GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, wlen * 2);
     if (h != NULL) {

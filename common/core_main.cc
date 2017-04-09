@@ -2076,7 +2076,12 @@ char *core_copy() {
                     bufptr = hp2ascii(buf, phloat_text(data[n]), phloat_length(data[n]));
                 else
                     bufptr = real2buf(buf, data[n]);
-                buf[bufptr++] = c == rm->columns - 1 ? '\n' : '\t';
+                if (c == rm->columns - 1) {
+                    buf[bufptr++] = '\r';
+                    buf[bufptr++] = '\n';
+                } else {
+                    buf[bufptr++] = '\t';
+                }
                 tb_write(&tb, buf, bufptr);
                 n++;
             }
@@ -2095,7 +2100,12 @@ char *core_copy() {
         for (int r = 0; r < cm->rows; r++) {
             for (int c = 0; c < cm->columns; c++) {
                 int bufptr = complex2buf(buf, data[n], data[n + 1], true);
-                buf[bufptr++] = c == cm->columns - 1 ? '\n' : '\t';
+                if (c == cm->columns - 1) {
+                    buf[bufptr++] = '\r';
+                    buf[bufptr++] = '\n';
+                } else {
+                    buf[bufptr++] = '\t';
+                }
                 tb_write(&tb, buf, bufptr);
                 n += 2;
             }
@@ -2255,50 +2265,50 @@ static int ascii2hp(char *dst, const char *src, int maxchars) {
                     goto retry;
                 code = code << 6 | c & 0x3f;
             }
-            // Perform the inverse of the translation in hp2ascii()
-            switch (code) {
-                case 0x00f7: code =   0; break;
-                case 0x00d7: code =   1; break;
-                case 0x221a: code =   2; break;
-                case 0x222b: code =   3; break;
-                case 0x2592: code =   4; break;
-                case 0x03a3: code =   5; break;
-                case 0x25b6: code =   6; break;
-                case 0x03c0: code =   7; break;
-                case 0x00bf: code =   8; break;
-                case 0x2264: code =   9; break;
-                case 0x2265: code =  11; break;
-                case 0x2260: code =  12; break;
-                case 0x21b5: code =  13; break;
-                case 0x2193: code =  14; break;
-                case 0x2192: code =  15; break;
-                case 0x2190: code =  16; break;
-                case 0x03bc: code =  17; break;
-                case 0x00a3: code =  18; break;
-                case 0x00b0: code =  19; break;
-                case 0x00c5: code =  20; break;
-                case 0x00d1: code =  21; break;
-                case 0x00c4: code =  22; break;
-                case 0x2220:
-                case 0x2221: code =  23; break;
-                case 0x1d07: code =  24; break;
-                case 0x00c6: code =  25; break;
-                case 0x2026: code =  26; break;
-                case 0x00d6: code =  28; break;
-                case 0x00dc: code =  29; break;
-                case 0x2022: code =  31; break;
-                case 0x2191: code =  94; break;
-                case 0x251c: code = 127; break;
-                case 0x028f: code = 129; break;
-                default:
-                    // Anything outside of the printable ASCII range or LF or
-                    // ESC is not representable, so we replace it with bullets,
-                    // except for CR, which we skip.
-                    if (code == 13)
-                        continue;
-                    if (code < 32 && code != 10 && code != 27 || code > 126)
-                        c = 31;
-            }
+        }
+        // Perform the inverse of the translation in hp2ascii()
+        switch (code) {
+            case 0x00f7: code =   0; break;
+            case 0x00d7: code =   1; break;
+            case 0x221a: code =   2; break;
+            case 0x222b: code =   3; break;
+            case 0x2592: code =   4; break;
+            case 0x03a3: code =   5; break;
+            case 0x25b6: code =   6; break;
+            case 0x03c0: code =   7; break;
+            case 0x00bf: code =   8; break;
+            case 0x2264: code =   9; break;
+            case 0x2265: code =  11; break;
+            case 0x2260: code =  12; break;
+            case 0x21b5: code =  13; break;
+            case 0x2193: code =  14; break;
+            case 0x2192: code =  15; break;
+            case 0x2190: code =  16; break;
+            case 0x03bc: code =  17; break;
+            case 0x00a3: code =  18; break;
+            case 0x00b0: code =  19; break;
+            case 0x00c5: code =  20; break;
+            case 0x00d1: code =  21; break;
+            case 0x00c4: code =  22; break;
+            case 0x2220:
+            case 0x2221: code =  23; break;
+            case 0x1d07: code =  24; break;
+            case 0x00c6: code =  25; break;
+            case 0x2026: code =  26; break;
+            case 0x00d6: code =  28; break;
+            case 0x00dc: code =  29; break;
+            case 0x2022: code =  31; break;
+            case 0x2191: code =  94; break;
+            case 0x251c: code = 127; break;
+            case 0x028f: code = 129; break;
+            default:
+                // Anything outside of the printable ASCII range or LF or
+                // ESC is not representable, so we replace it with bullets,
+                // except for CR, which we skip.
+                if (code == 13)
+                    continue;
+                if (code < 32 && code != 10 && code != 27 || code > 126)
+                    c = 31;
         }
         switch (state) {
             case 0:
