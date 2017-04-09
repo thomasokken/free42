@@ -1022,6 +1022,7 @@ void tb_write(textbuf *tb, const char *data, size_t size) {
             /* Bummer! Let's just append as much as we can */
             memcpy(tb->buf + tb->size, data, tb->capacity - tb->size);
             tb->size = tb->capacity;
+            tb->fail = true;
         } else {
             tb->buf = newbuf;
             tb->capacity = newcapacity;

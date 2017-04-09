@@ -58,6 +58,7 @@ typedef struct {
     char *buf;
     size_t size;
     size_t capacity;
+    bool fail;
 } textbuf;
 
 void tb_write(textbuf *tb, const char *data, size_t size);

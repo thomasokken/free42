@@ -2034,9 +2034,16 @@ char *core_copy() {
         tb.buf = NULL;
         tb.size = 0;
         tb.capacity = 0;
+        tb.fail = false;
         tb_print_current_program(&tb);
         tb_write_null(&tb);
-        return tb.buf;
+        if (tb.fail) {
+            free(tb.buf);
+            display_error(ERR_INSUFFICIENT_MEMORY, 0);
+            redisplay();
+            return NULL;
+        } else
+            return tb.buf;
     } else if (flags.f.alpha_mode) {
         char *buf = (char *) malloc(5 * reg_alpha_length + 1);
         int bufptr = hp2ascii(buf, reg_alpha, reg_alpha_length);
@@ -2067,6 +2074,7 @@ char *core_copy() {
         tb.buf = NULL;
         tb.size = 0;
         tb.capacity = 0;
+        tb.fail = false;
         char buf[50];
         int n = 0;
         for (int r = 0; r < rm->rows; r++) {
@@ -2087,7 +2095,13 @@ char *core_copy() {
             }
         }
         tb_write_null(&tb);
-        return tb.buf;
+        if (tb.fail) {
+            free(tb.buf);
+            display_error(ERR_INSUFFICIENT_MEMORY, 0);
+            redisplay();
+            return NULL;
+        } else
+            return tb.buf;
     } else if (reg_x->type == TYPE_COMPLEXMATRIX) {
         vartype_complexmatrix *cm = (vartype_complexmatrix *) reg_x;
         phloat *data = cm->array->data;
@@ -2095,6 +2109,7 @@ char *core_copy() {
         tb.buf = NULL;
         tb.size = 0;
         tb.capacity = 0;
+        tb.fail = false;
         char buf[100];
         int n = 0;
         for (int r = 0; r < cm->rows; r++) {
@@ -2111,7 +2126,13 @@ char *core_copy() {
             }
         }
         tb_write_null(&tb);
-        return tb.buf;
+        if (tb.fail) {
+            free(tb.buf);
+            display_error(ERR_INSUFFICIENT_MEMORY, 0);
+            redisplay();
+            return NULL;
+        } else
+            return tb.buf;
     } else {
         // Shouldn't happen: unrecognized data type
         return NULL;
@@ -2597,8 +2618,8 @@ static int parse_scalar(const char *buf, int len, phloat *re, phloat *im, char *
 
 void core_paste(const char *buf) {
     if (flags.f.prgm_mode) {
-        // TODO
-        squeak();
+        display_error(ERR_NOT_YET_IMPLEMENTED, 0);
+        redisplay();
         return;
     } else if (flags.f.alpha_mode) {
         char hpbuf[48];
@@ -2648,8 +2669,6 @@ void core_paste(const char *buf) {
         }
         vartype *v;
         if (rows == 0) {
-            // Empty string
-            squeak();
             return;
         } else if (rows == 1 && cols == 1) {
             // Scalar
@@ -2684,20 +2703,23 @@ void core_paste(const char *buf) {
             int n = rows * cols;
             phloat *data = (phloat *) malloc(n * sizeof(phloat));
             if (data == NULL) {
-                squeak();
+                display_error(ERR_INSUFFICIENT_MEMORY, 0);
+                redisplay();
                 return;
             }
             char *is_string = (char *) malloc(n);
             if (is_string == NULL) {
                 free(data);
-                squeak();
+                display_error(ERR_INSUFFICIENT_MEMORY, 0);
+                redisplay();
                 return;
             }
             char *asciibuf = (char *) malloc(max_cell_size + 1);
             if (asciibuf == NULL) {
                 free(data);
                 free(is_string);
-                squeak();
+                display_error(ERR_INSUFFICIENT_MEMORY, 0);
+                redisplay();
                 return;
             }
             char *hpbuf = (char *) malloc(max_cell_size + 5);
@@ -2705,7 +2727,8 @@ void core_paste(const char *buf) {
                 free(asciibuf);
                 free(data);
                 free(is_string);
-                squeak();
+                display_error(ERR_INSUFFICIENT_MEMORY, 0);
+                redisplay();
                 return;
             }
             int pos = 0;
@@ -2741,7 +2764,8 @@ void core_paste(const char *buf) {
                                     free(data);
                                     free(asciibuf);
                                     free(hpbuf);
-                                    squeak();
+                                    display_error(ERR_INSUFFICIENT_MEMORY, 0);
+                                    redisplay();
                                     return;
                                 }
                                 data = newdata;
@@ -2816,7 +2840,8 @@ void core_paste(const char *buf) {
                 if (rm == NULL) {
                     free(data);
                     free(is_string);
-                    squeak();
+                    display_error(ERR_INSUFFICIENT_MEMORY, 0);
+                    redisplay();
                     return;
                 }
                 rm->array = (realmatrix_data *)
@@ -2825,7 +2850,8 @@ void core_paste(const char *buf) {
                     free(rm);
                     free(data);
                     free(is_string);
-                    squeak();
+                    display_error(ERR_INSUFFICIENT_MEMORY, 0);
+                    redisplay();
                     return;
                 }
                 rm->type = TYPE_REALMATRIX;
@@ -2840,7 +2866,8 @@ void core_paste(const char *buf) {
                                 malloc(sizeof(vartype_complexmatrix));
                 if (cm == NULL) {
                     free(data);
-                    squeak();
+                    display_error(ERR_INSUFFICIENT_MEMORY, 0);
+                    redisplay();
                     return;
                 }
                 cm->array = (complexmatrix_data *)
@@ -2848,7 +2875,8 @@ void core_paste(const char *buf) {
                 if (cm->array == NULL) {
                     free(cm);
                     free(data);
-                    squeak();
+                    display_error(ERR_INSUFFICIENT_MEMORY, 0);
+                    redisplay();
                     return;
                 }
                 cm->type = TYPE_COMPLEXMATRIX;
