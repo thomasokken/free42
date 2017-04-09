@@ -2301,14 +2301,58 @@ static int ascii2hp(char *dst, const char *src, int maxchars) {
             case 0x2191: code =  94; break;
             case 0x251c: code = 127; break;
             case 0x028f: code = 129; break;
+            // Combining accents: apply them if they fit,
+            // otherwise ignore them
+            case 0x0303:
+                if (dstpos > 0 && dst[dstpos - 1] == 'N') {
+                    code = 21;
+                    dstpos--;
+                } else {
+                    state = 0;
+                    continue;
+                }
+                break;
+            case 0x0308:
+                if (dstpos > 0) {
+                    char c = dst[dstpos - 1];
+                    if (c == 'A') {
+                        code = 22;
+                        dstpos--;
+                    } else if (c == 'O') {
+                        code = 28;
+                        dstpos--;
+                    } else if (c == 'U') {
+                        code = 29;
+                        dstpos--;
+                    } else {
+                        state = 0;
+                        continue;
+                    }
+                } else {
+                    state = 0;
+                    continue;
+                }
+                break;
+            case 0x030a: 
+                if (dstpos > 0 && dst[dstpos - 1] == 'A') {
+                    code = 20;
+                    dstpos--;
+                } else {
+                    state = 0;
+                    continue;
+                }
+                break;
             default:
                 // Anything outside of the printable ASCII range or LF or
                 // ESC is not representable, so we replace it with bullets,
-                // except for CR, which we skip.
-                if (code == 13)
+                // except for CR and combining diacritics, which we skip.
+                if (code == 13 || code >= 0x0300 && code <= 0x03bf) {
+                    state = 0;
                     continue;
+                }
                 if (code < 32 && code != 10 && code != 27 || code > 126)
                     c = 31;
+                break;
         }
         switch (state) {
             case 0:
