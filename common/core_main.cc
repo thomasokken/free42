@@ -2253,6 +2253,7 @@ static int ascii2hp(char *dst, const char *src, int maxchars) {
     // 5: '[ES'
     // 6: '[ESC'
     int state = 0;
+    bool afterCR = false;
     while (dstpos < maxchars + (state == 0 ? 1 : 4)) {
         char c = src[srcpos++];
         retry:
@@ -2286,6 +2287,18 @@ static int ascii2hp(char *dst, const char *src, int maxchars) {
                     goto retry;
                 code = code << 6 | c & 0x3f;
             }
+        }
+        // OK, we have a code.
+        // Next, we translate CR to LF, but whenever that happens,
+        // any immediately following LF should be dropped
+        if (code == 13) {
+            code = 10;
+            afterCR = true;
+        } else {
+            bool prevAfterCR = afterCR;
+            afterCR = false;
+            if (prevAfterCR && code == 10)
+                continue;
         }
         // Perform the inverse of the translation in hp2ascii()
         switch (code) {
@@ -2366,8 +2379,8 @@ static int ascii2hp(char *dst, const char *src, int maxchars) {
             default:
                 // Anything outside of the printable ASCII range or LF or
                 // ESC is not representable, so we replace it with bullets,
-                // except for CR and combining diacritics, which we skip.
-                if (code == 13 || code >= 0x0300 && code <= 0x03bf) {
+                // except for combining diacritics, which we skip.
+                if (code >= 0x0300 && code <= 0x03bf) {
                     state = 0;
                     continue;
                 }
@@ -2644,6 +2657,11 @@ void core_paste(const char *buf) {
             c = buf[pos++];
             if (c == 0)
                 break;
+            if (c == '\r') {
+                c = '\n';
+                if (buf[pos] == '\n')
+                    pos++;
+            }
             if (c == '\n') {
                 rows++;
                 if (cols < col)
@@ -2736,9 +2754,14 @@ void core_paste(const char *buf) {
             int p = 0, row = 0, col = 0;
             while (row < rows) {
                 c = buf[pos++];
-                if (c == 0 || c == '\t' || c == '\n') {
+                if (c == 0 || c == '\t' || c == '\r' || c == '\n') {
                     int cellsize = pos - spos - 1;
                     memcpy(asciibuf, buf + spos, cellsize);
+                    if (c == '\r') {
+                        c = '\n';
+                        if (buf[pos] == '\n')
+                            pos++;
+                    }
                     spos = pos;
                     asciibuf[cellsize] = 0;
                     int hplen = ascii2hp(hpbuf, asciibuf, cellsize);
