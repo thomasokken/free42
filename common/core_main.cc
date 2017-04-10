@@ -2084,15 +2084,13 @@ char *core_copy() {
                     bufptr = hp2ascii(buf, phloat_text(data[n]), phloat_length(data[n]));
                 else
                     bufptr = real2buf(buf, data[n]);
-                if (c == rm->columns - 1) {
-                    //buf[bufptr++] = '\r';
-                    buf[bufptr++] = '\n';
-                } else {
+                if (c < rm->columns - 1)
                     buf[bufptr++] = '\t';
-                }
                 tb_write(&tb, buf, bufptr);
                 n++;
             }
+            if (r < rm->rows - 1)
+                tb_write(&tb, "\n", 1);
         }
         tb_write_null(&tb);
         if (tb.fail) {
@@ -2115,15 +2113,13 @@ char *core_copy() {
         for (int r = 0; r < cm->rows; r++) {
             for (int c = 0; c < cm->columns; c++) {
                 int bufptr = complex2buf(buf, data[n], data[n + 1], true);
-                if (c == cm->columns - 1) {
-                    //buf[bufptr++] = '\r';
-                    buf[bufptr++] = '\n';
-                } else {
+                if (c < cm->columns - 1)
                     buf[bufptr++] = '\t';
-                }
                 tb_write(&tb, buf, bufptr);
                 n += 2;
             }
+            if (r < cm->rows - 1)
+                tb_write(&tb, "\n", 1);
         }
         tb_write_null(&tb);
         if (tb.fail) {
