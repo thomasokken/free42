@@ -2219,6 +2219,8 @@ static bool parse_phloat(const char *p, int len, phloat *res) {
         } else
             buf[i++] = c;
     }
+    if (in_mant && mant_digits == 0)
+        return false;
     int err = string2phloat(buf, i, res);
     if (err == 0)
         return true;
@@ -2492,6 +2494,8 @@ static vartype *parse_base(const char *buf, int len) {
 static int parse_scalar(const char *buf, int len, phloat *re, phloat *im, char *s, int *slen) {
     int i, s1, e1, s2, e2;
     bool polar = false;
+    bool empty_im = false;
+    bool no_re = false;
 
     /* Try matching " %g <angle> %g " */
     i = 0;
@@ -2530,13 +2534,9 @@ static int parse_scalar(const char *buf, int len, phloat *re, phloat *im, char *
     s1 = i;
     i = scan_number(buf, len, i);
     e1 = i;
-    if (e1 == s1)
-        goto attempt_3;
     s2 = i;
     i = scan_number(buf, len, i);
     e2 = i;
-    if (e2 == s2)
-        goto attempt_3;
     if (i < len && (buf[i] == 'i' || buf[i] == 'I'))
         i++;
     else
@@ -2545,6 +2545,19 @@ static int parse_scalar(const char *buf, int len, phloat *re, phloat *im, char *
         i++;
     if (i < len)
         goto attempt_3;
+    if (e1 == s1) {
+        *re = 0;
+        *im = 1;
+        return TYPE_COMPLEX;
+    }
+    if (e2 == s2) {
+        no_re = true;
+        e2 = e1;
+        s2 = s1;
+    }
+    /* Handle x+i or x-i (imaginary part consisting of just a '+' or '-' */
+    if (e2 == s2 + 1 && (buf[s2] == '+' || buf[s2] == '-'))
+        empty_im = true;
     goto finish_complex;
 
     /* Try matching " ( %g , %g ) " */
@@ -2553,6 +2566,7 @@ static int parse_scalar(const char *buf, int len, phloat *re, phloat *im, char *
      * with spaces to distinguish them from 'number' chars
      */
     attempt_3:
+    no_re = false;
     i = 0;
     while (i < len && buf[i] == ' ')
         i++;
@@ -2592,9 +2606,13 @@ static int parse_scalar(const char *buf, int len, phloat *re, phloat *im, char *
         goto attempt_4;
 
     finish_complex:
-    if (!parse_phloat(buf + s1, e1 - s1, re))
+    if (no_re)
+        *re = 0;
+    else if (!parse_phloat(buf + s1, e1 - s1, re))
         goto attempt_4;
-    if (!parse_phloat(buf + s2, e2 - s2, im))
+    if (empty_im)
+        *im = buf[s2] == '+' ? 1 : -1;
+    else if (!parse_phloat(buf + s2, e2 - s2, im))
         goto attempt_4;
     if (polar)
         generic_p2r(*re, *im, re, im);
