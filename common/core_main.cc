@@ -2085,7 +2085,7 @@ char *core_copy() {
                 else
                     bufptr = real2buf(buf, data[n]);
                 if (c == rm->columns - 1) {
-                    buf[bufptr++] = '\r';
+                    //buf[bufptr++] = '\r';
                     buf[bufptr++] = '\n';
                 } else {
                     buf[bufptr++] = '\t';
@@ -2116,7 +2116,7 @@ char *core_copy() {
             for (int c = 0; c < cm->columns; c++) {
                 int bufptr = complex2buf(buf, data[n], data[n + 1], true);
                 if (c == cm->columns - 1) {
-                    buf[bufptr++] = '\r';
+                    //buf[bufptr++] = '\r';
                     buf[bufptr++] = '\n';
                 } else {
                     buf[bufptr++] = '\t';
