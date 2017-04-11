@@ -1145,7 +1145,8 @@ static int matedit_move(int direction) {
             cm->array->data[2 * old_n + 1] = c->im;
         } else {
             free_vartype(v);
-            return ERR_ALPHA_DATA_IS_INVALID;
+            return reg_x->type == TYPE_STRING ? ERR_ALPHA_DATA_IS_INVALID
+                                              : ERR_INVALID_TYPE;
         }
     }
 
