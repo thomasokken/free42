@@ -806,7 +806,9 @@ int docmd_stoel(arg_struct *arg) {
             cm->array->data[2 * n] = c->re;
             cm->array->data[2 * n + 1] = c->im;
             return ERR_NONE;
-        } else
+        } else if (reg_x->type == TYPE_STRING)
+            return ERR_ALPHA_DATA_IS_INVALID;
+        else
             return ERR_INVALID_TYPE;
     }
 }
@@ -1143,7 +1145,7 @@ static int matedit_move(int direction) {
             cm->array->data[2 * old_n + 1] = c->im;
         } else {
             free_vartype(v);
-            return ERR_INVALID_TYPE;
+            return ERR_ALPHA_DATA_IS_INVALID;
         }
     }
 
