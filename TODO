@@ -1,40 +1,13 @@
 Android version:
-* Sometimes, the app saves the state file after reinitialize_globals(). How is
-  this possible, and how to prevent it? N.B. This is one cause, and quite
-  possibly the only one, of the native-code crash in vartype2string() called
-  from display_y(); it's dereferencing reg_y while it is NULL, leading to a
-  segmentation fault.
-* Support arbitrary skin scaling and positioning.
-* Add support for physical keyboards.
-* Implement pop-up keyboard for ALPHA mode text entry.
-* Implement better visual feedback for which key is pressed.
 * Implement ON / flag 44.
 
 iPhone version:
-* Implement dynamic layout, to better support arbitrary screen sizes. Right now
-  we're still hard-coded for iPhone <= 5/5c/5s.
-* Mention iTunes file transfer in the Import/Export documentation page.
 * Preferences looks a bit ugly in iOS 7, because the now-much-smaller switches
   no longer line up with the right margin. How do I create a settings screen
   that looks more like the iOS Settings app?
-* Suppress too-large skins from the Select Skin view.
 * Add option to disable key click.
 * Haptic feedback option.
-* Implement pop-up keyboard for ALPHA mode text entry.
-* Implement URL decoding for HTTP requests (filenames with spaces, etc.)
-* Support iPad, and iPad mini (screen size issues, and take advantage of big
-  screens to show the calculator and print-out side-by-side).
-* Support arbitrary skin scaling and positioning.
-* Add support for physical keyboards.
 * Support landscape mode.
-* When the app is suspended while the HTTP server is active, shut down the HTTP
-  server. I think this is the one remaining issue that causes the server port
-  to be unavailable on HTTP server startup.
-* Implement better visual feedback for which key is pressed.
-* In the HTTP server view, make it clearer that it can't be used if there's no
-  WiFi. Don't show a URL containing some bogus 3G hostname or whatever. Also,
-  deal with the possibility of WiFi becoming active or inactive while Free42 is
-  running.
 * Implement ON / flag 44.
 
 Windows version:
@@ -55,7 +28,6 @@ Mac version:
 Linux version:
 * Update low-battery checker to work with /proc/acpi/battery and
   /sys/class/power_supply.
-* Try to get Skin menu to work with Unity's indicator-appmenu.
 
 All versions:
 * PRGM paste: accept text from the clipboard and parse it like txt2raw; accept
@@ -63,8 +35,3 @@ All versions:
   like txt2raw otherwise.
 * Add a feature for importing and exporting variables from and to CSV files.
 * Add link to 42s.pdf in the About box.
-* Add a command that turns on everything in the display -- all pixels and all
-  annunciators -- to help with testing skins.
-* When a "State File Corrupt" occurs, make a copy of the unloved state file,
-  so it doesn't get nuked on exit.
-* Display "decimal" or "binary" in the About box, with the version number.
