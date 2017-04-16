@@ -2029,6 +2029,10 @@ static int complex2buf(char *buf, phloat re, phloat im, bool always_rect) {
 }
 
 char *core_copy() {
+    if (mode_interruptible != NULL)
+        stop_interruptible();
+    set_running(false);
+
     if (flags.f.prgm_mode) {
         textbuf tb;
         tb.buf = NULL;
@@ -2437,6 +2441,56 @@ static int ascii2hp(char *dst, const char *src, int maxchars) {
     return dstpos > maxchars ? maxchars : dstpos;
 }
 
+typedef struct {
+    char len;
+    char equiv;
+    char text[8];
+} text_alias;
+
+static text_alias aliases[] = {
+    { 5,    2, "\\sqrt"   },
+    { 4,    3, "\\int"    },
+    { 6,    4, "\\gray1"  },
+    { 6,    5, "\\Sigma"  },
+    { 3,    7, "\\pi"     },
+    { 2,    9, "<="       },
+    { 2,   11, ">="       },
+    { 2,   12, "!="       },
+    { 6,   23, "\\angle"  },
+    { 4,   26, "\\esc"    },
+    { 6,   30, "\\gray2"  },
+    { 7,   31, "\\bullet" },
+    { 2, '\\', "\\\\"     },
+    { 2,  127, "|-"       },
+    { 3,  138, "\\LF"     },
+    { 1,   17, "\265"     },
+    { 0,    0, ""         }
+};
+
+static int text2hp(char *buf, int len) {
+    int srcpos = 0;
+    int dstpos = 0;
+    while (srcpos < len) {
+        int al;
+        for (int i = 0; (al = aliases[i].len) != 0; i++) {
+            if (srcpos + al > len)
+                continue;
+            if (strncmp(buf + srcpos, aliases[i].text, al) == 0) {
+                buf[dstpos++] = aliases[i].equiv;
+                srcpos += al;
+                break;
+            }
+        }
+        if (al == 0) {
+            char c = buf[srcpos++];
+            if (isspace(c))
+                c = ' ';
+            buf[dstpos++] = c;
+        }
+    }
+    return dstpos;
+}
+
 static vartype *parse_base(const char *buf, int len) {
     int base = get_base();
     if (base == 10)
@@ -2643,11 +2697,121 @@ static int parse_scalar(const char *buf, int len, phloat *re, phloat *im, char *
     return TYPE_STRING;
 }
 
+static void paste_programs(const char *buf) {
+    bool after_end = true;
+    bool done = false;
+    int pos = 0;
+    char asciibuf[1024];
+    char line_buf[1027];
+    int cmd;
+    arg_struct arg;
+
+    while (!done) {
+        int end = pos;
+        char c;
+        while (c = buf[end], c != 0 && c != '\r' && c != '\n' && c != '\f')
+            end++;
+        if (c == 0)
+            done = true;
+        if (end == pos)
+            goto line_done;
+        // We now have a line between 'pos' and 'end', length 'end - pos'.
+        // Convert to HP-42S encoding:
+        int line_end;
+        strncpy(asciibuf, buf + pos, end - pos);
+        asciibuf[end - pos] = 0;
+        line_end = ascii2hp(line_buf, asciibuf, 1023);
+        // Perform additional translations, to support various 42S-to-text
+        // and 41-to-text conversion schemes:
+        line_end = text2hp(line_buf, line_end);
+        line_buf[line_end] = 0;
+        // Skip leading whitespace and line number.
+        int line_pos;
+        line_pos = 0;
+        while (line_buf[line_pos] == ' ')
+            line_pos++;
+        int prev_line_pos;
+        prev_line_pos = line_pos;
+        while (c = line_buf[line_pos], c >= '0' && c <= '9')
+            line_pos++;
+        if (prev_line_pos == line_pos)
+            // No line number? Not acceptable.
+            goto line_done;
+        // Line number should be followed by a run of one or more characters,
+        // which may be spaces, greater-than signs, or solid right-pointing
+        // triangle (a.k.a. goose), but all but one of those characters must
+        // be spaces
+        bool goose;
+        goose = false;
+        prev_line_pos = line_pos;
+        while (true) {
+            c = line_buf[line_pos];
+            if (c == '>' || c == 6) {
+                if (goose)
+                    break;
+                else
+                    goose = 1;
+            } else if (c != ' ')
+                break;
+            line_pos++;
+        }
+        if (line_pos == prev_line_pos)
+            // No space following line number? Not acceptable.
+            goto line_done;
+        // Now line_pos should be pointing at the first character of the
+        // command.
+        if (line_buf[line_pos] == 127 && line_buf[line_pos + 1] == '"') {
+            // Appended string
+            line_buf[line_pos + 1] = 127;
+            goto do_string;
+        } else if (line_buf[line_pos] == '"') {
+            do_string:
+            line_pos++;
+            // String literals can be up to 15 characters long, and they
+            // can contain double quotes. We scan forward for up to 15
+            // chars, and the final double quote we find is considered the
+            // end of the string; any intervening double quotes are considered
+            // to be part of the string.
+            int last_quote = -1;
+            int i;
+            for (i = 0; i < 16; i++) {
+                c = line_buf[line_pos + i];
+                if (c == 0)
+                    break;
+                if (c == '"')
+                    last_quote = i;
+            }
+            if (last_quote == -1)
+                // No closing quote? Fishy, but let's just grab 15
+                // characters and hope for the best.
+                last_quote = i < 15 ? i : 15;
+            cmd = CMD_STRING;
+            arg.type = ARGTYPE_STR;
+            arg.length = last_quote;
+            memcpy(arg.val.text, line_buf + line_pos, arg.length);
+        } else {
+
+        }
+
+        if (after_end)
+            goto_dot_dot();
+        after_end = cmd == CMD_END;
+        if (!after_end)
+            store_command_after(&pc, cmd, &arg);
+
+        line_done:
+        pos = end + 1;
+    }
+
+}
+
 void core_paste(const char *buf) {
+    if (mode_interruptible != NULL)
+        stop_interruptible();
+    set_running(false);
+
     if (flags.f.prgm_mode) {
-        display_error(ERR_NOT_YET_IMPLEMENTED, 0);
-        redisplay();
-        return;
+        paste_programs(buf);
     } else if (flags.f.alpha_mode) {
         char hpbuf[48];
         int len = ascii2hp(hpbuf, buf, 44);
