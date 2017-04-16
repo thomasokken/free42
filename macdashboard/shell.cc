@@ -134,8 +134,6 @@ static void gif_seeker(int pos) {
 void shell_blitter(const char *bits, int bytesperline, int x, int y,
 			     int width, int height)
 {
-    char buf[64];
-
     gif_file = fopen("display.gif", "w");
     shell_start_gif(gif_writer, 131, 16);
     shell_spool_gif(bits, bytesperline, 0, 0, 131, 16, gif_writer);
