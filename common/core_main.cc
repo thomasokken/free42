@@ -2829,7 +2829,10 @@ static void paste_programs(const char *buf) {
                         goto store;
                     }
                     case ARG_VAR:
-                    case ARG_REAL: {
+                    case ARG_REAL:
+                    case ARG_NUM9:
+                    case ARG_NUM11:
+                    case ARG_NUM99: {
                         bool ind = false;
                         int tok_start, tok_end;
                         if (!nexttoken(hpbuf, cmd_end, hpend, &tok_start, &tok_end))
@@ -2839,7 +2842,8 @@ static void paste_programs(const char *buf) {
                             if (!nexttoken(hpbuf, tok_end, hpend, &tok_start, &tok_end))
                                 goto line_done;
                         }
-                        if (string_equals(hpbuf + tok_start, tok_end - tok_start, "ST", 2)) {
+                        if ((argtype == ARG_VAR || argtype == ARG_REAL || ind)
+                                && string_equals(hpbuf + tok_start, tok_end - tok_start, "ST", 2)) {
                             arg.type = ind ? ARGTYPE_IND_STK : ARGTYPE_STK;
                             if (!nexttoken(hpbuf, tok_end, hpend, &tok_start, &tok_end))
                                 goto line_done;
@@ -2852,13 +2856,24 @@ static void paste_programs(const char *buf) {
                             arg.val.stk = c;
                             goto store;
                         }
+                        if (!ind && argtype == ARG_NUM9) {
+                            if (tok_end - tok_start == 1 && isdigit(hpbuf[tok_start])) {
+                                arg.type = ARGTYPE_NUM;
+                                arg.val.num = hpbuf[tok_start] - '0';
+                                goto store;
+                            }
+                            goto line_done;
+                        }
                         if (tok_end - tok_start == 2 && isdigit(hpbuf[tok_start])
                                                      && isdigit(hpbuf[tok_start + 1])) {
                             arg.type = ind ? ARGTYPE_IND_NUM : ARGTYPE_NUM;
                             sscanf(hpbuf + tok_start, "%02d", &arg.val.num);
+                            if (!ind && argtype == ARG_NUM11 && arg.val.num > 11)
+                                goto line_done;
                             goto store;
                         }
-                        if (hpbuf[tok_start] == '"') {
+                        if ((argtype == ARG_VAR || argtype == ARG_REAL || ind)
+                                && hpbuf[tok_start] == '"') {
                             arg.type = ind ? ARGTYPE_IND_STR : ARGTYPE_STR;
                             hppos = tok_start + 1;
                             // String arguments can be up to 7 characters long, and they
