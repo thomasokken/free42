@@ -2482,12 +2482,8 @@ static int text2hp(char *buf, int len) {
                 break;
             }
         }
-        if (al == 0) {
-            char c = buf[srcpos++];
-            if (isspace(c))
-                c = ' ';
-            buf[dstpos++] = c;
-        }
+        if (al == 0)
+            buf[dstpos++] = buf[srcpos++];
     }
     return dstpos;
 }
