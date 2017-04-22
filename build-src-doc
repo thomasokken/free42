@@ -1,9 +1,8 @@
 #!/bin/sh -e
 
-# This script builds the Generic, iPhone, and Android skins packages, and the
-# regular and Upstream source packages.
+# This script builds the regular and upstream source packages,
+# and minimally HTMLified versions of HISTORY and TODO.
 
-unset BCD_MATH
 mkdir -p packages
 
 # Source package
