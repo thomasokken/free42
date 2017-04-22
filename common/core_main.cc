@@ -1549,7 +1549,7 @@ static int getbyte(char *buf, int *bufptr, int *buflen, int maxlen) {
     return (unsigned char) buf[(*bufptr)++];
 }
 
-static phloat parse_number_line(const char *buf) {
+static phloat parse_number_line(char *buf) {
     phloat res;
 #ifdef BCD_MATH
     res = Phloat(buf);
