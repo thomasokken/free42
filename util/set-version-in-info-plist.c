@@ -29,10 +29,6 @@ int main() {
         char *p = version + vlen;
         sprintf(p, "%d", ((int) c) - 96);
     }
-    char short_version[100];
-    char *dot = strchr(version, '.');
-    strncpy(short_version, version, dot - version);
-    strcat(short_version, dot + 1);
     int state = 0;
     char line[1024], newline[1024];
     FILE *newinfoplistfile = fopen("Info.plist.new", "w");
@@ -59,7 +55,7 @@ int main() {
                 len = p - line;
                 memcpy(newline, line, len);
                 newline[len] = 0;
-                strcat(newline, state == 1 ? version : short_version);
+                strcat(newline, version);
                 strcat(newline, p2);
                 strcpy(line, newline);
                 success |= state;

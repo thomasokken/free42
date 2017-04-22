@@ -30,8 +30,7 @@ Linux version:
   /sys/class/power_supply.
 
 All versions:
-* PRGM paste: accept text from the clipboard and parse it like txt2raw; accept
-  URLs and load them as raw files if they look like raw files, and parse them
-  like txt2raw otherwise.
+* PRGM paste: accept URLs and load them as raw files if they look like raw
+  files, and parse them as program listings if they look like text.
 * Add a feature for importing and exporting variables from and to CSV files.
 * Add link to 42s.pdf in the About box.
