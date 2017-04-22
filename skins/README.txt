@@ -1,12 +1,3 @@
-If you are using Windows, put the skins in the Free42 directory. By default,
-this is the directory containing the Free42 executable, but its location can be
-changed in the preferences dialog. Note: If you set the Free42 directory to a
-location other than the executable's directory, you may put skins in both
-locations.
-If you are using Unix, put the skins in $HOME/.free42/.
-
--------------------------------------------------------------------------------
-
 Free42 skin description (*.layout) file format:
 Anything from a '#' until the end of the line is a comment
 Non-comment lines contain the following information:
