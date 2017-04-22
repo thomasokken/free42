@@ -1549,6 +1549,43 @@ static int getbyte(char *buf, int *bufptr, int *buflen, int maxlen) {
     return (unsigned char) buf[(*bufptr)++];
 }
 
+static phloat parse_number_line(const char *buf) {
+    phloat res;
+#ifdef BCD_MATH
+    res = Phloat(buf);
+    int s = p_isinf(res);
+    if (s > 0)
+        res = POS_HUGE_PHLOAT;
+    else if (s < 0)
+        res = NEG_HUGE_PHLOAT;
+#else
+    BID_UINT128 d;
+    bid128_from_string(&d, buf);
+    bid128_to_binary64(&res, &d);
+    if (res == 0) {
+        int zero = 0;
+        BID_UINT128 z;
+        bid128_from_int32(&z, &zero);
+        int r;
+        bid128_quiet_equal(&r, &d, &z);
+        if (!r) {
+            bid128_isSigned(&r, &d);
+            if (r)
+                res = NEG_TINY_PHLOAT;
+            else
+                res = POS_TINY_PHLOAT;
+        }
+    } else {
+        int s = p_isinf(res);
+        if (s > 0)
+            res = POS_HUGE_PHLOAT;
+        else if (s < 0)
+            res = NEG_HUGE_PHLOAT;
+    }
+#endif
+    return res;
+}
+
 void core_import_programs(int (*progress_report)(const char *)) {
     char buf[1000];
     int i, nread = 0;
@@ -1635,38 +1672,7 @@ void core_import_programs(int (*progress_report)(const char *)) {
                 else if (byte1 != 0x00)
                     pos--;
                 numbuf[numlen++] = 0;
-#ifdef BCD_MATH
-                arg.val_d = Phloat(numbuf);
-                int s = p_isinf(arg.val_d);
-                if (s > 0)
-                    arg.val_d = POS_HUGE_PHLOAT;
-                else if (s < 0)
-                    arg.val_d = NEG_HUGE_PHLOAT;
-#else
-                BID_UINT128 d;
-                bid128_from_string(&d, numbuf);
-                bid128_to_binary64(&arg.val_d, &d);
-                if (arg.val_d == 0) {
-                    int zero = 0;
-                    BID_UINT128 z;
-                    bid128_from_int32(&z, &zero);
-                    int r;
-                    bid128_quiet_equal(&r, &d, &z);
-                    if (!r) {
-                        bid128_isSigned(&r, &d);
-                        if (r)
-                            arg.val_d = NEG_TINY_PHLOAT;
-                        else
-                            arg.val_d = POS_TINY_PHLOAT;
-                    }
-                } else {
-                    int s = p_isinf(arg.val_d);
-                    if (s > 0)
-                        arg.val_d = POS_HUGE_PHLOAT;
-                    else if (s < 0)
-                        arg.val_d = NEG_HUGE_PHLOAT;
-                }
-#endif
+                arg.val_d = parse_number_line(numbuf);
                 cmd = CMD_NUMBER;
                 arg.type = ARGTYPE_DOUBLE;
             } else if (byte1 == 0x1D || byte1 == 0x1E) {
@@ -2457,6 +2463,8 @@ static text_alias aliases[] = {
     { 2,    9, "<="       },
     { 2,   11, ">="       },
     { 2,   12, "!="       },
+    { 2,   15, "->"       },
+    { 2,   16, "<-"       },
     { 6,   23, "\\angle"  },
     { 4,   26, "\\esc"    },
     { 6,   30, "\\gray2"  },
@@ -2818,11 +2826,83 @@ static void paste_programs(const char *buf) {
             if (cmd_end == hppos)
                 goto line_done;
             cmd = find_builtin(hpbuf + hppos, cmd_end - hppos);
-            if (cmd != CMD_NONE) {
-                int flags = cmdlist(cmd)->flags;
+            int tok_start, tok_end;
+            int argtype;
+            bool stk_allowed = true;
+            bool string_required = false;
+            if (cmd == CMD_SIZE) {
+                if (!nexttoken(hpbuf, cmd_end, hpend, &tok_start, &tok_end))
+                    goto line_done;
+                int len = tok_end - tok_start;
+                if (len > 4)
+                    goto line_done;
+                int sz = 0;
+                while (len > 0) {
+                    char c = hpbuf[tok_start + (--len)];
+                    if (c < '0' || c > '9')
+                        goto line_done;
+                    sz = sz * 10 + c - '0';
+                }
+                arg.type = ARGTYPE_NUM;
+                arg.val.num = sz;
+                goto store;
+            } else if (cmd == CMD_ASSIGNa) {
+                // What we're looking for is '".*"  *TO  *[0-9][0-9]'
+                tok_end = hppos;
+                bool after_to = false;
+                int to_start;
+                int keynum;
+                while (true) {
+                    if (!nexttoken(hpbuf, tok_end, hpend, &tok_start, &tok_end))
+                        goto line_done;
+                    int len = tok_end - tok_start;
+                    if (after_to) {
+                        if (len != 2 || !isdigit(hpbuf[tok_start])
+                                     || !isdigit(hpbuf[tok_start + 1])) {
+                            after_to = string_equals(hpbuf + tok_start, len, "TO", 2);
+                            if (after_to)
+                                to_start = tok_start;
+                            continue;
+                        }
+                        after_to = false;
+                        sscanf(hpbuf + tok_start, "%02d", &keynum);
+                        if (keynum < 1 || keynum > 18)
+                            continue;
+                        else
+                            break;
+                    } else {
+                        after_to = string_equals(hpbuf + tok_start, len, "TO", 2);
+                        if (after_to)
+                            to_start = tok_start;
+                    }
+                }
+                // Between hppos (inclusive) and to_start (exclusive),
+                // there should be a quote-delimited string...
+                while (hppos < hpend && hpbuf[hppos] != '"')
+                    hppos++;
+                if (hppos == hpend)
+                    goto line_done;
+                to_start--;
+                while (to_start > hppos && hpbuf[to_start] != '"')
+                    to_start--;
+                if (to_start == hppos)
+                    // Only one quote sign found
+                    goto line_done;
+                int len = to_start - hppos - 1;
+                if (len > 7)
+                    len = 7;
+                cmd = CMD_ASGN01 + keynum - 1;
+                arg.type = ARGTYPE_STR;
+                arg.length = len;
+                memcpy(arg.val.text, hpbuf + hppos + 1, len);
+                goto store;
+            } else if (cmd != CMD_NONE) {
+                int flags;
+                flags = cmdlist(cmd)->flags;
                 if ((flags & (FLAG_IMMED | FLAG_HIDDEN | FLAG_NO_PRGM)) != 0)
                     goto line_done;
-                int argtype = cmdlist(cmd)->argtype;
+                argtype = cmdlist(cmd)->argtype;
+                bool ind;
                 switch (argtype) {
                     case ARG_NONE: {
                         arg.type = ARGTYPE_NONE;
@@ -2833,17 +2913,22 @@ static void paste_programs(const char *buf) {
                     case ARG_NUM9:
                     case ARG_NUM11:
                     case ARG_NUM99: {
-                        bool ind = false;
-                        int tok_start, tok_end;
+                        string_only:
+                        ind = false;
                         if (!nexttoken(hpbuf, cmd_end, hpend, &tok_start, &tok_end))
                             goto line_done;
                         if (string_equals(hpbuf + tok_start, tok_end - tok_start, "IND", 3)) {
                             ind = true;
+                            if (cmd == CMD_CLP || cmd == CMD_MVAR)
+                                goto line_done;
                             if (!nexttoken(hpbuf, tok_end, hpend, &tok_start, &tok_end))
                                 goto line_done;
                         }
+                        num_or_string:
                         if ((argtype == ARG_VAR || argtype == ARG_REAL || ind)
                                 && string_equals(hpbuf + tok_start, tok_end - tok_start, "ST", 2)) {
+                            if (!ind && (!stk_allowed || string_required))
+                                goto line_done;
                             arg.type = ind ? ARGTYPE_IND_STK : ARGTYPE_STK;
                             if (!nexttoken(hpbuf, tok_end, hpend, &tok_start, &tok_end))
                                 goto line_done;
@@ -2856,6 +2941,20 @@ static void paste_programs(const char *buf) {
                             arg.val.stk = c;
                             goto store;
                         }
+                        if ((argtype == ARG_VAR || argtype == ARG_REAL || ind)
+                                && tok_end - tok_start == 1) {
+                            // Accept RCL Z etc., instead of RCL ST Z, for
+                            // HP-41 compatibilitry.
+                            char c = hpbuf[tok_start];
+                            if (c == 'X' || c == 'Y' || c == 'Z' || c == 'T'
+                                    || c == 'L') {
+                                if (!ind && (!stk_allowed || string_required))
+                                    goto line_done;
+                                arg.type = ind ? ARGTYPE_IND_STK : ARGTYPE_STK;
+                                arg.val.stk = c;
+                                goto store;
+                            }
+                        }
                         if (!ind && argtype == ARG_NUM9) {
                             if (tok_end - tok_start == 1 && isdigit(hpbuf[tok_start])) {
                                 arg.type = ARGTYPE_NUM;
@@ -2866,6 +2965,8 @@ static void paste_programs(const char *buf) {
                         }
                         if (tok_end - tok_start == 2 && isdigit(hpbuf[tok_start])
                                                      && isdigit(hpbuf[tok_start + 1])) {
+                            if (!ind && string_required)
+                                goto line_done;
                             arg.type = ind ? ARGTYPE_IND_NUM : ARGTYPE_NUM;
                             sscanf(hpbuf + tok_start, "%02d", &arg.val.num);
                             if (!ind && argtype == ARG_NUM11 && arg.val.num > 11)
@@ -2875,6 +2976,7 @@ static void paste_programs(const char *buf) {
                         if ((argtype == ARG_VAR || argtype == ARG_REAL || ind)
                                 && hpbuf[tok_start] == '"') {
                             arg.type = ind ? ARGTYPE_IND_STR : ARGTYPE_STR;
+                            handle_string_arg:
                             hppos = tok_start + 1;
                             // String arguments can be up to 7 characters long, and they
                             // can contain double quotes. We scan forward for up to 7
@@ -2900,12 +3002,124 @@ static void paste_programs(const char *buf) {
                         }
                         goto line_done;
                     }
+                    case ARG_PRGM:
+                    case ARG_NAMED:
+                    case ARG_MAT:
+                    case ARG_RVAR: {
+                        string_required = true;
+                        stk_allowed = false;
+                        argtype = ARG_VAR;
+                        goto string_only;
+                    }
+                    case ARG_LBL: {
+                        tok_end = cmd_end;
+                        gto_or_xeq:
+                        if (!nexttoken(hpbuf, tok_end, hpend, &tok_start, &tok_end))
+                            goto line_done;
+                        ind = false;
+                        if (string_equals(hpbuf + tok_start, tok_end - tok_start, "IND", 3)) {
+                            ind = true;
+                            if (!nexttoken(hpbuf, tok_end, hpend, &tok_start, &tok_end))
+                                goto line_done;
+                        }
+                        if (cmd == CMD_LBL && ind)
+                            goto line_done;
+                        if (tok_end - tok_start == 1) {
+                            char c = hpbuf[tok_start];
+                            if (c >= 'A' && c <= 'J' || c >= 'a' && c <= 'e') {
+                                arg.type = ARGTYPE_LCLBL;
+                                arg.val.lclbl = c;
+                                goto store;
+                            } else
+                                goto line_done;
+                        }
+                        argtype = ARG_VAR;
+                        stk_allowed = false;
+                        goto num_or_string;
+                    }
+                    case ARG_OTHER: {
+                        if (cmd == CMD_LBL) {
+                            tok_end = cmd_end;
+                            goto gto_or_xeq;
+                        }
+                        goto line_done;
+                    }
                     default:
                         goto line_done;
                 }
-
+            } else if (string_equals(hpbuf + hppos, cmd_end - hppos, "KEY", 3)) {
+                // KEY GTO or KEY XEQ
+                if (!nexttoken(hpbuf, cmd_end, hpend, &tok_start, &tok_end))
+                    goto line_done;
+                if (tok_end - tok_start != 1)
+                    goto line_done;
+                char c = hpbuf[tok_start];
+                if (c < '1' || c > '9')
+                    goto line_done;
+                if (!nexttoken(hpbuf, tok_end, hpend, &tok_start, &tok_end))
+                    goto line_done;
+                if (string_equals(hpbuf + tok_start, tok_end - tok_start, "GTO", 3))
+                    cmd = CMD_KEY1G + c - '1';
+                else if (string_equals(hpbuf + tok_start, tok_end - tok_start, "XEQ", 3))
+                    cmd = CMD_KEY1X + c - '1';
+                else
+                    goto line_done;
+                goto gto_or_xeq;
+            } else if (string_equals(hpbuf + hppos, cmd_end - hppos, ".END.", 5)) {
+                cmd = CMD_END;
+                arg.type = ARGTYPE_NONE;
+                goto store;
+            } else if (string_equals(hpbuf + hppos, cmd_end - hppos, "XROM", 4)) {
+                // Should hanle num,num and "lbl"
+                if (!nexttoken(hpbuf, cmd_end, hpend, &tok_start, &tok_end))
+                    goto line_done;
+                if (hpbuf[tok_start] == '"') {
+                    arg.type = ARGTYPE_STR;
+                    cmd = CMD_XEQ;
+                    goto handle_string_arg;
+                }
+                int len = tok_end - tok_start;
+                if (len > 5)
+                    goto line_done;
+                char xrombuf[6];
+                memcpy(xrombuf, hpbuf + tok_start, len);
+                xrombuf[len] = 0;
+                int a, b;
+                if (sscanf(xrombuf, "%d,%d", &a, &b) != 2)
+                    goto line_done;
+                if (a < 0 || a > 31 || b < 0 || b > 63)
+                    goto line_done;
+                cmd = CMD_XROM;
+                arg.type = ARGTYPE_NUM;
+                arg.val.num = (a << 6) | b;
+                goto store;
             } else {
-                // Handle ASSIGN, KEY GTO, KEY XEQ, numbers, ...
+                // Number or bust!
+                if (nexttoken(hpbuf, hppos, hpend, &tok_start, &tok_end)) {
+                    char c = hpbuf[tok_start];
+                    if (c >= '0' && c <= '9' || c == '-' || c == '.' || c == ','
+                            || c == 'E' || c == 'e' || c == 24) {
+                        // The first character could plausibly be part of a number;
+                        // let's run with it.
+                        int len = tok_end - tok_start;
+                        if (len > 49)
+                            len = 49;
+                        char numbuf[50];
+                        for (int i = 0; i < len; i++) {
+                            c = hpbuf[tok_start + i];
+                            if (c == 'e' || c == 24)
+                                c = 'E';
+                            else if (c == ',')
+                                c = '.';
+                            numbuf[i] = c;
+                        }
+                        numbuf[len] = 0;
+                        cmd = CMD_NUMBER;
+                        arg.val_d = parse_number_line(numbuf);
+                        arg.type = ARGTYPE_DOUBLE;
+                        goto store;
+                    }
+                }
                 goto line_done;
             }
         }
@@ -2920,7 +3134,6 @@ static void paste_programs(const char *buf) {
         line_done:
         pos = end + 1;
     }
-
 }
 
 void core_paste(const char *buf) {
