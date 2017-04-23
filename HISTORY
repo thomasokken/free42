@@ -1,4 +1,11 @@
-????-??-??: release 2.0
+????-??-??: release 2.0.1
+
+* Change right-pointing triangle from Unicode U+25B6 (black right-pointing
+  triangle) to U+25B8 (black right-pointing small triangle); the former gets
+  rendered as an emoji in iOS, while the latter doesn't, plus, the smaller
+  triangle looks better in listings anyway.
+
+2017-04-22: release 2.0 (beta)
 
 * Copy & Paste now handle matrices, ALPHA mode, and PRGM mode.
 

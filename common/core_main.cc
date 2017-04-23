@@ -2311,39 +2311,41 @@ static int ascii2hp(char *dst, const char *src, int maxchars) {
         }
         // Perform the inverse of the translation in hp2ascii()
         switch (code) {
-            case 0x00f7: code =   0; break;
-            case 0x00d7: code =   1; break;
-            case 0x221a: code =   2; break;
-            case 0x222b: code =   3; break;
-            case 0x2592: code =   4; break;
-            case 0x03a3: code =   5; break;
-            case 0x25b6: code =   6; break;
-            case 0x03c0: code =   7; break;
-            case 0x00bf: code =   8; break;
-            case 0x2264: code =   9; break;
-            case 0x2265: code =  11; break;
-            case 0x2260: code =  12; break;
-            case 0x21b5: code =  13; break;
-            case 0x2193: code =  14; break;
-            case 0x2192: code =  15; break;
-            case 0x2190: code =  16; break;
-            case 0x03bc: code =  17; break;
-            case 0x00a3: code =  18; break;
-            case 0x00b0: code =  19; break;
-            case 0x00c5: code =  20; break;
-            case 0x00d1: code =  21; break;
-            case 0x00c4: code =  22; break;
-            case 0x2220:
-            case 0x2221: code =  23; break;
-            case 0x1d07: code =  24; break;
-            case 0x00c6: code =  25; break;
-            case 0x2026: code =  26; break;
-            case 0x00d6: code =  28; break;
-            case 0x00dc: code =  29; break;
-            case 0x2022: code =  31; break;
-            case 0x2191: code =  94; break;
-            case 0x251c: code = 127; break;
-            case 0x028f: code = 129; break;
+            case 0x00f7: code =   0; break; // division sign
+            case 0x00d7: code =   1; break; // multiplication sign
+            case 0x221a: code =   2; break; // square root sign
+            case 0x222b: code =   3; break; // integral sign
+            case 0x2592: code =   4; break; // gray rectangle
+            case 0x03a3: code =   5; break; // Uppercase sigma 
+            case 0x25b6:                    // right-pointing triangle
+            case 0x25b8: code =   6; break; // small right-pointing triangle
+            case 0x03c0: code =   7; break; // lowercase pi
+            case 0x00bf: code =   8; break; // upside-down question mark
+            case 0x2264: code =   9; break; // less-than-or-equals sign
+            case 0x2265: code =  11; break; // greater-than-or-equals sign
+            case 0x2260: code =  12; break; // not-equals sign
+            case 0x21b5: code =  13; break; // down-then-left arrow
+            case 0x2193: code =  14; break; // downward-pointing arrow
+            case 0x2192: code =  15; break; // right-pointing arrow
+            case 0x2190: code =  16; break; // left-pointing arrow
+            case 0x00b5:                    // micro sign
+            case 0x03bc: code =  17; break; // lowercase mu
+            case 0x00a3: code =  18; break; // pound sterling sign
+            case 0x00b0: code =  19; break; // degree symbol
+            case 0x00c5: code =  20; break; // uppercase a with ring
+            case 0x00d1: code =  21; break; // uppercase n with tilde
+            case 0x00c4: code =  22; break; // uppercase a with umlaut
+            case 0x2220:                    // angle symbol
+            case 0x2221: code =  23; break; // measured angle symbol
+            case 0x1d07: code =  24; break; // small-caps e
+            case 0x00c6: code =  25; break; // uppercase ae ligature
+            case 0x2026: code =  26; break; // ellipsis
+            case 0x00d6: code =  28; break; // uppercase o with umlaut
+            case 0x00dc: code =  29; break; // uppercase u with umlaut
+            case 0x2022: code =  31; break; // bullet
+            case 0x2191: code =  94; break; // upward-pointing arrow
+            case 0x251c: code = 127; break; // append sign
+            case 0x028f: code = 129; break; // small-caps y
             // Combining accents: apply them if they fit,
             // otherwise ignore them
             case 0x0303:
