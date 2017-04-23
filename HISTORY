@@ -4,6 +4,7 @@
   triangle) to U+25B8 (black right-pointing small triangle); the former gets
   rendered as an emoji in iOS, while the latter doesn't, plus, the smaller
   triangle looks better in listings anyway.
+* MacDashboard version: Fixed multi-line pasting.
 
 2017-04-22: release 2.0 (beta)
 
