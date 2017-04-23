@@ -48,8 +48,8 @@ function doPaste(event)
         // Temporarily change CR to US, and LF to RS, just so the entire
         // clipboard contents can be treated as a single line of text;
         // we'll undo this encoding in the native code.
-        clip = clip.replace('\r', '\037');
-        clip = clip.replace('\n', '\036');
+        clip = clip.replace(/\r/g, '\037');
+        clip = clip.replace(/\n/g, '\036');
 	t_instance.write("P" + clip + "\n");
 
 	event.preventDefault();
