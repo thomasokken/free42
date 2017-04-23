@@ -518,7 +518,7 @@ sighand(int)
 int
 main(int argc, char *argv[])
 {
-    char cmd[256];
+    char cmd[65536];
     unsigned char *macro;
     int keyno, ctrl, alt, shift;
     int repeat;
@@ -621,7 +621,15 @@ main(int argc, char *argv[])
 	    done:
 	    break;
 	case 'P':
-	    core_paste(cmd + 1);
+            char c;
+            char *p;
+            for (p = cmd + 1; (c = *p) != 0; p++) {
+                if (c == 31)
+                    *p = 13;
+                else if (c == 30)
+                    *p = 10;
+            }
+            core_paste(cmd + 1);
 	    redisplay();
 	    break;
 	case 'e':

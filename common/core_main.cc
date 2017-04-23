@@ -2587,7 +2587,7 @@ static int parse_scalar(const char *buf, int len, phloat *re, phloat *im, char *
     polar = true;
     goto finish_complex;
 
-    /* Try matching " %g[+-]%gi " */
+    /* Try matching " %g[+-]%g[ij] " */
     attempt_2:
     i = 0;
     while (i < len && buf[i] == ' ')
@@ -2598,7 +2598,8 @@ static int parse_scalar(const char *buf, int len, phloat *re, phloat *im, char *
     s2 = i;
     i = scan_number(buf, len, i);
     e2 = i;
-    if (i < len && (buf[i] == 'i' || buf[i] == 'I'))
+    if (i < len && (buf[i] == 'i' || buf[i] == 'I'
+                 || buf[i] == 'j' || buf[i] == 'J'))
         i++;
     else
         goto attempt_3;
