@@ -36,4 +36,5 @@ Linux version:
 All versions:
 * Add a feature for importing and exporting variables from and to CSV files.
 * Add a feature for importing and exporting programs from and to text files.
+* Add a feature for previewing and installing skins from the web.
 * Add link to 42s.pdf in the About box.
