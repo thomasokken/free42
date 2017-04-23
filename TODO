@@ -1,10 +1,14 @@
 Android version:
+* With some combinations of skins and screens, there are glitches in the
+  display -- thin black lines, things being slightly out of alignment.
 * Implement ON / flag 44.
 
 iPhone version:
-* Preferences looks a bit ugly in iOS 7, because the now-much-smaller switches
-  no longer line up with the right margin. How do I create a settings screen
-  that looks more like the iOS Settings app?
+* With some combinations of skins and screens, there are glitches in the
+  display -- thin black lines, things being slightly out of alignment.
+* Preferences looks a bit ugly in iOS 7 and later, because the now-much-smaller
+  switches no longer line up with the right margin. How do I create a settings
+  screen that looks more like the iOS Settings app?
 * Add option to disable key click.
 * Haptic feedback option.
 * Support landscape mode.
@@ -30,7 +34,6 @@ Linux version:
   /sys/class/power_supply.
 
 All versions:
-* PRGM paste: accept URLs and load them as raw files if they look like raw
-  files, and parse them as program listings if they look like text.
 * Add a feature for importing and exporting variables from and to CSV files.
+* Add a feature for importing and exporting programs from and to text files.
 * Add link to 42s.pdf in the About box.
