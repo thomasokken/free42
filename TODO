@@ -29,12 +29,31 @@ Mac version:
   extensions to file names automagically when appropriate.
 * Implement low-battery checker.
 
+MacDashboard version:
+* Is it possible to call core_copy() only when the user actually presses Cmd-C,
+  and not every time shell_blitter() is called? The old logic was fine when all
+  Free42 would copy were scalars from the X register, but now that matrices and
+  programs can be copied, that approach really should go.
+
 Linux version:
 * Update low-battery checker to work with /proc/acpi/battery and
   /sys/class/power_supply.
 
 All versions:
+* Copy and paste should respect flag 28 *and* the host's locale.
+* Add setting for "always copy full precision" vs. "copy full precision only in
+  ALL mode" (scalars only).
 * Add a feature for importing and exporting variables from and to CSV files.
 * Add a feature for importing and exporting programs from and to text files.
 * Add a feature for previewing and installing skins from the web.
 * Add link to 42s.pdf in the About box.
+
+Skins:
+* Scan the message board for skins that haven't yet been entered into my
+  repository.
+* Generate the skins index, and zipped bundles for desktop, Android, and iOS,
+  on the dev machine; don't rely on PHP because it's too slow for this, and
+  because it sucks at dealing with Unicode.
+* iOS won't show the title text for an image on long-press if that image is
+  enclosed in an <a> tag. What to do? Should we just show the blurb instead
+  of hiding it in a tooltip?
