@@ -1,4 +1,12 @@
-2017-04-24: release 2.0.1
+????-??-??: release 2.0.2
+
+* In Unicode-to-HP conversion, translate "\LF" and "[LF]" to 10, not 138.
+  Character 138 only exists to *represent* LF, but isn't available in the ALPHA
+  menu and therefore cannot appear in non-synthetic programs.
+* Unicode-to-HP conversion handles curly quotes now (U+2018, U+2019, U+201C,
+  U+201D).
+
+2017-04-23: release 2.0.1 (beta)
 
 * Change right-pointing triangle from Unicode U+25B6 (black right-pointing
   triangle) to U+25B8 (black right-pointing small triangle); the former gets

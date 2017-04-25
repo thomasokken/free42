@@ -2343,6 +2343,10 @@ static int ascii2hp(char *dst, const char *src, int maxchars) {
             case 0x00d6: code =  28; break; // uppercase o with umlaut
             case 0x00dc: code =  29; break; // uppercase u with umlaut
             case 0x2022: code =  31; break; // bullet
+            case 0x201c:                    // left curly double quote
+            case 0x201d: code =  34; break; // right curly double quote
+            case 0x2018:                    // left curly single quote
+            case 0x2019: code =  39; break; // right curly single quote
             case 0x2191: code =  94; break; // upward-pointing arrow
             case 0x251c: code = 127; break; // append sign
             case 0x028f: code = 129; break; // small-caps y
@@ -2420,7 +2424,7 @@ static int ascii2hp(char *dst, const char *src, int maxchars) {
                 break;
             case 3:
                 if (code == ']') {
-                    code = 138;
+                    code = 10;
                     dstpos -= 3;
                 }
                 state = 0;
@@ -2463,6 +2467,7 @@ static text_alias aliases[] = {
     { 6,    5, "\\Sigma"  },
     { 3,    7, "\\pi"     },
     { 2,    9, "<="       },
+    { 3,   10, "\\LF"     },
     { 2,   11, ">="       },
     { 2,   12, "!="       },
     { 2,   15, "->"       },
@@ -2473,7 +2478,6 @@ static text_alias aliases[] = {
     { 7,   31, "\\bullet" },
     { 2, '\\', "\\\\"     },
     { 2,  127, "|-"       },
-    { 3,  138, "\\LF"     },
     { 1,   17, "\265"     },
     { 0,    0, ""         }
 };
