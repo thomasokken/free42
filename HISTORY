@@ -1,4 +1,4 @@
-????-??-??: release 2.0.2
+2017-04-28: release 2.0.2
 
 * In Unicode-to-HP conversion, translate "\LF" and "[LF]" to 10, not 138.
   Character 138 only exists to *represent* LF, but isn't available in the ALPHA

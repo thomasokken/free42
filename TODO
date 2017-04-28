@@ -47,13 +47,3 @@ All versions:
 * Add a feature for importing and exporting programs from and to text files.
 * Add a feature for previewing and installing skins from the web.
 * Add link to 42s.pdf in the About box.
-
-Skins:
-* Scan the message board for skins that haven't yet been entered into my
-  repository.
-* Generate the skins index, and zipped bundles for desktop, Android, and iOS,
-  on the dev machine; don't rely on PHP because it's too slow for this, and
-  because it sucks at dealing with Unicode.
-* iOS won't show the title text for an image on long-press if that image is
-  enclosed in an <a> tag. What to do? Should we just show the blurb instead
-  of hiding it in a tooltip?
