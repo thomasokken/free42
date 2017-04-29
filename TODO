@@ -29,18 +29,15 @@ Mac version:
   extensions to file names automagically when appropriate.
 * Implement low-battery checker.
 
-MacDashboard version:
-* Is it possible to call core_copy() only when the user actually presses Cmd-C,
-  and not every time shell_blitter() is called? The old logic was fine when all
-  Free42 would copy were scalars from the X register, but now that matrices and
-  programs can be copied, that approach really should go.
-
 Linux version:
 * Update low-battery checker to work with /proc/acpi/battery and
   /sys/class/power_supply.
 
 All versions:
 * Copy and paste should respect flag 28 *and* the host's locale.
+* Program pasting should be case-insensitive (except for local labels and ALPHA
+  strings, of course)
+* Program pasting should accept listings without line numbers.
 * Add setting for "always copy full precision" vs. "copy full precision only in
   ALL mode" (scalars only).
 * Add a feature for importing and exporting variables from and to CSV files.
