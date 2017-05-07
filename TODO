@@ -1,9 +1,10 @@
 Android version:
+* Implement ON / flag 44.
 * With some combinations of skins and screens, there are glitches in the
   display -- thin black lines, things being slightly out of alignment.
-* Implement ON / flag 44.
 
 iPhone version:
+* Implement ON / flag 44.
 * With some combinations of skins and screens, there are glitches in the
   display -- thin black lines, things being slightly out of alignment.
 * Preferences looks a bit ugly in iOS 7 and later, because the now-much-smaller
@@ -12,7 +13,6 @@ iPhone version:
 * Add option to disable key click.
 * Haptic feedback option.
 * Support landscape mode.
-* Implement ON / flag 44.
 
 Windows version:
 * Press a key with the mouse, then move the mouse outside of the window, then
@@ -34,14 +34,18 @@ Linux version:
   /sys/class/power_supply.
 
 All versions:
-* Copy and paste should respect flag 28 *and* the host's locale.
-* Program pasting should be case-insensitive (except for local labels and ALPHA
-  strings, of course)
+* Add a feature for previewing and installing skins from the web.
 * Program pasting should accept listings without line numbers.
-* Add setting for "always copy full precision" vs. "copy full precision only in
-  ALL mode" (scalars only).
+* Change scalar copy so it only copies full precision in ALL mode.
 * Remove "raw text" printing option.
 * Add a feature for importing and exporting variables from and to CSV files.
 * Add a feature for importing and exporting programs from and to text files.
-* Add a feature for previewing and installing skins from the web.
 * Add link to 42s.pdf in the About box.
+* Maybe program pasting should be case-insensitive (except for local labels and
+  ALPHA strings, of course)
+* Printer emulation: some aspects of TRACE (and probably also NORM) mode
+  behavior don't match the original. Two specific cases: the original prints
+  feedback when you enter or exit menus ("BASE", "A..F", "EXIT") though not
+  always (PRGM mode?); DIM? prints the value returned in X, while Free42 prints
+  nothing. I'm sure there are more cases, and I should just check them with
+  Emu42 with the HP-82240B emulator.
