@@ -388,7 +388,6 @@ static bool is_file(const char *name);
     [prefsAutoRepeat setState:core_settings.auto_repeat];
     [prefsPrintText setState:state.printerToTxtFile];
     [prefsPrintTextFile setStringValue:[NSString stringWithCString:state.printerTxtFileName encoding:NSUTF8StringEncoding]];
-    [prefsPrintTextRaw setState:core_settings.raw_text];
     [prefsPrintGIF setState:state.printerToGifFile];
     [prefsPrintGIFFile setStringValue:[NSString stringWithCString:state.printerGifFileName encoding:NSUTF8StringEncoding]];
     [prefsPrintGIFMaxHeight setStringValue:[NSString stringWithFormat:@"%d", state.printerGifMaxLength]];
@@ -410,7 +409,6 @@ static bool is_file(const char *name);
         print_txt = NULL;
     }
     strcpy(state.printerTxtFileName, buf);
-    core_settings.raw_text = [prefsPrintTextRaw state];
     state.printerToGifFile = [prefsPrintGIF state];
     [[prefsPrintGIFFile stringValue] getCString:buf maxLength:FILENAMELEN encoding:NSUTF8StringEncoding];
     len = strlen(buf);
