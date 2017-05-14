@@ -1084,10 +1084,6 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
                 SendMessage(ctl, BM_SETCHECK, 1, 0);
             }
             SetDlgItemText(hDlg, IDC_PRINTER_TXT_NAME, state.printerTxtFileName);
-            if (core_settings.raw_text) {
-                ctl = GetDlgItem(hDlg, IDC_RAW_TEXT);
-                SendMessage(ctl, BM_SETCHECK, 1, 0);
-            }
             if (state.printerToGifFile) {
                 ctl = GetDlgItem(hDlg, IDC_PRINTER_GIF);
                 SendMessage(ctl, BM_SETCHECK, 1, 0);
@@ -1132,8 +1128,6 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
                         print_txt = NULL;
                     }
                     strcpy(state.printerTxtFileName, buf);
-                    ctl = GetDlgItem(hDlg, IDC_RAW_TEXT);
-                    core_settings.raw_text = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
                     ctl = GetDlgItem(hDlg, IDC_PRINTER_GIF);
                     state.printerToGifFile = SendMessage(ctl, BM_GETCHECK, 0, 0);
                     BOOL success;
