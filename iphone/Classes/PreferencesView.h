@@ -24,7 +24,6 @@
     UISwitch *autoRepeatSwitch;
     UISwitch *printToTextSwitch;
     UITextField *printToTextField;
-    UISwitch *rawTextSwitch;
     UISwitch *printToGifSwitch;
     UITextField *printToGifField;
     UITextField *maxGifLengthField;
@@ -40,7 +39,6 @@
 @property (nonatomic, retain) IBOutlet UISwitch *autoRepeatSwitch;
 @property (nonatomic, retain) IBOutlet UISwitch *printToTextSwitch;
 @property (nonatomic, retain) IBOutlet UITextField *printToTextField;
-@property (nonatomic, retain) IBOutlet UISwitch *rawTextSwitch;
 @property (nonatomic, retain) IBOutlet UISwitch *printToGifSwitch;
 @property (nonatomic, retain) IBOutlet UITextField *printToGifField;
 @property (nonatomic, retain) IBOutlet UITextField *maxGifLengthField;

@@ -29,7 +29,6 @@
 @synthesize autoRepeatSwitch;
 @synthesize printToTextSwitch;
 @synthesize printToTextField;
-@synthesize rawTextSwitch;
 @synthesize printToGifSwitch;
 @synthesize printToGifField;
 @synthesize maxGifLengthField;
@@ -55,7 +54,6 @@
     [autoRepeatSwitch setOn:core_settings.auto_repeat];
     [printToTextSwitch setOn:(state.printerToTxtFile != 0)];
     [printToTextField setText:[NSString stringWithCString:state.printerTxtFileName encoding:NSUTF8StringEncoding]];
-    [rawTextSwitch setOn:core_settings.raw_text];
     [printToGifSwitch setOn:(state.printerToGifFile != 0)];
     [printToGifField setText:[NSString stringWithCString:state.printerGifFileName encoding:NSUTF8StringEncoding]];
     [maxGifLengthField setText:[NSString stringWithFormat:@"%d", state.printerGifMaxLength]];
@@ -151,7 +149,6 @@
         s = [s stringByAppendingString:@".txt"];
     strcpy(buf, state.printerTxtFileName);
     [s getCString:state.printerTxtFileName maxLength:FILENAMELEN encoding:NSUTF8StringEncoding];
-    core_settings.raw_text = rawTextSwitch.on;
     if (!state.printerToTxtFile || strcmp(buf, state.printerTxtFileName) != 0)
         [CalcView stopTextPrinting];
     state.printerToGifFile = printToGifSwitch.on;
