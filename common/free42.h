@@ -138,7 +138,7 @@ extern "C" double log2(double x);
  * Version 20: 2.0.3  Removed "raw text" option, ext_copan, and ext_bigstack.
  */
 #define FREE42_MAGIC 0x466b3432
-#define FREE42_VERSION 19
+#define FREE42_VERSION 20
 
 
 #endif

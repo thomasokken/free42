@@ -34,8 +34,6 @@ Linux version:
   /sys/class/power_supply.
 
 All versions:
-* STATE FILE CORRUPT -- I botched something with the raw_text/copan/bigstack
-  removal.
 * Add a feature for previewing and installing skins from the web.
 * Program pasting should accept listings without line numbers.
 * Change scalar copy so it only copies full precision in ALL mode.
