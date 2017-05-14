@@ -1453,8 +1453,6 @@ typedef struct {
 } extension_struct;
 
 static extension_struct extensions[] = {
-    { CMD_OPENF,   CMD_DELP,    &core_settings.enable_ext_copan    },
-    { CMD_DROP,    CMD_DROP,    &core_settings.enable_ext_bigstack },
     { CMD_ACCEL,   CMD_ACCEL,   &core_settings.enable_ext_accel    },
     { CMD_LOCAT,   CMD_LOCAT,   &core_settings.enable_ext_locat    },
     { CMD_HEADING, CMD_HEADING, &core_settings.enable_ext_heading  },
@@ -2286,9 +2284,7 @@ int command2buf(char *buf, int len, int cmd, const arg_struct *arg) {
     int bufptr = 0;
 
     int4 xrom_arg;
-    if (!core_settings.enable_ext_copan && cmd >= CMD_OPENF && cmd <= CMD_DELP
-            || !core_settings.enable_ext_bigstack && cmd == CMD_DROP
-            || !core_settings.enable_ext_accel && cmd == CMD_ACCEL
+    if (!core_settings.enable_ext_accel && cmd == CMD_ACCEL
             || !core_settings.enable_ext_locat && cmd == CMD_LOCAT
             || !core_settings.enable_ext_heading && cmd == CMD_HEADING
             || !core_settings.enable_ext_time && cmd >= CMD_ADATE && cmd <= CMD_SWPT

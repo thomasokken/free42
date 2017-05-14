@@ -71,7 +71,6 @@ public class PreferencesDialog extends Dialog {
     private CheckBox displaySmoothingCB;
     private CheckBox printToTextCB;
     private EditText printToTextFileNameTF;
-    private CheckBox rawTextCB;
     private CheckBox printToGifCB;
     private EditText printToGifFileNameTF;
     private EditText maxGifHeightTF;
@@ -110,7 +109,6 @@ public class PreferencesDialog extends Dialog {
             }
         });
         printToTextFileNameTF = (EditText) findViewById(R.id.printToTextFileNameTF);
-        rawTextCB = (CheckBox) findViewById(R.id.rawTextCB);
         printToGifCB = (CheckBox) findViewById(R.id.printToGifCB);
         Button browseGifB = (Button) findViewById(R.id.browseGifB);
         browseGifB.setOnClickListener(new View.OnClickListener() {
@@ -285,14 +283,6 @@ public class PreferencesDialog extends Dialog {
     
     public String getPrintToTextFileName() {
         return printToTextFileNameTF.getText().toString();
-    }
-    
-    public void setRawText(boolean b) {
-        rawTextCB.setChecked(b);
-    }
-    
-    public boolean getRawText() {
-        return rawTextCB.isChecked();
     }
     
     public void setPrintToGif(boolean b) {

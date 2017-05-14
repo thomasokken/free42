@@ -3623,8 +3623,7 @@ int find_builtin(const char *name, int namelen) {
     }
 
     for (i = 0; true; i++) {
-        if (i == CMD_OPENF && !core_settings.enable_ext_copan) i += 14;
-        if (i == CMD_DROP && !core_settings.enable_ext_bigstack) i++;
+        if (i == CMD_OPENF) i += 15; // Skip COPAN and BIGSTACK
         if (i == CMD_ACCEL && !core_settings.enable_ext_accel) i++;
         if (i == CMD_LOCAT && !core_settings.enable_ext_locat) i++;
         if (i == CMD_HEADING && !core_settings.enable_ext_heading) i++;

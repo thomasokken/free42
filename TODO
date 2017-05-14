@@ -37,7 +37,6 @@ All versions:
 * Add a feature for previewing and installing skins from the web.
 * Program pasting should accept listings without line numbers.
 * Change scalar copy so it only copies full precision in ALL mode.
-* Remove "raw text" printing option.
 * Add a feature for importing and exporting variables from and to CSV files.
 * Add a feature for importing and exporting programs from and to text files.
 * Maybe program pasting should be case-insensitive (except for local labels and

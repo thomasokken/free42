@@ -135,6 +135,7 @@ extern "C" double log2(double x);
  * Version 18: 1.4.79 Replaced BCD20 with Intel's Decimal Floating Point
  *                    Library v.2.1.
  * Version 19: 1.5.14 Removed mode_time_dmy; now using flag 31 instead.
+ * Version 20: 2.0.3  Removed "raw text" option, ext_copan, and ext_bigstack.
  */
 #define FREE42_MAGIC 0x466b3432
 #define FREE42_VERSION 19

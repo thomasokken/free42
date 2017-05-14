@@ -81,13 +81,9 @@ int hp2ascii(char *dst, const char *src, int srclen) {
 
 void shell_spool_txt(const char *text, int length,
                      file_writer writer, file_newliner newliner) {
-    if (core_settings.raw_text)
-        writer(text, length);
-    else {
-        char buf[1000];
-        int d = hp2ascii(buf, text, length);
-        writer(buf, d);
-    }
+    char buf[1000];
+    int d = hp2ascii(buf, text, length);
+    writer(buf, d);
     newliner();
 }
 

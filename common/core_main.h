@@ -324,10 +324,7 @@ void core_paste(const char *s);
 typedef struct {
     bool matrix_singularmatrix;
     bool matrix_outofrange;
-    bool raw_text;
     bool auto_repeat;
-    bool enable_ext_copan;
-    bool enable_ext_bigstack;
     bool enable_ext_accel;
     bool enable_ext_locat;
     bool enable_ext_heading;

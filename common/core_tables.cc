@@ -352,21 +352,6 @@ static const command_spec cmd_array[] =
     { /* XROM */        "XROM",                 4, docmd_xrom,        0x01000000, ARG_OTHER, FLAG_HIDDEN },
 
     /* Here endeth the original Free42 function table.
-     * There are two extensions to this table out there in the wild today:
-     * Underhill's COPAN extensions for surveyors
-     * (http://www.underhill.ca/Software/Free42/Free42Copan.php),
-     * and Byron Foster's Big Stack in 42s for iPhone
-     * (http://free42iphone.googlecode.com/).
-     * I'm merging both of these extensions into the main source repository --
-     * not the actual implementations, but the function table entries, so that
-     * programs created by these extended versions can be shared more easily.
-     * Note that I had to move Byron's DROP extension from position 315 to
-     * 329 to resolve the clash with the older Underhill extensions.
-     * The function handlers (i.e. the docmd_ functions) are #defined as
-     * docmd_xrom if the appropriate extensions are not present, so executing
-     * them will raise a Nonexistent error, but you will see the function
-     * *names* from this table in the actual program listings, regardless of
-     * whether the extensions are present or not.
      * UPDATE: To support "pure" HP-42S behavior, all extensions can be
      * disabled at runtime, using the core_settings.enable_ext_* flags.
      * When an extension is disabled, its commands disappear from the FCN

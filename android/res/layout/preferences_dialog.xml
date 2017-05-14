@@ -129,16 +129,10 @@
 		    		android:layout_toLeftOf="@+id/browseTextB"
 		    		android:inputType="text"/>
 		
-		    <CheckBox android:id="@+id/rawTextCB"
-		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		    		android:text="Raw Text"
-		    		android:layout_below="@+id/printToTextFileNameTF"
-		    		android:layout_alignParentLeft="true"/>
-		    
 		    <CheckBox android:id="@+id/printToGifCB"
 		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
 		    		android:text="Print to GIF"
-		    		android:layout_below="@+id/rawTextCB"
+		    		android:layout_below="@+id/printToTextFileNameTF"
 		    		android:layout_alignParentLeft="true"/>
 		    
 		    <Button android:id="@+id/browseGifB"

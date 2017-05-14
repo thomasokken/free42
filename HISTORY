@@ -2,6 +2,9 @@
 
 * In the About box, replaced the link to the Free42 discussion group with a
   link to the Alternative HP-42S/Free42 Manual.
+* Removed "raw text" print option; it has been obsolete since the introduction
+  of UTF-8 printing in 1.5.11, since Unicode can represent the HP-42S character
+  set directly.
 * iPhone version: LOCAT didn't work when its initial invocation happened from a
   program. Fixed.
 
