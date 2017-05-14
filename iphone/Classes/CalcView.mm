@@ -125,6 +125,61 @@ static bool is_file(const char *name);
 ///////////////////////////////////////////////////////////////////////////////
 
 
+//////////////////////////////////////////////////////////////////////
+/////   Accelerometer, Location Services, and Compass support    /////
+//////////////////////////////////////////////////////////////////////
+
+static double accel_x = 0, accel_y = 0, accel_z = 0;
+static double loc_lat = 0, loc_lon = 0, loc_lat_lon_acc = -1, loc_elev = 0, loc_elev_acc = -1;
+static double hdg_mag = 0, hdg_true = 0, hdg_acc = -1, hdg_x = 0, hdg_y = 0, hdg_z = 0;
+
+@interface HardwareDelegate : NSObject <UIAccelerometerDelegate, CLLocationManagerDelegate> {}
+- (void)accelerometer:(UIAccelerometer *)accelerometer didAccelerate:(UIAcceleration *)acceleration;
+- (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation;
+- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error;
+- (void)locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading;
+- (BOOL)locationManagerShouldDisplayHeadingCalibration:(CLLocationManager *)manager;
+@end
+
+@implementation HardwareDelegate
+
+- (void)accelerometer:(UIAccelerometer *)accelerometer didAccelerate:(UIAcceleration *)acceleration {
+    accel_x = acceleration.x;
+    accel_y = acceleration.y;
+    accel_z = acceleration.z;
+    NSLog(@"Acceleration received: %g %g %g", accel_x, accel_y, accel_z);
+}
+
+- (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation {
+    loc_lat = newLocation.coordinate.latitude;
+    loc_lon = newLocation.coordinate.longitude;
+    loc_lat_lon_acc = newLocation.horizontalAccuracy;
+    loc_elev = newLocation.altitude;
+    loc_elev_acc = newLocation.verticalAccuracy;
+    NSLog(@"Location received: %g %g", loc_lat, loc_lon);
+}
+
+- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
+    NSLog(@"Location error received: %@", [error localizedDescription]);
+}
+
+- (void)locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading {
+    hdg_mag = newHeading.magneticHeading;
+    hdg_true = newHeading.trueHeading;
+    hdg_acc = newHeading.headingAccuracy;
+    hdg_x = newHeading.x;
+    hdg_y = newHeading.y;
+    hdg_z = newHeading.z;
+    NSLog(@"Heading received: %g", hdg_mag);
+}
+
+- (BOOL)locationManagerShouldDisplayHeadingCalibration:(CLLocationManager *)manager {
+    return YES;
+}
+
+@end
+
+
 static CalcView *calcView = nil;
 
 @implementation CalcView
@@ -521,6 +576,45 @@ static int timeout3_delay;
         print_gif = NULL;
     }
 }
+
+static HardwareDelegate *hwDel = NULL;
+static CLLocationManager *locMgr = NULL;
+
+- (void) start_accelerometer {
+    UIAccelerometer *am = [UIAccelerometer sharedAccelerometer];
+    am.updateInterval = 1;
+    if (hwDel == NULL)
+        hwDel = [HardwareDelegate alloc];
+    am.delegate = hwDel;
+}
+
+- (void) start_location {
+    if (locMgr == NULL) {
+        locMgr = [[CLLocationManager alloc] init];
+        if (hwDel == NULL)
+            hwDel = [HardwareDelegate alloc];
+        locMgr.delegate = hwDel;
+    }
+    if ([locMgr respondsToSelector:@selector(requestWhenInUseAuthorization)])
+        [locMgr requestWhenInUseAuthorization];
+    locMgr.distanceFilter = kCLDistanceFilterNone;
+    locMgr.desiredAccuracy = kCLLocationAccuracyBest;
+    [locMgr startUpdatingLocation];
+}
+
+- (void) start_heading {
+    if (locMgr == NULL) {
+        locMgr = [[CLLocationManager alloc] init];
+        if (hwDel == NULL)
+            hwDel = [HardwareDelegate alloc];
+        locMgr.delegate = hwDel;
+    }
+    if (![CLLocationManager headingAvailable])
+        return;
+    locMgr.headingFilter = kCLHeadingFilterNone;
+    [locMgr startUpdatingHeading];
+}
+
 
 @end
 
@@ -1024,69 +1118,13 @@ int shell_read(char *buf, int buflen) {
 
 //////////////////////////////////////////////////////////////////////
 /////   Accelerometer, Location Services, and Compass support    /////
-///// Be sure to keep this in sync between both iPhone versions! /////
 //////////////////////////////////////////////////////////////////////
-
-static double accel_x = 0, accel_y = 0, accel_z = 0;
-static double loc_lat = 0, loc_lon = 0, loc_lat_lon_acc = 0, loc_elev = 0, loc_elev_acc = 0;
-static double hdg_mag = 0, hdg_true = 0, hdg_acc = 0, hdg_x = 0, hdg_y = 0, hdg_z = 0;
-
-@interface HardwareDelegate : NSObject <UIAccelerometerDelegate, CLLocationManagerDelegate> {}
-- (void)accelerometer:(UIAccelerometer *)accelerometer didAccelerate:(UIAcceleration *)acceleration;
-- (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation;
-- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error;
-- (void)locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading;
-- (BOOL)locationManagerShouldDisplayHeadingCalibration:(CLLocationManager *)manager;
-@end
-
-@implementation HardwareDelegate
-
-- (void)accelerometer:(UIAccelerometer *)accelerometer didAccelerate:(UIAcceleration *)acceleration {
-    accel_x = acceleration.x;
-    accel_y = acceleration.y;
-    accel_z = acceleration.z;
-    NSLog(@"Acceleration received: %g %g %g", accel_x, accel_y, accel_z);
-}
-
-- (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation {
-    loc_lat = newLocation.coordinate.latitude;
-    loc_lon = newLocation.coordinate.longitude;
-    loc_lat_lon_acc = newLocation.horizontalAccuracy;
-    loc_elev = newLocation.altitude;
-    loc_elev_acc = newLocation.verticalAccuracy;
-    NSLog(@"Location received: %g %g", loc_lat, loc_lon);
-}
-
-- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
-    NSLog(@"Location error received: %@", [error localizedDescription]);
-}
-
-- (void)locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading {
-    hdg_mag = newHeading.magneticHeading;
-    hdg_true = newHeading.trueHeading;
-    hdg_acc = newHeading.headingAccuracy;
-    hdg_x = newHeading.x;
-    hdg_y = newHeading.y;
-    hdg_z = newHeading.z;
-    NSLog(@"Heading received: %g", hdg_mag);
-}
-
-- (BOOL)locationManagerShouldDisplayHeadingCalibration:(CLLocationManager *)manager {
-    return YES;
-}
-
-@end
-
-static HardwareDelegate *hwDel = [HardwareDelegate alloc];
-static CLLocationManager *locMgr = NULL;
 
 int shell_get_acceleration(double *x, double *y, double *z) {
     static bool accelerometer_active = false;
     if (!accelerometer_active) {
-        UIAccelerometer *am = [UIAccelerometer sharedAccelerometer];
-        am.updateInterval = 1;
-        am.delegate = hwDel;
         accelerometer_active = true;
+        [calcView performSelectorOnMainThread:@selector(start_accelerometer) withObject:NULL waitUntilDone:NO];
     }
     *x = accel_x;
     *y = accel_y;
@@ -1096,17 +1134,9 @@ int shell_get_acceleration(double *x, double *y, double *z) {
 
 int shell_get_location(double *lat, double *lon, double *lat_lon_acc, double *elev, double *elev_acc) {
     static bool location_active = false;
-    if (locMgr == NULL) {
-        locMgr = [[CLLocationManager alloc] init];
-        locMgr.delegate = hwDel;
-        if ([locMgr respondsToSelector:@selector(requestWhenInUseAuthorization)])
-            [locMgr requestWhenInUseAuthorization];
-    }
     if (!location_active) {
-        locMgr.distanceFilter = kCLDistanceFilterNone;
-        locMgr.desiredAccuracy = kCLLocationAccuracyBest;
-        [locMgr startUpdatingLocation];
         location_active = true;
+        [calcView performSelectorOnMainThread:@selector(start_location) withObject:NULL waitUntilDone:NO];
     }
     *lat = loc_lat;
     *lon = loc_lon;
@@ -1118,16 +1148,9 @@ int shell_get_location(double *lat, double *lon, double *lat_lon_acc, double *el
 
 int shell_get_heading(double *mag_heading, double *true_heading, double *acc, double *x, double *y, double *z) {
     static bool heading_active = false;
-    if (locMgr == NULL) {
-        locMgr = [[CLLocationManager alloc] init];
-        locMgr.delegate = hwDel;
-    }
-    if (![CLLocationManager headingAvailable])
-        return 0;
     if (!heading_active) {
-        locMgr.headingFilter = kCLHeadingFilterNone;
-        [locMgr startUpdatingHeading];
         heading_active = true;
+        [calcView performSelectorOnMainThread:@selector(start_heading) withObject:NULL waitUntilDone:NO];
     }
     *mag_heading = hdg_mag;
     *true_heading = hdg_true;

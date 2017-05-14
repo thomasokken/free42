@@ -1,3 +1,8 @@
+????-??-??: release 2.0.3
+
+* iPhone version: LOCAT didn't work when its initial invocation happened from a
+  program. Fixed.
+
 2017-04-28: release 2.0.2
 
 * In Unicode-to-HP conversion, translate "\LF" and "[LF]" to 10, not 138.
