@@ -1271,7 +1271,6 @@ static void preferencesCB() {
     static GtkWidget *singleinstance;
     static GtkWidget *printtotext;
     static GtkWidget *textpath;
-    static GtkWidget *rawtext;
     static GtkWidget *printtogif;
     static GtkWidget *gifpath;
     static GtkWidget *gifheight;
@@ -1304,18 +1303,16 @@ static void preferencesCB() {
         gtk_table_attach(GTK_TABLE(table), textpath, 1, 3, 4, 5, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
         GtkWidget *browse1 = gtk_button_new_with_label("Browse...");
         gtk_table_attach(GTK_TABLE(table), browse1, 3, 4, 4, 5, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
-        rawtext = gtk_check_button_new_with_label("Raw text");
-        gtk_table_attach(GTK_TABLE(table), rawtext, 1, 3, 5, 6, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
         printtogif = gtk_check_button_new_with_label("Print to GIF file:");
-        gtk_table_attach(GTK_TABLE(table), printtogif, 0, 1, 6, 7, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+        gtk_table_attach(GTK_TABLE(table), printtogif, 0, 1, 5, 6, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
         gifpath = gtk_entry_new();
-        gtk_table_attach(GTK_TABLE(table), gifpath, 1, 3, 6, 7, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+        gtk_table_attach(GTK_TABLE(table), gifpath, 1, 3, 5, 6, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
         GtkWidget *browse2 = gtk_button_new_with_label("Browse...");
-        gtk_table_attach(GTK_TABLE(table), browse2, 3, 4, 6, 7, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+        gtk_table_attach(GTK_TABLE(table), browse2, 3, 4, 5, 6, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
         GtkWidget *label = gtk_label_new("Maximum GIF height (pixels):");
-        gtk_table_attach(GTK_TABLE(table), label, 1, 2, 7, 8, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+        gtk_table_attach(GTK_TABLE(table), label, 1, 2, 6, 7, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
         gifheight = gtk_entry_new_with_max_length(5);
-        gtk_table_attach(GTK_TABLE(table), gifheight, 2, 3, 7, 8, (GtkAttachOptions) (GTK_SHRINK), (GtkAttachOptions) 0, 3, 3);
+        gtk_table_attach(GTK_TABLE(table), gifheight, 2, 3, 6, 7, (GtkAttachOptions) (GTK_SHRINK), (GtkAttachOptions) 0, 3, 3);
 
         g_signal_connect(G_OBJECT(browse1), "clicked", G_CALLBACK(browse_file),
                 (gpointer) new browse_file_info("Select Text File Name",
@@ -1335,7 +1332,6 @@ static void preferencesCB() {
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(singleinstance), state.singleInstance);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(printtotext), state.printerToTxtFile);
     gtk_entry_set_text(GTK_ENTRY(textpath), state.printerTxtFileName);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(rawtext), core_settings.raw_text);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(printtogif), state.printerToGifFile);
     gtk_entry_set_text(GTK_ENTRY(gifpath), state.printerGifFileName);
     char maxlen[6];
@@ -1348,7 +1344,6 @@ static void preferencesCB() {
         core_settings.matrix_outofrange = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(matrixoutofrange));
         core_settings.auto_repeat = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(autorepeat));
         state.singleInstance = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(singleinstance));
-        core_settings.raw_text = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(rawtext));
 
         state.printerToTxtFile = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(printtotext));
         char *old = strclone(state.printerTxtFileName);
