@@ -1,5 +1,7 @@
 ????-??-??: release 2.0.3
 
+* In the About box, replaced the link to the Free42 discussion group with a
+  link to the Alternative HP-42S/Free42 Manual.
 * iPhone version: LOCAT didn't work when its initial invocation happened from a
   program. Fixed.
 

@@ -40,7 +40,6 @@ All versions:
 * Remove "raw text" printing option.
 * Add a feature for importing and exporting variables from and to CSV files.
 * Add a feature for importing and exporting programs from and to text files.
-* Add link to 42s.pdf in the About box.
 * Maybe program pasting should be case-insensitive (except for local labels and
   ALPHA strings, of course)
 * Printer emulation: some aspects of TRACE (and probably also NORM) mode

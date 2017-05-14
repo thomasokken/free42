@@ -100,7 +100,7 @@ BEGIN
     LTEXT           "© 2004-2017 Thomas Okken",IDC_STATIC,31,17,98,8
     LTEXT           "http://thomasokken.com/free42/",
                     IDC_WEBSITELINK,31,27,191,8,SS_NOTIFY
-    LTEXT           "http://groups.google.com/group/free42discuss",
+    LTEXT           "http://thomasokken.com/free42/42s.pdf",
                     IDC_FORUMLINK,31,37,191,8,SS_NOTIFY
     DEFPUSHBUTTON   "OK",IDOK,189,6,30,11,WS_GROUP
 END
