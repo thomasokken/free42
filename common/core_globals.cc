@@ -2589,7 +2589,7 @@ void hard_reset(int bad_state_file) {
     flags.f.trace_print = 0;
     flags.f.normal_print = 0;
     flags.f.f17 = flags.f.f18 = flags.f.f19 = flags.f.f20 = 0;
-    flags.f.printer_enable = 1; // HP-42S sets this to 0 on hard reset
+    flags.f.printer_enable = 0;
     flags.f.numeric_data_input = 0;
     flags.f.alpha_data_input = 0;
     flags.f.range_error_ignore = 0;
