@@ -2,6 +2,10 @@ Android version:
 * Implement ON / flag 44.
 * With some combinations of skins and screens, there are glitches in the
   display -- thin black lines, things being slightly out of alignment.
+* Free42 should create /sdcard/Android/data/com.thomasokken.free42/ itself, if
+  it doesn't already exist (and use it as the default directory for
+  import/export and print-to-file). It can do that, apparently, since I've been
+  able to do it using MkDir in Free42's file selection dialog.
 
 iPhone version:
 * Implement ON / flag 44.
@@ -34,6 +38,9 @@ Linux version:
   /sys/class/power_supply.
 
 All versions:
+* When a two-line message is active, CATALOG doesn't seem to do anything,
+  because the display isn't repainted. (Probably not specific to two-line
+  messages?)
 * Add a feature for previewing and installing skins from the web.
 * Program pasting should accept listings without line numbers.
 * Change scalar copy so it only copies full precision in ALL mode.

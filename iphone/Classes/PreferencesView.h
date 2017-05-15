@@ -27,7 +27,6 @@
     UISwitch *printToGifSwitch;
     UITextField *printToGifField;
     UITextField *maxGifLengthField;
-    UISwitch *popupKeyboardSwitch;
     UIScrollView *scrollView;
     UIView *contentView;
     UITextField *activeField;
@@ -42,7 +41,6 @@
 @property (nonatomic, retain) IBOutlet UISwitch *printToGifSwitch;
 @property (nonatomic, retain) IBOutlet UITextField *printToGifField;
 @property (nonatomic, retain) IBOutlet UITextField *maxGifLengthField;
-@property (nonatomic, retain) IBOutlet UISwitch *popupKeyboardSwitch;
 @property (nonatomic, retain) IBOutlet UIScrollView *scrollView;
 @property (nonatomic, retain) IBOutlet UIView *contentView;
 
