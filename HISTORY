@@ -1,12 +1,14 @@
 ????-??-??: release 2.0.3
 
-* In the About box, replaced the link to the Free42 discussion group with a
-  link to the Alternative HP-42S/Free42 Manual.
+* On cold start, now clearing flags 21 (printer enable) and 55 (printer
+  existence), to match the behavior of the real HP-42S.
 * Removed "raw text" print option; it has been obsolete since the introduction
   of UTF-8 printing in 1.5.11, since Unicode can represent the HP-42S character
   set directly.
 * iPhone version: LOCAT didn't work when its initial invocation happened from a
   program. Fixed.
+* In the About box, replaced the link to the Free42 discussion group with a
+  link to the Alternative HP-42S/Free42 Manual.
 
 2017-04-28: release 2.0.2
 
