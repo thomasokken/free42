@@ -2622,7 +2622,7 @@ void hard_reset(int bad_state_file) {
     flags.f.prgm_mode = 0;
     /* flags.f.VIRTUAL_input = 0; */
     flags.f.f54 = 0;
-    flags.f.printer_exists = 1; // HP-42S sets this to 0 on hard reset
+    flags.f.printer_exists = 0;
     flags.f.lin_fit = 1;
     flags.f.log_fit = 0;
     flags.f.exp_fit = 0;
