@@ -1,0 +1,12 @@
+VERSION.rc
+android
+build-android
+build-gtk
+build-iphone
+build-src-doc
+build-windows
+gtk
+iphone
+upstream
+util
+windows
