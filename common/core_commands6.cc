@@ -253,7 +253,10 @@ static int mappable_asin_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     phloat tre, tim;
     int err = math_asinh(-xim, xre, &tre, &tim);
     *yre = tim;
-    *yim = -tre;
+    if (xim == 0 && (xre < -1 || xre > 1))
+        *yim = tre;
+    else
+        *yim = -tre;
     return err;
 }
 
@@ -304,8 +307,13 @@ static int mappable_acos_r(phloat x, phloat *y) {
 static int mappable_acos_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     phloat tre, tim;
     int err = math_acosh(xre, xim, &tre, &tim);
-    *yre = tim;
-    *yim = -tre;
+    if (xim < 0 || xim == 0 && xre > 0) {
+        *yre = -tim;
+        *yim = tre;
+    } else {
+        *yre = tim;
+        *yim = -tre;
+    }
     return err;
 }
 
@@ -613,6 +621,16 @@ static int mappable_sqrt_r(phloat x, phloat *y) {
 }
 
 static int mappable_sqrt_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
+    if (xim == 0) {
+        if (xre >= 0) {
+            *yre = sqrt(xre);
+            *yim = 0;
+        } else {
+            *yre = 0;
+            *yim = sqrt(-xre);
+        }
+        return ERR_NONE;
+    }
     /* TODO: review -- is there a better way, without all the trig? */
     phloat r = sqrt(hypot(xre, xim));
     phloat phi = atan2(xim, xre) / 2;

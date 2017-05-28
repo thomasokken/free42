@@ -64,7 +64,8 @@ int math_asinh(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     if (neg) {
         *yre = -*yre;
         *yim = -*yim;
-    }
+    } else if (xre == 0 && xim < -1)
+        *yre = -*yre;
     return ERR_NONE;
 }
 
@@ -94,6 +95,9 @@ int math_acosh(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     /* y = log(c) */
     *yre = log(hypot(cre, cim));
     *yim = atan2(cim, cre);
+
+    if (xim == 0 && xre < -1)
+        *yim = -*yim;
     return ERR_NONE;
 }
 
@@ -104,6 +108,12 @@ int math_atanh(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     /* TODO: review, and deal with overflows in intermediate results */
     if (xim == 0 && (xre == 1 || xre == -1))
         return ERR_INVALID_DATA;
+
+    if (xre == 0) {
+        *yre = 0;
+        *yim = atan(xim);
+        return ERR_NONE;
+    }
 
     /* a = 1 + x */
     are = 1 + xre;
@@ -126,6 +136,8 @@ int math_atanh(phloat xre, phloat xim, phloat *yre, phloat *yim) {
      * you can't get close enough to the critical values to cause
      * trouble.
      */
+    if (xim == 0 && xre > 1)
+        *yim = -*yim;
     return ERR_NONE;
 }
 
