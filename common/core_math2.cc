@@ -32,6 +32,12 @@ phloat math_random() {
 
 int math_asinh(phloat xre, phloat xim, phloat *yre, phloat *yim) {
 
+    if (xim == 0) {
+        *yre = asinh(xre);
+        *yim = 0;
+        return ERR_NONE;
+    }
+
     /* TODO: review; and deal with overflows in intermediate results */
     phloat are, aim, br, bphi;
 
@@ -71,6 +77,20 @@ int math_asinh(phloat xre, phloat xim, phloat *yre, phloat *yim) {
 
 int math_acosh(phloat xre, phloat xim, phloat *yre, phloat *yim) {
 
+    if (xim == 0) {
+        if (xre >= 1) {
+            *yre = acosh(xre);
+            *yim = 0;
+        } else if (xre <= -1) {
+            *yre = acosh(-xre);
+            *yim = PI;
+        } else {
+            *yre = 0;
+            *yim = acos(xre);
+        }
+        return ERR_NONE;
+    }
+
     /* TODO: review; and deal with overflows in intermediate results */
     phloat ar, aphi, are, aim, br, bphi, bre, bim, cre, cim;
 
@@ -103,17 +123,23 @@ int math_acosh(phloat xre, phloat xim, phloat *yre, phloat *yim) {
 
 int math_atanh(phloat xre, phloat xim, phloat *yre, phloat *yim) {
 
+    if (xim == 0) {
+        if (xre == 1 || xre == -1)
+            return ERR_INVALID_DATA;
+        *yre = atanh(xre);
+        *yim = 0;
+        return ERR_NONE;
+    } else if (xre == 0) {
+        *yre = 0;
+        *yim = atan(xim);
+        return ERR_NONE;
+    }
+
     phloat are, aim, bre, bim, cre, cim, h;
 
     /* TODO: review, and deal with overflows in intermediate results */
     if (xim == 0 && (xre == 1 || xre == -1))
         return ERR_INVALID_DATA;
-
-    if (xre == 0) {
-        *yre = 0;
-        *yim = atan(xim);
-        return ERR_NONE;
-    }
 
     /* a = 1 + x */
     are = 1 + xre;

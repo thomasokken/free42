@@ -305,6 +305,12 @@ static int mappable_acos_r(phloat x, phloat *y) {
 }
 
 static int mappable_acos_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
+    if (xim == 0 && xre >= -1 && xre <= 1) {
+        *yre = xre == -1 ? PI : acos(xre);
+        *yim = 0;
+        return ERR_NONE;
+    }
+
     phloat tre, tim;
     int err = math_acosh(xre, xim, &tre, &tim);
     if (xim < 0 || xim == 0 && xre > 0) {
