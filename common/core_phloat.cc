@@ -1263,7 +1263,8 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
 
             sci_all_round:
 
-            carry = norm_mantissa[max_int_digits] >= 5;
+            carry = max_int_digits < MAX_MANT_DIGITS
+                    && norm_mantissa[max_int_digits] >= 5;
             for (i = max_int_digits; i < MAX_MANT_DIGITS; i++)
                 norm_mantissa[i] = 0;
             if (carry) {
