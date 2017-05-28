@@ -1,6 +1,8 @@
 2017-05-28: release 2.0.3
 
 * Fixed a few edge cases in complex functions.
+* The last digit in full-precision representation (SHOW, Copy) could be off by
+  one in certain circumstances. Fixed.
 * On cold start, now clearing flags 21 (printer enable) and 55 (printer
   existence), to match the behavior of the real HP-42S.
 * Removed "raw text" print option; it has been obsolete since the introduction
