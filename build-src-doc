@@ -17,7 +17,8 @@ rm -rf tmp
 # "Upstream" source package, for Fedora or other Linux distros
 # Has all non-Linux versions, and all skins containing the HP logo, removed
 cd upstream
-sh ./build-upstream
+sh ./build-nologo
+sh ./build-macports
 cd ..
 
 # Wrap it all up...
