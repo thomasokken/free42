@@ -123,7 +123,7 @@ int math_acosh(phloat xre, phloat xim, phloat *yre, phloat *yim) {
 
 int math_atanh(phloat xre, phloat xim, phloat *yre, phloat *yim) {
 
-    if (xim == 0) {
+    if (xim == 0 && xre >= -1 && xre <= 1) {
         if (xre == 1 || xre == -1)
             return ERR_INVALID_DATA;
         *yre = atanh(xre);
