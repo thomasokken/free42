@@ -206,7 +206,7 @@ int math_atanh(phloat xre, phloat xim, phloat *yre, phloat *yim) {
             *yim = 0;
             return ERR_NONE;
         } else {
-            *yre = log((xre + 1) / (xre - 1)) / 2;
+            *yre = atanh(1 / xre);
             if (xre > 1)
                 *yim = -PI / 2;
             else
