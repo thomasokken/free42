@@ -1,9 +1,7 @@
 ????-??-??: release 2.0.4
 
-* Changed strict inequality operators to treat negative zero as equal to zero;
-  this fixes some edge cases in complex functions.
-* Implemented special-case code for pure real and pure imaginary cases in
-  complex functions.
+* Implemented special-case code for pure real and pure imaginary cases in all
+  the complex logarithmic, trigonometric, and hyperbolic functions.
 
 2017-05-28: release 2.0.3
 

@@ -23,6 +23,7 @@
 #include "core_display.h"
 #include "core_helpers.h"
 #include "core_linalg1.h"
+#include "core_math2.h"
 #include "core_sto_rcl.h"
 #include "core_variables.h"
 
@@ -715,6 +716,15 @@ static int mappable_sinh_r(phloat x, phloat *y) {
 }   
 
 static int mappable_sinh_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
+    if (xim == 0) {
+        *yre = sinh(xre);
+        *yim = 0;
+        return ERR_NONE;
+    } else if (xre == 0) {
+        *yre = 0;
+        *yim = sin(xim);
+        return ERR_NONE;
+    }
     phloat sinhxre, coshxre;
     phloat sinxim, cosxim;
     int inf;
@@ -882,6 +892,15 @@ static int mappable_tanh_r(phloat x, phloat *y) {
 }   
 
 static int mappable_tanh_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
+    if (xim == 0) {
+        *yre = tanh(xre);
+        *yim = 0;
+        return ERR_NONE;
+    } else if (xre == 0) {
+        *yre = 0;
+        return math_tan(xim, yim, true);
+    }
+
     phloat xim2 = xim * 2;
     if (p_isnan(xre) || p_isnan(xim) || p_isinf(xim2)) {
         *yre = NAN_PHLOAT;

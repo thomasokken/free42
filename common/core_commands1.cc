@@ -1118,8 +1118,6 @@ static int mappable_ip(phloat x, phloat *y) {
         *y = -floor(-x);
     else
         *y = floor(x);
-    if (*y == 0)
-        *y = 0;
     return ERR_NONE;
 }
 

@@ -234,6 +234,15 @@ static int mappable_cosh_r(phloat x, phloat *y) {
 }   
 
 static int mappable_cosh_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
+    if (xim == 0) {
+        *yim = 0;
+        return mappable_cosh_r(xre, yre);
+    } else if (xre == 0) {
+        *yre = cos(xim);
+        *yim = 0;
+        return ERR_NONE;
+    }
+
     phloat sinhxre, coshxre;
     phloat sinxim, cosxim;
     int inf;

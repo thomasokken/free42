@@ -54,3 +54,6 @@ All versions:
   always (PRGM mode?); DIM? prints the value returned in X, while Free42 prints
   nothing. I'm sure there are more cases, and I should just check them with
   Emu42 with the HP-82240B emulator.
+* Make the printer annunciator linger a bit, so that it is easier (or even just
+  possible!) to tell when a program is printing something.
+* Make better icons.
