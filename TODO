@@ -8,6 +8,9 @@ Android version:
   able to do it using MkDir in Free42's file selection dialog.
 
 iPhone version:
+* Make the Xcode build run the version number insertion thing. Apparently,
+  build-iphone is a thing of the past, but we still need to update the version
+  numbers in release builds somehow.
 * Implement ON / flag 44.
 * With some combinations of skins and screens, there are glitches in the
   display -- thin black lines, things being slightly out of alignment.
