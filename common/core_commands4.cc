@@ -118,6 +118,15 @@ int docmd_insr(arg_struct *arg) {
                 cm->array->data[i] = 0;
         }
     } else {
+        /* Make sure the new array is less than 2 GB,
+         * so it's addressable with a signed 32-bit index */
+        double d_bytes = ((double) (rows + 1)) * ((double) columns) * sizeof(phloat);
+        if (m->type == TYPE_COMPLEXMATRIX)
+            d_bytes *= 2;
+        int4 i_bytes = (int4) d_bytes;
+        if (i_bytes != d_bytes)
+            return ERR_INSUFFICIENT_MEMORY;
+
         /* We're sharing this array. I don't use disentangle() because it
          * does not deal with resizing. */
         int4 newsize = (rows + 1) * columns;
