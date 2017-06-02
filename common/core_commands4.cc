@@ -123,8 +123,7 @@ int docmd_insr(arg_struct *arg) {
         double d_bytes = ((double) (rows + 1)) * ((double) columns) * sizeof(phloat);
         if (m->type == TYPE_COMPLEXMATRIX)
             d_bytes *= 2;
-        int4 i_bytes = (int4) d_bytes;
-        if (i_bytes != d_bytes)
+        if (((double) (int4) d_bytes) != d_bytes)
             return ERR_INSUFFICIENT_MEMORY;
 
         /* We're sharing this array. I don't use disentangle() because it

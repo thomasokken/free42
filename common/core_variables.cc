@@ -104,8 +104,7 @@ vartype *new_string(const char *text, int length) {
 
 vartype *new_realmatrix(int4 rows, int4 columns) {
     double d_bytes = ((double) rows) * ((double) columns) * sizeof(phloat);
-    int4 i_bytes = (int4) d_bytes;
-    if (i_bytes != d_bytes)
+    if (((double) (int4) d_bytes) != d_bytes)
         return NULL;
 
     vartype_realmatrix *rm = (vartype_realmatrix *)
@@ -147,8 +146,7 @@ vartype *new_realmatrix(int4 rows, int4 columns) {
 
 vartype *new_complexmatrix(int4 rows, int4 columns) {
     double d_bytes = ((double) rows) * ((double) columns) * sizeof(phloat) * 2;
-    int4 i_bytes = (int4) d_bytes;
-    if (i_bytes != d_bytes)
+    if (((double) (int4) d_bytes) != d_bytes)
         return NULL;
 
     vartype_complexmatrix *cm = (vartype_complexmatrix *)
