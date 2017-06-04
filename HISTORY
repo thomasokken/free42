@@ -1,6 +1,8 @@
 ????-??-??: release 2.0.5
 
 * Fixed crash when trying to allocate ridiculously large matrices.
+* iPhone version: fixed a few display alignment issues with the built-in 4"
+  skin.
 
 2017-05-29: release 2.0.4
 

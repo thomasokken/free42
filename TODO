@@ -41,6 +41,9 @@ Linux version:
   /sys/class/power_supply.
 
 All versions:
+* So, you added some code to keep matrices to less than 2 GB in NEWMAT, but
+  how about INSROW, COMPLEX, SIZE? Any other opportunities for Bad Things to
+  happen with array sizes?
 * When a two-line message is active, CATALOG doesn't seem to do anything,
   because the display isn't repainted. (Probably not specific to two-line
   messages?)
