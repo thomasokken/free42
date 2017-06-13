@@ -3597,17 +3597,22 @@ static synonym_spec hp41_synonyms[] =
     { "P-R",    3, CMD_TO_REC  },
     { "R-D",    3, CMD_TO_DEG  },
     { "RDN",    3, CMD_RDN     },
+    { "Rv",     2, CMD_RDN     }, // (*)
     { "R-P",    3, CMD_TO_POL  },
     { "ST+",    3, CMD_STO_ADD },
     { "ST/",    3, CMD_STO_DIV },
-    { "STO/",   4, CMD_STO_DIV },
+    { "STO/",   4, CMD_STO_DIV }, // (*)
     { "ST*",    3, CMD_STO_MUL },
-    { "STO*",   4, CMD_STO_MUL },
+    { "STO*",   4, CMD_STO_MUL }, // (*)
     { "ST-",    3, CMD_STO_SUB },
     { "X<=0?",  5, CMD_X_LE_0  },
     { "X<=Y?",  5, CMD_X_LE_Y  },
+    { "v",      1, CMD_DOWN    }, // (*)
     { "",       0, CMD_NONE    }
 };
+
+// (*) These synonyms are not recognized on the HP-42S, but were added to
+//     Free42 because they're needed for parsing program listings.
 
 int find_builtin(const char *name, int namelen) {
     int i, j;
