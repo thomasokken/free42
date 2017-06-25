@@ -1,6 +1,8 @@
 ????-??-??: release 2.0.5
 
 * Fixed crash when trying to allocate ridiculously large matrices.
+* While entering a numeric argument, the up-arrow and down-arrow keys would
+  perform BST and SST, which should be blocked. Fixed.
 * iPhone version: fixed a few display alignment issues with the built-in 4"
   skin.
 
