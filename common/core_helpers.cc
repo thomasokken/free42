@@ -348,7 +348,7 @@ int virtual_flag_handler(int flagop, int flagnum) {
             }
         }
         case 75: /* programmable_menu */ {
-            int its_on = mode_plainmenu = MENU_PROGRAMMABLE;
+            int its_on = mode_plainmenu == MENU_PROGRAMMABLE;
             switch (flagop) {
                 case FLAGOP_FS_T:
                     return its_on ? ERR_YES : ERR_NO;
