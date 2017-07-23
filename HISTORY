@@ -1,5 +1,7 @@
 ????-??-??: release 2.0.5
 
+* Fixed importing numbers with exponent but no mantissa, e.g. E3, -E-5, etc.
+  This got broken in 1.5.
 * Fixed crash when trying to allocate ridiculously large matrices.
 * While entering a numeric argument, the up-arrow and down-arrow keys would
   perform BST and SST, which should be blocked. Fixed.

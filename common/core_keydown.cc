@@ -227,7 +227,12 @@ void keydown(int shift, int key) {
     }
 
     if (mode_command_entry
-            && (shift || (!incomplete_alpha && incomplete_length > 0))
+            && (shift || (!incomplete_alpha && incomplete_length > 0)
+                      || ((incomplete_argtype == ARG_NUM9
+                          || incomplete_argtype == ARG_NUM11
+                          || incomplete_argtype == ARG_NUM99
+                          || incomplete_argtype == ARG_COUNT)
+                            && incomplete_length == 0))
             && (key == KEY_UP || key == KEY_DOWN)) {
         /* Trying to do SST or BST while in command entry mode */
         squeak();
