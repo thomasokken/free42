@@ -23,6 +23,7 @@
 #endif 
 
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "core_math1.h"
 #include "core_commands2.h"
@@ -34,7 +35,7 @@
 #include "shell.h"
 
 #define SOLVE_VERSION 4
-#define INTEG_VERSION 2
+#define INTEG_VERSION 3
 #define NUM_SHADOWS 10
 
 /* Solver */
@@ -93,7 +94,7 @@ typedef struct {
     phloat p;
     phloat t, u;
     phloat prev_int;
-    int evalCount;
+    phloat prev_res;
 } integ_state;
 
 static integ_state integ;
@@ -896,7 +897,7 @@ int start_integ(const char *name, int length) {
     integ.state = 1;
     integ.s[0] = 0;
     integ.k = 1;
-    integ.evalCount = 0;
+    integ.prev_res = 0;
 
     integ.keep_running = program_running();
     if (!integ.keep_running) {
@@ -913,10 +914,6 @@ static int finish_integ() {
     vartype *x, *y;
     int saved_trace = flags.f.trace_print;
     integ.state = 0;
-
-#ifdef WINDOWS_DEBUG
-    printout(integ.evalCount, "integ eval count");
-#endif
 
     x = new_real(integ.sum * integ.b * 0.75);
     y = new_real(integ.eps);
@@ -974,7 +971,6 @@ int return_to_integ(int failure) {
         integ.t = 1 - integ.p * integ.p;
         integ.u = integ.p + integ.t * integ.p / 2;
         integ.u = (integ.u * integ.b + integ.b) / 2 + integ.a;
-        ++integ.evalCount;
         return call_integ_fn();
 
     case 2:
@@ -998,15 +994,15 @@ int return_to_integ(int failure) {
                 dm /= 4;
                 for (i = 0; i < ROMB_K-m; ++i)
                     integ.c[i] = (integ.c[i+1]-integ.c[i]*dm*4)/(1-dm);
-                integ.eps = integ.c[--ns]*dm;
-                integ.sum += integ.eps;
+                integ.sum += integ.c[--ns]*dm;
             }
 
-            integ.eps = fabs(integ.eps);
-            if (integ.eps <= integ.acc*fabs(integ.sum)) {
+            phloat res = integ.sum * integ.b * 0.75;
+            integ.eps = fabs(integ.prev_res - res);
+            integ.prev_res = res;
+            if (integ.eps <= integ.acc * fabs(res))
                 // done!
                 return finish_integ();
-            }
 
             for (i = 0; i < ROMB_K-1; ++i) integ.s[i] = integ.s[i+1];
             integ.k = ROMB_K-1;

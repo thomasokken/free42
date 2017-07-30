@@ -1,5 +1,7 @@
-????-??-??: release 2.0.5
+2017-07-30: release 2.0.5
 
+* Fixed INTEG termination condition. It would return inaccurate results in
+  certain cases.
 * Fixed importing numbers with exponent but no mantissa, e.g. E3, -E-5, etc.
   This got broken in 1.5.
 * Fixed crash when trying to allocate ridiculously large matrices.
