@@ -23,7 +23,6 @@
 #endif 
 
 #include <stdlib.h>
-#include <stdio.h>
 
 #include "core_math1.h"
 #include "core_commands2.h"
