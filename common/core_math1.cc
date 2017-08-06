@@ -171,6 +171,8 @@ static void reset_solve() {
     solve.prgm_length = 0;
     solve.active_prgm_length = 0;
     solve.state = 0;
+    if (mode_appmenu == MENU_SOLVE)
+        set_menu_return_err(MENULEVEL_APP, MENU_NONE, true);
 }
 
 static int find_shadow(const char *name, int length) {
@@ -228,6 +230,8 @@ void set_solve_prgm(const char *name, int length) {
 }
 
 static int call_solve_fn(int which, int state) {
+    if (solve.active_prgm_length == 0)
+        return ERR_NONEXISTENT;
     int err, i;
     arg_struct arg;
     vartype *v = recall_var(solve.var_name, solve.var_length);
@@ -807,6 +811,8 @@ static void reset_integ() {
     integ.prgm_length = 0;
     integ.active_prgm_length = 0;
     integ.state = 0;
+    if (mode_appmenu == MENU_INTEG || mode_appmenu == MENU_INTEG_PARAMS)
+        set_menu_return_err(MENULEVEL_APP, MENU_NONE, true);
 }
 
 void set_integ_prgm(const char *name, int length) {
@@ -826,6 +832,8 @@ void get_integ_var(char *name, int *length) {
 }
 
 static int call_integ_fn() {
+    if (integ.active_prgm_length == 0)
+        return ERR_NONEXISTENT;
     int err, i;
     arg_struct arg;
     phloat x = integ.u;

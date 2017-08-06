@@ -1,3 +1,8 @@
+????-??-??: release 2.0.6
+
+* Fixed a couple of bugs in how changes to internal SOLVE and INTEG data
+  structures are handled.
+
 2017-07-30: release 2.0.5
 
 * Fixed INTEG termination condition. It would return inaccurate results in

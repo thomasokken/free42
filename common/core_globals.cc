@@ -1304,6 +1304,10 @@ static bool unpersist_globals(int4 ver) {
             purge_all_vars();
             goto done;
         }
+
+    // Purging zero-length var that may have been created by buggy INTEG
+    purge_var("", 0);
+
     prgms_capacity = 0;
     if (prgms != NULL) {
         free(prgms);
