@@ -2,6 +2,7 @@
 
 * Fixed a couple of bugs in how changes to internal SOLVE and INTEG data
   structures are handled.
+* Decimal version: fixed ISG and DSE for values >= 2^127 (1.7e38).
 
 2017-07-30: release 2.0.5
 

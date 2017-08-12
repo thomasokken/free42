@@ -505,9 +505,15 @@ int docmd_pse(arg_struct *arg) {
 
 static int generic_loop_helper(phloat *x, bool isg) {
     phloat t;
-    int8 i, j, k;
+    #ifdef BCD_MATH
+        phloat i;
+    #else
+        int8 i;
+    #endif
+    int4 j, k;
     int s;
-    if (*x == *x + 1) {
+
+    if (*x == (isg ? *x + 1 : *x - 1)) {
         /* Too big to do anything useful with; this is what the real
          * HP-42S does in this case:
          */
@@ -523,24 +529,27 @@ static int generic_loop_helper(phloat *x, bool isg) {
     } else
         s = 1;
 
-    i = to_int8(t);
-    t = (t - i) * 100000;
-    /* The 0.0000005 is a precaution to prevent the loop increment
-     * value from being taken to be 1 lower than what the user intended;
-     * this can happen because the decimal fractions used here cannot,
-     * in general, be represented exactly in binary, so that what should
-     * be 10.00902 may actually end up being approximated as something
-     * fractionally lower -- and 10.0090199999999+ would be interpreted
-     * as having a loop increment of 1, not the 2 that was intended.
-     * By adding 0.0000005 before truncating, we effectively round to
-     * 7 decimals, which is all that a real HP-42S would have left after
-     * the multiplication by 100000. So, we sacrifice some of the range
-     * of an IEEE-754 double, but maintain HP-42S compatibility.
-     */
-    #ifndef BCD_MATH
+    #ifdef BCD_MATH
+        i = floor(t);
+        t = (t - i) * 100000;
+    #else
+        i = to_int8(t);
+        t = (t - i) * 100000;
+        /* The 0.0000005 is a precaution to prevent the loop increment
+         * value from being taken to be 1 lower than what the user intended;
+         * this can happen because the decimal fractions used here cannot,
+         * in general, be represented exactly in binary, so that what should
+         * be 10.00902 may actually end up being approximated as something
+         * fractionally lower -- and 10.0090199999999+ would be interpreted
+         * as having a loop increment of 1, not the 2 that was intended.
+         * By adding 0.0000005 before truncating, we effectively round to
+         * 7 decimals, which is all that a real HP-42S would have left after
+         * the multiplication by 100000. So, we sacrifice some of the range
+         * of an IEEE-754 double, but maintain HP-42S compatibility.
+         */
         t = t + 0.0000005;
     #endif
-    k = to_int8(t);
+    k = to_int4(t);
     j = k / 100;
     k -= j * 100;
     if (k == 0)
