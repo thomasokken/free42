@@ -3,6 +3,8 @@
 * Windows version: restored the Calculator key mapping option, which I had
   removed in 1.5.14. It turns out that keyboards with a dedicated Calculator
   key do still exist.
+* The up/down annunciator (multi-row menu) did not get updated correctly when
+  VARMENU was activated, including in the solver and integrator. Fixed.
 
 2017-08-12: release 2.0.6
 

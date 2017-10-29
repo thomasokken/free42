@@ -1376,6 +1376,7 @@ void draw_varmenu() {
     varmenu_rows = (num_mvars + 5) / 6;
     if (varmenu_row >= varmenu_rows)
         varmenu_row = varmenu_rows - 1;
+    shell_annunciators(varmenu_rows > 1, -1, -1, -1, -1, -1);
 
     row = 0;
     key = 0;
