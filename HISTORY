@@ -1,10 +1,12 @@
 ????-??-??: release 2.0.7
 
+* The up/down annunciator (multi-row menu) did not get updated correctly when
+  VARMENU was activated, including in the solver and integrator. Fixed.
 * Windows version: restored the Calculator key mapping option, which I had
   removed in 1.5.14. It turns out that keyboards with a dedicated Calculator
   key do still exist.
-* The up/down annunciator (multi-row menu) did not get updated correctly when
-  VARMENU was activated, including in the solver and integrator. Fixed.
+* Android version: the menu icons for Copy, Paste, and Print-Out were displayed
+  too large, overlapping the menu item labels on some devices. Fixed.
 
 2017-08-12: release 2.0.6
 
