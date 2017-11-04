@@ -1,7 +1,4 @@
 Android version:
-* Stop relying on system default icons for Copy, Paste, etc. -- they appear to
-  be unreliable, weirdness with icons covering labels entirely or in part,
-  icons missing, argh.
 * Implement ON / flag 44.
 * With some combinations of skins and screens, there are glitches in the
   display -- thin black lines, things being slightly out of alignment.
