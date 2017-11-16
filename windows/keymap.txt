@@ -112,3 +112,7 @@ Shift 220       : 28 36   # PRGM
 107             : 37      # +
 Shift 187       : 37      # +
 187             : 28 37   # CATALOG ("+" is already shifted so we have to do something odd here)
+
+# Convenience key codes for GTO and PI (g and p)
+71              : 28 6    # GTO
+80              : 28 9    # PI

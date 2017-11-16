@@ -108,3 +108,7 @@ Shift 0x1B   : 28 33   # OFF
 |            : 28 36   # PRGM
 +            : 37      # +
 =            : 28 37   # CATALOG ("+" is already shifted so we have to do something odd here)
+
+# Convenience key codes for GTO and PI
+g            : 28 6    # GTO
+p            : 28 9    # PI

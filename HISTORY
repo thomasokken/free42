@@ -7,6 +7,9 @@
   key do still exist.
 * Android version: the menu icons for Copy, Paste, and Print-Out were displayed
   too large, overlapping the menu item labels on some devices. Fixed.
+* Windows, Linux, and Mac versions: added keyboard mappings g => GTO and
+  p => PI. On existing installations, must delete or rename the existing keymap
+  and restart for this to take effect.
 
 2017-08-12: release 2.0.6
 
