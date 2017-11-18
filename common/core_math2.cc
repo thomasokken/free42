@@ -20,16 +20,12 @@
 
 phloat math_random() {
     if (random_number_low == 0 && random_number_high == 0) {
-        // TODO: This starting seed gives the same sequence as the RPL RAND
-        // function, but the HP-42S RAN function, while using the same RNG
-        // algorithm, uses a different default seed. Which?
-        // For what it's worth, the HP-42S RAN sequence starts with these three
-        // numbers:
-        // 0.946101897637
-        // 0.678651593638
-        // 0.842728922870
-        random_number_high = 9995003;
-        random_number_low = 33083533;
+        random_number_high = 0;
+        random_number_low = 2787;
+        // The RPL RAND/RDZ functions differ from the HP-42S RAN/SEED
+        // only in their initial seed, which is this:
+        // random_number_high = 9995003;
+        // random_number_low = 33083533;
     }
     int8 temp = random_number_low * 30928467;
     random_number_high = (random_number_low * 28511 + random_number_high * 30928467 + temp / 100000000) % 10000000;
