@@ -136,9 +136,10 @@ extern "C" double log2(double x);
  *                    Library v.2.1.
  * Version 19: 1.5.14 Removed mode_time_dmy; now using flag 31 instead.
  * Version 20: 2.0.3  Removed "raw text" option, ext_copan, and ext_bigstack.
+ * Version 21: 2.0.7  New random number generator.
  */
 #define FREE42_MAGIC 0x466b3432
-#define FREE42_VERSION 20
+#define FREE42_VERSION 21
 
 
 #endif

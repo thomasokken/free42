@@ -636,7 +636,7 @@ arg_struct input_arg;
 int baseapp = 0;
 
 /* Random number generator */
-phloat random_number;
+int8 random_number_low, random_number_high;
 
 /* NORM & TRACE mode: number waiting to be printed */
 int deferred_print = 0;
@@ -2200,6 +2200,14 @@ static bool write_int4(int4 n) {
     return shell_write_saved_state(&n, sizeof(int4));
 }
 
+static bool read_int8(int8 *n) {
+    return shell_read_saved_state(n, sizeof(int8)) == sizeof(int8);
+}
+
+static bool write_int8(int8 n) {
+    return shell_write_saved_state(&n, sizeof(int8));
+}
+
 static bool read_bool(bool *b) {
     if (state_bool_is_int) {
         int t;
@@ -2380,8 +2388,17 @@ bool load_state(int4 ver) {
 
     if (!read_int(&baseapp)) return false;
 
-    if (!read_phloat(&random_number))
-        return false;
+    if (ver < 21) {
+        phloat random_number;
+        if (!read_phloat(&random_number))
+            return false;
+        random_number_low = to_int8(random_number * 1000000000000000LL);
+        random_number_high = random_number_low / 100000000;
+        random_number_low %= 100000000;
+    } else {
+        if (!read_int8(&random_number_low)) return false;
+        if (!read_int8(&random_number_high)) return false;
+    }
 
     if (ver < 3) {
         deferred_print = 0;
@@ -2519,7 +2536,8 @@ void save_state() {
 
     if (!write_int(baseapp)) return;
 
-    if (!write_phloat(random_number)) return;
+    if (!write_int8(random_number_low)) return;
+    if (!write_int8(random_number_high)) return;
 
     if (!write_int(deferred_print)) return;
 
@@ -2581,7 +2599,8 @@ void hard_reset(int bad_state_file) {
     matedit_mode = 0;
     input_length = 0;
     baseapp = 0;
-    random_number = shell_random_seed();
+    random_number_low = 0;
+    random_number_high = 0;
 
     flags.f.f00 = flags.f.f01 = flags.f.f02 = flags.f.f03 = flags.f.f04 = 0;
     flags.f.f05 = flags.f.f06 = flags.f.f07 = flags.f.f08 = flags.f.f09 = 0;

@@ -276,13 +276,44 @@ int docmd_ran(arg_struct *arg) {
 int docmd_seed(arg_struct *arg) {
     if (reg_x->type == TYPE_REAL) {
         phloat x = ((vartype_real *) reg_x)->x;
-        int i;
-        if (x == 0)
-            random_number = shell_random_seed();
-        else
-            random_number = x - floor(x);
-        for (i = 0; i < 10; i++)
-            math_random();
+        while (x == 0)
+            x = shell_random_seed();
+        if (x < 0)
+            x = -x;
+        #ifdef BCD_MATH
+            const phloat e12(1000000000000LL);
+            if (x >= 1) {
+                int exp = to_int(floor(log10(x)));
+                Phloat mant = floor(x * pow(Phloat(10), 11 - exp));
+                x = (mant + ((exp + 1) % 100) / Phloat(100) + Phloat(1, 1000)) / e12;
+            } else if (x >= Phloat(1LL, 1000000000000LL)) {
+                x = floor(x * e12) / e12 + Phloat(1LL, 1000000000000000LL);
+            } else {
+                int exp = to_int(floor(log10(x) + 10000));
+                if (exp > 9984)
+                    exp = 9984;
+                x = ((exp + 16) % 100) / Phloat(100000000000000LL) + Phloat(1LL, 1000000000000000LL);
+            }
+            random_number_high = to_int8(x * Phloat(10000000));
+            random_number_low = to_int8(fmod(x * Phloat(1000000000000000LL), Phloat(100000000)));
+        #else
+            if (x >= 1) {
+                int exp = (int) floor(log10(x));
+                int8 mant = (int8) floor(x * pow(10, 11 - exp));
+                random_number_high = mant / 100000;
+                random_number_low = (mant % 100000) * 1000L + (exp + 1) % 100 * 10 + 1;
+            } else if (x >= 1e-12) {
+                int8 t = (int8) floor(x * 1e12);
+                random_number_high = t / 100000;
+                random_number_low = (t % 100000) * 1000L + 1;
+            } else {
+                int exp = (int) floor(log10(x) + 1000);
+                if (exp > 984)
+                    exp = 984;
+                random_number_high = 0;
+                random_number_low = (exp + 16) % 100 * 10 + 1;
+            }
+        #endif
         return ERR_NONE;
     } else if (arg->type == TYPE_STRING)
         return ERR_ALPHA_DATA_IS_INVALID;

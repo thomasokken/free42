@@ -500,7 +500,7 @@ extern arg_struct input_arg;
 extern int baseapp;
 
 /* Random number generator */
-extern phloat random_number;
+extern int8 random_number_low, random_number_high;
 
 /* NORM & TRACE mode: number waiting to be printed */
 extern int deferred_print;

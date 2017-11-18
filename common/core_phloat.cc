@@ -184,6 +184,14 @@ Phloat::Phloat(int numer, int denom) {
 }
 
 /* public */
+Phloat::Phloat(int8 numer, int8 denom) {
+    BID_UINT128 n, d;
+    bid128_from_int64(&n, &numer);
+    bid128_from_int64(&d, &denom);
+    bid128_div(&val, &n, &d);
+}
+
+/* public */
 Phloat::Phloat(int i) {
     bid128_from_int32(&val, &i);
 }

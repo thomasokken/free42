@@ -73,6 +73,7 @@ class Phloat {
         Phloat(const BID_UINT128 &b) : val(b) {}
         Phloat(const char *str);
         Phloat(int numer, int denom);
+        Phloat(int8 numer, int8 denom);
         Phloat(int i);
         Phloat(int8 i);
         Phloat(double d);

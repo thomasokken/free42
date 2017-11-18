@@ -19,15 +19,57 @@
 #include "core_math2.h"
 
 phloat math_random() {
-#ifdef BCD_MATH
-    const Phloat n1("9821");
-    const Phloat n2("0.211327");
-    random_number = random_number * n1 + n2;
-#else
-    random_number = random_number * 9821 + 0.211327;
-#endif
-    random_number -= floor(random_number);
-    return random_number;
+    if (random_number_low == 0 && random_number_high == 0) {
+        // TODO: This starting seed gives the same sequence as the RPL RAND
+        // function, but the HP-42S RAN function, while using the same RNG
+        // algorithm, uses a different default seed. Which?
+        // For what it's worth, the HP-42S RAN sequence starts with these three
+        // numbers:
+        // 0.946101897637
+        // 0.678651593638
+        // 0.842728922870
+        random_number_high = 9995003;
+        random_number_low = 33083533;
+    }
+    int8 temp = random_number_low * 30928467;
+    random_number_high = (random_number_low * 28511 + random_number_high * 30928467 + temp / 100000000) % 10000000;
+    random_number_low = temp % 100000000;
+    if (random_number_high >= 1000000) {
+        temp = random_number_low / 1000;
+        #ifdef BCD_MATH
+            const Phloat n1(1000000000000LL);
+            const Phloat n2(10000000);
+            return Phloat(temp) / n1 + Phloat(random_number_high) / n2;
+        #else
+            return temp / 1000000000000.0 + random_number_high / 10000000.0;
+        #endif
+    } else if (random_number_high >= 100000) {
+        temp = random_number_low / 100;
+        #ifdef BCD_MATH
+            const Phloat n1(10000000000000LL);
+            const Phloat n2(10000000);
+            return Phloat(temp) / n1 + Phloat(random_number_high) / n2;
+        #else
+            return temp / 10000000000000.0 + random_number_high / 10000000.0;
+        #endif
+    } else if (random_number_high >= 10000) {
+        temp = random_number_low / 10;
+        #ifdef BCD_MATH
+            const Phloat n1(100000000000000LL);
+            const Phloat n2(10000000);
+            return Phloat(temp) / n1 + Phloat(random_number_high) / n2;
+        #else
+            return temp / 100000000000000.0 + random_number_high / 10000000.0;
+        #endif
+    } else {
+        #ifdef BCD_MATH
+            const Phloat n1(1000000000000000LL);
+            const Phloat n2(10000000);
+            return Phloat(random_number_low) / n1 + Phloat(random_number_high) / n2;
+        #else
+            return random_number_low / 1000000000000000.0 + random_number_high / 10000000.0;
+        #endif
+    }
 }
 
 int math_tan(phloat x, phloat *y, bool rad) {
