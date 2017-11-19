@@ -309,7 +309,7 @@ int docmd_seed(arg_struct *arg) {
         #else
             if (x >= 1) {
                 int exp = (int) floor(log10(x));
-                int8 mant = (int8) floor(x * pow(10, 11 - exp));
+                int8 mant = (int8) floor(x * pow(10.0, 11 - exp));
                 random_number_high = mant / 100000;
                 random_number_low = (mant % 100000) * 1000L + (exp + 1) % 100 * 10 + 1;
             } else if (x >= 1e-12) {
