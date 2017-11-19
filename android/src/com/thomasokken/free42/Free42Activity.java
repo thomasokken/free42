@@ -30,7 +30,6 @@ import java.lang.reflect.Method;
 import java.nio.IntBuffer;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.Date;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -1573,23 +1572,6 @@ public class Free42Activity extends Activity {
      */
     public void shell_powerdown() {
         finish();
-    }
-    
-    /**
-     * shell_random_seed()
-     * When SEED is invoked with X = 0, the random number generator should be
-     * seeded to a random value; the emulator core calls this function to obtain
-     * it. The shell should construct a double in the range [0, 1) in a random
-     * manner, using the real-time clock or some other source of randomness.
-     * Note that distribution is not very important; the value will only be used to
-     * seed the RNG. What's important that using shell_random_seed() guarantees
-     * that the RNG will be initialized to a different sequence. This matters for
-     * applications like games where you don't want the same sequence of cards
-     * dealt each time.
-     */
-    public double shell_random_seed() {
-        long t = new Date().getTime();
-        return (t % 1000000000) / 1000000000d;
     }
     
     /**

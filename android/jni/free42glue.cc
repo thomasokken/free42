@@ -445,15 +445,11 @@ void shell_powerdown() {
     env->DeleteLocalRef(klass);
 }
 
-double shell_random_seed() {
+int8 shell_random_seed() {
     Tracer T("shell_random_seed");
-    JNIEnv *env = getJniEnv();
-    jclass klass = env->GetObjectClass(g_activity);
-    jmethodID mid = env->GetMethodID(klass, "shell_random_seed", "()D");
-    double ret = env->CallDoubleMethod(g_activity, mid);
-    // Delete local references
-    env->DeleteLocalRef(klass);
-    return ret;
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return tv.tv_sec * 1000LL + tv.tv_usec / 1000;
 }
 
 uint4 shell_milliseconds() {

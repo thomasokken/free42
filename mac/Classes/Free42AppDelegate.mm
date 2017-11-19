@@ -970,10 +970,10 @@ static void show_message(const char *title, const char *message) {
     fprintf(stderr, "%s\n", message);
 }
 
-double shell_random_seed() {
+int8 shell_random_seed() {
     struct timeval tv;
     gettimeofday(&tv, NULL);
-    return ((tv.tv_sec * 1000000L + tv.tv_usec) & 0xffffffffL) / 4294967296.0;
+    return tv.tv_sec * 1000LL + tv.tv_usec / 1000;
 }
 
 void shell_beeper(int frequency, int duration) {

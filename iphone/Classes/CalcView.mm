@@ -945,11 +945,11 @@ void shell_powerdown() {
     we_want_cpu = 1;
 }
 
-double shell_random_seed() {
+int8 shell_random_seed() {
     TRACE("shell_random_seed");
     struct timeval tv;
     gettimeofday(&tv, NULL);
-    return ((tv.tv_sec * 1000000L + tv.tv_usec) & 0xffffffffL) / 4294967296.0;
+    return tv.tv_sec * 1000LL + tv.tv_usec / 1000;
 }
 
 unsigned int shell_milliseconds() {

@@ -1896,8 +1896,10 @@ void shell_powerdown() {
     PostQuitMessage(0);
 }
 
-double shell_random_seed() {
-    return ((double) rand()) / (RAND_MAX + 1.0);
+int8 shell_random_seed() {
+    FILETIME ft;
+    GetSystemTimeAsFileTime(&ft);
+    return ((((int8) ft.dwHighDateTime) << 32) | (uint4) ft.dwLowDateTime) / 10000;
 }
 
 uint4 shell_milliseconds() {
