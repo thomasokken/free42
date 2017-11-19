@@ -365,10 +365,8 @@ void skin_load(long *width, long *height) {
             unsigned long bg, fg;
             if (sscanf(line + 8, " %d,%d %d %d %lx %lx", &x, &y,
                                             &xscale, &yscale, &bg, &fg) == 6) {
-                // Hack: I'm masking off the lowest bit, because painting
-                // can get screwy when these coordinates are odd. No idea why.
-                display_loc.x = x & ~1;
-                display_loc.y = y & ~1;
+                display_loc.x = x;
+                display_loc.y = y;
                 display_scale.x = xscale;
                 display_scale.y = yscale;
                 CGColorSpaceRef color_space = CGColorSpaceCreateDeviceRGB();
@@ -488,6 +486,13 @@ void skin_load(long *width, long *height) {
                 memcpy(keymap + (keymap_length++), entry, sizeof(keymap_entry));
             }
         }
+    }
+    
+    // Hack: I'm masking off the lowest bit from the display location, because
+    // painting can get screwy when these coordinates are odd. No idea why.
+    if (skin.width >= 640) {
+        display_loc.x &= ~1;
+        display_loc.y &= ~1;
     }
 
     skin_close();
