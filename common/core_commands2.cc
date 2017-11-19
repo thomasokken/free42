@@ -284,8 +284,6 @@ int docmd_seed(arg_struct *arg) {
             s = s * 10 + 1;
             random_number_high = s / 10000000LL;
             random_number_low = s % 100000000LL;
-            vartype *v = new_real(random_number_low % 10000LL / 10);
-            recall_result(v);
             return ERR_NONE;
         }
         if (x < 0)
