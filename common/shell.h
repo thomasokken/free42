@@ -136,15 +136,11 @@ void shell_powerdown();
 /* shell_random_seed()
  * When SEED is invoked with X = 0, the random number generator should be
  * seeded to a random value; the emulator core calls this function to obtain
- * it. The shell should construct a double in the range [0, 1) in a random
- * manner, using the real-time clock or some other source of randomness.
- * Note that distribution is not very important; the value will only be used to
- * seed the RNG. What's important that using shell_random_seed() guarantees
- * that the RNG will be initialized to a different sequence. This matters for
- * applications like games where you don't want the same sequence of cards
- * dealt each time.
+ * it. The core uses the least significant 14 decimal digits of the provided
+ * value, so using a millisecond-resolution time stamp means SEED won't
+ * repeat itself for more than 3000 years.
  */
-double shell_random_seed();
+int8 shell_random_seed();
 
 /* shell_milliseconds()
  * Returns an elapsed-time value in milliseconds. The caller should make no

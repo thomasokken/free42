@@ -2392,9 +2392,8 @@ bool load_state(int4 ver) {
         phloat random_number;
         if (!read_phloat(&random_number))
             return false;
-        random_number_low = to_int8(random_number * 1000000000000000LL);
-        random_number_high = random_number_low / 100000000;
-        random_number_low %= 100000000;
+        random_number_low = to_int8(random_number * 1000000) * 10 + 1;
+        random_number_high = 0;
     } else {
         if (!read_int8(&random_number_low)) return false;
         if (!read_int8(&random_number_high)) return false;

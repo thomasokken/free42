@@ -276,8 +276,16 @@ int docmd_ran(arg_struct *arg) {
 int docmd_seed(arg_struct *arg) {
     if (reg_x->type == TYPE_REAL) {
         phloat x = ((vartype_real *) reg_x)->x;
-        while (x == 0)
-            x = shell_random_seed();
+        if (x == 0) {
+            int8 s = shell_random_seed();
+            if (s < 0)
+                s = -s;
+            s %= 100000000000000LL;
+            s = s * 10 + 1;
+            random_number_high = s / 10000000LL;
+            random_number_low = s % 100000000LL;
+            return ERR_NONE;
+        }
         if (x < 0)
             x = -x;
         #ifdef BCD_MATH
