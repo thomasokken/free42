@@ -14,6 +14,7 @@
 	<array>
 		<string>icon.png</string>
 		<string>icon@2x.png</string>
+		<string>icon-120.png</string>
 	</array>
 	<key>CFBundleIdentifier</key>
 	<string>com.yourcompany.Free42</string>

@@ -1,6 +1,6 @@
 ###############################################################################
 # Free42 -- an HP-42S calculator simulator
-# Copyright (C) 2004-2012  Thomas Okken
+# Copyright (C) 2004-2017  Thomas Okken
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License, version 2,
@@ -33,7 +33,7 @@ CXXFLAGS = $(CFLAGS) \
            -fno-exceptions \
 	   -fno-rtti
 
-LDFLAGS = -Wl,-syslibroot,/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk \
+LDFLAGS = -Wl,-syslibroot,/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk \
           -mmacosx-version-min=10.4
 LIBS = -arch i386 -lm gcc111libbid.a
 
