@@ -26,5 +26,4 @@ cd util
 cc -o txt2html txt2html.c
 cd ..
 util/txt2html "Free42 HISTORY" <HISTORY >history.html
-util/txt2html "Free42 TODO" <TODO >todo.html
-mv history.html todo.html packages
+mv history.html packages
