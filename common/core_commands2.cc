@@ -292,7 +292,11 @@ int docmd_seed(arg_struct *arg) {
             const phloat e12(1000000000000LL);
             if (x >= 1) {
                 int exp = to_int(floor(log10(x)));
-                Phloat mant = floor(x * pow(Phloat(10), 11 - exp));
+                Phloat mant = floor(x * pow(Phloat(10), 11 - exp) + 0.5);
+                if (mant >= Phloat(1000000000000LL)) {
+                    mant /= 10;
+                    exp++;
+                }
                 x = (mant + ((exp + 1) % 100) / Phloat(100) + Phloat(1, 1000)) / e12;
             } else if (x >= Phloat(1LL, 1000000000000LL)) {
                 x = floor(x * e12) / e12 + Phloat(1LL, 1000000000000000LL);
@@ -307,7 +311,11 @@ int docmd_seed(arg_struct *arg) {
         #else
             if (x >= 1) {
                 int exp = (int) floor(log10(x));
-                int8 mant = (int8) floor(x * pow(10.0, 11 - exp));
+                int8 mant = (int8) floor(x * pow(10.0, 11 - exp) + 0.5);
+                if (mant >= 1000000000000LL) {
+                    mant /= 10;
+                    exp++;
+                }
                 random_number_high = mant / 100000;
                 random_number_low = (mant % 100000) * 1000L + (exp + 1) % 100 * 10 + 1;
             } else if (x >= 1e-12) {
