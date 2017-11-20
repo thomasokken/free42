@@ -42,6 +42,7 @@
 		E9200DF81699E1EC001BC4B5 /* PrintView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9200DF51699E1EC001BC4B5 /* PrintView.mm */; };
 		E9200DFB169A0004001BC4B5 /* PrintTileView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9200DFA169A0004001BC4B5 /* PrintTileView.mm */; };
 		E92BCF39114C420900832FAD /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E92BCF38114C420900832FAD /* CoreLocation.framework */; };
+		E93CA8501FC255AA001B25D1 /* icon-1024.png in Resources */ = {isa = PBXBuildFile; fileRef = E93CA84F1FC255AA001B25D1 /* icon-1024.png */; };
 		E93F2B560F894D9000CE8542 /* shell_spool.cc in Sources */ = {isa = PBXBuildFile; fileRef = E93F2B540F894D9000CE8542 /* shell_spool.cc */; };
 		E94025AF19312C320096B2E4 /* gcc111libbid.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E94025AE19312C320096B2E4 /* gcc111libbid.a */; };
 		E94C3CFE132DAB0A00880A45 /* Entitlements.plist in Resources */ = {isa = PBXBuildFile; fileRef = E94C3CFD132DAB0A00880A45 /* Entitlements.plist */; };
@@ -149,6 +150,7 @@
 		E9200DF9169A0004001BC4B5 /* PrintTileView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrintTileView.h; sourceTree = "<group>"; };
 		E9200DFA169A0004001BC4B5 /* PrintTileView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PrintTileView.mm; sourceTree = "<group>"; };
 		E92BCF38114C420900832FAD /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = /System/Library/Frameworks/CoreLocation.framework; sourceTree = "<absolute>"; };
+		E93CA84F1FC255AA001B25D1 /* icon-1024.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-1024.png"; sourceTree = "<group>"; };
 		E93F2B540F894D9000CE8542 /* shell_spool.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = shell_spool.cc; path = ../common/shell_spool.cc; sourceTree = SOURCE_ROOT; };
 		E93F2B550F894D9000CE8542 /* shell_spool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shell_spool.h; path = ../common/shell_spool.h; sourceTree = SOURCE_ROOT; };
 		E94025AE19312C320096B2E4 /* gcc111libbid.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = gcc111libbid.a; sourceTree = "<group>"; };
@@ -305,6 +307,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				E93CA84F1FC255AA001B25D1 /* icon-1024.png */,
 				E94DFE341FC24C38002A796C /* icon-120.png */,
 				E9C061C6127CED07000427AA /* icon@2x.png */,
 				E94DE6C51011E9AE005E6B19 /* about-icon.png */,
@@ -486,6 +489,7 @@
 				E9C061C7127CED07000427AA /* icon@2x.png in Resources */,
 				E94C3CFE132DAB0A00880A45 /* Entitlements.plist in Resources */,
 				E95AEACD185541F8004A384B /* Default-568h@2x.png in Resources */,
+				E93CA8501FC255AA001B25D1 /* icon-1024.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
