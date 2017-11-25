@@ -493,6 +493,8 @@ void skin_load(long *width, long *height) {
     if (skin.width >= 640) {
         display_loc.x &= ~1;
         display_loc.y &= ~1;
+        display_scale.x &= ~1;
+        display_scale.y &= ~1;
     }
 
     skin_close();
