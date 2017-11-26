@@ -16,6 +16,7 @@
 		E9031C920FF68FCD0023F9EC /* Ehrling42sm.gif in Resources */ = {isa = PBXBuildFile; fileRef = E9031C900FF68FCD0023F9EC /* Ehrling42sm.gif */; };
 		E9031C930FF68FCD0023F9EC /* Ehrling42sm.layout in Resources */ = {isa = PBXBuildFile; fileRef = E9031C910FF68FCD0023F9EC /* Ehrling42sm.layout */; };
 		E908D3ED16D04D92000710EB /* SelectProgramsView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E908D3EC16D04D92000710EB /* SelectProgramsView.mm */; };
+		E90AF9001FCB0E3800301A51 /* about-icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E90AF8FF1FCB0E3800301A51 /* about-icon@2x.png */; };
 		E91005D10F893F8900B68C27 /* core_commands1.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005A80F893F8900B68C27 /* core_commands1.cc */; };
 		E91005D20F893F8900B68C27 /* core_commands2.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005AA0F893F8900B68C27 /* core_commands2.cc */; };
 		E91005D30F893F8900B68C27 /* core_commands3.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005AC0F893F8900B68C27 /* core_commands3.cc */; };
@@ -99,6 +100,7 @@
 		E9031C910FF68FCD0023F9EC /* Ehrling42sm.layout */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Ehrling42sm.layout; path = skins/Ehrling42sm.layout; sourceTree = SOURCE_ROOT; };
 		E908D3EB16D04D92000710EB /* SelectProgramsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectProgramsView.h; sourceTree = "<group>"; };
 		E908D3EC16D04D92000710EB /* SelectProgramsView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SelectProgramsView.mm; sourceTree = "<group>"; };
+		E90AF8FF1FCB0E3800301A51 /* about-icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "about-icon@2x.png"; sourceTree = "<group>"; };
 		E91005810F893DB700B68C27 /* free42.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = free42.h; path = ../common/free42.h; sourceTree = SOURCE_ROOT; };
 		E910059A0F893F3E00B68C27 /* shell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shell.h; path = ../common/shell.h; sourceTree = SOURCE_ROOT; };
 		E91005A80F893F8900B68C27 /* core_commands1.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_commands1.cc; path = ../common/core_commands1.cc; sourceTree = SOURCE_ROOT; };
@@ -307,13 +309,14 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				E93CA84F1FC255AA001B25D1 /* icon-1024.png */,
-				E94DFE341FC24C38002A796C /* icon-120.png */,
-				E9C061C6127CED07000427AA /* icon@2x.png */,
 				E94DE6C51011E9AE005E6B19 /* about-icon.png */,
+				E90AF8FF1FCB0E3800301A51 /* about-icon@2x.png */,
+				E98FA4830F913E2900DED348 /* icon.png */,
+				E9C061C6127CED07000427AA /* icon@2x.png */,
+				E94DFE341FC24C38002A796C /* icon-120.png */,
+				E93CA84F1FC255AA001B25D1 /* icon-1024.png */,
 				E9C92F8A0FE424FE00DC292C /* Default.png */,
 				E95AEACC185541F8004A384B /* Default-568h@2x.png */,
-				E98FA4830F913E2900DED348 /* icon.png */,
 				8D1107310486CEB800E47090 /* Info.plist */,
 				28AD733E0D9D9553002E5188 /* MainWindow.xib */,
 				E98DD75C0F8C1A210089D9FA /* squeak.wav */,
@@ -481,6 +484,7 @@
 				E98FA4840F913E2900DED348 /* icon.png in Resources */,
 				E9C255DD1996B9C1007634C9 /* Ehrling42sl.layout in Resources */,
 				E9B1D9230FAC7C51000EB4CD /* VERSION in Resources */,
+				E90AF9001FCB0E3800301A51 /* about-icon@2x.png in Resources */,
 				E9C92F8B0FE424FE00DC292C /* Default.png in Resources */,
 				E9031C8F0FF68FB10023F9EC /* builtin_skins.txt in Resources */,
 				E9031C920FF68FCD0023F9EC /* Ehrling42sm.gif in Resources */,
