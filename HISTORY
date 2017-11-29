@@ -13,8 +13,8 @@
 * Windows, Linux, and Mac versions: added keyboard mappings g => GTO and
   p => PI. On existing installations, users must delete or rename the existing
   keymap and restart for this to take effect.
-* iOS version: painting the display could be glitchy if either or both of its
-  coordinates were odd. Fixed by forcing them to be even.
+* iPhone version: painting the display could be glitchy if either or both of
+  its coordinates were odd. Fixed by forcing them to be even.
 
 2017-08-12: release 2.0.6
 
