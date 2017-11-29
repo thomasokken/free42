@@ -1,7 +1,7 @@
 #!/bin/sh -e
 
 # This script builds the regular and upstream source packages,
-# and minimally HTMLified versions of HISTORY and TODO.
+# and a minimally HTMLified version of HISTORY.
 
 mkdir -p packages
 
@@ -25,5 +25,5 @@ cd ..
 cd util
 cc -o txt2html txt2html.c
 cd ..
-util/txt2html "Free42 History" <HISTORY >history.html
+util/txt2html "Free42 history" <HISTORY >history.html
 mv history.html packages
