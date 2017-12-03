@@ -1432,14 +1432,6 @@ public class Free42Activity extends Activity {
      * height of the area to be repainted.
      */
     public void shell_blitter(byte[] bits, int bytesperline, int x, int y, int width, int height) {
-        // HACK for testing with Vincent Weber's phone (Galaxy Edge something something)
-        // If it proves effective, make this a Preferences option; otherwise, just
-        // remove.
-        x = 0;
-        y = 0;
-        width = 131;
-        height = 16;
-        // END HACK
         Rect inval = skin.display_blitter(bits, bytesperline, x, y, width, height);
         calcView.postInvalidateScaled(inval.left, inval.top, inval.right, inval.bottom);
     }

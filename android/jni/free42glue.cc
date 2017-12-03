@@ -329,6 +329,12 @@ Java_com_thomasokken_free42_Free42Activity_redisplay(JNIEnv *env, jobject thiz) 
 void shell_blitter(const char *bits, int bytesperline, int x, int y,
                          int width, int height) {
     Tracer T("shell_blitter");
+    // HACK
+    x = 0;
+    y = 0;
+    width = 131;
+    height = 16;
+    // END HACK
     JNIEnv *env = getJniEnv();
     jclass klass = env->GetObjectClass(g_activity);
     jmethodID mid = env->GetMethodID(klass, "shell_blitter", "([BIIIII)V");
