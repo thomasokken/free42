@@ -276,7 +276,7 @@ Java_com_thomasokken_free42_Free42Activity_getCoreSettings(JNIEnv *env, jobject 
     fid = env->GetFieldID(klass, "auto_repeat", "Z");
     env->SetBooleanField(settings, fid, core_settings.auto_repeat);
     fid = env->GetFieldID(klass, "display_full_repaint", "Z");
-    env->SetBooleanField(settings, fid, core_settins.display_full_repaint);
+    env->SetBooleanField(settings, fid, core_settings.display_full_repaint);
     fid = env->GetFieldID(klass, "enable_ext_accel", "Z");
     env->SetBooleanField(settings, fid, core_settings.enable_ext_accel);
     fid = env->GetFieldID(klass, "enable_ext_locat", "Z");
