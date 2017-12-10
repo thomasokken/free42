@@ -1,3 +1,8 @@
+????-??-??: release 2.0.7a (Android only)
+
+* Added "Always Paint Entire Display" option. This prevents display glitches
+  with certain combinations of devices and skins.
+
 2017-11-19: release 2.0.7
 
 * Changed the RAN and SEED functions to match the behavior of the real HP-42S.
