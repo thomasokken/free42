@@ -69,6 +69,7 @@ public class PreferencesDialog extends Dialog {
     private Spinner styleSP;
     private CheckBox skinSmoothingCB;
     private CheckBox displaySmoothingCB;
+    private CheckBox displayFullRepaintCB;
     private CheckBox printToTextCB;
     private EditText printToTextFileNameTF;
     private CheckBox printToGifCB;
@@ -101,6 +102,7 @@ public class PreferencesDialog extends Dialog {
         styleSP.setAdapter(aa);
         skinSmoothingCB = (CheckBox) findViewById(R.id.skinSmoothingCB);
         displaySmoothingCB = (CheckBox) findViewById(R.id.displaySmoothingCB);
+        displayFullRepaintCB = (CheckBox) findViewById(R.id.displayFullRepaintCB);
         printToTextCB = (CheckBox) findViewById(R.id.printToTextCB);
         Button browseTextB = (Button) findViewById(R.id.browseTextB);
         browseTextB.setOnClickListener(new View.OnClickListener() {
@@ -267,6 +269,14 @@ public class PreferencesDialog extends Dialog {
     
     public boolean getDisplaySmoothing() {
         return displaySmoothingCB.isChecked();
+    }
+    
+    public void setDisplayFullRepaint(boolean b) {
+        displayFullRepaintCB.setChecked(b);
+    }
+    
+    public boolean getDisplayFullRepaint() {
+        return displayFullRepaintCB.isChecked();
     }
     
     public void setPrintToText(boolean b) {

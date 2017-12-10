@@ -110,10 +110,16 @@
 		    		android:layout_below="@+id/skinSmoothingCB"
 		    		android:layout_alignParentLeft="true"/>
 		    
+            <CheckBox android:id="@+id/displayFullRepaintCB"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Always Paint Entire Display"
+                    android:layout_below="@+id/displaySmoothingCB"
+                    android:layout_alignParentLeft="true"/>
+            
 		    <CheckBox android:id="@+id/printToTextCB"
 		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
 		    		android:text="Print to Text"
-		    		android:layout_below="@+id/displaySmoothingCB"
+		    		android:layout_below="@+id/displayFullRepaintCB"
 		    		android:layout_alignParentLeft="true"/>
 		    
 		    <Button android:id="@+id/browseTextB"

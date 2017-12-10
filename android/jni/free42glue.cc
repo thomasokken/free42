@@ -275,6 +275,8 @@ Java_com_thomasokken_free42_Free42Activity_getCoreSettings(JNIEnv *env, jobject 
     env->SetBooleanField(settings, fid, core_settings.matrix_outofrange);
     fid = env->GetFieldID(klass, "auto_repeat", "Z");
     env->SetBooleanField(settings, fid, core_settings.auto_repeat);
+    fid = env->GetFieldID(klass, "display_full_repaint", "Z");
+    env->SetBooleanField(settings, fid, core_settins.display_full_repaint);
     fid = env->GetFieldID(klass, "enable_ext_accel", "Z");
     env->SetBooleanField(settings, fid, core_settings.enable_ext_accel);
     fid = env->GetFieldID(klass, "enable_ext_locat", "Z");
@@ -297,6 +299,8 @@ Java_com_thomasokken_free42_Free42Activity_putCoreSettings(JNIEnv *env, jobject 
     core_settings.matrix_outofrange = env->GetBooleanField(settings, fid);
     fid = env->GetFieldID(klass, "auto_repeat", "Z");
     core_settings.auto_repeat = env->GetBooleanField(settings, fid);
+    fid = env->GetFieldID(klass, "display_full_repaint", "Z");
+    core_settings.display_full_repaint = env->GetBooleanField(settings, fid);
     fid = env->GetFieldID(klass, "enable_ext_accel", "Z");
     core_settings.enable_ext_accel = env->GetBooleanField(settings, fid);
     fid = env->GetFieldID(klass, "enable_ext_locat", "Z");
@@ -329,12 +333,12 @@ Java_com_thomasokken_free42_Free42Activity_redisplay(JNIEnv *env, jobject thiz) 
 void shell_blitter(const char *bits, int bytesperline, int x, int y,
                          int width, int height) {
     Tracer T("shell_blitter");
-    // HACK
-    x = 0;
-    y = 0;
-    width = 131;
-    height = 16;
-    // END HACK
+    if (core_settings.display_full_repaint) {
+        x = 0;
+        y = 0;
+        width = 131;
+        height = 16;
+    }
     JNIEnv *env = getJniEnv();
     jclass klass = env->GetObjectClass(g_activity);
     jmethodID mid = env->GetMethodID(klass, "shell_blitter", "([BIIIII)V");
