@@ -325,7 +325,6 @@ typedef struct {
     bool matrix_singularmatrix;
     bool matrix_outofrange;
     bool auto_repeat;
-    bool display_full_repaint;
     bool enable_ext_accel;
     bool enable_ext_locat;
     bool enable_ext_heading;

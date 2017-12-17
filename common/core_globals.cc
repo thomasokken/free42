@@ -2303,10 +2303,6 @@ bool load_state(int4 ver) {
         core_settings.auto_repeat = true;
     else
         if (!read_bool(&core_settings.auto_repeat)) return false;
-    if (ver < 21)
-        core_settings.display_full_repaint = false;
-    else
-        if (!read_bool(&core_settings.display_full_repaint)) return false;
     if (ver < 15) {
         #if defined(ANDROID) || defined(IPHONE)
             core_settings.enable_ext_accel = true;
@@ -2482,7 +2478,6 @@ void save_state() {
     if (!write_bool(core_settings.matrix_singularmatrix)) return;
     if (!write_bool(core_settings.matrix_outofrange)) return;
     if (!write_bool(core_settings.auto_repeat)) return;
-    if (!write_bool(core_settings.display_full_repaint)) return;
     if (!write_bool(core_settings.enable_ext_accel)) return;
     if (!write_bool(core_settings.enable_ext_locat)) return;
     if (!write_bool(core_settings.enable_ext_heading)) return;

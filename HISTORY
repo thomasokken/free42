@@ -1,4 +1,4 @@
-????-??-??: release 2.0.7a (Android only)
+2017-12-17: release 2.0.7a (Android only)
 
 * Added "Always Paint Entire Display" option. This prevents display glitches
   with certain combinations of devices and skins.
