@@ -320,7 +320,7 @@ static bool alwaysRepaintFullDisplay = false;
 extern "C" void
 Java_com_thomasokken_free42_Free42Activity_setAlwaysRepaintFullDisplay(JNIEnv *env, jobject thiz, jboolean repaintFull) {
     Tracer T("setAlwaysRepaintFullDisplay");
-    alwaysRepaintFullDispaly = repaintFull;
+    alwaysRepaintFullDisplay = repaintFull;
 }
 
 
