@@ -173,6 +173,7 @@ public class Free42Activity extends Activity {
             init_shell_state(-1);
             init_mode = 0;
         }
+        setAlwaysRepaintFullDisplay(alwaysRepaintFullDisplay);
 
         if (style == 1)
             setTheme(android.R.style.Theme_NoTitleBar_Fullscreen);

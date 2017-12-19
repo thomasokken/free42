@@ -1,3 +1,8 @@
+2017-12-18: release 2.0.7b (Android only)
+
+* The "Always Paint Entire Display" setting, introduced in the previous
+  version, didn't stick after app restart. Fixed.
+
 2017-12-17: release 2.0.7a (Android only)
 
 * Added "Always Paint Entire Display" option. This prevents display glitches
