@@ -719,7 +719,7 @@ static phloat sin_or_cos_deg(phloat x, bool do_sin) {
     }
     phloat r;
     if (x == 45)
-        r = sqrt(0.5);
+        r = sqrt(phloat(0.5));
     else {
         if (x > 45) {
             x = 90 - x;
@@ -759,7 +759,7 @@ static phloat sin_or_cos_grad(phloat x, bool do_sin) {
     }
     phloat r;
     if (x == 50)
-        r = sqrt(0.5);
+        r = sqrt(phloat(0.5));
     else {
         if (x > 50) {
             x = 100 - x;

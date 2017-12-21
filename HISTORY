@@ -1,3 +1,8 @@
+2017-12-21: release 2.0.7c (Windows only)
+
+* Decimal: SIN and COS of 45 degrees or 50 grads returned an inaccurate result,
+  correct to only 16 digits. Fixed.
+
 2017-12-18: release 2.0.7b (Android only)
 
 * The "Always Paint Entire Display" setting, introduced in the previous
