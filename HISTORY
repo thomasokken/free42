@@ -1,3 +1,9 @@
+????-??-??: release 2.0.8
+
+* MENU (activating the programmable menu) while in ALPHA mode didn't turn off
+  the alpha_mode flag, leading to bad behavior or even crashes if any menu keys
+  were subsequently pressed.
+
 2017-12-21: release 2.0.7c (Windows only)
 
 * Decimal: SIN and COS of 45 degrees or 50 grads returned an inaccurate result,

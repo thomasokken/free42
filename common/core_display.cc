@@ -2425,6 +2425,7 @@ int set_menu_return_err(int level, int menuid, bool exitall) {
             mode_plainmenu = MENU_NONE;
     lbl_00: mode_transientmenu = MENU_NONE;
     lbl_01: mode_alphamenu = MENU_NONE;
+            flags.f.alpha_mode = 0;
     lbl_02: mode_commandmenu = MENU_NONE;
     lbl_03:
 
