@@ -2637,7 +2637,7 @@ void hard_reset(int bad_state_file) {
     /* flags.f.VIRTUAL_solving = 0; */
     /* flags.f.VIRTUAL_integrating = 0; */
     /* flags.f.VIRTUAL_variable_menu = 0; */
-    flags.f.alpha_mode = 0;
+    /* flags.f.VIRTUAL_alpha_mode = 0; */
     /* flags.f.VIRTUAL_low_battery = 0; */
     flags.f.message = 1;
     flags.f.two_line_message = 0;

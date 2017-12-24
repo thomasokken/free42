@@ -322,7 +322,7 @@ typedef union {
         char VIRTUAL_solving;
         char VIRTUAL_integrating;
         char VIRTUAL_variable_menu;
-        char alpha_mode;
+        char VIRTUAL_alpha_mode;
         char VIRTUAL_low_battery;
         char message;
         char two_line_message;

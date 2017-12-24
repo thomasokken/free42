@@ -597,7 +597,6 @@ int core_powercycle() {
         mode_alpha_entry = false;
         mode_number_entry = false;
         set_menu(MENULEVEL_ALPHA, MENU_NONE);
-        flags.f.alpha_mode = 0;
         set_running(true);
         flags.f.auto_exec = 0;
         need_redisplay = false;
@@ -2068,7 +2067,7 @@ char *core_copy() {
             return NULL;
         } else
             return tb.buf;
-    } else if (flags.f.alpha_mode) {
+    } else if (core_alpha_menu()) {
         char *buf = (char *) malloc(5 * reg_alpha_length + 1);
         int bufptr = hp2ascii(buf, reg_alpha, reg_alpha_length);
         buf[bufptr] = 0;
@@ -3163,7 +3162,7 @@ void core_paste(const char *buf) {
 
     if (flags.f.prgm_mode) {
         paste_programs(buf);
-    } else if (flags.f.alpha_mode) {
+    } else if (core_alpha_menu()) {
         char hpbuf[48];
         int len = ascii2hp(hpbuf, buf, 44);
         int tlen = len + reg_alpha_length;

@@ -282,7 +282,7 @@ void keydown(int shift, int key) {
         keydown_number_entry(shift, key);
     else if (mode_command_entry)
         keydown_command_entry(shift, key);
-    else if (flags.f.alpha_mode)
+    else if (core_alpha_menu())
         keydown_alpha_mode(shift, key);
     else
         keydown_normal_mode(shift, key);
@@ -1649,7 +1649,6 @@ void keydown_alpha_mode(int shift, int key) {
                     docmd_pra(NULL);
                 mode_alpha_entry = false;
             }
-            flags.f.alpha_mode = 0;
             pending_command = CMD_CANCELLED;
         } else
             redisplay();
@@ -1702,10 +1701,8 @@ void keydown_alpha_mode(int shift, int key) {
         if (flags.f.prgm_mode) {
             if (mode_alpha_entry) {
                 finish_alpha_prgm_line();
-                flags.f.alpha_mode = 0;
                 set_menu(MENULEVEL_ALPHA, MENU_NONE);
             } else if (shift) {
-                flags.f.alpha_mode = 0;
                 set_menu(MENULEVEL_ALPHA, MENU_NONE);
             } else {
                 start_alpha_prgm_line();
@@ -1718,7 +1715,6 @@ void keydown_alpha_mode(int shift, int key) {
                         && (flags.f.trace_print || flags.f.normal_print)
                         && flags.f.printer_exists)
                     docmd_pra(NULL);
-                flags.f.alpha_mode = 0;
                 mode_alpha_entry = false;
                 set_menu(MENULEVEL_ALPHA, MENU_NONE);
             } else
@@ -1783,7 +1779,6 @@ void keydown_alpha_mode(int shift, int key) {
 
     if (command == CMD_CANCELLED) {
         /* plainmenu or appmenu switch */
-        flags.f.alpha_mode = 0;
         set_menu(MENULEVEL_ALPHA, MENU_NONE);
         redisplay();
         return;
@@ -2319,7 +2314,6 @@ void keydown_normal_mode(int shift, int key) {
     if (shift && key == KEY_ENTER) {
         if (deferred_print)
             print_command(CMD_NULL, NULL);
-        flags.f.alpha_mode = 1;
         mode_alpha_entry = false;
         set_menu(MENULEVEL_ALPHA, MENU_ALPHA1);
         redisplay();

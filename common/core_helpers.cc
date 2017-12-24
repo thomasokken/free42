@@ -315,6 +315,17 @@ int virtual_flag_handler(int flagop, int flagnum) {
                     return ERR_INTERNAL_ERROR;
             }
         }
+        case 48: /* alpha_mode */ {
+            bool alpha = core_alpha_menu();
+            switch (flagop) {
+                case FLAGOP_FS_T:
+                    return alpha ? ERR_YES : ERR_NO;
+                case FLAGOP_FC_T:
+                    return alpha ? ERR_NO : ERR_YES;
+                default:
+                    return ERR_INTERNAL_ERROR;
+            }
+        }
         case 49: /* low_battery */ {
             int lowbat = shell_low_battery();
             switch (flagop) {
