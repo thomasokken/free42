@@ -18,8 +18,8 @@
 		E9092A7818C2A52500609AB0 /* gcc111libbid.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E9092A7718C2A52500609AB0 /* gcc111libbid.a */; };
 		E93469F21CF0C68600B0762F /* readtest_lines.cc in Sources */ = {isa = PBXBuildFile; fileRef = E93469F11CF0C68600B0762F /* readtest_lines.cc */; };
 		E93469F41CF0CCAB00B0762F /* readtest.c in Sources */ = {isa = PBXBuildFile; fileRef = E93469F31CF0CCAB00B0762F /* readtest.c */; settings = {COMPILER_FLAGS = "-D__intptr_t_defined -DLINUX"; }; };
-		E942DD170FEBEFB600CA75AD /* icon-64x64.png in Resources */ = {isa = PBXBuildFile; fileRef = E942DD160FEBEFB600CA75AD /* icon-64x64.png */; };
 		E94E1BEC0FF391DA0074CA65 /* VERSION in Resources */ = {isa = PBXBuildFile; fileRef = E94E1BEB0FF391DA0074CA65 /* VERSION */; };
+		E95282751FF192A7008E96A5 /* icon.iconset in Resources */ = {isa = PBXBuildFile; fileRef = E95282741FF192A7008E96A5 /* icon.iconset */; };
 		E959D42F0FEC0A44007C56A4 /* core_commands1.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4000FEC0A44007C56A4 /* core_commands1.cc */; };
 		E959D4300FEC0A44007C56A4 /* core_commands2.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4020FEC0A44007C56A4 /* core_commands2.cc */; };
 		E959D4310FEC0A44007C56A4 /* core_commands3.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4040FEC0A44007C56A4 /* core_commands3.cc */; };
@@ -48,7 +48,6 @@
 		E97925491698896300598A02 /* ProgramListDataSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = E97925481698896300598A02 /* ProgramListDataSource.mm */; };
 		E979254B1698897600598A02 /* shell_skin.mm in Sources */ = {isa = PBXBuildFile; fileRef = E979254A1698897600598A02 /* shell_skin.mm */; };
 		E97925501698ED2B00598A02 /* URLTextField.mm in Sources */ = {isa = PBXBuildFile; fileRef = E979254F1698ED2B00598A02 /* URLTextField.mm */; };
-		E97C41390FEBC6BE00772516 /* icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = E97C41380FEBC6BE00772516 /* icon.icns */; };
 		E99FDE2F11624FFA004DB479 /* core_commands7.cc in Sources */ = {isa = PBXBuildFile; fileRef = E99FDE2D11624FFA004DB479 /* core_commands7.cc */; };
 		E9B079260FF548690021B83D /* squeak.wav in Resources */ = {isa = PBXBuildFile; fileRef = E9B079250FF548690021B83D /* squeak.wav */; };
 		E9B079310FF548770021B83D /* tone0.wav in Resources */ = {isa = PBXBuildFile; fileRef = E9B079270FF548770021B83D /* tone0.wav */; };
@@ -85,8 +84,8 @@
 		E9092A7718C2A52500609AB0 /* gcc111libbid.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = gcc111libbid.a; sourceTree = "<group>"; };
 		E93469F11CF0C68600B0762F /* readtest_lines.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = readtest_lines.cc; sourceTree = "<group>"; };
 		E93469F31CF0CCAB00B0762F /* readtest.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = readtest.c; path = IntelRDFPMathLib20U1/TESTS/readtest.c; sourceTree = "<group>"; };
-		E942DD160FEBEFB600CA75AD /* icon-64x64.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-64x64.png"; sourceTree = "<group>"; };
 		E94E1BEB0FF391DA0074CA65 /* VERSION */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = VERSION; path = ../VERSION; sourceTree = SOURCE_ROOT; };
+		E95282741FF192A7008E96A5 /* icon.iconset */ = {isa = PBXFileReference; lastKnownFileType = folder.iconset; path = icon.iconset; sourceTree = "<group>"; };
 		E959D3DE0FEC09CF007C56A4 /* Free42AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Free42AppDelegate.h; path = Classes/Free42AppDelegate.h; sourceTree = "<group>"; };
 		E959D4000FEC0A44007C56A4 /* core_commands1.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_commands1.cc; path = ../common/core_commands1.cc; sourceTree = SOURCE_ROOT; };
 		E959D4010FEC0A44007C56A4 /* core_commands1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_commands1.h; path = ../common/core_commands1.h; sourceTree = SOURCE_ROOT; };
@@ -141,7 +140,6 @@
 		E979254A1698897600598A02 /* shell_skin.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = shell_skin.mm; path = Classes/shell_skin.mm; sourceTree = "<group>"; };
 		E979254C1698EB7F00598A02 /* URLTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = URLTextField.h; path = Classes/URLTextField.h; sourceTree = "<group>"; };
 		E979254F1698ED2B00598A02 /* URLTextField.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = URLTextField.mm; path = Classes/URLTextField.mm; sourceTree = "<group>"; };
-		E97C41380FEBC6BE00772516 /* icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = icon.icns; sourceTree = "<group>"; };
 		E99FDE2D11624FFA004DB479 /* core_commands7.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_commands7.cc; path = ../common/core_commands7.cc; sourceTree = SOURCE_ROOT; };
 		E99FDE2E11624FFA004DB479 /* core_commands7.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_commands7.h; path = ../common/core_commands7.h; sourceTree = SOURCE_ROOT; };
 		E9B079250FF548690021B83D /* squeak.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = squeak.wav; sourceTree = "<group>"; };
@@ -250,8 +248,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				E942DD160FEBEFB600CA75AD /* icon-64x64.png */,
-				E97C41380FEBC6BE00772516 /* icon.icns */,
+				E95282741FF192A7008E96A5 /* icon.iconset */,
 				8D1107310486CEB800E47090 /* Info.plist */,
 				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
 				E9E335DD0FF67A1D006A40AD /* keymap.txt */,
@@ -402,11 +399,10 @@
 			files = (
 				8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */,
 				1DDD58160DA1D0A300B32029 /* MainMenu.xib in Resources */,
-				E97C41390FEBC6BE00772516 /* icon.icns in Resources */,
-				E942DD170FEBEFB600CA75AD /* icon-64x64.png in Resources */,
 				E94E1BEC0FF391DA0074CA65 /* VERSION in Resources */,
 				E9B079260FF548690021B83D /* squeak.wav in Resources */,
 				E9B079310FF548770021B83D /* tone0.wav in Resources */,
+				E95282751FF192A7008E96A5 /* icon.iconset in Resources */,
 				E9B079320FF548770021B83D /* tone1.wav in Resources */,
 				E9B079330FF548770021B83D /* tone2.wav in Resources */,
 				E9B079340FF548770021B83D /* tone3.wav in Resources */,
