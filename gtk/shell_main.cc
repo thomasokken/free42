@@ -38,7 +38,8 @@
 #include "shell_spool.h"
 #include "core_main.h"
 #include "core_display.h"
-#include "icon.xpm"
+#include "icon-128x128.xpm"
+#include "icon-48x48.xpm"
 
 #ifndef _POSIX_HOST_NAME_MAX
 #define _POSIX_HOST_NAME_MAX 255
@@ -99,7 +100,8 @@ static GtkAdjustment *print_adj;
 static char export_file_name[FILENAMELEN];
 static FILE *export_file = NULL;
 static FILE *import_file = NULL;
-static GdkPixbuf *icon;
+static GdkPixbuf *icon_128;
+static GdkPixbuf *icon_48;
 
 static int ckey = 0;
 static int skey;
@@ -395,10 +397,11 @@ int main(int argc, char *argv[]) {
     /***** Build the main window *****/
     /*********************************/
 
-    icon = gdk_pixbuf_new_from_xpm_data((const char **) icon_xpm);
+    icon_128 = gdk_pixbuf_new_from_xpm_data((const char **) icon_128_xpm);
+    icon_48 = gdk_pixbuf_new_from_xpm_data((const char **) icon_48_xpm);
 
     mainwindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_icon(GTK_WINDOW(mainwindow), icon);
+    gtk_window_set_icon(GTK_WINDOW(mainwindow), icon_128);
     gtk_window_set_title(GTK_WINDOW(mainwindow), TITLE);
     gtk_window_set_role(GTK_WINDOW(mainwindow), "Free42 Calculator");
     gtk_window_set_resizable(GTK_WINDOW(mainwindow), FALSE);
@@ -506,7 +509,7 @@ int main(int argc, char *argv[]) {
         print_bitmap[n] = 0;
 
     printwindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_icon(GTK_WINDOW(printwindow), icon);
+    gtk_window_set_icon(GTK_WINDOW(printwindow), icon_128);
     gtk_window_set_title(GTK_WINDOW(printwindow), "Free42 Print-Out");
     gtk_window_set_role(GTK_WINDOW(printwindow), "Free42 Print-Out");
     g_signal_connect(G_OBJECT(printwindow), "delete_event",
@@ -1452,7 +1455,7 @@ static void aboutCB() {
         GtkWidget *container = gtk_bin_get_child(GTK_BIN(about));
         GtkWidget *box = gtk_hbox_new(FALSE, 0);
         gtk_container_add(GTK_CONTAINER(container), box);
-        GtkWidget *image = gtk_image_new_from_pixbuf(icon);
+        GtkWidget *image = gtk_image_new_from_pixbuf(icon_48);
         gtk_box_pack_start(GTK_BOX(box), image, FALSE, FALSE, 10);
         GtkWidget *box2 = gtk_vbox_new(FALSE, 0);
         GtkWidget *version = gtk_label_new("Free42 " VERSION);

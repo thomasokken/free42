@@ -1,5 +1,5 @@
 /* XPM */
-static char *icon_xpm[] = {
+static char *icon_128_xpm[] = {
 /* width height ncolors chars_per_pixel */
 "128 128 3756 2",
 /* colors */
