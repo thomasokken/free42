@@ -10,7 +10,6 @@
 #define IDM_EXIT                        106
 #define IDS_HELLO                       107
 #define IDI_FREE42                      108
-#define IDI_SMALL                       109
 #define IDC_FREE42                      110
 #define IDC_FREE42_PRINTOUT             111
 #define IDS_PRINTOUT_TITLE              112

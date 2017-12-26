@@ -270,7 +270,7 @@ static void MyRegisterClass(HINSTANCE hInstance)
     wcex1.hbrBackground = (HBRUSH) (COLOR_WINDOW+1);
     wcex1.lpszMenuName  = (LPCSTR) IDC_FREE42;
     wcex1.lpszClassName = szMainWindowClass;
-    wcex1.hIconSm       = LoadIcon(wcex1.hInstance, (LPCTSTR) IDI_SMALL);
+    wcex1.hIconSm       = NULL;
 
     RegisterClassEx(&wcex1);
 
@@ -286,7 +286,7 @@ static void MyRegisterClass(HINSTANCE hInstance)
     wcex2.hbrBackground = (HBRUSH) (COLOR_WINDOW+1);
     wcex2.lpszMenuName  = NULL;
     wcex2.lpszClassName = szPrintOutWindowClass;
-    wcex2.hIconSm       = LoadIcon(wcex2.hInstance, (LPCTSTR) IDI_SMALL);
+    wcex2.hIconSm       = NULL;
 
     RegisterClassEx(&wcex2);
 }

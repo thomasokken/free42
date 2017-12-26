@@ -464,10 +464,6 @@
 				RelativePath=".\Free42.rc"
 				>
 			</File>
-			<File
-				RelativePath=".\small.ico"
-				>
-			</File>
 		</Filter>
 	</Files>
 	<Globals>
