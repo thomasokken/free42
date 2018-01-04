@@ -1,3 +1,8 @@
+????-??-??: release 2.0.9
+
+* The CUSTOM command would toggle the CUSTOM menu, but that was wrong: it
+  should only activate that menu, never deactivate it. Fixed.
+
 2017-12-26: release 2.0.8
 
 * MENU (activating the programmable menu) while in ALPHA mode didn't turn off
