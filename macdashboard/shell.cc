@@ -2,7 +2,7 @@
  * Use this (or as a template) for simple Model View Control implementations
  * 
  * Copyright (c) 2005 D.Jeff Dionne
- * Copyright (c) 2004-2012  Thomas Okken
+ * Copyright (c) 2004-2018  Thomas Okken
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2,
