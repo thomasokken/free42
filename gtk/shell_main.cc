@@ -128,6 +128,7 @@ static int ann_run = 0;
 static int ann_battery = 0;
 static int ann_g = 0;
 static int ann_rad = 0;
+static guint ann_print_timeout_id = 0;
 
 
 /* Private functions */
@@ -1943,6 +1944,13 @@ void shell_beeper(int frequency, int duration) {
 #endif
 }
 
+static gboolean ann_print_timeout(gpointer cd) {
+    ann_print_timeout_id = 0;
+    ann_print = 0;
+    skin_repaint_annunciator(3, ann_print);
+    return FALSE;
+}
+
 void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
     if (updn != -1 && ann_updown != updn) {
         ann_updown = updn;
@@ -1952,9 +1960,18 @@ void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
         ann_shift = shf;
         skin_repaint_annunciator(2, ann_shift);
     }
-    if (prt != -1 && ann_print != prt) {
-        ann_print = prt;
-        skin_repaint_annunciator(3, ann_print);
+    if (prt != -1) {
+        if (ann_print_timeout_id != 0) {
+            g_source_remove(ann_print_timeout_id);
+            ann_print_timeout_id = 0;
+        }
+        if (ann_print != prt)
+            if (prt) {
+                ann_print = 1;
+                skin_repaint_annunciator(3, ann_print);
+            } else {
+                ann_print_timeout_id = g_timeout_add(1000, ann_print_timeout, NULL);
+            }
     }
     if (run != -1 && ann_run != run) {
         ann_run = run;

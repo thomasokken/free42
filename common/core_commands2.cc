@@ -1376,7 +1376,7 @@ int docmd_prx(arg_struct *arg) {
     else {
         char buf[100];
         int len;
-        shell_annunciators(-1, -1, 0, -1, -1, -1);
+        shell_annunciators(-1, -1, 1, -1, -1, -1);
         len = vartype2string(reg_x, buf, 100);
         if (reg_x->type == TYPE_REAL || reg_x->type == TYPE_STRING)
             print_right(buf, len, "***", 3);
