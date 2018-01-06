@@ -2089,7 +2089,6 @@ int shell_low_battery() {
                 capacity = 100;
             fclose(status_file);
             fclose(capacity_file);
-            printf("discharging = %d capacity = %d\n", (int) discharging, capacity);
             lowbat = discharging && capacity <= 10;
             break;
         }

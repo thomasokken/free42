@@ -3,6 +3,9 @@
 * The CUSTOM command would toggle the CUSTOM menu, but that was wrong: it
   should only activate that menu, never deactivate it. Fixed.
 * DIM?, EDIT, and EDITN didn't print X in TRACE mode. Fixed.
+* Selecting the already-active menu did not cause the display to be repainted,
+  even though it should: there might be a message, which should be removed in
+  that case. Fixed.
 * Mac version: implemented battery checker.
 * GTK version: added /sys/class/power_supply support in battery checker.
 
