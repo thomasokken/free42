@@ -16,6 +16,7 @@
  *****************************************************************************/
 
 #import <AudioToolbox/AudioServices.h>
+#import <IOKit/ps/IOPowerSources.h>
 #import <sys/stat.h>
 #import <sys/time.h>
 #import <pthread.h>
@@ -73,7 +74,7 @@ static int ann_updown = 0;
 static int ann_shift = 0;
 static int ann_print = 0;
 static int ann_run = 0;
-//static int ann_battery = 0;
+static int ann_battery = 0;
 static int ann_g = 0;
 static int ann_rad = 0;
 
@@ -212,6 +213,10 @@ static bool is_file(const char *name);
         print_bitmap[n] = 0;
 }
 
+static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
+    shell_low_battery();
+}
+
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     
     /***********************************************************/
@@ -282,6 +287,9 @@ static bool is_file(const char *name);
     }
     if (core_powercycle())
         [self startRunner];
+    
+    CFRunLoopTimerRef lowBatTimer = CFRunLoopTimerCreate(NULL, CFAbsoluteTimeGetCurrent(), 5, 0, 0, low_battery_checker, NULL);
+    CFRunLoopAddTimer(CFRunLoopGetCurrent(), lowBatTimer, kCFRunLoopCommonModes);
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
@@ -990,8 +998,12 @@ void shell_beeper(int frequency, int duration) {
 }
 
 int shell_low_battery() {
-    // TODO!
-    return 0;
+    int lowbat = IOPSGetBatteryWarningLevel() != kIOPSLowBatteryWarningNone;
+    if (ann_battery != lowbat) {
+        ann_battery = lowbat;
+        skin_update_annunciator(5, ann_battery);
+     }
+    return lowbat;
 }
 
 uint4 shell_milliseconds() {

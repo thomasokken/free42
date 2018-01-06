@@ -3,6 +3,7 @@
 * The CUSTOM command would toggle the CUSTOM menu, but that was wrong: it
   should only activate that menu, never deactivate it. Fixed.
 * DIM?, EDIT, and EDITN didn't print X in TRACE mode. Fixed.
+* Mac version: implemented low battery annunciator.
 
 2017-12-26: release 2.0.8
 
