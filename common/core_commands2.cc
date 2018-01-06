@@ -453,9 +453,11 @@ int view_helper(arg_struct *arg, int print) {
     flags.f.two_line_message = 0;
 
     if (print && (flags.f.printer_enable || !program_running())) {
-        if (flags.f.printer_exists)
+        if (flags.f.printer_exists) {
+	    shell_annunciators(-1, -1, 1, -1, -1, -1);
             print_wide(buf, part2, buf + part2, bufptr - part2);
-        else
+	    shell_annunciators(-1, -1, 0, -1, -1, -1);
+	} else
             return ERR_STOP;
     }
     return ERR_NONE;

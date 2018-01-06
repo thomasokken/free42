@@ -148,6 +148,7 @@ static int ann_run = 0;
 static int ann_battery = 0;
 static int ann_g = 0;
 static int ann_rad = 0;
+static UINT ann_print_timer = 0;
 
 
 // Foward declarations of functions included in this code module:
@@ -1776,6 +1777,17 @@ void shell_beeper(int frequency, int duration) {
     Beep(frequency, duration);
 }
 
+static VOID CALLBACK ann_print_timeout(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) {
+	KillTimer(NULL, ann_print_timer);
+    ann_print_timer = 0;
+    ann_print = 0;
+    HDC hdc = GetDC(hMainWnd);
+    HDC memdc = CreateCompatibleDC(hdc);
+    skin_repaint_annunciator(hdc, memdc, 3, ann_print);
+    DeleteDC(memdc);
+    ReleaseDC(hMainWnd, hdc);
+}
+
 /* shell_annunciators()
  * Callback invoked by the emulator core to change the state of the display
  * annunciators (up/down, shift, print, run, battery, (g)rad).
@@ -1797,9 +1809,18 @@ void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
         ann_shift = shf;
         skin_repaint_annunciator(hdc, memdc, 2, ann_shift);
     }
-    if (prt != -1 && ann_print != prt) {
-        ann_print = prt;
-        skin_repaint_annunciator(hdc, memdc, 3, ann_print);
+    if (prt != -1) {
+        if (ann_print_timer != 0) {
+            KillTimer(NULL, ann_print_timer);
+            ann_print_timer = 0;
+        }
+        if (ann_print != prt)
+            if (prt) {
+                ann_print = 1;
+                skin_repaint_annunciator(hdc, memdc, 3, ann_print);
+            } else {
+                ann_print_timer = SetTimer(NULL, 0, 1000, ann_print_timeout);
+            }
     }
     if (run != -1 && ann_run != run) {
         ann_run = run;
