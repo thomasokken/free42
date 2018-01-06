@@ -288,7 +288,7 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
     if (core_powercycle())
         [self startRunner];
     
-    CFRunLoopTimerRef lowBatTimer = CFRunLoopTimerCreate(NULL, CFAbsoluteTimeGetCurrent(), 5, 0, 0, low_battery_checker, NULL);
+    CFRunLoopTimerRef lowBatTimer = CFRunLoopTimerCreate(NULL, CFAbsoluteTimeGetCurrent(), 60, 0, 0, low_battery_checker, NULL);
     CFRunLoopAddTimer(CFRunLoopGetCurrent(), lowBatTimer, kCFRunLoopCommonModes);
 }
 
