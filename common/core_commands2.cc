@@ -1782,6 +1782,8 @@ int docmd_dim_t(arg_struct *arg) {
     reg_z = reg_y;
     reg_y = new_y;
     reg_x = new_x;
+    if (flags.f.trace_print && flags.f.printer_exists)
+        docmd_prx(NULL);
     return ERR_NONE;
 }
 

@@ -892,6 +892,8 @@ int docmd_edit(arg_struct *arg) {
             matedit_prev_appmenu = MENU_NONE;
         set_menu(MENULEVEL_APP, MENU_MATRIX_EDIT1);
         set_appmenu_exitcallback(1);
+        if (flags.f.trace_print && flags.f.printer_exists)
+            docmd_prx(NULL);
         return ERR_NONE;
     } else
         return ERR_INVALID_TYPE;
@@ -954,6 +956,8 @@ int docmd_editn(arg_struct *arg) {
             matedit_prev_appmenu = MENU_NONE;
         set_menu(MENULEVEL_APP, MENU_MATRIX_EDIT1);
         set_appmenu_exitcallback(1);
+        if (flags.f.trace_print && flags.f.printer_exists)
+            docmd_prx(NULL);
         return ERR_NONE;
     }
 }
