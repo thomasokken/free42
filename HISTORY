@@ -6,6 +6,9 @@
 * Selecting the already-active menu did not cause the display to be repainted,
   even though it should: there might be a message, which should be removed in
   that case. Fixed.
+* Android, iPhone, Windows, MacOS, and GTK versions: made the print annunciator
+  linger for one second after printing stops. This makes it more noticeable, so
+  printing is less likely to go unnoticed on fast devices.
 * Mac version: implemented battery checker.
 * GTK version: added /sys/class/power_supply support in battery checker.
 
