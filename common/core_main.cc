@@ -2774,13 +2774,16 @@ static void paste_programs(const char *buf) {
         hppos = 0;
         while (hpbuf[hppos] == ' ')
             hppos++;
-        int prev_hppos;
+        int prev_hppos, lineno_start, lineno_end;
         prev_hppos = hppos;
+        lineno_start = -1;
         while (hppos < hpend && (c = hpbuf[hppos], c >= '0' && c <= '9'))
             hppos++;
-        if (prev_hppos == hppos)
-            // No line number? Not acceptable.
-            goto line_done;
+        if (prev_hppos != hppos) {
+            // Line number found.
+            lineno_start = prev_hppos;
+            lineno_end = hppos;
+        }
         // Line number should be followed by a run of one or more characters,
         // which may be spaces, greater-than signs, or solid right-pointing
         // triangle (a.k.a. goose), but all but one of those characters must
@@ -2799,13 +2802,28 @@ static void paste_programs(const char *buf) {
                 break;
             hppos++;
         }
-        if (hppos == prev_hppos)
-            // No space following line number? Not acceptable.
-            goto line_done;
         // Now hppos should be pointing at the first character of the
         // command.
-        if (hppos == hpend)
-            // Nothing after the line number
+        if (hppos == hpend) {
+            if (lineno_start == -1) {
+                // empty line
+                goto line_done;
+            } else {
+                // Nothing after the line number; treat this as a
+                // number without a line number
+                // Note that we could treat many more cases as unnumbered
+                // numbers; basically, any number followed by something that
+                // doesn't parse... but I'm not opening that can of worms until
+                // I see a good reason to.
+                hpbuf[lineno_end] = 0;
+                cmd = CMD_NUMBER;
+                arg.val_d = parse_number_line(hpbuf + lineno_start);
+                arg.type = ARGTYPE_DOUBLE;
+                goto store;
+            }
+        }
+        if (lineno_start != -1 && hppos == prev_hppos)
+            // No space following line number? Not acceptable.
             goto line_done;
         if (hppos < hpend - 1 && hpbuf[hppos] == 127 && hpbuf[hppos + 1] == '"') {
             // Appended string
