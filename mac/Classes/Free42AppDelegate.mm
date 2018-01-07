@@ -77,6 +77,8 @@ static int ann_run = 0;
 static int ann_battery = 0;
 static int ann_g = 0;
 static int ann_rad = 0;
+static pthread_mutex_t ann_print_timeout_mutex = PTHREAD_MUTEX_INITIALIZER;
+static bool ann_print_timeout_active = false;
 
 unsigned char *print_bitmap;
 int printout_top;
@@ -714,6 +716,34 @@ static int timeout3_delay;
     pthread_mutex_unlock(&shell_helper_mutex);
 }
 
+- (void) turn_off_print_ann {
+    pthread_mutex_lock(&ann_print_timeout_mutex);
+    ann_print = 0;
+    skin_update_annunciator(3, 0);
+    ann_print_timeout_active = FALSE;
+    pthread_mutex_unlock(&ann_print_timeout_mutex);
+}
+
+- (void) print_ann_helper:(NSNumber *)set {
+    int prt = [set intValue];
+    [set release];
+    pthread_mutex_lock(&ann_print_timeout_mutex);
+    if (ann_print_timeout_active) {
+        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(turn_off_print_ann) object:NULL];
+        ann_print_timeout_active = FALSE;
+    }
+    if (ann_print != prt) {
+        if (prt) {
+            ann_print = 1;
+            skin_update_annunciator(3, ann_print);
+        } else {
+            [self performSelector:@selector(turn_off_print_ann) withObject:NULL afterDelay:1];
+            ann_print_timeout_active = TRUE;
+        }
+    }
+    pthread_mutex_unlock(&ann_print_timeout_mutex);
+}
+
 @end
 
 static void shell_keydown() {
@@ -1056,9 +1086,9 @@ void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
         ann_shift = shf;
         skin_update_annunciator(2, ann_shift);
     }
-    if (prt != -1 && ann_print != prt) {
-        ann_print = prt;
-        skin_update_annunciator(3, ann_print);
+    if (prt != -1) {
+        NSNumber *n = [[NSNumber numberWithInt:prt] retain];
+        [instance performSelectorOnMainThread:@selector(print_ann_helper:) withObject:n waitUntilDone:NO];
     }
     if (run != -1 && ann_run != run) {
         ann_run = run;
