@@ -2780,9 +2780,40 @@ static void paste_programs(const char *buf) {
         while (hppos < hpend && (c = hpbuf[hppos], c >= '0' && c <= '9'))
             hppos++;
         if (prev_hppos != hppos) {
-            // Line number found.
-            lineno_start = prev_hppos;
-            lineno_end = hppos;
+            // Number found. If this is immediately followed by a period,
+            // comma, or E, it's not a line number but an unnumbered number
+            // line.
+            if (hppos < hpend && (c = hpbuf[hppos], c == '.' || c == ','
+                            || c == 'E' || c == 'e' || c == 24)) {
+                char numbuf[50];
+                int len = hpend - prev_hppos;
+                if (len > 50)
+                    len = 50;
+                int i;
+                for (i = 0; i < len; i++) {
+                    c = hpbuf[prev_hppos + i];
+                    if (c == ' ')
+                        break;
+                    if (c == 'e' || c == 24)
+                        c = 'E';
+                    else if (c == ',')
+                        c = '.';
+                    numbuf[i] = c;
+                }
+                if (i == 50)
+                    // Too long
+                    goto line_done;
+                numbuf[i] = 0;
+                cmd = CMD_NUMBER;
+                arg.val_d = parse_number_line(numbuf);
+                arg.type = ARGTYPE_DOUBLE;
+                goto store;
+            } else {
+                // No decimal or exponent following the digits;
+                // for now, assume it's a line number.
+                lineno_start = prev_hppos;
+                lineno_end = hppos;
+            }
         }
         // Line number should be followed by a run of one or more characters,
         // which may be spaces, greater-than signs, or solid right-pointing

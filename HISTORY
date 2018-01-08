@@ -1,3 +1,9 @@
+2018-01-07: release 2.0.10
+
+* Program Paste without line numbers didn't handle certain numbers,
+  specifically, those that started with a digit and didn't consist of only
+  digits. Fixed.
+
 2018-01-07: release 2.0.9
 
 * Program Paste no longer requires line numbers.
