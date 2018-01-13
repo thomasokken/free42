@@ -1,8 +1,10 @@
 ????-??-??: release 2.0.11
 
-* "Copy" now ignores flag 29 (thousands separators) and always copies numbers
+* Copy now ignores flag 29 (thousands separators) and always copies numbers
   without separators. This fixes certain surprising / undesirable behaviors
   when pasting numbers into spreadsheets or programs.
+* When entering a program line in NORM or TRACE modes, the line would be
+  printed, even when printing was disabled. Fixed.
 
 2018-01-07: release 2.0.10
 

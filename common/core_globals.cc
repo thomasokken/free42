@@ -1937,7 +1937,7 @@ void store_command(int4 pc, int command, arg_struct *arg) {
         prgm->size = pc;
         prgm->text[prgm->size++] = CMD_END;
         prgm->text[prgm->size++] = ARGTYPE_NONE;
-        if (flags.f.trace_print || flags.f.normal_print)
+        if (flags.f.printer_exists && (flags.f.trace_print || flags.f.normal_print))
             print_program_line(current_prgm - 1, pc);
 
         rebuild_label_table();
@@ -2010,7 +2010,7 @@ void store_command(int4 pc, int command, arg_struct *arg) {
     for (pos = 0; pos < bufptr; pos++)
         prgm->text[pc + pos] = buf[pos];
     prgm->size += bufptr;
-    if (command != CMD_END && (flags.f.trace_print || flags.f.normal_print))
+    if (command != CMD_END && flags.f.printer_exists && (flags.f.trace_print || flags.f.normal_print))
         print_program_line(current_prgm, pc);
     
     if (command == CMD_END ||
