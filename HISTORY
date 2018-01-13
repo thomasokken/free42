@@ -1,3 +1,9 @@
+????-??-??: release 2.0.11
+
+* "Copy" now ignores flag 29 (thousands separators) and always copies numbers
+  without separators. This fixes certain surprising / undesirable behaviors
+  when pasting numbers into spreadsheets or programs.
+
 2018-01-07: release 2.0.10
 
 * Program Paste without line numbers didn't handle certain numbers,
