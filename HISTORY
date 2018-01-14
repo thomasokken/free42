@@ -1,4 +1,4 @@
-????-??-??: release 2.0.11
+2018-01-14: release 2.0.11
 
 * Copy now ignores flag 29 (thousands separators) and always copies numbers
   without separators. This fixes certain surprising / undesirable behaviors
@@ -7,6 +7,10 @@
   printed, even when printing was disabled. Fixed.
 * MATA and MATB, in the SIMQ menu, would crash if the MATA or MATB variables
   were missing. Fixed, and also cleaned up type checks in MATX.
+* Android version: printing lots of output quickly, for example, by running a
+  program in TRACE mode, would cause the user interface to become sluggish or
+  even unresponsive on some devices. Fixed by posting UI updates less
+  aggressively.
 
 2018-01-07: release 2.0.10
 
