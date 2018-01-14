@@ -75,7 +75,7 @@ Free42.wdgt: free42 keymap.txt
 	- mkdir Free42.wdgt/bin
 	cp free42 Free42.wdgt/bin
 	cp Info.plist Free42.wdgt
-	codesign -f -s "Mac Developer: Thomas Okken (RY6B4YG88P)" Free42.wdgt
+	codesign -f -s "Developer ID Application: Thomas Okken (F4D88K2P5W)" Free42.wdgt
 
 free42: $(OBJS)
 	$(CXX) -o free42 $(LDFLAGS) $(OBJS) $(LIBS)
