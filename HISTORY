@@ -5,6 +5,8 @@
   when pasting numbers into spreadsheets or programs.
 * When entering a program line in NORM or TRACE modes, the line would be
   printed, even when printing was disabled. Fixed.
+* MATA and MATB, in the SIMQ menu, would crash if the MATA or MATB variables
+  were missing. Fixed, and also cleaned up type checks in MATX.
 
 2018-01-07: release 2.0.10
 

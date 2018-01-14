@@ -1281,27 +1281,36 @@ static int matabx(int which) {
     switch (which) {
         case 0:
             mat = recall_var("MATA", 4);
-            break;
+            goto mat_a_or_b_check;
 
         case 1:
             mat = recall_var("MATB", 4);
+            mat_a_or_b_check:
+            if (mat == NULL)
+                return ERR_NONEXISTENT;
+            if (mat->type == TYPE_STRING)
+                return ERR_ALPHA_DATA_IS_INVALID;
+            if (mat->type != TYPE_REALMATRIX && mat->type != TYPE_COMPLEXMATRIX)
+                return ERR_INVALID_TYPE;
             break;
 
         case 2: {
             vartype *mata, *matb;
 
-            mata = recall_var("MATA", 4);
-            if (mata == NULL)
-                return ERR_NONEXISTENT;
-            if (mata->type != TYPE_REALMATRIX
-                    && mata->type != TYPE_COMPLEXMATRIX)
-                return ERR_INVALID_TYPE;
-
             matb = recall_var("MATB", 4);
             if (matb == NULL)
                 return ERR_NONEXISTENT;
-            if (matb->type != TYPE_REALMATRIX
-                    && matb->type != TYPE_COMPLEXMATRIX)
+            if (matb->type == TYPE_STRING)
+                return ERR_ALPHA_DATA_IS_INVALID;
+            if (matb->type != TYPE_REALMATRIX && matb->type != TYPE_COMPLEXMATRIX)
+                return ERR_INVALID_TYPE;
+
+            mata = recall_var("MATA", 4);
+            if (mata == NULL)
+                return ERR_NONEXISTENT;
+            if (mata->type == TYPE_STRING)
+                return ERR_ALPHA_DATA_IS_INVALID;
+            if (mata->type != TYPE_REALMATRIX && mata->type != TYPE_COMPLEXMATRIX)
                 return ERR_INVALID_TYPE;
 
             if (mata->type == TYPE_REALMATRIX && matb->type == TYPE_REALMATRIX)
