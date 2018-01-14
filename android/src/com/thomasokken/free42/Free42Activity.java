@@ -1021,6 +1021,11 @@ public class Free42Activity extends Activity {
             printScrollView.fullScroll(View.FOCUS_DOWN);
         }
         
+        private Object invalidatePendingMonitor = new Object();
+        private boolean invalidatePending;
+        private Object layoutPendingMonitor = new Object();
+        private boolean layoutPending;
+        
         public void print(byte[] bits, int bytesperline, int x, int y, int width, int height) {
             int oldPrintHeight = printHeight;
             for (int yy = y; yy < y + height; yy++) {
@@ -1043,18 +1048,34 @@ public class Free42Activity extends Activity {
                 }
             }
             if (printHeight != oldPrintHeight) {
-                mainHandler.post(new Runnable() {
-                    public void run() {
-                        printView.requestLayout();
+                synchronized (layoutPendingMonitor) {
+                    if (!layoutPending) {
+                        mainHandler.post(new Runnable() {
+                            public void run() {
+                                synchronized (layoutPendingMonitor) {
+                                    printView.requestLayout();
+                                    layoutPending = false;
+                                }
+                            }
+                        });
+                        layoutPending = true;
                     }
-                });
+                }
             } else {
-                mainHandler.post(new Runnable() {
-                    public void run() {
-                        printScrollView.fullScroll(View.FOCUS_DOWN);
+                synchronized (invalidatePendingMonitor) {
+                    if (!invalidatePending) {
+                        mainHandler.post(new Runnable() {
+                            public void run() {
+                                synchronized (invalidatePendingMonitor) {
+                                    printScrollView.fullScroll(View.FOCUS_DOWN);
+                                    printView.postInvalidate();
+                                    invalidatePending = false;
+                                }
+                            }
+                        });
+                        invalidatePending = true;
                     }
-                });
-                printView.postInvalidate();
+                }
             }
         }
         
