@@ -1,3 +1,8 @@
+????-??-??: release 2.0.12
+
+* Pasting numbers that ended in CRLF didn't work; they were interpreted as
+  strings. Fixed.
+
 2018-01-14: release 2.0.11
 
 * Copy now ignores flag 29 (thousands separators) and always copies numbers

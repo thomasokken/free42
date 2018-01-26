@@ -3267,8 +3267,11 @@ void core_paste(const char *buf) {
             int len = strlen(buf);
             char *asciibuf = (char *) malloc(len + 1);
             strcpy(asciibuf, buf);
-            if (asciibuf[len - 1] == '\n')
+            if (len > 0 && asciibuf[len - 1] == '\n') {
                 asciibuf[--len] = 0;
+                if (len > 0 && asciibuf[len - 1] == '\r')
+                    asciibuf[--len] = 0;
+            }
             char *hpbuf = (char *) malloc(len + 4);
             len = ascii2hp(hpbuf, asciibuf, len);
             free(asciibuf);
