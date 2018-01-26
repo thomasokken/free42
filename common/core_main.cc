@@ -97,7 +97,6 @@ void core_quit() {
     if (mode_interruptible != NULL)
         stop_interruptible();
     save_state();
-#endif
     free_vartype(reg_x);
     free_vartype(reg_y);
     free_vartype(reg_z);
@@ -108,10 +107,11 @@ void core_quit() {
     if (vars != NULL)
         free(vars);
     clean_vartype_pools();
-
-#ifdef ANDROID
-    reinitialize_globals();
 #endif
+//
+//#ifdef ANDROID
+//    reinitialize_globals();
+//#endif
 }
 
 void core_repaint_display() {
