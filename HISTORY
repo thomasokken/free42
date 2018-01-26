@@ -1,7 +1,10 @@
-????-??-??: release 2.0.12
+2018-01-26: release 2.0.11a (Android only)
 
-* Pasting numbers that ended in CRLF didn't work; they were interpreted as
-  strings. Fixed.
+* Removed the cleanup of variables in core_quit(); it looks like this was
+  responsible for the failure mode where the app would crash at the first
+  keystroke, consistently, forcing uninstall/reinstall.
+* Pasting numbers that ended in CRLF, as when copying a single cell from Excel,
+  didn't work; they were interpreted as strings. Fixed.
 
 2018-01-14: release 2.0.11
 
