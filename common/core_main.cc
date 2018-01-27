@@ -2192,7 +2192,7 @@ static bool parse_phloat(const char *p, int len, phloat *res) {
         char c = p[j++];
         if (c == 0)
             break;
-        if (c == '+')
+        if (c == '+' || c == ' ')
             continue;
         else if (c == 'e' || c == 'E' || c == 24) {
             in_mant = false;
