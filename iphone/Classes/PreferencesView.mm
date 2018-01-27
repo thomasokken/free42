@@ -20,6 +20,7 @@
 #import "SelectFileView.h"
 #import "RootViewController.h"
 #import "core_main.h"
+#import "shell.h"
 
 @implementation PreferencesView
 
@@ -27,6 +28,7 @@
 @synthesize singularMatrixSwitch;
 @synthesize matrixOutOfRangeSwitch;
 @synthesize autoRepeatSwitch;
+@synthesize alwaysOnSwitch;
 @synthesize printToTextSwitch;
 @synthesize printToTextField;
 @synthesize printToGifSwitch;
@@ -51,6 +53,7 @@
     [singularMatrixSwitch setOn:core_settings.matrix_singularmatrix];
     [matrixOutOfRangeSwitch setOn:core_settings.matrix_outofrange];
     [autoRepeatSwitch setOn:core_settings.auto_repeat];
+    [alwaysOnSwitch setOn:shell_always_on(-1)];
     [printToTextSwitch setOn:(state.printerToTxtFile != 0)];
     [printToTextField setText:[NSString stringWithCString:state.printerTxtFileName encoding:NSUTF8StringEncoding]];
     [printToGifSwitch setOn:(state.printerToGifFile != 0)];
@@ -141,6 +144,7 @@
     core_settings.matrix_singularmatrix = singularMatrixSwitch.on;
     core_settings.matrix_outofrange = matrixOutOfRangeSwitch.on;
     core_settings.auto_repeat = autoRepeatSwitch.on;
+    shell_always_on(alwaysOnSwitch.on);
     state.printerToTxtFile = printToTextSwitch.on;
     NSString *s = [printToTextField text];
     if ([s length] > 0 && ![[s lowercaseString] hasSuffix:@".txt"])

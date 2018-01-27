@@ -195,32 +195,6 @@ bool core_timeout3(int repaint);
  */
 int core_keyup();
 
-/* core_allows_powerdown()
- *
- * The shell can call this function to find out if the emulator core does not
- * mind if the system powers off. This is only really useful on systems where
- * free42 can actually control the power, and where it makes sense to do so --
- * meaning battery-powered, single-tasking environments. In other words,
- * PalmOS. On other platforms, the shell does not control power (Unix), or
- * refrains from exercising that control (Windows, where user-level
- * applications can shut down the PC, but usually shouldn't); shells in those
- * environments have no use for this function and will never call it.
- * This function should return 'true' if a program is running and/or if flag 44
- * (continuous_on) is set -- but not if flag 49 (low_battery) is set.
- * The emulator should not assume that a power-down will actually take place if
- * this function gets called, as other applications could veto the power-down
- * after we have already agreed to it. Any actions that a real HP-42S performs
- * at power-down (I can't think of anything except stop program execution)
- * should be done in response to the power cycle notifier core_powercycle(),
- * immediately followed by HP-42S power-up activities (again, not much comes to
- * mind, except resuming program execution if flag 11 was set, clearing flags
- * 11 and 44, and maybe some other flag stuff).
- * If the core vetoes a power-down but then wants the CPU immediately, i.e. if
- * it was waiting in GETKEY and now wants program execution to resume, it
- * should set *want_cpu to 1; otherwise it should set it to 0.
- */
-int core_allows_powerdown(int *want_cpu);
-
 /* core_powercycle()
  *
  * This tells the core to pretend that a power cycle has just taken place.

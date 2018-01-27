@@ -119,10 +119,7 @@ uint4 shell_get_mem();
 
 /* shell_low_battery()
  * Callback to find out if the battery is low. Used to emulate flag 49 and the
- * battery annunciator, and also taken into account when deciding whether or
- * not to allow a power-down -- so as long as the shell provides a functional
- * implementation of shell_low_battery(), it can leave the decision on how to
- * respond to sysNotifySleepRequestEvent to core_allows_powerdown().
+ * battery annunciator.
  */
 int shell_low_battery();
 
@@ -219,6 +216,13 @@ int shell_get_location(double *lat, double *lon, double *lat_lon_acc,
 int shell_get_heading(double *mag_heading, double *true_heading, double *acc,
                                 double *x, double *y, double *z);
 #endif
+
+/* shell_always_on()
+ *
+ * Sets and queries the "always on" state (flag 44). Pass 0 to clear, 1 to set,
+ * or to leave unchanged; returns the previous state.
+ */
+int shell_always_on(int always_on);
 
 /* shell_get_time_date()
  *

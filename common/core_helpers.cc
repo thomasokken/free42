@@ -249,6 +249,16 @@ bool string_equals(const char *s1, int s1len, const char *s2, int s2len) {
     return true;
 }
 
+#if (!defined(ANDROID) && !defined(IPHONE))
+static bool always_on = false;
+int shell_always_on(int ao) {
+    int ret = always_on ? 1 : 0;
+    if (ao != -1)
+        always_on = ao == 1;
+    return ret;
+}
+#endif
+
 int virtual_flag_handler(int flagop, int flagnum) {
     /* NOTE: the determination which flag numbers are handled by this
      * function is made by docmd_sf() etc.; they do this based on a constant
@@ -280,6 +290,16 @@ int virtual_flag_handler(int flagop, int flagnum) {
                     if (its_on)
                         set_menu(MENULEVEL_PLAIN, MENU_NONE);
                     return its_on ? ERR_NO : ERR_YES;
+                default:
+                    return ERR_INTERNAL_ERROR;
+            }
+        }
+        case 44: /* continuous on */ {
+            switch (flagop) {
+                case FLAGOP_FS_T:
+                    return shell_always_on(-1) ? ERR_YES : ERR_NO;
+                case FLAGOP_FC_T:
+                    return shell_always_on(-1) ? ERR_NO : ERR_YES;
                 default:
                     return ERR_INTERNAL_ERROR;
             }

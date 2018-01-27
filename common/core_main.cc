@@ -507,38 +507,6 @@ int core_keyup() {
     return (mode_running && !mode_getkey && !mode_pause) || keybuf_head != keybuf_tail;
 }
 
-int core_allows_powerdown(int *want_cpu) {
-    int allow = shell_low_battery() || !(mode_running || mode_getkey
-                    || flags.f.continuous_on || mode_interruptible != NULL);
-    *want_cpu = 0;
-    if (!allow && mode_getkey) {
-        /* We're being asked to power down but we're refusing.
-         * If this happens in the middle of a GETKEY, it should return 70,
-         * the code for OFF, but without stopping program execution.
-         */
-        vartype *seventy = new_real(70);
-        if (seventy != NULL) {
-            recall_result(seventy);
-            flags.f.stack_lift_disable = 0;
-            if (mode_running) {
-                shell_annunciators(-1, -1, -1, 1, -1, -1);
-                *want_cpu = 1;
-            } else
-                redisplay();
-        } else {
-            /* Memory allocation failure... The program will stop now,
-             * anyway, so we change our mind and allow the powerdown.
-             */
-            display_error(ERR_INSUFFICIENT_MEMORY, 1);
-            set_running(false);
-            redisplay();
-            allow = 1;
-        }
-        mode_getkey = 0;
-    }
-    return allow;
-}
-
 int core_powercycle() {
     bool need_redisplay = false;
 
@@ -549,7 +517,9 @@ int core_powercycle() {
 
     keybuf_tail = keybuf_head;
     set_shift(false);
-    flags.f.continuous_on = 0;
+    #if (!defined(ANDROID) && !defined(IPHONE))
+    shell_always_on(0);
+    #endif
     pending_command = CMD_NONE;
 
     if (mode_getkey) {
@@ -560,10 +530,6 @@ int core_powercycle() {
          * Since Free42 can be shut down in ways the HP-42S can't (exiting the
          * application, or turning off power on a Palm), I have to fake it a
          * bit; I put 70 in X as if the user had done OFF twice on a real 42S.
-         * Note that, as on a real 42S, we don't allow auto-powerdown while
-         * GETKEY is waiting; if an auto-powerdown request happens during
-         * GETKEY, it returns 70 but program execution is not stopped, and the
-         * power stays on (see core_allows_powerdown(), above).
          */
         vartype *seventy = new_real(70);
         if (seventy != NULL) {

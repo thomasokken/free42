@@ -22,6 +22,7 @@
     UISwitch *singularMatrixSwitch;
     UISwitch *matrixOutOfRangeSwitch;
     UISwitch *autoRepeatSwitch;
+    UISwitch *alwaysOnSwitch;
     UISwitch *printToTextSwitch;
     UITextField *printToTextField;
     UISwitch *printToGifSwitch;
@@ -36,6 +37,7 @@
 @property (nonatomic, retain) IBOutlet UISwitch *singularMatrixSwitch;
 @property (nonatomic, retain) IBOutlet UISwitch *matrixOutOfRangeSwitch;
 @property (nonatomic, retain) IBOutlet UISwitch *autoRepeatSwitch;
+@property (nonatomic, retain) IBOutlet UISwitch *alwaysOnSwitch;
 @property (nonatomic, retain) IBOutlet UISwitch *printToTextSwitch;
 @property (nonatomic, retain) IBOutlet UITextField *printToTextField;
 @property (nonatomic, retain) IBOutlet UISwitch *printToGifSwitch;

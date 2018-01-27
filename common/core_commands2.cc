@@ -34,7 +34,7 @@
 /********************************************************/
 
 static const char *virtual_flags =
-    /* 00-49 */ "00000000000000000000000000010000000000000000011111"
+    /* 00-49 */ "00000000000000000000000000010000000000000000111111"
     /* 50-99 */ "00010000000000010000000001000000000000000000000000";
 
 int docmd_sf(arg_struct *arg) {
@@ -1877,7 +1877,7 @@ int docmd_asgn18(arg_struct *arg) {
 }
 
 int docmd_on(arg_struct *arg) {
-    flags.f.continuous_on = 1;
+    shell_always_on(1);
     return ERR_NONE;
 }
 

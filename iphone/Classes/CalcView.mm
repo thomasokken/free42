@@ -466,6 +466,8 @@ static CalcView *calcView = nil;
     keep_running = core_powercycle();
     if (keep_running)
         [self startRunner];
+    if (shell_always_on(-1))
+        [UIApplication sharedApplication].idleTimerDisabled = YES;
 }
 
 - (void) runner {
@@ -703,9 +705,11 @@ static void init_shell_state(int version) {
             state.skinName[0] = 0;
             /* fall through */
         case 0:
-            state.popupKeyboard = 0;
             /* fall through */
         case 1:
+            state.alwaysOn = 0;
+            /* fall through */
+        case 2:
             /* current version (SHELL_VERSION = 1),
              * so nothing to do here since everything
              * was initialized from the state file.
@@ -895,6 +899,15 @@ void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
         ann_rad = rad;
         skin_update_annunciator(7, ann_rad, calcView);
     }
+}
+
+int shell_always_on(int ao) {
+    int ret = state.alwaysOn;
+    if (ao != -1) {
+        state.alwaysOn = ao != 0;
+        [UIApplication sharedApplication].idleTimerDisabled = state.alwaysOn ? YES : NO;
+    }
+    return ret;
 }
 
 void shell_log(const char *message) {

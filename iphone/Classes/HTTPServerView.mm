@@ -26,6 +26,7 @@
 #include <pthread.h>
 
 #import "HTTPServerView.h"
+#import "CalcView.h"
 #import "Free42AppDelegate.h"
 #import "RootViewController.h"
 
@@ -148,7 +149,8 @@ static void *getHostName(void *dummy) {
 }
 
 - (IBAction) done {
-    [UIApplication sharedApplication].idleTimerDisabled = NO;
+    if (!state.alwaysOn)
+        [UIApplication sharedApplication].idleTimerDisabled = NO;
     write(pype[1], "1\n", 2);
     [RootViewController showMain];
 }
