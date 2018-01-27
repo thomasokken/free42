@@ -865,7 +865,7 @@ void calc_keydown(NSString *characters, NSUInteger flags, unsigned short keycode
     
     bool ctrl = (flags & NSControlKeyMask) != 0;
     bool alt = (flags & NSAlternateKeyMask) != 0;
-    bool shift = (flags & (NSShiftKeyMask | NSAlphaShiftKeyMask)) != 0;
+    bool shift = (flags & NSShiftKeyMask) != 0;
     bool cshift = ann_shift != 0;
     
     if (ckey != 0) {

@@ -1640,7 +1640,7 @@ static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
             }
             bool ctrl = (event->state & GDK_CONTROL_MASK) != 0;
             bool alt = (event->state & GDK_MOD1_MASK) != 0;
-            bool shift = (event->state & (GDK_SHIFT_MASK | GDK_LOCK_MASK)) != 0;
+            bool shift = (event->state & GDK_SHIFT_MASK) != 0;
             bool cshift = ann_shift != 0;
 
             if (ckey != 0) {
