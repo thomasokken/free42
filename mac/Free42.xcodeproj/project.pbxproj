@@ -439,7 +439,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ -f gcc111libbid.a ]; then exit 0; fi\ntar xvfz ../inteldecimal/IntelRDFPMathLib20U1.tar.gz\ncd IntelRDFPMathLib20U1\npatch -p0 <../intel-lib-mac-32bit.patch\ncd LIBRARY\nmake CC=gcc CALL_BY_REF=1 GLOBAL_RND=1 GLOBAL_FLAGS=1 UNCHANGED_BINARY_FLAGS=0\nmv libbid.a ../../gcc111libbid.a\ncd ../..\n( echo '#ifdef FREE42_FPTEST'; echo 'const char *readtest_lines[] = {'; tr -d '\\r' < IntelRDFPMathLib20U1/TESTS/readtest.in | sed 's/^\\(.*\\)$/\"\\1\",/'; echo '0 };'; echo '#endif' ) > readtest_lines.cc\n";
+			shellScript = "if [ -f gcc111libbid.a ]; then exit 0; fi\ntar xvfz ../inteldecimal/IntelRDFPMathLib20U1.tar.gz\ncd IntelRDFPMathLib20U1\npatch -p0 <../intel-lib-mac-64bit.patch\ncd LIBRARY\nmake CC=gcc CALL_BY_REF=1 GLOBAL_RND=1 GLOBAL_FLAGS=1 UNCHANGED_BINARY_FLAGS=0\nmv libbid.a ../../gcc111libbid.a\ncd ../..\n( echo '#ifdef FREE42_FPTEST'; echo 'const char *readtest_lines[] = {'; tr -d '\\r' < IntelRDFPMathLib20U1/TESTS/readtest.in | sed 's/^\\(.*\\)$/\"\\1\",/'; echo '0 };'; echo '#endif' ) > readtest_lines.cc\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -508,7 +508,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
@@ -524,11 +524,12 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				"OTHER_CFLAGS[arch=*]" = "-DFREE42_FPTEST";
 				PRODUCT_BUNDLE_IDENTIFIER = com.thomasokken.Free42;
 				PRODUCT_NAME = Free42;
 				PROVISIONING_PROFILE = "";
+				VALID_ARCHS = x86_64;
 			};
 			name = "Debug Binary";
 		};
@@ -536,7 +537,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -550,10 +551,11 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.thomasokken.Free42;
 				PRODUCT_NAME = Free42;
 				PROVISIONING_PROFILE = "";
+				VALID_ARCHS = x86_64;
 			};
 			name = "Release Binary";
 		};
@@ -638,7 +640,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
@@ -654,11 +656,12 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				"OTHER_CFLAGS[arch=*]" = "-DFREE42_FPTEST";
 				PRODUCT_BUNDLE_IDENTIFIER = com.thomasokken.Free42;
 				PRODUCT_NAME = Free42;
 				PROVISIONING_PROFILE = "";
+				VALID_ARCHS = x86_64;
 			};
 			name = "Debug Decimal";
 		};
@@ -691,7 +694,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -705,10 +708,11 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.thomasokken.Free42;
 				PRODUCT_NAME = Free42;
 				PROVISIONING_PROFILE = "";
+				VALID_ARCHS = x86_64;
 			};
 			name = "Release Decimal";
 		};
