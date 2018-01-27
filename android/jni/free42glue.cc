@@ -459,6 +459,17 @@ void shell_powerdown() {
     env->DeleteLocalRef(klass);
 }
 
+int shell_always_on(int always_on) {
+    Tracer T("shell_always_on");
+    JNIEnv *env = getJniEnv();
+    jclass klass = env->GetObjectClass(g_activity);
+    jmethodID mid = env->GetMethodID(klass, "shell_always_on", "(I)I");
+    int ret = env->CallIntMethod(g_activity, mid, always_on);
+    // Delete local references
+    env->DeleteLocalRef(klass);
+    return ret;
+}
+
 int8 shell_random_seed() {
     Tracer T("shell_random_seed");
     struct timeval tv;

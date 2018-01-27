@@ -4,7 +4,8 @@
 * Mac and MacDashboard versions: are now 64-bit
 * Mac and GTK versions: fixed Caps Lock handling, so Caps Lock + Esc no longer
   exits.
-* iPhone version: implemented "continuous on" mode (ON function, flag 44).
+* Android and iPhone versions: implemented "continuous on" mode (ON function,
+  flag 44).
 
 2018-01-26: release 2.0.11a (Android only)
 

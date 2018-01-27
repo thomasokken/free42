@@ -72,6 +72,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -89,7 +90,7 @@ public class Free42Activity extends Activity {
 
     private static final String[] builtinSkinNames = new String[] { "Standard", "Landscape" };
     
-    private static final int SHELL_VERSION = 10;
+    private static final int SHELL_VERSION = 11;
     
     private static final int PRINT_BACKGROUND_COLOR = Color.LTGRAY;
     
@@ -106,6 +107,7 @@ public class Free42Activity extends Activity {
     private boolean printViewShowing;
     private PreferencesDialog preferencesDialog;
     private Handler mainHandler;
+    private boolean alwaysOn;
     
     private SoundPool soundPool;
     private int[] soundIds;
@@ -174,6 +176,8 @@ public class Free42Activity extends Activity {
             init_mode = 0;
         }
         setAlwaysRepaintFullDisplay(alwaysRepaintFullDisplay);
+        if (alwaysOn)
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         if (style == 1)
             setTheme(android.R.style.Theme_NoTitleBar_Fullscreen);
@@ -634,6 +638,7 @@ public class Free42Activity extends Activity {
         preferencesDialog.setSingularMatrixError(cs.matrix_singularmatrix);
         preferencesDialog.setMatrixOutOfRange(cs.matrix_outofrange);
         preferencesDialog.setAutoRepeat(cs.auto_repeat);
+        preferencesDialog.setAlwaysOn(shell_always_on(-1) != 0);
         preferencesDialog.setKeyClicks(keyClicksEnabled);
         preferencesDialog.setKeyVibration(keyVibrationEnabled);
         preferencesDialog.setOrientation(preferredOrientation);
@@ -655,6 +660,7 @@ public class Free42Activity extends Activity {
         cs.matrix_singularmatrix = preferencesDialog.getSingularMatrixError();
         cs.matrix_outofrange = preferencesDialog.getMatrixOutOfRange();
         cs.auto_repeat = preferencesDialog.getAutoRepeat();
+        shell_always_on(preferencesDialog.getAlwaysOn() ? 1 : 0);
         keyClicksEnabled = preferencesDialog.getKeyClicks();
         keyVibrationEnabled = preferencesDialog.getKeyVibration();
         int oldOrientation = preferredOrientation;
@@ -1170,6 +1176,8 @@ public class Free42Activity extends Activity {
                 style = 0;
             if (shell_version >= 10)
                 alwaysRepaintFullDisplay = state_read_boolean();
+            if (shell_version >= 11)
+                alwaysOn = state_read_boolean();
             init_shell_state(shell_version);
         } catch (IllegalArgumentException e) {
             return false;
@@ -1220,7 +1228,10 @@ public class Free42Activity extends Activity {
             alwaysRepaintFullDisplay = false;
             // fall through
         case 10:
-            // current version (SHELL_VERSION = 10),
+            alwaysOn = false;
+            // fall through
+        case 11:
+            // current version (SHELL_VERSION = 11),
             // so nothing to do here since everything
             // was initialized from the state file.
             ;
@@ -1250,6 +1261,7 @@ public class Free42Activity extends Activity {
             state_write_boolean(keyVibrationEnabled);
             state_write_int(style);
             state_write_boolean(alwaysRepaintFullDisplay);
+            state_write_boolean(alwaysOn);
         } catch (IllegalArgumentException e) {}
     }
     
@@ -1637,6 +1649,22 @@ public class Free42Activity extends Activity {
      */
     public void shell_powerdown() {
         finish();
+    }
+    
+    /**
+     * shell_always_on()
+     * Callback for setting and querying the shell's Continuous On status.
+     */
+    public int shell_always_on(int ao) {
+        int ret = alwaysOn ? 1 : 0;
+        if (ao != -1) {
+            alwaysOn = ao != 0;
+            if (alwaysOn)
+                getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            else
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
+        return ret;
     }
     
     /**
