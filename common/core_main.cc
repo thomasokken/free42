@@ -2134,9 +2134,7 @@ static int scan_number(const char *buf, int len, int pos) {
         char c = buf[p];
         switch (state) {
             case 0:
-                if ((c >= '0' && c <= '9')
-                        || c == '+' || c == '-'
-                        || c == sep)
+                if ((c >= '0' && c <= '9') || c == '+' || c == '-')
                     state = 1;
                 else if (c == dec)
                     state = 2;
@@ -2146,7 +2144,7 @@ static int scan_number(const char *buf, int len, int pos) {
                     return p;
                 break;
             case 1:
-                if ((c >= '0' && c <= '9') || c == sep)
+                if ((c >= '0' && c <= '9') || c == sep || c == ' ')
                     /* state = 1 */;
                 else if (c == dec)
                     state = 2;

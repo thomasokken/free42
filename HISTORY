@@ -1,6 +1,7 @@
 ????-??-??: release 2.0.12
 
 * Fixed pasting of SIZE lines.
+* When pasting numbers, spaces are now allowed as thousands separators.
 * Mac and MacDashboard versions: are now 64-bit
 * Mac and GTK versions: fixed Caps Lock handling, so Caps Lock + Esc no longer
   exits.
