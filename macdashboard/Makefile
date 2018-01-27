@@ -17,7 +17,7 @@
 
 CFLAGS = -DNO_SINCOS \
 	 -DOLD_PSE \
-	 -arch i386 \
+	 -arch x86_64 \
 	 -mmacosx-version-min=10.4 \
 	 -Wall \
          -Wno-parentheses \
@@ -35,7 +35,7 @@ CXXFLAGS = $(CFLAGS) \
 
 LDFLAGS = -Wl,-syslibroot,/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk \
           -mmacosx-version-min=10.4
-LIBS = -arch i386 -lm gcc111libbid.a
+LIBS = -arch x86_64 -lm gcc111libbid.a
 
 SRCS = shell.cc shell_spool.cc \
 	core_main.cc core_commands1.cc core_commands2.cc \

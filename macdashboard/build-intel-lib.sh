@@ -2,7 +2,7 @@
 if [ -f gcc111libbid.a ]; then exit 0; fi
 tar xvfz ../inteldecimal/IntelRDFPMathLib20U1.tar.gz
 cd IntelRDFPMathLib20U1
-patch -p0 <../intel-lib-mac-32bit.patch
+patch -p0 <../intel-lib-mac-64bit.patch
 cd LIBRARY
 make CC=gcc CALL_BY_REF=1 GLOBAL_RND=1 GLOBAL_FLAGS=1 UNCHANGED_BINARY_FLAGS=0
 mv libbid.a ../../gcc111libbid.a
