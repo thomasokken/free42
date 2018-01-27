@@ -2898,12 +2898,11 @@ static void paste_programs(const char *buf) {
             if (cmd == CMD_SIZE) {
                 if (!nexttoken(hpbuf, cmd_end, hpend, &tok_start, &tok_end))
                     goto line_done;
-                int len = tok_end - tok_start;
-                if (len > 4)
+                if (tok_end - tok_start > 4)
                     goto line_done;
                 int sz = 0;
-                while (len > 0) {
-                    char c = hpbuf[tok_start + (--len)];
+                for (int i = tok_start; i < tok_end; i++) {
+                    char c = hpbuf[i];
                     if (c < '0' || c > '9')
                         goto line_done;
                     sz = sz * 10 + c - '0';
