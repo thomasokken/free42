@@ -1218,6 +1218,12 @@ static bool unpersist_globals(int4 ver) {
     free_vartype(reg_x);
     if (!unpersist_vartype(&reg_x, padded))
         goto done;
+
+    // Hack to deal with bad Android state files
+    if (reg_x == NULL)
+        goto done;
+    // End of hack
+
     free_vartype(reg_y);
     if (!unpersist_vartype(&reg_y, padded))
         goto done;

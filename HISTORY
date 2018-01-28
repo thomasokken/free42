@@ -1,3 +1,8 @@
+2018-01-28: release 2.0.12a (Android only)
+
+* Fixed handling of state files that were corrupted in a way that caused
+  persistent crashes on the first keystroke.
+
 2018-01-27: release 2.0.12
 
 * Fixed pasting of SIZE lines.
