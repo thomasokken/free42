@@ -1,4 +1,4 @@
-????-??-??: release 2.0.12
+2018-01-27: release 2.0.12
 
 * Fixed pasting of SIZE lines.
 * When pasting numbers, spaces are now allowed as thousands separators.
