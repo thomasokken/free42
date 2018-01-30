@@ -1,3 +1,8 @@
+????-??-??: release 2.0.13
+
+* Android version: switching between portrait and landscape mode, while
+  printing was in progress, could cause a crash. Fixed.
+
 2018-01-28: release 2.0.12a (Android only)
 
 * Fixed handling of state files that were corrupted in a way that caused

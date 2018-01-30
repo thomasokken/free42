@@ -1519,9 +1519,15 @@ public class Free42Activity extends Activity {
                 else
                     return;
             }
-            Rect inval = skin.update_annunciators(-1, -1, 0, -1, -1, -1, -1);
-            if (inval != null)
-                calcView.postInvalidateScaled(inval.left, inval.top, inval.right, inval.bottom);
+            // Don't invalidate if the skin is null, which could happen
+            // if we're in the process of switching between portrait and
+            // landscape modes.
+            SkinLayout currentSkin = skin;
+            if (currentSkin != null) {
+                Rect inval = currentSkin.update_annunciators(-1, -1, 0, -1, -1, -1, -1);
+                if (inval != null)
+                    calcView.postInvalidateScaled(inval.left, inval.top, inval.right, inval.bottom);
+            }
         }
     }
 
