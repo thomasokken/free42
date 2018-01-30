@@ -369,24 +369,26 @@ public class Free42Activity extends Activity {
         super.onConfigurationChanged(newConf);
         orientation = newConf.orientation == Configuration.ORIENTATION_LANDSCAPE ? 1 : 0;
         boolean[] ann_state = skin.getAnnunciators();
-        skin = null;
+        SkinLayout newSkin = null;
         if (skinName[orientation].length() == 0 && externalSkinName[orientation].length() > 0) {
             try {
-                skin = new SkinLayout(externalSkinName[orientation], skinSmoothing[orientation], displaySmoothing[orientation],ann_state);
+                newSkin = new SkinLayout(externalSkinName[orientation], skinSmoothing[orientation], displaySmoothing[orientation],ann_state);
             } catch (IllegalArgumentException e) {}
         }
-        if (skin == null) {
+        if (newSkin == null) {
             try {
-                skin = new SkinLayout(skinName[orientation], skinSmoothing[orientation], displaySmoothing[orientation],ann_state);
+                newSkin = new SkinLayout(skinName[orientation], skinSmoothing[orientation], displaySmoothing[orientation],ann_state);
             } catch (IllegalArgumentException e) {}
         }
-        if (skin == null) {
+        if (newSkin == null) {
             try {
-                skin = new SkinLayout(builtinSkinNames[0], skinSmoothing[orientation], displaySmoothing[orientation],ann_state);
+                newSkin = new SkinLayout(builtinSkinNames[0], skinSmoothing[orientation], displaySmoothing[orientation],ann_state);
             } catch (IllegalArgumentException e) {
                 // This one should never fail; we're loading a built-in skin.
             }
         }
+        if (newSkin != null)
+            skin = newSkin;
         calcView.invalidate();
         core_repaint_display();
     }
