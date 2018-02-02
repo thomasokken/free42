@@ -1,3 +1,7 @@
+2018-02-02: release 2.0.12d (iPhone only)
+
+* Fixed crash in GIF printing.
+
 2018-01-30: release 2.0.12c (Android only)
 
 * Another fix for crash on orientation change while printing.
@@ -16,7 +20,7 @@
 
 * Fixed pasting of SIZE lines.
 * When pasting numbers, spaces are now allowed as thousands separators.
-* Mac and MacDashboard versions: are now 64-bit
+* Mac and MacDashboard versions: are now 64-bit.
 * Mac and GTK versions: fixed Caps Lock handling, so Caps Lock + Esc no longer
   exits.
 * Android and iPhone versions: implemented "continuous on" mode (ON function,

@@ -723,12 +723,15 @@ static void quit2(bool really_quit) {
 
     [PrintView dump];
     
-    if (print_txt != NULL)
+    if (print_txt != NULL) {
         fclose(print_txt);
+        print_txt = NULL;
+    }
     
     if (print_gif != NULL) {
         shell_finish_gif(gif_seeker, gif_writer);
         fclose(print_gif);
+        print_gif = NULL;
     }
     
     shell_spool_exit();
