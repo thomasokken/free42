@@ -58,6 +58,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.AudioManager;
 import android.media.SoundPool;
+import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -266,6 +267,23 @@ public class Free42Activity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        
+        // Check battery level -- this is necessary because the ACTTON_BATTERY_LOW
+        // and ACTION_BATTERY_OKAY intents are not "sticky", i.e., we get those
+        // notifications only when that status *changes*; we don't get any indication
+        // of what that status *is* when the app is launched (or resumed?).
+        IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        Intent batteryStatus = registerReceiver(null, ifilter);
+        int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+        boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING;
+        int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+        int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+        float batteryPct = level / (float)scale;
+        low_battery = !isCharging && batteryPct <= 15;
+        Rect inval = skin.update_annunciators(-1, -1, -1, -1, low_battery ? 1 : 0, -1, -1);
+        if (inval != null)
+            calcView.postInvalidateScaled(inval.left, inval.top, inval.right, inval.bottom);
+
         if (core_powercycle())
             start_core_keydown();
     }
