@@ -1,3 +1,7 @@
+2018-02-06: release 2.0.13
+
+* Paste didn't handle numbers with negative exponents correctly. Fixed.
+
 2018-02-02: release 2.0.12d (iPhone only)
 
 * Fixed crash in GIF printing.

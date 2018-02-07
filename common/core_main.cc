@@ -2167,6 +2167,7 @@ static int scan_number(const char *buf, int len, int pos) {
                     state = 4;
                 else
                     return p;
+                break;
             case 4:
                 if (c >= '0' && c <= '9')
                     /* state = 4 */;
