@@ -278,8 +278,7 @@ public class Free42Activity extends Activity {
         boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING;
         int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
         int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-        float batteryLevel = level / (float)scale;
-        low_battery = !isCharging && batteryLevel <= 0.15;
+        low_battery = !isCharging && level * 100 <= scale * 15;
         Rect inval = skin.update_annunciators(-1, -1, -1, -1, low_battery ? 1 : 0, -1, -1);
         if (inval != null)
             calcView.postInvalidateScaled(inval.left, inval.top, inval.right, inval.bottom);
