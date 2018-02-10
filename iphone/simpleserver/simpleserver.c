@@ -728,7 +728,7 @@ static char *prgm_index_to_name(int prgm_index) {
         free(buf);
         return NULL;
     }
-    char *p = buf;
+    char *p = buf + 4;
     while (prgm_index > 0) {
         p += strlen(p) + 1;
         prgm_index--;

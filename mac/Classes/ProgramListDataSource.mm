@@ -52,7 +52,8 @@
         free(names);
         free(selected);
     }
-    count = buf == NULL ? 0 : ((buf[0] & 255) << 24) | ((buf[1] & 255) << 16) | ((buf[2] & 255) << 8) | (buf[3] & 255);
+    count = newNames == NULL ? 0 : ((newNames[0] & 255) << 24) | ((newNames[1] & 255) << 16)
+                                    | ((newNames[2] & 255) << 8) | (newNames[3] & 255);
     names = (NSString **) malloc(count * sizeof(NSString *));
     selected = (bool *) malloc(count * sizeof(bool));
     const char *p = newNames + 4;
