@@ -541,7 +541,7 @@ public class Free42Activity extends Activity {
     }
 
     private void doExport() {
-        String[] names = core_list_programs(buf);
+        String[] names = core_list_programs();
         selectedProgramIndexes = new boolean[names.length];
         
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
