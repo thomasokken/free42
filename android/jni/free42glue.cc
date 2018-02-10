@@ -214,14 +214,22 @@ Java_com_thomasokken_free42_Free42Activity_core_1powercycle(JNIEnv *env, jobject
     return core_powercycle();
 }
 
-extern "C" jint
-Java_com_thomasokken_free42_Free42Activity_core_1list_1programs(JNIEnv *env, jarray thiz, jbyteArray buf) {
+extern "C" jobjectArray
+Java_com_thomasokken_free42_Free42Activity_core_1list_1programs(JNIEnv *env) {
     Tracer T("core_list_programs");
-    int bufsize = env->GetArrayLength(buf);
-    char *cbuf = (char *) malloc(bufsize);
-    int ret = core_list_programs(cbuf, bufsize);
-    env->SetByteArrayRegion(buf, 0, bufsize, (const jbyte *) cbuf);
-    free(cbuf);
+    char *buf = core_list_programs();
+    jclass stringClass = env->FindClass("java/lang/String");
+    if (buf == NULL)
+        return env->NewObjectArray(0, stringClass, NULL);
+    int count = ((buf[0] & 255) << 24) | ((buf[1] & 255) << 16) | ((buf[2] & 255) << 8) | (buf[3] & 255);
+    jobjectArray ret = env->NewObjectArray(count, stringClass, NULL);
+    char *p = buf + 4;
+    for (int i = 0; i < count; i++) {
+        jstring s = env->NewStringUTF(p);
+        env->SetObjectArrayElement(ret, i, s);
+        p += strlen(p) + 1;
+    }
+    free(buf);
     return ret;
 }
 

@@ -224,9 +224,14 @@ int core_powercycle();
  * global labels are given the name END (or .END.).
  * The indexes into the list of program names should be used to identify
  * programs to core_export_programs().
- * The function returns the number of items in the list, which is always >= 1.
+ * The function returns a dynamically allocated buffer. The first four bytes
+ * are the number of programs returned (as a big-endian int) which is
+ * guaranteed to always be at least 1. This is followed by a sequence of
+ * 'program_count' null-terminated strings.
+ * This function will return NULL if it fails to allocate the buffer.
+ * The caller should free() the buffer once it is finished using it.
  */
-int core_list_programs(char *buf, int bufsize);
+char *core_list_programs();
 
 /* core_program_size()
  * This function returns the size of a program, specified by its index.

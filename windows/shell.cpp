@@ -1014,12 +1014,15 @@ static LRESULT CALLBACK ExportProgram(HWND hDlg, UINT message, WPARAM wParam, LP
     switch (message) {
         case WM_INITDIALOG: {
             HWND list = GetDlgItem(hDlg, IDC_LIST1);
-            char buf[10000];
-            int count = core_list_programs(buf, 10000);
-            char *p = buf;
-            for (int i = 0; i < count; i++) {
-                SendMessage(list, LB_ADDSTRING, 0, (long) p);
-                p += strlen(p) + 1;
+            char *buf = core_list_programs();
+            if (buf != NULL) {
+                int count = ((buf[0] & 255) << 24) | ((buf[1] & 255) << 16) | ((buf[2] & 255) << 8) | (buf[3] & 255);
+                char *p = buf + 4;
+                for (int i = 0; i < count; i++) {
+                    SendMessage(list, LB_ADDSTRING, 0, (long) p);
+                    p += strlen(p) + 1;
+                }
+                free(buf);
             }
             return TRUE;
         }

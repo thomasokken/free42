@@ -28,7 +28,7 @@
 - (NSInteger) numberOfRowsInTableView:(NSTableView *)aTableView;
 - (id) tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex;
 - (void) tableView:(NSTableView *)aTableView setObjectValue:anObject forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex;
-- (void) setProgramNames:(const char *)names count:(int)count;
+- (void) setProgramNames:(const char *)names;
 - (bool *) getSelection;
 
 @end

@@ -51,14 +51,15 @@
 - (void) raised {
     // This gets called just before the view is raised, every time
     [programNames removeAllObjects];
-    char buf[1024];
-    int count = core_list_programs(buf, 1024);
-    char *p = buf;
-    for (int i = 0; i < count; i++) {
-        // TODO: I'm using ISO-8859-1 encoding, but of course that's wrong.
-        // I should write an HP-to-UTF8 translator to do this properly.
-        [programNames addObject:[NSString stringWithCString:p encoding:NSISOLatin1StringEncoding]];
-        p += strlen(p) + 1;
+    char *buf = core_list_programs();
+    if (buf != NULL) {
+        int count = ((buf[0] & 255) << 24) | ((buf[1] & 255) << 16) | ((buf[2] & 255) << 8) | (buf[3] & 255);
+        char *p = buf + 4;
+        for (int i = 0; i < count; i++) {
+            [programNames addObject:[NSString stringWithCString:p encoding:NSUTF8StringEncoding]];
+            p += strlen(p) + 1;
+        }
+        free(buf);
     }
     [programTable reloadData];
 }

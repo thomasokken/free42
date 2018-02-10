@@ -1,3 +1,11 @@
+????-??-??: release 2.0.14
+
+* In Export Programs, removed the hard-coded buffer size for the list of
+  programs, so you should now see all your programs in the list, no matter how
+  many there are.
+* When Pasting complex numbers in a+bi notation, the imaginary unit must now be
+  either i or j; the alternative spellings I and J are no longer recognized.
+
 2018-02-06: release 2.0.13
 
 * Paste didn't handle numbers with negative exponents correctly. Fixed.

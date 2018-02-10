@@ -1050,16 +1050,19 @@ static void exportProgramCB() {
         gtk_widget_show_all(GTK_WIDGET(sel_dialog));
     }
 
-    char buf[10000];
-    int count = core_list_programs(buf, 10000);
-    char *p = buf;
+    char *buf = core_list_programs();
 
     GtkListStore *model = gtk_list_store_new(1, G_TYPE_STRING);
-    GtkTreeIter iter;
-    while (count-- > 0) {
-        gtk_list_store_append(model, &iter);
-        gtk_list_store_set(model, &iter, 0, p, -1);
-        p += strlen(p) + 1;
+    if (buf != NULL) {
+        int count = ((buf[0] & 255) << 24) | ((buf[1] & 255) << 16) | ((buf[2] & 255) << 8) | (buf[3] & 255);
+        char *p = buf + 4;
+        GtkTreeIter iter;
+        while (count-- > 0) {
+            gtk_list_store_append(model, &iter);
+            gtk_list_store_set(model, &iter, 0, p, -1);
+            p += strlen(p) + 1;
+        }
+        free(buf);
     }
     gtk_tree_view_set_model(tree, GTK_TREE_MODEL(model));
 

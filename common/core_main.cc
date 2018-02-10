@@ -584,9 +584,13 @@ int core_powercycle() {
     return mode_running;
 }
 
-int core_list_programs(char *buf, int bufsize) {
+char *core_list_programs() {
+    int bufsize = 1024;
+    char *buf = (char *) malloc(bufsize);
+    if (buf == NULL)
+        return NULL;
     int lastidx = -1;
-    int bufptr = 0;
+    int bufptr = 4;
     int label;
     int count = 0;
     for (label = 0; label < labels_count; label++) {
@@ -617,11 +621,16 @@ int core_list_programs(char *buf, int bufsize) {
         lastidx = labels[label].prgm;
 
         if (bufptr + namelen + 1 >= bufsize) {
-            if (bufptr > 0 && buf[bufptr - 1] != 0) {
-                buf[bufptr - 1] = 0;
-                count++;
+            bufsize += 1024;
+            char *newbuf = (char *) realloc(buf, bufsize);
+            if (newbuf == NULL) {
+                if (bufptr > 0 && buf[bufptr - 1] != 0) {
+                    buf[bufptr - 1] = 0;
+                    count++;
+                }
+                goto done;
             }
-            return count;
+            buf = newbuf;
         }
         for (i = 0; i < namelen; i++)
             buf[bufptr++] = name[i];
@@ -632,7 +641,12 @@ int core_list_programs(char *buf, int bufsize) {
             buf[bufptr++] = ' ';
         }
     }
-    return count;
+    done:
+    buf[0] = (char) (count >> 24);
+    buf[1] = (char) (count >> 16);
+    buf[2] = (char) (count >> 8);
+    buf[3] = (char) count;
+    return buf;
 }
 
 static int export_hp42s(int index, int (*progress_report)(const char *)) {
@@ -2576,8 +2590,7 @@ static int parse_scalar(const char *buf, int len, phloat *re, phloat *im, char *
     s2 = i;
     i = scan_number(buf, len, i);
     e2 = i;
-    if (i < len && (buf[i] == 'i' || buf[i] == 'I'
-                 || buf[i] == 'j' || buf[i] == 'J'))
+    if (i < len && (buf[i] == 'i' || buf[i] == 'j'))
         i++;
     else
         goto attempt_3;

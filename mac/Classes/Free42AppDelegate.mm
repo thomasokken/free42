@@ -495,9 +495,9 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
 }
 
 - (IBAction) exportPrograms:(id)sender {
-    char buf[10000];
-    int count = core_list_programs(buf, 10000);
-    [programListDataSource setProgramNames:buf count:count];
+    char *buf = core_list_programs();
+    [programListDataSource setProgramNames:buf];
+    free(buf);
     [programListView reloadData];
     [NSApp runModalForWindow:selectProgramsWindow];
 }

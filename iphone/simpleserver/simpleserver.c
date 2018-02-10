@@ -718,13 +718,12 @@ static char *prgm_name_list_make_unique(prgm_name_list *n, const char *name) {
     }
 }
 
-#define NAMEBUFSIZE 1024
-#define MAXPROGS 255
-
 // NOTE call this only when shell_mutex is locked
 static char *prgm_index_to_name(int prgm_index) {
-    char *buf = (char *) malloc(NAMEBUFSIZE);
-    int n = core_list_programs(buf, NAMEBUFSIZE);
+    char *buf = core_list_programs();
+    if (buf == NULL)
+        return NULL;
+    int n = ((buf[0] & 255) << 24) | ((buf[1] & 255) << 16) | ((buf[2] & 255) << 8) | (buf[3] & 255);
     if (prgm_index < 0 || prgm_index >= n) {
         free(buf);
         return NULL;
@@ -1530,19 +1529,15 @@ static int open_item(const char *url, void **ptr, int *type, int *filesize, cons
         return 200;
     }
     if (strncmp(url, "memory/", 7) == 0) {
-        char *buf = (char *) malloc(NAMEBUFSIZE);
-        char **names = (char **) malloc((MAXPROGS + 1) * sizeof(char *));
-        int p = 0, i;
-        int n;
         pthread_mutex_lock(&shell_mutex);
-        n = core_list_programs(buf, NAMEBUFSIZE);
+        char *buf = core_list_programs();
         pthread_mutex_unlock(&shell_mutex);
-        buf[NAMEBUFSIZE - 1] = 0;
+        int n = buf == NULL ? 0 : ((buf[0] & 255) << 24) | ((buf[1] & 255) << 16) | ((buf[2] & 255) << 8) | (buf[3] & 255);
+        char **names = (char **) malloc((n + 1) * sizeof(char *));
+        int p = 4, i;
         for (i = 0; i < n; i++) {
             names[i] = buf + p;
             p += strlen(names[i]) + 1;
-            if (p >= NAMEBUFSIZE - 2 || i == MAXPROGS)
-                break;
         }
         names[i] = NULL;
         
