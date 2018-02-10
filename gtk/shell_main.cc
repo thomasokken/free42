@@ -1075,7 +1075,7 @@ static void exportProgramCB() {
     if (cancelled)
         return;
 
-    count = gtk_tree_selection_count_selected_rows(select);
+    int count = gtk_tree_selection_count_selected_rows(select);
     if (count == 0)
         return;
 
