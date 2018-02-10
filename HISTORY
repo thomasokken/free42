@@ -1,4 +1,4 @@
-????-??-??: release 2.0.14
+2018-02-10: release 2.0.14
 
 * In Export Programs, removed the hard-coded buffer size for the list of
   programs, so you should now see all your programs in the list, no matter how
