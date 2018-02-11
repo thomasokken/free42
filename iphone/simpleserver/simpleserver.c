@@ -610,7 +610,7 @@ static void do_get(int csock, const char *url) {
 
         sockprintf(csock, "HTTP/1.1 200 OK\r\n");
         sockprintf(csock, "Connection: close\r\n");
-        sockprintf(csock, "Content-Type: text/html\r\n");
+        sockprintf(csock, "Content-Type: text/html; charset=utf-8\r\n");
         sockprintf(csock, "Content-Length: %d\r\n", tb.size);
         sockprintf(csock, "\r\n");
         send(csock, tb.buf, tb.size, 0);
