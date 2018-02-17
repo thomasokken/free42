@@ -228,31 +228,18 @@ public class Free42Activity extends Activity {
             stateFileInputStream = null;
         }
         
-        // Add battery monitor if API >= 4. Lower API levels don't provide
-        // Intent.ACTION_BATTERY_OKAY, and I haven't figured out yet how to
-        // know when to turn off the low-bat annunciator without it.
-        // It may be possible to derive the information from the ACTION_BATTERY_CHANGED
-        // intent, but they sure don't make it very obvious how.
-        String ACTION_BATTERY_OKAY;
-        try {
-            ACTION_BATTERY_OKAY = (String) Intent.class.getField("ACTION_BATTERY_OKAY").get(null);
-        } catch (Exception e) {
-            ACTION_BATTERY_OKAY = null;
-        }
-        if (ACTION_BATTERY_OKAY != null) {
-            lowBatteryReceiver = new BroadcastReceiver() {
-                public void onReceive(Context ctx, Intent intent) {
-                    low_battery = intent.getAction().equals(Intent.ACTION_BATTERY_LOW);
-                    Rect inval = skin.update_annunciators(-1, -1, -1, -1, low_battery ? 1 : 0, -1, -1);
-                    if (inval != null)
-                        calcView.postInvalidateScaled(inval.left, inval.top, inval.right, inval.bottom);
-                }
-            };
-            IntentFilter iff = new IntentFilter();
-            iff.addAction(Intent.ACTION_BATTERY_LOW);
-            iff.addAction(ACTION_BATTERY_OKAY);
-            registerReceiver(lowBatteryReceiver, iff);
-        }
+        lowBatteryReceiver = new BroadcastReceiver() {
+            public void onReceive(Context ctx, Intent intent) {
+                low_battery = intent.getAction().equals(Intent.ACTION_BATTERY_LOW);
+                Rect inval = skin.update_annunciators(-1, -1, -1, -1, low_battery ? 1 : 0, -1, -1);
+                if (inval != null)
+                    calcView.postInvalidateScaled(inval.left, inval.top, inval.right, inval.bottom);
+            }
+        };
+        IntentFilter iff = new IntentFilter();
+        iff.addAction(Intent.ACTION_BATTERY_LOW);
+        iff.addAction(Intent.ACTION_BATTERY_OKAY);
+        registerReceiver(lowBatteryReceiver, iff);
         
         if (preferredOrientation != this.getRequestedOrientation())
             setRequestedOrientation(preferredOrientation);
@@ -274,11 +261,12 @@ public class Free42Activity extends Activity {
         // of what that status *is* when the app is launched (or resumed?).
         IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent batteryStatus = registerReceiver(null, ifilter);
-        int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
-        boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING;
         int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
         int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-        low_battery = !isCharging && level * 100 <= scale * 15;
+        if (low_battery)
+            low_battery = level * 100 < scale * 20;
+        else
+            low_battery = level * 100 <= scale * 15;
         Rect inval = skin.update_annunciators(-1, -1, -1, -1, low_battery ? 1 : 0, -1, -1);
         if (inval != null)
             calcView.postInvalidateScaled(inval.left, inval.top, inval.right, inval.bottom);

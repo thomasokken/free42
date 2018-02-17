@@ -1,3 +1,9 @@
+2018-02-17: release 2.0.15
+
+* POSA would not find the search string if its only occurrence was at the very
+  end of the alpha register. Fixed.
+* Android version: tweaked handling of low-battery indicator.
+
 2018-02-10: release 2.0.14
 
 * In Export Programs, removed the hard-coded buffer size for the list of

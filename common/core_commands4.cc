@@ -318,7 +318,7 @@ int docmd_posa(arg_struct *arg) {
         vartype_string *s = (vartype_string *) reg_x;
         if (s->length != 0) {
             int i, j;
-            for (i = 0; i < reg_alpha_length - s->length; i++) {
+            for (i = 0; i < reg_alpha_length - s->length + 1; i++) {
                 for (j = 0; j < s->length; j++)
                     if (reg_alpha[i + j] != s->text[j])
                         goto notfound;
