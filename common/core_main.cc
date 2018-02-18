@@ -1539,6 +1539,9 @@ static phloat parse_number_line(char *buf) {
             buf2[0] = '-';
             buf2[1] = '1';
         }
+        int len2 = strlen(buf2);
+        if (buf2[len2 - 1] == 'E')
+            buf2[len2 - 1] = 0;
         res = parse_number_line(buf2);
         free(buf2);
         return res;

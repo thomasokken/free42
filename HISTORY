@@ -1,3 +1,8 @@
+????-??-??: release 2.0.16
+
+* When importing raw files, E and -E are now recognized as 1 and -1, for
+  compatibility with HP-41 raw files with synthetic numbers.
+
 2018-02-17: release 2.0.15
 
 * POSA would not find the search string if its only occurrence was at the very
