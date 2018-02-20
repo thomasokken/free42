@@ -282,7 +282,7 @@ int docmd_seed(arg_struct *arg) {
                 s = -s;
             s %= 100000000000000LL;
             s = s * 10 + 1;
-            random_number_high = s / 10000000LL;
+            random_number_high = s / 100000000LL;
             random_number_low = s % 100000000LL;
             return ERR_NONE;
         }
