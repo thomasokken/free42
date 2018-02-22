@@ -1819,10 +1819,14 @@ void core_import_programs() {
                         do_suffix:
                         ind = (suffix & 0x080) != 0;
                         suffix &= 0x7F;
-                        if (!ind && suffix >= 102 && suffix <= 111) {
+                        if (!ind && (cmd == CMD_LBL || cmd == CMD_GTO || cmd == CMD_XEQ
+                                    || cmd >= CMD_KEY1G && cmd <= CMD_KEY9X)
+                                && suffix >= 102 && suffix <= 111) {
                             arg.type = ARGTYPE_LCLBL;
                             arg.val.lclbl = 'A' + (suffix - 102);
-                        } else if (!ind && suffix >= 123) {
+                        } else if (!ind && (cmd == CMD_LBL || cmd == CMD_GTO || cmd == CMD_XEQ
+                                    || cmd >= CMD_KEY1G && cmd <= CMD_KEY9X)
+                                && suffix >= 123) {
                             arg.type = ARGTYPE_LCLBL;
                             arg.val.lclbl = 'a' + (suffix - 123);
                         } else if (suffix >= 112 && suffix <= 116) {
