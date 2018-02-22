@@ -483,7 +483,7 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
                          cFileName, strerror(err), err);
                 show_message("Message", buf);
             } else {
-                core_import_programs(NULL);
+                core_import_programs();
                 redisplay();
                 if (import_file != NULL) {
                     fclose(import_file);
@@ -530,7 +530,7 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
             for (int i = 0; i < count; i++)
                 if (selection[i])
                     indexes[selectionSize++] = i;
-            core_export_programs(selectionSize, indexes, NULL);
+            core_export_programs(selectionSize, indexes);
             free(indexes);
             if (export_file != NULL) {
                 fclose(export_file);

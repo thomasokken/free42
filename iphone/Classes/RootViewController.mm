@@ -235,7 +235,7 @@ int shell_write(const char *buf, int buflen) {
 
 void export_programs(int count, const int *indexes, int (*writer)(const char *buf, int buflen)) {
     writer_callback = writer;
-    core_export_programs(count, indexes, NULL);
+    core_export_programs(count, indexes);
 }
 
 static int (*reader_callback)(char *buf, int buflen);
@@ -246,5 +246,5 @@ int shell_read(char *buf, int buflen) {
 
 void import_programs(int (*reader)(char *buf, int buflen)) {
     reader_callback = reader;
-    core_import_programs(NULL);
+    core_import_programs();
 }

@@ -1587,7 +1587,7 @@ static void export_program() {
         sprintf(buf, "Can't open \"%s\" for output: %s (%d)", export_file_name, strerror(err), err);
         MessageBox(hMainWnd, buf, "Message", MB_ICONWARNING);
     } else {
-        core_export_programs(sel_prog_count, sel_prog_list, NULL);
+        core_export_programs(sel_prog_count, sel_prog_list);
         if (export_file != NULL) {
             fclose(export_file);
             export_file = NULL;
@@ -1616,7 +1616,7 @@ static void import_program() {
         sprintf(buf, "Could not open \"%s\" for reading: %s (%d)", buf, strerror(err), err);
         MessageBox(hMainWnd, buf, "Message", MB_ICONWARNING);
     } else {
-        core_import_programs(NULL);
+        core_import_programs();
         redisplay();
         if (import_file != NULL) {
             fclose(import_file);

@@ -253,29 +253,15 @@ int4 core_program_size(int prgm_index);
  * The 'count' parameter indicates how many programs are to be exported; the
  * 'indexes' parameter is an array of program indexes. The core will pass the
  * raw file data to the shell using the shell_write() function.
- * The 'progress_report' parameter is an optional callback that will be invoked
- * to report when each program was written. If the callback returns zero, the
- * export will abort.
- * The function returns 0 on success, and 1 if it was aborted by the
- * progress_report callback (i.e., by the user clicking "Cancel" in the
- * progress dialog); in the latter case, the shell should delete the unfinished
- * file. Shells that pass NULL for 'progress_report' can ignore the return
- * value, since it will always be 0.
  */
-int core_export_programs(int count, const int *indexes,
-                         int (*progress_report)(const char *));
+void core_export_programs(int count, const int *indexes);
 
 /* core_import_programs()
  *
  * This function is called by the shell after the user has selected a file to
  * import. The core will read the file data using the shell_read() function.
- * The parameter is a pointer to a function that will be called to deliver
- * progress reports: when importing HP-42S program files, it will be called
- * for each global label and each END encountered; when importing Free42
- * program files, it will be called to report the number of programs loaded.
- * If the callback returns zero, the import will abort.
  */
-void core_import_programs(int (*progress_report)(const char *));
+void core_import_programs();
 
 /* core_copy()
  *

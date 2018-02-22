@@ -1423,7 +1423,7 @@ public class Free42Activity extends Activity {
     private native boolean core_powercycle();
     private native String[] core_list_programs();
     //private native int core_program_size(int prgm_index);
-    private native boolean core_export_programs(int[] indexes);
+    private native void core_export_programs(int[] indexes);
     private native void core_import_programs();
     private native String core_copy();
     private native void core_paste(String s);

@@ -239,21 +239,20 @@ Java_com_thomasokken_free42_Free42Activity_core_1program_1size(JNIEnv *env, jobj
     return core_program_size(prgm_index);
 }
 
-extern "C" jboolean
+extern "C" void
 Java_com_thomasokken_free42_Free42Activity_core_1export_1programs(JNIEnv *env, jobject thiz, jintArray indexes) {
     Tracer T("core_export_programs");
     int count = env->GetArrayLength(indexes);
     int *indexes2 = (int *) malloc(count * sizeof(int));
     env->GetIntArrayRegion(indexes, 0, count, indexes2);
-    jboolean ret = core_export_programs(count, indexes2, NULL);
+    core_export_programs(count, indexes2);
     free(indexes2);
-    return ret;
 }
 
 extern "C" void
 Java_com_thomasokken_free42_Free42Activity_core_1import_1programs(JNIEnv *env, jobject thiz) {
     Tracer T("core_import_programs");
-    core_import_programs(NULL);
+    core_import_programs();
 }
 
 extern "C" jstring

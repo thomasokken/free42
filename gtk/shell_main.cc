@@ -1137,7 +1137,7 @@ static void exportProgramCB() {
             i++;
         }
         g_list_free(rows);
-        core_export_programs(count, p2, NULL);
+        core_export_programs(count, p2);
         free(p2);
         if (export_file != NULL) {
             fclose(export_file);
@@ -1219,7 +1219,7 @@ static void importProgramCB() {
                     filenamebuf, strerror(err), err);
         show_message("Message", buf);
     } else {
-        core_import_programs(NULL);
+        core_import_programs();
         redisplay();
         if (import_file != NULL) {
             fclose(import_file);
