@@ -1,7 +1,18 @@
-????-??-??: release 2.0.16
+2018-02-22: release 2.0.16
 
+* 0 SEED initialized the random seed incorrectly, wasting one digit of
+  randomness. Fixed.
 * When importing raw files, E and -E are now recognized as 1 and -1, for
   compatibility with HP-41 raw files with synthetic numbers.
+* When importing raw files, synthetic instructions are now handled more like
+  the real HP-42S handles them. Basically, any argument >= 100 that isn't a
+  stack register and that isn't a local label is treated as numeric. Arguments
+  112-116 are always stack registers, even when that makes no sense (flags, 
+  SigmaREG, etc.); 102-111 and 123-127 are only considered as A-J and a-e in
+  LBL, GTO, and XEQ.
+  Note that nothing very interesting happens as a result of these changes. They
+  won't make synthetic HP-41C code work in Free42 any more than it does in the
+  HP-42S; the behavior is just more like the real 42S now.
 
 2018-02-17: release 2.0.15
 

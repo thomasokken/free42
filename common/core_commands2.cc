@@ -38,6 +38,8 @@ static const char *virtual_flags =
     /* 50-99 */ "00010000000000010000000001000000000000000000000000";
 
 int docmd_sf(arg_struct *arg) {
+    if (arg->type == ARGTYPE_STK)
+        return ERR_NONEXISTENT;
     int err;
     int4 num;
     err = arg_to_num(arg, &num);
@@ -63,6 +65,8 @@ int docmd_sf(arg_struct *arg) {
 }
 
 int docmd_cf(arg_struct *arg) {
+    if (arg->type == ARGTYPE_STK)
+        return ERR_NONEXISTENT;
     int err;
     int4 num;
     err = arg_to_num(arg, &num);
@@ -81,6 +85,8 @@ int docmd_cf(arg_struct *arg) {
 }
 
 int docmd_fs_t(arg_struct *arg) {
+    if (arg->type == ARGTYPE_STK)
+        return ERR_NONEXISTENT;
     int err;
     int4 num;
     err = arg_to_num(arg, &num);
@@ -95,6 +101,8 @@ int docmd_fs_t(arg_struct *arg) {
 }
 
 int docmd_fc_t(arg_struct *arg) {
+    if (arg->type == ARGTYPE_STK)
+        return ERR_NONEXISTENT;
     int err;
     int4 num;
     err = arg_to_num(arg, &num);
@@ -109,6 +117,8 @@ int docmd_fc_t(arg_struct *arg) {
 }
 
 int docmd_fsc_t(arg_struct *arg) {
+    if (arg->type == ARGTYPE_STK)
+        return ERR_NONEXISTENT;
     int err;
     int4 num;
     err = arg_to_num(arg, &num);
@@ -128,6 +138,8 @@ int docmd_fsc_t(arg_struct *arg) {
 }
 
 int docmd_fcc_t(arg_struct *arg) {
+    if (arg->type == ARGTYPE_STK)
+        return ERR_NONEXISTENT;
     int err;
     int4 num;
     err = arg_to_num(arg, &num);
@@ -880,6 +892,8 @@ int docmd_beep(arg_struct *arg) {
 }
 
 int docmd_tone(arg_struct *arg) {
+    if (arg->type == ARGTYPE_STK)
+        return ERR_INVALID_DATA;
     int err;
     int4 num;
     err = arg_to_num(arg, &num);
@@ -1559,7 +1573,8 @@ int docmd_gto(arg_struct *arg) {
     if (!running)
         clear_all_rtns();
 
-    if (arg->type == ARGTYPE_NUM || arg->type == ARGTYPE_LCLBL) {
+    if (arg->type == ARGTYPE_NUM || arg->type == ARGTYPE_STK
+                                 || arg->type == ARGTYPE_LCLBL) {
         if (!running || arg->target == -1)
             arg->target = find_local_label(arg);
         if (arg->target == -2)
@@ -2022,8 +2037,10 @@ int docmd_sigma_reg(arg_struct *arg) {
         if (err != ERR_NONE)
             return err;
     }
+    if (arg->type == ARGTYPE_STR)
+        return ERR_ALPHA_DATA_IS_INVALID;
     if (arg->type != ARGTYPE_NUM)
-        return ERR_INTERNAL_ERROR;
+        return ERR_INVALID_DATA;
     mode_sigma_reg = (int4) arg->val.num;
     if (mode_sigma_reg < 0)
         mode_sigma_reg = -mode_sigma_reg;

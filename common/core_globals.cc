@@ -2093,7 +2093,8 @@ int4 find_local_label(const arg_struct *arg) {
         argtype = prgm->text[search_pc + 1];
         command |= (argtype & 240) << 4;
         argtype &= 15;
-        if (command == CMD_LBL && argtype == arg->type) {
+        if (command == CMD_LBL && (argtype == arg->type
+                                || argtype == ARGTYPE_STK)) {
             if (argtype == ARGTYPE_NUM) {
                 int num = 0;
                 unsigned char c;
@@ -2104,6 +2105,25 @@ int4 find_local_label(const arg_struct *arg) {
                 } while ((c & 128) == 0);
                 if (num == arg->val.num)
                     return search_pc;
+            } else if (argtype == ARGTYPE_STK) {
+                // Synthetic LBL ST T etc.
+                // Allow GTO ST T and GTO 112
+                char stk = prgm->text[search_pc + 2];
+                if (arg->type == ARGTYPE_STK) {
+                    if (stk = arg->val.stk)
+                        return search_pc;
+                } else if (arg->type == ARGTYPE_NUM) {
+                    int num = 0;
+                    switch (stk) {
+                        case 'T': num = 112; break;
+                        case 'Z': num = 113; break;
+                        case 'Y': num = 114; break;
+                        case 'X': num = 115; break;
+                        case 'L': num = 116; break;
+                    }
+                    if (num == arg->val.num)
+                        return search_pc;
+                }
             } else {
                 char lclbl = prgm->text[search_pc + 2];
                 if (lclbl == arg->val.lclbl)
