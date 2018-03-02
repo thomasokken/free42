@@ -729,7 +729,8 @@ static void export_hp42s(int index) {
                         code_std_2 = 0xEE;
                     goto normal;
                 } else if (cmd == CMD_XEQ) {
-                    if (arg.type == ARGTYPE_NUM || arg.type == ARGTYPE_LCLBL) {
+                    if (arg.type == ARGTYPE_NUM || arg.type == ARGTYPE_STK
+                                                || arg.type == ARGTYPE_LCLBL) {
                         code_std_1 = 0xE0;
                         code_std_2 = 0x00;
                         goto normal;
@@ -745,6 +746,7 @@ static void export_hp42s(int index) {
                         cmdbuf[cmdlen++] = 0xB1 + arg.val.num;
                         cmdbuf[cmdlen++] = 0x00;
                     } else if (arg.type == ARGTYPE_NUM
+                                        || arg.type == ARGTYPE_STK
                                         || arg.type == ARGTYPE_LCLBL) {
                         code_std_1 = 0xD0;
                         code_std_2 = 0x00;
@@ -969,7 +971,8 @@ int4 core_program_size(int prgm_index) {
                 } else if (cmd == CMD_INPUT) {
                     goto normal;
                 } else if (cmd == CMD_XEQ) {
-                    if (arg.type == ARGTYPE_NUM || arg.type == ARGTYPE_LCLBL) {
+                    if (arg.type == ARGTYPE_NUM || arg.type == ARGTYPE_STK
+                                                || arg.type == ARGTYPE_LCLBL) {
                         size += 3;
                     } else if (arg.type == ARGTYPE_STR) {
                         size += arg.length + 2;
@@ -979,6 +982,7 @@ int4 core_program_size(int prgm_index) {
                     if (arg.type == ARGTYPE_NUM && arg.val.num <= 14) {
                         size += 2;
                     } else if (arg.type == ARGTYPE_NUM
+                                        || arg.type == ARGTYPE_STK
                                         || arg.type == ARGTYPE_LCLBL) {
                         size += 3;
                     } else if (arg.type == ARGTYPE_STR) {

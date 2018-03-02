@@ -1348,10 +1348,6 @@ static bool unpersist_globals(int4 ver) {
             goto done;
         }
     }
-    if (ver < 22) {
-        for (i = 0; i < prgms_count; i++)
-            invalidate_lclbls(i, true);
-    }
     if (!read_int(&current_prgm)) {
         current_prgm = 0;
         goto done;
@@ -1401,11 +1397,16 @@ static bool unpersist_globals(int4 ver) {
             goto done;
 #endif
 
-    if (bin_dec_mode_switch())
+    if (bin_dec_mode_switch()) {
         if (!convert_programs()) {
             clear_all_prgms();
             goto done;
         }
+    } else {
+        if (ver < 22)
+            for (i = 0; i < prgms_count; i++)
+                invalidate_lclbls(i, true);
+    }
 
 #ifdef BCD_MATH
     if (state_file_number_format == NUMBER_FORMAT_BCD20_OLD
@@ -1610,7 +1611,8 @@ int get_command_length(int prgm_index, int4 pc) {
     argtype &= 15;
 
     if ((command == CMD_GTO || command == CMD_XEQ)
-            && (argtype == ARGTYPE_NUM || argtype == ARGTYPE_LCLBL))
+            && (argtype == ARGTYPE_NUM || argtype == ARGTYPE_STK
+                                       || argtype == ARGTYPE_LCLBL))
         pc2 += 4;
     switch (argtype) {
         case ARGTYPE_NUM:
@@ -1650,7 +1652,8 @@ void get_next_command(int4 *pc, int *command, arg_struct *arg, int find_target){
 
     if ((*command == CMD_GTO || *command == CMD_XEQ)
             && (arg->type == ARGTYPE_NUM
-                || arg->type == ARGTYPE_LCLBL)) {
+                || arg->type == ARGTYPE_LCLBL
+                || arg->type == ARGTYPE_STK)) {
         if (find_target) {
             target_pc = 0;
             for (i = 0; i < 4; i++)
@@ -1796,7 +1799,8 @@ static void invalidate_lclbls(int prgm_index, bool force) {
             command |= (argtype & 240) << 4;
             argtype &= 15;
             if ((command == CMD_GTO || command == CMD_XEQ)
-                    && (argtype == ARGTYPE_NUM || argtype == ARGTYPE_LCLBL)) {
+                    && (argtype == ARGTYPE_NUM || argtype == ARGTYPE_STK
+                                               || argtype == ARGTYPE_LCLBL)) {
                 /* A dest_pc value of -1 signals 'unknown',
                  * -2 means 'nonexistent', and anything else is
                  * the pc where the destination label is found.
@@ -1959,7 +1963,8 @@ void store_command(int4 pc, int command, arg_struct *arg) {
     }
 
     if ((command == CMD_GTO || command == CMD_XEQ)
-            && (arg->type == ARGTYPE_NUM || arg->type == ARGTYPE_LCLBL))
+            && (arg->type == ARGTYPE_NUM || arg->type == ARGTYPE_STK 
+                                         || arg->type == ARGTYPE_LCLBL))
         for (i = 0; i < 4; i++)
             buf[bufptr++] = 255;
     switch (arg->type) {
@@ -2983,7 +2988,8 @@ static bool convert_programs() {
             if (command == CMD_END)
                 break;
             if ((command == CMD_GTO || command == CMD_XEQ)
-                    && (argtype == ARGTYPE_NUM || argtype == ARGTYPE_LCLBL)) {
+                    && (argtype == ARGTYPE_NUM || argtype == ARGTYPE_STK
+                                               || argtype == ARGTYPE_LCLBL)) {
                 // Invalidate local label offsets
                 prgm->text[pc++] = 255;
                 prgm->text[pc++] = 255;
@@ -3097,7 +3103,8 @@ static void update_decimal_in_programs() {
             if (command == CMD_END)
                 break;
             if ((command == CMD_GTO || command == CMD_XEQ)
-                    && (argtype == ARGTYPE_NUM || argtype == ARGTYPE_LCLBL)) {
+                    && (argtype == ARGTYPE_NUM || argtype == ARGTYPE_STK
+                                               || argtype == ARGTYPE_LCLBL)) {
                 // Skip local label offsets
                 pc += 4;
             }
