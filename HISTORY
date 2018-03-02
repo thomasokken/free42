@@ -1,3 +1,10 @@
+????-??-??: release 2.0.17
+
+* Inserting or deleting and END would not always clear cached local GTO or XEQ
+  targets, potentially causing local GTO or XEQ commands to jump to the wrong
+  locations. Fixed, and also added code to repair such damage in existing state
+  files.
+
 2018-02-22: release 2.0.16
 
 * 0 SEED initialized the random seed incorrectly, wasting one digit of

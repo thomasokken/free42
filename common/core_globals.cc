@@ -706,7 +706,7 @@ static int array_list_search(void *array);
 static bool persist_vartype(vartype *v);
 static bool unpersist_vartype(vartype **v, bool padded);
 static void update_label_table(int prgm, int4 pc, int inserted);
-static void invalidate_lclbls(int prgm_index);
+static void invalidate_lclbls(int prgm_index, bool force);
 static int pc_line_convert(int4 loc, int loc_is_pc);
 static bool convert_programs();
 #ifdef BCD_MATH
@@ -1348,6 +1348,10 @@ static bool unpersist_globals(int4 ver) {
             goto done;
         }
     }
+    if (ver < 22) {
+        for (i = 0; i < prgms_count; i++)
+            invalidate_lclbls(i, true);
+    }
     if (!read_int(&current_prgm)) {
         current_prgm = 0;
         goto done;
@@ -1533,7 +1537,7 @@ void clear_prgm_lines(int4 count) {
     }
     labels_count = i;
 
-    invalidate_lclbls(current_prgm);
+    invalidate_lclbls(current_prgm, false);
     clear_all_rtns();
 }
 
@@ -1782,9 +1786,9 @@ static void update_label_table(int prgm, int4 pc, int inserted) {
     }
 }
 
-static void invalidate_lclbls(int prgm_index) {
+static void invalidate_lclbls(int prgm_index, bool force) {
     prgm_struct *prgm = prgms + prgm_index;
-    if (!prgm->lclbl_invalid) {
+    if (force || !prgm->lclbl_invalid) {
         int4 pc2 = 0;
         while (pc2 < prgm->size) {
             int command = prgm->text[pc2];
@@ -1843,7 +1847,7 @@ void delete_command(int4 pc) {
             prgms[pos] = prgms[pos + 1];
         prgms_count--;
         rebuild_label_table();
-        invalidate_lclbls(current_prgm);
+        invalidate_lclbls(current_prgm, true);
         clear_all_rtns();
         draw_varmenu();
         return;
@@ -1856,7 +1860,7 @@ void delete_command(int4 pc) {
         rebuild_label_table();
     else
         update_label_table(current_prgm, pc, -length);
-    invalidate_lclbls(current_prgm);
+    invalidate_lclbls(current_prgm, false);
     clear_all_rtns();
     draw_varmenu();
 }
@@ -1947,8 +1951,8 @@ void store_command(int4 pc, int command, arg_struct *arg) {
             print_program_line(current_prgm - 1, pc);
 
         rebuild_label_table();
-        invalidate_lclbls(current_prgm);
-        invalidate_lclbls(current_prgm - 1);
+        invalidate_lclbls(current_prgm, true);
+        invalidate_lclbls(current_prgm - 1, true);
         clear_all_rtns();
         draw_varmenu();
         return;
@@ -2024,7 +2028,7 @@ void store_command(int4 pc, int command, arg_struct *arg) {
         rebuild_label_table();
     else
         update_label_table(current_prgm, pc, bufptr);
-    invalidate_lclbls(current_prgm);
+    invalidate_lclbls(current_prgm, false);
     clear_all_rtns();
     draw_varmenu();
 }
