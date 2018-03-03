@@ -1,4 +1,4 @@
-????-??-??: release 2.0.17
+2018-03-02: release 2.0.17
 
 * Inserting or deleting and END would not always clear cached local GTO or XEQ
   targets, potentially causing local GTO or XEQ commands to jump to the wrong
