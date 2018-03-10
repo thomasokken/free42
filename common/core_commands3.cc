@@ -894,6 +894,7 @@ int docmd_edit(arg_struct *arg) {
         set_appmenu_exitcallback(1);
         if (flags.f.trace_print && flags.f.printer_exists)
             docmd_prx(NULL);
+        mode_disable_stack_lift = true;
         return ERR_NONE;
     } else
         return ERR_INVALID_TYPE;
@@ -958,6 +959,7 @@ int docmd_editn(arg_struct *arg) {
         set_appmenu_exitcallback(1);
         if (flags.f.trace_print && flags.f.printer_exists)
             docmd_prx(NULL);
+        mode_disable_stack_lift = true;
         return ERR_NONE;
     }
 }
@@ -1350,13 +1352,11 @@ void matedit_goto(int4 row, int4 column) {
         if (row == 0 || row > rows || column == 0 || column > columns)
             err = ERR_DIMENSION_ERROR;
         else {
-            int prev_stack_lift_disable;
             matedit_i = row - 1;
             matedit_j = column - 1;
-            prev_stack_lift_disable = flags.f.stack_lift_disable;
             flags.f.stack_lift_disable = 1;
             err = docmd_rclel(NULL);
-            flags.f.stack_lift_disable = prev_stack_lift_disable;
+            mode_disable_stack_lift = true;
         }
     }
     if (err != ERR_NONE) {
