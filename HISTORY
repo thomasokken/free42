@@ -1,3 +1,12 @@
+2018-03-10: release 2.0.19
+
+* Another EDIT/EDITN fix: in the real HP-42S, EDIT and EDITN don't actually
+  disable stack lift; they preserve the stack lift state, which you can observe
+  if you do ENTER vs. a stack-lift-enabling operation (say, X<>Y) just before
+  invoking them. This behavior is not really useful, but it needs to be
+  emulated anyway, since not doing so risks breaking HP-42S programs.
+  This does not affect GOTO Row/Column.
+
 2018-03-09: release 2.0.18
 
 * EDIT, EDITN, and GOTO Row/Column should disable stack lift, but they didn't.

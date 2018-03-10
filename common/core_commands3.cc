@@ -894,7 +894,7 @@ int docmd_edit(arg_struct *arg) {
         set_appmenu_exitcallback(1);
         if (flags.f.trace_print && flags.f.printer_exists)
             docmd_prx(NULL);
-        mode_disable_stack_lift = true;
+        mode_disable_stack_lift = flags.f.stack_lift_disable;
         return ERR_NONE;
     } else
         return ERR_INVALID_TYPE;
@@ -959,7 +959,7 @@ int docmd_editn(arg_struct *arg) {
         set_appmenu_exitcallback(1);
         if (flags.f.trace_print && flags.f.printer_exists)
             docmd_prx(NULL);
-        mode_disable_stack_lift = true;
+        mode_disable_stack_lift = flags.f.stack_lift_disable;
         return ERR_NONE;
     }
 }
