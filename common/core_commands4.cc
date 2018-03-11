@@ -1273,6 +1273,7 @@ static void matx_completion(int error, vartype *res) {
     matedit_name[3] = 'X';
     matedit_i = 0;
     matedit_j = 0;
+    mode_disable_stack_lift = flags.f.stack_lift_disable;
 }
 
 static int matabx(int which) {
@@ -1354,6 +1355,7 @@ static int matabx(int which) {
     matedit_name[3] = which == 0 ? 'A' : 'B';
     matedit_i = 0;
     matedit_j = 0;
+    mode_disable_stack_lift = flags.f.stack_lift_disable;
     return ERR_NONE;
 }
 

@@ -1,3 +1,8 @@
+????-??-??: release 2.0.20
+
+* MATA, MATB, and MATX should exhibit the same stack lift behavior as EDIT and
+  EDITN, but didn't. Fixed.
+
 2018-03-10: release 2.0.19
 
 * Another EDIT/EDITN fix: in the real HP-42S, EDIT and EDITN don't actually
