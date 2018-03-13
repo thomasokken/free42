@@ -1,4 +1,4 @@
-????-??-??: release 2.0.20
+2018-03-12: release 2.0.20
 
 * MATA, MATB, and MATX should exhibit the same stack lift behavior as EDIT and
   EDITN, but didn't. Fixed.
