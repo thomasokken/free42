@@ -11,9 +11,9 @@
 	<key>CFBundleName</key>
 	<string>Free42</string>
 	<key>CFBundleShortVersionString</key>
-	<string>20.19</string>
+	<string>20.20</string>
 	<key>CFBundleVersion</key>
-	<string>2.0.19</string>
+	<string>2.0.20</string>
 	<key>CloseBoxInsetX</key>
 	<integer>14</integer>
 	<key>CloseBoxInsetY</key>
