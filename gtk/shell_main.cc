@@ -1383,6 +1383,7 @@ static void preferencesCB() {
             shell_finish_gif(gif_seeker, gif_writer);
             fclose(print_gif);
             print_gif = NULL;
+            gif_seq = -1;
         }
         free(old);
 

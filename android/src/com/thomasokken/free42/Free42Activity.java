@@ -687,6 +687,7 @@ public class Free42Activity extends Activity {
                 printGifFile.close();
             } catch (IOException e) {}
             printGifFile = null;
+            gif_seq = 0;
         }
         ShellSpool.printToGif = newPrintEnabled;
         ShellSpool.printToGifFileName = newFileName;

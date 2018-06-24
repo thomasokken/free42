@@ -1156,6 +1156,7 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
                         shell_finish_gif(gif_seeker, gif_writer);
                         fclose(print_gif);
                         print_gif = NULL;
+                        gif_seq = -1;
                     }
                     strcpy(state.printerGifFileName, buf);
                     // fall through
