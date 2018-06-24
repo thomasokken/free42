@@ -4,6 +4,8 @@
   a perfect square.
 * When printing to GIF, changing the filename did not cause the GIF numbering
   sequence to restart at 1. Fixed.
+* VARMENU would step through rows of multi-line menus in the wrong order.
+  (You needed a function with 13 or more MVARs to notice this.) Fixed.
 
 2018-03-12: release 2.0.20
 

@@ -1926,16 +1926,16 @@ void keydown_normal_mode(int shift, int key) {
             }
             if (!shift && key == KEY_UP) {
                 if (varmenu_rows > 1) {
-                    if (++varmenu_row >= varmenu_rows)
-                        varmenu_row = 0;
+                    if (--varmenu_row < 0)
+                        varmenu_row = varmenu_rows - 1;
                     pending_command = CMD_CANCELLED;
                 }
                 return;
             }
             if (!shift && key == KEY_DOWN) {
                 if (varmenu_rows > 1) {
-                    if (--varmenu_row < 0)
-                        varmenu_row = varmenu_rows - 1;
+                    if (++varmenu_row >= varmenu_rows)
+                        varmenu_row = 0;
                     pending_command = CMD_CANCELLED;
                 }
                 return;
