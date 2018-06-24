@@ -428,6 +428,7 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
         shell_finish_gif(gif_seeker, gif_writer);
         fclose(print_gif);
         print_gif = NULL;
+        gif_seq = -1;
     }
     strcpy(state.printerGifFileName, buf);
     [[prefsPrintGIFMaxHeight stringValue] getCString:buf maxLength:50 encoding:NSUTF8StringEncoding];
