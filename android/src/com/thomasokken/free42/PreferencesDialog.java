@@ -328,8 +328,8 @@ public class PreferencesDialog extends Dialog {
     public int getMaxGifHeight() {
         try {
             int n = Integer.parseInt(maxGifHeightTF.getText().toString());
-            if (n < 32)
-                n = 32;
+            if (n < 16)
+                n = 16;
             else if (n > 32767)
                 n = 32767;
             return n;

@@ -1146,7 +1146,7 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
                     state.printerToGifFile = SendMessage(ctl, BM_GETCHECK, 0, 0);
                     BOOL success;
                     int maxlen = (int) GetDlgItemInt(hDlg, IDC_PRINTER_GIF_HEIGHT, &success, TRUE);
-                    state.printerGifMaxLength = !success ? 256 : maxlen < 32 ? 32 : maxlen > 32767 ? 32767 : maxlen;
+                    state.printerGifMaxLength = !success ? 256 : maxlen < 16 ? 16 : maxlen > 32767 ? 32767 : maxlen;
                     GetDlgItemText(hDlg, IDC_PRINTER_GIF_NAME, buf, FILENAMELEN - 1);
                     len = strlen(buf);
                     if (len > 0 && (len < 4 || _stricmp(buf + len - 4, ".gif") != 0))
@@ -2023,7 +2023,7 @@ void shell_print(const char *text, int length,
         char buf[1000];
         
         if (print_gif != NULL
-            && gif_lines + height > state.printerGifMaxLength) {
+                && gif_lines + height > state.printerGifMaxLength) {
             shell_finish_gif(gif_seeker, gif_writer);
             fclose(print_gif);
             print_gif = NULL;
@@ -2088,6 +2088,12 @@ void shell_print(const char *text, int length,
 
         shell_spool_gif(bits, bytesperline, x, y, width, height, gif_writer);
         gif_lines += height;
+
+        if (print_gif != NULL && gif_lines + 9 > state.printerGifMaxLength) {
+            shell_finish_gif(gif_seeker, gif_writer);
+            fclose(print_gif);
+            print_gif = NULL;
+        }
         done_print_gif:;
     }
 }

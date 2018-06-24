@@ -1784,6 +1784,16 @@ public class Free42Activity extends Activity {
                 alert("An error occurred while printing to " + ShellSpool.printToGifFileName + ": " + e.getMessage()
                         + "\nPrinting to GIF file disabled.");
             }
+
+            if (printGifFile != null && gif_lines + 9 > ShellSpool.maxGifHeight) {
+                try {
+                    ShellSpool.shell_finish_gif(printGifFile);
+                } catch (IOException e) {}
+                try {
+                    printGifFile.close();
+                } catch (IOException e) {}
+                printGifFile = null;
+            }
         }
     }
     

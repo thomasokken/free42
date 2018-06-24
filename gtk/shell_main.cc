@@ -1389,8 +1389,8 @@ static void preferencesCB() {
 
         s = gtk_entry_get_text(GTK_ENTRY(gifheight));
         if (sscanf(s, "%d", &state.printerGifMaxLength) == 1) {
-            if (state.printerGifMaxLength < 32)
-                state.printerGifMaxLength = 32;
+            if (state.printerGifMaxLength < 16)
+                state.printerGifMaxLength = 16;
             else if (state.printerGifMaxLength > 32767) state.printerGifMaxLength = 32767;
         } else
             state.printerGifMaxLength = 256;
@@ -2303,6 +2303,12 @@ void shell_print(const char *text, int length,
 
         shell_spool_gif(bits, bytesperline, x, y, width, height, gif_writer);
         gif_lines += height;
+
+        if (print_gif != NULL && gif_lines + 9 > state.printerGifMaxLength) {
+            shell_finish_gif(gif_seeker, gif_writer);
+            fclose(print_gif);
+            print_gif = NULL;
+        }
         done_print_gif:;
     }
 }

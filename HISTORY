@@ -1,11 +1,17 @@
-????-??-??: release 2.0.21
+2018-06-24: release 2.0.21
 
 * Fixed complex SQRT so it returns exact results when Re(x) = 0 and Im(x)/2 is
   a perfect square.
-* When printing to GIF, changing the filename did not cause the GIF numbering
-  sequence to restart at 1. Fixed.
 * VARMENU would step through rows of multi-line menus in the wrong order.
   (You needed a function with 13 or more MVARs to notice this.) Fixed.
+* When printing to GIF, changing the filename did not cause the GIF numbering
+  sequence to restart at 1. Fixed.
+* When printing to GIF, the output file is now flushed and closed immediately
+  if there is no more room for at least another 9 pixels after printing -- in
+  other words, when no more printing to that file is possible anyway. It used
+  to wait until the next print request, or app close, before flushing and
+  closing in this situation.
+  Also, the minimum height of a GIF output file is now 16 pixels, down from 32.
 
 2018-03-12: release 2.0.20
 

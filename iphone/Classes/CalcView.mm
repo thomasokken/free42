@@ -1090,7 +1090,7 @@ void shell_print(const char *text, int length,
         char buf[1000];
         
         if (print_gif != NULL
-            && gif_lines + height > state.printerGifMaxLength) {
+                && gif_lines + height > state.printerGifMaxLength) {
             shell_finish_gif(gif_seeker, gif_writer);
             fclose(print_gif);
             print_gif = NULL;
@@ -1148,7 +1148,13 @@ void shell_print(const char *text, int length,
         
         shell_spool_gif(bits, bytesperline, x, y, width, height, gif_writer);
         gif_lines += height;
-    done_print_gif:;
+
+        if (print_gif != NULL && gif_lines + 9 > state.printerGifMaxLength) {
+            shell_finish_gif(gif_seeker, gif_writer);
+            fclose(print_gif);
+            print_gif = NULL;
+        }
+        done_print_gif:;
     }
 }
 

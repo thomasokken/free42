@@ -163,8 +163,8 @@
     char numbuf[32];
     [s getCString:numbuf maxLength:32 encoding:NSUTF8StringEncoding];
     if (sscanf(numbuf, "%d", &state.printerGifMaxLength) == 1) {
-        if (state.printerGifMaxLength < 32)
-            state.printerGifMaxLength = 32;
+        if (state.printerGifMaxLength < 16)
+            state.printerGifMaxLength = 16;
         else if (state.printerGifMaxLength > 32767)
             state.printerGifMaxLength = 32767;
     } else
