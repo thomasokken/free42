@@ -1,6 +1,9 @@
 ????-??-??: release 2.0.21
 
-* Changed the homepage URL to http://thomasokken.nl/free42/.
+* Fixed complex SQRT so it returns exact results when Re(x) = 0 and Im(x)/2 is
+  a perfect square.
+* Mac version: when printing to GIF, changing the filename did not cause the
+  GIF numbering sequence to restart at 1. Fixed.
 
 2018-03-12: release 2.0.20
 
