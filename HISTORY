@@ -1,3 +1,11 @@
+2018-07-03: release 2.0.21a (iPhone only)
+
+* Turned off all optimization for release builds; the latest iOS developer
+  tools appear to have a buggy optimizer, and it is causing number display in
+  OCT and HEX modes to misbehave -- they show numbers with unwanted leading
+  zeroes, for a total number of digits that would be appropriate for BIN mode,
+  so 1=>1, 2=>02, 3=>03, 4=>004, etc.
+
 2018-06-24: release 2.0.21
 
 * Fixed complex SQRT so it returns exact results when Re(x) = 0 and Im(x)/2 is
