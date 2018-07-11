@@ -1,3 +1,7 @@
+????-??-??: release 2.0.22
+
+* iPhone version: implemented basic iPhone X support.
+
 2018-07-03: release 2.0.21a (iPhone only)
 
 * Turned off all optimization for release builds; the latest iOS developer
