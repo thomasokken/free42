@@ -1,6 +1,8 @@
 ????-??-??: release 2.0.22
+Note: MacOS sys req went from 10.6 to 10.7!
 
-* iPhone version: implemented basic iPhone X support.
+* INPUT should clear any message from the display before showing the prompt,
+  but it didn't. Fixed.
 
 2018-07-03: release 2.0.21a (iPhone only)
 

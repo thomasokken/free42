@@ -418,6 +418,7 @@ int docmd_input(arg_struct *arg) {
         return ERR_INVALID_TYPE;
     }
 
+    docmd_cld(NULL);
     recall_result(v);
     return ERR_STOP;
 }
