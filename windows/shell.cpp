@@ -884,6 +884,21 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
             }
             break;
         }
+        case WM_ACTIVATE: {
+            int p = LOWORD(wParam);
+            if (p == WA_INACTIVE)
+                // This is needed because when using Alt-Tab to leave
+                // Free42, Windows Vista and later don't send a key-up
+                // for the Alt key, with the result that the app only
+                // sees the key-down for Alt, and the menu bar remains
+                // stuck in Alt mode.
+                // (Windows Vista and 7 do do the right thing if the
+                // Windows Classic theme is active, but of course you
+                // can't depend on that theme being used, and in
+                // Windows 8 and later, it isn't available any more.)
+                PostMessage(hMainWnd, WM_SYSKEYUP, 18, 0);
+            goto do_default;
+        }
         default:
         do_default:
             return DefWindowProc(hWnd, message, wParam, lParam);
@@ -1369,7 +1384,7 @@ static void copy() {
     if (len == 0)
         goto fail2;
     int wlen = MultiByteToWideChar(CP_UTF8, 0, buf, len + 1, NULL, 0);
-	if (wlen == 0)
+    if (wlen == 0)
         goto fail2;
     HGLOBAL h = GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, wlen * 2);
     if (h != NULL) {
@@ -1782,7 +1797,7 @@ void shell_beeper(int frequency, int duration) {
 }
 
 static VOID CALLBACK ann_print_timeout(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) {
-	KillTimer(NULL, ann_print_timer);
+    KillTimer(NULL, ann_print_timer);
     ann_print_timer = 0;
     ann_print = 0;
     HDC hdc = GetDC(hMainWnd);
