@@ -1898,6 +1898,7 @@ int docmd_on(arg_struct *arg) {
 }
 
 int docmd_off(arg_struct *arg) {
+    shell_always_on(0);
 #ifdef IPHONE
     if (!off_enabled()) {
         squeak();

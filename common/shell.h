@@ -220,7 +220,7 @@ int shell_get_heading(double *mag_heading, double *true_heading, double *acc,
 /* shell_always_on()
  *
  * Sets and queries the "always on" state (flag 44). Pass 0 to clear, 1 to set,
- * or to leave unchanged; returns the previous state.
+ * or -1 to leave unchanged; returns the previous state.
  */
 int shell_always_on(int always_on);
 
