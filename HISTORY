@@ -3,8 +3,11 @@ Note: MacOS sys req went from 10.6 to 10.7!
 
 * INPUT should clear any message from the display before showing the prompt,
   but it didn't. Fixed.
-* Windows version: fixed Alt-Tab behavior.
 * Android and iPhone versions: OFF now turns off "continuous on" mode.
+
+2018-11-24: release 2.0.21b (Windows only)
+
+* Fixed Alt-Tab behavior.
 
 2018-07-03: release 2.0.21a (iPhone only)
 
