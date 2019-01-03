@@ -652,6 +652,19 @@ void keydown_command_entry(int shift, int key) {
             return;
         }
     }
+    
+    if (incomplete_command == CMD_LBL && !incomplete_alpha && incomplete_length == 1
+            && shift && key == KEY_ENTER) {
+        /* More LBL weirdness: you can switch to ALPHA mode while entering
+         * a numeric LBL
+         */
+        incomplete_alpha = 1;
+        incomplete_str[0] = '0' + incomplete_num;
+        incomplete_num = 0;
+        mode_commandmenu = MENU_ALPHA1;
+        redisplay();
+        return;
+    }
 
     if ((incomplete_command == CMD_ASTO || incomplete_command == CMD_ARCL)
             && incomplete_length == 1 && mode_commandmenu == MENU_NONE
