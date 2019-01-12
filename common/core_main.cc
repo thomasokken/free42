@@ -2508,7 +2508,7 @@ static vartype *parse_base(const char *buf, int len) {
     return new_real((phloat) n);
 }
 
-static int parse_scalar(const char *buf, int len, phloat *re, phloat *im, char *s, int *slen) {
+static int parse_scalar(const char *buf, int len, bool strict, phloat *re, phloat *im, char *s, int *slen) {
     int i, s1, e1, s2, e2;
     bool polar = false;
     bool empty_im = false;
@@ -2645,10 +2645,12 @@ static int parse_scalar(const char *buf, int len, phloat *re, phloat *im, char *
     e1 = i;
     if (e1 == s1)
         goto finish_string;
-    while (i < len && buf[i] == ' ')
-        i++;
-    if (i < len)
-        goto finish_string;
+    if (strict) {
+        while (i < len && buf[i] == ' ')
+            i++;
+        if (i < len)
+            goto finish_string;
+    }
     if (parse_phloat(buf + s1, e1 - s1, re))
         return TYPE_REAL;
 
@@ -3221,7 +3223,7 @@ void core_paste(const char *buf) {
                 phloat re, im;
                 char s[6];
                 int slen;
-                int type = parse_scalar(hpbuf, len, &re, &im, s, &slen);
+                int type = parse_scalar(hpbuf, len, false, &re, &im, s, &slen);
                 switch (type) {
                     case TYPE_REAL:
                         v = new_real(re);
@@ -3286,7 +3288,7 @@ void core_paste(const char *buf) {
                     phloat re, im;
                     char s[6];
                     int slen;
-                    int type = parse_scalar(hpbuf, hplen, &re, &im, s, &slen);
+                    int type = parse_scalar(hpbuf, hplen, true, &re, &im, s, &slen);
                     if (is_string != NULL) {
                         switch (type) {
                             case TYPE_REAL:

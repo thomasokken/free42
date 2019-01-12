@@ -1,6 +1,9 @@
 ????-??-??: release 2.0.22
 Note: MacOS sys req went from 10.6 to 10.7!
 
+* Made pasting real scalars a bit more lenient: it is now permitted for there
+  to be trailing non-numeric characters after the number, so pasting a number
+  with an attached unit, say 50mm, yields the number 50, not the string "50mm".
 * INPUT should clear any message from the display before showing the prompt,
   but it didn't. Fixed.
 * When ALPHA mode is active on top of VARMENU, ASTO and ARCL should show the
