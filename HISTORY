@@ -1,5 +1,4 @@
-????-??-??: release 2.0.22
-Note: MacOS sys req went from 10.6 to 10.7!
+2019-01-12: release 2.0.22
 
 * Made pasting real scalars a bit more lenient: it is now permitted for there
   to be trailing non-numeric characters after the number, so pasting a number

@@ -18,7 +18,7 @@
 CFLAGS = -DNO_SINCOS \
 	 -DOLD_PSE \
 	 -arch x86_64 \
-	 -mmacosx-version-min=10.4 \
+	 -mmacosx-version-min=10.7 \
 	 -Wall \
          -Wno-parentheses \
 	 -g \
@@ -33,8 +33,8 @@ CXXFLAGS = $(CFLAGS) \
            -fno-exceptions \
 	   -fno-rtti
 
-LDFLAGS = -Wl,-syslibroot,/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk \
-          -mmacosx-version-min=10.4
+LDFLAGS = -Wl,-syslibroot,/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk \
+          -mmacosx-version-min=10.7 -stdlib=libc++
 LIBS = -arch x86_64 -lm gcc111libbid.a
 
 SRCS = shell.cc shell_spool.cc \
