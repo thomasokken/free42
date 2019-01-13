@@ -367,6 +367,17 @@ public class Free42Activity extends Activity {
             menu.add(Menu.NONE, Menu.NONE, i, "Skin: \"" + builtinSkinNames[i] + "\"");
         menu.add(Menu.NONE, Menu.NONE, builtinSkinNames.length, "Skin: Other...");
         
+        // Set overflow menu items' text color to black; this is
+        // needed, together with the res/values/style.xml hack,
+        // to ensure that the menu items don't end up black-on-black.
+        for (int i = 5; i < menu.size(); i++) {
+            MenuItem item = menu.getItem(i);
+            CharSequence cs = item.getTitle();
+            SpannableString ss = new SpannableString(cs);
+            ss.setSpan(new android.text.style.ForegroundColorSpan(Color.BLACK), 0, ss.length(), 0);
+            item.setTitle(ss);
+        }
+        
         return true;
     }
     
