@@ -1,3 +1,7 @@
+2019-01-12: release 2.0.22a (Android only)
+
+* Fixed invisible overflow menu items.
+
 2019-01-12: release 2.0.22
 
 * Made pasting real scalars a bit more lenient: it is now permitted for there

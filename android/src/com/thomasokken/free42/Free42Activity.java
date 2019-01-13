@@ -181,7 +181,8 @@ public class Free42Activity extends Activity {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         if (style == 1)
-            setTheme(android.R.style.Theme_NoTitleBar_Fullscreen);
+            //setTheme(android.R.style.Theme_NoTitleBar_Fullscreen);
+            setTheme(R.style.Free42Theme_Fullscreen);
         else if (style == 2) {
             try {
                 Method m = View.class.getMethod("setSystemUiVisibility", int.class);
