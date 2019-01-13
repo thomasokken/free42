@@ -388,13 +388,15 @@ int core_keyup() {
 
     if (pending_command == CMD_SILENT_OFF) {
 #ifdef IPHONE
-        if (off_enabled())
+        if (off_enabled()) {
+            shell_always_on(0);
             shell_powerdown();
-        else {
+        } else {
             set_running(false);
             squeak();
         }
 #else
+        shell_always_on(0);
         shell_powerdown();
 #endif
         pending_command = CMD_NONE;
