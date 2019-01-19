@@ -1,6 +1,7 @@
 VERSION.rc
 android
 build-android
+build-android-fire
 build-gtk
 build-iphone
 build-src-doc
