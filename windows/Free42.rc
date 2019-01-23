@@ -96,7 +96,7 @@ FONT 8, "System"
 BEGIN
     ICON            IDI_FREE42,IDC_STATIC,9,7,20,20
     LTEXT           FREE42_VERSION_1,IDC_STATIC,31,4,99,8,SS_NOPREFIX
-    LTEXT           "© 2004-2018 Thomas Okken",IDC_STATIC,31,17,98,8
+    LTEXT           "© 2004-2019 Thomas Okken",IDC_STATIC,31,17,98,8
     LTEXT           "http://thomasokken.com/free42/",
                     IDC_WEBSITELINK,31,27,191,8,SS_NOTIFY
     LTEXT           "http://thomasokken.com/free42/42s.pdf",
@@ -240,7 +240,7 @@ BEGIN
             VALUE "FileDescription", "HP-42S Calculator Simulator\0"
             VALUE "FileVersion", FREE42_VERSION_2
             VALUE "InternalName", "Free42\0"
-            VALUE "LegalCopyright", "Copyright © 2004-2018 Thomas Okken\0"
+            VALUE "LegalCopyright", "Copyright © 2004-2019 Thomas Okken\0"
             //VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "Free42.exe\0"
             //VALUE "PrivateBuild", "\0"
