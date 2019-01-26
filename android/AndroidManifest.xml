@@ -19,12 +19,8 @@
   <application android:label="Free42"
                android:icon="@drawable/icon"
                android:allowBackup="true">
-    <!--<activity android:name="Free42Activity"
-              android:theme="@android:style/Theme.NoTitleBar"
-              android:screenOrientation="sensor"
-              android:configChanges="orientation">-->
     <activity android:name="Free42Activity"
-              android:theme="@style/Free42Theme"
+              android:theme="@android:style/Theme.NoTitleBar"
               android:screenOrientation="sensor"
               android:configChanges="orientation">
       <intent-filter>

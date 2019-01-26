@@ -30,7 +30,10 @@ import java.lang.reflect.Method;
 import java.nio.IntBuffer;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
+import java.util.List;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -41,6 +44,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -64,13 +68,12 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Vibrator;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -95,6 +98,8 @@ public class Free42Activity extends Activity {
     
     private static final int PRINT_BACKGROUND_COLOR = Color.LTGRAY;
     
+    private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
+    
     public static Free42Activity instance;
     
     static {
@@ -107,6 +112,7 @@ public class Free42Activity extends Activity {
     private ScrollView printScrollView;
     private boolean printViewShowing;
     private PreferencesDialog preferencesDialog;
+    private AlertDialog mainMenuDialog;
     private Handler mainHandler;
     private boolean alwaysOn;
     
@@ -181,8 +187,7 @@ public class Free42Activity extends Activity {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         if (style == 1)
-            //setTheme(android.R.style.Theme_NoTitleBar_Fullscreen);
-            setTheme(R.style.Free42Theme_Fullscreen);
+            setTheme(android.R.style.Theme_NoTitleBar_Fullscreen);
         else if (style == 2) {
             try {
                 Method m = View.class.getMethod("setSystemUiVisibility", int.class);
@@ -359,29 +364,6 @@ public class Free42Activity extends Activity {
     }
     
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu, menu);
-
-        for (int i = 0; i < builtinSkinNames.length; i++)
-            menu.add(Menu.NONE, Menu.NONE, i, "Skin: \"" + builtinSkinNames[i] + "\"");
-        menu.add(Menu.NONE, Menu.NONE, builtinSkinNames.length, "Skin: Other...");
-        
-        // Set overflow menu items' text color to black; this is
-        // needed, together with the res/values/style.xml hack,
-        // to ensure that the menu items don't end up black-on-black.
-        for (int i = 5; i < menu.size(); i++) {
-            MenuItem item = menu.getItem(i);
-            CharSequence cs = item.getTitle();
-            SpannableString ss = new SpannableString(cs);
-            ss.setSpan(new android.text.style.ForegroundColorSpan(Color.BLACK), 0, ss.length(), 0);
-            item.setTitle(ss);
-        }
-        
-        return true;
-    }
-    
-    @Override
     public void onConfigurationChanged(Configuration newConf) {
         super.onConfigurationChanged(newConf);
         orientation = newConf.orientation == Configuration.ORIENTATION_LANDSCAPE ? 1 : 0;
@@ -410,6 +392,11 @@ public class Free42Activity extends Activity {
         core_repaint_display();
     }
     
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        // ignore
+    }
+    
     private void cancelRepeaterAndTimeouts1And2() {
         mainHandler.removeCallbacks(repeaterCaller);
         mainHandler.removeCallbacks(timeout1Caller);
@@ -421,39 +408,68 @@ public class Free42Activity extends Activity {
         timeout3_active = false;
     }
     
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-        case R.id.mi_copy:
+    private void postMainMenu() {
+        if (mainMenuDialog == null) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Main Menu");
+            List<String> itemsList = new ArrayList<String>();
+            itemsList.add("Copy");
+            itemsList.add("Paste");
+            itemsList.add("Preferences");
+            itemsList.add("Show Print-Out");
+            itemsList.add("Clear Print-Out");
+            itemsList.add("About Free42");
+            itemsList.add("Import Programs");
+            itemsList.add("Export Programs");
+            for (int i = 0; i < builtinSkinNames.length; i++)
+                itemsList.add("Skin: \"" + builtinSkinNames[i] + "\"");
+            itemsList.add("Skin: Other...");
+            itemsList.add("Cancel");
+            builder.setItems(itemsList.toArray(new String[itemsList.size()]),
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            mainMenuItemSelected(which);
+                        }
+                    });
+            mainMenuDialog = builder.create();
+        }
+        mainMenuDialog.show();
+    }
+    
+    private void mainMenuItemSelected(int which) {
+        switch (which) {
+        case 0:
             doCopy();
-            return true;
-        case R.id.mi_paste:
+            return;
+        case 1:
             doPaste();
-            return true;
-        case R.id.mi_preferences:
+            return;
+        case 2:
             doPreferences();
-            return true;
-        case R.id.mi_flip_calc_printout:
+            return;
+        case 3:
             doFlipCalcPrintout();
-            return true;
-        case R.id.mi_clear_printout:
+            return;
+        case 4:
             doClearPrintout();
-            return true;
-        case R.id.mi_about:
+            return;
+        case 5:
             doAbout();
-            return true;
-        case R.id.mi_import:
+            return;
+        case 6:
             doImport();
-            return true;
-        case R.id.mi_export:
+            return;
+        case 7:
             doExport();
-            return true;
+            return;
         default:
-            int index = item.getOrder();
+            int index = which - 8;
             if (index >= 0 && index < builtinSkinNames.length) {
                 doSelectSkin(builtinSkinNames[index]);
-                return true;
+                return;
             } else if (index == builtinSkinNames.length) {
+                if (!checkStorageAccess())
+                    return;
                 FileSelectionDialog fsd = new FileSelectionDialog(this, new String[] { "layout", "*" });
                 if (externalSkinName[orientation].length() == 0)
                     fsd.setPath(topStorageDir() + "/Free42");
@@ -466,11 +482,9 @@ public class Free42Activity extends Activity {
                     }
                 });
                 fsd.show();
-                return true;
+                return;
             }
         }
-
-        return super.onOptionsItemSelected(item);
     }
     
     private void doCopy() {
@@ -494,6 +508,8 @@ public class Free42Activity extends Activity {
     }
     
     private void doImport() {
+        if (!checkStorageAccess())
+            return;
         FileSelectionDialog fsd = new FileSelectionDialog(this, new String[] { "raw", "*" });
         fsd.setPath(topStorageDir());
         fsd.setOkListener(new FileSelectionDialog.OkListener() {
@@ -541,6 +557,8 @@ public class Free42Activity extends Activity {
     }
 
     private void doExport() {
+        if (!checkStorageAccess())
+            return;
         String[] names = core_list_programs();
         selectedProgramIndexes = new boolean[names.length];
         
@@ -889,7 +907,7 @@ public class Free42Activity extends Activity {
                     int x = (int) (e.getX() * skin.getWidth() / width);
                     int y = (int) (e.getY() * skin.getHeight() / height);
                     if (skin.in_menu_area(x, y))
-                        Free42Activity.this.openOptionsMenu();
+                        Free42Activity.this.postMainMenu();
                 }
                 ckey = 0;
                 Rect inval = skin.set_active_key(-1);
@@ -1899,6 +1917,11 @@ public class Free42Activity extends Activity {
     private double locat_lat, locat_lon, locat_lat_lon_acc, locat_elev, locat_elev_acc;
     
     public int shell_get_location(DoubleHolder lat, DoubleHolder lon, DoubleHolder lat_lon_acc, DoubleHolder elev, DoubleHolder elev_acc) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            locat_inited = false;
+            ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.ACCESS_FINE_LOCATION }, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+            return 0;
+        }
         if (!locat_inited) {
             locat_inited = true;
             LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -2006,5 +2029,16 @@ public class Free42Activity extends Activity {
     
     public void shell_log(String s) {
         System.err.print(s);
+    }
+    
+    public static boolean checkStorageAccess() {
+        return instance.checkStorageAccess2();
+    }
+    
+    private boolean checkStorageAccess2() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
+            return true;
+        ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE }, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+        return false;
     }
 }
