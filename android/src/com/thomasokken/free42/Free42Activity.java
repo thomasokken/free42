@@ -948,7 +948,7 @@ public class Free42Activity extends Activity {
     private class PrintView extends View {
         
         private static final int BYTESPERLINE = 18;
-        private static final int LINES = 16384;
+        private static final int LINES = 8192;
         
         private byte[] buffer = new byte[LINES * BYTESPERLINE];
         private int top, bottom;
