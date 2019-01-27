@@ -1580,7 +1580,6 @@ void core_import_programs() {
     arg_struct arg;
     int assign = 0;
     int at_end = 1;
-    int instrcount = -1;
 
     set_running(false);
 

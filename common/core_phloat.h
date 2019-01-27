@@ -45,7 +45,7 @@ struct hp_string {
 
 #define phloat double
 
-#define p_isinf isinf
+#define p_isinf(x) (isinf(x) ? (x) > 0 ? 1 : -1 : 0)
 #define p_isnan isnan
 #define to_digit(x) ((int) fmod((x), 10.0))
 #define to_char(x) ((char) (x))

@@ -443,14 +443,14 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
 
 - (IBAction) browsePrintTextFile:(id)sender {
     NSSavePanel *saveDlg = [NSSavePanel savePanel];
-    if ([saveDlg runModalForDirectory:nil file:nil] == NSOKButton)
-        [prefsPrintTextFile setStringValue:[saveDlg filename]];
+    if ([saveDlg runModal] == NSOKButton)
+        [prefsPrintTextFile setStringValue:[[saveDlg URL] path]];
 }
 
 - (IBAction) browsePrintGIFFile:(id)sender {
     NSSavePanel *saveDlg = [NSSavePanel savePanel];
-    if ([saveDlg runModalForDirectory:nil file:nil] == NSOKButton)
-        [prefsPrintGIFFile setStringValue:[saveDlg filename]];
+    if ([saveDlg runModal] == NSOKButton)
+        [prefsPrintGIFFile setStringValue:[[saveDlg URL] path]];
 }
 
 - (IBAction) showPrintOut:(id)sender {
@@ -470,10 +470,10 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
     NSOpenPanel* openDlg = [NSOpenPanel openPanel];
     [openDlg setCanChooseFiles:YES];
     [openDlg setCanChooseDirectories:NO];
-    if ([openDlg runModalForDirectory:nil file:nil] == NSOKButton) {
-        NSArray* files = [openDlg filenames];
+    if ([openDlg runModal] == NSOKButton) {
+        NSArray* files = [openDlg URLs];
         for (int i = 0; i < [files count]; i++) {
-            NSString* fileName = [files objectAtIndex:i];
+            NSString* fileName = [[files objectAtIndex:i] path];
             char cFileName[1024];
             [fileName getCString:cFileName maxLength:1024 encoding:NSUTF8StringEncoding];
             import_file = fopen(cFileName, "r");
@@ -514,8 +514,8 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
     bool *selection = [programListDataSource getSelection];
     int count = [programListDataSource numberOfRowsInTableView:nil];
     NSSavePanel *saveDlg = [NSSavePanel savePanel];
-    if ([saveDlg runModalForDirectory:nil file:nil] == NSOKButton) {
-        NSString *fileName = [saveDlg filename];
+    if ([saveDlg runModal] == NSOKButton) {
+        NSString *fileName = [[saveDlg URL] path];
         char cFileName[1024];
         [fileName getCString:cFileName maxLength:1024 encoding:NSUTF8StringEncoding];
         export_file = fopen(cFileName, "w");
