@@ -1,7 +1,6 @@
 VERSION.rc
 android
 build-android
-build-android-fire
 build-iphone
 build-mac
 build-mac-dashboard
