@@ -157,7 +157,7 @@
                     <button imageHugsTitle="YES" id="471">
                         <rect key="frame" x="18" y="160" width="454" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="check" title="Inverting or solving a singular matrix yields &quot;Singular Matrix&quot; error" bezelStyle="regularSquare" imagePosition="leading" alignment="left" state="on" inset="2" id="472">
+                        <buttonCell key="cell" type="check" title="Inverting or solving a singular matrix yields &quot;Singular Matrix&quot; error" bezelStyle="regularSquare" imagePosition="left" alignment="left" state="on" inset="2" id="472">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>
@@ -165,7 +165,7 @@
                     <button imageHugsTitle="YES" id="470">
                         <rect key="frame" x="18" y="140" width="454" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="check" title="Overflows during matrix operations yield &quot;Out of Range&quot; error" bezelStyle="regularSquare" imagePosition="leading" alignment="left" state="on" inset="2" id="473">
+                        <buttonCell key="cell" type="check" title="Overflows during matrix operations yield &quot;Out of Range&quot; error" bezelStyle="regularSquare" imagePosition="left" alignment="left" state="on" inset="2" id="473">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>
@@ -173,7 +173,7 @@
                     <button imageHugsTitle="YES" id="469">
                         <rect key="frame" x="18" y="120" width="454" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="check" title="Auto-Repeat for number entry and ALPHA mode" bezelStyle="regularSquare" imagePosition="leading" alignment="left" state="on" inset="2" id="474">
+                        <buttonCell key="cell" type="check" title="Auto-Repeat for number entry and ALPHA mode" bezelStyle="regularSquare" imagePosition="left" alignment="left" state="on" inset="2" id="474">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>
@@ -181,7 +181,7 @@
                     <button imageHugsTitle="YES" id="468">
                         <rect key="frame" x="18" y="86" width="146" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="check" title="Print to text file:" bezelStyle="regularSquare" imagePosition="leading" alignment="left" state="on" inset="2" id="475">
+                        <buttonCell key="cell" type="check" title="Print to text file:" bezelStyle="regularSquare" imagePosition="left" alignment="left" state="on" inset="2" id="475">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>
@@ -209,7 +209,7 @@
                     <button imageHugsTitle="YES" id="464">
                         <rect key="frame" x="18" y="54" width="120" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <buttonCell key="cell" type="check" title="Print to GIF file:" bezelStyle="regularSquare" imagePosition="leading" alignment="left" state="on" inset="2" id="479">
+                        <buttonCell key="cell" type="check" title="Print to GIF file:" bezelStyle="regularSquare" imagePosition="left" alignment="left" state="on" inset="2" id="479">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>
@@ -274,7 +274,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <clipView key="contentView" id="uwR-uY-YBn">
                             <rect key="frame" x="1" y="1" width="286" height="598"/>
-                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            <autoresizingMask key="autoresizingMask"/>
                             <subviews>
                                 <customView id="505" customClass="PrintView">
                                     <rect key="frame" x="0.0" y="0.0" width="286" height="627"/>
@@ -415,7 +415,7 @@
                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" white="0.33333299" alpha="1" colorSpace="calibratedWhite"/>
                                             </tableHeaderCell>
-                                            <buttonCell key="dataCell" type="check" bezelStyle="regularSquare" imagePosition="leading" alignment="left" controlSize="small" inset="2" id="588">
+                                            <buttonCell key="dataCell" type="check" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" inset="2" id="588">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                 <font key="font" metaFont="smallSystem"/>
                                             </buttonCell>
