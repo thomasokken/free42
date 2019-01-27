@@ -1,3 +1,8 @@
+????-??-??: release 2.0.23
+
+* SOLVE now tries harder when secant extrapolation gets stuck due to the secant
+  being excessively steep.
+
 2019-01-26: release 2.0.22c (Android only)
 
 * New Main Menu. This should be compatible with all Android versions, including

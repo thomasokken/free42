@@ -662,20 +662,27 @@ int return_to_solve(int failure) {
                 }
                 /* The next two 'if' statements deal with the case that the
                  * secant extrapolation returns one of the points we already
-                 * had. We assume this means no improvement is possible (TODO:
-                 * this is not necessarily true; Kahan's 34C article has an
-                 * example of this -- the thing to be careful of is that the
-                 * 'bad' value is so bad that the secant becomes excessively
-                 * steep). We fudge the 'solve' struct a bit to make sure we
-                 * don't return the 'bad' value as the root.
+                 * had. We assume this means no improvement is possible.
+                 * We fudge the 'solve' struct a bit to make sure we don't
+                 * return the 'bad' value as the root.
                  */
                 if (solve.x3 == solve.x1) {
+                    if (fabs(slope) > 1e50) {
+                        // Not improving because slope too steep
+                        solve.x3 = solve.x1 - (solve.x2 - solve.x1) / 100;
+                        return call_solve_fn(3, 4);
+                    }
                     solve.which = 1;
                     solve.curr_f = solve.fx1;
                     solve.prev_x = solve.x2;
                     return finish_solve(SOLVE_ROOT);
                 }
                 if (solve.x3 == solve.x2) {
+                    if (fabs(slope) > 1e50) {
+                        // Not improving because slope too steep
+                        solve.x3 = solve.x2 + (solve.x2 - solve.x1) / 100;
+                        return call_solve_fn(3, 4);
+                    }
                     solve.which = 2;
                     solve.curr_f = solve.fx2;
                     solve.prev_x = solve.x1;
