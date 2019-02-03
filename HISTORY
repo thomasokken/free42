@@ -2,6 +2,9 @@
 
 * SOLVE now tries harder when secant extrapolation gets stuck due to the secant
   being excessively steep.
+* 0^0 now returns Invalid Data, not 1, for all combinations of real and complex
+  arguments. The rationale for returning 1 was mathematically questionable, and
+  Invalid Data is what the real HP-42S returns.
 
 2019-01-26: release 2.0.22c (Android only)
 

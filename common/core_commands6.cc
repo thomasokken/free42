@@ -804,6 +804,8 @@ int docmd_y_pow_x(arg_struct *arg) {
             if (reg_y->type == TYPE_REAL) {
                 /* Real number to integer power */
                 phloat y = ((vartype_real *) reg_y)->x;
+                if (x == 0 && y == 0)
+                    return ERR_INVALID_DATA;
                 phloat r = pow(y, x);
                 if (p_isnan(r))
                     /* Should not happen; pow() is supposed to be able
@@ -838,19 +840,8 @@ int docmd_y_pow_x(arg_struct *arg) {
                 yre = ((vartype_complex *) reg_y)->re;
                 yim = ((vartype_complex *) reg_y)->im;
                 ex = to_int4(x);
-                if (yre == 0 && yim == 0) {
-                    if (ex < 0)
-                        return ERR_INVALID_DATA;
-                    else if (ex == 0) {
-                        res = new_complex(1, 0);
-                        if (res == NULL)
-                            return ERR_INSUFFICIENT_MEMORY;
-                        else {
-                            binary_result(res);
-                            return ERR_NONE;
-                        }
-                    }
-                }
+                if (ex <= 0 && yre == 0 && yim == 0)
+                    return ERR_INVALID_DATA;
                 if (ex < 0) {
                     phloat h = hypot(yre, yim);
                     yre = yre / h / h;
@@ -976,10 +967,8 @@ int docmd_y_pow_x(arg_struct *arg) {
             yim = ((vartype_complex *) reg_y)->im;
         }
         if (yre == 0 && yim == 0) {
-            if (xre < 0 || (xre == 0 && xim != 0))
+            if (xre <= 0)
                 return ERR_INVALID_DATA;
-            else if (xre == 0)
-                res = new_complex(1, 0);
             else
                 res = new_complex(0, 0);
             if (res == NULL)
