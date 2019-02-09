@@ -531,7 +531,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = "/bin/sh -x";
-			shellScript = "cc -arch i386 -mmacosx-version-min=10.6 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -o set-version-in-info-plist ../util/set-version-in-info-plist.c\n./set-version-in-info-plist\nrm set-version-in-info-plist";
+			shellScript = "cc -arch x86_64 -mmacosx-version-min=10.7 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -o set-version-in-info-plist ../util/set-version-in-info-plist.c\n./set-version-in-info-plist\nrm set-version-in-info-plist\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
