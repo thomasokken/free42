@@ -18,7 +18,7 @@
 #import <sys/stat.h>
 #import <unistd.h>
 #import <UIKit/UIKit.h>
-#import "Free42AppDelegate.h"
+#import "Classes/Free42AppDelegate.h"
 
 int main(int argc, char *argv[]) {
     
