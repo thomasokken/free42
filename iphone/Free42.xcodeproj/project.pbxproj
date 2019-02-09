@@ -185,7 +185,7 @@
 		E997E4AF1CF11ED4009939CE /* RootViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RootViewController.mm; sourceTree = "<group>"; };
 		E99FDE5C1162508C004DB479 /* core_commands7.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_commands7.cc; path = ../common/core_commands7.cc; sourceTree = SOURCE_ROOT; };
 		E99FDE5D1162508C004DB479 /* core_commands7.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_commands7.h; path = ../common/core_commands7.h; sourceTree = SOURCE_ROOT; };
-		E9A1EE361FCB8C630047398C /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Free42/Images.xcassets; sourceTree = "<group>"; };
+		E9A1EE361FCB8C630047398C /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Free42/Images.xcassets; sourceTree = SOURCE_ROOT; };
 		E9A1EE381FCB8F5D0047398C /* about-icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "about-icon@2x.png"; sourceTree = "<group>"; };
 		E9B16DF80F88EE46002BB9B2 /* shell_loadimage.cc */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.cpp; name = shell_loadimage.cc; path = ../common/shell_loadimage.cc; sourceTree = SOURCE_ROOT; tabWidth = 8; usesTabs = 1; };
 		E9B16DF90F88EE46002BB9B2 /* shell_loadimage.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; name = shell_loadimage.h; path = ../common/shell_loadimage.h; sourceTree = SOURCE_ROOT; tabWidth = 8; usesTabs = 1; };
