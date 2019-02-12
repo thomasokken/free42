@@ -1,3 +1,7 @@
+2019-02-11: release 2.0.23a (iPhone only)
+
+* Replaced iPhone X skin with a more screen-filling one
+
 2019-02-09: release 2.0.23
 
 * SOLVE now tries harder when secant extrapolation gets stuck due to the secant
