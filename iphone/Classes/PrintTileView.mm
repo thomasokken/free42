@@ -30,6 +30,7 @@
 }
 
 - (void) awakeFromNib {
+    [super awakeFromNib];
     // Automatically redraw whenever our frame changes
     self.contentMode = UIViewContentModeRedraw;
 }

@@ -438,6 +438,7 @@ static CalcView *calcView = nil;
 
 - (void) awakeFromNib {
     TRACE("awakeFromNib");
+    [super awakeFromNib];
     calcView = self;
     statefile = fopen("config/state", "r");
     int init_mode, version;

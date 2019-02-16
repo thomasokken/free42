@@ -41,6 +41,7 @@ int printout_bottom;
 }
 
 - (void) awakeFromNib {
+    [super awakeFromNib];
     instance = self;
     print_bitmap = (unsigned char *) malloc(PRINT_SIZE);
     // TODO - handle memory allocation failure

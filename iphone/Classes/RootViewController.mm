@@ -49,6 +49,7 @@ static RootViewController *instance;
 
 
 - (void) awakeFromNib {
+    [super awakeFromNib];
     instance = self;
 
     const char *sound_names[] = { "tone0", "tone1", "tone2", "tone3", "tone4", "tone5", "tone6", "tone7", "tone8", "tone9", "squeak" };

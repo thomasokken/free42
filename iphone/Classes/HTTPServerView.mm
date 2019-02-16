@@ -87,6 +87,7 @@ static void *getHostName(void *dummy) {
 }
 
 - (void) awakeFromNib {
+    [super awakeFromNib];
     ip_addr = 0;
 
     [logView setFont:[UIFont fontWithName:@"CourierNewPSMT" size:12]];
