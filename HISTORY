@@ -1,3 +1,9 @@
+2019-02-17: release 2.0.23b (iPhone only)
+
+* Enabled non-integral scaling for skins, so skins can fill the width of the
+  screen on iPhone X series (X, XR, XS, XS Max) even if they were designed for
+  older models with 3:4 or 9:16 screen aspect ratios.
+
 2019-02-11: release 2.0.23a (iPhone only)
 
 * Replaced iPhone X skin with a more screen-filling one.
