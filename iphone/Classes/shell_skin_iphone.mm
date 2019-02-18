@@ -498,6 +498,7 @@ void skin_load(long *width, long *height) {
             display_scale.y &= ~1;
         }
     }
+    skin_scale = skin.width / [UIScreen mainScreen].bounds.size.width;
 
     skin_close();
 
@@ -566,7 +567,6 @@ int skin_init_image(int type, int ncolors, const SkinColor *colors,
     // TODO - handle memory allocation failure
     skin_width = width;
     skin_height = height;
-    skin_scale = width / [UIScreen mainScreen].bounds.size.width;
     skin_y = skin_height;
     return skin_bitmap != NULL;
 }

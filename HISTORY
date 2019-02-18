@@ -1,3 +1,8 @@
+2019-02-18: release 2.0.23c (iPhone only)
+
+* The previous release calculated the skin scale incorrectly for certain skins,
+  causing them to be displayed too small. Fixed.
+
 2019-02-17: release 2.0.23b (iPhone only)
 
 * Enabled non-integral scaling for skins, so skins can fill the width of the
