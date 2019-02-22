@@ -310,10 +310,7 @@ static CalcView *calcView = nil;
 
 - (void) touchesBegan3 {
     TRACE("touchesBegan3");
-    // TODO -- a separate Keyboard Clicks setting in Preferences would be better;
-    // figuring out how to read Settings -> General -> Sounds -> Keyboard Clicks
-    // would be better still!
-    if (flags.f.audio_enable)
+    if (state.keyClicks)
         AudioServicesPlaySystemSound(1105);
     macro = skin_find_macro(ckey);
     shell_keydown();
@@ -712,7 +709,10 @@ static void init_shell_state(int version) {
             state.alwaysOn = 0;
             /* fall through */
         case 2:
-            /* current version (SHELL_VERSION = 1),
+            state.keyClicks = 1;
+            /* fall through */
+        case 3:
+            /* current version (SHELL_VERSION = 3),
              * so nothing to do here since everything
              * was initialized from the state file.
              */

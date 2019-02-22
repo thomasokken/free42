@@ -1,3 +1,7 @@
+????-??-??: release ?.?.?
+
+* iPhone version: added Key Clicks setting in Preferences.
+
 2019-02-18: release 2.0.23c (iPhone only)
 
 * The previous release calculated the skin scale incorrectly for certain skins,

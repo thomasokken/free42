@@ -17,7 +17,7 @@
 
 #import <UIKit/UIKit.h>
 
-#define SHELL_VERSION 2
+#define SHELL_VERSION 3
 #define FILENAMELEN 1024
 
 struct state_type {
@@ -28,6 +28,7 @@ struct state_type {
     int printerGifMaxLength;
     char skinName[FILENAMELEN];
     int alwaysOn;
+    int keyClicks;
 };
 
 extern state_type state;

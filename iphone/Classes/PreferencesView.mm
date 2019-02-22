@@ -28,6 +28,7 @@
 @synthesize singularMatrixSwitch;
 @synthesize matrixOutOfRangeSwitch;
 @synthesize autoRepeatSwitch;
+@synthesize keyClicksSwitch;
 @synthesize alwaysOnSwitch;
 @synthesize printToTextSwitch;
 @synthesize printToTextField;
@@ -53,6 +54,7 @@
     [singularMatrixSwitch setOn:core_settings.matrix_singularmatrix];
     [matrixOutOfRangeSwitch setOn:core_settings.matrix_outofrange];
     [autoRepeatSwitch setOn:core_settings.auto_repeat];
+    [keyClicksSwitch setOn:state.keyClicks != 0];
     [alwaysOnSwitch setOn:shell_always_on(-1)];
     [printToTextSwitch setOn:(state.printerToTxtFile != 0)];
     [printToTextField setText:[NSString stringWithCString:state.printerTxtFileName encoding:NSUTF8StringEncoding]];
@@ -144,6 +146,7 @@
     core_settings.matrix_singularmatrix = singularMatrixSwitch.on;
     core_settings.matrix_outofrange = matrixOutOfRangeSwitch.on;
     core_settings.auto_repeat = autoRepeatSwitch.on;
+    state.keyClicks = keyClicksSwitch.on;
     shell_always_on(alwaysOnSwitch.on);
     state.printerToTxtFile = printToTextSwitch.on;
     NSString *s = [printToTextField text];
