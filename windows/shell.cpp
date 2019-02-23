@@ -1584,6 +1584,8 @@ static void show_printout() {
 static void export_program() {
     if (!DialogBox(hInst, (LPCTSTR)IDD_SELECTPROGRAM, hMainWnd, (DLGPROC)ExportProgram))
         return;
+    if (sel_prog_count == 0)
+        return;
     /* The sel_prog_count global now has the number of selected items;
      * sel_prog_list is an array of integers containing the item numbers.
      */

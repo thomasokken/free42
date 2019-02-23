@@ -513,6 +513,14 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
     [selectProgramsWindow orderOut:self];
     bool *selection = [programListDataSource getSelection];
     int count = [programListDataSource numberOfRowsInTableView:nil];
+    bool nothing = true;
+    for (int i = 0; i < count; i++)
+        if (selection[i]) {
+            nothing = false;
+            break;
+        }
+    if (nothing)
+        return;
     NSSavePanel *saveDlg = [NSSavePanel savePanel];
     if ([saveDlg runModal] == NSOKButton) {
         NSString *fileName = [[saveDlg URL] path];

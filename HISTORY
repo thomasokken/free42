@@ -1,6 +1,8 @@
-????-??-??: release ?.?.?
+????-??-??: release 2.0.24
 
 * iPhone version: added Key Clicks setting in Preferences.
+* Windows and Mac versions: now refuse to export zero programs. (The other
+  versions already did this.)
 
 2019-02-18: release 2.0.23c (iPhone only)
 
