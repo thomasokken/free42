@@ -1218,6 +1218,7 @@ static int browse_file(HWND owner, char *title, int save, char *filter, char *de
     ofn.hwndOwner = owner;
     ofn.lpstrFilter = filter;
     ofn.lpstrCustomFilter = NULL;
+    ofn.nFilterIndex = 1;
     ofn.lpstrFile = buf;
     ofn.nMaxFile = buflen;
     ofn.lpstrFileTitle = NULL;
