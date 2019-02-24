@@ -2043,7 +2043,8 @@ public class Free42Activity extends Activity {
     
     private boolean checkStorageAccess2() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            new File(MY_STORAGE_DIR).mkdirs();
+            if (android.os.Build.VERSION.SDK_INT >= 19 /* KitKat; 4.4 */)
+                new File(MY_STORAGE_DIR).mkdirs();
             return true;
         }
         ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE }, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
