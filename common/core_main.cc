@@ -2347,12 +2347,15 @@ static int ascii2hp(char *dst, const char *src, int maxchars) {
             default:
                 // Anything outside of the printable ASCII range or LF or
                 // ESC is not representable, so we replace it with bullets,
-                // except for combining diacritics, which we skip.
+                // except for combining diacritics, which we skip, and tabs,
+                // which we treat as spaces.
                 if (code >= 0x0300 && code <= 0x03bf) {
                     state = 0;
                     continue;
                 }
-                if (code < 32 && code != 10 && code != 27 || code > 126)
+                if (code == 9)
+                    code = 32;
+                else if (code < 32 && code != 10 && code != 27 || code > 126)
                     code = 31;
                 break;
         }
@@ -2711,10 +2714,6 @@ static void paste_programs(const char *buf) {
         // Perform additional translations, to support various 42S-to-text
         // and 41-to-text conversion schemes:
         hpend = text2hp(hpbuf, hpend);
-        // Change tabs to spaces.
-        for (int t = 0; t < hpend; t++)
-            if (hpbuf[t] == '\t')
-                hpbuf[t] = ' ';
         // Skip leading whitespace and line number.
         int hppos;
         hppos = 0;
