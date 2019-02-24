@@ -319,7 +319,7 @@ bool program_running();
 
 int want_to_run_again();
 void do_interactive(int command);
-int find_builtin(const char *name, int namelen);
+int find_builtin(const char *name, int namelen, bool strict);
 
 void sst();
 void bst();

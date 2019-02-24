@@ -1,5 +1,9 @@
 ????-??-??: release 2.0.24
 
+* Made program pasting a bit more lenient: tabs are now treated as spaces, and
+  the following command names are now recognized: x, RCL*, RCLx, RCL/, STOx,
+  X#0?, X#Y?, X<>0?, and X<>Y? (in addition to all the alternate spellings that
+  were recognized previously).
 * iPhone version: added Key Clicks setting in Preferences.
 * Windows and Mac versions: now refuse to export zero programs. (The other
   versions already did this.) Also tweaked the file selection dialogs a bit.

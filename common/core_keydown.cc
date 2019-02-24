@@ -2004,7 +2004,7 @@ void keydown_normal_mode(int shift, int key) {
                         else if (lookup_var(name, length) != -1)
                             pending_command = CMD_RCL;
                         else {
-                            int cmd = find_builtin(name, length);
+                            int cmd = find_builtin(name, length, true);
                             if (cmd == -1)
                                 pending_command = CMD_XEQ;
                             else if (cmd == CMD_CLALLa) {
