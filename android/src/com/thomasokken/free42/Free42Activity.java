@@ -948,7 +948,11 @@ public class Free42Activity extends Activity {
     private class PrintView extends View {
         
         private static final int BYTESPERLINE = 18;
-        private static final int LINES = 16384;
+        // Certain devices have trouble with LINES = 16384; the print-out view collapses.
+        // No idea how to detect this behavior, so unclear how to work around it.
+        // Playing safe by making the print-out buffer smaller.
+        // private static final int LINES = 16384;
+        private static final int LINES = 8192;
         
         private byte[] buffer = new byte[LINES * BYTESPERLINE];
         private int top, bottom;
