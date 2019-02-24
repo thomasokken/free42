@@ -102,6 +102,8 @@ public class Free42Activity extends Activity {
     
     public static Free42Activity instance;
     
+    public static final String MY_STORAGE_DIR = "/sdcard/Android/data/com.thomasokken.free42";
+    
     static {
         System.loadLibrary("free42");
     }
@@ -2040,8 +2042,10 @@ public class Free42Activity extends Activity {
     }
     
     private boolean checkStorageAccess2() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            new File(MY_STORAGE_DIR).mkdirs();
             return true;
+        }
         ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE }, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
         return false;
     }

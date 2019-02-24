@@ -3,6 +3,10 @@
 * iPhone version: added Key Clicks setting in Preferences.
 * Windows and Mac versions: now refuse to export zero programs. (The other
   versions already did this.) Also tweaked the file selection dialogs a bit.
+* Android version: now creates the storage directory,
+  /sdcard/Android/data/com.thomasokken.free42, as soon as it has access. The
+  file selection dialogs are now restricted to this directory and its
+  subdirectories.
 
 2019-02-18: release 2.0.23c (iPhone only)
 

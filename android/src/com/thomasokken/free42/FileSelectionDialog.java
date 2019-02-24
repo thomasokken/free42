@@ -1,6 +1,7 @@
 package com.thomasokken.free42;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -135,6 +136,14 @@ public class FileSelectionDialog extends Dialog {
     }
     
     public void setPath(String path) {
+        String homePath;
+        try {
+            homePath = new File(Free42Activity.MY_STORAGE_DIR).getCanonicalPath();
+        } catch (IOException e) {
+            homePath = Free42Activity.MY_STORAGE_DIR;
+        }
+        if (!path.startsWith(homePath + "/"))
+            path = homePath;
         String fileName = "";
         File f = new File(path);
         if (!f.exists() || f.isFile()) {
