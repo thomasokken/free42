@@ -62,6 +62,8 @@
 		E9B0793A0FF548770021B83D /* tone9.wav in Resources */ = {isa = PBXBuildFile; fileRef = E9B079300FF548770021B83D /* tone9.wav */; };
 		E9B0795E0FF54A170021B83D /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E9B0795D0FF54A170021B83D /* AudioToolbox.framework */; };
 		E9BA5705200189F400B490B0 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E9BA5704200189F400B490B0 /* IOKit.framework */; };
+		E9BF15C32222E725009F559F /* FileOpenPanel.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9BF15BF2222E725009F559F /* FileOpenPanel.mm */; };
+		E9BF15C42222E725009F559F /* FileSavePanel.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9BF15C12222E725009F559F /* FileSavePanel.mm */; };
 		E9E335DE0FF67A1D006A40AD /* keymap.txt in Resources */ = {isa = PBXBuildFile; fileRef = E9E335DD0FF67A1D006A40AD /* keymap.txt */; };
 /* End PBXBuildFile section */
 
@@ -159,6 +161,10 @@
 		E9B9F6800FF6C1E60003CAF6 /* PrintView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PrintView.h; path = Classes/PrintView.h; sourceTree = "<group>"; };
 		E9BA5704200189F400B490B0 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		E9BB633B0FF418DD00E7EF10 /* ProgramListDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ProgramListDataSource.h; path = Classes/ProgramListDataSource.h; sourceTree = "<group>"; };
+		E9BF15BF2222E725009F559F /* FileOpenPanel.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = FileOpenPanel.mm; path = Classes/FileOpenPanel.mm; sourceTree = "<group>"; };
+		E9BF15C02222E725009F559F /* FileOpenPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FileOpenPanel.h; path = Classes/FileOpenPanel.h; sourceTree = "<group>"; };
+		E9BF15C12222E725009F559F /* FileSavePanel.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = FileSavePanel.mm; path = Classes/FileSavePanel.mm; sourceTree = "<group>"; };
+		E9BF15C22222E725009F559F /* FileSavePanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FileSavePanel.h; path = Classes/FileSavePanel.h; sourceTree = "<group>"; };
 		E9E335DD0FF67A1D006A40AD /* keymap.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = keymap.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -182,6 +188,10 @@
 			children = (
 				E9B649320FED513800EC9B91 /* CalcView.h */,
 				E97925421698893000598A02 /* CalcView.mm */,
+				E9BF15C02222E725009F559F /* FileOpenPanel.h */,
+				E9BF15BF2222E725009F559F /* FileOpenPanel.mm */,
+				E9BF15C22222E725009F559F /* FileSavePanel.h */,
+				E9BF15C12222E725009F559F /* FileSavePanel.mm */,
 				E959D3DE0FEC09CF007C56A4 /* Free42AppDelegate.h */,
 				E97925441698894100598A02 /* Free42AppDelegate.mm */,
 				E9B9F6800FF6C1E60003CAF6 /* PrintView.h */,
@@ -469,11 +479,13 @@
 				E959D4400FEC0A44007C56A4 /* core_tables.cc in Sources */,
 				E959D4410FEC0A44007C56A4 /* core_variables.cc in Sources */,
 				E93469F41CF0CCAB00B0762F /* readtest.c in Sources */,
+				E9BF15C42222E725009F559F /* FileSavePanel.mm in Sources */,
 				E959D4420FEC0A44007C56A4 /* shell_loadimage.cc in Sources */,
 				E959D4430FEC0A44007C56A4 /* shell_spool.cc in Sources */,
 				E99FDE2F11624FFA004DB479 /* core_commands7.cc in Sources */,
 				E9792541169888F200598A02 /* main.mm in Sources */,
 				E97925431698893000598A02 /* CalcView.mm in Sources */,
+				E9BF15C32222E725009F559F /* FileOpenPanel.mm in Sources */,
 				E97925451698894100598A02 /* Free42AppDelegate.mm in Sources */,
 				E97925471698895100598A02 /* PrintView.mm in Sources */,
 				E97925491698896300598A02 /* ProgramListDataSource.mm in Sources */,

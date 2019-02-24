@@ -29,6 +29,8 @@
 #import "Free42AppDelegate.h"
 #import "ProgramListDataSource.h"
 #import "CalcView.h"
+#import "FileOpenPanel.h"
+#import "FileSavePanel.h"
 #import "PrintView.h"
 
 
@@ -442,15 +444,15 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
 }
 
 - (IBAction) browsePrintTextFile:(id)sender {
-    NSSavePanel *saveDlg = [NSSavePanel savePanel];
+    FileSavePanel *saveDlg = [FileSavePanel panelWithTitle:@"Select Text File Name" types:@"Text;txt;All Files;*"];
     if ([saveDlg runModal] == NSOKButton)
-        [prefsPrintTextFile setStringValue:[[saveDlg URL] path]];
+        [prefsPrintTextFile setStringValue:[saveDlg path]];
 }
 
 - (IBAction) browsePrintGIFFile:(id)sender {
-    NSSavePanel *saveDlg = [NSSavePanel savePanel];
+    FileSavePanel *saveDlg = [FileSavePanel panelWithTitle:@"Select GIF File Name" types:@"GIF;gif;All Files;*"];
     if ([saveDlg runModal] == NSOKButton)
-        [prefsPrintGIFFile setStringValue:[[saveDlg URL] path]];
+        [prefsPrintGIFFile setStringValue:[saveDlg path]];
 }
 
 - (IBAction) showPrintOut:(id)sender {
@@ -467,13 +469,11 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
 }
 
 - (IBAction) importPrograms:(id)sender {
-    NSOpenPanel* openDlg = [NSOpenPanel openPanel];
-    [openDlg setCanChooseFiles:YES];
-    [openDlg setCanChooseDirectories:NO];
+    FileOpenPanel *openDlg = [FileOpenPanel panelWithTitle:@"Import Programs" types:@"Program Files;raw;All Files;*"];
     if ([openDlg runModal] == NSOKButton) {
-        NSArray* files = [openDlg URLs];
-        for (int i = 0; i < [files count]; i++) {
-            NSString* fileName = [[files objectAtIndex:i] path];
+        NSArray* paths = [openDlg paths];
+        for (int i = 0; i < [paths count]; i++) {
+            NSString* fileName = [paths objectAtIndex:i];
             char cFileName[1024];
             [fileName getCString:cFileName maxLength:1024 encoding:NSUTF8StringEncoding];
             import_file = fopen(cFileName, "r");
@@ -521,9 +521,9 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
         }
     if (nothing)
         return;
-    NSSavePanel *saveDlg = [NSSavePanel savePanel];
+    FileSavePanel *saveDlg = [FileSavePanel panelWithTitle:@"Export Programs" types:@"Program Files;raw;All Files;*"];
     if ([saveDlg runModal] == NSOKButton) {
-        NSString *fileName = [[saveDlg URL] path];
+        NSString *fileName = [saveDlg path];
         char cFileName[1024];
         [fileName getCString:cFileName maxLength:1024 encoding:NSUTF8StringEncoding];
         export_file = fopen(cFileName, "w");
