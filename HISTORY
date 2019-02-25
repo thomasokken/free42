@@ -1,9 +1,9 @@
-????-??-??: release ?.?.?
+2019-02-25: release 2.0.24b (Android only)
 
-* Android version: made file selection dialogs full-screen.
-* Android version: fixed file selection behavior for Import Programs and Select
-  Skin: now starts in the writable storage directory, but does allow navigation
-  out of it.
+* Made file selection dialogs full-screen.
+* Fixed file selection behavior for Import Programs and Select Skin. It now
+  starts in the writable storage directory, but does allow navigation out of
+  it.
 
 2019-02-25: release 2.0.24a (Android and Mac)
 
