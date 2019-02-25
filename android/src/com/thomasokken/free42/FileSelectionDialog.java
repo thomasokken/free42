@@ -38,9 +38,11 @@ public class FileSelectionDialog extends Dialog {
     private Button cancelButton;
     private OkListener okListener;
     private String currentPath;
+    private boolean isSaveDialog;
     
-    public FileSelectionDialog(Context ctx, String[] types) {
+    public FileSelectionDialog(Context ctx, String[] types, boolean save) {
         super(ctx);
+        isSaveDialog = save;
         boolean landscape = ctx.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
         setContentView(landscape ? R.layout.file_selection_dialog_landscape : R.layout.file_selection_dialog_portrait);
         dirListSpinner = (Spinner) findViewById(R.id.dirListSpinner);
@@ -54,7 +56,7 @@ public class FileSelectionDialog extends Dialog {
                     pathBuf.append(a.getItem(i));
                     pathBuf.append("/");
                 }
-                setPath(pathBuf.toString());
+                setPath(pathBuf.toString(), isSaveDialog);
             }
             public void onNothingSelected(AdapterView<?> arg0) {
                 // Shouldn't happen
@@ -118,13 +120,13 @@ public class FileSelectionDialog extends Dialog {
             public void onItemClick(AdapterView<?> view, View parent, int position, long id) {
                 File item = (File) view.getAdapter().getItem(position);
                 if (item.isDirectory())
-                    setPath(item.getAbsolutePath());
+                    setPath(item.getAbsolutePath(), isSaveDialog);
                 else
                     fileNameTF.setText(item.getName());
             }
         });
         setTitle("Select File");
-        setPath("/");
+        setPath("/", true);
     }
     
     public interface OkListener {
@@ -136,7 +138,11 @@ public class FileSelectionDialog extends Dialog {
     }
     
     public void setPath(String path) {
-        if (android.os.Build.VERSION.SDK_INT >= 19 /* KitKat; 4.4 */) {
+        setPath(path, isSaveDialog);
+    }
+    
+    private void setPath(String path, boolean restrict) {
+        if (restrict && android.os.Build.VERSION.SDK_INT >= 19 /* KitKat; 4.4 */) {
             String homePath;
             try {
                 homePath = new File(Free42Activity.MY_STORAGE_DIR).getCanonicalPath();
@@ -190,7 +196,7 @@ public class FileSelectionDialog extends Dialog {
     private void doUp() {
         if (currentPath.length() > 1) {
             int n = currentPath.lastIndexOf("/", currentPath.length() - 2);
-            setPath(currentPath.substring(0, n + 1) + fileNameTF.getText().toString());
+            setPath(currentPath.substring(0, n + 1) + fileNameTF.getText().toString(), isSaveDialog);
         }
     }
     
@@ -200,7 +206,7 @@ public class FileSelectionDialog extends Dialog {
             File newDir = new File(currentPath + dirName);
             newDir.mkdir();
             if (newDir.isDirectory())
-                setPath(newDir.getAbsolutePath());
+                setPath(newDir.getAbsolutePath(), isSaveDialog);
         }
     }
     

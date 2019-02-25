@@ -472,7 +472,7 @@ public class Free42Activity extends Activity {
             } else if (index == builtinSkinNames.length) {
                 if (!checkStorageAccess())
                     return;
-                FileSelectionDialog fsd = new FileSelectionDialog(this, new String[] { "layout", "*" });
+                FileSelectionDialog fsd = new FileSelectionDialog(this, new String[] { "layout", "*" }, false);
                 if (externalSkinName[orientation].length() == 0)
                     fsd.setPath(topStorageDir() + "/Free42");
                 else
@@ -512,7 +512,7 @@ public class Free42Activity extends Activity {
     private void doImport() {
         if (!checkStorageAccess())
             return;
-        FileSelectionDialog fsd = new FileSelectionDialog(this, new String[] { "raw", "*" });
+        FileSelectionDialog fsd = new FileSelectionDialog(this, new String[] { "raw", "*" }, false);
         fsd.setPath(topStorageDir());
         fsd.setOkListener(new FileSelectionDialog.OkListener() {
             public void okPressed(String path) {
@@ -593,7 +593,7 @@ public class Free42Activity extends Activity {
                     break;
                 }
             if (!none) {
-                FileSelectionDialog fsd = new FileSelectionDialog(this, new String[] { "raw", "*" });
+                FileSelectionDialog fsd = new FileSelectionDialog(this, new String[] { "raw", "*" }, true);
                 fsd.setPath(topStorageDir());
                 fsd.setOkListener(new FileSelectionDialog.OkListener() {
                     public void okPressed(String path) {
@@ -970,6 +970,13 @@ public class Free42Activity extends Activity {
                 if (printInputStream.read(intBuf) != 4)
                     throw new IOException();
                 int len = (intBuf[0] << 24) | ((intBuf[1] & 255) << 16) | ((intBuf[2] & 255) << 8) | (intBuf[3] & 255);
+                if (len > buffer.length) {
+                    int skip = len - buffer.length;
+                    if (skip % BYTESPERLINE != 0)
+                        skip = ((skip / BYTESPERLINE) + 1) * BYTESPERLINE;
+                    printInputStream.skip(skip);
+                    len -= skip;
+                }
                 int n = printInputStream.read(buffer, 0, len);
                 if (n != len)
                     throw new IOException();
