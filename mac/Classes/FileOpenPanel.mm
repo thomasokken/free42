@@ -89,7 +89,7 @@
 
 - (NSArray *) paths {
     NSArray *urls = [panel URLs];
-    NSMutableArray *paths = [NSMutableArray init];
+    NSMutableArray *paths = [[NSMutableArray alloc] init];
     for (int i = 0; i < [urls count]; i++)
         [paths addObject:[[urls objectAtIndex:i] path]];
     return paths;

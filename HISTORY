@@ -1,9 +1,9 @@
-2019-02-25: release 2.0.24a (Android only)
+2019-02-25: release 2.0.24a (Android and Mac)
 
-* Fixed crash on startup while loading print-out.
-* Lifted file selector directory restriction for Import Programs and skin
-  selection, keeping it in place for Export Programs and selecting print-out
-  files.
+* Android version: Lifted file selector directory restriction for Import
+  Programs and skin selection, keeping it in place for Export Programs and
+  selecting print-out files.
+* Mac version: the previous release broke Import Programs. Fixed.
 
 2019-02-24: release 2.0.24
 
