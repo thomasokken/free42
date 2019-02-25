@@ -38,11 +38,11 @@ public class FileSelectionDialog extends Dialog {
     private Button cancelButton;
     private OkListener okListener;
     private String currentPath;
-    private boolean isSaveDialog;
+    private boolean restrict;
     
-    public FileSelectionDialog(Context ctx, String[] types, boolean save) {
+    public FileSelectionDialog(Context ctx, String[] types, boolean restrict) {
         super(ctx);
-        isSaveDialog = save;
+        this.restrict = restrict;
         boolean landscape = ctx.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
         setContentView(landscape ? R.layout.file_selection_dialog_landscape : R.layout.file_selection_dialog_portrait);
         dirListSpinner = (Spinner) findViewById(R.id.dirListSpinner);
@@ -56,7 +56,7 @@ public class FileSelectionDialog extends Dialog {
                     pathBuf.append(a.getItem(i));
                     pathBuf.append("/");
                 }
-                setPath(pathBuf.toString(), isSaveDialog);
+                setPath(pathBuf.toString(), FileSelectionDialog.this.restrict);
             }
             public void onNothingSelected(AdapterView<?> arg0) {
                 // Shouldn't happen
@@ -120,7 +120,7 @@ public class FileSelectionDialog extends Dialog {
             public void onItemClick(AdapterView<?> view, View parent, int position, long id) {
                 File item = (File) view.getAdapter().getItem(position);
                 if (item.isDirectory())
-                    setPath(item.getAbsolutePath(), isSaveDialog);
+                    setPath(item.getAbsolutePath(), FileSelectionDialog.this.restrict);
                 else
                     fileNameTF.setText(item.getName());
             }
@@ -137,11 +137,7 @@ public class FileSelectionDialog extends Dialog {
         this.okListener = okListener;
     }
     
-    public void setPath(String path) {
-        setPath(path, isSaveDialog);
-    }
-    
-    private void setPath(String path, boolean restrict) {
+    public void setPath(String path, boolean restrict) {
         if (restrict && android.os.Build.VERSION.SDK_INT >= 19 /* KitKat; 4.4 */) {
             String homePath;
             try {
@@ -196,7 +192,7 @@ public class FileSelectionDialog extends Dialog {
     private void doUp() {
         if (currentPath.length() > 1) {
             int n = currentPath.lastIndexOf("/", currentPath.length() - 2);
-            setPath(currentPath.substring(0, n + 1) + fileNameTF.getText().toString(), isSaveDialog);
+            setPath(currentPath.substring(0, n + 1) + fileNameTF.getText().toString(), restrict);
         }
     }
     
@@ -206,7 +202,7 @@ public class FileSelectionDialog extends Dialog {
             File newDir = new File(currentPath + dirName);
             newDir.mkdir();
             if (newDir.isDirectory())
-                setPath(newDir.getAbsolutePath(), isSaveDialog);
+                setPath(newDir.getAbsolutePath(), restrict);
         }
     }
     

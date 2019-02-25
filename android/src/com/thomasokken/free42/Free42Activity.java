@@ -474,9 +474,9 @@ public class Free42Activity extends Activity {
                     return;
                 FileSelectionDialog fsd = new FileSelectionDialog(this, new String[] { "layout", "*" }, false);
                 if (externalSkinName[orientation].length() == 0)
-                    fsd.setPath(topStorageDir() + "/Free42");
+                    fsd.setPath(topStorageDir() + "/Free42", true);
                 else
-                    fsd.setPath(externalSkinName[orientation] + ".layout");
+                    fsd.setPath(externalSkinName[orientation] + ".layout", true);
                 fsd.setOkListener(new FileSelectionDialog.OkListener() {
                     public void okPressed(String path) {
                         if (path.endsWith(".layout"))
@@ -513,7 +513,7 @@ public class Free42Activity extends Activity {
         if (!checkStorageAccess())
             return;
         FileSelectionDialog fsd = new FileSelectionDialog(this, new String[] { "raw", "*" }, false);
-        fsd.setPath(topStorageDir());
+        fsd.setPath(topStorageDir(), true);
         fsd.setOkListener(new FileSelectionDialog.OkListener() {
             public void okPressed(String path) {
                 doImport2(path);
@@ -594,7 +594,7 @@ public class Free42Activity extends Activity {
                 }
             if (!none) {
                 FileSelectionDialog fsd = new FileSelectionDialog(this, new String[] { "raw", "*" }, true);
-                fsd.setPath(topStorageDir());
+                fsd.setPath(topStorageDir(), true);
                 fsd.setOkListener(new FileSelectionDialog.OkListener() {
                     public void okPressed(String path) {
                         doExport2(path);

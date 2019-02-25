@@ -151,7 +151,7 @@ public class PreferencesDialog extends Dialog {
         if (!Free42Activity.checkStorageAccess())
             return;
         FileSelectionDialog fsd = new FileSelectionDialog(context, new String[] { "txt", "*" }, true);
-        fsd.setPath(printToTextFileNameTF.getText().toString());
+        fsd.setPath(printToTextFileNameTF.getText().toString(), true);
         fsd.setOkListener(new FileSelectionDialog.OkListener() {
             public void okPressed(String path) {
                 printToTextFileNameTF.setText(path);
@@ -164,7 +164,7 @@ public class PreferencesDialog extends Dialog {
         if (!Free42Activity.checkStorageAccess())
             return;
         FileSelectionDialog fsd = new FileSelectionDialog(context, new String[] { "gif", "*" }, true);
-        fsd.setPath(printToGifFileNameTF.getText().toString());
+        fsd.setPath(printToGifFileNameTF.getText().toString(), true);
         fsd.setOkListener(new FileSelectionDialog.OkListener() {
             public void okPressed(String path) {
                 printToGifFileNameTF.setText(path);
