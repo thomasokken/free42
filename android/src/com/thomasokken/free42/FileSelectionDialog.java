@@ -14,6 +14,7 @@ import android.database.DataSetObserver;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -45,6 +46,8 @@ public class FileSelectionDialog extends Dialog {
         this.restrict = restrict;
         boolean landscape = ctx.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
         setContentView(landscape ? R.layout.file_selection_dialog_landscape : R.layout.file_selection_dialog_portrait);
+        getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.MATCH_PARENT);
         dirListSpinner = (Spinner) findViewById(R.id.dirListSpinner);
         dirListSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> view, View parent, int position, long id) {
