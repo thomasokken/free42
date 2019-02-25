@@ -1,7 +1,7 @@
 2019-02-25: release 2.0.24a (Android only)
 
 * Fixed crash on startup while loading print-out.
-* Lifed file selector directory restriction for Import Programs and skin
+* Lifted file selector directory restriction for Import Programs and skin
   selection, keeping it in place for Export Programs and selecting print-out
   files.
 
