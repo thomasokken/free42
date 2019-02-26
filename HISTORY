@@ -1,3 +1,9 @@
+????-??-??: release ?.?.?
+
+* Android version: removed all restrictions on file selection dialogs, and
+  instead added a "Home" button, so you can always navigate back to
+  /sdcard/Android/data/com.thomasokken.free42.
+
 2019-02-25: release 2.0.24b (Android only)
 
 * Made file selection dialogs full-screen.

@@ -102,7 +102,7 @@ public class Free42Activity extends Activity {
     
     public static Free42Activity instance;
     
-    public static final String MY_STORAGE_DIR = "/sdcard/Android/data/com.thomasokken.free42";
+    public static final String MY_STORAGE_DIR = Environment.getExternalStorageDirectory() + "/Android/data/com.thomasokken.free42";
     
     static {
         System.loadLibrary("free42");
@@ -472,11 +472,9 @@ public class Free42Activity extends Activity {
             } else if (index == builtinSkinNames.length) {
                 if (!checkStorageAccess())
                     return;
-                FileSelectionDialog fsd = new FileSelectionDialog(this, new String[] { "layout", "*" }, false);
-                if (externalSkinName[orientation].length() == 0)
-                    fsd.setPath(topStorageDir() + "/Free42", true);
-                else
-                    fsd.setPath(externalSkinName[orientation] + ".layout", true);
+                FileSelectionDialog fsd = new FileSelectionDialog(this, new String[] { "layout", "*" });
+                if (externalSkinName[orientation].length() > 0)
+                    fsd.setPath(externalSkinName[orientation] + ".layout");
                 fsd.setOkListener(new FileSelectionDialog.OkListener() {
                     public void okPressed(String path) {
                         if (path.endsWith(".layout"))
@@ -512,8 +510,7 @@ public class Free42Activity extends Activity {
     private void doImport() {
         if (!checkStorageAccess())
             return;
-        FileSelectionDialog fsd = new FileSelectionDialog(this, new String[] { "raw", "*" }, false);
-        fsd.setPath(topStorageDir(), true);
+        FileSelectionDialog fsd = new FileSelectionDialog(this, new String[] { "raw", "*" });
         fsd.setOkListener(new FileSelectionDialog.OkListener() {
             public void okPressed(String path) {
                 doImport2(path);
@@ -593,8 +590,7 @@ public class Free42Activity extends Activity {
                     break;
                 }
             if (!none) {
-                FileSelectionDialog fsd = new FileSelectionDialog(this, new String[] { "raw", "*" }, true);
-                fsd.setPath(topStorageDir(), true);
+                FileSelectionDialog fsd = new FileSelectionDialog(this, new String[] { "raw", "*" });
                 fsd.setOkListener(new FileSelectionDialog.OkListener() {
                     public void okPressed(String path) {
                         doExport2(path);
