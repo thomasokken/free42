@@ -1,8 +1,10 @@
-????-??-??: release ?.?.?
+2019-02-26: release 2.0.24c (Android and iPhone)
 
 * Android version: removed all restrictions on file selection dialogs, and
   instead added a "Home" button, so you can always navigate back to
-  /sdcard/Android/data/com.thomasokken.free42.
+  /sdcard/Android/data/com.thomasokken.free42 if you get stuck somewhere.
+* iPhone version: fixed the white bar that was showing up above the skin on
+  iPads running iOS 12.
 
 2019-02-25: release 2.0.24b (Android only)
 
