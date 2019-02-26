@@ -64,9 +64,6 @@ static RootViewController *instance;
     int sbh = [UIApplication sharedApplication].statusBarFrame.size.height;
     CGRect bounds = CGRectMake(window.bounds.origin.x, window.bounds.origin.y + sbh,
                                window.bounds.size.width, window.bounds.size.height - sbh);
-    UIView *blackView = [[UIView alloc] initWithFrame:[UIApplication sharedApplication].statusBarFrame];
-    [blackView setBackgroundColor:UIColor.blackColor];
-    [window addSubview:blackView];
     printView.frame = bounds;
     [window addSubview:printView];
     httpServerView.frame = bounds;
@@ -84,6 +81,18 @@ static RootViewController *instance;
     calcView.frame = bounds;
     [window addSubview:calcView];
     [window makeKeyAndVisible];
+    
+    // On iPad, there is a bar above the skin, where the status bar would be
+    // on non-iPad devices. This bar is white and that looks ugly. Make it
+    // black, but *only* do this on iPad; on iPhone and iPod touch, this would
+    // turn the status bar black, and I prefer sticking with the default
+    // light gray look instead.
+    NSString *model = [UIDevice currentDevice].model;
+    if ([model hasPrefix:@"iPad"]) {
+        UIView *blackView = [[UIView alloc] initWithFrame:[UIApplication sharedApplication].statusBarFrame];
+        [blackView setBackgroundColor:UIColor.blackColor];
+        [window addSubview:blackView];
+    }
 }
 
 - (void) enterBackground {
