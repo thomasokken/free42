@@ -64,6 +64,9 @@ static RootViewController *instance;
     int sbh = [UIApplication sharedApplication].statusBarFrame.size.height;
     CGRect bounds = CGRectMake(window.bounds.origin.x, window.bounds.origin.y + sbh,
                                window.bounds.size.width, window.bounds.size.height - sbh);
+    UIView *blackView = [[UIView alloc] initWithFrame:[UIApplication sharedApplication].statusBarFrame];
+    [blackView setBackgroundColor:UIColor.blackColor];
+    [window addSubview:blackView];
     printView.frame = bounds;
     [window addSubview:printView];
     httpServerView.frame = bounds;
