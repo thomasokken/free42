@@ -966,12 +966,10 @@ public class Free42Activity extends Activity {
                 if (printInputStream.read(intBuf) != 4)
                     throw new IOException();
                 int len = (intBuf[0] << 24) | ((intBuf[1] & 255) << 16) | ((intBuf[2] & 255) << 8) | (intBuf[3] & 255);
-                if (len > buffer.length) {
-                    int skip = len - buffer.length;
-                    if (skip % BYTESPERLINE != 0)
-                        skip = ((skip / BYTESPERLINE) + 1) * BYTESPERLINE;
-                    printInputStream.skip(skip);
-                    len -= skip;
+                int maxlen = (LINES - 1) * BYTESPERLINE;
+                if (len > maxlen) {
+                    printInputStream.skip(len - maxlen);
+                    len = maxlen;
                 }
                 int n = printInputStream.read(buffer, 0, len);
                 if (n != len)
