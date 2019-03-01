@@ -313,7 +313,11 @@ public class Free42Activity extends Activity {
         if (stateFileOutputStream != null) {
             try {
                 stateFileOutputStream.close();
-            } catch (IOException e) {}
+            } catch (IOException e) {
+                stateFileOutputStream = null;
+            }
+        }
+        if (stateFileOutputStream != null) {
             // Writing state file succeeded; rename state.new to state
             stateFile.renameTo(new File(filesDir, "state"));
             stateFileOutputStream = null;
