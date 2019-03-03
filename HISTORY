@@ -1,8 +1,8 @@
-????-??-??: release ?.?.?
+2019-03-03: release 2.0.24e (Android only)
 
-* Android version: could leave a corrupted state file under certain
-  circumstances. Fixed.
-* Android version: calling ON or OFF from a program could cause a crash. Fixed.
+* Fixed crash when calling ON or OFF from a program.
+* Fixed a bug that could leave a corrupted state file under certain
+  circumstances.
 
 2019-02-28: release 2.0.24d (Android only)
 
