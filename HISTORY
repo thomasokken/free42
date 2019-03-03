@@ -1,3 +1,9 @@
+????-??-??: release ?.?.?
+
+* Android version: could leave a corrupted state file under certain
+  circumstances. Fixed.
+* Android version: calling ON or OFF from a program could cause a crash. Fixed.
+
 2019-02-28: release 2.0.24d (Android only)
 
 * Fixed crashes while printing.

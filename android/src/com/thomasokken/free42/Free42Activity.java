@@ -1693,6 +1693,19 @@ public class Free42Activity extends Activity {
         finish();
     }
     
+    private class AlwaysOnSetter implements Runnable {
+        private boolean set;
+        public AlwaysOnSetter(boolean set) {
+            this.set = set;
+        }
+        public void run() {
+            if (set)
+                getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            else
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
+    }
+    
     /**
      * shell_always_on()
      * Callback for setting and querying the shell's Continuous On status.
@@ -1701,10 +1714,7 @@ public class Free42Activity extends Activity {
         int ret = alwaysOn ? 1 : 0;
         if (ao != -1) {
             alwaysOn = ao != 0;
-            if (alwaysOn)
-                getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-            else
-                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            runOnUiThread(new AlwaysOnSetter(alwaysOn));
         }
         return ret;
     }
