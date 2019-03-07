@@ -9,7 +9,6 @@ do
 done
 ( cd ../nologo/replace ; tar cf - . ) | ( cd free42 ; tar xf - )
 find . -type d -name .svn -prune -exec rm -rf {} \;
-rm free42/inteldecimal/IntelRDFPMathLib20U2.tar.gz
 rm -rf free42/util/icon
 mkdir -p ../../packages
 PKGNAME=free42-nologo-`cat ../../VERSION`
