@@ -347,6 +347,7 @@
                 <outlet property="autoRepeatSwitch" destination="128" id="152"/>
                 <outlet property="contentView" destination="88a-CO-HHX" id="xdR-bK-163"/>
                 <outlet property="doneButton" destination="93" id="98"/>
+                <outlet property="hapticFeedbackSwitch" destination="dAP-t5-VSM" id="a4a-vZ-gxu"/>
                 <outlet property="keyClicksSwitch" destination="KnM-YW-ixr" id="9gB-kj-4XP"/>
                 <outlet property="matrixOutOfRangeSwitch" destination="126" id="151"/>
                 <outlet property="maxGifLengthField" destination="145" id="158"/>
