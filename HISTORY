@@ -1,3 +1,7 @@
+????-??-??: release ?.?.?
+
+* iPhone version: added Haptic Feedback setting in Preferences.
+
 2019-03-03: release 2.0.24e (Android only)
 
 * Fixed crash when calling ON or OFF from a program.

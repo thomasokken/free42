@@ -17,7 +17,7 @@
 
 #import <UIKit/UIKit.h>
 
-#define SHELL_VERSION 3
+#define SHELL_VERSION 4
 #define FILENAMELEN 1024
 
 struct state_type {
@@ -29,6 +29,7 @@ struct state_type {
     char skinName[FILENAMELEN];
     int alwaysOn;
     int keyClicks;
+    int hapticFeedback;
 };
 
 extern state_type state;

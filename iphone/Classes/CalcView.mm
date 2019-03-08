@@ -312,6 +312,10 @@ static CalcView *calcView = nil;
     TRACE("touchesBegan3");
     if (state.keyClicks)
         AudioServicesPlaySystemSound(1105);
+    if (state.hapticFeedback) {
+        UIImpactFeedbackGenerator *fbgen = [[UIImpactFeedbackGenerator alloc] initWithStyle:UIImpactFeedbackStyleLight];
+        [fbgen impactOccurred];
+    }
     macro = skin_find_macro(ckey);
     shell_keydown();
     mouse_key = 1;
@@ -712,7 +716,10 @@ static void init_shell_state(int version) {
             state.keyClicks = 1;
             /* fall through */
         case 3:
-            /* current version (SHELL_VERSION = 3),
+            state.hapticFeedback = 0;
+            /* fall through */
+        case 4:
+            /* current version (SHELL_VERSION = 4),
              * so nothing to do here since everything
              * was initialized from the state file.
              */
