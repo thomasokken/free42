@@ -2,6 +2,7 @@
 
 * Android and iPhone versions: Enabled non-integral display scaling.
 * iPhone version: made status bar black.
+* iPhone version: fixed alignment of "Done" buttons.
 
 2019-03-08: release 2.0.24f (iPhone only)
 
