@@ -1,3 +1,8 @@
+????-??-??: release 2.0.24g (Android and iPhone)
+
+* Android and iPhone versions: Enabled non-integral display scaling.
+* iPhone version: made status bar black.
+
 2019-03-08: release 2.0.24f (iPhone only)
 
 * Added Haptic Feedback setting in Preferences.

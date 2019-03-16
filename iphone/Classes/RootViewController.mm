@@ -82,17 +82,27 @@ static RootViewController *instance;
     [window addSubview:calcView];
     [window makeKeyAndVisible];
     
-    // On iPad, there is a bar above the skin, where the status bar would be
-    // on non-iPad devices. This bar is white and that looks ugly. Make it
-    // black, but *only* do this on iPad; on iPhone and iPod touch, this would
-    // turn the status bar black, and I prefer sticking with the default
-    // light gray look instead.
+    // Make the strip above the content area black. On iPhone
+    // and iPod touch, this turns the status bar black; on iPad,
+    // the strip above the content area is not the status bar,
+    // but you still want it to be black. The difference is
+    // relevant; see the preferredStatusBarStyle method, below.
+    UIView *blackView = [[UIView alloc] initWithFrame:[UIApplication sharedApplication].statusBarFrame];
+    [blackView setBackgroundColor:UIColor.blackColor];
+    [window addSubview:blackView];
+}
+
+- (UIStatusBarStyle) preferredStatusBarStyle {
+    // On iPhone and iPod touch, use LightContent, to get light
+    // text that is readable on the black status bar. On iPad,
+    // leave the default alone, because we're not actually
+    // changing the status bar color there, so we shouldn't be
+    // messing with the status bar text either.
     NSString *model = [UIDevice currentDevice].model;
-    if ([model hasPrefix:@"iPad"]) {
-        UIView *blackView = [[UIView alloc] initWithFrame:[UIApplication sharedApplication].statusBarFrame];
-        [blackView setBackgroundColor:UIColor.blackColor];
-        [window addSubview:blackView];
-    }
+    if ([model hasPrefix:@"iPad"])
+        return [super preferredStatusBarStyle];
+    else
+        return UIStatusBarStyleLightContent;
 }
 
 - (void) enterBackground {

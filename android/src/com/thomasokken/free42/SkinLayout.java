@@ -44,6 +44,10 @@ public class SkinLayout {
         int x, y;
     }
 
+    private static class SkinScale {
+        double x, y;
+    }
+
     private static class SkinRect {
         int x, y, width, height;
     }
@@ -67,7 +71,7 @@ public class SkinLayout {
 
     private SkinRect skin = new SkinRect();
     private SkinPoint display_loc = new SkinPoint();
-    private SkinPoint display_scale = new SkinPoint();
+    private SkinScale display_scale = new SkinScale();
     private int display_bg, display_fg;
     private SkinKey[] keylist = null;
     private SkinMacro[] macrolist = null;
@@ -160,8 +164,8 @@ public class SkinLayout {
                     try {
                         int x = Integer.parseInt(tok.nextToken());
                         int y = Integer.parseInt(tok.nextToken());
-                        int xscale = Integer.parseInt(tok.nextToken());
-                        int yscale = Integer.parseInt(tok.nextToken());
+                        double xscale = Double.parseDouble(tok.nextToken());
+                        double yscale = Double.parseDouble(tok.nextToken());
                         int bg = Integer.parseInt(tok.nextToken(), 16) | 0xff000000;
                         int fg = Integer.parseInt(tok.nextToken(), 16) | 0xff000000;
                         display_loc.x = x;
@@ -332,9 +336,10 @@ public class SkinLayout {
     
     private Rect getKeyRect(int skey) {
         if (skey >= -7 && skey <= -2) {
-            int x = (-2 - skey) * 22 * display_scale.x + display_loc.x;
-            int y = 9 * display_scale.y + display_loc.y;
-            return new Rect(x, y, x + 21 * display_scale.x, y + 7 * display_scale.y);
+            int x = (int) ((-2 - skey) * 22 * display_scale.x + display_loc.x);
+            int y = (int) (9 * display_scale.y + display_loc.y);
+            return new Rect(x, y, (int) Math.ceil(x + 21 * display_scale.x),
+                                  (int) Math.ceil(y + 7 * display_scale.y));
         } else if (skey >= 0 && skey < keylist.length) {
             SkinRect r = keylist[skey].disp_rect;
             return new Rect(r.x, r.y, r.x + r.width, r.y + r.height);
@@ -352,7 +357,7 @@ public class SkinLayout {
                 && x < display_loc.x + 131 * display_scale.x
                 && y >= display_loc.y + 9 * display_scale.y
                 && y < display_loc.y + 16 * display_scale.y) {
-            int softkey = (x - display_loc.x) / (22 * display_scale.x) + 1;
+            int softkey = (int) ((x - display_loc.x) / (22 * display_scale.x) + 1);
             skey.value = -1 - softkey;
             ckey.value = softkey;
             return;
@@ -418,10 +423,10 @@ public class SkinLayout {
                 // in that state. But, just staying on the safe side.
                 return;
             key = -1 - key;
-            Rect dst = new Rect(display_loc.x + (key - 1) * 22 * display_scale.x,
-                                display_loc.y + 9 * display_scale.y,
-                                display_loc.x + ((key - 1) * 22 + 21) * display_scale.x,
-                                display_loc.y + 16 * display_scale.y);
+            Rect dst = new Rect((int) (display_loc.x + (key - 1) * 22 * display_scale.x),
+                                (int) (display_loc.y + 9 * display_scale.y),
+                                (int) Math.ceil(display_loc.x + ((key - 1) * 22 + 21) * display_scale.x),
+                                (int) Math.ceil(display_loc.y + 16 * display_scale.y));
             if (state) {
                 // Construct a temporary Bitmap, create the inverted version of
                 // the affected screen rectangle there, and blit it
@@ -482,10 +487,10 @@ public class SkinLayout {
         display.setPixels(display_buffer, x + 131 * y, 131, x, y, width, height);
         
         // Return a Rect telling the caller what part of the View needs to be invalidated
-        return new Rect(display_loc.x + x * display_scale.x,
-                        display_loc.y + y * display_scale.y,
-                        display_loc.x + (x + width) * display_scale.x,
-                        display_loc.y + (y + height) * display_scale.y);
+        return new Rect((int) (display_loc.x + x * display_scale.x),
+                        (int) (display_loc.y + y * display_scale.y),
+                        (int) Math.ceil(display_loc.x + (x + width) * display_scale.x),
+                        (int) Math.ceil(display_loc.y + (y + height) * display_scale.y));
     }
     
     public Rect update_annunciators(int updn, int shf, int prt, int run, int lowbat, int g, int rad) {
@@ -522,8 +527,8 @@ public class SkinLayout {
         boolean paintSkin = false;
         Rect disp = new Rect(display_loc.x,
                              display_loc.y,
-                             display_loc.x + 131 * display_scale.x,
-                             display_loc.y + 16 * display_scale.y);
+                             (int) Math.ceil(display_loc.x + 131 * display_scale.x),
+                             (int) Math.ceil(display_loc.y + 16 * display_scale.y));
         if (disp.contains(clip))
             paintDisplay = true;
         else {
@@ -565,8 +570,8 @@ public class SkinLayout {
             Rect src = new Rect(0, 0, 131, 16);
             Rect dst = new Rect(display_loc.x,
                                 display_loc.y,
-                                display_loc.x + 131 * display_scale.x,
-                                display_loc.y + 16 * display_scale.y);
+                                (int) Math.ceil(display_loc.x + 131 * display_scale.x),
+                                (int) Math.ceil(display_loc.y + 16 * display_scale.y));
             p.setAntiAlias(displaySmoothing);
             p.setFilterBitmap(displaySmoothing);
             canvas.drawBitmap(display, src, dst, p);
@@ -581,7 +586,9 @@ public class SkinLayout {
         display_enabled = enable;
         if (!display_enabled)
             return null;
-        Rect r = new Rect(display_loc.x, display_loc.y, display_loc.x + 131 * display_scale.x, display_loc.y + 16 * display_scale.y);
+        Rect r = new Rect(display_loc.x, display_loc.y,
+                            (int) Math.ceil(display_loc.x + 131 * display_scale.x),
+                            (int) Math.ceil(display_loc.y + 16 * display_scale.y));
         for (int i = 0; i < 7; i++) {
             SkinRect a = annunciators[i].disp_rect;
             Rect ra = new Rect(a.x, a.y, a.x + a.width, a.y + a.height);

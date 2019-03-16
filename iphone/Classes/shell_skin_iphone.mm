@@ -62,7 +62,7 @@ typedef struct {
 
 static SkinRect skin;
 static SkinPoint display_loc;
-static SkinPoint display_scale;
+static CGPoint display_scale;
 static CGColorRef display_bg;
 static CGColorRef display_fg;
 static SkinKey *keylist = NULL;
@@ -361,14 +361,15 @@ void skin_load(long *width, long *height) {
                 skin.height = height;
             }
         } else if (strncasecmp(line, "display:", 8) == 0) {
-            int x, y, xscale, yscale;
+            int x, y;
+            double xscale, yscale;
             unsigned long bg, fg;
-            if (sscanf(line + 8, " %d,%d %d %d %lx %lx", &x, &y,
+            if (sscanf(line + 8, " %d,%d %lf %lf %lx %lx", &x, &y,
                                             &xscale, &yscale, &bg, &fg) == 6) {
                 display_loc.x = x;
                 display_loc.y = y;
-                display_scale.x = xscale;
-                display_scale.y = yscale;
+                display_scale.x = (CGFloat) xscale;
+                display_scale.y = (CGFloat) yscale;
                 CGColorSpaceRef color_space = CGColorSpaceCreateDeviceRGB();
                 CGFloat comps[4];
                 comps[0] = ((bg >> 16) & 255) / 255.0;
@@ -493,10 +494,6 @@ void skin_load(long *width, long *height) {
     if (skin.width >= 640) {
         display_loc.x &= ~1;
         display_loc.y &= ~1;
-        if (skin.width < 750) {
-            display_scale.x &= ~1;
-            display_scale.y &= ~1;
-        }
     }
     skin_scale = skin.width / [UIScreen mainScreen].bounds.size.width;
 
@@ -666,8 +663,8 @@ void skin_repaint(CGRect *rect) {
 
     int x1 = (int) ((rect->origin.x - display_loc.x) / display_scale.x);
     int y1 = (int) ((rect->origin.y - display_loc.y) / display_scale.y);
-    int x2 = (int) ((rect->origin.x + rect->size.width - display_loc.x) / display_scale.x);
-    int y2 = (int) ((rect->origin.y + rect->size.height - display_loc.y) / display_scale.y);
+    int x2 = (int) ceil((rect->origin.x + rect->size.width - display_loc.x) / display_scale.x);
+    int y2 = (int) ceil((rect->origin.y + rect->size.height - display_loc.y) / display_scale.y);
     if (x1 < 0)
         x1 = 0;
     else if (x1 > 131)
