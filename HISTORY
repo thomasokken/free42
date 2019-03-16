@@ -1,7 +1,9 @@
 ????-??-??: release 2.0.24g (Android and iPhone)
 
 * Android and iPhone versions: Enabled non-integral display scaling.
-* iPhone version: made status bar black.
+* iPhone version: the color of the status bar is now set to match the color of
+  the top of the skin. If skin designers want to override that choice, they can
+  use the new StatusBarColor attribute in the skin layout file.
 * iPhone version: fixed alignment of "Done" buttons.
 
 2019-03-08: release 2.0.24f (iPhone only)

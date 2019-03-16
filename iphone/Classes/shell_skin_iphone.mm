@@ -22,6 +22,7 @@
 #import <string.h>
 
 #import "CalcView.h"
+#import "RootViewController.h"
 #import "shell_skin_iphone.h"
 #import "shell_skin.h"
 #import "shell_loadimage.h"
@@ -61,6 +62,7 @@ typedef struct {
 } SkinAnnunciator;
 
 static SkinRect skin;
+static int status_bar_color;
 static SkinPoint display_loc;
 static CGPoint display_scale;
 static CGColorRef display_bg;
@@ -347,6 +349,8 @@ void skin_load(long *width, long *height) {
         free(keymap);
     keymap = NULL;
     keymap_length = 0;
+    
+    status_bar_color = -1;
 
     while (skin_gets(line, 1024)) {
         lineno++;
@@ -360,6 +364,10 @@ void skin_load(long *width, long *height) {
                 skin.width = width;
                 skin.height = height;
             }
+        } else if (strncasecmp(line, "statusbarcolor:", 15) == 0) {
+            int sbc;
+            if (sscanf(line + 15, " %x", &sbc) == 1)
+                status_bar_color = sbc;
         } else if (strncasecmp(line, "display:", 8) == 0) {
             int x, y;
             double xscale, yscale;
@@ -533,6 +541,8 @@ void skin_load(long *width, long *height) {
     memset(disp_bitmap, 255, size);
 }
 
+static unsigned int sum_r, sum_g, sum_b, sum_n;
+
 int skin_init_image(int type, int ncolors, const SkinColor *colors,
                     int width, int height) {
     if (skin_image != NULL) {
@@ -560,6 +570,9 @@ int skin_init_image(int type, int ncolors, const SkinColor *colors,
             return 0;
     }
 
+    if (status_bar_color == -1)
+        sum_r = sum_g = sum_b = sum_n = 0;
+    
     skin_bitmap = (unsigned char *) malloc(skin_bytesperline * height);
     // TODO - handle memory allocation failure
     skin_width = width;
@@ -587,6 +600,29 @@ void skin_put_pixels(unsigned const char *data) {
         }
     } else
         memcpy(dst, data, skin_bytesperline);
+    
+    if (status_bar_color == -1) {
+        if (skin_y >= skin_height - 8) {
+            unsigned char *p = skin_bitmap + skin_y * skin_bytesperline;
+            if (skin_type == IMGTYPE_MONO) {
+                for (int i = 0; i < skin_bytesperline; i++) {
+                    unsigned char c = p[i];
+                    for (int j = 0; j < 8; j++) {
+                        if ((c & 1) != 0)
+                            sum_r++;
+                    }
+                    sum_n += 8;
+                }
+            } else {
+                for (int i = 0; i < skin_bytesperline;) {
+                    sum_r += p[i++];
+                    sum_g += p[i++];
+                    sum_b += p[i++];
+                    sum_n++;
+                }
+            }
+        }
+    }
 }
 
 void skin_finish_image() {
@@ -621,6 +657,33 @@ void skin_finish_image() {
     CGDataProviderRelease(provider);
     CGColorSpaceRelease(color_space);
     skin_bitmap = NULL;
+    
+    if (status_bar_color == -1) {
+        UIStatusBarStyle status_bar_style;
+        if (skin_type == IMGTYPE_MONO) {
+            if (sum_r >= sum_n >> 1) {
+                sum_r = sum_g = sum_b = 255;
+                status_bar_style = UIStatusBarStyleDefault;
+            } else {
+                sum_r = sum_g = sum_b = 0;
+                status_bar_style = UIStatusBarStyleLightContent;
+            }
+        } else {
+            sum_r /= sum_n;
+            sum_g /= sum_n;
+            sum_b /= sum_n;
+            double b = 0.299 * sum_r + 0.587 * sum_g + 0.114 * sum_b;
+            status_bar_style = b >= 128 ? UIStatusBarStyleDefault : UIStatusBarStyleLightContent;
+        }
+        [RootViewController setStatusBarR:sum_r G:sum_g B:sum_b style:status_bar_style];
+    } else {
+        unsigned int r = (status_bar_color >> 16) & 255;
+        unsigned int g = (status_bar_color >> 8) & 255;
+        unsigned int b = status_bar_color & 255;
+        double br = 0.299 * r + 0.587 * g + 0.114 * b;
+        UIStatusBarStyle status_bar_style = br >= 128 ? UIStatusBarStyleDefault : UIStatusBarStyleLightContent;
+        [RootViewController setStatusBarR:r G:g B:b style:status_bar_style];
+    }
 }
 
 void skin_repaint(CGRect *rect) {
