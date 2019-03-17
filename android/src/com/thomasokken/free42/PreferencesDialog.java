@@ -68,6 +68,7 @@ public class PreferencesDialog extends Dialog {
     private CheckBox keyVibrationCB;
     private Spinner orientationSP;
     private Spinner styleSP;
+    private CheckBox maintainSkinAspectCB;
     private CheckBox skinSmoothingCB;
     private CheckBox displaySmoothingCB;
     private CheckBox displayFullRepaintCB;
@@ -102,6 +103,7 @@ public class PreferencesDialog extends Dialog {
             values = new String[] { "Normal", "No Status" };
         aa = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, values);
         styleSP.setAdapter(aa);
+        maintainSkinAspectCB = (CheckBox) findViewById(R.id.maintainSkinAspectCB);
         skinSmoothingCB = (CheckBox) findViewById(R.id.skinSmoothingCB);
         displaySmoothingCB = (CheckBox) findViewById(R.id.displaySmoothingCB);
         displayFullRepaintCB = (CheckBox) findViewById(R.id.displayFullRepaintCB);
@@ -267,6 +269,14 @@ public class PreferencesDialog extends Dialog {
     
     public int getStyle() {
         return styleSP.getSelectedItemPosition();
+    }
+    
+    public void setMaintainSkinAspect(boolean b) {
+        maintainSkinAspectCB.setChecked(b);
+    }
+    
+    public boolean getMaintainSkinAspect() {
+        return maintainSkinAspectCB.isChecked();
     }
     
     public void setSkinSmoothing(boolean b) {

@@ -104,10 +104,16 @@
            
             </LinearLayout>
     
-		    <CheckBox android:id="@+id/skinSmoothingCB"
+            <CheckBox android:id="@+id/maintainSkinAspectCB"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Maintain Skin Aspect Ratio"
+                    android:layout_below="@+id/styleBox"
+                    android:layout_alignParentLeft="true"/>
+            
+            <CheckBox android:id="@+id/skinSmoothingCB"
 		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
 		    		android:text="Skin Smoothing"
-		    		android:layout_below="@+id/styleBox"
+		    		android:layout_below="@+id/maintainSkinAspectCB"
 		    		android:layout_alignParentLeft="true"/>
 		    
 		    <CheckBox android:id="@+id/displaySmoothingCB"

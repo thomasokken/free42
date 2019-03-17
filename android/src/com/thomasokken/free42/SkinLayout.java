@@ -84,14 +84,16 @@ public class SkinLayout {
     private int active_key = -1;
     private boolean skinSmoothing;
     private boolean displaySmoothing;
+    private boolean maintainSkinAspect;
 
-    public SkinLayout(String skinName, boolean skinSmoothing, boolean displaySmoothing) {
-        this(skinName, skinSmoothing, displaySmoothing, null);
+    public SkinLayout(String skinName, boolean skinSmoothing, boolean displaySmoothing, boolean maintainSkinAspect) {
+        this(skinName, skinSmoothing, displaySmoothing, maintainSkinAspect, null);
     }
     
-    public SkinLayout(String skinName, boolean skinSmoothing, boolean displaySmoothing, boolean[] ann_state) {
+    public SkinLayout(String skinName, boolean skinSmoothing, boolean displaySmoothing, boolean maintainSkinAspect, boolean[] ann_state) {
         this.skinSmoothing = skinSmoothing;
         this.displaySmoothing = displaySmoothing;
+        this.maintainSkinAspect = maintainSkinAspect;
         if (ann_state == null)
             this.ann_state = new boolean[7];
         else
@@ -316,6 +318,14 @@ public class SkinLayout {
     
     public int getHeight() {
         return skin.height;
+    }
+    
+    public void setMaintainSkinAspect(boolean maintainSkinAspect) {
+        this.maintainSkinAspect = maintainSkinAspect;
+    }
+    
+    public boolean getMaintainSkinAspect() {
+        return maintainSkinAspect;
     }
     
     public boolean[] getAnnunciators() {

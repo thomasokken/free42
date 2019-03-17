@@ -94,7 +94,7 @@ public class Free42Activity extends Activity {
 
     private static final String[] builtinSkinNames = new String[] { "Standard", "Landscape" };
     
-    private static final int SHELL_VERSION = 11;
+    private static final int SHELL_VERSION = 12;
     
     private static final int PRINT_BACKGROUND_COLOR = Color.LTGRAY;
     
@@ -145,6 +145,7 @@ public class Free42Activity extends Activity {
     private String[] externalSkinName = new String[2];
     private boolean[] skinSmoothing = new boolean[2];
     private boolean[] displaySmoothing = new boolean[2];
+    private boolean[] maintainSkinAspect = new boolean[2];
 
     private boolean alwaysRepaintFullDisplay = false;
     private boolean keyClicksEnabled = true;
@@ -211,21 +212,22 @@ public class Free42Activity extends Activity {
         skin = null;
         if (skinName[orientation].length() == 0 && externalSkinName[orientation].length() > 0) {
             try {
-                skin = new SkinLayout(externalSkinName[orientation], skinSmoothing[orientation], displaySmoothing[orientation]);
+                skin = new SkinLayout(externalSkinName[orientation], skinSmoothing[orientation], displaySmoothing[orientation], maintainSkinAspect[orientation]);
             } catch (IllegalArgumentException e) {}
         }
         if (skin == null) {
             try {
-                skin = new SkinLayout(skinName[orientation], skinSmoothing[orientation], displaySmoothing[orientation]);
+                skin = new SkinLayout(skinName[orientation], skinSmoothing[orientation], displaySmoothing[orientation], maintainSkinAspect[orientation]);
             } catch (IllegalArgumentException e) {}
         }
         if (skin == null) {
             try {
-                skin = new SkinLayout(builtinSkinNames[0], skinSmoothing[orientation], displaySmoothing[orientation]);
+                skin = new SkinLayout(builtinSkinNames[0], skinSmoothing[orientation], displaySmoothing[orientation], maintainSkinAspect[orientation]);
             } catch (IllegalArgumentException e) {
                 // This one should never fail; we're loading a built-in skin.
             }
         }
+        calcView.updateScale();
 
         nativeInit();
         core_init(init_mode, version.value);
@@ -377,23 +379,24 @@ public class Free42Activity extends Activity {
         SkinLayout newSkin = null;
         if (skinName[orientation].length() == 0 && externalSkinName[orientation].length() > 0) {
             try {
-                newSkin = new SkinLayout(externalSkinName[orientation], skinSmoothing[orientation], displaySmoothing[orientation],ann_state);
+                newSkin = new SkinLayout(externalSkinName[orientation], skinSmoothing[orientation], displaySmoothing[orientation], maintainSkinAspect[orientation], ann_state);
             } catch (IllegalArgumentException e) {}
         }
         if (newSkin == null) {
             try {
-                newSkin = new SkinLayout(skinName[orientation], skinSmoothing[orientation], displaySmoothing[orientation],ann_state);
+                newSkin = new SkinLayout(skinName[orientation], skinSmoothing[orientation], displaySmoothing[orientation], maintainSkinAspect[orientation], ann_state);
             } catch (IllegalArgumentException e) {}
         }
         if (newSkin == null) {
             try {
-                newSkin = new SkinLayout(builtinSkinNames[0], skinSmoothing[orientation], displaySmoothing[orientation],ann_state);
+                newSkin = new SkinLayout(builtinSkinNames[0], skinSmoothing[orientation], displaySmoothing[orientation], maintainSkinAspect[orientation], ann_state);
             } catch (IllegalArgumentException e) {
                 // This one should never fail; we're loading a built-in skin.
             }
         }
         if (newSkin != null)
             skin = newSkin;
+        calcView.updateScale();
         calcView.invalidate();
         core_repaint_display();
     }
@@ -636,12 +639,13 @@ public class Free42Activity extends Activity {
     private void doSelectSkin(String skinName) {
         try {
             boolean[] annunciators = skin.getAnnunciators();
-            skin = new SkinLayout(skinName, skinSmoothing[orientation], displaySmoothing[orientation], annunciators);
+            skin = new SkinLayout(skinName, skinSmoothing[orientation], displaySmoothing[orientation], maintainSkinAspect[orientation], annunciators);
             if (skinName.startsWith("/")) {
                 externalSkinName[orientation] = skinName;
                 this.skinName[orientation] = "";
             } else
                 this.skinName[orientation] = skinName;
+            calcView.updateScale();
             calcView.invalidate();
             core_repaint_display();
         } catch (IllegalArgumentException e) {
@@ -670,6 +674,7 @@ public class Free42Activity extends Activity {
         preferencesDialog.setOrientation(preferredOrientation);
         preferencesDialog.setStyle(style);
         preferencesDialog.setDisplayFullRepaint(alwaysRepaintFullDisplay);
+        preferencesDialog.setMaintainSkinAspect(maintainSkinAspect[orientation]);
         preferencesDialog.setSkinSmoothing(skinSmoothing[orientation]);
         preferencesDialog.setDisplaySmoothing(displaySmoothing[orientation]);
         preferencesDialog.setPrintToText(ShellSpool.printToTxt);
@@ -723,6 +728,14 @@ public class Free42Activity extends Activity {
         }
         ShellSpool.printToGif = newPrintEnabled;
         ShellSpool.printToGifFileName = newFileName;
+        
+        boolean newMaintainSkinAspect = preferencesDialog.getMaintainSkinAspect();
+        if (newMaintainSkinAspect != maintainSkinAspect[orientation]) {
+            maintainSkinAspect[orientation] = newMaintainSkinAspect;
+            skin.setMaintainSkinAspect(newMaintainSkinAspect);
+            calcView.updateScale();
+            calcView.invalidate();
+        }
         
         boolean newSkinSmoothing = preferencesDialog.getSkinSmoothing();
         boolean newDisplaySmoothing = preferencesDialog.getDisplaySmoothing();
@@ -826,21 +839,35 @@ public class Free42Activity extends Activity {
     private class CalcView extends View {
         
         private int width, height;
+        private float hScale, vScale;
         private boolean possibleMenuEvent = false;
 
         public CalcView(Context context) {
             super(context);
+        }
+        
+        public void updateScale() {
+            if (skin.getMaintainSkinAspect()) {
+                if (width > height)
+                    hScale = vScale = ((float) height) / skin.getHeight();
+                else
+                    hScale = vScale = ((float) width) / skin.getWidth();
+            } else {
+                vScale = ((float) height) / skin.getHeight();
+                hScale = ((float) width) / skin.getWidth();
+            }
         }
 
         @Override
         protected void onSizeChanged(int w, int h, int oldw, int oldh) {
             width = w;
             height = h;
+            updateScale();
         }
 
         @Override
         protected void onDraw(Canvas canvas) {
-            canvas.scale(((float) width) / skin.getWidth(), ((float) height) / skin.getHeight());
+            canvas.scale(hScale, vScale);
             skin.repaint(canvas);
         }
         
@@ -854,8 +881,8 @@ public class Free42Activity extends Activity {
             cancelRepeaterAndTimeouts1And2();
             
             if (what == MotionEvent.ACTION_DOWN) {
-                int x = (int) (e.getX() * skin.getWidth() / width);
-                int y = (int) (e.getY() * skin.getHeight() / height);
+                int x = (int) (e.getX() / hScale);
+                int y = (int) (e.getY() / vScale);
                 IntHolder skeyHolder = new IntHolder();
                 IntHolder ckeyHolder = new IntHolder();
                 skin.find_key(core_menu(), x, y, skeyHolder, ckeyHolder);
@@ -906,8 +933,8 @@ public class Free42Activity extends Activity {
             } else {
                 if (possibleMenuEvent) {
                     possibleMenuEvent = false;
-                    int x = (int) (e.getX() * skin.getWidth() / width);
-                    int y = (int) (e.getY() * skin.getHeight() / height);
+                    int x = (int) (e.getX() / hScale);
+                    int y = (int) (e.getY() / vScale);
                     if (skin.in_menu_area(x, y))
                         Free42Activity.this.postMainMenu();
                 }
@@ -925,18 +952,18 @@ public class Free42Activity extends Activity {
         }
         
         public void postInvalidateScaled(int left, int top, int right, int bottom) {
-            left = (int) Math.floor(((double) left) * width / skin.getWidth());
-            top = (int) Math.floor(((double) top) * height / skin.getHeight());
-            right = (int) Math.ceil(((double) right) * width / skin.getWidth());
-            bottom = (int) Math.ceil(((double) bottom) * height / skin.getHeight());
+            left = (int) Math.floor(((double) left) / hScale);
+            top = (int) Math.floor(((double) top) / vScale);
+            right = (int) Math.ceil(((double) right) / hScale);
+            bottom = (int) Math.ceil(((double) bottom) / vScale);
             postInvalidate(left - 1, top - 1, right + 2, bottom + 2);
         }
 
         private void invalidateScaled(Rect inval) {
-            inval.left = (int) Math.floor(((double) inval.left) * width / skin.getWidth());
-            inval.top = (int) Math.floor(((double) inval.top) * height / skin.getHeight());
-            inval.right = (int) Math.ceil(((double) inval.right) * width / skin.getWidth());
-            inval.bottom = (int) Math.ceil(((double) inval.bottom) * height / skin.getHeight());
+            inval.left = (int) Math.floor(((double) inval.left) / hScale);
+            inval.top = (int) Math.floor(((double) inval.top) / vScale);
+            inval.right = (int) Math.ceil(((double) inval.right) / hScale);
+            inval.bottom = (int) Math.ceil(((double) inval.bottom) / vScale);
             inval.inset(-1, -1);
             invalidate(inval);
         }
@@ -1267,7 +1294,11 @@ public class Free42Activity extends Activity {
             alwaysOn = false;
             // fall through
         case 11:
-            // current version (SHELL_VERSION = 11),
+            maintainSkinAspect[0] = false;
+            maintainSkinAspect[1] = false;
+            // fall through
+        case 12:
+            // current version (SHELL_VERSION = 12),
             // so nothing to do here since everything
             // was initialized from the state file.
             ;
