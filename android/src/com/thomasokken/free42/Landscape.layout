@@ -1,26 +1,28 @@
 # HP-42S skin for Free42 (Windows and Unix)
 
-Alt 1 : 1
-Alt 2 : 2
-Alt 3 : 3
-Alt 4 : 4
-Alt 5 : 5
-Alt 6 : 6
-
-u : 38         # map 'u' to macro 38
-U : 39         # map 'U' to macro 39
-CShift u : 39  # map CShift plus 'u' to macro 39
-CShift U : 39  # map CShift plus 'U' to macro 39
-
-p : 37
-P : 28 37
-CShift p : 28 37
-CShift P : 28 37
-
-j : 27
-J : 28 27
-CShift j : 28 27
-CShift J : 28 27
+# No keymap support in iOS
+# 
+# Alt 1 : 1
+# Alt 2 : 2
+# Alt 3 : 3
+# Alt 4 : 4
+# Alt 5 : 5
+# Alt 6 : 6
+# 
+# u : 38         # map 'u' to macro 38
+# U : 39         # map 'U' to macro 39
+# CShift u : 39  # map CShift plus 'u' to macro 39
+# CShift U : 39  # map CShift plus 'U' to macro 39
+# 
+# p : 37
+# P : 28 37
+# CShift p : 28 37
+# CShift P : 28 37
+# 
+# j : 27
+# J : 28 27
+# CShift j : 28 27
+# CShift J : 28 27
 
 Skin: 0,0,640,402
 Display: 61,47 3 3 6b836b 0b2327
