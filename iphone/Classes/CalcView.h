@@ -45,6 +45,8 @@ extern state_type state;
 - (void) awakeFromNib;
 - (void) layoutSubviews;
 + (BOOL) isPortrait;
++ (CGFloat) width;
++ (CGFloat) height;
 - (void) actionSheet:(UIActionSheet *) actionSheet clickedButtonAtIndex:(NSInteger) buttonIndex;
 - (void) touchesBegan: (NSSet *) touches withEvent: (UIEvent *) event;
 - (void) setNeedsDisplayInRectSafely:(CGRect) rect;

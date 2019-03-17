@@ -21,6 +21,7 @@
 #import "RootViewController.h"
 #import "core_main.h"
 #import "shell.h"
+#import "shell_skin_iphone.h"
 
 @implementation PreferencesView
 
@@ -156,7 +157,15 @@
     state.keyClicks = keyClicksSwitch.on;
     state.hapticFeedback = hapticFeedbackSwitch.on;
     state.orientationMode = (int) orientationSelector.selectedSegmentIndex;
-    state.maintainSkinAspect[[CalcView isPortrait] ? 0 : 1] = maintainSkinAspectSwitch.on ? 1 : 0;
+    int isPortrait = [CalcView isPortrait] ? 0 : 1;
+    int maintainSkinAspect = maintainSkinAspectSwitch.on ? 1 : 0;
+    if (maintainSkinAspect != state.maintainSkinAspect[isPortrait]) {
+        state.maintainSkinAspect[isPortrait] = maintainSkinAspect;
+        long w, h;
+        skin_load(&w, &h);
+        core_repaint_display();
+        [CalcView repaint];
+    }
     state.printerToTxtFile = printToTextSwitch.on;
     NSString *s = [printToTextField text];
     if ([s length] > 0 && ![[s lowercaseString] hasSuffix:@".txt"])

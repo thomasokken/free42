@@ -72,8 +72,6 @@ static void quit2(bool really_quit);
 static void shell_keydown();
 static void shell_keyup();
 
-static int skin_width, skin_height;
-
 static int read_shell_state(int *version);
 static void init_shell_state(int version);
 static int write_shell_state();
@@ -408,14 +406,20 @@ static CalcView *calcView = nil;
 - (void) layoutSubviews {
     long w, h;
     skin_load(&w, &h);
-    skin_width = (int) w;
-    skin_height = (int) h;
     core_repaint_display();
     [CalcView repaint];
 }
 
 + (BOOL) isPortrait {
     return calcView.bounds.size.height > calcView.bounds.size.width;
+}
+
++ (CGFloat) width {
+    return calcView.bounds.size.width;
+}
+
++ (CGFloat) height {
+    return calcView.bounds.size.height;
 }
 
 + (void) enterBackground {
@@ -470,8 +474,6 @@ static CalcView *calcView = nil;
 
     long w, h;
     skin_load(&w, &h);
-    skin_width = (int) w;
-    skin_height = (int) h;
     
     core_init(init_mode, version);
     if (statefile != NULL) {
