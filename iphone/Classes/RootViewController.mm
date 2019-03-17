@@ -34,9 +34,6 @@ static SystemSoundID soundIDs[11];
 
 static RootViewController *instance;
 
-static UIStatusBarStyle status_bar_style = UIStatusBarStyleDefault;
-static UIColor *status_bar_color = nil;
-
 @implementation RootViewController
 
 @synthesize window;
@@ -64,47 +61,70 @@ static UIColor *status_bar_color = nil;
             NSLog(@"error loading sound: %@", name);
     }
     
-    int sbh = [UIApplication sharedApplication].statusBarFrame.size.height;
-    CGRect bounds = CGRectMake(window.bounds.origin.x, window.bounds.origin.y + sbh,
-                               window.bounds.size.width, window.bounds.size.height - sbh);
-    printView.frame = bounds;
     [self.view addSubview:printView];
-    httpServerView.frame = bounds;
     [self.view addSubview:httpServerView];
-    selectSkinView.frame = bounds;
     [self.view addSubview:selectSkinView];
-    selectProgramsView.frame = bounds;
     [self.view addSubview:selectProgramsView];
-    preferencesView.frame = bounds;
     [self.view addSubview:preferencesView];
-    aboutView.frame = bounds;
     [self.view addSubview:aboutView];
-    selectFileView.frame = bounds;
     [self.view addSubview:selectFileView];
-    calcView.frame = bounds;
     [self.view addSubview:calcView];
+    [self layoutSubViews];
     
-    // On iPad, make the strip above the content area black.
-    // On iPhone and iPod touch, that strip is behind the status
-    // bar, and its color is determined when the skin is loaded.
-    NSString *model = [UIDevice currentDevice].model;
-    if ([model hasPrefix:@"iPad"])
-        [self.view setBackgroundColor:UIColor.blackColor];
-    else if (status_bar_color != nil)
-        [self.view setBackgroundColor:status_bar_color];
+    // Make the strip above the content area black. On iPhone
+    // and iPod touch, this turns the status bar black; on iPad,
+    // the strip above the content area is not the status bar,
+    // but you still want it to be black. The difference is
+    // relevant; see the preferredStatusBarStyle method, below.
+    [self.view setBackgroundColor:UIColor.blackColor];
     
     [window makeKeyAndVisible];
+    window.rootViewController = self;
 }
 
 - (UIStatusBarStyle) preferredStatusBarStyle {
-    // On iPad, leave the default alone, because we're not actually
+    // On iPhone and iPod touch, use LightContent, to get light
+    // text that is readable on the black status bar. On iPad,
+    // leave the default alone, because we're not actually
     // changing the status bar color there, so we shouldn't be
     // messing with the status bar text either.
     NSString *model = [UIDevice currentDevice].model;
     if ([model hasPrefix:@"iPad"])
         return [super preferredStatusBarStyle];
     else
-        return status_bar_style;
+        return UIStatusBarStyleLightContent;
+}
+
+- (BOOL) prefersStatusBarHidden {
+    return NO;
+}
+
+- (UIInterfaceOrientationMask) supportedInterfaceOrientations {
+    if (state.orientationMode == 0)
+        return UIInterfaceOrientationMaskAll;
+    else if (state.orientationMode == 1)
+        return UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskPortraitUpsideDown;
+    else // state.orientationMode == 2
+        return UIInterfaceOrientationMaskLandscape;
+}
+
+- (void) layoutSubViews {
+    CGRect r;
+    if ([UIApplication sharedApplication].isStatusBarHidden)
+        r = window.bounds;
+    else {
+        int sbh = [UIApplication sharedApplication].statusBarFrame.size.height;
+        r = CGRectMake(window.bounds.origin.x, window.bounds.origin.y + sbh,
+                               window.bounds.size.width, window.bounds.size.height - sbh);
+    }
+    printView.frame = r;
+    httpServerView.frame = r;
+    selectSkinView.frame = r;
+    selectProgramsView.frame = r;
+    preferencesView.frame = r;
+    aboutView.frame = r;
+    selectFileView.frame = r;
+    calcView.frame = r;
 }
 
 - (void) enterBackground {
@@ -249,19 +269,6 @@ static int my_shell_read(char *buf, int buflen) {
 + (void) doExport {
     [instance.selectProgramsView raised];
     [instance.self.view bringSubviewToFront:instance.selectProgramsView];
-}
-
-+ (void) setStatusBarR:(unsigned int)r G:(unsigned int)g B:(unsigned int)b style:(UIStatusBarStyle)style {
-    NSString *model = [UIDevice currentDevice].model;
-    if ([model hasPrefix:@"iPad"])
-        return;
-    [status_bar_color release];
-    status_bar_color = [[UIColor colorWithRed:r/255.0f green:g/255.0f blue:b/255.0f alpha:1.0f] retain];
-    status_bar_style = style;
-    if (instance != nil) {
-        [instance.view setBackgroundColor:status_bar_color];
-        [instance setNeedsStatusBarAppearanceUpdate];
-    }
 }
 
 @end

@@ -1,9 +1,10 @@
-????-??-??: release 2.0.24g (Android and iPhone)
+2019-03-17: release 2.0.24g (Android, iPhone, and Mac)
 
-* Android and iPhone versions: Enabled non-integral display scaling.
-* iPhone version: the color of the status bar is now set to match the color of
-  the top of the skin. If skin designers want to override that choice, they can
-  use the new StatusBarColor attribute in the skin layout file.
+* Android, iPhone, and Mac versions: Enabled non-integral display scaling.
+* Android and iPhone versions: added setting in Preferences to choose whether
+  to stretch skins to fill the screen, or to stretch them only to fill the
+  available width, while maintaining their original aspect ratio.
+* iPhone version: implemented support for landscape orientation.
 * iPhone version: fixed alignment of "Done" buttons.
 
 2019-03-08: release 2.0.24f (iPhone only)
@@ -265,10 +266,10 @@
 * Selecting the already-active menu did not cause the display to be repainted,
   even though it should: there might be a message, which should be removed in
   that case. Fixed.
-* All versions except Mac Dashboard: made the print annunciator linger for one
+* All versions except MacDashboard: made the print annunciator linger for one
   second after printing stops. This makes it more noticeable, so printing is
   less likely to go unnoticed on fast devices.
-* Mac application version (not Dashboard): implemented battery checker.
+* Mac version: implemented battery checker.
 * GTK version: added /sys/class/power_supply support in battery checker.
 
 2017-12-26: release 2.0.8
@@ -304,9 +305,9 @@
   key do still exist.
 * Android version: the menu icons for Copy, Paste, and Print-Out were displayed
   too large, overlapping the menu item labels on some devices. Fixed.
-* Windows, Linux, and Mac versions: added keyboard mappings g => GTO and
-  p => PI. On existing installations, users must delete or rename the existing
-  keymap and restart for this to take effect.
+* Windows, Linux, Mac, and MacDashboard versions: added keyboard mappings
+  g => GTO and p => PI. On existing installations, users must delete or rename
+  the existing keymap and restart for this to take effect.
 * iPhone version: painting the display could be glitchy if either or both of
   its coordinates were odd. Fixed by forcing them to be even.
 
@@ -479,8 +480,8 @@
 * Android version: changed targetSdkVersion from 3.0 to 2.2. This should make
   the menu reliably accessible in all Android versions and with all display
   styles.
-* Resurrected the Mac OS X Dashboard version; the display repaint logic now
-  supports Yosemite (10.10) and later.
+* Resurrected the MacDashboard version; the display repaint logic now supports
+  Yosemite (10.10) and later.
 
 2016-03-19: release 1.5.7a (Android only)
 
@@ -801,7 +802,7 @@
 * iPhone version: implemented ACCEL, LOCAT, and HEADING functions, for querying
   the device's accelerometer, location services (GPS on the 3G and 3GS; WiFi-
   based on all other models), and compass (3GS only).
-* All versions except Mac Dashboard: for skins, increased the maximum macro
+* All versions except MacDashboard: for skins, increased the maximum macro
   length from 31 to 63. The old limit was too small to allow macros that step
   forward all the way to the end of the FCN catalog, and supporting such macros
   is necessary now that the length of the FCN catalog is no longer fixed at 42

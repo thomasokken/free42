@@ -64,7 +64,6 @@
 + (void) showSelectFile;
 + (void) doImport;
 + (void) doExport;
-+ (void) setStatusBarR:(unsigned int)r G:(unsigned int)g B:(unsigned int)b style:(UIStatusBarStyle)style;
 
 @end
 

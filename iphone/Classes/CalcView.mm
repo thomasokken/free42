@@ -405,6 +405,19 @@ static CalcView *calcView = nil;
     quit2(true);
 }
 
+- (void) layoutSubviews {
+    long w, h;
+    skin_load(&w, &h);
+    skin_width = (int) w;
+    skin_height = (int) h;
+    core_repaint_display();
+    [CalcView repaint];
+}
+
++ (BOOL) isPortrait {
+    return calcView.bounds.size.height > calcView.bounds.size.width;
+}
+
 + (void) enterBackground {
     TRACE("enterBackground");
     quit2(false);
@@ -719,7 +732,13 @@ static void init_shell_state(int version) {
             state.hapticFeedback = 0;
             /* fall through */
         case 4:
-            /* current version (SHELL_VERSION = 4),
+            strcpy(state.landscapeSkinName, "Landscape");
+            state.orientationMode = 0;
+            state.maintainSkinAspect[0] = 1;
+            state.maintainSkinAspect[1] = 1;
+            /* fall through */
+        case 5:
+            /* current version (SHELL_VERSION = 5),
              * so nothing to do here since everything
              * was initialized from the state file.
              */

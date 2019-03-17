@@ -55,11 +55,12 @@
     NSString *path = [[NSBundle mainBundle] pathForResource:@"builtin_skins" ofType:@"txt"];
     [path getCString:buf maxLength:1024 encoding:NSUTF8StringEncoding];
     FILE *builtins = fopen(buf, "r");
+    char *skinName = [CalcView isPortrait] ? state.skinName : state.landscapeSkinName;
     while (fgets(buf, 1024, builtins) != NULL) {
         char *context;
         char *name = strtok_r(buf, " \t\r\n", &context);
         [skinNames addObject:[NSString stringWithCString:name encoding:NSUTF8StringEncoding]];
-        if (strcasecmp(name, state.skinName) == 0)
+        if (strcasecmp(name, skinName) == 0)
             selectedIndex = index;
         index++;
     }
@@ -77,7 +78,7 @@
             if ([s caseInsensitiveCompare:[skinNames objectAtIndex:i]] == 0)
                 goto skip;
         [skinNames addObject:s];
-        if (strcasecmp(d->d_name, state.skinName) == 0)
+        if (strcasecmp(d->d_name, skinName) == 0)
             selectedIndex = index;
         index++;
         skip:;
@@ -98,7 +99,8 @@
 - (void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     NSUInteger n = [indexPath indexAtPosition:1];
     NSString *name = [skinNames objectAtIndex:n];
-    [name getCString:state.skinName maxLength:FILENAMELEN encoding:NSUTF8StringEncoding];
+    char *skinName = [CalcView isPortrait] ? state.skinName : state.landscapeSkinName;
+    [name getCString:skinName maxLength:FILENAMELEN encoding:NSUTF8StringEncoding];
     long width, height;
     skin_load(&width, &height);
     core_repaint_display();
