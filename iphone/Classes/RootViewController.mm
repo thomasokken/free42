@@ -117,6 +117,13 @@ static RootViewController *instance;
         r = CGRectMake(window.bounds.origin.x, window.bounds.origin.y + sbh,
                                window.bounds.size.width, window.bounds.size.height - sbh);
     }
+    if (@available(iOS 11.0, *)) {
+        if (window.bounds.size.width > window.bounds.size.height) {
+            UIEdgeInsets ei = window.safeAreaInsets;
+            r.origin.x += ei.left;
+            r.size.width -= ei.right + ei.left;
+        }
+    }
     printView.frame = r;
     httpServerView.frame = r;
     selectSkinView.frame = r;
