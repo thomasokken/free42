@@ -952,18 +952,18 @@ public class Free42Activity extends Activity {
         }
         
         public void postInvalidateScaled(int left, int top, int right, int bottom) {
-            left = (int) Math.floor(((double) left) / hScale);
-            top = (int) Math.floor(((double) top) / vScale);
-            right = (int) Math.ceil(((double) right) / hScale);
-            bottom = (int) Math.ceil(((double) bottom) / vScale);
+            left = (int) Math.floor(((double) left) * hScale);
+            top = (int) Math.floor(((double) top) * vScale);
+            right = (int) Math.ceil(((double) right) * hScale);
+            bottom = (int) Math.ceil(((double) bottom) * vScale);
             postInvalidate(left - 1, top - 1, right + 2, bottom + 2);
         }
 
         private void invalidateScaled(Rect inval) {
-            inval.left = (int) Math.floor(((double) inval.left) / hScale);
-            inval.top = (int) Math.floor(((double) inval.top) / vScale);
-            inval.right = (int) Math.ceil(((double) inval.right) / hScale);
-            inval.bottom = (int) Math.ceil(((double) inval.bottom) / vScale);
+            inval.left = (int) Math.floor(((double) inval.left) * hScale);
+            inval.top = (int) Math.floor(((double) inval.top) * vScale);
+            inval.right = (int) Math.ceil(((double) inval.right) * hScale);
+            inval.bottom = (int) Math.ceil(((double) inval.bottom) * vScale);
             inval.inset(-1, -1);
             invalidate(inval);
         }

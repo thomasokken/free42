@@ -1,3 +1,8 @@
+2019-03-18: release 2.0.24h (Android only)
+
+* The screen update logic in the previous version was incorrect and caused the
+  app to appear unresponsive on many devices. Fixed.
+
 2019-03-17: release 2.0.24g (Android, iPhone, and Mac)
 
 * Android, iPhone, and Mac versions: Enabled non-integral display scaling.
