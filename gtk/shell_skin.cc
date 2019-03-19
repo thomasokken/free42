@@ -325,14 +325,15 @@ void skin_load(int *width, int *height) {
                 skin.height = height;
             }
         } else if (strncasecmp(line, "display:", 8) == 0) {
-            int x, y, xscale, yscale;
+            int x, y;
+            double xscale, yscale;
             unsigned long bg, fg;
-            if (sscanf(line + 8, " %d,%d %d %d %lx %lx", &x, &y,
+            if (sscanf(line + 8, " %d,%d %lf %lf %lx %lx", &x, &y,
                                             &xscale, &yscale, &bg, &fg) == 6) {
                 display_loc.x = x;
                 display_loc.y = y;
-                display_scale.x = xscale;
-                display_scale.y = yscale;
+                display_scale.x = (int) xscale;
+                display_scale.y = (int) yscale;
                 display_bg.r = (unsigned char) (bg >> 16);
                 display_bg.g = (unsigned char) (bg >> 8);
                 display_bg.b = (unsigned char) bg;

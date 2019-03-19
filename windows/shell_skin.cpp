@@ -334,14 +334,15 @@ void skin_load(char *skinname, const char *basedir, long *width, long *height) {
                 skin.height = height;
             }
         } else if (_strnicmp(line, "display:", 8) == 0) {
-            int x, y, xscale, yscale;
+            int x, y;
+            double xscale, yscale;
             unsigned long bg, fg;
-            if (sscanf(line + 8, " %d,%d %d %d %lx %lx", &x, &y,
+            if (sscanf(line + 8, " %d,%d %lf %lf %lx %lx", &x, &y,
                                             &xscale, &yscale, &bg, &fg) == 6) {
                 display_loc.x = x;
                 display_loc.y = y;
-                display_scale.x = xscale;
-                display_scale.y = yscale;
+                display_scale.x = (int) xscale;
+                display_scale.y = (int) yscale;
                 display_bg = ((bg >> 16) & 255) | (bg & 0x0FF00) | ((bg & 255) << 16);
                 display_fg = ((fg >> 16) & 255) | (fg & 0x0FF00) | ((fg & 255) << 16);
             }
