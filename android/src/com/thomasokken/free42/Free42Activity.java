@@ -817,7 +817,7 @@ public class Free42Activity extends Activity {
 
                 Button okB = new Button(context);
                 okB.setId(6);
-                okB.setText("OK");
+                okB.setText("   OK   ");
                 okB.setOnClickListener(new OnClickListener() {
                     public void onClick(View view) {
                         AboutDialog.this.hide();
