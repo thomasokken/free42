@@ -115,7 +115,7 @@ BEGIN
     CONTROL         "Overflows during matrix operations yield ""Out of Range"" error",
                     IDC_MATRIX_OUTOFRANGE,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,7,18,213,10
-    CONTROL         "Auto-Repeat for number entry and ALPHA mode",
+    CONTROL         "Auto-repeat for number entry and ALPHA mode",
                     IDC_AUTO_REPEAT,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,7,29,213,10
     CONTROL         "Keep Free42 window always on top",IDC_ALWAYSONTOP,
@@ -143,7 +143,7 @@ STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Export Programs"
 FONT 8, "MS Sans Serif"
 BEGIN
-    LTEXT           "Select Programs to Export:",IDC_STATIC,7,7,106,8
+    LTEXT           "Select programs to export:",IDC_STATIC,7,7,106,8
     LISTBOX         IDC_LIST1,7,20,106,101,NOT LBS_NOTIFY | LBS_EXTENDEDSEL | 
                     WS_VSCROLL | WS_TABSTOP
     DEFPUSHBUTTON   "OK",IDOK,12,128,45,14

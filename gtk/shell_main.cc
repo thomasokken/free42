@@ -1309,7 +1309,7 @@ static void preferencesCB() {
         gtk_table_attach(GTK_TABLE(table), singularmatrix, 0, 4, 0, 1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
         matrixoutofrange = gtk_check_button_new_with_label("Overflows during matrix operations yield \"Out of Range\" error");
         gtk_table_attach(GTK_TABLE(table), matrixoutofrange, 0, 4, 1, 2, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
-        autorepeat = gtk_check_button_new_with_label("Auto-Repeat for number entry and ALPHA mode");
+        autorepeat = gtk_check_button_new_with_label("Auto-repeat for number entry and ALPHA mode");
         gtk_table_attach(GTK_TABLE(table), autorepeat, 0, 4, 2, 3, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
         singleinstance = gtk_check_button_new_with_label("Single instance");
         gtk_table_attach(GTK_TABLE(table), singleinstance, 0, 4, 3, 4, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);

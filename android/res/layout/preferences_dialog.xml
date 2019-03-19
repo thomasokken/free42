@@ -36,37 +36,37 @@
 		        
 		    <CheckBox android:id="@+id/singularMatrixCB"
 		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		    		android:text="Singular Matrix Error"
+		    		android:text="&quot;Singular Matrix&quot; error"
 		    		android:layout_alignParentTop="true"
 		    		android:layout_alignParentLeft="true"/>
 		        
 		    <CheckBox android:id="@+id/matrixOutOfRangeCB"
 		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		    		android:text="Matrix Out Of Range"
+		    		android:text="Matrix &quot;Out Of Range&quot;"
 		    		android:layout_below="@+id/singularMatrixCB"
 		    		android:layout_alignParentLeft="true"/>
 		        
 		    <CheckBox android:id="@+id/autoRepeatCB"
 		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		    		android:text="Auto-Repeat"
+		    		android:text="Auto-repeat"
 		    		android:layout_below="@+id/matrixOutOfRangeCB"
 		    		android:layout_alignParentLeft="true"/>
 		        
             <CheckBox android:id="@+id/alwaysOnCB"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="Continuous On"
+                    android:text="Continuous ON"
                     android:layout_below="@+id/autoRepeatCB"
                     android:layout_alignParentLeft="true"/>
                 
 		    <CheckBox android:id="@+id/keyClicksCB"
 		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		    		android:text="Enable Key Clicks"
+		    		android:text="Key clicks"
 		    		android:layout_below="@+id/alwaysOnCB"
 		    		android:layout_alignParentLeft="true"/>
 		        
 		    <CheckBox android:id="@+id/keyVibrationCB"
 		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		    		android:text="Enable Key Vibration"
+		    		android:text="Haptic feedback"
 		    		android:layout_below="@+id/keyClicksCB"
 		    		android:layout_alignParentLeft="true"/>
 		        
@@ -78,7 +78,7 @@
 	
 				<TextView
 			    		android:layout_width="wrap_content" android:layout_height="wrap_content"
-			   			android:text="Orientation:"/>
+			   			android:text="Orientation"/>
 		   
 			    <Spinner android:id="@+id/orientationSpinner"
 			    		android:layout_width="wrap_content" android:layout_height="wrap_content"/>
@@ -93,7 +93,7 @@
     
                 <TextView
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="Style:"/>
+                        android:text="Style"/>
            
                 <Spinner android:id="@+id/styleSpinner"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"/>
@@ -106,31 +106,31 @@
     
             <CheckBox android:id="@+id/maintainSkinAspectCB"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="Maintain Skin Aspect Ratio"
+                    android:text="Maintain skin aspect ratio"
                     android:layout_below="@+id/styleBox"
                     android:layout_alignParentLeft="true"/>
             
             <CheckBox android:id="@+id/skinSmoothingCB"
 		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		    		android:text="Skin Smoothing"
+		    		android:text="Skin smoothing"
 		    		android:layout_below="@+id/maintainSkinAspectCB"
 		    		android:layout_alignParentLeft="true"/>
 		    
 		    <CheckBox android:id="@+id/displaySmoothingCB"
 		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		    		android:text="Display Smoothing"
+		    		android:text="Display smoothing"
 		    		android:layout_below="@+id/skinSmoothingCB"
 		    		android:layout_alignParentLeft="true"/>
 		    
             <CheckBox android:id="@+id/displayFullRepaintCB"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="Always Paint Entire Display"
+                    android:text="Always paint entire display"
                     android:layout_below="@+id/displaySmoothingCB"
                     android:layout_alignParentLeft="true"/>
             
 		    <CheckBox android:id="@+id/printToTextCB"
 		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		    		android:text="Print to Text"
+		    		android:text="Print to text"
 		    		android:layout_below="@+id/displayFullRepaintCB"
 		    		android:layout_alignParentLeft="true"/>
 		    
@@ -168,7 +168,7 @@
 		    		
 			<TextView android:id="@+id/maxGifHeightL"
 		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		   			android:text="Max. GIF Height:"
+		   			android:text="Max. GIF height"
 		   			android:layout_below="@+id/printToGifFileNameTF"
 		   			android:layout_alignParentLeft="true"/>
 		   
