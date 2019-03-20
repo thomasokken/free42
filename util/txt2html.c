@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
     }
     printf("</pre>\n"
            "<p>\n"
-           "Go <a href=\"index.html\">back</a>.\n"
+           "<a href=\".\">Go to Free42 home page</a>\n"
            "</body>\n"
            "</html>\n");
     return 0;
