@@ -272,13 +272,15 @@ int docmd_asin(arg_struct *arg) {
 static int mappable_acos_r(phloat x, phloat *y) {
     if (x < -1 || x > 1)
         return ERR_INVALID_DATA;
-    if (x == -1)
-        /* Intel library bug work-around */
-        *y = flags.f.rad ? PI : flags.f.grad ? 200 : 180;
-    else if (!flags.f.rad && x == 0)
-        *y = flags.f.grad ? 100 : 90;
-    else
-        *y = rad_to_angle(acos(x));
+    if (!flags.f.rad)
+        if (x == 0) {
+            *y = flags.f.grad ? 100 : 90;
+            return ERR_NONE;
+        } else if (x == -1) {
+            *y = flags.f.grad ? 200 : 180;
+            return ERR_NONE;
+        }
+    *y = rad_to_angle(acos(x));
     return ERR_NONE;
 }
 

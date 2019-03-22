@@ -484,6 +484,9 @@ Phloat asin(Phloat p) {
 }
 
 Phloat acos(Phloat p) {
+    if (p == -1)
+        // Intel library bug work-around
+        return PI;
     BID_UINT128 res;
     bid128_acos(&res, &p.val);
     return Phloat(res);
