@@ -107,11 +107,12 @@ static RootViewController *instance;
 - (void) layoutSubViews {
     CGRect r;
     if ([UIApplication sharedApplication].isStatusBarHidden)
-        r = window.bounds;
+        r = self.view.bounds;
     else {
-        int sbh = [UIApplication sharedApplication].statusBarFrame.size.height;
-        r = CGRectMake(window.bounds.origin.x, window.bounds.origin.y + sbh,
-                               window.bounds.size.width, window.bounds.size.height - sbh);
+        int sbh1 = [UIApplication sharedApplication].statusBarFrame.size.height;
+        int sbh2 = window.bounds.size.height - self.view.bounds.size.height;
+        int sbh = sbh1 - sbh2;
+        r = CGRectMake(self.view.bounds.origin.x, self.view.bounds.origin.y + sbh, self.view.bounds.size.width, self.view.bounds.size.height - sbh);
     }
     if (@available(iOS 11.0, *)) {
         if (window.bounds.size.width > window.bounds.size.height) {
