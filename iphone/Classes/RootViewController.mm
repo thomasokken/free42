@@ -95,10 +95,6 @@ static RootViewController *instance;
         return UIStatusBarStyleLightContent;
 }
 
-- (BOOL) prefersStatusBarHidden {
-    return NO;
-}
-
 - (UIInterfaceOrientationMask) supportedInterfaceOrientations {
     if (state.orientationMode == 0)
         return UIInterfaceOrientationMaskAll;

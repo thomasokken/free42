@@ -78,6 +78,7 @@ static FILE *external_file;
 static int skin_type;
 static int skin_width, skin_height;
 static double skin_scale_h, skin_scale_v;
+static double skin_offset_h, skin_offset_v;
 static int skin_ncolors;
 static const SkinColor *skin_colors = NULL;
 static int skin_y;
@@ -497,14 +498,17 @@ void skin_load(long *width, long *height) {
         display_loc.x &= ~1;
         display_loc.y &= ~1;
     }
-    if (state.maintainSkinAspect[isPortrait ? 0 : 1])
-        if (isPortrait)
-            skin_scale_h = skin_scale_v = skin.width / [CalcView width];
-        else
-            skin_scale_h = skin_scale_v = skin.height / [CalcView height];
-    else {
-        skin_scale_h = skin.width / [CalcView width];
-        skin_scale_v = skin.height / [CalcView height];
+    skin_scale_h = skin.width / [CalcView width];
+    skin_scale_v = skin.height / [CalcView height];
+    skin_offset_h = skin_offset_v = 0;
+    if (state.maintainSkinAspect[isPortrait ? 0 : 1]) {
+        if (skin_scale_h < skin_scale_v) {
+            skin_scale_h = skin_scale_v;
+            skin_offset_h = ([CalcView width] - skin.width / skin_scale_h) / 2;
+        } else {
+            skin_scale_v = skin_scale_h;
+            skin_offset_v = ([CalcView height] - skin.height / skin_scale_v) / 2;
+        }
     }
 
     skin_close();
@@ -634,11 +638,12 @@ void skin_finish_image() {
 }
 
 void skin_repaint(CGRect *rect) {
-    rect->origin.x *= skin_scale_h;
-    rect->origin.y *= skin_scale_v;
+    rect->origin.x = (rect->origin.x - skin_offset_h) * skin_scale_h;
+    rect->origin.y = (rect->origin.y - skin_offset_v) * skin_scale_v;
     rect->size.width *= skin_scale_h;
     rect->size.height *= skin_scale_v;
     CGContextRef myContext = UIGraphicsGetCurrentContext();
+    CGContextTranslateCTM(myContext, skin_offset_h, skin_offset_v);
     CGContextScaleCTM(myContext, 1.0 / skin_scale_h, 1.0 / skin_scale_v);
     
     // Optimize for the common case that *only* the display needs painting
@@ -738,18 +743,18 @@ void skin_update_annunciator(int which, int state, CalcView *view) {
         return;
     annunciator_state[which] = state;
     SkinRect *r = &annunciators[which].disp_rect;
-    [view setNeedsDisplayInRectSafely:CGRectMake(r->x / skin_scale_h, r->y / skin_scale_v, r->width / skin_scale_h, r->height / skin_scale_v)];
+    [view setNeedsDisplayInRectSafely:CGRectMake(r->x / skin_scale_h + skin_offset_h, r->y / skin_scale_v + skin_offset_v, r->width / skin_scale_h, r->height / skin_scale_v)];
 }
     
 bool skin_in_menu_area(int x, int y) {
-    x *= skin_scale_h;
-    y *= skin_scale_v;
+    x = (x - skin_offset_h) * skin_scale_h;
+    y = (y - skin_offset_v) * skin_scale_v;
     return y < display_loc.y + display_scale.y * 8;
 }
 
 void skin_find_key(int x, int y, bool cshift, int *skey, int *ckey) {
-    x *= skin_scale_h;
-    y *= skin_scale_v;
+    x = (x - skin_offset_h) * skin_scale_h;
+    y = (y - skin_offset_v) * skin_scale_v;
     int i;
     if (core_menu()
             && x >= display_loc.x
@@ -825,10 +830,10 @@ static void invalidate_key(int key, CalcView *view) {
         int y = 9 * display_scale.y + display_loc.y;
         int w = 21 * display_scale.x;
         int h = 7 * display_scale.y;
-        [view setNeedsDisplayInRectSafely:CGRectMake(x / skin_scale_h, y / skin_scale_v, w / skin_scale_h, h / skin_scale_v)];
+        [view setNeedsDisplayInRectSafely:CGRectMake(x / skin_scale_h + skin_offset_h, y / skin_scale_v + skin_offset_v, w / skin_scale_h, h / skin_scale_v)];
     } else if (key >= 0 && key < nkeys) {
         SkinRect *r = &keylist[key].disp_rect;
-        [view setNeedsDisplayInRectSafely:CGRectMake(r->x / skin_scale_h, r->y / skin_scale_v, r->width / skin_scale_h, r->height / skin_scale_v)];
+        [view setNeedsDisplayInRectSafely:CGRectMake(r->x / skin_scale_h + skin_offset_h, r->y / skin_scale_v + skin_offset_v, r->width / skin_scale_h, r->height / skin_scale_v)];
     }
 }
 
@@ -852,8 +857,8 @@ void skin_display_blitter(const char *bits, int bytesperline, int x, int y, int 
                 disp_bitmap[v * disp_bytesperline + (h >> 3)] |= 128 >> (h & 7);
         }
     
-    [view setNeedsDisplayInRectSafely:CGRectMake((display_loc.x + x * display_scale.x) / skin_scale_h,
-                                                 (display_loc.y + y * display_scale.y) / skin_scale_v,
+    [view setNeedsDisplayInRectSafely:CGRectMake((display_loc.x + x * display_scale.x) / skin_scale_h + skin_offset_h,
+                                                 (display_loc.y + y * display_scale.y) / skin_scale_v + skin_offset_v,
                                                  (width * display_scale.x) / skin_scale_h,
                                                  (height * display_scale.y) / skin_scale_v)];
 }
@@ -862,7 +867,7 @@ void skin_repaint_display(CalcView *view) {
     if (!display_enabled)
         // Prevent screen flashing during macro execution
         return;
-    [view setNeedsDisplayInRectSafely:CGRectMake(display_loc.x / skin_scale_h, display_loc.y / skin_scale_v, 131 * display_scale.x / skin_scale_h, 16 * display_scale.y / skin_scale_v)];
+    [view setNeedsDisplayInRectSafely:CGRectMake(display_loc.x / skin_scale_h + skin_offset_h, display_loc.y / skin_scale_v + skin_offset_v, 131 * display_scale.x / skin_scale_h, 16 * display_scale.y / skin_scale_v)];
 }
 
 void skin_display_set_enabled(bool enable) {
