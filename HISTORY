@@ -1,5 +1,6 @@
-????-??-??: release 2.0.24i (Android and iPhone)
+????-??-??: release 2.0.25
 
+* Cosmetic user interface changes.
 * Android and iPhone versions: Improved Maintain Skin Aspect Ratio option: it
   now chooses the largest scale where the skin still fits on the screen in its
   entirety, and centers the skin within the available space.
