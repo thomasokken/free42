@@ -840,6 +840,7 @@ public class Free42Activity extends Activity {
         
         private int width, height;
         private float hScale, vScale;
+        private int hOffset, vOffset;
         private boolean possibleMenuEvent = false;
 
         public CalcView(Context context) {
@@ -847,14 +848,17 @@ public class Free42Activity extends Activity {
         }
         
         public void updateScale() {
+            vScale = ((float) height) / skin.getHeight();
+            hScale = ((float) width) / skin.getWidth();
+            hOffset = vOffset = 0;
             if (skin.getMaintainSkinAspect()) {
-                if (width > height)
+                if (hScale > vScale) {
                     hScale = vScale = ((float) height) / skin.getHeight();
-                else
+                    hOffset = (int) ((width - skin.getWidth() * hScale) / 2);
+                } else {
                     hScale = vScale = ((float) width) / skin.getWidth();
-            } else {
-                vScale = ((float) height) / skin.getHeight();
-                hScale = ((float) width) / skin.getWidth();
+                    vOffset = (int) ((height - skin.getHeight() * vScale) / 2);
+                }
             }
         }
 
@@ -867,6 +871,7 @@ public class Free42Activity extends Activity {
 
         @Override
         protected void onDraw(Canvas canvas) {
+            canvas.translate(hOffset, vOffset);
             canvas.scale(hScale, vScale);
             skin.repaint(canvas);
         }
@@ -881,8 +886,8 @@ public class Free42Activity extends Activity {
             cancelRepeaterAndTimeouts1And2();
             
             if (what == MotionEvent.ACTION_DOWN) {
-                int x = (int) (e.getX() / hScale);
-                int y = (int) (e.getY() / vScale);
+                int x = (int) ((e.getX() - hOffset) / hScale);
+                int y = (int) ((e.getY() - vOffset) / vScale);
                 IntHolder skeyHolder = new IntHolder();
                 IntHolder ckeyHolder = new IntHolder();
                 skin.find_key(core_menu(), x, y, skeyHolder, ckeyHolder);
@@ -933,8 +938,8 @@ public class Free42Activity extends Activity {
             } else {
                 if (possibleMenuEvent) {
                     possibleMenuEvent = false;
-                    int x = (int) (e.getX() / hScale);
-                    int y = (int) (e.getY() / vScale);
+                    int x = (int) ((e.getX() - hOffset) / hScale);
+                    int y = (int) ((e.getY() - vOffset) / vScale);
                     if (skin.in_menu_area(x, y))
                         Free42Activity.this.postMainMenu();
                 }
@@ -952,18 +957,18 @@ public class Free42Activity extends Activity {
         }
         
         public void postInvalidateScaled(int left, int top, int right, int bottom) {
-            left = (int) Math.floor(((double) left) * hScale);
-            top = (int) Math.floor(((double) top) * vScale);
-            right = (int) Math.ceil(((double) right) * hScale);
-            bottom = (int) Math.ceil(((double) bottom) * vScale);
+            left = (int) Math.floor(((double) left) * hScale + hOffset);
+            top = (int) Math.floor(((double) top) * vScale + vOffset);
+            right = (int) Math.ceil(((double) right) * hScale+ hOffset);
+            bottom = (int) Math.ceil(((double) bottom) * vScale + vOffset);
             postInvalidate(left - 1, top - 1, right + 2, bottom + 2);
         }
 
         private void invalidateScaled(Rect inval) {
-            inval.left = (int) Math.floor(((double) inval.left) * hScale);
-            inval.top = (int) Math.floor(((double) inval.top) * vScale);
-            inval.right = (int) Math.ceil(((double) inval.right) * hScale);
-            inval.bottom = (int) Math.ceil(((double) inval.bottom) * vScale);
+            inval.left = (int) Math.floor(((double) inval.left) * hScale + hOffset);
+            inval.top = (int) Math.floor(((double) inval.top) * vScale + vOffset);
+            inval.right = (int) Math.ceil(((double) inval.right) * hScale + hOffset);
+            inval.bottom = (int) Math.ceil(((double) inval.bottom) * vScale + vOffset);
             inval.inset(-1, -1);
             invalidate(inval);
         }
