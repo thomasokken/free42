@@ -1,7 +1,7 @@
-????-??-??: release 2.0.25
+2019-03-30: release 2.0.25
 
 * Cosmetic user interface changes.
-* Android and iPhone versions: Improved Maintain Skin Aspect Ratio option: it
+* Android and iPhone versions: Improved "Maintain skin aspect ratio" option: it
   now chooses the largest scale where the skin still fits on the screen in its
   entirety, and centers the skin within the available space.
 * iPhone version: The "Print to text" and "Maintain skin aspect ratio" options
