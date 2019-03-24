@@ -4,10 +4,12 @@
 * Android and iPhone versions: Improved "Maintain skin aspect ratio" option: it
   now chooses the largest scale where the skin still fits on the screen in its
   entirety, and centers the skin within the available space.
-* iPhone version: The "Print to text" and "Maintain skin aspect ratio" options
+* iPhone version: The "Maintain skin aspect ratio" and "Print to text" options
   in the Preferences were switched. Fixed.
 * iPhone version: Fixed handling of announcements in the status bar (audio
   recording, active call, active GPS).
+* iPhone version: Turned optimization back on. It looks like the optimizer bug
+  (see release notes for 2.0.21a) has been fixed.
 
 2019-03-18: release 2.0.24h (Android only)
 
