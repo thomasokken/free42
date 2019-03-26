@@ -545,11 +545,14 @@ int4 line2pc(int4 line);
 int4 find_local_label(const arg_struct *arg);
 int find_global_label(const arg_struct *arg, int *prgm, int4 *pc);
 int push_rtn_addr(int prgm, int4 pc);
-void pop_rtn_addr(int *prgm, int4 *pc);
+void stop_after_rtn();
+void stop_at_this_level();
+bool should_i_stop_at_this_level();
+void pop_rtn_addr(int *prgm, int4 *pc, bool *stop);
 void clear_all_rtns();
 bool solve_active();
 bool integ_active();
-void unwind_stack_until_solve();
+bool unwind_stack_until_solve();
 
 bool load_state(int4 version);
 void save_state();

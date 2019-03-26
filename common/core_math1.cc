@@ -291,7 +291,7 @@ int start_solve(const char *name, int length, phloat x1, phloat x2) {
     }
     solve.last_disp_time = 0;
     solve.toggle = 1;
-    solve.keep_running = program_running();
+    solve.keep_running = !should_i_stop_at_this_level() && program_running();
     return call_solve_fn(1, 1);
 }
 
@@ -415,9 +415,12 @@ static void printout(const phloat& p, const char* s) {
 }
 #endif
 
-int return_to_solve(int failure) {
+int return_to_solve(int failure, bool stop) {
     phloat f, slope, s, xnew, prev_f = solve.curr_f;
     uint4 now_time;
+
+    if (stop)
+        solve.keep_running = 0;
 
     if (solve.state == 0)
         return ERR_INTERNAL_ERROR;
@@ -913,7 +916,7 @@ int start_integ(const char *name, int length) {
     integ.k = 1;
     integ.prev_res = 0;
 
-    integ.keep_running = program_running();
+    integ.keep_running = !should_i_stop_at_this_level() && program_running();
     if (!integ.keep_running) {
         clear_row(0);
         draw_string(0, 0, "Integrating", 11);
@@ -921,7 +924,7 @@ int start_integ(const char *name, int length) {
         flags.f.message = 1;
         flags.f.two_line_message = 0;
     }
-    return return_to_integ(0);
+    return return_to_integ(0, false);
 }
 
 static int finish_integ() {
@@ -966,7 +969,10 @@ static int finish_integ() {
  * which prevents endpoint evaluation and causes non-uniform sampling.
  */
 
-int return_to_integ(int failure) {
+int return_to_integ(int failure, bool stop) {
+    if (stop)
+        integ.keep_running = 0;
+    
     switch (integ.state) {
     case 0:
         return ERR_INTERNAL_ERROR;

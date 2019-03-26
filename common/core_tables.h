@@ -408,8 +408,12 @@
 #define CMD_SWPT        366
 /* Intel Decimal Floating-Point Math Library: self-test */
 #define CMD_FPTEST      367
+/* Programming */
+#define CMD_LSTO        368
+#define CMD_SST_UP      369
+#define CMD_SST_RT      370
 
-#define CMD_SENTINEL    368
+#define CMD_SENTINEL    371
 
 
 /* command_spec.argtype */

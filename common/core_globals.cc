@@ -674,6 +674,7 @@ static bool state_bool_is_int;
 static int rtn_sp = 0;
 static int rtn_prgm[MAX_RTNS];
 static int4 rtn_pc[MAX_RTNS];
+static int rtn_stop_level = -1;
 
 #ifdef IPHONE
 /* For iPhone, we disable OFF by default, to satisfy App Store
@@ -2177,6 +2178,8 @@ int push_rtn_addr(int prgm, int4 pc) {
             rtn_pc[i] = rtn_pc[i + 1];
         }
         rtn_sp--;
+        if (rtn_stop_level >= 0)
+            rtn_stop_level--;
     }
     rtn_prgm[rtn_sp] = prgm;
     rtn_pc[rtn_sp] = pc;
@@ -2184,19 +2187,43 @@ int push_rtn_addr(int prgm, int4 pc) {
     return err;
 }
 
-void pop_rtn_addr(int *prgm, int4 *pc) {
+void stop_after_rtn() {
+    if (rtn_sp > 0)
+        rtn_stop_level = rtn_sp - 1;
+}
+
+void stop_at_this_level() {
+    if (rtn_sp >= 0)
+        rtn_stop_level = rtn_sp;
+}
+
+bool should_i_stop_at_this_level() {
+    bool stop = rtn_stop_level >= rtn_sp;
+    if (stop)
+        rtn_stop_level = -1;
+    return stop;
+}
+
+void pop_rtn_addr(int *prgm, int4 *pc, bool *stop) {
     if (rtn_sp == 0) {
         *prgm = -1;
         *pc = -1;
+        rtn_stop_level = -1;
     } else {
         rtn_sp--;
         *prgm = rtn_prgm[rtn_sp];
         *pc = rtn_pc[rtn_sp];
+        if (rtn_stop_level >= rtn_sp) {
+            *stop = true;
+            rtn_stop_level = -1;
+        } else
+            *stop = false;
     }
 }
 
 void clear_all_rtns() {
     rtn_sp = 0;
+    rtn_stop_level = -1;
 }
 
 bool solve_active() {
@@ -2215,8 +2242,12 @@ bool integ_active() {
     return false;
 }
 
-void unwind_stack_until_solve() {
+bool unwind_stack_until_solve() {
     while (rtn_prgm[--rtn_sp] != -2);
+    bool stop = rtn_stop_level >= rtn_sp;
+    if (stop)
+        rtn_stop_level = -1;
+    return stop;
 }
 
 static bool read_int(int *n) {
@@ -2365,6 +2396,10 @@ bool load_state(int4 ver) {
     #else
         core_settings.enable_ext_fptest = false;
     #endif
+    if (ver < 23)
+        core_settings.enable_ext_prog = true;
+    else
+        if (!read_bool(&core_settings.enable_ext_prog)) return false;
 
     if (!read_bool(&mode_clall)) return false;
     if (!read_bool(&mode_command_entry)) return false;
@@ -2517,6 +2552,7 @@ void save_state() {
     if (!write_bool(core_settings.enable_ext_locat)) return;
     if (!write_bool(core_settings.enable_ext_heading)) return;
     if (!write_bool(core_settings.enable_ext_time)) return;
+    if (!write_bool(core_settings.enable_ext_prog)) return;
     if (!write_bool(mode_clall)) return;
     if (!write_bool(mode_command_entry)) return;
     if (!write_bool(mode_number_entry)) return;
@@ -2746,6 +2782,7 @@ void hard_reset(int bad_state_file) {
     #else
         core_settings.enable_ext_fptest = false;
     #endif
+    core_settings.enable_ext_prog = true;
 
     reset_math();
 

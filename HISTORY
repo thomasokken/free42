@@ -1,6 +1,13 @@
-2019-03-30: release 2.0.25
+2019-03-30: release 2.1
 
-* Cosmetic user interface changes.
+* New functions: SST↑ (Step Out) and SST→ (Step Over). Step Out runs the
+  program until the end of the current subroutine; Step Over executes one step,
+  but if that step is an XEQ, SOLVE, or INTEG, it runs until the subroutine
+  returns, or SOLVE or INTEG are done. When Step Out is performed in a function
+  called by SOLVE or INTEG, the program runs until SOLVE or INTEG are done.
+* Added SST↓ (Step Into), which is just an alias for SST. This allows creating
+  a row in the CUSTOM menu with SST↓, SST→, and SST↑, like in typical high-
+  level language debuggers.
 * Android and iPhone versions: Improved "Maintain skin aspect ratio" option: it
   now chooses the largest scale where the skin still fits on the screen in its
   entirety, and centers the skin within the available space.

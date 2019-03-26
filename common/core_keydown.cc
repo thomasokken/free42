@@ -2023,7 +2023,8 @@ void keydown_normal_mode(int shift, int key) {
                                 pending_command = CMD_NONE;
                                 do_interactive(cmd);
                                 return;
-                            } else if (cmd == CMD_SST && flags.f.prgm_mode) {
+                            } else if ((cmd == CMD_SST || cmd == CMD_SST_UP || cmd == CMD_SST_RT)
+                                    && flags.f.prgm_mode) {
                                 sst();
                                 pending_command = CMD_NONE;
                                 redisplay();

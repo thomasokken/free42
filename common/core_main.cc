@@ -314,7 +314,8 @@ int core_repeat() {
 void core_keytimeout1() {
     if (pending_command == CMD_LINGER1 || pending_command == CMD_LINGER2)
         return;
-    if (pending_command == CMD_RUN || pending_command == CMD_SST) {
+    if (pending_command == CMD_RUN || pending_command == CMD_SST
+            || pending_command == CMD_SST_UP || pending_command == CMD_SST_RT) {
         int saved_pending_command = pending_command;
         if (pc == -1)
             pc = 0;
@@ -427,7 +428,8 @@ int core_keyup() {
 
     if (input_length > 0) {
         /* INPUT active */
-        if (pending_command == CMD_RUN || pending_command == CMD_SST) {
+        if (pending_command == CMD_RUN || pending_command == CMD_SST
+                || pending_command == CMD_SST_UP || pending_command == CMD_SST_RT) {
             int err = generic_sto(&input_arg, 0);
             if ((flags.f.trace_print || flags.f.normal_print)
                     && flags.f.printer_exists) {
@@ -460,11 +462,13 @@ int core_keyup() {
                     pending_command_arg.val.text, pending_command_arg.length);
         goto do_run;
     }
-    if (pending_command == CMD_RUN) {
+    if (pending_command == CMD_RUN || pending_command == CMD_SST_UP) {
         do_run:
         if ((flags.f.trace_print || flags.f.normal_print)
                 && flags.f.printer_exists)
             print_command(pending_command, &pending_command_arg);
+        if (pending_command == CMD_SST_UP)
+            stop_after_rtn();
         pending_command = CMD_NONE;
         if (pc == -1)
             pc = 0;
@@ -472,13 +476,19 @@ int core_keyup() {
         return 1;
     }
 
-    if (pending_command == CMD_SST) {
+    if (pending_command == CMD_SST || pending_command == CMD_SST_RT) {
         int cmd;
         arg_struct arg;
         oldpc = pc;
         if (pc == -1)
             pc = 0;
         get_next_command(&pc, &cmd, &arg, 1);
+        if (pending_command == CMD_SST_RT
+                && (cmd == CMD_XEQ || cmd == CMD_SOLVE || cmd == CMD_INTEG)) {
+            pc = oldpc;
+            stop_at_this_level();
+            goto do_run;
+        }
         if ((flags.f.trace_print || flags.f.normal_print)
                 && flags.f.printer_exists)
             print_program_line(current_prgm, oldpc);
@@ -3495,7 +3505,8 @@ void do_interactive(int command) {
             redisplay();
             return;
         }
-    } else if (command == CMD_SST && flags.f.prgm_mode) {
+    } else if ((command == CMD_SST || command == CMD_SST_UP
+            || command == CMD_SST_RT) && flags.f.prgm_mode) {
         sst();
         redisplay();
         repeating = 1;
@@ -3626,6 +3637,7 @@ static synonym_spec hp41_synonyms[] =
     { "X<>0?",  false, 5, CMD_X_NE_0  },
     { "X<>Y?",  false, 5, CMD_X_NE_Y  },
     { "v",      false, 1, CMD_DOWN    },
+    { "SST\016",true,  4, CMD_SST     },
     { "",       true,  0, CMD_NONE    }
 };
 
@@ -3650,6 +3662,7 @@ int find_builtin(const char *name, int namelen, bool strict) {
         if (i == CMD_HEADING && !core_settings.enable_ext_heading) i++;
         if (i == CMD_ADATE && !core_settings.enable_ext_time) i += 34;
         if (i == CMD_FPTEST && !core_settings.enable_ext_fptest) i++;
+        if (i == CMD_SST_UP && !core_settings.enable_ext_prog) i += 2;
         if (i == CMD_SENTINEL)
             break;
         if ((cmdlist(i)->flags & FLAG_HIDDEN) != 0)
@@ -3838,16 +3851,17 @@ void finish_command_entry(bool refresh) {
         if (pending_command == CMD_NULL || pending_command == CMD_CANCELLED) {
             pc = incomplete_saved_pc;
             prgm_highlight_row = incomplete_saved_highlight_row;
-        } else if (pending_command == CMD_SST || pending_command == CMD_BST) {
+        } else if (pending_command == CMD_SST || pending_command == CMD_SST_UP
+                || pending_command == CMD_SST_RT || pending_command == CMD_BST) {
             pc = incomplete_saved_pc;
             prgm_highlight_row = incomplete_saved_highlight_row;
-            if (pending_command == CMD_SST)
-                sst();
-            else
+            if (pending_command == CMD_BST)
                 bst();
+            else
+                sst();
             repeating = 1;
             repeating_shift = 1;
-            repeating_key = pending_command == CMD_SST ? KEY_DOWN : KEY_UP;
+            repeating_key = pending_command == CMD_BST ? KEY_UP : KEY_DOWN;
             pending_command = CMD_NONE;
             redisplay();
         } else {
@@ -4022,8 +4036,8 @@ static int handle_error(int error) {
                                         || error == ERR_DIVIDE_BY_0
                                         || error == ERR_INVALID_DATA
                                         || error == ERR_STAT_MATH_ERROR)) {
-                unwind_stack_until_solve();
-                error = return_to_solve(1);
+                bool stop = unwind_stack_until_solve();
+                error = return_to_solve(1, stop);
                 if (error == ERR_STOP)
                     set_running(false);
                 if (error == ERR_NONE || error == ERR_RUN || error == ERR_STOP)
@@ -4035,7 +4049,7 @@ static int handle_error(int error) {
             return 0;
         }
         return 1;
-    } else if (pending_command == CMD_SST) {
+    } else if (pending_command == CMD_SST || pending_command == CMD_SST_RT) {
         if (error == ERR_RUN)
             error = ERR_NONE;
         if (error == ERR_NONE || error == ERR_NO || error == ERR_YES
@@ -4059,8 +4073,8 @@ static int handle_error(int error) {
                                       || error == ERR_DIVIDE_BY_0
                                       || error == ERR_INVALID_DATA
                                       || error == ERR_STAT_MATH_ERROR)) {
-                unwind_stack_until_solve();
-                error = return_to_solve(1);
+                bool stop = unwind_stack_until_solve();
+                error = return_to_solve(1, stop);
                 if (error == ERR_NONE || error == ERR_RUN || error == ERR_STOP)
                     goto noerr;
             }

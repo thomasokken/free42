@@ -5,7 +5,7 @@ int main(int argc, char *argv[]) {
     printf("<html>\n"
            "<head>\n"
            "  <title>%s</title>\n"
-           "<head>\n"
+           "</head>\n"
            "<body>\n"
            "<h3>%s</h3>\n"
            "<pre>", argv[1], argv[1]);
