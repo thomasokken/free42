@@ -2187,12 +2187,12 @@ int push_rtn_addr(int prgm, int4 pc) {
     return err;
 }
 
-void stop_after_rtn() {
+void step_out() {
     if (rtn_sp > 0)
         rtn_stop_level = rtn_sp - 1;
 }
 
-void stop_at_this_level() {
+void step_over() {
     if (rtn_sp >= 0)
         rtn_stop_level = rtn_sp;
 }
@@ -2957,6 +2957,7 @@ static bool convert_programs() {
             // the SOLVE and INTEG state. If SOLVE or INTEG are actually
             // active, we have to clear the RTN stack, too.
             rtn_sp = 0;
+            rtn_stop_level = -1;
             mod_count = 0;
             break;
         }
@@ -3224,6 +3225,7 @@ void reinitialize_globals() {
     keybuf_tail = 0;
     remove_program_catalog = 0;
     rtn_sp = 0;
+    rtn_stop_level = -1;
 }
 #endif
 

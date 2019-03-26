@@ -468,7 +468,7 @@ int core_keyup() {
                 && flags.f.printer_exists)
             print_command(pending_command, &pending_command_arg);
         if (pending_command == CMD_SST_UP)
-            stop_after_rtn();
+            step_out();
         pending_command = CMD_NONE;
         if (pc == -1)
             pc = 0;
@@ -486,7 +486,7 @@ int core_keyup() {
         if (pending_command == CMD_SST_RT
                 && (cmd == CMD_XEQ || cmd == CMD_SOLVE || cmd == CMD_INTEG)) {
             pc = oldpc;
-            stop_at_this_level();
+            step_over();
             goto do_run;
         }
         if ((flags.f.trace_print || flags.f.normal_print)
