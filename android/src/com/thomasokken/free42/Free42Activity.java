@@ -94,7 +94,7 @@ public class Free42Activity extends Activity {
 
     private static final String[] builtinSkinNames = new String[] { "Standard", "Landscape" };
     
-    private static final int SHELL_VERSION = 12;
+    private static final int SHELL_VERSION = 13;
     
     private static final int PRINT_BACKGROUND_COLOR = Color.LTGRAY;
     
@@ -1246,6 +1246,10 @@ public class Free42Activity extends Activity {
                 alwaysRepaintFullDisplay = state_read_boolean();
             if (shell_version >= 11)
                 alwaysOn = state_read_boolean();
+            if (shell_version >= 13) {
+                maintainSkinAspect[0] = state_read_boolean();
+                maintainSkinAspect[1] = state_read_boolean();
+            }
             init_shell_state(shell_version);
         } catch (IllegalArgumentException e) {
             return false;
@@ -1299,11 +1303,13 @@ public class Free42Activity extends Activity {
             alwaysOn = false;
             // fall through
         case 11:
+            // fall through
+        case 12:
             maintainSkinAspect[0] = false;
             maintainSkinAspect[1] = false;
             // fall through
-        case 12:
-            // current version (SHELL_VERSION = 12),
+        case 13:
+            // current version (SHELL_VERSION = 13),
             // so nothing to do here since everything
             // was initialized from the state file.
             ;
@@ -1334,6 +1340,8 @@ public class Free42Activity extends Activity {
             state_write_int(style);
             state_write_boolean(alwaysRepaintFullDisplay);
             state_write_boolean(alwaysOn);
+            state_write_boolean(maintainSkinAspect[0]);
+            state_write_boolean(maintainSkinAspect[1]);
         } catch (IllegalArgumentException e) {}
     }
     

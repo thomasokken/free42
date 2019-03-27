@@ -1,3 +1,8 @@
+2019-03-27: release 2.1.1 (Android only)
+
+* The "Maintain skin aspect ratio" setting didn't stick when the app was exited
+  and restarted. Fixed.
+
 2019-03-26: release 2.1
 
 * New functions: SST↑ (Step Out) and SST→ (Step Over). Step Out runs the
