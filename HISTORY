@@ -1,4 +1,4 @@
-2019-03-30: release 2.1
+2019-03-25: release 2.1
 
 * New functions: SST↑ (Step Out) and SST→ (Step Over). Step Out runs the
   program until the end of the current subroutine; Step Over executes one step,
