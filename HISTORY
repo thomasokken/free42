@@ -1,3 +1,9 @@
+????-??-??: release 2.2
+
+* Added support for direct command mapping in skins. This is specified by
+  creating Macro: lines where the macro is not a sequence of keystrokes, but a
+  command name enclosed in double quotes, say, "SST→".
+
 2019-03-27: release 2.1.1 (Android only)
 
 * The "Maintain skin aspect ratio" setting didn't stick when the app was exited

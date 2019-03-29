@@ -132,6 +132,15 @@ int core_hex_menu() {
     return menu != NULL && *menu == MENU_BASE_A_THRU_F;
 }
 
+static int ascii2hp(char *dst, const char *src, int maxchars);
+
+int core_keydown_command(const char *name, int *enqueued, int *repeat) {
+    char hpname[70];
+    int len = ascii2hp(hpname, name, 63);
+    int cmd = find_builtin(hpname, len, false);
+    return core_keydown(cmd == CMD_NONE ? 0 : cmd + 2048, enqueued, repeat);
+}
+
 int core_keydown(int key, int *enqueued, int *repeat) {
 
     *enqueued = 0;

@@ -94,7 +94,7 @@ void keydown(int shift, int key) {
 
     pending_command = CMD_NONE;
 
-    if (key >= 1024) {
+    if (key >= 1024 && key < 2048) {
         /* TODO: is this actually needed?
          * Filtering out ASCII key events if the alpha menu is not actually
          * active, just in case the subsequent key handling code doesn't
@@ -104,7 +104,7 @@ void keydown(int shift, int key) {
         menu = get_front_menu();
         if (menu == NULL || *menu < MENU_ALPHA1 || *menu > MENU_ALPHA_MISC2)
             return;
-    } else if (key < 1 || key > 37) {
+    } else if (key < 1 || key > 37 && key < 2048) {
         /* Bad key code */
         squeak();
         return;
@@ -616,7 +616,7 @@ void keydown_command_entry(int shift, int key) {
                 case '9': key = KEY_9; break;
             }
 
-        if (key >= 1024
+        if (key >= 1024 && key < 2048
             || (key == KEY_SIGMA || key == KEY_INV || key == KEY_SQRT
                     || key == KEY_LOG || key == KEY_LN || key == KEY_XEQ)
             || (!shift &&
@@ -1188,7 +1188,7 @@ void keydown_command_entry(int shift, int key) {
         do_incomplete_alpha:
         m = NULL;
 
-        if (key >= 1024) {
+        if (key >= 1024 && key < 2048) {
             c = key - 1024;
             goto handle_char;
         } else if (mode_commandmenu != MENU_NONE
@@ -1535,7 +1535,7 @@ void keydown_alpha_mode(int shift, int key) {
     char c;
     int command;
 
-    if (key >= 1024) {
+    if (key >= 1024 && key < 2048) {
         c = key - 1024;
         goto handle_char;
     }
@@ -1738,7 +1738,7 @@ void keydown_alpha_mode(int shift, int key) {
             case KEY_STO: command = CMD_ASTO; break;
             case KEY_RCL: command = CMD_ARCL; break;
             case KEY_RUN: command = CMD_RUN; break;
-            default: command = CMD_NONE; break;
+            default: command = key >= 2048 ? key - 2048 : CMD_NONE; break;
         }
     } else {
         switch (key) {
@@ -1768,7 +1768,7 @@ void keydown_alpha_mode(int shift, int key) {
                             shell_request_timeout3(2000);
                             return;
             case KEY_ADD: set_plainmenu(MENU_CATALOG); break;
-            default: command = CMD_NONE; break;
+            default: command = key >= 2048 ? key - 2048 : CMD_NONE; break;
         }
     }
 
@@ -2374,7 +2374,7 @@ void keydown_normal_mode(int shift, int key) {
                 return;
             case KEY_RUN: command = CMD_RUN; break;
             case KEY_ADD: command = basekeys() ? CMD_BASEADD : CMD_ADD; break;
-            default: command = CMD_NONE; break;
+            default: command = key >= 2048 ? key - 2048 : CMD_NONE; break;
         }
     } else {
         switch (key) {
@@ -2423,7 +2423,7 @@ void keydown_normal_mode(int shift, int key) {
                             return;
             case KEY_0: set_plainmenu(MENU_TOP_FCN); return;
             case KEY_ADD: set_plainmenu(MENU_CATALOG); return;
-            default: command = CMD_NONE; break;
+            default: command = key >= 2048 ? key - 2048 : CMD_NONE; break;
         }
     }
 

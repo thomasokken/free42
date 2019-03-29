@@ -135,6 +135,19 @@ int core_hex_menu();
  */
 int core_keydown(int key, int *enqueued, int *repeat);
 
+/* core_keydown_command()
+ *
+ * This function is equivalent to core_keydown(), except that instead of a key
+ * number, it expects a command name. This can be used to implement skins that
+ * map skin keys or keyboard keys directly to calculator commands, which is
+ * useful if you want to assign commands to the keyboard that aren't directly
+ * mapped on the original calculator. Without this, you'd have to create such a
+ * mapping by creating a macro that performs XEQ and spells out the command
+ * name, or selects the command from a menu or the FCN catalog, all of which
+ * have potentially undesirable side effects.
+ */
+int core_keydown_command(const char *name, int *enqueued, int *repeat);
+
 /* core_repeat()
  *
  * This function is called by the shell to signal auto-repeating key events.
