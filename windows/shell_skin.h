@@ -54,7 +54,7 @@ void skin_repaint(HDC hdc, HDC memdc);
 void skin_repaint_annunciator(HDC hdc, HDC memdc, int which, int state);
 void skin_find_key(int x, int y, bool cshift, int *skey, int *ckey);
 int skin_find_skey(int ckey);
-unsigned char *skin_find_macro(int ckey);
+unsigned char *skin_find_macro(int ckey, bool *is_name);
 unsigned char *skin_keymap_lookup(int keycode, bool ctrl, bool alt, bool shift, bool cshift, bool *exact);
 void skin_repaint_key(HDC hdc, HDC memdc, int key, int state);
 void skin_display_blitter(HDC hdc, const char *bits, int bytesperline, int x, int y,

@@ -88,6 +88,7 @@ static char *printout;
 static int ckey = 0;
 static int skey;
 static unsigned char *macro;
+static bool macro_is_name;
 static int active_keycode = 0;
 static bool ctrl_down = false;
 static bool alt_down = false;
@@ -436,34 +437,38 @@ static void shell_keydown() {
     }
     int repeat;
     if (macro != NULL) {
-        if (*macro == 0) {
-            squeak();
-            return;
-        }
-        bool one_key_macro = macro[1] == 0 || (macro[2] == 0 && macro[0] == 28);
-        if (!one_key_macro)
-            skin_display_set_enabled(false);
-        while (*macro != 0) {
-            running = core_keydown(*macro++, &enqueued, &repeat);
-            if (*macro != 0 && !enqueued)
-                core_keyup();
-        }
-        if (!one_key_macro) {
-            skin_display_set_enabled(true);
-            HDC hdc = GetDC(hMainWnd);
-            HDC memdc = CreateCompatibleDC(hdc);
-            skin_repaint_display(hdc, memdc);
-            skin_repaint_annunciator(hdc, memdc, 1, ann_updown);
-            skin_repaint_annunciator(hdc, memdc, 2, ann_shift);
-            skin_repaint_annunciator(hdc, memdc, 3, ann_print);
-            skin_repaint_annunciator(hdc, memdc, 4, ann_run);
-            skin_repaint_annunciator(hdc, memdc, 5, ann_battery);
-            skin_repaint_annunciator(hdc, memdc, 6, ann_g);
-            skin_repaint_annunciator(hdc, memdc, 7, ann_rad);
-            DeleteDC(memdc);
-            ReleaseDC(hMainWnd, hdc);
-            repeat = 0;
-        }
+		if (macro_is_name) {
+	        running = core_keydown_command((const char *) macro, &enqueued, &repeat);
+		} else {
+			if (*macro == 0) {
+				squeak();
+				return;
+			}
+			bool one_key_macro = macro[1] == 0 || (macro[2] == 0 && macro[0] == 28);
+			if (!one_key_macro)
+				skin_display_set_enabled(false);
+			while (*macro != 0) {
+				running = core_keydown(*macro++, &enqueued, &repeat);
+				if (*macro != 0 && !enqueued)
+					core_keyup();
+			}
+			if (!one_key_macro) {
+				skin_display_set_enabled(true);
+				HDC hdc = GetDC(hMainWnd);
+				HDC memdc = CreateCompatibleDC(hdc);
+				skin_repaint_display(hdc, memdc);
+				skin_repaint_annunciator(hdc, memdc, 1, ann_updown);
+				skin_repaint_annunciator(hdc, memdc, 2, ann_shift);
+				skin_repaint_annunciator(hdc, memdc, 3, ann_print);
+				skin_repaint_annunciator(hdc, memdc, 4, ann_run);
+				skin_repaint_annunciator(hdc, memdc, 5, ann_battery);
+				skin_repaint_annunciator(hdc, memdc, 6, ann_g);
+				skin_repaint_annunciator(hdc, memdc, 7, ann_rad);
+				DeleteDC(memdc);
+				ReleaseDC(hMainWnd, hdc);
+				repeat = 0;
+			}
+		}
     } else
         running = core_keydown(ckey, &enqueued, &repeat);
     if (!running) {
@@ -601,7 +606,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
                 int y = HIWORD(lParam);  // vertical position of cursor
                 skin_find_key(x, y, ann_shift != 0, &skey, &ckey);
                 if (ckey != 0) {
-                    macro = skin_find_macro(ckey);
+                    macro = skin_find_macro(ckey, &macro_is_name);
                     shell_keydown();
                     mouse_key = true;
                 }
@@ -741,7 +746,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
                             if (c <= 37)
                                 macrobuf[p++] = c;
                             else {
-                                unsigned char *m = skin_find_macro(c);
+                                unsigned char *m = skin_find_macro(c, &macro_is_name);
                                 if (m != NULL)
                                     while (*m != 0 && p < 1023)
                                         macrobuf[p++] = *m++;
@@ -749,8 +754,10 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
                         }
                         macrobuf[p] = 0;
                         macro = macrobuf;
-                    } else
+					} else {
                         macro = key_macro;
+						macro_is_name = false;
+					}
                     shell_keydown();
                     mouse_key = false;
                     active_keycode = virtKey;
