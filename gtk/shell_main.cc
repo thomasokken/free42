@@ -107,6 +107,7 @@ static GdkPixbuf *icon_48;
 static int ckey = 0;
 static int skey;
 static unsigned char *macro;
+static bool macro_is_name;
 static bool mouse_key;
 static guint16 active_keycode = 0;
 static bool just_pressed_shift = false;
@@ -1547,29 +1548,33 @@ static void shell_keydown() {
     }
 
     if (macro != NULL) {
-        if (*macro == 0) {
-            squeak();
-            return;
-        }
-        bool one_key_macro = macro[1] == 0 || (macro[2] == 0 && macro[0] == 28);
-        if (!one_key_macro)
-            skin_display_set_enabled(false);
-        while (*macro != 0) {
-            keep_running = core_keydown(*macro++, &enqueued, &repeat);
-            if (*macro != 0 && !enqueued)
-                core_keyup();
-        }
-        if (!one_key_macro) {
-            skin_display_set_enabled(true);
-            skin_repaint_display();
-            skin_repaint_annunciator(1, ann_updown);
-            skin_repaint_annunciator(2, ann_shift);
-            skin_repaint_annunciator(3, ann_print);
-            skin_repaint_annunciator(4, ann_run);
-            skin_repaint_annunciator(5, ann_battery);
-            skin_repaint_annunciator(6, ann_g);
-            skin_repaint_annunciator(7, ann_rad);
-            repeat = 0;
+        if (macro_is_name) {
+            keep_running = core_keydown_command((const char *) macro, &enqueued, &repeat);
+        } else {
+            if (*macro == 0) {
+                squeak();
+                return;
+            }
+            bool one_key_macro = macro[1] == 0 || (macro[2] == 0 && macro[0] == 28);
+            if (!one_key_macro)
+                skin_display_set_enabled(false);
+            while (*macro != 0) {
+                keep_running = core_keydown(*macro++, &enqueued, &repeat);
+                if (*macro != 0 && !enqueued)
+                    core_keyup();
+            }
+            if (!one_key_macro) {
+                skin_display_set_enabled(true);
+                skin_repaint_display();
+                skin_repaint_annunciator(1, ann_updown);
+                skin_repaint_annunciator(2, ann_shift);
+                skin_repaint_annunciator(3, ann_print);
+                skin_repaint_annunciator(4, ann_run);
+                skin_repaint_annunciator(5, ann_battery);
+                skin_repaint_annunciator(6, ann_g);
+                skin_repaint_annunciator(7, ann_rad);
+                repeat = 0;
+            }
         }
     } else
         keep_running = core_keydown(ckey, &enqueued, &repeat);
@@ -1615,7 +1620,7 @@ static gboolean button_cb(GtkWidget *w, GdkEventButton *event, gpointer cd) {
             int y = (int) event->y;
             skin_find_key(x, y, ann_shift != 0, &skey, &ckey);
             if (ckey != 0) {
-                macro = skin_find_macro(ckey);
+                macro = skin_find_macro(ckey, &macro_is_name);
                 shell_keydown();
                 mouse_key = true;
             }
@@ -1737,7 +1742,7 @@ static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
                         if (c <= 37)
                             macrobuf[p++] = c;
                         else {
-                            unsigned char *m = skin_find_macro(c);
+                            unsigned char *m = skin_find_macro(c, &macro_is_name);
                             if (m != NULL)
                                 while (*m != 0 && p < 1023)
                                     macrobuf[p++] = *m++;
@@ -1745,8 +1750,10 @@ static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
                     }
                     macrobuf[p] = 0;
                     macro = macrobuf;
-                } else
+                } else {
                     macro = key_macro;
+                    macro_is_name = false;
+                }
                 shell_keydown();
                 mouse_key = false;
                 active_keycode = event->hardware_keycode;
