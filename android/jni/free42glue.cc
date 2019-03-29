@@ -178,6 +178,28 @@ Java_com_thomasokken_free42_Free42Activity_core_1keydown(JNIEnv *env, jobject th
     return ret;
 }
 
+extern "C" jboolean
+Java_com_thomasokken_free42_Free42Activity_core_1keydown_1command(JNIEnv *env, jobject *thiz,
+                            jstring cmd, jobject enqueued, jobject repeat, jboolean immediate_return) {
+    Tracer T("core_keydown_command");
+    finish_flag = immediate_return;
+    int enq, rep;
+    jboolean ret;
+    const char *buf = env->GetStringUTFChars(cmd, NULL);
+    do {
+        ret = core_keydown_command(buf, &enq, &rep);
+    } while (ret && !finish_flag);
+    env->ReleaseStringUTFChars(cmd, buf);
+    jclass klass = env->GetObjectClass(enqueued);
+    jfieldID fid = env->GetFieldID(klass, "value", "Z");
+    env->SetBooleanField(enqueued, fid, enq);
+    klass = env->GetObjectClass(repeat);
+    fid = env->GetFieldID(klass, "value", "I");
+    env->SetIntField(repeat, fid, rep);
+    return ret;
+}
+
+
 extern "C" jint
 Java_com_thomasokken_free42_Free42Activity_core_1repeat(JNIEnv *env, jobject thiz) {
     Tracer T("core_repeat");

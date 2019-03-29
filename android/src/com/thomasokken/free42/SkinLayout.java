@@ -61,7 +61,7 @@ public class SkinLayout {
 
     private static class SkinMacro {
         int code;
-        byte[] macro;
+        Object macro;
     }
 
     private static class SkinAnnunciator {
@@ -130,7 +130,7 @@ public class SkinLayout {
                 throw new IllegalArgumentException("No layout found for skin " + skinName);
             }
             
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
             String line;
             //int lineno = 0;
             List<SkinKey> tempkeylist = new ArrayList<SkinKey>();
@@ -233,30 +233,50 @@ public class SkinLayout {
                         // ignore
                     }
                 } else if (lcline.startsWith("macro:")) {
-                    StringTokenizer tok = new StringTokenizer(line.substring(6), " \t");
-                    List<Byte> blist = new ArrayList<Byte>();
-                    while (tok.hasMoreTokens()) {
-                        String t = tok.nextToken();
-                        int n;
-                        try {
-                            n = Integer.parseInt(t);
-                        } catch (NumberFormatException e) {
-                            continue lineloop;
+                    int quot1 = line.indexOf('"');
+                    if (quot1 != -1) {
+                        int quot2 = line.lastIndexOf('"');
+                        if (quot1 != quot2) {
+                            int len = quot2 - quot1 - 1;
+                            try {
+                                int n = Integer.parseInt(line.substring(6, quot1).trim());
+                                if (n >= 38 && n <= 255) {
+                                    SkinMacro macro = new SkinMacro();
+                                    macro.code = n;
+                                    macro.macro = line.substring(quot1 + 1, quot2);
+                                    tempmacrolist.add(macro);
+                                }
+                            } catch (Exception e) {
+                                // Ignore
+                            }
                         }
-                        if (blist.isEmpty() ? (n < 38 || n > 255) : (n < 1 || n > 37))
-                            /* Macro code out of range; ignore this macro */
-                            continue lineloop;
-                        blist.add((byte) n);
+                    } else {
+                        StringTokenizer tok = new StringTokenizer(line.substring(6), " \t");
+                        List<Byte> blist = new ArrayList<Byte>();
+                        while (tok.hasMoreTokens()) {
+                            String t = tok.nextToken();
+                            int n;
+                            try {
+                                n = Integer.parseInt(t);
+                            } catch (NumberFormatException e) {
+                                continue lineloop;
+                            }
+                            if (blist.isEmpty() ? (n < 38 || n > 255) : (n < 1 || n > 37))
+                                /* Macro code out of range; ignore this macro */
+                                continue lineloop;
+                            blist.add((byte) n);
+                        }
+                        if (blist.isEmpty())
+                            continue;
+                        SkinMacro macro = new SkinMacro();
+                        macro.code = blist.remove(0) & 255;
+                        byte[] codes = new byte[blist.size()];
+                        int i = 0;
+                        for (byte b : blist)
+                            codes[i++] = b;
+                        macro.macro = codes;
+                        tempmacrolist.add(macro);
                     }
-                    if (blist.isEmpty())
-                        continue;
-                    SkinMacro macro = new SkinMacro();
-                    macro.code = blist.remove(0) & 255;
-                    macro.macro = new byte[blist.size()];
-                    int i = 0;
-                    for (byte b : blist)
-                        macro.macro[i++] = b;
-                    tempmacrolist.add(macro);
                 } else if (lcline.startsWith("annunciator:")) {
                     StringTokenizer tok = new StringTokenizer(line.substring(12), ", \t");
                     try {
@@ -395,7 +415,7 @@ public class SkinLayout {
         return -1;
     }
 
-    public byte[] find_macro(int ckey) {
+    public Object find_macro(int ckey) {
         for (SkinMacro macro : macrolist)
             if (macro.code == ckey)
                 return macro.macro;

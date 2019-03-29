@@ -90,6 +90,7 @@ static pthread_cond_t is_running_cond = PTHREAD_COND_INITIALIZER;
 static int ckey = 0;
 static int skey;
 static unsigned char *macro;
+static bool macro_is_name;
 static int mouse_key;
 
 static bool timeout_active = false;
@@ -314,7 +315,7 @@ static CalcView *calcView = nil;
         UIImpactFeedbackGenerator *fbgen = [[UIImpactFeedbackGenerator alloc] initWithStyle:UIImpactFeedbackStyleLight];
         [fbgen impactOccurred];
     }
-    macro = skin_find_macro(ckey);
+    macro = skin_find_macro(ckey, &macro_is_name);
     shell_keydown();
     mouse_key = 1;
 }
@@ -799,34 +800,40 @@ static void shell_keydown() {
     // EventAvail is an annoying omission of the iPhone API.)
         
     if (macro != NULL) {
-        if (*macro == 0) {
-            squeak();
-            return;
-        }
-        bool one_key_macro = macro[1] == 0 || (macro[2] == 0 && macro[0] == 28);
-        if (!one_key_macro) {
-            skin_display_set_enabled(false);
-        }
-        while (*macro != 0) {
+        if (macro_is_name) {
             we_want_cpu = 1;
-            keep_running = core_keydown(*macro++, &enqueued, &repeat);
+            keep_running = core_keydown_command((const char *) macro, &enqueued, &repeat);
             we_want_cpu = 0;
-            if (*macro != 0 && !enqueued)
-                core_keyup();
-        }
-        if (!one_key_macro) {
-            skin_display_set_enabled(true);
-            skin_repaint_display(calcView);
-            /*
-            skin_repaint_annunciator(1, ann_updown);
-            skin_repaint_annunciator(2, ann_shift);
-            skin_repaint_annunciator(3, ann_print);
-            skin_repaint_annunciator(4, ann_run);
-            skin_repaint_annunciator(5, ann_battery);
-            skin_repaint_annunciator(6, ann_g);
-            skin_repaint_annunciator(7, ann_rad);
-            */
-            repeat = 0;
+        } else {
+            if (*macro == 0) {
+                squeak();
+                return;
+            }
+            bool one_key_macro = macro[1] == 0 || (macro[2] == 0 && macro[0] == 28);
+            if (!one_key_macro) {
+                skin_display_set_enabled(false);
+            }
+            while (*macro != 0) {
+                we_want_cpu = 1;
+                keep_running = core_keydown(*macro++, &enqueued, &repeat);
+                we_want_cpu = 0;
+                if (*macro != 0 && !enqueued)
+                    core_keyup();
+            }
+            if (!one_key_macro) {
+                skin_display_set_enabled(true);
+                skin_repaint_display(calcView);
+                /*
+                skin_repaint_annunciator(1, ann_updown);
+                skin_repaint_annunciator(2, ann_shift);
+                skin_repaint_annunciator(3, ann_print);
+                skin_repaint_annunciator(4, ann_run);
+                skin_repaint_annunciator(5, ann_battery);
+                skin_repaint_annunciator(6, ann_g);
+                skin_repaint_annunciator(7, ann_rad);
+                */
+                repeat = 0;
+            }
         }
     } else {
         we_want_cpu = 1;

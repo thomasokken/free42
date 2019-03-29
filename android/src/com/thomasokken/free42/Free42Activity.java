@@ -900,8 +900,8 @@ public class Free42Activity extends Activity {
                 }
                 click();
                 end_core_keydown();
-                byte[] macro = skin.find_macro(ckey);
-                if (timeout3_active && (macro != null || ckey != 28 /* SHIFT */)) {
+                Object macroObj = skin.find_macro(ckey);
+                if (timeout3_active && (macroObj != null || ckey != 28 /* SHIFT */)) {
                     cancelTimeout3();
                     core_timeout3(0);
                 }
@@ -911,10 +911,15 @@ public class Free42Activity extends Activity {
                 boolean running;
                 BooleanHolder enqueued = new BooleanHolder();
                 IntHolder repeat = new IntHolder();
-                if (macro == null) {
+                if (macroObj == null) {
                     // Plain ol' key
                     running = core_keydown(ckey, enqueued, repeat, true);
+                } else if (macroObj instanceof String) {
+                    // Direct-mapped command
+                    String cmd = (String) macroObj;
+                    running = core_keydown_command((String) macroObj, enqueued, repeat, true);
                 } else {
+                    byte[] macro = (byte[]) macroObj;
                     boolean one_key_macro = macro.length == 1 || (macro.length == 2 && macro[0] == 28);
                     if (!one_key_macro)
                         skin.set_display_enabled(false);
@@ -1501,6 +1506,7 @@ public class Free42Activity extends Activity {
     //private native boolean core_alpha_menu();
     //private native boolean core_hex_menu();
     private native boolean core_keydown(int key, BooleanHolder enqueued, IntHolder repeat, boolean immediate_return);
+    private native boolean core_keydown_command(String cmd, BooleanHolder enqueued, IntHolder repeat, boolean immediate_return);
     private native int core_repeat();
     private native void core_keytimeout1();
     private native void core_keytimeout2();
