@@ -412,8 +412,11 @@
 #define CMD_LSTO        368
 #define CMD_SST_UP      369
 #define CMD_SST_RT      370
+#define CMD_WSIZE       371
+#define CMD_WSIZE_T     372
+#define CMD_YMD         373
 
-#define CMD_SENTINEL    371
+#define CMD_SENTINEL    374
 
 
 /* command_spec.argtype */
