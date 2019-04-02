@@ -272,7 +272,7 @@ int docmd_adate(arg_struct *arg) {
         int4 m = to_int4(floor((x - y) * 100));
         int4 d = to_int4(x * 10000) % 100;
 #else
-        int4 r = (int4) floor((x - m) * 100000000 + 0.5);
+        int4 r = (int4) floor((x - y) * 100000000 + 0.5);
         r /= 10000;
         int4 m = r / 100;
         int4 d = r % 100;
@@ -526,7 +526,7 @@ int docmd_date_plus(arg_struct *arg) {
         return ERR_INVALID_TYPE;
 
     phloat date = ((vartype_real *) reg_y)->x;
-    if (date < 0 || date > 100)
+    if (date < 0 || date > (flags.f.ymd ? 10000 : 100))
         return ERR_INVALID_DATA;
     phloat days = ((vartype_real *) reg_x)->x;
     if (days < -1000000 || days > 1000000)
@@ -566,10 +566,10 @@ int docmd_ddays(arg_struct *arg) {
         return ERR_INVALID_TYPE;
 
     phloat date1 = ((vartype_real *) reg_y)->x;
-    if (date1 < 0 || date1 > 100)
+    if (date1 < 0 || date1 > (flags.f.ymd ? 10000 : 100))
         return ERR_INVALID_DATA;
     phloat date2 = ((vartype_real *) reg_x)->x;
-    if (date2 < 0 || date2 > 100)
+    if (date2 < 0 || date2 > (flags.f.ymd ? 10000 : 100))
         return ERR_INVALID_DATA;
     int4 y, m, d, jd1, jd2;
     int err = date2comps(date1, &y, &m, &d);
@@ -610,7 +610,7 @@ int docmd_dow(arg_struct *arg) {
         return ERR_INVALID_TYPE;
 
     phloat x = ((vartype_real *) reg_x)->x;
-    if (x < 0 || x > 100)
+    if (x < 0 || x > (flags.f.ymd ? 10000 : 100))
         return ERR_INVALID_DATA;
 
     int4 y, m, d, jd;

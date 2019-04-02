@@ -1,5 +1,7 @@
 ????-??-??: release 2.2
 
+* Implemented YMD mode for date functions, using YYYY.MMDD as the numeric
+  format and YYYY-MM-DD as the display format.
 * Added support for direct command mapping in skins. This is specified by
   creating Macro: lines where the macro is not a sequence of keystrokes, but a
   command name enclosed in double quotes, say, "SST→".

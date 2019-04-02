@@ -2727,7 +2727,7 @@ void hard_reset(int bad_state_file) {
     flags.f.f64 = 0;
     /* flags.f.VIRTUAL_matrix_editor = 0; */
     flags.f.grow = 0;
-    flags.f.f67 = 0;
+    flags.f.ymd = 0;
     flags.f.base_bit0 = 0;
     flags.f.base_bit1 = 0;
     flags.f.base_bit2 = 0;

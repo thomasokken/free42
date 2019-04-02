@@ -341,7 +341,7 @@ typedef union {
         char f64;
         char VIRTUAL_matrix_editor;
         char grow;
-        char f67;
+        char ymd;
         char base_bit0; /* Note: dec=0, bin=1, oct=7, hex=15 */
         char base_bit1;
         char base_bit2;
