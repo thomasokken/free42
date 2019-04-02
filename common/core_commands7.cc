@@ -144,15 +144,31 @@ int docmd_heading(arg_struct *arg) {
 /////////////////////////////////////////////////
 
 static int date2comps(phloat x, int4 *yy, int4 *mm, int4 *dd) {
-    int4 m = to_int4(floor(x));
+    int4 y, m, d;
 #ifdef BCD_MATH
-    int4 d = to_int4(floor((x - m) * 100));
-    int4 y = to_int4(x * 1000000) % 10000;
+    if (flags.f.ymd) {
+        y = to_int4(floor(x));
+        m = to_int4(floor((x - y) * 100));
+        d = to_int4(x * 10000) % 100;
+    } else {
+        m = to_int4(floor(x));
+        d = to_int4(floor((x - m) * 100));
+        y = to_int4(x * 1000000) % 10000;
+    }
 #else
-    int4 r = (int4) floor((x - m) * 100000000 + 0.5);
-    r /= 100;
-    int4 d = r / 10000;
-    int4 y = r % 10000;
+    if (flags.f.ymd) {
+        y = to_int4(floor(x));
+        int4 r = (int4) floor((x - y) * 100000000 + 0.5);
+        r /= 10000;
+        m = r / 100;
+        d = r % 100;
+    } else {
+        m = to_int4(floor(x));
+        int4 r = (int4) floor((x - m) * 100000000 + 0.5);
+        r /= 100;
+        d = r / 10000;
+        y = r % 10000;
+    }
 #endif
 
     if (flags.f.dmy) {
@@ -178,6 +194,8 @@ static int date2comps(phloat x, int4 *yy, int4 *mm, int4 *dd) {
 }
 
 static phloat comps2date(int4 y, int4 m, int4 d) {
+    if (flags.f.ymd)
+        return phloat(y * 10000 + m * 100 + d) / 10000;
     if (flags.f.dmy) {
         int4 t = m;
         m = d;
@@ -226,21 +244,6 @@ int docmd_adate(arg_struct *arg) {
     phloat x = ((vartype_real *) reg_x)->x;
     if (x < 0)
         x = -x;
-    if (x >= 100)
-        return ERR_INVALID_DATA;
-
-    int4 m = to_int4(floor(x));
-#ifdef BCD_MATH
-    int4 d = to_int4(floor((x - m) * 100));
-    int4 y = to_int4(x * 1000000) % 10000;
-#else
-    int4 r = (int4) floor((x - m) * 100000000 + 0.5);
-    r /= 100;
-    int4 d = r / 10000;
-    int4 y = r % 10000;
-#endif
-    int c = y / 100;
-    y %= 100;
 
     int digits;
     if (flags.f.fix_or_all && flags.f.eng_or_all)
@@ -259,24 +262,70 @@ int docmd_adate(arg_struct *arg) {
 
     char buf[10];
     int bufptr = 0;
-    if (m < 10)
-        char2buf(buf, 10, &bufptr, '0');
-    bufptr += int2string(m, buf + bufptr, 10 - bufptr);
-    if (digits > 0) {
-        char2buf(buf, 10, &bufptr, flags.f.dmy ? '.' : '/');
-        if (d < 10)
-            char2buf(buf, 10, &bufptr, '0');
-        bufptr += int2string(d, buf + bufptr, 10 - bufptr);
-        if (digits > 2) {
-            char2buf(buf, 10, &bufptr, flags.f.dmy ? '.' : '/');
-            if (digits > 4) {
-                if (c < 10)
-                    char2buf(buf, 10, &bufptr, '0');
-                bufptr += int2string(c, buf + bufptr, 10 - bufptr);
-            }
-            if (y < 10)
+
+    if (flags.f.ymd) {
+        if (x >= 10000)
+            return ERR_INVALID_DATA;
+
+        int4 y = to_int4(floor(x));
+#ifdef BCD_MATH
+        int4 m = to_int4(floor((x - y) * 100));
+        int4 d = to_int4(x * 10000) % 100;
+#else
+        int4 r = (int4) floor((x - m) * 100000000 + 0.5);
+        r /= 10000;
+        int4 m = r / 100;
+        int4 d = r % 100;
+#endif
+        bufptr += int2string(y, buf + bufptr, 10 - bufptr);
+        if (digits > 0) {
+            char2buf(buf, 10, &bufptr, '-');
+            if (m < 10)
                 char2buf(buf, 10, &bufptr, '0');
-            bufptr += int2string(y, buf + bufptr, 10 - bufptr);
+            bufptr += int2string(m, buf + bufptr, 10 - bufptr);
+            if (digits > 2) {
+                char2buf(buf, 10, &bufptr, '-');
+                if (d < 10)
+                    char2buf(buf, 10, &bufptr, '0');
+                bufptr += int2string(d, buf + bufptr, 10 - bufptr);
+            }
+        }
+    } else {
+        if (x >= 100)
+            return ERR_INVALID_DATA;
+
+        int4 m = to_int4(floor(x));
+#ifdef BCD_MATH
+        int4 d = to_int4(floor((x - m) * 100));
+        int4 y = to_int4(x * 1000000) % 10000;
+#else
+        int4 r = (int4) floor((x - m) * 100000000 + 0.5);
+        r /= 100;
+        int4 d = r / 10000;
+        int4 y = r % 10000;
+#endif
+        int c = y / 100;
+        y %= 100;
+
+        if (m < 10)
+            char2buf(buf, 10, &bufptr, '0');
+        bufptr += int2string(m, buf + bufptr, 10 - bufptr);
+        if (digits > 0) {
+            char2buf(buf, 10, &bufptr, flags.f.dmy ? '.' : '/');
+            if (d < 10)
+                char2buf(buf, 10, &bufptr, '0');
+            bufptr += int2string(d, buf + bufptr, 10 - bufptr);
+            if (digits > 2) {
+                char2buf(buf, 10, &bufptr, flags.f.dmy ? '.' : '/');
+                if (digits > 4) {
+                    if (c < 10)
+                        char2buf(buf, 10, &bufptr, '0');
+                    bufptr += int2string(c, buf + bufptr, 10 - bufptr);
+                }
+                if (y < 10)
+                    char2buf(buf, 10, &bufptr, '0');
+                bufptr += int2string(y, buf + bufptr, 10 - bufptr);
+            }
         }
     }
 
@@ -404,14 +453,16 @@ int docmd_date(arg_struct *arg) {
     int y = date / 10000;
     int m = date / 100 % 100;
     int d = date % 100;
-    if (flags.f.dmy)
+    if (flags.f.ymd)
+        date = y * 10000L + m * 100 + d;
+    else if (flags.f.dmy)
         date = y + m * 10000L + d * 1000000;
     else
         date = y + m * 1000000 + d * 10000L;
     vartype *new_x = new_real((int4) date);
     if (new_x == NULL)
         return ERR_INSUFFICIENT_MEMORY;
-    ((vartype_real *) new_x)->x /= 1000000;
+    ((vartype_real *) new_x)->x /= flags.f.ymd ? 10000 : 1000000;
     recall_result(new_x);
     if (!program_running()) {
         /* Note: I'm not completely faithful to the HP-41 here. It formats the
@@ -424,17 +475,29 @@ int docmd_date(arg_struct *arg) {
          */
         char buf[22];
         int bufptr = 0;
-        int n = flags.f.dmy ? d : m;
-        if (n < 10)
-            char2buf(buf, 22, &bufptr, '0');
-        bufptr += int2string(n, buf + bufptr, 22 - bufptr);
-        char2buf(buf, 22, &bufptr, flags.f.dmy ? '.' : '/');
-        n = flags.f.dmy ? m : d;
-        if (n < 10)
-            char2buf(buf, 22, &bufptr, '0');
-        bufptr += int2string(n, buf + bufptr, 22 - bufptr);
-        char2buf(buf, 22, &bufptr, flags.f.dmy ? '.' : '/');
-        bufptr += int2string(y, buf + bufptr, 22 - bufptr);
+        if (flags.f.ymd) {
+            bufptr += int2string(y, buf + bufptr, 22 - bufptr);
+            char2buf(buf, 22, &bufptr, '-');
+            if (m < 10)
+                char2buf(buf, 22, &bufptr, '0');
+            bufptr += int2string(m, buf + bufptr, 22 - bufptr);
+            char2buf(buf, 22, &bufptr, '-');
+            if (d < 10)
+                char2buf(buf, 22, &bufptr, '0');
+            bufptr += int2string(d, buf + bufptr, 22 - bufptr);
+        } else {
+            int n = flags.f.dmy ? d : m;
+            if (n < 10)
+                char2buf(buf, 22, &bufptr, '0');
+            bufptr += int2string(n, buf + bufptr, 22 - bufptr);
+            char2buf(buf, 22, &bufptr, flags.f.dmy ? '.' : '/');
+            n = flags.f.dmy ? m : d;
+            if (n < 10)
+                char2buf(buf, 22, &bufptr, '0');
+            bufptr += int2string(n, buf + bufptr, 22 - bufptr);
+            char2buf(buf, 22, &bufptr, flags.f.dmy ? '.' : '/');
+            bufptr += int2string(y, buf + bufptr, 22 - bufptr);
+        }
         char2buf(buf, 22, &bufptr, ' ');
         string2buf(buf, 22, &bufptr, weekdaynames + weekday * 3, 3);
         clear_row(0);
@@ -533,6 +596,7 @@ int docmd_dmy(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
         return ERR_NONEXISTENT;
     flags.f.dmy = true;
+    flags.f.ymd = false;
     return ERR_NONE;
 }
 
@@ -578,6 +642,7 @@ int docmd_mdy(arg_struct *arg) {
     if (!core_settings.enable_ext_time)
         return ERR_NONEXISTENT;
     flags.f.dmy = false;
+    flags.f.ymd = false;
     return ERR_NONE;
 }
 
@@ -629,6 +694,14 @@ int docmd_time(arg_struct *arg) {
     /* TODO: Trace-mode printing. What should I print, the contents of X,
      * or, when not in a running program, the nicely formatted time?
      */
+    return ERR_NONE;
+}
+
+int docmd_ymd(arg_struct *arg) {
+    if (!core_settings.enable_ext_prog)
+        return ERR_NONEXISTENT;
+    flags.f.dmy = false;
+    flags.f.ymd = true;
     return ERR_NONE;
 }
 
