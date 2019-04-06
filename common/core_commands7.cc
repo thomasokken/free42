@@ -771,5 +771,24 @@ int docmd_fptest(arg_struct *arg) {
 /////////////////////////////////
 
 int docmd_lsto(arg_struct *arg) {
-    return ERR_NOT_YET_IMPLEMENTED;
+    int err;
+    if (arg->type == ARGTYPE_IND_NUM
+            || arg->type == ARGTYPE_IND_STK
+            || arg->type == ARGTYPE_IND_STR) {
+        err = resolve_ind_arg(arg);
+        if (err != ERR_NONE)
+            return err;
+    }
+    if (arg->type != ARGTYPE_STR)
+        return ERR_INVALID_TYPE;
+    /* Only allow matrices to be stored in "REGS" */
+    if (string_equals(arg->val.text, arg->length, "REGS", 4)
+            && reg_x->type != TYPE_REALMATRIX
+            && reg_x->type != TYPE_COMPLEXMATRIX)
+        return ERR_RESTRICTED_OPERATION;
+    vartype *newval = dup_vartype(reg_x);
+    if (newval == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    store_var(arg->val.text, arg->length, reg_x, true);
+    return ERR_NONE;
 }
