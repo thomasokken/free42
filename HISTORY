@@ -1,4 +1,4 @@
-2019-04-06: release 2.2
+2019-04-06: release 2.1.2
 
 * Implemented YMD mode for date functions, using YYYY.MMDD as the numeric
   format and YYYY-MM-DD as the display format. Programs can check whether this
