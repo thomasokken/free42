@@ -1614,6 +1614,8 @@ static void draw_catalog() {
 
         for (i = 0; i < vars_count; i++) {
             int type = vars[i].value->type;
+            if (vars[i].hidden)
+                continue;
             switch (type) {
                 case TYPE_REAL:
                 case TYPE_STRING:
@@ -1647,6 +1649,8 @@ static void draw_catalog() {
             catalogmenu_row[catindex] = catalogmenu_rows[catindex] - 1;
         j = -1;
         for (i = vars_count - 1; i >= 0; i--) {
+            if (vars[i].hidden)
+                continue;
             int type = vars[i].value->type;
             switch (type) {
                 case TYPE_REAL:
@@ -2770,14 +2774,10 @@ void do_prgm_menu_key(int keynum) {
         return;
     }
     if (!progmenu_is_gto[keynum]) {
-        if (oldpc == -1)
-            oldpc = 0;
-        err = push_rtn_addr(oldprgm, oldpc);
+        err = push_rtn_addr(oldprgm, oldpc == -1 ? 0 : oldpc);
         if (err != ERR_NONE) {
-            /* Solve/Integ RTN Lost. Someone is writing weird programs
-             * if they're using a programmable menu in the middle of
-             * a solver invocation...
-             */
+            current_prgm = oldprgm;
+            pc = oldpc;
             set_running(false);
             display_error(err, 1);
             flush_display();

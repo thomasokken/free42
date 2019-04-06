@@ -143,9 +143,10 @@ extern "C" double log2(double x);
  *                    state version so that older state files get their
  *                    potentially-incorrect jump targets cleared, just in case.
  * Version 23: 2.1    Added "prog" extension: SST^, SST->
+ * Version 24: 2.2    Large RTN stack; local variables.
  */
 #define FREE42_MAGIC 0x466b3432
-#define FREE42_VERSION 23
+#define FREE42_VERSION 24
 
 
 #endif

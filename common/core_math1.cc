@@ -256,8 +256,13 @@ static int call_solve_fn(int which, int state) {
         free_vartype(v);
         return err;
     }
-    push_rtn_addr(-2, 0);
-    return ERR_RUN;
+    err = push_rtn_addr(-2, 0);
+    if (err != ERR_NONE) {
+        current_prgm = solve.prev_prgm;
+        pc = solve.prev_pc;
+        return err;
+    } else
+        return ERR_RUN;
 }
 
 int start_solve(const char *name, int length, phloat x1, phloat x2) {
@@ -864,8 +869,13 @@ static int call_integ_fn() {
         free_vartype(v);
         return err;
     }
-    push_rtn_addr(-3, 0);
-    return ERR_RUN;
+    err = push_rtn_addr(-3, 0);
+    if (err != ERR_NONE) {
+        current_prgm = integ.prev_prgm;
+        pc = integ.prev_pc;
+        return err;
+    } else
+        return ERR_RUN;
 }
 
 int start_integ(const char *name, int length) {

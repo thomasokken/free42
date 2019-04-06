@@ -2,9 +2,15 @@
 
 * Implemented YMD mode for date functions, using YYYY.MMDD as the numeric
   format and YYYY-MM-DD as the display format.
+* Dynamically growing RTN stack. It is not unlimited; in order to prevent
+  infinite recursion from eating up all memory, it maxes out at 1024 levels.
+  The new stack behaves a bit different than the old version (and the real
+  HP-42S): when an XEQ happens while the stack is full, the old version would
+  silently discard the oldest RTN, while with the new version, this returns a
+  "RTN Stack Full" error.
 * Added support for direct command mapping in skins. This is specified by
   creating Macro: lines where the macro is not a sequence of keystrokes, but a
-  command name enclosed in double quotes, say, "SST→".
+  command name enclosed in double quotes, e.g., Macro: 40 "SST→"
 
 2019-03-27: release 2.1.1 (Android only)
 

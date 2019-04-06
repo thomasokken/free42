@@ -526,12 +526,17 @@ int docmd_aview(arg_struct *arg) {
 
 int docmd_xeq(arg_struct *arg) {
     if (program_running()) {
-        int oldprgm = current_prgm;
-        int4 oldpc = pc;
-        int error = docmd_gto(arg);
-        if (error != ERR_NONE)
-            return error;
-        return push_rtn_addr(oldprgm, oldpc);
+        int err = push_rtn_addr(current_prgm, pc);
+        if (err != ERR_NONE)
+            return err;
+        err = docmd_gto(arg);
+        if (err != ERR_NONE) {
+            int dummy1;
+            int4 dummy2;
+            bool dummy3;
+            pop_rtn_addr(&dummy1, &dummy2, &dummy3);
+        }
+        return err;
     } else {
         int err = docmd_gto(arg);
         if (err != ERR_NONE)
@@ -1458,12 +1463,14 @@ static int prusr_worker(int interrupted) {
             prusr_index = 0;
             goto state1;
         }
-        llen = 0;
-        string2buf(lbuf, 8, &llen, vars[prusr_index].name,
-                                   vars[prusr_index].length);
-        char2buf(lbuf, 8, &llen, '=');
-        rlen = vartype2string(vars[prusr_index].value, rbuf, 100);
-        print_wide(lbuf, llen, rbuf, rlen);
+        if (!vars[prusr_index].hidden) {
+            llen = 0;
+            string2buf(lbuf, 8, &llen, vars[prusr_index].name,
+                                       vars[prusr_index].length);
+            char2buf(lbuf, 8, &llen, '=');
+            rlen = vartype2string(vars[prusr_index].value, rbuf, 100);
+            print_wide(lbuf, llen, rbuf, rlen);
+        }
         prusr_index--;
     } else {
         char buf[13];

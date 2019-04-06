@@ -697,6 +697,12 @@ int docmd_time(arg_struct *arg) {
     return ERR_NONE;
 }
 
+// The YMD function is not an original Time Module function, and in Free42,
+// it is grouped with the "Programming" extension, but logically, of course,
+// it belongs here. Also, most of the YMD implementation consists of
+// modifications to Time Module functions, so in that sense, most of it is
+// here anyway.
+
 int docmd_ymd(arg_struct *arg) {
     if (!core_settings.enable_ext_prog)
         return ERR_NONEXISTENT;
@@ -759,3 +765,11 @@ int docmd_fptest(arg_struct *arg) {
 }
 
 #endif
+
+/////////////////////////////////
+///// Programming Extension /////
+/////////////////////////////////
+
+int docmd_lsto(arg_struct *arg) {
+    return ERR_NOT_YET_IMPLEMENTED;
+}

@@ -16,6 +16,7 @@
  *****************************************************************************/
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "core_globals.h"
 #include "core_commands2.h"
@@ -68,7 +69,9 @@ error_spec errors[] = {
     { /* PRINTING_IS_DISABLED */   "Printing Is Disabled",    20 },
     { /* INTERRUPTIBLE */          NULL,                       0 },
     { /* NO_VARIABLES */           "No Variables",            12 },
-    { /* SUSPICIOUS_OFF */         "Suspicious OFF",          14 }
+    { /* SUSPICIOUS_OFF */         "Suspicious OFF",          14 },
+    { /* RTN_STACK_FULL */         "RTN Stack Full",          14 },
+    { /* HIDING_EDITN_MATRIX */    "Hiding EDITN Matrix",     19 }
 };
 
 
@@ -670,11 +673,42 @@ bool no_keystrokes_yet;
 
 static bool state_bool_is_int;
 
-#define MAX_RTNS 8
+typedef struct {
+    int4 prgm;
+    int4 pc;
+} rtn_stack_entry;
+
+typedef struct {
+    unsigned char length;
+    char name[7];
+} rtn_stack_matrix_name_entry;
+
+typedef struct {
+    int4 i, j;
+} rtn_stack_matrix_ij_entry;
+
+/* Stack pointer vs. level:
+ * The stack pointer is the pointer into the actual rtn_stack array, while
+ * the stack level is the number of pending returns. The difference between
+ * the two is due to the fact that a return may or may not have a saved
+ * INDEX matrix name & position associated with it, and that saved matrix
+ * state takes up 16 bytes, compared to 8 bytes for a return by itself.
+ * I don't want to set aside 24 bytes for every return, and optimize by
+ * storing 8 bytes for a plain return (rtn_stack_entry struct) and 24 bytes
+ * for a return with INDEX matrix (rtn_stack_entry plus rtn_stack_matrix_name_entry
+ * plus rtn_stack_matrix_ij_entry), but that means that the physical stack
+ * pointer and the number of pending returns are no longer guaranteed to
+ * be in sync, hence the need to track them separately.
+ */
+#define MAX_RTN_LEVEL 1024
 static int rtn_sp = 0;
-static int rtn_prgm[MAX_RTNS];
-static int4 rtn_pc[MAX_RTNS];
+static int rtn_stack_capacity = 0;
+static rtn_stack_entry *rtn_stack = NULL;
+static int rtn_level = 0;
+static bool rtn_level_0_has_matrix_entry;
 static int rtn_stop_level = -1;
+static bool rtn_solve_active = false;
+static bool rtn_integ_active = false;
 
 #ifdef IPHONE
 /* For iPhone, we disable OFF by default, to satisfy App Store
@@ -709,7 +743,7 @@ static bool unpersist_vartype(vartype **v, bool padded);
 static void update_label_table(int prgm, int4 pc, int inserted);
 static void invalidate_lclbls(int prgm_index, bool force);
 static int pc_line_convert(int4 loc, int loc_is_pc);
-static bool convert_programs();
+static bool convert_programs(bool *clear_stack);
 #ifdef BCD_MATH
 static void update_decimal_in_programs();
 #endif
@@ -1153,7 +1187,7 @@ static bool persist_globals() {
     if (!write_int(vars_count))
         goto done;
     for (i = 0; i < vars_count; i++)
-        if (!shell_write_saved_state(vars + i, sizeof(var_struct_32bit)))
+        if (!shell_write_saved_state(vars + i, 12))
             goto done;
     for (i = 0; i < vars_count; i++)
         if (!persist_vartype(vars[i].value))
@@ -1188,9 +1222,15 @@ static bool persist_globals() {
         goto done;
     if (!write_int(rtn_sp))
         goto done;
-    if (!shell_write_saved_state(&rtn_prgm, MAX_RTNS * sizeof(int)))
+    if (!write_int(rtn_level))
         goto done;
-    if (!shell_write_saved_state(&rtn_pc, MAX_RTNS * sizeof(int4)))
+    if (!write_bool(rtn_level_0_has_matrix_entry))
+        goto done;
+    if (!shell_write_saved_state(rtn_stack, rtn_sp * sizeof(rtn_stack_entry)))
+        goto done;
+    if (!write_bool(rtn_solve_active))
+        goto done;
+    if (!write_bool(rtn_integ_active))
         goto done;
 #ifdef IPHONE
     if (!write_bool(off_enable_flag))
@@ -1297,7 +1337,7 @@ static bool unpersist_globals(int4 ver) {
         goto done;
     }
     for (i = 0; i < vars_count; i++)
-        if (shell_read_saved_state(vars + i, sizeof(var_struct_32bit)) != sizeof(var_struct_32bit)) {
+        if (shell_read_saved_state(vars + i, 12) != 12) {
             free(vars);
             vars = NULL;
             vars_count = 0;
@@ -1306,6 +1346,12 @@ static bool unpersist_globals(int4 ver) {
     vars_capacity = vars_count;
     for (i = 0; i < vars_count; i++)
         vars[i].value = NULL;
+    if (ver < 24)
+        for (i = 0; i < vars_count; i++) {
+            vars[i].level = -1;
+            vars[i].hidden = false;
+            vars[i].hiding = false;
+        }
     for (i = 0; i < vars_count; i++)
         if (!unpersist_vartype(&vars[i].value, padded)) {
             purge_all_vars();
@@ -1386,12 +1432,45 @@ static bool unpersist_globals(int4 ver) {
         goto done;
     if (!read_int(&rtn_sp))
         goto done;
-    if (shell_read_saved_state(rtn_prgm, MAX_RTNS * sizeof(int))
-            != MAX_RTNS * sizeof(int))
-        goto done;
-    if (shell_read_saved_state(rtn_pc, MAX_RTNS * sizeof(int4))
-            != MAX_RTNS * sizeof(int4))
-        goto done;
+    if (ver >= 24) {
+        if (!read_int(&rtn_level))
+            goto done;
+        if (!read_bool(&rtn_level_0_has_matrix_entry))
+            goto done;
+        rtn_stack_capacity = 16;
+        while (rtn_sp > rtn_stack_capacity)
+            rtn_stack_capacity <<= 1;
+        rtn_stack = (rtn_stack_entry *) realloc(rtn_stack, rtn_stack_capacity * sizeof(rtn_stack_entry));
+        int sz = rtn_sp * sizeof(rtn_stack_entry);
+        if (shell_read_saved_state(rtn_stack, sz) != sz)
+            goto done;
+        if (!read_bool(&rtn_solve_active))
+            goto done;
+        if (!read_bool(&rtn_integ_active))
+            goto done;
+    } else {
+        rtn_level = rtn_sp;
+        rtn_level_0_has_matrix_entry = false;
+        rtn_stack_capacity = 16;
+        rtn_stack = (rtn_stack_entry *) realloc(rtn_stack, rtn_stack_capacity * sizeof(rtn_stack_entry));
+        for (i = 0; i < 8; i++) {
+            int prgm;
+            if (shell_read_saved_state(&prgm, sizeof(int)) != sizeof(int))
+                goto done;
+            rtn_stack[i].prgm = prgm;
+        }
+        for (i = 0; i < 8; i++)
+            if (shell_read_saved_state(&rtn_stack[i].pc, sizeof(int4)) != sizeof(int4))
+                goto done;
+        rtn_solve_active = false;
+        rtn_integ_active = false;
+        for (i = 0; i < rtn_sp; i++) {
+            if (rtn_stack[i].prgm == -2)
+                rtn_solve_active = true;
+            else if (rtn_stack[i].prgm == -3)
+                rtn_integ_active = true;
+        }
+    }
 #ifdef IPHONE
     if (ver >= 17)
         if (!read_bool(&off_enable_flag))
@@ -1399,10 +1478,13 @@ static bool unpersist_globals(int4 ver) {
 #endif
 
     if (bin_dec_mode_switch()) {
-        if (!convert_programs()) {
+        bool clear_stack;
+        if (!convert_programs(&clear_stack)) {
             clear_all_prgms();
             goto done;
         }
+        if (clear_stack)
+            clear_all_rtns();
     } else {
         if (ver < 22)
             for (i = 0; i < prgms_count; i++)
@@ -2168,23 +2250,85 @@ int find_global_label(const arg_struct *arg, int *prgm, int4 *pc) {
 }
 
 int push_rtn_addr(int prgm, int4 pc) {
-    int err = ERR_NONE;
-    if (rtn_sp == MAX_RTNS) {
-        int i;
-        if (rtn_prgm[0] == -2 || rtn_prgm[0] == -3)
-            err = ERR_SOLVE_INTEG_RTN_LOST;
-        for (i = 0; i < MAX_RTNS - 1; i++) {
-            rtn_prgm[i] = rtn_prgm[i + 1];
-            rtn_pc[i] = rtn_pc[i + 1];
-        }
-        rtn_sp--;
-        if (rtn_stop_level >= 0)
-            rtn_stop_level--;
+    if (rtn_level == MAX_RTN_LEVEL)
+        return ERR_RTN_STACK_FULL;
+    if (rtn_sp == rtn_stack_capacity) {
+        int new_rtn_stack_capacity = rtn_stack_capacity + 16;
+        rtn_stack_entry *new_rtn_stack = (rtn_stack_entry *) realloc(rtn_stack, new_rtn_stack_capacity * sizeof(rtn_stack_entry));
+        if (new_rtn_stack == NULL)
+            return ERR_INSUFFICIENT_MEMORY;
+        rtn_stack_capacity = new_rtn_stack_capacity;
+        rtn_stack = new_rtn_stack;
     }
-    rtn_prgm[rtn_sp] = prgm;
-    rtn_pc[rtn_sp] = pc;
+    rtn_stack[rtn_sp].prgm = prgm;
+    rtn_stack[rtn_sp].pc = pc;
     rtn_sp++;
-    return err;
+    rtn_level++;
+    if (prgm == -2)
+        rtn_solve_active = true;
+    else if (prgm == -3)
+        rtn_integ_active = true;
+    return ERR_NONE;
+}
+
+int push_indexed_matrix(int len, const char *name) {
+    if (matedit_mode == 0 || matedit_mode == 2)
+        return ERR_NONE;
+    if (!string_equals(name, len, matedit_name, matedit_length))
+        return ERR_NONE;
+    if (matedit_mode == 3)
+        return ERR_HIDING_EDITN_MATRIX;
+    
+    if (rtn_level == 0) {
+        if (rtn_level_0_has_matrix_entry)
+            return ERR_NONE;
+        if (rtn_sp + 2 > rtn_stack_capacity) {
+            int new_rtn_stack_capacity = rtn_stack_capacity + 16;
+            rtn_stack_entry *new_rtn_stack = (rtn_stack_entry *) realloc(rtn_stack, new_rtn_stack_capacity * sizeof(rtn_stack_entry));
+            if (new_rtn_stack == NULL)
+                return ERR_INSUFFICIENT_MEMORY;
+            rtn_stack_capacity = new_rtn_stack_capacity;
+            rtn_stack = new_rtn_stack;
+        }
+        rtn_level_0_has_matrix_entry = true;
+        rtn_sp += 2;
+        rtn_stack_matrix_name_entry e1;
+        int dlen;
+        string_copy(e1.name, &dlen, name, len);
+        e1.length = dlen;
+        memcpy(&rtn_stack[rtn_sp - 1], &e1, sizeof(e1));
+        rtn_stack_matrix_ij_entry e2;
+        e2.i = matedit_i;
+        e2.j = matedit_j;
+        memcpy(&rtn_stack[rtn_sp - 2], &e2, sizeof(e2));
+    } else {
+        int4 hi_bit = -1;
+        hi_bit -= ((unsigned int4) hi_bit) >> 1;
+        if ((rtn_stack[rtn_sp - 1].prgm & hi_bit) != 0)
+            return ERR_NONE;
+        if (rtn_sp + 2 > rtn_stack_capacity) {
+            int new_rtn_stack_capacity = rtn_stack_capacity + 16;
+            rtn_stack_entry *new_rtn_stack = (rtn_stack_entry *) realloc(rtn_stack, new_rtn_stack_capacity * sizeof(rtn_stack_entry));
+            if (new_rtn_stack == NULL)
+                return ERR_INSUFFICIENT_MEMORY;
+            rtn_stack_capacity = new_rtn_stack_capacity;
+            rtn_stack = new_rtn_stack;
+        }
+        rtn_sp += 2;
+        rtn_stack[rtn_sp - 1] = rtn_stack[rtn_sp - 3];
+        rtn_stack[rtn_sp - 1].prgm |= hi_bit;
+        rtn_stack_matrix_name_entry e1;
+        int dlen;
+        string_copy(e1.name, &dlen, name, len);
+        e1.length = dlen;
+        memcpy(&rtn_stack[rtn_sp - 2], &e1, sizeof(e1));
+        rtn_stack_matrix_ij_entry e2;
+        e2.i = matedit_i;
+        e2.j = matedit_j;
+        memcpy(&rtn_stack[rtn_sp - 3], &e2, sizeof(e2));
+    }
+    matedit_mode = 0;
+    return ERR_NONE;
 }
 
 void step_out() {
@@ -2204,49 +2348,104 @@ bool should_i_stop_at_this_level() {
     return stop;
 }
 
+static void remove_locals() {
+    int last = -1;
+    for (int i = vars_count - 1; i >= 0; i--) {
+        if (vars[i].level == -1)
+            continue;
+        if (vars[i].level < rtn_level)
+            break;
+        if (vars[i].hiding) {
+            for (int j = i - 1; j >= 0; j--)
+                if (vars[j].hidden && string_equals(vars[i].name, vars[i].length, vars[j].name, vars[j].length)) {
+                    vars[j].hidden = false;
+                    break;
+                }
+        }
+        free_vartype(vars[i].value);
+        vars[i].length = 100;
+        last = i;
+    }
+    if (last == -1)
+        return;
+    int from = last;
+    int to = last;
+    while (from < vars_count) {
+        if (vars[from].length != 100)
+            vars[to++] = vars[from];
+        from++;
+    }
+    vars_count -= from - to;
+    update_catalog();
+}
+
 void pop_rtn_addr(int *prgm, int4 *pc, bool *stop) {
-    if (rtn_sp == 0) {
+    remove_locals();
+    if (rtn_level == 0) {
         *prgm = -1;
         *pc = -1;
         rtn_stop_level = -1;
+        if (rtn_level_0_has_matrix_entry) {
+            rtn_level_0_has_matrix_entry = false;
+            restore_indexed_matrix:
+            rtn_stack_matrix_name_entry e1;
+            memcpy(&e1, &rtn_stack[--rtn_sp], sizeof(e1));
+            string_copy(matedit_name, &matedit_length, e1.name, e1.length);
+            rtn_stack_matrix_ij_entry e2;
+            memcpy(&e2, &rtn_stack[--rtn_sp], sizeof(e2));
+            matedit_i = e2.i;
+            matedit_j = e2.j;
+        }
     } else {
         rtn_sp--;
-        *prgm = rtn_prgm[rtn_sp];
-        *pc = rtn_pc[rtn_sp];
+        rtn_level--;
+        int4 tprgm = rtn_stack[rtn_sp].prgm;
+        int4 hi_bit = -1;
+        hi_bit -= ((unsigned int4) hi_bit) >> 1;
+        *prgm = tprgm & ~hi_bit;
+        *pc = rtn_stack[rtn_sp].pc;
         if (rtn_stop_level >= rtn_sp) {
             *stop = true;
             rtn_stop_level = -1;
         } else
             *stop = false;
+        if (*prgm == -2)
+            rtn_solve_active = false;
+        else if (*prgm == -3)
+            rtn_integ_active = false;
+        if ((tprgm & hi_bit) != 0)
+            goto restore_indexed_matrix;
     }
 }
 
 void clear_all_rtns() {
-    rtn_sp = 0;
-    rtn_stop_level = -1;
+    int dummy1;
+    int4 dummy2;
+    bool dummy3;
+    while (rtn_level > 0)
+        pop_rtn_addr(&dummy1, &dummy2, &dummy3);
+    pop_rtn_addr(&dummy1, &dummy2, &dummy3);
+}
+
+int get_rtn_level() {
+    return rtn_level;
 }
 
 bool solve_active() {
-    int i;
-    for (i = 0; i < rtn_sp; i++)
-        if (rtn_prgm[i] == -2)
-            return true;
-    return false;
+    return rtn_solve_active;
 }
 
 bool integ_active() {
-    int i;
-    for (i = 0; i < rtn_sp; i++)
-        if (rtn_prgm[i] == -3)
-            return true;
-    return false;
+    return rtn_integ_active;
 }
 
 bool unwind_stack_until_solve() {
-    while (rtn_prgm[--rtn_sp] != -2);
-    bool stop = rtn_stop_level >= rtn_sp;
-    if (stop)
-        rtn_stop_level = -1;
+    int prgm;
+    int4 pc;
+    bool stop;
+    do {
+        pop_rtn_addr(&prgm, &pc, &stop);
+    } while (prgm != -2);
     return stop;
 }
 
@@ -2649,6 +2848,17 @@ void hard_reset(int bad_state_file) {
     regs = new_realmatrix(25, 1);
     store_var("REGS", 4, regs);
 
+    /* Clear RTN stack */
+    if (rtn_stack != NULL)
+        free(rtn_stack);
+    rtn_stack_capacity = 16;
+    rtn_stack = (rtn_stack_entry *) malloc(rtn_stack_capacity * sizeof(rtn_stack_entry));
+    rtn_sp = 0;
+    rtn_level = 0;
+    rtn_stop_level = -1;
+    rtn_solve_active = false;
+    rtn_integ_active = false;
+
     /* Clear programs */
     if (prgms != NULL) {
         free(prgms);
@@ -2927,7 +3137,7 @@ bool write_arg(const arg_struct *arg) {
 #endif
 }
 
-static bool convert_programs() {
+static bool convert_programs(bool *clear_stack) {
     // This function is called if the setting of mode_decimal recorded in the
     // state file does not match the current setting (i.e., if we're a binary
     // Free42 and the state file was written by the decimal version, or vice
@@ -2939,32 +3149,41 @@ static bool convert_programs() {
     int saved_prgm = current_prgm;
     int4 saved_pc = pc;
     int i;
+    bool success = false;
+    *clear_stack = false;
 
     // Since converting programs can cause instructions to move, I have to
     // update all stored PC values to correct for this. PCs are stored in the
     // 'pc' and 'rtn_pc[]' globals. I copy those values into a local array,
     // which I then sort by program index and pc; this allows me to do the
     // updates very efficiently later on.
-    int mod_prgm[MAX_RTNS + 2];
-    int4 mod_pc[MAX_RTNS + 2];
-    int mod_sp[MAX_RTNS + 2];
+    int *mod_prgm = (int *) malloc((rtn_level + 2) * sizeof(int));
+    int4 *mod_pc = (int4 *) malloc((rtn_level + 2) * sizeof(int4));
+    int *mod_sp = (int *) malloc((rtn_level + 2) * sizeof(int));
+    if (mod_prgm == NULL || mod_pc == NULL || mod_sp == NULL) {
+        end:
+        free(mod_prgm);
+        free(mod_pc);
+        free(mod_sp);
+        return success;
+    }
     int mod_count = 0;
-    for (i = 0; i < rtn_sp; i++) {
-        int prgm = rtn_prgm[i];
-        if (prgm == -2 || prgm == -3) {
-            // Return-to-solve and return-to-integ
-            // On a binary/decimal mode switch, unpersist_math() discards all
-            // the SOLVE and INTEG state. If SOLVE or INTEG are actually
-            // active, we have to clear the RTN stack, too.
-            rtn_sp = 0;
-            rtn_stop_level = -1;
-            mod_count = 0;
-            break;
+    int sp = rtn_sp;
+    int4 hi_bit = -1;
+    hi_bit -= ((unsigned int4) hi_bit) >> 1;
+    if (rtn_solve_active || rtn_integ_active) {
+        *clear_stack = true;
+    } else {
+        for (i = 0; i < rtn_level; i++) {
+            sp--;
+            int4 prgm = rtn_stack[sp].prgm;
+            mod_prgm[mod_count] = prgm & ~hi_bit;
+            mod_pc[mod_count] = rtn_stack[sp].pc;
+            mod_sp[mod_count] = sp;
+            if ((prgm & hi_bit) != 0)
+                sp -= 2;
+            mod_count++;
         }
-        mod_prgm[mod_count] = prgm;
-        mod_pc[mod_count] = rtn_pc[i];
-        mod_sp[mod_count] = i;
-        mod_count++;
     }
     if (saved_pc > 0) {
         mod_prgm[mod_count] = current_prgm;
@@ -3014,7 +3233,7 @@ static bool convert_programs() {
                 else if (s == -2)
                     incomplete_saved_pc = pc;
                 else
-                    rtn_pc[s] = pc;
+                    rtn_stack[sp].pc = pc;
                 mod_count--;
             }
             int4 prevpc = pc;
@@ -3069,7 +3288,7 @@ static bool convert_programs() {
                             newtext = (unsigned char *) malloc(prgm->capacity);
                             if (newtext == NULL)
                                 // Failed to grow program; abort.
-                                return false;
+                                goto end;
                             for (pos = 0; pos < pc; pos++)
                                 newtext[pos] = prgm->text[pos];
                             for (pos = pc; pos < prgm->size; pos++)
@@ -3115,8 +3334,8 @@ static bool convert_programs() {
 
     current_prgm = saved_prgm;
     pc = saved_pc;
-
-    return true;
+    success = true;
+    goto end;
 }
 
 #ifdef BCD_MATH

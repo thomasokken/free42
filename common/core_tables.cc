@@ -427,7 +427,7 @@ static const command_spec cmd_array[] =
     { /* FPTEST */     "FPT\305ST",             6, docmd_fptest,      0x0000a7d2, ARG_NONE,  FLAG_NONE },
 
     /* Programming */
-    { /* LSTO */       "LSTO",                  4, NULL,              0x00c70000, ARG_OTHER, FLAG_HIDDEN },
+    { /* LSTO */       "LSTO",                  4, docmd_lsto,        0x00c7f2ed, ARG_NAMED, FLAG_NONE },
     { /* SST_UP */     "SST^",                  4, NULL,              0x02000000, ARG_NONE,  FLAG_NONE },
     { /* SST_RT */     "SST\017",               4, NULL,              0x02000000, ARG_NONE,  FLAG_NONE },
     { /* WSIZE */      "WSIZE",                 5, docmd_xrom,        0x0000a7d3, ARG_NONE,  FLAG_HIDDEN },

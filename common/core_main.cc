@@ -1458,7 +1458,7 @@ static int hp42ext[] = {
     CMD_DIM     | 0x0000,
     CMD_INPUT   | 0x0000,
     CMD_EDITN   | 0x0000,
-    CMD_NULL    | 0x4000,
+    CMD_LSTO    | 0x0000,
     CMD_NULL    | 0x4000,
     CMD_VARMENU | 0x1000,
     CMD_NULL    | 0x3000, /* KEYX IND name */
@@ -1466,7 +1466,7 @@ static int hp42ext[] = {
     CMD_DIM     | 0x1000,
     CMD_INPUT   | 0x1000,
     CMD_EDITN   | 0x1000,
-    CMD_NULL    | 0x4000,
+    CMD_LSTO    | 0x1000,
 
     /* DO-DF */
     CMD_INPUT    | 0x2000,
@@ -1500,7 +1500,7 @@ static int hp42ext[] = {
     CMD_INTEG  | 0x2000,
     CMD_SOLVE  | 0x2000,
     CMD_DIM    | 0x2000,
-    CMD_NULL   | 0x4000,
+    CMD_LSTO   | 0x2000,
     CMD_INPUT  | 0x2000,
     CMD_EDITN  | 0x2000,
 

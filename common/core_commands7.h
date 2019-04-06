@@ -43,4 +43,6 @@ int docmd_ymd(arg_struct *arg);
 
 int docmd_fptest(arg_struct *arg);
 
+int docmd_lsto(arg_struct *arg);
+
 #endif
