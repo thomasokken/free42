@@ -1,7 +1,14 @@
-????-??-??: release 2.2
+2019-04-06: release 2.2
 
 * Implemented YMD mode for date functions, using YYYY.MMDD as the numeric
-  format and YYYY-MM-DD as the display format.
+  format and YYYY-MM-DD as the display format. Programs can check whether this
+  mode is active by testing flag 67. If flag 67 is clear, the mode is indicated
+  by flag 31 (clear = MDY, set = DMY), as before.
+* Local variables. You create them with the new LSTO function, and they
+  disappear automatically when the current subroutine ends, by executing RTN or
+  END. If a local variable is created with a name that matches an already-
+  existing variable, the older variable is hidden until the local variable goes
+  away.
 * Dynamically growing RTN stack. It is not unlimited; in order to prevent
   infinite recursion from eating up all memory, it maxes out at 1024 levels.
   The new stack behaves a bit different than the old version (and the real
