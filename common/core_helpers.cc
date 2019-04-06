@@ -836,8 +836,10 @@ int dimension_array(const char *name, int namelen, int4 rows, int4 columns, bool
         newmatrix = new_realmatrix(rows, columns);
         if (newmatrix == NULL)
             return ERR_INSUFFICIENT_MEMORY;
-        store_var(name, namelen, newmatrix);
-        return ERR_NONE;
+        int err = store_var(name, namelen, newmatrix);
+        if (err != ERR_NONE)
+            free_vartype(newmatrix);
+        return err;
     } else if (size == 0) {
         purge_var(name, namelen);
         return ERR_NONE;

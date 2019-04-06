@@ -1314,6 +1314,8 @@ static int matabx(int which) {
             if (mata->type != TYPE_REALMATRIX && mata->type != TYPE_COMPLEXMATRIX)
                 return ERR_INVALID_TYPE;
 
+            if (!ensure_var_space(1))
+                return ERR_INSUFFICIENT_MEMORY;
             if (mata->type == TYPE_REALMATRIX && matb->type == TYPE_REALMATRIX)
                 matx_v = new_real(0);
             else
@@ -1381,6 +1383,9 @@ int docmd_simq(arg_struct *arg) {
     dim = arg->val.num;
     if (dim <= 0)
         return ERR_DIMENSION_ERROR;
+
+    if (!ensure_var_space(3))
+        return ERR_INSUFFICIENT_MEMORY;
 
     m = recall_var("MATA", 4);
     if (m != NULL && (m->type == TYPE_REALMATRIX || m->type == TYPE_COMPLEXMATRIX)) {

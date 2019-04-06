@@ -70,8 +70,7 @@ error_spec errors[] = {
     { /* INTERRUPTIBLE */          NULL,                       0 },
     { /* NO_VARIABLES */           "No Variables",            12 },
     { /* SUSPICIOUS_OFF */         "Suspicious OFF",          14 },
-    { /* RTN_STACK_FULL */         "RTN Stack Full",          14 },
-    { /* HIDING_EDITN_MATRIX */    "Hiding EDITN Matrix",     19 }
+    { /* RTN_STACK_FULL */         "RTN Stack Full",          14 }
 };
 
 
@@ -2271,13 +2270,13 @@ int push_rtn_addr(int prgm, int4 pc) {
     return ERR_NONE;
 }
 
-int push_indexed_matrix(int len, const char *name) {
+int push_indexed_matrix(const char *name, int len) {
     if (matedit_mode == 0 || matedit_mode == 2)
         return ERR_NONE;
     if (!string_equals(name, len, matedit_name, matedit_length))
         return ERR_NONE;
     if (matedit_mode == 3)
-        return ERR_HIDING_EDITN_MATRIX;
+        return ERR_RESTRICTED_OPERATION;
     
     if (rtn_level == 0) {
         if (rtn_level_0_has_matrix_entry)
@@ -2333,16 +2332,16 @@ int push_indexed_matrix(int len, const char *name) {
 
 void step_out() {
     if (rtn_sp > 0)
-        rtn_stop_level = rtn_sp - 1;
+        rtn_stop_level = rtn_level - 1;
 }
 
 void step_over() {
     if (rtn_sp >= 0)
-        rtn_stop_level = rtn_sp;
+        rtn_stop_level = rtn_level;
 }
 
 bool should_i_stop_at_this_level() {
-    bool stop = rtn_stop_level >= rtn_sp;
+    bool stop = rtn_stop_level >= rtn_level;
     if (stop)
         rtn_stop_level = -1;
     return stop;
@@ -2395,6 +2394,7 @@ void pop_rtn_addr(int *prgm, int4 *pc, bool *stop) {
             memcpy(&e2, &rtn_stack[--rtn_sp], sizeof(e2));
             matedit_i = e2.i;
             matedit_j = e2.j;
+            matedit_mode = 1;
         }
     } else {
         rtn_sp--;
@@ -2404,7 +2404,7 @@ void pop_rtn_addr(int *prgm, int4 *pc, bool *stop) {
         hi_bit -= ((unsigned int4) hi_bit) >> 1;
         *prgm = tprgm & ~hi_bit;
         *pc = rtn_stack[rtn_sp].pc;
-        if (rtn_stop_level >= rtn_sp) {
+        if (rtn_stop_level >= rtn_level) {
             *stop = true;
             rtn_stop_level = -1;
         } else

@@ -30,6 +30,8 @@ static bool preserve_ij;
 
 
 static int apply_sto_operation(char operation, vartype *oldval) {
+    if (!ensure_var_space(1))
+        return ERR_INSUFFICIENT_MEMORY;
     vartype *newval;
     int error;
     switch (operation) {
@@ -585,8 +587,10 @@ int generic_sto(arg_struct *arg, char operation) {
                 newval = dup_vartype(reg_x);
                 if (newval == NULL)
                     return ERR_INSUFFICIENT_MEMORY;
-                store_var(arg->val.text, arg->length, newval);
-                return ERR_NONE;
+                int err = store_var(arg->val.text, arg->length, newval);
+                if (err != ERR_NONE)
+                    free_vartype(newval);
+                return err;
             } else {
                 /* When EDITN is active, don't allow the matrix being edited to
                  * be multiplied by another matrix, since this could cause the

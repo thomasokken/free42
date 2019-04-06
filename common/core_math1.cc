@@ -242,7 +242,11 @@ static int call_solve_fn(int which, int state) {
         v = new_real(x);
         if (v == NULL)
             return ERR_INSUFFICIENT_MEMORY;
-        store_var(solve.var_name, solve.var_length, v);
+        err = store_var(solve.var_name, solve.var_length, v);
+        if (err != ERR_NONE) {
+            free_vartype(v);
+            return err;
+        }
     } else
         ((vartype_real *) v)->x = x;
     solve.which = which;
@@ -857,7 +861,11 @@ static int call_integ_fn() {
         v = new_real(x);
         if (v == NULL)
             return ERR_INSUFFICIENT_MEMORY;
-        store_var(integ.var_name, integ.var_length, v);
+        err = store_var(integ.var_name, integ.var_length, v);
+        if (err != NULL) {
+            free_vartype(v);
+            return err;
+        }
     } else
         ((vartype_real *) v)->x = x;
     arg.type = ARGTYPE_STR;
