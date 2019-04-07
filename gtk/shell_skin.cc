@@ -458,8 +458,8 @@ void skin_load(int *width, int *height) {
                     ann->src.y = act_y;
                 }
             }
-        } else if (strchr(line, ':') != NULL) {
-            keymap_entry *entry = parse_keymap_entry(line, lineno);
+        } else if (strncasecmp(line, "gtkkey:", 7) == 0) {
+            keymap_entry *entry = parse_keymap_entry(line + 7, lineno);
             if (entry != NULL) {
                 if (keymap_length == kmcap) {
                     kmcap += 50;

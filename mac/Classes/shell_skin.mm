@@ -518,8 +518,8 @@ void skin_load(long *width, long *height) {
                     ann->src.y = act_y;
                 }
             }
-        } else if (strchr(line, ':') != 0) {
-            keymap_entry *entry = parse_keymap_entry(line, lineno);
+        } else if (strncasecmp(line, "mackey:", 7) == 0) {
+            keymap_entry *entry = parse_keymap_entry(line + 7, lineno);
             if (entry != NULL) {
                 if (keymap_length == kmcap) {
                     kmcap += 50;

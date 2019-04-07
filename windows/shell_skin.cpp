@@ -462,8 +462,8 @@ void skin_load(char *skinname, const char *basedir, long *width, long *height) {
                     ann->src.y = act_y;
                 }
             }
-        } else if (strchr(line, ':') != 0) {
-            keymap_entry *entry = parse_keymap_entry(line, lineno);
+        } else if (_strnicmp(line, "winkey:", 7) == 0) {
+            keymap_entry *entry = parse_keymap_entry(line + 7, lineno);
             if (entry != NULL) {
                 if (keymap_length == kmcap) {
                     kmcap += 50;
