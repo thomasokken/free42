@@ -466,12 +466,14 @@ void purge_var(const char *name, int namelength) {
         // Won't delete local var not created at this level
         return;
     free_vartype(vars[varindex].value);
-    if (vars[varindex].hiding)
+    if (vars[varindex].hiding) {
         for (int i = varindex - 1; i >= 0; i--)
-            if (vars[i].hidden && string_equals(vars[i].name, vars[i].length, vars[varindex].name, vars[varindex].length)) {
+            if (vars[i].hidden && string_equals(vars[i].name, vars[i].length, name, namelength)) {
                 vars[i].hidden = false;
                 break;
             }
+        pop_indexed_matrix(name, namelength);
+    }
     for (int i = varindex; i < vars_count - 1; i++)
         vars[i] = vars[i + 1];
     vars_count--;

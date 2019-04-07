@@ -2424,6 +2424,44 @@ void pop_rtn_addr(int *prgm, int4 *pc, bool *stop) {
     }
 }
 
+void pop_indexed_matrix(const char *name, int namelen) {
+    if (rtn_level == 0) {
+        if (rtn_level_0_has_matrix_entry) {
+            rtn_stack_matrix_name_entry e1;
+            memcpy(&e1, &rtn_stack[rtn_sp - 1], sizeof(e1));
+            if (string_equals(e1.name, e1.length, name, namelen)) {
+                rtn_level_0_has_matrix_entry = false;
+                string_copy(matedit_name, &matedit_length, e1.name, e1.length);
+                rtn_stack_matrix_ij_entry e2;
+                memcpy(&e2, &rtn_stack[rtn_sp - 2], sizeof(e2));
+                matedit_i = e2.i;
+                matedit_j = e2.j;
+                matedit_mode = 1;
+                rtn_sp -= 2;
+            }
+        }
+    } else {
+        int4 tprgm = rtn_stack[rtn_sp - 1].prgm;
+        int4 hi_bit = -1;
+        hi_bit -= ((unsigned int4) hi_bit) >> 1;
+        if ((tprgm & hi_bit) != 0) {
+            rtn_stack_matrix_name_entry e1;
+            memcpy(&e1, &rtn_stack[rtn_sp - 2], sizeof(e1));
+            if (string_equals(e1.name, e1.length, name, namelen)) {
+                string_copy(matedit_name, &matedit_length, e1.name, e1.length);
+                rtn_stack_matrix_ij_entry e2;
+                memcpy(&e2, &rtn_stack[rtn_sp - 3], sizeof(e2));
+                matedit_i = e2.i;
+                matedit_j = e2.j;
+                matedit_mode = 1;
+                rtn_stack[rtn_sp - 3].prgm = tprgm & ~hi_bit;
+                rtn_stack[rtn_sp - 3].pc = rtn_stack[rtn_sp - 1].pc;
+                rtn_sp -= 2;
+            }
+        }
+    }
+}
+
 void clear_all_rtns() {
     int dummy1;
     int4 dummy2;
