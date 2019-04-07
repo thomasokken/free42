@@ -1,4 +1,8 @@
-2019-04-06: release 2.1.2
+2019-04-06: release 2.1.3 (test)
+
+* Fixed memory corruption in SOLVE and INTEG, introduced in 2.1.2.
+
+2019-04-06: release 2.1.2 (test)
 
 * Implemented YMD mode for date functions, using YYYY.MMDD as the numeric
   format and YYYY-MM-DD as the display format. Programs can check whether this

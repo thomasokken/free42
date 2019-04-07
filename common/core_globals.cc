@@ -1452,23 +1452,24 @@ static bool unpersist_globals(int4 ver) {
         rtn_level_0_has_matrix_entry = false;
         rtn_stack_capacity = 16;
         rtn_stack = (rtn_stack_entry *) realloc(rtn_stack, rtn_stack_capacity * sizeof(rtn_stack_entry));
+        int4 hi_bit = -1;
+        hi_bit -= ((unsigned int4) hi_bit) >> 1;
+        rtn_solve_active = false;
+        rtn_integ_active = false;
         for (i = 0; i < 8; i++) {
             int prgm;
             if (shell_read_saved_state(&prgm, sizeof(int)) != sizeof(int))
                 goto done;
-            rtn_stack[i].prgm = prgm;
+            rtn_stack[i].prgm = prgm & ~hi_bit;
+            if (i < rtn_sp)
+                if (prgm == -2)
+                    rtn_solve_active = true;
+                else if (prgm == -3)
+                    rtn_integ_active = true;
         }
         for (i = 0; i < 8; i++)
             if (shell_read_saved_state(&rtn_stack[i].pc, sizeof(int4)) != sizeof(int4))
                 goto done;
-        rtn_solve_active = false;
-        rtn_integ_active = false;
-        for (i = 0; i < rtn_sp; i++) {
-            if (rtn_stack[i].prgm == -2)
-                rtn_solve_active = true;
-            else if (rtn_stack[i].prgm == -3)
-                rtn_integ_active = true;
-        }
     }
 #ifdef IPHONE
     if (ver >= 17)
@@ -2259,7 +2260,9 @@ int push_rtn_addr(int prgm, int4 pc) {
         rtn_stack_capacity = new_rtn_stack_capacity;
         rtn_stack = new_rtn_stack;
     }
-    rtn_stack[rtn_sp].prgm = prgm;
+    int4 hi_bit = -1;
+    hi_bit -= ((unsigned int4) hi_bit) >> 1;
+    rtn_stack[rtn_sp].prgm = prgm & ~hi_bit;
     rtn_stack[rtn_sp].pc = pc;
     rtn_sp++;
     rtn_level++;
@@ -2403,6 +2406,9 @@ void pop_rtn_addr(int *prgm, int4 *pc, bool *stop) {
         int4 hi_bit = -1;
         hi_bit -= ((unsigned int4) hi_bit) >> 1;
         *prgm = tprgm & ~hi_bit;
+        // Fix sign, or -2 and -3 won't work!
+        if ((tprgm & (hi_bit >> 1)) != 0)
+            *prgm |= hi_bit;
         *pc = rtn_stack[rtn_sp].pc;
         if (rtn_stop_level >= rtn_level) {
             *stop = true;
