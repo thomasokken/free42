@@ -62,7 +62,6 @@
 #define ERR_NO_VARIABLES           31
 #define ERR_SUSPICIOUS_OFF         32
 #define ERR_RTN_STACK_FULL         33
-#define ERR_HIDING_EDITN_MATRIX    34
 
 typedef struct {
     const char *text;
