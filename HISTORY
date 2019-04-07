@@ -1,6 +1,6 @@
-????-??-??: release 2.2
+2019-04-07: release 2.1.5 (test) (Windows, Mac, and Linux)
 
-* Windows, MacOS, and Linux versions: In skin layout files, they now look for
+* Windows, Mac, and Linux versions: In skin layout files, they now look for
   keymap entries tagged as "WinKey:", "MacKey:", or "GtkKey:", respectively.
   This allows embedding keymaps for multiple platforms in one layout file.
   This does mean that old-style keymap entries, with no identifying tags, are
@@ -8,7 +8,7 @@
   affected skins are desktop/42ck and desktop/42ct. If you use these skins,
   you'll want to download the updated layout files.
 
-2019-04-06: release 2.1.4 (test) (Android only)
+2019-04-07: release 2.1.4 (test) (Android only)
 
 * Fixed error reading zero-length chunks from state file, which would cause
   State File Corrupt, even though it wasn't.
