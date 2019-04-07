@@ -862,7 +862,7 @@ static int call_integ_fn() {
         if (v == NULL)
             return ERR_INSUFFICIENT_MEMORY;
         err = store_var(integ.var_name, integ.var_length, v);
-        if (err != NULL) {
+        if (err != ERR_NONE) {
             free_vartype(v);
             return err;
         }
