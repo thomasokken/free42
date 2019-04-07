@@ -1,3 +1,8 @@
+2019-04-06: release 2.1.4 (test) (Android only)
+
+* Fixed error reading zero-length chunks from state file, which would cause
+  State File Corrupt, even though it wasn't.
+
 2019-04-06: release 2.1.3 (test)
 
 * Fixed memory corruption in SOLVE and INTEG, introduced in 2.1.2.

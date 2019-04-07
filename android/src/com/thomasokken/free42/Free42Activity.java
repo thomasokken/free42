@@ -1675,6 +1675,8 @@ public class Free42Activity extends Activity {
     public int shell_read_saved_state(byte[] buf) {
         if (stateFileInputStream == null)
             return -1;
+        if (buf.length == 0)
+            return 0;
         try {
             int n = stateFileInputStream.read(buf);
             if (n <= 0) {
