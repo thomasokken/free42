@@ -262,9 +262,7 @@ public class Free42Activity extends Activity {
     }
     
     @Override
-    protected void onResume() {
-        super.onResume();
-        
+    protected void onStart() {
         // Check battery level -- this is necessary because the ACTTON_BATTERY_LOW
         // and ACTION_BATTERY_OKAY intents are not "sticky", i.e., we get those
         // notifications only when that status *changes*; we don't get any indication
@@ -283,6 +281,8 @@ public class Free42Activity extends Activity {
 
         if (core_powercycle())
             start_core_keydown();
+        
+        super.onStart();
     }
     
     @Override
@@ -297,7 +297,7 @@ public class Free42Activity extends Activity {
     }
 
     @Override
-    protected void onPause() {
+    protected void onStop() {
         end_core_keydown();
         // Write state file
         File filesDir = getFilesDir();
@@ -344,15 +344,20 @@ public class Free42Activity extends Activity {
             } catch (IOException e) {}
             printGifFile = null;
         }
-        super.onPause();
+        super.onStop();
     }
     
     @Override
     protected void onDestroy() {
         // N.B. In the Android build, core_quit() does not write the
-        // core state; we assume that onPause() has been called previously,
+        // core state; we assume that onStop() has been called previously,
         // and its core_enter_background() call takes care of saving state.
         // All this core_quit() call does it free up memory.
+        // TODO -- In Android builds, core_quit() currently doesn't even
+        // free up memory. If we ever do want that to happen, i.e. in order
+        // to debug memory leaks in the native code, this should be handled
+        // by breaking the memory deallocation code into a separate function.
+        // The whole life-cycle thing, as it is right now, is too confusing.
         core_quit();
         if (lowBatteryReceiver != null) {
             unregisterReceiver(lowBatteryReceiver);
