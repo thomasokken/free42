@@ -1812,14 +1812,12 @@ void shell_beeper(int frequency, int duration) {
 			PlaySound(MAKEINTRESOURCE(sound_ids[i]),
 				GetModuleHandle(NULL),
 				SND_RESOURCE);
-			//shell_delay(250);
             return;
         }
     }
 	PlaySound(MAKEINTRESOURCE(IDR_SQUEAK_WAVE),
 		GetModuleHandle(NULL),
 		SND_RESOURCE);
-    //shell_delay(125);
     Beep(frequency, duration);
 }
 
