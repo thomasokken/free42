@@ -1803,6 +1803,23 @@ void shell_blitter(const char *bits, int bytesperline, int x, int y,
 }
 
 void shell_beeper(int frequency, int duration) {
+    const int cutoff_freqs[] = { 164, 220, 243, 275, 293, 324, 366, 418, 438, 550 };
+	const int sound_ids[] = { IDR_TONE0_WAVE, IDR_TONE1_WAVE, IDR_TONE2_WAVE,
+		 IDR_TONE3_WAVE, IDR_TONE4_WAVE, IDR_TONE5_WAVE, IDR_TONE6_WAVE,
+		 IDR_TONE7_WAVE, IDR_TONE8_WAVE, IDR_TONE9_WAVE };
+    for (int i = 0; i < 10; i++) {
+        if (frequency <= cutoff_freqs[i]) {
+			PlaySound(MAKEINTRESOURCE(sound_ids[i]),
+				GetModuleHandle(NULL),
+				SND_RESOURCE);
+			//shell_delay(250);
+            return;
+        }
+    }
+	PlaySound(MAKEINTRESOURCE(IDR_SQUEAK_WAVE),
+		GetModuleHandle(NULL),
+		SND_RESOURCE);
+    //shell_delay(125);
     Beep(frequency, duration);
 }
 

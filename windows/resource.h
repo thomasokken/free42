@@ -25,6 +25,17 @@
 #define IDB_BATTERY                     138
 #define IDD_PREFERENCES                 139
 #define IDD_SELECTPROGRAM               140
+#define IDR_TONE0_WAVE                  141
+#define IDR_TONE1_WAVE                  142
+#define IDR_TONE2_WAVE                  143
+#define IDR_TONE3_WAVE                  144
+#define IDR_TONE4_WAVE                  145
+#define IDR_TONE5_WAVE                  146
+#define IDR_TONE6_WAVE                  147
+#define IDR_TONE7_WAVE                  148
+#define IDR_TONE8_WAVE                  149
+#define IDR_TONE9_WAVE                  150
+#define IDR_SQUEAK_WAVE                 151
 #define IDC_MATRIX_SINGULARMATRIX       1000
 #define IDC_MATRIX_OUTOFRANGE           1001
 #define IDC_AUTO_REPEAT                 1002
@@ -58,7 +69,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        141
+#define _APS_NEXT_RESOURCE_VALUE        152
 #define _APS_NEXT_COMMAND_VALUE         32779
 #define _APS_NEXT_CONTROL_VALUE         1019
 #define _APS_NEXT_SYMED_VALUE           110
