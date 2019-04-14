@@ -1546,7 +1546,7 @@ static void show_printout() {
     }
 
     RECT r;
-    SetRect(&r, 0, 0, 286, 600);
+    SetRect(&r, 0, 0, 358, 600);
     printOutHeight = r.bottom - r.top;
     AdjustWindowRect(&r, WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX
                             /*|WS_MAXIMIZEBOX*/|WS_SIZEBOX|WS_OVERLAPPED, 0);
@@ -1709,31 +1709,41 @@ static void repaint_printout(HDC hdc, int destpos, int x, int y,
     if (printout_bottom >= printout_top)
         /* The buffer is not wrapped */
         BitBlt(hdc, xdest, ydest, width, height,
-                memdc, x, printout_top + y, SRCCOPY);
+                memdc, x - 36, printout_top + y, SRCCOPY);
     else {
         /* The buffer is wrapped */
         if (printout_top + y < PRINT_LINES) {
             if (printout_top + y + height <= PRINT_LINES)
                 /* The rectangle is in the lower part of the buffer */
                 BitBlt(hdc, xdest, ydest, width, height,
-                        memdc, x, printout_top + y, SRCCOPY);
+                        memdc, x - 36, printout_top + y, SRCCOPY);
             else {
                 /* The rectangle spans both parts of the buffer */
                 int part1_height = PRINT_LINES - printout_top - y;
                 int part2_height = height - part1_height;
                 BitBlt(hdc, xdest, ydest, width, part1_height,
-                        memdc, x, printout_top + y, SRCCOPY);
+                        memdc, x - 36, printout_top + y, SRCCOPY);
                 BitBlt(hdc, xdest, ydest + part1_height, width, part2_height,
-                        memdc, x, 0, SRCCOPY);
+                        memdc, x - 36, 0, SRCCOPY);
             }
         } else
             /* The rectangle is in the upper part of the buffer */
             BitBlt(hdc, xdest, ydest, width, height,
-                    memdc, x, y + printout_top - PRINT_LINES, SRCCOPY);
+                    memdc, x - 36, y + printout_top - PRINT_LINES, SRCCOPY);
     }
 
     DeleteDC(memdc);
     DeleteObject(bitmap);
+
+    HBRUSH brush = (HBRUSH) GetStockObject(WHITE_BRUSH);
+    SelectObject(hdc, brush);
+    RECT r;
+    SetRect(&r, 0, ydest,
+                36, ydest + height);
+    FillRect(hdc, &r, brush);
+    SetRect(&r, 322, ydest,
+                358, ydest + height);
+    FillRect(hdc, &r, brush);
 
     if (validate) {
         RECT r;
@@ -2027,13 +2037,13 @@ void shell_print(const char *text, int length,
             if (newlength != oldlength)
                 printout_length_changed();
             printout_scroll_to_bottom(2 * height + oldlength - newlength);
-            repaint_printout(0, newlength - 2 * height, 286, 2 * height, 1);
+            repaint_printout(0, newlength - 2 * height, 358, 2 * height, 1);
         }
     } else {
         if (hPrintOutWnd != NULL) {
             printout_length_changed();
             printout_scroll_to_bottom(0);
-            repaint_printout(0, oldlength, 286, 2 * height, 1);
+            repaint_printout(0, oldlength, 358, 2 * height, 1);
         }
     }
 
