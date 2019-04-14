@@ -524,7 +524,7 @@ int main(int argc, char *argv[]) {
     GtkWidget *view = gtk_viewport_new(NULL, NULL);
     gtk_container_add(GTK_CONTAINER(scroll), view);
     print_widget = gtk_drawing_area_new();
-    gtk_widget_set_size_request(print_widget, 286, printout_bottom);
+    gtk_widget_set_size_request(print_widget, 358, printout_bottom);
     gtk_container_add(GTK_CONTAINER(view), print_widget);
     print_adj = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scroll));
     g_signal_connect(G_OBJECT(print_widget), "expose_event", G_CALLBACK(print_expose_cb), NULL);
@@ -534,8 +534,8 @@ int main(int argc, char *argv[]) {
     gtk_widget_show(scroll);
 
     GdkGeometry geom;
-    geom.min_width = 286;
-    geom.max_width = 286;
+    geom.min_width = 358;
+    geom.max_width = 358;
     geom.min_height = 1;
     geom.max_height = 32767;
     gtk_window_set_geometry_hints(GTK_WINDOW(printwindow), print_widget, &geom, GdkWindowHints(GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE));
@@ -1232,7 +1232,7 @@ static void importProgramCB() {
 static void clearPrintOutCB() {
     printout_top = 0;
     printout_bottom = 0;
-    gtk_widget_set_size_request(print_widget, 286, 1);
+    gtk_widget_set_size_request(print_widget, 358, 1);
 
     if (print_gif != NULL) {
         shell_finish_gif(gif_seeker, gif_writer);
@@ -1850,9 +1850,11 @@ static void repaint_printout(int x, int y, int width, int height) {
         guchar *dst = d1;
         for (int h = x; h < x + width; h++) {
             unsigned char c;
-            if (h >= 286 || v >= length)
+            if (v >= length)
                 c = 127;
-            else if ((print_bitmap[v3 + (h >> 3)] & (1 << (h & 7))) == 0)
+            else if (h < 36 || h >= 322)
+                c = 255;
+            else if ((print_bitmap[v3 + ((h - 36) >> 3)] & (1 << ((h - 36) & 7))) == 0)
                 c = 255;
             else
                 c = 0;
@@ -2163,7 +2165,7 @@ static gboolean print_widget_grew(GtkWidget *w, GdkEventConfigure *event,
                                                                 gpointer cd) {
     print_growth_info *info = (print_growth_info *) cd;
     scroll_printout_to_bottom();
-    repaint_printout(0, info->y, 286, info->height);
+    repaint_printout(0, info->y, 358, info->height);
     g_signal_handlers_disconnect_by_func(G_OBJECT(w), (gpointer) print_widget_grew, cd);
     delete info;
     return FALSE;
@@ -2206,16 +2208,16 @@ void shell_print(const char *text, int length,
         printout_top = (printout_bottom + 2) % PRINT_LINES;
         newlength = PRINT_LINES - 2;
         if (newlength != oldlength)
-            gtk_widget_set_size_request(print_widget, 286, newlength);
+            gtk_widget_set_size_request(print_widget, 358, newlength);
         scroll_printout_to_bottom();
         offset = 2 * height - newlength + oldlength;
         if (print_gc == NULL)
             print_gc = gdk_gc_new(print_widget->window);
         gdk_draw_drawable(print_widget->window, print_gc, print_widget->window,
-                          0, offset, 0, 0, 286, oldlength - offset);
-        repaint_printout(0, newlength - 2 * height, 286, 2 * height);
+                          0, offset, 0, 0, 358, oldlength - offset);
+        repaint_printout(0, newlength - 2 * height, 358, 2 * height);
     } else {
-        gtk_widget_set_size_request(print_widget, 286, newlength);
+        gtk_widget_set_size_request(print_widget, 358, newlength);
         // The resize request does not take effect immediately;
         // if I call scroll_printout_to_bottom() now, the scrolling will take
         // place *before* the resizing, leaving the scroll bar in the wrong
