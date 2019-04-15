@@ -6,6 +6,7 @@
   in the Android, iOS, and Mac versions. (The MacDashboard version doesn't
   play sounds and the GTK version generates waveforms on the fly and plays them
   using ALSA.)
+* MacDashboard version: Didn't recognize comma as decimal key. Fixed.
 
 2019-04-07: release 2.2
 

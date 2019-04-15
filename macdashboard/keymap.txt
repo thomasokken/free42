@@ -79,6 +79,7 @@ Shift 95        : 28 32   # PRINT
 Shift 27        : 28 33   # OFF
 48              : 34      # 0
 Shift 41        : 28 34   # TOP.FCN
+44              : 35      # .
 46              : 35      # .
 Shift 62        : 28 35   # SHOW
 Shift 60        : 28 35   # SHOW
