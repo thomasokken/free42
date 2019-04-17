@@ -265,7 +265,7 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
         [mainWindow setFrameOrigin:pt];
     }
     
-    sz.width = 301;
+    sz.width = 373;
     sz.height = state.printWindowKnown ? state.printWindowHeight : 600;
     [printWindow setContentSize:sz];
     [printView initialUpdate];
@@ -464,7 +464,7 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
 - (IBAction) clearPrintOut:(id)sender {
     printout_top = printout_bottom = 0;
     NSSize s;
-    s.width = 286;
+    s.width = 358;
     s.height = 0;
     [printView setFrameSize:s];
 }
