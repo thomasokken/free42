@@ -368,12 +368,26 @@ public class Free42Activity extends Activity {
     
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (printViewShowing && keyCode == KeyEvent.KEYCODE_BACK) {
-            doFlipCalcPrintout();
+        if (keyCode == KeyEvent.KEYCODE_BACK
+                && event.getRepeatCount() == 0) {
+            event.startTracking();
             return true;
-        } else {
-            return super.onKeyDown(keyCode, event);
         }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.isTracking()
+                && !event.isCanceled()) {
+            if (printViewShowing) {
+                doFlipCalcPrintout();
+                return true;
+            } else {
+                return super.onKeyUp(keyCode, event);
+            }
+        }
+        return super.onKeyUp(keyCode, event);
     }
     
     @Override
