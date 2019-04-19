@@ -1069,30 +1069,26 @@ void shell_print(const char *text, int length,
     int oldlength, newlength;
     
     for (yy = 0; yy < height; yy++) {
-        int4 Y = (printout_bottom + 2 * yy) % PRINT_LINES;
+        int4 Y = (printout_bottom + yy) % PRINT_LINES;
         for (xx = 0; xx < 143; xx++) {
-            int bit, px, py;
+            int bit;
             if (xx < width) {
                 char c = bits[(y + yy) * bytesperline + ((x + xx) >> 3)];
                 bit = (c & (1 << ((x + xx) & 7))) != 0;
             } else
                 bit = 0;
-            for (px = xx * 2; px < (xx + 1) * 2; px++)
-                for (py = Y; py < Y + 2; py++)
-                    if (bit)
-                        print_bitmap[py * PRINT_BYTESPERLINE + (px >> 3)]
-                        |= 1 << (px & 7);
-                    else
-                        print_bitmap[py * PRINT_BYTESPERLINE + (px >> 3)]
-                        &= ~(1 << (px & 7));
+            if (bit)
+                print_bitmap[Y * PRINT_BYTESPERLINE + (xx >> 3)] |= 1 << (xx & 7);
+            else
+                print_bitmap[Y * PRINT_BYTESPERLINE + (xx >> 3)] &= ~(1 << (xx & 7));
         }
     }
     
     oldlength = printout_bottom - printout_top;
     if (oldlength < 0)
         oldlength += PRINT_LINES;
-    printout_bottom = (printout_bottom + 2 * height) % PRINT_LINES;
-    newlength = oldlength + 2 * height;
+    printout_bottom = (printout_bottom + height) % PRINT_LINES;
+    newlength = oldlength + height;
     
     update_params *params = new update_params;
     params->oldlength = oldlength;

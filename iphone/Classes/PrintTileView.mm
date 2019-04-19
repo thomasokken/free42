@@ -43,7 +43,7 @@
     //CGContextFillRect(myContext, rect);
     CGContextSetRGBFillColor(myContext, 0.0, 0.0, 0.0, 1.0);
     int xmin = (int) rect.origin.x;
-    int xmax = (int) (rect.origin.x + 288);
+    int xmax = (int) (rect.origin.x + 144);
     int ymin = (int) rect.origin.y;
     int ymax = (int) (rect.origin.y + rect.size.height);
     int length = printout_bottom - printout_top;

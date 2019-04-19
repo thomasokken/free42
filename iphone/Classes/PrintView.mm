@@ -90,7 +90,7 @@ int printout_bottom;
     //int height = ppar->height;
     delete ppar;
     if (newlength >= PRINT_LINES) {
-        printout_top = (printout_bottom + 2) % PRINT_LINES;
+        printout_top = (printout_bottom + 1) % PRINT_LINES;
         [self repositionTiles:true];
     } else {
         [self repositionTiles:false];
