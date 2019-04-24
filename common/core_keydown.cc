@@ -92,6 +92,10 @@ static void view(const char *varname, int varlength) {
 void keydown(int shift, int key) {
     int *menu;
 
+    // Preserve state of Shift, to allow MENU handlers to implement
+    // different behaviors for unshifted and shifted menu keys.
+    flags.f.shift_state = shift;
+
     pending_command = CMD_NONE;
 
     if (key >= 1024 && key < 2048) {

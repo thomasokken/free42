@@ -339,7 +339,7 @@ typedef union {
         char log_fit_invalid;
         char exp_fit_invalid;
         char pwr_fit_invalid;
-        char f64;
+        char shift_state; /* For use by MENU handlers */
         char VIRTUAL_matrix_editor;
         char grow;
         char ymd; /* Programming extension YMD mode; overrides dmy flag */
