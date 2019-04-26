@@ -506,7 +506,7 @@ static void shell_keyup() {
 //
 //
 static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-    //static FILE *logfile = fopen("C:\\Windows\\Desktop\\log.txt", "w");
+    //static FILE *logfile = fopen("C:/Users/thomas/Desktop/log.txt", "w");
     //fprintf(logfile, "message=%s wParam=0x%x lParam=0x%lx\n", msg2string(message), wParam, lParam);
     //fflush(logfile);
 

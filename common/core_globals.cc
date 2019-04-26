@@ -2978,7 +2978,7 @@ void hard_reset(int bad_state_file) {
     flags.f.log_fit_invalid = 0;
     flags.f.exp_fit_invalid = 0;
     flags.f.pwr_fit_invalid = 0;
-    flags.f.f64 = 0;
+    flags.f.shift_state = 0;
     /* flags.f.VIRTUAL_matrix_editor = 0; */
     flags.f.grow = 0;
     flags.f.ymd = 0;
