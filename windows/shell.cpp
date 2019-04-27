@@ -469,7 +469,7 @@ static void shell_keydown() {
 				repeat = 0;
 			}
 		}
-    } else
+	} else
         running = core_keydown(ckey, &enqueued, &repeat);
     if (!running) {
         if (repeat != 0)
@@ -507,8 +507,8 @@ static void shell_keyup() {
 //
 static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     //static FILE *logfile = fopen("C:/Users/thomas/Desktop/log.txt", "w");
-    //fprintf(logfile, "message=%s wParam=0x%x lParam=0x%lx\n", msg2string(message), wParam, lParam);
-    //fflush(logfile);
+	//fprintf(logfile, "message=%s wParam=0x%x lParam=0x%lx\n", msg2string(message), wParam, lParam);
+	//fflush(logfile);
 
     switch (message) {
         case WM_COMMAND: {
@@ -643,18 +643,22 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
                 just_pressed_shift = true;
                 goto do_default;
             }
-            if ((message == WM_KEYDOWN || message == WM_SYSKEYDOWN)
-                    && !ctrl_down
-                    && (virtKey == 8 // Backspace
-                    || virtKey == 9 // Tab
-                    || virtKey == 13 // Enter
-                    || (virtKey == 27 && !shift_down) // Escape
-                    || virtKey == 32 // Space
-                    || (virtKey >= 48 && virtKey < 112)
-                    || (virtKey >= 0xB0 && virtKey < 0xF0)))
+            if (message == WM_KEYDOWN || message == WM_SYSKEYDOWN)
                 // Keystrokes that will be followed by a WM_CHAR
                 // message; we defer handling them until then.
-                break;
+				if (ctrl_down) {
+					if (virtKey >= 65 && virtKey <= 90) // Ctrl-A ... Ctrl-Z
+						break;
+				} else {
+                    if (virtKey == 8 // Backspace
+							|| virtKey == 9 // Tab
+							|| virtKey == 13 // Enter
+							|| (virtKey == 27 && !shift_down) // Escape
+							|| virtKey == 32 // Space
+							|| (virtKey >= 48 && virtKey < 112)
+							|| (virtKey >= 0xB0 && virtKey < 0xF0))
+					   break;
+				}
 
             if (ckey == 0 || !mouse_key) {
                 int i;
