@@ -433,11 +433,12 @@ public class SkinLayout {
 //      && alt == entry->alt
 //      && (printable || shift == entry->shift)
 //      && keyval == entry->keyval) {
-//      macro = entry->macro;
 //      if (cshift == entry->cshift) {
 //      *exact = true;
-//      return macro;
+//      return entry->macro;
 //      }
+//      if (cshift)
+//      macro = entry->macro;
 //  }
 //    }
 //    *exact = false;

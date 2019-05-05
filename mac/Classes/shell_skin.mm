@@ -830,11 +830,12 @@ unsigned char *skin_keymap_lookup(unsigned short keychar, bool printable,
             && alt == entry->alt
             && (printable || shift == entry->shift)
             && keychar == entry->keychar) {
-            macro = entry->macro;
             if (cshift == entry->cshift) {
                 *exact = true;
-                return macro;
+                return entry->macro;
             }
+            if (cshift)
+                macro = entry->macro;
         }
     }
     *exact = false;

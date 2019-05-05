@@ -511,7 +511,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 	if (message == WM_CHAR || message == WM_SYSCHAR
 			|| message == WM_KEYDOWN || message == WM_SYSKEYDOWN
 			|| message == WM_KEYUP || message == WM_SYSKEYUP) {
-		fprintf(log, "message=%s time=0x%lx wParam=0x%x lParam=0x%lx\n", msg2string(message), message->time, wParam, lParam);
+		fprintf(log, "message=%s wParam=0x%x lParam=0x%lx\n", msg2string(message), wParam, lParam);
 		fflush(log);
 	}
 #endif
@@ -683,7 +683,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
                                 key_macro = entry->macro;
                                 break;
                             } else {
-                                if (key_macro == NULL)
+                                if (cshift_down && key_macro == NULL)
                                     key_macro = entry->macro;
                             }
                         }

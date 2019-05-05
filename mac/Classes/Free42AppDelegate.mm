@@ -903,7 +903,7 @@ void calc_keydown(NSString *characters, NSUInteger flags, unsigned short keycode
                     key_macro = entry->macro;
                     break;
                 } else {
-                    if (key_macro == NULL)
+                    if (cshift && key_macro == NULL)
                         key_macro = entry->macro;
                 }
             }

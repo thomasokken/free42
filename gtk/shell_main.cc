@@ -1671,7 +1671,7 @@ static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
                             key_macro = entry->macro;
                             break;
                         } else {
-                            if (key_macro == NULL)
+                            if (cshift && key_macro == NULL)
                                 key_macro = entry->macro;
                         }
                     }
