@@ -138,8 +138,10 @@ int core_keydown_command(const char *name, int *enqueued, int *repeat) {
     char hpname[70];
     int len = ascii2hp(hpname, name, 63);
     int cmd = find_builtin(hpname, len, false);
-    if (cmd == CMD_NONE)
+    if (cmd == CMD_NONE) {
+        set_shift(false);
         squeak();
+    }
     return core_keydown(cmd == CMD_NONE ? 0 : cmd + 2048, enqueued, repeat);
 }
 
