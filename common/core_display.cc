@@ -2122,7 +2122,7 @@ void redisplay() {
 }
 
 void print_display() {
-    shell_print("<lcd>", 5, display, 17, 0, 0, 131, 16);
+    shell_print(NULL, 0, display, 17, 0, 0, 131, 16);
 }
 
 typedef struct {

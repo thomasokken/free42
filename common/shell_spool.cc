@@ -87,6 +87,47 @@ void shell_spool_txt(const char *text, int length,
     newliner();
 }
 
+void shell_spool_bitmap_to_txt(const char *bits, int bytesperline,
+                               int x, int y, int width, int height,
+                               file_writer writer, file_newliner newliner) {
+    for (int v = 0; v < height; v += 2) {
+        for (int h = 0; h < width; h += 2) {
+            int k = 0;
+            for (int vv = 0; vv < 2; vv++) {
+                int vvv = v + vv + y;
+                if (vvv >= height)
+                    break;
+                for (int hh = 0; hh < 2; hh++) {
+                    int hhh = h + hh + x;
+                    if (hhh >= width)
+                        break;
+                    if ((bits[vvv * bytesperline + (hhh >> 3)] & (1 << (hhh & 7))) != 0)
+                        k += 1 << (hh + 2 * vv);
+                }
+            }
+            switch (k) {
+                case  0: writer("\302\240", 2); break;
+                case  1: writer("\342\226\230", 3); break;
+                case  2: writer("\342\226\235", 3); break;
+                case  3: writer("\342\226\200", 3); break;
+                case  4: writer("\342\226\226", 3); break;
+                case  5: writer("\342\226\214", 3); break;
+                case  6: writer("\342\226\236", 3); break;
+                case  7: writer("\342\226\233", 3); break;
+                case  8: writer("\342\226\227", 3); break;
+                case  9: writer("\342\226\232", 3); break;
+                case 10: writer("\342\226\220", 3); break;
+                case 11: writer("\342\226\234", 3); break;
+                case 12: writer("\342\226\204", 3); break;
+                case 13: writer("\342\226\231", 3); break;
+                case 14: writer("\342\226\237", 3); break;
+                case 15: writer("\342\226\210", 3); break;
+            }
+        }
+        newliner();
+    }
+}
+
 typedef struct {
     int codesize;
     int bytecount;

@@ -1182,7 +1182,10 @@ void shell_print(const char *text, int length,
                 fwrite("\357\273\277", 1, 3, print_txt);
         }
         
-        shell_spool_txt(text, length, txt_writer, txt_newliner);
+        if (text != NULL)
+            shell_spool_txt(text, length, txt_writer, txt_newliner);
+        else
+            shell_spool_bitmap_to_txt(bits, bytesperline, x, y, width, height, txt_writer, txt_newliner);
     done_print_txt:;
     }
     

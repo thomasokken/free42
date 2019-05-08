@@ -91,6 +91,47 @@ public class ShellSpool {
         stream.write(10);
     }
 
+    public static void shell_spool_bitmap_to_txt(byte[] bits, int bytesperline, int x, int y,
+            int width, int height, OutputStream stream) throws IOException {
+        for (int v = 0; v < height; v += 2) {
+            for (int h = 0; h < width; h += 2) {
+                int k = 0;
+                for (int vv = 0; vv < 2; vv++) {
+                    int vvv = v + vv + y;
+                    if (vvv >= height)
+                        break;
+                    for (int hh = 0; hh < 2; hh++) {
+                        int hhh = h + hh + x;
+                        if (hhh >= width)
+                            break;
+                        if ((bits[vvv * bytesperline + (hhh >> 3)] & (1 << (hhh & 7))) != 0)
+                            k += 1 << (hh + 2 * vv);
+                    }
+                }
+                switch (k) {
+                    case  0: stream.write('\u00a0'); break;
+                    case  1: stream.write('\u2598'); break;
+                    case  2: stream.write('\u259d'); break;
+                    case  3: stream.write('\u2580'); break;
+                    case  4: stream.write('\u2596'); break;
+                    case  5: stream.write('\u258c'); break;
+                    case  6: stream.write('\u259e'); break;
+                    case  7: stream.write('\u259b'); break;
+                    case  8: stream.write('\u2587'); break;
+                    case  9: stream.write('\u259a'); break;
+                    case 10: stream.write('\u2590'); break;
+                    case 11: stream.write('\u259c'); break;
+                    case 12: stream.write('\u2584'); break;
+                    case 13: stream.write('\u2599'); break;
+                    case 14: stream.write('\u259f'); break;
+                    case 15: stream.write('\u2588'); break;
+                }
+            }
+            stream.write(13);
+            stream.write(10);
+        }
+    }
+
     private static class GifData {
         int codesize;
         int bytecount;

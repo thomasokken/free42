@@ -49,6 +49,15 @@ int hp2ascii(char *dst, const char *src, int srclen);
 void shell_spool_txt(const char *text, int length,
                      file_writer writer, file_newliner newliner);
 
+/* shell_spool_bitmap_to_txt()
+ *
+ * Shell helper that writes a bitmap to a text stream, using Unicode 2x2
+ * graphics block characters. Used by PRLCD.
+ */
+void shell_spool_bitmap_to_txt(const char *bits, int bytesperline,
+                               int x, int y, int width, int height,
+                               file_writer writer, file_newliner newliner);
+
 /* shell_start_gif()
  *
  * Shell helper for writing bitmaps to GIF files.
