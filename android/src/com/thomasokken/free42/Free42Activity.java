@@ -1827,7 +1827,7 @@ public class Free42Activity extends Activity {
                         printTxtStream = new FileOutputStream(ShellSpool.printToTxtFileName);
                         printTxtStream.write(new byte[] { (byte) 0xEF, (byte) 0xBB, (byte) 0xBF });
                     }
-                if (text != NULL)
+                if (text != null)
                     ShellSpool.shell_spool_txt(text, printTxtStream);
                 else
                     ShellSpool.shell_spool_bitmap_to_txt(bits, bytesperline, x, y, width, height, printTxtStream);

@@ -531,15 +531,19 @@ void shell_print(const char *text, int length,
     JNIEnv *env = getJniEnv();
     jclass klass = env->GetObjectClass(g_activity);
     jmethodID mid = env->GetMethodID(klass, "shell_print", "([B[BIIIII)V");
-    jbyteArray text2 = env->NewByteArray(length);
-    env->SetByteArrayRegion(text2, 0, length, (const jbyte *) text);
+    jbyteArray text2 = NULL;
+    if (text != NULL) {
+        text2 = env->NewByteArray(length);
+        env->SetByteArrayRegion(text2, 0, length, (const jbyte *) text);
+    }
     int bitmapsize = bytesperline * height;
     jbyteArray bits2 = env->NewByteArray(bitmapsize);
     env->SetByteArrayRegion(bits2, 0, bitmapsize, (const jbyte *) bits);
     env->CallVoidMethod(g_activity, mid, text2, bits2, bytesperline, x, y, width, height);
     // Delete local references
     env->DeleteLocalRef(klass);
-    env->DeleteLocalRef(text2);
+    if (text2 != NULL)
+        env->DeleteLocalRef(text2);
     env->DeleteLocalRef(bits2);
 }
 
