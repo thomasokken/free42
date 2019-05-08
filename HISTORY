@@ -1,6 +1,7 @@
 ????-??-??: release 2.3
 
 * Added side margins to print-out window.
+* PRLCD is now supported in "Print to Text," using Unicode 2x2 block elements.
 * Flag 64 is now set or cleared to indicate the Shift state during the most
   recent key press. This can be used by MENU handlers to implement different
   behaviors for unshifted and shifted menu keys.
