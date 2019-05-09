@@ -1833,7 +1833,6 @@ void shell_beeper(int frequency, int duration) {
 	PlaySound(MAKEINTRESOURCE(IDR_SQUEAK_WAVE),
 		GetModuleHandle(NULL),
 		SND_RESOURCE);
-    Beep(frequency, duration);
 }
 
 static VOID CALLBACK ann_print_timeout(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) {
