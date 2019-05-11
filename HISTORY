@@ -1,4 +1,4 @@
-????-??-??: release 2.3
+2019-05-11: release 2.2.1
 
 * Added side margins to print-out window.
 * PRLCD is now supported in "Print to Text," using Unicode 2x2 block elements.
