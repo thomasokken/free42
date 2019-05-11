@@ -28,6 +28,7 @@
 @synthesize tile2;
 
 static PrintView *instance;
+static CGFloat scale;
 
 unsigned char *print_bitmap;
 int printout_top;
@@ -45,6 +46,7 @@ int printout_bottom;
     instance = self;
     print_bitmap = (unsigned char *) malloc(PRINT_SIZE);
     // TODO - handle memory allocation failure
+    scale = (CGFloat) (self.bounds.size.width / 179.0);
     
     FILE *printfile = fopen("config/print", "r");
     if (printfile != NULL) {
@@ -72,6 +74,10 @@ int printout_bottom;
 
 + (PrintView *) instance {
     return instance;
+}
+
++ (CGFloat) scale {
+    return scale;
 }
 
 - (IBAction) clear {
@@ -154,7 +160,7 @@ int printout_bottom;
     int printHeight = printout_bottom - printout_top;
     if (printHeight < 0)
         printHeight += PRINT_LINES;
-    [scrollView setContentSize:CGSizeMake(self.bounds.size.width, printHeight)];
+    [scrollView setContentSize:CGSizeMake(self.bounds.size.width, printHeight * scale)];
     int tilePos = ((int) offset.y) / ((int) size.height);
     CGRect tile1rect = CGRectMake(0, size.height * tilePos, size.width, size.height);
     if (tile1rect.origin.y < 0) {
@@ -162,7 +168,7 @@ int printout_bottom;
         tile1rect.origin.y = 0;
     }
     CGRect tile2rect = CGRectMake(0, size.height * (tilePos + 1), size.width, size.height);
-    int excessHeight = tile2rect.origin.y + tile2rect.size.height - printHeight;
+    int excessHeight = tile2rect.origin.y + tile2rect.size.height - printHeight * scale;
     if (excessHeight > 0) {
         int oldHeight = (int) tile2rect.size.height;
         int newHeight = oldHeight - excessHeight;

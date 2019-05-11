@@ -49,6 +49,7 @@ extern int printout_bottom;
 @property (nonatomic, retain) IBOutlet PrintTileView *tile2;
 
 + (PrintView *) instance;
++ (CGFloat) scale;
 - (void) awakeFromNib;
 - (IBAction) clear;
 - (IBAction) done;
