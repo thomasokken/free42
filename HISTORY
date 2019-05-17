@@ -1,3 +1,7 @@
+????-??-??: release ?
+
+* Android version: Added 64-bit native code.
+
 2019-05-11: release 2.2.1
 
 * Added side margins to print-out window.
@@ -5,7 +9,7 @@
 * Flag 64 is now set or cleared to indicate the Shift state during the most
   recent key press. This can be used by MENU handlers to implement different
   behaviors for unshifted and shifted menu keys.
-* Windows version: changed sounds from using the Beep() function to playing
+* Windows version: Changed sounds from using the Beep() function to playing
   wav sounds using the PlaySound() function, matching the way sounds are played
   in the Android, iOS, and Mac versions.
 * MacDashboard version: Didn't recognize comma as decimal key. Fixed.
@@ -2324,7 +2328,7 @@
   close enough to be useful.
   (If you spot a discrepancy between Free42 and the original, please feel free
   to report it to the author so he can fix it. It will be appreciated!)
-* Motif Version: the print-out window scroll bar now has its increment (i.e.,
+* Motif version: The print-out window scroll bar now has its increment (i.e.,
   the amount by which it scrolls when the arrows are clicked) set to 18 pixels.
   This corresponds to one text-mode output line. (The Windows version already
   behaved like this; the PalmOS version will, too, as soon as I figure out how
