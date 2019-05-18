@@ -23,7 +23,6 @@ mv libbid.a ../../libgcc111libbid-armv7.a
 
 cd ../..
 rm -rf IntelRDFPMathLib20U1
-TOOLCHAIN=aarch64-linux-android-4.9
 ln -fs "/opt/android-ndk/toolchains/aarch64-linux-android-4.9/prebuilt/darwin-x86_64/bin/aarch64-linux-android-gcc" bin/gcc
 ln -fs "/opt/android-ndk/toolchains/aarch64-linux-android-4.9/prebuilt/darwin-x86_64/bin/aarch64-linux-android-ar" bin/ar
 
