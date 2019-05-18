@@ -13,7 +13,7 @@
   _CFLAGS_OS     := $(call HostOsTypeSelect, -DLINUX, -DWINDOWS)
   _CFLAGS_ARCH   := $(call HostArchTypeSelect,-Dia32,-DITANIUM -Dia64, -Defi2)
   _CFLAGS_CC     :=
-! _CFLAGS_OPT    := -arch x86_64
+! _CFLAGS_OPT    := -arch x86_64 -mmacosx-version-min=10.8 -Wno-dangling-else -Wno-comment -Wno-constant-conversion -Wno-shift-negative-value -Wno-parentheses
       
   ifeq ($(BID_BIG_ENDIAN),true)
       _CFLAGS_CONFIG += -DBID_BIG_ENDIAN=1

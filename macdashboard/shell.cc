@@ -43,7 +43,6 @@ typedef struct {
 } keymap_entry;
 
 static int schedule_timeout3;
-static int we_want_cpu;
 static char *statefilename;
 static char *export_file_name;
 static FILE *statefile;
@@ -117,7 +116,7 @@ flush()
     fdgets(buf, sizeof(buf), 0);
 }
 
-static void show_message(char *msg_type, char *msg)
+static void show_message(const char *msg_type, const char *msg)
 {
 }
 
