@@ -839,7 +839,7 @@ public class Free42Activity extends Activity {
                 okB.setText("   OK   ");
                 okB.setOnClickListener(new OnClickListener() {
                     public void onClick(View view) {
-                        AboutDialog.this.hide();
+                        AboutDialog.this.dismiss();
                     }
                 });
                 lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
