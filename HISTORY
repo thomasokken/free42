@@ -1,3 +1,10 @@
+2019-05-20: release 2.2.1b (Android only)
+
+* Made the app explicitly single-instance (by adding
+  launchMode="singleInstance" to Free42Activity in the app manifest).
+  This should eliminate the remaining null-pointer crashes in the native code,
+  and also prevent State File Corrupt scenarios.
+
 2019-05-19: release 2.2.1a (Android only)
 
 * Added 64-bit native code.
