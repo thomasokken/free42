@@ -1,3 +1,7 @@
+????-??-??: release ?
+
+* iPhone version: Fixed crash in Paste when clipboard contained no text.
+
 2019-05-20: release 2.2.1b (Android only)
 
 * Made the app explicitly single-instance (by adding

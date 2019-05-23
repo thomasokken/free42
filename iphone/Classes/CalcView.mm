@@ -446,8 +446,10 @@ static CalcView *calcView = nil;
 - (void) doPaste {
     UIPasteboard *pb = [UIPasteboard generalPasteboard];
     NSString *txt = [pb string];
-    const char *buf = [txt UTF8String];
-    core_paste(buf);
+    if (txt != nil) {
+        const char *buf = [txt UTF8String];
+        core_paste(buf);
+    }
 }
 
 - (void) startRunner {
