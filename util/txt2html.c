@@ -5,6 +5,7 @@ int main(int argc, char *argv[]) {
     printf("<html>\n"
            "<head>\n"
            "  <title>%s</title>\n"
+           "  <link rel=\"icon\" type=\"image/png\" href=\"images/free42-icon.png\">\n"
            "</head>\n"
            "<body>\n"
            "<h3>%s</h3>\n"
