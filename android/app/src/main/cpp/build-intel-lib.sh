@@ -49,4 +49,4 @@ cd ../..
 
 ( echo '#ifdef FREE42_FPTEST'; echo 'const char *readtest_lines[] = {'; tr -d '\r' < IntelRDFPMathLib20U1/TESTS/readtest.in | sed 's/^\(.*\)$/"\1",/'; echo '0 };'; echo '#endif' ) > readtest_lines.cc
 
-#rm -rf bin IntelRDFPMathLib20U1
+rm -rf bin IntelRDFPMathLib20U1
