@@ -5,6 +5,7 @@ if [ -f libgcc111libbid-armv7.a -a -f libgcc111libbid-arm64.a ]; then exit 0; fi
 NDK="$HOME/Library/Android/sdk/ndk-bundle"
 ORIGPATH="$PATH"
 
+rm -rf bin
 mkdir bin
 echo 'armv7a-linux-androideabi26-clang "$@"' > bin/gcc
 echo 'arm-linux-androideabi-ar "$@"' > bin/ar
