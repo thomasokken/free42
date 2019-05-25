@@ -20,6 +20,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdarg.h>
 #include "shell.h"
 #include "core_main.h"
