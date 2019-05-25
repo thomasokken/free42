@@ -7,7 +7,7 @@ ORIGPATH="$PATH"
 
 rm -rf bin
 mkdir bin
-echo 'armv7a-linux-androideabi26-clang "$@"' > bin/gcc
+echo 'armv7a-linux-androideabi28-clang "$@"' > bin/gcc
 echo 'arm-linux-androideabi-ar "$@"' > bin/ar
 chmod +x bin/*
 rm -rf IntelRDFPMathLib20U1
@@ -28,7 +28,7 @@ mv libbid.a ../../libgcc111libbid-armv7.a
 
 cd ../..
 rm -rf IntelRDFPMathLib20U1
-echo 'aarch64-linux-android26-clang "$@"' > bin/gcc
+echo 'aarch64-linux-android28-clang "$@"' > bin/gcc
 echo 'aarch64-linux-android-ar "$@"' > bin/ar
 
 if [ -f ../../../../../inteldecimal/IntelRDFPMathLib20U1.tar.gz ]

@@ -28,6 +28,7 @@ import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -35,6 +36,40 @@ import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 
 public class SkinLayout {
+
+    /******************/
+    /* Built-in skins */
+    /******************/
+
+    private static class SkinDescriptor {
+        public String name;
+        public int gifId;
+        public int layoutId;
+        public SkinDescriptor(String name, int gifId, int layoutId) {
+            this.name = name;
+            this.gifId = gifId;
+            this.layoutId = layoutId;
+        }
+    }
+
+    private static SkinDescriptor[] BUILTIN_SKINS = new SkinDescriptor[] {
+            new SkinDescriptor("Standard", R.raw.standard_gif, R.raw.standard_layout),
+            new SkinDescriptor("Landscape", R.raw.landscape_gif, R.raw.landscape_layout)
+    };
+
+    public static String[] listBuiltinSkins() {
+        String[] res = new String[BUILTIN_SKINS.length];
+        for (int i = 0; i < BUILTIN_SKINS.length; i++)
+            res[i] = BUILTIN_SKINS[i].name;
+        return res;
+    }
+
+    private static SkinDescriptor findBuiltinSkin(String name) {
+        for (int i = 0; i < BUILTIN_SKINS.length; i++)
+            if (BUILTIN_SKINS[i].name.equals(name))
+                return BUILTIN_SKINS[i];
+        return null;
+    }
 
     /**************************/
     /* Skin description stuff */
@@ -86,11 +121,11 @@ public class SkinLayout {
     private boolean displaySmoothing;
     private boolean maintainSkinAspect;
 
-    public SkinLayout(String skinName, boolean skinSmoothing, boolean displaySmoothing, boolean maintainSkinAspect) {
-        this(skinName, skinSmoothing, displaySmoothing, maintainSkinAspect, null);
+    public SkinLayout(Context ctx, String skinName, boolean skinSmoothing, boolean displaySmoothing, boolean maintainSkinAspect) {
+        this(ctx, skinName, skinSmoothing, displaySmoothing, maintainSkinAspect, null);
     }
     
-    public SkinLayout(String skinName, boolean skinSmoothing, boolean displaySmoothing, boolean maintainSkinAspect, boolean[] ann_state) {
+    public SkinLayout(Context ctx, String skinName, boolean skinSmoothing, boolean displaySmoothing, boolean maintainSkinAspect, boolean[] ann_state) {
         this.skinSmoothing = skinSmoothing;
         this.displaySmoothing = displaySmoothing;
         this.maintainSkinAspect = maintainSkinAspect;
@@ -100,11 +135,15 @@ public class SkinLayout {
             this.ann_state = ann_state;
         
         InputStream is = null;
+        SkinDescriptor bs = null;
         try {
-            if (skinName.startsWith("/"))
+            if (skinName.startsWith("/")) {
                 is = new FileInputStream(skinName + ".gif");
-            else
-                is = getClass().getResourceAsStream(skinName + ".gif");
+            } else {
+                bs = findBuiltinSkin(skinName);
+                if (bs != null)
+                    is = ctx.getResources().openRawResource(bs.gifId);
+            }
             if (is == null)
                 throw new IOException();
             skinBitmap = new BitmapDrawable(is).getBitmap();
@@ -122,8 +161,8 @@ public class SkinLayout {
             try {
                 if (skinName.startsWith("/"))
                     is = new FileInputStream(skinName + ".layout");
-                else
-                    is = getClass().getResourceAsStream(skinName + ".layout");
+                else if (bs != null)
+                    is = ctx.getResources().openRawResource(bs.layoutId);
                 if (is == null)
                     throw new IOException();
             } catch (IOException e) {
