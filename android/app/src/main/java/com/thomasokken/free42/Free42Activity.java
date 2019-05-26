@@ -92,6 +92,8 @@ import android.widget.TextView;
  */
 public class Free42Activity extends Activity {
 
+    private static final String[] builtinSkinNames = new String[] { "Standard", "Landscape" };
+    
     private static final int SHELL_VERSION = 13;
     
     private static final int PRINT_BACKGROUND_COLOR = Color.LTGRAY;
@@ -139,7 +141,7 @@ public class Free42Activity extends Activity {
 
     // Persistent state
     private int orientation = 0; // 0=portrait, 1=landscape
-    private String[] skinName = SkinLayout.listBuiltinSkins();
+    private String[] skinName = new String[] { builtinSkinNames[0], builtinSkinNames[0] };
     private String[] externalSkinName = new String[2];
     private boolean[] skinSmoothing = new boolean[2];
     private boolean[] displaySmoothing = new boolean[2];
@@ -220,7 +222,7 @@ public class Free42Activity extends Activity {
         }
         if (skin == null) {
             try {
-                skin = new SkinLayout(this, SkinLayout.listBuiltinSkins()[0], skinSmoothing[orientation], displaySmoothing[orientation], maintainSkinAspect[orientation]);
+                skin = new SkinLayout(this, builtinSkinNames[0], skinSmoothing[orientation], displaySmoothing[orientation], maintainSkinAspect[orientation]);
             } catch (IllegalArgumentException e) {
                 // This one should never fail; we're loading a built-in skin.
             }
@@ -406,7 +408,7 @@ public class Free42Activity extends Activity {
         }
         if (newSkin == null) {
             try {
-                newSkin = new SkinLayout(this, SkinLayout.listBuiltinSkins()[0], skinSmoothing[orientation], displaySmoothing[orientation], maintainSkinAspect[orientation], ann_state);
+                newSkin = new SkinLayout(this, builtinSkinNames[0], skinSmoothing[orientation], displaySmoothing[orientation], maintainSkinAspect[orientation], ann_state);
             } catch (IllegalArgumentException e) {
                 // This one should never fail; we're loading a built-in skin.
             }
@@ -447,9 +449,8 @@ public class Free42Activity extends Activity {
             itemsList.add("About Free42");
             itemsList.add("Import Programs");
             itemsList.add("Export Programs");
-            String[] bsn = SkinLayout.listBuiltinSkins();
-            for (int i = 0; i < bsn.length; i++)
-                itemsList.add("Skin: \"" + bsn[i] + "\"");
+            for (int i = 0; i < builtinSkinNames.length; i++)
+                itemsList.add("Skin: \"" + builtinSkinNames[i] + "\"");
             itemsList.add("Skin: Other...");
             itemsList.add("Cancel");
             builder.setItems(itemsList.toArray(new String[itemsList.size()]),
@@ -491,11 +492,10 @@ public class Free42Activity extends Activity {
             return;
         default:
             int index = which - 8;
-            String[] bsn = SkinLayout.listBuiltinSkins();
-            if (index >= 0 && index < bsn.length) {
-                doSelectSkin(bsn[index]);
+            if (index >= 0 && index < builtinSkinNames.length) {
+                doSelectSkin(builtinSkinNames[index]);
                 return;
-            } else if (index == bsn.length) {
+            } else if (index == builtinSkinNames.length) {
                 if (!checkStorageAccess())
                     return;
                 FileSelectionDialog fsd = new FileSelectionDialog(this, new String[] { "layout", "*" });
