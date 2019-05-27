@@ -4,7 +4,9 @@ android {
     signingConfigs {
         release {
             storeFile file('/Users/thomas/android-release-keystore')
-            keyAlias = 'mykey'
+            storePassword 'foo'
+            keyAlias 'mykey'
+            keyPassword 'foo'
         }
     }
     compileSdkVersion 28
@@ -16,7 +18,6 @@ android {
         versionName "2.2.1b"
         ndk {
             abiFilters 'armeabi-v7a', 'arm64-v8a'
-
         }
     }
     buildTypes {
