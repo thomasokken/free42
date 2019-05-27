@@ -18,7 +18,7 @@ cd src/main/cpp
 sh ./copy-files-release.sh
 sh ./build-intel-lib.sh
 cd ../../../..
-./gradlew assembleRelease
+./gradlew --warning-mode all assembleRelease
 #mv app/build/outputs/apk/release/app-release-unsigned.apk ../../../packages/Free42Android.apk
 #cd ../../..
 #rm -rf android-tmp

@@ -24,6 +24,10 @@ android {
         release {
             minifyEnabled false
             useProguard false
+            signingConfig signingConfigs.release
+        }
+        debug {
+            debuggable true
         }
     }
     externalNativeBuild {
