@@ -26,6 +26,12 @@ endif
 ifeq ($(TARGET_ARCH_ABI),arm64-v8a)
 LOCAL_SRC_FILES := libgcc111libbid-arm64.a
 endif
+ifeq ($(TARGET_ARCH_ABI),x86)
+LOCAL_SRC_FILES := libgcc111libbid-x86.a
+endif
+ifeq ($(TARGET_ARCH_ABI),x86_64)
+LOCAL_SRC_FILES := libgcc111libbid-x86_64.a
+endif
 
 include $(PREBUILT_STATIC_LIBRARY)
 

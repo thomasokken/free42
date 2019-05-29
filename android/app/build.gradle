@@ -16,18 +16,20 @@ android {
         targetSdkVersion 28
         versionCode 97
         versionName "2.2.1b"
-        ndk {
-            abiFilters 'armeabi-v7a', 'arm64-v8a'
-        }
     }
     buildTypes {
+        debug {
+            ndk {
+                abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+            }
+        }
         release {
+            ndk {
+                abiFilters 'armeabi-v7a', 'arm64-v8a'
+            }
             minifyEnabled false
             useProguard false
             signingConfig signingConfigs.release
-        }
-        debug {
-            debuggable true
         }
     }
     externalNativeBuild {
