@@ -5,7 +5,7 @@
   release that, but it is convenient for testing in the Android Emulator, now
   that Google no longer releases ARM system images for the emulator.
   The minimum Android API level requirement went from 8 to 14 (2.2 to 4.0), but
-  that seems an acceptable price to pay.
+  that seems like an acceptable price to pay.
 
 2019-05-24: release 2.2.1c (iPhone only)
 
