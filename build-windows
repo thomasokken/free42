@@ -1,13 +1,9 @@
 #!/bin/sh -e
 
-# This script builds and packages the Windows and Android versions,
-# and the Generic, iPhone, and Android skins packages, and the Upstream
-# source package.
+# This script builds and packages the Windows version,
 # It should be run in a Cygwin bash shell (under MS Windows, obviously).
 
 mkdir -p packages
-
-# Build Windows version
 
 cd windows
 sh ./build-intel-lib.sh
