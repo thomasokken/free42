@@ -1,7 +1,6 @@
 I keep all the common files in the 'common' directory. In order to build the
-Windows version, you must first copy these files from 'common' to 'windows'
-using the copy-files script; if you modify any of them, you must copy them
-back using the copy-back script before committing the changes to CVS.
+Windows version, you must first create links to these files from the 'windows'
+directory using the link-files script.
 
 Note: the Free42 workspace contains four projects: Free42Binary, Free42Decimal,
 keymap2cpp, and skin2cpp. Before building Free42Binary and Free42Decimal, you
