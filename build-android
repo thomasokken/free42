@@ -17,7 +17,7 @@ sed -i '' "s/versionCode [0-9]*/versionCode $VERSION_CODE/" build.gradle
 VERSION_NAME=`cat ../../VERSION`
 sed -i '' "s/versionName \"[^\"]*\"/versionName \"$VERSION_NAME\"/" build.gradle
 cd src/main/cpp
-sh ./copy-files-release.sh
+sh ./link-files-release.sh
 sh ./build-intel-lib.sh
 cd ../../../..
 ./gradlew --warning-mode all assembleRelease
