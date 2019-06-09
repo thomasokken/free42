@@ -16,6 +16,7 @@
  *****************************************************************************/
 
 #import <Cocoa/Cocoa.h>
+#import <WebKit/WebKit.h>
 
 #define FILENAMELEN 256
 #define SHELL_VERSION 0
@@ -51,6 +52,7 @@ void calc_keyup(NSString *characters, NSUInteger flags, unsigned short keycode);
 void calc_keymodifierschanged(NSUInteger flags);
     
 @class ProgramListDataSource;
+@class SkinListDataSource;
 @class CalcView;
 @class PrintView;
 
@@ -79,6 +81,13 @@ void calc_keymodifierschanged(NSUInteger flags);
     NSWindow *aboutWindow;
     NSTextField *aboutVersion;
     NSTextField *aboutCopyright;
+
+    NSWindow *loadSkinsWindow;
+    NSTextField *loadSkinsURL;
+    WebView *loadSkinsWebView;
+    NSWindow *deleteSkinsWindow;
+    NSTableView *skinListView;
+    SkinListDataSource *skinListDataSource;
 }
 
 @property (nonatomic, retain) IBOutlet NSWindow *mainWindow;
@@ -101,6 +110,12 @@ void calc_keymodifierschanged(NSUInteger flags);
 @property (nonatomic, retain) IBOutlet NSWindow *aboutWindow;
 @property (nonatomic, retain) IBOutlet NSTextField *aboutVersion;
 @property (nonatomic, retain) IBOutlet NSTextField *aboutCopyright;
+@property (nonatomic, retain) IBOutlet NSWindow *loadSkinsWindow;
+@property (nonatomic, retain) IBOutlet NSTextField *loadSkinsURL;
+@property (nonatomic, retain) IBOutlet WebView *loadSkinsWebView;
+@property (nonatomic, retain) IBOutlet NSWindow *deleteSkinsWindow;
+@property (nonatomic, retain) IBOutlet NSTableView *skinListView;
+@property (nonatomic, retain) IBOutlet SkinListDataSource *skinListDataSource;
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification;
 - (void)applicationWillTerminate:(NSNotification *)aNotification;
@@ -113,13 +128,24 @@ void calc_keymodifierschanged(NSUInteger flags);
 - (IBAction) browsePrintTextFile:(id)sender;
 - (IBAction) browsePrintGIFFile:(id)sender;
 - (IBAction) showPrintOut:(id)sender;
-- (IBAction) clearPrintOut:(id)sender;
+- (IBAction) paperAdvance:(id)sender;
 - (IBAction) importPrograms:(id)sender;
 - (IBAction) exportPrograms:(id)sender;
 - (IBAction) exportProgramsCancel:(id)sender;
 - (IBAction) exportProgramsOK:(id)sender;
 - (IBAction) doCopy:(id)sender;
 - (IBAction) doPaste:(id)sender;
+- (IBAction) doCopyPrintOutAsText:(id)sender;
+- (IBAction) doCopyPrintOutAsImage:(id)sender;
+- (IBAction) clearPrintOut:(id)sender;
+- (IBAction) loadSkins:(id)sender;
+- (IBAction) loadSkinsGo:(id)sender;
+- (IBAction) loadSkinsBack:(id)sender;
+- (IBAction) loadSkinsForward:(id)sender;
+- (IBAction) loadSkinsLoad:(id)sender;
+- (IBAction) deleteSkins:(id)sender;
+- (IBAction) deleteSkinsCancel:(id)sender;
+- (IBAction) deleteSkinsOK:(id)sender;
 + (const char *) getVersion;
 - (IBAction) menuNeedsUpdate:(NSMenu *)menu;
 - (void) selectSkin:(id)sender;

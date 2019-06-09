@@ -189,8 +189,8 @@ typedef struct stringnode {
 } stringnode;
 
 void skin_menu_update(NSMenu *skinMenu) {
-    while ([skinMenu numberOfItems] > 0)
-        [skinMenu removeItemAtIndex:0];
+    while ([skinMenu numberOfItems] > 3)
+        [skinMenu removeItemAtIndex:3];
     
     stringnode *namelist = NULL;
     char buf[1024];

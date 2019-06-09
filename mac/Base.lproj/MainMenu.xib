@@ -3,6 +3,7 @@
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14490.70"/>
+        <plugIn identifier="com.apple.WebKitIBPlugin" version="14490.70"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -77,10 +78,9 @@
                                     <action selector="showPrintOut:" target="520" id="612"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Clear Print-Out" id="451">
-                                <modifierMask key="keyEquivalentModifierMask"/>
+                            <menuItem title="Paper Advance" keyEquivalent="a" id="Lul-JX-ToQ">
                                 <connections>
-                                    <action selector="clearPrintOut:" target="520" id="613"/>
+                                    <action selector="paperAdvance:" target="520" id="0Rz-I3-Lux"/>
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="452"/>
@@ -112,12 +112,44 @@
                                     <action selector="doPaste:" target="520" id="592"/>
                                 </connections>
                             </menuItem>
+                            <menuItem isSeparatorItem="YES" id="BWy-Rm-ieF"/>
+                            <menuItem title="Copy Print-Out as Text" keyEquivalent="t" id="npp-qR-6ra">
+                                <connections>
+                                    <action selector="doCopyPrintOutAsText:" target="520" id="Jmn-H0-CEe"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Copy Print-Out as Image" keyEquivalent="i" id="gxM-lh-lFF">
+                                <connections>
+                                    <action selector="doCopyPrintOutAsImage:" target="520" id="eYN-96-Wxu"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Clear Print-Out" id="451">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="clearPrintOut:" target="520" id="613"/>
+                                </connections>
+                            </menuItem>
                         </items>
                     </menu>
                 </menuItem>
                 <menuItem title="Skin" id="455">
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Skin" id="456">
+                        <items>
+                            <menuItem title="Load Skins…" id="qNo-7o-84b">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="loadSkins:" target="520" id="VgR-FJ-Mxz"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Delete Skins…" id="q5d-fW-tpY">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="deleteSkins:" target="520" id="WLF-4i-um3"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="ltU-OQ-39a"/>
+                        </items>
                         <connections>
                             <outlet property="delegate" destination="520" id="533"/>
                         </connections>
@@ -302,7 +334,7 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="711" y="417" width="353" height="189"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="878"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1366" height="745"/>
             <view key="contentView" id="509">
                 <rect key="frame" x="0.0" y="0.0" width="353" height="189"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -360,6 +392,10 @@
                 <outlet property="aboutVersion" destination="512" id="536"/>
                 <outlet property="aboutWindow" destination="508" id="524"/>
                 <outlet property="calcView" destination="501" id="530"/>
+                <outlet property="deleteSkinsWindow" destination="mKM-t8-JhI" id="CsZ-B8-6nI"/>
+                <outlet property="loadSkinsURL" destination="Alm-zb-kiZ" id="l9D-L3-7h0"/>
+                <outlet property="loadSkinsWebView" destination="gQn-Kh-adU" id="zWs-SI-oiJ"/>
+                <outlet property="loadSkinsWindow" destination="O16-Bu-L5F" id="3Sk-HX-xDV"/>
                 <outlet property="mainWindow" destination="371" id="526"/>
                 <outlet property="preferencesWindow" destination="458" id="527"/>
                 <outlet property="prefsAutoRepeat" destination="469" id="600"/>
@@ -375,13 +411,15 @@
                 <outlet property="programListDataSource" destination="585" id="586"/>
                 <outlet property="programListView" destination="571" id="583"/>
                 <outlet property="selectProgramsWindow" destination="564" id="582"/>
+                <outlet property="skinListDataSource" destination="rR8-x0-OMk" id="Ruo-uf-KCo"/>
+                <outlet property="skinListView" destination="FlS-K3-hi3" id="MXp-GY-MzT"/>
             </connections>
         </customObject>
         <window title="Export Programs" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="564">
             <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="188" y="607" width="280" height="240"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="878"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1366" height="745"/>
             <view key="contentView" id="565">
                 <rect key="frame" x="0.0" y="0.0" width="280" height="240"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -400,7 +438,7 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <clipView key="contentView" id="60P-f7-UKn">
                             <rect key="frame" x="1" y="1" width="238" height="133"/>
-                            <autoresizingMask key="autoresizingMask"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnReordering="NO" columnResizing="NO" multipleSelection="NO" autosaveColumns="NO" typeSelect="NO" id="571">
                                     <rect key="frame" x="0.0" y="0.0" width="238" height="133"/>
@@ -479,6 +517,187 @@
             </connections>
         </window>
         <customObject id="585" customClass="ProgramListDataSource"/>
+        <window title="Load Skins" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="O16-Bu-L5F">
+            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
+            <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
+            <rect key="contentRect" x="121" y="123" width="619" height="632"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1366" height="745"/>
+            <view key="contentView" id="IcW-lr-etz">
+                <rect key="frame" x="0.0" y="0.0" width="619" height="632"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <button verticalHuggingPriority="750" id="3i2-ZQ-TCe">
+                        <rect key="frame" x="3" y="593" width="51" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="push" title="Go" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="H0v-c4-gA2">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="loadSkinsGo:" target="520" id="82V-aY-l0x"/>
+                        </connections>
+                    </button>
+                    <textField verticalHuggingPriority="750" id="Alm-zb-kiZ">
+                        <rect key="frame" x="120" y="600" width="428" height="22"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" id="jQd-V9-HfK">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <webView id="gQn-Kh-adU">
+                        <rect key="frame" x="0.0" y="0.0" width="619" height="593"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <webPreferences key="preferences" defaultFontSize="16" defaultFixedFontSize="13" minimumFontSize="0">
+                            <nil key="identifier"/>
+                        </webPreferences>
+                        <connections>
+                            <outlet property="frameLoadDelegate" destination="520" id="sjf-KH-RBR"/>
+                        </connections>
+                    </webView>
+                    <button verticalHuggingPriority="750" id="cH4-0v-aqb">
+                        <rect key="frame" x="46" y="593" width="40" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="push" title="←" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="HYe-uq-gLs">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="loadSkinsBack:" target="520" id="O6E-BN-4es"/>
+                        </connections>
+                    </button>
+                    <button verticalHuggingPriority="750" id="Lr9-dS-xos">
+                        <rect key="frame" x="78" y="593" width="40" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="push" title="→" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="1DI-7e-AJD">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="loadSkinsForward:" target="520" id="IaM-5V-Ceq"/>
+                        </connections>
+                    </button>
+                    <button verticalHuggingPriority="750" id="Xmw-hl-k3g">
+                        <rect key="frame" x="550" y="593" width="63" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="push" title="Load" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="sei-xN-yhf">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="loadSkinsLoad:" target="520" id="0N1-jA-mrr"/>
+                        </connections>
+                    </button>
+                </subviews>
+            </view>
+            <connections>
+                <outlet property="delegate" destination="520" id="mg3-Ue-egb"/>
+            </connections>
+            <point key="canvasLocation" x="-595.5" y="340"/>
+        </window>
+        <window title="Delete Skins" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="mKM-t8-JhI">
+            <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
+            <windowPositionMask key="initialPositionMask" leftStrut="YES" bottomStrut="YES"/>
+            <rect key="contentRect" x="188" y="607" width="280" height="240"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1366" height="745"/>
+            <view key="contentView" id="ddg-Af-PMH">
+                <rect key="frame" x="0.0" y="0.0" width="280" height="240"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <textField verticalHuggingPriority="750" id="KZV-ok-gEi">
+                        <rect key="frame" x="17" y="203" width="300" height="17"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Select skins to delete:" id="TrC-hG-yaS">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <scrollView autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="NcU-4V-kaT">
+                        <rect key="frame" x="20" y="60" width="240" height="135"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <clipView key="contentView" id="svu-9q-vlW">
+                            <rect key="frame" x="1" y="1" width="238" height="133"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            <subviews>
+                                <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnReordering="NO" columnResizing="NO" multipleSelection="NO" autosaveColumns="NO" typeSelect="NO" id="FlS-K3-hi3">
+                                    <rect key="frame" x="0.0" y="0.0" width="238" height="133"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <size key="intercellSpacing" width="3" height="2"/>
+                                    <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
+                                    <tableColumns>
+                                        <tableColumn identifier="col1" width="20" minWidth="20" maxWidth="1000" id="SVP-MT-XpC">
+                                            <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="right">
+                                                <font key="font" metaFont="smallSystem"/>
+                                                <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" white="0.33333299" alpha="1" colorSpace="calibratedWhite"/>
+                                            </tableHeaderCell>
+                                            <buttonCell key="dataCell" type="check" bezelStyle="regularSquare" imagePosition="left" alignment="left" controlSize="small" inset="2" id="Evy-Kj-nN9">
+                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                <font key="font" metaFont="smallSystem"/>
+                                            </buttonCell>
+                                            <tableColumnResizingMask key="resizingMask" resizeWithTable="YES"/>
+                                        </tableColumn>
+                                        <tableColumn identifier="col2" editable="NO" width="212" minWidth="40" maxWidth="1000" id="559-FA-uSA">
+                                            <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
+                                                <font key="font" metaFont="smallSystem"/>
+                                                <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" white="0.33333299" alpha="1" colorSpace="calibratedWhite"/>
+                                            </tableHeaderCell>
+                                            <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="bdw-WZ-Ba8">
+                                                <font key="font" metaFont="system"/>
+                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                            <tableColumnResizingMask key="resizingMask" resizeWithTable="YES"/>
+                                        </tableColumn>
+                                    </tableColumns>
+                                    <connections>
+                                        <outlet property="dataSource" destination="rR8-x0-OMk" id="VaH-ce-ayy"/>
+                                    </connections>
+                                </tableView>
+                            </subviews>
+                        </clipView>
+                        <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="qmu-5k-f3V">
+                            <rect key="frame" x="1" y="119" width="223" height="15"/>
+                            <autoresizingMask key="autoresizingMask"/>
+                        </scroller>
+                        <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="tVA-Rb-uS7">
+                            <rect key="frame" x="224" y="1" width="15" height="118"/>
+                            <autoresizingMask key="autoresizingMask"/>
+                        </scroller>
+                    </scrollView>
+                    <button verticalHuggingPriority="750" imageHugsTitle="YES" id="zm1-7v-vVP">
+                        <rect key="frame" x="44" y="12" width="96" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="push" title="OK" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="p6b-h8-o38">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="deleteSkinsOK:" target="520" id="Xwq-Fc-4NV"/>
+                        </connections>
+                    </button>
+                    <button verticalHuggingPriority="750" imageHugsTitle="YES" id="gpP-kU-3Oj">
+                        <rect key="frame" x="140" y="12" width="96" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="G7s-x9-apa">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="deleteSkinsCancel:" target="520" id="nhH-N5-zx5"/>
+                        </connections>
+                    </button>
+                </subviews>
+            </view>
+            <connections>
+                <outlet property="delegate" destination="520" id="ADz-DK-oaJ"/>
+            </connections>
+        </window>
+        <customObject id="rR8-x0-OMk" customClass="SkinListDataSource"/>
     </objects>
     <resources>
         <image name="icon" width="512" height="512"/>

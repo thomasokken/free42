@@ -1,3 +1,8 @@
+????-??-??: release 2.3 (Mac only)
+
+* Added "Load Skins" feature, for downloading and installing skins from the
+  Internet.
+
 2019-05-29: release 2.2.1d (source code only)
 
 * Migrated the Android project from Eclipse with ADT to Android Studio.

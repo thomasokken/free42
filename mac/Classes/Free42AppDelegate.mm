@@ -28,6 +28,7 @@
 #import "core_display.h"
 #import "Free42AppDelegate.h"
 #import "ProgramListDataSource.h"
+#import "SkinListDataSource.h"
 #import "CalcView.h"
 #import "FileOpenPanel.h"
 #import "FileSavePanel.h"
@@ -39,6 +40,7 @@ static SystemSoundID soundIDs[11];
 
 static bool launchingWithPrintoutVisible;
 static bool scrollPrintoutToBottomInitially = true;
+static bool loadSkinsWindowMapped = false;
 
 state_type state;
 char free42dirname[FILENAMELEN];
@@ -129,6 +131,12 @@ static bool is_file(const char *name);
 @synthesize aboutWindow;
 @synthesize aboutVersion;
 @synthesize aboutCopyright;
+@synthesize loadSkinsWindow;
+@synthesize loadSkinsURL;
+@synthesize loadSkinsWebView;
+@synthesize deleteSkinsWindow;
+@synthesize skinListView;
+@synthesize skinListDataSource;
 
 - (void) startRunner {
     [self performSelectorInBackground:@selector(runner) withObject:NULL];
@@ -372,6 +380,8 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
         [NSApp terminate:nil];
     else if (window == printWindow)
         state.printWindowMapped = 0;
+    else if (window == loadSkinsWindow)
+        loadSkinsWindowMapped = false;
 }
 
 - (void)windowDidBecomeKey:(NSNotification *)notification {
@@ -569,6 +579,130 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
         const char *buf = [txt UTF8String];
         core_paste(buf);
     }
+}
+
+- (IBAction) doCopyPrintOutAsText:(id)sender {
+    // TODO
+}
+
+- (IBAction) doCopyPrintOutAsImage:(id)sender {
+    // TODO
+}
+
+- (IBAction) paperAdvance:(id)sender {
+    // TODO
+}
+
+- (IBAction) loadSkins:(id)sender {
+    if (!loadSkinsWindowMapped) {
+        NSString *url = @"https://thomasokken.com/free42/skins/";
+        [loadSkinsURL setStringValue:url];
+        [loadSkinsWebView setMainFrameURL:url];
+        loadSkinsWindowMapped = true;
+    }
+    [loadSkinsWindow makeKeyAndOrderFront:self];
+}
+
+- (IBAction) loadSkinsGo:(id)sender {
+    NSString *url = [loadSkinsURL stringValue];
+    [loadSkinsWebView setMainFrameURL:url];
+}
+
+- (IBAction) loadSkinsBack:(id)sender {
+    [loadSkinsWebView goBack];
+    //[loadSkinsURL setStringValue:[loadSkinsWebView mainFrameURL]];
+}
+
+- (IBAction) loadSkinsForward:(id)sender {
+    [loadSkinsWebView goForward];
+    //[loadSkinsURL setStringValue:[loadSkinsWebView mainFrameURL]];
+}
+
+- (void)webView:(WebView *)sender didFinishLoadForFrame:(WebFrame *)frame {
+    [loadSkinsURL setStringValue:[loadSkinsWebView mainFrameURL]];
+}
+
+- (BOOL) tryLoad:(NSString *)url asFile:(NSString *)name {
+    NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
+    NSURLResponse *resp;
+    NSError *err;
+    NSData *data = [NSURLConnection sendSynchronousRequest:req returningResponse:&resp error:&err];
+    if (data == nil)
+        return NO;
+    NSString *fname = [NSString stringWithFormat:@"%s/%@", free42dirname, name];
+    return [data writeToFile:fname atomically:NO];
+}
+
+- (IBAction) loadSkinsLoad:(id)sender {
+    NSString *url = [loadSkinsURL stringValue];
+    NSURLComponents *u = [NSURLComponents componentsWithString:url];
+    NSString *path = [u path];
+    if (path == nil) {
+        show_message("Error", "Invalid Skin URL");
+        return;
+    }
+    NSString *gifUrl = nil, *layoutUrl = nil;
+    if ([path hasSuffix:@".gif"]) {
+        gifUrl = url;
+        NSRange r = NSMakeRange(0, [path length] - 3);
+        NSString *layoutPath = [[path substringWithRange:r] stringByAppendingString:@"layout"];
+        [u setPath:layoutPath];
+        layoutUrl = [u string];
+    } else if ([path hasSuffix:@".layout"]) {
+        layoutUrl = url;
+        NSRange r = NSMakeRange(0, [path length] - 6);
+        NSString *gifPath = [[path substringWithRange:r] stringByAppendingString:@"gif"];
+        [u setPath:gifPath];
+        gifUrl = [u string];
+    } else {
+        show_message("Error", "Invalid Skin URL");
+        return;
+    }
+    if ([self tryLoad:gifUrl asFile:@"_temp_gif_"]
+        && [self tryLoad:layoutUrl asFile:@"_temp_layout_"]) {
+        char buf1[FILENAMELEN], buf2[FILENAMELEN];
+        snprintf(buf1, FILENAMELEN, "%s/_temp_gif_", free42dirname);
+        NSURL *u = [NSURL URLWithString:gifUrl];
+        snprintf(buf2, FILENAMELEN, "%s/%s", free42dirname, [[u lastPathComponent] UTF8String]);
+        rename(buf1, buf2);
+        snprintf(buf1, FILENAMELEN, "%s/_temp_layout_", free42dirname);
+        u = [NSURL URLWithString:layoutUrl];
+        snprintf(buf2, FILENAMELEN, "%s/%s", free42dirname, [[u lastPathComponent] UTF8String]);
+        rename(buf1, buf2);
+    } else {
+        char buf[FILENAMELEN];
+        snprintf(buf, FILENAMELEN, "%s/_temp_gif_", free42dirname);
+        remove(buf);
+        snprintf(buf, FILENAMELEN, "%s/_temp_layout_", free42dirname);
+        remove(buf);
+        show_message("Error", "Loading Skin Failed");
+    }
+}
+
+- (IBAction) deleteSkins:(id)sender {
+    [skinListDataSource loadSkinNames];
+    [skinListView reloadData];
+    [NSApp runModalForWindow:deleteSkinsWindow];
+}
+
+- (IBAction) deleteSkinsCancel:(id)sender {
+    [NSApp stopModal];
+    [deleteSkinsWindow orderOut:self];
+}
+
+- (IBAction) deleteSkinsOK:(id)sender {
+    [NSApp stopModal];
+    [deleteSkinsWindow orderOut:self];
+    bool *selection = [skinListDataSource getSelection];
+    NSString **names = [skinListDataSource getNames];
+    int count = [skinListDataSource numberOfRowsInTableView:nil];
+    for (int i = 0; i < count; i++)
+        if (selection[i]) {
+            const char *fname = [[NSString stringWithFormat:@"%s/%@.gif", free42dirname, names[i]] UTF8String];
+            remove(fname);
+            fname = [[NSString stringWithFormat:@"%s/%@.layout", free42dirname, names[i]] UTF8String];
+            remove(fname);
+        }
 }
 
 static char version[32] = "";
@@ -1022,8 +1156,12 @@ void calc_keymodifierschanged(NSUInteger flags) {
 }
 
 static void show_message(const char *title, const char *message) {
-    // TODO!
-    fprintf(stderr, "%s\n", message);
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert addButtonWithTitle:@"OK"];
+    [alert setMessageText:[NSString stringWithCString:title encoding:NSUTF8StringEncoding]];
+    [alert setInformativeText:[NSString stringWithCString:message encoding:NSUTF8StringEncoding]];
+    [alert setAlertStyle:NSCriticalAlertStyle];
+    [alert runModal];
 }
 
 int8 shell_random_seed() {
