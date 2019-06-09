@@ -372,7 +372,7 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
 
 - (void)windowWillClose:(NSNotification *)notification {
     NSWindow *window = [notification object];
-    if (window == aboutWindow || window == preferencesWindow || window == selectProgramsWindow) {
+    if (window == aboutWindow || window == preferencesWindow || window == selectProgramsWindow || window == deleteSkinsWindow) {
         [NSApp stopModal];
         if (window == preferencesWindow)
             [instance getPreferences];
