@@ -595,7 +595,43 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
 }
 
 - (IBAction) doCopyPrintOutAsImage:(id)sender {
-    // TODO
+    NSPasteboard *pb = [NSPasteboard generalPasteboard];
+    NSArray *types = [NSArray arrayWithObjects: NSTIFFPboardType, nil];
+    [pb declareTypes:types owner:self];
+    
+    int height = printout_bottom - printout_top;
+    if (height < 0)
+        height += PRINT_LINES;
+    
+    NSBitmapImageRep *img = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:NULL pixelsWide:358 pixelsHigh:(height == 0 ? 1 : height) bitsPerSample:1 samplesPerPixel:1 hasAlpha:NO isPlanar:NO colorSpaceName:NSCalibratedWhiteColorSpace bytesPerRow:45 bitsPerPixel:1];
+    unsigned char *data = [img bitmapData];
+    if (height == 0) {
+        memset(data, 255, 36);
+    } else {
+        for (int v = 0; v < height; v++) {
+            int vv = v;
+            if (vv >= PRINT_LINES)
+                vv -= PRINT_LINES;
+            unsigned char *src = print_bitmap + vv * PRINT_BYTESPERLINE;
+            *data++ = 255;
+            *data++ = 255;
+            *data++ = 255;
+            *data++ = 255;
+            unsigned char pc = 0;
+            for (int h = 0; h <= 36; h++) {
+                unsigned char c = h == 36 ? 0 : src[h];
+                *data++ = (((pc & 16) << 3) | ((pc & 32) << 1) | ((pc & 64) >> 1) | ((pc & 128) >> 3) | ((c & 1) << 3) | ((c & 2) << 1) | ((c & 4) >> 1) | ((c & 8) >> 3)) ^ 255;
+                pc = c;
+            }
+            *data++ = 255;
+            *data++ = 255;
+            *data++ = 255;
+            *data++ = 255;
+        }
+    }
+    
+    NSData *tiff = [img TIFFRepresentation];
+    [pb setData:tiff forType:NSTIFFPboardType];
 }
 
 - (IBAction) paperAdvance:(id)sender {
