@@ -564,10 +564,15 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
     NSPasteboard *pb = [NSPasteboard generalPasteboard];
     NSArray *types = [NSArray arrayWithObjects: NSStringPboardType, nil];
     [pb declareTypes:types owner:self];
-    char *buf = core_copy();
-    NSString *txt = [NSString stringWithUTF8String:buf];
+    NSString *txt;
+    if ([loadSkinsWindow isKeyWindow]) {
+        txt = [loadSkinsURL stringValue];
+    } else {
+        char *buf = core_copy();
+        txt = [NSString stringWithUTF8String:buf];
+        free(buf);
+    }
     [pb setString:txt forType:NSStringPboardType];
-    free(buf);
 }
 
 - (IBAction) doPaste:(id)sender {
@@ -576,8 +581,12 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
     NSString *bestType = [pb availableTypeFromArray:types];
     if (bestType != nil) {
         NSString *txt = [pb stringForType:NSStringPboardType];
-        const char *buf = [txt UTF8String];
-        core_paste(buf);
+        if ([loadSkinsWindow isKeyWindow]) {
+            [loadSkinsURL setStringValue:txt];
+        } else {
+            const char *buf = [txt UTF8String];
+            core_paste(buf);
+        }
     }
 }
 
@@ -602,6 +611,7 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
         loadSkinsWindowMapped = true;
     }
     [loadSkinsWindow makeKeyAndOrderFront:self];
+    [loadSkinsURL becomeFirstResponder];
 }
 
 - (IBAction) loadSkinsGo:(id)sender {

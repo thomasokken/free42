@@ -545,6 +545,9 @@
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
+                        <connections>
+                            <action selector="loadSkinsGo:" target="520" id="RC1-vs-6mN"/>
+                        </connections>
                     </textField>
                     <webView id="gQn-Kh-adU">
                         <rect key="frame" x="0.0" y="0.0" width="619" height="593"/>
