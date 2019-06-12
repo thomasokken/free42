@@ -681,6 +681,12 @@ static void tbnonewliner() {
     int len = print_text_bottom - print_text_top;
     if (len < 0)
         len += PRINT_TEXT_SIZE;
+    // Calculate effective top, since printout_top can point
+    // at a truncated line, and we want to skip those when
+    // copying
+    int top = printout_bottom - 2 * print_text_pixel_height;
+    if (top < 0)
+        top += PRINT_LINES;
     int p = print_text_top;
     int pixel_v = 0;
     while (len > 0) {
@@ -689,7 +695,7 @@ static void tbnonewliner() {
             char buf[34];
             for (int v = 0; v < 16; v += 2) {
                 for (int vv = 0; vv < 2; vv++) {
-                    int V = printout_top + (pixel_v + v + vv) * 2;
+                    int V = top + (pixel_v + v + vv) * 2;
                     if (V >= PRINT_LINES)
                         V -= PRINT_LINES;
                     for (int h = 0; h < 17; h++) {
@@ -1597,7 +1603,7 @@ void shell_print(const char *text, int length,
         }
     }
     print_text_pixel_height += text == NULL ? 16 : 9;
-    while (print_text_pixel_height > newlength / 2) {
+    while (print_text_pixel_height > PRINT_LINES / 2 - 1) {
         int tll = print_text[print_text_top] == 255 ? 16 : 9;
         print_text_pixel_height -= tll;
         print_text_top += tll == 16 ? 1 : (print_text[print_text_top] + 1);
