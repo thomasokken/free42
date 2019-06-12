@@ -88,6 +88,12 @@ static bool ann_print_timeout_active = false;
 unsigned char *print_bitmap;
 int printout_top;
 int printout_bottom;
+// Room for PRINT_LINES / 18 lines, plus two, plus one byte
+#define PRINT_TEXT_SIZE 12551
+unsigned char *print_text;
+int print_text_top;
+int print_text_bottom;
+int print_text_pixel_height;
 
 static FILE *print_txt = NULL;
 static FILE *print_gif = NULL;
@@ -206,6 +212,7 @@ static bool is_file(const char *name);
     /******************************/
     
     print_bitmap = (unsigned char *) malloc(PRINT_SIZE);
+    print_text = (unsigned char *) malloc(PRINT_TEXT_SIZE);
     // TODO - handle memory allocation failure
     
     FILE *printfile = fopen(printfilename, "r");
@@ -214,16 +221,43 @@ static bool is_file(const char *name);
         if (n == sizeof(int)) {
             int bytes = printout_bottom * PRINT_BYTESPERLINE;
             n = fread(print_bitmap, 1, bytes, printfile);
-            if (n != bytes)
+            if (n == bytes) {
+                n = fread(&print_text_bottom, 1, sizeof(int), printfile);
+                int n2 = fread(&print_text_pixel_height, 1, sizeof(int), printfile);
+                if (n == sizeof(int) && n2 == sizeof(int)) {
+                    n = fread(print_text, 1, print_text_bottom, printfile);
+                    if (n != print_text_bottom) {
+                        print_text_bottom = 0;
+                        print_text_pixel_height = 0;
+                    }
+                } else {
+                    print_text_bottom = 0;
+                    print_text_pixel_height = 0;
+                }
+            } else {
                 printout_bottom = 0;
-        } else
+                print_text_bottom = 0;
+                print_text_pixel_height = 0;
+            }
+        } else {
             printout_bottom = 0;
+            print_text_bottom = 0;
+            print_text_pixel_height = 0;
+        }
         fclose(printfile);
-    } else
+    } else {
         printout_bottom = 0;
+        print_text_bottom = 0;
+        print_text_pixel_height = 0;
+    }
     printout_top = 0;
+    /* Why am I doing this? Seems unnecessary. Commenting out;
+     * if indeed unnecessary, should be removed. If it is necessary,
+     * after all, well, WHY?
     for (int n = printout_bottom * PRINT_BYTESPERLINE; n < PRINT_SIZE; n++)
         print_bitmap[n] = 0;
+     */
+    print_text_top = 0;
 }
 
 static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
@@ -311,6 +345,7 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
     
     printfile = fopen(printfilename, "w");
     if (printfile != NULL) {
+        // Write bitmap
         length = printout_bottom - printout_top;
         if (length < 0)
             length += PRINT_LINES;
@@ -331,6 +366,28 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
             n = fwrite(print_bitmap, 1,
                        PRINT_BYTESPERLINE * printout_bottom, printfile);
             if (n != PRINT_BYTESPERLINE * printout_bottom)
+                goto failed;
+        }
+        // Write text
+        length = print_text_bottom - print_text_top;
+        if (length < 0)
+            length += PRINT_TEXT_SIZE;
+        n = fwrite(&length, 1, sizeof(int), printfile);
+        if (n != sizeof(int))
+            goto failed;
+        n = fwrite(&print_text_pixel_height, 1, sizeof(int), printfile);
+        if (n != sizeof(int))
+            goto failed;
+        if (print_text_bottom >= print_text_top) {
+            n = fwrite(print_text + print_text_top, 1, length, printfile);
+            if (n != length)
+                goto failed;
+        } else {
+            n = fwrite(print_text + print_text_top, 1, PRINT_TEXT_SIZE - print_text_top, printfile);
+            if (n != PRINT_TEXT_SIZE - print_text_top)
+                goto failed;
+            n = fwrite(print_text, 1, print_text_bottom, printfile);
+            if (n != print_text_bottom)
                 goto failed;
         }
         
@@ -473,6 +530,7 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
 
 - (IBAction) clearPrintOut:(id)sender {
     printout_top = printout_bottom = 0;
+    print_text_top = print_text_bottom = print_text_pixel_height = 0;
     NSSize s;
     s.width = 358;
     s.height = 0;
@@ -590,8 +648,85 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
     }
 }
 
+static char *tb;
+static int tblen, tbcap;
+
+static void tbwriter(const char *text, int length) {
+    if (tblen + length > tbcap) {
+        tbcap += length + 8192;
+        tb = (char *) realloc(tb, tbcap);
+    }
+    if (tb != NULL) {
+        memcpy(tb + tblen, text, length);
+        tblen += length;
+    }
+}
+
+static void tbnewliner() {
+    tbwriter("\n", 1);
+}
+
+static void tbnonewliner() {
+    // No-op
+}
+
 - (IBAction) doCopyPrintOutAsText:(id)sender {
-    // TODO
+    NSPasteboard *pb = [NSPasteboard generalPasteboard];
+    NSArray *types = [NSArray arrayWithObjects: NSStringPboardType, nil];
+    [pb declareTypes:types owner:self];
+
+    tb = NULL;
+    tblen = tbcap = 0;
+
+    int len = print_text_bottom - print_text_top;
+    if (len < 0)
+        len += PRINT_TEXT_SIZE;
+    int p = print_text_top;
+    int pixel_v = 0;
+    while (len > 0) {
+        int z = print_text[p++];
+        if (z == 255) {
+            char buf[34];
+            for (int v = 0; v < 16; v += 2) {
+                for (int vv = 0; vv < 2; vv++) {
+                    int V = printout_top + (pixel_v + v + vv) * 2;
+                    if (V >= PRINT_LINES)
+                        V -= PRINT_LINES;
+                    for (int h = 0; h < 17; h++) {
+                        unsigned char a = print_bitmap[V * PRINT_BYTESPERLINE + 2 * h + 1];
+                        unsigned char b = print_bitmap[V * PRINT_BYTESPERLINE + 2 * h];
+                        buf[vv * 17 + h] = (a & 128) | ((a & 32) << 1) | ((a & 8) << 2) | ((a & 2) << 3) | ((b & 128) >> 4) | ((b & 32) >> 3) | ((b & 8) >> 2) | ((b & 2) >> 1);
+                    }
+                }
+                shell_spool_bitmap_to_txt(buf, 17, 0, 0, 131, 2, tbwriter, tbnewliner);
+            }
+            pixel_v += 16;
+        } else {
+            if (p + z < PRINT_TEXT_SIZE) {
+                shell_spool_txt((const char *) (print_text + p), z, tbwriter, tbnewliner);
+                p += z;
+            } else {
+                int d = PRINT_TEXT_SIZE - p;
+                shell_spool_txt((const char *) (print_text + p), d, tbwriter, tbnonewliner);
+                shell_spool_txt((const char *) print_text, z - d, tbwriter, tbnewliner);
+                p = z - d;
+            }
+            len -= z;
+            pixel_v += 9;
+        }
+        len--;
+    }
+    tbwriter("\0", 1);
+
+    NSString *txt;
+    if (tb == NULL) {
+        txt = @"";
+    } else {
+        txt = [NSString stringWithCString:tb encoding:NSUTF8StringEncoding];
+        free(tb);
+    }
+
+    [pb setString:txt forType:NSStringPboardType];
 }
 
 - (IBAction) doCopyPrintOutAsImage:(id)sender {
@@ -636,7 +771,7 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
 
 - (IBAction) paperAdvance:(id)sender {
     static const char *bits = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
-    shell_print(NULL, 0, bits, 18, 0, 0, 143, 9);
+    shell_print("", 0, bits, 18, 0, 0, 143, 9);
 }
 
 - (IBAction) loadSkins:(id)sender {
@@ -1315,6 +1450,7 @@ void shell_powerdown() {
 void shell_print(const char *text, int length,
                  const char *bits, int bytesperline,
                  int x, int y, int width, int height) {
+
     int xx, yy;
     int oldlength, newlength;
     
@@ -1444,6 +1580,29 @@ void shell_print(const char *text, int length,
             print_gif = NULL;
         }
         done_print_gif:;
+    }
+
+    print_text[print_text_bottom++] = (char) (text == NULL ? 255 : length);
+    if (print_text_bottom == PRINT_TEXT_SIZE)
+        print_text_bottom = 0;
+    if (text != NULL) {
+        if (print_text_bottom + length < PRINT_TEXT_SIZE) {
+            memcpy(print_text + print_text_bottom, text, length);
+            print_text_bottom += length;
+        } else {
+            int part = PRINT_TEXT_SIZE - print_text_bottom;
+            memcpy(print_text + print_text_bottom, text, part);
+            memcpy(print_text, text + part, length - part);
+            print_text_bottom = length - part;
+        }
+    }
+    print_text_pixel_height += text == NULL ? 16 : 9;
+    while (print_text_pixel_height > newlength / 2) {
+        int tll = print_text[print_text_top] == 255 ? 16 : 9;
+        print_text_pixel_height -= tll;
+        print_text_top += tll == 16 ? 1 : (print_text[print_text_top] + 1);
+        if (print_text_top >= PRINT_TEXT_SIZE)
+            print_text_top -= PRINT_TEXT_SIZE;
     }
 }
 
