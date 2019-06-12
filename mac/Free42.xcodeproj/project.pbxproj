@@ -17,6 +17,7 @@
 		E9031CB90FF690CB0023F9EC /* Standard.layout in Resources */ = {isa = PBXBuildFile; fileRef = E9031CB50FF690CB0023F9EC /* Standard.layout */; };
 		E907929922AD943A00DA7F7E /* SkinListDataSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = E907929722AD943A00DA7F7E /* SkinListDataSource.mm */; };
 		E9092A7818C2A52500609AB0 /* gcc111libbid.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E9092A7718C2A52500609AB0 /* gcc111libbid.a */; };
+		E91702FA22B1C6AE0093E750 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E91702F922B1C6AE0093E750 /* WebKit.framework */; };
 		E93469F21CF0C68600B0762F /* readtest_lines.cc in Sources */ = {isa = PBXBuildFile; fileRef = E93469F11CF0C68600B0762F /* readtest_lines.cc */; };
 		E93469F41CF0CCAB00B0762F /* readtest.c in Sources */ = {isa = PBXBuildFile; fileRef = E93469F31CF0CCAB00B0762F /* readtest.c */; settings = {COMPILER_FLAGS = "-D__intptr_t_defined -DLINUX"; }; };
 		E94E1BEC0FF391DA0074CA65 /* VERSION in Resources */ = {isa = PBXBuildFile; fileRef = E94E1BEB0FF391DA0074CA65 /* VERSION */; };
@@ -86,6 +87,7 @@
 		E9092A7518C2A46400609AB0 /* bid_conf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bid_conf.h; path = ../common/bid_conf.h; sourceTree = "<group>"; };
 		E9092A7618C2A46400609AB0 /* bid_functions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bid_functions.h; path = ../common/bid_functions.h; sourceTree = "<group>"; };
 		E9092A7718C2A52500609AB0 /* gcc111libbid.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = gcc111libbid.a; sourceTree = "<group>"; };
+		E91702F922B1C6AE0093E750 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		E93469F11CF0C68600B0762F /* readtest_lines.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = readtest_lines.cc; sourceTree = "<group>"; };
 		E93469F31CF0CCAB00B0762F /* readtest.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = readtest.c; path = IntelRDFPMathLib20U1/TESTS/readtest.c; sourceTree = "<group>"; };
 		E935A7C4224AE2F900639B84 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
@@ -176,6 +178,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E91702FA22B1C6AE0093E750 /* WebKit.framework in Frameworks */,
 				E9BA5705200189F400B490B0 /* IOKit.framework in Frameworks */,
 				8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */,
 				E9B0795E0FF54A170021B83D /* AudioToolbox.framework in Frameworks */,
@@ -295,6 +298,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				E91702F922B1C6AE0093E750 /* WebKit.framework */,
 				E9BA5704200189F400B490B0 /* IOKit.framework */,
 				1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */,
 				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
