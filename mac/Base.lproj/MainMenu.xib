@@ -520,14 +520,14 @@
         <window title="Load Skins" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="O16-Bu-L5F">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="121" y="123" width="619" height="632"/>
+            <rect key="contentRect" x="121" y="123" width="654" height="632"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1366" height="745"/>
             <view key="contentView" id="IcW-lr-etz">
-                <rect key="frame" x="0.0" y="0.0" width="619" height="632"/>
+                <rect key="frame" x="0.0" y="0.0" width="654" height="632"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <button verticalHuggingPriority="750" id="3i2-ZQ-TCe">
-                        <rect key="frame" x="3" y="593" width="51" height="32"/>
+                        <rect key="frame" x="3" y="594" width="51" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="push" title="Go" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="H0v-c4-gA2">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -538,7 +538,7 @@
                         </connections>
                     </button>
                     <textField verticalHuggingPriority="750" id="Alm-zb-kiZ">
-                        <rect key="frame" x="120" y="600" width="428" height="22"/>
+                        <rect key="frame" x="120" y="600" width="463" height="22"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" id="jQd-V9-HfK">
                             <font key="font" metaFont="system"/>
@@ -550,7 +550,7 @@
                         </connections>
                     </textField>
                     <webView id="gQn-Kh-adU">
-                        <rect key="frame" x="0.0" y="0.0" width="619" height="593"/>
+                        <rect key="frame" x="0.0" y="0.0" width="654" height="593"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <webPreferences key="preferences" defaultFontSize="16" defaultFixedFontSize="13" minimumFontSize="0">
                             <nil key="identifier"/>
@@ -560,7 +560,7 @@
                         </connections>
                     </webView>
                     <button verticalHuggingPriority="750" id="cH4-0v-aqb">
-                        <rect key="frame" x="46" y="593" width="40" height="32"/>
+                        <rect key="frame" x="46" y="594" width="40" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="push" title="←" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="HYe-uq-gLs">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -571,7 +571,7 @@
                         </connections>
                     </button>
                     <button verticalHuggingPriority="750" id="Lr9-dS-xos">
-                        <rect key="frame" x="78" y="593" width="40" height="32"/>
+                        <rect key="frame" x="78" y="594" width="40" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="push" title="→" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="1DI-7e-AJD">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -582,8 +582,8 @@
                         </connections>
                     </button>
                     <button verticalHuggingPriority="750" id="Xmw-hl-k3g">
-                        <rect key="frame" x="550" y="593" width="63" height="32"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <rect key="frame" x="585" y="594" width="63" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="push" title="Load" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="sei-xN-yhf">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
@@ -597,7 +597,7 @@
             <connections>
                 <outlet property="delegate" destination="520" id="mg3-Ue-egb"/>
             </connections>
-            <point key="canvasLocation" x="-595.5" y="340"/>
+            <point key="canvasLocation" x="-535" y="338"/>
         </window>
         <window title="Delete Skins" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="mKM-t8-JhI">
             <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
