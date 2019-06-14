@@ -512,6 +512,7 @@ int main(int argc, char *argv[]) {
     printf("\n");
 
     for (argnum = 0; argnum < argc2; argnum++) {
+        unsigned char rbuf[5];
         in = fopen(argv2[argnum], "rb");
         if (in == NULL) {
             int err = errno;
@@ -519,15 +520,54 @@ int main(int argc, char *argv[]) {
                                             argv2[argnum], strerror(err), err);
             exit(1);
         }
-        while (rom_size < 65536) {
-            int c1, c2;
-            c1 = fgetc(in);
-            if (c1 == EOF)
-                break;
-            c2 = fgetc(in);
-            if (c2 == EOF)
-                break;
-            rom[rom_size++] = (c1 << 8) | c2;
+        if (fread(rbuf, 1, 5, in) == 5 && strcmp("MOD1", (char *) rbuf) == 0) {
+            int num_pages, i;
+            if (argc2 > 1) {
+                printf("\"%s\" is a MOD file, and MOD files can only be "
+                                  "processed one at a time.\n", argv2[argnum]);
+                exit(1);
+            }
+            if (fseek(in, 691, SEEK_CUR) != 0) {
+                int err;
+                mod_fail:
+                err = errno;
+                printf("Failed to read MOD file \"%s\": %s (%d)\n",
+                                            argv2[argnum], strerror(err), err);
+                exit(1);
+            }
+            num_pages = fgetc(in);
+            if (num_pages == EOF)
+                goto mod_fail;
+            num_pages &= 255;
+            if (num_pages > 16) {
+                printf("MOD file \"%s\" contains %d pages; rom2raw can only "
+                               "handle up to 16.\n", argv2[argnum], num_pages);
+                exit(1);
+            }
+            while (num_pages-- > 0) {
+                if (fseek(in, 68, SEEK_CUR) != 0)
+                    goto mod_fail;
+                for (i = 0; i < 1024; i++) {
+                    if (fread(rbuf, 1, 5, in) != 5)
+                        goto mod_fail;
+                    rom[rom_size++] = rbuf[0] | (rbuf[1] & 3) << 8;
+                    rom[rom_size++] = rbuf[1] >> 2 | (rbuf[2] & 15) << 6;
+                    rom[rom_size++] = rbuf[2] >> 4 | (rbuf[3] & 63) << 4;
+                    rom[rom_size++] = rbuf[3] >> 6 | rbuf[4] << 2;
+                }
+            }
+        } else {
+            fseek(in, 0, SEEK_SET);
+            while (rom_size < 65536) {
+                int c1, c2;
+                c1 = fgetc(in);
+                if (c1 == EOF)
+                    break;
+                c2 = fgetc(in);
+                if (c2 == EOF)
+                    break;
+                rom[rom_size++] = (c1 << 8) | c2;
+            }
         }
         fclose(in);
     }
