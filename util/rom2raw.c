@@ -336,13 +336,13 @@ char *arg2str(unsigned char x, int one_digit) {
     if (x <= 101)
         sprintf(buf, one_digit ? "%d" : "%02d", x);
     else if (x == 122)
-        sprintf(buf, "|-");
+        sprintf(buf, "\342\224\234");
     else if (x <= 127)
         sprintf(buf, "%c", "ABCDEFGHIJTZYXLMNOPQ.abcde"[x - 102]);
     else if (x <= 239)
         sprintf(buf, "IND %02d", x - 128);
     else if (x == 250)
-        sprintf(buf, "IND |-");
+        sprintf(buf, "IND \342\224\234");
     else
         sprintf(buf, "IND %c", "ABCDEFGHIJTZYXLMNOPQ.abcde"[x - 230]);
     return buf;
@@ -421,7 +421,7 @@ int print_line(int lineno, unsigned char *instr, int len) {
     } else {
         int len = k & 15;
         if (len > 0 && instr[1] == 127)
-            bufprintf(buf, " |-\"%s\"", hp2ascii(instr + 2, len - 1));
+            bufprintf(buf, " \342\224\234\"%s\"", hp2ascii(instr + 2, len - 1));
         else
             bufprintf(buf, " \"%s\"", hp2ascii(instr + 1, len));
     }
