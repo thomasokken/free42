@@ -82,7 +82,7 @@
 }
 
 - (IBAction) done {
-    [RootViewController showMain];
+    [RootViewController showSelectSkin];
 }
 
 - (IBAction) deleteSkin {

@@ -36,7 +36,6 @@
 
 - (id) initWithCoder:(NSCoder *)coder {
     [super initWithCoder:coder];
-    [urlField setText:@"https://thomasokken.com/free42/skins/"];
     return self;
 }
 
@@ -45,11 +44,14 @@
 }
 
 - (void) raised {
+    NSString *url = [urlField text];
+    if (url == nil || [url length] == 0)
+        [urlField setText:@"https://thomasokken.com/free42/skins/"];
     [self reload];
 }
 
 - (IBAction) done {
-    [RootViewController showMain];
+    [RootViewController showSelectSkin];
 }
 
 - (IBAction) reload {
@@ -58,8 +60,63 @@
     [webView loadRequest:req];
 }
 
-- (IBAction) loadSkin {
+- (BOOL) tryLoad:(NSString *)url asFile:(NSString *)name {
+    NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
+    NSURLResponse *resp;
+    NSError *err;
+    NSData *data = [NSURLConnection sendSynchronousRequest:req returningResponse:&resp error:&err];
+    if (data == nil)
+        return NO;
+    NSString *fname = [NSString stringWithFormat:@"skins/%@", name];
+    return [data writeToFile:fname atomically:NO];
+}
 
+- (IBAction) loadSkin {
+    NSString *url = [urlField text];
+    NSURLComponents *u = [NSURLComponents componentsWithString:url];
+    NSString *path = [u path];
+    if (path == nil) {
+        [RootViewController showMessage:@"Invalid Skin URL"];
+        return;
+    }
+    NSString *gifUrl = nil, *layoutUrl = nil;
+    if ([path hasSuffix:@".gif"]) {
+        gifUrl = url;
+        NSRange r = NSMakeRange(0, [path length] - 3);
+        NSString *layoutPath = [[path substringWithRange:r] stringByAppendingString:@"layout"];
+        [u setPath:layoutPath];
+        layoutUrl = [u string];
+    } else if ([path hasSuffix:@".layout"]) {
+        layoutUrl = url;
+        NSRange r = NSMakeRange(0, [path length] - 6);
+        NSString *gifPath = [[path substringWithRange:r] stringByAppendingString:@"gif"];
+        [u setPath:gifPath];
+        gifUrl = [u string];
+    } else {
+        [RootViewController showMessage:@"Invalid Skin URL"];
+        return;
+    }
+    if ([self tryLoad:gifUrl asFile:@"_temp_gif_"]
+            && [self tryLoad:layoutUrl asFile:@"_temp_layout_"]) {
+        char buf[FILENAMELEN];
+        NSURL *u = [NSURL URLWithString:gifUrl];
+        snprintf(buf, FILENAMELEN, "skins/%s", [[u lastPathComponent] UTF8String]);
+        rename("skins/_temp_gif_", buf);
+        u = [NSURL URLWithString:layoutUrl];
+        snprintf(buf, FILENAMELEN, "skins/%s", [[u lastPathComponent] UTF8String]);
+        rename("skins/_temp_layout_", buf);
+    } else {
+        char buf[FILENAMELEN];
+        snprintf(buf, FILENAMELEN, "skins/_temp_gif_");
+        remove(buf);
+        snprintf(buf, FILENAMELEN, "skins/_temp_layout_");
+        remove(buf);
+        [RootViewController showMessage:@"Loading Skin Failed"];
+    }
+}
+- (void)webViewDidFinishLoad:(UIWebView *)webView {
+    NSString *url = [[[webView request] URL] absoluteString];
+    [urlField setText:url];
 }
 
 @end

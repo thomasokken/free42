@@ -667,23 +667,23 @@
             <connections>
                 <outlet property="aboutView" destination="65" id="ZkC-yX-UIv"/>
                 <outlet property="calcView" destination="64" id="6jJ-L6-Do4"/>
-                <outlet property="deleteSkinView" destination="C2c-Vb-laU" id="qyC-aT-3JB"/>
+                <outlet property="deleteSkinView" destination="C2c-Vb-laU" id="Baa-TG-euO"/>
                 <outlet property="httpServerView" destination="66" id="MB3-wb-bPS"/>
-                <outlet property="loadSkinView" destination="31h-BE-IyQ" id="ipB-bA-gGJ"/>
+                <outlet property="loadSkinView" destination="31h-BE-IyQ" id="Vvb-B2-Wsj"/>
                 <outlet property="preferencesView" destination="67" id="fAX-Dr-imG"/>
                 <outlet property="printView" destination="68" id="vWz-dw-cFd"/>
                 <outlet property="selectFileView" destination="187" id="hs6-Wx-xbX"/>
                 <outlet property="selectProgramsView" destination="232" id="jOQ-F3-Yr9"/>
-                <outlet property="selectSkinView" destination="69" id="x1n-d3-HGe"/>
+                <outlet property="selectSkinView" destination="69" id="OB6-cz-FuP"/>
                 <outlet property="window" destination="2" id="y0Y-Vl-5K3"/>
             </connections>
         </viewController>
         <view contentMode="scaleToFill" id="C2c-Vb-laU" customClass="DeleteSkinView">
-            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
-            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <rect key="frame" x="0.0" y="0.0" width="320" height="460"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <navigationBar contentMode="scaleToFill" id="TT8-3s-JRz">
-                    <rect key="frame" x="0.0" y="20" width="375" height="44"/>
+                    <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                     <items>
                         <navigationItem title="Delete Skins" id="TMB-vh-K7Z">
@@ -701,7 +701,7 @@
                     </items>
                 </navigationBar>
                 <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="default" allowsMultipleSelection="YES" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="dOP-iK-nSD">
-                    <rect key="frame" x="0.0" y="64" width="375" height="603"/>
+                    <rect key="frame" x="0.0" y="44" width="320" height="416"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <connections>
@@ -711,17 +711,18 @@
                 </tableView>
             </subviews>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <connections>
                 <outlet property="skinTable" destination="dOP-iK-nSD" id="M4x-Va-hNj"/>
             </connections>
-            <point key="canvasLocation" x="109.59999999999999" y="-127.28635682158921"/>
+            <point key="canvasLocation" x="108.8" y="-127.736131934033"/>
         </view>
         <view contentMode="scaleToFill" id="31h-BE-IyQ" customClass="LoadSkinView">
-            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
-            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <rect key="frame" x="0.0" y="0.0" width="320" height="460"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <navigationBar contentMode="scaleToFill" id="dbd-x8-Y03">
-                    <rect key="frame" x="0.0" y="20" width="375" height="44"/>
+                    <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                     <items>
                         <navigationItem title="Load Skins" id="lFr-N9-rbb">
@@ -739,7 +740,7 @@
                     </items>
                 </navigationBar>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="Pdk-5v-6Yf">
-                    <rect key="frame" x="30" y="64" width="30" height="30"/>
+                    <rect key="frame" x="30" y="44" width="30" height="30"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <state key="normal" title="←"/>
                     <connections>
@@ -747,7 +748,7 @@
                     </connections>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="8TF-bi-44b">
-                    <rect key="frame" x="60" y="64" width="30" height="30"/>
+                    <rect key="frame" x="60" y="44" width="30" height="30"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <state key="normal" title="→"/>
                     <connections>
@@ -755,14 +756,14 @@
                     </connections>
                 </button>
                 <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" id="cDc-Mu-Sdq">
-                    <rect key="frame" x="90" y="64" width="315" height="30"/>
+                    <rect key="frame" x="90" y="44" width="230" height="30"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                     <nil key="textColor"/>
                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                     <textInputTraits key="textInputTraits"/>
                 </textField>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="0ib-3L-8As">
-                    <rect key="frame" x="0.0" y="64" width="30" height="30"/>
+                    <rect key="frame" x="0.0" y="44" width="30" height="30"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <state key="normal" title="Go"/>
                     <connections>
@@ -770,17 +771,21 @@
                     </connections>
                 </button>
                 <webView contentMode="scaleToFill" id="Glm-RJ-JN7">
-                    <rect key="frame" x="8" y="95" width="367" height="572"/>
+                    <rect key="frame" x="0.0" y="74" width="320" height="384"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                     <color key="backgroundColor" red="0.36078431370000003" green="0.38823529410000002" blue="0.4039215686" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <connections>
+                        <outlet property="delegate" destination="31h-BE-IyQ" id="5XU-kZ-vF0"/>
+                    </connections>
                 </webView>
             </subviews>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <connections>
                 <outlet property="urlField" destination="cDc-Mu-Sdq" id="8Gt-jA-wlp"/>
                 <outlet property="webView" destination="Glm-RJ-JN7" id="yTw-yB-O3P"/>
             </connections>
-            <point key="canvasLocation" x="52" y="48.125937031484263"/>
+            <point key="canvasLocation" x="51.200000000000003" y="47.676161919040482"/>
         </view>
     </objects>
     <resources>
