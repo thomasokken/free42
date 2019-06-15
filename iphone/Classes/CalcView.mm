@@ -1193,6 +1193,29 @@ void shell_print(const char *text, int length,
         }
         done_print_gif:;
     }
+
+    print_text[print_text_bottom++] = (char) (text == NULL ? 255 : length);
+    if (print_text_bottom == PRINT_TEXT_SIZE)
+        print_text_bottom = 0;
+    if (text != NULL) {
+        if (print_text_bottom + length < PRINT_TEXT_SIZE) {
+            memcpy(print_text + print_text_bottom, text, length);
+            print_text_bottom += length;
+        } else {
+            int part = PRINT_TEXT_SIZE - print_text_bottom;
+            memcpy(print_text + print_text_bottom, text, part);
+            memcpy(print_text, text + part, length - part);
+            print_text_bottom = length - part;
+        }
+    }
+    print_text_pixel_height += text == NULL ? 16 : 9;
+    while (print_text_pixel_height > PRINT_LINES / 2 - 1) {
+        int tll = print_text[print_text_top] == 255 ? 16 : 9;
+        print_text_pixel_height -= tll;
+        print_text_top += tll == 16 ? 1 : (print_text[print_text_top] + 1);
+        if (print_text_top >= PRINT_TEXT_SIZE)
+            print_text_top -= PRINT_TEXT_SIZE;
+    }
 }
 
 /*

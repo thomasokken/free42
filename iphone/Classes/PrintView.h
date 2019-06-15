@@ -27,23 +27,25 @@ struct update_params {
 #define PRINT_LINES 18000
 #define PRINT_BYTESPERLINE 18
 #define PRINT_SIZE 324000
+// Room for PRINT_LINES / 18 lines, plus two, plus one byte
+#define PRINT_TEXT_SIZE 12551
 
 extern unsigned char *print_bitmap;
 extern int printout_top;
 extern int printout_bottom;
+extern unsigned char *print_text;
+extern int print_text_top;
+extern int print_text_bottom;
+extern int print_text_pixel_height;
 
 @class PrintTileView;
 
-@interface PrintView : UIView <UIScrollViewDelegate> {
-    UIBarButtonItem *clearButton;
-    UIBarButtonItem *doneButton;
+@interface PrintView : UIView <UIActionSheetDelegate, UIScrollViewDelegate> {
     UIScrollView *scrollView;
     PrintTileView *tile1;
     PrintTileView *tile2;
 }
 
-@property (nonatomic, retain) IBOutlet UIBarButtonItem *clearButton;
-@property (nonatomic, retain) IBOutlet UIBarButtonItem *doneButton;
 @property (nonatomic, retain) IBOutlet UIScrollView *scrollView;
 @property (nonatomic, retain) IBOutlet PrintTileView *tile1;
 @property (nonatomic, retain) IBOutlet PrintTileView *tile2;
@@ -51,7 +53,9 @@ extern int printout_bottom;
 + (PrintView *) instance;
 + (CGFloat) scale;
 - (void) awakeFromNib;
-- (IBAction) clear;
+- (IBAction) advance;
+- (IBAction) edit;
+- (void) actionSheet:(UIActionSheet *) actionSheet clickedButtonAtIndex:(NSInteger) buttonIndex;
 - (IBAction) done;
 - (void) updatePrintout:(id) params;
 - (void) scrollToBottom;

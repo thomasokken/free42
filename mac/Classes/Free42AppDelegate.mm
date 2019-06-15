@@ -798,12 +798,10 @@ static void tbnonewliner() {
 
 - (IBAction) loadSkinsBack:(id)sender {
     [loadSkinsWebView goBack];
-    //[loadSkinsURL setStringValue:[loadSkinsWebView mainFrameURL]];
 }
 
 - (IBAction) loadSkinsForward:(id)sender {
     [loadSkinsWebView goForward];
-    //[loadSkinsURL setStringValue:[loadSkinsWebView mainFrameURL]];
 }
 
 - (void)webView:(WebView *)sender didFinishLoadForFrame:(WebFrame *)frame {

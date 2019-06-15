@@ -415,11 +415,18 @@
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                     <items>
                         <navigationItem title="Print-Out" id="77">
-                            <barButtonItem key="leftBarButtonItem" title="Clear" id="175">
-                                <connections>
-                                    <action selector="clear" destination="68" id="177"/>
-                                </connections>
-                            </barButtonItem>
+                            <leftBarButtonItems>
+                                <barButtonItem title="Edit" id="DBQ-0f-Dr8">
+                                    <connections>
+                                        <action selector="edit" destination="68" id="SrK-rd-fPi"/>
+                                    </connections>
+                                </barButtonItem>
+                                <barButtonItem title="Adv" id="RYw-oo-Wpu">
+                                    <connections>
+                                        <action selector="advance" destination="68" id="xi3-OT-JxO"/>
+                                    </connections>
+                                </barButtonItem>
+                            </leftBarButtonItems>
                             <barButtonItem key="rightBarButtonItem" title="Done" id="94">
                                 <connections>
                                     <action selector="done" destination="68" id="101"/>
@@ -433,8 +440,6 @@
             <nil key="simulatedStatusBarMetrics"/>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <connections>
-                <outlet property="clearButton" destination="175" id="176"/>
-                <outlet property="doneButton" destination="94" id="99"/>
                 <outlet property="scrollView" destination="221" id="223"/>
                 <outlet property="tile1" destination="226" id="228"/>
                 <outlet property="tile2" destination="227" id="229"/>
