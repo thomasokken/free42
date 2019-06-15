@@ -356,7 +356,7 @@ int print_line(int lineno, unsigned char *instr, int len) {
         return 0;
     bufprintf(buf, "%02d", lineno);
     if (k <= 0x0F) {
-        bufprintf(buf, ">LBL %02d", (k & 15) - 1);
+        bufprintf(buf, "\342\226\270LBL %02d", (k & 15) - 1);
     } else if (k <= 0x1C) {
         int i;
         bufprintf(buf, " ");
@@ -406,14 +406,14 @@ int print_line(int lineno, unsigned char *instr, int len) {
         if (instr[2] < 0xF1)
             bufprintf(buf, " END");
         else
-            bufprintf(buf, ">LBL \"%s\"",
+            bufprintf(buf, "\342\226\270LBL \"%s\"",
                                 hp2ascii(instr + 4, (instr[2] & 15) - 1));
     } else if (k == 0xCE) {
         bufprintf(buf, " X<> %s", arg2str(instr[1], 0));
     } else if (k == 0xCF) {
         /* TODO: how about IND arguments? And how does the
            synthetics-detecting code deal with that? */
-        bufprintf(buf, ">LBL %s", arg2str(instr[1], 0));
+        bufprintf(buf, "\342\226\270LBL %s", arg2str(instr[1], 0));
     } else if (k <= 0xDF) {
         bufprintf(buf, " GTO %s", arg2str(instr[2] & 127, 0));
     } else if (k <= 0xEF) {
