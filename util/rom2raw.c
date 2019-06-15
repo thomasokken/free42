@@ -82,8 +82,8 @@ xrom_spec hp42s_xroms[] = {
     /* XROM 02,42 */ 0x0AA, 0, "INSR",
     /* XROM 02,43 */ 0x0AB, 0, "DELR",
     /* XROM 02,44 */ 0x0AC, 0, "WMEAN",
-    /* XROM 02,45 */ 0x0AD, 0, "LINSigma",
-    /* XROM 02,46 */ 0x0AE, 0, "ALLSigma",
+    /* XROM 02,45 */ 0x0AD, 0, "LIN\316\243",
+    /* XROM 02,46 */ 0x0AE, 0, "ALL\316\243",
     /* XROM 03,34 */ 0x0E2, 0, "HEXM",
     /* XROM 03,35 */ 0x0E3, 0, "DECM",
     /* XROM 03,36 */ 0x0E4, 0, "OCTM",
@@ -99,8 +99,8 @@ xrom_spec hp42s_xroms[] = {
     /* XROM 09,28 */ 0x25C, 0, "RDX,",
     /* XROM 09,29 */ 0x25D, 0, "ALL",
     /* XROM 09,30 */ 0x25E, 0, "MENU",
-    /* XROM 09,31 */ 0x25F, 0, "X>=0?",
-    /* XROM 09,32 */ 0x260, 0, "X>=Y?",
+    /* XROM 09,31 */ 0x25F, 0, "X\342\211\2450?", /* >= */
+    /* XROM 09,32 */ 0x260, 0, "X\342\211\245Y?", /* >= */
     /* XROM 09,34 */ 0x262, 0, "CLKEYS",
     /* XROM 09,35 */ 0x263, 0, "KEYASN",
     /* XROM 09,36 */ 0x264, 0, "LCLBL",
@@ -127,7 +127,7 @@ xrom_spec hp42s_xroms[] = {
     /* XROM 25,07 */ 0x647, 1, "ATOX",      /* Extended Functions */
     /* XROM 25,28 */ 0x65C, 1, "POSA",      /* Extended Functions */
     /* XROM 25,47 */ 0x66F, 1, "XTOA",      /* Extended Functions */
-    /* XROM 25,56 */ 0x678, 1, "SigmaREG?", /* CX Extended Functions */
+    /* XROM 25,56 */ 0x678, 1, "\316\243REG?", /* CX Extended Functions */
     /* XROM 26,01 */ 0x681, 1, "ADATE",     /* Time */
     /* XROM 26,04 */ 0x684, 1, "ATIME",     /* Time */
     /* XROM 26,05 */ 0x685, 1, "ATIME24",   /* Time */
@@ -159,10 +159,10 @@ xrom_spec hp42s_xroms[] = {
     /* XROM 27,25 */ 0x6D9, 0, "RCLIJ",
     /* XROM 27,26 */ 0x6DA, 0, "NEWMAT",
     /* XROM 27,27 */ 0x6DB, 0, "OLD",
-    /* XROM 27,28 */ 0x6DC, 0, "left",
-    /* XROM 27,29 */ 0x6DD, 0, "right",
-    /* XROM 27,30 */ 0x6DE, 0, "up",
-    /* XROM 27,31 */ 0x6DF, 0, "down",
+    /* XROM 27,28 */ 0x6DC, 0, "\342\206\220", /* left */
+    /* XROM 27,29 */ 0x6DD, 0, "\342\206\222", /* right */
+    /* XROM 27,30 */ 0x6DE, 0, "\342\206\221", /* up */
+    /* XROM 27,31 */ 0x6DF, 0, "\342\206\223", /* down */
     /* XROM 27,33 */ 0x6E1, 0, "EDIT",
     /* XROM 27,34 */ 0x6E2, 0, "WRAP",
     /* XROM 27,35 */ 0x6E3, 0, "GROW",
@@ -174,7 +174,7 @@ xrom_spec hp42s_xroms[] = {
     /* XROM 27,44 */ 0x6EC, 0, "[FIND]",
     /* XROM 27,45 */ 0x6ED, 0, "RNRM",
     /* XROM 29,08 */ 0x748, 1, "PRA",       /* Printer */
-    /* XROM 29,18 */ 0x752, 1, "PRSigma",   /* Printer */
+    /* XROM 29,18 */ 0x752, 1, "PR\316\243", /* Printer */
     /* XROM 29,19 */ 0x753, 1, "PRSTK",     /* Printer */
     /* XROM 29,20 */ 0x754, 1, "PRX",       /* Printer */
     /* XROM 29,27 */ 0x75B, 0, "MAN",       /* see notes, above */
@@ -258,62 +258,44 @@ char *hp2ascii(char *src, int len) {
     for (s = 0; s < len; s++) {
         c = src[s] & 127;
         switch (c) {
-            /* NOTE: this code performs the following 11 translations
-             * that are not ASCII, but seem to be widely accepted --
-             * that is, they looked OK when I tried them in several
-             * fonts in Windows and Linux, and in Memo Pad on the Palm:
-             *
-             *  19: 197 (0305) Aring
-             *  20: 229 (0345) aring
-             *  21: 196 (0304) Aumlaut
-             *  22: 228 (0344) aumlaut
-             *  23: 214 (0326) Oumlaut
-             *  24: 246 (0366) oumlaut
-             *  25: 220 (0334) Uumlaut
-             *  26: 252 (0374) uumlaut
-             *  27: 198 (0306) AE
-             *  28: 230 (0346) ae
-             *  29: 163 (0243) sterling
-             */
-            case  0:   esc = "\\diamond"; break;
-            case  1:   esc = "x"; break;
-            case  2:   esc = "\\mean"; break;
-            case  3:   esc = "<-"; break;
-            case  4:   esc = "\\alpha"; break;
-            case  5:   esc = "\\beta"; break;
-            case  6:   esc = "\\Gamma"; break;
-            case  7:   esc = "v"; break;
-            case  8:   esc = "\\Delta"; break;
-            case  9:   esc = "\\sigma"; break;
-            case 10:   esc = "\\LF"; break;
-            case 11:   esc = "\\lambda"; break;
-            case 12:   esc = "\\mu"; break;
-            case 13:   esc = "\\angle"; break;
-            case 14:   esc = "\\tau"; break;
-            case 15:   esc = "\\Phi"; break;
-            case 16:   esc = "\\Theta"; break;
-            case 17:   esc = "\\Omega"; break;
-            case 18:   esc = "\\delta"; break;
-            case 19:   esc = "\305"; break;
-            case 20:   esc = "\345"; break;
-            case 21:   esc = "\304"; break;
-            case 22:   esc = "\344"; break;
-            case 23:   esc = "\326"; break;
-            case 24:   esc = "\366"; break;
-            case 25:   esc = "\334"; break;
-            case 26:   esc = "\374"; break;
-            case 27:   esc = "\306"; break;
-            case 28:   esc = "\346"; break;
-            case 29:   esc = "!="; break;
-            case 30:   esc = "\243"; break;
-            case 31:   esc = "\\gray"; break;
-            case '\\': esc = "\\\\"; break;
-            case 96:   esc = "\\T"; break;
-            case 123:  esc = "\\pi"; break;
-            case 125:  esc = "->"; break;
-            case 126:  esc = "\\Sigma"; break;
-            case 127:  esc = "|-"; break;
-            default:   dst[d++] = c; continue;
+            case   0: esc = "\342\227\206"; break; /* diamond */
+            case   1: esc = "\313\243"; break;     /* small high x */
+            case   2: esc = "x\314\204"; break;    /* x with macron (mean) */
+            case   3: esc = "\342\206\220"; break; /* left arrow */
+            case   4: esc = "\316\261"; break;     /* lowercase alpha */
+            case   5: esc = "\316\262"; break;     /* lowercase beta */
+            case   6: esc = "\316\223"; break;     /* uppercase gamma */
+            case   7: esc = "\342\206\223"; break; /* down arrow */
+            case   8: esc = "\316\224"; break;     /* uppercase delta */
+            case   9: esc = "\317\203"; break;     /* lowercase sigma */
+            case  10: esc = "\342\227\206"; break; /* diamond */
+            case  11: esc = "\316\273"; break;     /* lowercase lambda */
+            case  12: esc = "\316\274"; break;     /* lowercase mu */
+            case  13: esc = "\342\210\241"; break; /* measured angle */
+            case  14: esc = "\317\204"; break;     /* lowercase tau */
+            case  15: esc = "\316\246"; break;     /* uppercase phi */
+            case  16: esc = "\316\230"; break;     /* uppercase theta */
+            case  17: esc = "\316\251"; break;     /* uppercase omega */
+            case  18: esc = "\316\264"; break;     /* lowercase delta */
+            case  19: esc = "\303\205"; break;     /* uppercase a with ring */
+            case  20: esc = "\303\245"; break;     /* lowercase a with ring */
+            case  21: esc = "\303\204"; break;     /* uppercase a with umlaut */
+            case  22: esc = "\303\244"; break;     /* lowercase a with umlaut */
+            case  23: esc = "\303\226"; break;     /* uppercase o with umlaut */
+            case  24: esc = "\303\266"; break;     /* lowercase o with umlaut */
+            case  25: esc = "\303\234"; break;     /* uppercase u with umlaut */
+            case  26: esc = "\303\274"; break;     /* lowercase u with umlaut */
+            case  27: esc = "\303\206"; break;     /* uppercase ae ligature */
+            case  28: esc = "\303\246"; break;     /* lowercase ae ligature */
+            case  29: esc = "\342\211\240"; break; /* not-equals sign */
+            case  30: esc = "\302\243"; break;     /* pound sterling sign */
+            case  31: esc = "\342\226\222"; break; /* gray rectangle */
+            case  94: esc = "\342\206\221"; break; /* up arrow */
+            case 123: esc = "\317\200"; break;     /* lowercase pi */
+            case 125: esc = "\342\206\222"; break; /* right arrow */
+            case 126: esc = "\316\243"; break;     /* uppercase sigma */
+            case 127: esc = "\342\224\234"; break; /* append sign */
+            default: dst[d++] = c; continue;
         }
         while (*esc != 0)
             dst[d++] = *esc++;
@@ -323,18 +305,18 @@ char *hp2ascii(char *src, int len) {
 }
 
 char *instr_map[] = {
-    "+", "-", "*", "/", "X<Y?", "X>Y?", "X<=Y?", "Sigma+",
-    "Sigma-", "HMS+", "HMS-", "MOD", "%", "%CH", "P-R", "R-P",
-    "LN", "X^2", "SQRT", "Y^X", "CHS", "E^X", "LOG", "10^X",
-    "E^X-1", "SIN", "COS", "TAN", "ASIN", "ACOS", "ATAN", "DEC",
-    "1/X", "ABS", "FACT", "X!=0?", "X>0?", "LN1+X", "X<0?", "X=0?",
+    "+", "-", "*", "/", "X<Y?", "X>Y?", "X<=Y?", "\316\243+",
+    "\316\243-", "HMS+", "HMS-", "MOD", "%", "%CH", "P-R", "R-P",
+    "LN", "X\342\206\2212", "SQRT", "Y\342\206\221X", "CHS", "E\342\206\221X", "LOG", "10\342\206\221X",
+    "E\342\206\221X-1", "SIN", "COS", "TAN", "ASIN", "ACOS", "ATAN", "DEC",
+    "1/X", "ABS", "FACT", "X\342\211\2400?", "X>0?", "LN1+X", "X<0?", "X=0?",
     "INT", "FRC", "D-R", "R-D", "HMS", "HR", "RND", "OCT",
-    "CLSigma", "X<>Y", "PI", "CLST", "R^", "RDN", "LASTX", "CLX",
-    "X=Y?", "X!=Y?", "SIGN", "X<=0?", "MEAN", "SDEV", "AVIEW", "CLD",
-    "DEG", "RAD", "GRAD", "ENTER^", "STOP", "RTN", "BEEP", "CLA",
+    "CL\316\243", "X<>Y", "PI", "CLST", "R\342\206\221", "RDN", "LASTX", "CLX",
+    "X=Y?", "X\342\211\240Y?", "SIGN", "X<=0?", "MEAN", "SDEV", "AVIEW", "CLD",
+    "DEG", "RAD", "GRAD", "ENTER\342\206\221", "STOP", "RTN", "BEEP", "CLA",
     "ASHF", "PSE", "CLRG", "AOFF", "AON", "OFF", "PROMPT", "ADV",
     "RCL", "STO", "ST+", "ST-", "ST*", "ST/", "ISG", "DSE",
-    "VIEW", "SigmaREG", "ASTO", "ARCL", "FIX", "SCI", "ENG", "TONE",
+    "VIEW", "\316\243REG", "ASTO", "ARCL", "FIX", "SCI", "ENG", "TONE",
     NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
     "SF", "CF", "FS?C", "FC?C", "FS?", "FC?"
 };
