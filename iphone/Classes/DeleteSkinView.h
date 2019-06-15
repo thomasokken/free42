@@ -18,7 +18,7 @@
 #import <UIKit/UIKit.h>
 
 
-@interface SelectSkinView : UIView <UITableViewDelegate, UITableViewDataSource> {
+@interface DeleteSkinView : UIView <UITableViewDelegate, UITableViewDataSource> {
     NSMutableArray *skinNames;
     UIBarButtonItem *doneButton;
     UITableView *skinTable;
@@ -29,8 +29,6 @@
 
 - (void) raised;
 - (IBAction) done;
-- (IBAction) loadSkin;
-- (IBAction) deleteSkin;
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath;
 - (UITableViewCell *) tableView:(UITableView *)table cellForRowAtIndexPath:(NSIndexPath*) indexPath;
 - (NSInteger) tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section;

@@ -25,6 +25,8 @@
 #import "PreferencesView.h"
 #import "AboutView.h"
 #import "SelectFileView.h"
+#import "DeleteSkinView.h"
+#import "LoadSkinView.h"
 #import "RootViewController.h"
 #import "shell.h"
 #import "shell_skin_iphone.h"
@@ -46,6 +48,8 @@ static RootViewController *instance;
 @synthesize preferencesView;
 @synthesize aboutView;
 @synthesize selectFileView;
+@synthesize deleteSkinView;
+@synthesize loadSkinView;
 
 
 - (void) awakeFromNib {
@@ -64,6 +68,8 @@ static RootViewController *instance;
     [self.view addSubview:printView];
     [self.view addSubview:httpServerView];
     [self.view addSubview:selectSkinView];
+    [self.view addSubview:deleteSkinView];
+    [self.view addSubview:loadSkinView];
     [self.view addSubview:selectProgramsView];
     [self.view addSubview:preferencesView];
     [self.view addSubview:aboutView];
@@ -124,6 +130,8 @@ static RootViewController *instance;
     printView.frame = r;
     httpServerView.frame = r;
     selectSkinView.frame = r;
+    deleteSkinView.frame = r;
+    loadSkinView.frame = r;
     selectProgramsView.frame = r;
     preferencesView.frame = r;
     aboutView.frame = r;
@@ -273,6 +281,24 @@ static int my_shell_read(char *buf, int buflen) {
 + (void) doExport {
     [instance.selectProgramsView raised];
     [instance.self.view bringSubviewToFront:instance.selectProgramsView];
+}
+
+- (void) showLoadSkin2 {
+    [loadSkinView raised];
+    [self.view bringSubviewToFront:loadSkinView];
+}
+
++ (void) showLoadSkin {
+    [instance showLoadSkin2];
+}
+
+- (void) showDeleteSkin2 {
+    [deleteSkinView raised];
+    [self.view bringSubviewToFront:deleteSkinView];
+}
+
++ (void) showDeleteSkin {
+    [instance showDeleteSkin2];
 }
 
 @end

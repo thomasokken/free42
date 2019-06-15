@@ -16,14 +16,14 @@
  *****************************************************************************/
 
 #import <dirent.h>
-#import "SelectSkinView.h"
+#import "DeleteSkinView.h"
 #import "CalcView.h"
 #import "RootViewController.h"
 #import "shell_skin_iphone.h"
 #import "core_main.h"
 
 
-@implementation SelectSkinView
+@implementation DeleteSkinView
 
 @synthesize doneButton;
 @synthesize skinTable;
@@ -50,21 +50,7 @@
     // TODO: separator between built-in and external skins
     [skinNames removeAllObjects];
     int index = 0;
-    int selectedIndex = -1;
-    char buf[1024];
-    NSString *path = [[NSBundle mainBundle] pathForResource:@"builtin_skins" ofType:@"txt"];
-    [path getCString:buf maxLength:1024 encoding:NSUTF8StringEncoding];
-    FILE *builtins = fopen(buf, "r");
-    char *skinName = [CalcView isPortrait] ? state.skinName : state.landscapeSkinName;
-    while (fgets(buf, 1024, builtins) != NULL) {
-        char *context;
-        char *name = strtok_r(buf, " \t\r\n", &context);
-        [skinNames addObject:[NSString stringWithCString:name encoding:NSUTF8StringEncoding]];
-        if (strcasecmp(name, skinName) == 0)
-            selectedIndex = index;
-        index++;
-    }
-    fclose(builtins);
+    int selectedIndex[2] = { -1, -1 };
     DIR *dir = opendir("skins");
     struct dirent *d;
     NSUInteger num_builtin_skins = [skinNames count];
@@ -78,42 +64,42 @@
             if ([s caseInsensitiveCompare:[skinNames objectAtIndex:i]] == 0)
                 goto skip;
         [skinNames addObject:s];
-        if (strcasecmp(d->d_name, skinName) == 0)
-            selectedIndex = index;
+        if (strcasecmp(d->d_name, state.skinName) == 0)
+            selectedIndex[0] = index;
+        else if (strcasecmp(d->d_name, state.landscapeSkinName) == 0)
+            selectedIndex[1] = index;
         index++;
         skip:;
     }
     closedir(dir);
     [skinTable reloadData];
-    if (selectedIndex != -1) {
-        NSUInteger indexes[2] = { 0, selectedIndex };
-        NSIndexPath *path = [NSIndexPath indexPathWithIndexes:indexes length:2];
-        [skinTable cellForRowAtIndexPath:path].accessoryType = UITableViewCellAccessoryCheckmark;
-    }
+    for (int i = 0; i < 2; i++)
+        if (selectedIndex[i] != -1) {
+            NSUInteger indexes[2] = { 0, selectedIndex[i] };
+            NSIndexPath *path = [NSIndexPath indexPathWithIndexes:indexes length:2];
+            [skinTable cellForRowAtIndexPath:path].accessoryType = UITableViewCellAccessoryCheckmark;
+        }
 }
 
 - (IBAction) done {
     [RootViewController showMain];
 }
 
-- (IBAction) loadSkin {
-    [RootViewController showLoadSkin];
-}
-
 - (IBAction) deleteSkin {
-    [RootViewController showDeleteSkin];
+    NSArray *selection = [skinTable indexPathsForSelectedRows];
+    NSUInteger count = [selection count];
+    for (int i = 0; i < count; i++) {
+        NSIndexPath *index = (NSIndexPath *) [selection objectAtIndex:i];
+        int idx = (int) [index indexAtPosition:1];
+        NSString *skinName = [skinNames objectAtIndex:idx];
+        remove([[NSString stringWithFormat:@"skins/%@.gif", skinName] cStringUsingEncoding:NSUTF8StringEncoding]);
+        remove([[NSString stringWithFormat:@"skins/%@.layout", skinName] cStringUsingEncoding:NSUTF8StringEncoding]);
+    }
+    [self raised];
 }
 
 - (void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    NSUInteger n = [indexPath indexAtPosition:1];
-    NSString *name = [skinNames objectAtIndex:n];
-    char *skinName = [CalcView isPortrait] ? state.skinName : state.landscapeSkinName;
-    [name getCString:skinName maxLength:FILENAMELEN encoding:NSUTF8StringEncoding];
-    long width, height;
-    skin_load(&width, &height);
-    core_repaint_display();
-    [CalcView repaint];
-    [self done];
+    // Nothing to do here; the actual deletion is triggered by the Delete button
 }
 
 - (UITableViewCell *) tableView:(UITableView *)table cellForRowAtIndexPath:(NSIndexPath *) indexPath {

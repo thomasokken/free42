@@ -18,21 +18,16 @@
 #import <UIKit/UIKit.h>
 
 
-@interface SelectSkinView : UIView <UITableViewDelegate, UITableViewDataSource> {
-    NSMutableArray *skinNames;
-    UIBarButtonItem *doneButton;
-    UITableView *skinTable;
+@interface LoadSkinView : UIView {
+    UITextField *urlField;
+    UIWebView *webView;
 }
 
-@property (nonatomic, retain) IBOutlet UIBarButtonItem *doneButton;
-@property (nonatomic, retain) IBOutlet UITableView *skinTable;
+@property (nonatomic, retain) IBOutlet UITextField *urlField;
+@property (nonatomic, retain) IBOutlet UIWebView *webView;
 
 - (void) raised;
 - (IBAction) done;
 - (IBAction) loadSkin;
-- (IBAction) deleteSkin;
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath;
-- (UITableViewCell *) tableView:(UITableView *)table cellForRowAtIndexPath:(NSIndexPath*) indexPath;
-- (NSInteger) tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section;
 
 @end

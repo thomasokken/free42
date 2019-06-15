@@ -42,6 +42,9 @@
 		E9200DF81699E1EC001BC4B5 /* PrintView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9200DF51699E1EC001BC4B5 /* PrintView.mm */; };
 		E9200DFB169A0004001BC4B5 /* PrintTileView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9200DFA169A0004001BC4B5 /* PrintTileView.mm */; };
 		E92BCF39114C420900832FAD /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E92BCF38114C420900832FAD /* CoreLocation.framework */; };
+		E935A89C22B542F9007C41DF /* DeleteSkinView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E935A89A22B542F9007C41DF /* DeleteSkinView.mm */; };
+		E935A89F22B54ED4007C41DF /* LoadSkinView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E935A89D22B54ED4007C41DF /* LoadSkinView.mm */; };
+		E935A8A122B5525B007C41DF /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E935A8A022B5525B007C41DF /* WebKit.framework */; };
 		E93F2B560F894D9000CE8542 /* shell_spool.cc in Sources */ = {isa = PBXBuildFile; fileRef = E93F2B540F894D9000CE8542 /* shell_spool.cc */; };
 		E94025AF19312C320096B2E4 /* gcc111libbid.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E94025AE19312C320096B2E4 /* gcc111libbid.a */; };
 		E94C3CFE132DAB0A00880A45 /* Entitlements.plist in Resources */ = {isa = PBXBuildFile; fileRef = E94C3CFD132DAB0A00880A45 /* Entitlements.plist */; };
@@ -152,6 +155,11 @@
 		E9200DF9169A0004001BC4B5 /* PrintTileView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrintTileView.h; sourceTree = "<group>"; };
 		E9200DFA169A0004001BC4B5 /* PrintTileView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PrintTileView.mm; sourceTree = "<group>"; };
 		E92BCF38114C420900832FAD /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = /System/Library/Frameworks/CoreLocation.framework; sourceTree = "<absolute>"; };
+		E935A89A22B542F9007C41DF /* DeleteSkinView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DeleteSkinView.mm; sourceTree = "<group>"; };
+		E935A89B22B542F9007C41DF /* DeleteSkinView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeleteSkinView.h; sourceTree = "<group>"; };
+		E935A89D22B54ED4007C41DF /* LoadSkinView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LoadSkinView.mm; sourceTree = "<group>"; };
+		E935A89E22B54ED4007C41DF /* LoadSkinView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoadSkinView.h; sourceTree = "<group>"; };
+		E935A8A022B5525B007C41DF /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		E93F2B540F894D9000CE8542 /* shell_spool.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = shell_spool.cc; path = ../common/shell_spool.cc; sourceTree = SOURCE_ROOT; };
 		E93F2B550F894D9000CE8542 /* shell_spool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shell_spool.h; path = ../common/shell_spool.h; sourceTree = SOURCE_ROOT; };
 		E94025AE19312C320096B2E4 /* gcc111libbid.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = gcc111libbid.a; sourceTree = "<group>"; };
@@ -227,6 +235,7 @@
 				288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */,
 				E98DD7510F8C198A0089D9FA /* AudioToolbox.framework in Frameworks */,
 				E92BCF39114C420900832FAD /* CoreLocation.framework in Frameworks */,
+				E935A8A122B5525B007C41DF /* WebKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -240,10 +249,14 @@
 				E977D0781698FB4E00AA3FD9 /* AboutView.mm */,
 				E9200DF01699E1EC001BC4B5 /* CalcView.h */,
 				E9200DF11699E1EC001BC4B5 /* CalcView.mm */,
+				E935A89B22B542F9007C41DF /* DeleteSkinView.h */,
+				E935A89A22B542F9007C41DF /* DeleteSkinView.mm */,
 				E9200DF21699E1EC001BC4B5 /* Free42AppDelegate.h */,
 				E9200DF31699E1EC001BC4B5 /* Free42AppDelegate.mm */,
 				E9BA0E7B0F92245E0087EBFB /* HTTPServerView.h */,
 				E977D0791698FB4E00AA3FD9 /* HTTPServerView.mm */,
+				E935A89E22B54ED4007C41DF /* LoadSkinView.h */,
+				E935A89D22B54ED4007C41DF /* LoadSkinView.mm */,
 				E9BA0E760F9224480087EBFB /* PreferencesView.h */,
 				E977D07C1698FB4E00AA3FD9 /* PreferencesView.mm */,
 				E9200DF9169A0004001BC4B5 /* PrintTileView.h */,
@@ -348,6 +361,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				E935A8A022B5525B007C41DF /* WebKit.framework */,
 				E94025AE19312C320096B2E4 /* gcc111libbid.a */,
 				E98DD7500F8C198A0089D9FA /* AudioToolbox.framework */,
 				1DF5F4DF0D08C38300B7A737 /* UIKit.framework */,
@@ -584,8 +598,10 @@
 				E977D0851698FB4E00AA3FD9 /* HTTPServerView.mm in Sources */,
 				E977D0881698FB4E00AA3FD9 /* PreferencesView.mm in Sources */,
 				E977D08A1698FB4E00AA3FD9 /* SelectFileView.mm in Sources */,
+				E935A89C22B542F9007C41DF /* DeleteSkinView.mm in Sources */,
 				E997E4B01CF11ED4009939CE /* RootViewController.mm in Sources */,
 				E977D08B1698FB4E00AA3FD9 /* SelectSkinView.mm in Sources */,
+				E935A89F22B54ED4007C41DF /* LoadSkinView.mm in Sources */,
 				E977D08D1698FB4E00AA3FD9 /* shell_skin_iphone.mm in Sources */,
 				E977D09A1699050400AA3FD9 /* URLButton.mm in Sources */,
 				E997E4AB1CF0FAFE009939CE /* readtest.c in Sources */,
