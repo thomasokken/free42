@@ -303,7 +303,8 @@ static void tbnonewliner() {
 
 + (void) dump {
     FILE *printfile;
-    size_t n, length;
+    size_t n;
+    int length;
     
     printfile = fopen("config/print", "w");
     if (printfile != NULL) {

@@ -27,8 +27,8 @@ struct update_params {
 #define PRINT_LINES 18000
 #define PRINT_BYTESPERLINE 18
 #define PRINT_SIZE 324000
-// Room for PRINT_LINES / 18 lines, plus two, plus one byte
-#define PRINT_TEXT_SIZE 12551
+// Room for PRINT_LINES / 9 lines, plus two, plus one byte
+#define PRINT_TEXT_SIZE 50051
 
 extern unsigned char *print_bitmap;
 extern int printout_top;

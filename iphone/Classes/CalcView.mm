@@ -1209,7 +1209,7 @@ void shell_print(const char *text, int length,
         }
     }
     print_text_pixel_height += text == NULL ? 16 : 9;
-    while (print_text_pixel_height > PRINT_LINES / 2 - 1) {
+    while (print_text_pixel_height > PRINT_LINES - 1) {
         int tll = print_text[print_text_top] == 255 ? 16 : 9;
         print_text_pixel_height -= tll;
         print_text_top += tll == 16 ? 1 : (print_text[print_text_top] + 1);
