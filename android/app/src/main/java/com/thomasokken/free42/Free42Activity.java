@@ -479,16 +479,15 @@ public class Free42Activity extends Activity {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Main Menu");
             List<String> itemsList = new ArrayList<String>();
-            itemsList.add("Copy");
-            itemsList.add("Paste");
-            itemsList.add("Preferences");
             itemsList.add("Show Print-Out");
-            itemsList.add("About Free42");
             itemsList.add("Import Programs");
             itemsList.add("Export Programs");
-            for (int i = 0; i < builtinSkinNames.length; i++)
-                itemsList.add("Skin: \"" + builtinSkinNames[i] + "\"");
+            itemsList.add("Preferences");
+            itemsList.add("Select Skin");
             itemsList.add("Skin: Other...");
+            itemsList.add("Copy");
+            itemsList.add("Paste");
+            itemsList.add("About Free42");
             itemsList.add("Cancel");
             builder.setItems(itemsList.toArray(new String[itemsList.size()]),
                     new DialogInterface.OnClickListener() {
@@ -503,48 +502,54 @@ public class Free42Activity extends Activity {
     
     private void mainMenuItemSelected(int which) {
         switch (which) {
-        case 0:
-            doCopy();
-            return;
-        case 1:
-            doPaste();
-            return;
-        case 2:
-            doPreferences();
-            return;
-        case 3:
-            doFlipCalcPrintout();
-            return;
-        case 4:
-            doAbout();
-            return;
-        case 5:
-            doImport();
-            return;
-        case 6:
-            doExport();
-            return;
-        default:
-            int index = which - 7;
-            if (index >= 0 && index < builtinSkinNames.length) {
-                doSelectSkin(builtinSkinNames[index]);
+            case 0:
+                doFlipCalcPrintout();
                 return;
-            } else if (index == builtinSkinNames.length) {
-                if (!checkStorageAccess())
-                    return;
-                FileSelectionDialog fsd = new FileSelectionDialog(this, new String[] { "layout", "*" });
-                if (externalSkinName[orientation].length() > 0)
-                    fsd.setPath(externalSkinName[orientation] + ".layout");
-                fsd.setOkListener(new FileSelectionDialog.OkListener() {
-                    public void okPressed(String path) {
-                        if (path.endsWith(".layout"))
-                            doSelectSkin(path.substring(0, path.length() - 7));
-                    }
-                });
-                fsd.show();
+            case 1:
+                doImport();
                 return;
-            }
+            case 2:
+                doExport();
+                return;
+            case 3:
+                doPreferences();
+                return;
+            case 4:
+                doSelectSkin();
+                break;
+            case 5:
+                doSkinOther();
+                break;
+            case 6:
+                doCopy();
+                return;
+            case 7:
+                doPaste();
+                return;
+            case 8:
+                doAbout();
+                return;
+            // default: Cancel; do nothing
         }
+    }
+
+    private void doSelectSkin() {
+        //doSelectSkin(builtinSkinNames[index]);
+    }
+
+    private void doSkinOther() {
+        if (!checkStorageAccess())
+            return;
+        FileSelectionDialog fsd = new FileSelectionDialog(this, new String[] { "layout", "*" });
+        if (externalSkinName[orientation].length() > 0)
+            fsd.setPath(externalSkinName[orientation] + ".layout");
+        fsd.setOkListener(new FileSelectionDialog.OkListener() {
+            public void okPressed(String path) {
+                if (path.endsWith(".layout"))
+                    doSelectSkin(path.substring(0, path.length() - 7));
+            }
+        });
+        fsd.show();
     }
     
     private void doCopy() {
