@@ -744,7 +744,7 @@ static void tbnonewliner() {
         memset(data, 255, 36);
     } else {
         for (int v = 0; v < height; v++) {
-            int vv = v;
+            int vv = printout_top + v;
             if (vv >= PRINT_LINES)
                 vv -= PRINT_LINES;
             unsigned char *src = print_bitmap + vv * PRINT_BYTESPERLINE;
