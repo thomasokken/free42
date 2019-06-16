@@ -17,6 +17,7 @@
 
 package com.thomasokken.free42;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -74,6 +75,7 @@ import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -110,7 +112,8 @@ public class Free42Activity extends Activity {
     
     private CalcView calcView;
     private SkinLayout skin;
-    private PrintView printView;
+    private View printView;
+    private PrintPaperView printPaperView;
     private ScrollView printScrollView;
     private boolean printViewShowing;
     private PreferencesDialog preferencesDialog;
@@ -204,10 +207,45 @@ public class Free42Activity extends Activity {
         mainHandler = new Handler();
         calcView = new CalcView(this);
         setContentView(calcView);
-        printView = new PrintView(this);
-        printScrollView = new ScrollView(this);
+
+        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        printView = inflater.inflate(R.layout.print_view, null);
+        Button button = (Button) printView.findViewById(R.id.advB);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                doPrintAdv();
+            }
+        });
+        button = (Button) printView.findViewById(R.id.copyTxtB);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                printPaperView.copyAsText();
+            }
+        });
+        /*
+        button = (Button) printView.findViewById(R.id.copyImgB);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                printPaperView.copyAsImage();
+            }
+        });
+        */
+        button = (Button) printView.findViewById(R.id.clearB);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                printPaperView.clear();
+            }
+        });
+        button = (Button) printView.findViewById(R.id.doneB);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                doFlipCalcPrintout();
+            }
+        });
+        printPaperView = new PrintPaperView(this);
+        printScrollView = (ScrollView) printView.findViewById(R.id.printScrollView);
         printScrollView.setBackgroundColor(PRINT_BACKGROUND_COLOR);
-        printScrollView.addView(printView);
+        printScrollView.addView(printPaperView);
         
         skin = null;
         if (skinName[orientation].length() == 0 && externalSkinName[orientation].length() > 0) {
@@ -328,7 +366,7 @@ public class Free42Activity extends Activity {
             if (stateFile != null)
                 stateFile.delete();
         }
-        printView.dump();
+        printPaperView.dump();
         if (printTxtStream != null) {
             try {
                 printTxtStream.close();
@@ -445,7 +483,6 @@ public class Free42Activity extends Activity {
             itemsList.add("Paste");
             itemsList.add("Preferences");
             itemsList.add("Show Print-Out");
-            itemsList.add("Clear Print-Out");
             itemsList.add("About Free42");
             itemsList.add("Import Programs");
             itemsList.add("Export Programs");
@@ -479,19 +516,16 @@ public class Free42Activity extends Activity {
             doFlipCalcPrintout();
             return;
         case 4:
-            doClearPrintout();
-            return;
-        case 5:
             doAbout();
             return;
-        case 6:
+        case 5:
             doImport();
             return;
-        case 7:
+        case 6:
             doExport();
             return;
         default:
-            int index = which - 8;
+            int index = which - 7;
             if (index >= 0 && index < builtinSkinNames.length) {
                 doSelectSkin(builtinSkinNames[index]);
                 return;
@@ -526,11 +560,7 @@ public class Free42Activity extends Activity {
     
     private void doFlipCalcPrintout() {
         printViewShowing = !printViewShowing;
-        setContentView(printViewShowing ? printScrollView : calcView);
-    }
-    
-    private void doClearPrintout() {
-        printView.clear();
+        setContentView(printViewShowing ? printView : calcView);
     }
     
     private void doImport() {
@@ -1003,7 +1033,7 @@ public class Free42Activity extends Activity {
      * Note that most of the heavy lifting takes place in the
      * Activity, not here.
      */
-    private class PrintView extends View {
+    private class PrintPaperView extends View {
         
         private static final int BYTESPERLINE = 18;
         // Certain devices have trouble with LINES = 16384; the print-out view collapses.
@@ -1011,14 +1041,22 @@ public class Free42Activity extends Activity {
         // Playing safe by making the print-out buffer smaller.
         // private static final int LINES = 16384;
         private static final int LINES = 8192;
+        // The text buffer is sized to hold as many lines as the graphics buffer,
+        // plus two, plus one extra byte. Text lines are stored as a length byte
+        // followed by as many bytes, for a maximum of 25 bytes per line.
+        // PRLCD lines are stored as just one byte, 0xff, and copyAsText must
+        // then get the actual pixels from the graphics buffer.
+        private static final int TEXT_SIZE = ((LINES + 27) / 9) * 25 + 1;
         
         private byte[] buffer = new byte[LINES * BYTESPERLINE];
         private int top, bottom;
         private int printHeight;
+        private byte[] textBuffer = new byte[TEXT_SIZE];
+        private int textTop, textBottom, textPixelHeight;
         private int screenWidth;
         private float scale;
 
-        public PrintView(Context context) {
+        public PrintPaperView(Context context) {
             super(context);
             InputStream printInputStream = null;
             try {
@@ -1026,25 +1064,32 @@ public class Free42Activity extends Activity {
                 byte[] intBuf = new byte[4];
                 if (printInputStream.read(intBuf) != 4)
                     throw new IOException();
-                int len = (intBuf[0] << 24) | ((intBuf[1] & 255) << 16) | ((intBuf[2] & 255) << 8) | (intBuf[3] & 255);
-                int maxlen = (LINES - 1) * BYTESPERLINE;
-                if (len > maxlen) {
-                    printInputStream.skip(len - maxlen);
-                    len = maxlen;
-                }
-                int n = printInputStream.read(buffer, 0, len);
-                if (n != len)
+                bottom = (intBuf[0] << 24) | ((intBuf[1] & 255) << 16) | ((intBuf[2] & 255) << 8) | (intBuf[3] & 255);
+                if (bottom < 0 || bottom > (LINES - 1) * BYTESPERLINE)
                     throw new IOException();
-                top = 0;
-                bottom = len;
+                int n = printInputStream.read(buffer, 0, bottom);
+                if (n != bottom)
+                    throw new IOException();
+                if (printInputStream.read(intBuf) != 4)
+                    throw new IOException();
+                textBottom = (intBuf[0] << 24) | ((intBuf[1] & 255) << 16) | ((intBuf[2] & 255) << 8) | (intBuf[3] & 255);
+                if (textBottom < 0 || textBottom >= TEXT_SIZE)
+                    throw new IOException();
+                if (printInputStream.read(intBuf) != 4)
+                    throw new IOException();
+                textPixelHeight = (intBuf[0] << 24) | ((intBuf[1] & 255) << 16) | ((intBuf[2] & 255) << 8) | (intBuf[3] & 255);
+                n = printInputStream.read(textBuffer, 0, textBottom);
+                if (n != textBottom)
+                    throw new IOException();
             } catch (IOException e) {
-                top = bottom = 0;
+                bottom = textBottom = textPixelHeight = 0;
             } finally {
                 if (printInputStream != null)
                     try {
                         printInputStream.close();
                     } catch (IOException e2) {}
             }
+            top = textTop = 0;
 
             printHeight = bottom / BYTESPERLINE;
             screenWidth = getWindowManager().getDefaultDisplay().getWidth();
@@ -1123,7 +1168,7 @@ public class Free42Activity extends Activity {
         private Object layoutPendingMonitor = new Object();
         private boolean layoutPending;
         
-        public void print(byte[] bits, int bytesperline, int x, int y, int width, int height) {
+        public void print(byte[] text, byte[] bits, int bytesperline, int x, int y, int width, int height) {
             int oldPrintHeight = printHeight;
             for (int yy = y; yy < y + height; yy++) {
                 for (int xx = 0; xx < BYTESPERLINE; xx++)
@@ -1144,13 +1189,37 @@ public class Free42Activity extends Activity {
                         top = 0;
                 }
             }
+
+            textBuffer[textBottom++] = (byte) (text == null ? 255 : text.length);
+            if (textBottom == TEXT_SIZE)
+                textBottom = 0;
+            if (text != null) {
+                if (textBottom + text.length < TEXT_SIZE) {
+                    System.arraycopy(text, 0, textBuffer, textBottom, text.length);
+                    textBottom += text.length;
+                } else {
+                    int part = TEXT_SIZE - textBottom;
+                    System.arraycopy(text, 0, textBuffer, textBottom, part);
+                    System.arraycopy(text, part, textBuffer, 0, text.length - part);
+                    textBottom = text.length - part;
+                }
+            }
+            textPixelHeight += text == null ? 16 : 9;
+            while (textPixelHeight > LINES - 1) {
+                int tll = textBuffer[textTop] == (byte) 255 ? 16 : 9;
+                textPixelHeight -= tll;
+                textTop += tll == 16 ? 1 : ((textBuffer[textTop] & 255) + 1);
+                if (textTop >= TEXT_SIZE)
+                    textTop -= TEXT_SIZE;
+            }
+
             if (printHeight != oldPrintHeight) {
                 synchronized (layoutPendingMonitor) {
                     if (!layoutPending) {
                         mainHandler.post(new Runnable() {
                             public void run() {
                                 synchronized (layoutPendingMonitor) {
-                                    printView.requestLayout();
+                                    printPaperView.requestLayout();
                                     layoutPending = false;
                                 }
                             }
@@ -1165,7 +1234,7 @@ public class Free42Activity extends Activity {
                             public void run() {
                                 synchronized (invalidatePendingMonitor) {
                                     printScrollView.fullScroll(View.FOCUS_DOWN);
-                                    printView.postInvalidate();
+                                    printPaperView.postInvalidate();
                                     invalidatePending = false;
                                 }
                             }
@@ -1175,11 +1244,71 @@ public class Free42Activity extends Activity {
                 }
             }
         }
-        
+
+        public void copyAsText() {
+            try {
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+                int len = textBottom - textTop;
+                if (len < 0)
+                    len += TEXT_SIZE;
+                // Calculate effective top, since printout_top can point
+                // at a truncated line, and we want to skip those when
+                // copying
+                int ptop = bottom / BYTESPERLINE - textPixelHeight;
+                if (ptop < 0)
+                    ptop += LINES;
+                int p = textTop;
+                int pixel_v = 0;
+                byte[] buf = new byte[34];
+                while (len > 0) {
+                    int z = textBuffer[p++] & 255;
+                    if (z == 255) {
+                        for (int v = 0; v < 16; v += 2) {
+                            for (int vv = 0; vv < 2; vv++) {
+                                int V = ptop + pixel_v + v + vv;
+                                if (V >= LINES)
+                                    V -= LINES;
+                                for (int h = 0; h < 17; h++)
+                                    buf[vv * 17 + h] = buffer[V * BYTESPERLINE + h];
+                            }
+                            ShellSpool.shell_spool_bitmap_to_txt(buf, 17, 0, 0, 131, 2, bos);
+                        }
+                        pixel_v += 16;
+                    } else {
+                        byte[] tbuf = new byte[z];
+                        if (p + z < TEXT_SIZE) {
+                            System.arraycopy(textBuffer, p, tbuf, 0, z);
+                            ShellSpool.shell_spool_txt(tbuf, bos);
+                            p += z;
+                        } else {
+                            int d = TEXT_SIZE - p;
+                            System.arraycopy(textBuffer, p, tbuf, 0, d);
+                            System.arraycopy(textBuffer, 0, tbuf, d, z - d);
+                            ShellSpool.shell_spool_txt(tbuf, bos);
+                            p = z - d;
+                        }
+                        len -= z;
+                        pixel_v += 9;
+                    }
+                    len--;
+                }
+
+                String txt = new String(bos.toByteArray(), "UTF-8").replace("\r", "");
+                android.text.ClipboardManager clip = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                clip.setText(txt);
+            } catch (IOException e) {}
+        }
+
+        public void copyAsImage() {
+            // Not supported by Android?!?
+        }
+
         public void clear() {
             top = bottom = 0;
+            textTop = textBottom = textPixelHeight = 0;
             printHeight = 0;
-            printView.requestLayout();
+            printPaperView.requestLayout();
         }
         
         public void dump() {
@@ -1201,6 +1330,25 @@ public class Free42Activity extends Activity {
                     printOutputStream.write(buffer, top, buffer.length - top);
                     printOutputStream.write(buffer, 0, bottom);
                 }
+                len = textBottom - textTop;
+                if (len < 0)
+                    len += textBuffer.length;
+                intBuf[0] = (byte) (len >> 24);
+                intBuf[1] = (byte) (len >> 16);
+                intBuf[2] = (byte) (len >> 8);
+                intBuf[3] = (byte) len;
+                printOutputStream.write(intBuf);
+                intBuf[0] = (byte) (textPixelHeight >> 24);
+                intBuf[1] = (byte) (textPixelHeight >> 16);
+                intBuf[2] = (byte) (textPixelHeight >> 8);
+                intBuf[3] = (byte) textPixelHeight;
+                printOutputStream.write(intBuf);
+                if (textTop <= textBottom)
+                    printOutputStream.write(textBuffer, textTop, textBottom - textTop);
+                else {
+                    printOutputStream.write(textBuffer, textTop, textBuffer.length - textTop);
+                    printOutputStream.write(textBuffer, 0, textBottom);
+                }
             } catch (IOException e) {
                 // Ignore
             } finally {
@@ -1210,6 +1358,12 @@ public class Free42Activity extends Activity {
                     } catch (IOException e2) {}
             }
         }
+    }
+
+    private void doPrintAdv() {
+        byte[] text = new byte[0];
+        byte[] bits = new byte[162];
+        shell_print(text, bits, 18, 0, 0, 143, 9);
     }
 
     
@@ -1816,7 +1970,7 @@ public class Free42Activity extends Activity {
      */
     public void shell_print(byte[] text, byte[] bits, int bytesperline,
                             int x, int y, int width, int height) {
-        printView.print(bits, bytesperline, x, y, width, height);
+        printPaperView.print(text, bits, bytesperline, x, y, width, height);
 
         if (ShellSpool.printToTxt) {
             try {

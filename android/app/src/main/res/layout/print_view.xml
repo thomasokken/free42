@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		android:layout_width="fill_parent" android:layout_height="fill_parent"
+		android:orientation="vertical">
+	
+	<LinearLayout android:id="@+id/buttonBox"
+			android:orientation="horizontal"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:layout_alignParentLeft="true"
+			android:layout_alignParentRight="true"
+			android:layout_alignParentTop="true"
+			android:layout_gravity="center">
+
+		<Button android:id="@+id/advB"
+	    		android:layout_width="0px" android:layout_height="wrap_content"
+	    		android:layout_weight="1"
+				android:text="Adv"/>
+		
+		<Button android:id="@+id/copyTxtB"
+	    		android:layout_width="0px" android:layout_height="wrap_content"
+	    		android:layout_weight="1"
+				android:text="Copy"/>
+		
+        <!--
+		<Button android:id="@+id/copyImgB"
+	    		android:layout_width="0px" android:layout_height="wrap_content"
+	    		android:layout_weight="1"
+				android:text="Copy Image"/>
+        -->
+		
+		<Button android:id="@+id/clearB"
+	    		android:layout_width="0px" android:layout_height="wrap_content"
+	    		android:layout_weight="1"
+				android:text="Clear"/>
+		
+		<Button android:id="@+id/doneB"
+	    		android:layout_width="0px" android:layout_height="wrap_content"
+	    		android:layout_weight="1"
+				android:text="Done"/>
+	
+	</LinearLayout>
+
+	<ScrollView android:id="@+id/printScrollView"
+			android:layout_width="fill_parent" android:layout_height="fill_parent"
+			android:layout_alignParentLeft="true"
+			android:layout_alignParentRight="true"
+			android:layout_alignParentBottom="true"
+			android:layout_below="@+id/buttonBox">
+	
+	</ScrollView>
+
+</RelativeLayout>
