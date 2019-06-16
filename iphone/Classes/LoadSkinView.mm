@@ -44,10 +44,20 @@
 }
 
 - (void) raised {
+    if ([[self gestureRecognizers] count] == 0) {
+        UITapGestureRecognizer* tapBackground = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideKeyboard)];
+        [tapBackground setNumberOfTapsRequired:1];
+        tapBackground.cancelsTouchesInView = NO;
+        [self addGestureRecognizer:tapBackground];
+    }
     NSString *url = [urlField text];
     if (url == nil || [url length] == 0)
         [urlField setText:@"https://thomasokken.com/free42/skins/"];
     [self reload];
+}
+
+- (void)hideKeyboard {
+    [self endEditing:YES];
 }
 
 - (IBAction) done {

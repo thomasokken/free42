@@ -59,16 +59,38 @@ int print_text_pixel_height;
         if (n == sizeof(int)) {
             int bytes = printout_bottom * PRINT_BYTESPERLINE;
             n = fread(print_bitmap, 1, bytes, printfile);
-            if (n != bytes)
+            if (n == bytes) {
+                n = fread(&print_text_bottom, 1, sizeof(int), printfile);
+                size_t n2 = fread(&print_text_pixel_height, 1, sizeof(int), printfile);
+                if (n == sizeof(int) && n2 == sizeof(int)) {
+                    n = fread(print_text, 1, print_text_bottom, printfile);
+                    if (n != print_text_bottom) {
+                        print_text_bottom = 0;
+                        print_text_pixel_height = 0;
+                    }
+                } else {
+                    print_text_bottom = 0;
+                    print_text_pixel_height = 0;
+                }
+            } else {
                 printout_bottom = 0;
-        } else
+                print_text_bottom = 0;
+                print_text_pixel_height = 0;
+            }
+        } else {
             printout_bottom = 0;
+            print_text_bottom = 0;
+            print_text_pixel_height = 0;
+        }
         fclose(printfile);
-    } else
+    } else {
         printout_bottom = 0;
+        print_text_bottom = 0;
+        print_text_pixel_height = 0;
+    }
     printout_top = 0;
-    for (int n = printout_bottom * PRINT_BYTESPERLINE; n < PRINT_SIZE; n++)
-        print_bitmap[n] = 0;
+    print_text_top = 0;
+
     [self repositionTiles:true];
     [self scrollToBottom];
 }
@@ -281,10 +303,11 @@ static void tbnonewliner() {
 
 + (void) dump {
     FILE *printfile;
-    ssize_t n, length;
+    size_t n, length;
     
     printfile = fopen("config/print", "w");
     if (printfile != NULL) {
+        // Write bitmap
         length = printout_bottom - printout_top;
         if (length < 0)
             length += PRINT_LINES;
@@ -305,6 +328,28 @@ static void tbnonewliner() {
             n = fwrite(print_bitmap, 1,
                        PRINT_BYTESPERLINE * printout_bottom, printfile);
             if (n != PRINT_BYTESPERLINE * printout_bottom)
+                goto failed;
+        }
+        // Write text
+        length = print_text_bottom - print_text_top;
+        if (length < 0)
+            length += PRINT_TEXT_SIZE;
+        n = fwrite(&length, 1, sizeof(int), printfile);
+        if (n != sizeof(int))
+            goto failed;
+        n = fwrite(&print_text_pixel_height, 1, sizeof(int), printfile);
+        if (n != sizeof(int))
+            goto failed;
+        if (print_text_bottom >= print_text_top) {
+            n = fwrite(print_text + print_text_top, 1, length, printfile);
+            if (n != length)
+                goto failed;
+        } else {
+            n = fwrite(print_text + print_text_top, 1, PRINT_TEXT_SIZE - print_text_top, printfile);
+            if (n != PRINT_TEXT_SIZE - print_text_top)
+                goto failed;
+            n = fwrite(print_text, 1, print_text_bottom, printfile);
+            if (n != print_text_bottom)
                 goto failed;
         }
         

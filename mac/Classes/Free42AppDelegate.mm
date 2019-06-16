@@ -251,12 +251,6 @@ static bool is_file(const char *name);
         print_text_pixel_height = 0;
     }
     printout_top = 0;
-    /* Why am I doing this? Seems unnecessary. Commenting out;
-     * if indeed unnecessary, should be removed. If it is necessary,
-     * after all, well, WHY?
-    for (int n = printout_bottom * PRINT_BYTESPERLINE; n < PRINT_SIZE; n++)
-        print_bitmap[n] = 0;
-     */
     print_text_top = 0;
 }
 
