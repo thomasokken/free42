@@ -239,6 +239,8 @@ static void tbnonewliner() {
 
 - (void) clear {
     printout_top = printout_bottom = 0;
+    print_text_top = print_text_bottom = 0;
+    print_text_pixel_height = 0;
     [self repositionTiles:false];
 }
 
