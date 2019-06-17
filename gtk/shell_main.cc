@@ -74,11 +74,17 @@ char free42dirname[FILENAMELEN];
 #define PRINT_LINES 30000
 #define PRINT_BYTESPERLINE 36
 #define PRINT_SIZE 1080000
+// Room for PRINT_LINES / 18 lines, plus two, plus one byte
+#define PRINT_TEXT_SIZE 41726
 
 
 static unsigned char *print_bitmap;
 static int printout_top;
 static int printout_bottom;
+static unsigned char *print_text;
+static int print_text_top;
+static int print_text_bottom;
+static int print_text_pixel_height;
 static bool quit_flag = false;
 static int enqueued;
 
@@ -155,6 +161,9 @@ static void exportProgramCB();
 static GtkWidget *make_file_select_dialog(
         const char *title, const char *pattern, bool save, GtkWidget *owner);
 static void importProgramCB();
+static void paperAdvanceCB();
+static void copyPrintAsTextCB();
+static void copyPrintAsImageCB();
 static void clearPrintOutCB();
 static void preferencesCB();
 static void appendSuffix(char *path, char *suffix);
@@ -191,17 +200,21 @@ static void gif_writer(const char *text, int length);
 static GtkItemFactoryEntry entries[] = {
     { "/File", NULL, NULL, 0, "<Branch>" },
     { "/File/Show Print-Out", NULL, showPrintOutCB, 0, "<Item>" },
+    { "/File/Paper Advance", "<CTRL>A", paperAdvanceCB, 0, "<Item>" },
     { "/File/sep1", NULL, NULL, 0, "<Separator>" },
     { "/File/Import Programs...", NULL, importProgramCB, 0, "<Item>" },
     { "/File/Export Programs...", NULL, exportProgramCB, 0, "<Item>" },
     { "/File/sep2", NULL, NULL, 0, "<Separator>" },
-    { "/File/Clear Print-Out", NULL, clearPrintOutCB, 0, "<Item>" },
     { "/File/Preferences...", NULL, preferencesCB, 0, "<Item>" },
     { "/File/sep3", NULL, NULL, 0, "<Separator>" },
     { "/File/Quit", "<CTRL>Q", quitCB, 0, "<Item>" },
     { "/Edit", NULL, NULL, 0, "<Branch>" },
     { "/Edit/Copy", "<CTRL>C", copyCB, 0, "<Item>" },
     { "/Edit/Paste", "<CTRL>V", pasteCB, 0, "<Item>" },
+    { "/Edit/sep4", NULL, NULL, 0, "<Separator>" },
+    { "/Edit/Copy Print-Out as Text", "<CTRL>T", copyPrintAsTextCB, 0, "<Item>" },
+    { "/Edit/Copy Print-Out as Image", "<CTRL>I", copyPrintAsImageCB, 0, "<Item>" },
+    { "/Edit/Clear Print-Out", NULL, clearPrintOutCB, 0, "<Item>" },
     { "/Skin", NULL, NULL, 0, "<Branch>" },
     { "/Help", NULL, NULL, 0, "<Branch>" },
     { "/Help/About Free42...", NULL, aboutCB, 0, "<Item>" }
@@ -213,17 +226,21 @@ static GtkItemFactoryEntry entries_compactmenu[] = {
     { "/Menu", NULL, NULL, 0, "<Branch>" },
     { "/Menu/File", NULL, NULL, 0, "<Branch>" },
     { "/Menu/File/Show Print-Out", NULL, showPrintOutCB, 0, "<Item>" },
+    { "/Menu/File/Paper Advance", "<CTRL>A", paperAdvanceCB, 0, "<Item>" },
     { "/Menu/File/sep1", NULL, NULL, 0, "<Separator>" },
     { "/Menu/File/Import Programs...", NULL, importProgramCB, 0, "<Item>" },
     { "/Menu/File/Export Programs...", NULL, exportProgramCB, 0, "<Item>" },
     { "/Menu/File/sep2", NULL, NULL, 0, "<Separator>" },
-    { "/Menu/File/Clear Print-Out", NULL, clearPrintOutCB, 0, "<Item>" },
     { "/Menu/File/Preferences...", NULL, preferencesCB, 0, "<Item>" },
     { "/Menu/File/sep3", NULL, NULL, 0, "<Separator>" },
     { "/Menu/File/Quit", "<CTRL>Q", quitCB, 0, "<Item>" },
     { "/Menu/Edit", NULL, NULL, 0, "<Branch>" },
     { "/Menu/Edit/Copy", "<CTRL>C", copyCB, 0, "<Item>" },
     { "/Menu/Edit/Paste", "<CTRL>V", pasteCB, 0, "<Item>" },
+    { "/Menu/Edit/sep4", NULL, NULL, 0, "<Separator>" },
+    { "/Menu/Edit/Copy Print-Out as Text", "<CTRL>T", copyPrintAsTextCB, 0, "<Item>" },
+    { "/Menu/Edit/Copy Print-Out as Image", "<CTRL>I", copyPrintAsImageCB, 0, "<Item>" },
+    { "/Menu/Edit/Clear Print-Out", NULL, clearPrintOutCB, 0, "<Item>" },
     { "/Menu/Skin", NULL, NULL, 0, "<Branch>" },
     { "/Menu/Help", NULL, NULL, 0, "<Branch>" },
     { "/Menu/Help/About Free42...", NULL, aboutCB, 0, "<Item>" }
@@ -487,6 +504,7 @@ int main(int argc, char *argv[]) {
     // 25 megabytes for a 286x32768 pixbuf. So, instead, I use a 1 bpp buffer,
     // and simply create pixbufs on the fly whenever I have to repaint.
     print_bitmap = (unsigned char *) malloc(PRINT_SIZE);
+    print_text = (unsigned char *) malloc(PRINT_TEXT_SIZE);
     // TODO - handle memory allocation failure
 
     FILE *printfile = fopen(printfilename, "r");
@@ -500,16 +518,37 @@ int main(int argc, char *argv[]) {
             }
             int bytes = printout_bottom * PRINT_BYTESPERLINE;
             n = fread(print_bitmap, 1, bytes, printfile);
-            if (n != bytes)
+            if (n == bytes) {
+                n = fread(&print_text_bottom, 1, sizeof(int), printfile);
+                int n2 = fread(&print_text_pixel_height, 1, sizeof(int), printfile);
+                if (n == sizeof(int) && n2 == sizeof(int)) {
+                    n = fread(print_text, 1, print_text_bottom, printfile);
+                    if (n != print_text_bottom) {
+                        print_text_bottom = 0;
+                        print_text_pixel_height = 0;
+                    }
+                } else {
+                    print_text_bottom = 0;
+                    print_text_pixel_height = 0;
+                }
+            } else {
                 printout_bottom = 0;
-        } else
+                print_text_bottom = 0;
+                print_text_pixel_height = 0;
+            }
+        } else {
             printout_bottom = 0;
+            print_text_bottom = 0;
+            print_text_pixel_height = 0;
+        }
         fclose(printfile);
-    } else
+    } else {
         printout_bottom = 0;
+        print_text_bottom = 0;
+        print_text_pixel_height = 0;
+    }
     printout_top = 0;
-    for (int n = printout_bottom * PRINT_BYTESPERLINE; n < PRINT_SIZE; n++)
-        print_bitmap[n] = 0;
+    print_text_top = 0;
 
     printwindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_icon(GTK_WINDOW(printwindow), icon_128);
@@ -867,6 +906,7 @@ static void quit() {
 
     printfile = fopen(printfilename, "w");
     if (printfile != NULL) {
+        // Write bitmap
         length = printout_bottom - printout_top;
         if (length < 0)
             length += PRINT_LINES;
@@ -887,6 +927,28 @@ static void quit() {
             n = fwrite(print_bitmap, 1,
                        PRINT_BYTESPERLINE * printout_bottom, printfile);
             if (n != PRINT_BYTESPERLINE * printout_bottom)
+                goto failed;
+        }
+        // Write text
+        length = print_text_bottom - print_text_top;
+        if (length < 0)
+            length += PRINT_TEXT_SIZE;
+        n = fwrite(&length, 1, sizeof(int), printfile);
+        if (n != sizeof(int))
+            goto failed;
+        n = fwrite(&print_text_pixel_height, 1, sizeof(int), printfile);
+        if (n != sizeof(int))
+            goto failed;
+        if (print_text_bottom >= print_text_top) {
+            n = fwrite(print_text + print_text_top, 1, length, printfile);
+            if (n != length)
+                goto failed;
+        } else {
+            n = fwrite(print_text + print_text_top, 1, PRINT_TEXT_SIZE - print_text_top, printfile);
+            if (n != PRINT_TEXT_SIZE - print_text_top)
+                goto failed;
+            n = fwrite(print_text, 1, print_text_bottom, printfile);
+            if (n != print_text_bottom)
                 goto failed;
         }
 
@@ -1229,9 +1291,138 @@ static void importProgramCB() {
     }
 }
 
+static void paperAdvanceCB() {
+    static const char *bits = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+    shell_print("", 0, bits, 18, 0, 0, 143, 9);
+}
+
+static char *tb;
+static int tblen, tbcap;
+
+static void tbwriter(const char *text, int length) {
+    if (tblen + length > tbcap) {
+        tbcap += length + 8192;
+        tb = (char *) realloc(tb, tbcap);
+    }
+    if (tb != NULL) {
+        memcpy(tb + tblen, text, length);
+        tblen += length;
+    }
+}
+
+static void tbnewliner() {
+    tbwriter("\n", 1);
+}
+
+static void tbnonewliner() {
+    // No-op
+}
+
+static void copyPrintAsTextCB() {
+    tb = NULL;
+    tblen = tbcap = 0;
+
+    int len = print_text_bottom - print_text_top;
+    if (len < 0)
+        len += PRINT_TEXT_SIZE;
+    // Calculate effective top, since printout_top can point
+    // at a truncated line, and we want to skip those when
+    // copying
+    int top = printout_bottom - 2 * print_text_pixel_height;
+    if (top < 0)
+        top += PRINT_LINES;
+    int p = print_text_top;
+    int pixel_v = 0;
+    while (len > 0) {
+        int z = print_text[p++];
+        if (z == 255) {
+            char buf[34];
+            for (int v = 0; v < 16; v += 2) {
+                for (int vv = 0; vv < 2; vv++) {
+                    int V = top + (pixel_v + v + vv) * 2;
+                    if (V >= PRINT_LINES)
+                        V -= PRINT_LINES;
+                    for (int h = 0; h < 17; h++) {
+                        unsigned char a = print_bitmap[V * PRINT_BYTESPERLINE + 2 * h + 1];
+                        unsigned char b = print_bitmap[V * PRINT_BYTESPERLINE + 2 * h];
+                        buf[vv * 17 + h] = (a & 128) | ((a & 32) << 1) | ((a & 8) << 2) | ((a & 2) << 3) | ((b & 128) >> 4) | ((b & 32) >> 3) | ((b & 8) >> 2) | ((b & 2) >> 1);
+                    }
+                }
+                shell_spool_bitmap_to_txt(buf, 17, 0, 0, 131, 2, tbwriter, tbnewliner);
+            }
+            pixel_v += 16;
+        } else {
+            if (p + z < PRINT_TEXT_SIZE) {
+                shell_spool_txt((const char *) (print_text + p), z, tbwriter, tbnewliner);
+                p += z;
+            } else {
+                int d = PRINT_TEXT_SIZE - p;
+                shell_spool_txt((const char *) (print_text + p), d, tbwriter, tbnonewliner);
+                shell_spool_txt((const char *) print_text, z - d, tbwriter, tbnewliner);
+                p = z - d;
+            }
+            len -= z;
+            pixel_v += 9;
+        }
+        len--;
+    }
+    tbwriter("\0", 1);
+
+    GtkClipboard *clip = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
+    gtk_clipboard_set_text(clip, tb, -1);
+    clip = gtk_clipboard_get(GDK_SELECTION_PRIMARY);
+    gtk_clipboard_set_text(clip, tb, -1);
+    free(tb);
+}
+
+static void copyPrintAsImageCB() {
+    int length = printout_bottom - printout_top;
+    if (length < 0)
+        length += PRINT_LINES;
+    bool empty = length == 0;
+    if (empty)
+        length += 2;
+
+    GdkPixbuf *buf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, FALSE,
+                                    8, 358, length);
+    int d_bpl = gdk_pixbuf_get_rowstride(buf);
+    guchar *d1 = gdk_pixbuf_get_pixels(buf);
+
+    if (empty) {
+        memset(d1, 255, 2148);
+    } else {
+        for (int v = 0; v < length; v++) {
+            int v2 = printout_top + v;
+            if (v2 >= PRINT_LINES)
+                v2 -= PRINT_LINES;
+            int v3 = v2 * 36;
+            guchar *dst = d1;
+            for (int h = 0; h < 358; h++) {
+                unsigned char c;
+                if (h < 36 || h >= 322)
+                    c = 255;
+                else if ((print_bitmap[v3 + ((h - 36) >> 3)] & (1 << ((h - 36) & 7))) == 0)
+                    c = 255;
+                else
+                    c = 0;
+                *dst++ = c;
+                *dst++ = c;
+                *dst++ = c;
+            }
+            d1 += d_bpl;
+        }
+    }
+
+    GtkClipboard *clip = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
+    gtk_clipboard_set_image(clip, buf);
+}
+
 static void clearPrintOutCB() {
     printout_top = 0;
     printout_bottom = 0;
+    print_text_top = 0;
+    print_text_bottom = 0;
+    print_text_pixel_height = 0;
     gtk_widget_set_size_request(print_widget, 358, 1);
 
     if (print_gif != NULL) {
@@ -2322,6 +2513,29 @@ void shell_print(const char *text, int length,
             print_gif = NULL;
         }
         done_print_gif:;
+    }
+
+    print_text[print_text_bottom++] = (char) (text == NULL ? 255 : length);
+    if (print_text_bottom == PRINT_TEXT_SIZE)
+        print_text_bottom = 0;
+    if (text != NULL) {
+        if (print_text_bottom + length < PRINT_TEXT_SIZE) {
+            memcpy(print_text + print_text_bottom, text, length);
+            print_text_bottom += length;
+        } else {
+            int part = PRINT_TEXT_SIZE - print_text_bottom;
+            memcpy(print_text + print_text_bottom, text, part);
+            memcpy(print_text, text + part, length - part);
+            print_text_bottom = length - part;
+        }
+    }
+    print_text_pixel_height += text == NULL ? 16 : 9;
+    while (print_text_pixel_height > PRINT_LINES / 2 - 1) {
+        int tll = print_text[print_text_top] == 255 ? 16 : 9;
+        print_text_pixel_height -= tll;
+        print_text_top += tll == 16 ? 1 : (print_text[print_text_top] + 1);
+        if (print_text_top >= PRINT_TEXT_SIZE)
+            print_text_top -= PRINT_TEXT_SIZE;
     }
 }
 
