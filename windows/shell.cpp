@@ -52,6 +52,7 @@
 #define PRINT_BYTESPERLINE 36
 #define PRINT_SIZE 1179612
 */
+#define PRINT_TEXT_SIZE 22826
 
 /**********************************************************/
 /* Linked-in skins; defined in the skins.c, which in turn */
@@ -80,10 +81,14 @@ static UINT timer3 = 0;
 static int running = 0;
 static int enqueued = 0;
 
+static char *printout;
 static int printout_top;
 static int printout_bottom;
 static int printout_pos;
-static char *printout;
+static char *print_text;
+static int print_text_top;
+static int print_text_bottom;
+static int print_text_pixel_height;
 
 static int ckey = 0;
 static int skey;
@@ -177,6 +182,9 @@ static VOID CALLBACK battery_checker(HWND hwnd, UINT uMsg, UINT idEvent, DWORD d
 static void show_printout();
 static void export_program();
 static void import_program();
+static void paper_advance();
+static void copy_print_as_text();
+static void copy_print_as_image();
 static void clear_printout();
 static void repaint_printout(int x, int y, int width, int height, int validate);
 static void repaint_printout(HDC hdc, int destpos, int x, int y, int width, int height, int validate);
@@ -326,6 +334,7 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
     read_key_map(keymapfilename);
 
     printout = (char *) malloc(PRINT_SIZE);
+    print_text = (char *) malloc(PRINT_TEXT_SIZE);
     // TODO - handle memory allocation failure
     FILE *printfile = fopen(printfilename, "rb");
     if (printfile != NULL) {
@@ -333,16 +342,38 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
         if (n == sizeof(int)) {
             int bytes = printout_bottom * PRINT_BYTESPERLINE;
             n = fread(printout, 1, bytes, printfile);
-            if (n != bytes)
+            if (n == bytes) {
+                n = fread(&print_text_bottom, 1, sizeof(int), printfile);
+                int n2 = fread(&print_text_pixel_height, 1, sizeof(int), printfile);
+                if (n == sizeof(int) && n2 == sizeof(int)) {
+                    n = fread(print_text, 1, print_text_bottom, printfile);
+                    if (n != print_text_bottom) {
+                        print_text_bottom = 0;
+                        print_text_pixel_height = 0;
+                    }
+                } else {
+                    print_text_bottom = 0;
+                    print_text_pixel_height = 0;
+                }
+            } else {
                 printout_bottom = 0;
-        } else
+                print_text_bottom = 0;
+                print_text_pixel_height = 0;
+            }
+        } else {
             printout_bottom = 0;
+            print_text_bottom = 0;
+            print_text_pixel_height = 0;
+        }
         fclose(printfile);
-    } else
+    } else {
         printout_bottom = 0;
+        print_text_bottom = 0;
+        print_text_pixel_height = 0;
+    }
     printout_top = 0;
-    for (int n = printout_bottom * PRINT_BYTESPERLINE; n < PRINT_SIZE; n++)
-        printout[n] = 0;
+    print_text_top = 0;
+
     printout_pos = printout_bottom;
 
     int init_mode;
@@ -525,11 +556,20 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
                 case IDM_SHOWPRINTOUT:
                     show_printout();
                     break;
+                case IDM_PAPERADVANCE:
+                    paper_advance();
+                    break;
                 case IDM_EXPORTPROGRAM:
                     export_program();
                     break;
                 case IDM_IMPORTPROGRAM:
                     import_program();
+                    break;
+                case IDM_COPYPRINTASTEXT:
+                    copy_print_as_text();
+                    break;
+                case IDM_COPYPRINTASIMAGE:
+                    copy_print_as_image();
                     break;
                 case IDM_CLEARPRINTOUT:
                     clear_printout();
@@ -1439,39 +1479,65 @@ static void paste() {
 }
 
 static void Quit() {
-    FILE *printfile = fopen(printfilename, "wb");
+    FILE *printfile;
+    int n, length;
+    
+    printfile = fopen(printfilename, "wb");
     if (printfile != NULL) {
-        int length = printout_bottom - printout_top;
+        // Write bitmap
+        length = printout_bottom - printout_top;
         if (length < 0)
             length += PRINT_LINES;
-        int n = fwrite(&length, 1, sizeof(int), printfile);
+        n = fwrite(&length, 1, sizeof(int), printfile);
         if (n != sizeof(int))
             goto failed;
         if (printout_bottom >= printout_top) {
             n = fwrite(printout + PRINT_BYTESPERLINE * printout_top,
-                           1, PRINT_BYTESPERLINE * length, printfile);
+                       1, PRINT_BYTESPERLINE * length, printfile);
             if (n != PRINT_BYTESPERLINE * length)
                 goto failed;
         } else {
             n = fwrite(printout + PRINT_BYTESPERLINE * printout_top,
-                           1, PRINT_SIZE - PRINT_BYTESPERLINE * printout_top,
-                            printfile);
+                       1, PRINT_SIZE - PRINT_BYTESPERLINE * printout_top,
+                       printfile);
             if (n != PRINT_SIZE - PRINT_BYTESPERLINE * printout_top)
                 goto failed;
             n = fwrite(printout, 1,
-                           PRINT_BYTESPERLINE * printout_bottom, printfile);
+                       PRINT_BYTESPERLINE * printout_bottom, printfile);
             if (n != PRINT_BYTESPERLINE * printout_bottom)
                 goto failed;
         }
-
+        // Write text
+        length = print_text_bottom - print_text_top;
+        if (length < 0)
+            length += PRINT_TEXT_SIZE;
+        n = fwrite(&length, 1, sizeof(int), printfile);
+        if (n != sizeof(int))
+            goto failed;
+        n = fwrite(&print_text_pixel_height, 1, sizeof(int), printfile);
+        if (n != sizeof(int))
+            goto failed;
+        if (print_text_bottom >= print_text_top) {
+            n = fwrite(print_text + print_text_top, 1, length, printfile);
+            if (n != length)
+                goto failed;
+        } else {
+            n = fwrite(print_text + print_text_top, 1, PRINT_TEXT_SIZE - print_text_top, printfile);
+            if (n != PRINT_TEXT_SIZE - print_text_top)
+                goto failed;
+            n = fwrite(print_text, 1, print_text_bottom, printfile);
+            if (n != print_text_bottom)
+                goto failed;
+        }
+        
         fclose(printfile);
         goto done;
-
-        failed:
+        
+    failed:
         fclose(printfile);
         remove(printfilename);
-
-        done:
+        
+    done:
         ;
     }
 
@@ -1656,10 +1722,117 @@ static void import_program() {
     }
 }
 
+static void paper_advance() {
+    static const char *bits = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+    shell_print("", 0, bits, 18, 0, 0, 143, 9);
+}
+
+static char *tb;
+static int tblen, tbcap;
+
+static void tbwriter(const char *text, int length) {
+    if (tblen + length > tbcap) {
+        tbcap += length + 8192;
+        tb = (char *) realloc(tb, tbcap);
+    }
+    if (tb != NULL) {
+        memcpy(tb + tblen, text, length);
+        tblen += length;
+    }
+}
+
+static void tbnewliner() {
+    tbwriter("\n", 1);
+}
+
+static void tbnonewliner() {
+    // No-op
+}
+
+static void copy_print_as_text() {
+    if (!OpenClipboard(hMainWnd))
+        return;
+
+    tb = NULL;
+    tblen = tbcap = 0;
+
+    int len = print_text_bottom - print_text_top;
+    if (len < 0)
+        len += PRINT_TEXT_SIZE;
+    // Calculate effective top, since printout_top can point
+    // at a truncated line, and we want to skip those when
+    // copying
+    int top = printout_bottom - 2 * print_text_pixel_height;
+    if (top < 0)
+        top += PRINT_LINES;
+    int p = print_text_top;
+    int pixel_v = 0;
+    while (len > 0) {
+        int z = print_text[p++] & 255;
+        if (z == 255) {
+            char buf[34];
+            for (int v = 0; v < 16; v += 2) {
+                for (int vv = 0; vv < 2; vv++) {
+                    int V = top + (pixel_v + v + vv) * 2;
+                    if (V >= PRINT_LINES)
+                        V -= PRINT_LINES;
+                    for (int h = 0; h < 17; h++) {
+                        unsigned char a = printout[V * PRINT_BYTESPERLINE + 2 * h];
+                        unsigned char b = printout[V * PRINT_BYTESPERLINE + 2 * h + 1];
+                        buf[vv * 17 + h] = (((b & 2) << 6) | ((b & 8) << 3) | (b & 32) | ((b & 128) >> 3) | ((a & 2) << 2) | ((a & 8) >> 1) | ((a & 32) >> 4) | ((a & 128) >> 7)) ^ 255;
+                    }
+                }
+                shell_spool_bitmap_to_txt(buf, 17, 0, 0, 131, 2, tbwriter, tbnewliner);
+            }
+            pixel_v += 16;
+        } else {
+            if (p + z < PRINT_TEXT_SIZE) {
+                shell_spool_txt((const char *) (print_text + p), z, tbwriter, tbnewliner);
+                p += z;
+            } else {
+                int d = PRINT_TEXT_SIZE - p;
+                shell_spool_txt((const char *) (print_text + p), d, tbwriter, tbnonewliner);
+                shell_spool_txt((const char *) print_text, z - d, tbwriter, tbnewliner);
+                p = z - d;
+            }
+            len -= z;
+            pixel_v += 9;
+        }
+        len--;
+    }
+    tbwriter("\0", 1);
+
+    len = strlen(tb);
+    if (len == 0)
+        goto fail;
+    int wlen = MultiByteToWideChar(CP_UTF8, 0, tb, len + 1, NULL, 0);
+    if (wlen == 0)
+        goto fail;
+    HGLOBAL h = GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, wlen * 2);
+    if (h != NULL) {
+        wchar_t *wbuf = (wchar_t *) GlobalLock(h);
+        MultiByteToWideChar(CP_UTF8, 0, tb, len, wbuf, wlen);
+        GlobalUnlock(h);
+        EmptyClipboard();
+        if (SetClipboardData(CF_UNICODETEXT, h) == NULL)
+            GlobalFree(h);
+    }
+    fail:
+    free(tb);
+    CloseClipboard();
+}
+
+static void copy_print_as_image() {
+
+}
+
 static void clear_printout() {
     printout_top = 0;
     printout_bottom = 0;
     printout_pos = 0;
+    print_text_top = 0;
+    print_text_bottom = 0;
+    print_text_pixel_height = 0;
     printout_length_changed();
     if (hPrintOutWnd != NULL)
         InvalidateRect(hPrintOutWnd, NULL, FALSE);
@@ -2152,6 +2325,29 @@ void shell_print(const char *text, int length,
             print_gif = NULL;
         }
         done_print_gif:;
+    }
+
+    print_text[print_text_bottom++] = (char) (text == NULL ? 255 : length);
+    if (print_text_bottom == PRINT_TEXT_SIZE)
+        print_text_bottom = 0;
+    if (text != NULL) {
+        if (print_text_bottom + length < PRINT_TEXT_SIZE) {
+            memcpy(print_text + print_text_bottom, text, length);
+            print_text_bottom += length;
+        } else {
+            int part = PRINT_TEXT_SIZE - print_text_bottom;
+            memcpy(print_text + print_text_bottom, text, part);
+            memcpy(print_text, text + part, length - part);
+            print_text_bottom = length - part;
+        }
+    }
+    print_text_pixel_height += text == NULL ? 16 : 9;
+    while (print_text_pixel_height > PRINT_LINES / 2 - 1) {
+        int tll = print_text[print_text_top] == 255 ? 16 : 9;
+        print_text_pixel_height -= tll;
+        print_text_top += tll == 16 ? 1 : (print_text[print_text_top] + 1);
+        if (print_text_top >= PRINT_TEXT_SIZE)
+            print_text_top -= PRINT_TEXT_SIZE;
     }
 }
 

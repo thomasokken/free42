@@ -44,11 +44,11 @@ BEGIN
     POPUP "&File"
     BEGIN
         MENUITEM "Show Print-Out",              IDM_SHOWPRINTOUT
+        MENUITEM "Paper Advance\tCtrl+A",       IDM_PAPERADVANCE
         MENUITEM SEPARATOR
         MENUITEM "Import Programs...",          IDM_IMPORTPROGRAM
         MENUITEM "Export Programs...",          IDM_EXPORTPROGRAM
         MENUITEM SEPARATOR
-        MENUITEM "Clear Print-Out",             IDM_CLEARPRINTOUT
         MENUITEM "Preferences...",              IDM_PREFERENCES
         MENUITEM SEPARATOR
         MENUITEM "E&xit\tCtrl+Q",               IDM_EXIT
@@ -57,10 +57,14 @@ BEGIN
     BEGIN
         MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
         MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
+        MENUITEM SEPARATOR
+        MENUITEM "Copy Print-Out as Text\tCtrl+T", IDM_COPYPRINTASTEXT
+        MENUITEM "Copy Print-Out as Image\tCtrl+I", IDM_COPYPRINTASIMAGE
+        MENUITEM "Clear Print-Out",             IDM_CLEARPRINTOUT
     END
     POPUP "&Skin"
     BEGIN
-        MENUITEM "dummy",                       IDM_IMPORTPROGRAM
+        MENUITEM "dummy",                       IDM_SKIN_DUMMY
     END
     POPUP "&Help"
     BEGIN
