@@ -1823,7 +1823,68 @@ static void copy_print_as_text() {
 }
 
 static void copy_print_as_image() {
+    if (!OpenClipboard(hMainWnd))
+        return;
 
+	int length = printout_bottom - printout_top;
+	if (length < 0)
+		length += PRINT_SIZE;
+	bool empty = length == 0;
+	if (empty)
+		length = 2;
+	int bmsize = sizeof(BITMAPINFOHEADER) + 8 + 48 * length;
+
+    HGLOBAL h = GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, bmsize);
+    if (h != NULL) {
+        char *bmbuf = (char *) GlobalLock(h);
+		BITMAPINFOHEADER *bi = (BITMAPINFOHEADER *) bmbuf;
+
+		memset(bi, 0, sizeof(BITMAPINFOHEADER));
+		bi->biSize = sizeof(BITMAPINFOHEADER);
+		bi->biWidth = 358;
+		bi->biHeight = length;
+		bi->biPlanes = 1;
+		bi->biBitCount = 1;
+		bi->biCompression = BI_RGB;
+
+		bmbuf += sizeof(BITMAPINFOHEADER);
+		// Color table
+		*bmbuf++ = 255;
+		*bmbuf++ = 255;
+		*bmbuf++ = 255;
+		*bmbuf++ = 0;
+		*bmbuf++ = 0;
+		*bmbuf++ = 0;
+		*bmbuf++ = 0;
+		*bmbuf++ = 0;
+
+		if (empty) {
+			memset(bmbuf, 255, 96);
+		} else {
+			for (int v = length - 1; v >= 0; v--) {
+				int vv = printout_top + v;
+				if (vv >= PRINT_LINES)
+					vv -= PRINT_LINES;
+				char *src = printout + vv * PRINT_BYTESPERLINE;
+				for (int i = 0; i < 4; i++)
+					*bmbuf++ = 0;
+				char pc = 255;
+				for (int h = 0; h <= 36; h++) {
+					char c = h == 36 ? 255 : src[h];
+					*bmbuf++ = (((c & 16) >> 4) | ((c & 32) >> 4) | ((c & 64) >> 4) | ((c & 128) >> 4) | ((pc & 1) << 4) | ((pc & 2) << 4) | ((pc & 4) << 4) | ((pc & 8) << 4)) ^ 255;
+					pc = c;
+				}
+				for (int i = 0; i < 7; i++)
+					*bmbuf++ = 0;
+			}
+		}
+
+        GlobalUnlock(h);
+        EmptyClipboard();
+        if (SetClipboardData(CF_DIB, h) == NULL)
+            GlobalFree(h);
+    }
+    CloseClipboard();
 }
 
 static void clear_printout() {
@@ -2183,7 +2244,7 @@ void shell_print(const char *text, int length,
 
     for (yy = 0; yy < height; yy++) {
         int4 Y = (printout_bottom + 2 * yy) % PRINT_LINES;
-        for (xx = 0; xx < 143; xx++) {
+        for (xx = 0; xx < 144; xx++) {
             int bit, px, py;
             if (xx < width) {
                 char c = bits[(y + yy) * bytesperline + ((x + xx) >> 3)];
