@@ -1828,7 +1828,7 @@ static void copy_print_as_image() {
 
 	int length = printout_bottom - printout_top;
 	if (length < 0)
-		length += PRINT_SIZE;
+		length += PRINT_LINES;
 	bool empty = length == 0;
 	if (empty)
 		length = 2;
@@ -1849,13 +1849,13 @@ static void copy_print_as_image() {
 
 		bmbuf += sizeof(BITMAPINFOHEADER);
 		// Color table
+		*bmbuf++ = 0;
+		*bmbuf++ = 0;
+		*bmbuf++ = 0;
+		*bmbuf++ = 0;
 		*bmbuf++ = 255;
 		*bmbuf++ = 255;
 		*bmbuf++ = 255;
-		*bmbuf++ = 0;
-		*bmbuf++ = 0;
-		*bmbuf++ = 0;
-		*bmbuf++ = 0;
 		*bmbuf++ = 0;
 
 		if (empty) {
@@ -1867,15 +1867,15 @@ static void copy_print_as_image() {
 					vv -= PRINT_LINES;
 				char *src = printout + vv * PRINT_BYTESPERLINE;
 				for (int i = 0; i < 4; i++)
-					*bmbuf++ = 0;
+					*bmbuf++ = 255;
 				char pc = 255;
 				for (int h = 0; h <= 36; h++) {
 					char c = h == 36 ? 255 : src[h];
-					*bmbuf++ = (((c & 16) >> 4) | ((c & 32) >> 4) | ((c & 64) >> 4) | ((c & 128) >> 4) | ((pc & 1) << 4) | ((pc & 2) << 4) | ((pc & 4) << 4) | ((pc & 8) << 4)) ^ 255;
+					*bmbuf++ = ((c & 240) >> 4) | ((pc & 15) << 4);
 					pc = c;
 				}
 				for (int i = 0; i < 7; i++)
-					*bmbuf++ = 0;
+					*bmbuf++ = 255;
 			}
 		}
 
