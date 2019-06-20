@@ -338,11 +338,12 @@ static CalcView *calcView = nil;
     CGPoint p = [touch locationInView:self];
     int x = (int) p.x;
     int y = (int) p.y;
-    if (skin_in_menu_area(x, y)) {
-        [self showMainMenu];
-    } else if (ckey == 0) {
+    if (ckey == 0) {
         skin_find_key(x, y, ann_shift != 0, &skey, &ckey);
-        if (ckey != 0) {
+        if (ckey == 0) {
+            if (skin_in_menu_area(x, y))
+                [self showMainMenu];
+        } else {
             if (is_running)
                 [self performSelectorInBackground:@selector(touchesBegan2) withObject:NULL];
             else
