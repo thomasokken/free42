@@ -1,4 +1,18 @@
-2019-06-15: release 2.3 (iPhone and Mac)
+????-??-??: release 2.3.0b (iPhone only)
+
+* Fixed the top-of-screen menu trigger so that it no longer sabotages keys
+  that are also in that area, as in the HP_Mega_42 and SGS-L skins.
+  This is the same fix I made for Android in release 1.5.8d. I didn't think to
+  fix this for iPhone at the time, probably because the iPhone version didn't
+  support landscape mode then.
+
+2019-06-15: release 2.3.0a (iPhone only)
+
+* Added the 2.3 features.
+  This should have been called version 2.3 as well, but a mistake with the
+  release build forced me to use the next higher version number instead.
+
+2019-06-12: release 2.3 (Mac only)
 
 * Added Load Skins feature, for downloading and installing skins from the
   Internet.
