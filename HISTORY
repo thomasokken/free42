@@ -1,10 +1,14 @@
-????-??-??: release 2.3.0b (iPhone only)
+2019-06-22: release 2.3.1
 
-* Fixed the top-of-screen menu trigger so that it no longer sabotages keys
-  that are also in that area, as in the HP_Mega_42 and SGS-L skins.
-  This is the same fix I made for Android in release 1.5.8d. I didn't think to
-  fix this for iPhone at the time, probably because the iPhone version didn't
-  support landscape mode then.
+* Mac version: Copy Print-Out as Image didn't handle wrap-around in the image
+  buffer correctly. Fixed.
+* Windows and GTK version: implemented Paper Advance, Copy Print-Out as Text,
+  and Copy Print-Out as Image.
+* iPhone version: Fixed the top-of-screen menu trigger so that it no longer
+  sabotages keys that are also in that area, as in the HP_Mega_42 and SGS-L
+  skins. This is the same fix I made for Android in release 1.5.8d. I didn't
+  think to fix this for iPhone at the time, probably because the iPhone version
+  didn't support landscape mode then.
 
 2019-06-15: release 2.3.0a (iPhone only)
 
