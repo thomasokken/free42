@@ -5,10 +5,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.database.DataSetObserver;
 import android.graphics.Typeface;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -73,7 +77,19 @@ public class SkinSelectDialog extends Dialog {
     }
 
     private void doLoad() {
-
+        if (ContextCompat.checkSelfPermission(Free42Activity.instance, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(Free42Activity.instance, new String[] { Manifest.permission.INTERNET }, 0);
+            return;
+        }
+        SkinLoadDialog sld = new SkinLoadDialog(getContext());
+        sld.setUrl("https://thomasokken.com/free42/skins/");
+        sld.setListener(new SkinLoadDialog.Listener() {
+            @Override
+            public void dialogDone() {
+                ((SkinListAdapter) skinsView.getAdapter()).refresh();
+            }
+        });
+        sld.show();
     }
 
     private void doDelete() {
