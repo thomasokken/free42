@@ -94,7 +94,7 @@ import android.widget.TextView;
  */
 public class Free42Activity extends Activity {
 
-    private static final String[] builtinSkinNames = new String[] { "Standard", "Landscape" };
+    public static final String[] builtinSkinNames = new String[] { "Standard", "Landscape" };
     
     private static final int SHELL_VERSION = 13;
     
@@ -534,7 +534,14 @@ public class Free42Activity extends Activity {
     }
 
     private void doSelectSkin() {
-        //doSelectSkin(builtinSkinNames[index]);
+        SkinSelectDialog ssd = new SkinSelectDialog(this);
+        ssd.setListener(new SkinSelectDialog.Listener() {
+            @Override
+            public void skinSelected(String skinName) {
+                doSelectSkin(skinName);
+            }
+        });
+        ssd.show();
     }
 
     private void doSkinOther() {
@@ -551,7 +558,15 @@ public class Free42Activity extends Activity {
         });
         fsd.show();
     }
-    
+
+    public static String getSelectedSkin() {
+        return instance.skinName[instance.orientation];
+    }
+
+    public static String[] getSelectedSkins() {
+        return instance.skinName;
+    }
+
     private void doCopy() {
         android.text.ClipboardManager clip = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         clip.setText(core_copy());

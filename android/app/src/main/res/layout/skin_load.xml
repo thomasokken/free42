@@ -63,6 +63,6 @@
 			android:layout_alignParentLeft="true"
 			android:layout_alignParentRight="true"
 			android:layout_below="@+id/navBox"
-			android:layout_below="@+id/buttonBox"/>
+			android:layout_above="@+id/buttonBox"/>
 
 </RelativeLayout>
