@@ -613,7 +613,11 @@ public class Free42Activity extends Activity {
     }
     
     private boolean[] selectedProgramIndexes;
-    
+
+    public static void showAlert(String message) {
+        instance.alert(message);
+    }
+
     private void alert(String message) {
         runOnUiThread(new Alerter(message));
     }
