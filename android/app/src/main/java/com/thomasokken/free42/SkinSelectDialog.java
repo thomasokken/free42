@@ -6,8 +6,10 @@ import java.util.Collections;
 import java.util.List;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.database.DataSetObserver;
 import android.graphics.Typeface;
@@ -27,6 +29,7 @@ public class SkinSelectDialog extends Dialog {
     private Button loadButton;
     private Button deleteButton;
     private Button cancelButton;
+    private String skinDirName;
     private ListView skinsView;
     private Listener listener;
 
@@ -39,7 +42,8 @@ public class SkinSelectDialog extends Dialog {
         deleteButton = (Button) findViewById(R.id.deleteButton);
         cancelButton = (Button) findViewById(R.id.cancelButton);
         skinsView = (ListView) findViewById(R.id.skinsView);
-        skinsView.setAdapter(new SkinListAdapter(ctx.getFilesDir().getAbsolutePath()));
+        skinDirName = ctx.getFilesDir().getAbsolutePath();
+        skinsView.setAdapter(new SkinListAdapter(skinDirName));
         loadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -92,15 +96,63 @@ public class SkinSelectDialog extends Dialog {
         sld.show();
     }
 
+    private String[] skinNames;
+    private boolean[] selectedSkinIndexes;
+
     private void doDelete() {
-        SkinDeleteDialog sdd = new SkinDeleteDialog(getContext());
-        sdd.setListener(new SkinDeleteDialog.Listener() {
-            @Override
-            public void dialogDone() {
-                ((SkinListAdapter) skinsView.getAdapter()).refresh();
+        ArrayList<String> nameList = getLoadedSkins(skinDirName);
+        skinNames = nameList.toArray(new String[nameList.size()]);
+        selectedSkinIndexes = new boolean[skinNames.length];
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Delete Skins");
+        builder.setMultiChoiceItems(skinNames, selectedSkinIndexes, new DialogInterface.OnMultiChoiceClickListener() {
+            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                // I don't have to do anything here; the only reason why
+                // I create this listener is because if I pass 'null'
+                // instead, the selectedProgramIndexes array never gets
+                // updated.
             }
         });
-        sdd.show();
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                doSkinDeleteClick(dialog, which);
+            }
+        };
+        builder.setPositiveButton("OK", listener);
+        builder.setNegativeButton("Cancel", null);
+        builder.create().show();
+    }
+
+    private void doSkinDeleteClick(DialogInterface dialog, int which) {
+        if (which == DialogInterface.BUTTON_POSITIVE) {
+            for (int i = 0; i < selectedSkinIndexes.length; i++)
+                if (selectedSkinIndexes[i]) {
+                    String baseName = skinDirName + "/" + skinNames[i];
+                    new File(baseName + ".layout").delete();
+                    new File(baseName + ".gif").delete();
+                }
+            ((SkinListAdapter) skinsView.getAdapter()).refresh();
+        }
+        skinNames = null;
+        selectedSkinIndexes = null;
+        dialog.dismiss();
+    }
+
+    private static ArrayList<String> getLoadedSkins(String skinDirName) {
+        ArrayList<String> nameList = new ArrayList<String>();
+        File[] files = new File(skinDirName).listFiles();
+        if (files != null)
+            for (File file : files) {
+                if (!file.isFile())
+                    continue;
+                String fn = file.getName();
+                if (!fn.endsWith(".layout"))
+                    continue;
+                nameList.add(fn.substring(0, fn.length() - 7));
+            }
+        Collections.sort(nameList, String.CASE_INSENSITIVE_ORDER);
+        return nameList;
     }
 
     private static class SkinListAdapter extends BaseAdapter {
@@ -114,18 +166,7 @@ public class SkinSelectDialog extends Dialog {
         }
 
         public void refresh() {
-            ArrayList<String> nameList = new ArrayList<String>();
-            File[] files = new File(skinDirName).listFiles();
-            if (files != null)
-                for (File file : files) {
-                    if (!file.isFile())
-                        continue;
-                    String fn = file.getName();
-                    if (!fn.endsWith(".layout"))
-                        continue;
-                    nameList.add(fn.substring(0, fn.length() - 7));
-                }
-            Collections.sort(nameList, String.CASE_INSENSITIVE_ORDER);
+            ArrayList<String> nameList = getLoadedSkins(skinDirName);
             String[] builtins = Free42Activity.builtinSkinNames;
             for (int i = builtins.length - 1; i >= 0; i--) {
                 String name = builtins[i];
@@ -164,7 +205,7 @@ public class SkinSelectDialog extends Dialog {
             String selectedSkin = Free42Activity.getSelectedSkin();
             boolean isSelected = name.equals(selectedSkin);
             tv.setTextSize(30.0f);
-            tv.setTypeface(null, isSelected ? Typeface.BOLD : Typeface.NORMAL);
+            tv.setTypeface(null, isSelected ? Typeface.ITALIC : Typeface.NORMAL);
             return tv;
         }
 
