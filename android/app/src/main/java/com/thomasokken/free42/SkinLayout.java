@@ -102,10 +102,15 @@ public class SkinLayout {
         
         InputStream is = null;
         try {
-            if (skinName.startsWith("/"))
+            if (skinName.startsWith("/")) {
                 is = new FileInputStream(skinName + ".gif");
-            else
-                is = ctx.getAssets().open(skinName + ".gif");
+            } else {
+                try {
+                    is = new FileInputStream(ctx.getFilesDir() + "/" + skinName + ".gif");
+                } catch (FileNotFoundException e) {
+                    is = ctx.getAssets().open(skinName + ".gif");
+                }
+            }
             if (is == null)
                 throw new IOException();
             skinBitmap = new BitmapDrawable(is).getBitmap();
@@ -121,10 +126,15 @@ public class SkinLayout {
         is = null;
         try {
             try {
-                if (skinName.startsWith("/"))
+                if (skinName.startsWith("/")) {
                     is = new FileInputStream(skinName + ".layout");
-                else
-                    is = ctx.getAssets().open(skinName + ".layout");
+                } else {
+                    try {
+                        is = new FileInputStream(ctx.getFilesDir() + "/" + skinName + ".layout");
+                    } catch (FileNotFoundException e) {
+                        is = ctx.getAssets().open(skinName + ".layout");
+                    }
+                }
                 if (is == null)
                     throw new IOException();
             } catch (IOException e) {

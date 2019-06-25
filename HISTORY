@@ -1,8 +1,11 @@
-2019-06-22: release 2.3.1
+2019-06-25: release 2.3.1
 
+* Android version: Implemented the 2.3 features, with the exception of Copy
+  Print-Out as Image. (Apparently Android doesn't support images on the
+  clipboard.)
 * Mac version: Copy Print-Out as Image didn't handle wrap-around in the image
   buffer correctly. Fixed.
-* Windows and GTK version: implemented Paper Advance, Copy Print-Out as Text,
+* Windows and GTK version: Implemented Paper Advance, Copy Print-Out as Text,
   and Copy Print-Out as Image.
 * iPhone version: Fixed the top-of-screen menu trigger so that it no longer
   sabotages keys that are also in that area, as in the HP_Mega_42 and SGS-L
