@@ -1,3 +1,11 @@
+2019-06-25: release 2.3.1a (Android only)
+
+* Adding -mfpu=vfp to compilation flags when building the Intel library for
+  armv7. Apparently, with NDK r19c, Neon is enabled by default, but Neon is not
+  supported on all armv7 Android devices, so this setting is causing 2.3.1 to
+  crash on certain phones. (2.2.1b and earlier were built with an earlier NDK,
+  which did not have this problem.)
+
 2019-06-25: release 2.3.1
 
 * Android version: Implemented the 2.3 features, with the exception of Copy
