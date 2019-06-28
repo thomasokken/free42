@@ -2,6 +2,7 @@ package com.thomasokken.free42;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.view.View;
 import android.view.WindowManager;
 import android.webkit.WebView;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 public class SkinLoadDialog extends Dialog {
@@ -64,6 +66,7 @@ public class SkinLoadDialog extends Dialog {
                 doLoad();
             }
         });
+        loadButton.setEnabled(false);
         doneButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -72,8 +75,16 @@ public class SkinLoadDialog extends Dialog {
             }
         });
         webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                loadButton.setEnabled(false);
+                loadButton.setText("...");
+            }
+            @Override
             public void onPageFinished(WebView view, String url) {
                 urlTF.setText(url);
+                loadButton.setText("Load");
+                loadButton.setEnabled(skinUrlPair(url) != null);
             }
         });
         setTitle("Load Skins");
@@ -107,16 +118,34 @@ public class SkinLoadDialog extends Dialog {
     }
 
     private void doLoad2() {
+        String[] urls = skinUrlPair(urlTF.getText().toString());
+        if (urls == null) {
+            Free42Activity.showAlert("Invalid Skin URL");
+            return;
+        }
         String tempGifName = filesDir + "/_temp_gif_";
         String tempLayoutName = filesDir + "/_temp_layout_";
         try {
-            String url = urlTF.getText().toString();
+            loadFile(urls[0], tempGifName);
+            loadFile(urls[1], tempLayoutName);
+            String gifName = filesDir + "/" + urls[2] + ".gif";
+            String layoutName = filesDir + "/" + urls[2] + ".layout";
+            new File(tempGifName).renameTo(new File(gifName));
+            new File(tempLayoutName).renameTo(new File(layoutName));
+            Free42Activity.showAlert("Skin Loaded");
+        } catch (Exception e) {
+            new File(tempGifName).delete();
+            new File(tempLayoutName).delete();
+            Free42Activity.showAlert("Loading Skin Failed");
+        }
+    }
+
+    private static String[] skinUrlPair(String url) {
+        try {
             URL u = new URL(url);
             String path = u.getPath();
-            if (path == null) {
-                Free42Activity.showAlert("Invalid Skin URL");
-                return;
-            }
+            if (path == null)
+                return null;
             String gifUrl = null, layoutUrl = null;
             String baseName;
             if (path.endsWith(".gif")) {
@@ -130,22 +159,13 @@ public class SkinLoadDialog extends Dialog {
                 String gifPath = baseName + ".gif";
                 gifUrl = new URL(u.getProtocol(), u.getHost(), u.getPort(), gifPath).toString();
             } else {
-                Free42Activity.showAlert("Invalid Skin URL");
-                return;
+                return null;
             }
-
-            loadFile(gifUrl, tempGifName);
-            loadFile(layoutUrl, tempLayoutName);
             int lastSlash = baseName.lastIndexOf("/");
             baseName = baseName.substring(lastSlash + 1);
-            String gifName = filesDir + "/" + baseName + ".gif";
-            String layoutName = filesDir + "/" + baseName + ".layout";
-            new File(tempGifName).renameTo(new File(gifName));
-            new File(tempLayoutName).renameTo(new File(layoutName));
-        } catch (Exception e) {
-            new File(tempGifName).delete();
-            new File(tempLayoutName).delete();
-            Free42Activity.showAlert("Loading Skin Failed");
+            return new String[] { gifUrl, layoutUrl, baseName };
+        } catch (MalformedURLException e) {
+            return null;
         }
     }
 

@@ -28,12 +28,9 @@
 #include "core_variables.h"
 #include "shell.h"
 
-//////////////////////////////////////////////////////////////////////////
-/////     Accelerometer, Location Services, and Compass support      /////
-///// iPhone only, for now. In order to compile this, the shell must /////
-/////   provide shell_get_acceleration() etc., and those are only    /////
-/////             implemented in the iPhone shell so far.            /////
-//////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////
+///// Accelerometer, Location Services, and Compass support /////
+/////////////////////////////////////////////////////////////////
 
 #if defined(ANDROID) || defined(IPHONE)
 int docmd_accel(arg_struct *arg) {
@@ -463,7 +460,6 @@ int docmd_date(arg_struct *arg) {
     if (new_x == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     ((vartype_real *) new_x)->x /= flags.f.ymd ? 10000 : 1000000;
-    recall_result(new_x);
     if (!program_running()) {
         /* Note: I'm not completely faithful to the HP-41 here. It formats the
          * date as "14.03.2010 SUN" in DMY mode, and as "03/14/2010:SU" in MDY
@@ -505,10 +501,10 @@ int docmd_date(arg_struct *arg) {
         flush_display();
         flags.f.message = 1;
         flags.f.two_line_message = 0;
+        if (flags.f.trace_print && flags.f.printer_exists)
+            print_text(buf, bufptr, 1);
     }
-    /* TODO: Trace-mode printing. What should I print, the contents of X,
-     * or, when not in a running program, the nicely formatted date?
-     */
+    recall_result(new_x);
     return ERR_NONE;
 }
 
@@ -625,7 +621,6 @@ int docmd_dow(arg_struct *arg) {
     vartype *new_x = new_real(jd);
     if (new_x == NULL)
         return ERR_INSUFFICIENT_MEMORY;
-    unary_result(new_x);
 
     if (!program_running()) {
         clear_row(0);
@@ -633,8 +628,11 @@ int docmd_dow(arg_struct *arg) {
         flush_display();
         flags.f.message = 1;
         flags.f.two_line_message = 0;
+        if (flags.f.trace_print && flags.f.printer_exists)
+            print_text(weekdaynames + jd * 3, 3, 1);
     }
 
+    unary_result(new_x);
     return ERR_NONE;
 }
 
@@ -655,7 +653,6 @@ int docmd_time(arg_struct *arg) {
     if (new_x == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     ((vartype_real *) new_x)->x /= 1000000;
-    recall_result(new_x);
     if (!program_running()) {
         int h = time / 1000000;
         bool am;
@@ -690,10 +687,10 @@ int docmd_time(arg_struct *arg) {
         flush_display();
         flags.f.message = 1;
         flags.f.two_line_message = 0;
+        if (flags.f.trace_print && flags.f.printer_exists)
+            print_text(buf, bufptr, 1);
     }
-    /* TODO: Trace-mode printing. What should I print, the contents of X,
-     * or, when not in a running program, the nicely formatted time?
-     */
+    recall_result(new_x);
     return ERR_NONE;
 }
 
