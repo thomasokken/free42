@@ -430,8 +430,8 @@ static const command_spec cmd_array[] =
     { /* LSTO */       "LSTO",                  4, docmd_lsto,        0x00c7f2ed, ARG_NAMED, FLAG_NONE },
     { /* SST_UP */     "SST^",                  4, NULL,              0x02000000, ARG_NONE,  FLAG_NONE },
     { /* SST_RT */     "SST\017",               4, NULL,              0x02000000, ARG_NONE,  FLAG_NONE },
-    { /* WSIZE */      "WSIZE",                 5, docmd_xrom,        0x0000a7d3, ARG_NONE,  FLAG_HIDDEN },
-    { /* WSIZE_T */    "WS\311Z\305?",          6, docmd_xrom,        0x0000a7d4, ARG_NONE,  FLAG_HIDDEN },
+    { /* WSIZE */      "WSIZE",                 5, docmd_wsize,       0x0000a7d3, ARG_NONE,  FLAG_NONE },
+    { /* WSIZE_T */    "WS\311Z\305?",          6, docmd_wsize_t,     0x0000a7d4, ARG_NONE,  FLAG_NONE },
     { /* YMD */        "YMD",                   3, docmd_ymd,         0x0000a7d5, ARG_NONE,  FLAG_NONE }
 };
 

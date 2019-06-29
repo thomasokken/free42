@@ -487,7 +487,7 @@ menu_spec menus[] = {
                         { 0x2000 + CMD_DECM,     0, ""      },
                         { 0x2000 + CMD_OCTM,     0, ""      },
                         { 0x2000 + CMD_BINM,     0, ""      },
-                        { MENU_BASE_LOGIC,       5, "LOGIC" } } },
+                        { MENU_BASE_LOGIC1,      5, "LOGIC" } } },
     { /* MENU_BASE_A_THRU_F */ MENU_BASE, MENU_NONE, MENU_NONE,
                       { { 0, 1, "A" },
                         { 0, 1, "B" },
@@ -495,13 +495,20 @@ menu_spec menus[] = {
                         { 0, 1, "D" },
                         { 0, 1, "E" },
                         { 0, 1, "F" } } },
-    { /* MENU_BASE_LOGIC */ MENU_BASE, MENU_NONE, MENU_NONE,
+    { /* MENU_BASE_LOGIC1 */ MENU_BASE, MENU_BASE_LOGIC2, MENU_BASE_LOGIC2,
                       { { 0x1000 + CMD_AND,   0, "" },
                         { 0x1000 + CMD_OR,    0, "" },
                         { 0x1000 + CMD_XOR,   0, "" },
                         { 0x1000 + CMD_NOT,   0, "" },
                         { 0x1000 + CMD_BIT_T, 0, "" },
                         { 0x1000 + CMD_ROTXY, 0, "" } } },
+    { /* MENU_BASE_LOGIC2 */ MENU_BASE, MENU_BASE_LOGIC1, MENU_BASE_LOGIC1,
+                      { { 0x1000 + CMD_WSIZE,   0, "" },
+                        { 0x1000 + CMD_WSIZE_T, 0, "" },
+                        { 0x1000 + CMD_NULL,    0, "" },
+                        { 0x1000 + CMD_NULL,    0, "" },
+                        { 0x1000 + CMD_NULL,    0, "" },
+                        { 0x1000 + CMD_NULL,    0, "" } } },
     { /* MENU_SOLVE */ MENU_NONE, MENU_NONE, MENU_NONE,
                       { { 0x1000 + CMD_MVAR,   0, "" },
                         { 0x1000 + CMD_NULL,   0, "" },
@@ -593,6 +600,7 @@ int4 mode_sigma_reg;
 int mode_goose;
 bool mode_time_clktd;
 bool mode_time_clk24;
+int mode_wsize;
 
 phloat entered_number;
 int entered_string_length;
@@ -1181,6 +1189,8 @@ static bool persist_globals() {
         goto done;
     if (!write_bool(mode_time_clk24))
         goto done;
+    if (!write_int(mode_wsize))
+        goto done;
     if (!shell_write_saved_state(&flags, sizeof(flags_struct)))
         goto done;
     if (!write_int(vars_count))
@@ -1315,7 +1325,17 @@ static bool unpersist_globals(int4 ver) {
                 goto done;
             tmp_dmy = dmy ? 1 : 0;
         }
+    } else {
+        mode_time_clktd = false;
+        mode_time_clk24 = false;
     }
+    if (ver >= 25) {
+        if (!read_int(&mode_wsize)) {
+            mode_wsize = -36;
+            goto done;
+        }
+    } else
+        mode_wsize = -36;
     if (shell_read_saved_state(&flags, sizeof(flags_struct))
             != sizeof(flags_struct))
         goto done;
@@ -2655,6 +2675,18 @@ bool load_state(int4 ver) {
     if (!read_int(&mode_transientmenu)) return false;
     if (!read_int(&mode_alphamenu)) return false;
     if (!read_int(&mode_commandmenu)) return false;
+    if (ver < 25) {
+        if (mode_appmenu > MENU_BASE_LOGIC1)
+            mode_appmenu++;
+        if (mode_plainmenu > MENU_BASE_LOGIC1)
+            mode_plainmenu++;
+        if (mode_transientmenu > MENU_BASE_LOGIC1)
+            mode_transientmenu++;
+        if (mode_alphamenu > MENU_BASE_LOGIC1)
+            mode_alphamenu++;
+        if (mode_commandmenu > MENU_BASE_LOGIC1)
+            mode_commandmenu++;
+    }
     if (!read_bool(&mode_running)) return false;
     if (!read_bool(&mode_varmenu)) return false;
     if (!read_bool(&mode_updown)) return false;
@@ -3019,6 +3051,7 @@ void hard_reset(int bad_state_file) {
     mode_goose = -1;
     mode_time_clktd = false;
     mode_time_clk24 = false;
+    mode_wsize = -36;
 
     core_settings.auto_repeat = true;
     #if defined(ANDROID) || defined(IPHONE)

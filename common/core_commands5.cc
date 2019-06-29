@@ -31,9 +31,8 @@
 /********************************************************/
 
 int appmenu_exitcallback_2(int menuid, bool exitall) {
-    if ((menuid == MENU_BASE
-                || menuid == MENU_BASE_A_THRU_F
-                || menuid == MENU_BASE_LOGIC)
+    if (menuid >= MENU_BASE
+            && menuid <= MENU_BASE_LOGIC2
             && !exitall) {
         mode_appmenu = menuid;
         set_appmenu_exitcallback(2);
@@ -118,7 +117,7 @@ int docmd_and(arg_struct *arg) {
         return err;
     if ((err = get_base_param(reg_y, &y)) != ERR_NONE)
         return err;
-    v = new_real((phloat) (x & y));
+    v = new_real(base2phloat(x & y));
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     binary_result(v);
@@ -136,7 +135,7 @@ int docmd_baseadd(arg_struct *arg) {
     res = x + y;
     if ((err = base_range_check(&res)) != ERR_NONE)
         return err;
-    v = new_real((phloat) res);
+    v = new_real(base2phloat(res));
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     binary_result(v);
@@ -154,7 +153,7 @@ int docmd_basesub(arg_struct *arg) {
     res = y - x;
     if ((err = base_range_check(&res)) != ERR_NONE)
         return err;
-    v = new_real((phloat) res);
+    v = new_real(base2phloat(res));
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     binary_result(v);
@@ -206,7 +205,7 @@ int docmd_basediv(arg_struct *arg) {
     res = y / x;
     if ((err = base_range_check(&res)) != ERR_NONE)
         return err;
-    v = new_real((phloat) res);
+    v = new_real(base2phloat(res));
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     binary_result(v);
@@ -218,13 +217,25 @@ int docmd_basechs(arg_struct *arg) {
     int err;
     if ((err = get_base_param(reg_x, &x)) != ERR_NONE)
         return err;
-    if (x == LL(-34359738368)) {
-        if (flags.f.range_error_ignore)
-            x = LL(34359738367);
-        else
-            return ERR_OUT_OF_RANGE;
-    } else
-        x = -x;
+    int wsize = effective_wsize();
+    if (wsize > 0) {
+        if (x != 0) {
+            if (flags.f.range_error_ignore)
+                x = 0;
+            else
+                return ERR_OUT_OF_RANGE;
+        } else
+            x = 0;
+    } else {
+        int8 maxneg = 1LL << (-1 - wsize);
+        if (x == maxneg) {
+            if (flags.f.range_error_ignore)
+                x = -1 - maxneg;
+            else
+                return ERR_OUT_OF_RANGE;
+        } else
+            x = -x;
+    }
     ((vartype_real *) reg_x)->x = (phloat) x;
     return ERR_NONE;
 }
@@ -455,7 +466,7 @@ int docmd_bit_t(arg_struct *arg) {
         return err;
     if (x < 0 || x > 35)
         return ERR_INVALID_DATA;
-    return (y & (LL(1) << x)) != 0 ? ERR_YES : ERR_NO;
+    return (y & (1LL << x)) != 0 ? ERR_YES : ERR_NO;
 }
 
 int docmd_corr(arg_struct *arg) {
@@ -722,7 +733,7 @@ int docmd_not(arg_struct *arg) {
     vartype *v;
     if ((err = get_base_param(reg_x, &x)) != ERR_NONE)
         return err;
-    v = new_real((phloat) ~x);
+    v = new_real(base2phloat(~x));
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     unary_result(v);
@@ -737,7 +748,7 @@ int docmd_or(arg_struct *arg) {
         return err;
     if ((err = get_base_param(reg_y, &y)) != ERR_NONE)
         return err;
-    v = new_real((phloat) (x | y));
+    v = new_real(base2phloat(x | y));
     if (v == NULL) 
         return ERR_INSUFFICIENT_MEMORY;
     binary_result(v);
@@ -868,17 +879,17 @@ int docmd_rotxy(arg_struct *arg) {
     if (x == 0)
         res = y;
     else {
-        y &= LL(0xfffffffff);
+        y &= 0xfffffffffLL;
         if (x > 0)
             res = (y >> x) | (y << (36 - x));
         else {
             x = -x;
             res = (y << x) | (y >> (36 - x));
         }
-        if ((res & LL(0x800000000)) == 0)
-            res &= LL(0x7ffffffff);
+        if ((res & 0x800000000LL) == 0)
+            res &= 0x7ffffffffLL;
         else
-            res |= LL(0xfffffff000000000);
+            res |= 0xfffffff000000000LL;
     }
     v = new_real((phloat) res);
     if (v == NULL) 
@@ -956,7 +967,7 @@ int docmd_xor(arg_struct *arg) {
         return err;
     if ((err = get_base_param(reg_y, &y)) != ERR_NONE)
         return err;
-    v = new_real((phloat) (x ^ y));
+    v = new_real(base2phloat(x ^ y));
     if (v == NULL) 
         return ERR_INSUFFICIENT_MEMORY;
     binary_result(v);

@@ -45,7 +45,7 @@ static int basekeys() {
     if (!baseapp)
         return 0;
     int *menu = get_front_menu();
-    return menu != NULL && (*menu == MENU_BASE || *menu == MENU_BASE_A_THRU_F || *menu == MENU_BASE_LOGIC);
+    return menu != NULL && *menu >= MENU_BASE && *menu <= MENU_BASE_LOGIC2;
 }
 
 static void set_solve_integ(int solve) {
@@ -487,10 +487,23 @@ void keydown_number_entry(int shift, int key) {
             }
         } else {
             int bits = base == 2 ? 1 : base == 8 ? 3 : 4;
-            bits *= cmdline_length;
-            if (bits > 36) {
+            int wsize = effective_wsize();
+            if (wsize < 0)
+                wsize = -wsize;
+            int maxchars = (wsize + bits - 1) / bits;
+            if (cmdline_length > maxchars) {
                 cmdline_length--;
                 return;
+            }
+            if (cmdline_length == maxchars) {
+                int slop = maxchars * bits - wsize;
+                int max = 1 << (bits - slop);
+                int d = cmdline[0];
+                d -= d <= '9' ? '0' : ('A' - 10);
+                if (d >= max) {
+                    cmdline_length--;
+                    return;
+                }
             }
         }
     }
@@ -500,16 +513,20 @@ void keydown_number_entry(int shift, int key) {
             /* Should never happen */
             x = 0;
     } else {
-        int8 n = 0;
+        uint8 n = 0;
         int i;
         for (i = 0; i < cmdline_length; i++) {
             char c = cmdline[i];
             int digit = c <= '9' ? c - '0' : c - 'A' + 10;
             n = n * base + digit;
         }
-        if (n & LL(0x800000000))
-            n |= LL(0xfffffff000000000);
-        x = (phloat) n;
+        int wsize = effective_wsize();
+        if (wsize > 0)
+            x = (phloat) n;
+        else if ((n & (1ULL << (-1 - wsize))) == 0)
+            x = (phloat) n;
+        else
+            x = (phloat) (int8) (n | (-1LL << (-1 - wsize)));
     }
 
     if (flags.f.prgm_mode)

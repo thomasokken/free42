@@ -768,6 +768,8 @@ int docmd_fptest(arg_struct *arg) {
 /////////////////////////////////
 
 int docmd_lsto(arg_struct *arg) {
+    if (!core_settings.enable_ext_prog)
+        return ERR_NONEXISTENT;
     int err;
     if (arg->type == ARGTYPE_IND_NUM
             || arg->type == ARGTYPE_IND_STK
@@ -792,4 +794,37 @@ int docmd_lsto(arg_struct *arg) {
     if (newval == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     return store_var(arg->val.text, arg->length, newval, true);
+}
+
+int docmd_wsize(arg_struct *arg) {
+    if (!core_settings.enable_ext_prog)
+        return ERR_NONEXISTENT;
+    if (reg_x->type == TYPE_STRING)
+        return ERR_ALPHA_DATA_IS_INVALID;
+    if (reg_x->type != TYPE_REAL)
+        return ERR_INVALID_TYPE;
+    phloat x = ((vartype_real *) reg_x)->x;
+#ifdef BCD_MATH
+    if (x >= 65 || x <= -65)
+#else
+    if (x >= 53 || x <= -53)
+#endif
+        return ERR_INVALID_DATA;
+    int w = to_int(x);
+    if (w == 0)
+        return ERR_INVALID_DATA;
+    mode_wsize = w;
+    if (flags.f.trace_print && flags.f.printer_exists)
+        docmd_prx(NULL);
+    return ERR_NONE;
+}
+
+int docmd_wsize_t(arg_struct *arg) {
+    if (!core_settings.enable_ext_prog)
+        return ERR_NONEXISTENT;
+    vartype *new_x = new_real(effective_wsize());
+    if (new_x == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    recall_result(new_x);
+    return ERR_NONE;
 }

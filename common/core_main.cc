@@ -2528,10 +2528,10 @@ static vartype *parse_base(const char *buf, int len) {
         return NULL;
     if (neg)
         n = -n;
-    if ((n & LL(0x800000000)) == 0)
-        n &= LL(0x7ffffffff);
+    if ((n & 0x800000000LL) == 0)
+        n &= 0x7ffffffffLL;
     else
-        n |= LL(0xfffffff000000000);
+        n |= 0xfffffff000000000LL;
     return new_real((phloat) n);
 }
 

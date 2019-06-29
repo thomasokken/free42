@@ -52,6 +52,7 @@ struct hp_string {
 #define to_int(x) ((int) (x))
 #define to_int4(x) ((int4) (x))
 #define to_int8(x) ((int8) (x))
+#define to_uint8(x) ((uint8) (x))
 #define to_double(x) ((double) (x))
 
 #define PI 3.1415926535897932384626433
@@ -76,11 +77,13 @@ class Phloat {
         Phloat(int8 numer, int8 denom);
         Phloat(int i);
         Phloat(int8 i);
+        Phloat(uint8 i);
         Phloat(double d);
         Phloat(const Phloat &p);
         Phloat operator=(const BID_UINT128 &b) { val = b; return *this; }
         Phloat operator=(int i);
         Phloat operator=(int8 i);
+        Phloat operator=(uint8 i);
         Phloat operator=(double d);
         Phloat operator=(Phloat p);
         bool operator==(Phloat p) const;
@@ -120,6 +123,7 @@ char to_char(Phloat p);
 int to_int(Phloat p);
 int4 to_int4(Phloat p);
 int8 to_int8(Phloat p);
+uint8 to_uint8(Phloat p);
 double to_double(Phloat p);
 
 Phloat sin(Phloat p);

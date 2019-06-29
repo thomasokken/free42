@@ -927,9 +927,9 @@ static int mappable_to_hr(phloat x, phloat *y) {
                 x -= h;
                 //ix = (int8) (x * 1000000000000.0 + 0.5);
                 x = (x * 1000000000000.0 + 0.5); ix = to_int8(x);
-                ixhr = ix % LL(10000000000);
-                ix /= LL(10000000000);
-                ixhr += (ix % 100) * LL(6000000000);
+                ixhr = ix % 10000000000LL;
+                ix /= 10000000000LL;
+                ixhr += (ix % 100) * 6000000000LL;
                 res = h + ixhr / 360000000000.0;
             }
         #endif

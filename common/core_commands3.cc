@@ -1249,27 +1249,27 @@ static int hms_add_or_sub(bool add) {
         res = add ? ry + rx : ry - rx;
         ix = (int8) (((x - rx) * 1000000000000.0) + 0.5);
         iy = (int8) (((y - ry) * 1000000000000.0) + 0.5);
-        ixhr = ix % LL(10000000000);
-        iyhr = iy % LL(10000000000);
-        ix /= LL(10000000000);
-        iy /= LL(10000000000);
-        ixhr += (ix % 100) * LL(6000000000);
-        iyhr += (iy % 100) * LL(6000000000);
-        ixhr += (ix / 100) * LL(360000000000);
-        iyhr += (iy / 100) * LL(360000000000);
+        ixhr = ix % 10000000000LL;
+        iyhr = iy % 10000000000LL;
+        ix /= 10000000000LL;
+        iy /= 10000000000LL;
+        ixhr += (ix % 100) * 6000000000LL;
+        iyhr += (iy % 100) * 6000000000LL;
+        ixhr += (ix / 100) * 360000000000LL;
+        iyhr += (iy / 100) * 360000000000LL;
         ireshr = add ? iyhr + ixhr : iyhr - ixhr;
         while (ireshr < 0 && res > 0) {
-            ireshr += LL(360000000000);
+            ireshr += 360000000000LL;
             res -= 1;
         }
         while (ireshr > 0 && res < 0) {
-            ireshr -= LL(360000000000);
+            ireshr -= 360000000000LL;
             res += 1;
         }
-        ires = ireshr % LL(6000000000);
-        ireshr /= LL(6000000000);
-        ires += (ireshr % 60) * LL(10000000000);
-        ires += (ireshr / 60) * LL(1000000000000);
+        ires = ireshr % 6000000000LL;
+        ireshr /= 6000000000LL;
+        ires += (ireshr % 60) * 10000000000LL;
+        ires += (ireshr / 60) * 1000000000000LL;
         res += ires / 1000000000000.0;
         r = res;
     #endif

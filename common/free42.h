@@ -29,7 +29,6 @@
 #define uint4 unsigned int
 #define int8 long long
 #define uint8 unsigned long long
-#define LL(x) x##LL
 
 
 #if defined(WINDOWS) && !defined(__GNUC__)
@@ -144,9 +143,10 @@ extern "C" double log2(double x);
  *                    potentially-incorrect jump targets cleared, just in case.
  * Version 23: 2.1    Added "prog" extension: SST^, SST->
  * Version 24: 2.2    Large RTN stack; local variables.
+ * Version 25: 2.4    WSIZE.
  */
 #define FREE42_MAGIC 0x466b3432
-#define FREE42_VERSION 24
+#define FREE42_VERSION 25
 
 
 #endif

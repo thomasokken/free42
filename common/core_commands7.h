@@ -44,5 +44,7 @@ int docmd_ymd(arg_struct *arg);
 int docmd_fptest(arg_struct *arg);
 
 int docmd_lsto(arg_struct *arg);
+int docmd_wsize(arg_struct *arg);
+int docmd_wsize_t(arg_struct *arg);
 
 #endif
