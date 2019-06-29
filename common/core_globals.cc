@@ -229,20 +229,27 @@ menu_spec menus[] = {
                         { MENU_NONE, 0, "" },
                         { MENU_NONE, 0, "" },
                         { MENU_NONE, 0, "" } } },
-    { /* MENU_MODES1 */ MENU_NONE, MENU_MODES2, MENU_MODES2,
+    { /* MENU_MODES1 */ MENU_NONE, MENU_MODES2, MENU_MODES3,
                       { { 0x2000 + CMD_DEG,   0, "" },
                         { 0x2000 + CMD_RAD,   0, "" },
                         { 0x2000 + CMD_GRAD,  0, "" },
                         { 0x1000 + CMD_NULL,  0, "" },
                         { 0x2000 + CMD_RECT,  0, "" },
                         { 0x2000 + CMD_POLAR, 0, "" } } },
-    { /* MENU_MODES2 */ MENU_NONE, MENU_MODES1, MENU_MODES1,
+    { /* MENU_MODES2 */ MENU_NONE, MENU_MODES3, MENU_MODES1,
                       { { 0x1000 + CMD_SIZE,    0, "" },
                         { 0x2000 + CMD_QUIET,   0, "" },
                         { 0x2000 + CMD_CPXRES,  0, "" },
                         { 0x2000 + CMD_REALRES, 0, "" },
                         { 0x2000 + CMD_KEYASN,  0, "" },
                         { 0x2000 + CMD_LCLBL,   0, "" } } },
+    { /* MENU_MODES3 */ MENU_NONE, MENU_MODES1, MENU_MODES2,
+                      { { 0x1000 + CMD_WSIZE,   0, "" },
+                        { 0x1000 + CMD_WSIZE_T, 0, "" },
+                        { 0x2000 + CMD_BSIGNED, 0, "" },
+                        { 0x2000 + CMD_BWRAP,   0, "" },
+                        { 0x1000 + CMD_NULL,    0, "" },
+                        { 0x1000 + CMD_BRESET,  0, "" } } },
     { /* MENU_DISP */ MENU_NONE, MENU_NONE, MENU_NONE,
                       { { 0x2000 + CMD_FIX,      0, "" },
                         { 0x2000 + CMD_SCI,      0, "" },
@@ -1324,11 +1331,11 @@ static bool unpersist_globals(int4 ver) {
     }
     if (ver >= 25) {
         if (!read_int(&mode_wsize)) {
-            mode_wsize = -36;
+            mode_wsize = 36;
             goto done;
         }
     } else
-        mode_wsize = -36;
+        mode_wsize = 36;
     if (shell_read_saved_state(&flags, sizeof(flags_struct))
             != sizeof(flags_struct))
         goto done;
@@ -2668,6 +2675,18 @@ bool load_state(int4 ver) {
     if (!read_int(&mode_transientmenu)) return false;
     if (!read_int(&mode_alphamenu)) return false;
     if (!read_int(&mode_commandmenu)) return false;
+    if (ver < 25) {
+        if (mode_appmenu > MENU_MODES2)
+            mode_appmenu++;
+        if (mode_plainmenu > MENU_MODES2)
+            mode_plainmenu++;
+        if (mode_transientmenu > MENU_MODES2)
+            mode_transientmenu++;
+        if (mode_alphamenu > MENU_MODES2)
+            mode_alphamenu++;
+        if (mode_commandmenu > MENU_MODES2)
+            mode_commandmenu++;
+    }
     if (!read_bool(&mode_running)) return false;
     if (!read_bool(&mode_varmenu)) return false;
     if (!read_bool(&mode_updown)) return false;
@@ -3005,11 +3024,12 @@ void hard_reset(int bad_state_file) {
     /* flags.f.VIRTUAL_programmable_menu = 0; */
     flags.f.matrix_edge_wrap = 0;
     flags.f.matrix_end_wrap = 0;
-    flags.f.f78 = flags.f.f79 = flags.f.f80 = flags.f.f81 = flags.f.f82 = 0;
-    flags.f.f83 = flags.f.f84 = flags.f.f85 = flags.f.f86 = flags.f.f87 = 0;
-    flags.f.f88 = flags.f.f89 = flags.f.f90 = flags.f.f91 = flags.f.f92 = 0;
-    flags.f.f93 = flags.f.f94 = flags.f.f95 = flags.f.f96 = flags.f.f97 = 0;
-    flags.f.f98 = flags.f.f99 = 0;
+    flags.f.binary_unsigned = 0;
+    flags.f.binary_wrap = 0;
+    flags.f.f80 = flags.f.f81 = flags.f.f82 = flags.f.f83 = flags.f.f84 = 0;
+    flags.f.f85 = flags.f.f86 = flags.f.f87 = flags.f.f88 = flags.f.f89 = 0;
+    flags.f.f90 = flags.f.f91 = flags.f.f92 = flags.f.f93 = flags.f.f94 = 0;
+    flags.f.f95 = flags.f.f96 = flags.f.f97 = flags.f.f98 = flags.f.f99 = 0;
 
     mode_clall = false;
     mode_command_entry = false;
@@ -3032,7 +3052,7 @@ void hard_reset(int bad_state_file) {
     mode_goose = -1;
     mode_time_clktd = false;
     mode_time_clk24 = false;
-    mode_wsize = -36;
+    mode_wsize = 36;
 
     core_settings.auto_repeat = true;
     #if defined(ANDROID) || defined(IPHONE)

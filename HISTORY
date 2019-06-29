@@ -1,9 +1,8 @@
 ????-??-??: release 2.4
 
-* Added configurable word size (up to 64 bits, or 52 in Free42 Binary) and
-  unsigned mode for BASE functions. Signed mode is indicated by a negative word
-  size, and unsigned mode is indicated by a positive word size, so the HP-42S
-  compatible default setting of 36 bits, signed, is WSIZE -36.
+* Added configurable word size (up to 64 bits, or 52 in Free42 Binary),
+  unsigned mode, and wrap mode, for BASE functions. The new settings are all in
+  a new row in the MODES menu.
 * Added some feedback in the skin loading window (Android, iOS, Mac).
 * Added skin management in Windows and GTK versions. No embedded browser view
   like on Android, iOS, and Mac, but still a bit nicer than dealing with files

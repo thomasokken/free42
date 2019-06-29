@@ -59,6 +59,7 @@ int get_base_param(const vartype *v, int8 *n);
 int base_range_check(int8 *n);
 int effective_wsize();
 phloat base2phloat(int8 n);
+bool phloat2base(phloat p, int8 *n);
 
 void print_text(const char *text, int length, int left_justified);
 void print_lines(const char *text, int length, int left_justified);

@@ -217,8 +217,7 @@ int docmd_basechs(arg_struct *arg) {
     int err;
     if ((err = get_base_param(reg_x, &x)) != ERR_NONE)
         return err;
-    int wsize = effective_wsize();
-    if (wsize > 0) {
+    if (flags.f.binary_unsigned) {
         if (x != 0) {
             if (flags.f.range_error_ignore)
                 x = 0;
@@ -227,7 +226,7 @@ int docmd_basechs(arg_struct *arg) {
         } else
             x = 0;
     } else {
-        int8 maxneg = 1LL << (-1 - wsize);
+        int8 maxneg = 1LL << (effective_wsize() - 1);
         if (x == maxneg) {
             if (flags.f.range_error_ignore)
                 x = -1 - maxneg;

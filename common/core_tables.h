@@ -415,8 +415,11 @@
 #define CMD_WSIZE       371
 #define CMD_WSIZE_T     372
 #define CMD_YMD         373
+#define CMD_BSIGNED     374
+#define CMD_BWRAP       375
+#define CMD_BRESET      376
 
-#define CMD_SENTINEL    374
+#define CMD_SENTINEL    377
 
 
 /* command_spec.argtype */

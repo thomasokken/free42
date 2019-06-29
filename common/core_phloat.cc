@@ -1007,13 +1007,13 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
 
         int wsize = effective_wsize();
         phloat high, low;
-        if (wsize < 0) {
-            high = pow(phloat(2), -1 - wsize);
-            low = -high;
-            high--;
-        } else {
+        if (flags.f.binary_unsigned) {
             high = pow(phloat(2), wsize) - 1;
             low = 0;
+        } else {
+            high = pow(phloat(2), wsize - 1);
+            low = -high;
+            high--;
         }
         if (pd > high || pd < low)
             if (base_mode == 2)
@@ -1026,16 +1026,16 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
                 return chars_so_far;
             }
 
-        if (wsize < 0) {
+        if (flags.f.binary_unsigned) {
+            n = to_uint8(pd);
+            inexact = base_mode == 1 && pd != n;
+        } else {
             int8 sn = to_int8(pd);
             inexact = base_mode == 1 && pd != sn;
             n = (uint8) sn;
-            n &= (1ULL << -wsize) - 1;
-        } else {
-            n = to_uint8(pd);
-            inexact = base_mode == 1 && pd != n;
-            n &= (1ULL << wsize) - 1;
         }
+        n &= (1ULL << wsize) - 1;
+
         if (base_mode == 2 && (n & 0xfffff00000000000ULL) != 0)
             // More than 44 bits; won't fit. Use hex instead.
             base = 16;

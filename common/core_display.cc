@@ -1459,7 +1459,7 @@ static extension_struct extensions[] = {
     { CMD_HEADING, CMD_HEADING, &core_settings.enable_ext_heading  },
     { CMD_ADATE,   CMD_SWPT,    &core_settings.enable_ext_time     },
     { CMD_FPTEST,  CMD_FPTEST,  &core_settings.enable_ext_fptest   },
-    { CMD_LSTO,    CMD_YMD,     &core_settings.enable_ext_prog     },
+    { CMD_LSTO,    CMD_BRESET,  &core_settings.enable_ext_prog     },
     { CMD_NULL,    CMD_NULL,    NULL                               }
 };
 
@@ -1469,8 +1469,13 @@ static extension_struct extensions[] = {
 // A command number of -1 defines a range, from the number before it in
 // the list until the number after it.
 static int ext_fcn_cat[] = {
-    CMD_ADATE, -1, CMD_SWPT, CMD_YMD, CMD_LSTO, -1, CMD_WSIZE_T,
-    CMD_ACCEL, CMD_LOCAT, CMD_HEADING, CMD_FPTEST, CMD_NULL
+    CMD_ADATE, -1, CMD_SWPT,
+    CMD_YMD,
+    CMD_BRESET, CMD_BSIGNED, CMD_BWRAP,
+    CMD_LSTO, -1, CMD_WSIZE_T,
+    CMD_ACCEL, CMD_LOCAT, CMD_HEADING,
+    CMD_FPTEST,
+    CMD_NULL
 };
 
 static void draw_catalog() {
@@ -2015,6 +2020,12 @@ void redisplay() {
                             break;
                         case CMD_LCLBL:
                             is_flag = flags.f.local_label;
+                            break;
+                        case CMD_BSIGNED:
+                            is_flag = !flags.f.binary_unsigned;
+                            break;
+                        case CMD_BWRAP:
+                            is_flag = flags.f.binary_wrap;
                             break;
                         case CMD_PON:
                             is_flag = flags.f.printer_exists;

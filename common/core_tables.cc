@@ -432,7 +432,10 @@ static const command_spec cmd_array[] =
     { /* SST_RT */     "SST\017",               4, NULL,              0x02000000, ARG_NONE,  FLAG_NONE },
     { /* WSIZE */      "WSIZE",                 5, docmd_wsize,       0x0000a7d3, ARG_NONE,  FLAG_NONE },
     { /* WSIZE_T */    "WS\311Z\305?",          6, docmd_wsize_t,     0x0000a7d4, ARG_NONE,  FLAG_NONE },
-    { /* YMD */        "YMD",                   3, docmd_ymd,         0x0000a7d5, ARG_NONE,  FLAG_NONE }
+    { /* YMD */        "YMD",                   3, docmd_ymd,         0x0000a7d5, ARG_NONE,  FLAG_NONE },
+    { /* BSIGNED */    "BS\311GN\305\304",      7, docmd_bsigned,     0x0000a7d6, ARG_NONE,  FLAG_NONE },
+    { /* BWRAP */      "BWR\301P",              5, docmd_bwrap,       0x0000a7d7, ARG_NONE,  FLAG_NONE },
+    { /* BRESET */     "BR\305S\305T",          6, docmd_breset,      0x0000a7d8, ARG_NONE,  FLAG_NONE }
 };
 
 /*

@@ -488,8 +488,6 @@ void keydown_number_entry(int shift, int key) {
         } else {
             int bits = base == 2 ? 1 : base == 8 ? 3 : 4;
             int wsize = effective_wsize();
-            if (wsize < 0)
-                wsize = -wsize;
             int maxchars = (wsize + bits - 1) / bits;
             if (cmdline_length > maxchars) {
                 cmdline_length--;
@@ -521,12 +519,12 @@ void keydown_number_entry(int shift, int key) {
             n = n * base + digit;
         }
         int wsize = effective_wsize();
-        if (wsize > 0)
+        if (flags.f.binary_unsigned)
             x = (phloat) n;
-        else if ((n & (1ULL << (-1 - wsize))) == 0)
+        else if ((n & (1ULL << (wsize - 1))) == 0)
             x = (phloat) n;
         else
-            x = (phloat) (int8) (n | (-1LL << (-1 - wsize)));
+            x = (phloat) (int8) (n | (-1LL << (wsize - 1)));
     }
 
     if (flags.f.prgm_mode)

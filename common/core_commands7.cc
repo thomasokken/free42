@@ -805,15 +805,12 @@ int docmd_wsize(arg_struct *arg) {
         return ERR_INVALID_TYPE;
     phloat x = ((vartype_real *) reg_x)->x;
 #ifdef BCD_MATH
-    if (x >= 65 || x <= -65)
+    if (x >= 65 || x < 1)
 #else
-    if (x >= 53 || x <= -53)
+    if (x >= 53 || x < 1)
 #endif
         return ERR_INVALID_DATA;
-    int w = to_int(x);
-    if (w == 0)
-        return ERR_INVALID_DATA;
-    mode_wsize = w;
+    mode_wsize = to_int(x);
     if (flags.f.trace_print && flags.f.printer_exists)
         docmd_prx(NULL);
     return ERR_NONE;
@@ -826,5 +823,28 @@ int docmd_wsize_t(arg_struct *arg) {
     if (new_x == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     recall_result(new_x);
+    return ERR_NONE;
+}
+
+int docmd_bsigned(arg_struct *arg) {
+    if (!core_settings.enable_ext_prog)
+        return ERR_NONEXISTENT;
+    flags.f.binary_unsigned = !flags.f.binary_unsigned;
+    return ERR_NONE;
+}
+
+int docmd_bwrap(arg_struct *arg) {
+    if (!core_settings.enable_ext_prog)
+        return ERR_NONEXISTENT;
+    flags.f.binary_wrap = !flags.f.binary_wrap;
+    return ERR_NONE;
+}
+
+int docmd_breset(arg_struct *arg) {
+    if (!core_settings.enable_ext_prog)
+        return ERR_NONEXISTENT;
+    mode_wsize = 36;
+    flags.f.binary_unsigned = 0;
+    flags.f.binary_wrap = 0;
     return ERR_NONE;
 }

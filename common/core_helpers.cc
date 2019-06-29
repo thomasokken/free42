@@ -437,34 +437,31 @@ int get_base_param(const vartype *v, int8 *n) {
     else if (v->type != TYPE_REAL)
         return ERR_INVALID_TYPE;
     phloat x = ((vartype_real *) v)->x;
-    int wsize = effective_wsize();
-    if (wsize < 0) {
-        phloat high = pow(phloat(2), -1 - wsize);
-        phloat low = -high;
-        high--;
-        if (x > high || x < low)
-            return ERR_INVALID_DATA;
-        int8 t = to_int8(x);
-        if ((t & (1LL << (-1 - wsize))) != 0)
-            t |= -1LL << -wsize;
-        *n = t;
-    } else {
-        if (x < 0)
-            return ERR_INVALID_DATA;
-        phloat high = pow(phloat(2), wsize) - 1;
-        if (x > high)
-            return ERR_INVALID_DATA;
-        *n = (int8) to_uint8(x);
-    }
-    return ERR_NONE;
+    return phloat2base(x, n) ? ERR_NONE : ERR_INVALID_DATA;
 }
 
 int base_range_check(int8 *n) {
     int wsize = effective_wsize();
-    if (wsize < 0) {
-        if (wsize == -64)
-            return ERR_NONE;
-        int8 high = 1LL << (-1 - wsize);
+    if (flags.f.binary_wrap) {
+        if (flags.f.binary_unsigned)
+            *n &= (1ULL << wsize) - 1;
+        else {
+            if ((*n & (1LL << (wsize - 1))) != 0)
+                *n |= -1LL << (wsize - 1);
+            else
+                *n &= (1LL << (wsize - 1)) - 1;
+        }
+    } else if (flags.f.binary_unsigned) {
+        uint8 *un = (uint8 *) n;
+        uint8 high = (1ULL << wsize) - 1;
+        if (*un > high) {
+            if (flags.f.range_error_ignore)
+                *un = high;
+            else
+                return ERR_OUT_OF_RANGE;
+        }
+    } else {
+        int8 high = 1LL << (wsize - 1);
         int8 low = -high;
         high--;
         if (*n < low) {
@@ -478,17 +475,6 @@ int base_range_check(int8 *n) {
             else
                 return ERR_OUT_OF_RANGE;
         }
-    } else {
-        if (wsize == 64)
-            return ERR_NONE;
-        uint8 *un = (uint8 *) n;
-        uint8 high = (1ULL << wsize) - 1;
-        if (*un > high) {
-            if (flags.f.range_error_ignore)
-                *un = high;
-            else
-                return ERR_OUT_OF_RANGE;
-        }
     }
     return ERR_NONE;
 }
@@ -497,23 +483,61 @@ int effective_wsize() {
 #ifdef BCD_MATH
     return mode_wsize;
 #else
-    return mode_wsize < -52 ? -52 : mode_wsize > 52 ? 52 : mode_wsize;
+    return mode_wsize > 52 ? 52 : mode_wsize;
 #endif
 }
 
 phloat base2phloat(int8 n) {
     int wsize = effective_wsize();
-    if (wsize < 0) {
-        if ((n & (1LL << (-1 - wsize))) != 0)
-            n |= -1LL << -wsize;
-        else
-            n &= (1LL << (-1 - wsize)) - 1;
-        return phloat(n);
-    } else {
-        if (wsize < 64)
-            n &= (1LL << wsize) - 1;
+    if (flags.f.binary_unsigned) {
+        n &= (1LL << wsize) - 1;
         return phloat((uint8) n);
+    } else {
+        if ((n & (1LL << (wsize - 1))) != 0)
+            n |= -1LL << wsize;
+        else
+            n &= (1LL << (wsize - 1)) - 1;
+        return phloat(n);
     }
+}
+
+bool phloat2base(phloat p, int8 *res) {
+    int wsize = effective_wsize();
+    if (flags.f.binary_wrap) {
+        phloat d = pow(phloat(2), wsize);
+        phloat r = fmod(p, d);
+        if (r < 0)
+            r += d;
+        int8 n = to_int8(r);
+        if (!flags.f.binary_unsigned) {
+            int8 m = 1LL << (wsize - 1);
+            if ((n & m) != 0)
+                n |= -1LL << (wsize - 1);
+            else
+                n &= (1LL << (wsize - 1)) - 1;
+        }
+        *res = n;
+    } else if (flags.f.binary_unsigned) {
+        if (p < 0)
+            return false;
+        phloat high = pow(phloat(2), wsize) - 1;
+        if (p > high)
+            return false;
+        *res = (int8) to_uint8(p);
+    } else {
+        phloat high = pow(phloat(2), wsize - 1);
+        phloat low = -high;
+        high--;
+        if (p > high || p < low)
+            return false;
+        int8 t = to_int8(p);
+        if ((t & (1LL << (wsize - 1))) != 0)
+            t |= -1LL << (wsize - 1);
+        else
+            t &= (1LL << (wsize - 1)) - 1;
+        *res = t;
+    }
+    return true;
 }
 
 void print_text(const char *text, int length, int left_justified) {

@@ -144,46 +144,47 @@ extern error_spec errors[];
 #define MENU_IND           21
 #define MENU_MODES1        22
 #define MENU_MODES2        23
-#define MENU_DISP          24
-#define MENU_CLEAR1        25
-#define MENU_CLEAR2        26
-#define MENU_CONVERT1      27
-#define MENU_CONVERT2      28
-#define MENU_FLAGS         29
-#define MENU_PROB          30
-#define MENU_CUSTOM1       31
-#define MENU_CUSTOM2       32
-#define MENU_CUSTOM3       33
-#define MENU_PGM_FCN1      34
-#define MENU_PGM_FCN2      35
-#define MENU_PGM_FCN3      36
-#define MENU_PGM_FCN4      37
-#define MENU_PGM_XCOMP0    38
-#define MENU_PGM_XCOMPY    39
-#define MENU_PRINT1        40
-#define MENU_PRINT2        41
-#define MENU_PRINT3        42
-#define MENU_TOP_FCN       43
-#define MENU_CATALOG       44
-#define MENU_BLANK         45
-#define MENU_PROGRAMMABLE  46
-#define MENU_VARMENU       47
-#define MENU_STAT1         48
-#define MENU_STAT2         49
-#define MENU_STAT_CFIT     50
-#define MENU_STAT_MODL     51
-#define MENU_MATRIX1       52
-#define MENU_MATRIX2       53
-#define MENU_MATRIX3       54
-#define MENU_MATRIX_SIMQ   55
-#define MENU_MATRIX_EDIT1  56
-#define MENU_MATRIX_EDIT2  57
-#define MENU_BASE          58
-#define MENU_BASE_A_THRU_F 59
-#define MENU_BASE_LOGIC    60
-#define MENU_SOLVE         61
-#define MENU_INTEG         62
-#define MENU_INTEG_PARAMS  63
+#define MENU_MODES3        24
+#define MENU_DISP          25
+#define MENU_CLEAR1        26
+#define MENU_CLEAR2        27
+#define MENU_CONVERT1      28
+#define MENU_CONVERT2      29
+#define MENU_FLAGS         30
+#define MENU_PROB          31
+#define MENU_CUSTOM1       32
+#define MENU_CUSTOM2       33
+#define MENU_CUSTOM3       34
+#define MENU_PGM_FCN1      35
+#define MENU_PGM_FCN2      36
+#define MENU_PGM_FCN3      37
+#define MENU_PGM_FCN4      38
+#define MENU_PGM_XCOMP0    39
+#define MENU_PGM_XCOMPY    40
+#define MENU_PRINT1        41
+#define MENU_PRINT2        42
+#define MENU_PRINT3        43
+#define MENU_TOP_FCN       44
+#define MENU_CATALOG       45
+#define MENU_BLANK         46
+#define MENU_PROGRAMMABLE  47
+#define MENU_VARMENU       48
+#define MENU_STAT1         49
+#define MENU_STAT2         50
+#define MENU_STAT_CFIT     51
+#define MENU_STAT_MODL     52
+#define MENU_MATRIX1       53
+#define MENU_MATRIX2       54
+#define MENU_MATRIX3       55
+#define MENU_MATRIX_SIMQ   56
+#define MENU_MATRIX_EDIT1  57
+#define MENU_MATRIX_EDIT2  58
+#define MENU_BASE          59
+#define MENU_BASE_A_THRU_F 60
+#define MENU_BASE_LOGIC    61
+#define MENU_SOLVE         62
+#define MENU_INTEG         63
+#define MENU_INTEG_PARAMS  64
 
 
 typedef struct {
@@ -353,11 +354,12 @@ typedef union {
         char VIRTUAL_programmable_menu;
         char matrix_edge_wrap;
         char matrix_end_wrap;
-        char f78; char f79; char f80; char f81; char f82;
-        char f83; char f84; char f85; char f86; char f87;
-        char f88; char f89; char f90; char f91; char f92;
-        char f93; char f94; char f95; char f96; char f97;
-        char f98; char f99;
+        char binary_unsigned; /* Programming extension */
+        char binary_wrap; /* Programming extension */
+        char f80; char f81; char f82; char f83; char f84;
+        char f85; char f86; char f87; char f88; char f89;
+        char f90; char f91; char f92; char f93; char f94;
+        char f95; char f96; char f97; char f98; char f99;
     } f;
 } flags_struct;
 extern flags_struct flags;
