@@ -200,7 +200,7 @@
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                     <items>
                         <navigationItem title="Load Skins" id="lFr-N9-rbb">
-                            <barButtonItem key="leftBarButtonItem" title="Load" id="qqj-np-cnj">
+                            <barButtonItem key="leftBarButtonItem" enabled="NO" title="Load" id="qqj-np-cnj">
                                 <connections>
                                     <action selector="loadSkin" destination="31h-BE-IyQ" id="eyn-14-wni"/>
                                 </connections>
@@ -256,6 +256,7 @@
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <connections>
+                <outlet property="loadButton" destination="qqj-np-cnj" id="MEl-jh-Kla"/>
                 <outlet property="urlField" destination="cDc-Mu-Sdq" id="8Gt-jA-wlp"/>
                 <outlet property="webView" destination="Glm-RJ-JN7" id="yTw-yB-O3P"/>
             </connections>

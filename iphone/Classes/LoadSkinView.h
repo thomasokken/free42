@@ -20,10 +20,12 @@
 
 @interface LoadSkinView : UIView {
     UITextField *urlField;
+    UIBarButtonItem *loadButton;
     UIWebView *webView;
 }
 
 @property (nonatomic, retain) IBOutlet UITextField *urlField;
+@property (nonatomic, retain) IBOutlet UIBarButtonItem *loadButton;
 @property (nonatomic, retain) IBOutlet UIWebView *webView;
 
 - (void) raised;

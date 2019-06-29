@@ -139,6 +139,7 @@ static bool is_file(const char *name);
 @synthesize aboutCopyright;
 @synthesize loadSkinsWindow;
 @synthesize loadSkinsURL;
+@synthesize loadSkinButton;
 @synthesize loadSkinsWebView;
 @synthesize deleteSkinsWindow;
 @synthesize skinListView;
@@ -798,8 +799,16 @@ static void tbnonewliner() {
     [loadSkinsWebView goForward];
 }
 
+- (void)webView:(WebView *)sender didStartProvisionalLoadForFrame:(WebFrame *)frame {
+    [loadSkinButton setEnabled:NO];
+    [loadSkinButton setTitle:@"..."];
+}
+
 - (void)webView:(WebView *)sender didFinishLoadForFrame:(WebFrame *)frame {
-    [loadSkinsURL setStringValue:[loadSkinsWebView mainFrameURL]];
+    NSString *url = [loadSkinsWebView mainFrameURL];
+    [loadSkinsURL setStringValue:url];
+    [loadSkinButton setTitle:@"Load"];
+    [loadSkinButton setEnabled:[Free42AppDelegate skinUrlPair:url] != nil];
 }
 
 - (BOOL) tryLoad:(NSString *)url asFile:(NSString *)name {
@@ -815,12 +824,36 @@ static void tbnonewliner() {
 
 - (IBAction) loadSkinsLoad:(id)sender {
     NSString *url = [loadSkinsURL stringValue];
-    NSURLComponents *u = [NSURLComponents componentsWithString:url];
-    NSString *path = [u path];
-    if (path == nil) {
+    NSArray *urls = [Free42AppDelegate skinUrlPair:url];
+    if (urls == nil) {
         show_message("Error", "Invalid Skin URL");
         return;
     }
+    if ([self tryLoad:[urls objectAtIndex:0] asFile:@"_temp_gif_"]
+        && [self tryLoad:[urls objectAtIndex:1] asFile:@"_temp_layout_"]) {
+        char buf1[FILENAMELEN], buf2[FILENAMELEN];
+        snprintf(buf1, FILENAMELEN, "%s/_temp_gif_", free42dirname);
+        snprintf(buf2, FILENAMELEN, "%s/%s.gif", free42dirname, [[urls objectAtIndex:2] UTF8String]);
+        rename(buf1, buf2);
+        snprintf(buf1, FILENAMELEN, "%s/_temp_layout_", free42dirname);
+        snprintf(buf2, FILENAMELEN, "%s/%s.layout", free42dirname, [[urls objectAtIndex:2] UTF8String]);
+        rename(buf1, buf2);
+        show_message("Message", "Skin Loaded");
+    } else {
+        char buf[FILENAMELEN];
+        snprintf(buf, FILENAMELEN, "%s/_temp_gif_", free42dirname);
+        remove(buf);
+        snprintf(buf, FILENAMELEN, "%s/_temp_layout_", free42dirname);
+        remove(buf);
+        show_message("Error", "Loading Skin Failed");
+    }
+}
+
++ (NSArray *)skinUrlPair:(NSString *)url {
+    NSURLComponents *u = [NSURLComponents componentsWithString:url];
+    NSString *path = [u path];
+    if (path == nil)
+        return nil;
     NSString *gifUrl = nil, *layoutUrl = nil;
     if ([path hasSuffix:@".gif"]) {
         gifUrl = url;
@@ -835,28 +868,10 @@ static void tbnonewliner() {
         [u setPath:gifPath];
         gifUrl = [u string];
     } else {
-        show_message("Error", "Invalid Skin URL");
-        return;
+        return nil;
     }
-    if ([self tryLoad:gifUrl asFile:@"_temp_gif_"]
-        && [self tryLoad:layoutUrl asFile:@"_temp_layout_"]) {
-        char buf1[FILENAMELEN], buf2[FILENAMELEN];
-        snprintf(buf1, FILENAMELEN, "%s/_temp_gif_", free42dirname);
-        NSURL *u = [NSURL URLWithString:gifUrl];
-        snprintf(buf2, FILENAMELEN, "%s/%s", free42dirname, [[u lastPathComponent] UTF8String]);
-        rename(buf1, buf2);
-        snprintf(buf1, FILENAMELEN, "%s/_temp_layout_", free42dirname);
-        u = [NSURL URLWithString:layoutUrl];
-        snprintf(buf2, FILENAMELEN, "%s/%s", free42dirname, [[u lastPathComponent] UTF8String]);
-        rename(buf1, buf2);
-    } else {
-        char buf[FILENAMELEN];
-        snprintf(buf, FILENAMELEN, "%s/_temp_gif_", free42dirname);
-        remove(buf);
-        snprintf(buf, FILENAMELEN, "%s/_temp_layout_", free42dirname);
-        remove(buf);
-        show_message("Error", "Loading Skin Failed");
-    }
+    NSString *baseName = [gifUrl lastPathComponent];
+    return [NSArray arrayWithObjects:gifUrl, layoutUrl, [baseName substringToIndex:[baseName length] - 4], nil];
 }
 
 - (IBAction) deleteSkins:(id)sender {

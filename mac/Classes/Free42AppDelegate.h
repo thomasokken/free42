@@ -84,6 +84,7 @@ void calc_keymodifierschanged(NSUInteger flags);
 
     NSWindow *loadSkinsWindow;
     NSTextField *loadSkinsURL;
+    NSButton *loadSkinButton;
     WebView *loadSkinsWebView;
     NSWindow *deleteSkinsWindow;
     NSTableView *skinListView;
@@ -112,6 +113,7 @@ void calc_keymodifierschanged(NSUInteger flags);
 @property (nonatomic, retain) IBOutlet NSTextField *aboutCopyright;
 @property (nonatomic, retain) IBOutlet NSWindow *loadSkinsWindow;
 @property (nonatomic, retain) IBOutlet NSTextField *loadSkinsURL;
+@property (nonatomic, retain) IBOutlet NSButton *loadSkinButton;
 @property (nonatomic, retain) IBOutlet WebView *loadSkinsWebView;
 @property (nonatomic, retain) IBOutlet NSWindow *deleteSkinsWindow;
 @property (nonatomic, retain) IBOutlet NSTableView *skinListView;

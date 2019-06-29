@@ -1,3 +1,12 @@
+????-??-??: release 2.4
+
+* Added configurable word size (up to 64 bits, or 52 in Free42 Binary) and
+  unsigned mode for BASE functions. TODO
+* Added some feedback in the skin loading window (Android, iOS, Mac).
+* Added skin management in Windows and GTK versions. No embedded browser view
+  like on Android, iOS, and Mac, but still a bit nicer than dealing with files
+  manually. TODO
+
 2019-06-25: release 2.3.1a (Android only)
 
 * Adding -mfpu=vfp to compilation flags when building the Intel library for

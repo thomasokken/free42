@@ -393,6 +393,7 @@
                 <outlet property="aboutWindow" destination="508" id="524"/>
                 <outlet property="calcView" destination="501" id="530"/>
                 <outlet property="deleteSkinsWindow" destination="mKM-t8-JhI" id="CsZ-B8-6nI"/>
+                <outlet property="loadSkinButton" destination="Xmw-hl-k3g" id="42Z-Pc-Psi"/>
                 <outlet property="loadSkinsURL" destination="Alm-zb-kiZ" id="l9D-L3-7h0"/>
                 <outlet property="loadSkinsWebView" destination="gQn-Kh-adU" id="zWs-SI-oiJ"/>
                 <outlet property="loadSkinsWindow" destination="O16-Bu-L5F" id="3Sk-HX-xDV"/>
