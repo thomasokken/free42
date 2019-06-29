@@ -45,7 +45,7 @@ static int basekeys() {
     if (!baseapp)
         return 0;
     int *menu = get_front_menu();
-    return menu != NULL && *menu >= MENU_BASE && *menu <= MENU_BASE_LOGIC2;
+    return menu != NULL && *menu >= MENU_BASE && *menu <= MENU_BASE_LOGIC;
 }
 
 static void set_solve_integ(int solve) {

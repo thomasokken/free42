@@ -1463,6 +1463,16 @@ static extension_struct extensions[] = {
     { CMD_NULL,    CMD_NULL,    NULL                               }
 };
 
+// This defines the order in which extension functions should appear in
+// the FCN catalog. We need this mapping so that that order isn't determined
+// by the order in which the functions were added to the commands list.
+// A command number of -1 defines a range, from the number before it in
+// the list until the number after it.
+static int ext_fcn_cat[] = {
+    CMD_ADATE, -1, CMD_SWPT, CMD_YMD, CMD_LSTO, -1, CMD_WSIZE_T,
+    CMD_ACCEL, CMD_LOCAT, CMD_HEADING, CMD_FPTEST, CMD_NULL
+};
+
 static void draw_catalog() {
     int catsect = get_cat_section();
     int catindex = get_cat_index();
@@ -1554,26 +1564,46 @@ static void draw_catalog() {
             bool menu_full = false;
             int menu_length = 0;
             bool no_extensions = true;
-            for (int extno = 0; extensions[extno].first_cmd != CMD_NULL; extno++) {
-                if (extensions[extno].enable_flag == NULL || *extensions[extno].enable_flag) {
-                    for (int cmd = extensions[extno].first_cmd; cmd <= extensions[extno].last_cmd; cmd++) {
-                        if ((cmdlist(cmd)->flags & FLAG_HIDDEN) == 0) {
-                            no_extensions = false;
-                            if (curr_pos == 5) {
-                                curr_pos = 0;
-                                curr_row++;
-                            } else
-                                curr_pos++;
-                            if (menu_full)
-                                goto done;
-                            catalogmenu_item[catindex][curr_pos] = cmd;
-                            catalogmenu_row[catindex] = curr_row;
-                            menu_length = curr_pos + 1;
-                            if (curr_pos == 5 && curr_row == desired_row)
-                                menu_full = true;
-                        }
+            int ext_fcn_idx = 0;
+            int ext_fcn_until = CMD_NULL;
+            int ext_fcn;
+            while (true) {
+                if (ext_fcn_until == CMD_NULL) {
+                    ext_fcn = ext_fcn_cat[ext_fcn_idx++];
+                    if (ext_fcn == -1) {
+                        ext_fcn_until = ext_fcn_cat[ext_fcn_idx++];
+                        ext_fcn = ext_fcn_cat[ext_fcn_idx - 3] + 1;
+                    } else if (ext_fcn == CMD_NULL)
+                        break;
+                } else {
+                    ext_fcn++;
+                    if (ext_fcn == ext_fcn_until)
+                        ext_fcn_until = CMD_NULL;
+                }
+                if ((cmdlist(ext_fcn)->flags & FLAG_HIDDEN) != 0)
+                    continue;
+                bool enabled = false;
+                for (int extno = 0; extensions[extno].first_cmd != CMD_NULL; extno++) {
+                    if (ext_fcn >= extensions[extno].first_cmd && ext_fcn <= extensions[extno].last_cmd) {
+                        enabled = extensions[extno].enable_flag == NULL || *extensions[extno].enable_flag;
+                        break;
                     }
                 }
+                if (!enabled)
+                    continue;
+                no_extensions = false;
+                if (curr_pos == 5) {
+                    curr_pos = 0;
+                    curr_row++;
+                } else
+                    curr_pos++;
+                if (menu_full)
+                    goto done;
+                catalogmenu_item[catindex][curr_pos] = ext_fcn;
+                catalogmenu_row[catindex] = curr_row;
+                menu_length = curr_pos + 1;
+                if (curr_pos == 5 && curr_row == desired_row)
+                    menu_full = true;
             }
             if (no_extensions) {
                 desired_row = catalogmenu_row[catindex] = desired_row == 42 ? 0 : 41;

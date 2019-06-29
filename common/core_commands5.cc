@@ -32,7 +32,7 @@
 
 int appmenu_exitcallback_2(int menuid, bool exitall) {
     if (menuid >= MENU_BASE
-            && menuid <= MENU_BASE_LOGIC2
+            && menuid <= MENU_BASE_LOGIC
             && !exitall) {
         mode_appmenu = menuid;
         set_appmenu_exitcallback(2);
@@ -891,7 +891,7 @@ int docmd_rotxy(arg_struct *arg) {
         else
             res |= 0xfffffff000000000LL;
     }
-    v = new_real((phloat) res);
+    v = new_real(base2phloat(res));
     if (v == NULL) 
         return ERR_INSUFFICIENT_MEMORY;
     binary_result(v);

@@ -180,11 +180,10 @@ extern error_spec errors[];
 #define MENU_MATRIX_EDIT2  57
 #define MENU_BASE          58
 #define MENU_BASE_A_THRU_F 59
-#define MENU_BASE_LOGIC1   60
-#define MENU_BASE_LOGIC2   61
-#define MENU_SOLVE         62
-#define MENU_INTEG         63
-#define MENU_INTEG_PARAMS  64
+#define MENU_BASE_LOGIC    60
+#define MENU_SOLVE         61
+#define MENU_INTEG         62
+#define MENU_INTEG_PARAMS  63
 
 
 typedef struct {
