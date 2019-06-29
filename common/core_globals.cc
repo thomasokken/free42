@@ -1341,6 +1341,10 @@ static bool unpersist_globals(int4 ver) {
         goto done;
     if (tmp_dmy != 2)
         flags.f.dmy = tmp_dmy;
+    if (ver < 25) {
+        flags.f.binary_signed = 1;
+        flags.f.binary_wrap = 0;
+    }
     vars_capacity = 0;
     if (vars != NULL) {
         free(vars);
@@ -3024,7 +3028,7 @@ void hard_reset(int bad_state_file) {
     /* flags.f.VIRTUAL_programmable_menu = 0; */
     flags.f.matrix_edge_wrap = 0;
     flags.f.matrix_end_wrap = 0;
-    flags.f.binary_unsigned = 0;
+    flags.f.binary_signed = 1;
     flags.f.binary_wrap = 0;
     flags.f.f80 = flags.f.f81 = flags.f.f82 = flags.f.f83 = flags.f.f84 = 0;
     flags.f.f85 = flags.f.f86 = flags.f.f87 = flags.f.f88 = flags.f.f89 = 0;

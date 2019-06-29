@@ -217,15 +217,7 @@ int docmd_basechs(arg_struct *arg) {
     int err;
     if ((err = get_base_param(reg_x, &x)) != ERR_NONE)
         return err;
-    if (flags.f.binary_unsigned) {
-        if (x != 0) {
-            if (flags.f.range_error_ignore)
-                x = 0;
-            else
-                return ERR_OUT_OF_RANGE;
-        } else
-            x = 0;
-    } else {
+    if (flags.f.binary_signed) {
         int8 maxneg = 1LL << (effective_wsize() - 1);
         if (x == maxneg) {
             if (flags.f.range_error_ignore)
@@ -234,6 +226,14 @@ int docmd_basechs(arg_struct *arg) {
                 return ERR_OUT_OF_RANGE;
         } else
             x = -x;
+    } else {
+        if (x != 0) {
+            if (flags.f.range_error_ignore)
+                x = 0;
+            else
+                return ERR_OUT_OF_RANGE;
+        } else
+            x = 0;
     }
     ((vartype_real *) reg_x)->x = (phloat) x;
     return ERR_NONE;

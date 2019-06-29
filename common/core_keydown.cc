@@ -519,7 +519,7 @@ void keydown_number_entry(int shift, int key) {
             n = n * base + digit;
         }
         int wsize = effective_wsize();
-        if (flags.f.binary_unsigned)
+        if (!flags.f.binary_signed)
             x = (phloat) n;
         else if ((n & (1ULL << (wsize - 1))) == 0)
             x = (phloat) n;

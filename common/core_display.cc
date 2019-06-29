@@ -2022,7 +2022,7 @@ void redisplay() {
                             is_flag = flags.f.local_label;
                             break;
                         case CMD_BSIGNED:
-                            is_flag = !flags.f.binary_unsigned;
+                            is_flag = flags.f.binary_signed;
                             break;
                         case CMD_BWRAP:
                             is_flag = flags.f.binary_wrap;

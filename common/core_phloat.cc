@@ -1007,13 +1007,13 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
 
         int wsize = effective_wsize();
         phloat high, low;
-        if (flags.f.binary_unsigned) {
-            high = pow(phloat(2), wsize) - 1;
-            low = 0;
-        } else {
+        if (flags.f.binary_signed) {
             high = pow(phloat(2), wsize - 1);
             low = -high;
             high--;
+        } else {
+            high = pow(phloat(2), wsize) - 1;
+            low = 0;
         }
         if (pd > high || pd < low)
             if (base_mode == 2)
@@ -1026,13 +1026,13 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
                 return chars_so_far;
             }
 
-        if (flags.f.binary_unsigned) {
-            n = to_uint8(pd);
-            inexact = base_mode == 1 && pd != n;
-        } else {
+        if (flags.f.binary_signed) {
             int8 sn = to_int8(pd);
             inexact = base_mode == 1 && pd != sn;
             n = (uint8) sn;
+        } else {
+            n = to_uint8(pd);
+            inexact = base_mode == 1 && pd != n;
         }
         n &= (1ULL << wsize) - 1;
 
