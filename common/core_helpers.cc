@@ -442,8 +442,8 @@ int get_base_param(const vartype *v, int8 *n) {
 
 int base_range_check(int8 *n) {
     int wsize = effective_wsize();
-    if (flags.f.binary_wrap) {
-        if (flags.f.binary_signed) {
+    if (flags.f.base_wrap) {
+        if (flags.f.base_signed) {
             if ((*n & (1LL << (wsize - 1))) != 0)
                 *n |= -1LL << (wsize - 1);
             else
@@ -451,7 +451,7 @@ int base_range_check(int8 *n) {
         } else {
             *n &= (1ULL << wsize) - 1;
         }
-    } else if (flags.f.binary_signed) {
+    } else if (flags.f.base_signed) {
         int8 high = 1LL << (wsize - 1);
         int8 low = -high;
         high--;
@@ -489,27 +489,27 @@ int effective_wsize() {
 
 phloat base2phloat(int8 n) {
     int wsize = effective_wsize();
-    if (flags.f.binary_signed) {
+    if (flags.f.base_signed) {
         if ((n & (1LL << (wsize - 1))) != 0)
             n |= -1LL << wsize;
         else
             n &= (1LL << (wsize - 1)) - 1;
         return phloat(n);
     } else {
-        n &= (1LL << wsize) - 1;
+        n &= (1ULL << wsize) - 1;
         return phloat((uint8) n);
     }
 }
 
 bool phloat2base(phloat p, int8 *res) {
     int wsize = effective_wsize();
-    if (flags.f.binary_wrap) {
+    if (flags.f.base_wrap) {
         phloat d = pow(phloat(2), wsize);
         phloat r = fmod(p, d);
         if (r < 0)
             r += d;
-        int8 n = to_int8(r);
-        if (flags.f.binary_signed) {
+        int8 n = (int8) to_uint8(r);
+        if (flags.f.base_signed) {
             int8 m = 1LL << (wsize - 1);
             if ((n & m) != 0)
                 n |= -1LL << (wsize - 1);
@@ -517,7 +517,7 @@ bool phloat2base(phloat p, int8 *res) {
                 n &= (1LL << (wsize - 1)) - 1;
         }
         *res = n;
-    } else if (flags.f.binary_signed) {
+    } else if (flags.f.base_signed) {
         phloat high = pow(phloat(2), wsize - 1);
         phloat low = -high;
         high--;

@@ -829,14 +829,14 @@ int docmd_wsize_t(arg_struct *arg) {
 int docmd_bsigned(arg_struct *arg) {
     if (!core_settings.enable_ext_prog)
         return ERR_NONEXISTENT;
-    flags.f.binary_signed = !flags.f.binary_signed;
+    flags.f.base_signed = !flags.f.base_signed;
     return ERR_NONE;
 }
 
 int docmd_bwrap(arg_struct *arg) {
     if (!core_settings.enable_ext_prog)
         return ERR_NONEXISTENT;
-    flags.f.binary_wrap = !flags.f.binary_wrap;
+    flags.f.base_wrap = !flags.f.base_wrap;
     return ERR_NONE;
 }
 
@@ -844,7 +844,7 @@ int docmd_breset(arg_struct *arg) {
     if (!core_settings.enable_ext_prog)
         return ERR_NONEXISTENT;
     mode_wsize = 36;
-    flags.f.binary_signed = 1;
-    flags.f.binary_wrap = 0;
+    flags.f.base_signed = 1;
+    flags.f.base_wrap = 0;
     return ERR_NONE;
 }

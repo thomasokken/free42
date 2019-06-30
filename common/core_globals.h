@@ -354,8 +354,8 @@ typedef union {
         char VIRTUAL_programmable_menu;
         char matrix_edge_wrap;
         char matrix_end_wrap;
-        char binary_signed; /* Programming extension */
-        char binary_wrap; /* Programming extension */
+        char base_signed; /* Programming extension */
+        char base_wrap; /* Programming extension */
         char f80; char f81; char f82; char f83; char f84;
         char f85; char f86; char f87; char f88; char f89;
         char f90; char f91; char f92; char f93; char f94;

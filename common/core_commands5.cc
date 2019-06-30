@@ -217,7 +217,7 @@ int docmd_basechs(arg_struct *arg) {
     int err;
     if ((err = get_base_param(reg_x, &x)) != ERR_NONE)
         return err;
-    if (flags.f.binary_signed) {
+    if (flags.f.base_signed) {
         int8 maxneg = 1LL << (effective_wsize() - 1);
         if (x == maxneg) {
             if (flags.f.range_error_ignore)

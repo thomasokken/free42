@@ -2022,10 +2022,10 @@ void redisplay() {
                             is_flag = flags.f.local_label;
                             break;
                         case CMD_BSIGNED:
-                            is_flag = flags.f.binary_signed;
+                            is_flag = flags.f.base_signed;
                             break;
                         case CMD_BWRAP:
-                            is_flag = flags.f.binary_wrap;
+                            is_flag = flags.f.base_wrap;
                             break;
                         case CMD_PON:
                             is_flag = flags.f.printer_exists;

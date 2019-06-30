@@ -1007,7 +1007,7 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
 
         int wsize = effective_wsize();
         phloat high, low;
-        if (flags.f.binary_signed) {
+        if (flags.f.base_signed) {
             high = pow(phloat(2), wsize - 1);
             low = -high;
             high--;
@@ -1019,14 +1019,14 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
             if (base_mode == 2)
                 goto decimal_after_all;
             else {
-                if (wsize > 0 && pd < 0)
+                if (!flags.f.base_signed && pd < 0)
                     string2buf(buf, buflen, &chars_so_far, "<Negative>", 10);
                 else
                     string2buf(buf, buflen, &chars_so_far, "<Too Big>", 9);
                 return chars_so_far;
             }
 
-        if (flags.f.binary_signed) {
+        if (flags.f.base_signed) {
             int8 sn = to_int8(pd);
             inexact = base_mode == 1 && pd != sn;
             n = (uint8) sn;
