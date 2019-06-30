@@ -56,7 +56,7 @@ int virtual_flag_handler(int flagop, int flagnum);
 int get_base();
 void set_base(int base);
 int get_base_param(const vartype *v, int8 *n);
-int base_range_check(int8 *n);
+int base_range_check(int8 *n, bool force_wrap);
 int effective_wsize();
 phloat base2phloat(int8 n);
 bool phloat2base(phloat p, int8 *n);

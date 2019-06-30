@@ -440,9 +440,9 @@ int get_base_param(const vartype *v, int8 *n) {
     return phloat2base(x, n) ? ERR_NONE : ERR_INVALID_DATA;
 }
 
-int base_range_check(int8 *n) {
+int base_range_check(int8 *n, bool force_wrap) {
     int wsize = effective_wsize();
-    if (flags.f.base_wrap) {
+    if (force_wrap || flags.f.base_wrap) {
         if (flags.f.base_signed) {
             if ((*n & (1LL << (wsize - 1))) != 0)
                 *n |= -1LL << (wsize - 1);
@@ -488,17 +488,10 @@ int effective_wsize() {
 }
 
 phloat base2phloat(int8 n) {
-    int wsize = effective_wsize();
-    if (flags.f.base_signed) {
-        if ((n & (1LL << (wsize - 1))) != 0)
-            n |= -1LL << wsize;
-        else
-            n &= (1LL << (wsize - 1)) - 1;
+    if (flags.f.base_signed)
         return phloat(n);
-    } else {
-        n &= (1ULL << wsize) - 1;
+    else
         return phloat((uint8) n);
-    }
 }
 
 bool phloat2base(phloat p, int8 *res) {
@@ -515,6 +508,8 @@ bool phloat2base(phloat p, int8 *res) {
                 n |= -1LL << (wsize - 1);
             else
                 n &= (1LL << (wsize - 1)) - 1;
+        } else {
+            n &= (1ULL << wsize) - 1;
         }
         *res = n;
     } else if (flags.f.base_signed) {
