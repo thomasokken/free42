@@ -596,9 +596,9 @@ int docmd_bit_t(arg_struct *arg) {
         return err;
     if ((err = get_base_param(reg_y, &y)) != ERR_NONE)
         return err;
-    if (x < 0 || x > 35)
+    if (x < 0 || x >= effective_wsize())
         return ERR_INVALID_DATA;
-    return (y & (1LL << x)) != 0 ? ERR_YES : ERR_NO;
+    return (y & (1ULL << x)) != 0 ? ERR_YES : ERR_NO;
 }
 
 int docmd_corr(arg_struct *arg) {
