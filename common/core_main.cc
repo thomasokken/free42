@@ -2496,7 +2496,7 @@ static vartype *parse_base(const char *buf, int len) {
         neg = true;
         i++;
     }
-    while (bits < 36) {
+    while (bits < 64) {
         char c = buf[i];
         if (c == 0)
             break;

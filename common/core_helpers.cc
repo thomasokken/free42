@@ -449,7 +449,8 @@ int base_range_check(int8 *n, bool force_wrap) {
             else
                 *n &= (1LL << (wsize - 1)) - 1;
         } else {
-            *n &= (1ULL << wsize) - 1;
+            if (wsize < 64)
+                *n &= (1ULL << wsize) - 1;
         }
     } else if (flags.f.base_signed) {
         int8 high = 1LL << (wsize - 1);
@@ -468,7 +469,7 @@ int base_range_check(int8 *n, bool force_wrap) {
         }
     } else {
         uint8 *un = (uint8 *) n;
-        uint8 high = (1ULL << wsize) - 1;
+        uint8 high = wsize == 64 ? ~0ULL : (1ULL << wsize) - 1;
         if (*un > high) {
             if (flags.f.range_error_ignore)
                 *un = high;
@@ -509,7 +510,8 @@ bool phloat2base(phloat p, int8 *res) {
             else
                 n &= (1LL << (wsize - 1)) - 1;
         } else {
-            n &= (1ULL << wsize) - 1;
+            if (wsize < 64)
+                n &= (1ULL << wsize) - 1;
         }
         *res = n;
     } else if (flags.f.base_signed) {

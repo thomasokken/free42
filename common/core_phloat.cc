@@ -1002,7 +1002,7 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
     if (base_mode == 1 && base != 10 || base_mode == 2 && base == 2) {
         uint8 n;
         int inexact, shift;
-        char binbuf[36];
+        char binbuf[64];
         int binbufptr = 0;
 
         int wsize = effective_wsize();
@@ -1034,7 +1034,8 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
             n = to_uint8(pd);
             inexact = base_mode == 1 && pd != n;
         }
-        n &= (1ULL << wsize) - 1;
+        if (wsize < 64)
+            n &= (1ULL << wsize) - 1;
 
         if (base_mode == 2 && (n & 0xfffff00000000000ULL) != 0)
             // More than 44 bits; won't fit. Use hex instead.

@@ -306,7 +306,7 @@ int docmd_basemul(arg_struct *arg) {
         } else {
             if (hi != 0)
                 if (flags.f.range_error_ignore)
-                    lo = (1ULL << wsize) - 1;
+                    lo = wsize == 64 ? ~0ULL : (1ULL << wsize) - 1;
                 else
                     return ERR_OUT_OF_RANGE;
             res = (int8) lo;
@@ -1027,7 +1027,8 @@ int docmd_rotxy(arg_struct *arg) {
     if (x == 0)
         res = y;
     else {
-        y &= (1ULL << wsize) - 1;
+        if (wsize < 64)
+            y &= (1ULL << wsize) - 1;
         if (x > 0)
             res = (y >> x) | (y << (wsize - x));
         else {
