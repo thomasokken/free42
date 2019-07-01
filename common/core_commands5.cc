@@ -350,6 +350,7 @@ int docmd_basechs(arg_struct *arg) {
         return err;
     if (flags.f.base_wrap) {
         x = -x;
+        base_range_check(&x, true);
     } else if (flags.f.base_signed) {
         int8 maxneg = 1LL << (effective_wsize() - 1);
         if (x == maxneg) {
