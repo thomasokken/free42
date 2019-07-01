@@ -187,13 +187,13 @@ int docmd_basesub(arg_struct *arg) {
         if (!flags.f.base_wrap && effective_wsize() == 64) {
             if (flags.f.base_signed) {
                 if (x < 0 && y > 0) {
-                    if (x == 0x8000000000000000LL || res < -x || res < y)
+                    if (x == (int8) 0x8000000000000000LL || res < -x || res < y)
                         if (flags.f.range_error_ignore)
                             res = (1LL << effective_wsize() - 1) - 1;
                         else
                             return ERR_OUT_OF_RANGE;
                 } else if (x > 0 && y < 0) {
-                    if (y == 0x8000000000000000LL || res > -x || res > y)
+                    if (y == (int8) 0x8000000000000000LL || res > -x || res > y)
                         if (flags.f.range_error_ignore)
                             res = -1LL << (effective_wsize() - 1);
                         else
@@ -233,14 +233,14 @@ int docmd_basemul(arg_struct *arg) {
         uint8 op1, op2;
         if (flags.f.base_signed) {
             if (wsize == 64) {
-                if (x == 0x800000000000LL && y != 1) {
+                if (x == (int8) 0x8000000000000000LL && y != 1) {
                     if (flags.f.base_wrap)
                         res = (y & 1) == 0 ? 0 : x;
                     else if (flags.f.range_error_ignore)
                         res = y > 0 ? 0x8000000000000000LL : 0x7fffffffffffffffLL;
                     else
                         return ERR_OUT_OF_RANGE;
-                } else if (y == 0x8000000000000000LL && x != 1) {
+                } else if (y == (int8) 0x8000000000000000LL && x != 1) {
                     if (flags.f.base_wrap)
                         res = (x & 1) == 0 ? 0 : y;
                     else if (flags.f.range_error_ignore)
