@@ -997,9 +997,9 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
         return chars_so_far;
     }
 
-    /* base_mode: 0=only decimal, 1=all bases, 2=decimal or binary (SHOW) */
+    /* base_mode: 0=only decimal, 1=all bases, 2=SHOW */
     int base = get_base();
-    if (base_mode == 1 && base != 10 || base_mode == 2 && base == 2) {
+    if (base_mode == 1 && base != 10 || base_mode == 2 && base <= 8) {
         uint8 n;
         int inexact, shift;
         char binbuf[64];
@@ -1037,9 +1037,11 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
         if (wsize < 64)
             n &= (1ULL << wsize) - 1;
 
-        if (base_mode == 2 && (n & 0xfffff00000000000ULL) != 0)
+        if (base_mode == 2 && base == 2 && (n & 0xfffff00000000000ULL) != 0) {
             // More than 44 bits; won't fit. Use hex instead.
+            string2buf(buf, buflen, &chars_so_far, "(hex) ", 6);
             base = 16;
+        }
         shift = base == 2 ? 1 : base == 8 ? 3 : 4;
         while (n != 0) {
             int digit = (int) (n & (base - 1));
