@@ -5,7 +5,7 @@
   a new row in the MODES menu.
 * Android, iPhone, and Mac versions: Added some feedback in the skin loading
   window: the "Load" button changes to "..." while a page load is in progress;
-  "Load" is enabled only when a GIF or layout file is being displyed, i.e.
+  "Load" is enabled only when a GIF or layout file is being displayed, i.e.
   something that could actually be a skin, and therefore loadable; and finally,
   when Load is pressed to load a skin, an alert box is now shown to report
   success or failure.
