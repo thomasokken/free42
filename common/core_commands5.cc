@@ -140,7 +140,7 @@ int docmd_baseadd(arg_struct *arg) {
             if (x > 0 && y > 0) {
                 if (res < x || res < y)
                     if (flags.f.range_error_ignore)
-                        res = (1LL << effective_wsize() - 1) - 1;
+                        res = (1LL << (effective_wsize() - 1)) - 1;
                     else
                         return ERR_OUT_OF_RANGE;
             } else if (x < 0 && y < 0) {
@@ -153,7 +153,7 @@ int docmd_baseadd(arg_struct *arg) {
         } else {
             if ((uint8) res < (uint8) x || (uint8) res < (uint8) y)
                 if (flags.f.range_error_ignore)
-                    res = (1ULL << effective_wsize() - 1);
+                    res = ~0LL;
                 else
                     return ERR_OUT_OF_RANGE;
         }
@@ -189,7 +189,7 @@ int docmd_basesub(arg_struct *arg) {
                 if (x < 0 && y > 0) {
                     if (x == (int8) 0x8000000000000000LL || res < -x || res < y)
                         if (flags.f.range_error_ignore)
-                            res = (1LL << effective_wsize() - 1) - 1;
+                            res = (1LL << (effective_wsize() - 1)) - 1;
                         else
                             return ERR_OUT_OF_RANGE;
                 } else if (x > 0 && y < 0) {
