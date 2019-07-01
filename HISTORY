@@ -1,12 +1,14 @@
-????-??-??: release 2.4
+2019-07-01: release 2.4
 
-* Added configurable word size (up to 64 bits, or 52 in Free42 Binary),
-  unsigned mode, and wrap mode, for BASE functions. The new settings are all in
+* Implemented configurable word size for BASE functions (up to 64 bits, or 52
+  in Free42 Binary), unsigned mode, and wrap mode. The new settings are all in
   a new row in the MODES menu.
-* Added some feedback in the skin loading window (Android, iOS, Mac).
-* Added skin management in Windows and GTK versions. No embedded browser view
-  like on Android, iOS, and Mac, but still a bit nicer than dealing with files
-  manually. TODO
+* Android, iPhone, and Mac versions: Added some feedback in the skin loading
+  window: the "Load" button changes to "..." while a page load is in progress;
+  "Load" is enabled only when a GIF or layout file is being displyed, i.e.
+  something that could actually be a skin, and therefore loadable; and finally,
+  when Load is pressed to load a skin, an alert box is now shown to report
+  success or failure.
 
 2019-06-25: release 2.3.1a (Android only)
 
