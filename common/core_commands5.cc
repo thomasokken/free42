@@ -296,7 +296,7 @@ int docmd_basemul(arg_struct *arg) {
                         return ERR_OUT_OF_RANGE;
                 res = - (int8) lo;
             } else {
-                if (hi != 0 || lo >= (1ULL << (wsize - 1)) - 1)
+                if (hi != 0 || lo > (1ULL << (wsize - 1)) - 1)
                     if (flags.f.range_error_ignore)
                         lo = (1ULL << (wsize - 1)) - 1;
                     else
@@ -304,7 +304,7 @@ int docmd_basemul(arg_struct *arg) {
                 res = (int8) lo;
             }
         } else {
-            if (hi != 0)
+            if (hi != 0 || wsize < 64 && lo > (1ULL << wsize) - 1)
                 if (flags.f.range_error_ignore)
                     lo = wsize == 64 ? ~0ULL : (1ULL << wsize) - 1;
                 else
