@@ -502,18 +502,16 @@ bool phloat2base(phloat p, int8 *res) {
         phloat ip = p < 0 ? -floor(-p) : floor(p);
         phloat d = pow(phloat(2), wsize);
         phloat r = fmod(ip, d);
-        int8 n;
+        if (r < 0)
+            r += d;
+        int8 n = (int8) to_uint8(r);
         if (flags.f.base_signed) {
-            n = to_int8(r);
             int8 m = 1LL << (wsize - 1);
             if ((n & m) != 0)
                 n |= -1LL << (wsize - 1);
             else
                 n &= (1LL << (wsize - 1)) - 1;
         } else {
-            if (r < 0)
-                r += d;
-            n = (int8) to_uint8(r);
             if (wsize < 64)
                 n &= (1ULL << wsize) - 1;
         }
