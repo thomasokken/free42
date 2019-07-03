@@ -1019,17 +1019,21 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
         if (pd > high || pd < low) {
             if (flags.f.base_wrap) {
                 too_big = true;
-                inexact = base_mode == 1 && (pd < 0 ? floor(-pd) != -pd : floor(pd) != pd);
+                phloat ipd = pd < 0 ? -floor(-pd) : floor(pd);
+                inexact = base_mode == 1 && pd != ipd;
                 phloat d = pow(phloat(2), wsize);
-                phloat r = pd < 0 ? -fmod(-pd, d) : fmod(pd, d);
-                n = to_int8(r);
+                phloat r = fmod(ipd, d);
                 if (flags.f.base_signed) {
+                    n = to_int8(r);
                     int8 m = 1LL << (wsize - 1);
                     if ((n & m) != 0)
                         n |= -1LL << (wsize - 1);
                     else
                         n &= (1LL << (wsize - 1)) - 1;
                 } else {
+                    if (r < 0)
+                        r += d;
+                    n = (int8) to_uint8(r);
                     if (wsize < 64)
                         n &= (1ULL << wsize) - 1;
                 }
