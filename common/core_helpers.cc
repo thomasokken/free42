@@ -499,10 +499,8 @@ bool phloat2base(phloat p, int8 *res) {
     int wsize = effective_wsize();
     if (flags.f.base_wrap) {
         phloat d = pow(phloat(2), wsize);
-        phloat r = fmod(p, d);
-        if (r < 0)
-            r += d;
-        int8 n = (int8) to_uint8(r);
+        phloat r = p < 0 ? -fmod(-p, d) : fmod(p, d);
+        int8 n = to_int8(r);
         if (flags.f.base_signed) {
             int8 m = 1LL << (wsize - 1);
             if ((n & m) != 0)

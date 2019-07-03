@@ -1002,6 +1002,7 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
     if (base_mode == 1 && base != 10 || base_mode == 2 && base <= 8) {
         uint8 n;
         int inexact, shift;
+        bool too_big = false;
         char binbuf[64];
         int binbufptr = 0;
 
@@ -1015,31 +1016,56 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
             high = pow(phloat(2), wsize) - 1;
             low = 0;
         }
-        if (pd > high || pd < low)
-            if (base_mode == 2)
-                goto decimal_after_all;
-            else {
-                if (!flags.f.base_signed && pd < 0)
-                    string2buf(buf, buflen, &chars_so_far, "<Negative>", 10);
-                else
-                    string2buf(buf, buflen, &chars_so_far, "<Too Big>", 9);
-                return chars_so_far;
+        if (pd > high || pd < low) {
+            if (flags.f.base_wrap) {
+                too_big = true;
+                inexact = base_mode == 1 && (pd < 0 ? floor(-pd) != -pd : floor(pd) != pd);
+                phloat d = pow(phloat(2), wsize);
+                phloat r = pd < 0 ? -fmod(-pd, d) : fmod(pd, d);
+                n = to_int8(r);
+                if (flags.f.base_signed) {
+                    int8 m = 1LL << (wsize - 1);
+                    if ((n & m) != 0)
+                        n |= -1LL << (wsize - 1);
+                    else
+                        n &= (1LL << (wsize - 1)) - 1;
+                } else {
+                    if (wsize < 64)
+                        n &= (1ULL << wsize) - 1;
+                }
+            } else {
+                if (base_mode == 2)
+                    goto decimal_after_all;
+                else {
+                    if (!flags.f.base_signed && pd < 0)
+                        string2buf(buf, buflen, &chars_so_far, "<Negative>", 10);
+                    else
+                        string2buf(buf, buflen, &chars_so_far, "<Too Big>", 9);
+                    return chars_so_far;
+                }
             }
-
-        if (flags.f.base_signed) {
-            int8 sn = to_int8(pd);
-            inexact = base_mode == 1 && pd != sn;
-            n = (uint8) sn;
         } else {
-            n = to_uint8(pd);
-            inexact = base_mode == 1 && pd != n;
+            if (flags.f.base_signed) {
+                int8 sn = to_int8(pd);
+                inexact = base_mode == 1 && pd != sn;
+                n = (uint8) sn;
+            } else {
+                n = to_uint8(pd);
+                inexact = base_mode == 1 && pd != n;
+            }
         }
         if (wsize < 64)
             n &= (1ULL << wsize) - 1;
 
-        if (base_mode == 2 && base == 2 && (n & 0xfffff00000000000ULL) != 0) {
+        uint8 mask;
+        mask = 0xfffff00000000000ULL;
+        if (inexact)
+            mask <<= 1;
+        if (too_big)
+            mask <<= 1;
+        if (base_mode == 2 && base == 2 && (n & mask) != 0) {
             // More than 44 bits; won't fit. Use hex instead.
-            string2buf(buf, buflen, &chars_so_far, "(hex) ", 6);
+            string2buf(buf, buflen, &chars_so_far, "hex ", 6);
             base = 16;
         }
         shift = base == 2 ? 1 : base == 8 ? 3 : 4;
@@ -1052,6 +1078,8 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
         if (binbufptr == 0)
             binbuf[binbufptr++] = '0';
 
+        if (too_big)
+            char2buf(buf, buflen, &chars_so_far, 26);
         while (binbufptr > 0)
             char2buf(buf, buflen, &chars_so_far, binbuf[--binbufptr]);
         if (inexact)
