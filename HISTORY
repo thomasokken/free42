@@ -1,13 +1,15 @@
 ????-??-??: release 2.4.1
 
+* When wrapped and signed modes were both enabled, BASEx would return negative
+  results as positive. Fixed.
+* Fixed off-by-one error with negative out-of-range BASE parameters in wrapped
+  mode.
 * In wrapped mode, numbers outside of the binary range would be displayed as
   <Too Big>, or <Negative> if they were negative while in unsigned mode. While
   this was consistent with the original, it is not consistent with the way out-
   of-range parameters are treated in wrapped mode, so now such numbers are
-  displayed as they will be interpreted by the BASE functions, showing an
-  ellipsis to their left if bits are being ignored.
-* Fixed off-by-one error with negative out-of-range BASE parameters in wrapped
-  mode.
+  displayed as they will be interpreted by the BASE functions, with an ellipsis
+  to their left if bits are being ignored.
 
 2019-07-01: release 2.4
 

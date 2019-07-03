@@ -285,7 +285,10 @@ int docmd_basemul(arg_struct *arg) {
         uint8 lo = (t << 32) + w3;
 
         if (flags.f.base_wrap) {
-            res = (int8) lo;
+            if (neg)
+                res = -(int8) lo;
+            else
+                res = (int8) lo;
             base_range_check(&res, true);
         } else if (flags.f.base_signed) {
             if (neg) {
