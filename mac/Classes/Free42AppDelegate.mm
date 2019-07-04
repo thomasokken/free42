@@ -812,7 +812,7 @@ static void tbnonewliner() {
 }
 
 - (BOOL) tryLoad:(NSString *)url asFile:(NSString *)name {
-    NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
+    NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:url] cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:60];
     NSURLResponse *resp;
     NSError *err;
     NSData *data = [NSURLConnection sendSynchronousRequest:req returningResponse:&resp error:&err];

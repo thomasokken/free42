@@ -174,6 +174,7 @@ public class SkinLoadDialog extends Dialog {
         OutputStream os = null;
         try {
             HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
+            con.setUseCaches(false);
             int resCode = con.getResponseCode();
             if (resCode != 200)
                 throw new IOException("Response code " + resCode);
