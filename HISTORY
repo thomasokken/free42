@@ -1,3 +1,16 @@
+????-??-??: release 2.4.2
+
+* Android, iPhone, and Mac versions: When loading a skin in the skin browser,
+  they now force an un-cached load, so skin fixes can actually be loaded by
+  users without delay, and without having to resort to side-loading.
+* Android and iPhone versions: Changed default landscape skin, from
+  desktop/42ct to android/SGS-L. The old skin had keys below the display that
+  didn't line up with the menus; you really have to have Σ+ 1/x √x LOG LN XEQ
+  below the display for a consistent user interface.
+* iPhone version: Changed Standard-X skin, from Ehrling42sl.X to Matt42X. The
+  old skin was rather blurry; the new skin has nice and crisp text for all key
+  labels.
+
 2019-07-03: release 2.4.1
 
 * Fixed several bugs in BWRAP mode.
@@ -29,7 +42,7 @@
   clipboard.)
 * Mac version: Copy Print-Out as Image didn't handle wrap-around in the image
   buffer correctly. Fixed.
-* Windows and GTK version: Implemented Paper Advance, Copy Print-Out as Text,
+* Windows and Linux version: Implemented Paper Advance, Copy Print-Out as Text,
   and Copy Print-Out as Image.
 * iPhone version: Fixed the top-of-screen menu trigger so that it no longer
   sabotages keys that are also in that area, as in the HP_Mega_42 and SGS-L
@@ -84,7 +97,7 @@
   behaviors for unshifted and shifted menu keys.
 * Windows version: Changed sounds from using the Beep() function to playing
   wav sounds using the PlaySound() function, matching the way sounds are played
-  in the Android, iOS, and Mac versions.
+  in the Android, iPhone, and Mac versions.
 * MacDashboard version: Didn't recognize comma as decimal key. Fixed.
 
 2019-04-07: release 2.2
@@ -371,8 +384,8 @@
 * Fixed pasting of SIZE lines.
 * When pasting numbers, spaces are now allowed as thousands separators.
 * Mac and MacDashboard versions: Are now 64-bit.
-* Mac and GTK versions: Fixed Caps Lock handling, so Caps Lock + Esc no longer
-  exits.
+* Mac and Linux versions: Fixed Caps Lock handling, so Caps Lock + Esc no
+  longer exits.
 * Android and iPhone versions: Implemented "continuous on" mode (ON function,
   flag 44).
 
@@ -417,7 +430,7 @@
   second after printing stops. This makes it more noticeable, so printing is
   less likely to go unnoticed on fast devices.
 * Mac version: Implemented battery checker.
-* GTK version: Added /sys/class/power_supply support in battery checker.
+* Linux version: Added /sys/class/power_supply support in battery checker.
 
 2017-12-26: release 2.0.8
 
@@ -531,7 +544,7 @@
 * Android version: Made state file writing more robust. If writing the state
   file fails, it now keeps the previous one, instead of leaving behind a
   partial or corrupt one.
-* GTK version, Free42 Binary only: Some (recent?) versions of GTK set the
+* Linux version, Free42 Binary only: Some (recent?) versions of GTK set the
   LC_NUMERIC locale, which Free42 expects to always be "C". This causes number
   entry and display to be messed up in locales where the decimal is not ".",
   including most of Europe. I added code to force LC_NUMERIC back to "C" after
@@ -743,7 +756,7 @@
 * All versions except Android: while parsing macros in skin layout files, tab
   characters were not recognized as whitespace and caused parsing to fail.
   Fixed.
-* GTK version did not repaint the skin when it was switched from one skin to
+* Linux version did not repaint the skin when it was switched from one skin to
   another with the same width and height. Fixed.
 * Windows version: Downgraded my build environment from Visual C++ 2012 to 6.0.
   This means the Free42 build for Windows will run on older versions of Windows
@@ -814,8 +827,8 @@
 
 * iPhone version: In the HTTP Server view, tapping on the server URL switches
   between the DNS name and the IP address.
-* GTK version: Now uses ALSA to play BEEP and TONE sounds (but not when running
-  on remote displays).
+* Linux version: Now uses ALSA to play BEEP and TONE sounds (but not when
+  running on remote displays).
 
 2012-07-29: release 1.4.74b (Android only)
 

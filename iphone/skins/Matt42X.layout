@@ -1,7 +1,7 @@
 # HP-42S skin for Free42 (Windows and Unix)
-# Converted from Erik Ehrling's HP42S for 1024x768; which was in turn based on
+# Copied from KD0GLS's converson of Erik Ehrling's HP42S for 1024x768; which was in turn based on
 # Real HP42S by Christoph Giesselink -- both for Emu42
-# Revised by KD0GLS
+# Revised by Matt Field
 
 Skin: 0,0,750,1536
 Display: 43,243 5 7 6b836b 0b2327

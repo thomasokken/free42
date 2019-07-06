@@ -1,4 +1,4 @@
 Standard Ehrling42sm
 Standard-4" Ehrling42sl
-Standard-X Ehrling42sl.X
-Landscape Landscape
+Standard-X Matt42X
+Landscape SGS-L
