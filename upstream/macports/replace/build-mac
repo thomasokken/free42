@@ -1,13 +1,8 @@
 #!/bin/sh -e
 
-cd util
-cc -o set-version-in-info-plist set-version-in-info-plist.c
-cd ..
-
 cd mac
 rm -rf "build/Release Binary"
 rm -rf "build/Release Decimal"
-../util/set-version-in-info-plist
 xcodebuild -project Free42.xcodeproj -target Free42 -configuration "Release Binary" build
 xcodebuild -project Free42.xcodeproj -target Free42 -configuration "Release Decimal" build
 mkdir tmp

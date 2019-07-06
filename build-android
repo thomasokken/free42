@@ -12,10 +12,6 @@ read -p "Keystore Password: " SPWD
 sed -i '' "s/storePassword '[^']*'/storePassword '$SPWD'/" build.gradle
 read -p "Key Password: " KPWD
 sed -i '' "s/keyPassword '[^']*'/keyPassword '$KPWD'/" build.gradle
-VERSION_CODE=`cat ../version.code`
-sed -i '' "s/versionCode [0-9]*/versionCode $VERSION_CODE/" build.gradle
-VERSION_NAME=`cat ../../VERSION`
-sed -i '' "s/versionName \"[^\"]*\"/versionName \"$VERSION_NAME\"/" build.gradle
 cd src/main/cpp
 sh ./link-files-release.sh
 sh ./build-intel-lib.sh

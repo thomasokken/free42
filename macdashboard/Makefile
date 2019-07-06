@@ -73,9 +73,6 @@ Free42.wdgt: free42 keymap.txt
 	find Free42.wdgt -type f -name .cvsignore -exec rm -f {} \;
 	sed -e "s/%VERSION%/$(shell cat ../VERSION)/g" < Widget.Template/Free42.html> Free42.wdgt/Free42.html
 	cp keymap.txt Free42.wdgt
-	cp ../util/set-version-in-info-plist.c .
-	cc -o set-version-in-info-plist set-version-in-info-plist.c
-	./set-version-in-info-plist
 	- mkdir Free42.wdgt/bin
 	cp free42 Free42.wdgt/bin
 	cp Info.plist Free42.wdgt
@@ -151,7 +148,6 @@ symlinks:
 clean: FORCE
 	rm -f `find . -type l` free42 \
 		keymap2cc keymap.cc readtest_lines.cc \
-		set-version-in-info-plist set-version-in-info-plist.c \
 		*.o *.d *.i *.ii *.s *.a symlinks core.*
 	rm -rf Free42.wdgt
 	rm -rf IntelRDFPMathLib20U1
