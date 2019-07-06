@@ -4,10 +4,8 @@
 
 mkdir -p packages
 
-mkdir android-tmp
-cd android-tmp
-svn checkout svn://mactv/free42/trunk free42
-cd free42/android/app
+cd android/app
+cp build.gradle build.gradle.bak
 read -p "Keystore Password: " SPWD
 sed -i '' "s/storePassword '[^']*'/storePassword '$SPWD'/" build.gradle
 read -p "Key Password: " KPWD
@@ -17,6 +15,5 @@ sh ./link-files-release.sh
 sh ./build-intel-lib.sh
 cd ../../../..
 ./gradlew --warning-mode all assembleRelease
+mv app/build.gradle.bak app/build.gradle
 mv app/build/outputs/apk/release/app-release.apk ../../../packages/Free42Android.apk
-cd ../../..
-rm -rf android-tmp

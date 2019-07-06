@@ -104,7 +104,7 @@ subprocess.call(["sed", "-i", "", "s/versionName \"[^\"]*\"/versionName \"" + ve
 # Insert the version number into VERSION and VERSION.rc
 
 v_file = open("VERSION", "w")
-v_file.write(version_raw + "\n")
+v_file.write(version_name + "\n")
 v_file.close()
 v_file = open("VERSION.rc", "w")
 v_file.write("#define FREE42_VERSION_1 \"Free42 " + version_name + "\"\n")
