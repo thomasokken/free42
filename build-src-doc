@@ -2,6 +2,15 @@
 
 # This script builds the regular and upstream source packages,
 # and a minimally HTMLified version of HISTORY.
+# If the -u option is specified, skips creation of the upstream packages.
+
+if [ $# -ge 1 -a $1 = "-u" ]
+then
+    SKIP_UPSTREAM=1
+    shift
+else
+    SKIP_UPSTREAM=0
+fi
 
 mkdir -p packages
 
@@ -17,10 +26,13 @@ rm -rf tmp
 
 # "Upstream" source package, for Fedora or other Linux distros
 # Has all non-Linux versions, and all skins containing the HP logo, removed
-cd upstream
-sh ./build-nologo
-sh ./build-macports
-cd ..
+if [ $SKIP_UPSTREAM -eq 0 ]
+then
+    cd upstream
+    sh ./build-nologo
+    sh ./build-macports
+    cd ..
+fi
 
 # Wrap it all up...
 cd util

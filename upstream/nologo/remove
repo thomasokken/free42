@@ -1,11 +1,11 @@
 VERSION.rc
 android
 build-android
-build-iphone
 build-mac
 build-mac-dashboard
 build-src-doc
 build-windows
+update-version-number.py
 iphone
 mac
 macdashboard

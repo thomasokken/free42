@@ -2,9 +2,9 @@ VERSION.rc
 android
 build-android
 build-gtk
-build-iphone
 build-src-doc
 build-windows
+update-version-number.py
 gtk
 iphone
 upstream
