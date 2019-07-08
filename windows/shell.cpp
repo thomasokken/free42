@@ -1043,6 +1043,34 @@ static LRESULT CALLBACK PrintOutWndProc(HWND hWnd, UINT message, WPARAM wParam, 
             }
             return 0;
         }
+        case WM_COMMAND: {
+            int wmId    = LOWORD(wParam); 
+            int wmEvent = HIWORD(wParam); 
+            // This is a bit hacky, but I want the Ctrl-<Key>
+			// shortcuts to work even when the Print-Out window
+			// is on top.
+            switch (wmId) {
+                case IDM_PAPERADVANCE:
+                    paper_advance();
+                    break;
+                case IDM_COPYPRINTASTEXT:
+                    copy_print_as_text();
+                    break;
+                case IDM_COPYPRINTASIMAGE:
+					copy_print_as_image();
+					break;
+                case IDM_EXIT:
+                    DestroyWindow(hMainWnd);
+                    break;
+                case ID_EDIT_COPY:
+                    copy();
+                    break;
+                case ID_EDIT_PASTE:
+                    paste();
+                    break;
+			}
+			return 0;
+		}
         default:
             return DefWindowProc(hWnd, message, wParam, lParam);
     }
