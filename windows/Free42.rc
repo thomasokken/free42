@@ -82,8 +82,11 @@ IDC_FREE42 ACCELERATORS MOVEABLE PURE
 BEGIN
     "/",            IDM_ABOUT,              ASCII,  ALT, NOINVERT
     "?",            IDM_ABOUT,              ASCII,  ALT, NOINVERT
+    "A",            IDM_PAPERADVANCE,       VIRTKEY, CONTROL, NOINVERT
     "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    "I",            IDM_COPYPRINTASIMAGE,   VIRTKEY, CONTROL, NOINVERT
     "Q",            IDM_EXIT,               VIRTKEY, CONTROL, NOINVERT
+    "T",            IDM_COPYPRINTASTEXT,    VIRTKEY, CONTROL, NOINVERT
     "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
 END
 
