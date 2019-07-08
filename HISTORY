@@ -3,8 +3,8 @@
 * Windows version: The new Ctrl-A, Ctrl-I, and Ctrl-T shortcuts (Paper Advance,
   Copy Print-Out as Image, and Copy Print-Out as Text) didn't work, because I
   hadn't updated the corresponding accelerator resources. Fixed.
-* Windows version: All Ctrl-<Key> shortcuts now work even when the Print-Out
-  window is on top.
+* Windows and Linux versions: All Ctrl-<Key> shortcuts now work even when the
+  Print-Out window is on top.
 * Android, iPhone, and Mac versions: When loading a skin in the skin browser,
   they now force an un-cached load, so skin fixes can actually be loaded by
   users without delay, and without having to resort to side-loading.

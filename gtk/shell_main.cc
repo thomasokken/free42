@@ -174,6 +174,7 @@ static void delete_cb(GtkWidget *w, gpointer cd);
 static void delete_print_cb(GtkWidget *w, gpointer cd);
 static gboolean expose_cb(GtkWidget *w, GdkEventExpose *event, gpointer cd);
 static gboolean print_expose_cb(GtkWidget *w, GdkEventExpose *event, gpointer cd);
+static gboolean print_key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd);
 static gboolean button_cb(GtkWidget *w, GdkEventButton *event, gpointer cd);
 static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd);
 static void enable_reminder();
@@ -567,6 +568,8 @@ int main(int argc, char *argv[]) {
     gtk_container_add(GTK_CONTAINER(view), print_widget);
     print_adj = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scroll));
     g_signal_connect(G_OBJECT(print_widget), "expose_event", G_CALLBACK(print_expose_cb), NULL);
+    GTK_WIDGET_SET_FLAGS(print_widget, GTK_CAN_FOCUS);
+    g_signal_connect(G_OBJECT(print_widget), "key-press-event", G_CALLBACK(print_key_cb), NULL);
 
     gtk_widget_show(print_widget);
     gtk_widget_show(view);
@@ -1724,6 +1727,47 @@ static gboolean expose_cb(GtkWidget *w, GdkEventExpose *event, gpointer cd) {
 static gboolean print_expose_cb(GtkWidget *w, GdkEventExpose *event, gpointer cd) {
     repaint_printout(event->area.x, event->area.y,
                      event->area.width, event->area.height);
+    return TRUE;
+}
+
+static gboolean print_key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
+
+    // This is a bit hacky, but I want the Ctrl-<Key>
+    // shortcuts to work even when the Print-Out window
+    // is on top.
+
+    if (event->type != GDK_KEY_PRESS)
+        return TRUE;
+    if (event->hardware_keycode == active_keycode)
+        // Auto-repeat
+        return TRUE;
+
+    bool ctrl = (event->state & GDK_CONTROL_MASK) != 0;
+    bool alt = (event->state & GDK_MOD1_MASK) != 0;
+    bool shift = (event->state & GDK_SHIFT_MASK) != 0;
+    if (!ctrl || alt || shift)
+        return TRUE;
+
+    switch (event->keyval) {
+        case GDK_a:
+            paperAdvanceCB();
+            break;
+        case GDK_t:
+            copyPrintAsTextCB();
+            break;
+        case GDK_i:
+            copyPrintAsImageCB();
+            break;
+        case GDK_q:
+            quit();
+            break;
+        case GDK_c:
+            copyCB();
+            break;
+        case GDK_v:
+            pasteCB();
+            break;
+    }
     return TRUE;
 }
 
