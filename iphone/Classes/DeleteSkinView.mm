@@ -38,6 +38,7 @@
 - (id) initWithCoder:(NSCoder *)coder {
     [super initWithCoder:coder];
     skinNames = [[NSMutableArray arrayWithCapacity:10] retain];
+    selectedIndex[0] = selectedIndex[1] = -1;
     return self;
 }
 
@@ -50,7 +51,7 @@
     // TODO: separator between built-in and external skins
     [skinNames removeAllObjects];
     int index = 0;
-    int selectedIndex[2] = { -1, -1 };
+    selectedIndex[0] = selectedIndex[1] = -1;
     DIR *dir = opendir("skins");
     struct dirent *d;
     NSUInteger num_builtin_skins = [skinNames count];
@@ -73,12 +74,6 @@
     }
     closedir(dir);
     [skinTable reloadData];
-    for (int i = 0; i < 2; i++)
-        if (selectedIndex[i] != -1) {
-            NSUInteger indexes[2] = { 0, selectedIndex[i] };
-            NSIndexPath *path = [NSIndexPath indexPathWithIndexes:indexes length:2];
-            [skinTable cellForRowAtIndexPath:path].accessoryType = UITableViewCellAccessoryCheckmark;
-        }
 }
 
 - (IBAction) done {
@@ -107,6 +102,7 @@
     NSString *s = [skinNames objectAtIndex:n];
     UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
     cell.textLabel.text = s;
+    cell.accessoryType = selectedIndex[0] == (int) n || selectedIndex[1] == (int) n ? UITableViewCellAccessoryCheckmark : UITableViewCellAccessoryNone;
     return cell;
 }
 

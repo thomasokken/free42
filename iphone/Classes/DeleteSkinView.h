@@ -22,6 +22,7 @@
     NSMutableArray *skinNames;
     UIBarButtonItem *doneButton;
     UITableView *skinTable;
+    int selectedIndex[2];
 }
 
 @property (nonatomic, retain) IBOutlet UIBarButtonItem *doneButton;
