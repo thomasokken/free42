@@ -94,8 +94,9 @@ if bump_android_version_code:
     vc_file = open("android/version.code")
     vc = int(vc_file.read())
     vc_file.close()
+    vc += 1
     vc_file = open("android/version.code", "w");
-    vc_file.write(str(vc + 1));
+    vc_file.write(str(vc));
     vc_file.close()
     subprocess.call(["sed", "-i",  "", "s/versionCode [0-9]*/versionCode " + str(vc) + "/", "android/app/build.gradle"])
         
