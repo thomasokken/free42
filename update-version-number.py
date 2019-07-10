@@ -106,7 +106,7 @@ subprocess.call(["sed", "-i", "", "s/versionName \"[^\"]*\"/versionName \"" + ve
 v_file = open("VERSION", "w")
 v_file.write(version_name + "\n")
 v_file.close()
-v_file = open("VERSION.rc", "w")
+v_file = open("windows/VERSION.rc", "w")
 v_file.write("#define FREE42_VERSION_1 \"Free42 " + version_name + "\"\n")
 v_file.write("#define FREE42_VERSION_2 \"" + version_name + "\\0\"\n")
 v_file.write("#define FREE42_VERSION_3 " + str(version_comps[0]) + "," + str(version_comps[1]) + "," + str(version_comps[2]) + "," + str(version_comps[3]) + "\n")
