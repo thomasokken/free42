@@ -16,4 +16,4 @@ sh ./build-intel-lib.sh
 cd ../../../..
 ./gradlew --warning-mode all assembleRelease
 mv app/build.gradle.bak app/build.gradle
-mv app/build/outputs/apk/release/app-release.apk ../../../packages/Free42Android.apk
+mv app/build/outputs/apk/release/app-release.apk ../packages/Free42Android.apk
