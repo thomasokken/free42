@@ -1,4 +1,4 @@
-????-??-??: release 2.4.2
+2019-07-12: release 2.4.2
 
 * Windows version: The new Ctrl-A, Ctrl-I, and Ctrl-T shortcuts (Paper Advance,
   Copy Print-Out as Image, and Copy Print-Out as Text) didn't work, because I
