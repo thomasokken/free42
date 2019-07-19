@@ -33,29 +33,21 @@
 
 #if defined(WINDOWS) && !defined(__GNUC__)
 
-        /* MSVC++ 6.0 lacks a few math functions that Free42 needs.
-         * I've defined workarounds in mathfudge.c. NOTE: my versions
-         * of isnan(), finite(), and isinf() are a bit lame -- I *think*
-         * they handle infinities properly, but definitely not NaNs
-         * (although NaNs shouldn't be much of a problem because the Free42
-         * code mostly tries to avoid them, rather than detect them after
-         * the fact).
+        /* MSVC++ 2008 lacks a few math functions that Free42 needs.
+         * I've defined workarounds in mathfudge.c.
          */
 #ifdef __cplusplus
         extern "C" {
 #endif
                 int isnan(double x);
-                int finite(double x);
                 int isinf(double x);
                 void sincos(double x, double *sinx, double *cosx);
+                double atanh(double x);
+                /* These are in the library, but not declared in math.h */
                 double asinh(double x);
                 double acosh(double x);
-                double atanh(double x);
                 double expm1(double x);
                 double log1p(double x);
-#ifdef _WIN32_WCE
-                double hypot(double x, double y);
-#endif
 #ifdef __cplusplus
         }
 #endif
@@ -65,17 +57,9 @@
  * has it (for C99, I suppose) so I don't have to DEFINE it. On other Unixes
  * (e.g. MacOS X), it may not be provided by the standard libraries; in this
  * case, define the NO_SINCOS symbol, here or in the Makefile.
- * For the Palm build, we don't even need the declaration, since sincos() is
- * provided by MathLib.
  */
 extern "C" void sincos(double x, double *sinx, double *cosx);
-//#define NO_SINCOS 1
 
-#endif
-
-// the iPhone SDK does not define 'finite' so we create a macro wrapper
-#if !defined(BCD_MATH) && defined(IPHONE)
-#define finite(x) isfinite(x)
 #endif
 
 
