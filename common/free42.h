@@ -20,6 +20,7 @@
 
 
 #ifndef BCD_MATH
+#define _REENTRANT 1
 #include <math.h>
 #endif
 
@@ -50,6 +51,8 @@
 #ifdef __cplusplus
         }
 #endif
+
+#define NO_LGAMMA_R 1
 
 #endif
 

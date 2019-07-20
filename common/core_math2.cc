@@ -303,6 +303,8 @@ int math_gamma(phloat phx, phloat *phgamma) {
 
 #else // BCD_MATH
 
+#ifdef NO_LGAMMA_R
+
 /**************************************************************/
 /* The following is code to compute the gamma function,       */
 /* copied from the GNU C Library, version 2.2.5, and modified */
@@ -517,7 +519,7 @@ static int math_lgamma(double x, double *gam, int *sgngam) {
         int i, neg = 0;
 
     /* purge off +-inf, NaN, +-0, and negative arguments */
-    /* ThO: I removed the code that deals with inf and nan (Free42 does
+    /* ThO: I removed the code that deals with inf and nan. Free42 does
      * not allow such values to propagate, so they should never be presented
      * as arguments to a function; if they are, what needs to be fixed is
      * the function that *returns* inf or nan, not the way functions deal
@@ -621,6 +623,8 @@ static int math_lgamma(double x, double *gam, int *sgngam) {
 /* Here ends the borrowed GNU C Library code (Gamma function). */
 /***************************************************************/
 
+#endif
+
 int math_gamma(phloat phx, phloat *phgamma) {
     double x = to_double(phx);
     double gam;
@@ -628,9 +632,15 @@ int math_gamma(phloat phx, phloat *phgamma) {
     int sign, err;
     if (x == 0 || (x < 0 && x == floor(x)))
         return ERR_INVALID_DATA;
+#ifdef NO_LGAMMA_R
     err = math_lgamma(x, &lgam, &sign);
     if (err != ERR_NONE)
         return err;
+#else
+    if (x <= 0 && x == floor(x))
+        return ERR_INVALID_DATA;
+    lgam = lgamma_r(x, &sign);
+#endif
     gam = exp(lgam);
     if (p_isinf(gam)) {
         if (flags.f.range_error_ignore)
