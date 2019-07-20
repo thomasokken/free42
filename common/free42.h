@@ -32,7 +32,7 @@
 #define uint8 unsigned long long
 
 
-#if defined(WINDOWS) && !defined(__GNUC__)
+#if defined(WINDOWS) && !defined(BCD_MATH) && !defined(__GNUC__)
 
         /* MSVC++ 2008 lacks a few math functions that Free42 needs.
          * I've defined workarounds in mathfudge.c.
