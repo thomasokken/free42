@@ -34,7 +34,7 @@ void fly_goose();
 void squeak();
 void tone(int n);
 void draw_char(int x, int y, char c);
-void get_char(char *bits, char c);
+const char *get_char(char c);
 void draw_string(int x, int y, const char *s, int length);
 void clear_row(int row);
 

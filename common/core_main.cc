@@ -552,9 +552,9 @@ int core_powercycle() {
          * OFF on the keyboard returns code 70 and stops program execution; and
          * when the auto-poweroff timeout expires, code 70 is returned but
          * program execution continues.
-         * Since Free42 can be shut down in ways the HP-42S can't (exiting the
-         * application, or turning off power on a Palm), I have to fake it a
-         * bit; I put 70 in X as if the user had done OFF twice on a real 42S.
+         * Since Free42 can be shut down in a way the HP-42S can't, by exiting
+         * the application, I have to fake it a bit; I put 70 in X as if the
+         * user had done OFF twice on a real 42S.
          */
         vartype *seventy = new_real(70);
         if (seventy != NULL) {

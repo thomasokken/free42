@@ -310,10 +310,7 @@ int math_gamma(phloat phx, phloat *phgamma) {
 /* copied from the GNU C Library, version 2.2.5, and modified */
 /* to conform to the coding conventions used in Free42.       */
 /* Dependencies on the IEEE-754 format have been removed.     */
-/* It is included here because on PalmOS, MathLib does        */
-/* not provide gamma at all, and on Linux, I'm not sure       */
-/* how it works (the lack of documentation does not help!).   */
-/* Better safe than sorry, and it's not that big anyway.      */
+/* It is included here because on it is missing in VC++ 2008. */
 /**************************************************************/
 
 /*
@@ -394,17 +391,7 @@ int math_gamma(phloat phx, phloat *phgamma) {
  *
  */
 
-/* NOTE (ThO): if the 'const' in this code is not commented out, the
- * PalmOS build of Free42 malfunctions in GAMMA (wrong results,
- * memory access weirdness). This isn't the first time I've noticed
- * m68k-palmos-gcc acting weird in the presence of const globals.
- * It probably puts them in the wrong section or something. I should debug
- * this, and add section attributes where needed, but since Free42 doesn't
- * use that much global space anyway, and the variables below are only
- * something like 500 bytes altogether, I just work around the issue by
- * putting them in the read/write global area.
- */
-static /*const*/ double
+static const double
 half=  5.00000000000000000000e-01, /* 0x3FE00000, 0x00000000 */
 one =  1.00000000000000000000e+00, /* 0x3FF00000, 0x00000000 */
 pi  =  3.14159265358979311600e+00, /* 0x400921FB, 0x54442D18 */

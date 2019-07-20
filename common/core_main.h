@@ -82,10 +82,9 @@ int core_menu();
  * The shell uses this function to check if the core is in "alpha" mode (i.e.
  * the ALPHA menu or any of its submenus is active). This affects how events
  * from the keyboard (the real PC keyboard, not the on-screen one emulated by
- * Free42) or PalmOS Graffiti device are handled: in alpha mode, printable
- * ASCII characters are sent straight to the core; outside alpha mode, all
- * key events are translated sequences of HP-42S key events according to the
- * keymap file.
+ * Free42) are handled: in alpha mode, printable ASCII characters are sent
+ * straight to the core; outside alpha mode, all key events are translated
+ * sequences of HP-42S key events according to the keymap file.
  */
 int core_alpha_menu();
 

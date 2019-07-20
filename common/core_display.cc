@@ -43,7 +43,7 @@
 #endif
 
 
-static char bigchars[130][5] =
+static const char bigchars[130][5] =
     {
         { 0x08, 0x08, 0x2a, 0x08, 0x08 },
         { 0x22, 0x14, 0x08, 0x14, 0x22 },
@@ -177,7 +177,7 @@ static char bigchars[130][5] =
         { 0x04, 0x08, 0x70, 0x08, 0x04 }
     };
 
-static char smallchars[329] =
+static const char smallchars[329] =
     {
         0x00, 0x00, 0x00,
         0x5c,
@@ -844,16 +844,11 @@ void draw_char(int x, int y, char c) {
     mark_dirty(Y, X, Y + 8, X + 5);
 }
 
-void get_char(char *bits, char c) {
-    /* TODO - it should be possible to simply return bigchars[c],
-     * but that crashes on the Palm. Looks like a compiler bug.
-     */
-    int i;
+const char *get_char(char c) {
     unsigned char uc = (unsigned char) c;
     if (uc >= 130)
         uc -= 128;
-    for (i = 0; i < 5; i++)
-        bits[i] = bigchars[uc][i];
+    return bigchars[uc];
 }
 
 void draw_string(int x, int y, const char *s, int length) {

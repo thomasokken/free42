@@ -633,11 +633,10 @@ int docmd_dim(arg_struct *arg) {
 
 int docmd_dot(arg_struct *arg) {
     /* TODO: look for range errors in intermediate results.
-     * Right now, 1e300+1e300i DOT 1e300-1e300i returns NaN
-     * on the Palm, because two infinities of opposite signs
-     * are added. (Why no NaN on the PC? Weird stuff: doing
-     * "d = xre * yre + xim * yim" yields a different result
-     * than "d = xre * yre ; d += xim * yim". Go figure.)
+     * Right now, 1e6000+1e6000i DOT 1e6000-1e6000i returns NaN
+     * in the Decimal build, because two infinities of opposite
+     * signs are added. 1e300+1e300i DOT 1e300-1e300i probably
+     * does the same in the Binary build.
      */
     vartype *v;
     if (reg_x->type == TYPE_STRING || reg_y->type == TYPE_STRING)

@@ -1744,12 +1744,10 @@ public class Free42Activity extends Activity {
      * 'bits' is a pointer to a 1 bpp (monochrome) bitmap. The bits within a byte
      * are laid out with left corresponding to least significant, right
      * corresponding to most significant; this corresponds to the convention for
-     * X11 images, but it is the reverse of the convention for MacOS and its
-     * derivatives (Microsoft Windows and PalmOS).
+     * X11 images, but it is the reverse of the convention for MacOS and Windows.
      * The bytes are laid out sequentially, that is, bits[0] is at the top
      * left corner, bits[1] is to the right of bits[0], bits[2] is to the right of
-     * bits[1], and so on; this corresponds to X11, MacOS, Windows, and PalmOS
-     * usage.
+     * bits[1], and so on; this corresponds to X11, MacOS, and Windows usage.
      * 'bytesperline' is the number of bytes per line of the bitmap; this means
      * that the bits just below bits[0] are at bits[bytesperline].
      * 'x', 'y', 'width', and 'height' define the part of the bitmap that needs to

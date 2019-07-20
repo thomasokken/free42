@@ -2767,14 +2767,8 @@ bool load_state(int4 ver) {
 
     if (ver < 4) {
         /* Before state file version 4, I used to save the BCD table in the
-         * state file. As of state file version 4, the Unix and Windows
-         * versions don't do that any more because they don't need to
-         * (generating the table on startup is fast enough); the PalmOS version
-         * now persists the BCD table in a database, which is faster because it
-         * doesn't need to be loaded and saved each time the application is
-         * started and stopped.
-         * This code is to skip the saved BCD table in state versions up to
-         * and including version 3.
+         * state file. We don't use the BCD table any more, so all this code
+         * does is skip it.
          */
         int min_pow2, max_pow2;
         uint4 n1, n2, n3, n4, n;

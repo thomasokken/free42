@@ -609,17 +609,6 @@ void keydown_command_entry(int shift, int key) {
          * at the same time. When we're at length 0, we have to handle
          * both possibilities and pick the right one.
          */
-
-        /* On the Palm, we accept 0-9 as alphanumeric in this case;
-         * if the user wants numeric, it's easy enough to just tap
-         * the appropriate keys on the virtual keyboard.
-         * On PCs, on the other hand, we want the number keys to
-         * behave like they always do, so you can enter LBL 00 without
-         * having to use the virtual keyboard. If an alpha LBL with
-         * a name starting with '0'-'9' is desired, the user will have
-         * to use the usual trick: activate a submenu of ALPHA by
-         * pressing any menu key (F1-F6), and then typing the number.
-         */
         if ((mode_commandmenu == MENU_ALPHA1 || mode_commandmenu == MENU_ALPHA2)
                 && key >= 1024 + '0' && key <= 1024 + '9')
             switch (key - 1024) {
