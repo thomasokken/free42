@@ -738,7 +738,7 @@ static int mappable_sinh_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     int inf;
     sinhxre = sinh(xre);
     coshxre = cosh(xre);
-    sincos(xim, &sinxim, &cosxim);
+    p_sincos(xim, &sinxim, &cosxim);
     *yre = sinhxre * cosxim;
     if ((inf = p_isinf(*yre)) != 0) {
         if (flags.f.range_error_ignore)
@@ -919,7 +919,7 @@ static int mappable_tanh_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     phloat sinhxre2 = sinh(xre2);
     phloat coshxre2 = cosh(xre2);
     phloat sinxim2, cosxim2;
-    sincos(xim2, &sinxim2, &cosxim2);
+    p_sincos(xim2, &sinxim2, &cosxim2);
     phloat d = coshxre2 + cosxim2;
     if (d == 0) {
         if (flags.f.range_error_ignore) {

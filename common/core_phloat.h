@@ -47,6 +47,7 @@ struct hp_string {
 
 #define p_isinf(x) (isinf(x) ? (x) > 0 ? 1 : -1 : 0)
 #define p_isnan isnan
+#define p_sincos(x, s, c) { *(s) = sin(x); *(c) = cos(x); }
 #define to_digit(x) ((int) fmod((x), 10.0))
 #define to_char(x) ((char) (x))
 #define to_int(x) ((int) (x))
@@ -132,7 +133,7 @@ Phloat tan(Phloat p);
 Phloat asin(Phloat p);
 Phloat acos(Phloat p);
 Phloat atan(Phloat p);
-void sincos(Phloat phi, Phloat *s, Phloat *c);
+void p_sincos(Phloat phi, Phloat *s, Phloat *c);
 Phloat hypot(Phloat x, Phloat y);
 Phloat atan2(Phloat x, Phloat y);
 Phloat sinh(Phloat p);

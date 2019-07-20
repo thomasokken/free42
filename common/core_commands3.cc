@@ -246,7 +246,7 @@ static int mappable_cosh_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     int inf;
     sinhxre = sinh(xre);
     coshxre = cosh(xre);
-    sincos(xim, &sinxim, &cosxim);
+    p_sincos(xim, &sinxim, &cosxim);
     *yre = coshxre * cosxim;
     if ((inf = p_isinf(*yre)) != 0) {
         if (flags.f.range_error_ignore)

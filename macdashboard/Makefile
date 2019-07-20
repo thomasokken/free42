@@ -15,8 +15,7 @@
 # along with this program; if not, see http://www.gnu.org/licenses/.
 ###############################################################################
 
-CFLAGS = -DNO_SINCOS \
-	 -DOLD_PSE \
+CFLAGS = -DOLD_PSE \
 	 -arch x86_64 \
 	 -mmacosx-version-min=10.7 \
 	 -Wall \

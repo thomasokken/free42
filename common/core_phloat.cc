@@ -515,7 +515,7 @@ Phloat atan(Phloat p) {
     return Phloat(res);
 }
 
-void sincos(Phloat phi, Phloat *s, Phloat *c) {
+void p_sincos(Phloat phi, Phloat *s, Phloat *c) {
     bid128_sin(&s->val, &phi.val);
     bid128_cos(&c->val, &phi.val);
 }

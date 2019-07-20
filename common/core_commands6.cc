@@ -51,7 +51,7 @@ static int mappable_sin_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     phloat sinxre, cosxre;
     phloat sinhxim, coshxim;
     int inf;
-    sincos(xre, &sinxre, &cosxre);
+    p_sincos(xre, &sinxre, &cosxre);
     sinhxim = sinh(xim);
     coshxim = cosh(xim);
     *yre = sinxre * coshxim;
@@ -113,7 +113,7 @@ static int mappable_cos_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     phloat sinxre, cosxre;
     phloat sinhxim, coshxim;
     int inf;
-    sincos(xre, &sinxre, &cosxre);
+    p_sincos(xre, &sinxre, &cosxre);
     sinhxim = sinh(xim);
     coshxim = cosh(xim);
     *yre = cosxre * coshxim;
@@ -168,7 +168,7 @@ static int mappable_tan_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     }
     phloat xim2 = xim * 2;
     phloat sinxre2, cosxre2;
-    sincos(xre2, &sinxre2, &cosxre2);
+    p_sincos(xre2, &sinxre2, &cosxre2);
     phloat sinhxim2 = sinh(xim2);
     phloat coshxim2 = cosh(xim2);
     phloat d = cosxre2 + coshxim2;
@@ -933,7 +933,7 @@ int docmd_y_pow_x(arg_struct *arg) {
                     return ERR_OUT_OF_RANGE;
                 else {
                     phloat re, im;
-                    sincos(yphi, &im, &re);
+                    p_sincos(yphi, &im, &re);
                     rre = re == 0 ? 0 :
                             re < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
                     rim = im == 0 ? 0 :
@@ -941,7 +941,7 @@ int docmd_y_pow_x(arg_struct *arg) {
                 }
             } else {
                 phloat re, im;
-                sincos(yphi, &im, &re);
+                p_sincos(yphi, &im, &re);
                 rre = yr * re;
                 rim = yr * im;
             }

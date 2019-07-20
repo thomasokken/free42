@@ -27,11 +27,6 @@ int isinf(double x) {
     return _finite(x) || _isnan(x) ? 0 : x < 0 ? -1 : 1;
 }
 
-void sincos(double x, double *sinx, double *cosx) {
-    *sinx = sin(x);
-    *cosx = cos(x);
-}
-
 
 /******************************************************************************
  * The remainder of this file consists of the definition of the function      *

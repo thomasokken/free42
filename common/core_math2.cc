@@ -168,7 +168,7 @@ int math_asinh(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     bphi = atan2(aim, are) / 2;
 
     /* a = b + x */
-    sincos(bphi, &aim, &are);
+    p_sincos(bphi, &aim, &are);
     are = are * br + xre;
     aim = aim * br + xim;
 
@@ -213,14 +213,14 @@ int math_acosh(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     /* a = sqrt(x + 1) */
     ar = sqrt(hypot(xre + 1, xim));
     aphi = atan2(xim, xre + 1) / 2;
-    sincos(aphi, &aim, &are);
+    p_sincos(aphi, &aim, &are);
     are *= ar;
     aim *= ar;
 
     /* b = sqrt(x - 1) */
     br = sqrt(hypot(xre - 1, xim));
     bphi = atan2(xim, xre - 1) / 2;
-    sincos(bphi, &bim, &bre);
+    p_sincos(bphi, &bim, &bre);
     bre *= br;
     bim *= br;
 

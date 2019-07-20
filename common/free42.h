@@ -41,7 +41,6 @@
 #endif
                 int isnan(double x);
                 int isinf(double x);
-                void sincos(double x, double *sinx, double *cosx);
                 double atanh(double x);
                 /* These are in the library, but not declared in math.h */
                 double asinh(double x);
@@ -51,14 +50,6 @@
 #ifdef __cplusplus
         }
 #endif
-#else
-
-/* NOTE: In my Linux build, all I have to do is DECLARE sincos(); glibc 2.3.3
- * has it (for C99, I suppose) so I don't have to DEFINE it. On other Unixes
- * (e.g. MacOS X), it may not be provided by the standard libraries; in this
- * case, define the NO_SINCOS symbol, here or in the Makefile.
- */
-extern "C" void sincos(double x, double *sinx, double *cosx);
 
 #endif
 
