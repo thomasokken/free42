@@ -4,8 +4,6 @@ Decimal math: Intel Decimal Floating-Point Math Library 2.0u1.
 INTEG: Romberg integration implementation based on code by Hugh Steers.
 LU Decomposition and back-substitution code, and Ridders' root-refinement
    algorithm, based on sample code from "Numerical Recipes in C".
-Binary implementations of floating-point math routines, used in all binary
-   builds, developed at SunPro, a Sun Microsystems business.
 Skins designed by, or based on original work of: Erik Ehrling and
    Sebastien Carlier.
 
