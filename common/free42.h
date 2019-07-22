@@ -48,6 +48,7 @@
                 double acosh(double x);
                 double expm1(double x);
                 double log1p(double x);
+                double tgamma(double x);
 #ifdef __cplusplus
         }
 #endif

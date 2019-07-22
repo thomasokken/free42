@@ -263,6 +263,19 @@ int docmd_fact(arg_struct *arg) {
         return ERR_INVALID_TYPE;
 }
 
+static int mappable_gamma(phloat x, phloat *y) {
+    if (x == 0 || x < 0 && x == floor(x))
+        return ERR_INVALID_DATA;
+    *y = tgamma(x);
+    int inf = p_isinf(*y);
+    if (inf != 0)
+        if (flags.f.range_error_ignore)
+            *y = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
+        else
+            return ERR_OUT_OF_RANGE;
+    return ERR_NONE;
+}
+
 int docmd_gamma(arg_struct *arg) {
     if (reg_x->type == TYPE_STRING)
         return ERR_ALPHA_DATA_IS_INVALID;
@@ -270,7 +283,7 @@ int docmd_gamma(arg_struct *arg) {
         return ERR_INVALID_TYPE;
     else {
         vartype *v;
-        int err = map_unary(reg_x, &v, math_gamma, NULL);
+        int err = map_unary(reg_x, &v, mappable_gamma, NULL);
         if (err == ERR_NONE)
             unary_result(v);
         return err;

@@ -598,7 +598,7 @@ Phloat expm1(Phloat p) {
     return Phloat(res);
 }
 
-Phloat gamma(Phloat p) {
+Phloat tgamma(Phloat p) {
     BID_UINT128 res;
     bid128_tgamma(&res, &p.val);
     return Phloat(res);

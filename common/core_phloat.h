@@ -147,7 +147,7 @@ Phloat log1p(Phloat p);
 Phloat log10(Phloat p);
 Phloat exp(Phloat p);
 Phloat expm1(Phloat p);
-Phloat gamma(Phloat p);
+Phloat tgamma(Phloat p);
 Phloat sqrt(Phloat p);
 Phloat fmod(Phloat x, Phloat y);
 Phloat fabs(Phloat p);
