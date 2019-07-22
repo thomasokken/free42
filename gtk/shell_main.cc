@@ -1677,7 +1677,7 @@ static void aboutCB() {
         GtkWidget *websitebox = gtk_hbox_new(FALSE, 0);
         gtk_box_pack_start(GTK_BOX(websitebox), websitelink, FALSE, FALSE, 0);
         gtk_box_pack_start(GTK_BOX(box2), websitebox, FALSE, FALSE, 0);
-        GtkWidget *forumlink = gtk_link_button_new("https://thomasokken.com/free42/42s.pdf");
+        GtkWidget *forumlink = gtk_link_button_new("https://thomasokken.com/free42/#doc");
         GtkWidget *forumbox = gtk_hbox_new(FALSE, 0);
         gtk_box_pack_start(GTK_BOX(forumbox), forumlink, FALSE, FALSE, 0);
         gtk_box_pack_start(GTK_BOX(box2), forumbox, FALSE, FALSE, 0);

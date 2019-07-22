@@ -106,7 +106,7 @@ BEGIN
     LTEXT           "© 2004-2019 Thomas Okken",IDC_STATIC,31,17,98,8
     LTEXT           "https://thomasokken.com/free42/",
                     IDC_WEBSITELINK,31,27,191,8,SS_NOTIFY
-    LTEXT           "https://thomasokken.com/free42/42s.pdf",
+    LTEXT           "https://thomasokken.com/free42/#doc",
                     IDC_FORUMLINK,31,37,191,8,SS_NOTIFY
     DEFPUSHBUTTON   "OK",IDOK,189,6,30,11,WS_GROUP
 END

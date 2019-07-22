@@ -879,7 +879,7 @@ public class Free42Activity extends Activity {
 
                 TextView label4 = new TextView(context);
                 label4.setId(5);
-                s = new SpannableString("https://thomasokken.com/free42/42s.pdf");
+                s = new SpannableString("https://thomasokken.com/free42/#doc");
                 Linkify.addLinks(s, Linkify.WEB_URLS);
                 label4.setText(s);
                 label4.setMovementMethod(LinkMovementMethod.getInstance());
