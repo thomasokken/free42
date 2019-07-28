@@ -1567,6 +1567,7 @@ static bool unpersist_globals(int4 ver) {
         goto done;
     }
     if (state_is_portable) {
+        goto_dot_dot();
         for (int i = 0; i < nprogs; i++)
             core_import_programs(true);
     } else {
