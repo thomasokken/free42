@@ -188,6 +188,18 @@ public class Free42Activity extends Activity {
             init_shell_state(-1);
             init_mode = 0;
         }
+        if (init_mode == 1 && version.value > 25) {
+            try {
+                stateFileInputStream.close();
+            } catch (IOException e) {}
+            try {
+                stateFileInputStream = openFileInput("core.f42");
+            } catch (FileNotFoundException e) {
+                stateFileInputStream = null;
+                init_mode = 0;
+            }
+        }
+
         setAlwaysRepaintFullDisplay(alwaysRepaintFullDisplay);
         if (alwaysOn)
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -337,8 +349,9 @@ public class Free42Activity extends Activity {
     @Override
     protected void onStop() {
         end_core_keydown();
-        // Write state file
         File filesDir = getFilesDir();
+
+        // Write shell state
         File stateFile = null;
         try {
             stateFile = File.createTempFile("state.", ".new", filesDir);
@@ -348,7 +361,6 @@ public class Free42Activity extends Activity {
         }
         if (stateFileOutputStream != null) {
             write_shell_state();
-            core_enter_background();
         }
         if (stateFileOutputStream != null) {
             try {
@@ -366,6 +378,35 @@ public class Free42Activity extends Activity {
             if (stateFile != null)
                 stateFile.delete();
         }
+
+        // Write core state
+        stateFile = null;
+        try {
+            stateFile = File.createTempFile("core.f42.", ".new", filesDir);
+            stateFileOutputStream = new FileOutputStream(stateFile, true);
+        } catch (IOException e) {
+            stateFileOutputStream = null;
+        }
+        if (stateFileOutputStream != null) {
+            core_enter_background();
+        }
+        if (stateFileOutputStream != null) {
+            try {
+                stateFileOutputStream.close();
+            } catch (IOException e) {
+                stateFileOutputStream = null;
+            }
+        }
+        if (stateFileOutputStream != null) {
+            // Writing state file succeeded; rename state.new to state
+            stateFile.renameTo(new File(filesDir, "core.f42"));
+            stateFileOutputStream = null;
+        } else {
+            // Writing state file failed; delete core.f42.new, if it even exists
+            if (stateFile != null)
+                stateFile.delete();
+        }
+
         printPaperView.dump();
         if (printTxtStream != null) {
             try {
@@ -2102,6 +2143,9 @@ public class Free42Activity extends Activity {
      * core_export_programs() should abort in that case.
      */
     public int shell_write(byte[] buf) {
+        if (stateFileOutputStream != null)
+            // For writing programs to the state file
+            return shell_write_saved_state(buf);
         if (programsOutputStream == null)
             return 0;
         try {
@@ -2124,6 +2168,9 @@ public class Free42Activity extends Activity {
      * input.
      */
     public int shell_read(byte[] buf) {
+        if (stateFileInputStream != null)
+            // For reading programs from the state file
+            return shell_read_saved_state(buf);
         if (programsInputStream == null)
             return -1;
         try {
