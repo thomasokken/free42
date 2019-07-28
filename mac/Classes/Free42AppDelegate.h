@@ -19,7 +19,7 @@
 #import <WebKit/WebKit.h>
 
 #define FILENAMELEN 256
-#define SHELL_VERSION 0
+#define SHELL_VERSION 1
 
 struct state_type {
     int printerToTxtFile;
@@ -31,6 +31,7 @@ struct state_type {
     int mainWindowX, mainWindowY;
     int printWindowX, printWindowY, printWindowHeight;
     char skinName[FILENAMELEN];
+    char coreFileName[FILENAMELEN];
 };
 
 extern state_type state;

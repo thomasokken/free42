@@ -679,6 +679,7 @@ bool no_keystrokes_yet;
 /*******************/
 
 static bool state_bool_is_int;
+bool state_is_portable;
 
 typedef struct {
     int4 prgm;
@@ -736,13 +737,6 @@ static int array_list_capacity;
 static void **array_list;
 
 
-static bool read_int(int *n);
-static bool write_int(int n);
-static bool read_int4(int4 *n);
-static bool write_int4(int4 n);
-static bool read_bool(bool *n);
-static bool write_bool(bool n);
-
 static bool array_list_grow();
 static int array_list_search(void *array);
 static bool persist_vartype(vartype *v);
@@ -782,96 +776,98 @@ static int array_list_search(void *array) {
 }
 
 static bool persist_vartype(vartype *v) {
-    if (v == NULL) {
-        int type = TYPE_NULL;
-        return shell_write_saved_state(&type, sizeof(int));
-    }
+    if (v == NULL)
+        return write_char(TYPE_NULL);
+    if (!write_char(v->type))
+        return false;
     switch (v->type) {
         case TYPE_REAL: {
-            if (!shell_write_saved_state(v, sizeof(int)))
-                return false;
             vartype_real *r = (vartype_real *) v;
-            return shell_write_saved_state(&r->x, sizeof(phloat));
+            return write_phloat(r->x);
         }
         case TYPE_COMPLEX: {
-            if (!shell_write_saved_state(v, sizeof(int)))
-                return false;
             vartype_complex *c = (vartype_complex *) v;
-            return shell_write_saved_state(&c->re, 2 * sizeof(phloat));
+            return write_phloat(c->re) && write_phloat(c->im);
         }
-        case TYPE_STRING:
-            return shell_write_saved_state(v, sizeof(vartype_string));
+        case TYPE_STRING: {
+            vartype_string *s = (vartype_string *) v;
+            return write_char(s->length)
+                && shell_write_saved_state(s->text, s->length);
+        }
         case TYPE_REALMATRIX: {
-            matrix_persister mp;
             vartype_realmatrix *rm = (vartype_realmatrix *) v;
-            mp.type = rm->type;
-            mp.rows = rm->rows;
-            mp.columns = rm->columns;
-            int4 size = mp.rows * mp.columns;
+            int4 rows = rm->rows;
+            int4 columns = rm->columns;
             bool must_write = true;
             if (rm->array->refcount > 1) {
                 int n = array_list_search(rm->array);
                 if (n == -1) {
                     // A negative row count signals a new shared matrix
-                    mp.rows = -mp.rows;
+                    rows = -rows;
                     if (!array_list_grow())
                         return false;
                     array_list[array_count++] = rm->array;
                 } else {
                     // A zero row count means this matrix shares its data
                     // with a previously written matrix
-                    mp.rows = 0;
-                    mp.columns = n;
+                    rows = 0;
+                    columns = n;
                     must_write = false;
                 }
             }
-            if (!shell_write_saved_state(&mp, sizeof(matrix_persister)))
-                return false;
+            write_int4(rows);
+            write_int4(columns);
             if (must_write) {
-                if (!shell_write_saved_state(rm->array->data,
-                                            size * sizeof(phloat)))
-                    return false;
+                int size = rm->rows * rm->columns;
                 if (!shell_write_saved_state(rm->array->is_string, size))
                     return false;
+                for (int i = 0; i < size; i++) {
+                    if (rm->array->is_string[i]) {
+                        char *str = (char *) &rm->array->data[i];
+                        if (!shell_write_saved_state(str, str[0] + 1))
+                            return false;
+                    } else {
+                        if (!write_phloat(rm->array->data[i]))
+                            return false;
+                    }
+                }
             }
             return true;
         }
         case TYPE_COMPLEXMATRIX: {
-            matrix_persister mp;
             vartype_complexmatrix *cm = (vartype_complexmatrix *) v;
-            mp.type = cm->type;
-            mp.rows = cm->rows;
-            mp.columns = cm->columns;
-            int4 size = mp.rows * mp.columns;
+            int4 rows = cm->rows;
+            int4 columns = cm->columns;
             bool must_write = true;
             if (cm->array->refcount > 1) {
                 int n = array_list_search(cm->array);
                 if (n == -1) {
                     // A negative row count signals a new shared matrix
-                    mp.rows = -mp.rows;
+                    rows = -rows;
                     if (!array_list_grow())
                         return false;
                     array_list[array_count++] = cm->array;
                 } else {
                     // A zero row count means this matrix shares its data
                     // with a previously written matrix
-                    mp.rows = 0;
-                    mp.columns = n;
+                    rows = 0;
+                    columns = n;
                     must_write = false;
                 }
             }
-            if (!shell_write_saved_state(&mp, sizeof(matrix_persister)))
-                return false;
+            write_int4(rows);
+            write_int4(columns);
             if (must_write) {
-                if (!shell_write_saved_state(cm->array->data,
-                                            2 * size * sizeof(phloat)))
-                    return false;
+                int size = 2 * cm->rows * cm->columns;
+                for (int i = 0; i < size; i++)
+                    if (!write_phloat(cm->array->data[i]))
+                        return false;
             }
             return true;
         }
         default:
             /* Should not happen */
-            return true;
+            return false;
     }
 }
 
@@ -884,6 +880,153 @@ struct fake_bcd {
 };
 
 static bool unpersist_vartype(vartype **v, bool padded) {
+    if (state_is_portable) {
+        char type;
+        if (!read_char(&type))
+            return false;
+        switch (type) {
+            case TYPE_NULL: {
+                *v = NULL;
+                return true;
+            }
+            case TYPE_REAL: {
+                vartype_real *r = (vartype_real *) new_real(0);
+                if (r == NULL)
+                    return false;
+                if (!read_phloat(&r->x)) {
+                    free_vartype((vartype *) r);
+                    return false;
+                }
+                *v = (vartype *) r;
+                return true;
+            }
+            case TYPE_COMPLEX: {
+                vartype_complex *c = (vartype_complex *) new_complex(0, 0);
+                if (c == NULL)
+                    return false;
+                if (!read_phloat(&c->re) || !read_phloat(&c->im)) {
+                    free_vartype((vartype *) c);
+                    return false;
+                }
+                *v = (vartype *) c;
+                return true;
+            }
+            case TYPE_STRING: {
+                vartype_string *s = (vartype_string *) new_string("", 0);
+                if (s == NULL)
+                    return false;
+                char len;
+                if (!read_char(&len) || !shell_read_saved_state(s->text, len)) {
+                    free_vartype((vartype *) s);
+                    return false;
+                }
+                s->length = len;
+                *v = (vartype *) s;
+                return true;
+            }
+            case TYPE_REALMATRIX: {
+                int4 rows, columns;
+                if (!read_int4(&rows) || !read_int4(&columns))
+                    return false;
+                if (rows == 0) {
+                    // Shared matrix
+                    vartype *m = new_matrix_alias((vartype *) array_list[columns]);
+                    if (m == NULL)
+                        return false;
+                    else {
+                        *v = m;
+                        return true;
+                    }
+                }
+                bool shared = rows < 0;
+                if (shared)
+                    rows = -rows;
+                vartype_realmatrix *rm = (vartype_realmatrix *) new_realmatrix(rows, columns);
+                if (rm == NULL)
+                    return false;
+                int4 size = rows * columns;
+                if (shell_read_saved_state(rm->array->is_string, size) != size) {
+                    free_vartype((vartype *) rm);
+                    return false;
+                }
+                bool success = true;
+                for (int4 i = 0; i < size; i++) {
+                    if (rm->array->is_string[i]) {
+                        char len;
+                        if (!read_char(&len)) {
+                            success = false;
+                            break;
+                        }
+                        char *dst = (char *) &rm->array->data[i];
+                        *dst++ = len;
+                        if (shell_read_saved_state(dst, len) != len) {
+                            success = false;
+                            break;
+                        }
+                    } else {
+                        if (!read_phloat(&rm->array->data[i])) {
+                            success = false;
+                            break;
+                        }
+                    }
+                }
+                if (!success) {
+                    free_vartype((vartype *) rm);
+                    return false;
+                }
+                if (shared) {
+                    if (!array_list_grow()) {
+                        free_vartype((vartype *) rm);
+                        return false;
+                    }
+                    array_list[array_count++] = rm;
+                }
+                *v = (vartype *) rm;
+                return true;
+            }
+            case TYPE_COMPLEXMATRIX: {
+                int4 rows, columns;
+                if (!read_int4(&rows) || !read_int4(&columns))
+                    return false;
+                if (rows == 0) {
+                    // Shared matrix
+                    vartype *m = new_matrix_alias((vartype *) array_list[columns]);
+                    if (m == NULL)
+                        return false;
+                    else {
+                        *v = m;
+                        return true;
+                    }
+                }
+                bool shared = rows < 0;
+                if (shared)
+                    rows = -rows;
+                vartype_complexmatrix *cm = (vartype_complexmatrix *) new_complexmatrix(rows, columns);
+                if (cm == NULL)
+                    return false;
+                int4 size = 2 * rows * columns;
+                for (int4 i = 0; i < size; i++) {
+                    if (!read_phloat(&cm->array->data[i])) {
+                        free_vartype((vartype *) cm);
+                        return false;
+                    }
+                }
+                if (shared) {
+                    if (!array_list_grow()) {
+                        free_vartype((vartype *) cm);
+                        return false;
+                    }
+                    array_list[array_count++] = cm;
+                }
+                *v = (vartype *) cm;
+                return true;
+            }
+            default:
+                return false;
+        }
+    }
+    
+    // !state_is_portable
     int type;
     if (shell_read_saved_state(&type, sizeof(int)) != sizeof(int))
         return false;
@@ -1195,23 +1338,22 @@ static bool persist_globals() {
         goto done;
     if (!write_int(vars_count))
         goto done;
-    for (i = 0; i < vars_count; i++)
-        if (!shell_write_saved_state(vars + i, 12))
+    for (i = 0; i < vars_count; i++) {
+        if (!write_char(vars[i].length)
+                || !shell_write_saved_state(vars[i].name, vars[i].length)
+                || !write_int2(vars[i].level)
+                || !write_bool(vars[i].hidden)
+                || !write_bool(vars[i].hiding)
+                || !persist_vartype(vars[i].value))
             goto done;
-    for (i = 0; i < vars_count; i++)
-        if (!persist_vartype(vars[i].value))
-            goto done;
+    }
     if (!write_int(prgms_count))
         goto done;
     for (i = 0; i < prgms_count; i++)
-        if (!shell_write_saved_state(prgms + i, sizeof(prgm_struct_32bit)))
-            goto done;
-    for (i = 0; i < prgms_count; i++)
-        if (!shell_write_saved_state(prgms[i].text, prgms[i].size))
-            goto done;
+        core_export_programs(1, &i);
     if (!write_int(current_prgm))
         goto done;
-    if (!write_int4(pc))
+    if (!write_int4(pc2line(pc)))
         goto done;
     if (!write_int(prgm_highlight_row))
         goto done;
@@ -1223,10 +1365,10 @@ static bool persist_globals() {
         goto done;
     if (!write_int(varmenu_row))
         goto done;
-    if (!shell_write_saved_state(varmenu_labellength, 6 * sizeof(int)))
-        goto done;
-    if (!shell_write_saved_state(varmenu_labeltext, 42))
-        goto done;
+    for (i = 0; i < 6; i++)
+        if (!write_char(varmenu_labellength[i])
+                || !shell_write_saved_state(varmenu_labeltext[i], varmenu_labellength[i]))
+            goto done;
     if (!write_int(varmenu_role))
         goto done;
     if (!write_int(rtn_sp))
@@ -1235,8 +1377,37 @@ static bool persist_globals() {
         goto done;
     if (!write_bool(rtn_level_0_has_matrix_entry))
         goto done;
-    if (!shell_write_saved_state(rtn_stack, rtn_sp * sizeof(rtn_stack_entry)))
-        goto done;
+    int saved_prgm;
+    saved_prgm = current_prgm;
+    for (i = rtn_sp - 1; i >= 0; i--) {
+        bool matrix_entry_follows = i == 1 && rtn_level_0_has_matrix_entry;
+        if (matrix_entry_follows) {
+            i++;
+        } else {
+            int4 p = rtn_stack[i].prgm;
+            matrix_entry_follows = p < 0;
+            p = p & 0x7fffffff;
+            if ((p & 0x40000000) != 0)
+                p |= 0x80000000;
+            current_prgm = p;
+            int4 l = rtn_stack[i].pc;
+            if (current_prgm >= 0)
+                l = pc2line(l);
+            if (!write_int4(rtn_stack[i].prgm)
+                    || !write_int4(l))
+                goto done;
+        }
+        if (matrix_entry_follows) {
+            rtn_stack_matrix_name_entry *e1 = (rtn_stack_matrix_name_entry *) &rtn_stack[--i];
+            rtn_stack_matrix_ij_entry *e2 = (rtn_stack_matrix_ij_entry *) &rtn_stack[--i];
+            if (!write_char(e1->length)
+                    || !shell_write_saved_state(e1->name, e1->length)
+                    || !write_int4(e2->i)
+                    || !write_int4(e2->j))
+                goto done;
+        }
+    }
+    current_prgm = saved_prgm;
     if (!write_bool(rtn_solve_active))
         goto done;
     if (!write_bool(rtn_integ_active))
@@ -1359,63 +1530,90 @@ static bool unpersist_globals(int4 ver) {
         vars_count = 0;
         goto done;
     }
-    for (i = 0; i < vars_count; i++)
-        if (shell_read_saved_state(vars + i, 12) != 12) {
-            free(vars);
-            vars = NULL;
-            vars_count = 0;
-            goto done;
-        }
-    vars_capacity = vars_count;
-    for (i = 0; i < vars_count; i++)
-        vars[i].value = NULL;
-    if (ver < 24)
+    if (state_is_portable) {
         for (i = 0; i < vars_count; i++) {
-            vars[i].level = -1;
-            vars[i].hidden = false;
-            vars[i].hiding = false;
+            if (!read_char((char *) &vars[i].length)
+                    || shell_read_saved_state(vars[i].name, vars[i].length) != vars[i].length
+                    || !read_int2(&vars[i].level)
+                    || !read_bool(&vars[i].hidden)
+                    || !read_bool(&vars[i].hiding)
+                    || !unpersist_vartype(&vars[i].value, false)) {
+                for (int j = 0; j < i; j++)
+                    free_vartype(vars[j].value);
+                free(vars);
+                vars = NULL;
+                vars_count = 0;
+                goto done;
+            }
         }
-    for (i = 0; i < vars_count; i++)
-        if (!unpersist_vartype(&vars[i].value, padded)) {
-            purge_all_vars();
-            goto done;
-        }
+    } else {
+        for (i = 0; i < vars_count; i++)
+            if (shell_read_saved_state(vars + i, 12) != 12) {
+                free(vars);
+                vars = NULL;
+                vars_count = 0;
+                goto done;
+            }
+        if (ver < 24)
+            for (i = 0; i < vars_count; i++) {
+                vars[i].level = -1;
+                vars[i].hidden = false;
+                vars[i].hiding = false;
+            }
+        for (i = 0; i < vars_count; i++)
+            if (!unpersist_vartype(&vars[i].value, padded)) {
+                for (int j = 0; j < i; j++)
+                    free_vartype(vars[j].value);
+                free(vars);
+                vars = NULL;
+                vars_count = 0;
+                goto done;
+            }
+    }
+    vars_capacity = vars_count;
 
     // Purging zero-length var that may have been created by buggy INTEG
     purge_var("", 0);
 
+    prgms_count = 0;
     prgms_capacity = 0;
     if (prgms != NULL) {
         free(prgms);
         prgms = NULL;
     }
-    if (!read_int(&prgms_count)) {
-        prgms_count = 0;
+    int nprogs;
+    if (!read_int(&nprogs)) {
         goto done;
     }
-    prgms = (prgm_struct *) malloc(prgms_count * sizeof(prgm_struct));
-    if (prgms == NULL) {
-        prgms_count = 0;
-        goto done;
-    }
-    for (i = 0; i < prgms_count; i++)
-        if (shell_read_saved_state(prgms + i, sizeof(prgm_struct_32bit)) != sizeof(prgm_struct_32bit)) {
-            free(prgms);
-            prgms = NULL;
+    if (state_is_portable) {
+        for (int i = 0; i < nprogs; i++)
+            core_import_programs(true);
+    } else {
+        prgms_count = nprogs;
+        prgms = (prgm_struct *) malloc(prgms_count * sizeof(prgm_struct));
+        if (prgms == NULL) {
             prgms_count = 0;
             goto done;
         }
-    prgms_capacity = prgms_count;
-    for (i = 0; i < prgms_count; i++) {
-        prgms[i].capacity = prgms[i].size;
-        prgms[i].text = (unsigned char *) malloc(prgms[i].size);
-        // TODO - handle memory allocation failure
-    }
-    for (i = 0; i < prgms_count; i++) {
-        if (shell_read_saved_state(prgms[i].text, prgms[i].size)
-                != prgms[i].size) {
-            clear_all_prgms();
-            goto done;
+        for (i = 0; i < prgms_count; i++)
+            if (shell_read_saved_state(prgms + i, sizeof(prgm_struct_32bit)) != sizeof(prgm_struct_32bit)) {
+                free(prgms);
+                prgms = NULL;
+                prgms_count = 0;
+                goto done;
+            }
+        prgms_capacity = prgms_count;
+        for (i = 0; i < prgms_count; i++) {
+            prgms[i].capacity = prgms[i].size;
+            prgms[i].text = (unsigned char *) malloc(prgms[i].size);
+            // TODO - handle memory allocation failure
+        }
+        for (i = 0; i < prgms_count; i++) {
+            if (shell_read_saved_state(prgms[i].text, prgms[i].size)
+                    != prgms[i].size) {
+                clear_all_prgms();
+                goto done;
+            }
         }
     }
     if (!read_int(&current_prgm)) {
@@ -1426,6 +1624,8 @@ static bool unpersist_globals(int4 ver) {
         pc = -1;
         goto done;
     }
+    if (state_is_portable)
+        pc = line2pc(pc);
     if (!read_int(&prgm_highlight_row)) {
         prgm_highlight_row = 0;
         goto done;
@@ -1446,11 +1646,21 @@ static bool unpersist_globals(int4 ver) {
         varmenu_length = 0;
         goto done;
     }
-    if (shell_read_saved_state(varmenu_labellength, 6 * sizeof(int))
-            != 6 * sizeof(int))
-        goto done;
-    if (shell_read_saved_state(varmenu_labeltext, 42) != 42)
-        goto done;
+    if (state_is_portable) {
+        char c;
+        for (i = 0; i < 6; i++) {
+            if (!read_char(&c)
+                    || shell_read_saved_state(varmenu_labeltext[i], c) != c)
+                goto done;
+            varmenu_labellength[i] = c;
+        }
+    } else {
+        if (shell_read_saved_state(varmenu_labellength, 6 * sizeof(int))
+                != 6 * sizeof(int))
+            goto done;
+        if (shell_read_saved_state(varmenu_labeltext, 42) != 42)
+            goto done;
+    }
     if (!read_int(&varmenu_role))
         goto done;
     if (!read_int(&rtn_sp))
@@ -1464,9 +1674,41 @@ static bool unpersist_globals(int4 ver) {
         while (rtn_sp > rtn_stack_capacity)
             rtn_stack_capacity <<= 1;
         rtn_stack = (rtn_stack_entry *) realloc(rtn_stack, rtn_stack_capacity * sizeof(rtn_stack_entry));
-        int sz = rtn_sp * sizeof(rtn_stack_entry);
-        if (shell_read_saved_state(rtn_stack, sz) != sz)
-            goto done;
+        if (state_is_portable) {
+            int saved_prgm = current_prgm;
+            for (i = rtn_sp - 1; i >= 0; i--) {
+                bool matrix_entry_follows = i == 1 && rtn_level_0_has_matrix_entry;
+                if (matrix_entry_follows) {
+                    i++;
+                } else {
+                    int4 p, l;
+                    if (!read_int4(&p) || !read_int4(&l))
+                        goto done;
+                    matrix_entry_follows = p < 0;
+                    p &= 0x7fffffff;
+                    if ((p & 0x40000000) != 0)
+                        p |= 0x80000000;
+                    if (p >= 0)
+                        l = line2pc(l);
+                    rtn_stack[i].prgm = p;
+                    rtn_stack[i].pc = l;
+                }
+                if (matrix_entry_follows) {
+                    rtn_stack_matrix_name_entry *e1 = (rtn_stack_matrix_name_entry *) &rtn_stack[--i];
+                    rtn_stack_matrix_ij_entry *e2 = (rtn_stack_matrix_ij_entry *) &rtn_stack[--i];
+                    if (!read_char((char *) &e1->length)
+                            || shell_read_saved_state(e1->name, e1->length) != e1->length
+                            || !read_int4(&e2->i)
+                            || !read_int4(&e2->j))
+                        goto done;
+                }
+            }
+            current_prgm = saved_prgm;
+        } else {
+            int sz = rtn_sp * sizeof(rtn_stack_entry);
+            if (shell_read_saved_state(rtn_stack, sz) != sz)
+                goto done;
+        }
         if (!read_bool(&rtn_solve_active))
             goto done;
         if (!read_bool(&rtn_integ_active))
@@ -1501,27 +1743,28 @@ static bool unpersist_globals(int4 ver) {
             goto done;
 #endif
 
-    if (bin_dec_mode_switch()) {
-        bool clear_stack;
-        if (!convert_programs(&clear_stack)) {
-            clear_all_prgms();
-            goto done;
+    if (!state_is_portable) {
+        if (bin_dec_mode_switch()) {
+            bool clear_stack;
+            if (!convert_programs(&clear_stack)) {
+                clear_all_prgms();
+                goto done;
+            }
+            if (clear_stack)
+                clear_all_rtns();
+        } else {
+            if (ver < 22)
+                for (i = 0; i < prgms_count; i++)
+                    invalidate_lclbls(i, true);
         }
-        if (clear_stack)
-            clear_all_rtns();
-    } else {
-        if (ver < 22)
-            for (i = 0; i < prgms_count; i++)
-                invalidate_lclbls(i, true);
+        #ifdef BCD_MATH
+            if (state_file_number_format == NUMBER_FORMAT_BCD20_OLD
+                    || state_file_number_format == NUMBER_FORMAT_BCD20_NEW)
+                update_decimal_in_programs();
+        #endif
+        rebuild_label_table();
     }
-
-#ifdef BCD_MATH
-    if (state_file_number_format == NUMBER_FORMAT_BCD20_OLD
-            || state_file_number_format == NUMBER_FORMAT_BCD20_NEW)
-        update_decimal_in_programs();
-#endif
-
-    rebuild_label_table();
+    
     ret = true;
 
     done:
@@ -2517,31 +2760,7 @@ bool unwind_stack_until_solve() {
     return stop;
 }
 
-static bool read_int(int *n) {
-    return shell_read_saved_state(n, sizeof(int)) == sizeof(int);
-}
-
-static bool write_int(int n) {
-    return shell_write_saved_state(&n, sizeof(int));
-}
-
-static bool read_int4(int4 *n) {
-    return shell_read_saved_state(n, sizeof(int4)) == sizeof(int4);
-}
-
-static bool write_int4(int4 n) {
-    return shell_write_saved_state(&n, sizeof(int4));
-}
-
-static bool read_int8(int8 *n) {
-    return shell_read_saved_state(n, sizeof(int8)) == sizeof(int8);
-}
-
-static bool write_int8(int8 n) {
-    return shell_write_saved_state(&n, sizeof(int8));
-}
-
-static bool read_bool(bool *b) {
+bool read_bool(bool *b) {
     if (state_bool_is_int) {
         int t;
         if (!read_int(&t))
@@ -2551,19 +2770,146 @@ static bool read_bool(bool *b) {
         *b = t != 0;
         return true;
     } else {
-        return shell_read_saved_state(b, sizeof(bool)) == sizeof(bool);
+        return shell_read_saved_state(b, 1) == 1;
     }
 }
 
-static bool write_bool(bool b) {
-    return shell_write_saved_state(&b, sizeof(bool));
+bool write_bool(bool b) {
+    return shell_write_saved_state(&b, 1);
+}
+
+bool read_char(char *c) {
+    return shell_read_saved_state(c, 1) == 1;
+}
+
+bool write_char(char c) {
+    return shell_write_saved_state(&c, 1);
+}
+
+bool read_int(int *n) {
+    if (state_is_portable) {
+        int4 m;
+        if (!read_int4(&m))
+            return false;
+        *n = (int) m;
+        return true;
+    } else
+        return shell_read_saved_state(n, sizeof(int)) == sizeof(int);
+}
+
+bool write_int(int n) {
+    return write_int4(n);
+}
+
+bool read_int2(int2 *n) {
+    #ifdef F42_BIG_ENDIAN
+        if (state_is_portable) {
+            char buf[2];
+            if (shell_read_saved_state(buf, 2) != 2)
+                return false;
+            char *dst = (char *) n;
+            for (int i = 0; i < 2; i++)
+                dst[i] = buf[1 - i];
+            return true;
+        }
+    #endif
+        return shell_read_saved_state(n, 2) == 2;
+}
+
+bool write_int2(int2 n) {
+    #ifdef F42_BIG_ENDIAN
+        char buf[2];
+        char *src = (char *) &n;
+        for (int i = 0; i < 2; i++)
+            buf[i] = src[1 - i];
+        return shell_write_saved_state(buf, 2);
+    #else
+        return shell_write_saved_state(&n, 2);
+    #endif
+}
+
+bool read_int4(int4 *n) {
+    #ifdef F42_BIG_ENDIAN
+        if (state_is_portable) {
+            char buf[4];
+            if (shell_read_saved_state(buf, 4) != 4)
+                return false;
+            char *dst = (char *) n;
+            for (int i = 0; i < 4; i++)
+                dst[i] = buf[3 - i];
+            return true;
+        }
+    #endif
+        return shell_read_saved_state(n, 4) == 4;
+}
+
+bool write_int4(int4 n) {
+    #ifdef F42_BIG_ENDIAN
+        char buf[4];
+        char *src = (char *) &n;
+        for (int i = 0; i < 4; i++)
+            buf[i] = src[3 - i];
+        return shell_write_saved_state(buf, 4);
+    #else
+        return shell_write_saved_state(&n, 4);
+    #endif
+}
+
+bool read_int8(int8 *n) {
+    #ifdef F42_BIG_ENDIAN
+        if (state_is_portable) {
+            char buf[8];
+            if (shell_read_saved_state(buf, 8) != 8)
+                return false;
+            char *dst = (char *) n;
+            for (int i = 0; i < 8; i++)
+                dst[i] = buf[7 - i];
+            return true;
+        }
+    #endif
+    return shell_read_saved_state(n, 8) == 8;
+}
+
+bool write_int8(int8 n) {
+    #ifdef F42_BIG_ENDIAN
+        char buf[8];
+        char *src = (char *) &n;
+        for (int i = 0; i < 8; i++)
+            buf[i] = src[7 - i];
+        return shell_write_saved_state(buf, 8);
+    #else
+        return shell_write_saved_state(&n, 8);
+    #endif
 }
 
 bool read_phloat(phloat *d) {
     if (bin_dec_mode_switch()) {
+        #ifdef F42_BIG_ENDIAN
+            if (state_is_portable) {
+                #ifdef BCD_MATH
+                    char buf[8];
+                    if (shell_read_saved_state(buf, 8) != 8)
+                        return false;
+                    double dbl;
+                    char *dst = (char *) &dbl;
+                    for (int i = 0; i < 8; i++)
+                        dst[i] = buf[7 - i];
+                    *d = dbl;
+                    return true;
+                #else
+                    char buf[16], data[16];
+                    if (shell_read_saved_state(buf, 16) != 16)
+                        return false;
+                    for (int i = 0; i < 16; i++)
+                        data[i] = buf[15 - i];
+                    *d = decimal2double(data);
+                    return true;
+                #endif
+            }
+        #endif
         #ifdef BCD_MATH
             double dbl;
-            if (shell_read_saved_state(&dbl, sizeof(double)) != sizeof(double))
+            if (shell_read_saved_state(&dbl, 8) != 8)
                 return false;
             *d = dbl;
             return true;
@@ -2575,6 +2921,28 @@ bool read_phloat(phloat *d) {
             return true;
         #endif
     } else {
+        #ifdef F42_BIG_ENDIAN
+            if (state_is_portable) {
+                #ifdef BCD_MATH
+                    char buf[16];
+                    if (shell_read_saved_state(buf, 16) != 16)
+                        return false;
+                    char *dst = (char *) d;
+                    for (int i = 0; i < 16; i++)
+                        dst[i] = buf[15 - i];
+                    update_decimal(&d->val);
+                    return true;
+                #else
+                    char buf[8];
+                    if (shell_read_saved_state(buf, 8) != 8)
+                        return false;
+                    char *dst = (char *) d;
+                    for (int i = 0; i < 8; i++)
+                        dst[i] = buf[7 - i];
+                    return true;
+                #endif
+            }
+        #endif
         if (shell_read_saved_state(d, sizeof(phloat)) != sizeof(phloat))
             return false;
         #ifdef BCD_MATH
@@ -2585,7 +2953,197 @@ bool read_phloat(phloat *d) {
 }
 
 bool write_phloat(phloat d) {
-    return shell_write_saved_state(&d, sizeof(phloat));
+    #ifdef F42_BIG_ENDIAN
+        #ifdef BCD_MATH
+            char buf[16];
+            char *src = (char *) &d;
+            for (int i = 0; i < 16; i++)
+                buf[i] = src[15 - i];
+            return shell_write_saved_state(buf, 16);
+        #else
+            char buf[8];
+            char *src = (char *) &d;
+            for (int i = 0; i < 8; i++)
+                buf[i] = src[7 - i];
+            return shell_write_saved_state(buf, 8);
+        #endif
+    #else
+        return shell_write_saved_state(&d, sizeof(phloat));
+    #endif
+}
+
+struct dec_arg_struct {
+    unsigned char type;
+    unsigned char length;
+    int4 target;
+    union {
+        int4 num;
+        char text[15];
+        char stk;
+        int cmd;
+        char lclbl;
+    } val;
+    fake_bcd val_d;
+};
+
+struct bin_arg_struct {
+    unsigned char type;
+    unsigned char length;
+    int4 target;
+    union {
+        int4 num;
+        char text[15];
+        char stk;
+        int cmd;
+        char lclbl;
+    } val;
+    double val_d;
+};
+
+bool read_arg(arg_struct *arg, bool old) {
+    if (state_is_portable) {
+        if (!read_char((char *) &arg->type))
+            return false;
+        switch (arg->type) {
+            case ARGTYPE_NONE:
+                return true;
+            case ARGTYPE_NUM:
+            case ARGTYPE_NEG_NUM:
+            case ARGTYPE_IND_NUM:
+            case ARGTYPE_LBLINDEX:
+                return read_int4(&arg->val.num);
+            case ARGTYPE_STK:
+            case ARGTYPE_IND_STK:
+                return read_char(&arg->val.stk);
+            case ARGTYPE_STR:
+            case ARGTYPE_IND_STR:
+                return read_char((char *) &arg->length)
+                && shell_read_saved_state(arg->val.text, arg->length) == arg->length;
+            case ARGTYPE_COMMAND:
+                return read_int(&arg->val.cmd);
+            case ARGTYPE_LCLBL:
+                return read_char(&arg->val.lclbl);
+            case ARGTYPE_DOUBLE:
+                return read_phloat(&arg->val_d);
+            default:
+                // Should never happen
+                return false;
+        }
+    }
+    if (old) {
+        // Prior to core state version 9, the arg_struct type saved a bit of
+        // by using a union to hold the argument value.
+        // In version 9, we switched from using 'double' as our main numeric
+        // data type to 'phloat' -- but since 'phloat' is a class, with a
+        // constructor, it cannot be a member of a union.
+        // So, I had to change the 'val' member from a union to a struct.
+        // Of course, this means that the arg_struct layout is now different,
+        // and when deserializing a pre-9 state file, I must make sure to
+        // deserialize an old-stype arg_struct and then convert it to a
+        // new one.
+        struct {
+            unsigned char type;
+            unsigned char length;
+            int4 target;
+            union {
+                int4 num;
+                char text[15];
+                char stk;
+                int cmd; /* For backward compatibility only! */
+                char lclbl;
+                double d;
+            } val;
+        } old_arg;
+        if (shell_read_saved_state(&old_arg, sizeof(old_arg))
+            != sizeof(old_arg))
+            return false;
+        arg->type = old_arg.type;
+        arg->length = old_arg.length;
+        arg->target = old_arg.target;
+        char *d = (char *) &arg->val;
+        char *s = (char *) &old_arg.val;
+        for (unsigned int i = 0; i < sizeof(old_arg.val); i++)
+            *d++ = *s++;
+        arg->val_d = old_arg.val.d;
+        return true;
+    } else if (bin_dec_mode_switch()) {
+#ifdef BCD_MATH
+        bin_arg_struct ba;
+        if (shell_read_saved_state(&ba, sizeof(bin_arg_struct))
+            != sizeof(bin_arg_struct))
+            return false;
+        arg->type = ba.type;
+        arg->length = ba.length;
+        arg->target = ba.target;
+        char *d = (char *) &arg->val;
+        char *s = (char *) &ba.val;
+        for (unsigned int i = 0; i < sizeof(ba.val); i++)
+            *d++ = *s++;
+        arg->val_d = ba.val_d;
+#else
+        dec_arg_struct da;
+        if (shell_read_saved_state(&da, sizeof(dec_arg_struct))
+            != sizeof(dec_arg_struct))
+            return false;
+        arg->type = da.type;
+        arg->length = da.length;
+        arg->target = da.target;
+        char *d = (char *) &arg->val;
+        char *s = (char *) &da.val;
+        for (unsigned int i = 0; i < sizeof(da.val); i++)
+            *d++ = *s++;
+        arg->val_d = decimal2double(da.val_d.data);
+#endif
+        return true;
+    } else {
+#if BCD_MATH
+        // For explanation, see the comment in write_arg()
+        if (shell_read_saved_state(arg, sizeof(dec_arg_struct))
+            != sizeof(dec_arg_struct))
+            return false;
+        int offset = sizeof(arg_struct) - sizeof(dec_arg_struct);
+        if (offset != 0) {
+            char *s = ((char *) arg) + sizeof(dec_arg_struct);
+            char *d = ((char *) arg) + sizeof(arg_struct);
+            for (unsigned int i = 0; i < 16; i++)
+                *--d = *--s;
+        }
+        return true;
+#else
+        return shell_read_saved_state(arg, sizeof(arg_struct))
+        == sizeof(arg_struct);
+#endif
+    }
+}
+
+bool write_arg(const arg_struct *arg) {
+    if (!shell_write_saved_state(&arg->type, 1))
+        return false;
+    switch (arg->type) {
+        case ARGTYPE_NONE:
+            return true;
+        case ARGTYPE_NUM:
+        case ARGTYPE_NEG_NUM:
+        case ARGTYPE_IND_NUM:
+        case ARGTYPE_LBLINDEX:
+            return write_int4(arg->val.num);
+        case ARGTYPE_STK:
+        case ARGTYPE_IND_STK:
+            return shell_write_saved_state(&arg->val.stk, 1);
+        case ARGTYPE_STR:
+        case ARGTYPE_IND_STR:
+            return shell_write_saved_state(&arg->length, 1)
+            && shell_write_saved_state(arg->val.text, arg->length);
+        case ARGTYPE_COMMAND:
+            return write_int(arg->val.cmd);
+        case ARGTYPE_LCLBL:
+            return shell_write_saved_state(&arg->val.lclbl, 1);
+        case ARGTYPE_DOUBLE:
+            return write_phloat(arg->val_d);
+        default:
+            // Should never happen
+            return false;
+    }
 }
 
 bool load_state(int4 ver) {
@@ -2597,7 +3155,20 @@ bool load_state(int4 ver) {
      */
 
     state_bool_is_int = ver < 9;
+    state_is_portable = ver >= 26;
 
+    if (state_is_portable) {
+        int4 magic;
+        if (!read_int4(&magic) || !read_int4(&ver))
+            return false;
+        if (magic != FREE42_MAGIC)
+            return false;
+        // The version we read from the core state may be different from
+        // the one we got from the shell state, but it will always be
+        // >= 26, since that's when we started using separate shell and
+        // core state files.
+    }
+    
     if (ver < 9) {
         state_file_number_format = NUMBER_FORMAT_BINARY;
     } else {
@@ -2756,9 +3327,15 @@ bool load_state(int4 ver) {
 
     if (!read_int(&keybuf_head)) return false;
     if (!read_int(&keybuf_tail)) return false;
-    if (shell_read_saved_state(keybuf, 16 * sizeof(int))
-            != 16 * sizeof(int))
-        return false;
+    if (state_is_portable) {
+        for (int i = 0; i < 16; i++)
+            if (!read_int(&keybuf[i]))
+                return false;
+    } else {
+        if (shell_read_saved_state(keybuf, 16 * sizeof(int))
+                != 16 * sizeof(int))
+            return false;
+    }
 
     if (!unpersist_display(ver))
         return false;
@@ -2809,9 +3386,8 @@ bool load_state(int4 ver) {
 }
 
 void save_state() {
-    /* The shell has written the initial magic and version numbers,
-     * and the shell state, before we got called.
-     */
+    if (!write_int4(FREE42_MAGIC) || !write_int4(FREE42_VERSION))
+        return;
 
     #ifdef BCD_MATH
         if (!write_bool(true)) return;
@@ -2886,7 +3462,9 @@ void save_state() {
 
     if (!write_int(keybuf_head)) return;
     if (!write_int(keybuf_tail)) return;
-    if (!shell_write_saved_state(keybuf, 16 * sizeof(int))) return;
+    for (int i = 0; i < 16; i++)
+        if (!write_int(keybuf[i]))
+            return;
 
     if (!persist_display())
         return;
@@ -3081,136 +3659,6 @@ void hard_reset(int bad_state_file) {
         draw_string(0, 0, "Memory Clear", 12);
     display_x(1);
     flush_display();
-}
-
-struct dec_arg_struct {
-    unsigned char type;
-    unsigned char length;
-    int4 target;
-    union {
-        int4 num;
-        char text[15];
-        char stk;
-        int cmd;
-        char lclbl;
-    } val;
-    fake_bcd val_d;
-};
-
-struct bin_arg_struct {
-    unsigned char type;
-    unsigned char length;
-    int4 target;
-    union {
-        int4 num;
-        char text[15];
-        char stk;
-        int cmd;
-        char lclbl;
-    } val;
-    double val_d;
-};
-
-bool read_arg(arg_struct *arg, bool old) {
-    if (old) {
-        // Prior to core state version 9, the arg_struct type saved a bit of
-        // by using a union to hold the argument value.
-        // In version 9, we switched from using 'double' as our main numeric
-        // data type to 'phloat' -- but since 'phloat' is a class, with a
-        // constructor, it cannot be a member of a union.
-        // So, I had to change the 'val' member from a union to a struct.
-        // Of course, this means that the arg_struct layout is now different,
-        // and when deserializing a pre-9 state file, I must make sure to
-        // deserialize an old-stype arg_struct and then convert it to a
-        // new one.
-        struct {
-            unsigned char type;
-            unsigned char length;
-            int4 target;
-            union {
-                int4 num;
-                char text[15];
-                char stk;
-                int cmd; /* For backward compatibility only! */
-                char lclbl;
-                double d;
-            } val;
-        } old_arg;
-        if (shell_read_saved_state(&old_arg, sizeof(old_arg))
-                != sizeof(old_arg))
-            return false;
-        arg->type = old_arg.type;
-        arg->length = old_arg.length;
-        arg->target = old_arg.target;
-        char *d = (char *) &arg->val;
-        char *s = (char *) &old_arg.val;
-        for (unsigned int i = 0; i < sizeof(old_arg.val); i++)
-            *d++ = *s++;
-        arg->val_d = old_arg.val.d;
-        return true;
-    } else if (bin_dec_mode_switch()) {
-        #ifdef BCD_MATH
-            bin_arg_struct ba;
-            if (shell_read_saved_state(&ba, sizeof(bin_arg_struct))
-                        != sizeof(bin_arg_struct))
-                return false;
-            arg->type = ba.type;
-            arg->length = ba.length;
-            arg->target = ba.target;
-            char *d = (char *) &arg->val;
-            char *s = (char *) &ba.val;
-            for (unsigned int i = 0; i < sizeof(ba.val); i++)
-                *d++ = *s++;
-            arg->val_d = ba.val_d;
-        #else
-            dec_arg_struct da;
-            if (shell_read_saved_state(&da, sizeof(dec_arg_struct))
-                        != sizeof(dec_arg_struct))
-                return false;
-            arg->type = da.type;
-            arg->length = da.length;
-            arg->target = da.target;
-            char *d = (char *) &arg->val;
-            char *s = (char *) &da.val;
-            for (unsigned int i = 0; i < sizeof(da.val); i++)
-                *d++ = *s++;
-            arg->val_d = decimal2double(da.val_d.data);
-        #endif
-        return true;
-    } else {
-        #if BCD_MATH
-        // For explanation, see the comment in write_arg()
-        if (shell_read_saved_state(arg, sizeof(dec_arg_struct))
-                != sizeof(dec_arg_struct))
-            return false;
-        int offset = sizeof(arg_struct) - sizeof(dec_arg_struct);
-        if (offset != 0) {
-            char *s = ((char *) arg) + sizeof(dec_arg_struct);
-            char *d = ((char *) arg) + sizeof(arg_struct);
-            for (unsigned int i = 0; i < 16; i++)
-                *--d = *--s;
-        }
-        return true;
-        #else
-        return shell_read_saved_state(arg, sizeof(arg_struct))
-            == sizeof(arg_struct);
-        #endif
-    }
-}
-
-bool write_arg(const arg_struct *arg) {
-#ifdef BCD_MATH
-    // The introduction of BID_UINT128 changed the alignment in arg_struct.
-    // BCDFloat was an array of 8 shorts, so was aligned on a 2-byte boundary,
-    // while BID_UINT128 is aligned on a 16-byte boundary. For compatibility,
-    // we eliminate the extra 8 bytes while writing.
-    int firstpartlen = sizeof(dec_arg_struct) - 16;
-    if (!shell_write_saved_state(arg, firstpartlen))
-        return false;
-    return shell_write_saved_state(&arg->val_d, 16);
-#else
-    return shell_write_saved_state(arg, sizeof(arg_struct));
-#endif
 }
 
 static bool convert_programs(bool *clear_stack) {

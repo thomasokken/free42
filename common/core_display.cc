@@ -551,108 +551,136 @@ static int get_cat_index();
 
 
 bool persist_display() {
-    if (!shell_write_saved_state(catalogmenu_section, 5 * sizeof(int)))
-        return false;
-    if (!shell_write_saved_state(catalogmenu_rows, 5 * sizeof(int)))
-        return false;
-    if (!shell_write_saved_state(catalogmenu_row, 5 * sizeof(int)))
-        return false;
-    if (!shell_write_saved_state(catalogmenu_item, 30 * sizeof(int)))
-        return false;
-    if (!shell_write_saved_state(custommenu_length, 18 * sizeof(int)))
-        return false;
-    if (!shell_write_saved_state(custommenu_label, 126))
-        return false;
+    for (int i = 0; i < 5; i++) {
+        if (!write_int(catalogmenu_section[i])) return false;
+        if (!write_int(catalogmenu_rows[i])) return false;
+        if (!write_int(catalogmenu_row[i])) return false;
+        for (int j = 0; j < 6; j++)
+            if (!write_int(catalogmenu_item[i][j])) return false;
+    }
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 6; j++) {
+            if (!write_int(custommenu_length[i][j])) return false;
+            if (!shell_write_saved_state(custommenu_label[i][j], 7)) return false;
+        }
+    }
     for (int i = 0; i < 9; i++)
         if (!write_arg(progmenu_arg + i))
             return false;
-    if (!shell_write_saved_state(progmenu_is_gto, 9 * sizeof(int)))
-        return false;
-    if (!shell_write_saved_state(progmenu_length, 6 * sizeof(int)))
-        return false;
-    if (!shell_write_saved_state(progmenu_label, 42))
-        return false;
+    for (int i = 0; i < 9; i++)
+        if (!write_int(progmenu_is_gto[i])) return false;
+    for (int i = 0; i < 6; i++) {
+        if (!write_int(progmenu_length[i])) return false;
+        if (!shell_write_saved_state(progmenu_label[i], 7)) return false;
+    }
     if (!shell_write_saved_state(display, 272))
         return false;
-    if (!shell_write_saved_state(&appmenu_exitcallback, sizeof(int)))
-        return false;
+    if (!write_int(appmenu_exitcallback)) return false;
     return true;
 }
 
 bool unpersist_display(int version) {
-    int custommenu_cmd[3][6];
-    is_dirty = 0;
-    if (shell_read_saved_state(catalogmenu_section, 5 * sizeof(int))
-            != 5 * sizeof(int))
-        return false;
-    if (shell_read_saved_state(catalogmenu_rows, 5 * sizeof(int))
-            != 5 * sizeof(int))
-        return false;
-    if (shell_read_saved_state(catalogmenu_row, 5 * sizeof(int))
-            != 5 * sizeof(int))
-        return false;
-    if (shell_read_saved_state(catalogmenu_item, 30 * sizeof(int))
-            != 30 * sizeof(int))
-        return false;
+    if (state_is_portable) {
+        for (int i = 0; i < 5; i++) {
+            if (!read_int(&catalogmenu_section[i])) return false;
+            if (!read_int(&catalogmenu_rows[i])) return false;
+            if (!read_int(&catalogmenu_row[i])) return false;
+            for (int j = 0; j < 6; j++)
+                if (!read_int(&catalogmenu_item[i][j])) return false;
+        }
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 6; j++) {
+                if (!read_int(&custommenu_length[i][j])) return false;
+                if (shell_read_saved_state(custommenu_label[i][j], 7) != 7) return false;
+            }
+        }
+        for (int i = 0; i < 9; i++)
+            if (!read_arg(progmenu_arg + i, false))
+                return false;
+        for (int i = 0; i < 9; i++)
+            if (!read_int(&progmenu_is_gto[i])) return false;
+        for (int i = 0; i < 6; i++) {
+            if (!read_int(&progmenu_length[i])) return false;
+            if (shell_read_saved_state(progmenu_label[i], 7) != 7) return false;
+        }
+        if (shell_read_saved_state(display, 272) != 272)
+            return false;
+        if (!read_int(&appmenu_exitcallback)) return false;
+    } else {
+        int custommenu_cmd[3][6];
+        is_dirty = 0;
+        if (shell_read_saved_state(catalogmenu_section, 5 * sizeof(int))
+                != 5 * sizeof(int))
+            return false;
+        if (shell_read_saved_state(catalogmenu_rows, 5 * sizeof(int))
+                != 5 * sizeof(int))
+            return false;
+        if (shell_read_saved_state(catalogmenu_row, 5 * sizeof(int))
+                != 5 * sizeof(int))
+            return false;
+        if (shell_read_saved_state(catalogmenu_item, 30 * sizeof(int))
+                != 30 * sizeof(int))
+            return false;
 
-    if (version < 7) {
-        /* In version 7, I removed the special handling
-         * of FCN catalog assignments (after discovering how
-         * the real HP-42S does it and realizing that, for perfect
-         * compatibility, I had to do it the same way).
-         */
-        if (shell_read_saved_state(custommenu_cmd, 18 * sizeof(int))
+        if (version < 7) {
+            /* In version 7, I removed the special handling
+             * of FCN catalog assignments (after discovering how
+             * the real HP-42S does it and realizing that, for perfect
+             * compatibility, I had to do it the same way).
+             */
+            if (shell_read_saved_state(custommenu_cmd, 18 * sizeof(int))
+                    != 18 * sizeof(int))
+                return false;
+        }
+        if (shell_read_saved_state(custommenu_length, 18 * sizeof(int))
                 != 18 * sizeof(int))
             return false;
-    }
-    if (shell_read_saved_state(custommenu_length, 18 * sizeof(int))
-            != 18 * sizeof(int))
-        return false;
-    if (shell_read_saved_state(custommenu_label, 126)
-            != 126)
-        return false;
-    if (version < 7) {
-        /* Starting with version 7, FCN catalog assignments are no longer
-         * handled specially; instead, commands with shortened key labels
-         * (e.g. ENTER/ENTR, ASSIGN/ASGN) are handled by using "meta"
-         * characters to indicate the disappearing positions. This is how
-         * the HP-42S does it, and since this can even affect programs
-         * (e.g. create the line STO "ENTER" by selecting ENTER from the
-         * function catalog, and the second E is encoded as meta-E in the
-         * program!), we have to do it the same way, for compatibility.
-         * I think my original approach was better, but such is life. :-)
-         */
-        int row, pos;
-        for (row = 0; row < 3; row++)
-            for (pos = 0; pos < 6; pos++) {
-                int cmd = custommenu_cmd[row][pos];
-                if (cmd != CMD_NONE) {
-                    const command_spec *cs = cmdlist(cmd);
-                    string_copy(custommenu_label[row][pos],
-                                &custommenu_length[row][pos],
-                                cs->name, cs->name_length);
-                }
-            }
-    }
-
-    for (int i = 0; i < 9; i++)
-        if (!read_arg(progmenu_arg + i, version < 9))
+        if (shell_read_saved_state(custommenu_label, 126)
+                != 126)
             return false;
-    if (shell_read_saved_state(progmenu_is_gto, 9 * sizeof(int))
-            != 9 * sizeof(int))
-        return false;
-    if (shell_read_saved_state(progmenu_length, 6 * sizeof(int))
-            != 6 * sizeof(int))
-        return false;
-    if (shell_read_saved_state(progmenu_label, 42)
-            != 42)
-        return false;
-    if (shell_read_saved_state(display, 272)
-            != 272)
-        return false;
-    if (shell_read_saved_state(&appmenu_exitcallback, sizeof(int))
-            != sizeof(int))
-        return false;
+        if (version < 7) {
+            /* Starting with version 7, FCN catalog assignments are no longer
+             * handled specially; instead, commands with shortened key labels
+             * (e.g. ENTER/ENTR, ASSIGN/ASGN) are handled by using "meta"
+             * characters to indicate the disappearing positions. This is how
+             * the HP-42S does it, and since this can even affect programs
+             * (e.g. create the line STO "ENTER" by selecting ENTER from the
+             * function catalog, and the second E is encoded as meta-E in the
+             * program!), we have to do it the same way, for compatibility.
+             * I think my original approach was better, but such is life. :-)
+             */
+            int row, pos;
+            for (row = 0; row < 3; row++)
+                for (pos = 0; pos < 6; pos++) {
+                    int cmd = custommenu_cmd[row][pos];
+                    if (cmd != CMD_NONE) {
+                        const command_spec *cs = cmdlist(cmd);
+                        string_copy(custommenu_label[row][pos],
+                                    &custommenu_length[row][pos],
+                                    cs->name, cs->name_length);
+                    }
+                }
+        }
+
+        for (int i = 0; i < 9; i++)
+            if (!read_arg(progmenu_arg + i, version < 9))
+                return false;
+        if (shell_read_saved_state(progmenu_is_gto, 9 * sizeof(int))
+                != 9 * sizeof(int))
+            return false;
+        if (shell_read_saved_state(progmenu_length, 6 * sizeof(int))
+                != 6 * sizeof(int))
+            return false;
+        if (shell_read_saved_state(progmenu_label, 42)
+                != 42)
+            return false;
+        if (shell_read_saved_state(display, 272)
+                != 272)
+            return false;
+        if (shell_read_saved_state(&appmenu_exitcallback, sizeof(int))
+                != sizeof(int))
+            return false;
+    }
     return true;
 }
 

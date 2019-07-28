@@ -30,6 +30,11 @@
 #define uint4 unsigned int
 #define int8 long long
 #define uint8 unsigned long long
+#define uint unsigned int
+
+#if defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#define F42_BIG_ENDIAN 1
+#endif
 
 
 #if defined(WINDOWS) && !defined(BCD_MATH) && !defined(__GNUC__)
@@ -53,12 +58,8 @@
         }
 #endif
 
-#define NO_LGAMMA_R 1
-
 #endif
 
-
-#define uint unsigned int
 
 /* Magic number and version number for the state file.
  * State file versions correspond to application releases as follows:
@@ -111,16 +112,17 @@
  * Version 20: 2.0.3  Removed "raw text" option, ext_copan, and ext_bigstack.
  * Version 21: 2.0.7  New random number generator.
  * Version 22: 2.0.17 Fixed bug where local GTO/XEQ targets didn't get cleared
- *                    when and END was deleted, and potentially (though never
+ *                    when an END was deleted, and potentially (though never
  *                    reported) also when an END was inserted. Bumping the
  *                    state version so that older state files get their
  *                    potentially-incorrect jump targets cleared, just in case.
  * Version 23: 2.1    Added "prog" extension: SST^, SST->
- * Version 24: 2.2    Large RTN stack; local variables.
- * Version 25: 2.4    WSIZE, BSIGNED, BWRAP.
+ * Version 24: 2.2    Large RTN stack; local variables
+ * Version 25: 2.4    WSIZE, BSIGNED, BWRAP
+ * Version 26: 2.5    Separate and portable core state file
  */
 #define FREE42_MAGIC 0x466b3432
-#define FREE42_VERSION 25
+#define FREE42_VERSION 26
 
 
 #endif

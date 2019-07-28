@@ -272,8 +272,11 @@ void core_export_programs(int count, const int *indexes);
  *
  * This function is called by the shell after the user has selected a file to
  * import. The core will read the file data using the shell_read() function.
+ * The stop_at_end flag indicates that the import should finish when an END
+ * is encountered. This should be 'false' for user-initiated imports, and 'true'
+ * when loading programs from the state file during startup.
  */
-void core_import_programs();
+void core_import_programs(bool stop_at_end);
 
 /* core_copy()
  *

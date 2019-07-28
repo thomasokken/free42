@@ -1529,6 +1529,7 @@ static int hp42ext[] = {
 
 
 static int getbyte(char *buf, int *bufptr, int *buflen, int maxlen) {
+    maxlen = 1;
     if (*bufptr == *buflen) {
         *buflen = shell_read(buf, maxlen);
         if (*buflen <= 0)
@@ -1591,7 +1592,7 @@ static phloat parse_number_line(char *buf) {
     return res;
 }
 
-void core_import_programs() {
+void core_import_programs(bool stop_at_end) {
     char buf[1000];
     int i, nread = 0;
     int need_to_rebuild_label_table = 0;
@@ -1737,6 +1738,8 @@ void core_import_programs() {
                     goto done;
                 if (str_len < 0x0F1) {
                     /* END */
+                    if (stop_at_end)
+                        goto done;
                     at_end = 1;
                     goto skip;
                 } else {

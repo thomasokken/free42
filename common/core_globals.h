@@ -559,14 +559,28 @@ bool solve_active();
 bool integ_active();
 bool unwind_stack_until_solve();
 
+extern bool state_is_portable;
+
+bool read_bool(bool *b);
+bool write_bool(bool b);
+bool read_char(char *c);
+bool write_char(char c);
+bool read_int(int *n);
+bool write_int(int n);
+bool read_int2(int2 *n);
+bool write_int2(int2 n);
+bool read_int4(int4 *n);
+bool write_int4(int4 n);
+bool read_int8(int8 *n);
+bool write_int8(int8 n);
+bool read_phloat(phloat *d);
+bool write_phloat(phloat d);
+bool read_arg(arg_struct *arg, bool old);
+bool write_arg(const arg_struct *arg);
+
 bool load_state(int4 version);
 void save_state();
 void hard_reset(int bad_state_file);
-
-bool read_arg(arg_struct *arg, bool old);
-bool write_arg(const arg_struct *arg);
-bool read_phloat(phloat *d);
-bool write_phloat(phloat d);
 
 #ifdef ANDROID
 void reinitialize_globals();
