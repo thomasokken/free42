@@ -365,6 +365,12 @@ int main(int argc, char *argv[]) {
         init_shell_state(-1);
         init_mode = 0;
     }
+    if (version > 25) {
+        fclose(statefile);
+        char corefilename[FILENAMELEN];
+        snprintf(corefilename, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreFileName);
+        statefile = fopen(corefilename, "r");
+    }
 
 
     /*******************************************************/
@@ -812,6 +818,9 @@ static void init_shell_state(int4 version) {
             state.singleInstance = 0;
             /* fall through */
         case 4:
+            strcpy(state.coreFileName, "Untitled");
+            /* fall through */
+        case 5:
             /* current version (SHELL_VERSION = 4),
              * so nothing to do here since everything
              * was initialized from the state file.
@@ -994,6 +1003,11 @@ static void quit() {
     if (statefile != NULL) {
         write_shell_state();
     }
+    if (statefile != NULL)
+        fclose(statefile);
+    char corefilename[FILENAMELEN];
+    snprintf(corefilename, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreFileName);
+    statefile = fopen(corefilename, "w");
     core_quit();
     if (statefile != NULL)
         fclose(statefile);
@@ -1285,7 +1299,7 @@ static void importProgramCB() {
                     filenamebuf, strerror(err), err);
         show_message("Message", buf);
     } else {
-        core_import_programs();
+        core_import_programs(false);
         redisplay();
         if (import_file != NULL) {
             fclose(import_file);
@@ -2591,6 +2605,9 @@ void shell_log(const char *message) {
 }
 
 int shell_write(const char *buf, int4 buflen) {
+    if (statefile != NULL)
+        // For writing programs to the state file
+        return shell_write_saved_state(buf, buflen) ? 1 : 0;
     int4 written;
     if (export_file == NULL)
         return 0;
@@ -2607,6 +2624,9 @@ int shell_write(const char *buf, int4 buflen) {
 }
 
 int shell_read(char *buf, int4 buflen) {
+    if (statefile != NULL)
+        // For reading programs from the state file
+        return shell_read_saved_state(buf, buflen);
     int4 nread;
     if (import_file == NULL)
         return -1;

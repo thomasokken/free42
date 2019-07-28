@@ -25,7 +25,7 @@
 extern GtkWidget *calc_widget;
 extern bool allow_paint;
 
-#define SHELL_VERSION 4
+#define SHELL_VERSION 5
 
 struct state_type {
     int extras;
@@ -39,6 +39,7 @@ struct state_type {
     int printWindowX, printWindowY, printWindowHeight;
     char skinName[FILENAMELEN];
     int singleInstance;
+    char coreFileName[FILENAMELEN];
 };
 
 extern state_type state;
