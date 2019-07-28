@@ -55,7 +55,6 @@ static pthread_cond_t is_running_cond = PTHREAD_COND_INITIALIZER;
 
 static char statefilename[FILENAMELEN];
 static char printfilename[FILENAMELEN];
-static char coredirname[FILENAMELEN];
 static FILE *statefile = NULL;
 static char export_file_name[FILENAMELEN];
 static FILE *export_file = NULL;
@@ -195,7 +194,6 @@ static bool is_file(const char *name);
     if (free42dir_exists) {
         snprintf(statefilename, FILENAMELEN, "%s/Library/Application Support/Free42/state", home);
         snprintf(printfilename, FILENAMELEN, "%s/Library/Application Support/Free42/print", home);
-        snprintf(coredirname, FILENAMELEN, "%s/Library/Application Support/Free42/core", home);
         snprintf(keymapfilename, FILENAMELEN, "%s/Library/Application Support/Free42/keymap.txt", home);
     } else {
         statefilename[0] = 0;
@@ -287,7 +285,7 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
     if (version > 25) {
         fclose(statefile);
         char corefilename[FILENAMELEN];
-        snprintf(corefilename, FILENAMELEN, "%s/%s.f42", coredirname, state.coreFileName);
+        snprintf(corefilename, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreFileName);
         statefile = fopen(corefilename, "r");
     }
     
@@ -427,9 +425,8 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
         write_shell_state();
     if (statefile != NULL)
         fclose(statefile);
-    mkdir(coredirname, 0755);
     char corefilename[FILENAMELEN];
-    snprintf(corefilename, FILENAMELEN, "%s/%s.f42", coredirname, state.coreFileName);
+    snprintf(corefilename, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreFileName);
     statefile = fopen(corefilename, "w");
     core_quit();
     if (statefile != NULL)
