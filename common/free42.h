@@ -33,6 +33,13 @@
 #define uint unsigned int
 
 #if defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+/* Note: The new portable state file logic, FREE42_VERSION >= 26, has not
+ * actually been tested on big-endian platforms yet, since I don't have any
+ * such hardware, and haven't felt like figuring out how to get a working Linux
+ * build environment on a virtual system like qemu-system-ppc.
+ * So, use this with caution!
+ * - ThO
+ */
 #define F42_BIG_ENDIAN 1
 #endif
 
