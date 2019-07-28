@@ -1,3 +1,7 @@
+????-??-??: release 2.4.2a
+
+* Fixed crash in RTN when a local variable was hiding the indexed matrix.
+
 2019-07-12: release 2.4.2
 
 * Windows version: The new Ctrl-A, Ctrl-I, and Ctrl-T shortcuts (Paper Advance,
