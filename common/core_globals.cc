@@ -1336,17 +1336,6 @@ static bool persist_globals() {
         goto done;
     if (!shell_write_saved_state(&flags, sizeof(flags_struct)))
         goto done;
-    if (!write_int(vars_count))
-        goto done;
-    for (i = 0; i < vars_count; i++) {
-        if (!write_char(vars[i].length)
-                || !shell_write_saved_state(vars[i].name, vars[i].length)
-                || !write_int2(vars[i].level)
-                || !write_bool(vars[i].hidden)
-                || !write_bool(vars[i].hiding)
-                || !persist_vartype(vars[i].value))
-            goto done;
-    }
     if (!write_int(prgms_count))
         goto done;
     for (i = 0; i < prgms_count; i++)
@@ -1357,6 +1346,17 @@ static bool persist_globals() {
         goto done;
     if (!write_int(prgm_highlight_row))
         goto done;
+    if (!write_int(vars_count))
+        goto done;
+    for (i = 0; i < vars_count; i++) {
+        if (!write_char(vars[i].length)
+            || !shell_write_saved_state(vars[i].name, vars[i].length)
+            || !write_int2(vars[i].level)
+            || !write_bool(vars[i].hidden)
+            || !write_bool(vars[i].hiding)
+            || !persist_vartype(vars[i].value))
+            goto done;
+    }
     if (!write_int(varmenu_length))
         goto done;
     if (!shell_write_saved_state(varmenu, 7))
@@ -1516,37 +1516,22 @@ static bool unpersist_globals(int4 ver) {
         flags.f.base_signed = 1;
         flags.f.base_wrap = 0;
     }
-    vars_capacity = 0;
-    if (vars != NULL) {
-        free(vars);
-        vars = NULL;
-    }
-    if (!read_int(&vars_count)) {
-        vars_count = 0;
-        goto done;
-    }
-    vars = (var_struct *) malloc(vars_count * sizeof(var_struct));
-    if (vars == NULL) {
-        vars_count = 0;
-        goto done;
-    }
-    if (state_is_portable) {
-        for (i = 0; i < vars_count; i++) {
-            if (!read_char((char *) &vars[i].length)
-                    || shell_read_saved_state(vars[i].name, vars[i].length) != vars[i].length
-                    || !read_int2(&vars[i].level)
-                    || !read_bool(&vars[i].hidden)
-                    || !read_bool(&vars[i].hiding)
-                    || !unpersist_vartype(&vars[i].value, false)) {
-                for (int j = 0; j < i; j++)
-                    free_vartype(vars[j].value);
-                free(vars);
-                vars = NULL;
-                vars_count = 0;
-                goto done;
-            }
+
+    if (!state_is_portable) {
+        vars_capacity = 0;
+        if (vars != NULL) {
+            free(vars);
+            vars = NULL;
         }
-    } else {
+        if (!read_int(&vars_count)) {
+            vars_count = 0;
+            goto done;
+        }
+        vars = (var_struct *) malloc(vars_count * sizeof(var_struct));
+        if (vars == NULL) {
+            vars_count = 0;
+            goto done;
+        }
         for (i = 0; i < vars_count; i++)
             if (shell_read_saved_state(vars + i, 12) != 12) {
                 free(vars);
@@ -1569,11 +1554,11 @@ static bool unpersist_globals(int4 ver) {
                 vars_count = 0;
                 goto done;
             }
-    }
-    vars_capacity = vars_count;
+        vars_capacity = vars_count;
 
-    // Purging zero-length var that may have been created by buggy INTEG
-    purge_var("", 0);
+        // Purging zero-length var that may have been created by buggy INTEG
+        purge_var("", 0);
+    }
 
     prgms_count = 0;
     prgms_capacity = 0;
@@ -1630,6 +1615,40 @@ static bool unpersist_globals(int4 ver) {
         prgm_highlight_row = 0;
         goto done;
     }
+    
+    if (state_is_portable) {
+        vars_capacity = 0;
+        if (vars != NULL) {
+            free(vars);
+            vars = NULL;
+        }
+        if (!read_int(&vars_count)) {
+            vars_count = 0;
+            goto done;
+        }
+        vars = (var_struct *) malloc(vars_count * sizeof(var_struct));
+        if (vars == NULL) {
+            vars_count = 0;
+            goto done;
+        }
+        for (i = 0; i < vars_count; i++) {
+            if (!read_char((char *) &vars[i].length)
+                || shell_read_saved_state(vars[i].name, vars[i].length) != vars[i].length
+                || !read_int2(&vars[i].level)
+                || !read_bool(&vars[i].hidden)
+                || !read_bool(&vars[i].hiding)
+                || !unpersist_vartype(&vars[i].value, false)) {
+                for (int j = 0; j < i; j++)
+                    free_vartype(vars[j].value);
+                free(vars);
+                vars = NULL;
+                vars_count = 0;
+                goto done;
+            }
+        }
+        vars_capacity = vars_count;
+    }
+    
     if (!read_int(&varmenu_length)) {
         varmenu_length = 0;
         goto done;
