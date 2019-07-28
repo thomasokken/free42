@@ -1605,8 +1605,10 @@ static bool unpersist_globals(int4 ver) {
         pc = -1;
         goto done;
     }
-    if (state_is_portable)
+    if (state_is_portable) {
         pc = line2pc(pc);
+        incomplete_saved_pc = line2pc(incomplete_saved_pc);
+    }
     if (!read_int(&prgm_highlight_row)) {
         prgm_highlight_row = 0;
         goto done;
@@ -3445,7 +3447,7 @@ void save_state() {
     if (!write_int(incomplete_argtype)) return;
     if (!write_int(incomplete_num)) return;
     if (!shell_write_saved_state(incomplete_str, 7)) return;
-    if (!write_int4(incomplete_saved_pc)) return;
+    if (!write_int4(pc2line(incomplete_saved_pc))) return;
     if (!write_int4(incomplete_saved_highlight_row)) return;
 
     if (!shell_write_saved_state(cmdline, 100)) return;
