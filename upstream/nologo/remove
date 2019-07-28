@@ -1,13 +1,11 @@
 android
 build-android
 build-mac
-build-mac-dashboard
 build-src-doc
 build-windows
 update-version-number.py
 iphone
 mac
-macdashboard
 upstream
 util
 windows

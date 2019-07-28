@@ -79,10 +79,6 @@ def patch_plist(plist_name):
 
 patch_plist("mac/Info.plist")
 
-# Insert version for Mac Dashboard
-
-patch_plist("macdashboard/Info.plist")
-
 # Inset version for iOS
 
 patch_plist("iphone/Info.plist")
