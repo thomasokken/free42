@@ -478,6 +478,8 @@ static CalcView *calcView = nil;
     if (init_mode == 1 && version > 25) {
         fclose(statefile);
         statefile = fopen("config/Untitled.f42", "r");
+        if (statefile == NULL)
+            init_mode = 0;
     }
 
     long w, h;

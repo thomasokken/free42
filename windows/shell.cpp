@@ -397,6 +397,8 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
         char corefilename[FILENAMELEN];
         sprintf(corefilename, "%s\\%s.f42", free42dirname, state.coreFileName);
         statefile = fopen(corefilename, "rb");
+        if (statefile == NULL)
+            init_mode = 0;
     }
 
     if (state.singleInstance) {

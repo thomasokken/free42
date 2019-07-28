@@ -370,6 +370,8 @@ int main(int argc, char *argv[]) {
         char corefilename[FILENAMELEN];
         snprintf(corefilename, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreFileName);
         statefile = fopen(corefilename, "r");
+        if (statefile == NULL)
+            init_mode = 0;
     }
 
 

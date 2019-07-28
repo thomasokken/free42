@@ -287,6 +287,8 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
         char corefilename[FILENAMELEN];
         snprintf(corefilename, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreFileName);
         statefile = fopen(corefilename, "r");
+        if (statefile == NULL)
+            init_mode = 0;
     }
     
 #ifdef BCD_MATH
