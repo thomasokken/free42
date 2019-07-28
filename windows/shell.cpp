@@ -392,7 +392,7 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
         init_shell_state(-1);
         init_mode = 0;
     }
-    if (version > 25) {
+    if (init_mode == 1 && version > 25) {
         fclose(statefile);
         char corefilename[FILENAMELEN];
         sprintf(corefilename, "%s\\%s.f42", free42dirname, state.coreFileName);

@@ -365,7 +365,7 @@ int main(int argc, char *argv[]) {
         init_shell_state(-1);
         init_mode = 0;
     }
-    if (version > 25) {
+    if (init_mode == 1 && version > 25) {
         fclose(statefile);
         char corefilename[FILENAMELEN];
         snprintf(corefilename, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreFileName);

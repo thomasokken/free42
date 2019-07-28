@@ -282,7 +282,7 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
         init_shell_state(-1);
         init_mode = 0;
     }
-    if (version > 25) {
+    if (init_mode == 1 && version > 25) {
         fclose(statefile);
         char corefilename[FILENAMELEN];
         snprintf(corefilename, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreFileName);
@@ -1665,7 +1665,7 @@ bool shell_write_saved_state(const void *buf, int4 nbytes) {
 
 int shell_write(const char *buf, int4 buflen) {
     if (statefile != NULL)
-        // For reading programs from the state file
+        // For writing programs to the state file
         return shell_write_saved_state(buf, buflen) ? 1 : 0;
     int4 written;
     if (export_file == NULL)
@@ -1684,7 +1684,7 @@ int shell_write(const char *buf, int4 buflen) {
 
 int shell_read(char *buf, int4 buflen) {
     if (statefile != NULL)
-        // For writing programs to the state file
+        // For reading programs from the state file
         return shell_read_saved_state(buf, buflen);
     int4 nread;
     if (import_file == NULL)
