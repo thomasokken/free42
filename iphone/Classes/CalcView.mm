@@ -77,7 +77,7 @@ static void init_shell_state(int version);
 static int write_shell_state();
 
 state_type state;
-static FILE* statefile;
+FILE* statefile;
 
 static int quit_flag = 0;
 static int enqueued;
@@ -475,6 +475,10 @@ static CalcView *calcView = nil;
         init_shell_state(-1);
         init_mode = 0;
     }
+    if (init_mode == 1 && version > 25) {
+        fclose(statefile);
+        statefile = fopen("config/Untitled.f42", "r");
+    }
 
     long w, h;
     skin_load(&w, &h);
@@ -675,6 +679,8 @@ static CLLocationManager *locMgr = NULL;
 /////                   Here beginneth thy olde C code                    /////
 ///////////////////////////////////////////////////////////////////////////////
 
+extern int off_enable_flag;
+
 static int read_shell_state(int *ver) {
     TRACE("read_shell_state");
     int magic;
@@ -744,12 +750,16 @@ static void init_shell_state(int version) {
             state.maintainSkinAspect[1] = 1;
             /* fall through */
         case 5:
-            /* current version (SHELL_VERSION = 5),
+            state.offEnabled = false;
+            /* fall through */
+        case 6:
+            /* current version (SHELL_VERSION = 6),
              * so nothing to do here since everything
              * was initialized from the state file.
              */
             ;
     }
+    off_enable_flag = state.offEnabled ? 1 : 0;
 }
 
 static void quit2(bool really_quit) {
@@ -774,6 +784,9 @@ static void quit2(bool really_quit) {
     statefile = fopen("config/state", "w");
     if (statefile != NULL)
         write_shell_state();
+    if (statefile != NULL)
+        fclose(statefile);
+    statefile = fopen("config/Untitled.f42", "w");
     if (really_quit)
         core_quit();
     else
@@ -882,6 +895,8 @@ static int write_shell_state() {
     int version = FREE42_VERSION;
     int state_size = sizeof(state);
     int state_version = SHELL_VERSION;
+
+    state.offEnabled = off_enable_flag != 0;
     
     if (!shell_write_saved_state(&magic, sizeof(int)))
         return 0;
@@ -1216,16 +1231,6 @@ void shell_print(const char *text, int length,
             print_text_top -= PRINT_TEXT_SIZE;
     }
 }
-
-/*
-int shell_write(const char *buf, int buflen) {
-    return 0;
-}
-
-int shell_read(char *buf, int buflen) {
-    return -1;
-}
-*/
 
 //////////////////////////////////////////////////////////////////////
 /////   Accelerometer, Location Services, and Compass support    /////

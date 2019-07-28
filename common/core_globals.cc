@@ -723,7 +723,7 @@ static bool rtn_integ_active = false;
  * policy, but we allow users to enable it using a magic value
  * in the X register. This flag determines OFF behavior.
  */
-static bool off_enable_flag = false;
+bool off_enable_flag = false;
 #endif
 
 typedef struct {
@@ -1412,10 +1412,6 @@ static bool persist_globals() {
         goto done;
     if (!write_bool(rtn_integ_active))
         goto done;
-#ifdef IPHONE
-    if (!write_bool(off_enable_flag))
-        goto done;
-#endif
     ret = true;
 
     done:
@@ -1757,7 +1753,7 @@ static bool unpersist_globals(int4 ver) {
                 goto done;
     }
 #ifdef IPHONE
-    if (ver >= 17)
+    if (ver >= 17 && ver <= 25)
         if (!read_bool(&off_enable_flag))
             goto done;
 #endif
@@ -3226,7 +3222,7 @@ bool load_state(int4 ver) {
         core_settings.auto_repeat = true;
     else
         if (!read_bool(&core_settings.auto_repeat)) return false;
-    if (ver < 15) {
+    if (ver < 15 || ver > 25) {
         #if defined(ANDROID) || defined(IPHONE)
             core_settings.enable_ext_accel = true;
             core_settings.enable_ext_locat = true;
@@ -3238,25 +3234,26 @@ bool load_state(int4 ver) {
         #endif
         core_settings.enable_ext_time = true;
     } else {
+        bool dummy;
         if (ver < 20) {
-            bool dummy;
             if (!read_bool(&dummy)) return false;
             if (!read_bool(&dummy)) return false;
         }
-        if (!read_bool(&core_settings.enable_ext_accel)) return false;
-        if (!read_bool(&core_settings.enable_ext_locat)) return false;
-        if (!read_bool(&core_settings.enable_ext_heading)) return false;
-        if (!read_bool(&core_settings.enable_ext_time)) return false;
+        if (!read_bool(&dummy)) return false;
+        if (!read_bool(&dummy)) return false;
+        if (!read_bool(&dummy)) return false;
+        if (!read_bool(&dummy)) return false;
     }
     #if defined (FREE42_FPTEST)
         core_settings.enable_ext_fptest = true;
     #else
         core_settings.enable_ext_fptest = false;
     #endif
-    if (ver < 23)
-        core_settings.enable_ext_prog = true;
-    else
-        if (!read_bool(&core_settings.enable_ext_prog)) return false;
+    core_settings.enable_ext_prog = true;
+    if (ver >= 23 || ver <= 25) {
+        bool dummy;
+        if (!read_bool(&dummy)) return false;
+    }
 
     if (!read_bool(&mode_clall)) return false;
     if (!read_bool(&mode_command_entry)) return false;
@@ -3416,11 +3413,6 @@ void save_state() {
     if (!write_bool(core_settings.matrix_singularmatrix)) return;
     if (!write_bool(core_settings.matrix_outofrange)) return;
     if (!write_bool(core_settings.auto_repeat)) return;
-    if (!write_bool(core_settings.enable_ext_accel)) return;
-    if (!write_bool(core_settings.enable_ext_locat)) return;
-    if (!write_bool(core_settings.enable_ext_heading)) return;
-    if (!write_bool(core_settings.enable_ext_time)) return;
-    if (!write_bool(core_settings.enable_ext_prog)) return;
     if (!write_bool(mode_clall)) return;
     if (!write_bool(mode_command_entry)) return;
     if (!write_bool(mode_number_entry)) return;

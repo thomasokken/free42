@@ -306,6 +306,9 @@ static int my_shell_read(char *buf, int buflen) {
 static int (*writer_callback)(const char *buf, int buflen);
 
 int shell_write(const char *buf, int buflen) {
+    if (statefile != NULL)
+        // For writing programs to the state file
+        return shell_write_saved_state(buf, buflen) ? 1 : 0;
     return writer_callback(buf, buflen);
 }
 
@@ -317,10 +320,13 @@ void export_programs(int count, const int *indexes, int (*writer)(const char *bu
 static int (*reader_callback)(char *buf, int buflen);
 
 int shell_read(char *buf, int buflen) {
+    if (statefile != NULL)
+        // For reading programs from the state file
+        return shell_read_saved_state(buf, buflen);
     return reader_callback(buf, buflen);
 }
 
 void import_programs(int (*reader)(char *buf, int buflen)) {
     reader_callback = reader;
-    core_import_programs();
+    core_import_programs(false);
 }

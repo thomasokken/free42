@@ -17,7 +17,7 @@
 
 #import <UIKit/UIKit.h>
 
-#define SHELL_VERSION 5
+#define SHELL_VERSION 6
 #define FILENAMELEN 1024
 
 struct state_type {
@@ -33,9 +33,11 @@ struct state_type {
     int hapticFeedback;
     int orientationMode; // 0=auto 1=portrait 2=landscape
     int maintainSkinAspect[2];
+    bool offEnabled;
 };
 
 extern state_type state;
+extern FILE *statefile;
 
 
 @interface CalcView : UIView <UIActionSheetDelegate> {
