@@ -105,7 +105,7 @@ static int keymap_length = 0;
 static keymap_entry *keymap = NULL;
 
 
-#define SHELL_VERSION 7
+#define SHELL_VERSION 8
 
 typedef struct state {
     BOOL extras;
@@ -123,6 +123,7 @@ typedef struct state {
     BOOL alwaysOnTop;
     BOOL singleInstance;
     BOOL calculatorKey;
+    char coreFileName[FILENAMELEN];
 } state_type;
 
 static state_type state;
@@ -390,6 +391,12 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
     } else {
         init_shell_state(-1);
         init_mode = 0;
+    }
+    if (version > 25) {
+        fclose(statefile);
+        char corefilename[FILENAMELEN];
+        sprintf(corefilename, "%s\\%s.f42", free42dirname, state.coreFileName);
+        statefile = fopen(corefilename, "rb");
     }
 
     if (state.singleInstance) {
@@ -1323,11 +1330,11 @@ static void move_state_file(char *olddir, char *newdir, char *filename) {
     strcat(newfile, "\\");
     strcat(newfile, filename);
 
-    in = fopen(oldfile, "r");
+    in = fopen(oldfile, "rb");
     if (in == NULL)
         return;
     CreateDirectory(newdir, NULL);
-    out = fopen(newfile, "w");
+    out = fopen(newfile, "wb");
     if (out == NULL) {
         fclose(in);
         return;
@@ -1581,6 +1588,11 @@ static void Quit() {
         }
         write_shell_state();
     }
+    if (statefile != NULL)
+        fclose(statefile);
+    char corefilename[FILENAMELEN];
+    sprintf(corefilename, "%s\\%s.f42", free42dirname, state.coreFileName);
+    statefile = fopen(corefilename, "wb");
     core_quit();
     if (statefile != NULL)
         fclose(statefile);
@@ -1741,7 +1753,7 @@ static void import_program() {
         sprintf(buf, "Could not open \"%s\" for reading: %s (%d)", buf, strerror(err), err);
         MessageBox(hMainWnd, buf, "Message", MB_ICONWARNING);
     } else {
-        core_import_programs();
+        core_import_programs(false);
         redisplay();
         if (import_file != NULL) {
             fclose(import_file);
@@ -2439,6 +2451,9 @@ void shell_print(const char *text, int length,
 }
 
 int shell_write(const char *buf, int4 buflen) {
+    if (statefile != NULL)
+        // For writing programs to the state file
+        return shell_write_saved_state(buf, buflen) ? 1 : 0;
     int4 written;
     if (export_file == NULL)
         return 0;
@@ -2455,6 +2470,9 @@ int shell_write(const char *buf, int4 buflen) {
 }
 
 int4 shell_read(char *buf, int4 buflen) {
+    if (statefile != NULL)
+        // For reading programs from the state file
+        return shell_read_saved_state(buf, buflen);
     int4 nread;
     if (import_file == NULL)
         return -1;
@@ -2548,7 +2566,10 @@ static void init_shell_state(int4 version) {
             state.calculatorKey = FALSE;
             // fall through
         case 7:
-            // current version (SHELL_VERSION = 7),
+            strcpy(state.coreFileName, "Untitled");
+            // fall through
+        case 8:
+            // current version (SHELL_VERSION = 8),
             // so nothing to do here since everything
             // was initialized from the state file.
             ;
