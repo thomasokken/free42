@@ -1735,15 +1735,13 @@ static bool unpersist_globals(int4 ver) {
         rtn_level_0_has_matrix_entry = false;
         rtn_stack_capacity = 16;
         rtn_stack = (rtn_stack_entry *) realloc(rtn_stack, rtn_stack_capacity * sizeof(rtn_stack_entry));
-        int4 hi_bit = -1;
-        hi_bit -= ((unsigned int4) hi_bit) >> 1;
         rtn_solve_active = false;
         rtn_integ_active = false;
         for (i = 0; i < 8; i++) {
             int prgm;
             if (shell_read_saved_state(&prgm, sizeof(int)) != sizeof(int))
                 goto done;
-            rtn_stack[i].prgm = prgm & ~hi_bit;
+            rtn_stack[i].prgm = prgm & 0x7fffffff;
             if (i < rtn_sp)
                 if (prgm == -2)
                     rtn_solve_active = true;
@@ -2544,9 +2542,7 @@ int push_rtn_addr(int prgm, int4 pc) {
         rtn_stack_capacity = new_rtn_stack_capacity;
         rtn_stack = new_rtn_stack;
     }
-    int4 hi_bit = -1;
-    hi_bit -= ((unsigned int4) hi_bit) >> 1;
-    rtn_stack[rtn_sp].prgm = prgm & ~hi_bit;
+    rtn_stack[rtn_sp].prgm = prgm & 0x7fffffff;
     rtn_stack[rtn_sp].pc = pc;
     rtn_sp++;
     rtn_level++;
@@ -2588,9 +2584,7 @@ int push_indexed_matrix(const char *name, int len) {
         e2.j = matedit_j;
         memcpy(&rtn_stack[rtn_sp - 2], &e2, sizeof(e2));
     } else {
-        int4 hi_bit = -1;
-        hi_bit -= ((unsigned int4) hi_bit) >> 1;
-        if ((rtn_stack[rtn_sp - 1].prgm & hi_bit) != 0)
+        if ((rtn_stack[rtn_sp - 1].prgm & 0x80000000) != 0)
             return ERR_NONE;
         if (rtn_sp + 2 > rtn_stack_capacity) {
             int new_rtn_stack_capacity = rtn_stack_capacity + 16;
@@ -2602,7 +2596,7 @@ int push_indexed_matrix(const char *name, int len) {
         }
         rtn_sp += 2;
         rtn_stack[rtn_sp - 1] = rtn_stack[rtn_sp - 3];
-        rtn_stack[rtn_sp - 1].prgm |= hi_bit;
+        rtn_stack[rtn_sp - 1].prgm |= 0x80000000;
         rtn_stack_matrix_name_entry e1;
         int dlen;
         string_copy(e1.name, &dlen, name, len);
@@ -2687,12 +2681,10 @@ void pop_rtn_addr(int *prgm, int4 *pc, bool *stop) {
         rtn_sp--;
         rtn_level--;
         int4 tprgm = rtn_stack[rtn_sp].prgm;
-        int4 hi_bit = -1;
-        hi_bit -= ((unsigned int4) hi_bit) >> 1;
-        *prgm = tprgm & ~hi_bit;
+        *prgm = tprgm & 0x7fffffff;
         // Fix sign, or -2 and -3 won't work!
-        if ((tprgm & (hi_bit >> 1)) != 0)
-            *prgm |= hi_bit;
+        if ((tprgm & 0x40000000) != 0)
+            *prgm |= 0x80000000;
         *pc = rtn_stack[rtn_sp].pc;
         if (rtn_stop_level >= rtn_level) {
             *stop = true;
@@ -2703,7 +2695,7 @@ void pop_rtn_addr(int *prgm, int4 *pc, bool *stop) {
             rtn_solve_active = false;
         else if (*prgm == -3)
             rtn_integ_active = false;
-        if ((tprgm & hi_bit) != 0)
+        if ((tprgm & 0x80000000) != 0)
             goto restore_indexed_matrix;
     }
 }
@@ -2726,9 +2718,7 @@ void pop_indexed_matrix(const char *name, int namelen) {
         }
     } else {
         int4 tprgm = rtn_stack[rtn_sp - 1].prgm;
-        int4 hi_bit = -1;
-        hi_bit -= ((unsigned int4) hi_bit) >> 1;
-        if ((tprgm & hi_bit) != 0) {
+        if ((tprgm & 0x80000000) != 0) {
             rtn_stack_matrix_name_entry e1;
             memcpy(&e1, &rtn_stack[rtn_sp - 2], sizeof(e1));
             if (string_equals(e1.name, e1.length, name, namelen)) {
@@ -2738,7 +2728,7 @@ void pop_indexed_matrix(const char *name, int namelen) {
                 matedit_i = e2.i;
                 matedit_j = e2.j;
                 matedit_mode = 1;
-                rtn_stack[rtn_sp - 3].prgm = tprgm & ~hi_bit;
+                rtn_stack[rtn_sp - 3].prgm = tprgm & 0x7fffffff;
                 rtn_stack[rtn_sp - 3].pc = rtn_stack[rtn_sp - 1].pc;
                 rtn_sp -= 2;
             }
@@ -3706,18 +3696,16 @@ static bool convert_programs(bool *clear_stack) {
     }
     int mod_count = 0;
     int sp = rtn_sp;
-    int4 hi_bit = -1;
-    hi_bit -= ((unsigned int4) hi_bit) >> 1;
     if (rtn_solve_active || rtn_integ_active) {
         *clear_stack = true;
     } else {
         for (i = 0; i < rtn_level; i++) {
             sp--;
             int4 prgm = rtn_stack[sp].prgm;
-            mod_prgm[mod_count] = prgm & ~hi_bit;
+            mod_prgm[mod_count] = prgm & 0x7fffffff;
             mod_pc[mod_count] = rtn_stack[sp].pc;
             mod_sp[mod_count] = sp;
-            if ((prgm & hi_bit) != 0)
+            if ((prgm & 0x80000000) != 0)
                 sp -= 2;
             mod_count++;
         }
