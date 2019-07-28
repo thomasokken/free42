@@ -3252,7 +3252,7 @@ bool load_state(int4 ver) {
         core_settings.enable_ext_fptest = false;
     #endif
     core_settings.enable_ext_prog = true;
-    if (ver >= 23 || ver <= 25) {
+    if (ver >= 23 && ver <= 25) {
         bool dummy;
         if (!read_bool(&dummy)) return false;
     }

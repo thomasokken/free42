@@ -2145,7 +2145,7 @@ public class Free42Activity extends Activity {
     public int shell_write(byte[] buf) {
         if (stateFileOutputStream != null)
             // For writing programs to the state file
-            return shell_write_saved_state(buf);
+            return shell_write_saved_state(buf) ? 1 : 0;
         if (programsOutputStream == null)
             return 0;
         try {
