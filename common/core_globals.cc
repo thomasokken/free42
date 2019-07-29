@@ -1699,16 +1699,17 @@ static bool unpersist_globals(int4 ver) {
                 if (matrix_entry_follows) {
                     i++;
                 } else {
-                    int4 p, l;
-                    if (!read_int4(&p) || !read_int4(&l))
+                    int4 tprgm, p, l;
+                    if (!read_int4(&tprgm) || !read_int4(&l))
                         goto done;
-                    matrix_entry_follows = p < 0;
-                    p &= 0x7fffffff;
+                    matrix_entry_follows = tprgm < 0;
+                    p = tprgm & 0x7fffffff;
                     if ((p & 0x40000000) != 0)
                         p |= 0x80000000;
+                    current_prgm = p;
                     if (p >= 0)
                         l = line2pc(l);
-                    rtn_stack[i].prgm = p;
+                    rtn_stack[i].prgm = tprgm;
                     rtn_stack[i].pc = l;
                 }
                 if (matrix_entry_follows) {
