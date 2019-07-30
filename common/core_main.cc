@@ -1614,6 +1614,12 @@ void core_import_programs(int num_progs) {
     int saved_normal = flags.f.normal_print;
     flags.f.trace_print = 0;
     flags.f.normal_print = 0;
+    
+    if (num_progs > 0) {
+        // Loading state file
+        goto_dot_dot(true);
+        first = false;
+    }
 
     while (!done_flag) {
         skip:
