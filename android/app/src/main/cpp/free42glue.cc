@@ -275,7 +275,7 @@ Java_com_thomasokken_free42_Free42Activity_core_1export_1programs(JNIEnv *env, j
 extern "C" void
 Java_com_thomasokken_free42_Free42Activity_core_1import_1programs(JNIEnv *env, jobject thiz) {
     Tracer T("core_import_programs");
-    core_import_programs(false);
+    core_import_programs(0);
 }
 
 extern "C" jstring

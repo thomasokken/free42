@@ -1755,7 +1755,7 @@ static void import_program() {
         sprintf(buf, "Could not open \"%s\" for reading: %s (%d)", buf, strerror(err), err);
         MessageBox(hMainWnd, buf, "Message", MB_ICONWARNING);
     } else {
-        core_import_programs(false);
+        core_import_programs(0);
         redisplay();
         if (import_file != NULL) {
             fclose(import_file);

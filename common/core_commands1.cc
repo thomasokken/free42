@@ -802,7 +802,7 @@ int docmd_clall(arg_struct *arg) {
 
     /* Clear all programs and variables */
     clear_all_prgms();
-    goto_dot_dot();
+    goto_dot_dot(false);
     purge_all_vars();
     regs = new_realmatrix(25, 1);
     store_var("REGS", 4, regs);

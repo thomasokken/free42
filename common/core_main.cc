@@ -1592,10 +1592,9 @@ static phloat parse_number_line(char *buf) {
     return res;
 }
 
-void core_import_programs(bool stop_at_end) {
+void core_import_programs(int num_progs) {
     char buf[1000];
     int i, nread = 0;
-    int need_to_rebuild_label_table = 0;
 
     int pos = 0;
     int byte1, byte2, suffix;
@@ -1603,7 +1602,8 @@ void core_import_programs(bool stop_at_end) {
     int done_flag = 0;
     arg_struct arg;
     int assign = 0;
-    int at_end = 1;
+    bool first = true;
+    bool pending_end = false;
 
     set_running(false);
 
@@ -1738,10 +1738,9 @@ void core_import_programs(bool stop_at_end) {
                     goto done;
                 if (str_len < 0x0F1) {
                     /* END */
-                    if (stop_at_end)
-                        goto done;
-                    at_end = 1;
-                    goto skip;
+                    cmd = CMD_END;
+                    arg.type = ARGTYPE_NONE;
+                    goto store;
                 } else {
                     /* LBL "" */
                     str_len -= 0x0F1;
@@ -1960,16 +1959,26 @@ void core_import_programs(bool stop_at_end) {
             }
         }
         store:
-        if (at_end) {
-            goto_dot_dot();
-            at_end = 0;
+        if (pending_end) {
+            goto_dot_dot(true);
+            first = false;
+            pending_end = false;
         }
-        store_command_after(&pc, cmd, &arg);
-        need_to_rebuild_label_table = 1;
+        if (cmd == CMD_END) {
+            if (num_progs > 0 && --num_progs == 0)
+                break;
+            pending_end = true;
+        } else {
+            if (first) {
+                goto_dot_dot(true);
+                first = false;
+            }
+            store_command_after(&pc, cmd, &arg);
+        }
     }
 
     done:
-    if (need_to_rebuild_label_table) {
+    if (!first) {
         rebuild_label_table();
         update_catalog();
     }
@@ -3164,7 +3173,7 @@ static void paste_programs(const char *buf) {
 
         store:
         if (after_end)
-            goto_dot_dot();
+            goto_dot_dot(false);
         after_end = cmd == CMD_END;
         if (!after_end)
             store_command_after(&pc, cmd, &arg);

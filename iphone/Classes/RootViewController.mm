@@ -328,5 +328,5 @@ int shell_read(char *buf, int buflen) {
 
 void import_programs(int (*reader)(char *buf, int buflen)) {
     reader_callback = reader;
-    core_import_programs(false);
+    core_import_programs(0);
 }

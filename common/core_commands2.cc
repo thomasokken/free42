@@ -1720,7 +1720,7 @@ int docmd_gtodot(arg_struct *arg) {
 }
 
 int docmd_gtodotdot(arg_struct *arg) {
-    goto_dot_dot();
+    goto_dot_dot(false);
     return ERR_NONE;
 }
 

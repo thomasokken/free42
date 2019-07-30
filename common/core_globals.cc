@@ -1567,9 +1567,7 @@ static bool unpersist_globals(int4 ver) {
         goto done;
     }
     if (state_is_portable) {
-        goto_dot_dot();
-        for (int i = 0; i < nprogs; i++)
-            core_import_programs(true);
+        core_import_programs(nprogs);
     } else {
         prgms_count = nprogs;
         prgms = (prgm_struct *) malloc(prgms_count * sizeof(prgm_struct));
@@ -1858,7 +1856,7 @@ int clear_prgm_by_index(int prgm_index) {
     if (prgms_count == 0 || prgm_index == prgms_count) {
         int saved_prgm = current_prgm;
         int saved_pc = pc;
-        goto_dot_dot();
+        goto_dot_dot(false);
         current_prgm = saved_prgm;
         pc = saved_pc;
     }
@@ -1909,10 +1907,10 @@ void clear_prgm_lines(int4 count) {
     clear_all_rtns();
 }
 
-void goto_dot_dot() {
+void goto_dot_dot(bool force_new) {
     int command;
     arg_struct arg;
-    if (prgms_count != 0) {
+    if (prgms_count != 0 && !force_new) {
         /* Check if last program is empty */
         pc = 0;
         current_prgm = prgms_count - 1;
@@ -3529,7 +3527,7 @@ void hard_reset(int bad_state_file) {
         labels_capacity = 0;
         labels_count = 0;
     }
-    goto_dot_dot();
+    goto_dot_dot(false);
 
     pending_command = CMD_NONE;
 

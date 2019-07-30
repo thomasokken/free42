@@ -533,7 +533,7 @@ void clear_all_prgms();
 int clear_prgm(const arg_struct *arg);
 int clear_prgm_by_index(int prgm_index);
 void clear_prgm_lines(int4 count);
-void goto_dot_dot();
+void goto_dot_dot(bool force_new);
 int mvar_prgms_exist();
 int label_has_mvar(int lblindex);
 int get_command_length(int prgm, int4 pc);

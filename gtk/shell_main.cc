@@ -1301,7 +1301,7 @@ static void importProgramCB() {
                     filenamebuf, strerror(err), err);
         show_message("Message", buf);
     } else {
-        core_import_programs(false);
+        core_import_programs(0);
         redisplay();
         if (import_file != NULL) {
             fclose(import_file);
