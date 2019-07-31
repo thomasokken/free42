@@ -686,15 +686,10 @@ int docmd_clv(arg_struct *arg) {
     }
     if (arg->type == ARGTYPE_STR) {
         /* When EDITN is active, don't allow the matrix being
-         * edited to be deleted; when deleting the indexed
-         * matrix, set IJ to (1, 1). */
-        if ((matedit_mode == 1 || matedit_mode == 3)
-                && string_equals(arg->val.text, arg->length, matedit_name, matedit_length)) {
-            if (matedit_mode == 1)
-                matedit_i = matedit_j = 0;
-            else
-                return ERR_RESTRICTED_OPERATION;
-        }
+         * edited to be deleted. */
+        if (matedit_mode == 3
+                && string_equals(arg->val.text, arg->length, matedit_name, matedit_length))
+            return ERR_RESTRICTED_OPERATION;
         purge_var(arg->val.text, arg->length);
         remove_shadow(arg->val.text, arg->length);
         return ERR_NONE;
