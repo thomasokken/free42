@@ -2636,25 +2636,12 @@ static void remove_locals() {
         if (vars[i].level < rtn_level)
             break;
         if ((matedit_mode == 1 || matedit_mode == 3)
-            && string_equals(vars[i].name, vars[i].length, matedit_name, matedit_length)) {
-            if (matedit_mode == 1)
-                matedit_mode = 0;
-            else {
-                int err = set_menu_return_err(MENULEVEL_APP, MENU_NONE, true);
-                if (err != ERR_NONE) {
-                    vartype *tmp = reg_x;
-                    reg_x = NULL;
-                    int saved_trace = flags.f.trace_print;
-                    flags.f.trace_print = 0;
-                    flags.f.stack_lift_disable = 1;
-                    // TODO: Not handling Insufficient Memory here
-                    docmd_rclel(NULL);
-                    flags.f.trace_print = saved_trace;
-                    set_menu_return_err(MENULEVEL_APP, MENU_NONE, true);
-                    free_vartype(reg_x);
-                    reg_x = tmp;
-                }
+                && string_equals(vars[i].name, vars[i].length, matedit_name, matedit_length)) {
+            if (matedit_mode == 3) {
+                set_appmenu_exitcallback(0);
+                set_menu(MENULEVEL_APP, MENU_NONE);
             }
+            matedit_mode = 0;
         }
         if (vars[i].hiding) {
             for (int j = i - 1; j >= 0; j--)
