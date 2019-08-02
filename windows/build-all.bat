@@ -1,5 +1,5 @@
 call vcvars32
-call link-files
+call copy-files
 vcbuild keymap2cpp.vcproj "Release|Win32"
 Release\keymap2cpp
 vcbuild skin2cpp.vcproj "Release|Win32"
