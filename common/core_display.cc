@@ -20,6 +20,7 @@
 
 #include "core_display.h"
 #include "core_commands2.h"
+#include "core_globals.h"
 #include "core_helpers.h"
 #include "core_main.h"
 #include "core_tables.h"
@@ -561,7 +562,7 @@ bool persist_display() {
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 6; j++) {
             if (!write_int(custommenu_length[i][j])) return false;
-            if (!shell_write_saved_state(custommenu_label[i][j], 7)) return false;
+            if (fwrite(custommenu_label[i][j], 1, 7, gfile) != 7) return false;
         }
     }
     for (int i = 0; i < 9; i++)
@@ -571,9 +572,9 @@ bool persist_display() {
         if (!write_int(progmenu_is_gto[i])) return false;
     for (int i = 0; i < 6; i++) {
         if (!write_int(progmenu_length[i])) return false;
-        if (!shell_write_saved_state(progmenu_label[i], 7)) return false;
+        if (fwrite(progmenu_label[i], 1, 7, gfile) != 7) return false;
     }
-    if (!shell_write_saved_state(display, 272))
+    if (fwrite(display, 1, 272, gfile) != 272)
         return false;
     if (!write_int(appmenu_exitcallback)) return false;
     return true;
@@ -591,7 +592,7 @@ bool unpersist_display(int version) {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 6; j++) {
                 if (!read_int(&custommenu_length[i][j])) return false;
-                if (shell_read_saved_state(custommenu_label[i][j], 7) != 7) return false;
+                if (fread(custommenu_label[i][j], 1, 7, gfile) != 7) return false;
             }
         }
         for (int i = 0; i < 9; i++)
@@ -601,24 +602,24 @@ bool unpersist_display(int version) {
             if (!read_int(&progmenu_is_gto[i])) return false;
         for (int i = 0; i < 6; i++) {
             if (!read_int(&progmenu_length[i])) return false;
-            if (shell_read_saved_state(progmenu_label[i], 7) != 7) return false;
+            if (fread(progmenu_label[i], 1, 7, gfile) != 7) return false;
         }
-        if (shell_read_saved_state(display, 272) != 272)
+        if (fread(display, 1, 272, gfile) != 272)
             return false;
         if (!read_int(&appmenu_exitcallback)) return false;
     } else {
         int custommenu_cmd[3][6];
         is_dirty = 0;
-        if (shell_read_saved_state(catalogmenu_section, 5 * sizeof(int))
+        if (fread(catalogmenu_section, 1, 5 * sizeof(int), gfile)
                 != 5 * sizeof(int))
             return false;
-        if (shell_read_saved_state(catalogmenu_rows, 5 * sizeof(int))
+        if (fread(catalogmenu_rows, 1, 5 * sizeof(int), gfile)
                 != 5 * sizeof(int))
             return false;
-        if (shell_read_saved_state(catalogmenu_row, 5 * sizeof(int))
+        if (fread(catalogmenu_row, 1, 5 * sizeof(int), gfile)
                 != 5 * sizeof(int))
             return false;
-        if (shell_read_saved_state(catalogmenu_item, 30 * sizeof(int))
+        if (fread(catalogmenu_item, 1, 30 * sizeof(int), gfile)
                 != 30 * sizeof(int))
             return false;
 
@@ -628,14 +629,14 @@ bool unpersist_display(int version) {
              * the real HP-42S does it and realizing that, for perfect
              * compatibility, I had to do it the same way).
              */
-            if (shell_read_saved_state(custommenu_cmd, 18 * sizeof(int))
+            if (fread(custommenu_cmd, 1, 18 * sizeof(int), gfile)
                     != 18 * sizeof(int))
                 return false;
         }
-        if (shell_read_saved_state(custommenu_length, 18 * sizeof(int))
+        if (fread(custommenu_length, 1, 18 * sizeof(int), gfile)
                 != 18 * sizeof(int))
             return false;
-        if (shell_read_saved_state(custommenu_label, 126)
+        if (fread(custommenu_label, 1, 126, gfile)
                 != 126)
             return false;
         if (version < 7) {
@@ -665,19 +666,19 @@ bool unpersist_display(int version) {
         for (int i = 0; i < 9; i++)
             if (!read_arg(progmenu_arg + i, version < 9))
                 return false;
-        if (shell_read_saved_state(progmenu_is_gto, 9 * sizeof(int))
+        if (fread(progmenu_is_gto, 1, 9 * sizeof(int), gfile)
                 != 9 * sizeof(int))
             return false;
-        if (shell_read_saved_state(progmenu_length, 6 * sizeof(int))
+        if (fread(progmenu_length, 1, 6 * sizeof(int), gfile)
                 != 6 * sizeof(int))
             return false;
-        if (shell_read_saved_state(progmenu_label, 42)
+        if (fread(progmenu_label, 1, 42, gfile)
                 != 42)
             return false;
-        if (shell_read_saved_state(display, 272)
+        if (fread(display, 1, 272, gfile)
                 != 272)
             return false;
-        if (shell_read_saved_state(&appmenu_exitcallback, sizeof(int))
+        if (fread(&appmenu_exitcallback, 1, sizeof(int), gfile)
                 != sizeof(int))
             return false;
     }

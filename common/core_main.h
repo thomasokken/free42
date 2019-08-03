@@ -28,14 +28,15 @@
 /* core_init()
  *
  * This function initializes the emulator core. If the read_state parameter is
- * 1, the core should read saved state using shell_read_saved_state(); if
- * it is 0, or if there is a problem reading the saved state, it should perform
- * a hard reset.
+ * 1, the core should read saved state from the file named by the
+ * state_file_name parameter, reading from the offset indicated by the offset
+ * parameter; if read_state is 0, or if there is a problem reading the saved
+ * state, it should perform a hard reset.
  * If the read_state parameter is 1, the 'version' parameter should contain the
  * state file version number; otherwise its value is not used.
  * This is guaranteed to be the first function called on the emulator core.
  */
-void core_init(int read_state, int4 version);
+void core_init(int read_state, int4 version, const char *state_file_name, int offset);
 
 #if defined(IPHONE) || defined(ANDROID)
 
@@ -47,17 +48,17 @@ void core_init(int read_state, int4 version);
  * the foreground. If the app is killed while in the background, nothing is
  * lost.
  */
-void core_enter_background();
+void core_enter_background(const char *state_file_name);
 
 #endif
 
 /* core_quit()
  *
  * This function shuts down the emulator core. The core should save its state
- * using shell_write_saved_state().
+ * to the file named by the state_file_name parameter.
  * This is guaranteed to be the last function called on the emulator core.
  */
-void core_quit();
+void core_quit(const char *state_file_name);
 
 /* core_repaint_display()
  *
@@ -266,7 +267,7 @@ int4 core_program_size(int prgm_index);
  * 'indexes' parameter is an array of program indexes. The core will pass the
  * raw file data to the shell using the shell_write() function.
  */
-void core_export_programs(int count, const int *indexes);
+void core_export_programs(int count, const int *indexes, const char *raw_file_name);
 
 /* core_import_programs()
  *
@@ -276,7 +277,7 @@ void core_export_programs(int count, const int *indexes);
  * This is set to the number of stored programs if called while reading the
  * state file, and set to 0 if called for user-initiated imports.
  */
-void core_import_programs(int num_progs);
+void core_import_programs(int num_progs, const char *raw_file_name);
 
 /* core_copy()
  *

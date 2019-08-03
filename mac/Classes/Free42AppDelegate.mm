@@ -267,6 +267,8 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
     
     int4 version;
     int init_mode;
+    char core_state_file_name[FILENAMELEN];
+    int core_state_file_offset;
     if (statefilename[0] != 0)
         statefile = fopen(statefilename, "r");
     else
@@ -282,15 +284,17 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
         init_shell_state(-1);
         init_mode = 0;
     }
-    if (init_mode == 1 && version > 25) {
+    if (init_mode == 1) {
+        if (version > 25) {
+            snprintf(core_state_file_name, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreFileName);
+            core_state_file_offset = 0;
+        } else {
+            strcpy(core_state_file_name, statefilename);
+            core_state_file_offset = ftell(statefile);
+        }
         fclose(statefile);
-        char corefilename[FILENAMELEN];
-        snprintf(corefilename, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreFileName);
-        statefile = fopen(corefilename, "r");
-        if (statefile == NULL)
-            init_mode = 0;
     }
-    
+
 #ifdef BCD_MATH
     [mainWindow setTitle:@"Free42 Decimal"];
 #else
@@ -330,11 +334,7 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
         [mainWindow makeKeyAndOrderFront:self];
     }
     
-    core_init(init_mode, version);
-    if (statefile != NULL) {
-        fclose(statefile);
-        statefile = NULL;
-    }
+    core_init(init_mode, version, core_state_file_name, core_state_file_offset);
     if (core_powercycle())
         [self startRunner];
     
@@ -423,16 +423,13 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
     state.printWindowHeight = (int) [[printWindow contentView] frame].size.height;
     state.printWindowKnown = 1;
     statefile = fopen(statefilename, "w");
-    if (statefile != NULL)
+    if (statefile != NULL) {
         write_shell_state();
-    if (statefile != NULL)
         fclose(statefile);
+    }
     char corefilename[FILENAMELEN];
     snprintf(corefilename, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreFileName);
-    statefile = fopen(corefilename, "w");
-    core_quit();
-    if (statefile != NULL)
-        fclose(statefile);
+    core_quit(corefilename);
 }
 
 - (void)windowWillClose:(NSNotification *)notification {
@@ -553,21 +550,8 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
             NSString* fileName = [paths objectAtIndex:i];
             char cFileName[1024];
             [fileName getCString:cFileName maxLength:1024 encoding:NSUTF8StringEncoding];
-            import_file = fopen(cFileName, "r");
-            if (import_file == NULL) {
-                char buf[1000];
-                int err = errno;
-                snprintf(buf, 1000, "Could not open \"%s\" for reading:\n%s (%d)",
-                         cFileName, strerror(err), err);
-                show_message("Message", buf);
-            } else {
-                core_import_programs(0);
-                redisplay();
-                if (import_file != NULL) {
-                    fclose(import_file);
-                    import_file = NULL;
-                }
-            }
+            core_import_programs(0, cFileName);
+            redisplay();
         }
     }
 }
@@ -603,26 +587,13 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
         NSString *fileName = [saveDlg path];
         char cFileName[1024];
         [fileName getCString:cFileName maxLength:1024 encoding:NSUTF8StringEncoding];
-        export_file = fopen(cFileName, "w");
-        if (export_file == NULL) {
-            char buf[1000];
-            int err = errno;
-            snprintf(buf, 1000, "Could not open \"%s\" for writing:\n%s (%d)",
-                     cFileName, strerror(err), err);
-            show_message("Message", buf);
-        } else {
-            int *indexes = (int *) malloc(count * sizeof(int));
-            int selectionSize = 0;
-            for (int i = 0; i < count; i++)
-                if (selection[i])
-                    indexes[selectionSize++] = i;
-            core_export_programs(selectionSize, indexes);
-            free(indexes);
-            if (export_file != NULL) {
-                fclose(export_file);
-                export_file = NULL;
-            }
-        }
+        int *indexes = (int *) malloc(count * sizeof(int));
+        int selectionSize = 0;
+        for (int i = 0; i < count; i++)
+            if (selection[i])
+                indexes[selectionSize++] = i;
+        core_export_programs(selectionSize, indexes, cFileName);
+        free(indexes);
     }
 }
 
@@ -1372,6 +1343,10 @@ static void show_message(const char *title, const char *message) {
     [alert runModal];
 }
 
+void shell_message(const char *message) {
+    show_message("Core", message);
+}
+
 int8 shell_random_seed() {
     struct timeval tv;
     gettimeofday(&tv, NULL);
@@ -1636,39 +1611,7 @@ void shell_request_timeout3(int delay) {
     [instance performSelectorOnMainThread:@selector(shell_request_timeout3_helper) withObject:NULL waitUntilDone:NO];
 }
 
-int4 shell_read_saved_state(void *buf, int4 bufsize) {
-    if (statefile == NULL)
-        return -1;
-    else {
-        int4 n = fread(buf, 1, bufsize, statefile);
-        if (n != bufsize && ferror(statefile)) {
-            fclose(statefile);
-            statefile = NULL;
-            return -1;
-        } else
-            return n;
-    }
-}
-
-bool shell_write_saved_state(const void *buf, int4 nbytes) {
-    if (statefile == NULL)
-        return false;
-    else {
-        int4 n = fwrite(buf, 1, nbytes, statefile);
-        if (n != nbytes) {
-            fclose(statefile);
-            remove(statefilename);
-            statefile = NULL;
-            return false;
-        } else
-            return true;
-    }
-}
-
 int shell_write(const char *buf, int4 buflen) {
-    if (statefile != NULL)
-        // For writing programs to the state file
-        return shell_write_saved_state(buf, buflen) ? 1 : 0;
     int4 written;
     if (export_file == NULL)
         return 0;
@@ -1685,9 +1628,6 @@ int shell_write(const char *buf, int4 buflen) {
 }
 
 int shell_read(char *buf, int4 buflen) {
-    if (statefile != NULL)
-        // For reading programs from the state file
-        return shell_read_saved_state(buf, buflen);
     int4 nread;
     if (import_file == NULL)
         return -1;
@@ -1780,12 +1720,12 @@ static int read_shell_state(int4 *ver) {
     int4 state_size;
     int4 state_version;
     
-    if (shell_read_saved_state(&magic, sizeof(int4)) != sizeof(int4))
+    if (fread(&magic, 1, sizeof(int4), statefile) != sizeof(int4))
         return 0;
     if (magic != FREE42_MAGIC)
         return 0;
     
-    if (shell_read_saved_state(&version, sizeof(int4)) != sizeof(int4))
+    if (fread(&version, 1, sizeof(int4), statefile) != sizeof(int4))
         return 0;
     if (version == 0) {
         /* State file version 0 does not contain shell state,
@@ -1798,14 +1738,14 @@ static int read_shell_state(int4 *ver) {
     /* Unknown state file version */
         return 0;
     
-    if (shell_read_saved_state(&state_size, sizeof(int4)) != sizeof(int4))
+    if (fread(&state_size, 1, sizeof(int4), statefile) != sizeof(int4))
         return 0;
-    if (shell_read_saved_state(&state_version, sizeof(int4)) != sizeof(int4))
+    if (fread(&state_version, 1, sizeof(int4), statefile) != sizeof(int4))
         return 0;
     if (state_version < 0 || state_version > SHELL_VERSION)
     /* Unknown shell state version */
         return 0;
-    if (shell_read_saved_state(&state, state_size) != state_size)
+    if (fread(&state, 1, state_size, statefile) != state_size)
         return 0;
     
     init_shell_state(state_version);
@@ -1819,15 +1759,15 @@ static int write_shell_state() {
     int4 state_size = sizeof(state_type);
     int4 state_version = SHELL_VERSION;
     
-    if (!shell_write_saved_state(&magic, sizeof(int4)))
+    if (fwrite(&magic, 1, sizeof(int4), statefile) != sizeof(int4))
         return 0;
-    if (!shell_write_saved_state(&version, sizeof(int4)))
+    if (fwrite(&version, 1, sizeof(int4), statefile) != sizeof(int4))
         return 0;
-    if (!shell_write_saved_state(&state_size, sizeof(int4)))
+    if (fwrite(&state_size, 1, sizeof(int4), statefile) != sizeof(int4))
         return 0;
-    if (!shell_write_saved_state(&state_version, sizeof(int4)))
+    if (fwrite(&state_version, 1, sizeof(int4), statefile) != sizeof(int4))
         return 0;
-    if (!shell_write_saved_state(&state, sizeof(state_type)))
+    if (fwrite(&state, 1, sizeof(state_type), statefile) != sizeof(state_type))
         return 0;
     
     return 1;

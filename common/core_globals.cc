@@ -35,6 +35,10 @@
 #include "bid_functions.h"
 #endif
 
+// File used for reading and writing the state file, and for importing and
+// exporting programs. Since only one of these operations can be active at one
+// time, having one FILE pointer for all of them is sufficient.
+FILE *gfile = NULL;
 
 error_spec errors[] = {
     { /* NONE */                   NULL,                       0 },
@@ -792,7 +796,7 @@ static bool persist_vartype(vartype *v) {
         case TYPE_STRING: {
             vartype_string *s = (vartype_string *) v;
             return write_char(s->length)
-                && shell_write_saved_state(s->text, s->length);
+                && fwrite(s->text, 1, s->length, gfile) == s->length;
         }
         case TYPE_REALMATRIX: {
             vartype_realmatrix *rm = (vartype_realmatrix *) v;
@@ -819,12 +823,12 @@ static bool persist_vartype(vartype *v) {
             write_int4(columns);
             if (must_write) {
                 int size = rm->rows * rm->columns;
-                if (!shell_write_saved_state(rm->array->is_string, size))
+                if (fwrite(rm->array->is_string, 1, size, gfile) != size)
                     return false;
                 for (int i = 0; i < size; i++) {
                     if (rm->array->is_string[i]) {
                         char *str = (char *) &rm->array->data[i];
-                        if (!shell_write_saved_state(str, str[0] + 1))
+                        if (fwrite(str, 1, str[0] + 1, gfile) != str[0] + 1)
                             return false;
                     } else {
                         if (!write_phloat(rm->array->data[i]))
@@ -916,7 +920,7 @@ static bool unpersist_vartype(vartype **v, bool padded) {
                 if (s == NULL)
                     return false;
                 char len;
-                if (!read_char(&len) || !shell_read_saved_state(s->text, len)) {
+                if (!read_char(&len) || !fread(s->text, 1, len, gfile)) {
                     free_vartype((vartype *) s);
                     return false;
                 }
@@ -945,7 +949,7 @@ static bool unpersist_vartype(vartype **v, bool padded) {
                 if (rm == NULL)
                     return false;
                 int4 size = rows * columns;
-                if (shell_read_saved_state(rm->array->is_string, size) != size) {
+                if (fread(rm->array->is_string, 1, size, gfile) != size) {
                     free_vartype((vartype *) rm);
                     return false;
                 }
@@ -959,7 +963,7 @@ static bool unpersist_vartype(vartype **v, bool padded) {
                         }
                         char *dst = (char *) &rm->array->data[i];
                         *dst++ = len;
-                        if (shell_read_saved_state(dst, len) != len) {
+                        if (fread(dst, 1, len, gfile) != len) {
                             success = false;
                             break;
                         }
@@ -1028,7 +1032,7 @@ static bool unpersist_vartype(vartype **v, bool padded) {
     
     // !state_is_portable
     int type;
-    if (shell_read_saved_state(&type, sizeof(int)) != sizeof(int))
+    if (fread(&type, 1, sizeof(int), gfile) != sizeof(int))
         return false;
     switch (type) {
         case TYPE_NULL: {
@@ -1043,20 +1047,20 @@ static bool unpersist_vartype(vartype **v, bool padded) {
                 #ifdef BCD_MATH
                     if (padded) {
                         int4 dummy;
-                        if (shell_read_saved_state(&dummy, 4) != 4) {
+                        if (fread(&dummy, 1, 4, gfile) != 4) {
                             free_vartype((vartype *) r);
                             return false;
                         }
                     }
                     double x;
-                    if (shell_read_saved_state(&x, 8) != 8) {
+                    if (fread(&x, 1, 8, gfile) != 8) {
                         free_vartype((vartype *) r);
                         return false;
                     }
                     r->x = x;
                 #else
                     BID_UINT128 x;
-                    if (shell_read_saved_state(&x, 16) != 16) {
+                    if (fread(&x, 1, 16, gfile) != 16) {
                         free_vartype((vartype *) r);
                         return false;
                     }
@@ -1066,13 +1070,13 @@ static bool unpersist_vartype(vartype **v, bool padded) {
                 #ifndef BCD_MATH
                     if (padded) {
                         int4 dummy;
-                        if (shell_read_saved_state(&dummy, 4) != 4) {
+                        if (fread(&dummy, 1, 4, gfile) != 4) {
                             free_vartype((vartype *) r);
                             return false;
                         }
                     }
                 #endif
-                if (shell_read_saved_state(&r->x, sizeof(phloat))
+                if (fread(&r->x, 1, sizeof(phloat), gfile)
                         != sizeof(phloat)) {
                     free_vartype((vartype *) r);
                     return false;
@@ -1092,13 +1096,13 @@ static bool unpersist_vartype(vartype **v, bool padded) {
                 #ifdef BCD_MATH
                     if (padded) {
                         int4 dummy;
-                        if (shell_read_saved_state(&dummy, 4) != 4) {
+                        if (fread(&dummy, 1, 4, gfile) != 4) {
                             free_vartype((vartype *) c);
                             return false;
                         }
                     }
                     double parts[2];
-                    if (shell_read_saved_state(parts, 16) != 16) {
+                    if (fread(parts, 1, 16, gfile) != 16) {
                         free_vartype((vartype *) c);
                         return false;
                     }
@@ -1106,7 +1110,7 @@ static bool unpersist_vartype(vartype **v, bool padded) {
                     c->im = parts[1];
                 #else
                     BID_UINT128 parts[2];
-                    if (shell_read_saved_state(parts, 32) != 32) {
+                    if (fread(parts, 1, 32, gfile) != 32) {
                         free_vartype((vartype *) c);
                         return false;
                     }
@@ -1117,13 +1121,13 @@ static bool unpersist_vartype(vartype **v, bool padded) {
                 #ifndef BCD_MATH
                     if (padded) {
                         int4 dummy;
-                        if (shell_read_saved_state(&dummy, 4) != 4) {
+                        if (fread(&dummy, 1, 4, gfile) != 4) {
                             free_vartype((vartype *) c);
                             return false;
                         }
                     }
                 #endif
-                if (shell_read_saved_state(&c->re, 2 * sizeof(phloat))
+                if (fread(&c->re, 1, 2 * sizeof(phloat), gfile)
                         != 2 * sizeof(phloat)) {
                     free_vartype((vartype *) c);
                     return false;
@@ -1141,7 +1145,7 @@ static bool unpersist_vartype(vartype **v, bool padded) {
             int n = sizeof(vartype_string) - sizeof(int);
             if (s == NULL)
                 return false;
-            if (shell_read_saved_state(&s->type + 1, n) != n) {
+            if (fread(&s->type + 1, 1, n, gfile) != n) {
                 free_vartype((vartype *) s);
                 return false;
             } else {
@@ -1152,7 +1156,7 @@ static bool unpersist_vartype(vartype **v, bool padded) {
         case TYPE_REALMATRIX: {
             matrix_persister mp;
             int n = sizeof(matrix_persister) - sizeof(int);
-            if (shell_read_saved_state(&mp.type + 1, n) != n)
+            if (fread(&mp.type + 1, 1, n, gfile) != n)
                 return false;
             if (mp.rows == 0) {
                 // Shared matrix
@@ -1183,12 +1187,12 @@ static bool unpersist_vartype(vartype **v, bool padded) {
                     free_vartype((vartype *) rm);
                     return false;
                 }
-                if (shell_read_saved_state(temp, tsz) != tsz) {
+                if (fread(temp, 1, tsz, gfile) != tsz) {
                     free(temp);
                     free_vartype((vartype *) rm);
                     return false;
                 }
-                if (shell_read_saved_state(rm->array->is_string, size) != size) {
+                if (fread(rm->array->is_string, 1, size, gfile) != size) {
                     free(temp);
                     free_vartype((vartype *) rm);
                     return false;
@@ -1219,12 +1223,12 @@ static bool unpersist_vartype(vartype **v, bool padded) {
                 free(temp);
             } else {
                 int4 size = mp.rows * mp.columns * sizeof(phloat);
-                if (shell_read_saved_state(rm->array->data, size) != size) {
+                if (fread(rm->array->data, 1, size, gfile) != size) {
                     free_vartype((vartype *) rm);
                     return false;
                 }
                 size = mp.rows * mp.columns;
-                if (shell_read_saved_state(rm->array->is_string, size) != size) {
+                if (fread(rm->array->is_string, 1, size, gfile) != size) {
                     free_vartype((vartype *) rm);
                     return false;
                 }
@@ -1248,7 +1252,7 @@ static bool unpersist_vartype(vartype **v, bool padded) {
         case TYPE_COMPLEXMATRIX: {
             matrix_persister mp;
             int n = sizeof(matrix_persister) - sizeof(int);
-            if (shell_read_saved_state(&mp.type + 1, n) != n)
+            if (fread(&mp.type + 1, 1, n, gfile) != n)
                 return false;
             if (mp.rows == 0) {
                 // Shared matrix
@@ -1276,7 +1280,7 @@ static bool unpersist_vartype(vartype **v, bool padded) {
                     }
             } else {
                 int4 size = 2 * mp.rows * mp.columns * sizeof(phloat);
-                if (shell_read_saved_state(cm->array->data, size) != size) {
+                if (fread(cm->array->data, 1, size, gfile) != size) {
                     free_vartype((vartype *) cm);
                     return false;
                 }
@@ -1322,7 +1326,7 @@ static bool persist_globals() {
         goto done;
     if (!write_int(reg_alpha_length))
         goto done;
-    if (!shell_write_saved_state(reg_alpha, 44))
+    if (fwrite(reg_alpha, 1, 44, gfile) != 44)
         goto done;
     if (!write_int4(mode_sigma_reg))
         goto done;
@@ -1334,12 +1338,12 @@ static bool persist_globals() {
         goto done;
     if (!write_int(mode_wsize))
         goto done;
-    if (!shell_write_saved_state(&flags, sizeof(flags_struct)))
+    if (fwrite(&flags, 1, sizeof(flags_struct), gfile) != sizeof(flags_struct))
         goto done;
     if (!write_int(prgms_count))
         goto done;
     for (i = 0; i < prgms_count; i++)
-        core_export_programs(1, &i);
+        core_export_programs(1, &i, NULL);
     if (!write_int(current_prgm))
         goto done;
     if (!write_int4(pc2line(pc)))
@@ -1350,7 +1354,7 @@ static bool persist_globals() {
         goto done;
     for (i = 0; i < vars_count; i++) {
         if (!write_char(vars[i].length)
-            || !shell_write_saved_state(vars[i].name, vars[i].length)
+            || fwrite(vars[i].name, 1, vars[i].length, gfile) != vars[i].length
             || !write_int2(vars[i].level)
             || !write_bool(vars[i].hidden)
             || !write_bool(vars[i].hiding)
@@ -1359,7 +1363,7 @@ static bool persist_globals() {
     }
     if (!write_int(varmenu_length))
         goto done;
-    if (!shell_write_saved_state(varmenu, 7))
+    if (fwrite(varmenu, 1, 7, gfile) != 7)
         goto done;
     if (!write_int(varmenu_rows))
         goto done;
@@ -1367,7 +1371,7 @@ static bool persist_globals() {
         goto done;
     for (i = 0; i < 6; i++)
         if (!write_char(varmenu_labellength[i])
-                || !shell_write_saved_state(varmenu_labeltext[i], varmenu_labellength[i]))
+                || fwrite(varmenu_labeltext[i], 1, varmenu_labellength[i], gfile) != varmenu_labellength[i])
             goto done;
     if (!write_int(varmenu_role))
         goto done;
@@ -1401,7 +1405,7 @@ static bool persist_globals() {
             rtn_stack_matrix_name_entry *e1 = (rtn_stack_matrix_name_entry *) &rtn_stack[--i];
             rtn_stack_matrix_ij_entry *e2 = (rtn_stack_matrix_ij_entry *) &rtn_stack[--i];
             if (!write_char(e1->length)
-                    || !shell_write_saved_state(e1->name, e1->length)
+                    || fwrite(e1->name, 1, e1->length, gfile) != e1->length
                     || !write_int4(e2->i)
                     || !write_int4(e2->j))
                 goto done;
@@ -1465,7 +1469,7 @@ static bool unpersist_globals(int4 ver) {
         reg_alpha_length = 0;
         goto done;
     }
-    if (shell_read_saved_state(reg_alpha, 44) != 44) {
+    if (fread(reg_alpha, 1, 44, gfile) != 44) {
         reg_alpha_length = 0;
         goto done;
     }
@@ -1503,7 +1507,7 @@ static bool unpersist_globals(int4 ver) {
         }
     } else
         mode_wsize = 36;
-    if (shell_read_saved_state(&flags, sizeof(flags_struct))
+    if (fread(&flags, 1, sizeof(flags_struct), gfile)
             != sizeof(flags_struct))
         goto done;
     if (tmp_dmy != 2)
@@ -1529,7 +1533,7 @@ static bool unpersist_globals(int4 ver) {
             goto done;
         }
         for (i = 0; i < vars_count; i++)
-            if (shell_read_saved_state(vars + i, 12) != 12) {
+            if (fread(vars + i, 1, 12, gfile) != 12) {
                 free(vars);
                 vars = NULL;
                 vars_count = 0;
@@ -1567,7 +1571,7 @@ static bool unpersist_globals(int4 ver) {
         goto done;
     }
     if (state_is_portable) {
-        core_import_programs(nprogs);
+        core_import_programs(nprogs, NULL);
     } else {
         prgms_count = nprogs;
         prgms = (prgm_struct *) malloc(prgms_count * sizeof(prgm_struct));
@@ -1576,7 +1580,7 @@ static bool unpersist_globals(int4 ver) {
             goto done;
         }
         for (i = 0; i < prgms_count; i++)
-            if (shell_read_saved_state(prgms + i, sizeof(prgm_struct_32bit)) != sizeof(prgm_struct_32bit)) {
+            if (fread(prgms + i, 1, sizeof(prgm_struct_32bit), gfile) != sizeof(prgm_struct_32bit)) {
                 free(prgms);
                 prgms = NULL;
                 prgms_count = 0;
@@ -1589,7 +1593,7 @@ static bool unpersist_globals(int4 ver) {
             // TODO - handle memory allocation failure
         }
         for (i = 0; i < prgms_count; i++) {
-            if (shell_read_saved_state(prgms[i].text, prgms[i].size)
+            if (fread(prgms[i].text, 1, prgms[i].size, gfile)
                     != prgms[i].size) {
                 clear_all_prgms();
                 goto done;
@@ -1630,7 +1634,7 @@ static bool unpersist_globals(int4 ver) {
         }
         for (i = 0; i < vars_count; i++) {
             if (!read_char((char *) &vars[i].length)
-                || shell_read_saved_state(vars[i].name, vars[i].length) != vars[i].length
+                || fread(vars[i].name, 1, vars[i].length, gfile) != vars[i].length
                 || !read_int2(&vars[i].level)
                 || !read_bool(&vars[i].hidden)
                 || !read_bool(&vars[i].hiding)
@@ -1650,7 +1654,7 @@ static bool unpersist_globals(int4 ver) {
         varmenu_length = 0;
         goto done;
     }
-    if (shell_read_saved_state(varmenu, 7) != 7) {
+    if (fread(varmenu, 1, 7, gfile) != 7) {
         varmenu_length = 0;
         goto done;
     }
@@ -1666,15 +1670,15 @@ static bool unpersist_globals(int4 ver) {
         char c;
         for (i = 0; i < 6; i++) {
             if (!read_char(&c)
-                    || shell_read_saved_state(varmenu_labeltext[i], c) != c)
+                    || fread(varmenu_labeltext[i], 1, c, gfile) != c)
                 goto done;
             varmenu_labellength[i] = c;
         }
     } else {
-        if (shell_read_saved_state(varmenu_labellength, 6 * sizeof(int))
+        if (fread(varmenu_labellength, 1, 6 * sizeof(int), gfile)
                 != 6 * sizeof(int))
             goto done;
-        if (shell_read_saved_state(varmenu_labeltext, 42) != 42)
+        if (fread(varmenu_labeltext, 1, 42, gfile) != 42)
             goto done;
     }
     if (!read_int(&varmenu_role))
@@ -1714,7 +1718,7 @@ static bool unpersist_globals(int4 ver) {
                     rtn_stack_matrix_name_entry *e1 = (rtn_stack_matrix_name_entry *) &rtn_stack[--i];
                     rtn_stack_matrix_ij_entry *e2 = (rtn_stack_matrix_ij_entry *) &rtn_stack[--i];
                     if (!read_char((char *) &e1->length)
-                            || shell_read_saved_state(e1->name, e1->length) != e1->length
+                            || fread(e1->name, 1, e1->length, gfile) != e1->length
                             || !read_int4(&e2->i)
                             || !read_int4(&e2->j))
                         goto done;
@@ -1723,7 +1727,7 @@ static bool unpersist_globals(int4 ver) {
             current_prgm = saved_prgm;
         } else {
             int sz = rtn_sp * sizeof(rtn_stack_entry);
-            if (shell_read_saved_state(rtn_stack, sz) != sz)
+            if (fread(rtn_stack, 1, sz, gfile) != sz)
                 goto done;
         }
         if (!read_bool(&rtn_solve_active))
@@ -1739,7 +1743,7 @@ static bool unpersist_globals(int4 ver) {
         rtn_integ_active = false;
         for (i = 0; i < 8; i++) {
             int prgm;
-            if (shell_read_saved_state(&prgm, sizeof(int)) != sizeof(int))
+            if (fread(&prgm, 1, sizeof(int), gfile) != sizeof(int))
                 goto done;
             rtn_stack[i].prgm = prgm & 0x7fffffff;
             if (i < rtn_sp)
@@ -1749,7 +1753,7 @@ static bool unpersist_globals(int4 ver) {
                     rtn_integ_active = true;
         }
         for (i = 0; i < 8; i++)
-            if (shell_read_saved_state(&rtn_stack[i].pc, sizeof(int4)) != sizeof(int4))
+            if (fread(&rtn_stack[i].pc, 1, sizeof(int4), gfile) != sizeof(int4))
                 goto done;
     }
 #ifdef IPHONE
@@ -2785,20 +2789,22 @@ bool read_bool(bool *b) {
         *b = t != 0;
         return true;
     } else {
-        return shell_read_saved_state(b, 1) == 1;
+        return read_char((char *) b);
     }
 }
 
 bool write_bool(bool b) {
-    return shell_write_saved_state(&b, 1);
+    return fputc((char) b, gfile) != EOF;
 }
 
 bool read_char(char *c) {
-    return shell_read_saved_state(c, 1) == 1;
+    int i = fgetc(gfile);
+    *c = (char) i;
+    return i != EOF;
 }
 
 bool write_char(char c) {
-    return shell_write_saved_state(&c, 1);
+    return fputc(c, gfile) != EOF;
 }
 
 bool read_int(int *n) {
@@ -2809,7 +2815,7 @@ bool read_int(int *n) {
         *n = (int) m;
         return true;
     } else
-        return shell_read_saved_state(n, sizeof(int)) == sizeof(int);
+        return fread(n, 1, sizeof(int), gfile) == sizeof(int);
 }
 
 bool write_int(int n) {
@@ -2820,7 +2826,7 @@ bool read_int2(int2 *n) {
     #ifdef F42_BIG_ENDIAN
         if (state_is_portable) {
             char buf[2];
-            if (shell_read_saved_state(buf, 2) != 2)
+            if (fread(buf, 1, 2, gfile) != 2)
                 return false;
             char *dst = (char *) n;
             for (int i = 0; i < 2; i++)
@@ -2828,7 +2834,7 @@ bool read_int2(int2 *n) {
             return true;
         }
     #endif
-        return shell_read_saved_state(n, 2) == 2;
+        return fread(n, 1, 2, gfile) == 2;
 }
 
 bool write_int2(int2 n) {
@@ -2837,9 +2843,9 @@ bool write_int2(int2 n) {
         char *src = (char *) &n;
         for (int i = 0; i < 2; i++)
             buf[i] = src[1 - i];
-        return shell_write_saved_state(buf, 2);
+        return fwrite(buf, 1, 2, gfile) == 2;
     #else
-        return shell_write_saved_state(&n, 2);
+        return fwrite(&n, 1, 2, gfile) == 2;
     #endif
 }
 
@@ -2847,7 +2853,7 @@ bool read_int4(int4 *n) {
     #ifdef F42_BIG_ENDIAN
         if (state_is_portable) {
             char buf[4];
-            if (shell_read_saved_state(buf, 4) != 4)
+            if (fread(buf, 1, 4, gfile) != 4)
                 return false;
             char *dst = (char *) n;
             for (int i = 0; i < 4; i++)
@@ -2855,7 +2861,7 @@ bool read_int4(int4 *n) {
             return true;
         }
     #endif
-        return shell_read_saved_state(n, 4) == 4;
+        return fread(n, 1, 4, gfile) == 4;
 }
 
 bool write_int4(int4 n) {
@@ -2864,9 +2870,9 @@ bool write_int4(int4 n) {
         char *src = (char *) &n;
         for (int i = 0; i < 4; i++)
             buf[i] = src[3 - i];
-        return shell_write_saved_state(buf, 4);
+        return fwrite(buf, 1, 4, gfile) == 4;
     #else
-        return shell_write_saved_state(&n, 4);
+        return fwrite(&n, 1, 4, gfile) == 4;
     #endif
 }
 
@@ -2874,7 +2880,7 @@ bool read_int8(int8 *n) {
     #ifdef F42_BIG_ENDIAN
         if (state_is_portable) {
             char buf[8];
-            if (shell_read_saved_state(buf, 8) != 8)
+            if (fread(buf, 1, 8, gfile) != 8)
                 return false;
             char *dst = (char *) n;
             for (int i = 0; i < 8; i++)
@@ -2882,7 +2888,7 @@ bool read_int8(int8 *n) {
             return true;
         }
     #endif
-    return shell_read_saved_state(n, 8) == 8;
+    return fread(n, 1, 8, gfile) == 8;
 }
 
 bool write_int8(int8 n) {
@@ -2891,9 +2897,9 @@ bool write_int8(int8 n) {
         char *src = (char *) &n;
         for (int i = 0; i < 8; i++)
             buf[i] = src[7 - i];
-        return shell_write_saved_state(buf, 8);
+        return fwrite(buf, 1, 8, gfile) == 8;
     #else
-        return shell_write_saved_state(&n, 8);
+        return fwrite(&n, 1, 8, gfile) == 8;
     #endif
 }
 
@@ -2903,7 +2909,7 @@ bool read_phloat(phloat *d) {
             if (state_is_portable) {
                 #ifdef BCD_MATH
                     char buf[8];
-                    if (shell_read_saved_state(buf, 8) != 8)
+                    if (fread(buf, 1, 8, gfile) != 8)
                         return false;
                     double dbl;
                     char *dst = (char *) &dbl;
@@ -2913,7 +2919,7 @@ bool read_phloat(phloat *d) {
                     return true;
                 #else
                     char buf[16], data[16];
-                    if (shell_read_saved_state(buf, 16) != 16)
+                    if (fread(buf, 1, 16, gfile) != 16)
                         return false;
                     for (int i = 0; i < 16; i++)
                         data[i] = buf[15 - i];
@@ -2924,13 +2930,13 @@ bool read_phloat(phloat *d) {
         #endif
         #ifdef BCD_MATH
             double dbl;
-            if (shell_read_saved_state(&dbl, 8) != 8)
+            if (fread(&dbl, 1, 8, gfile) != 8)
                 return false;
             *d = dbl;
             return true;
         #else
             char data[16];
-            if (shell_read_saved_state(data, 16) != 16)
+            if (fread(data, 1, 16, gfile) != 16)
                 return false;
             *d = decimal2double(data);
             return true;
@@ -2940,7 +2946,7 @@ bool read_phloat(phloat *d) {
             if (state_is_portable) {
                 #ifdef BCD_MATH
                     char buf[16];
-                    if (shell_read_saved_state(buf, 16) != 16)
+                    if (fread(buf, 1, 16, gfile) != 16)
                         return false;
                     char *dst = (char *) d;
                     for (int i = 0; i < 16; i++)
@@ -2949,7 +2955,7 @@ bool read_phloat(phloat *d) {
                     return true;
                 #else
                     char buf[8];
-                    if (shell_read_saved_state(buf, 8) != 8)
+                    if (fread(buf, 1, 8, gfile) != 8)
                         return false;
                     char *dst = (char *) d;
                     for (int i = 0; i < 8; i++)
@@ -2958,7 +2964,7 @@ bool read_phloat(phloat *d) {
                 #endif
             }
         #endif
-        if (shell_read_saved_state(d, sizeof(phloat)) != sizeof(phloat))
+        if (fread(d, 1, sizeof(phloat), gfile) != sizeof(phloat))
             return false;
         #ifdef BCD_MATH
             update_decimal(&d->val);
@@ -2974,16 +2980,16 @@ bool write_phloat(phloat d) {
             char *src = (char *) &d;
             for (int i = 0; i < 16; i++)
                 buf[i] = src[15 - i];
-            return shell_write_saved_state(buf, 16);
+            return fwrite(buf, 1, 16, gfile) == 16;
         #else
             char buf[8];
             char *src = (char *) &d;
             for (int i = 0; i < 8; i++)
                 buf[i] = src[7 - i];
-            return shell_write_saved_state(buf, 8);
+            return fwrite(buf, 1, 8, gfile) == 8;
         #endif
     #else
-        return shell_write_saved_state(&d, sizeof(phloat));
+        return fwrite(&d, 1, sizeof(phloat), gfile) == sizeof(phloat);
     #endif
 }
 
@@ -3033,7 +3039,7 @@ bool read_arg(arg_struct *arg, bool old) {
             case ARGTYPE_STR:
             case ARGTYPE_IND_STR:
                 return read_char((char *) &arg->length)
-                && shell_read_saved_state(arg->val.text, arg->length) == arg->length;
+                && fread(arg->val.text, 1, arg->length, gfile) == arg->length;
             case ARGTYPE_COMMAND:
                 return read_int(&arg->val.cmd);
             case ARGTYPE_LCLBL:
@@ -3069,7 +3075,7 @@ bool read_arg(arg_struct *arg, bool old) {
                 double d;
             } val;
         } old_arg;
-        if (shell_read_saved_state(&old_arg, sizeof(old_arg))
+        if (fread(&old_arg, 1, sizeof(old_arg), gfile)
             != sizeof(old_arg))
             return false;
         arg->type = old_arg.type;
@@ -3084,7 +3090,7 @@ bool read_arg(arg_struct *arg, bool old) {
     } else if (bin_dec_mode_switch()) {
 #ifdef BCD_MATH
         bin_arg_struct ba;
-        if (shell_read_saved_state(&ba, sizeof(bin_arg_struct))
+        if (fread(&ba, 1, sizeof(bin_arg_struct), gfile)
             != sizeof(bin_arg_struct))
             return false;
         arg->type = ba.type;
@@ -3097,7 +3103,7 @@ bool read_arg(arg_struct *arg, bool old) {
         arg->val_d = ba.val_d;
 #else
         dec_arg_struct da;
-        if (shell_read_saved_state(&da, sizeof(dec_arg_struct))
+        if (fread(&da, 1, sizeof(dec_arg_struct), gfile)
             != sizeof(dec_arg_struct))
             return false;
         arg->type = da.type;
@@ -3113,7 +3119,7 @@ bool read_arg(arg_struct *arg, bool old) {
     } else {
 #if BCD_MATH
         // For explanation, see the comment in write_arg()
-        if (shell_read_saved_state(arg, sizeof(dec_arg_struct))
+        if (fread(arg, 1, sizeof(dec_arg_struct), gfile)
             != sizeof(dec_arg_struct))
             return false;
         int offset = sizeof(arg_struct) - sizeof(dec_arg_struct);
@@ -3125,14 +3131,14 @@ bool read_arg(arg_struct *arg, bool old) {
         }
         return true;
 #else
-        return shell_read_saved_state(arg, sizeof(arg_struct))
+        return fread(arg, 1, sizeof(arg_struct), gfile)
         == sizeof(arg_struct);
 #endif
     }
 }
 
 bool write_arg(const arg_struct *arg) {
-    if (!shell_write_saved_state(&arg->type, 1))
+    if (!write_char(arg->type))
         return false;
     switch (arg->type) {
         case ARGTYPE_NONE:
@@ -3144,15 +3150,15 @@ bool write_arg(const arg_struct *arg) {
             return write_int4(arg->val.num);
         case ARGTYPE_STK:
         case ARGTYPE_IND_STK:
-            return shell_write_saved_state(&arg->val.stk, 1);
+            return write_char(arg->val.stk);
         case ARGTYPE_STR:
         case ARGTYPE_IND_STR:
-            return shell_write_saved_state(&arg->length, 1)
-            && shell_write_saved_state(arg->val.text, arg->length);
+            return write_char(arg->length)
+                && fwrite(arg->val.text, 1, arg->length, gfile) == arg->length;
         case ARGTYPE_COMMAND:
             return write_int(arg->val.cmd);
         case ARGTYPE_LCLBL:
-            return shell_write_saved_state(&arg->val.lclbl, 1);
+            return write_char(arg->val.lclbl);
         case ARGTYPE_DOUBLE:
             return write_phloat(arg->val_d);
         default:
@@ -3289,7 +3295,7 @@ bool load_state(int4 ver) {
 
     if (!read_phloat(&entered_number)) return false;
     if (!read_int(&entered_string_length)) return false;
-    if (shell_read_saved_state(entered_string, 15) != 15) return false;
+    if (fread(entered_string, 1, 15, gfile) != 15) return false;
 
     if (!read_int(&pending_command)) return false;
     if (!read_arg(&pending_command_arg, ver < 9)) return false;
@@ -3302,23 +3308,23 @@ bool load_state(int4 ver) {
     if (!read_int(&incomplete_maxdigits)) return false;
     if (!read_int(&incomplete_argtype)) return false;
     if (!read_int(&incomplete_num)) return false;
-    if (shell_read_saved_state(incomplete_str, 7) != 7) return false;
+    if (fread(incomplete_str, 1, 7, gfile) != 7) return false;
     if (!read_int4(&incomplete_saved_pc)) return false;
     if (!read_int4(&incomplete_saved_highlight_row)) return false;
 
-    if (shell_read_saved_state(cmdline, 100) != 100) return false;
+    if (fread(cmdline, 1, 100, gfile) != 100) return false;
     if (!read_int(&cmdline_length)) return false;
     if (!read_int(&cmdline_row)) return false;
 
     if (!read_int(&matedit_mode)) return false;
-    if (shell_read_saved_state(matedit_name, 7) != 7) return false;
+    if (fread(matedit_name, 1, 7, gfile) != 7) return false;
     if (!read_int(&matedit_length)) return false;
     if (!unpersist_vartype(&matedit_x, ver < 18)) return false;
     if (!read_int4(&matedit_i)) return false;
     if (!read_int4(&matedit_j)) return false;
     if (!read_int(&matedit_prev_appmenu)) return false;
 
-    if (shell_read_saved_state(input_name, 11) != 11) return false;
+    if (fread(input_name, 1, 11, gfile) != 11) return false;
     if (!read_int(&input_length)) return false;
     if (!read_arg(&input_arg, ver < 9)) return false;
 
@@ -3348,7 +3354,7 @@ bool load_state(int4 ver) {
             if (!read_int(&keybuf[i]))
                 return false;
     } else {
-        if (shell_read_saved_state(keybuf, 16 * sizeof(int))
+        if (fread(keybuf, 1, 16 * sizeof(int), gfile)
                 != 16 * sizeof(int))
             return false;
     }
@@ -3377,7 +3383,7 @@ bool load_state(int4 ver) {
         n = n1 + n2 + n3 + n4;             /* total number of bytes to skip */
         while (n > 0) {
             int count = n < 1024 ? n : 1024;
-            if (shell_read_saved_state(dummy, count) != count)
+            if (fread(dummy, 1, count, gfile) != count)
                 return false;
             n -= count;
         }
@@ -3431,7 +3437,7 @@ void save_state() {
 
     if (!write_phloat(entered_number)) return;
     if (!write_int(entered_string_length)) return;
-    if (!shell_write_saved_state(entered_string, 15)) return;
+    if (fwrite(entered_string, 1, 15, gfile) != 15) return;
 
     if (!write_int(pending_command)) return;
     if (!write_arg(&pending_command_arg)) return;
@@ -3444,23 +3450,23 @@ void save_state() {
     if (!write_int(incomplete_maxdigits)) return;
     if (!write_int(incomplete_argtype)) return;
     if (!write_int(incomplete_num)) return;
-    if (!shell_write_saved_state(incomplete_str, 7)) return;
+    if (fwrite(incomplete_str, 1, 7, gfile) != 7) return;
     if (!write_int4(pc2line(incomplete_saved_pc))) return;
     if (!write_int4(incomplete_saved_highlight_row)) return;
 
-    if (!shell_write_saved_state(cmdline, 100)) return;
+    if (fwrite(cmdline, 1, 100, gfile) != 100) return;
     if (!write_int(cmdline_length)) return;
     if (!write_int(cmdline_row)) return;
 
     if (!write_int(matedit_mode)) return;
-    if (!shell_write_saved_state(matedit_name, 7)) return;
+    if (fwrite(matedit_name, 1, 7, gfile) != 7) return;
     if (!write_int(matedit_length)) return;
     if (!persist_vartype(matedit_x)) return;
     if (!write_int4(matedit_i)) return;
     if (!write_int4(matedit_j)) return;
     if (!write_int(matedit_prev_appmenu)) return;
 
-    if (!shell_write_saved_state(input_name, 11)) return;
+    if (fwrite(input_name, 1, 11, gfile) != 11) return;
     if (!write_int(input_length)) return;
     if (!write_arg(&input_arg)) return;
 

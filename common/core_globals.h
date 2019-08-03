@@ -19,10 +19,13 @@
 #define CORE_GLOBALS_H 1
 
 
+#include <stdio.h>
+
 #include "free42.h"
 #include "core_phloat.h"
 #include "core_tables.h"
 
+extern FILE *gfile;
 
 /**********/
 /* Errors */

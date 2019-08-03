@@ -88,28 +88,6 @@ void shell_delay(int duration);
  */
 void shell_request_timeout3(int delay);
 
-/* shell_read_saved_state()
- *
- * Callback to read from the saved state. The function will read up to n
- * bytes into the buffer pointed to by buf, and return the number of bytes
- * actually read. The function returns -1 if an error was encountered; a return
- * value of 0 signifies the end of input.
- * The emulator core should only call this function from core_init(), and only
- * if core_init() was called with an argument of 1. (Nothing horrible will
- * happen if you try to call this function during other contexts, but you will
- * always get an error then.)
- */
-int4 shell_read_saved_state(void *buf, int4 bufsize);
-
-/* shell_write_saved_state()
- * Callback to dump the saved state to persistent storage.
- * Returns 1 on success, 0 on error.
- * The emulator core should only call this function from core_quit(). (Nothing
- * horrible will happen if you try to call this function during other contexts,
- * but you will always get an error then.)
- */
-bool shell_write_saved_state(const void *buf, int4 nbytes);
-
 /* shell_get_mem()
  * Callback to get the amount of free memory in bytes.
  */
@@ -161,21 +139,6 @@ int shell_decimal_point();
 void shell_print(const char *text, int length,
                  const char *bits, int bytesperline,
                  int x, int y, int width, int height);
-
-/* shell_write()
- *
- * Callback for core_export_programs(). Returns 0 if a problem occurred;
- * core_export_programs() should abort in that case.
- */
-int shell_write(const char *buf, int4 buflen);
-
-/* shell_read()
- *
- * Callback for core_import_programs(). Returns the number of bytes actually
- * read. Returns -1 if an error occurred; a return value of 0 signifies end of
- * input.
- */
-int4 shell_read(char *buf, int4 buflen);
 
 #if defined(ANDROID) || defined(IPHONE)
 /* shell_get_acceleration()
@@ -229,6 +192,12 @@ int shell_always_on(int always_on);
  * The weekday is a number from 0 to 6, with 0 being Sunday.
  */
 void shell_get_time_date(uint4 *time, uint4 *date, int *weekday);
+
+/* shell_message()
+ * 
+ * Displays a modal pop-up message box.
+ */
+void shell_message(const char *message);
 
 /* shell_log()
  *

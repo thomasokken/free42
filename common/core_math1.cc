@@ -105,11 +105,11 @@ static void reset_integ();
 
 bool persist_math() {
     if (!write_int(solve.version)) return false;
-    if (!shell_write_saved_state(solve.prgm_name, 7)) return false;
+    if (fwrite(solve.prgm_name, 1, 7, gfile) != 7) return false;
     if (!write_int(solve.prgm_length)) return false;
-    if (!shell_write_saved_state(solve.active_prgm_name, 7)) return false;
+    if (fwrite(solve.active_prgm_name, 1, 7, gfile) != 7) return false;
     if (!write_int(solve.active_prgm_length)) return false;
-    if (!shell_write_saved_state(solve.var_name, 7)) return false;
+    if (fwrite(solve.var_name, 1, 7, gfile) != 7) return false;
     if (!write_int(solve.var_length)) return false;
     if (!write_int(solve.keep_running)) return false;
     if (!write_int(solve.prev_prgm)) return false;
@@ -130,18 +130,18 @@ bool persist_math() {
     if (!write_phloat(solve.xm)) return false;
     if (!write_phloat(solve.fxm)) return false;
     for (int i = 0; i < NUM_SHADOWS; i++) {
-        if (!shell_write_saved_state(solve.shadow_name[i], 7)) return false;
+        if (fwrite(solve.shadow_name[i], 1, 7, gfile) != 7) return false;
         if (!write_int(solve.shadow_length[i])) return false;
         if (!write_phloat(solve.shadow_value[i])) return false;
     }
     if (!write_int4(solve.last_disp_time)) return false;
 
     if (!write_int(integ.version)) return false;
-    if (!shell_write_saved_state(integ.prgm_name, 7)) return false;
+    if (fwrite(integ.prgm_name, 1, 7, gfile) != 7) return false;
     if (!write_int(integ.prgm_length)) return false;
-    if (!shell_write_saved_state(integ.active_prgm_name, 7)) return false;
+    if (fwrite(integ.active_prgm_name, 1, 7, gfile) != 7) return false;
     if (!write_int(integ.active_prgm_length)) return false;
-    if (!shell_write_saved_state(integ.var_name, 7)) return false;
+    if (fwrite(integ.var_name, 1, 7, gfile) != 7) return false;
     if (!write_int(integ.var_length)) return false;
     if (!write_int(integ.keep_running)) return false;
     if (!write_int(integ.prev_prgm)) return false;
@@ -175,11 +175,11 @@ bool persist_math() {
 bool unpersist_math(bool discard) {
     if (state_is_portable) {
         if (!read_int(&solve.version)) return false;
-        if (shell_read_saved_state(solve.prgm_name, 7) != 7) return false;
+        if (fread(solve.prgm_name, 1, 7, gfile) != 7) return false;
         if (!read_int(&solve.prgm_length)) return false;
-        if (shell_read_saved_state(solve.active_prgm_name, 7) != 7) return false;
+        if (fread(solve.active_prgm_name, 1, 7, gfile) != 7) return false;
         if (!read_int(&solve.active_prgm_length)) return false;
-        if (shell_read_saved_state(solve.var_name, 7) != 7) return false;
+        if (fread(solve.var_name, 1, 7, gfile) != 7) return false;
         if (!read_int(&solve.var_length)) return false;
         if (!read_int(&solve.keep_running)) return false;
         if (!read_int(&solve.prev_prgm)) return false;
@@ -200,18 +200,18 @@ bool unpersist_math(bool discard) {
         if (!read_phloat(&solve.xm)) return false;
         if (!read_phloat(&solve.fxm)) return false;
         for (int i = 0; i < NUM_SHADOWS; i++) {
-            if (shell_read_saved_state(solve.shadow_name[i], 7) != 7) return false;
+            if (fread(solve.shadow_name[i], 1, 7, gfile) != 7) return false;
             if (!read_int(&solve.shadow_length[i])) return false;
             if (!read_phloat(&solve.shadow_value[i])) return false;
         }
         if (!read_int4((int4 *) &solve.last_disp_time)) return false;
         
         if (!read_int(&integ.version)) return false;
-        if (shell_read_saved_state(integ.prgm_name, 7) != 7) return false;
+        if (fread(integ.prgm_name, 1, 7, gfile) != 7) return false;
         if (!read_int(&integ.prgm_length)) return false;
-        if (shell_read_saved_state(integ.active_prgm_name, 7) != 7) return false;
+        if (fread(integ.active_prgm_name, 1, 7, gfile) != 7) return false;
         if (!read_int(&integ.active_prgm_length)) return false;
-        if (shell_read_saved_state(integ.var_name, 7) != 7) return false;
+        if (fread(integ.var_name, 1, 7, gfile) != 7) return false;
         if (!read_int(&integ.var_length)) return false;
         if (!read_int(&integ.keep_running)) return false;
         if (!read_int(&integ.prev_prgm)) return false;
@@ -244,10 +244,10 @@ bool unpersist_math(bool discard) {
         bool success;
         void *dummy;
 
-        if (shell_read_saved_state(&size, sizeof(int)) != sizeof(int))
+        if (fread(&size, 1, sizeof(int), gfile) != sizeof(int))
             return false;
         if (!discard && size == sizeof(solve_state)) {
-            if (shell_read_saved_state(&solve, size) != size)
+            if (fread(&solve, 1, size, gfile) != size)
                 return false;
             if (solve.version != SOLVE_VERSION)
                 reset_solve();
@@ -255,17 +255,17 @@ bool unpersist_math(bool discard) {
             dummy = malloc(size);
             if (dummy == NULL)
                 return false;
-            success = shell_read_saved_state(dummy, size) == size;
+            success = fread(dummy, 1, size, gfile) == size;
             free(dummy);
             if (!success)
                 return false;
             reset_solve();
         }
 
-        if (shell_read_saved_state(&size, sizeof(int)) != sizeof(int))
+        if (fread(&size, 1, sizeof(int), gfile) != sizeof(int))
             return false;
         if (!discard && size == sizeof(integ_state)) {
-            if (shell_read_saved_state(&integ, size) != size)
+            if (fread(&integ, 1, size, gfile) != size)
                 return false;
             if (integ.version != INTEG_VERSION)
                 reset_integ();
@@ -273,7 +273,7 @@ bool unpersist_math(bool discard) {
             dummy = malloc(size);
             if (dummy == NULL)
                 return false;
-            success = shell_read_saved_state(dummy, size) == size;
+            success = fread(dummy, 1, size, gfile) == size;
             free(dummy);
             if (!success)
                 return false;

@@ -19,10 +19,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <errno.h>
 
 #include "core_main.h"
 #include "core_commands2.h"
 #include "core_commands4.h"
+#include "core_display.h"
 #include "core_display.h"
 #include "core_helpers.h"
 #include "core_keydown.h"
@@ -59,7 +61,7 @@ static int4 oldpc;
 
 core_settings_struct core_settings;
 
-void core_init(int read_saved_state, int4 version) {
+void core_init(int read_saved_state, int4 version, const char *state_file_name, int offset) {
 
     /* Possible values for read_saved_state:
      * 0: state file not present (Memory Clear)
@@ -68,8 +70,19 @@ void core_init(int read_saved_state, int4 version) {
      */
 
     phloat_init();
+    if (read_saved_state == 1) {
+        gfile = fopen(state_file_name, "rb");
+        if (gfile == NULL)
+            read_saved_state = 0;
+        else if (offset > 0)
+            fseek(gfile, offset, SEEK_SET);
+    } else
+        gfile = NULL;
+
     if (read_saved_state != 1 || !load_state(version))
         hard_reset(read_saved_state != 0);
+    if (gfile != NULL)
+        fclose(gfile);
 
     repaint_display();
     shell_annunciators(mode_updown,
@@ -81,22 +94,30 @@ void core_init(int read_saved_state, int4 version) {
 }
 
 #if defined(IPHONE) || defined(ANDROID)
-void core_enter_background() {
+void core_enter_background(const char *state_file_name) {
     if (mode_interruptible != NULL)
         stop_interruptible();
     set_running(false);
-    save_state();
+    gfile = fopen(state_file_name, "wb");
+    if (gfile != NULL) {
+        save_state();
+        fclose(gfile);
+    }
 }
 #endif
 
-void core_quit() {
+void core_quit(const char *state_file_name) {
 #ifndef ANDROID
     // In Android, core_enter_background() is always called
     // before core_quit().
     // TODO: Does that apply to the iPhone verson as well?
     if (mode_interruptible != NULL)
         stop_interruptible();
-    save_state();
+    gfile = fopen(state_file_name, "wb");
+    if (gfile != NULL) {
+        save_state();
+        fclose(gfile);
+    }
     free_vartype(reg_x);
     free_vartype(reg_y);
     free_vartype(reg_z);
@@ -935,7 +956,7 @@ static void export_hp42s(int index) {
                 continue;
         }
         if (buflen + cmdlen > 1000) {
-            if (!shell_write(buf, buflen))
+            if (fwrite(buf, 1, buflen, gfile) != buflen)
                 goto done;
             buflen = 0;
         }
@@ -943,7 +964,7 @@ static void export_hp42s(int index) {
             buf[buflen++] = cmdbuf[i];
     } while (cmd != CMD_END && pc < prgms[index].size);
     if (buflen > 0)
-        shell_write(buf, buflen);
+        fwrite(buf, 1, buflen, gfile);
     done:
     current_prgm = saved_prgm;
 }
@@ -1066,11 +1087,25 @@ int4 core_program_size(int prgm_index) {
     return size;
 }
 
-void core_export_programs(int count, const int *indexes) {
-    int i;
-    for (i = 0; i < count; i++) {
+void core_export_programs(int count, const int *indexes, const char *raw_file_name) {
+    if (raw_file_name != NULL) {
+        gfile = fopen(raw_file_name, "w");
+        if (gfile == NULL) {
+            char msg[1024];
+            int err = errno;
+            sprintf(msg, "Could not open \"%s\" for writing: %s (%d)", raw_file_name, strerror(err), err);
+            shell_message(msg);
+            return;
+        }
+    }
+    for (int i = 0; i < count; i++) {
         int p = indexes[i];
         export_hp42s(p);
+    }
+    if (raw_file_name != NULL) {
+        if (ferror(gfile))
+            shell_message("An error occurred during program export.");
+        fclose(gfile);
     }
 }
 
@@ -1528,17 +1563,6 @@ static int hp42ext[] = {
 };
 
 
-static int getbyte(char *buf, int *bufptr, int *buflen, int maxlen) {
-    maxlen = 1;
-    if (*bufptr == *buflen) {
-        *buflen = shell_read(buf, maxlen);
-        if (*buflen <= 0)
-            return -1;
-        *bufptr = 0;
-    }
-    return (unsigned char) buf[(*bufptr)++];
-}
-
 static phloat parse_number_line(char *buf) {
     phloat res;
     if (buf[0] == 'E' || buf[0] == '-' && buf[1] == 'E') {
@@ -1592,9 +1616,8 @@ static phloat parse_number_line(char *buf) {
     return res;
 }
 
-void core_import_programs(int num_progs) {
-    char buf[1000];
-    int i, nread = 0;
+void core_import_programs(int num_progs, const char *raw_file_name) {
+    int i;
 
     int pos = 0;
     int byte1, byte2, suffix;
@@ -1604,6 +1627,17 @@ void core_import_programs(int num_progs) {
     int assign = 0;
     bool first = true;
     bool pending_end = false;
+
+    if (raw_file_name != NULL) {
+        gfile = fopen(raw_file_name, "rb");
+        if (gfile == NULL) {
+            char msg[1024];
+            int err = errno;
+            sprintf(msg, "Could not open \"%s\" for reading: %s (%d)", raw_file_name, strerror(err), err);
+            shell_message(msg);
+            return;
+        }
+    }
 
     set_running(false);
 
@@ -1623,8 +1657,8 @@ void core_import_programs(int num_progs) {
 
     while (!done_flag) {
         skip:
-        byte1 = getbyte(buf, &pos, &nread, 1000);
-        if (byte1 == -1)
+        byte1 = fgetc(gfile);
+        if (byte1 == EOF)
             goto done;
         cmd = hp42tofree42[byte1];
         flag = cmd >> 12;
@@ -1639,8 +1673,8 @@ void core_import_programs(int num_progs) {
                 arg.val.num--;
             goto store;
         } else if (flag == 2) {
-            suffix = getbyte(buf, &pos, &nread, 1000);
-            if (suffix == -1)
+            suffix = fgetc(gfile);
+            if (suffix == EOF)
                 goto done;
             goto do_suffix;
         } else /* flag == 3 */ {
@@ -1661,9 +1695,9 @@ void core_import_programs(int num_progs) {
                     else
                         byte1 += '0' - 0x10;
                     numbuf[numlen++] = byte1;
-                    byte1 = getbyte(buf, &pos, &nread, 1000);
+                    byte1 = fgetc(gfile);
                 } while (byte1 >= 0x10 && byte1 <= 0x1C);
-                if (byte1 == -1)
+                if (byte1 == EOF)
                     done_flag = 1;
                 else if (byte1 != 0x00)
                     pos--;
@@ -1673,8 +1707,8 @@ void core_import_programs(int num_progs) {
                 arg.type = ARGTYPE_DOUBLE;
             } else if (byte1 == 0x1D || byte1 == 0x1E) {
                 cmd = byte1 == 0x1D ? CMD_GTO : CMD_XEQ;
-                str_len = getbyte(buf, &pos, &nread, 1000);
-                if (str_len == -1)
+                str_len = fgetc(gfile);
+                if (str_len == EOF)
                     goto done;
                 else if (str_len < 0x0F1) {
                     pos--;
@@ -1693,8 +1727,8 @@ void core_import_programs(int num_progs) {
                  * on the cmdlist table.
                  */
                 uint4 code;
-                byte2 = getbyte(buf, &pos, &nread, 1000);
-                if (byte2 == -1)
+                byte2 = fgetc(gfile);
+                if (byte2 == EOF)
                     goto done;
                 code = (((unsigned int) byte1) << 8) | byte2;
                 for (i = 0; i < CMD_SENTINEL; i++)
@@ -1712,8 +1746,8 @@ void core_import_programs(int num_progs) {
                 goto store;
             } else if (byte1 == 0x0AE) {
                 /* GTO/XEQ IND */
-                suffix = getbyte(buf, &pos, &nread, 1000);
-                if (suffix == -1)
+                suffix = fgetc(gfile);
+                if (suffix == EOF)
                     goto done;
                 if ((suffix & 0x80) != 0)
                     cmd = CMD_XEQ;
@@ -1727,8 +1761,8 @@ void core_import_programs(int num_progs) {
                 goto skip;
             } else if (byte1 >= 0x0B1 && byte1 <= 0x0BF) {
                 /* 2-byte GTO */
-                byte2 = getbyte(buf, &pos, &nread, 1000);
-                if (byte2 == -1)
+                byte2 = fgetc(gfile);
+                if (byte2 == EOF)
                     goto done;
                 cmd = CMD_GTO;
                 arg.type = ARGTYPE_NUM;
@@ -1736,11 +1770,11 @@ void core_import_programs(int num_progs) {
                 goto store;
             } else if (byte1 >= 0x0C0 && byte1 <= 0x0CD) {
                 /* GLOBAL */
-                byte2 = getbyte(buf, &pos, &nread, 1000);
-                if (byte2 == -1)
+                byte2 = fgetc(gfile);
+                if (byte2 == EOF)
                     goto done;
-                str_len = getbyte(buf, &pos, &nread, 1000);
-                if (str_len == -1)
+                str_len = fgetc(gfile);
+                if (str_len == EOF)
                     goto done;
                 if (str_len < 0x0F1) {
                     /* END */
@@ -1750,8 +1784,8 @@ void core_import_programs(int num_progs) {
                 } else {
                     /* LBL "" */
                     str_len -= 0x0F1;
-                    byte2 = getbyte(buf, &pos, &nread, 1000);
-                    if (byte2 == -1)
+                    byte2 = fgetc(gfile);
+                    if (byte2 == EOF)
                         goto done;
                     cmd = CMD_LBL;
                     arg.type = ARGTYPE_STR;
@@ -1759,11 +1793,11 @@ void core_import_programs(int num_progs) {
                 }
             } else if (byte1 >= 0x0D0 && byte1 <= 0x0EF) {
                 /* 3-byte GTO & XEQ */
-                byte2 = getbyte(buf, &pos, &nread, 1000);
-                if (byte2 == -1)
+                byte2 = fgetc(gfile);
+                if (byte2 == EOF)
                     goto done;
-                suffix = getbyte(buf, &pos, &nread, 1000);
-                if (suffix == -1)
+                suffix = fgetc(gfile);
+                if (suffix == EOF)
                     goto done;
                 cmd = byte1 <= 0x0DF ? CMD_GTO : CMD_XEQ;
                 suffix &= 0x7F;
@@ -1785,7 +1819,9 @@ void core_import_programs(int num_progs) {
                     arg.val.text[0] = 127;
                     goto store;
                 }
-                byte2 = getbyte(buf, &pos, &nread, 1000);
+                byte2 = fgetc(gfile);
+                if (byte2 == EOF)
+                    goto done;
                 if (byte1 == 0x0F1) {
                     switch (byte2) {
                         case 0x0D5: cmd = CMD_FIX; arg.val.num = 10; break;
@@ -1809,16 +1845,16 @@ void core_import_programs(int num_progs) {
                     arg.type = ARGTYPE_STR;
                     do_string:
                     for (i = 0; i < str_len; i++) {
-                        suffix = getbyte(buf, &pos, &nread, 1000);
-                        if (suffix == -1)
+                        suffix = fgetc(gfile);
+                        if (suffix == EOF)
                             goto done;
                         arg.val.text[i] = suffix;
                     }
                     arg.length = str_len;
                     if (assign) {
                         assign = 0;
-                        suffix = getbyte(buf, &pos, &nread, 1000);
-                        if (suffix == -1)
+                        suffix = fgetc(gfile);
+                        if (suffix == EOF)
                             goto done;
                         if (suffix > 17) {
                             /* Bad assign... Fix the command to the string
@@ -1849,8 +1885,8 @@ void core_import_programs(int num_progs) {
                         int ind;
                         if (byte1 != 0x0F2)
                             goto plain_string;
-                        suffix = getbyte(buf, &pos, &nread, 1000);
-                        if (suffix == -1)
+                        suffix = fgetc(gfile);
+                        if (suffix == EOF)
                             goto done;
                         do_suffix:
                         ind = (suffix & 0x080) != 0;
@@ -1897,8 +1933,8 @@ void core_import_programs(int num_progs) {
                                 goto plain_string;
                             cmd = byte2 == 0x0C2 || byte2 == 0x0CA
                                     ? CMD_KEY1X : CMD_KEY1G;
-                            suffix = getbyte(buf, &pos, &nread, 1000);
-                            if (suffix == -1)
+                            suffix = fgetc(gfile);
+                            if (suffix == EOF)
                                 goto done;
                             if (suffix < 1 || suffix > 9) {
                                 /* Treat as plain string. Alas, it is
@@ -1913,8 +1949,8 @@ void core_import_programs(int num_progs) {
                                 arg.val.text[0] = byte2;
                                 arg.val.text[1] = suffix;
                                 for (i = 2; i < arg.length; i++) {
-                                    int c = getbyte(buf, &pos, &nread,1000);
-                                    if (c == -1)
+                                    int c = fgetc(gfile);
+                                    if (c == EOF)
                                         goto done;
                                     arg.val.text[i] = c;
                                 }
@@ -1928,15 +1964,15 @@ void core_import_programs(int num_progs) {
                             /* KEYG/KEYX suffix */
                             if (byte1 != 0x0F3)
                                 goto plain_string;
-                            suffix = getbyte(buf, &pos, &nread, 1000);
-                            if (suffix == -1)
+                            suffix = fgetc(gfile);
+                            if (suffix == EOF)
                                 goto done;
                             if (suffix < 1 || suffix > 9)
                                 goto bad_keyg_keyx;
                             cmd = byte2 == 0x0E2 ? CMD_KEY1X : CMD_KEY1G;
                             cmd += suffix - 1;
-                            suffix = getbyte(buf, &pos, &nread, 1000);
-                            if (suffix == -1)
+                            suffix = fgetc(gfile);
+                            if (suffix == EOF)
                                 goto done;
                             goto do_suffix;
                         } else /* byte2 == 0x0F7 */ {
@@ -1944,12 +1980,12 @@ void core_import_programs(int num_progs) {
                             int sz;
                             if (byte1 != 0x0F3)
                                 goto plain_string;
-                            suffix = getbyte(buf, &pos, &nread, 1000);
-                            if (suffix == -1)
+                            suffix = fgetc(gfile);
+                            if (suffix == EOF)
                                 goto done;
                             sz = suffix << 8;
-                            suffix = getbyte(buf, &pos, &nread, 1000);
-                            if (suffix == -1)
+                            suffix = fgetc(gfile);
+                            if (suffix == EOF)
                                 goto done;
                             sz += suffix;
                             cmd = CMD_SIZE;
@@ -1991,6 +2027,12 @@ void core_import_programs(int num_progs) {
 
     flags.f.trace_print = saved_trace;
     flags.f.normal_print = saved_normal;
+
+    if (raw_file_name != NULL) {
+        if (ferror(gfile))
+            shell_message("An error occurred during program import.");
+        fclose(gfile);
+    }
 }
 
 static int real2buf(char *buf, phloat x) {
