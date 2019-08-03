@@ -846,6 +846,10 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
             }
             goto do_default;
         }
+		case WM_ENDSESSION:
+			if (wParam != 0)
+				Quit();
+			break;
         case WM_DESTROY:
             GetWindowPlacement(hMainWnd, &state.mainPlacement);
             state.mainPlacementValid = 1;
