@@ -483,7 +483,7 @@ static CalcView *calcView = nil;
             core_state_file_offset = 0;
         } else {
             strcpy(core_state_file_name, "config/state");
-            core_state_file_offset = ftell(statefile);
+            core_state_file_offset = (int) ftell(statefile);
         }
         fclose(statefile);
     }
@@ -902,7 +902,7 @@ static int write_shell_state() {
     state.offEnabled = off_enable_flag != 0;
     
     FILE *statefile = fopen("config/state", "w");
-    if (state == NULL)
+    if (statefile == NULL)
         return 0;
     if (fwrite(&magic, 1, sizeof(int), statefile) != sizeof(int))
         return 0;

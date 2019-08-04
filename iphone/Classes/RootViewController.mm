@@ -181,7 +181,7 @@ int shell_low_battery() {
 }
 
 void shell_message(const char *message) {
-    [RootViewController showMessage:[NSString stringWithCString:message encoding:NSUTF8StringEncoding];
+    [RootViewController showMessage:[NSString stringWithCString:message encoding:NSUTF8StringEncoding]];
 }
 
 + (void) playSound: (int) which {

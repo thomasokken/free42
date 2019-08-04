@@ -728,17 +728,17 @@ static int zip_program_2(int prgm_index, int is_all, zipFile z, char *buf, int b
     char *name = prgm_index_to_name(prgm_index);
     if (name == NULL)
         return 0;
-    ssize_t size = core_program_size(prgm_index) + 3;
-    char *buf = (char *) malloc(size);
-    if (buf == NULL) {
+    ssize_t psize = core_program_size(prgm_index) + 3;
+    char *pbuf = (char *) malloc(psize);
+    if (pbuf == NULL) {
         free(name);
         return 0;
     }
 
     char bufparam[21];
     strcpy(bufparam, "mem:");
-    memcpy(bufparam + 5, &buf, sizeof(char *));
-    memcpy(bufparam + 13, &size, sizeof(ssize_t));
+    memcpy(bufparam + 5, &pbuf, sizeof(char *));
+    memcpy(bufparam + 13, &psize, sizeof(ssize_t));
     core_export_programs(1, &prgm_index, bufparam);
     char *name2 = prgm_name_list_make_unique(namelist, name);
     time_t t = time(NULL);
@@ -760,10 +760,10 @@ static int zip_program_2(int prgm_index, int is_all, zipFile z, char *buf, int b
     strcat(name3, ".raw");
     /* int ret = */ zipOpenNewFileInZip(z, name3, &zfi, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION);
     // TODO: How to deal with the return value? zip.h doesn't say.
-    zipWriteInFileInZip(z, buf, (unsigned int) size);
+    zipWriteInFileInZip(z, pbuf, (unsigned int) psize);
     zipCloseFileInZip(z);
     free(name3);
-    free(buf);
+    free(pbuf);
     free(name);
     return 1;
 }
@@ -1032,8 +1032,8 @@ void do_post(int csock, const char *url) {
                                 pthread_mutex_lock(&shell_mutex);
                                 char bufparam[21];
                                 strcpy(bufparam, "mem:");
-                                memcpy(bufparam + 5, &tb.buf, );
-                                memcpy(bufparam + 13, &tb.size, 8);
+                                memcpy(bufparam + 5, &tb.buf, sizeof(char *));
+                                memcpy(bufparam + 13, &tb.size, sizeof(ssize_t));
                                 core_import_programs(0, bufparam);
                                 // TODO -- error message on failure
                                 pthread_mutex_unlock(&shell_mutex);
@@ -1542,8 +1542,10 @@ static int open_item(const char *url, void **ptr, int *type, int *filesize, cons
         if (idx < 0 || idx >= n)
             goto return_404;
         pthread_mutex_lock(&shell_mutex);
-        ssize_t psize = core_program_size(idx) + 3;
-        char *pbuf = (char *) malloc(psize);
+	ssize_t psize;
+	psize = core_program_size(idx) + 3;
+	char *pbuf;
+	pbuf = (char *) malloc(psize);
         if (pbuf == NULL) {
             pthread_mutex_unlock(&shell_mutex);
             return_404:
@@ -1558,7 +1560,7 @@ static int open_item(const char *url, void **ptr, int *type, int *filesize, cons
             core_export_programs(1, &idx, bufparam);
             *ptr = pbuf;
             *type = 0;
-            *filesize = psize;
+            *filesize = (int) psize;
             pthread_mutex_unlock(&shell_mutex);
             /* names[idx] is one of:
              * 1) "NAME1" ["NAME2" ...]

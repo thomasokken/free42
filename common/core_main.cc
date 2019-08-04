@@ -1586,7 +1586,7 @@ static phloat parse_number_line(char *buf) {
             buf2[0] = '-';
             buf2[1] = '1';
         }
-        int len2 = strlen(buf2);
+        int len2 = (int) strlen(buf2);
         if (buf2[len2 - 1] == 'E')
             buf2[len2 - 1] = 0;
         res = parse_number_line(buf2);
@@ -3318,7 +3318,7 @@ void core_paste(const char *buf) {
             return;
         } else if (rows == 1 && cols == 1) {
             // Scalar
-            int len = strlen(buf);
+            int len = (int) strlen(buf);
             char *asciibuf = (char *) malloc(len + 1);
             strcpy(asciibuf, buf);
             if (len > 0 && asciibuf[len - 1] == '\n') {

@@ -1001,7 +1001,7 @@ static int prgmline2buf(char *buf, int len, int4 line, int highlight,
         string2buf(buf, len, &bufptr, ".END.", 5);
     } else if (cmd == CMD_NUMBER) {
         char *num = phloat2program(arg->val_d);
-        int numlen = strlen(num);
+        int numlen = (int) strlen(num);
         if (bufptr + numlen <= len) {
             memcpy(buf + bufptr, num, numlen);
             bufptr += numlen;
