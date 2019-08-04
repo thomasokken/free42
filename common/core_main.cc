@@ -1089,6 +1089,15 @@ int4 core_program_size(int prgm_index) {
 
 void core_export_programs(int count, const int *indexes, const char *raw_file_name) {
     if (raw_file_name != NULL) {
+#ifdef IPHONE
+        if (strncmp(raw_file_name, "mem:", 4) == 0) {
+            char *buf;
+            ssize_t size;
+            memcpy(&buf, raw_file_name + 5, sizeof(char *));
+            memcpy(&size, raw_file_name + 13, sizeof(ssize_t));
+            gfile = fmemopen(buf, size, "w");
+        } else {
+#endif
         gfile = fopen(raw_file_name, "w");
         if (gfile == NULL) {
             char msg[1024];
@@ -1097,6 +1106,9 @@ void core_export_programs(int count, const int *indexes, const char *raw_file_na
             shell_message(msg);
             return;
         }
+#ifdef IPHONE
+        }
+#endif
     }
     for (int i = 0; i < count; i++) {
         int p = indexes[i];
@@ -1629,6 +1641,15 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
     bool pending_end = false;
 
     if (raw_file_name != NULL) {
+#ifdef IPHONE
+        if (strncmp(raw_file_name, "mem:", 4) == 0) {
+            char *buf;
+            ssize_t size;
+            memcpy(&buf, raw_file_name + 5, sizeof(char *));
+            memcpy(&size, raw_file_name + 13, sizeof(ssize_t));
+            gfile = fmemopen(buf, size, "r");
+        } else {
+#endif
         gfile = fopen(raw_file_name, "rb");
         if (gfile == NULL) {
             char msg[1024];
@@ -1637,6 +1658,9 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
             shell_message(msg);
             return;
         }
+#ifdef IPHONE
+        }
+#endif
     }
 
     set_running(false);
