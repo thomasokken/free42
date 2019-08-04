@@ -74,22 +74,7 @@
     [SelectFileView raiseWithTitle:@"Select Program File Name" selectTitle:@"OK" types:@"raw,*" selectDir:NO callbackObject:self callbackSelector:@selector(doExport:)];
 }
 
-static FILE *export_file = NULL;
 static NSString *export_path = nil;
-
-static int my_shell_write(const char *buf, int buflen) {
-    size_t written;
-    if (export_file == NULL)
-        return 0;
-    written = fwrite(buf, 1, buflen, export_file);
-    if (written != buflen) {
-        [RootViewController showMessage:@"Export failed; there was an error writing to the file."];
-        fclose(export_file);
-        export_file = NULL;
-        return 0;
-    } else
-        return 1;
-}
 
 - (void) doExport:(NSString *) path {
     if (export_path != nil)
@@ -117,11 +102,6 @@ static int my_shell_write(const char *buf, int buflen) {
 }
 
 - (void) doExport2 {
-    export_file = fopen([export_path cStringUsingEncoding:NSUTF8StringEncoding], "w");
-    if (export_file == NULL) {
-        [RootViewController showMessage:@"Export failed; could not create the file."];
-        return;
-    }
     NSArray *selection = [programTable indexPathsForSelectedRows];
     NSUInteger count = [selection count];
     int *indexes = new int[count];
@@ -129,12 +109,8 @@ static int my_shell_write(const char *buf, int buflen) {
         NSIndexPath *index = (NSIndexPath *) [selection objectAtIndex:i];
         indexes[i] = (int) [index indexAtPosition:1];
     }
-    export_programs((int) count, indexes, my_shell_write);
+    core_export_programs((int) count, indexes, [export_path cStringUsingEncoding:NSUTF8StringEncoding]);
     delete[] indexes;
-    if (export_file != NULL) {
-        fclose(export_file);
-        export_file = NULL;
-    }
     [export_path release];
     export_path = nil;
 }

@@ -264,18 +264,19 @@ int4 core_program_size(int prgm_index);
  * set of programs (from the list returned by core_list_programs()) and
  * confirmed the operation (supplied a file name etc.). 
  * The 'count' parameter indicates how many programs are to be exported; the
- * 'indexes' parameter is an array of program indexes. The core will pass the
- * raw file data to the shell using the shell_write() function.
+ * 'indexes' parameter is an array of program indexes.
+ * When called by the core during state file saving, raw_file_name will be
+ * NULL, which tells it to write to the already-opened state file.
  */
 void core_export_programs(int count, const int *indexes, const char *raw_file_name);
 
 /* core_import_programs()
  *
- * This function is called by the shell after the user has selected a file to
- * import. The core will read the file data using the shell_read() function.
- * The num_progs parameter indicates that how many programs will be imported.
- * This is set to the number of stored programs if called while reading the
- * state file, and set to 0 if called for user-initiated imports.
+ * This function imports programs from the file named by the raw_file_name
+ * parameter. It will read at most num_progs programs. When called by the
+ * shell, num_progs should be 0, which tells it to load the entire file.
+ * When called by the core during state file loading, raw_file_name will be
+ * NULL, which tells it to read from the already-opened state file.
  */
 void core_import_programs(int num_progs, const char *raw_file_name);
 

@@ -40,11 +40,6 @@
 #include "../../common/core_main.h"
 #include "../../common/core_globals.h"
 
-/* These two are from Free42AppDelegate.h, which we can't include */
-/* because it's Objective-C and this file is supposed to be plain C */
-void export_programs(int count, const int *indexes, int (*writer)(const char *buf, int buflen));
-void import_programs(int (*reader)(char *buf, int buflen));
-
 const char *get_version();
 char *make_temp_file();
 static pthread_mutex_t shell_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -654,25 +649,7 @@ static int recursive_remove(const char *path) {
     return remove(path) == 0;
 }
 
-// TODO: I could use one textbuffer for import *and* export;
-// those two things can't happen at the same time.
-// NOTE: We only read from this textbuf, we don't write;
-// we use 'capacity' as the read position.
-
 #ifdef FREE42
-
-static textbuf import_tb = { NULL, 0, 0 };
-
-static int my_shell_read(char *buf, int nbytes) {
-    if (import_tb.buf == NULL || import_tb.capacity >= import_tb.size)
-        return -1;
-    ssize_t bytes_copied = import_tb.size - import_tb.capacity;
-    if (nbytes < bytes_copied)
-        bytes_copied = nbytes;
-    memcpy(buf, import_tb.buf + import_tb.capacity, bytes_copied);
-    import_tb.capacity += bytes_copied;
-    return (int) bytes_copied;
-}
 
 typedef struct prgm_name_list {
     char *name;
@@ -747,53 +724,46 @@ static char *prgm_index_to_name(int prgm_index) {
     return name;
 }
 
-static textbuf export_tb = { NULL, 0, 0 };
-
-static void export_buf_reset() {
-    if (export_tb.buf != NULL)
-        free(export_tb.buf);
-    export_tb.buf = NULL;
-    export_tb.size = 0;
-    export_tb.capacity = 0;
-}
-
-static int my_shell_write(const char *buf, int nbytes) {
-    tbwrite(&export_tb, buf, nbytes);
-    return 1;
-}
-
 static int zip_program_2(int prgm_index, int is_all, zipFile z, char *buf, int bufsize, prgm_name_list *namelist) {
     char *name = prgm_index_to_name(prgm_index);
     if (name == NULL)
         return 0;
-    export_buf_reset();
-    export_programs(1, &prgm_index, my_shell_write);
-    if (export_tb.buf != NULL) {
-        char *name2 = prgm_name_list_make_unique(namelist, name);
-        time_t t = time(NULL);
-        struct tm stm;
-        localtime_r(&t, &stm);
-        zip_fileinfo zfi;
-        zfi.tmz_date.tm_sec = stm.tm_sec;
-        zfi.tmz_date.tm_min = stm.tm_min;
-        zfi.tmz_date.tm_hour = stm.tm_hour;
-        zfi.tmz_date.tm_mday = stm.tm_mday;
-        zfi.tmz_date.tm_mon = stm.tm_mon;
-        zfi.tmz_date.tm_year = stm.tm_year + 1900;
-        zfi.dosDate = 0;
-        zfi.internal_fa = 0;
-        zfi.external_fa = 0;
-        char *name3 = (char *) malloc(strlen(name2) + 12);
-        strcpy(name3, is_all ? "memory/" : "");
-        strcat(name3, name2);
-        strcat(name3, ".raw");
-        /* int ret = */ zipOpenNewFileInZip(z, name3, &zfi, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION);
-        // TODO: How to deal with the return value? zip.h doesn't say.
-        zipWriteInFileInZip(z, export_tb.buf, (unsigned int) export_tb.size);
-        zipCloseFileInZip(z);
-        free(name3);
-        export_buf_reset();
+    ssize_t size = core_program_size(prgm_index) + 3;
+    char *buf = (char *) malloc(size);
+    if (buf == NULL) {
+        free(name);
+        return 0;
     }
+
+    char bufparam[21];
+    strcpy(bufparam, "mem:");
+    memcpy(bufparam + 5, &buf, sizeof(char *));
+    memcpy(bufparam + 13, &size, sizeof(ssize_t));
+    core_export_programs(1, &prgm_index, bufparam);
+    char *name2 = prgm_name_list_make_unique(namelist, name);
+    time_t t = time(NULL);
+    struct tm stm;
+    localtime_r(&t, &stm);
+    zip_fileinfo zfi;
+    zfi.tmz_date.tm_sec = stm.tm_sec;
+    zfi.tmz_date.tm_min = stm.tm_min;
+    zfi.tmz_date.tm_hour = stm.tm_hour;
+    zfi.tmz_date.tm_mday = stm.tm_mday;
+    zfi.tmz_date.tm_mon = stm.tm_mon;
+    zfi.tmz_date.tm_year = stm.tm_year + 1900;
+    zfi.dosDate = 0;
+    zfi.internal_fa = 0;
+    zfi.external_fa = 0;
+    char *name3 = (char *) malloc(strlen(name2) + 12);
+    strcpy(name3, is_all ? "memory/" : "");
+    strcat(name3, name2);
+    strcat(name3, ".raw");
+    /* int ret = */ zipOpenNewFileInZip(z, name3, &zfi, NULL, 0, NULL, 0, NULL, Z_DEFLATED, Z_DEFAULT_COMPRESSION);
+    // TODO: How to deal with the return value? zip.h doesn't say.
+    zipWriteInFileInZip(z, buf, (unsigned int) size);
+    zipCloseFileInZip(z);
+    free(name3);
+    free(buf);
     free(name);
     return 1;
 }
@@ -1060,11 +1030,12 @@ void do_post(int csock, const char *url) {
                                 }
                                 // Import program straight to memory
                                 pthread_mutex_lock(&shell_mutex);
-                                import_tb.buf = tb.buf;
-                                import_tb.size = tb.size;
-                                import_tb.capacity = 0;
+                                char bufparam[21];
+                                strcpy(bufparam, "mem:");
+                                memcpy(bufparam + 5, &tb.buf, );
+                                memcpy(bufparam + 13, &tb.size, 8);
+                                core_import_programs(0, bufparam);
                                 // TODO -- error message on failure
-                                import_programs(my_shell_read);
                                 pthread_mutex_unlock(&shell_mutex);
                             } else {
 #endif
@@ -1149,16 +1120,20 @@ void do_post(int csock, const char *url) {
                                         char *buf = (char *) malloc(1024);
                                         int n;
                                         pthread_mutex_lock(&shell_mutex);
-                                        import_tb.buf = NULL;
-                                        import_tb.size = 0;
-                                        import_tb.capacity = 0;
+                                        textbuf tb;
+                                        tb.buf = NULL;
+                                        tb.size = 0;
+                                        tb.capacity = 0;
                                         while ((n = unzReadCurrentFile(zf, buf, 1024)) > 0)
-                                            tbwrite(&import_tb, buf, n);
-                                        import_tb.capacity = 0;
+                                            tbwrite(&tb, buf, n);
+                                        char bufparam[21];
+                                        strcpy(bufparam, "mem:");
+                                        memcpy(bufparam + 5, &tb.buf, sizeof(char *));
+                                        memcpy(bufparam + 13, &tb.size, sizeof(ssize_t));
                                         // TODO -- error message on failure
-                                        import_programs(my_shell_read);
-                                        if (import_tb.buf != NULL)
-                                            free(import_tb.buf);
+                                        core_import_programs(0, bufparam);
+                                        if (tb.buf != NULL)
+                                            free(tb.buf);
                                         pthread_mutex_unlock(&shell_mutex);
                                     }
                                 } else {
@@ -1567,20 +1542,23 @@ static int open_item(const char *url, void **ptr, int *type, int *filesize, cons
         if (idx < 0 || idx >= n)
             goto return_404;
         pthread_mutex_lock(&shell_mutex);
-        export_buf_reset();
-        export_programs(1, &idx, my_shell_write);
-        if (export_tb.size == 0) {
-            export_buf_reset();
+        ssize_t psize = core_program_size(idx) + 3;
+        char *pbuf = (char *) malloc(psize);
+        if (pbuf == NULL) {
             pthread_mutex_unlock(&shell_mutex);
             return_404:
             free(buf);
             free(names);
             return 404;
         } else {
-            *ptr = export_tb.buf;
-            export_tb.buf = NULL;
+            char bufparam[21];
+            strcpy(bufparam, "mem:");
+            memcpy(bufparam + 5, &pbuf, sizeof(char *));
+            memcpy(bufparam + 13, &psize, sizeof(ssize_t));
+            core_export_programs(1, &idx, bufparam);
+            *ptr = pbuf;
             *type = 0;
-            *filesize = (int) export_tb.size;
+            *filesize = psize;
             pthread_mutex_unlock(&shell_mutex);
             /* names[idx] is one of:
              * 1) "NAME1" ["NAME2" ...]

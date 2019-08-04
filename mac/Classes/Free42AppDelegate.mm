@@ -1611,36 +1611,6 @@ void shell_request_timeout3(int delay) {
     [instance performSelectorOnMainThread:@selector(shell_request_timeout3_helper) withObject:NULL waitUntilDone:NO];
 }
 
-int shell_write(const char *buf, int4 buflen) {
-    int4 written;
-    if (export_file == NULL)
-        return 0;
-    written = fwrite(buf, 1, buflen, export_file);
-    if (written != buflen) {
-        char buf[1000];
-        fclose(export_file);
-        export_file = NULL;
-        snprintf(buf, 1000, "Writing \"%s\" failed.", export_file_name);
-        show_message("Message", buf);
-        return 0;
-    } else
-        return 1;
-}
-
-int shell_read(char *buf, int4 buflen) {
-    int4 nread;
-    if (import_file == NULL)
-        return -1;
-    nread = fread(buf, 1, buflen, import_file);
-    if (nread != buflen && ferror(import_file)) {
-        fclose(import_file);
-        import_file = NULL;
-        show_message("Message", "An error occurred; import was terminated prematurely.");
-        return -1;
-    } else
-        return nread;
-}
-
 void shell_log(const char *message) {
     NSLog(@"%s", message);
 }
