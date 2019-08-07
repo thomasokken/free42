@@ -35,11 +35,23 @@ CXXFLAGS = $(CFLAGS) \
 	 -D_WCHAR_T_DEFINED
 
 LDFLAGS = -L/usr/X11R6/lib
-LIBS = gcc111libbid.a -lXmu $(shell pkg-config --libs gtk+-2.0)
+LIBS = gcc111libbid.a $(shell pkg-config --libs gtk+-2.0) -lXmu
 
 ifeq "$(shell uname -s)" "Linux"
 LDFLAGS += -Wl,--hash-style=both
 LIBS += -lpthread
+endif
+
+ifeq "$(shell uname -s)" "FreeBSD"
+CFLAGS += -Wno-narrowing -Wno-constant-conversion -Wno-sometimes-uninitialized
+LIBS += -lX11
+ifdef AUDIO_ALSA
+LIBS += -ldl
+endif
+endif
+
+ifeq "$(shell echo ab | od -x | awk '{print $2}')" "6162"
+CFLAGS += -DF42_BIG_ENDIAN
 endif
 
 SRCS = shell_main.cc shell_skin.cc skins.cc keymap.cc shell_loadimage.cc \
@@ -132,4 +144,4 @@ cleaner: FORCE
 
 FORCE:
 
--include $(SRCS:.cc=.d)
+-include $(OBJS:.o=.d)
