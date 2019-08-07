@@ -17,21 +17,31 @@ else
   CC=cc
 fi
 
-if [ `uname -s` == "FreeBSD" ]; then
+# Hack to support FreeBSD; not 100% sure what this does, but it produces a
+# library that passes all tests.
+
+if [ `uname -s` = "FreeBSD" ]; then
   OS_ARG="CFLAGS_OPT=-DLINUX"
 else
   OS_ARG=
 fi
 
-if [ `echo ab | od -x | awk '{print $2}'` == "6162" ]; then
-  ENDIAN_ARG="-e BID_BIG_ENDIAN=1"
+# When building for big-endian targets, add "-e BID_BIG_ENDIAN=true" to the
+# "make" command line. The library will work even if you don't, but the state
+# files written by Free42 will only be compatible with those written on little-
+# endian platforms if you do.
+
+if [ `echo ab | od -x | awk '{print $2}'` = "6162" ]; then
+  ENDIAN_ARG="-e BID_BIG_ENDIAN=true"
 else
   ENDIAN_ARG=
 fi
 
 tar xvfz ../inteldecimal/IntelRDFPMathLib20U1.tar.gz
 cd IntelRDFPMathLib20U1
-# When building for architectures other than x86 or x86_64, I comment out the
+patch -p0 <../intel-lib-linux.patch
+
+# When building for architectures other than x86 or x86_64, I remove the
 # section titled "Determine host architecture" in
 # IntelRDFPMathLib20U1/LIBRARY/makefile.iml_head, and replace it with a simple
 # "_HOST_ARCH := x86" or "_HOST_ARCH := x86_64", depending on whether I'm
@@ -40,12 +50,17 @@ cd IntelRDFPMathLib20U1
 # to x86 works when targeting armv7 and ppc, both 32-bit platforms, and setting
 # it to x86_64 works when targeting arm64, a 64-bit platform.
 # Of course, proceed with caution. Your mileage may vary.
-patch -p0 <../intel-lib-linux.patch
+
+case `uname -m` in
+  armv7|ppc)
+    patch -p0 <../intel-lib-unknown-32bit.patch
+    ;;
+  arm64)
+    patch -p0 <../intel-lib-unknown-64bit.patch
+    ;;
+esac
+
 cd LIBRARY
-# When building for big-endian targets, add "-e BID_BIG_ENDIAN=1" to the "make"
-# command line. The library will work even if you don't, but the state files
-# written by Free42 will only be compatible with those written on little-endian
-# platforms if you do.
 $MK $OS_ARG CC=$CC CALL_BY_REF=1 GLOBAL_RND=1 GLOBAL_FLAGS=1 UNCHANGED_BINARY_FLAGS=0 $ENDIAN_ARG
 mv libbid.a ../../gcc111libbid.a
 cd ../..

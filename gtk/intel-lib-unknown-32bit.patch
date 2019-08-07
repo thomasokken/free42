@@ -1,0 +1,41 @@
+*** orig/LIBRARY/makefile.iml_head	2011-07-12 11:26:21.000000000 -0400
+--- LIBRARY/makefile.iml_head	2019-08-07 17:51:39.719846842 -0400
+***************
+*** 320,348 ****
+  # Determine host architecture.
+  # ==============================================================================
+  
+! ifeq ($(IML_HOST_OS_TYPE),LINUX)
+!     ifneq ($(IML_HOST_OS),MACH)
+!         _HOST_ARCH := $(shell uname -m)
+!     else
+!         # ======================================================================
+!         # MACH may report "i386" for uname -m command in both 32 and 64 cases
+!         # Therefore we use the following command sequence found in ICS scripts
+!         # ======================================================================
+!         __RUN_SYSCTL := $(word 2,\
+!                             $(shell sysctl -a hw | grep hw.optional.x86_64:\ 1))
+!         ifeq ($(__RUN_SYSCTL),1)
+!             _HOST_ARCH := x86_64
+!         else
+!             _HOST_ARCH := x86
+!         endif
+!     endif
+! else
+!     ifeq ($(IML_HOST_OS_TYPE),WINNT)
+!         _HOST_ARCH := $(word 1,$(PROCESSOR_IDENTIFIER))
+!     else
+!         $(error Don't know how to determine architecture for $(IML_HOST_OS))
+!     endif
+! endif
+  
+  ARCH_ALIAS := x86  ia64 EM64T x86_64 i686 amd64 Intel64 sun4u
+  ARCH_LIST  := IA32 IA64 EFI2  EFI2   IA32 EFI2  EFI2    EFI2
+--- 320,326 ----
+  # Determine host architecture.
+  # ==============================================================================
+  
+! _HOST_ARCH := x86
+  
+  ARCH_ALIAS := x86  ia64 EM64T x86_64 i686 amd64 Intel64 sun4u
+  ARCH_LIST  := IA32 IA64 EFI2  EFI2   IA32 EFI2  EFI2    EFI2

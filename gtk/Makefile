@@ -50,7 +50,7 @@ LIBS += -ldl
 endif
 endif
 
-ifeq "$(shell echo ab | od -x | awk '{print $2}')" "6162"
+ifneq "$(findstring 6162,$(shell echo ab | od -x))" ""
 CFLAGS += -DF42_BIG_ENDIAN
 endif
 
