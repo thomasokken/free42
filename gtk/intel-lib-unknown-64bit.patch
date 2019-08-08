@@ -35,7 +35,7 @@
   # Determine host architecture.
   # ==============================================================================
   
-! _HOST_ARCH := x86
+! _HOST_ARCH := x86_64
   
   ARCH_ALIAS := x86  ia64 EM64T x86_64 i686 amd64 Intel64 sun4u
   ARCH_LIST  := IA32 IA64 EFI2  EFI2   IA32 EFI2  EFI2    EFI2
