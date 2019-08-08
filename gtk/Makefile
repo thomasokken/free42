@@ -57,6 +57,9 @@ endif
 
 ifneq "$(findstring 6162,$(shell echo ab | od -x))" ""
 CFLAGS += -DF42_BIG_ENDIAN
+ifdef BCD_MATH
+CFLAGS += -DBID_BIG_ENDIAN
+endif
 endif
 
 SRCS = shell_main.cc shell_skin.cc skins.cc keymap.cc shell_loadimage.cc \
