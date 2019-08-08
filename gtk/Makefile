@@ -50,6 +50,11 @@ LIBS += -ldl
 endif
 endif
 
+ifeq "$(shell uname -s)" "SunOS"
+CFLAGS += -Wno-narrowing -Wno-misleading-indentation
+LIBS += -lX11
+endif
+
 ifneq "$(findstring 6162,$(shell echo ab | od -x))" ""
 CFLAGS += -DF42_BIG_ENDIAN
 endif
