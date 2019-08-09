@@ -30,6 +30,10 @@ fi
 # "make" command line. The library will work even if you don't, but the state
 # files written by Free42 will only be compatible with those written on little-
 # endian platforms if you do.
+# Note that at the time of writing, I haven't created any successful big-endian
+# builds yet. I have tried on Fedora 12 on Qemu emulating 32-bit PowerPC, and
+# while the build succeeds and arithmetic and SQRT work, it crashes in the
+# transcendentals.
 
 if [ `echo ab | od -x | awk '{print $2}'` = "6162" ]; then
   ENDIAN_ARG="-e BID_BIG_ENDIAN=true"
