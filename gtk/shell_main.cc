@@ -152,7 +152,7 @@ static void quit();
 static void set_window_property(GtkWidget *window, const char *prop_name, char *props[], int num_props);
 static char *strclone(const char *s);
 static bool is_file(const char *name);
-static void show_message(char *title, char *message);
+static void show_message(const char *title, const char *message);
 static void no_mwm_resize_borders(GtkWidget *window);
 static void scroll_printout_to_bottom();
 static void quitCB();
@@ -348,6 +348,8 @@ int main(int argc, char *argv[]) {
 
     int4 version;
     int init_mode;
+    char core_state_file_name[FILENAMELEN];
+    int core_state_file_offset;
 
     statefile = fopen(statefilename, "r");
     if (statefile != NULL) {
@@ -365,13 +367,15 @@ int main(int argc, char *argv[]) {
         init_shell_state(-1);
         init_mode = 0;
     }
-    if (init_mode == 1 && version > 25) {
+    if (init_mode == 1) {
+        if (version > 25) {
+            snprintf(core_state_file_name, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreFileName);
+            core_state_file_offset = 0;
+        } else {
+            strcpy(core_state_file_name, statefilename);
+            core_state_file_offset = ftell(statefile);
+        }
         fclose(statefile);
-        char corefilename[FILENAMELEN];
-        snprintf(corefilename, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreFileName);
-        statefile = fopen(corefilename, "r");
-        if (statefile == NULL)
-            init_mode = 0;
     }
 
 
@@ -612,11 +616,7 @@ int main(int argc, char *argv[]) {
     gtk_widget_show_all(mainwindow);
     gtk_widget_show(mainwindow);
 
-    core_init(init_mode, version);
-    if (statefile != NULL) {
-        fclose(statefile);
-        statefile = NULL;
-    }
+    core_init(init_mode, version, core_state_file_name, core_state_file_offset);
     if (core_powercycle())
         enable_reminder();
 
@@ -837,12 +837,12 @@ static int read_shell_state(int4 *ver) {
     int4 state_size;
     int4 state_version;
 
-    if (shell_read_saved_state(&magic, sizeof(int4)) != sizeof(int4))
+    if (fread(&magic, 1, sizeof(int4), statefile) != sizeof(int4))
         return 0;
     if (magic != FREE42_MAGIC)
         return 0;
 
-    if (shell_read_saved_state(&version, sizeof(int4)) != sizeof(int4))
+    if (fread(&version, 1, sizeof(int4), statefile) != sizeof(int4))
         return 0;
     if (version == 0) {
         /* State file version 0 does not contain shell state,
@@ -855,14 +855,14 @@ static int read_shell_state(int4 *ver) {
         /* Unknown state file version */
         return 0;
     
-    if (shell_read_saved_state(&state_size, sizeof(int4)) != sizeof(int4))
+    if (fread(&state_size, 1, sizeof(int4), statefile) != sizeof(int4))
         return 0;
-    if (shell_read_saved_state(&state_version, sizeof(int4)) != sizeof(int4))
+    if (fread(&state_version, 1, sizeof(int4), statefile) != sizeof(int4))
         return 0;
     if (state_version < 0 || state_version > SHELL_VERSION)
         /* Unknown shell state version */
         return 0;
-    if (shell_read_saved_state(&state, state_size) != state_size)
+    if (fread(&state, 1, state_size, statefile) != (size_t) state_size)
         return 0;
 
     init_shell_state(state_version);
@@ -876,15 +876,15 @@ static int write_shell_state() {
     int4 state_size = sizeof(state_type);
     int4 state_version = SHELL_VERSION;
 
-    if (!shell_write_saved_state(&magic, sizeof(int4)))
+    if (fwrite(&magic, 1, sizeof(int4), statefile) != sizeof(int4))
         return 0;
-    if (!shell_write_saved_state(&version, sizeof(int4)))
+    if (fwrite(&version, 1, sizeof(int4), statefile) != sizeof(int4))
         return 0;
-    if (!shell_write_saved_state(&state_size, sizeof(int4)))
+    if (fwrite(&state_size, 1, sizeof(int4), statefile) != sizeof(int4))
         return 0;
-    if (!shell_write_saved_state(&state_version, sizeof(int4)))
+    if (fwrite(&state_version, 1, sizeof(int4), statefile) != sizeof(int4))
         return 0;
-    if (!shell_write_saved_state(&state, sizeof(state_type)))
+    if (fwrite(&state, 1, sizeof(state_type), statefile) != sizeof(int4))
         return 0;
 
     return 1;
@@ -1004,15 +1004,11 @@ static void quit() {
     statefile = fopen(statefilename, "w");
     if (statefile != NULL) {
         write_shell_state();
-    }
-    if (statefile != NULL)
         fclose(statefile);
+    }
     char corefilename[FILENAMELEN];
     snprintf(corefilename, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreFileName);
-    statefile = fopen(corefilename, "w");
-    core_quit();
-    if (statefile != NULL)
-        fclose(statefile);
+    core_quit(corefilename);
 
     shell_spool_exit();
 
@@ -1043,7 +1039,7 @@ static bool is_file(const char *name) {
     return S_ISREG(st.st_mode);
 }
 
-static void show_message(char *title, char *message) {
+static void show_message(const char *title, const char *message) {
     GtkWidget *msg = gtk_message_dialog_new(GTK_WINDOW(mainwindow),
                                             GTK_DIALOG_MODAL,
                                             GTK_MESSAGE_ERROR,
@@ -1197,35 +1193,21 @@ static void exportProgramCB() {
             return;
     }
 
-    export_file = fopen(export_file_name, "w");
-
-    if (export_file == NULL) {
-        char buf[1000];
-        int err = errno;
-        snprintf(buf, 1000, "Could not open \"%s\" for writing:\n%s (%d)",
-                export_file_name, strerror(err), err);
-        show_message("Message", buf);
-    } else {
-        int *p2 = (int *) malloc(count * sizeof(int));
-        // TODO - handle memory allocation failure
-        GList *rows = gtk_tree_selection_get_selected_rows(select, NULL);
-        GList *item = rows;
-        int i = 0;
-        while (item != NULL) {
-            GtkTreePath *path = (GtkTreePath *) item->data;
-            char *pathstring = gtk_tree_path_to_string(path);
-            sscanf(pathstring, "%d", p2 + i);
-            item = item->next;
-            i++;
-        }
-        g_list_free(rows);
-        core_export_programs(count, p2);
-        free(p2);
-        if (export_file != NULL) {
-            fclose(export_file);
-            export_file = NULL;
-        }
+    int *p2 = (int *) malloc(count * sizeof(int));
+    // TODO - handle memory allocation failure
+    GList *rows = gtk_tree_selection_get_selected_rows(select, NULL);
+    GList *item = rows;
+    int i = 0;
+    while (item != NULL) {
+        GtkTreePath *path = (GtkTreePath *) item->data;
+        char *pathstring = gtk_tree_path_to_string(path);
+        sscanf(pathstring, "%d", p2 + i);
+        item = item->next;
+        i++;
     }
+    g_list_free(rows);
+    core_export_programs(count, p2, export_file_name);
+    free(p2);
 }
 
 static GtkWidget *make_file_select_dialog(const char *title,
@@ -1293,21 +1275,8 @@ static void importProgramCB() {
                         GTK_FILE_CHOOSER(dialog))), "All", 3) != 0)
         appendSuffix(filenamebuf, ".raw");
 
-    import_file = fopen(filenamebuf, "r");
-    if (import_file == NULL) {
-        char buf[1000];
-        int err = errno;
-        snprintf(buf, 1000, "Could not open \"%s\" for reading:\n%s (%d)",
-                    filenamebuf, strerror(err), err);
-        show_message("Message", buf);
-    } else {
-        core_import_programs(0);
-        redisplay();
-        if (import_file != NULL) {
-            fclose(import_file);
-            import_file = NULL;
-        }
-    }
+    core_import_programs(0, filenamebuf);
+    redisplay();
 }
 
 static void paperAdvanceCB() {
@@ -2266,35 +2235,6 @@ void shell_request_timeout3(int delay) {
     timeout3_id = g_timeout_add(delay, timeout3, NULL);
 }
 
-int4 shell_read_saved_state(void *buf, int4 bufsize) {
-    if (statefile == NULL)
-        return -1;
-    else {
-        int4 n = fread(buf, 1, bufsize, statefile);
-        if (n != bufsize && ferror(statefile)) {
-            fclose(statefile);
-            statefile = NULL;
-            return -1;
-        } else
-            return n;
-    }
-}
-
-bool shell_write_saved_state(const void *buf, int4 nbytes) {
-    if (statefile == NULL)
-        return false;
-    else {
-        int4 n = fwrite(buf, 1, nbytes, statefile);
-        if (n != nbytes) {
-            fclose(statefile);
-            remove(statefilename);
-            statefile = NULL;
-            return false;
-        } else
-            return true;
-    }
-}
-
 uint4 shell_get_mem() { 
     FILE *meminfo = fopen("/proc/meminfo", "r");
     char line[1024];
@@ -2389,6 +2329,10 @@ void shell_powerdown() {
      * executing the OFF instruction...
      */
     quit_flag = true;
+}
+
+void shell_message(const char *message) {
+    show_message("Core", message);
 }
 
 int8 shell_random_seed() {
@@ -2607,9 +2551,6 @@ void shell_log(const char *message) {
 }
 
 int shell_write(const char *buf, int4 buflen) {
-    if (statefile != NULL)
-        // For writing programs to the state file
-        return shell_write_saved_state(buf, buflen) ? 1 : 0;
     int4 written;
     if (export_file == NULL)
         return 0;
@@ -2626,9 +2567,6 @@ int shell_write(const char *buf, int4 buflen) {
 }
 
 int shell_read(char *buf, int4 buflen) {
-    if (statefile != NULL)
-        // For reading programs from the state file
-        return shell_read_saved_state(buf, buflen);
     int4 nread;
     if (import_file == NULL)
         return -1;

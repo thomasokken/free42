@@ -19,6 +19,7 @@ CFLAGS = -MMD \
 	 -Wall \
 	 -Wno-parentheses \
 	 -Wno-write-strings \
+         -Wno-sign-compare \
 	 -g \
 	 -I/usr/X11R6/include \
 	 $(shell pkg-config --cflags gtk+-2.0) \
