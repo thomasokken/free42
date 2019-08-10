@@ -72,6 +72,13 @@
                 <menuItem title="File" id="83">
                     <menu key="submenu" title="File" id="81">
                         <items>
+                            <menuItem title="States..." id="tvq-KA-sIj">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="states:" target="520" id="tbf-M5-YQy"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="A44-EM-ZOr"/>
                             <menuItem title="Show Print-Out" id="450">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
@@ -414,6 +421,7 @@
                 <outlet property="selectProgramsWindow" destination="564" id="582"/>
                 <outlet property="skinListDataSource" destination="rR8-x0-OMk" id="Ruo-uf-KCo"/>
                 <outlet property="skinListView" destination="FlS-K3-hi3" id="MXp-GY-MzT"/>
+                <outlet property="statesWindow" destination="hhe-19-iAI" id="pFU-H0-0K3"/>
             </connections>
         </customObject>
         <window title="Export Programs" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="564">
@@ -703,6 +711,129 @@
             </connections>
         </window>
         <customObject id="rR8-x0-OMk" customClass="SkinListDataSource"/>
+        <window title="States" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="hhe-19-iAI" userLabel="States Window" customClass="StatesWindow">
+            <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
+            <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
+            <rect key="contentRect" x="121" y="123" width="335" height="270"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1366" height="745"/>
+            <view key="contentView" id="yZc-ry-Idr">
+                <rect key="frame" x="0.0" y="0.0" width="335" height="270"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="q0h-Jy-lTQ">
+                        <rect key="frame" x="18" y="233" width="54" height="17"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <textFieldCell key="cell" lineBreakMode="clipping" title="Current:" id="4Az-MK-x5s">
+                            <font key="font" usesAppearanceFont="YES"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <scrollView autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" id="JBZ-rd-ge1">
+                        <rect key="frame" x="20" y="61" width="295" height="161"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <clipView key="contentView" id="Kec-lW-IoC">
+                            <rect key="frame" x="1" y="1" width="293" height="159"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            <subviews>
+                                <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnReordering="NO" columnResizing="NO" multipleSelection="NO" autosaveColumns="NO" typeSelect="NO" id="BSh-RB-STp">
+                                    <rect key="frame" x="0.0" y="0.0" width="293" height="159"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <size key="intercellSpacing" width="3" height="2"/>
+                                    <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
+                                    <tableColumns>
+                                        <tableColumn identifier="col2" editable="NO" width="267" minWidth="40" maxWidth="1000" id="y33-HX-PBl" userLabel="col1">
+                                            <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
+                                                <font key="font" metaFont="smallSystem"/>
+                                                <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" white="0.33333299" alpha="1" colorSpace="calibratedWhite"/>
+                                            </tableHeaderCell>
+                                            <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="drg-sv-lgA">
+                                                <font key="font" metaFont="system"/>
+                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                            <tableColumnResizingMask key="resizingMask" resizeWithTable="YES"/>
+                                        </tableColumn>
+                                    </tableColumns>
+                                    <connections>
+                                        <action selector="stateListAction:" target="hhe-19-iAI" id="DsX-K8-60e"/>
+                                        <action trigger="doubleAction" selector="stateListDoubleAction:" target="hhe-19-iAI" id="wRm-87-JIg"/>
+                                        <outlet property="dataSource" destination="X3F-sW-8Oo" id="gtQ-aW-7qe"/>
+                                    </connections>
+                                </tableView>
+                            </subviews>
+                        </clipView>
+                        <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="DZN-Ep-Cmo">
+                            <rect key="frame" x="1" y="119" width="223" height="15"/>
+                            <autoresizingMask key="autoresizingMask"/>
+                        </scroller>
+                        <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="bli-Mv-vfI">
+                            <rect key="frame" x="224" y="1" width="15" height="118"/>
+                            <autoresizingMask key="autoresizingMask"/>
+                        </scroller>
+                    </scrollView>
+                    <button verticalHuggingPriority="750" id="Ywq-hk-t2T">
+                        <rect key="frame" x="14" y="13" width="159" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="push" title="Switch To" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="abq-Qk-Pha">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="switchTo:" target="hhe-19-iAI" id="fi9-h0-8bp"/>
+                        </connections>
+                    </button>
+                    <button verticalHuggingPriority="750" id="ViN-X7-FZZ">
+                        <rect key="frame" x="249" y="13" width="72" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="push" title="Done" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="uGh-JI-x2R">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="done:" target="hhe-19-iAI" id="hBT-P2-u8b"/>
+                        </connections>
+                    </button>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="9Nn-sN-Lh6">
+                        <rect key="frame" x="76" y="233" width="241" height="17"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <textFieldCell key="cell" lineBreakMode="clipping" title="Label" id="X0x-Y2-tZr">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <popUpButton verticalHuggingPriority="750" id="6ld-E0-qo6">
+                        <rect key="frame" x="172" y="17" width="78" height="25"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <popUpButtonCell key="cell" type="push" title="More" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" pullsDown="YES" autoenablesItems="NO" selectedItem="NJn-rg-bHI" id="LKA-Nv-moe">
+                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="menu"/>
+                            <menu key="menu" showsStateColumn="NO" autoenablesItems="NO" id="SGd-1U-EPH">
+                                <items>
+                                    <menuItem title="More" state="on" hidden="YES" id="NJn-rg-bHI"/>
+                                </items>
+                            </menu>
+                        </popUpButtonCell>
+                        <connections>
+                            <action selector="menuSelected:" target="hhe-19-iAI" id="SZP-Uy-dhe"/>
+                        </connections>
+                    </popUpButton>
+                </subviews>
+            </view>
+            <connections>
+                <outlet property="actionMenu" destination="6ld-E0-qo6" id="yXH-fz-T8i"/>
+                <outlet property="current" destination="9Nn-sN-Lh6" id="bsC-nO-27t"/>
+                <outlet property="delegate" destination="520" id="UZC-00-OHl"/>
+                <outlet property="stateListDataSource" destination="X3F-sW-8Oo" id="bea-y5-qYa"/>
+                <outlet property="stateListView" destination="BSh-RB-STp" id="vgU-YS-NeV"/>
+                <outlet property="switchToButton" destination="Ywq-hk-t2T" id="8Hf-Oc-ocI"/>
+            </connections>
+            <point key="canvasLocation" x="103.5" y="382"/>
+        </window>
+        <customObject id="X3F-sW-8Oo" customClass="StateListDataSource"/>
     </objects>
     <resources>
         <image name="icon" width="512" height="512"/>

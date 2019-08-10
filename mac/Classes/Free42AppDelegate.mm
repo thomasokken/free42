@@ -33,6 +33,7 @@
 #import "FileOpenPanel.h"
 #import "FileSavePanel.h"
 #import "PrintView.h"
+#import "StatesWindow.h"
 
 
 static Free42AppDelegate *instance = NULL;
@@ -56,9 +57,6 @@ static pthread_cond_t is_running_cond = PTHREAD_COND_INITIALIZER;
 static char statefilename[FILENAMELEN];
 static char printfilename[FILENAMELEN];
 static FILE *statefile = NULL;
-static char export_file_name[FILENAMELEN];
-static FILE *export_file = NULL;
-static FILE *import_file = NULL;
 
 static int ckey = 0;
 static int skey;
@@ -144,6 +142,7 @@ static bool is_file(const char *name);
 @synthesize deleteSkinsWindow;
 @synthesize skinListView;
 @synthesize skinListDataSource;
+@synthesize statesWindow;
 
 - (void) startRunner {
     [self performSelectorInBackground:@selector(runner) withObject:NULL];
@@ -286,7 +285,7 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
     }
     if (init_mode == 1) {
         if (version > 25) {
-            snprintf(core_state_file_name, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreFileName);
+            snprintf(core_state_file_name, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreName);
             core_state_file_offset = 0;
         } else {
             strcpy(core_state_file_name, statefilename);
@@ -428,13 +427,13 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
         fclose(statefile);
     }
     char corefilename[FILENAMELEN];
-    snprintf(corefilename, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreFileName);
+    snprintf(corefilename, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreName);
     core_quit(corefilename);
 }
 
 - (void)windowWillClose:(NSNotification *)notification {
     NSWindow *window = [notification object];
-    if (window == aboutWindow || window == preferencesWindow || window == selectProgramsWindow || window == deleteSkinsWindow) {
+    if (window == aboutWindow || window == preferencesWindow || window == selectProgramsWindow || window == deleteSkinsWindow || window == statesWindow) {
         [NSApp stopModal];
         if (window == preferencesWindow)
             [instance getPreferences];
@@ -526,6 +525,10 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
     FileSavePanel *saveDlg = [FileSavePanel panelWithTitle:@"Select GIF File Name" types:@"GIF;gif;All Files;*"];
     if ([saveDlg runModal] == NSOKButton)
         [prefsPrintGIFFile setStringValue:[saveDlg path]];
+}
+
+- (IBAction) states:(id)sender {
+    [NSApp runModalForWindow:statesWindow];
 }
 
 - (IBAction) showPrintOut:(id)sender {
@@ -918,6 +921,20 @@ static char version[32] = "";
     [mainWindow setContentSize:sz];
     [mainWindow setFrameTopLeftPoint:p];
     [calcView setNeedsDisplayInRectSafely:CGRectMake(0, 0, w, h)];
+}
+
++ (void) loadState:(const char *)name {
+    if (strcmp(name, state.coreName) == 0)
+        core_quit(NULL);
+    else {
+        char corefilename[FILENAMELEN];
+        snprintf(corefilename, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreName);
+        core_quit(corefilename);
+    }
+    strcpy(state.coreName, name);
+    char corefilename[FILENAMELEN];
+    snprintf(corefilename, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreName);
+    core_init(1, 26, corefilename, 0);
 }
 
 - (void) mouseDown3 {
@@ -1673,7 +1690,7 @@ static void init_shell_state(int4 version) {
             state.skinName[0] = 0;
             /* fall through */
         case 0:
-            strcpy(state.coreFileName, "Untitled");
+            strcpy(state.coreName, "Untitled");
             /* fall through */
         case 1:
             /* current version (SHELL_VERSION = 1),

@@ -113,20 +113,29 @@ void core_quit(const char *state_file_name) {
     // TODO: Does that apply to the iPhone verson as well?
     if (mode_interruptible != NULL)
         stop_interruptible();
-    gfile = fopen(state_file_name, "wb");
-    if (gfile != NULL) {
-        save_state();
-        fclose(gfile);
+    if (state_file_name != NULL) {
+        gfile = fopen(state_file_name, "wb");
+        if (gfile != NULL) {
+            save_state();
+            fclose(gfile);
+        }
     }
     free_vartype(reg_x);
+    reg_x = NULL;
     free_vartype(reg_y);
+    reg_y = NULL;
     free_vartype(reg_z);
+    reg_z = NULL;
     free_vartype(reg_t);
+    reg_t = NULL;
     free_vartype(reg_lastx);
+    reg_lastx = NULL;
     purge_all_vars();
     clear_all_prgms();
-    if (vars != NULL)
+    if (vars != NULL) {
         free(vars);
+        vars = NULL;
+    }
     clean_vartype_pools();
 #endif
 //

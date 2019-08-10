@@ -66,6 +66,9 @@
 		E9BA5705200189F400B490B0 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E9BA5704200189F400B490B0 /* IOKit.framework */; };
 		E9BF15C32222E725009F559F /* FileOpenPanel.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9BF15BF2222E725009F559F /* FileOpenPanel.mm */; };
 		E9BF15C42222E725009F559F /* FileSavePanel.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9BF15C12222E725009F559F /* FileSavePanel.mm */; };
+		E9E059D422FEF075009DDC40 /* StatesWindow.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9E059D322FEF075009DDC40 /* StatesWindow.mm */; };
+		E9E059D622FEF1E6009DDC40 /* StatesWindow.h in Sources */ = {isa = PBXBuildFile; fileRef = E9E059D522FEF1E6009DDC40 /* StatesWindow.h */; };
+		E9E059D822FEF866009DDC40 /* StateListDataSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9E059D722FEF866009DDC40 /* StateListDataSource.mm */; };
 		E9E335DE0FF67A1D006A40AD /* keymap.txt in Resources */ = {isa = PBXBuildFile; fileRef = E9E335DD0FF67A1D006A40AD /* keymap.txt */; };
 /* End PBXBuildFile section */
 
@@ -170,6 +173,10 @@
 		E9BF15C02222E725009F559F /* FileOpenPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FileOpenPanel.h; path = Classes/FileOpenPanel.h; sourceTree = "<group>"; };
 		E9BF15C12222E725009F559F /* FileSavePanel.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = FileSavePanel.mm; path = Classes/FileSavePanel.mm; sourceTree = "<group>"; };
 		E9BF15C22222E725009F559F /* FileSavePanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FileSavePanel.h; path = Classes/FileSavePanel.h; sourceTree = "<group>"; };
+		E9E059D322FEF075009DDC40 /* StatesWindow.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = StatesWindow.mm; path = Classes/StatesWindow.mm; sourceTree = "<group>"; };
+		E9E059D522FEF1E6009DDC40 /* StatesWindow.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = StatesWindow.h; path = Classes/StatesWindow.h; sourceTree = "<group>"; };
+		E9E059D722FEF866009DDC40 /* StateListDataSource.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = StateListDataSource.mm; path = Classes/StateListDataSource.mm; sourceTree = "<group>"; };
+		E9E059D922FEF91B009DDC40 /* StateListDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StateListDataSource.h; path = Classes/StateListDataSource.h; sourceTree = "<group>"; };
 		E9E335DD0FF67A1D006A40AD /* keymap.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = keymap.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -208,6 +215,10 @@
 				E979254A1698897600598A02 /* shell_skin.mm */,
 				E907929822AD943A00DA7F7E /* SkinListDataSource.h */,
 				E907929722AD943A00DA7F7E /* SkinListDataSource.mm */,
+				E9E059D922FEF91B009DDC40 /* StateListDataSource.h */,
+				E9E059D722FEF866009DDC40 /* StateListDataSource.mm */,
+				E9E059D522FEF1E6009DDC40 /* StatesWindow.h */,
+				E9E059D322FEF075009DDC40 /* StatesWindow.mm */,
 				E979254C1698EB7F00598A02 /* URLTextField.h */,
 				E979254F1698ED2B00598A02 /* URLTextField.mm */,
 			);
@@ -473,6 +484,7 @@
 				E959D4300FEC0A44007C56A4 /* core_commands2.cc in Sources */,
 				E959D4310FEC0A44007C56A4 /* core_commands3.cc in Sources */,
 				E959D4320FEC0A44007C56A4 /* core_commands4.cc in Sources */,
+				E9E059D622FEF1E6009DDC40 /* StatesWindow.h in Sources */,
 				E959D4330FEC0A44007C56A4 /* core_commands5.cc in Sources */,
 				E959D4340FEC0A44007C56A4 /* core_commands6.cc in Sources */,
 				E959D4350FEC0A44007C56A4 /* core_display.cc in Sources */,
@@ -488,9 +500,11 @@
 				E959D43E0FEC0A44007C56A4 /* core_phloat.cc in Sources */,
 				E959D43F0FEC0A44007C56A4 /* core_sto_rcl.cc in Sources */,
 				E959D4400FEC0A44007C56A4 /* core_tables.cc in Sources */,
+				E9E059D422FEF075009DDC40 /* StatesWindow.mm in Sources */,
 				E959D4410FEC0A44007C56A4 /* core_variables.cc in Sources */,
 				E93469F41CF0CCAB00B0762F /* readtest.c in Sources */,
 				E9BF15C42222E725009F559F /* FileSavePanel.mm in Sources */,
+				E9E059D822FEF866009DDC40 /* StateListDataSource.mm in Sources */,
 				E959D4420FEC0A44007C56A4 /* shell_loadimage.cc in Sources */,
 				E959D4430FEC0A44007C56A4 /* shell_spool.cc in Sources */,
 				E99FDE2F11624FFA004DB479 /* core_commands7.cc in Sources */,
