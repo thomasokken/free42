@@ -144,9 +144,6 @@ static int gif_lines;
 
 static int sel_prog_count;
 static int *sel_prog_list;
-static char export_file_name[FILENAMELEN];
-static FILE *export_file = NULL;
-static FILE *import_file = NULL;
 
 static int ann_updown = 0;
 static int ann_shift = 0;
@@ -379,6 +376,8 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
     int init_mode;
     int4 version;
+	char core_state_file_name[FILENAMELEN];
+	int core_state_file_offset;
 
     statefile = fopen(statefilename, "rb");
     if (statefile != NULL) {
@@ -392,13 +391,15 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
         init_shell_state(-1);
         init_mode = 0;
     }
-    if (init_mode == 1 && version > 25) {
+	if (init_mode == 1) {
+		if (version > 25) {
+			sprintf(core_state_file_name, "%s\\%s.f42", free42dirname, state.coreFileName);
+			core_state_file_offset = 0;
+		} else {
+			strcpy(core_state_file_name, statefilename);
+			core_state_file_offset = ftell(statefile);
+		}
         fclose(statefile);
-        char corefilename[FILENAMELEN];
-        sprintf(corefilename, "%s\\%s.f42", free42dirname, state.coreFileName);
-        statefile = fopen(corefilename, "rb");
-        if (statefile == NULL)
-            init_mode = 0;
     }
 
     if (state.singleInstance) {
@@ -424,11 +425,7 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
     if (hMainWnd == NULL)
         return FALSE;
 
-    core_init(init_mode, version);
-    if (statefile != NULL) {
-        fclose(statefile);
-        statefile = NULL;
-    }
+    core_init(init_mode, version, core_state_file_name, core_state_file_offset);
 
     if (state.mainPlacementValid) {
         // Fix the size, in case the saved settings are not appropriate
@@ -1593,15 +1590,11 @@ static void Quit() {
             }
         }
         write_shell_state();
+	    fclose(statefile);
     }
-    if (statefile != NULL)
-        fclose(statefile);
-    char corefilename[FILENAMELEN];
-    sprintf(corefilename, "%s\\%s.f42", free42dirname, state.coreFileName);
-    statefile = fopen(corefilename, "wb");
-    core_quit();
-    if (statefile != NULL)
-        fclose(statefile);
+	char corefilename[FILENAMELEN];
+    sprintf(corefilename, "%s/%s.f42", free42dirname, state.coreFileName);
+    core_quit(corefilename);
 
     if (print_txt != NULL)
         fclose(print_txt);
@@ -1714,6 +1707,7 @@ static void export_program() {
     /* The sel_prog_count global now has the number of selected items;
      * sel_prog_list is an array of integers containing the item numbers.
      */
+	char export_file_name[FILENAMELEN];
     if (!browse_file(hMainWnd,
                      "Export Programs",
                      1,
@@ -1723,19 +1717,7 @@ static void export_program() {
                      FILENAMELEN))
         return;
 
-    export_file = fopen(export_file_name, "wb");
-    if (export_file == NULL) {
-        int err = errno;
-        char buf[1000];
-        sprintf(buf, "Can't open \"%s\" for output: %s (%d)", export_file_name, strerror(err), err);
-        MessageBox(hMainWnd, buf, "Message", MB_ICONWARNING);
-    } else {
-        core_export_programs(sel_prog_count, sel_prog_list);
-        if (export_file != NULL) {
-            fclose(export_file);
-            export_file = NULL;
-        }
-    }
+    core_export_programs(sel_prog_count, sel_prog_list, export_file_name);
 
     free(sel_prog_list);
 }
@@ -1752,20 +1734,8 @@ static void import_program() {
                      FILENAMELEN))
         return;
 
-    import_file = fopen(buf, "rb");
-    if (import_file == NULL) {
-        char buf[1000];
-        int err = errno;
-        sprintf(buf, "Could not open \"%s\" for reading: %s (%d)", buf, strerror(err), err);
-        MessageBox(hMainWnd, buf, "Message", MB_ICONWARNING);
-    } else {
-        core_import_programs(0);
-        redisplay();
-        if (import_file != NULL) {
-            fclose(import_file);
-            import_file = NULL;
-        }
-    }
+    core_import_programs(0, buf);
+    redisplay();
 }
 
 static void paper_advance() {
@@ -2197,35 +2167,6 @@ void shell_request_timeout3(int delay) {
     timer3 = SetTimer(NULL, 0, delay, timeout3);
 }
 
-int4 shell_read_saved_state(void *buf, int4 bufsize) {
-    if (statefile == NULL)
-        return -1;
-    else {
-        int4 n = fread(buf, 1, bufsize, statefile);
-        if (n != bufsize && ferror(statefile)) {
-            fclose(statefile);
-            statefile = NULL;
-            return -1;
-        } else
-            return n;
-    }
-}
-
-bool shell_write_saved_state(const void *buf, int4 nbytes) {
-    if (statefile == NULL)
-        return false;
-    else {
-        int4 n = fwrite(buf, 1, nbytes, statefile);
-        if (n != nbytes) {
-            fclose(statefile);
-            remove(statefilename);
-            statefile = NULL;
-            return false;
-        } else
-            return true;
-    }
-}
-
 uint4 shell_get_mem() {
     MEMORYSTATUS memstat;
     GlobalMemoryStatus(&memstat);
@@ -2253,6 +2194,10 @@ int shell_low_battery() {
 
 void shell_powerdown() {
     PostQuitMessage(0);
+}
+
+void shell_message(const char *message) {
+	MessageBox(hMainWnd, message, "Core", MB_ICONWARNING);
 }
 
 int8 shell_random_seed() {
@@ -2456,42 +2401,6 @@ void shell_print(const char *text, int length,
     }
 }
 
-int shell_write(const char *buf, int4 buflen) {
-    if (statefile != NULL)
-        // For writing programs to the state file
-        return shell_write_saved_state(buf, buflen) ? 1 : 0;
-    int4 written;
-    if (export_file == NULL)
-        return 0;
-    written = fwrite(buf, 1, buflen, export_file);
-    if (written != buflen) {
-        char buf[1000];
-        fclose(export_file);
-        export_file = NULL;
-        sprintf(buf, "Writing \"%s\" failed.", export_file_name);
-        MessageBox(hMainWnd, buf, "Message", MB_ICONWARNING);
-        return 0;
-    } else
-        return 1;
-}
-
-int4 shell_read(char *buf, int4 buflen) {
-    if (statefile != NULL)
-        // For reading programs from the state file
-        return shell_read_saved_state(buf, buflen);
-    int4 nread;
-    if (import_file == NULL)
-        return -1;
-    nread = fread(buf, 1, buflen, import_file);
-    if (nread != buflen && ferror(import_file)) {
-        fclose(import_file);
-        import_file = NULL;
-        MessageBox(hMainWnd, "An error occurred; import was terminated prematurely.", "Message", MB_ICONWARNING);
-        return -1;
-    } else
-        return nread;
-}
-
 extern long keymap_filesize;
 extern char keymap_filedata[];
 
@@ -2588,26 +2497,26 @@ static int read_shell_state(int4 *ver) {
     int4 state_size;
     int4 state_version;
 
-    if (shell_read_saved_state(&magic, sizeof(int4)) != sizeof(int4))
+    if (fread(&magic, 1, sizeof(int4), statefile) != sizeof(int4))
         return 0;
     if (magic != FREE42_MAGIC)
         return 0;
 
-    if (shell_read_saved_state(&version, sizeof(int4)) != sizeof(int4))
+    if (fread(&version, 1, sizeof(int4), statefile) != sizeof(int4))
         return 0;
     if (version < 0 || version > FREE42_VERSION)
         /* Unknown state file version */
         return 0;
 
     if (version > 0) {
-        if (shell_read_saved_state(&state_size, sizeof(int4)) != sizeof(int4))
+        if (fread(&state_size, 1, sizeof(int4), statefile) != sizeof(int4))
             return 0;
-        if (shell_read_saved_state(&state_version, sizeof(int4)) != sizeof(int4))
+        if (fread(&state_version, 1, sizeof(int4), statefile) != sizeof(int4))
             return 0;
         if (state_version < 0 || state_version > SHELL_VERSION)
             /* Unknown shell state version */
             return 0;
-        if (shell_read_saved_state(&state, state_size) != state_size)
+        if (fread(&state, 1, state_size, statefile) != state_size)
             return 0;
         // Initialize the parts of the shell state
         // that were NOT read from the state file
@@ -2625,15 +2534,15 @@ static int write_shell_state() {
     int4 state_size = sizeof(state_type);
     int4 state_version = SHELL_VERSION;
 
-    if (!shell_write_saved_state(&magic, sizeof(int4)))
+    if (fwrite(&magic, 1, sizeof(int4), statefile) != sizeof(int4))
         return 0;
-    if (!shell_write_saved_state(&version, sizeof(int4)))
+    if (fwrite(&version, 1, sizeof(int4), statefile) != sizeof(int4))
         return 0;
-    if (!shell_write_saved_state(&state_size, sizeof(int4)))
+    if (fwrite(&state_size, 1, sizeof(int4), statefile) != sizeof(int4))
         return 0;
-    if (!shell_write_saved_state(&state_version, sizeof(int4)))
+    if (fwrite(&state_version, 1, sizeof(int4), statefile) != sizeof(int4))
         return 0;
-    if (!shell_write_saved_state(&state, sizeof(state_type)))
+    if (fwrite(&state, 1, sizeof(state_type), statefile) != sizeof(state_type))
         return 0;
 
     return 1;
