@@ -28,6 +28,7 @@
 @synthesize stateListDataSource;
 
 - (void) awakeFromNib {
+    [actionMenu addItemWithTitle:@"New"];
     [actionMenu addItemWithTitle:@"Duplicate"];
     [actionMenu addItemWithTitle:@"Rename"];
     [actionMenu addItemWithTitle:@"Delete"];
@@ -57,10 +58,10 @@
         stateSelected = YES;
     }
     [switchToButton setEnabled:stateSelected];
-    [[actionMenu itemAtIndex:1] setEnabled:stateSelected];
     [[actionMenu itemAtIndex:2] setEnabled:stateSelected];
     [[actionMenu itemAtIndex:3] setEnabled:stateSelected];
-    [[actionMenu itemAtIndex:5] setEnabled:stateSelected];
+    [[actionMenu itemAtIndex:4] setEnabled:stateSelected];
+    [[actionMenu itemAtIndex:6] setEnabled:stateSelected];
 }
 
 - (void) becomeKeyWindow {
@@ -85,6 +86,15 @@
         return;
     [Free42AppDelegate loadState:name];
     [self close];
+}
+
+- (void) doNew {
+    // Prompt for new name using a simple text box dialog,
+    // not a file selection dialog, and then create a special
+    // state file that is handled like the absence of a
+    // state file, i.e. it comes up in a hard-reset Memory
+    // Clear state, and not State File Corrupt or any other
+    // error.
 }
 
 - (void) doDuplicate {
@@ -122,18 +132,21 @@
     int sel = [actionMenu indexOfSelectedItem];
     switch (sel) {
         case 1:
-            [self doDuplicate];
+            [self doNew];
             break;
         case 2:
-            [self doRename];
+            [self doDuplicate];
             break;
         case 3:
-            [self doDelete];
+            [self doRename];
             break;
         case 4:
-            [self doImport];
+            [self doDelete];
             break;
         case 5:
+            [self doImport];
+            break;
+        case 6:
             [self doExport];
             break;
     }
