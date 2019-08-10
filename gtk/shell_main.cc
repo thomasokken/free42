@@ -104,9 +104,6 @@ static GtkWidget *printwindow;
 static GtkWidget *print_widget;
 static GdkGC *print_gc = NULL;
 static GtkAdjustment *print_adj;
-static char export_file_name[FILENAMELEN];
-static FILE *export_file = NULL;
-static FILE *import_file = NULL;
 static GdkPixbuf *icon_128;
 static GdkPixbuf *icon_48;
 
@@ -1171,6 +1168,7 @@ static void exportProgramCB() {
     if (filename == NULL)
         return;
 
+    char export_file_name[FILENAMELEN];
     strcpy(export_file_name, filename);
     g_free(filename);
     if (strncmp(gtk_file_filter_get_name(
@@ -1260,10 +1258,8 @@ static void importProgramCB() {
         return;
     
     char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-    if (filename == NULL) {
-        import_file = NULL;
+    if (filename == NULL)
         return;
-    }
 
     char filenamebuf[FILENAMELEN];
     strncpy(filenamebuf, filename, FILENAMELEN);
@@ -2548,37 +2544,6 @@ void shell_log(const char *message) {
         logfile = fopen("free42.log", "w");
     fprintf(logfile, "%s\n", message);
     fflush(logfile);
-}
-
-int shell_write(const char *buf, int4 buflen) {
-    int4 written;
-    if (export_file == NULL)
-        return 0;
-    written = fwrite(buf, 1, buflen, export_file);
-    if (written != buflen) {
-        char buf[1000];
-        fclose(export_file);
-        export_file = NULL;
-        snprintf(buf, 1000, "Writing \"%s\" failed.", export_file_name);
-        show_message("Message", buf);
-        return 0;
-    } else
-        return 1;
-}
-
-int shell_read(char *buf, int4 buflen) {
-    int4 nread;
-    if (import_file == NULL)
-        return -1;
-    nread = fread(buf, 1, buflen, import_file);
-    if (nread != buflen && ferror(import_file)) {
-        fclose(import_file);
-        import_file = NULL;
-        show_message("Message",
-                "An error occurred; import was terminated prematurely.");
-        return -1;
-    } else
-        return nread;
 }
 
 void shell_get_time_date(uint4 *time, uint4 *date, int *weekday) {
