@@ -17,18 +17,20 @@
 
 #import <Cocoa/Cocoa.h>
 
-
-@interface StateListDataSource : NSObject {
+@interface StateNameWindow : NSWindow {
+    NSTextField *label;
+    NSTextField *stateName;
+    NSString **existingNames;
     int count;
-    NSString **names;
+    BOOL confirmed;
 }
 
-- (void) awakeFromNib;
-- (NSInteger) numberOfRowsInTableView:(NSTableView *)aTableView;
-- (id) tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex;
-- (void) tableView:(NSTableView *)aTableView setObjectValue:anObject forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex;
-- (void) loadStateNames;
-- (NSString **) getNames;
-- (int) getNameCount;
+@property (nonatomic, retain) IBOutlet NSTextField *label;
+@property (nonatomic, retain) IBOutlet NSTextField *stateName;
+
+- (void) setupWithLabel:(NSString *)label existingNames:(NSString **)names count:(int)n;
+- (NSString *) selectedName;
+- (IBAction) ok:(id)sender;
+- (IBAction) cancel:(id)sender;
 
 @end

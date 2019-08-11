@@ -17,6 +17,7 @@
 
 #import "StatesWindow.h"
 #import "StateListDataSource.h"
+#import "StateNameWindow.h"
 #import "Free42AppDelegate.h"
 
 @implementation StatesWindow
@@ -26,6 +27,7 @@
 @synthesize switchToButton;
 @synthesize actionMenu;
 @synthesize stateListDataSource;
+@synthesize stateNameWindow;
 
 - (void) awakeFromNib {
     [actionMenu addItemWithTitle:@"New"];
@@ -44,7 +46,7 @@
         return [[stateListDataSource getNames][row] cStringUsingEncoding:NSUTF8StringEncoding];
 }
 
-- (void) update {
+- (void) update:(BOOL)rescan {
     const char *name = [self selectedStateName];
     BOOL stateSelected;
     if (name == NULL) {
@@ -60,20 +62,22 @@
     [switchToButton setEnabled:stateSelected];
     [[actionMenu itemAtIndex:2] setEnabled:stateSelected];
     [[actionMenu itemAtIndex:3] setEnabled:stateSelected];
-    [[actionMenu itemAtIndex:4] setEnabled:stateSelected];
+    [[actionMenu itemAtIndex:4] setEnabled:stateSelected && strcmp(name, state.coreName) != 0];
     [[actionMenu itemAtIndex:6] setEnabled:stateSelected];
+    if (rescan) {
+        [stateListDataSource loadStateNames];
+        [stateListView reloadData];
+    }
 }
 
 - (void) becomeKeyWindow {
     [current setStringValue:[NSString stringWithCString:state.coreName encoding:NSUTF8StringEncoding]];
-    [stateListDataSource loadStateNames];
-    [stateListView reloadData];
-    [self update];
+    [self update:YES];
     [super becomeKeyWindow];
 }
 
 - (IBAction) stateListAction:(id)sender {
-    [self update];
+    [self update:NO];
 }
 
 - (IBAction) stateListDoubleAction:(id)sender {
@@ -89,12 +93,17 @@
 }
 
 - (void) doNew {
-    // Prompt for new name using a simple text box dialog,
-    // not a file selection dialog, and then create a special
-    // state file that is handled like the absence of a
-    // state file, i.e. it comes up in a hard-reset Memory
-    // Clear state, and not State File Corrupt or any other
-    // error.
+    [stateNameWindow setupWithLabel:@"New State Name:" existingNames:[stateListDataSource getNames] count:[stateListDataSource getNameCount]];
+    [NSApp runModalForWindow:stateNameWindow];
+    NSString *name = [stateNameWindow selectedName];
+    if (name == nil)
+        return;
+    char fname[FILENAMELEN];
+    snprintf(fname, FILENAMELEN, "%s/%s.f42", free42dirname, [name cStringUsingEncoding:NSUTF8StringEncoding]);
+    FILE *f = fopen(fname, "w");
+    fprintf(f, "24kF");
+    fclose(f);
+    [self update:YES];
 }
 
 - (void) doDuplicate {
@@ -105,14 +114,28 @@
 }
 
 - (void) doRename {
-    // Prompt for new name using a simple text box dialog,
-    // not a file selection dialog.
-    // If active: update state.coreName as well
+    const char *oldname = [self selectedStateName];
+    if (oldname == NULL)
+        return;
+    [stateNameWindow setupWithLabel:[NSString stringWithFormat:@"Rename \"%s\" to:", state.coreName] existingNames:[stateListDataSource getNames] count:[stateListDataSource getNameCount]];
+    [NSApp runModalForWindow:stateNameWindow];
+    NSString *newname = [stateNameWindow selectedName];
+    if (newname == nil)
+        return;
+    char oldpath[FILENAMELEN], newpath[FILENAMELEN];
+    snprintf(oldpath, FILENAMELEN, "%s/%s.f42", free42dirname, oldname);
+    snprintf(newpath, FILENAMELEN, "%s/%s.f42", free42dirname, [newname UTF8String]);
+    rename(oldpath, newpath);
+    if (strcasecmp(oldname, state.coreName) == 0) {
+        strncpy(state.coreName, [newname UTF8String], FILENAMELEN);
+        [current setStringValue:newname];
+    }
+    [self update:YES];
 }
 
 - (void) doDelete {
-    // If active: do hard reset first
-    // all cases: delete the named file
+    // If active: do nothing. The dialog should prevent this anyway.
+    // all other cases: delete the named file
 }
 
 - (void) doImport {

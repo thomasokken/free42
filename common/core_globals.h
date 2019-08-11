@@ -581,7 +581,7 @@ bool write_phloat(phloat d);
 bool read_arg(arg_struct *arg, bool old);
 bool write_arg(const arg_struct *arg);
 
-bool load_state(int4 version);
+bool load_state(int4 version, bool *clear);
 void save_state();
 void hard_reset(int bad_state_file);
 

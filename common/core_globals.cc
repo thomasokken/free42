@@ -3167,9 +3167,10 @@ bool write_arg(const arg_struct *arg) {
     }
 }
 
-bool load_state(int4 ver) {
+bool load_state(int4 ver, bool *clear) {
     int4 magic;
     int4 version;
+    *clear = false;
 
     /* The shell has verified the initial magic and version numbers,
      * and loaded the shell state, before we got called.
@@ -3180,10 +3181,18 @@ bool load_state(int4 ver) {
 
     if (state_is_portable) {
         int4 magic;
-        if (!read_int4(&magic) || !read_int4(&ver))
+        if (!read_int4(&magic))
             return false;
         if (magic != FREE42_MAGIC)
             return false;
+        if (!read_int4(&ver)) {
+            // A state file containing nothing after the magic number
+            // is considered empty, and results in a hard reset. This
+            // is *not* an error condition; such state files are used
+            // when creating a new state in the States window.
+            *clear = true;
+            return false;
+        }
         // The version we read from the core state may be different from
         // the one we got from the shell state, but it will always be
         // >= 26, since that's when we started using separate shell and

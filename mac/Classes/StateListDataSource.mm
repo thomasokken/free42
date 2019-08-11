@@ -88,4 +88,8 @@ static int case_insens_comparator(const void *a, const void *b) {
     return names;
 }
 
+- (int) getNameCount {
+    return count;
+}
+
 @end

@@ -79,8 +79,9 @@ void core_init(int read_saved_state, int4 version, const char *state_file_name, 
     } else
         gfile = NULL;
 
-    if (read_saved_state != 1 || !load_state(version))
-        hard_reset(read_saved_state != 0);
+    bool clear;
+    if (read_saved_state != 1 || !load_state(version, &clear))
+        hard_reset(read_saved_state != 0 && !clear);
     if (gfile != NULL)
         fclose(gfile);
 
@@ -135,6 +136,7 @@ void core_quit(const char *state_file_name) {
     if (vars != NULL) {
         free(vars);
         vars = NULL;
+        vars_capacity = 0;
     }
     clean_vartype_pools();
 #endif

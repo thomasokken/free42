@@ -18,6 +18,7 @@
 #import <Cocoa/Cocoa.h>
 
 @class StateListDataSource;
+@class StateNameWindow;
 
 @interface StatesWindow : NSWindow {
     NSTextField *current;
@@ -25,6 +26,7 @@
     NSButton *switchToButton;
     NSPopUpButton *actionMenu;
     StateListDataSource *stateListDataSource;
+    StateNameWindow *stateNameWindow;
 }
 
 @property (nonatomic, retain) IBOutlet NSTextField *current;
@@ -32,6 +34,7 @@
 @property (nonatomic, retain) IBOutlet NSButton *switchToButton;
 @property (nonatomic, retain) IBOutlet NSPopUpButton *actionMenu;
 @property (nonatomic, retain) IBOutlet StateListDataSource *stateListDataSource;
+@property (nonatomic, retain) IBOutlet StateNameWindow *stateNameWindow;
 
 - (IBAction) stateListAction:(id)sender;
 - (IBAction) stateListDoubleAction:(id)sender;

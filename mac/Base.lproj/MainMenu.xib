@@ -163,6 +163,7 @@
                     </menu>
                 </menuItem>
             </items>
+            <point key="canvasLocation" x="138" y="-113"/>
         </menu>
         <window title="Free42" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="371">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
@@ -296,6 +297,7 @@
             <connections>
                 <outlet property="delegate" destination="520" id="594"/>
             </connections>
+            <point key="canvasLocation" x="919" y="645"/>
         </window>
         <window title="Free42 Print-Out" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="502">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
@@ -336,6 +338,7 @@
             <connections>
                 <outlet property="delegate" destination="520" id="614"/>
             </connections>
+            <point key="canvasLocation" x="627" y="141"/>
         </window>
         <window title="About Free42" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="508">
             <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
@@ -392,6 +395,7 @@
             <connections>
                 <outlet property="delegate" destination="520" id="593"/>
             </connections>
+            <point key="canvasLocation" x="90" y="581"/>
         </window>
         <customObject id="520" customClass="Free42AppDelegate">
             <connections>
@@ -524,6 +528,7 @@
             <connections>
                 <outlet property="delegate" destination="520" id="595"/>
             </connections>
+            <point key="canvasLocation" x="1037" y="-53"/>
         </window>
         <customObject id="585" customClass="ProgramListDataSource"/>
         <window title="Load Skins" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="O16-Bu-L5F">
@@ -709,6 +714,7 @@
             <connections>
                 <outlet property="delegate" destination="520" id="ADz-DK-oaJ"/>
             </connections>
+            <point key="canvasLocation" x="1024" y="320"/>
         </window>
         <customObject id="rR8-x0-OMk" customClass="SkinListDataSource"/>
         <window title="States" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="hhe-19-iAI" userLabel="States Window" customClass="StatesWindow">
@@ -829,11 +835,75 @@
                 <outlet property="delegate" destination="520" id="UZC-00-OHl"/>
                 <outlet property="stateListDataSource" destination="X3F-sW-8Oo" id="bea-y5-qYa"/>
                 <outlet property="stateListView" destination="BSh-RB-STp" id="vgU-YS-NeV"/>
+                <outlet property="stateNameWindow" destination="udn-Xb-OTw" id="G7a-Ad-IHi"/>
                 <outlet property="switchToButton" destination="Ywq-hk-t2T" id="8Hf-Oc-ocI"/>
             </connections>
-            <point key="canvasLocation" x="103.5" y="382"/>
+            <point key="canvasLocation" x="1410" y="-2"/>
         </window>
         <customObject id="X3F-sW-8Oo" customClass="StateListDataSource"/>
+        <window title="State Name" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="udn-Xb-OTw" userLabel="State Name Window" customClass="StateNameWindow">
+            <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
+            <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
+            <rect key="contentRect" x="121" y="123" width="344" height="116"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1366" height="745"/>
+            <view key="contentView" id="Nia-SU-65I">
+                <rect key="frame" x="0.0" y="0.0" width="344" height="116"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <textField verticalHuggingPriority="750" id="Lvs-45-Jwx">
+                        <rect key="frame" x="20" y="49" width="304" height="22"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" id="dBS-Ce-zkh">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <button verticalHuggingPriority="750" id="dg0-Yf-8pv">
+                        <rect key="frame" x="14" y="13" width="82" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="push" title="OK" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="gXR-Zy-f8W">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                            <string key="keyEquivalent" base64-UTF8="YES">
+DQ
+</string>
+                        </buttonCell>
+                        <connections>
+                            <action selector="ok:" target="udn-Xb-OTw" id="2n4-ct-Dda"/>
+                        </connections>
+                    </button>
+                    <button verticalHuggingPriority="750" id="4pf-D2-Kcj">
+                        <rect key="frame" x="96" y="13" width="82" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="dTB-Og-YSV">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                            <string key="keyEquivalent" base64-UTF8="YES">
+Gw
+</string>
+                        </buttonCell>
+                        <connections>
+                            <action selector="cancel:" target="udn-Xb-OTw" id="uq9-QD-X8L"/>
+                        </connections>
+                    </button>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" id="Hxw-QJ-hAd">
+                        <rect key="frame" x="18" y="79" width="308" height="17"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <textFieldCell key="cell" lineBreakMode="clipping" title="Label" id="7vD-Hb-fxa">
+                            <font key="font" usesAppearanceFont="YES"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                </subviews>
+            </view>
+            <connections>
+                <outlet property="label" destination="Hxw-QJ-hAd" id="FJR-Dq-hmp"/>
+                <outlet property="stateName" destination="Lvs-45-Jwx" id="npv-b9-ksT"/>
+            </connections>
+            <point key="canvasLocation" x="1421" y="284"/>
+        </window>
     </objects>
     <resources>
         <image name="icon" width="512" height="512"/>
