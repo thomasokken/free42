@@ -19,8 +19,7 @@
 
 
 @interface StateListDataSource : NSObject {
-    int count;
-    NSString **names;
+    NSMutableArray *names;
 }
 
 - (void) awakeFromNib;
@@ -28,7 +27,6 @@
 - (id) tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex;
 - (void) tableView:(NSTableView *)aTableView setObjectValue:anObject forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex;
 - (void) loadStateNames;
-- (NSString **) getNames;
-- (int) getNameCount;
+- (NSMutableArray *) getNames;
 
 @end

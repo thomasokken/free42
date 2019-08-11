@@ -51,31 +51,54 @@
     if (row == -1)
         return NULL;
     else
-        return [[stateListDataSource getNames][row] UTF8String];
+        return [[[stateListDataSource getNames] objectAtIndex:row] UTF8String];
 }
 
 - (void) updateUI:(BOOL)rescan {
-    const char *name = [self selectedStateName];
-    BOOL stateSelected;
-    if (name == NULL) {
-        [switchToButton setTitle:@"Switch To"];
-        stateSelected = NO;
-    } else {
-        if (strcmp(name, state.coreName) == 0)
-            [switchToButton setTitle:@"Reload"];
-        else
-            [switchToButton setTitle:@"Switch To"];
-        stateSelected = YES;
-    }
-    [switchToButton setEnabled:stateSelected];
-    [[actionMenu itemAtIndex:2] setEnabled:stateSelected];
-    [[actionMenu itemAtIndex:3] setEnabled:stateSelected];
-    [[actionMenu itemAtIndex:4] setEnabled:stateSelected && strcmp(name, state.coreName) != 0];
-    [[actionMenu itemAtIndex:6] setEnabled:stateSelected];
+    int row = [stateListView selectedRow];
+    NSString *selName = row == -1 ? nil : [[[stateListDataSource getNames] objectAtIndex:row] retain];
     if (rescan) {
         [stateListDataSource loadStateNames];
         [stateListView reloadData];
+        bool found = false;
+        if (selName != nil) {
+            NSMutableArray *names = [stateListDataSource getNames];
+            for (int i = [names count] - 1; i >= 0; i--) {
+                if ([[names objectAtIndex:i] caseInsensitiveCompare:selName] == NSOrderedSame) {
+                    [stateListView selectRowIndexes:[NSIndexSet indexSetWithIndex:i] byExtendingSelection:NO];
+                    found = true;
+                    break;
+                }
+            }
+        }
+        if (!found) {
+            [stateListView deselectAll:self];
+            [selName release];
+            selName = nil;
+        }
     }
+
+    bool stateSelected;
+    bool activeStateSelected;
+
+    if (selName == nil) {
+        [switchToButton setTitle:@"Switch To"];
+        stateSelected = false;
+    } else {
+        activeStateSelected = [selName caseInsensitiveCompare:[NSString stringWithUTF8String:state.coreName]] == NSOrderedSame;
+        if (activeStateSelected)
+            [switchToButton setTitle:@"Reload"];
+        else
+            [switchToButton setTitle:@"Switch To"];
+        stateSelected = true;
+        [selName release];
+    }
+
+    [switchToButton setEnabled:stateSelected];
+    [[actionMenu itemAtIndex:2] setEnabled:stateSelected];
+    [[actionMenu itemAtIndex:3] setEnabled:stateSelected];
+    [[actionMenu itemAtIndex:4] setEnabled:stateSelected && !activeStateSelected];
+    [[actionMenu itemAtIndex:6] setEnabled:stateSelected];
 }
 
 - (void) becomeKeyWindow {
@@ -101,7 +124,7 @@
 }
 
 - (void) doNew {
-    [stateNameWindow setupWithLabel:@"New State Name:" existingNames:[stateListDataSource getNames] count:[stateListDataSource getNameCount]];
+    [stateNameWindow setupWithLabel:@"New State Name:" existingNames:[stateListDataSource getNames]];
     [NSApp runModalForWindow:stateNameWindow];
     NSString *name = [stateNameWindow selectedName];
     if (name == nil)
@@ -146,6 +169,35 @@
     snprintf(copy_name, FILENAMELEN - 4, "%s/%s", free42dirname, name);
     int n = 0;
     char suffix[10];
+
+    // We're naming duplicates by appending " copy" or " copy NNN" to the name
+    // of the original, but if the name of the original already ends with " copy"
+    // or " copy NNN", it seems more elegant to continue the sequence rather than
+    // add another " copy" suffix.
+    int len = strlen(copy_name);
+    if (len > 5 && strcasecmp(copy_name + len - 5, " copy") == 0) {
+        copy_name[len - 5] = 0;
+        n = 1;
+    } else if (len > 7) {
+        int pos = len - 7;
+        int m = 0;
+        int p = 1;
+        while (pos > 0) {
+            char c = copy_name[pos + 6];
+            if (c < '0' || c > '9')
+                goto not_a_copy;
+            m += p * (c - '0');
+            p *= 10;
+            if (strncasecmp(copy_name + pos, " copy ", 6) == 0) {
+                n = m;
+                copy_name[pos] = 0;
+                break;
+            } else
+                pos--;
+        }
+        not_a_copy:;
+    }
+
     while (true) {
         n++;
         if (n == 1000) {
@@ -157,25 +209,18 @@
             strcpy(suffix, " copy");
         else
             sprintf(suffix, " copy %d", n);
-        int len = strlen(suffix);
-        int pos = strlen(copy_name);
-        if (pos + len >= FILENAMELEN - 4) {
-            pos--;
-            while (pos > 0 && (copy_name[pos] & 0xc0) == 0xc0)
-                pos--;
-            if (strchr(copy_name + pos, '/'))
-                goto name_too_long;
-        }
-        copy_name[pos] = 0;
+        int len = strlen(copy_name);
+        if (len + strlen(suffix) + 4 >= FILENAMELEN)
+            goto name_too_long;
         strcat(copy_name, suffix);
         strcat(copy_name, ".f42");
         struct stat st;
-        if (stat(copy_name, &st) == 0)
-            // File exists; try next suffix
-            snprintf(copy_name, FILENAMELEN - 4, "%s/%s", free42dirname, name);
-        else
+        if (stat(copy_name, &st) != 0)
+            // File does not exist; that means we have a usable name
             break;
+        copy_name[len] = 0;
     }
+
     // Once we get here, copy_name contains a valid name for creating the duplicate.
     // What we do next depends on whether the selected state is the currently active
     // one. If it is, we'll call core_save_state(), to make sure the duplicate

@@ -20,15 +20,14 @@
 @interface StateNameWindow : NSWindow {
     NSTextField *label;
     NSTextField *stateName;
-    NSString **existingNames;
-    int count;
+    NSMutableArray *existingNames;
     BOOL confirmed;
 }
 
 @property (nonatomic, retain) IBOutlet NSTextField *label;
 @property (nonatomic, retain) IBOutlet NSTextField *stateName;
 
-- (void) setupWithLabel:(NSString *)label existingNames:(NSString **)names count:(int)n;
+- (void) setupWithLabel:(NSString *)label existingNames:(NSMutableArray *)names;
 - (NSString *) selectedName;
 - (IBAction) ok:(id)sender;
 - (IBAction) cancel:(id)sender;

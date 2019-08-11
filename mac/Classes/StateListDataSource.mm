@@ -23,12 +23,11 @@
 @implementation StateListDataSource
 
 - (void) awakeFromNib {
-    count = 0;
-    names = NULL;
+    names = [[NSMutableArray array] retain];
 }
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView {
-    return count;
+    return [names count];
 }
 
 - (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
@@ -44,52 +43,34 @@ static int case_insens_comparator(const void *a, const void *b) {
 }
 
 - (void) loadStateNames {
-    if (names != NULL) {
-        for (int i = 0; i < count; i++)
-            [names[i] release];
-        free(names);
-    }
-    count = 0;
-    names = NULL;
+    [names removeAllObjects];
     
     DIR *dir = opendir(free42dirname);
     if (dir == NULL)
         return;
     
     struct dirent *dent;
-    char *statename[100];
-    int nstates = 0;
+    char tempname[FILENAMELEN];
     
-    while ((dent = readdir(dir)) != NULL && nstates < 100) {
+    while ((dent = readdir(dir)) != NULL) {
         int namelen = strlen(dent->d_name);
         if (namelen < 4)
             continue;
         namelen -= 4;
         if (strcasecmp(dent->d_name + namelen, ".f42") != 0)
             continue;
-        char *st = (char *) malloc(namelen + 1);
-        // TODO - handle memory allocation failure
-        memcpy(st, dent->d_name, namelen);
-        st[namelen] = 0;
-        statename[nstates++] = st;
+        strncpy(tempname, dent->d_name, namelen);
+        tempname[namelen] = 0;
+        NSString *st = [NSString stringWithUTF8String:tempname];
+        [names addObject:st];
     }
     closedir(dir);
 
-    qsort(statename, nstates, sizeof(char *), case_insens_comparator);
-    
-    count = nstates;
-    names = (NSString **) malloc(nstates * sizeof(NSString *));
-    for (int i = 0; i < count; i++) {
-        names[i] = [[NSString stringWithUTF8String:statename[i]] retain];
-    }
+    [names sortUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
 }
 
-- (NSString **) getNames {
+- (NSArray *) getNames {
     return names;
-}
-
-- (int) getNameCount {
-    return count;
 }
 
 @end

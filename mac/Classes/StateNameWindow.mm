@@ -23,11 +23,10 @@
 @synthesize label;
 @synthesize stateName;
 
-- (void) setupWithLabel:(NSString *)labelText existingNames:(NSString **)names count:(int)n {
+- (void) setupWithLabel:(NSString *)labelText existingNames:(NSMutableArray *)names {
     [label setStringValue:labelText];
     [stateName setStringValue:@""];
-    existingNames = names;
-    count = n;
+    existingNames = [NSMutableArray arrayWithArray:names];
     confirmed = NO;
 }
 
@@ -41,8 +40,8 @@
         [Free42AppDelegate showMessage:@"That name is not valid." withTitle:@"Error"];
         return;
     }
-    for (int i = 0; i < count; i++)
-        if ([name caseInsensitiveCompare:existingNames[i]] == NSOrderedSame) {
+    for (int i = 0; i < [existingNames count]; i++)
+        if ([name caseInsensitiveCompare:[existingNames objectAtIndex:i]] == NSOrderedSame) {
             [Free42AppDelegate showMessage:@"That name is already in use." withTitle:@"Error"];
             return;
         }
