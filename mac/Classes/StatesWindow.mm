@@ -143,7 +143,7 @@
     if (name == NULL)
         return;
     char copy_name[FILENAMELEN];
-    snprintf(copy_name, FILENAMELEN, "%s/%s.f42", free42dirname, name);
+    snprintf(copy_name, FILENAMELEN - 4, "%s/%s", free42dirname, name);
     int n = 0;
     char suffix[10];
     while (true) {
@@ -159,7 +159,7 @@
             sprintf(suffix, " copy %d", n);
         int len = strlen(suffix);
         int pos = strlen(copy_name);
-        if (pos + len >= FILENAMELEN) {
+        if (pos + len >= FILENAMELEN - 4) {
             pos--;
             while (pos > 0 && (copy_name[pos] & 0xc0) == 0xc0)
                 pos--;
@@ -168,12 +168,13 @@
         }
         copy_name[pos] = 0;
         strcat(copy_name, suffix);
+        strcat(copy_name, ".f42");
         struct stat st;
-        if (stat(copy_name, &st) == 0) {
+        if (stat(copy_name, &st) == 0)
             // File exists; try next suffix
-            snprintf(copy_name, FILENAMELEN, "%s/%s.f42", free42dirname, name);
-            continue;
-        }
+            snprintf(copy_name, FILENAMELEN - 4, "%s/%s", free42dirname, name);
+        else
+            break;
     }
     // Once we get here, copy_name contains a valid name for creating the duplicate.
     // What we do next depends on whether the selected state is the currently active
@@ -185,7 +186,7 @@
     else {
         char orig_name[FILENAMELEN];
         snprintf(orig_name, FILENAMELEN, "%s/%s.f42", free42dirname, name);
-        if ([self copyStateFrom:orig_name to:copy_name])
+        if (![self copyStateFrom:orig_name to:copy_name])
             [Free42AppDelegate showMessage:@"State duplication failed." withTitle:@"Error"];
     }
     [self updateUI:YES];
@@ -268,7 +269,7 @@
     else {
         char orig_path[FILENAMELEN];
         snprintf(orig_path, FILENAMELEN, "%s/%s.f42", free42dirname, name);
-        if ([self copyStateFrom:orig_path to:copy_path])
+        if (![self copyStateFrom:orig_path to:copy_path])
             [Free42AppDelegate showMessage:@"State export failed." withTitle:@"Error"];
     }
 }
