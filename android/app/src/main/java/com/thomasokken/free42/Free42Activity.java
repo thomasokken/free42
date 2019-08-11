@@ -431,7 +431,7 @@ public class Free42Activity extends Activity {
         }
 
         // Write core state
-        core_enter_background(getFilesDir() + "/" + coreName + ".f42");
+        core_save_state(getFilesDir() + "/" + coreName + ".f42");
 
         printPaperView.dump();
         if (printTxtStream != null) {
@@ -454,16 +454,7 @@ public class Free42Activity extends Activity {
     
     @Override
     protected void onDestroy() {
-        // N.B. In the Android build, core_quit() does not write the
-        // core state; we assume that onStop() has been called previously,
-        // and its core_enter_background() call takes care of saving state.
-        // All this core_quit() call does it free up memory.
-        // TODO -- In Android builds, core_quit() currently doesn't even
-        // free up memory. If we ever do want that to happen, i.e. in order
-        // to debug memory leaks in the native code, this should be handled
-        // by breaking the memory deallocation code into a separate function.
-        // The whole life-cycle thing, as it is right now, is too confusing.
-        core_quit(getFilesDir() + "/" + coreName + ".f42");
+        // core_cleanup();
         if (lowBatteryReceiver != null) {
             unregisterReceiver(lowBatteryReceiver);
             lowBatteryReceiver = null;
@@ -1760,8 +1751,8 @@ public class Free42Activity extends Activity {
     private native void core_keydown_finish();
     
     private native void core_init(int read_state, int version, String state_file_name, int state_file_offset);
-    private native void core_enter_background(String state_file_name);
-    private native void core_quit(String state_file_name);
+    private native void core_save_state(String state_file_name);
+    private native void core_cleanup();
     private native void core_repaint_display();
     private native boolean core_menu();
     //private native boolean core_alpha_menu();

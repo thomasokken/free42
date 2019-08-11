@@ -792,12 +792,11 @@ static void quit2(bool really_quit) {
 
     char corefilename[FILENAMELEN];
     snprintf(corefilename, FILENAMELEN, "config/%s.f42", state.coreFileName);
-    if (really_quit)
-        core_quit(corefilename);
-    else
-        core_enter_background(corefilename);
-    if (really_quit)
+    core_save_state(corefilename);
+    if (really_quit) {
+        //core_cleanup();
         exit(0);
+    }
 }
 
 static void shell_keydown() {

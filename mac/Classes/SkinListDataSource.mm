@@ -91,7 +91,7 @@ static int case_insens_comparator(const void *a, const void *b) {
     names = (NSString **) malloc(nskins * sizeof(NSString *));
     selected = (bool *) malloc(nskins * sizeof(bool));
     for (int i = 0; i < count; i++) {
-        names[i] = [[NSString stringWithCString:skinname[i] encoding:NSUTF8StringEncoding] retain];
+        names[i] = [[NSString stringWithUTF8String:skinname[i]] retain];
         selected[i] = false;
     }
 }

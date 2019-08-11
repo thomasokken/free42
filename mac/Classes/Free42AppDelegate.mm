@@ -157,7 +157,7 @@ static bool is_file(const char *name);
     
     const char *sound_names[] = { "tone0", "tone1", "tone2", "tone3", "tone4", "tone5", "tone6", "tone7", "tone8", "tone9", "squeak" };
     for (int i = 0; i < 11; i++) {
-        NSString *name = [NSString stringWithCString:sound_names[i] encoding:NSUTF8StringEncoding];
+        NSString *name = [NSString stringWithUTF8String:sound_names[i]];
         NSString *path = [[NSBundle mainBundle] pathForResource:name ofType:@"wav"];
         OSStatus status = AudioServicesCreateSystemSoundID((CFURLRef)[NSURL fileURLWithPath:path], &soundIDs[i]);
         if (status)
@@ -428,7 +428,8 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
     }
     char corefilename[FILENAMELEN];
     snprintf(corefilename, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreName);
-    core_quit(corefilename);
+    core_save_state(corefilename);
+    core_cleanup();
 }
 
 - (void)windowWillClose:(NSNotification *)notification {
@@ -471,9 +472,9 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
     [prefsMatrixOutOfRange setState:core_settings.matrix_outofrange];
     [prefsAutoRepeat setState:core_settings.auto_repeat];
     [prefsPrintText setState:state.printerToTxtFile];
-    [prefsPrintTextFile setStringValue:[NSString stringWithCString:state.printerTxtFileName encoding:NSUTF8StringEncoding]];
+    [prefsPrintTextFile setStringValue:[NSString stringWithUTF8String:state.printerTxtFileName]];
     [prefsPrintGIF setState:state.printerToGifFile];
-    [prefsPrintGIFFile setStringValue:[NSString stringWithCString:state.printerGifFileName encoding:NSUTF8StringEncoding]];
+    [prefsPrintGIFFile setStringValue:[NSString stringWithUTF8String:state.printerGifFileName]];
     [prefsPrintGIFMaxHeight setStringValue:[NSString stringWithFormat:@"%d", state.printerGifMaxLength]];
     [NSApp runModalForWindow:preferencesWindow];
 }
@@ -528,6 +529,7 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
 }
 
 - (IBAction) states:(id)sender {
+    [statesWindow reset];
     [NSApp runModalForWindow:statesWindow];
 }
 
@@ -710,7 +712,7 @@ static void tbnonewliner() {
     if (tb == NULL) {
         txt = @"";
     } else {
-        txt = [NSString stringWithCString:tb encoding:NSUTF8StringEncoding];
+        txt = [NSString stringWithUTF8String:tb];
         free(tb);
     }
 
@@ -892,12 +894,25 @@ static char version[32] = "";
 + (const char *) getVersion {
     if (version[0] == 0) {
         NSString *path = [[NSBundle mainBundle] pathForResource:@"VERSION" ofType:nil];
-        const char *cpath = [path cStringUsingEncoding:NSUTF8StringEncoding];
+        const char *cpath = [path UTF8String];
         FILE *vfile = fopen(cpath, "r");
         fscanf(vfile, "%s", version);
         fclose(vfile);
     }
     return version;
+}
+
++ (void) showMessage:(NSString *)message withTitle:(NSString *)title {
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert addButtonWithTitle:@"OK"];
+    [alert setMessageText:title];
+    [alert setInformativeText:message];
+    [alert setAlertStyle:NSCriticalAlertStyle];
+    [alert runModal];
+}
+
++ (void) showCMessage:(const char *)message withTitle:(const char *)title {
+    [Free42AppDelegate showMessage:[NSString stringWithUTF8String:message] withTitle:[NSString stringWithUTF8String:title]];
 }
 
 - (IBAction) menuNeedsUpdate:(NSMenu *)menu {
@@ -924,13 +939,12 @@ static char version[32] = "";
 }
 
 + (void) loadState:(const char *)name {
-    if (strcmp(name, state.coreName) == 0)
-        core_quit(NULL);
-    else {
+    if (strcmp(name, state.coreName) != 0) {
         char corefilename[FILENAMELEN];
         snprintf(corefilename, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreName);
-        core_quit(corefilename);
+        core_save_state(corefilename);
     }
+    core_cleanup();
     strcpy(state.coreName, name);
     char corefilename[FILENAMELEN];
     snprintf(corefilename, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreName);
@@ -1352,16 +1366,11 @@ void calc_keymodifierschanged(NSUInteger flags) {
 }
 
 static void show_message(const char *title, const char *message) {
-    NSAlert *alert = [[NSAlert alloc] init];
-    [alert addButtonWithTitle:@"OK"];
-    [alert setMessageText:[NSString stringWithCString:title encoding:NSUTF8StringEncoding]];
-    [alert setInformativeText:[NSString stringWithCString:message encoding:NSUTF8StringEncoding]];
-    [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert runModal];
+    [Free42AppDelegate showCMessage:message withTitle:title];
 }
 
 void shell_message(const char *message) {
-    show_message("Core", message);
+    [Free42AppDelegate showCMessage:message withTitle:"Core"];
 }
 
 int8 shell_random_seed() {

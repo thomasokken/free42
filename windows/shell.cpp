@@ -1594,7 +1594,8 @@ static void Quit() {
     }
 	char corefilename[FILENAMELEN];
     sprintf(corefilename, "%s/%s.f42", free42dirname, state.coreFileName);
-    core_quit(corefilename);
+    core_save_state(corefilename);
+    core_cleanup();
 
     if (print_txt != NULL)
         fclose(print_txt);

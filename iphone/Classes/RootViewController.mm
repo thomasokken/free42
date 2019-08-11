@@ -58,7 +58,7 @@ static RootViewController *instance;
 
     const char *sound_names[] = { "tone0", "tone1", "tone2", "tone3", "tone4", "tone5", "tone6", "tone7", "tone8", "tone9", "squeak" };
     for (int i = 0; i < 11; i++) {
-        NSString *name = [NSString stringWithCString:sound_names[i] encoding:NSUTF8StringEncoding];
+        NSString *name = [NSString stringWithUTF8String:sound_names[i]];
         NSString *path = [[NSBundle mainBundle] pathForResource:name ofType:@"wav"];
         OSStatus status = AudioServicesCreateSystemSoundID((CFURLRef)[NSURL fileURLWithPath:path], &soundIDs[i]);
         if (status)
@@ -181,7 +181,7 @@ int shell_low_battery() {
 }
 
 void shell_message(const char *message) {
-    [RootViewController showMessage:[NSString stringWithCString:message encoding:NSUTF8StringEncoding]];
+    [RootViewController showMessage:[NSString stringWithUTF8String:message]];
 }
 
 + (void) playSound: (int) which {
@@ -254,7 +254,7 @@ void shell_message(const char *message) {
 }
 
 - (void) doImport2:(NSString *) path {
-    core_import_programs(0, [path cStringUsingEncoding:NSUTF8StringEncoding]);
+    core_import_programs(0, [path UTF8String]);
 }
 
 + (void) doExport {

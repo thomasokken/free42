@@ -56,7 +56,7 @@
         int count = ((buf[0] & 255) << 24) | ((buf[1] & 255) << 16) | ((buf[2] & 255) << 8) | (buf[3] & 255);
         char *p = buf + 4;
         for (int i = 0; i < count; i++) {
-            [programNames addObject:[NSString stringWithCString:p encoding:NSUTF8StringEncoding]];
+            [programNames addObject:[NSString stringWithUTF8String:p]];
             p += strlen(p) + 1;
         }
         free(buf);
@@ -81,7 +81,7 @@ static NSString *export_path = nil;
         [export_path release];
     export_path = [path retain];
     
-    const char *cpath = [path cStringUsingEncoding:NSUTF8StringEncoding];
+    const char *cpath = [path UTF8String];
     struct stat st;
     if (stat(cpath, &st) == 0) {
         UIAlertView *errorAlert = [[UIAlertView alloc] initWithTitle:@"File Exists"
@@ -109,7 +109,7 @@ static NSString *export_path = nil;
         NSIndexPath *index = (NSIndexPath *) [selection objectAtIndex:i];
         indexes[i] = (int) [index indexAtPosition:1];
     }
-    core_export_programs((int) count, indexes, [export_path cStringUsingEncoding:NSUTF8StringEncoding]);
+    core_export_programs((int) count, indexes, [export_path UTF8String]);
     delete[] indexes;
     [export_path release];
     export_path = nil;

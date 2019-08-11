@@ -585,10 +585,6 @@ bool load_state(int4 version, bool *clear);
 void save_state();
 void hard_reset(int bad_state_file);
 
-#ifdef ANDROID
-void reinitialize_globals();
-#endif
-
 #ifdef IPHONE
 bool off_enabled();
 #endif

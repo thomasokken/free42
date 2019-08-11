@@ -184,7 +184,7 @@ static void tbnonewliner() {
     if (tb == NULL) {
         txt = @"";
     } else {
-        txt = [NSString stringWithCString:tb encoding:NSUTF8StringEncoding];
+        txt = [NSString stringWithUTF8String:tb];
         free(tb);
     }
 

@@ -60,7 +60,7 @@
     while (fgets(buf, 1024, builtins) != NULL) {
         char *context;
         char *name = strtok_r(buf, " \t\r\n", &context);
-        [skinNames addObject:[NSString stringWithCString:name encoding:NSUTF8StringEncoding]];
+        [skinNames addObject:[NSString stringWithUTF8String:name]];
         if (strcasecmp(name, skinName) == 0)
             selectedIndex = index;
         index++;
@@ -74,7 +74,7 @@
         if (len < 8 || strcmp(d->d_name + len - 7, ".layout") != 0)
             continue;
         d->d_name[len - 7] = 0;
-        NSString *s = [NSString stringWithCString:d->d_name encoding:NSUTF8StringEncoding];
+        NSString *s = [NSString stringWithUTF8String:d->d_name];
         for (int i = 0; i < num_builtin_skins; i++)
             if ([s caseInsensitiveCompare:[skinNames objectAtIndex:i]] == 0)
                 goto skip;

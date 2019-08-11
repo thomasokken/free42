@@ -55,7 +55,7 @@ static NSString *unicode(NSString *src) {
             strcat(buf, " ");
         sprintf(buf + strlen(buf), "0x%x", c);
     }
-    return [NSString stringWithCString:buf encoding:NSUTF8StringEncoding];
+    return [NSString stringWithUTF8String:buf];
 }
 
 - (void)keyDown:(NSEvent *)theEvent {

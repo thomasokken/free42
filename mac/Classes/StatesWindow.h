@@ -42,4 +42,6 @@
 - (IBAction) menuSelected:(id)sender;
 - (IBAction) done:(id)sender;
 
+- (void) reset;
+
 @end

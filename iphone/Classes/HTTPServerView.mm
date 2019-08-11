@@ -78,7 +78,7 @@ static void *getHostName(void *dummy) {
         
     } else {
         NSLog(@"My DNS hostname appears to be %s", h->h_name);
-        hostname = [[NSString stringWithCString:h->h_name encoding:NSUTF8StringEncoding] retain];
+        hostname = [[NSString stringWithUTF8String:h->h_name] retain];
     }
     
     [pool release];
@@ -278,7 +278,7 @@ void errprintf(const char *fmt, ...) {
     char text[1024];
     va_start(ap, fmt);
     vsprintf(text, fmt, ap);
-    [instance performSelectorOnMainThread:@selector(appendToLog:) withObject:[NSString stringWithCString:text encoding:NSUTF8StringEncoding] waitUntilDone:NO];
+    [instance performSelectorOnMainThread:@selector(appendToLog:) withObject:[NSString stringWithUTF8String:text] waitUntilDone:NO];
     va_end(ap);
     
     [pool release];

@@ -200,7 +200,7 @@ void skin_menu_update(NSMenu *skinMenu) {
     while (fgets(buf, 1024, builtins) != NULL) {
         char *context;
         char *cname = strtok_r(buf, " \t\r\n", &context);
-        NSString *name = [NSString stringWithCString:cname encoding:NSUTF8StringEncoding];
+        NSString *name = [NSString stringWithUTF8String:cname];
         NSMenuItem *item = [skinMenu addItemWithTitle:name action: @selector(selectSkin:) keyEquivalent: @""];
         if (strcasecmp(cname, state.skinName) == 0)
             [item setState:NSOnState];
@@ -256,7 +256,7 @@ void skin_menu_update(NSMenu *skinMenu) {
             [skinMenu addItem:[NSMenuItem separatorItem]];
             have_separator = 1;
         }
-        NSString *name = [NSString stringWithCString:skinname[i] encoding:NSUTF8StringEncoding];
+        NSString *name = [NSString stringWithUTF8String:skinname[i]];
         NSMenuItem *item = [skinMenu addItemWithTitle:name action: @selector(selectSkin:) keyEquivalent: @""];
         if (strcasecmp(skinname[i], state.skinName) == 0)
             [item setState:NSOnState];
@@ -276,7 +276,7 @@ static int skin_open(const char *skinname, int open_layout) {
         char *name = strtok_r(buf, " \t\r\n", &context);
         if (strcasecmp(skinname, name) == 0) {
             char *filename = strtok_r(NULL, " \t\r\n", &context);
-            NSString *skinpath = [[NSBundle mainBundle] pathForResource:[NSString stringWithCString:filename encoding:NSUTF8StringEncoding]
+            NSString *skinpath = [[NSBundle mainBundle] pathForResource:[NSString stringWithUTF8String:filename]
                                                         ofType:open_layout ? @"layout" : @"gif"];
             [skinpath getCString:buf maxLength:1024 encoding:NSUTF8StringEncoding];
             external_file = fopen(buf, "r");

@@ -60,7 +60,7 @@
         if (len < 8 || strcmp(d->d_name + len - 7, ".layout") != 0)
             continue;
         d->d_name[len - 7] = 0;
-        NSString *s = [NSString stringWithCString:d->d_name encoding:NSUTF8StringEncoding];
+        NSString *s = [NSString stringWithUTF8String:d->d_name];
         for (int i = 0; i < num_builtin_skins; i++)
             if ([s caseInsensitiveCompare:[skinNames objectAtIndex:i]] == 0)
                 goto skip;
@@ -87,8 +87,8 @@
         NSIndexPath *index = (NSIndexPath *) [selection objectAtIndex:i];
         int idx = (int) [index indexAtPosition:1];
         NSString *skinName = [skinNames objectAtIndex:idx];
-        remove([[NSString stringWithFormat:@"skins/%@.gif", skinName] cStringUsingEncoding:NSUTF8StringEncoding]);
-        remove([[NSString stringWithFormat:@"skins/%@.layout", skinName] cStringUsingEncoding:NSUTF8StringEncoding]);
+        remove([[NSString stringWithFormat:@"skins/%@.gif", skinName] UTF8String]);
+        remove([[NSString stringWithFormat:@"skins/%@.layout", skinName] UTF8String]);
     }
     [self raised];
 }

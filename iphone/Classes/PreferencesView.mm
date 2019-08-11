@@ -64,9 +64,9 @@
     [orientationSelector setSelectedSegmentIndex:state.orientationMode];
     [maintainSkinAspectSwitch setOn:state.maintainSkinAspect[[CalcView isPortrait] ? 0 : 1] != 0];
     [printToTextSwitch setOn:(state.printerToTxtFile != 0)];
-    [printToTextField setText:[NSString stringWithCString:state.printerTxtFileName encoding:NSUTF8StringEncoding]];
+    [printToTextField setText:[NSString stringWithUTF8String:state.printerTxtFileName]];
     [printToGifSwitch setOn:(state.printerToGifFile != 0)];
-    [printToGifField setText:[NSString stringWithCString:state.printerGifFileName encoding:NSUTF8StringEncoding]];
+    [printToGifField setText:[NSString stringWithUTF8String:state.printerGifFileName]];
     [maxGifLengthField setText:[NSString stringWithFormat:@"%d", state.printerGifMaxLength]];
     
     // watch the keyboard so we can adjust the user interface if necessary.

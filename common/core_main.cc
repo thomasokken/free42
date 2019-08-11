@@ -94,8 +94,7 @@ void core_init(int read_saved_state, int4 version, const char *state_file_name, 
                        flags.f.rad || flags.f.grad);
 }
 
-#if defined(IPHONE) || defined(ANDROID)
-void core_enter_background(const char *state_file_name) {
+void core_save_state(const char *state_file_name) {
     if (mode_interruptible != NULL)
         stop_interruptible();
     set_running(false);
@@ -105,22 +104,8 @@ void core_enter_background(const char *state_file_name) {
         fclose(gfile);
     }
 }
-#endif
 
-void core_quit(const char *state_file_name) {
-#ifndef ANDROID
-    // In Android, core_enter_background() is always called
-    // before core_quit().
-    // TODO: Does that apply to the iPhone verson as well?
-    if (mode_interruptible != NULL)
-        stop_interruptible();
-    if (state_file_name != NULL) {
-        gfile = fopen(state_file_name, "wb");
-        if (gfile != NULL) {
-            save_state();
-            fclose(gfile);
-        }
-    }
+void core_cleanup() {
     free_vartype(reg_x);
     reg_x = NULL;
     free_vartype(reg_y);
@@ -139,11 +124,6 @@ void core_quit(const char *state_file_name) {
         vars_capacity = 0;
     }
     clean_vartype_pools();
-#endif
-//
-//#ifdef ANDROID
-//    reinitialize_globals();
-//#endif
 }
 
 void core_repaint_display() {

@@ -38,27 +38,23 @@
  */
 void core_init(int read_state, int4 version, const char *state_file_name, int offset);
 
-#if defined(IPHONE) || defined(ANDROID)
-
-/* core_enter_background()
+/* core_save_state()
  *
- * This function is called when the iPhone app has been placed in background
- * mode. It writes the state, just like core_quit(), but it doesn't perform
- * any cleanup, so the app can resume instantly if it is brought back to
- * the foreground. If the app is killed while in the background, nothing is
- * lost.
+ * This function is called by the mobile apps when they are placed in
+ * background mode, and by the desktop apps when they are shutting down.
+ * It writes all the simulator's persistent state to a file given by the
+ * state_file_name parameter, creating it if it doesn't already exist.
  */
-void core_enter_background(const char *state_file_name);
+void core_save_state(const char *state_file_name);
 
-#endif
-
-/* core_quit()
+/* core_cleanup()
  *
- * This function shuts down the emulator core. The core should save its state
- * to the file named by the state_file_name parameter.
- * This is guaranteed to be the last function called on the emulator core.
+ * This function deletes down the emulator core state from memory. It may be
+ * called during app shutdown, although that's not really necessary unless you
+ * are checking for memory leaks. It should be called between saving state and
+ * loading a new state, that is, when switching states.
  */
-void core_quit(const char *state_file_name);
+void core_cleanup();
 
 /* core_repaint_display()
  *
@@ -211,9 +207,7 @@ int core_keyup();
 /* core_powercycle()
  *
  * This tells the core to pretend that a power cycle has just taken place.
- * Usually called right after core_init(), but on platforms where a power-down
- * can take place without shutting down applications, it can be called at any
- * time between core_init() and core_quit().
+ * Usually called right after core_init().
  * The core should respond by performing power-down activities, immediately
  * followed by power-up activities. (The emulator core is never expected to
  * actually emulate the state of *being* off -- the host environment can handle

@@ -199,7 +199,7 @@ static void skin_close();
 
 static void get_builtin_skin_size(const char *skinname, long *w, long *h) {
     char line[1024];
-    NSString *skinpath = [[NSBundle mainBundle] pathForResource:[NSString stringWithCString:skinname encoding:NSUTF8StringEncoding]
+    NSString *skinpath = [[NSBundle mainBundle] pathForResource:[NSString stringWithUTF8String:skinname]
                                                                  ofType:@"layout"];
     [skinpath getCString:line maxLength:1024 encoding:NSUTF8StringEncoding];
     FILE *f = fopen(line, "r");
@@ -233,7 +233,7 @@ static int skin_open(const char *skinname, int open_layout) {
         char *name = strtok_r(buf, " \t\r\n", &context);
         if (strcasecmp(skinname, name) == 0) {
             char *filename = strtok_r(NULL, " \t\r\n", &context);
-            NSString *skinpath = [[NSBundle mainBundle] pathForResource:[NSString stringWithCString:filename encoding:NSUTF8StringEncoding]
+            NSString *skinpath = [[NSBundle mainBundle] pathForResource:[NSString stringWithUTF8String:filename]
                                                                  ofType:open_layout ? @"layout" : @"gif"];
             [skinpath getCString:buf maxLength:1024 encoding:NSUTF8StringEncoding];
             external_file = fopen(buf, "r");

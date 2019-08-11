@@ -52,7 +52,7 @@ static char version[32] = "";
 + (const char *) getVersion {
     if (version[0] == 0) {
         NSString *path = [[NSBundle mainBundle] pathForResource:@"VERSION" ofType:nil];
-        const char *cpath = [path cStringUsingEncoding:NSUTF8StringEncoding];
+        const char *cpath = [path UTF8String];
         FILE *vfile = fopen(cpath, "r");
         fscanf(vfile, "%s", version);
         fclose(vfile);

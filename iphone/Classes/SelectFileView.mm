@@ -226,7 +226,7 @@ static int dirTypeCapacity = 0;
 
 - (IBAction) mkDir {
     NSString *fullName = [NSString stringWithFormat:@"%@/%@", dirName, [nameField text]];
-    const char *cpath = [fullName cStringUsingEncoding:NSUTF8StringEncoding];
+    const char *cpath = [fullName UTF8String];
     mkdir(cpath, 0755);
     [self typeChanged];
 }
@@ -246,9 +246,9 @@ static int dirTypeCapacity = 0;
         [directoryLabel setText:[dirName substringFromIndex:(r.location + 1)]];
     }
     
-    const char *typeStr = [[typeSelector titleForSegmentAtIndex:[typeSelector selectedSegmentIndex]] cStringUsingEncoding:NSUTF8StringEncoding];
+    const char *typeStr = [[typeSelector titleForSegmentAtIndex:[typeSelector selectedSegmentIndex]] UTF8String];
 
-    const char *cDirName = [dirName cStringUsingEncoding:NSUTF8StringEncoding];
+    const char *cDirName = [dirName UTF8String];
     DIR *dir = opendir(cDirName);
     struct dirent *d;
     
@@ -275,7 +275,7 @@ static int dirTypeCapacity = 0;
                 if (d->d_name[flen - slen - 1] != '.' || strcasecmp(d->d_name + (flen - slen), typeStr) != 0)
                     continue;
             }
-            [dirList addObject:[NSString stringWithCString:d->d_name encoding:NSUTF8StringEncoding]];
+            [dirList addObject:[NSString stringWithUTF8String:d->d_name]];
             dirTypeLength++;
             if (dirTypeLength > dirTypeCapacity) {
                 dirTypeCapacity += 10;

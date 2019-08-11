@@ -155,6 +155,8 @@ void calc_keymodifierschanged(NSUInteger flags);
 - (IBAction) deleteSkinsCancel:(id)sender;
 - (IBAction) deleteSkinsOK:(id)sender;
 + (const char *) getVersion;
++ (void) showMessage:(NSString *)message withTitle:(NSString *)title;
++ (void) showCMessage:(const char *)message withTitle:(const char *)title;
 - (IBAction) menuNeedsUpdate:(NSMenu *)menu;
 - (void) selectSkin:(id)sender;
 + (void) loadState:(const char *)name;

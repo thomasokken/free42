@@ -16,20 +16,12 @@
  *****************************************************************************/
 
 #import "StateNameWindow.h"
+#import "Free42AppDelegate.h"
 
 @implementation StateNameWindow
 
 @synthesize label;
 @synthesize stateName;
-
-- (void) showMessage:(NSString *)message {
-    NSAlert *alert = [[NSAlert alloc] init];
-    [alert addButtonWithTitle:@"OK"];
-    [alert setMessageText:@"Error"];
-    [alert setInformativeText:message];
-    [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert runModal];
-}
 
 - (void) setupWithLabel:(NSString *)labelText existingNames:(NSString **)names count:(int)n {
     [label setStringValue:labelText];
@@ -46,12 +38,12 @@
 - (IBAction) ok:(id)sender {
     NSString *name = [stateName stringValue];
     if ([name length] == 0 || [name containsString:@"/"]) {
-        [self showMessage:@"That name is not valid."];
+        [Free42AppDelegate showMessage:@"That name is not valid." withTitle:@"Error"];
         return;
     }
     for (int i = 0; i < count; i++)
         if ([name caseInsensitiveCompare:existingNames[i]] == NSOrderedSame) {
-            [self showMessage:@"That name is already in use."];
+            [Free42AppDelegate showMessage:@"That name is already in use." withTitle:@"Error"];
             return;
         }
     confirmed = YES;

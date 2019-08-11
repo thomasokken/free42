@@ -1005,7 +1005,8 @@ static void quit() {
     }
     char corefilename[FILENAMELEN];
     snprintf(corefilename, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreFileName);
-    core_quit(corefilename);
+    core_save_state(corefilename);
+    core_cleanup();
 
     shell_spool_exit();
 

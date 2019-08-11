@@ -128,19 +128,17 @@ Java_com_thomasokken_free42_Free42Activity_core_1init(JNIEnv *env, jobject thiz,
 }
 
 extern "C" void
-Java_com_thomasokken_free42_Free42Activity_core_1enter_1background(JNIEnv *env, jobject thiz, jstring state_file_name) {
-    Tracer T("core_enter_background");
+Java_com_thomasokken_free42_Free42Activity_core_1save_1state(JNIEnv *env, jobject thiz, jstring state_file_name) {
+    Tracer T("core_save_state");
     const char *buf = env->GetStringUTFChars(state_file_name, NULL);
-    core_enter_background(buf);
+    core_save_state(buf);
     env->ReleaseStringUTFChars(state_file_name, buf);
 }
 
 extern "C" void
-Java_com_thomasokken_free42_Free42Activity_core_1quit(JNIEnv *env, jobject thiz, jstring state_file_name) {
-    Tracer T("core_quit");
-    const char *buf = env->GetStringUTFChars(state_file_name, NULL);
-    core_quit(buf);
-    env->ReleaseStringUTFChars(state_file_name, buf);
+Java_com_thomasokken_free42_Free42Activity_core_1cleanup(JNIEnv *env, jobject thiz) {
+    Tracer T("core_cleanup");
+    core_cleanup();
 }
 
 extern "C" void

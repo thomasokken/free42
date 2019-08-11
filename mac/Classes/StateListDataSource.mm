@@ -80,7 +80,7 @@ static int case_insens_comparator(const void *a, const void *b) {
     count = nstates;
     names = (NSString **) malloc(nstates * sizeof(NSString *));
     for (int i = 0; i < count; i++) {
-        names[i] = [[NSString stringWithCString:statename[i] encoding:NSUTF8StringEncoding] retain];
+        names[i] = [[NSString stringWithUTF8String:statename[i]] retain];
     }
 }
 
