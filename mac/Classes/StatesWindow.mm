@@ -196,7 +196,7 @@
     const char *oldname = [self selectedStateName];
     if (oldname == NULL)
         return;
-    [stateNameWindow setupWithLabel:[NSString stringWithFormat:@"Rename \"%s\" to:", state.coreName] existingNames:[stateListDataSource getNames] count:[stateListDataSource getNameCount]];
+    [stateNameWindow setupWithLabel:[NSString stringWithFormat:@"Rename \"%s\" to:", oldname] existingNames:[stateListDataSource getNames] count:[stateListDataSource getNameCount]];
     [NSApp runModalForWindow:stateNameWindow];
     NSString *newname = [stateNameWindow selectedName];
     if (newname == nil)
