@@ -226,14 +226,16 @@
 }
 
 - (void) doRename {
-    NSString *oldname = [self selectedStateName];
+    NSString *oldname = [[self selectedStateName] retain];
     if (oldname == nil)
         return;
     [stateNameWindow setupWithLabel:[NSString stringWithFormat:@"Rename \"%@\" to:", oldname] existingNames:[stateListDataSource getNames]];
     [NSApp runModalForWindow:stateNameWindow];
     NSString *newname = [stateNameWindow selectedName];
-    if (newname == nil)
+    if (newname == nil) {
+        [oldname release];
         return;
+    }
     NSString *oldpath = [NSString stringWithFormat:@"%s/%@.f42", free42dirname, oldname];
     NSString *newpath = [NSString stringWithFormat:@"%s/%@.f42", free42dirname, newname];
     rename([oldpath UTF8String], [newpath UTF8String]);
@@ -241,6 +243,7 @@
         strncpy(state.coreName, [newname UTF8String], FILENAMELEN);
         [current setStringValue:newname];
     }
+    [oldname release];
     [self updateUI:YES];
 }
 
@@ -248,18 +251,26 @@
     NSString *name = [self selectedStateName];
     if (name == nil)
         return;
-    if ([name caseInsensitiveCompare:[NSString stringWithUTF8String:state.coreName]] == NSOrderedSame)
+    if ([name caseInsensitiveCompare:[NSString stringWithUTF8String:state.coreName]] == NSOrderedSame) {
         return;
+    }
     NSAlert *alert = [[[NSAlert alloc] init] autorelease];
     [alert addButtonWithTitle:@"Delete"];
     [alert addButtonWithTitle:@"Cancel"];
     [alert setMessageText:@"Delete state?"];
     [alert setInformativeText:[NSString stringWithFormat:@"Are you sure you want to delete the state \"%@\"?", name]];
     [alert setAlertStyle:NSWarningAlertStyle];
-    if ([alert runModal] != NSAlertFirstButtonReturn)
+    // This 'retain' appears to be necessary because of the runModal call.
+    // I added the other 'retain' calls in this class as a precaution against
+    // the same scenario.
+    [name retain];
+    if ([alert runModal] != NSAlertFirstButtonReturn) {
+        [name release];
         return;
+    }
     NSString *statePath = [NSString stringWithFormat:@"%s/%@.f42", free42dirname, name];
     remove([statePath UTF8String]);
+    [name release];
     [self updateUI:YES];
 }
 
@@ -286,12 +297,14 @@
 }
 
 - (void) doExport {
-    NSString *name = [self selectedStateName];
+    NSString *name = [[self selectedStateName] retain];
     if (name == nil)
         return;
     FileSavePanel *saveDlg = [FileSavePanel panelWithTitle:@"Export State" types:@"Free42 State;f42;All Files;*"];
-    if ([saveDlg runModal] != NSOKButton)
+    if ([saveDlg runModal] != NSOKButton) {
+        [name release];
         return;
+    }
     NSString *copyPath = [saveDlg path];
     const char *copyPathC = [copyPath UTF8String];
     if ([name caseInsensitiveCompare:[NSString stringWithUTF8String:state.coreName]] == NSOrderedSame)
@@ -301,6 +314,7 @@
         if (![self copyStateFrom:[origPath UTF8String] to:copyPathC])
             [Free42AppDelegate showMessage:@"State export failed." withTitle:@"Error"];
     }
+    [name release];
 }
 
 - (IBAction) menuSelected:(id)sender {
