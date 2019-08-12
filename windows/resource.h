@@ -36,6 +36,9 @@
 #define IDR_TONE8_WAVE                  149
 #define IDR_TONE9_WAVE                  150
 #define IDR_SQUEAK_WAVE                 151
+#define IDD_STATES                      152
+#define IDD_STATE_NAME                  153
+#define IDR_STATES_MORE                 154
 #define IDC_MATRIX_SINGULARMATRIX       1000
 #define IDC_MATRIX_OUTOFRANGE           1001
 #define IDC_AUTO_REPEAT                 1002
@@ -55,6 +58,11 @@
 #define IDC_CALCULATOR_KEY              1016
 #define IDC_WEBSITELINK                 1017
 #define IDC_FORUMLINK                   1018
+#define IDC_CURRENT                     1019
+#define IDC_STATES                      1020
+#define IDC_MORE                        1021
+#define IDC_STATE_PROMPT                1022
+#define IDC_STATE_NAME                  1023
 #define IDM_SHOWPRINTOUT                32771
 #define IDM_PAPERADVANCE                32772
 #define IDM_PREFERENCES                 32773
@@ -66,15 +74,22 @@
 #define IDM_COPYPRINTASTEXT             32779
 #define IDM_COPYPRINTASIMAGE            32780
 #define IDM_CLEARPRINTOUT               32781
+#define IDM_STATES                      32782
+#define IDM_MORE_NEW                    32783
+#define IDM_MORE_DUPLICATE              32784
+#define IDM_MORE_RENAME                 32785
+#define IDM_MORE_DELETE                 32786
+#define IDM_MORE_IMPORT                 32787
+#define IDM_MORE_EXPORT                 32788
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        152
-#define _APS_NEXT_COMMAND_VALUE         32782
-#define _APS_NEXT_CONTROL_VALUE         1019
+#define _APS_NEXT_RESOURCE_VALUE        155
+#define _APS_NEXT_COMMAND_VALUE         32789
+#define _APS_NEXT_CONTROL_VALUE         1024
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

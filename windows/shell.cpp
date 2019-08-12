@@ -164,6 +164,8 @@ static LRESULT CALLBACK About(HWND, UINT, WPARAM, LPARAM);
 static LRESULT CALLBACK ExportProgram(HWND, UINT, WPARAM, LPARAM);
 static int browse_file(HWND owner, char *title, int save, char *filter, char *defExt, char *buf, int buflen);
 static LRESULT CALLBACK Preferences(HWND, UINT, WPARAM, LPARAM);
+static LRESULT CALLBACK States(HWND, UINT, WPARAM, LPARAM);
+static LRESULT CALLBACK StateName(HWND, UINT, WPARAM, LPARAM);
 static void get_home_dir(char *path, int pathlen);
 static void config_home_dir(HWND owner, char *buf, int bufsize);
 static void mapCalculatorKey();
@@ -559,6 +561,9 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
             int wmEvent = HIWORD(wParam); 
             // Parse the menu selections:
             switch (wmId) {
+				case IDM_STATES:
+                    DialogBox(hInst, (LPCTSTR)IDD_STATES, hWnd, (DLGPROC)States);
+                    break;
                 case IDM_SHOWPRINTOUT:
                     show_printout();
                     break;
@@ -1300,6 +1305,64 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
         }
     }
     return FALSE;
+}
+
+// Mesage handler for States dialog.
+static LRESULT CALLBACK States(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+	switch (message) {
+        case WM_COMMAND: {
+            int cmd = LOWORD(wParam);
+            switch (cmd) {
+				case IDOK: {
+					int six = 3 + 3;
+					return TRUE;
+				}
+				case IDC_MORE: {
+		            HWND moreButton = GetDlgItem(hDlg, IDC_MORE);
+					RECT rect;
+					GetWindowRect(moreButton, &rect);
+					//MapWindowPoints(HWND_DESKTOP, GetParent(hWnd), (LPPOINT) &rect, 2);
+					POINT pt;
+					pt.x = rect.left;
+					pt.y = rect.bottom;
+					ClientToScreen(hDlg, &pt);
+					HMENU hMenu = LoadMenu(NULL, MAKEINTRESOURCE(IDR_STATES_MORE));
+					hMenu = GetSubMenu(hMenu, 0);
+					TrackPopupMenu(hMenu, TPM_RIGHTBUTTON, rect.left, rect.bottom, 0, hDlg, NULL);
+					return TRUE;
+				}
+				case IDCANCEL: {
+					EndDialog(hDlg, LOWORD(wParam));
+					return TRUE;
+				}
+				case IDM_MORE_NEW: {
+					int four = 2 + 2;
+					return TRUE;
+				}
+				case IDM_MORE_DUPLICATE: {
+					int four = 2 + 2;
+					return TRUE;
+				}
+				case IDM_MORE_RENAME: {
+					int four = 2 + 2;
+					return TRUE;
+				}
+				case IDM_MORE_DELETE: {
+					int four = 2 + 2;
+					return TRUE;
+				}
+				case IDM_MORE_IMPORT: {
+					int four = 2 + 2;
+					return TRUE;
+				}
+				case IDM_MORE_EXPORT: {
+					int four = 2 + 2;
+					return TRUE;
+				}
+			}
+		}
+	}
+	return FALSE;
 }
 
 static int browse_file(HWND owner, char *title, int save, char *filter, char *defExt, char *buf, int buflen) {

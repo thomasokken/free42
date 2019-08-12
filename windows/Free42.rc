@@ -43,6 +43,8 @@ IDC_FREE42 MENU DISCARDABLE
 BEGIN
     POPUP "&File"
     BEGIN
+        MENUITEM "States...",                   IDM_STATES
+        MENUITEM SEPARATOR
         MENUITEM "Show Print-Out",              IDM_SHOWPRINTOUT
         MENUITEM "Paper Advance\tCtrl+A",       IDM_PAPERADVANCE
         MENUITEM SEPARATOR
@@ -69,6 +71,19 @@ BEGIN
     POPUP "&Help"
     BEGIN
         MENUITEM "&About Free42...",            IDM_ABOUT
+    END
+END
+
+IDR_STATES_MORE MENU DISCARDABLE
+BEGIN
+    POPUP "More"
+    BEGIN
+        MENUITEM "New"            IDM_MORE_NEW
+        MENUITEM "Duplicate"      IDM_MORE_DUPLICATE
+        MENUITEM "Rename"         IDM_MORE_RENAME
+        MENUITEM "Delete"         IDM_MORE_DELETE
+        MENUITEM "Import"         IDM_MORE_IMPORT
+        MENUITEM "Export"         IDM_MORE_EXPORT
     END
 END
 
@@ -157,6 +172,30 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,63,128,45,14
 END
 
+IDD_STATES DIALOG DISCARDABLE  44, 0, 171, 149
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "States"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Current: XXX",IDC_CURRENT,7,7,157,8
+    LISTBOX         IDC_STATES,7,20,157,101,LBS_NOTIFY |
+                    WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "Switch To",IDOK,12,128,45,14
+    PUSHBUTTON      "More",IDC_MORE,63,128,45,14
+    PUSHBUTTON      "Done",IDCANCEL,114,128,45,14
+END
+
+IDD_STATE_NAME DIALOG DISCARDABLE  44, 0, 120, 149
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "State Name"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Enter state name:",IDC_STATE_PROMPT,7,7,106,8
+    EDITTEXT        IDC_STATE_NAME,125,93,132,14,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,12,128,45,14
+    PUSHBUTTON      "Cancel",IDCANCEL,63,128,45,14
+END
+
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -212,6 +251,14 @@ BEGIN
     BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 113
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 142
+    END
+
+    IDD_STATES, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 165
         TOPMARGIN, 7
         BOTTOMMARGIN, 142
     END
