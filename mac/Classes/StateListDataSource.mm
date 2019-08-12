@@ -38,10 +38,6 @@
     // TODO
 }
 
-static int case_insens_comparator(const void *a, const void *b) {
-    return strcasecmp(*(const char **) a, *(const char **) b);
-}
-
 - (void) loadStateNames {
     [names removeAllObjects];
     
@@ -50,7 +46,6 @@ static int case_insens_comparator(const void *a, const void *b) {
         return;
     
     struct dirent *dent;
-    char tempname[FILENAMELEN];
     
     while ((dent = readdir(dir)) != NULL) {
         int namelen = strlen(dent->d_name);
@@ -59,9 +54,11 @@ static int case_insens_comparator(const void *a, const void *b) {
         namelen -= 4;
         if (strcasecmp(dent->d_name + namelen, ".f42") != 0)
             continue;
+        char *tempname = (char *) malloc(namelen + 1);
         strncpy(tempname, dent->d_name, namelen);
         tempname[namelen] = 0;
         NSString *st = [NSString stringWithUTF8String:tempname];
+        free(tempname);
         [names addObject:st];
     }
     closedir(dir);
