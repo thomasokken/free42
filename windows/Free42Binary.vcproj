@@ -301,11 +301,11 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\shell.cpp"
+				RelativePath=".\shell_loadimage.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\shell_loadimage.cpp"
+				RelativePath=".\shell_main.cpp"
 				>
 			</File>
 			<File
@@ -318,6 +318,10 @@
 			</File>
 			<File
 				RelativePath=".\skins.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\StatesWindow.cpp"
 				>
 			</File>
 			<File
@@ -439,11 +443,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\shell_main.h"
+				>
+			</File>
+			<File
 				RelativePath=".\shell_skin.h"
 				>
 			</File>
 			<File
 				RelativePath=".\shell_spool.h"
+				>
+			</File>
+			<File
+				RelativePath=".\StatesWindow.h"
 				>
 			</File>
 			<File

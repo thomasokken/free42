@@ -24,9 +24,6 @@
 #include <stdio.h>
 #include <shlobj.h>
 
-#include "stdafx.h"
-#include "resource.h"
-
 #include "free42.h"
 #include "shell.h"
 #include "shell_skin.h"
@@ -34,10 +31,11 @@
 #include "core_main.h"
 #include "core_display.h"
 #include "msg2string.h"
+#include "StatesWindow.h"
+#include "shell_main.h"
 
 
 #define MAX_LOADSTRING 100
-#define FILENAMELEN 256
 
 // The maximum height of a Bitmap is 32767 pixels;
 // so, if I want to use a larger buffer, I'll have to
@@ -107,31 +105,12 @@ static keymap_entry *keymap = NULL;
 
 #define SHELL_VERSION 8
 
-typedef struct state {
-    BOOL extras;
-    WINDOWPLACEMENT mainPlacement;
-    int mainPlacementValid;
-    WINDOWPLACEMENT printOutPlacement;
-    int printOutPlacementValid;
-    int printOutOpen;
-    int printerToTxtFile;
-    int printerToGifFile;
-    char printerTxtFileName[FILENAMELEN];
-    char printerGifFileName[FILENAMELEN];
-    int printerGifMaxLength;
-    char skinName[FILENAMELEN];
-    BOOL alwaysOnTop;
-    BOOL singleInstance;
-    BOOL calculatorKey;
-    char coreFileName[FILENAMELEN];
-} state_type;
-
-static state_type state;
+state_type state;
 static int placement_saved = 0;
 static int printOutWidth;
 static int printOutHeight;
 
-static char free42dirname[FILENAMELEN];
+char free42dirname[FILENAMELEN];
 static char statefilename[FILENAMELEN];
 static FILE *statefile = NULL;
 static char printfilename[FILENAMELEN];
@@ -164,8 +143,6 @@ static LRESULT CALLBACK About(HWND, UINT, WPARAM, LPARAM);
 static LRESULT CALLBACK ExportProgram(HWND, UINT, WPARAM, LPARAM);
 static int browse_file(HWND owner, char *title, int save, char *filter, char *defExt, char *buf, int buflen);
 static LRESULT CALLBACK Preferences(HWND, UINT, WPARAM, LPARAM);
-static LRESULT CALLBACK States(HWND, UINT, WPARAM, LPARAM);
-static LRESULT CALLBACK StateName(HWND, UINT, WPARAM, LPARAM);
 static void get_home_dir(char *path, int pathlen);
 static void config_home_dir(HWND owner, char *buf, int bufsize);
 static void mapCalculatorKey();
@@ -1305,64 +1282,6 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
         }
     }
     return FALSE;
-}
-
-// Mesage handler for States dialog.
-static LRESULT CALLBACK States(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
-	switch (message) {
-        case WM_COMMAND: {
-            int cmd = LOWORD(wParam);
-            switch (cmd) {
-				case IDOK: {
-					int six = 3 + 3;
-					return TRUE;
-				}
-				case IDC_MORE: {
-		            HWND moreButton = GetDlgItem(hDlg, IDC_MORE);
-					RECT rect;
-					GetWindowRect(moreButton, &rect);
-					//MapWindowPoints(HWND_DESKTOP, GetParent(hWnd), (LPPOINT) &rect, 2);
-					POINT pt;
-					pt.x = rect.left;
-					pt.y = rect.bottom;
-					ClientToScreen(hDlg, &pt);
-					HMENU hMenu = LoadMenu(NULL, MAKEINTRESOURCE(IDR_STATES_MORE));
-					hMenu = GetSubMenu(hMenu, 0);
-					TrackPopupMenu(hMenu, TPM_RIGHTBUTTON, rect.left, rect.bottom, 0, hDlg, NULL);
-					return TRUE;
-				}
-				case IDCANCEL: {
-					EndDialog(hDlg, LOWORD(wParam));
-					return TRUE;
-				}
-				case IDM_MORE_NEW: {
-					int four = 2 + 2;
-					return TRUE;
-				}
-				case IDM_MORE_DUPLICATE: {
-					int four = 2 + 2;
-					return TRUE;
-				}
-				case IDM_MORE_RENAME: {
-					int four = 2 + 2;
-					return TRUE;
-				}
-				case IDM_MORE_DELETE: {
-					int four = 2 + 2;
-					return TRUE;
-				}
-				case IDM_MORE_IMPORT: {
-					int four = 2 + 2;
-					return TRUE;
-				}
-				case IDM_MORE_EXPORT: {
-					int four = 2 + 2;
-					return TRUE;
-				}
-			}
-		}
-	}
-	return FALSE;
 }
 
 static int browse_file(HWND owner, char *title, int save, char *filter, char *defExt, char *buf, int buflen) {
