@@ -21,7 +21,7 @@
 #include "stdafx.h"
 #include "resource.h"
 
-LRESULT CALLBACK States(HWND, UINT, WPARAM, LPARAM);
+LRESULT CALLBACK StatesDlgProc(HWND, UINT, WPARAM, LPARAM);
 
 /*
 #import <Cocoa/Cocoa.h>

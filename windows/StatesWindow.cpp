@@ -18,17 +18,123 @@
 #include "shell_main.h"
 #include "StatesWindow.h"
 #include <string>
+#include <vector>
+#include <algorithm>
+#include <string.h>
 
 using std::string;
+using std::vector;
+using std::sort;
 
-static LRESULT CALLBACK StateName(HWND, UINT, WPARAM, LPARAM);
+static string stateLabel;
+static string stateName;
+static vector<string> stateNames;
+
+static void loadStateNames() {
+	stateNames.clear();
+
+	WIN32_FIND_DATA wfd;
+	string path = free42dirname;
+	path += "\\*.f42";
+
+	HANDLE search = FindFirstFile(path.c_str(), &wfd);
+    if (search != INVALID_HANDLE_VALUE) {
+        do {
+            if ((wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
+				string s;
+				s.assign(wfd.cFileName, strlen(wfd.cFileName) - 4);
+				stateNames.push_back(s);
+			}
+		} while (FindNextFile(search, &wfd));
+		FindClose(search);
+	}
+
+	// TODO: Case insensitive sorting!
+	std::sort(stateNames.begin(), stateNames.end());
+}
+
+static LRESULT CALLBACK StateNameDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+	switch (message) {
+        case WM_INITDIALOG: {
+            SetDlgItemText(hDlg, IDC_STATE_PROMPT, stateLabel.c_str());
+            SetDlgItemText(hDlg, IDC_STATE_NAME, "");
+			return TRUE;
+		}
+        case WM_COMMAND: {
+            int cmd = LOWORD(wParam);
+            switch (cmd) {
+				case IDOK: {
+					char buf[FILENAMELEN];
+					GetDlgItemText(hDlg, IDC_STATE_NAME, buf, FILENAMELEN);
+					stateName = buf;
+					EndDialog(hDlg, LOWORD(wParam));
+					return TRUE;
+				}
+				case IDCANCEL: {
+					stateName = "";
+					EndDialog(hDlg, LOWORD(wParam));
+					return TRUE;
+				}
+			}
+		}
+	}
+	return FALSE;
+}
+
+static string getStateName(HWND parent, const string label) {
+	stateLabel = label;
+    DialogBox(hInst, (LPCTSTR)IDD_STATE_NAME, parent, (DLGPROC)StateNameDlgProc);
+	return stateName;
+}
 
 static void updateUI(bool rescan) {
+	if (rescan) {
+		loadStateNames();
+	}
+}
+
+static void switchTo() {
+
+}
+
+static void doNew(HWND parent) {
+	string name = getStateName(parent, "New state name:");
+	fprintf(stderr, "%s\n", name.c_str());
+}
+
+static void doDuplicate() {
+
+}
+
+static void doRename() {
+
+}
+
+static void doDelete() {
+
+}
+
+static void doImport(HWND parent) {
+	char buf[FILENAMELEN];
+	// TODO: This doesn't work. The dialog does not appear.
+	// Why? Having another dialog as the parent shouldn't
+	// be an issue; I do that in the Preferences dialog, too.
+    if (browse_file(parent,
+                    "Select State File",
+                    0,
+                    "Free42 State (*.f42)\0*.f42\0All Files (*.*)\0*.*\0\0",
+                    "f42",
+                    buf,
+                    FILENAMELEN))
+		fprintf(stderr, "Huzzah!\n");
+}
+
+static void doExport() {
 
 }
 
 // Mesage handler for States dialog.
-LRESULT CALLBACK States(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+LRESULT CALLBACK StatesDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
 	switch (message) {
         case WM_INITDIALOG: {
 			string txt("Current: ");
@@ -41,7 +147,8 @@ LRESULT CALLBACK States(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
             int cmd = LOWORD(wParam);
             switch (cmd) {
 				case IDOK: {
-					int six = 3 + 3;
+					switchTo();
+					EndDialog(hDlg, LOWORD(wParam));
 					return TRUE;
 				}
 				case IDC_MORE: {
@@ -63,27 +170,27 @@ LRESULT CALLBACK States(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
 					return TRUE;
 				}
 				case IDM_MORE_NEW: {
-					int four = 2 + 2;
+					doNew(hDlg);
 					return TRUE;
 				}
 				case IDM_MORE_DUPLICATE: {
-					int four = 2 + 2;
+					doDuplicate();
 					return TRUE;
 				}
 				case IDM_MORE_RENAME: {
-					int four = 2 + 2;
+					doRename();
 					return TRUE;
 				}
 				case IDM_MORE_DELETE: {
-					int four = 2 + 2;
+					doDelete();
 					return TRUE;
 				}
 				case IDM_MORE_IMPORT: {
-					int four = 2 + 2;
+					doImport(hDlg);
 					return TRUE;
 				}
 				case IDM_MORE_EXPORT: {
-					int four = 2 + 2;
+					doExport();
 					return TRUE;
 				}
 			}
@@ -378,34 +485,6 @@ LRESULT CALLBACK States(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
             [Free42AppDelegate showMessage:@"State export failed." withTitle:@"Error"];
     }
     [name release];
-}
-
-- (IBAction) menuSelected:(id)sender {
-    int sel = [actionMenu indexOfSelectedItem];
-    switch (sel) {
-        case 1:
-            [self doNew];
-            break;
-        case 2:
-            [self doDuplicate];
-            break;
-        case 3:
-            [self doRename];
-            break;
-        case 4:
-            [self doDelete];
-            break;
-        case 5:
-            [self doImport];
-            break;
-        case 6:
-            [self doExport];
-            break;
-    }
-}
-
-- (IBAction) done:(id)sender {
-    [self close];
 }
 
 @end

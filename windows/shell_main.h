@@ -44,6 +44,9 @@ typedef struct state {
 
 extern state_type state;
 
+extern HINSTANCE hInst;                                    // current instance
 extern char free42dirname[FILENAMELEN];
+
+int browse_file(HWND owner, char *title, int save, char *filter, char *defExt, char *buf, int buflen);
 
 #endif

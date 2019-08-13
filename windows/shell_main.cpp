@@ -66,7 +66,7 @@ extern const char *skin_bitmap_data[];
 
 
 // Global Variables:
-static HINSTANCE hInst;                             // current instance
+HINSTANCE hInst;                                    // current instance
 static HWND hMainWnd;                               // our main window
 static HWND hPrintOutWnd;                           // our print-out window
 static TCHAR szMainTitle[MAX_LOADSTRING];           // The main title bar text
@@ -141,7 +141,6 @@ static LRESULT CALLBACK MainWndProc(HWND, UINT, WPARAM, LPARAM);
 static LRESULT CALLBACK PrintOutWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 static LRESULT CALLBACK About(HWND, UINT, WPARAM, LPARAM);
 static LRESULT CALLBACK ExportProgram(HWND, UINT, WPARAM, LPARAM);
-static int browse_file(HWND owner, char *title, int save, char *filter, char *defExt, char *buf, int buflen);
 static LRESULT CALLBACK Preferences(HWND, UINT, WPARAM, LPARAM);
 static void get_home_dir(char *path, int pathlen);
 static void config_home_dir(HWND owner, char *buf, int bufsize);
@@ -539,7 +538,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
             // Parse the menu selections:
             switch (wmId) {
 				case IDM_STATES:
-                    DialogBox(hInst, (LPCTSTR)IDD_STATES, hWnd, (DLGPROC)States);
+                    DialogBox(hInst, (LPCTSTR)IDD_STATES, hWnd, (DLGPROC)StatesDlgProc);
                     break;
                 case IDM_SHOWPRINTOUT:
                     show_printout();
@@ -1284,7 +1283,7 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
     return FALSE;
 }
 
-static int browse_file(HWND owner, char *title, int save, char *filter, char *defExt, char *buf, int buflen) {
+int browse_file(HWND owner, char *title, int save, char *filter, char *defExt, char *buf, int buflen) {
     OPENFILENAME ofn;
     ofn.lStructSize = sizeof(OPENFILENAME);
     ofn.hwndOwner = owner;
