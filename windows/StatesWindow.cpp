@@ -15,12 +15,14 @@
  * along with this program; if not, see http://www.gnu.org/licenses/.
  *****************************************************************************/
 
-#include "shell_main.h"
-#include "StatesWindow.h"
 #include <string>
 #include <vector>
 #include <algorithm>
 #include <string.h>
+
+#include "shell_main.h"
+#include "StatesWindow.h"
+#include "core_main.h"
 
 using std::string;
 using std::vector;
@@ -29,6 +31,8 @@ using std::sort;
 static string stateLabel;
 static string stateName;
 static vector<string> stateNames;
+
+HMENU moreMenu = NULL;
 
 static void loadStateNames() {
 	stateNames.clear();
@@ -66,13 +70,15 @@ static LRESULT CALLBACK StateNameDlgProc(HWND hDlg, UINT message, WPARAM wParam,
 				case IDOK: {
 					char buf[FILENAMELEN];
 					GetDlgItemText(hDlg, IDC_STATE_NAME, buf, FILENAMELEN);
+					// TODO: Check for illegal characters, and check
+					// for names that are already in use
 					stateName = buf;
-					EndDialog(hDlg, LOWORD(wParam));
+					EndDialog(hDlg, 0);
 					return TRUE;
 				}
 				case IDCANCEL: {
 					stateName = "";
-					EndDialog(hDlg, LOWORD(wParam));
+					EndDialog(hDlg, 0);
 					return TRUE;
 				}
 			}
@@ -81,25 +87,96 @@ static LRESULT CALLBACK StateNameDlgProc(HWND hDlg, UINT message, WPARAM wParam,
 	return FALSE;
 }
 
-static string getStateName(HWND parent, const string label) {
+static string getStateName(HWND hDlg, const string label) {
 	stateLabel = label;
-    DialogBox(hInst, (LPCTSTR)IDD_STATE_NAME, parent, (DLGPROC)StateNameDlgProc);
+    DialogBox(hInst, (LPCTSTR)IDD_STATE_NAME, hDlg, (DLGPROC)StateNameDlgProc);
 	return stateName;
 }
 
-static void updateUI(bool rescan) {
+static string getSelectedStateName(HWND hDlg) {
+	HWND list = GetDlgItem(hDlg, IDC_STATES);
+	int index = SendMessage(list, LB_GETCURSEL, 0, 0);
+	if (index == LB_ERR)
+		return "";
+	else
+		return stateNames[index];
+}
+
+static void updateUI(HWND hDlg, bool rescan) {
+	string selName = getSelectedStateName(hDlg);
 	if (rescan) {
 		loadStateNames();
+		HWND list = GetDlgItem(hDlg, IDC_STATES);
+		SendMessage(list, LB_RESETCONTENT, 0, 0);
+		int index = -1;
+		int i = 0;
+		for(vector<string>::iterator iter = stateNames.begin(); iter != stateNames.end(); ++iter) {
+			SendMessage(list, LB_ADDSTRING, 0, (LPARAM) iter->c_str());
+			if (selName == *iter)
+				index = i;
+			i++;
+		}
+		if (index != -1)
+			SendMessage(list, LB_SETCURSEL, index, 0);
 	}
+
+	HWND switchToButton = GetDlgItem(hDlg, IDOK);
+	bool stateSelected;
+    bool activeStateSelected;
+
+    if (selName == "") {
+		SendMessage(switchToButton, WM_SETTEXT, 0, (LPARAM) "Switch To");
+        stateSelected = false;
+    } else {
+        activeStateSelected = selName == state.coreName; // TODO: Case insensitive comparison
+        if (activeStateSelected)
+			SendMessage(switchToButton, WM_SETTEXT, 0, (LPARAM) "Reload");
+        else
+			SendMessage(switchToButton, WM_SETTEXT, 0, (LPARAM) "Switch To");
+        stateSelected = true;
+    }
+
+	EnableWindow(switchToButton, stateSelected);
+	HMENU hMenu = GetSubMenu(moreMenu, 0);
+	EnableMenuItem(hMenu, IDM_MORE_DUPLICATE, stateSelected ? MF_ENABLED : MF_DISABLED);
+	EnableMenuItem(hMenu, IDM_MORE_RENAME, stateSelected ? MF_ENABLED : MF_DISABLED);
+	EnableMenuItem(hMenu, IDM_MORE_DELETE, stateSelected && !activeStateSelected ? MF_ENABLED : MF_DISABLED);
+	EnableMenuItem(hMenu, IDM_MORE_EXPORT, stateSelected ? MF_ENABLED : MF_DISABLED);
 }
 
-static void switchTo() {
-
+static void switchTo(HWND hDlg) {
+	string selName = getSelectedStateName(hDlg);
+	if (selName == "")
+        return;
+    if (selName != state.coreName) { // TODO: Case insensitivity
+		string path = free42dirname;
+		path += "\\";
+		path += state.coreName;
+		path += ".f42";
+		core_save_state(path.c_str());
+    }
+    core_cleanup();
+	strcpy(state.coreName, selName.c_str()); // TODO: Length limit
+	string path = free42dirname;
+	path += "\\";
+	path += state.coreName;
+	path += ".f42";
+	core_init(1, 26, path.c_str(), 0);
+    EndDialog(hDlg, 0);
 }
 
-static void doNew(HWND parent) {
-	string name = getStateName(parent, "New state name:");
-	fprintf(stderr, "%s\n", name.c_str());
+static void doNew(HWND hDlg) {
+	string name = getStateName(hDlg, "New state name:");
+	if (name == "")
+		return;
+	string path = free42dirname;
+	path += "\\";
+	path += name;
+	path += ".f42";
+    FILE *f = fopen(path.c_str(), "wb");
+    fprintf(f, "24kF");
+    fclose(f);
+	updateUI(hDlg, true);
 }
 
 static void doDuplicate() {
@@ -114,12 +191,10 @@ static void doDelete() {
 
 }
 
-static void doImport(HWND parent) {
+static void doImport(HWND hDlg) {
 	char buf[FILENAMELEN];
-	// TODO: This doesn't work. The dialog does not appear.
-	// Why? Having another dialog as the parent shouldn't
-	// be an issue; I do that in the Preferences dialog, too.
-    if (browse_file(parent,
+	buf[0] = 0;
+    if (browse_file(hDlg,
                     "Select State File",
                     0,
                     "Free42 State (*.f42)\0*.f42\0All Files (*.*)\0*.*\0\0",
@@ -137,36 +212,35 @@ static void doExport() {
 LRESULT CALLBACK StatesDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
 	switch (message) {
         case WM_INITDIALOG: {
+			if (moreMenu == NULL)
+				moreMenu = LoadMenu(NULL, MAKEINTRESOURCE(IDR_STATES_MORE));
 			string txt("Current: ");
-			txt += state.coreFileName;
+			txt += state.coreName;
             SetDlgItemText(hDlg, IDC_CURRENT, txt.c_str());
-			updateUI(true);
+			updateUI(hDlg, true);
 			return TRUE;
 		}
         case WM_COMMAND: {
             int cmd = LOWORD(wParam);
             switch (cmd) {
 				case IDOK: {
-					switchTo();
-					EndDialog(hDlg, LOWORD(wParam));
+					switchTo(hDlg);
 					return TRUE;
 				}
 				case IDC_MORE: {
 		            HWND moreButton = GetDlgItem(hDlg, IDC_MORE);
 					RECT rect;
 					GetWindowRect(moreButton, &rect);
-					//MapWindowPoints(HWND_DESKTOP, GetParent(hWnd), (LPPOINT) &rect, 2);
 					POINT pt;
 					pt.x = rect.left;
 					pt.y = rect.bottom;
 					ClientToScreen(hDlg, &pt);
-					HMENU hMenu = LoadMenu(NULL, MAKEINTRESOURCE(IDR_STATES_MORE));
-					hMenu = GetSubMenu(hMenu, 0);
+					HMENU hMenu = GetSubMenu(moreMenu, 0);
 					TrackPopupMenu(hMenu, TPM_RIGHTBUTTON, rect.left, rect.bottom, 0, hDlg, NULL);
 					return TRUE;
 				}
 				case IDCANCEL: {
-					EndDialog(hDlg, LOWORD(wParam));
+					EndDialog(hDlg, 0);
 					return TRUE;
 				}
 				case IDM_MORE_NEW: {
@@ -193,6 +267,25 @@ LRESULT CALLBACK StatesDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 					doExport();
 					return TRUE;
 				}
+				case IDC_STATES: {
+					int wmEvent = HIWORD(wParam);
+					switch (wmEvent) {
+						// TODO: Selection behavior: you can't deselect
+						// in a single-select box, apparently; that appears
+						// to require using a multi-select box, and then
+						// deselecting all items but the most recently
+						// selected one in the LBN_SELCHANGE handler.
+						// (Or something like that. Details TBD.)
+						case LBN_SELCHANGE:
+						case LBN_SELCANCEL:
+							updateUI(hDlg, false);
+							return TRUE;
+						case LBN_DBLCLK:
+							switchTo(hDlg);
+							return TRUE;
+					}
+					return FALSE;
+				}
 			}
 		}
 	}
@@ -200,112 +293,6 @@ LRESULT CALLBACK StatesDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 }
 
 /*
-#import <sys/stat.h>
-#import "StatesWindow.h"
-#import "StateListDataSource.h"
-#import "StateNameWindow.h"
-#import "Free42AppDelegate.h"
-#import "FileOpenPanel.h"
-#import "FileSavePanel.h"
-#import "core_main.h"
-
-@implementation StatesWindow
-
-@synthesize current;
-@synthesize stateListView;
-@synthesize switchToButton;
-@synthesize actionMenu;
-@synthesize stateListDataSource;
-@synthesize stateNameWindow;
-
-- (void) reset {
-    [stateListView deselectAll:self];
-}
-
-- (NSString *) selectedStateName {
-    int row = [stateListView selectedRow];
-    if (row == -1)
-        return NULL;
-    else
-        return [[stateListDataSource getNames] objectAtIndex:row];
-}
-
-- (void) updateUI:(BOOL)rescan {
-    int row = [stateListView selectedRow];
-    NSString *selName = row == -1 ? nil : [[[stateListDataSource getNames] objectAtIndex:row] retain];
-    if (rescan) {
-        [stateListDataSource loadStateNames];
-        [stateListView reloadData];
-        bool found = false;
-        if (selName != nil) {
-            NSMutableArray *names = [stateListDataSource getNames];
-            for (int i = [names count] - 1; i >= 0; i--) {
-                if ([[names objectAtIndex:i] caseInsensitiveCompare:selName] == NSOrderedSame) {
-                    [stateListView selectRowIndexes:[NSIndexSet indexSetWithIndex:i] byExtendingSelection:NO];
-                    found = true;
-                    break;
-                }
-            }
-        }
-        if (!found) {
-            [stateListView deselectAll:self];
-            [selName release];
-            selName = nil;
-        }
-    }
-
-    bool stateSelected;
-    bool activeStateSelected;
-
-    if (selName == nil) {
-        [switchToButton setTitle:@"Switch To"];
-        stateSelected = false;
-    } else {
-        activeStateSelected = [selName caseInsensitiveCompare:[NSString stringWithUTF8String:state.coreName]] == NSOrderedSame;
-        if (activeStateSelected)
-            [switchToButton setTitle:@"Reload"];
-        else
-            [switchToButton setTitle:@"Switch To"];
-        stateSelected = true;
-        [selName release];
-    }
-
-    [switchToButton setEnabled:stateSelected];
-    [[actionMenu itemAtIndex:2] setEnabled:stateSelected];
-    [[actionMenu itemAtIndex:3] setEnabled:stateSelected];
-    [[actionMenu itemAtIndex:4] setEnabled:stateSelected && !activeStateSelected];
-    [[actionMenu itemAtIndex:6] setEnabled:stateSelected];
-}
-
-- (IBAction) stateListAction:(id)sender {
-    [self updateUI:NO];
-}
-
-- (IBAction) stateListDoubleAction:(id)sender {
-    [self switchTo:sender];
-}
-
-- (IBAction) switchTo:(id)sender {
-    NSString *name = [self selectedStateName];
-    if (name == nil)
-        return;
-    [Free42AppDelegate loadState:[name UTF8String]];
-    [self close];
-}
-
-- (void) doNew {
-    [stateNameWindow setupWithLabel:@"New State Name:" existingNames:[stateListDataSource getNames]];
-    [NSApp runModalForWindow:stateNameWindow];
-    NSString *name = [stateNameWindow selectedName];
-    if (name == nil)
-        return;
-    NSString *fname = [NSString stringWithFormat:@"%s/%@.f42", free42dirname, name];
-    FILE *f = fopen([fname UTF8String], "w");
-    fprintf(f, "24kF");
-    fclose(f);
-    [self updateUI:YES];
-}
-
 - (BOOL) copyStateFrom:(const char *)orig_name to:(const char *)copy_name {
     FILE *fin = fopen(orig_name, "r");
     FILE *fout = fopen(copy_name, "w");
@@ -486,6 +473,4 @@ LRESULT CALLBACK StatesDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
     }
     [name release];
 }
-
-@end
 */

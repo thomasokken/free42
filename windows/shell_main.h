@@ -39,7 +39,7 @@ typedef struct state {
     BOOL alwaysOnTop;
     BOOL singleInstance;
     BOOL calculatorKey;
-    char coreFileName[FILENAMELEN];
+    char coreName[FILENAMELEN];
 } state_type;
 
 extern state_type state;

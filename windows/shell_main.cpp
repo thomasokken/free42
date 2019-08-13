@@ -371,7 +371,7 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
     }
 	if (init_mode == 1) {
 		if (version > 25) {
-			sprintf(core_state_file_name, "%s\\%s.f42", free42dirname, state.coreFileName);
+			sprintf(core_state_file_name, "%s\\%s.f42", free42dirname, state.coreName);
 			core_state_file_offset = 0;
 		} else {
 			strcpy(core_state_file_name, statefilename);
@@ -1574,7 +1574,7 @@ static void Quit() {
 	    fclose(statefile);
     }
 	char corefilename[FILENAMELEN];
-    sprintf(corefilename, "%s/%s.f42", free42dirname, state.coreFileName);
+    sprintf(corefilename, "%s/%s.f42", free42dirname, state.coreName);
     core_save_state(corefilename);
     core_cleanup();
 
@@ -2463,7 +2463,7 @@ static void init_shell_state(int4 version) {
             state.calculatorKey = FALSE;
             // fall through
         case 7:
-            strcpy(state.coreFileName, "Untitled");
+            strcpy(state.coreName, "Untitled");
             // fall through
         case 8:
             // current version (SHELL_VERSION = 8),
