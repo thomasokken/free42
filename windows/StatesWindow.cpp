@@ -347,19 +347,52 @@ static void doDelete(HWND hDlg) {
 static void doImport(HWND hDlg) {
 	char buf[FILENAMELEN];
 	buf[0] = 0;
-    if (browse_file(hDlg,
-                    "Select State File",
+    if (!browse_file(hDlg,
+                    "Import State",
                     0,
                     "Free42 State (*.f42)\0*.f42\0All Files (*.*)\0*.*\0\0",
                     "f42",
                     buf,
                     FILENAMELEN))
-		fprintf(stderr, "Huzzah!\n");
-	MessageBox(hDlg, "Pas déjà implementée.", "Message", MB_ICONWARNING);
+		return;
+	ci_string path = buf;
+	size_t p = path.find_last_of('\\');
+	ci_string name = p == std::string::npos ? path : path.substr(p + 1);
+	int len = name.length();
+    if (len > 4 && name.substr(len - 4) == ".f42")
+        name = name.substr(0, len - 4);
+    ci_string destPath = ci_string(free42dirname) + "\\" + name + ".f42";
+	const char *destPathC = destPath.c_str();
+	if (GetFileAttributes(destPathC) != INVALID_FILE_ATTRIBUTES) {
+		ci_string message = ci_string("A state named \"") + name + "\" already exists.";
+		MessageBox(hDlg, message.c_str(), "Message", MB_ICONWARNING);
+	} else if (!copyState(path.c_str(), destPathC))
+        MessageBox(hDlg, "State import failed.", "Message", MB_ICONWARNING);
+    updateUI(hDlg, true);
 }
 
 static void doExport(HWND hDlg) {
-	MessageBox(hDlg, "Pas déjà implementée.", "Message", MB_ICONWARNING);
+    if (selectedStateName == "")
+        return;
+	char buf[FILENAMELEN];
+	buf[0] = 0;
+    if (!browse_file(hDlg,
+                    "Export State",
+                    1,
+                    "Free42 State (*.f42)\0*.f42\0All Files (*.*)\0*.*\0\0",
+                    "f42",
+                    buf,
+                    FILENAMELEN))
+		return;
+    ci_string copyPath = buf;
+	const char *copyPathC = copyPath.c_str();
+    if (selectedStateName == state.coreName)
+        core_save_state(copyPathC);
+    else {
+        ci_string origPath = ci_string(free42dirname) + "\\" + selectedStateName + ".f42";
+		if (!copyState(origPath.c_str(), copyPathC))
+            MessageBox(hDlg, "State export failed.", "Message", MB_ICONWARNING);
+    }
 }
 
 // Mesage handler for States dialog.
@@ -445,48 +478,3 @@ LRESULT CALLBACK StatesDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 	}
 	return FALSE;
 }
-
-/*
-- (void) doImport {
-    FileOpenPanel *openDlg = [FileOpenPanel panelWithTitle:@"Import State" types:@"Free42 State;f42;All Files;*"];
-    if ([openDlg runModal] != NSOKButton)
-        return;
-    NSArray *paths = [openDlg paths];
-    for (int i = 0; i < [paths count]; i++) {
-        NSString *path = [paths objectAtIndex:i];
-        NSString *name = [path lastPathComponent];
-        int len = [name length];
-        if (len > 4 && [[name substringFromIndex:len - 4] caseInsensitiveCompare:@".f42"] == NSOrderedSame)
-            name = [name substringToIndex:len - 4];
-        NSString *destPath = [NSString stringWithFormat:@"%s/%@.f42", free42dirname, name];
-        const char *destPathC = [destPath UTF8String];
-        struct stat st;
-        if (stat(destPathC, &st) == 0)
-            [Free42AppDelegate showMessage:[NSString stringWithFormat:@"A state named \"%@\" already exists.", name] withTitle:@"Error"];
-        else if (![self copyStateFrom:[path UTF8String] to:destPathC])
-            [Free42AppDelegate showMessage:@"State import failed." withTitle:@"Error"];
-    }
-    [self updateUI:YES];
-}
-
-- (void) doExport {
-    NSString *name = [[self selectedStateName] retain];
-    if (name == nil)
-        return;
-    FileSavePanel *saveDlg = [FileSavePanel panelWithTitle:@"Export State" types:@"Free42 State;f42;All Files;*"];
-    if ([saveDlg runModal] != NSOKButton) {
-        [name release];
-        return;
-    }
-    NSString *copyPath = [saveDlg path];
-    const char *copyPathC = [copyPath UTF8String];
-    if ([name caseInsensitiveCompare:[NSString stringWithUTF8String:state.coreName]] == NSOrderedSame)
-        core_save_state(copyPathC);
-    else {
-        NSString *origPath = [NSString stringWithFormat:@"%s/%@.f42", free42dirname, name];
-        if (![self copyStateFrom:[origPath UTF8String] to:copyPathC])
-            [Free42AppDelegate showMessage:@"State export failed." withTitle:@"Error"];
-    }
-    [name release];
-}
-*/
