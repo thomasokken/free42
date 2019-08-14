@@ -28,9 +28,11 @@ using std::string;
 using std::vector;
 using std::sort;
 
-static string stateLabel;
-static string stateName;
-static vector<string> stateNames;
+static ci_string stateLabel;
+static ci_string stateName;
+static vector<ci_string> stateNames;
+static bool *selection = NULL;
+static ci_string selectedStateName;
 
 HMENU moreMenu = NULL;
 
@@ -38,20 +40,26 @@ static void loadStateNames() {
 	stateNames.clear();
 
 	WIN32_FIND_DATA wfd;
-	string path = free42dirname;
+	ci_string path = free42dirname;
 	path += "\\*.f42";
 
 	HANDLE search = FindFirstFile(path.c_str(), &wfd);
     if (search != INVALID_HANDLE_VALUE) {
         do {
             if ((wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
-				string s;
+				ci_string s;
 				s.assign(wfd.cFileName, strlen(wfd.cFileName) - 4);
 				stateNames.push_back(s);
 			}
 		} while (FindNextFile(search, &wfd));
 		FindClose(search);
 	}
+	if (selection != NULL)
+		delete[] selection;
+	int n = stateNames.size();
+	selection = new bool[n];
+	for (int i = 0; i < n; i++)
+		selection[i] = false;
 
 	// TODO: Case insensitive sorting!
 	std::sort(stateNames.begin(), stateNames.end());
@@ -87,48 +95,60 @@ static LRESULT CALLBACK StateNameDlgProc(HWND hDlg, UINT message, WPARAM wParam,
 	return FALSE;
 }
 
-static string getStateName(HWND hDlg, const string label) {
+static ci_string getStateName(HWND hDlg, const ci_string label) {
 	stateLabel = label;
     DialogBox(hInst, (LPCTSTR)IDD_STATE_NAME, hDlg, (DLGPROC)StateNameDlgProc);
 	return stateName;
 }
 
-static string getSelectedStateName(HWND hDlg) {
-	HWND list = GetDlgItem(hDlg, IDC_STATES);
-	int index = SendMessage(list, LB_GETCURSEL, 0, 0);
-	if (index == LB_ERR)
-		return "";
-	else
-		return stateNames[index];
-}
-
 static void updateUI(HWND hDlg, bool rescan) {
-	string selName = getSelectedStateName(hDlg);
+	HWND list = GetDlgItem(hDlg, IDC_STATES);
 	if (rescan) {
 		loadStateNames();
-		HWND list = GetDlgItem(hDlg, IDC_STATES);
 		SendMessage(list, LB_RESETCONTENT, 0, 0);
 		int index = -1;
 		int i = 0;
-		for(vector<string>::iterator iter = stateNames.begin(); iter != stateNames.end(); ++iter) {
+		for(vector<ci_string>::iterator iter = stateNames.begin(); iter != stateNames.end(); ++iter) {
 			SendMessage(list, LB_ADDSTRING, 0, (LPARAM) iter->c_str());
-			if (selName == *iter)
+			if (selectedStateName == *iter)
 				index = i;
 			i++;
 		}
-		if (index != -1)
-			SendMessage(list, LB_SETCURSEL, index, 0);
+		if (index != -1) {
+			SendMessage(list, LB_SETSEL, TRUE, index);
+			selection[index] = true;
+		}
+	} else {
+		// If we're not rescanning, we were called because of
+		// a selection change. We're using a multi-select box
+		// to create a single-select with deselect capability,
+		// which means we have a bit of work to do here.
+		int n = stateNames.size();
+		int index = -1;
+		for (int i = 0; i < n; i++) {
+			bool sel = SendMessage(list, LB_GETSEL, i, 0) > 0;
+			if (sel != selection[i]) {
+				if (sel) {
+					SendMessage(list, LB_SETSEL, FALSE, -1);
+					SendMessage(list, LB_SETSEL, TRUE, i);
+					for (int j = 0; j < n; j++)
+						selection[j] = false;
+				}
+				selection[i] = sel;
+				selectedStateName = sel ? stateNames[i] : "";
+			}
+		}
 	}
 
 	HWND switchToButton = GetDlgItem(hDlg, IDOK);
 	bool stateSelected;
     bool activeStateSelected;
 
-    if (selName == "") {
+    if (selectedStateName == "") {
 		SendMessage(switchToButton, WM_SETTEXT, 0, (LPARAM) "Switch To");
         stateSelected = false;
     } else {
-        activeStateSelected = selName == state.coreName; // TODO: Case insensitive comparison
+        activeStateSelected = selectedStateName == state.coreName;
         if (activeStateSelected)
 			SendMessage(switchToButton, WM_SETTEXT, 0, (LPARAM) "Reload");
         else
@@ -145,19 +165,18 @@ static void updateUI(HWND hDlg, bool rescan) {
 }
 
 static void switchTo(HWND hDlg) {
-	string selName = getSelectedStateName(hDlg);
-	if (selName == "")
+	if (selectedStateName == "")
         return;
-    if (selName != state.coreName) { // TODO: Case insensitivity
-		string path = free42dirname;
+    if (selectedStateName != state.coreName) {
+		ci_string path = free42dirname;
 		path += "\\";
 		path += state.coreName;
 		path += ".f42";
 		core_save_state(path.c_str());
     }
     core_cleanup();
-	strcpy(state.coreName, selName.c_str()); // TODO: Length limit
-	string path = free42dirname;
+	strcpy(state.coreName, selectedStateName.c_str()); // TODO: Length limit
+	ci_string path = free42dirname;
 	path += "\\";
 	path += state.coreName;
 	path += ".f42";
@@ -166,10 +185,10 @@ static void switchTo(HWND hDlg) {
 }
 
 static void doNew(HWND hDlg) {
-	string name = getStateName(hDlg, "New state name:");
+	ci_string name = getStateName(hDlg, "New state name:");
 	if (name == "")
 		return;
-	string path = free42dirname;
+	ci_string path = free42dirname;
 	path += "\\";
 	path += name;
 	path += ".f42";
@@ -214,7 +233,7 @@ LRESULT CALLBACK StatesDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
         case WM_INITDIALOG: {
 			if (moreMenu == NULL)
 				moreMenu = LoadMenu(NULL, MAKEINTRESOURCE(IDR_STATES_MORE));
-			string txt("Current: ");
+			ci_string txt("Current: ");
 			txt += state.coreName;
             SetDlgItemText(hDlg, IDC_CURRENT, txt.c_str());
 			updateUI(hDlg, true);
@@ -277,7 +296,7 @@ LRESULT CALLBACK StatesDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 						// selected one in the LBN_SELCHANGE handler.
 						// (Or something like that. Details TBD.)
 						case LBN_SELCHANGE:
-						case LBN_SELCANCEL:
+						//case LBN_SELCANCEL:
 							updateUI(hDlg, false);
 							return TRUE;
 						case LBN_DBLCLK:
