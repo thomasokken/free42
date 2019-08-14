@@ -2613,3 +2613,9 @@ ci_string GetDlgItemTextLong(HWND hWnd, int item) {
 		buf = buf2;
 	}
 }
+
+ci_string to_ci_string(int i) {
+	char buf[22];
+	sprintf(buf, "%d", i);
+	return buf;
+}
