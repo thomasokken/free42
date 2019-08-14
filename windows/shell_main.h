@@ -70,6 +70,7 @@ extern state_type state;
 extern HINSTANCE hInst;                                    // current instance
 extern char free42dirname[FILENAMELEN];
 
+ci_string GetDlgItemTextLong(HWND hWnd, int item);
 int browse_file(HWND owner, char *title, int save, char *filter, char *defExt, char *buf, int buflen);
 
 #endif

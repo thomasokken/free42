@@ -2590,3 +2590,26 @@ void shell_log(const char *message) {
     fprintf(logfile, "%s\n", message);
     fflush(logfile);
 }
+
+ci_string GetDlgItemTextLong(HWND hWnd, int item) {
+	// If you're losing sleep over GetDlgItemText() potentially returning truncated values...
+	size_t sz = 256;
+	char *buf = (char *) malloc(sz);
+	if (buf == NULL)
+		return "";
+	while (true) {
+		GetDlgItemText(hWnd, item, buf, sz);
+		if (strlen(buf) < sz - 1) {
+			ci_string retval(buf);
+			free(buf);
+			return retval;
+		}
+		sz += 256;
+		char *buf2 = (char *) realloc(buf, sz);
+		if (buf2 == NULL) {
+			free(buf);
+			return "";
+		}
+		buf = buf2;
+	}
+}

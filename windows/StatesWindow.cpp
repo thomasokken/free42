@@ -65,6 +65,23 @@ static void loadStateNames() {
 	std::sort(stateNames.begin(), stateNames.end());
 }
 
+static bool verifyStateName(const ci_string name) {
+	const char *str = name.c_str();
+	char c;
+	while ((c = *str++) != 0) {
+		if (c >= 1 && c <= 31 || strchr("<>:\"/\\|?*", c) != NULL)
+			return false;
+	}
+	return true;
+}
+
+static bool stateNameInUse(const ci_string name) {
+	for(vector<ci_string>::iterator iter = stateNames.begin(); iter != stateNames.end(); ++iter)
+		if (name == *iter)
+			return true;
+	return false;
+}
+
 static LRESULT CALLBACK StateNameDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
 	switch (message) {
         case WM_INITDIALOG: {
@@ -76,11 +93,15 @@ static LRESULT CALLBACK StateNameDlgProc(HWND hDlg, UINT message, WPARAM wParam,
             int cmd = LOWORD(wParam);
             switch (cmd) {
 				case IDOK: {
-					char buf[FILENAMELEN];
-					GetDlgItemText(hDlg, IDC_STATE_NAME, buf, FILENAMELEN);
-					// TODO: Check for illegal characters, and check
-					// for names that are already in use
-					stateName = buf;
+					stateName = GetDlgItemTextLong(hDlg, IDC_STATE_NAME);
+					if (!verifyStateName(stateName)) {
+						MessageBox(hDlg, "That name is not valid.", "Message", MB_ICONWARNING);
+						return TRUE;
+					}
+					if (stateNameInUse(stateName)) {
+						MessageBox(hDlg, "That name is already in use.", "Message", MB_ICONWARNING);
+						return TRUE;
+					}
 					EndDialog(hDlg, 0);
 					return TRUE;
 				}
@@ -136,6 +157,7 @@ static void updateUI(HWND hDlg, bool rescan) {
 				}
 				selection[i] = sel;
 				selectedStateName = sel ? stateNames[i] : "";
+				break;
 			}
 		}
 	}
@@ -198,16 +220,16 @@ static void doNew(HWND hDlg) {
 	updateUI(hDlg, true);
 }
 
-static void doDuplicate() {
-
+static void doDuplicate(HWND hDlg) {
+	MessageBox(hDlg, "Pas déjà implementée.", "Message", MB_ICONWARNING);
 }
 
-static void doRename() {
-
+static void doRename(HWND hDlg) {
+	MessageBox(hDlg, "Pas déjà implementée.", "Message", MB_ICONWARNING);
 }
 
-static void doDelete() {
-
+static void doDelete(HWND hDlg) {
+	MessageBox(hDlg, "Pas déjà implementée.", "Message", MB_ICONWARNING);
 }
 
 static void doImport(HWND hDlg) {
@@ -221,10 +243,11 @@ static void doImport(HWND hDlg) {
                     buf,
                     FILENAMELEN))
 		fprintf(stderr, "Huzzah!\n");
+	MessageBox(hDlg, "Pas déjà implementée.", "Message", MB_ICONWARNING);
 }
 
-static void doExport() {
-
+static void doExport(HWND hDlg) {
+	MessageBox(hDlg, "Pas déjà implementée.", "Message", MB_ICONWARNING);
 }
 
 // Mesage handler for States dialog.
@@ -267,15 +290,15 @@ LRESULT CALLBACK StatesDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 					return TRUE;
 				}
 				case IDM_MORE_DUPLICATE: {
-					doDuplicate();
+					doDuplicate(hDlg);
 					return TRUE;
 				}
 				case IDM_MORE_RENAME: {
-					doRename();
+					doRename(hDlg);
 					return TRUE;
 				}
 				case IDM_MORE_DELETE: {
-					doDelete();
+					doDelete(hDlg);
 					return TRUE;
 				}
 				case IDM_MORE_IMPORT: {
@@ -283,7 +306,7 @@ LRESULT CALLBACK StatesDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 					return TRUE;
 				}
 				case IDM_MORE_EXPORT: {
-					doExport();
+					doExport(hDlg);
 					return TRUE;
 				}
 				case IDC_STATES: {
