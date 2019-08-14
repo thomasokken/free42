@@ -4,7 +4,7 @@
 # and a minimally HTMLified version of HISTORY.
 # If the -u option is specified, skips creation of the upstream packages.
 
-if [ $# -ge 1 -a $1 = "-u" ]
+if [ $# -ge 1 -a "$1" = "-u" ]
 then
     SKIP_UPSTREAM=1
     shift
