@@ -68,4 +68,8 @@
     return selected;
 }
 
+- (NSString *) getItemAtIndex:(int)i {
+    return names[i];
+}
+
 @end

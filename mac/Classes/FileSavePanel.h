@@ -24,8 +24,8 @@
     int selectedSuffix;
 }
 
-+ (FileSavePanel *) panelWithTitle:(NSString *)title types:(NSString *)types;
-- (FileSavePanel *) initWithTitle:(NSString *)title types:(NSString *)types;
++ (FileSavePanel *) panelWithTitle:(NSString *)title types:(NSString *)types path:(NSString *) path;
+- (FileSavePanel *) initWithTitle:(NSString *)title types:(NSString *)types path:(NSString *) path;
 - (NSModalResponse) runModal;
 - (NSString *) path;
 

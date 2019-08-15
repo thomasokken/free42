@@ -30,5 +30,6 @@
 - (void) tableView:(NSTableView *)aTableView setObjectValue:anObject forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex;
 - (void) setProgramNames:(const char *)names;
 - (bool *) getSelection;
+- (NSString *) getItemAtIndex:(int)i;
 
 @end

@@ -517,13 +517,13 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
 }
 
 - (IBAction) browsePrintTextFile:(id)sender {
-    FileSavePanel *saveDlg = [FileSavePanel panelWithTitle:@"Select Text File Name" types:@"Text;txt;All Files;*"];
+    FileSavePanel *saveDlg = [FileSavePanel panelWithTitle:@"Select Text File Name" types:@"Text;txt;All Files;*" path:[prefsPrintTextFile stringValue]];
     if ([saveDlg runModal] == NSOKButton)
         [prefsPrintTextFile setStringValue:[saveDlg path]];
 }
 
 - (IBAction) browsePrintGIFFile:(id)sender {
-    FileSavePanel *saveDlg = [FileSavePanel panelWithTitle:@"Select GIF File Name" types:@"GIF;gif;All Files;*"];
+    FileSavePanel *saveDlg = [FileSavePanel panelWithTitle:@"Select GIF File Name" types:@"GIF;gif;All Files;*" path:[prefsPrintGIFFile stringValue]];
     if ([saveDlg runModal] == NSOKButton)
         [prefsPrintGIFFile setStringValue:[saveDlg path]];
 }
@@ -579,15 +579,25 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
     [selectProgramsWindow orderOut:self];
     bool *selection = [programListDataSource getSelection];
     int count = [programListDataSource numberOfRowsInTableView:nil];
-    bool nothing = true;
+    int firstSelected = -1;
     for (int i = 0; i < count; i++)
         if (selection[i]) {
-            nothing = false;
+            firstSelected = i;
             break;
         }
-    if (nothing)
+    if (firstSelected == -1)
         return;
-    FileSavePanel *saveDlg = [FileSavePanel panelWithTitle:@"Export Programs" types:@"Program Files;raw;All Files;*"];
+    NSString *name = [programListDataSource getItemAtIndex:firstSelected];
+    if ([name characterAtIndex:0] != '"')
+        name = @"Untitled";
+    else {
+        NSRange range = [name rangeOfString:@"\"" options:0 range:NSMakeRange(1, [name length] - 1)];
+        if (range.location == NSNotFound)
+            name = @"Untitled";
+        else
+            name = [name substringWithRange:NSMakeRange(1, range.location - 1)];
+    }
+    FileSavePanel *saveDlg = [FileSavePanel panelWithTitle:@"Export Programs" types:@"Program Files;raw;All Files;*" path:name];
     if ([saveDlg runModal] == NSOKButton) {
         NSString *fileName = [saveDlg path];
         char cFileName[1024];

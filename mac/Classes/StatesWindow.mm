@@ -300,7 +300,7 @@
     NSString *name = [[self selectedStateName] retain];
     if (name == nil)
         return;
-    FileSavePanel *saveDlg = [FileSavePanel panelWithTitle:@"Export State" types:@"Free42 State;f42;All Files;*"];
+    FileSavePanel *saveDlg = [FileSavePanel panelWithTitle:@"Export State" types:@"Free42 State;f42;All Files;*" path:name];
     if ([saveDlg runModal] != NSOKButton) {
         [name release];
         return;

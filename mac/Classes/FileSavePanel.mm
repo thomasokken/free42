@@ -19,11 +19,11 @@
 
 @implementation FileSavePanel
 
-+ (FileSavePanel *) panelWithTitle:(NSString *)title types:(NSString *)types {
-    return [[FileSavePanel alloc] initWithTitle:title types:types];
++ (FileSavePanel *) panelWithTitle:(NSString *)title types:(NSString *)types path:(NSString *)path {
+    return [[FileSavePanel alloc] initWithTitle:title types:types path:path];
 }
 
-- (FileSavePanel *) initWithTitle:(NSString *)title types:(NSString *)types {
+- (FileSavePanel *) initWithTitle:(NSString *)title types:(NSString *)types path:(NSString *)path {
     // The string 'types' should have the form (Label;suffix;)+
     panel = [NSSavePanel savePanel];
 
@@ -44,6 +44,14 @@
     else
         [panel setAllowedFileTypes:[NSArray arrayWithObject:theSuffix]];
     [panel setTitle:title];
+    
+    NSRange range = [path rangeOfString:@"/" options:NSBackwardsSearch];
+    if (range.location == NSNotFound)
+        [panel setNameFieldStringValue:path];
+    else {
+        [panel setDirectoryURL:[NSURL fileURLWithPath:[path substringToIndex:range.location]]];
+        [panel setNameFieldStringValue:[path substringFromIndex:range.location + 1]];
+    }
 
     NSView *accessoryView = [[NSView alloc] initWithFrame:NSMakeRect(0.0, 0.0, 260, 32.0)];
     NSTextField *label = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 60, 22)];
