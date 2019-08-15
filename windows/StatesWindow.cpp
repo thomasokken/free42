@@ -375,7 +375,8 @@ static void doExport(HWND hDlg) {
     if (selectedStateName == "")
         return;
 	char buf[FILENAMELEN];
-	buf[0] = 0;
+	strncpy(buf, selectedStateName.c_str(), FILENAMELEN);
+	buf[FILENAMELEN - 1] = 0;
     if (!browse_file(hDlg,
                     "Export State",
                     1,

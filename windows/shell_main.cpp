@@ -1690,16 +1690,36 @@ static void export_program() {
      * sel_prog_list is an array of integers containing the item numbers.
      */
 	char export_file_name[FILENAMELEN];
-    if (!browse_file(hMainWnd,
+	export_file_name[0] = 0;
+	char *buf = core_list_programs();
+    if (buf != NULL) {
+        int count = ((buf[0] & 255) << 24) | ((buf[1] & 255) << 16) | ((buf[2] & 255) << 8) | (buf[3] & 255);
+        char *p = buf + 4;
+		int sel = sel_prog_list[0];
+		while (sel > 0) {
+			p += strlen(p) + 1;
+			sel--;
+        }
+		if (p[0] == '"') {
+			char *closing_quote = strchr(p + 1, '"');
+			if (closing_quote != NULL) {
+				*closing_quote = 0;
+				strcpy(export_file_name, p + 1);
+			}
+		}			
+        free(buf);
+    }
+	if (export_file_name[0] == 0)
+		strcpy(export_file_name, "Untitled");
+
+    if (browse_file(hMainWnd,
                      "Export Programs",
                      1,
                      "Program Files (*.raw)\0*.raw\0All Files (*.*)\0*.*\0\0",
                      "raw",
                      export_file_name,
                      FILENAMELEN))
-        return;
-
-    core_export_programs(sel_prog_count, sel_prog_list, export_file_name);
+	    core_export_programs(sel_prog_count, sel_prog_list, export_file_name);
 
     free(sel_prog_list);
 }
