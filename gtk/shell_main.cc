@@ -1169,8 +1169,6 @@ static void states_menu_export() {
 
 }
 
-GtkWidget *statesMenuItems[6];
-
 static void states_menu_pos_func(GtkMenu *menu, gint *x, gint *y, gboolean *push_in, gpointer data) {
     GtkWidget *btn = GTK_WIDGET(data);
     gdk_window_get_origin(btn->window, x, y);
@@ -1253,6 +1251,7 @@ static void statesCB() {
         gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(scroll), FALSE, FALSE, 10);
 
         menu = gtk_menu_new();
+        GtkWidget *statesMenuItems[6];
         statesMenuItems[0] = gtk_menu_item_new_with_label("New");
         statesMenuItems[1] = gtk_menu_item_new_with_label("Duplicate");
         statesMenuItems[2] = gtk_menu_item_new_with_label("Rename");
