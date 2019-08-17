@@ -16,7 +16,6 @@
  *****************************************************************************/
 
 #include <stdio.h>
-#include "util.h"
 
 #ifdef _DEBUG
 
@@ -236,56 +235,4 @@ const char *msg2string(unsigned int msg) {
 #endif
     sprintf(buf, "0x%04x", msg);
     return buf;
-}
-
-ci_string GetDlgItemTextLong(HWND hWnd, int item) {
-	// If you're losing sleep over GetDlgItemText() potentially returning truncated values...
-	size_t sz = 256;
-	char *buf = (char *) malloc(sz);
-	if (buf == NULL)
-		return "";
-	while (true) {
-		GetDlgItemText(hWnd, item, buf, sz);
-		if (strlen(buf) < sz - 1) {
-			ci_string retval(buf);
-			free(buf);
-			return retval;
-		}
-		sz += 256;
-		char *buf2 = (char *) realloc(buf, sz);
-		if (buf2 == NULL) {
-			free(buf);
-			return "";
-		}
-		buf = buf2;
-	}
-}
-
-ci_string browse_file(HWND owner, char *title, int save, char *filter, char *defExt, ci_string fname) {
-	char buf[1024];
-	strncpy(buf, fname.c_str(), 1024);
-	buf[1023] = 0;
-    OPENFILENAME ofn;
-    ofn.lStructSize = sizeof(OPENFILENAME);
-    ofn.hwndOwner = owner;
-    ofn.lpstrFilter = filter;
-    ofn.lpstrCustomFilter = NULL;
-    ofn.nFilterIndex = 1;
-    ofn.lpstrFile = buf;
-    ofn.nMaxFile = 1024;
-    ofn.lpstrFileTitle = NULL;
-    ofn.lpstrInitialDir = NULL;
-    ofn.lpstrTitle = title;
-    ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
-    ofn.lpstrDefExt = defExt;
-    if (save ? GetSaveFileName(&ofn) : GetOpenFileName(&ofn))
-		return buf;
-	else
-		return "";
-}
-
-ci_string to_ci_string(int i) {
-	char buf[22];
-	sprintf(buf, "%d", i);
-	return buf;
 }

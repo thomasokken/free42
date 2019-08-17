@@ -23,13 +23,6 @@
 #include <direct.h>
 #include <stdio.h>
 #include <shlobj.h>
-#include <vector>
-#include <vector>
-#include <algorithm>
-
-using std::string;
-using std::vector;
-using std::sort;
 
 #include "free42.h"
 #include "shell.h"
@@ -37,7 +30,7 @@ using std::sort;
 #include "shell_spool.h"
 #include "core_main.h"
 #include "core_display.h"
-#include "util.h"
+#include "msg2string.h"
 #include "StatesWindow.h"
 #include "shell_main.h"
 
@@ -110,21 +103,21 @@ static int keymap_length = 0;
 static keymap_entry *keymap = NULL;
 
 
-#define SHELL_VERSION 9
+#define SHELL_VERSION 8
 
 state_type state;
 static int placement_saved = 0;
 static int printOutWidth;
 static int printOutHeight;
 
-ci_string free42dirname;
-static ci_string statefilename;
+char free42dirname[FILENAMELEN];
+static char statefilename[FILENAMELEN];
 static FILE *statefile = NULL;
-static ci_string printfilename;
+static char printfilename[FILENAMELEN];
 
 static FILE *print_txt = NULL;
 static FILE *print_gif = NULL;
-static ci_string print_gif_name;
+static char print_gif_name[FILENAMELEN];
 static int gif_seq = -1;
 static int gif_lines;
 
@@ -149,7 +142,8 @@ static LRESULT CALLBACK PrintOutWndProc(HWND hWnd, UINT message, WPARAM wParam, 
 static LRESULT CALLBACK About(HWND, UINT, WPARAM, LPARAM);
 static LRESULT CALLBACK ExportProgram(HWND, UINT, WPARAM, LPARAM);
 static LRESULT CALLBACK Preferences(HWND, UINT, WPARAM, LPARAM);
-static ci_string get_home_dir();
+static void get_home_dir(char *path, int pathlen);
+static void config_home_dir(HWND owner, char *buf, int bufsize);
 static void mapCalculatorKey();
 static void copy();
 static void paste();
@@ -183,14 +177,6 @@ static void txt_newliner();
 static void gif_seeker(int4 pos);
 static void gif_writer(const char *text, int length);
 
-static bool state_read_data(void *data, size_t length);
-static bool state_read_bool(bool *b);
-static bool state_read_int4(int4 *i);
-static bool state_read_string(ci_string *s);
-static bool state_write_data(const void *data, size_t length);
-static bool state_write_bool(bool b);
-static bool state_write_int4(int4 i);
-static bool state_write_string(ci_string s);
 
 int APIENTRY WinMain(HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
@@ -313,19 +299,20 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
     /***** Try to create the Free42 directory *****/
     /**********************************************/
 
-    free42dirname = get_home_dir();
-	_mkdir(free42dirname.c_str());
+    get_home_dir(free42dirname, FILENAMELEN);
+    _mkdir(free42dirname);
 
-    statefilename = free42dirname + "\\state.bin";
-    printfilename = free42dirname + "\\print.bin";
-    ci_string keymapfilename = free42dirname + "\\keymap.txt";
+    char keymapfilename[FILENAMELEN];
+    sprintf(statefilename, "%s\\state.bin", free42dirname);
+    sprintf(printfilename, "%s\\print.bin", free42dirname);
+    sprintf(keymapfilename, "%s\\keymap.txt", free42dirname);
 
-	read_key_map(keymapfilename.c_str());
+    read_key_map(keymapfilename);
 
     printout = (char *) malloc(PRINT_SIZE);
     print_text = (char *) malloc(PRINT_TEXT_SIZE);
     // TODO - handle memory allocation failure
-	FILE *printfile = fopen(printfilename.c_str(), "rb");
+    FILE *printfile = fopen(printfilename, "rb");
     if (printfile != NULL) {
         int n = fread(&printout_bottom, 1, sizeof(int), printfile);
         if (n == sizeof(int)) {
@@ -367,10 +354,10 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
     int init_mode;
     int4 version;
-	ci_string core_state_file_name;
+	char core_state_file_name[FILENAMELEN];
 	int core_state_file_offset;
 
-	statefile = fopen(statefilename.c_str(), "rb");
+    statefile = fopen(statefilename, "rb");
     if (statefile != NULL) {
         if (read_shell_state(&version))
             init_mode = 1;
@@ -384,24 +371,24 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
     }
 	if (init_mode == 1) {
 		if (version > 25) {
-			core_state_file_name = free42dirname + "\\" + state.coreName + ".f42";
+			sprintf(core_state_file_name, "%s\\%s.f42", free42dirname, state.coreName);
 			core_state_file_offset = 0;
 		} else {
-			core_state_file_name = statefilename;
+			strcpy(core_state_file_name, statefilename);
 			core_state_file_offset = ftell(statefile);
 		}
         fclose(statefile);
 	} else {
 		// The shell state was missing or corrupt, but there
 		// may still be a valid core state...
-		core_state_file_name = free42dirname + "\\" + state.coreName + ".f42";
-		if (GetFileAttributes(core_state_file_name.c_str()) != INVALID_FILE_ATTRIBUTES) {
+        sprintf(core_state_file_name, "%s\\%s.f42", free42dirname, state.coreName);
+		if (GetFileAttributes(core_state_file_name) != INVALID_FILE_ATTRIBUTES) {
 			// Core state "Untitled.f42" exists; let's try to read it
 			core_state_file_offset = 0;
 			init_mode = 1;
 			version = 26;
 		}
-	}
+    }
 
     if (state.singleInstance) {
         HWND hPrevWnd = FindWindow(szMainWindowClass, szMainTitle);
@@ -413,7 +400,7 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
         }
     }
 
-	skin_load(&state.skinName, free42dirname, &r.right, &r.bottom);
+    skin_load(state.skinName, free42dirname, &r.right, &r.bottom);
     r.top = 0;
     r.left = 0;
     AdjustWindowRect(&r, WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX|WS_OVERLAPPED, 1);
@@ -426,7 +413,7 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
     if (hMainWnd == NULL)
         return FALSE;
 
-	core_init(init_mode, version, core_state_file_name.c_str(), core_state_file_offset);
+    core_init(init_mode, version, core_state_file_name, core_state_file_offset);
 
     if (state.mainPlacementValid) {
         // Fix the size, in case the saved settings are not appropriate
@@ -602,16 +589,14 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
                 default:
                     if (wmId >= 40000) {
                         // 'Skin' menu
-						char buf[1024];
                         HMENU mainmenu = GetMenu(hWnd);
                         HMENU skinmenu = GetSubMenu(mainmenu, 2);
                         MENUITEMINFO mii;
                         mii.cbSize = sizeof(MENUITEMINFO);
                         mii.fMask = MIIM_TYPE;
-                        mii.cch = 1024;
-						mii.dwTypeData = buf;
+                        mii.cch = FILENAMELEN;
+                        mii.dwTypeData = state.skinName;
                         GetMenuItemInfo(skinmenu, wmId, FALSE, &mii);
-						state.skinName = buf;
 
                         // The following is really just skin_load(), followed by
                         // resizing the window. Unfortunately, I couldn't find a
@@ -620,7 +605,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
                         RECT r;
                         GetWindowRect(hWnd, &r);
                         long width, height;
-						skin_load(&state.skinName, free42dirname, &width, &height);
+                        skin_load(state.skinName, free42dirname, &width, &height);
                         core_repaint_display();
                         r.right = r.left + width;
                         r.bottom = r.top + height;
@@ -873,74 +858,81 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
                 break;
             HMENU menu = (HMENU) wParam;
             UINT id = 40000;
-            if (state.skinName == "")
-                state.skinName = skin_name[0];
+            if (state.skinName[0] == 0)
+                strcpy(state.skinName, skin_name[0]);
 
-            for (int i = GetMenuItemCount(menu) - 1; i >= 0; i--)
+            int i;
+            for (i = GetMenuItemCount(menu) - 1; i >= 0; i--)
                 RemoveMenu(menu, i, MF_BYPOSITION);
 
-            for (int i = 0; i < skin_count; i++) {
+            for (i = 0; i < skin_count; i++) {
                 UINT flags = 0;
-                if (state.skinName == skin_name[i])
+                if (strcmp(state.skinName, skin_name[i]) == 0)
                     flags = MF_CHECKED;
                 AppendMenu(menu, flags, id++, skin_name[i]);
             }
 
             int have_separator = 0;
+            char path[MAX_PATH];
+            path[MAX_PATH - 1] = 0;
             WIN32_FIND_DATA wfd;
-			vector<ci_string> name;
+            int n = 0;
+            char name[100][MAX_PATH];
 
-			ci_string path = free42dirname + "\\*.layout";
-			HANDLE search = FindFirstFile(path.c_str(), &wfd);
+            strncpy(path, free42dirname, MAX_PATH - 1);
+            strncat(path, "\\*.layout", MAX_PATH - 1);
+            path[MAX_PATH - 1] = 0;
+            HANDLE search = FindFirstFile(path, &wfd);
             if (search != INVALID_HANDLE_VALUE) {
                 do {
                     if ((wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
                         wfd.cFileName[strlen(wfd.cFileName) - 7] = 0;
-						name.push_back(wfd.cFileName);
+                        strcpy(name[n++], wfd.cFileName);
                     }
                 } while (FindNextFile(search, &wfd));
                 FindClose(search);
             }
 
             // Search executable's directory
-            char exedir[1024];
-            GetModuleFileName(0, exedir, 1024);
+            char exedir[MAX_PATH];
+            GetModuleFileName(0, exedir, MAX_PATH - 1);
             char *lastbackslash = strrchr(exedir, '\\');
             if (lastbackslash != 0)
                 *lastbackslash = 0;
             else
                 strcpy(exedir, "C:");
-            if (free42dirname != exedir) {
-                strcat(exedir, "\\*.layout");
+            if (_stricmp(exedir, free42dirname) != 0) {
+                strncat(exedir, "\\*.layout", MAX_PATH - 1);
+                exedir[MAX_PATH - 1] = 0;
                 search = FindFirstFile(exedir, &wfd);
                 if (search != INVALID_HANDLE_VALUE) {
                     do {
                         if ((wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
                             wfd.cFileName[strlen(wfd.cFileName) - 7] = 0;
-							name.push_back(wfd.cFileName);
+                            strcpy(name[n++], wfd.cFileName);
                         }
                     } while (FindNextFile(search, &wfd));
                     FindClose(search);
                 }
             }
 
-			std::sort(name.begin(), name.end());
-			for (size_t i = 0; i < name.size(); i++) {
+            qsort(name, n, MAX_PATH, (int (*)(const void *, const void *)) _stricmp);
+            for (i = 0; i < n; i++) {
                 UINT flags;
                 int j;
-                if (i > 0 && name[i] == name[i - 1])
+                if (i > 0 && _stricmp(name[i], name[i - 1]) == 0)
                     goto skip;
                 for (j = 0; j < skin_count; j++)
-                    if (name[i] == skin_name[j])
+                    if (_stricmp(name[i], skin_name[j]) == 0)
                         goto skip;
                 if (!have_separator) {
                     AppendMenu(menu, MF_SEPARATOR, 0, NULL);
                     have_separator = 1;
                 }
                 flags = 0;
-                if (state.skinName == name[i])
+                if (_stricmp(state.skinName, name[i]) == 0)
                     flags = MF_CHECKED;
-				AppendMenu(menu, flags, id++, name[i].c_str());
+                AppendMenu(menu, flags, id++, name[i]);
                 skip:;
             }
             break;
@@ -1196,12 +1188,12 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
                 ctl = GetDlgItem(hDlg, IDC_PRINTER_TXT);
                 SendMessage(ctl, BM_SETCHECK, 1, 0);
             }
-			SetDlgItemText(hDlg, IDC_PRINTER_TXT_NAME, state.printerTxtFileName.c_str());
+            SetDlgItemText(hDlg, IDC_PRINTER_TXT_NAME, state.printerTxtFileName);
             if (state.printerToGifFile) {
                 ctl = GetDlgItem(hDlg, IDC_PRINTER_GIF);
                 SendMessage(ctl, BM_SETCHECK, 1, 0);
             }
-			SetDlgItemText(hDlg, IDC_PRINTER_GIF_NAME, state.printerGifFileName.c_str());
+            SetDlgItemText(hDlg, IDC_PRINTER_GIF_NAME, state.printerGifFileName);
             SetDlgItemInt(hDlg, IDC_PRINTER_GIF_HEIGHT, state.printerGifMaxLength, TRUE);
             return TRUE;
         }
@@ -1218,7 +1210,7 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
                     ctl = GetDlgItem(hDlg, IDC_AUTO_REPEAT);
                     core_settings.auto_repeat = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
                     ctl = GetDlgItem(hDlg, IDC_ALWAYSONTOP);
-                    bool alwaysOnTop = SendMessage(ctl, BM_GETCHECK, 0, 0) == TRUE;
+                    BOOL alwaysOnTop = SendMessage(ctl, BM_GETCHECK, 0, 0);
                     if (alwaysOnTop != state.alwaysOnTop) {
                         state.alwaysOnTop = alwaysOnTop;
                         SetWindowPos(hMainWnd, alwaysOnTop ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
@@ -1226,69 +1218,72 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
                             SetWindowPos(hPrintOutWnd, alwaysOnTop ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
                     }
                     ctl = GetDlgItem(hDlg, IDC_CALCULATOR_KEY);
-                    bool prevCalculatorKey = state.calculatorKey;
-                    state.calculatorKey = SendMessage(ctl, BM_GETCHECK, 0, 0) != FALSE;
+                    BOOL prevCalculatorKey = state.calculatorKey;
+                    state.calculatorKey = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
                     if (state.calculatorKey != prevCalculatorKey)
                         mapCalculatorKey();
                     ctl = GetDlgItem(hDlg, IDC_SINGLEINSTANCE);
-                    state.singleInstance = SendMessage(ctl, BM_GETCHECK, 0, 0) != FALSE;
+                    state.singleInstance = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
 
                     ctl = GetDlgItem(hDlg, IDC_PRINTER_TXT);
-                    state.printerToTxtFile = SendMessage(ctl, BM_GETCHECK, 0, 0) != FALSE;
-                    ci_string s = GetDlgItemTextLong(hDlg, IDC_PRINTER_TXT_NAME);
-					int len = s.length();
-					if (len > 0 && (len < 4 || s.substr(len - 4) != ".txt"))
-                        s += ".txt";
+                    state.printerToTxtFile = SendMessage(ctl, BM_GETCHECK, 0, 0);
+                    char buf[FILENAMELEN];
+                    GetDlgItemText(hDlg, IDC_PRINTER_TXT_NAME, buf, FILENAMELEN - 1);
+                    int len = strlen(buf);
+                    if (len > 0 && (len < 4 || _stricmp(buf + len - 4, ".txt") != 0))
+                        strcat(buf, ".txt");
                     if (print_txt != NULL && (!state.printerToTxtFile
-                            || state.printerTxtFileName != s)) {
+                            || _stricmp(state.printerTxtFileName, buf) != 0)) {
                         fclose(print_txt);
                         print_txt = NULL;
                     }
-                    state.printerTxtFileName = s;
+                    strcpy(state.printerTxtFileName, buf);
                     ctl = GetDlgItem(hDlg, IDC_PRINTER_GIF);
-                    state.printerToGifFile = SendMessage(ctl, BM_GETCHECK, 0, 0) != FALSE;
+                    state.printerToGifFile = SendMessage(ctl, BM_GETCHECK, 0, 0);
                     BOOL success;
                     int maxlen = (int) GetDlgItemInt(hDlg, IDC_PRINTER_GIF_HEIGHT, &success, TRUE);
                     state.printerGifMaxLength = !success ? 256 : maxlen < 16 ? 16 : maxlen > 32767 ? 32767 : maxlen;
-                    s = GetDlgItemTextLong(hDlg, IDC_PRINTER_GIF_NAME);
-					len = s.length();
-                    if (len > 0 && (len < 4 || s.substr(len - 4) != ".gif"))
-                        s += ".gif";
+                    GetDlgItemText(hDlg, IDC_PRINTER_GIF_NAME, buf, FILENAMELEN - 1);
+                    len = strlen(buf);
+                    if (len > 0 && (len < 4 || _stricmp(buf + len - 4, ".gif") != 0))
+                        strcat(buf, ".gif");
                     if (print_gif != NULL && (!state.printerToGifFile
-                            || state.printerGifFileName != s)) {
+                            || _stricmp(state.printerGifFileName, buf) != 0)) {
                         shell_finish_gif(gif_seeker, gif_writer);
                         fclose(print_gif);
                         print_gif = NULL;
                         gif_seq = -1;
                     }
-                    state.printerGifFileName = s;
+                    strcpy(state.printerGifFileName, buf);
                     // fall through
                 }
                 case IDCANCEL:
                     EndDialog(hDlg, LOWORD(wParam));
                     return TRUE;
                 case IDC_PRINTER_TXT_BROWSE: {
-                    ci_string fname = GetDlgItemTextLong(hDlg, IDC_PRINTER_TXT_NAME);
-					fname = browse_file(hDlg,
+                    char buf[FILENAMELEN];
+                    GetDlgItemText(hDlg, IDC_PRINTER_TXT_NAME, buf, FILENAMELEN - 1);
+                    if (browse_file(hDlg,
                                     "Select Text File Name",
                                     1,
                                     "Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0\0",
                                     "txt",
-                                    fname);
-					if (fname != "")
-						SetDlgItemText(hDlg, IDC_PRINTER_TXT_NAME, fname.c_str());
+                                    buf,
+                                    FILENAMELEN))
+                        SetDlgItemText(hDlg, IDC_PRINTER_TXT_NAME, buf);
                     return TRUE;
                 }
                 case IDC_PRINTER_GIF_BROWSE: {
-                    ci_string fname = GetDlgItemTextLong(hDlg, IDC_PRINTER_GIF_NAME);
-                    fname = browse_file(hDlg,
+                    char buf[FILENAMELEN];
+                    GetDlgItemText(hDlg, IDC_PRINTER_GIF_NAME, buf, FILENAMELEN - 1);
+                    if (browse_file(hDlg,
                                     "Select GIF File Name",
                                     1,
                                     "GIF Files (*.gif)\0*.gif\0All Files (*.*)\0*.*\0\0",
                                     "gif",
-                                    fname);
-					if (fname != "")
-						SetDlgItemText(hDlg, IDC_PRINTER_GIF_NAME, fname.c_str());
+                                    buf,
+                                    FILENAMELEN))
+                        SetDlgItemText(hDlg, IDC_PRINTER_GIF_NAME, buf);
                     return TRUE;
                 }
             }
@@ -1298,7 +1293,56 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
     return FALSE;
 }
 
-static ci_string get_home_dir() {
+int browse_file(HWND owner, char *title, int save, char *filter, char *defExt, char *buf, int buflen) {
+    OPENFILENAME ofn;
+    ofn.lStructSize = sizeof(OPENFILENAME);
+    ofn.hwndOwner = owner;
+    ofn.lpstrFilter = filter;
+    ofn.lpstrCustomFilter = NULL;
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFile = buf;
+    ofn.nMaxFile = buflen;
+    ofn.lpstrFileTitle = NULL;
+    ofn.lpstrInitialDir = NULL;
+    ofn.lpstrTitle = title;
+    ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
+    ofn.lpstrDefExt = defExt;
+    return save ? GetSaveFileName(&ofn) : GetOpenFileName(&ofn);
+}
+
+static void move_state_file(char *olddir, char *newdir, char *filename) {
+    char oldfile[FILENAMELEN];
+    char newfile[FILENAMELEN];
+    char buf[1024];
+    FILE *in, *out;
+    int n;
+
+    strcpy(oldfile, olddir);
+    strcat(oldfile, "\\");
+    strcat(oldfile, filename);
+    strcpy(newfile, newdir);
+    strcat(newfile, "\\");
+    strcat(newfile, filename);
+
+    in = fopen(oldfile, "rb");
+    if (in == NULL)
+        return;
+    CreateDirectory(newdir, NULL);
+    out = fopen(newfile, "wb");
+    if (out == NULL) {
+        fclose(in);
+        return;
+    }
+
+    while ((n = fread(buf, 1, 1024, in)) > 0)
+        fwrite(buf, 1, n, out);
+
+    fclose(in);
+    fclose(out);
+    remove(oldfile);
+}
+
+static void get_home_dir(char *path, int pathlen) {
     // Starting with release 1.5.1, changing the Free42 directory is no longer
     // supported. Instead, Free42 looks for a file or directory named 'portable'
     // in the executable's directory; if it exists, this is where the state files
@@ -1307,16 +1351,16 @@ static ci_string get_home_dir() {
     // %APPDATA%\Free42, and skins will be searched for in that directory as well,
     // *and* in the executable's direcory.
 
-    char path[1024];
-    GetModuleFileName(0, path, 1024);
-    char *lastbackslash = strrchr(path, '\\');
+    char exepath[FILENAMELEN];
+    GetModuleFileName(0, exepath, FILENAMELEN);
+    char *lastbackslash = strrchr(exepath, '\\');
     if (lastbackslash != 0) {
         lastbackslash[1] = '*';
         lastbackslash[2] = 0;
     }
 
     WIN32_FIND_DATA wfd;
-    HANDLE search = FindFirstFile(path, &wfd);
+    HANDLE search = FindFirstFile(exepath, &wfd);
     bool use_exedir = false;
     if (search != INVALID_HANDLE_VALUE) {
         do {
@@ -1330,28 +1374,58 @@ static ci_string get_home_dir() {
 
     if (use_exedir) {
         *lastbackslash = 0;
-		return path;
+        strncpy(path, exepath, pathlen);
+        path[pathlen - 1] = 0;
+        return;
     }
 
     LPITEMIDLIST idlist;
+    char newpath[MAX_PATH];
     if (SHGetSpecialFolderLocation(NULL, CSIDL_APPDATA, &idlist) == NOERROR) {
-        if (!SHGetPathFromIDList(idlist, path))
-            strcpy(path, "C:");
-        strcat(path, "\\Free42");
+        if (!SHGetPathFromIDList(idlist, newpath))
+            strcpy(newpath, "C:");
+        strncat(newpath, "\\Free42", MAX_PATH - 1);
+        newpath[MAX_PATH - 1] = 0;
         LPMALLOC imalloc;
         if (SHGetMalloc(&imalloc) == NOERROR)
             imalloc->Free(idlist);
-		return path;
+        strncpy(path, newpath, pathlen);
+        path[pathlen - 1] = 0;
     } else {
-        return "C:\\Free42";
+        strncpy(path, "C:\\Free42", pathlen);
+        path[pathlen - 1] = 0;
+    }
+}
+
+static void config_home_dir(HWND owner, char *buf, int bufsize) {
+    BROWSEINFO binfo;
+    char msg[MAX_PATH + 100];
+    sprintf(msg, "Select Free42 directory\n(currently %s)", *buf == 0 ? "unset" : buf);
+    binfo.hwndOwner = owner;
+    binfo.pidlRoot = NULL;
+    binfo.pszDisplayName = buf;
+    binfo.lpszTitle = msg;
+    binfo.ulFlags = BIF_RETURNONLYFSDIRS;
+    binfo.lpfn = NULL;
+    binfo.lParam = 0;
+    LPITEMIDLIST idlist = SHBrowseForFolder(&binfo);
+    if (idlist != NULL) {
+        char buf2[MAX_PATH];
+        if (SHGetPathFromIDList(idlist, buf2)) {
+            strncpy(buf, buf2, bufsize - 1);
+            buf[bufsize - 1] = 0;
+        }
+        LPMALLOC imalloc;
+        if (SHGetMalloc(&imalloc) == NOERROR)
+            imalloc->Free(idlist);
     }
 }
 
 static void mapCalculatorKey() {
-    char path[1024];
+    char path[MAX_PATH];
     if (state.calculatorKey) {
         // Get current executable's path
-        GetModuleFileName(0, path, 1024);
+        GetModuleFileName(0, path, MAX_PATH - 1);
     } else {
         // Windows default
         strcpy(path, "calc.exe");
@@ -1437,7 +1511,7 @@ static void Quit() {
     FILE *printfile;
     int n, length;
     
-	printfile = fopen(printfilename.c_str(), "wb");
+    printfile = fopen(printfilename, "wb");
     if (printfile != NULL) {
         // Write bitmap
         length = printout_bottom - printout_top;
@@ -1490,13 +1564,13 @@ static void Quit() {
         
     failed:
         fclose(printfile);
-		remove(printfilename.c_str());
+        remove(printfilename);
         
     done:
         ;
     }
 
-	statefile = fopen(statefilename.c_str(), "wb");
+    statefile = fopen(statefilename, "wb");
     if (statefile != NULL) {
         if (!placement_saved) {
             GetWindowPlacement(hMainWnd, &state.mainPlacement);
@@ -1509,8 +1583,9 @@ static void Quit() {
         write_shell_state();
 	    fclose(statefile);
     }
-	ci_string corefilename = free42dirname + "\\" + state.coreName + ".f42";
-	core_save_state(corefilename.c_str());
+	char corefilename[FILENAMELEN];
+    sprintf(corefilename, "%s/%s.f42", free42dirname, state.coreName);
+    core_save_state(corefilename);
     core_cleanup();
 
     if (print_txt != NULL)
@@ -1624,7 +1699,8 @@ static void export_program() {
     /* The sel_prog_count global now has the number of selected items;
      * sel_prog_list is an array of integers containing the item numbers.
      */
-	ci_string export_file_name;
+	char export_file_name[FILENAMELEN];
+	export_file_name[0] = 0;
 	char *buf = core_list_programs();
     if (buf != NULL) {
         int count = ((buf[0] & 255) << 24) | ((buf[1] & 255) << 16) | ((buf[2] & 255) << 8) | (buf[3] & 255);
@@ -1638,37 +1714,39 @@ static void export_program() {
 			char *closing_quote = strchr(p + 1, '"');
 			if (closing_quote != NULL) {
 				*closing_quote = 0;
-				export_file_name = p + 1;
+				strcpy(export_file_name, p + 1);
 			}
 		}			
         free(buf);
     }
-	if (export_file_name == "")
-		export_file_name = "Untitled";
+	if (export_file_name[0] == 0)
+		strcpy(export_file_name, "Untitled");
 
-    export_file_name = browse_file(hMainWnd,
+    if (browse_file(hMainWnd,
                      "Export Programs",
                      1,
                      "Program Files (*.raw)\0*.raw\0All Files (*.*)\0*.*\0\0",
                      "raw",
-                     export_file_name);
-	if (export_file_name != "")
-		core_export_programs(sel_prog_count, sel_prog_list, export_file_name.c_str());
+                     export_file_name,
+                     FILENAMELEN))
+	    core_export_programs(sel_prog_count, sel_prog_list, export_file_name);
 
     free(sel_prog_list);
 }
 
 static void import_program() {
-	ci_string import_file_name = browse_file(hMainWnd,
+    char buf[FILENAMELEN];
+    buf[0] = 0;
+    if (!browse_file(hMainWnd,
                      "Import Programs",
                      0,
                      "Program Files (*.raw)\0*.raw\0All Files (*.*)\0*.*\0\0",
                      NULL,
-                     "");
-	if (import_file_name == "")
+                     buf,
+                     FILENAMELEN))
         return;
 
-	core_import_programs(0, import_file_name.c_str());
+    core_import_programs(0, buf);
     redisplay();
 }
 
@@ -2215,10 +2293,10 @@ void shell_print(const char *text, int length,
         char buf[1000];
 
         if (print_txt == NULL) {
-			print_txt = fopen(state.printerTxtFileName.c_str(), "ab");
+            print_txt = fopen(state.printerTxtFileName, "ab");
             if (print_txt == NULL) {
                 err = errno;
-                state.printerToTxtFile = false;
+                state.printerToTxtFile = 0;
                 sprintf(buf, "Can't open \"%s\" for output: %s (%d)\nPrinting to TXT file disabled.", state.printerTxtFileName, strerror(err), err);
                 MessageBox(hMainWnd, buf, "Message", MB_ICONWARNING);
                 goto done_print_txt;
@@ -2234,6 +2312,7 @@ void shell_print(const char *text, int length,
 
     if (state.printerToGifFile) {
         int err;
+        char buf[1000];
         
         if (print_gif != NULL
                 && gif_lines + height > state.printerGifMaxLength) {
@@ -2245,17 +2324,18 @@ void shell_print(const char *text, int length,
         if (print_gif == NULL) {
             while (1) {
                 int len, p;
+                FILE *testfile;
 
                 gif_seq = (gif_seq + 1) % 10000;
 
-                print_gif_name = state.printerGifFileName;
-				len = print_gif_name.length();
+                strcpy(print_gif_name, state.printerGifFileName);
+                len = strlen(print_gif_name);
 
                 /* Strip ".gif" extension, if present */
                 if (len >= 4 &&
-					print_gif_name.substr(len - 4) == ".gif") {
+                    _stricmp(print_gif_name + len - 4, ".gif") == 0) {
                     len -= 4;
-					print_gif_name = print_gif_name.substr(0, len);
+                    print_gif_name[len] = 0;
                 }
 
                 /* Strip ".[0-9]+", if present */
@@ -2263,27 +2343,35 @@ void shell_print(const char *text, int length,
                 while (p > 0 && print_gif_name[p] >= '0' && print_gif_name[p] <= '9')
                     p--;
                 if (p < len && p >= 0 && print_gif_name[p] == '.')
-                    print_gif_name = print_gif_name.substr(0, p);
+                    print_gif_name[p] = 0;
 
-				char suffix[10];
-                sprintf(suffix, ".%04d.gif", gif_seq);
-				print_gif_name += suffix;
+                /* Make sure we have enough space for the ".nnnn.gif" */
+                p = FILENAMELEN - 10;
+                print_gif_name[p] = 0;
+                p = strlen(print_gif_name);
+                sprintf(print_gif_name + p, ".%04d", gif_seq);
+                strcat(print_gif_name, ".gif");
                 
-				if (GetFileAttributes(print_gif_name.c_str()) == INVALID_FILE_ATTRIBUTES)
-					// File does not exist; that means we have a usable name
-					break;
+                /* I know, I know, the civilized thing to do would be to
+                 * use stat(2) to find out if the file exists. Another time.
+                 * (TODO)
+                 */
+                testfile = fopen(print_gif_name, "rb");
+                if (testfile != NULL)
+                    fclose(testfile);
+                else
+                    break;
             }
-			print_gif = fopen(print_gif_name.c_str(), "w+b");
+            print_gif = fopen(print_gif_name, "w+b");
             if (print_gif == NULL) {
                 err = errno;
-                state.printerToGifFile = false;
-				ci_string message = "Can't open \"" + print_gif_name + "\" for output: "
-					+ strerror(err) + " (" + to_ci_string(err) + ")\nPrinting to GIF file disabled.";
-				MessageBox(hMainWnd, message.c_str(), "Message", MB_ICONWARNING);
+                state.printerToGifFile = 0;
+                sprintf(buf, "Can't open \"%s\" for output: %s (%d)\nPrinting to GIF file disabled.", print_gif_name, strerror(err), err);
+                MessageBox(hMainWnd, buf, "Message", MB_ICONWARNING);
                 goto done_print_gif;
             }
             if (!shell_start_gif(gif_writer, 143, state.printerGifMaxLength)) {
-                state.printerToGifFile = false;
+                state.printerToGifFile = 0;
                 MessageBox(hMainWnd, "Not enough memory for the GIF encoder.\nPrinting to GIF file disabled.", "Message", MB_ICONWARNING);
                 goto done_print_gif;
             }
@@ -2374,66 +2462,46 @@ static void read_key_map(const char *keymapfilename) {
 static void init_shell_state(int4 version) {
     switch (version) {
         case -1:
+            state.extras = 0;
             // fall through
         case 0:
             state.mainPlacement.length = sizeof(WINDOWPLACEMENT);
-            state.mainPlacementValid = false;
+            state.mainPlacementValid = 0;
             state.printOutPlacement.length = sizeof(WINDOWPLACEMENT);
-            state.printOutPlacementValid = false;
-            state.printOutOpen = false;
+            state.printOutPlacementValid = 0;
+            state.printOutOpen = 0;
             // fall through
         case 1:
-            state.printerToTxtFile = false;
-            state.printerToGifFile = false;
-            state.printerTxtFileName = "";
-            state.printerGifFileName = "";
+            state.printerToTxtFile = 0;
+            state.printerToGifFile = 0;
+            state.printerTxtFileName[0] = 0;
+            state.printerGifFileName[0] = 0;
             // fall through
         case 2:
             state.printerGifMaxLength = 256;
             // fall through
         case 3:
-            state.skinName = "";
+            state.skinName[0] = 0;
             // fall through
         case 4:
-            state.alwaysOnTop = false;
+            state.alwaysOnTop = FALSE;
             // fall through
         case 5:
-            state.singleInstance = false;
+            state.singleInstance = TRUE;
             // fall through
         case 6:
-            state.calculatorKey = false;
+            state.calculatorKey = FALSE;
             // fall through
         case 7:
-            state.coreName = "Untitled";
+            strcpy(state.coreName, "Untitled");
             // fall through
-		case 8:
-			// fall through
-        case 9:
-            // current version (SHELL_VERSION = 9),
+        case 8:
+            // current version (SHELL_VERSION = 8),
             // so nothing to do here since everything
             // was initialized from the state file.
             ;
     }
 }
-
-struct old_state_type {
-    BOOL extras;
-    WINDOWPLACEMENT mainPlacement;
-    int mainPlacementValid;
-    WINDOWPLACEMENT printOutPlacement;
-    int printOutPlacementValid;
-    int printOutOpen;
-    int printerToTxtFile;
-    int printerToGifFile;
-    char printerTxtFileName[256];
-    char printerGifFileName[256];
-    int printerGifMaxLength;
-    char skinName[256];
-    BOOL alwaysOnTop;
-    BOOL singleInstance;
-    BOOL calculatorKey;
-    char coreName[256];
-};
 
 static int read_shell_state(int4 *ver) {
     int4 magic;
@@ -2441,92 +2509,32 @@ static int read_shell_state(int4 *ver) {
     int4 state_size;
     int4 state_version;
 
-    if (!state_read_int4(&magic))
+    if (fread(&magic, 1, sizeof(int4), statefile) != sizeof(int4))
         return 0;
     if (magic != FREE42_MAGIC)
         return 0;
 
-    if (!state_read_int4(&version))
+    if (fread(&version, 1, sizeof(int4), statefile) != sizeof(int4))
         return 0;
     if (version < 0 || version > FREE42_VERSION)
         /* Unknown state file version */
         return 0;
 
-	if (version == 0) {
-		// No shell state in version 0
-        init_shell_state(-1);
-	} else {
-		if (fread(&state_size, 1, sizeof(int4), statefile) != sizeof(int4))
+    if (version > 0) {
+        if (fread(&state_size, 1, sizeof(int4), statefile) != sizeof(int4))
             return 0;
         if (fread(&state_version, 1, sizeof(int4), statefile) != sizeof(int4))
             return 0;
         if (state_version < 0 || state_version > SHELL_VERSION)
             /* Unknown shell state version */
             return 0;
-		if (state_version >= 9) {
-			if (!state_read_data(&state.mainPlacement, sizeof(WINDOWPLACEMENT))) return 0;
-			if (!state_read_bool(&state.mainPlacementValid)) return 0;
-			if (!state_read_data(&state.printOutPlacement, sizeof(WINDOWPLACEMENT))) return 0;
-			if (!state_read_bool(&state.printOutPlacementValid)) return 0;
-			if (!state_read_bool(&state.printOutOpen)) return 0;
-			if (!state_read_bool(&state.printerToTxtFile)) return 0;
-			if (!state_read_bool(&state.printerToGifFile)) return 0;
-			if (!state_read_string(&state.printerTxtFileName)) return 0;
-			if (!state_read_string(&state.printerGifFileName)) return 0;
-			if (!state_read_int4(&state.printerGifMaxLength)) return 0;
-			if (!state_read_string(&state.skinName)) return 0;
-			if (!state_read_bool(&state.alwaysOnTop)) return 0;
-			if (!state_read_bool(&state.singleInstance)) return 0;
-			if (!state_read_bool(&state.calculatorKey)) return 0;
-			if (!state_read_string(&state.coreName)) return 0;
-		} else {
-			old_state_type old_state;
-			if (!state_read_data(&old_state, state_size))
-				return 0;
-			// Copy the data from the old-style state struct to the new one
-			switch (state_version) {
-				case 8:
-					// fall through
-				case 7:
-					state.coreName = old_state.coreName;
-					// fall through
-				case 6:
-					state.calculatorKey = old_state.calculatorKey != 0;
-					// fall through
-				case 5:
-					state.singleInstance = old_state.singleInstance != 0;
-					// fall through
-				case 4:
-					state.alwaysOnTop = old_state.alwaysOnTop != 0;
-					// fall through
-				case 3:
-					state.skinName = old_state.skinName;
-					// fall through
-				case 2:
-					state.printerGifMaxLength = old_state.printerGifMaxLength;
-					// fall through
-				case 1:
-					state.printerToTxtFile = old_state.printerToTxtFile != 0;
-					state.printerToGifFile = old_state.printerToGifFile != 0;
-					state.printerTxtFileName = old_state.printerTxtFileName;
-					state.printerGifFileName = old_state.printerGifFileName;
-					// fall through
-				case 0:
-					state.mainPlacement = old_state.mainPlacement;
-					state.mainPlacementValid = old_state.mainPlacementValid != 0;
-					state.printOutPlacement = old_state.printOutPlacement;
-					state.printOutPlacementValid = old_state.printOutPlacementValid != 0;
-					state.printOutOpen = old_state.printOutOpen != 0;
-					// fall through
-				case -1:
-					// fall through
-					;
-			}
-		}
-		// Initialize the parts of the shell state
-		// that were NOT read from the state file
+        if (fread(&state, 1, state_size, statefile) != state_size)
+            return 0;
+        // Initialize the parts of the shell state
+        // that were NOT read from the state file
         init_shell_state(state_version);
-	}
+    } else
+        init_shell_state(-1);
 
     *ver = version;
     return 1;
@@ -2538,27 +2546,16 @@ static int write_shell_state() {
     int4 state_size = sizeof(state_type);
     int4 state_version = SHELL_VERSION;
 
-    if (!state_write_int4(magic)) return 0;
-	if (!state_write_int4(version)) return 0;
-	// dummy, formerly state size
-    if (!state_write_int4(0)) return 0;
-    if (!state_write_int4(state_version)) return 0;
-
-	if (!state_write_data(&state.mainPlacement, sizeof(WINDOWPLACEMENT))) return 0;
-	if (!state_write_bool(state.mainPlacementValid)) return 0;
-	if (!state_write_data(&state.printOutPlacement, sizeof(WINDOWPLACEMENT))) return 0;
-	if (!state_write_bool(state.printOutPlacementValid)) return 0;
-	if (!state_write_bool(state.printOutOpen)) return 0;
-	if (!state_write_bool(state.printerToTxtFile)) return 0;
-	if (!state_write_bool(state.printerToGifFile)) return 0;
-	if (!state_write_string(state.printerTxtFileName)) return 0;
-	if (!state_write_string(state.printerGifFileName)) return 0;
-	if (!state_write_int4(state.printerGifMaxLength)) return 0;
-	if (!state_write_string(state.skinName)) return 0;
-	if (!state_write_bool(state.alwaysOnTop)) return 0;
-	if (!state_write_bool(state.singleInstance)) return 0;
-	if (!state_write_bool(state.calculatorKey)) return 0;
-	if (!state_write_string(state.coreName)) return 0;
+    if (fwrite(&magic, 1, sizeof(int4), statefile) != sizeof(int4))
+        return 0;
+    if (fwrite(&version, 1, sizeof(int4), statefile) != sizeof(int4))
+        return 0;
+    if (fwrite(&state_size, 1, sizeof(int4), statefile) != sizeof(int4))
+        return 0;
+    if (fwrite(&state_version, 1, sizeof(int4), statefile) != sizeof(int4))
+        return 0;
+    if (fwrite(&state, 1, sizeof(state_type), statefile) != sizeof(state_type))
+        return 0;
 
     return 1;
 }
@@ -2572,7 +2569,7 @@ static void txt_writer(const char *text, int length) {
     n = fwrite(text, 1, length, print_txt);
     if (n != length) {
         char buf[1000];
-        state.printerToTxtFile = false;
+        state.printerToTxtFile = 0;
         fclose(print_txt);
         print_txt = NULL;
         sprintf(buf, "Error while writing to \"%s\".\nPrinting to TXT file disabled", state.printerTxtFileName);
@@ -2592,7 +2589,7 @@ static void gif_seeker(int4 pos) {
         return;
     if (fseek(print_gif, pos, SEEK_SET) == -1) {
         char buf[1000];
-        state.printerToGifFile = false;
+        state.printerToGifFile = 0;
         fclose(print_gif);
         print_gif = NULL;
         sprintf(buf, "Error while seeking \"%s\".\nPrinting to GIF file disabled", print_gif_name);
@@ -2607,7 +2604,7 @@ static void gif_writer(const char *text, int length) {
     n = fwrite(text, 1, length, print_gif);
     if (n != length) {
         char buf[1000];
-        state.printerToGifFile = false;
+        state.printerToGifFile = 0;
         fclose(print_gif);
         print_gif = NULL;
         sprintf(buf, "Error while writing to \"%s\".\nPrinting to GIF file disabled", print_gif_name);
@@ -2624,52 +2621,31 @@ void shell_log(const char *message) {
     fflush(logfile);
 }
 
-static bool state_read_data(void *data, size_t length) {
-	return fread(data, 1, length, statefile) == length;
-}
-
-static bool state_read_bool(bool *b) {
-	int c = fgetc(statefile);
-	if (c == EOF)
-		return false;
-	*b = c != 0;
-	return true;
-}
-
-static bool state_read_int4(int4 *i) {
-	return fread(i, 1, 4, statefile) == 4;
-}
-
-static bool state_read_string(ci_string *s) {
-	int4 length;
-	if (!state_read_int4(&length))
-		return false;
-	char *buf = (char *) malloc(length + 1);
+ci_string GetDlgItemTextLong(HWND hWnd, int item) {
+	// If you're losing sleep over GetDlgItemText() potentially returning truncated values...
+	size_t sz = 256;
+	char *buf = (char *) malloc(sz);
 	if (buf == NULL)
-		return false;
-	if (fread(buf, 1, length, statefile) != length) {
-		free(buf);
-		return false;
+		return "";
+	while (true) {
+		GetDlgItemText(hWnd, item, buf, sz);
+		if (strlen(buf) < sz - 1) {
+			ci_string retval(buf);
+			free(buf);
+			return retval;
+		}
+		sz += 256;
+		char *buf2 = (char *) realloc(buf, sz);
+		if (buf2 == NULL) {
+			free(buf);
+			return "";
+		}
+		buf = buf2;
 	}
-	buf[length] = 0;
-	*s = buf;
-	free(buf);
-	return true;
 }
 
-static bool state_write_data(const void *data, size_t length) {
-	return fwrite(data, 1, length, statefile) == length;
-}
-
-static bool state_write_bool(bool b) {
-	return fputc(b ? 1 : 0, statefile) != EOF;
-}
-
-static bool state_write_int4(int4 i) {
-	return fwrite(&i, 1, 4, statefile) == 4;
-}
-
-static bool state_write_string(ci_string s) {
-	int4 length = s.length();
-	return state_write_int4(length) && state_write_data(s.c_str(), length);
+ci_string to_ci_string(int i) {
+	char buf[22];
+	sprintf(buf, "%d", i);
+	return buf;
 }

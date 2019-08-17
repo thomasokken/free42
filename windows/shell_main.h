@@ -18,33 +18,60 @@
 #ifndef SHELL_MAIN_H
 #define SHELL_MAIN_H 1
 
+#include <string>
 #include "stdafx.h"
 #include "resource.h"
-#include "free42.h"
-#include "util.h"
 
-struct state_type {
-    bool extras;
-    WINDOWPLACEMENT mainPlacement;
-    bool mainPlacementValid;
-    WINDOWPLACEMENT printOutPlacement;
-    bool printOutPlacementValid;
-    bool printOutOpen;
-    bool printerToTxtFile;
-    bool printerToGifFile;
-    ci_string printerTxtFileName;
-    ci_string printerGifFileName;
-    int4 printerGifMaxLength;
-    ci_string skinName;
-    bool alwaysOnTop;
-    bool singleInstance;
-    bool calculatorKey;
-    ci_string coreName;
+struct ci_char_traits : public std::char_traits<char> {
+    static bool eq(char c1, char c2) { return toupper(c1) == toupper(c2); }
+    static bool ne(char c1, char c2) { return toupper(c1) != toupper(c2); }
+    static bool lt(char c1, char c2) { return toupper(c1) <  toupper(c2); }
+    static int compare(const char* s1, const char* s2, size_t n) {
+        while( n-- != 0 ) {
+            if( toupper(*s1) < toupper(*s2) ) return -1;
+            if( toupper(*s1) > toupper(*s2) ) return 1;
+            ++s1; ++s2;
+        }
+        return 0;
+    }
+    static const char* find(const char* s, int n, char a) {
+        while( n-- > 0 && toupper(*s) != toupper(a) ) {
+            ++s;
+        }
+        return s;
+    }
 };
+
+typedef std::basic_string<char, ci_char_traits> ci_string;
+
+#define FILENAMELEN 256
+
+typedef struct state {
+    BOOL extras;
+    WINDOWPLACEMENT mainPlacement;
+    int mainPlacementValid;
+    WINDOWPLACEMENT printOutPlacement;
+    int printOutPlacementValid;
+    int printOutOpen;
+    int printerToTxtFile;
+    int printerToGifFile;
+    char printerTxtFileName[FILENAMELEN];
+    char printerGifFileName[FILENAMELEN];
+    int printerGifMaxLength;
+    char skinName[FILENAMELEN];
+    BOOL alwaysOnTop;
+    BOOL singleInstance;
+    BOOL calculatorKey;
+    char coreName[FILENAMELEN];
+} state_type;
 
 extern state_type state;
 
 extern HINSTANCE hInst;                                    // current instance
-extern ci_string free42dirname;
+extern char free42dirname[FILENAMELEN];
+
+ci_string GetDlgItemTextLong(HWND hWnd, int item);
+int browse_file(HWND owner, char *title, int save, char *filter, char *defExt, char *buf, int buflen);
+ci_string to_ci_string(int i);
 
 #endif
