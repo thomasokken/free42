@@ -270,6 +270,16 @@ public class Free42Activity extends Activity {
             try {
                 stateFileInputStream.close();
             } catch (IOException e) {}
+        }  else {
+            // The shell state was missing or corrupt, but there
+            // may still be a valid core state...
+            coreFileName = getFilesDir() + "/" + coreName + ".f42";
+            if (new File(coreFileName).isFile()) {
+                // Core state "Untitled.f42" exists; let's try to read it
+                coreFileOffset = 0;
+                init_mode = 1;
+                version.value = 26;
+            }
         }
 
         setAlwaysRepaintFullDisplay(alwaysRepaintFullDisplay);

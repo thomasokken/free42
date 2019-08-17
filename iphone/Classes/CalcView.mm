@@ -486,6 +486,17 @@ static CalcView *calcView = nil;
             core_state_file_offset = (int) ftell(statefile);
         }
         fclose(statefile);
+    }  else {
+        // The shell state was missing or corrupt, but there
+        // may still be a valid core state...
+        snprintf(core_state_file_name, FILENAMELEN, "config/%s.f42", state.coreFileName);
+        struct stat st;
+        if (stat(core_state_file_name, &st) == 0) {
+            // Core state "Untitled.f42" exists; let's try to read it
+            core_state_file_offset = 0;
+            init_mode = 1;
+            version = 26;
+        }
     }
 
     long w, h;
