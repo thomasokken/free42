@@ -18,9 +18,9 @@
 #ifndef SHELL_SKIN_H
 #define SHELL_SKIN_H 1
 
-#include <windows.h>
+#include "util.h"
 
-void skin_load(char *skinname, const char *basedir, long *width, long *height);
+void skin_load(ci_string *skinname, ci_string basedir, long *width, long *height);
 
 typedef struct {
     unsigned char r, g, b, pad;

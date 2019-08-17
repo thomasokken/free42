@@ -23,6 +23,7 @@
 #include "shell_main.h"
 #include "StatesWindow.h"
 #include "core_main.h"
+#include "util.h"
 
 using std::string;
 using std::vector;
@@ -165,18 +166,12 @@ static void switchTo(HWND hDlg) {
 	if (selectedStateName == "")
         return;
     if (selectedStateName != state.coreName) {
-		ci_string path = free42dirname;
-		path += "\\";
-		path += state.coreName;
-		path += ".f42";
+		ci_string path = free42dirname + "\\" + state.coreName + ".f42";
 		core_save_state(path.c_str());
     }
     core_cleanup();
-	strcpy(state.coreName, selectedStateName.c_str()); // TODO: Length limit
-	ci_string path = free42dirname;
-	path += "\\";
-	path += state.coreName;
-	path += ".f42";
+	state.coreName = selectedStateName;
+	ci_string path = free42dirname + "\\" + state.coreName + ".f42";
 	core_init(1, 26, path.c_str(), 0);
     EndDialog(hDlg, 0);
 }
@@ -185,10 +180,7 @@ static void doNew(HWND hDlg) {
 	ci_string name = getStateName(hDlg, "New state name:");
 	if (name == "")
 		return;
-	ci_string path = free42dirname;
-	path += "\\";
-	path += name;
-	path += ".f42";
+	ci_string path = free42dirname + "\\" + name + ".f42";
     FILE *f = fopen(path.c_str(), "wb");
     fprintf(f, "24kF");
     fclose(f);
@@ -296,11 +288,11 @@ static void doRename(HWND hDlg) {
 	ci_string newname = getStateName(hDlg, prompt);
     if (newname == "")
         return;
-    ci_string oldpath = ci_string(free42dirname) + "\\" + selectedStateName + ".f42";
-    ci_string newpath = ci_string(free42dirname) + "\\" + newname + ".f42";
+    ci_string oldpath = free42dirname + "\\" + selectedStateName + ".f42";
+    ci_string newpath = free42dirname + "\\" + newname + ".f42";
 	rename(oldpath.c_str(), newpath.c_str());
     if (selectedStateName == state.coreName) {
-		strncpy(state.coreName, newname.c_str(), FILENAMELEN);
+		state.coreName = newname;
         SetDlgItemText(hDlg, IDC_CURRENT, newname.c_str());
     }
     updateUI(hDlg, true);
@@ -314,29 +306,27 @@ static void doDelete(HWND hDlg) {
 	ci_string prompt = ci_string("Are you sure you want to delete the state \"") + selectedStateName + "\"?";
 	if (MessageBox(hDlg, prompt.c_str(), "Delete State?", MB_OKCANCEL) != IDOK)
 		return;
-    ci_string statePath = ci_string(free42dirname) + "\\" + selectedStateName + ".f42";
+    ci_string statePath = free42dirname + "\\" + selectedStateName + ".f42";
 	remove(statePath.c_str());
     updateUI(hDlg, true);
 }
 
 static void doImport(HWND hDlg) {
-	char buf[FILENAMELEN];
-	buf[0] = 0;
-    if (!browse_file(hDlg,
+	ci_string import_file_name = browse_file(hDlg,
                     "Import State",
                     0,
                     "Free42 State (*.f42)\0*.f42\0All Files (*.*)\0*.*\0\0",
                     NULL,
-                    buf,
-                    FILENAMELEN))
+                    "");
+	if (import_file_name == "")
 		return;
-	ci_string path = buf;
+	ci_string path = import_file_name;
 	size_t p = path.find_last_of('\\');
 	ci_string name = p == std::string::npos ? path : path.substr(p + 1);
 	int len = name.length();
     if (len > 4 && name.substr(len - 4) == ".f42")
         name = name.substr(0, len - 4);
-    ci_string destPath = ci_string(free42dirname) + "\\" + name + ".f42";
+    ci_string destPath = free42dirname + "\\" + name + ".f42";
 	const char *destPathC = destPath.c_str();
 	if (GetFileAttributes(destPathC) != INVALID_FILE_ATTRIBUTES) {
 		ci_string message = ci_string("A state named \"") + name + "\" already exists.";
@@ -349,23 +339,20 @@ static void doImport(HWND hDlg) {
 static void doExport(HWND hDlg) {
     if (selectedStateName == "")
         return;
-	char buf[FILENAMELEN];
-	strncpy(buf, selectedStateName.c_str(), FILENAMELEN);
-	buf[FILENAMELEN - 1] = 0;
-    if (!browse_file(hDlg,
+	ci_string export_file_name = browse_file(hDlg,
                     "Export State",
                     1,
                     "Free42 State (*.f42)\0*.f42\0All Files (*.*)\0*.*\0\0",
                     "f42",
-                    buf,
-                    FILENAMELEN))
+                    selectedStateName);
+	if (export_file_name == "")
 		return;
-    ci_string copyPath = buf;
+    ci_string copyPath = export_file_name;
 	const char *copyPathC = copyPath.c_str();
     if (selectedStateName == state.coreName)
         core_save_state(copyPathC);
     else {
-        ci_string origPath = ci_string(free42dirname) + "\\" + selectedStateName + ".f42";
+        ci_string origPath = free42dirname + "\\" + selectedStateName + ".f42";
 		if (!copyState(origPath.c_str(), copyPathC))
             MessageBox(hDlg, "State export failed.", "Message", MB_ICONWARNING);
     }

@@ -265,7 +265,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\msg2string.cpp"
+				RelativePath=".\util.cpp"
 				>
 			</File>
 			<File
@@ -427,7 +427,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\msg2string.h"
+				RelativePath=".\util.h"
 				>
 			</File>
 			<File

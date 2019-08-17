@@ -201,20 +201,18 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
 /* Local functions */
 /*******************/
 
-static int skin_open(const char *skinname, const char *basedir, int open_layout);
+static int skin_open(ci_string skinname, ci_string basedir, int open_layout);
 static int skin_gets(char *buf, int buflen);
 static void skin_close();
 
 
-static int skin_open(const char *skinname, const char *basedir, int open_layout) {
-    int i;
-    char namebuf[1024];
-    char exedir[MAX_PATH];
+static int skin_open(ci_string skinname, ci_string basedir, int open_layout) {
+    char exedir[1024];
     char *lastbackslash;
 
     /* Look for built-in skin first */
-    for (i = 0; i < skin_count; i++) {
-        if (strcmp(skinname, skin_name[i]) == 0) {
+    for (int i = 0; i < skin_count; i++) {
+        if (skinname == skin_name[i]) {
             external_file = NULL;
             builtin_pos = 0;
             if (open_layout) {
@@ -229,22 +227,20 @@ static int skin_open(const char *skinname, const char *basedir, int open_layout)
     }
 
     /* name did not match a built-in skin; look for file */
-    sprintf(namebuf, "%s\\%s.%s", basedir, skinname,
-                                        open_layout ? "layout" : "gif");
-    external_file = fopen(namebuf, "rb");
+	ci_string name = basedir + "\\" + skinname + "." + (open_layout ? "layout" : "gif");
+    external_file = fopen(name.c_str(), "rb");
     if (external_file != NULL)
         return 1;
 
     /* name did not match in home dir; now try in exe dir */
-    GetModuleFileName(0, exedir, MAX_PATH - 1);
+    GetModuleFileName(0, exedir, 1024);
     lastbackslash = strrchr(exedir, '\\');
     if (lastbackslash != 0)
         *lastbackslash = 0;
     else
         strcpy(exedir, "C:");
-    sprintf(namebuf, "%s\\%s.%s", exedir, skinname,
-                                        open_layout ? "layout" : "gif");
-    external_file = fopen(namebuf, "rb");
+	name = ci_string(exedir) + "\\" + skinname + "." + (open_layout ? "layout" : "gif");
+    external_file = fopen(name.c_str(), "rb");
     return external_file != NULL;
 }
 
@@ -286,23 +282,23 @@ static void skin_close() {
         fclose(external_file);
 }
 
-void skin_load(char *skinname, const char *basedir, long *width, long *height) {
+void skin_load(ci_string *skinname, ci_string basedir, long *width, long *height) {
     char line[1024];
     int success;
     int size;
     int kmcap = 0;
     int lineno = 0;
 
-    if (skinname[0] == 0) {
+    if (*skinname == "") {
         fallback_on_1st_builtin_skin:
-        strcpy(skinname, skin_name[0]);
+        *skinname = skin_name[0];
     }
 
     /*************************/
     /* Load skin description */
     /*************************/
 
-    if (!skin_open(skinname, basedir, 1))
+    if (!skin_open(*skinname, basedir, 1))
         goto fallback_on_1st_builtin_skin;
 
     if (keylist != NULL)
@@ -481,7 +477,7 @@ void skin_load(char *skinname, const char *basedir, long *width, long *height) {
     /* Load skin bitmap */
     /********************/
 
-    if (!skin_open(skinname, basedir, 0))
+    if (!skin_open(*skinname, basedir, 0))
         goto fallback_on_1st_builtin_skin;
 
     /* shell_loadimage() calls skin_getchar() to load the image from the
