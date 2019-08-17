@@ -39,7 +39,7 @@ struct state_type {
     int printWindowX, printWindowY, printWindowHeight;
     char skinName[FILENAMELEN];
     int singleInstance;
-    char coreFileName[FILENAMELEN];
+    char coreName[FILENAMELEN];
 };
 
 extern state_type state;

@@ -153,6 +153,7 @@ static void show_message(const char *title, const char *message);
 static void no_mwm_resize_borders(GtkWidget *window);
 static void scroll_printout_to_bottom();
 static void quitCB();
+static void statesCB();
 static void showPrintOutCB();
 static void exportProgramCB();
 static GtkWidget *make_file_select_dialog(
@@ -197,19 +198,21 @@ static void gif_writer(const char *text, int length);
 
 static GtkItemFactoryEntry entries[] = {
     { "/File", NULL, NULL, 0, "<Branch>" },
+    { "/File/States...", NULL, statesCB, 0, "<Item>" },
+    { "/File/sep1", NULL, NULL, 0, "<Separator>" },
     { "/File/Show Print-Out", NULL, showPrintOutCB, 0, "<Item>" },
     { "/File/Paper Advance", "<CTRL>A", paperAdvanceCB, 0, "<Item>" },
-    { "/File/sep1", NULL, NULL, 0, "<Separator>" },
+    { "/File/sep2", NULL, NULL, 0, "<Separator>" },
     { "/File/Import Programs...", NULL, importProgramCB, 0, "<Item>" },
     { "/File/Export Programs...", NULL, exportProgramCB, 0, "<Item>" },
-    { "/File/sep2", NULL, NULL, 0, "<Separator>" },
-    { "/File/Preferences...", NULL, preferencesCB, 0, "<Item>" },
     { "/File/sep3", NULL, NULL, 0, "<Separator>" },
+    { "/File/Preferences...", NULL, preferencesCB, 0, "<Item>" },
+    { "/File/sep4", NULL, NULL, 0, "<Separator>" },
     { "/File/Quit", "<CTRL>Q", quitCB, 0, "<Item>" },
     { "/Edit", NULL, NULL, 0, "<Branch>" },
     { "/Edit/Copy", "<CTRL>C", copyCB, 0, "<Item>" },
     { "/Edit/Paste", "<CTRL>V", pasteCB, 0, "<Item>" },
-    { "/Edit/sep4", NULL, NULL, 0, "<Separator>" },
+    { "/Edit/sep5", NULL, NULL, 0, "<Separator>" },
     { "/Edit/Copy Print-Out as Text", "<CTRL>T", copyPrintAsTextCB, 0, "<Item>" },
     { "/Edit/Copy Print-Out as Image", "<CTRL>I", copyPrintAsImageCB, 0, "<Item>" },
     { "/Edit/Clear Print-Out", NULL, clearPrintOutCB, 0, "<Item>" },
@@ -223,19 +226,21 @@ static gint num_entries = sizeof(entries) / sizeof(entries[0]);
 static GtkItemFactoryEntry entries_compactmenu[] = {
     { "/Menu", NULL, NULL, 0, "<Branch>" },
     { "/Menu/File", NULL, NULL, 0, "<Branch>" },
+    { "/Menu/File/States...", NULL, statesCB, 0, "<Item>" },
+    { "/Menu/File/sep1", NULL, NULL, 0, "<Separator>" },
     { "/Menu/File/Show Print-Out", NULL, showPrintOutCB, 0, "<Item>" },
     { "/Menu/File/Paper Advance", "<CTRL>A", paperAdvanceCB, 0, "<Item>" },
-    { "/Menu/File/sep1", NULL, NULL, 0, "<Separator>" },
+    { "/Menu/File/sep2", NULL, NULL, 0, "<Separator>" },
     { "/Menu/File/Import Programs...", NULL, importProgramCB, 0, "<Item>" },
     { "/Menu/File/Export Programs...", NULL, exportProgramCB, 0, "<Item>" },
-    { "/Menu/File/sep2", NULL, NULL, 0, "<Separator>" },
-    { "/Menu/File/Preferences...", NULL, preferencesCB, 0, "<Item>" },
     { "/Menu/File/sep3", NULL, NULL, 0, "<Separator>" },
+    { "/Menu/File/Preferences...", NULL, preferencesCB, 0, "<Item>" },
+    { "/Menu/File/sep4", NULL, NULL, 0, "<Separator>" },
     { "/Menu/File/Quit", "<CTRL>Q", quitCB, 0, "<Item>" },
     { "/Menu/Edit", NULL, NULL, 0, "<Branch>" },
     { "/Menu/Edit/Copy", "<CTRL>C", copyCB, 0, "<Item>" },
     { "/Menu/Edit/Paste", "<CTRL>V", pasteCB, 0, "<Item>" },
-    { "/Menu/Edit/sep4", NULL, NULL, 0, "<Separator>" },
+    { "/Menu/Edit/sep5", NULL, NULL, 0, "<Separator>" },
     { "/Menu/Edit/Copy Print-Out as Text", "<CTRL>T", copyPrintAsTextCB, 0, "<Item>" },
     { "/Menu/Edit/Copy Print-Out as Image", "<CTRL>I", copyPrintAsImageCB, 0, "<Item>" },
     { "/Menu/Edit/Clear Print-Out", NULL, clearPrintOutCB, 0, "<Item>" },
@@ -366,7 +371,7 @@ int main(int argc, char *argv[]) {
     }
     if (init_mode == 1) {
         if (version > 25) {
-            snprintf(core_state_file_name, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreFileName);
+            snprintf(core_state_file_name, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreName);
             core_state_file_offset = 0;
         } else {
             strcpy(core_state_file_name, statefilename);
@@ -376,7 +381,7 @@ int main(int argc, char *argv[]) {
     }  else {
         // The shell state was missing or corrupt, but there
         // may still be a valid core state...
-        snprintf(core_state_file_name, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreFileName);
+        snprintf(core_state_file_name, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreName);
         struct stat st;
         if (stat(core_state_file_name, &st) == 0) {
             // Core state "Untitled.f42" exists; let's try to read it
@@ -828,10 +833,10 @@ static void init_shell_state(int4 version) {
             state.singleInstance = 0;
             /* fall through */
         case 4:
-            strcpy(state.coreFileName, "Untitled");
+            strcpy(state.coreName, "Untitled");
             /* fall through */
         case 5:
-            /* current version (SHELL_VERSION = 4),
+            /* current version (SHELL_VERSION = 5),
              * so nothing to do here since everything
              * was initialized from the state file.
              */
@@ -1015,7 +1020,7 @@ static void quit() {
         fclose(statefile);
     }
     char corefilename[FILENAMELEN];
-    snprintf(corefilename, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreFileName);
+    snprintf(corefilename, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreName);
     core_save_state(corefilename);
     core_cleanup();
 
@@ -1089,6 +1094,317 @@ static void scroll_printout_to_bottom() {
 static void quitCB() {
     quit();
 }
+
+////////////////////////////////////
+///// States stuff starts here /////
+////////////////////////////////////
+
+static int case_insens_comparator(const void *a, const void *b) {
+    return strcasecmp(*(const char **) a, *(const char **) b);
+}
+
+static int currentStateIndex;
+
+static void states_changed_cb(GtkWidget *w, gpointer p) {
+    int sel = -1;
+    GList *rows = gtk_tree_selection_get_selected_rows(GTK_TREE_SELECTION(w), NULL);
+    if (rows != NULL) {
+        GtkTreePath *path = (GtkTreePath *) rows->data;
+        sscanf(gtk_tree_path_to_string(path), "%d", &sel);
+    }
+    g_list_free(rows);
+    GtkWidget *btn = (GtkWidget *) p;
+    if (sel == -1) {
+        gtk_widget_set_sensitive(btn, false);
+        gtk_button_set_label(GTK_BUTTON(btn), "Switch To");
+    } else if (sel == currentStateIndex) {
+        gtk_widget_set_sensitive(btn, true);
+        gtk_button_set_label(GTK_BUTTON(btn), "Reload");
+    } else {
+        gtk_widget_set_sensitive(btn, true);
+        gtk_button_set_label(GTK_BUTTON(btn), "Switch To");
+    }
+}
+
+static GtkWidget *dlg;
+
+static void row_activated_cb(GtkWidget *w, gpointer p) {
+    gtk_dialog_response(GTK_DIALOG(dlg), 1);
+}
+
+static void switchTo(const char *selectedStateName) {
+    char path[FILENAMELEN];
+    if (strcmp(selectedStateName, state.coreName) != 0) {
+        snprintf(path, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreName);
+        core_save_state(path);
+    }
+    core_cleanup();
+    strncpy(state.coreName, selectedStateName, FILENAMELEN);
+    state.coreName[FILENAMELEN - 1] = 0;
+    snprintf(path, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreName);
+    core_init(1, 26, path, 0);
+}
+
+static void states_menu_new() {
+
+}
+
+static void states_menu_duplicate() {
+
+}
+
+static void states_menu_rename() {
+
+}
+
+static void states_menu_delete() {
+
+}
+
+static void states_menu_import() {
+
+}
+
+static void states_menu_export() {
+
+}
+
+GtkWidget *statesMenuItems[6];
+
+static void states_menu_pos_func(GtkMenu *menu, gint *x, gint *y, gboolean *push_in, gpointer data) {
+    GtkWidget *btn = GTK_WIDGET(data);
+    gdk_window_get_origin(btn->window, x, y);
+    *x += btn->allocation.x;
+    *y += btn->allocation.y + btn->allocation.height;
+    *push_in = true;
+}
+
+static void states_menu_cb(GtkWidget *w, gpointer p) {
+    switch ((size_t) p) {
+        case 0:
+            states_menu_new();
+            break;
+        case 1:
+            states_menu_duplicate();
+            break;
+        case 2:
+            states_menu_rename();
+            break;
+        case 3:
+            states_menu_delete();
+            break;
+        case 4:
+            states_menu_import();
+            break;
+        case 5:
+            states_menu_export();
+            break;
+    }
+}
+
+static void statesCB() {
+    static GtkWidget *states_dialog = NULL;
+    static GtkTreeView *tree;
+    static GtkTreeSelection *select;
+    static GtkWidget *currentLabel;
+    static GtkWidget *menu;
+    char buf[FILENAMELEN];
+
+    if (states_dialog == NULL) {
+        states_dialog = gtk_dialog_new_with_buttons(
+                            "States",
+                            GTK_WINDOW(mainwindow),
+                            GTK_DIALOG_MODAL,
+                            "Switch To", 1,
+                            "More", 2,
+                            "Done", 3,
+                            NULL);
+        for (int i = 1; i <= 3; i++) {
+            GtkWidget *btn = gtk_dialog_get_widget_for_response(GTK_DIALOG(states_dialog), i);
+            gtk_widget_set_can_default(btn, false);
+        }
+        gtk_window_set_resizable(GTK_WINDOW(states_dialog), FALSE);
+        no_mwm_resize_borders(states_dialog);
+        GtkWidget *container = gtk_bin_get_child(GTK_BIN(states_dialog));
+        GtkWidget *box = gtk_vbox_new(FALSE, 0);
+        gtk_container_add(GTK_CONTAINER(container), box);
+
+        currentLabel = gtk_label_new("Current:");
+        gtk_box_pack_start(GTK_BOX(box), currentLabel, FALSE, FALSE, 10);
+
+        GtkWidget *scroll = gtk_scrolled_window_new(NULL, NULL);
+        gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+        tree = (GtkTreeView *) gtk_tree_view_new();
+        select = gtk_tree_view_get_selection(tree);
+        gtk_tree_selection_set_mode(select, GTK_SELECTION_SINGLE);
+        GtkWidget *switchToBtn = gtk_dialog_get_widget_for_response(GTK_DIALOG(states_dialog), 1);
+        g_signal_connect(G_OBJECT(select), "changed", G_CALLBACK(states_changed_cb), (gpointer) switchToBtn);
+        // When I try to pass the dialog pointer as closure data, it gets mangled?!?
+        // Most be a casting issue, but I don't get it... So just passing it in a global.
+        dlg = states_dialog;
+        g_signal_connect(G_OBJECT(tree), "row-activated", G_CALLBACK(row_activated_cb), NULL);
+        GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
+        //gtk_cell_renderer_text_set_fixed_height_from_font((GtkCellRendererText *) renderer, 12);
+        GtkTreeViewColumn *column = gtk_tree_view_column_new_with_attributes("Foo", renderer, "text", 0, NULL);
+        gtk_tree_view_append_column(tree, column);
+        gtk_tree_view_set_headers_visible(tree, FALSE);
+        gtk_container_add(GTK_CONTAINER(scroll), GTK_WIDGET(tree));
+        gtk_widget_set_size_request(scroll, -1, 200);
+        gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(scroll), FALSE, FALSE, 10);
+
+        menu = gtk_menu_new();
+        statesMenuItems[0] = gtk_menu_item_new_with_label("New");
+        statesMenuItems[1] = gtk_menu_item_new_with_label("Duplicate");
+        statesMenuItems[2] = gtk_menu_item_new_with_label("Rename");
+        statesMenuItems[3] = gtk_menu_item_new_with_label("Delete");
+        statesMenuItems[4] = gtk_menu_item_new_with_label("Import");
+        statesMenuItems[5] = gtk_menu_item_new_with_label("Export");
+        for (int i = 0; i < 6; i++) {
+            g_signal_connect(G_OBJECT(statesMenuItems[i]), "activate", G_CALLBACK(states_menu_cb), (gpointer) (size_t) i);
+            gtk_menu_shell_append(GTK_MENU_SHELL(menu), statesMenuItems[i]);
+            gtk_widget_show(statesMenuItems[i]);
+        }
+        gtk_widget_show_all(menu);
+
+        gtk_widget_show_all(states_dialog);
+    }
+
+    snprintf(buf, FILENAMELEN, "Current: %s", state.coreName);
+    gtk_label_set_text(GTK_LABEL(currentLabel), buf);
+
+    char **state_names = (char **) malloc(16 * sizeof(char *));
+    int state_size = 0, state_capacity = 16;
+    DIR *dir = opendir(free42dirname);
+    if (dir != NULL) {
+        struct dirent *dent;
+        while ((dent = readdir(dir)) != NULL) {
+            int namelen = strlen(dent->d_name);
+            if (namelen < 4)
+                continue;
+            if (strcmp(dent->d_name + namelen - 4, ".f42") != 0)
+                continue;
+            char *stn = (char *) malloc(namelen - 3);
+            memcpy(stn, dent->d_name, namelen - 4);
+            stn[namelen - 4] = 0;
+            if (state_size == state_capacity) {
+                state_capacity += 16;
+                state_names = (char **) realloc(state_names, state_capacity * sizeof(char *));
+            }
+            state_names[state_size++] = stn;
+        }
+        closedir(dir);
+        qsort(state_names, state_size, sizeof(char *), case_insens_comparator);
+    }
+
+    currentStateIndex = -1;
+    GtkListStore *model = gtk_list_store_new(1, G_TYPE_STRING);
+    GtkTreeIter iter;
+    for (int i = 0; i < state_size; i++) {
+        gtk_list_store_append(model, &iter);
+        gtk_list_store_set(model, &iter, 0, state_names[i], -1);
+        if (strcmp(state_names[i], state.coreName) == 0)
+            currentStateIndex = i;
+    }
+    gtk_tree_view_set_model(tree, GTK_TREE_MODEL(model));
+
+    // TODO: does this leak list-stores? Or is everything taken case of by the
+    // GObject reference-counting stuff?
+
+    gtk_window_set_role(GTK_WINDOW(states_dialog), "Free42 Dialog");
+    while (true) {
+        int response = gtk_dialog_run(GTK_DIALOG(states_dialog));
+        if (response == 3 || response == GTK_RESPONSE_DELETE_EVENT)
+            break;
+        if (response == 1) {
+            GtkWidget *btn = gtk_dialog_get_widget_for_response(GTK_DIALOG(states_dialog), 1);
+            if (!gtk_widget_get_sensitive(btn))
+                // User double-clicked on a row, but the Switch To button is disabled
+                continue;
+            GList *rows = gtk_tree_selection_get_selected_rows(select, NULL);
+            if (rows != NULL) {
+                GtkTreePath *path = (GtkTreePath *) rows->data;
+                int sel;
+                sscanf(gtk_tree_path_to_string(path), "%d", &sel);
+                g_list_free(rows);
+                switchTo(state_names[sel]);
+            }
+            break;
+        }
+        if (response == 2) {
+            GtkWidget *btn = gtk_dialog_get_widget_for_response(GTK_DIALOG(states_dialog), 2);
+            gtk_menu_popup(GTK_MENU(menu), NULL, NULL, states_menu_pos_func, btn, 0, GDK_CURRENT_TIME);
+        }
+    }
+
+    gtk_widget_hide(states_dialog);
+
+    for (int i = 0; i < state_size; i++)
+        free(state_names[i]);
+    free(state_names);
+
+#if 0
+    int count = gtk_tree_selection_count_selected_rows(select);
+    if (count == 0)
+        return;
+
+    static GtkWidget *save_dialog = NULL;
+    if (save_dialog == NULL)
+        save_dialog = make_file_select_dialog("Export Programs",
+                "Program Files (*.raw)\0*.[Rr][Aa][Ww]\0All Files (*.*)\0*\0",
+                true, mainwindow);
+
+    char *filename = NULL;
+    gtk_window_set_role(GTK_WINDOW(save_dialog), "Free42 Dialog");
+    if (gtk_dialog_run(GTK_DIALOG(save_dialog)) == GTK_RESPONSE_ACCEPT)
+        filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(save_dialog));
+    gtk_widget_hide(GTK_WIDGET(save_dialog));
+    if (filename == NULL)
+        return;
+
+    char export_file_name[FILENAMELEN];
+    strcpy(export_file_name, filename);
+    g_free(filename);
+    if (strncmp(gtk_file_filter_get_name(
+                    gtk_file_chooser_get_filter(
+                        GTK_FILE_CHOOSER(save_dialog))), "All", 3) != 0)
+        appendSuffix(export_file_name, ".raw");
+
+    if (is_file(export_file_name)) {
+        GtkWidget *msg = gtk_message_dialog_new(GTK_WINDOW(mainwindow),
+                                                GTK_DIALOG_MODAL,
+                                                GTK_MESSAGE_QUESTION,
+                                                GTK_BUTTONS_YES_NO,
+                                                "Replace existing \"%s\"?",
+                                                export_file_name);
+        gtk_window_set_title(GTK_WINDOW(msg), "Replace?");
+        gtk_window_set_role(GTK_WINDOW(msg), "Free42 Dialog");
+        cancelled = gtk_dialog_run(GTK_DIALOG(msg)) != GTK_RESPONSE_YES;
+        gtk_widget_destroy(msg);
+        if (cancelled)
+            return;
+    }
+
+    int *p2 = (int *) malloc(count * sizeof(int));
+    // TODO - handle memory allocation failure
+    GList *rows = gtk_tree_selection_get_selected_rows(select, NULL);
+    GList *item = rows;
+    int i = 0;
+    while (item != NULL) {
+        GtkTreePath *path = (GtkTreePath *) item->data;
+        char *pathstring = gtk_tree_path_to_string(path);
+        sscanf(pathstring, "%d", p2 + i);
+        item = item->next;
+        i++;
+    }
+    g_list_free(rows);
+    core_export_programs(count, p2, export_file_name);
+    free(p2);
+#endif
+}
+
+//////////////////////////////////
+///// States stuff ends here /////
+//////////////////////////////////
 
 static void showPrintOutCB() {
     //gtk_widget_show(printwindow);
