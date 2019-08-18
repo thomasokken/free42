@@ -19,7 +19,11 @@ CFLAGS = -MMD \
 	 -Wall \
 	 -Wno-parentheses \
 	 -Wno-write-strings \
-         -Wno-sign-compare \
+	 -Wno-sign-compare \
+	 -Wno-narrowing \
+	 -Wno-constant-conversion \
+	 -Wno-sometimes-uninitialized \
+	 -Wno-misleading-indentation \
 	 -g \
 	 -I/usr/X11R6/include \
 	 $(shell pkg-config --cflags gtk+-2.0) \
@@ -36,24 +40,12 @@ CXXFLAGS = $(CFLAGS) \
 	 -D_WCHAR_T_DEFINED
 
 LDFLAGS = -L/usr/X11R6/lib
-LIBS = gcc111libbid.a $(shell pkg-config --libs gtk+-2.0) -lXmu
-
-ifeq "$(shell uname -s)" "Linux"
-LDFLAGS += -Wl,--hash-style=both
-LIBS += -lpthread
-endif
+LIBS = gcc111libbid.a $(shell pkg-config --libs gtk+-2.0) -lXmu -lX11
 
 ifeq "$(shell uname -s)" "FreeBSD"
-CFLAGS += -Wno-narrowing -Wno-constant-conversion -Wno-sometimes-uninitialized
-LIBS += -lX11
 ifdef AUDIO_ALSA
 LIBS += -ldl
 endif
-endif
-
-ifeq "$(shell uname -s)" "SunOS"
-CFLAGS += -Wno-narrowing -Wno-misleading-indentation
-LIBS += -lX11
 endif
 
 ifneq "$(findstring 6162,$(shell echo ab | od -x))" ""
@@ -133,8 +125,8 @@ clean: FORCE
 	rm -f `find . -type l` \
 		skin2cc skin2cc.exe skins.cc \
 		keymap2cc keymap2cc.exe keymap.cc \
-	        readtest_lines.cc \
-	        gcc111libbid.a \
+		readtest_lines.cc \
+		gcc111libbid.a \
 		*.o *.d *.i *.ii *.s symlinks core.*
 	rm -rf IntelRDFPMathLib20U1
 
@@ -143,8 +135,8 @@ cleaner: FORCE
 		free42bin free42bin.exe free42dec free42dec.exe \
 		skin2cc skin2cc.exe skins.cc \
 		keymap2cc keymap2cc.exe keymap.cc \
-	        readtest_lines.cc \
-	        gcc111libbid.a \
+		readtest_lines.cc \
+		gcc111libbid.a \
 		*.o *.d *.i *.ii *.s symlinks core.*
 	rm -rf IntelRDFPMathLib20U1
 
