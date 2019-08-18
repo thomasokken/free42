@@ -1678,12 +1678,15 @@ static void draw_catalog() {
             switch (type) {
                 case TYPE_REAL:
                 case TYPE_STRING:
-                    if (show_real) vcount++; break;
+                    if (show_real) vcount++;
+		    break;
                 case TYPE_COMPLEX:
-                    if (show_cpx) vcount++; break;
+                    if (show_cpx) vcount++;
+		    break;
                 case TYPE_REALMATRIX:
                 case TYPE_COMPLEXMATRIX:
-                    if (show_mat) vcount++; break;
+                    if (show_mat) vcount++;
+		    break;
             }
         }
         if (vcount == 0) {

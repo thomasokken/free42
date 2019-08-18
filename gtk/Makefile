@@ -23,7 +23,6 @@ CFLAGS = -MMD \
 	 -Wno-narrowing \
 	 -Wno-constant-conversion \
 	 -Wno-sometimes-uninitialized \
-	 -Wno-misleading-indentation \
 	 -Wno-format-truncation \
 	 -Wno-unknown-warning-option \
 	 -g \
