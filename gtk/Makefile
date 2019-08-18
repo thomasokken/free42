@@ -24,6 +24,7 @@ CFLAGS = -MMD \
 	 -Wno-constant-conversion \
 	 -Wno-sometimes-uninitialized \
 	 -Wno-misleading-indentation \
+	 -Wno-format-truncation \
 	 -Wno-unknown-warning-option \
 	 -g \
 	 -I/usr/X11R6/include \
