@@ -185,7 +185,7 @@ Java_com_thomasokken_free42_Free42Activity_core_1keydown(JNIEnv *env, jobject th
 }
 
 extern "C" jboolean
-Java_com_thomasokken_free42_Free42Activity_core_1keydown_1command(JNIEnv *env, jobject *thiz,
+Java_com_thomasokken_free42_Free42Activity_core_1keydown_1command(JNIEnv *env, jobject thiz,
                             jstring cmd, jobject enqueued, jobject repeat, jboolean immediate_return) {
     Tracer T("core_keydown_command");
     finish_flag = immediate_return;
@@ -243,7 +243,7 @@ Java_com_thomasokken_free42_Free42Activity_core_1powercycle(JNIEnv *env, jobject
 }
 
 extern "C" jobjectArray
-Java_com_thomasokken_free42_Free42Activity_core_1list_1programs(JNIEnv *env) {
+Java_com_thomasokken_free42_Free42Activity_core_1list_1programs(JNIEnv *env, jobject thiz) {
     Tracer T("core_list_programs");
     char *buf = core_list_programs();
     jclass stringClass = env->FindClass("java/lang/String");

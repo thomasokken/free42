@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical" android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+      
+    <TextView android:id="@+id/currentLabel"
+            android:text="Current:"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"/>
+    
+    <LinearLayout android:id="@+id/buttonBox"
+    		android:layout_width="wrap_content" android:layout_height="wrap_content"
+    		android:orientation="horizontal"
+    		android:layout_gravity="center"
+    		android:layout_alignParentLeft="true"
+    		android:layout_alignParentRight="true"
+    		android:layout_alignParentBottom="true">
+    		
+    	<Button android:id="@+id/switchToButton"
+    			android:text="Switch To"
+	    		android:layout_width="0px" android:layout_height="fill_parent"
+	    		android:layout_weight="1"/>
+    		
+    	<Button android:id="@+id/moreButton"
+    			android:text="More"
+	    		android:layout_width="0px" android:layout_height="fill_parent"
+	    		android:layout_weight="1"/>
+    		
+    	<Button android:id="@+id/doneButton"
+    			android:text="Done"
+	    		android:layout_width="0px" android:layout_height="fill_parent"
+	    		android:layout_weight="1"/>
+    		
+    </LinearLayout>
+
+    <ListView android:id="@+id/statesView"
+			android:listSelector="#ffbb00"
+    		android:layout_width="fill_parent" android:layout_height="fill_parent"
+    		android:layout_alignParentLeft="true"
+    		android:layout_alignParentRight="true"
+    		android:layout_above="@+id/buttonBox"
+    		android:layout_below="@+id/currentLabel"/>
+	
+</RelativeLayout>
