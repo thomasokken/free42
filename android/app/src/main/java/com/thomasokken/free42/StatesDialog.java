@@ -24,6 +24,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
+import android.support.v4.content.FileProvider;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AbsListView;
@@ -261,8 +262,9 @@ public class StatesDialog extends Dialog {
         if (selectedStateName == null)
             return;
         Intent intent = new Intent(Intent.ACTION_SEND);
-        // This doesn't work. Need to use a ContentProvider, it seems, and that's complicated.
-        Uri uri = Uri.fromFile(new File(stateDirName + "/" + selectedStateName + ".f42"));
+        File file = new File(stateDirName + "/" + selectedStateName + ".f42");
+        // This doesn't work. Even this "compatibility" thing is hellishly complicated.
+        Uri uri = FileProvider.getUriForFile(getContext(), getContext().getPackageName(), file);
         intent.setType("application/x-free42-state");
         intent.putExtra(Intent.EXTRA_STREAM, uri);
         getContext().startActivity(Intent.createChooser(intent, "Share Free42 State Using"));
