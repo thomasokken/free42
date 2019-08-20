@@ -143,7 +143,7 @@ public class StatesDialog extends Dialog {
         String newFileName = stateDirName + "/" + newStateName + ".f42";
         FileOutputStream fos = null;
         try {
-            fos = new FileOutputStream(newStateName);
+            fos = new FileOutputStream(newFileName);
             fos.write("24kF".getBytes("ASCII"));
         } catch (IOException e) {
             // Ignore
@@ -272,33 +272,53 @@ public class StatesDialog extends Dialog {
 
     private AlertDialog moreMenuDialog;
 
+    private class MoreMenuOnClickListener implements DialogInterface.OnClickListener {
+        private int mode;
+        public MoreMenuOnClickListener(int mode) {
+            this.mode = mode;
+        }
+        public void onClick(DialogInterface dialog, int which) {
+            switch (mode) {
+                // Modify the 'which' parameter to account for the buttons
+                // that are missing in modes 0 and 1
+                case 0:
+                    if (which > 0)
+                        which += 4;
+                    break;
+                case 1:
+                    if (which > 2)
+                        which += 1;
+                    break;
+            }
+            switch (which) {
+                case 0: doNew(); break;
+                case 1: doDuplicate(); break;
+                case 2: doRename(); break;
+                case 3: doDelete(); break;
+                case 4: doShare(); break;
+                // default: Cancel; do nothing
+            }
+        }
+    }
+
     private void doMore() {
-        if (moreMenuDialog == null) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(Free42Activity.instance);
-            builder.setTitle("States Menu");
-            List<String> itemsList = new ArrayList<String>();
-            itemsList.add("New");
+        String selectedState = getSelectedState();
+        int mode = selectedState == null ? 0 : selectedState.equals(Free42Activity.getSelectedState()) ? 1 : 2;
+        AlertDialog.Builder builder = new AlertDialog.Builder(Free42Activity.instance);
+        builder.setTitle("States Menu");
+        List<String> itemsList = new ArrayList<String>();
+        itemsList.add("New");
+        if (mode != 0) {
             itemsList.add("Duplicate");
             itemsList.add("Rename");
-            itemsList.add("Delete");
+            if (mode != 1)
+                itemsList.add("Delete");
             itemsList.add("Share");
-            itemsList.add("Cancel");
-            builder.setItems(itemsList.toArray(new String[itemsList.size()]),
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            switch (which) {
-                                case 0: doNew(); break;
-                                case 1: doDuplicate(); break;
-                                case 2: doRename(); break;
-                                case 3: doDelete(); break;
-                                case 4: doShare(); break;
-                                // default: Cancel; do nothing
-                            }
-                        }
-                    });
-            moreMenuDialog = builder.create();
         }
-        moreMenuDialog.show();
+        itemsList.add("Cancel");
+        builder.setItems(itemsList.toArray(new String[itemsList.size()]),
+                new MoreMenuOnClickListener(mode));
+        builder.create().show();
     }
 
     private void doDone() {
