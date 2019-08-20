@@ -264,8 +264,8 @@ public class StatesDialog extends Dialog {
         Intent intent = new Intent(Intent.ACTION_SEND);
         File file = new File(stateDirName + "/" + selectedStateName + ".f42");
         // This doesn't work. Even this "compatibility" thing is hellishly complicated.
-        Uri uri = FileProvider.getUriForFile(getContext(), getContext().getPackageName(), file);
-        intent.setType("application/x-free42-state");
+        Uri uri = FileProvider.getUriForFile(getContext(), getContext().getPackageName() + ".fileprovider", file);
+        intent.setType("*/*");
         intent.putExtra(Intent.EXTRA_STREAM, uri);
         getContext().startActivity(Intent.createChooser(intent, "Share Free42 State Using"));
     }
