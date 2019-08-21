@@ -264,7 +264,7 @@ public class Free42Activity extends Activity {
                 coreFileName = getFilesDir() + "/" + coreName + ".f42";
                 coreFileOffset = 0;
             } else {
-                coreFileName = "state";
+                coreFileName = getFilesDir() + "/state";
                 coreFileOffset = stateFileInputStream.getPosition();
             }
             try {
