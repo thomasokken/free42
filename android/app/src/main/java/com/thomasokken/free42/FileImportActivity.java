@@ -2,8 +2,10 @@ package com.thomasokken.free42;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -23,20 +25,38 @@ public class FileImportActivity extends Activity {
         System.err.println("FileImportActivity action = " + action);
         Uri uri = intent.getData();
         System.err.println("FileImportActivity uri = " + uri);
+
+        // If attachment, some contortions to try and get the original file name
+        String baseName = null;
+        if (uri.getScheme().equals("content")) {
+            Cursor cursor = getContentResolver().query(uri, new String[]{MediaStore.MediaColumns.DISPLAY_NAME}, null, null, null);
+            cursor.moveToFirst();
+            int nameIndex = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME);
+            if (nameIndex >= 0) {
+                baseName = cursor.getString(nameIndex);
+            }
+        } else {
+            baseName = uri.getLastPathSegment();
+        }
+        if (baseName == null || baseName.equals(""))
+            baseName = "Imported State";
+        else if (baseName.toLowerCase().endsWith(".f42"))
+            baseName = baseName.substring(0, baseName.length() - 4);
+
         int n = 0;
         String name;
         String baseDir = getFilesDir().getAbsolutePath();
         while (true) {
             n++;
-            name = baseDir + "/Imported State " + n;
+            name = baseDir + "/" + baseName;
+            if (n > 1)
+                name += " " + n + ".f42";
             if (!new File(name).exists())
                 break;
         }
         InputStream is = null;
         OutputStream os = null;
         try {
-            // Of course, reading the file is horrendously complicated.
-            // https://github.com/codenameone/codenameone/issues/772
             is = getContentResolver().openInputStream(uri);
             os = new FileOutputStream(name);
             byte[] buf = new byte[8192];
