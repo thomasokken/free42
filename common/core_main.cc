@@ -697,38 +697,48 @@ static size_t raw_pos;
 
 static int raw_getc() {
     if (raw_buf == NULL)
-	return fgetc(gfile);
+        return fgetc(gfile);
     else {
-	if (raw_pos < raw_size)
-	    return raw_buf[raw_pos++] & 255;
-	else
-	    return EOF;
+        if (raw_pos < raw_size)
+            return raw_buf[raw_pos++] & 255;
+        else
+            return EOF;
+    }
+}
+
+static int raw_ungetc(int c) {
+    if (raw_buf == NULL)
+        return ungetc(c, gfile);
+    else {
+        raw_buf[--raw_pos] = (char) c;
+        return c;
     }
 }
 
 static size_t raw_write(const char *buf, size_t size) {
     if (raw_buf == NULL)
-	return fwrite(buf, 1, size, gfile);
+        return fwrite(buf, 1, size, gfile);
     else {
-	if (raw_pos + size > raw_size)
-	    size = raw_size - raw_pos;
-	memcpy(raw_buf + raw_pos, buf, size);
-	raw_pos += size;
-	return size;
+        if (raw_pos + size > raw_size)
+            size = raw_size - raw_pos;
+        memcpy(raw_buf + raw_pos, buf, size);
+        raw_pos += size;
+        return size;
     }
 }
 
 static void raw_close() {
     if (raw_buf != NULL) {
-	if (ferror(gfile))
-	    shell_message("An error occurred during program import.");
-	fclose(gfile);
+        if (ferror(gfile))
+            shell_message("An error occurred during program import.");
+        fclose(gfile);
     }
 }
 
 #else
 
 #define raw_getc() fgetc(gfile)
+#define raw_ungetc(c) ungetc(c, gfile)
 #define raw_write(buf, size) fwrite(buf, 1, size, gfile)
 #define raw_close() fclose(gfile)
 
@@ -1670,7 +1680,6 @@ static phloat parse_number_line(char *buf) {
 void core_import_programs(int num_progs, const char *raw_file_name) {
     int i;
 
-    int pos = 0;
     int byte1, byte2, suffix;
     int cmd, flag, str_len;
     int done_flag = 0;
@@ -1766,7 +1775,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                 if (byte1 == EOF)
                     done_flag = 1;
                 else if (byte1 != 0x00)
-                    pos--;
+                    raw_ungetc(byte1);
                 numbuf[numlen++] = 0;
                 arg.val_d = parse_number_line(numbuf);
                 cmd = CMD_NUMBER;
@@ -1777,7 +1786,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                 if (str_len == EOF)
                     goto done;
                 else if (str_len < 0x0F1) {
-                    pos--;
+                    raw_ungetc(str_len);
                     goto skip;
                 } else
                     str_len -= 0x0F0;
@@ -1906,7 +1915,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                     int i;
                     plain_string:
                     str_len = byte1 - 0x0F0;
-                    pos--;
+                    raw_ungetc(byte2);
                     cmd = CMD_STRING;
                     arg.type = ARGTYPE_STR;
                     do_string:
