@@ -120,7 +120,7 @@ Java_com_thomasokken_free42_Free42Activity_core_1keydown_1finish(JNIEnv *env, jo
 
 extern "C" void
 Java_com_thomasokken_free42_Free42Activity_core_1init(JNIEnv *env, jobject thiz, jint read_state, jint version,
-            jstring state_file_name, int offset) {
+            jstring state_file_name, jint offset) {
     Tracer T("core_init");
     const char *buf = env->GetStringUTFChars(state_file_name, NULL);
     core_init(read_state, version, buf, offset);

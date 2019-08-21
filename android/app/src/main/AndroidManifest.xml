@@ -26,6 +26,48 @@
         <category android:name="android.intent.category.LAUNCHER"/>
       </intent-filter>
     </activity>
+    <activity android:name="FileImportActivity"
+        android:label="Free42 Import">
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW"/>
+        <category android:name="android.intent.category.BROWSABLE"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+        <!-- Note: content URLs don't contain the file name, so you can't
+             match on pathPattern, but apparently they do have a fall-back
+             MIME type of the form application/<extension>, and the below
+             works, at least while testing in the Andoid emulator. -->
+        <data
+            android:scheme="content"
+            android:mimeType="application/f42"/>
+      </intent-filter>
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW"/>
+        <category android:name="android.intent.category.BROWSABLE"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+        <data
+            android:scheme="file"
+            android:host="*"
+            android:pathPattern=".*\\.f42"/>
+      </intent-filter>
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW"/>
+        <category android:name="android.intent.category.BROWSABLE"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+        <data
+            android:scheme="http"
+            android:host="*"
+            android:pathPattern=".*\\.f42"/>
+      </intent-filter>
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW"/>
+        <category android:name="android.intent.category.BROWSABLE"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+        <data
+            android:scheme="https"
+            android:host="*"
+            android:pathPattern=".*\\.f42"/>
+      </intent-filter>
+    </activity>
     <provider
         android:name="android.support.v4.content.FileProvider"
         android:authorities="com.thomasokken.free42.fileprovider"
