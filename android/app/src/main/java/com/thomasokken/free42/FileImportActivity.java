@@ -12,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
 
 public class FileImportActivity extends Activity {
     @Override
@@ -28,7 +29,8 @@ public class FileImportActivity extends Activity {
 
         // If attachment, some contortions to try and get the original file name
         String baseName = null;
-        if (uri.getScheme().equals("content")) {
+        String scheme = uri.getScheme();
+        if (scheme.equals("content")) {
             Cursor cursor = getContentResolver().query(uri, new String[]{MediaStore.MediaColumns.DISPLAY_NAME}, null, null, null);
             cursor.moveToFirst();
             int nameIndex = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME);
@@ -50,10 +52,18 @@ public class FileImportActivity extends Activity {
             n++;
             name = baseDir + "/" + baseName;
             if (n > 1)
-                name += " " + n + ".f42";
+                name += " " + n;
+            name += ".f42";
             if (!new File(name).exists())
                 break;
         }
+
+        // Network access not allowed on main thread, so...
+        if (scheme.equals("http") || scheme.equals("https")) {
+            new NetworkLoader(uri.toString(), name).start();
+            return;
+        }
+
         InputStream is = null;
         OutputStream os = null;
         try {
@@ -67,12 +77,9 @@ public class FileImportActivity extends Activity {
             os.write(buf, 0, 4);
             while ((n = is.read(buf)) >= 0)
                 os.write(buf, 0, n);
-        } catch (IOException e) {
-            // TODO
-            e.printStackTrace();
-        } catch (FormatException e) {
-            // TODO
-            e.printStackTrace();
+            wrapUp(null);
+        } catch (Exception e) {
+            wrapUp(e);
         } finally {
             if (is != null)
                 try {
@@ -83,7 +90,56 @@ public class FileImportActivity extends Activity {
                     os.close();
                 } catch (IOException e) {}
         }
+    }
+
+    private void wrapUp(Exception e) {
+        if (e == null) {
+            // Show success message
+        } else {
+            // Show failure message
+        }
         finish();
+    }
+
+    private class NetworkLoader extends Thread {
+        private String srcUrl, dstFile;
+        private Exception ex;
+        public NetworkLoader(String srcUrl, String dstFile) {
+            this.srcUrl = srcUrl;
+            this.dstFile = dstFile;
+        }
+        public void run() {
+            InputStream is = null;
+            OutputStream os = null;
+            try {
+                is = new URL(srcUrl).openStream();
+                os = new FileOutputStream(dstFile);
+                byte[] buf = new byte[8192];
+                // Check magic number first; don't bother importing if this is wrong
+                int n = is.read(buf, 0, 4);
+                if (n != 4 || buf[0] != '2' || buf[1] != '4' || buf[2] != 'k' || buf[3] != 'F')
+                    throw new FormatException();
+                os.write(buf, 0, 4);
+                while ((n = is.read(buf)) >= 0)
+                    os.write(buf, 0, n);
+            } catch (Exception e) {
+                ex = e;
+            } finally {
+                if (is != null)
+                    try {
+                        is.close();
+                    } catch (IOException e) {}
+                if (os != null)
+                    try {
+                        os.close();
+                    } catch (IOException e) {}
+            }
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    wrapUp(ex);
+                }
+            });
+        }
     }
 
     private static class FormatException extends Exception {
