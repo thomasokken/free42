@@ -257,17 +257,12 @@ public class StatesDialog extends Dialog {
         updateUI(true);
     }
 
-    private void doShare() {
-        String selectedStateName = getSelectedState();
-        if (selectedStateName == null)
-            return;
-        Intent intent = new Intent(Intent.ACTION_SEND);
-        File file = new File(stateDirName + "/" + selectedStateName + ".f42");
-        // This doesn't work. Even this "compatibility" thing is hellishly complicated.
-        Uri uri = FileProvider.getUriForFile(getContext(), getContext().getPackageName() + ".fileprovider", file);
-        intent.setType("*/*");
-        intent.putExtra(Intent.EXTRA_STREAM, uri);
-        getContext().startActivity(Intent.createChooser(intent, "Share Free42 State Using"));
+    private void doImport() {
+        // Not yet implemented
+    }
+
+    private void doExport() {
+        // Not yet implemented
     }
 
     private AlertDialog moreMenuDialog;
@@ -279,24 +274,34 @@ public class StatesDialog extends Dialog {
         }
         public void onClick(DialogInterface dialog, int which) {
             switch (mode) {
-                // Modify the 'which' parameter to account for the buttons
-                // that are missing in modes 0 and 1
                 case 0:
-                    if (which > 0)
-                        which += 4;
+                    switch (which) {
+                        case 0: doNew(); break;
+                        case 1: doImport(); break;
+                        // default: Cancel; do nothing
+                    }
                     break;
                 case 1:
-                    if (which > 2)
-                        which += 1;
+                    switch (which) {
+                        case 0: doNew(); break;
+                        case 1: doDuplicate(); break;
+                        case 2: doRename(); break;
+                        case 3: doImport(); break;
+                        case 4: doExport(); break;
+                        // default: Cancel; do nothing
+                    }
                     break;
-            }
-            switch (which) {
-                case 0: doNew(); break;
-                case 1: doDuplicate(); break;
-                case 2: doRename(); break;
-                case 3: doDelete(); break;
-                case 4: doShare(); break;
-                // default: Cancel; do nothing
+                case 2:
+                    switch (which) {
+                        case 0: doNew(); break;
+                        case 1: doDuplicate(); break;
+                        case 2: doRename(); break;
+                        case 3: doDelete(); break;
+                        case 4: doImport(); break;
+                        case 5: doExport(); break;
+                        // default: Cancel; do nothing
+                    }
+                    break;
             }
         }
     }
@@ -313,8 +318,10 @@ public class StatesDialog extends Dialog {
             itemsList.add("Rename");
             if (mode != 1)
                 itemsList.add("Delete");
-            itemsList.add("Share");
         }
+        itemsList.add("Import");
+        if (mode != 0)
+            itemsList.add("Export");
         itemsList.add("Cancel");
         builder.setItems(itemsList.toArray(new String[itemsList.size()]),
                 new MoreMenuOnClickListener(mode));
