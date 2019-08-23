@@ -1,7 +1,9 @@
 ????-??-??: release 2.5
 
-* Added state file manager.
-* State files are now in a platform-neutral format.
+* Added state file manager, for loading, saving, and switching between,
+  calculator states.
+* State files are now in a platform-neutral format, so they can be exchanged
+  between Free42 instances running on different devices.
 * Fixed crash in RTN when a local variable was hiding the indexed matrix.
 
 2019-07-12: release 2.4.2

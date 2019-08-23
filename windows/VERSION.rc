@@ -1,4 +1,4 @@
-#define FREE42_VERSION_1 "Free42 2.4.2b"
-#define FREE42_VERSION_2 "2.4.2b\0"
-#define FREE42_VERSION_3 2,4,2,2
-#define FREE42_VERSION_4 "Release 2.4.2b"
+#define FREE42_VERSION_1 "Free42 2.5"
+#define FREE42_VERSION_2 "2.5\0"
+#define FREE42_VERSION_3 2,5,0,0
+#define FREE42_VERSION_4 "Release 2.5"
