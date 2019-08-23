@@ -92,6 +92,26 @@ public class StatesDialog extends Dialog {
             }
         });
         setTitle("States");
+
+        // Make sure a file exists for the current state. This isn't necessarily
+        // the case, specifically, right after starting up with a version <= 25
+        // state file.
+        String currentStateFileName = stateDirName + "/" + Free42Activity.getSelectedState();
+        if (!new File(currentStateFileName).exists()) {
+            OutputStream os = null;
+            try {
+                os = new FileOutputStream(currentStateFileName);
+                os.write("24kF".getBytes("ASCII"));
+            } catch (IOException e) {
+                // Oh well, we tried
+            } finally {
+                if (os != null)
+                    try {
+                        os.close();
+                    } catch (IOException e) {}
+            }
+        }
+
         // Force initial update
         selectionChanged();
     }
@@ -365,6 +385,18 @@ public class StatesDialog extends Dialog {
         updateUI(true);
     }
 
+    private void doShare() {
+        String selectedStateName = getSelectedState();
+        if (selectedStateName == null)
+            return;
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        File file = new File(stateDirName + "/" + selectedStateName + ".f42");
+        Uri uri = FileProvider.getUriForFile(getContext(), getContext().getPackageName() + ".fileprovider", file);
+        intent.setType("*/*");
+        intent.putExtra(Intent.EXTRA_STREAM, uri);
+        getContext().startActivity(Intent.createChooser(intent, "Share Free42 State Using"));
+    }
+
     private class MoreMenuOnClickListener implements DialogInterface.OnClickListener {
         private int mode;
         public MoreMenuOnClickListener(int mode) {
@@ -386,6 +418,7 @@ public class StatesDialog extends Dialog {
                         case 2: doRename(); break;
                         case 3: doImport(); break;
                         case 4: doExport(); break;
+                        case 5: doShare(); break;
                         // default: Cancel; do nothing
                     }
                     break;
@@ -397,6 +430,7 @@ public class StatesDialog extends Dialog {
                         case 3: doDelete(); break;
                         case 4: doImport(); break;
                         case 5: doExport(); break;
+                        case 6: doShare(); break;
                         // default: Cancel; do nothing
                     }
                     break;
@@ -418,8 +452,10 @@ public class StatesDialog extends Dialog {
                 itemsList.add("Delete");
         }
         itemsList.add("Import");
-        if (mode != 0)
+        if (mode != 0) {
             itemsList.add("Export");
+            itemsList.add("Share");
+        }
         itemsList.add("Cancel");
         builder.setItems(itemsList.toArray(new String[itemsList.size()]),
                 new MoreMenuOnClickListener(mode));
