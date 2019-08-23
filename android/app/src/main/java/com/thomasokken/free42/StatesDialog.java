@@ -39,6 +39,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -258,14 +260,110 @@ public class StatesDialog extends Dialog {
     }
 
     private void doImport() {
-        // Not yet implemented
+        if (!Free42Activity.checkStorageAccess())
+            return;
+        FileSelectionDialog fsd = new FileSelectionDialog(getContext(), new String[]{"f42", "*"});
+        fsd.setOkListener(new FileSelectionDialog.OkListener() {
+            public void okPressed(String path) {
+                doImport2(path);
+            }
+        });
+        fsd.show();
+    }
+
+    private void doImport2(String path) {
+        int lastSlash = path.lastIndexOf('/');
+        String name = lastSlash == -1 ? path : path.substring(lastSlash + 1);
+        int len = name.length();
+        if (len > 4 && name.endsWith(".f42"))
+            name = name.substring(0, len - 4);
+        String destPath = getContext().getFilesDir() + "/" + name + ".f42";
+        if (new File(destPath).exists()) {
+            Free42Activity.showAlert("A state named \"" + name + "\" already exists.");
+            return;
+        }
+        InputStream is = null;
+        OutputStream os = null;
+        boolean failed = true;
+        try {
+            is = new FileInputStream(path);
+            os = new FileOutputStream(destPath);
+            byte[] buf = new byte[8192];
+            int n;
+            while ((n = is.read(buf)) > 0)
+                os.write(buf, 0, n);
+            failed = false;
+        } catch (IOException e) {
+            Free42Activity.showAlert("State import failed.");
+        } finally {
+            if (is != null)
+                try {
+                    is.close();
+                } catch (IOException e) {
+                }
+            if (os != null)
+                try {
+                    os.close();
+                } catch (IOException e) {
+                }
+        }
+        if (failed)
+            new File(destPath).delete();
+        updateUI(true);
     }
 
     private void doExport() {
-        // Not yet implemented
+        if (!Free42Activity.checkStorageAccess())
+            return;
+        String selectedStateName = getSelectedState();
+        if (selectedStateName == null)
+            return;
+        FileSelectionDialog fsd = new FileSelectionDialog(getContext(), new String[]{"f42", "*"});
+        fsd.setPath(selectedStateName + ".f42");
+        fsd.setOkListener(new FileSelectionDialog.OkListener() {
+            public void okPressed(String path) {
+                if (path.endsWith(".f42"))
+                    doExport2(path);
+            }
+        });
+        fsd.show();
     }
 
-    private AlertDialog moreMenuDialog;
+    private void doExport2(String finalPath) {
+        String selectedStateName = getSelectedState();
+        // Once we get here, finalName contains a valid name for creating the duplicate.
+        // What we do next depends on whether the selected state is the currently active
+        // one. If it is, we'll call core_save_state(), to make sure the duplicate
+        // actually matches the most up-to-date state; otherwise, we can simply copy
+        // the existing state file.
+        if (selectedStateName.equals(Free42Activity.getSelectedState()))
+            Free42Activity.saveStateAs(finalPath);
+        else {
+            String origPath = stateDirName + "/" + getSelectedState() + ".f42";
+            FileInputStream fis = null;
+            FileOutputStream fos = null;
+            try {
+                fis = new FileInputStream(origPath);
+                fos = new FileOutputStream(finalPath);
+                byte[] buf = new byte[1024];
+                int n;
+                while ((n = fis.read(buf)) > 0)
+                    fos.write(buf, 0, n);
+            } catch (IOException e) {
+                Free42Activity.showAlert("State export failed.");
+            } finally {
+                if (fis != null)
+                    try {
+                        fis.close();
+                    } catch (IOException e) {}
+                if (fos != null)
+                    try {
+                        fos.close();
+                    } catch (IOException e) {}
+            }
+        }
+        updateUI(true);
+    }
 
     private class MoreMenuOnClickListener implements DialogInterface.OnClickListener {
         private int mode;
