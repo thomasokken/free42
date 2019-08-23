@@ -189,13 +189,7 @@ public class FileSelectionDialog extends Dialog {
 
     private void doHome() {
         String fileName = fileNameTF.getText().toString();
-        String homePath;
-        try {
-            homePath = new File(Free42Activity.MY_STORAGE_DIR).getCanonicalPath();
-        } catch (IOException e) {
-            homePath = Free42Activity.MY_STORAGE_DIR;
-        }
-        setPath(homePath);
+        setPath(Free42Activity.MY_STORAGE_DIR);
         fileNameTF.setText(fileName);
     }
     
