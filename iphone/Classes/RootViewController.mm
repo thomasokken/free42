@@ -27,6 +27,7 @@
 #import "SelectFileView.h"
 #import "DeleteSkinView.h"
 #import "LoadSkinView.h"
+#import "StatesView.h"
 #import "RootViewController.h"
 #import "shell.h"
 #import "shell_skin_iphone.h"
@@ -50,6 +51,7 @@ static RootViewController *instance;
 @synthesize selectFileView;
 @synthesize deleteSkinView;
 @synthesize loadSkinView;
+@synthesize statesView;
 
 
 - (void) awakeFromNib {
@@ -74,6 +76,7 @@ static RootViewController *instance;
     [self.view addSubview:preferencesView];
     [self.view addSubview:aboutView];
     [self.view addSubview:selectFileView];
+    [self.view addSubview:statesView];
     [self.view addSubview:calcView];
     [self layoutSubViews];
     
@@ -136,6 +139,7 @@ static RootViewController *instance;
     preferencesView.frame = r;
     aboutView.frame = r;
     selectFileView.frame = r;
+    statesView.frame = r;
     calcView.frame = r;
 }
 
@@ -269,6 +273,15 @@ void shell_message(const char *message) {
 
 + (void) showLoadSkin {
     [instance showLoadSkin2];
+}
+
+- (void) showStates2 {
+    [statesView raised];
+    [self.view bringSubviewToFront:statesView];
+}
+
++ (void) showStates {
+    [instance showStates2];
 }
 
 - (void) showDeleteSkin2 {

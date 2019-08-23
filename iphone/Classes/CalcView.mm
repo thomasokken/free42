@@ -220,7 +220,7 @@ static CalcView *calcView = nil;
     UIActionSheet *menu =
     [[UIActionSheet alloc] initWithTitle:@"Main Menu"
                                 delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil
-                       otherButtonTitles:@"Show Print-Out", @"Program Import & Export", @"Preferences", @"Select Skin", @"Copy", @"Paste", @"About Free42", nil];
+                       otherButtonTitles:@"States", @"Show Print-Out", @"Program Import & Export", @"Preferences", @"Select Skin", @"Copy", @"Paste", @"About Free42", nil];
     
     [menu showInView:self];
     [menu release];
@@ -240,34 +240,38 @@ static CalcView *calcView = nil;
     if ([[actionSheet title] isEqualToString:@"Main Menu"]) {
         switch (buttonIndex) {
             case 0:
+                // States
+                [RootViewController showStates];
+                break;
+            case 1:
                 // Show Print-Out
                 [RootViewController showPrintOut];
                 break;
-            case 1:
+            case 2:
                 // Program Import & Export
                 [self showImportExportMenu];
                 break;
-            case 2:
+            case 3:
                 // Preferences
                 [RootViewController showPreferences];
                 break;
-            case 3:
+            case 4:
                 // Select Skin
                 [RootViewController showSelectSkin];
                 break;
-            case 4:
+            case 5:
                 // Copy
                 [self doCopy];
                 break;
-            case 5:
+            case 6:
                 // Paste
                 [self doPaste];
                 break;
-            case 6:
+            case 7:
                 // About Free42
                 [RootViewController showAbout];
                 break;
-            case 7:
+            case 8:
                 // Cancel
                 break;
         }
@@ -479,7 +483,7 @@ static CalcView *calcView = nil;
     }
     if (init_mode == 1) {
         if (version > 25) {
-            snprintf(core_state_file_name, FILENAMELEN, "config/%s.f42", state.coreFileName);
+            snprintf(core_state_file_name, FILENAMELEN, "config/%s.f42", state.coreName);
             core_state_file_offset = 0;
         } else {
             strcpy(core_state_file_name, "config/state");
@@ -489,7 +493,7 @@ static CalcView *calcView = nil;
     }  else {
         // The shell state was missing or corrupt, but there
         // may still be a valid core state...
-        snprintf(core_state_file_name, FILENAMELEN, "config/%s.f42", state.coreFileName);
+        snprintf(core_state_file_name, FILENAMELEN, "config/%s.f42", state.coreName);
         struct stat st;
         if (stat(core_state_file_name, &st) == 0) {
             // Core state "Untitled.f42" exists; let's try to read it
@@ -768,7 +772,7 @@ static void init_shell_state(int version) {
             state.offEnabled = false;
             /* fall through */
         case 6:
-            strcpy(state.coreFileName, "Untitled");
+            strcpy(state.coreName, "Untitled");
             /* fall through */
         case 7:
             /* current version (SHELL_VERSION = 7),
@@ -802,7 +806,7 @@ static void quit2(bool really_quit) {
     write_shell_state();
 
     char corefilename[FILENAMELEN];
-    snprintf(corefilename, FILENAMELEN, "config/%s.f42", state.coreFileName);
+    snprintf(corefilename, FILENAMELEN, "config/%s.f42", state.coreName);
     core_save_state(corefilename);
     if (really_quit) {
         //core_cleanup();

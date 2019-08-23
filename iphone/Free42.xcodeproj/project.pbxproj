@@ -84,6 +84,7 @@
 		E9B1D9230FAC7C51000EB4CD /* VERSION in Resources */ = {isa = PBXBuildFile; fileRef = E9B1D9220FAC7C51000EB4CD /* VERSION */; };
 		E9C255DC1996B9C1007634C9 /* Ehrling42sl.gif in Resources */ = {isa = PBXBuildFile; fileRef = E9C255DA1996B9C1007634C9 /* Ehrling42sl.gif */; };
 		E9C255DD1996B9C1007634C9 /* Ehrling42sl.layout in Resources */ = {isa = PBXBuildFile; fileRef = E9C255DB1996B9C1007634C9 /* Ehrling42sl.layout */; };
+		E9ED02E92310A05B00C85D9A /* StatesView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9ED02E72310A05A00C85D9A /* StatesView.mm */; };
 		E9F7136C16C5F1F0006A9553 /* minizip_ioapi.c in Sources */ = {isa = PBXBuildFile; fileRef = E9F7136616C5F1F0006A9553 /* minizip_ioapi.c */; };
 		E9F7136D16C5F1F0006A9553 /* minizip_unzip.c in Sources */ = {isa = PBXBuildFile; fileRef = E9F7136816C5F1F0006A9553 /* minizip_unzip.c */; settings = {COMPILER_FLAGS = "-DNOUNCRYPT"; }; };
 		E9F7136E16C5F1F0006A9553 /* minizip_zip.c in Sources */ = {isa = PBXBuildFile; fileRef = E9F7136A16C5F1F0006A9553 /* minizip_zip.c */; settings = {COMPILER_FLAGS = "-DNOCRYPT"; }; };
@@ -214,6 +215,8 @@
 		E9C255DA1996B9C1007634C9 /* Ehrling42sl.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = Ehrling42sl.gif; path = skins/Ehrling42sl.gif; sourceTree = "<group>"; };
 		E9C255DB1996B9C1007634C9 /* Ehrling42sl.layout */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Ehrling42sl.layout; path = skins/Ehrling42sl.layout; sourceTree = "<group>"; };
 		E9CD21690FA39C41008E1E65 /* SelectFileView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectFileView.h; sourceTree = "<group>"; };
+		E9ED02E72310A05A00C85D9A /* StatesView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = StatesView.mm; sourceTree = "<group>"; };
+		E9ED02E82310A05A00C85D9A /* StatesView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StatesView.h; sourceTree = "<group>"; };
 		E9F7136616C5F1F0006A9553 /* minizip_ioapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = minizip_ioapi.c; path = simpleserver/minizip_ioapi.c; sourceTree = "<group>"; };
 		E9F7136716C5F1F0006A9553 /* minizip_ioapi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = minizip_ioapi.h; path = simpleserver/minizip_ioapi.h; sourceTree = "<group>"; };
 		E9F7136816C5F1F0006A9553 /* minizip_unzip.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = minizip_unzip.c; path = simpleserver/minizip_unzip.c; sourceTree = "<group>"; };
@@ -276,6 +279,8 @@
 				E9B16E020F88F015002BB9B2 /* shell_skin.h */,
 				E9B16E840F8907E8002BB9B2 /* shell_skin_iphone.h */,
 				E977D0811698FB4E00AA3FD9 /* shell_skin_iphone.mm */,
+				E9ED02E82310A05A00C85D9A /* StatesView.h */,
+				E9ED02E72310A05A00C85D9A /* StatesView.mm */,
 				E977D0981699050400AA3FD9 /* URLButton.h */,
 				E977D0991699050400AA3FD9 /* URLButton.mm */,
 			);
@@ -561,6 +566,7 @@
 				E91005D30F893F8900B68C27 /* core_commands3.cc in Sources */,
 				E91005D40F893F8900B68C27 /* core_commands4.cc in Sources */,
 				E91005D50F893F8900B68C27 /* core_commands5.cc in Sources */,
+				E9ED02E92310A05B00C85D9A /* StatesView.mm in Sources */,
 				E997E4AD1CF0FB12009939CE /* readtest_lines.cc in Sources */,
 				E91005D60F893F8900B68C27 /* core_commands6.cc in Sources */,
 				E91005D70F893F8900B68C27 /* core_display.cc in Sources */,

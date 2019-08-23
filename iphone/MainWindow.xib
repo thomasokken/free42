@@ -32,6 +32,7 @@
             <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <nil key="simulatedStatusBarMetrics"/>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <point key="canvasLocation" x="-829" y="588"/>
         </view>
         <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="65" customClass="AboutView">
             <rect key="frame" x="0.0" y="0.0" width="320" height="460"/>
@@ -101,6 +102,7 @@
                 <outlet property="doneButton" destination="91" id="96"/>
                 <outlet property="versionLabel" destination="107" id="111"/>
             </connections>
+            <point key="canvasLocation" x="2678" y="485"/>
         </view>
         <view contentMode="scaleToFill" id="C2c-Vb-laU" customClass="DeleteSkinView">
             <rect key="frame" x="0.0" y="0.0" width="320" height="460"/>
@@ -139,7 +141,7 @@
             <connections>
                 <outlet property="skinTable" destination="dOP-iK-nSD" id="M4x-Va-hNj"/>
             </connections>
-            <point key="canvasLocation" x="108.8" y="-127.736131934033"/>
+            <point key="canvasLocation" x="693" y="-101"/>
         </view>
         <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="66" customClass="HTTPServerView">
             <rect key="frame" x="0.0" y="0.0" width="320" height="460"/>
@@ -190,6 +192,7 @@
                 <outlet property="logView" destination="117" id="119"/>
                 <outlet property="urlLabel" destination="115" id="118"/>
             </connections>
+            <point key="canvasLocation" x="2766" y="-7"/>
         </view>
         <view contentMode="scaleToFill" id="31h-BE-IyQ" customClass="LoadSkinView">
             <rect key="frame" x="0.0" y="0.0" width="320" height="460"/>
@@ -260,7 +263,7 @@
                 <outlet property="urlField" destination="cDc-Mu-Sdq" id="8Gt-jA-wlp"/>
                 <outlet property="webView" destination="Glm-RJ-JN7" id="yTw-yB-O3P"/>
             </connections>
-            <point key="canvasLocation" x="51.200000000000003" y="47.676161919040482"/>
+            <point key="canvasLocation" x="2064" y="-66"/>
         </view>
         <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="67" customClass="PreferencesView">
             <rect key="frame" x="0.0" y="0.0" width="320" height="460"/>
@@ -494,7 +497,7 @@
                 <outlet property="scrollView" destination="n8A-yK-uOE" id="jzr-Or-7am"/>
                 <outlet property="singularMatrixSwitch" destination="124" id="150"/>
             </connections>
-            <point key="canvasLocation" x="132.80000000000001" y="176.31184407796104"/>
+            <point key="canvasLocation" x="-35" y="521"/>
         </view>
         <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="68" customClass="PrintView">
             <rect key="frame" x="0.0" y="0.0" width="320" height="460"/>
@@ -554,6 +557,7 @@
                 <outlet property="tile1" destination="226" id="228"/>
                 <outlet property="tile2" destination="227" id="229"/>
             </connections>
+            <point key="canvasLocation" x="-78" y="24"/>
         </view>
         <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="187" customClass="SelectFileView">
             <rect key="frame" x="0.0" y="0.0" width="320" height="460"/>
@@ -680,6 +684,7 @@
                 <outlet property="selectFileButton" destination="189" id="216"/>
                 <outlet property="typeSelector" destination="200" id="215"/>
             </connections>
+            <point key="canvasLocation" x="1338" y="363"/>
         </view>
         <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="232" customClass="SelectProgramsView">
             <rect key="frame" x="0.0" y="0.0" width="320" height="460"/>
@@ -720,6 +725,7 @@
                 <outlet property="doneButton" destination="236" id="237"/>
                 <outlet property="programTable" destination="233" id="246"/>
             </connections>
+            <point key="canvasLocation" x="651" y="415"/>
         </view>
         <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="69" customClass="SelectSkinView">
             <rect key="frame" x="0.0" y="0.0" width="320" height="460"/>
@@ -771,7 +777,7 @@
                 <outlet property="doneButton" destination="95" id="100"/>
                 <outlet property="skinTable" destination="120" id="123"/>
             </connections>
-            <point key="canvasLocation" x="132.80000000000001" y="176.31184407796104"/>
+            <point key="canvasLocation" x="1960" y="392"/>
         </view>
         <viewController id="GBu-Jd-r3E" customClass="RootViewController">
             <view key="view" contentMode="scaleToFill" id="KQD-fI-YjY">
@@ -790,9 +796,58 @@
                 <outlet property="selectFileView" destination="187" id="hs6-Wx-xbX"/>
                 <outlet property="selectProgramsView" destination="232" id="jOQ-F3-Yr9"/>
                 <outlet property="selectSkinView" destination="69" id="OB6-cz-FuP"/>
+                <outlet property="statesView" destination="tRM-hx-Dyi" id="ngP-Xa-tF3"/>
                 <outlet property="window" destination="2" id="y0Y-Vl-5K3"/>
             </connections>
+            <point key="canvasLocation" x="-738" y="3"/>
         </viewController>
+        <view contentMode="scaleToFill" id="tRM-hx-Dyi" customClass="StatesView">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="460"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="2Jz-QO-fwb">
+                    <rect key="frame" x="0.0" y="44" width="320" height="416"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <connections>
+                        <outlet property="dataSource" destination="tRM-hx-Dyi" id="kl7-O5-hN9"/>
+                        <outlet property="delegate" destination="tRM-hx-Dyi" id="6Ff-AP-ORR"/>
+                    </connections>
+                </tableView>
+                <navigationBar contentMode="scaleToFill" id="DfM-4E-VJT">
+                    <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                    <items>
+                        <navigationItem title="States" id="aq0-Tv-cED">
+                            <barButtonItem key="leftBarButtonItem" title="Switch To" id="mxI-wk-ow7">
+                                <connections>
+                                    <action selector="switchTo" destination="tRM-hx-Dyi" id="tVR-se-wnx"/>
+                                </connections>
+                            </barButtonItem>
+                            <rightBarButtonItems>
+                                <barButtonItem title="Done" id="bEk-jd-eew">
+                                    <connections>
+                                        <action selector="done" destination="tRM-hx-Dyi" id="jtE-yl-zhR"/>
+                                    </connections>
+                                </barButtonItem>
+                                <barButtonItem title="More" id="aBf-Al-GFG">
+                                    <connections>
+                                        <action selector="more" destination="tRM-hx-Dyi" id="gZU-xy-uiM"/>
+                                    </connections>
+                                </barButtonItem>
+                            </rightBarButtonItems>
+                        </navigationItem>
+                    </items>
+                </navigationBar>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <connections>
+                <outlet property="stateTable" destination="2Jz-QO-fwb" id="mc5-BD-HA1"/>
+                <outlet property="switchToButton" destination="mxI-wk-ow7" id="FyE-sC-CIC"/>
+            </connections>
+            <point key="canvasLocation" x="1338" y="-121"/>
+        </view>
     </objects>
     <resources>
         <image name="about-icon.png" width="57" height="57"/>

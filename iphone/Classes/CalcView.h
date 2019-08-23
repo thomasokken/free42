@@ -34,7 +34,7 @@ struct state_type {
     int orientationMode; // 0=auto 1=portrait 2=landscape
     int maintainSkinAspect[2];
     bool offEnabled;
-    char coreFileName[FILENAMELEN];
+    char coreName[FILENAMELEN];
 };
 
 extern state_type state;
