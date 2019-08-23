@@ -152,7 +152,7 @@ public class FileSelectionDialog extends Dialog {
             int p = path.lastIndexOf("/");
             if (p == -1) {
                 fileName = path;
-                path = "/";
+                path = Free42Activity.MY_STORAGE_DIR;
             } else {
                 fileName = path.substring(p + 1);
                 path = path.substring(0, p);
@@ -188,6 +188,7 @@ public class FileSelectionDialog extends Dialog {
     }
 
     private void doHome() {
+        String fileName = fileNameTF.getText().toString();
         String homePath;
         try {
             homePath = new File(Free42Activity.MY_STORAGE_DIR).getCanonicalPath();
@@ -195,6 +196,7 @@ public class FileSelectionDialog extends Dialog {
             homePath = Free42Activity.MY_STORAGE_DIR;
         }
         setPath(homePath);
+        fileNameTF.setText(fileName);
     }
     
     private void doUp() {
