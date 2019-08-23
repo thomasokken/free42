@@ -1564,6 +1564,17 @@ static void statesCB() {
 
     load_state_names:
 
+    // Make sure a file exists for the current state. This isn't necessarily
+    // the case, specifically, right after starting up with a version <= 25
+    // state file.
+    snprintf(buf, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreName);
+    struct stat st;
+    if (stat(buf, &st) != 0) {
+        FILE *f = fopen(buf, "w");
+        fwrite("24kF", 1, 4, f);
+        fclose(f);
+    }
+
     snprintf(buf, FILENAMELEN, "Current: %s", state.coreName);
     gtk_label_set_text(GTK_LABEL(currentLabel), buf);
 

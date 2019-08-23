@@ -79,6 +79,17 @@ static LRESULT CALLBACK StateNameDlgProc(HWND hDlg, UINT message, WPARAM wParam,
         case WM_INITDIALOG: {
             SetDlgItemText(hDlg, IDC_STATE_PROMPT, stateLabel.c_str());
             SetDlgItemText(hDlg, IDC_STATE_NAME, "");
+
+            // Make sure a file exists for the current state. This isn't necessarily
+            // the case, specifically, right after starting up with a version <= 25
+            // state file.
+            ci_string currentStateName = ci_string(free42dirname) + "/" + state.coreName + ".f42";
+            const char *currentStateNameC = currentStateName.c_str();
+            if (GetFileAttributes(currentStateNameC) == INVALID_FILE_ATTRIBUTES) {
+                FILE *f = fopen(currentStateNameC, "wb");
+                fwrite("24kF", 1, 4, f);
+                fclose(f);
+            }
 			return TRUE;
 		}
         case WM_COMMAND: {
