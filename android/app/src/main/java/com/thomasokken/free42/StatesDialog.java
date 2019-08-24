@@ -210,16 +210,16 @@ public class StatesDialog extends Dialog {
         while (true) {
             n++;
             if (n == 1)
-                finalName = copyName + " copy.f42";
+                finalName = copyName + " copy";
             else
-                finalName = copyName + " copy " + n + ".f42";
-            finalPath = stateDirName + "/" + finalName;
+                finalName = copyName + " copy " + n;
+            finalPath = stateDirName + "/" + finalName + ".f42";
             if (!new File(finalPath).exists())
                 // File does not exist; that means we have a usable name
                 break;
         }
 
-        return copyName;
+        return finalName;
     }
 
     private void doDuplicate() {
@@ -227,11 +227,12 @@ public class StatesDialog extends Dialog {
         if (selectedStateName == null)
             return;
 
-        String finalPath = makeCopyName(selectedStateName);
+        String finalName = makeCopyName(selectedStateName);
+        String finalPath = stateDirName + "/" + finalName + ".f42";
         if (selectedStateName.equals(Free42Activity.getSelectedState()))
             Free42Activity.saveStateAs(finalPath);
         else {
-            String origPath = stateDirName + "/" + getSelectedState() + ".f42";
+            String origPath = stateDirName + "/" + selectedStateName + ".f42";
             FileInputStream fis = null;
             FileOutputStream fos = null;
             try {
@@ -324,7 +325,7 @@ public class StatesDialog extends Dialog {
             name = name.substring(0, len - 4);
         String destPath = getContext().getFilesDir() + "/" + name + ".f42";
         if (new File(destPath).exists())
-            destPath = getContext().getFilesDir() + "/" + makeCopyName(destPath) + ".f42";
+            destPath = getContext().getFilesDir() + "/" + makeCopyName(name) + ".f42";
         InputStream is = null;
         OutputStream os = null;
         boolean failed = true;
