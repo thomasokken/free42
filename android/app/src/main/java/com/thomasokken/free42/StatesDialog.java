@@ -96,7 +96,7 @@ public class StatesDialog extends Dialog {
         // Make sure a file exists for the current state. This isn't necessarily
         // the case, specifically, right after starting up with a version <= 25
         // state file.
-        String currentStateFileName = stateDirName + "/" + Free42Activity.getSelectedState();
+        String currentStateFileName = stateDirName + "/" + Free42Activity.getSelectedState() + ".f42";
         if (!new File(currentStateFileName).exists()) {
             OutputStream os = null;
             try {
@@ -271,6 +271,22 @@ public class StatesDialog extends Dialog {
     }
 
     private void doDelete() {
+        String selectedStateName = getSelectedState();
+        if (selectedStateName == null || selectedStateName.equals(Free42Activity.getSelectedState()))
+            return;
+        new AlertDialog.Builder(getContext())
+                .setTitle("Title")
+                .setMessage("Are you sure you want to delete the state \"" + selectedStateName + "\"?")
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        doDelete2();
+                    }
+                })
+                .setNegativeButton("Cancel", null).show();
+    }
+
+    private void doDelete2() {
         String selectedStateName = getSelectedState();
         if (selectedStateName == null || selectedStateName.equals(Free42Activity.getSelectedState()))
             return;
