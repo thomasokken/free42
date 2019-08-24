@@ -146,7 +146,7 @@ public class FileSelectionDialog extends Dialog {
     }
     
     public void setPath(String path) {
-        String fileName = "";
+        String fileName = fileNameTF.getText().toString();
         File f = new File(path);
         if (!f.exists() || f.isFile()) {
             int p = path.lastIndexOf("/");
@@ -188,9 +188,7 @@ public class FileSelectionDialog extends Dialog {
     }
 
     private void doHome() {
-        String fileName = fileNameTF.getText().toString();
         setPath(Free42Activity.MY_STORAGE_DIR);
-        fileNameTF.setText(fileName);
     }
     
     private void doUp() {
