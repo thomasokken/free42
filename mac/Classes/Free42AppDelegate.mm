@@ -971,7 +971,7 @@ static char version[32] = "";
     snprintf(corefilename, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreName);
     core_init(1, 26, corefilename, 0);
     if (core_powercycle())
-        [self startRunner];
+        [instance startRunner];
 }
 
 - (void) mouseDown3 {
