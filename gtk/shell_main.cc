@@ -1207,6 +1207,8 @@ static void switchTo(const char *selectedStateName) {
     state.coreName[FILENAMELEN - 1] = 0;
     snprintf(path, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreName);
     core_init(1, 26, path, 0);
+    if (core_powercycle())
+        enable_reminder();
 }
 
 static void states_menu_new() {

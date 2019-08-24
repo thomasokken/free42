@@ -548,7 +548,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
             // Parse the menu selections:
             switch (wmId) {
 				case IDM_STATES:
-                    DialogBox(hInst, (LPCTSTR)IDD_STATES, hWnd, (DLGPROC)StatesDlgProc);
+                    running = DialogBox(hInst, (LPCTSTR)IDD_STATES, hWnd, (DLGPROC)StatesDlgProc);
                     break;
                 case IDM_SHOWPRINTOUT:
                     show_printout();

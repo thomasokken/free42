@@ -189,7 +189,8 @@ static void switchTo(HWND hDlg) {
 	path += state.coreName;
 	path += ".f42";
 	core_init(1, 26, path.c_str(), 0);
-    EndDialog(hDlg, 0);
+    int running = core_powercycle();
+    EndDialog(hDlg, running);
 }
 
 static void doNew(HWND hDlg) {

@@ -655,6 +655,8 @@ public class Free42Activity extends Activity {
         coreName = stateName;
         String newFileName = getFilesDir() + "/" + coreName + ".f42";
         core_init(1, 26, newFileName, 0);
+        if (core_powercycle())
+            start_core_keydown();
     }
 
     public static void saveStateAs(String fileName) {
