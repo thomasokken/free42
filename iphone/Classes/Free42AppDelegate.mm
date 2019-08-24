@@ -60,4 +60,11 @@ static char version[32] = "";
     return version;
 }
 
+- (BOOL) application:(UIApplication *)app
+            openURL:(NSURL *)url
+            options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options; {
+    NSLog(@"openURL: \"%@\"", [url absoluteString]);
+    return YES;
+}
+
 @end
