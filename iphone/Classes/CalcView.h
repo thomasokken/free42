@@ -55,6 +55,7 @@ extern FILE *statefile;
 - (void) setNeedsDisplayInRectSafely:(CGRect) rect;
 + (void) repaint;
 + (void) quit;
++ (void) loadState:(const char *)name;
 + (void) enterBackground;
 + (void) leaveBackground;
 - (void) doCopy;

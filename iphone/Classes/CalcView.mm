@@ -506,6 +506,21 @@ static CalcView *calcView = nil;
         [UIApplication sharedApplication].idleTimerDisabled = YES;
 }
 
++ (void) loadState:(const char *)name {
+    if (strcmp(name, state.coreName) != 0) {
+        char corefilename[FILENAMELEN];
+        snprintf(corefilename, FILENAMELEN, "config/%s.f42", state.coreName);
+        core_save_state(corefilename);
+    }
+    core_cleanup();
+    strcpy(state.coreName, name);
+    char corefilename[FILENAMELEN];
+    snprintf(corefilename, FILENAMELEN, "config/%s.f42", state.coreName);
+    core_init(1, 26, corefilename, 0);
+    if (core_powercycle())
+        [calcView startRunner];
+}
+
 - (void) runner {
     TRACE("runner");
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
