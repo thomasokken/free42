@@ -163,6 +163,10 @@ public class StatesDialog extends Dialog {
 
     private void doNew2(String newStateName) {
         String newFileName = stateDirName + "/" + newStateName + ".f42";
+        if (new File(newFileName).exists()) {
+            Free42Activity.showAlert("That name is already in use.");
+            return;
+        }
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(newFileName);
@@ -178,16 +182,12 @@ public class StatesDialog extends Dialog {
         updateUI(true);
     }
 
-    private void doDuplicate() {
-        String selectedStateName = getSelectedState();
-        if (selectedStateName == null)
-            return;
-
+    private String makeCopyName(String name) {
         // We're naming duplicates by appending " copy" or " copy NNN" to the name
         // of the original, but if the name of the original already ends with " copy"
         // or " copy NNN", it seems more elegant to continue the sequence rather than
         // add another " copy" suffix.
-        String copyName = selectedStateName;
+        String copyName = name;
         int n = 0;
         if (copyName.endsWith(" copy")) {
             copyName = copyName.substring(0, copyName.length() - 5);
@@ -219,11 +219,15 @@ public class StatesDialog extends Dialog {
                 break;
         }
 
-        // Once we get here, finalName contains a valid name for creating the duplicate.
-        // What we do next depends on whether the selected state is the currently active
-        // one. If it is, we'll call core_save_state(), to make sure the duplicate
-        // actually matches the most up-to-date state; otherwise, we can simply copy
-        // the existing state file.
+        return copyName;
+    }
+
+    private void doDuplicate() {
+        String selectedStateName = getSelectedState();
+        if (selectedStateName == null)
+            return;
+
+        String finalPath = makeCopyName(selectedStateName);
         if (selectedStateName.equals(Free42Activity.getSelectedState()))
             Free42Activity.saveStateAs(finalPath);
         else {
@@ -234,6 +238,7 @@ public class StatesDialog extends Dialog {
                 fis = new FileInputStream(origPath);
                 fos = new FileOutputStream(finalPath);
                 byte[] buf = new byte[1024];
+                int n;
                 while ((n = fis.read(buf)) > 0)
                     fos.write(buf, 0, n);
             } catch (IOException e) {
@@ -263,6 +268,10 @@ public class StatesDialog extends Dialog {
             return;
         String oldpath = stateDirName + "/" + selectedStateName + ".f42";
         String newpath = stateDirName + "/" + newStateName + ".f42";
+        if (new File(newpath).exists()) {
+            Free42Activity.showAlert("That name is already in use.");
+            return;
+        }
         new File(oldpath).renameTo(new File(newpath));
         if (selectedStateName.equals(Free42Activity.getSelectedState())) {
             currentLabel.setText("Current: " + newStateName);
@@ -275,9 +284,9 @@ public class StatesDialog extends Dialog {
         if (selectedStateName == null || selectedStateName.equals(Free42Activity.getSelectedState()))
             return;
         new AlertDialog.Builder(getContext())
-                .setTitle("Title")
+                .setTitle("Confirm Delete")
                 .setMessage("Are you sure you want to delete the state \"" + selectedStateName + "\"?")
-                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setIcon(android.R.drawable.ic_dialog_info)
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         doDelete2();
@@ -314,10 +323,8 @@ public class StatesDialog extends Dialog {
         if (len > 4 && name.endsWith(".f42"))
             name = name.substring(0, len - 4);
         String destPath = getContext().getFilesDir() + "/" + name + ".f42";
-        if (new File(destPath).exists()) {
-            Free42Activity.showAlert("A state named \"" + name + "\" already exists.");
-            return;
-        }
+        if (new File(destPath).exists())
+            destPath = getContext().getFilesDir() + "/" + makeCopyName(destPath) + ".f42";
         InputStream is = null;
         OutputStream os = null;
         boolean failed = true;
