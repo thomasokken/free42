@@ -176,66 +176,69 @@
     }
 }
 
-- (void) doDuplicate {
-    NSString *name = [self selectedStateName];
-    if (name == nil)
-        return;
-    NSString *copyName = [NSString stringWithFormat:@"config/%@", name];
-    int n = 0;
-    
++ (NSString *) makeCopyName:(NSString *)name {
     // We're naming duplicates by appending " copy" or " copy NNN" to the name
     // of the original, but if the name of the original already ends with " copy"
     // or " copy NNN", it seems more elegant to continue the sequence rather than
     // add another " copy" suffix.
-    int len = (int) [copyName length];
-    if (len > 5 && [[copyName substringFromIndex:len - 5] compare:@" copy"] == NSOrderedSame) {
-        copyName = [copyName substringToIndex:len - 5];
+    NSString *copyName = name;
+    int n = 0;
+    if ([[copyName substringFromIndex:[copyName length] - 5] compare:@" copy"] == NSOrderedSame) {
+        copyName = [copyName substringToIndex:[copyName length] - 5];
         n = 1;
-    } else if (len > 7) {
-        int pos = len - 7;
-        int m = 0;
-        int p = 1;
-        while (pos > 0) {
-            unichar c = [copyName characterAtIndex:pos + 6];
-            if (c < '0' || c > '9')
-                goto not_a_copy;
-            m += p * (c - '0');
-            p *= 10;
-            if ([[copyName substringWithRange:NSMakeRange(pos, 6)] compare:@" copy "] == NSOrderedSame) {
-                n = m;
-                copyName = [copyName substringToIndex:pos];
-                break;
-            } else
-                pos--;
+    } else {
+        NSRange cpos = [copyName rangeOfString:@" copy " options:NSBackwardsSearch];
+        if (cpos.location != NSNotFound) {
+            // We don't just want to parse a number from the part following
+            // " copy "; we want to make sure that there is nothing but a
+            // number there, hence this somewhat elaborate logic.
+            NSString *suffix = [copyName substringFromIndex:cpos.location + 6];
+            int m = (int) [suffix integerValue];
+            if (m > 1) {
+                NSString *s2 = [NSString stringWithFormat:@"%d", m];
+                if ([suffix isEqualToString:s2]) {
+                    n = m;
+                    copyName = [copyName substringToIndex:cpos.location];
+                }
+            }
         }
-        not_a_copy:;
     }
     
-    NSString *finalName;
-    const char *finalNameC;
+    NSString *finalName, *finalPath;
+    
     while (true) {
         n++;
         if (n == 1)
-            finalName = [NSString stringWithFormat:@"%@ copy.f42", copyName];
+            finalName = [NSString stringWithFormat:@"%@ copy", copyName];
         else
-            finalName = [NSString stringWithFormat:@"%@ copy %d.f42", copyName, n];
-        finalNameC = [finalName UTF8String];
+            finalName = [NSString stringWithFormat:@"%@ copy %d", copyName, n];
+        finalPath = [NSString stringWithFormat:@"config/%@.f42", finalName];
         struct stat st;
-        if (stat(finalNameC, &st) != 0)
+        if (stat([finalPath UTF8String], &st) != 0)
             // File does not exist; that means we have a usable name
             break;
     }
     
-    // Once we get here, copy_name contains a valid name for creating the duplicate.
+    return finalName;
+}
+
+- (void) doDuplicate {
+    NSString *name = [self selectedStateName];
+    if (name == nil)
+        return;
+    NSString *copyName = [StatesView makeCopyName:name];
+    NSString *finalPath = [NSString stringWithFormat:@"config/%@.f42", copyName];
+    const char *finalPathC = [finalPath UTF8String];
+    
     // What we do next depends on whether the selected state is the currently active
     // one. If it is, we'll call core_save_state(), to make sure the duplicate
     // actually matches the most up-to-date state; otherwise, we can simply copy
     // the existing state file.
     if ([name compare:[NSString stringWithUTF8String:state.coreName]] == NSOrderedSame)
-    core_save_state(finalNameC);
+        core_save_state(finalPathC);
     else {
         NSString *origName = [NSString stringWithFormat:@"config/%@.f42", name];
-        if (![self copyStateFrom:[origName UTF8String] to:finalNameC])
+        if (![self copyStateFrom:[origName UTF8String] to:finalPathC])
             [RootViewController showMessage:@"State duplication failed."];
     }
     [self raised];

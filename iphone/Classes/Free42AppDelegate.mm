@@ -16,9 +16,11 @@
  *****************************************************************************/
 
 #import <AudioToolbox/AudioServices.h>
+#import <sys/stat.h>
 
 #import "Free42AppDelegate.h"
 #import "RootViewController.h"
+#import "StatesView.h"
 
 static Free42AppDelegate *instance;
 static char version[32] = "";
@@ -63,7 +65,19 @@ static char version[32] = "";
 - (BOOL) application:(UIApplication *)app
             openURL:(NSURL *)url
             options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options; {
-    NSLog(@"openURL: \"%@\"", [url absoluteString]);
+    NSString *u = [url absoluteString];
+    NSRange pos = [u rangeOfString:@"/Inbox/" options:NSBackwardsSearch];
+    if (pos.location == NSNotFound)
+        return NO;
+    if (![[u substringFromIndex:[u length] - 4] isEqualToString:@".f42"])
+        return NO;
+    NSString *fromPath = [u substringFromIndex:pos.location + 1];
+    NSString *fromName = [u substringWithRange:NSMakeRange(pos.location + 7, [u length] - pos.location - 11)];
+    NSString *toPath = [NSString stringWithFormat:@"config/%@.f42", fromName];
+    struct stat st;
+    if (stat([toPath UTF8String], &st) == 0)
+        toPath = [NSString stringWithFormat:@"config/%@.f42", [StatesView makeCopyName:fromName]];
+    rename([fromPath UTF8String], [toPath UTF8String]);
     return YES;
 }
 

@@ -33,6 +33,7 @@
 - (IBAction) switchTo;
 - (IBAction) more;
 - (IBAction) done;
++ (NSString *) makeCopyName:(NSString *)name;
 - (void) actionSheet:(UIActionSheet *) actionSheet clickedButtonAtIndex:(NSInteger) buttonIndex;
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath;
 - (UITableViewCell *) tableView:(UITableView *)table cellForRowAtIndexPath:(NSIndexPath*) indexPath;
