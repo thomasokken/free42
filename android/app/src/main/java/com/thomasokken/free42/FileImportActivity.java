@@ -2,6 +2,7 @@ package com.thomasokken.free42;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -100,7 +101,6 @@ public class FileImportActivity extends Activity {
             e.printStackTrace();
             alert("State import failed.");
         }
-        finish();
     }
 
     private void alert(String message) {
@@ -116,7 +116,20 @@ public class FileImportActivity extends Activity {
             AlertDialog.Builder builder = new AlertDialog.Builder(FileImportActivity.this);
             builder.setMessage(message);
             builder.setPositiveButton("OK", null);
-            builder.create().show();
+            AlertDialog dialog = builder.create();
+            dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialogInterface) {
+                    FileImportActivity.this.finish();
+                    Intent i = new Intent(Intent.ACTION_MAIN);
+                    i.addCategory(Intent.CATEGORY_LAUNCHER);
+                    //i.setPackage("com.thomasokken.free42");
+                    i.setClassName("com.thomasokken.free42", "com.thomasokken.free42.Free42Activity");
+                    i.putExtra("openStates", true);
+                    startActivity(i);
+                }
+            });
+            dialog.show();
         }
     }
     private class NetworkLoader extends Thread {

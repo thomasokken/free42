@@ -130,6 +130,9 @@ public class Free42Activity extends Activity {
     // Stuff to run core_keydown() on a background thread
     private CoreThread coreThread;
     private boolean coreWantsCpu;
+
+    // Show "States" dialog if invoked after state import
+    private boolean showStatesDialog;
     
     private int ckey;
     private boolean timeout3_active;
@@ -237,6 +240,9 @@ public class Free42Activity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         instance = this;
+
+        Intent intent = getIntent();
+        showStatesDialog = intent.getBooleanExtra("openStates", false);
         
         int init_mode;
         IntHolder version = new IntHolder();
@@ -408,6 +414,11 @@ public class Free42Activity extends Activity {
             start_core_keydown();
         
         super.onStart();
+
+        if (showStatesDialog) {
+            showStatesDialog = false;
+            doStates();
+        }
     }
     
     @Override
@@ -540,7 +551,7 @@ public class Free42Activity extends Activity {
         mainHandler.removeCallbacks(timeout3Caller);
         timeout3_active = false;
     }
-    
+
     private void postMainMenu() {
         if (mainMenuDialog == null) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
