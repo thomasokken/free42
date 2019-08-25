@@ -48,7 +48,7 @@
     // Make sure a file exists for the current state. This isn't necessarily
     // the case, specifically, right after starting up with a version <= 25
     // state file.
-    NSString *currentStateFileName = [NSString stringWithFormat:@"%s/%s.f42", free42dirname, state.coreName];
+    NSString *currentStateFileName = [NSString stringWithFormat:@"%s/%@.f42", free42dirname, [NSString stringWithUTF8String:state.coreName]];
     const char *currentStateFileNameC = [currentStateFileName UTF8String];
     struct stat st;
     if (stat(currentStateFileNameC, &st) != 0) {
