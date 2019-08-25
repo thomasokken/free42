@@ -1,6 +1,7 @@
 package com.thomasokken.free42;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -92,16 +93,32 @@ public class FileImportActivity extends Activity {
 
     private void wrapUp(Exception e) {
         if (e == null) {
-            Free42Activity.showAlert("State imported.");
+            alert("State imported.");
         } else if (e instanceof FormatException) {
-            Free42Activity.showAlert("Invalid state format.");
+            alert("Invalid state format.");
         } else {
             e.printStackTrace();
-            Free42Activity.showAlert("State import failed.");
+            alert("State import failed.");
         }
         finish();
     }
 
+    private void alert(String message) {
+        runOnUiThread(new Alerter(message));
+    }
+
+    private class Alerter implements Runnable {
+        private String message;
+        public Alerter(String message) {
+            this.message = message;
+        }
+        public void run() {
+            AlertDialog.Builder builder = new AlertDialog.Builder(FileImportActivity.this);
+            builder.setMessage(message);
+            builder.setPositiveButton("OK", null);
+            builder.create().show();
+        }
+    }
     private class NetworkLoader extends Thread {
         private String srcUrl, dstFile;
         private Exception ex;
