@@ -17,9 +17,12 @@ import java.io.OutputStream;
 import java.net.URL;
 
 public class FileImportActivity extends Activity {
+    private String importedState;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        importedState = null;
 
         Intent intent = getIntent();
         String action = intent.getAction();
@@ -50,10 +53,10 @@ public class FileImportActivity extends Activity {
         String baseDir = getFilesDir().getAbsolutePath();
         while (true) {
             n++;
-            name = baseDir + "/" + baseName;
+            importedState = baseName;
             if (n > 1)
-                name += " " + n;
-            name += ".f42";
+                importedState += " " + n;
+            name = baseDir + "/" + importedState + ".f42";
             if (!new File(name).exists())
                 break;
         }
@@ -79,6 +82,7 @@ public class FileImportActivity extends Activity {
                 os.write(buf, 0, n);
             wrapUp(null);
         } catch (Exception e) {
+            importedState = null;
             wrapUp(e);
         } finally {
             if (is != null)
@@ -121,12 +125,17 @@ public class FileImportActivity extends Activity {
                 @Override
                 public void onDismiss(DialogInterface dialogInterface) {
                     FileImportActivity.this.finish();
-                    Intent i = new Intent(Intent.ACTION_MAIN);
-                    i.addCategory(Intent.CATEGORY_LAUNCHER);
-                    //i.setPackage("com.thomasokken.free42");
-                    i.setClassName("com.thomasokken.free42", "com.thomasokken.free42.Free42Activity");
-                    i.putExtra("openStates", true);
-                    startActivity(i);
+                    if (importedState != null) {
+                        Free42Activity f42instance = Free42Activity.instance;
+                        Intent i = new Intent(Intent.ACTION_MAIN);
+                        i.addCategory(Intent.CATEGORY_LAUNCHER);
+                        i.setClassName("com.thomasokken.free42", "com.thomasokken.free42.Free42Activity");
+                        if (f42instance != null)
+                            f42instance.importedState = importedState;
+                        else
+                            i.putExtra("importedState", importedState);
+                        startActivity(i);
+                    }
                 }
             });
             dialog.show();
@@ -154,6 +163,7 @@ public class FileImportActivity extends Activity {
                 while ((n = is.read(buf)) >= 0)
                     os.write(buf, 0, n);
             } catch (Exception e) {
+                importedState = null;
                 ex = e;
             } finally {
                 if (is != null)

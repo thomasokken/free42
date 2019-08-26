@@ -51,7 +51,7 @@ public class StatesDialog extends Dialog {
     private Button switchToButton;
     private String stateDirName;
 
-    public StatesDialog(Context ctx) {
+    public StatesDialog(Context ctx, String selectedState) {
         super(ctx);
         setContentView(R.layout.states_dialog);
         getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT,
@@ -82,15 +82,6 @@ public class StatesDialog extends Dialog {
         statesList = (ListView) findViewById(R.id.statesView);
         statesList.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
         stateDirName = ctx.getFilesDir().getAbsolutePath();
-        List<String> states = getLoadedStates(stateDirName);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(ctx,
-                android.R.layout.simple_list_item_1, android.R.id.text1, states);
-        statesList.setAdapter(adapter);
-        statesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                selectionChanged();
-            }
-        });
         setTitle("States");
 
         // Make sure a file exists for the current state. This isn't necessarily
@@ -111,6 +102,27 @@ public class StatesDialog extends Dialog {
                     } catch (IOException e) {}
             }
         }
+
+        List<String> states = getLoadedStates(stateDirName);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(ctx,
+                android.R.layout.simple_list_item_1, android.R.id.text1, states);
+        statesList.setAdapter(adapter);
+        statesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                selectionChanged();
+            }
+        });
+        // At this point, I would like to select the state that was just
+        // imported. However, when I do so, it comes up black-on-black.
+        // Click on it, and it is highlighted just fine; try to select it
+        // programmatically, and it's black-on-black. Thanks, Android.
+        /*
+        if (selectedState != null) {
+            int sel = states.indexOf(selectedState);
+            if (sel != -1)
+                statesList.setItemChecked(sel, true);
+        }
+        */
 
         // Force initial update
         selectionChanged();

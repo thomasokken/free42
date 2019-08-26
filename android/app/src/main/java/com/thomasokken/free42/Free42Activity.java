@@ -131,8 +131,10 @@ public class Free42Activity extends Activity {
     private CoreThread coreThread;
     private boolean coreWantsCpu;
 
-    // Show "States" dialog if invoked after state import
-    private boolean showStatesDialog;
+    // Show "States" dialog if invoked after state import; this
+    // will have the name of the most recently imported state.
+    // If this is null, don't do anything.
+    public String importedState;
     
     private int ckey;
     private boolean timeout3_active;
@@ -242,7 +244,7 @@ public class Free42Activity extends Activity {
         instance = this;
 
         Intent intent = getIntent();
-        showStatesDialog = intent.getBooleanExtra("openStates", false);
+        importedState = intent.getStringExtra("importedState");
         
         int init_mode;
         IntHolder version = new IntHolder();
@@ -415,10 +417,10 @@ public class Free42Activity extends Activity {
         
         super.onStart();
 
-        if (showStatesDialog) {
-            showStatesDialog = false;
-            doStates();
-        }
+        String impSt = importedState;
+        importedState = null;
+        if (impSt != null)
+            doStates(impSt);
     }
     
     @Override
@@ -591,7 +593,7 @@ public class Free42Activity extends Activity {
                 doExport();
                 return;
             case 3:
-                doStates();
+                doStates(null);
                 return;
             case 4:
                 doPreferences();
@@ -756,8 +758,8 @@ public class Free42Activity extends Activity {
         builder.create().show();
     }
 
-    private void doStates() {
-        StatesDialog sd = new StatesDialog(this);
+    private void doStates(String selectedState) {
+        StatesDialog sd = new StatesDialog(this, selectedState);
         sd.show();
     }
     
