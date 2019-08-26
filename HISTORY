@@ -1,3 +1,9 @@
+????-??-??: release 2.5.1
+
+* iPhone version: Now makes sure that the current state shows up in the list in
+  the States view, even if it is opened right after a fresh install or right
+  after upgrading from a version before 2.5.
+
 2019-08-25: release 2.5
 
 * Added state file manager, for loading, saving, and switching between,

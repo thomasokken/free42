@@ -49,6 +49,20 @@
 
 - (void) raised {
     // This gets called just before the view is raised, every time
+    
+    // In case we're called right after an upgrade from < 2.5, or right
+    // after a fresh install, make sure that at least a dummy file exists
+    // for the current state, so that the initial states list won't be
+    // empty.
+    NSString *currentStateFileName = [NSString stringWithFormat:@"config/%@.f42", [NSString stringWithUTF8String:state.coreName]];
+    const char *currentStateFileNameC = [currentStateFileName UTF8String];
+    struct stat st;
+    if (stat(currentStateFileNameC, &st) != 0) {
+        FILE *f = fopen(currentStateFileNameC, "w");
+        fwrite("24kF", 1, 4, f);
+        fclose(f);
+    }
+
     [stateNames removeAllObjects];
     int index = 0;
     DIR *dir = opendir("config");

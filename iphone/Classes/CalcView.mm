@@ -212,7 +212,7 @@ static CalcView *calcView = nil;
     UIActionSheet *menu =
     [[UIActionSheet alloc] initWithTitle:@"Main Menu"
                                 delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil
-                       otherButtonTitles:@"States", @"Show Print-Out", @"Program Import & Export", @"Preferences", @"Select Skin", @"Copy", @"Paste", @"About Free42", nil];
+                       otherButtonTitles:@"Show Print-Out", @"Program Import & Export", @"States", @"Preferences", @"Select Skin", @"Copy", @"Paste", @"About Free42", nil];
     
     [menu showInView:self];
     [menu release];
@@ -232,16 +232,16 @@ static CalcView *calcView = nil;
     if ([[actionSheet title] isEqualToString:@"Main Menu"]) {
         switch (buttonIndex) {
             case 0:
-                // States
-                [RootViewController showStates];
-                break;
-            case 1:
                 // Show Print-Out
                 [RootViewController showPrintOut];
                 break;
-            case 2:
+            case 1:
                 // Program Import & Export
                 [self showImportExportMenu];
+                break;
+            case 2:
+                // States
+                [RootViewController showStates];
                 break;
             case 3:
                 // Preferences
