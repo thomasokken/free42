@@ -92,6 +92,22 @@
     [stateTable reloadData];
 }
 
+- (void) selectState:(NSString *)stateName {
+    int selIndex = -1;
+    for (int i = 0; i < [stateNames count]; i++) {
+        NSString *name = [stateNames objectAtIndex:i];
+        if ([name compare:stateName] == NSOrderedSame) {
+            selIndex = i;
+            break;
+        }
+    }
+    if (selIndex != -1) {
+        NSIndexPath *path = [NSIndexPath indexPathForItem:selIndex inSection:0];
+        [stateTable selectRowAtIndexPath:path animated:YES scrollPosition:UITableViewScrollPositionMiddle];
+        [self tableView:stateTable didSelectRowAtIndexPath:path];
+    }
+}
+
 - (IBAction) switchTo {
     NSString *name = [self selectedStateName];
     if (name == nil)

@@ -16,11 +16,13 @@
  *****************************************************************************/
 
 #import "RootWindow.h"
+#import "RootViewController.h"
 
 @implementation RootWindow
 
 - (void) layoutSubviews {
-    [self.rootViewController layoutSubViews];
+    RootViewController *rvc = (RootViewController *) self.rootViewController;
+    [rvc layoutSubViews];
 }
 
 @end

@@ -241,7 +241,7 @@ static CalcView *calcView = nil;
                 break;
             case 2:
                 // States
-                [RootViewController showStates];
+                [RootViewController showStates:nil];
                 break;
             case 3:
                 // Preferences

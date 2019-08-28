@@ -275,13 +275,15 @@ void shell_message(const char *message) {
     [instance showLoadSkin2];
 }
 
-- (void) showStates2 {
+- (void) showStates2:(NSString *)stateName {
     [statesView raised];
+    if (stateName != nil)
+        [statesView selectState:stateName];
     [self.view bringSubviewToFront:statesView];
 }
 
-+ (void) showStates {
-    [instance showStates2];
++ (void) showStates:(NSString *)stateName {
+    [instance showStates2:stateName];
 }
 
 - (void) showDeleteSkin2 {

@@ -30,6 +30,7 @@
 @property (nonatomic, retain) IBOutlet UITableView *stateTable;
 
 - (void) raised;
+- (void) selectState:(NSString *)stateName;
 - (IBAction) switchTo;
 - (IBAction) more;
 - (IBAction) done;

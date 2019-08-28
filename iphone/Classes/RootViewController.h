@@ -61,6 +61,7 @@
 - (void) leaveBackground;
 - (void) quit;
 - (void) batteryLevelChanged;
+- (void) layoutSubViews;
 
 + (void) showMessage:(NSString *) message;
 + (void) playSound: (int) which;
@@ -75,7 +76,7 @@
 + (void) doExport;
 + (void) showLoadSkin;
 + (void) showDeleteSkin;
-+ (void) showStates;
++ (void) showStates:(NSString *)stateName;
 
 @end
 

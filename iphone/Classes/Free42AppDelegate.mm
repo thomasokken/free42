@@ -78,16 +78,36 @@ static char version[32] = "";
         [fromNames addObject:[NSString stringWithUTF8String:d->d_name]];
     }
     closedir(dir);
+    if ([fromNames count] == 0)
+        return NO;
+    NSString *firstImport = nil;
     for (int i = 0; i < [fromNames count]; i++) {
         NSString *fromName = [fromNames objectAtIndex:i];
         NSString *fromPath = [NSString stringWithFormat:@"Inbox/%@", fromName];
+        FILE *f = fopen([fromPath UTF8String], "r");
+        if (f == NULL)
+            continue;
+        char sig[5];
+        size_t n = fread(sig, 1, 4, f);
+        fclose(f);
+        sig[4] = 0;
+        if (n != 4 || strcmp(sig, "24kF") != 0)
+            continue;
         fromName = [fromName substringToIndex:[fromName length] - 4];
-        NSString *toPath = [NSString stringWithFormat:@"config/%@.f42", fromName];
+        NSString *toName = fromName;
+        NSString *toPath = [NSString stringWithFormat:@"config/%@.f42", toName];
         struct stat st;
-        if (stat([toPath UTF8String], &st) == 0)
-            toPath = [NSString stringWithFormat:@"config/%@.f42", [StatesView makeCopyName:fromName]];
+        if (stat([toPath UTF8String], &st) == 0) {
+            toName = [StatesView makeCopyName:toName];
+            toPath = [NSString stringWithFormat:@"config/%@.f42", toName];
+        }
         rename([fromPath UTF8String], [toPath UTF8String]);
+        if (firstImport == nil)
+            firstImport = toName;
     }
+    if (firstImport == nil)
+        return NO;
+    [RootViewController performSelectorOnMainThread:@selector(showStates:) withObject:firstImport waitUntilDone:NO];
     return YES;
 }
 
