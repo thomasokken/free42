@@ -105,24 +105,18 @@ public class StatesDialog extends Dialog {
 
         List<String> states = getLoadedStates(stateDirName);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(ctx,
-                android.R.layout.simple_list_item_1, android.R.id.text1, states);
+                android.R.layout.simple_list_item_activated_1, android.R.id.text1, states);
         statesList.setAdapter(adapter);
         statesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 selectionChanged();
             }
         });
-        // At this point, I would like to select the state that was just
-        // imported. However, when I do so, it comes up black-on-black.
-        // Click on it, and it is highlighted just fine; try to select it
-        // programmatically, and it's black-on-black. Thanks, Android.
-        /*
         if (selectedState != null) {
             int sel = states.indexOf(selectedState);
             if (sel != -1)
                 statesList.setItemChecked(sel, true);
         }
-        */
 
         // Force initial update
         selectionChanged();
