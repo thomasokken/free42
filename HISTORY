@@ -1,5 +1,8 @@
-????-??-??: release 2.5.1
+2019-08-28: release 2.5.1
 
+* Fixed bug that caused string elements in real matrices (including the
+  numbered registers) to be written incorrectly in the state file, leading to
+  memory corruption and crashes when the state file was read back in.
 * iPhone version: Now makes sure that the current state shows up in the list in
   the States view, even if it is opened right after a fresh install or right
   after upgrading from a version before 2.5.

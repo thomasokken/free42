@@ -828,7 +828,7 @@ static bool persist_vartype(vartype *v) {
                 for (int i = 0; i < size; i++) {
                     if (rm->array->is_string[i]) {
                         char *str = (char *) &rm->array->data[i];
-                        if (fwrite(str, 1, str[0] + 1, gfile) != str[0] + 1)
+                        if (fwrite(str, 1, 7, gfile) != 7)
                             return false;
                     } else {
                         if (!write_phloat(rm->array->data[i]))
@@ -956,14 +956,8 @@ static bool unpersist_vartype(vartype **v, bool padded) {
                 bool success = true;
                 for (int4 i = 0; i < size; i++) {
                     if (rm->array->is_string[i]) {
-                        char len;
-                        if (!read_char(&len)) {
-                            success = false;
-                            break;
-                        }
                         char *dst = (char *) &rm->array->data[i];
-                        *dst++ = len;
-                        if (fread(dst, 1, len, gfile) != len) {
+                        if (fread(dst, 1, 7, gfile) != 7) {
                             success = false;
                             break;
                         }
