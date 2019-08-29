@@ -129,9 +129,7 @@ static void tbnonewliner() {
     // No-op
 }
 
-- (void) copyAsText {
-    UIPasteboard *pb = [UIPasteboard generalPasteboard];
-    
+- (NSString *) printOutAsText {
     tb = NULL;
     tblen = tbcap = 0;
     
@@ -180,20 +178,22 @@ static void tbnonewliner() {
     }
     tbwriter("\0", 1);
     
-    NSString *txt;
     if (tb == NULL) {
-        txt = @"";
+        return @"";
     } else {
-        txt = [NSString stringWithUTF8String:tb];
+        NSString *txt = [NSString stringWithUTF8String:tb];
         free(tb);
+        return txt;
     }
+}
 
+- (void) copyAsText {
+    NSString *txt = [self printOutAsText];
+    UIPasteboard *pb = [UIPasteboard generalPasteboard];
     [pb setString:txt];
 }
 
-- (void) copyAsImage {
-    UIPasteboard *pb = [UIPasteboard generalPasteboard];
-    
+- (UIImage *) printOutAsImage {
     int height = printout_bottom - printout_top;
     if (height < 0)
         height += PRINT_LINES;
@@ -230,11 +230,19 @@ static void tbnonewliner() {
     CGDataProviderRef provider = CGDataProviderCreateWithCFData(d);
     CGImageRef cgImg = CGImageCreate(358, height * 2, 8, 8, 358, colorSpace, kCGImageAlphaNone, provider, NULL, false, kCGRenderingIntentDefault);
     UIImage *img = [UIImage imageWithCGImage:cgImg];
-    [pb setImage:img];
+    // In the previous version of this logic, the following lines were
+    // executed *after* putting img on the clipboard. Was that necessary?
     CGImageRelease(cgImg);
     CGDataProviderRelease(provider);
     CFRelease(d);
     CGColorSpaceRelease(colorSpace);
+    return img;
+}
+
+- (void) copyAsImage {
+    UIImage *img = [self printOutAsImage];
+    UIPasteboard *pb = [UIPasteboard generalPasteboard];
+    [pb setImage:img];
 }
 
 - (void) clear {
@@ -273,6 +281,13 @@ static void tbnonewliner() {
             // Cancel
             break;
     }
+}
+
+- (IBAction) share {
+    NSString *txt = [self printOutAsText];
+    UIImage *img = [self printOutAsImage];
+    UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:@[txt, img] applicationActivities:nil];
+    [self.window.rootViewController presentViewController:activityViewController animated:YES completion:nil];
 }
 
 - (IBAction) done {

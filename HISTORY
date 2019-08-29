@@ -4,6 +4,7 @@
   externally.
 * iOS version: Will now import *.raw files directly from email attachments and
   web links.
+* iOS version: Added "share" for Print-Out view.
 
 2019-08-28: release 2.5.1
 

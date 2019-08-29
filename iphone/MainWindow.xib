@@ -540,11 +540,18 @@
                                     </connections>
                                 </barButtonItem>
                             </leftBarButtonItems>
-                            <barButtonItem key="rightBarButtonItem" title="Done" id="94">
-                                <connections>
-                                    <action selector="done" destination="68" id="101"/>
-                                </connections>
-                            </barButtonItem>
+                            <rightBarButtonItems>
+                                <barButtonItem title="Done" id="94">
+                                    <connections>
+                                        <action selector="done" destination="68" id="101"/>
+                                    </connections>
+                                </barButtonItem>
+                                <barButtonItem systemItem="action" id="HXT-id-tkS">
+                                    <connections>
+                                        <action selector="share" destination="68" id="xex-8V-wNA"/>
+                                    </connections>
+                                </barButtonItem>
+                            </rightBarButtonItems>
                         </navigationItem>
                     </items>
                 </navigationBar>
