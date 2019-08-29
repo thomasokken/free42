@@ -22,6 +22,7 @@
 #import "Free42AppDelegate.h"
 #import "RootViewController.h"
 #import "StatesView.h"
+#import "core_main.h"
 
 static Free42AppDelegate *instance;
 static char version[32] = "";
@@ -73,7 +74,8 @@ static char version[32] = "";
     NSMutableArray *fromNames = [NSMutableArray array];
     while ((d = readdir(dir)) != NULL) {
         size_t len = strlen(d->d_name);
-        if (len < 5 || strcasecmp(d->d_name + len - 4, ".f42") != 0)
+        if (len < 5 || (strcasecmp(d->d_name + len - 4, ".f42") != 0
+                     && strcasecmp(d->d_name + len - 4, ".raw") != 0))
             continue;
         [fromNames addObject:[NSString stringWithUTF8String:d->d_name]];
     }
@@ -82,37 +84,59 @@ static char version[32] = "";
         [RootViewController showMessage:@"Import failed."];
         return NO;
     }
-    NSString *firstImport = nil;
+    NSString *firstState = nil;
+    int nProgs = 0;
     for (int i = 0; i < [fromNames count]; i++) {
         NSString *fromName = [fromNames objectAtIndex:i];
         NSString *fromPath = [NSString stringWithFormat:@"Inbox/%@", fromName];
-        FILE *f = fopen([fromPath UTF8String], "r");
-        if (f == NULL)
-            continue;
-        char sig[5];
-        size_t n = fread(sig, 1, 4, f);
-        fclose(f);
-        sig[4] = 0;
-        if (n != 4 || strcmp(sig, "24kF") != 0)
-            continue;
-        fromName = [fromName substringToIndex:[fromName length] - 4];
-        NSString *toName = fromName;
-        NSString *toPath = [NSString stringWithFormat:@"config/%@.f42", toName];
-        struct stat st;
-        if (stat([toPath UTF8String], &st) == 0) {
-            toName = [StatesView makeCopyName:toName];
-            toPath = [NSString stringWithFormat:@"config/%@.f42", toName];
+        const char *fromPathC = [fromPath UTF8String];
+        size_t clen = strlen(fromPathC);
+        if (strcasecmp(fromPathC + clen - 4, ".f42") == 0) {
+            FILE *f = fopen(fromPathC, "r");
+            if (f == NULL) {
+                remove(fromPathC);
+                continue;
+            }
+            char sig[5];
+            size_t n = fread(sig, 1, 4, f);
+            fclose(f);
+            sig[4] = 0;
+            if (n != 4 || strcmp(sig, "24kF") != 0) {
+                remove(fromPathC);
+                continue;
+            }
+            fromName = [fromName substringToIndex:[fromName length] - 4];
+            NSString *toName = fromName;
+            NSString *toPath = [NSString stringWithFormat:@"config/%@.f42", toName];
+            struct stat st;
+            if (stat([toPath UTF8String], &st) == 0) {
+                toName = [StatesView makeCopyName:toName];
+                toPath = [NSString stringWithFormat:@"config/%@.f42", toName];
+            }
+            rename(fromPathC, [toPath UTF8String]);
+            if (firstState == nil)
+                firstState = toName;
+        } else {
+            // Must be .raw, because in the first loop, we only collect
+            // files with extensions .f42 or .raw
+            core_import_programs(0, fromPathC);
+            remove(fromPathC);
+            nProgs++;
         }
-        rename([fromPath UTF8String], [toPath UTF8String]);
-        if (firstImport == nil)
-            firstImport = toName;
     }
-    if (firstImport == nil) {
-        [RootViewController showMessage:@"Import failed."];
-        return NO;
+    if (firstState == nil) {
+        if (nProgs == 0) {
+            [RootViewController showMessage:@"Import failed."];
+            return NO;
+        } else {
+            NSString *message = [NSString stringWithFormat:@"%d raw file%s imported.", nProgs, nProgs == 1 ? "" : "s"];
+            [RootViewController showMessage:message];
+            return YES;
+        }
+    } else {
+        [RootViewController performSelectorOnMainThread:@selector(showStates:) withObject:firstState waitUntilDone:NO];
+        return YES;
     }
-    [RootViewController performSelectorOnMainThread:@selector(showStates:) withObject:firstImport waitUntilDone:NO];
-    return YES;
 }
 
 @end

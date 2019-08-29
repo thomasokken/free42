@@ -1,7 +1,9 @@
 ????-??-??: release 2.5.2
 
-* Android and iOS versions: better feedback when a state import is initiated
+* Android and iOS versions: Better feedback when a state import is initiated
   externally.
+* iOS version: Will now import *.raw files directly from email attachments and
+  web links.
 
 2019-08-28: release 2.5.1
 
