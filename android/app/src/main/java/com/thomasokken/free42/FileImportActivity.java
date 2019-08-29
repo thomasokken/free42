@@ -98,17 +98,22 @@ public class FileImportActivity extends Activity {
 
     private void wrapUp(Exception e) {
         if (e == null) {
-            alert("State imported.");
+            finish();
+            Free42Activity f42instance = Free42Activity.instance;
+            Intent i = new Intent(Intent.ACTION_MAIN);
+            i.addCategory(Intent.CATEGORY_LAUNCHER);
+            i.setClassName("com.thomasokken.free42", "com.thomasokken.free42.Free42Activity");
+            if (f42instance != null)
+                f42instance.importedState = importedState;
+            else
+                i.putExtra("importedState", importedState);
+            startActivity(i);
         } else if (e instanceof FormatException) {
-            alert("Invalid state format.");
+            runOnUiThread(new Alerter("Invalid state format."));
         } else {
             e.printStackTrace();
-            alert("State import failed.");
+            runOnUiThread(new Alerter("State import failed."));
         }
-    }
-
-    private void alert(String message) {
-        runOnUiThread(new Alerter(message));
     }
 
     private class Alerter implements Runnable {
@@ -125,22 +130,12 @@ public class FileImportActivity extends Activity {
                 @Override
                 public void onDismiss(DialogInterface dialogInterface) {
                     FileImportActivity.this.finish();
-                    if (importedState != null) {
-                        Free42Activity f42instance = Free42Activity.instance;
-                        Intent i = new Intent(Intent.ACTION_MAIN);
-                        i.addCategory(Intent.CATEGORY_LAUNCHER);
-                        i.setClassName("com.thomasokken.free42", "com.thomasokken.free42.Free42Activity");
-                        if (f42instance != null)
-                            f42instance.importedState = importedState;
-                        else
-                            i.putExtra("importedState", importedState);
-                        startActivity(i);
-                    }
                 }
             });
             dialog.show();
         }
     }
+
     private class NetworkLoader extends Thread {
         private String srcUrl, dstFile;
         private Exception ex;
@@ -175,11 +170,7 @@ public class FileImportActivity extends Activity {
                         os.close();
                     } catch (IOException e) {}
             }
-            runOnUiThread(new Runnable() {
-                public void run() {
-                    wrapUp(ex);
-                }
-            });
+            wrapUp(ex);
         }
     }
 

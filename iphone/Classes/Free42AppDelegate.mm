@@ -78,8 +78,10 @@ static char version[32] = "";
         [fromNames addObject:[NSString stringWithUTF8String:d->d_name]];
     }
     closedir(dir);
-    if ([fromNames count] == 0)
+    if ([fromNames count] == 0) {
+        [RootViewController showMessage:@"Import failed."];
         return NO;
+    }
     NSString *firstImport = nil;
     for (int i = 0; i < [fromNames count]; i++) {
         NSString *fromName = [fromNames objectAtIndex:i];
@@ -105,8 +107,10 @@ static char version[32] = "";
         if (firstImport == nil)
             firstImport = toName;
     }
-    if (firstImport == nil)
+    if (firstImport == nil) {
+        [RootViewController showMessage:@"Import failed."];
         return NO;
+    }
     [RootViewController performSelectorOnMainThread:@selector(showStates:) withObject:firstImport waitUntilDone:NO];
     return YES;
 }

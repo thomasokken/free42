@@ -27,15 +27,11 @@ int main(int argc, char *argv[]) {
     NSLog(@"Free42 %s, built %s %s", [Free42AppDelegate getVersion], __DATE__, __TIME__);
     
     // This is so that the remainder of the Free42 code can assume that the current
-    // directory is the home directory; this will be the top-level directory that
+    // directory is the home directory; this will also be the top-level directory that
     // users can navigate with the built-in HTTP server.
-    // TODO: Is UTF-8 the right encoding to use here? Does it matter?
-    char *homedir = (char *) malloc(1024);
-    [NSHomeDirectory() getCString:homedir maxLength:1024 encoding:NSUTF8StringEncoding];
-    strcat(homedir, "/Documents");
-    NSLog(@"home = %s", homedir);
-    chdir(homedir);
-    free(homedir);
+    NSString *homedir = [NSString stringWithFormat:@"%@/Documents", NSHomeDirectory()];
+    NSLog(@"home = %@", homedir);
+    chdir([homedir UTF8String]);
     mkdir("skins", 0755);
 
     int retVal = UIApplicationMain(argc, argv, nil, nil);

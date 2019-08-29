@@ -145,9 +145,9 @@
     return [stateNames objectAtIndex:idx];
 }
 
-- (void) getNewStateNameWithCompletion:(SEL)sel {
+- (void) getNewStateNameWithPrompt:(NSString *)prompt completion:(SEL)sel {
     UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"State Name"
-               message:@"Enter new state name:"
+               message:prompt
                preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
     UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
@@ -161,7 +161,7 @@
 }
 
 - (void) doNew {
-    [self getNewStateNameWithCompletion:@selector(doNew2:)];
+    [self getNewStateNameWithPrompt:@"Enter new state name:" completion:@selector(doNew2:)];
 }
 
 - (void) doNew2:(NSString *)name {
@@ -278,7 +278,8 @@
     NSString *oldName = [self selectedStateName];
     if (oldName == nil)
         return;
-    [self getNewStateNameWithCompletion:@selector(doRename2:)];
+    NSString *prompt = [NSString stringWithFormat:@"Rename \"%@\" to:", oldName];
+    [self getNewStateNameWithPrompt:prompt completion:@selector(doRename2:)];
 }
 
 - (void) doRename2:(NSString* )newName {
@@ -351,6 +352,7 @@
                     // Cancel
                     break;
             }
+            break;
         case 1:
             switch (buttonIndex) {
                 case 0:
@@ -369,6 +371,7 @@
                     // Cancel
                     break;
             }
+            break;
         case 2:
             switch (buttonIndex) {
                 case 0:
@@ -390,6 +393,7 @@
                     // Cancel
                     break;
             }
+            break;
     }
 }
 

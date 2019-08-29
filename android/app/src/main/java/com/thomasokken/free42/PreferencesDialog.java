@@ -21,6 +21,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -82,6 +83,8 @@ public class PreferencesDialog extends Dialog {
     public PreferencesDialog(Context context) {
         super(context);
         setContentView(R.layout.preferences_dialog);
+        getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.MATCH_PARENT);
         singularMatrixCB = (CheckBox) findViewById(R.id.singularMatrixCB);
         matrixOutOfRangeCB = (CheckBox) findViewById(R.id.matrixOutOfRangeCB);
         autoRepeatCB = (CheckBox) findViewById(R.id.autoRepeatCB);
