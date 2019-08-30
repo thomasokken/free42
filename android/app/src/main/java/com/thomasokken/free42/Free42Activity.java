@@ -333,6 +333,12 @@ public class Free42Activity extends Activity {
             }
         });
         */
+        button = (Button) printView.findViewById(R.id.shareB);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                printPaperView.share();
+            }
+        });
         button = (Button) printView.findViewById(R.id.clearB);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
@@ -1413,7 +1419,7 @@ public class Free42Activity extends Activity {
             }
         }
 
-        public void copyAsText() {
+        private String printOutAsText() {
             try {
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
@@ -1462,14 +1468,74 @@ public class Free42Activity extends Activity {
                     len--;
                 }
 
-                String txt = new String(bos.toByteArray(), "UTF-8").replace("\r", "");
-                android.text.ClipboardManager clip = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                clip.setText(txt);
-            } catch (IOException e) {}
+                return new String(bos.toByteArray(), "UTF-8").replace("\r", "");
+            } catch (IOException e) {
+                return null;
+            }
+        }
+
+        public void copyAsText() {
+            String txt = printOutAsText();
+            android.text.ClipboardManager clip = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+            clip.setText(txt);
+        }
+
+        private String printOutAsImage() {
+            // Construct a temporary bitmap
+            int src_height = (bottom - top) / BYTESPERLINE;
+            if (src_height < 0)
+                src_height += LINES;
+            Bitmap tmpBitmap = Bitmap.createBitmap(358, 2 * src_height, Bitmap.Config.ARGB_8888);
+            IntBuffer tmpBuffer = IntBuffer.allocate(716 * src_height);
+            int[] tmpArray = tmpBuffer.array();
+            for (int y = 0; y < src_height; y++) {
+                int yy = y + (top / BYTESPERLINE);
+                if (yy >= LINES)
+                    yy -= LINES;
+                for (int x = 0; x < 179; x++) {
+                    int xx = x - 18;
+                    int color;
+                    if (xx >= 0 && xx < 143) {
+                        boolean set = (buffer[yy * BYTESPERLINE + (xx >> 3)] & (1 << (xx & 7))) != 0;
+                        color = set ? Color.BLACK : Color.WHITE;
+                    } else
+                        color = Color.WHITE;
+                    int pos = 716 * y + 2 * x;
+                    tmpArray[pos] = tmpArray[pos + 1] = tmpArray[pos + 358] = tmpArray[pos + 359] = color;
+                }
+            }
+            tmpBitmap.copyPixelsFromBuffer(tmpBuffer);
+            String cacheDir = getFilesDir() + "/cache";
+            new File(cacheDir).mkdir();
+            String imageFileName = cacheDir + "/PrintOut.png";
+            OutputStream os = null;
+            try {
+                os = new FileOutputStream(imageFileName);
+                tmpBitmap.compress(Bitmap.CompressFormat.PNG, 0, os);
+            } catch (IOException e) {
+                // Ignore
+            } finally {
+                if (os != null)
+                    try {
+                        os.close();
+                    } catch (IOException e) {}
+            }
+            return imageFileName;
         }
 
         public void copyAsImage() {
             // Not supported by Android?!?
+        }
+
+        public void share() {
+            String text = printOutAsText();
+            String pngFileName = printOutAsImage();
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.putExtra(Intent.EXTRA_TEXT, text);
+            Uri uri = FileProvider.getUriForFile(Free42Activity.this, Free42Activity.this.getPackageName() + ".fileprovider", new File(pngFileName));
+            intent.setType("*/*");
+            intent.putExtra(Intent.EXTRA_STREAM, uri);
+            getContext().startActivity(Intent.createChooser(intent, "Share Free42 Print-Out Using"));
         }
 
         public void clear() {

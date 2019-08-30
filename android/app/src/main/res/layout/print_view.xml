@@ -27,7 +27,12 @@
 	    		android:layout_weight="1"
 				android:text="Copy Image"/>
         -->
-		
+
+		<Button android:id="@+id/shareB"
+			android:layout_width="0px" android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:text="Share"/>
+
 		<Button android:id="@+id/clearB"
 	    		android:layout_width="0px" android:layout_height="wrap_content"
 	    		android:layout_weight="1"
