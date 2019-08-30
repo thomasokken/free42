@@ -23,13 +23,14 @@
     UIBarButtonItem *doneButton;
     UIBarButtonItem *backButton;
     UITableView *programTable;
+    BOOL share;
 }
 
 @property (nonatomic, retain) IBOutlet UIBarButtonItem *doneButton;
 @property (nonatomic, retain) IBOutlet UIBarButtonItem *backButton;
 @property (nonatomic, retain) IBOutlet UITableView *programTable;
 
-- (void) raised;
+- (void) raised:(BOOL)share;
 - (IBAction) done;
 - (IBAction) back;
 - (UITableViewCell *) tableView:(UITableView *)table cellForRowAtIndexPath:(NSIndexPath*) indexPath;

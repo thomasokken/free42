@@ -261,8 +261,8 @@ void shell_message(const char *message) {
     core_import_programs(0, [path UTF8String]);
 }
 
-+ (void) doExport {
-    [instance.selectProgramsView raised];
++ (void) doExport:(BOOL)share {
+    [instance.selectProgramsView raised:share];
     [instance.self.view bringSubviewToFront:instance.selectProgramsView];
 }
 

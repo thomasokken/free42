@@ -222,7 +222,7 @@ static CalcView *calcView = nil;
     UIActionSheet *menu =
     [[UIActionSheet alloc] initWithTitle:@"Import & Export Menu"
                                 delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil
-                       otherButtonTitles:@"HTTP Server", @"Import Programs", @"Export Programs", @"Back", nil];
+                       otherButtonTitles:@"HTTP Server", @"Import Programs", @"Export Programs", @"Share Programs", @"Back", nil];
     
     [menu showInView:self];
     [menu release];
@@ -279,13 +279,17 @@ static CalcView *calcView = nil;
                 break;
             case 2:
                 // Export Programs
-                [RootViewController doExport];
+                [RootViewController doExport:NO];
                 break;
             case 3:
+                // Share Programs
+                [RootViewController doExport:YES];
+                break;
+            case 4:
                 // Back
                 [self showMainMenu];
                 break;
-            case 4:
+            case 5:
                 // Cancel
                 break;
         }

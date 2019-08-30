@@ -48,7 +48,7 @@
     // Drawing code
 }
 
-- (void) raised {
+- (void) raised:(BOOL)share {
     // This gets called just before the view is raised, every time
     [programNames removeAllObjects];
     char *buf = core_list_programs();
@@ -62,16 +62,19 @@
         free(buf);
     }
     [programTable reloadData];
+    self->share = share;
 }
 
 - (IBAction) done {
     // OK
-    // Need to raise the main window now, in case the SelectFileView is cancelled
     [RootViewController showMain];
     NSArray *selection = [programTable indexPathsForSelectedRows];
     if (selection == nil)
         return;
-    [SelectFileView raiseWithTitle:@"Select Program File Name" selectTitle:@"OK" types:@"raw,*" selectDir:NO callbackObject:self callbackSelector:@selector(doExport:)];
+    if (share)
+        [self doExport2];
+    else
+        [SelectFileView raiseWithTitle:@"Select Program File Name" selectTitle:@"OK" types:@"raw,*" selectDir:NO callbackObject:self callbackSelector:@selector(doExport:)];
 }
 
 static NSString *export_path = nil;
@@ -109,10 +112,26 @@ static NSString *export_path = nil;
         NSIndexPath *index = (NSIndexPath *) [selection objectAtIndex:i];
         indexes[i] = (int) [index indexAtPosition:1];
     }
-    core_export_programs((int) count, indexes, [export_path UTF8String]);
+    if (share) {
+        NSString *rawName = [programNames objectAtIndex:[[selection objectAtIndex:0] indexAtPosition:1]];
+        if ([rawName characterAtIndex:0] == '"') {
+            NSRange q = [rawName rangeOfString:@"\"" options:0 range:NSMakeRange(1, [rawName length] - 1)];
+            rawName = [rawName substringWithRange:NSMakeRange(1, q.location - 1)];
+        } else {
+            rawName = @"Untitled";
+        }
+        NSString *tmp = NSTemporaryDirectory();
+        NSString *rawPath = [NSString stringWithFormat:@"%@/%@.raw", tmp, rawName];
+        const char *rawPathC = [rawPath UTF8String];
+        core_export_programs((int) count, indexes, rawPathC);
+        UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:@[[NSURL fileURLWithPath:rawPath]] applicationActivities:nil];
+        [self.window.rootViewController presentViewController:activityViewController animated:YES completion:nil];
+    } else {
+        core_export_programs((int) count, indexes, [export_path UTF8String]);
+        [export_path release];
+        export_path = nil;
+    }
     delete[] indexes;
-    [export_path release];
-    export_path = nil;
 }
 
 - (IBAction) back {

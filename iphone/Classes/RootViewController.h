@@ -73,7 +73,7 @@
 + (void) showAbout;
 + (void) showSelectFile;
 + (void) doImport;
-+ (void) doExport;
++ (void) doExport:(BOOL)share;
 + (void) showLoadSkin;
 + (void) showDeleteSkin;
 + (void) showStates:(NSString *)stateName;

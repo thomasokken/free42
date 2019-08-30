@@ -727,10 +727,13 @@ static size_t raw_write(const char *buf, size_t size) {
     }
 }
 
-static void raw_close() {
-    if (raw_buf != NULL) {
-        if (ferror(gfile))
-            shell_message("An error occurred during program import.");
+static void raw_close(const char *mode) {
+    if (raw_buf == NULL) {
+	if (ferror(gfile)) {
+	    char msg[50];
+	    sprintf(msg, "An error occurred during program %s.", mode);
+            shell_message(msg);
+	}
         fclose(gfile);
     }
 }
@@ -740,7 +743,7 @@ static void raw_close() {
 #define raw_getc() fgetc(gfile)
 #define raw_ungetc(c) ungetc(c, gfile)
 #define raw_write(buf, size) fwrite(buf, 1, size, gfile)
-#define raw_close() fclose(gfile)
+#define raw_close(dummy) fclose(gfile)
 
 #endif
 
@@ -1167,7 +1170,7 @@ void core_export_programs(int count, const int *indexes, const char *raw_file_na
         export_hp42s(p);
     }
     if (raw_file_name != NULL)
-        raw_close();
+        raw_close("export");
 }
 
 static int hp42tofree42[] = {
@@ -2104,7 +2107,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
     flags.f.normal_print = saved_normal;
 
     if (raw_file_name != NULL)
-        raw_close();
+        raw_close("import");
 }
 
 static int real2buf(char *buf, phloat x) {
