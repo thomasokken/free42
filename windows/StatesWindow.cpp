@@ -158,7 +158,7 @@ static void updateUI(HWND hDlg, bool rescan) {
     } else {
         activeStateSelected = selectedStateName == state.coreName;
         if (activeStateSelected)
-			SendMessage(switchToButton, WM_SETTEXT, 0, (LPARAM) "Reload");
+			SendMessage(switchToButton, WM_SETTEXT, 0, (LPARAM) "Revert");
         else
 			SendMessage(switchToButton, WM_SETTEXT, 0, (LPARAM) "Switch To");
         stateSelected = true;
@@ -175,7 +175,11 @@ static void updateUI(HWND hDlg, bool rescan) {
 static void switchTo(HWND hDlg) {
 	if (selectedStateName == "")
         return;
-    if (selectedStateName != state.coreName) {
+    if (selectedStateName == state.coreName) {
+	    ci_string prompt = ci_string("Are you sure you want to revert the state \"") + selectedStateName + "\" to the last version saved?";
+	    if (MessageBox(hDlg, prompt.c_str(), "Revert State?", MB_OKCANCEL) != IDOK)
+		    return;
+    } else {
 		ci_string path = free42dirname;
 		path += "\\";
 		path += state.coreName;
