@@ -1,11 +1,9 @@
 ????-??-??: release 2.5.2
 
-* Android and iOS versions: Better feedback when a state import is initiated
-  externally.
-* iOS version: Will now import *.raw files directly from email attachments and
-  web links.
-* iOS version: Added "share" for Print-Out view.
-* iOS version: Added "share" option for saving programs.
+* iPhone version: Added "share" for Print-Out view.
+* Android and iPhone versions: Added "share" option for programs in raw format.
+* iPhone version: Will now import *.raw files directly from email attachments
+  and web links.
 
 2019-08-28: release 2.5.1
 
