@@ -149,13 +149,29 @@ public class StatesDialog extends Dialog {
             switchToButton.setEnabled(true);
             String selectedState = adapter.getItem(sel);
             if (selectedState.equals(Free42Activity.getSelectedState()))
-                switchToButton.setText("Reload");
+                switchToButton.setText("Revert");
             else
                 switchToButton.setText(("Switch To"));
         }
     }
 
     private void doSwitchTo() {
+        String selectedStateName = getSelectedState();
+        if (selectedStateName == null)
+            return;
+        new AlertDialog.Builder(getContext())
+                .setTitle("Confirm Revert")
+                .setMessage("Are you sure you want to revert the state \"" + selectedStateName + "\" to the last version saved?")
+                .setIcon(android.R.drawable.ic_dialog_info)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        doSwitchTo2();
+                    }
+                })
+                .setNegativeButton("Cancel", null).show();
+    }
+
+    private void doSwitchTo2() {
         String selectedStateName = getSelectedState();
         if (selectedStateName == null)
             return;

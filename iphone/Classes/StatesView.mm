@@ -112,7 +112,24 @@
     NSString *name = [self selectedStateName];
     if (name == nil)
         return;
-    [CalcView loadState:[name UTF8String]];
+    if (strcmp([name UTF8String], state.coreName) != 0) {
+        [self switchTo2];
+        return;
+    }
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Confirm Revert" message:[NSString stringWithFormat:@"Are you sure you want to revert the state \"%@\" to the last version saved?", name] preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [self switchTo2];
+    }];
+    [alert addAction:cancelAction];
+    [alert addAction:okAction];
+    [self.window.rootViewController presentViewController:alert animated:YES completion:nil];
+}
+
+- (void) switchTo2 {
+    NSString *name = [self selectedStateName];
+    if (name != nil)
+        [CalcView loadState:[name UTF8String]];
     [RootViewController showMain];
 }
 
@@ -264,7 +281,7 @@
     // one. If it is, we'll call core_save_state(), to make sure the duplicate
     // actually matches the most up-to-date state; otherwise, we can simply copy
     // the existing state file.
-    if ([name compare:[NSString stringWithUTF8String:state.coreName]] == NSOrderedSame)
+    if (strcmp([name UTF8String], state.coreName) == 0)
         core_save_state(finalPathC);
     else {
         NSString *origName = [NSString stringWithFormat:@"config/%@.f42", name];
@@ -299,17 +316,16 @@
     }
     NSString *oldPath = [NSString stringWithFormat:@"config/%@.f42", oldName];
     rename([oldPath UTF8String], newPathC);
-    if ([oldName compare:[NSString stringWithUTF8String:state.coreName]] == NSOrderedSame) {
+    if (strcmp([oldName UTF8String], state.coreName) == 0)
         strncpy(state.coreName, [newName UTF8String], FILENAMELEN);
-    }
     [self raised];
 }
 
 - (void) doDelete {
     NSString *name = [self selectedStateName];
-    if (name == nil || [name compare:[NSString stringWithUTF8String:state.coreName]] == NSOrderedSame)
+    if (name == nil || strcmp([name UTF8String], state.coreName) == 0)
         return;
-    UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Confirm Delete" message:[NSString stringWithFormat:@"Are you sure you want to delete the state \"%@\"?", name] preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Confirm Delete" message:[NSString stringWithFormat:@"Are you sure you want to delete the state \"%@\"?", name] preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
     UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
         [self doDelete2];
@@ -321,8 +337,8 @@
 
 - (void) doDelete2 {
     NSString *name = [self selectedStateName];
-    if (name == nil || [name compare:[NSString stringWithUTF8String:state.coreName]] == NSOrderedSame)
-    return;
+    if (name == nil || strcmp([name UTF8String], state.coreName) == 0)
+        return;
     NSString *path = [NSString stringWithFormat:@"config/%@.f42", name];
     remove([path UTF8String]);
     [self raised];
@@ -335,7 +351,7 @@
     char *cwd = getcwd(NULL, 0);
     NSString *statePath = [NSString stringWithFormat:@"%s/config/%@.f42", cwd, name];
     free(cwd);
-    if ([name compare:[NSString stringWithUTF8String:state.coreName]] == NSOrderedSame)
+    if (strcmp([name UTF8String], state.coreName) == 0)
         core_save_state([statePath UTF8String]);
     UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:@[[NSURL fileURLWithPath:statePath]] applicationActivities:nil];
     [self.window.rootViewController presentViewController:activityViewController animated:YES completion:nil];
@@ -402,7 +418,7 @@
     NSString *s = [stateNames objectAtIndex:n];
     [switchToButton setEnabled:YES];
     if (strcmp([s UTF8String], state.coreName) == 0) {
-        [switchToButton setTitle:@"Reload"];
+        [switchToButton setTitle:@"Revert"];
         mode = 1;
     } else {
         [switchToButton setTitle:@"Switch To"];

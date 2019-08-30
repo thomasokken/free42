@@ -1,8 +1,13 @@
-????-??-??: release 2.5.2 (Android and iPhone only)
+2019-08-31: release 2.5.2
 
-* Added "share" for Print-Out view.
-* Added "share" option for programs in raw format.
-* Now import *.raw files directly from email attachments and web links.
+* In the States window, renamed Reload to Revert, and added a confirmation
+  dialog, since that is a potentially destructive action.
+* When programs were imported from raw files, empty progams were sometimes
+  being created erroneously. Fixed.
+* Android and iOS versions: Added "share" for Print-Out view.
+* Android and iOS versions: Added "share" option for programs in raw format.
+* Android and iOS versions: Now import raw files directly from email
+  attachments and web links.
 
 2019-08-28: release 2.5.1
 

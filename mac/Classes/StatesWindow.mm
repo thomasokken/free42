@@ -99,7 +99,7 @@
     } else {
         activeStateSelected = [selName caseInsensitiveCompare:[NSString stringWithUTF8String:state.coreName]] == NSOrderedSame;
         if (activeStateSelected)
-            [switchToButton setTitle:@"Reload"];
+            [switchToButton setTitle:@"Revert"];
         else
             [switchToButton setTitle:@"Switch To"];
         stateSelected = true;
@@ -131,7 +131,24 @@
     NSString *name = [self selectedStateName];
     if (name == nil)
         return;
+    if (strcmp([name UTF8String], state.coreName) == 0) {
+        NSAlert *alert = [[[NSAlert alloc] init] autorelease];
+        [alert addButtonWithTitle:@"Revert"];
+        [alert addButtonWithTitle:@"Cancel"];
+        [alert setMessageText:@"Revert state?"];
+        [alert setInformativeText:[NSString stringWithFormat:@"Are you sure you want to revert the state \"%@\" to the last version saved?", name]];
+        [alert setAlertStyle:NSWarningAlertStyle];
+        // This 'retain' appears to be necessary because of the runModal call.
+        // I added the other 'retain' calls in this class as a precaution against
+        // the same scenario.
+        [name retain];
+        if ([alert runModal] != NSAlertFirstButtonReturn) {
+            [name release];
+            return;
+        }
+    }
     [Free42AppDelegate loadState:[name UTF8String]];
+    [name release];
     [self close];
 }
 
