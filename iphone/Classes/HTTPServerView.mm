@@ -159,7 +159,7 @@ static void *getHostName(void *dummy) {
 - (void) touchesBegan: (NSSet *) touches withEvent: (UIEvent *) event {
     if ([touches count] == 1 && CGRectContainsPoint([urlLabel frame], [((UITouch *) [touches anyObject]) locationInView:self])) {
         NSString *temp = [urlLabel text];
-        if (alternateUrl != nil && ![temp isEqualToString:@"(not running"]) {
+        if (alternateUrl != nil && ![temp isEqualToString:@"(not running)"]) {
             [urlLabel setText:alternateUrl];
             alternateUrl = [temp retain];
         }
