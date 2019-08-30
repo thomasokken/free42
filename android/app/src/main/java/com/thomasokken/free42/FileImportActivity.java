@@ -18,6 +18,8 @@ import java.net.URL;
 
 public class FileImportActivity extends Activity {
     private String importedState;
+    private String dstFile;
+    private boolean importIsState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +34,7 @@ public class FileImportActivity extends Activity {
 
         // If attachment, some contortions to try and get the original file name
         String baseName = null;
+        String type = "f42";
         String scheme = uri.getScheme();
         if (scheme.equals("content")) {
             Cursor cursor = getContentResolver().query(uri, new String[]{MediaStore.MediaColumns.DISPLAY_NAME}, null, null, null);
@@ -43,27 +46,39 @@ public class FileImportActivity extends Activity {
         } else {
             baseName = uri.getLastPathSegment();
         }
-        if (baseName == null || baseName.equals(""))
+        if (baseName == null || baseName.equals("")) {
             baseName = "Imported State";
-        else if (baseName.toLowerCase().endsWith(".f42"))
+        } else if (baseName.toLowerCase().endsWith(".f42")) {
             baseName = baseName.substring(0, baseName.length() - 4);
+            type = "f42";
+        } else if (baseName.toLowerCase().endsWith(".raw")) {
+            baseName = baseName.substring(0, baseName.length() - 4);
+            type = "raw";
+        }
 
-        int n = 0;
-        String name;
-        String baseDir = getFilesDir().getAbsolutePath();
-        while (true) {
-            n++;
-            importedState = baseName;
-            if (n > 1)
-                importedState += " " + n;
-            name = baseDir + "/" + importedState + ".f42";
-            if (!new File(name).exists())
-                break;
+        if (type.equals("f42")) {
+            importIsState = true;
+            int n = 0;
+            String baseDir = getFilesDir().getAbsolutePath();
+            while (true) {
+                n++;
+                importedState = baseName;
+                if (n > 1)
+                    importedState += " " + n;
+                dstFile = baseDir + "/" + importedState + ".f42";
+                if (!new File(dstFile).exists())
+                    break;
+            }
+        } else {
+            importIsState = false;
+            String cacheDir = getFilesDir().getAbsolutePath() + "/cache";
+            new File(cacheDir).mkdir();
+            dstFile = cacheDir + "/TEMP_RAW";
         }
 
         // Network access not allowed on main thread, so...
         if (scheme.equals("http") || scheme.equals("https")) {
-            new NetworkLoader(uri.toString(), name).start();
+            new NetworkLoader(uri.toString()).start();
             return;
         }
 
@@ -71,13 +86,16 @@ public class FileImportActivity extends Activity {
         OutputStream os = null;
         try {
             is = getContentResolver().openInputStream(uri);
-            os = new FileOutputStream(name);
+            os = new FileOutputStream(dstFile);
             byte[] buf = new byte[8192];
-            // Check magic number first; don't bother importing if this is wrong
-            n = is.read(buf, 0, 4);
-            if (n != 4 || buf[0] != '2' || buf[1] != '4' || buf[2] != 'k' || buf[3] != 'F')
-                throw new FormatException();
-            os.write(buf, 0, 4);
+            int n;
+            if (importIsState) {
+                // Check magic number first; don't bother importing if this is wrong
+                n = is.read(buf, 0, 4);
+                if (n != 4 || buf[0] != '2' || buf[1] != '4' || buf[2] != 'k' || buf[3] != 'F')
+                    throw new FormatException();
+                os.write(buf, 0, 4);
+            }
             while ((n = is.read(buf)) >= 0)
                 os.write(buf, 0, n);
             wrapUp(null);
@@ -103,15 +121,24 @@ public class FileImportActivity extends Activity {
             Intent i = new Intent(Intent.ACTION_MAIN);
             i.addCategory(Intent.CATEGORY_LAUNCHER);
             i.setClassName("com.thomasokken.free42", "com.thomasokken.free42.Free42Activity");
-            if (f42instance != null)
-                f42instance.importedState = importedState;
-            else
-                i.putExtra("importedState", importedState);
+            if (f42instance != null) {
+                if (importIsState)
+                    f42instance.importedState = importedState;
+                else
+                    f42instance.importedProgram = dstFile;
+            } else {
+                if (importIsState)
+                    i.putExtra("importedState", importedState);
+                else
+                    i.putExtra("importedProgram", dstFile);
+            }
             startActivity(i);
         } else if (e instanceof FormatException) {
+            new File(dstFile).delete();
             runOnUiThread(new Alerter("Invalid state format."));
         } else {
             e.printStackTrace();
+            new File(dstFile).delete();
             runOnUiThread(new Alerter("State import failed."));
         }
     }
@@ -137,11 +164,10 @@ public class FileImportActivity extends Activity {
     }
 
     private class NetworkLoader extends Thread {
-        private String srcUrl, dstFile;
+        private String srcUrl;
         private Exception ex;
-        public NetworkLoader(String srcUrl, String dstFile) {
+        public NetworkLoader(String srcUrl) {
             this.srcUrl = srcUrl;
-            this.dstFile = dstFile;
         }
         public void run() {
             InputStream is = null;
@@ -150,11 +176,14 @@ public class FileImportActivity extends Activity {
                 is = new URL(srcUrl).openStream();
                 os = new FileOutputStream(dstFile);
                 byte[] buf = new byte[8192];
-                // Check magic number first; don't bother importing if this is wrong
-                int n = is.read(buf, 0, 4);
-                if (n != 4 || buf[0] != '2' || buf[1] != '4' || buf[2] != 'k' || buf[3] != 'F')
-                    throw new FormatException();
-                os.write(buf, 0, 4);
+                int n;
+                if (importIsState) {
+                    // Check magic number first; don't bother importing if this is wrong
+                    n = is.read(buf, 0, 4);
+                    if (n != 4 || buf[0] != '2' || buf[1] != '4' || buf[2] != 'k' || buf[3] != 'F')
+                        throw new FormatException();
+                    os.write(buf, 0, 4);
+                }
                 while ((n = is.read(buf)) >= 0)
                     os.write(buf, 0, n);
             } catch (Exception e) {

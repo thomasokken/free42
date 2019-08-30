@@ -119,6 +119,7 @@ public class Free42Activity extends Activity {
     private boolean printViewShowing;
     private PreferencesDialog preferencesDialog;
     private AlertDialog mainMenuDialog;
+    private AlertDialog programImportExportMenuDialog;
     private Handler mainHandler;
     private boolean alwaysOn;
     
@@ -137,6 +138,12 @@ public class Free42Activity extends Activity {
     // will have the name of the most recently imported state.
     // If this is null, don't do anything.
     public String importedState;
+
+    // FileImportActivity can't import programs on its own,
+    // since that requires Free42Activity to be loaded. This
+    // is where the former communicates the name of the file
+    // to import to the latter.
+    public String importedProgram;
     
     private int ckey;
     private boolean timeout3_active;
@@ -247,6 +254,7 @@ public class Free42Activity extends Activity {
 
         Intent intent = getIntent();
         importedState = intent.getStringExtra("importedState");
+        importedProgram = intent.getStringExtra("importedProgram");
         
         int init_mode;
         IntHolder version = new IntHolder();
@@ -425,10 +433,16 @@ public class Free42Activity extends Activity {
         
         super.onStart();
 
-        String impSt = importedState;
+        String impTemp = importedState;
         importedState = null;
-        if (impSt != null)
-            doStates(impSt);
+        if (impTemp != null)
+            doStates(impTemp);
+        impTemp = importedProgram;
+        importedProgram = null;
+        if (impTemp != null) {
+            doImport2(impTemp);
+            new File(impTemp).delete();
+        }
     }
     
     @Override
@@ -568,9 +582,7 @@ public class Free42Activity extends Activity {
             builder.setTitle("Main Menu");
             List<String> itemsList = new ArrayList<String>();
             itemsList.add("Show Print-Out");
-            itemsList.add("Import Programs");
-            itemsList.add("Export Programs");
-            itemsList.add("Share Programs");
+            itemsList.add("Program Import & Export");
             itemsList.add("States");
             itemsList.add("Preferences");
             itemsList.add("Select Skin");
@@ -589,11 +601,66 @@ public class Free42Activity extends Activity {
         }
         mainMenuDialog.show();
     }
-    
+
     private void mainMenuItemSelected(int which) {
         switch (which) {
             case 0:
                 doFlipCalcPrintout();
+                return;
+            case 1:
+                postProgramImportExportMenu();
+                return;
+            case 2:
+                doStates(null);
+                return;
+            case 3:
+                doPreferences();
+                return;
+            case 4:
+                doSelectSkin();
+                break;
+            case 5:
+                doSkinOther();
+                break;
+            case 6:
+                doCopy();
+                return;
+            case 7:
+                doPaste();
+                return;
+            case 8:
+                doAbout();
+                return;
+            // default: Cancel; do nothing
+        }
+    }
+
+    private void postProgramImportExportMenu() {
+        if (programImportExportMenuDialog == null) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Import & Export Menu");
+            List<String> itemsList = new ArrayList<String>();
+            itemsList.add("HTTP Server");
+            itemsList.add("Import Programs");
+            itemsList.add("Export Programs");
+            itemsList.add("Share Programs");
+            itemsList.add("Back");
+            itemsList.add("Cancel");
+            builder.setItems(itemsList.toArray(new String[itemsList.size()]),
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            programImportExportMenuItemSelected(which);
+                        }
+                    });
+            programImportExportMenuDialog = builder.create();
+        }
+        programImportExportMenuDialog.show();
+    }
+
+    private void programImportExportMenuItemSelected(int which) {
+        switch (which) {
+            case 0:
+                //doHttpServer();
                 return;
             case 1:
                 doImport();
@@ -605,30 +672,12 @@ public class Free42Activity extends Activity {
                 doExport(true);
                 return;
             case 4:
-                doStates(null);
-                return;
-            case 5:
-                doPreferences();
-                return;
-            case 6:
-                doSelectSkin();
-                break;
-            case 7:
-                doSkinOther();
-                break;
-            case 8:
-                doCopy();
-                return;
-            case 9:
-                doPaste();
-                return;
-            case 10:
-                doAbout();
+                postMainMenu();
                 return;
             // default: Cancel; do nothing
         }
     }
-
+    
     private void doSelectSkin() {
         SkinSelectDialog ssd = new SkinSelectDialog(this);
         ssd.setListener(new SkinSelectDialog.Listener() {
