@@ -1,9 +1,8 @@
-????-??-??: release 2.5.2
+????-??-??: release 2.5.2 (Android and iPhone only)
 
-* iPhone version: Added "share" for Print-Out view.
-* Android and iPhone versions: Added "share" option for programs in raw format.
-* iPhone version: Will now import *.raw files directly from email attachments
-  and web links.
+* Added "share" for Print-Out view.
+* Added "share" option for programs in raw format.
+* Now import *.raw files directly from email attachments and web links.
 
 2019-08-28: release 2.5.1
 
