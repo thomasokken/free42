@@ -640,7 +640,7 @@ public class Free42Activity extends Activity {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Import & Export Menu");
             List<String> itemsList = new ArrayList<String>();
-            itemsList.add("HTTP Server");
+            //itemsList.add("HTTP Server");
             itemsList.add("Import Programs");
             itemsList.add("Export Programs");
             itemsList.add("Share Programs");
@@ -658,6 +658,7 @@ public class Free42Activity extends Activity {
     }
 
     private void programImportExportMenuItemSelected(int which) {
+        which++; // <- to account for missing HTTP Server option
         switch (which) {
             case 0:
                 //doHttpServer();
