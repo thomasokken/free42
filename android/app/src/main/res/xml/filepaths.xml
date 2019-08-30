@@ -1,3 +1,4 @@
 <paths>
   <files-path path="./" name="top-level"/>
+  <files-path path="cache/" name="cache"/>
 </paths>

@@ -62,6 +62,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.AudioManager;
 import android.media.SoundPool;
+import android.net.Uri;
 import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Environment;
@@ -70,6 +71,7 @@ import android.os.Looper;
 import android.os.Vibrator;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
@@ -562,6 +564,7 @@ public class Free42Activity extends Activity {
             itemsList.add("Show Print-Out");
             itemsList.add("Import Programs");
             itemsList.add("Export Programs");
+            itemsList.add("Share Programs");
             itemsList.add("States");
             itemsList.add("Preferences");
             itemsList.add("Select Skin");
@@ -590,27 +593,30 @@ public class Free42Activity extends Activity {
                 doImport();
                 return;
             case 2:
-                doExport();
+                doExport(false);
                 return;
             case 3:
-                doStates(null);
+                doExport(true);
                 return;
             case 4:
-                doPreferences();
+                doStates(null);
                 return;
             case 5:
+                doPreferences();
+                return;
+            case 6:
                 doSelectSkin();
                 break;
-            case 6:
+            case 7:
                 doSkinOther();
                 break;
-            case 7:
+            case 8:
                 doCopy();
                 return;
-            case 8:
+            case 9:
                 doPaste();
                 return;
-            case 9:
+            case 10:
                 doAbout();
                 return;
             // default: Cancel; do nothing
@@ -710,6 +716,8 @@ public class Free42Activity extends Activity {
     }
     
     private boolean[] selectedProgramIndexes;
+    private String[] programNames;
+    private boolean exportShare;
 
     public static void showAlert(String message) {
         instance.alert(message);
@@ -732,15 +740,16 @@ public class Free42Activity extends Activity {
         }
     }
 
-    private void doExport() {
-        if (!checkStorageAccess())
+    private void doExport(boolean share) {
+        if (!share && !checkStorageAccess())
             return;
-        String[] names = core_list_programs();
-        selectedProgramIndexes = new boolean[names.length];
+        exportShare = share;
+        programNames = core_list_programs();
+        selectedProgramIndexes = new boolean[programNames.length];
         
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Select Programs");
-        builder.setMultiChoiceItems(names, selectedProgramIndexes, new DialogInterface.OnMultiChoiceClickListener() {
+        builder.setMultiChoiceItems(programNames, selectedProgramIndexes, new DialogInterface.OnMultiChoiceClickListener() {
             public void onClick(DialogInterface dialog, int which, boolean isChecked) {
                 // I don't have to do anything here; the only reason why
                 // I create this listener is because if I pass 'null'
@@ -772,13 +781,17 @@ public class Free42Activity extends Activity {
                     break;
                 }
             if (!none) {
-                FileSelectionDialog fsd = new FileSelectionDialog(this, new String[] { "raw", "*" });
-                fsd.setOkListener(new FileSelectionDialog.OkListener() {
-                    public void okPressed(String path) {
-                        doExport2(path);
-                    }
-                });
-                fsd.show();
+                if (exportShare) {
+                    doShare();
+                } else {
+                    FileSelectionDialog fsd = new FileSelectionDialog(this, new String[]{"raw", "*"});
+                    fsd.setOkListener(new FileSelectionDialog.OkListener() {
+                        public void okPressed(String path) {
+                            doExport2(path);
+                        }
+                    });
+                    fsd.show();
+                }
             }
         }
         dialog.dismiss();
@@ -796,7 +809,50 @@ public class Free42Activity extends Activity {
                 selection[n++] = i;
         core_export_programs(selection, path);
     }
-    
+
+    private void doShare() {
+        int n = -1;
+        int m = 0;
+        for (int i = 0; i < selectedProgramIndexes.length; i++) {
+            if (selectedProgramIndexes[i]) {
+                m++;
+                if (m == 1)
+                    n = i;
+                else if (m == 2)
+                    break;
+            }
+        }
+        if (n == -1)
+            // Should never happen
+            return;
+        String name = programNames[n];
+        if (name.charAt(0) == '"') {
+            int q = name.indexOf('"', 1);
+            name = name.substring(1, q);
+        } else
+            name = "Untitled";
+        File cacheDir = new File(getFilesDir(), "cache");
+        cacheDir.mkdir();
+        // Remove old *.raw files, so we don't use an ever-growing
+        // chunk of space for these files that really should be
+        // temporary
+        File[] cacheFiles = cacheDir.listFiles();
+        for (File f : cacheFiles) {
+            if (f.getName().endsWith(".raw"))
+                f.delete();
+        }
+        // OK, now write the selected programs to a new raw file
+        String path = cacheDir + "/" + name + ".raw";
+        doExport2(path);
+        // And now share that file
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        File file = new File(path);
+        Uri uri = FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", file);
+        intent.setType("*/*");
+        intent.putExtra(Intent.EXTRA_STREAM, uri);
+        startActivity(Intent.createChooser(intent, "Share Free42 Program" + (m == 1 ? "" : "s") + " Using"));
+    }
+
     private void doSelectSkin(String skinName) {
         try {
             boolean[] annunciators = skin.getAnnunciators();
