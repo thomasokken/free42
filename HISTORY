@@ -3,8 +3,8 @@
 * In the States window, renamed Reload to Revert, and added a confirmation
   dialog, since that is a potentially destructive action.
 * When programs were imported from raw files, empty progams were sometimes
-  being created erroneously. Fixed.
-* Android and iOS versions: Added "share" for Print-Out view.
+  being created unnecessarily. Fixed.
+* Android and iOS versions: Added "share" option for Print-Out view.
 * Android and iOS versions: Added "share" option for programs in raw format.
 * Android and iOS versions: Now import raw files directly from email
   attachments and web links.
