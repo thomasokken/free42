@@ -1122,7 +1122,7 @@ static void states_changed_cb(GtkWidget *w, gpointer p) {
         gtk_widget_set_sensitive(statesMenuItems[5], false);
     } else if (selectedStateIndex == currentStateIndex) {
         gtk_widget_set_sensitive(btn, true);
-        gtk_button_set_label(GTK_BUTTON(btn), "Reload");
+        gtk_button_set_label(GTK_BUTTON(btn), "Revert");
         gtk_widget_set_sensitive(statesMenuItems[1], true);
         gtk_widget_set_sensitive(statesMenuItems[2], true);
         gtk_widget_set_sensitive(statesMenuItems[3], false);
@@ -1196,9 +1196,22 @@ static char *get_state_name(const char *prompt) {
     return result;
 }
 
-static void switchTo(const char *selectedStateName) {
+static bool switchTo(const char *selectedStateName) {
     char path[FILENAMELEN];
-    if (strcmp(selectedStateName, state.coreName) != 0) {
+    if (strcmp(selectedStateName, state.coreName) == 0) {
+        GtkWidget *msg = gtk_message_dialog_new(GTK_WINDOW(dlg),
+                                                GTK_DIALOG_MODAL,
+                                                GTK_MESSAGE_QUESTION,
+                                                GTK_BUTTONS_YES_NO,
+                                                "Are you sure you want to revert the state \"%s\" to the last version saved?",
+                                                selectedStateName);
+        gtk_window_set_title(GTK_WINDOW(msg), "Revert State?");
+        gtk_window_set_role(GTK_WINDOW(msg), "Free42 Dialog");
+        bool cancelled = gtk_dialog_run(GTK_DIALOG(msg)) != GTK_RESPONSE_YES;
+        gtk_widget_destroy(msg);
+        if (cancelled)
+            return false;
+    } else {
         snprintf(path, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreName);
         core_save_state(path);
     }
@@ -1209,6 +1222,7 @@ static void switchTo(const char *selectedStateName) {
     core_init(1, 26, path, 0);
     if (core_powercycle())
         enable_reminder();
+    return true;
 }
 
 static void states_menu_new() {
@@ -1634,9 +1648,9 @@ static void statesCB() {
                 int sel;
                 sscanf(gtk_tree_path_to_string(path), "%d", &sel);
                 g_list_free(rows);
-                switchTo(state_names[sel]);
+                if (switchTo(state_names[sel]))
+                    break;
             }
-            break;
         } else if (response == 2) {
             GtkWidget *btn = gtk_dialog_get_widget_for_response(GTK_DIALOG(states_dialog), 2);
             gtk_menu_popup(GTK_MENU(menu), NULL, NULL, states_menu_pos_func, btn, 0, GDK_CURRENT_TIME);
