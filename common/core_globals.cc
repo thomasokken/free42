@@ -883,6 +883,16 @@ struct fake_bcd {
     char data[16];
 };
 
+// For coping with bad 2.5 state files. 0 means don't do anything special;
+// 1 means check for bad string lengths in real matrices; 2 is bug-
+// compatibility mode; and 3 is a signal to switch from mode 1 to mode 2.
+// When a bad string length is found in mode 1, this function will switch
+// the mode to mode 3 and return false, indicating an error; the caller
+// should then clean up what has already been read, rewind the state file,
+// and try again in mode 2.
+
+int bug_mode;
+
 static bool unpersist_vartype(vartype **v, bool padded) {
     if (state_is_portable) {
         char type;
@@ -957,9 +967,48 @@ static bool unpersist_vartype(vartype **v, bool padded) {
                 for (int4 i = 0; i < size; i++) {
                     if (rm->array->is_string[i]) {
                         char *dst = (char *) &rm->array->data[i];
-                        if (fread(dst, 1, 7, gfile) != 7) {
-                            success = false;
-                            break;
+                        if (bug_mode == 0) {
+                            // 6 bytes of text followed by length byte
+                            if (fread(dst, 1, 7, gfile) != 7) {
+                                success = false;
+                                break;
+                            }
+                        } else if (bug_mode == 1) {
+                            // Could be as above, or could be length-prefixed.
+                            // Read 7 bytes, and if byte 7 looks plausible,
+                            // carry on; otherwise, set bug_mode to 3, signalling
+                            // we should start over in bug-compatibility mode.
+                            if (fread(dst, 1, 7, gfile) != 7) {
+                                success = false;
+                                break;
+                            }
+                            if (dst[6] < 0 || dst[6] > 6) {
+                                bug_mode = 3;
+                                success = false;
+                                break;
+                            }
+                        } else {
+                            // bug_mode == 2, means this has to be a file with
+                            // length-prefixed strings in matrices. Bear in
+                            // mind that the prefixes are bogus, so for reading,
+                            // clamp them to the 0..6 range, but for advancing
+                            // in the file, take them at face value.
+                            unsigned char len;
+                            if (fread(&len, 1, 1, gfile) != 1) {
+                                success = false;
+                                break;
+                            }
+                            unsigned char reallen = len > 6 ? 6 : len;
+                            dst[0] = len;
+                            if (fread(dst + 1, 1, reallen, gfile) != reallen) {
+                                success = false;
+                                break;
+                            }
+                            len -= reallen;
+                            if (len > 0 && fseek(gfile, len, SEEK_CUR) != 0) {
+                                success = false;
+                                break;
+                            }
                         }
                     } else {
                         if (!read_phloat(&rm->array->data[i])) {
@@ -3161,7 +3210,7 @@ bool write_arg(const arg_struct *arg) {
     }
 }
 
-bool load_state(int4 ver, bool *clear) {
+static bool load_state2(int4 ver, bool *clear) {
     int4 magic;
     int4 version;
     *clear = false;
@@ -3408,6 +3457,28 @@ bool load_state(int4 ver, bool *clear) {
         return false;
 
     return true;
+}
+
+// See the comment for bug_mode at its declaration...
+
+bool load_state(int4 ver, bool *clear) {
+    if (ver == 26) {
+        bug_mode = 1;
+        long fpos = ftell(gfile);
+        if (load_state2(ver, clear))
+            return true;
+        if (bug_mode != 3)
+            return false;
+        // bug_mode == 3 is the signal that the file looks screwy
+        // in the way caused by the buggy string-in-matrix writing
+        // in version 2.5
+        core_cleanup();
+        fseek(gfile, fpos, SEEK_SET);
+        bug_mode = 2;
+    } else {
+        bug_mode = 0;
+    }
+    return load_state2(ver, clear);
 }
 
 void save_state() {

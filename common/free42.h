@@ -127,9 +127,10 @@
  * Version 24: 2.2    Large RTN stack; local variables
  * Version 25: 2.4    WSIZE, BSIGNED, BWRAP
  * Version 26: 2.5    Separate and portable core state file
+ * Version 27: 2.5.2  Recovery mode for corrupt 2.5 state files
  */
 #define FREE42_MAGIC 0x466b3432
-#define FREE42_VERSION 26
+#define FREE42_VERSION 27
 
 
 #endif
