@@ -3210,10 +3210,11 @@ bool write_arg(const arg_struct *arg) {
     }
 }
 
-static bool load_state2(int4 ver, bool *clear) {
+static bool load_state2(int4 ver, bool *clear, bool *too_new) {
     int4 magic;
     int4 version;
     *clear = false;
+    *too_new = false;
 
     /* The shell has verified the initial magic and version numbers,
      * and loaded the shell state, before we got called.
@@ -3240,6 +3241,11 @@ static bool load_state2(int4 ver, bool *clear) {
         // the one we got from the shell state, but it will always be
         // >= 26, since that's when we started using separate shell and
         // core state files.
+    }
+
+    if (ver > FREE42_VERSION) {
+        *too_new = true;
+        return false;
     }
     
     if (ver < 9) {
@@ -3461,11 +3467,11 @@ static bool load_state2(int4 ver, bool *clear) {
 
 // See the comment for bug_mode at its declaration...
 
-bool load_state(int4 ver, bool *clear) {
+bool load_state(int4 ver, bool *clear, bool *too_new) {
     if (ver == 26) {
         bug_mode = 1;
         long fpos = ftell(gfile);
-        if (load_state2(ver, clear))
+        if (load_state2(ver, clear, too_new))
             return true;
         if (bug_mode != 3)
             return false;
@@ -3478,7 +3484,7 @@ bool load_state(int4 ver, bool *clear) {
     } else {
         bug_mode = 0;
     }
-    return load_state2(ver, clear);
+    return load_state2(ver, clear, too_new);
 }
 
 void save_state() {
@@ -3568,7 +3574,11 @@ void save_state() {
     if (!write_int4(FREE42_VERSION)) return;
 }
 
-void hard_reset(int bad_state_file) {
+// Reason:
+// 0 = Memory Clear
+// 1 = State File Corrupt
+// 2 = State File Too New
+void hard_reset(int reason) {
     vartype *regs;
 
     /* Clear stack */
@@ -3744,10 +3754,17 @@ void hard_reset(int bad_state_file) {
     clear_display();
     clear_custom_menu();
     clear_prgm_menu();
-    if (bad_state_file)
-        draw_string(0, 0, "State File Corrupt", 18);
-    else
-        draw_string(0, 0, "Memory Clear", 12);
+    switch (reason) {
+        case 0:
+            draw_string(0, 0, "Memory Clear", 12);
+            break;
+        case 1:
+            draw_string(0, 0, "State File Corrupt", 18);
+            break;
+        case 2:
+            draw_string(0, 0, "State File Too New", 18);
+            break;
+    }
     display_x(1);
     flush_display();
 }

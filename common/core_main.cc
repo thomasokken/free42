@@ -79,11 +79,23 @@ void core_init(int read_saved_state, int4 version, const char *state_file_name, 
     } else
         gfile = NULL;
 
-    bool clear;
-    if (read_saved_state != 1 || !load_state(version, &clear))
-        hard_reset(read_saved_state != 0 && !clear);
+    bool clear, too_new = false;
+    int reason = 0;
+    if (read_saved_state != 1 || !load_state(version, &clear, &too_new)) {
+        reason = too_new ? 2 : (read_saved_state != 0 && !clear) ? 1 : 0;
+        hard_reset(reason);
+    }
     if (gfile != NULL)
         fclose(gfile);
+    if (reason != 0 && state_file_name != NULL) {
+        char *tmp = (char *) malloc(strlen(state_file_name) + 9);
+        if (tmp != NULL) {
+            strcpy(tmp, state_file_name);
+            strcat(tmp, reason == 1 ? ".corrupt" : ".too_new");
+            rename(state_file_name, tmp);
+            free(tmp);
+        }
+    }
 
     repaint_display();
     shell_annunciators(mode_updown,

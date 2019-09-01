@@ -1,3 +1,14 @@
+????-??-??: release 2.5.2a
+
+* When reading a state file with a newer state version than the app's own, now
+  reports State File Too New, instead of State File Corrupt. The app is unable
+  to use the state file either way, but it shouldn't claim that a file is
+  corrupt just because it is too new for it to handle.
+  Also, if a state file is unusable because of being corrupt or too new, it is
+  now renamed by appending ".corrupt" or ".too_new" to its name, so it is not
+  destroyed when Free42 writes its state when it exits, and the unusable state
+  can be inspected for post-mortem debugging.
+
 2019-08-31: release 2.5.2
 
 * In the States window, renamed Reload to Revert, and added a confirmation

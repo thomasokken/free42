@@ -1655,7 +1655,7 @@ public class Free42Activity extends Activity {
             if (state_read_int() != FREE42_MAGIC())
                 return false;
             version.value = state_read_int();
-            if (version.value < 0 || version.value > FREE42_VERSION())
+            if (version.value < 0)
                 return false;
             int shell_version = state_read_int();
             ShellSpool.printToGif = state_read_boolean();

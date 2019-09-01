@@ -581,9 +581,13 @@ bool write_phloat(phloat d);
 bool read_arg(arg_struct *arg, bool old);
 bool write_arg(const arg_struct *arg);
 
-bool load_state(int4 version, bool *clear);
+bool load_state(int4 version, bool *clear, bool *too_new);
 void save_state();
-void hard_reset(int bad_state_file);
+// Reason:
+// 0 = Memory Clear
+// 1 = State File Corrupt
+// 2 = State File Too New
+void hard_reset(int reason);
 
 #ifdef IPHONE
 bool off_enabled();

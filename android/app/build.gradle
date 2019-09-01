@@ -15,7 +15,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 28
         versionCode 105
-        versionName "2.5.2"
+        versionName "2.5.2a"
     }
     buildTypes {
         debug {

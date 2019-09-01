@@ -733,9 +733,7 @@ static int read_shell_state(int *ver) {
         init_shell_state(-1);
         *ver = version;
         return 1;
-    } else if (version > FREE42_VERSION)
-        /* Unknown state file version */
-        return 0;
+    }
     
     if (fread(&state_size, 1, sizeof(int), statefile) != sizeof(int))
         return 0;
