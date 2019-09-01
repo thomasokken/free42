@@ -20,6 +20,19 @@
 
 #include "free42.h"
 
+/* shell_platform()
+ *
+ * The shell should return a null-terminated string here that identifies the
+ * app's version number, and the platform it is built for. So, something like
+ * "2.5.3 Windows". N.B. It is not necessary to identify the version of the OS
+ * we're running on; what matters is the version of the app itself, and
+ * "Windows" conveys that information, while "Windows 2000 sp4" or "Windows 10"
+ * would add nothing useful.
+ * The returned string will not be freed by the caller, so it can be passed in
+ * a static buffer, or it may even be a constant.
+ */
+const char *shell_platform();
+
 /* shell_blitter()
  *
  * Callback invoked by the emulator core to cause the display, or some portion

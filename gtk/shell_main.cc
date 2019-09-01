@@ -2773,6 +2773,10 @@ static gboolean ann_print_timeout(gpointer cd) {
     return FALSE;
 }
 
+const char *shell_platform() {
+    return VERSION " " VERSION_PLATFORM;
+}
+
 void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
     if (updn != -1 && ann_updown != updn) {
         ann_updown = updn;

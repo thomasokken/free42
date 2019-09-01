@@ -738,8 +738,9 @@ bool no_keystrokes_yet;
  * Version 25: 2.4    WSIZE, BSIGNED, BWRAP
  * Version 26: 2.5    Separate and portable core state file
  * Version 27: 2.5.2  Recovery mode for corrupt 2.5 state files
+ * Version 28: 2.5.3  Recording platform name and app version in state file
  */
-#define FREE42_VERSION 27
+#define FREE42_VERSION 28
 
 
 /*******************/
@@ -3310,6 +3311,19 @@ static bool load_state2(int4 ver, bool *clear, bool *too_new) {
 
     if (bug_mode == 0 && ver == 26)
         bug_mode = 1;
+
+    if (ver >= 28) {
+        // Embedded version information. No need to read this; it's just
+        // there for troubleshooting purposes. All we need to do here is
+        // skip it.
+        while (true) {
+            char c;
+            if (!read_char(&c))
+                return false;
+            if (c == 0)
+                break;
+        }
+    }
     
     if (ver < 9) {
         state_file_number_format = NUMBER_FORMAT_BINARY;
@@ -3549,6 +3563,14 @@ bool load_state(int4 ver, bool *clear, bool *too_new) {
 void save_state() {
     if (!write_int4(FREE42_MAGIC) || !write_int4(FREE42_VERSION))
         return;
+
+    // Write app version and platform, for troubleshooting purposes
+    const char *platform = shell_platform();
+    char c;
+    do {
+        c = *platform++;
+        write_char(c);
+    } while (c != 0);
 
     #ifdef BCD_MATH
         if (!write_bool(true)) return;

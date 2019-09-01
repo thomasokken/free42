@@ -29,6 +29,7 @@ CFLAGS = -MMD \
 	 -I/usr/X11R6/include \
 	 $(shell pkg-config --cflags gtk+-2.0) \
 	 -DVERSION="\"$(shell cat ../VERSION)\"" \
+         -DVERSION_PLATFORM="\"$(shell uname -s)\"" \
 	 -DDECIMAL_CALL_BY_REFERENCE=1 \
 	 -DDECIMAL_GLOBAL_ROUNDING=1 \
 	 -DDECIMAL_GLOBAL_ROUNDING_ACCESS_FUNCTIONS=1 \
