@@ -1396,6 +1396,14 @@ void shell_message(const char *message) {
     [Free42AppDelegate showCMessage:message withTitle:"Core"];
 }
 
+const char *shell_platform() {
+    static char p[16];
+    strncpy(p, [Free42AppDelegate getVersion], 16);
+    strncat(p, " MacOS", 16);
+    p[15] = 0;
+    return p;
+}
+
 int8 shell_random_seed() {
     struct timeval tv;
     gettimeofday(&tv, NULL);

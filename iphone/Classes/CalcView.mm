@@ -27,6 +27,7 @@
 #import "CalcView.h"
 #import "PrintView.h"
 #import "RootViewController.h"
+#import "Free42AppDelegate.h"
 #import "free42.h"
 #import "core_main.h"
 #import "core_display.h"
@@ -946,6 +947,14 @@ static int write_shell_state() {
 void shell_blitter(const char *bits, int bytesperline, int x, int y, int width, int height) {
     TRACE("shell_blitter");
     skin_display_blitter(bits, bytesperline, x, y, width, height, calcView);
+}
+
+const char *shell_platform() {
+    static char p[16];
+    strncpy(p, [Free42AppDelegate getVersion], 16);
+    strncat(p, " iOS", 16);
+    p[15] = 0;
+    return p;
 }
 
 void shell_beeper(int frequency, int duration) {
