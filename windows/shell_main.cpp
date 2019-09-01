@@ -34,6 +34,8 @@
 #include "StatesWindow.h"
 #include "shell_main.h"
 
+#include "VERSION.rc"
+
 
 #define MAX_LOADSTRING 100
 
@@ -2077,6 +2079,13 @@ void shell_blitter(const char *bits, int bytesperline, int x, int y,
         DeleteObject(memdc);
     }
     ReleaseDC(hMainWnd, hdc);
+}
+
+const char *shell_platform() {
+    static char p[16];
+    strcpy(p, FREE42_VERSION_2);
+    strcat(p, " Windows");
+    return p;
 }
 
 void shell_beeper(int frequency, int duration) {
