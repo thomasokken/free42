@@ -1780,7 +1780,7 @@ public class Free42Activity extends Activity {
     private void write_shell_state() {
         try {
             state_write_int(FREE42_MAGIC());
-            state_write_int(FREE42_VERSION());
+            state_write_int(27);
             state_write_int(SHELL_VERSION);
             state_write_boolean(ShellSpool.printToGif);
             state_write_string(ShellSpool.printToGifFileName);
@@ -1959,12 +1959,11 @@ public class Free42Activity extends Activity {
     }
     
 
-    //////////////////////////////////////////////////////////////////////////
-    ///// Stubs for accessing the FREE42_MAGIC and FREE42_VERSION macros /////
-    //////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////
+    ///// Stub for accessing the FREE42_MAGIC macro /////
+    /////////////////////////////////////////////////////
     
     private native int FREE42_MAGIC();
-    private native int FREE42_VERSION();
     
     ///////////////////////////////////////////
     ///// Stubs for shell->core interface /////

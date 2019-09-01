@@ -919,7 +919,7 @@ static void shell_keyup() {
 static int write_shell_state() {
     TRACE("write_shell_state");
     int magic = FREE42_MAGIC;
-    int version = FREE42_VERSION;
+    int version = 27;
     int state_size = sizeof(state);
     int state_version = SHELL_VERSION;
 

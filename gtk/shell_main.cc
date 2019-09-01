@@ -883,7 +883,7 @@ static int read_shell_state(int4 *ver) {
 
 static int write_shell_state() {
     int4 magic = FREE42_MAGIC;
-    int4 version = FREE42_VERSION;
+    int4 version = 27;
     int4 state_size = sizeof(state_type);
     int4 state_version = SHELL_VERSION;
 

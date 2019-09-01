@@ -83,19 +83,14 @@ static JNIEnv *getJniEnv() {
 }
 
 
-/*******************************************************************/
-/* A couple of functions to enable the Java code to get the values */
-/* of the FREE42_MAGIC and FREE42_VERSION macros.                  */
-/*******************************************************************/
+/*****************************************************/
+/* Function to enable the Java code to get the value */
+/* of the FREE42_MAGIC macro.                        */
+/*****************************************************/
 
 extern "C" jint
 Java_com_thomasokken_free42_Free42Activity_FREE42_1MAGIC(JNIEnv *env, jobject thiz) {
     return FREE42_MAGIC;
-}
-
-extern "C" jint
-Java_com_thomasokken_free42_Free42Activity_FREE42_1VERSION(JNIEnv *env, jobject thiz) {
-    return FREE42_VERSION;
 }
 
 
