@@ -92,7 +92,7 @@ public class StatesDialog extends Dialog {
             OutputStream os = null;
             try {
                 os = new FileOutputStream(currentStateFileName);
-                os.write("24kF".getBytes("ASCII"));
+                os.write(Free42Activity.FREE42_MAGIC_STR().getBytes("ASCII"));
             } catch (IOException e) {
                 // Oh well, we tried
             } finally {
@@ -192,7 +192,7 @@ public class StatesDialog extends Dialog {
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(newFileName);
-            fos.write("24kF".getBytes("ASCII"));
+            fos.write(Free42Activity.FREE42_MAGIC_STR().getBytes("ASCII"));
         } catch (IOException e) {
             // Ignore
         } finally {

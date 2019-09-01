@@ -87,7 +87,7 @@ static LRESULT CALLBACK StateNameDlgProc(HWND hDlg, UINT message, WPARAM wParam,
             const char *currentStateNameC = currentStateName.c_str();
             if (GetFileAttributes(currentStateNameC) == INVALID_FILE_ATTRIBUTES) {
                 FILE *f = fopen(currentStateNameC, "wb");
-                fwrite("24kF", 1, 4, f);
+                fwrite(FREE42_MAGIC_STR, 1, 4, f);
                 fclose(f);
             }
 			return TRUE;
@@ -206,7 +206,7 @@ static void doNew(HWND hDlg) {
 	path += name;
 	path += ".f42";
     FILE *f = fopen(path.c_str(), "wb");
-    fprintf(f, "24kF");
+    fprintf(f, FREE42_MAGIC_STR);
     fclose(f);
 	updateUI(hDlg, true);
 }

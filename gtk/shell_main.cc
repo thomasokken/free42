@@ -1230,7 +1230,7 @@ static void states_menu_new() {
     char path[FILENAMELEN];
     snprintf(path, FILENAMELEN, "%s/%s.f42", free42dirname, name);
     FILE *f = fopen(path, "w");
-    fprintf(f, "24kF");
+    fprintf(f, FREE42_MAGIC_STR);
     fclose(f);
     free(name);
     gtk_dialog_response(GTK_DIALOG(dlg), 4);
@@ -1585,7 +1585,7 @@ static void statesCB() {
     struct stat st;
     if (stat(buf, &st) != 0) {
         FILE *f = fopen(buf, "w");
-        fwrite("24kF", 1, 4, f);
+        fwrite(FREE42_MAGIC_STR, 1, 4, f);
         fclose(f);
     }
 

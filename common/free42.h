@@ -70,6 +70,7 @@
 
 /* Magic number "24kF" for the state file. */
 #define FREE42_MAGIC 0x466b3432
+#define FREE42_MAGIC_STR "24kF"
 
 
 #endif

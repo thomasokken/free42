@@ -59,7 +59,7 @@
     struct stat st;
     if (stat(currentStateFileNameC, &st) != 0) {
         FILE *f = fopen(currentStateFileNameC, "w");
-        fwrite("24kF", 1, 4, f);
+        fwrite(FREE42_MAGIC_STR, 1, 4, f);
         fclose(f);
     }
 
@@ -194,7 +194,7 @@
         return;
     }
     FILE *f = fopen(cname, "w");
-    fwrite("24kF", 1, 4, f);
+    fwrite(FREE42_MAGIC_STR, 1, 4, f);
     fclose(f);
     [self raised];
 }

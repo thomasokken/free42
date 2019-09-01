@@ -53,7 +53,7 @@
     struct stat st;
     if (stat(currentStateFileNameC, &st) != 0) {
         FILE *f = fopen(currentStateFileNameC, "w");
-        fwrite("24kF", 1, 4, f);
+        fwrite(FREE42_MAGIC_STR, 1, 4, f);
         fclose(f);
     }
 }
@@ -160,7 +160,7 @@
         return;
     NSString *fname = [NSString stringWithFormat:@"%s/%@.f42", free42dirname, name];
     FILE *f = fopen([fname UTF8String], "w");
-    fprintf(f, "24kF");
+    fprintf(f, FREE42_MAGIC_STR);
     fclose(f);
     [self updateUI:YES];
 }

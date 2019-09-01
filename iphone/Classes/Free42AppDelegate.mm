@@ -101,7 +101,7 @@ static char version[32] = "";
             size_t n = fread(sig, 1, 4, f);
             fclose(f);
             sig[4] = 0;
-            if (n != 4 || strcmp(sig, "24kF") != 0) {
+            if (n != 4 || strcmp(sig, FREE42_MAGIC_STR) != 0) {
                 remove(fromPathC);
                 continue;
             }
