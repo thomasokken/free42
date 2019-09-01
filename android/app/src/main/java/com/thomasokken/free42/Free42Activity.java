@@ -2132,6 +2132,20 @@ public class Free42Activity extends Activity {
         mainHandler.postDelayed(timeout3Caller, delay);
         timeout3_active = true;
     }
+
+    /**
+     * shell_platform()
+     * Callback to get the application version and platform.
+     */
+    public String shell_platform() {
+        String version;
+        try {
+            version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+        } catch (NameNotFoundException e) {
+            version = "(Unknown)";
+        }
+        return version + " Android";
+    }
     
     /**
      * shell_get_mem()

@@ -374,6 +374,22 @@ Java_com_thomasokken_free42_Free42Activity_setAlwaysRepaintFullDisplay(JNIEnv *e
 // one core_keydown() invocation), so not releasing local references will lead
 // to a "ReferenceTable overflow" eventually while running programs.
 
+const char *shell_platform() {
+    Tracer T("shell_platform");
+    JNIEnv *env = getJniEnv();
+    jclass klass = env->GetObjectClass(g_activity);
+    jmethodID mid = env->GetMethodID(klass, "shell_platform", "()Ljava/lang/String;");
+    jstring jp = (jstring) env->CallObjectMethod(g_activity, mid);
+    const char *cp = env->GetStringUTFChars(jp, 0);
+    static char p[16];
+    strncpy(p, cp, 16);
+    p[15] = 0;
+    env->ReleaseStringUTFChars(jp, cp);
+    // Delete local references
+    env->DeleteLocalRef(klass);
+    return p;
+}
+
 void shell_blitter(const char *bits, int bytesperline, int x, int y,
                          int width, int height) {
     Tracer T("shell_blitter");
