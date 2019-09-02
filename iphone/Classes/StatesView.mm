@@ -49,6 +49,9 @@
 
 - (void) raised {
     // This gets called just before the view is raised, every time
+
+    // make sure "config" exists
+    mkdir("config", 0755);
     
     // In case we're called right after an upgrade from < 2.5, or right
     // after a fresh install, make sure that at least a dummy file exists
