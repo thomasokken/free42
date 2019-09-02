@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-# This script builds the regular and upstream source packages,
+# This script builds the upstream source packages,
 # and a minimally HTMLified version of HISTORY.
 # If the -u option is specified, skips creation of the upstream packages.
 
@@ -13,16 +13,6 @@ else
 fi
 
 mkdir -p packages
-
-# Source package
-mkdir tmp
-cd tmp
-svn checkout svn://mactv/free42/trunk free42
-find . -type d -name .svn -prune -exec rm -rf {} \;
-rm -rf free42/util/icon
-tar cvfz ../packages/free42.tgz free42
-cd ..
-rm -rf tmp
 
 # "Upstream" source package, for Fedora or other Linux distros
 # Has all non-Linux versions, and all skins containing the HP logo, removed
