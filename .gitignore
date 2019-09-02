@@ -79,6 +79,10 @@
 /android/app/src/main/cpp/test_bid_functions.h
 /android/app/src/main/cpp/bin
 /android/app/src/main/cpp/IntelRDFPMathLib20U1
+/android/app/src/main/cpp/libgcc111libbid-arm64.a
+/android/app/src/main/cpp/libgcc111libbid-armv7.a
+/android/app/src/main/cpp/libgcc111libbid-x86.a
+/android/app/src/main/cpp/libgcc111libbid-x86_64.a
 
 # /common/
 
