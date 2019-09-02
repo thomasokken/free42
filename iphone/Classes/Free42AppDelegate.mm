@@ -113,6 +113,7 @@ static char version[32] = "";
                 toName = [StatesView makeCopyName:toName];
                 toPath = [NSString stringWithFormat:@"config/%@.f42", toName];
             }
+            mkdir("config", 0755);
             rename(fromPathC, [toPath UTF8String]);
             if (firstState == nil)
                 firstState = toName;

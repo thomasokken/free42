@@ -1,3 +1,8 @@
+2019-09-02: release 2.5.3a (iPhone only)
+
+* Fixed crash when the States window was opened the very first time the app was
+  run after a new install.
+
 2019-09-01: release 2.5.3
 
 * Invalid state files (corrupt, or created by an incompatible newer version of
