@@ -1,7 +1,9 @@
-2019-09-02: release 2.5.3b (iPhone only)
+2019-09-02: release 2.5.4 (iPhone only)
 
-* Fixed crash when the States window was opened the very first time the app was
-  run after a new install.
+* Fixed a crash when the States window was opened the very first time the app
+  was run after a new install.
+* Fixed a bug that could cause the hostname lookup for the HTTP Server window
+  to fail.
 
 2019-09-01: release 2.5.3
 
