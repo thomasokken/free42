@@ -573,13 +573,7 @@ int docmd_pse(arg_struct *arg) {
         pending_command = CMD_NONE;
         redisplay();
         pending_command = saved_command;
-#ifdef OLD_PSE
-        shell_delay(1000);
-        if (mode_goose >= 0)
-            mode_goose = -1 - mode_goose;
-#else
         mode_pause = true;
-#endif
     }
     return ERR_NONE;
 }

@@ -190,7 +190,9 @@ static CalcView *calcView = nil;
 
 - (void) setNeedsDisplayInRectSafely2:(id) myrect {
     TRACE("setNeedsDisplayInRectSafely2");
-    CGRect *r = (CGRect *) [((NSValue *) myrect) pointerValue];
+    NSValue *val = (NSValue *) myrect;
+    CGRect *r = (CGRect *) [val pointerValue];
+    [val release];
     [self setNeedsDisplayInRect:*r];
     delete r;
 }
@@ -205,7 +207,7 @@ static CalcView *calcView = nil;
         r->origin.y = rect.origin.y;
         r->size.width = rect.size.width;
         r->size.height = rect.size.height;
-        [self performSelectorOnMainThread:@selector(setNeedsDisplayInRectSafely2:) withObject:[NSValue valueWithPointer:r] waitUntilDone:NO];
+        [self performSelectorOnMainThread:@selector(setNeedsDisplayInRectSafely2:) withObject:[[NSValue valueWithPointer:r] retain] waitUntilDone:NO];
     }
 }
 

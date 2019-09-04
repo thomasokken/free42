@@ -277,8 +277,10 @@ void shell_message(const char *message) {
 
 - (void) showStates2:(NSString *)stateName {
     [statesView raised];
-    if (stateName != nil)
+    if (stateName != nil) {
         [statesView selectState:stateName];
+        [stateName release];
+    }
     [self.view bringSubviewToFront:statesView];
 }
 

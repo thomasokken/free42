@@ -266,12 +266,17 @@ done:
 }
 
 - (void) appendToLog:(NSString *) text {
-    if (text == nil || [text length] == 0)
+    if (text == nil)
         return;
+    if ([text length] == 0) {
+        [text release];
+        return;
+    }
     NSString *temp = [logView text];
     if (temp == nil)
         temp = @"";
     [logView setText:[temp stringByAppendingString:text]];
+    [text release];
     NSRange r;
     r.location = [[logView text] length];
     r.length = 0;
@@ -285,7 +290,7 @@ void errprintf(const char *fmt, ...) {
     char text[1024];
     va_start(ap, fmt);
     vsprintf(text, fmt, ap);
-    [instance performSelectorOnMainThread:@selector(appendToLog:) withObject:[NSString stringWithUTF8String:text] waitUntilDone:NO];
+    [instance performSelectorOnMainThread:@selector(appendToLog:) withObject:[[NSString stringWithUTF8String:text] retain] waitUntilDone:NO];
     va_end(ap);
     
     [pool release];

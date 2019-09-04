@@ -61,14 +61,13 @@
 - (NSString *) selectedStateName {
     int row = [stateListView selectedRow];
     if (row == -1)
-        return NULL;
+        return nil;
     else
-        return [[stateListDataSource getNames] objectAtIndex:row];
+        return [NSString stringWithString:[[stateListDataSource getNames] objectAtIndex:row]];
 }
 
 - (void) updateUI:(BOOL)rescan {
-    int row = [stateListView selectedRow];
-    NSString *selName = row == -1 ? nil : [[[stateListDataSource getNames] objectAtIndex:row] retain];
+    NSString *selName = [self selectedStateName];
     if (rescan) {
         [stateListDataSource loadStateNames];
         [stateListView reloadData];
@@ -85,7 +84,6 @@
         }
         if (!found) {
             [stateListView deselectAll:self];
-            [selName release];
             selName = nil;
         }
     }
@@ -103,7 +101,6 @@
         else
             [switchToButton setTitle:@"Switch To"];
         stateSelected = true;
-        [selName release];
     }
 
     [switchToButton setEnabled:stateSelected];
@@ -138,17 +135,10 @@
         [alert setMessageText:@"Revert state?"];
         [alert setInformativeText:[NSString stringWithFormat:@"Are you sure you want to revert the state \"%@\" to the last version saved?", name]];
         [alert setAlertStyle:NSWarningAlertStyle];
-        // This 'retain' appears to be necessary because of the runModal call.
-        // I added the other 'retain' calls in this class as a precaution against
-        // the same scenario.
-        [name retain];
-        if ([alert runModal] != NSAlertFirstButtonReturn) {
-            [name release];
+        if ([alert runModal] != NSAlertFirstButtonReturn)
             return;
-        }
     }
     [Free42AppDelegate loadState:[name UTF8String]];
-    [name release];
     [self close];
 }
 
@@ -255,16 +245,14 @@
 }
 
 - (void) doRename {
-    NSString *oldname = [[self selectedStateName] retain];
+    NSString *oldname = [self selectedStateName];
     if (oldname == nil)
         return;
     [stateNameWindow setupWithLabel:[NSString stringWithFormat:@"Rename \"%@\" to:", oldname] existingNames:[stateListDataSource getNames]];
     [NSApp runModalForWindow:stateNameWindow];
     NSString *newname = [stateNameWindow selectedName];
-    if (newname == nil) {
-        [oldname release];
+    if (newname == nil)
         return;
-    }
     NSString *oldpath = [NSString stringWithFormat:@"%s/%@.f42", free42dirname, oldname];
     NSString *newpath = [NSString stringWithFormat:@"%s/%@.f42", free42dirname, newname];
     rename([oldpath UTF8String], [newpath UTF8String]);
@@ -272,7 +260,6 @@
         strncpy(state.coreName, [newname UTF8String], FILENAMELEN);
         [current setStringValue:newname];
     }
-    [oldname release];
     [self updateUI:YES];
 }
 
@@ -289,17 +276,10 @@
     [alert setMessageText:@"Delete state?"];
     [alert setInformativeText:[NSString stringWithFormat:@"Are you sure you want to delete the state \"%@\"?", name]];
     [alert setAlertStyle:NSWarningAlertStyle];
-    // This 'retain' appears to be necessary because of the runModal call.
-    // I added the other 'retain' calls in this class as a precaution against
-    // the same scenario.
-    [name retain];
-    if ([alert runModal] != NSAlertFirstButtonReturn) {
-        [name release];
+    if ([alert runModal] != NSAlertFirstButtonReturn)
         return;
-    }
     NSString *statePath = [NSString stringWithFormat:@"%s/%@.f42", free42dirname, name];
     remove([statePath UTF8String]);
-    [name release];
     [self updateUI:YES];
 }
 
@@ -326,14 +306,12 @@
 }
 
 - (void) doExport {
-    NSString *name = [[self selectedStateName] retain];
+    NSString *name = [self selectedStateName];
     if (name == nil)
         return;
     FileSavePanel *saveDlg = [FileSavePanel panelWithTitle:@"Export State" types:@"Free42 State;f42;All Files;*" path:name];
-    if ([saveDlg runModal] != NSOKButton) {
-        [name release];
+    if ([saveDlg runModal] != NSOKButton)
         return;
-    }
     NSString *copyPath = [saveDlg path];
     const char *copyPathC = [copyPath UTF8String];
     if ([name caseInsensitiveCompare:[NSString stringWithUTF8String:state.coreName]] == NSOrderedSame)
@@ -343,7 +321,6 @@
         if (![self copyStateFrom:[origPath UTF8String] to:copyPathC])
             [Free42AppDelegate showMessage:@"State export failed." withTitle:@"Error"];
     }
-    [name release];
 }
 
 - (IBAction) menuSelected:(id)sender {

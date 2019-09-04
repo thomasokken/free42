@@ -135,7 +135,7 @@ static char version[32] = "";
             return YES;
         }
     } else {
-        [RootViewController performSelectorOnMainThread:@selector(showStates:) withObject:firstState waitUntilDone:NO];
+        [RootViewController performSelectorOnMainThread:@selector(showStates:) withObject:[firstState retain] waitUntilDone:NO];
         return YES;
     }
 }

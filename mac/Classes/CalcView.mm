@@ -75,7 +75,9 @@ static NSString *unicode(NSString *src) {
 }
 
 - (void) setNeedsDisplayInRectSafely2:(id) rect {
-    NSRect *r = (NSRect *) [((NSValue *) rect) pointerValue];
+    NSValue *val = (NSValue *) rect;
+    NSRect *r = (NSRect *) [val pointerValue];
+    [val release];
     [self setNeedsDisplayInRect:*r];
     delete r;
 }
@@ -94,7 +96,7 @@ static NSString *unicode(NSString *src) {
         r->origin.y = rect.origin.y;
         r->size.width = rect.size.width;
         r->size.height = rect.size.height;
-        [self performSelectorOnMainThread:@selector(setNeedsDisplayInRectSafely2:) withObject:[NSValue valueWithPointer:r] waitUntilDone:NO];
+        [self performSelectorOnMainThread:@selector(setNeedsDisplayInRectSafely2:) withObject:[[NSValue valueWithPointer:r] retain] waitUntilDone:NO];
     }
 }
 

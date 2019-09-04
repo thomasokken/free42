@@ -232,9 +232,10 @@
     // or " copy NNN", it seems more elegant to continue the sequence rather than
     // add another " copy" suffix.
     NSString *copyName = name;
+    NSUInteger len = [copyName length];
     int n = 0;
-    if ([[copyName substringFromIndex:[copyName length] - 5] compare:@" copy"] == NSOrderedSame) {
-        copyName = [copyName substringToIndex:[copyName length] - 5];
+    if (len > 5 && [[copyName substringFromIndex:len - 5] compare:@" copy"] == NSOrderedSame) {
+        copyName = [copyName substringToIndex:len - 5];
         n = 1;
     } else {
         NSRange cpos = [copyName rangeOfString:@" copy " options:NSBackwardsSearch];
