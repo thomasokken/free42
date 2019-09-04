@@ -1,18 +1,38 @@
 #!/bin/sh -e
 
+PKGNAME=Free42`uname -s`
+
+if [ -f /usr/include/alsa/asoundlib.h ]; then
+  ALSA='AUDIO_ALSA=1'
+else
+  ALSA=
+fi
+
+if [ -z $MK ]; then
+  which gmake >/dev/null
+  if [ $? -eq 0 ]; then
+    MK=gmake
+  else
+    MK=make
+  fi
+fi
+export MK
+
 unset BCD_MATH
 cd gtk
-make cleaner
-make -e AUDIO_ALSA=1
-make clean
-make -e BCD_MATH=1 AUDIO_ALSA=1
+$MK cleaner
+$MK -e $ALSA
+$MK clean
+$MK -e BCD_MATH=1 $ALSA
 cd ..
-rm -rf Free42Linux
-mkdir Free42Linux
-cp gtk/README Free42Linux
-cp gtk/free42bin Free42Linux
-cp gtk/free42dec Free42Linux
-strip Free42Linux/free42bin
-strip Free42Linux/free42dec
-tar cvfz Free42Linux.tgz Free42Linux
-rm -rf Free42Linux
+
+rm -rf $PKGNAME
+mkdir $PKGNAME
+cp gtk/README $PKGNAME
+cp gtk/free42bin $PKGNAME
+cp gtk/free42dec $PKGNAME
+strip $PKGNAME/free42bin
+strip $PKGNAME/free42dec
+mkdir -p packages
+tar cvfz packages/$PKGNAME.tgz $PKGNAME
+rm -rf $PKGNAME

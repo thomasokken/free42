@@ -1,0 +1,9 @@
+#!/bin/sh -e
+
+# This script builds a minimally HTMLified version of HISTORY.
+
+cd util
+cc -o txt2html txt2html.c
+cd ..
+util/txt2html "Free42 history" < HISTORY > history.html
+mv history.html packages

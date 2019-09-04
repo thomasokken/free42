@@ -1,12 +1,23 @@
 #!/bin/sh -e
 
-unset BCD_MATH
+# This script builds the GTK version, and upstream source package.
+# If the -u option is specified, skips creation of the upstream packages.
+
+if [ $# -ge 1 -a "$1" = "-u" ]
+then
+    SKIP_UPSTREAM=1
+    shift
+else
+    SKIP_UPSTREAM=0
+fi
+
+PKGNAME=Free42`uname -s`
+
 if [ -f /usr/include/alsa/asoundlib.h ]; then
   ALSA='AUDIO_ALSA=1'
 else
   ALSA=
 fi
-PKGNAME=Free42`uname -s`
 
 if [ -z $MK ]; then
   which gmake >/dev/null
@@ -18,6 +29,7 @@ if [ -z $MK ]; then
 fi
 export MK
 
+unset BCD_MATH
 cd gtk
 $MK cleaner
 $MK -e $ALSA
@@ -35,3 +47,12 @@ strip $PKGNAME/free42dec
 mkdir -p packages
 tar cvfz packages/$PKGNAME.tgz $PKGNAME
 rm -rf $PKGNAME
+
+# "Upstream" source package, for Fedora or other Linux distros
+# Has all non-Linux versions, and all skins containing the HP logo, removed
+if [ $SKIP_UPSTREAM -eq 0 ]
+then
+    cd upstream
+    sh ./build-nologo
+    cd ..
+fi

@@ -1,4 +1,4 @@
-2019-09-02: release 2.5.4 (iPhone only)
+2019-09-02: release 2.5.4 (iOS only)
 
 * Fixed a crash when the States window was opened the very first time the app
   was run after a new install.
@@ -27,7 +27,7 @@
 * Fixed bug in 2.5 that caused string elements in real matrices (including the
   numbered registers) to be written incorrectly in the state file, leading to
   memory corruption and crashes when the state file was read back in.
-* iPhone version: Now makes sure that the current state shows up in the list in
+* iOS version: Now makes sure that the current state shows up in the list in
   the States view, even if it is opened right after a fresh install or right
   after upgrading from a version before 2.5.
 
@@ -45,15 +45,15 @@
   hadn't updated the corresponding accelerator resources. Fixed.
 * Windows and Linux versions: All Ctrl-<Key> shortcuts now work even when the
   Print-Out window is on top.
-* Android, iPhone, and Mac versions: When loading a skin in the skin browser,
+* Android, iOS, and MacOS versions: When loading a skin in the skin browser,
   they now force an un-cached load, so skin fixes can actually be loaded by
   users without delay, and without having to resort to side-loading.
-* Android and iPhone versions: Changed default landscape skin, from
-  desktop/42ct to android/SGS-L. The old skin had keys below the display that
-  didn't line up with the menus; you really have to have Σ+ 1/x √x LOG LN XEQ
+* Android and iOS versions: Changed default landscape skin, from desktop/42ct
+  to android/SGS-L. The old skin had keys below the display that didn't line up
+  with the menus; you really have to have Σ+ 1/x √x LOG LN XEQ
   below the display for a consistent user interface.
-* iPhone version: Changed Standard-X skin, from Ehrling42sl.X to Matt42X. The
-  old skin was rather blurry; the new skin has nice and crisp text for all key
+* iOS version: Changed Standard-X skin, from Ehrling42sl.X to Matt42X. The old
+  skin was rather blurry; the new skin has nice and crisp text for all key
   labels.
 
 2019-07-03: release 2.4.1
@@ -65,7 +65,7 @@
 * Implemented configurable word size for BASE functions (up to 64 bits, or 52
   in Free42 Binary), unsigned mode, and wrap mode. The new settings are all in
   a new row in the MODES menu.
-* Android, iPhone, and Mac versions: Added some feedback in the skin loading
+* Android, iOS, and MacOS versions: Added some feedback in the skin loading
   window: the "Load" button changes to "..." while a page load is in progress;
   "Load" is enabled only when a GIF or layout file is being displayed, i.e.
   something that could actually be a skin, and therefore loadable; and finally,
@@ -85,23 +85,23 @@
 * Android version: Implemented the 2.3 features, with the exception of Copy
   Print-Out as Image. (Apparently Android doesn't support images on the
   clipboard.)
-* Mac version: Copy Print-Out as Image didn't handle wrap-around in the image
-  buffer correctly. Fixed.
+* MacOS version: Copy Print-Out as Image didn't handle wrap-around in the
+  image buffer correctly. Fixed.
 * Windows and Linux version: Implemented Paper Advance, Copy Print-Out as Text,
   and Copy Print-Out as Image.
-* iPhone version: Fixed the top-of-screen menu trigger so that it no longer
+* iOS version: Fixed the top-of-screen menu trigger so that it no longer
   sabotages keys that are also in that area, as in the HP_Mega_42 and SGS-L
   skins. This is the same fix I made for Android in release 1.5.8d. I didn't
-  think to fix this for iPhone at the time, probably because the iPhone version
+  think to fix this for iOS at the time, probably because the iOS version
   didn't support landscape mode then.
 
-2019-06-15: release 2.3.0a (iPhone only)
+2019-06-15: release 2.3.0a (iOS only)
 
 * Added the 2.3 features.
   This should have been called version 2.3 as well, but a mistake with the
   release build forced me to use the next higher version number instead.
 
-2019-06-12: release 2.3 (Mac only)
+2019-06-12: release 2.3 (MacOS only)
 
 * Added Load Skins feature, for downloading and installing skins from the
   Internet.
@@ -118,7 +118,7 @@
   The minimum Android API level requirement went from 8 to 14 (2.2 to 4.0), but
   that seems like an acceptable price to pay.
 
-2019-05-24: release 2.2.1c (iPhone only)
+2019-05-24: release 2.2.1c (iOS only)
 
 * Fixed crash in Paste when clipboard contained no text.
 
@@ -142,8 +142,8 @@
   behaviors for unshifted and shifted menu keys.
 * Windows version: Changed sounds from using the Beep() function to playing
   wav sounds using the PlaySound() function, matching the way sounds are played
-  in the Android, iPhone, and Mac versions.
-* MacDashboard version: Didn't recognize comma as decimal key. Fixed.
+  in the Android, iOS, and MacOS versions.
+* MacOS Dashboard version: Didn't recognize comma as decimal key. Fixed.
 
 2019-04-07: release 2.2
 
@@ -165,7 +165,7 @@
 * Added support for direct command mapping in skins. This is specified by
   creating Macro: lines where the macro is not a sequence of keystrokes, but a
   command name enclosed in double quotes, e.g., Macro: 40 "SST→"
-* Windows, Mac, and Linux versions: In skin layout files, they now look for
+* Windows, MacOS, and Linux versions: In skin layout files, they now look for
   keymap entries tagged as "WinKey:", "MacKey:", or "GtkKey:", respectively.
   This allows embedding keymaps for multiple platforms in one layout file.
   This does mean that old-style keymap entries, with no identifying tags, are
@@ -188,14 +188,14 @@
 * Added SST↓ (Step Into), which is just an alias for SST. This allows creating
   a row in the CUSTOM menu with SST↓, SST→, and SST↑, like in typical high-
   level language debuggers.
-* Android and iPhone versions: Improved "Maintain skin aspect ratio" option: it
+* Android and iOS versions: Improved "Maintain skin aspect ratio" option: it
   now chooses the largest scale where the skin still fits on the screen in its
   entirety, and centers the skin within the available space.
-* iPhone version: The "Maintain skin aspect ratio" and "Print to text" options
-  in the Preferences were switched. Fixed.
-* iPhone version: Fixed handling of announcements in the status bar (audio
+* iOS version: The "Maintain skin aspect ratio" and "Print to text" options in
+  the Preferences were switched. Fixed.
+* iOS version: Fixed handling of announcements in the status bar (audio
   recording, active call, active GPS).
-* iPhone version: Turned optimization back on. It looks like the optimizer bug
+* iOS version: Turned optimization back on. It looks like the optimizer bug
   (see release notes for 2.0.21a) has been fixed.
 
 2019-03-18: release 2.0.24h (Android only)
@@ -203,16 +203,16 @@
 * The screen update logic in the previous version was incorrect and caused the
   app to appear unresponsive on many devices. Fixed.
 
-2019-03-17: release 2.0.24g (Android, iPhone, and Mac)
+2019-03-17: release 2.0.24g (Android, iOS, and MacOS)
 
-* Android, iPhone, and Mac versions: Enabled non-integral display scaling.
-* Android and iPhone versions: Added setting in Preferences to choose whether
-  to stretch skins to fill the screen, or to stretch them only to fill the
+* Android, iOS, and MacOS versions: Enabled non-integral display scaling.
+* Android and iOS versions: Added setting in Preferences to choose whether to
+  stretch skins to fill the screen, or to stretch them only to fill the
   available width, while maintaining their original aspect ratio.
-* iPhone version: Implemented support for landscape orientation.
-* iPhone version: Fixed alignment of "Done" buttons.
+* iOS version: Implemented support for landscape orientation.
+* iOS version: Fixed alignment of "Done" buttons.
 
-2019-03-08: release 2.0.24f (iPhone only)
+2019-03-08: release 2.0.24f (iOS only)
 
 * Added Haptic Feedback setting in Preferences.
 
@@ -226,13 +226,13 @@
 
 * Fixed crashes while printing.
 
-2019-02-26: release 2.0.24c (Android and iPhone)
+2019-02-26: release 2.0.24c (Android and iOS)
 
 * Android version: Removed all restrictions on file selection dialogs, and
   instead added a "Home" button, so you can always navigate back to
   /sdcard/Android/data/com.thomasokken.free42 if you get stuck somewhere.
-* iPhone version: Fixed the white bar that was showing up above the skin on
-  iPads running iOS 12.
+* iOS version: Fixed the white bar that was showing up above the skin on iPads
+  running iOS 12.
 
 2019-02-25: release 2.0.24b (Android only)
 
@@ -241,12 +241,12 @@
   starts in the writable storage directory, but does allow navigation out of
   it.
 
-2019-02-25: release 2.0.24a (Android and Mac)
+2019-02-25: release 2.0.24a (Android and MacOS)
 
 * Android version: Lifted file selector directory restriction for Import
   Programs and skin selection, keeping it in place for Export Programs and
   selecting print-out files.
-* Mac version: The previous release broke Import Programs. Fixed.
+* MacOS version: The previous release broke Import Programs. Fixed.
 
 2019-02-24: release 2.0.24
 
@@ -254,26 +254,26 @@
   the following command names are now recognized: x, RCL*, RCLx, RCL/, STOx,
   X#0?, X#Y?, X<>0?, and X<>Y? (in addition to all the alternate spellings that
   were recognized previously).
-* iPhone version: Added Key Clicks setting in Preferences.
-* Windows and Mac versions: Now refuse to export zero programs. (The other
+* iOS version: Added Key Clicks setting in Preferences.
+* Windows and MacOS versions: Now refuse to export zero programs. (The other
   versions already did this.) Also tweaked the file selection dialogs a bit.
 * Android version: When running on 4.4 (KitKat) or later, now creates the
   storage directory, /sdcard/Android/data/com.thomasokken.free42, as soon as it
   has access. The file selection dialogs are now restricted to this directory
   and its subdirectories.
 
-2019-02-18: release 2.0.23c (iPhone only)
+2019-02-18: release 2.0.23c (iOS only)
 
 * The previous release calculated the skin scale incorrectly for certain skins,
   causing them to be displayed too small. Fixed.
 
-2019-02-17: release 2.0.23b (iPhone only)
+2019-02-17: release 2.0.23b (iOS only)
 
 * Enabled non-integral scaling for skins, so skins can fill the width of the
   screen on iPhone X series (X, XR, XS, XS Max) even if they were designed for
   older models with 3:4 or 9:16 screen aspect ratios.
 
-2019-02-11: release 2.0.23a (iPhone only)
+2019-02-11: release 2.0.23a (iOS only)
 
 * Replaced iPhone X skin with a more screen-filling one.
 
@@ -284,7 +284,7 @@
 * 0^0 now returns Invalid Data, not 1, for all combinations of real and complex
   arguments. The rationale for returning 1 was mathematically questionable, and
   Invalid Data is what the real HP-42S returns.
-* iPhone version: Added basic iPhone X support.
+* iOS version: Added basic iPhone X support.
 
 2019-01-26: release 2.0.22c (Android only)
 
@@ -317,13 +317,13 @@
   using Shift-ENTER, to switch from, say, LBL 3_ to LBL "3_ , as an alternative
   method of entering ALPHA labels that start with a digit. The HP-42S allows
   this, but Free42 didn't. Fixed.
-* Android and iPhone versions: OFF now turns off "continuous on" mode.
+* Android and iOS versions: OFF now turns off "continuous on" mode.
 
 2018-11-24: release 2.0.21b (Windows only)
 
 * Fixed Alt-Tab behavior.
 
-2018-07-03: release 2.0.21a (iPhone only)
+2018-07-03: release 2.0.21a (iOS only)
 
 * Turned off all optimization for release builds; the latest iOS developer
   tools appear to have a buggy optimizer, and it is causing number display in
@@ -406,7 +406,7 @@
 
 * Paste didn't handle numbers with negative exponents correctly. Fixed.
 
-2018-02-02: release 2.0.12d (iPhone only)
+2018-02-02: release 2.0.12d (iOS only)
 
 * Fixed crash in GIF printing.
 
@@ -428,10 +428,10 @@
 
 * Fixed pasting of SIZE lines.
 * When pasting numbers, spaces are now allowed as thousands separators.
-* Mac and MacDashboard versions: Are now 64-bit.
-* Mac and Linux versions: Fixed Caps Lock handling, so Caps Lock + Esc no
+* MacOS and MacOS Dashboard versions: Are now 64-bit.
+* MacOS and Linux versions: Fixed Caps Lock handling, so Caps Lock + Esc no
   longer exits.
-* Android and iPhone versions: Implemented "continuous on" mode (ON function,
+* Android and iOS versions: Implemented "continuous on" mode (ON function,
   flag 44).
 
 2018-01-26: release 2.0.11a (Android only)
@@ -471,10 +471,10 @@
 * Selecting the already-active menu did not cause the display to be repainted,
   even though it should: there might be a message, which should be removed in
   that case. Fixed.
-* All versions except MacDashboard: made the print annunciator linger for one
-  second after printing stops. This makes it more noticeable, so printing is
-  less likely to go unnoticed on fast devices.
-* Mac version: Implemented battery checker.
+* All versions except MacOS Dashboard: made the print annunciator linger for
+  one second after printing stops. This makes it more noticeable, so printing
+  is less likely to go unnoticed on fast devices.
+* MacOS version: Implemented battery checker.
 * Linux version: Added /sys/class/power_supply support in battery checker.
 
 2017-12-26: release 2.0.8
@@ -510,10 +510,10 @@
   key do still exist.
 * Android version: The menu icons for Copy, Paste, and Print-Out were displayed
   too large, overlapping the menu item labels on some devices. Fixed.
-* Windows, Linux, Mac, and MacDashboard versions: Added keyboard mappings
+* Windows, Linux, MacOS, and MacOS Dashboard versions: Added keyboard mappings
   g => GTO and p => PI. On existing installations, users must delete or rename
   the existing keymap and restart for this to take effect.
-* iPhone version: Painting the display could be glitchy if either or both of
+* iOS version: Painting the display could be glitchy if either or both of
   its coordinates were odd. Fixed by forcing them to be even.
 
 2017-08-12: release 2.0.6
@@ -532,7 +532,7 @@
 * While entering a numeric argument, the up-arrow and down-arrow keys would
   perform BST and SST, which should be blocked. Fixed.
 * Testing flag 75 would turn on the programmable menu. Fixed.
-* iPhone version: Fixed a few display alignment issues with the built-in 4"
+* iOS version: Fixed a few display alignment issues with the built-in 4"
   skin.
 
 2017-05-29: release 2.0.4
@@ -550,7 +550,7 @@
 * Removed "raw text" print option; it has been obsolete since the introduction
   of UTF-8 printing in 1.5.11, since Unicode can represent the HP-42S character
   set directly.
-* iPhone version: LOCAT didn't work when its initial invocation happened from a
+* iOS version: LOCAT didn't work when its initial invocation happened from a
   program. Fixed.
 * In the About box, replaced the link to the Free42 discussion group with a
   link to the Alternative HP-42S/Free42 Manual.
@@ -569,7 +569,7 @@
   triangle) to U+25B8 (black right-pointing small triangle); the former gets
   rendered as an emoji in iOS, while the latter doesn't, plus, the smaller
   triangle looks better in listings anyway.
-* MacDashboard version: Fixed multi-line pasting.
+* MacOS Dashboard version: Fixed multi-line pasting.
 
 2017-04-22: release 2.0 (beta)
 
@@ -625,11 +625,11 @@
 * Android version: Added landscape skin; made it the default for landscape mode
   in new installs.
 
-2016-09-04: release 1.5.10 (Android, Windows, Mac, and Linux)
+2016-09-04: release 1.5.10 (Android, Windows, MacOS, and Linux)
 
 * Fixed AGRAPH bug with complex number in X.
 
-2016-09-04: release 1.5.9 (Android, Windows, Mac, and Linux)
+2016-09-04: release 1.5.9 (Android, Windows, MacOS, and Linux)
 
 * Now building the Intel Decimal Floating-Point Math Library from source for
   all targets. In terms of the end user, this makes no difference, but it will
@@ -685,8 +685,8 @@
 * Android version: Changed targetSdkVersion from 3.0 to 2.2. This should make
   the menu reliably accessible in all Android versions and with all display
   styles.
-* Resurrected the MacDashboard version; the display repaint logic now supports
-  Yosemite (10.10) and later.
+* Resurrected the MacOS Dashboard version; the display repaint logic now
+  supports Yosemite (10.10) and later.
 
 2016-03-19: release 1.5.7a (Android only)
 
@@ -704,8 +704,8 @@
 
 2014-12-21: release 1.5.6
 
-* iPhone version: Implemented Copy and Paste.
-* iPhone version: Fixed LOCAT for iOS 8.
+* iOS version: Implemented Copy and Paste.
+* iOS version: Fixed LOCAT for iOS 8.
 * All versions, on hard reset, now initializing flag 28 (decimal point/comma)
   to match the host's locale.
 * Paste didn't clear the message flags. Fixed.
@@ -714,7 +714,7 @@
 
 * Decimal version: Entering a number with an empty exponent (e.g. 1E or 1E-)
   would yield <Not a Number>. Fixed.
-* iPhone version: HTTP server: Fixed downloading individual programs from, and
+* iOS version: HTTP server: Fixed downloading individual programs from, and
   uploading zip files of programs to, the /memory directory. This got broken in
   release 1.4.77, while implementing local file download.
 * Android version: When the screen orientation was set to "automatic", it would
@@ -731,7 +731,7 @@
 * Added nova1_1096 skin, for iPhone 5, to the Free42iPhoneSkins package.
   Contributed by Keith Carangelo.
 
-2014-09-06: release 1.5.4a (iPhone only)
+2014-09-06: release 1.5.4a (iOS only)
 
 * Fixed keyboard handling in the Preferences and Select File dialogs.
 * Fixed scrolling behavior (in 1.5.4, windows were sized 20 pixels beyond the
@@ -827,42 +827,42 @@
 
 * Galaxy_Nexus skin to Android skins package. Contributed by Andrew Novinc.
 
-2013-03-02: release 1.4.77a (iPhone only)
+2013-03-02: release 1.4.77a (iOS only)
 
-* iPhone version: Fixed "Make Directory" in the file selection dialogs.
-* iPhone version: When the user turns off printing to text or to GIF in the
+* iOS version: Fixed "Make Directory" in the file selection dialogs.
+* iOS version: When the user turns off printing to text or to GIF in the
   Preferences, or changes the print-out file name, the existing files are now
   promptly flushed and closed.
-* iPhone version: Fixed "garbage" in print-out window.
-* iPhone version: Now highlights the currently selected skin in the Select Skin
+* iOS version: Fixed "garbage" in print-out window.
+* iOS version: Now highlights the currently selected skin in the Select Skin
   menu.
 
 2013-02-17: release 1.4.77
 
-* iPhone version: The links in the About view now actually work.
-* iPhone version: Implemented 'New directory' and 'Delete' in the HTTP Server.
-* iPhone version: Implemented zip file upload and download in the HTTP Server.
-* iPhone version: Implemented local program import/export.
-* iPhone version: Implemented print-out window.
+* iOS version: The links in the About view now actually work.
+* iOS version: Implemented 'New directory' and 'Delete' in the HTTP Server.
+* iOS version: Implemented zip file upload and download in the HTTP Server.
+* iOS version: Implemented local program import/export.
+* iOS version: Implemented print-out window.
 
 2013-01-06: release 1.4.77
 
-* All versions except iPhone: the links in the About boxes now actually work.
+* All versions except iOS: the links in the About boxes now actually work.
 
 2013-01-01: release 1.4.76
 
-* Mac version: Implemented print-out window.
+* MacOS version: Implemented print-out window.
 
-2012-12-17: release 1.4.75b (iPhone only)
+2012-12-17: release 1.4.75b (iOS only)
 
-* iPhone version: Fixed three issues with the HTTP Server (displaying the wrong
-  IP address, binding to the network incorrectly, and a crash when writing to
-  the on-screen log).
+* iOS version: Fixed three issues with the HTTP Server (displaying the wrong IP
+  address, binding to the network incorrectly, and a crash when writing to the
+  on-screen log).
 
-2012-12-04: release 1.4.75a (iPhone only)
+2012-12-04: release 1.4.75a (iOS only)
 
-* iPhone version: Clicking Done on the HTTP Server window could cause the app
-  to freeze under certain circumstances. Fixed.
+* iOS version: Clicking Done on the HTTP Server window could cause the app to
+  freeze under certain circumstances. Fixed.
 
 2012-11-24: release 1.4.75
 
@@ -870,7 +870,7 @@
 
 2012-10-27: release 1.4.75
 
-* iPhone version: In the HTTP Server view, tapping on the server URL switches
+* iOS version: In the HTTP Server view, tapping on the server URL switches
   between the DNS name and the IP address.
 * Linux version: Now uses ALSA to play BEEP and TONE sounds (but not when
   running on remote displays).
@@ -890,7 +890,7 @@
 
 2012-05-05: release 1.4.73
 
-* iPhone version: Now writes state file when moved to background.
+* iOS version: Now writes state file when moved to background.
 * OFF now refuses to shut down Free42 if there have been no keystrokes since
   the application was started. It will stop program execution and display
   the message "Suspicious OFF" instead.
@@ -934,7 +934,7 @@
 
 * Fixed several bugs in complex ASIN, ASINH, ACOS, and ACOSH.
 * Android version: Better printer icon in the main menu, by Günter Schink.
-* Mac version: OFF didn't work when invoked from a program. Fixed.
+* MacOS version: OFF didn't work when invoked from a program. Fixed.
 
 2011-06-11: (no new code release)
 
@@ -969,7 +969,7 @@
 2011-03-13: release 1.4.67
 
 * ASIN returned incorrect results for large complex arguments. Fixed.
-* iPhone version: Added support for 640x920 skins.
+* iOS version: Added support for 640x920 skins.
 * Added Silver And Blue skin to Free42PocketPCSkins.zip package. Contributed by
   David Geiger.
 * The SST and BST key labels were switched in these skins:
@@ -1004,10 +1004,10 @@
 
 2010-03-28: release 1.4.63
 
-* iPhone version: Implemented ACCEL, LOCAT, and HEADING functions, for querying
+* iOS version: Implemented ACCEL, LOCAT, and HEADING functions, for querying
   the device's accelerometer, location services (GPS on the 3G and 3GS; WiFi-
   based on all other models), and compass (3GS only).
-* All versions except MacDashboard: for skins, increased the maximum macro
+* All versions except MacOS Dashboard: for skins, increased the maximum macro
   length from 31 to 63. The old limit was too small to allow macros that step
   forward all the way to the end of the FCN catalog, and supporting such macros
   is necessary now that the length of the FCN catalog is no longer fixed at 42
@@ -1030,8 +1030,8 @@
 
 * Windows version: Now has an option in the Preferences screen to map the
   Calculator key, found on many newer keyboards, to launch Free42.
-* iPhone version: The hostname lookup for the HTTP Server window is now done in
-  a background thread, so that a slow or malfunctioning DNS server no longer
+* iOS version: The hostname lookup for the HTTP Server window is now done in a
+  background thread, so that a slow or malfunctioning DNS server no longer
   causes the app to freeze on startup.
 * When EDITN was active, you could overwrite the edited matrix with a scalar
   using STO, or delete it using CLV -- and then you would be stuck in the
@@ -1070,8 +1070,8 @@
 
 2009-10-31: release 1.4.59
 
-* MacDashboard version: Changed the background from green to gray, and changed
-  the transparency to fully opaque.
+* MacOS Dashboard version: Changed the background from green to gray, and
+  changed the transparency to fully opaque.
 * PalmOS Decimal version builds & works again; fixed the SQRT crash and the
   divide bug (caused by 16-bit integer overflow, oops).
 * Decimal version: Re-fixed the subtract bug which had originally been fixed in
@@ -1084,7 +1084,7 @@
 
 * Removed Byron's BIGSTACK and BIGLCD hacks; these will be maintained in a
   separate fork from now on. This protects the other Free42 versions from bugs
-  in the 42S/iPhone code, and right now, it fixes some display glitches in the
+  in the 42S/iOS code, and right now, it fixes some display glitches in the
   other versions.
 
 2009-10-19: release 1.4.57
@@ -1109,7 +1109,7 @@
     10/7*7-10 is not the same, but this is correct (it depends on where you cut
     off the number).
   . optimisations to subtract routine.
-* Mac version: Now uses $HOME/Library/Application Support/Free42 instead of
+* MacOS version: Now uses $HOME/Library/Application Support/Free42 instead of
   $HOME/.free42 for persistent state, keymap, and skins. If this directory
   does not exist, but $HOME/.free42 does, the latter is renamed to the former.
 * Switching from a version using the old BCDFloat code (1.4.51 or earlier) to a
@@ -1169,20 +1169,20 @@
 
 2009-08-08: release 1.4.52
 
-* New: Mac version. This is a native application, not a Dashboard widget; it
-  is functionally identical to the PC versions (Windows, GTK, and Motif).
+* New: MacOS version. This is a native application, not a Dashboard widget;
+  it is functionally identical to the PC versions (Windows, GTK, and Motif).
   The print-out window doesn't work yet, though printing to files does;
   everything else is working. The print-out window will be finished in a two
   or three weeks, barring the unforeseen. I'm releasing the app in this
   incomplete state because I feel it is stable and usable, and should be a
   big improvement for those currently using the Dashboard widget.
   This is a Universal application, so it should run on PowerPC and Intel-
-  based Macs. It requires Mac OS X 10.5 or later.
+  based Macs. It requires OS X 10.5 or later.
 * Decimal version: Merged Hugh Steers' latest BCD code. This provides more
   accurate transcendentals and some bug fixes.
 * Also, Hugh improved the error estimate for the Romberg integration code;
   it now converges more quickly in many cases.
-* MacDashboard version: Now recognizes '*' and '+' on the numeric keypad.
+* MacOS Dashboard version: Now recognizes '*' and '+' on the numeric keypad.
 
 2009-07-10: release 1.4.51
 
@@ -1268,7 +1268,7 @@
 
 2008-04-12: release 1.4.43
 
-* MacDashboard version: Fixed event handling so that program execution now
+* MacOS Dashboard version: Fixed event handling so that program execution now
   works. There's still plenty of room for improvement: key timeouts (so
   pressing and holding a key behaves like it does on the real HP-42S and on
   the other Free42 versions) and auto-repeat come to mind... But at least
@@ -1786,9 +1786,9 @@
   active, the A through F keys are now mapped to the corresponding menu keys,
   regardless of the keyboard map -- so you can now enter a number like FCE2
   without having to use the mouse or the F1-F6 keys.
-* Added MacDashboard version to the source distribution. No binary
+* Added MacOS Dashboard version to the source distribution. No binary
   distribution, alas, because I don't have a MacOS X build environment.
-  MacDashboard code written by D. Jeff Dionne.
+  MacOS Dashboard code written by D. Jeff Dionne.
 
 2006-02-01: release 1.3.14
 

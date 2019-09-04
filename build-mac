@@ -1,5 +1,17 @@
 #!/bin/sh -e
 
+# This script builds the MacOS application, and upstream source package
+# for MacPorts.
+# If the -u option is specified, skips creation of the upstream package.
+
+if [ $# -ge 1 -a "$1" = "-u" ]
+then
+    SKIP_UPSTREAM=1
+    shift
+else
+    SKIP_UPSTREAM=0
+fi
+
 mkdir -p packages
 
 cd mac
@@ -18,3 +30,12 @@ zip -r ../../packages/Free42Mac.zip "Free42 Binary.app" "Free42 Decimal.app" REA
 cd ..
 rm -rf tmp
 cd ..
+
+# "Upstream" source package, for MacPorts.
+# Has all non-Mac versions, and all skins containing the HP logo, removed
+if [ $SKIP_UPSTREAM -eq 0 ]
+then
+    cd upstream
+    sh ./build-macports
+    cd ..
+fi
