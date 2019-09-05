@@ -1,7 +1,15 @@
-2019-09-04: release 2.5.5 (iOS and Mac)
+????-??-??: release 2.5.5
 
-* Fixed several memory management bugs that were causing random crashes when
-  running programs and when using the States dialog.
+* Moved the settings "Singular Matrix Error," "Matrix Out Of Range," and "Auto-
+  Repeat" from the core state (the *.f42 files) to the shell state, so they are
+  not affected by switching core states.
+* iOS version: Fixed a memory management bug that was causing random crashes
+  when running programs.
+* iOS and MacOS versions: Fixed a couple of bugs that were causing crashes in
+  the States window.
+* Android version: The States window would ask for confirmation to revert the
+  current state back to the last version saved, even when the user was trying
+  to switch to a different state. Fixed.
 
 2019-09-02: release 2.5.4 (iOS only)
 
