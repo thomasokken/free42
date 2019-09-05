@@ -1193,6 +1193,8 @@ void core_export_programs(int count, const int *indexes, const char *raw_file_na
             }
 #ifdef IPHONE
         }
+    } else {
+        raw_buf = NULL;
 #endif
     }
     for (int i = 0; i < count; i++) {
@@ -1743,6 +1745,8 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
             }
 #ifdef IPHONE
         }
+    } else {
+        raw_buf = NULL;
 #endif
     }
 
