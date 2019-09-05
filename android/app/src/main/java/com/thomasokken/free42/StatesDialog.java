@@ -159,16 +159,19 @@ public class StatesDialog extends Dialog {
         String selectedStateName = getSelectedState();
         if (selectedStateName == null)
             return;
-        new AlertDialog.Builder(getContext())
-                .setTitle("Confirm Revert")
-                .setMessage("Are you sure you want to revert the state \"" + selectedStateName + "\" to the last version saved?")
-                .setIcon(android.R.drawable.ic_dialog_info)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        doSwitchTo2();
-                    }
-                })
-                .setNegativeButton("Cancel", null).show();
+        if (selectedStateName.equals(Free42Activity.getSelectedState()))
+            new AlertDialog.Builder(getContext())
+                    .setTitle("Confirm Revert")
+                    .setMessage("Are you sure you want to revert the state \"" + selectedStateName + "\" to the last version saved?")
+                    .setIcon(android.R.drawable.ic_dialog_info)
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            doSwitchTo2();
+                        }
+                    })
+                    .setNegativeButton("Cancel", null).show();
+        else
+            doSwitchTo2();
     }
 
     private void doSwitchTo2() {
