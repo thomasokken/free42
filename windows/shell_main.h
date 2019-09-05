@@ -63,6 +63,9 @@ typedef struct state {
     BOOL singleInstance;
     BOOL calculatorKey;
     char coreName[FILENAMELEN];
+    bool matrix_singularmatrix;
+    bool matrix_outofrange;
+    bool auto_repeat;
 } state_type;
 
 extern state_type state;
