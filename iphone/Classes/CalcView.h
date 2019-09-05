@@ -17,7 +17,7 @@
 
 #import <UIKit/UIKit.h>
 
-#define SHELL_VERSION 7
+#define SHELL_VERSION 8
 #define FILENAMELEN 1024
 
 struct state_type {
@@ -35,6 +35,9 @@ struct state_type {
     int maintainSkinAspect[2];
     bool offEnabled;
     char coreName[FILENAMELEN];
+    bool matrix_singularmatrix;
+    bool matrix_outofrange;
+    bool auto_repeat;
 };
 
 extern state_type state;

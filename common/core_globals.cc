@@ -3340,12 +3340,10 @@ static bool load_state2(int4 ver, bool *clear, bool *too_new) {
             state_file_number_format = NUMBER_FORMAT_BID128;
     }
 
-    if (ver < 2) {
-        core_settings.matrix_singularmatrix = false;
-        core_settings.matrix_outofrange = false;
-    } else {
-        if (!read_bool(&core_settings.matrix_singularmatrix)) return false;
-        if (!read_bool(&core_settings.matrix_outofrange)) return false;
+    if (ver >= 2) {
+        bool bdummy;
+        if (!read_bool(&bdummy)) return false;
+        if (!read_bool(&bdummy)) return false;
         if (ver < 9) {
             int dummy;
             if (!read_int(&dummy)) return false;
@@ -3359,22 +3357,11 @@ static bool load_state2(int4 ver, bool *clear, bool *too_new) {
             if (!read_int(&dummy)) return false;
         }
     }
-    if (ver < 11)
-        core_settings.auto_repeat = true;
-    else
-        if (!read_bool(&core_settings.auto_repeat)) return false;
-    if (ver < 15 || ver > 25) {
-        #if defined(ANDROID) || defined(IPHONE)
-            core_settings.enable_ext_accel = true;
-            core_settings.enable_ext_locat = true;
-            core_settings.enable_ext_heading = true;
-        #else
-            core_settings.enable_ext_accel = false;
-            core_settings.enable_ext_locat = false;
-            core_settings.enable_ext_heading = false;
-        #endif
-        core_settings.enable_ext_time = true;
-    } else {
+    if (ver >= 11) {
+        bool dummy;
+        if (!read_bool(&dummy)) return false;
+    }
+    if (ver >= 15 && ver <= 25) {
         bool dummy;
         if (ver < 20) {
             if (!read_bool(&dummy)) return false;
@@ -3385,12 +3372,6 @@ static bool load_state2(int4 ver, bool *clear, bool *too_new) {
         if (!read_bool(&dummy)) return false;
         if (!read_bool(&dummy)) return false;
     }
-    #if defined (FREE42_FPTEST)
-        core_settings.enable_ext_fptest = true;
-    #else
-        core_settings.enable_ext_fptest = false;
-    #endif
-    core_settings.enable_ext_prog = true;
     if (ver >= 23 && ver <= 25) {
         bool dummy;
         if (!read_bool(&dummy)) return false;
@@ -3811,24 +3792,6 @@ void hard_reset(int reason) {
     mode_time_clktd = false;
     mode_time_clk24 = false;
     mode_wsize = 36;
-
-    core_settings.auto_repeat = true;
-    #if defined(ANDROID) || defined(IPHONE)
-        core_settings.enable_ext_accel = true;
-        core_settings.enable_ext_locat = true;
-        core_settings.enable_ext_heading = true;
-    #else
-        core_settings.enable_ext_accel = false;
-        core_settings.enable_ext_locat = false;
-        core_settings.enable_ext_heading = false;
-    #endif
-    core_settings.enable_ext_time = true;
-    #if defined (FREE42_FPTEST)
-        core_settings.enable_ext_fptest = true;
-    #else
-        core_settings.enable_ext_fptest = false;
-    #endif
-    core_settings.enable_ext_prog = true;
 
     reset_math();
 

@@ -25,7 +25,7 @@
 extern GtkWidget *calc_widget;
 extern bool allow_paint;
 
-#define SHELL_VERSION 5
+#define SHELL_VERSION 6
 
 struct state_type {
     int extras;
@@ -40,6 +40,9 @@ struct state_type {
     char skinName[FILENAMELEN];
     int singleInstance;
     char coreName[FILENAMELEN];
+    bool matrix_singularmatrix;
+    bool matrix_outofrange;
+    bool auto_repeat;
 };
 
 extern state_type state;

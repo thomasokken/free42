@@ -1733,7 +1733,11 @@ static void init_shell_state(int4 version) {
             strcpy(state.coreName, "Untitled");
             /* fall through */
         case 1:
-            /* current version (SHELL_VERSION = 1),
+            core_settings.matrix_singularmatrix = false;
+            core_settings.matrix_outofrange = false;
+            core_settings.auto_repeat = true;
+        case 2:
+            /* current version (SHELL_VERSION = 2),
              * so nothing to do here since everything
              * was initialized from the state file.
              */
@@ -1772,6 +1776,12 @@ static int read_shell_state(int4 *ver) {
         return 0;
     if (fread(&state, 1, state_size, statefile) != state_size)
         return 0;
+
+    if (state_version >= 2) {
+        core_settings.matrix_singularmatrix = state.matrix_singularmatrix;
+        core_settings.matrix_outofrange = state.matrix_outofrange;
+        core_settings.auto_repeat = state.auto_repeat;
+    }
     
     init_shell_state(state_version);
     *ver = version;
@@ -1792,6 +1802,9 @@ static int write_shell_state() {
         return 0;
     if (fwrite(&state_version, 1, sizeof(int4), statefile) != sizeof(int4))
         return 0;
+    state.matrix_singularmatrix = core_settings.matrix_singularmatrix;
+    state.matrix_outofrange = core_settings.matrix_outofrange;
+    state.auto_repeat = core_settings.auto_repeat;
     if (fwrite(&state, 1, sizeof(state_type), statefile) != sizeof(state_type))
         return 0;
     
