@@ -87,7 +87,9 @@
 # /common/
 
 # /gtk/
+/gtk/*.a
 /gtk/*.d
+/gtk/*.o
 /gtk/keymap2cc
 /gtk/keymap.cc
 /gtk/skin2cc
