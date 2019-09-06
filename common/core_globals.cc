@@ -995,7 +995,7 @@ static bool unpersist_vartype(vartype **v, bool padded) {
                 if (s == NULL)
                     return false;
                 char len;
-                if (!read_char(&len) || !fread(s->text, 1, len, gfile)) {
+                if (!read_char(&len) || fread(s->text, 1, len, gfile) != len) {
                     free_vartype((vartype *) s);
                     return false;
                 }
