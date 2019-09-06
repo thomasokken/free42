@@ -43,28 +43,19 @@
 /////                         Ye olde C stuphphe                          /////
 ///////////////////////////////////////////////////////////////////////////////
 
-static int level = 0;
-
+#if 0
 class Tracer {
 private:
     const char *name;
 public:
     Tracer(const char *name) {
         this->name = name;
-        for (int i = 0; i < level; i++)
-            fprintf(stderr, " ");
-        fprintf(stderr, "ENTERING %s\n", name);
-        level++;
+        NSLog(@"%@ : ENTERING %s", [NSThread currentThread], name);
     }
     ~Tracer() {
-        level--;
-        for (int i = 0; i < level; i++)
-            fprintf(stderr, " ");
-        fprintf(stderr, "EXITING %s\n", name);
+        NSLog(@"%@ : EXITING %s", [NSThread currentThread], name);
     }
 };
-
-#if 0
 #define TRACE(x) Tracer T(x)
 #else
 #define TRACE(x)
