@@ -1,7 +1,7 @@
 #!/bin/sh -e
 
 # This script builds the GTK version, and upstream source package.
-# If the -u option is specified, skips creation of the upstream packages.
+# If the -u option is specified, skips creation of the upstream package.
 
 if [ $# -ge 1 -a "$1" = "-u" ]
 then
@@ -48,8 +48,8 @@ mkdir -p packages
 tar cvfz packages/$PKGNAME.tgz $PKGNAME
 rm -rf $PKGNAME
 
-# "Upstream" source package, for Fedora or other Linux distros
-# Has all non-Linux versions, and all skins containing the HP logo, removed
+# "Upstream" source package, for Fedora and other package builders.
+# Has all non-GTK versions, and all skins containing the HP logo, removed.
 if [ $SKIP_UPSTREAM -eq 0 ]
 then
     cd upstream

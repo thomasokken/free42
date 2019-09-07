@@ -87,8 +87,7 @@ ifdef AUDIO_ALSA
 # the executable is defined in the corresponding *.la file, in the 'dlname'
 # property. I suppose it would be better to grab it from there at build time,
 # rather than hard-coding it into the Makefile like this, but as long as the
-# build environment doesn't change (still Fedora 6 at the time of writing),
-# this is fine.
+# build environment doesn't change (currently Ubuntu 12.04), this is fine.
 CXXFLAGS += -DAUDIO_ALSA -DALSALIB="\"libasound.so.2\""
 SRCS += audio_alsa.cc
 OBJS += audio_alsa.o
