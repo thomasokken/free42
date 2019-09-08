@@ -9,13 +9,13 @@ import subprocess
 # and an optional lowercase letter, attached to the final numerical component
 # without any separators.
 # In addition, the option -a may be specified, which indicates that the Android
-# version code should not be bumped.
+# version code should be bumped.
 
 try:
     sys.argv.remove("-a")
-    bump_android_version_code = False
-except:
     bump_android_version_code = True
+except:
+    bump_android_version_code = False
         
 version_raw = sys.argv[1]
 version_name = version_raw

@@ -1020,7 +1020,22 @@ void shell_log(const char *message) {
 
 int shell_wants_cpu() {
     TRACE("shell_wants_cpu");
-    return we_want_cpu;
+    // The 'count' bit is a temporary hack to prevent the crashes
+    // in drawRect until I figure out their root cause and implement
+    // a proper fix
+    static int count = 0;
+    if (we_want_cpu) {
+        count = 0;
+        return 1;
+    } else {
+        count++;
+        if (count >= 5) {
+            count = 0;
+            return 1;
+        } else {
+            return 0;
+        }
+    }
 }
 
 void shell_delay(int duration) {

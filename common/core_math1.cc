@@ -455,6 +455,8 @@ static int finish_solve(int message) {
 
     solve.state = 0;
 
+    phloat best_f = solve.curr_f;
+
     if (solve.which == -1) {
         /* Ridders was terminated because it wasn't making progress; this does
          * not necessarily mean that x3 is the best guess so far. So, to be
@@ -467,12 +469,16 @@ static int finish_solve(int message) {
         if (t1 < t2) {
             solve.which = 1;
             t = t1;
+            best_f = solve.fx1;
         } else {
             solve.which = 2;
             t = t2;
+            best_f = solve.fx2;
         }
-        if (t3 < t)
+        if (t3 < t) {
             solve.which = 3;
+            best_f = solve.curr_f;
+        }
     }
 
     v = recall_var(solve.var_name, solve.var_length);
@@ -480,7 +486,7 @@ static int finish_solve(int message) {
                                 solve.which == 2 ? solve.x2 : solve.x3;
     new_x = dup_vartype(v);
     new_y = new_real(solve.prev_x);
-    new_z = new_real(solve.curr_f);
+    new_z = new_real(best_f);
     new_t = new_real(message);
     if (new_x == NULL || new_y == NULL || new_z == NULL || new_t == NULL) {
         free_vartype(new_x);
