@@ -1,3 +1,13 @@
+2019-09-08: release 2.5.6
+
+* SOLVE would not always return the best function value in Z. Fixed.
+* iOS version: There have been crashes occurring in the display update logic,
+  due to some not yet understood condition that appears to affect faster
+  iPhones (8, X, XR, XS). I implemented a fix that appears to prevent these,
+  but at a cost in terms of performance, i.e. the emulation is a bit slower
+  now. I'm working on a proper fix, which will eliminate these problems and
+  restore maximum performance.
+
 2019-09-06: release 2.5.5
 
 * Moved the settings "Singular Matrix Error," "Matrix Out Of Range," and "Auto-
