@@ -58,7 +58,7 @@ extern int print_text_pixel_height;
 - (void) actionSheet:(UIActionSheet *) actionSheet clickedButtonAtIndex:(NSInteger) buttonIndex;
 - (IBAction) share;
 - (IBAction) done;
-- (void) updatePrintout:(id) params;
+- (void) updatePrintout:(update_params *) params;
 - (void) scrollToBottom;
 + (void) dump;
 - (void) scrollViewDidScroll:(UIScrollView *)scrollView;

@@ -1,3 +1,12 @@
+????-??-??: release 2.5.6a
+
+* iOS version: Made the app single-threaded. Experimental version, to check if
+  this eliminates the mysterious crashes in [CalcView drawRect:]. N.B. The app
+  is not 100% single-threaded with this change: the HTTP Server still uses
+  performSelectorInBackground: to start the main server thread, and
+  pthread_create() to create the threads that handle requests. But apart from
+  the HTTP Server, everything now happens on the main thread.
+
 2019-09-08: release 2.5.6
 
 * SOLVE would not always return the best function value in Z. Fixed.
