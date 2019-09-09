@@ -1531,6 +1531,8 @@ static bool persist_globals() {
     return ret;
 }
 
+static bool suppress_varmenu_update = false;
+
 static bool unpersist_globals(int4 ver) {
     int i;
     array_count = 0;
@@ -1679,7 +1681,9 @@ static bool unpersist_globals(int4 ver) {
         goto done;
     }
     if (state_is_portable) {
+        suppress_varmenu_update = true;
         core_import_programs(nprogs, NULL);
+        suppress_varmenu_update = false;
     } else {
         prgms_count = nprogs;
         prgms = (prgm_struct *) malloc(prgms_count * sizeof(prgm_struct));
@@ -2512,7 +2516,8 @@ void store_command(int4 pc, int command, arg_struct *arg) {
         update_label_table(current_prgm, pc, bufptr);
     invalidate_lclbls(current_prgm, false);
     clear_all_rtns();
-    draw_varmenu();
+    if (!suppress_varmenu_update)
+        draw_varmenu();
 }
 
 void store_command_after(int4 *pc, int command, arg_struct *arg) {
