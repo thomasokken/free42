@@ -1573,6 +1573,10 @@ public class Free42Activity extends Activity {
         }
 
         public void share() {
+            if (bottom == top) {
+                alert("The print-out is empty.");
+                return;
+            }
             String text = printOutAsText();
             String pngFileName = printOutAsImage();
             Intent intent = new Intent(Intent.ACTION_SEND);

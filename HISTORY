@@ -1,3 +1,13 @@
+????-??-??: release 2.5.6c
+
+* Android version: Sharing an empty print-out would crash. Fixed; now it pops
+  up a message instead.
+
+2019-09-09: release 2.5.6a (iOS only)
+
+* iOS version: Made the app single-threaded. Interim version, to deal with the
+  mysterious crashes in [CalcView drawRect:].
+
 2019-09-08: release 2.5.6
 
 * SOLVE would not always return the best function value in Z. Fixed.
