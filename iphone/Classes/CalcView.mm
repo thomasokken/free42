@@ -75,7 +75,6 @@ static int quit_flag = 0;
 static int enqueued;
 static int keep_running = 0;
 static int we_want_cpu = 0;
-static bool we_want_to_draw = false;
 
 static int ckey = 0;
 static int skey;
@@ -265,7 +264,6 @@ static CalcView *calcView = nil;
 
 - (void) drawRect:(CGRect)rect {
     TRACE("drawRect");
-    we_want_to_draw = false;
     skin_repaint(&rect);
 }
 
@@ -618,16 +616,6 @@ static CLLocationManager *locMgr = nil;
     }
 }
 
-- (void) setNeedsDisplay {
-    we_want_to_draw = true;
-    [super setNeedsDisplay];
-}
-
-- (void) setNeedsDisplayInRect:(CGRect)rect {
-    we_want_to_draw = true;
-    [super setNeedsDisplayInRect:rect];
-}
-
 @end
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -949,7 +937,7 @@ void shell_log(const char *message) {
 
 int shell_wants_cpu() {
     TRACE("shell_wants_cpu");
-    if (we_want_to_draw || we_want_cpu)
+    if (we_want_cpu)
         return true;
     struct timeval now;
     gettimeofday(&now, NULL);
