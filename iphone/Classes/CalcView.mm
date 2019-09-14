@@ -18,7 +18,6 @@
 #import <UIKit/UIKit.h>
 #import <sys/stat.h>
 #import <sys/sysctl.h>
-#import <pthread.h>
 
 #import <AudioToolbox/AudioServices.h>
 #import <CoreLocation/CoreLocation.h>
@@ -76,9 +75,7 @@ static int quit_flag = 0;
 static int enqueued;
 static int keep_running = 0;
 static int we_want_cpu = 0;
-static bool is_running = false;
-static pthread_mutex_t is_running_mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t is_running_cond = PTHREAD_COND_INITIALIZER;
+static bool we_want_to_draw = false;
 
 static int ckey = 0;
 static int skey;
@@ -98,7 +95,6 @@ static int ann_run = 0;
 //static int ann_battery = 0;
 static int ann_g = 0;
 static int ann_rad = 0;
-static pthread_mutex_t ann_print_timeout_mutex = PTHREAD_MUTEX_INITIALIZER;
 static bool ann_print_timeout_active = false;
 
 static FILE *print_txt = NULL;
@@ -177,29 +173,6 @@ static CalcView *calcView = nil;
         // so don't bother doing anything here!
     }
     return self;
-}
-
-- (void) setNeedsDisplayInRectSafely2:(id) myrect {
-    TRACE("setNeedsDisplayInRectSafely2");
-    NSValue *val = (NSValue *) myrect;
-    CGRect *r = (CGRect *) [val pointerValue];
-    [val release];
-    [self setNeedsDisplayInRect:*r];
-    delete r;
-}
-
-- (void) setNeedsDisplayInRectSafely:(CGRect) rect {
-    TRACE("setNeedsDisplayInRectSafely");
-    if ([NSThread isMainThread])
-        [self setNeedsDisplayInRect:rect];
-    else {
-        CGRect *r = new CGRect;
-        r->origin.x = rect.origin.x;
-        r->origin.y = rect.origin.y;
-        r->size.width = rect.size.width;
-        r->size.height = rect.size.height;
-        [self performSelectorOnMainThread:@selector(setNeedsDisplayInRectSafely2:) withObject:[[NSValue valueWithPointer:r] retain] waitUntilDone:NO];
-    }
 }
 
 - (void) showMainMenu {
@@ -292,6 +265,7 @@ static CalcView *calcView = nil;
 
 - (void) drawRect:(CGRect)rect {
     TRACE("drawRect");
+    we_want_to_draw = false;
     skin_repaint(&rect);
 }
 
@@ -299,38 +273,6 @@ static CalcView *calcView = nil;
     TRACE("dealloc");
     NSLog(@"Shutting down!");
     [super dealloc];
-}
-
-- (void) touchesBegan3 {
-    TRACE("touchesBegan3");
-    if (state.keyClicks == 1)
-        AudioServicesPlaySystemSound(1105);
-    else if (state.keyClicks == 2)
-        [RootViewController playSound:11];
-    if (state.hapticFeedback > 0) {
-        UIImpactFeedbackStyle s;
-        switch (state.hapticFeedback) {
-            case 1: s = UIImpactFeedbackStyleLight; break;
-            case 2: s = UIImpactFeedbackStyleMedium; break;
-            case 3: s = UIImpactFeedbackStyleHeavy; break;
-        }
-        UIImpactFeedbackGenerator *fbgen = [[UIImpactFeedbackGenerator alloc] initWithStyle:s];
-        [fbgen impactOccurred];
-    }
-    macro = skin_find_macro(ckey, &macro_is_name);
-    shell_keydown();
-    mouse_key = 1;
-}
-
-- (void) touchesBegan2 {
-    TRACE("touchesBegan2");
-    we_want_cpu = 1;
-    pthread_mutex_lock(&is_running_mutex);
-    while (is_running)
-        pthread_cond_wait(&is_running_cond, &is_running_mutex);
-    pthread_mutex_unlock(&is_running_mutex);
-    we_want_cpu = 0;
-    [self performSelectorOnMainThread:@selector(touchesBegan3) withObject:NULL waitUntilDone:NO];
 }
 
 - (void) touchesBegan: (NSSet *) touches withEvent: (UIEvent *) event {
@@ -346,50 +288,39 @@ static CalcView *calcView = nil;
             if (skin_in_menu_area(x, y))
                 [self showMainMenu];
         } else {
-            if (is_running)
-                [self performSelectorInBackground:@selector(touchesBegan2) withObject:NULL];
-            else
-                [self touchesBegan3];
+            if (state.keyClicks == 1)
+                AudioServicesPlaySystemSound(1105);
+            else if (state.keyClicks == 2)
+                [RootViewController playSound:11];
+            if (state.hapticFeedback > 0) {
+                UIImpactFeedbackStyle s;
+                switch (state.hapticFeedback) {
+                    case 1: s = UIImpactFeedbackStyleLight; break;
+                    case 2: s = UIImpactFeedbackStyleMedium; break;
+                    case 3: s = UIImpactFeedbackStyleHeavy; break;
+                }
+                UIImpactFeedbackGenerator *fbgen = [[UIImpactFeedbackGenerator alloc] initWithStyle:s];
+                [fbgen impactOccurred];
+            }
+            macro = skin_find_macro(ckey, &macro_is_name);
+            shell_keydown();
+            mouse_key = 1;
         }
     }
-}
-
-- (void) touchesEnded3 {
-    TRACE("touchesEnded3");
-    shell_keyup();
-}
-
-- (void) touchesEnded2 {
-    TRACE("touchesEnded2");
-    we_want_cpu = 1;
-    pthread_mutex_lock(&is_running_mutex);
-    while (is_running)
-        pthread_cond_wait(&is_running_cond, &is_running_mutex);
-    pthread_mutex_unlock(&is_running_mutex);
-    we_want_cpu = 0;
-    [self performSelectorOnMainThread:@selector(touchesEnded3) withObject:NULL waitUntilDone:NO];
 }
 
 - (void) touchesEnded: (NSSet *) touches withEvent: (UIEvent *) event {
     TRACE("touchesEnded");
     [super touchesEnded:touches withEvent:event];
-    if (ckey != 0 && mouse_key) {
-        if (is_running)
-            [self performSelectorInBackground:@selector(touchesEnded2) withObject:NULL];
-        else
-            [self touchesEnded3];
-    }
+    if (ckey != 0 && mouse_key)
+        shell_keyup();
 }
 
 - (void) touchesCancelled: (NSSet *) touches withEvent: (UIEvent *) event {
     TRACE("touchesCancelled");
     [super touchesCancelled:touches withEvent:event];
-    if (ckey != 0 && mouse_key) {
-        if (is_running)
-            [self performSelectorInBackground:@selector(touchesEnded2) withObject:NULL];
-        else
-            [self touchesEnded3];
-    }
+    if (ckey != 0 && mouse_key)
+        shell_keyup();
 }
 
 + (void) repaint {
@@ -455,9 +386,22 @@ static CalcView *calcView = nil;
     }
 }
 
+static struct timeval runner_end_time;
+
 - (void) startRunner {
     TRACE("startRunner");
-    [self performSelectorInBackground:@selector(runner) withObject:NULL];
+    gettimeofday(&runner_end_time, NULL);
+    runner_end_time.tv_usec += 10000; // run for up to 10 ms
+    if (runner_end_time.tv_usec >= 1000000) {
+        runner_end_time.tv_usec -= 1000000;
+        runner_end_time.tv_sec++;
+    }
+    int dummy1, dummy2;
+    keep_running = core_keydown(0, &dummy1, &dummy2);
+    if (quit_flag)
+        [self quitB];
+    else if (keep_running && !we_want_cpu)
+        [self performSelector:@selector(startRunner) withObject:NULL afterDelay:0];
 }
 
 - (void) awakeFromNib {
@@ -525,23 +469,6 @@ static CalcView *calcView = nil;
     core_init(1, 26, corefilename, 0);
     if (core_powercycle())
         [calcView startRunner];
-}
-
-- (void) runner {
-    TRACE("runner");
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    int dummy1, dummy2;
-    is_running = true;
-    keep_running = core_keydown(0, &dummy1, &dummy2);
-    pthread_mutex_lock(&is_running_mutex);
-    is_running = false;
-    pthread_cond_signal(&is_running_cond);
-    pthread_mutex_unlock(&is_running_mutex);
-    if (quit_flag)
-        [self performSelectorOnMainThread:@selector(quitB) withObject:NULL waitUntilDone:NO];
-    else if (keep_running && !we_want_cpu)
-        [self performSelectorOnMainThread:@selector(startRunner) withObject:NULL waitUntilDone:NO];
-    [pool release];
 }
 
 - (void) setTimeout:(int) which {
@@ -614,15 +541,6 @@ static CalcView *calcView = nil;
         [self setTimeout:1];
 }
 
-static pthread_mutex_t shell_helper_mutex = PTHREAD_MUTEX_INITIALIZER;
-static int timeout3_delay;
-
-- (void) shell_request_timeout3_helper {
-    TRACE("shell_request_timeout3_helper");
-    [calcView setTimeout3:timeout3_delay];
-    pthread_mutex_unlock(&shell_helper_mutex);
-}
-
 + (void) stopTextPrinting {
     if (print_txt != NULL) {
         fclose(print_txt);
@@ -679,17 +597,12 @@ static CLLocationManager *locMgr = nil;
 }
 
 - (void) turn_off_print_ann {
-    pthread_mutex_lock(&ann_print_timeout_mutex);
     ann_print = 0;
     skin_update_annunciator(3, 0, calcView);
     ann_print_timeout_active = FALSE;
-    pthread_mutex_unlock(&ann_print_timeout_mutex);
 }
 
-- (void) print_ann_helper:(NSNumber *)set {
-    int prt = [set intValue];
-    [set release];
-    pthread_mutex_lock(&ann_print_timeout_mutex);
+- (void) print_ann_helper:(int)prt {
     if (ann_print_timeout_active) {
         [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(turn_off_print_ann) object:NULL];
         ann_print_timeout_active = FALSE;
@@ -703,7 +616,16 @@ static CLLocationManager *locMgr = nil;
             ann_print_timeout_active = TRUE;
         }
     }
-    pthread_mutex_unlock(&ann_print_timeout_mutex);
+}
+
+- (void) setNeedsDisplay {
+    we_want_to_draw = true;
+    [super setNeedsDisplay];
+}
+
+- (void) setNeedsDisplayInRect:(CGRect)rect {
+    we_want_to_draw = true;
+    [super setNeedsDisplayInRect:rect];
 }
 
 @end
@@ -996,8 +918,7 @@ void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
         skin_update_annunciator(2, ann_shift, calcView);
     }
     if (prt != -1) {
-        NSNumber *n = [[NSNumber numberWithInt:prt] retain];
-        [calcView performSelectorOnMainThread:@selector(print_ann_helper:) withObject:n waitUntilDone:NO];
+        [calcView print_ann_helper:prt];
     }
     if (run != -1 && ann_run != run) {
         ann_run = run;
@@ -1028,22 +949,12 @@ void shell_log(const char *message) {
 
 int shell_wants_cpu() {
     TRACE("shell_wants_cpu");
-    // The 'count' bit is a temporary hack to prevent the crashes
-    // in drawRect until I figure out their root cause and implement
-    // a proper fix
-    static int count = 0;
-    if (we_want_cpu) {
-        count = 0;
-        return 1;
-    } else {
-        count++;
-        if (count >= 5) {
-            count = 0;
-            return 1;
-        } else {
-            return 0;
-        }
-    }
+    if (we_want_to_draw || we_want_cpu)
+        return true;
+    struct timeval now;
+    gettimeofday(&now, NULL);
+    return now.tv_sec > runner_end_time.tv_sec
+        || now.tv_sec == runner_end_time.tv_sec && now.tv_usec >= runner_end_time.tv_usec;
 }
 
 void shell_delay(int duration) {
@@ -1056,9 +967,7 @@ void shell_delay(int duration) {
 
 void shell_request_timeout3(int delay) {
     TRACE("shell_request_timeout3");
-    pthread_mutex_lock(&shell_helper_mutex);
-    timeout3_delay = delay;
-    [calcView performSelectorOnMainThread:@selector(shell_request_timeout3_helper) withObject:NULL waitUntilDone:NO];
+    [calcView setTimeout3:delay];
 }
 
 unsigned int shell_get_mem() {
@@ -1146,11 +1055,11 @@ void shell_print(const char *text, int length,
     printout_bottom = (printout_bottom + height) % PRINT_LINES;
     newlength = oldlength + height;
     
-    update_params *params = new update_params;
-    params->oldlength = oldlength;
-    params->newlength = newlength;
-    params->height = height;
-    [[PrintView instance] performSelectorOnMainThread:@selector(updatePrintout:) withObject:[NSValue valueWithPointer:params] waitUntilDone:YES];
+    update_params params;
+    params.oldlength = oldlength;
+    params.newlength = newlength;
+    params.height = height;
+    [[PrintView instance] updatePrintout:&params];
     
     if (state.printerToTxtFile) {
         int err;
@@ -1278,7 +1187,7 @@ int shell_get_acceleration(double *x, double *y, double *z) {
     static bool accelerometer_active = false;
     if (!accelerometer_active) {
         accelerometer_active = true;
-        [calcView performSelectorOnMainThread:@selector(start_accelerometer) withObject:NULL waitUntilDone:NO];
+        [calcView start_accelerometer];
     }
     CMAccelerometerData *cmd = [motMgr accelerometerData];
     if (cmd == nil) {
@@ -1295,7 +1204,7 @@ int shell_get_location(double *lat, double *lon, double *lat_lon_acc, double *el
     static bool location_active = false;
     if (!location_active) {
         location_active = true;
-        [calcView performSelectorOnMainThread:@selector(start_location) withObject:NULL waitUntilDone:NO];
+        [calcView start_location];
     }
     *lat = loc_lat;
     *lon = loc_lon;
@@ -1309,7 +1218,7 @@ int shell_get_heading(double *mag_heading, double *true_heading, double *acc, do
     static bool heading_active = false;
     if (!heading_active) {
         heading_active = true;
-        [calcView performSelectorOnMainThread:@selector(start_heading) withObject:NULL waitUntilDone:NO];
+        [calcView start_heading];
     }
     *mag_heading = hdg_mag;
     *true_heading = hdg_true;

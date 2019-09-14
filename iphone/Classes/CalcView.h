@@ -55,7 +55,6 @@ extern FILE *statefile;
 + (CGFloat) height;
 - (void) actionSheet:(UIActionSheet *) actionSheet clickedButtonAtIndex:(NSInteger) buttonIndex;
 - (void) touchesBegan: (NSSet *) touches withEvent: (UIEvent *) event;
-- (void) setNeedsDisplayInRectSafely:(CGRect) rect;
 + (void) repaint;
 + (void) quit;
 + (void) loadState:(const char *)name;

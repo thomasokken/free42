@@ -766,7 +766,7 @@ void skin_update_annunciator(int which, int state, CalcView *view) {
         return;
     annunciator_state[which] = state;
     SkinRect *r = &annunciators[which].disp_rect;
-    [view setNeedsDisplayInRectSafely:CGRectMake(r->x / skin_scale_h + skin_offset_h, r->y / skin_scale_v + skin_offset_v, r->width / skin_scale_h, r->height / skin_scale_v)];
+    [view setNeedsDisplayInRect:CGRectMake(r->x / skin_scale_h + skin_offset_h, r->y / skin_scale_v + skin_offset_v, r->width / skin_scale_h, r->height / skin_scale_v)];
 }
     
 bool skin_in_menu_area(int x, int y) {
@@ -856,10 +856,10 @@ static void invalidate_key(int key, CalcView *view) {
         int y = 9 * display_scale.y + display_loc.y;
         int w = 21 * display_scale.x;
         int h = 7 * display_scale.y;
-        [view setNeedsDisplayInRectSafely:CGRectMake(x / skin_scale_h + skin_offset_h, y / skin_scale_v + skin_offset_v, w / skin_scale_h, h / skin_scale_v)];
+        [view setNeedsDisplayInRect:CGRectMake(x / skin_scale_h + skin_offset_h, y / skin_scale_v + skin_offset_v, w / skin_scale_h, h / skin_scale_v)];
     } else if (key >= 0 && key < nkeys) {
         SkinRect *r = &keylist[key].disp_rect;
-        [view setNeedsDisplayInRectSafely:CGRectMake(r->x / skin_scale_h + skin_offset_h, r->y / skin_scale_v + skin_offset_v, r->width / skin_scale_h, r->height / skin_scale_v)];
+        [view setNeedsDisplayInRect:CGRectMake(r->x / skin_scale_h + skin_offset_h, r->y / skin_scale_v + skin_offset_v, r->width / skin_scale_h, r->height / skin_scale_v)];
     }
 }
 
@@ -883,7 +883,7 @@ void skin_display_blitter(const char *bits, int bytesperline, int x, int y, int 
                 disp_bitmap[v * disp_bytesperline + (h >> 3)] |= 128 >> (h & 7);
         }
     
-    [view setNeedsDisplayInRectSafely:CGRectMake((display_loc.x + x * display_scale.x) / skin_scale_h + skin_offset_h,
+    [view setNeedsDisplayInRect:CGRectMake((display_loc.x + x * display_scale.x) / skin_scale_h + skin_offset_h,
                                                  (display_loc.y + y * display_scale.y) / skin_scale_v + skin_offset_v,
                                                  (width * display_scale.x) / skin_scale_h,
                                                  (height * display_scale.y) / skin_scale_v)];
@@ -893,7 +893,7 @@ void skin_repaint_display(CalcView *view) {
     if (!display_enabled)
         // Prevent screen flashing during macro execution
         return;
-    [view setNeedsDisplayInRectSafely:CGRectMake(display_loc.x / skin_scale_h + skin_offset_h, display_loc.y / skin_scale_v + skin_offset_v, 131 * display_scale.x / skin_scale_h, 16 * display_scale.y / skin_scale_v)];
+    [view setNeedsDisplayInRect:CGRectMake(display_loc.x / skin_scale_h + skin_offset_h, display_loc.y / skin_scale_v + skin_offset_v, 131 * display_scale.x / skin_scale_h, 16 * display_scale.y / skin_scale_v)];
 }
 
 void skin_display_set_enabled(bool enable) {

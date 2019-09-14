@@ -11,6 +11,12 @@
   clicks setting from on/off switch to a three-way slider, for off/standard/wav
   click sounds, where standard is the old system key click sound, and wav is a
   wav file that sounds a bit louder.
+* iOS version: Making the single-threaded logic permanent. The complexity of
+  the multi-threaded event handling logic makes the code too hard to maintain,
+  while the benefits in terms of performance are marginal. The only noticeable
+  disadvantage of the single-threaded approach was poor performance in display-
+  intensive code, and that can be mitigated simply by repainting less
+  aggressively.
 
 2019-09-09: release 2.5.6a (iOS only)
 

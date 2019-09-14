@@ -294,12 +294,10 @@ static void tbnonewliner() {
     [RootViewController showMain];
 }
 
-- (void) updatePrintout:(id) params {
-    update_params *ppar = (update_params *) [((NSValue *) params) pointerValue];
+- (void) updatePrintout:(update_params *) ppar {
     int newlength = ppar->newlength;
     //int oldlength = ppar->oldlength;
     //int height = ppar->height;
-    delete ppar;
     if (newlength >= PRINT_LINES) {
         printout_top = (printout_bottom + 1) % PRINT_LINES;
         [self repositionTiles:true];
