@@ -49,12 +49,10 @@
     [self scrollPoint:p];
 }
 
-- (void) updatePrintout:(id) params {
-    update_params *ppar = (update_params *) [((NSValue *) params) pointerValue];
+- (void) updatePrintout:(update_params *) ppar {
     int newlength = ppar->newlength;
     int oldlength = ppar->oldlength;
     int height = ppar->height;
-    delete ppar;
     if (newlength >= PRINT_LINES) {
         printout_top = (printout_bottom + 2) % PRINT_LINES;
         newlength = PRINT_LINES - 2;

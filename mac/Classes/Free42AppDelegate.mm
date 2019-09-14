@@ -19,7 +19,6 @@
 #import <IOKit/ps/IOPowerSources.h>
 #import <sys/stat.h>
 #import <sys/time.h>
-#import <pthread.h>
 #import "free42.h"
 #import "shell.h"
 #import "shell_skin.h"
@@ -50,9 +49,6 @@ static int quit_flag = 0;
 static int enqueued;
 static int keep_running = 0;
 static int we_want_cpu = 0;
-static bool is_running = false;
-static pthread_mutex_t is_running_mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t is_running_cond = PTHREAD_COND_INITIALIZER;
 
 static char statefilename[FILENAMELEN];
 static char printfilename[FILENAMELEN];
@@ -80,7 +76,6 @@ static int ann_run = 0;
 static int ann_battery = 0;
 static int ann_g = 0;
 static int ann_rad = 0;
-static pthread_mutex_t ann_print_timeout_mutex = PTHREAD_MUTEX_INITIALIZER;
 static bool ann_print_timeout_active = false;
 
 unsigned char *print_bitmap;
@@ -144,8 +139,21 @@ static bool is_file(const char *name);
 @synthesize skinListDataSource;
 @synthesize statesWindow;
 
+static struct timeval runner_end_time;
+
 - (void) startRunner {
-    [self performSelectorInBackground:@selector(runner) withObject:NULL];
+    gettimeofday(&runner_end_time, NULL);
+    runner_end_time.tv_usec += 10000; // run for up to 10 ms
+    if (runner_end_time.tv_usec >= 1000000) {
+        runner_end_time.tv_usec -= 1000000;
+        runner_end_time.tv_sec++;
+    }
+    int dummy1, dummy2;
+    keep_running = core_keydown(0, &dummy1, &dummy2);
+    if (quit_flag)
+        [self quit];
+    else if (keep_running && !we_want_cpu)
+        [self performSelector:@selector(startRunner) withObject:NULL afterDelay:0];
 }
 
 - (void)applicationWillFinishLaunching:(NSNotification *)aNotification {
@@ -956,7 +964,7 @@ static char version[32] = "";
     p.y = frame.origin.y + frame.size.height;
     [mainWindow setContentSize:sz];
     [mainWindow setFrameTopLeftPoint:p];
-    [calcView setNeedsDisplayInRectSafely:CGRectMake(0, 0, w, h)];
+    [calcView setNeedsDisplayInRect:CGRectMake(0, 0, w, h)];
 }
 
 + (void) loadState:(const char *)name {
@@ -972,52 +980,6 @@ static char version[32] = "";
     core_init(1, 26, corefilename, 0);
     if (core_powercycle())
         [instance startRunner];
-}
-
-- (void) mouseDown3 {
-    macro = skin_find_macro(ckey, &macro_is_name);
-    shell_keydown();
-    mouse_key = 1;
-}
-
-- (void) mouseDown2 {
-    we_want_cpu = 1;
-    pthread_mutex_lock(&is_running_mutex);
-    while (is_running)
-        pthread_cond_wait(&is_running_cond, &is_running_mutex);
-    pthread_mutex_unlock(&is_running_mutex);
-    we_want_cpu = 0;
-    [self performSelectorOnMainThread:@selector(mouseDown3) withObject:NULL waitUntilDone:NO];
-}
-
-- (void) mouseUp3 {
-    shell_keyup();
-}
-
-- (void) mouseUp2 {
-    we_want_cpu = 1;
-    pthread_mutex_lock(&is_running_mutex);
-    while (is_running)
-        pthread_cond_wait(&is_running_cond, &is_running_mutex);
-    pthread_mutex_unlock(&is_running_mutex);
-    we_want_cpu = 0;
-    [self performSelectorOnMainThread:@selector(mouseUp3) withObject:NULL waitUntilDone:NO];
-}
-
-- (void) runner {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    int dummy1, dummy2;
-    is_running = true;
-    keep_running = core_keydown(0, &dummy1, &dummy2);
-    pthread_mutex_lock(&is_running_mutex);
-    is_running = false;
-    pthread_cond_signal(&is_running_cond);
-    pthread_mutex_unlock(&is_running_mutex);
-    if (quit_flag)
-        [self performSelectorOnMainThread:@selector(quit) withObject:NULL waitUntilDone:NO];
-    else if (keep_running && !we_want_cpu)
-        [self performSelectorOnMainThread:@selector(startRunner) withObject:NULL waitUntilDone:NO];
-    [pool release];
 }
 
 - (void) quit {
@@ -1085,26 +1047,13 @@ static char version[32] = "";
         [self setTimeout:1];
 }
 
-static pthread_mutex_t shell_helper_mutex = PTHREAD_MUTEX_INITIALIZER;
-static int timeout3_delay;
-
-- (void) shell_request_timeout3_helper {
-    [self setTimeout3:timeout3_delay];
-    pthread_mutex_unlock(&shell_helper_mutex);
-}
-
 - (void) turn_off_print_ann {
-    pthread_mutex_lock(&ann_print_timeout_mutex);
     ann_print = 0;
     skin_update_annunciator(3, 0);
     ann_print_timeout_active = FALSE;
-    pthread_mutex_unlock(&ann_print_timeout_mutex);
 }
 
-- (void) print_ann_helper:(NSNumber *)set {
-    int prt = [set intValue];
-    [set release];
-    pthread_mutex_lock(&ann_print_timeout_mutex);
+- (void) print_ann_helper:(int)prt {
     if (ann_print_timeout_active) {
         [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(turn_off_print_ann) object:NULL];
         ann_print_timeout_active = FALSE;
@@ -1118,7 +1067,6 @@ static int timeout3_delay;
             ann_print_timeout_active = TRUE;
         }
     }
-    pthread_mutex_unlock(&ann_print_timeout_mutex);
 }
 
 @end
@@ -1217,21 +1165,16 @@ void calc_mousedown(int x, int y) {
     if (ckey == 0) {
         skin_find_key(x, y, ann_shift != 0, &skey, &ckey);
         if (ckey != 0) {
-            if (is_running)
-                [instance performSelectorInBackground:@selector(mouseDown2) withObject:NULL];
-            else
-                [instance mouseDown3];
+            macro = skin_find_macro(ckey, &macro_is_name);
+            shell_keydown();
+            mouse_key = 1;
         }
     }
 }
 
 void calc_mouseup() {
-    if (ckey != 0 && mouse_key) {
-        if (is_running)
-            [instance performSelectorInBackground:@selector(mouseUp2) withObject:NULL];
-        else
-            [instance mouseUp3];
-    }
+    if (ckey != 0 && mouse_key)
+        shell_keyup();
 }
 
 void calc_keydown(NSString *characters, NSUInteger flags, unsigned short keycode) {
@@ -1483,8 +1426,7 @@ void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
         skin_update_annunciator(2, ann_shift);
     }
     if (prt != -1) {
-        NSNumber *n = [[NSNumber numberWithInt:prt] retain];
-        [instance performSelectorOnMainThread:@selector(print_ann_helper:) withObject:n waitUntilDone:NO];
+        [instance print_ann_helper:prt];
     }
     if (run != -1 && ann_run != run) {
         ann_run = run;
@@ -1538,11 +1480,11 @@ void shell_print(const char *text, int length,
     printout_bottom = (printout_bottom + 2 * height) % PRINT_LINES;
     newlength = oldlength + 2 * height;
     
-    update_params *params = new update_params;
-    params->oldlength = oldlength;
-    params->newlength = newlength;
-    params->height = height;
-    [instance.printView performSelectorOnMainThread:@selector(updatePrintout:) withObject:[NSValue valueWithPointer:params] waitUntilDone:YES];
+    update_params params;
+    params.oldlength = oldlength;
+    params.newlength = newlength;
+    params.height = height;
+    [instance.printView updatePrintout:&params];
     
     if (state.printerToTxtFile) {
         int err;
@@ -1663,9 +1605,7 @@ void shell_print(const char *text, int length,
 }
 
 void shell_request_timeout3(int delay) {
-    pthread_mutex_lock(&shell_helper_mutex);
-    timeout3_delay = delay;
-    [instance performSelectorOnMainThread:@selector(shell_request_timeout3_helper) withObject:NULL waitUntilDone:NO];
+    [instance setTimeout3:delay];
 }
 
 void shell_log(const char *message) {
@@ -1673,7 +1613,12 @@ void shell_log(const char *message) {
 }
 
 int shell_wants_cpu() {
-    return we_want_cpu;
+    if (we_want_cpu)
+        return true;
+    struct timeval now;
+    gettimeofday(&now, NULL);
+    return now.tv_sec > runner_end_time.tv_sec
+        || now.tv_sec == runner_end_time.tv_sec && now.tv_usec >= runner_end_time.tv_usec;
 }
 
 static void read_key_map(const char *keymapfilename) {

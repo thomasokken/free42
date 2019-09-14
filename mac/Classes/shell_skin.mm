@@ -769,7 +769,7 @@ void skin_update_annunciator(int which, int state) {
     annunciator_state[which] = state;
     SkinRect *r = &annunciators[which].disp_rect;
     Free42AppDelegate *delegate = (Free42AppDelegate *) [NSApp delegate];
-    [delegate.calcView setNeedsDisplayInRectSafely:CGRectMake(r->x, r->y, r->width, r->height)];
+    [delegate.calcView setNeedsDisplayInRect:CGRectMake(r->x, r->y, r->width, r->height)];
 }
 
 void skin_find_key(int x, int y, bool cshift, int *skey, int *ckey) {
@@ -852,11 +852,11 @@ static void invalidate_key(int key) {
         int w = 21 * display_scale.x;
         int h = 7 * display_scale.y;
         Free42AppDelegate *delegate = (Free42AppDelegate *) [NSApp delegate];
-        [delegate.calcView setNeedsDisplayInRectSafely:CGRectMake(x, y, w, h)];
+        [delegate.calcView setNeedsDisplayInRect:CGRectMake(x, y, w, h)];
     } else if (key >= 0 && key < nkeys) {
         SkinRect *r = &keylist[key].disp_rect;
         Free42AppDelegate *delegate = (Free42AppDelegate *) [NSApp delegate];
-        [delegate.calcView setNeedsDisplayInRectSafely:CGRectMake(r->x, r->y, r->width, r->height)];
+        [delegate.calcView setNeedsDisplayInRect:CGRectMake(r->x, r->y, r->width, r->height)];
     }
 }
 
@@ -881,7 +881,7 @@ void skin_display_blitter(const char *bits, int bytesperline, int x, int y, int 
         }
     
     Free42AppDelegate *delegate = (Free42AppDelegate *) [NSApp delegate];
-    [delegate.calcView setNeedsDisplayInRectSafely:CGRectMake(display_loc.x + x * display_scale.x,
+    [delegate.calcView setNeedsDisplayInRect:CGRectMake(display_loc.x + x * display_scale.x,
                                                               display_loc.y + (16 - y - height) * display_scale.y,
                                                               width * display_scale.x,
                                                               height * display_scale.y)];
@@ -892,7 +892,7 @@ void skin_repaint_display() {
         // Prevent screen flashing during macro execution
         return;
     Free42AppDelegate *delegate = (Free42AppDelegate *) [NSApp delegate];
-    [delegate.calcView setNeedsDisplayInRectSafely:CGRectMake(display_loc.x, display_loc.y, 131 * display_scale.x, 16 * display_scale.y)];
+    [delegate.calcView setNeedsDisplayInRect:CGRectMake(display_loc.x, display_loc.y, 131 * display_scale.x, 16 * display_scale.y)];
 }
 
 void skin_display_set_enabled(bool enable) {

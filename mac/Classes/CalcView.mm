@@ -74,30 +74,4 @@ static NSString *unicode(NSString *src) {
     calc_keymodifierschanged([theEvent modifierFlags]);
 }
 
-- (void) setNeedsDisplayInRectSafely2:(id) rect {
-    NSValue *val = (NSValue *) rect;
-    NSRect *r = (NSRect *) [val pointerValue];
-    [val release];
-    [self setNeedsDisplayInRect:*r];
-    delete r;
-}
-
-- (void) setNeedsDisplayInRectSafely:(CGRect) rect {
-    if ([NSThread isMainThread]) {
-        NSRect invalRect;
-        invalRect.origin.x = rect.origin.x;
-        invalRect.origin.y = rect.origin.y;
-        invalRect.size.width = rect.size.width;
-        invalRect.size.height = rect.size.height;
-        [self setNeedsDisplayInRect:invalRect];
-    } else {
-        NSRect *r = new NSRect;
-        r->origin.x = rect.origin.x;
-        r->origin.y = rect.origin.y;
-        r->size.width = rect.size.width;
-        r->size.height = rect.size.height;
-        [self performSelectorOnMainThread:@selector(setNeedsDisplayInRectSafely2:) withObject:[[NSValue valueWithPointer:r] retain] waitUntilDone:NO];
-    }
-}
-
 @end

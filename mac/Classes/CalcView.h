@@ -21,6 +21,4 @@
 @interface CalcView : NSView {
 }
 
-- (void) setNeedsDisplayInRectSafely:(CGRect) rect;
-
 @end

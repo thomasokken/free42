@@ -17,6 +17,9 @@
   disadvantage of the single-threaded approach was poor performance in display-
   intensive code, and that can be mitigated simply by repainting less
   aggressively.
+* MacOS version: Making the app single-threaded. This is the same change as in
+  the iOS version; the aim is to simplify the code, making it more robust,
+  while sacrificing very little in terms of performance.
 
 2019-09-09: release 2.5.6a (iOS only)
 
