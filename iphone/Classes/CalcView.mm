@@ -305,8 +305,14 @@ static CalcView *calcView = nil;
     TRACE("touchesBegan3");
     if (state.keyClicks)
         AudioServicesPlaySystemSound(1105);
-    if (state.hapticFeedback) {
-        UIImpactFeedbackGenerator *fbgen = [[UIImpactFeedbackGenerator alloc] initWithStyle:UIImpactFeedbackStyleLight];
+    if (state.hapticFeedback > 0) {
+        UIImpactFeedbackStyle s;
+        switch (state.hapticFeedback) {
+            case 1: s = UIImpactFeedbackStyleLight; break;
+            case 2: s = UIImpactFeedbackStyleMedium; break;
+            case 3: s = UIImpactFeedbackStyleHeavy; break;
+        }
+        UIImpactFeedbackGenerator *fbgen = [[UIImpactFeedbackGenerator alloc] initWithStyle:s];
         [fbgen impactOccurred];
     }
     macro = skin_find_macro(ckey, &macro_is_name);

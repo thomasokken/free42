@@ -352,10 +352,13 @@
                                     <nil key="textColor"/>
                                     <nil key="highlightedColor"/>
                                 </label>
-                                <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" id="dAP-t5-VSM">
-                                    <rect key="frame" x="251" y="201" width="49" height="31"/>
+                                <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="1" minValue="0.0" maxValue="3" id="uGC-6T-uvs" userLabel="Haptic Feedback Slider">
+                                    <rect key="frame" x="182" y="203" width="118" height="30"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                </switch>
+                                    <connections>
+                                        <action selector="sliderUpdated" destination="67" eventType="valueChanged" id="Xf4-hx-0hJ"/>
+                                    </connections>
+                                </slider>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Orientation" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Rfx-ua-l72">
                                     <rect key="frame" x="20" y="243" width="85" height="21"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -484,7 +487,7 @@
                 <outlet property="autoRepeatSwitch" destination="128" id="152"/>
                 <outlet property="contentView" destination="88a-CO-HHX" id="xdR-bK-163"/>
                 <outlet property="doneButton" destination="93" id="98"/>
-                <outlet property="hapticFeedbackSwitch" destination="dAP-t5-VSM" id="a4a-vZ-gxu"/>
+                <outlet property="hapticFeedbackSlider" destination="uGC-6T-uvs" id="eOo-E9-7jE"/>
                 <outlet property="keyClicksSwitch" destination="KnM-YW-ixr" id="9gB-kj-4XP"/>
                 <outlet property="maintainSkinAspectSwitch" destination="Jur-Cx-zQL" id="i0X-HN-lMA"/>
                 <outlet property="matrixOutOfRangeSwitch" destination="126" id="151"/>

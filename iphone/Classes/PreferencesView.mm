@@ -31,7 +31,7 @@
 @synthesize autoRepeatSwitch;
 @synthesize alwaysOnSwitch;
 @synthesize keyClicksSwitch;
-@synthesize hapticFeedbackSwitch;
+@synthesize hapticFeedbackSlider;
 @synthesize orientationSelector;
 @synthesize maintainSkinAspectSwitch;
 @synthesize printToTextSwitch;
@@ -60,7 +60,7 @@
     [autoRepeatSwitch setOn:core_settings.auto_repeat];
     [alwaysOnSwitch setOn:shell_always_on(-1)];
     [keyClicksSwitch setOn:state.keyClicks != 0];
-    [hapticFeedbackSwitch setOn:state.hapticFeedback != 0];
+    [hapticFeedbackSlider setValue:state.hapticFeedback];
     [orientationSelector setSelectedSegmentIndex:state.orientationMode];
     [maintainSkinAspectSwitch setOn:state.maintainSkinAspect[[CalcView isPortrait] ? 0 : 1] != 0];
     [printToTextSwitch setOn:(state.printerToTxtFile != 0)];
@@ -142,6 +142,24 @@
     [printToGifField setText:path];
 }
 
+- (IBAction) sliderUpdated {
+    int v = (int) ([hapticFeedbackSlider value] + 0.5);
+    [hapticFeedbackSlider setValue:v];
+    if (state.hapticFeedback != v) {
+        state.hapticFeedback = v;
+        if (v > 0) {
+            UIImpactFeedbackStyle s;
+            switch (v) {
+                case 1: s = UIImpactFeedbackStyleLight; break;
+                case 2: s = UIImpactFeedbackStyleMedium; break;
+                case 3: s = UIImpactFeedbackStyleHeavy; break;
+            }
+            UIImpactFeedbackGenerator *fbgen = [[UIImpactFeedbackGenerator alloc] initWithStyle:s];
+            [fbgen impactOccurred];
+        }
+    }
+}
+
 - (IBAction) done {
     [self endEditing:YES];
     
@@ -155,7 +173,6 @@
     core_settings.auto_repeat = autoRepeatSwitch.on;
     shell_always_on(alwaysOnSwitch.on);
     state.keyClicks = keyClicksSwitch.on;
-    state.hapticFeedback = hapticFeedbackSwitch.on;
     state.orientationMode = (int) orientationSelector.selectedSegmentIndex;
     int isPortrait = [CalcView isPortrait] ? 0 : 1;
     int maintainSkinAspect = maintainSkinAspectSwitch.on ? 1 : 0;
