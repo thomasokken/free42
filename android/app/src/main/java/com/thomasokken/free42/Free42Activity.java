@@ -2447,7 +2447,7 @@ public class Free42Activity extends Activity {
                 }
             };
             try {
-                lm.requestLocationUpdates(provider, 60000, 1, ll, Looper.getMainLooper());
+                lm.requestLocationUpdates(provider, 5000, 1, ll, Looper.getMainLooper());
             } catch (IllegalArgumentException e) {
                 return 0;
             } catch (SecurityException e) {

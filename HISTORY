@@ -4,6 +4,8 @@
   up a message instead.
 * Android version: Changed haptic feedback preference setting from on/off
   switch to a four-level slider, for off/light/medium/heavy feedback.
+* Android version: Reduced the GPS update interval for LOCAT from 60 seconds to
+  5 seconds.
 * iOS version: Changed haptic feedback preference setting from on/off switch to
   a four-level slider, for off/light/medium/heavy feedback. Also, changed key
   clicks setting from on/off switch to a three-way slider, for off/standard/wav
