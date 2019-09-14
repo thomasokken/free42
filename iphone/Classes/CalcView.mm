@@ -20,6 +20,7 @@
 #import <sys/sysctl.h>
 #import <pthread.h>
 
+#import <AudioToolbox/AudioServices.h>
 #import <CoreLocation/CoreLocation.h>
 #import <CoreMotion/CoreMotion.h>
 
@@ -302,7 +303,9 @@ static CalcView *calcView = nil;
 
 - (void) touchesBegan3 {
     TRACE("touchesBegan3");
-    if (state.keyClicks)
+    if (state.keyClicks == 1)
+        AudioServicesPlaySystemSound(1105);
+    else if (state.keyClicks == 2)
         [RootViewController playSound:11];
     if (state.hapticFeedback > 0) {
         UIImpactFeedbackStyle s;

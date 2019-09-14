@@ -23,7 +23,7 @@
     UISwitch *matrixOutOfRangeSwitch;
     UISwitch *autoRepeatSwitch;
     UISwitch *alwaysOnSwitch;
-    UISwitch *keyClicksSwitch;
+    UISlider *keyClicksSlider;
     UISlider *hapticFeedbackSlider;
     UISegmentedControl *orientationSelector;
     UISwitch *maintainSkinAspectSwitch;
@@ -42,7 +42,7 @@
 @property (nonatomic, retain) IBOutlet UISwitch *matrixOutOfRangeSwitch;
 @property (nonatomic, retain) IBOutlet UISwitch *autoRepeatSwitch;
 @property (nonatomic, retain) IBOutlet UISwitch *alwaysOnSwitch;
-@property (nonatomic, retain) IBOutlet UISwitch *keyClicksSwitch;
+@property (nonatomic, retain) IBOutlet UISlider *keyClicksSlider;
 @property (nonatomic, retain) IBOutlet UISlider *hapticFeedbackSlider;
 @property (nonatomic, retain) IBOutlet UISegmentedControl *orientationSelector;
 @property (nonatomic, retain) IBOutlet UISwitch *maintainSkinAspectSwitch;
@@ -58,7 +58,8 @@
 - (void) textFieldDidBeginEditing:(UITextField *)textField;
 - (void) textFieldDidEndEditing:(UITextField *)textField;
 - (BOOL) textFieldShouldReturn:(UITextField *)textField;
-- (IBAction) sliderUpdated;
+- (IBAction) keyClicksSliderUpdated;
+- (IBAction) hapticFeedbackSliderUpdated;
 - (IBAction) done;
 - (IBAction) browseTextFile;
 - (IBAction) browseGifFile;

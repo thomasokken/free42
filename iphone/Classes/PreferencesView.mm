@@ -15,6 +15,7 @@
  * along with this program; if not, see http://www.gnu.org/licenses/.
  *****************************************************************************/
 
+#import <AudioToolbox/AudioServices.h>
 #import "PreferencesView.h"
 #import "CalcView.h"
 #import "SelectFileView.h"
@@ -30,7 +31,7 @@
 @synthesize matrixOutOfRangeSwitch;
 @synthesize autoRepeatSwitch;
 @synthesize alwaysOnSwitch;
-@synthesize keyClicksSwitch;
+@synthesize keyClicksSlider;
 @synthesize hapticFeedbackSlider;
 @synthesize orientationSelector;
 @synthesize maintainSkinAspectSwitch;
@@ -59,7 +60,7 @@
     [matrixOutOfRangeSwitch setOn:core_settings.matrix_outofrange];
     [autoRepeatSwitch setOn:core_settings.auto_repeat];
     [alwaysOnSwitch setOn:shell_always_on(-1)];
-    [keyClicksSwitch setOn:state.keyClicks != 0];
+    [keyClicksSlider setValue:state.keyClicks];
     [hapticFeedbackSlider setValue:state.hapticFeedback];
     [orientationSelector setSelectedSegmentIndex:state.orientationMode];
     [maintainSkinAspectSwitch setOn:state.maintainSkinAspect[[CalcView isPortrait] ? 0 : 1] != 0];
@@ -142,7 +143,19 @@
     [printToGifField setText:path];
 }
 
-- (IBAction) sliderUpdated {
+- (IBAction) keyClicksSliderUpdated {
+    int v = (int) ([keyClicksSlider value] + 0.5);
+    [keyClicksSlider setValue:v];
+    if (state.keyClicks != v) {
+        state.keyClicks = v;
+        if (v == 1)
+            AudioServicesPlaySystemSound(1105);
+        else if (v == 2)
+            [RootViewController playSound:11];
+    }
+}
+
+- (IBAction) hapticFeedbackSliderUpdated {
     int v = (int) ([hapticFeedbackSlider value] + 0.5);
     [hapticFeedbackSlider setValue:v];
     if (state.hapticFeedback != v) {
@@ -172,7 +185,6 @@
     core_settings.matrix_outofrange = matrixOutOfRangeSwitch.on;
     core_settings.auto_repeat = autoRepeatSwitch.on;
     shell_always_on(alwaysOnSwitch.on);
-    state.keyClicks = keyClicksSwitch.on;
     state.orientationMode = (int) orientationSelector.selectedSegmentIndex;
     int isPortrait = [CalcView isPortrait] ? 0 : 1;
     int maintainSkinAspect = maintainSkinAspectSwitch.on ? 1 : 0;
