@@ -97,7 +97,7 @@ public class Free42Activity extends Activity {
 
     public static final String[] builtinSkinNames = new String[] { "Standard", "Landscape" };
     
-    private static final int SHELL_VERSION = 15;
+    private static final int SHELL_VERSION = 16;
     
     private static final int PRINT_BACKGROUND_COLOR = Color.LTGRAY;
     
@@ -162,7 +162,7 @@ public class Free42Activity extends Activity {
 
     private boolean alwaysRepaintFullDisplay = false;
     private boolean keyClicksEnabled = true;
-    private boolean keyVibrationEnabled = false;
+    private int keyVibration = 0;
     private int preferredOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
     private int style = 0;
     
@@ -938,7 +938,7 @@ public class Free42Activity extends Activity {
         preferencesDialog.setAutoRepeat(cs.auto_repeat);
         preferencesDialog.setAlwaysOn(shell_always_on(-1) != 0);
         preferencesDialog.setKeyClicks(keyClicksEnabled);
-        preferencesDialog.setKeyVibration(keyVibrationEnabled);
+        preferencesDialog.setKeyVibration(keyVibration);
         preferencesDialog.setOrientation(preferredOrientation);
         preferencesDialog.setStyle(style);
         preferencesDialog.setDisplayFullRepaint(alwaysRepaintFullDisplay);
@@ -961,7 +961,7 @@ public class Free42Activity extends Activity {
         cs.auto_repeat = preferencesDialog.getAutoRepeat();
         shell_always_on(preferencesDialog.getAlwaysOn() ? 1 : 0);
         keyClicksEnabled = preferencesDialog.getKeyClicks();
-        keyVibrationEnabled = preferencesDialog.getKeyVibration();
+        keyVibration = preferencesDialog.getKeyVibration();
         int oldOrientation = preferredOrientation;
         preferredOrientation = preferencesDialog.getOrientation();
         style = preferencesDialog.getStyle();
@@ -1694,7 +1694,10 @@ public class Free42Activity extends Activity {
                 displaySmoothing[1] = state_read_boolean();
             }
             if (shell_version >= 8)
-                keyVibrationEnabled = state_read_boolean();
+                if (shell_version < 16)
+                    keyVibration = state_read_boolean() ? 50 : 0;
+                else
+                    keyVibration = state_read_int();
             if (shell_version >= 9) {
                 style = state_read_int();
                 int maxStyle = PreferencesDialog.immersiveModeSupported ? 2 : 1;
@@ -1761,7 +1764,7 @@ public class Free42Activity extends Activity {
             displaySmoothing[1] = displaySmoothing[0];
             // fall through
         case 7:
-            keyVibrationEnabled = false;
+            keyVibration = 0;
             // fall through
         case 8:
             style = 0;
@@ -1790,7 +1793,9 @@ public class Free42Activity extends Activity {
             putCoreSettings(cs);
             // fall through
         case 15:
-            // current version (SHELL_VERSION = 15),
+            // fall through
+        case 16:
+            // current version (SHELL_VERSION = 16),
             // so nothing to do here since everything
             // was initialized from the state file.
             ;
@@ -1817,7 +1822,7 @@ public class Free42Activity extends Activity {
             state_write_boolean(displaySmoothing[0]);
             state_write_boolean(skinSmoothing[1]);
             state_write_boolean(displaySmoothing[1]);
-            state_write_boolean(keyVibrationEnabled);
+            state_write_int(keyVibration);
             state_write_int(style);
             state_write_boolean(alwaysRepaintFullDisplay);
             state_write_boolean(alwaysOn);
@@ -1968,9 +1973,9 @@ public class Free42Activity extends Activity {
     private void click() {
         if (keyClicksEnabled)
             playSound(11, 0);
-        if (keyVibrationEnabled) {
+        if (keyVibration > 0) {
             Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-            v.vibrate(50);
+            v.vibrate(keyVibration);
         }
     }
     

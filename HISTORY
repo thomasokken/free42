@@ -2,6 +2,8 @@
 
 * Android version: Sharing an empty print-out would crash. Fixed; now it pops
   up a message instead.
+* Android version: Changed haptic feedback preference setting from on/off
+  switch to a four-level slider, for off/light/medium/heavy feedback.
 * iOS version: Changed haptic feedback preference setting from on/off switch to
   a four-level slider, for off/light/medium/heavy feedback. Also, changed key
   clicks setting from on/off switch to a three-way slider, for off/standard/wav

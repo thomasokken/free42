@@ -64,15 +64,27 @@
 		    		android:layout_below="@+id/alwaysOnCB"
 		    		android:layout_alignParentLeft="true"/>
 		        
-		    <CheckBox android:id="@+id/keyVibrationCB"
-		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		    		android:text="Haptic feedback"
-		    		android:layout_below="@+id/keyClicksCB"
-		    		android:layout_alignParentLeft="true"/>
-		        
+			<LinearLayout android:id="@+id/hapticBox"
+				android:layout_width="fill_parent" android:layout_height="wrap_content"
+				android:layout_below="@+id/keyClicksCB"
+				android:orientation="horizontal">
+
+				<TextView
+					android:layout_width="wrap_content" android:layout_height="wrap_content"
+					android:layout_weight="0"
+					android:text="Haptic Feedback"/>
+
+				<SeekBar android:id="@+id/hapticSB"
+					android:layout_width="wrap_content" android:layout_height="wrap_content"
+					android:layout_marginLeft="20px"
+					android:layout_weight="1"
+					android:max="150"/>
+
+			</LinearLayout>
+
 		    <LinearLayout android:id="@+id/orientationBox"
 		    		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		    		android:layout_below="@+id/keyVibrationCB"
+		    		android:layout_below="@+id/hapticBox"
 		    		android:layout_alignParentLeft="true"
 		    		android:orientation="horizontal">
 	
