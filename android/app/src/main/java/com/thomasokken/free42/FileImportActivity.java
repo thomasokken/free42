@@ -31,8 +31,10 @@ public class FileImportActivity extends Activity {
         System.err.println("FileImportActivity action = " + action);
         Uri uri = intent.getData();
         System.err.println("FileImportActivity uri = " + uri);
-        if (uri == null)
+        if (uri == null) {
+            finish();
             return;
+        }
 
         // If attachment, some contortions to try and get the original file name
         String baseName = null;
