@@ -1,11 +1,14 @@
 ????-??-??: release 2.5.6c
 
-* Android version: Sharing an empty print-out would crash. Fixed; now it pops
-  up a message instead.
 * Android version: Changed haptic feedback preference setting from on/off
   switch to a four-level slider, for off/light/medium/heavy feedback.
 * Android version: Reduced the GPS update interval for LOCAT from 60 seconds to
   5 seconds.
+* Android version: Sharing an empty print-out would crash. Fixed; now it pops
+  up a message instead.
+* Android version: Fixed crashes in state file import activity: intents without
+  data, and SecurityException and UnsupportedOperationException while trying to
+  get attachment file names.
 * iOS version: Changed haptic feedback preference setting from on/off switch to
   a four-level slider, for off/light/medium/heavy feedback. Also, changed key
   clicks setting from on/off switch to a three-way slider, for off/standard/wav

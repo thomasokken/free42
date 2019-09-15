@@ -31,18 +31,22 @@ public class FileImportActivity extends Activity {
         System.err.println("FileImportActivity action = " + action);
         Uri uri = intent.getData();
         System.err.println("FileImportActivity uri = " + uri);
+        if (uri == null)
+            return;
 
         // If attachment, some contortions to try and get the original file name
         String baseName = null;
         String type = "f42";
         String scheme = uri.getScheme();
         if (scheme.equals("content")) {
-            Cursor cursor = getContentResolver().query(uri, new String[]{MediaStore.MediaColumns.DISPLAY_NAME}, null, null, null);
-            cursor.moveToFirst();
-            int nameIndex = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME);
-            if (nameIndex >= 0) {
-                baseName = cursor.getString(nameIndex);
-            }
+            try {
+                Cursor cursor = getContentResolver().query(uri, new String[]{MediaStore.MediaColumns.DISPLAY_NAME}, null, null, null);
+                cursor.moveToFirst();
+                int nameIndex = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME);
+                if (nameIndex >= 0) {
+                    baseName = cursor.getString(nameIndex);
+                }
+            } catch (Exception e) {}
         } else {
             baseName = uri.getLastPathSegment();
         }
