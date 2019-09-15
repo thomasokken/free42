@@ -739,8 +739,11 @@ bool no_keystrokes_yet;
  * Version 26: 2.5    Separate and portable core state file
  * Version 27: 2.5.2  Recovery mode for corrupt 2.5 state files
  * Version 28: 2.5.3  Recording platform name and app version in state file
+ * Version 29: 2.5.7  SOLVE: Tracking second best guess in order to be able to
+ *                    report it accurately in Y, and to provide additional data
+ *                    points for distinguishing between zeroes and poles.
  */
-#define FREE42_VERSION 28
+#define FREE42_VERSION 29
 
 
 /*******************/
@@ -3511,10 +3514,10 @@ static bool load_state2(int4 ver, bool *clear, bool *too_new) {
     }
 
 #ifdef BCD_MATH
-    if (!unpersist_math(state_file_number_format != NUMBER_FORMAT_BID128))
+    if (!unpersist_math(ver, state_file_number_format != NUMBER_FORMAT_BID128))
         return false;
 #else
-    if (!unpersist_math(state_file_number_format != NUMBER_FORMAT_BINARY))
+    if (!unpersist_math(ver, state_file_number_format != NUMBER_FORMAT_BINARY))
         return false;
 #endif
 

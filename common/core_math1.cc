@@ -58,6 +58,7 @@ typedef struct {
     phloat fx1, fx2;
     phloat prev_x, curr_x, curr_f;
     phloat xm, fxm;
+    phloat best_f, best_x, second_f, second_x;
     char shadow_name[NUM_SHADOWS][7];
     int shadow_length[NUM_SHADOWS];
     phloat shadow_value[NUM_SHADOWS];
@@ -129,6 +130,10 @@ bool persist_math() {
     if (!write_phloat(solve.curr_f)) return false;
     if (!write_phloat(solve.xm)) return false;
     if (!write_phloat(solve.fxm)) return false;
+    if (!write_phloat(solve.best_f)) return false;
+    if (!write_phloat(solve.best_x)) return false;
+    if (!write_phloat(solve.second_f)) return false;
+    if (!write_phloat(solve.second_x)) return false;
     for (int i = 0; i < NUM_SHADOWS; i++) {
         if (fwrite(solve.shadow_name[i], 1, 7, gfile) != 7) return false;
         if (!write_int(solve.shadow_length[i])) return false;
@@ -172,7 +177,7 @@ bool persist_math() {
     return true;
 }
 
-bool unpersist_math(bool discard) {
+bool unpersist_math(int ver, bool discard) {
     if (state_is_portable) {
         if (!read_int(&solve.version)) return false;
         if (fread(solve.prgm_name, 1, 7, gfile) != 7) return false;
@@ -199,6 +204,15 @@ bool unpersist_math(bool discard) {
         if (!read_phloat(&solve.curr_f)) return false;
         if (!read_phloat(&solve.xm)) return false;
         if (!read_phloat(&solve.fxm)) return false;
+        if (ver >= 29) {
+            if (!read_phloat(&solve.best_f)) return false;
+            if (!read_phloat(&solve.best_x)) return false;
+            if (!read_phloat(&solve.second_f)) return false;
+            if (!read_phloat(&solve.second_x)) return false;
+        } else {
+            solve.best_f = solve.second_f = ((phloat) 1) / 0;
+            solve.best_x = solve.second_x = ((phloat) 0) / 0;
+        }
         for (int i = 0; i < NUM_SHADOWS; i++) {
             if (fread(solve.shadow_name[i], 1, 7, gfile) != 7) return false;
             if (!read_int(&solve.shadow_length[i])) return false;
@@ -423,6 +437,10 @@ int start_solve(const char *name, int length, phloat x1, phloat x2) {
         solve.x1 = x2;
         solve.x2 = x1;
     }
+    solve.best_x = ((phloat) 0) / 0;
+    solve.best_f = ((phloat) 1) / 0;
+    solve.second_x = ((phloat) 0) / 0;
+    solve.second_f = ((phloat) 1) / 0;
     solve.last_disp_time = 0;
     solve.toggle = 1;
     solve.keep_running = !should_i_stop_at_this_level() && program_running();
@@ -453,9 +471,7 @@ static int finish_solve(int message) {
     arg_struct arg;
     int dummy, print;
 
-    solve.state = 0;
-
-    phloat best_f = solve.curr_f;
+    phloat final_f = solve.curr_f;
 
     if (solve.which == -1) {
         /* Ridders was terminated because it wasn't making progress; this does
@@ -469,24 +485,37 @@ static int finish_solve(int message) {
         if (t1 < t2) {
             solve.which = 1;
             t = t1;
-            best_f = solve.fx1;
+            final_f = solve.fx1;
         } else {
             solve.which = 2;
             t = t2;
-            best_f = solve.fx2;
+            final_f = solve.fx2;
         }
         if (t3 < t) {
             solve.which = 3;
-            best_f = solve.curr_f;
+            final_f = solve.curr_f;
         }
     }
 
-    v = recall_var(solve.var_name, solve.var_length);
-    ((vartype_real *) v)->x = solve.which == 1 ? solve.x1 :
+    phloat b = solve.which == 1 ? solve.x1 :
                                 solve.which == 2 ? solve.x2 : solve.x3;
+    phloat s;
+    if (p_isinf(solve.best_f))
+        s = b;
+    else if (solve.best_f > fabs(final_f))
+        s = solve.best_x;
+    else if (p_isinf(solve.second_f))
+        s = solve.best_x;
+    else
+        s = solve.second_x;
+
+    solve.state = 0;
+
+    v = recall_var(solve.var_name, solve.var_length);
+    ((vartype_real *) v)->x = b;
     new_x = dup_vartype(v);
-    new_y = new_real(solve.prev_x);
-    new_z = new_real(best_f);
+    new_y = new_real(s);
+    new_z = new_real(final_f);
     new_t = new_real(message);
     if (new_x == NULL || new_y == NULL || new_z == NULL || new_t == NULL) {
         free_vartype(new_x);
@@ -515,7 +544,7 @@ static int finish_solve(int message) {
 
     if (!solve.keep_running) {
         view_helper(&arg, print);
-        if (message != 0) {
+        if (message != SOLVE_ROOT) {
             clear_row(1);
             draw_string(0, 1, solve_message[message].text,
                               solve_message[message].length);
@@ -534,7 +563,7 @@ static int finish_solve(int message) {
         }
     }
 
-    if (print && message != 0)
+    if (print && message != SOLVE_ROOT)
         print_lines(solve_message[message].text,
                     solve_message[message].length, 1);
 
@@ -570,6 +599,12 @@ int return_to_solve(int failure, bool stop) {
             solve.curr_f = f;
             if (f == 0)
                 return finish_solve(SOLVE_ROOT);
+            if (fabs(f) < fabs(solve.best_f)) {
+                solve.second_f = solve.best_f;
+                solve.second_x = solve.best_x;
+                solve.best_f = fabs(f);
+                solve.best_x = solve.curr_x;
+            }
         } else {
             solve.curr_f = POS_HUGE_PHLOAT;
             failure = 1;

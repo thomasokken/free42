@@ -1,5 +1,6 @@
-????-??-??: release 2.5.6c
+2019-09-16: release 2.5.7
 
+* SOLVE did not always return the second-best guess in Y. Fixed.
 * Android version: Changed haptic feedback preference setting from on/off
   switch to a four-level slider, for off/light/medium/heavy feedback.
 * Android version: Reduced the GPS update interval for LOCAT from 60 seconds to
@@ -18,7 +19,7 @@
   the multi-threaded event handling logic makes the code too hard to maintain,
   while the benefits in terms of performance are marginal. The only noticeable
   disadvantage of the single-threaded approach was poor performance in display-
-  intensive code, and that can be mitigated simply by repainting less
+  intensive code, and that was mitigated simply by repainting less
   aggressively.
 * iOS version: Preferences view now expands to fill the width of the screen.
 * MacOS version: Making the app single-threaded. This is the same change as in
