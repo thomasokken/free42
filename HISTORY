@@ -20,6 +20,7 @@
   disadvantage of the single-threaded approach was poor performance in display-
   intensive code, and that can be mitigated simply by repainting less
   aggressively.
+* iOS version: Preferences view now expands to fill the width of the screen.
 * MacOS version: Making the app single-threaded. This is the same change as in
   the iOS version; the aim is to simplify the code, making it more robust,
   while sacrificing very little in terms of performance.
