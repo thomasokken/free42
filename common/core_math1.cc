@@ -210,8 +210,8 @@ bool unpersist_math(int ver, bool discard) {
             if (!read_phloat(&solve.second_f)) return false;
             if (!read_phloat(&solve.second_x)) return false;
         } else {
-            solve.best_f = solve.second_f = ((phloat) 1) / 0;
-            solve.best_x = solve.second_x = ((phloat) 0) / 0;
+            solve.best_f = solve.second_f = POS_HUGE_PHLOAT;
+            solve.best_x = solve.second_x = 0;
         }
         for (int i = 0; i < NUM_SHADOWS; i++) {
             if (fread(solve.shadow_name[i], 1, 7, gfile) != 7) return false;
