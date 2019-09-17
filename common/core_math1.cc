@@ -437,10 +437,10 @@ int start_solve(const char *name, int length, phloat x1, phloat x2) {
         solve.x1 = x2;
         solve.x2 = x1;
     }
-    solve.best_x = ((phloat) 0) / 0;
-    solve.best_f = ((phloat) 1) / 0;
-    solve.second_x = ((phloat) 0) / 0;
-    solve.second_f = ((phloat) 1) / 0;
+    solve.best_x = 0;
+    solve.best_f = POS_HUGE_PHLOAT;
+    solve.second_x = 0;
+    solve.second_f = POS_HUGE_PHLOAT;
     solve.last_disp_time = 0;
     solve.toggle = 1;
     solve.keep_running = !should_i_stop_at_this_level() && program_running();
