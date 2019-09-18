@@ -165,7 +165,18 @@ public class FileImportActivity extends Activity {
                     FileImportActivity.this.finish();
                 }
             });
-            dialog.show();
+            try {
+                dialog.show();
+            } catch (Exception e) {
+                // Should never happen. From what I can find out, when AlertDialog.show()
+                // throws a BadTokenException, it's because it's being called from a
+                // background thread, or because it's being called with an Activity that
+                // has already finished. The FileImportActivity calls this code using
+                // runOnUiThread(), so the former never applies, and it doesn't call
+                // finish() before running this code, so the latter never applies either.
+                // Unfortunately, BadTokenExceptions do, in fact, get thrown here, so
+                // there's nothing to be done but catch and ignore them.
+            }
         }
     }
 
