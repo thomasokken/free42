@@ -70,6 +70,8 @@ static char version[32] = "";
     // We ignore the URL and just handle all files with names
     // ending in .f42 or .F42 that happen to be in our Inbox.
     DIR *dir = opendir("Inbox");
+    if (dir == NULL)
+        return NO;
     struct dirent *d;
     NSMutableArray *fromNames = [NSMutableArray array];
     while ((d = readdir(dir)) != NULL) {
