@@ -1,3 +1,10 @@
+2019-09-20: release 2.5.8
+
+* When loading a corrupted state file causes a crash, the state file is now
+  renamed so that it won't be read again, and the app will start with Memory
+  Clear the next time it is launched, instead of crashing again and again.
+* Android and iOS versions: Fixed a couple of import-related crashes.
+
 2019-09-16: release 2.5.7
 
 * SOLVE did not always return the second-best guess in Y. Fixed.
