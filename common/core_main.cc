@@ -88,8 +88,25 @@ void core_init(int read_saved_state, int4 version, const char *state_file_name, 
     core_settings.enable_ext_time = true;
     core_settings.enable_ext_prog = true;
 
+    char *state_file_name_crash = NULL;
     if (read_saved_state == 1) {
-        gfile = fopen(state_file_name, "rb");
+        // Before loading state, rename the state file by appending .crash
+        // to its name. We'll rename it back, right after loading is done.
+        // This way, if we crash while loading state, we end up with a
+        // renamed state file, so the next time the app is run, it will
+        // launch with Memory Clear rather than just crashing on startup over
+        // and over, and, on iOS and Android, needing to be deleted and
+        // reinstalled.
+        state_file_name_crash = (char *) malloc(strlen(state_file_name) + 24);
+        if (state_file_name_crash != NULL) {
+            uint4 date, time;
+            int weekday;
+            shell_get_time_date(&time, &date, &weekday);
+            sprintf(state_file_name_crash, "%s.%08u%08u.crash", state_file_name, date, time);
+            rename(state_file_name, state_file_name_crash);
+            gfile = fopen(state_file_name_crash, "rb");
+        } else
+            gfile = fopen(state_file_name, "rb");
         if (gfile == NULL)
             read_saved_state = 0;
         else if (offset > 0)
@@ -105,15 +122,24 @@ void core_init(int read_saved_state, int4 version, const char *state_file_name, 
     }
     if (gfile != NULL)
         fclose(gfile);
-    if (reason != 0 && state_file_name != NULL) {
-        char *tmp = (char *) malloc(strlen(state_file_name) + 9);
-        if (tmp != NULL) {
-            strcpy(tmp, state_file_name);
-            strcat(tmp, reason == 1 ? ".corrupt" : ".too_new");
-            rename(state_file_name, tmp);
-            free(tmp);
+    if (state_file_name != NULL) {
+        if (reason == 0) {
+            if (state_file_name_crash != NULL)
+                rename(state_file_name_crash, state_file_name);
+        } else {
+            char *tmp = (char *) malloc(strlen(state_file_name) + 9);
+            if (tmp != NULL) {
+                strcpy(tmp, state_file_name);
+                strcat(tmp, reason == 1 ? ".corrupt" : ".too_new");
+                if (state_file_name_crash != NULL)
+                    rename(state_file_name_crash, tmp);
+                else
+                    rename(state_file_name, tmp);
+                free(tmp);
+            }
         }
     }
+    free(state_file_name_crash);
 
     repaint_display();
     shell_annunciators(mode_updown,
