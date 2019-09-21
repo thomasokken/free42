@@ -1,3 +1,7 @@
+2019-09-21: release 2.5.8a (iOS only)
+
+* Added support for Dark Mode in iOS 13.
+
 2019-09-20: release 2.5.8
 
 * When loading a corrupted state file causes a crash, the state file is now

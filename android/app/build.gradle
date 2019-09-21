@@ -15,7 +15,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 28
         versionCode 110
-        versionName "2.5.8"
+        versionName "2.5.8a"
     }
     buildTypes {
         debug {
