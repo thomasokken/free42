@@ -33,6 +33,7 @@
         <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
+        <data android:scheme="content"/>
         <data android:mimeType="*/*"/>
       </intent-filter>
       <intent-filter>
@@ -41,20 +42,18 @@
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
         <data android:scheme="file"/>
-      </intent-filter>
-      <intent-filter>
-        <action android:name="android.intent.action.SEND"/>
-        <action android:name="android.intent.action.VIEW"/>
-        <category android:name="android.intent.category.BROWSABLE"/>
-        <category android:name="android.intent.category.DEFAULT"/>
         <data android:scheme="http"/>
-      </intent-filter>
-      <intent-filter>
-        <action android:name="android.intent.action.SEND"/>
-        <action android:name="android.intent.action.VIEW"/>
-        <category android:name="android.intent.category.BROWSABLE"/>
-        <category android:name="android.intent.category.DEFAULT"/>
         <data android:scheme="https"/>
+        <data android:host="*"/>
+        <data android:pathPattern=".*\\.raw"/>
+        <data android:pathPattern=".*\\.f42"/>
+        <data android:pathPattern=".*\\..*\\.raw"/>
+        <data android:pathPattern=".*\\..*\\.f42"/>
+        <data android:pathPattern=".*\\..*\\..*\\.raw"/>
+        <data android:pathPattern=".*\\..*\\..*\\.f42"/>
+        <data android:pathPattern=".*\\..*\\..*\\..*\\.raw"/>
+        <data android:pathPattern=".*\\..*\\..*\\..*\\.f42"/>
+        <data android:mimeType="*/*"/>
       </intent-filter>
     </activity>
     <provider

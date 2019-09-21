@@ -1,6 +1,13 @@
-2019-09-21: release 2.5.8a (iOS only)
+2019-09-21: release 2.5.8a (Android and iOS)
 
-* Added support for Dark Mode in iOS 13.
+* iOS version: Added support for Dark Mode in iOS 13.
+* Android version: Added file extension filtering for file, http, and https URL
+  schemes. This should make Free42 not appear in as many file selection
+  contexts as before, without making it disappear from contexts where is should
+  be offered as an option. N.B. File extension filtering is not supported with
+  the content scheme, which means Free42 will still show up in all contexts
+  where attachments are opened, and depending on the file manager used, also
+  when opening files from file managers.
 
 2019-09-20: release 2.5.8
 
