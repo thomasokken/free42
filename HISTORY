@@ -1,5 +1,8 @@
-2019-09-21: release 2.5.8a (Android and iOS)
+2019-09-21: release 2.5.9
 
+* When importing a program while the last program in memory was empty, the
+  imported program would be inserted at the current location, instead of being
+  added at the end of memory. Fixed.
 * iOS version: Added support for Dark Mode in iOS 13.
 * Android version: Added file extension filtering for file, http, and https URL
   schemes. This should make Free42 not appear in as many file selection

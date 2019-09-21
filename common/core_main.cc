@@ -1791,8 +1791,10 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
         goto_dot_dot(true);
         pending_end = false;
     } else {
+        current_prgm = prgms_count - 1;
+        pc = prgms[current_prgm].size - 2;
         // No initial END needed if last program is empty
-        pending_end = prgms[prgms_count - 1].size > 2;
+        pending_end = pc > 0;
     }
 
     while (!done_flag) {
