@@ -1,3 +1,5 @@
+.github
+.gitignore
 android
 build-android
 build-mac

@@ -2,7 +2,7 @@
 rm -rf temp
 mkdir temp
 cd temp
-git clone git@mactv:repos/free42.git
+git clone --local ../.. free42
 for i in `cat ../nologo/remove`
 do
     rm -rf free42/$i
