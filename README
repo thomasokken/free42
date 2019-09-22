@@ -24,24 +24,33 @@ about cleaning up object files.
 
 
 -------------------------------------------------------------------------------
-Building the Unix version:
+Creating Free42 build environment in FreeBSD
 
-Different operating systems require different compiler and linker flags. One
-day I would like to use autoconf or something similar to make it easier to
-provide a Free42 source package that builds easily on all sorts of different
-flavors of Unix; until then, here are a few hints that may help in case simply
-saying 'make' doesn't to the job for you.
+Create VirtualBox VM (using VirtualBox 5.2.22)
+Install FreeBSD-12.0-RELEASE-amd64-dvd1.iso
 
-One known source of confusion is the LIBS line in the Makefile. Depending on
-your system's specifics, you may have to list more libraries there than I have
-in my Makefile. Apparently, different linkers have different abilities to
-automatically include required libs: on my system, -lXm (Motif) automatically
-includes -lXp -lXmu -lXt -lX11, but on others, some or all of these may have
-to be specified explicitly. Additional libraries may also be needed.
+then:
 
-The Makefiles were all written for GNU make. On Linux, this is usually the
-default anyway, but if you're using FreeBSD or other BSD derivatives, you may
-have to use 'gmake' instead of 'make'.
+pkg install gnome3
+pkg install xorg
+pkg install virtualbox-ose-additions
+
+in /etc/fstab, added:
+proc           /proc       procfs  rw  0   0
+
+in /etc/rc.conf, added:
+vboxguest_enable="YES"
+vboxservice_enable="YES"
+dbus_enable="YES"
+hald_enable="YES"
+gdm_enable="YES"
+gnome_enable="YES"
+
+That brings up the desktop.
+Now, some more stuff:
+
+pkg install devel/pkgconf
+pkg install devel/gmake
 
 
 -------------------------------------------------------------------------------
