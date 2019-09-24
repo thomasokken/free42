@@ -28,12 +28,16 @@ public class FileImportActivity extends Activity {
 
         Intent intent = getIntent();
         String action = intent.getAction();
-        System.err.println("FileImportActivity action = " + action);
         Uri uri = intent.getData();
-        System.err.println("FileImportActivity uri = " + uri);
         if (uri == null) {
-            finish();
-            return;
+            try {
+                Bundle bundle = intent.getExtras();
+                uri = (Uri) bundle.get(Intent.EXTRA_STREAM);
+            } catch (Exception e) {}
+            if (uri == null) {
+                finish();
+                return;
+            }
         }
 
         // If attachment, some contortions to try and get the original file name
@@ -122,7 +126,6 @@ public class FileImportActivity extends Activity {
 
     private void wrapUp(Exception e) {
         if (e == null) {
-            finish();
             Free42Activity f42instance = Free42Activity.instance;
             Intent i = new Intent(Intent.ACTION_MAIN);
             i.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -132,13 +135,13 @@ public class FileImportActivity extends Activity {
                     f42instance.importedState = importedState;
                 else
                     f42instance.importedProgram = dstFile;
-            } else {
-                if (importIsState)
-                    i.putExtra("importedState", importedState);
-                else
-                    i.putExtra("importedProgram", dstFile);
             }
+            if (importIsState)
+                i.putExtra("importedState", importedState);
+            else
+                i.putExtra("importedProgram", dstFile);
             startActivity(i);
+            finish();
         } else if (e instanceof FormatException) {
             new File(dstFile).delete();
             runOnUiThread(new Alerter("Invalid state format."));
