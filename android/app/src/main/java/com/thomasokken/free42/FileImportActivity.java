@@ -105,9 +105,27 @@ public class FileImportActivity extends Activity {
                 if (n != 4 || buf[0] != '2' || buf[1] != '4' || buf[2] != 'k' || buf[3] != 'F')
                     throw new FormatException();
                 os.write(buf, 0, 4);
+                while ((n = is.read(buf)) >= 0)
+                    os.write(buf, 0, n);
+            } else {
+                byte[] last3 = new byte[3];
+                while ((n = is.read(buf)) >= 0) {
+                    os.write(buf, 0, n);
+                    if (n >= 3) {
+                        System.arraycopy(buf, n - 3, last3, 0, 3);
+                    } else if (n == 2) {
+                        last3[0] = last3[2];
+                        last3[1] = buf[0];
+                        last3[2] = buf[1];
+                    } else if (n == 1) {
+                        last3[0] = last3[1];
+                        last3[1] = last3[2];
+                        last3[2] = buf[0];
+                    }
+                }
+                if ((last3[0] & 0x0f0) != 0x0c0 || last3[2] != 0x0d)
+                    throw new FormatException();
             }
-            while ((n = is.read(buf)) >= 0)
-                os.write(buf, 0, n);
             wrapUp(null);
         } catch (Exception e) {
             importedState = null;
@@ -144,11 +162,11 @@ public class FileImportActivity extends Activity {
             finish();
         } else if (e instanceof FormatException) {
             new File(dstFile).delete();
-            runOnUiThread(new Alerter("Invalid state format."));
+            runOnUiThread(new Alerter("Invalid " + (importIsState ? "state" : "program") + " format."));
         } else {
             e.printStackTrace();
             new File(dstFile).delete();
-            runOnUiThread(new Alerter("State import failed."));
+            runOnUiThread(new Alerter((importIsState ? "State" : "Program") + " import failed."));
         }
     }
 
@@ -203,9 +221,27 @@ public class FileImportActivity extends Activity {
                     if (n != 4 || buf[0] != '2' || buf[1] != '4' || buf[2] != 'k' || buf[3] != 'F')
                         throw new FormatException();
                     os.write(buf, 0, 4);
+                    while ((n = is.read(buf)) >= 0)
+                        os.write(buf, 0, n);
+                } else {
+                    byte[] last3 = new byte[3];
+                    while ((n = is.read(buf)) >= 0) {
+                        os.write(buf, 0, n);
+                        if (n >= 3) {
+                            System.arraycopy(buf, n - 3, last3, 0, 3);
+                        } else if (n == 2) {
+                            last3[0] = last3[2];
+                            last3[1] = buf[0];
+                            last3[2] = buf[1];
+                        } else if (n == 1) {
+                            last3[0] = last3[1];
+                            last3[1] = last3[2];
+                            last3[2] = buf[0];
+                        }
+                    }
+                    if ((last3[0] & 0x0f0) != 0x0c0 || last3[2] != 0x0d)
+                        throw new FormatException();
                 }
-                while ((n = is.read(buf)) >= 0)
-                    os.write(buf, 0, n);
             } catch (Exception e) {
                 importedState = null;
                 ex = e;
