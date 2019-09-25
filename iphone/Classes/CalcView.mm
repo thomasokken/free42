@@ -286,10 +286,8 @@ static CalcView *calcView = nil;
             if (skin_in_menu_area(x, y))
                 [self showMainMenu];
         } else {
-            if (state.keyClicks == 1)
-                AudioServicesPlaySystemSound(1105);
-            else if (state.keyClicks == 2)
-                [RootViewController playSound:11];
+            if (state.keyClicks > 0)
+                [RootViewController playSound:state.keyClicks + 10];
             if (state.hapticFeedback > 0) {
                 UIImpactFeedbackStyle s;
                 switch (state.hapticFeedback) {

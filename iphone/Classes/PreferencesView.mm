@@ -148,10 +148,8 @@
     [keyClicksSlider setValue:v];
     if (state.keyClicks != v) {
         state.keyClicks = v;
-        if (v == 1)
-            AudioServicesPlaySystemSound(1105);
-        else if (v == 2)
-            [RootViewController playSound:11];
+        if (v > 0)
+            [RootViewController playSound:v + 10];
     }
 }
 
