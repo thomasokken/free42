@@ -90,7 +90,7 @@
 					android:layout_width="wrap_content" android:layout_height="wrap_content"
 					android:layout_marginLeft="20px"
 					android:layout_weight="1"
-					android:max="150"/>
+					android:max="16"/>
 
 			</LinearLayout>
 

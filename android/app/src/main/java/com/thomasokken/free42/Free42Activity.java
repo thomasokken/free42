@@ -1703,10 +1703,14 @@ public class Free42Activity extends Activity {
                 displaySmoothing[1] = state_read_boolean();
             }
             if (shell_version >= 8)
-                if (shell_version < 16)
-                    keyVibration = state_read_boolean() ? 50 : 0;
-                else
+                if (shell_version < 16) {
+                    keyVibration = state_read_boolean() ? 12 : 0;
+                } else {
                     keyVibration = state_read_int();
+                    if (keyVibration > 16)
+                        // The older 0, 50, 100, 150 scale
+                        keyVibration = (int) (Math.log(keyVibration) / Math.log(2) * 2 + 0.5);
+                }
             if (shell_version >= 9) {
                 style = state_read_int();
                 int maxStyle = PreferencesDialog.immersiveModeSupported ? 2 : 1;
@@ -1983,8 +1987,9 @@ public class Free42Activity extends Activity {
         if (keyClicksLevel > 0)
             playSound(keyClicksLevel + 10, 0);
         if (keyVibration > 0) {
+            int ms = (int) (Math.pow(2, (keyVibration - 1) / 2.0) + 0.5);
             Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-            v.vibrate(keyVibration);
+            v.vibrate(ms);
         }
     }
     

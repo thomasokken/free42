@@ -119,11 +119,12 @@ public class PreferencesDialog extends Dialog {
             @Override
             public void onProgressChanged(SeekBar seekBar, int val, boolean fromUser) {
                 if (fromUser) {
-                    val = ((int) (((double) val) / 10 + 0.5)) * 10;
-                    seekBar.setProgress(val);
                     if (val != prevVal) {
-                        Vibrator v = (Vibrator) PreferencesDialog.this.getContext().getSystemService(Context.VIBRATOR_SERVICE);
-                        v.vibrate(val);
+                        if (val > 0) {
+                            int ms = (int) (Math.pow(2, (val - 1) / 2.0) + 0.5);
+                            Vibrator v = (Vibrator) PreferencesDialog.this.getContext().getSystemService(Context.VIBRATOR_SERVICE);
+                            v.vibrate(ms);
+                        }
                         prevVal = val;
 
                     }
