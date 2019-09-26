@@ -33,7 +33,7 @@
 #import "shell_skin_iphone.h"
 #import "core_main.h"
 
-static SystemSoundID soundIDs[16];
+static SystemSoundID soundIDs[20];
 
 static RootViewController *instance;
 
@@ -62,9 +62,10 @@ static RootViewController *instance;
             "tone0", "tone1", "tone2", "tone3", "tone4",
             "tone5", "tone6", "tone7", "tone8", "tone9",
             "squeak",
-            "click1", "click2", "click3", "click4", "click5"
+            "click1", "click2", "click3", "click4", "click5",
+            "click6", "click7", "click8", "click9"
         };
-    for (int i = 0; i < 16; i++) {
+    for (int i = 0; i < 20; i++) {
         NSString *name = [NSString stringWithUTF8String:sound_names[i]];
         NSString *path = [[NSBundle mainBundle] pathForResource:name ofType:@"wav"];
         OSStatus status = AudioServicesCreateSystemSoundID((CFURLRef)[NSURL fileURLWithPath:path], &soundIDs[i]);

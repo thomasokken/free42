@@ -408,7 +408,8 @@ public class Free42Activity extends Activity {
                 R.raw.tone0, R.raw.tone1, R.raw.tone2, R.raw.tone3, R.raw.tone4,
                 R.raw.tone5, R.raw.tone6, R.raw.tone7, R.raw.tone8, R.raw.tone9,
                 R.raw.squeak,
-                R.raw.click1, R.raw.click2, R.raw.click3, R.raw.click4, R.raw.click5
+                R.raw.click1, R.raw.click2, R.raw.click3, R.raw.click4, R.raw.click5,
+                R.raw.click6, R.raw.click7, R.raw.click8, R.raw.click9
             };
         soundIds = new int[soundResourceIds.length];
         for (int i = 0; i < soundResourceIds.length; i++)

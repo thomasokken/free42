@@ -36,6 +36,10 @@
 		E91005E10F893F8900B68C27 /* core_sto_rcl.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005C80F893F8900B68C27 /* core_sto_rcl.cc */; };
 		E91005E20F893F8900B68C27 /* core_tables.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005CA0F893F8900B68C27 /* core_tables.cc */; };
 		E91005E30F893F8900B68C27 /* core_variables.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005CC0F893F8900B68C27 /* core_variables.cc */; };
+		E91B5368233C569F00E30DE8 /* click6.wav in Resources */ = {isa = PBXBuildFile; fileRef = E91B5364233C569F00E30DE8 /* click6.wav */; };
+		E91B5369233C569F00E30DE8 /* click8.wav in Resources */ = {isa = PBXBuildFile; fileRef = E91B5365233C569F00E30DE8 /* click8.wav */; };
+		E91B536A233C569F00E30DE8 /* click7.wav in Resources */ = {isa = PBXBuildFile; fileRef = E91B5366233C569F00E30DE8 /* click7.wav */; };
+		E91B536B233C569F00E30DE8 /* click9.wav in Resources */ = {isa = PBXBuildFile; fileRef = E91B5367233C569F00E30DE8 /* click9.wav */; };
 		E91CC1D40F8C1FE900EE702C /* simpleserver.c in Sources */ = {isa = PBXBuildFile; fileRef = E91CC1D30F8C1FE900EE702C /* simpleserver.c */; };
 		E91CC1D60F8C200800EE702C /* icons.c in Sources */ = {isa = PBXBuildFile; fileRef = E91CC1D50F8C200800EE702C /* icons.c */; };
 		E9200DF61699E1EC001BC4B5 /* CalcView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9200DF11699E1EC001BC4B5 /* CalcView.mm */; };
@@ -152,6 +156,10 @@
 		E91005CB0F893F8900B68C27 /* core_tables.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_tables.h; path = ../common/core_tables.h; sourceTree = SOURCE_ROOT; };
 		E91005CC0F893F8900B68C27 /* core_variables.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_variables.cc; path = ../common/core_variables.cc; sourceTree = SOURCE_ROOT; };
 		E91005CD0F893F8900B68C27 /* core_variables.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = core_variables.h; path = ../common/core_variables.h; sourceTree = SOURCE_ROOT; };
+		E91B5364233C569F00E30DE8 /* click6.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = click6.wav; sourceTree = "<group>"; };
+		E91B5365233C569F00E30DE8 /* click8.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = click8.wav; sourceTree = "<group>"; };
+		E91B5366233C569F00E30DE8 /* click7.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = click7.wav; sourceTree = "<group>"; };
+		E91B5367233C569F00E30DE8 /* click9.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = click9.wav; sourceTree = "<group>"; };
 		E91CC1D30F8C1FE900EE702C /* simpleserver.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; indentWidth = 4; name = simpleserver.c; path = simpleserver/simpleserver.c; sourceTree = "<group>"; tabWidth = 8; usesTabs = 1; };
 		E91CC1D50F8C200800EE702C /* icons.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = icons.c; path = simpleserver/icons.c; sourceTree = "<group>"; };
 		E9200DF01699E1EC001BC4B5 /* CalcView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CalcView.h; sourceTree = "<group>"; };
@@ -356,6 +364,10 @@
 				E9AE255D233C1CCF005072BA /* click3.wav */,
 				E9AE2561233C1CD0005072BA /* click4.wav */,
 				E9AE255E233C1CCF005072BA /* click5.wav */,
+				E91B5364233C569F00E30DE8 /* click6.wav */,
+				E91B5366233C569F00E30DE8 /* click7.wav */,
+				E91B5365233C569F00E30DE8 /* click8.wav */,
+				E91B5367233C569F00E30DE8 /* click9.wav */,
 				E98DD75C0F8C1A210089D9FA /* squeak.wav */,
 				E98DD75D0F8C1A210089D9FA /* tone0.wav */,
 				E98DD75E0F8C1A210089D9FA /* tone1.wav */,
@@ -516,6 +528,7 @@
 				E98DD7670F8C1A210089D9FA /* squeak.wav in Resources */,
 				E98DD7680F8C1A210089D9FA /* tone0.wav in Resources */,
 				E9AE2562233C1CD0005072BA /* click3.wav in Resources */,
+				E91B5368233C569F00E30DE8 /* click6.wav in Resources */,
 				E969A3A522D15AB100E6EBEB /* SGS-L.gif in Resources */,
 				E98DD7690F8C1A210089D9FA /* tone1.wav in Resources */,
 				E98DD76A0F8C1A210089D9FA /* tone2.wav in Resources */,
@@ -527,6 +540,7 @@
 				E9A1EE371FCB8C630047398C /* Images.xcassets in Resources */,
 				E9C255DC1996B9C1007634C9 /* Ehrling42sl.gif in Resources */,
 				E98DD76E0F8C1A210089D9FA /* tone6.wav in Resources */,
+				E91B536B233C569F00E30DE8 /* click9.wav in Resources */,
 				E969A3A322D15AB100E6EBEB /* Matt42X.gif in Resources */,
 				E969A3A622D15AB100E6EBEB /* SGS-L.layout in Resources */,
 				E98DD76F0F8C1A210089D9FA /* tone7.wav in Resources */,
@@ -538,11 +552,13 @@
 				E9031C8F0FF68FB10023F9EC /* builtin_skins.txt in Resources */,
 				E9AE2564233C1CD0005072BA /* click2.wav in Resources */,
 				E9AE2565233C1CD0005072BA /* click1.wav in Resources */,
+				E91B5369233C569F00E30DE8 /* click8.wav in Resources */,
 				E9A1EE391FCB8F5E0047398C /* about-icon@2x.png in Resources */,
 				E9031C920FF68FCD0023F9EC /* Ehrling42sm.gif in Resources */,
 				E9031C930FF68FCD0023F9EC /* Ehrling42sm.layout in Resources */,
 				E94DE6C61011E9AE005E6B19 /* about-icon.png in Resources */,
 				E94C3CFE132DAB0A00880A45 /* Entitlements.plist in Resources */,
+				E91B536A233C569F00E30DE8 /* click7.wav in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
