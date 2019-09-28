@@ -1,3 +1,17 @@
+2019-09-28: release 2.5.9a (Android only)
+
+* Several changes in file handling. No longer associates itself with all files,
+  so Free42 won't be offered to open files of any types other than raw and f42.
+  Unfortunately, this also means that opening f42 files directly from email
+  attachments no longer works; state files will now need to be downloaded, then
+  opened using the file selection boxes, using More -> Import in the States
+  view. Cumbersome, but it's the best I can do given Android's lack of file
+  extension mapping for email attachments.
+* Added a slider for the key click volume; now offers nine levels plus silence.
+* Changed the haptic feedback slider to a logarithmic scale, adding a lot more
+  resolution to the weaker end of the scale, for those with devices that are
+  capable of it and fingers sensitive enough to feel it.
+
 2019-09-21: release 2.5.9
 
 * Importing programs would insert the programs at the current location, instead
