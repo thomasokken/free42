@@ -6,7 +6,7 @@
   attachments no longer works; state files will now need to be downloaded, then
   opened using the file selection boxes, using More -> Import in the States
   view. Cumbersome, but it's the best I can do given Android's lack of file
-  extension mapping for email attachments.
+  extension filtering for email attachments.
 * Added a slider for the key click volume; now offers nine levels plus silence.
 * Changed the haptic feedback slider to a logarithmic scale, adding a lot more
   resolution to the weaker end of the scale, for those with devices that are
