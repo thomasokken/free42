@@ -130,10 +130,6 @@ public class Free42Activity extends Activity {
     private PositionTrackingInputStream stateFileInputStream;
     private OutputStream stateFileOutputStream;
     
-    // Stuff to run core_keydown() on a background thread
-    private CoreThread coreThread;
-    private boolean coreWantsCpu;
-
     // Show "States" dialog if invoked after state import; this
     // will have the name of the most recently imported state.
     // If this is null, don't do anything.
@@ -147,6 +143,7 @@ public class Free42Activity extends Activity {
     
     private int ckey;
     private boolean timeout3_active;
+    private boolean quit_flag;
     
     private boolean low_battery;
     private BroadcastReceiver lowBatteryReceiver;
@@ -435,7 +432,7 @@ public class Free42Activity extends Activity {
             calcView.postInvalidateScaled(inval.left, inval.top, inval.right, inval.bottom);
 
         if (core_powercycle())
-            start_core_keydown();
+            startRunner();
         
         super.onStart();
 
@@ -464,7 +461,6 @@ public class Free42Activity extends Activity {
 
     @Override
     protected void onStop() {
-        end_core_keydown();
         File filesDir = getFilesDir();
 
         // Write shell state
@@ -570,7 +566,21 @@ public class Free42Activity extends Activity {
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         // ignore
     }
-    
+
+    private void startRunner() {
+        boolean keep_running = core_keydown(0, null, null, false);
+        if (keep_running && !quit_flag) {
+            Handler h = new Handler();
+            h.postDelayed(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        startRunner();
+                    }
+                }, 0);
+        }
+    }
+
     private void cancelRepeaterAndTimeouts1And2() {
         mainHandler.removeCallbacks(repeaterCaller);
         mainHandler.removeCallbacks(timeout1Caller);
@@ -732,7 +742,7 @@ public class Free42Activity extends Activity {
         String newFileName = getFilesDir() + "/" + coreName + ".f42";
         core_init(1, 26, newFileName, 0);
         if (core_powercycle())
-            start_core_keydown();
+            startRunner();
     }
 
     public static void saveStateAs(String fileName) {
@@ -1173,7 +1183,6 @@ public class Free42Activity extends Activity {
                     return true;
                 }
                 click();
-                end_core_keydown();
                 Object macroObj = skin.find_macro(ckey);
                 if (timeout3_active && (macroObj != null || ckey != 28 /* SHIFT */)) {
                     cancelTimeout3();
@@ -1207,7 +1216,7 @@ public class Free42Activity extends Activity {
                         skin.set_display_enabled(true);
                 }
                 if (running)
-                    start_core_keydown();
+                    startRunner();
                 else {
                     if (repeat.value != 0)
                         mainHandler.postDelayed(repeaterCaller, repeat.value == 1 ? 1000 : 500);
@@ -1226,10 +1235,9 @@ public class Free42Activity extends Activity {
                 Rect inval = skin.set_active_key(-1);
                 if (inval != null)
                     invalidateScaled(inval);
-                end_core_keydown();
-                coreWantsCpu = core_keyup();
-                if (coreWantsCpu)
-                    start_core_keydown();
+                boolean keep_running = core_keyup();
+                if (keep_running)
+                    startRunner();
             }
                 
             return true;
@@ -1919,33 +1927,6 @@ public class Free42Activity extends Activity {
         }
     }
 
-    private class CoreThread extends Thread {
-        public boolean coreWantsCpu;
-        public void run() {
-            BooleanHolder enqueued = new BooleanHolder();
-            IntHolder repeat = new IntHolder();
-            coreWantsCpu = core_keydown(0, enqueued, repeat, false);
-        }
-    }
-    
-    private void start_core_keydown() {
-        coreThread = new CoreThread();
-        coreThread.start();
-    }
-    
-    private void end_core_keydown() {
-        if (coreThread != null) {
-            core_keydown_finish();
-            try {
-                coreThread.join();
-            } catch (InterruptedException e) {}
-            coreWantsCpu = coreThread.coreWantsCpu;
-            coreThread = null;
-        } else {
-            coreWantsCpu = false;
-        }
-    }
-    
     private void repeater() {
         cancelRepeaterAndTimeouts1And2();
         if (ckey == 0)
@@ -1973,14 +1954,10 @@ public class Free42Activity extends Activity {
 
     private void timeout3() {
         cancelTimeout3();
-        end_core_keydown();
         core_timeout3(1);
         // Resume program after PSE
+        startRunner();
         BooleanHolder enqueued = new BooleanHolder();
-        IntHolder repeat = new IntHolder();
-        boolean running = core_keydown(0, enqueued, repeat, true);
-        if (running)
-            start_core_keydown();
     }
     
     private void click() {
@@ -2015,7 +1992,6 @@ public class Free42Activity extends Activity {
     ///////////////////////////////////////////
     
     private native void nativeInit();
-    private native void core_keydown_finish();
     
     private native void core_init(int read_state, int version, String state_file_name, int state_file_offset);
     private native void core_save_state(String state_file_name);
@@ -2216,6 +2192,7 @@ public class Free42Activity extends Activity {
      * power-off is left to the OS and/or shell.
      */
     public void shell_powerdown() {
+        quit_flag = true;
         finish();
     }
     

@@ -99,21 +99,6 @@ Java_com_thomasokken_free42_Free42Activity_FREE42_1MAGIC_1STR(JNIEnv *env, jobje
 }
 
 
-/*********************************************************************/
-/* Since JNI calls are very expensive, I avoid polling the shell to  */
-/* find out if core_keydown() should return, and instead rely on the */
-/* shell to tell the core, through the following function.           */
-/*********************************************************************/
-
-static bool finish_flag = false;
-
-extern "C" void
-Java_com_thomasokken_free42_Free42Activity_core_1keydown_1finish(JNIEnv *env, jobject thiz) {
-    Tracer T("core_keydown_finish");
-    finish_flag = true;
-}
-
-
 /**********************************************************/
 /* Here followeth the stubs for the core_main.h interface */
 /**********************************************************/
@@ -165,22 +150,32 @@ Java_com_thomasokken_free42_Free42Activity_core_1hex_1menu(JNIEnv *env, jobject 
     return core_hex_menu();
 }
 
+static struct timeval keydown_end_time;
+
 extern "C" jboolean
 Java_com_thomasokken_free42_Free42Activity_core_1keydown(JNIEnv *env, jobject thiz,
                             jint key, jobject enqueued, jobject repeat, jboolean immediate_return) {
     Tracer T("core_keydown");
-    finish_flag = immediate_return;
+    gettimeofday(&keydown_end_time, NULL);
+    if (!immediate_return) {
+        keydown_end_time.tv_usec += 10000; // run for up to 10 ms
+        if (keydown_end_time.tv_usec >= 1000000) {
+            keydown_end_time.tv_usec -= 1000000;
+            keydown_end_time.tv_sec++;
+        }
+    }
     int enq, rep;
-    jboolean ret;
-    do {
-        ret = core_keydown(key, &enq, &rep);
-    } while (ret && !finish_flag);
-    jclass klass = env->GetObjectClass(enqueued);
-    jfieldID fid = env->GetFieldID(klass, "value", "Z");
-    env->SetBooleanField(enqueued, fid, enq);
-    klass = env->GetObjectClass(repeat);
-    fid = env->GetFieldID(klass, "value", "I");
-    env->SetIntField(repeat, fid, rep);
+    jboolean ret = core_keydown(key, &enq, &rep);
+    if (enqueued != NULL) {
+        jclass klass = env->GetObjectClass(enqueued);
+        jfieldID fid = env->GetFieldID(klass, "value", "Z");
+        env->SetBooleanField(enqueued, fid, enq);
+    }
+    if (repeat != NULL) {
+        jclass klass = env->GetObjectClass(repeat);
+        jfieldID fid = env->GetFieldID(klass, "value", "I");
+        env->SetIntField(repeat, fid, rep);
+    }
     return ret;
 }
 
@@ -188,20 +183,28 @@ extern "C" jboolean
 Java_com_thomasokken_free42_Free42Activity_core_1keydown_1command(JNIEnv *env, jobject thiz,
                             jstring cmd, jobject enqueued, jobject repeat, jboolean immediate_return) {
     Tracer T("core_keydown_command");
-    finish_flag = immediate_return;
+    gettimeofday(&keydown_end_time, NULL);
+    if (!immediate_return) {
+        keydown_end_time.tv_usec += 10000; // run for up to 10 ms
+        if (keydown_end_time.tv_usec >= 1000000) {
+            keydown_end_time.tv_usec -= 1000000;
+            keydown_end_time.tv_sec++;
+        }
+    }
     int enq, rep;
-    jboolean ret;
     const char *buf = env->GetStringUTFChars(cmd, NULL);
-    do {
-        ret = core_keydown_command(buf, &enq, &rep);
-    } while (ret && !finish_flag);
+    jboolean ret = core_keydown_command(buf, &enq, &rep);
     env->ReleaseStringUTFChars(cmd, buf);
-    jclass klass = env->GetObjectClass(enqueued);
-    jfieldID fid = env->GetFieldID(klass, "value", "Z");
-    env->SetBooleanField(enqueued, fid, enq);
-    klass = env->GetObjectClass(repeat);
-    fid = env->GetFieldID(klass, "value", "I");
-    env->SetIntField(repeat, fid, rep);
+    if (enqueued != NULL) {
+        jclass klass = env->GetObjectClass(enqueued);
+        jfieldID fid = env->GetFieldID(klass, "value", "Z");
+        env->SetBooleanField(enqueued, fid, enq);
+    }
+    if (repeat != NULL) {
+        jclass klass = env->GetObjectClass(repeat);
+        jfieldID fid = env->GetFieldID(klass, "value", "I");
+        env->SetIntField(repeat, fid, rep);
+    }
     return ret;
 }
 
@@ -433,7 +436,10 @@ void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
 
 int shell_wants_cpu() {
     Tracer T("shell_wants_cpu");
-    return finish_flag;
+    struct timeval now;
+    gettimeofday(&now, NULL);
+    return now.tv_sec > keydown_end_time.tv_sec
+        || now.tv_sec == keydown_end_time.tv_sec && now.tv_usec >= keydown_end_time.tv_usec;
 }
 
 void shell_delay(int duration) {
