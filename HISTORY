@@ -1,3 +1,10 @@
+2019-10-05: release 2.5.9b (Android and iOS)
+
+* Android version: Could launch with the wrong screen orientation under certain
+  circumstances. Fixed.
+* iOS version: Greater range of key click volume levels.
+* iOS version: Added sanity check for raw files imported using Copy to Free42.
+
 2019-09-28: release 2.5.9a (Android only)
 
 * Several changes in file handling. No longer associates itself with all files,
