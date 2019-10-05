@@ -69,6 +69,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Vibrator;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
@@ -93,6 +94,7 @@ import android.widget.TextView;
  * based interface to the Free42 'core' functionality (the core is
  * C++ and porting it to Java is not practical, hence the use of JNI).
  */
+@SuppressWarnings("deprecation")
 public class Free42Activity extends Activity {
 
     public static final String[] builtinSkinNames = new String[] { "Standard", "Landscape" };
@@ -276,7 +278,6 @@ public class Free42Activity extends Activity {
         if (init_mode == 1) {
             if (version.value > 25) {
                 coreFileName = getFilesDir() + "/" + coreName + ".f42";
-                coreFileOffset = 0;
             } else {
                 coreFileName = getFilesDir() + "/state";
                 coreFileOffset = stateFileInputStream.getPosition();
@@ -290,7 +291,6 @@ public class Free42Activity extends Activity {
             coreFileName = getFilesDir() + "/" + coreName + ".f42";
             if (new File(coreFileName).isFile()) {
                 // Core state "Untitled.f42" exists; let's try to read it
-                coreFileOffset = 0;
                 init_mode = 1;
                 version.value = 26;
             }
@@ -386,7 +386,7 @@ public class Free42Activity extends Activity {
 
         lowBatteryReceiver = new BroadcastReceiver() {
             public void onReceive(Context ctx, Intent intent) {
-                low_battery = intent.getAction().equals(Intent.ACTION_BATTERY_LOW);
+                low_battery = Intent.ACTION_BATTERY_LOW.equals(intent.getAction());
                 Rect inval = skin.update_annunciators(-1, -1, -1, -1, low_battery ? 1 : 0, -1, -1);
                 if (inval != null)
                     calcView.postInvalidateScaled(inval.left, inval.top, inval.right, inval.bottom);
@@ -421,6 +421,7 @@ public class Free42Activity extends Activity {
         // of what that status *is* when the app is launched (or resumed?).
         IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent batteryStatus = registerReceiver(null, ifilter);
+        assert batteryStatus != null;
         int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
         int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
         if (low_battery)
@@ -461,8 +462,6 @@ public class Free42Activity extends Activity {
 
     @Override
     protected void onStop() {
-        File filesDir = getFilesDir();
-
         // Write shell state
         stateFileOutputStream = null;
         try {
@@ -561,9 +560,9 @@ public class Free42Activity extends Activity {
         calcView.invalidate();
         core_repaint_display();
     }
-    
+
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         // ignore
     }
 
@@ -1200,7 +1199,7 @@ public class Free42Activity extends Activity {
                 } else if (macroObj instanceof String) {
                     // Direct-mapped command
                     String cmd = (String) macroObj;
-                    running = core_keydown_command((String) macroObj, enqueued, repeat, true);
+                    running = core_keydown_command(cmd, enqueued, repeat, true);
                 } else {
                     byte[] macro = (byte[]) macroObj;
                     boolean one_key_macro = macro.length == 1 || (macro.length == 2 && macro[0] == 28);
@@ -1957,7 +1956,6 @@ public class Free42Activity extends Activity {
         core_timeout3(1);
         // Resume program after PSE
         startRunner();
-        BooleanHolder enqueued = new BooleanHolder();
     }
     
     private void click() {
