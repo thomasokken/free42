@@ -3,21 +3,67 @@
 import sys
 import os
 import subprocess
+from datetime import datetime
 
 # On the command line, we expect one argument, which is the version number, in
 # 1.2.3a notation: one, two, or three numerical components, separated by dots,
 # and an optional lowercase letter, attached to the final numerical component
 # without any separators.
-# In addition, the option -a may be specified, which indicates that the Android
-# version code should be bumped.
+# Additional arguments are "android", "ios", "windows", "macos", "linux", and
+# "all". The OS names may be abbreviated, but "all" must be spelled out fully.
 
-try:
-    sys.argv.remove("-a")
-    bump_android_version_code = True
-except:
-    bump_android_version_code = False
+version_raw = None
+do_android = False
+do_ios = False
+do_windows = False
+do_macos = False
+do_linux = False
+do_nothing = True
+
+for arg in sys.argv[1:]:
+    if len(arg) == 0:
+        continue
+    orig_arg = arg
+    arg = arg.lower()
+    if arg[0].isdigit():
+        version_raw = arg
+    elif arg == "all":
+        do_android = True
+        do_ios = True
+        do_windows = True
+        do_macos = True
+        do_linux = True
+        do_nothing = False
+    elif "android".startswith(arg):
+        do_android = True
+        do_nothing = False
+    elif "ios".startswith(arg):
+        do_ios = True
+        do_nothing = False
+    elif "windows".startswith(arg):
+        do_windows = True
+        do_nothing = False
+    elif "macos".startswith(arg):
+        do_macos = True
+        do_nothing = False
+    elif "linux".startswith(arg):
+        do_linux = True
+        do_nothing = False
+    elif "gtk".startswith(arg):
+        do_linux = True
+        do_nothing = False
+    else:
+        raise Exception("Unrecognized argument: \"" + orig_arg + "\"")
+
+if version_raw == None:
+    raise Exception("Version number must be specified.");
+if do_nothing:
+    do_android = True
+    do_ios = True
+    do_windows = True
+    do_macos = True
+    do_linux = True
         
-version_raw = sys.argv[1]
 version_name = version_raw
 if not version_raw[-1].isdigit():
     version_final = ord(version_raw[-1]) - ord('a') + 1;
@@ -77,16 +123,18 @@ def patch_plist(plist_name):
 
 # Insert version for Mac
 
-patch_plist("mac/Info.plist")
+if do_macos:
+    patch_plist("mac/Info.plist")
 
-# Inset version for iOS
+# Insert version for iOS
 
-patch_plist("iphone/Info.plist")
+if do_ios:
+    patch_plist("iphone/Info.plist")
 
 # Update Android version.code -- this is just a sequence, not related to the version number --
 # and insert that code, and the version number, into the Android build
 
-if bump_android_version_code:
+if do_android:
     vc_file = open("android/version.code")
     vc = int(vc_file.read())
     vc_file.close()
@@ -94,18 +142,58 @@ if bump_android_version_code:
     vc_file = open("android/version.code", "w");
     vc_file.write(str(vc) + "\n");
     vc_file.close()
-    subprocess.call(["sed", "-i",  "", "s/versionCode [0-9]*/versionCode " + str(vc) + "/", "android/app/build.gradle"])
-        
-subprocess.call(["sed", "-i", "", "s/versionName \"[^\"]*\"/versionName \"" + version_name + "\"/", "android/app/build.gradle"])
+    subprocess.call(["sed", "-i", "", "s/versionCode [0-9]*/versionCode " + str(vc) + "/", "android/app/build.gradle"])
+    subprocess.call(["sed", "-i", "", "s/versionName \"[^\"]*\"/versionName \"" + version_name + "\"/", "android/app/build.gradle"])
 
 # Insert the version number into VERSION and VERSION.rc
 
 v_file = open("VERSION", "w")
 v_file.write(version_name + "\n")
 v_file.close()
-v_file = open("windows/VERSION.rc", "w")
-v_file.write("#define FREE42_VERSION_1 \"Free42 " + version_name + "\"\n")
-v_file.write("#define FREE42_VERSION_2 \"" + version_name + "\\0\"\n")
-v_file.write("#define FREE42_VERSION_3 " + str(version_comps[0]) + "," + str(version_comps[1]) + "," + str(version_comps[2]) + "," + str(version_comps[3]) + "\n")
-v_file.write("#define FREE42_VERSION_4 \"Release " + version_name + "\"\n")
-v_file.close()
+
+if do_windows:
+    v_file = open("windows/VERSION.rc", "w")
+    v_file.write("#define FREE42_VERSION_1 \"Free42 " + version_name + "\"\n")
+    v_file.write("#define FREE42_VERSION_2 \"" + version_name + "\\0\"\n")
+    v_file.write("#define FREE42_VERSION_3 " + str(version_comps[0]) + "," + str(version_comps[1]) + "," + str(version_comps[2]) + "," + str(version_comps[3]) + "\n")
+    v_file.write("#define FREE42_VERSION_4 \"Release " + version_name + "\"\n")
+    v_file.close()
+
+# Create a new entry at the top of HISTORY, appropriately labeled, and dump the commit history since the latest tag.
+
+f = open("_temp", "w")
+f.write(datetime.today().strftime('%Y-%m-%d') + ": release " + version_name)
+
+oses = [ ]
+if do_android:
+    oses.append("Android")
+if do_ios:
+    oses.append("iOS")
+if do_windows:
+    oses.append("Windows")
+if do_macos:
+    oses.append("MacOS")
+if do_linux:
+    oses.append("Linux")
+
+if len(oses) == 5:
+    pass # Write nothing
+elif len(oses) == 1:
+    f.write(" (" + oses[0] + " only)")
+elif len(oses) == 2:
+    f.write(" (" + oses[0] + " and " + oses[1] + ")")
+else:
+    f.write(" (")
+    for i in range(len(oses) - 1):
+        f.write(oses[i] + ", ")
+    f.write("and " + oses[-1] + ")")
+f.write("\n\n")
+
+v = os.popen("git describe --tags").read().split("-")[-2]
+f.write(os.popen("git log -" + v).read())
+f.write("\n")
+h = open("HISTORY", "r")
+f.write(h.read())
+h.close()
+f.close()
+os.rename("_temp", "HISTORY")
