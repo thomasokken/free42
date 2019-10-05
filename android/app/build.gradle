@@ -3,10 +3,10 @@ apply plugin: 'com.android.application'
 android {
     signingConfigs {
         release {
-            storeFile file('/Users/thomas/android-release-keystore')
-            storePassword 'foo'
-            keyAlias 'mykey'
-            keyPassword 'foo'
+            storeFile file(free42_keystore)
+            storePassword free42_keystorePassword
+            keyAlias free42_key
+            keyPassword free42_keyPassword
         }
     }
     compileSdkVersion 28
@@ -22,6 +22,7 @@ android {
             ndk {
                 abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
             }
+            signingConfig signingConfigs.release
         }
         release {
             ndk {

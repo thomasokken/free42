@@ -4,16 +4,9 @@
 
 mkdir -p packages
 
-cd android/app
-cp build.gradle build.gradle.bak
-read -p "Keystore Password: " SPWD
-sed -i '' "s/storePassword '[^']*'/storePassword '$SPWD'/" build.gradle
-read -p "Key Password: " KPWD
-sed -i '' "s/keyPassword '[^']*'/keyPassword '$KPWD'/" build.gradle
-cd src/main/cpp
+cd android/app/src/main/cpp
 sh ./link-files.sh
 sh ./build-intel-lib.sh
 cd ../../../..
 ./gradlew --warning-mode all assembleRelease
-mv app/build.gradle.bak app/build.gradle
 mv app/build/outputs/apk/release/app-release.apk ../packages/Free42Android.apk
