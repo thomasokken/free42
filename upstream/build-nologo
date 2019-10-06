@@ -10,7 +10,7 @@ done
 ( cd ../nologo/replace ; tar cf - . ) | ( cd free42 ; tar xf - )
 rm -rf free42/.git
 mkdir -p ../../packages
-PKGNAME=free42-nologo-`cat ../../VERSION`
+PKGNAME=free42-nologo-`cat ../../gtk/VERSION`
 mv free42 $PKGNAME
 tar cvfz ../../packages/$PKGNAME.tgz $PKGNAME
 cd ..

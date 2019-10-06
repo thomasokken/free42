@@ -55,11 +55,15 @@ static char version[32] = "";
 
 + (const char *) getVersion {
     if (version[0] == 0) {
-        NSString *path = [[NSBundle mainBundle] pathForResource:@"VERSION" ofType:nil];
-        const char *cpath = [path UTF8String];
-        FILE *vfile = fopen(cpath, "r");
-        fscanf(vfile, "%s", version);
-        fclose(vfile);
+        NSString *appVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"];
+        strcpy(version, [appVersion UTF8String]);
+        // Version string consists of up to four dot-separated numbers.
+        // If there are four, change the last ".nn" to a letter.
+        int pos, num;
+        if (sscanf(version, "%*d.%*d.%*d.%n%d", &pos, &num) == 1) {
+            version[pos - 1] = 'a' + num - 1;
+            version[pos] = 0;
+        }
     }   
     return version;
 }

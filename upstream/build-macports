@@ -10,7 +10,14 @@ done
 ( cd ../macports/replace ; tar cf - . ) | ( cd free42 ; tar xf - )
 rm -rf free42/.git
 mkdir -p ../../packages
-PKGNAME=free42-macports-`cat ../../VERSION`
+
+VERSION=`awk 'f{print;f=0} /CFBundleVersion/{f=1}' free42/mac/Info.plist | sed 's/^.*>\([^<]*\)<.*$/\1/'`
+if [[ $VERSION =~ \..*\..*\. ]]
+then
+    VERSION=`echo $VERSION | awk -F. '{printf "%d.%d.%d%c", $1, $2, $3, ($4 + 96)}'`
+fi
+
+PKGNAME=free42-macports-$VERSION
 mv free42 $PKGNAME
 tar cvfz ../../packages/$PKGNAME.tgz $PKGNAME
 cd ..

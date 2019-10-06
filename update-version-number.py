@@ -145,11 +145,14 @@ if do_android:
     subprocess.call(["sed", "-i", "", "s/versionCode [0-9]*/versionCode " + str(vc) + "/", "android/app/build.gradle"])
     subprocess.call(["sed", "-i", "", "s/versionName \"[^\"]*\"/versionName \"" + version_name + "\"/", "android/app/build.gradle"])
 
-# Insert the version number into VERSION and VERSION.rc
+# Insert version for Linux
 
-v_file = open("VERSION", "w")
-v_file.write(version_name + "\n")
-v_file.close()
+if do_linux:
+    v_file = open("gtk/VERSION", "w")
+    v_file.write(version_name + "\n")
+    v_file.close()
+
+# Insert version for Windows
 
 if do_windows:
     v_file = open("windows/VERSION.rc", "w")

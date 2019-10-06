@@ -20,7 +20,6 @@
 		E91702FA22B1C6AE0093E750 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E91702F922B1C6AE0093E750 /* WebKit.framework */; };
 		E93469F21CF0C68600B0762F /* readtest_lines.cc in Sources */ = {isa = PBXBuildFile; fileRef = E93469F11CF0C68600B0762F /* readtest_lines.cc */; };
 		E93469F41CF0CCAB00B0762F /* readtest.c in Sources */ = {isa = PBXBuildFile; fileRef = E93469F31CF0CCAB00B0762F /* readtest.c */; settings = {COMPILER_FLAGS = "-D__intptr_t_defined -DLINUX"; }; };
-		E94E1BEC0FF391DA0074CA65 /* VERSION in Resources */ = {isa = PBXBuildFile; fileRef = E94E1BEB0FF391DA0074CA65 /* VERSION */; };
 		E95282751FF192A7008E96A5 /* icon.iconset in Resources */ = {isa = PBXBuildFile; fileRef = E95282741FF192A7008E96A5 /* icon.iconset */; };
 		E959D42F0FEC0A44007C56A4 /* core_commands1.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4000FEC0A44007C56A4 /* core_commands1.cc */; };
 		E959D4300FEC0A44007C56A4 /* core_commands2.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4020FEC0A44007C56A4 /* core_commands2.cc */; };
@@ -96,7 +95,6 @@
 		E93469F31CF0CCAB00B0762F /* readtest.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = readtest.c; path = IntelRDFPMathLib20U1/TESTS/readtest.c; sourceTree = "<group>"; };
 		E935A7C4224AE2F900639B84 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		E935A7C5224AE30800639B84 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		E94E1BEB0FF391DA0074CA65 /* VERSION */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = VERSION; path = ../VERSION; sourceTree = SOURCE_ROOT; };
 		E95282741FF192A7008E96A5 /* icon.iconset */ = {isa = PBXFileReference; lastKnownFileType = folder.iconset; path = icon.iconset; sourceTree = "<group>"; };
 		E959D3DE0FEC09CF007C56A4 /* Free42AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Free42AppDelegate.h; path = Classes/Free42AppDelegate.h; sourceTree = "<group>"; };
 		E959D4000FEC0A44007C56A4 /* core_commands1.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = core_commands1.cc; path = ../common/core_commands1.cc; sourceTree = SOURCE_ROOT; };
@@ -301,7 +299,6 @@
 				E9B0792E0FF548770021B83D /* tone7.wav */,
 				E9B0792F0FF548770021B83D /* tone8.wav */,
 				E9B079300FF548770021B83D /* tone9.wav */,
-				E94E1BEB0FF391DA0074CA65 /* VERSION */,
 				E9031CB00FF690AC0023F9EC /* builtin_skins.txt */,
 				E9031CB20FF690CB0023F9EC /* Ehrling42sl.gif */,
 				E9031CB30FF690CB0023F9EC /* Ehrling42sl.layout */,
@@ -439,7 +436,6 @@
 			files = (
 				8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */,
 				1DDD58160DA1D0A300B32029 /* MainMenu.xib in Resources */,
-				E94E1BEC0FF391DA0074CA65 /* VERSION in Resources */,
 				E9B079260FF548690021B83D /* squeak.wav in Resources */,
 				E9B079310FF548770021B83D /* tone0.wav in Resources */,
 				E95282751FF192A7008E96A5 /* icon.iconset in Resources */,

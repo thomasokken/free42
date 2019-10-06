@@ -1,5 +1,4 @@
-VERSION = "\"$(shell cat ../../VERSION)\""
-CFLAGS = -Wall -g -DVERSION=$(VERSION) -DSTANDALONE=1
+CFLAGS = -Wall -g -DSTANDALONE=1
 
 .c.o:
 	$(CC) $(CFLAGS) -c -o $@ $<

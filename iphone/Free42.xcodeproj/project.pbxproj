@@ -91,7 +91,6 @@
 		E9AE2565233C1CD0005072BA /* click1.wav in Resources */ = {isa = PBXBuildFile; fileRef = E9AE2560233C1CD0005072BA /* click1.wav */; };
 		E9AE2566233C1CD0005072BA /* click4.wav in Resources */ = {isa = PBXBuildFile; fileRef = E9AE2561233C1CD0005072BA /* click4.wav */; };
 		E9B16DFA0F88EE46002BB9B2 /* shell_loadimage.cc in Sources */ = {isa = PBXBuildFile; fileRef = E9B16DF80F88EE46002BB9B2 /* shell_loadimage.cc */; };
-		E9B1D9230FAC7C51000EB4CD /* VERSION in Resources */ = {isa = PBXBuildFile; fileRef = E9B1D9220FAC7C51000EB4CD /* VERSION */; };
 		E9C255DC1996B9C1007634C9 /* Ehrling42sl.gif in Resources */ = {isa = PBXBuildFile; fileRef = E9C255DA1996B9C1007634C9 /* Ehrling42sl.gif */; };
 		E9C255DD1996B9C1007634C9 /* Ehrling42sl.layout in Resources */ = {isa = PBXBuildFile; fileRef = E9C255DB1996B9C1007634C9 /* Ehrling42sl.layout */; };
 		E9ED02E92310A05B00C85D9A /* StatesView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9ED02E72310A05A00C85D9A /* StatesView.mm */; };
@@ -227,7 +226,6 @@
 		E9B16DF90F88EE46002BB9B2 /* shell_loadimage.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.c.h; name = shell_loadimage.h; path = ../common/shell_loadimage.h; sourceTree = SOURCE_ROOT; tabWidth = 8; usesTabs = 1; };
 		E9B16E020F88F015002BB9B2 /* shell_skin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shell_skin.h; sourceTree = "<group>"; };
 		E9B16E840F8907E8002BB9B2 /* shell_skin_iphone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shell_skin_iphone.h; sourceTree = "<group>"; };
-		E9B1D9220FAC7C51000EB4CD /* VERSION */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = VERSION; path = ../VERSION; sourceTree = SOURCE_ROOT; };
 		E9BA0E760F9224480087EBFB /* PreferencesView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesView.h; sourceTree = "<group>"; };
 		E9BA0E7B0F92245E0087EBFB /* HTTPServerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPServerView.h; sourceTree = "<group>"; };
 		E9BA0E7E0F9224700087EBFB /* SelectSkinView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectSkinView.h; sourceTree = "<group>"; };
@@ -379,7 +377,6 @@
 				E98DD7640F8C1A210089D9FA /* tone7.wav */,
 				E98DD7650F8C1A210089D9FA /* tone8.wav */,
 				E98DD7660F8C1A210089D9FA /* tone9.wav */,
-				E9B1D9220FAC7C51000EB4CD /* VERSION */,
 				E9031C8E0FF68FB10023F9EC /* builtin_skins.txt */,
 				E9031C900FF68FCD0023F9EC /* Ehrling42sm.gif */,
 				E9031C910FF68FCD0023F9EC /* Ehrling42sm.layout */,
@@ -548,7 +545,6 @@
 				E98DD7710F8C1A210089D9FA /* tone9.wav in Resources */,
 				E98FA4840F913E2900DED348 /* icon.png in Resources */,
 				E9C255DD1996B9C1007634C9 /* Ehrling42sl.layout in Resources */,
-				E9B1D9230FAC7C51000EB4CD /* VERSION in Resources */,
 				E9031C8F0FF68FB10023F9EC /* builtin_skins.txt in Resources */,
 				E9AE2564233C1CD0005072BA /* click2.wav in Resources */,
 				E9AE2565233C1CD0005072BA /* click1.wav in Resources */,
