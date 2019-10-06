@@ -3,7 +3,7 @@
 android
 build-android
 build-mac
-build-src-doc
+build-history
 build-windows
 update-version-number.py
 iphone

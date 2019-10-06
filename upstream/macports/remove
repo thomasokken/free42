@@ -3,7 +3,7 @@
 android
 build-android
 build-gtk
-build-src-doc
+build-history
 build-windows
 update-version-number.py
 gtk
