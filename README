@@ -114,15 +114,15 @@ and PERM would be sensitive to a hardware bug (and *only* they, apparently),
 but who am I to question what I've heard others report? I'm not about to spend
 weeks poring over ROM disassemblies to make sure...
 
-In LINSigma mode, summing a matrix is buggy. I have seen it sum only the first
-row, and report a bogus value back in X (8.47216900137e-489), and also seen it
-say Insufficient Memory when that clearly wasn't true; I have heard a report
-from someone else about the machine even locking up to the point where it needs
-a hard reset.
+In LINΣ mode, summing a matrix is buggy. I have seen it sum only the first row,
+and report a bogus value back in X (8.47216900137e-489), and also seen it say
+Insufficient Memory when that clearly wasn't true; I have heard a report from
+someone else about the machine even locking up to the point where it needs a
+hard reset.
 
-In some versions, LINSigma mode, Sigma+ and Sigma- do not update LASTx.
-I read about this in a manual addendum from HP; however, I cannot reproduce
-this, neither on my real HP-42S nor on Emu42 (both rev. C ROM).
+In some versions, LINΣ mode, Σ+ and Σ- do not update LASTx. I read about this
+in a manual addendum from HP; however, I cannot reproduce this, neither on my
+real HP-42S nor on Emu42 (both rev. C ROM).
 
 I have also heard a report that FCSTX is buggy in PWRF mode; I have not been
 able to confirm this yet but there appears to be more I have to read about it.
@@ -164,7 +164,7 @@ The indexed matrix may be real or complex, and the search value may be real,
 complex, or string; real or string values are only found in real matrices, and
 complex values are only found in complex matrices; in other words, 5 is not
 considered equal to 5 + 0i -- mathematically speaking this is wrong, but on the
-other hand it is consistent with the behavior of the X=Y? and X!=Y? functions.
+other hand it is consistent with the behavior of the X=Y? and X≠Y? functions.
 
 
 -------------------------------------------------------------------------------
