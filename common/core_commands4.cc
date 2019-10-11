@@ -675,7 +675,7 @@ int docmd_swap_r(arg_struct *arg) {
 
     if (m->type == TYPE_REALMATRIX) {
         vartype_realmatrix *rm = (vartype_realmatrix *) m;
-        if (x > rm->rows || y > rm->rows)
+        if (x >= rm->rows || y >= rm->rows)
             return ERR_DIMENSION_ERROR;
         else if (x == y)
             return ERR_NONE;
@@ -694,7 +694,7 @@ int docmd_swap_r(arg_struct *arg) {
         return ERR_NONE;
     } else /* m->type == TYPE_COMPLEXMATRIX */ {
         vartype_complexmatrix *cm = (vartype_complexmatrix *) m;
-        if (x > cm->rows || y > cm->rows)
+        if (x >= cm->rows || y >= cm->rows)
             return ERR_DIMENSION_ERROR;
         else if (x == y)
             return ERR_NONE;

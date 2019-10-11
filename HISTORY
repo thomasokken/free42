@@ -1,3 +1,14 @@
+2019-10-11: release 2.5.10
+
+* The index range check in R<>R was faulty, allowing a row index equal to the
+  number of rows plus one to be used, which in turn would cause memory
+  corruption. Fixed.
+* Android version: When renaming the currently active state, the state name was
+  not updated in the shell settings, with the result that upon exit, the state
+  would still be saved under the old name, and at the next launch, would also
+  be loaded under the old name. The net effect of all this was that instead of
+  ending up with a renamed state, you'd end up with a copy.
+
 2019-10-05: release 2.5.9b (Android and iOS)
 
 * Android version: Could launch with the wrong screen orientation under certain
