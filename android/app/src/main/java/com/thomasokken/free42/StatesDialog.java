@@ -301,6 +301,7 @@ public class StatesDialog extends Dialog {
         new File(oldpath).renameTo(new File(newpath));
         if (selectedStateName.equals(Free42Activity.getSelectedState())) {
             currentLabel.setText("Current: " + newStateName);
+            Free42Activity.setSelectedState(newStateName);
         }
         updateUI(true);
     }

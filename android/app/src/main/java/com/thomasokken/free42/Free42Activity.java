@@ -727,6 +727,10 @@ public class Free42Activity extends Activity {
         return instance.coreName;
     }
 
+    public static void setSelectedState(String stateName) {
+        instance.coreName = stateName;
+    }
+
     public static void switchToState(String stateName) {
         instance.switchToState2(stateName);
     }
