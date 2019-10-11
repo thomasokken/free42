@@ -411,8 +411,8 @@
 * When ALPHA mode is active on top of VARMENU, ASTO and ARCL should show the
   regular variable menus, but they showed the VARMENU instead. Fixed.
 * During command entry, SST and BST should be disabled, but the code that tried
-  to do this also prevented some legitimate uses of up-arrow and down-arrow,
-  such as switching menu rows during FIX IND __.
+  to do this also prevented some legitimate uses of ▲ and ▼, such as switching
+  menu rows during FIX IND __.
 * While entering a numeric LBL, it should be possible to switch to ALPHA mode,
   using Shift-ENTER, to switch from, say, LBL 3_ to LBL "3_ , as an alternative
   method of entering ALPHA labels that start with a digit. The HP-42S allows
@@ -603,7 +603,7 @@
 * Changed the RAN and SEED functions to match the behavior of the real HP-42S.
   The previous implementation used the algorithm from the HP-41C Standard Pac,
   which produced numbers with only 6 significant digits.
-* The up/down annunciator (multi-row menu) did not get updated correctly when
+* The ▼▲ annunciator (multi-row menu) did not get updated correctly when
   VARMENU was activated, including in the solver and integrator. Fixed.
 * Windows version: Restored the Calculator key mapping option, which I had
   removed in 1.5.14. It turns out that keyboards with a dedicated Calculator
@@ -629,8 +629,8 @@
 * Fixed importing numbers with exponent but no mantissa, e.g. E3, -E-5, etc.
   This got broken in 1.5.
 * Fixed crash when trying to allocate ridiculously large matrices.
-* While entering a numeric argument, the up-arrow and down-arrow keys would
-  perform BST and SST, which should be blocked. Fixed.
+* While entering a numeric argument, the ▲ and ▼ keys would perform BST and
+  SST, which should be blocked. Fixed.
 * Testing flag 75 would turn on the programmable menu. Fixed.
 * iOS version: Fixed a few display alignment issues with the built-in 4"
   skin.
@@ -1113,10 +1113,10 @@
   is necessary now that the length of the FCN catalog is no longer fixed at 42
   rows.
 * Also, changed several macros in the HP-41 and HP42CY skins where the FCN
-  catalog was being traversed backwards, replacing N repetitions of "up" with
-  42-N repetitions of "down", so they will work correctly in the presence of an
-  extended FCN catalog. (None of the other skins currently in the Free42
-  repository traverse the FCN catalog backwards, so they don't need updating.)
+  catalog was being traversed backwards, replacing N repetitions of ▲ with 42-N
+  repetitions of ▼, so they will work correctly in the presence of an extended
+  FCN catalog. (None of the other skins currently in the Free42 repository
+  traverse the FCN catalog backwards, so they don't need updating.)
 * PalmOS version: Turning off printing did not flush the GIF file, so you'd end
   up with a truncated image. Fixed.
 * When COMPLEX is executed with a complex number or complex matrix in X, and
@@ -1363,8 +1363,8 @@
   can cause problems if you don't expect this kind of behavior in a calculator.
   It can now be turned off in the Preferences dialog, though the default is
   still for it to be on.
-  Note that this is unrelated to the auto-repeat for the 'up' and 'down' keys,
-  which is authentic HP-42S behavior, and cannot be turned off.
+  Note that this is unrelated to the auto-repeat for the ▲ and ▼ keys, which is
+  authentic HP-42S behavior, and cannot be turned off.
 
 2008-04-12: release 1.4.43
 
@@ -1868,7 +1868,7 @@
   stretching program currently only handles 37-key layouts. Fortunately, the
   Semi-Auto skins already have large sensitive rectangles, which cannot be
   enlarged much further anyway. (I know, lame excuse!)
-* In skins/SemiReal42.gif and palmskins/SemiReal42HD.gif, moved the Rv key one
+* In skins/SemiReal42.gif and palmskins/SemiReal42HD.gif, moved the R↓ key one
   pixel to the left. It's been annoying me forever -- can't think why I didn't
   fix this earlier. :-)
 
@@ -2071,7 +2071,7 @@
   mapping, meaning the corresponding characters could not be typed directly.
   Fixed.
 * PalmOS version: The hardware "Up" and "Down" keys are now mapped to the
-  emulated "Up" and "Down" keys.
+  emulated ▲ and ▼ keys.
 * 'Paste' didn't enable stack lift. It does now.
 * 'Paste' now accepts numbers in the same format that 'Copy' produces, which is
   the format used on the calculator's display -- so flag 28 controls whether
@@ -2474,11 +2474,10 @@
   memory block, causing it to crash (and take down HotSync Manager with it).
 * PalmOS version: Fixed a bug in the file selection dialog, that would cause
   the file list to be initially empty under certain circumstances.
-* The auto-repeat feature on the 'up' and 'down' keys would leave the
-  'repeating' mode flag set, even after the key was released. This would cause
-  the next key pressed to act like 'up' or 'down', even if it was a different
-  key -- provided it was held down long enough for the auto-repeat timeout to
-  expire.
+* The auto-repeat feature on the ▲ and ▼ keys would leave the 'repeating' mode
+  flag set, even after the key was released. This would cause the next key
+  pressed to act like ▲ or ▼, even if it was a different key -- provided it was
+  held down long enough for the auto-repeat timeout to expire.
 * SOLVE: in the situation where f(x1) and f(x2) have the same sign but
   different values, x3 is computed by the secant method; if f(x3) is worse than
   f(x1) and f(x2), the interval is bisected -- but this code had a bug: if
@@ -2690,8 +2689,8 @@
 
 * CLALL would crash if invoked using XEQ or ASSIGN while spelling out the name
   (selecting it from the FCN catalog did work).
-* Variable catalogs would show the up/down (multi-row menu) annunciator, even
-  if they contained just one row of items.
+* Variable catalogs would show the ▼▲ (multi-row menu) annunciator, even if
+  they contained just one row of items.
 
 2004-11-10: release 1.0.7
 

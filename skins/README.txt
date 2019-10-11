@@ -38,7 +38,7 @@ For examples, look at the *.layout and *.gif files in this directory.
 
 Macro example:
 To define a key for the FIX command, using key code 38: the sequence of
-calculator keys for FIX is Shift (28), E (16), Sigma+ (1), so...
+calculator keys for FIX is Shift (28), E (16), Σ+ (1), so...
 
 Key: 38 <sens_rect> <disp_rect> <active_pt>
 Macro: 38 28 16 1

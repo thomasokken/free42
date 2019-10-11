@@ -130,17 +130,14 @@ Probably depends on your ROM version; I tested with rev. C but it seemed fine.
 
 Not sure if this is a bug or not:
 
-When KEYX or KEYG are used to reprogram the UP and DOWN keys, it would be nice
-if the 'updown' annunciator in the display got turned on to tip the user off.
-I'm not sure if the manual mentions this behavior (TODO - check), but the
-Programming Examples and Techniques book does (page 34, bottom). I've seen
-a discussion about this on the hpmuseum.org forum, and all were agreed it would
-be a nice feature, but it doesn't actually seem to work. At least it doesn't on
-my HP-42S, and I haven't heard anyone claim that it does work on theirs,
-either.
-Note: Free42 does turn on the 'updown' annunciator. Although my general rule is
-to mimic the HP-42S as closely as possible, I felt that this was a nice feature
-and that it's pretty unlikely to break anything. :-)
+When KEYX or KEYG are used to reprogram the ▲ and ▼ keys, it would be nice if
+the user would be alerted to this by the ▼▲ annunciator in the display turning
+on. The manual does not mention this behavior, but older editions of the
+Programming Examples and Techniques book do (page 34, bottom). It doesn't work
+on the actual calculator, at least not on any that I've heard of.
+Free42 does turn on the ▼▲ annunciator. Although my general rule is to mimic
+the HP-42S as closely as possible, I felt that this was a nice feature and that
+it's pretty unlikely to break anything. :-)
 
 
 -------------------------------------------------------------------------------

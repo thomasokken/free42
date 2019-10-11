@@ -5,18 +5,18 @@ INTEG: Romberg integration implementation based on code by Hugh Steers.
 LU Decomposition and back-substitution code, and Ridders' root-refinement
    algorithm, based on sample code from "Numerical Recipes in C".
 Skins designed by, or based on original work of: Erik Ehrling and
-   Sebastien Carlier.
+   Sébastien Carlier.
 
 The iPhone version's embedded HTTP server uses Minizip 1.01h, a zlib-based zip
 creation and extraction package. Minizip is (C) by Gilles Vollant.
 
-Testing: Vini Matangrano, Dave Johnson, Walter Bonin, Andres Rodriguez,
+Testing: Vini Matangrano, Dave Johnson, Walter Bonin, Andrés Rodriguez,
    Jeff O., Miguel Toro, Les Wright, and many others.
 
 Free42 has benefited tremendously from, and probably wouldn't even exist today
 if it weren't for, these excellent pieces of Free Software: PRC-Tools by
 D. Jeff Dionne, with multi-segment debugging support by Ton van Overbeek; Peal
-by Greg Parker; Vim by Bram Moolenaar; DDD by Dorothea Luetkehaus and Andreas
+by Greg Parker; Vim by Bram Moolenaar; DDD by Dorothea Lütkehaus and Andreas
 Zeller; NetPBM by Jef Poskanzer and others; gcc/g++ by Richard Stallman and
 others; gdb, binutils, and too many other fine tools to name, by the Free
 Software Foundation and its contributors; and the Linux kernel by Linus
