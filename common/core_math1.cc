@@ -476,7 +476,7 @@ static int finish_solve(int message) {
     if (solve.which == -1) {
         /* Ridders was terminated because it wasn't making progress; this does
          * not necessarily mean that x3 is the best guess so far. So, to be
-         * sure, select the value with the lowest absulute function value.
+         * sure, select the value with the lowest absolute function value.
          */
         phloat t1 = fabs(solve.fx1);
         phloat t2 = fabs(solve.fx2);

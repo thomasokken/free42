@@ -13,7 +13,7 @@ Binary vs. Decimal
 Starting with release 1.4, Free42 can be built with binary or with decimal
 floating point. Building the binary versions works as always (just say "make");
 to build the decimal versions, set the BCD_MATH environment variable, or use
-"make -e BCD_MATH=1".
+"make BCD_MATH=1".
 When switching between building the decimal and binary version (or vice versa),
 be sure to do "make clean", to avoid linking the wrong objects.
 When building the Windows version using Visual C++, choose the Free42Binary or
@@ -120,9 +120,9 @@ Insufficient Memory when that clearly wasn't true; I have heard a report from
 someone else about the machine even locking up to the point where it needs a
 hard reset.
 
-In some versions, LINΣ mode, Σ+ and Σ- do not update LASTx. I read about this
-in a manual addendum from HP; however, I cannot reproduce this, neither on my
-real HP-42S nor on Emu42 (both rev. C ROM).
+In some versions, in LINΣ mode, Σ+ and Σ- do not update LASTx. I read about
+this in a manual addendum from HP; however, I cannot reproduce this, neither on
+my real HP-42S nor on Emu42 (both rev. C ROM).
 
 I have also heard a report that FCSTX is buggy in PWRF mode; I have not been
 able to confirm this yet but there appears to be more I have to read about it.

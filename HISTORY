@@ -493,8 +493,8 @@
   the real HP-42S handles them. Basically, any argument >= 100 that isn't a
   stack register and that isn't a local label is treated as numeric. Arguments
   112-116 are always stack registers, even when that makes no sense (flags, 
-  SigmaREG, etc.); 102-111 and 123-127 are only considered as A-J and a-e in
-  LBL, GTO, and XEQ.
+  ΣREG, etc.); 102-111 and 123-127 are only considered as A-J and a-e in LBL,
+  GTO, and XEQ.
   Note that nothing very interesting happens as a result of these changes. They
   won't make synthetic HP-41C code work in Free42 any more than it does in the
   HP-42S; the behavior is just more like the real 42S now.
@@ -1566,7 +1566,7 @@
   if there were no variables.
 * GTK version: The position of the print-out window would not be remembered if
   it was closed when the application exited. It appears that the
-  gtk_window_get_position() function returns the original postition (from the
+  gtk_window_get_position() function returns the original position (from the
   window's geometry hints) if it is called while the window is not mapped.
   I'm now working around this by making sure I get the window position while
   the print-out window is actually mapped.
@@ -2459,7 +2459,7 @@
   made it possible to go to line 00 and have an instruction inserted in the
   program at pc = -1, which caused memory corruption because it would write a
   byte before the start of the program block. (Line 01 corresponds with pc = 0,
-  in other words, the pc is a byte offset from the beginnig of the program;
+  in other words, the pc is a byte offset from the beginning of the program;
   pc = -1 is a special value used to indicate line 00, which isn't a physical
   program line at all.) I plugged the SST/BST hole and for good measure, I also
   added a check to store_command() to make sure that it never inserts anything
@@ -2577,7 +2577,7 @@
 * PRP now prints a highlight ("goose" character) in front of LBLs.
 * PRP now allows the argument to be an END from the PGM catalog when in program
   mode (it already did the right thing when in normal mode).
-* Flag 21 now controls PRA, PRLCD, PRX, PRSIGMA, PRSTK, PRUSR, and PRV during
+* Flag 21 now controls PRA, PRLCD, PRX, PRΣ, PRSTK, PRUSR, and PRV during
   program execution. It is still ignored when these commands are executed
   interactively, and it still affects VIEW, AVIEW, ADV, and PROMPT regardless
   of whether a program is running or not (note that PROMPT prints only in NORM
@@ -2599,7 +2599,7 @@
   now displayed as 123456123457 instead of 123456123456.
 * PRA now prints an empty line if the alpha register is empty; the previous
   release printed nothing in this case.
-* PRSIGMA could print numbers instead of strings and vice versa (it checked the
+* PRΣ could print numbers instead of strings and vice versa (it checked the
   wrong location of the REGS matrix' is_string array). Fixed.
 * Windows version: Takes display resolution ("Small/Large Fonts" desktop
   setting) into account when calculating scroll bar width, instead of assuming

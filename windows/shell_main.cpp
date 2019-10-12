@@ -136,7 +136,7 @@ static int ann_rad = 0;
 static UINT ann_print_timer = 0;
 
 
-// Foward declarations of functions included in this code module:
+// Forward declarations of functions included in this code module:
 static void MyRegisterClass(HINSTANCE hInstance);
 static BOOL InitInstance(HINSTANCE, int);
 static LRESULT CALLBACK MainWndProc(HWND, UINT, WPARAM, LPARAM);
@@ -1080,7 +1080,7 @@ static LRESULT CALLBACK PrintOutWndProc(HWND hWnd, UINT message, WPARAM wParam, 
     return 0;
 }
 
-// Mesage handler for about box.
+// Message handler for about box.
 static LRESULT CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
@@ -1106,7 +1106,7 @@ static LRESULT CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPa
     return FALSE;
 }
 
-// Mesage handler for Export Program dialog.
+// Message handler for Export Program dialog.
 static LRESULT CALLBACK ExportProgram(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message) {
@@ -1149,7 +1149,7 @@ static LRESULT CALLBACK ExportProgram(HWND hDlg, UINT message, WPARAM wParam, LP
     return FALSE;
 }
 
-// Mesage handler for preferences dialog.
+// Message handler for preferences dialog.
 static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     // TODO: track focus changes so that we can force the IDC_PRINTER_GIF_HEIGHT
@@ -1351,7 +1351,7 @@ static void get_home_dir(char *path, int pathlen) {
     // will also be stored, and this will be the only directory searched for skins.
     // If there is no 'portable', then the state files will be stored under
     // %APPDATA%\Free42, and skins will be searched for in that directory as well,
-    // *and* in the executable's direcory.
+    // *and* in the executable's directory.
 
     char exepath[FILENAMELEN];
     GetModuleFileName(0, exepath, FILENAMELEN);

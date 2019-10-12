@@ -700,7 +700,7 @@ bool no_keystrokes_yet;
  *  In version 1.4.52, I upgraded to a new version of BCD20, without realizing
  *  that it uses a slightly different storage format (NaN and Inifinity are now
  *  encoded using two flags in the exponent field, rather than using magical
- *  exponent values; the exponent field was narrowed by 2 bits to accomodate
+ *  exponent values; the exponent field was narrowed by 2 bits to accommodate
  *  these flags).
  *  I should have added new code to convert BCDFloat numbers from the old
  *  format to the new at that time. Once I discovered this oversight, 1.4.52-54

@@ -387,7 +387,7 @@ static void doExport(HWND hDlg) {
     }
 }
 
-// Mesage handler for States dialog.
+// Message handler for States dialog.
 LRESULT CALLBACK StatesDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
 	switch (message) {
         case WM_INITDIALOG: {

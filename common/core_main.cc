@@ -238,7 +238,7 @@ int core_keydown(int key, int *enqueued, int *repeat) {
     if (mode_interruptible != NULL) {
         /* We're in the middle of an interruptible function
          * (e.g., INVRT, PRP); queue up any keystrokes and invoke
-         * the appropriate callback to keep the funtion moving along
+         * the appropriate callback to keep the function moving along
          */
         int error, keep_running;
         if (key != 0) {
@@ -3297,7 +3297,7 @@ static void paste_programs(const char *buf) {
                 arg.type = ARGTYPE_NONE;
                 goto store;
             } else if (string_equals(hpbuf + hppos, cmd_end - hppos, "XROM", 4)) {
-                // Should hanle num,num and "lbl"
+                // Should handle num,num and "lbl"
                 if (!nexttoken(hpbuf, cmd_end, hpend, &tok_start, &tok_end))
                     goto line_done;
                 if (hpbuf[tok_start] == '"') {
