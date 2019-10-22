@@ -110,6 +110,14 @@ int string2phloat(const char *buf, int buflen, phloat *d) {
      * 4: negative underflow
      * 5: other error
      */
+
+    // Special case: "-" by itself. bid128_from_string() doesn't like this,
+    // so handling it separately here.
+    if (buflen == 1 && buf[0] == '-') {
+        *d = 0;
+        return 0;
+    }
+
     // First, convert from HP-42S format to bcdfloat format:
     // strip thousands separators, convert comma to dot if
     // appropriate, and convert char(24) to 'E'.
