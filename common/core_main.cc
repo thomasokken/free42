@@ -1209,7 +1209,7 @@ void core_export_programs(int count, const int *indexes, const char *raw_file_na
         } else {
             raw_buf = NULL;
 #endif
-            gfile = fopen(raw_file_name, "w");
+            gfile = fopen(raw_file_name, "wb");
             if (gfile == NULL) {
                 char msg[1024];
                 int err = errno;
