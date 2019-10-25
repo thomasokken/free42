@@ -1,3 +1,12 @@
+2019-10-25: release 2.5.11
+
+* Windows version: Program export in "raw" format performed LF-to-CRLF
+  translation on the output file, turning XEQ 10 into XEQ 13 LBL 09, among
+  other things. Bug introduced in 2.5.
+* Decimal version: During number entry, if you backspaced over a negative
+  number until only the minus sign remained, that minus would not be parsed
+  correctly, and you could get <Not a Number>. For example, 1 +/- <- ENTER.
+
 2019-10-11: release 2.5.10
 
 * The index range check in R<>R was faulty, allowing a row index equal to the
