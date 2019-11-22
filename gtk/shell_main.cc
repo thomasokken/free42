@@ -99,7 +99,7 @@ static int pype[2];
 static GtkWidget *mainwindow;
 static GtkWidget *printwindow;
 static GtkWidget *print_widget;
-static GdkGC *print_gc = NULL;
+//static GdkGC *print_gc = NULL;
 static GtkAdjustment *print_adj;
 static GdkPixbuf *icon_128;
 static GdkPixbuf *icon_48;
@@ -2578,9 +2578,15 @@ static void repaint_printout(int x, int y, int width, int height) {
         d1 += d_bpl;
     }
 
+    /*
     gdk_draw_pixbuf(print_widget->window, NULL, buf,
                     0, 0, x, y, width, height,
                     GDK_RGB_DITHER_MAX, 0, 0);
+    */
+    cairo_t *cr = gdk_cairo_create(print_widget->window);
+    gdk_cairo_set_source_pixbuf(cr, buf, x, y);
+    cairo_paint(cr);
+    cairo_destroy(cr);
     g_object_unref(G_OBJECT(buf));
 }
 
@@ -2903,10 +2909,28 @@ void shell_print(const char *text, int length,
             gtk_widget_set_size_request(print_widget, 358, newlength);
         scroll_printout_to_bottom();
         offset = 2 * height - newlength + oldlength;
+        /*
         if (print_gc == NULL)
             print_gc = gdk_gc_new(print_widget->window);
         gdk_draw_drawable(print_widget->window, print_gc, print_widget->window,
                           0, offset, 0, 0, 358, oldlength - offset);
+        */
+        cairo_surface_t *surf = cairo_image_surface_create();
+        cairo_t *cr = cairo_create(surf);
+        GdkRectangle area;
+        area.x = 0;
+        area.y = 0;
+        area.width = 358;
+        area.height = oldlength - offset;
+        gdk_cairo_rectangle(cr, &area);
+        cairo_clip(cr);
+        cairo_push_group(cr);
+        cairo_set_source_surface(cr, surface, 0, offset);
+        cairo_paint(cr);
+        cairo_pop_group_to_source(cr);
+        cairo_paint(cr);
+        cairo_destroy(cr);
+        cairo_surface_destroy(surf);
         repaint_printout(0, newlength - 2 * height, 358, 2 * height);
     } else {
         gtk_widget_set_size_request(print_widget, 358, newlength);
