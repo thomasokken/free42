@@ -26,8 +26,8 @@ CFLAGS = -MMD \
 	 -Wno-format-truncation \
 	 -Wno-unknown-warning-option \
 	 -g \
-	 -I/usr/X11R6/include \
-	 $(shell pkg-config --cflags gtk+-2.0) \
+	 $(shell pkg-config --cflags gtk+-3.0) \
+         -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED -DGTK_DISABLE_SINGLE_INCLUDES -DGSEAL_ENABLE \
 	 -DVERSION="\"$(shell cat VERSION)\"" \
 	 -DVERSION_PLATFORM="\"$(shell uname -s)\"" \
 	 -DDECIMAL_CALL_BY_REFERENCE=1 \
@@ -41,8 +41,7 @@ CXXFLAGS = $(CFLAGS) \
 	 -fno-rtti \
 	 -D_WCHAR_T_DEFINED
 
-LDFLAGS = -L/usr/X11R6/lib
-LIBS = gcc111libbid.a $(shell pkg-config --libs gtk+-2.0) -lXmu -lX11
+LIBS = gcc111libbid.a $(shell pkg-config --libs gtk+-3.0)
 
 ifeq "$(shell uname -s)" "FreeBSD"
 ifdef AUDIO_ALSA

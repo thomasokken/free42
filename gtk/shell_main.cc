@@ -15,11 +15,8 @@
 // along with this program; if not, see http://www.gnu.org/licenses/.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <X11/Xlib.h>
-#include <X11/Xmu/WinUtil.h>
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
-#include <gdk/gdkx.h>
 #include <errno.h>
 #include <locale.h>
 #include <pwd.h>
@@ -142,11 +139,9 @@ static void init_shell_state(int4 version);
 static int read_shell_state(int4 *version);
 static int write_shell_state();
 static void int_term_handler(int sig);
-static void usr1_handler(int sig);
 static gboolean gt_signal_handler(GIOChannel *source, GIOCondition condition,
                                                             gpointer data);
 static void quit();
-static void set_window_property(GtkWidget *window, const char *prop_name, char *props[], int num_props);
 static char *strclone(const char *s);
 static bool is_file(const char *name);
 static void show_message(const char *title, const char *message, GtkWidget *parent = mainwindow);
@@ -280,17 +275,6 @@ int main(int argc, char *argv[]) {
     if (argc >= 3 && strcmp(argv[1], "-skin") == 0)
         skin_arg = argv[2];
 
-    /*********************************************************/
-    /***** Ignore SIGUSR1 until we're ready to handle it *****/
-    /*********************************************************/
-
-    struct sigaction act;
-    act.sa_handler = SIG_IGN;
-    sigemptyset(&act.sa_mask);
-    sigaddset(&act.sa_mask, SIGUSR1);
-    act.sa_flags = 0;
-    sigaction(SIGUSR1, &act, NULL);
-
 
     /*****************************************************/
     /***** Try to create the $HOME/.free42 directory *****/
@@ -392,53 +376,6 @@ int main(int argc, char *argv[]) {
     }
 
 
-    /*******************************************************/
-    /***** Enforce single-instance mode, if applicable *****/
-    /*******************************************************/
-
-    char *appid;
-    if (state.singleInstance) {
-        int appid_len = _POSIX_HOST_NAME_MAX + _POSIX_LOGIN_NAME_MAX + 2;
-        appid = (char *) malloc(appid_len);
-        gethostname(appid, appid_len);
-        strcat(appid, "|");
-        strcat(appid, getpwuid(getuid())->pw_name);
-        Display *display = GDK_DISPLAY();
-        Atom FREE42_HOST_AND_USER = XInternAtom(display, "FREE42_HOST_AND_USER", False);
-        XGrabServer(display);
-        Window root;
-        Window parent;
-        Window *children;
-        unsigned int nchildren;
-        if (XQueryTree(display, GDK_ROOT_WINDOW(), &root, &parent, &children, &nchildren) != 0) {
-            for (unsigned int i = 0; i < nchildren; i++) {
-                Window win = children[i];
-                Window cwin = XmuClientWindow(display, win);
-                XTextProperty prop;
-                XGetTextProperty(display, cwin, &prop, FREE42_HOST_AND_USER);
-                if (prop.value != NULL) {
-                    char **list;
-                    int nitems;
-                    XTextPropertyToStringList(&prop, &list, &nitems);
-                    if (nitems > 0 && strcmp(list[0], appid) == 0) {
-                        pid_t pid;
-                        if (sscanf(list[1], "%d", &pid) == 1) {
-                            kill(pid, SIGUSR1);
-                            XUngrabServer(display);
-                            return 0;
-                        }
-                    }
-                    if (list != NULL)
-                        XFree(list);
-                    XFree(prop.value);
-                }
-            }
-        }
-        if (children != NULL)
-            XFree(children);
-    }
-
-
     /*********************************/
     /***** Build the main window *****/
     /*********************************/
@@ -507,17 +444,6 @@ int main(int argc, char *argv[]) {
     g_signal_connect(G_OBJECT(w), "key-press-event", G_CALLBACK(key_cb), NULL);
     g_signal_connect(G_OBJECT(w), "key-release-event", G_CALLBACK(key_cb), NULL);
     calc_widget = w;
-
-    if (state.singleInstance) {
-        char *list[2];
-        char pidstr[11];
-        sprintf(pidstr, "%u", getpid());
-        list[0] = appid;
-        list[1] = pidstr;
-        set_window_property(mainwindow, "FREE42_HOST_AND_USER", list, 2);
-        free(appid);
-        XUngrabServer(GDK_DISPLAY());
-    }
 
 
     /**************************************/
@@ -669,12 +595,6 @@ int main(int argc, char *argv[]) {
         act.sa_flags = 0;
         sigaction(SIGINT, &act, NULL);
         sigaction(SIGTERM, &act, NULL);
-
-        act.sa_handler = usr1_handler;
-        sigemptyset(&act.sa_mask);
-        sigaddset(&act.sa_mask, SIGUSR1);
-        act.sa_flags = 0;
-        sigaction(SIGUSR1, &act, NULL);
     }
     gtk_main();
     return 0;
@@ -702,7 +622,7 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
         bool alt = false;
         bool shift = false;
         bool cshift = false;
-        guint keyval = GDK_VoidSymbol;
+        guint keyval = GDK_KEY_VoidSymbol;
         bool done = false;
         unsigned char macrobuf[KEYMAP_MAX_MACRO_LENGTH + 1];
         int macrolen = 0;
@@ -725,7 +645,7 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
                 cshift = true;
             else {
                 keyval = gdk_keyval_from_name(tok);
-                if (keyval == GDK_VoidSymbol) {
+                if (keyval == GDK_KEY_VoidSymbol) {
                     fprintf(stderr, "Keymap, line %d: Unrecognized KeyName.\n", lineno);
                     return NULL;
                 }
@@ -830,7 +750,7 @@ static void init_shell_state(int4 version) {
             state.skinName[0] = 0;
             /* fall through */
         case 3:
-            state.singleInstance = 0;
+            state.singleInstance = 1;
             /* fall through */
         case 4:
             strcpy(state.coreName, "Untitled");
@@ -918,23 +838,9 @@ static void int_term_handler(int sig) {
     write(pype[1], "1\n", 2);
 }
 
-static void usr1_handler(int sig) {
-    write(pype[1], "2\n", 2);
-}
-
 static gboolean gt_signal_handler(GIOChannel *source, GIOCondition condition,
                                                             gpointer data) {
-    char buf[1];
-    if (read(pype[0], buf, 1) == 1)
-        if (buf[0] == '1')
-            quit();
-        else {
-            //gtk_widget_show(mainwindow);
-            gtk_window_present(GTK_WINDOW(mainwindow));
-            //gdk_window_deiconify(mainwindow->window);
-            //gdk_window_raise(mainwindow->window);
-            gdk_window_focus(mainwindow->window, GDK_CURRENT_TIME);
-        }
+    quit();
     return TRUE;
 }
 
@@ -1038,16 +944,6 @@ static void quit() {
     shell_spool_exit();
 
     exit(0);
-}
-
-static void set_window_property(GtkWidget *window, const char *prop_name, char *props[], int num_props) {
-    Display *display = GDK_DISPLAY();
-    gtk_widget_realize(window);
-    XTextProperty prop;
-    XStringListToTextProperty(props, num_props, &prop);
-    Atom PROP = XInternAtom(display, prop_name, False);
-    XSetTextProperty(display, GDK_WINDOW_XWINDOW(window->window), &prop, PROP);
-    XFree(prop.value);
 }
 
 static char *strclone(const char *s) {
@@ -2066,7 +1962,6 @@ static void preferencesCB() {
     static GtkWidget *singularmatrix;
     static GtkWidget *matrixoutofrange;
     static GtkWidget *autorepeat;
-    static GtkWidget *singleinstance;
     static GtkWidget *printtotext;
     static GtkWidget *textpath;
     static GtkWidget *printtogif;
@@ -2084,7 +1979,7 @@ static void preferencesCB() {
         gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
         no_mwm_resize_borders(dialog);
         GtkWidget *container = gtk_bin_get_child(GTK_BIN(dialog));
-        GtkWidget *table = gtk_table_new(6, 4, FALSE);
+        GtkWidget *table = gtk_table_new(5, 4, FALSE);
         gtk_container_add(GTK_CONTAINER(container), table);
 
         singularmatrix = gtk_check_button_new_with_label("Inverting or solving a singular matrix yields \"Singular Matrix\" error");
@@ -2093,24 +1988,22 @@ static void preferencesCB() {
         gtk_table_attach(GTK_TABLE(table), matrixoutofrange, 0, 4, 1, 2, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
         autorepeat = gtk_check_button_new_with_label("Auto-repeat for number entry and ALPHA mode");
         gtk_table_attach(GTK_TABLE(table), autorepeat, 0, 4, 2, 3, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
-        singleinstance = gtk_check_button_new_with_label("Single instance");
-        gtk_table_attach(GTK_TABLE(table), singleinstance, 0, 4, 3, 4, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
         printtotext = gtk_check_button_new_with_label("Print to text file:");
-        gtk_table_attach(GTK_TABLE(table), printtotext, 0, 1, 4, 5, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+        gtk_table_attach(GTK_TABLE(table), printtotext, 0, 1, 3, 4, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
         textpath = gtk_entry_new();
-        gtk_table_attach(GTK_TABLE(table), textpath, 1, 3, 4, 5, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+        gtk_table_attach(GTK_TABLE(table), textpath, 1, 3, 3, 4, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
         GtkWidget *browse1 = gtk_button_new_with_label("Browse...");
-        gtk_table_attach(GTK_TABLE(table), browse1, 3, 4, 4, 5, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+        gtk_table_attach(GTK_TABLE(table), browse1, 3, 4, 3, 4, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
         printtogif = gtk_check_button_new_with_label("Print to GIF file:");
-        gtk_table_attach(GTK_TABLE(table), printtogif, 0, 1, 5, 6, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+        gtk_table_attach(GTK_TABLE(table), printtogif, 0, 1, 4, 5, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
         gifpath = gtk_entry_new();
-        gtk_table_attach(GTK_TABLE(table), gifpath, 1, 3, 5, 6, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+        gtk_table_attach(GTK_TABLE(table), gifpath, 1, 3, 4, 5, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
         GtkWidget *browse2 = gtk_button_new_with_label("Browse...");
-        gtk_table_attach(GTK_TABLE(table), browse2, 3, 4, 5, 6, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+        gtk_table_attach(GTK_TABLE(table), browse2, 3, 4, 4, 5, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
         GtkWidget *label = gtk_label_new("Maximum GIF height (pixels):");
-        gtk_table_attach(GTK_TABLE(table), label, 1, 2, 6, 7, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+        gtk_table_attach(GTK_TABLE(table), label, 1, 2, 5, 6, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
         gifheight = gtk_entry_new_with_max_length(5);
-        gtk_table_attach(GTK_TABLE(table), gifheight, 2, 3, 6, 7, (GtkAttachOptions) (GTK_SHRINK), (GtkAttachOptions) 0, 3, 3);
+        gtk_table_attach(GTK_TABLE(table), gifheight, 2, 3, 5, 6, (GtkAttachOptions) (GTK_SHRINK), (GtkAttachOptions) 0, 3, 3);
 
         g_signal_connect(G_OBJECT(browse1), "clicked", G_CALLBACK(browse_file),
                 (gpointer) new browse_file_info("Select Text File Name",
@@ -2127,7 +2020,6 @@ static void preferencesCB() {
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(singularmatrix), core_settings.matrix_singularmatrix);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(matrixoutofrange), core_settings.matrix_outofrange);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(autorepeat), core_settings.auto_repeat);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(singleinstance), state.singleInstance);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(printtotext), state.printerToTxtFile);
     gtk_entry_set_text(GTK_ENTRY(textpath), state.printerTxtFileName);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(printtogif), state.printerToGifFile);
@@ -2141,7 +2033,6 @@ static void preferencesCB() {
         core_settings.matrix_singularmatrix = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(singularmatrix));
         core_settings.matrix_outofrange = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(matrixoutofrange));
         core_settings.auto_repeat = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(autorepeat));
-        state.singleInstance = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(singleinstance));
 
         state.printerToTxtFile = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(printtotext));
         char *old = strclone(state.printerTxtFileName);
@@ -2336,22 +2227,22 @@ static gboolean print_key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
         return TRUE;
 
     switch (event->keyval) {
-        case GDK_a:
+        case GDK_KEY_a:
             paperAdvanceCB();
             break;
-        case GDK_t:
+        case GDK_KEY_t:
             copyPrintAsTextCB();
             break;
-        case GDK_i:
+        case GDK_KEY_i:
             copyPrintAsImageCB();
             break;
-        case GDK_q:
+        case GDK_KEY_q:
             quit();
             break;
-        case GDK_c:
+        case GDK_KEY_c:
             copyCB();
             break;
-        case GDK_v:
+        case GDK_KEY_v:
             pasteCB();
             break;
     }
@@ -2465,7 +2356,7 @@ static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
             bool printable = event->length == 1 && event->string[0] >= 32 && event->string[0] <= 126;
             just_pressed_shift = false;
 
-            if (event->keyval == GDK_Shift_L || event->keyval == GDK_Shift_R) {
+            if (event->keyval == GDK_KEY_Shift_L || event->keyval == GDK_KEY_Shift_R) {
                 just_pressed_shift = true;
                 return TRUE;
             }
@@ -2583,8 +2474,8 @@ static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
         }
     } else if (event->type == GDK_KEY_RELEASE) {
         if (ckey == 0) {
-            if (just_pressed_shift && (event->keyval == GDK_Shift_L
-                                    || event->keyval == GDK_Shift_R)) {
+            if (just_pressed_shift && (event->keyval == GDK_KEY_Shift_L
+                                    || event->keyval == GDK_KEY_Shift_R)) {
                 ckey = 28;
                 skey = -1;
                 macro = NULL;
