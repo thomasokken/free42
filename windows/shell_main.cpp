@@ -392,14 +392,12 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		}
     }
 
-    if (state.singleInstance) {
-        HWND hPrevWnd = FindWindow(szMainWindowClass, szMainTitle);
-        if (hPrevWnd != NULL) {
-            if (IsIconic(hPrevWnd))
-                OpenIcon(hPrevWnd);
-            SetForegroundWindow(hPrevWnd);
-            return FALSE;
-        }
+    HWND hPrevWnd = FindWindow(szMainWindowClass, szMainTitle);
+    if (hPrevWnd != NULL) {
+        if (IsIconic(hPrevWnd))
+            OpenIcon(hPrevWnd);
+        SetForegroundWindow(hPrevWnd);
+        return FALSE;
     }
 
     skin_load(state.skinName, free42dirname, &r.right, &r.bottom);
@@ -1182,10 +1180,6 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
                 ctl = GetDlgItem(hDlg, IDC_CALCULATOR_KEY);
                 SendMessage(ctl, BM_SETCHECK, 1, 0);
             }
-            if (state.singleInstance) {
-                ctl = GetDlgItem(hDlg, IDC_SINGLEINSTANCE);
-                SendMessage(ctl, BM_SETCHECK, 1, 0);
-            }
             if (state.printerToTxtFile) {
                 ctl = GetDlgItem(hDlg, IDC_PRINTER_TXT);
                 SendMessage(ctl, BM_SETCHECK, 1, 0);
@@ -1224,8 +1218,6 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
                     state.calculatorKey = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
                     if (state.calculatorKey != prevCalculatorKey)
                         mapCalculatorKey();
-                    ctl = GetDlgItem(hDlg, IDC_SINGLEINSTANCE);
-                    state.singleInstance = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
 
                     ctl = GetDlgItem(hDlg, IDC_PRINTER_TXT);
                     state.printerToTxtFile = SendMessage(ctl, BM_GETCHECK, 0, 0);

@@ -54,15 +54,14 @@
 #define IDC_HP42S_SIZES                 1012
 #define IDC_RAW_TEXT                    1013
 #define IDC_ALWAYSONTOP                 1014
-#define IDC_SINGLEINSTANCE              1015
-#define IDC_CALCULATOR_KEY              1016
-#define IDC_WEBSITELINK                 1017
-#define IDC_FORUMLINK                   1018
-#define IDC_CURRENT                     1019
-#define IDC_STATES                      1020
-#define IDC_MORE                        1021
-#define IDC_STATE_PROMPT                1022
-#define IDC_STATE_NAME                  1023
+#define IDC_CALCULATOR_KEY              1015
+#define IDC_WEBSITELINK                 1016
+#define IDC_FORUMLINK                   1017
+#define IDC_CURRENT                     1018
+#define IDC_STATES                      1019
+#define IDC_MORE                        1020
+#define IDC_STATE_PROMPT                1021
+#define IDC_STATE_NAME                  1022
 #define IDM_SHOWPRINTOUT                32771
 #define IDM_PAPERADVANCE                32772
 #define IDM_PREFERENCES                 32773
@@ -89,7 +88,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        155
 #define _APS_NEXT_COMMAND_VALUE         32789
-#define _APS_NEXT_CONTROL_VALUE         1024
+#define _APS_NEXT_CONTROL_VALUE         1023
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif
