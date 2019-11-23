@@ -191,60 +191,138 @@ static void gif_writer(const char *text, int length);
 #define TITLE "Free42 Binary"
 #endif
 
-static GtkItemFactoryEntry entries[] = {
-    { "/File", NULL, NULL, 0, "<Branch>" },
-    { "/File/States...", NULL, statesCB, 0, "<Item>" },
-    { "/File/sep1", NULL, NULL, 0, "<Separator>" },
-    { "/File/Show Print-Out", NULL, showPrintOutCB, 0, "<Item>" },
-    { "/File/Paper Advance", "<CTRL>A", paperAdvanceCB, 0, "<Item>" },
-    { "/File/sep2", NULL, NULL, 0, "<Separator>" },
-    { "/File/Import Programs...", NULL, importProgramCB, 0, "<Item>" },
-    { "/File/Export Programs...", NULL, exportProgramCB, 0, "<Item>" },
-    { "/File/sep3", NULL, NULL, 0, "<Separator>" },
-    { "/File/Preferences...", NULL, preferencesCB, 0, "<Item>" },
-    { "/File/sep4", NULL, NULL, 0, "<Separator>" },
-    { "/File/Quit", "<CTRL>Q", quitCB, 0, "<Item>" },
-    { "/Edit", NULL, NULL, 0, "<Branch>" },
-    { "/Edit/Copy", "<CTRL>C", copyCB, 0, "<Item>" },
-    { "/Edit/Paste", "<CTRL>V", pasteCB, 0, "<Item>" },
-    { "/Edit/sep5", NULL, NULL, 0, "<Separator>" },
-    { "/Edit/Copy Print-Out as Text", "<CTRL>T", copyPrintAsTextCB, 0, "<Item>" },
-    { "/Edit/Copy Print-Out as Image", "<CTRL>I", copyPrintAsImageCB, 0, "<Item>" },
-    { "/Edit/Clear Print-Out", NULL, clearPrintOutCB, 0, "<Item>" },
-    { "/Skin", NULL, NULL, 0, "<Branch>" },
-    { "/Help", NULL, NULL, 0, "<Branch>" },
-    { "/Help/About Free42...", NULL, aboutCB, 0, "<Item>" }
-};
+static const char *menuBarXmlNormal =
+"<?xml version='1.0' encoding='UTF-8'?>"
+"<interface>"
+  "<!-- interface-requires gtk+ 3.0 -->"
+  "<object class='GtkMenuBar' id='menubar'>"
+    "<child>"
+      "<object class='GtkMenuItem' id='file_item'>"
+        "<property name='label'>File</property>"
+        "<child type='submenu'>"
+          "<object class='GtkMenu' id='file_menu'>"
+            "<child>"
+              "<object class='GtkMenuItem' id='states_item'>"
+                "<property name='label'>States...</property>"
+              "</object>"
+            "</child>"
+            "<child>"
+              "<object class='GtkSeparatorMenuItem' id='sep_1'>"
+              "</object>"
+            "</child>"
+            "<child>"
+              "<object class='GtkMenuItem' id='show_printout_item'>"
+                "<property name='label'>Show Print-Out</property>"
+              "</object>"
+            "</child>"
+            "<child>"
+              "<object class='GtkMenuItem' id='paper_advance_item'>"
+                "<property name='label'>Paper Advance</property>"
+              "</object>"
+            "</child>"
+            "<child>"
+              "<object class='GtkSeparatorMenuItem' id='sep_2'>"
+              "</object>"
+            "</child>"
+            "<child>"
+              "<object class='GtkMenuItem' id='import_programs_item'>"
+                "<property name='label'>Import Programs...</property>"
+              "</object>"
+            "</child>"
+            "<child>"
+              "<object class='GtkMenuItem' id='export_programs_item'>"
+                "<property name='label'>Export Programs...</property>"
+              "</object>"
+            "</child>"
+            "<child>"
+              "<object class='GtkSeparatorMenuItem' id='sep_3'>"
+              "</object>"
+            "</child>"
+            "<child>"
+              "<object class='GtkMenuItem' id='preferences_item'>"
+                "<property name='label'>Preferences...</property>"
+              "</object>"
+            "</child>"
+            "<child>"
+              "<object class='GtkSeparatorMenuItem' id='sep_4'>"
+              "</object>"
+            "</child>"
+            "<child>"
+              "<object class='GtkMenuItem' id='quit_item'>"
+                "<property name='label'>Quit</property>"
+              "</object>"
+            "</child>"
+          "</object>"
+        "</child>"
+      "</object>"
+    "</child>"
+    "<child>"
+      "<object class='GtkMenuItem' id='edit_item'>"
+        "<property name='label'>Edit</property>"
+        "<child type='submenu'>"
+          "<object class='GtkMenu' id='edit_menu'>"
+            "<child>"
+              "<object class='GtkMenuItem' id='copy_item'>"
+                "<property name='label'>Copy</property>"
+              "</object>"
+            "</child>"
+            "<child>"
+              "<object class='GtkMenuItem' id='paste_item'>"
+                "<property name='label'>Paste</property>"
+              "</object>"
+            "</child>"
+            "<child>"
+              "<object class='GtkSeparatorMenuItem' id='sep_5'>"
+              "</object>"
+            "</child>"
+            "<child>"
+              "<object class='GtkMenuItem' id='copy_printout_as_text_item'>"
+                "<property name='label'>Copy Print-Out as Text</property>"
+              "</object>"
+            "</child>"
+            "<child>"
+              "<object class='GtkMenuItem' id='copy_printout_as_image_item'>"
+                "<property name='label'>Copy Print-Out as Image</property>"
+              "</object>"
+            "</child>"
+            "<child>"
+              "<object class='GtkMenuItem' id='clear_printout_item'>"
+                "<property name='label'>Clear Print-Out</property>"
+              "</object>"
+            "</child>"
+          "</object>"
+        "</child>"
+      "</object>"
+    "</child>"
+    "<child>"
+      "<object class='GtkMenuItem' id='skin_item'>"
+        "<property name='label'>Skin</property>"
+        "<child>"
+          "<object class='GtkMenu' id='skin_menu'>"
+            "<!-- Skin items inserted programmatically here -->"
+          "</object>"
+        "</child>"
+      "</object>"
+    "</child>"
+    "<child>"
+      "<object class='GtkMenuItem' id='help_item'>"
+        "<property name='label'>Help</property>"
+        "<child type='submenu'>"
+          "<object class='GtkMenu' id='help_menu'>"
+            "<child>"
+              "<object class='GtkMenuItem' id='about_item'>"
+                "<property name='label'>About Free42...</property>"
+              "</object>"
+            "</child>"
+          "</object>"
+        "</child>"
+      "</object>"
+    "</child>"
+  "</object>"
+"</interface>";
 
-static gint num_entries = sizeof(entries) / sizeof(entries[0]);
-
-static GtkItemFactoryEntry entries_compactmenu[] = {
-    { "/Menu", NULL, NULL, 0, "<Branch>" },
-    { "/Menu/File", NULL, NULL, 0, "<Branch>" },
-    { "/Menu/File/States...", NULL, statesCB, 0, "<Item>" },
-    { "/Menu/File/sep1", NULL, NULL, 0, "<Separator>" },
-    { "/Menu/File/Show Print-Out", NULL, showPrintOutCB, 0, "<Item>" },
-    { "/Menu/File/Paper Advance", "<CTRL>A", paperAdvanceCB, 0, "<Item>" },
-    { "/Menu/File/sep2", NULL, NULL, 0, "<Separator>" },
-    { "/Menu/File/Import Programs...", NULL, importProgramCB, 0, "<Item>" },
-    { "/Menu/File/Export Programs...", NULL, exportProgramCB, 0, "<Item>" },
-    { "/Menu/File/sep3", NULL, NULL, 0, "<Separator>" },
-    { "/Menu/File/Preferences...", NULL, preferencesCB, 0, "<Item>" },
-    { "/Menu/File/sep4", NULL, NULL, 0, "<Separator>" },
-    { "/Menu/File/Quit", "<CTRL>Q", quitCB, 0, "<Item>" },
-    { "/Menu/Edit", NULL, NULL, 0, "<Branch>" },
-    { "/Menu/Edit/Copy", "<CTRL>C", copyCB, 0, "<Item>" },
-    { "/Menu/Edit/Paste", "<CTRL>V", pasteCB, 0, "<Item>" },
-    { "/Menu/Edit/sep5", NULL, NULL, 0, "<Separator>" },
-    { "/Menu/Edit/Copy Print-Out as Text", "<CTRL>T", copyPrintAsTextCB, 0, "<Item>" },
-    { "/Menu/Edit/Copy Print-Out as Image", "<CTRL>I", copyPrintAsImageCB, 0, "<Item>" },
-    { "/Menu/Edit/Clear Print-Out", NULL, clearPrintOutCB, 0, "<Item>" },
-    { "/Menu/Skin", NULL, NULL, 0, "<Branch>" },
-    { "/Menu/Help", NULL, NULL, 0, "<Branch>" },
-    { "/Menu/Help/About Free42...", NULL, aboutCB, 0, "<Item>" }
-};
-
-static gint num_entries_compactmenu = sizeof(entries_compactmenu) / sizeof(entries_compactmenu[0]);
+// TODO -- compact version with everything wrapped in a single menu
+static const char *menuBarXmlCompact = menuBarXmlNormal;
 
 static int use_compactmenu = 0;
 
@@ -395,15 +473,24 @@ int main(int argc, char *argv[]) {
         gtk_window_move(GTK_WINDOW(mainwindow), state.mainWindowX,
                                             state.mainWindowY);
 
+    /*
     GtkAccelGroup *acc_grp = gtk_accel_group_new();
     GtkItemFactory *fac = gtk_item_factory_new(GTK_TYPE_MENU_BAR,
                                                "<Main>", acc_grp);
+    */
+    const char *menuBarXml;
     if (use_compactmenu)
-        gtk_item_factory_create_items(fac, num_entries_compactmenu, entries_compactmenu, NULL);
+        menuBarXml = menuBarXmlNormal;
     else
-        gtk_item_factory_create_items(fac, num_entries, entries, NULL);
+        menuBarXml = menuBarXmlCompact;
+    GtkBuilder *builder = gtk_builder_new();
+    gtk_builder_add_from_string(builder, menuBarXml, -1, NULL);
+    GMenuModel *menu_model = G_MENU_MODEL(gtk_builder_get_object(builder, "menubar"));
+    GtkWidget *menubar = gtk_menu_new_from_model(menu_model);
+    /*
     gtk_window_add_accel_group(GTK_WINDOW(mainwindow), acc_grp);
     GtkWidget *menubar = gtk_item_factory_get_widget(fac, "<Main>");
+    */
 
     // The "Skin" menu is dynamic; we don't populate any items in it here.
     // Instead, we attach a callback which scans the .free42 directory for
@@ -422,7 +509,7 @@ int main(int argc, char *argv[]) {
     g_signal_connect(G_OBJECT(skin_btn), "activate",
                      G_CALLBACK(skin_menu_update), NULL);
 
-    GtkWidget *box = gtk_vbox_new(FALSE, 0);
+    GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_container_add(GTK_CONTAINER(mainwindow), box);
     gtk_box_pack_start(GTK_BOX(box), menubar, FALSE, FALSE, 0);
 
@@ -440,7 +527,7 @@ int main(int argc, char *argv[]) {
     gtk_widget_add_events(w, GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK);
     g_signal_connect(G_OBJECT(w), "button-press-event", G_CALLBACK(button_cb), NULL);
     g_signal_connect(G_OBJECT(w), "button-release-event", G_CALLBACK(button_cb), NULL);
-    GTK_WIDGET_SET_FLAGS(w, GTK_CAN_FOCUS);
+    gtk_widget_set_can_focus(w, TRUE);
     g_signal_connect(G_OBJECT(w), "key-press-event", G_CALLBACK(key_cb), NULL);
     g_signal_connect(G_OBJECT(w), "key-release-event", G_CALLBACK(key_cb), NULL);
     calc_widget = w;
@@ -519,7 +606,7 @@ int main(int argc, char *argv[]) {
     gtk_container_add(GTK_CONTAINER(view), print_widget);
     print_adj = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scroll));
     g_signal_connect(G_OBJECT(print_widget), "expose_event", G_CALLBACK(print_expose_cb), NULL);
-    GTK_WIDGET_SET_FLAGS(print_widget, GTK_CAN_FOCUS);
+    gtk_widget_set_can_focus(print_widget, TRUE);
     g_signal_connect(G_OBJECT(print_widget), "key-press-event", G_CALLBACK(print_key_cb), NULL);
 
     gtk_widget_show(print_widget);
@@ -588,6 +675,7 @@ int main(int argc, char *argv[]) {
             (GIOFlags) (g_io_channel_get_flags(channel) | G_IO_FLAG_NONBLOCK), &err);
         g_io_add_watch(channel, G_IO_IN, gt_signal_handler, NULL);
 
+        struct sigaction act;
         act.sa_handler = int_term_handler;
         sigemptyset(&act.sa_mask);
         sigaddset(&act.sa_mask, SIGINT);
@@ -974,9 +1062,10 @@ static void show_message(const char *title, const char *message, GtkWidget *pare
 }
 
 static void no_mwm_resize_helper(GtkWidget *w, gpointer cd) {
-    gdk_window_set_decorations(w->window, GdkWMDecoration(GDK_DECOR_ALL
+    GdkWindow *win = gtk_widget_get_window(w);
+    gdk_window_set_decorations(win, GdkWMDecoration(GDK_DECOR_ALL
                                     | GDK_DECOR_RESIZEH | GDK_DECOR_MAXIMIZE));
-    gdk_window_set_functions(w->window, GdkWMFunction(GDK_FUNC_ALL
+    gdk_window_set_functions(win, GdkWMFunction(GDK_FUNC_ALL
                                     | GDK_FUNC_RESIZE | GDK_FUNC_MAXIMIZE));
 }
 
@@ -994,8 +1083,9 @@ static void no_mwm_resize_borders(GtkWidget *window) {
 }
 
 static void scroll_printout_to_bottom() {
-    gtk_adjustment_set_value(print_adj,
-                             print_adj->upper - print_adj->page_size);
+    gdouble upper = gtk_adjustment_get_upper(print_adj);
+    gdouble page_size = gtk_adjustment_get_page_size(print_adj);
+    gtk_adjustment_set_value(print_adj, upper - page_size);
 }
 
 static void quitCB() {
@@ -1062,7 +1152,7 @@ static char *get_state_name(const char *prompt) {
         gtk_window_set_resizable(GTK_WINDOW(state_name_dialog), FALSE);
         no_mwm_resize_borders(state_name_dialog);
         GtkWidget *container = gtk_bin_get_child(GTK_BIN(state_name_dialog));
-        GtkWidget *box = gtk_vbox_new(FALSE, 0);
+        GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
         gtk_container_add(GTK_CONTAINER(container), box);
 
         promptLabel = gtk_label_new("Enter state name:");
@@ -1410,9 +1500,11 @@ static void row_activated_cb(GtkWidget *w, gpointer p) {
 
 static void states_menu_pos_func(GtkMenu *menu, gint *x, gint *y, gboolean *push_in, gpointer data) {
     GtkWidget *btn = GTK_WIDGET(data);
-    gdk_window_get_origin(btn->window, x, y);
-    *x += btn->allocation.x;
-    *y += btn->allocation.y + btn->allocation.height;
+    gdk_window_get_origin(gtk_widget_get_window(btn), x, y);
+    GtkAllocation allocation;
+    gtk_widget_get_allocation(btn, &allocation);
+    *x += allocation.x;
+    *y += allocation.y + allocation.height;
     *push_in = true;
 }
 
@@ -1456,7 +1548,7 @@ static void statesCB() {
         gtk_window_set_resizable(GTK_WINDOW(states_dialog), FALSE);
         no_mwm_resize_borders(states_dialog);
         GtkWidget *container = gtk_bin_get_child(GTK_BIN(states_dialog));
-        GtkWidget *box = gtk_vbox_new(FALSE, 0);
+        GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
         gtk_container_add(GTK_CONTAINER(container), box);
 
         currentLabel = gtk_label_new("Current:");
@@ -1583,7 +1675,7 @@ static void statesCB() {
 static void showPrintOutCB() {
     //gtk_widget_show(printwindow);
     gtk_window_present(GTK_WINDOW(printwindow));
-    gdk_window_focus(printwindow->window, GDK_CURRENT_TIME);
+    gdk_window_focus(gtk_widget_get_window(printwindow), GDK_CURRENT_TIME);
     state.printWindowKnown = 1;
     state.printWindowMapped = 1;
 }
@@ -1604,7 +1696,7 @@ static void exportProgramCB() {
         gtk_window_set_resizable(GTK_WINDOW(sel_dialog), FALSE);
         no_mwm_resize_borders(sel_dialog);
         GtkWidget *container = gtk_bin_get_child(GTK_BIN(sel_dialog));
-        GtkWidget *box = gtk_vbox_new(FALSE, 0);
+        GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
         gtk_container_add(GTK_CONTAINER(container), box);
 
         GtkWidget *label = gtk_label_new("Select Programs to Export:");
@@ -2002,7 +2094,8 @@ static void preferencesCB() {
         gtk_table_attach(GTK_TABLE(table), browse2, 3, 4, 4, 5, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
         GtkWidget *label = gtk_label_new("Maximum GIF height (pixels):");
         gtk_table_attach(GTK_TABLE(table), label, 1, 2, 5, 6, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
-        gifheight = gtk_entry_new_with_max_length(5);
+        gifheight = gtk_entry_new();
+        gtk_entry_set_max_length(GTK_ENTRY(gifheight), 5);
         gtk_table_attach(GTK_TABLE(table), gifheight, 2, 3, 5, 6, (GtkAttachOptions) (GTK_SHRINK), (GtkAttachOptions) 0, 3, 3);
 
         g_signal_connect(G_OBJECT(browse1), "clicked", G_CALLBACK(browse_file),
@@ -2140,11 +2233,11 @@ static void aboutCB() {
         gtk_window_set_resizable(GTK_WINDOW(about), FALSE);
         no_mwm_resize_borders(about);
         GtkWidget *container = gtk_bin_get_child(GTK_BIN(about));
-        GtkWidget *box = gtk_hbox_new(FALSE, 0);
+        GtkWidget *box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
         gtk_container_add(GTK_CONTAINER(container), box);
         GtkWidget *image = gtk_image_new_from_pixbuf(icon_48);
         gtk_box_pack_start(GTK_BOX(box), image, FALSE, FALSE, 10);
-        GtkWidget *box2 = gtk_vbox_new(FALSE, 0);
+        GtkWidget *box2 = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
         GtkWidget *version = gtk_label_new("Free42 " VERSION);
         gtk_misc_set_alignment(GTK_MISC(version), 0, 0);
         gtk_box_pack_start(GTK_BOX(box2), version, FALSE, FALSE, 10);
@@ -2152,11 +2245,11 @@ static void aboutCB() {
         gtk_misc_set_alignment(GTK_MISC(author), 0, 0);
         gtk_box_pack_start(GTK_BOX(box2), author, FALSE, FALSE, 0);
         GtkWidget *websitelink = gtk_link_button_new("https://thomasokken.com/free42/");
-        GtkWidget *websitebox = gtk_hbox_new(FALSE, 0);
+        GtkWidget *websitebox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
         gtk_box_pack_start(GTK_BOX(websitebox), websitelink, FALSE, FALSE, 0);
         gtk_box_pack_start(GTK_BOX(box2), websitebox, FALSE, FALSE, 0);
         GtkWidget *forumlink = gtk_link_button_new("https://thomasokken.com/free42/#doc");
-        GtkWidget *forumbox = gtk_hbox_new(FALSE, 0);
+        GtkWidget *forumbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
         gtk_box_pack_start(GTK_BOX(forumbox), forumlink, FALSE, FALSE, 0);
         gtk_box_pack_start(GTK_BOX(box2), forumbox, FALSE, FALSE, 0);
         gtk_box_pack_start(GTK_BOX(box), box2, FALSE, FALSE, 0);
@@ -2579,11 +2672,11 @@ static void repaint_printout(int x, int y, int width, int height) {
     }
 
     /*
-    gdk_draw_pixbuf(print_widget->window, NULL, buf,
+    gdk_draw_pixbuf(gtk_widget_get_window(print_widget), NULL, buf,
                     0, 0, x, y, width, height,
                     GDK_RGB_DITHER_MAX, 0, 0);
     */
-    cairo_t *cr = gdk_cairo_create(print_widget->window);
+    cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(print_widget));
     gdk_cairo_set_source_pixbuf(cr, buf, x, y);
     cairo_paint(cr);
     cairo_destroy(cr);
@@ -2910,22 +3003,23 @@ void shell_print(const char *text, int length,
         scroll_printout_to_bottom();
         offset = 2 * height - newlength + oldlength;
         /*
+        GdkWindow *win = gtk_widget_get_window(print_widget);
         if (print_gc == NULL)
-            print_gc = gdk_gc_new(print_widget->window);
-        gdk_draw_drawable(print_widget->window, print_gc, print_widget->window,
+            print_gc = gdk_gc_new(win);
+        gdk_draw_drawable(win, print_gc, win,
                           0, offset, 0, 0, 358, oldlength - offset);
         */
-        cairo_surface_t *surf = cairo_image_surface_create();
-        cairo_t *cr = cairo_create(surf);
         GdkRectangle area;
         area.x = 0;
         area.y = 0;
         area.width = 358;
         area.height = oldlength - offset;
+        cairo_surface_t *surf = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, area.width, area.height);
+        cairo_t *cr = cairo_create(surf);
         gdk_cairo_rectangle(cr, &area);
         cairo_clip(cr);
         cairo_push_group(cr);
-        cairo_set_source_surface(cr, surface, 0, offset);
+        cairo_set_source_surface(cr, surf, 0, offset);
         cairo_paint(cr);
         cairo_pop_group_to_source(cr);
         cairo_paint(cr);
