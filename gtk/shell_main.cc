@@ -2995,37 +2995,22 @@ void shell_print(const char *text, int length,
     newlength = oldlength + 2 * height;
 
     if (newlength >= PRINT_LINES) {
-        int offset;
         printout_top = (printout_bottom + 2) % PRINT_LINES;
         newlength = PRINT_LINES - 2;
         if (newlength != oldlength)
             gtk_widget_set_size_request(print_widget, 358, newlength);
         scroll_printout_to_bottom();
-        offset = 2 * height - newlength + oldlength;
         /*
+        int offset = 2 * height - newlength + oldlength;
         GdkWindow *win = gtk_widget_get_window(print_widget);
         if (print_gc == NULL)
             print_gc = gdk_gc_new(win);
         gdk_draw_drawable(win, print_gc, win,
                           0, offset, 0, 0, 358, oldlength - offset);
         */
-        GdkRectangle area;
-        area.x = 0;
-        area.y = 0;
-        area.width = 358;
-        area.height = oldlength - offset;
-        cairo_surface_t *surf = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, area.width, area.height);
-        cairo_t *cr = cairo_create(surf);
-        gdk_cairo_rectangle(cr, &area);
-        cairo_clip(cr);
-        cairo_push_group(cr);
-        cairo_set_source_surface(cr, surf, 0, offset);
-        cairo_paint(cr);
-        cairo_pop_group_to_source(cr);
-        cairo_paint(cr);
-        cairo_destroy(cr);
-        cairo_surface_destroy(surf);
-        repaint_printout(0, newlength - 2 * height, 358, 2 * height);
+        // TODO This just repaints everything, because I couldn't figure
+        // out how to scroll the existing content with Cairo.
+        repaint_printout(0, 0, 358, newlength);
     } else {
         gtk_widget_set_size_request(print_widget, 358, newlength);
         // The resize request does not take effect immediately;
