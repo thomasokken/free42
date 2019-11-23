@@ -218,6 +218,7 @@ static const char *menuBarXmlNormal =
             "<child>"
               "<object class='GtkMenuItem' id='paper_advance_item'>"
                 "<property name='label'>Paper Advance</property>"
+                "<accelerator key='A' signal='activate' modifiers='GDK_CONTROL_MASK'/>"
               "</object>"
             "</child>"
             "<child>"
@@ -250,6 +251,7 @@ static const char *menuBarXmlNormal =
             "<child>"
               "<object class='GtkMenuItem' id='quit_item'>"
                 "<property name='label'>Quit</property>"
+                "<accelerator key='Q' signal='activate' modifiers='GDK_CONTROL_MASK'/>"
               "</object>"
             "</child>"
           "</object>"
@@ -264,11 +266,13 @@ static const char *menuBarXmlNormal =
             "<child>"
               "<object class='GtkMenuItem' id='copy_item'>"
                 "<property name='label'>Copy</property>"
+                "<accelerator key='C' signal='activate' modifiers='GDK_CONTROL_MASK'/>"
               "</object>"
             "</child>"
             "<child>"
               "<object class='GtkMenuItem' id='paste_item'>"
                 "<property name='label'>Paste</property>"
+                "<accelerator key='V' signal='activate' modifiers='GDK_CONTROL_MASK'/>"
               "</object>"
             "</child>"
             "<child>"
@@ -278,11 +282,13 @@ static const char *menuBarXmlNormal =
             "<child>"
               "<object class='GtkMenuItem' id='copy_printout_as_text_item'>"
                 "<property name='label'>Copy Print-Out as Text</property>"
+                "<accelerator key='T' signal='activate' modifiers='GDK_CONTROL_MASK'/>"
               "</object>"
             "</child>"
             "<child>"
               "<object class='GtkMenuItem' id='copy_printout_as_image_item'>"
                 "<property name='label'>Copy Print-Out as Image</property>"
+                "<accelerator key='I' signal='activate' modifiers='GDK_CONTROL_MASK'/>"
               "</object>"
             "</child>"
             "<child>"
@@ -319,7 +325,8 @@ static const char *menuBarXmlNormal =
       "</object>"
     "</child>"
   "</object>"
-"</interface>";
+"</interface>"
+  ;
 
 // TODO -- compact version with everything wrapped in a single menu
 static const char *menuBarXmlCompact = menuBarXmlNormal;
@@ -485,8 +492,9 @@ int main(int argc, char *argv[]) {
         menuBarXml = menuBarXmlCompact;
     GtkBuilder *builder = gtk_builder_new();
     gtk_builder_add_from_string(builder, menuBarXml, -1, NULL);
-    GMenuModel *menu_model = G_MENU_MODEL(gtk_builder_get_object(builder, "menubar"));
-    GtkWidget *menubar = gtk_menu_new_from_model(menu_model);
+    GObject *obj = gtk_builder_get_object(builder, "menubar");
+    fprintf(stderr, "%llx\n", (long long) obj);
+    GtkWidget *menubar = GTK_WIDGET(obj);
     /*
     gtk_window_add_accel_group(GTK_WINDOW(mainwindow), acc_grp);
     GtkWidget *menubar = gtk_item_factory_get_widget(fac, "<Main>");
@@ -496,6 +504,7 @@ int main(int argc, char *argv[]) {
     // Instead, we attach a callback which scans the .free42 directory for
     // available skins; this callback is invoked when the menu is about to
     // be mapped.
+    /*
     GList *children = gtk_container_get_children(GTK_CONTAINER(menubar));
     if (use_compactmenu) {
         GtkMenuItem *menu_btn = (GtkMenuItem *) children->data;
@@ -508,10 +517,16 @@ int main(int argc, char *argv[]) {
 
     g_signal_connect(G_OBJECT(skin_btn), "activate",
                      G_CALLBACK(skin_menu_update), NULL);
+    */
 
+    fprintf(stderr, "=== 1 ===\n");
     GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+    fprintf(stderr, "=== 2 ===\n");
     gtk_container_add(GTK_CONTAINER(mainwindow), box);
+    fprintf(stderr, "=== 3 ===\n");
+    fprintf(stderr, "%llx\n", (long long) menubar);
     gtk_box_pack_start(GTK_BOX(box), menubar, FALSE, FALSE, 0);
+    fprintf(stderr, "=== 4 ===\n");
 
 
     /****************************************/
