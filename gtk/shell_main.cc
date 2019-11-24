@@ -304,7 +304,7 @@ static const char *menuBarXmlNormal =
     "<child>"
       "<object class='GtkMenuItem' id='skin_item'>"
         "<property name='label'>Skin</property>"
-        "<child>"
+        "<child type='submenu'>"
           "<object class='GtkMenu' id='skin_menu'>"
             "<!-- Skin items inserted programmatically here -->"
           "</object>"
@@ -529,26 +529,14 @@ static void activate(GtkApplication *theApp, gpointer userData) {
     // Instead, we attach a callback which scans the .free42 directory for
     // available skins; this callback is invoked when the menu is about to
     // be mapped.
-    /*
-    GList *children = gtk_container_get_children(GTK_CONTAINER(menubar));
-    if (use_compactmenu) {
-        GtkMenuItem *menu_btn = (GtkMenuItem *) children->data;
-        g_list_free(children);
-        GtkMenu *menu = (GtkMenu *) gtk_menu_item_get_submenu(menu_btn);
-        children = gtk_container_get_children(GTK_CONTAINER(menu));
-    }
-    GtkMenuItem *skin_btn = (GtkMenuItem *) children->next->next->data;
-    g_list_free(children);
-
-    g_signal_connect(G_OBJECT(skin_btn), "activate",
-                     G_CALLBACK(skin_menu_update), NULL);
-    */
+    GtkMenuItem *item = GTK_MENU_ITEM(gtk_builder_get_object(builder, "skin_item"));
+    g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(skin_menu_update), NULL);
 
     GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_container_add(GTK_CONTAINER(mainwindow), box);
     gtk_box_pack_start(GTK_BOX(box), menubar, FALSE, FALSE, 0);
 
-    GtkMenuItem *item = GTK_MENU_ITEM(gtk_builder_get_object(builder, "states_item"));
+    item = GTK_MENU_ITEM(gtk_builder_get_object(builder, "states_item"));
     g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(statesCB), NULL);
     item = GTK_MENU_ITEM(gtk_builder_get_object(builder, "show_printout_item"));
     g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(showPrintOutCB), NULL);
