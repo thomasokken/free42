@@ -493,7 +493,6 @@ int main(int argc, char *argv[]) {
     GtkBuilder *builder = gtk_builder_new();
     gtk_builder_add_from_string(builder, menuBarXml, -1, NULL);
     GObject *obj = gtk_builder_get_object(builder, "menubar");
-    fprintf(stderr, "%llx\n", (long long) obj);
     GtkWidget *menubar = GTK_WIDGET(obj);
     /*
     gtk_window_add_accel_group(GTK_WINDOW(mainwindow), acc_grp);
@@ -519,14 +518,37 @@ int main(int argc, char *argv[]) {
                      G_CALLBACK(skin_menu_update), NULL);
     */
 
-    fprintf(stderr, "=== 1 ===\n");
     GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-    fprintf(stderr, "=== 2 ===\n");
     gtk_container_add(GTK_CONTAINER(mainwindow), box);
-    fprintf(stderr, "=== 3 ===\n");
-    fprintf(stderr, "%llx\n", (long long) menubar);
     gtk_box_pack_start(GTK_BOX(box), menubar, FALSE, FALSE, 0);
-    fprintf(stderr, "=== 4 ===\n");
+
+    GtkMenuItem *item = GTK_MENU_ITEM(gtk_builder_get_object(builder, "states_item"));
+    g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(statesCB), NULL);
+    item = GTK_MENU_ITEM(gtk_builder_get_object(builder, "show_printout_item"));
+    g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(showPrintOutCB), NULL);
+    item = GTK_MENU_ITEM(gtk_builder_get_object(builder, "paper_advance_item"));
+    g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(paperAdvanceCB), NULL);
+    item = GTK_MENU_ITEM(gtk_builder_get_object(builder, "import_programs_item"));
+    g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(importProgramCB), NULL);
+    item = GTK_MENU_ITEM(gtk_builder_get_object(builder, "export_programs_item"));
+    g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(exportProgramCB), NULL);
+    item = GTK_MENU_ITEM(gtk_builder_get_object(builder, "preferences_item"));
+    g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(preferencesCB), NULL);
+    item = GTK_MENU_ITEM(gtk_builder_get_object(builder, "quit_item"));
+    g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(quitCB), NULL);
+    item = GTK_MENU_ITEM(gtk_builder_get_object(builder, "copy_item"));
+    g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(copyCB), NULL);
+    item = GTK_MENU_ITEM(gtk_builder_get_object(builder, "paste_item"));
+    g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(pasteCB), NULL);
+    item = GTK_MENU_ITEM(gtk_builder_get_object(builder, "copy_printout_as_text_item"));
+    g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(copyPrintAsTextCB), NULL);
+    item = GTK_MENU_ITEM(gtk_builder_get_object(builder, "copy_printout_as_image_item"));
+    g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(copyPrintAsImageCB), NULL);
+    item = GTK_MENU_ITEM(gtk_builder_get_object(builder, "clear_printout_item"));
+    g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(clearPrintOutCB), NULL);
+    item = GTK_MENU_ITEM(gtk_builder_get_object(builder, "about_item"));
+    g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(aboutCB), NULL);
+    // TODO handle skin menu
 
 
     /****************************************/
