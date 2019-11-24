@@ -164,8 +164,8 @@ static void appendSuffix(char *path, char *suffix);
 static void copyCB();
 static void pasteCB();
 static void aboutCB();
-static void delete_cb(GtkWidget *w, gpointer cd);
-static void delete_print_cb(GtkWidget *w, gpointer cd);
+static gboolean delete_cb(GtkWidget *w, GdkEventAny *ev);
+static gboolean delete_print_cb(GtkWidget *w, GdkEventAny *ev);
 static gboolean draw_cb(GtkWidget *w, cairo_t *cr, gpointer cd);
 static gboolean print_draw_cb(GtkWidget *w, cairo_t *cr, gpointer cd);
 static gboolean print_key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd);
@@ -2314,11 +2314,12 @@ static void aboutCB() {
     gtk_widget_hide(GTK_WIDGET(about));
 }
 
-static void delete_cb(GtkWidget *w, gpointer cd) {
+static gboolean delete_cb(GtkWidget *w, GdkEventAny *ev) {
     quit();
+    return TRUE;
 }
 
-static void delete_print_cb(GtkWidget *w, gpointer cd) {
+static gboolean delete_print_cb(GtkWidget *w, GdkEventAny *ev) {
     gint x, y;
     gtk_window_get_position(GTK_WINDOW(printwindow), &x, &y);
     state.printWindowX = x;
@@ -2326,6 +2327,7 @@ static void delete_print_cb(GtkWidget *w, gpointer cd) {
     state.printWindowMapped = 0;
     state.printWindowKnown = 1;
     gtk_widget_hide(GTK_WIDGET(printwindow));
+    return TRUE;
 }
 
 static gboolean draw_cb(GtkWidget *w, cairo_t *cr, gpointer cd) {
