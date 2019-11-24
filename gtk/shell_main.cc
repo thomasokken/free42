@@ -96,6 +96,7 @@ static int gif_lines;
 
 static int pype[2];
 
+static GtkApplication *app = NULL;
 static GtkWidget *mainwindow;
 static GtkWidget *printwindow;
 static GtkWidget *print_widget;
@@ -165,8 +166,8 @@ static void pasteCB();
 static void aboutCB();
 static void delete_cb(GtkWidget *w, gpointer cd);
 static void delete_print_cb(GtkWidget *w, gpointer cd);
-static gboolean expose_cb(GtkWidget *w, GdkEventExpose *event, gpointer cd);
-static gboolean print_expose_cb(GtkWidget *w, GdkEventExpose *event, gpointer cd);
+static gboolean draw_cb(GtkWidget *w, cairo_t *cr, gpointer cd);
+static gboolean print_draw_cb(GtkWidget *w, cairo_t *cr, gpointer cd);
 static gboolean print_key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd);
 static gboolean button_cb(GtkWidget *w, GdkEventButton *event, gpointer cd);
 static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd);
@@ -335,8 +336,32 @@ static int use_compactmenu = 0;
 
 static bool decimal_point;
 
+static void activate(GtkApplication *theApp, gpointer userData);
+static int _argc;
+static char **_argv;
+
 int main(int argc, char *argv[]) {
-    gtk_init(&argc, &argv);
+    _argc = argc;
+    _argv = argv;
+    GtkApplication *app;
+    int status;
+    app = gtk_application_new("com.thomasokken.free42", G_APPLICATION_FLAGS_NONE);
+    g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
+    status = g_application_run(G_APPLICATION(app), argc, argv);
+    g_object_unref(app);
+    return status;
+}
+
+static void activate(GtkApplication *theApp, gpointer userData) {
+
+    if (app != NULL)
+        // TODO: Should I do something to raise the existing instance?
+        return;
+
+    app = theApp;
+    int argc = _argc;
+    char **argv = _argv;
+    //gtk_init(&argc, &argv);
 
     // Capture state of decimal_point, which may have been changed by
     // gtk_init(), and then set it to the C locale, because the binary/decimal
@@ -460,7 +485,6 @@ int main(int argc, char *argv[]) {
         }
     }
 
-
     /*********************************/
     /***** Build the main window *****/
     /*********************************/
@@ -468,7 +492,7 @@ int main(int argc, char *argv[]) {
     icon_128 = gdk_pixbuf_new_from_xpm_data((const char **) icon_128_xpm);
     icon_48 = gdk_pixbuf_new_from_xpm_data((const char **) icon_48_xpm);
 
-    mainwindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    mainwindow = gtk_application_window_new(GTK_APPLICATION(app));
     gtk_window_set_icon(GTK_WINDOW(mainwindow), icon_128);
     gtk_window_set_title(GTK_WINDOW(mainwindow), TITLE);
     gtk_window_set_role(GTK_WINDOW(mainwindow), "Free42 Calculator");
@@ -560,7 +584,7 @@ int main(int argc, char *argv[]) {
     GtkWidget *w = gtk_drawing_area_new();
     gtk_widget_set_size_request(w, win_width, win_height);
     gtk_box_pack_start(GTK_BOX(box), w, FALSE, FALSE, 0);
-    g_signal_connect(G_OBJECT(w), "expose_event", G_CALLBACK(expose_cb), NULL);
+    g_signal_connect(G_OBJECT(w), "draw", G_CALLBACK(draw_cb), NULL);
     gtk_widget_add_events(w, GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK);
     g_signal_connect(G_OBJECT(w), "button-press-event", G_CALLBACK(button_cb), NULL);
     g_signal_connect(G_OBJECT(w), "button-release-event", G_CALLBACK(button_cb), NULL);
@@ -642,7 +666,7 @@ int main(int argc, char *argv[]) {
     gtk_widget_set_size_request(print_widget, 358, printout_bottom);
     gtk_container_add(GTK_CONTAINER(view), print_widget);
     print_adj = gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scroll));
-    g_signal_connect(G_OBJECT(print_widget), "expose_event", G_CALLBACK(print_expose_cb), NULL);
+    g_signal_connect(G_OBJECT(print_widget), "draw", G_CALLBACK(print_draw_cb), NULL);
     gtk_widget_set_can_focus(print_widget, TRUE);
     g_signal_connect(G_OBJECT(print_widget), "key-press-event", G_CALLBACK(print_key_cb), NULL);
 
@@ -721,8 +745,6 @@ int main(int argc, char *argv[]) {
         sigaction(SIGINT, &act, NULL);
         sigaction(SIGTERM, &act, NULL);
     }
-    gtk_main();
-    return 0;
 }
 
 keymap_entry *parse_keymap_entry(char *line, int lineno) {
@@ -1183,8 +1205,8 @@ static char *get_state_name(const char *prompt) {
                             "State Name",
                             GTK_WINDOW(dlg),
                             GTK_DIALOG_MODAL,
-                            GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
-                            GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                            "_OK", GTK_RESPONSE_ACCEPT,
+                            "_Cancel", GTK_RESPONSE_CANCEL,
                             NULL);
         gtk_window_set_resizable(GTK_WINDOW(state_name_dialog), FALSE);
         no_mwm_resize_borders(state_name_dialog);
@@ -1727,8 +1749,8 @@ static void exportProgramCB() {
                             "Export Programs",
                             GTK_WINDOW(mainwindow),
                             GTK_DIALOG_MODAL,
-                            GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
-                            GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                            "_OK", GTK_RESPONSE_ACCEPT,
+                            "_Cancel", GTK_RESPONSE_CANCEL,
                             NULL);
         gtk_window_set_resizable(GTK_WINDOW(sel_dialog), FALSE);
         no_mwm_resize_borders(sel_dialog);
@@ -1848,8 +1870,8 @@ static GtkWidget *make_file_select_dialog(const char *title,
                         GTK_WINDOW(owner),
                         save ? GTK_FILE_CHOOSER_ACTION_SAVE
                              : GTK_FILE_CHOOSER_ACTION_OPEN,
-                        GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                        save ? GTK_STOCK_SAVE : GTK_STOCK_OPEN,
+                        "_Cancel", GTK_RESPONSE_CANCEL,
+                        save ? "_Save" : "_Open",
                         GTK_RESPONSE_ACCEPT,
                         NULL);
     const char *p = pattern;
@@ -2102,38 +2124,38 @@ static void preferencesCB() {
                             "Preferences",
                             GTK_WINDOW(mainwindow),
                             GTK_DIALOG_MODAL,
-                            GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
-                            GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                            "_OK", GTK_RESPONSE_ACCEPT,
+                            "_Cancel", GTK_RESPONSE_CANCEL,
                             NULL);
         gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
         no_mwm_resize_borders(dialog);
         GtkWidget *container = gtk_bin_get_child(GTK_BIN(dialog));
-        GtkWidget *table = gtk_table_new(5, 4, FALSE);
-        gtk_container_add(GTK_CONTAINER(container), table);
+        GtkWidget *grid = gtk_grid_new();
+        gtk_container_add(GTK_CONTAINER(container), grid);
 
         singularmatrix = gtk_check_button_new_with_label("Inverting or solving a singular matrix yields \"Singular Matrix\" error");
-        gtk_table_attach(GTK_TABLE(table), singularmatrix, 0, 4, 0, 1, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+        gtk_grid_attach(GTK_GRID(grid), singularmatrix, 0, 0, 4, 1);
         matrixoutofrange = gtk_check_button_new_with_label("Overflows during matrix operations yield \"Out of Range\" error");
-        gtk_table_attach(GTK_TABLE(table), matrixoutofrange, 0, 4, 1, 2, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+        gtk_grid_attach(GTK_GRID(grid), matrixoutofrange, 0, 1, 4, 1);
         autorepeat = gtk_check_button_new_with_label("Auto-repeat for number entry and ALPHA mode");
-        gtk_table_attach(GTK_TABLE(table), autorepeat, 0, 4, 2, 3, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+        gtk_grid_attach(GTK_GRID(grid), autorepeat, 0, 2, 4, 1);
         printtotext = gtk_check_button_new_with_label("Print to text file:");
-        gtk_table_attach(GTK_TABLE(table), printtotext, 0, 1, 3, 4, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+        gtk_grid_attach(GTK_GRID(grid), printtotext, 0, 3, 1, 1);
         textpath = gtk_entry_new();
-        gtk_table_attach(GTK_TABLE(table), textpath, 1, 3, 3, 4, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+        gtk_grid_attach(GTK_GRID(grid), textpath, 1, 3, 2, 1);
         GtkWidget *browse1 = gtk_button_new_with_label("Browse...");
-        gtk_table_attach(GTK_TABLE(table), browse1, 3, 4, 3, 4, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+        gtk_grid_attach(GTK_GRID(grid), browse1, 3, 3, 1, 1);
         printtogif = gtk_check_button_new_with_label("Print to GIF file:");
-        gtk_table_attach(GTK_TABLE(table), printtogif, 0, 1, 4, 5, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+        gtk_grid_attach(GTK_GRID(grid), printtogif, 0, 4, 1, 1);
         gifpath = gtk_entry_new();
-        gtk_table_attach(GTK_TABLE(table), gifpath, 1, 3, 4, 5, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+        gtk_grid_attach(GTK_GRID(grid), gifpath, 1, 4, 2, 1);
         GtkWidget *browse2 = gtk_button_new_with_label("Browse...");
-        gtk_table_attach(GTK_TABLE(table), browse2, 3, 4, 4, 5, (GtkAttachOptions) (GTK_SHRINK | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+        gtk_grid_attach(GTK_GRID(grid), browse2, 3, 4, 1, 1);
         GtkWidget *label = gtk_label_new("Maximum GIF height (pixels):");
-        gtk_table_attach(GTK_TABLE(table), label, 1, 2, 5, 6, (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), (GtkAttachOptions) 0, 3, 3);
+        gtk_grid_attach(GTK_GRID(grid), label, 1, 5, 1, 1);
         gifheight = gtk_entry_new();
         gtk_entry_set_max_length(GTK_ENTRY(gifheight), 5);
-        gtk_table_attach(GTK_TABLE(table), gifheight, 2, 3, 5, 6, (GtkAttachOptions) (GTK_SHRINK), (GtkAttachOptions) 0, 3, 3);
+        gtk_grid_attach(GTK_GRID(grid), gifheight, 2, 5, 1, 1);
 
         g_signal_connect(G_OBJECT(browse1), "clicked", G_CALLBACK(browse_file),
                 (gpointer) new browse_file_info("Select Text File Name",
@@ -2264,7 +2286,7 @@ static void aboutCB() {
                             "About Free42",
                             GTK_WINDOW(mainwindow),
                             GTK_DIALOG_MODAL,
-                            GTK_STOCK_OK,
+                            "_OK",
                             GTK_RESPONSE_ACCEPT,
                             NULL);
         gtk_window_set_resizable(GTK_WINDOW(about), FALSE);
@@ -2316,7 +2338,7 @@ static void delete_print_cb(GtkWidget *w, gpointer cd) {
     gtk_widget_hide(GTK_WIDGET(printwindow));
 }
 
-static gboolean expose_cb(GtkWidget *w, GdkEventExpose *event, gpointer cd) {
+static gboolean draw_cb(GtkWidget *w, cairo_t *cr, gpointer cd) {
     allow_paint = true;
     skin_repaint();
     skin_repaint_display();
@@ -2332,9 +2354,11 @@ static gboolean expose_cb(GtkWidget *w, GdkEventExpose *event, gpointer cd) {
     return TRUE;
 }
 
-static gboolean print_expose_cb(GtkWidget *w, GdkEventExpose *event, gpointer cd) {
-    repaint_printout(event->area.x, event->area.y,
-                     event->area.width, event->area.height);
+static gboolean print_draw_cb(GtkWidget *w, cairo_t *cr, gpointer cd) {
+    GdkRectangle clip;
+    if (!gdk_cairo_get_clip_rectangle(cr, &clip))
+        gtk_widget_get_clip(w, &clip);
+    repaint_printout(clip.x, clip.y, clip.width, clip.height);
     return TRUE;
 }
 
@@ -2798,11 +2822,11 @@ void shell_beeper(int frequency, int duration) {
     const char *display_name = gdk_display_get_name(gdk_display_get_default());
     if (display_name == NULL || display_name[0] == ':') {
         if (!alsa_beeper(frequency, duration))
-            gdk_beep();
+            gdk_display_beep(gdk_display_get_default());
     } else
-        gdk_beep();
+        gdk_display_beep(gdk_display_get_default());
 #else
-    gdk_beep();
+    gdk_display_beep(gdk_display_get_default());
 #endif
 }
 
