@@ -330,24 +330,176 @@ static const char *menuBarXmlNormal =
   ;
 
 // TODO -- compact version with everything wrapped in a single menu
-static const char *menuBarXmlCompact = menuBarXmlNormal;
+static const char *menuBarXmlCompact =
+"<?xml version='1.0' encoding='UTF-8'?>"
+"<interface>"
+  "<!-- interface-requires gtk+ 3.0 -->"
+  "<object class='GtkMenuBar' id='menubar'>"
+    "<child>"
+      "<object class='GtkMenuItem' id='top_item'>"
+        "<property name='label'>Menu</property>"
+        "<child type='submenu'>"
+          "<object class='GtkMenu' id='top_menu'>"
+    "<child>"
+      "<object class='GtkMenuItem' id='file_item'>"
+        "<property name='label'>File</property>"
+        "<child type='submenu'>"
+          "<object class='GtkMenu' id='file_menu'>"
+            "<child>"
+              "<object class='GtkMenuItem' id='states_item'>"
+                "<property name='label'>States...</property>"
+              "</object>"
+            "</child>"
+            "<child>"
+              "<object class='GtkSeparatorMenuItem' id='sep_1'>"
+              "</object>"
+            "</child>"
+            "<child>"
+              "<object class='GtkMenuItem' id='show_printout_item'>"
+                "<property name='label'>Show Print-Out</property>"
+              "</object>"
+            "</child>"
+            "<child>"
+              "<object class='GtkMenuItem' id='paper_advance_item'>"
+                "<property name='label'>Paper Advance</property>"
+                "<accelerator key='A' signal='activate' modifiers='GDK_CONTROL_MASK'/>"
+              "</object>"
+            "</child>"
+            "<child>"
+              "<object class='GtkSeparatorMenuItem' id='sep_2'>"
+              "</object>"
+            "</child>"
+            "<child>"
+              "<object class='GtkMenuItem' id='import_programs_item'>"
+                "<property name='label'>Import Programs...</property>"
+              "</object>"
+            "</child>"
+            "<child>"
+              "<object class='GtkMenuItem' id='export_programs_item'>"
+                "<property name='label'>Export Programs...</property>"
+              "</object>"
+            "</child>"
+            "<child>"
+              "<object class='GtkSeparatorMenuItem' id='sep_3'>"
+              "</object>"
+            "</child>"
+            "<child>"
+              "<object class='GtkMenuItem' id='preferences_item'>"
+                "<property name='label'>Preferences...</property>"
+              "</object>"
+            "</child>"
+            "<child>"
+              "<object class='GtkSeparatorMenuItem' id='sep_4'>"
+              "</object>"
+            "</child>"
+            "<child>"
+              "<object class='GtkMenuItem' id='quit_item'>"
+                "<property name='label'>Quit</property>"
+                "<accelerator key='Q' signal='activate' modifiers='GDK_CONTROL_MASK'/>"
+              "</object>"
+            "</child>"
+          "</object>"
+        "</child>"
+      "</object>"
+    "</child>"
+    "<child>"
+      "<object class='GtkMenuItem' id='edit_item'>"
+        "<property name='label'>Edit</property>"
+        "<child type='submenu'>"
+          "<object class='GtkMenu' id='edit_menu'>"
+            "<child>"
+              "<object class='GtkMenuItem' id='copy_item'>"
+                "<property name='label'>Copy</property>"
+                "<accelerator key='C' signal='activate' modifiers='GDK_CONTROL_MASK'/>"
+              "</object>"
+            "</child>"
+            "<child>"
+              "<object class='GtkMenuItem' id='paste_item'>"
+                "<property name='label'>Paste</property>"
+                "<accelerator key='V' signal='activate' modifiers='GDK_CONTROL_MASK'/>"
+              "</object>"
+            "</child>"
+            "<child>"
+              "<object class='GtkSeparatorMenuItem' id='sep_5'>"
+              "</object>"
+            "</child>"
+            "<child>"
+              "<object class='GtkMenuItem' id='copy_printout_as_text_item'>"
+                "<property name='label'>Copy Print-Out as Text</property>"
+                "<accelerator key='T' signal='activate' modifiers='GDK_CONTROL_MASK'/>"
+              "</object>"
+            "</child>"
+            "<child>"
+              "<object class='GtkMenuItem' id='copy_printout_as_image_item'>"
+                "<property name='label'>Copy Print-Out as Image</property>"
+                "<accelerator key='I' signal='activate' modifiers='GDK_CONTROL_MASK'/>"
+              "</object>"
+            "</child>"
+            "<child>"
+              "<object class='GtkMenuItem' id='clear_printout_item'>"
+                "<property name='label'>Clear Print-Out</property>"
+              "</object>"
+            "</child>"
+          "</object>"
+        "</child>"
+      "</object>"
+    "</child>"
+    "<child>"
+      "<object class='GtkMenuItem' id='skin_item'>"
+        "<property name='label'>Skin</property>"
+        "<child type='submenu'>"
+          "<object class='GtkMenu' id='skin_menu'>"
+            "<!-- Skin items inserted programmatically here -->"
+          "</object>"
+        "</child>"
+      "</object>"
+    "</child>"
+    "<child>"
+      "<object class='GtkMenuItem' id='help_item'>"
+        "<property name='label'>Help</property>"
+        "<child type='submenu'>"
+          "<object class='GtkMenu' id='help_menu'>"
+            "<child>"
+              "<object class='GtkMenuItem' id='about_item'>"
+                "<property name='label'>About Free42...</property>"
+              "</object>"
+            "</child>"
+          "</object>"
+        "</child>"
+      "</object>"
+    "</child>"
+          "</object>"
+        "</child>"
+      "</object>"
+    "</child>"
+  "</object>"
+"</interface>"
+;
 
 static int use_compactmenu = 0;
+static char *skin_arg = NULL;
 
 static bool decimal_point;
 
 static void activate(GtkApplication *theApp, gpointer userData);
-static int _argc;
-static char **_argv;
 
 int main(int argc, char *argv[]) {
-    _argc = argc;
-    _argv = argv;
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "-skin") == 0)
+            skin_arg = ++i < argc ? argv[i] : NULL;
+        else if (strcmp(argv[i], "-compactmenu") == 0)
+            use_compactmenu = 1;
+        else {
+            fprintf(stderr, "Unrecognized option: %s\n", argv[i]);
+            exit(1);
+        }
+    }
+
     GtkApplication *app;
     int status;
     app = gtk_application_new("com.thomasokken.free42", G_APPLICATION_FLAGS_NONE);
     g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
-    status = g_application_run(G_APPLICATION(app), argc, argv);
+    status = g_application_run(G_APPLICATION(app), 0, NULL);
     g_object_unref(app);
     return status;
 }
@@ -361,9 +513,6 @@ static void activate(GtkApplication *theApp, gpointer userData) {
     }
 
     app = theApp;
-    int argc = _argc;
-    char **argv = _argv;
-    //gtk_init(&argc, &argv);
 
     // Capture state of decimal_point, which may have been changed by
     // gtk_init(), and then set it to the C locale, because the binary/decimal
@@ -371,21 +520,6 @@ static void activate(GtkApplication *theApp, gpointer userData) {
     struct lconv *loc = localeconv();
     decimal_point = strcmp(loc->decimal_point, ",") != 0;
     setlocale(LC_NUMERIC, "C");
-
-    char *skin_arg = NULL;
-    for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "-skin") == 0)
-            skin_arg = ++i < argc ? argv[i] : NULL;
-        else if (strcmp(argv[i], "-compactmenu") == 0)
-            use_compactmenu = 1;
-        else {
-            fprintf(stderr, "Unrecognized option: %s\n", argv[i]);
-            exit(1);
-        }
-    }
-
-    if (argc >= 3 && strcmp(argv[1], "-skin") == 0)
-        skin_arg = argv[2];
 
 
     /*****************************************************/
@@ -513,9 +647,9 @@ static void activate(GtkApplication *theApp, gpointer userData) {
     */
     const char *menuBarXml;
     if (use_compactmenu)
-        menuBarXml = menuBarXmlNormal;
-    else
         menuBarXml = menuBarXmlCompact;
+    else
+        menuBarXml = menuBarXmlNormal;
     GtkBuilder *builder = gtk_builder_new();
     gtk_builder_add_from_string(builder, menuBarXml, -1, NULL);
     GObject *obj = gtk_builder_get_object(builder, "menubar");
@@ -2350,6 +2484,7 @@ static gboolean print_draw_cb(GtkWidget *w, cairo_t *cr, gpointer cd) {
     GdkRectangle clip;
     if (!gdk_cairo_get_clip_rectangle(cr, &clip))
         gtk_widget_get_allocation(w, &clip);
+    fprintf(stderr, "print_draw(%d, %d, %d, %d)\n", clip.x, clip.y, clip.width, clip.height);
     repaint_printout(clip.x, clip.y, clip.width, clip.height);
     return TRUE;
 }
