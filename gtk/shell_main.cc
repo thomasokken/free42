@@ -354,9 +354,11 @@ int main(int argc, char *argv[]) {
 
 static void activate(GtkApplication *theApp, gpointer userData) {
 
-    if (app != NULL)
-        // TODO: Should I do something to raise the existing instance?
+    if (app != NULL) {
+        gtk_window_present(GTK_WINDOW(mainwindow));
+        gdk_window_focus(gtk_widget_get_window(mainwindow), GDK_CURRENT_TIME);
         return;
+    }
 
     app = theApp;
     int argc = _argc;
