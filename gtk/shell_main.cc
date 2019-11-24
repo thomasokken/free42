@@ -2357,7 +2357,7 @@ static gboolean draw_cb(GtkWidget *w, cairo_t *cr, gpointer cd) {
 static gboolean print_draw_cb(GtkWidget *w, cairo_t *cr, gpointer cd) {
     GdkRectangle clip;
     if (!gdk_cairo_get_clip_rectangle(cr, &clip))
-        gtk_widget_get_clip(w, &clip);
+        gtk_widget_get_allocation(w, &clip);
     repaint_printout(clip.x, clip.y, clip.width, clip.height);
     return TRUE;
 }
