@@ -43,10 +43,8 @@ CXXFLAGS = $(CFLAGS) \
 
 LIBS = gcc111libbid.a $(shell pkg-config --libs gtk+-3.0)
 
-ifeq "$(shell uname -s)" "FreeBSD"
 ifdef AUDIO_ALSA
-LIBS += -ldl
-endif
+LIBS += -lpthread -ldl
 endif
 
 ifneq "$(findstring 6162,$(shell echo ab | od -x))" ""
