@@ -774,7 +774,7 @@ static void activate(GtkApplication *theApp, gpointer userData) {
     printout_top = 0;
     print_text_top = 0;
 
-    printwindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    printwindow = gtk_application_window_new(GTK_APPLICATION(app));
     gtk_window_set_icon(GTK_WINDOW(printwindow), icon_128);
     gtk_window_set_title(GTK_WINDOW(printwindow), "Free42 Print-Out");
     gtk_window_set_role(GTK_WINDOW(printwindow), "Free42 Print-Out");
@@ -2484,7 +2484,6 @@ static gboolean print_draw_cb(GtkWidget *w, cairo_t *cr, gpointer cd) {
     GdkRectangle clip;
     if (!gdk_cairo_get_clip_rectangle(cr, &clip))
         gtk_widget_get_allocation(w, &clip);
-    fprintf(stderr, "print_draw(%d, %d, %d, %d)\n", clip.x, clip.y, clip.width, clip.height);
     repaint_printout(clip.x, clip.y, clip.width, clip.height);
     return TRUE;
 }
