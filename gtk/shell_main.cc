@@ -192,289 +192,164 @@ static void gif_writer(const char *text, int length);
 #define TITLE "Free42 Binary"
 #endif
 
-static const char *menuBarXmlNormal =
+static const char *mainWindowXml =
 "<?xml version='1.0' encoding='UTF-8'?>"
 "<interface>"
   "<!-- interface-requires gtk+ 3.0 -->"
-  "<object class='GtkMenuBar' id='menubar'>"
+  "<object class='GtkApplicationWindow' id='window'>"
     "<child>"
-      "<object class='GtkMenuItem' id='file_item'>"
-        "<property name='label'>File</property>"
-        "<child type='submenu'>"
-          "<object class='GtkMenu' id='file_menu'>"
+      "<object class='GtkVBox' id='box'>"
+        "<child>"
+          "<object class='GtkMenuBar' id='menubar'>"
             "<child>"
-              "<object class='GtkMenuItem' id='states_item'>"
-                "<property name='label'>States...</property>"
+              "%s" // Additional menu level goes here when using -compactmenu
+              "<object class='GtkMenuItem' id='file_item'>"
+                "<property name='label'>File</property>"
+                "<child type='submenu'>"
+                  "<object class='GtkMenu' id='file_menu'>"
+                    "<child>"
+                      "<object class='GtkMenuItem' id='states_item'>"
+                        "<property name='label'>States...</property>"
+                      "</object>"
+                    "</child>"
+                    "<child>"
+                      "<object class='GtkSeparatorMenuItem' id='sep_1'>"
+                      "</object>"
+                    "</child>"
+                    "<child>"
+                      "<object class='GtkMenuItem' id='show_printout_item'>"
+                        "<property name='label'>Show Print-Out</property>"
+                      "</object>"
+                    "</child>"
+                    "<child>"
+                      "<object class='GtkMenuItem' id='paper_advance_item'>"
+                        "<property name='label'>Paper Advance</property>"
+                        "<accelerator key='A' signal='activate' modifiers='GDK_CONTROL_MASK'/>"
+                      "</object>"
+                    "</child>"
+                    "<child>"
+                      "<object class='GtkSeparatorMenuItem' id='sep_2'>"
+                      "</object>"
+                    "</child>"
+                    "<child>"
+                      "<object class='GtkMenuItem' id='import_programs_item'>"
+                        "<property name='label'>Import Programs...</property>"
+                      "</object>"
+                    "</child>"
+                    "<child>"
+                      "<object class='GtkMenuItem' id='export_programs_item'>"
+                        "<property name='label'>Export Programs...</property>"
+                      "</object>"
+                    "</child>"
+                    "<child>"
+                      "<object class='GtkSeparatorMenuItem' id='sep_3'>"
+                      "</object>"
+                    "</child>"
+                    "<child>"
+                      "<object class='GtkMenuItem' id='preferences_item'>"
+                        "<property name='label'>Preferences...</property>"
+                      "</object>"
+                    "</child>"
+                    "<child>"
+                      "<object class='GtkSeparatorMenuItem' id='sep_4'>"
+                      "</object>"
+                    "</child>"
+                    "<child>"
+                      "<object class='GtkMenuItem' id='quit_item'>"
+                        "<property name='label'>Quit</property>"
+                        "<accelerator key='Q' signal='activate' modifiers='GDK_CONTROL_MASK'/>"
+                      "</object>"
+                    "</child>"
+                  "</object>"
+                "</child>"
               "</object>"
             "</child>"
             "<child>"
-              "<object class='GtkSeparatorMenuItem' id='sep_1'>"
+              "<object class='GtkMenuItem' id='edit_item'>"
+                "<property name='label'>Edit</property>"
+                "<child type='submenu'>"
+                  "<object class='GtkMenu' id='edit_menu'>"
+                    "<child>"
+                      "<object class='GtkMenuItem' id='copy_item'>"
+                        "<property name='label'>Copy</property>"
+                        "<accelerator key='C' signal='activate' modifiers='GDK_CONTROL_MASK'/>"
+                      "</object>"
+                    "</child>"
+                    "<child>"
+                      "<object class='GtkMenuItem' id='paste_item'>"
+                        "<property name='label'>Paste</property>"
+                        "<accelerator key='V' signal='activate' modifiers='GDK_CONTROL_MASK'/>"
+                      "</object>"
+                    "</child>"
+                    "<child>"
+                      "<object class='GtkSeparatorMenuItem' id='sep_5'>"
+                      "</object>"
+                    "</child>"
+                    "<child>"
+                      "<object class='GtkMenuItem' id='copy_printout_as_text_item'>"
+                        "<property name='label'>Copy Print-Out as Text</property>"
+                        "<accelerator key='T' signal='activate' modifiers='GDK_CONTROL_MASK'/>"
+                      "</object>"
+                    "</child>"
+                    "<child>"
+                      "<object class='GtkMenuItem' id='copy_printout_as_image_item'>"
+                        "<property name='label'>Copy Print-Out as Image</property>"
+                        "<accelerator key='I' signal='activate' modifiers='GDK_CONTROL_MASK'/>"
+                      "</object>"
+                    "</child>"
+                    "<child>"
+                      "<object class='GtkMenuItem' id='clear_printout_item'>"
+                        "<property name='label'>Clear Print-Out</property>"
+                      "</object>"
+                    "</child>"
+                  "</object>"
+                "</child>"
               "</object>"
             "</child>"
             "<child>"
-              "<object class='GtkMenuItem' id='show_printout_item'>"
-                "<property name='label'>Show Print-Out</property>"
+              "<object class='GtkMenuItem' id='skin_item'>"
+                "<property name='label'>Skin</property>"
+                "<child type='submenu'>"
+                  "<object class='GtkMenu' id='skin_menu'>"
+                    "<!-- Skin items inserted programmatically here -->"
+                  "</object>"
+                "</child>"
               "</object>"
             "</child>"
             "<child>"
-              "<object class='GtkMenuItem' id='paper_advance_item'>"
-                "<property name='label'>Paper Advance</property>"
-                "<accelerator key='A' signal='activate' modifiers='GDK_CONTROL_MASK'/>"
+              "<object class='GtkMenuItem' id='help_item'>"
+                "<property name='label'>Help</property>"
+                "<child type='submenu'>"
+                  "<object class='GtkMenu' id='help_menu'>"
+                    "<child>"
+                      "<object class='GtkMenuItem' id='about_item'>"
+                        "<property name='label'>About Free42...</property>"
+                      "</object>"
+                    "</child>"
+                  "</object>"
+                "</child>"
               "</object>"
-            "</child>"
-            "<child>"
-              "<object class='GtkSeparatorMenuItem' id='sep_2'>"
-              "</object>"
-            "</child>"
-            "<child>"
-              "<object class='GtkMenuItem' id='import_programs_item'>"
-                "<property name='label'>Import Programs...</property>"
-              "</object>"
-            "</child>"
-            "<child>"
-              "<object class='GtkMenuItem' id='export_programs_item'>"
-                "<property name='label'>Export Programs...</property>"
-              "</object>"
-            "</child>"
-            "<child>"
-              "<object class='GtkSeparatorMenuItem' id='sep_3'>"
-              "</object>"
-            "</child>"
-            "<child>"
-              "<object class='GtkMenuItem' id='preferences_item'>"
-                "<property name='label'>Preferences...</property>"
-              "</object>"
-            "</child>"
-            "<child>"
-              "<object class='GtkSeparatorMenuItem' id='sep_4'>"
-              "</object>"
-            "</child>"
-            "<child>"
-              "<object class='GtkMenuItem' id='quit_item'>"
-                "<property name='label'>Quit</property>"
-                "<accelerator key='Q' signal='activate' modifiers='GDK_CONTROL_MASK'/>"
-              "</object>"
-            "</child>"
-          "</object>"
-        "</child>"
-      "</object>"
-    "</child>"
-    "<child>"
-      "<object class='GtkMenuItem' id='edit_item'>"
-        "<property name='label'>Edit</property>"
-        "<child type='submenu'>"
-          "<object class='GtkMenu' id='edit_menu'>"
-            "<child>"
-              "<object class='GtkMenuItem' id='copy_item'>"
-                "<property name='label'>Copy</property>"
-                "<accelerator key='C' signal='activate' modifiers='GDK_CONTROL_MASK'/>"
-              "</object>"
-            "</child>"
-            "<child>"
-              "<object class='GtkMenuItem' id='paste_item'>"
-                "<property name='label'>Paste</property>"
-                "<accelerator key='V' signal='activate' modifiers='GDK_CONTROL_MASK'/>"
-              "</object>"
-            "</child>"
-            "<child>"
-              "<object class='GtkSeparatorMenuItem' id='sep_5'>"
-              "</object>"
-            "</child>"
-            "<child>"
-              "<object class='GtkMenuItem' id='copy_printout_as_text_item'>"
-                "<property name='label'>Copy Print-Out as Text</property>"
-                "<accelerator key='T' signal='activate' modifiers='GDK_CONTROL_MASK'/>"
-              "</object>"
-            "</child>"
-            "<child>"
-              "<object class='GtkMenuItem' id='copy_printout_as_image_item'>"
-                "<property name='label'>Copy Print-Out as Image</property>"
-                "<accelerator key='I' signal='activate' modifiers='GDK_CONTROL_MASK'/>"
-              "</object>"
-            "</child>"
-            "<child>"
-              "<object class='GtkMenuItem' id='clear_printout_item'>"
-                "<property name='label'>Clear Print-Out</property>"
-              "</object>"
-            "</child>"
-          "</object>"
-        "</child>"
-      "</object>"
-    "</child>"
-    "<child>"
-      "<object class='GtkMenuItem' id='skin_item'>"
-        "<property name='label'>Skin</property>"
-        "<child type='submenu'>"
-          "<object class='GtkMenu' id='skin_menu'>"
-            "<!-- Skin items inserted programmatically here -->"
-          "</object>"
-        "</child>"
-      "</object>"
-    "</child>"
-    "<child>"
-      "<object class='GtkMenuItem' id='help_item'>"
-        "<property name='label'>Help</property>"
-        "<child type='submenu'>"
-          "<object class='GtkMenu' id='help_menu'>"
-            "<child>"
-              "<object class='GtkMenuItem' id='about_item'>"
-                "<property name='label'>About Free42...</property>"
-              "</object>"
+              "%s"
             "</child>"
           "</object>"
         "</child>"
       "</object>"
     "</child>"
   "</object>"
-"</interface>"
-  ;
+"</interface>";
 
-// TODO -- compact version with everything wrapped in a single menu
-static const char *menuBarXmlCompact =
-"<?xml version='1.0' encoding='UTF-8'?>"
-"<interface>"
-  "<!-- interface-requires gtk+ 3.0 -->"
-  "<object class='GtkMenuBar' id='menubar'>"
-    "<child>"
-      "<object class='GtkMenuItem' id='top_item'>"
-        "<property name='label'>Menu</property>"
-        "<child type='submenu'>"
-          "<object class='GtkMenu' id='top_menu'>"
-    "<child>"
-      "<object class='GtkMenuItem' id='file_item'>"
-        "<property name='label'>File</property>"
-        "<child type='submenu'>"
-          "<object class='GtkMenu' id='file_menu'>"
-            "<child>"
-              "<object class='GtkMenuItem' id='states_item'>"
-                "<property name='label'>States...</property>"
-              "</object>"
-            "</child>"
-            "<child>"
-              "<object class='GtkSeparatorMenuItem' id='sep_1'>"
-              "</object>"
-            "</child>"
-            "<child>"
-              "<object class='GtkMenuItem' id='show_printout_item'>"
-                "<property name='label'>Show Print-Out</property>"
-              "</object>"
-            "</child>"
-            "<child>"
-              "<object class='GtkMenuItem' id='paper_advance_item'>"
-                "<property name='label'>Paper Advance</property>"
-                "<accelerator key='A' signal='activate' modifiers='GDK_CONTROL_MASK'/>"
-              "</object>"
-            "</child>"
-            "<child>"
-              "<object class='GtkSeparatorMenuItem' id='sep_2'>"
-              "</object>"
-            "</child>"
-            "<child>"
-              "<object class='GtkMenuItem' id='import_programs_item'>"
-                "<property name='label'>Import Programs...</property>"
-              "</object>"
-            "</child>"
-            "<child>"
-              "<object class='GtkMenuItem' id='export_programs_item'>"
-                "<property name='label'>Export Programs...</property>"
-              "</object>"
-            "</child>"
-            "<child>"
-              "<object class='GtkSeparatorMenuItem' id='sep_3'>"
-              "</object>"
-            "</child>"
-            "<child>"
-              "<object class='GtkMenuItem' id='preferences_item'>"
-                "<property name='label'>Preferences...</property>"
-              "</object>"
-            "</child>"
-            "<child>"
-              "<object class='GtkSeparatorMenuItem' id='sep_4'>"
-              "</object>"
-            "</child>"
-            "<child>"
-              "<object class='GtkMenuItem' id='quit_item'>"
-                "<property name='label'>Quit</property>"
-                "<accelerator key='Q' signal='activate' modifiers='GDK_CONTROL_MASK'/>"
-              "</object>"
-            "</child>"
-          "</object>"
-        "</child>"
-      "</object>"
-    "</child>"
-    "<child>"
-      "<object class='GtkMenuItem' id='edit_item'>"
-        "<property name='label'>Edit</property>"
-        "<child type='submenu'>"
-          "<object class='GtkMenu' id='edit_menu'>"
-            "<child>"
-              "<object class='GtkMenuItem' id='copy_item'>"
-                "<property name='label'>Copy</property>"
-                "<accelerator key='C' signal='activate' modifiers='GDK_CONTROL_MASK'/>"
-              "</object>"
-            "</child>"
-            "<child>"
-              "<object class='GtkMenuItem' id='paste_item'>"
-                "<property name='label'>Paste</property>"
-                "<accelerator key='V' signal='activate' modifiers='GDK_CONTROL_MASK'/>"
-              "</object>"
-            "</child>"
-            "<child>"
-              "<object class='GtkSeparatorMenuItem' id='sep_5'>"
-              "</object>"
-            "</child>"
-            "<child>"
-              "<object class='GtkMenuItem' id='copy_printout_as_text_item'>"
-                "<property name='label'>Copy Print-Out as Text</property>"
-                "<accelerator key='T' signal='activate' modifiers='GDK_CONTROL_MASK'/>"
-              "</object>"
-            "</child>"
-            "<child>"
-              "<object class='GtkMenuItem' id='copy_printout_as_image_item'>"
-                "<property name='label'>Copy Print-Out as Image</property>"
-                "<accelerator key='I' signal='activate' modifiers='GDK_CONTROL_MASK'/>"
-              "</object>"
-            "</child>"
-            "<child>"
-              "<object class='GtkMenuItem' id='clear_printout_item'>"
-                "<property name='label'>Clear Print-Out</property>"
-              "</object>"
-            "</child>"
-          "</object>"
-        "</child>"
-      "</object>"
-    "</child>"
-    "<child>"
-      "<object class='GtkMenuItem' id='skin_item'>"
-        "<property name='label'>Skin</property>"
-        "<child type='submenu'>"
-          "<object class='GtkMenu' id='skin_menu'>"
-            "<!-- Skin items inserted programmatically here -->"
-          "</object>"
-        "</child>"
-      "</object>"
-    "</child>"
-    "<child>"
-      "<object class='GtkMenuItem' id='help_item'>"
-        "<property name='label'>Help</property>"
-        "<child type='submenu'>"
-          "<object class='GtkMenu' id='help_menu'>"
-            "<child>"
-              "<object class='GtkMenuItem' id='about_item'>"
-                "<property name='label'>About Free42...</property>"
-              "</object>"
-            "</child>"
-          "</object>"
-        "</child>"
-      "</object>"
-    "</child>"
-          "</object>"
-        "</child>"
-      "</object>"
-    "</child>"
-  "</object>"
-"</interface>"
-;
+static const char *compactMenuIntroXml =
+"<object class='GtkMenuItem' id='top_item'>"
+  "<property name='label'>Menu</property>"
+  "<child type='submenu'>"
+    "<object class='GtkMenu' id='top_menu'>"
+      "<child>";
+
+static const char *compactMenuOutroXml =
+      "</child>"
+    "</object>"
+  "</child>"
+"</object>";
 
 static int use_compactmenu = 0;
 static char *skin_arg = NULL;
@@ -625,10 +500,21 @@ static void activate(GtkApplication *theApp, gpointer userData) {
     /***** Build the main window *****/
     /*********************************/
 
+    char *xml = (char *) malloc(10240);
+    if (use_compactmenu)
+        sprintf(xml, mainWindowXml, compactMenuIntroXml, compactMenuOutroXml);
+    else
+        sprintf(xml, mainWindowXml, "", "");
+    GtkBuilder *builder = gtk_builder_new();
+    gtk_builder_add_from_string(builder, xml, -1, NULL);
+    free(xml);
+    GObject *obj = gtk_builder_get_object(builder, "window");
+    mainwindow = GTK_WIDGET(obj);
+    gtk_window_set_application(GTK_WINDOW(mainwindow), app);
+
     icon_128 = gdk_pixbuf_new_from_xpm_data((const char **) icon_128_xpm);
     icon_48 = gdk_pixbuf_new_from_xpm_data((const char **) icon_48_xpm);
 
-    mainwindow = gtk_application_window_new(GTK_APPLICATION(app));
     gtk_window_set_icon(GTK_WINDOW(mainwindow), icon_128);
     gtk_window_set_title(GTK_WINDOW(mainwindow), TITLE);
     gtk_window_set_role(GTK_WINDOW(mainwindow), "Free42 Calculator");
@@ -640,35 +526,12 @@ static void activate(GtkApplication *theApp, gpointer userData) {
         gtk_window_move(GTK_WINDOW(mainwindow), state.mainWindowX,
                                             state.mainWindowY);
 
-    /*
-    GtkAccelGroup *acc_grp = gtk_accel_group_new();
-    GtkItemFactory *fac = gtk_item_factory_new(GTK_TYPE_MENU_BAR,
-                                               "<Main>", acc_grp);
-    */
-    const char *menuBarXml;
-    if (use_compactmenu)
-        menuBarXml = menuBarXmlCompact;
-    else
-        menuBarXml = menuBarXmlNormal;
-    GtkBuilder *builder = gtk_builder_new();
-    gtk_builder_add_from_string(builder, menuBarXml, -1, NULL);
-    GObject *obj = gtk_builder_get_object(builder, "menubar");
-    GtkWidget *menubar = GTK_WIDGET(obj);
-    /*
-    gtk_window_add_accel_group(GTK_WINDOW(mainwindow), acc_grp);
-    GtkWidget *menubar = gtk_item_factory_get_widget(fac, "<Main>");
-    */
-
     // The "Skin" menu is dynamic; we don't populate any items in it here.
     // Instead, we attach a callback which scans the .free42 directory for
     // available skins; this callback is invoked when the menu is about to
     // be mapped.
     GtkMenuItem *item = GTK_MENU_ITEM(gtk_builder_get_object(builder, "skin_item"));
     g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(skin_menu_update), NULL);
-
-    GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-    gtk_container_add(GTK_CONTAINER(mainwindow), box);
-    gtk_box_pack_start(GTK_BOX(box), menubar, FALSE, FALSE, 0);
 
     item = GTK_MENU_ITEM(gtk_builder_get_object(builder, "states_item"));
     g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(statesCB), NULL);
@@ -696,12 +559,13 @@ static void activate(GtkApplication *theApp, gpointer userData) {
     g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(clearPrintOutCB), NULL);
     item = GTK_MENU_ITEM(gtk_builder_get_object(builder, "about_item"));
     g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(aboutCB), NULL);
-    // TODO handle skin menu
 
 
     /****************************************/
     /* Drawing area for the calculator skin */
     /****************************************/
+
+    GtkWidget *box = GTK_WIDGET(gtk_builder_get_object(builder, "box"));
 
     int win_width, win_height;
     skin_load(&win_width, &win_height);
@@ -1856,7 +1720,6 @@ static void statesCB() {
 //////////////////////////////////
 
 static void showPrintOutCB() {
-    //gtk_widget_show(printwindow);
     gtk_window_present(GTK_WINDOW(printwindow));
     gdk_window_focus(gtk_widget_get_window(printwindow), GDK_CURRENT_TIME);
     state.printWindowKnown = 1;
@@ -1891,7 +1754,6 @@ static void exportProgramCB() {
         select = gtk_tree_view_get_selection(tree);
         gtk_tree_selection_set_mode(select, GTK_SELECTION_MULTIPLE);
         GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
-        //gtk_cell_renderer_text_set_fixed_height_from_font((GtkCellRendererText *) renderer, 12);
         GtkTreeViewColumn *column = gtk_tree_view_column_new_with_attributes("Foo", renderer, "text", 0, NULL);
         gtk_tree_view_append_column(tree, column);
         gtk_tree_view_set_headers_visible(tree, FALSE);
