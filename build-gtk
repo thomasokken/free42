@@ -42,6 +42,7 @@ mkdir $PKGNAME
 cp gtk/README $PKGNAME
 cp gtk/free42bin $PKGNAME
 cp gtk/free42dec $PKGNAME
+cp gtk/icon-128x128.xpm $PKGNAME/free42icon-128x128.xpm
 strip $PKGNAME/free42bin
 strip $PKGNAME/free42dec
 mkdir -p packages

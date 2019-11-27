@@ -19,6 +19,24 @@ window, and the PC keyboard map); also, if you want to use a non-standard skin
 with Free42, the .free42 directory is where you have to store the skin's layout
 and bitmap files.
 
+If you're using GNOME 3, you can create a *.desktop file. Create it as
+$HOME/.local/share/applications/com.thomasokken.free42.desktop, with contents
+like this:
+
+  [Desktop Entry]
+  Comment=
+  Terminal=false
+  Name=Free42
+  Exec=/home/thomas/free42/free42dec
+  Type=Application
+  Icon=/home/thomas/free42/free42icon-128x128.xpm
+
+Change the /home/thomas/free42 part to where you have the free42dec executable
+and the icon.
+With this file in place, click on Activities and type Free42 in the search box;
+click on the Free42 icon that it finds, and then right-click on the Free42 icon
+that appears in the Favorites bar, and select Add to Favorites.
+
 
 Uninstalling Free42:
 
