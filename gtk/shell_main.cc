@@ -2344,8 +2344,13 @@ static gboolean draw_cb(GtkWidget *w, cairo_t *cr, gpointer cd) {
 
 static gboolean print_draw_cb(GtkWidget *w, cairo_t *cr, gpointer cd) {
     GdkRectangle clip;
+    /*
     if (!gdk_cairo_get_clip_rectangle(cr, &clip))
         gtk_widget_get_allocation(w, &clip);
+    */
+    gtk_widget_get_allocation(w, &clip);
+    cairo_rectangle(cr, clip.x, clip.y, clip.width, clip.height);
+    cairo_clip(cr);
     repaint_printout(clip.x, clip.y, clip.width, clip.height);
     return TRUE;
 }
@@ -2727,6 +2732,12 @@ static void repaint_printout(int x, int y, int width, int height) {
     */
     cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(print_widget));
     gdk_cairo_set_source_pixbuf(cr, buf, x, y);
+    GdkRectangle clip;
+    clip.x = x;
+    clip.y = y;
+    clip.width = width;
+    clip.height = height;
+    gdk_cairo_rectangle(cr, &clip);
     cairo_paint(cr);
     cairo_destroy(cr);
     g_object_unref(G_OBJECT(buf));
