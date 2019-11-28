@@ -36,6 +36,13 @@ CFLAGS = -MMD \
 	 -DDECIMAL_GLOBAL_EXCEPTION_FLAGS=1 \
 	 -DDECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS=1
 
+##############################################################################
+### Note that there are deprecation warnings while compiling shell_main.cc ###
+### and shell_skin.cc. I'll deal with those when I switch to a release     ###
+### build environment that has GTK+ 3.22 or later.                         ###
+### My current release build environment is Ubuntu 12.04 with GTK+ 3.4.2.  ###
+##############################################################################
+
 CXXFLAGS = $(CFLAGS) \
 	 -fno-exceptions \
 	 -fno-rtti \
