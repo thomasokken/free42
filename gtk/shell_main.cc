@@ -3080,26 +3080,7 @@ void shell_print(const char *text, int length,
         if (newlength != oldlength)
             gtk_widget_set_size_request(print_widget, 358, newlength);
         scroll_printout_to_bottom();
-        /*
-        int offset = 2 * height - newlength + oldlength;
-        GdkWindow *win = gtk_widget_get_window(print_widget);
-        if (print_gc == NULL)
-            print_gc = gdk_gc_new(win);
-        gdk_draw_drawable(win, print_gc, win,
-                          0, offset, 0, 0, 358, oldlength - offset);
-        */
-        // TODO This just repaints everything, because I haven't yet figured
-        // out how to scroll the existing content with Cairo.
-        cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(print_widget));
-        GdkRectangle clip;
-        clip.x = 0;
-        clip.y = 0;
-        clip.width = 358;
-        clip.height = newlength;
-        gdk_cairo_rectangle(cr, &clip);
-        cairo_clip(cr);
-        repaint_printout(cr);
-        cairo_destroy(cr);
+        gtk_widget_queue_draw(print_widget);
     } else {
         gtk_widget_set_size_request(print_widget, 358, newlength);
         // The resize request does not take effect immediately;
