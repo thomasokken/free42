@@ -1,3 +1,15 @@
+2019-11-28: release 2.5.12 (Windows and Linux)
+
+* Linux version: Switched from GTK 2 to 3, for HiDPI support.
+* Windows and Linux versions: Removed the "Single Instance" option. Both now
+  always run in Single Instance mode; what was removed was the possibility to
+  turn *off* Single Instance and allow multiple instances to run concurrently.
+  That never worked well, and in the Windows version, there was never any
+  reason to allow it. In the GTK version, there was a reason, which was that
+  Single Instance was hard to implement and did not work well in all
+  environments; with GTK 3, Single Instance is supported by the platform, and
+  there is no longer any reason not to use it.  
+
 2019-10-25: release 2.5.11
 
 * Windows version: Program export in "raw" format performed LF-to-CRLF
