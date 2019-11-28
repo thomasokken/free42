@@ -39,18 +39,18 @@ int skin_init_image(int type, int ncolors, const SkinColor *colors,
 void skin_put_pixels(unsigned const char *data);
 void skin_finish_image();
 
-void skin_repaint();
-void skin_repaint_annunciator(int which, bool state);
+void skin_repaint(cairo_t *cr);
+void skin_repaint_annunciator(cairo_t *cr, int which, bool state);
 void skin_find_key(int x, int y, bool cshift, int *key, int *code);
 int skin_find_skey(int ckey);
 unsigned char *skin_find_macro(int ckey, bool *is_name);
 unsigned char *skin_keymap_lookup(guint keyval, bool printable,
                                   bool ctrl, bool alt, bool shift, bool cshift,
                                   bool *exact);
-void skin_repaint_key(int key, bool state);
-void skin_display_blitter(const char *bits, int bytesperline, int x, int y,
-                                     int width, int height);
-void skin_repaint_display();
+void skin_repaint_key(cairo_t *cr, int key, bool state);
+void skin_display_blitter(cairo_t *cr, const char *bits, int bytesperline,
+                                int x, int y, int width, int height);
+void skin_repaint_display(cairo_t *cr);
 void skin_display_set_enabled(bool enable);
 
 #endif
