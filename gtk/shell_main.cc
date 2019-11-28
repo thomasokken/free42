@@ -178,7 +178,7 @@ static gboolean timeout1(gpointer cd);
 static gboolean timeout2(gpointer cd);
 static gboolean timeout3(gpointer cd);
 static gboolean battery_checker(gpointer cd);
-static void repaint_printout(int x, int y, int width, int height);
+static void repaint_printout(cairo_t *cr);
 static gboolean reminder(gpointer cd);
 static void txt_writer(const char *text, int length);
 static void txt_newliner();
@@ -388,6 +388,114 @@ static void activate(GtkApplication *theApp, gpointer userData) {
     }
 
     app = theApp;
+
+    /*
+    GtkCssProvider *cssProv = gtk_css_provider_new();
+    gtk_css_provider_load_from_data(cssProv,
+".overshoot.top {\n"
+"  background-image: none;\n"
+"  background-size: 100% 5%, 100% 100%;\n"
+"  background-repeat: no-repeat;\n"
+"  background-position: center top;\n"
+"  background-color: transparent;\n"
+"  border: none;\n"
+"  box-shadow: none; }\n"
+"  .overshoot.top:backdrop {\n"
+"    background-image: none;\n"
+"    background-size: 100% 5%;\n"
+"    background-repeat: no-repeat;\n"
+"    background-position: center top;\n"
+"    background-color: transparent;\n"
+"    border: none;\n"
+"    box-shadow: none; }\n"
+".overshoot.bottom {\n"
+"  background-image: none;\n"
+"  background-size: 100% 5%, 100% 100%;\n"
+"  background-repeat: no-repeat;\n"
+"  background-position: center bottom;\n"
+"  background-color: transparent;\n"
+"  border: none;\n"
+"  box-shadow: none; }\n"
+"  .overshoot.bottom:backdrop {\n"
+"    background-image: none;\n"
+"    background-size: 100% 5%;\n"
+"    background-repeat: no-repeat;\n"
+"    background-position: center bottom;\n"
+"    background-color: transparent;\n"
+"    border: none;\n"
+"    box-shadow: none; }\n"
+".overshoot.left {\n"
+"  background-image: none;\n"
+"  background-size: 5% 100%, 100% 100%;\n"
+"  background-repeat: no-repeat;\n"
+"  background-position: left center;\n"
+"  background-color: transparent;\n"
+"  border: none;\n"
+"  box-shadow: none; }\n"
+"  .overshoot.left:backdrop {\n"
+"    background-image: none;\n"
+"    background-size: 5% 100%;\n"
+"    background-repeat: no-repeat;\n"
+"    background-position: left center;\n"
+"    background-color: transparent;\n"
+"    border: none;\n"
+"    box-shadow: none; }\n"
+".overshoot.right {\n"
+"  background-image: none;\n"
+"  background-size: 5% 100%, 100% 100%;\n"
+"  background-repeat: no-repeat;\n"
+"  background-position: right center;\n"
+"  background-color: transparent;\n"
+"  border: none;\n"
+"  box-shadow: none; }\n"
+"  .overshoot.right:backdrop {\n"
+"    background-image: none;\n"
+"    background-size: 5% 100%;\n"
+"    background-repeat: no-repeat;\n"
+"    background-position: right center;\n"
+"    background-color: transparent;\n"
+"    border: none;\n"
+"    box-shadow: none; }\n"
+"    \n"
+".undershoot.top {\n"
+"  background-color: transparent;\n"
+"  background-image: none;\n"
+"  padding-top: 1px;\n"
+"  background-size: 10px 1px;\n"
+"  background-repeat: repeat-x;\n"
+"  background-origin: content-box;\n"
+"  background-position: center top; }\n"
+".undershoot.bottom {\n"
+"  background-color: transparent;\n"
+"  background-image: none;\n"
+"  padding-bottom: 1px;\n"
+"  background-size: 10px 1px;\n"
+"  background-repeat: repeat-x;\n"
+"  background-origin: content-box;\n"
+"  background-position: center bottom; }\n"
+".undershoot.left {\n"
+"  background-color: transparent;\n"
+"  background-image: none;\n"
+"  padding-left: 1px;\n"
+"  background-size: 1px 10px;\n"
+"  background-repeat: repeat-y;\n"
+"  background-origin: content-box;\n"
+"  background-position: left center; }\n"
+".undershoot.right {\n"
+"  background-color: transparent;\n"
+"  background-image: none;\n"
+"  padding-right: 1px;\n"
+"  background-size: 1px 10px;\n"
+"  background-repeat: repeat-y;\n"
+"  background-origin: content-box;\n"
+"  background-position: right center; }"
+    , -1, NULL);
+    //gtk_css_provider_load_from_data(cssProv, ".overshoot.top { background: none; }\n.overshoot.left { background: none; }\n.overshoot.bottom { background: none; }\n.overshoot.right { background: none; }\n", -1, NULL);
+    gtk_css_provider_load_from_data(cssProv, "overshoot { background: transparent; border:none; }", -1, NULL);
+    //gtk_css_provider_load_from_data(cssProv, "label { color: red; }", -1, NULL);
+    gtk_style_context_add_provider_for_screen(gdk_screen_get_default(), GTK_STYLE_PROVIDER(cssProv),
+            GTK_STYLE_PROVIDER_PRIORITY_USER + 1);
+    */
 
     // Capture state of decimal_point, which may have been changed by
     // gtk_init(), and then set it to the C locale, because the binary/decimal
@@ -2343,15 +2451,7 @@ static gboolean draw_cb(GtkWidget *w, cairo_t *cr, gpointer cd) {
 }
 
 static gboolean print_draw_cb(GtkWidget *w, cairo_t *cr, gpointer cd) {
-    GdkRectangle clip;
-    /*
-    if (!gdk_cairo_get_clip_rectangle(cr, &clip))
-        gtk_widget_get_allocation(w, &clip);
-    */
-    gtk_widget_get_allocation(w, &clip);
-    cairo_rectangle(cr, clip.x, clip.y, clip.width, clip.height);
-    cairo_clip(cr);
-    repaint_printout(clip.x, clip.y, clip.width, clip.height);
+    repaint_printout(cr);
     return TRUE;
 }
 
@@ -2693,22 +2793,26 @@ static gboolean battery_checker(gpointer cd) {
     return TRUE;
 }
 
-static void repaint_printout(int x, int y, int width, int height) {
+static void repaint_printout(cairo_t *cr) {
+    GdkRectangle clip;
+    if (!gdk_cairo_get_clip_rectangle(cr, &clip))
+        gtk_widget_get_allocation(print_widget, &clip);
+
     GdkPixbuf *buf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, FALSE,
-                                    8, width, height);
+                                    8, clip.width, clip.height);
     int d_bpl = gdk_pixbuf_get_rowstride(buf);
     guchar *d1 = gdk_pixbuf_get_pixels(buf);
     int length = printout_bottom - printout_top;
     if (length < 0)
         length += PRINT_LINES;
 
-    for (int v = y; v < y + height; v++) {
+    for (int v = clip.y; v < clip.y + clip.height; v++) {
         int v2 = printout_top + v;
         if (v2 >= PRINT_LINES)
             v2 -= PRINT_LINES;
         int v3 = v2 * 36;
         guchar *dst = d1;
-        for (int h = x; h < x + width; h++) {
+        for (int h = clip.x; h < clip.x + clip.width; h++) {
             unsigned char c;
             if (v >= length)
                 c = 127;
@@ -2725,21 +2829,8 @@ static void repaint_printout(int x, int y, int width, int height) {
         d1 += d_bpl;
     }
 
-    /*
-    gdk_draw_pixbuf(gtk_widget_get_window(print_widget), NULL, buf,
-                    0, 0, x, y, width, height,
-                    GDK_RGB_DITHER_MAX, 0, 0);
-    */
-    cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(print_widget));
-    gdk_cairo_set_source_pixbuf(cr, buf, x, y);
-    GdkRectangle clip;
-    clip.x = x;
-    clip.y = y;
-    clip.width = width;
-    clip.height = height;
-    gdk_cairo_rectangle(cr, &clip);
+    gdk_cairo_set_source_pixbuf(cr, buf, clip.x, clip.y);
     cairo_paint(cr);
-    cairo_destroy(cr);
     g_object_unref(G_OBJECT(buf));
 }
 
@@ -3016,7 +3107,16 @@ static gboolean print_widget_grew(GtkWidget *w, GdkEventConfigure *event,
                                                                 gpointer cd) {
     print_growth_info *info = (print_growth_info *) cd;
     scroll_printout_to_bottom();
-    repaint_printout(0, info->y, 358, info->height);
+    cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(print_widget));
+    GdkRectangle clip;
+    clip.x = 0;
+    clip.y = info->y;
+    clip.width = 358;
+    clip.height = info->height;
+    gdk_cairo_rectangle(cr, &clip);
+    cairo_clip(cr);
+    repaint_printout(cr);
+    cairo_destroy(cr);
     g_signal_handlers_disconnect_by_func(G_OBJECT(w), (gpointer) print_widget_grew, cd);
     delete info;
     return FALSE;
@@ -3068,9 +3168,18 @@ void shell_print(const char *text, int length,
         gdk_draw_drawable(win, print_gc, win,
                           0, offset, 0, 0, 358, oldlength - offset);
         */
-        // TODO This just repaints everything, because I couldn't figure
+        // TODO This just repaints everything, because I haven't yet figured
         // out how to scroll the existing content with Cairo.
-        repaint_printout(0, 0, 358, newlength);
+        cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(print_widget));
+        GdkRectangle clip;
+        clip.x = 0;
+        clip.y = 0;
+        clip.width = 358;
+        clip.height = newlength;
+        gdk_cairo_rectangle(cr, &clip);
+        cairo_clip(cr);
+        repaint_printout(cr);
+        cairo_destroy(cr);
     } else {
         gtk_widget_set_size_request(print_widget, 358, newlength);
         // The resize request does not take effect immediately;
