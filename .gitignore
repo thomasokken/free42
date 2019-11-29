@@ -205,8 +205,6 @@
 
 # /util/
 /util/.DS_Store
-/util/txt2html
-/util/txt2html.exe
 
 # /windows/
 /windows/*.ncb

@@ -2355,9 +2355,6 @@ static gboolean print_key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
 
     if (event->type != GDK_KEY_PRESS)
         return TRUE;
-    if (event->hardware_keycode == active_keycode)
-        // Auto-repeat
-        return TRUE;
 
     bool ctrl = (event->state & GDK_CONTROL_MASK) != 0;
     bool alt = (event->state & GDK_MOD1_MASK) != 0;
@@ -2946,7 +2943,7 @@ int shell_low_battery() {
          *
          * Assuming status will always be "Discharging" when the system is
          * actually running on battery (it could also be "Full", but then it is
-         * definitely now low!), and that capacity is a number between 0 and
+         * definitely not low!), and that capacity is a number between 0 and
          * 100. The choice of 10% or less as being "low" is completely
          * arbitrary.
          * Checking BATn where n = 0, 1, or 2. Some docs suggest BAT0 should

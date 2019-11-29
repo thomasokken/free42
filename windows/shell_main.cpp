@@ -291,7 +291,13 @@ static void MyRegisterClass(HINSTANCE hInstance)
 //
 static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-    RECT r;
+    HWND hPrevWnd = FindWindow(szMainWindowClass, szMainTitle);
+    if (hPrevWnd != NULL) {
+        if (IsIconic(hPrevWnd))
+            OpenIcon(hPrevWnd);
+        SetForegroundWindow(hPrevWnd);
+        return FALSE;
+    }
 
     hInst = hInstance; // Store instance handle in our global variable
 
@@ -392,13 +398,7 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		}
     }
 
-    HWND hPrevWnd = FindWindow(szMainWindowClass, szMainTitle);
-    if (hPrevWnd != NULL) {
-        if (IsIconic(hPrevWnd))
-            OpenIcon(hPrevWnd);
-        SetForegroundWindow(hPrevWnd);
-        return FALSE;
-    }
+    RECT r;
 
     skin_load(state.skinName, free42dirname, &r.right, &r.bottom);
     r.top = 0;

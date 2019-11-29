@@ -2,8 +2,5 @@
 
 # This script builds a minimally HTMLified version of HISTORY.
 
-cd util
-cc -o txt2html txt2html.c
-cd ..
-util/txt2html "Free42 history" < HISTORY > history.html
-mv history.html packages
+mkdir -p packages
+util/txt2html.py "Free42 history" < HISTORY > packages/history.html
