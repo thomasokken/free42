@@ -2803,14 +2803,7 @@ static void gif_writer(const char *text, int length) {
 
 void shell_blitter(const char *bits, int bytesperline, int x, int y,
                                      int width, int height) {
-    GdkWindow *win = gtk_widget_get_window(calc_widget);
-    cairo_t *cr = gdk_cairo_create(win);
-
-    skin_display_blitter(cr, bits, bytesperline, x, y, width, height);
-    if (skey >= -7 && skey <= -2)
-        skin_repaint_key(cr, skey, 1);
-
-    cairo_destroy(cr);
+    skin_display_blitter(bits, bytesperline, x, y, width, height);
 }
 
 void shell_beeper(int frequency, int duration) {
