@@ -48,7 +48,7 @@ unsigned char *skin_keymap_lookup(guint keyval, bool printable,
                                   bool ctrl, bool alt, bool shift, bool cshift,
                                   bool *exact);
 void skin_repaint_key(cairo_t *cr, int key, bool state);
-void skin_display_blitter(cairo_t *cr, const char *bits, int bytesperline,
+void skin_display_blitter(const char *bits, int bytesperline,
                                 int x, int y, int width, int height);
 void skin_repaint_display(cairo_t *cr);
 void skin_display_set_enabled(bool enable);

@@ -762,7 +762,7 @@ void skin_repaint_key(cairo_t *cr, int key, bool state) {
     cairo_restore(cr);
 }
 
-void skin_display_blitter(cairo_t *cr, const char *bits, int bytesperline,
+void skin_display_blitter(const char *bits, int bytesperline,
                                         int x, int y, int width, int height) {
     guchar *pix = gdk_pixbuf_get_pixels(disp_image);
     int disp_bpl = gdk_pixbuf_get_rowstride(disp_image);
@@ -786,19 +786,11 @@ void skin_display_blitter(cairo_t *cr, const char *bits, int bytesperline,
                 }
             }
         }
-    if (allow_paint && display_enabled) {
-        gdk_cairo_set_source_pixbuf(cr, disp_image, display_loc.x, display_loc.y);
-        GdkRectangle clip;
-        clip.x = display_loc.x + x * sx;
-        clip.y = display_loc.y + y * sy;
-        clip.width = width * sx;
-        clip.height = height * sy;
-        gdk_cairo_rectangle(cr, &clip);
-        cairo_save(cr);
-        cairo_clip(cr);
-        cairo_paint(cr);
-        cairo_restore(cr);
-    }
+    gtk_widget_queue_draw_area(calc_widget,
+            display_loc.x - display_scale.x,
+            display_loc.y - display_scale.y,
+            133 * display_scale.x,
+            18 * display_scale.y);
 }
 
 void skin_repaint_display(cairo_t *cr) {
