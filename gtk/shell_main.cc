@@ -896,7 +896,10 @@ static void init_shell_state(int4 version) {
             core_settings.auto_repeat = true;
             /* fall through */
         case 6:
-            /* current version (SHELL_VERSION = 6),
+            state.old_repaint = false;
+            /* fall through */
+        case 7:
+            /* current version (SHELL_VERSION = 7),
              * so nothing to do here since everything
              * was initialized from the state file.
              */
@@ -2104,6 +2107,7 @@ static void preferencesCB() {
     static GtkWidget *printtogif;
     static GtkWidget *gifpath;
     static GtkWidget *gifheight;
+    static GtkWidget *oldrepaint;
 
     if (dialog == NULL) {
         dialog = gtk_dialog_new_with_buttons(
@@ -2142,6 +2146,8 @@ static void preferencesCB() {
         gifheight = gtk_entry_new();
         gtk_entry_set_max_length(GTK_ENTRY(gifheight), 5);
         gtk_grid_attach(GTK_GRID(grid), gifheight, 2, 5, 1, 1);
+        oldrepaint = gtk_check_button_new_with_label("Old display update logic");
+        gtk_grid_attach(GTK_GRID(grid), oldrepaint, 0, 6, 4, 1);
 
         g_signal_connect(G_OBJECT(browse1), "clicked", G_CALLBACK(browse_file),
                 (gpointer) new browse_file_info("Select Text File Name",
@@ -2165,6 +2171,7 @@ static void preferencesCB() {
     char maxlen[6];
     snprintf(maxlen, 6, "%d", state.printerGifMaxLength);
         gtk_entry_set_text(GTK_ENTRY(gifheight), maxlen);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(oldrepaint), state.old_repaint);
 
     gtk_window_set_role(GTK_WINDOW(dialog), "Free42 Dialog");
     if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
@@ -2205,6 +2212,8 @@ static void preferencesCB() {
             else if (state.printerGifMaxLength > 32767) state.printerGifMaxLength = 32767;
         } else
             state.printerGifMaxLength = 256;
+
+        state.old_repaint = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(oldrepaint));
     }
 
     gtk_widget_hide(GTK_WIDGET(dialog));
@@ -2800,7 +2809,18 @@ static void gif_writer(const char *text, int length) {
 
 void shell_blitter(const char *bits, int bytesperline, int x, int y,
                                      int width, int height) {
-    skin_display_blitter(bits, bytesperline, x, y, width, height);
+    if (state.old_repaint) {
+        GdkWindow *win = gtk_widget_get_window(calc_widget);
+        cairo_t *cr = gdk_cairo_create(win);
+
+        skin_display_blitter(cr, bits, bytesperline, x, y, width, height);
+        if (skey >= -7 && skey <= -2)
+            skin_repaint_key(cr, skey, 1);
+
+        cairo_destroy(cr);
+    } else {
+        skin_display_blitter(NULL, bits, bytesperline, x, y, width, height);
+    }
 }
 
 void shell_beeper(int frequency, int duration) {
