@@ -1,3 +1,14 @@
+2019-12-01: release 2.5.12a (Linux only)
+
+* In scaled mode (GDK_SCALE greater than 1), bitmap smoothing causes drawing of
+  the display bitmap to bleed outside the display rectangle, and this can lead
+  to thin dark lines being left behind around the display, and that looks ugly.
+  A similar problem exists in the Android version, and I implemented a similar
+  fix here, namely, to always repaint the entire display when the core updates
+  it, and to update a slightly larger rectangle than the display itself.
+  Because this fix can cause programs to run slower on older systems, I added
+  an option to Preferences to switch back to using the old logic.
+
 2019-11-28: release 2.5.12 (Windows and Linux)
 
 * Linux version: Switched from GTK 2 to 3, for HiDPI support.
