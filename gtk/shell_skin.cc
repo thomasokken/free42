@@ -726,7 +726,6 @@ void skin_repaint_key(cairo_t *cr, int key, bool state) {
             cairo_restore(cr);
         } else {
             // Repaint the screen
-            gdk_cairo_set_source_pixbuf(cr, disp_image, display_loc.x, display_loc.y);
             GdkRectangle clip;
             clip.x = display_loc.x + x;
             clip.y = display_loc.y + y;
@@ -735,6 +734,9 @@ void skin_repaint_key(cairo_t *cr, int key, bool state) {
             gdk_cairo_rectangle(cr, &clip);
             cairo_save(cr);
             cairo_clip(cr);
+            cairo_set_source_rgb(cr, display_bg.r / 255.0, display_bg.g / 255.0, display_bg.b / 255.0);
+            cairo_paint(cr);
+            gdk_cairo_set_source_pixbuf(cr, disp_image, display_loc.x, display_loc.y);
             cairo_paint(cr);
             cairo_restore(cr);
         }
@@ -788,7 +790,6 @@ void skin_display_blitter(cairo_t *cr, const char *bits, int bytesperline,
         }
     if (cr != NULL) {
         if (allow_paint && display_enabled) {
-            gdk_cairo_set_source_pixbuf(cr, disp_image, display_loc.x, display_loc.y);
             GdkRectangle clip;
             clip.x = display_loc.x + x * sx;
             clip.y = display_loc.y + y * sy;
@@ -797,6 +798,9 @@ void skin_display_blitter(cairo_t *cr, const char *bits, int bytesperline,
             gdk_cairo_rectangle(cr, &clip);
             cairo_save(cr);
             cairo_clip(cr);
+            cairo_set_source_rgb(cr, display_bg.r / 255.0, display_bg.g / 255.0, display_bg.b / 255.0);
+            cairo_paint(cr);
+            gdk_cairo_set_source_pixbuf(cr, disp_image, display_loc.x, display_loc.y);
             cairo_paint(cr);
             cairo_restore(cr);
         }
@@ -811,7 +815,6 @@ void skin_display_blitter(cairo_t *cr, const char *bits, int bytesperline,
 
 void skin_repaint_display(cairo_t *cr) {
     if (display_enabled) {
-        gdk_cairo_set_source_pixbuf(cr, disp_image, display_loc.x, display_loc.y);
         GdkRectangle clip;
         clip.x = display_loc.x;
         clip.y = display_loc.y;
@@ -820,6 +823,9 @@ void skin_repaint_display(cairo_t *cr) {
         gdk_cairo_rectangle(cr, &clip);
         cairo_save(cr);
         cairo_clip(cr);
+        cairo_set_source_rgb(cr, display_bg.r / 255.0, display_bg.g / 255.0, display_bg.b / 255.0);
+        cairo_paint(cr);
+        gdk_cairo_set_source_pixbuf(cr, disp_image, display_loc.x, display_loc.y);
         cairo_paint(cr);
         cairo_restore(cr);
     }

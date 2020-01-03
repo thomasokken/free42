@@ -896,7 +896,7 @@ static void init_shell_state(int4 version) {
             core_settings.auto_repeat = true;
             /* fall through */
         case 6:
-            state.old_repaint = false;
+            state.old_repaint = true;
             /* fall through */
         case 7:
             /* current version (SHELL_VERSION = 7),
@@ -2102,12 +2102,12 @@ static void preferencesCB() {
     static GtkWidget *singularmatrix;
     static GtkWidget *matrixoutofrange;
     static GtkWidget *autorepeat;
+    static GtkWidget *repaintwholedisplay;
     static GtkWidget *printtotext;
     static GtkWidget *textpath;
     static GtkWidget *printtogif;
     static GtkWidget *gifpath;
     static GtkWidget *gifheight;
-    static GtkWidget *oldrepaint;
 
     if (dialog == NULL) {
         dialog = gtk_dialog_new_with_buttons(
@@ -2129,25 +2129,25 @@ static void preferencesCB() {
         gtk_grid_attach(GTK_GRID(grid), matrixoutofrange, 0, 1, 4, 1);
         autorepeat = gtk_check_button_new_with_label("Auto-repeat for number entry and ALPHA mode");
         gtk_grid_attach(GTK_GRID(grid), autorepeat, 0, 2, 4, 1);
+        repaintwholedisplay = gtk_check_button_new_with_label("Always repaint entire display");
+        gtk_grid_attach(GTK_GRID(grid), repaintwholedisplay, 0, 3, 4, 1);
         printtotext = gtk_check_button_new_with_label("Print to text file:");
-        gtk_grid_attach(GTK_GRID(grid), printtotext, 0, 3, 1, 1);
+        gtk_grid_attach(GTK_GRID(grid), printtotext, 0, 4, 1, 1);
         textpath = gtk_entry_new();
-        gtk_grid_attach(GTK_GRID(grid), textpath, 1, 3, 2, 1);
+        gtk_grid_attach(GTK_GRID(grid), textpath, 1, 4, 2, 1);
         GtkWidget *browse1 = gtk_button_new_with_label("Browse...");
-        gtk_grid_attach(GTK_GRID(grid), browse1, 3, 3, 1, 1);
+        gtk_grid_attach(GTK_GRID(grid), browse1, 3, 4, 1, 1);
         printtogif = gtk_check_button_new_with_label("Print to GIF file:");
-        gtk_grid_attach(GTK_GRID(grid), printtogif, 0, 4, 1, 1);
+        gtk_grid_attach(GTK_GRID(grid), printtogif, 0, 5, 1, 1);
         gifpath = gtk_entry_new();
-        gtk_grid_attach(GTK_GRID(grid), gifpath, 1, 4, 2, 1);
+        gtk_grid_attach(GTK_GRID(grid), gifpath, 1, 5, 2, 1);
         GtkWidget *browse2 = gtk_button_new_with_label("Browse...");
-        gtk_grid_attach(GTK_GRID(grid), browse2, 3, 4, 1, 1);
+        gtk_grid_attach(GTK_GRID(grid), browse2, 3, 5, 1, 1);
         GtkWidget *label = gtk_label_new("Maximum GIF height (pixels):");
-        gtk_grid_attach(GTK_GRID(grid), label, 1, 5, 1, 1);
+        gtk_grid_attach(GTK_GRID(grid), label, 1, 6, 1, 1);
         gifheight = gtk_entry_new();
         gtk_entry_set_max_length(GTK_ENTRY(gifheight), 5);
-        gtk_grid_attach(GTK_GRID(grid), gifheight, 2, 5, 1, 1);
-        oldrepaint = gtk_check_button_new_with_label("Old display update logic");
-        gtk_grid_attach(GTK_GRID(grid), oldrepaint, 0, 6, 4, 1);
+        gtk_grid_attach(GTK_GRID(grid), gifheight, 2, 6, 1, 1);
 
         g_signal_connect(G_OBJECT(browse1), "clicked", G_CALLBACK(browse_file),
                 (gpointer) new browse_file_info("Select Text File Name",
@@ -2171,7 +2171,7 @@ static void preferencesCB() {
     char maxlen[6];
     snprintf(maxlen, 6, "%d", state.printerGifMaxLength);
         gtk_entry_set_text(GTK_ENTRY(gifheight), maxlen);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(oldrepaint), state.old_repaint);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(repaintwholedisplay), !state.old_repaint);
 
     gtk_window_set_role(GTK_WINDOW(dialog), "Free42 Dialog");
     if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
@@ -2213,7 +2213,7 @@ static void preferencesCB() {
         } else
             state.printerGifMaxLength = 256;
 
-        state.old_repaint = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(oldrepaint));
+        state.old_repaint = !gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(repaintwholedisplay));
     }
 
     gtk_widget_hide(GTK_WIDGET(dialog));
