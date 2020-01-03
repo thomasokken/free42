@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Free42 -- an HP-42S calculator simulator
-// Copyright (C) 2004-2019  Thomas Okken
+// Copyright (C) 2004-2020  Thomas Okken
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License, version 2,
@@ -58,8 +58,6 @@ bool allow_paint = false;
 
 state_type state;
 char free42dirname[FILENAMELEN];
-
-static bool no_unsolicited_repaints = true;
 
 
 /* PRINT_LINES is limited to an even lower value than in the Motif version.
@@ -2297,7 +2295,7 @@ static void aboutCB() {
         GtkWidget *version = gtk_label_new("Free42 " VERSION);
         gtk_misc_set_alignment(GTK_MISC(version), 0, 0);
         gtk_box_pack_start(GTK_BOX(box2), version, FALSE, FALSE, 10);
-        GtkWidget *author = gtk_label_new("(C) 2004-2019 Thomas Okken");
+        GtkWidget *author = gtk_label_new("(C) 2004-2020 Thomas Okken");
         gtk_misc_set_alignment(GTK_MISC(author), 0, 0);
         gtk_box_pack_start(GTK_BOX(box2), author, FALSE, FALSE, 0);
         GtkWidget *websitelink = gtk_link_button_new("https://thomasokken.com/free42/");
@@ -2398,15 +2396,11 @@ static gboolean print_key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
 
 static void shell_keydown() {
     GdkWindow *win = gtk_widget_get_window(calc_widget);
-    cairo_t *cr = gdk_cairo_create(win);
 
     int repeat, keep_running;
     if (skey == -1)
         skey = skin_find_skey(ckey);
-    if (no_unsolicited_repaints)
-        skin_invalidate_key(win, skey);
-    else
-        skin_repaint_key(cr, skey, 1);
+    skin_invalidate_key(win, skey);
     if (timeout3_id != 0 && (macro != NULL || ckey != 28 /* KEY_SHIFT */)) {
         g_source_remove(timeout3_id);
         timeout3_id = 0;
@@ -2431,32 +2425,19 @@ static void shell_keydown() {
             }
             if (!one_key_macro) {
                 skin_display_set_enabled(true);
-                if (no_unsolicited_repaints) {
-                    skin_invalidate_display(win);
-                    skin_invalidate_annunciator(win, 1);
-                    skin_invalidate_annunciator(win, 2);
-                    skin_invalidate_annunciator(win, 3);
-                    skin_invalidate_annunciator(win, 4);
-                    skin_invalidate_annunciator(win, 5);
-                    skin_invalidate_annunciator(win, 6);
-                    skin_invalidate_annunciator(win, 7);
-                } else {
-                    skin_repaint_display(cr);
-                    skin_repaint_annunciator(cr, 1, ann_updown);
-                    skin_repaint_annunciator(cr, 2, ann_shift);
-                    skin_repaint_annunciator(cr, 3, ann_print);
-                    skin_repaint_annunciator(cr, 4, ann_run);
-                    skin_repaint_annunciator(cr, 5, ann_battery);
-                    skin_repaint_annunciator(cr, 6, ann_g);
-                    skin_repaint_annunciator(cr, 7, ann_rad);
-                }
+                skin_invalidate_display(win);
+                skin_invalidate_annunciator(win, 1);
+                skin_invalidate_annunciator(win, 2);
+                skin_invalidate_annunciator(win, 3);
+                skin_invalidate_annunciator(win, 4);
+                skin_invalidate_annunciator(win, 5);
+                skin_invalidate_annunciator(win, 6);
+                skin_invalidate_annunciator(win, 7);
                 repeat = 0;
             }
         }
     } else
         keep_running = core_keydown(ckey, &enqueued, &repeat);
-
-    cairo_destroy(cr);
 
     if (quit_flag)
         quit();
@@ -2475,12 +2456,7 @@ static void shell_keydown() {
 
 static void shell_keyup() {
     GdkWindow *win = gtk_widget_get_window(calc_widget);
-    cairo_t *cr = gdk_cairo_create(win);
-    if (no_unsolicited_repaints)
-        skin_invalidate_key(win, skey);
-    else
-        skin_repaint_key(cr, skey, 0);
-    cairo_destroy(cr);
+    skin_invalidate_key(win, skey);
 
     ckey = 0;
     skey = -1;
@@ -2830,21 +2806,12 @@ void shell_blitter(const char *bits, int bytesperline, int x, int y,
                                      int width, int height) {
     if (state.old_repaint) {
         GdkWindow *win = gtk_widget_get_window(calc_widget);
-        cairo_t *cr = gdk_cairo_create(win);
 
-        if (no_unsolicited_repaints)
-            skin_display_invalidater(win, bits, bytesperline, x, y, width, height);
-        else
-            skin_display_blitter(cr, bits, bytesperline, x, y, width, height);
+        skin_display_invalidater(win, bits, bytesperline, x, y, width, height);
         if (skey >= -7 && skey <= -2)
-            skin_repaint_key(cr, skey, 1);
-
-        cairo_destroy(cr);
+            skin_invalidate_key(win, skey);
     } else {
-        if (no_unsolicited_repaints)
-            skin_display_invalidater(NULL, bits, bytesperline, x, y, width, height);
-        else
-            skin_display_blitter(NULL, bits, bytesperline, x, y, width, height);
+        skin_display_invalidater(NULL, bits, bytesperline, x, y, width, height);
     }
 }
 
@@ -2863,16 +2830,11 @@ void shell_beeper(int frequency, int duration) {
 
 static gboolean ann_print_timeout(gpointer cd) {
     GdkWindow *win = gtk_widget_get_window(calc_widget);
-    cairo_t *cr = gdk_cairo_create(win);
 
     ann_print_timeout_id = 0;
     ann_print = 0;
-    if (no_unsolicited_repaints)
-        skin_invalidate_annunciator(win, 3);
-    else
-        skin_repaint_annunciator(cr, 3, ann_print);
+    skin_invalidate_annunciator(win, 3);
 
-    cairo_destroy(cr);
     return FALSE;
 }
 
@@ -2882,21 +2844,14 @@ const char *shell_platform() {
 
 void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
     GdkWindow *win = gtk_widget_get_window(calc_widget);
-    cairo_t *cr = gdk_cairo_create(win);
 
     if (updn != -1 && ann_updown != updn) {
         ann_updown = updn;
-        if (no_unsolicited_repaints)
-            skin_invalidate_annunciator(win, 1);
-        else
-            skin_repaint_annunciator(cr, 1, ann_updown);
+        skin_invalidate_annunciator(win, 1);
     }
     if (shf != -1 && ann_shift != shf) {
         ann_shift = shf;
-        if (no_unsolicited_repaints)
-            skin_invalidate_annunciator(win, 2);
-        else
-            skin_repaint_annunciator(cr, 2, ann_shift);
+        skin_invalidate_annunciator(win, 2);
     }
     if (prt != -1) {
         if (ann_print_timeout_id != 0) {
@@ -2906,37 +2861,23 @@ void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
         if (ann_print != prt)
             if (prt) {
                 ann_print = 1;
-                if (no_unsolicited_repaints)
-                    skin_invalidate_annunciator(win, 3);
-                else
-                    skin_repaint_annunciator(cr, 3, ann_print);
+                skin_invalidate_annunciator(win, 3);
             } else {
                 ann_print_timeout_id = g_timeout_add(1000, ann_print_timeout, NULL);
             }
     }
     if (run != -1 && ann_run != run) {
         ann_run = run;
-        if (no_unsolicited_repaints)
-            skin_invalidate_annunciator(win, 4);
-        else
-            skin_repaint_annunciator(cr, 4, ann_run);
+        skin_invalidate_annunciator(win, 4);
     }
     if (g != -1 && ann_g != g) {
         ann_g = g;
-        if (no_unsolicited_repaints)
-            skin_invalidate_annunciator(win, 6);
-        else
-            skin_repaint_annunciator(cr, 6, ann_g);
+        skin_invalidate_annunciator(win, 6);
     }
     if (rad != -1 && ann_rad != rad) {
         ann_rad = rad;
-        if (no_unsolicited_repaints)
-            skin_invalidate_annunciator(win, 7);
-        else
-            skin_repaint_annunciator(cr, 7, ann_rad);
+        skin_invalidate_annunciator(win, 7);
     }
-
-    cairo_destroy(cr);
 }
 
 int shell_wants_cpu() {
@@ -3037,13 +2978,7 @@ int shell_low_battery() {
         ann_battery = lowbat;
         if (allow_paint) {
             GdkWindow *win = gtk_widget_get_window(calc_widget);
-            if (no_unsolicited_repaints) {
-                skin_invalidate_annunciator(win, 5);
-            } else {
-                cairo_t *cr = gdk_cairo_create(win);
-                skin_repaint_annunciator(cr, 5, ann_battery);
-                cairo_destroy(cr);
-            }
+            skin_invalidate_annunciator(win, 5);
         }
     }
     return lowbat;

@@ -1,3 +1,7 @@
+2020-01-03: release 2.5.12b (Linux only)
+
+* Made repaint logic more efficient, also making it work under Wayland.
+
 2019-12-01: release 2.5.12a (Linux only)
 
 * In scaled mode (GDK_SCALE greater than 1), bitmap smoothing causes drawing of
