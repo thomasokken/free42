@@ -599,6 +599,18 @@ void skin_repaint_annunciator(cairo_t *cr, int which, bool state) {
     cairo_restore(cr);
 }
 
+void skin_invalidate_annunciator(GdkWindow *win, int which) {
+    if (!display_enabled)
+        return;
+    SkinAnnunciator *ann = annunciators + (which - 1);
+    GdkRectangle clip;
+    clip.x = ann->disp_rect.x;
+    clip.y = ann->disp_rect.y;
+    clip.width = ann->disp_rect.width;
+    clip.height = ann->disp_rect.height;
+    gdk_window_invalidate_rect(win, &clip, FALSE);
+}
+
 void skin_find_key(int x, int y, bool cshift, int *skey, int *ckey) {
     int i;
     if (core_menu()
@@ -764,6 +776,35 @@ void skin_repaint_key(cairo_t *cr, int key, bool state) {
     cairo_restore(cr);
 }
 
+void skin_invalidate_key(GdkWindow *win, int key) {
+    if (!display_enabled)
+        return;
+    if (key >= -7 && key <= -2) {
+        /* Soft key */
+        key = -1 - key;
+        int x = (key - 1) * 22 * display_scale.x;
+        int y = 9 * display_scale.y;
+        int width = 21 * display_scale.x;
+        int height = 7 * display_scale.y;
+        GdkRectangle clip;
+        clip.x = display_loc.x + x;
+        clip.y = display_loc.y + y;
+        clip.width = width;
+        clip.height = height;
+        gdk_window_invalidate_rect(win, &clip, FALSE);
+        return;
+    }
+    if (key < 0 || key >= nkeys)
+        return;
+    SkinKey *k = keylist + key;
+    GdkRectangle clip;
+    clip.x = k->disp_rect.x;
+    clip.y = k->disp_rect.y;
+    clip.width = k->disp_rect.width;
+    clip.height = k->disp_rect.height;
+    gdk_window_invalidate_rect(win, &clip, FALSE);
+}
+
 void skin_display_blitter(cairo_t *cr, const char *bits, int bytesperline,
                                         int x, int y, int width, int height) {
     guchar *pix = gdk_pixbuf_get_pixels(disp_image);
@@ -813,6 +854,48 @@ void skin_display_blitter(cairo_t *cr, const char *bits, int bytesperline,
     }
 }
 
+void skin_display_invalidater(GdkWindow *win, const char *bits, int bytesperline,
+                                        int x, int y, int width, int height) {
+    guchar *pix = gdk_pixbuf_get_pixels(disp_image);
+    int disp_bpl = gdk_pixbuf_get_rowstride(disp_image);
+    int sx = display_scale.x;
+    int sy = display_scale.y;
+
+    for (int v = y; v < y + height; v++)
+        for (int h = x; h < x + width; h++) {
+            SkinColor c;
+            if ((bits[v * bytesperline + (h >> 3)] & (1 << (h & 7))) != 0)
+                c = display_fg;
+            else
+                c = display_bg;
+            for (int vv = v * sy; vv < (v + 1) * sy; vv++) {
+                guchar *p = pix + disp_bpl * vv;
+                for (int hh = h * sx; hh < (h + 1) * sx; hh++) {
+                    guchar *p2 = p + hh * 3;
+                    p2[0] = c.r;
+                    p2[1] = c.g;
+                    p2[2] = c.b;
+                }
+            }
+        }
+    if (win != NULL) {
+        if (allow_paint && display_enabled) {
+            GdkRectangle clip;
+            clip.x = display_loc.x + x * sx;
+            clip.y = display_loc.y + y * sy;
+            clip.width = width * sx;
+            clip.height = height * sy;
+            gdk_window_invalidate_rect(win, &clip, FALSE);
+        }
+    } else {
+        gtk_widget_queue_draw_area(calc_widget,
+                display_loc.x - display_scale.x,
+                display_loc.y - display_scale.y,
+                133 * display_scale.x,
+                18 * display_scale.y);
+    }
+}
+
 void skin_repaint_display(cairo_t *cr) {
     if (display_enabled) {
         GdkRectangle clip;
@@ -828,6 +911,17 @@ void skin_repaint_display(cairo_t *cr) {
         gdk_cairo_set_source_pixbuf(cr, disp_image, display_loc.x, display_loc.y);
         cairo_paint(cr);
         cairo_restore(cr);
+    }
+}
+
+void skin_invalidate_display(GdkWindow *win) {
+    if (display_enabled) {
+        GdkRectangle clip;
+        clip.x = display_loc.x;
+        clip.y = display_loc.y;
+        clip.width = 131 * display_scale.x;
+        clip.height = 16 * display_scale.y;
+        gdk_window_invalidate_rect(win, &clip, FALSE);
     }
 }
 

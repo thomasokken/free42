@@ -59,6 +59,8 @@ bool allow_paint = false;
 state_type state;
 char free42dirname[FILENAMELEN];
 
+static bool no_unsolicited_repaints = true;
+
 
 /* PRINT_LINES is limited to an even lower value than in the Motif version.
  * It appears that GTK does not allow the SUM of a widget's height and its
@@ -2401,7 +2403,10 @@ static void shell_keydown() {
     int repeat, keep_running;
     if (skey == -1)
         skey = skin_find_skey(ckey);
-    skin_repaint_key(cr, skey, 1);
+    if (no_unsolicited_repaints)
+        skin_invalidate_key(win, skey);
+    else
+        skin_repaint_key(cr, skey, 1);
     if (timeout3_id != 0 && (macro != NULL || ckey != 28 /* KEY_SHIFT */)) {
         g_source_remove(timeout3_id);
         timeout3_id = 0;
@@ -2426,14 +2431,25 @@ static void shell_keydown() {
             }
             if (!one_key_macro) {
                 skin_display_set_enabled(true);
-                skin_repaint_display(cr);
-                skin_repaint_annunciator(cr, 1, ann_updown);
-                skin_repaint_annunciator(cr, 2, ann_shift);
-                skin_repaint_annunciator(cr, 3, ann_print);
-                skin_repaint_annunciator(cr, 4, ann_run);
-                skin_repaint_annunciator(cr, 5, ann_battery);
-                skin_repaint_annunciator(cr, 6, ann_g);
-                skin_repaint_annunciator(cr, 7, ann_rad);
+                if (no_unsolicited_repaints) {
+                    skin_invalidate_display(win);
+                    skin_invalidate_annunciator(win, 1);
+                    skin_invalidate_annunciator(win, 2);
+                    skin_invalidate_annunciator(win, 3);
+                    skin_invalidate_annunciator(win, 4);
+                    skin_invalidate_annunciator(win, 5);
+                    skin_invalidate_annunciator(win, 6);
+                    skin_invalidate_annunciator(win, 7);
+                } else {
+                    skin_repaint_display(cr);
+                    skin_repaint_annunciator(cr, 1, ann_updown);
+                    skin_repaint_annunciator(cr, 2, ann_shift);
+                    skin_repaint_annunciator(cr, 3, ann_print);
+                    skin_repaint_annunciator(cr, 4, ann_run);
+                    skin_repaint_annunciator(cr, 5, ann_battery);
+                    skin_repaint_annunciator(cr, 6, ann_g);
+                    skin_repaint_annunciator(cr, 7, ann_rad);
+                }
                 repeat = 0;
             }
         }
@@ -2460,7 +2476,10 @@ static void shell_keydown() {
 static void shell_keyup() {
     GdkWindow *win = gtk_widget_get_window(calc_widget);
     cairo_t *cr = gdk_cairo_create(win);
-    skin_repaint_key(cr, skey, 0);
+    if (no_unsolicited_repaints)
+        skin_invalidate_key(win, skey);
+    else
+        skin_repaint_key(cr, skey, 0);
     cairo_destroy(cr);
 
     ckey = 0;
@@ -2813,13 +2832,19 @@ void shell_blitter(const char *bits, int bytesperline, int x, int y,
         GdkWindow *win = gtk_widget_get_window(calc_widget);
         cairo_t *cr = gdk_cairo_create(win);
 
-        skin_display_blitter(cr, bits, bytesperline, x, y, width, height);
+        if (no_unsolicited_repaints)
+            skin_display_invalidater(win, bits, bytesperline, x, y, width, height);
+        else
+            skin_display_blitter(cr, bits, bytesperline, x, y, width, height);
         if (skey >= -7 && skey <= -2)
             skin_repaint_key(cr, skey, 1);
 
         cairo_destroy(cr);
     } else {
-        skin_display_blitter(NULL, bits, bytesperline, x, y, width, height);
+        if (no_unsolicited_repaints)
+            skin_display_invalidater(NULL, bits, bytesperline, x, y, width, height);
+        else
+            skin_display_blitter(NULL, bits, bytesperline, x, y, width, height);
     }
 }
 
@@ -2842,7 +2867,10 @@ static gboolean ann_print_timeout(gpointer cd) {
 
     ann_print_timeout_id = 0;
     ann_print = 0;
-    skin_repaint_annunciator(cr, 3, ann_print);
+    if (no_unsolicited_repaints)
+        skin_invalidate_annunciator(win, 3);
+    else
+        skin_repaint_annunciator(cr, 3, ann_print);
 
     cairo_destroy(cr);
     return FALSE;
@@ -2858,11 +2886,17 @@ void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
 
     if (updn != -1 && ann_updown != updn) {
         ann_updown = updn;
-        skin_repaint_annunciator(cr, 1, ann_updown);
+        if (no_unsolicited_repaints)
+            skin_invalidate_annunciator(win, 1);
+        else
+            skin_repaint_annunciator(cr, 1, ann_updown);
     }
     if (shf != -1 && ann_shift != shf) {
         ann_shift = shf;
-        skin_repaint_annunciator(cr, 2, ann_shift);
+        if (no_unsolicited_repaints)
+            skin_invalidate_annunciator(win, 2);
+        else
+            skin_repaint_annunciator(cr, 2, ann_shift);
     }
     if (prt != -1) {
         if (ann_print_timeout_id != 0) {
@@ -2872,22 +2906,34 @@ void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
         if (ann_print != prt)
             if (prt) {
                 ann_print = 1;
-                skin_repaint_annunciator(cr, 3, ann_print);
+                if (no_unsolicited_repaints)
+                    skin_invalidate_annunciator(win, 3);
+                else
+                    skin_repaint_annunciator(cr, 3, ann_print);
             } else {
                 ann_print_timeout_id = g_timeout_add(1000, ann_print_timeout, NULL);
             }
     }
     if (run != -1 && ann_run != run) {
         ann_run = run;
-        skin_repaint_annunciator(cr, 4, ann_run);
+        if (no_unsolicited_repaints)
+            skin_invalidate_annunciator(win, 4);
+        else
+            skin_repaint_annunciator(cr, 4, ann_run);
     }
     if (g != -1 && ann_g != g) {
         ann_g = g;
-        skin_repaint_annunciator(cr, 6, ann_g);
+        if (no_unsolicited_repaints)
+            skin_invalidate_annunciator(win, 6);
+        else
+            skin_repaint_annunciator(cr, 6, ann_g);
     }
     if (rad != -1 && ann_rad != rad) {
         ann_rad = rad;
-        skin_repaint_annunciator(cr, 7, ann_rad);
+        if (no_unsolicited_repaints)
+            skin_invalidate_annunciator(win, 7);
+        else
+            skin_repaint_annunciator(cr, 7, ann_rad);
     }
 
     cairo_destroy(cr);
@@ -2991,9 +3037,13 @@ int shell_low_battery() {
         ann_battery = lowbat;
         if (allow_paint) {
             GdkWindow *win = gtk_widget_get_window(calc_widget);
-            cairo_t *cr = gdk_cairo_create(win);
-            skin_repaint_annunciator(cr, 5, ann_battery);
-            cairo_destroy(cr);
+            if (no_unsolicited_repaints) {
+                skin_invalidate_annunciator(win, 5);
+            } else {
+                cairo_t *cr = gdk_cairo_create(win);
+                skin_repaint_annunciator(cr, 5, ann_battery);
+                cairo_destroy(cr);
+            }
         }
     }
     return lowbat;
