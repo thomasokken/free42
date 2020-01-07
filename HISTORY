@@ -1,3 +1,10 @@
+2020-01-07: release 2.5.12c (Linux only)
+
+* When the print-out area was still growing, i.e. hadn't reached its maximum
+  height of 30,000 pixels yet, it was not being repainted in a timely manner.
+  Bug introduced by the switch to GTK 3; did not affect early GTK 3 versions
+  but became apparent in Ubuntu 18.04 and 19.10. Fixed.
+
 2020-01-03: release 2.5.12b (Linux only)
 
 * Made repaint logic more efficient, also making it work under Wayland.
