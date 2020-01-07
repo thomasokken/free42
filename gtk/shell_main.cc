@@ -3022,16 +3022,13 @@ static gboolean print_widget_grew(GtkWidget *w, GdkEventConfigure *event,
                                                                 gpointer cd) {
     print_growth_info *info = (print_growth_info *) cd;
     scroll_printout_to_bottom();
-    cairo_t *cr = gdk_cairo_create(gtk_widget_get_window(print_widget));
     GdkRectangle clip;
     clip.x = 0;
     clip.y = info->y;
     clip.width = 358;
     clip.height = info->height;
-    gdk_cairo_rectangle(cr, &clip);
-    cairo_clip(cr);
-    repaint_printout(cr);
-    cairo_destroy(cr);
+    GdkWindow *win = gtk_widget_get_window(print_widget);
+    gdk_window_invalidate_rect(win, &clip, FALSE);
     g_signal_handlers_disconnect_by_func(G_OBJECT(w), (gpointer) print_widget_grew, cd);
     delete info;
     return FALSE;
