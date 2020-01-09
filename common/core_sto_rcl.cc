@@ -390,11 +390,11 @@ int generic_sto(arg_struct *arg, char operation) {
                 if (num >= size)
                     return ERR_SIZE_ERROR;
                 if (reg_x->type == TYPE_STRING) {
+                    if (!disentangle((vartype *) rm))
+                        return ERR_INSUFFICIENT_MEMORY;
                     vartype_string *vs = (vartype_string *) reg_x;
                     phloat *ds = rm->array->data + num;
                     int len, i;
-                    if (!disentangle((vartype *) rm))
-                        return ERR_INSUFFICIENT_MEMORY;
                     len = vs->length;
                     phloat_length(*ds) = len;
                     for (i = 0; i < len; i++)
