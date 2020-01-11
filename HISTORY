@@ -1,3 +1,7 @@
+2020-01-11: release 2.5.14
+
+* Some fixes to Paste to improve compatibility with HP-41 text.
+
 2020-01-11: release 2.5.13a (Linux only)
 
 * Another thin-dark-line fix, this time for GDK_SCALE > 1 on certain platforms,
