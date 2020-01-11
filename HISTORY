@@ -1,3 +1,8 @@
+2020-01-11: release 2.5.13a (Linux only)
+
+* Another thin-dark-line fix, this time for GDK_SCALE > 1 on certain platforms,
+  including Raspbian 10.
+
 2020-01-09: release 2.5.13
 
 * When REGS was shared, ASTO nn could store the character data into the wrong
