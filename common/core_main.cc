@@ -2484,9 +2484,11 @@ static int ascii2hp(char *dst, const char *src, int maxchars) {
             case 0x221a: code =   2; break; // square root sign
             case 0x222b: code =   3; break; // integral sign
             case 0x2592: code =   4; break; // gray rectangle
-            case 0x03a3: code =   5; break; // Uppercase sigma 
+            case 0x03a3:                    // Uppercase sigma
+            case 0x2211: code =   5; break; // n-ary summation sign
             case 0x25b6:                    // right-pointing triangle
-            case 0x25b8: code =   6; break; // small right-pointing triangle
+            case 0x25b8:                    // small right-pointing triangle
+            case 0x25c6: code =   6; break; // black diamond (i41CX LBL marker)
             case 0x03c0: code =   7; break; // lowercase pi
             case 0x00bf: code =   8; break; // upside-down question mark
             case 0x2264: code =   9; break; // less-than-or-equals sign
@@ -3324,6 +3326,7 @@ static void paste_programs(const char *buf) {
                 // Number or bust!
                 if (nexttoken(hpbuf, hppos, hpend, &tok_start, &tok_end)) {
                     char c = hpbuf[tok_start];
+                    bool have_exp = false;
                     if (c >= '0' && c <= '9' || c == '-' || c == '.' || c == ','
                             || c == 'E' || c == 'e' || c == 24) {
                         // The first character could plausibly be part of a number;
@@ -3338,9 +3341,40 @@ static void paste_programs(const char *buf) {
                                 c = 'E';
                             else if (c == ',')
                                 c = '.';
+                            if (c == 'E')
+                                have_exp = true;
                             numbuf[i] = c;
                         }
                         numbuf[len] = 0;
+                        if (!have_exp) {
+                            // In HP-41 program listings, there may be a space
+                            // before the 'E' character, e.g. "1 E3". So, if we
+                            // haven't seen an exponent yet, check if the next
+                            // token looks like an exponent, and if so, add it.
+                            if (nexttoken(hpbuf, tok_end, hpend, &tok_start, &tok_end)) {
+                                c = hpbuf[tok_start];
+                                if (c == 'E' || c == 'e' || c == 24) {
+                                    int explen = tok_end - tok_start;
+                                    bool is_exp = true;
+                                    for (int i = 1; i < explen; i++) {
+                                        c = hpbuf[tok_start + i];
+                                        if (!(c == '-' && i == 1 || c >= '0' && c <= '9')) {
+                                            is_exp = false;
+                                            break;
+                                        }
+                                    }
+                                    if (is_exp) {
+                                        if (len + explen > 49)
+                                            explen = 49 - len;
+                                        char *p = numbuf + len;
+                                        *p++ = 'E';
+                                        for (int i = 1; i < explen; i++)
+                                            *p++ = hpbuf[tok_start + i];
+                                        *p = 0;
+                                    }
+                                }
+                            }
+                        }
                         cmd = CMD_NUMBER;
                         arg.val_d = parse_number_line(numbuf);
                         arg.type = ARGTYPE_DOUBLE;
