@@ -50,8 +50,6 @@ unsigned char *skin_keymap_lookup(guint keyval, bool printable,
                                   bool *exact);
 void skin_repaint_key(cairo_t *cr, int key, bool state);
 void skin_invalidate_key(GdkWindow *win, int key);
-void skin_display_blitter(cairo_t *cr, const char *bits, int bytesperline,
-                                int x, int y, int width, int height);
 void skin_display_invalidater(GdkWindow *win, const char *bits, int bytesperline,
                                 int x, int y, int width, int height);
 void skin_repaint_display(cairo_t *cr);
