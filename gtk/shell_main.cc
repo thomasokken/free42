@@ -419,22 +419,22 @@ static void activate(GtkApplication *theApp, gpointer userData) {
              * want to do any second-guessing here.
              */
             snprintf(oldpath, FILENAMELEN, "%s/.free42rc", home);
-            snprintf(newpath, FILENAMELEN, "%s/.free42/state", home);
+            snprintf(newpath, FILENAMELEN, "%s/state", free42dirname);
             rename(oldpath, newpath);
             snprintf(oldpath, FILENAMELEN, "%s/.free42print", home);
-            snprintf(newpath, FILENAMELEN, "%s/.free42/print", home);
+            snprintf(newpath, FILENAMELEN, "%s/print", free42dirname);
             rename(oldpath, newpath);
             snprintf(oldpath, FILENAMELEN, "%s/.free42keymap", home);
-            snprintf(newpath, FILENAMELEN, "%s/.free42/keymap", home);
+            snprintf(newpath, FILENAMELEN, "%s/keymap", free42dirname);
             rename(oldpath, newpath);
         }
     } else
         free42dir_exists = true;
 
     if (free42dir_exists) {
-        snprintf(statefilename, FILENAMELEN, "%s/.free42/state", home);
-        snprintf(printfilename, FILENAMELEN, "%s/.free42/print", home);
-        snprintf(keymapfilename, FILENAMELEN, "%s/.free42/keymap", home);
+        snprintf(statefilename, FILENAMELEN, "%s/state", free42dirname);
+        snprintf(printfilename, FILENAMELEN, "%s/print", free42dirname);
+        snprintf(keymapfilename, FILENAMELEN, "%s/keymap", free42dirname);
     } else {
         snprintf(statefilename, FILENAMELEN, "%s/.free42rc", home);
         snprintf(printfilename, FILENAMELEN, "%s/.free42print", home);
