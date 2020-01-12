@@ -27,7 +27,7 @@ CFLAGS = -MMD \
 	 -Wno-unknown-warning-option \
 	 -g \
 	 $(shell pkg-config --cflags gtk+-3.0) \
-	 -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED -DGTK_DISABLE_SINGLE_INCLUDES -DGSEAL_ENABLE \
+	 -DGDK_DISABLE_DEPRECATION_WARNINGS -DGTK_DISABLE_SINGLE_INCLUDES -DGSEAL_ENABLE \
 	 -DVERSION="\"$(shell cat VERSION)\"" \
 	 -DVERSION_PLATFORM="\"$(shell uname -s)\"" \
 	 -DDECIMAL_CALL_BY_REFERENCE=1 \
@@ -35,16 +35,6 @@ CFLAGS = -MMD \
 	 -DDECIMAL_GLOBAL_ROUNDING_ACCESS_FUNCTIONS=1 \
 	 -DDECIMAL_GLOBAL_EXCEPTION_FLAGS=1 \
 	 -DDECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS=1
-
-###############################################################################
-### Note that there are deprecation warnings while compiling shell_main.cc  ###
-### with GTK+ 3.22 or later. I will deal with those when I switch to a      ###
-### release build environment that has GTK+ 3.22 or later.                  ###
-### My current release build environment is Ubuntu 12.04 with GTK+ 3.4, and ###
-### for the sake of compatibility with existing systems, I am in no hurry   ###
-### to upgrade that environment, even though I do use Ubuntu 18.04 with     ###
-### GTK+ 3.22 for testing.                                                  ###
-###############################################################################
 
 CXXFLAGS = $(CFLAGS) \
 	 -fno-exceptions \
