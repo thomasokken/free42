@@ -131,17 +131,11 @@ if do_macos:
 if do_ios:
     patch_plist("iphone/Info.plist")
 
-# Update Android version.code -- this is just a sequence, not related to the version number --
-# and insert that code, and the version number, into the Android build
+# Insert version for Android and increment versionCode
 
 if do_android:
-    vc_file = open("android/version.code")
-    vc = int(vc_file.read())
-    vc_file.close()
+    vc = int(os.popen("grep versionCode android/app/build.gradle").read().split()[1]);
     vc += 1
-    vc_file = open("android/version.code", "w");
-    vc_file.write(str(vc) + "\n");
-    vc_file.close()
     subprocess.call(["sed", "-i", "", "s/versionCode [0-9]*/versionCode " + str(vc) + "/", "android/app/build.gradle"])
     subprocess.call(["sed", "-i", "", "s/versionName \"[^\"]*\"/versionName \"" + version_name + "\"/", "android/app/build.gradle"])
 
