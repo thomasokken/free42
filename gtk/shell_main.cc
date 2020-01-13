@@ -397,49 +397,69 @@ static void activate(GtkApplication *theApp, gpointer userData) {
     setlocale(LC_NUMERIC, "C");
 
 
-    /*****************************************************/
-    /***** Try to create the $HOME/.free42 directory *****/
-    /*****************************************************/
+    /*************************************************************/
+    /***** Try to create the $XDG_DATA_HOME/free42 directory *****/
+    /*************************************************************/
 
     char keymapfilename[FILENAMELEN];
 
-    bool free42dir_exists = false;
+    char *xdg_data_home = getenv("XDG_DATA_HOME");
     char *home = getenv("HOME");
-    snprintf(free42dirname, FILENAMELEN, "%s/.free42", home);
+
+    if (xdg_data_home == NULL || xdg_data_home[0] == 0)
+        snprintf(free42dirname, FILENAMELEN, "%s/.local/share/free42", home);
+    else
+        snprintf(free42dirname, FILENAMELEN, "%s/free42", xdg_data_home);
+
     struct stat st;
     if (stat(free42dirname, &st) == -1 || !S_ISDIR(st.st_mode)) {
-        mkdir(free42dirname, 0755);
-        if (stat(free42dirname, &st) == 0 && S_ISDIR(st.st_mode)) {
-            char oldpath[FILENAMELEN], newpath[FILENAMELEN];
-            free42dir_exists = true;
-            /* Note that we only rename the .free42rc and .free42print files
-             * if we have just created the .free42 directory; if the user
-             * creates the .free42 directory manually, they also have to take
-             * responsibility for the old-style state and print files; I don't
-             * want to do any second-guessing here.
-             */
-            snprintf(oldpath, FILENAMELEN, "%s/.free42rc", home);
-            snprintf(newpath, FILENAMELEN, "%s/state", free42dirname);
-            rename(oldpath, newpath);
-            snprintf(oldpath, FILENAMELEN, "%s/.free42print", home);
-            snprintf(newpath, FILENAMELEN, "%s/print", free42dirname);
-            rename(oldpath, newpath);
-            snprintf(oldpath, FILENAMELEN, "%s/.free42keymap", home);
-            snprintf(newpath, FILENAMELEN, "%s/keymap", free42dirname);
-            rename(oldpath, newpath);
+        // The Free42 directory does not exist yet. Before trying to do
+        // anything else, make sure the Free42 directory path starts with a slash.
+        if (free42dirname[0] != '/') {
+            fprintf(stderr, "Fatal: XDG_DATA_HOME or HOME are invalid; must start with '/'\n");
+            exit(1);
         }
-    } else
-        free42dir_exists = true;
-
-    if (free42dir_exists) {
-        snprintf(statefilename, FILENAMELEN, "%s/state", free42dirname);
-        snprintf(printfilename, FILENAMELEN, "%s/print", free42dirname);
-        snprintf(keymapfilename, FILENAMELEN, "%s/keymap", free42dirname);
-    } else {
-        snprintf(statefilename, FILENAMELEN, "%s/.free42rc", home);
-        snprintf(printfilename, FILENAMELEN, "%s/.free42print", home);
-        snprintf(keymapfilename, FILENAMELEN, "%s/.free42keymap", home);
+        // If $HOME/.free42 does exist, move it to the new location.
+        // I'm assuming I can use rename() for this, i.e. HOME and XDG_DATA_HOME
+        // will always be on the same filesystem. If that turns out not to be a
+        // safe assumption, we should add code to do a recursive copy when the
+        // rename fails.
+        char old_free42dirname[FILENAMELEN];
+        snprintf(old_free42dirname, FILENAMELEN, "%s/.free42", home);
+        bool have_old = stat(old_free42dirname, &st) == 0 && S_ISDIR(st.st_mode);
+        if (have_old) {
+            // Temporarily remove the "/free42" part from the end of the path,
+            // leaving the path of the parent, which we will create
+            free42dirname[strlen(free42dirname) - 7] = 0;
+        }
+        // The Free42 directory does not exist yet. Trying to create it,
+        // and all its ancestors. We're not checking for errors here, since
+        // either XDG_DATA_HOME or else HOME really should be set to
+        // something sane, and besides, trying to create the first few
+        // components of this path is *expected* to return errors, because
+        // they will already exist.
+        char *slash = free42dirname;
+        do {
+            *slash = '/';
+            char *nextSlash = strchr(slash + 1, '/');
+            if (nextSlash != NULL)
+                *nextSlash = 0;
+            mkdir(free42dirname, 0755);
+            slash = nextSlash;
+        } while (slash != NULL);
+        // Now, move the $HOME/.free42 directory, if it exists
+        if (have_old) {
+            strcat(free42dirname, "/free42");
+            rename(old_free42dirname, free42dirname);
+            // Create a symlink so the old directory will not appear
+            // to have just vanished without a trace.
+            symlink(free42dirname, old_free42dirname);
+        }
     }
+
+    snprintf(statefilename, FILENAMELEN, "%s/state", free42dirname);
+    snprintf(printfilename, FILENAMELEN, "%s/print", free42dirname);
+    snprintf(keymapfilename, FILENAMELEN, "%s/keymap", free42dirname);
 
     
     /****************************/
