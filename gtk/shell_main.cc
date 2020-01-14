@@ -453,7 +453,13 @@ static void activate(GtkApplication *theApp, gpointer userData) {
             rename(old_free42dirname, free42dirname);
             // Create a symlink so the old directory will not appear
             // to have just vanished without a trace.
-            symlink(free42dirname, old_free42dirname);
+            // If XDG_DATA_HOME is a subdirectory of HOME, make
+            // the symlink relative.
+            int len = strlen(home);
+            if (strncmp(free42dirname, home, len) == 0 && free42dirname[len] == '/')
+                symlink(free42dirname + len + 1, old_free42dirname);
+            else
+                symlink(free42dirname, old_free42dirname);
         }
     }
 
