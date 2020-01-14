@@ -2485,7 +2485,7 @@ static int ascii2hp(char *dst, const char *src, int maxchars) {
             case 0x222b: code =   3; break; // integral sign
             case 0x2592: code =   4; break; // gray rectangle
             case 0x03a3:                    // Uppercase sigma
-            case 0x2211: code =   5; break; // n-ary summation sign
+            case 0x2211: code =   5; break; // n-ary summation sign (i41CX)
             case 0x25b6:                    // right-pointing triangle
             case 0x25b8:                    // small right-pointing triangle
             case 0x25c6: code =   6; break; // black diamond (HP-41 LBL marker)
@@ -2500,12 +2500,13 @@ static int ascii2hp(char *dst, const char *src, int maxchars) {
             case 0x2190: code =  16; break; // left-pointing arrow
             case 0x00b5:                    // micro sign
             case 0x03bc: code =  17; break; // lowercase mu
-            case 0x00a3: code =  18; break; // pound sterling sign
+            case 0x00a3:                    // pound sterling sign
+            case 0x20a4: code =  18; break; // lira sign (Emu42)
             case 0x00b0: code =  19; break; // degree symbol
-            case 0x0226:                    // uppercase a with dot (i41CX)
-            case 0x0227:                    // lowercase a with dot (i41CX)
             case 0x00c5:                    // uppercase a with ring
-            case 0x00e5: code =  20; break; // lowercase a with ring
+            case 0x00e5:                    // lowercase a with ring
+            case 0x0226:                    // uppercase a with dot (i41CX)
+            case 0x0227: code =  20; break; // lowercase a with dot (i41CX)
             case 0x00d1:                    // uppercase n with tilde
             case 0x00f1: code =  21; break; // lowercase n with tilde
             case 0x00c4:                    // uppercase a with umlaut
@@ -2513,9 +2514,9 @@ static int ascii2hp(char *dst, const char *src, int maxchars) {
             case 0x2220:                    // angle symbol
             case 0x2221: code =  23; break; // measured angle symbol
             case 0x1d07: code =  24; break; // small-caps e
-            case 0x1d01:                    // small-caps ae ligature (i41CX)
             case 0x00c6:                    // uppercase ae ligature
-            case 0x00e6: code =  25; break; // lowercase ae ligature
+            case 0x00e6:                    // lowercase ae ligature
+            case 0x1d01: code =  25; break; // small-caps ae ligature (i41CX)
             case 0x2026: code =  26; break; // ellipsis
             case 0x00d6:                    // uppercase o with umlaut
             case 0x00f6: code =  28; break; // lowercase o with umlaut
@@ -2527,7 +2528,8 @@ static int ascii2hp(char *dst, const char *src, int maxchars) {
             case 0x2018:                    // left curly single quote
             case 0x2019: code =  39; break; // right curly single quote
             case 0x2191: code =  94; break; // upward-pointing arrow
-            case 0x22a2:                    // right tack sign
+            case 0x22a2:                    // right tack sign (i41CX)
+            case 0x22a6:                    // assertion sign (Emu42)
             case 0x251c: code = 127; break; // append sign
             case 0x028f: code = 129; break; // small-caps y
             // Combining accents: apply them if they fit,
