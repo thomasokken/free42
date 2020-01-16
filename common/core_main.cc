@@ -2517,11 +2517,14 @@ static int ascii2hp(char *dst, const char *src, int maxchars) {
             case 0x00c6:                    // uppercase ae ligature
             case 0x00e6:                    // lowercase ae ligature
             case 0x1d01: code =  25; break; // small-caps ae ligature (i41CX)
+            case 0x2025:                    // two-dot leader (Emu42)
             case 0x2026: code =  26; break; // ellipsis
+            case 0x241b: code =  27; break; // ESC symbol
             case 0x00d6:                    // uppercase o with umlaut
             case 0x00f6: code =  28; break; // lowercase o with umlaut
             case 0x00dc:                    // uppercase u with umlaut
             case 0x00fc: code =  29; break; // lowercase u with umlaut
+            case 0x00b7:                    // middle dot (Emu42)
             case 0x2022: code =  31; break; // bullet
             case 0x201c:                    // left curly double quote
             case 0x201d: code =  34; break; // right curly double quote
@@ -2532,6 +2535,7 @@ static int ascii2hp(char *dst, const char *src, int maxchars) {
             case 0x22a6:                    // assertion sign (Emu42)
             case 0x251c: code = 127; break; // append sign
             case 0x028f: code = 129; break; // small-caps y
+            case 0x240a: code = 138; break; // LF symbol
             // Combining accents: apply them if they fit,
             // otherwise ignore them
             case 0x0303:
