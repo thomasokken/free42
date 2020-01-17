@@ -23,10 +23,18 @@
 #include <sys/types.h>
 #include <dirent.h>
 
+#include <string>
+#include <vector>
+#include <set>
+
 #include "shell_skin.h"
 #include "shell_main.h"
 #include "shell_loadimage.h"
 #include "core_main.h"
+
+using std::string;
+using std::vector;
+using std::set;
 
 
 /**************************/
@@ -84,8 +92,7 @@ static const SkinColor *skin_cmap;
 
 static GdkPixbuf *disp_image = NULL;
 
-static char skin_label_buf[1024];
-static int skin_label_pos;
+static vector<string> skin_labels;
 
 static keymap_entry *keymap = NULL;
 static int keymap_length;
@@ -110,29 +117,31 @@ extern const unsigned char *skin_bitmap_data[];
 /* Local functions */
 /*******************/
 
-static void addMenuItem(GtkMenu *menu, const char *name);
+static void addMenuItem(GtkMenu *menu, const char *name, bool enabled);
 static void selectSkinCB(GtkWidget *w, gpointer cd);
-static int skin_open(const char *name, int open_layout);
+static bool skin_open(const char *name, bool open_layout, bool force_builtin);
 static int skin_gets(char *buf, int buflen);
 static void skin_close();
 
 
-static void addMenuItem(GtkMenu *menu, const char *name) {
+static void addMenuItem(GtkMenu *menu, const char *name, bool enabled) {
     bool checked = false;
-    if (state.skinName[0] == 0) {
-        strcpy(state.skinName, name);
-        checked = true;
-    } else if (strcmp(state.skinName, name) == 0)
-        checked = true;
+    if (enabled) {
+        if (state.skinName[0] == 0) {
+            strcpy(state.skinName, name);
+            checked = true;
+        } else if (strcmp(state.skinName, name) == 0)
+            checked = true;
+    }
 
     GtkWidget *w = gtk_check_menu_item_new_with_label(name);
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(w), checked);
+    gtk_widget_set_sensitive(w, enabled);
 
     // Apparently, there is no way to retrieve the label from a menu item,
     // so I have to store them and pass them to the callback explicitly.
-    char *lbl = skin_label_buf + skin_label_pos;
-    strcpy(lbl, name);
-    skin_label_pos += strlen(name) + 1;
+    skin_labels.push_back(name);
+    const char *lbl = skin_labels.back().c_str();
     g_signal_connect(G_OBJECT(w), "activate",
                      G_CALLBACK(selectSkinCB), (gpointer) lbl);
 
@@ -152,12 +161,42 @@ static void selectSkinCB(GtkWidget *w, gpointer cd) {
     }
 }
 
-static int skin_open(const char *name, int open_layout) {
-    int i;
-    char namebuf[1024];
+static bool skin_open(const char *name, bool open_layout, bool force_builtin) {
+    if (!force_builtin) {
+        const char *suffix = open_layout ? ".layout" : ".gif";
+        // Try Free42 dir first...
+        string fname = string(free42dirname) + "/" + name + suffix;
+        external_file = fopen(fname.c_str(), "r");
+        if (external_file != NULL)
+            return true;
+        // Next, shared dirs...
+        const char *xdg_data_dirs = getenv("XDG_DATA_DIRS");
+        if (xdg_data_dirs == NULL || xdg_data_dirs[0] == 0)
+            xdg_data_dirs = "/usr/local/share:/usr/share";
+        char *buf = (char *) malloc(strlen(xdg_data_dirs) + 1);
+        strcpy(buf, xdg_data_dirs);
+        char *tok = strtok(buf, ":");
+        while (tok != NULL) {
+            string dirname = tok;
+            string fname = dirname + "/free42/" + name + suffix;
+            external_file = fopen(fname.c_str(), "r");
+            if (external_file != NULL) {
+                free(buf);
+                return true;
+            }
+            fname = dirname + "/free42/skins/" + name + suffix;
+            external_file = fopen(fname.c_str(), "r");
+            if (external_file != NULL) {
+                free(buf);
+                return true;
+            }
+            tok = strtok(NULL, ":");
+        }
+        free(buf);
+    }
 
-    /* Look for built-in skin first */
-    for (i = 0; i < skin_count; i++) {
+    // Look for built-in skin last
+    for (int i = 0; i < skin_count; i++) {
         if (strcmp(name, skin_name[i]) == 0) {
             external_file = NULL;
             builtin_pos = 0;
@@ -168,15 +207,12 @@ static int skin_open(const char *name, int open_layout) {
                 builtin_length = skin_bitmap_size[i];
                 builtin_file = skin_bitmap_data[i];
             }
-            return 1;
+            return true;
         }
     }
 
-    /* name did not match a built-in skin; look for file */
-    snprintf(namebuf, 1024, "%s/%s.%s", free42dirname, name,
-                                        open_layout ? "layout" : "gif");
-    external_file = fopen(namebuf, "r");
-    return external_file != NULL;
+    // Nothing found.
+    return false;
 }
 
 int skin_getchar() {
@@ -217,13 +253,26 @@ static void skin_close() {
         fclose(external_file);
 }
 
-static int case_insens_comparator(const void *a, const void *b) {
-    return strcasecmp(*(const char **) a, *(const char **) b);
+static void scan_skin_dir(const char *dirname, set<string> &names) {
+    DIR *dir = opendir(dirname);
+    if (dir == NULL)
+        return;
+
+    struct dirent *dent;
+    while ((dent = readdir(dir)) != NULL) {
+        int namelen = strlen(dent->d_name);
+        if (namelen < 7)
+            continue;
+        if (strcmp(dent->d_name + namelen - 7, ".layout") != 0)
+            continue;
+        string name = dent->d_name;
+        name.erase(namelen - 7);
+        names.insert(name);
+    }
+    closedir(dir);
 }
 
 void skin_menu_update(GtkWidget *w) {
-    int i, j;
-
     GtkMenu *skin_menu = (GtkMenu *) gtk_menu_item_get_submenu(GTK_MENU_ITEM(w));
     GList *children = gtk_container_get_children(GTK_CONTAINER(skin_menu));
     GList *item = children;
@@ -233,66 +282,71 @@ void skin_menu_update(GtkWidget *w) {
     }
     g_list_free(children);
 
-    skin_label_pos = 0;
+    skin_labels.clear();
 
-    for (i = 0; i < skin_count; i++)
-        addMenuItem(skin_menu, skin_name[i]);
-
-    DIR *dir = opendir(free42dirname);
-    if (dir == NULL)
-        return;
-
-    struct dirent *dent;
-    char *skinname[100];
-    int nskins = 0;
-    while ((dent = readdir(dir)) != NULL && nskins < 100) {
-        int namelen = strlen(dent->d_name);
-        char *skn;
-        if (namelen < 7)
-            continue;
-        if (strcmp(dent->d_name + namelen - 7, ".layout") != 0)
-            continue;
-        skn = (char *) malloc(namelen - 6);
-        // TODO - handle memory allocation failure
-        memcpy(skn, dent->d_name, namelen - 7);
-        skn[namelen - 7] = 0;
-        skinname[nskins++] = skn;
+    set<string> shared_skins;
+    const char *xdg_data_dirs = getenv("XDG_DATA_DIRS");
+    if (xdg_data_dirs == NULL || xdg_data_dirs[0] == 0)
+        xdg_data_dirs = "/usr/local/share:/usr/share";
+    char *buf = (char *) malloc(strlen(xdg_data_dirs) + 1);
+    strcpy(buf, xdg_data_dirs);
+    char *tok = strtok(buf, ":");
+    while (tok != NULL) {
+        string dirname = tok;
+        scan_skin_dir((dirname + "/free42").c_str(), shared_skins);
+        scan_skin_dir((dirname + "/free42/skins").c_str(), shared_skins);
+        tok = strtok(NULL, ":");
     }
-    closedir(dir);
+    free(buf);
 
-    qsort(skinname, nskins, sizeof(char *), case_insens_comparator);
-    bool have_separator = false;
-    for (i = 0; i < nskins; i++) {
-        for (j = 0; j < skin_count; j++)
-            if (strcmp(skinname[i], skin_name[j]) == 0)
-                goto skip;
-        if (!have_separator) {
-            GtkWidget *w = gtk_separator_menu_item_new();
-            gtk_menu_shell_append(GTK_MENU_SHELL(skin_menu), w);
-            gtk_widget_show(w);
-            have_separator = true;
+    set<string> private_skins;
+    scan_skin_dir(free42dirname, private_skins);
+
+    for (int i = 0; i < skin_count; i++) {
+        const char *name = skin_name[i];
+        bool enabled = private_skins.find(name) == private_skins.end()
+                        && shared_skins.find(name) == shared_skins.end();
+        addMenuItem(skin_menu, name, enabled);
+    }
+
+    if (!shared_skins.empty()) {
+        GtkWidget *w = gtk_separator_menu_item_new();
+        gtk_menu_shell_append(GTK_MENU_SHELL(skin_menu), w);
+        gtk_widget_show(w);
+
+        for (set<string>::const_iterator i = shared_skins.begin(); i != shared_skins.end(); i++) {
+            const char *name = i->c_str();
+            bool enabled = private_skins.find(name) == private_skins.end();
+            addMenuItem(skin_menu, name, enabled);
         }
-        addMenuItem(skin_menu, skinname[i]);
-        skip:
-        free(skinname[i]);
+    }
+
+    if (!private_skins.empty()) {
+        GtkWidget *w = gtk_separator_menu_item_new();
+        gtk_menu_shell_append(GTK_MENU_SHELL(skin_menu), w);
+        gtk_widget_show(w);
+
+        for (set<string>::const_iterator i = private_skins.begin(); i != private_skins.end(); i++)
+            addMenuItem(skin_menu, i->c_str(), true);
     }
 }
 
 void skin_load(int *width, int *height) {
     char line[1024];
-    int success;
     int lineno = 0;
+    bool force_builtin = false;
 
     if (state.skinName[0] == 0) {
         fallback_on_1st_builtin_skin:
         strcpy(state.skinName, skin_name[0]);
+        force_builtin = true;
     }
 
     /*************************/
     /* Load skin description */
     /*************************/
 
-    if (!skin_open(state.skinName, 1))
+    if (!skin_open(state.skinName, 1, force_builtin))
         goto fallback_on_1st_builtin_skin;
 
     if (keylist != NULL)
@@ -478,7 +532,7 @@ void skin_load(int *width, int *height) {
     /* Load skin bitmap */
     /********************/
 
-    if (!skin_open(state.skinName, 0))
+    if (!skin_open(state.skinName, 0, force_builtin))
         goto fallback_on_1st_builtin_skin;
 
     /* shell_loadimage() calls skin_getchar() to load the image from the
@@ -486,7 +540,7 @@ void skin_load(int *width, int *height) {
      * skin_put_pixels(), and skin_finish_image() to create the in-memory
      * representation.
      */
-    success = shell_loadimage();
+    bool success = shell_loadimage();
     skin_close();
 
     if (!success)
