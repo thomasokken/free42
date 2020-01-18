@@ -24,6 +24,8 @@
 #include <stdio.h>
 #include <shlobj.h>
 
+#include <set>
+
 #include "free42.h"
 #include "shell.h"
 #include "shell_skin.h"
@@ -35,6 +37,8 @@
 #include "shell_main.h"
 
 #include "VERSION.rc"
+
+using std::set;
 
 
 #define MAX_LOADSTRING 100
@@ -865,20 +869,12 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
             for (i = GetMenuItemCount(menu) - 1; i >= 0; i--)
                 RemoveMenu(menu, i, MF_BYPOSITION);
 
-            for (i = 0; i < skin_count; i++) {
-                UINT flags = 0;
-                if (strcmp(state.skinName, skin_name[i]) == 0)
-                    flags = MF_CHECKED;
-                AppendMenu(menu, flags, id++, skin_name[i]);
-            }
-
-            int have_separator = 0;
             char path[MAX_PATH];
             path[MAX_PATH - 1] = 0;
             WIN32_FIND_DATA wfd;
-            int n = 0;
-            char name[100][MAX_PATH];
 
+            // Search home directory
+            set<ci_string> private_skins;
             strncpy(path, free42dirname, MAX_PATH - 1);
             strncat(path, "\\*.layout", MAX_PATH - 1);
             path[MAX_PATH - 1] = 0;
@@ -887,13 +883,14 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
                 do {
                     if ((wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
                         wfd.cFileName[strlen(wfd.cFileName) - 7] = 0;
-                        strcpy(name[n++], wfd.cFileName);
+                        private_skins.insert(ci_string(wfd.cFileName));
                     }
                 } while (FindNextFile(search, &wfd));
                 FindClose(search);
             }
 
             // Search executable's directory
+            set<ci_string> shared_skins;
             char exedir[MAX_PATH];
             GetModuleFileName(0, exedir, MAX_PATH - 1);
             char *lastbackslash = strrchr(exedir, '\\');
@@ -909,31 +906,50 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
                     do {
                         if ((wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
                             wfd.cFileName[strlen(wfd.cFileName) - 7] = 0;
-                            strcpy(name[n++], wfd.cFileName);
+                            shared_skins.insert(ci_string(wfd.cFileName));
                         }
                     } while (FindNextFile(search, &wfd));
                     FindClose(search);
                 }
             }
 
-            qsort(name, n, MAX_PATH, (int (*)(const void *, const void *)) _stricmp);
-            for (i = 0; i < n; i++) {
-                UINT flags;
-                int j;
-                if (i > 0 && _stricmp(name[i], name[i - 1]) == 0)
-                    goto skip;
-                for (j = 0; j < skin_count; j++)
-                    if (_stricmp(name[i], skin_name[j]) == 0)
-                        goto skip;
-                if (!have_separator) {
-                    AppendMenu(menu, MF_SEPARATOR, 0, NULL);
-                    have_separator = 1;
+            for (i = 0; i < skin_count; i++) {
+                UINT flags = 0;
+                ci_string name = skin_name[i];
+                const char *cname = name.c_str();
+                if (private_skins.find(name) == private_skins.end() && shared_skins.find(name) == shared_skins.end()) {
+                    if (_stricmp(state.skinName, cname) == 0)
+                        flags = MF_CHECKED;
+                } else
+                    flags = MF_DISABLED;
+                AppendMenu(menu, flags, id++, cname);
+            }
+
+            if (!shared_skins.empty()) {
+                AppendMenu(menu, MF_SEPARATOR, 0, NULL);
+                for (set<ci_string>::const_iterator i = shared_skins.begin(); i != shared_skins.end(); i++) {
+                    UINT flags = 0;
+                    ci_string name = *i;
+                    const char *cname = name.c_str();
+                    if (private_skins.find(name) == private_skins.end()) {
+                        if (_stricmp(state.skinName, cname) == 0)
+                            flags = MF_CHECKED;
+                    } else
+                        flags = MF_DISABLED;
+                    AppendMenu(menu, flags, id++, cname);
                 }
-                flags = 0;
-                if (_stricmp(state.skinName, name[i]) == 0)
-                    flags = MF_CHECKED;
-                AppendMenu(menu, flags, id++, name[i]);
-                skip:;
+            }
+
+            if (!private_skins.empty()) {
+                AppendMenu(menu, MF_SEPARATOR, 0, NULL);
+                for (set<ci_string>::const_iterator i = private_skins.begin(); i != private_skins.end(); i++) {
+                    UINT flags = 0;
+                    ci_string name = *i;
+                    const char *cname = name.c_str();
+                    if (_stricmp(state.skinName, cname) == 0)
+                        flags = MF_CHECKED;
+                    AppendMenu(menu, flags, id++, cname);
+                }
             }
             break;
         }

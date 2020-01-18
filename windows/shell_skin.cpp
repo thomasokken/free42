@@ -201,19 +201,40 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
 /* Local functions */
 /*******************/
 
-static int skin_open(const char *skinname, const char *basedir, int open_layout);
+static bool skin_open(const char *skinname, const char *basedir, bool open_layout, bool force_builtin);
 static int skin_gets(char *buf, int buflen);
 static void skin_close();
 
 
-static int skin_open(const char *skinname, const char *basedir, int open_layout) {
-    int i;
-    char namebuf[1024];
-    char exedir[MAX_PATH];
-    char *lastbackslash;
+static bool skin_open(const char *skinname, const char *basedir, bool open_layout, bool force_builtin) {
+    if (!force_builtin) {
+        char namebuf[1024];
+        char exedir[MAX_PATH];
+        char *lastbackslash;
 
-    /* Look for built-in skin first */
-    for (i = 0; i < skin_count; i++) {
+        /* Look for file in home dir */
+        sprintf(namebuf, "%s\\%s.%s", basedir, skinname,
+                                            open_layout ? "layout" : "gif");
+        external_file = fopen(namebuf, "rb");
+        if (external_file != NULL)
+            return true;
+
+        /* name did not match in home dir; now try in exe dir */
+        GetModuleFileName(0, exedir, MAX_PATH - 1);
+        lastbackslash = strrchr(exedir, '\\');
+        if (lastbackslash != 0)
+            *lastbackslash = 0;
+        else
+            strcpy(exedir, "C:");
+        sprintf(namebuf, "%s\\%s.%s", exedir, skinname,
+                                            open_layout ? "layout" : "gif");
+        external_file = fopen(namebuf, "rb");
+        if (external_file != NULL)
+            return true;
+    }
+
+    /* Look for built-in skin last */
+    for (int i = 0; i < skin_count; i++) {
         if (strcmp(skinname, skin_name[i]) == 0) {
             external_file = NULL;
             builtin_pos = 0;
@@ -224,28 +245,12 @@ static int skin_open(const char *skinname, const char *basedir, int open_layout)
                 builtin_length = skin_bitmap_size[i];
                 builtin_file = skin_bitmap_data[i];
             }
-            return 1;
+            return true;
         }
     }
 
-    /* name did not match a built-in skin; look for file */
-    sprintf(namebuf, "%s\\%s.%s", basedir, skinname,
-                                        open_layout ? "layout" : "gif");
-    external_file = fopen(namebuf, "rb");
-    if (external_file != NULL)
-        return 1;
-
-    /* name did not match in home dir; now try in exe dir */
-    GetModuleFileName(0, exedir, MAX_PATH - 1);
-    lastbackslash = strrchr(exedir, '\\');
-    if (lastbackslash != 0)
-        *lastbackslash = 0;
-    else
-        strcpy(exedir, "C:");
-    sprintf(namebuf, "%s\\%s.%s", exedir, skinname,
-                                        open_layout ? "layout" : "gif");
-    external_file = fopen(namebuf, "rb");
-    return external_file != NULL;
+    /* Nothing found */
+    return false;
 }
 
 int skin_getchar() {
@@ -288,7 +293,7 @@ static void skin_close() {
 
 void skin_load(char *skinname, const char *basedir, long *width, long *height) {
     char line[1024];
-    int success;
+    bool force_builtin = false;
     int size;
     int kmcap = 0;
     int lineno = 0;
@@ -296,13 +301,14 @@ void skin_load(char *skinname, const char *basedir, long *width, long *height) {
     if (skinname[0] == 0) {
         fallback_on_1st_builtin_skin:
         strcpy(skinname, skin_name[0]);
+        force_builtin = true;
     }
 
     /*************************/
     /* Load skin description */
     /*************************/
 
-    if (!skin_open(skinname, basedir, 1))
+    if (!skin_open(skinname, basedir, 1, force_builtin))
         goto fallback_on_1st_builtin_skin;
 
     if (keylist != NULL)
@@ -481,7 +487,7 @@ void skin_load(char *skinname, const char *basedir, long *width, long *height) {
     /* Load skin bitmap */
     /********************/
 
-    if (!skin_open(skinname, basedir, 0))
+    if (!skin_open(skinname, basedir, 0, force_builtin))
         goto fallback_on_1st_builtin_skin;
 
     /* shell_loadimage() calls skin_getchar() to load the image from the
@@ -489,7 +495,7 @@ void skin_load(char *skinname, const char *basedir, long *width, long *height) {
      * skin_put_pixels(), and skin_finish_image() to create the in-memory
      * representation.
      */
-    success = shell_loadimage();
+    bool success = shell_loadimage();
     skin_close();
 
     if (!success)
