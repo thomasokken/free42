@@ -48,31 +48,28 @@
 
 - (void) raised {
     // This gets called just before the view is raised, every time
-    // TODO: separator between built-in and external skins
     [skinNames removeAllObjects];
-    int index = 0;
     selectedIndex[0] = selectedIndex[1] = -1;
     DIR *dir = opendir("skins");
     struct dirent *d;
-    NSUInteger num_builtin_skins = [skinNames count];
     while ((d = readdir(dir)) != NULL) {
         size_t len = strlen(d->d_name);
         if (len < 8 || strcmp(d->d_name + len - 7, ".layout") != 0)
             continue;
         d->d_name[len - 7] = 0;
         NSString *s = [NSString stringWithUTF8String:d->d_name];
-        for (int i = 0; i < num_builtin_skins; i++)
-            if ([s caseInsensitiveCompare:[skinNames objectAtIndex:i]] == 0)
-                goto skip;
         [skinNames addObject:s];
-        if (strcasecmp(d->d_name, state.skinName) == 0)
-            selectedIndex[0] = index;
-        else if (strcasecmp(d->d_name, state.landscapeSkinName) == 0)
-            selectedIndex[1] = index;
-        index++;
-        skip:;
     }
     closedir(dir);
+    [skinNames sortUsingSelector:@selector(caseInsensitiveCompare:)];
+    for (NSUInteger i = 0; i < [skinNames count]; i++) {
+        NSString *s = [skinNames objectAtIndex:i];
+        const char *cs = [s UTF8String];
+        if (strcasecmp(cs, state.skinName) == 0)
+            selectedIndex[0] = (int) i;
+        else if (strcasecmp(cs, state.landscapeSkinName) == 0)
+            selectedIndex[1] = (int) i;
+    }
     [skinTable reloadData];
 }
 
