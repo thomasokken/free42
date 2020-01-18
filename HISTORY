@@ -1,3 +1,16 @@
+2020-01-18: release 2.5.15
+
+* Some fixes to Paste to improve compatibility with Emu42 text.
+* Fixed Skin menu behavior: user-loaded skins now take priority over built-in
+  ones, and built-in skins that are overridden by user-loaded ones are now
+  shown grayed out in the menu.
+* Linux version: Implemented XDG Base Directory Specification compliance:
+  Moved Free42 directory from $HOME/.free42 to $XDG_DATA_HOME/free42, or
+  $HOME/.local/share/free42 in case XDG_DATA_HOME is unset or empty.
+  Also, now looking for skins in free42 and free42/shared under $XDG_DATA_DIRS,
+  or under /usr/local/share:/usr/share if XDG_DATA_DIRS is unset or empty.
+  Skins will also still be looked for in the Free42 directory.
+
 2020-01-11: release 2.5.14
 
 * Some fixes to Paste to improve compatibility with HP-41 text.
