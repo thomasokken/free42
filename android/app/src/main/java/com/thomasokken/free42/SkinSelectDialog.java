@@ -158,6 +158,7 @@ public class SkinSelectDialog extends Dialog {
     private static class SkinListAdapter extends BaseAdapter {
         private String skinDirName;
         private String[] names;
+        private boolean[] enabled;
         private List<DataSetObserver> observers = new ArrayList<DataSetObserver>();
 
         public SkinListAdapter(String skinDirName) {
@@ -168,12 +169,15 @@ public class SkinSelectDialog extends Dialog {
         public void refresh() {
             ArrayList<String> nameList = getLoadedSkins(skinDirName);
             String[] builtins = Free42Activity.builtinSkinNames;
-            for (int i = builtins.length - 1; i >= 0; i--) {
+            enabled = new boolean[nameList.size() + builtins.length];
+            for (int i = 0; i < builtins.length; i++) {
                 String name = builtins[i];
-                nameList.remove(name);
-                nameList.add(0, name);
+                enabled[i] = !nameList.contains(name);
+                nameList.add(i, name);
             }
             names = nameList.toArray(new String[nameList.size()]);
+            for (int i = builtins.length; i < enabled.length; i++)
+                enabled[i] = true;
             DataSetObserver[] dsoArray;
             synchronized (observers) {
                 dsoArray = observers.toArray(new DataSetObserver[observers.size()]);
@@ -203,9 +207,10 @@ public class SkinSelectDialog extends Dialog {
             String name = names[position];
             tv.setText(name);
             String selectedSkin = Free42Activity.getSelectedSkin();
-            boolean isSelected = name.equals(selectedSkin);
+            boolean isSelected = enabled[position] && name.equals(selectedSkin);
             tv.setTextSize(30.0f);
             tv.setTypeface(null, isSelected ? Typeface.ITALIC : Typeface.NORMAL);
+            tv.setEnabled(enabled[position]);
             return tv;
         }
 
@@ -230,11 +235,11 @@ public class SkinSelectDialog extends Dialog {
         }
 
         public boolean areAllItemsEnabled() {
-            return true;
+            return false;
         }
 
         public boolean isEnabled(int position) {
-            return true;
+            return enabled[position];
         }
     }
 }
