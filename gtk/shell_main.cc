@@ -533,6 +533,15 @@ static void activate(GtkApplication *theApp, gpointer userData) {
     GtkMenuItem *item = GTK_MENU_ITEM(gtk_builder_get_object(builder, "skin_item"));
     g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(skin_menu_update), NULL);
 
+    // With GTK 2 and GTK 3.4, the above logic worked fine, but with 3.24,
+    // it appears that the pop-up shell is laid out *before* the 'activate'
+    // callback is invoked. The result is that you do end up with the correct
+    // menu items, but they don't fit in the pop-up and so are cut off.
+    // Can't think of a proper way around this, but this at least will fix the
+    // Skin menu appearance in the most common use case, i.e. when the set of
+    // skins does not change while Free42 is running.
+    skin_menu_update(GTK_WIDGET(item));
+
     item = GTK_MENU_ITEM(gtk_builder_get_object(builder, "states_item"));
     g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(statesCB), NULL);
     item = GTK_MENU_ITEM(gtk_builder_get_object(builder, "show_printout_item"));
