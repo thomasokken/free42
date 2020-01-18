@@ -144,7 +144,7 @@ static gboolean gt_signal_handler(GIOChannel *source, GIOCondition condition,
                                                             gpointer data);
 static void quit();
 static char *strclone(const char *s);
-static bool is_file(const char *name);
+static bool file_exists(const char *name);
 static void show_message(const char *title, const char *message, GtkWidget *parent = mainwindow);
 static void no_mwm_resize_borders(GtkWidget *window);
 static void scroll_printout_to_bottom();
@@ -397,49 +397,99 @@ static void activate(GtkApplication *theApp, gpointer userData) {
     setlocale(LC_NUMERIC, "C");
 
 
-    /*****************************************************/
-    /***** Try to create the $HOME/.free42 directory *****/
-    /*****************************************************/
+    /*************************************************************/
+    /***** Try to create the $XDG_DATA_HOME/free42 directory *****/
+    /*************************************************************/
 
     char keymapfilename[FILENAMELEN];
 
-    bool free42dir_exists = false;
+    char *xdg_data_home = getenv("XDG_DATA_HOME");
     char *home = getenv("HOME");
-    snprintf(free42dirname, FILENAMELEN, "%s/.free42", home);
-    struct stat st;
-    if (stat(free42dirname, &st) == -1 || !S_ISDIR(st.st_mode)) {
-        mkdir(free42dirname, 0755);
-        if (stat(free42dirname, &st) == 0 && S_ISDIR(st.st_mode)) {
-            char oldpath[FILENAMELEN], newpath[FILENAMELEN];
-            free42dir_exists = true;
-            /* Note that we only rename the .free42rc and .free42print files
-             * if we have just created the .free42 directory; if the user
-             * creates the .free42 directory manually, they also have to take
-             * responsibility for the old-style state and print files; I don't
-             * want to do any second-guessing here.
-             */
-            snprintf(oldpath, FILENAMELEN, "%s/.free42rc", home);
-            snprintf(newpath, FILENAMELEN, "%s/state", free42dirname);
-            rename(oldpath, newpath);
-            snprintf(oldpath, FILENAMELEN, "%s/.free42print", home);
-            snprintf(newpath, FILENAMELEN, "%s/print", free42dirname);
-            rename(oldpath, newpath);
-            snprintf(oldpath, FILENAMELEN, "%s/.free42keymap", home);
-            snprintf(newpath, FILENAMELEN, "%s/keymap", free42dirname);
-            rename(oldpath, newpath);
-        }
-    } else
-        free42dir_exists = true;
 
-    if (free42dir_exists) {
-        snprintf(statefilename, FILENAMELEN, "%s/state", free42dirname);
-        snprintf(printfilename, FILENAMELEN, "%s/print", free42dirname);
-        snprintf(keymapfilename, FILENAMELEN, "%s/keymap", free42dirname);
-    } else {
-        snprintf(statefilename, FILENAMELEN, "%s/.free42rc", home);
-        snprintf(printfilename, FILENAMELEN, "%s/.free42print", home);
-        snprintf(keymapfilename, FILENAMELEN, "%s/.free42keymap", home);
+    if (xdg_data_home == NULL || xdg_data_home[0] == 0)
+        snprintf(free42dirname, FILENAMELEN, "%s/.local/share/free42", home);
+    else
+        snprintf(free42dirname, FILENAMELEN, "%s/free42", xdg_data_home);
+
+    if (!file_exists(free42dirname)) {
+        // The Free42 directory does not exist yet. Before trying to do
+        // anything else, make sure the Free42 directory path starts with a slash.
+        if (free42dirname[0] != '/') {
+            fprintf(stderr, "Fatal: XDG_DATA_HOME or HOME are invalid; must start with '/'\n");
+            exit(1);
+        }
+        // If $HOME/.free42 does exist, move it to the new location.
+        // I'm assuming I can use rename() for this, i.e. HOME and XDG_DATA_HOME
+        // will always be on the same filesystem. If that turns out not to be a
+        // safe assumption, we should add code to do a recursive copy when the
+        // rename fails.
+        char old_free42dirname[FILENAMELEN];
+        snprintf(old_free42dirname, FILENAMELEN, "%s/.free42", home);
+        bool have_old = false;
+        struct stat st;
+        if (lstat(old_free42dirname, &st) == 0) {
+            if (S_ISLNK(st.st_mode)) {
+                const char *dest;
+                if (xdg_data_home == NULL || xdg_data_home[0] == 0)
+                    dest = "$HOME/.local/share/free42";
+                else
+                    dest = "$XDG_DATA_HOME/free42";
+                fprintf(stderr, "$HOME/.free42 is a symlink; not moving it to %s\n", dest);
+                strcpy(free42dirname, old_free42dirname);
+                goto dir_done;
+            }
+            have_old = S_ISDIR(st.st_mode);
+        }
+        if (have_old) {
+            // Temporarily remove the "/free42" part from the end of the path,
+            // leaving the path of the parent, which we will create
+            free42dirname[strlen(free42dirname) - 7] = 0;
+        }
+        // The Free42 directory does not exist yet. Trying to create it,
+        // and all its ancestors. We're not checking for errors here, since
+        // either XDG_DATA_HOME or else HOME really should be set to
+        // something sane, and besides, trying to create the first few
+        // components of this path is *expected* to return errors, because
+        // they will already exist.
+        char *slash = free42dirname;
+        do {
+            *slash = '/';
+            char *nextSlash = strchr(slash + 1, '/');
+            if (nextSlash != NULL)
+                *nextSlash = 0;
+            mkdir(free42dirname, 0755);
+            slash = nextSlash;
+        } while (slash != NULL);
+        // Now, move the $HOME/.free42 directory, if it exists
+        if (have_old) {
+            strcat(free42dirname, "/free42");
+            if (rename(old_free42dirname, free42dirname) != 0) {
+                int err = errno;
+                const char *dest;
+                if (xdg_data_home == NULL || xdg_data_home[0] == 0)
+                    dest = "$HOME/.local/share/free42";
+                else
+                    dest = "$XDG_DATA_HOME/free42";
+                fprintf(stderr, "Unable to move $HOME/.free42 to %s: %s (%d)\n", dest, strerror(err), err);
+                strcpy(free42dirname, old_free42dirname);
+                goto dir_done;
+            }
+            // Create a symlink so the old directory will not appear
+            // to have just vanished without a trace.
+            // If XDG_DATA_HOME is a subdirectory of HOME, make
+            // the symlink relative.
+            int len = strlen(home);
+            if (strncmp(free42dirname, home, len) == 0 && free42dirname[len] == '/')
+                symlink(free42dirname + len + 1, old_free42dirname);
+            else
+                symlink(free42dirname, old_free42dirname);
+        }
     }
+
+    dir_done:
+    snprintf(statefilename, FILENAMELEN, "%s/state", free42dirname);
+    snprintf(printfilename, FILENAMELEN, "%s/print", free42dirname);
+    snprintf(keymapfilename, FILENAMELEN, "%s/keymap", free42dirname);
 
     
     /****************************/
@@ -487,8 +537,7 @@ static void activate(GtkApplication *theApp, gpointer userData) {
         // The shell state was missing or corrupt, but there
         // may still be a valid core state...
         snprintf(core_state_file_name, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreName);
-        struct stat st;
-        if (stat(core_state_file_name, &st) == 0) {
+        if (file_exists(core_state_file_name)) {
             // Core state "Untitled.f42" exists; let's try to read it
             core_state_file_offset = 0;
             init_mode = 1;
@@ -1100,11 +1149,9 @@ static char *strclone(const char *s) {
     return s2;
 }
 
-static bool is_file(const char *name) {
+static bool file_exists(const char *name) {
     struct stat st;
-    if (stat(name, &st) == -1)
-        return false;
-    return S_ISREG(st.st_mode);
+    return stat(name, &st) == 0;
 }
 
 static void show_message(const char *title, const char *message, GtkWidget *parent) {
@@ -1238,7 +1285,7 @@ static char *get_state_name(const char *prompt) {
             }
             char path[FILENAMELEN];
             snprintf(path, FILENAMELEN, "%s/%s.f42", free42dirname, tmp);
-            if (is_file(path)) {
+            if (file_exists(path)) {
                 show_message("Message", "That name is already in use.", state_name_dialog);
                 continue;
             }
@@ -1365,7 +1412,7 @@ static void states_menu_duplicate() {
             show_message("Message", "The name of that state is too long to copy.", dlg);
             return;
         }
-        if (!is_file(finalName))
+        if (!file_exists(finalName))
             // File does not exist; that means we have a usable name
             break;
     }
@@ -1461,7 +1508,7 @@ static void states_menu_import() {
     char destPath[FILENAMELEN];
     snprintf(destPath, FILENAMELEN, "%s/%s.f42", free42dirname, name);
     bool success = false;
-    if (is_file(destPath)) {
+    if (file_exists(destPath)) {
         char msg[FILENAMELEN];
         snprintf(msg, FILENAMELEN, "A state named \"%s\" already exists.", name);
         show_message("Message", msg, dlg);
@@ -1501,7 +1548,7 @@ static void states_menu_export() {
                         GTK_FILE_CHOOSER(save_dialog))), "All", 3) != 0)
         appendSuffix(export_file_name, ".f42");
 
-    if (is_file(export_file_name)) {
+    if (file_exists(export_file_name)) {
         GtkWidget *msg = gtk_message_dialog_new(GTK_WINDOW(mainwindow),
                                                 GTK_DIALOG_MODAL,
                                                 GTK_MESSAGE_QUESTION,
@@ -1642,8 +1689,7 @@ static void statesCB() {
     // the case, specifically, right after starting up with a version <= 25
     // state file.
     snprintf(buf, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreName);
-    struct stat st;
-    if (stat(buf, &st) != 0) {
+    if (!file_exists(buf)) {
         FILE *f = fopen(buf, "w");
         fwrite(FREE42_MAGIC_STR, 1, 4, f);
         fclose(f);
@@ -1827,7 +1873,7 @@ static void exportProgramCB() {
                         GTK_FILE_CHOOSER(save_dialog))), "All", 3) != 0)
         appendSuffix(export_file_name, ".raw");
 
-    if (is_file(export_file_name)) {
+    if (file_exists(export_file_name)) {
         GtkWidget *msg = gtk_message_dialog_new(GTK_WINDOW(mainwindow),
                                                 GTK_DIALOG_MODAL,
                                                 GTK_MESSAGE_QUESTION,
@@ -3158,7 +3204,7 @@ void shell_print(const char *text, int length,
                 snprintf(print_gif_name + p, 6, ".%04d", gif_seq);
                 strcat(print_gif_name, ".gif");
 
-                if (!is_file(print_gif_name))
+                if (!file_exists(print_gif_name))
                     break;
             }
             print_gif = fopen(print_gif_name, "w+");
