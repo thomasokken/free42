@@ -419,10 +419,6 @@ static void activate(GtkApplication *theApp, gpointer userData) {
             exit(1);
         }
         // If $HOME/.free42 does exist, move it to the new location.
-        // I'm assuming I can use rename() for this, i.e. HOME and XDG_DATA_HOME
-        // will always be on the same filesystem. If that turns out not to be a
-        // safe assumption, we should add code to do a recursive copy when the
-        // rename fails.
         char old_free42dirname[FILENAMELEN];
         snprintf(old_free42dirname, FILENAMELEN, "%s/.free42", home);
         bool have_old = false;

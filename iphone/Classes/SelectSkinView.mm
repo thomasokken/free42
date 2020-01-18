@@ -48,9 +48,6 @@
 
 - (void) raised {
     // This gets called just before the view is raised, every time
-    // TODO: separator between built-in and external skins.
-    // This will require using sections in the data source.
-    // How about graying out overridden built-in skins?
     [skinNames removeAllObjects];
     DIR *dir = opendir("skins");
     struct dirent *d;
