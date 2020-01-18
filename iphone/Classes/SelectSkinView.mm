@@ -68,17 +68,34 @@
     NSString *path = [[NSBundle mainBundle] pathForResource:@"builtin_skins" ofType:@"txt"];
     [path getCString:buf maxLength:1024 encoding:NSUTF8StringEncoding];
     FILE *builtins = fopen(buf, "r");
-    int index = 0;
+    int builtins_count = 0;
     while (fgets(buf, 1024, builtins) != NULL) {
         char *context;
         char *name = strtok_r(buf, " \t\r\n", &context);
-        [skinNames insertObject:[NSString stringWithUTF8String:name] atIndex:index++];
+        [skinNames insertObject:[NSString stringWithUTF8String:name] atIndex:builtins_count++];
     }
     fclose(builtins);
+    if (enabled != NULL)
+        delete[] enabled;
+    int total_count = [skinNames count];
+    enabled = new bool[total_count];
+    for (int i = 0; i < builtins_count; i++) {
+        enabled[i] = true;
+        NSString *n1 = [skinNames objectAtIndex:i];
+        for (int j = builtins_count; j < total_count; j++) {
+            NSString *n2 = [skinNames objectAtIndex:j];
+            if ([n1 compare:n2] == NSOrderedSame) {
+                enabled[i] = false;
+                break;
+            }
+        }
+    }
+    for (int i = builtins_count; i < total_count; i++)
+        enabled[i] = true;
     char *skinName = [CalcView isPortrait] ? state.skinName : state.landscapeSkinName;
     NSString *name = [NSString stringWithUTF8String:skinName];
     selectedIndex = (int) ([skinNames count] - 1);
-    while (selectedIndex >= 0 && [[skinNames objectAtIndex:selectedIndex] caseInsensitiveCompare:name] != 0)
+    while (selectedIndex >= 0 && [[skinNames objectAtIndex:selectedIndex] compare:name] != NSOrderedSame)
         selectedIndex--;
     [skinTable reloadData];
 }
@@ -113,6 +130,8 @@
     UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
     cell.textLabel.text = s;
     cell.accessoryType = selectedIndex == (int) n ? UITableViewCellAccessoryCheckmark : UITableViewCellAccessoryNone;
+    cell.userInteractionEnabled = enabled[n];
+    [cell.textLabel setEnabled:enabled[n]];
     return cell;
 }
 

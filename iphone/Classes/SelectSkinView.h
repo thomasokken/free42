@@ -20,6 +20,7 @@
 
 @interface SelectSkinView : UIView <UITableViewDelegate, UITableViewDataSource> {
     NSMutableArray *skinNames;
+    bool *enabled;
     UIBarButtonItem *doneButton;
     UITableView *skinTable;
     int selectedIndex;
