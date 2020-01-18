@@ -12,12 +12,17 @@ Installing Free42:
 Copy free42dec (or free42bin, or both) to wherever you want it, e.g. $HOME/bin
 or /usr/local/bin, and make sure that that directory is in your PATH
 environment variable.
-When Free42 runs, it will create a directory named .free42 in your home
-directory; in this directory, it will create three files, 'state', 'print', and
-'keymap' (the calculator's internal state, the contents of the print-out
-window, and the PC keyboard map); also, if you want to use a non-standard skin
-with Free42, the .free42 directory is where you have to store the skin's layout
-and bitmap files.
+When Free42 runs, it will create a directory named free42 under $XDG_DATA_HOME,
+or under $HOME/.local/share if XDG_DATA_HOME is unset or empty.
+In this directory, it will create three files, 'state', 'print', and 'keymap'
+(the calculator's internal state, the contents of the print-out window, and the
+PC keyboard map); also, if you want to use a non-standard skin with Free42,
+this directory is where you have to store the skin's layout and bitmap files.
+
+System administrators may also make skins available to all users by storing
+them in a directory named free42 or free42/skins, relative to one or more of
+the directories in $XDG_DATA_DIRS, or /usr/local/share:/usr/share if
+XDG_DATA_DIRS is unset or empty.
 
 If you're using GNOME 3, you can create a *.desktop file. Create it as
 $HOME/.local/share/applications/com.thomasokken.free42.desktop, with contents
@@ -40,7 +45,8 @@ that appears in the Favorites bar, and select Add to Favorites.
 
 Uninstalling Free42:
 
-Remove free42dec, free42bin, and the $HOME/.free42 directory and its contents.
+Remove free42dec, free42bin, and the $XDG_DATA_HOME/free42 or
+$HOME/.local/share/free42 directory and its contents.
 
 
 NOTE: The binary in this package was built on a PC running Ubuntu 12.04, and it
