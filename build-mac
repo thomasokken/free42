@@ -39,3 +39,5 @@ then
     sh ./build-macports
     cd ..
 fi
+
+echo "Remember to get Free42Mac.zip notarized before uploading!"
