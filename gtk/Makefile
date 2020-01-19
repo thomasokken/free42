@@ -90,7 +90,7 @@ SRCS += audio_alsa.cc
 OBJS += audio_alsa.o
 endif
 
-$(EXE): $(OBJS)
+$(EXE): $(OBJS) gcc111libbid.a
 	$(CXX) -o $(EXE) $(LDFLAGS) $(OBJS) $(LIBS)
 
 $(SRCS) skin2cc.cc keymap2cc.cc skin2cc.conf: symlinks
@@ -113,14 +113,16 @@ keymap2cc: keymap2cc.cc
 keymap.cc: keymap2cc keymap.txt
 	./keymap2cc
 
-symlinks:
-	for fn in `cd ../common; /bin/ls`; do ln -s ../common/$$fn; done
+gcc111libbid.a:
 	sh ./build-intel-lib.sh
 	ln -s IntelRDFPMathLib20U1/TESTS/readtest.c
+
+symlinks:
+	for fn in `cd ../common; /bin/ls`; do ln -s ../common/$$fn; done
 	touch symlinks
 
 clean: FORCE
-	rm -f `find . -type l` \
+	rm -f `find . -type l ! -name readtest.c` \
 		skin2cc skin2cc.exe skins.cc \
 		keymap2cc keymap2cc.exe keymap.cc \
 		*.o *.d *.i *.ii *.s symlinks core.*
