@@ -340,7 +340,7 @@ int virtual_flag_handler(int flagop, int flagnum) {
             }
         }
         case 48: /* alpha_mode */ {
-            bool alpha = core_alpha_menu();
+            bool alpha = alpha_active();
             switch (flagop) {
                 case FLAGOP_FS_T:
                     return alpha ? ERR_YES : ERR_NO;

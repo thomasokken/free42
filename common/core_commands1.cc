@@ -554,7 +554,7 @@ int docmd_arcl(arg_struct *arg) {
     }
     free_vartype(v);
 
-    if (core_alpha_menu() && !program_running())
+    if (alpha_active() && !program_running())
         set_alpha_entry(true);
     if (flags.f.trace_print && flags.f.printer_exists)
         docmd_pra(NULL);

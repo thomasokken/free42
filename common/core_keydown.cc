@@ -89,6 +89,51 @@ static void view(const char *varname, int varlength) {
     }
 }
 
+typedef struct {
+    int2 key;
+    int2 cmd;
+} cmd_getkey_mapping_struct;
+
+static cmd_getkey_mapping_struct cmd_getkey_mapping[] = {
+    {  1, CMD_SIGMAADD },
+    {  2, CMD_INV },
+    {  3, CMD_SQRT },
+    {  4, CMD_LOG },
+    {  5, CMD_LN },
+    {  6, CMD_XEQ },
+    {  7, CMD_STO },
+    {  8, CMD_RCL },
+    {  9, CMD_RDN },
+    { 10, CMD_SIN },
+    { 11, CMD_COS },
+    { 12, CMD_TAN },
+    { 13, CMD_ENTER },
+    { 14, CMD_SWAP },
+    { 15, CMD_CHS },
+    { 22, CMD_DIV },
+    { 27, CMD_MUL },
+    { 32, CMD_SUB },
+    { 37, CMD_ADD },
+    { 38, CMD_SIGMASUB },
+    { 39, CMD_Y_POW_X },
+    { 40, CMD_SQUARE },
+    { 41, CMD_10_POW_X },
+    { 42, CMD_E_POW_X },
+    { 43, CMD_GTO },
+    { 44, CMD_COMPLEX },
+    { 45, CMD_PERCENT },
+    { 46, CMD_PI },
+    { 47, CMD_ASIN },
+    { 48, CMD_ACOS },
+    { 49, CMD_ATAN },
+    { 51, CMD_LASTX },
+    { 55, CMD_BST },
+    { 60, CMD_SST },
+    { 66, CMD_ASSIGNa },
+    { 70, CMD_OFF },
+    {  0, CMD_NONE }
+};
+
 void keydown(int shift, int key) {
     int *menu;
 
@@ -126,7 +171,27 @@ void keydown(int shift, int key) {
     }
 
     if (mode_getkey) {
-        vartype *result = new_real(shift ? key + 37 : key);
+        if (key >= 2048) {
+            // Direct command mapping
+            int cmd = key - 2048;
+            cmd_getkey_mapping_struct *gm = cmd_getkey_mapping;
+            while (true) {
+                if (gm->key == 0) {
+                    // Command that's not on the standard keyboard
+                    squeak();
+                    shell_annunciators(-1, -1, -1, 0, -1, -1);
+                    return;
+                } else if (gm->cmd == cmd) {
+                    key = gm->key;
+                    break;
+                }
+                gm++;
+            }
+        } else {
+            if (shift)
+                key += 37;
+        }
+        vartype *result = new_real(key);
         if (result != NULL) {
             recall_result(result);
             flags.f.stack_lift_disable = 0;
@@ -281,7 +346,7 @@ void keydown(int shift, int key) {
         keydown_number_entry(shift, key);
     else if (mode_command_entry)
         keydown_command_entry(shift, key);
-    else if (core_alpha_menu())
+    else if (alpha_active())
         keydown_alpha_mode(shift, key);
     else
         keydown_normal_mode(shift, key);

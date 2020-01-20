@@ -985,7 +985,7 @@ static int prgmline2buf(char *buf, int len, int4 line, int highlight,
         string2buf(buf, len, &bufptr, "{ ", 2);
         bufptr += int2string(size, buf + bufptr, len - bufptr);
         string2buf(buf, len, &bufptr, "-Byte Prgm }", 12);
-    } else if (core_alpha_menu() && mode_alpha_entry && highlight) {
+    } else if (alpha_active() && mode_alpha_entry && highlight) {
         int append = entered_string_length > 0 && entered_string[0] == 127;
         if (append) {
             string2buf(buf, len, &bufptr, "\177\"", 2);
@@ -1813,7 +1813,7 @@ static int procrustean_phloat2string(phloat d, char *buf, int buflen) {
 void show() {
     if (flags.f.prgm_mode)
         display_prgm_line(-1, 0);
-    else if (core_alpha_menu()) {
+    else if (alpha_active()) {
         clear_display();
         if (reg_alpha_length <= 22)
             draw_string(0, 0, reg_alpha, reg_alpha_length);
@@ -2131,7 +2131,7 @@ void redisplay() {
             display_command(cmd_row);
     }
 
-    if (!core_alpha_menu() && !flags.f.prgm_mode) {
+    if (!alpha_active() && !flags.f.prgm_mode) {
         if (avail_rows == 1) {
             if (!flags.f.message)
                 display_x(0);
@@ -2171,7 +2171,7 @@ void redisplay() {
                     display_prgm_line(1, 0);
             }
         }
-    } else if (core_alpha_menu() && avail_rows != 0 && !flags.f.message) {
+    } else if (alpha_active() && avail_rows != 0 && !flags.f.message) {
         int avail = mode_alpha_entry ? 21 : 22;
         if (reg_alpha_length <= avail) {
             draw_string(0, 0, reg_alpha, reg_alpha_length);

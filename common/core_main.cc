@@ -190,9 +190,13 @@ int core_menu() {
     return mode_clall || get_front_menu() != NULL;
 }
 
-int core_alpha_menu() {
+bool alpha_active() {
     int *menu = get_front_menu();
     return menu != NULL && *menu >= MENU_ALPHA1 && *menu <= MENU_ALPHA_MISC2;
+}
+
+int core_alpha_menu() {
+    return !mode_getkey && alpha_active();
 }
 
 int core_hex_menu() {
@@ -2224,7 +2228,7 @@ char *core_copy() {
             return NULL;
         } else
             return tb.buf;
-    } else if (core_alpha_menu()) {
+    } else if (alpha_active()) {
         char *buf = (char *) malloc(5 * reg_alpha_length + 1);
         int bufptr = hp2ascii(buf, reg_alpha, reg_alpha_length);
         buf[bufptr] = 0;
@@ -3420,7 +3424,7 @@ void core_paste(const char *buf) {
 
     if (flags.f.prgm_mode) {
         paste_programs(buf);
-    } else if (core_alpha_menu()) {
+    } else if (alpha_active()) {
         char hpbuf[48];
         int len = ascii2hp(hpbuf, buf, 44);
         int tlen = len + reg_alpha_length;
