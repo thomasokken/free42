@@ -1,3 +1,8 @@
+2020-01-25: release 2.5.16
+
+* Fixed GETKEY behavior with skins that use direct command mapping.
+* Fixed GETKEY behavior with physical keyboards in ALPHA mode.
+
 2020-01-18: release 2.5.15
 
 * Some fixes to Paste to improve compatibility with Emu42 text.
