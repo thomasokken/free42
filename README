@@ -24,6 +24,16 @@ about cleaning up object files.
 
 
 -------------------------------------------------------------------------------
+Building on Raspbian 10
+
+# apt install libgtk-3-dev
+# apt install libasound2-dev
+$ git clone https://github.com/thomasokken/free42.git
+$ cd free42/gtk
+$ make BCD_MATH=1 AUDIO_ALSA=1
+
+
+-------------------------------------------------------------------------------
 Creating Free42 build environment in FreeBSD
 
 Create VirtualBox VM (using VirtualBox 5.2.22)

@@ -24,6 +24,7 @@ CFLAGS = -MMD \
 	 -Wno-constant-conversion \
 	 -Wno-sometimes-uninitialized \
 	 -Wno-format-truncation \
+	 -Wno-class-memaccess \
 	 -Wno-unknown-warning-option \
 	 -g \
 	 $(shell pkg-config --cflags gtk+-3.0) \
