@@ -3,11 +3,10 @@
 android
 build-android
 build-mac
-build-history
+build-history.py
 build-windows
 update-version-number.py
 iphone
 mac
 upstream
-util
 windows

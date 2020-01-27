@@ -1,0 +1,27 @@
+#!/usr/bin/python
+
+import sys
+import os
+
+hist = open("HISTORY").read()
+hist = hist.replace("&", "&amp;")
+hist = hist.replace("<", "&lt;")
+hist = hist.replace(">", "&gt;")
+
+title = "Free42 history"
+
+os.mkdir("packages", 0o755)
+html = open("packages/history.html", "w")
+html.write("<html>\n"
+        + "<head>\n"
+        + "  <title>" + title + "</title>\n"
+        + "  <link rel=\"icon\" type=\"image/png\" href=\"images/free42-icon.png\">\n"
+        + "</head>\n"
+        + "<body>\n"
+        + "<h3>" + title + "</h3>\n"
+        + "<pre>" + hist + "</pre>\n"
+        + "<p>\n"
+        + "<a href=\".\">Go to Free42 home page</a>\n"
+        + "</body>\n"
+        + "</html>")
+html.close()
