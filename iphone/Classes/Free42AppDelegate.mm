@@ -86,8 +86,8 @@ static BOOL urlInInbox(NSURL *url) {
             openURL:(NSURL *)url
             options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options; {
     NSMutableArray *fromNames = [NSMutableArray array];
-    // If the URL is not a file: URL pointing to a file in our Inbox, copy
-    // the URL contents into the Inbox. Otherwise, just proceed to Inbox
+    // If the URL is not a file:/// URL pointing to a file in our Inbox, copy
+    // the URL contents into a temporary location. Otherwise, just proceed to Inbox
     // processing.
     if (!urlInInbox(url)) {
         NSString *ext = [url pathExtension];
@@ -96,7 +96,23 @@ static BOOL urlInInbox(NSURL *url) {
                 || [ext caseInsensitiveCompare:@"raw"] == NSOrderedSame)) {
             NSString *name = [url lastPathComponent];
             NSString *destPath = [NSString stringWithFormat:@"%@/Documents/_TEMP_/%@", NSHomeDirectory(), name];
-            mkdir("_TEMP_", 0755);
+
+            // Create temp directory, or clear it out if it existed already
+            if (mkdir("_TEMP_", 0755) != 0 && errno == EEXIST) {
+                DIR *dir = opendir("_TEMP_");
+                if (dir != NULL) {
+                    struct dirent *d;
+                    char path[1024];
+                    while ((d = readdir(dir)) != NULL) {
+                        if (strcmp(d->d_name, ".") != 0 && strcmp(d->d_name, "..") != 0) {
+                            snprintf(path, 1024, "_TEMP_/%s", d->d_name);
+                            remove(path);
+                        }
+                    }
+                    closedir(dir);
+                }
+            }
+            
             NSError *err = nil;
             NSFileManager *fm = [NSFileManager defaultManager];
             BOOL secure = [url isFileURL] && ![fm isReadableFileAtPath:[url path]];
@@ -128,6 +144,7 @@ static BOOL urlInInbox(NSURL *url) {
         [RootViewController showMessage:@"Import failed."];
         return NO;
     }
+    
     NSString *firstState = nil;
     int nProgs = 0;
     for (int i = 0; i < [fromNames count]; i++) {
@@ -179,6 +196,8 @@ static BOOL urlInInbox(NSURL *url) {
             remove(fromPathC);
         }
     }
+    
+    // Remove the temp directory we created for handling URL imports
     rmdir("_TEMP_");
     if (firstState == nil) {
         if (nProgs == 0) {
