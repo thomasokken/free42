@@ -789,11 +789,11 @@ static size_t raw_write(const char *buf, size_t size) {
 
 static void raw_close(const char *mode) {
     if (raw_buf == NULL) {
-	if (ferror(gfile)) {
-	    char msg[50];
-	    sprintf(msg, "An error occurred during program %s.", mode);
+        if (ferror(gfile)) {
+            char msg[50];
+            sprintf(msg, "An error occurred during program %s.", mode);
             shell_message(msg);
-	}
+        }
         fclose(gfile);
     }
 }
@@ -3482,6 +3482,11 @@ void core_paste(const char *buf) {
             // Scalar
             int len = (int) strlen(buf);
             char *asciibuf = (char *) malloc(len + 1);
+            if (asciibuf == NULL) {
+                display_error(ERR_INSUFFICIENT_MEMORY, 0);
+                redisplay();
+                return;
+            }
             strcpy(asciibuf, buf);
             if (len > 0 && asciibuf[len - 1] == '\n') {
                 asciibuf[--len] = 0;
@@ -3489,6 +3494,12 @@ void core_paste(const char *buf) {
                     asciibuf[--len] = 0;
             }
             char *hpbuf = (char *) malloc(len + 4);
+            if (hpbuf == NULL) {
+                free(asciibuf);
+                display_error(ERR_INSUFFICIENT_MEMORY, 0);
+                redisplay();
+                return;
+            }
             len = ascii2hp(hpbuf, asciibuf, len);
             free(asciibuf);
             v = parse_base(hpbuf, len);
@@ -3509,6 +3520,7 @@ void core_paste(const char *buf) {
                         break;
                 }
             }
+            free(hpbuf);
         } else {
             // Matrix
             int n = rows * cols;

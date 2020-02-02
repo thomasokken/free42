@@ -1885,9 +1885,9 @@ void keydown_normal_mode(int shift, int key) {
                 pc = 0;
             else if (prgms[current_prgm].text[pc] != CMD_END)
                 pc += get_command_length(current_prgm, pc);
-	    prgm_highlight_row = 1;
-	    if (cmdline_row == 1)
-		display_prgm_line(0, -1);
+            prgm_highlight_row = 1;
+            if (cmdline_row == 1)
+                display_prgm_line(0, -1);
         } else {
             if (!flags.f.stack_lift_disable) {
                 free_vartype(reg_t);
