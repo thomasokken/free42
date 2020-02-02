@@ -10,7 +10,11 @@ hist = hist.replace(">", "&gt;")
 
 title = "Free42 history"
 
-os.mkdir("packages", 0o755)
+try:
+    os.mkdir("packages", 0o755)
+except:
+    pass
+
 html = open("packages/history.html", "w")
 html.write("<html>\n"
         + "<head>\n"

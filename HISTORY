@@ -1,3 +1,7 @@
+2020-02-02: release 2.5.16a (iOS only)
+
+* Fixed file import from the Files app.
+
 2020-01-25: release 2.5.16
 
 * Fixed GETKEY behavior with skins that use direct command mapping.
