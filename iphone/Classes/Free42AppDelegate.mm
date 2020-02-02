@@ -68,24 +68,62 @@ static char version[32] = "";
     return version;
 }
 
+static BOOL urlInInbox(NSURL *url) {
+    if (![url isFileURL])
+        return NO;
+    NSString *path = [url path];
+    if (path == nil)
+        return NO;
+    const char *cpath = [path UTF8String];
+    struct stat st;
+    if (stat(cpath, &st) != 0 || !S_ISREG(st.st_mode))
+        return NO;
+    NSString *inbox = [NSString stringWithFormat:@"%@/Documents/Inbox/", NSHomeDirectory()];
+    return [path hasPrefix:inbox];
+}
+
 - (BOOL) application:(UIApplication *)app
             openURL:(NSURL *)url
             options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options; {
-    // We ignore the URL and just handle all files with names
-    // ending in .f42 or .F42 that happen to be in our Inbox.
-    DIR *dir = opendir("Inbox");
-    if (dir == NULL)
-        return NO;
-    struct dirent *d;
     NSMutableArray *fromNames = [NSMutableArray array];
-    while ((d = readdir(dir)) != NULL) {
-        size_t len = strlen(d->d_name);
-        if (len < 5 || (strcasecmp(d->d_name + len - 4, ".f42") != 0
-                     && strcasecmp(d->d_name + len - 4, ".raw") != 0))
-            continue;
-        [fromNames addObject:[NSString stringWithUTF8String:d->d_name]];
+    // If the URL is not a file: URL pointing to a file in our Inbox, copy
+    // the URL contents into the Inbox. Otherwise, just proceed to Inbox
+    // processing.
+    if (!urlInInbox(url)) {
+        NSString *ext = [url pathExtension];
+        if (ext != nil
+            && ([ext caseInsensitiveCompare:@"f42"] == NSOrderedSame
+                || [ext caseInsensitiveCompare:@"raw"] == NSOrderedSame)) {
+            NSString *name = [url lastPathComponent];
+            NSString *destPath = [NSString stringWithFormat:@"%@/Documents/_TEMP_/%@", NSHomeDirectory(), name];
+            mkdir("_TEMP_", 0755);
+            NSError *err = nil;
+            NSFileManager *fm = [NSFileManager defaultManager];
+            BOOL secure = [url isFileURL] && ![fm isReadableFileAtPath:[url path]];
+            if (secure)
+                secure = [url startAccessingSecurityScopedResource];
+            [fm copyItemAtURL:url toURL:[NSURL fileURLWithPath:destPath] error:&err];
+            if (secure)
+                [url stopAccessingSecurityScopedResource];
+            if (err != nil)
+                NSLog(@"File copy failed: %@", [err localizedDescription]);
+            else
+                [fromNames addObject:[NSString stringWithFormat:@"_TEMP_/%@", name]];
+        }
     }
-    closedir(dir);
+    // Handle all files with names ending in .f42 or .raw that happen to be in our Inbox.
+    DIR *dir = opendir("Inbox");
+    if (dir != NULL) {
+        struct dirent *d;
+        while ((d = readdir(dir)) != NULL) {
+            size_t len = strlen(d->d_name);
+            if (len < 5 || (strcasecmp(d->d_name + len - 4, ".f42") != 0
+                         && strcasecmp(d->d_name + len - 4, ".raw") != 0))
+                continue;
+            [fromNames addObject:[NSString stringWithFormat:@"Inbox/%@", [NSString stringWithUTF8String:d->d_name]]];
+        }
+        closedir(dir);
+    }
     if ([fromNames count] == 0) {
         [RootViewController showMessage:@"Import failed."];
         return NO;
@@ -93,8 +131,8 @@ static char version[32] = "";
     NSString *firstState = nil;
     int nProgs = 0;
     for (int i = 0; i < [fromNames count]; i++) {
-        NSString *fromName = [fromNames objectAtIndex:i];
-        NSString *fromPath = [NSString stringWithFormat:@"Inbox/%@", fromName];
+        NSString *fromPath = [fromNames objectAtIndex:i];
+        NSString *fromName = [fromPath lastPathComponent];
         const char *fromPathC = [fromPath UTF8String];
         size_t clen = strlen(fromPathC);
         if (strcasecmp(fromPathC + clen - 4, ".f42") == 0) {
@@ -141,6 +179,7 @@ static char version[32] = "";
             remove(fromPathC);
         }
     }
+    rmdir("_TEMP_");
     if (firstState == nil) {
         if (nProgs == 0) {
             [RootViewController showMessage:@"Import failed."];
