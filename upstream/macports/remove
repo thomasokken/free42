@@ -3,9 +3,9 @@
 android
 build-android
 build-gtk
-build-history.py
+build-history
 build-windows
-update-version-number.py
+update-version-number
 gtk
 iphone
 upstream
