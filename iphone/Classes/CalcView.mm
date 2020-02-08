@@ -273,6 +273,7 @@ static CalcView *calcView = nil;
     [super dealloc];
 }
 
+static char touchDelayed = 0;
 static CGPoint touchPoint;
 
 - (void) touchesBegan: (NSSet *) touches withEvent: (UIEvent *) event {
@@ -280,6 +281,7 @@ static CGPoint touchPoint;
     [super touchesBegan:touches withEvent:event];
     UITouch *touch = (UITouch *) [touches anyObject];
     touchPoint = [touch locationInView:self];
+    touchDelayed = 1;
     [self performSelector:@selector(touchesBegan2) withObject:NULL afterDelay:0.05];
 }
 
@@ -310,20 +312,35 @@ static CGPoint touchPoint;
             mouse_key = 1;
         }
     }
+    if (touchDelayed == 2) {
+        if (ckey != 0 && mouse_key)
+            shell_keyup();
+    }
+    touchDelayed = 0;
 }
 
 - (void) touchesEnded: (NSSet *) touches withEvent: (UIEvent *) event {
     TRACE("touchesEnded");
     [super touchesEnded:touches withEvent:event];
-    if (ckey != 0 && mouse_key)
-        shell_keyup();
+    if (touchDelayed == 1) {
+        touchDelayed = 2;
+    } else {
+        if (ckey != 0 && mouse_key)
+            shell_keyup();
+        touchDelayed = 0;
+    }
 }
 
 - (void) touchesCancelled: (NSSet *) touches withEvent: (UIEvent *) event {
     TRACE("touchesCancelled");
     [super touchesCancelled:touches withEvent:event];
-    if (ckey != 0 && mouse_key)
-        shell_keyup();
+    if (touchDelayed == 1) {
+        touchDelayed = 2;
+    } else {
+        if (ckey != 0 && mouse_key)
+            shell_keyup();
+        touchDelayed = 0;
+    }
 }
 
 + (void) repaint {
@@ -474,6 +491,7 @@ static struct timeval runner_end_time;
         [RootViewController showPrintOut];
         [RootViewController showMain];
         [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(touchesBegan2) object:nil];
+        touchDelayed = 0;
     }
     if (state == UIGestureRecognizerStateEnded) {
         cf.origin.x = self.superview.bounds.origin.x;
