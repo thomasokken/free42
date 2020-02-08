@@ -53,7 +53,8 @@ int print_text_pixel_height;
     print_bitmap = (unsigned char *) malloc(PRINT_SIZE);
     print_text = (unsigned char *) malloc(PRINT_TEXT_SIZE);
     // TODO - handle memory allocation failure
-    scale = (CGFloat) (self.bounds.size.width / 179.0);
+    CGFloat w = self.bounds.size.width < self.bounds.size.height ? self.bounds.size.width : self.bounds.size.height;
+    scale = (CGFloat) (w / 179.0);
     
     FILE *printfile = fopen("config/print", "r");
     if (printfile != NULL) {
@@ -137,6 +138,8 @@ int print_text_pixel_height;
 }
 
 - (void) layoutSubviews {
+    CGFloat w = self.bounds.size.width < self.bounds.size.height ? self.bounds.size.width : self.bounds.size.height;
+    scale = (CGFloat) (w / 179.0);
     [self repositionTiles:true];
 }
 
