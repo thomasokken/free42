@@ -1328,7 +1328,9 @@ public class Free42Activity extends Activity {
             top = textTop = 0;
 
             printHeight = bottom / BYTESPERLINE;
-            screenWidth = getWindowManager().getDefaultDisplay().getWidth();
+            int w = getWindowManager().getDefaultDisplay().getWidth();
+            int h = getWindowManager().getDefaultDisplay().getHeight();
+            screenWidth = Math.min(w, h);
             scale = screenWidth / 179f;
         }
 
