@@ -16,7 +16,9 @@
  *****************************************************************************/
 
 #import "PrintView.h"
+#import "CalcView.h"
 #import "RootViewController.h"
+#import "Free42AppDelegate.h"
 #import "shell.h"
 #import "shell_spool.h"
 
@@ -93,6 +95,37 @@ int print_text_pixel_height;
 
     [self repositionTiles:true];
     [self scrollToBottom];
+    
+    UIPanGestureRecognizer *panrec = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
+    [self addGestureRecognizer:panrec];
+}
+
+- (void) handlePan:(UIPanGestureRecognizer *)panrec {
+    UIGestureRecognizerState state = [panrec state];
+    CGPoint p = [panrec translationInView:[self superview]];
+    CalcView *calc = ((Free42AppDelegate *) UIApplication.sharedApplication.delegate).rootViewController.calcView;
+    CGRect pf = self.frame;
+    CGRect cf = calc.frame;
+    if (state == UIGestureRecognizerStateBegan) {
+        // Make sure the Calculator view isn't hidden
+        [RootViewController showMain];
+        [RootViewController showPrintOut];
+    }
+    if (state == UIGestureRecognizerStateEnded) {
+        pf.origin.x = self.superview.bounds.origin.x;
+        self.frame = pf;
+        cf.origin.x = self.superview.bounds.origin.x;
+        calc.frame = cf;
+        if (p.x > self.bounds.size.width / 3)
+            [RootViewController showMain];
+    } else {
+        if (p.x < 0)
+            p.x = 0;
+        pf.origin.x = self.superview.bounds.origin.x + p.x;
+        self.frame = pf;
+        cf.origin.x = self.superview.bounds.origin.x + p.x - calc.frame.size.width;
+        calc.frame = cf;
+    }
 }
 
 - (void)dealloc {

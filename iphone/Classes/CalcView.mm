@@ -450,6 +450,37 @@ static struct timeval runner_end_time;
         [self startRunner];
     if (shell_always_on(-1))
         [UIApplication sharedApplication].idleTimerDisabled = YES;
+    
+    UIPanGestureRecognizer *panrec = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
+    [self addGestureRecognizer:panrec];
+}
+
+- (void) handlePan:(UIPanGestureRecognizer *)panrec {
+    UIGestureRecognizerState state = [panrec state];
+    CGPoint p = [panrec translationInView:[self superview]];
+    PrintView *print = ((Free42AppDelegate *) UIApplication.sharedApplication.delegate).rootViewController.printView;
+    CGRect cf = self.frame;
+    CGRect pf = print.frame;
+    if (state == UIGestureRecognizerStateBegan) {
+        // Make sure the Print-Out view isn't hidden
+        [RootViewController showPrintOut];
+        [RootViewController showMain];
+    }
+    if (state == UIGestureRecognizerStateEnded) {
+        cf.origin.x = self.superview.bounds.origin.x;
+        self.frame = cf;
+        pf.origin.x = self.superview.bounds.origin.x;
+        print.frame = pf;
+        if (p.x < -self.bounds.size.width / 3)
+            [RootViewController showPrintOut];
+    } else {
+        if (p.x > 0)
+            p.x = 0;
+        cf.origin.x = self.superview.bounds.origin.x + p.x;
+        self.frame = cf;
+        pf.origin.x = self.superview.bounds.origin.x + p.x + self.frame.size.width;
+        print.frame = pf;
+    }
 }
 
 + (void) loadState:(const char *)name {
