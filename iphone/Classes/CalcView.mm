@@ -459,6 +459,7 @@ static struct timeval runner_end_time;
         [UIApplication sharedApplication].idleTimerDisabled = YES;
     
     UIPanGestureRecognizer *panrec = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
+    panrec.cancelsTouchesInView = NO;
     [self addGestureRecognizer:panrec];
 }
 
@@ -480,7 +481,10 @@ static struct timeval runner_end_time;
         pf.origin.x = self.superview.bounds.origin.x;
         print.frame = pf;
         CGPoint v = [panrec velocityInView:[self superview]];
-        if (p.x + v.x / 16 < -self.bounds.size.width / 3)
+        CGFloat scale = self.bounds.size.width / self.bounds.size.height;
+        if (scale < 1)
+            scale = 1;
+        if (scale * (p.x + v.x / 16) < -self.bounds.size.width / 3)
             [RootViewController showPrintOut];
     } else {
         if (p.x > 0)

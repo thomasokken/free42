@@ -117,7 +117,10 @@ int print_text_pixel_height;
         cf.origin.x = self.superview.bounds.origin.x;
         calc.frame = cf;
         CGPoint v = [panrec velocityInView:[self superview]];
-        if (p.x + v.x / 16 > self.bounds.size.width / 3)
+        CGFloat scale = self.bounds.size.width / self.bounds.size.height;
+        if (scale < 1)
+            scale = 1;
+        if (scale * (p.x + v.x / 16) > self.bounds.size.width / 3)
             [RootViewController showMain];
     } else {
         if (p.x < 0)
