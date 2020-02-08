@@ -136,6 +136,10 @@ int print_text_pixel_height;
     [super dealloc];
 }
 
+- (void) layoutSubviews {
+    [self repositionTiles:true];
+}
+
 + (PrintView *) instance {
     return instance;
 }
