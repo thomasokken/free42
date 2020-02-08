@@ -1,3 +1,7 @@
+2020-02-08: release 2.5.16b (iOS only)
+
+* Can now switch between the calculator and print-out by swiping sideways.
+
 2020-02-02: release 2.5.16a (iOS only)
 
 * Fixed file import from the Files app.
