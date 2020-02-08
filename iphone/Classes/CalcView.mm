@@ -273,11 +273,18 @@ static CalcView *calcView = nil;
     [super dealloc];
 }
 
+static CGPoint touchPoint;
+
 - (void) touchesBegan: (NSSet *) touches withEvent: (UIEvent *) event {
     TRACE("touchesBegan");
     [super touchesBegan:touches withEvent:event];
     UITouch *touch = (UITouch *) [touches anyObject];
-    CGPoint p = [touch locationInView:self];
+    touchPoint = [touch locationInView:self];
+    [self performSelector:@selector(touchesBegan2) withObject:NULL afterDelay:0.05];
+}
+
+- (void) touchesBegan2 {
+    CGPoint p = touchPoint;
     int x = (int) p.x;
     int y = (int) p.y;
     if (ckey == 0) {
@@ -465,13 +472,15 @@ static struct timeval runner_end_time;
         // Make sure the Print-Out view isn't hidden
         [RootViewController showPrintOut];
         [RootViewController showMain];
+        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(touchesBegan2) object:nil];
     }
     if (state == UIGestureRecognizerStateEnded) {
         cf.origin.x = self.superview.bounds.origin.x;
         self.frame = cf;
         pf.origin.x = self.superview.bounds.origin.x;
         print.frame = pf;
-        if (p.x < -self.bounds.size.width / 3)
+        CGPoint v = [panrec velocityInView:[self superview]];
+        if (p.x + v.x / 16 < -self.bounds.size.width / 3)
             [RootViewController showPrintOut];
     } else {
         if (p.x > 0)
