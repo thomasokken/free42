@@ -428,17 +428,18 @@ static void tbnonewliner() {
 - (void) repositionTiles:(bool)force {
     CGPoint offset = scrollView.contentOffset;
     CGSize size = scrollView.bounds.size;
+    CGFloat tileWidth = 179 * scale;
     int printHeight = printout_bottom - printout_top;
     if (printHeight < 0)
         printHeight += PRINT_LINES;
     [scrollView setContentSize:CGSizeMake(self.bounds.size.width, printHeight * scale)];
     int tilePos = ((int) offset.y) / ((int) size.height);
-    CGRect tile1rect = CGRectMake(0, size.height * tilePos, size.width, size.height);
+    CGRect tile1rect = CGRectMake(0, size.height * tilePos, tileWidth, size.height);
     if (tile1rect.origin.y < 0) {
         tile1rect.size.height += tile1rect.origin.y;
         tile1rect.origin.y = 0;
     }
-    CGRect tile2rect = CGRectMake(0, size.height * (tilePos + 1), size.width, size.height);
+    CGRect tile2rect = CGRectMake(0, size.height * (tilePos + 1), tileWidth, size.height);
     int excessHeight = tile2rect.origin.y + tile2rect.size.height - printHeight * scale;
     if (excessHeight > 0) {
         int oldHeight = (int) tile2rect.size.height;
