@@ -509,6 +509,7 @@ void skin_load(long *width, long *height) {
                     ann->src.y = act_y;
                 }
             }
+        /*
         } else if (strchr(line, ':') != 0) {
             keymap_entry *entry = parse_keymap_entry(line, lineno);
             if (entry != NULL) {
@@ -519,6 +520,7 @@ void skin_load(long *width, long *height) {
                 }
                 memcpy(keymap + (keymap_length++), entry, sizeof(keymap_entry));
             }
+        */
         }
     }
     
