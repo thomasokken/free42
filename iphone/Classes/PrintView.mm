@@ -353,6 +353,8 @@ static void tbnonewliner() {
 
 - (void) scrollToBottom {
     CGPoint bottomOffset = CGPointMake(0, self.scrollView.contentSize.height - self.scrollView.bounds.size.height);
+    if (bottomOffset.y < 0)
+        bottomOffset.y = 0;
     [self.scrollView setContentOffset:bottomOffset animated:NO];
 }
 
