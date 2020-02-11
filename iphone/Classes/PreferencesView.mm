@@ -55,6 +55,18 @@
     // Drawing code
 }
 
+- (void) layoutSubviews {
+    [super layoutSubviews];
+    // Handle changing navigation bar height
+    // For some reason, the navigation bar itself always reports a height of
+    // 44 pixels, even though in landscape mode it is definitely thinner
+    int navHeight = self.bounds.size.width < self.bounds.size.height ? 44 : 32;
+    CGRect scrollFrame = self.scrollView.frame;
+    scrollFrame.size.height += scrollFrame.origin.y - navHeight;
+    scrollFrame.origin.y = navHeight;
+    [self.scrollView setFrame:scrollFrame];
+}
+
 - (void) raised {
     [singularMatrixSwitch setOn:core_settings.matrix_singularmatrix];
     [matrixOutOfRangeSwitch setOn:core_settings.matrix_outofrange];
