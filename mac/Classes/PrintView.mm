@@ -29,6 +29,10 @@
     return self;
 }
 
+- (BOOL) isFlipped {
+    return YES;
+}
+
 - (void) initialUpdate {
     int height = printout_bottom - printout_top;
     if (height < 0)
@@ -43,9 +47,12 @@
 - (void) scrollToBottom {
     NSScrollView *scrollView = (NSScrollView *) [[self superview] superview];
     scrollView.verticalScroller.floatValue = 1;
+    int height = printout_bottom - printout_top;
+    if (height < 0)
+        height += PRINT_LINES;
     NSPoint p;
     p.x = 0;
-    p.y = 0;
+    p.y = height - 1;
     [self scrollPoint:p];
 }
 
@@ -64,7 +71,7 @@
         }
         NSPoint p;
         p.x = 0;
-        p.y = 0;
+        p.y = newlength - 1;
         [self scrollPoint:p];
         // TODO: Instead of repainting everything, copying the existing
         // print-out that merely has to move, may be more efficient
@@ -76,7 +83,7 @@
         [self setFrameSize:s];
         NSPoint p;
         p.x = 0;
-        p.y = 0;
+        p.y = newlength - 1;
         [self scrollPoint:p];
         NSRect r;
         r.origin.x = 0;
@@ -96,13 +103,11 @@
     int xmax = (int) (rect.origin.x + rect.size.width);
     int ymin = (int) rect.origin.y;
     int ymax = (int) (rect.origin.y + rect.size.height);
-    int wh = [self bounds].size.height;
     int length = printout_bottom - printout_top;
     if (length < 0)
         length += PRINT_LINES;
     for (int v = ymin; v < ymax; v++) {
-        int v2 = wh - 1 - v; // because of OS X upside-down coordinate system
-        v2 = printout_top + v2;
+        int v2 = printout_top + v;
         if (v2 >= PRINT_LINES)
             v2 -= PRINT_LINES;
         for (int h = xmin; h < xmax; h++) {
