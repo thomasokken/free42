@@ -481,6 +481,7 @@ static struct timeval runner_end_time;
 }
 
 - (void) handlePan:(UIPanGestureRecognizer *)panrec {
+    static CGFloat prevX;
     UIGestureRecognizerState state = [panrec state];
     CGPoint p = [panrec translationInView:[self superview]];
     PrintView *print = ((Free42AppDelegate *) UIApplication.sharedApplication.delegate).rootViewController.printView;
@@ -492,11 +493,12 @@ static struct timeval runner_end_time;
         [RootViewController showMain];
         [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(touchesBegan2) object:nil];
         touchDelayed = 0;
+        prevX = self.frame.origin.x;
     }
     if (state == UIGestureRecognizerStateEnded) {
-        cf.origin.x = self.superview.bounds.origin.x;
+        cf.origin.x = prevX;
         self.frame = cf;
-        pf.origin.x = self.superview.bounds.origin.x;
+        pf.origin.x = prevX;
         print.frame = pf;
         CGPoint v = [panrec velocityInView:[self superview]];
         CGFloat scale = self.bounds.size.width / self.bounds.size.height;

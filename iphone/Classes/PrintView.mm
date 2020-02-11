@@ -102,6 +102,7 @@ int print_text_pixel_height;
 }
 
 - (void) handlePan:(UIPanGestureRecognizer *)panrec {
+    static CGFloat prevX;
     UIGestureRecognizerState state = [panrec state];
     CGPoint p = [panrec translationInView:[self superview]];
     CalcView *calc = ((Free42AppDelegate *) UIApplication.sharedApplication.delegate).rootViewController.calcView;
@@ -111,11 +112,12 @@ int print_text_pixel_height;
         // Make sure the Calculator view isn't hidden
         [RootViewController showMain];
         [RootViewController showPrintOut];
+        prevX = self.frame.origin.x;
     }
     if (state == UIGestureRecognizerStateEnded) {
-        pf.origin.x = self.superview.bounds.origin.x;
+        pf.origin.x = prevX;
         self.frame = pf;
-        cf.origin.x = self.superview.bounds.origin.x;
+        cf.origin.x = prevX;
         calc.frame = cf;
         CGPoint v = [panrec velocityInView:[self superview]];
         CGFloat scale = self.bounds.size.width / self.bounds.size.height;
@@ -138,6 +140,17 @@ int print_text_pixel_height;
 }
 
 - (void) layoutSubviews {
+    [super layoutSubviews];
+    // Handle changing navigation bar height
+    // For some reason, the navigation bar itself always reports a height of
+    // 44 pixels, even though in landscape mode it is definitely thinner
+    int navHeight = self.bounds.size.width < self.bounds.size.height ? 44 : 32;
+    CGRect scrollFrame = self.scrollView.frame;
+    scrollFrame.size.height += scrollFrame.origin.y - navHeight;
+    scrollFrame.origin.y = navHeight;
+    [self.scrollView setFrame:scrollFrame];
+    
+    // Force print-out paper to be 179 simulated pixels wide
     CGFloat w = self.bounds.size.width < self.bounds.size.height ? self.bounds.size.width : self.bounds.size.height;
     scale = (CGFloat) (w / 179.0);
     [self repositionTiles:true];
