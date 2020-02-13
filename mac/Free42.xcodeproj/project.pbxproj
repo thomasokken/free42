@@ -172,6 +172,8 @@
 		E9BF15C02222E725009F559F /* FileOpenPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FileOpenPanel.h; path = Classes/FileOpenPanel.h; sourceTree = "<group>"; };
 		E9BF15C12222E725009F559F /* FileSavePanel.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = FileSavePanel.mm; path = Classes/FileSavePanel.mm; sourceTree = "<group>"; };
 		E9BF15C22222E725009F559F /* FileSavePanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FileSavePanel.h; path = Classes/FileSavePanel.h; sourceTree = "<group>"; };
+		E9C8F52A23F61842001B2235 /* Free42Release Binary.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Free42Release Binary.entitlements"; sourceTree = "<group>"; };
+		E9C8F52B23F61847001B2235 /* Free42Release Decimal.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Free42Release Decimal.entitlements"; sourceTree = "<group>"; };
 		E9DDAC7322FF861F00E994AF /* StateNameWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StateNameWindow.h; path = Classes/StateNameWindow.h; sourceTree = "<group>"; };
 		E9DDAC7422FF861F00E994AF /* StateNameWindow.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = StateNameWindow.mm; path = Classes/StateNameWindow.mm; sourceTree = "<group>"; };
 		E9E059D322FEF075009DDC40 /* StatesWindow.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = StatesWindow.mm; path = Classes/StatesWindow.mm; sourceTree = "<group>"; };
@@ -258,6 +260,8 @@
 		29B97314FDCFA39411CA2CEA /* Free42 */ = {
 			isa = PBXGroup;
 			children = (
+				E9C8F52B23F61847001B2235 /* Free42Release Decimal.entitlements */,
+				E9C8F52A23F61842001B2235 /* Free42Release Binary.entitlements */,
 				E9092A7718C2A52500609AB0 /* gcc111libbid.a */,
 				E959D3F90FEC0A0B007C56A4 /* Common */,
 				080E96DDFE201D6D7F000001 /* Classes */,
@@ -579,10 +583,12 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LIBRARY = "libc++";
+				CODE_SIGN_ENTITLEMENTS = "Free42Release Binary.entitlements";
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = F4D88K2P5W;
+				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Free42_Prefix.pch;
@@ -734,10 +740,12 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LIBRARY = "libc++";
+				CODE_SIGN_ENTITLEMENTS = "Free42Release Decimal.entitlements";
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = F4D88K2P5W;
+				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Free42_Prefix.pch;
