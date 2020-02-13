@@ -80,7 +80,7 @@ static int ckey = 0;
 static int skey;
 static unsigned char *macro;
 static bool macro_is_name;
-static UITouch *currentTouch;
+static UITouch *currentTouch = nil;
 
 static bool timeout_active = false;
 static int timeout_which;
@@ -285,10 +285,12 @@ static CGPoint touchPoint;
     }
     if (ckey != 0)
         shell_keyup();
+    [currentTouch release];
     currentTouch = (UITouch *) [touches anyObject];
+    [currentTouch retain];
     touchPoint = [currentTouch locationInView:self];
     touchDelayed = 1;
-    [self performSelector:@selector(touchesBegan2) withObject:NULL afterDelay:0.05];
+    [self performSelector:@selector(touchesBegan2) withObject:nil afterDelay:0.05];
 }
 
 - (void) touchesBegan2 {
@@ -324,28 +326,29 @@ static CGPoint touchPoint;
     touchDelayed = 0;
 }
 
-- (void) touchesEnded: (NSSet *) touches withEvent: (UIEvent *) event {
-    TRACE("touchesEnded");
-    [super touchesEnded:touches withEvent:event];
+- (void) myTouchesEnded:(NSSet *) touches {
     if (touchDelayed == 1) {
         touchDelayed = 2;
     } else {
-        if (ckey != 0 && [touches containsObject:currentTouch])
+        if (ckey != 0 && [touches containsObject:currentTouch]) {
             shell_keyup();
+            [currentTouch release];
+            currentTouch = nil;
+        }
         touchDelayed = 0;
     }
+}
+
+- (void) touchesEnded: (NSSet *) touches withEvent: (UIEvent *) event {
+    TRACE("touchesEnded");
+    [super touchesEnded:touches withEvent:event];
+    [self myTouchesEnded:touches];
 }
 
 - (void) touchesCancelled: (NSSet *) touches withEvent: (UIEvent *) event {
     TRACE("touchesCancelled");
     [super touchesCancelled:touches withEvent:event];
-    if (touchDelayed == 1) {
-        touchDelayed = 2;
-    } else {
-        if (ckey != 0 && [touches containsObject:currentTouch])
-            shell_keyup();
-        touchDelayed = 0;
-    }
+    [self myTouchesEnded:touches];
 }
 
 + (void) repaint {
@@ -482,6 +485,7 @@ static struct timeval runner_end_time;
     
     UIPanGestureRecognizer *panrec = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
     panrec.cancelsTouchesInView = NO;
+    panrec.delaysTouchesEnded = NO;
     [self addGestureRecognizer:panrec];
 }
 
