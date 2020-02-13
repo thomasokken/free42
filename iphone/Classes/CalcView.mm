@@ -80,7 +80,7 @@ static int ckey = 0;
 static int skey;
 static unsigned char *macro;
 static bool macro_is_name;
-static int mouse_key;
+static UITouch *currentTouch;
 
 static bool timeout_active = false;
 static int timeout_which;
@@ -279,8 +279,14 @@ static CGPoint touchPoint;
 - (void) touchesBegan: (NSSet *) touches withEvent: (UIEvent *) event {
     TRACE("touchesBegan");
     [super touchesBegan:touches withEvent:event];
-    UITouch *touch = (UITouch *) [touches anyObject];
-    touchPoint = [touch locationInView:self];
+    if (touchDelayed != 0) {
+        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(touchesBegan2) object:nil];
+        [self touchesBegan2];
+    }
+    if (ckey != 0)
+        shell_keyup();
+    currentTouch = (UITouch *) [touches anyObject];
+    touchPoint = [currentTouch locationInView:self];
     touchDelayed = 1;
     [self performSelector:@selector(touchesBegan2) withObject:NULL afterDelay:0.05];
 }
@@ -309,11 +315,10 @@ static CGPoint touchPoint;
             }
             macro = skin_find_macro(ckey, &macro_is_name);
             shell_keydown();
-            mouse_key = 1;
         }
     }
     if (touchDelayed == 2) {
-        if (ckey != 0 && mouse_key)
+        if (ckey != 0)
             shell_keyup();
     }
     touchDelayed = 0;
@@ -325,7 +330,7 @@ static CGPoint touchPoint;
     if (touchDelayed == 1) {
         touchDelayed = 2;
     } else {
-        if (ckey != 0 && mouse_key)
+        if (ckey != 0 && [touches containsObject:currentTouch])
             shell_keyup();
         touchDelayed = 0;
     }
@@ -337,7 +342,7 @@ static CGPoint touchPoint;
     if (touchDelayed == 1) {
         touchDelayed = 2;
     } else {
-        if (ckey != 0 && mouse_key)
+        if (ckey != 0 && [touches containsObject:currentTouch])
             shell_keyup();
         touchDelayed = 0;
     }
