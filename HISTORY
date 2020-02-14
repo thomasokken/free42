@@ -5,7 +5,7 @@
 * iOS version: Fixed several minor bugs and inconsistencies in landscape mode.
 * iOS and MacOS versions: Print-out now grows from the top down, rather than
   from the bottom up, to be consistent with these types of UIs in general, and
-  specifically with Free42 on other platforms
+  specifically with Free42 on other platforms.
 
 2020-02-08: release 2.5.16b (iOS only)
 
