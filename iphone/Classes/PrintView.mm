@@ -95,7 +95,11 @@ int print_text_pixel_height;
     print_text_top = 0;
 
     [self repositionTiles:true];
-    [self scrollToBottom];
+    // Calling scrollToBottom immediately doesn't work right if the
+    // print-out is sufficiently long, probably because something
+    // about the layout changes hasn't fully propagated yet. Calling
+    // it next time around the event loop seems to fix the problem.
+    [self performSelector:@selector(scrollToBottom) withObject:nil afterDelay:0];
     
     UIPanGestureRecognizer *panrec = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
     [self addGestureRecognizer:panrec];
