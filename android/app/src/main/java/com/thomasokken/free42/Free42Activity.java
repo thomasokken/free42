@@ -1172,14 +1172,14 @@ public class Free42Activity extends Activity {
             if (what != MotionEvent.ACTION_DOWN && what != MotionEvent.ACTION_UP
                     && what != MotionEvent.ACTION_POINTER_DOWN && what != MotionEvent.ACTION_POINTER_UP)
                 return true;
-            
-            cancelRepeaterAndTimeouts1And2();
 
             int index = MotionEventCompat.getActionIndex(e);
             int x = (int) ((MotionEventCompat.getX(e, index) - hOffset) / hScale);
             int y = (int) ((MotionEventCompat.getY(e, index) - vOffset) / vScale);
 
             if (what == MotionEvent.ACTION_DOWN || what == MotionEvent.ACTION_POINTER_DOWN) {
+                cancelRepeaterAndTimeouts1And2();
+
                 if (ckey != 0) {
                     Rect inval = skin.set_active_key(-1);
                     if (inval != null)
@@ -1188,6 +1188,7 @@ public class Free42Activity extends Activity {
                     if (keep_running)
                         startRunner();
                 }
+
                 IntHolder skeyHolder = new IntHolder();
                 IntHolder ckeyHolder = new IntHolder();
                 skin.find_key(core_menu(), x, y, skeyHolder, ckeyHolder);
@@ -1242,11 +1243,13 @@ public class Free42Activity extends Activity {
                 }
             } else {
                 if (possibleMenuEvent) {
+                    cancelRepeaterAndTimeouts1And2();
                     possibleMenuEvent = false;
                     if (skin.in_menu_area(x, y))
                         Free42Activity.this.postMainMenu();
                 }
                 if (currentPointer == MotionEventCompat.getPointerId(e, index)) {
+                    cancelRepeaterAndTimeouts1And2();
                     ckey = 0;
                     Rect inval = skin.set_active_key(-1);
                     if (inval != null)
