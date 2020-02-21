@@ -73,10 +73,12 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
+import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -247,6 +249,25 @@ public class Free42Activity extends Activity {
     ///////////////////////////////////////////////////////
     ///// Top-level code to interface with Android UI /////
     ///////////////////////////////////////////////////////
+
+    private class MyFlingRecognizer extends GestureDetector.SimpleOnGestureListener {
+        @Override
+        public boolean onDown(MotionEvent event) {
+            return true;
+        }
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            float diffY = e2.getY() - e1.getY();
+            float diffX = e2.getX() - e1.getX();
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                doFlipCalcPrintout();
+                return true;
+            } else
+                return false;
+        }
+    }
+
+    GestureDetectorCompat gdc;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -362,7 +383,23 @@ public class Free42Activity extends Activity {
         printScrollView = (ScrollView) printView.findViewById(R.id.printScrollView);
         printScrollView.setBackgroundColor(PRINT_BACKGROUND_COLOR);
         printScrollView.addView(printPaperView);
-        
+
+        gdc = new GestureDetectorCompat(this, new MyFlingRecognizer());
+        calcView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                gdc.onTouchEvent(motionEvent);
+                return calcView.onTouchEvent(motionEvent);
+            }
+        });
+        printPaperView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                gdc.onTouchEvent(motionEvent);
+                return printPaperView.onTouchEvent(motionEvent);
+            }
+        });
+
         skin = null;
         if (skinName[orientation].length() == 0 && externalSkinName[orientation].length() > 0) {
             try {
