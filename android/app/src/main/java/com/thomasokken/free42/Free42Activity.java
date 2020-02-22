@@ -259,7 +259,7 @@ public class Free42Activity extends Activity {
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
             float diffY = e2.getY() - e1.getY();
             float diffX = e2.getX() - e1.getX();
-            if (Math.abs(diffX) > Math.abs(diffY)) {
+            if (Math.abs(diffX) > Math.abs(diffY) && !dontFlip) {
                 doFlipCalcPrintout();
                 return true;
             } else
@@ -267,7 +267,8 @@ public class Free42Activity extends Activity {
         }
     }
 
-    GestureDetectorCompat gdc;
+    private GestureDetectorCompat gdc;
+    private boolean dontFlip;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -1176,6 +1177,7 @@ public class Free42Activity extends Activity {
         private Runnable delayedTouchCaller = new Runnable() {
             public void run() {
                 delayedTouch = false;
+                dontFlip = true;
                 myTouchDown();
             }
         };
@@ -1234,6 +1236,8 @@ public class Free42Activity extends Activity {
                 }
                 return true;
             }
+
+            dontFlip = false;
 
             if (delayedTouch) {
                 mainHandler.removeCallbacks(delayedTouchCaller);
