@@ -1,3 +1,13 @@
+2020-02-22: release 2.5.17a (Android and iOS)
+
+* Android version: Can now switch between the calculator and print-out by
+  swiping sideways. This feature is experimental and may not work on all
+  phones.
+* Android version: Implemented n-key rollover.
+* iOS version: Fixed initial print-out scroll position. Version 2.5.17
+  introduced a bug where it would not scroll all the way to the bottom
+  initially.
+
 2020-02-13: release 2.5.17 (iOS, Windows, MacOS, and Linux)
 
 * Fixed minor memory leak in Paste.
