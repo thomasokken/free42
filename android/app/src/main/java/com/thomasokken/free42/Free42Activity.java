@@ -400,6 +400,13 @@ public class Free42Activity extends Activity {
                 return printPaperView.onTouchEvent(motionEvent);
             }
         });
+        printScrollView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                gdc.onTouchEvent(motionEvent);
+                return printScrollView.onTouchEvent(motionEvent);
+            }
+        });
 
         skin = null;
         if (skinName[orientation].length() == 0 && externalSkinName[orientation].length() > 0) {
