@@ -1,3 +1,15 @@
+????-??-??: release 2.5.17c (Android only)
+
+* Restored the n-key rollover code, for more testing independently of the
+  swipe-to-switch code.
+
+2020-02-27: release 2.5.17b (Android only)
+
+* Temporarily removing the n-key rollover and swipe-to-switch that were
+  introduced in the previous release; 2.5.17a suffers from missed keystrokes,
+  apparently caused by the new logic. The features will be restored once the
+  keyboard problem has been diagnosed and fixed.
+
 2020-02-22: release 2.5.17a (Android and iOS)
 
 * Android version: Can now switch between the calculator and print-out by
