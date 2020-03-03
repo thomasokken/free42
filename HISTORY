@@ -1,14 +1,11 @@
-????-??-??: release 2.5.17c (Android only)
-
-* Restored the n-key rollover code, for more testing independently of the
-  swipe-to-switch code.
-
 2020-02-27: release 2.5.17b (Android only)
 
-* Temporarily removing the n-key rollover and swipe-to-switch that were
-  introduced in the previous release; 2.5.17a suffers from missed keystrokes,
-  apparently caused by the new logic. The features will be restored once the
-  keyboard problem has been diagnosed and fixed.
+* Removing the n-key rollover and swipe-to-switch that were introduced in the
+  previous release; 2.5.17a suffers from missed keystrokes and erratic swipe
+  detection, caused by the new logic. Since I appear to be unable to do proper
+  testing on these features with my own phone, I am scrapping them and have no
+  plans to re-introduce them. (I am not removing them from the iOS version,
+  since they appear to be working fine there.)
 
 2020-02-22: release 2.5.17a (Android and iOS)
 

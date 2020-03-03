@@ -73,7 +73,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
-import android.support.v4.view.MotionEventCompat;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
@@ -147,7 +146,6 @@ public class Free42Activity extends Activity {
     private int ckey;
     private boolean timeout3_active;
     private boolean quit_flag;
-    private int currentPointer;
     
     private boolean low_battery;
     private BroadcastReceiver lowBatteryReceiver;
@@ -1168,27 +1166,15 @@ public class Free42Activity extends Activity {
         @SuppressLint("ClickableViewAccessibility")
         @Override
         public boolean onTouchEvent(MotionEvent e) {
-            int what = MotionEventCompat.getActionMasked(e);
-            if (what != MotionEvent.ACTION_DOWN && what != MotionEvent.ACTION_UP
-                    && what != MotionEvent.ACTION_POINTER_DOWN && what != MotionEvent.ACTION_POINTER_UP)
+            int what = e.getAction();
+            if (what != MotionEvent.ACTION_DOWN && what != MotionEvent.ACTION_UP)
                 return true;
-
-            int index = MotionEventCompat.getActionIndex(e);
-            int x = (int) ((MotionEventCompat.getX(e, index) - hOffset) / hScale);
-            int y = (int) ((MotionEventCompat.getY(e, index) - vOffset) / vScale);
-
-            if (what == MotionEvent.ACTION_DOWN || what == MotionEvent.ACTION_POINTER_DOWN) {
-                cancelRepeaterAndTimeouts1And2();
-
-                if (ckey != 0) {
-                    Rect inval = skin.set_active_key(-1);
-                    if (inval != null)
-                        invalidateScaled(inval);
-                    boolean keep_running = core_keyup();
-                    if (keep_running)
-                        startRunner();
-                }
-
+            
+            cancelRepeaterAndTimeouts1And2();
+            
+            if (what == MotionEvent.ACTION_DOWN) {
+                int x = (int) ((e.getX() - hOffset) / hScale);
+                int y = (int) ((e.getY() - vOffset) / vScale);
                 IntHolder skeyHolder = new IntHolder();
                 IntHolder ckeyHolder = new IntHolder();
                 skin.find_key(core_menu(), x, y, skeyHolder, ckeyHolder);
@@ -1199,7 +1185,6 @@ public class Free42Activity extends Activity {
                         this.possibleMenuEvent = true;
                     return true;
                 }
-                currentPointer = MotionEventCompat.getPointerId(e, index);
                 click();
                 Object macroObj = skin.find_macro(ckey);
                 if (timeout3_active && (macroObj != null || ckey != 28 /* SHIFT */)) {
@@ -1243,21 +1228,19 @@ public class Free42Activity extends Activity {
                 }
             } else {
                 if (possibleMenuEvent) {
-                    cancelRepeaterAndTimeouts1And2();
                     possibleMenuEvent = false;
+                    int x = (int) ((e.getX() - hOffset) / hScale);
+                    int y = (int) ((e.getY() - vOffset) / vScale);
                     if (skin.in_menu_area(x, y))
                         Free42Activity.this.postMainMenu();
                 }
-                if (currentPointer == MotionEventCompat.getPointerId(e, index)) {
-                    cancelRepeaterAndTimeouts1And2();
-                    ckey = 0;
-                    Rect inval = skin.set_active_key(-1);
-                    if (inval != null)
-                        invalidateScaled(inval);
-                    boolean keep_running = core_keyup();
-                    if (keep_running)
-                        startRunner();
-                }
+                ckey = 0;
+                Rect inval = skin.set_active_key(-1);
+                if (inval != null)
+                    invalidateScaled(inval);
+                boolean keep_running = core_keyup();
+                if (keep_running)
+                    startRunner();
             }
                 
             return true;
