@@ -79,7 +79,8 @@ static BOOL urlInInbox(NSURL *url) {
     if (stat(cpath, &st) != 0 || !S_ISREG(st.st_mode))
         return NO;
     NSString *inbox = [NSString stringWithFormat:@"%@/Documents/Inbox/", NSHomeDirectory()];
-    return [path hasPrefix:inbox];
+    return [path hasPrefix:inbox]
+        || [path hasPrefix:@"/private/"] && [[path substringFromIndex:8] hasPrefix:inbox];
 }
 
 - (BOOL) application:(UIApplication *)app
