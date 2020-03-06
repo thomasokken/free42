@@ -275,9 +275,6 @@ int docmd_cosh(arg_struct *arg) {
         return ERR_ALPHA_DATA_IS_INVALID;
 }
 
-/* NOTE: it is possible to generalize the cross product to more than
- * 3 dimensions... Something for Free42++ perhaps?
- */
 int docmd_cross(arg_struct *arg) {
     if (reg_x->type == TYPE_STRING || reg_y->type == TYPE_STRING)
         return ERR_ALPHA_DATA_IS_INVALID;
@@ -646,15 +643,26 @@ int docmd_dot(arg_struct *arg) {
         vartype_realmatrix *rm2 = (vartype_realmatrix *) reg_y;
         int4 size = rm1->rows * rm1->columns;
         int4 i;
-        phloat dot = 0;
         int inf;
         if (size != rm2->rows * rm2->columns)
             return ERR_DIMENSION_ERROR;
         for (i = 0; i < size; i++)
             if (rm1->array->is_string[i] || rm2->array->is_string[i])
                 return ERR_ALPHA_DATA_IS_INVALID;
-        for (i = 0; i < size; i++)
-            dot += rm1->array->data[i] * rm2->array->data[i];
+        phloat *x = rm1->array->data;
+        phloat *y = rm2->array->data;
+        phloat s = x[0] * y[0];
+        phloat c = fma(x[0], y[0], -s);
+        for (i = 1; i < size; i++) {
+            phloat p = x[i] * y[i];
+            phloat pp = fma(x[i], y[i], -p);
+            phloat xx = s + p;
+            phloat zz = xx - s;
+            phloat ss = (s - (xx - zz)) + (p - zz);
+            s = xx;
+            c = c + (pp + ss);
+        }
+        phloat dot = s + c;
         if ((inf = p_isinf(dot)) != 0) {
             if (flags.f.range_error_ignore)
                 dot = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
