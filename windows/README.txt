@@ -32,7 +32,7 @@ If Free42 does not run as is, you will also need to download and install the
 Visual C++ Redistributable for Visual Studio 2015 / 2017 / 2019.
 You can download this package from
 https://www.microsoft.com/en-us/download/details.aspx?id=48145
-(get the file <b>vc_redist.x86.exe)
+(get the file vc_redist.x86.exe)
 
 
 Uninstalling Free42:
