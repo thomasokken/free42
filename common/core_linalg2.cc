@@ -840,3 +840,101 @@ static int lu_backsubst_cc_worker(int interrupted) {
     dat->sum_im = sum_im;
     return ERR_INTERRUPTIBLE;
 }
+
+void compensated_dot_rr(int n,
+                        const phloat *x, size_t xoff,
+                        const phloat *y, size_t yoff,
+                        phloat *res) {
+    phloat s = *x * *y;
+    phloat c = fma(*x, *y, -s);
+    for (int i = 1; i < n; i++) {
+        x += xoff;
+        y += yoff;
+        phloat p = *x * *y;
+        phloat pp = fma(*x, *y, -p);
+        phloat xx = s + p;
+        phloat zz = xx - s;
+        phloat ss = (s - (xx - zz)) + (p - zz);
+        s = xx;
+        c = c + (pp + ss);
+    }
+    *res = s + c;
+}
+
+void compensated_dot_rc(int n,
+                        const phloat *x, size_t xoff,
+                        const phloat *ry, size_t yoff,
+                        phloat *rres, phloat *cres) {
+    phloat rs = *x * *ry;
+    phloat cs = *x * *(ry + 1);
+    phloat rc = fma(*x, *ry, -rs);
+    phloat cc = fma(*x, *(ry + 1), -cs);
+    for (int i = 1; i < n; i++) {
+        x += xoff;
+        ry += yoff;
+        phloat p = *x * *ry;
+        phloat pp = fma(*x, *ry, -p);
+        phloat xx = rs + p;
+        phloat zz = xx - rs;
+        phloat ss = (rs - (xx - zz)) + (p - zz);
+        rs = xx;
+        rc = rc + (pp + ss);
+        p = *x * *(ry + 1);
+        pp = fma(*x, *(ry + 1), -p);
+        xx = cs + p;
+        zz = xx - cs;
+        ss = (cs - (xx - zz)) + (p - zz);
+        cs = xx;
+        cc = cc + (pp + ss);
+    }
+    *rres = rs + rc;
+    *cres = cs + cc;
+}
+
+void compensated_dot_cc(int n,
+                        const phloat *rx, size_t xoff,
+                        const phloat *ry, size_t yoff,
+                        phloat *rres, phloat *cres) {
+    phloat rs = *rx * *ry;
+    phloat cs = *rx * *(ry + 1);
+    phloat rc = fma(*rx, *ry, -rs);
+    phloat cc = fma(*rx, *(ry + 1), -cs);
+    int i = 0;
+    phloat p, pp, xx, zz, ss;
+    goto skip;
+    for (; i < n; i++) {
+        rx += xoff;
+        ry += yoff;
+        p = *rx * *ry;
+        pp = fma(*rx, *ry, -p);
+        xx = rs + p;
+        zz = xx - rs;
+        ss = (rs - (xx - zz)) + (p - zz);
+        rs = xx;
+        rc = rc + (pp + ss);
+        p = *rx * *(ry + 1);
+        pp = fma(*rx, *(ry + 1), -p);
+        xx = cs + p;
+        zz = xx - cs;
+        ss = (cs - (xx - zz)) + (p - zz);
+        cs = xx;
+        cc = cc + (pp + ss);
+        skip:
+        p = -(*(rx + 1) * *(ry + 1));
+        pp = -fma(*(rx + 1), *(ry + 1), p);
+        xx = rs + p;
+        zz = xx - rs;
+        ss = (rs - (xx - zz)) + (p - zz);
+        rs = xx;
+        rc = rc + (pp + ss);
+        p = *(rx + 1) * *ry;
+        pp = fma(*(rx + 1), *ry, -p);
+        xx = cs + p;
+        zz = xx - cs;
+        ss = (cs - (xx - zz)) + (p - zz);
+        cs = xx;
+        cc = cc + (pp + ss);
+    }
+    *rres = rs + rc;
+    *cres = cs + cc;
+}
