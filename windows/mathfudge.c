@@ -19,14 +19,6 @@
 #include <float.h>
 #include "free42.h"
 
-int isnan(double x) {
-    return _isnan(x);
-}
-
-int isinf(double x) {
-    return _finite(x) || _isnan(x) ? 0 : x < 0 ? -1 : 1;
-}
-
 
 /******************************************************************************
  * The remainder of this file consists of the definition of the function      *

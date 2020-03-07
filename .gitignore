@@ -204,9 +204,9 @@
 # /skins/
 
 # /windows/
-/windows/*.ncb
-/windows/*.suo
-/windows/*.user
+/windows/*.vcxproj.filters
+/windows/*.vcxproj.user
+/windows/.vs
 /windows/Debug
 /windows/Release
 /windows/keymap.cpp

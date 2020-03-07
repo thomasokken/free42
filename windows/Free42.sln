@@ -1,13 +1,15 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual C++ Express 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Free42Binary", "Free42Binary.vcproj", "{DF1D5B05-23C8-432A-94BF-ACC78831C191}"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29806.167
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Free42Binary", "Free42Binary.vcxproj", "{DF1D5B05-23C8-432A-94BF-ACC78831C191}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Free42Decimal", "Free42Decimal.vcproj", "{1757EC64-6C3D-413F-855B-32605476D747}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Free42Decimal", "Free42Decimal.vcxproj", "{1757EC64-6C3D-413F-855B-32605476D747}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "keymap2cpp", "keymap2cpp.vcproj", "{FAF177C2-8585-4D8C-857E-221124A1D490}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "keymap2cpp", "keymap2cpp.vcxproj", "{FAF177C2-8585-4D8C-857E-221124A1D490}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "skin2cpp", "skin2cpp.vcproj", "{2E2CF629-0E30-4A3E-931F-809A1264ACF5}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "skin2cpp", "skin2cpp.vcxproj", "{2E2CF629-0E30-4A3E-931F-809A1264ACF5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,5 +36,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5E997586-493B-4284-B29F-D8A2C7FE1C13}
 	EndGlobalSection
 EndGlobal
