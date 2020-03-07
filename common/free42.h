@@ -52,8 +52,6 @@
 #ifdef __cplusplus
         extern "C" {
 #endif
-                int isnan(double x);
-                int isinf(double x);
                 double atanh(double x);
                 /* These are in the library, but not declared in math.h */
                 double asinh(double x);
