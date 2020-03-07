@@ -43,29 +43,6 @@
 #define F42_BIG_ENDIAN 1
 #endif
 
-
-#if defined(WINDOWS) && !defined(BCD_MATH) && !defined(__GNUC__)
-
-        /* MSVC++ 2008 lacks a few math functions that Free42 needs.
-         * I've defined workarounds in mathfudge.c.
-         */
-#ifdef __cplusplus
-        extern "C" {
-#endif
-                double atanh(double x);
-                /* These are in the library, but not declared in math.h */
-                double asinh(double x);
-                double acosh(double x);
-                double expm1(double x);
-                double log1p(double x);
-                double tgamma(double x);
-#ifdef __cplusplus
-        }
-#endif
-
-#endif
-
-
 /* Magic number "24kF" for the state file. */
 #define FREE42_MAGIC 0x466b3432
 #define FREE42_MAGIC_STR "24kF"

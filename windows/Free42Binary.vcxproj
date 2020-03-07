@@ -114,7 +114,6 @@
     <ClCompile Include="core_tables.cpp" />
     <ClCompile Include="core_variables.cpp" />
     <ClCompile Include="keymap.cpp" />
-    <ClCompile Include="mathfudge.c" />
     <ClCompile Include="msg2string.cpp" />
     <ClCompile Include="readtest.c">
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">-I IntelRDFPMathLib20U1/TESTS %(AdditionalOptions)</AdditionalOptions>
