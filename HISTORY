@@ -1,3 +1,8 @@
+????-??-??: release 2.5.17c
+
+* Changed DOT to use compensated dot products. Experimental.
+* iOS version: Fixed double-import, when loading Shared files.
+
 2020-02-27: release 2.5.17b (Android only)
 
 * Removing the n-key rollover and swipe-to-switch that were introduced in the
