@@ -1,12 +1,12 @@
 call vcvars32
 call copy-files
-vcbuild keymap2cpp.vcproj "Release|Win32"
+msbuild keymap2cpp.vcxproj /p:Configuration=Release
 Release\keymap2cpp
-vcbuild skin2cpp.vcproj "Release|Win32"
+msbuild skin2cpp.vcxproj /p:Configuration=Release
 Release\skin2cpp
-vcbuild Free42Binary.vcproj "Release|Win32"
+msbuild Free42Binary.vcxproj /p:Configuration=Release
 move Release\Free42Binary.exe .
 rmdir /s /q Release
-vcbuild Free42Decimal.vcproj "Release|Win32"
+msbuild Free42Decimal.vcxproj /p:Configuration=Release
 move Release\Free42Decimal.exe .
 rmdir /s /q Release
