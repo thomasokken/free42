@@ -52,6 +52,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -2463,42 +2464,72 @@ public class Free42Activity extends Activity {
     }
     
     private boolean heading_inited, heading_exists;
-    private double heading_mag, heading_true, heading_acc, heading_x, heading_y, heading_z;
+    private double heading_mag, heading_true, heading_acc;
+    private float[] gravity = new float[3];
+    private float[] geomagnetic = new float[3];
+    private float[] rotation = new float[9];
+    private float[] orient = new float[3];
+    private LowPassFilter gravityFilter = new LowPassFilter();
+    private LowPassFilter geomagneticFilter = new LowPassFilter();
+    private GeomagneticField geomagneticField = null;
+
+    private static class LowPassFilter {
+        private float[] f = new float[3];
+        public float[] filter(float[] in) {
+            f[0] = 0.75f * f[0] + 0.25f * in[0];
+            f[1] = 0.75f * f[1] + 0.25f * in[1];
+            f[2] = 0.75f * f[2] + 0.25f * in[2];
+            return f;
+        }
+    }
     
     public int shell_get_heading(DoubleHolder mag_heading, DoubleHolder true_heading, DoubleHolder acc_heading, DoubleHolder x, DoubleHolder y, DoubleHolder z) {
         if (!heading_inited) {
             heading_inited = true;
             SensorManager sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-            Sensor s1 = sm.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+            Sensor s1 = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
             Sensor s2 = sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-            if (s1 == null)
-                return 0;
             SensorEventListener listener = new SensorEventListener() {
+                        private float[] smoothed = new float[3];
                         public void onAccuracyChanged(Sensor sensor, int accuracy) {
                             // Don't care
                         }
                         public void onSensorChanged(SensorEvent event) {
-                            // TODO: Verify this on a real phone, and
-                            // check if the orientation matches the iPhone.
-                            // There doesn't seem to be an API to obtain true
-                            // heading, so I should set true_heading to 0
-                            // and heading_acc to -1; the current code just
-                            // exists to let me investigate the components
-                            // returned by Orientation events.
-                            if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
-                                heading_mag = event.values[0];
-                                heading_true = event.values[1];
-                                heading_acc = event.values[2];
+                            if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+                                smoothed = gravityFilter.filter(event.values);
+                                gravity[0] = smoothed[0];
+                                gravity[1] = smoothed[1];
+                                gravity[2] = smoothed[2];
+                            } else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+                                smoothed = geomagneticFilter.filter(event.values);
+                                geomagnetic[0] = smoothed[0];
+                                geomagnetic[1] = smoothed[1];
+                                geomagnetic[2] = smoothed[2];
+                            }
+
+                            // get rotation matrix to get gravity and magnetic data
+                            SensorManager.getRotationMatrix(rotation, null, gravity, geomagnetic);
+                            // get bearing to target
+                            SensorManager.getOrientation(rotation, orient);
+                            // east degrees of true North
+                            heading_mag = orient[0];
+                            // convert from radians to degrees
+                            heading_mag = Math.toDegrees(heading_mag);
+
+                            // TODO: fix difference between true North and magnetic North
+                            if (geomagneticField == null) {
+                                heading_true = 0;
+                                heading_acc = -1;
                             } else {
-                                heading_x = event.values[0];
-                                heading_y = event.values[1];
-                                heading_z = event.values[2];
+                                heading_true = heading_mag + geomagneticField.getDeclination();
+                                if (heading_true < 0)
+                                    heading_true += 360;
+                                else if (heading_true >= 360)
+                                    heading_true -= 360;
                             }
                         }
                     };
-            boolean success = sm.registerListener(listener, s1, SensorManager.SENSOR_DELAY_UI);
-            if (!success)
-                return 0;
+            sm.registerListener(listener, s1, SensorManager.SENSOR_DELAY_UI);
             sm.registerListener(listener, s2, SensorManager.SENSOR_DELAY_UI);
             heading_exists = true;
         }
@@ -2507,9 +2538,9 @@ public class Free42Activity extends Activity {
             mag_heading.value = heading_mag;
             true_heading.value = heading_true;
             acc_heading.value = heading_acc;
-            x.value = heading_x;
-            y.value = heading_y;
-            z.value = heading_z;
+            x.value = geomagnetic[0];
+            y.value = geomagnetic[1];
+            z.value = geomagnetic[2];
             return 1;
         } else {
             return 0;
