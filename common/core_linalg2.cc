@@ -845,6 +845,13 @@ void compensated_dot_rr(int n,
                         const phloat *x, size_t xoff,
                         const phloat *y, size_t yoff,
                         phloat *res) {
+    if (flags.f.f20) {
+        phloat r = 0;
+        for (int i = 0; i < n; i++)
+            r += x[i * xoff] * y[i * yoff];
+        *res = r;
+        return;
+    }
     phloat s = *x * *y;
     phloat c = fma(*x, *y, -s);
     for (int i = 1; i < n; i++) {
@@ -865,6 +872,16 @@ void compensated_dot_rc(int n,
                         const phloat *x, size_t xoff,
                         const phloat *ry, size_t yoff,
                         phloat *rres, phloat *cres) {
+    if (flags.f.f20) {
+        phloat rre = 0, rim = 0;
+        for (int i = 0; i < n; i++) {
+            rre += x[i * xoff] * ry[i * yoff];
+            rim += x[i * xoff] * ry[i * yoff + 1];
+        }
+        *rres = rre;
+        *cres = rim;
+        return;
+    }
     phloat rs = *x * *ry;
     phloat cs = *x * *(ry + 1);
     phloat rc = fma(*x, *ry, -rs);
@@ -895,6 +912,16 @@ void compensated_dot_cc(int n,
                         const phloat *rx, size_t xoff,
                         const phloat *ry, size_t yoff,
                         phloat *rres, phloat *cres) {
+    if (flags.f.f20) {
+        phloat rre = 0, rim = 0;
+        for (int i = 0; i < n; i++) {
+            rre += rx[i * xoff] * ry[i * yoff] - rx[i * xoff + 1] * ry[i * yoff + 1];
+            rim += rx[i * xoff] * ry[i * yoff + 1] + rx[i * xoff + 1] * ry[i * yoff];
+        }
+        *rres = rre;
+        *cres = rim;
+        return;
+    }
     phloat rs = *rx * *ry;
     phloat cs = *rx * *(ry + 1);
     phloat rc = fma(*rx, *ry, -rs);
