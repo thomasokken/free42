@@ -2991,8 +2991,19 @@ static void paste_programs(const char *buf) {
                 arg.type = ARGTYPE_DOUBLE;
                 goto store;
             } else {
-                // No decimal or exponent following the digits;
-                // for now, assume it's a line number.
+                // Check for 1/X or 10^X
+                int len = hpend - prev_hppos;
+                if (len == 3 && strncmp(hpbuf + prev_hppos, "1/X", 3) == 0) {
+                    cmd = CMD_INV;
+                    arg.type = ARGTYPE_NONE;
+                    goto store;
+                } else if (len == 4 && strncmp(hpbuf + prev_hppos, "10^X", 4) == 0) {
+                    cmd = CMD_10_POW_X;
+                    arg.type = ARGTYPE_NONE;
+                    goto store;
+                }
+                // No decimal or exponent following the digits, and it's
+                // not 1/X or 10^X; for now, assume it's a line number.
                 lineno_start = prev_hppos;
                 lineno_end = hppos;
             }
