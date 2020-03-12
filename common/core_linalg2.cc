@@ -39,8 +39,8 @@ typedef struct {
     vartype_realmatrix *a;
     int4 *perm;
     phloat det;
-    int4 i, imax, j, k;
-    phloat max, tmp, sum, *scale;
+    int4 i, imax, j;
+    phloat max, tmp, *scale;
     int state;
     int (*completion)(int, vartype_realmatrix *, int4 *, phloat);
 } lu_r_data_struct;
@@ -89,10 +89,9 @@ static int lu_decomp_r_worker(int interrupted) {
     int4 i = dat->i;
     int4 imax = dat->imax;
     int4 j = dat->j;
-    int4 k = dat->k;
     phloat max = dat->max;
     phloat tmp = dat->tmp;
-    phloat sum = dat->sum;
+    phloat dot;
 
     if (interrupted) {
         free(scale);
@@ -127,41 +126,38 @@ static int lu_decomp_r_worker(int interrupted) {
 
     for (j = 0; j < n; j++) {
         for (i = 0; i < j; i++) {
-            sum = a[i * n + j];
-            for (k = 0; k < i; k++) {
-                sum -= a[i * n + k] * a[k * n + j];
-                STATE(2);
-            }
-            a[i * n + j] = sum;
+            compensated_dot_rr(i, a + i * n, 1, a + j, n, &dot);
+            a[i * n + j] -= dot;
+            count -= i;
+            STATE(2);
         }
 
         max = 0;
         imax = j;
         for (i = j; i < n; i++) {
-            sum = a[i * n + j];
-            for (k = 0; k < j; k++) {
-                sum -= a[i * n + k] * a[k * n + j];
-                STATE(3);
-            }
-            a[i * n  + j] = sum;
+            compensated_dot_rr(j, a + i * n, 1, a + j, n, &dot);
+            dot = a[i * n + j] - dot;
+            a[i * n + j] = dot;
             if (scale[i] == 0) {
                 imax = i;
                 break;
             }
-            tmp = (sum < 0 ? -sum : sum) / scale[i];
+            tmp = (dot < 0 ? -dot : dot) / scale[i];
             if (tmp > max) {
                 imax = i;
                 max = tmp;
             }
+            count -= j;
+            STATE(3);
         }
 
         if (j != imax) {
-            for (k = 0; k < n; k++) {
+            for (int4 k = 0; k < n; k++) {
                 tmp = a[imax * n + k];
                 a[imax * n + k] = a[j * n + k];
                 a[j * n + k] = tmp;
-                STATE(4);
             }
+            STATE(4);
             dat->det = -dat->det;
             scale[imax] = scale[j];
         }
@@ -210,10 +206,8 @@ static int lu_decomp_r_worker(int interrupted) {
     dat->i = i;
     dat->imax = imax;
     dat->j = j;
-    dat->k = k;
     dat->max = max;
     dat->tmp = tmp;
-    dat->sum = sum;
     return ERR_INTERRUPTIBLE;
 }
 
@@ -222,8 +216,8 @@ typedef struct {
     vartype_complexmatrix *a;
     int4 *perm;
     phloat det_re, det_im;
-    int4 i, imax, j, k;
-    phloat max, tmp, tmp_re, tmp_im, sum_re, sum_im, *scale;
+    int4 i, imax, j;
+    phloat max, tmp, tmp_re, tmp_im, *scale;
     int state;
     int (*completion)(int, vartype_complexmatrix *, int4 *, phloat, phloat);
 } lu_c_data_struct;
@@ -273,13 +267,11 @@ static int lu_decomp_c_worker(int interrupted) {
     int4 i = dat->i;
     int4 imax = dat->imax;
     int4 j = dat->j;
-    int4 k = dat->k;
     phloat max = dat->max;
     phloat tmp = dat->tmp;
     phloat tmp_re = dat->tmp_re;
     phloat tmp_im = dat->tmp_im;
-    phloat sum_re = dat->sum_re;
-    phloat sum_im = dat->sum_im;
+    phloat dot_re, dot_im;
 
     phloat xre, xim, yre, yim;
     phloat tiniest = 1e20 / POS_HUGE_PHLOAT;
@@ -318,57 +310,43 @@ static int lu_decomp_c_worker(int interrupted) {
 
     for (j = 0; j < n; j++) {
         for (i = 0; i < j; i++) {
-            sum_re = a[2 * (i * n + j)];
-            sum_im = a[2 * (i * n + j) + 1];
-            for (k = 0; k < i; k++) {
-                xre = a[2 * (i * n + k)];
-                xim = a[2 * (i * n + k) + 1];
-                yre = a[2 * (k * n + j)];
-                yim = a[2 * (k * n + j) + 1];
-                sum_re -= xre * yre - xim * yim;
-                sum_im -= xim * yre + xre * yim;
-                STATE(2);
-            }
-            a[2 * (i * n + j)] = sum_re;
-            a[2 * (i * n + j) + 1] = sum_im;
+            compensated_dot_cc(i, a + 2 * i * n, 2, a + 2 * j, 2 * n, &dot_re, &dot_im);
+            a[2 * (i * n + j)] -= dot_re;
+            a[2 * (i * n + j) + 1] -= dot_im;
+            count -= i;
+            STATE(2);
         }
 
         max = 0;
         for (i = j; i < n; i++) {
-            sum_re = a[2 * (i * n + j)];
-            sum_im = a[2 * (i * n + j) + 1];
-            for (k = 0; k < j; k++) {
-                xre = a[2 * (i * n + k)];
-                xim = a[2 * (i * n + k) + 1];
-                yre = a[2 * (k * n + j)];
-                yim = a[2 * (k * n + j) + 1];
-                sum_re -= xre * yre - xim * yim;
-                sum_im -= xim * yre + xre * yim;
-                STATE(3);
-            }
-            a[2 * (i * n + j)] = sum_re;
-            a[2 * (i * n + j) + 1] = sum_im;
+            compensated_dot_cc(j, a + 2 * i * n, 2, a + 2 * j, 2 * n, &dot_re, &dot_im);
+            dot_re = a[2 * (i * n + j)] - dot_re;
+            dot_im = a[2 * (i * n + j) + 1] - dot_im;
+            a[2 * (i * n + j)] = dot_re;
+            a[2 * (i * n + j) + 1] = dot_im;
             if (scale[i] == 0) {
                 imax = i;
                 break;
             }
-            tmp = hypot(sum_re, sum_im) / scale[i];
+            tmp = hypot(dot_re, dot_im) / scale[i];
             if (tmp > max) {
                 imax = i;
                 max = tmp;
             }
+            count -= j;
+            STATE(3);
         }
 
         if (j != imax) {
-            for (k = 0; k < n; k++) {
+            for (int4 k = 0; k < n; k++) {
                 tmp = a[2 * (imax * n + k)];
                 a[2 * (imax * n + k)] = a[2 * (j * n + k)];
                 a[2 * (j * n + k)] = tmp;
                 tmp = a[2 * (imax * n + k) + 1];
                 a[2 * (imax * n + k) + 1] = a[2 * (j * n + k) + 1];
                 a[2 * (j * n + k) + 1] = tmp;
-                STATE(4);
             }
+            STATE(4);
             dat->det_re = -dat->det_re;
             dat->det_im = -dat->det_im;
             scale[imax] = scale[j];
@@ -426,13 +404,10 @@ static int lu_decomp_c_worker(int interrupted) {
     dat->i = i;
     dat->imax = imax;
     dat->j = j;
-    dat->k = k;
     dat->max = max;
     dat->tmp = tmp;
     dat->tmp_re = tmp_re;
     dat->tmp_im = tmp_im;
-    dat->sum_re = sum_re;
-    dat->sum_im = sum_im;
     return ERR_INTERRUPTIBLE;
 }
 
