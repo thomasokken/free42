@@ -2430,6 +2430,11 @@ public class Free42Activity extends Activity {
                     locat_lat_lon_acc = location.getAccuracy();
                     locat_elev = location.getAltitude();
                     locat_elev_acc = location.hasAltitude() ? locat_lat_lon_acc : -1;
+                    geomagneticField = new GeomagneticField(
+                            (float) locat_lat,
+                            (float) locat_lon,
+                            (float) locat_elev,
+                            System.currentTimeMillis());
                 }
                 public void onProviderDisabled(String provider) {
                     // Ignore
