@@ -643,7 +643,7 @@ int docmd_dot(arg_struct *arg) {
             if (rm1->array->is_string[i] || rm2->array->is_string[i])
                 return ERR_ALPHA_DATA_IS_INVALID;
         phloat dot;
-        compensated_dot_rr(size, rm1->array->data, 1, rm2->array->data, 1, &dot);
+        compensated_dot_rr(false, size, rm1->array->data, 1, rm2->array->data, 1, &dot);
         int inf = p_isinf(dot);
         if (inf != 0) {
             if (flags.f.range_error_ignore)
@@ -673,7 +673,7 @@ int docmd_dot(arg_struct *arg) {
             if (rm->array->is_string[i])
                 return ERR_ALPHA_DATA_IS_INVALID;
         phloat dot_re, dot_im;
-        compensated_dot_rc(size, rm->array->data, 1, cm->array->data, 2, &dot_re, &dot_im);
+        compensated_dot_rc(false, size, rm->array->data, 1, cm->array->data, 2, &dot_re, &dot_im);
         int inf = p_isinf(dot_re);
         if (inf != 0) {
             if (flags.f.range_error_ignore)
@@ -697,7 +697,7 @@ int docmd_dot(arg_struct *arg) {
         if (size != cm2->rows * cm2->columns)
             return ERR_DIMENSION_ERROR;
         phloat dot_re, dot_im;
-        compensated_dot_cc(size, cm1->array->data, 2, cm2->array->data, 2, &dot_re, &dot_im);
+        compensated_dot_cc(false, size, cm1->array->data, 2, cm2->array->data, 2, &dot_re, &dot_im);
         int inf = p_isinf(dot_re);
         if (inf != 0) {
             if (flags.f.range_error_ignore)

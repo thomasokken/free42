@@ -46,17 +46,17 @@ int lu_backsubst_cc(vartype_complexmatrix *a,
                             void (*completion)(int, vartype_complexmatrix *,
                                 int4 *, vartype_complexmatrix *));
 
-void compensated_dot_rr(int n,
+void compensated_dot_rr(bool uncomp, int n,
                         const phloat *x, size_t xoff,
                         const phloat *y, size_t yoff,
                         phloat *res);
 
-void compensated_dot_rc(int n,
+void compensated_dot_rc(bool uncomp, int n,
                         const phloat *x, size_t xoff,
                         const phloat *ry, size_t yoff,
                         phloat *rres, phloat *cres);
 
-void compensated_dot_cc(int n,
+void compensated_dot_cc(bool uncomp, int n,
                         const phloat *rx, size_t xoff,
                         const phloat *ry, size_t yoff,
                         phloat *rres, phloat *cres);

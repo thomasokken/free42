@@ -377,7 +377,7 @@ static int matrix_mul_rr_worker(int interrupted) {
 
     while (count < 1000) {
         phloat dot;
-        compensated_dot_rr(q, l + i * q, 1, r + j, n, &dot);
+        compensated_dot_rr(flags.f.f20, q, l + i * q, 1, r + j, n, &dot);
         count += q;
         if ((inf = p_isinf(dot)) != 0) {
             if (core_settings.matrix_outofrange && !flags.f.range_error_ignore){
@@ -622,7 +622,7 @@ static int matrix_mul_rc_worker(int interrupted) {
 
     while (count < 1000) {
         phloat dot_re, dot_im;
-        compensated_dot_rc(q, l + i * q, 1, r + 2 * j, 2 * n, &dot_re, &dot_im);
+        compensated_dot_rc(flags.f.f20, q, l + i * q, 1, r + 2 * j, 2 * n, &dot_re, &dot_im);
         count += q;
         if ((inf = p_isinf(dot_re)) != 0) {
             if (core_settings.matrix_outofrange && !flags.f.range_error_ignore){
@@ -740,7 +740,7 @@ static int matrix_mul_cr_worker(int interrupted) {
 
     while (count < 1000) {
         phloat dot_re, dot_im;
-        compensated_dot_rc(q, r + j, n, l + 2 * i * q, 2, &dot_re, &dot_im);
+        compensated_dot_rc(flags.f.f20, q, r + j, n, l + 2 * i * q, 2, &dot_re, &dot_im);
         count += q;
         if ((inf = p_isinf(dot_re)) != 0) {
             if (core_settings.matrix_outofrange && !flags.f.range_error_ignore){
@@ -853,7 +853,7 @@ static int matrix_mul_cc_worker(int interrupted) {
 
     while (count < 1000) {
         phloat dot_re, dot_im;
-        compensated_dot_cc(q, l + 2 * i * q, 2, r + 2 * j, 2 * n, &dot_re, &dot_im);
+        compensated_dot_cc(flags.f.f20, q, l + 2 * i * q, 2, r + 2 * j, 2 * n, &dot_re, &dot_im);
         count += q;
         if ((inf = p_isinf(dot_re)) != 0) {
             if (core_settings.matrix_outofrange && !flags.f.range_error_ignore){

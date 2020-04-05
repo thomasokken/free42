@@ -126,7 +126,7 @@ static int lu_decomp_r_worker(int interrupted) {
 
     for (j = 0; j < n; j++) {
         for (i = 0; i < j; i++) {
-            compensated_dot_rr(i, a + i * n, 1, a + j, n, &dot);
+            compensated_dot_rr(flags.f.f19, i, a + i * n, 1, a + j, n, &dot);
             a[i * n + j] -= dot;
             count -= i;
             STATE(2);
@@ -135,7 +135,7 @@ static int lu_decomp_r_worker(int interrupted) {
         max = 0;
         imax = j;
         for (i = j; i < n; i++) {
-            compensated_dot_rr(j, a + i * n, 1, a + j, n, &dot);
+            compensated_dot_rr(flags.f.f19, j, a + i * n, 1, a + j, n, &dot);
             dot = a[i * n + j] - dot;
             a[i * n + j] = dot;
             if (scale[i] == 0) {
@@ -310,7 +310,7 @@ static int lu_decomp_c_worker(int interrupted) {
 
     for (j = 0; j < n; j++) {
         for (i = 0; i < j; i++) {
-            compensated_dot_cc(i, a + 2 * i * n, 2, a + 2 * j, 2 * n, &dot_re, &dot_im);
+            compensated_dot_cc(flags.f.f19, i, a + 2 * i * n, 2, a + 2 * j, 2 * n, &dot_re, &dot_im);
             a[2 * (i * n + j)] -= dot_re;
             a[2 * (i * n + j) + 1] -= dot_im;
             count -= i;
@@ -319,7 +319,7 @@ static int lu_decomp_c_worker(int interrupted) {
 
         max = 0;
         for (i = j; i < n; i++) {
-            compensated_dot_cc(j, a + 2 * i * n, 2, a + 2 * j, 2 * n, &dot_re, &dot_im);
+            compensated_dot_cc(flags.f.f19, j, a + 2 * i * n, 2, a + 2 * j, 2 * n, &dot_re, &dot_im);
             dot_re = a[2 * (i * n + j)] - dot_re;
             dot_im = a[2 * (i * n + j) + 1] - dot_im;
             a[2 * (i * n + j)] = dot_re;
@@ -420,8 +420,7 @@ typedef struct {
     vartype_realmatrix *a;
     int4 *perm;
     vartype_realmatrix *b;
-    int4 i, ii, j, ll, k;
-    phloat sum;
+    int4 i, ii, ll, k;
     int state;
     void (*completion)(int, vartype_realmatrix *, int4 *, vartype_realmatrix *);
 } backsub_rr_data_struct;
@@ -465,10 +464,9 @@ static int lu_backsubst_rr_worker(int interrupted) {
 
     int4 i = dat->i;
     int4 ii = dat->ii;
-    int4 j = dat->j;
     int4 ll = dat->ll;
     int4 k = dat->k;
-    phloat sum = dat->sum;
+    phloat sum, dot;
 
     phloat t;
 
@@ -491,21 +489,18 @@ static int lu_backsubst_rr_worker(int interrupted) {
             sum = b[ll * q + k];
             b[ll * q + k] = b[i * q + k];
             if (ii != -1) {
-                for (j = ii; j < i; j++) {
-                    sum -= a[i * n + j] * b[j * q + k];
-                    STATE(1);
-                }
+                compensated_dot_rr(flags.f.f18, i - ii, a + i * n + ii, 1, b + ii * q + k, q, &dot);
+                sum -= dot;
+                count -= i - ii;
             } else if (sum != 0)
                 ii = i;
             b[i * q + k] = sum;
+            STATE(1);
         }
         for (i = n - 1; i >= 0; i--) {
-            sum = b[i * q + k];
-            for (j = i + 1; j < n; j++) {
-                sum -= a[i * n + j] * b[j * q + k];
-                STATE(2);
-            }
-            t = sum / a[i * n + i];
+            compensated_dot_rr(flags.f.f18, n - i - 1, a + i * n + i + 1, 1, b + (i + 1) * q + k, q, &dot);
+            dot = b[i * q + k] - dot;
+            t = dot / a[i * n + i];
             if (p_isinf(t) || p_isnan(t)) {
                 if (core_settings.matrix_outofrange
                                         && !flags.f.range_error_ignore)
@@ -514,6 +509,8 @@ static int lu_backsubst_rr_worker(int interrupted) {
                     t = p_isinf(t) < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
             }
             b[i * q + k] = t;
+            count -= n - i;
+            STATE(2);
         }
     }
 
@@ -524,10 +521,8 @@ static int lu_backsubst_rr_worker(int interrupted) {
     suspend:
     dat->i = i;
     dat->ii = ii;
-    dat->j = j;
     dat->ll = ll;
     dat->k = k;
-    dat->sum = sum;
     return ERR_INTERRUPTIBLE;
 }
 
@@ -586,7 +581,7 @@ static int lu_backsubst_rc_worker(int interrupted) {
     int4 k = dat->k;
     phloat sum_re = dat->sum_re;
     phloat sum_im = dat->sum_im;
-    phloat tmp;
+    phloat dot_re, dot_im, tmp;
 
     phloat t_re, t_im;
 
@@ -611,29 +606,23 @@ static int lu_backsubst_rc_worker(int interrupted) {
             b[2 * (ll * q + k)] = b[2 * (i * q + k)];
             b[2 * (ll * q + k) + 1] = b[2 * (i * q + k) + 1];
             if (ii != -1) {
-                for (j = ii; j < i; j++) {
-                    tmp = a[i * n + j];
-                    sum_re -= tmp * b[2 * (j * q + k)];
-                    sum_im -= tmp * b[2 * (j * q + k) + 1];
-                    STATE(1);
-                }
+                compensated_dot_rc(flags.f.f18, i - ii, a + i * n + ii, 1, b + (2 * ii * q + k), 2 * q, &dot_re, &dot_im);
+                sum_re -= dot_re;
+                sum_im -= dot_im;
+                count -= i - ii;
             } else if (sum_re != 0 || sum_im != 0)
                 ii = i;
             b[2 * (i * q + k)] = sum_re;
             b[2 * (i * q + k) + 1] = sum_im;
+            STATE(1);
         }
         for (i = n - 1; i >= 0; i--) {
-            sum_re = b[2 * (i * q + k)];
-            sum_im = b[2 * (i * q + k) + 1];
-            for (j = i + 1; j < n; j++) {
-                tmp = a[i * n + j];
-                sum_re -= tmp * b[2 * (j * q + k)];
-                sum_im -= tmp * b[2 * (j * q + k) + 1];
-                STATE(2);
-            }
+            compensated_dot_rc(flags.f.f18, n - i - 1, a + i * n + i + 1, 1, b + 2 * ((i + 1) * q + k), 2 * q, &dot_re, &dot_im);
+            dot_re = b[2 * (i * q + k)] - dot_re;
+            dot_im = b[2 * (i * q + k) + 1] - dot_im;
             tmp = a[i * n + i];
-            t_re = sum_re / tmp;
-            t_im = sum_im / tmp;
+            t_re = dot_re / tmp;
+            t_im = dot_im / tmp;
             if (p_isinf(t_re) || p_isnan(t_re)) {
                 if (core_settings.matrix_outofrange
                                         && !flags.f.range_error_ignore)
@@ -650,6 +639,8 @@ static int lu_backsubst_rc_worker(int interrupted) {
             }
             b[2 * (i * q + k)] = t_re;
             b[2 * (i * q + k) + 1] = t_im;
+            count -= n - i;
+            STATE(2);
         }
     }
 
@@ -723,7 +714,7 @@ static int lu_backsubst_cc_worker(int interrupted) {
     int4 k = dat->k;
     phloat sum_re = dat->sum_re;
     phloat sum_im = dat->sum_im;
-    phloat tmp, tmp_re, tmp_im;
+    phloat dot_re, dot_im, tmp, tmp_re, tmp_im;
 
     phloat bre, bim;
     phloat t_re, t_im;
@@ -749,32 +740,20 @@ static int lu_backsubst_cc_worker(int interrupted) {
             b[2 * (ll * q + k)] = b[2 * (i * q + k)];
             b[2 * (ll * q + k) + 1] = b[2 * (i * q + k) + 1];
             if (ii != -1) {
-                for (j = ii; j < i; j++) {
-                    bre = b[2 * (j * q + k)];
-                    bim = b[2 * (j * q + k) + 1];
-                    tmp_re = a[2 * (i * n + j)];
-                    tmp_im = a[2 * (i * n + j) + 1];
-                    sum_re -= bre * tmp_re - bim * tmp_im;
-                    sum_im -= bim * tmp_re + bre * tmp_im;
-                    STATE(1);
-                }
+                compensated_dot_cc(flags.f.f18, i - ii, a + 2 * (i * n + ii), 2, b + (2 * ii * q + k), 2 * q, &dot_re, &dot_im);
+                sum_re -= dot_re;
+                sum_im -= dot_im;
+                count -= i - ii;
             } else if (sum_re != 0 || sum_im != 0)
                 ii = i;
             b[2 * (i * q + k)] = sum_re;
             b[2 * (i * q + k) + 1] = sum_im;
+            STATE(1);
         }
         for (i = n - 1; i >= 0; i--) {
-            sum_re = b[2 * (i * q + k)];
-            sum_im = b[2 * (i * q + k) + 1];
-            for (j = i + 1; j < n; j++) {
-                bre = b[2 * (j * q + k)];
-                bim = b[2 * (j * q + k) + 1];
-                tmp_re = a[2 * (i * n + j)];
-                tmp_im = a[2 * (i * n + j) + 1];
-                sum_re -= bre * tmp_re - bim * tmp_im;
-                sum_im -= bim * tmp_re + bre * tmp_im;
-                STATE(2);
-            }
+            compensated_dot_cc(flags.f.f18, n - i - 1, a + 2 * (i * n + i + 1), 2, b + 2 * ((i + 1) * q + k), 2 * q, &dot_re, &dot_im);
+            dot_re = b[2 * (i * q + k)] - dot_re;
+            dot_im = b[2 * (i * q + k) + 1] - dot_im;
             tmp_re = a[2 * (i * n + i)];
             tmp_im = a[2 * (i * n + i) + 1];
             tmp = hypot(tmp_re, tmp_im);
@@ -798,6 +777,8 @@ static int lu_backsubst_cc_worker(int interrupted) {
             }
             b[2 * (i * q + k)] = t_re;
             b[2 * (i * q + k) + 1] = t_im;
+            count -= n - i;
+            STATE(2);
         }
     }
 
@@ -816,11 +797,11 @@ static int lu_backsubst_cc_worker(int interrupted) {
     return ERR_INTERRUPTIBLE;
 }
 
-void compensated_dot_rr(int n,
+void compensated_dot_rr(bool uncomp, int n,
                         const phloat *x, size_t xoff,
                         const phloat *y, size_t yoff,
                         phloat *res) {
-    if (flags.f.f20) {
+    if (uncomp) {
         phloat r = 0;
         for (int i = 0; i < n; i++)
             r += x[i * xoff] * y[i * yoff];
@@ -843,11 +824,11 @@ void compensated_dot_rr(int n,
     *res = s + c;
 }
 
-void compensated_dot_rc(int n,
+void compensated_dot_rc(bool uncomp, int n,
                         const phloat *x, size_t xoff,
                         const phloat *ry, size_t yoff,
                         phloat *rres, phloat *cres) {
-    if (flags.f.f20) {
+    if (uncomp) {
         phloat rre = 0, rim = 0;
         for (int i = 0; i < n; i++) {
             rre += x[i * xoff] * ry[i * yoff];
@@ -883,11 +864,11 @@ void compensated_dot_rc(int n,
     *cres = cs + cc;
 }
 
-void compensated_dot_cc(int n,
+void compensated_dot_cc(bool uncomp, int n,
                         const phloat *rx, size_t xoff,
                         const phloat *ry, size_t yoff,
                         phloat *rres, phloat *cres) {
-    if (flags.f.f20) {
+    if (uncomp) {
         phloat rre = 0, rim = 0;
         for (int i = 0; i < n; i++) {
             rre += rx[i * xoff] * ry[i * yoff] - rx[i * xoff + 1] * ry[i * yoff + 1];
