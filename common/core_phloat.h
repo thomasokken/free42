@@ -153,7 +153,6 @@ Phloat fmod(Phloat x, Phloat y);
 Phloat fabs(Phloat p);
 Phloat pow(Phloat x, Phloat y);
 Phloat floor(Phloat x);
-Phloat fma(Phloat x, Phloat y, Phloat z);
 
 Phloat operator*(int x, Phloat y);
 Phloat operator/(int x, Phloat y);

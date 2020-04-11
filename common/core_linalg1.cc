@@ -302,7 +302,8 @@ typedef struct {
     vartype_realmatrix *left;
     vartype_realmatrix *right;
     vartype *result;
-    int4 i, j;
+    int4 i, j, k;
+    phloat sum;
     void (*completion)(int error, vartype *result);
 } mul_rr_data_struct;
 
@@ -343,6 +344,8 @@ static int matrix_mul_rr(vartype_realmatrix *left, vartype_realmatrix *right,
     dat->right = right;
     dat->i = 0;
     dat->j = 0;
+    dat->k = 0;
+    dat->sum = 0;
     dat->completion = completion;
 
     mul_rr_data = dat;
@@ -364,9 +367,11 @@ static int matrix_mul_rr_worker(int interrupted) {
     phloat *p = ((vartype_realmatrix *) dat->result)->array->data;
     int4 i = dat->i;
     int4 j = dat->j;
+    int4 k = dat->k;
     int4 m = dat->left->rows;
     int4 n = dat->right->columns;
     int4 q = dat->left->columns;
+    phloat sum = dat->sum;
 
     if (interrupted) {
         dat->completion(ERR_INTERRUPTED, NULL);
@@ -375,20 +380,22 @@ static int matrix_mul_rr_worker(int interrupted) {
         return ERR_INTERRUPTED;
     }
 
-    while (count < 1000) {
-        phloat dot;
-        compensated_dot_rr(flags.f.f20, q, l + i * q, 1, r + j, n, &dot);
-        count += q;
-        if ((inf = p_isinf(dot)) != 0) {
+    while (count++ < 1000) {
+        sum += l[i * q + k] * r[k * n + j];
+        if (++k < q)
+            continue;
+        k = 0;
+        if ((inf = p_isinf(sum)) != 0) {
             if (core_settings.matrix_outofrange && !flags.f.range_error_ignore){
                 dat->completion(ERR_OUT_OF_RANGE, NULL);
                 free_vartype(dat->result);
                 free(dat);
                 return ERR_OUT_OF_RANGE;
             } else
-                dot = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
+                sum = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
         }
-        p[i * n + j] = dot;
+        p[i * n + j] = sum;
+        sum = 0;
         if (++j < n)
             continue;
         j = 0;
@@ -403,6 +410,8 @@ static int matrix_mul_rr_worker(int interrupted) {
 
     dat->i = i;
     dat->j = j;
+    dat->k = k;
+    dat->sum = sum;
     return ERR_INTERRUPTIBLE;
 }
 
@@ -547,7 +556,8 @@ typedef struct {
     vartype_realmatrix *left;
     vartype_complexmatrix *right;
     vartype *result;
-    int4 i, j;
+    int4 i, j, k;
+    phloat sum_re, sum_im;
     void (*completion)(int error, vartype *result);
 } mul_rc_data_struct;
 
@@ -588,6 +598,9 @@ static int matrix_mul_rc(vartype_realmatrix *left, vartype_complexmatrix *right,
     dat->right = right;
     dat->i = 0;
     dat->j = 0;
+    dat->k = 0;
+    dat->sum_re = 0;
+    dat->sum_im = 0;
     dat->completion = completion;
 
     mul_rc_data = dat;
@@ -609,9 +622,12 @@ static int matrix_mul_rc_worker(int interrupted) {
     phloat *p = ((vartype_complexmatrix *) dat->result)->array->data;
     int4 i = dat->i;
     int4 j = dat->j;
+    int4 k = dat->k;
     int4 m = dat->left->rows;
     int4 n = dat->right->columns;
     int4 q = dat->left->columns;
+    phloat sum_re = dat->sum_re;
+    phloat sum_im = dat->sum_im;
 
     if (interrupted) {
         dat->completion(ERR_INTERRUPTED, NULL);
@@ -620,30 +636,35 @@ static int matrix_mul_rc_worker(int interrupted) {
         return ERR_INTERRUPTED;
     }
 
-    while (count < 1000) {
-        phloat dot_re, dot_im;
-        compensated_dot_rc(flags.f.f20, q, l + i * q, 1, r + 2 * j, 2 * n, &dot_re, &dot_im);
-        count += q;
-        if ((inf = p_isinf(dot_re)) != 0) {
+    while (count++ < 1000) {
+        phloat tmp = l[i * q + k];
+        sum_re += tmp * r[2 * (k * n + j)];
+        sum_im += tmp * r[2 * (k * n + j) + 1];
+        if (++k < q)
+            continue;
+        k = 0;
+        if ((inf = p_isinf(sum_re)) != 0) {
             if (core_settings.matrix_outofrange && !flags.f.range_error_ignore){
                 dat->completion(ERR_OUT_OF_RANGE, NULL);
                 free_vartype(dat->result);
                 free(dat);
                 return ERR_OUT_OF_RANGE;
             } else
-                dot_re = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
+                sum_re = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
         }
-        if ((inf = p_isinf(dot_im)) != 0) {
+        if ((inf = p_isinf(sum_im)) != 0) {
             if (core_settings.matrix_outofrange && !flags.f.range_error_ignore){
                 dat->completion(ERR_OUT_OF_RANGE, NULL);
                 free_vartype(dat->result);
                 free(dat);
                 return ERR_OUT_OF_RANGE;
             } else
-                dot_im = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
+                sum_im = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
         }
-        p[2 * (i * n + j)] = dot_re;
-        p[2 * (i * n + j) + 1] = dot_im;
+        p[2 * (i * n + j)] = sum_re;
+        p[2 * (i * n + j) + 1] = sum_im;
+        sum_re = 0;
+        sum_im = 0;
         if (++j < n)
             continue;
         j = 0;
@@ -658,6 +679,9 @@ static int matrix_mul_rc_worker(int interrupted) {
 
     dat->i = i;
     dat->j = j;
+    dat->k = k;
+    dat->sum_re = sum_re;
+    dat->sum_im = sum_im;
     return ERR_INTERRUPTIBLE;
 }
 
@@ -665,7 +689,8 @@ typedef struct {
     vartype_complexmatrix *left;
     vartype_realmatrix *right;
     vartype *result;
-    int4 i, j;
+    int4 i, j, k;
+    phloat sum_re, sum_im;
     void (*completion)(int error, vartype *result);
 } mul_cr_data_struct;
 
@@ -706,6 +731,9 @@ static int matrix_mul_cr(vartype_complexmatrix *left, vartype_realmatrix *right,
     dat->right = right;
     dat->i = 0;
     dat->j = 0;
+    dat->k = 0;
+    dat->sum_re = 0;
+    dat->sum_im = 0;
     dat->completion = completion;
 
     mul_cr_data = dat;
@@ -727,9 +755,12 @@ static int matrix_mul_cr_worker(int interrupted) {
     phloat *p = ((vartype_complexmatrix *) dat->result)->array->data;
     int4 i = dat->i;
     int4 j = dat->j;
+    int4 k = dat->k;
     int4 m = dat->left->rows;
     int4 n = dat->right->columns;
     int4 q = dat->left->columns;
+    phloat sum_re = dat->sum_re;
+    phloat sum_im = dat->sum_im;
 
     if (interrupted) {
         dat->completion(ERR_INTERRUPTED, NULL);
@@ -738,30 +769,35 @@ static int matrix_mul_cr_worker(int interrupted) {
         return ERR_INTERRUPTED;
     }
 
-    while (count < 1000) {
-        phloat dot_re, dot_im;
-        compensated_dot_rc(flags.f.f20, q, r + j, n, l + 2 * i * q, 2, &dot_re, &dot_im);
-        count += q;
-        if ((inf = p_isinf(dot_re)) != 0) {
+    while (count++ < 1000) {
+        phloat tmp = r[k * n + j];
+        sum_re += tmp * l[2 * (i * q + k)];
+        sum_im += tmp * l[2 * (i * q + k) + 1];
+        if (++k < q)
+            continue;
+        k = 0;
+        if ((inf = p_isinf(sum_re)) != 0) {
             if (core_settings.matrix_outofrange && !flags.f.range_error_ignore){
                 dat->completion(ERR_OUT_OF_RANGE, NULL);
                 free_vartype(dat->result);
                 free(dat);
                 return ERR_OUT_OF_RANGE;
             } else
-                dot_re = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
+                sum_re = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
         }
-        if ((inf = p_isinf(dot_im)) != 0) {
+        if ((inf = p_isinf(sum_im)) != 0) {
             if (core_settings.matrix_outofrange && !flags.f.range_error_ignore){
                 dat->completion(ERR_OUT_OF_RANGE, NULL);
                 free_vartype(dat->result);
                 free(dat);
                 return ERR_OUT_OF_RANGE;
             } else
-                dot_im = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
+                sum_im = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
         }
-        p[2 * (i * n + j)] = dot_re;
-        p[2 * (i * n + j) + 1] = dot_im;
+        p[2 * (i * n + j)] = sum_re;
+        p[2 * (i * n + j) + 1] = sum_im;
+        sum_re = 0;
+        sum_im = 0;
         if (++j < n)
             continue;
         j = 0;
@@ -776,6 +812,9 @@ static int matrix_mul_cr_worker(int interrupted) {
 
     dat->i = i;
     dat->j = j;
+    dat->k = k;
+    dat->sum_re = sum_re;
+    dat->sum_im = sum_im;
     return ERR_INTERRUPTIBLE;
 }
 
@@ -783,7 +822,8 @@ typedef struct {
     vartype_complexmatrix *left;
     vartype_complexmatrix *right;
     vartype *result;
-    int4 i, j;
+    int4 i, j, k;
+    phloat sum_re, sum_im;
     void (*completion)(int error, vartype *result);
 } mul_cc_data_struct;
 
@@ -819,6 +859,9 @@ static int matrix_mul_cc(vartype_complexmatrix *left, vartype_complexmatrix *rig
     dat->right = right;
     dat->i = 0;
     dat->j = 0;
+    dat->k = 0;
+    dat->sum_re = 0;
+    dat->sum_im = 0;
     dat->completion = completion;
 
     mul_cc_data = dat;
@@ -840,9 +883,12 @@ static int matrix_mul_cc_worker(int interrupted) {
     phloat *p = ((vartype_complexmatrix *) dat->result)->array->data;
     int4 i = dat->i;
     int4 j = dat->j;
+    int4 k = dat->k;
     int4 m = dat->left->rows;
     int4 n = dat->right->columns;
     int4 q = dat->left->columns;
+    phloat sum_re = dat->sum_re;
+    phloat sum_im = dat->sum_im;
 
     if (interrupted) {
         dat->completion(ERR_INTERRUPTED, NULL);
@@ -851,30 +897,38 @@ static int matrix_mul_cc_worker(int interrupted) {
         return ERR_INTERRUPTED;
     }
 
-    while (count < 1000) {
-        phloat dot_re, dot_im;
-        compensated_dot_cc(flags.f.f20, q, l + 2 * i * q, 2, r + 2 * j, 2 * n, &dot_re, &dot_im);
-        count += q;
-        if ((inf = p_isinf(dot_re)) != 0) {
+    while (count++ < 1000) {
+        phloat l_re = l[2 * (i * q + k)];
+        phloat l_im = l[2 * (i * q + k) + 1];
+        phloat r_re = r[2 * (k * n + j)];
+        phloat r_im = r[2 * (k * n + j) + 1];
+        sum_re += l_re * r_re - l_im * r_im;
+        sum_im += l_im * r_re + l_re * r_im;
+        if (++k < q)
+            continue;
+        k = 0;
+        if ((inf = p_isinf(sum_re)) != 0) {
             if (core_settings.matrix_outofrange && !flags.f.range_error_ignore){
                 dat->completion(ERR_OUT_OF_RANGE, NULL);
                 free_vartype(dat->result);
                 free(dat);
                 return ERR_OUT_OF_RANGE;
             } else
-                dot_re = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
+                sum_re = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
         }
-        if ((inf = p_isinf(dot_im)) != 0) {
+        if ((inf = p_isinf(sum_im)) != 0) {
             if (core_settings.matrix_outofrange && !flags.f.range_error_ignore){
                 dat->completion(ERR_OUT_OF_RANGE, NULL);
                 free_vartype(dat->result);
                 free(dat);
                 return ERR_OUT_OF_RANGE;
             } else
-                dot_im = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
+                sum_im = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
         }
-        p[2 * (i * n + j)] = dot_re;
-        p[2 * (i * n + j) + 1] = dot_im;
+        p[2 * (i * n + j)] = sum_re;
+        p[2 * (i * n + j) + 1] = sum_im;
+        sum_re = 0;
+        sum_im = 0;
         if (++j < n)
             continue;
         j = 0;
@@ -889,6 +943,9 @@ static int matrix_mul_cc_worker(int interrupted) {
 
     dat->i = i;
     dat->j = j;
+    dat->k = k;
+    dat->sum_re = sum_re;
+    dat->sum_im = sum_im;
     return ERR_INTERRUPTIBLE;
 }
 

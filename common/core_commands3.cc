@@ -24,7 +24,6 @@
 #include "core_display.h"
 #include "core_helpers.h"
 #include "core_linalg1.h"
-#include "core_linalg2.h"
 #include "core_main.h"
 #include "core_math2.h"
 #include "core_sto_rcl.h"
@@ -276,6 +275,9 @@ int docmd_cosh(arg_struct *arg) {
         return ERR_ALPHA_DATA_IS_INVALID;
 }
 
+/* NOTE: it is possible to generalize the cross product to more than
+ * 3 dimensions... Something for Free42++ perhaps?
+ */
 int docmd_cross(arg_struct *arg) {
     if (reg_x->type == TYPE_STRING || reg_y->type == TYPE_STRING)
         return ERR_ALPHA_DATA_IS_INVALID;
@@ -630,6 +632,12 @@ int docmd_dim(arg_struct *arg) {
 }
 
 int docmd_dot(arg_struct *arg) {
+    /* TODO: look for range errors in intermediate results.
+     * Right now, 1e6000+1e6000i DOT 1e6000-1e6000i returns NaN
+     * in the Decimal build, because two infinities of opposite
+     * signs are added. 1e300+1e300i DOT 1e300-1e300i probably
+     * does the same in the Binary build.
+     */
     vartype *v;
     if (reg_x->type == TYPE_STRING || reg_y->type == TYPE_STRING)
         return ERR_ALPHA_DATA_IS_INVALID;
@@ -637,15 +645,17 @@ int docmd_dot(arg_struct *arg) {
         vartype_realmatrix *rm1 = (vartype_realmatrix *) reg_x;
         vartype_realmatrix *rm2 = (vartype_realmatrix *) reg_y;
         int4 size = rm1->rows * rm1->columns;
+        int4 i;
+        phloat dot = 0;
+        int inf;
         if (size != rm2->rows * rm2->columns)
             return ERR_DIMENSION_ERROR;
-        for (int4 i = 0; i < size; i++)
+        for (i = 0; i < size; i++)
             if (rm1->array->is_string[i] || rm2->array->is_string[i])
                 return ERR_ALPHA_DATA_IS_INVALID;
-        phloat dot;
-        compensated_dot_rr(false, size, rm1->array->data, 1, rm2->array->data, 1, &dot);
-        int inf = p_isinf(dot);
-        if (inf != 0) {
+        for (i = 0; i < size; i++)
+            dot += rm1->array->data[i] * rm2->array->data[i];
+        if ((inf = p_isinf(dot)) != 0) {
             if (flags.f.range_error_ignore)
                 dot = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
             else
@@ -659,6 +669,9 @@ int docmd_dot(arg_struct *arg) {
                     && reg_y->type == TYPE_REALMATRIX)) {
         vartype_realmatrix *rm;
         vartype_complexmatrix *cm;
+        int4 size, i;
+        phloat dot_re = 0, dot_im = 0;
+        int inf;
         if (reg_x->type == TYPE_REALMATRIX) {
             rm = (vartype_realmatrix *) reg_x;
             cm = (vartype_complexmatrix *) reg_y;
@@ -666,23 +679,23 @@ int docmd_dot(arg_struct *arg) {
             rm = (vartype_realmatrix *) reg_y;
             cm = (vartype_complexmatrix *) reg_x;
         }
-        int4 size = rm->rows * rm->columns;
+        size = rm->rows * rm->columns;
         if (size != cm->rows * cm->columns)
             return ERR_DIMENSION_ERROR;
-        for (int4 i = 0; i < size; i++)
+        for (i = 0; i < size; i++)
             if (rm->array->is_string[i])
                 return ERR_ALPHA_DATA_IS_INVALID;
-        phloat dot_re, dot_im;
-        compensated_dot_rc(false, size, rm->array->data, 1, cm->array->data, 2, &dot_re, &dot_im);
-        int inf = p_isinf(dot_re);
-        if (inf != 0) {
+        for (i = 0; i < size; i++) {
+            dot_re += rm->array->data[i] * cm->array->data[2 * i];
+            dot_im += rm->array->data[i] * cm->array->data[2 * i + 1];
+        }
+        if ((inf = p_isinf(dot_re)) != 0) {
             if (flags.f.range_error_ignore)
                 dot_re = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
             else
                 return ERR_OUT_OF_RANGE;
         }
-        inf = p_isinf(dot_im);
-        if (inf != 0) {
+        if ((inf = p_isinf(dot_im)) != 0) {
             if (flags.f.range_error_ignore)
                 dot_im = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
             else
@@ -693,20 +706,28 @@ int docmd_dot(arg_struct *arg) {
                     && reg_y->type == TYPE_COMPLEXMATRIX) {
         vartype_complexmatrix *cm1 = (vartype_complexmatrix *) reg_x;
         vartype_complexmatrix *cm2 = (vartype_complexmatrix *) reg_y;
-        int4 size = cm1->rows * cm1->columns;
+        int4 size, i;
+        phloat dot_re = 0, dot_im = 0;
+        int inf;
+        size = cm1->rows * cm1->columns;
         if (size != cm2->rows * cm2->columns)
             return ERR_DIMENSION_ERROR;
-        phloat dot_re, dot_im;
-        compensated_dot_cc(false, size, cm1->array->data, 2, cm2->array->data, 2, &dot_re, &dot_im);
-        int inf = p_isinf(dot_re);
-        if (inf != 0) {
+        size *= 2;
+        for (i = 0; i < size; i += 2) {
+            phloat re1 = cm1->array->data[i];
+            phloat im1 = cm1->array->data[i + 1];
+            phloat re2 = cm2->array->data[i];
+            phloat im2 = cm2->array->data[i + 1];
+            dot_re += re1 * re2 - im1 * im2;
+            dot_im += re1 * im2 + re2 * im1;
+        }
+        if ((inf = p_isinf(dot_re)) != 0) {
             if (flags.f.range_error_ignore)
                 dot_re = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
             else
                 return ERR_OUT_OF_RANGE;
         }
-        inf = p_isinf(dot_im);
-        if (inf != 0) {
+        if ((inf = p_isinf(dot_im)) != 0) {
             if (flags.f.range_error_ignore)
                 dot_im = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
             else
