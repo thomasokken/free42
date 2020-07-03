@@ -957,6 +957,7 @@ int docmd_varmenu(arg_struct *arg) {
 
 int docmd_getkey(arg_struct *arg) {
     mode_getkey = true;
+    mode_disable_stack_lift = flags.f.stack_lift_disable;
     return ERR_NONE;
 }
 
