@@ -9,8 +9,7 @@ else
 fi
 
 if [ -z $MK ]; then
-  which gmake >/dev/null
-  if [ $? -eq 0 ]; then
+  if which gmake > /dev/null; then
     MK=gmake
   else
     MK=make
