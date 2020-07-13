@@ -718,7 +718,9 @@ static int generic_loop(arg_struct *arg, bool isg) {
         }
         case ARGTYPE_STR: {
             vartype *v = recall_var(arg->val.text, arg->length);
-            if (v->type == TYPE_REAL)
+            if (v == NULL)
+                return ERR_NONEXISTENT;
+            else if (v->type == TYPE_REAL)
                 return generic_loop_helper(&((vartype_real *) v)->x, isg);
             else if (v->type == TYPE_STRING)
                 return ERR_ALPHA_DATA_IS_INVALID;
