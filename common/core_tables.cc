@@ -348,7 +348,7 @@ static const command_spec cmd_array[] =
     { /* VMSOLVE */     "SOLVE",                5, docmd_vmsolve,     0x02000000, ARG_OTHER, FLAG_HIDDEN },
     { /* MAX */         "[MAX]",                5, docmd_max,         0x0000a6eb, ARG_NONE,  FLAG_NONE },
     { /* MIN */         "[MIN]",                5, docmd_min,         0x0000a6ea, ARG_NONE,  FLAG_NONE },
-    { /* FIND */        "[FIND]",               6, docmd_find,        0x0000a6ec, ARG_NONE,  FLAG_NONE },
+    { /* FIND */        "[F\311ND]",            6, docmd_find,        0x0000a6ec, ARG_NONE,  FLAG_NONE },
     { /* XROM */        "XROM",                 4, docmd_xrom,        0x01000000, ARG_OTHER, FLAG_HIDDEN },
 
     /* Here endeth the original Free42 function table.
