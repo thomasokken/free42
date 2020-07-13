@@ -162,7 +162,7 @@ int docmd_comb(arg_struct *arg) {
     if (reg_x->type == TYPE_REAL && reg_y->type == TYPE_REAL) {
         phloat y = ((vartype_real *) reg_y)->x;
         phloat x = ((vartype_real *) reg_x)->x;
-        phloat r = 1, q = 1;
+        phloat r, s, q = 1;
         vartype *v;
         if (x < 0 || x != floor(x) || x == x - 1 || y < 0 || y != floor(y))
             return ERR_INVALID_DATA;
@@ -170,6 +170,12 @@ int docmd_comb(arg_struct *arg) {
             return ERR_INVALID_DATA;
         if (x > y / 2)
             x = y - x;
+        #ifdef BCD_MATH
+            s = x == 0 ? 1 : pow(10, 1 + floor(log10(x)));
+        #else
+            s = x == 0 ? 1 : pow(2, 1 + floor(log2(x)));
+        #endif
+        r = 1 / s;
         while (q <= x) {
             r *= y--;
             if (p_isinf(r)) {
@@ -180,6 +186,13 @@ int docmd_comb(arg_struct *arg) {
                     return ERR_OUT_OF_RANGE;
             }
             r /= q++;
+        }
+        r *= s;
+        if (p_isinf(r)) {
+            if (flags.f.range_error_ignore)
+                r = POS_HUGE_PHLOAT;
+            else
+                return ERR_OUT_OF_RANGE;
         }
         v = new_real(r);
         if (v == NULL)
