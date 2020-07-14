@@ -649,7 +649,7 @@ static int generic_loop_helper(phloat *x, bool isg) {
      * This way is computationally cheaper, anyway.
      */
     if (isg) {
-        if (*x < 0 && *x > -k)
+        if (*x < 0 && floor(-(*x)) <= k)
             *x = -(*x) + k - 2 * i;
         else
             *x += k;
