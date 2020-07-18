@@ -35,5 +35,6 @@ int docmd_sqrt(arg_struct *arg);
 int docmd_square(arg_struct *arg);
 int docmd_inv(arg_struct *arg);
 int docmd_y_pow_x(arg_struct *arg);
+int docmd_anum(arg_struct *arg);
 
 #endif

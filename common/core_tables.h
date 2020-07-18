@@ -418,8 +418,10 @@
 #define CMD_BSIGNED     374
 #define CMD_BWRAP       375
 #define CMD_BRESET      376
+/* Mysterious omission from the HP-42S... */
+#define CMD_ANUM        377
 
-#define CMD_SENTINEL    377
+#define CMD_SENTINEL    378
 
 
 /* command_spec.argtype */

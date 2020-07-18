@@ -435,7 +435,10 @@ static const command_spec cmd_array[] =
     { /* YMD */        "YMD",                   3, docmd_ymd,         0x0000a7d5, ARG_NONE,  FLAG_NONE },
     { /* BSIGNED */    "BS\311GN\305\304",      7, docmd_bsigned,     0x0000a7d6, ARG_NONE,  FLAG_NONE },
     { /* BWRAP */      "BWR\301P",              5, docmd_bwrap,       0x0000a7d7, ARG_NONE,  FLAG_NONE },
-    { /* BRESET */     "BR\305S\305T",          6, docmd_breset,      0x0000a7d8, ARG_NONE,  FLAG_NONE }
+    { /* BRESET */     "BR\305S\305T",          6, docmd_breset,      0x0000a7d8, ARG_NONE,  FLAG_NONE },
+
+    /* Mysterious omission from the HP-42S... */
+    { /* ANUM */       "ANUM",                  4, docmd_anum,        0x0000a642, ARG_NONE,  FLAG_NONE }
 };
 
 /*
