@@ -1094,3 +1094,25 @@ int docmd_anum(arg_struct *arg) {
     recall_result(v);
     return ERR_NONE;
 }
+
+int docmd_x_swap_f(arg_struct *arg) {
+    if (reg_x->type == TYPE_STRING)
+        return ERR_ALPHA_DATA_IS_INVALID;
+    if (reg_x->type != TYPE_REAL)
+        return ERR_INVALID_DATA;
+    phloat x = ((vartype_real *) reg_x)->x;
+    if (x < 0)
+        x = -x;
+    if (x >= 256)
+        return ERR_INVALID_DATA;
+    int f = 0;
+    for (int i = 7; i >= 0; i--)
+        f = (f << 1) | flags.farray[i];
+    int nf = to_int(x);
+    for (int i = 0; i < 8; i++) {
+        flags.farray[i] = nf & 1;
+        nf >>= 1;
+    }
+    ((vartype_real *) reg_x)->x = f;
+    return ERR_NONE;
+}

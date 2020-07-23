@@ -418,10 +418,11 @@
 #define CMD_BSIGNED     374
 #define CMD_BWRAP       375
 #define CMD_BRESET      376
-/* Mysterious omission from the HP-42S... */
+/* Useful X-Fcn functions missing from the 42S */
 #define CMD_ANUM        377
+#define CMD_X_SWAP_F    378
 
-#define CMD_SENTINEL    378
+#define CMD_SENTINEL    379
 
 
 /* command_spec.argtype */
