@@ -55,8 +55,7 @@ int docmd_swap(arg_struct *arg) {
     vartype *temp = reg_x;
     reg_x = reg_y;
     reg_y = temp;
-    if (flags.f.trace_print && flags.f.printer_exists)
-        docmd_prx(NULL);
+    print_trace();
     return ERR_NONE;
 }
 
@@ -66,8 +65,7 @@ int docmd_rdn(arg_struct *arg) {
     reg_y = reg_z;
     reg_z = reg_t;
     reg_t = temp;
-    if (flags.f.trace_print && flags.f.printer_exists)
-        docmd_prx(NULL);
+    print_trace();
     return ERR_NONE;
 }
 
@@ -110,8 +108,7 @@ int docmd_chs(arg_struct *arg) {
         case TYPE_STRING:
             return ERR_ALPHA_DATA_IS_INVALID;
     }
-    if (flags.f.trace_print && flags.f.printer_exists)
-        docmd_prx(NULL);
+    print_trace();
     return ERR_NONE;
 }
 
@@ -318,8 +315,7 @@ int docmd_complex(arg_struct *arg) {
         case TYPE_STRING:
             return ERR_ALPHA_DATA_IS_INVALID;
     }
-    if (flags.f.trace_print && flags.f.printer_exists)
-        docmd_prx(NULL);
+    print_trace();
     return ERR_NONE;
 }
 
@@ -420,8 +416,7 @@ int docmd_fix(arg_struct *arg) {
     flags.f.digits_bit0 = (num & 1) != 0;
     flags.f.fix_or_all = 1;
     flags.f.eng_or_all = 0;
-    if (flags.f.trace_print && flags.f.printer_exists)
-        docmd_prx(NULL);
+    print_trace();
     return ERR_NONE;
 }
 
@@ -441,8 +436,7 @@ int docmd_sci(arg_struct *arg) {
     flags.f.digits_bit0 = (num & 1) != 0;
     flags.f.fix_or_all = 0;
     flags.f.eng_or_all = 0;
-    if (flags.f.trace_print && flags.f.printer_exists)
-        docmd_prx(NULL);
+    print_trace();
     return ERR_NONE;
 }
 
@@ -462,8 +456,7 @@ int docmd_eng(arg_struct *arg) {
     flags.f.digits_bit0 = (num & 1) != 0;
     flags.f.fix_or_all = 0;
     flags.f.eng_or_all = 1;
-    if (flags.f.trace_print && flags.f.printer_exists)
-        docmd_prx(NULL);
+    print_trace();
     return ERR_NONE;
 }
 
@@ -474,8 +467,7 @@ int docmd_all(arg_struct *arg) {
     flags.f.digits_bit0 = 0;
     flags.f.fix_or_all = 1;
     flags.f.eng_or_all = 1;
-    if (flags.f.trace_print && flags.f.printer_exists)
-        docmd_prx(NULL);
+    print_trace();
     return ERR_NONE;
 }
 
@@ -590,15 +582,13 @@ int docmd_grad(arg_struct *arg) {
 
 int docmd_rect(arg_struct *arg) {
     flags.f.polar = 0;
-    if (flags.f.trace_print && flags.f.printer_exists)
-        docmd_prx(NULL);
+    print_trace();
     return ERR_NONE;
 }
 
 int docmd_polar(arg_struct *arg) {
     flags.f.polar = 1;
-    if (flags.f.trace_print && flags.f.printer_exists)
-        docmd_prx(NULL);
+    print_trace();
     return ERR_NONE;
 }
 
@@ -635,15 +625,13 @@ int docmd_lclbl(arg_struct *arg) {
 
 int docmd_rdxdot(arg_struct *arg) {
     flags.f.decimal_point = 1;
-    if (flags.f.trace_print && flags.f.printer_exists)
-        docmd_prx(NULL);
+    print_trace();
     return ERR_NONE;
 }
 
 int docmd_rdxcomma(arg_struct *arg) {
     flags.f.decimal_point = 0;
-    if (flags.f.trace_print && flags.f.printer_exists)
-        docmd_prx(NULL);
+    print_trace();
     return ERR_NONE;
 }
 
@@ -831,8 +819,7 @@ int docmd_percent(arg_struct *arg) {
         free_vartype(reg_lastx);
         reg_lastx = reg_x;
         reg_x = new_x;
-        if (flags.f.trace_print && flags.f.printer_exists)
-            docmd_prx(NULL);
+        print_trace();
         return ERR_NONE;
     }
 }
@@ -1009,8 +996,7 @@ int docmd_to_rec(arg_struct *arg) {
             free_vartype(reg_lastx);
             reg_lastx = reg_x;
             reg_x = vx;
-            if (flags.f.trace_print && flags.f.printer_exists)
-                docmd_prx(NULL);
+            print_trace();
             return ERR_NONE;
         } else if (reg_y->type == TYPE_STRING)
             return ERR_ALPHA_DATA_IS_INVALID;
@@ -1077,8 +1063,7 @@ int docmd_to_pol(arg_struct *arg) {
             free_vartype(reg_lastx);
             reg_lastx = reg_x;
             reg_x = vx;
-            if (flags.f.trace_print && flags.f.printer_exists)
-                docmd_prx(NULL);
+            print_trace();
             return ERR_NONE;
         } else if (reg_y->type == TYPE_STRING)
             return ERR_ALPHA_DATA_IS_INVALID;

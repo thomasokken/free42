@@ -891,8 +891,7 @@ int docmd_edit(arg_struct *arg) {
             matedit_prev_appmenu = MENU_NONE;
         set_menu(MENULEVEL_APP, MENU_MATRIX_EDIT1);
         set_appmenu_exitcallback(1);
-        if (flags.f.trace_print && flags.f.printer_exists)
-            docmd_prx(NULL);
+        print_trace();
         mode_disable_stack_lift = flags.f.stack_lift_disable;
         return ERR_NONE;
     } else
@@ -956,8 +955,7 @@ int docmd_editn(arg_struct *arg) {
             matedit_prev_appmenu = MENU_NONE;
         set_menu(MENULEVEL_APP, MENU_MATRIX_EDIT1);
         set_appmenu_exitcallback(1);
-        if (flags.f.trace_print && flags.f.printer_exists)
-            docmd_prx(NULL);
+        print_trace();
         mode_disable_stack_lift = flags.f.stack_lift_disable;
         return ERR_NONE;
     }

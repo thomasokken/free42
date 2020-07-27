@@ -719,8 +719,7 @@ int docmd_mean(arg_struct *arg) {
     free_vartype(reg_lastx);
     reg_lastx = reg_x;
     reg_x = mx;
-    if (flags.f.trace_print && flags.f.printer_enable)
-        docmd_prx(NULL);
+    print_trace();
     return ERR_NONE;
 }
 
@@ -757,8 +756,7 @@ int docmd_sdev(arg_struct *arg) {
     free_vartype(reg_lastx);
     reg_lastx = reg_x;
     reg_x = sx;
-    if (flags.f.trace_print && flags.f.printer_enable)
-        docmd_prx(NULL);
+    print_trace();
     return ERR_NONE;
 }
 
@@ -795,8 +793,7 @@ int docmd_sum(arg_struct *arg) {
     reg_y = sy;
     reg_lastx = reg_x;
     reg_x = sx;
-    if (flags.f.trace_print && flags.f.printer_enable)
-        docmd_prx(NULL);
+    print_trace();
     return ERR_NONE;
 }
 
@@ -1343,14 +1340,14 @@ static int sigma_helper_1(int weight) {
 
 int docmd_sigmaadd(arg_struct *arg) {
     int err = sigma_helper_1(1);
-    if (err == ERR_NONE && flags.f.trace_print && flags.f.printer_exists)
-        docmd_prx(NULL);
+    if (err == ERR_NONE)
+        print_trace();
     return err;
 }
 
 int docmd_sigmasub(arg_struct *arg) {
     int err = sigma_helper_1(-1);
-    if (err == ERR_NONE && flags.f.trace_print && flags.f.printer_exists)
-        docmd_prx(NULL);
+    if (err == ERR_NONE)
+        print_trace();
     return err;
 }

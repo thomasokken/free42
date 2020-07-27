@@ -147,8 +147,7 @@ void recall_result(vartype *v) {
         reg_y = reg_x;
     }
     reg_x = v;
-    if (flags.f.trace_print && flags.f.printer_exists)
-        docmd_prx(NULL);
+    print_trace();
 }
 
 void recall_two_results(vartype *x, vartype *y) {
@@ -165,16 +164,14 @@ void recall_two_results(vartype *x, vartype *y) {
     }
     reg_y = y;
     reg_x = x;
-    if (flags.f.trace_print && flags.f.printer_exists)
-        docmd_prx(NULL);
+    print_trace();
 }
 
 void unary_result(vartype *x) {
     free_vartype(reg_lastx);
     reg_lastx = reg_x;
     reg_x = x;
-    if (flags.f.trace_print && flags.f.printer_exists)
-        docmd_prx(NULL);
+    print_trace();
 }
 
 void binary_result(vartype *x) {
@@ -184,8 +181,7 @@ void binary_result(vartype *x) {
     free_vartype(reg_y);
     reg_y = reg_z;
     reg_z = dup_vartype(reg_t);
-    if (flags.f.trace_print && flags.f.printer_exists)
-        docmd_prx(NULL);
+    print_trace();
 }
 
 phloat rad_to_angle(phloat x) {
@@ -428,8 +424,8 @@ void set_base(int base) {
     if (mode_appmenu == MENU_BASE_A_THRU_F)
         set_menu(MENULEVEL_APP, MENU_BASE);
 
-    if (base != oldbase && flags.f.trace_print && flags.f.printer_exists)
-        docmd_prx(NULL);
+    if (base != oldbase)
+        print_trace();
 }
 
 int get_base_param(const vartype *v, int8 *n) {
@@ -735,6 +731,14 @@ void print_command(int cmd, const arg_struct *arg) {
 
     deferred_print = 0;
     shell_annunciators(-1, -1, 0, -1, -1, -1);
+}
+
+void print_trace() {
+    if (flags.f.trace_print && flags.f.printer_exists)
+        if (flags.f.normal_print)
+            docmd_prstk(NULL);
+        else
+            docmd_prx(NULL);
 }
 
 void generic_r2p(phloat re, phloat im, phloat *r, phloat *phi) {

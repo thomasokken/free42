@@ -1364,12 +1364,14 @@ static int prv_worker(int interrupted) {
 int docmd_prstk(arg_struct *arg) {
     char buf[100];
     int len;
-    if (!flags.f.printer_enable && program_running())
+    // arg == NULL if we're called to do TRACE mode auto-print
+    if (arg != NULL && !flags.f.printer_enable && program_running())
         return ERR_NONE;
     if (!flags.f.printer_exists)
         return ERR_PRINTING_IS_DISABLED;
     shell_annunciators(-1, -1, 1, -1, -1, -1);
-    print_text(NULL, 0, 1);
+    if (arg != NULL)
+        print_text(NULL, 0, 1);
     len = vartype2string(reg_t, buf, 100);
     print_wide("T=", 2, buf, len);
     len = vartype2string(reg_z, buf, 100);
@@ -1783,8 +1785,7 @@ int docmd_rup(arg_struct *arg) {
     reg_t = reg_z;
     reg_z = reg_y;
     reg_y = temp;
-    if (flags.f.trace_print && flags.f.printer_exists)
-        docmd_prx(NULL);
+    print_trace();
     return ERR_NONE;
 }
 
@@ -1831,8 +1832,7 @@ int docmd_dim_t(arg_struct *arg) {
     reg_z = reg_y;
     reg_y = new_y;
     reg_x = new_x;
-    if (flags.f.trace_print && flags.f.printer_exists)
-        docmd_prx(NULL);
+    print_trace();
     return ERR_NONE;
 }
 
