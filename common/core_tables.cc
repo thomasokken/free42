@@ -439,7 +439,9 @@ static const command_spec cmd_array[] =
 
     /* Useful X-Fcn functions missing from the 42S */
     { /* ANUM */       "ANUM",                  4, docmd_anum,        0x0000a642, ARG_NONE,  FLAG_NONE },
-    { /* X<>F */       "X<>F",                  4, docmd_x_swap_f,    0x0000a66e, ARG_NONE,  FLAG_NONE }
+    { /* X<>F */       "X<>F",                  4, docmd_x_swap_f,    0x0000a66e, ARG_NONE,  FLAG_NONE },
+    { /* RCLFLAG */    "RCLFLAG",               7, docmd_rclflag,     0x0000a660, ARG_NONE,  FLAG_NONE },
+    { /* STOFLAG */    "STOFLAG",               7, docmd_stoflag,     0x0000a66d, ARG_NONE,  FLAG_NONE }
 };
 
 /*

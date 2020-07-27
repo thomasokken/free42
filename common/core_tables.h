@@ -421,8 +421,10 @@
 /* Useful X-Fcn functions missing from the 42S */
 #define CMD_ANUM        377
 #define CMD_X_SWAP_F    378
+#define CMD_RCLFLAG     379
+#define CMD_STOFLAG     380
 
-#define CMD_SENTINEL    379
+#define CMD_SENTINEL    381
 
 
 /* command_spec.argtype */

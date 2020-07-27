@@ -1116,3 +1116,49 @@ int docmd_x_swap_f(arg_struct *arg) {
     ((vartype_real *) reg_x)->x = f;
     return ERR_NONE;
 }
+
+int docmd_rclflag(arg_struct *arg) {
+    uint8 lfs = 0, hfs = 0;
+    uint8 p = 1;
+    for (int i = 0; i < 50; i++) {
+        int j = i + 50;
+        char lf = virtual_flags[i] == '1' ? virtual_flag_handler(FLAGOP_FS_T, i) == ERR_YES : flags.farray[i] != 0;
+        char hf = virtual_flags[j] == '1' ? virtual_flag_handler(FLAGOP_FS_T, j) == ERR_YES : flags.farray[j] != 0;
+        if (lf)
+            lfs += p;
+        if (hf)
+            hfs += p;
+        p <<= 1;
+    }
+    vartype *v = new_complex(lfs, hfs);
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    recall_result(v);
+    return ERR_NONE;
+}
+
+int docmd_stoflag(arg_struct *arg) {
+    if (reg_x->type == TYPE_STRING)
+        return ERR_ALPHA_DATA_IS_INVALID;
+    if (reg_x->type != TYPE_COMPLEX)
+        return ERR_INVALID_DATA;
+    vartype_complex *c = (vartype_complex *) reg_x;
+    if (c->re < 0)
+        c->re = -c->re;
+    if (c->im < 0)
+        c->im = -c->im;
+    if (c->re >= 1LL << 50 || c->im >= 1LL << 50)
+        return ERR_INVALID_DATA;
+    uint8 lfs = to_int8(c->re);
+    uint8 hfs = to_int8(c->im);
+    uint8 p = 1;
+    for (int i = 0; i < 50; i++) {
+        int j = i + 50;
+        char lf = virtual_flags[i] == '1' ? 0 : (lfs & p) != 0;
+        char hf = virtual_flags[j] == '1' ? 0 : (hfs & p) != 0;
+        flags.farray[i] = lf;
+        flags.farray[j] = hf;
+        p <<= 1;
+    }
+    return ERR_NONE;
+}

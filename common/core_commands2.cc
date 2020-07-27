@@ -33,10 +33,6 @@
 /* Implementations of HP-42S built-in functions, part 2 */
 /********************************************************/
 
-static const char *virtual_flags =
-    /* 00-49 */ "00000000000000000000000000010000000000000000111111"
-    /* 50-99 */ "00010000000000010000000001000000000000000000000000";
-
 int docmd_sf(arg_struct *arg) {
     if (arg->type == ARGTYPE_STK)
         return ERR_NONEXISTENT;

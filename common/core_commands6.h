@@ -37,5 +37,7 @@ int docmd_inv(arg_struct *arg);
 int docmd_y_pow_x(arg_struct *arg);
 int docmd_anum(arg_struct *arg);
 int docmd_x_swap_f(arg_struct *arg);
+int docmd_rclflag(arg_struct *arg);
+int docmd_stoflag(arg_struct *arg);
 
 #endif

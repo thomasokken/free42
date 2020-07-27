@@ -366,6 +366,7 @@ typedef union {
     } f;
 } flags_struct;
 extern flags_struct flags;
+extern const char *virtual_flags;
 
 /* Variables */
 typedef struct {

@@ -1478,15 +1478,15 @@ typedef struct {
 } extension_struct;
 
 static extension_struct extensions[] = {
-    { CMD_MAX,     CMD_FIND,     NULL                               },
-    { CMD_ANUM,    CMD_X_SWAP_F, NULL                               },
-    { CMD_ACCEL,   CMD_ACCEL,    &core_settings.enable_ext_accel    },
-    { CMD_LOCAT,   CMD_LOCAT,    &core_settings.enable_ext_locat    },
-    { CMD_HEADING, CMD_HEADING,  &core_settings.enable_ext_heading  },
-    { CMD_ADATE,   CMD_SWPT,     &core_settings.enable_ext_time     },
-    { CMD_FPTEST,  CMD_FPTEST,   &core_settings.enable_ext_fptest   },
-    { CMD_LSTO,    CMD_BRESET,   &core_settings.enable_ext_prog     },
-    { CMD_NULL,    CMD_NULL,     NULL                               }
+    { CMD_MAX,     CMD_FIND,    NULL                              },
+    { CMD_ANUM,    CMD_STOFLAG, NULL                              },
+    { CMD_ACCEL,   CMD_ACCEL,   &core_settings.enable_ext_accel   },
+    { CMD_LOCAT,   CMD_LOCAT,   &core_settings.enable_ext_locat   },
+    { CMD_HEADING, CMD_HEADING, &core_settings.enable_ext_heading },
+    { CMD_ADATE,   CMD_SWPT,    &core_settings.enable_ext_time    },
+    { CMD_FPTEST,  CMD_FPTEST,  &core_settings.enable_ext_fptest  },
+    { CMD_LSTO,    CMD_BRESET,  &core_settings.enable_ext_prog    },
+    { CMD_NULL,    CMD_NULL,    NULL                              }
 };
 
 // This defines the order in which extension functions should appear in
@@ -1496,7 +1496,7 @@ static extension_struct extensions[] = {
 // the list until the number after it.
 static int ext_fcn_cat[] = {
     CMD_FIND, CMD_MAX, CMD_MIN,
-    CMD_ANUM, CMD_X_SWAP_F,
+    CMD_ANUM, CMD_RCLFLAG, CMD_STOFLAG, CMD_X_SWAP_F,
     CMD_ADATE, -1, CMD_SWPT,
     CMD_YMD,
     CMD_BRESET, CMD_BSIGNED, CMD_BWRAP,
