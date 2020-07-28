@@ -575,8 +575,11 @@ int core_keyup() {
             goto do_run;
         }
         if ((flags.f.trace_print || flags.f.normal_print)
-                && flags.f.printer_exists)
+                && flags.f.printer_exists) {
+            if (cmd == CMD_LBL)
+                print_text(NULL, 0, 1);
             print_program_line(current_prgm, oldpc);
+        }
         mode_disable_stack_lift = false;
         set_running(true);
         error = cmdlist(cmd)->handler(&arg);
@@ -3858,8 +3861,11 @@ static void continue_running() {
             return;
         }
         get_next_command(&pc, &cmd, &arg, 1);
-        if (flags.f.trace_print && flags.f.printer_exists)
+        if (flags.f.trace_print && flags.f.printer_exists) {
+            if (cmd == CMD_LBL)
+                print_text(NULL, 0, 1);
             print_program_line(current_prgm, oldpc);
+        }
         mode_disable_stack_lift = false;
         error = cmdlist(cmd)->handler(&arg);
         if (mode_pause) {
