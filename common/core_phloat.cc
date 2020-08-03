@@ -1076,7 +1076,7 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
             mask <<= 1;
         if (base_mode == 2 && base == 2 && (n & mask) != 0) {
             // More than 44 bits; won't fit. Use hex instead.
-            string2buf(buf, buflen, &chars_so_far, "hex ", 6);
+            string2buf(buf, buflen, &chars_so_far, "hex ", 4);
             base = 16;
         }
         shift = base == 2 ? 1 : base == 8 ? 3 : 4;
