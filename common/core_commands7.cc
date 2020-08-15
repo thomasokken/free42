@@ -168,7 +168,7 @@ static int date2comps(phloat x, int4 *yy, int4 *mm, int4 *dd) {
     }
 #endif
 
-    if (flags.f.dmy) {
+    if (!flags.f.ymd && flags.f.dmy) {
         int4 t = m;
         m = d;
         d = t;
