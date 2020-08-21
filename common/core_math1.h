@@ -37,6 +37,6 @@ void get_integ_prgm(char *name, int *length);
 void set_integ_var(const char *name, int length);
 void get_integ_var(char *name, int *length);
 int start_integ(const char *name, int length);
-int return_to_integ(int failure, bool stop);
+int return_to_integ(bool stop);
 
 #endif

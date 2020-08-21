@@ -388,7 +388,7 @@ int docmd_rtn(arg_struct *arg) {
         bool stop;
         pop_rtn_addr(&newprgm, &newpc, &stop);
         if (newprgm == -3)
-            return return_to_integ(0, stop);
+            return return_to_integ(stop);
         else if (newprgm == -2)
             return return_to_solve(0, stop);
         else if (newprgm == -1) {

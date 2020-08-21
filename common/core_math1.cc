@@ -1108,7 +1108,7 @@ int start_integ(const char *name, int length) {
         flags.f.message = 1;
         flags.f.two_line_message = 0;
     }
-    return return_to_integ(0, false);
+    return return_to_integ(false);
 }
 
 static int finish_integ() {
@@ -1153,7 +1153,7 @@ static int finish_integ() {
  * which prevents endpoint evaluation and causes non-uniform sampling.
  */
 
-int return_to_integ(int failure, bool stop) {
+int return_to_integ(bool stop) {
     if (stop)
         integ.keep_running = 0;
     
@@ -1178,8 +1178,11 @@ int return_to_integ(int failure, bool stop) {
         return call_integ_fn();
 
     case 2:
-        if (!failure && reg_x->type == TYPE_REAL)
-            integ.sum += integ.t * ((vartype_real *) reg_x)->x;
+        if (reg_x->type == TYPE_STRING)
+            return ERR_ALPHA_DATA_IS_INVALID;
+        else if (reg_x->type != TYPE_REAL)
+            return ERR_INVALID_TYPE;
+        integ.sum += integ.t * ((vartype_real *) reg_x)->x;
         integ.p += integ.h;
         if (++integ.i < integ.nsteps)
             goto loop2;
