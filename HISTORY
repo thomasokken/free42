@@ -1,23 +1,22 @@
 2020-09-20: release 2.5.20
 
-* Fixed INTEG behavior when integrand returns non-real. It used to
-  treat such results as zero while it should raise an error instead.
+* Fixed INTEG behavior when integrand returns non-real. It used to treat such
+  results as zero while it should raise an error instead.
 * Fixed DATE+, DDAYS, and DOW when flags 31 and 67 are both set.
-  This combination of flags is never set by the DMY, MDY, and YMD
-  functions, but it can happen when you execute YMD followed by SF 31.
+  This combination of flags is never set by the DMY, MDY, and YMD functions,
+  but it can happen when you execute YMD followed by SF 31.
 * Fixed garbage in SHOW when BIN overflows to HEX.
 * During TRACE, print blank line before LBL, like the HP-41.
-* When ISG reached zero, the loop control variable would end up having
-  the wrong sign. For example, -1.00001 ISG ST X => -0.00001, should be
-  0.00001. Fixed.
-* Added [FIND], [MAX], and [MIN] to the FCN catalog. These are
-  undocumented functions from the HP-42S that were previously not shown
-  in the catalog, even though they did work.
-* COMB could return Out of Range in certain cases where the correct
-  result was not, in fact, out of range. For example, 20408 ENTER 10204
-  COMB.
-* ISG and DSE with a named variable would crash if that variable did
-  not exist. Fixed.
+* When ISG reached zero, the loop control variable would end up having the
+  wrong sign. For example, -1.00001 ISG ST X => -0.00001, should be 0.00001.
+  Fixed.
+* Added [FIND], [MAX], and [MIN] to the FCN catalog. These are undocumented
+  functions from the HP-42S that were previously not shown in the catalog, even
+  though they did work.
+* COMB could return Out of Range in certain cases where the correct result was
+  not, in fact, out of range. For example, 20408 ENTER 10204 COMB.
+* ISG and DSE with a named variable would crash if that variable did not exist.
+  Fixed.
 
 2020-07-05: release 2.5.19
 
