@@ -555,6 +555,9 @@ char reg_alpha[44];
 
 /* Flags */
 flags_struct flags;
+const char *virtual_flags =
+    /* 00-49 */ "00000000000000000000000000010000000000000000111111"
+    /* 50-99 */ "00010000000000010000000001000000000000000000000000";
 
 /* Variables */
 int vars_capacity = 0;

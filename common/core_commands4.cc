@@ -1022,8 +1022,7 @@ int docmd_x_swap(arg_struct *arg) {
     else {
         free_vartype(reg_x);
         reg_x = v;
-        if (flags.f.trace_print && flags.f.printer_exists)
-            docmd_prx(NULL);
+        print_trace();
     }
     return err;
 }
@@ -1186,8 +1185,7 @@ static int matedit_move(int direction) {
         reg_x = v;
     }
     mode_disable_stack_lift = true;
-    if (flags.f.trace_print && flags.f.printer_enable)
-        docmd_prx(NULL);
+    print_trace();
     return ERR_NONE;
 }
 

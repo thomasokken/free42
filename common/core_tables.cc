@@ -435,7 +435,13 @@ static const command_spec cmd_array[] =
     { /* YMD */        "YMD",                   3, docmd_ymd,         0x0000a7d5, ARG_NONE,  FLAG_NONE },
     { /* BSIGNED */    "BS\311GN\305\304",      7, docmd_bsigned,     0x0000a7d6, ARG_NONE,  FLAG_NONE },
     { /* BWRAP */      "BWR\301P",              5, docmd_bwrap,       0x0000a7d7, ARG_NONE,  FLAG_NONE },
-    { /* BRESET */     "BR\305S\305T",          6, docmd_breset,      0x0000a7d8, ARG_NONE,  FLAG_NONE }
+    { /* BRESET */     "BR\305S\305T",          6, docmd_breset,      0x0000a7d8, ARG_NONE,  FLAG_NONE },
+
+    /* Useful X-Fcn functions missing from the 42S */
+    { /* ANUM */       "ANUM",                  4, docmd_anum,        0x0000a642, ARG_NONE,  FLAG_NONE },
+    { /* X<>F */       "X<>F",                  4, docmd_x_swap_f,    0x0000a66e, ARG_NONE,  FLAG_NONE },
+    { /* RCLFLAG */    "RCLFLAG",               7, docmd_rclflag,     0x0000a660, ARG_NONE,  FLAG_NONE },
+    { /* STOFLAG */    "STOFLAG",               7, docmd_stoflag,     0x0000a66d, ARG_NONE,  FLAG_NONE }
 };
 
 /*

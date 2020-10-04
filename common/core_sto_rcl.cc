@@ -17,23 +17,26 @@
 
 #include <stdlib.h>
 
+#include "core_commands2.h"
 #include "core_helpers.h"
 #include "core_linalg1.h"
 #include "core_sto_rcl.h"
 #include "core_variables.h"
 
 
-static int apply_sto_operation(char operation, vartype *oldval);
+static int apply_sto_operation(char operation, vartype *oldval, bool trace_stk);
 static void generic_sto_completion(int error, vartype *res);
 
 static bool preserve_ij;
+static bool trace_stack;
 
 
-static int apply_sto_operation(char operation, vartype *oldval) {
+static int apply_sto_operation(char operation, vartype *oldval, bool trace_stk) {
     if (!ensure_var_space(1))
         return ERR_INSUFFICIENT_MEMORY;
     vartype *newval;
     int error;
+    trace_stack = trace_stk;
     switch (operation) {
         case '/':
             preserve_ij = true;
@@ -364,6 +367,8 @@ static void generic_sto_completion(int error, vartype *res) {
             matedit_j = j;
         }
     }
+    if (trace_stack)
+        docmd_prstk(NULL);
 }
 
 int generic_sto(arg_struct *arg, char operation) {
@@ -531,6 +536,7 @@ int generic_sto(arg_struct *arg, char operation) {
         }
         case ARGTYPE_STK: {
             vartype *newval;
+            bool trace_stk = arg->val.stk != 'L' && flags.f.trace_print && flags.f.normal_print && flags.f.printer_exists;
             if (operation == 0) {
                 if (arg->val.stk == 'X') {
                     /* STO ST X : no-op! */
@@ -557,6 +563,8 @@ int generic_sto(arg_struct *arg, char operation) {
                         reg_lastx = newval;
                         break;
                 }
+                if (trace_stk)
+                    docmd_prstk(NULL);
                 return ERR_NONE;
             } else {
                 vartype *oldval;
@@ -568,7 +576,7 @@ int generic_sto(arg_struct *arg, char operation) {
                     case 'L': oldval = reg_lastx; break;
                 }
                 temp_arg = *arg;
-                return apply_sto_operation(operation, oldval);
+                return apply_sto_operation(operation, oldval, trace_stk);
             }
         }
         case ARGTYPE_STR: {
@@ -608,7 +616,7 @@ int generic_sto(arg_struct *arg, char operation) {
                 if (oldval == NULL)
                     return ERR_NONEXISTENT;
                 temp_arg = *arg;
-                return apply_sto_operation(operation, oldval);
+                return apply_sto_operation(operation, oldval, false);
             }
         }
         default:

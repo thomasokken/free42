@@ -61,8 +61,7 @@ int docmd_accel(arg_struct *arg) {
     reg_z = new_z;
     reg_y = new_y;
     reg_x = new_x;
-    if (flags.f.trace_print && flags.f.printer_exists)
-        docmd_prx(NULL);
+    print_trace();
     return ERR_NONE;
 }
 
@@ -95,8 +94,7 @@ int docmd_locat(arg_struct *arg) {
     reg_z = new_z;
     reg_y = new_y;
     reg_x = new_x;
-    if (flags.f.trace_print && flags.f.printer_exists)
-        docmd_prx(NULL);
+    print_trace();
     return ERR_NONE;
 }
 
@@ -130,8 +128,7 @@ int docmd_heading(arg_struct *arg) {
     reg_z = new_z;
     reg_y = new_y;
     reg_x = new_x;
-    if (flags.f.trace_print && flags.f.printer_exists)
-        docmd_prx(NULL);
+    print_trace();
     return ERR_NONE;
 }
 #endif
@@ -811,8 +808,7 @@ int docmd_wsize(arg_struct *arg) {
 #endif
         return ERR_INVALID_DATA;
     mode_wsize = to_int(x);
-    if (flags.f.trace_print && flags.f.printer_exists)
-        docmd_prx(NULL);
+    print_trace();
     return ERR_NONE;
 }
 
