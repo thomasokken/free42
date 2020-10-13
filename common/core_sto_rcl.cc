@@ -1156,14 +1156,37 @@ int div_rc(phloat x, phloat yre, phloat yim, phloat *zre, phloat *zim) {
     return ERR_NONE;
 }
 
+/*
+ * div_cr() and div_cc() algorithms based on this Scilab paper:
+ * http://forge.scilab.org/index.php/p/compdiv/source/tree/21/doc/improved_cdiv.pdf
+ */
+
 int div_cr(phloat xre, phloat xim, phloat y, phloat *zre, phloat *zim) {
-    phloat rre, rim, h;
+    phloat r, t, rre, rim;
     int inf;
-    /* TODO: overflows in intermediate results */
-    h = xre * xre + xim * xim;
-    if (h == 0)
+    if (xre == 0 && xim == 0)
         return ERR_DIVIDE_BY_0;
-    rre = y * xre / h;
+    if (fabs(xim) <= fabs(xre)) {
+        r = xim / xre;
+        t = 1 / (xre + xim * r);
+        if (r == 0) {
+            rre = y * t;
+            rim = -xim * (y / xre) * t;
+        } else {
+            rre = y * t;
+            rim = -y * r * t;
+        }
+    } else {
+        r = xre / xim;
+        t = 1 / (xre * r + xim);
+        if (r == 0) {
+            rre = xre * (y / xim) * t;
+            rim = -y * t;
+        } else {
+            rre = y * r * t;
+            rim = -y * t;
+        }
+    }
     inf = p_isinf(rre);
     if (inf != 0) {
         if (flags.f.range_error_ignore)
@@ -1171,7 +1194,6 @@ int div_cr(phloat xre, phloat xim, phloat y, phloat *zre, phloat *zim) {
         else
             return ERR_OUT_OF_RANGE;
     }
-    rim = -y * xim / h;
     inf = p_isinf(rim);
     if (inf != 0) {
         if (flags.f.range_error_ignore)
@@ -1186,13 +1208,31 @@ int div_cr(phloat xre, phloat xim, phloat y, phloat *zre, phloat *zim) {
 
 int div_cc(phloat xre, phloat xim, phloat yre, phloat yim,
                                                     phloat *zre, phloat *zim) {
-    phloat rre, rim, h;
+    phloat r, t, rre, rim;
     int inf;
-    /* TODO: overflows in intermediate results */
-    h = xre * xre + xim * xim;
-    if (h == 0)
+    if (xre == 0 && xim == 0)
         return ERR_DIVIDE_BY_0;
-    rre = (xre * yre + xim * yim) / h;
+    if (fabs(xim) <= fabs(xre)) {
+        r = xim / xre;
+        t = 1 / (xre + xim * r);
+        if (r == 0) {
+            rre = (yre + xim * (yim / xre)) * t;
+            rim = (yim - xim * (yre / xre)) * t;
+        } else {
+            rre = (yre + yim * r) * t;
+            rim = (yim - yre * r) * t;
+        }
+    } else {
+        r = xre / xim;
+        t = 1 / (xre * r + xim);
+        if (r == 0) {
+            rre = (xre * (yre / xim) + yim) * t;
+            rim = (xre * (yim / xim) - yre) * t;
+        } else {
+            rre = (yre * r + yim) * t;
+            rim = (yim * r - yre) * t;
+        }
+    }
     inf = p_isinf(rre);
     if (inf != 0) {
         if (flags.f.range_error_ignore)
@@ -1200,7 +1240,6 @@ int div_cc(phloat xre, phloat xim, phloat yre, phloat yim,
         else
             return ERR_OUT_OF_RANGE;
     }
-    rim = (xre * yim - yre * xim) / h;
     inf = p_isinf(rim);
     if (inf != 0) {
         if (flags.f.range_error_ignore)
