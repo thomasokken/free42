@@ -2386,27 +2386,72 @@ static bool parse_phloat(const char *p, int len, phloat *res) {
     // not allow the mantissa to be more than 34 or 16 digits long (including
     // leading zeroes). So, we massage the string a bit to make it
     // comply with those restrictions.
+    // Note that this function does not check well-formedness;
+    // that part should be checked beforehand using scan_number().
     char buf[100];
     bool in_mant = true;
+    bool leading_zero = true;
+    int exp_offset = 0;
+    int exp = 0;
+    bool neg_exp = false;
     int mant_digits = 0;
+    bool in_int_mant = true;
+    bool empty_mant = true;
     int i = 0, j = 0;
+    char decimal = flags.f.decimal_point ? '.' : ',';
+    char separator = flags.f.decimal_point ? ',' : '.';
     while (i < 100 && j < len) {
         char c = p[j++];
         if (c == 0)
             break;
-        if (c == '+' || c == ' ')
+        if (c == '+' || c == ' ' || c == separator) {
             continue;
-        else if (c == 'e' || c == 'E' || c == 24) {
+        } else if (c == 'e' || c == 'E' || c == 24) {
             in_mant = false;
-            buf[i++] = 24;
-        } else if (c >= '0' && c <= '9') {
-            if (!in_mant || mant_digits++ < MAX_MANT_DIGITS)
-                buf[i++] = c;
-        } else
+        } else if (c == decimal) {
+            in_int_mant = false;
             buf[i++] = c;
+        } else if (c >= '0' && c <= '9') {
+            if (in_mant) {
+                empty_mant = false;
+                if (in_int_mant) {
+                    if (mant_digits < MAX_MANT_DIGITS) {
+                        if (c != '0' || !leading_zero) {
+                            buf[i++] = c;
+                            leading_zero = false;
+                            mant_digits++;
+                        }
+                    } else {
+                        exp_offset++;
+                    }
+                } else {
+                    if (mant_digits < MAX_MANT_DIGITS) {
+                        if (c != '0' || !leading_zero) {
+                            buf[i++] = c;
+                            leading_zero = false;
+                            mant_digits++;
+                        } else {
+                            exp_offset--;
+                        }
+                    }
+                }
+            } else {
+                exp = exp * 10 + c - '0';
+            }
+        } else if (c == '-') {
+            if (in_mant)
+                buf[i++] = c;
+            else
+                neg_exp = true;
+        }
     }
-    if (in_mant && mant_digits == 0)
+    if (in_mant && empty_mant)
         return false;
+    if (neg_exp)
+        exp = -exp;
+    exp += exp_offset;
+    if (exp != 0)
+        i += sprintf(buf + i, "\030%d", exp);
     int err = string2phloat(buf, i, res);
     if (err == 0)
         return true;
