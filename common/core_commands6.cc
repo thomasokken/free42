@@ -756,22 +756,47 @@ static int mappable_inv_r(phloat x, phloat *y) {
 }
 
 static int mappable_inv_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
+    phloat r, t, rre, rim;
     int inf;
-    phloat h = hypot(xre, xim);
-    if (h == 0)
+    if (xre == 0 && xim == 0)
         return ERR_DIVIDE_BY_0;
-    *yre = xre / h / h;
-    if ((inf = p_isinf(*yre)) != 0) {
-        if (!flags.f.range_error_ignore)
-            return ERR_OUT_OF_RANGE;
-        *yre = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
+    if (fabs(xim) <= fabs(xre)) {
+        r = xim / xre;
+        t = 1 / (xre + xim * r);
+        if (r == 0) {
+            rre = t;
+            rim = -xim * (1 / xre) * t;
+        } else {
+            rre = t;
+            rim = -r * t;
+        }
+    } else {
+        r = xre / xim;
+        t = 1 / (xre * r + xim);
+        if (r == 0) {
+            rre = xre * (1 / xim) * t;
+            rim = -t;
+        } else {
+            rre = r * t;
+            rim = -t;
+        }
     }
-    *yim = (-xim) / h / h;
-    if ((inf = p_isinf(*yim)) != 0) {
-        if (!flags.f.range_error_ignore)
+    inf = p_isinf(rre);
+    if (inf != 0) {
+        if (flags.f.range_error_ignore)
+            rre = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
+        else
             return ERR_OUT_OF_RANGE;
-        *yim = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
     }
+    inf = p_isinf(rim);
+    if (inf != 0) {
+        if (flags.f.range_error_ignore)
+            rim = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
+        else
+            return ERR_OUT_OF_RANGE;
+    }
+    *yre = rre;
+    *yim = rim;
     return ERR_NONE;
 }
 
