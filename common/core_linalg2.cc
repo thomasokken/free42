@@ -223,7 +223,7 @@ typedef struct {
     int4 *perm;
     phloat det_re, det_im;
     int4 i, imax, j, k;
-    phloat max, tmp, tmp_re, tmp_im, sum_re, sum_im, *scale;
+    phloat max, tmp, tmp_re, tmp_im, sum_re, sum_im, s_re, s_im, *scale;
     int state;
     int (*completion)(int, vartype_complexmatrix *, int4 *, phloat, phloat);
 } lu_c_data_struct;
@@ -280,11 +280,12 @@ static int lu_decomp_c_worker(int interrupted) {
     phloat tmp_im = dat->tmp_im;
     phloat sum_re = dat->sum_re;
     phloat sum_im = dat->sum_im;
+    phloat s_re = dat->s_re;
+    phloat s_im = dat->s_im;
 
     phloat xre, xim, yre, yim;
     phloat tiniest = 1e20 / POS_HUGE_PHLOAT;
     phloat tiny;
-    phloat s_re, s_im;
 
     if (interrupted) {
         free(scale);
@@ -433,6 +434,8 @@ static int lu_decomp_c_worker(int interrupted) {
     dat->tmp_im = tmp_im;
     dat->sum_re = sum_re;
     dat->sum_im = sum_im;
+    dat->s_re = s_re;
+    dat->s_im = s_im;
     return ERR_INTERRUPTIBLE;
 }
 
