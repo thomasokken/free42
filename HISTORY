@@ -1,3 +1,18 @@
+2020-10-24: release 2.5.21
+
+* Implemented ANUM, X<>F, RCLFLAG, and STOFLAG functions. See the Free42 web
+  site for details.
+* Implemented "stack trace" mode: when flags 15 and 16 are both set, the
+  printer prints in a variation of TRACE mode, printing not just X after every
+  instruction, but the entire stack.
+* Pasting long numbers could return incorrect results if many leading zeroes
+  were present. Fixed.
+* Real/complex and complex/complex division could return Not a Number for
+  certain inputs, e.g. 1e3200 ENTER COMPLEX ENTER /. Fixed. Also applied a
+  similar fix to complex 1/X.
+* Complex matrix division, INVRT, and DET would return incorrect results for
+  large matrices (20x20 or greater). Fixed.
+
 2020-09-20: release 2.5.20
 
 * Fixed INTEG behavior when integrand returns non-real. It used to treat such
