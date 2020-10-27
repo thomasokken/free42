@@ -1165,24 +1165,56 @@ int docmd_rclflag(arg_struct *arg) {
 int docmd_stoflag(arg_struct *arg) {
     if (reg_x->type == TYPE_STRING)
         return ERR_ALPHA_DATA_IS_INVALID;
-    if (reg_x->type != TYPE_COMPLEX)
+    if (reg_x->type != TYPE_REAL && reg_x->type != TYPE_COMPLEX)
         return ERR_INVALID_DATA;
-    vartype_complex *c = (vartype_complex *) reg_x;
-    if (c->re < 0)
-        c->re = -c->re;
-    if (c->im < 0)
-        c->im = -c->im;
-    if (c->re >= 1LL << 50 || c->im >= 1LL << 50)
+    vartype_complex *c;
+    int b, e;
+    if (reg_x->type == TYPE_COMPLEX) {
+        c = (vartype_complex *) reg_x;
+        b = 0;
+        e = 99;
+    } else {
+        if (reg_y->type == TYPE_STRING)
+            return ERR_ALPHA_DATA_IS_INVALID;
+        if (reg_y->type != TYPE_COMPLEX)
+            return ERR_INVALID_DATA;
+        c = (vartype_complex *) reg_y;
+        phloat x = ((vartype_real *) reg_x)->x;
+        if (x < 0)
+            x = -x;
+        if (x >= 100)
+            return ERR_INVALID_DATA;
+        b = to_int(x);
+        x = (x - b) * 100;
+        #ifndef BCD_MATH
+            x = x + 0.0000000005;
+        #endif
+        e = to_int(x);
+        if (e > 99)
+            e = 99;
+        if (e < b)
+            e = b;
+    }
+
+    phloat lo = c->re;
+    phloat hi = c->im;
+    if (lo < 0)
+        lo = -lo;
+    if (hi < 0)
+        hi = -hi;
+    if (lo >= 1LL << 50 || hi >= 1LL << 50)
         return ERR_INVALID_DATA;
-    uint8 lfs = to_int8(c->re);
-    uint8 hfs = to_int8(c->im);
+    uint8 lfs = to_int8(lo);
+    uint8 hfs = to_int8(hi);
     uint8 p = 1;
     for (int i = 0; i < 50; i++) {
         int j = i + 50;
         char lf = virtual_flags[i] == '1' ? 0 : (lfs & p) != 0;
         char hf = virtual_flags[j] == '1' ? 0 : (hfs & p) != 0;
-        flags.farray[i] = lf;
-        flags.farray[j] = hf;
+        if (i >= b && i <= e)
+            flags.farray[i] = lf;
+        if (j >= b && j <= e)
+            flags.farray[j] = hf;
         p <<= 1;
     }
     return ERR_NONE;
