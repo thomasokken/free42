@@ -150,6 +150,7 @@ public class SkinLayout {
             lineloop:
             while ((line = reader.readLine()) != null) {
                 //lineno++;
+                line = line.replace('\t', ' ');
                 int pound = line.indexOf('#');
                 if (pound != -1)
                     line = line.substring(0, pound);
@@ -158,7 +159,7 @@ public class SkinLayout {
                     continue;
                 String lcline = line.toLowerCase(Locale.US);
                 if (lcline.startsWith("skin:")) {
-                    StringTokenizer tok = new StringTokenizer(line.substring(5), ", \t");
+                    StringTokenizer tok = new StringTokenizer(line.substring(5), ", ");
                     try {
                         int x = Integer.parseInt(tok.nextToken());
                         int y = Integer.parseInt(tok.nextToken());
@@ -174,7 +175,7 @@ public class SkinLayout {
                         // ignore
                     }
                 } else if (lcline.startsWith("display:")) {
-                    StringTokenizer tok = new StringTokenizer(line.substring(8), ", \t");
+                    StringTokenizer tok = new StringTokenizer(line.substring(8), ", ");
                     try {
                         int x = Integer.parseInt(tok.nextToken());
                         int y = Integer.parseInt(tok.nextToken());
@@ -213,7 +214,7 @@ public class SkinLayout {
                         continue;
                     }
     
-                    StringTokenizer tok = new StringTokenizer(line.substring(sp + 1), ", \t");
+                    StringTokenizer tok = new StringTokenizer(line.substring(sp + 1), ", ");
                     try {
                         int sens_x = Integer.parseInt(tok.nextToken());
                         int sens_y = Integer.parseInt(tok.nextToken());
@@ -263,7 +264,7 @@ public class SkinLayout {
                             }
                         }
                     } else {
-                        StringTokenizer tok = new StringTokenizer(line.substring(6), " \t");
+                        StringTokenizer tok = new StringTokenizer(line.substring(6), " ");
                         List<Byte> blist = new ArrayList<Byte>();
                         while (tok.hasMoreTokens()) {
                             String t = tok.nextToken();
@@ -290,7 +291,7 @@ public class SkinLayout {
                         tempmacrolist.add(macro);
                     }
                 } else if (lcline.startsWith("annunciator:")) {
-                    StringTokenizer tok = new StringTokenizer(line.substring(12), ", \t");
+                    StringTokenizer tok = new StringTokenizer(line.substring(12), ", ");
                     try {
                         int annnum = Integer.parseInt(tok.nextToken());
                         int disp_x = Integer.parseInt(tok.nextToken());
