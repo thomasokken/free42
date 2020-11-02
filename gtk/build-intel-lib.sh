@@ -59,7 +59,7 @@ case `uname -m` in
   armv7|armv7l|ppc)
     patch -p0 <../intel-lib-unknown-32bit.patch
     ;;
-  arm64|i86pc)
+  aarch64|arm64|i86pc)
     patch -p0 <../intel-lib-unknown-64bit.patch
     ;;
 esac
