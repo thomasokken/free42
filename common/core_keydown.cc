@@ -199,7 +199,7 @@ void keydown(int shift, int key) {
             display_error(ERR_INSUFFICIENT_MEMORY, 1);
             set_running(false);
         }
-        if (key == KEY_EXIT || (!shift && key == KEY_RUN))
+        if (key == KEY_EXIT || key == KEY_EXIT + 37 || key == KEY_RUN)
             set_running(false);
         mode_getkey = false;
         if (!mode_running)
