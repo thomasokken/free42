@@ -436,6 +436,7 @@ static const command_spec cmd_array[] =
     { /* BSIGNED */    "BS\311GN\305\304",      7, docmd_bsigned,     0x0000a7d6, ARG_NONE,  FLAG_NONE },
     { /* BWRAP */      "BWR\301P",              5, docmd_bwrap,       0x0000a7d7, ARG_NONE,  FLAG_NONE },
     { /* BRESET */     "BR\305S\305T",          6, docmd_breset,      0x0000a7d8, ARG_NONE,  FLAG_NONE },
+    { /* GETKEY1 */    "G\305TK\305\3311",      7, docmd_getkey1,     0x0000a7d9, ARG_NONE,  FLAG_NONE },
 
     /* Useful X-Fcn functions missing from the 42S */
     { /* ANUM */       "ANUM",                  4, docmd_anum,        0x0000a642, ARG_NONE,  FLAG_NONE },

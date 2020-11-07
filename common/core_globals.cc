@@ -599,6 +599,7 @@ int mode_alphamenu;
 int mode_commandmenu;
 bool mode_running;
 bool mode_getkey;
+bool mode_getkey1;
 bool mode_pause = false;
 bool mode_disable_stack_lift; /* transient */
 bool mode_varmenu;

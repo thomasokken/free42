@@ -705,6 +705,13 @@ int docmd_ymd(arg_struct *arg) {
     return ERR_NONE;
 }
 
+int docmd_getkey1(arg_struct *arg) {
+    mode_getkey = true;
+    mode_getkey1 = true;
+    mode_disable_stack_lift = flags.f.stack_lift_disable;
+    return ERR_NONE;
+}
+
 ////////////////////////////////////////////////////////////////
 ///// Intel Decimal Floating-Point Math Library: self-test /////
 ////////////////////////////////////////////////////////////////
