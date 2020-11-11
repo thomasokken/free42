@@ -613,8 +613,12 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
         NSRange range = [name rangeOfString:@"\"" options:0 range:NSMakeRange(1, [name length] - 1)];
         if (range.location == NSNotFound)
             name = @"Untitled";
-        else
+        else {
             name = [name substringWithRange:NSMakeRange(1, range.location - 1)];
+            name = [name stringByReplacingOccurrencesOfString:@"\n" withString:@"_"];
+            name = [name stringByReplacingOccurrencesOfString:@"/" withString:@"_"];
+            name = [name stringByReplacingOccurrencesOfString:@":" withString:@"_"];
+        }
     }
     FileSavePanel *saveDlg = [FileSavePanel panelWithTitle:@"Export Programs" types:@"Program Files;raw;All Files;*" path:name];
     if ([saveDlg runModal] == NSOKButton) {
