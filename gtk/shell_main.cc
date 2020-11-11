@@ -1830,7 +1830,6 @@ static void exportProgramCB() {
             gtk_list_store_set(model, &iter, 0, p, -1);
             p += strlen(p) + 1;
         }
-        free(buf);
     }
     gtk_tree_view_set_model(tree, GTK_TREE_MODEL(model));
 
@@ -1840,12 +1839,53 @@ static void exportProgramCB() {
     gtk_window_set_role(GTK_WINDOW(sel_dialog), "Free42 Dialog");
     bool cancelled = gtk_dialog_run(GTK_DIALOG(sel_dialog)) != GTK_RESPONSE_ACCEPT;
     gtk_widget_hide(sel_dialog);
-    if (cancelled)
+    if (cancelled) {
+        free(buf);
         return;
+    }
 
     int count = gtk_tree_selection_count_selected_rows(select);
-    if (count == 0)
+    if (count == 0) {
+        free(buf);
         return;
+    }
+
+    int *p2 = (int *) malloc(count * sizeof(int));
+    // TODO - handle memory allocation failure
+    GList *rows = gtk_tree_selection_get_selected_rows(select, NULL);
+    GList *item = rows;
+    int i = 0;
+    while (item != NULL) {
+        GtkTreePath *path = (GtkTreePath *) item->data;
+        char *pathstring = gtk_tree_path_to_string(path);
+        sscanf(pathstring, "%d", p2 + i);
+        item = item->next;
+        i++;
+    }
+    g_list_free(rows);
+
+    char suggested_name[50] = "Untitled.raw";
+    char *p = buf + 4;
+    int sel = p2[0];
+    while (sel > 0) {
+        p += strlen(p) + 1;
+        sel--;
+    }
+    if (p[0] == '"') {
+        char *closing_quote = strchr(p + 1, '"');
+        if (closing_quote != NULL) {
+            int len = closing_quote - p - 1;
+            for (int i = 0; i < len; i++) {
+                char c = p[i + 1];
+                if (c == '/' || c == 10)
+                    c = '_';
+                suggested_name[i] = c;
+            }
+            suggested_name[len] = 0;
+            strcat(suggested_name, ".raw");
+        }
+    }
+    free(buf);
 
     static GtkWidget *save_dialog = NULL;
     if (save_dialog == NULL)
@@ -1855,11 +1895,14 @@ static void exportProgramCB() {
 
     char *filename = NULL;
     gtk_window_set_role(GTK_WINDOW(save_dialog), "Free42 Dialog");
+    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(save_dialog), suggested_name);
     if (gtk_dialog_run(GTK_DIALOG(save_dialog)) == GTK_RESPONSE_ACCEPT)
         filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(save_dialog));
     gtk_widget_hide(GTK_WIDGET(save_dialog));
-    if (filename == NULL)
+    if (filename == NULL) {
+        free(p2);
         return;
+    }
 
     char export_file_name[FILENAMELEN];
     strcpy(export_file_name, filename);
@@ -1880,23 +1923,12 @@ static void exportProgramCB() {
         gtk_window_set_role(GTK_WINDOW(msg), "Free42 Dialog");
         cancelled = gtk_dialog_run(GTK_DIALOG(msg)) != GTK_RESPONSE_YES;
         gtk_widget_destroy(msg);
-        if (cancelled)
+        if (cancelled) {
+            free(p2);
             return;
+        }
     }
 
-    int *p2 = (int *) malloc(count * sizeof(int));
-    // TODO - handle memory allocation failure
-    GList *rows = gtk_tree_selection_get_selected_rows(select, NULL);
-    GList *item = rows;
-    int i = 0;
-    while (item != NULL) {
-        GtkTreePath *path = (GtkTreePath *) item->data;
-        char *pathstring = gtk_tree_path_to_string(path);
-        sscanf(pathstring, "%d", p2 + i);
-        item = item->next;
-        i++;
-    }
-    g_list_free(rows);
     core_export_programs(count, p2, export_file_name);
     free(p2);
 }
