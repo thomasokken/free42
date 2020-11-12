@@ -134,7 +134,7 @@
 - (IBAction) browseTextFile {
     if (activeField != nil)
         [activeField resignFirstResponder];
-    [SelectFileView raiseWithTitle:@"Select Text File Name" selectTitle:@"OK" types:@"txt,*" selectDir:NO callbackObject:self callbackSelector:@selector(browseTextFileCB:)];
+    [SelectFileView raiseWithTitle:@"Select Text File Name" selectTitle:@"OK" types:@"txt,*" initialFile:nil selectDir:NO callbackObject:self callbackSelector:@selector(browseTextFileCB:)];
 }
 
 - (void) browseTextFileCB:(NSString *) path {
@@ -146,7 +146,7 @@
 - (IBAction) browseGifFile {
     if (activeField != nil)
         [activeField resignFirstResponder];
-    [SelectFileView raiseWithTitle:@"Select GIF File Name" selectTitle:@"OK" types:@"gif,*" selectDir:NO callbackObject:self callbackSelector:@selector(browseGifFileCB:)];
+    [SelectFileView raiseWithTitle:@"Select GIF File Name" selectTitle:@"OK" types:@"gif,*" initialFile:nil selectDir:NO callbackObject:self callbackSelector:@selector(browseGifFileCB:)];
 }
 
 - (void) browseGifFileCB:(NSString *) path {

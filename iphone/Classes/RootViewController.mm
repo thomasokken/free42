@@ -260,7 +260,7 @@ void shell_message(const char *message) {
 }
 
 + (void) doImport {
-    [SelectFileView raiseWithTitle:@"Import Programs" selectTitle:@"Import" types:@"raw,*" selectDir:NO callbackObject:instance callbackSelector:@selector(doImport2:)];
+    [SelectFileView raiseWithTitle:@"Import Programs" selectTitle:@"Import" types:@"raw,*" initialFile:nil selectDir:NO callbackObject:instance callbackSelector:@selector(doImport2:)];
 }
 
 - (void) doImport2:(NSString *) path {

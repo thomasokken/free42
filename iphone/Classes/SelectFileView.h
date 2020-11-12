@@ -39,7 +39,7 @@
 @property (nonatomic, retain) IBOutlet UIScrollView *scrollView;
 @property (nonatomic, retain) IBOutlet UIView *contentView;
 
-+ (void) raiseWithTitle:(NSString *)wt selectTitle:(NSString *)st types:(NSString *)t selectDir:(BOOL)sd callbackObject:(id)cb_id callbackSelector:(SEL)cb_sel;
++ (void) raiseWithTitle:(NSString *)wt selectTitle:(NSString *)st types:(NSString *)t initialFile:(NSString *)path selectDir:(BOOL)sd callbackObject:(id)cb_id callbackSelector:(SEL)cb_sel;
 - (void) raised;
 - (void) textFieldDidBeginEditing:(UITextField *)textField;
 - (void) textFieldDidEndEditing:(UITextField *)textField;

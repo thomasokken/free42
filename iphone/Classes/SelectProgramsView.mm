@@ -73,8 +73,26 @@
         return;
     if (share)
         [self doExport2];
-    else
-        [SelectFileView raiseWithTitle:@"Select Program File Name" selectTitle:@"OK" types:@"raw,*" selectDir:NO callbackObject:self callbackSelector:@selector(doExport:)];
+    else {
+        NSIndexPath *index = (NSIndexPath *) [selection objectAtIndex:0];
+        int idx = (int) [index indexAtPosition:1];
+        NSString *prog = [programNames objectAtIndex:idx];
+        if (![[prog substringToIndex:1] isEqualToString:@"\""]) {
+            prog = @"Untitled.raw";
+        } else {
+            NSRange r = [prog rangeOfString:@"\"" options:0 range:NSMakeRange(1, [prog length] - 1)];
+            if (r.location == NSNotFound) {
+                prog = @"Untitled.raw";
+            } else {
+                prog = [prog substringWithRange:NSMakeRange(1, r.location - 1)];
+                prog = [prog stringByReplacingOccurrencesOfString:@"\n" withString:@"_"];
+                prog = [prog stringByReplacingOccurrencesOfString:@"/" withString:@"_"];
+                prog = [prog stringByReplacingOccurrencesOfString:@":" withString:@"_"];
+                prog = [prog stringByAppendingString:@".raw"];
+            }
+        }
+        [SelectFileView raiseWithTitle:@"Select Program File Name" selectTitle:@"OK" types:@"raw,*" initialFile:prog selectDir:NO callbackObject:self callbackSelector:@selector(doExport:)];
+    }
 }
 
 static NSString *export_path = nil;
