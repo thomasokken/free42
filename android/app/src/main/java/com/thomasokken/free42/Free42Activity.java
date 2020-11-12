@@ -845,13 +845,13 @@ public class Free42Activity extends Activity {
     
     private void doProgramSelectionClick(DialogInterface dialog, int which) {
         if (which == DialogInterface.BUTTON_POSITIVE) {
-            boolean none = true;
+            String name = null;
             for (int i = 0; i < selectedProgramIndexes.length; i++)
                 if (selectedProgramIndexes[i]) {
-                    none = false;
+                    name = programNames[i];
                     break;
                 }
-            if (!none) {
+            if (name != null) {
                 if (exportShare) {
                     doShare();
                 } else {
@@ -861,6 +861,16 @@ public class Free42Activity extends Activity {
                             doExport2(path);
                         }
                     });
+                    if (name.startsWith("\"")) {
+                        int q = name.indexOf('"', 1);
+                        if (q != -1)
+                            name = name.substring(1, q).replaceAll("[/\n]", "_") + ".raw";
+                        else
+                            name = "Untitled.raw";
+                    } else {
+                        name = "Untitled.raw";
+                    }
+                    fsd.setPath(name);
                     fsd.show();
                 }
             }
