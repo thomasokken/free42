@@ -258,7 +258,10 @@ static int dirTypeCapacity = 0;
         [directoryLabel setText:@"Documents"];
     else {
         NSRange r = [dirName rangeOfString:@"/" options:NSBackwardsSearch];
-        [directoryLabel setText:[dirName substringFromIndex:(r.location + 1)]];
+        if (r.location == NSNotFound)
+            [directoryLabel setText:dirName];
+        else
+            [directoryLabel setText:[dirName substringFromIndex:(r.location + 1)]];
     }
     
     const char *typeStr = [[typeSelector titleForSegmentAtIndex:[typeSelector selectedSegmentIndex]] UTF8String];
