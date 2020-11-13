@@ -2026,10 +2026,10 @@ void redisplay() {
                             is_flag = !flags.f.rad && !flags.f.grad;
                             break;
                         case CMD_RAD:
-                            is_flag = flags.f.rad && !flags.f.grad;
+                            is_flag = flags.f.rad;
                             break;
                         case CMD_GRAD:
-                            is_flag = flags.f.grad;
+                            is_flag = !flags.f.rad && flags.f.grad;
                             break;
                         case CMD_POLAR:
                             is_flag = flags.f.polar;

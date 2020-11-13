@@ -748,15 +748,15 @@ void generic_r2p(phloat re, phloat im, phloat *r, phloat *phi) {
             *phi = 0;
         } else {
             *r = -re;
-            *phi = flags.f.grad ? 200 : flags.f.rad ? PI : 180;
+            *phi = flags.f.rad ? PI : flags.f.grad ? 200 : 180;
         }
     } else if (re == 0) {
         if (im > 0) {
             *r = im;
-            *phi = flags.f.grad ? 100 : flags.f.rad ? PI / 2 : 90;
+            *phi = flags.f.rad ? PI / 2 : flags.f.grad ? 100 : 90;
         } else {
             *r = -im;
-            *phi = flags.f.grad ? -100 : flags.f.rad ? -PI / 2: -90;
+            *phi = flags.f.rad ? -PI / 2 : flags.f.grad ? -100 : -90;
         }
     } else {
         *r = hypot(re, im);

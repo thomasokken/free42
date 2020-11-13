@@ -146,7 +146,7 @@ void core_init(int read_saved_state, int4 version, const char *state_file_name, 
                        mode_shift,
                        0 /*print*/,
                        mode_running,
-                       flags.f.grad,
+                       !flags.f.rad && flags.f.grad,
                        flags.f.rad || flags.f.grad);
 }
 

@@ -22,6 +22,7 @@
 #include "core_math2.h"
 #include "core_sto_rcl.h"
 #include "core_variables.h"
+#include "shell.h"
 
 /********************************************************/
 /* Implementations of HP-42S built-in functions, part 6 */
@@ -1196,6 +1197,9 @@ int docmd_stoflag(arg_struct *arg) {
             e = b;
     }
 
+    char old_g = !flags.f.rad && flags.f.grad;
+    char old_rad = flags.f.rad || flags.f.grad;
+
     phloat lo = c->re;
     phloat hi = c->im;
     if (lo < 0)
@@ -1217,5 +1221,15 @@ int docmd_stoflag(arg_struct *arg) {
             flags.farray[j] = hf;
         p <<= 1;
     }
+
+    char new_g = !flags.f.rad && flags.f.grad;
+    char new_rad = flags.f.rad || flags.f.grad;
+    if (new_g == old_g)
+        new_g = -1;
+    if (new_rad == old_rad)
+        new_rad = -1;
+    if (new_g != -1 || new_rad != -1)
+        shell_annunciators(-1, -1, -1, -1, new_g, new_rad);
+
     return ERR_NONE;
 }
