@@ -481,7 +481,7 @@ int effective_wsize() {
 #ifdef BCD_MATH
     return mode_wsize;
 #else
-    return mode_wsize > 52 ? 52 : mode_wsize;
+    return mode_wsize > 53 ? 53 : mode_wsize;
 #endif
 }
 
