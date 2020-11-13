@@ -9,11 +9,11 @@ android {
             keyPassword free42_keyPassword
         }
     }
-    compileSdkVersion 28
+    compileSdkVersion 29
     defaultConfig {
         applicationId "com.thomasokken.free42"
         minSdkVersion 14
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 127
         versionName "2.5.21"
     }
