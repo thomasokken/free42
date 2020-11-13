@@ -118,6 +118,9 @@ static int dirTypeCapacity = 0;
         } else {
             [nameField setText:[dirName substringFromIndex:r.location + 1]];
             dirName = [dirName substringToIndex:r.location];
+            r = [dirName rangeOfString:@"./" options:NSAnchoredSearch];
+            if (r.location == NSNotFound)
+                dirName = [NSString stringWithFormat:@"./%@", dirName];
         }
     }
     
@@ -258,10 +261,7 @@ static int dirTypeCapacity = 0;
         [directoryLabel setText:@"Documents"];
     else {
         NSRange r = [dirName rangeOfString:@"/" options:NSBackwardsSearch];
-        if (r.location == NSNotFound)
-            [directoryLabel setText:dirName];
-        else
-            [directoryLabel setText:[dirName substringFromIndex:(r.location + 1)]];
+        [directoryLabel setText:[dirName substringFromIndex:(r.location + 1)]];
     }
     
     const char *typeStr = [[typeSelector titleForSegmentAtIndex:[typeSelector selectedSegmentIndex]] UTF8String];
