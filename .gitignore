@@ -19,11 +19,17 @@
 /android/.idea/workspace.xml
 /android/.idea/navEditor.xml
 /android/.idea/assetWizardSettings.xml
+/android/.idea/compiler.xml
+/android/.idea/jarRepositories.xml
+
+# /android/.idea/modules/app/
+/android/.idea/modules/app/android.app.iml
 
 # /android/app/
 /android/app/*.iml
 /android/app/build
 /android/app/.externalNativeBuild
+/android/app/.cxx
 
 # /android/app/src/main/cpp/
 /android/app/src/main/cpp/bid_conf.h
