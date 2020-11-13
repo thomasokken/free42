@@ -1530,13 +1530,17 @@ static void states_menu_export() {
 
     char *filename = NULL;
     gtk_window_set_role(GTK_WINDOW(save_dialog), "Free42 Dialog");
+    char export_file_name[FILENAMELEN];
+    strcpy(export_file_name, state_names[selectedStateIndex]);
+    export_file_name[FILENAMELEN - 5] = 0;
+    strcat(export_file_name, ".f42");
+    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(save_dialog), export_file_name);
     if (gtk_dialog_run(GTK_DIALOG(save_dialog)) == GTK_RESPONSE_ACCEPT)
         filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(save_dialog));
     gtk_widget_hide(GTK_WIDGET(save_dialog));
     if (filename == NULL)
         return;
 
-    char export_file_name[FILENAMELEN];
     strcpy(export_file_name, filename);
     g_free(filename);
     if (strncmp(gtk_file_filter_get_name(
