@@ -1,6 +1,7 @@
 #!/bin/sh
 
-NDK="$HOME/Library/Android/sdk/ndk-bundle"
+NDK="$HOME/Library/Android/sdk/ndk"
+NDK="$NDK/`ls "$NDK" | tail -1`"
 export PATH="`/bin/pwd`/bin:$NDK/prebuilt/darwin-x86_64/bin:$NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin:$PATH"
 BUILT=0
 
