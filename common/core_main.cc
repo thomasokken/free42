@@ -71,23 +71,6 @@ void core_init(int read_saved_state, int4 version, const char *state_file_name, 
 
     phloat_init();
 
-    #if defined(ANDROID) || defined(IPHONE)
-        core_settings.enable_ext_accel = true;
-        core_settings.enable_ext_locat = true;
-        core_settings.enable_ext_heading = true;
-    #else
-        core_settings.enable_ext_accel = false;
-        core_settings.enable_ext_locat = false;
-        core_settings.enable_ext_heading = false;
-    #endif
-    #ifdef FREE42_FPTEST
-        core_settings.enable_ext_fptest = true;
-    #else
-        core_settings.enable_ext_fptest = false;
-    #endif
-    core_settings.enable_ext_time = true;
-    core_settings.enable_ext_prog = true;
-
     char *state_file_name_crash = NULL;
     if (read_saved_state == 1) {
         // Before loading state, rename the state file by appending .crash
@@ -3990,12 +3973,6 @@ int find_builtin(const char *name, int namelen, bool strict) {
 
     for (i = 0; true; i++) {
         if (i == CMD_OPENF) i += 15; // Skip COPAN and BIGSTACK
-        if (i == CMD_ACCEL && !core_settings.enable_ext_accel) i++;
-        if (i == CMD_LOCAT && !core_settings.enable_ext_locat) i++;
-        if (i == CMD_HEADING && !core_settings.enable_ext_heading) i++;
-        if (i == CMD_ADATE && !core_settings.enable_ext_time) i += 34;
-        if (i == CMD_FPTEST && !core_settings.enable_ext_fptest) i++;
-        if (i == CMD_SST_UP && !core_settings.enable_ext_prog) i += 2;
         if (i == CMD_SENTINEL)
             break;
         if ((cmdlist(i)->flags & FLAG_HIDDEN) != 0)

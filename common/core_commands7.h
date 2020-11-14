@@ -21,11 +21,9 @@
 #include "free42.h"
 #include "core_globals.h"
 
-#if defined(ANDROID) || defined(IPHONE)
 int docmd_accel(arg_struct *arg);
 int docmd_locat(arg_struct *arg);
 int docmd_heading(arg_struct *arg);
-#endif
 
 int docmd_adate(arg_struct *arg);
 int docmd_atime(arg_struct *arg);

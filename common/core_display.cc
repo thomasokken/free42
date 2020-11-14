@@ -1471,24 +1471,6 @@ static int fcn_cat[] = {
     CMD_LEFT,     CMD_UP,        CMD_DOWN,     CMD_RIGHT,      CMD_PERCENT, CMD_PERCENT_CH
 };
 
-typedef struct {
-    int first_cmd;
-    int last_cmd;
-    bool *enable_flag;
-} extension_struct;
-
-static extension_struct extensions[] = {
-    { CMD_MAX,     CMD_FIND,    NULL                              },
-    { CMD_ANUM,    CMD_STOFLAG, NULL                              },
-    { CMD_ACCEL,   CMD_ACCEL,   &core_settings.enable_ext_accel   },
-    { CMD_LOCAT,   CMD_LOCAT,   &core_settings.enable_ext_locat   },
-    { CMD_HEADING, CMD_HEADING, &core_settings.enable_ext_heading },
-    { CMD_ADATE,   CMD_SWPT,    &core_settings.enable_ext_time    },
-    { CMD_FPTEST,  CMD_FPTEST,  &core_settings.enable_ext_fptest  },
-    { CMD_LSTO,    CMD_GETKEY1, &core_settings.enable_ext_prog    },
-    { CMD_NULL,    CMD_NULL,    NULL                              }
-};
-
 // This defines the order in which extension functions should appear in
 // the FCN catalog. We need this mapping so that that order isn't determined
 // by the order in which the functions were added to the commands list.
@@ -1615,15 +1597,14 @@ static void draw_catalog() {
                 }
                 if ((cmdlist(ext_fcn)->flags & FLAG_HIDDEN) != 0)
                     continue;
-                bool enabled = false;
-                for (int extno = 0; extensions[extno].first_cmd != CMD_NULL; extno++) {
-                    if (ext_fcn >= extensions[extno].first_cmd && ext_fcn <= extensions[extno].last_cmd) {
-                        enabled = extensions[extno].enable_flag == NULL || *extensions[extno].enable_flag;
-                        break;
-                    }
-                }
-                if (!enabled)
+                #ifndef FREE42_FPTEST
+                if (ext_fcn == CMD_FPTEST)
                     continue;
+                #endif
+                #if !defined(ANDROID) && !defined(IPHONE)
+                if (ext_fcn == CMD_ACCEL || ext_fcn == CMD_LOCAT || ext_fcn == CMD_HEADING)
+                    continue;
+                #endif
                 no_extensions = false;
                 if (curr_pos == 5) {
                     curr_pos = 0;
@@ -2362,13 +2343,7 @@ int command2buf(char *buf, int len, int cmd, const arg_struct *arg) {
     int bufptr = 0;
 
     int4 xrom_arg;
-    if (!core_settings.enable_ext_accel && cmd == CMD_ACCEL
-            || !core_settings.enable_ext_locat && cmd == CMD_LOCAT
-            || !core_settings.enable_ext_heading && cmd == CMD_HEADING
-            || !core_settings.enable_ext_time && cmd >= CMD_ADATE && cmd <= CMD_SWPT
-            || !core_settings.enable_ext_fptest && cmd == CMD_FPTEST
-            || !core_settings.enable_ext_prog && cmd >= CMD_LSTO && cmd <= CMD_YMD
-            || (cmdlist(cmd)->hp42s_code & 0xfffff800) == 0x0000a000 && (cmdlist(cmd)->flags & FLAG_HIDDEN) != 0) {
+    if ((cmdlist(cmd)->hp42s_code & 0xfffff800) == 0x0000a000 && (cmdlist(cmd)->flags & FLAG_HIDDEN) != 0) {
         xrom_arg = cmdlist(cmd)->hp42s_code;
         cmd = CMD_XROM;
     } else if (cmd == CMD_XROM)

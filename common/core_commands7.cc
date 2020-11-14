@@ -33,9 +33,8 @@
 /////////////////////////////////////////////////////////////////
 
 #if defined(ANDROID) || defined(IPHONE)
+
 int docmd_accel(arg_struct *arg) {
-    if (!core_settings.enable_ext_accel)
-        return ERR_NONEXISTENT;
     double x, y, z;
     int err = shell_get_acceleration(&x, &y, &z);
     if (err == 0)
@@ -66,8 +65,6 @@ int docmd_accel(arg_struct *arg) {
 }
 
 int docmd_locat(arg_struct *arg) {
-    if (!core_settings.enable_ext_locat)
-        return ERR_NONEXISTENT;
     double lat, lon, lat_lon_acc, elev, elev_acc;
     int err = shell_get_location(&lat, &lon, &lat_lon_acc, &elev, &elev_acc);
     if (err == 0)
@@ -99,8 +96,6 @@ int docmd_locat(arg_struct *arg) {
 }
 
 int docmd_heading(arg_struct *arg) {
-    if (!core_settings.enable_ext_heading)
-        return ERR_NONEXISTENT;
     double mag_heading, true_heading, acc, x, y, z;
     int err = shell_get_heading(&mag_heading, &true_heading, &acc, &x, &y, &z);
     if (err == 0)
@@ -131,6 +126,21 @@ int docmd_heading(arg_struct *arg) {
     print_trace();
     return ERR_NONE;
 }
+
+#else
+
+int docmd_accel(arg_struct *arg) {
+    return ERR_NONEXISTENT;
+}
+
+int docmd_locat(arg_struct *arg) {
+    return ERR_NONEXISTENT;
+}
+
+int docmd_heading(arg_struct *arg) {
+    return ERR_NONEXISTENT;
+}
+
 #endif
 
 /////////////////////////////////////////////////
@@ -228,8 +238,6 @@ static int jd2greg(int4 jd, int4 *y, int4 *m, int4 *d) {
 
 
 int docmd_adate(arg_struct *arg) {
-    if (!core_settings.enable_ext_time)
-        return ERR_NONEXISTENT;
     if (reg_x->type == TYPE_STRING)
         return ERR_ALPHA_DATA_IS_INVALID;
     if (reg_x->type != TYPE_REAL)
@@ -328,8 +336,6 @@ int docmd_adate(arg_struct *arg) {
 }
 
 int docmd_atime(arg_struct *arg) {
-    if (!core_settings.enable_ext_time)
-        return ERR_NONEXISTENT;
     if (reg_x->type == TYPE_STRING)
         return ERR_ALPHA_DATA_IS_INVALID;
     if (reg_x->type != TYPE_REAL)
@@ -413,8 +419,6 @@ int docmd_atime(arg_struct *arg) {
 }
 
 int docmd_atime24(arg_struct *arg) {
-    if (!core_settings.enable_ext_time)
-        return ERR_NONEXISTENT;
     bool saved_clk24 = mode_time_clk24;
     mode_time_clk24 = true;
     int res = docmd_atime(arg);
@@ -423,15 +427,11 @@ int docmd_atime24(arg_struct *arg) {
 }
 
 int docmd_clk12(arg_struct *arg) {
-    if (!core_settings.enable_ext_time)
-        return ERR_NONEXISTENT;
     mode_time_clk24 = false;
     return ERR_NONE;
 }
 
 int docmd_clk24(arg_struct *arg) {
-    if (!core_settings.enable_ext_time)
-        return ERR_NONEXISTENT;
     mode_time_clk24 = true;
     return ERR_NONE;
 }
@@ -439,8 +439,6 @@ int docmd_clk24(arg_struct *arg) {
 static char weekdaynames[] = "SUNMONTUEWEDTHUFRISAT";
 
 int docmd_date(arg_struct *arg) {
-    if (!core_settings.enable_ext_time)
-        return ERR_NONEXISTENT;
     uint4 date;
     int weekday;
     shell_get_time_date(NULL, &date, &weekday);
@@ -506,8 +504,6 @@ int docmd_date(arg_struct *arg) {
 }
 
 int docmd_date_plus(arg_struct *arg) {
-    if (!core_settings.enable_ext_time)
-        return ERR_NONEXISTENT;
     // TODO: Accept real matrices as well?
     if (reg_x->type == TYPE_STRING)
         return ERR_ALPHA_DATA_IS_INVALID;
@@ -546,8 +542,6 @@ int docmd_date_plus(arg_struct *arg) {
 }
 
 int docmd_ddays(arg_struct *arg) {
-    if (!core_settings.enable_ext_time)
-        return ERR_NONEXISTENT;
     // TODO: Accept real matrices as well?
     if (reg_x->type == TYPE_STRING)
         return ERR_ALPHA_DATA_IS_INVALID;
@@ -586,16 +580,12 @@ int docmd_ddays(arg_struct *arg) {
 }
 
 int docmd_dmy(arg_struct *arg) {
-    if (!core_settings.enable_ext_time)
-        return ERR_NONEXISTENT;
     flags.f.dmy = true;
     flags.f.ymd = false;
     return ERR_NONE;
 }
 
 int docmd_dow(arg_struct *arg) {
-    if (!core_settings.enable_ext_time)
-        return ERR_NONEXISTENT;
     // TODO: Accept real matrices as well?
     if (reg_x->type == TYPE_STRING)
         return ERR_ALPHA_DATA_IS_INVALID;
@@ -634,16 +624,12 @@ int docmd_dow(arg_struct *arg) {
 }
 
 int docmd_mdy(arg_struct *arg) {
-    if (!core_settings.enable_ext_time)
-        return ERR_NONEXISTENT;
     flags.f.dmy = false;
     flags.f.ymd = false;
     return ERR_NONE;
 }
 
 int docmd_time(arg_struct *arg) {
-    if (!core_settings.enable_ext_time)
-        return ERR_NONEXISTENT;
     uint4 time;
     shell_get_time_date(&time, NULL, NULL);
     vartype *new_x = new_real((int4) time);
@@ -698,8 +684,6 @@ int docmd_time(arg_struct *arg) {
 // here anyway.
 
 int docmd_ymd(arg_struct *arg) {
-    if (!core_settings.enable_ext_prog)
-        return ERR_NONEXISTENT;
     flags.f.dmy = false;
     flags.f.ymd = true;
     return ERR_NONE;
@@ -747,8 +731,6 @@ extern "C" {
 }
 
 int docmd_fptest(arg_struct *arg) {
-    if (!core_settings.enable_ext_fptest)
-        return ERR_NONEXISTENT;
     tests_lineno = 0;
     char *argv[] = { (char *) "readtest", NULL };
     int result = readtest_main(1, argv);
@@ -772,8 +754,6 @@ int docmd_fptest(arg_struct *arg) {
 /////////////////////////////////
 
 int docmd_lsto(arg_struct *arg) {
-    if (!core_settings.enable_ext_prog)
-        return ERR_NONEXISTENT;
     int err;
     if (arg->type == ARGTYPE_IND_NUM
             || arg->type == ARGTYPE_IND_STK
@@ -801,8 +781,6 @@ int docmd_lsto(arg_struct *arg) {
 }
 
 int docmd_wsize(arg_struct *arg) {
-    if (!core_settings.enable_ext_prog)
-        return ERR_NONEXISTENT;
     if (reg_x->type == TYPE_STRING)
         return ERR_ALPHA_DATA_IS_INVALID;
     if (reg_x->type != TYPE_REAL)
@@ -820,8 +798,6 @@ int docmd_wsize(arg_struct *arg) {
 }
 
 int docmd_wsize_t(arg_struct *arg) {
-    if (!core_settings.enable_ext_prog)
-        return ERR_NONEXISTENT;
     vartype *new_x = new_real(effective_wsize());
     if (new_x == NULL)
         return ERR_INSUFFICIENT_MEMORY;
@@ -830,22 +806,16 @@ int docmd_wsize_t(arg_struct *arg) {
 }
 
 int docmd_bsigned(arg_struct *arg) {
-    if (!core_settings.enable_ext_prog)
-        return ERR_NONEXISTENT;
     flags.f.base_signed = !flags.f.base_signed;
     return ERR_NONE;
 }
 
 int docmd_bwrap(arg_struct *arg) {
-    if (!core_settings.enable_ext_prog)
-        return ERR_NONEXISTENT;
     flags.f.base_wrap = !flags.f.base_wrap;
     return ERR_NONE;
 }
 
 int docmd_breset(arg_struct *arg) {
-    if (!core_settings.enable_ext_prog)
-        return ERR_NONEXISTENT;
     mode_wsize = 36;
     flags.f.base_signed = 1;
     flags.f.base_wrap = 0;

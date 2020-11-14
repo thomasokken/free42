@@ -27,12 +27,6 @@
 #include "core_commands7.h"
 
 
-#if !defined(ANDROID) && !defined(IPHONE)
-#define docmd_accel docmd_xrom
-#define docmd_locat docmd_xrom
-#define docmd_heading docmd_xrom
-#endif
-
 static const command_spec cmd_array[] =
 {
     { /* CLX */         "CLX",                  3, docmd_clx,         0x00000077, ARG_NONE,  FLAG_NONE },
@@ -351,17 +345,7 @@ static const command_spec cmd_array[] =
     { /* FIND */        "[F\311ND]",            6, docmd_find,        0x0000a6ec, ARG_NONE,  FLAG_NONE },
     { /* XROM */        "XROM",                 4, docmd_xrom,        0x01000000, ARG_OTHER, FLAG_HIDDEN },
 
-    /* Here endeth the original Free42 function table.
-     * UPDATE: To support "pure" HP-42S behavior, all extensions can be
-     * disabled at runtime, using the core_settings.enable_ext_* flags.
-     * When an extension is disabled, its commands disappear from the FCN
-     * catalog, are not recognized by XEQ, are displayed as their XROM
-     * equivalents in programs, and raise a Nonexistent error when trying to
-     * execute them from programs.
-     * When a shell disables or enables an extension in response to the user
-     * changing a setting in the Preferences dialog, it should call redisplay()
-     * to make sure the display reflects the new setting.
-     */
+    /* Here endeth the original Free42 function table. */
 
     /* Underhill's COPAN (Obsolete) */
     { /* OPENF */       "OPENF",                5, docmd_xrom,        0x0000a7c1, ARG_NONE,  FLAG_NONE },

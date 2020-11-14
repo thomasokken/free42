@@ -2038,11 +2038,6 @@ public class Free42Activity extends Activity {
         public boolean matrix_singularmatrix;
         public boolean matrix_outofrange;
         public boolean auto_repeat;
-        @SuppressWarnings("unused") public boolean enable_ext_accel;
-        @SuppressWarnings("unused") public boolean enable_ext_locat;
-        @SuppressWarnings("unused") public boolean enable_ext_heading;
-        @SuppressWarnings("unused") public boolean enable_ext_time;
-        @SuppressWarnings("unused") public boolean enable_ext_fptest;
     }
 
     ///////////////////////////////////////////////////

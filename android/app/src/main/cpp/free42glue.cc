@@ -318,16 +318,6 @@ Java_com_thomasokken_free42_Free42Activity_getCoreSettings(JNIEnv *env, jobject 
     env->SetBooleanField(settings, fid, core_settings.matrix_outofrange);
     fid = env->GetFieldID(klass, "auto_repeat", "Z");
     env->SetBooleanField(settings, fid, core_settings.auto_repeat);
-    fid = env->GetFieldID(klass, "enable_ext_accel", "Z");
-    env->SetBooleanField(settings, fid, core_settings.enable_ext_accel);
-    fid = env->GetFieldID(klass, "enable_ext_locat", "Z");
-    env->SetBooleanField(settings, fid, core_settings.enable_ext_locat);
-    fid = env->GetFieldID(klass, "enable_ext_heading", "Z");
-    env->SetBooleanField(settings, fid, core_settings.enable_ext_heading);
-    fid = env->GetFieldID(klass, "enable_ext_time", "Z");
-    env->SetBooleanField(settings, fid, core_settings.enable_ext_time);
-    fid = env->GetFieldID(klass, "enable_ext_fptest", "Z");
-    env->SetBooleanField(settings, fid, core_settings.enable_ext_fptest);
 }
 
 extern "C" void
@@ -340,16 +330,6 @@ Java_com_thomasokken_free42_Free42Activity_putCoreSettings(JNIEnv *env, jobject 
     core_settings.matrix_outofrange = env->GetBooleanField(settings, fid);
     fid = env->GetFieldID(klass, "auto_repeat", "Z");
     core_settings.auto_repeat = env->GetBooleanField(settings, fid);
-    fid = env->GetFieldID(klass, "enable_ext_accel", "Z");
-    core_settings.enable_ext_accel = env->GetBooleanField(settings, fid);
-    fid = env->GetFieldID(klass, "enable_ext_locat", "Z");
-    core_settings.enable_ext_locat = env->GetBooleanField(settings, fid);
-    fid = env->GetFieldID(klass, "enable_ext_heading", "Z");
-    core_settings.enable_ext_heading = env->GetBooleanField(settings, fid);
-    fid = env->GetFieldID(klass, "enable_ext_time", "Z");
-    core_settings.enable_ext_time = env->GetBooleanField(settings, fid);
-    fid = env->GetFieldID(klass, "enable_ext_fptest", "Z");
-    core_settings.enable_ext_fptest = env->GetBooleanField(settings, fid);
 }
 
 extern "C" void

@@ -301,12 +301,6 @@ typedef struct {
     bool matrix_singularmatrix;
     bool matrix_outofrange;
     bool auto_repeat;
-    bool enable_ext_accel;
-    bool enable_ext_locat;
-    bool enable_ext_heading;
-    bool enable_ext_time;
-    bool enable_ext_fptest;
-    bool enable_ext_prog;
 } core_settings_struct;
 
 extern core_settings_struct core_settings;
