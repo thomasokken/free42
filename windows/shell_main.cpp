@@ -1127,11 +1127,18 @@ static LRESULT CALLBACK ExportProgram(HWND hDlg, UINT message, WPARAM wParam, LP
         case WM_INITDIALOG: {
             HWND list = GetDlgItem(hDlg, IDC_LIST1);
             char *buf = core_list_programs();
+            wchar_t wbuf[50];
+            char cbuf[50];
             if (buf != NULL) {
                 int count = ((buf[0] & 255) << 24) | ((buf[1] & 255) << 16) | ((buf[2] & 255) << 8) | (buf[3] & 255);
                 char *p = buf + 4;
                 for (int i = 0; i < count; i++) {
-                    SendMessage(list, LB_ADDSTRING, 0, (long) p);
+                    int len = strlen(p);
+                    int wlen = MultiByteToWideChar(CP_UTF8, 0, p, len, wbuf, 49);
+                    wbuf[wlen] = 0;
+                    int clen = WideCharToMultiByte(CP_ACP, 0, wbuf, wlen, cbuf, 49, NULL, NULL);
+                    cbuf[clen] = 0;
+                    SendMessage(list, LB_ADDSTRING, 0, (long) cbuf);
                     p += strlen(p) + 1;
                 }
                 free(buf);
@@ -1724,7 +1731,19 @@ static void export_program() {
 			char *closing_quote = strchr(p + 1, '"');
 			if (closing_quote != NULL) {
 				*closing_quote = 0;
-				strcpy(export_file_name, p + 1);
+                wchar_t wbuf[50];
+                char cbuf[50];
+                int len = strlen(p + 1);
+                int wlen = MultiByteToWideChar(CP_UTF8, 0, p + 1, len, wbuf, 49);
+                wbuf[wlen] = 0;
+                int clen = WideCharToMultiByte(CP_ACP, 0, wbuf, wlen, cbuf, 49, NULL, NULL);
+                cbuf[clen] = 0;
+                for (int i = 0; i < clen; i++) {
+                    char c = cbuf[i];
+                    if (strchr("<>:\"/\\|?*", c) != NULL)
+                        cbuf[i] = '_';
+                }
+				strcpy(export_file_name, cbuf);
 			}
 		}			
         free(buf);
