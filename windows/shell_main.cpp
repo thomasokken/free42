@@ -1128,7 +1128,6 @@ static LRESULT CALLBACK ExportProgram(HWND hDlg, UINT message, WPARAM wParam, LP
             HWND list = GetDlgItem(hDlg, IDC_LIST1);
             char *buf = core_list_programs();
             wchar_t wbuf[50];
-            char cbuf[50];
             if (buf != NULL) {
                 int count = ((buf[0] & 255) << 24) | ((buf[1] & 255) << 16) | ((buf[2] & 255) << 8) | (buf[3] & 255);
                 char *p = buf + 4;
@@ -1136,9 +1135,7 @@ static LRESULT CALLBACK ExportProgram(HWND hDlg, UINT message, WPARAM wParam, LP
                     int len = strlen(p);
                     int wlen = MultiByteToWideChar(CP_UTF8, 0, p, len, wbuf, 49);
                     wbuf[wlen] = 0;
-                    int clen = WideCharToMultiByte(CP_ACP, 0, wbuf, wlen, cbuf, 49, NULL, NULL);
-                    cbuf[clen] = 0;
-                    SendMessage(list, LB_ADDSTRING, 0, (long) cbuf);
+                    SendMessageW(list, LB_ADDSTRING, 0, (long) wbuf);
                     p += strlen(p) + 1;
                 }
                 free(buf);
@@ -1281,10 +1278,10 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
                     char buf[FILENAMELEN];
                     GetDlgItemText(hDlg, IDC_PRINTER_TXT_NAME, buf, FILENAMELEN - 1);
                     if (browse_file(hDlg,
-                                    "Select Text File Name",
+                                    L"Select Text File Name",
                                     1,
-                                    "Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0\0",
-                                    "txt",
+                                    L"Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0\0",
+                                    L"txt",
                                     buf,
                                     FILENAMELEN))
                         SetDlgItemText(hDlg, IDC_PRINTER_TXT_NAME, buf);
@@ -1294,10 +1291,10 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
                     char buf[FILENAMELEN];
                     GetDlgItemText(hDlg, IDC_PRINTER_GIF_NAME, buf, FILENAMELEN - 1);
                     if (browse_file(hDlg,
-                                    "Select GIF File Name",
+                                    L"Select GIF File Name",
                                     1,
-                                    "GIF Files (*.gif)\0*.gif\0All Files (*.*)\0*.*\0\0",
-                                    "gif",
+                                    L"GIF Files (*.gif)\0*.gif\0All Files (*.*)\0*.*\0\0",
+                                    L"gif",
                                     buf,
                                     FILENAMELEN))
                         SetDlgItemText(hDlg, IDC_PRINTER_GIF_NAME, buf);
@@ -1310,21 +1307,30 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
     return FALSE;
 }
 
-int browse_file(HWND owner, char *title, int save, char *filter, char *defExt, char *buf, int buflen) {
-    OPENFILENAME ofn;
-    ofn.lStructSize = sizeof(OPENFILENAME);
+int browse_file(HWND owner, wchar_t *title, int save, wchar_t *filter, wchar_t *defExt, char *buf, int buflen) {
+    wchar_t wbuf[FILENAMELEN];
+    int wlen = MultiByteToWideChar(CP_UTF8, 0, buf, strlen(buf), wbuf, FILENAMELEN - 1);
+    wbuf[wlen] = 0;
+
+    OPENFILENAMEW ofn;
+    ofn.lStructSize = sizeof(OPENFILENAMEW);
     ofn.hwndOwner = owner;
     ofn.lpstrFilter = filter;
     ofn.lpstrCustomFilter = NULL;
     ofn.nFilterIndex = 1;
-    ofn.lpstrFile = buf;
-    ofn.nMaxFile = buflen;
+    ofn.lpstrFile = wbuf;
+    ofn.nMaxFile = FILENAMELEN - 1;
     ofn.lpstrFileTitle = NULL;
     ofn.lpstrInitialDir = NULL;
     ofn.lpstrTitle = title;
     ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
     ofn.lpstrDefExt = defExt;
-    return save ? GetSaveFileName(&ofn) : GetOpenFileName(&ofn);
+    
+    int ret = save ? GetSaveFileNameW(&ofn) : GetOpenFileNameW(&ofn);
+
+    int len = WideCharToMultiByte(CP_UTF8, 0, wbuf, wcslen(wbuf), buf, buflen - 1, NULL, NULL);
+    buf[len] = 0;
+    return ret;
 }
 
 static void move_state_file(char *olddir, char *newdir, char *filename) {
@@ -1709,7 +1715,7 @@ static void show_printout() {
 }
 
 static void export_program() {
-    if (!DialogBox(hInst, (LPCTSTR)IDD_SELECTPROGRAM, hMainWnd, (DLGPROC)ExportProgram))
+    if (!DialogBoxW(hInst, (LPCWSTR)IDD_SELECTPROGRAM, hMainWnd, (DLGPROC)ExportProgram))
         return;
     if (sel_prog_count == 0)
         return;
@@ -1731,19 +1737,13 @@ static void export_program() {
 			char *closing_quote = strchr(p + 1, '"');
 			if (closing_quote != NULL) {
 				*closing_quote = 0;
-                wchar_t wbuf[50];
-                char cbuf[50];
                 int len = strlen(p + 1);
-                int wlen = MultiByteToWideChar(CP_UTF8, 0, p + 1, len, wbuf, 49);
-                wbuf[wlen] = 0;
-                int clen = WideCharToMultiByte(CP_ACP, 0, wbuf, wlen, cbuf, 49, NULL, NULL);
-                cbuf[clen] = 0;
-                for (int i = 0; i < clen; i++) {
-                    char c = cbuf[i];
-                    if (strchr("<>:\"/\\|?*", c) != NULL)
-                        cbuf[i] = '_';
+                for (int i = 0; i < len; i++) {
+                    char c = p[i + 1];
+                    if (strchr("<>:\"/\\|?*\n", c) != NULL)
+                        p[i + 1] = '_';
                 }
-				strcpy(export_file_name, cbuf);
+				strcpy(export_file_name, p + 1);
 			}
 		}			
         free(buf);
@@ -1752,10 +1752,10 @@ static void export_program() {
 		strcpy(export_file_name, "Untitled");
 
     if (browse_file(hMainWnd,
-                     "Export Programs",
+                     L"Export Programs",
                      1,
-                     "Program Files (*.raw)\0*.raw\0All Files (*.*)\0*.*\0\0",
-                     "raw",
+                     L"Program Files (*.raw)\0*.raw\0All Files (*.*)\0*.*\0\0",
+                     L"raw",
                      export_file_name,
                      FILENAMELEN))
 	    core_export_programs(sel_prog_count, sel_prog_list, export_file_name);
@@ -1767,9 +1767,9 @@ static void import_program() {
     char buf[FILENAMELEN];
     buf[0] = 0;
     if (!browse_file(hMainWnd,
-                     "Import Programs",
+                     L"Import Programs",
                      0,
-                     "Program Files (*.raw)\0*.raw\0All Files (*.*)\0*.*\0\0",
+                     L"Program Files (*.raw)\0*.raw\0All Files (*.*)\0*.*\0\0",
                      NULL,
                      buf,
                      FILENAMELEN))
@@ -2694,4 +2694,14 @@ ci_string to_ci_string(int i) {
 	char buf[22];
 	sprintf(buf, "%d", i);
 	return buf;
+}
+
+FILE *my_fopen(const char *name, const char *mode) {
+    wchar_t wname[FILENAMELEN];
+    wchar_t wmode[3];
+    int wnamelen = MultiByteToWideChar(CP_UTF8, 0, name, strlen(name), wname, FILENAMELEN - 1);
+    wname[wnamelen] = 0;
+    int wmodelen = MultiByteToWideChar(CP_UTF8, 0, mode, strlen(mode), wmode, 2);
+    wmode[wmodelen] = 0;
+    return _wfopen(wname, wmode);
 }

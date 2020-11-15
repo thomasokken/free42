@@ -74,7 +74,7 @@ extern HINSTANCE hInst;                                    // current instance
 extern char free42dirname[FILENAMELEN];
 
 ci_string GetDlgItemTextLong(HWND hWnd, int item);
-int browse_file(HWND owner, char *title, int save, char *filter, char *defExt, char *buf, int buflen);
+int browse_file(HWND owner, wchar_t *title, int save, wchar_t *filter, wchar_t *defExt, char *buf, int buflen);
 ci_string to_ci_string(int i);
 
 #endif

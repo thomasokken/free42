@@ -339,9 +339,9 @@ static void doImport(HWND hDlg) {
 	char buf[FILENAMELEN];
 	buf[0] = 0;
     if (!browse_file(hDlg,
-                    "Import State",
+                    L"Import State",
                     0,
-                    "Free42 State (*.f42)\0*.f42\0All Files (*.*)\0*.*\0\0",
+                    L"Free42 State (*.f42)\0*.f42\0All Files (*.*)\0*.*\0\0",
                     NULL,
                     buf,
                     FILENAMELEN))
@@ -369,10 +369,10 @@ static void doExport(HWND hDlg) {
 	strncpy(buf, selectedStateName.c_str(), FILENAMELEN);
 	buf[FILENAMELEN - 1] = 0;
     if (!browse_file(hDlg,
-                    "Export State",
+                    L"Export State",
                     1,
-                    "Free42 State (*.f42)\0*.f42\0All Files (*.*)\0*.*\0\0",
-                    "f42",
+                    L"Free42 State (*.f42)\0*.f42\0All Files (*.*)\0*.*\0\0",
+                    L"f42",
                     buf,
                     FILENAMELEN))
 		return;

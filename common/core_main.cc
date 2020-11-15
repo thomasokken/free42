@@ -41,6 +41,12 @@
 #include "bid_functions.h"
 #endif
 
+#ifdef WINDOWS
+FILE *my_fopen(const char *name, const char *mode);
+#else
+#define my_fopen fopen
+#endif
+
 
 static void set_shift(bool state) {
     if (mode_shift != state) {
@@ -87,9 +93,9 @@ void core_init(int read_saved_state, int4 version, const char *state_file_name, 
             shell_get_time_date(&time, &date, &weekday);
             sprintf(state_file_name_crash, "%s.%08u%08u.crash", state_file_name, date, time);
             rename(state_file_name, state_file_name_crash);
-            gfile = fopen(state_file_name_crash, "rb");
+            gfile = my_fopen(state_file_name_crash, "rb");
         } else
-            gfile = fopen(state_file_name, "rb");
+            gfile = my_fopen(state_file_name, "rb");
         if (gfile == NULL)
             read_saved_state = 0;
         else if (offset > 0)
@@ -137,7 +143,7 @@ void core_save_state(const char *state_file_name) {
     if (mode_interruptible != NULL)
         stop_interruptible();
     set_running(false);
-    gfile = fopen(state_file_name, "wb");
+    gfile = my_fopen(state_file_name, "wb");
     if (gfile != NULL) {
         save_state();
         fclose(gfile);
@@ -1199,7 +1205,7 @@ void core_export_programs(int count, const int *indexes, const char *raw_file_na
         } else {
             raw_buf = NULL;
 #endif
-            gfile = fopen(raw_file_name, "wb");
+            gfile = my_fopen(raw_file_name, "wb");
             if (gfile == NULL) {
                 char msg[1024];
                 int err = errno;
@@ -1751,7 +1757,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
         } else {
             raw_buf = NULL;
 #endif
-            gfile = fopen(raw_file_name, "rb");
+            gfile = my_fopen(raw_file_name, "rb");
             if (gfile == NULL) {
                 char msg[1024];
                 int err = errno;
