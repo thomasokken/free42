@@ -38,19 +38,19 @@ HMENU moreMenu = NULL;
 static void loadStateNames() {
 	stateNames.clear();
 
-	WIN32_FIND_DATA wfd;
+	WIN32_FIND_DATAW wfd;
 	ci_string path = free42dirname;
-	path += "\\*.f42";
+	path += L"\\*.f42";
 
-	HANDLE search = FindFirstFile(path.c_str(), &wfd);
+	HANDLE search = FindFirstFileW(path.c_str(), &wfd);
     if (search != INVALID_HANDLE_VALUE) {
         do {
             if ((wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
 				ci_string s;
-				s.assign(wfd.cFileName, strlen(wfd.cFileName) - 4);
+				s.assign(wfd.cFileName, wcslen(wfd.cFileName) - 4);
 				stateNames.push_back(s);
 			}
-		} while (FindNextFile(search, &wfd));
+		} while (FindNextFileW(search, &wfd));
 		FindClose(search);
 	}
 
@@ -58,10 +58,10 @@ static void loadStateNames() {
 }
 
 static bool verifyStateName(const ci_string name) {
-	const char *str = name.c_str();
-	char c;
+	const wchar_t *str = name.c_str();
+	wchar_t c;
 	while ((c = *str++) != 0) {
-		if (c >= 1 && c <= 31 || strchr("<>:\"/\\|?*", c) != NULL)
+		if (c >= 1 && c <= 31 || wcschr(L"<>:\"/\\|?*", c) != NULL)
 			return false;
 	}
 	return true;
@@ -77,16 +77,16 @@ static bool stateNameInUse(const ci_string name) {
 static LRESULT CALLBACK StateNameDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
 	switch (message) {
         case WM_INITDIALOG: {
-            SetDlgItemText(hDlg, IDC_STATE_PROMPT, stateLabel.c_str());
-            SetDlgItemText(hDlg, IDC_STATE_NAME, "");
+            SetDlgItemTextW(hDlg, IDC_STATE_PROMPT, stateLabel.c_str());
+            SetDlgItemTextW(hDlg, IDC_STATE_NAME, L"");
 
             // Make sure a file exists for the current state. This isn't necessarily
             // the case, specifically, right after starting up with a version <= 25
             // state file.
-            ci_string currentStateName = ci_string(free42dirname) + "/" + state.coreName + ".f42";
-            const char *currentStateNameC = currentStateName.c_str();
-            if (GetFileAttributes(currentStateNameC) == INVALID_FILE_ATTRIBUTES) {
-                FILE *f = fopen(currentStateNameC, "wb");
+            ci_string currentStateName = ci_string(free42dirname) + L"/" + state.coreName + L".f42";
+            const wchar_t *currentStateNameC = currentStateName.c_str();
+            if (GetFileAttributesW(currentStateNameC) == INVALID_FILE_ATTRIBUTES) {
+                FILE *f = _wfopen(currentStateNameC, L"wb");
                 fwrite(FREE42_MAGIC_STR, 1, 4, f);
                 fclose(f);
             }
@@ -109,7 +109,7 @@ static LRESULT CALLBACK StateNameDlgProc(HWND hDlg, UINT message, WPARAM wParam,
 					return TRUE;
 				}
 				case IDCANCEL: {
-					stateName = "";
+					stateName = L"";
 					EndDialog(hDlg, 0);
 					return TRUE;
 				}
@@ -121,7 +121,7 @@ static LRESULT CALLBACK StateNameDlgProc(HWND hDlg, UINT message, WPARAM wParam,
 
 static ci_string getStateName(HWND hDlg, const ci_string label) {
 	stateLabel = label;
-    DialogBox(hInst, (LPCTSTR)IDD_STATE_NAME, hDlg, (DLGPROC)StateNameDlgProc);
+    DialogBoxW(hInst, (LPCWSTR)IDD_STATE_NAME, hDlg, (DLGPROC)StateNameDlgProc);
 	return stateName;
 }
 
@@ -133,7 +133,7 @@ static void updateUI(HWND hDlg, bool rescan) {
 		int index = -1;
 		int i = 0;
 		for(vector<ci_string>::iterator iter = stateNames.begin(); iter != stateNames.end(); ++iter) {
-			SendMessage(list, LB_ADDSTRING, 0, (LPARAM) iter->c_str());
+			SendMessageW(list, LB_ADDSTRING, 0, (LPARAM) iter->c_str());
 			if (selectedStateName == *iter)
 				index = i;
 			i++;
@@ -144,7 +144,7 @@ static void updateUI(HWND hDlg, bool rescan) {
 	
 	int index = SendMessage(list, LB_GETCURSEL, 0, 0);
     if (index == LB_ERR)
-		selectedStateName = "";
+		selectedStateName = L"";
     else
         selectedStateName = stateNames[index];
 
@@ -152,7 +152,7 @@ static void updateUI(HWND hDlg, bool rescan) {
 	bool stateSelected;
     bool activeStateSelected;
 
-    if (selectedStateName == "") {
+    if (selectedStateName == L"") {
 		SendMessage(switchToButton, WM_SETTEXT, 0, (LPARAM) "Switch To");
         stateSelected = false;
     } else {
@@ -173,47 +173,51 @@ static void updateUI(HWND hDlg, bool rescan) {
 }
 
 static void switchTo(HWND hDlg) {
-	if (selectedStateName == "")
+	if (selectedStateName == L"")
         return;
     if (selectedStateName == state.coreName) {
-	    ci_string prompt = ci_string("Are you sure you want to revert the state \"") + selectedStateName + "\" to the last version saved?";
-	    if (MessageBox(hDlg, prompt.c_str(), "Revert State?", MB_OKCANCEL) != IDOK)
+	    ci_string prompt = ci_string(L"Are you sure you want to revert the state \"") + selectedStateName + L"\" to the last version saved?";
+	    if (MessageBoxW(hDlg, prompt.c_str(), L"Revert State?", MB_OKCANCEL) != IDOK)
 		    return;
     } else {
 		ci_string path = free42dirname;
-		path += "\\";
+		path += L"\\";
 		path += state.coreName;
-		path += ".f42";
-		core_save_state(path.c_str());
-    }
+		path += L".f42";
+		char *cpath = wide2utf(path.c_str());
+		core_save_state(cpath);
+		free(cpath);
+	}
     core_cleanup();
-	strcpy(state.coreName, selectedStateName.c_str()); // TODO: Length limit
+	wcscpy(state.coreName, selectedStateName.c_str()); // TODO: Length limit
 	ci_string path = free42dirname;
-	path += "\\";
+	path += L"\\";
 	path += state.coreName;
-	path += ".f42";
-	core_init(1, 26, path.c_str(), 0);
+	path += L".f42";
+	char *cpath = wide2utf(path.c_str());
+	core_init(1, 26, cpath, 0);
+	free(cpath);
     int running = core_powercycle();
     EndDialog(hDlg, running);
 }
 
 static void doNew(HWND hDlg) {
-	ci_string name = getStateName(hDlg, "New state name:");
-	if (name == "")
+	ci_string name = getStateName(hDlg, L"New state name:");
+	if (name == L"")
 		return;
 	ci_string path = free42dirname;
-	path += "\\";
+	path += L"\\";
 	path += name;
-	path += ".f42";
-    FILE *f = fopen(path.c_str(), "wb");
+	path += L".f42";
+    FILE *f = _wfopen(path.c_str(), L"wb");
     fprintf(f, FREE42_MAGIC_STR);
     fclose(f);
 	updateUI(hDlg, true);
 }
 
-static bool copyState(const char *orig_name, const char *copy_name) {
-    FILE *fin = fopen(orig_name, "rb");
-    FILE *fout = fopen(copy_name, "wb");
+static bool copyState(const wchar_t *orig_name, const wchar_t *copy_name) {
+    FILE *fin = _wfopen(orig_name, L"rb");
+    FILE *fout = _wfopen(copy_name, L"wb");
     if (fin != NULL && fout != NULL) {
         char buf[1024];
         int n;
@@ -230,16 +234,16 @@ static bool copyState(const char *orig_name, const char *copy_name) {
             fclose(fin);
         if (fout != NULL)
             fclose(fout);
-        remove(copy_name);
+        _wremove(copy_name);
         return false;
     }
 }
 
 static void doDuplicate(HWND hDlg) {
-    if (selectedStateName == "")
+    if (selectedStateName == L"")
         return;
 	ci_string copyName = free42dirname;
-	copyName += "\\";
+	copyName += L"\\";
 	copyName += selectedStateName;
     int n = 0;
 
@@ -248,7 +252,7 @@ static void doDuplicate(HWND hDlg) {
     // or " copy NNN", it seems more elegant to continue the sequence rather than
     // add another " copy" suffix.
 	int len = copyName.length();
-    if (len > 5 && copyName.substr(len - 5) == " copy") {
+    if (len > 5 && copyName.substr(len - 5) == L" copy") {
         copyName = copyName.substr(0, len - 5);
         n = 1;
     } else if (len > 7) {
@@ -256,12 +260,12 @@ static void doDuplicate(HWND hDlg) {
         int m = 0;
         int p = 1;
         while (pos > 0) {
-            char c = copyName[pos + 6];
+            wchar_t c = copyName[pos + 6];
             if (c < '0' || c > '9')
                 goto not_a_copy;
             m += p * (c - '0');
             p *= 10;
-            if (copyName.substr(pos, 6) == " copy ") {
+            if (copyName.substr(pos, 6) == L" copy ") {
                 n = m;
                 copyName = copyName.substr(0, pos);
                 break;
@@ -272,15 +276,15 @@ static void doDuplicate(HWND hDlg) {
     }
 
     ci_string finalName;
-    const char *finalNameC;
+    const wchar_t *finalNameC;
     while (true) {
         n++;
         if (n == 1)
-            finalName = copyName + " copy.f42";
+            finalName = copyName + L" copy.f42";
         else
-			finalName = copyName + " copy " + to_ci_string(n) + ".f42";
+			finalName = copyName + L" copy " + to_ci_string(n) + L".f42";
         finalNameC = finalName.c_str();
-        if (GetFileAttributes(finalNameC) == INVALID_FILE_ATTRIBUTES)
+        if (GetFileAttributesW(finalNameC) == INVALID_FILE_ATTRIBUTES)
             // File does not exist; that means we have a usable name
             break;
     }
@@ -290,13 +294,15 @@ static void doDuplicate(HWND hDlg) {
     // one. If it is, we'll call core_save_state(), to make sure the duplicate
     // actually matches the most up-to-date state; otherwise, we can simply copy
     // the existing state file.
-    if (selectedStateName == state.coreName)
-        core_save_state(finalNameC);
-    else {
+	if (selectedStateName == state.coreName) {
+		char *cfn = wide2utf(finalNameC);
+		core_save_state(cfn);
+		free(cfn);
+	} else {
         ci_string origName = free42dirname;
-		origName += "\\";
+		origName += L"\\";
 		origName += selectedStateName;
-		origName += ".f42";
+		origName += L".f42";
 		if (!copyState(origName.c_str(), finalNameC))
             MessageBox(hDlg, "State duplication failed.", "Message", MB_ICONWARNING);
     }
@@ -304,41 +310,41 @@ static void doDuplicate(HWND hDlg) {
 }
 
 static void doRename(HWND hDlg) {
-    if (selectedStateName == "")
+    if (selectedStateName == L"")
         return;
-	ci_string prompt = "Rename \"";
+	ci_string prompt = L"Rename \"";
 	prompt += selectedStateName;
-	prompt += "\" to:";
+	prompt += L"\" to:";
 	ci_string newname = getStateName(hDlg, prompt);
-    if (newname == "")
+    if (newname == L"")
         return;
-    ci_string oldpath = ci_string(free42dirname) + "\\" + selectedStateName + ".f42";
-    ci_string newpath = ci_string(free42dirname) + "\\" + newname + ".f42";
-	rename(oldpath.c_str(), newpath.c_str());
+    ci_string oldpath = ci_string(free42dirname) + L"\\" + selectedStateName + L".f42";
+    ci_string newpath = ci_string(free42dirname) + L"\\" + newname + L".f42";
+	_wrename(oldpath.c_str(), newpath.c_str());
     if (selectedStateName == state.coreName) {
-		strncpy(state.coreName, newname.c_str(), FILENAMELEN);
-        SetDlgItemText(hDlg, IDC_CURRENT, newname.c_str());
+		wcsncpy(state.coreName, newname.c_str(), FILENAMELEN);
+        SetDlgItemTextW(hDlg, IDC_CURRENT, newname.c_str());
     }
     updateUI(hDlg, true);
 }
 
 static void doDelete(HWND hDlg) {
-    if (selectedStateName == "")
+    if (selectedStateName == L"")
         return;
     if (selectedStateName == state.coreName)
         return;
-	ci_string prompt = ci_string("Are you sure you want to delete the state \"") + selectedStateName + "\"?";
-	if (MessageBox(hDlg, prompt.c_str(), "Delete State?", MB_OKCANCEL) != IDOK)
+	ci_string prompt = ci_string(L"Are you sure you want to delete the state \"") + selectedStateName + L"\"?";
+	if (MessageBoxW(hDlg, prompt.c_str(), L"Delete State?", MB_OKCANCEL) != IDOK)
 		return;
-    ci_string statePath = ci_string(free42dirname) + "\\" + selectedStateName + ".f42";
-	remove(statePath.c_str());
+    ci_string statePath = ci_string(free42dirname) + L"\\" + selectedStateName + L".f42";
+	_wremove(statePath.c_str());
     updateUI(hDlg, true);
 }
 
 static void doImport(HWND hDlg) {
-	char buf[FILENAMELEN];
+	wchar_t buf[FILENAMELEN];
 	buf[0] = 0;
-    if (!browse_file(hDlg,
+    if (!browse_file_w(hDlg,
                     L"Import State",
                     0,
                     L"Free42 State (*.f42)\0*.f42\0All Files (*.*)\0*.*\0\0",
@@ -350,25 +356,25 @@ static void doImport(HWND hDlg) {
 	size_t p = path.find_last_of('\\');
 	ci_string name = p == std::string::npos ? path : path.substr(p + 1);
 	int len = name.length();
-    if (len > 4 && name.substr(len - 4) == ".f42")
+    if (len > 4 && name.substr(len - 4) == L".f42")
         name = name.substr(0, len - 4);
-    ci_string destPath = ci_string(free42dirname) + "\\" + name + ".f42";
-	const char *destPathC = destPath.c_str();
-	if (GetFileAttributes(destPathC) != INVALID_FILE_ATTRIBUTES) {
-		ci_string message = ci_string("A state named \"") + name + "\" already exists.";
-		MessageBox(hDlg, message.c_str(), "Message", MB_ICONWARNING);
+    ci_string destPath = ci_string(free42dirname) + L"\\" + name + L".f42";
+	const wchar_t *destPathC = destPath.c_str();
+	if (GetFileAttributesW(destPathC) != INVALID_FILE_ATTRIBUTES) {
+		ci_string message = ci_string(L"A state named \"") + name + L"\" already exists.";
+		MessageBoxW(hDlg, message.c_str(), L"Message", MB_ICONWARNING);
 	} else if (!copyState(path.c_str(), destPathC))
         MessageBox(hDlg, "State import failed.", "Message", MB_ICONWARNING);
     updateUI(hDlg, true);
 }
 
 static void doExport(HWND hDlg) {
-    if (selectedStateName == "")
+    if (selectedStateName == L"")
         return;
-	char buf[FILENAMELEN];
-	strncpy(buf, selectedStateName.c_str(), FILENAMELEN);
+	wchar_t buf[FILENAMELEN];
+	wcsncpy(buf, selectedStateName.c_str(), FILENAMELEN);
 	buf[FILENAMELEN - 1] = 0;
-    if (!browse_file(hDlg,
+    if (!browse_file_w(hDlg,
                     L"Export State",
                     1,
                     L"Free42 State (*.f42)\0*.f42\0All Files (*.*)\0*.*\0\0",
@@ -377,11 +383,13 @@ static void doExport(HWND hDlg) {
                     FILENAMELEN))
 		return;
     ci_string copyPath = buf;
-	const char *copyPathC = copyPath.c_str();
-    if (selectedStateName == state.coreName)
-        core_save_state(copyPathC);
-    else {
-        ci_string origPath = ci_string(free42dirname) + "\\" + selectedStateName + ".f42";
+	const wchar_t *copyPathC = copyPath.c_str();
+	if (selectedStateName == state.coreName) {
+		char *sfn = wide2utf(copyPathC);
+		core_save_state(sfn);
+		free(sfn);
+	} else {
+        ci_string origPath = ci_string(free42dirname) + L"\\" + selectedStateName + L".f42";
 		if (!copyState(origPath.c_str(), copyPathC))
             MessageBox(hDlg, "State export failed.", "Message", MB_ICONWARNING);
     }
@@ -393,10 +401,10 @@ LRESULT CALLBACK StatesDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
         case WM_INITDIALOG: {
 			if (moreMenu == NULL)
 				moreMenu = LoadMenu(NULL, MAKEINTRESOURCE(IDR_STATES_MORE));
-			ci_string txt("Current: ");
+			ci_string txt(L"Current: ");
 			txt += state.coreName;
-            SetDlgItemText(hDlg, IDC_CURRENT, txt.c_str());
-			selectedStateName = "";
+            SetDlgItemTextW(hDlg, IDC_CURRENT, txt.c_str());
+			selectedStateName = L"";
 			updateUI(hDlg, true);
 			return TRUE;
 		}

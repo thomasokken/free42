@@ -22,27 +22,27 @@
 #include "stdafx.h"
 #include "resource.h"
 
-struct ci_char_traits : public std::char_traits<char> {
-    static bool eq(char c1, char c2) { return toupper(c1) == toupper(c2); }
-    static bool ne(char c1, char c2) { return toupper(c1) != toupper(c2); }
-    static bool lt(char c1, char c2) { return toupper(c1) <  toupper(c2); }
-    static int compare(const char* s1, const char* s2, size_t n) {
-        while( n-- != 0 ) {
-            if( toupper(*s1) < toupper(*s2) ) return -1;
-            if( toupper(*s1) > toupper(*s2) ) return 1;
+struct ci_char_traits : public std::char_traits<wchar_t> {
+    static bool eq(wchar_t c1, wchar_t c2) { return towupper(c1) == towupper(c2); }
+    static bool ne(wchar_t c1, wchar_t c2) { return towupper(c1) != towupper(c2); }
+    static bool lt(wchar_t c1, wchar_t c2) { return towupper(c1) < towupper(c2); }
+    static int compare(const wchar_t *s1, const wchar_t *s2, size_t n) {
+        while (n-- != 0) {
+            if (towupper(*s1) < towupper(*s2)) return -1;
+            if (towupper(*s1) > towupper(*s2)) return 1;
             ++s1; ++s2;
         }
         return 0;
     }
-    static const char* find(const char* s, int n, char a) {
-        while( n-- > 0 && toupper(*s) != toupper(a) ) {
+    static const wchar_t *find(const wchar_t *s, int n, wchar_t a) {
+        while (n-- > 0 && towupper(*s) != towupper(a)) {
             ++s;
         }
         return s;
     }
 };
 
-typedef std::basic_string<char, ci_char_traits> ci_string;
+typedef std::basic_string<wchar_t, ci_char_traits> ci_string;
 
 #define FILENAMELEN 256
 
@@ -55,14 +55,14 @@ typedef struct state {
     int printOutOpen;
     int printerToTxtFile;
     int printerToGifFile;
-    char printerTxtFileName[FILENAMELEN];
-    char printerGifFileName[FILENAMELEN];
+    wchar_t printerTxtFileName[FILENAMELEN];
+    wchar_t printerGifFileName[FILENAMELEN];
     int printerGifMaxLength;
-    char skinName[FILENAMELEN];
+    wchar_t skinName[FILENAMELEN];
     BOOL alwaysOnTop;
     BOOL singleInstance;
     BOOL calculatorKey;
-    char coreName[FILENAMELEN];
+    wchar_t coreName[FILENAMELEN];
     bool matrix_singularmatrix;
     bool matrix_outofrange;
     bool auto_repeat;
@@ -71,10 +71,12 @@ typedef struct state {
 extern state_type state;
 
 extern HINSTANCE hInst;                                    // current instance
-extern char free42dirname[FILENAMELEN];
+extern wchar_t free42dirname[FILENAMELEN];
 
 ci_string GetDlgItemTextLong(HWND hWnd, int item);
 int browse_file(HWND owner, wchar_t *title, int save, wchar_t *filter, wchar_t *defExt, char *buf, int buflen);
+int browse_file_w(HWND owner, wchar_t *title, int save, wchar_t *filter, wchar_t *defExt, wchar_t *buf, int buflen);
+char *wide2utf(const wchar_t *w);
 ci_string to_ci_string(int i);
 
 #endif

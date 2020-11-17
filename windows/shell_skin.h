@@ -20,7 +20,7 @@
 
 #include <windows.h>
 
-void skin_load(char *skinname, const char *basedir, long *width, long *height);
+void skin_load(wchar_t *skinname, const wchar_t *basedir, long *width, long *height);
 
 typedef struct {
     unsigned char r, g, b, pad;

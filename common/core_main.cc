@@ -43,8 +43,10 @@
 
 #ifdef WINDOWS
 FILE *my_fopen(const char *name, const char *mode);
+int my_rename(const char *oldname, const char *newname);
 #else
 #define my_fopen fopen
+#define my_rename rename
 #endif
 
 
@@ -92,7 +94,7 @@ void core_init(int read_saved_state, int4 version, const char *state_file_name, 
             int weekday;
             shell_get_time_date(&time, &date, &weekday);
             sprintf(state_file_name_crash, "%s.%08u%08u.crash", state_file_name, date, time);
-            rename(state_file_name, state_file_name_crash);
+            my_rename(state_file_name, state_file_name_crash);
             gfile = my_fopen(state_file_name_crash, "rb");
         } else
             gfile = my_fopen(state_file_name, "rb");
@@ -114,16 +116,16 @@ void core_init(int read_saved_state, int4 version, const char *state_file_name, 
     if (state_file_name != NULL) {
         if (reason == 0) {
             if (state_file_name_crash != NULL)
-                rename(state_file_name_crash, state_file_name);
+                my_rename(state_file_name_crash, state_file_name);
         } else {
             char *tmp = (char *) malloc(strlen(state_file_name) + 9);
             if (tmp != NULL) {
                 strcpy(tmp, state_file_name);
                 strcat(tmp, reason == 1 ? ".corrupt" : ".too_new");
                 if (state_file_name_crash != NULL)
-                    rename(state_file_name_crash, tmp);
+                    my_rename(state_file_name_crash, tmp);
                 else
-                    rename(state_file_name, tmp);
+                    my_rename(state_file_name, tmp);
                 free(tmp);
             }
         }

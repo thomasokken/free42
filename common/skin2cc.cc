@@ -135,9 +135,9 @@ int main(int argc, char *argv[]) {
     fprintf(out, "/**************/\n\n");
 
 #ifdef WINDOWS
-    fprintf(out, "const TCHAR *skin_name[] = {\n");
+    fprintf(out, "const wchar_t *skin_name[] = {\n");
     for (i = 0; i < nskins; i++)
-        fprintf(out, "    _T(\"%s\")%s\n", skinname[i], i < nskins - 1 ? "," : "");
+        fprintf(out, "    L\"%s\"%s\n", skinname[i], i < nskins - 1 ? "," : "");
     fprintf(out, "};\n\n\n");
 #else
     fprintf(out, "const char *skin_name[] = {\n");

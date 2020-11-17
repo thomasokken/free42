@@ -64,7 +64,7 @@ using std::set;
 /**********************************************************/
 
 extern int skin_count;
-extern const TCHAR *skin_name[];
+extern const wchar_t *skin_name[];
 extern const long skin_layout_size[];
 extern const char *skin_layout_data[];
 extern const long skin_bitmap_size[];
@@ -72,13 +72,13 @@ extern const char *skin_bitmap_data[];
 
 
 // Global Variables:
-HINSTANCE hInst;                                    // current instance
-static HWND hMainWnd;                               // our main window
-static HWND hPrintOutWnd;                           // our print-out window
-static TCHAR szMainTitle[MAX_LOADSTRING];           // The main title bar text
-static TCHAR szPrintOutTitle[MAX_LOADSTRING];       // The print-out title bar text
-static TCHAR szMainWindowClass[MAX_LOADSTRING];     // The main window class
-static TCHAR szPrintOutWindowClass[MAX_LOADSTRING]; // The print-out window class
+HINSTANCE hInst;                                   // current instance
+static HWND hMainWnd;                              // our main window
+static HWND hPrintOutWnd;                          // our print-out window
+static char szMainTitle[MAX_LOADSTRING];           // The main title bar text
+static char szPrintOutTitle[MAX_LOADSTRING];       // The print-out title bar text
+static char szMainWindowClass[MAX_LOADSTRING];     // The main window class
+static char szPrintOutWindowClass[MAX_LOADSTRING]; // The print-out window class
 
 static UINT timer = 0;
 static UINT timer3 = 0;
@@ -109,21 +109,21 @@ static int keymap_length = 0;
 static keymap_entry *keymap = NULL;
 
 
-#define SHELL_VERSION 9
+#define SHELL_VERSION 10
 
 state_type state;
 static int placement_saved = 0;
 static int printOutWidth;
 static int printOutHeight;
 
-char free42dirname[FILENAMELEN];
-static char statefilename[FILENAMELEN];
+wchar_t free42dirname[FILENAMELEN];
+static wchar_t statefilename[FILENAMELEN];
 static FILE *statefile = NULL;
-static char printfilename[FILENAMELEN];
+static wchar_t printfilename[FILENAMELEN];
 
 static FILE *print_txt = NULL;
 static FILE *print_gif = NULL;
-static char print_gif_name[FILENAMELEN];
+static wchar_t print_gif_name[FILENAMELEN];
 static int gif_seq = -1;
 static int gif_lines;
 
@@ -148,8 +148,7 @@ static LRESULT CALLBACK PrintOutWndProc(HWND hWnd, UINT message, WPARAM wParam, 
 static LRESULT CALLBACK About(HWND, UINT, WPARAM, LPARAM);
 static LRESULT CALLBACK ExportProgram(HWND, UINT, WPARAM, LPARAM);
 static LRESULT CALLBACK Preferences(HWND, UINT, WPARAM, LPARAM);
-static void get_home_dir(char *path, int pathlen);
-static void config_home_dir(HWND owner, char *buf, int bufsize);
+static void get_home_dir(wchar_t *path, int pathlen);
 static void mapCalculatorKey();
 static void copy();
 static void paste();
@@ -174,7 +173,7 @@ static void printout_scrolled(int offset);
 static void printout_scroll_to_bottom(int offset);
 static void printout_length_changed();
 
-static void read_key_map(const char *keymapfilename);
+static void read_key_map(const wchar_t *keymapfilename);
 static void init_shell_state(int4 version);
 static int read_shell_state(int4 *version);
 static int write_shell_state();
@@ -182,6 +181,8 @@ static void txt_writer(const char *text, int length);
 static void txt_newliner();
 static void gif_seeker(int4 pos);
 static void gif_writer(const char *text, int length);
+
+static wchar_t *utf2wide(const char *s);
 
 
 int APIENTRY WinMain(HINSTANCE hInstance,
@@ -312,19 +313,19 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
     /**********************************************/
 
     get_home_dir(free42dirname, FILENAMELEN);
-    _mkdir(free42dirname);
+    _wmkdir(free42dirname);
 
-    char keymapfilename[FILENAMELEN];
-    sprintf(statefilename, "%s\\state.bin", free42dirname);
-    sprintf(printfilename, "%s\\print.bin", free42dirname);
-    sprintf(keymapfilename, "%s\\keymap.txt", free42dirname);
+    wchar_t keymapfilename[FILENAMELEN];
+    swprintf(statefilename, L"%ls\\state.bin", free42dirname);
+    swprintf(printfilename, L"%ls\\print.bin", free42dirname);
+    swprintf(keymapfilename, L"%ls\\keymap.txt", free42dirname);
 
     read_key_map(keymapfilename);
 
     printout = (char *) malloc(PRINT_SIZE);
     print_text = (char *) malloc(PRINT_TEXT_SIZE);
     // TODO - handle memory allocation failure
-    FILE *printfile = fopen(printfilename, "rb");
+    FILE *printfile = _wfopen(printfilename, L"rb");
     if (printfile != NULL) {
         int n = fread(&printout_bottom, 1, sizeof(int), printfile);
         if (n == sizeof(int)) {
@@ -366,10 +367,10 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
     int init_mode;
     int4 version;
-	char core_state_file_name[FILENAMELEN];
+	wchar_t core_state_file_name[FILENAMELEN];
 	int core_state_file_offset;
 
-    statefile = fopen(statefilename, "rb");
+    statefile = _wfopen(statefilename, L"rb");
     if (statefile != NULL) {
         if (read_shell_state(&version))
             init_mode = 1;
@@ -383,18 +384,18 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
     }
 	if (init_mode == 1) {
 		if (version > 25) {
-			sprintf(core_state_file_name, "%s\\%s.f42", free42dirname, state.coreName);
+			swprintf(core_state_file_name, L"%ls\\%ls.f42", free42dirname, state.coreName);
 			core_state_file_offset = 0;
 		} else {
-			strcpy(core_state_file_name, statefilename);
+			wcscpy(core_state_file_name, statefilename);
 			core_state_file_offset = ftell(statefile);
 		}
         fclose(statefile);
 	} else {
 		// The shell state was missing or corrupt, but there
 		// may still be a valid core state...
-        sprintf(core_state_file_name, "%s\\%s.f42", free42dirname, state.coreName);
-		if (GetFileAttributes(core_state_file_name) != INVALID_FILE_ATTRIBUTES) {
+        swprintf(core_state_file_name, L"%ls\\%ls.f42", free42dirname, state.coreName);
+		if (GetFileAttributesW(core_state_file_name) != INVALID_FILE_ATTRIBUTES) {
 			// Core state "Untitled.f42" exists; let's try to read it
 			core_state_file_offset = 0;
 			init_mode = 1;
@@ -417,7 +418,9 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
     if (hMainWnd == NULL)
         return FALSE;
 
-    core_init(init_mode, version, core_state_file_name, core_state_file_offset);
+    char *csfn = wide2utf(core_state_file_name);
+    core_init(init_mode, version, csfn, core_state_file_offset);
+    free(csfn);
 
     if (state.mainPlacementValid) {
         // Fix the size, in case the saved settings are not appropriate
@@ -552,7 +555,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
             // Parse the menu selections:
             switch (wmId) {
 				case IDM_STATES:
-                    running = DialogBox(hInst, (LPCTSTR)IDD_STATES, hWnd, (DLGPROC)StatesDlgProc);
+                    running = DialogBoxW(hInst, (LPCWSTR)IDD_STATES, hWnd, (DLGPROC)StatesDlgProc);
                     break;
                 case IDM_SHOWPRINTOUT:
                     show_printout();
@@ -576,7 +579,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
                     clear_printout();
                     break;
                 case IDM_PREFERENCES:
-                    DialogBox(hInst, (LPCTSTR)IDD_PREFERENCES, hWnd, (DLGPROC)Preferences);
+                    DialogBoxW(hInst, (LPCWSTR)IDD_PREFERENCES, hWnd, (DLGPROC)Preferences);
                     break;
                 case IDM_EXIT:
                     DestroyWindow(hWnd);
@@ -588,19 +591,19 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
                     paste();
                     break;
                 case IDM_ABOUT:
-                    DialogBox(hInst, (LPCTSTR)IDD_ABOUTBOX, hWnd, (DLGPROC)About);
+                    DialogBoxW(hInst, (LPCWSTR)IDD_ABOUTBOX, hWnd, (DLGPROC)About);
                     break;
                 default:
                     if (wmId >= 40000) {
                         // 'Skin' menu
                         HMENU mainmenu = GetMenu(hWnd);
                         HMENU skinmenu = GetSubMenu(mainmenu, 2);
-                        MENUITEMINFO mii;
+                        MENUITEMINFOW mii;
                         mii.cbSize = sizeof(MENUITEMINFO);
                         mii.fMask = MIIM_TYPE;
                         mii.cch = FILENAMELEN;
                         mii.dwTypeData = state.skinName;
-                        GetMenuItemInfo(skinmenu, wmId, FALSE, &mii);
+                        GetMenuItemInfoW(skinmenu, wmId, FALSE, &mii);
 
                         // The following is really just skin_load(), followed by
                         // resizing the window. Unfortunately, I couldn't find a
@@ -863,52 +866,52 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
             HMENU menu = (HMENU) wParam;
             UINT id = 40000;
             if (state.skinName[0] == 0)
-                strcpy(state.skinName, skin_name[0]);
+                wcscpy(state.skinName, skin_name[0]);
 
             int i;
             for (i = GetMenuItemCount(menu) - 1; i >= 0; i--)
                 RemoveMenu(menu, i, MF_BYPOSITION);
 
-            char path[MAX_PATH];
+            wchar_t path[MAX_PATH];
             path[MAX_PATH - 1] = 0;
-            WIN32_FIND_DATA wfd;
+            WIN32_FIND_DATAW wfd;
 
             // Search home directory
             set<ci_string> private_skins;
-            strncpy(path, free42dirname, MAX_PATH - 1);
-            strncat(path, "\\*.layout", MAX_PATH - 1);
+            wcsncpy(path, free42dirname, MAX_PATH - 1);
+            wcsncat(path, L"\\*.layout", MAX_PATH - 1);
             path[MAX_PATH - 1] = 0;
-            HANDLE search = FindFirstFile(path, &wfd);
+            HANDLE search = FindFirstFileW(path, &wfd);
             if (search != INVALID_HANDLE_VALUE) {
                 do {
                     if ((wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
-                        wfd.cFileName[strlen(wfd.cFileName) - 7] = 0;
+                        wfd.cFileName[wcslen(wfd.cFileName) - 7] = 0;
                         private_skins.insert(ci_string(wfd.cFileName));
                     }
-                } while (FindNextFile(search, &wfd));
+                } while (FindNextFileW(search, &wfd));
                 FindClose(search);
             }
 
             // Search executable's directory
             set<ci_string> shared_skins;
-            char exedir[MAX_PATH];
-            GetModuleFileName(0, exedir, MAX_PATH - 1);
-            char *lastbackslash = strrchr(exedir, '\\');
+            wchar_t exedir[MAX_PATH];
+            GetModuleFileNameW(0, exedir, MAX_PATH - 1);
+            wchar_t *lastbackslash = wcsrchr(exedir, L'\\');
             if (lastbackslash != 0)
                 *lastbackslash = 0;
             else
-                strcpy(exedir, "C:");
-            if (_stricmp(exedir, free42dirname) != 0) {
-                strncat(exedir, "\\*.layout", MAX_PATH - 1);
+                wcscpy(exedir, L"C:");
+            if (_wcsicmp(exedir, free42dirname) != 0) {
+                wcsncat(exedir, L"\\*.layout", MAX_PATH - 1);
                 exedir[MAX_PATH - 1] = 0;
-                search = FindFirstFile(exedir, &wfd);
+                search = FindFirstFileW(exedir, &wfd);
                 if (search != INVALID_HANDLE_VALUE) {
                     do {
                         if ((wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
-                            wfd.cFileName[strlen(wfd.cFileName) - 7] = 0;
+                            wfd.cFileName[wcslen(wfd.cFileName) - 7] = 0;
                             shared_skins.insert(ci_string(wfd.cFileName));
                         }
-                    } while (FindNextFile(search, &wfd));
+                    } while (FindNextFileW(search, &wfd));
                     FindClose(search);
                 }
             }
@@ -916,13 +919,13 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
             for (i = 0; i < skin_count; i++) {
                 UINT flags = 0;
                 ci_string name = skin_name[i];
-                const char *cname = name.c_str();
+                const wchar_t *cname = name.c_str();
                 if (private_skins.find(name) == private_skins.end() && shared_skins.find(name) == shared_skins.end()) {
-                    if (_stricmp(state.skinName, cname) == 0)
+                    if (_wcsicmp(state.skinName, cname) == 0)
                         flags = MF_CHECKED;
                 } else
                     flags = MF_DISABLED;
-                AppendMenu(menu, flags, id++, cname);
+                AppendMenuW(menu, flags, id++, cname);
             }
 
             if (!shared_skins.empty()) {
@@ -930,13 +933,13 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
                 for (set<ci_string>::const_iterator i = shared_skins.begin(); i != shared_skins.end(); i++) {
                     UINT flags = 0;
                     ci_string name = *i;
-                    const char *cname = name.c_str();
+                    const wchar_t *cname = name.c_str();
                     if (private_skins.find(name) == private_skins.end()) {
-                        if (_stricmp(state.skinName, cname) == 0)
+                        if (_wcsicmp(state.skinName, cname) == 0)
                             flags = MF_CHECKED;
                     } else
                         flags = MF_DISABLED;
-                    AppendMenu(menu, flags, id++, cname);
+                    AppendMenuW(menu, flags, id++, cname);
                 }
             }
 
@@ -945,10 +948,10 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
                 for (set<ci_string>::const_iterator i = private_skins.begin(); i != private_skins.end(); i++) {
                     UINT flags = 0;
                     ci_string name = *i;
-                    const char *cname = name.c_str();
-                    if (_stricmp(state.skinName, cname) == 0)
+                    const wchar_t *cname = name.c_str();
+                    if (_wcsicmp(state.skinName, cname) == 0)
                         flags = MF_CHECKED;
-                    AppendMenu(menu, flags, id++, cname);
+                    AppendMenuW(menu, flags, id++, cname);
                 }
             }
             break;
@@ -1204,12 +1207,12 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
                 ctl = GetDlgItem(hDlg, IDC_PRINTER_TXT);
                 SendMessage(ctl, BM_SETCHECK, 1, 0);
             }
-            SetDlgItemText(hDlg, IDC_PRINTER_TXT_NAME, state.printerTxtFileName);
+            SetDlgItemTextW(hDlg, IDC_PRINTER_TXT_NAME, state.printerTxtFileName);
             if (state.printerToGifFile) {
                 ctl = GetDlgItem(hDlg, IDC_PRINTER_GIF);
                 SendMessage(ctl, BM_SETCHECK, 1, 0);
             }
-            SetDlgItemText(hDlg, IDC_PRINTER_GIF_NAME, state.printerGifFileName);
+            SetDlgItemTextW(hDlg, IDC_PRINTER_GIF_NAME, state.printerGifFileName);
             SetDlgItemInt(hDlg, IDC_PRINTER_GIF_HEIGHT, state.printerGifMaxLength, TRUE);
             return TRUE;
         }
@@ -1241,63 +1244,63 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
 
                     ctl = GetDlgItem(hDlg, IDC_PRINTER_TXT);
                     state.printerToTxtFile = SendMessage(ctl, BM_GETCHECK, 0, 0);
-                    char buf[FILENAMELEN];
-                    GetDlgItemText(hDlg, IDC_PRINTER_TXT_NAME, buf, FILENAMELEN - 1);
-                    int len = strlen(buf);
-                    if (len > 0 && (len < 4 || _stricmp(buf + len - 4, ".txt") != 0))
-                        strcat(buf, ".txt");
+                    wchar_t buf[FILENAMELEN];
+                    GetDlgItemTextW(hDlg, IDC_PRINTER_TXT_NAME, buf, FILENAMELEN - 1);
+                    int len = wcslen(buf);
+                    if (len > 0 && (len < 4 || _wcsicmp(buf + len - 4, L".txt") != 0))
+                        wcscat(buf, L".txt");
                     if (print_txt != NULL && (!state.printerToTxtFile
-                            || _stricmp(state.printerTxtFileName, buf) != 0)) {
+                            || _wcsicmp(state.printerTxtFileName, buf) != 0)) {
                         fclose(print_txt);
                         print_txt = NULL;
                     }
-                    strcpy(state.printerTxtFileName, buf);
+                    wcscpy(state.printerTxtFileName, buf);
                     ctl = GetDlgItem(hDlg, IDC_PRINTER_GIF);
                     state.printerToGifFile = SendMessage(ctl, BM_GETCHECK, 0, 0);
                     BOOL success;
                     int maxlen = (int) GetDlgItemInt(hDlg, IDC_PRINTER_GIF_HEIGHT, &success, TRUE);
                     state.printerGifMaxLength = !success ? 256 : maxlen < 16 ? 16 : maxlen > 32767 ? 32767 : maxlen;
-                    GetDlgItemText(hDlg, IDC_PRINTER_GIF_NAME, buf, FILENAMELEN - 1);
-                    len = strlen(buf);
-                    if (len > 0 && (len < 4 || _stricmp(buf + len - 4, ".gif") != 0))
-                        strcat(buf, ".gif");
+                    GetDlgItemTextW(hDlg, IDC_PRINTER_GIF_NAME, buf, FILENAMELEN - 1);
+                    len = wcslen(buf);
+                    if (len > 0 && (len < 4 || _wcsicmp(buf + len - 4, L".gif") != 0))
+                        wcscat(buf, L".gif");
                     if (print_gif != NULL && (!state.printerToGifFile
-                            || _stricmp(state.printerGifFileName, buf) != 0)) {
+                            || _wcsicmp(state.printerGifFileName, buf) != 0)) {
                         shell_finish_gif(gif_seeker, gif_writer);
                         fclose(print_gif);
                         print_gif = NULL;
                         gif_seq = -1;
                     }
-                    strcpy(state.printerGifFileName, buf);
+                    wcscpy(state.printerGifFileName, buf);
                     // fall through
                 }
                 case IDCANCEL:
                     EndDialog(hDlg, LOWORD(wParam));
                     return TRUE;
                 case IDC_PRINTER_TXT_BROWSE: {
-                    char buf[FILENAMELEN];
-                    GetDlgItemText(hDlg, IDC_PRINTER_TXT_NAME, buf, FILENAMELEN - 1);
-                    if (browse_file(hDlg,
+                    wchar_t buf[FILENAMELEN];
+                    GetDlgItemTextW(hDlg, IDC_PRINTER_TXT_NAME, buf, FILENAMELEN - 1);
+                    if (browse_file_w(hDlg,
                                     L"Select Text File Name",
                                     1,
                                     L"Text Files (*.txt)\0*.txt\0All Files (*.*)\0*.*\0\0",
                                     L"txt",
                                     buf,
                                     FILENAMELEN))
-                        SetDlgItemText(hDlg, IDC_PRINTER_TXT_NAME, buf);
+                        SetDlgItemTextW(hDlg, IDC_PRINTER_TXT_NAME, buf);
                     return TRUE;
                 }
                 case IDC_PRINTER_GIF_BROWSE: {
-                    char buf[FILENAMELEN];
-                    GetDlgItemText(hDlg, IDC_PRINTER_GIF_NAME, buf, FILENAMELEN - 1);
-                    if (browse_file(hDlg,
+                    wchar_t buf[FILENAMELEN];
+                    GetDlgItemTextW(hDlg, IDC_PRINTER_GIF_NAME, buf, FILENAMELEN - 1);
+                    if (browse_file_w(hDlg,
                                     L"Select GIF File Name",
                                     1,
                                     L"GIF Files (*.gif)\0*.gif\0All Files (*.*)\0*.*\0\0",
                                     L"gif",
                                     buf,
                                     FILENAMELEN))
-                        SetDlgItemText(hDlg, IDC_PRINTER_GIF_NAME, buf);
+                        SetDlgItemTextW(hDlg, IDC_PRINTER_GIF_NAME, buf);
                     return TRUE;
                 }
             }
@@ -1325,7 +1328,7 @@ int browse_file(HWND owner, wchar_t *title, int save, wchar_t *filter, wchar_t *
     ofn.lpstrTitle = title;
     ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
     ofn.lpstrDefExt = defExt;
-    
+
     int ret = save ? GetSaveFileNameW(&ofn) : GetOpenFileNameW(&ofn);
 
     int len = WideCharToMultiByte(CP_UTF8, 0, wbuf, wcslen(wbuf), buf, buflen - 1, NULL, NULL);
@@ -1333,25 +1336,43 @@ int browse_file(HWND owner, wchar_t *title, int save, wchar_t *filter, wchar_t *
     return ret;
 }
 
-static void move_state_file(char *olddir, char *newdir, char *filename) {
-    char oldfile[FILENAMELEN];
-    char newfile[FILENAMELEN];
+int browse_file_w(HWND owner, wchar_t *title, int save, wchar_t *filter, wchar_t *defExt, wchar_t *buf, int buflen) {
+    OPENFILENAMEW ofn;
+    ofn.lStructSize = sizeof(OPENFILENAMEW);
+    ofn.hwndOwner = owner;
+    ofn.lpstrFilter = filter;
+    ofn.lpstrCustomFilter = NULL;
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFile = buf;
+    ofn.nMaxFile = FILENAMELEN - 1;
+    ofn.lpstrFileTitle = NULL;
+    ofn.lpstrInitialDir = NULL;
+    ofn.lpstrTitle = title;
+    ofn.Flags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT;
+    ofn.lpstrDefExt = defExt;
+
+    return save ? GetSaveFileNameW(&ofn) : GetOpenFileNameW(&ofn);
+}
+
+static void move_state_file(wchar_t *olddir, wchar_t *newdir, wchar_t *filename) {
+    wchar_t oldfile[FILENAMELEN];
+    wchar_t newfile[FILENAMELEN];
     char buf[1024];
     FILE *in, *out;
     int n;
 
-    strcpy(oldfile, olddir);
-    strcat(oldfile, "\\");
-    strcat(oldfile, filename);
-    strcpy(newfile, newdir);
-    strcat(newfile, "\\");
-    strcat(newfile, filename);
+    wcscpy(oldfile, olddir);
+    wcscat(oldfile, L"\\");
+    wcscat(oldfile, filename);
+    wcscpy(newfile, newdir);
+    wcscat(newfile, L"\\");
+    wcscat(newfile, filename);
 
-    in = fopen(oldfile, "rb");
+    in = _wfopen(oldfile, L"rb");
     if (in == NULL)
         return;
-    CreateDirectory(newdir, NULL);
-    out = fopen(newfile, "wb");
+    CreateDirectoryW(newdir, NULL);
+    out = _wfopen(newfile, L"wb");
     if (out == NULL) {
         fclose(in);
         return;
@@ -1362,10 +1383,10 @@ static void move_state_file(char *olddir, char *newdir, char *filename) {
 
     fclose(in);
     fclose(out);
-    remove(oldfile);
+    _wremove(oldfile);
 }
 
-static void get_home_dir(char *path, int pathlen) {
+static void get_home_dir(wchar_t *path, int pathlen) {
     // Starting with release 1.5.1, changing the Free42 directory is no longer
     // supported. Instead, Free42 looks for a file or directory named 'portable'
     // in the executable's directory; if it exists, this is where the state files
@@ -1374,73 +1395,49 @@ static void get_home_dir(char *path, int pathlen) {
     // %APPDATA%\Free42, and skins will be searched for in that directory as well,
     // *and* in the executable's directory.
 
-    char exepath[FILENAMELEN];
-    GetModuleFileName(0, exepath, FILENAMELEN);
-    char *lastbackslash = strrchr(exepath, '\\');
+    wchar_t exepath[FILENAMELEN];
+    GetModuleFileNameW(0, exepath, FILENAMELEN);
+    wchar_t *lastbackslash = wcsrchr(exepath, L'\\');
     if (lastbackslash != 0) {
-        lastbackslash[1] = '*';
+        lastbackslash[1] = L'*';
         lastbackslash[2] = 0;
     }
 
-    WIN32_FIND_DATA wfd;
-    HANDLE search = FindFirstFile(exepath, &wfd);
+    WIN32_FIND_DATAW wfd;
+    HANDLE search = FindFirstFileW(exepath, &wfd);
     bool use_exedir = false;
     if (search != INVALID_HANDLE_VALUE) {
         do {
-            if (_stricmp(wfd.cFileName, "portable") == 0) {
+            if (_wcsicmp(wfd.cFileName, L"portable") == 0) {
                 use_exedir = true;
                 break;
             }
-        } while (FindNextFile(search, &wfd));
+        } while (FindNextFileW(search, &wfd));
         FindClose(search);
     }
 
     if (use_exedir) {
         *lastbackslash = 0;
-        strncpy(path, exepath, pathlen);
+        wcsncpy(path, exepath, pathlen);
         path[pathlen - 1] = 0;
         return;
     }
 
     LPITEMIDLIST idlist;
-    char newpath[MAX_PATH];
+    wchar_t newpath[MAX_PATH];
     if (SHGetSpecialFolderLocation(NULL, CSIDL_APPDATA, &idlist) == NOERROR) {
-        if (!SHGetPathFromIDList(idlist, newpath))
-            strcpy(newpath, "C:");
-        strncat(newpath, "\\Free42", MAX_PATH - 1);
+        if (!SHGetPathFromIDListW(idlist, newpath))
+            wcscpy(newpath, L"C:");
+        wcsncat(newpath, L"\\Free42", MAX_PATH - 1);
         newpath[MAX_PATH - 1] = 0;
         LPMALLOC imalloc;
         if (SHGetMalloc(&imalloc) == NOERROR)
             imalloc->Free(idlist);
-        strncpy(path, newpath, pathlen);
+        wcsncpy(path, newpath, pathlen);
         path[pathlen - 1] = 0;
     } else {
-        strncpy(path, "C:\\Free42", pathlen);
+        wcsncpy(path, L"C:\\Free42", pathlen);
         path[pathlen - 1] = 0;
-    }
-}
-
-static void config_home_dir(HWND owner, char *buf, int bufsize) {
-    BROWSEINFO binfo;
-    char msg[MAX_PATH + 100];
-    sprintf(msg, "Select Free42 directory\n(currently %s)", *buf == 0 ? "unset" : buf);
-    binfo.hwndOwner = owner;
-    binfo.pidlRoot = NULL;
-    binfo.pszDisplayName = buf;
-    binfo.lpszTitle = msg;
-    binfo.ulFlags = BIF_RETURNONLYFSDIRS;
-    binfo.lpfn = NULL;
-    binfo.lParam = 0;
-    LPITEMIDLIST idlist = SHBrowseForFolder(&binfo);
-    if (idlist != NULL) {
-        char buf2[MAX_PATH];
-        if (SHGetPathFromIDList(idlist, buf2)) {
-            strncpy(buf, buf2, bufsize - 1);
-            buf[bufsize - 1] = 0;
-        }
-        LPMALLOC imalloc;
-        if (SHGetMalloc(&imalloc) == NOERROR)
-            imalloc->Free(idlist);
     }
 }
 
@@ -1534,7 +1531,7 @@ static void Quit() {
     FILE *printfile;
     int n, length;
     
-    printfile = fopen(printfilename, "wb");
+    printfile = _wfopen(printfilename, L"wb");
     if (printfile != NULL) {
         // Write bitmap
         length = printout_bottom - printout_top;
@@ -1587,13 +1584,13 @@ static void Quit() {
         
     failed:
         fclose(printfile);
-        remove(printfilename);
+        _wremove(printfilename);
         
     done:
         ;
     }
 
-    statefile = fopen(statefilename, "wb");
+    statefile = _wfopen(statefilename, L"wb");
     if (statefile != NULL) {
         if (!placement_saved) {
             GetWindowPlacement(hMainWnd, &state.mainPlacement);
@@ -1606,9 +1603,11 @@ static void Quit() {
         write_shell_state();
 	    fclose(statefile);
     }
-	char corefilename[FILENAMELEN];
-    sprintf(corefilename, "%s/%s.f42", free42dirname, state.coreName);
-    core_save_state(corefilename);
+	wchar_t corefilename[FILENAMELEN];
+    swprintf(corefilename, L"%ls/%ls.f42", free42dirname, state.coreName);
+    char *cfn = wide2utf(corefilename);
+    core_save_state(cfn);
+    free(cfn);
     core_cleanup();
 
     if (print_txt != NULL)
@@ -2245,7 +2244,9 @@ void shell_powerdown() {
 }
 
 void shell_message(const char *message) {
-	MessageBox(hMainWnd, message, "Core", MB_ICONWARNING);
+    wchar_t *m = utf2wide(message);
+	MessageBoxW(hMainWnd, m, L"Core", MB_ICONWARNING);
+    free(m);
 }
 
 int8 shell_random_seed() {
@@ -2259,7 +2260,7 @@ uint4 shell_milliseconds() {
 }
 
 int shell_decimal_point() {
-    TCHAR dec[4];
+    char dec[4];
     GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, dec, 4);
     return strcmp(dec, ",") == 0 ? 0 : 1;
 }
@@ -2326,15 +2327,15 @@ void shell_print(const char *text, int length,
 
     if (state.printerToTxtFile) {
         int err;
-        char buf[1000];
+        wchar_t buf[1000];
 
         if (print_txt == NULL) {
-            print_txt = fopen(state.printerTxtFileName, "ab");
+            print_txt = _wfopen(state.printerTxtFileName, L"ab");
             if (print_txt == NULL) {
                 err = errno;
                 state.printerToTxtFile = 0;
-                sprintf(buf, "Can't open \"%s\" for output: %s (%d)\nPrinting to TXT file disabled.", state.printerTxtFileName, strerror(err), err);
-                MessageBox(hMainWnd, buf, "Message", MB_ICONWARNING);
+                swprintf(buf, L"Can't open \"%ls\" for output: %hs (%d)\nPrinting to TXT file disabled.", state.printerTxtFileName, strerror(err), err);
+                MessageBoxW(hMainWnd, buf, L"Message", MB_ICONWARNING);
                 goto done_print_txt;
             }
         }
@@ -2348,7 +2349,6 @@ void shell_print(const char *text, int length,
 
     if (state.printerToGifFile) {
         int err;
-        char buf[1000];
         
         if (print_gif != NULL
                 && gif_lines + height > state.printerGifMaxLength) {
@@ -2364,12 +2364,12 @@ void shell_print(const char *text, int length,
 
                 gif_seq = (gif_seq + 1) % 10000;
 
-                strcpy(print_gif_name, state.printerGifFileName);
-                len = strlen(print_gif_name);
+                wcscpy(print_gif_name, state.printerGifFileName);
+                len = wcslen(print_gif_name);
 
                 /* Strip ".gif" extension, if present */
                 if (len >= 4 &&
-                    _stricmp(print_gif_name + len - 4, ".gif") == 0) {
+                    _wcsicmp(print_gif_name + len - 4, L".gif") == 0) {
                     len -= 4;
                     print_gif_name[len] = 0;
                 }
@@ -2384,26 +2384,27 @@ void shell_print(const char *text, int length,
                 /* Make sure we have enough space for the ".nnnn.gif" */
                 p = FILENAMELEN - 10;
                 print_gif_name[p] = 0;
-                p = strlen(print_gif_name);
-                sprintf(print_gif_name + p, ".%04d", gif_seq);
-                strcat(print_gif_name, ".gif");
+                p = wcslen(print_gif_name);
+                swprintf(print_gif_name + p, L".%04d", gif_seq);
+                wcscat(print_gif_name, L".gif");
                 
                 /* I know, I know, the civilized thing to do would be to
                  * use stat(2) to find out if the file exists. Another time.
                  * (TODO)
                  */
-                testfile = fopen(print_gif_name, "rb");
+                testfile = _wfopen(print_gif_name, L"rb");
                 if (testfile != NULL)
                     fclose(testfile);
                 else
                     break;
             }
-            print_gif = fopen(print_gif_name, "w+b");
+            print_gif = _wfopen(print_gif_name, L"w+b");
             if (print_gif == NULL) {
                 err = errno;
                 state.printerToGifFile = 0;
-                sprintf(buf, "Can't open \"%s\" for output: %s (%d)\nPrinting to GIF file disabled.", print_gif_name, strerror(err), err);
-                MessageBox(hMainWnd, buf, "Message", MB_ICONWARNING);
+                wchar_t cbuf[1000];
+                swprintf(cbuf, L"Can't open \"%ls\" for output: %hs (%d)\nPrinting to GIF file disabled.", print_gif_name, strerror(err), err);
+                MessageBoxW(hMainWnd, cbuf, L"Message", MB_ICONWARNING);
                 goto done_print_gif;
             }
             if (!shell_start_gif(gif_writer, 143, state.printerGifMaxLength)) {
@@ -2452,8 +2453,8 @@ void shell_print(const char *text, int length,
 extern long keymap_filesize;
 extern char keymap_filedata[];
 
-static void read_key_map(const char *keymapfilename) {
-    FILE *keymapfile = fopen(keymapfilename, "r");
+static void read_key_map(const wchar_t *keymapfilename) {
+    FILE *keymapfile = _wfopen(keymapfilename, L"r");
     int kmcap = 0;
     char line[1024];
     int lineno = 0;
@@ -2462,18 +2463,18 @@ static void read_key_map(const char *keymapfilename) {
         /* Try to create default keymap file */
         long n;
 
-        keymapfile = fopen(keymapfilename, "wb");
+        keymapfile = _wfopen(keymapfilename, L"wb");
         if (keymapfile == NULL)
             return;
         n = fwrite(keymap_filedata, 1, keymap_filesize, keymapfile);
         if (n != keymap_filesize) {
             int err = errno;
-            fprintf(stderr, "Error writing \"%s\": %s (%d)\n",
+            fwprintf(stderr, L"Error writing \"%ls\": %hs (%d)\n",
                             keymapfilename, strerror(err), err);
         }
         fclose(keymapfile);
 
-        keymapfile = fopen(keymapfilename, "r");
+        keymapfile = _wfopen(keymapfilename, L"r");
         if (keymapfile == NULL)
             return;
     }
@@ -2529,7 +2530,7 @@ static void init_shell_state(int4 version) {
             state.calculatorKey = FALSE;
             // fall through
         case 7:
-            strcpy(state.coreName, "Untitled");
+            wcscpy(state.coreName, L"Untitled");
             // fall through
         case 8:
             core_settings.matrix_singularmatrix = false;
@@ -2543,6 +2544,28 @@ static void init_shell_state(int4 version) {
             ;
     }
 }
+
+typedef struct old_state {
+    BOOL extras;
+    WINDOWPLACEMENT mainPlacement;
+    int mainPlacementValid;
+    WINDOWPLACEMENT printOutPlacement;
+    int printOutPlacementValid;
+    int printOutOpen;
+    int printerToTxtFile;
+    int printerToGifFile;
+    char printerTxtFileName[FILENAMELEN];
+    char printerGifFileName[FILENAMELEN];
+    int printerGifMaxLength;
+    char skinName[FILENAMELEN];
+    BOOL alwaysOnTop;
+    BOOL singleInstance;
+    BOOL calculatorKey;
+    char coreName[FILENAMELEN];
+    bool matrix_singularmatrix;
+    bool matrix_outofrange;
+    bool auto_repeat;
+} old_state_type;
 
 static int read_shell_state(int4 *ver) {
     int4 magic;
@@ -2566,12 +2589,40 @@ static int read_shell_state(int4 *ver) {
         if (state_version < 0 || state_version > SHELL_VERSION)
             /* Unknown shell state version */
             return 0;
-        if (fread(&state, 1, state_size, statefile) != state_size)
-            return 0;
-        if (state_version >= 9) {
+        if (version > 27) {
+            if (fread(&state, 1, state_size, statefile) != state_size)
+                return 0;
             core_settings.matrix_singularmatrix = state.matrix_singularmatrix;
             core_settings.matrix_outofrange = state.matrix_outofrange;
             core_settings.auto_repeat = state.auto_repeat;
+        } else {
+            old_state_type old_state;
+            if (fread(&old_state, 1, state_size, statefile) != state_size)
+                return 0;
+            state.extras = old_state.extras;
+            state.mainPlacement = old_state.mainPlacement;
+            state.mainPlacementValid = old_state.mainPlacementValid;
+            state.printOutPlacement = old_state.printOutPlacement;
+            state.printOutPlacementValid = old_state.printOutPlacementValid;
+            state.printOutOpen = old_state.printOutOpen;
+            state.printerToTxtFile = old_state.printerToTxtFile;
+            state.printerToGifFile = old_state.printerToGifFile;
+            MultiByteToWideChar(CP_ACP, 0, old_state.printerTxtFileName, FILENAMELEN, state.printerTxtFileName, FILENAMELEN);
+            MultiByteToWideChar(CP_ACP, 0, old_state.printerGifFileName, FILENAMELEN, state.printerGifFileName, FILENAMELEN);
+            state.printerGifMaxLength = old_state.printerGifMaxLength;
+            MultiByteToWideChar(CP_ACP, 0, old_state.skinName, FILENAMELEN, state.skinName, FILENAMELEN);
+            state.alwaysOnTop = old_state.alwaysOnTop;
+            state.singleInstance = old_state.singleInstance;
+            state.calculatorKey = old_state.calculatorKey;
+            MultiByteToWideChar(CP_ACP, 0, old_state.coreName, FILENAMELEN, state.coreName, FILENAMELEN);
+            state.matrix_singularmatrix = old_state.matrix_singularmatrix;
+            state.matrix_outofrange = old_state.matrix_outofrange;
+            state.auto_repeat = old_state.auto_repeat;
+            if (state_version >= 9) {
+                core_settings.matrix_singularmatrix = old_state.matrix_singularmatrix;
+                core_settings.matrix_outofrange = old_state.matrix_outofrange;
+                core_settings.auto_repeat = old_state.auto_repeat;
+            }
         }
         // Initialize the parts of the shell state
         // that were NOT read from the state file
@@ -2585,7 +2636,7 @@ static int read_shell_state(int4 *ver) {
 
 static int write_shell_state() {
     int4 magic = FREE42_MAGIC;
-    int4 version = 27;
+    int4 version = 28;
     int4 state_size = sizeof(state_type);
     int4 state_version = SHELL_VERSION;
 
@@ -2614,12 +2665,12 @@ static void txt_writer(const char *text, int length) {
         return;
     n = fwrite(text, 1, length, print_txt);
     if (n != length) {
-        char buf[1000];
+        wchar_t buf[1000];
         state.printerToTxtFile = 0;
         fclose(print_txt);
         print_txt = NULL;
-        sprintf(buf, "Error while writing to \"%s\".\nPrinting to TXT file disabled", state.printerTxtFileName);
-        MessageBox(hMainWnd, buf, "Message", MB_ICONWARNING);
+        swprintf(buf, L"Error while writing to \"%ls\".\nPrinting to TXT file disabled", state.printerTxtFileName);
+        MessageBoxW(hMainWnd, buf, L"Message", MB_ICONWARNING);
     }
 }
 
@@ -2634,12 +2685,12 @@ static void gif_seeker(int4 pos) {
     if (print_gif == NULL)
         return;
     if (fseek(print_gif, pos, SEEK_SET) == -1) {
-        char buf[1000];
+        wchar_t buf[1000];
         state.printerToGifFile = 0;
         fclose(print_gif);
         print_gif = NULL;
-        sprintf(buf, "Error while seeking \"%s\".\nPrinting to GIF file disabled", print_gif_name);
-        MessageBox(hMainWnd, buf, "Message", MB_ICONWARNING);
+        swprintf(buf, L"Error while seeking \"%ls\".\nPrinting to GIF file disabled", print_gif_name);
+        MessageBoxW(hMainWnd, buf, L"Message", MB_ICONWARNING);
     }
 }
 
@@ -2649,12 +2700,12 @@ static void gif_writer(const char *text, int length) {
         return;
     n = fwrite(text, 1, length, print_gif);
     if (n != length) {
-        char buf[1000];
+        wchar_t buf[1000];
         state.printerToGifFile = 0;
         fclose(print_gif);
         print_gif = NULL;
-        sprintf(buf, "Error while writing to \"%s\".\nPrinting to GIF file disabled", print_gif_name);
-        MessageBox(hMainWnd, buf, "Message", MB_ICONWARNING);
+        swprintf(buf, L"Error while writing to \"%ls\".\nPrinting to GIF file disabled", print_gif_name);
+        MessageBoxW(hMainWnd, buf, L"Message", MB_ICONWARNING);
     }
 }
 
@@ -2670,38 +2721,64 @@ void shell_log(const char *message) {
 ci_string GetDlgItemTextLong(HWND hWnd, int item) {
 	// If you're losing sleep over GetDlgItemText() potentially returning truncated values...
 	size_t sz = 256;
-	char *buf = (char *) malloc(sz);
+	wchar_t *buf = (wchar_t *) malloc(sz * 2);
 	if (buf == NULL)
-		return "";
+		return L"";
 	while (true) {
-		GetDlgItemText(hWnd, item, buf, sz);
-		if (strlen(buf) < sz - 1) {
+		GetDlgItemTextW(hWnd, item, buf, sz);
+		if (wcslen(buf) < sz - 1) {
 			ci_string retval(buf);
 			free(buf);
 			return retval;
 		}
 		sz += 256;
-		char *buf2 = (char *) realloc(buf, sz);
+		wchar_t *buf2 = (wchar_t *) realloc(buf, sz * 2);
 		if (buf2 == NULL) {
 			free(buf);
-			return "";
+			return L"";
 		}
 		buf = buf2;
 	}
 }
 
 ci_string to_ci_string(int i) {
-	char buf[22];
-	sprintf(buf, "%d", i);
+	wchar_t buf[22];
+	swprintf(buf, L"%d", i);
 	return buf;
 }
 
+char *wide2utf(const wchar_t *w) {
+    int wlen = wcslen(w);
+    int slen = WideCharToMultiByte(CP_UTF8, 0, w, wlen, NULL, 0, NULL, NULL);
+    char *s = (char *) malloc(slen + 1);
+    WideCharToMultiByte(CP_UTF8, 0, w, wlen, s, slen, NULL, NULL);
+    s[slen] = 0;
+    return s;
+}
+
+static wchar_t *utf2wide(const char *s) {
+    int slen = strlen(s);
+    int wlen = MultiByteToWideChar(CP_UTF8, 0, s, slen, NULL, 0);
+    wchar_t *w = (wchar_t *) malloc(wlen * 2 + 2);
+    MultiByteToWideChar(CP_UTF8, 0, s, slen, w, wlen);
+    w[wlen] = 0;
+    return w;
+}
+
 FILE *my_fopen(const char *name, const char *mode) {
-    wchar_t wname[FILENAMELEN];
-    wchar_t wmode[3];
-    int wnamelen = MultiByteToWideChar(CP_UTF8, 0, name, strlen(name), wname, FILENAMELEN - 1);
-    wname[wnamelen] = 0;
-    int wmodelen = MultiByteToWideChar(CP_UTF8, 0, mode, strlen(mode), wmode, 2);
-    wmode[wmodelen] = 0;
-    return _wfopen(wname, wmode);
+    wchar_t *wname = utf2wide(name);
+    wchar_t *wmode = utf2wide(mode);
+    FILE *ret = _wfopen(wname, wmode);
+    free(wname);
+    free(wmode);
+    return ret;
+}
+
+int my_rename(const char *oldname, const char *newname) {
+    wchar_t *woldname = utf2wide(oldname);
+    wchar_t *wnewname = utf2wide(newname);
+    int ret = _wrename(woldname, wnewname);
+    free(woldname);
+    free(wnewname);
+    return ret;
 }

@@ -97,7 +97,7 @@ static bool display_enabled = true;
 /**********************************************************/
 
 extern int skin_count;
-extern const char *skin_name[];
+extern const wchar_t *skin_name[];
 extern long skin_layout_size[];
 extern unsigned char *skin_layout_data[];
 extern long skin_bitmap_size[];
@@ -201,41 +201,41 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
 /* Local functions */
 /*******************/
 
-static bool skin_open(const char *skinname, const char *basedir, bool open_layout, bool force_builtin);
+static bool skin_open(const wchar_t *skinname, const wchar_t *basedir, bool open_layout, bool force_builtin);
 static int skin_gets(char *buf, int buflen);
 static void skin_close();
 
 
-static bool skin_open(const char *skinname, const char *basedir, bool open_layout, bool force_builtin) {
+static bool skin_open(const wchar_t *skinname, const wchar_t *basedir, bool open_layout, bool force_builtin) {
     if (!force_builtin) {
-        char namebuf[1024];
-        char exedir[MAX_PATH];
-        char *lastbackslash;
+        wchar_t namebuf[1024];
+        wchar_t exedir[MAX_PATH];
+        wchar_t *lastbackslash;
 
         /* Look for file in home dir */
-        sprintf(namebuf, "%s\\%s.%s", basedir, skinname,
-                                            open_layout ? "layout" : "gif");
-        external_file = fopen(namebuf, "rb");
+        swprintf(namebuf, L"%ls\\%ls.%ls", basedir, skinname,
+                                            open_layout ? L"layout" : L"gif");
+        external_file = _wfopen(namebuf, L"rb");
         if (external_file != NULL)
             return true;
 
         /* name did not match in home dir; now try in exe dir */
-        GetModuleFileName(0, exedir, MAX_PATH - 1);
-        lastbackslash = strrchr(exedir, '\\');
+        GetModuleFileNameW(0, exedir, MAX_PATH - 1);
+        lastbackslash = wcsrchr(exedir, L'\\');
         if (lastbackslash != 0)
             *lastbackslash = 0;
         else
-            strcpy(exedir, "C:");
-        sprintf(namebuf, "%s\\%s.%s", exedir, skinname,
-                                            open_layout ? "layout" : "gif");
-        external_file = fopen(namebuf, "rb");
+            wcscpy(exedir, L"C:");
+        swprintf(namebuf, L"%ls\\%ls.%ls", exedir, skinname,
+                                            open_layout ? L"layout" : L"gif");
+        external_file = _wfopen(namebuf, L"rb");
         if (external_file != NULL)
             return true;
     }
 
     /* Look for built-in skin last */
     for (int i = 0; i < skin_count; i++) {
-        if (strcmp(skinname, skin_name[i]) == 0) {
+        if (wcscmp(skinname, skin_name[i]) == 0) {
             external_file = NULL;
             builtin_pos = 0;
             if (open_layout) {
@@ -291,7 +291,7 @@ static void skin_close() {
         fclose(external_file);
 }
 
-void skin_load(char *skinname, const char *basedir, long *width, long *height) {
+void skin_load(wchar_t *skinname, const wchar_t *basedir, long *width, long *height) {
     char line[1024];
     bool force_builtin = false;
     int size;
@@ -300,7 +300,7 @@ void skin_load(char *skinname, const char *basedir, long *width, long *height) {
 
     if (skinname[0] == 0) {
         fallback_on_1st_builtin_skin:
-        strcpy(skinname, skin_name[0]);
+        wcscpy(skinname, skin_name[0]);
         force_builtin = true;
     }
 
