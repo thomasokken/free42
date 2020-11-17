@@ -418,14 +418,20 @@
 #define CMD_BSIGNED     374
 #define CMD_BWRAP       375
 #define CMD_BRESET      376
+/* The order up to and including BRESET is set in stone, because those       */
+/* functions can all appear in state files from before 2.5, when programs in */
+/* state files were still stored as memory dumps. From 2.5 onward, programs  */
+/* in state files are stored in "raw" format, so the details of how they are */
+/* stored in memory become a private implementation detail.                  */
 #define CMD_GETKEY1     377
+#define CMD_LASTO       378
 /* Useful X-Fcn functions missing from the 42S */
-#define CMD_ANUM        378
-#define CMD_X_SWAP_F    379
-#define CMD_RCLFLAG     380
-#define CMD_STOFLAG     381
+#define CMD_ANUM        379
+#define CMD_X_SWAP_F    380
+#define CMD_RCLFLAG     381
+#define CMD_STOFLAG     382
 
-#define CMD_SENTINEL    382
+#define CMD_SENTINEL    383
 
 
 /* command_spec.argtype */

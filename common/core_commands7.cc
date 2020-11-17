@@ -780,6 +780,28 @@ int docmd_lsto(arg_struct *arg) {
     return store_var(arg->val.text, arg->length, newval, true);
 }
 
+int docmd_lasto(arg_struct *arg) {
+    /* This relates to LSTO the same way ASTO relates to STO. */
+    vartype *s = new_string(reg_alpha, reg_alpha_length);
+    if (s == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    int err;
+    if (arg->type == ARGTYPE_IND_STK && arg->val.stk == 'X') {
+        // Special case for LASTO IND ST X
+        err = resolve_ind_arg(arg);
+        if (err != ERR_NONE) {
+            free_vartype(s);
+            return err;
+        }
+    }
+    vartype *saved_x = reg_x;
+    reg_x = s;
+    err = docmd_lsto(arg);
+    free_vartype(s);
+    reg_x = saved_x;
+    return err;
+}
+
 int docmd_wsize(arg_struct *arg) {
     if (reg_x->type == TYPE_STRING)
         return ERR_ALPHA_DATA_IS_INVALID;

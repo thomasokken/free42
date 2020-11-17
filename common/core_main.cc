@@ -1618,7 +1618,7 @@ static int hp42ext[] = {
     CMD_INPUT   | 0x0000,
     CMD_EDITN   | 0x0000,
     CMD_LSTO    | 0x0000,
-    CMD_NULL    | 0x4000,
+    CMD_LASTO   | 0x2000,
     CMD_VARMENU | 0x1000,
     CMD_NULL    | 0x3000, /* KEYX IND name */
     CMD_NULL    | 0x3000, /* KEYG IND name */
@@ -1669,7 +1669,7 @@ static int hp42ext[] = {
     CMD_NULL    | 0x4000, /* GTO . nnnn */
     CMD_NULL    | 0x4000, /* GTO .. */
     CMD_NULL    | 0x4000, /* GTO . "name" */
-    CMD_NULL    | 0x4000,
+    CMD_LASTO   | 0x0000,
     CMD_NULL    | 0x4000, /* DEL */
     CMD_NULL    | 0x3000, /* SIZE */
     CMD_VARMENU | 0x2000,
@@ -1677,7 +1677,7 @@ static int hp42ext[] = {
     CMD_NULL    | 0x4000,
     CMD_NULL    | 0x4000,
     CMD_NULL    | 0x4000,
-    CMD_NULL    | 0x4000,
+    CMD_LASTO   | 0x1000,
     CMD_NULL    | 0x4000,
     CMD_NULL    | 0x4000
 };

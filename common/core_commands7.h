@@ -43,6 +43,7 @@ int docmd_getkey1(arg_struct *arg);
 int docmd_fptest(arg_struct *arg);
 
 int docmd_lsto(arg_struct *arg);
+int docmd_lasto(arg_struct *arg);
 int docmd_wsize(arg_struct *arg);
 int docmd_wsize_t(arg_struct *arg);
 int docmd_bsigned(arg_struct *arg);
