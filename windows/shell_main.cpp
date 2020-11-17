@@ -1442,13 +1442,13 @@ static void get_home_dir(wchar_t *path, int pathlen) {
 }
 
 static void mapCalculatorKey() {
-    char path[MAX_PATH];
+    wchar_t path[MAX_PATH];
     if (state.calculatorKey) {
         // Get current executable's path
-        GetModuleFileName(0, path, MAX_PATH - 1);
+        GetModuleFileNameW(0, path, MAX_PATH - 1);
     } else {
         // Windows default
-        strcpy(path, "calc.exe");
+        wcscpy(path, L"calc.exe");
     }
     HKEY k1, k2, k3, k4, k5, k6, k7;
     DWORD disp;
@@ -1459,7 +1459,7 @@ static void mapCalculatorKey() {
                     if (RegCreateKeyEx(k4, "Explorer", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k5, &disp) == ERROR_SUCCESS) {
                         if (RegCreateKeyEx(k5, "AppKey", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k6, &disp) == ERROR_SUCCESS) {
                             if (RegCreateKeyEx(k6, "18", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k7, &disp) == ERROR_SUCCESS) {
-                                RegSetValueEx(k7, "ShellExecute", 0, REG_SZ, (const unsigned char *) path, strlen(path) + 1);
+                                RegSetValueExW(k7, L"ShellExecute", 0, REG_SZ, (const unsigned char *) path, wcslen(path) * 2 + 2);
                                 RegCloseKey(k7);
                             }
                             RegCloseKey(k6);
