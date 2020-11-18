@@ -111,12 +111,12 @@
                         <items>
                             <menuItem title="Copy" keyEquivalent="c" id="197">
                                 <connections>
-                                    <action selector="doCopy:" target="520" id="591"/>
+                                    <action selector="copy:" target="-1" id="gla-XN-oKo"/>
                                 </connections>
                             </menuItem>
                             <menuItem title="Paste" keyEquivalent="v" id="203">
                                 <connections>
-                                    <action selector="doPaste:" target="520" id="592"/>
+                                    <action selector="paste:" target="-1" id="Ce3-pr-eWY"/>
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="BWy-Rm-ieF"/>

@@ -635,7 +635,7 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
     }
 }
 
-- (IBAction) doCopy:(id)sender {
+- (IBAction) copy:(id)sender {
     NSPasteboard *pb = [NSPasteboard generalPasteboard];
     NSArray *types = [NSArray arrayWithObjects: NSStringPboardType, nil];
     [pb declareTypes:types owner:self];
@@ -650,7 +650,7 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
     [pb setString:txt forType:NSStringPboardType];
 }
 
-- (IBAction) doPaste:(id)sender {
+- (IBAction) paste:(id)sender {
     NSPasteboard *pb = [NSPasteboard generalPasteboard];
     NSArray *types = [NSArray arrayWithObjects: NSStringPboardType, nil];
     NSString *bestType = [pb availableTypeFromArray:types];
