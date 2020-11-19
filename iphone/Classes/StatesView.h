@@ -18,7 +18,7 @@
 #import <UIKit/UIKit.h>
 
 
-@interface StatesView : UIView <UIActionSheetDelegate, UITableViewDelegate, UITableViewDataSource> {
+@interface StatesView : UIView <UITableViewDelegate, UITableViewDataSource> {
     NSMutableArray *stateNames;
     UIBarButtonItem *switchToButton;
     UITableView *stateTable;
@@ -35,7 +35,6 @@
 - (IBAction) more;
 - (IBAction) done;
 + (NSString *) makeCopyName:(NSString *)name;
-- (void) actionSheet:(UIActionSheet *) actionSheet clickedButtonAtIndex:(NSInteger) buttonIndex;
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath;
 - (UITableViewCell *) tableView:(UITableView *)table cellForRowAtIndexPath:(NSIndexPath*) indexPath;
 - (NSInteger) tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section;

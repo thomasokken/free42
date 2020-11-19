@@ -319,29 +319,23 @@ static void tbnonewliner() {
 }
 
 - (IBAction) edit {
-    UIActionSheet *menu =
-    [[UIActionSheet alloc] initWithTitle:@"Edit Menu"
-                                delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil
-                       otherButtonTitles:@"Copy as Text", @"Copy as Image", @"Clear", nil];
-    [menu showInView:self];
-    [menu release];
-}
-
-- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
-    switch (buttonIndex) {
-        case 0:
-            [self copyAsText];
-            break;
-        case 1:
-            [self copyAsImage];
-            break;
-        case 2:
-            [self clear];
-            break;
-        case 3:
-            // Cancel
-            break;
-    }
+    UIAlertController *ctrl = [UIAlertController
+            alertControllerWithTitle:@"Edit Menu"
+            message:nil
+            preferredStyle:UIAlertControllerStyleActionSheet];
+    [ctrl addAction:[UIAlertAction actionWithTitle:@"Copy as Text"
+                    style:UIAlertActionStyleDefault
+                    handler:^(UIAlertAction *action)
+                        { [self copyAsText]; }]];
+    [ctrl addAction:[UIAlertAction actionWithTitle:@"Copy as Image"
+                    style:UIAlertActionStyleDefault
+                    handler:^(UIAlertAction *action)
+                        { [self copyAsImage]; }]];
+    [ctrl addAction:[UIAlertAction actionWithTitle:@"Clear"
+                    style:UIAlertActionStyleDefault
+                    handler:^(UIAlertAction *action)
+                        { [self clear]; }]];
+    [RootViewController presentViewController:ctrl animated:YES completion:nil];
 }
 
 - (IBAction) share {

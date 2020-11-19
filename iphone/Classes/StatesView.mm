@@ -137,20 +137,34 @@
 }
 
 - (IBAction) more {
-    UIActionSheet *menu;
-    switch (mode) {
-        case 0:
-            menu = [[UIActionSheet alloc] initWithTitle:@"States Menu" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"New", nil];
-            break;
-        case 1:
-            menu = [[UIActionSheet alloc] initWithTitle:@"States Menu" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"New", @"Duplicate", @"Rename", @"Share", nil];
-            break;
-        case 2:
-            menu = [[UIActionSheet alloc] initWithTitle:@"States Menu" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"New", @"Duplicate", @"Rename", @"Delete", @"Share", nil];
-            break;
+    UIAlertController *ctrl = [UIAlertController
+            alertControllerWithTitle:@"States Menu"
+            message:nil
+            preferredStyle:UIAlertControllerStyleActionSheet];
+    [ctrl addAction:[UIAlertAction actionWithTitle:@"New"
+                    style:UIAlertActionStyleDefault
+                    handler:^(UIAlertAction *action)
+                        { [self doNew]; }]];
+    if (mode >= 1) {
+        [ctrl addAction:[UIAlertAction actionWithTitle:@"Duplicate"
+                        style:UIAlertActionStyleDefault
+                        handler:^(UIAlertAction *action)
+                            { [self doDuplicate]; }]];
+        [ctrl addAction:[UIAlertAction actionWithTitle:@"Rename"
+                        style:UIAlertActionStyleDefault
+                        handler:^(UIAlertAction *action)
+                            { [self doRename]; }]];
+        if (mode == 2)
+            [ctrl addAction:[UIAlertAction actionWithTitle:@"Delete"
+                            style:UIAlertActionStyleDefault
+                            handler:^(UIAlertAction *action)
+                                { [self doDelete]; }]];
+        [ctrl addAction:[UIAlertAction actionWithTitle:@"Share"
+                        style:UIAlertActionStyleDefault
+                        handler:^(UIAlertAction *action)
+                            { [self doShare]; }]];
     }
-    [menu showInView:self];
-    [menu release];
+    [RootViewController presentViewController:ctrl animated:YES completion:nil];
 }
 
 - (IBAction) done {
@@ -359,62 +373,6 @@
         core_save_state([statePath UTF8String]);
     UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:@[[NSURL fileURLWithPath:statePath]] applicationActivities:nil];
     [self.window.rootViewController presentViewController:activityViewController animated:YES completion:nil];
-}
-
-- (void) actionSheet:(UIActionSheet *) actionSheet clickedButtonAtIndex:(NSInteger) buttonIndex {
-    switch (mode) {
-        case 0:
-            switch (buttonIndex) {
-                case 0:
-                    [self doNew];
-                    break;
-                case 1:
-                    // Cancel
-                    break;
-            }
-            break;
-        case 1:
-            switch (buttonIndex) {
-                case 0:
-                    [self doNew];
-                    break;
-                case 1:
-                    [self doDuplicate];
-                    break;
-                case 2:
-                    [self doRename];
-                    break;
-                case 3:
-                    [self doShare];
-                    break;
-                case 4:
-                    // Cancel
-                    break;
-            }
-            break;
-        case 2:
-            switch (buttonIndex) {
-                case 0:
-                    [self doNew];
-                    break;
-                case 1:
-                    [self doDuplicate];
-                    break;
-                case 2:
-                    [self doRename];
-                    break;
-                case 3:
-                    [self doDelete];
-                    break;
-                case 4:
-                    [self doShare];
-                    break;
-                case 5:
-                    // Cancel
-                    break;
-            }
-            break;
-    }
 }
 
 - (void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {

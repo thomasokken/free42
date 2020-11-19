@@ -44,7 +44,7 @@ extern state_type state;
 extern FILE *statefile;
 
 
-@interface CalcView : UIView <UIActionSheetDelegate> {
+@interface CalcView : UIView {
     //
 }
 
@@ -53,7 +53,6 @@ extern FILE *statefile;
 + (BOOL) isPortrait;
 + (CGFloat) width;
 + (CGFloat) height;
-- (void) actionSheet:(UIActionSheet *) actionSheet clickedButtonAtIndex:(NSInteger) buttonIndex;
 - (void) touchesBegan: (NSSet *) touches withEvent: (UIEvent *) event;
 + (void) repaint;
 + (void) quit;

@@ -40,7 +40,7 @@ extern int print_text_pixel_height;
 
 @class PrintTileView;
 
-@interface PrintView : UIView <UIActionSheetDelegate, UIScrollViewDelegate> {
+@interface PrintView : UIView <UIScrollViewDelegate> {
     UIScrollView *scrollView;
     PrintTileView *tile1;
     PrintTileView *tile2;
@@ -55,7 +55,6 @@ extern int print_text_pixel_height;
 - (void) awakeFromNib;
 - (IBAction) advance;
 - (IBAction) edit;
-- (void) actionSheet:(UIActionSheet *) actionSheet clickedButtonAtIndex:(NSInteger) buttonIndex;
 - (IBAction) share;
 - (IBAction) done;
 - (void) updatePrintout:(update_params *) params;

@@ -175,91 +175,75 @@ static CalcView *calcView = nil;
 }
 
 - (void) showMainMenu {
-    UIActionSheet *menu =
-    [[UIActionSheet alloc] initWithTitle:@"Main Menu"
-                                delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil
-                       otherButtonTitles:@"Show Print-Out", @"Program Import & Export", @"States", @"Preferences", @"Select Skin", @"Copy", @"Paste", @"About Free42", nil];
-    
-    [menu showInView:self];
-    [menu release];
+    UIAlertController *ctrl = [UIAlertController
+            alertControllerWithTitle:@"Main Menu"
+            message:nil
+            preferredStyle:UIAlertControllerStyleActionSheet];
+    [ctrl addAction:[UIAlertAction actionWithTitle:@"Show Print-Out"
+                    style:UIAlertActionStyleDefault
+                    handler:^(UIAlertAction *action)
+                        { [RootViewController showPrintOut]; }]];
+    [ctrl addAction:[UIAlertAction actionWithTitle:@"Program Import & Export"
+                    style:UIAlertActionStyleDefault
+                    handler:^(UIAlertAction *action)
+                        { [self showImportExportMenu]; }]];
+    [ctrl addAction:[UIAlertAction actionWithTitle:@"States"
+                    style:UIAlertActionStyleDefault
+                    handler:^(UIAlertAction *action)
+                        { [RootViewController showStates:nil]; }]];
+    [ctrl addAction:[UIAlertAction actionWithTitle:@"Preferences"
+                    style:UIAlertActionStyleDefault
+                    handler:^(UIAlertAction *action)
+                        { [RootViewController showPreferences]; }]];
+    [ctrl addAction:[UIAlertAction actionWithTitle:@"Select Skin"
+                    style:UIAlertActionStyleDefault
+                    handler:^(UIAlertAction *action)
+                        { [RootViewController showSelectSkin]; }]];
+    [ctrl addAction:[UIAlertAction actionWithTitle:@"Copy"
+                    style:UIAlertActionStyleDefault
+                    handler:^(UIAlertAction *action)
+                        { [self doCopy]; }]];
+    [ctrl addAction:[UIAlertAction actionWithTitle:@"Paste"
+                    style:UIAlertActionStyleDefault
+                    handler:^(UIAlertAction *action)
+                        { [self doPaste]; }]];
+    [ctrl addAction:[UIAlertAction actionWithTitle:@"About Free42"
+                    style:UIAlertActionStyleDefault
+                    handler:^(UIAlertAction *action)
+                        { [RootViewController showAbout]; }]];
+    [ctrl addAction:[UIAlertAction actionWithTitle:@"Cancel"
+                    style:UIAlertActionStyleDefault
+                    handler:^(UIAlertAction *action)
+                        { return; }]];
+    [RootViewController presentViewController:ctrl animated:YES completion:nil];
 }
 
 - (void) showImportExportMenu {
-    UIActionSheet *menu =
-    [[UIActionSheet alloc] initWithTitle:@"Import & Export Menu"
-                                delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil
-                       otherButtonTitles:@"HTTP Server", @"Import Programs", @"Export Programs", @"Share Programs", @"Back", nil];
-    
-    [menu showInView:self];
-    [menu release];
-}
-
-- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
-    if ([[actionSheet title] isEqualToString:@"Main Menu"]) {
-        switch (buttonIndex) {
-            case 0:
-                // Show Print-Out
-                [RootViewController showPrintOut];
-                break;
-            case 1:
-                // Program Import & Export
-                [self showImportExportMenu];
-                break;
-            case 2:
-                // States
-                [RootViewController showStates:nil];
-                break;
-            case 3:
-                // Preferences
-                [RootViewController showPreferences];
-                break;
-            case 4:
-                // Select Skin
-                [RootViewController showSelectSkin];
-                break;
-            case 5:
-                // Copy
-                [self doCopy];
-                break;
-            case 6:
-                // Paste
-                [self doPaste];
-                break;
-            case 7:
-                // About Free42
-                [RootViewController showAbout];
-                break;
-            case 8:
-                // Cancel
-                break;
-        }
-    } else {
-        switch (buttonIndex) {
-            case 0:
-                // HTTP Server
-                [RootViewController showHttpServer];
-                break;
-            case 1:
-                // Import Programs
-                [RootViewController doImport];
-                break;
-            case 2:
-                // Export Programs
-                [RootViewController doExport:NO];
-                break;
-            case 3:
-                // Share Programs
-                [RootViewController doExport:YES];
-                break;
-            case 4:
-                // Back
-                [self showMainMenu];
-                break;
-            case 5:
-                // Cancel
-                break;
-        }
-    }
+    UIAlertController *ctrl = [UIAlertController
+            alertControllerWithTitle:@"Import & Export Menu"
+            message:nil
+            preferredStyle:UIAlertControllerStyleActionSheet];
+    [ctrl addAction:[UIAlertAction actionWithTitle:@"HTTP Server"
+                    style:UIAlertActionStyleDefault
+                    handler:^(UIAlertAction *action)
+                        { [RootViewController showHttpServer]; }]];
+    [ctrl addAction:[UIAlertAction actionWithTitle:@"Import Programs"
+                    style:UIAlertActionStyleDefault
+                    handler:^(UIAlertAction *action)
+                        { [RootViewController doImport]; }]];
+    [ctrl addAction:[UIAlertAction actionWithTitle:@"Export Programs"
+                    style:UIAlertActionStyleDefault
+                    handler:^(UIAlertAction *action)
+                        { [RootViewController doExport:NO]; }]];
+    [ctrl addAction:[UIAlertAction actionWithTitle:@"Share Programs"
+                    style:UIAlertActionStyleDefault
+                    handler:^(UIAlertAction *action)
+                        { [RootViewController doExport:YES]; }]];
+    [ctrl addAction:[UIAlertAction actionWithTitle:@"Back"
+                    style:UIAlertActionStyleDefault
+                    handler:^(UIAlertAction *action)
+                        { [self showMainMenu]; }]];
+    [RootViewController presentViewController:ctrl animated:YES completion:nil];
 }
 
 - (void) drawRect:(CGRect)rect {

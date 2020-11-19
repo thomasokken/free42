@@ -190,6 +190,10 @@ int shell_low_battery() {
     [errorAlert release];
 }
 
++ (void) presentViewController:(UIViewController *)ctrl animated:(BOOL)a completion:(void (^)(void))completion {
+    [instance presentViewController:ctrl animated:a completion:completion];
+}
+
 void shell_message(const char *message) {
     [RootViewController showMessage:[NSString stringWithUTF8String:message]];
 }
