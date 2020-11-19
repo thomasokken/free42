@@ -74,7 +74,7 @@
     fclose(builtins);
     if (enabled != NULL)
         delete[] enabled;
-    int total_count = [skinNames count];
+    int total_count = (int) [skinNames count];
     enabled = new bool[total_count];
     for (int i = 0; i < builtins_count; i++) {
         enabled[i] = true;
