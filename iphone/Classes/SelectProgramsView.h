@@ -18,7 +18,7 @@
 #import <UIKit/UIKit.h>
 
 
-@interface SelectProgramsView : UIView <UITableViewDataSource, UIAlertViewDelegate> {
+@interface SelectProgramsView : UIView <UITableViewDataSource> {
     NSMutableArray *programNames;
     UIBarButtonItem *doneButton;
     UIBarButtonItem *backButton;
@@ -35,6 +35,5 @@
 - (IBAction) back;
 - (UITableViewCell *) tableView:(UITableView *)table cellForRowAtIndexPath:(NSIndexPath*) indexPath;
 - (NSInteger) tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section;
-- (void) alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex;
 
 @end

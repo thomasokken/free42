@@ -181,13 +181,15 @@ int shell_low_battery() {
 }
 
 + (void) showMessage:(NSString *) message {
-    UIAlertView *errorAlert = [[UIAlertView alloc] initWithTitle:@"Message"
-                                                         message:message
-                                                        delegate:nil
-                                               cancelButtonTitle:@"OK"
-                                               otherButtonTitles:nil];
-    [errorAlert show];
-    [errorAlert release];
+    UIAlertController *ctrl = [UIAlertController
+            alertControllerWithTitle:@"Message"
+            message:message
+            preferredStyle:UIAlertControllerStyleAlert];
+    [ctrl addAction:[UIAlertAction
+                     actionWithTitle:@"OK"
+                     style:UIAlertActionStyleDefault
+                     handler:nil]];
+    [instance presentViewController:ctrl animated:YES completion:nil];
 }
 
 + (void) presentViewController:(UIViewController *)ctrl animated:(BOOL)a completion:(void (^)(void))completion {

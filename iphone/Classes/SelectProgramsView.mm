@@ -105,20 +105,21 @@ static NSString *export_path = nil;
     const char *cpath = [path UTF8String];
     struct stat st;
     if (stat(cpath, &st) == 0) {
-        UIAlertView *errorAlert = [[UIAlertView alloc] initWithTitle:@"File Exists"
-                                                             message:@"File exists; overwrite?"
-                                                            delegate:self
-                                                   cancelButtonTitle:@"Cancel"
-                                                   otherButtonTitles:@"OK", nil];
-        [errorAlert show];
-        [errorAlert release];
-        return;
+        UIAlertController *ctrl = [UIAlertController
+                alertControllerWithTitle:@"File Exists"
+                message:@"File exists; overwrite?"
+                preferredStyle:UIAlertControllerStyleAlert];
+        [ctrl addAction:[UIAlertAction
+                         actionWithTitle:@"OK"
+                         style:UIAlertActionStyleDefault
+                         handler:^(UIAlertAction *action)
+                            { [self doExport2]; }]];
+        [ctrl addAction:[UIAlertAction
+                         actionWithTitle:@"Cancel"
+                         style:UIAlertActionStyleCancel
+                         handler:nil]];
+        [RootViewController presentViewController:ctrl animated:YES completion:nil];
     } else
-        [self doExport2];
-}
-
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-    if (buttonIndex == 1)
         [self doExport2];
 }
 
