@@ -91,6 +91,7 @@
 		E9AE2565233C1CD0005072BA /* click1.wav in Resources */ = {isa = PBXBuildFile; fileRef = E9AE2560233C1CD0005072BA /* click1.wav */; };
 		E9AE2566233C1CD0005072BA /* click4.wav in Resources */ = {isa = PBXBuildFile; fileRef = E9AE2561233C1CD0005072BA /* click4.wav */; };
 		E9B16DFA0F88EE46002BB9B2 /* shell_loadimage.cc in Sources */ = {isa = PBXBuildFile; fileRef = E9B16DF80F88EE46002BB9B2 /* shell_loadimage.cc */; };
+		E9BB9E9625682C7100708152 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E9BB9E9525682C7100708152 /* Launch Screen.storyboard */; };
 		E9C255DC1996B9C1007634C9 /* Ehrling42sl.gif in Resources */ = {isa = PBXBuildFile; fileRef = E9C255DA1996B9C1007634C9 /* Ehrling42sl.gif */; };
 		E9C255DD1996B9C1007634C9 /* Ehrling42sl.layout in Resources */ = {isa = PBXBuildFile; fileRef = E9C255DB1996B9C1007634C9 /* Ehrling42sl.layout */; };
 		E9CECB81255ED605003398B3 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E9CECB80255ED605003398B3 /* libz.tbd */; };
@@ -230,6 +231,7 @@
 		E9BA0E7B0F92245E0087EBFB /* HTTPServerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPServerView.h; sourceTree = "<group>"; };
 		E9BA0E7E0F9224700087EBFB /* SelectSkinView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectSkinView.h; sourceTree = "<group>"; };
 		E9BA0EAC0F9224F00087EBFB /* AboutView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AboutView.h; sourceTree = "<group>"; };
+		E9BB9E9525682C7100708152 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		E9C255DA1996B9C1007634C9 /* Ehrling42sl.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = Ehrling42sl.gif; path = skins/Ehrling42sl.gif; sourceTree = "<group>"; };
 		E9C255DB1996B9C1007634C9 /* Ehrling42sl.layout */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Ehrling42sl.layout; path = skins/Ehrling42sl.layout; sourceTree = "<group>"; };
 		E9CD21690FA39C41008E1E65 /* SelectFileView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectFileView.h; sourceTree = "<group>"; };
@@ -355,6 +357,7 @@
 				E9A1EE381FCB8F5D0047398C /* about-icon@2x.png */,
 				E98FA4830F913E2900DED348 /* icon.png */,
 				8D1107310486CEB800E47090 /* Info.plist */,
+				E9BB9E9525682C7100708152 /* Launch Screen.storyboard */,
 				28AD733E0D9D9553002E5188 /* MainWindow.xib */,
 				E9AE2560233C1CD0005072BA /* click1.wav */,
 				E9AE255F233C1CD0005072BA /* click2.wav */,
@@ -550,6 +553,7 @@
 				E9AE2565233C1CD0005072BA /* click1.wav in Resources */,
 				E91B5369233C569F00E30DE8 /* click8.wav in Resources */,
 				E9A1EE391FCB8F5E0047398C /* about-icon@2x.png in Resources */,
+				E9BB9E9625682C7100708152 /* Launch Screen.storyboard in Resources */,
 				E9031C920FF68FCD0023F9EC /* Ehrling42sm.gif in Resources */,
 				E9031C930FF68FCD0023F9EC /* Ehrling42sm.layout in Resources */,
 				E94DE6C61011E9AE005E6B19 /* about-icon.png in Resources */,
@@ -653,7 +657,6 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
@@ -682,7 +685,6 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
@@ -806,7 +808,6 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
