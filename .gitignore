@@ -192,7 +192,7 @@
 /mac/build
 /mac/.DS_Store
 /mac/IntelRDFPMathLib20U1
-/mac/gcc111libbid.a
+/mac/gcc111libbid*.a
 /mac/readtest_lines.cc
 
 # /mac/Free42.xcodeproj/
