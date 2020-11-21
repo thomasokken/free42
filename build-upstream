@@ -1,0 +1,12 @@
+#!/bin/sh -e
+
+# "Upstream" source packages for Linux and MacPorts.
+# They have all non-applicable versions, and all skins containing the HP logo,
+# removed.
+
+mkdir -p packages
+
+cd upstream
+sh ./build-macports
+sh ./build-nologo
+cd ..
