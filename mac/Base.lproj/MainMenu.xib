@@ -103,6 +103,12 @@
                                     <action selector="exportPrograms:" target="520" id="537"/>
                                 </connections>
                             </menuItem>
+                            <menuItem isSeparatorItem="YES" id="xBV-gY-fby"/>
+                            <menuItem title="Close" keyEquivalent="w" id="0kP-uS-q02">
+                                <connections>
+                                    <action selector="performClose:" target="-1" id="knm-CW-NJQ"/>
+                                </connections>
+                            </menuItem>
                         </items>
                     </menu>
                 </menuItem>
@@ -472,7 +478,7 @@
                                             </buttonCell>
                                             <tableColumnResizingMask key="resizingMask" resizeWithTable="YES"/>
                                         </tableColumn>
-                                        <tableColumn identifier="col2" editable="NO" width="203" minWidth="40" maxWidth="1000" id="574">
+                                        <tableColumn identifier="col2" editable="NO" width="174" minWidth="40" maxWidth="1000" id="574">
                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" white="0.33333299" alpha="1" colorSpace="calibratedWhite"/>
@@ -656,7 +662,7 @@
                                             </buttonCell>
                                             <tableColumnResizingMask key="resizingMask" resizeWithTable="YES"/>
                                         </tableColumn>
-                                        <tableColumn identifier="col2" editable="NO" width="203" minWidth="40" maxWidth="1000" id="559-FA-uSA">
+                                        <tableColumn identifier="col2" editable="NO" width="174" minWidth="40" maxWidth="1000" id="559-FA-uSA">
                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                                 <color key="backgroundColor" white="0.33333299" alpha="1" colorSpace="calibratedWhite"/>
