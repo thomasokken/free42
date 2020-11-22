@@ -1516,7 +1516,7 @@ static int hp42tofree42[] = {
 
     /* F0-FF */
     /* Strings + 42S ext */
-    CMD_NULL  | 0x3000,
+    CMD_NOP  | 0x0000,
     CMD_NULL  | 0x3000,
     CMD_NULL  | 0x3000,
     CMD_NULL  | 0x3000,
@@ -1944,21 +1944,6 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                 goto do_suffix;
             } else /* byte1 >= 0xF0 && byte1 <= 0xFF */ {
                 /* Strings and parameterized HP-42S extensions */
-                if (byte1 == 0x0F0) {
-                    /* Zero-length strings can only be entered synthetically
-                     * on the HP-41; they act as NOPs and are sometimes used
-                     * right after ISG or DSE.
-                     * I would be within my rights to drop these instructions
-                     * on the floor -- the real 42S doesn't deal with them
-                     * all that gracefully either -- but I'm just too nice,
-                     * so I convert them to |-"", which is also a NOP.
-                     */
-                    cmd = CMD_STRING;
-                    arg.type = ARGTYPE_STR;
-                    arg.length = 1;
-                    arg.val.text[0] = 127;
-                    goto store;
-                }
                 byte2 = raw_getc();
                 if (byte2 == EOF)
                     goto done;

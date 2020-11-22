@@ -843,3 +843,11 @@ int docmd_breset(arg_struct *arg) {
     flags.f.base_wrap = 0;
     return ERR_NONE;
 }
+
+////////////////////////////////////////////////////////
+///// The NOP that's been missing since the HP-41C /////
+////////////////////////////////////////////////////////
+
+int docmd_nop(arg_struct *arg) {
+    return ERR_NONE;
+}

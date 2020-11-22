@@ -50,4 +50,6 @@ int docmd_bsigned(arg_struct *arg);
 int docmd_bwrap(arg_struct *arg);
 int docmd_breset(arg_struct *arg);
 
+int docmd_nop(arg_struct *arg);
+
 #endif

@@ -430,8 +430,10 @@
 #define CMD_X_SWAP_F    380
 #define CMD_RCLFLAG     381
 #define CMD_STOFLAG     382
+/* No-op, stored in raw files as 0xf0, a.k.a. TEXT 0 on the 41C */
+#define CMD_NOP         383
 
-#define CMD_SENTINEL    383
+#define CMD_SENTINEL    384
 
 
 /* command_spec.argtype */
