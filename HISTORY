@@ -1,3 +1,31 @@
+2020-11-23: release 2.5.22
+
+* Minor UI fixes and improvements: 'Close' menu item (Mac), Copy and Paste in
+  dialogs (Mac), Unicode support in file names (Windows), and pre-populating
+  file names in file selection dialogs (all versions).
+* Implemented LASTO. This is related to LSTO like ASTO is related to STO.
+* Implemented No-Operation (NOP) function. This function does nothing, as its
+  name suggests, and can be useful when using ISG for counting without an upper
+  bound, for instance. The function is encoded using the 0xF0 opcode, which is
+  sometimes used on the HP-41 for the same purpose.
+* On the real HP-42S, GETKEY halts program execution when R/S, EXIT, or Shift-
+  EXIT are pressed. In Free42, however, Shift-EXIT did not cause program
+  execution to halt. Fixed.
+* Implemented GETKEY1 function. This works like the regular GETKEY, except it
+  only halts on R/S, allowing programs to implement custom behaviors for EXIT
+  and Shift-EXIT.
+* STOFLAG didn't update the G and RAD annunciators when flags 42 or 43 were
+  changed. Fixed.
+* Implemented range option for STOFLAG: with the flags in Y and a number bb.ee
+  in X, only flags bb through ee are restored, while the others are untouched.
+  If ee is zero, only flag bb is restored. This mode of operation exists in the
+  HP-41 Extended Functions module and in the HP-41CX, but was missing in the
+  Free42 implementation.
+* Binary version: Changed maximum WSIZE from 52 to 53.
+* MacOS version: Building universal binary now, with Intel and ARM (Apple
+  Silicon) support.
+* iOS version: Fixed crash when saving print-out using Share -> Save Image.
+
 2020-10-24: release 2.5.21
 
 * Implemented ANUM, X<>F, RCLFLAG, and STOFLAG functions. See the Free42 web
