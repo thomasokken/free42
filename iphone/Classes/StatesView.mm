@@ -164,6 +164,10 @@
                         handler:^(UIAlertAction *action)
                             { [self doShare]; }]];
     }
+    [ctrl addAction:[UIAlertAction actionWithTitle:@"Cancel"
+                    style:UIAlertActionStyleCancel
+                    handler:^(UIAlertAction *action)
+                        { return; }]];
     [RootViewController presentViewController:ctrl animated:YES completion:nil];
 }
 

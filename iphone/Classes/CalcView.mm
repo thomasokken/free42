@@ -212,7 +212,7 @@ static CalcView *calcView = nil;
                     handler:^(UIAlertAction *action)
                         { [RootViewController showAbout]; }]];
     [ctrl addAction:[UIAlertAction actionWithTitle:@"Cancel"
-                    style:UIAlertActionStyleDefault
+                    style:UIAlertActionStyleCancel
                     handler:^(UIAlertAction *action)
                         { return; }]];
     [RootViewController presentViewController:ctrl animated:YES completion:nil];
@@ -243,6 +243,10 @@ static CalcView *calcView = nil;
                     style:UIAlertActionStyleDefault
                     handler:^(UIAlertAction *action)
                         { [self showMainMenu]; }]];
+    [ctrl addAction:[UIAlertAction actionWithTitle:@"Cancel"
+                    style:UIAlertActionStyleCancel
+                    handler:^(UIAlertAction *action)
+                        { return; }]];
     [RootViewController presentViewController:ctrl animated:YES completion:nil];
 }
 

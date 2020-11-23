@@ -335,6 +335,10 @@ static void tbnonewliner() {
                     style:UIAlertActionStyleDefault
                     handler:^(UIAlertAction *action)
                         { [self clear]; }]];
+    [ctrl addAction:[UIAlertAction actionWithTitle:@"Cancel"
+                    style:UIAlertActionStyleCancel
+                    handler:^(UIAlertAction *action)
+                        { return; }]];
     [RootViewController presentViewController:ctrl animated:YES completion:nil];
 }
 
