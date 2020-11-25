@@ -32,6 +32,7 @@ android {
             signingConfig signingConfigs.release
         }
     }
+    ndkVersion "19.2.5345600"
     externalNativeBuild {
         ndkBuild {
             path "src/main/cpp/Android.mk"
