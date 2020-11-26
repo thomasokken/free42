@@ -1,8 +1,8 @@
 2020-11-24: release 2.5.22a (Android only)
 
 * The previous release was crashing on a lot of devices; apparently the NDK
-  version I used to build it, 21.1.6352462, is incompatible with certain older
-  devices. Going back to the previous NDK version for now.
+  version I used to build it, r21b, is incompatible with certain older devices.
+  Going back to r19c for now.
 
 2020-11-23: release 2.5.22
 
@@ -379,8 +379,8 @@
 * Adding -mfpu=vfp to compilation flags when building the Intel library for
   armv7. Apparently, with NDK r19c, Neon is enabled by default, but Neon is not
   supported on all armv7 Android devices, so this setting is causing 2.3.1 to
-  crash on certain phones. (2.2.1b and earlier were built with an earlier NDK,
-  which did not have this problem.)
+  crash on certain phones. (2.2.1b and earlier were built with r4b, which did
+  not have this problem.)
 
 2019-06-25: release 2.3.1
 
