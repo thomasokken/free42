@@ -38,7 +38,7 @@ static HTTPServerView *instance;
 static int pype[2];
 static in_addr_t ip_addr;
 static NSString *hostname;
-static int port;
+static int port = 0;
 
 @implementation HTTPServerView
 
@@ -76,10 +76,10 @@ static void *getHostName(void *iflist) {
             default: s = "unexpected error code"; break;
         }
         NSLog(@"Could not determine my DNS hostname: %s", s);
-        
     } else {
         NSLog(@"My DNS hostname appears to be %s", h->h_name);
         hostname = [[NSString stringWithUTF8String:h->h_name] retain];
+        [instance performSelectorOnMainThread:@selector(displayHostAndPort) withObject:nil waitUntilDone:NO];
     }
     freeifaddrs(list);
     
@@ -93,11 +93,13 @@ static void *getHostName(void *iflist) {
     ip_addr = 0;
 
     [logView setFont:[UIFont fontWithName:@"CourierNewPSMT" size:12]];
-    
-    // TODO: This stuff should be done whenever the HTTP Server view
-    // is activated, not just when the app is started. It is possible
-    // for the network interfaces to get reconfigured even while the
-    // app is running, and it should be able to deal with that.
+}
+
+- (void) raised {
+    instance = self;
+    pipe(pype); // only fails if out of file descriptors
+    [urlLabel setText:@"(not running)"];
+    [logView setText:@""];
     
     struct ifaddrs *list;
     if (getifaddrs(&list) == 0) {
@@ -136,13 +138,7 @@ static void *getHostName(void *iflist) {
         if (list != NULL)
             freeifaddrs(list);
     }
-}
-
-- (void) raised {
-    instance = self;
-    pipe(pype); // only fails if out of file descriptors
-    [urlLabel setText:@"(not running)"];
-    [logView setText:@""];
+    
     [self performSelectorInBackground:@selector(start_simple_server) withObject:NULL];
     [UIApplication sharedApplication].idleTimerDisabled = YES;
 }
