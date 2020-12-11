@@ -22,6 +22,7 @@
     UITextField *urlField;
     UIBarButtonItem *loadButton;
     UIWebView *webView;
+    BOOL showMessages;
     NSURLSession *session;
     NSURLSessionDataTask *task[2];
     BOOL taskSuccess[2];

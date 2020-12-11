@@ -55,6 +55,7 @@
     if (url == nil || [url length] == 0)
         [urlField setText:@"https://thomasokken.com/free42/skins/"];
     [self reload];
+    showMessages = YES;
 }
 
 - (void)hideKeyboard {
@@ -62,6 +63,9 @@
 }
 
 - (IBAction) done {
+    showMessages = NO;
+    [task[0] cancel];
+    [task[1] cancel];
     [RootViewController showSelectSkin];
 }
 
@@ -83,11 +87,6 @@
     if (session == nil) {
         NSURLSessionConfiguration *conf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
         session = [[NSURLSession sessionWithConfiguration:conf] retain];
-    }
-    for (int t = 0; t < 2; t++) {
-        NSURLSessionTask *tt = task[t];
-        task[t] = nil;
-        [tt cancel];
     }
     for (int t = 0; t < 2; t++) {
         task[t] = [session dataTaskWithURL:[NSURL URLWithString:urls[t]] completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
@@ -114,11 +113,13 @@
         rename("skins/_temp_gif_", buf);
         snprintf(buf, FILENAMELEN, "skins/%s.layout", [skinName UTF8String]);
         rename("skins/_temp_layout_", buf);
-        [RootViewController showMessage:@"Skin Loaded"];
+        if (showMessages)
+            [RootViewController showMessage:@"Skin Loaded"];
     } else {
         remove("skins/_temp_gif_");
         remove("skins/_temp_layout_");
-        [RootViewController showMessage:@"Loading Skin Failed"];
+        if (showMessages)
+            [RootViewController showMessage:@"Loading Skin Failed"];
     }
     [skinName release];
     [loadButton setEnabled:YES];
