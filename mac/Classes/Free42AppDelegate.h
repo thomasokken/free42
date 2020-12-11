@@ -96,6 +96,12 @@ void calc_keymodifierschanged(NSUInteger flags);
     SkinListDataSource *skinListDataSource;
     
     StatesWindow *statesWindow;
+    
+    // Skin loading stuff
+    NSURLSession *session;
+    NSURLSessionDataTask *task[2];
+    BOOL taskSuccess[2];
+    NSString *skinName;
 }
 
 @property (nonatomic, retain) IBOutlet NSWindow *mainWindow;
