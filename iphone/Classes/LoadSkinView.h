@@ -22,6 +22,10 @@
     UITextField *urlField;
     UIBarButtonItem *loadButton;
     UIWebView *webView;
+    NSURLSession *session;
+    NSURLSessionDataTask *task[2];
+    BOOL taskSuccess[2];
+    NSString *skinName;
 }
 
 @property (nonatomic, retain) IBOutlet UITextField *urlField;

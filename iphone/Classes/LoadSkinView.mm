@@ -71,17 +71,6 @@
     [webView loadRequest:req];
 }
 
-- (BOOL) tryLoad:(NSString *)url asFile:(NSString *)name {
-    NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:url] cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:60];
-    NSURLResponse *resp;
-    NSError *err;
-    NSData *data = [NSURLConnection sendSynchronousRequest:req returningResponse:&resp error:&err];
-    if (data == nil)
-        return NO;
-    NSString *fname = [NSString stringWithFormat:@"skins/%@", name];
-    return [data writeToFile:fname atomically:NO];
-}
-
 - (IBAction) loadSkin {
     NSString *url = [urlField text];
     NSArray *urls = [LoadSkinView skinUrlPair:url];
@@ -89,12 +78,41 @@
         [RootViewController showMessage:@"Invalid Skin URL"];
         return;
     }
-    if ([self tryLoad:[urls objectAtIndex:0] asFile:@"_temp_gif_"]
-            && [self tryLoad:[urls objectAtIndex:1] asFile:@"_temp_layout_"]) {
+    [loadButton setEnabled:NO];
+    skinName = [urls[2] retain];
+    if (session == nil) {
+        NSURLSessionConfiguration *conf = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+        session = [[NSURLSession sessionWithConfiguration:conf] retain];
+    }
+    for (int t = 0; t < 2; t++) {
+        NSURLSessionTask *tt = task[t];
+        task[t] = nil;
+        [tt cancel];
+    }
+    for (int t = 0; t < 2; t++) {
+        task[t] = [session dataTaskWithURL:[NSURL URLWithString:urls[t]] completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+            taskSuccess[t] = error == nil;
+            if (taskSuccess[t]) {
+                NSString *name = t == 0 ? @"_temp_gif_" : @"_temp_layout_";
+                NSString *fname = [NSString stringWithFormat:@"skins/%@", name];
+                [data writeToFile:fname atomically:NO];
+            }
+            task[t] = nil;
+            [self performSelectorOnMainThread:@selector(finishTask) withObject:nil waitUntilDone:NO];
+        }];
+    }
+    [task[0] resume];
+    [task[1] resume];
+}
+
+- (void) finishTask {
+    if (task[0] != nil || task[1] != nil)
+        return;
+    if (taskSuccess[0] && taskSuccess[1]) {
         char buf[FILENAMELEN];
-        snprintf(buf, FILENAMELEN, "skins/%s.gif", [[urls objectAtIndex:2] UTF8String]);
+        snprintf(buf, FILENAMELEN, "skins/%s.gif", [skinName UTF8String]);
         rename("skins/_temp_gif_", buf);
-        snprintf(buf, FILENAMELEN, "skins/%s.layout", [[urls objectAtIndex:2] UTF8String]);
+        snprintf(buf, FILENAMELEN, "skins/%s.layout", [skinName UTF8String]);
         rename("skins/_temp_layout_", buf);
         [RootViewController showMessage:@"Skin Loaded"];
     } else {
@@ -102,6 +120,8 @@
         remove("skins/_temp_layout_");
         [RootViewController showMessage:@"Loading Skin Failed"];
     }
+    [skinName release];
+    [loadButton setEnabled:YES];
 }
 
 - (void)webViewDidStartLoad:(UIWebView *)webView {
