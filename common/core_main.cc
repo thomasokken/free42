@@ -3247,6 +3247,15 @@ static void paste_programs(const char *buf) {
                             }
                             goto line_done;
                         }
+                        if (!ind && argtype == ARG_NUM11 && tok_end - tok_start == 1
+                                && isdigit(hpbuf[tok_start])) {
+                            // Special case for FIX/SCI/ENG with 1-digit
+                            // non-indirect argument; needed for parsing
+                            // HP-41 code.
+                            arg.type = ARGTYPE_NUM;
+                            arg.val.num = hpbuf[tok_start] - '0';
+                            goto store;
+                        }
                         if (tok_end - tok_start == 2 && isdigit(hpbuf[tok_start])
                                                      && isdigit(hpbuf[tok_start + 1])) {
                             if (!ind && string_required)
