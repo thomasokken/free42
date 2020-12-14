@@ -432,8 +432,10 @@
 #define CMD_STOFLAG     382
 /* No-op, stored in raw files as 0xf0, a.k.a. TEXT 0 on the 41C */
 #define CMD_NOP         383
+/* Fused Multiply-Add */
+#define CMD_FMA         384
 
-#define CMD_SENTINEL    384
+#define CMD_SENTINEL    385
 
 
 /* command_spec.argtype */

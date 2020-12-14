@@ -729,6 +729,12 @@ Phloat floor(Phloat p) {
     return Phloat(res);
 }
 
+Phloat fma(Phloat x, Phloat y, Phloat z) {
+    BID_UINT128 res;
+    bid128_fma(&res, &x.val, &y.val, &z.val);
+    return Phloat(res);
+}
+
 Phloat operator*(int x, Phloat y) {
     BID_UINT128 xx, res;
     bid128_from_int32(&xx, &x);

@@ -428,7 +428,10 @@ static const command_spec cmd_array[] =
     { /* X<>F */       "X<>F",                  4, docmd_x_swap_f,    0x0000a66e, ARG_NONE,  FLAG_NONE },
     { /* RCLFLAG */    "RCLFLAG",               7, docmd_rclflag,     0x0000a660, ARG_NONE,  FLAG_NONE },
     { /* STOFLAG */    "STOFLAG",               7, docmd_stoflag,     0x0000a66d, ARG_NONE,  FLAG_NONE },
-    { /* NOP */        "NOP",                   3, docmd_nop,         0x000000f0, ARG_NONE,  FLAG_NONE }
+    
+    /* Other... */
+    { /* NOP */        "NOP",                   3, docmd_nop,         0x000000f0, ARG_NONE,  FLAG_NONE },
+    { /* FMA */        "FMA",                   3, docmd_fma,         0x0000a7da, ARG_NONE,  FLAG_NONE }
 };
 
 /*

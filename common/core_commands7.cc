@@ -851,3 +851,51 @@ int docmd_breset(arg_struct *arg) {
 int docmd_nop(arg_struct *arg) {
     return ERR_NONE;
 }
+
+//////////////////////////////
+///// Fused Multiply-Add /////
+//////////////////////////////
+
+int docmd_fma(arg_struct *arg) {
+    if (reg_x->type == TYPE_STRING
+            || reg_y->type == TYPE_STRING
+            || reg_z->type == TYPE_STRING)
+        return ERR_ALPHA_DATA_IS_INVALID;
+    if (reg_x->type != TYPE_REAL
+            || reg_y->type != TYPE_REAL
+            || reg_z->type != TYPE_REAL)
+        return ERR_INVALID_TYPE;
+    phloat x = ((vartype_real *) reg_x)->x;
+    phloat y = ((vartype_real *) reg_y)->x;
+    phloat z = ((vartype_real *) reg_z)->x;
+    phloat r = fma(z, y, x);
+    int inf = p_isinf(r);
+    if (inf != 0) {
+        if (flags.f.range_error_ignore)
+            r = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
+        else
+            return ERR_OUT_OF_RANGE;
+    }
+    vartype *res = new_real(r);
+    if (res == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    vartype *tt = dup_vartype(reg_t);
+    if (tt == NULL) {
+        free_vartype(res);
+        return ERR_INSUFFICIENT_MEMORY;
+    }
+    vartype *ttt = dup_vartype(reg_t);
+    if (ttt == NULL) {
+        free_vartype(res);
+        free_vartype(tt);
+        return ERR_INSUFFICIENT_MEMORY;
+    }
+    free_vartype(reg_lastx);
+    reg_lastx = reg_x;
+    free_vartype(reg_y);
+    free_vartype(reg_z);
+    reg_x = res;
+    reg_y = tt;
+    reg_z = ttt;
+    return ERR_NONE;
+}
