@@ -224,7 +224,8 @@ void keydown(int shift, int key) {
                 arg_struct arg;
                 arg.type = ARGTYPE_DOUBLE;
                 arg.val_d = entered_number;
-                store_command(pc, CMD_NUMBER, &arg);
+                cmdline[cmdline_length] = 0;
+                store_command(pc, CMD_NUMBER, &arg, cmdline);
                 prgm_highlight_row = 1;
             }
         } else if (mode_alpha_entry) {
@@ -288,7 +289,8 @@ void keydown(int shift, int key) {
             arg_struct arg;
             arg.type = ARGTYPE_DOUBLE;
             arg.val_d = entered_number;
-            store_command(pc, CMD_NUMBER, &arg);
+            cmdline[cmdline_length] = 0;
+            store_command(pc, CMD_NUMBER, &arg, cmdline);
             prgm_highlight_row = 1;
         } else if ((flags.f.trace_print || flags.f.normal_print)
                 && flags.f.printer_exists)
@@ -1976,7 +1978,7 @@ void keydown_normal_mode(int shift, int key) {
                     if (flags.f.prgm_mode) {
                         pending_command = shift ? CMD_VIEW : CMD_STO;
                         store_command_after(&pc, pending_command,
-                                                        &pending_command_arg);
+                                                    &pending_command_arg, NULL);
                         prgm_highlight_row = 1;
                         pending_command = CMD_NONE;
                         redisplay();
@@ -2048,7 +2050,7 @@ void keydown_normal_mode(int shift, int key) {
                             pending_command_arg.val.lclbl = 'F' + menukey;
                         if (flags.f.prgm_mode) {
                             store_command_after(&pc, pending_command,
-                                                        &pending_command_arg);
+                                                    &pending_command_arg, NULL);
                             prgm_highlight_row = 1;
                             pending_command = CMD_NONE;
                             set_menu(MENULEVEL_COMMAND, MENU_NONE);
@@ -2267,7 +2269,7 @@ void keydown_normal_mode(int shift, int key) {
                 if (flags.f.prgm_mode &&
                         (cmdlist(pending_command)->flags & FLAG_IMMED) == 0) {
                     store_command_after(&pc, pending_command,
-                                            &pending_command_arg);
+                                            &pending_command_arg, NULL);
                     if (pending_command == CMD_END)
                         /* current_prgm was already incremented by store_command() */
                         pc = 0;
@@ -2300,7 +2302,7 @@ void keydown_normal_mode(int shift, int key) {
                         if (flags.f.prgm_mode) {
                             pending_command = shift ? CMD_VIEW : CMD_STO;
                             store_command_after(&pc, pending_command,
-                                                    &pending_command_arg);
+                                                    &pending_command_arg, NULL);
                             prgm_highlight_row = 1;
                             pending_command = CMD_NONE;
                             redisplay();

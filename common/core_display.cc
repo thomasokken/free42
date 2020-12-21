@@ -967,7 +967,8 @@ void clear_row(int row) {
 }
 
 static int prgmline2buf(char *buf, int len, int4 line, int highlight,
-                        int cmd, arg_struct *arg, bool shift_left = false,
+                        int cmd, arg_struct *arg, const char *orig_num,
+                        bool shift_left = false,
                         bool highlight_final_end = true) {
     int bufptr = 0;
     if (line != -1) {
@@ -1000,7 +1001,11 @@ static int prgmline2buf(char *buf, int len, int4 line, int highlight,
                     && current_prgm == prgms_count - 1) {
         string2buf(buf, len, &bufptr, ".END.", 5);
     } else if (cmd == CMD_NUMBER) {
-        char *num = phloat2program(arg->val_d);
+        const char *num;
+        if (orig_num != NULL)
+            num = orig_num;
+        else
+            num = phloat2program(arg->val_d);
         int numlen = (int) strlen(num);
         if (bufptr + numlen <= len) {
             memcpy(buf + bufptr, num, numlen);
@@ -1073,12 +1078,13 @@ void tb_print_current_program(textbuf *tb) {
     char buf[100];
     char utf8buf[500];
     do {
+        const char *orig_num;
         if (line > 0) {
-            get_next_command(&pc, &cmd, &arg, 0);
+            get_next_command(&pc, &cmd, &arg, 0, &orig_num);
             if (cmd == CMD_END)
                 end = true;
         }
-        int len = prgmline2buf(buf, 100, line, cmd == CMD_LBL, cmd, &arg, false, false);
+        int len = prgmline2buf(buf, 100, line, cmd == CMD_LBL, cmd, &arg, orig_num, false, false);
         for (int i = 0; i < len; i++)
             if (buf[i] == 10)
                 buf[i] = 138;
@@ -1098,6 +1104,7 @@ void display_prgm_line(int row, int line_offset) {
     char buf[44];
     int bufptr;
     int len = 22;
+    const char *orig_num;
 
     if (row == -1)
         /* This means use both lines; used by SHOW */
@@ -1105,16 +1112,16 @@ void display_prgm_line(int row, int line_offset) {
 
     if (tmpline != 0) {
         if (line_offset == 0)
-            get_next_command(&tmppc, &cmd, &arg, 0);
+            get_next_command(&tmppc, &cmd, &arg, 0, &orig_num);
         else if (line_offset == 1) {
             tmppc += get_command_length(current_prgm, tmppc);
             tmpline++;
-            get_next_command(&tmppc, &cmd, &arg, 0);
+            get_next_command(&tmppc, &cmd, &arg, 0, &orig_num);
         } else /* line_offset == -1 */ {
             tmpline--;
             if (tmpline != 0) {
                 tmppc = line2pc(tmpline);
-                get_next_command(&tmppc, &cmd, &arg, 0);
+                get_next_command(&tmppc, &cmd, &arg, 0, &orig_num);
             }
         }
     } else {
@@ -1122,13 +1129,13 @@ void display_prgm_line(int row, int line_offset) {
             /* Nothing to do */
         } else if (line_offset == 1) {
             tmppc = 0;
-            get_next_command(&tmppc, &cmd, &arg, 0);
+            get_next_command(&tmppc, &cmd, &arg, 0, &orig_num);
             tmpline++;
         }
         /* Should not get offset == -1 when at line 0! */
     }
 
-    bufptr = prgmline2buf(buf, len, tmpline, line_offset == 0, cmd, &arg, row == -1);
+    bufptr = prgmline2buf(buf, len, tmpline, line_offset == 0, cmd, &arg, orig_num, row == -1);
 
     if (row == -1) {
         clear_display();
@@ -1388,7 +1395,7 @@ void draw_varmenu() {
     current_prgm = prgm;
     pc += get_command_length(prgm, pc);
     pc2 = pc;
-    while (get_next_command(&pc, &command, &arg, 0), command == CMD_MVAR)
+    while (get_next_command(&pc, &command, &arg, 0, NULL), command == CMD_MVAR)
         num_mvars++;
     if (num_mvars == 0) {
         current_prgm = saved_prgm;
@@ -1404,7 +1411,7 @@ void draw_varmenu() {
 
     row = 0;
     key = 0;
-    while (get_next_command(&pc2, &command, &arg, 0), command == CMD_MVAR) {
+    while (get_next_command(&pc2, &command, &arg, 0, NULL), command == CMD_MVAR) {
         if (row == varmenu_row) {
             varmenu_labellength[key] = arg.length;
             for (i = 0; i < arg.length; i++)
@@ -2244,10 +2251,11 @@ static int print_program_worker(int interrupted) {
         goto done;
 
     do {
+        const char *orig_num;
         if (dat->line == 0)
             dat->pc = 0;
         else
-            get_next_command(&dat->pc, &dat->cmd, &dat->arg, 0);
+            get_next_command(&dat->pc, &dat->cmd, &dat->arg, 0, &orig_num);
 
         if (dat->trace) {
             if (dat->cmd == CMD_LBL || dat->first) {
@@ -2261,7 +2269,7 @@ static int print_program_worker(int interrupted) {
                 dat->buf[0] = ' ';
                 dat->len = 1 + prgmline2buf(dat->buf + 1, 100 - 1, dat->line,
                                             dat->cmd == CMD_LBL, dat->cmd,
-                                            &dat->arg);
+                                            &dat->arg, orig_num);
                 if (dat->cmd == CMD_LBL || dat->cmd == CMD_END
                         || dat->lines == 1) {
                     print_lines(dat->buf, dat->len, 1);
@@ -2275,7 +2283,7 @@ static int print_program_worker(int interrupted) {
                     dat->buf[dat->len++] = ' ';
                 }
                 len2 = prgmline2buf(dat->buf + dat->len, 100 - dat->len, -1, 0,
-                                                        dat->cmd, &dat->arg);
+                                                        dat->cmd, &dat->arg, orig_num);
                 if (dat->len > 0 && dat->len + len2 > dat->width) {
                     /* Break line before current instruction */
                     print_lines(dat->buf, dat->len - 2, 1);
@@ -2299,7 +2307,7 @@ static int print_program_worker(int interrupted) {
             }
         } else {
             dat->len = prgmline2buf(dat->buf, 100, dat->line,
-                                    dat->cmd == CMD_LBL, dat->cmd, &dat->arg);
+                                    dat->cmd == CMD_LBL, dat->cmd, &dat->arg, orig_num);
             if (dat->normal) {
                 /* In normal mode, programs are printed right-justified;
                  * we pad the instuctions to a minimum of 8 characters so

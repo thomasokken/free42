@@ -1995,7 +1995,7 @@ void clear_prgm_lines(int4 count) {
     while (count > 0) {
         int command;
         arg_struct arg;
-        get_next_command(&pc, &command, &arg, 0);
+        get_next_command(&pc, &command, &arg, 0, NULL);
         if (command == CMD_END) {
             pc -= 2;
             break;
@@ -2037,7 +2037,7 @@ void goto_dot_dot(bool force_new) {
         /* Check if last program is empty */
         pc = 0;
         current_prgm = prgms_count - 1;
-        get_next_command(&pc, &command, &arg, 0);
+        get_next_command(&pc, &command, &arg, 0, NULL);
         if (command == CMD_END) {
             pc = -1;
             return;
@@ -2062,7 +2062,7 @@ void goto_dot_dot(bool force_new) {
     prgms[current_prgm].text = NULL;
     command = CMD_END;
     arg.type = ARGTYPE_NONE;
-    store_command(0, command, &arg);
+    store_command(0, command, &arg, NULL);
     pc = -1;
 }
 
@@ -2085,7 +2085,7 @@ int label_has_mvar(int lblindex) {
     current_prgm = labels[lblindex].prgm;
     pc = labels[lblindex].pc;
     pc += get_command_length(current_prgm, pc);
-    get_next_command(&pc, &command, &arg, 0);
+    get_next_command(&pc, &command, &arg, 0, NULL);
     current_prgm = saved_prgm;
     return command == CMD_MVAR;
 }
@@ -2095,7 +2095,8 @@ int get_command_length(int prgm_index, int4 pc) {
     int4 pc2 = pc;
     int command = prgm->text[pc2++];
     int argtype = prgm->text[pc2++];
-    command |= (argtype & 240) << 4;
+    command |= (argtype & 112) << 4;
+    bool have_orig_num = command == CMD_NUMBER && (argtype & 128) != 0;
     argtype &= 15;
 
     if ((command == CMD_GTO || command == CMD_XEQ)
@@ -2124,10 +2125,12 @@ int get_command_length(int prgm_index, int4 pc) {
             pc2 += sizeof(phloat);
             break;
     }
+    if (have_orig_num)
+        while (prgm->text[pc2++]);
     return pc2 - pc;
 }
 
-void get_next_command(int4 *pc, int *command, arg_struct *arg, int find_target){
+void get_next_command(int4 *pc, int *command, arg_struct *arg, int find_target, const char **num_str) {
     prgm_struct *prgm = prgms + current_prgm;
     int i;
     int4 target_pc;
@@ -2135,7 +2138,8 @@ void get_next_command(int4 *pc, int *command, arg_struct *arg, int find_target){
 
     *command = prgm->text[(*pc)++];
     arg->type = prgm->text[(*pc)++];
-    *command |= (arg->type & 240) << 4;
+    *command |= (arg->type & 112) << 4;
+    bool have_orig_num = *command == CMD_NUMBER && (arg->type & 128) != 0;
     arg->type &= 15;
 
     if ((*command == CMD_GTO || *command == CMD_XEQ)
@@ -2199,10 +2203,33 @@ void get_next_command(int4 *pc, int *command, arg_struct *arg, int find_target){
         }
     }
 
-    if (*command == CMD_NUMBER && arg->type != ARGTYPE_DOUBLE) {
-        /* argtype is ARGTYPE_NUM; convert to phloat */
-        arg->val_d = arg->val.num;
-        arg->type = ARGTYPE_DOUBLE;
+    if (*command == CMD_NUMBER) {
+        if (have_orig_num) {
+            char *p = (char *) &prgm->text[*pc];
+            if (num_str != NULL)
+                *num_str = p;
+            /* Make sure the decimal stored in the program matches
+             * the current setting of flag 28.
+             */
+            char wrong_dot = flags.f.decimal_point ? ',' : '.';
+            char right_dot = flags.f.decimal_point ? '.' : ',';
+            int numlen = 1;
+            while (*p != 0) {
+                if (*p == wrong_dot)
+                    *p = right_dot;
+                p++;
+                numlen++;
+            }
+            *pc += numlen;
+        } else {
+            if (num_str != NULL)
+                *num_str = NULL;
+        }
+        if (arg->type != ARGTYPE_DOUBLE) {
+            /* argtype is ARGTYPE_NUM; convert to phloat */
+            arg->val_d = arg->val.num;
+            arg->type = ARGTYPE_DOUBLE;
+        }
     }
     
     if (find_target) {
@@ -2231,7 +2258,7 @@ void rebuild_label_table() {
         while (pc < prgm->size) {
             int command = prgm->text[pc];
             int argtype = prgm->text[pc + 1];
-            command |= (argtype & 240) << 4;
+            command |= (argtype & 112) << 4;
             argtype &= 15;
 
             if (command == CMD_END
@@ -2284,7 +2311,7 @@ static void invalidate_lclbls(int prgm_index, bool force) {
         while (pc2 < prgm->size) {
             int command = prgm->text[pc2];
             int argtype = prgm->text[pc2 + 1];
-            command |= (argtype & 240) << 4;
+            command |= (argtype & 112) << 4;
             argtype &= 15;
             if ((command == CMD_GTO || command == CMD_XEQ)
                     && (argtype == ARGTYPE_NUM || argtype == ARGTYPE_STK
@@ -2310,7 +2337,7 @@ void delete_command(int4 pc) {
     int length = get_command_length(current_prgm, pc);
     int4 pos;
 
-    command |= (argtype & 240) << 4;
+    command |= (argtype & 112) << 4;
     argtype &= 15;
 
     if (command == CMD_END) {
@@ -2357,7 +2384,7 @@ void delete_command(int4 pc) {
     draw_varmenu();
 }
 
-void store_command(int4 pc, int command, arg_struct *arg) {
+void store_command(int4 pc, int command, arg_struct *arg, const char *num_str) {
     unsigned char buf[100];
     int bufptr = 0;
     int i;
@@ -2372,6 +2399,44 @@ void store_command(int4 pc, int command, arg_struct *arg) {
         arg->type = ARGTYPE_NEG_NUM;
         arg->val.num = -arg->val.num;
     } else if (command == CMD_NUMBER) {
+        /* Store the string representation of the number, unless it matches
+         * the canonical representation, or unless the number is zero.
+         */
+        if (num_str != NULL) {
+            if (arg->val_d == 0) {
+                num_str = NULL;
+            } else {
+                const char *ap = phloat2program(arg->val_d);
+                const char *bp = num_str;
+                bool equal = true;
+                while (1) {
+                    char a = *ap++;
+                    char b = *bp++;
+                    if (a == 0) {
+                        if (b != 0)
+                            equal = false;
+                        break;
+                    } else if (b == 0) {
+                        goto notequal;
+                    }
+                    if (a != b) {
+                        if (a == 24) {
+                            if (b != 'E' && b != 'e')
+                                goto notequal;
+                        } else if (a == '.' || a == ',') {
+                            if (b != '.' && b != ',')
+                                goto notequal;
+                        } else {
+                            notequal:
+                            equal = false;
+                            break;
+                        }
+                    }
+                }
+                if (equal)
+                    num_str = NULL;
+            }
+        }
         /* arg.type is always ARGTYPE_DOUBLE for CMD_NUMBER, but for storage
          * efficiency, we handle integers specially and store them as
          * ARGTYPE_NUM or ARGTYPE_NEG_NUM instead.
@@ -2395,7 +2460,7 @@ void store_command(int4 pc, int command, arg_struct *arg) {
     }
 
     buf[bufptr++] = command & 255;
-    buf[bufptr++] = arg->type | ((command & ~255) >> 4);
+    buf[bufptr++] = arg->type | ((command & 0x700) >> 4) | (command != CMD_NUMBER || num_str == NULL ? 0 : 128);
 
     /* If the program is nonempty, it must already contain an END,
      * since that's the very first thing that gets stored in any new
@@ -2494,6 +2559,21 @@ void store_command(int4 pc, int command, arg_struct *arg) {
         }
     }
 
+    if (command == CMD_NUMBER && num_str != NULL) {
+        const char *p = num_str;
+        char c;
+        const char wrong_dot = flags.f.decimal_point ? ',' : '.';
+        const char right_dot = flags.f.decimal_point ? '.' : ',';
+        while ((c = *p++) != 0) {
+            if (c == wrong_dot)
+                c = right_dot;
+            else if (c == 'E' || c == 'e')
+                c = 24;
+            buf[bufptr++] = c;
+        }
+        buf[bufptr++] = 0;
+    }
+
     if (bufptr + prgm->size > prgm->capacity) {
         unsigned char *newtext;
         prgm->capacity += 512;
@@ -2527,12 +2607,12 @@ void store_command(int4 pc, int command, arg_struct *arg) {
         draw_varmenu();
 }
 
-void store_command_after(int4 *pc, int command, arg_struct *arg) {
+void store_command_after(int4 *pc, int command, arg_struct *arg, const char *num_str) {
     if (*pc == -1)
         *pc = 0;
     else if (prgms[current_prgm].text[*pc] != CMD_END)
         *pc += get_command_length(current_prgm, *pc);
-    store_command(*pc, command, arg);
+    store_command(*pc, command, arg, num_str);
 }
 
 static int pc_line_convert(int4 loc, int loc_is_pc) {
@@ -2589,7 +2669,7 @@ int4 find_local_label(const arg_struct *arg) {
         }
         command = prgm->text[search_pc];
         argtype = prgm->text[search_pc + 1];
-        command |= (argtype & 240) << 4;
+        command |= (argtype & 112) << 4;
         argtype &= 15;
         if (command == CMD_LBL && (argtype == arg->type
                                 || argtype == ARGTYPE_STK)) {
@@ -3925,6 +4005,9 @@ static bool convert_programs(bool *clear_stack) {
             int4 prevpc = pc;
             int command = prgm->text[pc++];
             int argtype = prgm->text[pc++];
+            // Note: not handling original number for CMD_NUMBER here, since
+            // that was introduced after we'd stopped writing the in-memory
+            // representations of programs to state files.
             command |= (argtype & 240) << 4;
             argtype &= 15;
 
@@ -4040,6 +4123,9 @@ static void update_decimal_in_programs() {
         while (true) {
             int command = prgm->text[pc++];
             int argtype = prgm->text[pc++];
+            // Note: not handling original number for CMD_NUMBER here, since
+            // that was introduced after we'd stopped writing the in-memory
+            // representations of programs to state files.
             command |= (argtype & 240) << 4;
             argtype &= 15;
 

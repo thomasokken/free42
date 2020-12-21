@@ -954,7 +954,7 @@ int docmd_varmenu(arg_struct *arg) {
         return ERR_LABEL_NOT_FOUND;
     pc += get_command_length(prgm, pc);
     current_prgm = prgm;
-    get_next_command(&pc, &command, &arg2, 0);
+    get_next_command(&pc, &command, &arg2, 0, NULL);
     current_prgm = saved_prgm;
     if (command != CMD_MVAR)
         return ERR_NO_MENU_VARIABLES;

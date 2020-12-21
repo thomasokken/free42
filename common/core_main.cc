@@ -558,7 +558,7 @@ int core_keyup() {
         oldpc = pc;
         if (pc == -1)
             pc = 0;
-        get_next_command(&pc, &cmd, &arg, 1);
+        get_next_command(&pc, &cmd, &arg, 1, NULL);
         if (pending_command == CMD_SST_RT
                 && (cmd == CMD_XEQ || cmd == CMD_SOLVE || cmd == CMD_INTEG)) {
             pc = oldpc;
@@ -646,7 +646,8 @@ int core_powercycle() {
                 arg_struct arg;
                 arg.type = ARGTYPE_DOUBLE;
                 arg.val_d = entered_number;
-                store_command(pc, CMD_NUMBER, &arg);
+                cmdline[cmdline_length] = 0;
+                store_command(pc, CMD_NUMBER, &arg, cmdline);
                 prgm_highlight_row = 1;
             }
             flags.f.prgm_mode = false;
@@ -816,7 +817,8 @@ static void export_hp42s(int index) {
 
     current_prgm = index;
     do {
-        get_next_command(&pc, &cmd, &arg, 0);
+        const char *orig_num;
+        get_next_command(&pc, &cmd, &arg, 0, &orig_num);
         hp42s_code = cmdlist(cmd)->hp42s_code;
         code_flags = hp42s_code >> 24;
         code_name = hp42s_code >> 16;
@@ -923,13 +925,16 @@ static void export_hp42s(int index) {
                     cmdbuf[cmdlen++] = 0x00;
                     cmdbuf[cmdlen++] = 0x0D;
                 } else if (cmd == CMD_NUMBER) {
-                    char *p = phloat2program(arg.val_d);
-                    char dot = flags.f.decimal_point ? '.' : ',';
+                    const char *p;
+                    if (orig_num != NULL)
+                        p = orig_num;
+                    else
+                        p = phloat2program(arg.val_d);
                     char c;
                     while ((c = *p++) != 0) {
                         if (c >= '0' && c <= '9')
                             cmdbuf[cmdlen++] = 0x10 + c - '0';
-                        else if (c == dot)
+                        else if (c == '.' || c == ',')
                             cmdbuf[cmdlen++] = 0x1A;
                         else if (c == 24)
                             cmdbuf[cmdlen++] = 0x1B;
@@ -1087,7 +1092,8 @@ int4 core_program_size(int prgm_index) {
 
     current_prgm = prgm_index;
     do {
-        get_next_command(&pc, &cmd, &arg, 0);
+        const char *orig_num;
+        get_next_command(&pc, &cmd, &arg, 0, &orig_num);
         hp42s_code = cmdlist(cmd)->hp42s_code;
         code_flags = hp42s_code >> 24;
         //code_name = hp42s_code >> 16;
@@ -1144,10 +1150,12 @@ int4 core_program_size(int prgm_index) {
                 } else if (cmd == CMD_END) {
                     /* Not counted for the line 00 total */
                 } else if (cmd == CMD_NUMBER) {
-                    char *p = phloat2program(arg.val_d);
-                    while (*p++ != 0)
-                        size += 1;
-                    size += 1;
+                    const char *p;
+                    if (orig_num != NULL)
+                        p = orig_num;
+                    else
+                        p = phloat2program(arg.val_d);
+                    size += strlen(p) + 1;
                 } else if (cmd == CMD_STRING) {
                     size += arg.length + 1;
                 } else if (cmd >= CMD_ASGN01 && cmd <= CMD_ASGN18) {
@@ -1795,6 +1803,8 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
         pending_end = pc > 0;
     }
 
+    char numbuf[50];
+
     while (!done_flag) {
         skip:
         byte1 = raw_getc();
@@ -1823,7 +1833,6 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                 goto skip;
             else if (byte1 >= 0x10 && byte1 <= 0x1C) {
                 /* Number */
-                char numbuf[50];
                 int numlen = 0;
                 do {
                     if (byte1 == 0x1A)
@@ -2135,7 +2144,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                 break;
             pending_end = true;
         } else {
-            store_command_after(&pc, cmd, &arg);
+            store_command_after(&pc, cmd, &arg, numbuf);
         }
     }
 
@@ -2956,6 +2965,7 @@ static void paste_programs(const char *buf) {
     char hpbuf[1027];
     int cmd;
     arg_struct arg;
+    char numbuf[50];
 
     while (!done) {
         int end = pos;
@@ -2991,7 +3001,6 @@ static void paste_programs(const char *buf) {
             // line.
             if (hppos < hpend && (c = hpbuf[hppos], c == '.' || c == ','
                             || c == 'E' || c == 'e' || c == 24)) {
-                char numbuf[50];
                 int len = hpend - prev_hppos;
                 if (len > 50)
                     len = 50;
@@ -3398,7 +3407,6 @@ static void paste_programs(const char *buf) {
                         int len = tok_end - tok_start;
                         if (len > 49)
                             len = 49;
-                        char numbuf[50];
                         for (int i = 0; i < len; i++) {
                             c = hpbuf[tok_start + i];
                             if (c == 'e' || c == 24)
@@ -3454,7 +3462,7 @@ static void paste_programs(const char *buf) {
             goto_dot_dot(false);
         after_end = cmd == CMD_END;
         if (!after_end)
-            store_command_after(&pc, cmd, &arg);
+            store_command_after(&pc, cmd, &arg, numbuf);
 
         line_done:
         pos = end + 1;
@@ -3849,7 +3857,7 @@ void do_interactive(int command) {
         if (cmdlist(command)->argtype == ARG_NONE) {
             arg_struct arg;
             arg.type = ARGTYPE_NONE;
-            store_command_after(&pc, command, &arg);
+            store_command_after(&pc, command, &arg, NULL);
             if (command == CMD_END)
                 pc = 0;
             prgm_highlight_row = 1;
@@ -3890,7 +3898,7 @@ static void continue_running() {
             set_running(false);
             return;
         }
-        get_next_command(&pc, &cmd, &arg, 1);
+        get_next_command(&pc, &cmd, &arg, 1, NULL);
         if (flags.f.trace_print && flags.f.printer_exists) {
             if (cmd == CMD_LBL)
                 print_text(NULL, 0, 1);
@@ -4180,7 +4188,7 @@ void finish_command_entry(bool refresh) {
             int inserting_an_end = pending_command == CMD_END;
             if ((cmdlist(pending_command)->flags & FLAG_IMMED) != 0)
                 goto do_it_now;
-            store_command(pc, pending_command, &pending_command_arg);
+            store_command(pc, pending_command, &pending_command_arg, NULL);
             if (inserting_an_end)
                 /* current_prgm was already incremented by store_command() */
                 pc = 0;
@@ -4306,7 +4314,7 @@ void finish_alpha_prgm_line() {
         arg.length = entered_string_length;
         for (i = 0; i < entered_string_length; i++)
             arg.val.text[i] = entered_string[i];
-        store_command(pc, CMD_STRING, &arg);
+        store_command(pc, CMD_STRING, &arg, NULL);
         prgm_highlight_row = 1;
     }
     mode_alpha_entry = false;
