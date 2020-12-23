@@ -819,8 +819,13 @@ void phloat_init() {
     NEG_TINY_PHLOAT = -POS_TINY_PHLOAT;
     double zero = 0.0;
     NAN_PHLOAT = zero / 0.0;
+#ifdef WINDOWS
+    *(int8 *) &NAN_1_PHLOAT = 0x7ff8000000000001;
+    *(int8 *) &NAN_2_PHLOAT = 0x7ff8000000000002;
+#else
     NAN_1_PHLOAT = nan("1");
     NAN_2_PHLOAT = nan("2");
+#endif
 }
 
 int string2phloat(const char *buf, int buflen, phloat *d) {
