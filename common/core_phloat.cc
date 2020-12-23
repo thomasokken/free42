@@ -37,6 +37,8 @@ phloat NEG_HUGE_PHLOAT;
 phloat POS_TINY_PHLOAT;
 phloat NEG_TINY_PHLOAT;
 phloat NAN_PHLOAT;
+phloat NAN_1_PHLOAT;
+phloat NAN_2_PHLOAT;
 
 
 /* Note: this function does not handle infinities or NaN */
@@ -98,6 +100,8 @@ void phloat_init() {
     NEG_TINY_PHLOAT = negtiny;
     bid128_div(&nan, &zero, &zero);
     NAN_PHLOAT = nan;
+    bid128_nan(&NAN_1_PHLOAT.val, "1");
+    bid128_nan(&NAN_2_PHLOAT.val, "2");
 }
 
 int string2phloat(const char *buf, int buflen, phloat *d) {
@@ -815,6 +819,8 @@ void phloat_init() {
     NEG_TINY_PHLOAT = -POS_TINY_PHLOAT;
     double zero = 0.0;
     NAN_PHLOAT = zero / 0.0;
+    NAN_1_PHLOAT = nan("1");
+    NAN_2_PHLOAT = nan("2");
 }
 
 int string2phloat(const char *buf, int buflen, phloat *d) {

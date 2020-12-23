@@ -1691,6 +1691,17 @@ static int hp42ext[] = {
 };
 
 
+static bool looks_like_zero(const char *buf) {
+    char c;
+    while ((c = *buf++) != 0) {
+        if (c >= '1' && c <= '9')
+            return false;
+        if (c == 'E')
+            return true;
+    }
+    return true;
+}
+
 static phloat parse_number_line(char *buf) {
     phloat res;
     if (buf[0] == 'E' || buf[0] == '-' && buf[1] == 'E') {
@@ -1711,36 +1722,15 @@ static phloat parse_number_line(char *buf) {
     }
 #ifdef BCD_MATH
     res = Phloat(buf);
-    int s = p_isinf(res);
-    if (s > 0)
-        res = POS_HUGE_PHLOAT;
-    else if (s < 0)
-        res = NEG_HUGE_PHLOAT;
 #else
     BID_UINT128 d;
     bid128_from_string(&d, buf);
     bid128_to_binary64(&res, &d);
-    if (res == 0) {
-        int zero = 0;
-        BID_UINT128 z;
-        bid128_from_int32(&z, &zero);
-        int r;
-        bid128_quiet_equal(&r, &d, &z);
-        if (!r) {
-            bid128_isSigned(&r, &d);
-            if (r)
-                res = NEG_TINY_PHLOAT;
-            else
-                res = POS_TINY_PHLOAT;
-        }
-    } else {
-        int s = p_isinf(res);
-        if (s > 0)
-            res = POS_HUGE_PHLOAT;
-        else if (s < 0)
-            res = NEG_HUGE_PHLOAT;
-    }
 #endif
+    if (p_isinf(res) != 0)
+        res = NAN_1_PHLOAT;
+    else if (res == 0 && !looks_like_zero(buf))
+        res = NAN_2_PHLOAT;
     return res;
 }
 
@@ -4347,6 +4337,10 @@ static int handle_error(int error) {
                 pc = -1;
             set_running(false);
             return 0;
+        } else if (error == ERR_NUMBER_TOO_LARGE || error == ERR_NUMBER_TOO_SMALL) {
+            // Handling these separately because they shouldn't be
+            // suppressed by flag 25, nor trapped by SOLVE
+            goto handle_it;
         } else if (error != ERR_NONE && error != ERR_YES) {
             if (flags.f.error_ignore && error != ERR_SUSPICIOUS_OFF) {
                 flags.f.error_ignore = 0;
@@ -4363,6 +4357,7 @@ static int handle_error(int error) {
                 if (error == ERR_NONE || error == ERR_RUN || error == ERR_STOP)
                     return 0;
             }
+            handle_it:
             pc = oldpc;
             display_error(error, 1);
             set_running(false);

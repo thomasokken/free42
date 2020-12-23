@@ -74,7 +74,9 @@ error_spec errors[] = {
     { /* INTERRUPTIBLE */          NULL,                       0 },
     { /* NO_VARIABLES */           "No Variables",            12 },
     { /* SUSPICIOUS_OFF */         "Suspicious OFF",          14 },
-    { /* RTN_STACK_FULL */         "RTN Stack Full",          14 }
+    { /* RTN_STACK_FULL */         "RTN Stack Full",          16 },
+    { /* NUMBER_TOO_LARGE */       "Number Too Large",        16 },
+    { /* NUMBER_TOO_SMALL */       "Number Too Small",        16 }
 };
 
 

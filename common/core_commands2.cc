@@ -16,6 +16,7 @@
  *****************************************************************************/
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "core_commands1.h"
 #include "core_commands2.h"
@@ -1672,6 +1673,14 @@ int docmd_end(arg_struct *arg) {
 }
 
 int docmd_number(arg_struct *arg) {
+    if (p_isnan(arg->val_d)) {
+        if (memcmp(&arg->val_d, &NAN_1_PHLOAT, sizeof(phloat)) == 0)
+            return ERR_NUMBER_TOO_LARGE;
+        else if (memcmp(&arg->val_d, &NAN_2_PHLOAT, sizeof(phloat)) == 0)
+            return ERR_NUMBER_TOO_SMALL;
+        else
+            return ERR_INTERNAL_ERROR;
+    }
     vartype *new_x = new_real(arg->val_d);
     if (new_x == NULL)
         return ERR_INSUFFICIENT_MEMORY;
