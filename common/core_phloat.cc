@@ -804,9 +804,7 @@ void update_decimal(BID_UINT128 *val) {
 void phloat_init() {
     POS_HUGE_PHLOAT = DBL_MAX;
     NEG_HUGE_PHLOAT = -POS_HUGE_PHLOAT;
-#ifndef WINDOWS
-    POS_TINY_PHLOAT = nextafter(0.0, 1.0);
-#else
+#ifdef WINDOWS
     double d = 1;
     while (1) {
         double d2 = d / 2;
@@ -815,17 +813,15 @@ void phloat_init() {
         d = d2;
     }
     POS_TINY_PHLOAT = d;
-#endif
-    NEG_TINY_PHLOAT = -POS_TINY_PHLOAT;
-    double zero = 0.0;
-    NAN_PHLOAT = zero / 0.0;
-#ifdef WINDOWS
     *(int8 *) &NAN_1_PHLOAT = 0x7ff8000000000001;
     *(int8 *) &NAN_2_PHLOAT = 0x7ff8000000000002;
 #else
+    POS_TINY_PHLOAT = nextafter(0.0, 1.0);
     NAN_1_PHLOAT = nan("1");
     NAN_2_PHLOAT = nan("2");
 #endif
+    NEG_TINY_PHLOAT = -POS_TINY_PHLOAT;
+    NAN_PHLOAT = nan("");
 }
 
 int string2phloat(const char *buf, int buflen, phloat *d) {
