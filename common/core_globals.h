@@ -370,13 +370,17 @@ typedef union {
 extern flags_struct flags;
 extern const char *virtual_flags;
 
+/* For var_struct.flags */
+#define VAR_HIDDEN  1
+#define VAR_HIDING  2
+#define VAR_PRIVATE 4
+
 /* Variables */
 typedef struct {
     unsigned char length;
     char name[7];
     int2 level;
-    bool hidden;
-    bool hiding;
+    int2 flags;
     vartype *value;
 } var_struct;
 extern int vars_capacity;

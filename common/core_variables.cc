@@ -372,7 +372,7 @@ int disentangle(vartype *v) {
 int lookup_var(const char *name, int namelength) {
     int i, j;
     for (i = vars_count - 1; i >= 0; i--) {
-        if (vars[i].hidden)
+        if ((vars[i].flags & VAR_HIDDEN) != 0)
             continue;
         if (vars[i].length == namelength) {
             for (j = 0; j < namelength; j++)
@@ -422,8 +422,7 @@ int store_var(const char *name, int namelength, vartype *value, bool local) {
         for (i = 0; i < namelength; i++)
             vars[varindex].name[i] = name[i];
         vars[varindex].level = local ? get_rtn_level() : -1;
-        vars[varindex].hidden = false;
-        vars[varindex].hiding = false;
+        vars[varindex].flags = 0;
     } else if (local && vars[varindex].level < get_rtn_level()) {
         if (vars_count == vars_capacity) {
             int nc = vars_capacity + 25;
@@ -433,14 +432,13 @@ int store_var(const char *name, int namelength, vartype *value, bool local) {
             vars_capacity = nc;
             vars = nv;
         }
-        vars[varindex].hidden = true;
+        vars[varindex].flags |= VAR_HIDDEN;
         varindex = vars_count++;
         vars[varindex].length = namelength;
         for (i = 0; i < namelength; i++)
             vars[varindex].name[i] = name[i];
         vars[varindex].level = get_rtn_level();
-        vars[varindex].hidden = false;
-        vars[varindex].hiding = true;
+        vars[varindex].flags = VAR_HIDING;
         push_indexed_matrix(name, namelength);
     } else {
         if (matedit_mode == 1 &&
@@ -467,10 +465,10 @@ void purge_var(const char *name, int namelength) {
     if (matedit_mode == 1 && string_equals(matedit_name, matedit_length, name, namelength))
         matedit_mode = 0;
     free_vartype(vars[varindex].value);
-    if (vars[varindex].hiding) {
+    if ((vars[varindex].flags & VAR_HIDING) != 0) {
         for (int i = varindex - 1; i >= 0; i--)
-            if (vars[i].hidden && string_equals(vars[i].name, vars[i].length, name, namelength)) {
-                vars[i].hidden = false;
+            if ((vars[i].flags & VAR_HIDDEN) != 0 && string_equals(vars[i].name, vars[i].length, name, namelength)) {
+                vars[i].flags &= ~VAR_HIDDEN;
                 break;
             }
         pop_indexed_matrix(name, namelength);
@@ -491,7 +489,7 @@ void purge_all_vars() {
 int vars_exist(int real, int cpx, int matrix) {
     int i;
     for (i = 0; i < vars_count; i++) {
-        if (vars[i].hidden)
+        if ((vars[i].flags & VAR_HIDDEN) != 0)
             continue;
         switch (vars[i].value->type) {
             case TYPE_REAL:

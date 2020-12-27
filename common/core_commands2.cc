@@ -1486,7 +1486,7 @@ static int prusr_worker(int interrupted) {
             prusr_index = 0;
             goto state1;
         }
-        if (!vars[prusr_index].hidden) {
+        if ((vars[prusr_index].flags & VAR_HIDDEN) == 0) {
             llen = 0;
             string2buf(lbuf, 8, &llen, vars[prusr_index].name,
                                        vars[prusr_index].length);

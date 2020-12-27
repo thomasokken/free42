@@ -748,8 +748,9 @@ bool no_keystrokes_yet;
  * Version 29: 2.5.7  SOLVE: Tracking second best guess in order to be able to
  *                    report it accurately in Y, and to provide additional data
  *                    points for distinguishing between zeroes and poles.
+ * Version 30: 2.5.23 Private local variables
  */
-#define FREE42_VERSION 29
+#define FREE42_VERSION 30
 
 
 /*******************/
@@ -1473,8 +1474,7 @@ static bool persist_globals() {
         if (!write_char(vars[i].length)
             || fwrite(vars[i].name, 1, vars[i].length, gfile) != vars[i].length
             || !write_int2(vars[i].level)
-            || !write_bool(vars[i].hidden)
-            || !write_bool(vars[i].hiding)
+            || !write_int2(vars[i].flags)
             || !persist_vartype(vars[i].value))
             goto done;
     }
@@ -1661,8 +1661,7 @@ static bool unpersist_globals(int4 ver) {
         if (ver < 24)
             for (i = 0; i < vars_count; i++) {
                 vars[i].level = -1;
-                vars[i].hidden = false;
-                vars[i].hiding = false;
+                vars[i].flags = 0;
             }
         for (i = 0; i < vars_count; i++)
             if (!unpersist_vartype(&vars[i].value, padded)) {
@@ -1754,12 +1753,24 @@ static bool unpersist_globals(int4 ver) {
             goto done;
         }
         for (i = 0; i < vars_count; i++) {
-            if (!read_char((char *) &vars[i].length)
-                || fread(vars[i].name, 1, vars[i].length, gfile) != vars[i].length
-                || !read_int2(&vars[i].level)
-                || !read_bool(&vars[i].hidden)
-                || !read_bool(&vars[i].hiding)
-                || !unpersist_vartype(&vars[i].value, false)) {
+            if (!read_char((char *) &vars[i].length))
+                goto vars_fail;
+            if (fread(vars[i].name, 1, vars[i].length, gfile) != vars[i].length)
+                goto vars_fail;
+            if (!read_int2(&vars[i].level))
+                goto vars_fail;
+            if (ver < 30) {
+                bool hidden, hiding;
+                if (!read_bool(&hidden) || !read_bool(&hiding))
+                    goto vars_fail;
+                vars[i].flags = (hidden ? VAR_HIDDEN : 0)
+                                | (hiding ? VAR_HIDING : 0);
+            } else {
+                if (!read_int2(&vars[i].flags))
+                    goto vars_fail;
+            }
+            if (!unpersist_vartype(&vars[i].value, false)) {
+                vars_fail:
                 for (int j = 0; j < i; j++)
                     free_vartype(vars[j].value);
                 free(vars);
@@ -2849,10 +2860,10 @@ static void remove_locals() {
             }
             matedit_mode = 0;
         }
-        if (vars[i].hiding) {
+        if ((vars[i].flags & VAR_HIDING) != 0) {
             for (int j = i - 1; j >= 0; j--)
-                if (vars[j].hidden && string_equals(vars[i].name, vars[i].length, vars[j].name, vars[j].length)) {
-                    vars[j].hidden = false;
+                if ((vars[j].flags & VAR_HIDDEN) != 0 && string_equals(vars[i].name, vars[i].length, vars[j].name, vars[j].length)) {
+                    vars[j].flags &= ~VAR_HIDDEN;
                     break;
                 }
         }
