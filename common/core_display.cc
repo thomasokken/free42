@@ -1665,7 +1665,7 @@ static void draw_catalog() {
 
         for (i = 0; i < vars_count; i++) {
             int type = vars[i].value->type;
-            if ((vars[i].flags & VAR_HIDDEN) != 0)
+            if ((vars[i].flags & (VAR_HIDDEN | VAR_PRIVATE)) != 0)
                 continue;
             switch (type) {
                 case TYPE_REAL:
@@ -1703,7 +1703,7 @@ static void draw_catalog() {
             catalogmenu_row[catindex] = catalogmenu_rows[catindex] - 1;
         j = -1;
         for (i = vars_count - 1; i >= 0; i--) {
-            if ((vars[i].flags & VAR_HIDDEN) != 0)
+            if ((vars[i].flags & (VAR_HIDDEN | VAR_PRIVATE)) != 0)
                 continue;
             int type = vars[i].value->type;
             switch (type) {
