@@ -4322,6 +4322,10 @@ static void stop_interruptible() {
     redisplay();
 }
 
+void set_old_pc(int4 pc) {
+    oldpc = pc;
+}
+
 static int handle_error(int error) {
     if (mode_running) {
         if (error == ERR_RUN)
@@ -4337,7 +4341,9 @@ static int handle_error(int error) {
                 pc = -1;
             set_running(false);
             return 0;
-        } else if (error == ERR_NUMBER_TOO_LARGE || error == ERR_NUMBER_TOO_SMALL) {
+        } else if (error == ERR_NUMBER_TOO_LARGE
+                || error == ERR_NUMBER_TOO_SMALL
+                || error == ERR_INVALID_RTN_WITH_ERROR) {
             // Handling these separately because they shouldn't be
             // suppressed by flag 25, nor trapped by SOLVE
             goto handle_it;

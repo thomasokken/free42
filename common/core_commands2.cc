@@ -21,6 +21,7 @@
 #include "core_commands1.h"
 #include "core_commands2.h"
 #include "core_display.h"
+#include "core_globals.h"
 #include "core_helpers.h"
 #include "core_main.h"
 #include "core_math1.h"
@@ -379,30 +380,7 @@ int docmd_lbl(arg_struct *arg) {
 }
 
 int docmd_rtn(arg_struct *arg) {
-    if (program_running()) {
-        int newprgm;
-        int4 newpc;
-        bool stop;
-        pop_rtn_addr(&newprgm, &newpc, &stop);
-        if (newprgm == -3)
-            return return_to_integ(stop);
-        else if (newprgm == -2)
-            return return_to_solve(0, stop);
-        else if (newprgm == -1) {
-            if (pc >= prgms[current_prgm].size)
-                /* It's an END; go to line 0 */
-                pc = -1;
-            return ERR_STOP;
-        } else {
-            current_prgm = newprgm;
-            pc = newpc;
-            return stop ? ERR_STOP : ERR_NONE;
-        }
-    } else {
-        clear_all_rtns();
-        pc = -1;
-        return ERR_NONE;
-    }
+    return rtn(false);
 }
 
 int docmd_input(arg_struct *arg) {
@@ -1669,7 +1647,7 @@ int docmd_gto(arg_struct *arg) {
 }
 
 int docmd_end(arg_struct *arg) {
-    return docmd_rtn(arg);
+    return rtn(false);
 }
 
 int docmd_number(arg_struct *arg) {

@@ -1484,12 +1484,15 @@ static int fcn_cat[] = {
 // A command number of -1 defines a range, from the number before it in
 // the list until the number after it.
 static int ext_fcn_cat[] = {
-    CMD_FIND, CMD_MAX, CMD_MIN, CMD_FMA, CMD_NOP,
+    CMD_FIND, CMD_MAX, CMD_MIN,
     CMD_ANUM, CMD_RCLFLAG, CMD_STOFLAG, CMD_X_SWAP_F,
     CMD_ADATE, -1, CMD_SWPT,
     CMD_YMD,
-    CMD_BRESET, CMD_BSIGNED, CMD_BWRAP,
-    CMD_GETKEY1, CMD_LASTO, CMD_LSTO, -1, CMD_WSIZE_T,
+    CMD_BRESET, CMD_BSIGNED, CMD_BWRAP, CMD_FMA,
+    CMD_FUNC_0, CMD_FUNC_1, CMD_FUNC_2, CMD_GETKEY1,
+    CMD_LASTO, CMD_LSTO, CMD_NOP, CMD_RTN_R, CMD_RTN_R_1,
+    CMD_RTN_E, CMD_SST_UP, CMD_SST_RT,
+    CMD_WSIZE, CMD_WSIZE_T,
     CMD_ACCEL, CMD_LOCAT, CMD_HEADING,
     CMD_FPTEST,
     CMD_NULL

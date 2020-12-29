@@ -339,6 +339,7 @@ void finish_xeq();
 void start_alpha_prgm_line();
 void finish_alpha_prgm_line();
 int shiftcharacter(char c);
+void set_old_pc(int4 pc);
 
 
 #endif

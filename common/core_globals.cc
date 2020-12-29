@@ -43,16 +43,13 @@ FILE *gfile = NULL;
 error_spec errors[] = {
     { /* NONE */                   NULL,                       0 },
     { /* ALPHA_DATA_IS_INVALID */  "Alpha Data Is Invalid",   21 },
-    { /* INSUFFICIENT_MEMORY */    "Insufficient Memory",     19 },
-    { /* NOT_YET_IMPLEMENTED */    "Not Yet Implemented",     19 },
     { /* OUT_OF_RANGE */           "Out of Range",            12 },
     { /* DIVIDE_BY_0 */            "Divide by 0",             11 },
     { /* INVALID_TYPE */           "Invalid Type",            12 },
     { /* INVALID_DATA */           "Invalid Data",            12 },
+    { /* NONEXISTENT */            "Nonexistent",             11 },
     { /* DIMENSION_ERROR */        "Dimension Error",         15 },
     { /* SIZE_ERROR */             "Size Error",              10 },
-    { /* INTERNAL_ERROR */         "Internal Error",          14 },
-    { /* NONEXISTENT */            "Nonexistent",             11 },
     { /* RESTRICTED_OPERATION */   "Restricted Operation",    20 },
     { /* YES */                    "Yes",                      3 },
     { /* NO */                     "No",                       2 },
@@ -73,10 +70,14 @@ error_spec errors[] = {
     { /* PRINTING_IS_DISABLED */   "Printing Is Disabled",    20 },
     { /* INTERRUPTIBLE */          NULL,                       0 },
     { /* NO_VARIABLES */           "No Variables",            12 },
+    { /* INSUFFICIENT_MEMORY */    "Insufficient Memory",     19 },
+    { /* NOT_YET_IMPLEMENTED */    "Not Yet Implemented",     19 },
+    { /* INTERNAL_ERROR */         "Internal Error",          14 },
     { /* SUSPICIOUS_OFF */         "Suspicious OFF",          14 },
     { /* RTN_STACK_FULL */         "RTN Stack Full",          14 },
     { /* NUMBER_TOO_LARGE */       "Number Too Large",        16 },
-    { /* NUMBER_TOO_SMALL */       "Number Too Small",        16 }
+    { /* NUMBER_TOO_SMALL */       "Number Too Small",        16 },
+    { /* INVALID_RTN_WITH_ERROR */ "Invalid RTN With Error",  22 }
 };
 
 
@@ -2882,6 +2883,59 @@ static void remove_locals() {
     }
     vars_count -= from - to;
     update_catalog();
+}
+
+int rtn(bool skip) {
+    if (program_running()) {
+        int newprgm;
+        int4 newpc;
+        bool stop;
+        pop_rtn_addr(&newprgm, &newpc, &stop);
+        if (newprgm == -3) {
+            return return_to_integ(stop);
+        } else if (newprgm == -2) {
+            return return_to_solve(0, stop);
+        } else if (newprgm == -1) {
+            if (pc >= prgms[current_prgm].size)
+                /* It's an END; go to line 0 */
+                pc = -1;
+            return ERR_STOP;
+        } else {
+            current_prgm = newprgm;
+            pc = newpc;
+            if (skip) {
+                int command;
+                arg_struct arg;
+                get_next_command(&pc, &command, &arg, 0, NULL);
+                if (command == CMD_END)
+                    pc = newpc;
+            }
+            return stop ? ERR_STOP : ERR_NONE;
+        }
+    } else {
+        clear_all_rtns();
+        pc = -1;
+        return ERR_NONE;
+    }
+}
+
+int rtn_e(int err) {
+    int newprgm;
+    int4 newpc;
+    bool stop;
+    pop_rtn_addr(&newprgm, &newpc, &stop);
+    if (newprgm == -3) {
+        return ERR_INVALID_RTN_WITH_ERROR;
+    } else if (newprgm == -2) {
+        return ERR_INVALID_RTN_WITH_ERROR;
+    } else if (newprgm == -1) {
+        return err;
+    } else {
+        current_prgm = newprgm;
+        int line = pc2line(newpc);
+        set_old_pc(line2pc(line - 1));
+        return err;
+    }
 }
 
 void pop_rtn_addr(int *prgm, int4 *pc, bool *stop) {

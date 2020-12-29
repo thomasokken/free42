@@ -52,5 +52,11 @@ int docmd_breset(arg_struct *arg);
 
 int docmd_nop(arg_struct *arg);
 int docmd_fma(arg_struct *arg);
+int docmd_func_0(arg_struct *arg);
+int docmd_func_1(arg_struct *arg);
+int docmd_func_2(arg_struct *arg);
+int docmd_rtn_r(arg_struct *arg);
+int docmd_rtn_r_1(arg_struct *arg);
+int docmd_rtn_e(arg_struct *arg);
 
 #endif

@@ -595,6 +595,17 @@ vartype *recall_private_var(const char *name, int namelength) {
         return vars[varindex].value;
 }
 
+vartype *recall_and_purge_private_var(const char *name, int namelength) {
+    int varindex = lookup_private_var(name, namelength);
+    if (varindex == -1)
+        return NULL;
+    vartype *ret = vars[varindex].value;
+    for (int i = varindex; i < vars_count - 1; i++)
+        vars[i] = vars[i + 1];
+    vars_count--;
+    return ret;
+}
+
 int store_private_var(const char *name, int namelength, vartype *value) {
     int varindex = lookup_private_var(name, namelength);
     int i;

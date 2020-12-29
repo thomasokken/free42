@@ -431,7 +431,15 @@ static const command_spec cmd_array[] =
     
     /* Other... */
     { /* NOP */        "NOP",                   3, docmd_nop,         0x000000f0, ARG_NONE,  FLAG_NONE },
-    { /* FMA */        "FMA",                   3, docmd_fma,         0x0000a7da, ARG_NONE,  FLAG_NONE }
+    { /* FMA */        "FMA",                   3, docmd_fma,         0x0000a7da, ARG_NONE,  FLAG_NONE },
+
+    /* User-defined functions */
+    { /* FUNC_0 */     "F\325NC.0",             6, docmd_func_0,      0x0000a7db, ARG_NONE,  FLAG_NONE },
+    { /* FUNC_1 */     "F\325NC.1",             6, docmd_func_1,      0x0000a7dc, ARG_NONE,  FLAG_NONE },
+    { /* FUNC_2 */     "F\325NC.2",             6, docmd_func_2,      0x0000a7dd, ARG_NONE,  FLAG_NONE },
+    { /* RTN_R */      "RTN.R",                 5, docmd_rtn_r,       0x0000a7de, ARG_NONE,  FLAG_NONE },
+    { /* RTN_R_1 */    "R\324\316.R+1",         7, docmd_rtn_r_1,     0x0000a7df, ARG_NONE,  FLAG_NONE },
+    { /* RTN_E */      "RTN.E",                 5, docmd_rtn_e,       0x0000a7e0, ARG_NONE,  FLAG_NONE }
 };
 
 /*

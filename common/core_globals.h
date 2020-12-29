@@ -33,40 +33,41 @@ extern FILE *gfile;
 
 #define ERR_NONE                    0
 #define ERR_ALPHA_DATA_IS_INVALID   1
-#define ERR_INSUFFICIENT_MEMORY     2
-#define ERR_NOT_YET_IMPLEMENTED     3
-#define ERR_OUT_OF_RANGE            4
-#define ERR_DIVIDE_BY_0             5
-#define ERR_INVALID_TYPE            6
-#define ERR_INVALID_DATA            7
-#define ERR_DIMENSION_ERROR         8
-#define ERR_SIZE_ERROR              9
-#define ERR_INTERNAL_ERROR         10
-#define ERR_NONEXISTENT            11
-#define ERR_RESTRICTED_OPERATION   12
-#define ERR_YES                    13
-#define ERR_NO                     14
-#define ERR_STOP                   15
-#define ERR_LABEL_NOT_FOUND        16
-#define ERR_NO_REAL_VARIABLES      17
-#define ERR_NO_COMPLEX_VARIABLES   18
-#define ERR_NO_MATRIX_VARIABLES    19
-#define ERR_NO_MENU_VARIABLES      20
-#define ERR_STAT_MATH_ERROR        21
-#define ERR_INVALID_FORECAST_MODEL 22
-#define ERR_SOLVE_INTEG_RTN_LOST   23
-#define ERR_SINGULAR_MATRIX        24
-#define ERR_SOLVE_SOLVE            25
-#define ERR_INTEG_INTEG            26
-#define ERR_RUN                    27
-#define ERR_INTERRUPTED            28
-#define ERR_PRINTING_IS_DISABLED   29
-#define ERR_INTERRUPTIBLE          30
-#define ERR_NO_VARIABLES           31
+#define ERR_OUT_OF_RANGE            2
+#define ERR_DIVIDE_BY_0             3
+#define ERR_INVALID_TYPE            4
+#define ERR_INVALID_DATA            5
+#define ERR_NONEXISTENT             6
+#define ERR_DIMENSION_ERROR         7
+#define ERR_SIZE_ERROR              8
+#define ERR_RESTRICTED_OPERATION    9
+#define ERR_YES                    10
+#define ERR_NO                     11
+#define ERR_STOP                   12
+#define ERR_LABEL_NOT_FOUND        13
+#define ERR_NO_REAL_VARIABLES      14
+#define ERR_NO_COMPLEX_VARIABLES   15
+#define ERR_NO_MATRIX_VARIABLES    16
+#define ERR_NO_MENU_VARIABLES      17
+#define ERR_STAT_MATH_ERROR        18
+#define ERR_INVALID_FORECAST_MODEL 19
+#define ERR_SOLVE_INTEG_RTN_LOST   20
+#define ERR_SINGULAR_MATRIX        21
+#define ERR_SOLVE_SOLVE            22
+#define ERR_INTEG_INTEG            23
+#define ERR_RUN                    24
+#define ERR_INTERRUPTED            25
+#define ERR_PRINTING_IS_DISABLED   26
+#define ERR_INTERRUPTIBLE          27
+#define ERR_NO_VARIABLES           28
+#define ERR_INSUFFICIENT_MEMORY    29
+#define ERR_NOT_YET_IMPLEMENTED    30
+#define ERR_INTERNAL_ERROR         31
 #define ERR_SUSPICIOUS_OFF         32
 #define ERR_RTN_STACK_FULL         33
 #define ERR_NUMBER_TOO_LARGE       34
 #define ERR_NUMBER_TOO_SMALL       35
+#define ERR_INVALID_RTN_WITH_ERROR 36
 
 typedef struct {
     const char *text;
@@ -562,6 +563,8 @@ int push_indexed_matrix(const char *name, int len);
 void step_out();
 void step_over();
 bool should_i_stop_at_this_level();
+int rtn(bool skip);
+int rtn_e(int err);
 void pop_rtn_addr(int *prgm, int4 *pc, bool *stop);
 void pop_indexed_matrix(const char *name, int namelen);
 void clear_all_rtns();
