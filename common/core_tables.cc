@@ -434,12 +434,12 @@ static const command_spec cmd_array[] =
     { /* FMA */        "FMA",                   3, docmd_fma,         0x0000a7da, ARG_NONE,  FLAG_NONE },
 
     /* User-defined functions */
-    { /* FUNC_0 */     "F\325NC.0",             6, docmd_func_0,      0x0000a7db, ARG_NONE,  FLAG_NONE },
-    { /* FUNC_1 */     "F\325NC.1",             6, docmd_func_1,      0x0000a7dc, ARG_NONE,  FLAG_NONE },
-    { /* FUNC_2 */     "F\325NC.2",             6, docmd_func_2,      0x0000a7dd, ARG_NONE,  FLAG_NONE },
-    { /* RTN_R */      "RTN.R",                 5, docmd_rtn_r,       0x0000a7de, ARG_NONE,  FLAG_NONE },
-    { /* RTN_R_1 */    "R\324\316.R+1",         7, docmd_rtn_r_1,     0x0000a7df, ARG_NONE,  FLAG_NONE },
-    { /* RTN_E */      "RTN.E",                 5, docmd_rtn_e,       0x0000a7e0, ARG_NONE,  FLAG_NONE }
+    { /* FNC0 */       "FNC0",                  4, docmd_fnc0,        0x0000a7db, ARG_NONE,  FLAG_NONE },
+    { /* FNC1 */       "FNC1",                  4, docmd_fnc1,        0x0000a7dc, ARG_NONE,  FLAG_NONE },
+    { /* FNC2 */       "FNC2",                  4, docmd_fnc2,        0x0000a7dd, ARG_NONE,  FLAG_NONE },
+    { /* FRT */        "FRT",                   3, docmd_frt,         0x0000a7de, ARG_NONE,  FLAG_NONE },
+    { /* FRT_1 */      "FRT+1",                 5, docmd_frt_1,       0x0000a7df, ARG_NONE,  FLAG_NONE },
+    { /* FRTE */       "FRTE",                  4, docmd_frte,        0x0000a7e0, ARG_NONE,  FLAG_NONE }
 };
 
 /*

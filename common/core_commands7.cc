@@ -900,7 +900,7 @@ int docmd_fma(arg_struct *arg) {
     return ERR_NONE;
 }
 
-static int func_n(int n) {
+static int fnc(int n) {
     if (!ensure_var_space(6))
         return ERR_INSUFFICIENT_MEMORY;
     vartype *v = dup_vartype(reg_x);
@@ -930,19 +930,19 @@ static int func_n(int n) {
     return ERR_NONE;
 }
 
-int docmd_func_0(arg_struct *arg) {
-    return func_n(0);
+int docmd_fnc0(arg_struct *arg) {
+    return fnc(0);
 }
 
-int docmd_func_1(arg_struct *arg) {
-    return func_n(1);
+int docmd_fnc1(arg_struct *arg) {
+    return fnc(1);
 }
 
-int docmd_func_2(arg_struct *arg) {
-    return func_n(2);
+int docmd_fnc2(arg_struct *arg) {
+    return fnc(2);
 }
 
-static int rtn_r(bool skip) {
+static int frt(bool skip) {
     vartype *vn = recall_private_var("N", 1);
     if (vn == NULL)
         return ERR_NONEXISTENT;
@@ -988,15 +988,15 @@ static int rtn_r(bool skip) {
     return rtn(skip);
 }
 
-int docmd_rtn_r(arg_struct *arg) {
-    return rtn_r(false);
+int docmd_frt(arg_struct *arg) {
+    return frt(false);
 }
 
-int docmd_rtn_r_1(arg_struct *arg) {
-    return rtn_r(true);
+int docmd_frt_1(arg_struct *arg) {
+    return frt(true);
 }
 
-int docmd_rtn_e(arg_struct *arg) {
+int docmd_frte(arg_struct *arg) {
     if (!program_running())
         return ERR_INVALID_RTN_WITH_ERROR;
     if (reg_x->type != TYPE_REAL)
@@ -1021,7 +1021,7 @@ int docmd_rtn_e(arg_struct *arg) {
     reg_lastx = recall_and_purge_private_var("L", 1);
     int err = to_int(e);
     if (err != ERR_NONE)
-        return rtn_e(err);
+        return rtn_with_error(err);
     else
         return rtn(false);
 }

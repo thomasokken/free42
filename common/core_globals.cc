@@ -2919,7 +2919,7 @@ int rtn(bool skip) {
     }
 }
 
-int rtn_e(int err) {
+int rtn_with_error(int err) {
     int newprgm;
     int4 newpc;
     bool stop;
@@ -2932,8 +2932,9 @@ int rtn_e(int err) {
         return err;
     } else {
         current_prgm = newprgm;
+        pc = newpc; // for flag 25 set
         int line = pc2line(newpc);
-        set_old_pc(line2pc(line - 1));
+        set_old_pc(line2pc(line - 1)); // for flag 25 clear
         return err;
     }
 }
