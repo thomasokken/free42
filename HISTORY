@@ -1,3 +1,17 @@
+2021-01-06: release 2.5.23
+
+* Implemented support for user-defined function semantics: stack preservation,
+  RTN with skip, RTN with error. See the Free42 web site for details.
+* Better handling of number lines: the visual difference between equivalent
+  representations of a number is now preserved, so 1000 stays 1000 and is not
+  turned into 1E3, and numbers that are out of range for the current platform
+  now cause an error message instead of being silently turned into the maximum
+  representable number or zero.
+* Implemented FMA (Fused Multiply-Add). This simply exposes the underlying FMA
+  function provided by the floating-point hardware or libraries.
+* In programs, now handles pasting FIX/SCI/ENG with 1-digit argument, for HP-41
+  compatibility.
+
 2020-11-24: release 2.5.22a (Android only)
 
 * The previous release was crashing on a lot of devices; apparently the NDK
