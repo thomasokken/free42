@@ -429,8 +429,10 @@ static const command_spec cmd_array[] =
     { /* RCLFLAG */    "RCLFLAG",               7, docmd_rclflag,     0x0000a660, ARG_NONE,  FLAG_NONE },
     { /* STOFLAG */    "STOFLAG",               7, docmd_stoflag,     0x0000a66d, ARG_NONE,  FLAG_NONE },
     
-    /* Other... */
+    /* No-op, stored in raw files as 0xf0, a.k.a. TEXT 0 on the 41C */
     { /* NOP */        "NOP",                   3, docmd_nop,         0x000000f0, ARG_NONE,  FLAG_NONE },
+
+    /* Fused Multiply-Add */
     { /* FMA */        "FMA",                   3, docmd_fma,         0x0000a7da, ARG_NONE,  FLAG_NONE },
 
     /* User-defined functions */
