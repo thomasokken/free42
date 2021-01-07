@@ -942,12 +942,12 @@ int appmenu_exitcallback_3(int menuid, bool exitall) {
 }
 
 int docmd_pgmslvi(arg_struct *arg) {
-    /* This command can only be invoked from a menu; we assume that
-     * the menu handler only gives us valid arguments. We do check
-     * the argument type, but the existence of the named label, and
-     * whether it actually has MVAR instructions, we just assume.
-     */
     if (arg->type == ARGTYPE_STR) {
+        int idx;
+        if (!find_global_label_index(arg, &idx))
+            return ERR_LABEL_NOT_FOUND;
+        if (!label_has_mvar(idx))
+            return ERR_NO_MENU_VARIABLES;
         set_solve_prgm(arg->val.text, arg->length);
         string_copy(varmenu, &varmenu_length, arg->val.text, arg->length);
         varmenu_row = 0;
@@ -981,12 +981,12 @@ int appmenu_exitcallback_5(int menuid, bool exitall) {
 }
 
 int docmd_pgminti(arg_struct *arg) {
-    /* This command can only be invoked from a menu; we assume that
-     * the menu handler only gives us valid arguments. We do check
-     * the argument type, but the existence of the named label, and
-     * whether it actually has MVAR instructions, we just assume.
-     */
     if (arg->type == ARGTYPE_STR) {
+        int idx;
+        if (!find_global_label_index(arg, &idx))
+            return ERR_LABEL_NOT_FOUND;
+        if (!label_has_mvar(idx))
+            return ERR_NO_MENU_VARIABLES;
         set_integ_prgm(arg->val.text, arg->length);
         string_copy(varmenu, &varmenu_length, arg->val.text, arg->length);
         varmenu_row = 0;

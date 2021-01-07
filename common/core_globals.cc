@@ -2728,7 +2728,7 @@ int4 find_local_label(const arg_struct *arg) {
     return -2;
 }
 
-int find_global_label(const arg_struct *arg, int *prgm, int4 *pc) {
+static int find_global_label_2(const arg_struct *arg, int *prgm, int4 *pc, int *idx) {
     int i;
     const char *name = arg->val.text;
     int namelen = arg->length;
@@ -2741,12 +2741,24 @@ int find_global_label(const arg_struct *arg, int *prgm, int4 *pc) {
         for (j = 0; j < namelen; j++)
             if (labelname[j] != name[j])
                 goto nomatch;
-        *prgm = labels[i].prgm;
-        *pc = labels[i].pc;
+        if (prgm != NULL)
+            *prgm = labels[i].prgm;
+        if (pc != NULL)
+            *pc = labels[i].pc;
+        if (idx != NULL)
+            *idx = i;
         return 1;
         nomatch:;
     }
     return 0;
+}
+
+int find_global_label(const arg_struct *arg, int *prgm, int4 *pc) {
+    return find_global_label_2(arg, prgm, pc, NULL);
+}
+
+int find_global_label_index(const arg_struct *arg, int *idx) {
+    return find_global_label_2(arg, NULL, NULL, idx);
 }
 
 int push_rtn_addr(int prgm, int4 pc) {
