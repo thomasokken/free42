@@ -70,6 +70,7 @@
 		E9E059D622FEF1E6009DDC40 /* StatesWindow.h in Sources */ = {isa = PBXBuildFile; fileRef = E9E059D522FEF1E6009DDC40 /* StatesWindow.h */; };
 		E9E059D822FEF866009DDC40 /* StateListDataSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9E059D722FEF866009DDC40 /* StateListDataSource.mm */; };
 		E9E335DE0FF67A1D006A40AD /* keymap.txt in Resources */ = {isa = PBXBuildFile; fileRef = E9E335DD0FF67A1D006A40AD /* keymap.txt */; };
+		E9E394C525A953050001FDC9 /* DisabledMenuItem.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9E394C325A953050001FDC9 /* DisabledMenuItem.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -181,6 +182,8 @@
 		E9E059D722FEF866009DDC40 /* StateListDataSource.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = StateListDataSource.mm; path = Classes/StateListDataSource.mm; sourceTree = "<group>"; };
 		E9E059D922FEF91B009DDC40 /* StateListDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StateListDataSource.h; path = Classes/StateListDataSource.h; sourceTree = "<group>"; };
 		E9E335DD0FF67A1D006A40AD /* keymap.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = keymap.txt; sourceTree = "<group>"; };
+		E9E394C325A953050001FDC9 /* DisabledMenuItem.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = DisabledMenuItem.mm; path = Classes/DisabledMenuItem.mm; sourceTree = "<group>"; };
+		E9E394C425A953050001FDC9 /* DisabledMenuItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DisabledMenuItem.h; path = Classes/DisabledMenuItem.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -204,6 +207,8 @@
 			children = (
 				E9B649320FED513800EC9B91 /* CalcView.h */,
 				E97925421698893000598A02 /* CalcView.mm */,
+				E9E394C425A953050001FDC9 /* DisabledMenuItem.h */,
+				E9E394C325A953050001FDC9 /* DisabledMenuItem.mm */,
 				E9BF15C02222E725009F559F /* FileOpenPanel.h */,
 				E9BF15BF2222E725009F559F /* FileOpenPanel.mm */,
 				E9BF15C22222E725009F559F /* FileSavePanel.h */,
@@ -498,6 +503,7 @@
 				E959D4380FEC0A44007C56A4 /* core_keydown.cc in Sources */,
 				E959D4390FEC0A44007C56A4 /* core_linalg1.cc in Sources */,
 				E959D43A0FEC0A44007C56A4 /* core_linalg2.cc in Sources */,
+				E9E394C525A953050001FDC9 /* DisabledMenuItem.mm in Sources */,
 				E959D43B0FEC0A44007C56A4 /* core_main.cc in Sources */,
 				E959D43C0FEC0A44007C56A4 /* core_math1.cc in Sources */,
 				E907929922AD943A00DA7F7E /* SkinListDataSource.mm in Sources */,
