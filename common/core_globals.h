@@ -67,7 +67,6 @@ extern FILE *gfile;
 #define ERR_RTN_STACK_FULL         33
 #define ERR_NUMBER_TOO_LARGE       34
 #define ERR_NUMBER_TOO_SMALL       35
-#define ERR_INVALID_RTN_WITH_ERROR 36
 
 typedef struct {
     const char *text;
@@ -561,10 +560,12 @@ int find_global_label(const arg_struct *arg, int *prgm, int4 *pc);
 int find_global_label_index(const arg_struct *arg, int *idx);
 int push_rtn_addr(int prgm, int4 pc);
 int push_indexed_matrix(const char *name, int len);
+int push_func_state(int n);
+void pop_func_state(bool error);
 void step_out();
 void step_over();
 bool should_i_stop_at_this_level();
-int rtn(bool skip);
+int rtn(int err);
 int rtn_with_error(int err);
 void pop_rtn_addr(int *prgm, int4 *pc, bool *stop);
 void pop_indexed_matrix(const char *name, int namelen);

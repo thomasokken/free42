@@ -76,8 +76,7 @@ error_spec errors[] = {
     { /* SUSPICIOUS_OFF */         "Suspicious OFF",          14 },
     { /* RTN_STACK_FULL */         "RTN Stack Full",          14 },
     { /* NUMBER_TOO_LARGE */       "Number Too Large",        16 },
-    { /* NUMBER_TOO_SMALL */       "Number Too Small",        16 },
-    { /* INVALID_RTN_WITH_ERROR */ "Invalid RTN With Error",  22 }
+    { /* NUMBER_TOO_SMALL */       "Number Too Small",        16 }
 };
 
 
@@ -750,8 +749,9 @@ bool no_keystrokes_yet;
  *                    report it accurately in Y, and to provide additional data
  *                    points for distinguishing between zeroes and poles.
  * Version 30: 2.5.23 Private local variables
+ * Version 31: 2.5.24 Merge RTN and FRT functionality
  */
-#define FREE42_VERSION 30
+#define FREE42_VERSION 31
 
 
 /*******************/
@@ -794,6 +794,7 @@ static int rtn_stack_capacity = 0;
 static rtn_stack_entry *rtn_stack = NULL;
 static int rtn_level = 0;
 static bool rtn_level_0_has_matrix_entry;
+static bool rtn_level_0_has_func_state;
 static int rtn_stop_level = -1;
 static bool rtn_solve_active = false;
 static bool rtn_integ_active = false;
@@ -1499,6 +1500,8 @@ static bool persist_globals() {
         goto done;
     if (!write_bool(rtn_level_0_has_matrix_entry))
         goto done;
+    if (!write_bool(rtn_level_0_has_func_state))
+        goto done;
     int saved_prgm;
     saved_prgm = current_prgm;
     for (i = rtn_sp - 1; i >= 0; i--) {
@@ -1823,6 +1826,12 @@ static bool unpersist_globals(int4 ver) {
             goto done;
         if (!read_bool(&rtn_level_0_has_matrix_entry))
             goto done;
+        if (ver >= 31) {
+            if (!read_bool(&rtn_level_0_has_func_state))
+                goto done;
+        } else {
+            rtn_level_0_has_func_state = false;
+        }
         rtn_stack_capacity = 16;
         while (rtn_sp > rtn_stack_capacity)
             rtn_stack_capacity <<= 1;
@@ -1838,9 +1847,9 @@ static bool unpersist_globals(int4 ver) {
                     if (!read_int4(&tprgm) || !read_int4(&l))
                         goto done;
                     matrix_entry_follows = tprgm < 0;
-                    p = tprgm & 0x7fffffff;
-                    if ((p & 0x40000000) != 0)
-                        p |= 0x80000000;
+                    p = tprgm & 0x3fffffff;
+                    if ((p & 0x20000000) != 0)
+                        p |= 0xc0000000;
                     current_prgm = p;
                     if (p >= 0)
                         l = line2pc(l);
@@ -1870,6 +1879,7 @@ static bool unpersist_globals(int4 ver) {
     } else {
         rtn_level = rtn_sp;
         rtn_level_0_has_matrix_entry = false;
+        rtn_level_0_has_func_state = false;
         rtn_stack_capacity = 16;
         rtn_stack = (rtn_stack_entry *) realloc(rtn_stack, rtn_stack_capacity * sizeof(rtn_stack_entry));
         rtn_solve_active = false;
@@ -1878,7 +1888,7 @@ static bool unpersist_globals(int4 ver) {
             int prgm;
             if (fread(&prgm, 1, sizeof(int), gfile) != sizeof(int))
                 goto done;
-            rtn_stack[i].prgm = prgm & 0x7fffffff;
+            rtn_stack[i].prgm = prgm & 0x3fffffff;
             if (i < rtn_sp)
                 if (prgm == -2)
                     rtn_solve_active = true;
@@ -2772,7 +2782,7 @@ int push_rtn_addr(int prgm, int4 pc) {
         rtn_stack_capacity = new_rtn_stack_capacity;
         rtn_stack = new_rtn_stack;
     }
-    rtn_stack[rtn_sp].prgm = prgm & 0x7fffffff;
+    rtn_stack[rtn_sp].prgm = prgm & 0x3fffffff;
     rtn_stack[rtn_sp].pc = pc;
     rtn_sp++;
     rtn_level++;
@@ -2841,6 +2851,103 @@ int push_indexed_matrix(const char *name, int len) {
     return ERR_NONE;
 }
 
+int push_func_state(int n) {
+    if (!ensure_var_space(7))
+        return ERR_INSUFFICIENT_MEMORY;
+    vartype *v = new_string(flags.f.error_ignore ? "1" : "0", 1);
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    store_private_var("F25", 3, v);
+    v = dup_vartype(reg_x);
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    store_private_var("X", 1, v);
+    v = dup_vartype(reg_y);
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    store_private_var("Y", 1, v);
+    v = dup_vartype(reg_z);
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    store_private_var("Z", 1, v);
+    v = dup_vartype(reg_t);
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    store_private_var("T", 1, v);
+    v = dup_vartype(reg_lastx);
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    store_private_var("L", 1, v);
+    v = new_real(n);
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    store_private_var("N", 1, v);
+    flags.f.error_ignore = 0;
+
+    if (rtn_level == 0)
+        rtn_level_0_has_func_state = true;
+    else
+        rtn_stack[rtn_sp - 1].prgm |= 0x40000000;
+    return ERR_NONE;
+}
+
+void pop_func_state(bool error) {
+    if (rtn_level == 0) {
+        if (!rtn_level_0_has_func_state)
+            return;
+        rtn_level_0_has_func_state = false;
+    } else {
+        if ((rtn_stack[rtn_sp - 1].prgm & 0x40000000) == 0)
+            return;
+        rtn_stack[rtn_sp - 1].prgm &= 0xbfffffff;
+    }
+
+    vartype *vn = recall_private_var("N", 1);
+    int n = to_int(((vartype_real *) vn)->x);
+    if (error)
+        n = 0;
+    switch (n) {
+        case 0:
+            free_vartype(reg_x);
+            reg_x = recall_and_purge_private_var("X", 1);
+            free_vartype(reg_y);
+            reg_y = recall_and_purge_private_var("Y", 1);
+            free_vartype(reg_z);
+            reg_z = recall_and_purge_private_var("Z", 1);
+            free_vartype(reg_t);
+            reg_t = recall_and_purge_private_var("T", 1);
+            free_vartype(reg_lastx);
+            reg_lastx = recall_and_purge_private_var("L", 1);
+            break;
+        case 1:
+            free_vartype(reg_y);
+            reg_y = recall_and_purge_private_var("Y", 1);
+            free_vartype(reg_z);
+            reg_z = recall_and_purge_private_var("Z", 1);
+            free_vartype(reg_t);
+            reg_t = recall_and_purge_private_var("T", 1);
+            free_vartype(reg_lastx);
+            reg_lastx = recall_and_purge_private_var("X", 1);
+            break;
+        case 2:
+            vartype *t = recall_and_purge_private_var("T", 1);
+            vartype *t2 = dup_vartype(t);
+            if (t2 == NULL)
+                return;
+            free_vartype(reg_y);
+            reg_y = recall_and_purge_private_var("Z", 1);
+            free_vartype(reg_z);
+            reg_z = t;
+            free_vartype(reg_t);
+            reg_t = t2;
+            free_vartype(reg_lastx);
+            reg_lastx = recall_and_purge_private_var("X", 1);
+            break;
+    }
+    vartype_string *f25 = (vartype_string *) recall_private_var("F25", 3);
+    flags.f.error_ignore = f25->length == 1 && f25->text[0] == '1';
+}
+
 void step_out() {
     if (rtn_sp > 0)
         rtn_stop_level = rtn_level - 1;
@@ -2897,7 +3004,7 @@ static void remove_locals() {
     update_catalog();
 }
 
-int rtn(bool skip) {
+int rtn(int err) {
     if (program_running()) {
         int newprgm;
         int4 newpc;
@@ -2911,11 +3018,13 @@ int rtn(bool skip) {
             if (pc >= prgms[current_prgm].size)
                 /* It's an END; go to line 0 */
                 pc = -1;
+            if (err != ERR_NONE)
+                display_error(err, 1);
             return ERR_STOP;
         } else {
             current_prgm = newprgm;
             pc = newpc;
-            if (skip) {
+            if (err == ERR_NO) {
                 int command;
                 arg_struct arg;
                 get_next_command(&pc, &command, &arg, 0, NULL);
@@ -2932,28 +3041,24 @@ int rtn(bool skip) {
 }
 
 int rtn_with_error(int err) {
+    bool stop;
+    if (solve_active() && (err == ERR_OUT_OF_RANGE
+                            || err == ERR_DIVIDE_BY_0
+                            || err == ERR_INVALID_DATA
+                            || err == ERR_STAT_MATH_ERROR)) {
+        stop = unwind_stack_until_solve();
+        return return_to_solve(1, stop);
+    }
     int newprgm;
     int4 newpc;
-    bool stop;
     pop_rtn_addr(&newprgm, &newpc, &stop);
-    if (newprgm == -3) {
-        return ERR_INVALID_RTN_WITH_ERROR;
-    } else if (newprgm == -2) {
-        return ERR_INVALID_RTN_WITH_ERROR;
-    } else if (newprgm == -1) {
-        return err;
-    } else {
+    if (newprgm >= 0) {
+        // Stop on the calling XEQ, not the RTNERR
         current_prgm = newprgm;
-        if (flags.f.error_ignore) {
-            pc = newpc;
-            flags.f.error_ignore = 0;
-            return stop ? ERR_STOP : ERR_NONE;
-        } else {
-            int line = pc2line(newpc);
-            set_old_pc(line2pc(line - 1));
-            return err;
-        }
+        int line = pc2line(newpc);
+        set_old_pc(line2pc(line - 1));
     }
+    return err;
 }
 
 void pop_rtn_addr(int *prgm, int4 *pc, bool *stop) {
@@ -2978,10 +3083,10 @@ void pop_rtn_addr(int *prgm, int4 *pc, bool *stop) {
         rtn_sp--;
         rtn_level--;
         int4 tprgm = rtn_stack[rtn_sp].prgm;
-        *prgm = tprgm & 0x7fffffff;
+        *prgm = tprgm & 0x3fffffff;
         // Fix sign, or -2 and -3 won't work!
-        if ((tprgm & 0x40000000) != 0)
-            *prgm |= 0x80000000;
+        if ((tprgm & 0x20000000) != 0)
+            *prgm |= 0xc0000000;
         *pc = rtn_stack[rtn_sp].pc;
         if (rtn_stop_level >= rtn_level) {
             *stop = true;
@@ -4028,7 +4133,7 @@ static bool convert_programs(bool *clear_stack) {
         for (i = 0; i < rtn_level; i++) {
             sp--;
             int4 prgm = rtn_stack[sp].prgm;
-            mod_prgm[mod_count] = prgm & 0x7fffffff;
+            mod_prgm[mod_count] = prgm & 0x3fffffff;
             mod_pc[mod_count] = rtn_stack[sp].pc;
             mod_sp[mod_count] = sp;
             if ((prgm & 0x80000000) != 0)

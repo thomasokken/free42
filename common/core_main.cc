@@ -4342,8 +4342,7 @@ static int handle_error(int error) {
             set_running(false);
             return 0;
         } else if (error == ERR_NUMBER_TOO_LARGE
-                || error == ERR_NUMBER_TOO_SMALL
-                || error == ERR_INVALID_RTN_WITH_ERROR) {
+                || error == ERR_NUMBER_TOO_SMALL) {
             // Handling these separately because they shouldn't be
             // suppressed by flag 25, nor trapped by SOLVE
             goto handle_it;

@@ -380,7 +380,8 @@ int docmd_lbl(arg_struct *arg) {
 }
 
 int docmd_rtn(arg_struct *arg) {
-    return rtn(false);
+    pop_func_state(false);
+    return rtn(ERR_NONE);
 }
 
 int docmd_input(arg_struct *arg) {
@@ -1647,7 +1648,8 @@ int docmd_gto(arg_struct *arg) {
 }
 
 int docmd_end(arg_struct *arg) {
-    return rtn(false);
+    pop_func_state(false);
+    return rtn(ERR_NONE);
 }
 
 int docmd_number(arg_struct *arg) {

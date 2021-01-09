@@ -435,12 +435,12 @@
 /* Fused Multiply-Add */
 #define CMD_FMA         384
 /* User-defined functions */
-#define CMD_FNC0        385
-#define CMD_FNC1        386
-#define CMD_FNC2        387
-#define CMD_FRT         388
-#define CMD_FRT_1       389
-#define CMD_FRTE        390
+#define CMD_FUNC0       385
+#define CMD_FUNC1       386
+#define CMD_FUNC2       387
+#define CMD_RTNYES      388
+#define CMD_RTNNO       389
+#define CMD_RTNERR      390
 
 #define CMD_SENTINEL    391
 

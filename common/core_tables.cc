@@ -436,12 +436,12 @@ static const command_spec cmd_array[] =
     { /* FMA */        "FMA",                   3, docmd_fma,         0x0000a7da, ARG_NONE,  FLAG_NONE },
 
     /* User-defined functions */
-    { /* FNC0 */       "FNC0",                  4, docmd_fnc0,        0x0000a7db, ARG_NONE,  FLAG_NONE },
-    { /* FNC1 */       "FNC1",                  4, docmd_fnc1,        0x0000a7dc, ARG_NONE,  FLAG_NONE },
-    { /* FNC2 */       "FNC2",                  4, docmd_fnc2,        0x0000a7dd, ARG_NONE,  FLAG_NONE },
-    { /* FRT */        "FRT",                   3, docmd_frt,         0x0000a7de, ARG_NONE,  FLAG_NONE },
-    { /* FRT_1 */      "FRT+1",                 5, docmd_frt_1,       0x0000a7df, ARG_NONE,  FLAG_NONE },
-    { /* FRTE */       "FRTE",                  4, docmd_frte,        0x0000a7e0, ARG_NONE,  FLAG_NONE }
+    { /* FUNC0 */      "F\325NC0",              5, docmd_func0,       0x0000a7db, ARG_NONE,  FLAG_NONE },
+    { /* FUNC1 */      "F\325NC1",              5, docmd_func1,       0x0000a7dc, ARG_NONE,  FLAG_NONE },
+    { /* FUNC2 */      "F\325NC2",              5, docmd_func2,       0x0000a7dd, ARG_NONE,  FLAG_NONE },
+    { /* RTNYES */     "RTNYES",                6, docmd_rtnyes,      0x0000a7de, ARG_NONE,  FLAG_NONE },
+    { /* RTNNO */      "RTNNO",                 5, docmd_rtnno,       0x0000a7df, ARG_NONE,  FLAG_NONE },
+    { /* RTNERR */     "RTNERR",                6, docmd_rtnerr,      0x0000a7e0, ARG_NONE,  FLAG_NONE }
 };
 
 /*

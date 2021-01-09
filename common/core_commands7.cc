@@ -900,112 +900,35 @@ int docmd_fma(arg_struct *arg) {
     return ERR_NONE;
 }
 
-static int fnc(int n) {
-    if (!ensure_var_space(7))
-        return ERR_INSUFFICIENT_MEMORY;
-    vartype *v = new_string(flags.f.error_ignore ? "1" : "0", 1);
-    if (v == NULL)
-        return ERR_INSUFFICIENT_MEMORY;
-    store_private_var("F25", 3, v);
-    v = dup_vartype(reg_x);
-    if (v == NULL)
-        return ERR_INSUFFICIENT_MEMORY;
-    store_private_var("X", 1, v);
-    v = dup_vartype(reg_y);
-    if (v == NULL)
-        return ERR_INSUFFICIENT_MEMORY;
-    store_private_var("Y", 1, v);
-    v = dup_vartype(reg_z);
-    if (v == NULL)
-        return ERR_INSUFFICIENT_MEMORY;
-    store_private_var("Z", 1, v);
-    v = dup_vartype(reg_t);
-    if (v == NULL)
-        return ERR_INSUFFICIENT_MEMORY;
-    store_private_var("T", 1, v);
-    v = dup_vartype(reg_lastx);
-    if (v == NULL)
-        return ERR_INSUFFICIENT_MEMORY;
-    store_private_var("L", 1, v);
-    v = new_real(n);
-    if (v == NULL)
-        return ERR_INSUFFICIENT_MEMORY;
-    store_private_var("N", 1, v);
-    flags.f.error_ignore = 0;
-    return ERR_NONE;
+int docmd_func0(arg_struct *arg) {
+    return push_func_state(0);
 }
 
-int docmd_fnc0(arg_struct *arg) {
-    return fnc(0);
+int docmd_func1(arg_struct *arg) {
+    return push_func_state(1);
 }
 
-int docmd_fnc1(arg_struct *arg) {
-    return fnc(1);
+int docmd_func2(arg_struct *arg) {
+    return push_func_state(2);
 }
 
-int docmd_fnc2(arg_struct *arg) {
-    return fnc(2);
-}
-
-static int frt(bool skip) {
-    vartype *vn = recall_private_var("N", 1);
-    if (vn == NULL)
-        return ERR_NONEXISTENT;
-    int n = to_int(((vartype_real *) vn)->x);
-    switch (n) {
-        case 0:
-            free_vartype(reg_x);
-            reg_x = recall_and_purge_private_var("X", 1);
-            free_vartype(reg_y);
-            reg_y = recall_and_purge_private_var("Y", 1);
-            free_vartype(reg_z);
-            reg_z = recall_and_purge_private_var("Z", 1);
-            free_vartype(reg_t);
-            reg_t = recall_and_purge_private_var("T", 1);
-            free_vartype(reg_lastx);
-            reg_lastx = recall_and_purge_private_var("L", 1);
-            break;
-        case 1:
-            free_vartype(reg_y);
-            reg_y = recall_and_purge_private_var("Y", 1);
-            free_vartype(reg_z);
-            reg_z = recall_and_purge_private_var("Z", 1);
-            free_vartype(reg_t);
-            reg_t = recall_and_purge_private_var("T", 1);
-            free_vartype(reg_lastx);
-            reg_lastx = recall_and_purge_private_var("X", 1);
-            break;
-        case 2:
-            vartype *t = recall_and_purge_private_var("T", 1);
-            vartype *t2 = dup_vartype(t);
-            if (t2 == NULL)
-                return ERR_INSUFFICIENT_MEMORY;
-            free_vartype(reg_y);
-            reg_y = recall_and_purge_private_var("Z", 1);
-            free_vartype(reg_z);
-            reg_z = t;
-            free_vartype(reg_t);
-            reg_t = t2;
-            free_vartype(reg_lastx);
-            reg_lastx = recall_and_purge_private_var("X", 1);
-            break;
-    }
-    vartype_string *f25 = (vartype_string *) recall_private_var("F25", 3);
-    flags.f.error_ignore = f25->length == 1 && f25->text[0] == '1';
-    return rtn(skip);
-}
-
-int docmd_frt(arg_struct *arg) {
-    return frt(false);
-}
-
-int docmd_frt_1(arg_struct *arg) {
-    return frt(true);
-}
-
-int docmd_frte(arg_struct *arg) {
+int docmd_rtnyes(arg_struct *arg) {
     if (!program_running())
-        return ERR_INVALID_RTN_WITH_ERROR;
+        return ERR_RESTRICTED_OPERATION;
+    pop_func_state(false);
+    return rtn(ERR_YES);
+}
+
+int docmd_rtnno(arg_struct *arg) {
+    if (!program_running())
+        return ERR_RESTRICTED_OPERATION;
+    pop_func_state(false);
+    return rtn(ERR_NO);
+}
+
+int docmd_rtnerr(arg_struct *arg) {
+    if (!program_running())
+        return ERR_RESTRICTED_OPERATION;
     if (reg_x->type != TYPE_REAL)
         return ERR_INVALID_TYPE;
     phloat e = ((vartype_real *) reg_x)->x;
@@ -1013,24 +936,14 @@ int docmd_frte(arg_struct *arg) {
         e = -e;
     if (e >= ERR_SIZE_ERROR)
         return ERR_INVALID_DATA;
-    vartype *vn = recall_private_var("N", 1);
-    if (vn == NULL)
-        return ERR_NONEXISTENT;
-    free_vartype(reg_x);
-    reg_x = recall_and_purge_private_var("X", 1);
-    free_vartype(reg_y);
-    reg_y = recall_and_purge_private_var("Y", 1);
-    free_vartype(reg_z);
-    reg_z = recall_and_purge_private_var("Z", 1);
-    free_vartype(reg_t);
-    reg_t = recall_and_purge_private_var("T", 1);
-    free_vartype(reg_lastx);
-    reg_lastx = recall_and_purge_private_var("L", 1);
-    vartype_string *f25 = (vartype_string *) recall_private_var("F25", 3);
-    flags.f.error_ignore = f25->length == 1 && f25->text[0] == '1';
+    pop_func_state(true);
     int err = to_int(e);
+    if (flags.f.error_ignore) {
+        flags.f.error_ignore = 0;
+        err = ERR_NONE;
+    }
     if (err != ERR_NONE)
         return rtn_with_error(err);
     else
-        return rtn(false);
+        return rtn(ERR_NONE);
 }
