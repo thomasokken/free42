@@ -901,9 +901,13 @@ int docmd_fma(arg_struct *arg) {
 }
 
 static int fnc(int n) {
-    if (!ensure_var_space(6))
+    if (!ensure_var_space(7))
         return ERR_INSUFFICIENT_MEMORY;
-    vartype *v = dup_vartype(reg_x);
+    vartype *v = new_string(flags.f.error_ignore ? "1" : "0", 1);
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    store_private_var("F25", 3, v);
+    v = dup_vartype(reg_x);
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     store_private_var("X", 1, v);
@@ -927,6 +931,7 @@ static int fnc(int n) {
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     store_private_var("N", 1, v);
+    flags.f.error_ignore = 0;
     return ERR_NONE;
 }
 
@@ -985,6 +990,8 @@ static int frt(bool skip) {
             reg_lastx = recall_and_purge_private_var("X", 1);
             break;
     }
+    vartype_string *f25 = (vartype_string *) recall_private_var("F25", 3);
+    flags.f.error_ignore = f25->length == 1 && f25->text[0] == '1';
     return rtn(skip);
 }
 
@@ -1019,6 +1026,8 @@ int docmd_frte(arg_struct *arg) {
     reg_t = recall_and_purge_private_var("T", 1);
     free_vartype(reg_lastx);
     reg_lastx = recall_and_purge_private_var("L", 1);
+    vartype_string *f25 = (vartype_string *) recall_private_var("F25", 3);
+    flags.f.error_ignore = f25->length == 1 && f25->text[0] == '1';
     int err = to_int(e);
     if (err != ERR_NONE)
         return rtn_with_error(err);

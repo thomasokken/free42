@@ -2944,10 +2944,15 @@ int rtn_with_error(int err) {
         return err;
     } else {
         current_prgm = newprgm;
-        pc = newpc; // for flag 25 set
-        int line = pc2line(newpc);
-        set_old_pc(line2pc(line - 1)); // for flag 25 clear
-        return err;
+        if (flags.f.error_ignore) {
+            pc = newpc;
+            flags.f.error_ignore = 0;
+            return stop ? ERR_STOP : ERR_NONE;
+        } else {
+            int line = pc2line(newpc);
+            set_old_pc(line2pc(line - 1));
+            return err;
+        }
     }
 }
 
