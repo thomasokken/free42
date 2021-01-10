@@ -938,7 +938,7 @@ int docmd_rtnerr(arg_struct *arg) {
         return ERR_INVALID_DATA;
     pop_func_state(true);
     int err = to_int(e);
-    if (flags.f.error_ignore) {
+    if (err != ERR_NONE && flags.f.error_ignore) {
         flags.f.error_ignore = 0;
         err = ERR_NONE;
     }
