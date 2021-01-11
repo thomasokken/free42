@@ -954,6 +954,8 @@ int docmd_getkey(arg_struct *arg) {
 }
 
 int docmd_menu(arg_struct *arg) {
+    if (!program_running())
+        return ERR_RESTRICTED_OPERATION;
     set_menu(MENULEVEL_PLAIN, MENU_PROGRAMMABLE);
     mode_plainmenu_sticky = true;
     return ERR_NONE;

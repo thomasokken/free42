@@ -2852,6 +2852,8 @@ int push_indexed_matrix(const char *name, int len) {
 }
 
 int push_func_state(int n) {
+    if (!program_running())
+        return ERR_RESTRICTED_OPERATION;
     if (!ensure_var_space(7))
         return ERR_INSUFFICIENT_MEMORY;
     vartype *v = new_string(flags.f.error_ignore ? "1" : "0", 1);

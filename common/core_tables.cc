@@ -142,7 +142,7 @@ static const command_spec cmd_array[] =
     { /* MVAR */        "MVAR",                 4, docmd_mvar,        0x00900000, ARG_RVAR,  FLAG_NONE },
     { /* VARMENU */     "VARM\305\316\325",     7, docmd_varmenu,     0x00c1f2f8, ARG_PRGM,  FLAG_NONE },
     { /* GETKEY */      "GETK\305\331",         6, docmd_getkey,      0x0000a26e, ARG_NONE,  FLAG_NONE },
-    { /* MENU */        "MENU",                 4, docmd_menu,        0x0000a25e, ARG_NONE,  FLAG_PRGM_ONLY },
+    { /* MENU */        "MENU",                 4, docmd_menu,        0x0000a25e, ARG_NONE,  FLAG_NONE },
     { /* KEYG */        "KEYG",                 4, NULL,              0x02000000, ARG_MKEY,  FLAG_NONE },
     { /* KEYX */        "KEYX",                 4, NULL,              0x02000000, ARG_MKEY,  FLAG_NONE },
     { /* X_EQ_0 */      "X=0?",                 4, docmd_x_eq_0,      0x00000067, ARG_NONE,  FLAG_NONE },
