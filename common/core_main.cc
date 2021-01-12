@@ -3076,7 +3076,8 @@ static void paste_programs(const char *buf) {
                 // I see a good reason to.
                 hpbuf[lineno_end] = 0;
                 cmd = CMD_NUMBER;
-                arg.val_d = parse_number_line(hpbuf + lineno_start);
+                strcpy(numbuf, hpbuf + lineno_start);
+                arg.val_d = parse_number_line(numbuf);
                 arg.type = ARGTYPE_DOUBLE;
                 goto store;
             }
