@@ -380,6 +380,11 @@ int docmd_lbl(arg_struct *arg) {
 }
 
 int docmd_rtn(arg_struct *arg) {
+    if (!program_running()) {
+        clear_all_rtns();
+        pc = -1;
+        return ERR_NONE;
+    }
     int err = pop_func_state(false);
     if (err != ERR_NONE)
         return err;

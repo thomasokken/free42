@@ -3011,38 +3011,32 @@ static void remove_locals() {
 }
 
 int rtn(int err) {
-    if (program_running()) {
-        int newprgm;
-        int4 newpc;
-        bool stop;
-        pop_rtn_addr(&newprgm, &newpc, &stop);
-        if (newprgm == -3) {
-            return return_to_integ(stop);
-        } else if (newprgm == -2) {
-            return return_to_solve(0, stop);
-        } else if (newprgm == -1) {
-            if (pc >= prgms[current_prgm].size)
-                /* It's an END; go to line 0 */
-                pc = -1;
-            if (err != ERR_NONE)
-                display_error(err, 1);
-            return ERR_STOP;
-        } else {
-            current_prgm = newprgm;
-            pc = newpc;
-            if (err == ERR_NO) {
-                int command;
-                arg_struct arg;
-                get_next_command(&pc, &command, &arg, 0, NULL);
-                if (command == CMD_END)
-                    pc = newpc;
-            }
-            return stop ? ERR_STOP : ERR_NONE;
-        }
+    int newprgm;
+    int4 newpc;
+    bool stop;
+    pop_rtn_addr(&newprgm, &newpc, &stop);
+    if (newprgm == -3) {
+        return return_to_integ(stop);
+    } else if (newprgm == -2) {
+        return return_to_solve(0, stop);
+    } else if (newprgm == -1) {
+        if (pc >= prgms[current_prgm].size)
+            /* It's an END; go to line 0 */
+            pc = -1;
+        if (err != ERR_NONE)
+            display_error(err, 1);
+        return ERR_STOP;
     } else {
-        clear_all_rtns();
-        pc = -1;
-        return ERR_NONE;
+        current_prgm = newprgm;
+        pc = newpc;
+        if (err == ERR_NO) {
+            int command;
+            arg_struct arg;
+            get_next_command(&pc, &command, &arg, 0, NULL);
+            if (command == CMD_END)
+                pc = newpc;
+        }
+        return stop ? ERR_STOP : ERR_NONE;
     }
 }
 
