@@ -293,10 +293,6 @@ int docmd_ln_1_x(arg_struct *arg) {
         return ERR_INVALID_TYPE;
 }
 
-int docmd_old(arg_struct *arg) {
-    return docmd_rclel(NULL);
-}
-
 int docmd_posa(arg_struct *arg) {
     int pos = -1;
     vartype *v;

@@ -1654,7 +1654,7 @@ static int hp42ext[] = {
     CMD_TONE     | 0x1000,
 
     /* E0-EF */
-    CMD_NULL   | 0x4000,
+    CMD_FUNC   | 0x2000,
     CMD_NULL   | 0x4000,
     CMD_NULL   | 0x3000, /* KEYX suffix */
     CMD_NULL   | 0x3000, /* KEYG suffix */
@@ -1870,6 +1870,18 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                 if (byte2 == EOF)
                     goto done;
                 code = (((unsigned int) byte1) << 8) | byte2;
+                if (code >= 0x0A7DB && code <= 0x0A7DD) {
+                    /* FUNC0, FUNC1, FUNC2: translate to FUNC nn */
+                    cmd = CMD_FUNC;
+                    arg.type = ARGTYPE_NUM;
+                    if (code == 0x0A7DB)
+                        arg.val.num = 0;
+                    else if (code == 0x0A7DC)
+                        arg.val.num = 11;
+                    else // code == 0x0A7DD
+                        arg.val.num = 21;
+                    goto store;
+                }
                 for (i = 0; i < CMD_SENTINEL; i++)
                     if (cmdlist(i)->hp42s_code == code) {
                         if ((cmdlist(i)->flags & FLAG_HIDDEN) != 0)
@@ -1941,7 +1953,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                 cmd = byte1 <= 0x0DF ? CMD_GTO : CMD_XEQ;
                 suffix &= 0x7F;
                 goto do_suffix;
-            } else /* byte1 >= 0xF0 && byte1 <= 0xFF */ {
+            } else /* byte1 >= 0xF1 && byte1 <= 0xFF */ {
                 /* Strings and parameterized HP-42S extensions */
                 byte2 = raw_getc();
                 if (byte2 == EOF)
@@ -3129,6 +3141,21 @@ static void paste_programs(const char *buf) {
                 arg.type = ARGTYPE_NUM;
                 arg.val.num = sz;
                 goto store;
+            } else if (cmd == CMD_FUNC) {
+                if (!nexttoken(hpbuf, cmd_end, hpend, &tok_start, &tok_end))
+                    goto line_done;
+                if (tok_end - tok_start != 2)
+                    goto line_done;
+                int io = 0;
+                for (int i = tok_start; i < tok_end; i++) {
+                    char c = hpbuf[i];
+                    if (c < '0' || c > '4')
+                        goto line_done;
+                    io = io * 10 + c - '0';
+                }
+                arg.type = ARGTYPE_NUM;
+                arg.val.num = io;
+                goto store;
             } else if (cmd == CMD_ASSIGNa) {
                 // What we're looking for is '".*"  *TO  *[0-9][0-9]'
                 tok_end = hppos;
@@ -3384,6 +3411,18 @@ static void paste_programs(const char *buf) {
                 cmd = CMD_XROM;
                 arg.type = ARGTYPE_NUM;
                 arg.val.num = (a << 6) | b;
+                goto store;
+            } else if ((string_equals(hpbuf + hppos, cmd_end - hppos - 1, "FNC", 3)
+                    || string_equals(hpbuf + hppos, cmd_end - hppos - 1, "FUNC", 4))
+                    && hpbuf[cmd_end - 1] >= '0'
+                    && hpbuf[cmd_end - 1] <= '2') {
+                cmd = CMD_FUNC;
+                arg.type = ARGTYPE_NUM;
+                switch (hpbuf[cmd_end - 1]) {
+                    case '0': arg.val.num =  0; break;
+                    case '1': arg.val.num = 11; break;
+                    case '2': arg.val.num = 21; break;
+                }
                 goto store;
             } else {
                 // Number or bust!

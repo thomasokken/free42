@@ -435,14 +435,12 @@
 /* Fused Multiply-Add */
 #define CMD_FMA         384
 /* User-defined functions */
-#define CMD_FUNC0       385
-#define CMD_FUNC1       386
-#define CMD_FUNC2       387
-#define CMD_RTNYES      388
-#define CMD_RTNNO       389
-#define CMD_RTNERR      390
+#define CMD_FUNC        385
+#define CMD_RTNYES      386
+#define CMD_RTNNO       387
+#define CMD_RTNERR      388
 
-#define CMD_SENTINEL    391
+#define CMD_SENTINEL    389
 
 
 /* command_spec.argtype */
@@ -455,13 +453,14 @@
 #define ARG_NUM11     5 /* num (0..11), ind */
 #define ARG_NUM99     6 /* num (0..99), ind */
 #define ARG_COUNT     7 /* numeric-only (SIMQ, DEL, SIZE, LIST) */
-#define ARG_LBL       8 /* Label: num, lclbl, global, ind */
-#define ARG_CKEY      9 /* Key in custom menu */
-#define ARG_MKEY     10 /* Key in programmable menu (KEYG/KEYX) */
-#define ARG_PRGM     11 /* Alpha label (CATSECT_PGM) */
-#define ARG_RVAR     12 /* Variable (real only) (MVAR, INTEG, SOLVE) */
-#define ARG_MAT      13 /* Variable (matrix only) (EDITN, INDEX) */
-#define ARG_OTHER    14 /* Weirdos */
+#define ARG_FUNC      8 /* numeric-only, [0-4][0-4] (FUNC) */
+#define ARG_LBL       9 /* Label: num, lclbl, global, ind */
+#define ARG_CKEY     10 /* Key in custom menu */
+#define ARG_MKEY     11 /* Key in programmable menu (KEYG/KEYX) */
+#define ARG_PRGM     12 /* Alpha label (CATSECT_PGM) */
+#define ARG_RVAR     13 /* Variable (real only) (MVAR, INTEG, SOLVE) */
+#define ARG_MAT      14 /* Variable (matrix only) (EDITN, INDEX) */
+#define ARG_OTHER    15 /* Weirdos */
 
 
 /* command_spec.flags */

@@ -83,7 +83,6 @@ int docmd_man(arg_struct *arg);
 int docmd_norm(arg_struct *arg);
 int docmd_trace(arg_struct *arg);
 int docmd_gto(arg_struct *arg);
-int docmd_end(arg_struct *arg);
 int docmd_number(arg_struct *arg);
 int docmd_string(arg_struct *arg);
 int docmd_gtodot(arg_struct *arg);

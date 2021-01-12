@@ -1177,6 +1177,10 @@ void keydown_command_entry(int shift, int key) {
                 case KEY_8: digit = 8; break;
                 case KEY_9: digit = 9; break;
             }
+            if (incomplete_argtype == ARG_FUNC && digit > 4) {
+                squeak();
+                return;
+            }
             incomplete_num = incomplete_num * 10 + digit;
             incomplete_length++;
             if (incomplete_length == incomplete_maxdigits) {

@@ -561,7 +561,7 @@ int find_global_label_index(const arg_struct *arg, int *idx);
 int push_rtn_addr(int prgm, int4 pc);
 int push_indexed_matrix(const char *name, int len);
 int push_func_state(int n);
-void pop_func_state(bool error);
+int pop_func_state(bool error);
 void step_out();
 void step_over();
 bool should_i_stop_at_this_level();

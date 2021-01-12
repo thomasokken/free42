@@ -380,7 +380,9 @@ int docmd_lbl(arg_struct *arg) {
 }
 
 int docmd_rtn(arg_struct *arg) {
-    pop_func_state(false);
+    int err = pop_func_state(false);
+    if (err != ERR_NONE)
+        return err;
     return rtn(ERR_NONE);
 }
 
@@ -1647,11 +1649,6 @@ int docmd_gto(arg_struct *arg) {
     }
 
     return ERR_INTERNAL_ERROR;
-}
-
-int docmd_end(arg_struct *arg) {
-    pop_func_state(false);
-    return rtn(ERR_NONE);
 }
 
 int docmd_number(arg_struct *arg) {

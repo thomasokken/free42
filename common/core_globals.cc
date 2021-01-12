@@ -750,8 +750,9 @@ bool no_keystrokes_yet;
  *                    points for distinguishing between zeroes and poles.
  * Version 30: 2.5.23 Private local variables
  * Version 31: 2.5.24 Merge RTN and FRT functionality
+ * Version 32: 2.5.24 Replace FUNC[012] with FUNC [0-4][0-4]
  */
-#define FREE42_VERSION 31
+#define FREE42_VERSION 32
 
 
 /*******************/
@@ -2880,7 +2881,7 @@ int push_func_state(int n) {
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     store_private_var("L", 1, v);
-    v = new_real(n);
+    v = new_real(n + 100);
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     store_private_var("N", 1, v);
@@ -2893,61 +2894,64 @@ int push_func_state(int n) {
     return ERR_NONE;
 }
 
-void pop_func_state(bool error) {
+int pop_func_state(bool error) {
     if (rtn_level == 0) {
         if (!rtn_level_0_has_func_state)
-            return;
+            return ERR_NONE;
         rtn_level_0_has_func_state = false;
     } else {
         if ((rtn_stack[rtn_sp - 1].prgm & 0x40000000) == 0)
-            return;
+            return ERR_NONE;
         rtn_stack[rtn_sp - 1].prgm &= 0xbfffffff;
     }
 
     vartype *vn = recall_private_var("N", 1);
     int n = to_int(((vartype_real *) vn)->x);
+    // N is 0, 1, or 2 if the state was pushed by the old FNC[012]
+    // or FUNC[012] functions, or 1[0-4][0-4] is it was pushed by the
+    // new FUNC function. The old values have to be translated to
+    // 00, 11, and 21, respectively, while the new is translated
+    // to (n - 100). The result is a two-digit number, with each
+    // digit between 0 and 4, and the first digit indicating the
+    // number of inputs, and the second digit indicating the number
+    // of outputs.
+    if (n == 0)
+        n = 0;
+    else if (n == 1)
+        n = 11;
+    else if (n == 2)
+        n = 21;
+    else
+        n -= 100;
     if (error)
         n = 0;
-    switch (n) {
-        case 0:
-            free_vartype(reg_x);
-            reg_x = recall_and_purge_private_var("X", 1);
-            free_vartype(reg_y);
-            reg_y = recall_and_purge_private_var("Y", 1);
-            free_vartype(reg_z);
-            reg_z = recall_and_purge_private_var("Z", 1);
-            free_vartype(reg_t);
-            reg_t = recall_and_purge_private_var("T", 1);
-            free_vartype(reg_lastx);
-            reg_lastx = recall_and_purge_private_var("L", 1);
-            break;
-        case 1:
-            free_vartype(reg_y);
-            reg_y = recall_and_purge_private_var("Y", 1);
-            free_vartype(reg_z);
-            reg_z = recall_and_purge_private_var("Z", 1);
-            free_vartype(reg_t);
-            reg_t = recall_and_purge_private_var("T", 1);
-            free_vartype(reg_lastx);
-            reg_lastx = recall_and_purge_private_var("X", 1);
-            break;
-        case 2:
-            vartype *t = recall_and_purge_private_var("T", 1);
-            vartype *t2 = dup_vartype(t);
-            if (t2 == NULL)
-                return;
-            free_vartype(reg_y);
-            reg_y = recall_and_purge_private_var("Z", 1);
-            free_vartype(reg_z);
-            reg_z = t;
-            free_vartype(reg_t);
-            reg_t = t2;
-            free_vartype(reg_lastx);
-            reg_lastx = recall_and_purge_private_var("X", 1);
-            break;
+    int in = n / 10;
+    int out = n % 10;
+
+    free_vartype(reg_lastx);
+    reg_lastx = recall_and_purge_private_var(in == 0 ? "L" : "X", 1);
+
+    vartype **reg[4] = { &reg_x, &reg_y, &reg_z, &reg_t };
+    const char *name[4] = { "X", "Y", "Z", "T" };
+
+    for (int d = out; d < 4; d++) {
+        int s = d + in - out;
+        vartype *v;
+        if (s < 4)
+            v = recall_and_purge_private_var(name[s], 1);
+        else if (d > out)
+            v = dup_vartype(*reg[d - 1]);
+        else
+            v = recall_and_purge_private_var("T", 1);
+        if (v == NULL)
+            return ERR_INSUFFICIENT_MEMORY;
+        free_vartype(*reg[d]);
+        *reg[d] = v;
     }
+
     vartype_string *f25 = (vartype_string *) recall_private_var("F25", 3);
     flags.f.error_ignore = f25->length == 1 && f25->text[0] == '1';
+    return ERR_NONE;
 }
 
 void step_out() {

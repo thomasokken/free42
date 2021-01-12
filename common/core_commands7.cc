@@ -900,29 +900,25 @@ int docmd_fma(arg_struct *arg) {
     return ERR_NONE;
 }
 
-int docmd_func0(arg_struct *arg) {
-    return push_func_state(0);
-}
-
-int docmd_func1(arg_struct *arg) {
-    return push_func_state(1);
-}
-
-int docmd_func2(arg_struct *arg) {
-    return push_func_state(2);
+int docmd_func(arg_struct *arg) {
+    return push_func_state(arg->val.num);
 }
 
 int docmd_rtnyes(arg_struct *arg) {
     if (!program_running())
         return ERR_RESTRICTED_OPERATION;
-    pop_func_state(false);
+    int err = pop_func_state(false);
+    if (err != ERR_NONE)
+        return err;
     return rtn(ERR_YES);
 }
 
 int docmd_rtnno(arg_struct *arg) {
     if (!program_running())
         return ERR_RESTRICTED_OPERATION;
-    pop_func_state(false);
+    int err = pop_func_state(false);
+    if (err != ERR_NONE)
+        return err;
     return rtn(ERR_NO);
 }
 
@@ -936,8 +932,10 @@ int docmd_rtnerr(arg_struct *arg) {
         e = -e;
     if (e >= ERR_SIZE_ERROR)
         return ERR_INVALID_DATA;
-    pop_func_state(true);
-    int err = to_int(e);
+    int err = pop_func_state(true);
+    if (err != ERR_NONE)
+        return err;
+    err = to_int(e);
     if (err != ERR_NONE && flags.f.error_ignore) {
         flags.f.error_ignore = 0;
         err = ERR_NONE;

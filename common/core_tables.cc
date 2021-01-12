@@ -176,7 +176,7 @@ static const command_spec cmd_array[] =
     { /* SIGMAADD */    "\005+",                2, docmd_sigmaadd,    0x00000047, ARG_NONE,  FLAG_NONE },
     { /* SIGMASUB */    "\005-",                2, docmd_sigmasub,    0x00000048, ARG_NONE,  FLAG_NONE },
     { /* GTO */         "GTO",                  3, docmd_gto,         0x01a60000, ARG_LBL,   FLAG_NONE },
-    { /* END */         "END",                  3, docmd_end,         0x01000000, ARG_NONE,  FLAG_NONE },
+    { /* END */         "END",                  3, docmd_rtn,         0x01000000, ARG_NONE,  FLAG_NONE },
     { /* NUMBER */      "",                     0, docmd_number,      0x01000000, ARG_NONE,  FLAG_HIDDEN },
     { /* STRING */      "",                     0, docmd_string,      0x01000000, ARG_NONE,  FLAG_HIDDEN },
     { /* RUN */         "RUN",                  3, NULL,              0x02000000, ARG_NONE,  FLAG_HIDDEN },
@@ -293,7 +293,7 @@ static const command_spec cmd_array[] =
     { /* MEAN */        "MEAN",                 4, docmd_mean,        0x0000007c, ARG_NONE,  FLAG_NONE },
     { /* NOT */         "NOT",                  3, docmd_not,         0x0000a587, ARG_NONE,  FLAG_NONE },
     { /* OCTM */        "OCTM",                 4, docmd_octm,        0x0000a0e4, ARG_NONE,  FLAG_NONE },
-    { /* OLD */         "OLD",                  3, docmd_old,         0x0000a6db, ARG_NONE,  FLAG_NONE },
+    { /* OLD */         "OLD",                  3, docmd_rclel,       0x0000a6db, ARG_NONE,  FLAG_NONE },
     { /* OR */          "OR",                   2, docmd_or,          0x0000a589, ARG_NONE,  FLAG_NONE },
     { /* PGMSLV */      "P\307\315SLV",         6, docmd_pgmslv,      0x00b5f2e9, ARG_PRGM,  FLAG_NONE },
     { /* PGMINT */      "P\307\315INT",         6, docmd_pgmint,      0x00b4f2e8, ARG_PRGM,  FLAG_NONE },
@@ -436,9 +436,10 @@ static const command_spec cmd_array[] =
     { /* FMA */        "FMA",                   3, docmd_fma,         0x0000a7da, ARG_NONE,  FLAG_NONE },
 
     /* User-defined functions */
-    { /* FUNC0 */      "F\325NC0",              5, docmd_func0,       0x0000a7db, ARG_NONE,  FLAG_NONE },
-    { /* FUNC1 */      "F\325NC1",              5, docmd_func1,       0x0000a7dc, ARG_NONE,  FLAG_NONE },
-    { /* FUNC2 */      "F\325NC2",              5, docmd_func2,       0x0000a7dd, ARG_NONE,  FLAG_NONE },
+    // Note: a7db-a7dd encode FUNC0-FUNC2, superseded by FUNC 00, FUNC 11, and FUNC 21
+    // So we don't need those three XROMs any more, but we can't safely use them, so
+    // they should be left unassigned.
+    { /* FUNC */       "FUNC",                  4, docmd_func,        0x0000f2e0, ARG_FUNC,  FLAG_PRGM_ONLY },
     { /* RTNYES */     "RTNYES",                6, docmd_rtnyes,      0x0000a7de, ARG_NONE,  FLAG_NONE },
     { /* RTNNO */      "RTNNO",                 5, docmd_rtnno,       0x0000a7df, ARG_NONE,  FLAG_NONE },
     { /* RTNERR */     "RTNERR",                6, docmd_rtnerr,      0x0000a7e0, ARG_NONE,  FLAG_NONE }
