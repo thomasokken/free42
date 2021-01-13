@@ -3011,6 +3011,9 @@ static void remove_locals() {
 }
 
 int rtn(int err) {
+    // NOTE: 'err' should be one of ERR_NONE, ERR_YES, or ERR_NO.
+    // For any actual *error*, i.e. anything that should actually
+    // stop program execution, use rtn_with_error() instead.
     int newprgm;
     int4 newpc;
     bool stop;
