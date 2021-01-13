@@ -3070,6 +3070,7 @@ void pop_rtn_addr(int *prgm, int4 *pc, bool *stop) {
         *prgm = -1;
         *pc = -1;
         rtn_stop_level = -1;
+        rtn_level_0_has_func_state = false;
         if (rtn_level_0_has_matrix_entry) {
             rtn_level_0_has_matrix_entry = false;
             restore_indexed_matrix:
