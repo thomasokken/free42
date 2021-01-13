@@ -1512,9 +1512,9 @@ static bool persist_globals() {
         } else {
             int4 p = rtn_stack[i].prgm;
             matrix_entry_follows = p < 0;
-            p = p & 0x7fffffff;
-            if ((p & 0x40000000) != 0)
-                p |= 0x80000000;
+            p = p & 0x3fffffff;
+            if ((p & 0x20000000) != 0)
+                p |= 0xc0000000;
             current_prgm = p;
             int4 l = rtn_stack[i].pc;
             if (current_prgm >= 0)

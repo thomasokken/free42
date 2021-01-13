@@ -1,3 +1,10 @@
+2021-01-13: release 2.5.24
+
+* Improved user-defined function support. The changes are rather substantial;
+  please check the Free42 web site for details.
+* The previous release introduced a bug when pasting a program without line
+  numbers, causing numbers to be mangled. Fixed.
+
 2021-01-06: release 2.5.23
 
 * Implemented support for user-defined function semantics: stack preservation,
