@@ -19,7 +19,7 @@
     <activity android:name="Free42Activity"
               android:launchMode="singleInstance"
               android:theme="@android:style/Theme.NoTitleBar"
-              android:configChanges="orientation">
+              android:configChanges="orientation|screenSize|screenLayout">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
         <category android:name="android.intent.category.LAUNCHER"/>
