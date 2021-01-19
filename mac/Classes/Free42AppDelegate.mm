@@ -1436,8 +1436,16 @@ void shell_delay(int duration) {
 }
 
 uint4 shell_get_mem() {
-    // TODO!
-    return 42;
+    uint8 bytes = 0;
+    mach_msg_type_number_t count = HOST_VM_INFO_COUNT;
+    vm_statistics_data_t vmstat;
+    if (host_statistics(mach_host_self(), HOST_VM_INFO, (host_info_t) &vmstat, &count) == KERN_SUCCESS) {
+        bytes = vmstat.free_count;
+        bytes *= getpagesize();
+    }
+    if (bytes > 4294967295)
+        bytes = 4294967295;
+    return (uint4) bytes;
 }
 
 void shell_blitter(const char *bits, int bytesperline, int x, int y, int width, int height) {

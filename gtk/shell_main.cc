@@ -2985,19 +2985,21 @@ void shell_request_timeout3(int delay) {
 uint4 shell_get_mem() { 
     FILE *meminfo = fopen("/proc/meminfo", "r");
     char line[1024];
-    uint4 bytes = 0;
+    uint8 bytes = 0;
     if (meminfo == NULL)
         return 0;
     while (fgets(line, 1024, meminfo) != NULL) {
         if (strncmp(line, "MemFree:", 8) == 0) {
-            unsigned int kbytes;
-            if (sscanf(line + 8, "%u", &kbytes) == 1)
+            uint8 kbytes;
+            if (sscanf(line + 8, "%llu", &kbytes) == 1)
                 bytes = 1024 * kbytes;
+            if (bytes > 4294967295)
+                bytes = 4294967295;
             break;
         }
     }
     fclose(meminfo);
-    return bytes;
+    return (uint4) bytes;
 }
 
 int shell_low_battery() {
