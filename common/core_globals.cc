@@ -751,8 +751,9 @@ bool no_keystrokes_yet;
  * Version 30: 2.5.23 Private local variables
  * Version 31: 2.5.24 Merge RTN and FRT functionality
  * Version 32: 2.5.24 Replace FUNC[012] with FUNC [0-4][0-4]
+ * Version 33: 3.0    Big Stack; parameterized RTNERR
  */
-#define FREE42_VERSION 32
+#define FREE42_VERSION 33
 
 
 /*******************/
