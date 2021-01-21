@@ -58,4 +58,18 @@ int docmd_rtnno(arg_struct *arg);
 int docmd_rtnerr(arg_struct *arg);
 int docmd_strace(arg_struct *arg);
 
+int docmd_4stk(arg_struct *arg);
+int docmd_l4stk(arg_struct *arg);
+int docmd_nstk(arg_struct *arg);
+int docmd_lnstk(arg_struct *arg);
+int docmd_depth(arg_struct *arg);
+int docmd_drop(arg_struct *arg);
+int docmd_dropn(arg_struct *arg);
+int docmd_dup(arg_struct *arg);
+int docmd_dupn(arg_struct *arg);
+int docmd_pick(arg_struct *arg);
+int docmd_unpick(arg_struct *arg);
+int docmd_rdnn(arg_struct *arg);
+int docmd_rupn(arg_struct *arg);
+
 #endif

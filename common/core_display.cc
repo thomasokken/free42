@@ -1493,6 +1493,12 @@ static int ext_base_cat[] = {
     CMD_BRESET, CMD_BSIGNED, CMD_BWRAP, CMD_WSIZE, CMD_WSIZE_T, CMD_NULL
 };
 
+static int ext_stk_cat[] = {
+    CMD_4STK, CMD_DEPTH, CMD_DROP, CMD_DROPN, CMD_DUP, CMD_DUPN,
+    CMD_L4STK, CMD_LNSTK, CMD_NSTK, CMD_PICK, CMD_UNPICK, CMD_RDNN,
+    CMD_RUPN, CMD_NULL, CMD_NULL, CMD_NULL, CMD_NULL, CMD_NULL
+};
+
 static int ext_prgm_cat[] = {
     CMD_FUNC,   CMD_LASTO,  CMD_LSTO, CMD_RTNERR, CMD_RTNNO, CMD_RTNYES,
     CMD_SST_UP, CMD_SST_RT, CMD_NULL, CMD_NULL,   CMD_NULL,  CMD_NULL
@@ -1544,8 +1550,8 @@ static void draw_catalog() {
         draw_key(1, 0, 0, "XFCN", 4);
         draw_key(2, 0, 0, "BASE", 4);
         draw_key(3, 0, 0, "PRGM", 4);
-        draw_key(4, 0, 0, "MISC", 4);
-        draw_key(5, 0, 0, "", 0);
+        draw_key(4, 0, 0, "STK", 3);
+        draw_key(5, 0, 0, "MISC", 4);
         mode_updown = true;
         shell_annunciators(1, -1, -1, -1, -1, -1);
     } else if (catsect == CATSECT_PGM
@@ -1613,6 +1619,7 @@ static void draw_catalog() {
             case CATSECT_EXT_XFCN: subcat = ext_xfcn_cat; subcat_rows = 1; break;
             case CATSECT_EXT_BASE: subcat = ext_base_cat; subcat_rows = 1; break;
             case CATSECT_EXT_PRGM: subcat = ext_prgm_cat; subcat_rows = 2; break;
+            case CATSECT_EXT_STK: subcat = ext_stk_cat; subcat_rows = 3; break;
             case CATSECT_EXT_MISC: subcat = ext_misc_cat; subcat_rows = MISC_CAT_ROWS; break;
         }
 
@@ -2585,6 +2592,7 @@ void set_catalog_menu(int section) {
         case CATSECT_EXT_XFCN:
         case CATSECT_EXT_BASE:
         case CATSECT_EXT_PRGM:
+        case CATSECT_EXT_STK:
         case CATSECT_EXT_MISC:
             return;
         case CATSECT_REAL:
@@ -2705,6 +2713,7 @@ void update_catalog() {
         case CATSECT_EXT_XFCN:
         case CATSECT_EXT_BASE:
         case CATSECT_EXT_PRGM:
+        case CATSECT_EXT_STK:
         case CATSECT_EXT_MISC:
             return;
         case CATSECT_PGM:

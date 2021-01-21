@@ -1582,22 +1582,22 @@ static int hp42ext[] = {
     CMD_DSE     | 0x1000,
 
     /* A0-AF */
-    CMD_NULL  | 0x4000,
-    CMD_NULL  | 0x4000,
-    CMD_NULL  | 0x4000,
-    CMD_NULL  | 0x4000,
-    CMD_NULL  | 0x4000,
-    CMD_NULL  | 0x4000,
-    CMD_NULL  | 0x4000,
-    CMD_NULL  | 0x4000,
-    CMD_SF    | 0x1000,
-    CMD_CF    | 0x1000,
-    CMD_FSC_T | 0x1000,
-    CMD_FCC_T | 0x1000,
-    CMD_FS_T  | 0x1000,
-    CMD_FC_T  | 0x1000,
-    CMD_GTO   | 0x1000,
-    CMD_XEQ   | 0x1000,
+    CMD_RTNERR | 0x2000,
+    CMD_DROPN  | 0x2000,
+    CMD_DUPN   | 0x2000,
+    CMD_PICK   | 0x2000,
+    CMD_UNPICK | 0x2000,
+    CMD_RDNN   | 0x2000,
+    CMD_RUPN   | 0x2000,
+    CMD_NULL   | 0x4000,
+    CMD_SF     | 0x1000,
+    CMD_CF     | 0x1000,
+    CMD_FSC_T  | 0x1000,
+    CMD_FCC_T  | 0x1000,
+    CMD_FS_T   | 0x1000,
+    CMD_FC_T   | 0x1000,
+    CMD_GTO    | 0x1000,
+    CMD_XEQ    | 0x1000,
 
     /* B0-BF */
     CMD_CLV    | 0x0000,
@@ -1658,7 +1658,7 @@ static int hp42ext[] = {
     CMD_NULL   | 0x4000,
     CMD_NULL   | 0x3000, /* KEYX suffix */
     CMD_NULL   | 0x3000, /* KEYG suffix */
-    CMD_NULL   | 0x4000,
+    CMD_RTNERR | 0x1000,
     CMD_NULL   | 0x4000, /* FIX 11 */
     CMD_NULL   | 0x4000, /* SCI 11 */
     CMD_NULL   | 0x4000, /* ENG 11 */
@@ -1681,13 +1681,13 @@ static int hp42ext[] = {
     CMD_NULL    | 0x4000, /* DEL */
     CMD_NULL    | 0x3000, /* SIZE */
     CMD_VARMENU | 0x2000,
-    CMD_NULL    | 0x4000,
-    CMD_NULL    | 0x4000,
-    CMD_NULL    | 0x4000,
-    CMD_NULL    | 0x4000,
+    CMD_DROPN   | 0x1000,
+    CMD_DUPN    | 0x1000,
+    CMD_PICK    | 0x1000,
+    CMD_UNPICK  | 0x1000,
     CMD_LASTO   | 0x1000,
-    CMD_NULL    | 0x4000,
-    CMD_NULL    | 0x4000
+    CMD_RDNN    | 0x1000,
+    CMD_RUPN    | 0x1000
 };
 
 
@@ -1880,6 +1880,12 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                         arg.val.num = 11;
                     else // code == 0x0A7DD
                         arg.val.num = 21;
+                    goto store;
+                } else if (code == 0x0A7E0) {
+                    /* Unparameterized RTNERR: translate to RTNERR IND ST X */
+                    cmd = CMD_RTNERR;
+                    arg.type = ARGTYPE_IND_STK;
+                    arg.val.stk = 'X';
                     goto store;
                 }
                 for (i = 0; i < CMD_SENTINEL; i++)
@@ -3026,7 +3032,7 @@ static void paste_programs(const char *buf) {
                 arg.type = ARGTYPE_DOUBLE;
                 goto store;
             } else {
-                // Check for 1/X or 10^X
+                // Check for 1/X, 10^X, or 4STK
                 int len = hpend - prev_hppos;
                 if (len == 3 && strncmp(hpbuf + prev_hppos, "1/X", 3) == 0) {
                     cmd = CMD_INV;
@@ -3036,9 +3042,13 @@ static void paste_programs(const char *buf) {
                     cmd = CMD_10_POW_X;
                     arg.type = ARGTYPE_NONE;
                     goto store;
+                } else if (len == 4 && strncmp(hpbuf + prev_hppos, "4STK", 4) == 0) {
+                    cmd = CMD_4STK;
+                    arg.type = ARGTYPE_NONE;
+                    goto store;
                 }
                 // No decimal or exponent following the digits, and it's
-                // not 1/X or 10^X; for now, assume it's a line number.
+                // not 1/X, 10^X, or 4STK; for now, assume it's a line number.
                 lineno_start = prev_hppos;
                 lineno_end = hppos;
             }
@@ -3210,6 +3220,7 @@ static void paste_programs(const char *buf) {
             } else if (cmd != CMD_NONE) {
                 int flags;
                 flags = cmdlist(cmd)->flags;
+                arg.type = ARGTYPE_NONE;
                 if ((flags & (FLAG_IMMED | FLAG_HIDDEN | FLAG_NO_PRGM)) != 0)
                     goto line_done;
                 argtype = cmdlist(cmd)->argtype;
@@ -3495,6 +3506,12 @@ static void paste_programs(const char *buf) {
             store_command_after(&pc, cmd, &arg, numbuf);
 
         line_done:
+        if (cmd == CMD_RTNERR && arg.type == ARGTYPE_NONE) {
+            // Hack to handle RTNERR with no argument as RTNERR IND ST X
+            arg.type = ARGTYPE_IND_STK;
+            arg.val.stk = 'X';
+            goto store;
+        }
         pos = end + 1;
     }
 }

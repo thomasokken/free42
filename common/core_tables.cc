@@ -363,8 +363,8 @@ static const command_spec cmd_array[] =
     { /* PUTZ */        "PUTZ",                 4, docmd_xrom,        0x0000a7cd, ARG_NONE,  FLAG_NONE },
     { /* DELP */        "DELP",                 4, docmd_xrom,        0x0000a7ce, ARG_NONE,  FLAG_NONE },
 
-    /* Byron Foster's DROP for Bigstack (Obsolete) */
-    { /* DROP */        "DROP",                 4, docmd_xrom,        0x0000a271, ARG_NONE,  FLAG_NONE },
+    /* Big Stack; additional functions from 4STK */
+    { /* DROP */        "DROP",                 4, docmd_drop,        0x0000a271, ARG_NONE,  FLAG_NONE },
 
     /* Accelerometer, GPS, and compass support */
     { /* ACCEL */       "ACCEL",                5, docmd_accel,       0x0000a7cf, ARG_NONE,  FLAG_NONE },
@@ -436,14 +436,29 @@ static const command_spec cmd_array[] =
     { /* FMA */        "FMA",                   3, docmd_fma,         0x0000a7da, ARG_NONE,  FLAG_NONE },
 
     /* User-defined functions */
-    // Note: a7db-a7dd encode FUNC0-FUNC2, superseded by FUNC 00, FUNC 11, and FUNC 21
-    // So we don't need those three XROMs any more, but we can't safely use them, so
-    // they should be left unassigned.
+    // Note: a7db-a7dd encode FUNC0-FUNC2, superseded by FUNC 00, FUNC 11, and
+    // FUNC 21, and a7e0 encodes RTNERR without argument, and is superseded by
+    // RTNERR IND ST X... So we don't need those three XROMs any more, but we
+    // can't safely use them, so they should be left unassigned.
     { /* FUNC */       "FUNC",                  4, docmd_func,        0x0000f2e0, ARG_FUNC,  FLAG_PRGM_ONLY },
     { /* RTNYES */     "RTNYES",                6, docmd_rtnyes,      0x0000a7de, ARG_NONE,  FLAG_NONE },
     { /* RTNNO */      "RTNNO",                 5, docmd_rtnno,       0x0000a7df, ARG_NONE,  FLAG_NONE },
-    { /* RTNERR */     "RTNERR",                6, docmd_rtnerr,      0x0000a7e0, ARG_NONE,  FLAG_NONE },
-    { /* STRACE */     "STRACE",                6, docmd_strace,      0x0000a7e1, ARG_NONE,  FLAG_NONE }
+    { /* RTNERR */     "RTNERR",                6, docmd_rtnerr,      0x00dcf2a0, ARG_NUM9,  FLAG_PRGM_ONLY },
+    { /* STRACE */     "STRACE",                6, docmd_strace,      0x0000a7e1, ARG_NONE,  FLAG_NONE },
+
+    /* Big Stack */
+    { /* 4STK */       "4STK",                  4, docmd_4stk,        0x0000a7e2, ARG_NONE,  FLAG_NONE },
+    { /* L4STK */      "L4STK",                 5, docmd_l4stk,       0x0000a7e3, ARG_NONE,  FLAG_NONE },
+    { /* NSTK */       "NSTK",                  4, docmd_nstk,        0x0000a7e4, ARG_NONE,  FLAG_NONE },
+    { /* LNSTK */      "LNSTK",                 5, docmd_lnstk,       0x0000a7e5, ARG_NONE,  FLAG_NONE },
+    { /* DEPTH */      "DEPTH",                 5, docmd_depth,       0x0000a7e6, ARG_NONE,  FLAG_NONE },
+    { /* DROPN */      "DR\317PN",              5, docmd_dropn,       0x00f1f2a1, ARG_NUM9,  FLAG_NONE },
+    { /* DUP */        "DUP",                   3, docmd_dup,         0x0000a7e7, ARG_NONE,  FLAG_NONE },
+    { /* DUPN */       "DUPN",                  4, docmd_dupn,        0x00f2f2a2, ARG_NUM9,  FLAG_NONE },
+    { /* PICK */       "PICK",                  4, docmd_pick,        0x00f3f2a3, ARG_NUM9,  FLAG_NONE },
+    { /* UNPICK */     "UNPICK",                6, docmd_unpick,      0x00f4f2a4, ARG_NUM9,  FLAG_NONE },
+    { /* RDNN */       "R\016N",                3, docmd_rdnn,        0x00f6f2a5, ARG_NUM9,  FLAG_NONE },
+    { /* RUPN */       "R^N",                   3, docmd_rupn,        0x00f7f2a6, ARG_NUM9,  FLAG_NONE }
 };
 
 /*

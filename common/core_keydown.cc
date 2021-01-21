@@ -902,12 +902,13 @@ void keydown_command_entry(int shift, int key) {
                         move_cat_row(0);
                         break;
                     case 4:
-                        set_cat_section(CATSECT_EXT_MISC);
+                        set_cat_section(CATSECT_EXT_STK);
                         move_cat_row(0);
                         break;
                     case 5:
-                        squeak();
-                        return;
+                        set_cat_section(CATSECT_EXT_MISC);
+                        move_cat_row(0);
+                        break;
                 }
                 redisplay();
                 return;
@@ -991,6 +992,7 @@ void keydown_command_entry(int shift, int key) {
                     || catsect == CATSECT_EXT_XFCN
                     || catsect == CATSECT_EXT_BASE
                     || catsect == CATSECT_EXT_PRGM
+                    || catsect == CATSECT_EXT_STK
                     || catsect == CATSECT_EXT_MISC) {
                 set_cat_section(CATSECT_EXT);
                 redisplay();
@@ -1230,6 +1232,10 @@ void keydown_command_entry(int shift, int key) {
                 case KEY_9: digit = 9; break;
             }
             if (incomplete_argtype == ARG_FUNC && digit > 4) {
+                squeak();
+                return;
+            }
+            if (incomplete_command == CMD_RTNERR && !incomplete_ind && digit > 7) {
                 squeak();
                 return;
             }
@@ -1521,6 +1527,7 @@ void keydown_command_entry(int shift, int key) {
                                 || catsect == CATSECT_EXT_XFCN
                                 || catsect == CATSECT_EXT_BASE
                                 || catsect == CATSECT_EXT_PRGM
+                                || catsect == CATSECT_EXT_STK
                                 || catsect == CATSECT_EXT_MISC)) {
                     set_catalog_menu(CATSECT_EXT);
                     redisplay();
@@ -1604,6 +1611,7 @@ void keydown_command_entry(int shift, int key) {
                             && catsect != CATSECT_EXT_XFCN
                             && catsect != CATSECT_EXT_BASE
                             && catsect != CATSECT_EXT_PRGM
+                            && catsect != CATSECT_EXT_STK
                             && catsect != CATSECT_EXT_MISC)) {
                     set_menu(MENULEVEL_COMMAND, MENU_ALPHA1);
                     redisplay();
@@ -2274,12 +2282,13 @@ void keydown_normal_mode(int shift, int key) {
                             move_cat_row(0);
                             break;
                         case 4:
-                            set_cat_section(CATSECT_EXT_MISC);
+                            set_cat_section(CATSECT_EXT_STK);
                             move_cat_row(0);
                             break;
                         case 5:
-                            squeak();
-                            return;
+                            set_cat_section(CATSECT_EXT_MISC);
+                            move_cat_row(0);
+                            break;
                     }
                     redisplay();
                     return;

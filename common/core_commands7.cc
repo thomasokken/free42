@@ -925,14 +925,16 @@ int docmd_rtnno(arg_struct *arg) {
 int docmd_rtnerr(arg_struct *arg) {
     if (!program_running())
         return ERR_RESTRICTED_OPERATION;
-    if (reg_x->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
-    phloat e = ((vartype_real *) reg_x)->x;
+    int err;
+    int4 e;
+    err = arg_to_num(arg, &e);
+    if (err != ERR_NONE)
+        return err;
     if (e < 0)
         e = -e;
     if (e >= ERR_SIZE_ERROR)
         return ERR_INVALID_DATA;
-    int err = pop_func_state(true);
+    err = pop_func_state(true);
     if (err != ERR_NONE)
         return err;
     err = to_int(e);
@@ -950,4 +952,56 @@ int docmd_strace(arg_struct *arg) {
     flags.f.trace_print = 1;
     flags.f.normal_print = 1;
     return ERR_NONE;
+}
+
+int docmd_4stk(arg_struct *arg) {
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_l4stk(arg_struct *arg) {
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_nstk(arg_struct *arg) {
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_lnstk(arg_struct *arg) {
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_depth(arg_struct *arg) {
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_drop(arg_struct *arg) {
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_dropn(arg_struct *arg) {
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_dup(arg_struct *arg) {
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_dupn(arg_struct *arg) {
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_pick(arg_struct *arg) {
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_unpick(arg_struct *arg) {
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_rdnn(arg_struct *arg) {
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_rupn(arg_struct *arg) {
+    return ERR_NOT_YET_IMPLEMENTED;
 }

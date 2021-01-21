@@ -365,7 +365,7 @@
 #define CMD_GETZ        326
 #define CMD_PUTZ        327
 #define CMD_DELP        328
-/* Byron Foster's Bigstack extension (Obsolete) */
+/* Big Stack; additional functions from 4STK */
 #define CMD_DROP        329
 /* iPhone hardware support */
 #define CMD_ACCEL       330
@@ -440,8 +440,21 @@
 #define CMD_RTNNO       387
 #define CMD_RTNERR      388
 #define CMD_STRACE      389
+/* Big Stack */
+#define CMD_4STK        390
+#define CMD_L4STK       391
+#define CMD_NSTK        392
+#define CMD_LNSTK       393
+#define CMD_DEPTH       394
+#define CMD_DROPN       395
+#define CMD_DUP         396
+#define CMD_DUPN        397
+#define CMD_PICK        398
+#define CMD_UNPICK      399
+#define CMD_RDNN        400
+#define CMD_RUPN        401
 
-#define CMD_SENTINEL    390
+#define CMD_SENTINEL    402
 
 
 /* command_spec.argtype */
