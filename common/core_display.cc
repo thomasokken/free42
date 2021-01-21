@@ -1475,27 +1475,56 @@ static int fcn_cat[] = {
     CMD_10_POW_X, CMD_ADD,       CMD_SUB,      CMD_MUL,        CMD_DIV,     CMD_CHS,
     CMD_SIGMAADD, CMD_SIGMASUB,  CMD_SIGMAREG, CMD_SIGMAREG_T, CMD_TO_DEC,  CMD_TO_DEG,
     CMD_TO_HMS,   CMD_TO_HR,     CMD_TO_OCT,   CMD_TO_POL,     CMD_TO_RAD,  CMD_TO_REC,
-    CMD_LEFT,     CMD_UP,        CMD_DOWN,     CMD_RIGHT,      CMD_PERCENT, CMD_PERCENT_CH
+    CMD_LEFT,     CMD_UP,        CMD_DOWN,     CMD_RIGHT,      CMD_PERCENT, CMD_PERCENT_CH,
+    CMD_FIND,     CMD_MAX,       CMD_MIN,      CMD_NULL,       CMD_NULL,    CMD_NULL
 };
 
-// This defines the order in which extension functions should appear in
-// the FCN catalog. We need this mapping so that that order isn't determined
-// by the order in which the functions were added to the commands list.
-// A command number of -1 defines a range, from the number before it in
-// the list until the number after it.
-static int ext_fcn_cat[] = {
-    CMD_FIND, CMD_MAX, CMD_MIN,
-    CMD_ANUM, CMD_RCLFLAG, CMD_STOFLAG, CMD_X_SWAP_F,
-    CMD_ADATE, -1, CMD_SWPT,
-    CMD_YMD,
-    CMD_BRESET, CMD_BSIGNED, CMD_BWRAP, CMD_FMA, CMD_FUNC,
-    CMD_GETKEY1, CMD_LASTO, CMD_LSTO, CMD_NOP, CMD_RTNYES,
-    CMD_RTNNO, CMD_RTNERR, CMD_SST_UP, CMD_SST_RT,
-    CMD_STRACE, CMD_WSIZE, CMD_WSIZE_T,
-    CMD_ACCEL, CMD_LOCAT, CMD_HEADING,
-    CMD_FPTEST,
-    CMD_NULL
+static int ext_time_cat[] = {
+    CMD_ADATE,     CMD_ATIME, CMD_ATIME24, CMD_CLK12, CMD_CLK24, CMD_DATE,
+    CMD_DATE_PLUS, CMD_DDAYS, CMD_DMY,     CMD_DOW,   CMD_MDY,   CMD_TIME,
+    CMD_YMD,       CMD_NULL,  CMD_NULL,    CMD_NULL,  CMD_NULL,  CMD_NULL
 };
+
+static int ext_xfcn_cat[] = {
+    CMD_ANUM, CMD_RCLFLAG, CMD_STOFLAG, CMD_X_SWAP_F, CMD_NULL, CMD_NULL
+};
+
+static int ext_base_cat[] = {
+    CMD_BRESET, CMD_BSIGNED, CMD_BWRAP, CMD_WSIZE, CMD_WSIZE_T, CMD_NULL
+};
+
+static int ext_prgm_cat[] = {
+    CMD_FUNC,   CMD_LASTO,  CMD_LSTO, CMD_RTNERR, CMD_RTNNO, CMD_RTNYES,
+    CMD_SST_UP, CMD_SST_RT, CMD_NULL, CMD_NULL,   CMD_NULL,  CMD_NULL
+};
+
+#if defined(ANDROID) || defined(IPHONE)
+#ifdef FREE42_FPTEST
+static int ext_misc_cat[] = {
+    CMD_GETKEY1, CMD_NOP,    CMD_FMA,  CMD_STRACE, CMD_ACCEL, CMD_LOCAT,
+    CMD_HEADING, CMD_FPTEST, CMD_NULL, CMD_NULL,   CMD_NULL,  CMD_NULL
+};
+#define MISC_CAT_ROWS 2
+#else
+static int ext_misc_cat[] = {
+    CMD_GETKEY1, CMD_NOP,  CMD_FMA,  CMD_STRACE, CMD_ACCEL, CMD_LOCAT,
+    CMD_HEADING, CMD_NULL, CMD_NULL, CMD_NULL,   CMD_NULL,  CMD_NULL
+};
+#define MISC_CAT_ROWS 2
+#endif
+#else
+#ifdef FREE42_FPTEST
+static int ext_misc_cat[] = {
+    CMD_GETKEY1, CMD_NOP, CMD_FMA, CMD_STRACE, CMD_FPTEST, CMD_NULL
+};
+#define MISC_CAT_ROWS 1
+#else
+static int ext_misc_cat[] = {
+    CMD_GETKEY1, CMD_NOP, CMD_FMA, CMD_STRACE, CMD_NULL, CMD_NULL
+};
+#define MISC_CAT_ROWS 1
+#endif
+#endif
 
 static void draw_catalog() {
     int catsect = get_cat_section();
@@ -1508,8 +1537,17 @@ static void draw_catalog() {
         draw_key(3, 0, 0, "CPX", 3);
         draw_key(4, 0, 0, "MAT", 3);
         draw_key(5, 0, 0, "MEM", 3);
-        mode_updown = false;
-        shell_annunciators(0, -1, -1, -1, -1, -1);
+        mode_updown = true;
+        shell_annunciators(1, -1, -1, -1, -1, -1);
+    } else if (catsect == CATSECT_EXT) {
+        draw_key(0, 0, 0, "TIME", 4);
+        draw_key(1, 0, 0, "XFCN", 4);
+        draw_key(2, 0, 0, "BASE", 4);
+        draw_key(3, 0, 0, "PRGM", 4);
+        draw_key(4, 0, 0, "MISC", 4);
+        draw_key(5, 0, 0, "", 0);
+        mode_updown = true;
+        shell_annunciators(1, -1, -1, -1, -1, -1);
     } else if (catsect == CATSECT_PGM
             || catsect == CATSECT_PGM_ONLY
             || catsect == CATSECT_PGM_SOLVE
@@ -1565,88 +1603,31 @@ static void draw_catalog() {
         }
         mode_updown = catalogmenu_rows[catindex] > 1;
         shell_annunciators(mode_updown, -1, -1, -1, -1, -1);
-    } else if (catsect == CATSECT_FCN) {
-        int desired_row = catalogmenu_row[catindex];
-        if (desired_row < 42) {
-            standard_fcn:
-            for (int i = 0; i < 6; i++) {
-                int cmd = fcn_cat[desired_row * 6 + i];
-                catalogmenu_item[catindex][i] = cmd;
-                draw_key(i, 0, 1, cmdlist(cmd)->name,
-                                  cmdlist(cmd)->name_length);
-            }
-            // Setting number of rows to a ridiculously large value;
-            // this value only comes into play when the user presses "up"
-            // while on the first row of the FCN catalog, and the extension-handling
-            // code in the desired_row >= 42 case takes care of handling the
-            // ever-changing number of rows in this menu, and will clip the row
-            // number to the actual number of rows.
-            catalogmenu_rows[catindex] = 1000;
-        } else {
-            int curr_row = 41;
-            int curr_pos = 5;
-            bool menu_full = false;
-            int menu_length = 0;
-            bool no_extensions = true;
-            int ext_fcn_idx = 0;
-            int ext_fcn_until = CMD_NULL;
-            int ext_fcn;
-            while (true) {
-                if (ext_fcn_until == CMD_NULL) {
-                    ext_fcn = ext_fcn_cat[ext_fcn_idx++];
-                    if (ext_fcn == -1) {
-                        ext_fcn_until = ext_fcn_cat[ext_fcn_idx++];
-                        ext_fcn = ext_fcn_cat[ext_fcn_idx - 3] + 1;
-                    } else if (ext_fcn == CMD_NULL)
-                        break;
-                } else {
-                    ext_fcn++;
-                    if (ext_fcn == ext_fcn_until)
-                        ext_fcn_until = CMD_NULL;
-                }
-                if ((cmdlist(ext_fcn)->flags & FLAG_HIDDEN) != 0)
-                    continue;
-                #ifndef FREE42_FPTEST
-                if (ext_fcn == CMD_FPTEST)
-                    continue;
-                #endif
-                #if !defined(ANDROID) && !defined(IPHONE)
-                if (ext_fcn == CMD_ACCEL || ext_fcn == CMD_LOCAT || ext_fcn == CMD_HEADING)
-                    continue;
-                #endif
-                no_extensions = false;
-                if (curr_pos == 5) {
-                    curr_pos = 0;
-                    curr_row++;
-                } else
-                    curr_pos++;
-                if (menu_full)
-                    goto done;
-                catalogmenu_item[catindex][curr_pos] = ext_fcn;
-                catalogmenu_row[catindex] = curr_row;
-                menu_length = curr_pos + 1;
-                if (curr_pos == 5 && curr_row == desired_row)
-                    menu_full = true;
-            }
-            if (no_extensions) {
-                desired_row = catalogmenu_row[catindex] = desired_row == 42 ? 0 : 41;
-                goto standard_fcn;
-            }
-            done:
-            catalogmenu_rows[catindex] = curr_row + 1;
-            for (int i = 0; i < 6; i++) {
-                if (i >= menu_length)
-                    catalogmenu_item[catindex][i] = -1;
-                int cmd = catalogmenu_item[catindex][i];
-                if (cmd == -1)
-                    draw_key(i, 0, 0, "", 0);
-                else
-                    draw_key(i, 0, 1, cmdlist(cmd)->name,
-                                      cmdlist(cmd)->name_length);
-            }
+    } else if (catsect == CATSECT_FCN
+            || catsect >= CATSECT_EXT_TIME && catsect <= CATSECT_EXT_MISC) {
+        int *subcat;
+        int subcat_rows;
+        switch (catsect) {
+            case CATSECT_FCN: subcat = fcn_cat; subcat_rows = 43; break;
+            case CATSECT_EXT_TIME: subcat = ext_time_cat; subcat_rows = 3; break;
+            case CATSECT_EXT_XFCN: subcat = ext_xfcn_cat; subcat_rows = 1; break;
+            case CATSECT_EXT_BASE: subcat = ext_base_cat; subcat_rows = 1; break;
+            case CATSECT_EXT_PRGM: subcat = ext_prgm_cat; subcat_rows = 2; break;
+            case CATSECT_EXT_MISC: subcat = ext_misc_cat; subcat_rows = MISC_CAT_ROWS; break;
         }
-        mode_updown = true;
-        shell_annunciators(1, -1, -1, -1, -1, -1);
+
+        int desired_row = catalogmenu_row[catindex];
+        if (desired_row >= subcat_rows)
+            desired_row = 0;
+        for (int i = 0; i < 6; i++) {
+            int cmd = subcat[desired_row * 6 + i];
+            catalogmenu_item[catindex][i] = cmd;
+            draw_key(i, 0, 1, cmdlist(cmd)->name,
+                              cmdlist(cmd)->name_length);
+        }
+        catalogmenu_rows[catindex] = subcat_rows;
+        mode_updown = subcat_rows > 1;
+        shell_annunciators(mode_updown ? 1 : 0, -1, -1, -1, -1, -1);
     } else {
         int vcount = 0;
         int i, j, k = -1;
@@ -2583,7 +2564,8 @@ void set_plainmenu(int menuid) {
                 set_cat_section(CATSECT_TOP);
             redisplay();
         }
-        mode_updown = mode_plainmenu != MENU_NONE
+        mode_updown = mode_plainmenu == MENU_CATALOG
+                || mode_plainmenu != MENU_NONE
                         && menus[mode_plainmenu].next != MENU_NONE;
         shell_annunciators(mode_updown, -1, -1, -1, -1, -1);
     }
@@ -2598,6 +2580,12 @@ void set_catalog_menu(int section) {
         case CATSECT_FCN:
         case CATSECT_PGM:
         case CATSECT_PGM_ONLY:
+        case CATSECT_EXT:
+        case CATSECT_EXT_TIME:
+        case CATSECT_EXT_XFCN:
+        case CATSECT_EXT_BASE:
+        case CATSECT_EXT_PRGM:
+        case CATSECT_EXT_MISC:
             return;
         case CATSECT_REAL:
         case CATSECT_REAL_ONLY:
@@ -2712,6 +2700,12 @@ void update_catalog() {
     switch (get_cat_section()) {
         case CATSECT_TOP:
         case CATSECT_FCN:
+        case CATSECT_EXT:
+        case CATSECT_EXT_TIME:
+        case CATSECT_EXT_XFCN:
+        case CATSECT_EXT_BASE:
+        case CATSECT_EXT_PRGM:
+        case CATSECT_EXT_MISC:
             return;
         case CATSECT_PGM:
         case CATSECT_PGM_ONLY:

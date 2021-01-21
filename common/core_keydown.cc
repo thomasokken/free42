@@ -325,7 +325,23 @@ void keydown(int shift, int key) {
             sst();
         redisplay();
         return;
-    }    
+    }
+    
+    if (key == KEY_UP || key == KEY_DOWN) {
+        menu = get_front_menu();
+        if (menu != NULL && *menu == MENU_CATALOG) {
+            int sect = get_cat_section();
+            if (sect == CATSECT_TOP) {
+                set_cat_section(CATSECT_EXT);
+                redisplay();
+                return;
+            } else if (sect == CATSECT_EXT) {
+                set_cat_section(CATSECT_TOP);
+                redisplay();
+                return;
+            }
+        }
+    }
     
     if (!flags.f.prgm_mode && key == KEY_UP
             && (shift || get_front_menu() == NULL)) {
@@ -867,6 +883,34 @@ void keydown_command_entry(int shift, int key) {
                 }
                 redisplay();
                 return;
+            } else if (catsect == CATSECT_EXT) {
+                switch (menukey) {
+                    case 0:
+                        set_cat_section(CATSECT_EXT_TIME);
+                        move_cat_row(0);
+                        break;
+                    case 1:
+                        set_cat_section(CATSECT_EXT_XFCN);
+                        move_cat_row(0);
+                        break;
+                    case 2:
+                        set_cat_section(CATSECT_EXT_BASE);
+                        move_cat_row(0);
+                        break;
+                    case 3:
+                        set_cat_section(CATSECT_EXT_PRGM);
+                        move_cat_row(0);
+                        break;
+                    case 4:
+                        set_cat_section(CATSECT_EXT_MISC);
+                        move_cat_row(0);
+                        break;
+                    case 5:
+                        squeak();
+                        return;
+                }
+                redisplay();
+                return;
             } else {
                 int i, itemindex;
                 itemindex = get_cat_item(menukey);
@@ -911,7 +955,8 @@ void keydown_command_entry(int shift, int key) {
                 pending_command = incomplete_command;
                 pending_command_arg.type =
                             incomplete_ind ? ARGTYPE_IND_STR : ARGTYPE_STR;
-                if (catsect == CATSECT_FCN) {
+                if (catsect == CATSECT_FCN
+                        || catsect >= CATSECT_EXT_TIME && catsect <= CATSECT_EXT_MISC) {
                     const command_spec *cs = cmdlist(itemindex);
                     pending_command_arg.length = cs->name_length;
                     for (i = 0; i < pending_command_arg.length; i++)
@@ -941,6 +986,13 @@ void keydown_command_entry(int shift, int key) {
                     || catsect == CATSECT_CPX
                     || catsect == CATSECT_MAT) {
                 set_cat_section(CATSECT_TOP);
+                redisplay();
+            } else if (catsect == CATSECT_EXT_TIME
+                    || catsect == CATSECT_EXT_XFCN
+                    || catsect == CATSECT_EXT_BASE
+                    || catsect == CATSECT_EXT_PRGM
+                    || catsect == CATSECT_EXT_MISC) {
+                set_cat_section(CATSECT_EXT);
                 redisplay();
             } else {
                 pending_command = CMD_CANCELLED;
@@ -1464,6 +1516,14 @@ void keydown_command_entry(int shift, int key) {
                                 || catsect == CATSECT_MAT)) {
                     set_catalog_menu(CATSECT_TOP);
                     redisplay();
+                } else if (mode_commandmenu == MENU_CATALOG
+                        && ((catsect = get_cat_section()) == CATSECT_EXT_TIME
+                                || catsect == CATSECT_EXT_XFCN
+                                || catsect == CATSECT_EXT_BASE
+                                || catsect == CATSECT_EXT_PRGM
+                                || catsect == CATSECT_EXT_MISC)) {
+                    set_catalog_menu(CATSECT_EXT);
+                    redisplay();
                 } else {
                     pending_command = CMD_NULL;
                     finish_command_entry(false);
@@ -1539,7 +1599,12 @@ void keydown_command_entry(int shift, int key) {
                             && catsect != CATSECT_PGM
                             && catsect != CATSECT_REAL
                             && catsect != CATSECT_CPX
-                            && catsect != CATSECT_MAT)) {
+                            && catsect != CATSECT_MAT
+                            && catsect != CATSECT_EXT_TIME
+                            && catsect != CATSECT_EXT_XFCN
+                            && catsect != CATSECT_EXT_BASE
+                            && catsect != CATSECT_EXT_PRGM
+                            && catsect != CATSECT_EXT_MISC)) {
                     set_menu(MENULEVEL_COMMAND, MENU_ALPHA1);
                     redisplay();
                     return;
@@ -2190,6 +2255,34 @@ void keydown_normal_mode(int shift, int key) {
                     }
                     redisplay();
                     return;
+                } else if (catsect == CATSECT_EXT) {
+                    switch (menukey) {
+                        case 0:
+                            set_cat_section(CATSECT_EXT_TIME);
+                            move_cat_row(0);
+                            break;
+                        case 1:
+                            set_cat_section(CATSECT_EXT_XFCN);
+                            move_cat_row(0);
+                            break;
+                        case 2:
+                            set_cat_section(CATSECT_EXT_BASE);
+                            move_cat_row(0);
+                            break;
+                        case 3:
+                            set_cat_section(CATSECT_EXT_PRGM);
+                            move_cat_row(0);
+                            break;
+                        case 4:
+                            set_cat_section(CATSECT_EXT_MISC);
+                            move_cat_row(0);
+                            break;
+                        case 5:
+                            squeak();
+                            return;
+                    }
+                    redisplay();
+                    return;
                 } else if (catsect == CATSECT_PGM
                             || catsect == CATSECT_PGM_ONLY) {
                     int labelindex = get_cat_item(menukey);
@@ -2239,7 +2332,8 @@ void keydown_normal_mode(int shift, int key) {
                     for (i = 0; i < pending_command_arg.length; i++)
                         pending_command_arg.val.text[i] =
                                                 labels[labelindex].name[i];
-                } else if (catsect == CATSECT_FCN) {
+                } else if (catsect == CATSECT_FCN
+                        || catsect >= CATSECT_EXT_TIME && catsect <= CATSECT_EXT_MISC) {
                     int cmd = get_cat_item(menukey);
                     if (cmd == -1)
                         if (flags.f.prgm_mode) {
@@ -2388,6 +2482,9 @@ void keydown_normal_mode(int shift, int key) {
                         || catsect == CATSECT_CPX
                         || catsect == CATSECT_MAT)
                     set_cat_section(CATSECT_TOP);
+                else if (catsect >= CATSECT_EXT_TIME
+                        && catsect <= CATSECT_EXT_MISC)
+                    set_cat_section(CATSECT_EXT);
                 else
                     set_menu(level, MENU_NONE);
             } else {
