@@ -56,5 +56,6 @@ int docmd_func(arg_struct *arg);
 int docmd_rtnyes(arg_struct *arg);
 int docmd_rtnno(arg_struct *arg);
 int docmd_rtnerr(arg_struct *arg);
+int docmd_strace(arg_struct *arg);
 
 #endif

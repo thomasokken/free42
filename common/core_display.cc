@@ -1491,7 +1491,7 @@ static int ext_fcn_cat[] = {
     CMD_BRESET, CMD_BSIGNED, CMD_BWRAP, CMD_FMA, CMD_FUNC,
     CMD_GETKEY1, CMD_LASTO, CMD_LSTO, CMD_NOP, CMD_RTNYES,
     CMD_RTNNO, CMD_RTNERR, CMD_SST_UP, CMD_SST_RT,
-    CMD_WSIZE, CMD_WSIZE_T,
+    CMD_STRACE, CMD_WSIZE, CMD_WSIZE_T,
     CMD_ACCEL, CMD_LOCAT, CMD_HEADING,
     CMD_FPTEST,
     CMD_NULL
@@ -2063,7 +2063,12 @@ void redisplay() {
                                         && flags.f.normal_print;
                             break;
                         case CMD_TRACE:
-                            is_flag = flags.f.trace_print;
+                            is_flag = flags.f.trace_print
+                                        && !flags.f.normal_print;
+                            break;
+                        case CMD_STRACE:
+                            is_flag = flags.f.trace_print
+                                        && flags.f.normal_print;
                             break;
                         case CMD_ALLSIGMA:
                             is_flag = flags.f.all_sigma;

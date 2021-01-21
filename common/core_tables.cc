@@ -442,7 +442,8 @@ static const command_spec cmd_array[] =
     { /* FUNC */       "FUNC",                  4, docmd_func,        0x0000f2e0, ARG_FUNC,  FLAG_PRGM_ONLY },
     { /* RTNYES */     "RTNYES",                6, docmd_rtnyes,      0x0000a7de, ARG_NONE,  FLAG_NONE },
     { /* RTNNO */      "RTNNO",                 5, docmd_rtnno,       0x0000a7df, ARG_NONE,  FLAG_NONE },
-    { /* RTNERR */     "RTNERR",                6, docmd_rtnerr,      0x0000a7e0, ARG_NONE,  FLAG_NONE }
+    { /* RTNERR */     "RTNERR",                6, docmd_rtnerr,      0x0000a7e0, ARG_NONE,  FLAG_NONE },
+    { /* STRACE */     "STRACE",                6, docmd_strace,      0x0000a7e1, ARG_NONE,  FLAG_NONE }
 };
 
 /*

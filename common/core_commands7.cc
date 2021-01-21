@@ -945,3 +945,9 @@ int docmd_rtnerr(arg_struct *arg) {
     else
         return rtn(ERR_NONE);
 }
+
+int docmd_strace(arg_struct *arg) {
+    flags.f.trace_print = 1;
+    flags.f.normal_print = 1;
+    return ERR_NONE;
+}

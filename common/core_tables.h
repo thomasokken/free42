@@ -439,8 +439,9 @@
 #define CMD_RTNYES      386
 #define CMD_RTNNO       387
 #define CMD_RTNERR      388
+#define CMD_STRACE      389
 
-#define CMD_SENTINEL    389
+#define CMD_SENTINEL    390
 
 
 /* command_spec.argtype */
