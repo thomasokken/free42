@@ -530,7 +530,7 @@ typedef struct {
     const char *name;
     char name_length;
     char argtype;
-    char argcount;
+    signed char argcount;
     char flags;
     uint4 hp42s_code;
     int (*handler)(arg_struct *arg);
