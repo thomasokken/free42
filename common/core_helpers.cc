@@ -120,7 +120,9 @@ int arg_to_num(arg_struct *arg, int4 *num) {
     if (arg->type == ARGTYPE_NUM) {
         *num = arg->val.num;
         return ERR_NONE;
-    } else
+    } else if (arg->type == ARGTYPE_STR)
+        return ERR_ALPHA_DATA_IS_INVALID;
+    else
         return ERR_INVALID_TYPE;
 }
 
