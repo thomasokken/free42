@@ -403,7 +403,7 @@ void core_keytimeout1() {
         flags.f.prgm_mode = 0;
         pending_command = saved_pending_command;
     } else if (pending_command != CMD_NONE && pending_command != CMD_CANCELLED
-            && (cmdlist(pending_command)->flags & FLAG_NO_SHOW) == 0) {
+            && (cmd_array[pending_command].flags & FLAG_NO_SHOW) == 0) {
         display_command(0);
         /* If the program catalog was left up by GTO or XEQ,
          * don't paint over it */
@@ -418,7 +418,7 @@ void core_keytimeout2() {
         return;
     remove_program_catalog = 0;
     if (pending_command != CMD_NONE && pending_command != CMD_CANCELLED
-            && (cmdlist(pending_command)->flags & FLAG_NO_SHOW) == 0) {
+            && (cmd_array[pending_command].flags & FLAG_NO_SHOW) == 0) {
         clear_row(0);
         draw_string(0, 0, "NULL", 4);
         display_x(1);
@@ -573,7 +573,7 @@ int core_keyup() {
         }
         mode_disable_stack_lift = false;
         set_running(true);
-        error = cmdlist(cmd)->handler(&arg);
+        error = handle(cmd, &arg);
         set_running(false);
         mode_pause = false;
     } else {
@@ -581,7 +581,7 @@ int core_keyup() {
                 && flags.f.printer_exists)
             print_command(pending_command, &pending_command_arg);
         mode_disable_stack_lift = false;
-        error = cmdlist(pending_command)->handler(&pending_command_arg);
+        error = handle(pending_command, &pending_command_arg);
         mode_pause = false;
     }
 
@@ -819,7 +819,7 @@ static void export_hp42s(int index) {
     do {
         const char *orig_num;
         get_next_command(&pc, &cmd, &arg, 0, &orig_num);
-        hp42s_code = cmdlist(cmd)->hp42s_code;
+        hp42s_code = cmd_array[cmd].hp42s_code;
         code_flags = hp42s_code >> 24;
         code_name = hp42s_code >> 16;
         code_std_1 = hp42s_code >> 8;
@@ -961,7 +961,7 @@ static void export_hp42s(int index) {
                          * actually used this in a program), we handle it
                          * anyway.
                          */
-                        const command_spec *cs = cmdlist(arg.val.cmd);
+                        const command_spec *cs = &cmd_array[arg.val.cmd];
                         cmdbuf[cmdlen++] = 0xF2 + cs->name_length;
                         cmdbuf[cmdlen++] = (char) 0xC0;
                         for (i = 0; i < cs->name_length; i++)
@@ -1094,7 +1094,7 @@ int4 core_program_size(int prgm_index) {
     do {
         const char *orig_num;
         get_next_command(&pc, &cmd, &arg, 0, &orig_num);
-        hp42s_code = cmdlist(cmd)->hp42s_code;
+        hp42s_code = cmd_array[cmd].hp42s_code;
         code_flags = hp42s_code >> 24;
         //code_name = hp42s_code >> 16;
         code_std_1 = hp42s_code >> 8;
@@ -1167,7 +1167,7 @@ int4 core_program_size(int prgm_index) {
                          * actually used this in a program), we handle it
                          * anyway.
                          */
-                        size += cmdlist(arg.val.cmd)->name_length + 3;
+                        size += cmd_array[arg.val.cmd].name_length + 3;
                 } else if ((cmd >= CMD_KEY1G && cmd <= CMD_KEY9G) 
                             || (cmd >= CMD_KEY1X && cmd <= CMD_KEY9X)) {
                     if (arg.type == ARGTYPE_STR || arg.type == ARGTYPE_IND_STR)
@@ -1863,7 +1863,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                 /* XROM & parameterless HP-42S extensions.
                  * I don't want to build a reverse look-up table
                  * for these, so instead I just do a linear search
-                 * on the cmdlist table.
+                 * on the cmd_array table.
                  */
                 uint4 code;
                 byte2 = raw_getc();
@@ -1889,8 +1889,8 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                     goto store;
                 }
                 for (i = 0; i < CMD_SENTINEL; i++)
-                    if (cmdlist(i)->hp42s_code == code) {
-                        if ((cmdlist(i)->flags & FLAG_HIDDEN) != 0)
+                    if (cmd_array[i].hp42s_code == code) {
+                        if ((cmd_array[i].flags & FLAG_HIDDEN) != 0)
                             break;
                         cmd = i;
                         arg.type = ARGTYPE_NONE;
@@ -3219,11 +3219,11 @@ static void paste_programs(const char *buf) {
                 goto store;
             } else if (cmd != CMD_NONE) {
                 int flags;
-                flags = cmdlist(cmd)->flags;
+                flags = cmd_array[cmd].flags;
                 arg.type = ARGTYPE_NONE;
                 if ((flags & (FLAG_IMMED | FLAG_HIDDEN | FLAG_NO_PRGM)) != 0)
                     goto line_done;
-                argtype = cmdlist(cmd)->argtype;
+                argtype = cmd_array[cmd].argtype;
                 bool ind;
                 switch (argtype) {
                     case ARG_NONE: {
@@ -3846,7 +3846,7 @@ bool program_running() {
 
 void do_interactive(int command) {
     int err;
-    if ((cmdlist(command)->flags
+    if ((cmd_array[command].flags
                 & (flags.f.prgm_mode ? FLAG_NO_PRGM : FLAG_PRGM_ONLY)) != 0) {
         display_error(ERR_RESTRICTED_OPERATION, 0);
         redisplay();
@@ -3898,10 +3898,10 @@ void do_interactive(int command) {
         return;
     }
 
-    if (flags.f.prgm_mode && (cmdlist(command)->flags & FLAG_IMMED) == 0) {
+    if (flags.f.prgm_mode && (cmd_array[command].flags & FLAG_IMMED) == 0) {
         if (command == CMD_RUN)
             command = CMD_STOP;
-        if (cmdlist(command)->argtype == ARG_NONE) {
+        if (cmd_array[command].argtype == ARG_NONE) {
             arg_struct arg;
             arg.type = ARGTYPE_NONE;
             store_command_after(&pc, command, &arg, NULL);
@@ -3920,7 +3920,7 @@ void do_interactive(int command) {
             start_incomplete_command(command);
         }
     } else {
-        if (cmdlist(command)->argtype == ARG_NONE)
+        if (cmd_array[command].argtype == ARG_NONE)
             pending_command = command;
         else {
             if (flags.f.prgm_mode) {
@@ -3952,7 +3952,7 @@ static void continue_running() {
             print_program_line(current_prgm, oldpc);
         }
         mode_disable_stack_lift = false;
-        error = cmdlist(cmd)->handler(&arg);
+        error = handle(cmd, &arg);
         if (mode_pause) {
             shell_request_timeout3(1000);
             return;
@@ -4032,16 +4032,16 @@ int find_builtin(const char *name, int namelen, bool strict) {
         if (i == CMD_OPENF) i += 15; // Skip COPAN and BIGSTACK
         if (i == CMD_SENTINEL)
             break;
-        if ((cmdlist(i)->flags & FLAG_HIDDEN) != 0)
+        if ((cmd_array[i].flags & FLAG_HIDDEN) != 0)
             continue;
-        if (cmdlist(i)->name_length != namelen)
+        if (cmd_array[i].name_length != namelen)
             continue;
         for (j = 0; j < namelen; j++) {
             unsigned char c1, c2;
             c1 = name[j];
             if (c1 >= 130 && c1 != 138)
                 c1 &= 127;
-            c2 = cmdlist(i)->name[j];
+            c2 = cmd_array[i].name[j];
             if (c2 >= 130 && c2 != 138)
                 c2 &= 127;
             if (c1 != c2)
@@ -4134,8 +4134,8 @@ int find_menu_key(int key) {
 }
 
 void start_incomplete_command(int cmd_id) {
-    int argtype = cmdlist(cmd_id)->argtype;
-    if (!flags.f.prgm_mode && (cmdlist(cmd_id)->flags & FLAG_PRGM_ONLY) != 0) {
+    int argtype = cmd_array[cmd_id].argtype;
+    if (!flags.f.prgm_mode && (cmd_array[cmd_id].flags & FLAG_PRGM_ONLY) != 0) {
         display_error(ERR_RESTRICTED_OPERATION, 0);
         redisplay();
         return;
@@ -4233,7 +4233,7 @@ void finish_command_entry(bool refresh) {
             redisplay();
         } else {
             int inserting_an_end = pending_command == CMD_END;
-            if ((cmdlist(pending_command)->flags & FLAG_IMMED) != 0)
+            if ((cmd_array[pending_command].flags & FLAG_IMMED) != 0)
                 goto do_it_now;
             store_command(pc, pending_command, &pending_command_arg, NULL);
             if (inserting_an_end)
@@ -4315,7 +4315,7 @@ void finish_xeq() {
          */
         mode_command_entry = false;
         redisplay();
-        if (cmdlist(cmd)->argtype == ARG_NONE) {
+        if (cmd_array[cmd].argtype == ARG_NONE) {
             pending_command = cmd;
             pending_command_arg.type = ARGTYPE_NONE;
             finish_command_entry(false);

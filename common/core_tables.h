@@ -27,7 +27,7 @@
 /* Commands */
 /************/
 
-/* These are indices into the cmdlist array,
+/* These are indices into cmd_array,
  * declared below (except the negative ones!)
  */
 
@@ -527,16 +527,18 @@ typedef struct {
 
 
 typedef struct {
-    char name[12];
-    int name_length;
-    int (*handler)(arg_struct *arg);
+    const char *name;
+    char name_length;
+    char argtype;
+    char argcount;
+    char flags;
     uint4 hp42s_code;
-    int argtype;
-    int flags;
+    int (*handler)(arg_struct *arg);
 } command_spec;
 
+extern const command_spec cmd_array[];
 
-const command_spec *cmdlist(int index);
+int handle(int cmd, arg_struct *arg);
 
 
 #endif

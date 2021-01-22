@@ -655,7 +655,7 @@ bool unpersist_display(int version) {
                 for (pos = 0; pos < 6; pos++) {
                     int cmd = custommenu_cmd[row][pos];
                     if (cmd != CMD_NONE) {
-                        const command_spec *cs = cmdlist(cmd);
+                        const command_spec *cs = &cmd_array[cmd];
                         string_copy(custommenu_label[row][pos],
                                     &custommenu_length[row][pos],
                                     cs->name, cs->name_length);
@@ -1187,7 +1187,7 @@ void display_y(int row) {
 void display_incomplete_command(int row) {
     char buf[40];
     int bufptr = 0;
-    const command_spec *cmd = cmdlist(incomplete_command);
+    const command_spec *cmd = &cmd_array[incomplete_command];
 
     if (flags.f.prgm_mode && (cmd->flags & FLAG_IMMED) == 0) {
         int line = pc2line(pc);
@@ -1262,7 +1262,7 @@ void display_error(int error, int print) {
 void display_command(int row) {
     char buf[22];
     int bufptr = 0;
-    const command_spec *cmd = cmdlist(pending_command);
+    const command_spec *cmd = &cmd_array[pending_command];
     int *the_menu;
     int catsect;
     int hide = pending_command == CMD_VMEXEC
@@ -1629,8 +1629,8 @@ static void draw_catalog() {
         for (int i = 0; i < 6; i++) {
             int cmd = subcat[desired_row * 6 + i];
             catalogmenu_item[catindex][i] = cmd;
-            draw_key(i, 0, 1, cmdlist(cmd)->name,
-                              cmdlist(cmd)->name_length);
+            draw_key(i, 0, 1, cmd_array[cmd].name,
+                              cmd_array[cmd].name_length);
         }
         catalogmenu_rows[catindex] = subcat_rows;
         mode_updown = subcat_rows > 1;
@@ -1970,7 +1970,7 @@ void redisplay() {
                 draw_key(i, 0, 0, mi->title, mi->title_length);
             else {
                 int cmd_id = mi->menuid & 0xfff;
-                const command_spec *cmd = cmdlist(cmd_id);
+                const command_spec *cmd = &cmd_array[cmd_id];
                 int is_flag = (mi->menuid & 0x2000) != 0;
                 if (is_flag) {
                     /* Take a closer look at the command ID and highlight
@@ -2346,13 +2346,13 @@ int command2buf(char *buf, int len, int cmd, const arg_struct *arg) {
     int bufptr = 0;
 
     int4 xrom_arg;
-    if ((cmdlist(cmd)->hp42s_code & 0xfffff800) == 0x0000a000 && (cmdlist(cmd)->flags & FLAG_HIDDEN) != 0) {
-        xrom_arg = cmdlist(cmd)->hp42s_code;
+    if ((cmd_array[cmd].hp42s_code & 0xfffff800) == 0x0000a000 && (cmd_array[cmd].flags & FLAG_HIDDEN) != 0) {
+        xrom_arg = cmd_array[cmd].hp42s_code;
         cmd = CMD_XROM;
     } else if (cmd == CMD_XROM)
         xrom_arg = arg->val.num;
 
-    const command_spec *cmdspec = cmdlist(cmd);
+    const command_spec *cmdspec = &cmd_array[cmd];
     if (cmd >= CMD_ASGN01 && cmd <= CMD_ASGN18)
         string2buf(buf, len, &bufptr, "ASSIGN ", 7);
     else
@@ -2417,7 +2417,7 @@ int command2buf(char *buf, int len, int cmd, const arg_struct *arg) {
                 char2buf(buf, len, &bufptr, '"');
             }
         } else /* ARGTYPE_COMMAND; for backward compatibility only */ {
-            const command_spec *cs = cmdlist(arg->val.cmd);
+            const command_spec *cs = &cmd_array[arg->val.cmd];
             char2buf(buf, len, &bufptr, '"');
             string2buf(buf, len, &bufptr, cs->name, cs->name_length);
             char2buf(buf, len, &bufptr, '"');

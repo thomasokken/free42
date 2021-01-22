@@ -958,7 +958,7 @@ void keydown_command_entry(int shift, int key) {
                             incomplete_ind ? ARGTYPE_IND_STR : ARGTYPE_STR;
                 if (catsect == CATSECT_FCN
                         || catsect >= CATSECT_EXT_TIME && catsect <= CATSECT_EXT_MISC) {
-                    const command_spec *cs = cmdlist(itemindex);
+                    const command_spec *cs = &cmd_array[itemindex];
                     pending_command_arg.length = cs->name_length;
                     for (i = 0; i < pending_command_arg.length; i++)
                         pending_command_arg.val.text[i] = cs->name[i];
@@ -2199,7 +2199,7 @@ void keydown_normal_mode(int shift, int key) {
                                 repeating_shift = 1;
                                 repeating_key = KEY_UP;
                                 return;
-                            } else if (cmdlist(cmd)->argtype == ARG_NONE) {
+                            } else if (cmd_array[cmd].argtype == ARG_NONE) {
                                 pending_command = cmd;
                                 pending_command_arg.type = ARGTYPE_NONE;
                             } else {
@@ -2374,7 +2374,7 @@ void keydown_normal_mode(int shift, int key) {
                 }
                 send_it_off:
                 if (flags.f.prgm_mode &&
-                        (cmdlist(pending_command)->flags & FLAG_IMMED) == 0) {
+                        (cmd_array[pending_command].flags & FLAG_IMMED) == 0) {
                     store_command_after(&pc, pending_command,
                                             &pending_command_arg, NULL);
                     if (pending_command == CMD_END)

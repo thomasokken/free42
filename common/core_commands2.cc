@@ -1833,7 +1833,7 @@ static int assign_helper(int num, arg_struct *arg) {
          * programs that already contain such commands to continue
          * working.
          */
-        const command_spec *cs = cmdlist(arg->val.cmd);
+        const command_spec *cs = &cmd_array[arg->val.cmd];
         assign_custom_key(num, cs->name, cs->name_length);
     } else
         assign_custom_key(num, arg->val.text, arg->length);

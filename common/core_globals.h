@@ -73,7 +73,7 @@ typedef struct {
     int length;
 } error_spec;
 
-extern error_spec errors[];
+extern const error_spec errors[];
 
 
 /*************/
@@ -193,19 +193,19 @@ extern error_spec errors[];
 
 
 typedef struct {
-    int menuid;
+    int2 menuid;
     unsigned char title_length;
-    char title[7];
+    const char *title;
 } menu_item_spec;
 
 typedef struct {
-    int parent;
-    int next;
-    int prev;
+    int2 parent;
+    int2 next;
+    int2 prev;
     menu_item_spec child[6];
 } menu_spec;
 
-extern menu_spec menus[];
+extern const menu_spec menus[];
 
 
 /***********************/

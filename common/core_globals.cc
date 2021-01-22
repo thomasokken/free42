@@ -40,7 +40,7 @@
 // time, having one FILE pointer for all of them is sufficient.
 FILE *gfile = NULL;
 
-error_spec errors[] = {
+const error_spec errors[] = {
     { /* NONE */                   NULL,                       0 },
     { /* ALPHA_DATA_IS_INVALID */  "Alpha Data Is Invalid",   21 },
     { /* OUT_OF_RANGE */           "Out of Range",            12 },
@@ -80,7 +80,7 @@ error_spec errors[] = {
 };
 
 
-menu_spec menus[] = {
+const menu_spec menus[] = {
     { /* MENU_ALPHA1 */ MENU_NONE, MENU_ALPHA2, MENU_ALPHA2,
                       { { MENU_ALPHA_ABCDE1, 5, "ABCDE" },
                         { MENU_ALPHA_FGHI,   4, "FGHI"  },
