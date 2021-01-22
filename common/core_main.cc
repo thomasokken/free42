@@ -4441,6 +4441,11 @@ static int handle_error(int error) {
             error = ERR_NONE;
             if (pc > prgms[current_prgm].size)
                 pc = -1;
+        } else if (error == ERR_NUMBER_TOO_LARGE
+                || error == ERR_NUMBER_TOO_SMALL) {
+            // Handling these separately because they shouldn't be
+            // suppressed by flag 25, nor trapped by SOLVE
+            goto handle_it_2;
         } else {
             if (flags.f.error_ignore) {
                 flags.f.error_ignore = 0;
@@ -4455,6 +4460,7 @@ static int handle_error(int error) {
                 if (error == ERR_NONE || error == ERR_RUN || error == ERR_STOP)
                     goto noerr;
             }
+            handle_it_2:
             pc = oldpc;
             display_error(error, 1);
         }
