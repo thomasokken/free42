@@ -883,7 +883,7 @@ static void read_key_map(const char *keymapfilename) {
 
     if (keymapfile == NULL) {
         /* Try to create default keymap file */
-        extern long keymap_filesize;
+        extern const long keymap_filesize;
         extern const char keymap_filedata[];
         long n;
 

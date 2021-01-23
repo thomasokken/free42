@@ -82,7 +82,6 @@ int main(int argc, char *argv[]) {
         " */\n\n", SKINS_CC, SKIN2CC, SKIN2CC_CONF);
 
 #ifdef WINDOWS
-        fprintf(out, "#include <tchar.h>\n\n");
         fprintf(out, "#ifndef __GNUC__\n");
         fprintf(out, "/* Disable warning 'initializing' : truncation from 'const int ' to 'const char ' */\n");
         fprintf(out, "#pragma warning(disable: 4305)\n");
@@ -127,7 +126,7 @@ int main(int argc, char *argv[]) {
     fprintf(out, "/* Number of skins defined in this file */\n");
     fprintf(out, "/****************************************/\n\n");
 
-    fprintf(out, "int skin_count = %d;\n\n\n", nskins);
+    fprintf(out, "extern const int skin_count = %d;\n\n\n", nskins);
 
 
     fprintf(out, "/**************/\n");
@@ -135,12 +134,12 @@ int main(int argc, char *argv[]) {
     fprintf(out, "/**************/\n\n");
 
 #ifdef WINDOWS
-    fprintf(out, "const wchar_t *skin_name[] = {\n");
+    fprintf(out, "extern const wchar_t * const skin_name[] = {\n");
     for (i = 0; i < nskins; i++)
         fprintf(out, "    L\"%s\"%s\n", skinname[i], i < nskins - 1 ? "," : "");
     fprintf(out, "};\n\n\n");
 #else
-    fprintf(out, "const char *skin_name[] = {\n");
+    fprintf(out, "extern const char * const skin_name[] = {\n");
     for (i = 0; i < nskins; i++)
         fprintf(out, "    \"%s\"%s\n", skinname[i], i < nskins - 1 ? "," : "");
     fprintf(out, "};\n\n\n");
@@ -151,8 +150,7 @@ int main(int argc, char *argv[]) {
     fprintf(out, "/* Sizes of skin layout descriptions */\n");
     fprintf(out, "/*************************************/\n\n");
     
-    // TODO: If I put 'const' here, the symbol is not exported. Why?
-    fprintf(out, "/*const*/ long skin_layout_size[] = {\n");
+    fprintf(out, "extern const long skin_layout_size[] = {\n");
     for (i = 0; i < nskins; i++) {
         char fname[1024];
         strcpy(fname, "../");
@@ -197,9 +195,9 @@ int main(int argc, char *argv[]) {
         fprintf(out, "\n};\n\n");
         fclose(inp);
     }
-    fprintf(out, "/*const*/ unsigned char *skin_layout_data[] = {\n");
+    fprintf(out, "extern const unsigned char * const skin_layout_data[] = {\n");
     for (i = 0; i < nskins; i++)
-        fprintf(out, "    (unsigned char *) skin%d_layout_data%s\n", i, i < nskins - 1 ? "," : "");
+        fprintf(out, "    skin%d_layout_data%s\n", i, i < nskins - 1 ? "," : "");
     fprintf(out, "};\n\n\n");
 
 
@@ -207,8 +205,7 @@ int main(int argc, char *argv[]) {
     fprintf(out, "/* Sizes of skin bitmaps */\n");
     fprintf(out, "/*************************/\n\n");
 
-    // TODO: If I put 'const' here, the symbol is not exported. Why?
-    fprintf(out, "/*const*/ long skin_bitmap_size[] = {\n");
+    fprintf(out, "extern const long skin_bitmap_size[] = {\n");
     for (i = 0; i < nskins; i++) {
         char fname[1024];
         strcpy(fname, "../");
@@ -253,9 +250,9 @@ int main(int argc, char *argv[]) {
         fprintf(out, "\n};\n\n");
         fclose(inp);
     }
-    fprintf(out, "/*const*/ unsigned char *skin_bitmap_data[] = {\n");
+    fprintf(out, "extern const unsigned char * const skin_bitmap_data[] = {\n");
     for (i = 0; i < nskins; i++)
-        fprintf(out, "    (unsigned char *) skin%d_bitmap_data%s\n", i, i < nskins - 1 ? "," : "");
+        fprintf(out, "    skin%d_bitmap_data%s\n", i, i < nskins - 1 ? "," : "");
     fprintf(out, "};\n\n\n");
 
 

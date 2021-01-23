@@ -2450,8 +2450,8 @@ void shell_print(const char *text, int length,
     }
 }
 
-extern long keymap_filesize;
-extern char keymap_filedata[];
+extern const long keymap_filesize;
+extern const char keymap_filedata[];
 
 static void read_key_map(const wchar_t *keymapfilename) {
     FILE *keymapfile = _wfopen(keymapfilename, L"r");

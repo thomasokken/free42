@@ -106,11 +106,11 @@ static bool display_enabled = true;
 /**********************************************************/
 
 extern const int skin_count;
-extern const char *skin_name[];
+extern const char * const skin_name[];
 extern const long skin_layout_size[];
-extern const unsigned char *skin_layout_data[];
+extern const unsigned char * const skin_layout_data[];
 extern const long skin_bitmap_size[];
-extern const unsigned char *skin_bitmap_data[];
+extern const unsigned char * const skin_bitmap_data[];
 
 
 /*******************/

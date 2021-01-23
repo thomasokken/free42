@@ -89,7 +89,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     fseek(inp, 0, SEEK_END);
-    fprintf(out, "long keymap_filesize = %ld;\n\n\n", ftell(inp));
+    fprintf(out, "extern const long keymap_filesize = %ld;\n\n\n", ftell(inp));
     fclose(inp);
 
 
@@ -106,8 +106,7 @@ int main(int argc, char *argv[]) {
         remove(KEYMAP_CC);
         return 1;
     }
-    // TODO: If I put 'const' here, the symbol is not exported. Why?
-    fprintf(out, "/*const*/ char keymap_filedata[] = {\n");
+    fprintf(out, "extern const char keymap_filedata[] = {\n");
     write_bytes(inp);
     fprintf(out, "\n};\n\n\n");
     fclose(inp);
