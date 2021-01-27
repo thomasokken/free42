@@ -1,3 +1,25 @@
+*** orig/LIBRARY/makefile.mak	2021-01-25 21:52:19.882531100 -0500
+--- LIBRARY/makefile.mak	2021-01-25 21:54:18.965868400 -0500
+***************
+*** 145,154 ****
+  $O\dpml_ux_powi.$(OBJ) $O\dpml_ux_pow.$(OBJ) $O\dpml_ux_sqrt.$(OBJ) $O\dpml_ux_trig.$(OBJ) $O\dpml_ux_ops.$(OBJ) $O\dpml_ux_ops_64.$(OBJ)\
+  $O\dpml_four_over_pi.$(OBJ) $O\dpml_exception.$(OBJ) $O\sqrt_tab_t.$(OBJ) 
+  
+! FLOAT53_OBJS = \
+! $O\dpml_asinh_t.$(OBJ) $O\dpml_acosh_t.$(OBJ) $O\dpml_cbrt_t.$(OBJ) $O\dpml_erf_t.$(OBJ) $O\dpml_erfc_t.$(OBJ) $O\dpml_expm1_t.$(OBJ)\
+! $O\dpml_exp10_t.$(OBJ) $O\dpml_exp2_t.$(OBJ) $O\dpml_lgamma_t.$(OBJ) $O\dpml_log1p_t.$(OBJ) $O\dpml_log2_t.$(OBJ) $O\dpml_tgamma_t.$(OBJ)\
+! $O\dpml_rt_lgamma_t.$(OBJ) $O\dpml_pow_t_table.$(OBJ) $O\dpml_cbrt_t_table.$(OBJ) $O\dpml_special_exp_t.$(OBJ) 
+  
+  ALL: $(BID_LIB) 
+  
+--- 145,151 ----
+  $O\dpml_ux_powi.$(OBJ) $O\dpml_ux_pow.$(OBJ) $O\dpml_ux_sqrt.$(OBJ) $O\dpml_ux_trig.$(OBJ) $O\dpml_ux_ops.$(OBJ) $O\dpml_ux_ops_64.$(OBJ)\
+  $O\dpml_four_over_pi.$(OBJ) $O\dpml_exception.$(OBJ) $O\sqrt_tab_t.$(OBJ) 
+  
+! FLOAT53_OBJS = 
+  
+  ALL: $(BID_LIB) 
+  
 *** orig/LIBRARY/float128/dpml_exception.c	2016-05-28 12:12:14.000000000 -0400
 --- LIBRARY/float128/dpml_exception.c	2016-05-28 12:12:40.000000000 -0400
 ***************
