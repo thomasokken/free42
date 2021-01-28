@@ -826,7 +826,7 @@ XROM         A[0-7] nn (bits 2-0 of byte 1 plus bits 7-6 of byte 2 are the ROM
 */
 
 int handle(int cmd, arg_struct *arg) {
-    const command_spec *cs = &cmd_array[cmd];
+    const command_spec *cs = cmd_array + cmd;
     if (flags.f.big_stack) {
         if (cs->argcount == -1) {
             if (sp == -1 || sp == 0 && stack[sp]->type != TYPE_COMPLEX && stack[sp]->type != TYPE_COMPLEXMATRIX)

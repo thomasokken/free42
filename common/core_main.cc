@@ -153,12 +153,12 @@ void core_save_state(const char *state_file_name) {
 }
 
 void core_cleanup() {
-    for (int i = 0; i <= sp; i++) {
+    for (int i = 0; i <= sp; i++)
         free_vartype(stack[i]);
-        stack[i] = NULL;
-    }
-    if (flags.f.big_stack)
-        sp = -1;
+    sp = -1;
+    free(stack);
+    stack = NULL;
+    stack_capacity = 0;
     free_vartype(lastx);
     lastx = NULL;
     purge_all_vars();

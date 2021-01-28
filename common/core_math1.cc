@@ -15,13 +15,6 @@
  * along with this program; if not, see http://www.gnu.org/licenses/.
  *****************************************************************************/
 
-// to enable debug out
-//#define WINDOWS_DEBUG
-
-#ifdef WINDOWS_DEBUG
-#include <windows.h> 
-#endif 
-
 #include <stdlib.h>
 
 #include "core_math1.h"
@@ -317,6 +310,15 @@ void reset_math() {
     reset_integ();
 }
 
+static void clean_stack(int prev_sp) {
+    if (flags.f.big_stack && prev_sp != -2 && sp > prev_sp) {
+        int excess = sp - prev_sp;
+        for (int i = 0; i < excess; i++)
+            free_vartype(stack[sp - i]);
+        sp -= excess;
+    }
+}
+
 static void reset_solve() {
     int i;
     for (i = 0; i < NUM_SHADOWS; i++)
@@ -404,11 +406,11 @@ static int call_solve_fn(int which, int state) {
         ((vartype_real *) v)->x = x;
     solve.which = which;
     solve.state = state;
-    solve.prev_sp = flags.f.big_stack ? sp : -2;
     arg.type = ARGTYPE_STR;
     arg.length = solve.active_prgm_length;
     for (i = 0; i < arg.length; i++)
         arg.val.text[i] = solve.active_prgm_name[i];
+    clean_stack(solve.prev_sp);
     err = docmd_gto(&arg);
     if (err != ERR_NONE) {
         free_vartype(v);
@@ -431,6 +433,7 @@ int start_solve(const char *name, int length, phloat x1, phloat x2) {
                 solve.prgm_name, solve.prgm_length);
     solve.prev_prgm = current_prgm;
     solve.prev_pc = pc;
+    solve.prev_sp = flags.f.big_stack ? sp : -2;
     if (x1 == x2) {
         if (x1 == 0) {
             x2 = 1;
@@ -526,6 +529,7 @@ static int finish_solve(int message) {
 
     solve.state = 0;
 
+    clean_stack(solve.prev_sp);
     v = recall_var(solve.var_name, solve.var_length);
     ((vartype_real *) v)->x = b;
     if (flags.f.big_stack && !ensure_stack_capacity(4))
@@ -588,29 +592,6 @@ static int finish_solve(int message) {
     return solve.keep_running ? ERR_NONE : ERR_STOP;
 }
 
-#ifdef WINDOWS_DEBUG
-static void printout(const phloat& p, const char* s) {
-    char buf[256];
-    buf[0] = 0;
-    if (s) {
-        strcpy(buf, s);
-        strcat(buf, " ");
-    }
-    p.bcd.asString(buf + strlen(buf));
-    strcat(buf, "\n");
-    OutputDebugString(buf);
-}
-#endif
-
-static void clean_stack(int prev_sp) {
-    if (flags.f.big_stack && prev_sp != -2 && sp > prev_sp) {
-        int excess = sp - prev_sp;
-        for (int i = 0; i < excess; i++)
-            free_vartype(stack[sp - i]);
-        sp -= excess;
-    }
-}
-
 int return_to_solve(int failure, bool stop) {
     phloat f, slope, s, xnew, prev_f = solve.curr_f;
     uint4 now_time;
@@ -625,7 +606,6 @@ int return_to_solve(int failure, bool stop) {
             return ERR_TOO_FEW_ARGUMENTS;
         if (stack[sp]->type == TYPE_REAL) {
             f = ((vartype_real *) stack[sp])->x;
-            clean_stack(solve.prev_sp);
             solve.curr_f = f;
             if (f == 0)
                 return finish_solve(SOLVE_ROOT);
@@ -1064,11 +1044,11 @@ static int call_integ_fn() {
         }
     } else
         ((vartype_real *) v)->x = x;
-    integ.prev_sp = flags.f.big_stack ? sp : -2;
     arg.type = ARGTYPE_STR;
     arg.length = integ.active_prgm_length;
     for (i = 0; i < arg.length; i++)
         arg.val.text[i] = integ.active_prgm_name[i];
+    clean_stack(integ.prev_sp);
     err = docmd_gto(&arg);
     if (err != ERR_NONE) {
         free_vartype(v);
@@ -1119,6 +1099,7 @@ int start_integ(const char *name, int length) {
                 integ.prgm_name, integ.prgm_length);
     integ.prev_prgm = current_prgm;
     integ.prev_pc = pc;
+    integ.prev_sp = flags.f.big_stack ? sp : -2;
 
     integ.a = integ.llim;
     integ.b = integ.ulim - integ.llim;
@@ -1147,6 +1128,7 @@ static int finish_integ() {
     int saved_trace = flags.f.trace_print;
     integ.state = 0;
 
+    clean_stack(integ.prev_sp);
     x = new_real(integ.sum * integ.b * 0.75);
     y = new_real(integ.eps);
     if (x == NULL || y == NULL) {
@@ -1217,7 +1199,6 @@ int return_to_integ(bool stop) {
         else if (stack[sp]->type != TYPE_REAL)
             return ERR_INVALID_TYPE;
         integ.sum += integ.t * ((vartype_real *) stack[sp])->x;
-        clean_stack(integ.prev_sp);
         integ.p += integ.h;
         if (++integ.i < integ.nsteps)
             goto loop2;
