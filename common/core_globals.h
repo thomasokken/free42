@@ -67,6 +67,7 @@ extern FILE *gfile;
 #define ERR_RTN_STACK_FULL         33
 #define ERR_NUMBER_TOO_LARGE       34
 #define ERR_NUMBER_TOO_SMALL       35
+#define ERR_INVALID_CONTEXT        36
 
 typedef struct {
     const char *text;

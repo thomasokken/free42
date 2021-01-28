@@ -76,7 +76,8 @@ const error_spec errors[] = {
     { /* SUSPICIOUS_OFF */         "Suspicious OFF",          14 },
     { /* RTN_STACK_FULL */         "RTN Stack Full",          14 },
     { /* NUMBER_TOO_LARGE */       "Number Too Large",        16 },
-    { /* NUMBER_TOO_SMALL */       "Number Too Small",        16 }
+    { /* NUMBER_TOO_SMALL */       "Number Too Small",        16 },
+    { /* INVALID_CONTEXT */        "Invalid Context",         15 }
 };
 
 
@@ -2934,40 +2935,43 @@ int push_indexed_matrix(const char *name, int len) {
 }
 
 int push_func_state(int n) {
-    if (flags.f.big_stack)
-        return ERR_NOT_YET_IMPLEMENTED;
     if (!program_running())
         return ERR_RESTRICTED_OPERATION;
-    if (!ensure_var_space(7))
+    vartype *list = recall_private_var("FD", 2);
+    if (list != NULL)
+        return ERR_INVALID_CONTEXT;
+    if (!ensure_var_space(1))
         return ERR_INSUFFICIENT_MEMORY;
-    vartype *v = new_string(flags.f.error_ignore ? "1" : "0", 1);
-    if (v == NULL)
+    int inputs = flags.f.big_stack ? n / 10 : 4;
+    if (sp + 1 < inputs)
+        return ERR_TOO_FEW_ARGUMENTS;
+    int size = inputs + 4;
+    // FD list layout:
+    // 0: n, the 2-digit parameter to FUNC
+    // 1: original stack depth, or -1 for 4-level stack
+    // 2: flag 25, encoded as a string "0" or "1"
+    // 3: lastx
+    // 4: X / level 1
+    // 5: Y / level 2
+    // etc.
+    // For 4-level stack, all 4 registers are saved;
+    // for big stack, the input parameters are saved.
+    list = new_list(size);
+    if (list == NULL)
         return ERR_INSUFFICIENT_MEMORY;
-    store_private_var("F25", 3, v);
-    v = dup_vartype(stack[REG_X]);
-    if (v == NULL)
-        return ERR_INSUFFICIENT_MEMORY;
-    store_private_var("X", 1, v);
-    v = dup_vartype(stack[REG_Y]);
-    if (v == NULL)
-        return ERR_INSUFFICIENT_MEMORY;
-    store_private_var("Y", 1, v);
-    v = dup_vartype(stack[REG_Z]);
-    if (v == NULL)
-        return ERR_INSUFFICIENT_MEMORY;
-    store_private_var("Z", 1, v);
-    v = dup_vartype(stack[REG_T]);
-    if (v == NULL)
-        return ERR_INSUFFICIENT_MEMORY;
-    store_private_var("T", 1, v);
-    v = dup_vartype(lastx);
-    if (v == NULL)
-        return ERR_INSUFFICIENT_MEMORY;
-    store_private_var("L", 1, v);
-    v = new_real(n + 100);
-    if (v == NULL)
-        return ERR_INSUFFICIENT_MEMORY;
-    store_private_var("N", 1, v);
+    vartype **data = ((vartype_list *) list)->array->data;
+    data[0] = new_real(n);
+    data[1] = new_real(flags.f.big_stack ? sp + 1 : -1);
+    data[2] = new_string(flags.f.error_ignore ? "1" : "0", 1);
+    data[3] = dup_vartype(lastx);
+    for (int i = 0; i < inputs; i++)
+        data[i + 4] = dup_vartype(stack[sp - i]);
+    for (int i = 0; i < size; i++)
+        if (data[i] == NULL) {
+            free_vartype(list);
+            return ERR_INSUFFICIENT_MEMORY;
+        }
+    store_private_var("FD", 2, list);
     flags.f.error_ignore = 0;
 
     if (rtn_level == 0)
@@ -2978,8 +2982,6 @@ int push_func_state(int n) {
 }
 
 int pop_func_state(bool error) {
-    if (flags.f.big_stack)
-        return ERR_NOT_YET_IMPLEMENTED;
     if (rtn_level == 0) {
         if (!rtn_level_0_has_func_state)
             return ERR_NONE;
@@ -2990,52 +2992,80 @@ int pop_func_state(bool error) {
         rtn_stack[rtn_sp - 1].prgm &= 0xbfffffff;
     }
 
-    vartype *vn = recall_private_var("N", 1);
-    int n = to_int(((vartype_real *) vn)->x);
-    // N is 0, 1, or 2 if the state was pushed by the old FNC[012]
-    // or FUNC[012] functions, or 1[0-4][0-4] is it was pushed by the
-    // new FUNC function. The old values have to be translated to
-    // 00, 11, and 21, respectively, while the new is translated
-    // to (n - 100). The result is a two-digit number, with each
-    // digit between 0 and 4, and the first digit indicating the
-    // number of inputs, and the second digit indicating the number
-    // of outputs.
-    if (n == 0)
-        n = 0;
-    else if (n == 1)
-        n = 11;
-    else if (n == 2)
-        n = 21;
-    else
-        n -= 100;
+    vartype_list *list = (vartype_list *) recall_private_var("FD", 2);
+    if (list == NULL)
+        // Pre-bigstack. Rather a hassle to deal with, so punt.
+        // Note that this can only happen if a user upgrades from
+        // 2.5.23 or 2.5.24 to >2.5.24 while execution is stopped
+        // with old FUNC data on the stack. That seems like a
+        // reasonable scenario to ignore.
+        return ERR_INVALID_DATA;
+
+    vartype **data = list->array->data;
+    int n = to_int(((vartype_real *) data[0])->x);
+    int old_depth = to_int(((vartype_real *) data[1])->x);
+    char big = old_depth >= 0;
+    if (big != flags.f.big_stack)
+        // We don't allow bigstack mode to change between a FUNC
+        // call and its resolution. We should allow this, though,
+        // in the specific case of L4STK or LNSTK, in which case
+        // the FUNC resoltion and the stack restoration happen at
+        // the same time. But that logic is not yet implemented;
+        // that case will have to be tackled when I implement
+        // L4STK and LNSTK.
+        return ERR_INVALID_DATA;
+
+    n %= 100;
     if (error)
         n = 0;
     int in = n / 10;
     int out = n % 10;
 
+    char f25 = ((vartype_string *) data[2])->text[0] == '1';
+    flags.f.error_ignore = f25;
+
     free_vartype(lastx);
-    lastx = recall_and_purge_private_var(in == 0 ? "L" : "X", 1);
+    int li = in == 0 ? 3 : 4; // L : X
+    lastx = data[li];
+    data[li] = NULL;
 
-    vartype **reg[4] = { &stack[REG_X], &stack[REG_Y], &stack[REG_Z], &stack[REG_T] };
-    const char *name[4] = { "X", "Y", "Z", "T" };
-
-    for (int d = out; d < 4; d++) {
-        int s = d + in - out;
-        vartype *v;
-        if (s < 4)
-            v = recall_and_purge_private_var(name[s], 1);
-        else if (d > out)
-            v = dup_vartype(*reg[d - 1]);
-        else
-            v = recall_and_purge_private_var("T", 1);
-        if (v == NULL)
-            return ERR_INSUFFICIENT_MEMORY;
-        free_vartype(*reg[d]);
-        *reg[d] = v;
+    if (!big) {
+        for (int d = out; d < 4; d++) {
+            int s = d + in - out;
+            vartype *v;
+            if (s < 4) {
+                v = data[s + 4];
+                data[s + 4] = NULL;
+            } else if (d > out) {
+                v = dup_vartype(stack[sp - d + 1]);
+            } else {
+                v = data[7]; // T
+                data[7] = NULL;
+            }
+            if (v == NULL)
+                return ERR_INSUFFICIENT_MEMORY;
+            free_vartype(stack[sp - d]);
+            stack[sp - d] = v;
+        }
+    } else if (error) {
+        int other_depth = old_depth - list->size + 4;
+        while (sp >= other_depth)
+            free_vartype(stack[sp--]);
+        for (int i = list->size - 1; i >= 4; i--) {
+            stack[++sp] = data[i];
+            data[i] = NULL;
+        }
+    } else {
+        int depth = sp + 1;
+        int excess = depth - (old_depth - in + out);
+        if (excess > 0) {
+            for (int i = 0; i < excess; i++)
+                free_vartype(stack[sp - out - i]);
+            memmove(stack + depth - out - excess, stack + depth - out, out * sizeof(vartype *));
+            sp -= excess;
+        }
     }
 
-    vartype_string *f25 = (vartype_string *) recall_private_var("F25", 3);
-    flags.f.error_ignore = f25->length == 1 && f25->text[0] == '1';
     return ERR_NONE;
 }
 
