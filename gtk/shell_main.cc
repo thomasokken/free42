@@ -29,6 +29,7 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <unistd.h>
+#include <time.h>
 
 #include "shell.h"
 #include "shell_main.h"
@@ -3100,6 +3101,33 @@ uint4 shell_milliseconds() {
 
 int shell_decimal_point() {
     return decimal_point ? 1 : 0;
+}
+
+int shell_date_format() {
+    struct tm t;
+    t.tm_sec = 0;
+    t.tm_min = 0;
+    t.tm_hour = 0;
+    t.tm_mday = 22; // 22
+    t.tm_mon = 10; // 11
+    t.tm_year = 1433; // 3333
+    t.tm_wday = 0;
+    t.tm_yday = 0;
+    t.tm_isdst = 0;
+
+    char buf[32];
+    strftime(buf, 32, "%x", &t);
+
+    int y = strstr(buf, "3") - buf;
+    int m = strstr(buf, "1") - buf;
+    int d = strstr(buf, "2") - buf;
+
+    if (d < m && m < y)
+        return 1;
+    else if (y < m && m < d)
+        return 2;
+    else
+        return 0;
 }
 
 struct print_growth_info {

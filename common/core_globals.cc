@@ -4088,7 +4088,8 @@ void hard_reset(int reason) {
     flags.f.decimal_point = shell_decimal_point(); // HP-42S sets this to 1 on hard reset
     flags.f.thousands_separators = 1;
     flags.f.stack_lift_disable = 0;
-    flags.f.dmy = 0;
+    int df = shell_date_format();
+    flags.f.dmy = df == 1;
     flags.f.f32 = flags.f.f33 = 0;
     flags.f.agraph_control1 = 0;
     flags.f.agraph_control0 = 0;
@@ -4123,7 +4124,7 @@ void hard_reset(int reason) {
     flags.f.shift_state = 0;
     /* flags.f.VIRTUAL_matrix_editor = 0; */
     flags.f.grow = 0;
-    flags.f.ymd = 0;
+    flags.f.ymd = df == 2;
     flags.f.base_bit0 = 0;
     flags.f.base_bit1 = 0;
     flags.f.base_bit2 = 0;

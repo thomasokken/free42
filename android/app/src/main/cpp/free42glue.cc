@@ -513,7 +513,18 @@ int shell_decimal_point() {
     JNIEnv *env = getJniEnv();
     jclass klass = env->GetObjectClass(g_activity);
     jmethodID mid = env->GetMethodID(klass, "shell_decimal_point", "()I");
-    unsigned int ret = env->CallIntMethod(g_activity, mid);
+    int ret = env->CallIntMethod(g_activity, mid);
+    // Delete local references
+    env->DeleteLocalRef(klass);
+    return ret;
+}
+
+int shell_date_format() {
+    Tracer T("shell_date_format");
+    JNIEnv *env = getJniEnv();
+    jclass klass = env->GetObjectClass(g_activity);
+    jmethodID mid = env->GetMethodID(klass, "shell_date_format", "()I");
+    int ret = env->CallIntMethod(g_activity, mid);
     // Delete local references
     env->DeleteLocalRef(klass);
     return ret;

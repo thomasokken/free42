@@ -28,9 +28,11 @@ import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.nio.IntBuffer;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import android.Manifest;
@@ -2242,6 +2244,31 @@ public class Free42Activity extends Activity {
         DecimalFormat df = new DecimalFormat();
         DecimalFormatSymbols dfsym = df.getDecimalFormatSymbols();
         return dfsym.getDecimalSeparator() == ',' ? 0 : 1;
+    }
+    
+    /**
+     * shell_date_format()
+     * Returns 0 if the host's locale uses MDY date format;
+     * returns 1 if it uses DMY;
+     * returns 2 if it uses YMD.
+     * If the host's date format doesn't match any of these three component
+     * orders, returns 0.
+     * Used to initialize flags 31 and 67 on hard reset.
+     */
+    public int shell_date_format() {
+        Calendar cal = Calendar.getInstance();
+        cal.set(3333, 10, 22);
+        DateFormat fmt = DateFormat.getDateInstance(DateFormat.SHORT);
+        String date = fmt.format(cal.getTime());
+        int y = date.indexOf('3');
+        int m = date.indexOf('1');
+        int d = date.indexOf('2');
+        if (d < m && m < y)
+            return 1;
+        else if (y < m && m < d)
+            return 2;
+        else
+            return 0;
     }
     
     private OutputStream printTxtStream;

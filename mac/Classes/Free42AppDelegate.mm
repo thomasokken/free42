@@ -1415,6 +1415,20 @@ int shell_decimal_point() {
     return [dec isEqualToString:@","] ? 0 : 1;
 }
 
+int shell_date_format() {
+    NSLocale *loc = [NSLocale currentLocale];
+    NSString *dateFormat = [NSDateFormatter dateFormatFromTemplate:@"yyyy MM dd" options:0 locale:loc];
+    NSUInteger y = [dateFormat rangeOfString:@"y"].location;
+    NSUInteger m = [dateFormat rangeOfString:@"M"].location;
+    NSUInteger d = [dateFormat rangeOfString:@"d"].location;
+    if (d < m && m < y)
+        return 1;
+    else if (y < m && m < d)
+        return 2;
+    else
+        return 0;
+}
+
 void shell_get_time_date(uint4 *time, uint4 *date, int *weekday) {
     struct timeval tv;
     gettimeofday(&tv, NULL);

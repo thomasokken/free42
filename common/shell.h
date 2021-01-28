@@ -142,6 +142,16 @@ uint4 shell_milliseconds();
  */
 int shell_decimal_point();
 
+/* shell_date_format()
+ * Returns 0 if the host's locale uses MDY date format;
+ * returns 1 if it uses DMY;
+ * returns 2 if it uses YMD.
+ * If the host's date format doesn't match any of these three component
+ * orders, returns 0.
+ * Used to initialize flags 31 and 67 on hard reset.
+ */
+int shell_date_format();
+
 /* shell_print()
  * Printer emulation. The first 2 parameters are the plain text version of the
  * data to be printed; the remaining 6 parameters are the bitmap version. The

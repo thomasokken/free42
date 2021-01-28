@@ -2265,6 +2265,20 @@ int shell_decimal_point() {
     return strcmp(dec, ",") == 0 ? 0 : 1;
 }
 
+int shell_date_format() {
+    char fmt[80];
+    GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SSHORTDATE, fmt, 80);
+    int y = strchr(fmt, 'y') - fmt;
+    int m = strchr(fmt, 'M') - fmt;
+    int d = strchr(fmt, 'd') - fmt;
+    if (d < m && m < y)
+        return 1;
+    else if (y < m && m < d)
+        return 2;
+    else
+        return 0;
+}
+
 void shell_get_time_date(uint4 *time, uint4 *date, int *weekday) {
     SYSTEMTIME st;
     GetLocalTime(&st);
