@@ -1620,7 +1620,7 @@ static bool unpersist_globals(int4 ver) {
 #endif
     char tmp_dmy = 2;
 
-    if (ver < 30) {
+    if (ver < 33) {
         sp = 3;
     } else {
         if (!read_int(&sp)) {
@@ -1648,7 +1648,7 @@ static bool unpersist_globals(int4 ver) {
             goto done;
         }
     }
-    if (ver < 30) {
+    if (ver < 33) {
         vartype *tmp = stack[REG_X];
         stack[REG_X] = stack[REG_T];
         stack[REG_T] = tmp;
@@ -1719,7 +1719,7 @@ static bool unpersist_globals(int4 ver) {
         flags.f.base_signed = 1;
         flags.f.base_wrap = 0;
     }
-    if (ver < 30)
+    if (ver < 33)
         flags.f.big_stack = 0;
 
     if (!state_is_portable) {
