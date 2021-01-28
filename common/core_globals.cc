@@ -4163,7 +4163,7 @@ void hard_reset(int reason) {
     mode_sigma_reg = 11;
     mode_goose = -1;
     mode_time_clktd = false;
-    mode_time_clk24 = false;
+    mode_time_clk24 = shell_clk24() != 0;
     mode_wsize = 36;
 
     reset_math();

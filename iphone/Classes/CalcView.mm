@@ -1073,6 +1073,12 @@ int shell_date_format() {
         return 0;
 }
 
+int shell_clk24() {
+    NSLocale *loc = [NSLocale currentLocale];
+    NSString *timeFormat = [NSDateFormatter dateFormatFromTemplate:@"j" options:0 locale:loc];
+    return [timeFormat rangeOfString:@"a"].location == NSNotFound;
+}
+
 void shell_get_time_date(uint4 *time, uint4 *date, int *weekday) {
     struct timeval tv;
     gettimeofday(&tv, NULL);

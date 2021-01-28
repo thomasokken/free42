@@ -530,6 +530,17 @@ int shell_date_format() {
     return ret;
 }
 
+int shell_clk24() {
+    Tracer T("shell_clk24");
+    JNIEnv *env = getJniEnv();
+    jclass klass = env->GetObjectClass(g_activity);
+    jmethodID mid = env->GetMethodID(klass, "shell_clk24", "()I");
+    int ret = env->CallIntMethod(g_activity, mid);
+    // Delete local references
+    env->DeleteLocalRef(klass);
+    return ret;
+}
+
 void shell_print(const char *text, int length,
                  const char *bits, int bytesperline,
                  int x, int y, int width, int height) {

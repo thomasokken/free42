@@ -152,6 +152,13 @@ int shell_decimal_point();
  */
 int shell_date_format();
 
+/* shell_clk24()
+ * Returns 0 if the host's locale uses a 12-hour clock
+ * returns 1 if it uses a 24-hour clock
+ * Used to initialize CLK12/CLK24 mode on hard reset.
+ */
+int shell_clk24();
+
 /* shell_print()
  * Printer emulation. The first 2 parameters are the plain text version of the
  * data to be printed; the remaining 6 parameters are the bitmap version. The

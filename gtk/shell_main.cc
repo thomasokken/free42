@@ -3130,6 +3130,24 @@ int shell_date_format() {
         return 0;
 }
 
+int shell_clk24() {
+    struct tm t;
+    t.tm_sec = 0;
+    t.tm_min = 0;
+    t.tm_hour = 0;
+    t.tm_mday = 22; // 22
+    t.tm_mon = 10; // 11
+    t.tm_year = 1433; // 3333
+    t.tm_wday = 0;
+    t.tm_yday = 0;
+    t.tm_isdst = 0;
+
+    char buf[32];
+    strftime(buf, 32, "%X", &t);
+
+    return strstr(buf, "A") == NULL;
+}
+
 struct print_growth_info {
     int y, height;
     print_growth_info(int yy, int hheight) : y(yy), height(hheight) {}

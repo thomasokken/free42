@@ -2279,6 +2279,14 @@ int shell_date_format() {
         return 0;
 }
 
+int shell_clk24() {
+    char fmt[80];
+    GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_STIMEFORMAT, fmt, 80);
+    char *t = strchr(fmt, 't');
+    char *s = strchr(fmt, ';');
+    return t == NULL || s != NULL && s < t;
+}
+
 void shell_get_time_date(uint4 *time, uint4 *date, int *weekday) {
     SYSTEMTIME st;
     GetLocalTime(&st);

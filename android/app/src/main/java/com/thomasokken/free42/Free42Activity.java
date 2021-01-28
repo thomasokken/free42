@@ -77,6 +77,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.text.SpannableString;
+import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.view.KeyEvent;
@@ -2269,6 +2270,15 @@ public class Free42Activity extends Activity {
             return 2;
         else
             return 0;
+    }
+
+    /* shell_clk24()
+     * Returns 0 if the host's locale uses a 12-hour clock
+     * returns 1 if it uses a 24-hour clock
+     * Used to initialize CLK12/CLK24 mode on hard reset.
+     */
+    public int shell_clk24() {
+        return DateFormat.is24HourFormat(this) ? 1 : 0;
     }
     
     private OutputStream printTxtStream;
