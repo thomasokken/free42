@@ -477,7 +477,10 @@ int docmd_asto(arg_struct *arg) {
             sp = 0;
             stack[sp] = s;
             err = docmd_sto(arg);
-            sp = -1;
+            if (sp == 0)
+                sp = -1;
+            else
+                stack[sp] = new_real(0);
         } else {
             vartype *saved_x = stack[sp];
             stack[sp] = s;

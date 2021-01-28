@@ -16,6 +16,7 @@
  *****************************************************************************/
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "core_commands2.h"
 #include "core_helpers.h"
@@ -554,8 +555,26 @@ int generic_sto(arg_struct *arg, char operation) {
                     case 'T': idx = 3; break;
                     case 'L': idx = -1; break;
                 }
-                if (idx > sp)
-                    return ERR_NONEXISTENT;
+                if (idx > sp) {
+                    // Target stack level does not exist yet
+                    int off = idx - sp;
+                    if (!ensure_stack_capacity(off)) {
+                        free_vartype(newval);
+                        return ERR_INSUFFICIENT_MEMORY;
+                    }
+                    memmove(stack + off, stack, (sp + 1) * sizeof(vartype *));
+                    for (int i = 0; i < off; i++) {
+                        stack[i] = new_real(0);
+                        if (stack[i] == NULL) {
+                            for (int j = 0; j < i; j++)
+                                free_vartype(stack[j]);
+                            memmove(stack, stack + off, (sp + 1) * sizeof(vartype *));
+                            free_vartype(newval);
+                            return ERR_INSUFFICIENT_MEMORY;
+                        }
+                    }
+                    sp += off;
+                }
                 vartype **dst;
                 if (idx == -1)
                     dst = &lastx;
