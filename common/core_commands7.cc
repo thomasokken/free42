@@ -1168,7 +1168,7 @@ int docmd_unpick(arg_struct *arg) {
     if (n == 0)
         return ERR_NONEXISTENT;
     n--;
-    if (n > sp)
+    if (n > (flags.f.big_stack ? sp - 1 : sp))
         return ERR_SIZE_ERROR;
     if (n == 0)
         goto done;
@@ -1176,6 +1176,16 @@ int docmd_unpick(arg_struct *arg) {
     v = dup_vartype(stack[sp]);
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
+    // Note: UNPICK consumes X, i.e. drops it from the stack. This is unlike
+    // any other STO-like function in Free42, but it is needed in order to make
+    // PICK and UNPICK work as a pair like they do in the RPL calculators.
+    free_vartype(stack[sp]);
+    if (flags.f.big_stack) {
+        sp--;
+    } else {
+        memmove(stack + 1, stack, 3 * sizeof(vartype *));
+        stack[REG_T] = dup_vartype(stack[REG_Z]);
+    }
     free_vartype(stack[sp - n]);
     stack[sp - n] = v;
     done:
