@@ -26,7 +26,6 @@ vartype *new_string(const char *s, int slen);
 vartype *new_realmatrix(int4 rows, int4 columns);
 vartype *new_complexmatrix(int4 rows, int4 columns);
 vartype *new_list(int4 size);
-vartype *new_vartype_alias(vartype *m);
 void free_vartype(vartype *v);
 void clean_vartype_pools();
 vartype *dup_vartype(const vartype *v);

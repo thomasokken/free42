@@ -1050,7 +1050,7 @@ static bool unpersist_vartype(vartype **v, bool padded) {
                     return false;
                 if (rows == 0) {
                     // Shared matrix
-                    vartype *m = new_vartype_alias((vartype *) array_list[columns]);
+                    vartype *m = dup_vartype((vartype *) array_list[columns]);
                     if (m == NULL)
                         return false;
                     else {
@@ -1143,7 +1143,7 @@ static bool unpersist_vartype(vartype **v, bool padded) {
                     return false;
                 if (rows == 0) {
                     // Shared matrix
-                    vartype *m = new_vartype_alias((vartype *) array_list[columns]);
+                    vartype *m = dup_vartype((vartype *) array_list[columns]);
                     if (m == NULL)
                         return false;
                     else {
@@ -1181,7 +1181,7 @@ static bool unpersist_vartype(vartype **v, bool padded) {
                     return false;
                 if (data_index >= 0) {
                     // Shared list
-                    vartype *m = new_vartype_alias((vartype *) array_list[data_index]);
+                    vartype *m = dup_vartype((vartype *) array_list[data_index]);
                     if (m == NULL)
                         return false;
                     else {
@@ -1344,7 +1344,7 @@ static bool unpersist_vartype(vartype **v, bool padded) {
                 return false;
             if (mp.rows == 0) {
                 // Shared matrix
-                vartype *m = new_vartype_alias((vartype *) array_list[mp.columns]);
+                vartype *m = dup_vartype((vartype *) array_list[mp.columns]);
                 if (m == NULL)
                     return false;
                 else {
@@ -1440,7 +1440,7 @@ static bool unpersist_vartype(vartype **v, bool padded) {
                 return false;
             if (mp.rows == 0) {
                 // Shared matrix
-                vartype *m = new_vartype_alias((vartype *) array_list[mp.columns]);
+                vartype *m = dup_vartype((vartype *) array_list[mp.columns]);
                 if (m == NULL)
                     return false;
                 else {

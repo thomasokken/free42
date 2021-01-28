@@ -191,37 +191,6 @@ vartype *new_list(int4 size) {
     return (vartype *) list;
 }
 
-vartype *new_vartype_alias(vartype *v) {
-    if (v->type == TYPE_REALMATRIX) {
-        vartype_realmatrix *rm1 = (vartype_realmatrix *) v;
-        vartype_realmatrix *rm2 = (vartype_realmatrix *)
-                                        malloc(sizeof(vartype_realmatrix));
-        if (rm2 == NULL)
-            return NULL;
-        *rm2 = *rm1;
-        rm2->array->refcount++;
-        return (vartype *) rm2;
-    } else if (v->type == TYPE_COMPLEXMATRIX) {
-        vartype_complexmatrix *cm1 = (vartype_complexmatrix *) v;
-        vartype_complexmatrix *cm2 = (vartype_complexmatrix *)
-                                        malloc(sizeof(vartype_complexmatrix));
-        if (cm2 == NULL)
-            return NULL;
-        *cm2 = *cm1;
-        cm2->array->refcount++;
-        return (vartype *) cm2;
-    } else if (v->type == TYPE_LIST) {
-        vartype_list *list1 = (vartype_list *) v;
-        vartype_list *list2 = (vartype_list *) malloc(sizeof(vartype_list));
-        if (list2 == NULL)
-            return NULL;
-        *list2 = *list1;
-        list2->array->refcount++;
-        return (vartype *) list2;
-    } else
-        return NULL;
-}
-
 void free_vartype(vartype *v) {
     if (v == NULL)
         return;
@@ -313,10 +282,7 @@ vartype *dup_vartype(const vartype *v) {
                                         malloc(sizeof(vartype_realmatrix));
             if (rm2 == NULL)
                 return NULL;
-            rm2->type = TYPE_REALMATRIX;
-            rm2->rows = rm->rows;
-            rm2->columns = rm->columns;
-            rm2->array = rm->array;
+            *rm2 = *rm;
             rm->array->refcount++;
             return (vartype *) rm2;
         }
@@ -326,10 +292,7 @@ vartype *dup_vartype(const vartype *v) {
                                         malloc(sizeof(vartype_complexmatrix));
             if (cm2 == NULL)
                 return NULL;
-            cm2->type = TYPE_COMPLEXMATRIX;
-            cm2->rows = cm->rows;
-            cm2->columns = cm->columns;
-            cm2->array = cm->array;
+            *cm2 = *cm;
             cm->array->refcount++;
             return (vartype *) cm2;
         }
@@ -342,9 +305,7 @@ vartype *dup_vartype(const vartype *v) {
             vartype_list *list2 = (vartype_list *) malloc(sizeof(vartype_list));
             if (list2 == NULL)
                 return NULL;
-            list2->type = TYPE_LIST;
-            list2->size = list->size;
-            list2->array = list->array;
+            *list2 = *list;
             list->array->refcount++;
             return (vartype *) list2;
         }
