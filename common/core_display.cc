@@ -1166,8 +1166,7 @@ void display_x(int row) {
         string2buf(buf, 22, &bufptr, input_name, input_length);
         char2buf(buf, 22, &bufptr, '?');
     } else if (flags.f.big_stack) {
-        if (x != NULL)
-            string2buf(buf, 22, &bufptr, "1\200", 2);
+        string2buf(buf, 22, &bufptr, "1\200", 2);
     } else {
         string2buf(buf, 22, &bufptr, "x\200", 2);
     }

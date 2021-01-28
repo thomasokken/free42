@@ -298,6 +298,8 @@ void keydown(int shift, int key) {
         } else if ((flags.f.trace_print || flags.f.normal_print)
                 && flags.f.printer_exists)
             deferred_print = 1;
+        if (flags.f.big_stack && !shift && key == KEY_ENTER)
+            key = KEY_EXIT;
     }
 
     if (mode_command_entry
@@ -404,7 +406,7 @@ void keydown_number_entry(int shift, int key) {
             redisplay();
             return;
         } else {
-            pending_command = CMD_CLX;
+            pending_command = flags.f.big_stack ? CMD_DROP : CMD_CLX;
             return;
         }
     }
@@ -467,7 +469,7 @@ void keydown_number_entry(int shift, int key) {
                         mode_number_entry = false;
                         free_vartype(stack[sp]);
                         stack[sp] = new_real(0);
-                        pending_command = CMD_CLX;
+                        pending_command = flags.f.big_stack ? CMD_DROP : CMD_CLX;
                         return;
                     }
                 }
@@ -637,8 +639,11 @@ void keydown_number_entry(int shift, int key) {
     } else if (input_length > 0) {
         string2buf(buf, 100, &bufptr, input_name, input_length);
         char2buf(buf, 100, &bufptr, '?');
-    } else
+    } else if (flags.f.big_stack) {
+        string2buf(buf, 100, &bufptr, "1\200", 2);
+    } else {
         string2buf(buf, 100, &bufptr, "x\200", 2);
+    }
     string2buf(buf, 100, &bufptr, cmdline, cmdline_length);
     char2buf(buf, 100, &bufptr, '_');
 
@@ -2555,10 +2560,10 @@ void keydown_normal_mode(int shift, int key) {
             case KEY_SIN: command = CMD_SIN; break;
             case KEY_COS: command = CMD_COS; break;
             case KEY_TAN: command = CMD_TAN; break;
-            case KEY_ENTER: command = CMD_ENTER; break;
+            case KEY_ENTER: command = flags.f.big_stack ? CMD_DUP : CMD_ENTER; break;
             case KEY_SWAP: command = CMD_SWAP; break;
             case KEY_CHS: command = basekeys() ? CMD_BASECHS : CMD_CHS; break;
-            case KEY_BSP: command = CMD_CLX; break;
+            case KEY_BSP: command = flags.f.big_stack ? CMD_DROP : CMD_CLX; break;
             case KEY_DIV: command = basekeys() ? CMD_BASEDIV : CMD_DIV; break;
             case KEY_DOWN: command = CMD_SST; break;
             case KEY_MUL: command = basekeys() ? CMD_BASEMUL : CMD_MUL; break;
