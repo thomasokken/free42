@@ -118,14 +118,12 @@ vartype *new_realmatrix(int4 rows, int4 columns) {
     }
     rm->array->data = (phloat *) malloc(sz * sizeof(phloat));
     if (rm->array->data == NULL) {
-        /* Oops */
         free(rm->array);
         free(rm);
         return NULL;
     }
     rm->array->is_string = (char *) malloc(sz);
     if (rm->array->is_string == NULL) {
-        /* Oops */
         free(rm->array->data);
         free(rm->array);
         free(rm);
@@ -160,7 +158,6 @@ vartype *new_complexmatrix(int4 rows, int4 columns) {
     }
     cm->array->data = (phloat *) malloc(sz * sizeof(phloat));
     if (cm->array->data == NULL) {
-        /* Oops */
         free(cm->array);
         free(cm);
         return NULL;
@@ -171,9 +168,32 @@ vartype *new_complexmatrix(int4 rows, int4 columns) {
     return (vartype *) cm;
 }
 
-vartype *new_matrix_alias(vartype *m) {
-    if (m->type == TYPE_REALMATRIX) {
-        vartype_realmatrix *rm1 = (vartype_realmatrix *) m;
+vartype *new_list(int4 size) {
+    vartype_list *list = (vartype_list *) malloc(sizeof(vartype_list));
+    if (list == NULL)
+        return NULL;
+    list->type = TYPE_LIST;
+    list->size = size;
+    list->array = (list_data *) malloc(sizeof(list_data));
+    if (list->array == NULL) {
+        free(list);
+        return NULL;
+    }
+    list->array->data = (vartype **) malloc(size * sizeof(vartype *));
+    if (list->array->data == NULL) {
+        free(list->array);
+        free(list);
+        return NULL;
+    }
+    for (int4 i = 0; i < size; i++)
+        list->array->data[i] = NULL;
+    list->array->refcount = 1;
+    return (vartype *) list;
+}
+
+vartype *new_vartype_alias(vartype *v) {
+    if (v->type == TYPE_REALMATRIX) {
+        vartype_realmatrix *rm1 = (vartype_realmatrix *) v;
         vartype_realmatrix *rm2 = (vartype_realmatrix *)
                                         malloc(sizeof(vartype_realmatrix));
         if (rm2 == NULL)
@@ -181,8 +201,8 @@ vartype *new_matrix_alias(vartype *m) {
         *rm2 = *rm1;
         rm2->array->refcount++;
         return (vartype *) rm2;
-    } else if (m->type == TYPE_COMPLEXMATRIX) {
-        vartype_complexmatrix *cm1 = (vartype_complexmatrix *) m;
+    } else if (v->type == TYPE_COMPLEXMATRIX) {
+        vartype_complexmatrix *cm1 = (vartype_complexmatrix *) v;
         vartype_complexmatrix *cm2 = (vartype_complexmatrix *)
                                         malloc(sizeof(vartype_complexmatrix));
         if (cm2 == NULL)
@@ -190,6 +210,14 @@ vartype *new_matrix_alias(vartype *m) {
         *cm2 = *cm1;
         cm2->array->refcount++;
         return (vartype *) cm2;
+    } else if (v->type == TYPE_LIST) {
+        vartype_list *list1 = (vartype_list *) v;
+        vartype_list *list2 = (vartype_list *) malloc(sizeof(vartype_list));
+        if (list2 == NULL)
+            return NULL;
+        *list2 = *list1;
+        list2->array->refcount++;
+        return (vartype *) list2;
     } else
         return NULL;
 }
@@ -233,6 +261,17 @@ void free_vartype(vartype *v) {
                 free(cm->array);
             }
             free(cm);
+            break;
+        }
+        case TYPE_LIST: {
+            vartype_list *list = (vartype_list *) v;
+            if (--(list->array->refcount) == 0) {
+                for (int4 i = 0; i < list->size; i++)
+                    free_vartype(list->array->data[i]);
+                free(list->array->data);
+                free(list->array);
+            }
+            free(list);
             break;
         }
     }
@@ -298,6 +337,17 @@ vartype *dup_vartype(const vartype *v) {
             vartype_string *s = (vartype_string *) v;
             return new_string(s->text, s->length);
         }
+        case TYPE_LIST: {
+            vartype_list *list = (vartype_list *) v;
+            vartype_list *list2 = (vartype_list *) malloc(sizeof(vartype_list));
+            if (list2 == NULL)
+                return NULL;
+            list2->type = TYPE_LIST;
+            list2->size = list->size;
+            list2->array = list->array;
+            list->array->refcount++;
+            return (vartype *) list2;
+        }
         default:
             return NULL;
     }
@@ -358,6 +408,39 @@ int disentangle(vartype *v) {
                 md->refcount = 1;
                 cm->array->refcount--;
                 cm->array = md;
+                return 1;
+            }
+        }
+        case TYPE_LIST: {
+            vartype_list *list = (vartype_list *) v;
+            if (list->array->refcount == 1)
+                return 1;
+            else {
+                list_data *ld = (list_data *) malloc(sizeof(list_data));
+                if (ld == NULL)
+                    return 0;
+                ld->data = (vartype **) malloc(list->size * sizeof(vartype *));
+                if (ld->data == NULL) {
+                    free(ld);
+                    return 0;
+                }
+                for (int4 i = 0; i < list->size; i++) {
+                    vartype *vv = list->array->data[i];
+                    if (vv != NULL) {
+                        vv = dup_vartype(vv);
+                        if (vv == NULL) {
+                            for (int4 j = 0; j < i; j++)
+                                free_vartype(ld->data[j]);
+                            free(ld->data);
+                            free(ld);
+                            return 0;
+                        }
+                    }
+                    ld->data[i] = vv;
+                }
+                ld->refcount = 1;
+                list->array->refcount--;
+                list->array = ld;
                 return 1;
             }
         }
@@ -514,13 +597,12 @@ int vars_exist(int real, int cpx, int matrix) {
     return 0;
 }
 
-int contains_no_strings(const vartype_realmatrix *rm) {
+bool contains_strings(const vartype_realmatrix *rm) {
     int4 size = rm->rows * rm->columns;
-    int4 i;
-    for (i = 0; i < size; i++)
+    for (int4 i = 0; i < size; i++)
         if (rm->array->is_string[i])
-            return 0;
-    return 1;
+            return true;
+    return false;
 }
 
 int matrix_copy(vartype *dst, const vartype *src) {
@@ -541,7 +623,7 @@ int matrix_copy(vartype *dst, const vartype *src) {
             vartype_complexmatrix *d = (vartype_complexmatrix *) dst;
             if (s->rows != d->rows || s->columns != d->columns)
                 return ERR_DIMENSION_ERROR;
-            if (!contains_no_strings(s))
+            if (contains_strings(s))
                 return ERR_ALPHA_DATA_IS_INVALID;
             size = s->rows * s->columns;
             for (i = 0; i < size; i++) {

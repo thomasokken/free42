@@ -153,16 +153,14 @@ void core_save_state(const char *state_file_name) {
 }
 
 void core_cleanup() {
-    free_vartype(reg_x);
-    reg_x = NULL;
-    free_vartype(reg_y);
-    reg_y = NULL;
-    free_vartype(reg_z);
-    reg_z = NULL;
-    free_vartype(reg_t);
-    reg_t = NULL;
-    free_vartype(reg_lastx);
-    reg_lastx = NULL;
+    for (int i = 0; i <= sp; i++) {
+        free_vartype(stack[i]);
+        stack[i] = NULL;
+    }
+    if (flags.f.big_stack)
+        sp = -1;
+    free_vartype(lastx);
+    lastx = NULL;
     purge_all_vars();
     clear_all_prgms();
     if (vars != NULL) {
@@ -513,7 +511,7 @@ int core_keyup() {
                 int llen, rlen;
                 string_copy(lbuf, &llen, input_name, input_length);
                 lbuf[llen++] = '=';
-                rlen = vartype2string(reg_x, rbuf, 100);
+                rlen = vartype2string(stack[sp], rbuf, 100);
                 print_wide(lbuf, llen, rbuf, rlen);
             }
             input_length = 0;
@@ -624,9 +622,11 @@ int core_powercycle() {
          */
         vartype *seventy = new_real(70);
         if (seventy != NULL) {
-            recall_result(seventy);
+            if (recall_result(seventy) != ERR_NONE)
+                goto nomem;
             flags.f.stack_lift_disable = 0;
         } else {
+            nomem:
             display_error(ERR_INSUFFICIENT_MEMORY, 1);
             flags.f.auto_exec = 0;
         }
@@ -2229,25 +2229,29 @@ char *core_copy() {
         int bufptr = hp2ascii(buf, reg_alpha, reg_alpha_length);
         buf[bufptr] = 0;
         return buf;
-    } else if (reg_x->type == TYPE_REAL) {
+    } else if (sp == -1) {
+        char *buf = (char *) malloc(1);
+        buf[0] = 0;
+        return buf;
+    } else if (stack[sp]->type == TYPE_REAL) {
         char *buf = (char *) malloc(50);
-        int bufptr = real2buf(buf, ((vartype_real *) reg_x)->x);
+        int bufptr = real2buf(buf, ((vartype_real *) stack[sp])->x);
         buf[bufptr] = 0;
         return buf;
-    } else if (reg_x->type == TYPE_COMPLEX) {
+    } else if (stack[sp]->type == TYPE_COMPLEX) {
         char *buf = (char *) malloc(100);
-        vartype_complex *c = (vartype_complex *) reg_x;
+        vartype_complex *c = (vartype_complex *) stack[sp];
         int bufptr = complex2buf(buf, c->re, c->im, false);
         buf[bufptr] = 0;
         return buf;
-    } else if (reg_x->type == TYPE_STRING) {
-        vartype_string *s = (vartype_string *) reg_x;
+    } else if (stack[sp]->type == TYPE_STRING) {
+        vartype_string *s = (vartype_string *) stack[sp];
         char *buf = (char *) malloc(5 * s->length + 1);
         int bufptr = hp2ascii(buf, s->text, s->length);
         buf[bufptr] = 0;
         return buf;
-    } else if (reg_x->type == TYPE_REALMATRIX) {
-        vartype_realmatrix *rm = (vartype_realmatrix *) reg_x;
+    } else if (stack[sp]->type == TYPE_REALMATRIX) {
+        vartype_realmatrix *rm = (vartype_realmatrix *) stack[sp];
         phloat *data = rm->array->data;
         char *is_string = rm->array->is_string;
         textbuf tb;
@@ -2280,8 +2284,8 @@ char *core_copy() {
             return NULL;
         } else
             return tb.buf;
-    } else if (reg_x->type == TYPE_COMPLEXMATRIX) {
-        vartype_complexmatrix *cm = (vartype_complexmatrix *) reg_x;
+    } else if (stack[sp]->type == TYPE_COMPLEXMATRIX) {
+        vartype_complexmatrix *cm = (vartype_complexmatrix *) stack[sp];
         phloat *data = cm->array->data;
         textbuf tb;
         tb.buf = NULL;
@@ -3815,7 +3819,11 @@ void core_paste(const char *buf) {
             }
         }
         mode_number_entry = false;
-        recall_result(v);
+        if (recall_result(v) != ERR_NONE) {
+            display_error(ERR_INSUFFICIENT_MEMORY, 0);
+            redisplay();
+            return;
+        }
         flags.f.stack_lift_disable = 0;
         flags.f.message = 0;
         flags.f.two_line_message = 0;

@@ -61,7 +61,7 @@ const error_spec errors[] = {
     { /* NO_MENU_VARIABLES */      "No Menu Variables",       17 },
     { /* STAT_MATH_ERROR */        "Stat Math Error",         15 },
     { /* INVALID_FORECAST_MODEL */ "Invalid Forecast Model",  22 },
-    { /* SOLVE_INTEG_RTN_LOST */   "Solve/Integ RTN Lost",    20 },
+    { /* TOO_FEW_ARGUMENTS */      "Too Few Arguments",       17 },
     { /* SINGULAR_MATRIX */        "Singular Matrix",         15 },
     { /* SOLVE_SOLVE */            "Solve(Solve)",            12 },
     { /* INTEG_INTEG */            "Integ(Integ)",            12 },
@@ -547,11 +547,10 @@ const menu_spec menus[] = {
 #define LABELS_INCREMENT 10
 
 /* Registers */
-vartype *reg_x = NULL;
-vartype *reg_y = NULL;
-vartype *reg_z = NULL;
-vartype *reg_t = NULL;
-vartype *reg_lastx = NULL;
+vartype **stack = NULL;
+int sp = -1;
+int stack_capacity = 0;
+vartype *lastx = NULL;
 int reg_alpha_length = 0;
 char reg_alpha[44];
 
@@ -948,6 +947,34 @@ static bool persist_vartype(vartype *v) {
             }
             return true;
         }
+        case TYPE_LIST: {
+            vartype_list *list = (vartype_list *) v;
+            int4 size = list->size;
+            int data_index = -1;
+            bool must_write = true;
+            if (list->array->refcount > 1) {
+                int n = array_list_search(list->array);
+                if (n == -1) {
+                    // data_index == -2 indicates a new shared list
+                    data_index = -2;
+                    if (!array_list_grow())
+                        return false;
+                    array_list[array_count++] = list->array;
+                } else {
+                    // data_index >= 0 refers to a previously shared list
+                    data_index = n;
+                    must_write = false;
+                }
+            }
+            write_int4(size);
+            write_int(data_index);
+            if (must_write) {
+                for (int4 i = 0; i < list->size; i++)
+                    if (!persist_vartype(list->array->data[i]))
+                        return false;
+            }
+            return true;
+        }
         default:
             /* Should not happen */
             return false;
@@ -1023,7 +1050,7 @@ static bool unpersist_vartype(vartype **v, bool padded) {
                     return false;
                 if (rows == 0) {
                     // Shared matrix
-                    vartype *m = new_matrix_alias((vartype *) array_list[columns]);
+                    vartype *m = new_vartype_alias((vartype *) array_list[columns]);
                     if (m == NULL)
                         return false;
                     else {
@@ -1116,7 +1143,7 @@ static bool unpersist_vartype(vartype **v, bool padded) {
                     return false;
                 if (rows == 0) {
                     // Shared matrix
-                    vartype *m = new_matrix_alias((vartype *) array_list[columns]);
+                    vartype *m = new_vartype_alias((vartype *) array_list[columns]);
                     if (m == NULL)
                         return false;
                     else {
@@ -1145,6 +1172,41 @@ static bool unpersist_vartype(vartype **v, bool padded) {
                     array_list[array_count++] = cm;
                 }
                 *v = (vartype *) cm;
+                return true;
+            }
+            case TYPE_LIST: {
+                int4 size;
+                int data_index;
+                if (!read_int4(&size) || !read_int(&data_index))
+                    return false;
+                if (data_index >= 0) {
+                    // Shared list
+                    vartype *m = new_vartype_alias((vartype *) array_list[data_index]);
+                    if (m == NULL)
+                        return false;
+                    else {
+                        *v = m;
+                        return true;
+                    }
+                }
+                bool shared = data_index == -2;
+                vartype_list *list = (vartype_list *) new_list(size);
+                if (list == NULL)
+                    return false;
+                for (int4 i = 0; i < size; i++) {
+                    if (!unpersist_vartype(&list->array->data[i], false)) {
+                        free_vartype((vartype *) list);
+                        return false;
+                    }
+                }
+                if (shared) {
+                    if (!array_list_grow()) {
+                        free_vartype((vartype *) list);
+                        return false;
+                    }
+                    array_list[array_count++] = list;
+                }
+                *v = (vartype *) list;
                 return true;
             }
             default:
@@ -1282,7 +1344,7 @@ static bool unpersist_vartype(vartype **v, bool padded) {
                 return false;
             if (mp.rows == 0) {
                 // Shared matrix
-                vartype *m = new_matrix_alias((vartype *) array_list[mp.columns]);
+                vartype *m = new_vartype_alias((vartype *) array_list[mp.columns]);
                 if (m == NULL)
                     return false;
                 else {
@@ -1378,7 +1440,7 @@ static bool unpersist_vartype(vartype **v, bool padded) {
                 return false;
             if (mp.rows == 0) {
                 // Shared matrix
-                vartype *m = new_matrix_alias((vartype *) array_list[mp.columns]);
+                vartype *m = new_vartype_alias((vartype *) array_list[mp.columns]);
                 if (m == NULL)
                     return false;
                 else {
@@ -1436,15 +1498,12 @@ static bool persist_globals() {
     array_list = NULL;
     bool ret = false;
 
-    if (!persist_vartype(reg_x))
+    if (!write_int(sp))
         goto done;
-    if (!persist_vartype(reg_y))
-        goto done;
-    if (!persist_vartype(reg_z))
-        goto done;
-    if (!persist_vartype(reg_t))
-        goto done;
-    if (!persist_vartype(reg_lastx))
+    for (int i = 0; i <= sp; i++)
+        if (!persist_vartype(stack[i]))
+            goto done;
+    if (!persist_vartype(lastx))
         goto done;
     if (!write_int(reg_alpha_length))
         goto done;
@@ -1561,26 +1620,45 @@ static bool unpersist_globals(int4 ver) {
 #endif
     char tmp_dmy = 2;
 
-    free_vartype(reg_x);
-    if (!unpersist_vartype(&reg_x, padded))
+    if (ver < 30) {
+        sp = 3;
+    } else {
+        if (!read_int(&sp)) {
+            sp = -1;
+            goto done;
+        }
+    }
+    stack_capacity = sp + 1;
+    if (stack_capacity < 4)
+        stack_capacity = 4;
+    stack = (vartype **) malloc(stack_capacity * sizeof(vartype *));
+    if (stack == NULL) {
+        stack_capacity = 0;
+        sp = -1;
         goto done;
+    }
+    for (int i = 0; i <= sp; i++) {
+        if (!unpersist_vartype(&stack[i], padded) || stack[i] == NULL) {
+            for (int j = 0; j < i; j++)
+                free_vartype(stack[j]);
+            free(stack);
+            stack = NULL;
+            sp = -1;
+            stack_capacity = 0;
+            goto done;
+        }
+    }
+    if (ver < 30) {
+        vartype *tmp = stack[REG_X];
+        stack[REG_X] = stack[REG_T];
+        stack[REG_T] = tmp;
+        tmp = stack[REG_Y];
+        stack[REG_Y] = stack[REG_Z];
+        stack[REG_Z] = tmp;
+    }
 
-    // Hack to deal with bad Android state files
-    if (reg_x == NULL)
-        goto done;
-    // End of hack
-
-    free_vartype(reg_y);
-    if (!unpersist_vartype(&reg_y, padded))
-        goto done;
-    free_vartype(reg_z);
-    if (!unpersist_vartype(&reg_z, padded))
-        goto done;
-    free_vartype(reg_t);
-    if (!unpersist_vartype(&reg_t, padded))
-        goto done;
-    free_vartype(reg_lastx);
-    if (!unpersist_vartype(&reg_lastx, padded))
+    free_vartype(lastx);
+    if (!unpersist_vartype(&lastx, padded))
         goto done;
 
     if (ver >= 12 && ver < 20) {
@@ -1641,6 +1719,8 @@ static bool unpersist_globals(int4 ver) {
         flags.f.base_signed = 1;
         flags.f.base_wrap = 0;
     }
+    if (ver < 30)
+        flags.f.big_stack = 0;
 
     if (!state_is_portable) {
         vars_capacity = 0;
@@ -2854,6 +2934,8 @@ int push_indexed_matrix(const char *name, int len) {
 }
 
 int push_func_state(int n) {
+    if (flags.f.big_stack)
+        return ERR_NOT_YET_IMPLEMENTED;
     if (!program_running())
         return ERR_RESTRICTED_OPERATION;
     if (!ensure_var_space(7))
@@ -2862,23 +2944,23 @@ int push_func_state(int n) {
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     store_private_var("F25", 3, v);
-    v = dup_vartype(reg_x);
+    v = dup_vartype(stack[REG_X]);
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     store_private_var("X", 1, v);
-    v = dup_vartype(reg_y);
+    v = dup_vartype(stack[REG_Y]);
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     store_private_var("Y", 1, v);
-    v = dup_vartype(reg_z);
+    v = dup_vartype(stack[REG_Z]);
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     store_private_var("Z", 1, v);
-    v = dup_vartype(reg_t);
+    v = dup_vartype(stack[REG_T]);
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     store_private_var("T", 1, v);
-    v = dup_vartype(reg_lastx);
+    v = dup_vartype(lastx);
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     store_private_var("L", 1, v);
@@ -2896,6 +2978,8 @@ int push_func_state(int n) {
 }
 
 int pop_func_state(bool error) {
+    if (flags.f.big_stack)
+        return ERR_NOT_YET_IMPLEMENTED;
     if (rtn_level == 0) {
         if (!rtn_level_0_has_func_state)
             return ERR_NONE;
@@ -2929,10 +3013,10 @@ int pop_func_state(bool error) {
     int in = n / 10;
     int out = n % 10;
 
-    free_vartype(reg_lastx);
-    reg_lastx = recall_and_purge_private_var(in == 0 ? "L" : "X", 1);
+    free_vartype(lastx);
+    lastx = recall_and_purge_private_var(in == 0 ? "L" : "X", 1);
 
-    vartype **reg[4] = { &reg_x, &reg_y, &reg_z, &reg_t };
+    vartype **reg[4] = { &stack[REG_X], &stack[REG_Y], &stack[REG_Z], &stack[REG_T] };
     const char *name[4] = { "X", "Y", "Z", "T" };
 
     for (int d = out; d < 4; d++) {
@@ -3931,16 +4015,16 @@ void hard_reset(int reason) {
     vartype *regs;
 
     /* Clear stack */
-    free_vartype(reg_x);
-    free_vartype(reg_y);
-    free_vartype(reg_z);
-    free_vartype(reg_t);
-    free_vartype(reg_lastx);
-    reg_x = new_real(0);
-    reg_y = new_real(0);
-    reg_z = new_real(0);
-    reg_t = new_real(0);
-    reg_lastx = new_real(0);
+    for (int i = 0; i <= sp; i++)
+        free_vartype(stack[i]);
+    free(stack);
+    free_vartype(lastx);
+    sp = 3;
+    stack_capacity = 4;
+    stack = (vartype **) malloc(stack_capacity * sizeof(vartype *));
+    for (int i = 0; i <= sp; i++)
+        stack[i] = new_real(0);
+    lastx = new_real(0);
 
     /* Clear alpha */
     reg_alpha_length = 0;
@@ -4052,7 +4136,8 @@ void hard_reset(int reason) {
     flags.f.matrix_end_wrap = 0;
     flags.f.base_signed = 1;
     flags.f.base_wrap = 0;
-    flags.f.f80 = flags.f.f81 = flags.f.f82 = flags.f.f83 = flags.f.f84 = 0;
+    flags.f.big_stack = 0;
+    flags.f.f81 = flags.f.f82 = flags.f.f83 = flags.f.f84 = 0;
     flags.f.f85 = flags.f.f86 = flags.f.f87 = flags.f.f88 = flags.f.f89 = 0;
     flags.f.f90 = flags.f.f91 = flags.f.f92 = flags.f.f93 = flags.f.f94 = 0;
     flags.f.f95 = flags.f.f96 = flags.f.f97 = flags.f.f98 = flags.f.f99 = 0;
@@ -4131,18 +4216,18 @@ static bool convert_programs(bool *clear_stack) {
         return success;
     }
     int mod_count = 0;
-    int sp = rtn_sp;
+    int rsp = rtn_sp;
     if (rtn_solve_active || rtn_integ_active) {
         *clear_stack = true;
     } else {
         for (i = 0; i < rtn_level; i++) {
-            sp--;
-            int4 prgm = rtn_stack[sp].prgm;
+            rsp--;
+            int4 prgm = rtn_stack[rsp].prgm;
             mod_prgm[mod_count] = prgm & 0x3fffffff;
-            mod_pc[mod_count] = rtn_stack[sp].pc;
-            mod_sp[mod_count] = sp;
+            mod_pc[mod_count] = rtn_stack[rsp].pc;
+            mod_sp[mod_count] = rsp;
             if ((prgm & 0x80000000) != 0)
-                sp -= 2;
+                rsp -= 2;
             mod_count++;
         }
     }
@@ -4194,7 +4279,7 @@ static bool convert_programs(bool *clear_stack) {
                 else if (s == -2)
                     incomplete_saved_pc = pc;
                 else
-                    rtn_stack[sp].pc = pc;
+                    rtn_stack[rsp].pc = pc;
                 mod_count--;
             }
             int4 prevpc = pc;
@@ -4374,9 +4459,9 @@ static void update_decimal_in_programs() {
 bool off_enabled() {
     if (off_enable_flag)
         return true;
-    if (reg_x->type != TYPE_STRING)
+    if (sp == -1 || stack[sp]->type != TYPE_STRING)
         return false;
-    vartype_string *str = (vartype_string *) reg_x;
+    vartype_string *str = (vartype_string *) stack[sp];
     off_enable_flag = str->length == 6
                       && str->text[0] == 'Y'
                       && str->text[1] == 'E'

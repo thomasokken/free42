@@ -40,18 +40,18 @@ static int apply_sto_operation(char operation, vartype *oldval, bool trace_stk) 
     switch (operation) {
         case '/':
             preserve_ij = true;
-            return generic_div(reg_x, oldval, generic_sto_completion);
+            return generic_div(stack[sp], oldval, generic_sto_completion);
         case '*':
             preserve_ij = false;
-            return generic_mul(reg_x, oldval, generic_sto_completion);
+            return generic_mul(stack[sp], oldval, generic_sto_completion);
         case '-':
             preserve_ij = true;
-            error = generic_sub(reg_x, oldval, &newval);
+            error = generic_sub(stack[sp], oldval, &newval);
             generic_sto_completion(error, newval);
             return error;
         case '+':
             preserve_ij = true;
-            error = generic_add(reg_x, oldval, &newval);
+            error = generic_add(stack[sp], oldval, &newval);
             generic_sto_completion(error, newval);
             return error;
         default:
@@ -300,14 +300,21 @@ int generic_rcl(arg_struct *arg, vartype **dst) {
             }
         }
         case ARGTYPE_STK: {
+            int idx;
             switch (arg->val.stk) {
-                case 'X': *dst = reg_x; break;
-                case 'Y': *dst = reg_y; break;
-                case 'Z': *dst = reg_z; break;
-                case 'T': *dst = reg_t; break;
-                case 'L': *dst = reg_lastx; break;
+                case 'X': idx = 0; break;
+                case 'Y': idx = 1; break;
+                case 'Z': idx = 2; break;
+                case 'T': idx = 3; break;
+                case 'L': idx = -1; break;
             }
-            *dst = dup_vartype(*dst);
+            if (idx == -1) {
+                *dst = dup_vartype(lastx);
+            } else {
+                if (idx > sp)
+                    return ERR_NONEXISTENT;
+                *dst = dup_vartype(stack[sp - idx]);
+            }
             if (*dst == NULL)
                 return ERR_INSUFFICIENT_MEMORY;
             return ERR_NONE;
@@ -332,28 +339,23 @@ static void generic_sto_completion(int error, vartype *res) {
     if (error != ERR_NONE)
         return;
     if (temp_arg.type == ARGTYPE_STK) {
+        // Note: at this point, it has already been verified
+        // that the destination stack level exists.
+        int idx;
         switch (temp_arg.val.stk) {
-            case 'X':
-                free_vartype(reg_x);
-                reg_x = res;
-                break;
-            case 'Y':
-                free_vartype(reg_y);
-                reg_y = res;
-                break;
-            case 'Z':
-                free_vartype(reg_z);
-                reg_z = res;
-                break;
-            case 'T':
-                free_vartype(reg_t);
-                reg_t = res;
-                break;
-            case 'L':
-                free_vartype(reg_lastx);
-                reg_lastx = res;
-                break;
+            case 'X': idx = 0; break;
+            case 'Y': idx = 1; break;
+            case 'Z': idx = 2; break;
+            case 'T': idx = 3; break;
+            case 'L': idx = -1; break;
         }
+        vartype **dst;
+        if (idx == -1)
+            dst = &lastx;
+        else
+            dst = &stack[sp - idx];
+        free_vartype(*dst);
+        *dst = res;
     } else /* temp_arg.type == ARGTYPE_STR */ {
         // If the destination of store_var() is the indexed matrix, it sets I
         // and J to 1. This is *not* the desired behavior for STO+, STO-, and
@@ -380,7 +382,7 @@ int generic_sto(arg_struct *arg, char operation) {
             return err;
     }
 
-    if (operation != 0 && reg_x->type == TYPE_STRING)
+    if (operation != 0 && stack[sp]->type == TYPE_STRING)
         return ERR_ALPHA_DATA_IS_INVALID;
 
     switch (arg->type) {
@@ -394,10 +396,10 @@ int generic_sto(arg_struct *arg, char operation) {
                 int4 num = arg->val.num;
                 if (num >= size)
                     return ERR_SIZE_ERROR;
-                if (reg_x->type == TYPE_STRING) {
+                if (stack[sp]->type == TYPE_STRING) {
                     if (!disentangle((vartype *) rm))
                         return ERR_INSUFFICIENT_MEMORY;
-                    vartype_string *vs = (vartype_string *) reg_x;
+                    vartype_string *vs = (vartype_string *) stack[sp];
                     phloat *ds = rm->array->data + num;
                     int len, i;
                     len = vs->length;
@@ -406,18 +408,18 @@ int generic_sto(arg_struct *arg, char operation) {
                         phloat_text(*ds)[i] = vs->text[i];
                     rm->array->is_string[num] = 1;
                     return ERR_NONE;
-                } else if (reg_x->type == TYPE_REAL) {
+                } else if (stack[sp]->type == TYPE_REAL) {
                     if (!disentangle((vartype *) rm))
                         return ERR_INSUFFICIENT_MEMORY;
                     if (operation == 0) {
-                        rm->array->data[num] = ((vartype_real *) reg_x)->x;
+                        rm->array->data[num] = ((vartype_real *) stack[sp])->x;
                         rm->array->is_string[num] = 0;
                     } else {
                         phloat x, n;
                         int inf;
                         if (rm->array->is_string[num])
                             return ERR_ALPHA_DATA_IS_INVALID;
-                        x = ((vartype_real *) reg_x)->x;
+                        x = ((vartype_real *) stack[sp])->x;
                         n = rm->array->data[num];
                         switch (operation) {
                             case '/': if (x == 0) return ERR_DIVIDE_BY_0;
@@ -446,20 +448,20 @@ int generic_sto(arg_struct *arg, char operation) {
                 phloat re, im;
                 if (num >= size)
                     return ERR_SIZE_ERROR;
-                if (reg_x->type == TYPE_STRING)
+                if (stack[sp]->type == TYPE_STRING)
                     return ERR_ALPHA_DATA_IS_INVALID;
-                else if (reg_x->type != TYPE_REAL
-                        && reg_x->type != TYPE_COMPLEX)
+                else if (stack[sp]->type != TYPE_REAL
+                        && stack[sp]->type != TYPE_COMPLEX)
                     return ERR_INVALID_TYPE;
                 if (!disentangle((vartype *) cm))
                     return ERR_INSUFFICIENT_MEMORY;
                 if (operation == 0) {
-                    if (reg_x->type == TYPE_REAL) {
-                        re = ((vartype_real *) reg_x)->x;
+                    if (stack[sp]->type == TYPE_REAL) {
+                        re = ((vartype_real *) stack[sp])->x;
                         im = 0;
                     } else {
-                        re = ((vartype_complex *) reg_x)->re;
-                        im = ((vartype_complex *) reg_x)->im;
+                        re = ((vartype_complex *) stack[sp])->re;
+                        im = ((vartype_complex *) stack[sp])->im;
                     }
                     cm->array->data[num * 2] = re;
                     cm->array->data[num * 2 + 1] = im;
@@ -467,9 +469,9 @@ int generic_sto(arg_struct *arg, char operation) {
                     phloat nre = cm->array->data[num * 2];
                     phloat nim = cm->array->data[num * 2 + 1];
                     int inf;
-                    if (reg_x->type == TYPE_REAL) {
+                    if (stack[sp]->type == TYPE_REAL) {
                         phloat x;
-                        x = ((vartype_real *) reg_x)->x;
+                        x = ((vartype_real *) stack[sp])->x;
                         switch (operation) {
                             case '/': if (x == 0) return ERR_DIVIDE_BY_0;
                                       nre /= x; nim /= x; break;
@@ -479,8 +481,8 @@ int generic_sto(arg_struct *arg, char operation) {
                         }
                     } else {
                         phloat xre, xim, h, tmp;
-                        xre = ((vartype_complex *) reg_x)->re;
-                        xim = ((vartype_complex *) reg_x)->im;
+                        xre = ((vartype_complex *) stack[sp])->re;
+                        xim = ((vartype_complex *) stack[sp])->im;
                         h = xre * xre + xim * xim;
                         /* TODO: handle overflows in intermediate results */
                         switch (operation) {
@@ -542,39 +544,40 @@ int generic_sto(arg_struct *arg, char operation) {
                     /* STO ST X : no-op! */
                     return ERR_NONE;
                 }
-                newval = dup_vartype(reg_x);
+                newval = dup_vartype(stack[sp]);
                 if (newval == NULL)
                     return ERR_INSUFFICIENT_MEMORY;
+                int idx;
                 switch (arg->val.stk) {
-                    case 'Y':
-                        free_vartype(reg_y);
-                        reg_y = newval;
-                        break;
-                    case 'Z':
-                        free_vartype(reg_z);
-                        reg_z = newval;
-                        break;
-                    case 'T':
-                        free_vartype(reg_t);
-                        reg_t = newval;
-                        break;
-                    case 'L':
-                        free_vartype(reg_lastx);
-                        reg_lastx = newval;
-                        break;
+                    case 'Y': idx = 1; break;
+                    case 'Z': idx = 2; break;
+                    case 'T': idx = 3; break;
+                    case 'L': idx = -1; break;
                 }
+                if (idx > sp)
+                    return ERR_NONEXISTENT;
+                vartype **dst;
+                if (idx == -1)
+                    dst = &lastx;
+                else
+                    dst = &stack[sp - idx];
+                free_vartype(*dst);
+                *dst = newval;
                 if (trace_stk)
                     docmd_prstk(NULL);
                 return ERR_NONE;
             } else {
-                vartype *oldval;
+                int idx;
                 switch (arg->val.stk) {
-                    case 'X': oldval = reg_x; break;
-                    case 'Y': oldval = reg_y; break;
-                    case 'Z': oldval = reg_z; break;
-                    case 'T': oldval = reg_t; break;
-                    case 'L': oldval = reg_lastx; break;
+                    case 'X': idx = 0; break;
+                    case 'Y': idx = 1; break;
+                    case 'Z': idx = 2; break;
+                    case 'T': idx = 3; break;
+                    case 'L': idx = -1; break;
                 }
+                if (idx > sp)
+                    return ERR_NONEXISTENT;
+                vartype *oldval = idx == -1 ? lastx : stack[sp - idx];
                 temp_arg = *arg;
                 return apply_sto_operation(operation, oldval, trace_stk);
             }
@@ -584,15 +587,15 @@ int generic_sto(arg_struct *arg, char operation) {
                 vartype *newval;
                 /* Only allow matrices to be stored in "REGS" */
                 if (string_equals(arg->val.text, arg->length, "REGS", 4)
-                        && reg_x->type != TYPE_REALMATRIX
-                        && reg_x->type != TYPE_COMPLEXMATRIX)
+                        && stack[sp]->type != TYPE_REALMATRIX
+                        && stack[sp]->type != TYPE_COMPLEXMATRIX)
                     return ERR_RESTRICTED_OPERATION;
                 /* When EDITN is active, don't allow the matrix being
                  * edited to be overwritten. */
                 if (matedit_mode == 3 && string_equals(arg->val.text,
                             arg->length, matedit_name, matedit_length))
                         return ERR_RESTRICTED_OPERATION;
-                newval = dup_vartype(reg_x);
+                newval = dup_vartype(stack[sp]);
                 if (newval == NULL)
                     return ERR_INSUFFICIENT_MEMORY;
                 int err = store_var(arg->val.text, arg->length, newval);
@@ -606,8 +609,8 @@ int generic_sto(arg_struct *arg, char operation) {
                  * applied even if the target's dimensions would not, in fact,
                  * change. */
                 if (operation == '*'
-                        && (reg_x->type == TYPE_REALMATRIX
-                            || reg_x->type == TYPE_COMPLEXMATRIX)
+                        && (stack[sp]->type == TYPE_REALMATRIX
+                            || stack[sp]->type == TYPE_COMPLEXMATRIX)
                         && matedit_mode == 3
                         && string_equals(arg->val.text,
                                 arg->length, matedit_name, matedit_length))

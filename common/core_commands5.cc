@@ -113,9 +113,9 @@ int docmd_and(arg_struct *arg) {
     int8 x, y;
     int err;
     vartype *v;
-    if ((err = get_base_param(reg_x, &x)) != ERR_NONE)
+    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE)
         return err;
-    if ((err = get_base_param(reg_y, &y)) != ERR_NONE)
+    if ((err = get_base_param(stack[sp - 1], &y)) != ERR_NONE)
         return err;
     int8 res = x & y;
     base_range_check(&res, true);
@@ -130,9 +130,9 @@ int docmd_baseadd(arg_struct *arg) {
     int8 x, y, res;
     int err;
     vartype *v;
-    if ((err = get_base_param(reg_x, &x)) != ERR_NONE)
+    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE)
         return err;
-    if ((err = get_base_param(reg_y, &y)) != ERR_NONE)
+    if ((err = get_base_param(stack[sp - 1], &y)) != ERR_NONE)
         return err;
     res = x + y;
     if (!flags.f.base_wrap && effective_wsize() == 64) {
@@ -173,9 +173,9 @@ int docmd_basesub(arg_struct *arg) {
     int8 x, y, res;
     int err;
     vartype *v;
-    if ((err = get_base_param(reg_x, &x)) != ERR_NONE)
+    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE)
         return err;
-    if ((err = get_base_param(reg_y, &y)) != ERR_NONE)
+    if ((err = get_base_param(stack[sp - 1], &y)) != ERR_NONE)
         return err;
     if (!flags.f.base_signed && !flags.f.base_wrap && (uint8) x > (uint8) y) {
         if (flags.f.range_error_ignore)
@@ -218,9 +218,9 @@ int docmd_basemul(arg_struct *arg) {
     int8 res;
     int err;
     vartype *v;
-    if ((err = get_base_param(reg_x, &x)) != ERR_NONE)
+    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE)
         return err;
-    if ((err = get_base_param(reg_y, &y)) != ERR_NONE)
+    if ((err = get_base_param(stack[sp - 1], &y)) != ERR_NONE)
         return err;
     if (x == 0 || y == 0) {
         res = 0;
@@ -327,9 +327,9 @@ int docmd_basediv(arg_struct *arg) {
     int8 x, y, res;
     int err;
     vartype *v;
-    if ((err = get_base_param(reg_x, &x)) != ERR_NONE)
+    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE)
         return err;
-    if ((err = get_base_param(reg_y, &y)) != ERR_NONE)
+    if ((err = get_base_param(stack[sp - 1], &y)) != ERR_NONE)
         return err;
     if (x == 0)
         return ERR_DIVIDE_BY_0;
@@ -349,7 +349,7 @@ int docmd_basediv(arg_struct *arg) {
 int docmd_basechs(arg_struct *arg) {
     int8 x;
     int err;
-    if ((err = get_base_param(reg_x, &x)) != ERR_NONE)
+    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE)
         return err;
     if (flags.f.base_wrap) {
         x = -x;
@@ -372,7 +372,7 @@ int docmd_basechs(arg_struct *arg) {
         } else
             x = 0;
     }
-    ((vartype_real *) reg_x)->x = base2phloat(x);
+    ((vartype_real *) stack[sp])->x = base2phloat(x);
     return ERR_NONE;
 }
 
@@ -596,9 +596,9 @@ int docmd_best(arg_struct *arg) {
 int docmd_bit_t(arg_struct *arg) {
     int8 x, y;
     int err;
-    if ((err = get_base_param(reg_x, &x)) != ERR_NONE)
+    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE)
         return err;
-    if ((err = get_base_param(reg_y, &y)) != ERR_NONE)
+    if ((err = get_base_param(stack[sp - 1], &y)) != ERR_NONE)
         return err;
     if (x < 0 || x >= effective_wsize())
         return ERR_INVALID_DATA;
@@ -615,8 +615,7 @@ int docmd_corr(arg_struct *arg) {
     rv = new_real(r);
     if (rv == NULL)
         return ERR_INSUFFICIENT_MEMORY;
-    recall_result(rv);
-    return ERR_NONE;
+    return recall_result(rv);
 }
 
 static int mappable_fcstx(phloat x, phloat *y) {
@@ -645,12 +644,12 @@ int docmd_fcstx(arg_struct *arg) {
     err = slope_yint_helper();
     if (err != ERR_NONE)
         return err;
-    if (reg_x->type == TYPE_REAL || reg_x->type == TYPE_REALMATRIX) {
-        err = map_unary(reg_x, &v, mappable_fcstx, NULL);
+    if (stack[sp]->type == TYPE_REAL || stack[sp]->type == TYPE_REALMATRIX) {
+        err = map_unary(stack[sp], &v, mappable_fcstx, NULL);
         if (err == ERR_NONE)
             unary_result(v);
         return err;
-    } else if (reg_x->type == TYPE_STRING)
+    } else if (stack[sp]->type == TYPE_STRING)
         return ERR_ALPHA_DATA_IS_INVALID;
     else
         return ERR_INVALID_TYPE;
@@ -680,12 +679,12 @@ int docmd_fcsty(arg_struct *arg) {
     err = slope_yint_helper();
     if (err != ERR_NONE)
         return err;
-    if (reg_x->type == TYPE_REAL || reg_x->type == TYPE_REALMATRIX) {
-        err = map_unary(reg_x, &v, mappable_fcsty, NULL);
+    if (stack[sp]->type == TYPE_REAL || stack[sp]->type == TYPE_REALMATRIX) {
+        err = map_unary(stack[sp], &v, mappable_fcsty, NULL);
         if (err == ERR_NONE)
             unary_result(v);
         return err;
-    } else if (reg_x->type == TYPE_STRING)
+    } else if (stack[sp]->type == TYPE_STRING)
         return ERR_ALPHA_DATA_IS_INVALID;
     else
         return ERR_INVALID_TYPE;
@@ -714,11 +713,11 @@ int docmd_mean(arg_struct *arg) {
         free_vartype(mx);
         return ERR_INSUFFICIENT_MEMORY;
     }
-    free_vartype(reg_y);
-    reg_y = my;
-    free_vartype(reg_lastx);
-    reg_lastx = reg_x;
-    reg_x = mx;
+    free_vartype(stack[sp - 1]);
+    stack[sp - 1] = my;
+    free_vartype(lastx);
+    lastx = stack[sp];
+    stack[sp] = mx;
     print_trace();
     return ERR_NONE;
 }
@@ -751,11 +750,11 @@ int docmd_sdev(arg_struct *arg) {
         free_vartype(sx);
         return ERR_INSUFFICIENT_MEMORY;
     }
-    free_vartype(reg_y);
-    reg_y = sy;
-    free_vartype(reg_lastx);
-    reg_lastx = reg_x;
-    reg_x = sx;
+    free_vartype(stack[sp - 1]);
+    stack[sp - 1] = sy;
+    free_vartype(lastx);
+    lastx = stack[sp];
+    stack[sp] = sx;
     print_trace();
     return ERR_NONE;
 }
@@ -771,8 +770,7 @@ int docmd_slope(arg_struct *arg) {
     v = new_real(model.slope);
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
-    recall_result(v);
-    return ERR_NONE;
+    return recall_result(v);
 }
 
 int docmd_sum(arg_struct *arg) {
@@ -788,11 +786,11 @@ int docmd_sum(arg_struct *arg) {
         free_vartype(sx);
         return ERR_INSUFFICIENT_MEMORY;
     }
-    free_vartype(reg_lastx);
-    free_vartype(reg_y);
-    reg_y = sy;
-    reg_lastx = reg_x;
-    reg_x = sx;
+    free_vartype(lastx);
+    free_vartype(stack[sp - 1]);
+    stack[sp - 1] = sy;
+    lastx = stack[sp];
+    stack[sp] = sx;
     print_trace();
     return ERR_NONE;
 }
@@ -812,8 +810,7 @@ int docmd_wmean(arg_struct *arg) {
     v = new_real(wm);
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
-    recall_result(v);
-    return ERR_NONE;
+    return recall_result(v);
 }
 
 int docmd_yint(arg_struct *arg) {
@@ -834,8 +831,7 @@ int docmd_yint(arg_struct *arg) {
     v = new_real(yint);
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
-    recall_result(v);
-    return ERR_NONE;
+    return recall_result(v);
 }
 
 int docmd_integ(arg_struct *arg) {
@@ -864,7 +860,7 @@ int docmd_not(arg_struct *arg) {
     int8 x;
     int err;
     vartype *v;
-    if ((err = get_base_param(reg_x, &x)) != ERR_NONE)
+    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE)
         return err;
     int8 res = ~x;
     base_range_check(&res, true);
@@ -879,9 +875,9 @@ int docmd_or(arg_struct *arg) {
     int8 x, y; 
     int err; 
     vartype *v;
-    if ((err = get_base_param(reg_x, &x)) != ERR_NONE) 
+    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE) 
         return err;
-    if ((err = get_base_param(reg_y, &y)) != ERR_NONE)
+    if ((err = get_base_param(stack[sp - 1], &y)) != ERR_NONE)
         return err;
     int8 res = x | y;
     base_range_check(&res, true);
@@ -1012,17 +1008,17 @@ int docmd_rotxy(arg_struct *arg) {
     // Not using get_base_param() to fetch x, because that
     // would make it impossible to specify a negative shift
     // count in unsigned mode.
-    if (reg_x->type == TYPE_STRING)
+    if (stack[sp]->type == TYPE_STRING)
         return ERR_ALPHA_DATA_IS_INVALID;
-    else if (reg_x->type != TYPE_REAL)
+    else if (stack[sp]->type != TYPE_REAL)
         return ERR_INVALID_TYPE;
-    phloat px = floor(((vartype_real *) reg_x)->x);
+    phloat px = floor(((vartype_real *) stack[sp])->x);
     int wsize = effective_wsize();
     if (px >= wsize || px <= -wsize)
         return ERR_INVALID_DATA;
     x = to_int(px);
 
-    if ((err = get_base_param(reg_y, (int8 *) &y)) != ERR_NONE)
+    if ((err = get_base_param(stack[sp - 1], (int8 *) &y)) != ERR_NONE)
         return err;
     if (x == 0)
         res = y;
@@ -1068,9 +1064,9 @@ int docmd_solve(arg_struct *arg) {
     else
         return ERR_INVALID_TYPE;
 
-    if (reg_x->type == TYPE_REAL)
-        x2 = ((vartype_real *) reg_x)->x;
-    else if (reg_x->type == TYPE_STRING)
+    if (stack[sp]->type == TYPE_REAL)
+        x2 = ((vartype_real *) stack[sp])->x;
+    else if (stack[sp]->type == TYPE_STRING)
         return ERR_ALPHA_DATA_IS_INVALID;
     else
         return ERR_INVALID_TYPE;
@@ -1109,9 +1105,9 @@ int docmd_xor(arg_struct *arg) {
     int8 x, y;
     int err; 
     vartype *v;
-    if ((err = get_base_param(reg_x, &x)) != ERR_NONE) 
+    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE) 
         return err;
-    if ((err = get_base_param(reg_y, &y)) != ERR_NONE)
+    if ((err = get_base_param(stack[sp - 1], &y)) != ERR_NONE)
         return err;
     int8 res = x ^ y;
     base_range_check(&res, true);
@@ -1123,8 +1119,8 @@ int docmd_xor(arg_struct *arg) {
 }
 
 int docmd_to_dec(arg_struct *arg) {
-    if (reg_x->type == TYPE_REAL) {
-        phloat oct = ((vartype_real *) reg_x)->x;
+    if (stack[sp]->type == TYPE_REAL) {
+        phloat oct = ((vartype_real *) stack[sp])->x;
         phloat res;
         int neg = oct < 0;
         if (neg)
@@ -1161,15 +1157,15 @@ int docmd_to_dec(arg_struct *arg) {
             return ERR_INSUFFICIENT_MEMORY;
         unary_result(v);
         return ERR_NONE;
-    } else if (reg_x->type == TYPE_STRING)
+    } else if (stack[sp]->type == TYPE_STRING)
         return ERR_ALPHA_DATA_IS_INVALID;
     else
         return ERR_INVALID_TYPE;
 }
 
 int docmd_to_oct(arg_struct *arg) {
-    if (reg_x->type == TYPE_REAL) {
-        phloat dec = ((vartype_real *) reg_x)->x;
+    if (stack[sp]->type == TYPE_REAL) {
+        phloat dec = ((vartype_real *) stack[sp])->x;
         phloat res;
         int neg = dec < 0;
         if (neg)
@@ -1202,7 +1198,7 @@ int docmd_to_oct(arg_struct *arg) {
             return ERR_INSUFFICIENT_MEMORY;
         unary_result(v);
         return ERR_NONE;
-    } else if (reg_x->type == TYPE_STRING)
+    } else if (stack[sp]->type == TYPE_STRING)
         return ERR_ALPHA_DATA_IS_INVALID;
     else
         return ERR_INVALID_TYPE;
@@ -1288,28 +1284,28 @@ static int sigma_helper_1(int weight) {
     sigmaregs = r->array->data + first;
 
     /* All summation registers present, real-valued, non-string. */
-    switch (reg_x->type) {
+    switch (stack[sp]->type) {
         case TYPE_REAL: {
-            if (reg_y->type == TYPE_REAL) {
+            if (stack[sp - 1]->type == TYPE_REAL) {
                 vartype_real *x = (vartype_real *) new_real(0);
                 if (x == NULL)
                     return ERR_INSUFFICIENT_MEMORY;
                 x->x = sigma_helper_2(sigmaregs,
-                                      ((vartype_real *) reg_x)->x,
-                                      ((vartype_real *) reg_y)->x,
+                                      ((vartype_real *) stack[sp])->x,
+                                      ((vartype_real *) stack[sp - 1])->x,
                                       weight);
-                free_vartype(reg_lastx);
-                reg_lastx = reg_x;
-                reg_x = (vartype *) x;
+                free_vartype(lastx);
+                lastx = stack[sp];
+                stack[sp] = (vartype *) x;
                 mode_disable_stack_lift = true;
                 return ERR_NONE;
-            } else if (reg_y->type == TYPE_STRING)
+            } else if (stack[sp - 1]->type == TYPE_STRING)
                 return ERR_ALPHA_DATA_IS_INVALID;
             else
                 return ERR_INVALID_TYPE;
         }
         case TYPE_REALMATRIX: {
-            vartype_realmatrix *rm = (vartype_realmatrix *) reg_x;
+            vartype_realmatrix *rm = (vartype_realmatrix *) stack[sp];
             vartype_real *x;
             int4 i;
             if (rm->columns != 2)
@@ -1325,9 +1321,9 @@ static int sigma_helper_1(int weight) {
                                       rm->array->data[i * 2],
                                       rm->array->data[i * 2 + 1],
                                       weight);
-            free_vartype(reg_lastx);
-            reg_lastx = reg_x;
-            reg_x = (vartype *) x;
+            free_vartype(lastx);
+            lastx = stack[sp];
+            stack[sp] = (vartype *) x;
             mode_disable_stack_lift = true;
             return ERR_NONE;
         }

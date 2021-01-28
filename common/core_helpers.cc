@@ -65,12 +65,20 @@ int resolve_ind_arg(arg_struct *arg) {
             }
         }
         case ARGTYPE_IND_STK: {
+            int idx;
             switch (arg->val.stk) {
-                case 'X': v = reg_x; break;
-                case 'Y': v = reg_y; break;
-                case 'Z': v = reg_z; break;
-                case 'T': v = reg_t; break;
-                case 'L': v = reg_lastx; break;
+                case 'X': idx = 0; break;
+                case 'Y': idx = 1; break;
+                case 'Z': idx = 2; break;
+                case 'T': idx = 3; break;
+                case 'L': idx = -1; break;
+            }
+            if (idx == -1) {
+                v = lastx;
+            } else {
+                if (idx > sp)
+                    return ERR_NONEXISTENT;
+                v = stack[sp - idx];
             }
             goto finish_resolve;
         }
@@ -126,64 +134,119 @@ int arg_to_num(arg_struct *arg, int4 *num) {
         return ERR_INVALID_TYPE;
 }
 
-int is_pure_real(const vartype *matrix) {
-    vartype_realmatrix *rm;
-    int4 size, i;
-    if (matrix->type != TYPE_REALMATRIX)
-        return 0;
-    rm = (vartype_realmatrix *) matrix;
-    size = rm->rows * rm->columns;
-    for (i = 0; i < size; i++)
-        if (rm->array->is_string[i])
-            return 0;
-    return 1;
-}
-
-void recall_result(vartype *v) {
-    if (flags.f.stack_lift_disable)
-        free_vartype(reg_x);
-    else {
-        free_vartype(reg_t);
-        reg_t = reg_z;
-        reg_z = reg_y;
-        reg_y = reg_x;
-    }
-    reg_x = v;
-    print_trace();
-}
-
-void recall_two_results(vartype *x, vartype *y) {
+int recall_result_silently(vartype *v) {
     if (flags.f.stack_lift_disable) {
-        free_vartype(reg_t);
-        free_vartype(reg_x);
-        reg_t = reg_z;
-        reg_z = reg_y;
+        // sp guaranteed to be >= 0 in this case
+        free_vartype(stack[sp]);
+    } else if (flags.f.big_stack) {
+        if (!ensure_stack_capacity(1)) {
+            free_vartype(v);
+            return ERR_INSUFFICIENT_MEMORY;
+        }
+        sp++;
     } else {
-        free_vartype(reg_t);
-        free_vartype(reg_z);
-        reg_t = reg_y;
-        reg_z = reg_x;
+        free_vartype(stack[REG_T]);
+        stack[REG_T] = stack[REG_Z];
+        stack[REG_Z] = stack[REG_Y];
+        stack[REG_Y] = stack[REG_X];
     }
-    reg_y = y;
-    reg_x = x;
+    stack[sp] = v;
+    return ERR_NONE;
+}
+
+int recall_result(vartype *v) {
+    int res = recall_result_silently(v);
+    if (res == ERR_NONE)
+        print_trace();
+    return res;
+}
+
+int recall_two_results(vartype *x, vartype *y) {
+    if (flags.f.big_stack) {
+        int off = flags.f.stack_lift_disable ? 1 : 2;
+        if (!ensure_stack_capacity(off)) {
+            free_vartype(x);
+            free_vartype(y);
+            return ERR_INSUFFICIENT_MEMORY;
+        }
+        if (flags.f.stack_lift_disable)
+            free_vartype(stack[sp]);
+        sp += off;
+    } else {
+        if (flags.f.stack_lift_disable) {
+            free_vartype(stack[REG_T]);
+            free_vartype(stack[REG_X]);
+            stack[REG_T] = stack[REG_Z];
+            stack[REG_Z] = stack[REG_Y];
+        } else {
+            free_vartype(stack[REG_T]);
+            free_vartype(stack[REG_Z]);
+            stack[REG_T] = stack[REG_Y];
+            stack[REG_Z] = stack[REG_X];
+        }
+    }
+    stack[sp - 1] = y;
+    stack[sp] = x;
     print_trace();
+    return ERR_NONE;
 }
 
 void unary_result(vartype *x) {
-    free_vartype(reg_lastx);
-    reg_lastx = reg_x;
-    reg_x = x;
+    free_vartype(lastx);
+    lastx = stack[sp];
+    stack[sp] = x;
     print_trace();
 }
 
-void binary_result(vartype *x) {
-    free_vartype(reg_lastx);
-    reg_lastx = reg_x;
-    reg_x = x;
-    free_vartype(reg_y);
-    reg_y = reg_z;
-    reg_z = dup_vartype(reg_t);
+int unary_two_results(vartype *x, vartype *y) {
+    if (flags.f.big_stack) {
+        if (!ensure_stack_capacity(1)) {
+            free_vartype(x);
+            free_vartype(y);
+            return ERR_INSUFFICIENT_MEMORY;
+        }
+        free_vartype(lastx);
+        lastx = stack[sp];
+        sp++;
+    } else {
+        free_vartype(stack[REG_T]);
+        stack[REG_T] = stack[REG_Z];
+        stack[REG_Z] = stack[REG_Y];
+        free_vartype(lastx);
+        lastx = stack[REG_X];
+    }
+    stack[sp - 1] = y;
+    stack[sp] = x;
     print_trace();
+    return ERR_NONE;
+}
+
+void binary_result(vartype *x) {
+    free_vartype(lastx);
+    lastx = stack[sp];
+    free_vartype(stack[sp - 1]);
+    if (flags.f.big_stack) {
+        sp--;
+    } else {
+        stack[REG_Y] = stack[REG_Z];
+        stack[REG_Z] = dup_vartype(stack[REG_T]);
+    }
+    stack[sp] = x;
+    print_trace();
+}
+
+bool ensure_stack_capacity(int n) {
+    if (!flags.f.big_stack)
+        return true;
+    if (stack_capacity > sp + n)
+        return true;
+    int new_capacity = stack_capacity + n + 16;
+    vartype **new_stack = (vartype **) realloc(stack, new_capacity * sizeof(vartype *));
+    if (new_stack == NULL)
+        return false;
+    stack = new_stack;
+    stack_capacity = new_capacity;
+    return true;
 }
 
 phloat rad_to_angle(phloat x) {
@@ -741,6 +804,11 @@ void print_trace() {
             docmd_prstk(NULL);
         else
             docmd_prx(NULL);
+}
+
+void print_stack_trace() {
+    if (flags.f.trace_print && flags.f.normal_print && flags.f.printer_exists)
+        docmd_prstk(NULL);
 }
 
 void generic_r2p(phloat re, phloat im, phloat *r, phloat *phi) {

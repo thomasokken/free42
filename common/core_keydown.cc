@@ -16,6 +16,7 @@
  *****************************************************************************/
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "core_keydown.h"
 #include "core_commands2.h"
@@ -193,9 +194,11 @@ void keydown(int shift, int key) {
         }
         vartype *result = new_real(key);
         if (result != NULL) {
-            recall_result(result);
+            if (recall_result(result) != ERR_NONE)
+                goto nomem;
             flags.f.stack_lift_disable = 0;
         } else {
+            nomem:
             display_error(ERR_INSUFFICIENT_MEMORY, 1);
             set_running(false);
         }
@@ -462,8 +465,8 @@ void keydown_number_entry(int shift, int key) {
                          * does it, so there.
                          */
                         mode_number_entry = false;
-                        free_vartype(reg_x);
-                        reg_x = new_real(0);
+                        free_vartype(stack[sp]);
+                        stack[sp] = new_real(0);
                         pending_command = CMD_CLX;
                         return;
                     }
@@ -613,8 +616,8 @@ void keydown_number_entry(int shift, int key) {
     if (flags.f.prgm_mode)
         entered_number = x;
     else {
-        free_vartype(reg_x);
-        reg_x = new_real(x);
+        free_vartype(stack[sp]);
+        stack[sp] = new_real(x);
     }
 
     draw_number:
@@ -1969,10 +1972,17 @@ void keydown_normal_mode(int shift, int key) {
                 display_prgm_line(0, -1);
         } else {
             if (!flags.f.stack_lift_disable) {
-                free_vartype(reg_t);
-                reg_t = reg_z;
-                reg_z = reg_y;
-                reg_y = dup_vartype(reg_x);
+                if (flags.f.big_stack) {
+                    if (!ensure_stack_capacity(1)) {
+                        display_error(ERR_INSUFFICIENT_MEMORY, 0);
+                        return;
+                    }
+                    sp++;
+                } else {
+                    free_vartype(stack[REG_T]);
+                    memmove(stack, stack + 1, 3 * sizeof(vartype *));
+                }
+                stack[sp] = dup_vartype(stack[sp - 1]);
             } else
                 flags.f.stack_lift_disable = 0;
             flags.f.numeric_data_input = 1;

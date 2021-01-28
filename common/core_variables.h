@@ -25,7 +25,8 @@ vartype *new_complex(phloat re, phloat im);
 vartype *new_string(const char *s, int slen);
 vartype *new_realmatrix(int4 rows, int4 columns);
 vartype *new_complexmatrix(int4 rows, int4 columns);
-vartype *new_matrix_alias(vartype *m);
+vartype *new_list(int4 size);
+vartype *new_vartype_alias(vartype *m);
 void free_vartype(vartype *v);
 void clean_vartype_pools();
 vartype *dup_vartype(const vartype *v);
@@ -37,7 +38,7 @@ int store_var(const char *name, int namelength, vartype *value, bool local = fal
 void purge_var(const char *name, int namelength);
 void purge_all_vars();
 int vars_exist(int real, int cpx, int matrix);
-int contains_no_strings(const vartype_realmatrix *rm);
+bool contains_strings(const vartype_realmatrix *rm);
 int matrix_copy(vartype *dst, const vartype *src);
 vartype *recall_private_var(const char *name, int namelength);
 vartype *recall_and_purge_private_var(const char *name, int namelength);

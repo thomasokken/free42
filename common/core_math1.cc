@@ -63,6 +63,7 @@ typedef struct {
     int shadow_length[NUM_SHADOWS];
     phloat shadow_value[NUM_SHADOWS];
     uint4 last_disp_time;
+    int prev_sp;
 } solve_state;
 
 static solve_state solve;
@@ -95,6 +96,7 @@ typedef struct {
     phloat t, u;
     phloat prev_int;
     phloat prev_res;
+    int prev_sp;
 } integ_state;
 
 static integ_state integ;
@@ -140,6 +142,7 @@ bool persist_math() {
         if (!write_phloat(solve.shadow_value[i])) return false;
     }
     if (!write_int4(solve.last_disp_time)) return false;
+    if (!write_int(solve.prev_sp)) return false;
 
     if (!write_int(integ.version)) return false;
     if (fwrite(integ.prgm_name, 1, 7, gfile) != 7) return false;
@@ -174,6 +177,7 @@ bool persist_math() {
     if (!write_phloat(integ.u)) return false;
     if (!write_phloat(integ.prev_int)) return false;
     if (!write_phloat(integ.prev_res)) return false;
+    if (!write_int(integ.prev_sp)) return false;
     return true;
 }
 
@@ -219,6 +223,11 @@ bool unpersist_math(int ver, bool discard) {
             if (!read_phloat(&solve.shadow_value[i])) return false;
         }
         if (!read_int4((int4 *) &solve.last_disp_time)) return false;
+        if (ver >= 33) {
+            if (!read_int(&solve.prev_sp)) return false;
+        } else {
+            solve.prev_sp = -2;
+        }
         
         if (!read_int(&integ.version)) return false;
         if (fread(integ.prgm_name, 1, 7, gfile) != 7) return false;
@@ -253,6 +262,11 @@ bool unpersist_math(int ver, bool discard) {
         if (!read_phloat(&integ.u)) return false;
         if (!read_phloat(&integ.prev_int)) return false;
         if (!read_phloat(&integ.prev_res)) return false;
+        if (ver >= 33) {
+            if (!read_int(&integ.prev_sp)) return false;
+        } else {
+            integ.prev_sp = -2;
+        }
     } else {
         int size;
         bool success;
@@ -390,6 +404,7 @@ static int call_solve_fn(int which, int state) {
         ((vartype_real *) v)->x = x;
     solve.which = which;
     solve.state = state;
+    solve.prev_sp = flags.f.big_stack ? sp : -2;
     arg.type = ARGTYPE_STR;
     arg.length = solve.active_prgm_length;
     for (i = 0; i < arg.length; i++)
@@ -513,6 +528,8 @@ static int finish_solve(int message) {
 
     v = recall_var(solve.var_name, solve.var_length);
     ((vartype_real *) v)->x = b;
+    if (flags.f.big_stack && !ensure_stack_capacity(4))
+        return ERR_INSUFFICIENT_MEMORY;
     new_x = dup_vartype(v);
     new_y = new_real(s);
     new_z = new_real(final_f);
@@ -524,14 +541,15 @@ static int finish_solve(int message) {
         free_vartype(new_t);
         return ERR_INSUFFICIENT_MEMORY;
     }
-    free_vartype(reg_x);
-    free_vartype(reg_y);
-    free_vartype(reg_z);
-    free_vartype(reg_t);
-    reg_x = new_x;
-    reg_y = new_y;
-    reg_z = new_z;
-    reg_t = new_t;
+    if (flags.f.big_stack)
+        sp += 4;
+    else
+        for (int i = 0; i < 4; i++)
+            free_vartype(stack[i]);
+    stack[sp] = new_x;
+    stack[sp - 1] = new_y;
+    stack[sp - 2] = new_z;
+    stack[sp - 3] = new_t;
 
     current_prgm = solve.prev_prgm;
     pc = solve.prev_pc;
@@ -584,6 +602,15 @@ static void printout(const phloat& p, const char* s) {
 }
 #endif
 
+static void clean_stack(int prev_sp) {
+    if (flags.f.big_stack && prev_sp != -2 && sp > prev_sp) {
+        int excess = sp - prev_sp;
+        for (int i = 0; i < excess; i++)
+            free_vartype(stack[sp - i]);
+        sp -= excess;
+    }
+}
+
 int return_to_solve(int failure, bool stop) {
     phloat f, slope, s, xnew, prev_f = solve.curr_f;
     uint4 now_time;
@@ -594,8 +621,11 @@ int return_to_solve(int failure, bool stop) {
     if (solve.state == 0)
         return ERR_INTERNAL_ERROR;
     if (!failure) {
-        if (reg_x->type == TYPE_REAL) {
-            f = ((vartype_real *) reg_x)->x;
+        if (sp == -1)
+            return ERR_TOO_FEW_ARGUMENTS;
+        if (stack[sp]->type == TYPE_REAL) {
+            f = ((vartype_real *) stack[sp])->x;
+            clean_stack(solve.prev_sp);
             solve.curr_f = f;
             if (f == 0)
                 return finish_solve(SOLVE_ROOT);
@@ -1034,6 +1064,7 @@ static int call_integ_fn() {
         }
     } else
         ((vartype_real *) v)->x = x;
+    integ.prev_sp = flags.f.big_stack ? sp : -2;
     arg.type = ARGTYPE_STR;
     arg.length = integ.active_prgm_length;
     for (i = 0; i < arg.length; i++)
@@ -1124,7 +1155,8 @@ static int finish_integ() {
         return ERR_INSUFFICIENT_MEMORY;
     }
     flags.f.trace_print = 0;
-    recall_two_results(x, y);
+    if (recall_two_results(x, y) != ERR_NONE)
+        return ERR_INSUFFICIENT_MEMORY;
     flags.f.trace_print = saved_trace;
 
     current_prgm = integ.prev_prgm;
@@ -1178,11 +1210,14 @@ int return_to_integ(bool stop) {
         return call_integ_fn();
 
     case 2:
-        if (reg_x->type == TYPE_STRING)
+        if (sp == -1)
+            return ERR_TOO_FEW_ARGUMENTS;
+        if (stack[sp]->type == TYPE_STRING)
             return ERR_ALPHA_DATA_IS_INVALID;
-        else if (reg_x->type != TYPE_REAL)
+        else if (stack[sp]->type != TYPE_REAL)
             return ERR_INVALID_TYPE;
-        integ.sum += integ.t * ((vartype_real *) reg_x)->x;
+        integ.sum += integ.t * ((vartype_real *) stack[sp])->x;
+        clean_stack(integ.prev_sp);
         integ.p += integ.h;
         if (++integ.i < integ.nsteps)
             goto loop2;

@@ -322,7 +322,7 @@ static int matrix_mul_rr(vartype_realmatrix *left, vartype_realmatrix *right,
         goto finished;
     }
 
-    if (!contains_no_strings(left) || !contains_no_strings(right)) {
+    if (contains_strings(left) || contains_strings(right)) {
         error = ERR_ALPHA_DATA_IS_INVALID;
         goto finished;
     }
@@ -453,7 +453,7 @@ static int matrix_mul_rr(vartype_realmatrix *left, vartype_realmatrix *right,
     m = left->rows;
     n = right->columns;
 
-    if (!contains_no_strings(left) || !contains_no_strings(right))
+    if (contains_strings(left) || contains_strings(right))
         return ERR_ALPHA_DATA_IS_INVALID;
 
     *result = new_realmatrix(m, n);
@@ -576,7 +576,7 @@ static int matrix_mul_rc(vartype_realmatrix *left, vartype_complexmatrix *right,
         goto finished;
     }
 
-    if (!contains_no_strings(left)) {
+    if (contains_strings(left)) {
         error = ERR_ALPHA_DATA_IS_INVALID;
         goto finished;
     }
@@ -709,7 +709,7 @@ static int matrix_mul_cr(vartype_complexmatrix *left, vartype_realmatrix *right,
         goto finished;
     }
 
-    if (!contains_no_strings(right)) {
+    if (contains_strings(right)) {
         error = ERR_ALPHA_DATA_IS_INVALID;
         goto finished;
     }
@@ -998,7 +998,7 @@ int linalg_inv(const vartype *src, void (*completion)(int, vartype *)) {
         n = ma->rows;
         if (n != ma->columns)
             return ERR_DIMENSION_ERROR;
-        if (!contains_no_strings(ma))
+        if (contains_strings(ma))
             return ERR_ALPHA_DATA_IS_INVALID;
         lu = new_realmatrix(n, n);
         if (lu == NULL)
@@ -1122,7 +1122,7 @@ int linalg_det(const vartype *src, void (*completion)(int, vartype *)) {
             completion(ERR_DIMENSION_ERROR, 0);
             return ERR_DIMENSION_ERROR;
         }
-        if (!contains_no_strings(ma)) {
+        if (contains_strings(ma)) {
             completion(ERR_ALPHA_DATA_IS_INVALID, 0);
             return ERR_ALPHA_DATA_IS_INVALID;
         }

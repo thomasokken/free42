@@ -30,11 +30,13 @@
 
 int resolve_ind_arg(arg_struct *arg);
 int arg_to_num(arg_struct *arg, int4 *num);
-int is_pure_real(const vartype *matrix);
-void recall_result(vartype *v);
-void recall_two_results(vartype *x, vartype *y);
+int recall_result_silently(vartype *v);
+int recall_result(vartype *v);
+int recall_two_results(vartype *x, vartype *y);
 void unary_result(vartype *x);
+int unary_two_results(vartype *x, vartype *y);
 void binary_result(vartype *x);
+bool ensure_stack_capacity(int n);
 phloat rad_to_angle(phloat x);
 phloat rad_to_deg(phloat x);
 phloat deg_to_rad(phloat x);
@@ -69,6 +71,7 @@ void print_wide(const char *left, int leftlen,
                 const char *right, int rightlen);
 void print_command(int cmd, const arg_struct *arg);
 void print_trace();
+void print_stack_trace();
 
 void generic_r2p(phloat re, phloat im, phloat *r, phloat *phi);
 void generic_p2r(phloat r, phloat phi, phloat *re, phloat *im);

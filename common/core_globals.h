@@ -51,7 +51,7 @@ extern FILE *gfile;
 #define ERR_NO_MENU_VARIABLES      17
 #define ERR_STAT_MATH_ERROR        18
 #define ERR_INVALID_FORECAST_MODEL 19
-#define ERR_SOLVE_INTEG_RTN_LOST   20
+#define ERR_TOO_FEW_ARGUMENTS      20
 #define ERR_SINGULAR_MATRIX        21
 #define ERR_SOLVE_SOLVE            22
 #define ERR_INTEG_INTEG            23
@@ -218,6 +218,7 @@ extern const menu_spec menus[];
 #define TYPE_REALMATRIX 3
 #define TYPE_COMPLEXMATRIX 4
 #define TYPE_STRING 5
+#define TYPE_LIST 6
 
 typedef struct {
     int type;
@@ -269,16 +270,31 @@ typedef struct {
     char text[6];
 } vartype_string;
 
+
+typedef struct {
+    int refcount;
+    vartype **data;
+} list_data;
+
+typedef struct {
+    int type;
+    int4 size;
+    list_data *array;
+} vartype_list;
+
 /******************/
 /* Emulator state */
 /******************/
 
 /* Registers */
-extern vartype *reg_x;
-extern vartype *reg_y;
-extern vartype *reg_z;
-extern vartype *reg_t;
-extern vartype *reg_lastx;
+#define REG_T 0
+#define REG_Z 1
+#define REG_Y 2
+#define REG_X 3
+extern vartype **stack;
+extern int sp;
+extern int stack_capacity;
+extern vartype *lastx;
 extern int reg_alpha_length;
 extern char reg_alpha[44];
 
@@ -361,7 +377,8 @@ typedef union {
         char matrix_end_wrap;
         char base_signed; /* Programming extension */
         char base_wrap; /* Programming extension */
-        char f80; char f81; char f82; char f83; char f84;
+        char big_stack; /* Big Stack extension */
+        char f81; char f82; char f83; char f84;
         char f85; char f86; char f87; char f88; char f89;
         char f90; char f91; char f92; char f93; char f94;
         char f95; char f96; char f97; char f98; char f99;

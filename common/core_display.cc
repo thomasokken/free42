@@ -1156,6 +1156,7 @@ void display_x(int row) {
     int bufptr = 0;
 
     clear_row(row);
+    vartype *x = sp >= 0 ? stack[sp] : NULL;
     if (matedit_mode == 2 || matedit_mode == 3) {
         bufptr += int2string(matedit_i + 1, buf + bufptr, 22 - bufptr);
         char2buf(buf, 22, &bufptr, ':');
@@ -1164,10 +1165,14 @@ void display_x(int row) {
     } else if (input_length > 0) {
         string2buf(buf, 22, &bufptr, input_name, input_length);
         char2buf(buf, 22, &bufptr, '?');
+    } else if (flags.f.big_stack) {
+        if (x != NULL)
+            string2buf(buf, 22, &bufptr, "1\200", 2);
     } else {
         string2buf(buf, 22, &bufptr, "x\200", 2);
     }
-    bufptr += vartype2string(reg_x, buf + bufptr, 22 - bufptr);
+    if (x != NULL)
+        bufptr += vartype2string(x, buf + bufptr, 22 - bufptr);
     draw_string(0, row, buf, bufptr);
 }
 
@@ -1175,13 +1180,19 @@ void display_y(int row) {
     char buf[20];
     int len;
     clear_row(row);
-    len = vartype2string(reg_y, buf, 20);
-    draw_string(0, row, "\201\200", 2);
-    if (len > 20) {
-        draw_string(2, row, buf, 19);
-        draw_char(21, row, 26);
-    } else
-        draw_string(2, row, buf, len);
+    vartype *y = sp >= 1 ? stack[sp - 1] : NULL;
+    if (flags.f.big_stack)
+        draw_string(0, row, "2\200", 2);
+    else
+        draw_string(0, row, "\201\200", 2);
+    if (y != NULL) {
+        len = vartype2string(y, buf, 20);
+        if (len > 20) {
+            draw_string(2, row, buf, 19);
+            draw_char(21, row, 26);
+        } else
+            draw_string(2, row, buf, len);
+    }
 }
 
 void display_incomplete_command(int row) {
@@ -1806,14 +1817,22 @@ void show() {
     } else {
         char buf[45];
         int bufptr;
+        vartype *rx;
+        int x_type;
+        if (sp >= 0) {
+            rx = stack[sp];
+            x_type = rx->type;
+        } else {
+            x_type = TYPE_NULL;
+        }
         clear_display();
-        switch (reg_x->type) {
+        switch (x_type) {
             case TYPE_REAL: {
-                bufptr = phloat2string(((vartype_real *) reg_x)->x, buf, 45,
+                bufptr = phloat2string(((vartype_real *) rx)->x, buf, 45,
                                        2, 0, 3,
                                        flags.f.thousands_separators, MAX_MANT_DIGITS);
                 if (bufptr == 45)
-                    bufptr = phloat2string(((vartype_real *) reg_x)->x, buf,
+                    bufptr = phloat2string(((vartype_real *) rx)->x, buf,
                                            44, 2, 0, 3, 0, MAX_MANT_DIGITS);
                 if (bufptr <= 22)
                     draw_string(0, 0, buf, bufptr);
@@ -1824,14 +1843,14 @@ void show() {
                 break;
             }
             case TYPE_STRING: {
-                vartype_string *s = (vartype_string *) reg_x;
+                vartype_string *s = (vartype_string *) rx;
                 draw_char(0, 0, '"');
                 draw_string(1, 0, s->text, s->length);
                 draw_char(s->length + 1, 0, '"');
                 break;
             }
             case TYPE_COMPLEX: {
-                vartype_complex *c = (vartype_complex *) reg_x;
+                vartype_complex *c = (vartype_complex *) rx;
                 phloat x, y;
                 if (flags.f.polar) {
                     generic_r2p(c->re, c->im, &x, &y);
@@ -1859,9 +1878,9 @@ void show() {
                 break;
             }
             case TYPE_REALMATRIX: {
-                vartype_realmatrix *rm = (vartype_realmatrix *) reg_x;
+                vartype_realmatrix *rm = (vartype_realmatrix *) rx;
                 phloat *d = rm->array->data;
-                bufptr = vartype2string(reg_x, buf, 22);
+                bufptr = vartype2string(rx, buf, 22);
                 draw_string(0, 0, buf, bufptr);
                 draw_string(0, 1, "1:1=", 4);
                 if (rm->array->is_string[0]) {
@@ -1877,9 +1896,9 @@ void show() {
                 break;
             }
             case TYPE_COMPLEXMATRIX: {
-                vartype_complexmatrix *cm = (vartype_complexmatrix *) reg_x;
+                vartype_complexmatrix *cm = (vartype_complexmatrix *) rx;
                 vartype_complex c;
-                bufptr = vartype2string(reg_x, buf, 22);
+                bufptr = vartype2string(rx, buf, 22);
                 draw_string(0, 0, buf, bufptr);
                 draw_string(0, 1, "1:1=", 4);
                 c.type = TYPE_COMPLEX;
