@@ -766,6 +766,31 @@ bool state_is_portable;
 typedef struct {
     int4 prgm;
     int4 pc;
+    int4 get_prgm() {
+        int4 p = prgm & 0x3fffffff;
+        if ((p & 0x20000000) != 0)
+            p |= 0xc0000000;
+        return p;
+    }
+    void set_prgm(int4 prgm) {
+        this->prgm = prgm & 0x3fffffff;
+    }
+    bool has_matrix() {
+        return (prgm & 0x80000000) != 0;
+    }
+    void set_has_matrix(bool state) {
+        prgm &= 0x7fffffff;
+        if (state)
+            prgm |= 0x80000000;
+    }
+    bool has_func() {
+        return (prgm & 0x40000000) != 0;
+    }
+    void set_has_func(bool state) {
+        prgm &= 0xbfffffff;
+        if (state)
+            prgm |= 0x40000000;
+    }
 } rtn_stack_entry;
 
 typedef struct {
@@ -1571,17 +1596,13 @@ static bool persist_globals() {
         if (matrix_entry_follows) {
             i++;
         } else {
-            int4 p = rtn_stack[i].prgm;
-            matrix_entry_follows = p < 0;
-            p = p & 0x3fffffff;
-            if ((p & 0x20000000) != 0)
-                p |= 0xc0000000;
-            current_prgm = p;
-            int4 l = rtn_stack[i].pc;
+            matrix_entry_follows = rtn_stack[i].has_matrix();
+            current_prgm = rtn_stack[i].get_prgm();
+            int4 line = rtn_stack[i].pc;
             if (current_prgm >= 0)
-                l = pc2line(l);
+                line = pc2line(line);
             if (!write_int4(rtn_stack[i].prgm)
-                    || !write_int4(l))
+                    || !write_int4(line))
                 goto done;
         }
         if (matrix_entry_follows) {
@@ -1926,18 +1947,15 @@ static bool unpersist_globals(int4 ver) {
                 if (matrix_entry_follows) {
                     i++;
                 } else {
-                    int4 tprgm, p, l;
-                    if (!read_int4(&tprgm) || !read_int4(&l))
+                    int4 prgm, line;
+                    if (!read_int4(&prgm) || !read_int4(&line))
                         goto done;
-                    matrix_entry_follows = tprgm < 0;
-                    p = tprgm & 0x3fffffff;
-                    if ((p & 0x20000000) != 0)
-                        p |= 0xc0000000;
-                    current_prgm = p;
-                    if (p >= 0)
-                        l = line2pc(l);
-                    rtn_stack[i].prgm = tprgm;
-                    rtn_stack[i].pc = l;
+                    rtn_stack[i].prgm = prgm;
+                    matrix_entry_follows = rtn_stack[i].has_matrix();
+                    current_prgm = rtn_stack[i].get_prgm();
+                    if (current_prgm >= 0)
+                        line = line2pc(line);
+                    rtn_stack[i].pc = line;
                 }
                 if (matrix_entry_follows) {
                     rtn_stack_matrix_name_entry *e1 = (rtn_stack_matrix_name_entry *) &rtn_stack[--i];
@@ -1971,7 +1989,7 @@ static bool unpersist_globals(int4 ver) {
             int prgm;
             if (fread(&prgm, 1, sizeof(int), gfile) != sizeof(int))
                 goto done;
-            rtn_stack[i].prgm = prgm & 0x3fffffff;
+            rtn_stack[i].set_prgm(prgm);
             if (i < rtn_sp)
                 if (prgm == -2)
                     rtn_solve_active = true;
@@ -2865,7 +2883,7 @@ int push_rtn_addr(int prgm, int4 pc) {
         rtn_stack_capacity = new_rtn_stack_capacity;
         rtn_stack = new_rtn_stack;
     }
-    rtn_stack[rtn_sp].prgm = prgm & 0x3fffffff;
+    rtn_stack[rtn_sp].set_prgm(prgm);
     rtn_stack[rtn_sp].pc = pc;
     rtn_sp++;
     rtn_level++;
@@ -2907,7 +2925,7 @@ int push_indexed_matrix(const char *name, int len) {
         e2.j = matedit_j;
         memcpy(&rtn_stack[rtn_sp - 2], &e2, sizeof(e2));
     } else {
-        if ((rtn_stack[rtn_sp - 1].prgm & 0x80000000) != 0)
+        if (rtn_stack[rtn_sp - 1].has_matrix())
             return ERR_NONE;
         if (rtn_sp + 2 > rtn_stack_capacity) {
             int new_rtn_stack_capacity = rtn_stack_capacity + 16;
@@ -2919,7 +2937,7 @@ int push_indexed_matrix(const char *name, int len) {
         }
         rtn_sp += 2;
         rtn_stack[rtn_sp - 1] = rtn_stack[rtn_sp - 3];
-        rtn_stack[rtn_sp - 1].prgm |= 0x80000000;
+        rtn_stack[rtn_sp - 1].set_has_matrix(true);
         rtn_stack_matrix_name_entry e1;
         int dlen;
         string_copy(e1.name, &dlen, name, len);
@@ -2977,7 +2995,7 @@ int push_func_state(int n) {
     if (rtn_level == 0)
         rtn_level_0_has_func_state = true;
     else
-        rtn_stack[rtn_sp - 1].prgm |= 0x40000000;
+        rtn_stack[rtn_sp - 1].set_has_func(true);
     return ERR_NONE;
 }
 
@@ -2987,9 +3005,9 @@ int pop_func_state(bool error) {
             return ERR_NONE;
         rtn_level_0_has_func_state = false;
     } else {
-        if ((rtn_stack[rtn_sp - 1].prgm & 0x40000000) == 0)
+        if (!rtn_stack[rtn_sp - 1].has_func())
             return ERR_NONE;
-        rtn_stack[rtn_sp - 1].prgm &= 0xbfffffff;
+        rtn_stack[rtn_sp - 1].set_has_func(false);
     }
 
     vartype_list *list = (vartype_list *) recall_private_var("FD", 2);
@@ -3201,11 +3219,7 @@ void pop_rtn_addr(int *prgm, int4 *pc, bool *stop) {
     } else {
         rtn_sp--;
         rtn_level--;
-        int4 tprgm = rtn_stack[rtn_sp].prgm;
-        *prgm = tprgm & 0x3fffffff;
-        // Fix sign, or -2 and -3 won't work!
-        if ((tprgm & 0x20000000) != 0)
-            *prgm |= 0xc0000000;
+        *prgm = rtn_stack[rtn_sp].get_prgm();
         *pc = rtn_stack[rtn_sp].pc;
         if (rtn_stop_level >= rtn_level) {
             *stop = true;
@@ -3216,7 +3230,7 @@ void pop_rtn_addr(int *prgm, int4 *pc, bool *stop) {
             rtn_solve_active = false;
         else if (*prgm == -3)
             rtn_integ_active = false;
-        if ((tprgm & 0x80000000) != 0)
+        if (rtn_stack[rtn_sp].has_matrix())
             goto restore_indexed_matrix;
     }
 }
@@ -3238,8 +3252,7 @@ void pop_indexed_matrix(const char *name, int namelen) {
             }
         }
     } else {
-        int4 tprgm = rtn_stack[rtn_sp - 1].prgm;
-        if ((tprgm & 0x80000000) != 0) {
+        if (rtn_stack[rtn_sp - 1].has_matrix()) {
             rtn_stack_matrix_name_entry e1;
             memcpy(&e1, &rtn_stack[rtn_sp - 2], sizeof(e1));
             if (string_equals(e1.name, e1.length, name, namelen)) {
@@ -3249,7 +3262,7 @@ void pop_indexed_matrix(const char *name, int namelen) {
                 matedit_i = e2.i;
                 matedit_j = e2.j;
                 matedit_mode = 1;
-                rtn_stack[rtn_sp - 3].prgm = tprgm & 0x7fffffff;
+                rtn_stack[rtn_sp - 3].set_has_matrix(false);
                 rtn_stack[rtn_sp - 3].pc = rtn_stack[rtn_sp - 1].pc;
                 rtn_sp -= 2;
             }
@@ -4253,11 +4266,10 @@ static bool convert_programs(bool *clear_stack) {
     } else {
         for (i = 0; i < rtn_level; i++) {
             rsp--;
-            int4 prgm = rtn_stack[rsp].prgm;
-            mod_prgm[mod_count] = prgm & 0x3fffffff;
+            mod_prgm[mod_count] = rtn_stack[rsp].get_prgm();
             mod_pc[mod_count] = rtn_stack[rsp].pc;
             mod_sp[mod_count] = rsp;
-            if ((prgm & 0x80000000) != 0)
+            if (rtn_stack[rsp].has_matrix())
                 rsp -= 2;
             mod_count++;
         }
@@ -4276,6 +4288,9 @@ static bool convert_programs(bool *clear_stack) {
     }
     mod_count--;
 
+    // I know, I know, bubble sort, right?
+    // Bear in mind that this only applies to old state files,
+    // where the stack has only 8 levels max.
     for (i = 0; i < mod_count; i++)
         for (int j = i + 1; j <= mod_count; j++)
             if (mod_prgm[i] < mod_prgm[j]
