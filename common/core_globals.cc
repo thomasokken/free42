@@ -21,6 +21,7 @@
 #include "core_globals.h"
 #include "core_commands2.h"
 #include "core_commands4.h"
+#include "core_commands7.h"
 #include "core_display.h"
 #include "core_helpers.h"
 #include "core_main.h"
@@ -2958,6 +2959,9 @@ int push_func_state(int n) {
     vartype *list = recall_private_var("FD", 2);
     if (list != NULL)
         return ERR_INVALID_CONTEXT;
+    list = recall_private_var("ST", 2);
+    if (list != NULL)
+        return ERR_INVALID_CONTEXT;
     if (!ensure_var_space(1))
         return ERR_INSUFFICIENT_MEMORY;
     int inputs = flags.f.big_stack ? n / 10 : 4;
@@ -2999,6 +3003,40 @@ int push_func_state(int n) {
     return ERR_NONE;
 }
 
+int push_stack_state() {
+    vartype *list = recall_private_var("ST", 2);
+    if (list != NULL)
+        return ERR_INVALID_CONTEXT;
+
+    if (!ensure_var_space(1))
+        return ERR_INSUFFICIENT_MEMORY;
+    int save_levels = sp - 3;
+    if (save_levels < 0)
+        save_levels = 0;
+    list = new_list(save_levels + 1);
+    if (list == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+
+    vartype **data = ((vartype_list *) list)->array->data;
+    data[0] = new_string(flags.f.big_stack ? "1" : "0", 1);
+    if (data[0] == NULL) {
+        free_vartype(list);
+        return ERR_INSUFFICIENT_MEMORY;
+    }
+    if (flags.f.big_stack) {
+        memcpy(data + 1, stack, save_levels * sizeof(vartype *));
+        memmove(stack, stack + save_levels, (sp + 1 - save_levels) * sizeof(vartype *));
+        sp -= save_levels;
+    }
+    store_private_var("ST", 2, list);
+
+    if (rtn_level == 0)
+        rtn_level_0_has_func_state = true;
+    else
+        rtn_stack[rtn_sp - 1].set_has_func(true);
+    return ERR_NONE;
+}
+
 int pop_func_state(bool error) {
     if (rtn_level == 0) {
         if (!rtn_level_0_has_func_state)
@@ -3010,28 +3048,49 @@ int pop_func_state(bool error) {
         rtn_stack[rtn_sp - 1].set_has_func(false);
     }
 
+    vartype_list *st = (vartype_list *) recall_private_var("ST", 2);
+    if (st != NULL) {
+        vartype **data = st->array->data;
+        char big = ((vartype_string *) data[0])->text[0] == '1';
+        if (big == flags.f.big_stack)
+            return ERR_INVALID_CONTEXT;
+        if (big) {
+            flags.f.big_stack = 1;
+            int4 size = st->size - 1;
+            if (!ensure_stack_capacity(size))
+                return ERR_INSUFFICIENT_MEMORY;
+            memmove(stack + size, stack, 4 * sizeof(vartype *));
+            memcpy(stack, data + 1, size * sizeof(vartype *));
+            memset(data + 1, 0, size * sizeof(vartype *));
+            sp += size;
+        } else {
+            int err = docmd_4stk(NULL);
+            if (err != ERR_NONE)
+                return err;
+        }
+    }
+
     vartype_list *list = (vartype_list *) recall_private_var("FD", 2);
     if (list == NULL)
-        // Pre-bigstack. Rather a hassle to deal with, so punt.
-        // Note that this can only happen if a user upgrades from
-        // 2.5.23 or 2.5.24 to >2.5.24 while execution is stopped
-        // with old FUNC data on the stack. That seems like a
-        // reasonable scenario to ignore.
-        return ERR_INVALID_DATA;
+        if (st == NULL)
+            // Pre-bigstack. Rather a hassle to deal with, so punt.
+            // Note that this can only happen if a user upgrades from
+            // 2.5.23 or 2.5.24 to >2.5.24 while execution is stopped
+            // with old FUNC data on the stack. That seems like a
+            // reasonable scenario to ignore.
+            return ERR_INVALID_DATA;
+        else
+            return ERR_NONE;
 
     vartype **data = list->array->data;
     int n = to_int(((vartype_real *) data[0])->x);
     int old_depth = to_int(((vartype_real *) data[1])->x);
     char big = old_depth >= 0;
     if (big != flags.f.big_stack)
-        // We don't allow bigstack mode to change between a FUNC
-        // call and its resolution. We should allow this, though,
-        // in the specific case of L4STK or LNSTK, in which case
-        // the FUNC resoltion and the stack restoration happen at
-        // the same time. But that logic is not yet implemented;
-        // that case will have to be tackled when I implement
-        // L4STK and LNSTK.
-        return ERR_INVALID_DATA;
+        // Note that this must be the result of NSTK or 4STK;
+        // the effects of LNSTK or L4STK would already have been
+        // undone by the time we get here.
+        return ERR_INVALID_CONTEXT;
 
     n %= 100;
     if (error)

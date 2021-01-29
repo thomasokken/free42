@@ -1029,7 +1029,15 @@ int docmd_4stk(arg_struct *arg) {
 }
 
 int docmd_l4stk(arg_struct *arg) {
-    return ERR_NOT_YET_IMPLEMENTED;
+    if (!program_running())
+        return ERR_RESTRICTED_OPERATION;
+    if (!flags.f.big_stack)
+        return ERR_NONE;
+    int err = push_stack_state();
+    if (err != ERR_NONE)
+        return err;
+    flags.f.big_stack = 0;
+    return ERR_NONE;
 }
 
 int docmd_nstk(arg_struct *arg) {
@@ -1038,7 +1046,15 @@ int docmd_nstk(arg_struct *arg) {
 }
 
 int docmd_lnstk(arg_struct *arg) {
-    return ERR_NOT_YET_IMPLEMENTED;
+    if (!program_running())
+        return ERR_RESTRICTED_OPERATION;
+    if (flags.f.big_stack)
+        return ERR_NONE;
+    int err = push_stack_state();
+    if (err != ERR_NONE)
+        return err;
+    flags.f.big_stack = 1;
+    return ERR_NONE;
 }
 
 int docmd_depth(arg_struct *arg) {
