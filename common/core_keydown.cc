@@ -1989,7 +1989,7 @@ void keydown_normal_mode(int shift, int key) {
                     free_vartype(stack[REG_T]);
                     memmove(stack, stack + 1, 3 * sizeof(vartype *));
                 }
-                stack[sp] = dup_vartype(stack[sp - 1]);
+                stack[sp] = new_string("dummy", 5);
             } else
                 flags.f.stack_lift_disable = 0;
             flags.f.numeric_data_input = 1;
