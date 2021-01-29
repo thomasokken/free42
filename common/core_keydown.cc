@@ -298,8 +298,10 @@ void keydown(int shift, int key) {
         } else if ((flags.f.trace_print || flags.f.normal_print)
                 && flags.f.printer_exists)
             deferred_print = 1;
-        if (flags.f.big_stack && !shift && key == KEY_ENTER)
-            key = KEY_EXIT;
+        if (flags.f.big_stack && !shift && key == KEY_ENTER) {
+            redisplay();
+            return;
+        }
     }
 
     if (mode_command_entry
