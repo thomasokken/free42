@@ -4384,7 +4384,7 @@ static bool convert_programs(bool *clear_stack) {
                 else if (s == -2)
                     incomplete_saved_pc = pc;
                 else
-                    rtn_stack[rsp].pc = pc;
+                    rtn_stack[s].pc = pc;
                 mod_count--;
             }
             int4 prevpc = pc;
