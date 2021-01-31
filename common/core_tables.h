@@ -453,8 +453,10 @@
 #define CMD_UNPICK      399
 #define CMD_RDNN        400
 #define CMD_RUPN        401
+/* Get list of LBLs with MVARs */
+#define CMD_MVARCAT     402
 
-#define CMD_SENTINEL    402
+#define CMD_SENTINEL    403
 
 
 /* command_spec.argtype */

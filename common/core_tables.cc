@@ -458,7 +458,10 @@ const command_spec cmd_array[] =
     { /* PICK */       "PICK",                  4, ARG_NUM9,   0, FLAG_NONE,                   0x00f3f2a3, docmd_pick        },
     { /* UNPICK */     "UNPICK",                6, ARG_NUM9,   0, FLAG_NONE,                   0x00f4f2a4, docmd_unpick      },
     { /* RDNN */       "R\016N",                3, ARG_NUM9,   0, FLAG_NONE,                   0x00f6f2a5, docmd_rdnn        },
-    { /* RUPN */       "R^N",                   3, ARG_NUM9,   0, FLAG_NONE,                   0x00f7f2a6, docmd_rupn        }
+    { /* RUPN */       "R^N",                   3, ARG_NUM9,   0, FLAG_NONE,                   0x00f7f2a6, docmd_rupn        },
+
+    /* Get list of LBLs with MVARs */
+    { /* MVARCAT */    "M\326\301\322CAT",      7, ARG_NONE,   0, FLAG_NONE,                   0x0000a7e8, docmd_mvarcat     }
 };
 
 /*
