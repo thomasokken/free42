@@ -677,11 +677,13 @@ int docmd_clv(arg_struct *arg) {
 int docmd_clst(arg_struct *arg) {
     for (int i = 0; i <= sp; i++)
         free_vartype(stack[i]);
-    if (flags.f.big_stack)
+    if (flags.f.big_stack) {
         sp = -1;
-    else
+        shrink_stack();
+    } else {
         for (int i = 0; i < 4; i++)
             stack[i] = new_real(0);
+    }
     return ERR_NONE;
 }
 

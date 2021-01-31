@@ -1025,6 +1025,7 @@ int docmd_4stk(arg_struct *arg) {
     }
     sp = 3;
     flags.f.big_stack = 0;
+    shrink_stack();
     return ERR_NONE;
 }
 

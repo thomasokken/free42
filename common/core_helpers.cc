@@ -249,6 +249,17 @@ bool ensure_stack_capacity(int n) {
     return true;
 }
 
+void shrink_stack() {
+    int new_capacity = sp + 1;
+    if (new_capacity < 4)
+        new_capacity = 4;
+    vartype **new_stack = (vartype **) realloc(stack, new_capacity * sizeof(vartype *));
+    if (new_stack != NULL) {
+        stack = new_stack;
+        stack_capacity = new_capacity;
+    }
+}
+
 phloat rad_to_angle(phloat x) {
     if (flags.f.rad)
         return x;
