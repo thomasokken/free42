@@ -51,6 +51,7 @@ int docmd_enter(arg_struct *arg) {
         return ERR_INSUFFICIENT_MEMORY;
     }
     mode_disable_stack_lift = true;
+    print_stack_trace();
     return ERR_NONE;
 }
 
