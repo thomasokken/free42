@@ -2404,6 +2404,8 @@ static bool parse_phloat(const char *p, int len, phloat *res) {
         if (c == '+' || c == ' ' || c == separator) {
             continue;
         } else if (c == 'e' || c == 'E' || c == 24) {
+            if (!empty_mant && mant_digits == 0)
+                buf[i++] = '0';
             in_mant = false;
         } else if (c == decimal) {
             in_int_mant = false;
@@ -2444,6 +2446,8 @@ static bool parse_phloat(const char *p, int len, phloat *res) {
     }
     if (in_mant && empty_mant)
         return false;
+    if (in_mant && mant_digits == 0)
+        buf[i++] = '0';
     if (neg_exp)
         exp = -exp;
     exp += exp_offset;
