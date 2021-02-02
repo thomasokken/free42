@@ -1,3 +1,7 @@
+2021-02-02: release 2.5.25
+
+* Fixed pasting of zero. This was broken in 2.5.21.
+
 2021-01-17: release 2.5.24a (Android only)
 
 * Fixed screen rotation issue with Android 11.
