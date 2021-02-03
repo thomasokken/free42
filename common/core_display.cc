@@ -2054,6 +2054,27 @@ void redisplay() {
                         case CMD_BWRAP:
                             is_flag = flags.f.base_wrap;
                             break;
+                        case CMD_MDY:
+                            is_flag = !flags.f.ymd && !flags.f.dmy;
+                            break;
+                        case CMD_DMY:
+                            is_flag = !flags.f.ymd && flags.f.dmy;
+                            break;
+                        case CMD_YMD:
+                            is_flag = flags.f.ymd;
+                            break;
+                        case CMD_CLK12:
+                            is_flag = !mode_time_clk24;
+                            break;
+                        case CMD_CLK24:
+                            is_flag = mode_time_clk24;
+                            break;
+                        case CMD_4STK:
+                            is_flag = !flags.f.big_stack;
+                            break;
+                        case CMD_NSTK:
+                            is_flag = flags.f.big_stack;
+                            break;
                         case CMD_PON:
                             is_flag = flags.f.printer_exists;
                             break;
