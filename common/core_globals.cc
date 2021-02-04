@@ -794,17 +794,19 @@ typedef struct {
         return (prgm & 0x80000000) != 0;
     }
     void set_has_matrix(bool state) {
-        prgm &= 0x7fffffff;
         if (state)
             prgm |= 0x80000000;
+        else
+            prgm &= 0x7fffffff;
     }
     bool has_func() {
         return (prgm & 0x40000000) != 0;
     }
     void set_has_func(bool state) {
-        prgm &= 0xbfffffff;
         if (state)
             prgm |= 0x40000000;
+        else
+            prgm &= 0xbfffffff;
     }
 } rtn_stack_entry;
 
@@ -3037,7 +3039,11 @@ int push_stack_state(bool big) {
             int in = n / 10;
             n_dups = 4 - in;
             for (int i = 0; i < n_dups; i++) {
-                dups[i] = dup_vartype(stack[sp + 1 - n_dups + i]);
+                int p = sp - 3 + i;
+                if (p < 0)
+                    dups[i] = new_real(0);
+                else
+                    dups[i] = dup_vartype(stack[p]);
                 if (dups[i] == NULL) {
                     n_dups = i;
                     goto nomem;
@@ -3066,13 +3072,11 @@ int push_stack_state(bool big) {
         free_vartype(st);
         goto nomem;
     }
-    if (save_levels > 0) {
-        memcpy(st_data + 1, stack, save_levels * sizeof(vartype *));
-        save_levels -= n_dups;
-        memmove(stack + n_dups, stack + save_levels, (sp + 1 - save_levels) * sizeof(vartype *));
-        memcpy(stack, dups, n_dups * sizeof(vartype *));
-        sp -= save_levels;
-    }
+    memcpy(st_data + 1, stack, save_levels * sizeof(vartype *));
+    memmove(stack + n_dups, stack + sp - 3 + n_dups, (sp + 1 - save_levels) * sizeof(vartype *));
+    memcpy(stack, dups, n_dups * sizeof(vartype *));
+    sp -= save_levels - n_dups;
+
     store_private_var("ST", 2, st);
     flags.f.big_stack = big;
 
