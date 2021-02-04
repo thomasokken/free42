@@ -1025,20 +1025,15 @@ int docmd_4stk(arg_struct *arg) {
     }
     sp = 3;
     flags.f.big_stack = 0;
-    shrink_stack();
+    if (arg != NULL)
+        shrink_stack();
     return ERR_NONE;
 }
 
 int docmd_l4stk(arg_struct *arg) {
     if (!program_running())
         return ERR_RESTRICTED_OPERATION;
-    if (!flags.f.big_stack)
-        return ERR_NONE;
-    int err = push_stack_state();
-    if (err != ERR_NONE)
-        return err;
-    flags.f.big_stack = 0;
-    return ERR_NONE;
+    return push_stack_state(false);
 }
 
 int docmd_nstk(arg_struct *arg) {
@@ -1049,13 +1044,7 @@ int docmd_nstk(arg_struct *arg) {
 int docmd_lnstk(arg_struct *arg) {
     if (!program_running())
         return ERR_RESTRICTED_OPERATION;
-    if (flags.f.big_stack)
-        return ERR_NONE;
-    int err = push_stack_state();
-    if (err != ERR_NONE)
-        return err;
-    flags.f.big_stack = 1;
-    return ERR_NONE;
+    return push_stack_state(true);
 }
 
 int docmd_depth(arg_struct *arg) {
