@@ -3289,6 +3289,8 @@ static void paste_programs(const char *buf) {
                             if (tok_end - tok_start == 1 && isdigit(hpbuf[tok_start])) {
                                 arg.type = ARGTYPE_NUM;
                                 arg.val.num = hpbuf[tok_start] - '0';
+                                if (cmd == CMD_RTNERR && arg.val.num > 7)
+                                    goto line_done;
                                 goto store;
                             }
                             goto line_done;
