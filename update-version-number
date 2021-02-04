@@ -85,16 +85,15 @@ def patch_plist(plist_name):
     state = 0
     success = 0
     version = str(version_comps[0])
+    version += "." + str(version_comps[1])
     short_version = str(version_comps[0])
-    if version_comps[1] != 0 or version_comps[3] != 0:
-        version += "." + str(version_comps[1])
-        short_version += str(version_comps[1])
-        if version_comps[2] != 0 or version_comps[3] != 0:
-            version += "." + str(version_comps[2])
-            short_version += "." + str(version_comps[2])
-            if version_comps[3] != 0:
-                version += "." + str(version_comps[3])
-                short_version += "." + str(version_comps[3])
+    short_version += str(version_comps[1])
+    if version_comps[2] != 0 or version_comps[3] != 0:
+        version += "." + str(version_comps[2])
+        short_version += "." + str(version_comps[2])
+        if version_comps[3] != 0:
+            version += "." + str(version_comps[3])
+            short_version += "." + str(version_comps[3])
     for line in in_file:
         if state == 0:
             if "<key>CFBundleVersion</key>" in line:
