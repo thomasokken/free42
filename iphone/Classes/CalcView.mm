@@ -720,6 +720,8 @@ static int read_shell_state(int *ver) {
         core_settings.matrix_outofrange = state.matrix_outofrange;
         core_settings.auto_repeat = state.auto_repeat;
     }
+    if (state_version >= 9)
+        core_settings.allow_big_stack = state.allow_big_stack;
     
     init_shell_state(state_version);
     *ver = version;
@@ -766,7 +768,10 @@ static void init_shell_state(int version) {
             core_settings.auto_repeat = true;
             /* fall through */
         case 8:
-            /* current version (SHELL_VERSION = 8),
+            core_settings.allow_big_stack = false;
+            /* fall through */
+        case 9:
+            /* current version (SHELL_VERSION = 9),
              * so nothing to do here since everything
              * was initialized from the state file.
              */
@@ -920,6 +925,7 @@ static int write_shell_state() {
     state.matrix_singularmatrix = core_settings.matrix_singularmatrix;
     state.matrix_outofrange = core_settings.matrix_outofrange;
     state.auto_repeat = core_settings.auto_repeat;
+    state.allow_big_stack = core_settings.allow_big_stack;
     if (fwrite(&state, 1, sizeof(state), statefile) != sizeof(state))
         return 0;
     

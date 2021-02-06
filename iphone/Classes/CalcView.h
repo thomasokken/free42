@@ -17,7 +17,7 @@
 
 #import <UIKit/UIKit.h>
 
-#define SHELL_VERSION 8
+#define SHELL_VERSION 9
 #define FILENAMELEN 1024
 
 struct state_type {
@@ -38,6 +38,7 @@ struct state_type {
     bool matrix_singularmatrix;
     bool matrix_outofrange;
     bool auto_repeat;
+    bool allow_big_stack;
 };
 
 extern state_type state;

@@ -30,6 +30,7 @@
 @synthesize singularMatrixSwitch;
 @synthesize matrixOutOfRangeSwitch;
 @synthesize autoRepeatSwitch;
+@synthesize allowBigStackSwitch;
 @synthesize alwaysOnSwitch;
 @synthesize keyClicksSlider;
 @synthesize hapticFeedbackSlider;
@@ -71,6 +72,7 @@
     [singularMatrixSwitch setOn:core_settings.matrix_singularmatrix];
     [matrixOutOfRangeSwitch setOn:core_settings.matrix_outofrange];
     [autoRepeatSwitch setOn:core_settings.auto_repeat];
+    [allowBigStackSwitch setOn:core_settings.allow_big_stack];
     [alwaysOnSwitch setOn:shell_always_on(-1)];
     [keyClicksSlider setValue:state.keyClicks];
     [hapticFeedbackSlider setValue:state.hapticFeedback];
@@ -196,6 +198,10 @@
     core_settings.matrix_singularmatrix = singularMatrixSwitch.on;
     core_settings.matrix_outofrange = matrixOutOfRangeSwitch.on;
     core_settings.auto_repeat = autoRepeatSwitch.on;
+    bool oldBigStack = core_settings.allow_big_stack;
+    core_settings.allow_big_stack = allowBigStackSwitch.on;
+    if (oldBigStack != core_settings.allow_big_stack)
+        core_update_allow_big_stack();
     shell_always_on(alwaysOnSwitch.on);
     state.orientationMode = (int) orientationSelector.selectedSegmentIndex;
     int isPortrait = [CalcView isPortrait] ? 0 : 1;
