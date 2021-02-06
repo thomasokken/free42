@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="17506" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="17701" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="17506"/>
-        <plugIn identifier="com.apple.WebKitIBPlugin" version="17506"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="17701"/>
+        <plugIn identifier="com.apple.WebKitIBPlugin" version="17701"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -195,14 +195,14 @@
         <window title="Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="458">
             <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="90" y="729" width="490" height="196"/>
+            <rect key="contentRect" x="90" y="729" width="490" height="216"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1366" height="743"/>
             <view key="contentView" id="459">
-                <rect key="frame" x="0.0" y="0.0" width="490" height="196"/>
+                <rect key="frame" x="0.0" y="0.0" width="490" height="216"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <button fixedFrame="YES" imageHugsTitle="YES" translatesAutoresizingMaskIntoConstraints="NO" id="471">
-                        <rect key="frame" x="18" y="160" width="454" height="18"/>
+                        <rect key="frame" x="18" y="180" width="454" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="check" title="Inverting or solving a singular matrix yields &quot;Singular Matrix&quot; error" bezelStyle="regularSquare" imagePosition="left" alignment="left" state="on" inset="2" id="472">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -210,7 +210,7 @@
                         </buttonCell>
                     </button>
                     <button fixedFrame="YES" imageHugsTitle="YES" translatesAutoresizingMaskIntoConstraints="NO" id="470">
-                        <rect key="frame" x="18" y="140" width="454" height="18"/>
+                        <rect key="frame" x="18" y="160" width="454" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="check" title="Overflows during matrix operations yield &quot;Out of Range&quot; error" bezelStyle="regularSquare" imagePosition="left" alignment="left" state="on" inset="2" id="473">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -218,7 +218,7 @@
                         </buttonCell>
                     </button>
                     <button fixedFrame="YES" imageHugsTitle="YES" translatesAutoresizingMaskIntoConstraints="NO" id="469">
-                        <rect key="frame" x="18" y="120" width="454" height="18"/>
+                        <rect key="frame" x="18" y="140" width="454" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="check" title="Auto-Repeat for number entry and ALPHA mode" bezelStyle="regularSquare" imagePosition="left" alignment="left" state="on" inset="2" id="474">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -299,6 +299,14 @@
                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
+                    <button fixedFrame="YES" imageHugsTitle="YES" translatesAutoresizingMaskIntoConstraints="NO" id="pVm-Ua-Sz7">
+                        <rect key="frame" x="18" y="120" width="454" height="18"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="check" title="Allow Big Stack (NSTK) mode" bezelStyle="regularSquare" imagePosition="left" alignment="left" state="on" inset="2" id="OY9-8c-MWZ">
+                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                    </button>
                 </subviews>
             </view>
             <connections>
@@ -417,6 +425,7 @@
                 <outlet property="loadSkinsWindow" destination="O16-Bu-L5F" id="3Sk-HX-xDV"/>
                 <outlet property="mainWindow" destination="371" id="526"/>
                 <outlet property="preferencesWindow" destination="458" id="527"/>
+                <outlet property="prefsAllowBigStack" destination="pVm-Ua-Sz7" id="Gwa-oc-9Zp"/>
                 <outlet property="prefsAutoRepeat" destination="469" id="600"/>
                 <outlet property="prefsMatrixOutOfRange" destination="470" id="610"/>
                 <outlet property="prefsPrintGIF" destination="464" id="605"/>

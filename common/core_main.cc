@@ -24,6 +24,7 @@
 #include "core_main.h"
 #include "core_commands2.h"
 #include "core_commands4.h"
+#include "core_commands7.h"
 #include "core_display.h"
 #include "core_display.h"
 #include "core_helpers.h"
@@ -634,6 +635,12 @@ int core_powercycle() {
             need_redisplay = true;
         mode_getkey = false;
     }
+    
+    if (flags.f.big_stack && !core_settings.allow_big_stack) {
+        arg_struct dummy_arg;
+        docmd_4stk(&dummy_arg);
+        need_redisplay = true;
+    }
 
     if (flags.f.auto_exec) {
         if (mode_command_entry)
@@ -674,6 +681,14 @@ int core_powercycle() {
 #endif
 
     return mode_running;
+}
+
+void core_update_allow_big_stack() {
+    if (flags.f.big_stack && !core_settings.allow_big_stack) {
+        arg_struct dummy_arg;
+        docmd_4stk(&dummy_arg);
+    }
+    redisplay();
 }
 
 char *core_list_programs() {

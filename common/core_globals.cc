@@ -78,6 +78,7 @@ const error_spec errors[] = {
     { /* RTN_STACK_FULL */         "RTN Stack Full",          14 },
     { /* NUMBER_TOO_LARGE */       "Number Too Large",        16 },
     { /* NUMBER_TOO_SMALL */       "Number Too Small",        16 },
+    { /* BIG_STACK_DISABLED */     "Big Stack Disabled",      18 },
     { /* INVALID_CONTEXT */        "Invalid Context",         15 }
 };
 

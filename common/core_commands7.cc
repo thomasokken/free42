@@ -1003,7 +1003,7 @@ int docmd_strace(arg_struct *arg) {
 
 int docmd_4stk(arg_struct *arg) {
     if (!flags.f.big_stack)
-        return ERR_NONE;
+        return core_settings.allow_big_stack ? ERR_NONE : ERR_BIG_STACK_DISABLED;
     // Should be safe to assume the stack always has capacity >= 4
     if (sp < 3) {
         int off = 3 - sp;
@@ -1031,23 +1031,31 @@ int docmd_4stk(arg_struct *arg) {
 }
 
 int docmd_l4stk(arg_struct *arg) {
+    if (!core_settings.allow_big_stack)
+        return ERR_BIG_STACK_DISABLED;
     if (!program_running())
         return ERR_RESTRICTED_OPERATION;
     return push_stack_state(false);
 }
 
 int docmd_nstk(arg_struct *arg) {
+    if (!core_settings.allow_big_stack)
+        return ERR_BIG_STACK_DISABLED;
     flags.f.big_stack = 1;
     return ERR_NONE;
 }
 
 int docmd_lnstk(arg_struct *arg) {
+    if (!core_settings.allow_big_stack)
+        return ERR_BIG_STACK_DISABLED;
     if (!program_running())
         return ERR_RESTRICTED_OPERATION;
     return push_stack_state(true);
 }
 
 int docmd_depth(arg_struct *arg) {
+    if (!core_settings.allow_big_stack)
+        return ERR_BIG_STACK_DISABLED;
     vartype *v = new_real(sp + 1);
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
@@ -1055,6 +1063,8 @@ int docmd_depth(arg_struct *arg) {
 }
 
 int docmd_drop(arg_struct *arg) {
+    if (!core_settings.allow_big_stack)
+        return ERR_BIG_STACK_DISABLED;
     if (sp == -1)
         return ERR_NONE;
     free_vartype(stack[sp]);
@@ -1069,6 +1079,8 @@ int docmd_drop(arg_struct *arg) {
 }
 
 int docmd_dropn(arg_struct *arg) {
+    if (!core_settings.allow_big_stack)
+        return ERR_BIG_STACK_DISABLED;
     int4 n;
     int err = arg_to_num(arg, &n);
     if (err != ERR_NONE)
@@ -1089,6 +1101,8 @@ int docmd_dropn(arg_struct *arg) {
 }
 
 int docmd_dup(arg_struct *arg) {
+    if (!core_settings.allow_big_stack)
+        return ERR_BIG_STACK_DISABLED;
     vartype *v = dup_vartype(stack[sp]);
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
@@ -1103,6 +1117,8 @@ int docmd_dup(arg_struct *arg) {
 }
 
 int docmd_dupn(arg_struct *arg) {
+    if (!core_settings.allow_big_stack)
+        return ERR_BIG_STACK_DISABLED;
     int4 n;
     int err = arg_to_num(arg, &n);
     if (err != ERR_NONE)
@@ -1151,6 +1167,8 @@ int docmd_dupn(arg_struct *arg) {
 }
 
 int docmd_pick(arg_struct *arg) {
+    if (!core_settings.allow_big_stack)
+        return ERR_BIG_STACK_DISABLED;
     int4 n;
     int err = arg_to_num(arg, &n);
     if (err != ERR_NONE)
@@ -1167,6 +1185,8 @@ int docmd_pick(arg_struct *arg) {
 }
 
 int docmd_unpick(arg_struct *arg) {
+    if (!core_settings.allow_big_stack)
+        return ERR_BIG_STACK_DISABLED;
     int4 n;
     int err = arg_to_num(arg, &n);
     if (err != ERR_NONE)
@@ -1196,6 +1216,8 @@ int docmd_unpick(arg_struct *arg) {
 }
 
 int docmd_rdnn(arg_struct *arg) {
+    if (!core_settings.allow_big_stack)
+        return ERR_BIG_STACK_DISABLED;
     int4 n;
     int err = arg_to_num(arg, &n);
     if (err != ERR_NONE)
@@ -1214,6 +1236,8 @@ int docmd_rdnn(arg_struct *arg) {
 }
 
 int docmd_rupn(arg_struct *arg) {
+    if (!core_settings.allow_big_stack)
+        return ERR_BIG_STACK_DISABLED;
     int4 n;
     int err = arg_to_num(arg, &n);
     if (err != ERR_NONE)

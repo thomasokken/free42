@@ -1215,7 +1215,7 @@ int docmd_stoflag(arg_struct *arg) {
         char hf = virtual_flags[j] == '1' ? 0 : (hfs & p) != 0;
         if (i >= b && i <= e)
             flags.farray[i] = lf;
-        if (j >= b && j <= e)
+        if (j >= b && j <= e && j != 80)
             flags.farray[j] = hf;
         p <<= 1;
     }

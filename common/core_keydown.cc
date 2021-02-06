@@ -912,11 +912,19 @@ void keydown_command_entry(int shift, int key) {
                         move_cat_row(0);
                         break;
                     case 4:
-                        set_cat_section(CATSECT_EXT_STK);
+                        if (core_settings.allow_big_stack)
+                            set_cat_section(CATSECT_EXT_STK);
+                        else
+                            set_cat_section(CATSECT_EXT_MISC);
                         move_cat_row(0);
                         break;
                     case 5:
-                        set_cat_section(CATSECT_EXT_MISC);
+                        if (core_settings.allow_big_stack) {
+                            set_cat_section(CATSECT_EXT_MISC);
+                        } else {
+                            squeak();
+                            return;
+                        }
                         move_cat_row(0);
                         break;
                 }
@@ -2299,11 +2307,19 @@ void keydown_normal_mode(int shift, int key) {
                             move_cat_row(0);
                             break;
                         case 4:
-                            set_cat_section(CATSECT_EXT_STK);
+                            if (core_settings.allow_big_stack)
+                                set_cat_section(CATSECT_EXT_STK);
+                            else
+                                set_cat_section(CATSECT_EXT_MISC);
                             move_cat_row(0);
                             break;
                         case 5:
-                            set_cat_section(CATSECT_EXT_MISC);
+                            if (core_settings.allow_big_stack) {
+                                set_cat_section(CATSECT_EXT_MISC);
+                            } else {
+                                squeak();
+                                return;
+                            }
                             move_cat_row(0);
                             break;
                     }

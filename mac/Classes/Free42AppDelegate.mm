@@ -118,6 +118,7 @@ static bool is_file(const char *name);
 @synthesize prefsSingularMatrix;
 @synthesize prefsMatrixOutOfRange;
 @synthesize prefsAutoRepeat;
+@synthesize prefsAllowBigStack;
 @synthesize prefsPrintText;
 @synthesize prefsPrintTextFile;
 @synthesize prefsPrintTextRaw;
@@ -493,6 +494,7 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
     [prefsSingularMatrix setState:core_settings.matrix_singularmatrix];
     [prefsMatrixOutOfRange setState:core_settings.matrix_outofrange];
     [prefsAutoRepeat setState:core_settings.auto_repeat];
+    [prefsAllowBigStack setState:core_settings.allow_big_stack];
     [prefsPrintText setState:state.printerToTxtFile];
     [prefsPrintTextFile setStringValue:[NSString stringWithUTF8String:state.printerTxtFileName]];
     [prefsPrintGIF setState:state.printerToGifFile];
@@ -505,6 +507,10 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
     core_settings.matrix_singularmatrix = [prefsSingularMatrix state];
     core_settings.matrix_outofrange = [prefsMatrixOutOfRange state];
     core_settings.auto_repeat = [prefsAutoRepeat state];
+    bool oldBigStack = core_settings.allow_big_stack;
+    core_settings.allow_big_stack = [prefsAllowBigStack state];
+    if (oldBigStack != core_settings.allow_big_stack)
+        core_update_allow_big_stack();
     state.printerToTxtFile = [prefsPrintText state];
     char buf[FILENAMELEN];
     [[prefsPrintTextFile stringValue] getCString:buf maxLength:FILENAMELEN encoding:NSUTF8StringEncoding];
@@ -1737,8 +1743,12 @@ static void init_shell_state(int4 version) {
             core_settings.matrix_singularmatrix = false;
             core_settings.matrix_outofrange = false;
             core_settings.auto_repeat = true;
+            /* fall through */
         case 2:
-            /* current version (SHELL_VERSION = 2),
+            core_settings.allow_big_stack = false;
+            /* fall through */
+        case 3:
+            /* current version (SHELL_VERSION = 3),
              * so nothing to do here since everything
              * was initialized from the state file.
              */
@@ -1783,6 +1793,9 @@ static int read_shell_state(int4 *ver) {
         core_settings.matrix_outofrange = state.matrix_outofrange;
         core_settings.auto_repeat = state.auto_repeat;
     }
+
+    if (state_version >= 3)
+        core_settings.allow_big_stack = state.allow_big_stack;
     
     init_shell_state(state_version);
     *ver = version;
@@ -1806,6 +1819,7 @@ static int write_shell_state() {
     state.matrix_singularmatrix = core_settings.matrix_singularmatrix;
     state.matrix_outofrange = core_settings.matrix_outofrange;
     state.auto_repeat = core_settings.auto_repeat;
+    state.allow_big_stack = core_settings.allow_big_stack;
     if (fwrite(&state, 1, sizeof(state_type), statefile) != sizeof(state_type))
         return 0;
     

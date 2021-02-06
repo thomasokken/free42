@@ -1556,12 +1556,18 @@ static void draw_catalog() {
         mode_updown = true;
         shell_annunciators(1, -1, -1, -1, -1, -1);
     } else if (catsect == CATSECT_EXT) {
+        draw_ext:
         draw_key(0, 0, 0, "TIME", 4);
         draw_key(1, 0, 0, "XFCN", 4);
         draw_key(2, 0, 0, "BASE", 4);
         draw_key(3, 0, 0, "PRGM", 4);
-        draw_key(4, 0, 0, "STK", 3);
-        draw_key(5, 0, 0, "MISC", 4);
+        if (core_settings.allow_big_stack) {
+            draw_key(4, 0, 0, "STK", 3);
+            draw_key(5, 0, 0, "MISC", 4);
+        } else {
+            draw_key(4, 0, 0, "MISC", 4);
+            draw_key(5, 0, 0, "", 0);
+        }
         mode_updown = true;
         shell_annunciators(1, -1, -1, -1, -1, -1);
     } else if (catsect == CATSECT_PGM
@@ -1629,7 +1635,14 @@ static void draw_catalog() {
             case CATSECT_EXT_XFCN: subcat = ext_xfcn_cat; subcat_rows = 1; break;
             case CATSECT_EXT_BASE: subcat = ext_base_cat; subcat_rows = 1; break;
             case CATSECT_EXT_PRGM: subcat = ext_prgm_cat; subcat_rows = 2; break;
-            case CATSECT_EXT_STK: subcat = ext_stk_cat; subcat_rows = 3; break;
+            case CATSECT_EXT_STK:
+                if (!core_settings.allow_big_stack) {
+                    set_cat_section(CATSECT_EXT);
+                    goto draw_ext;
+                } else {
+                    subcat = ext_stk_cat; subcat_rows = 3;
+                    break;
+                }
             case CATSECT_EXT_MISC: subcat = ext_misc_cat; subcat_rows = MISC_CAT_ROWS; break;
         }
 
