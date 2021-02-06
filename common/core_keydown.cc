@@ -2504,6 +2504,12 @@ void keydown_normal_mode(int shift, int key) {
                 set_menu(level, menu == MENU_CUSTOM1
                             ? MENU_CUSTOM2 : MENU_CUSTOM1);
                 redisplay();
+            } else if (!core_settings.allow_big_stack
+                    && (menu == MENU_MODES1 && key == KEY_UP
+                        || menu == MENU_MODES4 && key == KEY_DOWN)) {
+                set_menu(level, key == KEY_UP
+                            ? MENU_MODES4 : MENU_MODES1);
+                redisplay();
             } else {
                 const menu_spec *m = menus + menu;
                 int nextmenu = key == KEY_UP ? m->prev : m->next;
