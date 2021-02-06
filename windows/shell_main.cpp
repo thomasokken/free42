@@ -109,7 +109,7 @@ static int keymap_length = 0;
 static keymap_entry *keymap = NULL;
 
 
-#define SHELL_VERSION 10
+#define SHELL_VERSION 11
 
 state_type state;
 static int placement_saved = 0;
@@ -1195,6 +1195,10 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
                 ctl = GetDlgItem(hDlg, IDC_AUTO_REPEAT);
                 SendMessage(ctl, BM_SETCHECK, 1, 0);
             }
+            if (core_settings.allow_big_stack) {
+                ctl = GetDlgItem(hDlg, IDC_ALLOW_BIG_STACK);
+                SendMessage(ctl, BM_SETCHECK, 1, 0);
+            }
             if (state.alwaysOnTop) {
                 ctl = GetDlgItem(hDlg, IDC_ALWAYSONTOP);
                 SendMessage(ctl, BM_SETCHECK, 1, 0);
@@ -1228,6 +1232,11 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
                     core_settings.matrix_outofrange = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
                     ctl = GetDlgItem(hDlg, IDC_AUTO_REPEAT);
                     core_settings.auto_repeat = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
+                    ctl = GetDlgItem(hDlg, IDC_ALLOW_BIG_STACK);
+                    BOOL oldAllowBigStack = core_settings.allow_big_stack;
+                    core_settings.allow_big_stack = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
+                    if (oldAllowBigStack != core_settings.allow_big_stack)
+                        core_update_allow_big_stack();
                     ctl = GetDlgItem(hDlg, IDC_ALWAYSONTOP);
                     BOOL alwaysOnTop = SendMessage(ctl, BM_GETCHECK, 0, 0);
                     if (alwaysOnTop != state.alwaysOnTop) {
@@ -2560,7 +2569,12 @@ static void init_shell_state(int4 version) {
             core_settings.auto_repeat = true;
             // fall through
         case 9:
-            // current version (SHELL_VERSION = 9),
+            // fall through
+        case 10:
+            core_settings.allow_big_stack = false;
+            // fall through
+        case 11:
+            // current version (SHELL_VERSION = 11),
             // so nothing to do here since everything
             // was initialized from the state file.
             ;
@@ -2617,6 +2631,7 @@ static int read_shell_state(int4 *ver) {
             core_settings.matrix_singularmatrix = state.matrix_singularmatrix;
             core_settings.matrix_outofrange = state.matrix_outofrange;
             core_settings.auto_repeat = state.auto_repeat;
+            core_settings.allow_big_stack = state.allow_big_stack;
         } else {
             old_state_type old_state;
             if (fread(&old_state, 1, state_size, statefile) != state_size)
@@ -2673,6 +2688,7 @@ static int write_shell_state() {
     state.matrix_singularmatrix = core_settings.matrix_singularmatrix;
     state.matrix_outofrange = core_settings.matrix_outofrange;
     state.auto_repeat = core_settings.auto_repeat;
+    state.allow_big_stack = core_settings.allow_big_stack;
     if (fwrite(&state, 1, sizeof(state_type), statefile) != sizeof(state_type))
         return 0;
 

@@ -66,6 +66,7 @@ typedef struct state {
     bool matrix_singularmatrix;
     bool matrix_outofrange;
     bool auto_repeat;
+    bool allow_big_stack;
 } state_type;
 
 extern state_type state;
