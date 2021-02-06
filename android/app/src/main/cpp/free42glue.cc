@@ -318,6 +318,8 @@ Java_com_thomasokken_free42_Free42Activity_getCoreSettings(JNIEnv *env, jobject 
     env->SetBooleanField(settings, fid, core_settings.matrix_outofrange);
     fid = env->GetFieldID(klass, "auto_repeat", "Z");
     env->SetBooleanField(settings, fid, core_settings.auto_repeat);
+    fid = env->GetFieldID(klass, "allow_big_stack", "Z");
+    env->SetBooleanField(settings, fid, core_settings.allow_big_stack);
 }
 
 extern "C" void
@@ -330,6 +332,14 @@ Java_com_thomasokken_free42_Free42Activity_putCoreSettings(JNIEnv *env, jobject 
     core_settings.matrix_outofrange = env->GetBooleanField(settings, fid);
     fid = env->GetFieldID(klass, "auto_repeat", "Z");
     core_settings.auto_repeat = env->GetBooleanField(settings, fid);
+    fid = env->GetFieldID(klass, "allow_big_stack", "Z");
+    core_settings.allow_big_stack = env->GetBooleanField(settings, fid);
+}
+
+extern "C" void
+Java_com_thomasokken_free42_Free42Activity_core_1update_1allow_1big_1stack(JNIEnv *env, jobject thiz) {
+    Tracer T("core_update_allow_big_stack");
+    core_update_allow_big_stack();
 }
 
 extern "C" void

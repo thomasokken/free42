@@ -52,10 +52,16 @@
                 android:layout_below="@+id/matrixOutOfRangeCB"
                 android:layout_alignParentLeft="true"/>
 
+            <CheckBox android:id="@+id/allowBigStackCB"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="Allow Big Stack (NSTK) mode"
+                android:layout_below="@+id/autoRepeatCB"
+                android:layout_alignParentLeft="true"/>
+
             <CheckBox android:id="@+id/alwaysOnCB"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:text="Continuous ON"
-                android:layout_below="@+id/autoRepeatCB"
+                android:layout_below="@+id/allowBigStackCB"
                 android:layout_alignParentLeft="true"/>
 
             <LinearLayout android:id="@+id/keyClicksBox"
