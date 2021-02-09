@@ -684,6 +684,10 @@ int core_powercycle() {
 }
 
 void core_update_allow_big_stack() {
+    if (prgms == NULL)
+        // Hack to deal with the Mac version calling this function
+        // after already having called core_quit()
+        return;
     if (flags.f.big_stack && !core_settings.allow_big_stack) {
         arg_struct dummy_arg;
         docmd_4stk(&dummy_arg);
