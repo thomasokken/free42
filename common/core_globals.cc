@@ -3324,6 +3324,8 @@ int pop_func_state(bool error) {
         rtn_level_0_has_func_state = false;
     else
         rtn_stack[rtn_sp - 1].set_has_func(false);
+
+    print_trace();
     return ERR_NONE;
 }
 
