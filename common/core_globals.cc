@@ -4046,15 +4046,16 @@ static bool load_state2(int4 ver, bool *clear, bool *too_new) {
     if (!read_int(&mode_commandmenu)) return false;
     if (ver < 33) {
         int extra = ver < 25 ? 3 : 2;
-        if (mode_appmenu > MENU_MODES2)
+        int highestmode = ver < 25 ? MENU_MODES2 : MENU_MODES3;
+        if (mode_appmenu > highestmode)
             mode_appmenu += extra;
-        if (mode_plainmenu > MENU_MODES2)
+        if (mode_plainmenu > highestmode)
             mode_plainmenu += extra;
-        if (mode_transientmenu > MENU_MODES2)
+        if (mode_transientmenu > highestmode)
             mode_transientmenu += extra;
-        if (mode_alphamenu > MENU_MODES2)
+        if (mode_alphamenu > highestmode)
             mode_alphamenu += extra;
-        if (mode_commandmenu > MENU_MODES2)
+        if (mode_commandmenu > highestmode)
             mode_commandmenu += extra;
     }
     if (!read_bool(&mode_running)) return false;
