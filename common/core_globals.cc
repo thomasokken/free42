@@ -4044,17 +4044,18 @@ static bool load_state2(int4 ver, bool *clear, bool *too_new) {
     if (!read_int(&mode_transientmenu)) return false;
     if (!read_int(&mode_alphamenu)) return false;
     if (!read_int(&mode_commandmenu)) return false;
-    if (ver < 25) {
+    if (ver < 33) {
+        int extra = ver < 25 ? 3 : 2;
         if (mode_appmenu > MENU_MODES2)
-            mode_appmenu++;
+            mode_appmenu += extra;
         if (mode_plainmenu > MENU_MODES2)
-            mode_plainmenu++;
+            mode_plainmenu += extra;
         if (mode_transientmenu > MENU_MODES2)
-            mode_transientmenu++;
+            mode_transientmenu += extra;
         if (mode_alphamenu > MENU_MODES2)
-            mode_alphamenu++;
+            mode_alphamenu += extra;
         if (mode_commandmenu > MENU_MODES2)
-            mode_commandmenu++;
+            mode_commandmenu += extra;
     }
     if (!read_bool(&mode_running)) return false;
     if (!read_bool(&mode_varmenu)) return false;
