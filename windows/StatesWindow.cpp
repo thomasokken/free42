@@ -79,17 +79,6 @@ static LRESULT CALLBACK StateNameDlgProc(HWND hDlg, UINT message, WPARAM wParam,
         case WM_INITDIALOG: {
             SetDlgItemTextW(hDlg, IDC_STATE_PROMPT, stateLabel.c_str());
             SetDlgItemTextW(hDlg, IDC_STATE_NAME, L"");
-
-            // Make sure a file exists for the current state. This isn't necessarily
-            // the case, specifically, right after starting up with a version <= 25
-            // state file.
-            ci_string currentStateName = ci_string(free42dirname) + L"/" + state.coreName + L".f42";
-            const wchar_t *currentStateNameC = currentStateName.c_str();
-            if (GetFileAttributesW(currentStateNameC) == INVALID_FILE_ATTRIBUTES) {
-                FILE *f = _wfopen(currentStateNameC, L"wb");
-                fwrite(FREE42_MAGIC_STR, 1, 4, f);
-                fclose(f);
-            }
 			return TRUE;
 		}
         case WM_COMMAND: {
@@ -401,6 +390,18 @@ LRESULT CALLBACK StatesDlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
         case WM_INITDIALOG: {
 			if (moreMenu == NULL)
 				moreMenu = LoadMenu(NULL, MAKEINTRESOURCE(IDR_STATES_MORE));
+
+            // Make sure a file exists for the current state. This isn't necessarily
+            // the case, specifically, right after starting up with a version <= 25
+            // state file.
+            ci_string currentStateName = ci_string(free42dirname) + L"/" + state.coreName + L".f42";
+            const wchar_t *currentStateNameC = currentStateName.c_str();
+            if (GetFileAttributesW(currentStateNameC) == INVALID_FILE_ATTRIBUTES) {
+                FILE *f = _wfopen(currentStateNameC, L"wb");
+                fwrite(FREE42_MAGIC_STR, 1, 4, f);
+                fclose(f);
+            }
+
 			ci_string txt(L"Current: ");
 			txt += state.coreName;
             SetDlgItemTextW(hDlg, IDC_CURRENT, txt.c_str());
