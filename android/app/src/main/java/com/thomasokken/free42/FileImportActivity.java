@@ -147,7 +147,7 @@ public class FileImportActivity extends Activity {
             Free42Activity f42instance = Free42Activity.instance;
             Intent i = new Intent(Intent.ACTION_MAIN);
             i.addCategory(Intent.CATEGORY_LAUNCHER);
-            i.setClassName("com.thomasokken.free42", "com.thomasokken.free42.Free42Activity");
+            i.setClassName(getPackageName(), "com.thomasokken.free42.Free42Activity");
             if (f42instance != null) {
                 if (importIsState)
                     f42instance.importedState = importedState;
