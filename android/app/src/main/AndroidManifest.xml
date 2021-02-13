@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
           package="com.thomasokken.free42"
           android:installLocation="auto">
   
@@ -27,7 +28,7 @@
     </activity>
     <activity android:name="FileImportActivity"
         android:label="Free42">
-      <intent-filter>
+      <intent-filter tools:ignore="AppLinkUrlError">
         <action android:name="android.intent.action.SEND"/>
         <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.BROWSABLE"/>
