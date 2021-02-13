@@ -1233,7 +1233,7 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
                     ctl = GetDlgItem(hDlg, IDC_AUTO_REPEAT);
                     core_settings.auto_repeat = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
                     ctl = GetDlgItem(hDlg, IDC_ALLOW_BIG_STACK);
-                    BOOL oldAllowBigStack = core_settings.allow_big_stack;
+                    bool oldAllowBigStack = core_settings.allow_big_stack;
                     core_settings.allow_big_stack = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
                     if (oldAllowBigStack != core_settings.allow_big_stack)
                         core_update_allow_big_stack();

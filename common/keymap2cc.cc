@@ -67,13 +67,6 @@ int main(int argc, char *argv[]) {
         " * NOTE: this is a generated file; do not edit!\n"
         " */\n\n", KEYMAP_CC, KEYMAP2CC);
 
-        fprintf(out, "#if defined(WINDOWS) && !defined(__GNUC__)\n");
-        fprintf(out, "/* Disable warning 'initializing' : truncation from 'const int ' to 'const char ' */\n");
-        fprintf(out, "#pragma warning(disable: 4305)\n");
-        fprintf(out, "/* Disable warning 'initializing' : truncation of constant value */\n");
-        fprintf(out, "#pragma warning(disable: 4309)\n");
-        fprintf(out, "#endif\n\n");
-
 
     fprintf(out, "/***********************/\n");
     fprintf(out, "/* Size of keymap file */\n");

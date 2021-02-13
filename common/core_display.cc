@@ -35,12 +35,10 @@
 
 #if defined(WINDOWS) && !defined(__GNUC__)
 /* Disable warnings:
- *      'initializing' : truncation from 'const int ' to 'const char '
- *      'initializing' : truncation of constant value
+ * C4838: conversion from 'int' to 'const char' requires a narrowing conversion
  */
 #pragma warning(push)
-#pragma warning(disable: 4305)
-#pragma warning(disable: 4309)
+#pragma warning(disable:4838)
 #endif
 
 

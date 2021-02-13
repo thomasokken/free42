@@ -779,7 +779,7 @@ bool no_keystrokes_yet;
 static bool state_bool_is_int;
 bool state_is_portable;
 
-typedef struct {
+struct rtn_stack_entry {
     int4 prgm;
     int4 pc;
     int4 get_prgm() {
@@ -809,7 +809,7 @@ typedef struct {
         else
             prgm &= 0xbfffffff;
     }
-} rtn_stack_entry;
+};
 
 typedef struct {
     unsigned char length;

@@ -1155,7 +1155,17 @@ int docmd_rclflag(arg_struct *arg) {
             hfs += p;
         p <<= 1;
     }
+#ifdef BCD_MATH
     vartype *v = new_complex(lfs, hfs);
+#else
+    /* Silence warning about possible loss of precision in VS2019.
+     * The warning is correct, in that we're assigning 64-bit integers
+     * to floating-point types with only 53-bit mantissas; but it just
+     * happens to be the case that we know we're only using 50 bits
+     * so this really is okay.
+     */
+    vartype *v = new_complex((double) lfs, (double) hfs);
+#endif
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     return recall_result(v);
