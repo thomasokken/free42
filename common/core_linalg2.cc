@@ -543,7 +543,8 @@ static int lu_backsubst_rr_worker(int interrupted) {
         }
     }
 
-    int err = dat->completion(ERR_NONE, dat->a, perm, dat->b);
+    int err;
+    err = dat->completion(ERR_NONE, dat->a, perm, dat->b);
     free(dat);
     return err;
 
@@ -677,7 +678,8 @@ static int lu_backsubst_rc_worker(int interrupted) {
         }
     }
 
-    int err = dat->completion(ERR_NONE, dat->a, perm, dat->b);
+    int err;
+    err = dat->completion(ERR_NONE, dat->a, perm, dat->b);
     free(dat);
     return err;
 
@@ -823,7 +825,8 @@ static int lu_backsubst_cc_worker(int interrupted) {
         }
     }
 
-    int err = dat->completion(ERR_NONE, dat->a, perm, dat->b);
+    int err;
+    err = dat->completion(ERR_NONE, dat->a, perm, dat->b);
     free(dat);
     return err;
 
