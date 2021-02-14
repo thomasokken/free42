@@ -2377,7 +2377,7 @@ void keydown_normal_mode(int shift, int key) {
                     pending_command_arg.length = labels[labelindex].length;
                     for (i = 0; i < pending_command_arg.length; i++)
                         pending_command_arg.val.text[i] =
-                                                labels[labelindex].name[i]; 
+                                                labels[labelindex].name[i];
                 } else if (catsect == CATSECT_FCN
                         || catsect >= CATSECT_EXT_TIME && catsect <= CATSECT_EXT_MISC) {
                     int cmd = get_cat_item(menukey);
