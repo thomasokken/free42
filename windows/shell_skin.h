@@ -22,9 +22,9 @@
 
 void skin_load(wchar_t *skinname, const wchar_t *basedir, long *width, long *height);
 
-typedef struct {
+struct SkinColor {
     unsigned char r, g, b, pad;
-} SkinColor;
+};
 
 #define IMGTYPE_MONO 1
 #define IMGTYPE_GRAY 2
@@ -32,14 +32,14 @@ typedef struct {
 #define IMGTYPE_TRUECOLOR 4
 
 #define KEYMAP_MAX_MACRO_LENGTH 31
-typedef struct {
+struct keymap_entry {
     bool ctrl;
     bool alt;
     bool shift; 
     bool cshift; 
     int keycode;
     unsigned char macro[KEYMAP_MAX_MACRO_LENGTH + 1];
-} keymap_entry;
+};
 
 keymap_entry *parse_keymap_entry(char *line, int lineno);
 

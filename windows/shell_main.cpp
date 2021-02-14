@@ -2581,7 +2581,7 @@ static void init_shell_state(int4 version) {
     }
 }
 
-typedef struct old_state {
+struct old_state_type {
     BOOL extras;
     WINDOWPLACEMENT mainPlacement;
     int mainPlacementValid;
@@ -2601,7 +2601,7 @@ typedef struct old_state {
     bool matrix_singularmatrix;
     bool matrix_outofrange;
     bool auto_repeat;
-} old_state_type;
+};
 
 static int read_shell_state(int4 *ver) {
     int4 magic;

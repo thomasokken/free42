@@ -19,10 +19,10 @@
 
 #ifdef _DEBUG
 
-typedef struct {
+struct msgdef {
     unsigned int id;
     const char *name;
-} msgdef;
+};
 
 static msgdef defs[] = {
     0x0000, "WM_NULL",

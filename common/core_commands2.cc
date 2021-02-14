@@ -1178,10 +1178,10 @@ int docmd_x_ge_y(arg_struct *arg) {
     }
 }
 
-typedef struct {
+struct sigma_label_spec {
     const char *text;
     int length;
-} sigma_label_spec;
+};
 
 static const sigma_label_spec sigma_labels[] = {
     { "\005X=",           3 },

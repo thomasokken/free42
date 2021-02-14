@@ -811,14 +811,14 @@ struct rtn_stack_entry {
     }
 };
 
-typedef struct {
+struct rtn_stack_matrix_name_entry {
     unsigned char length;
     char name[7];
-} rtn_stack_matrix_name_entry;
+};
 
-typedef struct {
+struct rtn_stack_matrix_ij_entry {
     int4 i, j;
-} rtn_stack_matrix_ij_entry;
+};
 
 /* Stack pointer vs. level:
  * The stack pointer is the pointer into the actual rtn_stack array, while
@@ -852,11 +852,11 @@ static bool rtn_integ_active = false;
 bool off_enable_flag = false;
 #endif
 
-typedef struct {
+struct matrix_persister {
     int type;
     int4 rows;
     int4 columns;
-} matrix_persister;
+};
 
 static int array_count;
 static int array_list_capacity;

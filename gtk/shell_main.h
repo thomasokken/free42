@@ -53,14 +53,14 @@ extern char free42dirname[FILENAMELEN];
 
 
 #define KEYMAP_MAX_MACRO_LENGTH 31
-typedef struct {
+struct keymap_entry {
     bool ctrl;
     bool alt;
     bool shift;
     bool cshift;
     guint keyval;
     unsigned char macro[KEYMAP_MAX_MACRO_LENGTH + 1];
-} keymap_entry;
+};
     
 keymap_entry *parse_keymap_entry(char *line, int lineno);
 

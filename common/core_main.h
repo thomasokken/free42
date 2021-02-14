@@ -304,12 +304,12 @@ void core_update_allow_big_stack();
  * should provide the appropriate controls in a "Preferences" dialog box to
  * allow the user to view and change these settings.
  */
-typedef struct {
+struct core_settings_struct {
     bool matrix_singularmatrix;
     bool matrix_outofrange;
     bool auto_repeat;
     bool allow_big_stack;
-} core_settings_struct;
+};
 
 extern core_settings_struct core_settings;
 

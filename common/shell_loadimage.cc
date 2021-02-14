@@ -24,12 +24,12 @@
 #include "shell_skin.h"
 
 
-typedef struct {
+struct SkinPixmap {
     unsigned char *pixels;
     SkinColor *cmap;
     int depth;
     int width, height, bytesperline;
-} SkinPixmap;
+};
 
 static SkinPixmap pixmap;
 

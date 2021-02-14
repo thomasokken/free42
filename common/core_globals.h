@@ -70,10 +70,10 @@ extern FILE *gfile;
 #define ERR_BIG_STACK_DISABLED     36
 #define ERR_INVALID_CONTEXT        37
 
-typedef struct {
+struct error_spec {
     const char *text;
     int length;
-} error_spec;
+};
 
 extern const error_spec errors[];
 
@@ -196,18 +196,18 @@ extern const error_spec errors[];
 #define MENU_INTEG_PARAMS  66
 
 
-typedef struct {
+struct menu_item_spec {
     int2 menuid;
     unsigned char title_length;
     const char *title;
-} menu_item_spec;
+};
 
-typedef struct {
+struct menu_spec {
     int2 parent;
     int2 next;
     int2 prev;
     menu_item_spec child[6];
-} menu_spec;
+};
 
 extern const menu_spec menus[];
 
@@ -224,67 +224,67 @@ extern const menu_spec menus[];
 #define TYPE_STRING 5
 #define TYPE_LIST 6
 
-typedef struct {
+struct vartype {
     int type;
-} vartype;
+};
 
 
-typedef struct {
+struct vartype_real {
     int type;
     phloat x;
-} vartype_real;
+};
 
 
-typedef struct {
+struct vartype_complex {
     int type;
     phloat re, im;
-} vartype_complex;
+};
 
 
-typedef struct {
+struct realmatrix_data {
     int refcount;
     phloat *data;
     char *is_string;
-} realmatrix_data;
+};
 
-typedef struct {
+struct vartype_realmatrix {
     int type;
     int4 rows;
     int4 columns;
     realmatrix_data *array;
-} vartype_realmatrix;
+};
 
 
-typedef struct {
+struct complexmatrix_data {
     int refcount;
     phloat *data;
-} complexmatrix_data;
+};
 
-typedef struct {
+struct vartype_complexmatrix {
     int type;
     int4 rows;
     int4 columns;
     complexmatrix_data *array;
-} vartype_complexmatrix;
+};
 
 
-typedef struct {
+struct vartype_string {
     int type;
     int length;
     char text[6];
-} vartype_string;
+};
 
 
-typedef struct {
+struct list_data {
     int refcount;
     vartype **data;
-} list_data;
+};
 
-typedef struct {
+struct vartype_list {
     int type;
     int4 size;
     list_data *array;
-} vartype_list;
+};
 
 /******************/
 /* Emulator state */
@@ -397,39 +397,39 @@ extern const char *virtual_flags;
 #define VAR_PRIVATE 4
 
 /* Variables */
-typedef struct {
+struct var_struct {
     unsigned char length;
     char name[7];
     int2 level;
     int2 flags;
     vartype *value;
-} var_struct;
+};
 extern int vars_capacity;
 extern int vars_count;
 extern var_struct *vars;
 
 /* Programs */
-typedef struct {
+struct prgm_struct {
     int4 capacity;
     int4 size;
     int lclbl_invalid;
     unsigned char *text;
-} prgm_struct;
-typedef struct {
+};
+struct prgm_struct_32bit {
     int4 capacity;
     int4 size;
     int lclbl_invalid;
     int4 text;
-} prgm_struct_32bit;
+};
 extern int prgms_capacity;
 extern int prgms_count;
 extern prgm_struct *prgms;
-typedef struct {
+struct label_struct {
     unsigned char length;
     char name[7];
     int prgm;
     int4 pc;
-} label_struct;
+};
 extern int labels_capacity;
 extern int labels_count;
 extern label_struct *labels;

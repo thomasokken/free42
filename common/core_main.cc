@@ -2715,11 +2715,11 @@ static int ascii2hp(char *dst, const char *src, int maxchars) {
     return dstpos > maxchars ? maxchars : dstpos;
 }
 
-typedef struct {
+struct text_alias {
     char len;
     char equiv;
     char text[8];
-} text_alias;
+};
 
 static text_alias aliases[] = {
     { 5,    2, "\\sqrt"   },
@@ -3999,12 +3999,12 @@ static void continue_running() {
     }
 }
 
-typedef struct {
+struct synonym_spec {
     char name[7];
     bool is_orig;
     int namelen;
     int cmd_id;
-} synonym_spec;
+};
 
 static synonym_spec hp41_synonyms[] =
 {

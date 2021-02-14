@@ -26,24 +26,24 @@
 // We cache vartype_real, vartype_complex, and vartype_string instances, to
 // cut down on the malloc/free overhead.
 
-typedef struct pool_real {
+struct pool_real pool_real {
     vartype_real r;
     struct pool_real *next;
-} pool_real;
+};
 
 static pool_real *realpool = NULL;
 
-typedef struct pool_complex {
+struct pool_complex pool_complex {
     vartype_complex c;
     struct pool_complex *next;
-} pool_complex;
+};
 
 static pool_complex *complexpool = NULL;
 
-typedef struct pool_string {
+struct pool_string pool_string {
     vartype_string s;
     struct pool_string *next;
-} pool_string;
+};
 
 static pool_string *stringpool = NULL;
 

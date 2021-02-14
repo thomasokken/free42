@@ -128,7 +128,7 @@ void shell_spool_bitmap_to_txt(const char *bits, int bytesperline,
     }
 }
 
-typedef struct {
+struct gif_data {
     int codesize;
     int bytecount;
     char buf[255];
@@ -151,7 +151,7 @@ typedef struct {
 
     int width;
     int height;
-} gif_data;
+};
 
 static gif_data *g;
 

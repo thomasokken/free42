@@ -90,10 +90,10 @@ static void view(const char *varname, int varlength) {
     }
 }
 
-typedef struct {
+struct cmd_getkey_mapping_struct {
     int2 key;
     int2 cmd;
-} cmd_getkey_mapping_struct;
+};
 
 static cmd_getkey_mapping_struct cmd_getkey_mapping[] = {
     {  1, CMD_SIGMAADD },

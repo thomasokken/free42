@@ -23,9 +23,9 @@
 void skin_menu_update(GtkWidget *w);
 void skin_load(int *width, int *height);
 
-typedef struct {
+struct SkinColor {
     unsigned char r, g, b, pad;
-} SkinColor;
+};
 
 #define IMGTYPE_MONO 1
 #define IMGTYPE_GRAY 2

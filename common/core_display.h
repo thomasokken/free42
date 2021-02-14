@@ -54,12 +54,12 @@ int print_program(int prgm_index, int4 pc, int4 lines, int normal);
 void print_program_line(int prgm_index, int4 pc);
 int command2buf(char *buf, int len, int cmd, const arg_struct *arg);
 
-typedef struct {
+struct textbuf {
     char *buf;
     size_t size;
     size_t capacity;
     bool fail;
-} textbuf;
+};
 
 void tb_write(textbuf *tb, const char *data, size_t size);
 void tb_write_null(textbuf *tb);

@@ -31,7 +31,7 @@
 #define NUM_SHADOWS 10
 
 /* Solver */
-typedef struct {
+struct solve_state {
     int version;
     char prgm_name[7];
     int prgm_length;
@@ -57,7 +57,7 @@ typedef struct {
     phloat shadow_value[NUM_SHADOWS];
     uint4 last_disp_time;
     int prev_sp;
-} solve_state;
+};
 
 static solve_state solve;
 
@@ -66,7 +66,7 @@ static solve_state solve;
 #define ROMB_MAX 20
 
 /* Integrator */
-typedef struct {
+struct integ_state {
     int version;
     char prgm_name[7];
     int prgm_length;
@@ -90,7 +90,7 @@ typedef struct {
     phloat prev_int;
     phloat prev_res;
     int prev_sp;
-} integ_state;
+};
 
 static integ_state integ;
 
@@ -465,10 +465,10 @@ int start_solve(const char *name, int length, phloat x1, phloat x2) {
     return call_solve_fn(1, 1);
 }
 
-typedef struct {
+struct message_spec {
     const char *text;
     int length;
-} message_spec;
+};
 
 #define SOLVE_ROOT          0
 #define SOLVE_SIGN_REVERSAL 1

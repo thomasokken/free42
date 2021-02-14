@@ -2232,7 +2232,7 @@ void print_display() {
     shell_print(NULL, 0, display, 17, 0, 0, 131, 16);
 }
 
-typedef struct {
+struct prp_data_struct {
     char buf[100];
     int len;
     int saved_prgm;
@@ -2245,7 +2245,7 @@ typedef struct {
     int first;
     int trace;
     int normal;
-} prp_data_struct;
+};
 
 static prp_data_struct *prp_data;
 static int print_program_worker(int interrupted);
