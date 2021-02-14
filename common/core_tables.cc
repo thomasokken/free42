@@ -461,7 +461,8 @@ const command_spec cmd_array[] =
     { /* RUPN */       "R^N",                   3, ARG_NUM9,   0, FLAG_NONE,                   0x00f7f2a6, docmd_rupn        },
 
     /* Get list of LBLs with MVARs */
-    { /* MVARCAT */    "M\326\301\322CAT",      7, ARG_NONE,   0, FLAG_NONE,                   0x0000a7e8, docmd_mvarcat     }
+    { /* MVARCAT */    "M\326\301\322CAT",      7, ARG_NONE,   0, FLAG_NONE,                   0x0000a7e8, docmd_mvarcat     },
+    { /* MVCEXEC */    "",                      0, ARG_OTHER,  0, FLAG_HIDDEN,                 0x02000000, NULL,             }
 };
 
 /*

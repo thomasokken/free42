@@ -532,7 +532,7 @@ int core_keyup() {
             input_length = 0;
     }
 
-    if (pending_command == CMD_VMEXEC) {
+    if (pending_command == CMD_VMEXEC || pending_command == CMD_MVCEXEC) {
         string_copy(reg_alpha, &reg_alpha_length,
                     pending_command_arg.val.text, pending_command_arg.length);
         goto do_run;

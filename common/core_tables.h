@@ -455,8 +455,9 @@
 #define CMD_RUPN        401
 /* Get list of LBLs with MVARs */
 #define CMD_MVARCAT     402
+#define CMD_MVCEXEC     403
 
-#define CMD_SENTINEL    403
+#define CMD_SENTINEL    404
 
 
 /* command_spec.argtype */

@@ -1273,7 +1273,7 @@ void display_command(int row) {
     const command_spec *cmd = &cmd_array[pending_command];
     int *the_menu;
     int catsect;
-    int hide = pending_command == CMD_VMEXEC
+    int hide = pending_command == CMD_VMEXEC || pending_command == CMD_MVCEXEC
             || (pending_command == CMD_XEQ
                 && xeq_invisible
                 && (the_menu = get_front_menu()) != NULL
@@ -1571,7 +1571,8 @@ static void draw_catalog() {
     } else if (catsect == CATSECT_PGM
             || catsect == CATSECT_PGM_ONLY
             || catsect == CATSECT_PGM_SOLVE
-            || catsect == CATSECT_PGM_INTEG) {
+            || catsect == CATSECT_PGM_INTEG
+            || catsect == CATSECT_MVARCAT) {
         /* Show menu of alpha labels */
         int lcount = 0;
         int i, j, k = -1;
@@ -1582,7 +1583,7 @@ static void draw_catalog() {
                     lcount++;
                 lastprgm = labels[i].prgm;
             }
-        } else /* CATSECT_PGM_SOLVE, CATSECT_PGM_INTEG */ {
+        } else /* CATSECT_PGM_SOLVE, CATSECT_PGM_INTEG, CATSECT_MVARCAT */ {
             for (i = 0; i < labels_count; i++)
                 if (label_has_mvar(i))
                     lcount++;
@@ -2667,6 +2668,7 @@ void set_catalog_menu(int section) {
             return;
         case CATSECT_PGM_SOLVE:
         case CATSECT_PGM_INTEG:
+        case CATSECT_MVARCAT:
         default:
             mode_commandmenu = MENU_NONE;
             return;
@@ -2806,6 +2808,7 @@ void update_catalog() {
             break;
         case CATSECT_PGM_SOLVE:
         case CATSECT_PGM_INTEG:
+        case CATSECT_MVARCAT:
             if (!mvar_prgms_exist()) {
                 *the_menu = MENU_NONE;
                 display_error(ERR_NO_MENU_VARIABLES, 0);

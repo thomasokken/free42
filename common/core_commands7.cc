@@ -1258,28 +1258,11 @@ int docmd_rupn(arg_struct *arg) {
 ////////////////////////
 
 int docmd_mvarcat(arg_struct *arg) {
-    int n = 0;
-    vartype *res;
-    for (int i = 0; i < labels_count; i++)
-        if (labels[i].length < 7 && label_has_mvar(i))
-            n++;
-    if (n == 0) {
-        res = new_real(0);
-        if (res == NULL)
-            return ERR_INSUFFICIENT_MEMORY;
-    } else {
-        res = new_realmatrix(n, 1);
-        if (res == NULL)
-            return ERR_INSUFFICIENT_MEMORY;
-        vartype_realmatrix *rm = (vartype_realmatrix *) res;
-        for (int i = 0; i < labels_count; i++)
-            if (labels[i].length < 7 && label_has_mvar(i)) {
-                n--;
-                rm->array->is_string[n] = 1;
-                char *d = (char *) &rm->array->data[n];
-                d[6] = labels[i].length;
-                memcpy(d, labels[i].name, labels[i].length);
-            }
+    int err = set_menu_return_err(MENULEVEL_APP, MENU_CATALOG, false);
+    if (err == ERR_NONE) {
+        set_cat_section(CATSECT_MVARCAT);
+        move_cat_row(0);
+        clear_row(0);
     }
-    return recall_result(res);
+    return err;
 }
