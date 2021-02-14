@@ -195,8 +195,7 @@ int docmd_comb(arg_struct *arg) {
         v = new_real(r);
         if (v == NULL)
             return ERR_INSUFFICIENT_MEMORY;
-        binary_result(v);
-        return ERR_NONE;
+        return binary_result(v);
     } else if (stack[sp]->type == TYPE_STRING)
         return ERR_ALPHA_DATA_IS_INVALID;
     else if (stack[sp]->type != TYPE_REAL)
@@ -231,8 +230,7 @@ int docmd_perm(arg_struct *arg) {
         v = new_real(r);
         if (v == NULL)
             return ERR_INSUFFICIENT_MEMORY;
-        binary_result(v);
-        return ERR_NONE;
+        return binary_result(v);
     } else if (stack[sp]->type == TYPE_STRING)
         return ERR_ALPHA_DATA_IS_INVALID;
     else if (stack[sp]->type != TYPE_REAL)
@@ -1778,10 +1776,8 @@ int docmd_newmat(arg_struct *arg) {
     m = new_realmatrix(yy, xx);
     if (m == NULL)
         return ERR_INSUFFICIENT_MEMORY;
-    else {
-        binary_result(m);
-        return ERR_NONE;
-    }
+    else
+        return binary_result(m);
 }
 
 int docmd_rup(arg_struct *arg) {

@@ -451,7 +451,7 @@ struct backsub_rr_data_struct {
     int4 i, ii, j, ll, k;
     phloat sum;
     int state;
-    void (*completion)(int, vartype_realmatrix *, int4 *, vartype_realmatrix *);
+    int (*completion)(int, vartype_realmatrix *, int4 *, vartype_realmatrix *);
 };
 
 static backsub_rr_data_struct *backsub_rr_data;
@@ -459,15 +459,13 @@ static backsub_rr_data_struct *backsub_rr_data;
 static int lu_backsubst_rr_worker(int interrupted);
 
 int lu_backsubst_rr(vartype_realmatrix *a, int4 *perm, vartype_realmatrix *b,
-                    void (*completion)(int, vartype_realmatrix *,
+                    int (*completion)(int, vartype_realmatrix *,
                                     int4 *, vartype_realmatrix *)) {
     backsub_rr_data_struct *dat =
             (backsub_rr_data_struct *) malloc(sizeof(backsub_rr_data_struct));
 
-    if (dat == NULL) {
-        completion(ERR_INSUFFICIENT_MEMORY, a, perm, b);
-        return ERR_INSUFFICIENT_MEMORY;
-    }
+    if (dat == NULL)
+        return completion(ERR_INSUFFICIENT_MEMORY, a, perm, b);
 
     dat->a = a;
     dat->perm = perm;
@@ -501,9 +499,9 @@ static int lu_backsubst_rr_worker(int interrupted) {
     phloat t;
 
     if (interrupted) {
-        dat->completion(ERR_INTERRUPTED, dat->a, perm, dat->b);
+        int err = dat->completion(ERR_INTERRUPTED, dat->a, perm, dat->b);
         free(dat);
-        return ERR_INTERRUPTED;
+        return err;
     }
 
     switch (dat->state) {
@@ -545,9 +543,9 @@ static int lu_backsubst_rr_worker(int interrupted) {
         }
     }
 
-    dat->completion(ERR_NONE, dat->a, perm, dat->b);
+    int err = dat->completion(ERR_NONE, dat->a, perm, dat->b);
     free(dat);
-    return ERR_NONE;
+    return err;
 
     suspend:
     dat->i = i;
@@ -566,7 +564,7 @@ struct backsub_rc_data_struct {
     int4 i, ii, j, ll, k;
     phloat sum_re, sum_im;
     int state;
-    void (*completion)(int, vartype_realmatrix *, int4 *,
+    int (*completion)(int, vartype_realmatrix *, int4 *,
                                             vartype_complexmatrix *);
 };
 
@@ -575,15 +573,13 @@ static backsub_rc_data_struct *backsub_rc_data;
 static int lu_backsubst_rc_worker(int interrupted);
 
 int lu_backsubst_rc(vartype_realmatrix *a, int4 *perm, vartype_complexmatrix *b,
-                    void (*completion)(int, vartype_realmatrix *,
+                    int (*completion)(int, vartype_realmatrix *,
                                 int4 *, vartype_complexmatrix *)) {
     backsub_rc_data_struct *dat =
             (backsub_rc_data_struct *) malloc(sizeof(backsub_rc_data_struct));
 
-    if (dat == NULL) {
-        completion(ERR_INSUFFICIENT_MEMORY, a, perm, b);
-        return ERR_INSUFFICIENT_MEMORY;
-    }
+    if (dat == NULL)
+        return completion(ERR_INSUFFICIENT_MEMORY, a, perm, b);
 
     dat->a = a;
     dat->perm = perm;
@@ -619,9 +615,9 @@ static int lu_backsubst_rc_worker(int interrupted) {
     phloat t_re, t_im;
 
     if (interrupted) {
-        dat->completion(ERR_INTERRUPTED, dat->a, perm, dat->b);
+        int err = dat->completion(ERR_INTERRUPTED, dat->a, perm, dat->b);
         free(dat);
-        return ERR_INTERRUPTED;
+        return err;
     }
 
     switch (dat->state) {
@@ -681,9 +677,9 @@ static int lu_backsubst_rc_worker(int interrupted) {
         }
     }
 
-    dat->completion(ERR_NONE, dat->a, perm, dat->b);
+    int err = dat->completion(ERR_NONE, dat->a, perm, dat->b);
     free(dat);
-    return ERR_NONE;
+    return err;
 
     suspend:
     dat->i = i;
@@ -703,7 +699,7 @@ struct backsub_cc_data_struct {
     int4 i, ii, j, ll, k;
     phloat sum_re, sum_im;
     int state;
-    void (*completion)(int, vartype_complexmatrix *, int4 *,
+    int (*completion)(int, vartype_complexmatrix *, int4 *,
                                             vartype_complexmatrix *);
 };
 
@@ -712,15 +708,13 @@ static backsub_cc_data_struct *backsub_cc_data;
 static int lu_backsubst_cc_worker(int interrupted);
 
 int lu_backsubst_cc(vartype_complexmatrix *a, int4 *perm, vartype_complexmatrix *b,
-                    void (*completion)(int, vartype_complexmatrix *,
+                    int (*completion)(int, vartype_complexmatrix *,
                                 int4 *, vartype_complexmatrix *)) {
     backsub_cc_data_struct *dat =
             (backsub_cc_data_struct *) malloc(sizeof(backsub_cc_data_struct));
 
-    if (dat == NULL) {
-        completion(ERR_INSUFFICIENT_MEMORY, a, perm, b);
-        return ERR_INSUFFICIENT_MEMORY;
-    }
+    if (dat == NULL)
+        return completion(ERR_INSUFFICIENT_MEMORY, a, perm, b);
 
     dat->a = a;
     dat->perm = perm;
@@ -757,9 +751,9 @@ static int lu_backsubst_cc_worker(int interrupted) {
     phloat t_re, t_im;
 
     if (interrupted) {
-        dat->completion(ERR_INTERRUPTED, dat->a, perm, dat->b);
+        int err = dat->completion(ERR_INTERRUPTED, dat->a, perm, dat->b);
         free(dat);
-        return ERR_INTERRUPTED;
+        return err;
     }
 
     switch (dat->state) {
@@ -829,9 +823,9 @@ static int lu_backsubst_cc_worker(int interrupted) {
         }
     }
 
-    dat->completion(ERR_NONE, dat->a, perm, dat->b);
+    int err = dat->completion(ERR_NONE, dat->a, perm, dat->b);
     free(dat);
-    return ERR_NONE;
+    return err;
 
     suspend:
     dat->i = i;

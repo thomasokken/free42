@@ -848,10 +848,8 @@ int docmd_y_pow_x(arg_struct *arg) {
                 res = new_real(r);
                 if (res == NULL)
                     return ERR_INSUFFICIENT_MEMORY;
-                else {
-                    binary_result(res);
-                    return ERR_NONE;
-                }
+                else
+                    return binary_result(res);
             } else {
                 /* Complex number to integer power */
                 phloat rre, rim, yre, yim;
@@ -911,10 +909,8 @@ int docmd_y_pow_x(arg_struct *arg) {
                 res = new_complex(rre, rim);
                 if (res == NULL)
                     return ERR_INSUFFICIENT_MEMORY;
-                else {
-                    binary_result(res);
-                    return ERR_NONE;
-                }
+                else
+                    return binary_result(res);
             }
         } else if (stack[sp - 1]->type == TYPE_REAL) {
             /* Real number to noninteger real power */
@@ -937,10 +933,8 @@ int docmd_y_pow_x(arg_struct *arg) {
             res = new_real(r);
             if (res == NULL)
                 return ERR_INSUFFICIENT_MEMORY;
-            else {
-                binary_result(res);
-                return ERR_NONE;
-            }
+            else
+                return binary_result(res);
         } else {
             /* Complex (or negative real) number to noninteger real power */
             complex_pow_real_1:
@@ -974,10 +968,8 @@ int docmd_y_pow_x(arg_struct *arg) {
             res = new_complex(rre, rim);
             if (res == NULL)
                 return ERR_INSUFFICIENT_MEMORY;
-            else {
-                binary_result(res);
-                return ERR_NONE;
-            }
+            else
+                return binary_result(res);
         }
     } else {
         /* Real or complex number to complex power */
@@ -1001,10 +993,8 @@ int docmd_y_pow_x(arg_struct *arg) {
                 res = new_complex(0, 0);
             if (res == NULL)
                 return ERR_INSUFFICIENT_MEMORY;
-            else {
-                binary_result(res);
-                return ERR_NONE;
-            }
+            else
+                return binary_result(res);
         }
         err = mappable_ln_c(yre, yim, &lre, &lim);
         if (err != ERR_NONE)
@@ -1018,10 +1008,8 @@ int docmd_y_pow_x(arg_struct *arg) {
         res = new_complex(xre, xim);
         if (res == NULL)
             return ERR_INSUFFICIENT_MEMORY;
-        else {
-            binary_result(res);
-            return ERR_NONE;
-        }
+        else
+            return binary_result(res);
     }
 }
 

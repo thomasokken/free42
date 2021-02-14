@@ -31,19 +31,19 @@ int lu_decomp_c(vartype_complexmatrix *a, int4 *perm,
 int lu_backsubst_rr(vartype_realmatrix *a,
                             int4 *perm,
                             vartype_realmatrix *b,
-                            void (*completion)(int, vartype_realmatrix *,
+                            int (*completion)(int, vartype_realmatrix *,
                                     int4 *, vartype_realmatrix *));
 
 int lu_backsubst_rc(vartype_realmatrix *a,
                             int4 *perm,
                             vartype_complexmatrix *b,
-                            void (*completion)(int, vartype_realmatrix *,
+                            int (*completion)(int, vartype_realmatrix *,
                                 int4 *, vartype_complexmatrix *));
 
 int lu_backsubst_cc(vartype_complexmatrix *a,
                             int4 *perm,
                             vartype_complexmatrix *b,
-                            void (*completion)(int, vartype_complexmatrix *,
+                            int (*completion)(int, vartype_complexmatrix *,
                                 int4 *, vartype_complexmatrix *));
 
 #endif

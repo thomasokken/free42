@@ -122,8 +122,7 @@ int docmd_and(arg_struct *arg) {
     v = new_real(base2phloat(res));
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
-    binary_result(v);
-    return ERR_NONE;
+    return binary_result(v);
 }
 
 int docmd_baseadd(arg_struct *arg) {
@@ -165,8 +164,7 @@ int docmd_baseadd(arg_struct *arg) {
     v = new_real(base2phloat(res));
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
-    binary_result(v);
-    return ERR_NONE;
+    return binary_result(v);
 }
 
 int docmd_basesub(arg_struct *arg) {
@@ -209,8 +207,7 @@ int docmd_basesub(arg_struct *arg) {
     v = new_real(base2phloat(res));
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
-    binary_result(v);
-    return ERR_NONE;
+    return binary_result(v);
 }
 
 int docmd_basemul(arg_struct *arg) {
@@ -319,8 +316,7 @@ int docmd_basemul(arg_struct *arg) {
     v = new_real(base2phloat(res));
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
-    binary_result(v);
-    return ERR_NONE;
+    return binary_result(v);
 }
 
 int docmd_basediv(arg_struct *arg) {
@@ -342,8 +338,7 @@ int docmd_basediv(arg_struct *arg) {
     v = new_real(base2phloat(res));
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
-    binary_result(v);
-    return ERR_NONE;
+    return binary_result(v);
 }
 
 int docmd_basechs(arg_struct *arg) {
@@ -884,8 +879,7 @@ int docmd_or(arg_struct *arg) {
     v = new_real(base2phloat(res));
     if (v == NULL) 
         return ERR_INSUFFICIENT_MEMORY;
-    binary_result(v);
-    return ERR_NONE;
+    return binary_result(v);
 }
 
 int docmd_pgmslv(arg_struct *arg) {
@@ -1036,8 +1030,7 @@ int docmd_rotxy(arg_struct *arg) {
     v = new_real(base2phloat((int8) res));
     if (v == NULL) 
         return ERR_INSUFFICIENT_MEMORY;
-    binary_result(v);
-    return ERR_NONE;
+    return binary_result(v);
 }
 
 int docmd_solve(arg_struct *arg) {
@@ -1114,8 +1107,7 @@ int docmd_xor(arg_struct *arg) {
     v = new_real(base2phloat(res));
     if (v == NULL) 
         return ERR_INSUFFICIENT_MEMORY;
-    binary_result(v);
-    return ERR_NONE;
+    return binary_result(v);
 }
 
 int docmd_to_dec(arg_struct *arg) {

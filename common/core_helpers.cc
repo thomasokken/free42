@@ -221,7 +221,15 @@ int unary_two_results(vartype *x, vartype *y) {
     return ERR_NONE;
 }
 
-void binary_result(vartype *x) {
+int binary_result(vartype *x) {
+    vartype *t;
+    if (!flags.f.big_stack) {
+        t = dup_vartype(stack[REG_T]);
+        if (t == NULL) {
+            free_vartype(x);
+            return ERR_INSUFFICIENT_MEMORY;
+        }
+    }
     free_vartype(lastx);
     lastx = stack[sp];
     free_vartype(stack[sp - 1]);
@@ -229,10 +237,11 @@ void binary_result(vartype *x) {
         sp--;
     } else {
         stack[REG_Y] = stack[REG_Z];
-        stack[REG_Z] = dup_vartype(stack[REG_T]);
+        stack[REG_Z] = t;
     }
     stack[sp] = x;
     print_trace();
+    return ERR_NONE;
 }
 
 bool ensure_stack_capacity(int n) {

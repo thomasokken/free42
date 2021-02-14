@@ -291,8 +291,7 @@ int docmd_cross(arg_struct *arg) {
         v = new_real(d);
         if (v == NULL)
             return ERR_INSUFFICIENT_MEMORY;
-        binary_result(v);
-        return ERR_NONE;
+        return binary_result(v);
     } else if (stack[sp]->type == TYPE_REALMATRIX
                         && stack[sp - 1]->type == TYPE_REALMATRIX) {
         vartype_realmatrix *left = (vartype_realmatrix *) stack[sp - 1];
@@ -349,8 +348,7 @@ int docmd_cross(arg_struct *arg) {
         res->array->data[0] = xres;
         res->array->data[1] = yres;
         res->array->data[2] = zres;
-        binary_result((vartype *) res);
-        return ERR_NONE;
+        return binary_result((vartype *) res);
     } else
         return ERR_INVALID_TYPE;
 }
@@ -745,8 +743,7 @@ int docmd_dot(arg_struct *arg) {
         return ERR_INVALID_TYPE;
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
-    binary_result(v);
-    return ERR_NONE;
+    return binary_result(v);
 }
 
 int matedit_get_dim(int4 *rows, int4 *columns) {
@@ -1118,8 +1115,7 @@ int docmd_getm(arg_struct *arg) {
                 dst->array->is_string[n2] = src->array->is_string[n1];
                 dst->array->data[n2] = src->array->data[n1];
             }
-        binary_result((vartype *) dst);
-        return ERR_NONE;
+        return binary_result((vartype *) dst);
     } else /* m->type == TYPE_COMPLEXMATRIX */ {
         vartype_complexmatrix *src, *dst;
         int4 i, j;
@@ -1136,8 +1132,7 @@ int docmd_getm(arg_struct *arg) {
                 dst->array->data[n2 * 2] = src->array->data[n1 * 2];
                 dst->array->data[n2 * 2 + 1] = src->array->data[n1 * 2 + 1];
             }
-        binary_result((vartype *) dst);
-        return ERR_NONE;
+        return binary_result((vartype *) dst);
     }
 }
 
@@ -1288,8 +1283,7 @@ static int hms_add_or_sub(bool add) {
     vartype *v = new_real(r);
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
-    binary_result(v);
-    return ERR_NONE;
+    return binary_result(v);
 }
 
 int docmd_hmsadd(arg_struct *arg) {

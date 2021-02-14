@@ -113,18 +113,20 @@ int docmd_chs(arg_struct *arg) {
     return ERR_NONE;
 }
 
-static void docmd_div_completion(int error, vartype *res) {
-    if (error == ERR_NONE)
-        binary_result(res);
+static int docmd_div_completion(int error, vartype *res) {
+    if (error != ERR_NONE)
+        return error;
+    return binary_result(res);
 }
 
 int docmd_div(arg_struct *arg) {
     return generic_div(stack[sp], stack[sp - 1], docmd_div_completion);
 }
 
-static void docmd_mul_completion(int error, vartype *res) {
-    if (error == ERR_NONE)
-        binary_result(res);
+static int docmd_mul_completion(int error, vartype *res) {
+    if (error != ERR_NONE)
+        return error;
+    return binary_result(res);
 }
 
 int docmd_mul(arg_struct *arg) {
@@ -134,17 +136,17 @@ int docmd_mul(arg_struct *arg) {
 int docmd_sub(arg_struct *arg) {
     vartype *res;
     int error = generic_sub(stack[sp], stack[sp - 1], &res);
-    if (error == ERR_NONE)
-        binary_result(res);
-    return error;
+    if (error != ERR_NONE)
+        return error;
+    return binary_result(res);
 }
 
 int docmd_add(arg_struct *arg) {
     vartype *res;
     int error = generic_add(stack[sp], stack[sp - 1], &res);
-    if (error == ERR_NONE)
-        binary_result(res);
-    return error;
+    if (error != ERR_NONE)
+        return error;
+    return binary_result(res);
 }
 
 int docmd_lastx(arg_struct *arg) {
@@ -173,8 +175,7 @@ int docmd_complex(arg_struct *arg) {
             }
             if (v == NULL)
                 return ERR_INSUFFICIENT_MEMORY;
-            binary_result(v);
-            return ERR_NONE;
+            return binary_result(v);
         }
         case TYPE_COMPLEX: {
             vartype *new_x = new_real(0);
@@ -240,8 +241,7 @@ int docmd_complex(arg_struct *arg) {
                         cm->array->data[2 * i + 1] = im_m->array->data[i];
                     }
                 }
-                binary_result((vartype *) cm);
-                return ERR_NONE;
+                return binary_result((vartype *) cm);
             }
         }
         case TYPE_COMPLEXMATRIX: {
@@ -321,10 +321,11 @@ int docmd_rcl(arg_struct *arg) {
 /* Temporary for use by docmd_rcl_div() & docmd_rcl_mul() */
 static vartype *temp_v;
 
-static void docmd_rcl_div_completion(int error, vartype *res) {
+static int docmd_rcl_div_completion(int error, vartype *res) {
     free_vartype(temp_v);
     if (error == ERR_NONE)
         unary_result(res);
+    return error;
 }
 
 int docmd_rcl_div(arg_struct *arg) {
@@ -334,10 +335,11 @@ int docmd_rcl_div(arg_struct *arg) {
     return generic_div(temp_v, stack[sp], docmd_rcl_div_completion);
 }
 
-static void docmd_rcl_mul_completion(int error, vartype *res) {
+static int docmd_rcl_mul_completion(int error, vartype *res) {
     free_vartype(temp_v);
     if (error == ERR_NONE)
         unary_result(res);
+    return error;
 }
 
 int docmd_rcl_mul(arg_struct *arg) {
@@ -1357,8 +1359,7 @@ int docmd_mod(arg_struct *arg) {
         v = new_real(res);
         if (v == NULL)
             return ERR_INSUFFICIENT_MEMORY;
-        binary_result(v);
-        return ERR_NONE;
+        return binary_result(v);
     } else if (stack[sp]->type == TYPE_STRING)
         return ERR_ALPHA_DATA_IS_INVALID;
     else if (stack[sp]->type != TYPE_REAL)
