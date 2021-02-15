@@ -157,88 +157,70 @@ int docmd_fcc_t(arg_struct *arg) {
 }
 
 int docmd_comb(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_REAL && stack[sp - 1]->type == TYPE_REAL) {
-        phloat y = ((vartype_real *) stack[sp - 1])->x;
-        phloat x = ((vartype_real *) stack[sp])->x;
-        phloat r, s, q = 1;
-        vartype *v;
-        if (x < 0 || x != floor(x) || x == x - 1 || y < 0 || y != floor(y))
-            return ERR_INVALID_DATA;
-        if (y < x)
-            return ERR_INVALID_DATA;
-        if (x > y / 2)
-            x = y - x;
-        #ifdef BCD_MATH
-            s = x == 0 ? 1 : pow(10, 1 + floor(log10(x)));
-        #else
-            s = x == 0 ? 1 : pow(2, 1 + floor(log2(x)));
-        #endif
-        r = 1 / s;
-        while (q <= x) {
-            r *= y--;
-            if (p_isinf(r)) {
-                if (flags.f.range_error_ignore) {
-                    r = POS_HUGE_PHLOAT;
-                    break;
-                } else
-                    return ERR_OUT_OF_RANGE;
-            }
-            r /= q++;
-        }
-        r *= s;
+    phloat y = ((vartype_real *) stack[sp - 1])->x;
+    phloat x = ((vartype_real *) stack[sp])->x;
+    phloat r, s, q = 1;
+    vartype *v;
+    if (x < 0 || x != floor(x) || x == x - 1 || y < 0 || y != floor(y))
+        return ERR_INVALID_DATA;
+    if (y < x)
+        return ERR_INVALID_DATA;
+    if (x > y / 2)
+        x = y - x;
+    #ifdef BCD_MATH
+        s = x == 0 ? 1 : pow(10, 1 + floor(log10(x)));
+    #else
+        s = x == 0 ? 1 : pow(2, 1 + floor(log2(x)));
+    #endif
+    r = 1 / s;
+    while (q <= x) {
+        r *= y--;
         if (p_isinf(r)) {
-            if (flags.f.range_error_ignore)
+            if (flags.f.range_error_ignore) {
                 r = POS_HUGE_PHLOAT;
-            else
+                break;
+            } else
                 return ERR_OUT_OF_RANGE;
         }
-        v = new_real(r);
-        if (v == NULL)
-            return ERR_INSUFFICIENT_MEMORY;
-        return binary_result(v);
-    } else if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else if (stack[sp]->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
-    else if (stack[sp - 1]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else
-        return ERR_INVALID_TYPE;
+        r /= q++;
+    }
+    r *= s;
+    if (p_isinf(r)) {
+        if (flags.f.range_error_ignore)
+            r = POS_HUGE_PHLOAT;
+        else
+            return ERR_OUT_OF_RANGE;
+    }
+    v = new_real(r);
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    return binary_result(v);
 }
 
 int docmd_perm(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_REAL && stack[sp - 1]->type == TYPE_REAL) {
-        phloat y = ((vartype_real *) stack[sp - 1])->x;
-        phloat x = ((vartype_real *) stack[sp])->x;
-        phloat r = 1;
-        vartype *v;
-        if (x < 0 || x != floor(x) || x == x - 1 || y < 0 || y != floor(y))
-            return ERR_INVALID_DATA;
-        if (y < x)
-            return ERR_INVALID_DATA;
-        while (x > 0) {
-            r *= y--;
-            if (p_isinf(r)) {
-                if (flags.f.range_error_ignore) {
-                    r = POS_HUGE_PHLOAT;
-                    break;
-                } else
-                    return ERR_OUT_OF_RANGE;
-            }
-            x--;
+    phloat y = ((vartype_real *) stack[sp - 1])->x;
+    phloat x = ((vartype_real *) stack[sp])->x;
+    phloat r = 1;
+    vartype *v;
+    if (x < 0 || x != floor(x) || x == x - 1 || y < 0 || y != floor(y))
+        return ERR_INVALID_DATA;
+    if (y < x)
+        return ERR_INVALID_DATA;
+    while (x > 0) {
+        r *= y--;
+        if (p_isinf(r)) {
+            if (flags.f.range_error_ignore) {
+                r = POS_HUGE_PHLOAT;
+                break;
+            } else
+                return ERR_OUT_OF_RANGE;
         }
-        v = new_real(r);
-        if (v == NULL)
-            return ERR_INSUFFICIENT_MEMORY;
-        return binary_result(v);
-    } else if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else if (stack[sp]->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
-    else if (stack[sp - 1]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else
-        return ERR_INVALID_TYPE;
+        x--;
+    }
+    v = new_real(r);
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    return binary_result(v);
 }
 
 static int mappable_fact(phloat x, phloat *y) {
@@ -260,16 +242,11 @@ static int mappable_fact(phloat x, phloat *y) {
 }
 
 int docmd_fact(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_REAL || stack[sp]->type == TYPE_REALMATRIX) {
-        vartype *v;
-        int err = map_unary(stack[sp], &v, mappable_fact, NULL);
-        if (err == ERR_NONE)
-            unary_result(v);
-        return err;
-    } else if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else
-        return ERR_INVALID_TYPE;
+    vartype *v;
+    int err = map_unary(stack[sp], &v, mappable_fact, NULL);
+    if (err == ERR_NONE)
+        unary_result(v);
+    return err;
 }
 
 static int mappable_gamma(phloat x, phloat *y) {
@@ -286,17 +263,11 @@ static int mappable_gamma(phloat x, phloat *y) {
 }
 
 int docmd_gamma(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else if (stack[sp]->type == TYPE_COMPLEX || stack[sp]->type == TYPE_COMPLEXMATRIX)
-        return ERR_INVALID_TYPE;
-    else {
-        vartype *v;
-        int err = map_unary(stack[sp], &v, mappable_gamma, NULL);
-        if (err == ERR_NONE)
-            unary_result(v);
-        return err;
-    }
+    vartype *v;
+    int err = map_unary(stack[sp], &v, mappable_gamma, NULL);
+    if (err == ERR_NONE)
+        unary_result(v);
+    return err;
 }
 
 int docmd_ran(arg_struct *arg) {
@@ -307,67 +278,62 @@ int docmd_ran(arg_struct *arg) {
 }
 
 int docmd_seed(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_REAL) {
-        phloat x = ((vartype_real *) stack[sp])->x;
-        if (x == 0) {
-            int8 s = shell_random_seed();
-            if (s < 0)
-                s = -s;
-            s %= 100000000000000LL;
-            s = s * 10 + 1;
-            random_number_high = s / 100000000LL;
-            random_number_low = s % 100000000LL;
-            return ERR_NONE;
-        }
-        if (x < 0)
-            x = -x;
-        #ifdef BCD_MATH
-            const phloat e12(1000000000000LL);
-            if (x >= 1) {
-                int exp = to_int(floor(log10(x)));
-                Phloat mant = floor(x * pow(Phloat(10), 11 - exp) + 0.5);
-                if (mant >= Phloat(1000000000000LL)) {
-                    mant /= 10;
-                    exp++;
-                }
-                x = (mant + ((exp + 1) % 100) / Phloat(100) + Phloat(1, 1000)) / e12;
-            } else if (x >= Phloat(1LL, 1000000000000LL)) {
-                x = floor(x * e12) / e12 + Phloat(1LL, 1000000000000000LL);
-            } else {
-                int exp = to_int(floor(log10(x) + 10000));
-                if (exp > 9984)
-                    exp = 9984;
-                x = ((exp + 16) % 100) / Phloat(100000000000000LL) + Phloat(1LL, 1000000000000000LL);
-            }
-            random_number_high = to_int8(x * Phloat(10000000));
-            random_number_low = to_int8(fmod(x * Phloat(1000000000000000LL), Phloat(100000000)));
-        #else
-            if (x >= 1) {
-                int exp = (int) floor(log10(x));
-                int8 mant = (int8) floor(x * pow(10.0, 11 - exp) + 0.5);
-                if (mant >= 1000000000000LL) {
-                    mant /= 10;
-                    exp++;
-                }
-                random_number_high = mant / 100000;
-                random_number_low = (mant % 100000) * 1000L + (exp + 1) % 100 * 10 + 1;
-            } else if (x >= 1e-12) {
-                int8 t = (int8) floor(x * 1e12);
-                random_number_high = t / 100000;
-                random_number_low = (t % 100000) * 1000L + 1;
-            } else {
-                int exp = (int) floor(log10(x) + 1000);
-                if (exp > 984)
-                    exp = 984;
-                random_number_high = 0;
-                random_number_low = (exp + 16) % 100 * 10 + 1;
-            }
-        #endif
+    phloat x = ((vartype_real *) stack[sp])->x;
+    if (x == 0) {
+        int8 s = shell_random_seed();
+        if (s < 0)
+            s = -s;
+        s %= 100000000000000LL;
+        s = s * 10 + 1;
+        random_number_high = s / 100000000LL;
+        random_number_low = s % 100000000LL;
         return ERR_NONE;
-    } else if (arg->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else
-        return ERR_INVALID_TYPE;
+    }
+    if (x < 0)
+        x = -x;
+    #ifdef BCD_MATH
+        const phloat e12(1000000000000LL);
+        if (x >= 1) {
+            int exp = to_int(floor(log10(x)));
+            Phloat mant = floor(x * pow(Phloat(10), 11 - exp) + 0.5);
+            if (mant >= Phloat(1000000000000LL)) {
+                mant /= 10;
+                exp++;
+            }
+            x = (mant + ((exp + 1) % 100) / Phloat(100) + Phloat(1, 1000)) / e12;
+        } else if (x >= Phloat(1LL, 1000000000000LL)) {
+            x = floor(x * e12) / e12 + Phloat(1LL, 1000000000000000LL);
+        } else {
+            int exp = to_int(floor(log10(x) + 10000));
+            if (exp > 9984)
+                exp = 9984;
+            x = ((exp + 16) % 100) / Phloat(100000000000000LL) + Phloat(1LL, 1000000000000000LL);
+        }
+        random_number_high = to_int8(x * Phloat(10000000));
+        random_number_low = to_int8(fmod(x * Phloat(1000000000000000LL), Phloat(100000000)));
+    #else
+        if (x >= 1) {
+            int exp = (int) floor(log10(x));
+            int8 mant = (int8) floor(x * pow(10.0, 11 - exp) + 0.5);
+            if (mant >= 1000000000000LL) {
+                mant /= 10;
+                exp++;
+            }
+            random_number_high = mant / 100000;
+            random_number_low = (mant % 100000) * 1000L + (exp + 1) % 100 * 10 + 1;
+        } else if (x >= 1e-12) {
+            int8 t = (int8) floor(x * 1e12);
+            random_number_high = t / 100000;
+            random_number_low = (t % 100000) * 1000L + 1;
+        } else {
+            int exp = (int) floor(log10(x) + 1000);
+            if (exp > 984)
+                exp = 984;
+            random_number_high = 0;
+            random_number_low = (exp + 16) % 100 * 10 + 1;
+        }
+    #endif
+    return ERR_NONE;
 }
 
 int docmd_lbl(arg_struct *arg) {
@@ -678,7 +644,7 @@ static int generic_loop(arg_struct *arg, bool isg) {
                 int4 index = arg->val.num;
                 if (index >= size)
                     return ERR_SIZE_ERROR;
-                if (rm->array->is_string[index])
+                if (rm->array->is_string[index] != 0)
                     return ERR_ALPHA_DATA_IS_INVALID;
                 else {
                     if (!disentangle(regs))
@@ -744,17 +710,12 @@ int docmd_dse(arg_struct *arg) {
 }
 
 int docmd_aip(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_REAL) {
-        char buf[44];
-        int size = ip2revstring(((vartype_real *) stack[sp])->x, buf, 44);
-        append_alpha_string(buf, size, 1);
-        if (flags.f.trace_print && flags.f.printer_exists)
-            docmd_pra(NULL);
-        return ERR_NONE;
-    } else if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else
-        return ERR_INVALID_TYPE;
+    char buf[44];
+    int size = ip2revstring(((vartype_real *) stack[sp])->x, buf, 44);
+    append_alpha_string(buf, size, 1);
+    if (flags.f.trace_print && flags.f.printer_exists)
+        docmd_pra(NULL);
+    return ERR_NONE;
 }
 
 int docmd_xtoa(arg_struct *arg) {
@@ -767,7 +728,7 @@ int docmd_xtoa(arg_struct *arg) {
         append_alpha_char(to_char(x));
     } else if (stack[sp]->type == TYPE_STRING) {
         vartype_string *s = (vartype_string *) stack[sp];
-        append_alpha_string(s->text, s->length, 0);
+        append_alpha_string(s->txt(), s->length, 0);
     } else if (stack[sp]->type == TYPE_REALMATRIX) {
         vartype_realmatrix *m = (vartype_realmatrix *) stack[sp];
         int4 size = m->rows * m->columns;
@@ -775,10 +736,12 @@ int docmd_xtoa(arg_struct *arg) {
         char buf[44];
         int buflen = 0;
         for (i = size - 1; i >= 0; i--) {
-            if (m->array->is_string[i]) {
-                int j;
-                for (j = phloat_length(m->array->data[i]) - 1; j >= 0; j--) {
-                    buf[buflen++] = phloat_text(m->array->data[i])[j];
+            if (m->array->is_string[i] != 0) {
+                int4 len;
+                char *text;
+                get_matrix_string(m, i, &text, &len);
+                for (int4 j = len - 1; j >= 0; j--) {
+                    buf[buflen++] = text[j];
                     if (buflen == 44)
                         goto done;
                 }
@@ -796,8 +759,7 @@ int docmd_xtoa(arg_struct *arg) {
         }
         done:
         append_alpha_string(buf, buflen, 1);
-    } else
-        return ERR_INVALID_TYPE;
+    }
     if (flags.f.trace_print && flags.f.printer_exists)
         docmd_pra(NULL);
     return ERR_NONE;
@@ -976,204 +938,63 @@ int docmd_menu(arg_struct *arg) {
 }
 
 int docmd_x_eq_0(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else if (stack[sp]->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
     return ((vartype_real *) stack[sp])->x == 0 ? ERR_YES : ERR_NO;
 }
 
 int docmd_x_ne_0(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else if (stack[sp]->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
     return ((vartype_real *) stack[sp])->x != 0 ? ERR_YES : ERR_NO;
 }
 
 int docmd_x_lt_0(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else if (stack[sp]->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
     return ((vartype_real *) stack[sp])->x < 0 ? ERR_YES : ERR_NO;
 }
 
 int docmd_x_gt_0(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else if (stack[sp]->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
     return ((vartype_real *) stack[sp])->x > 0 ? ERR_YES : ERR_NO;
 }
 
 int docmd_x_le_0(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else if (stack[sp]->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
     return ((vartype_real *) stack[sp])->x <= 0 ? ERR_YES : ERR_NO;
 }
 
 int docmd_x_ge_0(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else if (stack[sp]->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
     return ((vartype_real *) stack[sp])->x >= 0 ? ERR_YES : ERR_NO;
 }
 
 int docmd_x_eq_y(arg_struct *arg) {
-    if (stack[sp]->type != stack[sp - 1]->type)
-        return ERR_NO;
-    switch (stack[sp]->type) {
-        case TYPE_REAL: {
-            vartype_real *x = (vartype_real *) stack[sp];
-            vartype_real *y = (vartype_real *) stack[sp - 1];
-            return x->x == y->x ? ERR_YES : ERR_NO;
-        }
-        case TYPE_COMPLEX: {
-            vartype_complex *x = (vartype_complex *) stack[sp];
-            vartype_complex *y = (vartype_complex *) stack[sp - 1];
-            return x->re == y->re && x->im == y->im ? ERR_YES : ERR_NO;
-        }
-        case TYPE_REALMATRIX: {
-            vartype_realmatrix *x = (vartype_realmatrix *) stack[sp];
-            vartype_realmatrix *y = (vartype_realmatrix *) stack[sp - 1];
-            int4 sz, i;
-            if (x->rows != y->rows || x->columns != y->columns)
-                return ERR_NO;
-            sz = x->rows * x->columns;
-            for (i = 0; i < sz; i++) {
-                int xstr = x->array->is_string[i];
-                int ystr = y->array->is_string[i];
-                if (xstr != ystr)
-                    return ERR_NO;
-                if (xstr) {
-                    if (!string_equals(phloat_text(x->array->data[i]),
-                                       phloat_length(x->array->data[i]),
-                                       phloat_text(y->array->data[i]),
-                                       phloat_length(y->array->data[i])))
-                        return ERR_NO;
-                } else {
-                    if (x->array->data[i] != y->array->data[i])
-                        return ERR_NO;
-                }
-            }
-            return ERR_YES;
-        }
-        case TYPE_COMPLEXMATRIX: {
-            vartype_complexmatrix *x = (vartype_complexmatrix *) stack[sp];
-            vartype_complexmatrix *y = (vartype_complexmatrix *) stack[sp - 1];
-            int4 sz, i;
-            if (x->rows != y->rows || x->columns != y->columns)
-                return ERR_NO;
-            sz = 2 * x->rows * x->columns;
-            for (i = 0; i < sz; i++)
-                if (x->array->data[i] != y->array->data[i])
-                    return ERR_NO;
-            return ERR_YES;
-        }
-        case TYPE_STRING: {
-            vartype_string *x = (vartype_string *) stack[sp];
-            vartype_string *y = (vartype_string *) stack[sp - 1];
-            if (string_equals(x->text, x->length, y->text, y->length))
-                return ERR_YES;
-            else
-                return ERR_NO;
-        }
-        default:
-            /* Can't happen */
-            return ERR_INTERNAL_ERROR;
-    }
+    return vartype_equals(stack[sp], stack[sp - 1]) ? ERR_YES : ERR_NO;
 }
 
 int docmd_x_ne_y(arg_struct *arg) {
-    int err = docmd_x_eq_y(arg);
-    switch (err) {
-        case ERR_YES:
-            return ERR_NO;
-        case ERR_NO:
-            return ERR_YES;
-        default:
-            return err;
-    }
+    return vartype_equals(stack[sp], stack[sp - 1]) ? ERR_NO : ERR_YES;
 }
 
 int docmd_x_lt_y(arg_struct *arg) {
-    switch (stack[sp]->type) {
-        case TYPE_REAL: {
-            if (stack[sp - 1]->type == TYPE_STRING)
-                return ERR_ALPHA_DATA_IS_INVALID;
-            else if (stack[sp - 1]->type != TYPE_REAL)
-                return ERR_INVALID_TYPE;
-            if (((vartype_real *) stack[sp])->x < ((vartype_real *) stack[sp - 1])->x)
-                return ERR_YES;
-            else
-                return ERR_NO;
-        }
-        case TYPE_STRING:
-            return ERR_ALPHA_DATA_IS_INVALID;
-        default:
-            return ERR_INVALID_TYPE;
-    }
+    if (((vartype_real *) stack[sp])->x < ((vartype_real *) stack[sp - 1])->x)
+        return ERR_YES;
+    else
+        return ERR_NO;
 }
 
 int docmd_x_gt_y(arg_struct *arg) {
-    switch (stack[sp]->type) {
-        case TYPE_REAL: {
-            if (stack[sp - 1]->type == TYPE_STRING)
-                return ERR_ALPHA_DATA_IS_INVALID;
-            else if (stack[sp - 1]->type != TYPE_REAL)
-                return ERR_INVALID_TYPE;
-            if (((vartype_real *) stack[sp])->x > ((vartype_real *) stack[sp - 1])->x)
-                return ERR_YES;
-            else
-                return ERR_NO;
-        }
-        case TYPE_STRING:
-            return ERR_ALPHA_DATA_IS_INVALID;
-        default:
-            return ERR_INVALID_TYPE;
-    }
+    if (((vartype_real *) stack[sp])->x > ((vartype_real *) stack[sp - 1])->x)
+        return ERR_YES;
+    else
+        return ERR_NO;
 }
 
 int docmd_x_le_y(arg_struct *arg) {
-    switch (stack[sp]->type) {
-        case TYPE_REAL: {
-            if (stack[sp - 1]->type == TYPE_STRING)
-                return ERR_ALPHA_DATA_IS_INVALID;
-            else if (stack[sp - 1]->type != TYPE_REAL)
-                return ERR_INVALID_TYPE;
-            if (((vartype_real *) stack[sp])->x <= ((vartype_real *) stack[sp - 1])->x)
-                return ERR_YES;
-            else
-                return ERR_NO;
-        }
-        case TYPE_STRING:
-            return ERR_ALPHA_DATA_IS_INVALID;
-        default:
-            return ERR_INVALID_TYPE;
-    }
+    if (((vartype_real *) stack[sp])->x <= ((vartype_real *) stack[sp - 1])->x)
+        return ERR_YES;
+    else
+        return ERR_NO;
 }
 
 int docmd_x_ge_y(arg_struct *arg) {
-    switch (stack[sp]->type) {
-        case TYPE_REAL: {
-            if (stack[sp - 1]->type == TYPE_STRING)
-                return ERR_ALPHA_DATA_IS_INVALID;
-            else if (stack[sp - 1]->type != TYPE_REAL)
-                return ERR_INVALID_TYPE;
-            if (((vartype_real *) stack[sp])->x >= ((vartype_real *) stack[sp - 1])->x)
-                return ERR_YES;
-            else
-                return ERR_NO;
-        }
-        case TYPE_STRING:
-            return ERR_ALPHA_DATA_IS_INVALID;
-        default:
-            return ERR_INVALID_TYPE;
-    }
+    if (((vartype_real *) stack[sp])->x >= ((vartype_real *) stack[sp - 1])->x)
+        return ERR_YES;
+    else
+        return ERR_NO;
 }
 
 struct sigma_label_spec {
@@ -1224,11 +1045,13 @@ int docmd_prsigma(arg_struct *arg) {
     print_text(NULL, 0, 1);
     for (i = 0; i < nr; i++) {
         int4 j = i + mode_sigma_reg;
-        if (rm->array->is_string[j]) {
+        if (rm->array->is_string[j] != 0) {
+            char *text;
+            int4 len;
+            get_matrix_string(rm, j, &text, &len);
             bufptr = 0;
             char2buf(buf, 100, &bufptr, '"');
-            string2buf(buf, 100, &bufptr, phloat_text(rm->array->data[j]),
-                                          phloat_length(rm->array->data[j]));
+            string2buf(buf, 100, &bufptr, text, len);
             char2buf(buf, 100, &bufptr, '"');
         } else
             bufptr = easy_phloat2string(rm->array->data[j], buf, 100, 0);
@@ -1287,7 +1110,7 @@ int docmd_prv(arg_struct *arg) {
         rlen = vartype2string(v, rbuf, 100);
         print_wide(lbuf, llen, rbuf, rlen);
 
-        if (v->type == TYPE_REALMATRIX || v->type == TYPE_COMPLEXMATRIX) {
+        if (v->type == TYPE_REALMATRIX || v->type == TYPE_COMPLEXMATRIX || v->type == TYPE_LIST) {
             prv_var = v;
             prv_index = 0;
             mode_interruptible = prv_worker;
@@ -1319,17 +1142,19 @@ static int prv_worker(int interrupted) {
         char2buf(lbuf, 32, &llen, ':');
         llen += int2string(j + 1, lbuf + llen, 32 - llen);
         char2buf(lbuf, 32, &llen, '=');
-        if (rm->array->is_string[prv_index]) {
+        if (rm->array->is_string[prv_index] != 0) {
+            char *text;
+            int4 len;
+            get_matrix_string(rm, prv_index, &text, &len);
             rlen = 0;
             char2buf(rbuf, 100, &rlen, '"');
-            string2buf(rbuf, 100, &rlen, phloat_text(rm->array->data[prv_index]),
-                                    phloat_length(rm->array->data[prv_index]));
+            string2buf(rbuf, 100, &rlen, text, len);
             char2buf(rbuf, 100, &rlen, '"');
         } else
             rlen = easy_phloat2string(rm->array->data[prv_index],
                                         rbuf, 100, 0);
         print_wide(lbuf, llen, rbuf, rlen);
-    } else /* prv_var->type == TYPE_COMPLEXMATRIX) */ {
+    } else if (prv_var->type == TYPE_COMPLEXMATRIX) {
         vartype_complexmatrix *cm = (vartype_complexmatrix *) prv_var;
         vartype_complex cpx;
         cpx.type = TYPE_COMPLEX;
@@ -1343,6 +1168,15 @@ static int prv_worker(int interrupted) {
         cpx.re = cm->array->data[2 * prv_index];
         cpx.im = cm->array->data[2 * prv_index + 1];
         rlen = vartype2string((vartype *) &cpx, rbuf, 100);
+        print_wide(lbuf, llen, rbuf, rlen);
+    } else /* prv_var->type == TYPE_LIST */ {
+        vartype_list *list = (vartype_list *) prv_var;
+        i = prv_index;
+        sz = list->size;
+        llen = int2string(i + 1, lbuf, 32);
+        char2buf(lbuf, 32, &llen, '=');
+        vartype *v = list->array->data[i];
+        rlen = vartype2string(v, rbuf, 100);
         print_wide(lbuf, llen, rbuf, rlen);
     }
 
@@ -1446,7 +1280,8 @@ int docmd_prx(arg_struct *arg) {
         }
 
         if (arg != NULL && (stack[sp]->type == TYPE_REALMATRIX
-                            || stack[sp]->type == TYPE_COMPLEXMATRIX)) {
+                            || stack[sp]->type == TYPE_COMPLEXMATRIX
+                            || stack[sp]->type == TYPE_LIST)) {
             prv_var = stack[sp];
             prv_index = 0;
             mode_interruptible = prv_worker;
@@ -1565,19 +1400,14 @@ int docmd_prlcd(arg_struct *arg) {
 }
 
 int docmd_delay(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_REAL) {
-        phloat x = ((vartype_real *) stack[sp])->x;
-        if (x < 0)
-            x = -x;
-        if (x >= 1.95)
-            return ERR_INVALID_DATA;
-        else
-            /* We don't actually use the delay value... */
-            return ERR_NONE;
-    } else if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
+    phloat x = ((vartype_real *) stack[sp])->x;
+    if (x < 0)
+        x = -x;
+    if (x >= 1.95)
+        return ERR_INVALID_DATA;
     else
-        return ERR_INVALID_TYPE;
+        /* We don't actually use the delay value... */
+        return ERR_NONE;
 }
 
 int docmd_pon(arg_struct *arg) {
@@ -1746,15 +1576,6 @@ int docmd_stop(arg_struct *arg) {
 int docmd_newmat(arg_struct *arg) {
     vartype *m;
 
-    if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else if (stack[sp]->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
-    if (stack[sp - 1]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else if (stack[sp - 1]->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
-
     phloat x = ((vartype_real *) stack[sp])->x;
     if (x <= -2147483648.0 || x >= 2147483648.0)
         return ERR_DIMENSION_ERROR;
@@ -1812,13 +1633,10 @@ int docmd_dim_t(arg_struct *arg) {
     if (stack[sp]->type == TYPE_REALMATRIX) {
         rows = ((vartype_realmatrix *) stack[sp])->rows;
         columns = ((vartype_realmatrix *) stack[sp])->columns;
-    } else if (stack[sp]->type == TYPE_COMPLEXMATRIX) {
+    } else {
         rows = ((vartype_complexmatrix *) stack[sp])->rows;
         columns = ((vartype_complexmatrix *) stack[sp])->columns;
-    } else if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else
-        return ERR_INVALID_TYPE;
+    }
     vartype *new_y = new_real(rows);
     vartype *new_x = new_real(columns);
     if (new_x == NULL || new_y == NULL) {

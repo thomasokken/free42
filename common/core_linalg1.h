@@ -18,7 +18,7 @@
 #ifndef CORE_LINALG1_H
 #define CORE_LINALG1_H 1
 
-#include "core_globals.h"
+#include "core_variables.h"
 
 int linalg_div(const vartype *left, const vartype *right,
                              int (*completion)(int, vartype *));

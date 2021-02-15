@@ -826,7 +826,6 @@ static void export_hp42s(int index) {
     int cmd;
     arg_struct arg;
     int saved_prgm = current_prgm;
-    uint4 hp42s_code;
     unsigned char code_flags, code_name, code_std_1, code_std_2;
     char cmdbuf[50];
     int cmdlen;
@@ -838,11 +837,10 @@ static void export_hp42s(int index) {
     do {
         const char *orig_num;
         get_next_command(&pc, &cmd, &arg, 0, &orig_num);
-        hp42s_code = cmd_array[cmd].hp42s_code;
-        code_flags = hp42s_code >> 24;
-        code_name = hp42s_code >> 16;
-        code_std_1 = hp42s_code >> 8;
-        code_std_2 = hp42s_code;
+        code_flags = (cmd_array[cmd].flags & (FLAG_SPECIAL | FLAG_ILLEGAL)) >> 5;
+        code_name = cmd_array[cmd].scode;
+        code_std_1 = cmd_array[cmd].code1;
+        code_std_2 = cmd_array[cmd].code2;
         cmdlen = 0;
         switch (code_flags) {
             case 1:
@@ -1017,15 +1015,26 @@ static void export_hp42s(int index) {
             normal:
                 if (arg.type == ARGTYPE_STR || arg.type == ARGTYPE_IND_STR) {
                     int i;
-                    cmdbuf[cmdlen++] = 0xF0 + arg.length + 1;
+                    if ((code_name & 0x80) == 0) {
+                        cmdbuf[cmdlen++] = 0xf0 + arg.length + 2;
+                        cmdbuf[cmdlen++] = 0xa7;
+                    } else {
+                        cmdbuf[cmdlen++] = 0xf0 + arg.length + 1;
+                    }
                     cmdbuf[cmdlen++] = arg.type == ARGTYPE_STR ? code_name
                                                             : code_name + 8;
                     for (i = 0; i < arg.length; i++)
                         cmdbuf[cmdlen++] = arg.val.text[i];
                 } else {
                     unsigned char suffix;
-                    if (code_std_1 != 0)
-                        cmdbuf[cmdlen++] = code_std_1;
+                    if (code_std_1 != 0) {
+                        if (code_std_1 == 0xf2 && (code_std_2 & 0x80) == 0) {
+                            cmdbuf[cmdlen++] = 0xf3;
+                            cmdbuf[cmdlen++] = 0xa7;
+                        } else {
+                            cmdbuf[cmdlen++] = code_std_1;
+                        }
+                    }
                     cmdbuf[cmdlen++] = code_std_2;
 
                     non_string_suffix:
@@ -1104,20 +1113,18 @@ int4 core_program_size(int prgm_index) {
     int cmd;
     arg_struct arg;
     int saved_prgm = current_prgm;
-    uint4 hp42s_code;
-    unsigned char code_flags, code_std_1;
-    //unsigned char code_name, code_std_2;
+    unsigned char code_flags, code_std_1, code_std_2;
+    //unsigned char code_name;
     int4 size = 0;
 
     current_prgm = prgm_index;
     do {
         const char *orig_num;
         get_next_command(&pc, &cmd, &arg, 0, &orig_num);
-        hp42s_code = cmd_array[cmd].hp42s_code;
-        code_flags = hp42s_code >> 24;
-        //code_name = hp42s_code >> 16;
-        code_std_1 = hp42s_code >> 8;
-        //code_std_2 = hp42s_code;
+        code_flags = (cmd_array[cmd].flags & (FLAG_SPECIAL | FLAG_ILLEGAL)) >> 5;
+        //code_name = cmd_array[cmd].scode;
+        code_std_1 = cmd_array[cmd].code1;
+        code_std_2 = cmd_array[cmd].code2;
         switch (code_flags) {
             case 1:
                 /* A command that requires some special attention */
@@ -1209,6 +1216,9 @@ int4 core_program_size(int prgm_index) {
                     if (arg.type != ARGTYPE_NONE)
                         size += 1;
                 }
+                if (code_std_1 == 0xf2 && (code_std_2 & 0x80) == 0)
+                    /* Extra extension */
+                    size += 1;
                 break;
             case 2:
             default:
@@ -1563,7 +1573,160 @@ static int hp42tofree42[] = {
 
 static int hp42ext[] = {
     /* Flag values: 0 = string, 1 = IND string, 2 = suffix, 3 = special,
-     * 4 = illegal */
+     * 4 = illegal
+     * Values 80-ff are the space used on the HP-42S, that is, strings whose
+     * first character has its high bit set. Since the gaps left in that
+     * scheme ran out when development of Plus42 started, additional
+     * extensions had to be defined, and they are encoded using a7 as the
+     * first character, and the opcode in the second character. By keeping
+     * that second-character opcode in the range 00-7f, we can still
+     * use a single byte lookup for all these extensions.
+     */
+
+    /* 00-0F */
+    CMD_NULL   | 0x4000,
+    CMD_XASTO  | 0x0000,
+    CMD_LXASTO | 0x0000,
+    CMD_HEAD   | 0x0000,
+    CMD_NULL   | 0x4000,
+    CMD_NULL   | 0x4000,
+    CMD_NULL   | 0x4000,
+    CMD_NULL   | 0x4000,
+    CMD_NULL   | 0x4000,
+    CMD_XASTO  | 0x1000,
+    CMD_LXASTO | 0x1000,
+    CMD_HEAD   | 0x1000,
+    CMD_NULL   | 0x4000,
+    CMD_NULL   | 0x4000,
+    CMD_NULL   | 0x4000,
+    CMD_NULL   | 0x4000,
+
+    /* 10-1F */
+    CMD_NULL   | 0x4000,
+    CMD_XASTO  | 0x2000,
+    CMD_LXASTO | 0x2000,
+    CMD_HEAD   | 0x2000,
+    CMD_NULL   | 0x4000,
+    CMD_NULL   | 0x4000,
+    CMD_NULL   | 0x4000,
+    CMD_NULL   | 0x4000,
+    CMD_NULL   | 0x4000,
+    CMD_NULL   | 0x4000,
+    CMD_NULL   | 0x4000,
+    CMD_NULL   | 0x4000,
+    CMD_NULL   | 0x4000,
+    CMD_NULL   | 0x4000,
+    CMD_NULL   | 0x4000,
+    CMD_NULL   | 0x4000,
+
+    /* 20-2F */
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+
+    /* 30-3F */
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+
+    /* 40-4F */
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+
+    /* 50-5F */
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+
+    /* 60-6F */
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+
+    /* 70-7F */
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+    CMD_NULL | 0x4000,
+
     /* 80-8F */
     CMD_VIEW    | 0x0000,
     CMD_STO     | 0x0000,
@@ -1608,7 +1771,7 @@ static int hp42ext[] = {
     CMD_UNPICK | 0x2000,
     CMD_RDNN   | 0x2000,
     CMD_RUPN   | 0x2000,
-    CMD_NULL   | 0x4000,
+    CMD_NULL   | 0x3000, /* Extra extensions */
     CMD_SF     | 0x1000,
     CMD_CF     | 0x1000,
     CMD_FSC_T  | 0x1000,
@@ -1822,6 +1985,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
         cmd = hp42tofree42[byte1];
         flag = cmd >> 12;
         cmd &= 0x0FFF;
+        bool extra_extension = false;
         if (flag == 0) {
             arg.type = ARGTYPE_NONE;
             goto store;
@@ -1908,7 +2072,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                     goto store;
                 }
                 for (i = 0; i < CMD_SENTINEL; i++)
-                    if (cmd_array[i].hp42s_code == code) {
+                    if (cmd_array[i].code1 == byte1 && cmd_array[i].code2 == byte2) {
                         if ((cmd_array[i].flags & FLAG_HIDDEN) != 0)
                             break;
                         cmd = i;
@@ -2011,6 +2175,11 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                             goto done;
                         arg.val.text[i] = suffix;
                     }
+                    if (extra_extension) {
+                        memmove(arg.val.text + 1, arg.val.text, str_len);
+                        arg.val.text[0] = 0xa7;
+                        str_len++;
+                    }
                     arg.length = str_len;
                     if (assign) {
                         assign = 0;
@@ -2034,13 +2203,21 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                     goto store;
                 } else {
                     /* Parameterized HP-42S extension */
-                    cmd = hp42ext[byte2 - 0x080];
+                    if (byte2 == 0xa7) {
+                        byte2 = raw_getc();
+                        if (byte2 == EOF)
+                            goto done;
+                        byte1--;
+                        extra_extension = true;
+                    }
+                    cmd = hp42ext[byte2];
                     flag = cmd >> 12;
                     cmd &= 0x0FFF;
                     if (flag == 0 || flag == 1) {
                         arg.type = flag == 0 ? ARGTYPE_STR
                                                 : ARGTYPE_IND_STR;
                         str_len = byte1 - 0x0F1;
+                        extra_extension = false;
                         goto do_string;
                     } else if (flag == 2) {
                         int ind;
@@ -2266,7 +2443,7 @@ char *core_copy() {
     } else if (stack[sp]->type == TYPE_STRING) {
         vartype_string *s = (vartype_string *) stack[sp];
         char *buf = (char *) malloc(5 * s->length + 1);
-        int bufptr = hp2ascii(buf, s->text, s->length);
+        int bufptr = hp2ascii(buf, s->txt(), s->length);
         buf[bufptr] = 0;
         return buf;
     } else if (stack[sp]->type == TYPE_REALMATRIX) {
@@ -2283,10 +2460,14 @@ char *core_copy() {
         for (int r = 0; r < rm->rows; r++) {
             for (int c = 0; c < rm->columns; c++) {
                 int bufptr;
-                if (is_string[n])
-                    bufptr = hp2ascii(buf, phloat_text(data[n]), phloat_length(data[n]));
-                else
+                if (is_string[n] == 0) {
                     bufptr = real2buf(buf, data[n]);
+                } else {
+                    char *text;
+                    int4 len;
+                    get_matrix_string(rm, n, &text, &len);
+                    bufptr = hp2ascii(buf, text, len);
+                }
                 if (c < rm->columns - 1)
                     buf[bufptr++] = '\t';
                 tb_write(&tb, buf, bufptr);
@@ -2964,8 +3145,8 @@ static int parse_scalar(const char *buf, int len, bool strict, phloat *re, phloa
         return TYPE_REAL;
 
     finish_string:
-    if (len > 6)
-        len = 6;
+    if (len > *slen)
+        len = *slen;
     memcpy(s, buf, len);
     *slen = len;
     return TYPE_STRING;
@@ -3633,8 +3814,8 @@ void core_paste(const char *buf) {
             v = parse_base(hpbuf, len);
             if (v == NULL) {
                 phloat re, im;
-                char s[6];
-                int slen;
+                char s[256];
+                int slen = 256;
                 int type = parse_scalar(hpbuf, len, false, &re, &im, s, &slen);
                 switch (type) {
                     case TYPE_REAL:
@@ -3646,6 +3827,11 @@ void core_paste(const char *buf) {
                     case TYPE_STRING:
                         v = new_string(s, slen);
                         break;
+                }
+                if (v == NULL) {
+                    display_error(ERR_INSUFFICIENT_MEMORY, 0);
+                    redisplay();
+                    return;
                 }
             }
             free(hpbuf);
@@ -3699,8 +3885,8 @@ void core_paste(const char *buf) {
                     asciibuf[cellsize] = 0;
                     int hplen = ascii2hp(hpbuf, asciibuf, cellsize);
                     phloat re, im;
-                    char s[6];
-                    int slen;
+                    char s[256];
+                    int slen = 256;
                     int type = parse_scalar(hpbuf, hplen, true, &re, &im, s, &slen);
                     if (is_string != NULL) {
                         switch (type) {
@@ -3709,14 +3895,16 @@ void core_paste(const char *buf) {
                                 is_string[p] = 0;
                                 break;
                             case TYPE_COMPLEX:
+                                free_long_strings(is_string, data, p);
                                 for (int i = 0; i < p; i++)
-                                    if (is_string[i])
+                                    if (is_string[i] != 0)
                                         data[i] = 0;
                                 free(is_string);
                                 is_string = NULL;
                                 phloat *newdata;
                                 newdata = (phloat *) realloc(data, 2 * n * sizeof(phloat));
                                 if (newdata == NULL) {
+                                    nomem:
                                     free(data);
                                     free(asciibuf);
                                     free(hpbuf);
@@ -3737,10 +3925,22 @@ void core_paste(const char *buf) {
                                 if (slen == 0) {
                                     data[p] = 0;
                                     is_string[p] = 0;
-                                } else {
-                                    memcpy(phloat_text(data[p]), s, slen);
-                                    phloat_length(data[p]) = slen;
+                                } else if (slen <= SSLENM) {
+                                    char *text = (char *) &data[p];
+                                    *text = slen;
+                                    memcpy(text + 1, s, slen);
                                     is_string[p] = 1;
+                                } else {
+                                    int4 *t = (int4 *) malloc(slen + 4);
+                                    if (t == NULL) {
+                                        free_long_strings(is_string, data, p);
+                                        free(is_string);
+                                        goto nomem;
+                                    }
+                                    *t = slen;
+                                    memcpy(t + 1, s, slen);
+                                    *(int4 **) &data[p] = t;
+                                    is_string[p] = 2;
                                 }
                                 break;
                         }
@@ -3794,6 +3994,7 @@ void core_paste(const char *buf) {
                 vartype_realmatrix *rm = (vartype_realmatrix *)
                                 malloc(sizeof(vartype_realmatrix));
                 if (rm == NULL) {
+                    free_long_strings(is_string, data, p);
                     free(data);
                     free(is_string);
                     display_error(ERR_INSUFFICIENT_MEMORY, 0);
@@ -3804,6 +4005,7 @@ void core_paste(const char *buf) {
                                 malloc(sizeof(realmatrix_data));
                 if (rm->array == NULL) {
                     free(rm);
+                    free_long_strings(is_string, data, p);
                     free(data);
                     free(is_string);
                     display_error(ERR_INSUFFICIENT_MEMORY, 0);
@@ -4062,7 +4264,12 @@ int find_builtin(const char *name, int namelen, bool strict) {
     }
 
     for (i = 0; true; i++) {
-        if (i == CMD_OPENF) i += 14; // Skip COPAN
+        // Skip COPAN
+        if (i == CMD_OPENF)
+            i += 14;
+        // Skip String & List functions. These are only implemented in Plus42.
+        if (i == CMD_XASTO)
+            i += 16;
         if (i == CMD_SENTINEL)
             break;
         if ((cmd_array[i].flags & FLAG_HIDDEN) != 0)

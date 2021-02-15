@@ -18,7 +18,7 @@
 #ifndef CORE_LINALG2_H
 #define CORE_LINALG2_H 1
 
-#include "core_globals.h"
+#include "core_variables.h"
 
 int lu_decomp_r(vartype_realmatrix *a, int4 *perm,
                        int (*completion)(int, vartype_realmatrix *,

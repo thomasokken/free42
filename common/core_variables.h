@@ -20,6 +20,94 @@
 
 #include "core_phloat.h"
 
+/***********************/
+/* Variable data types */
+/***********************/
+
+#define TYPE_NULL 0
+#define TYPE_REAL 1
+#define TYPE_COMPLEX 2
+#define TYPE_REALMATRIX 3
+#define TYPE_COMPLEXMATRIX 4
+#define TYPE_STRING 5
+#define TYPE_LIST 6
+
+struct vartype {
+    int type;
+};
+
+
+struct vartype_real {
+    int type;
+    phloat x;
+};
+
+
+struct vartype_complex {
+    int type;
+    phloat re, im;
+};
+
+
+struct realmatrix_data {
+    int refcount;
+    phloat *data;
+    char *is_string;
+};
+
+struct vartype_realmatrix {
+    int type;
+    int4 rows;
+    int4 columns;
+    realmatrix_data *array;
+};
+
+
+struct complexmatrix_data {
+    int refcount;
+    phloat *data;
+};
+
+struct vartype_complexmatrix {
+    int type;
+    int4 rows;
+    int4 columns;
+    complexmatrix_data *array;
+};
+
+
+/* Maximum short string length in a stand-alone variable */
+#define SSLENV (sizeof(char *))
+/* Maximum short string length in a matrix element */
+#define SSLENM (sizeof(phloat) - 1)
+
+struct vartype_string {
+    int type;
+    int4 length;
+    /* When length <= SSLENV, use buf; otherwise, use ptr */
+    union {
+        char buf[SSLENV];
+        char *ptr;
+    } t;
+    char *txt() {
+        return length > SSLENV ? t.ptr : t.buf;
+    }
+    void trim1();
+};
+
+
+struct list_data {
+    int refcount;
+    vartype **data;
+};
+
+struct vartype_list {
+    int type;
+    int4 size;
+    list_data *array;
+};
+
+
 vartype *new_real(phloat value);
 vartype *new_complex(phloat re, phloat im);
 vartype *new_string(const char *s, int slen);
@@ -28,6 +116,9 @@ vartype *new_complexmatrix(int4 rows, int4 columns);
 vartype *new_list(int4 size);
 void free_vartype(vartype *v);
 void clean_vartype_pools();
+void free_long_strings(char *is_string, phloat *data, int4 n);
+void get_matrix_string(vartype_realmatrix *rm, int4 i, char **text, int4 *length);
+bool put_matrix_string(vartype_realmatrix *rm, int4 i, char *text, int4 length);
 vartype *dup_vartype(const vartype *v);
 int disentangle(vartype *v);
 int lookup_var(const char *name, int namelength);

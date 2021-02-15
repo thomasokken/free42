@@ -1662,16 +1662,17 @@ static void draw_catalog() {
         int show_real = 1;
         int show_cpx = 1;
         int show_mat = 1;
+        int show_list = 1;
 
         switch (catsect) {
             case CATSECT_REAL:
             case CATSECT_REAL_ONLY:
-                show_cpx = show_mat = 0; break;
+                show_cpx = show_mat = show_list = 0; break;
             case CATSECT_CPX:
-                show_real = show_mat = 0; break;
+                show_real = show_mat = show_list = 0; break;
             case CATSECT_MAT:
             case CATSECT_MAT_ONLY:
-                show_real = show_cpx = 0; break;
+                show_real = show_cpx = show_list = 0; break;
         }
 
         for (i = 0; i < vars_count; i++) {
@@ -1689,6 +1690,9 @@ static void draw_catalog() {
                 case TYPE_REALMATRIX:
                 case TYPE_COMPLEXMATRIX:
                     if (show_mat) vcount++;
+                    break;
+                case TYPE_LIST:
+                    if (show_list) vcount++;
                     break;
             }
         }
@@ -1726,6 +1730,10 @@ static void draw_catalog() {
                 case TYPE_REALMATRIX:
                 case TYPE_COMPLEXMATRIX:
                     if (show_mat) break; else continue;
+                case TYPE_LIST:
+                    if (show_list) break; else continue;
+                default:
+                    continue;
             }
             j++;
             if (j / 6 == catalogmenu_row[catindex]) {
@@ -1844,6 +1852,7 @@ void show() {
                 if (bufptr == 45)
                     bufptr = phloat2string(((vartype_real *) rx)->x, buf,
                                            44, 2, 0, 3, 0, MAX_MANT_DIGITS);
+                show_one_or_two_lines:
                 if (bufptr <= 22)
                     draw_string(0, 0, buf, bufptr);
                 else {
@@ -1854,10 +1863,12 @@ void show() {
             }
             case TYPE_STRING: {
                 vartype_string *s = (vartype_string *) rx;
-                draw_char(0, 0, '"');
-                draw_string(1, 0, s->text, s->length);
-                draw_char(s->length + 1, 0, '"');
-                break;
+                bufptr = 0;
+                char2buf(buf, 44, &bufptr, '"');
+                string2buf(buf, 44, &bufptr, s->txt(), s->length);
+                if (bufptr < 44)
+                    char2buf(buf, 44, &bufptr, '"');
+                goto show_one_or_two_lines;
             }
             case TYPE_COMPLEX: {
                 vartype_complex *c = (vartype_complex *) rx;
@@ -1893,16 +1904,21 @@ void show() {
                 bufptr = vartype2string(rx, buf, 22);
                 draw_string(0, 0, buf, bufptr);
                 draw_string(0, 1, "1:1=", 4);
-                if (rm->array->is_string[0]) {
-                    draw_char(4, 1, '"');
-                    draw_string(5, 1, phloat_text(*d), phloat_length(*d));
-                    draw_char(5 + phloat_length(*d), 1, '"');
+                bufptr = 0;
+                if (rm->array->is_string[0] != 0) {
+                    char *text;
+                    int4 len;
+                    get_matrix_string(rm, 0, &text, &len);
+                    char2buf(buf, 18, &bufptr, '"');
+                    string2buf(buf, 18, &bufptr, text, len);
+                    if (bufptr < 18)
+                        char2buf(buf, 18, &bufptr, '"');
                 } else {
                     bufptr = phloat2string(*d, buf, 18,
                                            0, 0, 3,
                                            flags.f.thousands_separators);
-                    draw_string(4, 1, buf, bufptr);
                 }
+                draw_string(4, 1, buf, bufptr);
                 break;
             }
             case TYPE_COMPLEXMATRIX: {
@@ -2398,8 +2414,8 @@ int command2buf(char *buf, int len, int cmd, const arg_struct *arg) {
     int bufptr = 0;
 
     int4 xrom_arg;
-    if ((cmd_array[cmd].hp42s_code & 0xfffff800) == 0x0000a000 && (cmd_array[cmd].flags & FLAG_HIDDEN) != 0) {
-        xrom_arg = cmd_array[cmd].hp42s_code;
+    if ((cmd_array[cmd].code1 & 0xf8) == 0xa0 && (cmd_array[cmd].flags & FLAG_HIDDEN) != 0) {
+        xrom_arg = (cmd_array[cmd].code1 << 8) | cmd_array[cmd].code2;
         cmd = CMD_XROM;
     } else if (cmd == CMD_XROM)
         xrom_arg = arg->val.num;
