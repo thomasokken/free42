@@ -453,28 +453,29 @@
 #define CMD_UNPICK      399
 #define CMD_RDNN        400
 #define CMD_RUPN        401
-/* Get list of LBLs with MVARs */
-#define CMD_MVARCAT     402
+/* Present a menu of LBLs with MVARs */
+#define CMD_PGMMENU     402
 /* Skipping 403 because of single-byte equality checks with CMD_END */
+#define CMD_PMEXEC      404
 /* String & List Functions */
-#define CMD_XASTO       404
-#define CMD_LXASTO      405
-#define CMD_APPEND      406
-#define CMD_EXTEND      407
-#define CMD_SUBSTR      408
-#define CMD_LENGTH      409
-#define CMD_HEAD        410
-#define CMD_REV         411
-#define CMD_POS         412
-#define CMD_S_TO_N      413
-#define CMD_N_TO_S      414
-#define CMD_C_TO_N      415
-#define CMD_N_TO_C      416
-#define CMD_LIST_T      417
-#define CMD_NEWLIST     418
-#define CMD_NEWSTR      419
+#define CMD_XASTO       405
+#define CMD_LXASTO      406
+#define CMD_APPEND      407
+#define CMD_EXTEND      408
+#define CMD_SUBSTR      409
+#define CMD_LENGTH      410
+#define CMD_HEAD        411
+#define CMD_REV         412
+#define CMD_POS         413
+#define CMD_S_TO_N      414
+#define CMD_N_TO_S      415
+#define CMD_C_TO_N      416
+#define CMD_N_TO_C      417
+#define CMD_LIST_T      418
+#define CMD_NEWLIST     419
+#define CMD_NEWSTR      420
 
-#define CMD_SENTINEL    420
+#define CMD_SENTINEL    421
 
 
 /* command_spec.argtype */
