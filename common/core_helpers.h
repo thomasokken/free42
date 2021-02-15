@@ -36,6 +36,7 @@ int recall_two_results(vartype *x, vartype *y);
 void unary_result(vartype *x);
 int unary_two_results(vartype *x, vartype *y);
 int binary_result(vartype *x);
+void binary_two_results(vartype *x, vartype *y);
 int ternary_result(vartype *x);
 bool ensure_stack_capacity(int n);
 void shrink_stack();

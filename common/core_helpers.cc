@@ -248,6 +248,21 @@ int binary_result(vartype *x) {
     return ERR_NONE;
 }
 
+void binary_two_results(vartype *x, vartype *y) {
+    if (flags.f.big_stack) {
+        while (sp < 1)
+            stack[++sp] = NULL;
+    }
+    if (stack[sp] != NULL) {
+        free_vartype(lastx);
+        lastx = stack[sp];
+    }
+    free_vartype(stack[sp - 1]);
+    stack[sp - 1] = y;
+    stack[sp] = x;
+    print_trace();
+}
+
 int ternary_result(vartype *x) {
     if (flags.f.big_stack) {
         free_vartype(lastx);

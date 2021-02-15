@@ -708,12 +708,7 @@ int docmd_mean(arg_struct *arg) {
         free_vartype(mx);
         return ERR_INSUFFICIENT_MEMORY;
     }
-    free_vartype(stack[sp - 1]);
-    stack[sp - 1] = my;
-    free_vartype(lastx);
-    lastx = stack[sp];
-    stack[sp] = mx;
-    print_trace();
+    binary_two_results(mx, my);
     return ERR_NONE;
 }
 
@@ -745,12 +740,7 @@ int docmd_sdev(arg_struct *arg) {
         free_vartype(sx);
         return ERR_INSUFFICIENT_MEMORY;
     }
-    free_vartype(stack[sp - 1]);
-    stack[sp - 1] = sy;
-    free_vartype(lastx);
-    lastx = stack[sp];
-    stack[sp] = sx;
-    print_trace();
+    binary_two_results(sx, sy);
     return ERR_NONE;
 }
 
@@ -781,12 +771,7 @@ int docmd_sum(arg_struct *arg) {
         free_vartype(sx);
         return ERR_INSUFFICIENT_MEMORY;
     }
-    free_vartype(lastx);
-    free_vartype(stack[sp - 1]);
-    stack[sp - 1] = sy;
-    lastx = stack[sp];
-    stack[sp] = sx;
-    print_trace();
+    binary_two_results(sx, sy);
     return ERR_NONE;
 }
 
