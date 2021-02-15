@@ -106,8 +106,8 @@ int docmd_chs(arg_struct *arg) {
                 cm->array->data[i] = -(cm->array->data[i]);
             break;
         }
-        case TYPE_STRING:
-            return ERR_ALPHA_DATA_IS_INVALID;
+        default:
+            return ERR_INTERNAL_ERROR;
     }
     print_trace();
     return ERR_NONE;
@@ -286,7 +286,7 @@ int docmd_complex(arg_struct *arg) {
         case TYPE_STRING:
             return ERR_ALPHA_DATA_IS_INVALID;
         default:
-            return ERR_INTERNAL_ERROR;
+            return ERR_INVALID_TYPE;
     }
 }
 
@@ -332,6 +332,9 @@ int docmd_rcl_div(arg_struct *arg) {
     int err = generic_rcl(arg, &temp_v);
     if (err != ERR_NONE)
         return err;
+    err = assert_numeric(temp_v);
+    if (err != ERR_NONE)
+        return err;
     return generic_div(temp_v, stack[sp], docmd_rcl_div_completion);
 }
 
@@ -346,12 +349,18 @@ int docmd_rcl_mul(arg_struct *arg) {
     int err = generic_rcl(arg, &temp_v);
     if (err != ERR_NONE)
         return err;
+    err = assert_numeric(temp_v);
+    if (err != ERR_NONE)
+        return err;
     return generic_mul(temp_v, stack[sp], docmd_rcl_mul_completion);
 }
 
 int docmd_rcl_sub(arg_struct *arg) {
     vartype *v, *w;
     int err = generic_rcl(arg, &v);
+    if (err != ERR_NONE)
+        return err;
+    err = assert_numeric(temp_v);
     if (err != ERR_NONE)
         return err;
     err = generic_sub(v, stack[sp], &w);
@@ -364,6 +373,9 @@ int docmd_rcl_sub(arg_struct *arg) {
 int docmd_rcl_add(arg_struct *arg) {
     vartype *v, *w;
     int err = generic_rcl(arg, &v);
+    if (err != ERR_NONE)
+        return err;
+    err = assert_numeric(temp_v);
     if (err != ERR_NONE)
         return err;
     err = generic_add(v, stack[sp], &w);
@@ -449,13 +461,13 @@ int docmd_null(arg_struct *arg) {
 }
 
 int docmd_asto(arg_struct *arg) {
-    /* I'm lazy enough to spot that ASTO has exactly the same side effects as
-     * STO with the first 6 characters of ALPHA in ST X (as long as the
-     * destination is not ST X or IND ST X). If you're also aware that
-     * new_string() constructs a string of no more than 6 characters,
-     * you'll see that this code does the job quite nicely.
+    /* Using STO to do the dirty work. Just need a bit of special care
+     * in case the destination is ST X or IND ST X.
      */
-    vartype *s = new_string(reg_alpha, reg_alpha_length);
+    int len = reg_alpha_length;
+    if (len > 6)
+        len = 6;
+    vartype *s = new_string(reg_alpha, len);
     if (s == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     if (arg->type == ARGTYPE_STK && arg->val.stk == 'X') {
@@ -530,7 +542,7 @@ int docmd_arcl(arg_struct *arg) {
      */
     if (v->type == TYPE_STRING) {
         vartype_string *s = (vartype_string *) v;
-        append_alpha_string(s->text, s->length, 0);
+        append_alpha_string(s->txt(), s->length, 0);
     } else {
         char buf[100];
         int bufptr = vartype2string(v, buf, 100);
@@ -642,6 +654,8 @@ int docmd_clsigma(arg_struct *arg) {
     if (last > size)
         return ERR_SIZE_ERROR;
     for (i = first; i < last; i++) {
+        if (r->array->is_string[i] == 2)
+            free(*(void **) &r->array->data[i]);
         r->array->is_string[i] = 0;
         r->array->data[i] = 0;
     }
@@ -701,6 +715,7 @@ int docmd_clrg(arg_struct *arg) {
             return ERR_INSUFFICIENT_MEMORY;
         rm = (vartype_realmatrix *) regs;
         sz = rm->rows * rm->columns;
+        free_long_strings(rm->array->is_string, rm->array->data, sz);
         for (i = 0; i < sz; i++)
             rm->array->data[i] = 0;
         for (i = 0; i < sz; i++)
@@ -789,27 +804,21 @@ int docmd_clall(arg_struct *arg) {
 }
 
 int docmd_percent(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_STRING || stack[sp - 1]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    if (stack[sp]->type != TYPE_REAL || stack[sp - 1]->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
-    else {
-        vartype_real *x = (vartype_real *) stack[sp];
-        vartype_real *y = (vartype_real *) stack[sp - 1];
-        phloat res = x->x * y->x;
-        if (p_isinf(res)) {
-            /* Try different evaluation order */
-            res = (x->x / 100.0) * y->x;
-            if (p_isinf(res))
-                return ERR_OUT_OF_RANGE;
-        } else
-            res /= 100.0;
-        vartype *new_x = new_real(res);
-        if (new_x == NULL)
-            return ERR_INSUFFICIENT_MEMORY;
-        unary_result(new_x);
-        return ERR_NONE;
-    }
+    vartype_real *x = (vartype_real *) stack[sp];
+    vartype_real *y = (vartype_real *) stack[sp - 1];
+    phloat res = x->x * y->x;
+    if (p_isinf(res)) {
+        /* Try different evaluation order */
+        res = (x->x / 100.0) * y->x;
+        if (p_isinf(res))
+            return ERR_OUT_OF_RANGE;
+    } else
+        res /= 100.0;
+    vartype *new_x = new_real(res);
+    if (new_x == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    unary_result(new_x);
+    return ERR_NONE;
 }
 
 int docmd_pi(arg_struct *arg) {
@@ -834,16 +843,11 @@ static int mappable_to_deg(phloat x, phloat *y) {
 }
 
 int docmd_to_deg(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_REAL || stack[sp]->type == TYPE_REALMATRIX) {
-        vartype *v;
-        int err = map_unary(stack[sp], &v, mappable_to_deg, NULL);
-        if (err == ERR_NONE)
-            unary_result(v);
-        return err;
-    } else if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else
-        return ERR_INVALID_TYPE;
+    vartype *v;
+    int err = map_unary(stack[sp], &v, mappable_to_deg, NULL);
+    if (err == ERR_NONE)
+        unary_result(v);
+    return err;
 }
 
 static int mappable_to_rad(phloat x, phloat *y) {
@@ -852,16 +856,11 @@ static int mappable_to_rad(phloat x, phloat *y) {
 }
 
 int docmd_to_rad(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_REAL || stack[sp]->type == TYPE_REALMATRIX) {
-        vartype *v;
-        int err = map_unary(stack[sp], &v, mappable_to_rad, NULL);
-        if (err == ERR_NONE)
-            unary_result(v);
-        return err;
-    } else if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else
-        return ERR_INVALID_TYPE;
+    vartype *v;
+    int err = map_unary(stack[sp], &v, mappable_to_rad, NULL);
+    if (err == ERR_NONE)
+        unary_result(v);
+    return err;
 }
 
 static int mappable_to_hr(phloat x, phloat *y) {
@@ -908,16 +907,11 @@ static int mappable_to_hr(phloat x, phloat *y) {
 }
 
 int docmd_to_hr(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_REAL || stack[sp]->type == TYPE_REALMATRIX) {
-        vartype *v;
-        int err = map_unary(stack[sp], &v, mappable_to_hr, NULL);
-        if (err == ERR_NONE)
-            unary_result(v);
-        return err;
-    } else if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else
-        return ERR_INVALID_TYPE;
+    vartype *v;
+    int err = map_unary(stack[sp], &v, mappable_to_hr, NULL);
+    if (err == ERR_NONE)
+        unary_result(v);
+    return err;
 }
 
 static int mappable_to_hms(phloat x, phloat *y) {
@@ -940,16 +934,11 @@ static int mappable_to_hms(phloat x, phloat *y) {
 }
 
 int docmd_to_hms(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_REAL || stack[sp]->type == TYPE_REALMATRIX) {
-        vartype *v;
-        int err = map_unary(stack[sp], &v, mappable_to_hms, NULL);
-        if (err == ERR_NONE)
-            unary_result(v);
-        return err;
-    } else if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else
-        return ERR_INVALID_TYPE;
+    vartype *v;
+    int err = map_unary(stack[sp], &v, mappable_to_hms, NULL);
+    if (err == ERR_NONE)
+        unary_result(v);
+    return err;
 }
 
 int docmd_to_rec(arg_struct *arg) {
@@ -1095,16 +1084,11 @@ static int mappable_ip(phloat x, phloat *y) {
 }
 
 int docmd_ip(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_REAL || stack[sp]->type == TYPE_REALMATRIX) {
-        vartype *v;
-        int err = map_unary(stack[sp], &v, mappable_ip, NULL);
-        if (err == ERR_NONE)
-            unary_result(v);
-        return err;
-    } else if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else
-        return ERR_INVALID_TYPE;
+    vartype *v;
+    int err = map_unary(stack[sp], &v, mappable_ip, NULL);
+    if (err == ERR_NONE)
+        unary_result(v);
+    return err;
 }
 
 static int mappable_fp(phloat x, phloat *y) {
@@ -1116,16 +1100,11 @@ static int mappable_fp(phloat x, phloat *y) {
 }
 
 int docmd_fp(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_REAL || stack[sp]->type == TYPE_REALMATRIX) {
-        vartype *v;
-        int err = map_unary(stack[sp], &v, mappable_fp, NULL);
-        if (err == ERR_NONE)
-            unary_result(v);
-        return err;
-    } else if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else
-        return ERR_INVALID_TYPE;
+    vartype *v;
+    int err = map_unary(stack[sp], &v, mappable_fp, NULL);
+    if (err == ERR_NONE)
+        unary_result(v);
+    return err;
 }
 
 static phloat rnd_multiplier;
@@ -1190,22 +1169,18 @@ static int mappable_rnd_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
 }
 
 int docmd_rnd(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else {
-        vartype *v;
-        int err;
-        int digits = 0;
-        if (flags.f.digits_bit3) digits += 8;
-        if (flags.f.digits_bit2) digits += 4;
-        if (flags.f.digits_bit1) digits += 2;
-        if (flags.f.digits_bit0) digits += 1;
-        rnd_multiplier = pow(10.0, digits);
-        err = map_unary(stack[sp], &v, mappable_rnd_r, mappable_rnd_c);
-        if (err == ERR_NONE)
-            unary_result(v);
-        return err;
-    }
+    vartype *v;
+    int err;
+    int digits = 0;
+    if (flags.f.digits_bit3) digits += 8;
+    if (flags.f.digits_bit2) digits += 4;
+    if (flags.f.digits_bit1) digits += 2;
+    if (flags.f.digits_bit0) digits += 1;
+    rnd_multiplier = pow(10.0, digits);
+    err = map_unary(stack[sp], &v, mappable_rnd_r, mappable_rnd_c);
+    if (err == ERR_NONE)
+        unary_result(v);
+    return err;
 }
 
 int docmd_abs(arg_struct *arg) {
@@ -1236,8 +1211,6 @@ int docmd_abs(arg_struct *arg) {
             unary_result(r);
             return ERR_NONE;
         }
-        case TYPE_STRING:
-            return ERR_ALPHA_DATA_IS_INVALID;
         case TYPE_REALMATRIX: {
             if (contains_strings((vartype_realmatrix *) stack[sp]))
                 return ERR_ALPHA_DATA_IS_INVALID;
@@ -1259,8 +1232,6 @@ int docmd_abs(arg_struct *arg) {
             unary_result((vartype *) dst);
             return ERR_NONE;
         }
-        case TYPE_COMPLEXMATRIX:
-            return ERR_INVALID_TYPE;
         default:
             return ERR_INTERNAL_ERROR;
     }
@@ -1321,7 +1292,7 @@ int docmd_sign(arg_struct *arg) {
                 return ERR_INSUFFICIENT_MEMORY;
             size = src->rows * src->columns;
             for (i = 0; i < size; i++) {
-                if (src->array->is_string[i])
+                if (src->array->is_string[i] != 0)
                     dst->array->data[i] = 0;
                 else
                     dst->array->data[i] = src->array->data[i] < 0 ? -1 : 1;
@@ -1342,30 +1313,21 @@ int docmd_sign(arg_struct *arg) {
 }
 
 int docmd_mod(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_REAL && stack[sp - 1]->type == TYPE_REAL) {
-        phloat x = ((vartype_real *) stack[sp])->x;
-        phloat y = ((vartype_real *) stack[sp - 1])->x;
-        phloat res;
-        vartype *v;
-        if (x == 0)
-            res = y;
-        else if (y == 0)
-            res = 0;
-        else {
-            res = fmod(y, x);
-            if (res != 0 && ((x > 0 && y < 0) || (x < 0 && y > 0)))
-                res += x;
-        }
-        v = new_real(res);
-        if (v == NULL)
-            return ERR_INSUFFICIENT_MEMORY;
-        return binary_result(v);
-    } else if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else if (stack[sp]->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
-    else if (stack[sp - 1]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else
-        return ERR_INVALID_TYPE;
+    phloat x = ((vartype_real *) stack[sp])->x;
+    phloat y = ((vartype_real *) stack[sp - 1])->x;
+    phloat res;
+    vartype *v;
+    if (x == 0)
+        res = y;
+    else if (y == 0)
+        res = 0;
+    else {
+        res = fmod(y, x);
+        if (res != 0 && ((x > 0 && y < 0) || (x < 0 && y > 0)))
+            res += x;
+    }
+    v = new_real(res);
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    return binary_result(v);
 }

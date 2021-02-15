@@ -17,6 +17,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "core_helpers.h"
 #include "core_commands2.h"
@@ -42,16 +43,7 @@ int resolve_ind_arg(arg_struct *arg) {
                 int4 num = arg->val.num;
                 if (num >= size)
                     return ERR_SIZE_ERROR;
-                if (rm->array->is_string[num]) {
-                    phloat *d = &rm->array->data[num];
-                    int len = phloat_length(*d);
-                    if (len == 0)
-                        return ERR_RESTRICTED_OPERATION;
-                    arg->type = ARGTYPE_STR;
-                    arg->length = len;
-                    for (int i = 0; i < len; i++)
-                        arg->val.text[i] = phloat_text(*d)[i];
-                } else {
+                if (rm->array->is_string[num] == 0) {
                     phloat x = rm->array->data[num];
                     if (x < 0)
                         x = -x;
@@ -60,6 +52,17 @@ int resolve_ind_arg(arg_struct *arg) {
                     else
                         arg->val.num = to_int4(x);
                     arg->type = ARGTYPE_NUM;
+                } else {
+                    char *text;
+                    int4 len;
+                    get_matrix_string(rm, num, &text, &len);
+                    if (len == 0)
+                        return ERR_RESTRICTED_OPERATION;
+                    if (len > 7)
+                        return ERR_NAME_TOO_LONG;
+                    arg->type = ARGTYPE_STR;
+                    arg->length = len;
+                    memcpy(arg->val.text, text, len);
                 }
                 return ERR_NONE;
             }
@@ -101,10 +104,11 @@ int resolve_ind_arg(arg_struct *arg) {
                 vartype_string *s = (vartype_string *) v;
                 if (s->length == 0)
                     return ERR_RESTRICTED_OPERATION;
+                if (s->length > 7)
+                    return ERR_NAME_TOO_LONG;
                 arg->type = ARGTYPE_STR;
                 arg->length = s->length;
-                for (int i = 0; i < s->length; i++)
-                    arg->val.text[i] = s->text[i];
+                memcpy(arg->val.text, s->txt(), s->length);
                 return ERR_NONE;
             } else
                 return ERR_INVALID_TYPE;
@@ -244,6 +248,37 @@ int binary_result(vartype *x) {
     return ERR_NONE;
 }
 
+int ternary_result(vartype *x) {
+    if (flags.f.big_stack) {
+        free_vartype(lastx);
+        lastx = stack[sp];
+        free_vartype(stack[sp - 1]);
+        free_vartype(stack[sp - 2]);
+        sp -= 2;
+    } else {
+        vartype *tt = dup_vartype(stack[REG_T]);
+        if (tt == NULL) {
+            free_vartype(x);
+            return ERR_INSUFFICIENT_MEMORY;
+        }
+        vartype *ttt = dup_vartype(stack[REG_T]);
+        if (ttt == NULL) {
+            free_vartype(x);
+            free_vartype(tt);
+            return ERR_INSUFFICIENT_MEMORY;
+        }
+        free_vartype(lastx);
+        lastx = stack[REG_X];
+        free_vartype(stack[REG_Y]);
+        free_vartype(stack[REG_Z]);
+        stack[REG_Y] = tt;
+        stack[REG_Z] = ttt;
+    }
+    stack[sp] = x;
+    print_trace();
+    return ERR_NONE;
+}
+
 bool ensure_stack_capacity(int n) {
     if (!flags.f.big_stack)
         return true;
@@ -331,6 +366,208 @@ bool string_equals(const char *s1, int s1len, const char *s2, int s2len) {
     for (i = 0; i < s1len; i++)
         if (s1[i] != s2[i])
             return false;
+    return true;
+}
+
+int string_pos(const char *ntext, int nlen, vartype *hs, int startpos) {
+    int pos = -1;
+    if (hs->type == TYPE_REAL) {
+        phloat x = ((vartype_real *) hs)->x;
+        char c;
+        int i;
+        if (x < 0)
+            x = -x;
+        if (x >= 256)
+            return -2;
+        c = to_char(x);
+        for (i = startpos; i < nlen; i++)
+            if (ntext[i] == c) {
+                pos = i;
+                break;
+            }
+    } else {
+        vartype_string *s = (vartype_string *) hs;
+        if (s->length != 0) {
+            int i, j;
+            char *text = s->txt();
+            for (i = startpos; i < nlen - s->length + 1; i++) {
+                for (j = 0; j < s->length; j++)
+                    if (ntext[i + j] != text[j])
+                        goto notfound;
+                pos = i;
+                break;
+                notfound:;
+            }
+        }
+    }
+    return pos;
+}
+
+bool vartype_equals(vartype *v1, vartype *v2) {
+    if (v1->type != v2->type)
+        return false;
+    switch (v1->type) {
+        case TYPE_REAL: {
+            vartype_real *x = (vartype_real *) v1;
+            vartype_real *y = (vartype_real *) v2;
+            return x->x == y->x;
+        }
+        case TYPE_COMPLEX: {
+            vartype_complex *x = (vartype_complex *) v1;
+            vartype_complex *y = (vartype_complex *) v2;
+            return x->re == y->re && x->im == y->im;
+        }
+        case TYPE_REALMATRIX: {
+            vartype_realmatrix *x = (vartype_realmatrix *) v1;
+            vartype_realmatrix *y = (vartype_realmatrix *) v2;
+            int4 sz, i;
+            if (x->rows != y->rows || x->columns != y->columns)
+                return false;
+            sz = x->rows * x->columns;
+            for (i = 0; i < sz; i++) {
+                int xstr = x->array->is_string[i];
+                int ystr = y->array->is_string[i];
+                if (xstr != ystr)
+                    return false;
+                if (xstr == 0) {
+                    if (x->array->data[i] != y->array->data[i])
+                        return false;
+                } else {
+                    int len1, len2;
+                    char *text1, *text2;
+                    get_matrix_string(x, i, &text1, &len1);
+                    get_matrix_string(y, i, &text2, &len2);
+                    if (!string_equals(text1, len1, text2, len2))
+                        return false;
+                }
+            }
+            return true;
+        }
+        case TYPE_COMPLEXMATRIX: {
+            vartype_complexmatrix *x = (vartype_complexmatrix *) v1;
+            vartype_complexmatrix *y = (vartype_complexmatrix *) v2;
+            int4 sz, i;
+            if (x->rows != y->rows || x->columns != y->columns)
+                return false;
+            sz = 2 * x->rows * x->columns;
+            for (i = 0; i < sz; i++)
+                if (x->array->data[i] != y->array->data[i])
+                    return false;
+            return true;
+        }
+        case TYPE_STRING: {
+            vartype_string *x = (vartype_string *) v1;
+            vartype_string *y = (vartype_string *) v2;
+            return string_equals(x->txt(), x->length, y->txt(), y->length);
+        }
+        case TYPE_LIST: {
+            vartype_list *x = (vartype_list *) v1;
+            vartype_list *y = (vartype_list *) v2;
+            if (x->size != y->size)
+                return false;
+            int4 sz = x->size;
+            vartype **data1 = x->array->data;
+            vartype **data2 = y->array->data;
+            for (int4 i = 0; i < sz; i++)
+                if (!vartype_equals(data1[i], data2[i]))
+                    return false;
+            return true;
+        }
+        default:
+            /* Looks like someone added a type that we're not handling yet! */
+            return false;
+    }
+}
+
+int anum(const char *text, int len, phloat *res) {
+    char buf[50];
+    bool have_mant = false;
+    bool neg_mant = false;
+    bool have_radix = false;
+    bool have_exp = false;
+    bool neg_exp = false;
+    int exp_pos = 0;
+    int buf_pos = 0;
+    buf[buf_pos++] = '+';
+    for (int src_pos = 0; src_pos < len; src_pos++) {
+        char c = text[src_pos];
+        if (!flags.f.decimal_point)
+            if (c == '.')
+                c = ',';
+            else if (c == ',')
+                c = '.';
+        if (c == '+' || flags.f.thousands_separators && c == ',')
+            continue;
+        if (!have_mant) {
+            if (c == '-') {
+                neg_mant = !neg_mant;
+            } else if (c >= '0' && c <= '9') {
+                buf[buf_pos++] = c;
+                have_mant = true;
+            } else if (c == '.') {
+                buf[buf_pos++] = '0';
+                buf[buf_pos++] = '.';
+                have_mant = true;
+                have_radix = true;
+            } else {
+                neg_mant = false;
+            }
+        } else if (!have_exp) {
+            if (c == '-') {
+                neg_mant = !neg_mant;
+            } else if (c >= '0' && c <= '9') {
+                buf[buf_pos++] = c;
+            } else if (c == '.') {
+                if (!have_radix) {
+                    buf[buf_pos++] = c;
+                    have_radix = true;
+                }
+            } else if (c == 'E' || c == 'e' || c == 24) {
+                buf[buf_pos++] = 'e';
+                exp_pos = buf_pos;
+                buf[buf_pos++] = '+';
+                have_exp = true;
+            } else if (c == '.') {
+                /* ignore */
+            } else {
+                break;
+            }
+        } else {
+            if (c == '-') {
+                neg_exp = !neg_exp;
+            } else if (c >= '0' && c <= '9') {
+                buf[buf_pos++] = c;
+            } else if (c == '.' || c == 'E' || c == 'e' || c == 24) {
+                /* ignore */
+            } else {
+                break;
+            }
+        }
+    }
+    if (!have_mant)
+        return false;
+    if (neg_mant)
+        buf[0] = '-';
+    if (have_exp && buf_pos == exp_pos + 1) {
+        buf_pos -= 2;
+        have_exp = false;
+    }
+    if (have_exp && neg_exp)
+        buf[exp_pos] = '-';
+    buf[buf_pos++] = 0;
+    phloat p;
+#ifdef BCD_MATH
+    BID_UINT128 b;
+    bid128_from_string(&b, buf);
+    p = b;
+#else
+    sscanf(buf, "%le", &p);
+#endif
+    if (p_isnan(p))
+        return false;
+    if (p_isinf(p))
+        p = p > 0 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
+    *res = p;
     return true;
 }
 
@@ -514,10 +751,6 @@ void set_base(int base) {
 }
 
 int get_base_param(const vartype *v, int8 *n) {
-    if (v->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else if (v->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
     phloat x = ((vartype_real *) v)->x;
     return phloat2base(x, n) ? ERR_NONE : ERR_INVALID_DATA;
 }
@@ -690,7 +923,7 @@ void print_lines(const char *text, int length, int left_justified) {
 }
 
 void print_right(const char *left, int leftlen, const char *right, int rightlen) {
-    char buf[100];
+    char buf[132];
     int len;
     int width = flags.f.double_wide_print ? 12 : 24;
     int i, pad;
@@ -1024,6 +1257,30 @@ int dimension_array_ref(vartype *matrix, int4 rows, int4 columns) {
         if (oldmatrix->rows == rows && oldmatrix->columns == columns)
             return ERR_NONE;
         if (oldmatrix->array->refcount == 1) {
+            int4 oldsize = oldmatrix->rows * oldmatrix->columns;
+            if (size == oldsize) {
+                /* Easy case! */
+                oldmatrix->rows = rows;
+                oldmatrix->columns = columns;
+                return ERR_NONE;
+            } else if (size < oldsize) {
+                /* Also pretty easy, shrinking means we don't have to worry
+                 * about allocation failures. We do deal with realloc()
+                 * failures, because technically, realloc() can fail even when
+                 * shrinking, but that is easy to handle by simply hanging onto
+                 * the existing block.
+                 */
+                free_long_strings(oldmatrix->array->is_string + size, oldmatrix->array->data + size, oldsize - size);
+                char *new_is_string = (char *) realloc(oldmatrix->array->is_string, size);
+                if (new_is_string != NULL)
+                    oldmatrix->array->is_string = new_is_string;
+                phloat *new_data = (phloat *) realloc(oldmatrix->array->data, size * sizeof(phloat));
+                if (new_data != NULL)
+                    oldmatrix->array->data = new_data;
+                oldmatrix->rows = rows;
+                oldmatrix->columns = columns;
+                return ERR_NONE;
+            }
             /* Since there are no shared references to this array,
              * I can modify it in place using a realloc(). However, I
              * only use realloc() on the 'data' array, not on the
@@ -1036,19 +1293,13 @@ int dimension_array_ref(vartype *matrix, int4 rows, int4 columns) {
             char *new_is_string = (char *) malloc(size);
             if (new_is_string == NULL)
                 return ERR_INSUFFICIENT_MEMORY;
-            int4 i, s, oldsize;
-            phloat *new_data = (phloat *)
-                                    realloc(oldmatrix->array->data,
-                                            size * sizeof(phloat));
+            phloat *new_data = (phloat *) realloc(oldmatrix->array->data, size * sizeof(phloat));
             if (new_data == NULL) {
                 free(new_is_string);
                 return ERR_INSUFFICIENT_MEMORY;
             }
-            oldsize = oldmatrix->rows * oldmatrix->columns;
-            s = oldsize < size ? oldsize : size;
-            for (i = 0; i < s; i++)
-                new_is_string[i] = oldmatrix->array->is_string[i];
-            for (i = s; i < size; i++) {
+            memcpy(new_is_string, oldmatrix->array->is_string, oldsize);
+            for (int4 i = oldsize; i < size; i++) {
                 new_is_string[i] = 0;
                 new_data[i] = 0;
             }
@@ -1077,6 +1328,7 @@ int dimension_array_ref(vartype *matrix, int4 rows, int4 columns) {
             }
             new_array->is_string = (char *) malloc(size);
             if (new_array->is_string == NULL) {
+                nomem:
                 free(new_array->data);
                 free(new_array);
                 return ERR_INSUFFICIENT_MEMORY;
@@ -1085,7 +1337,19 @@ int dimension_array_ref(vartype *matrix, int4 rows, int4 columns) {
             s = oldsize < size ? oldsize : size;
             for (i = 0; i < s; i++) {
                 new_array->is_string[i] = oldmatrix->array->is_string[i];
-                new_array->data[i] = oldmatrix->array->data[i];
+                if (oldmatrix->array->is_string[i] == 2) {
+                    int4 *sp = *(int4 **) &oldmatrix->array->data[i];
+                    int4 *dp = (int4 *) malloc(*sp + 4);
+                    if (dp == NULL) {
+                        free_long_strings(new_array->is_string, new_array->data, i);
+                        free(new_array->is_string);
+                        goto nomem;
+                    }
+                    memcpy(dp, sp, *sp + 4);
+                    *(int4 **) &new_array->data[i] = dp;
+                } else {
+                    new_array->data[i] = oldmatrix->array->data[i];
+                }
             }
             for (i = s; i < size; i++) {
                 new_array->is_string[i] = 0;
@@ -1346,9 +1610,21 @@ int vartype2string(const vartype *v, char *buf, int buflen, int max_mant_digits)
             int i;
             int chars_so_far = 0;
             char2buf(buf, buflen, &chars_so_far, '"');
+            char *txt = s->txt();
             for (i = 0; i < s->length; i++)
-                char2buf(buf, buflen, &chars_so_far, s->text[i]);
+                char2buf(buf, buflen, &chars_so_far, txt[i]);
             char2buf(buf, buflen, &chars_so_far, '"');
+            return chars_so_far;
+        }
+
+        case TYPE_LIST: {
+            vartype_list *list = (vartype_list *) v;
+            int i;
+            int chars_so_far = 0;
+            string2buf(buf, buflen, &chars_so_far, "{ ", 2);
+            i = int2string(list->size, buf + chars_so_far, buflen - chars_so_far);
+            chars_so_far += i;
+            string2buf(buf, buflen, &chars_so_far, "-Elem List }", 12);
             return chars_so_far;
         }
 

@@ -16,6 +16,7 @@
  *****************************************************************************/
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "core_commands2.h"
 #include "core_commands3.h"
@@ -210,12 +211,7 @@ static void invrt_completion(int error, vartype *res) {
 }
 
 int docmd_invrt(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_REAL || stack[sp]->type == TYPE_COMPLEX)
-        return ERR_INVALID_TYPE;
-    else if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else
-        return linalg_inv(stack[sp], invrt_completion);
+    return linalg_inv(stack[sp], invrt_completion);
 }
 
 int docmd_j_add(arg_struct *arg) {
@@ -281,51 +277,18 @@ static int mappable_ln_1_x(phloat x, phloat *y) {
 }   
 
 int docmd_ln_1_x(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_REAL || stack[sp]->type == TYPE_REALMATRIX) {
-        vartype *v;
-        int err = map_unary(stack[sp], &v, mappable_ln_1_x, NULL);
-        if (err == ERR_NONE)
-            unary_result(v);
-        return err;
-    } else if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else
-        return ERR_INVALID_TYPE;
+    vartype *v;
+    int err = map_unary(stack[sp], &v, mappable_ln_1_x, NULL);
+    if (err == ERR_NONE)
+        unary_result(v);
+    return err;
 }
 
 int docmd_posa(arg_struct *arg) {
-    int pos = -1;
-    vartype *v;
-    if (stack[sp]->type == TYPE_REAL) {
-        phloat x = ((vartype_real *) stack[sp])->x;
-        char c;
-        int i;
-        if (x < 0)
-            x = -x;
-        if (x >= 256)
-            return ERR_INVALID_DATA;
-        c = to_char(x);
-        for (i = 0; i < reg_alpha_length; i++)
-            if (reg_alpha[i] == c) {
-                pos = i;
-                break;
-            }
-    } else if (stack[sp]->type == TYPE_STRING) {
-        vartype_string *s = (vartype_string *) stack[sp];
-        if (s->length != 0) {
-            int i, j;
-            for (i = 0; i < reg_alpha_length - s->length + 1; i++) {
-                for (j = 0; j < s->length; j++)
-                    if (reg_alpha[i + j] != s->text[j])
-                        goto notfound;
-                pos = i;
-                break;
-                notfound:;
-            }
-        }
-    } else
-        return ERR_INVALID_TYPE;
-    v = new_real(pos);
+    int pos = string_pos(reg_alpha, reg_alpha_length, stack[sp], 0);
+    if (pos == -2)
+        return ERR_INVALID_DATA;
+    vartype *v = new_real(pos);
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     unary_result(v);
@@ -373,15 +336,32 @@ int docmd_putm(arg_struct *arg) {
         if (src->rows + matedit_i > dst->rows
                 || src->columns + matedit_j > dst->columns)
             return ERR_DIMENSION_ERROR;
-        if (!disentangle(m))
+        /* Duplicate and disentangle the source matrix, in order to get
+         * a deep copy with all the long strings replicated; it
+         * simplifies the logic by making rollbacks easier, and it
+         * enables some nice sleight-of-hand for cleaning up the
+         * overwritten entries in the destination as well.
+         */
+        vartype *v = dup_vartype((vartype *) src);
+        if (v == NULL)
             return ERR_INSUFFICIENT_MEMORY;
+        if (!disentangle(v) || !disentangle(m)) {
+            free_vartype(v);
+            return ERR_INSUFFICIENT_MEMORY;
+        }
+        src = (vartype_realmatrix *) v;
         for (i = 0; i < src->rows; i++)
             for (j = 0; j < src->columns; j++) {
                 int4 n1 = i * src->columns + j;
                 int4 n2 = (i + matedit_i) * dst->columns + j + matedit_j;
+                char tc = dst->array->is_string[n2];
                 dst->array->is_string[n2] = src->array->is_string[n1];
+                src->array->is_string[n1] = tc;
+                phloat tp = dst->array->data[n2];
                 dst->array->data[n2] = src->array->data[n1];
+                src->array->data[n1] = tp;
             }
+        free_vartype(v);
         return ERR_NONE;
     } else if (stack[sp]->type == TYPE_REALMATRIX) {
         vartype_realmatrix *src = (vartype_realmatrix *) stack[sp];
@@ -389,9 +369,8 @@ int docmd_putm(arg_struct *arg) {
         if (src->rows + matedit_i > dst->rows
                 || src->columns + matedit_j > dst->columns)
             return ERR_DIMENSION_ERROR;
-        for (i = 0; i < src->rows * src->columns; i++)
-            if (src->array->is_string[i])
-                return ERR_ALPHA_DATA_IS_INVALID;
+        if (contains_strings(src))
+            return ERR_ALPHA_DATA_IS_INVALID;
         if (!disentangle(m))
             return ERR_INSUFFICIENT_MEMORY;
         for (i = 0; i < src->rows; i++)
@@ -443,10 +422,12 @@ int docmd_rclel(arg_struct *arg) {
     if (m->type == TYPE_REALMATRIX) {
         vartype_realmatrix *rm = (vartype_realmatrix *) m;
         int4 n = matedit_i * rm->columns + matedit_j;
-        if (rm->array->is_string[n])
-            v = new_string(phloat_text(rm->array->data[n]),
-                           phloat_length(rm->array->data[n]));
-        else
+        if (rm->array->is_string[n] != 0) {
+            char *text;
+            int4 length;
+            get_matrix_string(rm, n, &text, &length);
+            v = new_string(text, length);
+        } else
             v = new_real(rm->array->data[n]);
     } else if (m->type == TYPE_COMPLEXMATRIX) {
         vartype_complexmatrix *cm = (vartype_complexmatrix *) m;
@@ -476,17 +457,13 @@ int docmd_rclij(arg_struct *arg) {
 
 int docmd_rnrm(arg_struct *arg) {
     if (stack[sp]->type == TYPE_REALMATRIX) {
-        vartype *v;
         vartype_realmatrix *rm = (vartype_realmatrix *) stack[sp];
-        int4 size = rm->rows * rm->columns;
-        int4 i, j;
+        if (contains_strings(rm))
+            return ERR_ALPHA_DATA_IS_INVALID;
         phloat max = 0;
-        for (i = 0; i < size; i++)
-            if (rm->array->is_string[i])
-                return ERR_ALPHA_DATA_IS_INVALID;
-        for (i = 0; i < rm->rows; i++) {
+        for (int4 i = 0; i < rm->rows; i++) {
             phloat nrm = 0;
-            for (j = 0; j < rm->columns; j++) {
+            for (int4 j = 0; j < rm->columns; j++) {
                 phloat x = rm->array->data[i * rm->columns + j];
                 if (x >= 0)
                     nrm += x;
@@ -503,12 +480,12 @@ int docmd_rnrm(arg_struct *arg) {
             if (nrm > max)
                 max = nrm;
         }
-        v = new_real(max);
+        vartype *v = new_real(max);
         if (v == NULL)
             return ERR_INSUFFICIENT_MEMORY;
         unary_result(v);
         return ERR_NONE;
-    } else if (stack[sp]->type == TYPE_COMPLEXMATRIX) {
+    } else {
         vartype *v;
         vartype_complexmatrix *cm = (vartype_complexmatrix *) stack[sp];
         int4 i, j;
@@ -535,28 +512,22 @@ int docmd_rnrm(arg_struct *arg) {
             return ERR_INSUFFICIENT_MEMORY;
         unary_result(v);
         return ERR_NONE;
-    } else if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else
-        return ERR_INVALID_TYPE;
+    }
 }
 
 int docmd_rsum(arg_struct *arg) {
     if (stack[sp]->type == TYPE_REALMATRIX) {
         vartype_realmatrix *rm = (vartype_realmatrix *) stack[sp];
+        if (contains_strings(rm))
+            return ERR_ALPHA_DATA_IS_INVALID;
         vartype_realmatrix *res;
-        int4 size = rm->rows * rm->columns;
-        int4 i, j;
-        for (i = 0; i < size; i++)
-            if (rm->array->is_string[i])
-                return ERR_ALPHA_DATA_IS_INVALID;
         res = (vartype_realmatrix *) new_realmatrix(rm->rows, 1);
         if (res == NULL)
             return ERR_INSUFFICIENT_MEMORY;
-        for (i = 0; i < rm->rows; i++) {
+        for (int4 i = 0; i < rm->rows; i++) {
             phloat sum = 0;
             int inf;
-            for (j = 0; j < rm->columns; j++)
+            for (int4 j = 0; j < rm->columns; j++)
                 sum += rm->array->data[i * rm->columns + j];
             if ((inf = p_isinf(sum)) != 0) {
                 if (flags.f.range_error_ignore)
@@ -751,14 +722,11 @@ static int mappable_sinh_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
 }
 
 int docmd_sinh(arg_struct *arg) {
-    if (stack[sp]->type != TYPE_STRING) {
-        vartype *v;
-        int err = map_unary(stack[sp], &v, mappable_sinh_r, mappable_sinh_c);
-        if (err == ERR_NONE)
-            unary_result(v);
-        return err;
-    } else
-        return ERR_ALPHA_DATA_IS_INVALID;
+    vartype *v;
+    int err = map_unary(stack[sp], &v, mappable_sinh_r, mappable_sinh_c);
+    if (err == ERR_NONE)
+        unary_result(v);
+    return err;
 }
 
 int docmd_stoel(arg_struct *arg) {
@@ -793,16 +761,15 @@ int docmd_stoel(arg_struct *arg) {
         vartype_realmatrix *rm = (vartype_realmatrix *) m;
         int4 n = matedit_i * rm->columns + matedit_j;
         if (stack[sp]->type == TYPE_REAL) {
+            if (rm->array->is_string[n] == 2)
+                free(*(void **) &rm->array->data[n]);
             rm->array->is_string[n] = 0;
             rm->array->data[n] = ((vartype_real *) stack[sp])->x;
             return ERR_NONE;
         } else if (stack[sp]->type == TYPE_STRING) {
             vartype_string *s = (vartype_string *) stack[sp];
-            int i;
-            rm->array->is_string[n] = 1;
-            phloat_length(rm->array->data[n]) = s->length;
-            for (i = 0; i < s->length; i++)
-                phloat_text(rm->array->data[n])[i] = s->text[i];
+            if (!put_matrix_string(rm, n, s->txt(), s->length))
+                return ERR_INSUFFICIENT_MEMORY;
             return ERR_NONE;
         } else
             return ERR_INVALID_TYPE;
@@ -947,14 +914,11 @@ static int mappable_tanh_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
 }
 
 int docmd_tanh(arg_struct *arg) {
-    if (stack[sp]->type != TYPE_STRING) {
-        vartype *v;
-        int err = map_unary(stack[sp], &v, mappable_tanh_r, mappable_tanh_c);
-        if (err == ERR_NONE)
-            unary_result(v);
-        return err;
-    } else
-        return ERR_ALPHA_DATA_IS_INVALID;
+    vartype *v;
+    int err = map_unary(stack[sp], &v, mappable_tanh_r, mappable_tanh_c);
+    if (err == ERR_NONE)
+        unary_result(v);
+    return err;
 }
 
 int docmd_trans(arg_struct *arg) {
@@ -972,11 +936,21 @@ int docmd_trans(arg_struct *arg) {
                 int4 n1 = i * columns + j;
                 int4 n2 = j * rows + i;
                 dst->array->is_string[n2] = src->array->is_string[n1];
-                dst->array->data[n2] = src->array->data[n1];
+                if (dst->array->is_string[n2] == 2) {
+                    int4 *sp = *(int4 **) &src->array->data[n1];
+                    int4 *dp = (int4 *) malloc(*sp + 4);
+                    if (dp == NULL) {
+                        free_vartype((vartype *) dst);
+                        return ERR_INSUFFICIENT_MEMORY;
+                    }
+                    memcpy(dp, sp, *sp + 4);
+                    *(int4 **) &dst->array->data[n2] = dp;
+                } else
+                    dst->array->data[n2] = src->array->data[n1];
             }
         unary_result((vartype *) dst);
         return ERR_NONE;
-    } else if (stack[sp]->type == TYPE_COMPLEXMATRIX) {
+    } else {
         vartype_complexmatrix *src = (vartype_complexmatrix *) stack[sp];
         vartype_complexmatrix *dst;
         int4 rows = src->rows;
@@ -994,10 +968,7 @@ int docmd_trans(arg_struct *arg) {
             }
         unary_result((vartype *) dst);
         return ERR_NONE;
-    } else if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else
-        return ERR_INVALID_TYPE;
+    }
 }
 
 int docmd_wrap(arg_struct *arg) {
@@ -1127,24 +1098,27 @@ static int matedit_move(int direction) {
 
     if (m->type == TYPE_REALMATRIX) {
         if (old_n != new_n) {
-            if (rm->array->is_string[new_n])
-                v = new_string(phloat_text(rm->array->data[new_n]),
-                            phloat_length(rm->array->data[new_n]));
-            else
+            if (rm->array->is_string[new_n] != 0) {
+                char *text;
+                int4 len;
+                get_matrix_string(rm, new_n, &text, &len);
+                v = new_string(text, len);
+            } else
                 v = new_real(rm->array->data[new_n]);
             if (v == NULL)
                 return ERR_INSUFFICIENT_MEMORY;
         }
         if (stack[sp]->type == TYPE_REAL) {
+            if (rm->array->is_string[old_n] == 2)
+                free(*(void **) &rm->array->data[old_n]);
             rm->array->is_string[old_n] = 0;
             rm->array->data[old_n] = ((vartype_real *) stack[sp])->x;
         } else if (stack[sp]->type == TYPE_STRING) {
             vartype_string *s = (vartype_string *) stack[sp];
-            int i;
-            rm->array->is_string[old_n] = 1;
-            phloat_length(rm->array->data[old_n]) = s->length;
-            for (i = 0; i < s->length; i++)
-                phloat_text(rm->array->data[old_n])[i] = s->text[i];
+            if (!put_matrix_string(rm, old_n, s->txt(), s->length)) {
+                free_vartype(v);
+                return ERR_INSUFFICIENT_MEMORY;
+            }
         } else {
             free_vartype(v);
             return ERR_INVALID_TYPE;
@@ -1203,14 +1177,6 @@ int docmd_percent_ch(arg_struct *arg) {
     phloat x, y, r;
     int inf;
     vartype *v;
-    if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    if (stack[sp]->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
-    if (stack[sp - 1]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    if (stack[sp - 1]->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
     x = ((vartype_real *) stack[sp])->x;
     y = ((vartype_real *) stack[sp - 1])->x;
     if (y == 0)
@@ -1321,10 +1287,12 @@ static int matabx(int which) {
 
     if (mat->type == TYPE_REALMATRIX) {
         vartype_realmatrix *rm = (vartype_realmatrix *) mat;
-        if (rm->array->is_string[0])
-            v = new_string(phloat_text(rm->array->data[0]),
-                            phloat_length(rm->array->data[0]));
-        else
+        if (rm->array->is_string[0] != 0) {
+            char *text;
+            int4 length;
+            get_matrix_string(rm, 0, &text, &length);
+            v = new_string(text, length);
+        } else
             v = new_real(rm->array->data[0]);
     } else {
         vartype_complexmatrix *cm = (vartype_complexmatrix *) mat;
@@ -1495,7 +1463,7 @@ static int max_min_helper(int do_max) {
     for (i = matedit_i; i < rm->rows; i++) {
         int4 index = i * rm->columns + matedit_j;
         phloat e;
-        if (rm->array->is_string[index])
+        if (rm->array->is_string[index] != 0)
             return ERR_ALPHA_DATA_IS_INVALID;
         e = rm->array->data[index];
         if (do_max ? e >= max_or_min_value : e <= max_or_min_value) {
@@ -1551,7 +1519,7 @@ int docmd_find(arg_struct *arg) {
             phloat d = ((vartype_real *) stack[sp])->x;
             for (i = 0; i < rm->rows; i++)
                 for (j = 0; j < rm->columns; j++)
-                    if (!rm->array->is_string[p] && rm->array->data[p] == d) {
+                    if (rm->array->is_string[p] == 0 && rm->array->data[p] == d) {
                         matedit_i = i;
                         matedit_j = j;
                         return ERR_YES;
@@ -1559,17 +1527,22 @@ int docmd_find(arg_struct *arg) {
                         p++;
         } else /* stack[sp]->type == TYPE_STRING */ {
             vartype_string *s = (vartype_string *) stack[sp];
+            char *text = s->txt();
+            int4 len = s->length;
             for (i = 0; i < rm->rows; i++)
-                for (j = 0; j < rm->columns; j++)
-                    if (rm->array->is_string[p]
-                            && string_equals(s->text, s->length, 
-                                             phloat_text(rm->array->data[p]),
-                                             phloat_length(rm->array->data[p]))) {
-                        matedit_i = i;
-                        matedit_j = j;
-                        return ERR_YES;
-                    } else
-                        p++;
+                for (j = 0; j < rm->columns; j++) {
+                    if (rm->array->is_string[p] != 0) {
+                        char *mtext;
+                        int4 mlen;
+                        get_matrix_string(rm, p, &mtext, &mlen);
+                        if (string_equals(text, len, mtext, mlen)) {
+                            matedit_i = i;
+                            matedit_j = j;
+                            return ERR_YES;
+                        }
+                    }
+                    p++;
+                }
         }
     } else /* m->type == TYPE_COMPLEXMATRIX */ {
         vartype_complexmatrix *cm;

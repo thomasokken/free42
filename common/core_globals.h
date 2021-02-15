@@ -24,6 +24,7 @@
 #include "free42.h"
 #include "core_phloat.h"
 #include "core_tables.h"
+#include "core_variables.h"
 
 extern FILE *gfile;
 
@@ -69,6 +70,7 @@ extern FILE *gfile;
 #define ERR_NUMBER_TOO_SMALL       35
 #define ERR_BIG_STACK_DISABLED     36
 #define ERR_INVALID_CONTEXT        37
+#define ERR_NAME_TOO_LONG          38
 
 struct error_spec {
     const char *text;
@@ -211,80 +213,6 @@ struct menu_spec {
 
 extern const menu_spec menus[];
 
-
-/***********************/
-/* Variable data types */
-/***********************/
-
-#define TYPE_NULL 0
-#define TYPE_REAL 1
-#define TYPE_COMPLEX 2
-#define TYPE_REALMATRIX 3
-#define TYPE_COMPLEXMATRIX 4
-#define TYPE_STRING 5
-#define TYPE_LIST 6
-
-struct vartype {
-    int type;
-};
-
-
-struct vartype_real {
-    int type;
-    phloat x;
-};
-
-
-struct vartype_complex {
-    int type;
-    phloat re, im;
-};
-
-
-struct realmatrix_data {
-    int refcount;
-    phloat *data;
-    char *is_string;
-};
-
-struct vartype_realmatrix {
-    int type;
-    int4 rows;
-    int4 columns;
-    realmatrix_data *array;
-};
-
-
-struct complexmatrix_data {
-    int refcount;
-    phloat *data;
-};
-
-struct vartype_complexmatrix {
-    int type;
-    int4 rows;
-    int4 columns;
-    complexmatrix_data *array;
-};
-
-
-struct vartype_string {
-    int type;
-    int length;
-    char text[6];
-};
-
-
-struct list_data {
-    int refcount;
-    vartype **data;
-};
-
-struct vartype_list {
-    int type;
-    int4 size;
-    list_data *array;
-};
 
 /******************/
 /* Emulator state */

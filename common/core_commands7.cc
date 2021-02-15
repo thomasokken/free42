@@ -20,6 +20,7 @@
 #include <string.h>
 #include <stdarg.h>
 
+#include "core_commands1.h"
 #include "core_commands2.h"
 #include "core_commands7.h"
 #include "core_display.h"
@@ -270,11 +271,6 @@ static int jd2greg(int4 jd, int4 *y, int4 *m, int4 *d) {
 
 
 int docmd_adate(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    if (stack[sp]->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
-
     phloat x = ((vartype_real *) stack[sp])->x;
     if (x < 0)
         x = -x;
@@ -368,11 +364,6 @@ int docmd_adate(arg_struct *arg) {
 }
 
 int docmd_atime(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    if (stack[sp]->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
-
     phloat x = ((vartype_real *) stack[sp])->x;
     bool neg = x < 0;
     if (neg)
@@ -535,16 +526,6 @@ int docmd_date(arg_struct *arg) {
 }
 
 int docmd_date_plus(arg_struct *arg) {
-    // TODO: Accept real matrices as well?
-    if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    if (stack[sp]->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
-    if (stack[sp - 1]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    if (stack[sp - 1]->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
-
     phloat date = ((vartype_real *) stack[sp - 1])->x;
     if (date < 0 || date > (flags.f.ymd ? 10000 : 100))
         return ERR_INVALID_DATA;
@@ -572,16 +553,6 @@ int docmd_date_plus(arg_struct *arg) {
 }
 
 int docmd_ddays(arg_struct *arg) {
-    // TODO: Accept real matrices as well?
-    if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    if (stack[sp]->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
-    if (stack[sp - 1]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    if (stack[sp - 1]->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
-
     phloat date1 = ((vartype_real *) stack[sp - 1])->x;
     if (date1 < 0 || date1 > (flags.f.ymd ? 10000 : 100))
         return ERR_INVALID_DATA;
@@ -615,12 +586,6 @@ int docmd_dmy(arg_struct *arg) {
 }
 
 int docmd_dow(arg_struct *arg) {
-    // TODO: Accept real matrices as well?
-    if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    if (stack[sp]->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
-
     phloat x = ((vartype_real *) stack[sp])->x;
     if (x < 0 || x > (flags.f.ymd ? 10000 : 100))
         return ERR_INVALID_DATA;
@@ -809,7 +774,10 @@ int docmd_lsto(arg_struct *arg) {
 
 int docmd_lasto(arg_struct *arg) {
     /* This relates to LSTO the same way ASTO relates to STO. */
-    vartype *s = new_string(reg_alpha, reg_alpha_length);
+    int len = reg_alpha_length;
+    if (len > 6)
+        len = 6;
+    vartype *s = new_string(reg_alpha, len);
     if (s == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     int err;
@@ -839,10 +807,6 @@ int docmd_lasto(arg_struct *arg) {
 }
 
 int docmd_wsize(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    if (stack[sp]->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
     phloat x = ((vartype_real *) stack[sp])->x;
 #ifdef BCD_MATH
     if (x >= 65 || x < 1)
@@ -892,14 +856,6 @@ int docmd_nop(arg_struct *arg) {
 //////////////////////////////
 
 int docmd_fma(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_STRING
-            || stack[sp - 1]->type == TYPE_STRING
-            || stack[sp - 2]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    if (stack[sp]->type != TYPE_REAL
-            || stack[sp - 1]->type != TYPE_REAL
-            || stack[sp - 2]->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
     phloat x = ((vartype_real *) stack[sp])->x;
     phloat y = ((vartype_real *) stack[sp - 1])->x;
     phloat z = ((vartype_real *) stack[sp - 2])->x;
@@ -914,33 +870,7 @@ int docmd_fma(arg_struct *arg) {
     vartype *res = new_real(r);
     if (res == NULL)
         return ERR_INSUFFICIENT_MEMORY;
-    if (flags.f.big_stack) {
-        free_vartype(lastx);
-        lastx = stack[sp];
-        free_vartype(stack[sp - 1]);
-        free_vartype(stack[sp - 2]);
-        sp -= 2;
-    } else {
-        vartype *tt = dup_vartype(stack[REG_T]);
-        if (tt == NULL) {
-            free_vartype(res);
-            return ERR_INSUFFICIENT_MEMORY;
-        }
-        vartype *ttt = dup_vartype(stack[REG_T]);
-        if (ttt == NULL) {
-            free_vartype(res);
-            free_vartype(tt);
-            return ERR_INSUFFICIENT_MEMORY;
-        }
-        free_vartype(lastx);
-        lastx = stack[REG_X];
-        free_vartype(stack[REG_Y]);
-        free_vartype(stack[REG_Z]);
-        stack[REG_Y] = tt;
-        stack[REG_Z] = ttt;
-    }
-    stack[sp] = res;
-    return ERR_NONE;
+    return ternary_result(res);
 }
 
 int docmd_func(arg_struct *arg) {
@@ -1253,14 +1183,14 @@ int docmd_rupn(arg_struct *arg) {
     return ERR_NONE;
 }
 
-////////////////////////
-///// MVAR Catalog /////
-////////////////////////
+////////////////////
+///// PGM Menu /////
+////////////////////
 
-int docmd_mvarcat(arg_struct *arg) {
+int docmd_pgmmenu(arg_struct *arg) {
     int err = set_menu_return_err(MENULEVEL_APP, MENU_CATALOG, false);
     if (err == ERR_NONE) {
-        set_cat_section(CATSECT_MVARCAT);
+        set_cat_section(CATSECT_PGM_MENU);
         move_cat_row(0);
         clear_row(0);
     }

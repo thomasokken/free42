@@ -102,6 +102,8 @@
 /gtk/skins.cc
 /gtk/free42bin
 /gtk/free42dec
+/gtk/plus42bin
+/gtk/plus42dec
 /gtk/IntelRDFPMathLib20U1
 /gtk/readtest.c
 /gtk/readtest_lines.cc
@@ -219,6 +221,8 @@
 /windows/skins.cpp
 /windows/Free42Binary.exe
 /windows/Free42Decimal.exe
+/windows/Plus42Binary.exe
+/windows/Plus42Decimal.exe
 /windows/IntelRDFPMathLib20U1
 /windows/cl111libbid.lib
 /windows/readtest.c

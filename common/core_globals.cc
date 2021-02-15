@@ -79,7 +79,8 @@ const error_spec errors[] = {
     { /* NUMBER_TOO_LARGE */       "Number Too Large",        16 },
     { /* NUMBER_TOO_SMALL */       "Number Too Small",        16 },
     { /* BIG_STACK_DISABLED */     "Big Stack Disabled",      18 },
-    { /* INVALID_CONTEXT */        "Invalid Context",         15 }
+    { /* INVALID_CONTEXT */        "Invalid Context",         15 },
+    { /* NAME_TOO_LONG */          "Name Too Long",           13 }
 };
 
 
@@ -767,9 +768,10 @@ bool no_keystrokes_yet;
  * Version 30: 2.5.23 Private local variables
  * Version 31: 2.5.24 Merge RTN and FRT functionality
  * Version 32: 2.5.24 Replace FUNC[012] with FUNC [0-4][0-4]
- * Version 33: 3.0    Big Stack; parameterized RTNERR
+ * Version 33: 3.0    Big stack; parameterized RTNERR
+ * Version 34: 3.0    Long strings
  */
-#define FREE42_VERSION 33
+#define FREE42_VERSION 34
 
 
 /*******************/
@@ -882,6 +884,19 @@ static void update_decimal_in_programs();
 #endif
 
 
+void vartype_string::trim1() {
+    if (length > SSLENV + 1) {
+        memmove(t.ptr, t.ptr + 1, --length);
+    } else if (length == SSLENV + 1) {
+        char temp[SSLENV];
+        memcpy(temp, t.ptr + 1, --length);
+        free(t.ptr);
+        memcpy(t.buf, temp, length);
+    } else if (length > 0) {
+        memmove(t.buf, t.buf + 1, --length);
+    }
+}
+
 static bool array_list_grow() {
     if (array_count < array_list_capacity)
         return true;
@@ -917,8 +932,8 @@ static bool persist_vartype(vartype *v) {
         }
         case TYPE_STRING: {
             vartype_string *s = (vartype_string *) v;
-            return write_char(s->length)
-                && fwrite(s->text, 1, s->length, gfile) == s->length;
+            return write_int4(s->length)
+                && fwrite(s->txt(), 1, s->length, gfile) == s->length;
         }
         case TYPE_REALMATRIX: {
             vartype_realmatrix *rm = (vartype_realmatrix *) v;
@@ -948,12 +963,16 @@ static bool persist_vartype(vartype *v) {
                 if (fwrite(rm->array->is_string, 1, size, gfile) != size)
                     return false;
                 for (int i = 0; i < size; i++) {
-                    if (rm->array->is_string[i]) {
-                        char *str = (char *) &rm->array->data[i];
-                        if (fwrite(str, 1, 7, gfile) != 7)
+                    if (rm->array->is_string[i] == 0) {
+                        if (!write_phloat(rm->array->data[i]))
                             return false;
                     } else {
-                        if (!write_phloat(rm->array->data[i]))
+                        char *text;
+                        int4 len;
+                        get_matrix_string(rm, i, &text, &len);
+                        if (!write_int4(len))
+                            return false;
+                        if (fwrite(text, 1, len, gfile) != len)
                             return false;
                     }
                 }
@@ -1033,6 +1052,12 @@ struct fake_bcd {
     char data[16];
 };
 
+struct old_vartype_string {
+    int type;
+    int length;
+    char text[6];
+};
+
 // For coping with bad 2.5 state files. 0 means don't do anything special;
 // 1 means check for bad string lengths in real matrices; 2 is bug-
 // compatibility mode; and 3 is a signal to switch from mode 1 to mode 2.
@@ -1042,6 +1067,10 @@ struct fake_bcd {
 // and try again in mode 2.
 
 int bug_mode;
+
+// Using a global for 'ver' so we don't have to pass it around all the time
+
+int4 ver;
 
 static bool unpersist_vartype(vartype **v, bool padded) {
     if (state_is_portable) {
@@ -1076,15 +1105,23 @@ static bool unpersist_vartype(vartype **v, bool padded) {
                 return true;
             }
             case TYPE_STRING: {
-                vartype_string *s = (vartype_string *) new_string("", 0);
+                int4 len;
+                if (ver < 34) {
+                    char c;
+                    if (!read_char(&c))
+                        return false;
+                    len = c;
+                } else {
+                    if (!read_int4(&len))
+                        return false;
+                }
+                vartype_string *s = (vartype_string *) new_string(NULL, len);
                 if (s == NULL)
                     return false;
-                char len;
-                if (!read_char(&len) || fread(s->text, 1, len, gfile) != len) {
+                if (fread(s->txt(), 1, len, gfile) != len) {
                     free_vartype((vartype *) s);
                     return false;
                 }
-                s->length = len;
                 *v = (vartype *) s;
                 return true;
             }
@@ -1114,29 +1151,57 @@ static bool unpersist_vartype(vartype **v, bool padded) {
                     return false;
                 }
                 bool success = true;
-                for (int4 i = 0; i < size; i++) {
-                    if (rm->array->is_string[i]) {
-                        char *dst = (char *) &rm->array->data[i];
+                int4 i;
+                for (i = 0; i < size; i++) {
+                    success = false;
+                    if (rm->array->is_string[i] == 0) {
+                        if (!read_phloat(&rm->array->data[i]))
+                            break;
+                    } else {
+                        rm->array->is_string[i] = 1;
                         if (bug_mode == 0) {
-                            // 6 bytes of text followed by length byte
-                            if (fread(dst, 1, 7, gfile) != 7) {
-                                success = false;
-                                break;
+                            if (ver < 34) {
+                                // 6 bytes of text followed by length byte
+                                char *t = (char *) &rm->array->data[i];
+                                if (fread(t + 1, 1, 7, gfile) != 7)
+                                    break;
+                                t[0] = t[7];
+                            } else {
+                                // 4-byte length followed by n bytes of text
+                                int4 len;
+                                if (!read_int4(&len))
+                                    break;
+                                if (len > SSLENM) {
+                                    int4 *p = (int4 *) malloc(len + 4);
+                                    if (p == NULL)
+                                        break;
+                                    if (fread(p + 1, 1, len, gfile) != len) {
+                                        free(p);
+                                        break;
+                                    }
+                                    *p = len;
+                                    *(int4 **) &rm->array->data[i] = p;
+                                    rm->array->is_string[i] = 2;
+                                } else {
+                                    char *t = (char *) &rm->array->data[i];
+                                    *t = len;
+                                    if (fread(t + 1, 1, len, gfile) != len)
+                                        break;
+                                }
                             }
                         } else if (bug_mode == 1) {
                             // Could be as above, or could be length-prefixed.
                             // Read 7 bytes, and if byte 7 looks plausible,
                             // carry on; otherwise, set bug_mode to 3, signalling
                             // we should start over in bug-compatibility mode.
-                            if (fread(dst, 1, 7, gfile) != 7) {
-                                success = false;
+                            char *t = (char *) &rm->array->data[i];
+                            if (fread(t + 1, 1, 7, gfile) != 7)
                                 break;
-                            }
-                            if (dst[6] < 0 || dst[6] > 6) {
+                            if (t[7] < 0 || t[7] > 6) {
                                 bug_mode = 3;
-                                success = false;
                                 break;
                             }
+                            t[0] = t[7];
                         } else {
                             // bug_mode == 2, means this has to be a file with
                             // length-prefixed strings in matrices. Bear in
@@ -1144,30 +1209,22 @@ static bool unpersist_vartype(vartype **v, bool padded) {
                             // clamp them to the 0..6 range, but for advancing
                             // in the file, take them at face value.
                             unsigned char len;
-                            if (fread(&len, 1, 1, gfile) != 1) {
-                                success = false;
+                            if (fread(&len, 1, 1, gfile) != 1)
                                 break;
-                            }
                             unsigned char reallen = len > 6 ? 6 : len;
-                            dst[0] = len;
-                            if (fread(dst + 1, 1, reallen, gfile) != reallen) {
-                                success = false;
+                            char *t = (char *) &rm->array->data[i];
+                            if (fread(t + 1, 1, reallen, gfile) != reallen)
                                 break;
-                            }
+                            t[0] = reallen;
                             len -= reallen;
-                            if (len > 0 && fseek(gfile, len, SEEK_CUR) != 0) {
-                                success = false;
+                            if (len > 0 && fseek(gfile, len, SEEK_CUR) != 0)
                                 break;
-                            }
-                        }
-                    } else {
-                        if (!read_phloat(&rm->array->data[i])) {
-                            success = false;
-                            break;
                         }
                     }
+                    success = true;
                 }
                 if (!success) {
+                    memset(rm->array->is_string + i, 0, size - i);
                     free_vartype((vartype *) rm);
                     return false;
                 }
@@ -1237,18 +1294,18 @@ static bool unpersist_vartype(vartype **v, bool padded) {
                 vartype_list *list = (vartype_list *) new_list(size);
                 if (list == NULL)
                     return false;
-                for (int4 i = 0; i < size; i++) {
-                    if (!unpersist_vartype(&list->array->data[i], false)) {
-                        free_vartype((vartype *) list);
-                        return false;
-                    }
-                }
                 if (shared) {
                     if (!array_list_grow()) {
                         free_vartype((vartype *) list);
                         return false;
                     }
                     array_list[array_count++] = list;
+                }
+                for (int4 i = 0; i < size; i++) {
+                    if (!unpersist_vartype(&list->array->data[i], false)) {
+                        free_vartype((vartype *) list);
+                        return false;
+                    }
                 }
                 *v = (vartype *) list;
                 return true;
@@ -1369,17 +1426,15 @@ static bool unpersist_vartype(vartype **v, bool padded) {
             return true;
         }
         case TYPE_STRING: {
-            vartype_string *s = (vartype_string *) new_string("", 0);
-            int n = sizeof(vartype_string) - sizeof(int);
+            old_vartype_string os;
+            int n = sizeof(old_vartype_string) - sizeof(int);
+            if (fread(&os.type + 1, 1, n, gfile) != n)
+                return false;
+            vartype_string *s = (vartype_string *) new_string(os.text, os.length);
             if (s == NULL)
                 return false;
-            if (fread(&s->type + 1, 1, n, gfile) != n) {
-                free_vartype((vartype *) s);
-                return false;
-            } else {
-                *v = (vartype *) s;
-                return true;
-            }
+            *v = (vartype *) s;
+            return true;
         }
         case TYPE_REALMATRIX: {
             matrix_persister mp;
@@ -1430,7 +1485,8 @@ static bool unpersist_vartype(vartype **v, bool padded) {
                         if (rm->array->is_string[i]) {
                             char *src = temp + i * phsz;
                             char *dst = (char *) (rm->array->data + i);
-                            for (int j = 0; j < 7; j++)
+                            *dst++ = src[6];
+                            for (int j = 0; j < 6; j++)
                                 *dst++ = *src++;
                         } else {
                             rm->array->data[i] = ((double *) temp)[i];
@@ -1441,7 +1497,8 @@ static bool unpersist_vartype(vartype **v, bool padded) {
                         if (rm->array->is_string[i]) {
                             char *src = temp + i * phsz;
                             char *dst = (char *) (rm->array->data + i);
-                            for (int j = 0; j < 7; j++)
+                            *dst++ = src[6];
+                            for (int j = 0; j < 6; j++)
                                 *dst++ = *src++;
                         } else {
                             rm->array->data[i] = decimal2double((char *) (temp + phsz * i));
@@ -1647,7 +1704,7 @@ static bool persist_globals() {
 
 static bool suppress_varmenu_update = false;
 
-static bool unpersist_globals(int4 ver) {
+static bool unpersist_globals() {
     int i;
     array_count = 0;
     array_list_capacity = 0;
@@ -3110,14 +3167,14 @@ int pop_func_state(bool error) {
 
     if (st != NULL) {
         vartype **st_data = st->array->data;
-        char big = ((vartype_string *) st_data[0])->text[0] == '1';
+        char big = ((vartype_string *) st_data[0])->txt()[0] == '1';
         if (big == flags.f.big_stack)
             st = NULL;
     }
 
     if (st != NULL && fd == NULL) {
         vartype **st_data = st->array->data;
-        char big = ((vartype_string *) st_data[0])->text[0] == '1';
+        char big = ((vartype_string *) st_data[0])->txt()[0] == '1';
         if (big) {
             if (!core_settings.allow_big_stack)
                 return ERR_BIG_STACK_DISABLED;
@@ -3212,7 +3269,7 @@ int pop_func_state(bool error) {
         lastx = fd_data[li];
         fd_data[li] = NULL;
 
-        char f25 = ((vartype_string *) fd_data[2])->text[0] == '1';
+        char f25 = ((vartype_string *) fd_data[2])->txt()[0] == '1';
         flags.f.error_ignore = f25;
 
         goto done;
@@ -3220,7 +3277,7 @@ int pop_func_state(bool error) {
 
     if (st != NULL && fd != NULL) {
         vartype **st_data = st->array->data;
-        char st_big = ((vartype_string *) st_data[0])->text[0] == '1';
+        char st_big = ((vartype_string *) st_data[0])->txt()[0] == '1';
         vartype **fd_data = fd->array->data;
         int old_depth = to_int(((vartype_real *) fd_data[1])->x);
         char fd_big = old_depth >= 0;
@@ -3313,7 +3370,7 @@ int pop_func_state(bool error) {
         lastx = fd_data[li];
         fd_data[li] = NULL;
 
-        char f25 = ((vartype_string *) fd_data[2])->text[0] == '1';
+        char f25 = ((vartype_string *) fd_data[2])->txt()[0] == '1';
         flags.f.error_ignore = f25;
 
         flags.f.big_stack = fd_big;
@@ -3931,7 +3988,7 @@ bool write_arg(const arg_struct *arg) {
     }
 }
 
-static bool load_state2(int4 ver, bool *clear, bool *too_new) {
+static bool load_state2(bool *clear, bool *too_new) {
     int4 magic;
     int4 version;
     *clear = false;
@@ -4135,7 +4192,7 @@ static bool load_state2(int4 ver, bool *clear, bool *too_new) {
 
     if (!unpersist_display(ver))
         return false;
-    if (!unpersist_globals(ver))
+    if (!unpersist_globals())
         return false;
 
     if (ver < 4) {
@@ -4183,10 +4240,11 @@ static bool load_state2(int4 ver, bool *clear, bool *too_new) {
 
 // See the comment for bug_mode at its declaration...
 
-bool load_state(int4 ver, bool *clear, bool *too_new) {
+bool load_state(int4 ver_p, bool *clear, bool *too_new) {
     bug_mode = 0;
+    ver = ver_p;
     long fpos = ftell(gfile);
-    if (load_state2(ver, clear, too_new))
+    if (load_state2(clear, too_new))
         return true;
     if (bug_mode != 3)
         return false;
@@ -4196,7 +4254,7 @@ bool load_state(int4 ver, bool *clear, bool *too_new) {
     core_cleanup();
     fseek(gfile, fpos, SEEK_SET);
     bug_mode = 2;
-    return load_state2(ver, clear, too_new);
+    return load_state2(clear, too_new);
 }
 
 void save_state() {
@@ -4752,13 +4810,7 @@ bool off_enabled() {
     if (sp == -1 || stack[sp]->type != TYPE_STRING)
         return false;
     vartype_string *str = (vartype_string *) stack[sp];
-    off_enable_flag = str->length == 6
-                      && str->text[0] == 'Y'
-                      && str->text[1] == 'E'
-                      && str->text[2] == 'S'
-                      && str->text[3] == 'O'
-                      && str->text[4] == 'F'
-                      && str->text[5] == 'F';
+    off_enable_flag = string_equals(str->txt(), str->length, "YESOFF", 6);
     return off_enable_flag;
 }
 #endif

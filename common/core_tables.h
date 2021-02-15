@@ -453,11 +453,29 @@
 #define CMD_UNPICK      399
 #define CMD_RDNN        400
 #define CMD_RUPN        401
-/* Get list of LBLs with MVARs */
-#define CMD_MVARCAT     402
-#define CMD_MVCEXEC     403
+/* Present a menu of LBLs with MVARs */
+#define CMD_PGMMENU     402
+/* Skipping 403 because of single-byte equality checks with CMD_END */
+#define CMD_PMEXEC      404
+/* String & List Functions */
+#define CMD_XASTO       405
+#define CMD_LXASTO      406
+#define CMD_APPEND      407
+#define CMD_EXTEND      408
+#define CMD_SUBSTR      409
+#define CMD_LENGTH      410
+#define CMD_HEAD        411
+#define CMD_REV         412
+#define CMD_POS         413
+#define CMD_S_TO_N      414
+#define CMD_N_TO_S      415
+#define CMD_C_TO_N      416
+#define CMD_N_TO_C      417
+#define CMD_LIST_T      418
+#define CMD_NEWLIST     419
+#define CMD_NEWSTR      420
 
-#define CMD_SENTINEL    404
+#define CMD_SENTINEL    421
 
 
 /* command_spec.argtype */
@@ -482,12 +500,13 @@
 
 /* command_spec.flags */
 
-#define FLAG_NONE      0  /* Boring! */
 #define FLAG_PRGM_ONLY 1  /* Only allowed in program mode (LBL, DEL, ...) */
 #define FLAG_IMMED     2  /* Executes in program mode (DEL, GTO.nnn, ...) */
 #define FLAG_HIDDEN    4  /* Cannot be activated using XEQ "NAME" (SIMQ, ...) */
 #define FLAG_NO_PRGM   8  /* Cannot be programmed (SIMQ, MATA, ...) */
 #define FLAG_NO_SHOW  16  /* Do not show after keytimeout1 */
+#define FLAG_SPECIAL  32  /* hp42s_code flags 0x01 */
+#define FLAG_ILLEGAL  64  /* hp42s_code flags 0x02 */
 
 
 /* Builtin cmd arg types */
@@ -530,13 +549,16 @@ struct arg_struct {
 
 
 struct command_spec {
-    const char *name;
-    char name_length;
-    char argtype;
-    signed char argcount;
-    char flags;
-    uint4 hp42s_code;
     int (*handler)(arg_struct *arg);
+    const char *name;
+    unsigned char flags;
+    unsigned char scode;
+    unsigned char code1;
+    unsigned char code2;
+    unsigned char name_length;
+    unsigned char argtype;
+    signed char argcount;
+    unsigned char rttypes;
 };
 
 extern const command_spec cmd_array[];
