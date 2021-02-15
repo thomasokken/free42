@@ -555,7 +555,10 @@ int docmd_delr(arg_struct *arg) {
         }
     }
     if (interactive) {
-        free_vartype(stack[sp]);
+        if (sp == -1)
+            sp = 0;
+        else
+            free_vartype(stack[sp]);
         stack[sp] = newx;
     }
     matedit_i = newi;
@@ -766,8 +769,13 @@ int appmenu_exitcallback_1(int menuid, bool exitall) {
         return ERR_NONE;
     } else {
         /* The user is trying to leave the editor; we only allow that
-         * if storing X is successful. */
-        int err = docmd_stoel(NULL);
+         * if storing X is successful. But if the stack is empty, there
+         * is nothing to store. */
+        int err;
+        if (sp == -1)
+            err = ERR_NONE;
+        else
+            err = docmd_stoel(NULL);
         if (err == ERR_INSUFFICIENT_MEMORY)
             /* There's no graceful way to handle this, at least not without
              * some code restructuring (TODO); this is the one error that
@@ -794,7 +802,10 @@ int appmenu_exitcallback_1(int menuid, bool exitall) {
             return err;
         }
         if (matedit_mode == 2) {
-            free_vartype(stack[sp]);
+            if (sp == -1)
+                sp = 0;
+            else
+                free_vartype(stack[sp]);
             stack[sp] = matedit_x;
             matedit_x = NULL;
         }

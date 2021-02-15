@@ -198,7 +198,10 @@ int docmd_insr(arg_struct *arg) {
         }
     }
     if (interactive) {
-        free_vartype(stack[sp]);
+        if (sp == -1)
+            sp = 0;
+        else
+            free_vartype(stack[sp]);
         stack[sp] = newx;
     }
     mode_disable_stack_lift = true;
@@ -1108,7 +1111,9 @@ static int matedit_move(int direction) {
             if (v == NULL)
                 return ERR_INSUFFICIENT_MEMORY;
         }
-        if (stack[sp]->type == TYPE_REAL) {
+        if (sp == -1) {
+            /* There's nothing to store, so leave cell unchanged */
+        } else if (stack[sp]->type == TYPE_REAL) {
             if (rm->array->is_string[old_n] == 2)
                 free(*(void **) &rm->array->data[old_n]);
             rm->array->is_string[old_n] = 0;
@@ -1130,7 +1135,9 @@ static int matedit_move(int direction) {
             if (v == NULL)
                 return ERR_INSUFFICIENT_MEMORY;
         }
-        if (stack[sp]->type == TYPE_REAL) {
+        if (sp == -1) {
+            /* There's nothing to store, so leave cell unchanged */
+        } else if (stack[sp]->type == TYPE_REAL) {
             cm->array->data[2 * old_n] = ((vartype_real *) stack[sp])->x;
             cm->array->data[2 * old_n + 1] = 0;
         } else if (stack[sp]->type == TYPE_COMPLEX) {
@@ -1149,7 +1156,10 @@ static int matedit_move(int direction) {
     flags.f.matrix_edge_wrap = edge_flag;
     flags.f.matrix_end_wrap = end_flag;
     if (old_n != new_n) {
-        free_vartype(stack[sp]);
+        if (sp == -1)
+            sp = 0;
+        else
+            free_vartype(stack[sp]);
         stack[sp] = v;
     }
     mode_disable_stack_lift = true;
@@ -1221,7 +1231,10 @@ static int matx_completion(int error, vartype *res) {
         v->re = m->array->data[0];
         v->im = m->array->data[1];
     }
-    free_vartype(stack[sp]);
+    if (sp == -1)
+        sp = 0;
+    else
+        free_vartype(stack[sp]);
     stack[sp] = matx_v;
     matedit_mode = 3;
     matedit_length = 4;
@@ -1308,7 +1321,10 @@ static int matabx(int which) {
      * has no exit callback, so leaving it never fails.
      */
     set_appmenu_exitcallback(1);
-    free_vartype(stack[sp]);
+    if (sp == -1)
+        sp = 0;
+    else
+        free_vartype(stack[sp]);
     stack[sp] = v;
     matedit_mode = 3;
     matedit_length = 4;

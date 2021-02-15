@@ -967,12 +967,7 @@ int docmd_to_rec(arg_struct *arg) {
                 free_vartype(vx);
                 return ERR_INSUFFICIENT_MEMORY;
             }
-            free_vartype(stack[sp - 1]);
-            stack[sp - 1] = vy;
-            free_vartype(lastx);
-            lastx = stack[sp];
-            stack[sp] = vx;
-            print_trace();
+            binary_two_results(vx, vy);
             return ERR_NONE;
         } else if (stack[sp - 1]->type == TYPE_STRING)
             return ERR_ALPHA_DATA_IS_INVALID;
@@ -1034,12 +1029,7 @@ int docmd_to_pol(arg_struct *arg) {
                 free_vartype(vx);
                 return ERR_INSUFFICIENT_MEMORY;
             }
-            free_vartype(stack[sp - 1]);
-            stack[sp - 1] = vy;
-            free_vartype(lastx);
-            lastx = stack[sp];
-            stack[sp] = vx;
-            print_trace();
+            binary_two_results(vx, vy);
             return ERR_NONE;
         } else if (stack[sp - 1]->type == TYPE_STRING)
             return ERR_ALPHA_DATA_IS_INVALID;

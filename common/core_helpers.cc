@@ -1068,7 +1068,7 @@ void print_command(int cmd, const arg_struct *arg) {
 
 void print_trace() {
     if (flags.f.trace_print && flags.f.printer_exists)
-        if (flags.f.normal_print)
+        if (flags.f.normal_print || sp == -1)
             docmd_prstk(NULL);
         else
             docmd_prx(NULL);
