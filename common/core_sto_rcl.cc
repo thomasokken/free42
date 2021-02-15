@@ -67,7 +67,7 @@ int assert_numeric(vartype *v) {
     else if (v->type == TYPE_STRING)
         return ERR_ALPHA_DATA_IS_INVALID;
     else
-        return ERR_INVALID_DATA;
+        return ERR_INVALID_TYPE;
 }
 
 int generic_div(const vartype *px, const vartype *py, int (*completion)(int, vartype *)) {
