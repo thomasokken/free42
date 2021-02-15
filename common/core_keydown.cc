@@ -2357,7 +2357,7 @@ void keydown_normal_mode(int shift, int key) {
                     }
                 } else if (catsect == CATSECT_PGM_SOLVE
                         || catsect == CATSECT_PGM_INTEG
-                        || catsect == CATSECT_MVARCAT) {
+                        || catsect == CATSECT_PGM_MENU) {
                     int labelindex = get_cat_item(menukey);
                     int i;
                     if (labelindex == -1) {
@@ -2371,8 +2371,8 @@ void keydown_normal_mode(int shift, int key) {
                         pending_command = flags.f.prgm_mode ? CMD_PGMINT
                                                             : CMD_PGMINTi;
                     else
-                        /* MVARCAT */
-                        pending_command = CMD_MVCEXEC;
+                        /* PGMMENU */
+                        pending_command = CMD_PMEXEC;
                     pending_command_arg.type = ARGTYPE_STR;
                     pending_command_arg.length = labels[labelindex].length;
                     for (i = 0; i < pending_command_arg.length; i++)
