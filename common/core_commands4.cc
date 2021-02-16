@@ -59,7 +59,7 @@ int docmd_insr(arg_struct *arg) {
         return ERR_INVALID_TYPE;
 
     interactive = matedit_mode == 2 || matedit_mode == 3;
-    if (interactive) {
+    if (interactive && sp != -1) {
         err = docmd_stoel(NULL);
         if (err != ERR_NONE)
             return err;
