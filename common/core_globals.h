@@ -218,6 +218,9 @@ extern const menu_spec menus[];
 /* Emulator state */
 /******************/
 
+/* Suppress menu updates while state loading is in progress */
+extern bool loading_state;
+
 /* Registers */
 #define REG_T 0
 #define REG_Z 1
