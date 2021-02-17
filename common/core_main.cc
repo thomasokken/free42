@@ -2462,15 +2462,21 @@ char *core_copy() {
                 int bufptr;
                 if (is_string[n] == 0) {
                     bufptr = real2buf(buf, data[n]);
+                    tb_write(&tb, buf, bufptr);
                 } else {
                     char *text;
                     int4 len;
                     get_matrix_string(rm, n, &text, &len);
-                    bufptr = hp2ascii(buf, text, len);
+                    for (int4 i = 0; i < len; i += 10) {
+                        int4 seg_len = len - i;
+                        if (seg_len > 10)
+                            seg_len = 10;
+                        bufptr = hp2ascii(buf, text + i, seg_len);
+                        tb_write(&tb, buf, bufptr);
+                    }
                 }
                 if (c < rm->columns - 1)
-                    buf[bufptr++] = '\t';
-                tb_write(&tb, buf, bufptr);
+                    tb_write(&tb, "\t", 1);
                 n++;
             }
             if (r < rm->rows - 1)
