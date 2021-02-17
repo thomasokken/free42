@@ -708,8 +708,12 @@ int docmd_mean(arg_struct *arg) {
         free_vartype(mx);
         return ERR_INSUFFICIENT_MEMORY;
     }
-    binary_two_results(mx, my);
-    return ERR_NONE;
+    if (flags.f.big_stack) {
+        return recall_two_results(mx, my);
+    } else {
+        binary_two_results(mx, my);
+        return ERR_NONE;
+    }
 }
 
 int docmd_sdev(arg_struct *arg) {
@@ -740,8 +744,12 @@ int docmd_sdev(arg_struct *arg) {
         free_vartype(sx);
         return ERR_INSUFFICIENT_MEMORY;
     }
-    binary_two_results(sx, sy);
-    return ERR_NONE;
+    if (flags.f.big_stack) {
+        return recall_two_results(sx, sy);
+    } else {
+        binary_two_results(sx, sy);
+        return ERR_NONE;
+    }
 }
 
 int docmd_slope(arg_struct *arg) {
@@ -771,8 +779,12 @@ int docmd_sum(arg_struct *arg) {
         free_vartype(sx);
         return ERR_INSUFFICIENT_MEMORY;
     }
-    binary_two_results(sx, sy);
-    return ERR_NONE;
+    if (flags.f.big_stack) {
+        return recall_two_results(sx, sy);
+    } else {
+        binary_two_results(sx, sy);
+        return ERR_NONE;
+    }
 }
 
 int docmd_wmean(arg_struct *arg) {

@@ -872,7 +872,11 @@ int docmd_edit(arg_struct *arg) {
         set_menu(MENULEVEL_APP, MENU_MATRIX_EDIT1);
         set_appmenu_exitcallback(1);
         print_trace();
-        mode_disable_stack_lift = flags.f.stack_lift_disable;
+        if (flags.f.big_stack)
+            mode_disable_stack_lift = true;
+        else
+            /* HP-42S bug compatibility */
+            mode_disable_stack_lift = flags.f.stack_lift_disable;
         return ERR_NONE;
     } else
         return ERR_INVALID_TYPE;
@@ -941,7 +945,11 @@ int docmd_editn(arg_struct *arg) {
         set_menu(MENULEVEL_APP, MENU_MATRIX_EDIT1);
         set_appmenu_exitcallback(1);
         print_trace();
-        mode_disable_stack_lift = flags.f.stack_lift_disable;
+        if (flags.f.big_stack)
+            mode_disable_stack_lift = true;
+        else
+            /* HP-42S bug compatibility */
+            mode_disable_stack_lift = flags.f.stack_lift_disable;
         return ERR_NONE;
     }
 }
