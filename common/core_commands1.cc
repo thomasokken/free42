@@ -360,7 +360,7 @@ int docmd_rcl_sub(arg_struct *arg) {
     int err = generic_rcl(arg, &v);
     if (err != ERR_NONE)
         return err;
-    err = assert_numeric(temp_v);
+    err = assert_numeric(v);
     if (err != ERR_NONE)
         return err;
     err = generic_sub(v, stack[sp], &w);
@@ -375,7 +375,7 @@ int docmd_rcl_add(arg_struct *arg) {
     int err = generic_rcl(arg, &v);
     if (err != ERR_NONE)
         return err;
-    err = assert_numeric(temp_v);
+    err = assert_numeric(v);
     if (err != ERR_NONE)
         return err;
     err = generic_add(v, stack[sp], &w);
