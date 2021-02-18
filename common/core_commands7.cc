@@ -1188,6 +1188,8 @@ int docmd_rupn(arg_struct *arg) {
 ////////////////////
 
 int docmd_pgmmenu(arg_struct *arg) {
+    if (!mvar_prgms_exist())
+        return ERR_NO_MENU_VARIABLES;
     int err = set_menu_return_err(MENULEVEL_APP, MENU_CATALOG, false);
     if (err == ERR_NONE) {
         set_cat_section(CATSECT_PGM_MENU);
