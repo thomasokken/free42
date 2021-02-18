@@ -2667,20 +2667,20 @@ void set_catalog_menu(int section) {
             return;
         case CATSECT_REAL:
         case CATSECT_REAL_ONLY:
-            if (!vars_exist(1, 0, 0))
+            if (!vars_exist(1, 0, 0, 0))
                 mode_commandmenu = MENU_NONE;
             return;
         case CATSECT_CPX:
-            if (!vars_exist(0, 1, 0))
+            if (!vars_exist(0, 1, 0, 0))
                 mode_commandmenu = MENU_NONE;
             return;
         case CATSECT_MAT:
         case CATSECT_MAT_ONLY:
-            if (!vars_exist(0, 0, 1))
+            if (!vars_exist(0, 0, 1, 0))
                 mode_commandmenu = MENU_NONE;
             return;
         case CATSECT_VARS_ONLY:
-            if (!vars_exist(1, 1, 1))
+            if (!vars_exist(1, 1, 1, 1))
                 mode_commandmenu = MENU_NONE;
             return;
         case CATSECT_PGM_SOLVE:
@@ -2791,33 +2791,33 @@ void update_catalog() {
         case CATSECT_PGM_ONLY:
             break;
         case CATSECT_REAL:
-            if (!vars_exist(1, 0, 0))
+            if (!vars_exist(1, 0, 0, 0))
                 set_cat_section(CATSECT_TOP);
             break;
         case CATSECT_CPX:
-            if (!vars_exist(0, 1, 0))
+            if (!vars_exist(0, 1, 0, 0))
                 set_cat_section(CATSECT_TOP);
             break;
         case CATSECT_MAT:
-            if (!vars_exist(0, 0, 1))
+            if (!vars_exist(0, 0, 1, 0))
                 set_cat_section(CATSECT_TOP);
             break;
         case CATSECT_REAL_ONLY:
-            if (!vars_exist(1, 0, 0)) {
+            if (!vars_exist(1, 0, 0, 0)) {
                 *the_menu = MENU_NONE;
                 redisplay();
                 return;
             }
             break;
         case CATSECT_MAT_ONLY:
-            if (!vars_exist(0, 0, 1)) {
+            if (!vars_exist(0, 0, 1, 0)) {
                 *the_menu = MENU_NONE;
                 redisplay();
                 return;
             }
             break;
         case CATSECT_VARS_ONLY:
-            if (!vars_exist(1, 1, 1)) {
+            if (!vars_exist(1, 1, 1, 1)) {
                 *the_menu = MENU_NONE;
                 redisplay();
                 return;

@@ -606,7 +606,7 @@ void purge_all_vars() {
     vars_count = 0;
 }
 
-int vars_exist(int real, int cpx, int matrix) {
+int vars_exist(int real, int cpx, int matrix, int list) {
     int i;
     for (i = 0; i < vars_count; i++) {
         if ((vars[i].flags & (VAR_HIDDEN | VAR_PRIVATE)) != 0)
@@ -626,6 +626,11 @@ int vars_exist(int real, int cpx, int matrix) {
             case TYPE_REALMATRIX:
             case TYPE_COMPLEXMATRIX:
                 if (matrix)
+                    return 1;
+                else
+                    break;
+            case TYPE_LIST:
+                if (list)
                     return 1;
                 else
                     break;

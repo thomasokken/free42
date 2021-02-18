@@ -4430,7 +4430,7 @@ void start_incomplete_command(int cmd_id) {
         else
             set_catalog_menu(CATSECT_REAL_ONLY);
     } else if (argtype == ARG_RVAR) {
-        if (vars_exist(1, 0, 0))
+        if (vars_exist(1, 0, 0, 0))
             set_catalog_menu(CATSECT_REAL_ONLY);
         else if (flags.f.prgm_mode) {
             if (incomplete_command == CMD_MVAR)
@@ -4440,7 +4440,7 @@ void start_incomplete_command(int cmd_id) {
             display_error(ERR_NO_REAL_VARIABLES, 0);
         }
     } else if (argtype == ARG_MAT) {
-        if (flags.f.prgm_mode || vars_exist(0, 0, 1))
+        if (flags.f.prgm_mode || vars_exist(0, 0, 1, 0))
             set_catalog_menu(CATSECT_MAT_ONLY);
         else if (cmd_id != CMD_DIM) {
             mode_command_entry = false;
