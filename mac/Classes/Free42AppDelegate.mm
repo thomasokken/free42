@@ -1401,13 +1401,13 @@ void shell_beeper(int frequency, int duration) {
     shell_delay(125);
 }
 
-int shell_low_battery() {
+bool shell_low_battery() {
     int lowbat = IOPSGetBatteryWarningLevel() != kIOPSLowBatteryWarningNone;
     if (ann_battery != lowbat) {
         ann_battery = lowbat;
         skin_update_annunciator(5, ann_battery);
      }
-    return lowbat;
+    return lowbat != 0;
 }
 
 uint4 shell_milliseconds() {
@@ -1416,10 +1416,10 @@ uint4 shell_milliseconds() {
     return (uint4) (tv.tv_sec * 1000L + tv.tv_usec / 1000);
 }
 
-int shell_decimal_point() {
+bool shell_decimal_point() {
     NSLocale *loc = [NSLocale currentLocale];
     NSString *dec = [loc objectForKey:NSLocaleDecimalSeparator];
-    return [dec isEqualToString:@","] ? 0 : 1;
+    return ![dec isEqualToString:@","];
 }
 
 int shell_date_format() {
@@ -1436,7 +1436,7 @@ int shell_date_format() {
         return 0;
 }
 
-int shell_clk24() {
+bool shell_clk24() {
     NSLocale *loc = [NSLocale currentLocale];
     NSString *timeFormat = [NSDateFormatter dateFormatFromTemplate:@"j" options:0 locale:loc];
     return [timeFormat rangeOfString:@"a"].location == NSNotFound;
@@ -1675,7 +1675,7 @@ void shell_log(const char *message) {
     NSLog(@"%s", message);
 }
 
-int shell_wants_cpu() {
+bool shell_wants_cpu() {
     if (we_want_cpu)
         return true;
     struct timeval now;

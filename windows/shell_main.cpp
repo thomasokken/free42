@@ -2204,7 +2204,7 @@ void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
     ReleaseDC(hMainWnd, hdc);
 }
 
-int shell_wants_cpu() {
+bool shell_wants_cpu() {
     MSG msg;
     return PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE) != 0;
 }
@@ -2230,7 +2230,7 @@ uint4 shell_get_mem() {
     return memstat.dwAvailPhys;
 }
 
-int shell_low_battery() {
+bool shell_low_battery() {
     SYSTEM_POWER_STATUS powerstat;
     int lowbat;
     if (!GetSystemPowerStatus(&powerstat))
@@ -2246,7 +2246,7 @@ int shell_low_battery() {
         DeleteDC(memdc);
         ReleaseDC(hMainWnd, hdc);
     }
-    return lowbat;
+    return lowbat != 0;
 }
 
 void shell_powerdown() {
@@ -2269,10 +2269,10 @@ uint4 shell_milliseconds() {
     return GetTickCount();
 }
 
-int shell_decimal_point() {
+bool shell_decimal_point() {
     char dec[4];
     GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, dec, 4);
-    return strcmp(dec, ",") == 0 ? 0 : 1;
+    return strcmp(dec, ",") != 0;
 }
 
 int shell_date_format() {
@@ -2289,7 +2289,7 @@ int shell_date_format() {
         return 0;
 }
 
-int shell_clk24() {
+bool shell_clk24() {
     char fmt[80];
     GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_STIMEFORMAT, fmt, 80);
     char *t = strchr(fmt, 't');

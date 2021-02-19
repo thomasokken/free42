@@ -86,7 +86,7 @@ void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad);
  * immediately (with a return value of 1, to indicate that it would like to get
  * the CPU back as soon as possible).
  */
-int shell_wants_cpu();
+bool shell_wants_cpu();
 
 /* Callback to suspend execution for the given number of milliseconds. No event
  * processing will take place during the wait, so the core can call this
@@ -110,7 +110,7 @@ uint4 shell_get_mem();
  * Callback to find out if the battery is low. Used to emulate flag 49 and the
  * battery annunciator.
  */
-int shell_low_battery();
+bool shell_low_battery();
 
 /* shell_powerdown()
  * Callback to tell the shell that the emulator wants to power down.
@@ -140,7 +140,7 @@ uint4 shell_milliseconds();
  * returns 1 if it uses dot or anything else.
  * Used to initialize flag 28 on hard reset.
  */
-int shell_decimal_point();
+bool shell_decimal_point();
 
 /* shell_date_format()
  * Returns 0 if the host's locale uses MDY date format;
@@ -157,7 +157,7 @@ int shell_date_format();
  * returns 1 if it uses a 24-hour clock
  * Used to initialize CLK12/CLK24 mode on hard reset.
  */
-int shell_clk24();
+bool shell_clk24();
 
 /* shell_print()
  * Printer emulation. The first 2 parameters are the plain text version of the
@@ -201,10 +201,10 @@ void shell_print(const char *text, int length,
  * "normalization"? I hope they mean "clipped", because otherwise you wouldn't
  * have a unit, yet they claim the unit is microteslas.
  */
-int shell_get_acceleration(double *x, double *y, double *z);
-int shell_get_location(double *lat, double *lon, double *lat_lon_acc,
+bool shell_get_acceleration(double *x, double *y, double *z);
+bool shell_get_location(double *lat, double *lon, double *lat_lon_acc,
                                 double *elev, double *elev_acc);
-int shell_get_heading(double *mag_heading, double *true_heading, double *acc,
+bool shell_get_heading(double *mag_heading, double *true_heading, double *acc,
                                 double *x, double *y, double *z);
 #endif
 
@@ -213,7 +213,7 @@ int shell_get_heading(double *mag_heading, double *true_heading, double *acc,
  * Sets and queries the "always on" state (flag 44). Pass 0 to clear, 1 to set,
  * or -1 to leave unchanged; returns the previous state.
  */
-int shell_always_on(int always_on);
+bool shell_always_on(int always_on);
 
 /* shell_get_time_date()
  *

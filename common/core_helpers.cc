@@ -588,8 +588,8 @@ int anum(const char *text, int len, phloat *res) {
 
 #if (!defined(ANDROID) && !defined(IPHONE))
 static bool always_on = false;
-int shell_always_on(int ao) {
-    int ret = always_on ? 1 : 0;
+bool shell_always_on(int ao) {
+    bool ret = always_on;
     if (ao != -1)
         always_on = ao == 1;
     return ret;
@@ -684,7 +684,7 @@ int virtual_flag_handler(int flagop, int flagnum) {
             }
         }
         case 49: /* low_battery */ {
-            int lowbat = shell_low_battery();
+            bool lowbat = shell_low_battery();
             switch (flagop) {
                 case FLAGOP_FS_T:
                     return lowbat ? ERR_YES : ERR_NO;

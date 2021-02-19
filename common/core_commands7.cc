@@ -37,8 +37,8 @@
 
 int docmd_accel(arg_struct *arg) {
     double x, y, z;
-    int err = shell_get_acceleration(&x, &y, &z);
-    if (err == 0)
+    bool success = shell_get_acceleration(&x, &y, &z);
+    if (!success)
         return ERR_NONEXISTENT;
     if (flags.f.big_stack)
         if (!ensure_stack_capacity(flags.f.stack_lift_disable ? 2 : 3))
@@ -79,8 +79,8 @@ int docmd_accel(arg_struct *arg) {
 
 int docmd_locat(arg_struct *arg) {
     double lat, lon, lat_lon_acc, elev, elev_acc;
-    int err = shell_get_location(&lat, &lon, &lat_lon_acc, &elev, &elev_acc);
-    if (err == 0)
+    bool success = shell_get_location(&lat, &lon, &lat_lon_acc, &elev, &elev_acc);
+    if (!success)
         return ERR_NONEXISTENT;
     if (flags.f.big_stack)
         if (!ensure_stack_capacity(flags.f.stack_lift_disable ? 3 : 4))
@@ -120,8 +120,8 @@ int docmd_locat(arg_struct *arg) {
 
 int docmd_heading(arg_struct *arg) {
     double mag_heading, true_heading, acc, x, y, z;
-    int err = shell_get_heading(&mag_heading, &true_heading, &acc, &x, &y, &z);
-    if (err == 0)
+    bool success = shell_get_heading(&mag_heading, &true_heading, &acc, &x, &y, &z);
+    if (!success)
         return ERR_NONEXISTENT;
     if (flags.f.big_stack)
         if (!ensure_stack_capacity(flags.f.stack_lift_disable ? 3 : 4))

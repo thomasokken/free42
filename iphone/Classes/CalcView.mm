@@ -988,8 +988,8 @@ void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
     }
 }
 
-int shell_always_on(int ao) {
-    int ret = state.alwaysOn;
+bool shell_always_on(int ao) {
+    bool ret = state.alwaysOn;
     if (ao != -1) {
         state.alwaysOn = ao != 0;
         [UIApplication sharedApplication].idleTimerDisabled = state.alwaysOn ? YES : NO;
@@ -1001,7 +1001,7 @@ void shell_log(const char *message) {
     NSLog(@"%s", message);
 }
 
-int shell_wants_cpu() {
+bool shell_wants_cpu() {
     TRACE("shell_wants_cpu");
     if (we_want_cpu)
         return true;
@@ -1060,10 +1060,10 @@ unsigned int shell_milliseconds() {
     return (unsigned int) (tv.tv_sec * 1000L + tv.tv_usec / 1000);
 }
 
-int shell_decimal_point() {
+bool shell_decimal_point() {
     NSLocale *loc = [NSLocale currentLocale];
     NSString *dec = [loc objectForKey:NSLocaleDecimalSeparator];
-    return [dec isEqualToString:@","] ? 0 : 1;
+    return ![dec isEqualToString:@","];
 }
 
 int shell_date_format() {
@@ -1080,7 +1080,7 @@ int shell_date_format() {
         return 0;
 }
 
-int shell_clk24() {
+bool shell_clk24() {
     NSLocale *loc = [NSLocale currentLocale];
     NSString *timeFormat = [NSDateFormatter dateFormatFromTemplate:@"j" options:0 locale:loc];
     return [timeFormat rangeOfString:@"a"].location == NSNotFound;
@@ -1257,7 +1257,7 @@ void shell_print(const char *text, int length,
 /////   Accelerometer, Location Services, and Compass support    /////
 //////////////////////////////////////////////////////////////////////
 
-int shell_get_acceleration(double *x, double *y, double *z) {
+bool shell_get_acceleration(double *x, double *y, double *z) {
     static bool accelerometer_active = false;
     if (!accelerometer_active) {
         accelerometer_active = true;
@@ -1271,10 +1271,10 @@ int shell_get_acceleration(double *x, double *y, double *z) {
         *y = cmd.acceleration.y;
         *z = cmd.acceleration.z;
     }
-    return 1;
+    return true;
 }
 
-int shell_get_location(double *lat, double *lon, double *lat_lon_acc, double *elev, double *elev_acc) {
+bool shell_get_location(double *lat, double *lon, double *lat_lon_acc, double *elev, double *elev_acc) {
     static bool location_active = false;
     if (!location_active) {
         location_active = true;
@@ -1285,10 +1285,10 @@ int shell_get_location(double *lat, double *lon, double *lat_lon_acc, double *el
     *lat_lon_acc = loc_lat_lon_acc;
     *elev = loc_elev;
     *elev_acc = loc_elev_acc;
-    return 1;
+    return true;
 }
 
-int shell_get_heading(double *mag_heading, double *true_heading, double *acc, double *x, double *y, double *z) {
+bool shell_get_heading(double *mag_heading, double *true_heading, double *acc, double *x, double *y, double *z) {
     static bool heading_active = false;
     if (!heading_active) {
         heading_active = true;
@@ -1300,7 +1300,7 @@ int shell_get_heading(double *mag_heading, double *true_heading, double *acc, do
     *x = hdg_x;
     *y = hdg_y;
     *z = hdg_z;
-    return 1;
+    return true;
 }
 
 //////////////////////////////////////////////////////////////////////

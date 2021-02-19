@@ -772,7 +772,7 @@ bool no_keystrokes_yet;
  * Version 34: 3.0    Long strings
  * Version 35: 3.0    Changing 'int' to 'bool' where appropriate
  */
-#define FREE42_VERSION 34
+#define FREE42_VERSION 35
 
 
 /*******************/
@@ -4431,7 +4431,7 @@ void hard_reset(int reason) {
     flags.f.error_ignore = 0;
     flags.f.audio_enable = 1;
     /* flags.f.VIRTUAL_custom_menu = 0; */
-    flags.f.decimal_point = shell_decimal_point(); // HP-42S sets this to 1 on hard reset
+    flags.f.decimal_point = shell_decimal_point() ? 1 : 0; // HP-42S sets this to 1 on hard reset
     flags.f.thousands_separators = 1;
     flags.f.stack_lift_disable = 0;
     int df = shell_date_format();
@@ -4509,7 +4509,7 @@ void hard_reset(int reason) {
     mode_sigma_reg = 11;
     mode_goose = -1;
     mode_time_clktd = false;
-    mode_time_clk24 = shell_clk24() != 0;
+    mode_time_clk24 = shell_clk24();
     mode_wsize = 36;
 
     reset_math();

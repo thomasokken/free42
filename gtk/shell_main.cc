@@ -2984,8 +2984,8 @@ void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
     }
 }
 
-int shell_wants_cpu() {
-    return g_main_context_pending(NULL) ? 1 : 0;
+bool shell_wants_cpu() {
+    return g_main_context_pending(NULL);
 }
 
 void shell_delay(int duration) {
@@ -3019,7 +3019,7 @@ uint4 shell_get_mem() {
     return (uint4) bytes;
 }
 
-int shell_low_battery() {
+bool shell_low_battery() {
          
     int lowbat = 0;
     FILE *apm = fopen("/proc/apm", "r");
@@ -3087,7 +3087,7 @@ int shell_low_battery() {
             skin_invalidate_annunciator(win, 5);
         }
     }
-    return lowbat;
+    return lowbat != 0;
 }
 
 void shell_powerdown() {
@@ -3115,8 +3115,8 @@ uint4 shell_milliseconds() {
     return (uint4) (tv.tv_sec * 1000L + tv.tv_usec / 1000);
 }
 
-int shell_decimal_point() {
-    return decimal_point ? 1 : 0;
+bool shell_decimal_point() {
+    return decimal_point;
 }
 
 int shell_date_format() {
@@ -3146,7 +3146,7 @@ int shell_date_format() {
         return 0;
 }
 
-int shell_clk24() {
+bool shell_clk24() {
     struct tm t;
     t.tm_sec = 0;
     t.tm_min = 0;
