@@ -1282,14 +1282,12 @@ void display_command(int row) {
     char buf[22];
     int bufptr = 0;
     const command_spec *cmd = &cmd_array[pending_command];
-    int *the_menu;
     int catsect;
     int hide = pending_command == CMD_VMEXEC
             || pending_command == CMD_PMEXEC
             || (pending_command == CMD_XEQ
                 && xeq_invisible
-                && (the_menu = get_front_menu()) != NULL
-                && *the_menu == MENU_CATALOG
+                && get_front_menu() == MENU_CATALOG
                 && ((catsect = get_cat_section()) == CATSECT_PGM
                     || catsect == CATSECT_PGM_ONLY));
 
@@ -2538,7 +2536,6 @@ void set_menu(int level, int menuid) {
 }
 
 int set_menu_return_err(int level, int menuid, bool exitall) {
-    int *newmenu;
     int err;
 
     switch (level) {
@@ -2565,12 +2562,12 @@ int set_menu_return_err(int level, int menuid, bool exitall) {
     lbl_02: mode_commandmenu = MENU_NONE;
     lbl_03:
 
-    newmenu = get_front_menu();
-    if (newmenu != NULL) {
-        if (*newmenu == MENU_CATALOG) {
+    int newmenu = get_front_menu();
+    if (newmenu != MENU_NONE) {
+        if (newmenu == MENU_CATALOG) {
             int index = get_cat_index();
             mode_updown = index != -1 && catalogmenu_rows[index] > 1;
-        } else if (*newmenu == MENU_PROGRAMMABLE) {
+        } else if (newmenu == MENU_PROGRAMMABLE) {
             /* The programmable menu's up/down annunciator is on if the UP
              * and/or DOWN keys have been assigned to.
              * This is something the original HP-42S doesn't do, but I couldn't
@@ -2587,9 +2584,9 @@ int set_menu_return_err(int level, int menuid, bool exitall) {
             /* The up/down annunciator for catalogs depends on how many
              * items they contain; this is handled in draw_catalog().
              */
-            mode_updown = *newmenu == MENU_VARMENU
+            mode_updown = newmenu == MENU_VARMENU
                                 ? varmenu_rows > 1
-                                : menus[*newmenu].next != MENU_NONE;
+                                : menus[newmenu].next != MENU_NONE;
         }
     } else
         mode_updown = false;
@@ -2703,18 +2700,16 @@ void set_catalog_menu(int section) {
     }
 }
 
-int *get_front_menu() {
+int get_front_menu() {
     if (mode_commandmenu != MENU_NONE)
-        return &mode_commandmenu;
+        return mode_commandmenu;
     if (mode_alphamenu != MENU_NONE)
-        return &mode_alphamenu;
+        return mode_alphamenu;
     if (mode_transientmenu != MENU_NONE)
-        return &mode_transientmenu;
+        return mode_transientmenu;
     if (mode_plainmenu != MENU_NONE)
-        return &mode_plainmenu;
-    if (mode_appmenu != MENU_NONE)
-        return &mode_appmenu;
-    return NULL;
+        return mode_plainmenu;
+    return mode_appmenu;
 }
 
 void set_cat_section(int section) {

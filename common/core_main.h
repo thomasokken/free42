@@ -284,9 +284,12 @@ char *core_copy();
 
 /* core_paste()
  *
- * Puts the given value on the stack, using RCL semantics. It tries to parse
- * the string as a complex or a real number; if that fails, it is pasted as
- * a plain string.
+ * In normal mode, puts the given value on the stack, parsing it as tab-
+ * delimited spreadsheet cells, complex or real scalars, or, if nothing
+ * matches, as a simple string. In program mode, attempts to parse the text as
+ * a program listing, and adds the converted code as a new program at the end
+ * of program memory. In alpha mode, pastes the text in the alpha register,
+ * appending it to whatever is already there.
  * Used by the shell to implement the Paste command.
  */
 void core_paste(const char *s);

@@ -82,7 +82,7 @@ int set_menu_return_err(int level, int menuid, bool exitall);
 void set_appmenu_exitcallback(int callback_id);
 void set_plainmenu(int menuid);
 void set_catalog_menu(int direction);
-int *get_front_menu();
+int get_front_menu();
 void set_cat_section(int section);
 int get_cat_section();
 void move_cat_row(int direction);

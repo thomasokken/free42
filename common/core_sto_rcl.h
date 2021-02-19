@@ -50,7 +50,7 @@ typedef int (*mappable_cc)(phloat xre, phloat xim, phloat yre, phloat yim,
 /* of +, -, *, /, STO+, STO-, etc...                            */
 /****************************************************************/
 
-int assert_numeric(vartype *v);
+int assert_numeric(const vartype *v);
 int generic_div(const vartype *x, const vartype *y,
                             int (*completion)(int, vartype *));
 int generic_mul(const vartype *x, const vartype *y,

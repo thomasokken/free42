@@ -31,8 +31,7 @@
 
 
 static int is_number_key(int shift, int key) {
-    int *menu = get_front_menu();
-    if (menu != NULL && *menu == MENU_BASE_A_THRU_F
+    if (get_front_menu() == MENU_BASE_A_THRU_F
             && (key == KEY_SIGMA || key == KEY_INV || key == KEY_SQRT
                 || key == KEY_LOG || key == KEY_LN || key == KEY_XEQ))
         return 1;
@@ -45,8 +44,8 @@ static int is_number_key(int shift, int key) {
 static int basekeys() {
     if (!baseapp)
         return 0;
-    int *menu = get_front_menu();
-    return menu != NULL && *menu >= MENU_BASE && *menu <= MENU_BASE_LOGIC;
+    int menu = get_front_menu();
+    return menu >= MENU_BASE && menu <= MENU_BASE_LOGIC;
 }
 
 static void set_solve_integ(int solve) {
@@ -136,8 +135,6 @@ static cmd_getkey_mapping_struct cmd_getkey_mapping[] = {
 };
 
 void keydown(int shift, int key) {
-    int *menu;
-
     // Preserve state of Shift, to allow MENU handlers to implement
     // different behaviors for unshifted and shifted menu keys.
     flags.f.shift_state = shift;
@@ -151,8 +148,8 @@ void keydown(int shift, int key) {
          * handle them properly in all cases. Using a code coverage tool on
          * the keydown handler might be an idea...
          */
-        menu = get_front_menu();
-        if (menu == NULL || *menu < MENU_ALPHA1 || *menu > MENU_ALPHA_MISC2)
+        int menu = get_front_menu();
+        if (menu < MENU_ALPHA1 || menu > MENU_ALPHA_MISC2)
             return;
     } else if (key < 1 || key > 37 && key < 2048) {
         /* Bad key code */
@@ -272,7 +269,7 @@ void keydown(int shift, int key) {
     flags.f.two_line_message = 0;
 
     if (mode_number_entry && get_base() == 16 && key == KEY_SIGMA
-            && (menu = get_front_menu()) != NULL && *menu == MENU_BASE) {
+            && get_front_menu() == MENU_BASE) {
         /* Special case -- entering the A...F menu while in base 16
          * does *not* cancel number entry mode (unlike all other menu
          * keys)... So we intercept and handle it before all the other
@@ -305,7 +302,7 @@ void keydown(int shift, int key) {
     }
 
     if (mode_command_entry
-            && (shift || get_front_menu() == NULL)
+            && (shift || get_front_menu() == MENU_NONE)
             && (key == KEY_UP || key == KEY_DOWN)) {
         /* Trying to do SST or BST while in command entry mode */
         squeak();
@@ -313,7 +310,7 @@ void keydown(int shift, int key) {
     }
 
     if (key == KEY_UP || (key == KEY_DOWN &&
-                (flags.f.prgm_mode || (!shift && get_front_menu() != NULL)))) {
+                (flags.f.prgm_mode || (!shift && get_front_menu() != MENU_NONE)))) {
         /* UP, DOWN, BST, or prgm-mode SST */
         repeating = 1;
         repeating_shift = shift;
@@ -321,7 +318,7 @@ void keydown(int shift, int key) {
     }
 
     if (flags.f.prgm_mode && (key == KEY_UP || key == KEY_DOWN)
-            && (shift || get_front_menu() == NULL)) {
+            && (shift || get_front_menu() == MENU_NONE)) {
         /* Stepping through the program in prgm mode */
         if (flags.f.prgm_mode && mode_alpha_entry)
             finish_alpha_prgm_line();
@@ -335,8 +332,7 @@ void keydown(int shift, int key) {
     }
     
     if (key == KEY_UP || key == KEY_DOWN) {
-        menu = get_front_menu();
-        if (menu != NULL && *menu == MENU_CATALOG) {
+        if (get_front_menu() == MENU_CATALOG) {
             int sect = get_cat_section();
             if (sect == CATSECT_TOP) {
                 set_cat_section(CATSECT_EXT);
@@ -351,7 +347,7 @@ void keydown(int shift, int key) {
     }
     
     if (!flags.f.prgm_mode && key == KEY_UP
-            && (shift || get_front_menu() == NULL)) {
+            && (shift || get_front_menu() == MENU_NONE)) {
         /* BST in normal or alpha mode */
         if (mode_alpha_entry
                 && (flags.f.trace_print || flags.f.normal_print)
@@ -1972,7 +1968,7 @@ void keydown_normal_mode(int shift, int key) {
         if (deferred_print)
             print_command(CMD_NULL, NULL);
         cmdline_length = 0;
-        if (get_front_menu() != NULL)
+        if (get_front_menu() != MENU_NONE)
             cmdline_row = 0;
         else
             cmdline_row = 1;

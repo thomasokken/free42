@@ -177,12 +177,12 @@ void core_repaint_display() {
 }
 
 bool core_menu() {
-    return mode_clall || get_front_menu() != NULL;
+    return mode_clall || get_front_menu() != MENU_NONE;
 }
 
 bool alpha_active() {
-    int *menu = get_front_menu();
-    return menu != NULL && *menu >= MENU_ALPHA1 && *menu <= MENU_ALPHA_MISC2;
+    int menu = get_front_menu();
+    return menu >= MENU_ALPHA1 && menu <= MENU_ALPHA_MISC2;
 }
 
 bool core_alpha_menu() {
@@ -190,8 +190,7 @@ bool core_alpha_menu() {
 }
 
 bool core_hex_menu() {
-    int *menu = get_front_menu();
-    return menu != NULL && *menu == MENU_BASE_A_THRU_F;
+    return get_front_menu() == MENU_BASE_A_THRU_F;
 }
 
 static int ascii2hp(char *dst, const char *src, int maxchars);

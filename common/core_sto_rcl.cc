@@ -60,7 +60,7 @@ static int apply_sto_operation(char operation, vartype *oldval, bool trace_stk) 
     }
 }
 
-int assert_numeric(vartype *v) {
+int assert_numeric(const vartype *v) {
     if (v->type == TYPE_REAL || v->type == TYPE_COMPLEX
             || v->type == TYPE_REALMATRIX || v->type == TYPE_COMPLEXMATRIX)
         return ERR_NONE;

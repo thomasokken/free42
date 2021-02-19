@@ -384,10 +384,10 @@ bool string_equals(const char *s1, int s1len, const char *s2, int s2len) {
     return true;
 }
 
-int string_pos(const char *ntext, int nlen, vartype *hs, int startpos) {
+int string_pos(const char *ntext, int nlen, const vartype *hs, int startpos) {
     int pos = -1;
     if (hs->type == TYPE_REAL) {
-        phloat x = ((vartype_real *) hs)->x;
+        phloat x = ((const vartype_real *) hs)->x;
         char c;
         int i;
         if (x < 0)
@@ -401,10 +401,10 @@ int string_pos(const char *ntext, int nlen, vartype *hs, int startpos) {
                 break;
             }
     } else {
-        vartype_string *s = (vartype_string *) hs;
+        const vartype_string *s = (const vartype_string *) hs;
         if (s->length != 0) {
             int i, j;
-            char *text = s->txt();
+            const char *text = s->txt();
             for (i = startpos; i < nlen - s->length + 1; i++) {
                 for (j = 0; j < s->length; j++)
                     if (ntext[i + j] != text[j])
@@ -418,23 +418,23 @@ int string_pos(const char *ntext, int nlen, vartype *hs, int startpos) {
     return pos;
 }
 
-bool vartype_equals(vartype *v1, vartype *v2) {
+bool vartype_equals(const vartype *v1, const vartype *v2) {
     if (v1->type != v2->type)
         return false;
     switch (v1->type) {
         case TYPE_REAL: {
-            vartype_real *x = (vartype_real *) v1;
-            vartype_real *y = (vartype_real *) v2;
+            const vartype_real *x = (const vartype_real *) v1;
+            const vartype_real *y = (const vartype_real *) v2;
             return x->x == y->x;
         }
         case TYPE_COMPLEX: {
-            vartype_complex *x = (vartype_complex *) v1;
-            vartype_complex *y = (vartype_complex *) v2;
+            const vartype_complex *x = (const vartype_complex *) v1;
+            const vartype_complex *y = (const vartype_complex *) v2;
             return x->re == y->re && x->im == y->im;
         }
         case TYPE_REALMATRIX: {
-            vartype_realmatrix *x = (vartype_realmatrix *) v1;
-            vartype_realmatrix *y = (vartype_realmatrix *) v2;
+            const vartype_realmatrix *x = (const vartype_realmatrix *) v1;
+            const vartype_realmatrix *y = (const vartype_realmatrix *) v2;
             int4 sz, i;
             if (x->rows != y->rows || x->columns != y->columns)
                 return false;
@@ -449,7 +449,7 @@ bool vartype_equals(vartype *v1, vartype *v2) {
                         return false;
                 } else {
                     int len1, len2;
-                    char *text1, *text2;
+                    const char *text1, *text2;
                     get_matrix_string(x, i, &text1, &len1);
                     get_matrix_string(y, i, &text2, &len2);
                     if (!string_equals(text1, len1, text2, len2))
@@ -459,8 +459,8 @@ bool vartype_equals(vartype *v1, vartype *v2) {
             return true;
         }
         case TYPE_COMPLEXMATRIX: {
-            vartype_complexmatrix *x = (vartype_complexmatrix *) v1;
-            vartype_complexmatrix *y = (vartype_complexmatrix *) v2;
+            const vartype_complexmatrix *x = (const vartype_complexmatrix *) v1;
+            const vartype_complexmatrix *y = (const vartype_complexmatrix *) v2;
             int4 sz, i;
             if (x->rows != y->rows || x->columns != y->columns)
                 return false;
@@ -471,18 +471,18 @@ bool vartype_equals(vartype *v1, vartype *v2) {
             return true;
         }
         case TYPE_STRING: {
-            vartype_string *x = (vartype_string *) v1;
-            vartype_string *y = (vartype_string *) v2;
+            const vartype_string *x = (const vartype_string *) v1;
+            const vartype_string *y = (const vartype_string *) v2;
             return string_equals(x->txt(), x->length, y->txt(), y->length);
         }
         case TYPE_LIST: {
-            vartype_list *x = (vartype_list *) v1;
-            vartype_list *y = (vartype_list *) v2;
+            const vartype_list *x = (const vartype_list *) v1;
+            const vartype_list *y = (const vartype_list *) v2;
             if (x->size != y->size)
                 return false;
             int4 sz = x->size;
-            vartype **data1 = x->array->data;
-            vartype **data2 = y->array->data;
+            const vartype **data1 = (const vartype **) x->array->data;
+            const vartype **data2 = (const vartype **) y->array->data;
             for (int4 i = 0; i < sz; i++)
                 if (!vartype_equals(data1[i], data2[i]))
                     return false;
@@ -1654,7 +1654,7 @@ int vartype2string(const vartype *v, char *buf, int buflen, int max_mant_digits)
     }
 }
 
-char *phloat2program(phloat d) {
+const char *phloat2program(phloat d) {
     /* Converts a phloat to its most compact representation;
      * used for generating HP-42S style number literals in programs.
      */

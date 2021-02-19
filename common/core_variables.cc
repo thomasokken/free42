@@ -294,7 +294,11 @@ void get_matrix_string(vartype_realmatrix *rm, int i, char **text, int4 *length)
     }
 }
 
-bool put_matrix_string(vartype_realmatrix *rm, int i, char *text, int4 length) {
+void get_matrix_string(const vartype_realmatrix *rm, int i, const char **text, int4 *length) {
+    get_matrix_string((vartype_realmatrix *) rm, i, (char **) text, length);
+}
+
+bool put_matrix_string(vartype_realmatrix *rm, int i, const char *text, int4 length) {
     char *ptext;
     int4 plength;
     if (rm->array->is_string[i] != 0) {
