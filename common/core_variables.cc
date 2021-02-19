@@ -606,37 +606,34 @@ void purge_all_vars() {
     vars_count = 0;
 }
 
-int vars_exist(int real, int cpx, int matrix, int list) {
+bool vars_exist(int section) {
     int i;
     for (i = 0; i < vars_count; i++) {
         if ((vars[i].flags & (VAR_HIDDEN | VAR_PRIVATE)) != 0)
             continue;
+        if (section == -1)
+            return true;
         switch (vars[i].value->type) {
             case TYPE_REAL:
             case TYPE_STRING:
-                if (real)
-                    return 1;
+                if (section == CATSECT_REAL)
+                    return true;
                 else
                     break;
             case TYPE_COMPLEX:
-                if (cpx)
-                    return 1;
+                if (section == CATSECT_CPX)
+                    return true;
                 else
                     break;
             case TYPE_REALMATRIX:
             case TYPE_COMPLEXMATRIX:
-                if (matrix)
-                    return 1;
-                else
-                    break;
-            case TYPE_LIST:
-                if (list)
-                    return 1;
+                if (section == CATSECT_MAT)
+                    return true;
                 else
                     break;
         }
     }
-    return 0;
+    return false;
 }
 
 bool contains_strings(const vartype_realmatrix *rm) {

@@ -286,7 +286,7 @@ struct mul_rr_data_struct {
 
 static mul_rr_data_struct *mul_rr_data;
 
-static int matrix_mul_rr_worker(int interrupted);
+static int matrix_mul_rr_worker(bool interrupted);
 
 static int matrix_mul_rr(vartype_realmatrix *left, vartype_realmatrix *right,
                          int (*completion)(int, vartype *)) {
@@ -334,7 +334,7 @@ static int matrix_mul_rr(vartype_realmatrix *left, vartype_realmatrix *right,
     return completion(error, NULL);
 }
 
-static int matrix_mul_rr_worker(int interrupted) {
+static int matrix_mul_rr_worker(bool interrupted) {
     mul_rr_data_struct *dat = mul_rr_data;
     int count = 0;
     int inf;
@@ -539,7 +539,7 @@ struct mul_rc_data_struct {
 
 static mul_rc_data_struct *mul_rc_data;
 
-static int matrix_mul_rc_worker(int interrupted);
+static int matrix_mul_rc_worker(bool interrupted);
 
 static int matrix_mul_rc(vartype_realmatrix *left, vartype_complexmatrix *right,
                          int (*completion)(int, vartype *)) {
@@ -588,7 +588,7 @@ static int matrix_mul_rc(vartype_realmatrix *left, vartype_complexmatrix *right,
     return completion(error, NULL);
 }
 
-static int matrix_mul_rc_worker(int interrupted) {
+static int matrix_mul_rc_worker(bool interrupted) {
     mul_rc_data_struct *dat = mul_rc_data;
     int count = 0;
     int inf;
@@ -671,7 +671,7 @@ struct mul_cr_data_struct {
 
 static mul_cr_data_struct *mul_cr_data;
 
-static int matrix_mul_cr_worker(int interrupted);
+static int matrix_mul_cr_worker(bool interrupted);
 
 static int matrix_mul_cr(vartype_complexmatrix *left, vartype_realmatrix *right,
                          int (*completion)(int, vartype *)) {
@@ -720,7 +720,7 @@ static int matrix_mul_cr(vartype_complexmatrix *left, vartype_realmatrix *right,
     return completion(error, NULL);
 }
 
-static int matrix_mul_cr_worker(int interrupted) {
+static int matrix_mul_cr_worker(bool interrupted) {
     mul_cr_data_struct *dat = mul_cr_data;
     int count = 0;
     int inf;
@@ -803,7 +803,7 @@ struct mul_cc_data_struct {
 
 static mul_cc_data_struct *mul_cc_data;
 
-static int matrix_mul_cc_worker(int interrupted);
+static int matrix_mul_cc_worker(bool interrupted);
 
 static int matrix_mul_cc(vartype_complexmatrix *left, vartype_complexmatrix *right,
                          int (*completion)(int, vartype *)) {
@@ -847,7 +847,7 @@ static int matrix_mul_cc(vartype_complexmatrix *left, vartype_complexmatrix *rig
     return completion(error, NULL);
 }
 
-static int matrix_mul_cc_worker(int interrupted) {
+static int matrix_mul_cc_worker(bool interrupted) {
     mul_cc_data_struct *dat = mul_cc_data;
     int count = 0;
     int inf;

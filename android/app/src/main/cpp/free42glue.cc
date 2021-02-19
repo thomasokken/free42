@@ -164,7 +164,8 @@ Java_com_thomasokken_free42_Free42Activity_core_1keydown(JNIEnv *env, jobject th
             keydown_end_time.tv_sec++;
         }
     }
-    int enq, rep;
+    bool enq;
+    int rep;
     jboolean ret = core_keydown(key, &enq, &rep);
     if (enqueued != NULL) {
         jclass klass = env->GetObjectClass(enqueued);
@@ -191,7 +192,8 @@ Java_com_thomasokken_free42_Free42Activity_core_1keydown_1command(JNIEnv *env, j
             keydown_end_time.tv_sec++;
         }
     }
-    int enq, rep;
+    bool enq;
+    int rep;
     const char *buf = env->GetStringUTFChars(cmd, NULL);
     jboolean ret = core_keydown_command(buf, &enq, &rep);
     env->ReleaseStringUTFChars(cmd, buf);
@@ -228,7 +230,7 @@ Java_com_thomasokken_free42_Free42Activity_core_1keytimeout2(JNIEnv *env, jobjec
 }
 
 extern "C" jboolean
-Java_com_thomasokken_free42_Free42Activity_core_1timeout3(JNIEnv *env, jobject thiz, jint repaint) {
+Java_com_thomasokken_free42_Free42Activity_core_1timeout3(JNIEnv *env, jobject thiz, jboolean repaint) {
     Tracer T("core_timeout3");
     return core_timeout3(repaint);
 }

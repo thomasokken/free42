@@ -383,7 +383,7 @@ extern int varmenu_role;
 /****************/
 
 extern bool mode_clall;
-extern int (*mode_interruptible)(int);
+extern int (*mode_interruptible)(bool);
 extern bool mode_stoppable;
 extern bool mode_command_entry;
 extern bool mode_number_entry;

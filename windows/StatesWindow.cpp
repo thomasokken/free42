@@ -186,8 +186,8 @@ static void switchTo(HWND hDlg) {
 	char *cpath = wide2utf(path.c_str());
 	core_init(1, 26, cpath, 0);
 	free(cpath);
-    int running = core_powercycle();
-    EndDialog(hDlg, running);
+    bool running = core_powercycle();
+    EndDialog(hDlg, running ? 1 : 0);
 }
 
 static void doNew(HWND hDlg) {

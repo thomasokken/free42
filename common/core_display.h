@@ -42,7 +42,7 @@ void display_prgm_line(int row, int line_offset);
 void display_x(int row);
 void display_y(int row);
 void display_incomplete_command(int row);
-void display_error(int error, int print);
+void display_error(int error, bool print);
 void display_command(int row);
 void draw_varmenu();
 void display_mem();
@@ -96,7 +96,7 @@ void assign_custom_key(int keynum, const char *name, int length);
 void get_custom_key(int keynum, char *name, int *length);
 
 void clear_prgm_menu();
-void assign_prgm_key(int keynum, int is_gto, const arg_struct *arg);
+void assign_prgm_key(int keynum, bool is_gto, const arg_struct *arg);
 void do_prgm_menu_key(int keynum);
 
 #endif

@@ -176,7 +176,7 @@ void core_repaint_display() {
     repaint_display();
 }
 
-int core_menu() {
+bool core_menu() {
     return mode_clall || get_front_menu() != NULL;
 }
 
@@ -185,18 +185,18 @@ bool alpha_active() {
     return menu != NULL && *menu >= MENU_ALPHA1 && *menu <= MENU_ALPHA_MISC2;
 }
 
-int core_alpha_menu() {
+bool core_alpha_menu() {
     return !mode_getkey && alpha_active();
 }
 
-int core_hex_menu() {
+bool core_hex_menu() {
     int *menu = get_front_menu();
     return menu != NULL && *menu == MENU_BASE_A_THRU_F;
 }
 
 static int ascii2hp(char *dst, const char *src, int maxchars);
 
-int core_keydown_command(const char *name, int *enqueued, int *repeat) {
+bool core_keydown_command(const char *name, bool *enqueued, int *repeat) {
     char hpname[70];
     int len = ascii2hp(hpname, name, 63);
     int cmd = find_builtin(hpname, len, false);
@@ -207,7 +207,7 @@ int core_keydown_command(const char *name, int *enqueued, int *repeat) {
     return core_keydown(cmd == CMD_NONE ? 0 : cmd + 2048, enqueued, repeat);
 }
 
-int core_keydown(int key, int *enqueued, int *repeat) {
+bool core_keydown(int key, bool *enqueued, int *repeat) {
 
     *enqueued = 0;
     *repeat = 0;
@@ -253,7 +253,7 @@ int core_keydown(int key, int *enqueued, int *repeat) {
             }
             set_shift(false);
         }
-        error = mode_interruptible(0);
+        error = mode_interruptible(false);
         if (error == ERR_INTERRUPTIBLE)
             /* Still not done */
             return 1;
@@ -426,7 +426,7 @@ void core_keytimeout2() {
     }
 }
 
-bool core_timeout3(int repaint) {
+bool core_timeout3(bool repaint) {
     if (mode_pause) {
         if (repaint) {
             /* The PSE ended normally */
@@ -449,10 +449,10 @@ bool core_timeout3(int repaint) {
     return false;
 }
 
-int core_keyup() {
+bool core_keyup() {
     if (mode_pause) {
         /* The only way this can happen is if they key in question was Shift */
-        return 0;
+        return false;
     }
 
     int error = ERR_NONE;
@@ -476,7 +476,7 @@ int core_keyup() {
         shell_powerdown();
 #endif
         pending_command = CMD_NONE;
-        return 0;
+        return false;
     }
 
     if (pending_command == CMD_NONE)
@@ -518,7 +518,7 @@ int core_keyup() {
             input_length = 0;
             if (err != ERR_NONE) {
                 pending_command = CMD_NONE;
-                display_error(err, 1);
+                display_error(err, true);
                 redisplay();
                 return mode_running || keybuf_head != keybuf_tail;
             }
@@ -548,7 +548,7 @@ int core_keyup() {
         if (pc == -1)
             pc = 0;
         set_running(true);
-        return 1;
+        return true;
     }
 
     if (pending_command == CMD_SST || pending_command == CMD_SST_RT) {
@@ -587,7 +587,7 @@ int core_keyup() {
     if (error == ERR_INTERRUPTIBLE) {
         shell_annunciators(-1, -1, -1, 1, -1, -1);
         pending_command = CMD_NONE;
-        return 1;
+        return true;
     }
 
     handle_error(error);
@@ -597,7 +597,7 @@ int core_keyup() {
     return (mode_running && !mode_getkey && !mode_pause) || keybuf_head != keybuf_tail;
 }
 
-int core_powercycle() {
+bool core_powercycle() {
     bool need_redisplay = false;
 
     if (mode_interruptible != NULL)
@@ -628,7 +628,7 @@ int core_powercycle() {
             flags.f.stack_lift_disable = 0;
         } else {
             nomem:
-            display_error(ERR_INSUFFICIENT_MEMORY, 1);
+            display_error(ERR_INSUFFICIENT_MEMORY, true);
             flags.f.auto_exec = 0;
         }
         if (!flags.f.auto_exec)
@@ -2416,7 +2416,7 @@ char *core_copy() {
         tb_write_null(&tb);
         if (tb.fail) {
             free(tb.buf);
-            display_error(ERR_INSUFFICIENT_MEMORY, 0);
+            display_error(ERR_INSUFFICIENT_MEMORY, false);
             redisplay();
             return NULL;
         } else
@@ -2486,7 +2486,7 @@ char *core_copy() {
         tb_write_null(&tb);
         if (tb.fail) {
             free(tb.buf);
-            display_error(ERR_INSUFFICIENT_MEMORY, 0);
+            display_error(ERR_INSUFFICIENT_MEMORY, false);
             redisplay();
             return NULL;
         } else
@@ -2515,7 +2515,7 @@ char *core_copy() {
         tb_write_null(&tb);
         if (tb.fail) {
             free(tb.buf);
-            display_error(ERR_INSUFFICIENT_MEMORY, 0);
+            display_error(ERR_INSUFFICIENT_MEMORY, false);
             redisplay();
             return NULL;
         } else
@@ -3799,7 +3799,7 @@ void core_paste(const char *buf) {
             int len = (int) strlen(buf);
             char *asciibuf = (char *) malloc(len + 1);
             if (asciibuf == NULL) {
-                display_error(ERR_INSUFFICIENT_MEMORY, 0);
+                display_error(ERR_INSUFFICIENT_MEMORY, false);
                 redisplay();
                 return;
             }
@@ -3812,7 +3812,7 @@ void core_paste(const char *buf) {
             char *hpbuf = (char *) malloc(len + 4);
             if (hpbuf == NULL) {
                 free(asciibuf);
-                display_error(ERR_INSUFFICIENT_MEMORY, 0);
+                display_error(ERR_INSUFFICIENT_MEMORY, false);
                 redisplay();
                 return;
             }
@@ -3836,7 +3836,7 @@ void core_paste(const char *buf) {
                         break;
                 }
                 if (v == NULL) {
-                    display_error(ERR_INSUFFICIENT_MEMORY, 0);
+                    display_error(ERR_INSUFFICIENT_MEMORY, false);
                     redisplay();
                     return;
                 }
@@ -3847,14 +3847,14 @@ void core_paste(const char *buf) {
             int n = rows * cols;
             phloat *data = (phloat *) malloc(n * sizeof(phloat));
             if (data == NULL) {
-                display_error(ERR_INSUFFICIENT_MEMORY, 0);
+                display_error(ERR_INSUFFICIENT_MEMORY, false);
                 redisplay();
                 return;
             }
             char *is_string = (char *) malloc(n);
             if (is_string == NULL) {
                 free(data);
-                display_error(ERR_INSUFFICIENT_MEMORY, 0);
+                display_error(ERR_INSUFFICIENT_MEMORY, false);
                 redisplay();
                 return;
             }
@@ -3862,7 +3862,7 @@ void core_paste(const char *buf) {
             if (asciibuf == NULL) {
                 free(data);
                 free(is_string);
-                display_error(ERR_INSUFFICIENT_MEMORY, 0);
+                display_error(ERR_INSUFFICIENT_MEMORY, false);
                 redisplay();
                 return;
             }
@@ -3871,7 +3871,7 @@ void core_paste(const char *buf) {
                 free(asciibuf);
                 free(data);
                 free(is_string);
-                display_error(ERR_INSUFFICIENT_MEMORY, 0);
+                display_error(ERR_INSUFFICIENT_MEMORY, false);
                 redisplay();
                 return;
             }
@@ -3915,7 +3915,7 @@ void core_paste(const char *buf) {
                                     free(data);
                                     free(asciibuf);
                                     free(hpbuf);
-                                    display_error(ERR_INSUFFICIENT_MEMORY, 0);
+                                    display_error(ERR_INSUFFICIENT_MEMORY, false);
                                     redisplay();
                                     return;
                                 }
@@ -4004,7 +4004,7 @@ void core_paste(const char *buf) {
                     free_long_strings(is_string, data, p);
                     free(data);
                     free(is_string);
-                    display_error(ERR_INSUFFICIENT_MEMORY, 0);
+                    display_error(ERR_INSUFFICIENT_MEMORY, false);
                     redisplay();
                     return;
                 }
@@ -4015,7 +4015,7 @@ void core_paste(const char *buf) {
                     free_long_strings(is_string, data, p);
                     free(data);
                     free(is_string);
-                    display_error(ERR_INSUFFICIENT_MEMORY, 0);
+                    display_error(ERR_INSUFFICIENT_MEMORY, false);
                     redisplay();
                     return;
                 }
@@ -4031,7 +4031,7 @@ void core_paste(const char *buf) {
                                 malloc(sizeof(vartype_complexmatrix));
                 if (cm == NULL) {
                     free(data);
-                    display_error(ERR_INSUFFICIENT_MEMORY, 0);
+                    display_error(ERR_INSUFFICIENT_MEMORY, false);
                     redisplay();
                     return;
                 }
@@ -4040,7 +4040,7 @@ void core_paste(const char *buf) {
                 if (cm->array == NULL) {
                     free(cm);
                     free(data);
-                    display_error(ERR_INSUFFICIENT_MEMORY, 0);
+                    display_error(ERR_INSUFFICIENT_MEMORY, false);
                     redisplay();
                     return;
                 }
@@ -4054,7 +4054,7 @@ void core_paste(const char *buf) {
         }
         mode_number_entry = false;
         if (recall_result(v) != ERR_NONE) {
-            display_error(ERR_INSUFFICIENT_MEMORY, 0);
+            display_error(ERR_INSUFFICIENT_MEMORY, false);
             redisplay();
             return;
         }
@@ -4090,14 +4090,14 @@ void do_interactive(int command) {
     int err;
     if ((cmd_array[command].flags
                 & (flags.f.prgm_mode ? FLAG_NO_PRGM : FLAG_PRGM_ONLY)) != 0) {
-        display_error(ERR_RESTRICTED_OPERATION, 0);
+        display_error(ERR_RESTRICTED_OPERATION, false);
         redisplay();
         return;
     }
     if (command == CMD_GOTOROW) {
         err = docmd_stoel(NULL);
         if (err != ERR_NONE) {
-            display_error(err, 1);
+            display_error(err, true);
             redisplay();
             return;
         }
@@ -4113,7 +4113,7 @@ void do_interactive(int command) {
         return;
     } else if (command == CMD_CLV || command == CMD_PRV) {
         if (!flags.f.prgm_mode && vars_count == 0) {
-            display_error(ERR_NO_VARIABLES, 0);
+            display_error(ERR_NO_VARIABLES, false);
             redisplay();
             return;
         }
@@ -4383,7 +4383,7 @@ int find_menu_key(int key) {
 void start_incomplete_command(int cmd_id) {
     int argtype = cmd_array[cmd_id].argtype;
     if (!flags.f.prgm_mode && (cmd_array[cmd_id].flags & FLAG_PRGM_ONLY) != 0) {
-        display_error(ERR_RESTRICTED_OPERATION, 0);
+        display_error(ERR_RESTRICTED_OPERATION, false);
         redisplay();
         return;
     }
@@ -4430,21 +4430,21 @@ void start_incomplete_command(int cmd_id) {
         else
             set_catalog_menu(CATSECT_REAL_ONLY);
     } else if (argtype == ARG_RVAR) {
-        if (vars_exist(1, 0, 0, 0))
+        if (vars_exist(CATSECT_REAL))
             set_catalog_menu(CATSECT_REAL_ONLY);
         else if (flags.f.prgm_mode) {
             if (incomplete_command == CMD_MVAR)
                 mode_commandmenu = MENU_ALPHA1;
         } else {
             mode_command_entry = false;
-            display_error(ERR_NO_REAL_VARIABLES, 0);
+            display_error(ERR_NO_REAL_VARIABLES, false);
         }
     } else if (argtype == ARG_MAT) {
-        if (flags.f.prgm_mode || vars_exist(0, 0, 1, 0))
+        if (flags.f.prgm_mode || vars_exist(CATSECT_MAT))
             set_catalog_menu(CATSECT_MAT_ONLY);
         else if (cmd_id != CMD_DIM) {
             mode_command_entry = false;
-            display_error(ERR_NO_MATRIX_VARIABLES, 0);
+            display_error(ERR_NO_MATRIX_VARIABLES, false);
         }
     } else if (argtype == ARG_LBL || argtype == ARG_PRGM)
         set_catalog_menu(CATSECT_PGM_ONLY);
@@ -4573,7 +4573,7 @@ void finish_xeq() {
             set_menu(MENULEVEL_COMMAND, MENU_NONE);
             if ((cmd == CMD_CLV || cmd == CMD_PRV)
                     && !flags.f.prgm_mode && vars_count == 0) {
-                display_error(ERR_NO_VARIABLES, 0);
+                display_error(ERR_NO_VARIABLES, false);
                 pending_command = CMD_NONE;
                 redisplay();
             } else
@@ -4615,7 +4615,7 @@ void finish_alpha_prgm_line() {
 }
 
 static void stop_interruptible() {
-    int error = mode_interruptible(1);
+    int error = mode_interruptible(true);
     handle_error(error);
     mode_interruptible = NULL;
     if (mode_running)
@@ -4668,7 +4668,7 @@ static int handle_error(int error) {
             }
             handle_it:
             pc = oldpc;
-            display_error(error, 1);
+            display_error(error, true);
             set_running(false);
             return 0;
         }
@@ -4709,7 +4709,7 @@ static int handle_error(int error) {
             }
             handle_it_2:
             pc = oldpc;
-            display_error(error, 1);
+            display_error(error, true);
         }
         return 0;
     } else {
@@ -4725,7 +4725,7 @@ static int handle_error(int error) {
             error = ERR_NONE;
         }
         if (error != ERR_NONE && error != ERR_STOP)
-            display_error(error, 1);
+            display_error(error, true);
         return 0;
     }
 }

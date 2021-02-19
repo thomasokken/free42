@@ -82,8 +82,8 @@ static char szPrintOutWindowClass[MAX_LOADSTRING]; // The print-out window class
 
 static UINT timer = 0;
 static UINT timer3 = 0;
-static int running = 0;
-static int enqueued = 0;
+static bool running = false;
+static bool enqueued = false;
 
 static char *printout;
 static int printout_top;
@@ -216,7 +216,8 @@ int APIENTRY WinMain(HINSTANCE hInstance,
     // Main message loop:
     while (1) {
         while (running && !PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE)) {
-            int dummy1, dummy2;
+            bool dummy1;
+            int dummy2;
             running = core_keydown(0, &dummy1, &dummy2);
         }
         if (!GetMessage(&msg, NULL, 0, 0)) 
@@ -442,7 +443,7 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
     }
 
     if (core_powercycle())
-        running = 1;
+        running = true;
     SetTimer(NULL, 0, 60000, battery_checker);
 
     return TRUE;
@@ -465,7 +466,7 @@ static void shell_keydown() {
     if (timer3 != 0 && (macro != NULL || ckey != 28 /* SHIFT */)) {
         KillTimer(NULL, timer3);
         timer3 = 0; 
-        core_timeout3(0);
+        core_timeout3(false);
     }
     int repeat;
     if (macro != NULL) {
@@ -555,7 +556,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
             // Parse the menu selections:
             switch (wmId) {
 				case IDM_STATES:
-                    running = DialogBoxW(hInst, (LPCWSTR)IDD_STATES, hWnd, (DLGPROC)StatesDlgProc);
+                    running = DialogBoxW(hInst, (LPCWSTR)IDD_STATES, hWnd, (DLGPROC)StatesDlgProc) != 0;
                     break;
                 case IDM_SHOWPRINTOUT:
                     show_printout();
@@ -1657,10 +1658,10 @@ static VOID CALLBACK timeout2(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) 
 
 static VOID CALLBACK timeout3(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) {
     KillTimer(NULL, timer3);
-    bool keep_running = core_timeout3(1);
+    bool keep_running = core_timeout3(true);
     timer3 = 0;
     if (keep_running) {
-        running = 1;
+        running = true;
         // Post dummy message to get the message loop moving again
         PostMessage(hMainWnd, WM_USER, 0, 0);
     }

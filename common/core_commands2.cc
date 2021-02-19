@@ -398,7 +398,7 @@ int docmd_input(arg_struct *arg) {
         return ERR_STOP;
 }
 
-int view_helper(arg_struct *arg, int print) {
+int view_helper(arg_struct *arg, bool print) {
     int err;
     char buf[22];
     int bufptr = 0, part2;
@@ -1082,7 +1082,7 @@ int docmd_prp(arg_struct *arg) {
 
 static vartype *prv_var;
 static int4 prv_index;
-static int prv_worker(int interrupted);
+static int prv_worker(bool interrupted);
 
 int docmd_prv(arg_struct *arg) {
     if (arg->type == ARGTYPE_IND_NUM || arg->type == ARGTYPE_IND_STK
@@ -1123,7 +1123,7 @@ int docmd_prv(arg_struct *arg) {
     }
 }
 
-static int prv_worker(int interrupted) {
+static int prv_worker(bool interrupted) {
     char lbuf[32], rbuf[100];
     int llen = 0, rlen = 0;
     int4 i, j, sz;
@@ -1296,7 +1296,7 @@ int docmd_prx(arg_struct *arg) {
 
 static int prusr_state;
 static int prusr_index;
-static int prusr_worker(int interrupted);
+static int prusr_worker(bool interrupted);
 
 int docmd_prusr(arg_struct *arg) {
     if (!flags.f.printer_enable && program_running())
@@ -1314,7 +1314,7 @@ int docmd_prusr(arg_struct *arg) {
     }
 }
 
-static int prusr_worker(int interrupted) {
+static int prusr_worker(bool interrupted) {
     if (interrupted) {
         shell_annunciators(-1, -1, 0, -1, -1, -1);
         return ERR_STOP;
@@ -1755,92 +1755,92 @@ int docmd_off(arg_struct *arg) {
 }
 
 int docmd_key1g(arg_struct *arg) {
-    assign_prgm_key(1, 1, arg);
+    assign_prgm_key(1, true, arg);
     return ERR_NONE;
 }
 
 int docmd_key2g(arg_struct *arg) {
-    assign_prgm_key(2, 1, arg);
+    assign_prgm_key(2, true, arg);
     return ERR_NONE;
 }
 
 int docmd_key3g(arg_struct *arg) {
-    assign_prgm_key(3, 1, arg);
+    assign_prgm_key(3, true, arg);
     return ERR_NONE;
 }
 
 int docmd_key4g(arg_struct *arg) {
-    assign_prgm_key(4, 1, arg);
+    assign_prgm_key(4, true, arg);
     return ERR_NONE;
 }
 
 int docmd_key5g(arg_struct *arg) {
-    assign_prgm_key(5, 1, arg);
+    assign_prgm_key(5, true, arg);
     return ERR_NONE;
 }
 
 int docmd_key6g(arg_struct *arg) {
-    assign_prgm_key(6, 1, arg);
+    assign_prgm_key(6, true, arg);
     return ERR_NONE;
 }
 
 int docmd_key7g(arg_struct *arg) {
-    assign_prgm_key(7, 1, arg);
+    assign_prgm_key(7, true, arg);
     return ERR_NONE;
 }
 
 int docmd_key8g(arg_struct *arg) {
-    assign_prgm_key(8, 1, arg);
+    assign_prgm_key(8, true, arg);
     return ERR_NONE;
 }
 
 int docmd_key9g(arg_struct *arg) {
-    assign_prgm_key(9, 1, arg);
+    assign_prgm_key(9, true, arg);
     return ERR_NONE;
 }
 
 int docmd_key1x(arg_struct *arg) {
-    assign_prgm_key(1, 0, arg);
+    assign_prgm_key(1, false, arg);
     return ERR_NONE;
 }
 
 int docmd_key2x(arg_struct *arg) {
-    assign_prgm_key(2, 0, arg);
+    assign_prgm_key(2, false, arg);
     return ERR_NONE;
 }
 
 int docmd_key3x(arg_struct *arg) {
-    assign_prgm_key(3, 0, arg);
+    assign_prgm_key(3, false, arg);
     return ERR_NONE;
 }
 
 int docmd_key4x(arg_struct *arg) {
-    assign_prgm_key(4, 0, arg);
+    assign_prgm_key(4, false, arg);
     return ERR_NONE;
 }
 
 int docmd_key5x(arg_struct *arg) {
-    assign_prgm_key(5, 0, arg);
+    assign_prgm_key(5, false, arg);
     return ERR_NONE;
 }
 
 int docmd_key6x(arg_struct *arg) {
-    assign_prgm_key(6, 0, arg);
+    assign_prgm_key(6, false, arg);
     return ERR_NONE;
 }
 
 int docmd_key7x(arg_struct *arg) {
-    assign_prgm_key(7, 0, arg);
+    assign_prgm_key(7, false, arg);
     return ERR_NONE;
 }
 
 int docmd_key8x(arg_struct *arg) {
-    assign_prgm_key(8, 0, arg);
+    assign_prgm_key(8, false, arg);
     return ERR_NONE;
 }
 
 int docmd_key9x(arg_struct *arg) {
-    assign_prgm_key(9, 0, arg);
+    assign_prgm_key(9, false, arg);
     return ERR_NONE;
 }
 

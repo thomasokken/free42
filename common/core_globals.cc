@@ -604,7 +604,7 @@ char varmenu_labeltext[6][7];
 int varmenu_role;
 
 bool mode_clall;
-int (*mode_interruptible)(int) = NULL;
+int (*mode_interruptible)(bool) = NULL;
 bool mode_stoppable;
 bool mode_command_entry;
 bool mode_number_entry;
@@ -770,6 +770,7 @@ bool no_keystrokes_yet;
  * Version 32: 2.5.24 Replace FUNC[012] with FUNC [0-4][0-4]
  * Version 33: 3.0    Big stack; parameterized RTNERR
  * Version 34: 3.0    Long strings
+ * Version 35: 3.0    Changing 'int' to 'bool' where appropriate
  */
 #define FREE42_VERSION 34
 
@@ -3459,7 +3460,7 @@ int rtn(int err) {
             /* It's an END; go to line 0 */
             pc = -1;
         if (err != ERR_NONE)
-            display_error(err, 1);
+            display_error(err, true);
         return ERR_STOP;
     } else {
         current_prgm = newprgm;

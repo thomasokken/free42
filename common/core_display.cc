@@ -521,7 +521,7 @@ static char smallchars_map[128] =
 
 static char display[272];
 
-static int is_dirty = 0;
+static bool is_dirty = false;
 static int dirty_top, dirty_left, dirty_bottom, dirty_right;
 
 static int catalogmenu_section[5];
@@ -533,7 +533,7 @@ static int custommenu_length[3][6];
 static char custommenu_label[3][6][7];
 
 static arg_struct progmenu_arg[9];
-static int progmenu_is_gto[9];
+static bool progmenu_is_gto[9];
 static int progmenu_length[6];
 static char progmenu_label[6][7];
 
@@ -567,7 +567,7 @@ bool persist_display() {
         if (!write_arg(progmenu_arg + i))
             return false;
     for (int i = 0; i < 9; i++)
-        if (!write_int(progmenu_is_gto[i])) return false;
+        if (!write_bool(progmenu_is_gto[i])) return false;
     for (int i = 0; i < 6; i++) {
         if (!write_int(progmenu_length[i])) return false;
         if (fwrite(progmenu_label[i], 1, 7, gfile) != 7) return false;
@@ -596,8 +596,16 @@ bool unpersist_display(int version) {
         for (int i = 0; i < 9; i++)
             if (!read_arg(progmenu_arg + i, false))
                 return false;
-        for (int i = 0; i < 9; i++)
-            if (!read_int(&progmenu_is_gto[i])) return false;
+        if (version < 35) {
+            int temp;
+            for (int i = 0; i < 9; i++) {
+                if (!read_int(&temp)) return false;
+                progmenu_is_gto[i] = temp != 0;
+            }
+        } else {
+            for (int i = 0; i < 9; i++)
+                if (!read_bool(&progmenu_is_gto[i])) return false;
+        }
         for (int i = 0; i < 6; i++) {
             if (!read_int(&progmenu_length[i])) return false;
             if (fread(progmenu_label[i], 1, 7, gfile) != 7) return false;
@@ -607,7 +615,7 @@ bool unpersist_display(int version) {
         if (!read_int(&appmenu_exitcallback)) return false;
     } else {
         int custommenu_cmd[3][6];
-        is_dirty = 0;
+        is_dirty = false;
         if (fread(catalogmenu_section, 1, 5 * sizeof(int), gfile)
                 != 5 * sizeof(int))
             return false;
@@ -664,9 +672,12 @@ bool unpersist_display(int version) {
         for (int i = 0; i < 9; i++)
             if (!read_arg(progmenu_arg + i, version < 9))
                 return false;
-        if (fread(progmenu_is_gto, 1, 9 * sizeof(int), gfile)
-                != 9 * sizeof(int))
-            return false;
+        for (int i = 0; i < 9; i++) {
+            int temp;
+            if (fread(&temp, 1, sizeof(int), gfile) != sizeof(int))
+                return false;
+            progmenu_is_gto[i] = temp != 0;
+        }
         if (fread(progmenu_length, 1, 6 * sizeof(int), gfile)
                 != 6 * sizeof(int))
             return false;
@@ -695,7 +706,7 @@ void flush_display() {
         return;
     shell_blitter(display, 17, dirty_left, dirty_top,
                     dirty_right - dirty_left, dirty_bottom - dirty_top);
-    is_dirty = 0;
+    is_dirty = false;
 }
 
 void repaint_display() {
@@ -844,7 +855,7 @@ static void mark_dirty(int top, int left, int bottom, int right) {
         dirty_left = left;
         dirty_bottom = bottom;
         dirty_right = right;
-        is_dirty = 1;
+        is_dirty = true;
     }
 }
 
@@ -1257,7 +1268,7 @@ void display_incomplete_command(int row) {
     }
 }
 
-void display_error(int error, int print) {
+void display_error(int error, bool print) {
     clear_row(0);
     draw_string(0, 0, errors[error].text, errors[error].length);
     flags.f.message = 1;
@@ -2266,7 +2277,7 @@ struct prp_data_struct {
 };
 
 static prp_data_struct *prp_data;
-static int print_program_worker(int interrupted);
+static int print_program_worker(bool interrupted);
 
 int print_program(int prgm_index, int4 pc, int4 lines, int normal) {
     prp_data_struct *dat = (prp_data_struct *) malloc(sizeof(prp_data_struct));
@@ -2298,7 +2309,7 @@ int print_program(int prgm_index, int4 pc, int4 lines, int normal) {
          * we don't do the 'interruptible' thing in this case.
          */
         int err;
-        while ((err = print_program_worker(0)) == ERR_INTERRUPTIBLE);
+        while ((err = print_program_worker(false)) == ERR_INTERRUPTIBLE);
         return err;
     } else {
         print_text(NULL, 0, 1);
@@ -2308,7 +2319,7 @@ int print_program(int prgm_index, int4 pc, int4 lines, int normal) {
     }
 }
 
-static int print_program_worker(int interrupted) {
+static int print_program_worker(bool interrupted) {
     prp_data_struct *dat = prp_data;
     int printed = 0;
 
@@ -2521,7 +2532,7 @@ static int get_cat_index() {
 void set_menu(int level, int menuid) {
     int err = set_menu_return_err(level, menuid, false);
     if (err != ERR_NONE) {
-        display_error(err, 1);
+        display_error(err, true);
         flush_display();
     }
 }
@@ -2667,20 +2678,20 @@ void set_catalog_menu(int section) {
             return;
         case CATSECT_REAL:
         case CATSECT_REAL_ONLY:
-            if (!vars_exist(1, 0, 0, 0))
+            if (!vars_exist(CATSECT_REAL))
                 mode_commandmenu = MENU_NONE;
             return;
         case CATSECT_CPX:
-            if (!vars_exist(0, 1, 0, 0))
+            if (!vars_exist(CATSECT_CPX))
                 mode_commandmenu = MENU_NONE;
             return;
         case CATSECT_MAT:
         case CATSECT_MAT_ONLY:
-            if (!vars_exist(0, 0, 1, 0))
+            if (!vars_exist(CATSECT_MAT))
                 mode_commandmenu = MENU_NONE;
             return;
         case CATSECT_VARS_ONLY:
-            if (!vars_exist(1, 1, 1, 1))
+            if (!vars_exist(-1))
                 mode_commandmenu = MENU_NONE;
             return;
         case CATSECT_PGM_SOLVE:
@@ -2791,33 +2802,33 @@ void update_catalog() {
         case CATSECT_PGM_ONLY:
             break;
         case CATSECT_REAL:
-            if (!vars_exist(1, 0, 0, 0))
+            if (!vars_exist(CATSECT_REAL))
                 set_cat_section(CATSECT_TOP);
             break;
         case CATSECT_CPX:
-            if (!vars_exist(0, 1, 0, 0))
+            if (!vars_exist(CATSECT_CPX))
                 set_cat_section(CATSECT_TOP);
             break;
         case CATSECT_MAT:
-            if (!vars_exist(0, 0, 1, 0))
+            if (!vars_exist(CATSECT_MAT))
                 set_cat_section(CATSECT_TOP);
             break;
         case CATSECT_REAL_ONLY:
-            if (!vars_exist(1, 0, 0, 0)) {
+            if (!vars_exist(CATSECT_REAL)) {
                 *the_menu = MENU_NONE;
                 redisplay();
                 return;
             }
             break;
         case CATSECT_MAT_ONLY:
-            if (!vars_exist(0, 0, 1, 0)) {
+            if (!vars_exist(CATSECT_MAT)) {
                 *the_menu = MENU_NONE;
                 redisplay();
                 return;
             }
             break;
         case CATSECT_VARS_ONLY:
-            if (!vars_exist(1, 1, 1, 1)) {
+            if (!vars_exist(-1)) {
                 *the_menu = MENU_NONE;
                 redisplay();
                 return;
@@ -2828,7 +2839,7 @@ void update_catalog() {
         case CATSECT_PGM_MENU:
             if (!mvar_prgms_exist()) {
                 *the_menu = MENU_NONE;
-                display_error(ERR_NO_MENU_VARIABLES, 0);
+                display_error(ERR_NO_MENU_VARIABLES, false);
                 redisplay();
                 return;
             }
@@ -2868,7 +2879,7 @@ void clear_prgm_menu() {
         progmenu_length[i] = 0;
 }
 
-void assign_prgm_key(int keynum, int is_gto, const arg_struct *arg) {
+void assign_prgm_key(int keynum, bool is_gto, const arg_struct *arg) {
     int length, i;
     keynum--;
     progmenu_arg[keynum] = (arg_struct) *arg;
@@ -2906,7 +2917,7 @@ void do_prgm_menu_key(int keynum) {
     err = docmd_gto(&progmenu_arg[keynum]);
     if (err != ERR_NONE) {
         set_running(false);
-        display_error(err, 1);
+        display_error(err, true);
         flush_display();
         return;
     }
@@ -2916,7 +2927,7 @@ void do_prgm_menu_key(int keynum) {
             current_prgm = oldprgm;
             pc = oldpc;
             set_running(false);
-            display_error(err, 1);
+            display_error(err, true);
             flush_display();
             return;
         }

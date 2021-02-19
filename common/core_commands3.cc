@@ -1339,7 +1339,7 @@ void matedit_goto(int4 row, int4 column) {
         }
     }
     if (err != ERR_NONE) {
-        display_error(err, 0);
+        display_error(err, false);
         flush_display();
     }
 }

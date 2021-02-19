@@ -36,7 +36,7 @@ int docmd_seed(arg_struct *arg);
 int docmd_lbl(arg_struct *arg);
 int docmd_rtn(arg_struct *arg);
 int docmd_input(arg_struct *arg);
-int view_helper(arg_struct *arg, int print);
+int view_helper(arg_struct *arg, bool print);
 int docmd_view(arg_struct *arg);
 int docmd_aview(arg_struct *arg);
 int docmd_xeq(arg_struct *arg);

@@ -1207,7 +1207,7 @@ public class Free42Activity extends Activity {
                 Object macroObj = skin.find_macro(ckey);
                 if (timeout3_active && (macroObj != null || ckey != 28 /* SHIFT */)) {
                     cancelTimeout3();
-                    core_timeout3(0);
+                    core_timeout3(false);
                 }
                 Rect inval = skin.set_active_key(skey);
                 if (inval != null)
@@ -1985,7 +1985,7 @@ public class Free42Activity extends Activity {
 
     private void timeout3() {
         cancelTimeout3();
-        core_timeout3(1);
+        core_timeout3(true);
         // Resume program after PSE
         startRunner();
     }
@@ -2035,7 +2035,7 @@ public class Free42Activity extends Activity {
     private native int core_repeat();
     private native void core_keytimeout1();
     private native void core_keytimeout2();
-    private native boolean core_timeout3(int repaint);
+    private native boolean core_timeout3(boolean repaint);
     private native boolean core_keyup();
     private native boolean core_powercycle();
     private native String[] core_list_programs();

@@ -72,7 +72,7 @@ void core_repaint_display();
  * whether or not clicking in the display, to activate menu keys, is
  * enabled.
  */
-int core_menu();
+bool core_menu();
 
 /* core_alpha_menu()
  *
@@ -83,7 +83,7 @@ int core_menu();
  * straight to the core; outside alpha mode, all key events are translated
  * sequences of HP-42S key events according to the keymap file.
  */
-int core_alpha_menu();
+bool core_alpha_menu();
 
 /* core_hex_menu()
  *
@@ -93,7 +93,7 @@ int core_alpha_menu();
  * Free42) are handled: in hex mode, 'A' through 'F' and 'a' through 'f' are
  * translated to keycodes 1 through 6, regardless of the keyboard map.
  */
-int core_hex_menu();
+bool core_hex_menu();
 
 /* core_keydown()
  *
@@ -129,7 +129,7 @@ int core_hex_menu();
  * core_repeat() until the key is released. (1 requests a slow repeat rate, for
  * SST/BST; 2 requests a fast repeat rate, for number/alpha entry.)
  */
-int core_keydown(int key, int *enqueued, int *repeat);
+bool core_keydown(int key, bool *enqueued, int *repeat);
 
 /* core_keydown_command()
  *
@@ -142,7 +142,7 @@ int core_keydown(int key, int *enqueued, int *repeat);
  * name, or selects the command from a menu or the FCN catalog, all of which
  * have potentially undesirable side effects.
  */
-int core_keydown_command(const char *name, int *enqueued, int *repeat);
+bool core_keydown_command(const char *name, bool *enqueued, int *repeat);
 
 /* core_repeat()
  *
@@ -186,7 +186,7 @@ void core_keytimeout2();
  * If the function returns 'true', this means that the timeout was used for
  * PSE, and the shell should resume program execution.
  */
-bool core_timeout3(int repaint);
+bool core_timeout3(bool repaint);
 
 /* core_keyup()
  *
@@ -202,7 +202,7 @@ bool core_timeout3(int repaint);
  * running a user program, and is only returning execution to the shell because
  * it has detected that there is a pending event.
  */
-int core_keyup();
+bool core_keyup();
 
 /* core_powercycle()
  *
@@ -219,7 +219,7 @@ int core_keyup();
  * to run again -- this will be true if flag 11 was set, so there's program
  * execution to be done.
  */
-int core_powercycle();
+bool core_powercycle();
 
 /* core_list_programs()
  *
