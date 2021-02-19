@@ -419,8 +419,8 @@ extern int xeq_invisible;
 /* Multi-keystroke commands -- edit state */
 /* Relevant when mode_command_entry != 0 */
 extern int incomplete_command;
-extern int incomplete_ind;
-extern int incomplete_alpha;
+extern bool incomplete_ind;
+extern bool incomplete_alpha;
 extern int incomplete_length;
 extern int incomplete_maxdigits;
 extern int incomplete_argtype;

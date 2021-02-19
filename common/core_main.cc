@@ -4388,12 +4388,12 @@ void start_incomplete_command(int cmd_id) {
         return;
     }
     incomplete_command = cmd_id;
-    incomplete_ind = 0;
+    incomplete_ind = false;
     if (argtype == ARG_NAMED || argtype == ARG_PRGM
             || argtype == ARG_RVAR || argtype == ARG_MAT)
-        incomplete_alpha = 1;
+        incomplete_alpha = true;
     else
-        incomplete_alpha = 0;
+        incomplete_alpha = false;
     incomplete_length = 0;
     incomplete_num = 0;
     if (argtype == ARG_NUM9)

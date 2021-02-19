@@ -640,8 +640,8 @@ int xeq_invisible;
 /* Multi-keystroke commands -- edit state */
 /* Relevant when mode_command_entry != 0 */
 int incomplete_command;
-int incomplete_ind;
-int incomplete_alpha;
+bool incomplete_ind;
+bool incomplete_alpha;
 int incomplete_length;
 int incomplete_maxdigits;
 int incomplete_argtype;
@@ -4134,8 +4134,16 @@ static bool load_state2(bool *clear, bool *too_new) {
     if (!read_int(&xeq_invisible)) return false;
 
     if (!read_int(&incomplete_command)) return false;
-    if (!read_int(&incomplete_ind)) return false;
-    if (!read_int(&incomplete_alpha)) return false;
+    if (ver < 35) {
+        int temp;
+        if (!read_int(&temp)) return false;
+        incomplete_ind = temp != 0;
+        if (!read_int(&temp)) return false;
+        incomplete_alpha = temp != 0;
+    } else {
+        if (!read_bool(&incomplete_ind)) return false;
+        if (!read_bool(&incomplete_alpha)) return false;
+    }
     if (!read_int(&incomplete_length)) return false;
     if (!read_int(&incomplete_maxdigits)) return false;
     if (!read_int(&incomplete_argtype)) return false;
@@ -4303,8 +4311,8 @@ void save_state() {
     if (!write_int(xeq_invisible)) return;
 
     if (!write_int(incomplete_command)) return;
-    if (!write_int(incomplete_ind)) return;
-    if (!write_int(incomplete_alpha)) return;
+    if (!write_bool(incomplete_ind)) return;
+    if (!write_bool(incomplete_alpha)) return;
     if (!write_int(incomplete_length)) return;
     if (!write_int(incomplete_maxdigits)) return;
     if (!write_int(incomplete_argtype)) return;
