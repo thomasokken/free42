@@ -1542,10 +1542,10 @@ static int open_item(const char *url, void **ptr, int *type, int *filesize, cons
         if (idx < 0 || idx >= n)
             goto return_404;
         pthread_mutex_lock(&shell_mutex);
-	ssize_t psize;
-	psize = core_program_size(idx) + 3;
-	char *pbuf;
-	pbuf = (char *) malloc(psize);
+        ssize_t psize;
+        psize = core_program_size(idx) + 3;
+        char *pbuf;
+        pbuf = (char *) malloc(psize);
         if (pbuf == NULL) {
             pthread_mutex_unlock(&shell_mutex);
             return_404:

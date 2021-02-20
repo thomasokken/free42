@@ -368,8 +368,8 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
     int init_mode;
     int4 version;
-	wchar_t core_state_file_name[FILENAMELEN];
-	int core_state_file_offset;
+    wchar_t core_state_file_name[FILENAMELEN];
+    int core_state_file_offset;
 
     statefile = _wfopen(statefilename, L"rb");
     if (statefile != NULL) {
@@ -383,25 +383,25 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
         init_shell_state(-1);
         init_mode = 0;
     }
-	if (init_mode == 1) {
-		if (version > 25) {
-			swprintf(core_state_file_name, L"%ls\\%ls.f42", free42dirname, state.coreName);
-			core_state_file_offset = 0;
-		} else {
-			wcscpy(core_state_file_name, statefilename);
-			core_state_file_offset = ftell(statefile);
-		}
+    if (init_mode == 1) {
+        if (version > 25) {
+            swprintf(core_state_file_name, L"%ls\\%ls.f42", free42dirname, state.coreName);
+            core_state_file_offset = 0;
+        } else {
+            wcscpy(core_state_file_name, statefilename);
+            core_state_file_offset = ftell(statefile);
+        }
         fclose(statefile);
-	} else {
-		// The shell state was missing or corrupt, but there
-		// may still be a valid core state...
+    } else {
+        // The shell state was missing or corrupt, but there
+        // may still be a valid core state...
         swprintf(core_state_file_name, L"%ls\\%ls.f42", free42dirname, state.coreName);
-		if (GetFileAttributesW(core_state_file_name) != INVALID_FILE_ATTRIBUTES) {
-			// Core state "Untitled.f42" exists; let's try to read it
-			core_state_file_offset = 0;
-			init_mode = 1;
-			version = 26;
-		}
+        if (GetFileAttributesW(core_state_file_name) != INVALID_FILE_ATTRIBUTES) {
+            // Core state "Untitled.f42" exists; let's try to read it
+            core_state_file_offset = 0;
+            init_mode = 1;
+            version = 26;
+        }
     }
 
     RECT r;
@@ -470,39 +470,39 @@ static void shell_keydown() {
     }
     int repeat;
     if (macro != NULL) {
-		if (macro_is_name) {
-	        running = core_keydown_command((const char *) macro, &enqueued, &repeat);
-		} else {
-			if (*macro == 0) {
-				squeak();
-				return;
-			}
-			bool one_key_macro = macro[1] == 0 || (macro[2] == 0 && macro[0] == 28);
-			if (!one_key_macro)
-				skin_display_set_enabled(false);
-			while (*macro != 0) {
-				running = core_keydown(*macro++, &enqueued, &repeat);
-				if (*macro != 0 && !enqueued)
-					core_keyup();
-			}
-			if (!one_key_macro) {
-				skin_display_set_enabled(true);
-				HDC hdc = GetDC(hMainWnd);
-				HDC memdc = CreateCompatibleDC(hdc);
-				skin_repaint_display(hdc, memdc);
-				skin_repaint_annunciator(hdc, memdc, 1, ann_updown);
-				skin_repaint_annunciator(hdc, memdc, 2, ann_shift);
-				skin_repaint_annunciator(hdc, memdc, 3, ann_print);
-				skin_repaint_annunciator(hdc, memdc, 4, ann_run);
-				skin_repaint_annunciator(hdc, memdc, 5, ann_battery);
-				skin_repaint_annunciator(hdc, memdc, 6, ann_g);
-				skin_repaint_annunciator(hdc, memdc, 7, ann_rad);
-				DeleteDC(memdc);
-				ReleaseDC(hMainWnd, hdc);
-				repeat = 0;
-			}
-		}
-	} else
+        if (macro_is_name) {
+            running = core_keydown_command((const char *) macro, &enqueued, &repeat);
+        } else {
+            if (*macro == 0) {
+                squeak();
+                return;
+            }
+            bool one_key_macro = macro[1] == 0 || (macro[2] == 0 && macro[0] == 28);
+            if (!one_key_macro)
+                skin_display_set_enabled(false);
+            while (*macro != 0) {
+                running = core_keydown(*macro++, &enqueued, &repeat);
+                if (*macro != 0 && !enqueued)
+                    core_keyup();
+            }
+            if (!one_key_macro) {
+                skin_display_set_enabled(true);
+                HDC hdc = GetDC(hMainWnd);
+                HDC memdc = CreateCompatibleDC(hdc);
+                skin_repaint_display(hdc, memdc);
+                skin_repaint_annunciator(hdc, memdc, 1, ann_updown);
+                skin_repaint_annunciator(hdc, memdc, 2, ann_shift);
+                skin_repaint_annunciator(hdc, memdc, 3, ann_print);
+                skin_repaint_annunciator(hdc, memdc, 4, ann_run);
+                skin_repaint_annunciator(hdc, memdc, 5, ann_battery);
+                skin_repaint_annunciator(hdc, memdc, 6, ann_g);
+                skin_repaint_annunciator(hdc, memdc, 7, ann_rad);
+                DeleteDC(memdc);
+                ReleaseDC(hMainWnd, hdc);
+                repeat = 0;
+            }
+        }
+    } else
         running = core_keydown(ckey, &enqueued, &repeat);
     if (!running) {
         if (repeat != 0)
@@ -541,12 +541,12 @@ static void shell_keyup() {
 static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 #if 0
     static FILE *log = fopen("C:/Users/thomas/Desktop/log.txt", "w");
-	if (message == WM_CHAR || message == WM_SYSCHAR
-			|| message == WM_KEYDOWN || message == WM_SYSKEYDOWN
-			|| message == WM_KEYUP || message == WM_SYSKEYUP) {
-		fprintf(log, "message=%s wParam=0x%x lParam=0x%lx\n", msg2string(message), wParam, lParam);
-		fflush(log);
-	}
+    if (message == WM_CHAR || message == WM_SYSCHAR
+            || message == WM_KEYDOWN || message == WM_SYSKEYDOWN
+            || message == WM_KEYUP || message == WM_SYSKEYUP) {
+        fprintf(log, "message=%s wParam=0x%x lParam=0x%lx\n", msg2string(message), wParam, lParam);
+        fflush(log);
+    }
 #endif
 
     switch (message) {
@@ -555,7 +555,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
             int wmEvent = HIWORD(wParam); 
             // Parse the menu selections:
             switch (wmId) {
-				case IDM_STATES:
+                case IDM_STATES:
                     running = DialogBoxW(hInst, (LPCWSTR)IDD_STATES, hWnd, (DLGPROC)StatesDlgProc) != 0;
                     break;
                 case IDM_SHOWPRINTOUT:
@@ -695,16 +695,16 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
                 goto do_default;
             }
 
-			if (message == WM_KEYDOWN || message == WM_SYSKEYDOWN) {
-				MSG cmsg;
-				UINT cmsgtype = message == WM_KEYDOWN ? WM_CHAR : WM_SYSCHAR;
-				if (PeekMessage(&cmsg, hWnd, cmsgtype, cmsgtype, PM_NOREMOVE)
-						&& cmsg.lParam == lParam) {
-					// Keystrokes that are followed by a WM_CHAR or WM_SYSCHAR
-					// message; we defer handling them until then.
-					break;
-				}
-			}
+            if (message == WM_KEYDOWN || message == WM_SYSKEYDOWN) {
+                MSG cmsg;
+                UINT cmsgtype = message == WM_KEYDOWN ? WM_CHAR : WM_SYSCHAR;
+                if (PeekMessage(&cmsg, hWnd, cmsgtype, cmsgtype, PM_NOREMOVE)
+                        && cmsg.lParam == lParam) {
+                    // Keystrokes that are followed by a WM_CHAR or WM_SYSCHAR
+                    // message; we defer handling them until then.
+                    break;
+                }
+            }
 
             if (ckey == 0 || !mouse_key) {
                 int i;
@@ -804,10 +804,10 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
                         }
                         macrobuf[p] = 0;
                         macro = macrobuf;
-					} else {
+                    } else {
                         macro = key_macro;
-						macro_is_name = false;
-					}
+                        macro_is_name = false;
+                    }
                     shell_keydown();
                     mouse_key = false;
                     active_keycode = virtKey;
@@ -842,10 +842,10 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
             }
             goto do_default;
         }
-		case WM_ENDSESSION:
-			if (wParam != 0)
-				Quit();
-			break;
+        case WM_ENDSESSION:
+            if (wParam != 0)
+                Quit();
+            break;
         case WM_DESTROY:
             GetWindowPlacement(hMainWnd, &state.mainPlacement);
             state.mainPlacementValid = 1;
@@ -1068,8 +1068,8 @@ static LRESULT CALLBACK PrintOutWndProc(HWND hWnd, UINT message, WPARAM wParam, 
             int wmId    = LOWORD(wParam); 
             int wmEvent = HIWORD(wParam); 
             // This is a bit hacky, but I want the Ctrl-<Key>
-			// shortcuts to work even when the Print-Out window
-			// is on top.
+            // shortcuts to work even when the Print-Out window
+            // is on top.
             switch (wmId) {
                 case IDM_PAPERADVANCE:
                     paper_advance();
@@ -1078,8 +1078,8 @@ static LRESULT CALLBACK PrintOutWndProc(HWND hWnd, UINT message, WPARAM wParam, 
                     copy_print_as_text();
                     break;
                 case IDM_COPYPRINTASIMAGE:
-					copy_print_as_image();
-					break;
+                    copy_print_as_image();
+                    break;
                 case IDM_EXIT:
                     DestroyWindow(hMainWnd);
                     break;
@@ -1089,9 +1089,9 @@ static LRESULT CALLBACK PrintOutWndProc(HWND hWnd, UINT message, WPARAM wParam, 
                 case ID_EDIT_PASTE:
                     paste();
                     break;
-			}
-			return 0;
-		}
+            }
+            return 0;
+        }
         default:
             return DefWindowProc(hWnd, message, wParam, lParam);
     }
@@ -1611,9 +1611,9 @@ static void Quit() {
             }
         }
         write_shell_state();
-	    fclose(statefile);
+        fclose(statefile);
     }
-	wchar_t corefilename[FILENAMELEN];
+    wchar_t corefilename[FILENAMELEN];
     swprintf(corefilename, L"%ls/%ls.f42", free42dirname, state.coreName);
     char *cfn = wide2utf(corefilename);
     core_save_state(cfn);
@@ -1731,34 +1731,34 @@ static void export_program() {
     /* The sel_prog_count global now has the number of selected items;
      * sel_prog_list is an array of integers containing the item numbers.
      */
-	char export_file_name[FILENAMELEN];
-	export_file_name[0] = 0;
-	char *buf = core_list_programs();
+    char export_file_name[FILENAMELEN];
+    export_file_name[0] = 0;
+    char *buf = core_list_programs();
     if (buf != NULL) {
         int count = ((buf[0] & 255) << 24) | ((buf[1] & 255) << 16) | ((buf[2] & 255) << 8) | (buf[3] & 255);
         char *p = buf + 4;
-		int sel = sel_prog_list[0];
-		while (sel > 0) {
-			p += strlen(p) + 1;
-			sel--;
+        int sel = sel_prog_list[0];
+        while (sel > 0) {
+            p += strlen(p) + 1;
+            sel--;
         }
-		if (p[0] == '"') {
-			char *closing_quote = strchr(p + 1, '"');
-			if (closing_quote != NULL) {
-				*closing_quote = 0;
+        if (p[0] == '"') {
+            char *closing_quote = strchr(p + 1, '"');
+            if (closing_quote != NULL) {
+                *closing_quote = 0;
                 int len = strlen(p + 1);
                 for (int i = 0; i < len; i++) {
                     char c = p[i + 1];
                     if (strchr("<>:\"/\\|?*\n", c) != NULL)
                         p[i + 1] = '_';
                 }
-				strcpy(export_file_name, p + 1);
-			}
-		}			
+                strcpy(export_file_name, p + 1);
+            }
+        }
         free(buf);
     }
-	if (export_file_name[0] == 0)
-		strcpy(export_file_name, "Untitled");
+    if (export_file_name[0] == 0)
+        strcpy(export_file_name, "Untitled");
 
     if (browse_file(hMainWnd,
                      L"Export Programs",
@@ -1767,7 +1767,7 @@ static void export_program() {
                      L"raw",
                      export_file_name,
                      FILENAMELEN))
-	    core_export_programs(sel_prog_count, sel_prog_list, export_file_name);
+        core_export_programs(sel_prog_count, sel_prog_list, export_file_name);
 
     free(sel_prog_list);
 }
@@ -1892,58 +1892,58 @@ static void copy_print_as_image() {
     if (!OpenClipboard(hMainWnd))
         return;
 
-	int length = printout_bottom - printout_top;
-	if (length < 0)
-		length += PRINT_LINES;
-	bool empty = length == 0;
-	if (empty)
-		length = 2;
-	int bmsize = sizeof(BITMAPINFOHEADER) + 8 + 48 * length;
+    int length = printout_bottom - printout_top;
+    if (length < 0)
+        length += PRINT_LINES;
+    bool empty = length == 0;
+    if (empty)
+        length = 2;
+    int bmsize = sizeof(BITMAPINFOHEADER) + 8 + 48 * length;
 
     HGLOBAL h = GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, bmsize);
     if (h != NULL) {
         char *bmbuf = (char *) GlobalLock(h);
-		BITMAPINFOHEADER *bi = (BITMAPINFOHEADER *) bmbuf;
+        BITMAPINFOHEADER *bi = (BITMAPINFOHEADER *) bmbuf;
 
-		memset(bi, 0, sizeof(BITMAPINFOHEADER));
-		bi->biSize = sizeof(BITMAPINFOHEADER);
-		bi->biWidth = 358;
-		bi->biHeight = length;
-		bi->biPlanes = 1;
-		bi->biBitCount = 1;
-		bi->biCompression = BI_RGB;
+        memset(bi, 0, sizeof(BITMAPINFOHEADER));
+        bi->biSize = sizeof(BITMAPINFOHEADER);
+        bi->biWidth = 358;
+        bi->biHeight = length;
+        bi->biPlanes = 1;
+        bi->biBitCount = 1;
+        bi->biCompression = BI_RGB;
 
-		bmbuf += sizeof(BITMAPINFOHEADER);
-		// Color table
-		*bmbuf++ = 0;
-		*bmbuf++ = 0;
-		*bmbuf++ = 0;
-		*bmbuf++ = 0;
-		*bmbuf++ = 255;
-		*bmbuf++ = 255;
-		*bmbuf++ = 255;
-		*bmbuf++ = 0;
+        bmbuf += sizeof(BITMAPINFOHEADER);
+        // Color table
+        *bmbuf++ = 0;
+        *bmbuf++ = 0;
+        *bmbuf++ = 0;
+        *bmbuf++ = 0;
+        *bmbuf++ = 255;
+        *bmbuf++ = 255;
+        *bmbuf++ = 255;
+        *bmbuf++ = 0;
 
-		if (empty) {
-			memset(bmbuf, 255, 96);
-		} else {
-			for (int v = length - 1; v >= 0; v--) {
-				int vv = printout_top + v;
-				if (vv >= PRINT_LINES)
-					vv -= PRINT_LINES;
-				char *src = printout + vv * PRINT_BYTESPERLINE;
-				for (int i = 0; i < 4; i++)
-					*bmbuf++ = 255;
-				char pc = 255;
-				for (int h = 0; h <= 36; h++) {
-					char c = h == 36 ? 255 : src[h];
-					*bmbuf++ = ((c & 240) >> 4) | ((pc & 15) << 4);
-					pc = c;
-				}
-				for (int i = 0; i < 7; i++)
-					*bmbuf++ = 255;
-			}
-		}
+        if (empty) {
+            memset(bmbuf, 255, 96);
+        } else {
+            for (int v = length - 1; v >= 0; v--) {
+                int vv = printout_top + v;
+                if (vv >= PRINT_LINES)
+                    vv -= PRINT_LINES;
+                char *src = printout + vv * PRINT_BYTESPERLINE;
+                for (int i = 0; i < 4; i++)
+                    *bmbuf++ = 255;
+                char pc = 255;
+                for (int h = 0; h <= 36; h++) {
+                    char c = h == 36 ? 255 : src[h];
+                    *bmbuf++ = ((c & 240) >> 4) | ((pc & 15) << 4);
+                    pc = c;
+                }
+                for (int i = 0; i < 7; i++)
+                    *bmbuf++ = 255;
+            }
+        }
 
         GlobalUnlock(h);
         EmptyClipboard();
@@ -2126,20 +2126,20 @@ const char *shell_platform() {
 
 void shell_beeper(int frequency, int duration) {
     const int cutoff_freqs[] = { 164, 220, 243, 275, 293, 324, 366, 418, 438, 550 };
-	const int sound_ids[] = { IDR_TONE0_WAVE, IDR_TONE1_WAVE, IDR_TONE2_WAVE,
-		 IDR_TONE3_WAVE, IDR_TONE4_WAVE, IDR_TONE5_WAVE, IDR_TONE6_WAVE,
-		 IDR_TONE7_WAVE, IDR_TONE8_WAVE, IDR_TONE9_WAVE };
+    const int sound_ids[] = { IDR_TONE0_WAVE, IDR_TONE1_WAVE, IDR_TONE2_WAVE,
+         IDR_TONE3_WAVE, IDR_TONE4_WAVE, IDR_TONE5_WAVE, IDR_TONE6_WAVE,
+         IDR_TONE7_WAVE, IDR_TONE8_WAVE, IDR_TONE9_WAVE };
     for (int i = 0; i < 10; i++) {
         if (frequency <= cutoff_freqs[i]) {
-			PlaySound(MAKEINTRESOURCE(sound_ids[i]),
-				GetModuleHandle(NULL),
-				SND_RESOURCE);
+            PlaySound(MAKEINTRESOURCE(sound_ids[i]),
+                GetModuleHandle(NULL),
+                SND_RESOURCE);
             return;
         }
     }
-	PlaySound(MAKEINTRESOURCE(IDR_SQUEAK_WAVE),
-		GetModuleHandle(NULL),
-		SND_RESOURCE);
+    PlaySound(MAKEINTRESOURCE(IDR_SQUEAK_WAVE),
+        GetModuleHandle(NULL),
+        SND_RESOURCE);
 }
 
 static VOID CALLBACK ann_print_timeout(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) {
@@ -2255,7 +2255,7 @@ void shell_powerdown() {
 
 void shell_message(const char *message) {
     wchar_t *m = utf2wide(message);
-	MessageBoxW(hMainWnd, m, L"Core", MB_ICONWARNING);
+    MessageBoxW(hMainWnd, m, L"Core", MB_ICONWARNING);
     free(m);
 }
 
@@ -2758,32 +2758,32 @@ void shell_log(const char *message) {
 }
 
 ci_string GetDlgItemTextLong(HWND hWnd, int item) {
-	// If you're losing sleep over GetDlgItemText() potentially returning truncated values...
-	size_t sz = 256;
-	wchar_t *buf = (wchar_t *) malloc(sz * 2);
-	if (buf == NULL)
-		return L"";
-	while (true) {
-		GetDlgItemTextW(hWnd, item, buf, sz);
-		if (wcslen(buf) < sz - 1) {
-			ci_string retval(buf);
-			free(buf);
-			return retval;
-		}
-		sz += 256;
-		wchar_t *buf2 = (wchar_t *) realloc(buf, sz * 2);
-		if (buf2 == NULL) {
-			free(buf);
-			return L"";
-		}
-		buf = buf2;
-	}
+    // If you're losing sleep over GetDlgItemText() potentially returning truncated values...
+    size_t sz = 256;
+    wchar_t *buf = (wchar_t *) malloc(sz * 2);
+    if (buf == NULL)
+        return L"";
+    while (true) {
+        GetDlgItemTextW(hWnd, item, buf, sz);
+        if (wcslen(buf) < sz - 1) {
+            ci_string retval(buf);
+            free(buf);
+            return retval;
+        }
+        sz += 256;
+        wchar_t *buf2 = (wchar_t *) realloc(buf, sz * 2);
+        if (buf2 == NULL) {
+            free(buf);
+            return L"";
+        }
+        buf = buf2;
+    }
 }
 
 ci_string to_ci_string(int i) {
-	wchar_t buf[22];
-	swprintf(buf, L"%d", i);
-	return buf;
+    wchar_t buf[22];
+    swprintf(buf, L"%d", i);
+    return buf;
 }
 
 char *wide2utf(const wchar_t *w) {
