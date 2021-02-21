@@ -163,7 +163,7 @@ bool shell_clk24();
  * Printer emulation. The first 2 parameters are the plain text version of the
  * data to be printed; the remaining 6 parameters are the bitmap version. The
  * former is used for text-mode copying and for spooling to text files; the
- * latter is used for graphics-mode coopying, spooling to image files, and
+ * latter is used for graphics-mode copying, spooling to image files, and
  * on-screen display.
  */
 void shell_print(const char *text, int length,
