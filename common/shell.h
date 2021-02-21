@@ -57,6 +57,7 @@ void shell_blitter(const char *bits, int bytesperline, int x, int y,
                              int width, int height);
 
 /* shell_beeper()
+ *
  * Callback invoked by the emulator core to play a sound.
  * The first parameter is the frequency in Hz; the second is the
  * duration in ms. The sound volume is up to the GUI to control.
@@ -66,6 +67,7 @@ void shell_blitter(const char *bits, int bytesperline, int x, int y,
 void shell_beeper(int frequency, int duration);
 
 /* shell_annunciators()
+ *
  * Callback invoked by the emulator core to change the state of the display
  * annunciators (up/down, shift, print, run, battery, (g)rad).
  * Every parameter can have values 0 (turn off), 1 (turn on), or -1 (leave
@@ -88,13 +90,17 @@ void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad);
  */
 bool shell_wants_cpu();
 
-/* Callback to suspend execution for the given number of milliseconds. No event
+/* shell_delay()
+ *
+ *Callback to suspend execution for the given number of milliseconds. No event
  * processing will take place during the wait, so the core can call this
  * without having to worry about core_keydown() etc. being re-entered.
  */
 void shell_delay(int duration);
 
-/* Callback to ask the shell to call core_timeout3() after the given number of
+/* shell_request_timeout3()
+ *
+ * Callback to ask the shell to call core_timeout3() after the given number of
  * milliseconds. If there are keystroke events during that time, the timeout is
  * cancelled. (Pressing 'shift' does not cancel the timeout.)
  * This function supports the delay after SHOW, MEM, and shift-VARMENU.
@@ -102,17 +108,20 @@ void shell_delay(int duration);
 void shell_request_timeout3(int delay);
 
 /* shell_get_mem()
+ *
  * Callback to get the amount of free memory in bytes.
  */
 uint4 shell_get_mem();
 
 /* shell_low_battery()
+ *
  * Callback to find out if the battery is low. Used to emulate flag 49 and the
  * battery annunciator.
  */
 bool shell_low_battery();
 
 /* shell_powerdown()
+ *
  * Callback to tell the shell that the emulator wants to power down.
  * Only called in response to OFF (shift-EXIT or the OFF command); automatic
  * power-off is left to the OS and/or shell.
@@ -120,6 +129,7 @@ bool shell_low_battery();
 void shell_powerdown();
 
 /* shell_random_seed()
+ *
  * When SEED is invoked with X = 0, the random number generator should be
  * seeded to a random value; the emulator core calls this function to obtain
  * it. The core uses the least significant 14 decimal digits of the provided
@@ -129,6 +139,7 @@ void shell_powerdown();
 int8 shell_random_seed();
 
 /* shell_milliseconds()
+ *
  * Returns an elapsed-time value in milliseconds. The caller should make no
  * assumptions as to what this value is relative to; it is only intended to
  * allow the emulator core make short-term elapsed-time measurements.
@@ -136,6 +147,7 @@ int8 shell_random_seed();
 uint4 shell_milliseconds();
 
 /* shell_decimal_point()
+ *
  * Returns 0 if the host's locale uses comma as the decimal separator;
  * returns 1 if it uses dot or anything else.
  * Used to initialize flag 28 on hard reset.
@@ -143,6 +155,7 @@ uint4 shell_milliseconds();
 bool shell_decimal_point();
 
 /* shell_date_format()
+ *
  * Returns 0 if the host's locale uses MDY date format;
  * returns 1 if it uses DMY;
  * returns 2 if it uses YMD.
@@ -153,6 +166,7 @@ bool shell_decimal_point();
 int shell_date_format();
 
 /* shell_clk24()
+ *
  * Returns 0 if the host's locale uses a 12-hour clock
  * returns 1 if it uses a 24-hour clock
  * Used to initialize CLK12/CLK24 mode on hard reset.
@@ -160,6 +174,7 @@ int shell_date_format();
 bool shell_clk24();
 
 /* shell_print()
+ *
  * Printer emulation. The first 2 parameters are the plain text version of the
  * data to be printed; the remaining 6 parameters are the bitmap version. The
  * former is used for text-mode copying and for spooling to text files; the
