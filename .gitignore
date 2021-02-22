@@ -50,6 +50,8 @@
 /android/app/src/main/cpp/core_commands7.h
 /android/app/src/main/cpp/core_display.cc
 /android/app/src/main/cpp/core_display.h
+/android/app/src/main/cpp/core_equations.cc
+/android/app/src/main/cpp/core_equations.h
 /android/app/src/main/cpp/core_globals.cc
 /android/app/src/main/cpp/core_globals.h
 /android/app/src/main/cpp/core_helpers.cc
@@ -126,6 +128,8 @@
 /gtk/core_commands7.h
 /gtk/core_display.cc
 /gtk/core_display.h
+/gtk/core_equations.cc
+/gtk/core_equations.h
 /gtk/core_globals.cc
 /gtk/core_globals.h
 /gtk/core_helpers.cc
@@ -245,6 +249,8 @@
 /windows/core_commands7.h
 /windows/core_display.cpp
 /windows/core_display.h
+/windows/core_equations.cpp
+/windows/core_equations.h
 /windows/core_globals.cpp
 /windows/core_globals.h
 /windows/core_helpers.cpp
