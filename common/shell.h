@@ -92,7 +92,7 @@ bool shell_wants_cpu();
 
 /* shell_delay()
  *
- *Callback to suspend execution for the given number of milliseconds. No event
+ * Callback to suspend execution for the given number of milliseconds. No event
  * processing will take place during the wait, so the core can call this
  * without having to worry about core_keydown() etc. being re-entered.
  */
