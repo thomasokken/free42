@@ -1,3 +1,24 @@
+2021-02-22: release 3.0
+
+* Added dynamic stack option. See the Free42 web site for details.
+* Added the date and time format options to the MODES menu.
+* Changed the RTNERR function to take the error number from a parameter, rather
+  than from the X register. To prevent existing programs using the old
+  parameter-less RTNERR from breaking, those RTNERRs are converted to the
+  equivalent new instruction, RTNERR IND ST X.
+* Added PGMMENU function. This shows a menu of ALPHA labels with MVAR
+  instructions, like the top-level menu presented by SOLVER and ∫f(x). It is
+  meant to be used by programs that aim to implement a similar behavior as
+  those built-in menus.
+* On cold start, now setting the date and time format accordig to the host
+  operating system's locale settings.
+* The Free42 extensions to the HP-42S instruction set are now shown in separate
+  sections in CATALOG, rather than at the end of the FCN catalog.
+* Added STRACE option to PRINT menu. This is the "Stack trace" option, i.e.
+  TRACE mode where the entire stack gets printed, not just X. The option itself
+  is not new, it was implemented in 2.5.21, but the STRACE function, that
+  allows you to set that mode without having to twiddle flags, is new.
+
 2021-02-02: release 2.5.25
 
 * Fixed pasting of zero. This was broken in 2.5.21.

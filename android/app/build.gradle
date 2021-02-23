@@ -14,8 +14,8 @@ android {
         applicationId "com.thomasokken.free42"
         minSdkVersion 14
         targetSdkVersion 29
-        versionCode 134
-        versionName "2.5.25"
+        versionCode 135
+        versionName "3.0"
     }
     buildTypes {
         debug {
