@@ -905,7 +905,10 @@ int docmd_y_pow_x(arg_struct *arg) {
                 phloat yre = ((vartype_complex *) stack[sp - 1])->re;
                 phloat yim = ((vartype_complex *) stack[sp - 1])->im;
                 yr = hypot(yre, yim);
-                yphi = atan2(yim, yre);
+                if (yim == 0)
+                    yphi = yre >= 0 ? 0 : PI;
+                else
+                    yphi = atan2(yim, yre);
             }
             complex_pow_real_2:
             yr = pow(yr, x);

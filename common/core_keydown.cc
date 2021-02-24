@@ -1249,7 +1249,7 @@ void keydown_command_entry(int shift, int key) {
                 squeak();
                 return;
             }
-            if (incomplete_command == CMD_RTNERR && !incomplete_ind && digit > 7) {
+            if (incomplete_command == CMD_RTNERR && !incomplete_ind && digit > 8) {
                 squeak();
                 return;
             }
