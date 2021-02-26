@@ -512,14 +512,14 @@ const command_spec cmd_array[] =
     { /* X_NE_NN */    docmd_x_ne_nn,     "X\014?",              0x00, 0x05, 0xf2, 0x15,  3, ARG_VAR,    1, ALLT },
     { /* X_LT_NN */    docmd_x_lt_nn,     "X<?",                 0x00, 0x06, 0xf2, 0x16,  3, ARG_VAR,    1, 0x01 },
     { /* X_GT_NN */    docmd_x_gt_nn,     "X>?",                 0x00, 0x07, 0xf2, 0x17,  3, ARG_VAR,    1, 0x01 },
-    { /* X_LE_NN */    docmd_x_le_nn,     "X\011?",              0x00, 0x08, 0xf2, 0x18,  3, ARG_VAR,    1, 0x01 },
-    { /* X_GE_NN */    docmd_x_ge_nn,     "X\013?",              0x00, 0x09, 0xf2, 0x19,  3, ARG_VAR,    1, 0x01 },
-    { /* 0_EQ_NN */    docmd_0_eq_nn,     "0=?",                 0x00, 0x0a, 0xf2, 0x1a,  3, ARG_VAR,    0, NA_T },
-    { /* 0_NE_NN */    docmd_0_ne_nn,     "0\014?",              0x00, 0x0b, 0xf2, 0x1b,  3, ARG_VAR,    0, NA_T },
-    { /* 0_LT_NN */    docmd_0_lt_nn,     "0<?",                 0x00, 0x0c, 0xf2, 0x1c,  3, ARG_VAR,    0, NA_T },
-    { /* 0_GT_NN */    docmd_0_gt_nn,     "0>?",                 0x00, 0x0d, 0xf2, 0x1d,  3, ARG_VAR,    0, NA_T },
-    { /* 0_LE_NN */    docmd_0_le_nn,     "0\011?",              0x00, 0x0e, 0xf2, 0x1e,  3, ARG_VAR,    0, NA_T },
-    { /* 0_GE_NN */    docmd_0_ge_nn,     "0\013?",              0x00, 0x0f, 0xf2, 0x1f,  3, ARG_VAR,    0, NA_T }
+    { /* X_LE_NN */    docmd_x_le_nn,     "X\011?",              0x00, 0x20, 0xf2, 0x18,  3, ARG_VAR,    1, 0x01 },
+    { /* X_GE_NN */    docmd_x_ge_nn,     "X\013?",              0x00, 0x21, 0xf2, 0x19,  3, ARG_VAR,    1, 0x01 },
+    { /* 0_EQ_NN */    docmd_0_eq_nn,     "0=?",                 0x00, 0x22, 0xf2, 0x1a,  3, ARG_VAR,    0, NA_T },
+    { /* 0_NE_NN */    docmd_0_ne_nn,     "0\014?",              0x00, 0x23, 0xf2, 0x1b,  3, ARG_VAR,    0, NA_T },
+    { /* 0_LT_NN */    docmd_0_lt_nn,     "0<?",                 0x00, 0x24, 0xf2, 0x1c,  3, ARG_VAR,    0, NA_T },
+    { /* 0_GT_NN */    docmd_0_gt_nn,     "0>?",                 0x00, 0x25, 0xf2, 0x1d,  3, ARG_VAR,    0, NA_T },
+    { /* 0_LE_NN */    docmd_0_le_nn,     "0\011?",              0x00, 0x26, 0xf2, 0x1e,  3, ARG_VAR,    0, NA_T },
+    { /* 0_GE_NN */    docmd_0_ge_nn,     "0\013?",              0x00, 0x27, 0xf2, 0x1f,  3, ARG_VAR,    0, NA_T }
 };
 
 /*
