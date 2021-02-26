@@ -474,8 +474,21 @@
 #define CMD_LIST_T      418
 #define CMD_NEWLIST     419
 #define CMD_NEWSTR      420
+/* Generalized Comparisons */
+#define CMD_X_EQ_NN     421
+#define CMD_X_NE_NN     422
+#define CMD_X_LT_NN     423
+#define CMD_X_GT_NN     424
+#define CMD_X_LE_NN     425
+#define CMD_X_GE_NN     426
+#define CMD_0_EQ_NN     427
+#define CMD_0_NE_NN     428
+#define CMD_0_LT_NN     429
+#define CMD_0_GT_NN     430
+#define CMD_0_LE_NN     431
+#define CMD_0_GE_NN     432
 
-#define CMD_SENTINEL    421
+#define CMD_SENTINEL    433
 
 
 /* command_spec.argtype */

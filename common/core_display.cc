@@ -1518,8 +1518,10 @@ static int ext_stk_cat[] = {
 };
 
 static int ext_prgm_cat[] = {
-    CMD_FUNC,   CMD_LASTO,  CMD_LSTO, CMD_RTNERR, CMD_RTNNO, CMD_RTNYES,
-    CMD_SST_UP, CMD_SST_RT, CMD_NULL, CMD_NULL,   CMD_NULL,  CMD_NULL
+    CMD_FUNC,    CMD_LASTO,   CMD_LSTO,    CMD_RTNERR,  CMD_RTNNO,   CMD_RTNYES,
+    CMD_X_EQ_NN, CMD_X_NE_NN, CMD_X_LT_NN, CMD_X_GT_NN, CMD_X_LE_NN, CMD_X_GE_NN,
+    CMD_0_EQ_NN, CMD_0_NE_NN, CMD_0_LT_NN, CMD_0_GT_NN, CMD_0_LE_NN, CMD_0_GE_NN,
+    CMD_SST_UP,  CMD_SST_RT,  CMD_NULL,    CMD_NULL,    CMD_NULL,    CMD_NULL
 };
 
 #if defined(ANDROID) || defined(IPHONE)
@@ -1643,7 +1645,7 @@ static void draw_catalog() {
             case CATSECT_EXT_TIME: subcat = ext_time_cat; subcat_rows = 3; break;
             case CATSECT_EXT_XFCN: subcat = ext_xfcn_cat; subcat_rows = 1; break;
             case CATSECT_EXT_BASE: subcat = ext_base_cat; subcat_rows = 1; break;
-            case CATSECT_EXT_PRGM: subcat = ext_prgm_cat; subcat_rows = 2; break;
+            case CATSECT_EXT_PRGM: subcat = ext_prgm_cat; subcat_rows = 4; break;
             case CATSECT_EXT_STK:
                 if (!core_settings.allow_big_stack) {
                     set_cat_section(CATSECT_EXT);

@@ -505,7 +505,21 @@ const command_spec cmd_array[] =
     { /* N_TO_C */     docmd_xrom,        "N\017C",              0x00, 0x00, 0xa7, 0xf2,  3, ARG_NONE,   0, UNIM },
     { /* LIST_T */     docmd_xrom,        "LIST?",               0x00, 0x00, 0xa7, 0xf3,  5, ARG_NONE,   0, UNIM },
     { /* NEWLIST */    docmd_xrom,        "NEWLIST",             0x00, 0x00, 0xa7, 0xf4,  7, ARG_NONE,   0, UNIM },
-    { /* NEWSTR */     docmd_xrom,        "NEWSTR",              0x00, 0x00, 0xa7, 0xf5,  6, ARG_NONE,   0, UNIM }
+    { /* NEWSTR */     docmd_xrom,        "NEWSTR",              0x00, 0x00, 0xa7, 0xf5,  6, ARG_NONE,   0, UNIM },
+
+    /* Generalized Comparisons */
+    { /* X_EQ_NN */    docmd_x_eq_nn,     "X=?",                 0x00, 0x04, 0xf2, 0x14,  3, ARG_VAR,    1, ALLT },
+    { /* X_NE_NN */    docmd_x_ne_nn,     "X\014?",              0x00, 0x05, 0xf2, 0x15,  3, ARG_VAR,    1, ALLT },
+    { /* X_LT_NN */    docmd_x_lt_nn,     "X<?",                 0x00, 0x06, 0xf2, 0x16,  3, ARG_VAR,    1, 0x01 },
+    { /* X_GT_NN */    docmd_x_gt_nn,     "X>?",                 0x00, 0x07, 0xf2, 0x17,  3, ARG_VAR,    1, 0x01 },
+    { /* X_LE_NN */    docmd_x_le_nn,     "X\011?",              0x00, 0x08, 0xf2, 0x18,  3, ARG_VAR,    1, 0x01 },
+    { /* X_GE_NN */    docmd_x_ge_nn,     "X\013?",              0x00, 0x09, 0xf2, 0x19,  3, ARG_VAR,    1, 0x01 },
+    { /* 0_EQ_NN */    docmd_0_eq_nn,     "0=?",                 0x00, 0x0a, 0xf2, 0x1a,  3, ARG_VAR,    0, NA_T },
+    { /* 0_NE_NN */    docmd_0_ne_nn,     "0\014?",              0x00, 0x0b, 0xf2, 0x1b,  3, ARG_VAR,    0, NA_T },
+    { /* 0_LT_NN */    docmd_0_lt_nn,     "0<?",                 0x00, 0x0c, 0xf2, 0x1c,  3, ARG_VAR,    0, NA_T },
+    { /* 0_GT_NN */    docmd_0_gt_nn,     "0>?",                 0x00, 0x0d, 0xf2, 0x1d,  3, ARG_VAR,    0, NA_T },
+    { /* 0_LE_NN */    docmd_0_le_nn,     "0\011?",              0x00, 0x0e, 0xf2, 0x1e,  3, ARG_VAR,    0, NA_T },
+    { /* 0_GE_NN */    docmd_0_ge_nn,     "0\013?",              0x00, 0x0f, 0xf2, 0x1f,  3, ARG_VAR,    0, NA_T }
 };
 
 /*

@@ -1583,58 +1583,58 @@ static int hp42ext[] = {
      */
 
     /* 00-0F */
-    CMD_NULL   | 0x4000,
-    CMD_XASTO  | 0x0000,
-    CMD_LXASTO | 0x0000,
-    CMD_HEAD   | 0x0000,
-    CMD_NULL   | 0x4000,
-    CMD_NULL   | 0x4000,
-    CMD_NULL   | 0x4000,
-    CMD_NULL   | 0x4000,
-    CMD_NULL   | 0x4000,
-    CMD_XASTO  | 0x1000,
-    CMD_LXASTO | 0x1000,
-    CMD_HEAD   | 0x1000,
-    CMD_NULL   | 0x4000,
-    CMD_NULL   | 0x4000,
-    CMD_NULL   | 0x4000,
-    CMD_NULL   | 0x4000,
+    CMD_NULL    | 0x4000,
+    CMD_XASTO   | 0x0000,
+    CMD_LXASTO  | 0x0000,
+    CMD_HEAD    | 0x0000,
+    CMD_X_EQ_NN | 0x0000,
+    CMD_X_NE_NN | 0x0000,
+    CMD_X_LT_NN | 0x0000,
+    CMD_X_GT_NN | 0x0000,
+    CMD_NULL    | 0x4000,
+    CMD_XASTO   | 0x1000,
+    CMD_LXASTO  | 0x1000,
+    CMD_HEAD    | 0x1000,
+    CMD_X_EQ_NN | 0x1000,
+    CMD_X_NE_NN | 0x1000,
+    CMD_X_LT_NN | 0x1000,
+    CMD_X_GT_NN | 0x1000,
 
     /* 10-1F */
-    CMD_NULL   | 0x4000,
-    CMD_XASTO  | 0x2000,
-    CMD_LXASTO | 0x2000,
-    CMD_HEAD   | 0x2000,
-    CMD_NULL   | 0x4000,
-    CMD_NULL   | 0x4000,
-    CMD_NULL   | 0x4000,
-    CMD_NULL   | 0x4000,
-    CMD_NULL   | 0x4000,
-    CMD_NULL   | 0x4000,
-    CMD_NULL   | 0x4000,
-    CMD_NULL   | 0x4000,
-    CMD_NULL   | 0x4000,
-    CMD_NULL   | 0x4000,
-    CMD_NULL   | 0x4000,
-    CMD_NULL   | 0x4000,
+    CMD_NULL    | 0x4000,
+    CMD_XASTO   | 0x2000,
+    CMD_LXASTO  | 0x2000,
+    CMD_HEAD    | 0x2000,
+    CMD_X_EQ_NN | 0x2000,
+    CMD_X_NE_NN | 0x2000,
+    CMD_X_LT_NN | 0x2000,
+    CMD_X_GT_NN | 0x2000,
+    CMD_X_LE_NN | 0x2000,
+    CMD_X_GE_NN | 0x2000,
+    CMD_0_EQ_NN | 0x2000,
+    CMD_0_NE_NN | 0x2000,
+    CMD_0_LT_NN | 0x2000,
+    CMD_0_GT_NN | 0x2000,
+    CMD_0_LE_NN | 0x2000,
+    CMD_0_GE_NN | 0x2000,
 
     /* 20-2F */
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
+    CMD_X_LE_NN | 0x0000,
+    CMD_X_GE_NN | 0x0000,
+    CMD_0_EQ_NN | 0x0000,
+    CMD_0_NE_NN | 0x0000,
+    CMD_0_LT_NN | 0x0000,
+    CMD_0_GT_NN | 0x0000,
+    CMD_0_LE_NN | 0x0000,
+    CMD_0_GE_NN | 0x0000,
+    CMD_X_LE_NN | 0x1000,
+    CMD_X_GE_NN | 0x1000,
+    CMD_0_EQ_NN | 0x1000,
+    CMD_0_NE_NN | 0x1000,
+    CMD_0_LT_NN | 0x1000,
+    CMD_0_GT_NN | 0x1000,
+    CMD_0_LE_NN | 0x1000,
+    CMD_0_GE_NN | 0x1000,
 
     /* 30-3F */
     CMD_NULL | 0x4000,
@@ -2068,6 +2068,19 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                     cmd = CMD_RTNERR;
                     arg.type = ARGTYPE_IND_STK;
                     arg.val.stk = 'X';
+                    goto store;
+                } else if (code >= 0x0a679 && code <= 0x0a67e) {
+                    /* HP-41CX: X=NN? etc. */
+                    switch (code & 0xf) {
+                        case 0x9: cmd = CMD_X_EQ_NN; break;
+                        case 0xa: cmd = CMD_X_NE_NN; break;
+                        case 0xb: cmd = CMD_X_LT_NN; break;
+                        case 0xc: cmd = CMD_X_LE_NN; break;
+                        case 0xd: cmd = CMD_X_GT_NN; break;
+                        case 0xe: cmd = CMD_X_GE_NN; break;
+                    }
+                    arg.type = ARGTYPE_IND_STK;
+                    arg.val.stk = 'Y';
                     goto store;
                 }
                 for (i = 0; i < CMD_SENTINEL; i++)
@@ -3246,7 +3259,7 @@ static void paste_programs(const char *buf) {
                 arg.type = ARGTYPE_DOUBLE;
                 goto store;
             } else {
-                // Check for 1/X, 10^X, or 4STK
+                // Check for 1/X, 10^X, 4STK, and generalized comparisons with 0
                 int len = hpend - prev_hppos;
                 if (len == 3 && strncmp(hpbuf + prev_hppos, "1/X", 3) == 0) {
                     cmd = CMD_INV;
@@ -3260,6 +3273,22 @@ static void paste_programs(const char *buf) {
                     cmd = CMD_4STK;
                     arg.type = ARGTYPE_NONE;
                     goto store;
+                } else if (len >= 4 && hpbuf[prev_hppos] == '0'
+                                    && hpbuf[prev_hppos + 2] == '?'
+                                    && hpbuf[prev_hppos + 3] == ' ') {
+                    switch (hpbuf[prev_hppos + 1]) {
+                        case '=':    cmd = CMD_0_EQ_NN; goto parse_arg;
+                        case '\014': cmd = CMD_0_NE_NN; goto parse_arg;
+                        case '<':    cmd = CMD_0_LT_NN; goto parse_arg;
+                        case '>':    cmd = CMD_0_GT_NN; goto parse_arg;
+                        case '\011': cmd = CMD_0_LE_NN; goto parse_arg;
+                        case '\013': cmd = CMD_0_GE_NN; goto parse_arg;
+                        default: goto not_zero_comp;
+                    }
+                    parse_arg:
+                    hppos = prev_hppos;
+                    goto after_line_number;
+                    not_zero_comp:;
                 }
                 // No decimal or exponent following the digits, and it's
                 // not 1/X, 10^X, or 4STK; for now, assume it's a line number.
@@ -3287,6 +3316,7 @@ static void paste_programs(const char *buf) {
         }
         // Now hppos should be pointing at the first character of the
         // command.
+        after_line_number:
         if (hppos == hpend) {
             if (lineno_start == -1) {
                 // empty line
@@ -3346,6 +3376,23 @@ static void paste_programs(const char *buf) {
                 cmd_end++;
             if (cmd_end == hppos)
                 goto line_done;
+            if (cmd_end - hppos == 5 && hpbuf[hppos] == 'X' && strncmp(hpbuf + 2, "NN?", 3) == 0) {
+                // HP-41CX: X=NN? etc.
+                switch (hpbuf[hppos + 1]) {
+                    case '=': cmd = CMD_X_EQ_NN; goto cx_comp;
+                    case  12: cmd = CMD_X_NE_NN; goto cx_comp;
+                    case '<': cmd = CMD_X_LT_NN; goto cx_comp;
+                    case '>': cmd = CMD_X_GT_NN; goto cx_comp;
+                    case   9: cmd = CMD_X_LE_NN; goto cx_comp;
+                    case  11: cmd = CMD_X_GE_NN; goto cx_comp;
+                    default: goto not_cx_comp;
+                }
+                cx_comp:
+                arg.type = ARGTYPE_IND_STK;
+                arg.val.stk = 'Y';
+                goto store;
+                not_cx_comp:;
+            }
             cmd = find_builtin(hpbuf + hppos, cmd_end - hppos, false);
             int tok_start, tok_end;
             int argtype;
