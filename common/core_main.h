@@ -276,7 +276,9 @@ void core_import_programs(int num_progs, const char *raw_file_name);
 
 /* core_copy()
  *
- * Returns a string representation of the contents of the X register.
+ * Returns a string representation of the contents of the X register. In
+ * program mode, returns a listing of the current program. I alpha mode,
+ * returns the contents of the alpha register.
  * Used by the shell to implement the Copy command.
  * The caller should free the returned text using free(3).
  */
