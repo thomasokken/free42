@@ -327,7 +327,7 @@ const command_spec cmd_array[] =
     { /* RCLIJ */      docmd_rclij,       "RCLIJ",               0x00, 0x00, 0xa6, 0xd9,  5, ARG_NONE,   0, NA_T },
     { /* RNRM */       docmd_rnrm,        "RNRM",                0x00, 0x00, 0xa6, 0xed,  4, ARG_NONE,   1, 0x0c },
     { /* ROTXY */      docmd_rotxy,       "ROTXY",               0x00, 0x00, 0xa5, 0x8b,  5, ARG_NONE,   2, 0x01 },
-    { /* RSUM */       docmd_rsum,        "RSUM",                0x00, 0x00, 0xa6, 0xd0,  4, ARG_NONE,   0, NA_T },
+    { /* RSUM */       docmd_rsum,        "RSUM",                0x00, 0x00, 0xa6, 0xd0,  4, ARG_NONE,   1, 0x0c },
     { /* SWAP_R */     docmd_swap_r,      "R<>R",                0x00, 0x00, 0xa6, 0xd1,  4, ARG_NONE,   2, FUNC },
     { /* SDEV */       docmd_sdev,        "SDEV",                0x00, 0x00, 0x00, 0x7d,  4, ARG_NONE,   0, NA_T },
     { /* SINH */       docmd_sinh,        "SINH",                0x00, 0x00, 0xa0, 0x61,  4, ARG_NONE,   1, 0x0f },
