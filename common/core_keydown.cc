@@ -2618,8 +2618,8 @@ void keydown_normal_mode(int shift, int key) {
             case KEY_CHS: set_plainmenu(MENU_MODES1); return;
             case KEY_E: set_plainmenu(MENU_DISP); return;
             case KEY_BSP: set_plainmenu(MENU_CLEAR1); return;
-            case KEY_7: set_solve_integ(1); redisplay(); return;
-            case KEY_8: set_solve_integ(0); redisplay(); return;
+            case KEY_7: set_solve_integ(1); return;
+            case KEY_8: set_solve_integ(0); return;
             case KEY_9: set_menu(MENULEVEL_APP, MENU_MATRIX1);
                         redisplay();
                         return;
