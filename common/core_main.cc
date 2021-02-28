@@ -3017,7 +3017,7 @@ static vartype *parse_base(const char *buf, int len) {
     return new_real((phloat) n);
 }
 
-static int parse_scalar(const char *buf, int len, bool strict, phloat *re, phloat *im, char *s, int *slen) {
+static int parse_scalar(const char *buf, int len, bool strict, phloat *re, phloat *im, int *slen) {
     int i, s1, e1, s2, e2;
     bool polar = false;
     bool empty_im = false;
@@ -3164,9 +3164,6 @@ static int parse_scalar(const char *buf, int len, bool strict, phloat *re, phloa
         return TYPE_REAL;
 
     finish_string:
-    if (len > *slen)
-        len = *slen;
-    memcpy(s, buf, len);
     *slen = len;
     return TYPE_STRING;
 }
@@ -3867,9 +3864,8 @@ void core_paste(const char *buf) {
             v = parse_base(hpbuf, len);
             if (v == NULL) {
                 phloat re, im;
-                char s[256];
-                int slen = 256;
-                int type = parse_scalar(hpbuf, len, false, &re, &im, s, &slen);
+                int slen;
+                int type = parse_scalar(hpbuf, len, false, &re, &im, &slen);
                 switch (type) {
                     case TYPE_REAL:
                         v = new_real(re);
@@ -3878,7 +3874,7 @@ void core_paste(const char *buf) {
                         v = new_complex(re, im);
                         break;
                     case TYPE_STRING:
-                        v = new_string(s, slen);
+                        v = new_string(hpbuf, slen);
                         break;
                 }
                 if (v == NULL) {
@@ -3938,9 +3934,8 @@ void core_paste(const char *buf) {
                     asciibuf[cellsize] = 0;
                     int hplen = ascii2hp(hpbuf, asciibuf, cellsize);
                     phloat re, im;
-                    char s[256];
-                    int slen = 256;
-                    int type = parse_scalar(hpbuf, hplen, true, &re, &im, s, &slen);
+                    int slen;
+                    int type = parse_scalar(hpbuf, hplen, true, &re, &im, &slen);
                     if (is_string != NULL) {
                         switch (type) {
                             case TYPE_REAL:
@@ -3981,7 +3976,7 @@ void core_paste(const char *buf) {
                                 } else if (slen <= SSLENM) {
                                     char *text = (char *) &data[p];
                                     *text = slen;
-                                    memcpy(text + 1, s, slen);
+                                    memcpy(text + 1, hpbuf, slen);
                                     is_string[p] = 1;
                                 } else {
                                     int4 *t = (int4 *) malloc(slen + 4);
@@ -3991,7 +3986,7 @@ void core_paste(const char *buf) {
                                         goto nomem;
                                     }
                                     *t = slen;
-                                    memcpy(t + 1, s, slen);
+                                    memcpy(t + 1, hpbuf, slen);
                                     *(int4 **) &data[p] = t;
                                     is_string[p] = 2;
                                 }
