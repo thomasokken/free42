@@ -1107,8 +1107,22 @@ int docmd_prv(arg_struct *arg) {
         shell_annunciators(-1, -1, 1, -1, -1, -1);
         string2buf(lbuf, 8, &llen, arg->val.text, arg->length);
         char2buf(lbuf, 8, &llen, '=');
-        rlen = vartype2string(v, rbuf, 100);
-        print_wide(lbuf, llen, rbuf, rlen);
+        if (v->type == TYPE_STRING) {
+            vartype_string *s = (vartype_string *) v;
+            char *sbuf = (char *) malloc(s->length + 2);
+            if (sbuf == NULL) {
+                shell_annunciators(-1, -1, 0, -1, -1, -1);
+                return ERR_INSUFFICIENT_MEMORY;
+            }
+            sbuf[0] = '"';
+            memcpy(sbuf + 1, s->txt(), s->length);
+            sbuf[s->length + 1] = '"';
+            print_wide(lbuf, llen, sbuf, s->length + 2);
+            free(sbuf);
+        } else {
+            rlen = vartype2string(v, rbuf, 100);
+            print_wide(lbuf, llen, rbuf, rlen);
+        }
 
         if (v->type == TYPE_REALMATRIX || v->type == TYPE_COMPLEXMATRIX || v->type == TYPE_LIST) {
             prv_var = v;
@@ -1146,14 +1160,21 @@ static int prv_worker(bool interrupted) {
             char *text;
             int4 len;
             get_matrix_string(rm, prv_index, &text, &len);
-            rlen = 0;
-            char2buf(rbuf, 100, &rlen, '"');
-            string2buf(rbuf, 100, &rlen, text, len);
-            char2buf(rbuf, 100, &rlen, '"');
-        } else
+            char *sbuf = (char *) malloc(len + 2);
+            if (sbuf == NULL) {
+                print_wide(lbuf, llen, "<Low Mem>", 9);
+            } else {
+                sbuf[0] = '"';
+                memcpy(sbuf + 1, text, len);
+                sbuf[len + 1] = '"';
+                print_wide(lbuf, llen, sbuf, len + 2);
+                free(sbuf);
+            }
+        } else {
             rlen = easy_phloat2string(rm->array->data[prv_index],
                                         rbuf, 100, 0);
-        print_wide(lbuf, llen, rbuf, rlen);
+            print_wide(lbuf, llen, rbuf, rlen);
+        }
     } else if (prv_var->type == TYPE_COMPLEXMATRIX) {
         vartype_complexmatrix *cm = (vartype_complexmatrix *) prv_var;
         vartype_complex cpx;
@@ -1208,19 +1229,45 @@ int docmd_prstk(arg_struct *arg) {
             for (int i = 0; i <= sp; i++) {
                 nlen = uint2string(sp + 1 - i, nbuf, 7);
                 char2buf(nbuf, 8, &nlen, '=');
-                len = vartype2string(stack[i], buf, 100);
-                print_wide(nbuf, nlen, buf, len);
+                if (stack[i]->type == TYPE_STRING) {
+                    vartype_string *s = (vartype_string *) stack[i];
+                    char *sbuf = (char *) malloc(s->length + 2);
+                    if (sbuf == NULL) {
+                        print_wide(nbuf, nlen, "<Low Mem>", 9);
+                    } else {
+                        sbuf[0] = '"';
+                        memcpy(sbuf + 1, s->txt(), s->length);
+                        sbuf[s->length + 1] = '"';
+                        print_wide(nbuf, nlen, sbuf, s->length + 2);
+                        free(sbuf);
+                    }
+                } else {
+                    len = vartype2string(stack[i], buf, 100);
+                    print_wide(nbuf, nlen, buf, len);
+                }
             }
         }
     } else {
-        len = vartype2string(stack[REG_T], buf, 100);
-        print_wide("T=", 2, buf, len);
-        len = vartype2string(stack[REG_Z], buf, 100);
-        print_wide("Z=", 2, buf, len);
-        len = vartype2string(stack[REG_Y], buf, 100);
-        print_wide("Y=", 2, buf, len);
-        len = vartype2string(stack[REG_X], buf, 100);
-        print_wide("X=", 2, buf, len);
+        const int index[] = { REG_T, REG_Z, REG_Y, REG_X };
+        const char * const title[] = { "T=", "Z=", "Y=", "X=" };
+        for (int i = 0; i < 4; i++) {
+            if (stack[index[i]]->type == TYPE_STRING) {
+                vartype_string *s = (vartype_string *) stack[index[i]];
+                char *sbuf = (char *) malloc(s->length + 2);
+                if (sbuf == NULL) {
+                    print_wide(title[i], 2, "<Low Mem>", 9);
+                } else {
+                    sbuf[0] = '"';
+                    memcpy(sbuf + 1, s->txt(), s->length);
+                    sbuf[s->length + 1] = '"';
+                    print_wide(title[i], 2, sbuf, s->length + 2);
+                    free(sbuf);
+                }
+            } else {
+                len = vartype2string(stack[index[i]], buf, 100);
+                print_wide(title[i], 2, buf, len);
+            }
+        }
     }
     shell_annunciators(-1, -1, 0, -1, -1, -1);
     return ERR_NONE;
@@ -1264,19 +1311,33 @@ int docmd_prx(arg_struct *arg) {
     if (!flags.f.printer_exists)
         return ERR_PRINTING_IS_DISABLED;
     else {
-        char buf[100];
-        int len;
         shell_annunciators(-1, -1, 1, -1, -1, -1);
-        len = vartype2string(stack[sp], buf, 100);
-        if (stack[sp]->type == TYPE_REAL || stack[sp]->type == TYPE_STRING)
-            print_right(buf, len, "***", 3);
-        else {
-            /* Normally we print X right-justified, but if it doesn't fit on
-             * one line, we print it left-justified, because having the excess
-             * go near the right margin looks weird and confusing.
-             */
-            int left = len > (flags.f.double_wide_print ? 12 : 24);
-            print_lines(buf, len, left);
+        if (stack[sp]->type == TYPE_STRING) {
+            vartype_string *s = (vartype_string *) stack[sp];
+            char *lbuf = (char *) malloc(s->length + 2);
+            if (lbuf == NULL) {
+                shell_annunciators(-1, -1, 0, -1, -1, -1);
+                return ERR_INSUFFICIENT_MEMORY;
+            }
+            lbuf[0] = '"';
+            memcpy(lbuf + 1, s->txt(), s->length);
+            lbuf[s->length + 1] = '"';
+            print_right(lbuf, s->length + 2, "***", 3);
+            free(lbuf);
+        } else {
+            char buf[100];
+            int len;
+            len = vartype2string(stack[sp], buf, 100);
+            if (stack[sp]->type == TYPE_REAL)
+                print_right(buf, len, "***", 3);
+            else {
+                /* Normally we print X right-justified, but if it doesn't fit on
+                * one line, we print it left-justified, because having the excess
+                * go near the right margin looks weird and confusing.
+                */
+                int left = len > (flags.f.double_wide_print ? 12 : 24);
+                print_lines(buf, len, left);
+            }
         }
 
         if (arg != NULL && (stack[sp]->type == TYPE_REALMATRIX
@@ -1336,8 +1397,22 @@ static int prusr_worker(bool interrupted) {
             string2buf(lbuf, 8, &llen, vars[prusr_index].name,
                                        vars[prusr_index].length);
             char2buf(lbuf, 8, &llen, '=');
-            rlen = vartype2string(vars[prusr_index].value, rbuf, 100);
-            print_wide(lbuf, llen, rbuf, rlen);
+            if (vars[prusr_index].value->type == TYPE_STRING) {
+                vartype_string *s = (vartype_string *) vars[prusr_index].value;
+                char *sbuf = (char *) malloc(s->length + 2);
+                if (sbuf == NULL) {
+                    print_wide(lbuf, llen, "<Low Mem>", 9);
+                } else {
+                    sbuf[0] = '"';
+                    memcpy(sbuf + 1, s->txt(), s->length);
+                    sbuf[s->length + 1] = '"';
+                    print_wide(lbuf, llen, sbuf, s->length + 2);
+                    free(sbuf);
+                }
+            } else {
+                rlen = vartype2string(vars[prusr_index].value, rbuf, 100);
+                print_wide(lbuf, llen, rbuf, rlen);
+            }
         }
         prusr_index--;
     } else {

@@ -938,13 +938,13 @@ void print_lines(const char *text, int length, int left_justified) {
 }
 
 void print_right(const char *left, int leftlen, const char *right, int rightlen) {
-    char buf[132];
+    char buf[24];
     int len;
     int width = flags.f.double_wide_print ? 12 : 24;
     int i, pad;
 
-    string_copy(buf, &len, left, leftlen);
-    if (len + rightlen + 1 <= width) {
+    if (leftlen + rightlen + 1 <= width) {
+        string_copy(buf, &len, left, leftlen);
         buf[len++] = ' ';
         pad = width - len - rightlen;
         if (pad > 6 - rightlen)
@@ -958,18 +958,22 @@ void print_right(const char *left, int leftlen, const char *right, int rightlen)
         print_text(buf, len, 0);
     } else {
         int line_start = 0;
-        while (line_start + width < len) {
-            print_text(buf + line_start, width, 1);
+        while (leftlen - line_start >= width) {
+            print_text(left + line_start, width, 1);
             line_start += width;
         }
-        pad = width - (len - line_start) - rightlen;
-        if (pad < 1)
-            pad = 1;
-        for (i = 0; i < pad; i++)
-            buf[len++] = ' ';
-        for (i = 0; i < rightlen; i++)
-            buf[len++] = right[i];
-        print_lines(buf + line_start, len - line_start, 1);
+        if (leftlen - line_start + rightlen + 1 > width) {
+            print_text(left + line_start, leftlen - line_start, 1);
+            print_text(right, rightlen, 0);
+        } else {
+            string_copy(buf, &len, left + line_start, leftlen - line_start);
+            pad = width - len - rightlen;
+            for (i = 0; i < pad; i++)
+                buf[len++] = ' ';
+            for (i = 0; i < rightlen; i++)
+                buf[len++] = right[i];
+            print_text(buf, len, 1);
+        }
     }
 }
 
