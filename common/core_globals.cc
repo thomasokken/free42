@@ -3570,13 +3570,38 @@ void pop_indexed_matrix(const char *name, int namelen) {
     }
 }
 
+static void get_saved_stack_mode(int *m) {
+    if (rtn_level == 0) {
+        if (!rtn_level_0_has_func_state)
+            return;
+    } else {
+        if (!rtn_stack[rtn_sp - 1].has_func())
+            return;
+    }
+    vartype_list *st = (vartype_list *) recall_private_var("ST", 2);
+    if (st == NULL)
+        return;
+    vartype **st_data = st->array->data;
+    *m = ((vartype_string *) st_data[0])->txt()[0] == '1';
+}
+
 void clear_all_rtns() {
     int dummy1;
     int4 dummy2;
     bool dummy3;
-    while (rtn_level > 0)
+    int st_mode = -1;
+    while (rtn_level > 0) {
+        get_saved_stack_mode(&st_mode);
         pop_rtn_addr(&dummy1, &dummy2, &dummy3);
+    }
+    get_saved_stack_mode(&st_mode);
     pop_rtn_addr(&dummy1, &dummy2, &dummy3);
+    if (st_mode == 0) {
+        arg_struct dummy_arg;
+        docmd_4stk(&dummy_arg);
+    } else if (st_mode == 1) {
+        docmd_nstk(NULL);
+    }
 }
 
 int get_rtn_level() {
