@@ -1204,7 +1204,7 @@ static int prv_worker(bool interrupted) {
                 print_wide(lbuf, llen, "<Low Mem>", 9);
             } else {
                 sbuf[0] = '"';
-                memcpy(sbuf, s->txt(), s->length);
+                memcpy(sbuf + 1, s->txt(), s->length);
                 sbuf[s->length + 1] = '"';
                 print_wide(lbuf, llen, sbuf, s->length + 2);
                 free(sbuf);
