@@ -1197,8 +1197,22 @@ static int prv_worker(bool interrupted) {
         llen = int2string(i + 1, lbuf, 32);
         char2buf(lbuf, 32, &llen, '=');
         vartype *v = list->array->data[i];
-        rlen = vartype2string(v, rbuf, 100);
-        print_wide(lbuf, llen, rbuf, rlen);
+        if (v->type == TYPE_STRING) {
+            vartype_string *s = (vartype_string *) v;
+            char *sbuf = (char *) malloc(s->length + 2);
+            if (sbuf == NULL) {
+                print_wide(lbuf, llen, "<Low Mem>", 9);
+            } else {
+                sbuf[0] = '"';
+                memcpy(sbuf, s->txt(), s->length);
+                sbuf[s->length + 1] = '"';
+                print_wide(lbuf, llen, sbuf, s->length + 2);
+                free(sbuf);
+            }
+        } else {
+            rlen = vartype2string(v, rbuf, 100);
+            print_wide(lbuf, llen, rbuf, rlen);
+        }
     }
 
     if (++prv_index < sz)
