@@ -452,12 +452,6 @@ const command_spec cmd_array[] =
     { /* RCLFLAG */    docmd_rclflag,     "RCLFLAG",             0x00, 0x00, 0xa6, 0x60,  7, ARG_NONE,   0, NA_T },
     { /* STOFLAG */    docmd_stoflag,     "STOFLAG",             0x00, 0x00, 0xa6, 0x6d,  7, ARG_NONE,  -1, 0x00 },
     
-    /* No-op, stored in raw files as 0xf0, a.k.a. TEXT 0 on the 41C */
-    { /* NOP */        docmd_nop,         "NOP",                 0x00, 0x00, 0x00, 0xf0,  3, ARG_NONE,   0, NA_T },
-
-    /* Fused Multiply-Add */
-    { /* FMA */        docmd_fma,         "FMA",                 0x00, 0x00, 0xa7, 0xda,  3, ARG_NONE,   3, 0x01 },
-
     /* User-defined functions */
     // Note: a7db-a7dd encode FUNC0-FUNC2, superseded by FUNC 00, FUNC 11, and
     // FUNC 21, and a7e0 encodes RTNERR without argument, and is superseded by
@@ -483,11 +477,14 @@ const command_spec cmd_array[] =
     { /* RDNN */       docmd_rdnn,        "R\016N",              0x00, 0xf6, 0xf2, 0xa5,  3, ARG_NUM9,   0, NA_T },
     { /* RUPN */       docmd_rupn,        "R^N",                 0x00, 0xf7, 0xf2, 0xa6,  3, ARG_NUM9,   0, NA_T },
 
-    /* Present a menu of LBLs with MVARs */
+    /* Miscellaneous */
+    { /* NOP */        docmd_nop,         "NOP",                 0x00, 0x00, 0x00, 0xf0,  3, ARG_NONE,   0, NA_T },
+    { /* FMA */        docmd_fma,         "FMA",                 0x00, 0x00, 0xa7, 0xda,  3, ARG_NONE,   3, 0x01 },
     { /* PGMMENU */    docmd_pgmmenu,     "P\307\315M\305NU",    0x00, 0x00, 0xa7, 0xe8,  7, ARG_NONE,   0, NA_T },
-    /* Skipping 403 because of single-byte equality checks with CMD_END */
+    /* (Skipping 403 because of single-byte equality checks with CMD_END) */
     { /* DUMMY */      NULL,              "",                    0x44, 0x00, 0x00, 0x00,  0, ARG_OTHER,  0, UNIM },
     { /* PMEXEC */     NULL,              "",                    0x44, 0x00, 0x00, 0x00,  0, ARG_OTHER,  0, NA_T },
+    { /* PRMVAR */     docmd_prmvar,      "PRMVAR",              0x00, 0x40, 0xf2, 0x30,  6, ARG_PRGM,   0, NA_T },
 
     /* String & List Functions */
     { /* XASTO */      docmd_xrom,        "XASTO",               0x00, 0x01, 0xf2, 0x11,  5, ARG_VAR,    0, UNIM },

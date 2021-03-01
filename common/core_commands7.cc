@@ -1200,6 +1200,77 @@ int docmd_pgmmenu(arg_struct *arg) {
     return err;
 }
 
+int docmd_prmvar(arg_struct *arg) {
+    if (!flags.f.printer_enable && program_running())
+        return ERR_NONE;
+    if (!flags.f.printer_exists)
+        return ERR_PRINTING_IS_DISABLED;
+
+    int err;
+    if (arg->type == ARGTYPE_IND_NUM
+            || arg->type == ARGTYPE_IND_STK
+            || arg->type == ARGTYPE_IND_STR) {
+        err = resolve_ind_arg(arg);
+        if (err != ERR_NONE)
+            return err;
+    }
+    if (arg->type != ARGTYPE_STR)
+        return ERR_INVALID_TYPE;
+
+    int prgm;
+    int4 pc;
+    if (!find_global_label(arg, &prgm, &pc))
+        return ERR_LABEL_NOT_FOUND;
+    pc += get_command_length(prgm, pc);
+    int saved_prgm = current_prgm;
+    current_prgm = prgm;
+    bool found = false;
+
+    while (true) {
+        int command;
+        arg_struct arg2;
+        get_next_command(&pc, &command, &arg2, 0, NULL);
+        if (command != CMD_MVAR)
+            break;
+        if (!found) {
+            shell_annunciators(-1, -1, 1, -1, -1, -1);
+            print_text(NULL, 0, 1);
+            found = true;
+        }
+
+        vartype *v = recall_var(arg2.val.text, arg2.length);
+        char lbuf[32], rbuf[100];
+        int llen = 0, rlen = 0;
+        string2buf(lbuf, 8, &llen, arg2.val.text, arg2.length);
+        char2buf(lbuf, 8, &llen, '=');
+
+        if (v == NULL) {
+            print_wide(lbuf, llen, "<Unset>", 7);
+        } else if (v->type == TYPE_STRING) {
+            vartype_string *s = (vartype_string *) v;
+            char *sbuf = (char *) malloc(s->length + 2);
+            if (sbuf == NULL) {
+                print_wide(lbuf, llen, "<Low Mem>", 9);
+            } else {
+                sbuf[0] = '"';
+                memcpy(sbuf + 1, s->txt(), s->length);
+                sbuf[s->length + 1] = '"';
+                print_wide(lbuf, llen, sbuf, s->length + 2);
+                free(sbuf);
+            }
+        } else {
+            rlen = vartype2string(v, rbuf, 100);
+            print_wide(lbuf, llen, rbuf, rlen);
+        }
+    }
+    current_prgm = saved_prgm;
+    if (found)
+        shell_annunciators(-1, -1, 0, -1, -1, -1);
+    else
+        return ERR_NO_MENU_VARIABLES;
+    return ERR_NONE;
+}
+
 ////////////////////////////////////
 ///// Generalized Comparisons //////
 ////////////////////////////////////
