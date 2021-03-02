@@ -1124,7 +1124,10 @@ int docmd_prv(arg_struct *arg) {
             print_wide(lbuf, llen, rbuf, rlen);
         }
 
-        if (v->type == TYPE_REALMATRIX || v->type == TYPE_COMPLEXMATRIX || v->type == TYPE_LIST) {
+        if (v->type == TYPE_REALMATRIX
+                || v->type == TYPE_COMPLEXMATRIX
+                || v->type == TYPE_LIST
+                && ((vartype_list *) v)->size > 0) {
             prv_var = v;
             prv_index = 0;
             mode_interruptible = prv_worker;
@@ -1356,7 +1359,8 @@ int docmd_prx(arg_struct *arg) {
 
         if (arg != NULL && (stack[sp]->type == TYPE_REALMATRIX
                             || stack[sp]->type == TYPE_COMPLEXMATRIX
-                            || stack[sp]->type == TYPE_LIST)) {
+                            || stack[sp]->type == TYPE_LIST
+                            && ((vartype_list *) stack[sp])->size > 0)) {
             prv_var = stack[sp];
             prv_index = 0;
             mode_interruptible = prv_worker;
