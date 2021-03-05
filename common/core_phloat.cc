@@ -533,9 +533,25 @@ void p_sincos(Phloat phi, Phloat *s, Phloat *c) {
 }
 
 Phloat hypot(Phloat x, Phloat y) {
+    /* hypot() is broken. For example,
+     * hypot(1, 9.999997292456363677763963228030219e-2) => 1
+     * Looks like buggy special case handling when one of the arguments is exactly 1
     BID_UINT128 res;
     bid128_hypot(&res, &x.val, &y.val);
     return Phloat(res);
+     */
+    Phloat res = sqrt(x * x + y * y);
+    static Phloat e3200("1e3200");
+    if (p_isinf(res)) {
+        x /= e3200;
+        y /= e3200;
+        res = e3200 * sqrt(x * x + y * y);
+    } else if (res == 0) {
+        x *= e3200;
+        y *= e3200;
+        res = sqrt(x * x + y * y) / e3200;
+    }
+    return res;
 }
 
 Phloat atan2(Phloat x, Phloat y) {
