@@ -1,3 +1,19 @@
+2021-03-04: release 3.0.1
+
+* Implemented a work-around for a bug in the decimal floating-point library
+  that could cause inaccurate results for several complex functions.
+* Implemented PRMVAR function. This prints all the variables associated with
+  the given LBL through MVAR declarations.
+* Implemented new comparison functions, for comparing arbitrary arguments to X
+  or to zero: X=?, X<?, 0=?, etc.
+* Added error number 8 to RTNERR, to allow user-defined functions to raise the
+  Too Few Arguments error condition.
+* RTN from the keyboard, and other actions that cause the RTN stack to be
+  cleared, now restore the stack mode if it had been changed locally using
+  LNSTK or L4STK.
+* Windows version: Fixed a bug that could cause programs with many ALPHA labels
+  to show up as blank lines in the Export Programs dialog.
+
 2021-02-22: release 3.0
 
 * Added dynamic stack option. See the Free42 web site for details.
