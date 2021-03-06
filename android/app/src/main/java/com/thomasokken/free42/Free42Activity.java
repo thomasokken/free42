@@ -1793,11 +1793,11 @@ public class Free42Activity extends Activity {
             skinName[0] = "Standard";
             // fall through
         case 2:
-            externalSkinName[0] = topStorageDir() + "/Free42/" + skinName[0];
+            externalSkinName[0] = "";
             // fall through
         case 3:
             skinName[1] = "Landscape";
-            externalSkinName[1] = topStorageDir() + "/Free42/" + skinName[1];
+            externalSkinName[1] = "";
             keyClicksLevel = 3;
             // fall through
         case 4:
