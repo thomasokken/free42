@@ -110,8 +110,6 @@ public class Free42Activity extends Activity {
     
     public static Free42Activity instance;
     
-    public static final String MY_STORAGE_DIR = Environment.getExternalStorageDirectory() + "/Android/data/com.thomasokken.free42";
-    
     static {
         System.loadLibrary("free42");
     }
@@ -2005,10 +2003,6 @@ public class Free42Activity extends Activity {
         soundPool.play(soundIds[index], 1f, 1f, 0, 0, 1f);
     }
     
-    private static String topStorageDir() {
-        return Environment.getExternalStorageDirectory().getAbsolutePath();
-    }
-    
 
     ////////////////////////////////////////////////////////////////////////////
     ///// Stubs for accessing the FREE42_MAGIC and FREE42_MAGIC_STR macros /////
@@ -2618,8 +2612,7 @@ public class Free42Activity extends Activity {
     
     private boolean checkStorageAccess2() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            if (android.os.Build.VERSION.SDK_INT >= 19 /* KitKat; 4.4 */)
-                new File(MY_STORAGE_DIR).mkdirs();
+            getExternalFilesDir(null).mkdirs();
             return true;
         }
         ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE }, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
