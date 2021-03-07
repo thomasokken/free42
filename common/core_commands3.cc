@@ -1333,7 +1333,8 @@ void matedit_goto(int4 row, int4 column) {
         else {
             matedit_i = row - 1;
             matedit_j = column - 1;
-            flags.f.stack_lift_disable = 1;
+            if (sp != -1)
+                flags.f.stack_lift_disable = 1;
             err = docmd_rclel(NULL);
             mode_disable_stack_lift = true;
         }

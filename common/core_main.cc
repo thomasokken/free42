@@ -4136,11 +4136,13 @@ void do_interactive(int command) {
         return;
     }
     if (command == CMD_GOTOROW) {
-        err = docmd_stoel(NULL);
-        if (err != ERR_NONE) {
-            display_error(err, true);
-            redisplay();
-            return;
+        if (sp != -1) {
+            err = docmd_stoel(NULL);
+            if (err != ERR_NONE) {
+                display_error(err, true);
+                redisplay();
+                return;
+            }
         }
     } else if (command == CMD_A_THRU_F) {
         set_base(16);
