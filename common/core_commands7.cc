@@ -1021,7 +1021,7 @@ int docmd_dropn(arg_struct *arg) {
     if (flags.f.big_stack) {
         sp -= n;
     } else {
-        memmove(stack + n, stack, (n - 4) * sizeof(vartype *));
+        memmove(stack + n, stack, (4 - n) * sizeof(vartype *));
         for (int i = 0; i < n; i++)
             stack[i] = new_real(0);
     }
