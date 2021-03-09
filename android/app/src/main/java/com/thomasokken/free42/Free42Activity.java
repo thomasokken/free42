@@ -1073,7 +1073,7 @@ public class Free42Activity extends Activity {
                 
                 ImageView icon = new ImageView(context);
                 icon.setId(1);
-                icon.setImageResource(R.drawable.icon);
+                icon.setImageResource(R.mipmap.icon);
                 addView(icon);
                 
                 TextView label1 = new TextView(context);

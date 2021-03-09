@@ -15,7 +15,7 @@
                     android:largeScreens="true"/>
   
   <application android:label="Free42"
-               android:icon="@drawable/icon"
+               android:icon="@mipmap/icon"
                android:allowBackup="true">
     <activity android:name="Free42Activity"
               android:launchMode="singleInstance"
