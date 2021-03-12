@@ -54,7 +54,7 @@
   	x.w[BID_HIGH_128W] &= 0x7fffffffffffffffull;
   	y.w[BID_HIGH_128W] &= 0x7fffffffffffffffull;
   
-! 	if(exponent_x - exponent_y >= 68)
+! 	if(exponent_x - exponent_y >= 69)
   	{
   	 res.w[BID_HIGH_128W] = x.w[BID_HIGH_128W];
   	 res.w[BID_LOW_128W] = x.w[BID_LOW_128W];
