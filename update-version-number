@@ -123,8 +123,7 @@ def patch_plist(plist_name):
 # Insert version for Mac
 
 if do_macos:
-    patch_plist("mac/InfoDecimal.plist")
-    patch_plist("mac/InfoBinary.plist")
+    patch_plist("mac/Info.plist")
 
 # Insert version for iOS
 

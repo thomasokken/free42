@@ -143,7 +143,7 @@
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		32CA4F630368D1EE00C91783 /* Free42_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Free42_Prefix.pch; sourceTree = "<group>"; };
-		8D1107310486CEB800E47090 /* InfoDecimal.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = InfoDecimal.plist; sourceTree = "<group>"; };
+		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* Free42 Decimal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Free42 Decimal.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E9031CB00FF690AC0023F9EC /* builtin_skins.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = builtin_skins.txt; sourceTree = "<group>"; };
 		E9031CB20FF690CB0023F9EC /* Ehrling42sl.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = Ehrling42sl.gif; path = ../skins/Ehrling42sl.gif; sourceTree = SOURCE_ROOT; };
@@ -207,7 +207,6 @@
 		E959D42A0FEC0A44007C56A4 /* shell_spool.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = shell_spool.cc; path = ../common/shell_spool.cc; sourceTree = SOURCE_ROOT; };
 		E959D42B0FEC0A44007C56A4 /* shell_spool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shell_spool.h; path = ../common/shell_spool.h; sourceTree = SOURCE_ROOT; };
 		E969E2522603F14900EABB28 /* Free42 Binary.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Free42 Binary.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		E969E2532603F14900EABB28 /* InfoBinary.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = InfoBinary.plist; path = /Users/thomas/xcode/free42/mac/InfoBinary.plist; sourceTree = "<absolute>"; };
 		E969E2562603F59B00EABB28 /* Free42Release.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = Free42Release.entitlements; sourceTree = "<group>"; };
 		E97714CB0FEC0E9A00F8CA16 /* shell_skin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shell_skin.h; path = Classes/shell_skin.h; sourceTree = "<group>"; };
 		E9792540169888F200598A02 /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
@@ -370,8 +369,7 @@
 			isa = PBXGroup;
 			children = (
 				E95282741FF192A7008E96A5 /* icon.iconset */,
-				8D1107310486CEB800E47090 /* InfoDecimal.plist */,
-				E969E2532603F14900EABB28 /* InfoBinary.plist */,
+				8D1107310486CEB800E47090 /* Info.plist */,
 				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
 				E9E335DD0FF67A1D006A40AD /* keymap.txt */,
 				1DDD58140DA1D0A300B32029 /* MainMenu.xib */,
@@ -763,7 +761,7 @@
 					"DECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS=1",
 					_WCHAR_T_DEFINED,
 				);
-				INFOPLIST_FILE = InfoBinary.plist;
+				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -800,7 +798,7 @@
 					"DECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS=1",
 					_WCHAR_T_DEFINED,
 				);
-				INFOPLIST_FILE = InfoBinary.plist;
+				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -852,7 +850,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Free42_Prefix.pch;
-				INFOPLIST_FILE = InfoDecimal.plist;
+				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -903,7 +901,7 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Free42_Prefix.pch;
-				INFOPLIST_FILE = InfoDecimal.plist;
+				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
