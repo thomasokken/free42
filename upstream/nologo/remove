@@ -4,6 +4,7 @@ android
 build-android
 build-mac
 build-history
+build-upstream
 build-windows
 update-version-number
 iphone
