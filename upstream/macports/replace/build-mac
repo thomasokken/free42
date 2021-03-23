@@ -1,8 +1,7 @@
 #!/bin/sh -e
 
 cd mac
-rm -rf "build/Release Binary"
-rm -rf "build/Release Decimal"
+rm -rf build/Release
 xcodebuild -project Free42.xcodeproj -target "Free42 Binary" -configuration Release build
 xcodebuild -project Free42.xcodeproj -target "Free42 Decimal" -configuration Release build
 mkdir tmp
