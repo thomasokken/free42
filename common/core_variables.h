@@ -77,7 +77,7 @@ struct vartype_complexmatrix {
 
 
 /* Maximum short string length in a stand-alone variable */
-#define SSLENV ((int) sizeof(char *))
+#define SSLENV ((int) (sizeof(char *) < 8 ? 8 : sizeof(char *)))
 /* Maximum short string length in a matrix element */
 #define SSLENM ((int) sizeof(phloat) - 1)
 

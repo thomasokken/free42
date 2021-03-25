@@ -694,6 +694,7 @@ int docmd_clv(arg_struct *arg) {
 int docmd_clst(arg_struct *arg) {
     for (int i = 0; i <= sp; i++)
         free_vartype(stack[i]);
+    clean_vartype_pools();
     if (flags.f.big_stack) {
         sp = -1;
         shrink_stack();
