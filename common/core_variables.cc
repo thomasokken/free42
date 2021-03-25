@@ -27,55 +27,40 @@
 // We cache vartype_real, vartype_complex, and vartype_string instances, to
 // cut down on the malloc/free overhead.
 
-struct pool_real {
-    vartype_real r;
-    pool_real *next;
-};
-
-static pool_real *realpool = NULL;
-
-struct pool_complex {
-    vartype_complex c;
-    pool_complex *next;
-};
-
-static pool_complex *complexpool = NULL;
-
-struct pool_string {
-    vartype_string s;
-    pool_string *next;
-};
-
-static pool_string *stringpool = NULL;
+#define POOLSIZE 10
+static vartype_real *realpool[POOLSIZE];
+static vartype_complex *complexpool[POOLSIZE];
+static vartype_string *stringpool[POOLSIZE];
+static int realpool_size = 0;
+static int complexpool_size = 0;
+static int stringpool_size = 0;
 
 vartype *new_real(phloat value) {
-    pool_real *r;
-    if (realpool == NULL) {
-        r = (pool_real *) malloc(sizeof(pool_real));
+    vartype_real *r;
+    if (realpool_size > 0) {
+        r = realpool[--realpool_size];
+    } else {
+        r = (vartype_real *) malloc(sizeof(vartype_real));
         if (r == NULL)
             return NULL;
-        r->r.type = TYPE_REAL;
-    } else {
-        r = realpool;
-        realpool = realpool->next;
+        r->type = TYPE_REAL;
     }
-    r->r.x = value;
+    r->x = value;
     return (vartype *) r;
 }
 
 vartype *new_complex(phloat re, phloat im) {
-    pool_complex *c;
-    if (complexpool == NULL) {
-        c = (pool_complex *) malloc(sizeof(pool_complex));
+    vartype_complex *c;
+    if (realpool_size > 0) {
+        c = complexpool[--complexpool_size];
+    } else {
+        c = (vartype_complex *) malloc(sizeof(vartype_complex));
         if (c == NULL)
             return NULL;
-        c->c.type = TYPE_COMPLEX;
-    } else {
-        c = complexpool;
-        complexpool = complexpool->next;
+        c->type = TYPE_COMPLEX;
     }
-    c->c.re = re;
-    c->c.im = im;
+    c->re = re;
+    c->im = im;
     return (vartype *) c;
 }
 
@@ -86,24 +71,23 @@ vartype *new_string(const char *text, int length) {
         if (dbuf == NULL)
             return NULL;
     }
-    pool_string *s;
-    if (stringpool == NULL) {
-        s = (pool_string *) malloc(sizeof(pool_string));
+    vartype_string *s;
+    if (stringpool_size > 0) {
+        s = stringpool[--stringpool_size];
+    } else {
+        s = (vartype_string *) malloc(sizeof(vartype_string));
         if (s == NULL) {
             if (length > SSLENV)
                 free(dbuf);
             return NULL;
         }
-        s->s.type = TYPE_STRING;
-    } else {
-        s = stringpool;
-        stringpool = stringpool->next;
+        s->type = TYPE_STRING;
     }
-    s->s.length = length;
+    s->length = length;
     if (length > SSLENV)
-        s->s.t.ptr = dbuf;
+        s->t.ptr = dbuf;
     if (text != NULL)
-        memcpy(length > SSLENV ? s->s.t.ptr : s->s.t.buf, text, length);
+        memcpy(length > SSLENV ? s->t.ptr : s->t.buf, text, length);
     return (vartype *) s;
 }
 
@@ -204,23 +188,27 @@ void free_vartype(vartype *v) {
         return;
     switch (v->type) {
         case TYPE_REAL: {
-            pool_real *r = (pool_real *) v;
-            r->next = realpool;
-            realpool = r;
+            if (realpool_size < POOLSIZE)
+                realpool[realpool_size++] = (vartype_real *) v;
+            else
+                free(v);
             break;
         }
         case TYPE_COMPLEX: {
-            pool_complex *c = (pool_complex *) v;
-            c->next = complexpool;
-            complexpool = c;
+            if (complexpool_size < POOLSIZE)
+                complexpool[complexpool_size++] = (vartype_complex *) v;
+            else
+                free(v);
             break;
         }
         case TYPE_STRING: {
-            pool_string *s = (pool_string *) v;
-            if (s->s.length > SSLENV)
-                free(s->s.t.ptr);
-            s->next = stringpool;
-            stringpool = s;
+            vartype_string *s = (vartype_string *) v;
+            if (s->length > SSLENV)
+                free(s->t.ptr);
+            if (stringpool_size < POOLSIZE)
+                stringpool[stringpool_size++] = s;
+            else
+                free(s);
             break;
         }
         case TYPE_REALMATRIX: {
@@ -259,21 +247,12 @@ void free_vartype(vartype *v) {
 }
 
 void clean_vartype_pools() {
-    while (realpool != NULL) {
-        pool_real *r = realpool;
-        realpool = r->next;
-        free(r);
-    }
-    while (complexpool != NULL) {
-        pool_complex *c = complexpool;
-        complexpool = c->next;
-        free(c);
-    }
-    while (stringpool != NULL) {
-        pool_string *s = stringpool;
-        stringpool = s->next;
-        free(s);
-    }
+    while (realpool_size > 0)
+        free(realpool[--realpool_size]);
+    while (complexpool_size > 0)
+        free(complexpool[--complexpool_size]);
+    while (stringpool_size > 0)
+        free(stringpool[--stringpool_size]);
 }
 
 void free_long_strings(char *is_string, phloat *data, int4 n) {
