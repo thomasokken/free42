@@ -47,7 +47,7 @@ struct lu_r_data_struct {
 
 lu_r_data_struct *lu_r_data;
 
-static int lu_decomp_r_worker(int interrupted);
+static int lu_decomp_r_worker(bool interrupted);
 
 int lu_decomp_r(vartype_realmatrix *a, int4 *perm,
                 int (*completion)(int, vartype_realmatrix *, int4 *, phloat)) {
@@ -75,7 +75,7 @@ int lu_decomp_r(vartype_realmatrix *a, int4 *perm,
     return ERR_INTERRUPTIBLE;
 }
 
-static int lu_decomp_r_worker(int interrupted) {
+static int lu_decomp_r_worker(bool interrupted) {
     
     lu_r_data_struct *dat = lu_r_data;
 
@@ -230,7 +230,7 @@ struct lu_c_data_struct {
 
 lu_c_data_struct *lu_c_data;
 
-static int lu_decomp_c_worker(int interrupted);
+static int lu_decomp_c_worker(bool interrupted);
 
 int lu_decomp_c(vartype_complexmatrix *a, int4 *perm,
                 int (*completion)(int, vartype_complexmatrix *,
@@ -259,7 +259,7 @@ int lu_decomp_c(vartype_complexmatrix *a, int4 *perm,
     return ERR_INTERRUPTIBLE;
 }
 
-static int lu_decomp_c_worker(int interrupted) {
+static int lu_decomp_c_worker(bool interrupted) {
     
     lu_c_data_struct *dat = lu_c_data;
 
@@ -456,7 +456,7 @@ struct backsub_rr_data_struct {
 
 static backsub_rr_data_struct *backsub_rr_data;
 
-static int lu_backsubst_rr_worker(int interrupted);
+static int lu_backsubst_rr_worker(bool interrupted);
 
 int lu_backsubst_rr(vartype_realmatrix *a, int4 *perm, vartype_realmatrix *b,
                     int (*completion)(int, vartype_realmatrix *,
@@ -480,7 +480,7 @@ int lu_backsubst_rr(vartype_realmatrix *a, int4 *perm, vartype_realmatrix *b,
     return ERR_INTERRUPTIBLE;
 }
 
-static int lu_backsubst_rr_worker(int interrupted) {
+static int lu_backsubst_rr_worker(bool interrupted) {
     backsub_rr_data_struct *dat = backsub_rr_data;
     phloat *a = dat->a->array->data;
     int4 n = dat->a->rows;
@@ -571,7 +571,7 @@ struct backsub_rc_data_struct {
 
 static backsub_rc_data_struct *backsub_rc_data;
 
-static int lu_backsubst_rc_worker(int interrupted);
+static int lu_backsubst_rc_worker(bool interrupted);
 
 int lu_backsubst_rc(vartype_realmatrix *a, int4 *perm, vartype_complexmatrix *b,
                     int (*completion)(int, vartype_realmatrix *,
@@ -595,7 +595,7 @@ int lu_backsubst_rc(vartype_realmatrix *a, int4 *perm, vartype_complexmatrix *b,
     return ERR_INTERRUPTIBLE;
 }
 
-static int lu_backsubst_rc_worker(int interrupted) {
+static int lu_backsubst_rc_worker(bool interrupted) {
     backsub_rc_data_struct *dat = backsub_rc_data;
     phloat *a = dat->a->array->data;
     int4 n = dat->a->rows;
@@ -707,7 +707,7 @@ struct backsub_cc_data_struct {
 
 static backsub_cc_data_struct *backsub_cc_data;
 
-static int lu_backsubst_cc_worker(int interrupted);
+static int lu_backsubst_cc_worker(bool interrupted);
 
 int lu_backsubst_cc(vartype_complexmatrix *a, int4 *perm, vartype_complexmatrix *b,
                     int (*completion)(int, vartype_complexmatrix *,
@@ -731,7 +731,7 @@ int lu_backsubst_cc(vartype_complexmatrix *a, int4 *perm, vartype_complexmatrix 
     return ERR_INTERRUPTIBLE;
 }
 
-static int lu_backsubst_cc_worker(int interrupted) {
+static int lu_backsubst_cc_worker(bool interrupted) {
     backsub_cc_data_struct *dat = backsub_cc_data;
     phloat *a = dat->a->array->data;
     int4 n = dat->a->rows;

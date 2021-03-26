@@ -411,6 +411,7 @@ static void do_get(int csock, const char *url) {
         tbprintf(&tb, "<html>\n");
         tbprintf(&tb, " <head>\n");
         tbprintf(&tb, "  <title>Index of %s</title>\n", url);
+        tbprintf(&tb, "  <link rel=\"icon\" type=\"image/png\" href=\"/site-icon.png\">\n");
         tbprintf(&tb, "  <style type=\"text/css\">\n");
         tbprintf(&tb, "   td { padding-left: 10px }\n");
         tbprintf(&tb, "  </style>\n");
@@ -1542,10 +1543,10 @@ static int open_item(const char *url, void **ptr, int *type, int *filesize, cons
         if (idx < 0 || idx >= n)
             goto return_404;
         pthread_mutex_lock(&shell_mutex);
-	ssize_t psize;
-	psize = core_program_size(idx) + 3;
-	char *pbuf;
-	pbuf = (char *) malloc(psize);
+        ssize_t psize;
+        psize = core_program_size(idx) + 3;
+        char *pbuf;
+        pbuf = (char *) malloc(psize);
         if (pbuf == NULL) {
             pthread_mutex_unlock(&shell_mutex);
             return_404:
@@ -1702,6 +1703,7 @@ static void http_error(int csock, int err) {
     sockprintf(csock, "<html>\r\n");
     sockprintf(csock, "<head>\r\n");
     sockprintf(csock, "<title>%d %s</title>\r\n", err, msg);
+    sockprintf(csock, "<link rel=\"icon\" type=\"image/png\" href=\"/site-icon.png\">\r\n");
     sockprintf(csock, "</head>\r\n");
     sockprintf(csock, "<body>\r\n");
     sockprintf(csock, "<h1>%d %s</h1>\r\n", err, msg);

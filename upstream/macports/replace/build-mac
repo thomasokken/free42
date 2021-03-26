@@ -1,13 +1,12 @@
 #!/bin/sh -e
 
 cd mac
-rm -rf "build/Release Binary"
-rm -rf "build/Release Decimal"
-xcodebuild -project Free42.xcodeproj -target Free42 -configuration "Release Binary" build
-xcodebuild -project Free42.xcodeproj -target Free42 -configuration "Release Decimal" build
+rm -rf build/Release
+xcodebuild -project Free42.xcodeproj -target "Free42 Binary" -configuration Release build
+xcodebuild -project Free42.xcodeproj -target "Free42 Decimal" -configuration Release build
 mkdir tmp
-mv "build/Release Binary/Free42.app" "tmp/Free42 Binary.app"
-mv "build/Release Decimal/Free42.app" "tmp/Free42 Decimal.app"
+mv "build/Release/Free42 Binary.app" tmp
+mv "build/Release/Free42 Decimal.app" tmp
 cp README.txt tmp
 cd tmp
 zip -r ../../Free42Mac.zip "Free42 Binary.app" "Free42 Decimal.app" README.txt

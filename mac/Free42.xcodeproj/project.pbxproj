@@ -42,6 +42,70 @@
 		E959D4410FEC0A44007C56A4 /* core_variables.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4240FEC0A44007C56A4 /* core_variables.cc */; };
 		E959D4420FEC0A44007C56A4 /* shell_loadimage.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4280FEC0A44007C56A4 /* shell_loadimage.cc */; };
 		E959D4430FEC0A44007C56A4 /* shell_spool.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D42A0FEC0A44007C56A4 /* shell_spool.cc */; };
+		E969E20B2603F14900EABB28 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
+		E969E20C2603F14900EABB28 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD58140DA1D0A300B32029 /* MainMenu.xib */; };
+		E969E20D2603F14900EABB28 /* squeak.wav in Resources */ = {isa = PBXBuildFile; fileRef = E9B079250FF548690021B83D /* squeak.wav */; };
+		E969E20E2603F14900EABB28 /* tone0.wav in Resources */ = {isa = PBXBuildFile; fileRef = E9B079270FF548770021B83D /* tone0.wav */; };
+		E969E20F2603F14900EABB28 /* icon.iconset in Resources */ = {isa = PBXBuildFile; fileRef = E95282741FF192A7008E96A5 /* icon.iconset */; };
+		E969E2102603F14900EABB28 /* tone1.wav in Resources */ = {isa = PBXBuildFile; fileRef = E9B079280FF548770021B83D /* tone1.wav */; };
+		E969E2112603F14900EABB28 /* tone2.wav in Resources */ = {isa = PBXBuildFile; fileRef = E9B079290FF548770021B83D /* tone2.wav */; };
+		E969E2122603F14900EABB28 /* tone3.wav in Resources */ = {isa = PBXBuildFile; fileRef = E9B0792A0FF548770021B83D /* tone3.wav */; };
+		E969E2132603F14900EABB28 /* tone4.wav in Resources */ = {isa = PBXBuildFile; fileRef = E9B0792B0FF548770021B83D /* tone4.wav */; };
+		E969E2142603F14900EABB28 /* tone5.wav in Resources */ = {isa = PBXBuildFile; fileRef = E9B0792C0FF548770021B83D /* tone5.wav */; };
+		E969E2152603F14900EABB28 /* tone6.wav in Resources */ = {isa = PBXBuildFile; fileRef = E9B0792D0FF548770021B83D /* tone6.wav */; };
+		E969E2162603F14900EABB28 /* tone7.wav in Resources */ = {isa = PBXBuildFile; fileRef = E9B0792E0FF548770021B83D /* tone7.wav */; };
+		E969E2172603F14900EABB28 /* tone8.wav in Resources */ = {isa = PBXBuildFile; fileRef = E9B0792F0FF548770021B83D /* tone8.wav */; };
+		E969E2182603F14900EABB28 /* tone9.wav in Resources */ = {isa = PBXBuildFile; fileRef = E9B079300FF548770021B83D /* tone9.wav */; };
+		E969E2192603F14900EABB28 /* keymap.txt in Resources */ = {isa = PBXBuildFile; fileRef = E9E335DD0FF67A1D006A40AD /* keymap.txt */; };
+		E969E21A2603F14900EABB28 /* builtin_skins.txt in Resources */ = {isa = PBXBuildFile; fileRef = E9031CB00FF690AC0023F9EC /* builtin_skins.txt */; };
+		E969E21B2603F14900EABB28 /* Ehrling42sl.gif in Resources */ = {isa = PBXBuildFile; fileRef = E9031CB20FF690CB0023F9EC /* Ehrling42sl.gif */; };
+		E969E21C2603F14900EABB28 /* Ehrling42sl.layout in Resources */ = {isa = PBXBuildFile; fileRef = E9031CB30FF690CB0023F9EC /* Ehrling42sl.layout */; };
+		E969E21D2603F14900EABB28 /* Standard.gif in Resources */ = {isa = PBXBuildFile; fileRef = E9031CB40FF690CB0023F9EC /* Standard.gif */; };
+		E969E21E2603F14900EABB28 /* Standard.layout in Resources */ = {isa = PBXBuildFile; fileRef = E9031CB50FF690CB0023F9EC /* Standard.layout */; };
+		E969E2202603F14900EABB28 /* core_commands1.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4000FEC0A44007C56A4 /* core_commands1.cc */; };
+		E969E2212603F14900EABB28 /* readtest_lines.cc in Sources */ = {isa = PBXBuildFile; fileRef = E93469F11CF0C68600B0762F /* readtest_lines.cc */; };
+		E969E2222603F14900EABB28 /* core_commands2.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4020FEC0A44007C56A4 /* core_commands2.cc */; };
+		E969E2232603F14900EABB28 /* core_commands3.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4040FEC0A44007C56A4 /* core_commands3.cc */; };
+		E969E2242603F14900EABB28 /* core_commands4.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4060FEC0A44007C56A4 /* core_commands4.cc */; };
+		E969E2252603F14900EABB28 /* StatesWindow.h in Sources */ = {isa = PBXBuildFile; fileRef = E9E059D522FEF1E6009DDC40 /* StatesWindow.h */; };
+		E969E2262603F14900EABB28 /* core_commands5.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4080FEC0A44007C56A4 /* core_commands5.cc */; };
+		E969E2272603F14900EABB28 /* core_commands6.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D40A0FEC0A44007C56A4 /* core_commands6.cc */; };
+		E969E2282603F14900EABB28 /* core_display.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D40C0FEC0A44007C56A4 /* core_display.cc */; };
+		E969E2292603F14900EABB28 /* core_globals.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D40E0FEC0A44007C56A4 /* core_globals.cc */; };
+		E969E22A2603F14900EABB28 /* core_helpers.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4100FEC0A44007C56A4 /* core_helpers.cc */; };
+		E969E22B2603F14900EABB28 /* core_keydown.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4120FEC0A44007C56A4 /* core_keydown.cc */; };
+		E969E22C2603F14900EABB28 /* core_linalg1.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4140FEC0A44007C56A4 /* core_linalg1.cc */; };
+		E969E22D2603F14900EABB28 /* core_linalg2.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4160FEC0A44007C56A4 /* core_linalg2.cc */; };
+		E969E22E2603F14900EABB28 /* DisabledMenuItem.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9E394C325A953050001FDC9 /* DisabledMenuItem.mm */; };
+		E969E22F2603F14900EABB28 /* core_main.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4180FEC0A44007C56A4 /* core_main.cc */; };
+		E969E2302603F14900EABB28 /* core_math1.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D41A0FEC0A44007C56A4 /* core_math1.cc */; };
+		E969E2312603F14900EABB28 /* SkinListDataSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = E907929722AD943A00DA7F7E /* SkinListDataSource.mm */; };
+		E969E2322603F14900EABB28 /* core_math2.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D41C0FEC0A44007C56A4 /* core_math2.cc */; };
+		E969E2332603F14900EABB28 /* core_phloat.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D41E0FEC0A44007C56A4 /* core_phloat.cc */; };
+		E969E2342603F14900EABB28 /* core_sto_rcl.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4200FEC0A44007C56A4 /* core_sto_rcl.cc */; };
+		E969E2352603F14900EABB28 /* StateNameWindow.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9DDAC7422FF861F00E994AF /* StateNameWindow.mm */; };
+		E969E2362603F14900EABB28 /* core_tables.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4220FEC0A44007C56A4 /* core_tables.cc */; };
+		E969E2372603F14900EABB28 /* StatesWindow.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9E059D322FEF075009DDC40 /* StatesWindow.mm */; };
+		E969E2382603F14900EABB28 /* core_variables.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4240FEC0A44007C56A4 /* core_variables.cc */; };
+		E969E2392603F14900EABB28 /* readtest.c in Sources */ = {isa = PBXBuildFile; fileRef = E93469F31CF0CCAB00B0762F /* readtest.c */; settings = {COMPILER_FLAGS = "-D__intptr_t_defined -DLINUX"; }; };
+		E969E23A2603F14900EABB28 /* FileSavePanel.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9BF15C12222E725009F559F /* FileSavePanel.mm */; };
+		E969E23B2603F14900EABB28 /* StateListDataSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9E059D722FEF866009DDC40 /* StateListDataSource.mm */; };
+		E969E23C2603F14900EABB28 /* shell_loadimage.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4280FEC0A44007C56A4 /* shell_loadimage.cc */; };
+		E969E23D2603F14900EABB28 /* shell_spool.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D42A0FEC0A44007C56A4 /* shell_spool.cc */; };
+		E969E23E2603F14900EABB28 /* core_commands7.cc in Sources */ = {isa = PBXBuildFile; fileRef = E99FDE2D11624FFA004DB479 /* core_commands7.cc */; };
+		E969E23F2603F14900EABB28 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9792540169888F200598A02 /* main.mm */; };
+		E969E2402603F14900EABB28 /* CalcView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E97925421698893000598A02 /* CalcView.mm */; };
+		E969E2412603F14900EABB28 /* FileOpenPanel.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9BF15BF2222E725009F559F /* FileOpenPanel.mm */; };
+		E969E2422603F14900EABB28 /* Free42AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = E97925441698894100598A02 /* Free42AppDelegate.mm */; };
+		E969E2432603F14900EABB28 /* PrintView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E97925461698895100598A02 /* PrintView.mm */; };
+		E969E2442603F14900EABB28 /* ProgramListDataSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = E97925481698896300598A02 /* ProgramListDataSource.mm */; };
+		E969E2452603F14900EABB28 /* shell_skin.mm in Sources */ = {isa = PBXBuildFile; fileRef = E979254A1698897600598A02 /* shell_skin.mm */; };
+		E969E2462603F14900EABB28 /* URLTextField.mm in Sources */ = {isa = PBXBuildFile; fileRef = E979254F1698ED2B00598A02 /* URLTextField.mm */; };
+		E969E2482603F14900EABB28 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E91702F922B1C6AE0093E750 /* WebKit.framework */; };
+		E969E2492603F14900EABB28 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E9BA5704200189F400B490B0 /* IOKit.framework */; };
+		E969E24A2603F14900EABB28 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
+		E969E24B2603F14900EABB28 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E9B0795D0FF54A170021B83D /* AudioToolbox.framework */; };
+		E969E24C2603F14900EABB28 /* gcc111libbid.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E9092A7718C2A52500609AB0 /* gcc111libbid.a */; };
 		E9792541169888F200598A02 /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9792540169888F200598A02 /* main.mm */; };
 		E97925431698893000598A02 /* CalcView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E97925421698893000598A02 /* CalcView.mm */; };
 		E97925451698894100598A02 /* Free42AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = E97925441698894100598A02 /* Free42AppDelegate.mm */; };
@@ -80,7 +144,7 @@
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		32CA4F630368D1EE00C91783 /* Free42_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Free42_Prefix.pch; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		8D1107320486CEB800E47090 /* Free42.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Free42.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8D1107320486CEB800E47090 /* Free42 Decimal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Free42 Decimal.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E9031CB00FF690AC0023F9EC /* builtin_skins.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = builtin_skins.txt; sourceTree = "<group>"; };
 		E9031CB20FF690CB0023F9EC /* Ehrling42sl.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = Ehrling42sl.gif; path = ../skins/Ehrling42sl.gif; sourceTree = SOURCE_ROOT; };
 		E9031CB30FF690CB0023F9EC /* Ehrling42sl.layout */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Ehrling42sl.layout; path = ../skins/Ehrling42sl.layout; sourceTree = SOURCE_ROOT; };
@@ -142,6 +206,8 @@
 		E959D4290FEC0A44007C56A4 /* shell_loadimage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shell_loadimage.h; path = ../common/shell_loadimage.h; sourceTree = SOURCE_ROOT; };
 		E959D42A0FEC0A44007C56A4 /* shell_spool.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = shell_spool.cc; path = ../common/shell_spool.cc; sourceTree = SOURCE_ROOT; };
 		E959D42B0FEC0A44007C56A4 /* shell_spool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shell_spool.h; path = ../common/shell_spool.h; sourceTree = SOURCE_ROOT; };
+		E969E2522603F14900EABB28 /* Free42 Binary.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Free42 Binary.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		E969E2562603F59B00EABB28 /* Free42Release.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = Free42Release.entitlements; sourceTree = "<group>"; };
 		E97714CB0FEC0E9A00F8CA16 /* shell_skin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shell_skin.h; path = Classes/shell_skin.h; sourceTree = "<group>"; };
 		E9792540169888F200598A02 /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
 		E97925421698893000598A02 /* CalcView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = CalcView.mm; path = Classes/CalcView.mm; sourceTree = "<group>"; };
@@ -173,8 +239,6 @@
 		E9BF15C02222E725009F559F /* FileOpenPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FileOpenPanel.h; path = Classes/FileOpenPanel.h; sourceTree = "<group>"; };
 		E9BF15C12222E725009F559F /* FileSavePanel.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = FileSavePanel.mm; path = Classes/FileSavePanel.mm; sourceTree = "<group>"; };
 		E9BF15C22222E725009F559F /* FileSavePanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FileSavePanel.h; path = Classes/FileSavePanel.h; sourceTree = "<group>"; };
-		E9C8F52A23F61842001B2235 /* Free42Release Binary.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Free42Release Binary.entitlements"; sourceTree = "<group>"; };
-		E9C8F52B23F61847001B2235 /* Free42Release Decimal.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Free42Release Decimal.entitlements"; sourceTree = "<group>"; };
 		E9DDAC7322FF861F00E994AF /* StateNameWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StateNameWindow.h; path = Classes/StateNameWindow.h; sourceTree = "<group>"; };
 		E9DDAC7422FF861F00E994AF /* StateNameWindow.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = StateNameWindow.mm; path = Classes/StateNameWindow.mm; sourceTree = "<group>"; };
 		E9E059D322FEF075009DDC40 /* StatesWindow.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = StatesWindow.mm; path = Classes/StatesWindow.mm; sourceTree = "<group>"; };
@@ -196,6 +260,18 @@
 				8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */,
 				E9B0795E0FF54A170021B83D /* AudioToolbox.framework in Frameworks */,
 				E9092A7818C2A52500609AB0 /* gcc111libbid.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E969E2472603F14900EABB28 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E969E2482603F14900EABB28 /* WebKit.framework in Frameworks */,
+				E969E2492603F14900EABB28 /* IOKit.framework in Frameworks */,
+				E969E24A2603F14900EABB28 /* Cocoa.framework in Frameworks */,
+				E969E24B2603F14900EABB28 /* AudioToolbox.framework in Frameworks */,
+				E969E24C2603F14900EABB28 /* gcc111libbid.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -257,7 +333,8 @@
 		19C28FACFE9D520D11CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8D1107320486CEB800E47090 /* Free42.app */,
+				8D1107320486CEB800E47090 /* Free42 Decimal.app */,
+				E969E2522603F14900EABB28 /* Free42 Binary.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -265,8 +342,7 @@
 		29B97314FDCFA39411CA2CEA /* Free42 */ = {
 			isa = PBXGroup;
 			children = (
-				E9C8F52B23F61847001B2235 /* Free42Release Decimal.entitlements */,
-				E9C8F52A23F61842001B2235 /* Free42Release Binary.entitlements */,
+				E969E2562603F59B00EABB28 /* Free42Release.entitlements */,
 				E9092A7718C2A52500609AB0 /* gcc111libbid.a */,
 				E959D3F90FEC0A0B007C56A4 /* Common */,
 				080E96DDFE201D6D7F000001 /* Classes */,
@@ -386,9 +462,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		8D1107260486CEB800E47090 /* Free42 */ = {
+		8D1107260486CEB800E47090 /* Free42 Decimal */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "Free42" */;
+			buildConfigurationList = C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "Free42 Decimal" */;
 			buildPhases = (
 				E942F9291CF0A6570023FED9 /* ShellScript */,
 				8D1107290486CEB800E47090 /* Resources */,
@@ -399,10 +475,29 @@
 			);
 			dependencies = (
 			);
-			name = Free42;
+			name = "Free42 Decimal";
 			productInstallPath = "$(HOME)/Applications";
 			productName = Free42;
-			productReference = 8D1107320486CEB800E47090 /* Free42.app */;
+			productReference = 8D1107320486CEB800E47090 /* Free42 Decimal.app */;
+			productType = "com.apple.product-type.application";
+		};
+		E969E2082603F14900EABB28 /* Free42 Binary */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E969E24D2603F14900EABB28 /* Build configuration list for PBXNativeTarget "Free42 Binary" */;
+			buildPhases = (
+				E969E2092603F14900EABB28 /* ShellScript */,
+				E969E20A2603F14900EABB28 /* Resources */,
+				E969E21F2603F14900EABB28 /* Sources */,
+				E969E2472603F14900EABB28 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Free42 Binary";
+			productInstallPath = "$(HOME)/Applications";
+			productName = Free42;
+			productReference = E969E2522603F14900EABB28 /* Free42 Binary.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -414,6 +509,9 @@
 				LastUpgradeCheck = 0450;
 				TargetAttributes = {
 					8D1107260486CEB800E47090 = {
+						DevelopmentTeam = F4D88K2P5W;
+					};
+					E969E2082603F14900EABB28 = {
 						DevelopmentTeam = F4D88K2P5W;
 					};
 				};
@@ -433,7 +531,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				8D1107260486CEB800E47090 /* Free42 */,
+				8D1107260486CEB800E47090 /* Free42 Decimal */,
+				E969E2082603F14900EABB28 /* Free42 Binary */,
 			);
 		};
 /* End PBXProject section */
@@ -466,10 +565,50 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E969E20A2603F14900EABB28 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E969E20B2603F14900EABB28 /* InfoPlist.strings in Resources */,
+				E969E20C2603F14900EABB28 /* MainMenu.xib in Resources */,
+				E969E20D2603F14900EABB28 /* squeak.wav in Resources */,
+				E969E20E2603F14900EABB28 /* tone0.wav in Resources */,
+				E969E20F2603F14900EABB28 /* icon.iconset in Resources */,
+				E969E2102603F14900EABB28 /* tone1.wav in Resources */,
+				E969E2112603F14900EABB28 /* tone2.wav in Resources */,
+				E969E2122603F14900EABB28 /* tone3.wav in Resources */,
+				E969E2132603F14900EABB28 /* tone4.wav in Resources */,
+				E969E2142603F14900EABB28 /* tone5.wav in Resources */,
+				E969E2152603F14900EABB28 /* tone6.wav in Resources */,
+				E969E2162603F14900EABB28 /* tone7.wav in Resources */,
+				E969E2172603F14900EABB28 /* tone8.wav in Resources */,
+				E969E2182603F14900EABB28 /* tone9.wav in Resources */,
+				E969E2192603F14900EABB28 /* keymap.txt in Resources */,
+				E969E21A2603F14900EABB28 /* builtin_skins.txt in Resources */,
+				E969E21B2603F14900EABB28 /* Ehrling42sl.gif in Resources */,
+				E969E21C2603F14900EABB28 /* Ehrling42sl.layout in Resources */,
+				E969E21D2603F14900EABB28 /* Standard.gif in Resources */,
+				E969E21E2603F14900EABB28 /* Standard.layout in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
 		E942F9291CF0A6570023FED9 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ -f gcc111libbid.a ]; then exit 0; fi\nARCHS=(arm64 x86_64)\nLIBNAMES=\nfor ARCH in ${ARCHS[@]}; do\n  rm -rf IntelRDFPMathLib20U1\n  tar xvfz ../inteldecimal/IntelRDFPMathLib20U1.tar.gz\n  cd IntelRDFPMathLib20U1\n  patch -p0 <../intel-lib-mac-$ARCH.patch\n  cd LIBRARY\n  make CC=gcc CALL_BY_REF=1 GLOBAL_RND=1 GLOBAL_FLAGS=1 UNCHANGED_BINARY_FLAGS=0\n  mv libbid.a ../../gcc111libbid-$ARCH.a\n  LIBNAMES=\"$LIBNAMES gcc111libbid-$ARCH.a\"\n  cd ../..\ndone\nlipo -create $LIBNAMES -output gcc111libbid.a\n( echo '#ifdef FREE42_FPTEST'; echo 'const char *readtest_lines[] = {'; tr -d '\\r' < IntelRDFPMathLib20U1/TESTS/readtest.in | sed 's/^\\(.*\\)$/\"\\1\",/'; echo '0 };'; echo '#endif' ) > readtest_lines.cc\n";
+		};
+		E969E2092603F14900EABB28 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -531,6 +670,52 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E969E21F2603F14900EABB28 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E969E2202603F14900EABB28 /* core_commands1.cc in Sources */,
+				E969E2212603F14900EABB28 /* readtest_lines.cc in Sources */,
+				E969E2222603F14900EABB28 /* core_commands2.cc in Sources */,
+				E969E2232603F14900EABB28 /* core_commands3.cc in Sources */,
+				E969E2242603F14900EABB28 /* core_commands4.cc in Sources */,
+				E969E2252603F14900EABB28 /* StatesWindow.h in Sources */,
+				E969E2262603F14900EABB28 /* core_commands5.cc in Sources */,
+				E969E2272603F14900EABB28 /* core_commands6.cc in Sources */,
+				E969E2282603F14900EABB28 /* core_display.cc in Sources */,
+				E969E2292603F14900EABB28 /* core_globals.cc in Sources */,
+				E969E22A2603F14900EABB28 /* core_helpers.cc in Sources */,
+				E969E22B2603F14900EABB28 /* core_keydown.cc in Sources */,
+				E969E22C2603F14900EABB28 /* core_linalg1.cc in Sources */,
+				E969E22D2603F14900EABB28 /* core_linalg2.cc in Sources */,
+				E969E22E2603F14900EABB28 /* DisabledMenuItem.mm in Sources */,
+				E969E22F2603F14900EABB28 /* core_main.cc in Sources */,
+				E969E2302603F14900EABB28 /* core_math1.cc in Sources */,
+				E969E2312603F14900EABB28 /* SkinListDataSource.mm in Sources */,
+				E969E2322603F14900EABB28 /* core_math2.cc in Sources */,
+				E969E2332603F14900EABB28 /* core_phloat.cc in Sources */,
+				E969E2342603F14900EABB28 /* core_sto_rcl.cc in Sources */,
+				E969E2352603F14900EABB28 /* StateNameWindow.mm in Sources */,
+				E969E2362603F14900EABB28 /* core_tables.cc in Sources */,
+				E969E2372603F14900EABB28 /* StatesWindow.mm in Sources */,
+				E969E2382603F14900EABB28 /* core_variables.cc in Sources */,
+				E969E2392603F14900EABB28 /* readtest.c in Sources */,
+				E969E23A2603F14900EABB28 /* FileSavePanel.mm in Sources */,
+				E969E23B2603F14900EABB28 /* StateListDataSource.mm in Sources */,
+				E969E23C2603F14900EABB28 /* shell_loadimage.cc in Sources */,
+				E969E23D2603F14900EABB28 /* shell_spool.cc in Sources */,
+				E969E23E2603F14900EABB28 /* core_commands7.cc in Sources */,
+				E969E23F2603F14900EABB28 /* main.mm in Sources */,
+				E969E2402603F14900EABB28 /* CalcView.mm in Sources */,
+				E969E2412603F14900EABB28 /* FileOpenPanel.mm in Sources */,
+				E969E2422603F14900EABB28 /* Free42AppDelegate.mm in Sources */,
+				E969E2432603F14900EABB28 /* PrintView.mm in Sources */,
+				E969E2442603F14900EABB28 /* ProgramListDataSource.mm in Sources */,
+				E969E2452603F14900EABB28 /* shell_skin.mm in Sources */,
+				E969E2462603F14900EABB28 /* URLTextField.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
@@ -553,7 +738,104 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		C01FCF4B08A954540054247B /* Debug Binary */ = {
+		E969E24F2603F14900EABB28 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LIBRARY = "libc++";
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEVELOPMENT_TEAM = F4D88K2P5W;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = Free42_Prefix.pch;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DECIMAL_CALL_BY_REFERENCE=1",
+					"DECIMAL_GLOBAL_ROUNDING=1",
+					"DECIMAL_GLOBAL_ROUNDING_ACCESS_FUNCTIONS=1",
+					"DECIMAL_GLOBAL_EXCEPTION_FLAGS=1",
+					"DECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS=1",
+					_WCHAR_T_DEFINED,
+				);
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(HOME)/Applications";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)\"",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				"OTHER_CFLAGS[arch=*]" = "-DFREE42_FPTEST";
+				PRODUCT_BUNDLE_IDENTIFIER = com.thomasokken.Free42b;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+			};
+			name = Debug;
+		};
+		E969E2512603F14900EABB28 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LIBRARY = "libc++";
+				CODE_SIGN_ENTITLEMENTS = Free42Release.entitlements;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = F4D88K2P5W;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = Free42_Prefix.pch;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DECIMAL_CALL_BY_REFERENCE=1",
+					"DECIMAL_GLOBAL_ROUNDING=1",
+					"DECIMAL_GLOBAL_ROUNDING_ACCESS_FUNCTIONS=1",
+					"DECIMAL_GLOBAL_EXCEPTION_FLAGS=1",
+					"DECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS=1",
+					_WCHAR_T_DEFINED,
+				);
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(HOME)/Applications";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)\"",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				PRODUCT_BUNDLE_IDENTIFIER = com.thomasokken.Free42b;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+			};
+			name = Release;
+		};
+		E9937380102DE5B300B94F08 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					BCD_MATH,
+					"DECIMAL_CALL_BY_REFERENCE=1",
+					"DECIMAL_GLOBAL_ROUNDING=1",
+					"DECIMAL_GLOBAL_ROUNDING_ACCESS_FUNCTIONS=1",
+					"DECIMAL_GLOBAL_EXCEPTION_FLAGS=1",
+					"DECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS=1",
+					_WCHAR_T_DEFINED,
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_MISSING_PARENTHESES = NO;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = "";
+			};
+			name = Debug;
+		};
+		E9937381102DE5B300B94F08 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -577,137 +859,12 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				"OTHER_CFLAGS[arch=*]" = "-DFREE42_FPTEST";
 				PRODUCT_BUNDLE_IDENTIFIER = com.thomasokken.Free42;
-				PRODUCT_NAME = Free42;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 			};
-			name = "Debug Binary";
+			name = Debug;
 		};
-		C01FCF4C08A954540054247B /* Release Binary */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
-				CLANG_CXX_LIBRARY = "libc++";
-				CODE_SIGN_ENTITLEMENTS = "Free42Release Binary.entitlements";
-				CODE_SIGN_IDENTITY = "Mac Developer";
-				COMBINE_HIDPI_IMAGES = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = F4D88K2P5W;
-				ENABLE_HARDENED_RUNTIME = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = Free42_Prefix.pch;
-				INFOPLIST_FILE = Info.plist;
-				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)\"",
-				);
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				PRODUCT_BUNDLE_IDENTIFIER = com.thomasokken.Free42;
-				PRODUCT_NAME = Free42;
-				PROVISIONING_PROFILE = "";
-			};
-			name = "Release Binary";
-		};
-		C01FCF4F08A954540054247B /* Debug Binary */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
-				GCC_C_LANGUAGE_STANDARD = c99;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DECIMAL_CALL_BY_REFERENCE=1",
-					"DECIMAL_GLOBAL_ROUNDING=1",
-					"DECIMAL_GLOBAL_ROUNDING_ACCESS_FUNCTIONS=1",
-					"DECIMAL_GLOBAL_EXCEPTION_FLAGS=1",
-					"DECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS=1",
-					_WCHAR_T_DEFINED,
-				);
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_MISSING_PARENTHESES = NO;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = "";
-			};
-			name = "Debug Binary";
-		};
-		C01FCF5008A954540054247B /* Release Binary */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
-				GCC_C_LANGUAGE_STANDARD = c99;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DECIMAL_CALL_BY_REFERENCE=1",
-					"DECIMAL_GLOBAL_ROUNDING=1",
-					"DECIMAL_GLOBAL_ROUNDING_ACCESS_FUNCTIONS=1",
-					"DECIMAL_GLOBAL_EXCEPTION_FLAGS=1",
-					"DECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS=1",
-					_WCHAR_T_DEFINED,
-				);
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_MISSING_PARENTHESES = NO;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				SDKROOT = "";
-			};
-			name = "Release Binary";
-		};
-		E9937380102DE5B300B94F08 /* Debug Decimal */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
-				GCC_C_LANGUAGE_STANDARD = c99;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					BCD_MATH,
-					"DECIMAL_CALL_BY_REFERENCE=1",
-					"DECIMAL_GLOBAL_ROUNDING=1",
-					"DECIMAL_GLOBAL_ROUNDING_ACCESS_FUNCTIONS=1",
-					"DECIMAL_GLOBAL_EXCEPTION_FLAGS=1",
-					"DECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS=1",
-					_WCHAR_T_DEFINED,
-				);
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_MISSING_PARENTHESES = NO;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = "";
-			};
-			name = "Debug Decimal";
-		};
-		E9937381102DE5B300B94F08 /* Debug Decimal */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
-				CLANG_CXX_LIBRARY = "libc++";
-				CODE_SIGN_IDENTITY = "Mac Developer";
-				COMBINE_HIDPI_IMAGES = YES;
-				COPY_PHASE_STRIP = NO;
-				DEVELOPMENT_TEAM = F4D88K2P5W;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = Free42_Prefix.pch;
-				INFOPLIST_FILE = Info.plist;
-				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)\"",
-				);
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				"OTHER_CFLAGS[arch=*]" = "-DFREE42_FPTEST";
-				PRODUCT_BUNDLE_IDENTIFIER = com.thomasokken.Free42;
-				PRODUCT_NAME = Free42;
-				PROVISIONING_PROFILE = "";
-			};
-			name = "Debug Decimal";
-		};
-		E9937382102DE5D900B94F08 /* Release Decimal */ = {
+		E9937382102DE5D900B94F08 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
@@ -727,15 +884,15 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				SDKROOT = "";
 			};
-			name = "Release Decimal";
+			name = Release;
 		};
-		E9937383102DE5D900B94F08 /* Release Decimal */ = {
+		E9937383102DE5D900B94F08 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_CXX_LIBRARY = "libc++";
-				CODE_SIGN_ENTITLEMENTS = "Free42Release Decimal.entitlements";
+				CODE_SIGN_ENTITLEMENTS = Free42Release.entitlements;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -752,35 +909,40 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				PRODUCT_BUNDLE_IDENTIFIER = com.thomasokken.Free42;
-				PRODUCT_NAME = Free42;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 			};
-			name = "Release Decimal";
+			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "Free42" */ = {
+		C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "Free42 Decimal" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				C01FCF4B08A954540054247B /* Debug Binary */,
-				E9937381102DE5B300B94F08 /* Debug Decimal */,
-				C01FCF4C08A954540054247B /* Release Binary */,
-				E9937383102DE5D900B94F08 /* Release Decimal */,
+				E9937381102DE5B300B94F08 /* Debug */,
+				E9937383102DE5D900B94F08 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = "Release Decimal";
+			defaultConfigurationName = Release;
 		};
 		C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Free42" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				C01FCF4F08A954540054247B /* Debug Binary */,
-				E9937380102DE5B300B94F08 /* Debug Decimal */,
-				C01FCF5008A954540054247B /* Release Binary */,
-				E9937382102DE5D900B94F08 /* Release Decimal */,
+				E9937380102DE5B300B94F08 /* Debug */,
+				E9937382102DE5D900B94F08 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = "Release Decimal";
+			defaultConfigurationName = Release;
+		};
+		E969E24D2603F14900EABB28 /* Build configuration list for PBXNativeTarget "Free42 Binary" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E969E24F2603F14900EABB28 /* Debug */,
+				E969E2512603F14900EABB28 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

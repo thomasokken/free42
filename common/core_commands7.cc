@@ -20,11 +20,13 @@
 #include <string.h>
 #include <stdarg.h>
 
+#include "core_commands1.h"
 #include "core_commands2.h"
 #include "core_commands7.h"
 #include "core_display.h"
 #include "core_helpers.h"
 #include "core_main.h"
+#include "core_sto_rcl.h"
 #include "core_variables.h"
 #include "shell.h"
 
@@ -36,8 +38,8 @@
 
 int docmd_accel(arg_struct *arg) {
     double x, y, z;
-    int err = shell_get_acceleration(&x, &y, &z);
-    if (err == 0)
+    bool success = shell_get_acceleration(&x, &y, &z);
+    if (!success)
         return ERR_NONEXISTENT;
     if (flags.f.big_stack)
         if (!ensure_stack_capacity(flags.f.stack_lift_disable ? 2 : 3))
@@ -78,8 +80,8 @@ int docmd_accel(arg_struct *arg) {
 
 int docmd_locat(arg_struct *arg) {
     double lat, lon, lat_lon_acc, elev, elev_acc;
-    int err = shell_get_location(&lat, &lon, &lat_lon_acc, &elev, &elev_acc);
-    if (err == 0)
+    bool success = shell_get_location(&lat, &lon, &lat_lon_acc, &elev, &elev_acc);
+    if (!success)
         return ERR_NONEXISTENT;
     if (flags.f.big_stack)
         if (!ensure_stack_capacity(flags.f.stack_lift_disable ? 3 : 4))
@@ -119,8 +121,8 @@ int docmd_locat(arg_struct *arg) {
 
 int docmd_heading(arg_struct *arg) {
     double mag_heading, true_heading, acc, x, y, z;
-    int err = shell_get_heading(&mag_heading, &true_heading, &acc, &x, &y, &z);
-    if (err == 0)
+    bool success = shell_get_heading(&mag_heading, &true_heading, &acc, &x, &y, &z);
+    if (!success)
         return ERR_NONEXISTENT;
     if (flags.f.big_stack)
         if (!ensure_stack_capacity(flags.f.stack_lift_disable ? 3 : 4))
@@ -270,11 +272,6 @@ static int jd2greg(int4 jd, int4 *y, int4 *m, int4 *d) {
 
 
 int docmd_adate(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    if (stack[sp]->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
-
     phloat x = ((vartype_real *) stack[sp])->x;
     if (x < 0)
         x = -x;
@@ -368,11 +365,6 @@ int docmd_adate(arg_struct *arg) {
 }
 
 int docmd_atime(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    if (stack[sp]->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
-
     phloat x = ((vartype_real *) stack[sp])->x;
     bool neg = x < 0;
     if (neg)
@@ -535,16 +527,6 @@ int docmd_date(arg_struct *arg) {
 }
 
 int docmd_date_plus(arg_struct *arg) {
-    // TODO: Accept real matrices as well?
-    if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    if (stack[sp]->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
-    if (stack[sp - 1]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    if (stack[sp - 1]->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
-
     phloat date = ((vartype_real *) stack[sp - 1])->x;
     if (date < 0 || date > (flags.f.ymd ? 10000 : 100))
         return ERR_INVALID_DATA;
@@ -572,16 +554,6 @@ int docmd_date_plus(arg_struct *arg) {
 }
 
 int docmd_ddays(arg_struct *arg) {
-    // TODO: Accept real matrices as well?
-    if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    if (stack[sp]->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
-    if (stack[sp - 1]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    if (stack[sp - 1]->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
-
     phloat date1 = ((vartype_real *) stack[sp - 1])->x;
     if (date1 < 0 || date1 > (flags.f.ymd ? 10000 : 100))
         return ERR_INVALID_DATA;
@@ -615,12 +587,6 @@ int docmd_dmy(arg_struct *arg) {
 }
 
 int docmd_dow(arg_struct *arg) {
-    // TODO: Accept real matrices as well?
-    if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    if (stack[sp]->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
-
     phloat x = ((vartype_real *) stack[sp])->x;
     if (x < 0 || x > (flags.f.ymd ? 10000 : 100))
         return ERR_INVALID_DATA;
@@ -809,7 +775,10 @@ int docmd_lsto(arg_struct *arg) {
 
 int docmd_lasto(arg_struct *arg) {
     /* This relates to LSTO the same way ASTO relates to STO. */
-    vartype *s = new_string(reg_alpha, reg_alpha_length);
+    int len = reg_alpha_length;
+    if (len > 6)
+        len = 6;
+    vartype *s = new_string(reg_alpha, len);
     if (s == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     int err;
@@ -839,10 +808,6 @@ int docmd_lasto(arg_struct *arg) {
 }
 
 int docmd_wsize(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    if (stack[sp]->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
     phloat x = ((vartype_real *) stack[sp])->x;
 #ifdef BCD_MATH
     if (x >= 65 || x < 1)
@@ -892,14 +857,6 @@ int docmd_nop(arg_struct *arg) {
 //////////////////////////////
 
 int docmd_fma(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_STRING
-            || stack[sp - 1]->type == TYPE_STRING
-            || stack[sp - 2]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    if (stack[sp]->type != TYPE_REAL
-            || stack[sp - 1]->type != TYPE_REAL
-            || stack[sp - 2]->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
     phloat x = ((vartype_real *) stack[sp])->x;
     phloat y = ((vartype_real *) stack[sp - 1])->x;
     phloat z = ((vartype_real *) stack[sp - 2])->x;
@@ -914,33 +871,7 @@ int docmd_fma(arg_struct *arg) {
     vartype *res = new_real(r);
     if (res == NULL)
         return ERR_INSUFFICIENT_MEMORY;
-    if (flags.f.big_stack) {
-        free_vartype(lastx);
-        lastx = stack[sp];
-        free_vartype(stack[sp - 1]);
-        free_vartype(stack[sp - 2]);
-        sp -= 2;
-    } else {
-        vartype *tt = dup_vartype(stack[REG_T]);
-        if (tt == NULL) {
-            free_vartype(res);
-            return ERR_INSUFFICIENT_MEMORY;
-        }
-        vartype *ttt = dup_vartype(stack[REG_T]);
-        if (ttt == NULL) {
-            free_vartype(res);
-            free_vartype(tt);
-            return ERR_INSUFFICIENT_MEMORY;
-        }
-        free_vartype(lastx);
-        lastx = stack[REG_X];
-        free_vartype(stack[REG_Y]);
-        free_vartype(stack[REG_Z]);
-        stack[REG_Y] = tt;
-        stack[REG_Z] = ttt;
-    }
-    stack[sp] = res;
-    return ERR_NONE;
+    return ternary_result(res);
 }
 
 int docmd_func(arg_struct *arg) {
@@ -1090,7 +1021,7 @@ int docmd_dropn(arg_struct *arg) {
     if (flags.f.big_stack) {
         sp -= n;
     } else {
-        memmove(stack + n, stack, (n - 4) * sizeof(vartype *));
+        memmove(stack + n, stack, (4 - n) * sizeof(vartype *));
         for (int i = 0; i < n; i++)
             stack[i] = new_real(0);
     }
@@ -1253,33 +1184,229 @@ int docmd_rupn(arg_struct *arg) {
     return ERR_NONE;
 }
 
-////////////////////////
-///// MVAR Catalog /////
-////////////////////////
+////////////////////
+///// PGM Menu /////
+////////////////////
 
-int docmd_mvarcat(arg_struct *arg) {
-    int n = 0;
-    vartype *res;
-    for (int i = 0; i < labels_count; i++)
-        if (labels[i].length < 7 && label_has_mvar(i))
-            n++;
-    if (n == 0) {
-        res = new_real(0);
-        if (res == NULL)
-            return ERR_INSUFFICIENT_MEMORY;
-    } else {
-        res = new_realmatrix(n, 1);
-        if (res == NULL)
-            return ERR_INSUFFICIENT_MEMORY;
-        vartype_realmatrix *rm = (vartype_realmatrix *) res;
-        for (int i = 0; i < labels_count; i++)
-            if (labels[i].length < 7 && label_has_mvar(i)) {
-                n--;
-                rm->array->is_string[n] = 1;
-                char *d = (char *) &rm->array->data[n];
-                d[6] = labels[i].length;
-                memcpy(d, labels[i].name, labels[i].length);
-            }
+int docmd_pgmmenu(arg_struct *arg) {
+    if (!mvar_prgms_exist())
+        return ERR_NO_MENU_VARIABLES;
+    int err = set_menu_return_err(MENULEVEL_APP, MENU_CATALOG, false);
+    if (err == ERR_NONE) {
+        set_cat_section(CATSECT_PGM_MENU);
+        move_cat_row(0);
+        clear_row(0);
     }
-    return recall_result(res);
+    return err;
+}
+
+int docmd_prmvar(arg_struct *arg) {
+    if (!flags.f.printer_enable && program_running())
+        return ERR_NONE;
+    if (!flags.f.printer_exists)
+        return ERR_PRINTING_IS_DISABLED;
+
+    int err;
+    if (arg->type == ARGTYPE_IND_NUM
+            || arg->type == ARGTYPE_IND_STK
+            || arg->type == ARGTYPE_IND_STR) {
+        err = resolve_ind_arg(arg);
+        if (err != ERR_NONE)
+            return err;
+    }
+    if (arg->type != ARGTYPE_STR)
+        return ERR_INVALID_TYPE;
+
+    int prgm;
+    int4 pc;
+    if (!find_global_label(arg, &prgm, &pc))
+        return ERR_LABEL_NOT_FOUND;
+    pc += get_command_length(prgm, pc);
+    int saved_prgm = current_prgm;
+    current_prgm = prgm;
+    bool found = false;
+
+    while (true) {
+        int command;
+        arg_struct arg2;
+        get_next_command(&pc, &command, &arg2, 0, NULL);
+        if (command != CMD_MVAR)
+            break;
+        if (!found) {
+            shell_annunciators(-1, -1, 1, -1, -1, -1);
+            print_text(NULL, 0, 1);
+            found = true;
+        }
+
+        vartype *v = recall_var(arg2.val.text, arg2.length);
+        char lbuf[32], rbuf[100];
+        int llen = 0, rlen = 0;
+        string2buf(lbuf, 8, &llen, arg2.val.text, arg2.length);
+        char2buf(lbuf, 8, &llen, '=');
+
+        if (v == NULL) {
+            print_wide(lbuf, llen, "<Unset>", 7);
+        } else if (v->type == TYPE_STRING) {
+            vartype_string *s = (vartype_string *) v;
+            char *sbuf = (char *) malloc(s->length + 2);
+            if (sbuf == NULL) {
+                print_wide(lbuf, llen, "<Low Mem>", 9);
+            } else {
+                sbuf[0] = '"';
+                memcpy(sbuf + 1, s->txt(), s->length);
+                sbuf[s->length + 1] = '"';
+                print_wide(lbuf, llen, sbuf, s->length + 2);
+                free(sbuf);
+            }
+        } else {
+            rlen = vartype2string(v, rbuf, 100);
+            print_wide(lbuf, llen, rbuf, rlen);
+        }
+    }
+    current_prgm = saved_prgm;
+    if (found)
+        shell_annunciators(-1, -1, 0, -1, -1, -1);
+    else
+        return ERR_NO_MENU_VARIABLES;
+    return ERR_NONE;
+}
+
+////////////////////////////////////
+///// Generalized Comparisons //////
+////////////////////////////////////
+
+int docmd_x_eq_nn(arg_struct *arg) {
+    vartype *v;
+    int err = generic_rcl(arg, &v);
+    if (err != ERR_NONE)
+        return err;
+    return vartype_equals(stack[sp], v) ? ERR_YES : ERR_NO;
+}
+
+int docmd_x_ne_nn(arg_struct *arg) {
+    vartype *v;
+    int err = generic_rcl(arg, &v);
+    if (err != ERR_NONE)
+        return err;
+    return vartype_equals(stack[sp], v) ? ERR_NO : ERR_YES;
+}
+
+int docmd_x_lt_nn(arg_struct *arg) {
+    vartype *v;
+    int err = generic_rcl(arg, &v);
+    if (err != ERR_NONE)
+        return err;
+    if (v->type == TYPE_STRING)
+        return ERR_ALPHA_DATA_IS_INVALID;
+    if (v->type != TYPE_REAL)
+        return ERR_INVALID_TYPE;
+    return ((vartype_real *) stack[sp])->x < ((vartype_real *) v)->x ? ERR_YES : ERR_NO;
+}
+
+int docmd_x_gt_nn(arg_struct *arg) {
+    vartype *v;
+    int err = generic_rcl(arg, &v);
+    if (err != ERR_NONE)
+        return err;
+    if (v->type == TYPE_STRING)
+        return ERR_ALPHA_DATA_IS_INVALID;
+    if (v->type != TYPE_REAL)
+        return ERR_INVALID_TYPE;
+    return ((vartype_real *) stack[sp])->x > ((vartype_real *) v)->x ? ERR_YES : ERR_NO;
+}
+
+int docmd_x_le_nn(arg_struct *arg) {
+    vartype *v;
+    int err = generic_rcl(arg, &v);
+    if (err != ERR_NONE)
+        return err;
+    if (v->type == TYPE_STRING)
+        return ERR_ALPHA_DATA_IS_INVALID;
+    if (v->type != TYPE_REAL)
+        return ERR_INVALID_TYPE;
+    return ((vartype_real *) stack[sp])->x <= ((vartype_real *) v)->x ? ERR_YES : ERR_NO;
+}
+
+int docmd_x_ge_nn(arg_struct *arg) {
+    vartype *v;
+    int err = generic_rcl(arg, &v);
+    if (err != ERR_NONE)
+        return err;
+    if (v->type == TYPE_STRING)
+        return ERR_ALPHA_DATA_IS_INVALID;
+    if (v->type != TYPE_REAL)
+        return ERR_INVALID_TYPE;
+    return ((vartype_real *) stack[sp])->x >= ((vartype_real *) v)->x ? ERR_YES : ERR_NO;
+}
+
+int docmd_0_eq_nn(arg_struct *arg) {
+    vartype *v;
+    int err = generic_rcl(arg, &v);
+    if (err != ERR_NONE)
+        return err;
+    if (v->type == TYPE_STRING)
+        return ERR_ALPHA_DATA_IS_INVALID;
+    if (v->type != TYPE_REAL)
+        return ERR_INVALID_TYPE;
+    return ((vartype_real *) v)->x == 0 ? ERR_YES : ERR_NO;
+}
+
+int docmd_0_ne_nn(arg_struct *arg) {
+    vartype *v;
+    int err = generic_rcl(arg, &v);
+    if (err != ERR_NONE)
+        return err;
+    if (v->type == TYPE_STRING)
+        return ERR_ALPHA_DATA_IS_INVALID;
+    if (v->type != TYPE_REAL)
+        return ERR_INVALID_TYPE;
+    return ((vartype_real *) v)->x != 0 ? ERR_YES : ERR_NO;
+}
+
+int docmd_0_lt_nn(arg_struct *arg) {
+    vartype *v;
+    int err = generic_rcl(arg, &v);
+    if (err != ERR_NONE)
+        return err;
+    if (v->type == TYPE_STRING)
+        return ERR_ALPHA_DATA_IS_INVALID;
+    if (v->type != TYPE_REAL)
+        return ERR_INVALID_TYPE;
+    return ((vartype_real *) v)->x > 0 ? ERR_YES : ERR_NO;
+}
+
+int docmd_0_gt_nn(arg_struct *arg) {
+    vartype *v;
+    int err = generic_rcl(arg, &v);
+    if (err != ERR_NONE)
+        return err;
+    if (v->type == TYPE_STRING)
+        return ERR_ALPHA_DATA_IS_INVALID;
+    if (v->type != TYPE_REAL)
+        return ERR_INVALID_TYPE;
+    return ((vartype_real *) v)->x < 0 ? ERR_YES : ERR_NO;
+}
+
+int docmd_0_le_nn(arg_struct *arg) {
+    vartype *v;
+    int err = generic_rcl(arg, &v);
+    if (err != ERR_NONE)
+        return err;
+    if (v->type == TYPE_STRING)
+        return ERR_ALPHA_DATA_IS_INVALID;
+    if (v->type != TYPE_REAL)
+        return ERR_INVALID_TYPE;
+    return ((vartype_real *) v)->x >= 0 ? ERR_YES : ERR_NO;
+}
+
+int docmd_0_ge_nn(arg_struct *arg) {
+    vartype *v;
+    int err = generic_rcl(arg, &v);
+    if (err != ERR_NONE)
+        return err;
+    if (v->type == TYPE_STRING)
+        return ERR_ALPHA_DATA_IS_INVALID;
+    if (v->type != TYPE_REAL)
+        return ERR_INVALID_TYPE;
+    return ((vartype_real *) v)->x <= 0 ? ERR_YES : ERR_NO;
 }

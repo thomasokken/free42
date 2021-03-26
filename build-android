@@ -8,5 +8,7 @@ cd android/app/src/main/cpp
 sh ./link-files.sh
 sh ./build-intel-lib.sh
 cd ../../../..
-./gradlew --warning-mode all assembleRelease
-mv app/build/outputs/apk/release/app-release.apk ../packages/Free42Android.apk
+./gradlew --warning-mode all assembleDecimalRelease
+mv app/build/outputs/apk/decimal/release/app-decimal-release.apk ../packages/Free42Android.apk
+#./gradlew --warning-mode all assembleBinaryRelease
+#mv app/build/outputs/apk/binary/release/app-binary-release.apk ../packages/Free42BinaryAndroid.apk

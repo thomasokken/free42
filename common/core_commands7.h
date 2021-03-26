@@ -72,6 +72,20 @@ int docmd_unpick(arg_struct *arg);
 int docmd_rdnn(arg_struct *arg);
 int docmd_rupn(arg_struct *arg);
 
-int docmd_mvarcat(arg_struct *arg);
+int docmd_pgmmenu(arg_struct *arg);
+int docmd_prmvar(arg_struct *arg);
+
+int docmd_x_eq_nn(arg_struct *arg);
+int docmd_x_ne_nn(arg_struct *arg);
+int docmd_x_lt_nn(arg_struct *arg);
+int docmd_x_gt_nn(arg_struct *arg);
+int docmd_x_le_nn(arg_struct *arg);
+int docmd_x_ge_nn(arg_struct *arg);
+int docmd_0_eq_nn(arg_struct *arg);
+int docmd_0_ne_nn(arg_struct *arg);
+int docmd_0_lt_nn(arg_struct *arg);
+int docmd_0_gt_nn(arg_struct *arg);
+int docmd_0_le_nn(arg_struct *arg);
+int docmd_0_ge_nn(arg_struct *arg);
 
 #endif

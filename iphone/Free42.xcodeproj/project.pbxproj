@@ -99,6 +99,98 @@
 		E9F7136C16C5F1F0006A9553 /* minizip_ioapi.c in Sources */ = {isa = PBXBuildFile; fileRef = E9F7136616C5F1F0006A9553 /* minizip_ioapi.c */; };
 		E9F7136D16C5F1F0006A9553 /* minizip_unzip.c in Sources */ = {isa = PBXBuildFile; fileRef = E9F7136816C5F1F0006A9553 /* minizip_unzip.c */; settings = {COMPILER_FLAGS = "-DNOUNCRYPT"; }; };
 		E9F7136E16C5F1F0006A9553 /* minizip_zip.c in Sources */ = {isa = PBXBuildFile; fileRef = E9F7136A16C5F1F0006A9553 /* minizip_zip.c */; settings = {COMPILER_FLAGS = "-DNOCRYPT"; }; };
+		E9FC40B4260707AF00E52296 /* click4.wav in Resources */ = {isa = PBXBuildFile; fileRef = E9AE2561233C1CD0005072BA /* click4.wav */; };
+		E9FC40B5260707AF00E52296 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD733E0D9D9553002E5188 /* MainWindow.xib */; };
+		E9FC40B6260707AF00E52296 /* squeak.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD75C0F8C1A210089D9FA /* squeak.wav */; };
+		E9FC40B7260707AF00E52296 /* tone0.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD75D0F8C1A210089D9FA /* tone0.wav */; };
+		E9FC40B8260707AF00E52296 /* click3.wav in Resources */ = {isa = PBXBuildFile; fileRef = E9AE255D233C1CCF005072BA /* click3.wav */; };
+		E9FC40B9260707AF00E52296 /* click6.wav in Resources */ = {isa = PBXBuildFile; fileRef = E91B5364233C569F00E30DE8 /* click6.wav */; };
+		E9FC40BA260707AF00E52296 /* SGS-L.gif in Resources */ = {isa = PBXBuildFile; fileRef = E969A3A122D15AB100E6EBEB /* SGS-L.gif */; };
+		E9FC40BB260707AF00E52296 /* tone1.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD75E0F8C1A210089D9FA /* tone1.wav */; };
+		E9FC40BC260707AF00E52296 /* tone2.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD75F0F8C1A210089D9FA /* tone2.wav */; };
+		E9FC40BD260707AF00E52296 /* tone3.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD7600F8C1A210089D9FA /* tone3.wav */; };
+		E9FC40BE260707AF00E52296 /* click5.wav in Resources */ = {isa = PBXBuildFile; fileRef = E9AE255E233C1CCF005072BA /* click5.wav */; };
+		E9FC40BF260707AF00E52296 /* Matt42X.layout in Resources */ = {isa = PBXBuildFile; fileRef = E969A3A022D15AB100E6EBEB /* Matt42X.layout */; };
+		E9FC40C0260707AF00E52296 /* tone4.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD7610F8C1A210089D9FA /* tone4.wav */; };
+		E9FC40C1260707AF00E52296 /* tone5.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD7620F8C1A210089D9FA /* tone5.wav */; };
+		E9FC40C2260707AF00E52296 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E9A1EE361FCB8C630047398C /* Images.xcassets */; };
+		E9FC40C3260707AF00E52296 /* Ehrling42sl.gif in Resources */ = {isa = PBXBuildFile; fileRef = E9C255DA1996B9C1007634C9 /* Ehrling42sl.gif */; };
+		E9FC40C4260707AF00E52296 /* tone6.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD7630F8C1A210089D9FA /* tone6.wav */; };
+		E9FC40C5260707AF00E52296 /* click9.wav in Resources */ = {isa = PBXBuildFile; fileRef = E91B5367233C569F00E30DE8 /* click9.wav */; };
+		E9FC40C6260707AF00E52296 /* Matt42X.gif in Resources */ = {isa = PBXBuildFile; fileRef = E969A39F22D15AB100E6EBEB /* Matt42X.gif */; };
+		E9FC40C7260707AF00E52296 /* SGS-L.layout in Resources */ = {isa = PBXBuildFile; fileRef = E969A3A222D15AB100E6EBEB /* SGS-L.layout */; };
+		E9FC40C8260707AF00E52296 /* tone7.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD7640F8C1A210089D9FA /* tone7.wav */; };
+		E9FC40C9260707AF00E52296 /* tone8.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD7650F8C1A210089D9FA /* tone8.wav */; };
+		E9FC40CA260707AF00E52296 /* tone9.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD7660F8C1A210089D9FA /* tone9.wav */; };
+		E9FC40CB260707AF00E52296 /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = E98FA4830F913E2900DED348 /* icon.png */; };
+		E9FC40CC260707AF00E52296 /* Ehrling42sl.layout in Resources */ = {isa = PBXBuildFile; fileRef = E9C255DB1996B9C1007634C9 /* Ehrling42sl.layout */; };
+		E9FC40CD260707AF00E52296 /* builtin_skins.txt in Resources */ = {isa = PBXBuildFile; fileRef = E9031C8E0FF68FB10023F9EC /* builtin_skins.txt */; };
+		E9FC40CE260707AF00E52296 /* click2.wav in Resources */ = {isa = PBXBuildFile; fileRef = E9AE255F233C1CD0005072BA /* click2.wav */; };
+		E9FC40CF260707AF00E52296 /* click1.wav in Resources */ = {isa = PBXBuildFile; fileRef = E9AE2560233C1CD0005072BA /* click1.wav */; };
+		E9FC40D0260707AF00E52296 /* click8.wav in Resources */ = {isa = PBXBuildFile; fileRef = E91B5365233C569F00E30DE8 /* click8.wav */; };
+		E9FC40D1260707AF00E52296 /* about-icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E9A1EE381FCB8F5D0047398C /* about-icon@2x.png */; };
+		E9FC40D2260707AF00E52296 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E9BB9E9525682C7100708152 /* Launch Screen.storyboard */; };
+		E9FC40D3260707AF00E52296 /* Ehrling42sm.gif in Resources */ = {isa = PBXBuildFile; fileRef = E9031C900FF68FCD0023F9EC /* Ehrling42sm.gif */; };
+		E9FC40D4260707AF00E52296 /* Ehrling42sm.layout in Resources */ = {isa = PBXBuildFile; fileRef = E9031C910FF68FCD0023F9EC /* Ehrling42sm.layout */; };
+		E9FC40D5260707AF00E52296 /* about-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = E94DE6C51011E9AE005E6B19 /* about-icon.png */; };
+		E9FC40D6260707AF00E52296 /* Entitlements.plist in Resources */ = {isa = PBXBuildFile; fileRef = E94C3CFD132DAB0A00880A45 /* Entitlements.plist */; };
+		E9FC40D7260707AF00E52296 /* click7.wav in Resources */ = {isa = PBXBuildFile; fileRef = E91B5366233C569F00E30DE8 /* click7.wav */; };
+		E9FC40D9260707AF00E52296 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
+		E9FC40DA260707AF00E52296 /* shell_loadimage.cc in Sources */ = {isa = PBXBuildFile; fileRef = E9B16DF80F88EE46002BB9B2 /* shell_loadimage.cc */; };
+		E9FC40DB260707AF00E52296 /* core_commands1.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005A80F893F8900B68C27 /* core_commands1.cc */; };
+		E9FC40DC260707AF00E52296 /* core_commands2.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005AA0F893F8900B68C27 /* core_commands2.cc */; };
+		E9FC40DD260707AF00E52296 /* core_commands3.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005AC0F893F8900B68C27 /* core_commands3.cc */; };
+		E9FC40DE260707AF00E52296 /* core_commands4.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005AE0F893F8900B68C27 /* core_commands4.cc */; };
+		E9FC40DF260707AF00E52296 /* core_commands5.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005B00F893F8900B68C27 /* core_commands5.cc */; };
+		E9FC40E0260707AF00E52296 /* StatesView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9ED02E72310A05A00C85D9A /* StatesView.mm */; };
+		E9FC40E1260707AF00E52296 /* readtest_lines.cc in Sources */ = {isa = PBXBuildFile; fileRef = E997E4AC1CF0FB12009939CE /* readtest_lines.cc */; };
+		E9FC40E2260707AF00E52296 /* core_commands6.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005B20F893F8900B68C27 /* core_commands6.cc */; };
+		E9FC40E3260707AF00E52296 /* core_display.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005B40F893F8900B68C27 /* core_display.cc */; };
+		E9FC40E4260707AF00E52296 /* core_globals.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005B60F893F8900B68C27 /* core_globals.cc */; };
+		E9FC40E5260707AF00E52296 /* core_helpers.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005B80F893F8900B68C27 /* core_helpers.cc */; };
+		E9FC40E6260707AF00E52296 /* core_keydown.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005BA0F893F8900B68C27 /* core_keydown.cc */; };
+		E9FC40E7260707AF00E52296 /* core_linalg1.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005BC0F893F8900B68C27 /* core_linalg1.cc */; };
+		E9FC40E8260707AF00E52296 /* core_linalg2.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005BE0F893F8900B68C27 /* core_linalg2.cc */; };
+		E9FC40E9260707AF00E52296 /* core_main.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005C00F893F8900B68C27 /* core_main.cc */; };
+		E9FC40EA260707AF00E52296 /* core_math1.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005C20F893F8900B68C27 /* core_math1.cc */; };
+		E9FC40EB260707AF00E52296 /* core_math2.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005C40F893F8900B68C27 /* core_math2.cc */; };
+		E9FC40EC260707AF00E52296 /* core_phloat.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005C60F893F8900B68C27 /* core_phloat.cc */; };
+		E9FC40ED260707AF00E52296 /* core_sto_rcl.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005C80F893F8900B68C27 /* core_sto_rcl.cc */; };
+		E9FC40EE260707AF00E52296 /* core_tables.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005CA0F893F8900B68C27 /* core_tables.cc */; };
+		E9FC40EF260707AF00E52296 /* core_variables.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005CC0F893F8900B68C27 /* core_variables.cc */; };
+		E9FC40F0260707AF00E52296 /* shell_spool.cc in Sources */ = {isa = PBXBuildFile; fileRef = E93F2B540F894D9000CE8542 /* shell_spool.cc */; };
+		E9FC40F1260707AF00E52296 /* simpleserver.c in Sources */ = {isa = PBXBuildFile; fileRef = E91CC1D30F8C1FE900EE702C /* simpleserver.c */; };
+		E9FC40F2260707AF00E52296 /* icons.c in Sources */ = {isa = PBXBuildFile; fileRef = E91CC1D50F8C200800EE702C /* icons.c */; };
+		E9FC40F3260707AF00E52296 /* core_commands7.cc in Sources */ = {isa = PBXBuildFile; fileRef = E99FDE5C1162508C004DB479 /* core_commands7.cc */; };
+		E9FC40F4260707AF00E52296 /* AboutView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E977D0781698FB4E00AA3FD9 /* AboutView.mm */; };
+		E9FC40F5260707AF00E52296 /* HTTPServerView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E977D0791698FB4E00AA3FD9 /* HTTPServerView.mm */; };
+		E9FC40F6260707AF00E52296 /* PreferencesView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E977D07C1698FB4E00AA3FD9 /* PreferencesView.mm */; };
+		E9FC40F7260707AF00E52296 /* SelectFileView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E977D07E1698FB4E00AA3FD9 /* SelectFileView.mm */; };
+		E9FC40F8260707AF00E52296 /* DeleteSkinView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E935A89A22B542F9007C41DF /* DeleteSkinView.mm */; };
+		E9FC40F9260707AF00E52296 /* RootViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = E997E4AF1CF11ED4009939CE /* RootViewController.mm */; };
+		E9FC40FA260707AF00E52296 /* SelectSkinView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E977D07F1698FB4E00AA3FD9 /* SelectSkinView.mm */; };
+		E9FC40FB260707AF00E52296 /* LoadSkinView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E935A89D22B54ED4007C41DF /* LoadSkinView.mm */; };
+		E9FC40FC260707AF00E52296 /* shell_skin_iphone.mm in Sources */ = {isa = PBXBuildFile; fileRef = E977D0811698FB4E00AA3FD9 /* shell_skin_iphone.mm */; };
+		E9FC40FD260707AF00E52296 /* URLButton.mm in Sources */ = {isa = PBXBuildFile; fileRef = E977D0991699050400AA3FD9 /* URLButton.mm */; };
+		E9FC40FE260707AF00E52296 /* readtest.c in Sources */ = {isa = PBXBuildFile; fileRef = E997E4AA1CF0FAFE009939CE /* readtest.c */; settings = {COMPILER_FLAGS = "-D__intptr_t_defined -DLINUX"; }; };
+		E9FC40FF260707AF00E52296 /* CalcView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9200DF11699E1EC001BC4B5 /* CalcView.mm */; };
+		E9FC4100260707AF00E52296 /* Free42AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9200DF31699E1EC001BC4B5 /* Free42AppDelegate.mm */; };
+		E9FC4101260707AF00E52296 /* PrintView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9200DF51699E1EC001BC4B5 /* PrintView.mm */; };
+		E9FC4102260707AF00E52296 /* PrintTileView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9200DFA169A0004001BC4B5 /* PrintTileView.mm */; };
+		E9FC4103260707AF00E52296 /* minizip_ioapi.c in Sources */ = {isa = PBXBuildFile; fileRef = E9F7136616C5F1F0006A9553 /* minizip_ioapi.c */; };
+		E9FC4104260707AF00E52296 /* minizip_unzip.c in Sources */ = {isa = PBXBuildFile; fileRef = E9F7136816C5F1F0006A9553 /* minizip_unzip.c */; settings = {COMPILER_FLAGS = "-DNOUNCRYPT"; }; };
+		E9FC4105260707AF00E52296 /* RootWindow.mm in Sources */ = {isa = PBXBuildFile; fileRef = E99C9AE3223ED0DC00DA48D0 /* RootWindow.mm */; };
+		E9FC4106260707AF00E52296 /* minizip_zip.c in Sources */ = {isa = PBXBuildFile; fileRef = E9F7136A16C5F1F0006A9553 /* minizip_zip.c */; settings = {COMPILER_FLAGS = "-DNOCRYPT"; }; };
+		E9FC4107260707AF00E52296 /* SelectProgramsView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E908D3EC16D04D92000710EB /* SelectProgramsView.mm */; };
+		E9FC4109260707AF00E52296 /* gcc111libbid.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E94025AE19312C320096B2E4 /* gcc111libbid.a */; };
+		E9FC410A260707AF00E52296 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E9CECB80255ED605003398B3 /* libz.tbd */; };
+		E9FC410B260707AF00E52296 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
+		E9FC410C260707AF00E52296 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
+		E9FC410D260707AF00E52296 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765FC0DF74451002DB57D /* CoreGraphics.framework */; };
+		E9FC410E260707AF00E52296 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E98DD7500F8C198A0089D9FA /* AudioToolbox.framework */; };
+		E9FC410F260707AF00E52296 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E92BCF38114C420900832FAD /* CoreLocation.framework */; };
+		E9FC4110260707AF00E52296 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E90B374B23116467000189D3 /* CoreMotion.framework */; };
+		E9FC4111260707AF00E52296 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E935A8A022B5525B007C41DF /* WebKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -244,6 +336,7 @@
 		E9F7136916C5F1F0006A9553 /* minizip_unzip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = minizip_unzip.h; path = simpleserver/minizip_unzip.h; sourceTree = "<group>"; };
 		E9F7136A16C5F1F0006A9553 /* minizip_zip.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = minizip_zip.c; path = simpleserver/minizip_zip.c; sourceTree = "<group>"; };
 		E9F7136B16C5F1F0006A9553 /* minizip_zip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = minizip_zip.h; path = simpleserver/minizip_zip.h; sourceTree = "<group>"; };
+		E9FC4116260707AF00E52296 /* Free42 Binary.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Free42 Binary.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -260,6 +353,22 @@
 				E92BCF39114C420900832FAD /* CoreLocation.framework in Frameworks */,
 				E90B374C23116467000189D3 /* CoreMotion.framework in Frameworks */,
 				E935A8A122B5525B007C41DF /* WebKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E9FC4108260707AF00E52296 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E9FC4109260707AF00E52296 /* gcc111libbid.a in Frameworks */,
+				E9FC410A260707AF00E52296 /* libz.tbd in Frameworks */,
+				E9FC410B260707AF00E52296 /* Foundation.framework in Frameworks */,
+				E9FC410C260707AF00E52296 /* UIKit.framework in Frameworks */,
+				E9FC410D260707AF00E52296 /* CoreGraphics.framework in Frameworks */,
+				E9FC410E260707AF00E52296 /* AudioToolbox.framework in Frameworks */,
+				E9FC410F260707AF00E52296 /* CoreLocation.framework in Frameworks */,
+				E9FC4110260707AF00E52296 /* CoreMotion.framework in Frameworks */,
+				E9FC4111260707AF00E52296 /* WebKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -312,6 +421,7 @@
 			isa = PBXGroup;
 			children = (
 				1D6058910D05DD3D006BFB54 /* Free42.app */,
+				E9FC4116260707AF00E52296 /* Free42 Binary.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -485,6 +595,25 @@
 			productReference = 1D6058910D05DD3D006BFB54 /* Free42.app */;
 			productType = "com.apple.product-type.application";
 		};
+		E9FC40B0260707AF00E52296 /* Free42 Binary */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E9FC4112260707AF00E52296 /* Build configuration list for PBXNativeTarget "Free42 Binary" */;
+			buildPhases = (
+				E9FC40B1260707AF00E52296 /* ShellScript */,
+				E9FC40B2260707AF00E52296 /* Run Script */,
+				E9FC40B3260707AF00E52296 /* Resources */,
+				E9FC40D8260707AF00E52296 /* Sources */,
+				E9FC4108260707AF00E52296 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Free42 Binary";
+			productName = Free42;
+			productReference = E9FC4116260707AF00E52296 /* Free42 Binary.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -514,6 +643,7 @@
 			projectRoot = "";
 			targets = (
 				1D6058900D05DD3D006BFB54 /* Free42 */,
+				E9FC40B0260707AF00E52296 /* Free42 Binary */,
 			);
 		};
 /* End PBXProject section */
@@ -562,6 +692,49 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E9FC40B3260707AF00E52296 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E9FC40B4260707AF00E52296 /* click4.wav in Resources */,
+				E9FC40B5260707AF00E52296 /* MainWindow.xib in Resources */,
+				E9FC40B6260707AF00E52296 /* squeak.wav in Resources */,
+				E9FC40B7260707AF00E52296 /* tone0.wav in Resources */,
+				E9FC40B8260707AF00E52296 /* click3.wav in Resources */,
+				E9FC40B9260707AF00E52296 /* click6.wav in Resources */,
+				E9FC40BA260707AF00E52296 /* SGS-L.gif in Resources */,
+				E9FC40BB260707AF00E52296 /* tone1.wav in Resources */,
+				E9FC40BC260707AF00E52296 /* tone2.wav in Resources */,
+				E9FC40BD260707AF00E52296 /* tone3.wav in Resources */,
+				E9FC40BE260707AF00E52296 /* click5.wav in Resources */,
+				E9FC40BF260707AF00E52296 /* Matt42X.layout in Resources */,
+				E9FC40C0260707AF00E52296 /* tone4.wav in Resources */,
+				E9FC40C1260707AF00E52296 /* tone5.wav in Resources */,
+				E9FC40C2260707AF00E52296 /* Images.xcassets in Resources */,
+				E9FC40C3260707AF00E52296 /* Ehrling42sl.gif in Resources */,
+				E9FC40C4260707AF00E52296 /* tone6.wav in Resources */,
+				E9FC40C5260707AF00E52296 /* click9.wav in Resources */,
+				E9FC40C6260707AF00E52296 /* Matt42X.gif in Resources */,
+				E9FC40C7260707AF00E52296 /* SGS-L.layout in Resources */,
+				E9FC40C8260707AF00E52296 /* tone7.wav in Resources */,
+				E9FC40C9260707AF00E52296 /* tone8.wav in Resources */,
+				E9FC40CA260707AF00E52296 /* tone9.wav in Resources */,
+				E9FC40CB260707AF00E52296 /* icon.png in Resources */,
+				E9FC40CC260707AF00E52296 /* Ehrling42sl.layout in Resources */,
+				E9FC40CD260707AF00E52296 /* builtin_skins.txt in Resources */,
+				E9FC40CE260707AF00E52296 /* click2.wav in Resources */,
+				E9FC40CF260707AF00E52296 /* click1.wav in Resources */,
+				E9FC40D0260707AF00E52296 /* click8.wav in Resources */,
+				E9FC40D1260707AF00E52296 /* about-icon@2x.png in Resources */,
+				E9FC40D2260707AF00E52296 /* Launch Screen.storyboard in Resources */,
+				E9FC40D3260707AF00E52296 /* Ehrling42sm.gif in Resources */,
+				E9FC40D4260707AF00E52296 /* Ehrling42sm.layout in Resources */,
+				E9FC40D5260707AF00E52296 /* about-icon.png in Resources */,
+				E9FC40D6260707AF00E52296 /* Entitlements.plist in Resources */,
+				E9FC40D7260707AF00E52296 /* click7.wav in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
@@ -591,6 +764,33 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = "/bin/sh -x";
 			shellScript = "if [ -f gcc111libbid.a ]; then exit 0; fi\nARCHS=(arm64 armv7 x86_64 i386)\nLIBNAMES=\nfor ARCH in ${ARCHS[@]}; do\n  rm -rf IntelRDFPMathLib20U1\n  tar xvfz ../inteldecimal/IntelRDFPMathLib20U1.tar.gz\n  cd IntelRDFPMathLib20U1\n  patch -p0 <../intel-lib-iphone-$ARCH.patch\n  cd LIBRARY\n  make CC=gcc CALL_BY_REF=1 GLOBAL_RND=1 GLOBAL_FLAGS=1 UNCHANGED_BINARY_FLAGS=0\n  mv libbid.a ../../gcc111libbid-$ARCH.a\n  LIBNAMES=\"$LIBNAMES gcc111libbid-$ARCH.a\"\n  cd ../..\ndone\nlipo -create $LIBNAMES -output gcc111libbid.a\n( echo '#ifdef FREE42_FPTEST'; echo 'const char *readtest_lines[] = {'; tr -d '\\r' < IntelRDFPMathLib20U1/TESTS/readtest.in | sed 's/^\\(.*\\)$/\"\\1\",/'; echo '0 };'; echo '#endif' ) > readtest_lines.cc\n";
+		};
+		E9FC40B1260707AF00E52296 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = "/bin/sh -x";
+			shellScript = "if [ -f gcc111libbid.a ]; then exit 0; fi\nARCHS=(arm64 armv7 x86_64 i386)\nLIBNAMES=\nfor ARCH in ${ARCHS[@]}; do\n  rm -rf IntelRDFPMathLib20U1\n  tar xvfz ../inteldecimal/IntelRDFPMathLib20U1.tar.gz\n  cd IntelRDFPMathLib20U1\n  patch -p0 <../intel-lib-iphone-$ARCH.patch\n  cd LIBRARY\n  make CC=gcc CALL_BY_REF=1 GLOBAL_RND=1 GLOBAL_FLAGS=1 UNCHANGED_BINARY_FLAGS=0\n  mv libbid.a ../../gcc111libbid-$ARCH.a\n  LIBNAMES=\"$LIBNAMES gcc111libbid-$ARCH.a\"\n  cd ../..\ndone\nlipo -create $LIBNAMES -output gcc111libbid.a\n( echo '#ifdef FREE42_FPTEST'; echo 'const char *readtest_lines[] = {'; tr -d '\\r' < IntelRDFPMathLib20U1/TESTS/readtest.in | sed 's/^\\(.*\\)$/\"\\1\",/'; echo '0 };'; echo '#endif' ) > readtest_lines.cc\n";
+		};
+		E9FC40B2260707AF00E52296 /* Run Script */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Run Script";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = "/bin/sh -x";
+			shellScript = "touch main.m\ncd simpleserver\nmake icons.c\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -646,6 +846,60 @@
 				E99C9AE4223ED0DC00DA48D0 /* RootWindow.mm in Sources */,
 				E9F7136E16C5F1F0006A9553 /* minizip_zip.c in Sources */,
 				E908D3ED16D04D92000710EB /* SelectProgramsView.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E9FC40D8260707AF00E52296 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E9FC40D9260707AF00E52296 /* main.m in Sources */,
+				E9FC40DA260707AF00E52296 /* shell_loadimage.cc in Sources */,
+				E9FC40DB260707AF00E52296 /* core_commands1.cc in Sources */,
+				E9FC40DC260707AF00E52296 /* core_commands2.cc in Sources */,
+				E9FC40DD260707AF00E52296 /* core_commands3.cc in Sources */,
+				E9FC40DE260707AF00E52296 /* core_commands4.cc in Sources */,
+				E9FC40DF260707AF00E52296 /* core_commands5.cc in Sources */,
+				E9FC40E0260707AF00E52296 /* StatesView.mm in Sources */,
+				E9FC40E1260707AF00E52296 /* readtest_lines.cc in Sources */,
+				E9FC40E2260707AF00E52296 /* core_commands6.cc in Sources */,
+				E9FC40E3260707AF00E52296 /* core_display.cc in Sources */,
+				E9FC40E4260707AF00E52296 /* core_globals.cc in Sources */,
+				E9FC40E5260707AF00E52296 /* core_helpers.cc in Sources */,
+				E9FC40E6260707AF00E52296 /* core_keydown.cc in Sources */,
+				E9FC40E7260707AF00E52296 /* core_linalg1.cc in Sources */,
+				E9FC40E8260707AF00E52296 /* core_linalg2.cc in Sources */,
+				E9FC40E9260707AF00E52296 /* core_main.cc in Sources */,
+				E9FC40EA260707AF00E52296 /* core_math1.cc in Sources */,
+				E9FC40EB260707AF00E52296 /* core_math2.cc in Sources */,
+				E9FC40EC260707AF00E52296 /* core_phloat.cc in Sources */,
+				E9FC40ED260707AF00E52296 /* core_sto_rcl.cc in Sources */,
+				E9FC40EE260707AF00E52296 /* core_tables.cc in Sources */,
+				E9FC40EF260707AF00E52296 /* core_variables.cc in Sources */,
+				E9FC40F0260707AF00E52296 /* shell_spool.cc in Sources */,
+				E9FC40F1260707AF00E52296 /* simpleserver.c in Sources */,
+				E9FC40F2260707AF00E52296 /* icons.c in Sources */,
+				E9FC40F3260707AF00E52296 /* core_commands7.cc in Sources */,
+				E9FC40F4260707AF00E52296 /* AboutView.mm in Sources */,
+				E9FC40F5260707AF00E52296 /* HTTPServerView.mm in Sources */,
+				E9FC40F6260707AF00E52296 /* PreferencesView.mm in Sources */,
+				E9FC40F7260707AF00E52296 /* SelectFileView.mm in Sources */,
+				E9FC40F8260707AF00E52296 /* DeleteSkinView.mm in Sources */,
+				E9FC40F9260707AF00E52296 /* RootViewController.mm in Sources */,
+				E9FC40FA260707AF00E52296 /* SelectSkinView.mm in Sources */,
+				E9FC40FB260707AF00E52296 /* LoadSkinView.mm in Sources */,
+				E9FC40FC260707AF00E52296 /* shell_skin_iphone.mm in Sources */,
+				E9FC40FD260707AF00E52296 /* URLButton.mm in Sources */,
+				E9FC40FE260707AF00E52296 /* readtest.c in Sources */,
+				E9FC40FF260707AF00E52296 /* CalcView.mm in Sources */,
+				E9FC4100260707AF00E52296 /* Free42AppDelegate.mm in Sources */,
+				E9FC4101260707AF00E52296 /* PrintView.mm in Sources */,
+				E9FC4102260707AF00E52296 /* PrintTileView.mm in Sources */,
+				E9FC4103260707AF00E52296 /* minizip_ioapi.c in Sources */,
+				E9FC4104260707AF00E52296 /* minizip_unzip.c in Sources */,
+				E9FC4105260707AF00E52296 /* RootWindow.mm in Sources */,
+				E9FC4106260707AF00E52296 /* minizip_zip.c in Sources */,
+				E9FC4107260707AF00E52296 /* SelectProgramsView.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -828,6 +1082,117 @@
 			};
 			name = Distribution;
 		};
+		E9FC4113260707AF00E52296 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_BITCODE = NO;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = Free42_Prefix.pch;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					IPHONE,
+					FREE42,
+					"DECIMAL_CALL_BY_REFERENCE=1",
+					"DECIMAL_GLOBAL_ROUNDING=1",
+					"DECIMAL_GLOBAL_ROUNDING_ACCESS_FUNCTIONS=1",
+					"DECIMAL_GLOBAL_EXCEPTION_FLAGS=1",
+					"DECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS=1",
+					_WCHAR_T_DEFINED,
+					LINUX,
+				);
+				GCC_THUMB_SUPPORT = NO;
+				INFOPLIST_FILE = Info.plist;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				"OTHER_CFLAGS[arch=*]" = "-DFREE42_FPTEST";
+				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.Free42b;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		E9FC4114260707AF00E52296 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				ENABLE_BITCODE = NO;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = Free42_Prefix.pch;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					IPHONE,
+					FREE42,
+					"DECIMAL_CALL_BY_REFERENCE=1",
+					"DECIMAL_GLOBAL_ROUNDING=1",
+					"DECIMAL_GLOBAL_ROUNDING_ACCESS_FUNCTIONS=1",
+					"DECIMAL_GLOBAL_EXCEPTION_FLAGS=1",
+					"DECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS=1",
+					_WCHAR_T_DEFINED,
+					LINUX,
+				);
+				GCC_THUMB_SUPPORT = NO;
+				INFOPLIST_FILE = Info.plist;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.Free42b;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		E9FC4115260707AF00E52296 /* Distribution */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				ENABLE_BITCODE = NO;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = Free42_Prefix.pch;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					IPHONE,
+					FREE42,
+					"DECIMAL_CALL_BY_REFERENCE=1",
+					"DECIMAL_GLOBAL_ROUNDING=1",
+					"DECIMAL_GLOBAL_ROUNDING_ACCESS_FUNCTIONS=1",
+					"DECIMAL_GLOBAL_EXCEPTION_FLAGS=1",
+					"DECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS=1",
+					_WCHAR_T_DEFINED,
+					LINUX,
+				);
+				GCC_THUMB_SUPPORT = NO;
+				INFOPLIST_FILE = Info.plist;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.Free42b;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Distribution;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -847,6 +1212,16 @@
 				C01FCF4F08A954540054247B /* Debug */,
 				C01FCF5008A954540054247B /* Release */,
 				E94C3CC6132D9AC600880A45 /* Distribution */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E9FC4112260707AF00E52296 /* Build configuration list for PBXNativeTarget "Free42 Binary" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E9FC4113260707AF00E52296 /* Debug */,
+				E9FC4114260707AF00E52296 /* Release */,
+				E9FC4115260707AF00E52296 /* Distribution */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

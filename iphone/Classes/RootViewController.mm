@@ -172,7 +172,7 @@ static BOOL battery_is_low_ann = NO;
     }
 }
 
-int shell_low_battery() {
+bool shell_low_battery() {
     if (battery_is_low_ann != battery_is_low) {
         battery_is_low_ann = battery_is_low;
         skin_update_annunciator(5, battery_is_low, instance.calcView);

@@ -521,7 +521,7 @@ static char smallchars_map[128] =
 
 static char display[272];
 
-static int is_dirty = 0;
+static bool is_dirty = false;
 static int dirty_top, dirty_left, dirty_bottom, dirty_right;
 
 static int catalogmenu_section[5];
@@ -533,7 +533,7 @@ static int custommenu_length[3][6];
 static char custommenu_label[3][6][7];
 
 static arg_struct progmenu_arg[9];
-static int progmenu_is_gto[9];
+static bool progmenu_is_gto[9];
 static int progmenu_length[6];
 static char progmenu_label[6][7];
 
@@ -567,7 +567,7 @@ bool persist_display() {
         if (!write_arg(progmenu_arg + i))
             return false;
     for (int i = 0; i < 9; i++)
-        if (!write_int(progmenu_is_gto[i])) return false;
+        if (!write_bool(progmenu_is_gto[i])) return false;
     for (int i = 0; i < 6; i++) {
         if (!write_int(progmenu_length[i])) return false;
         if (fwrite(progmenu_label[i], 1, 7, gfile) != 7) return false;
@@ -596,8 +596,16 @@ bool unpersist_display(int version) {
         for (int i = 0; i < 9; i++)
             if (!read_arg(progmenu_arg + i, false))
                 return false;
-        for (int i = 0; i < 9; i++)
-            if (!read_int(&progmenu_is_gto[i])) return false;
+        if (version < 35) {
+            int temp;
+            for (int i = 0; i < 9; i++) {
+                if (!read_int(&temp)) return false;
+                progmenu_is_gto[i] = temp != 0;
+            }
+        } else {
+            for (int i = 0; i < 9; i++)
+                if (!read_bool(&progmenu_is_gto[i])) return false;
+        }
         for (int i = 0; i < 6; i++) {
             if (!read_int(&progmenu_length[i])) return false;
             if (fread(progmenu_label[i], 1, 7, gfile) != 7) return false;
@@ -607,7 +615,7 @@ bool unpersist_display(int version) {
         if (!read_int(&appmenu_exitcallback)) return false;
     } else {
         int custommenu_cmd[3][6];
-        is_dirty = 0;
+        is_dirty = false;
         if (fread(catalogmenu_section, 1, 5 * sizeof(int), gfile)
                 != 5 * sizeof(int))
             return false;
@@ -664,9 +672,12 @@ bool unpersist_display(int version) {
         for (int i = 0; i < 9; i++)
             if (!read_arg(progmenu_arg + i, version < 9))
                 return false;
-        if (fread(progmenu_is_gto, 1, 9 * sizeof(int), gfile)
-                != 9 * sizeof(int))
-            return false;
+        for (int i = 0; i < 9; i++) {
+            int temp;
+            if (fread(&temp, 1, sizeof(int), gfile) != sizeof(int))
+                return false;
+            progmenu_is_gto[i] = temp != 0;
+        }
         if (fread(progmenu_length, 1, 6 * sizeof(int), gfile)
                 != 6 * sizeof(int))
             return false;
@@ -695,7 +706,7 @@ void flush_display() {
         return;
     shell_blitter(display, 17, dirty_left, dirty_top,
                     dirty_right - dirty_left, dirty_bottom - dirty_top);
-    is_dirty = 0;
+    is_dirty = false;
 }
 
 void repaint_display() {
@@ -709,10 +720,10 @@ void draw_pixel(int x, int y) {
 
 void draw_pattern(phloat dx, phloat dy, const char *pattern, int pattern_width){
     int x, y, h, v, hmin, hmax, vmin, vmax;
-    if (dx + pattern_width < 1 || dx > 131 || dy + 8 < 1 || dy > 16)
-        return;
     x = dx < 0 ? to_int(-floor(-dx + 0.5)) : to_int(floor(dx + 0.5));
     y = dy < 0 ? to_int(-floor(-dy + 0.5)) : to_int(floor(dy + 0.5));
+    if (x + pattern_width < 1 || x > 131 || y + 8 < 1 || y > 16)
+        return;
     hmin = x < 1 ? 1 - x : 0;
     hmax = x + pattern_width > 132 ? 132 - x : pattern_width;
     vmin = y < 1 ? 1 - y : 0;
@@ -844,7 +855,7 @@ static void mark_dirty(int top, int left, int bottom, int right) {
         dirty_left = left;
         dirty_bottom = bottom;
         dirty_right = right;
-        is_dirty = 1;
+        is_dirty = true;
     }
 }
 
@@ -1257,7 +1268,7 @@ void display_incomplete_command(int row) {
     }
 }
 
-void display_error(int error, int print) {
+void display_error(int error, bool print) {
     clear_row(0);
     draw_string(0, 0, errors[error].text, errors[error].length);
     flags.f.message = 1;
@@ -1271,13 +1282,12 @@ void display_command(int row) {
     char buf[22];
     int bufptr = 0;
     const command_spec *cmd = &cmd_array[pending_command];
-    int *the_menu;
     int catsect;
     int hide = pending_command == CMD_VMEXEC
+            || pending_command == CMD_PMEXEC
             || (pending_command == CMD_XEQ
                 && xeq_invisible
-                && (the_menu = get_front_menu()) != NULL
-                && *the_menu == MENU_CATALOG
+                && get_front_menu() == MENU_CATALOG
                 && ((catsect = get_cat_section()) == CATSECT_PGM
                     || catsect == CATSECT_PGM_ONLY));
 
@@ -1508,33 +1518,36 @@ static int ext_stk_cat[] = {
 };
 
 static int ext_prgm_cat[] = {
-    CMD_FUNC,   CMD_LASTO,  CMD_LSTO, CMD_RTNERR, CMD_RTNNO, CMD_RTNYES,
-    CMD_SST_UP, CMD_SST_RT, CMD_NULL, CMD_NULL,   CMD_NULL,  CMD_NULL
+    CMD_FUNC,    CMD_LASTO,   CMD_LSTO,    CMD_RTNERR,  CMD_RTNNO,   CMD_RTNYES,
+    CMD_X_EQ_NN, CMD_X_NE_NN, CMD_X_LT_NN, CMD_X_GT_NN, CMD_X_LE_NN, CMD_X_GE_NN,
+    CMD_0_EQ_NN, CMD_0_NE_NN, CMD_0_LT_NN, CMD_0_GT_NN, CMD_0_LE_NN, CMD_0_GE_NN,
+    CMD_SST_UP,  CMD_SST_RT,  CMD_NULL,    CMD_NULL,    CMD_NULL,    CMD_NULL
 };
 
 #if defined(ANDROID) || defined(IPHONE)
 #ifdef FREE42_FPTEST
 static int ext_misc_cat[] = {
-    CMD_FMA,   CMD_GETKEY1, CMD_MVARCAT, CMD_NOP,  CMD_STRACE, CMD_ACCEL,
-    CMD_LOCAT, CMD_HEADING, CMD_FPTEST,  CMD_NULL, CMD_NULL,   CMD_NULL
+    CMD_FMA,   CMD_GETKEY1, CMD_NOP,     CMD_PGMMENU, CMD_PRMVAR, CMD_STRACE,
+    CMD_ACCEL, CMD_LOCAT,   CMD_HEADING, CMD_FPTEST,  CMD_NULL,   CMD_NULL
 };
 #define MISC_CAT_ROWS 2
 #else
 static int ext_misc_cat[] = {
-    CMD_FMA,   CMD_GETKEY1, CMD_MVARCAT, CMD_NOP,  CMD_STRACE, CMD_ACCEL,
-    CMD_LOCAT, CMD_HEADING, CMD_NULL,    CMD_NULL, CMD_NULL,   CMD_NULL
+    CMD_FMA,   CMD_GETKEY1, CMD_NOP,     CMD_PGMMENU, CMD_PRMVAR, CMD_STRACE,
+    CMD_ACCEL, CMD_LOCAT,   CMD_HEADING, CMD_NULL,    CMD_NULL,   CMD_NULL
 };
 #define MISC_CAT_ROWS 2
 #endif
 #else
 #ifdef FREE42_FPTEST
 static int ext_misc_cat[] = {
-    CMD_FMA, CMD_GETKEY1, CMD_MVARCAT, CMD_NOP, CMD_STRACE, CMD_FPTEST
+    CMD_FMA,    CMD_GETKEY1, CMD_NOP,  CMD_PGMMENU, CMD_PRMVAR, CMD_STRACE,
+    CMD_FPTEST, CMD_NULL,    CMD_NULL, CMD_NULL,    CMD_NULL,   CMD_NULL
 };
-#define MISC_CAT_ROWS 1
+#define MISC_CAT_ROWS 2
 #else
 static int ext_misc_cat[] = {
-    CMD_FMA, CMD_GETKEY1, CMD_MVARCAT, CMD_NOP, CMD_STRACE, CMD_NULL
+    CMD_FMA, CMD_GETKEY1, CMD_NOP, CMD_PGMMENU, CMD_PRMVAR, CMD_STRACE
 };
 #define MISC_CAT_ROWS 1
 #endif
@@ -1571,7 +1584,8 @@ static void draw_catalog() {
     } else if (catsect == CATSECT_PGM
             || catsect == CATSECT_PGM_ONLY
             || catsect == CATSECT_PGM_SOLVE
-            || catsect == CATSECT_PGM_INTEG) {
+            || catsect == CATSECT_PGM_INTEG
+            || catsect == CATSECT_PGM_MENU) {
         /* Show menu of alpha labels */
         int lcount = 0;
         int i, j, k = -1;
@@ -1582,7 +1596,7 @@ static void draw_catalog() {
                     lcount++;
                 lastprgm = labels[i].prgm;
             }
-        } else /* CATSECT_PGM_SOLVE, CATSECT_PGM_INTEG */ {
+        } else /* CATSECT_PGM_SOLVE, CATSECT_PGM_INTEG, CATSECT_PGM_MENU */ {
             for (i = 0; i < labels_count; i++)
                 if (label_has_mvar(i))
                     lcount++;
@@ -1632,7 +1646,7 @@ static void draw_catalog() {
             case CATSECT_EXT_TIME: subcat = ext_time_cat; subcat_rows = 3; break;
             case CATSECT_EXT_XFCN: subcat = ext_xfcn_cat; subcat_rows = 1; break;
             case CATSECT_EXT_BASE: subcat = ext_base_cat; subcat_rows = 1; break;
-            case CATSECT_EXT_PRGM: subcat = ext_prgm_cat; subcat_rows = 2; break;
+            case CATSECT_EXT_PRGM: subcat = ext_prgm_cat; subcat_rows = 4; break;
             case CATSECT_EXT_STK:
                 if (!core_settings.allow_big_stack) {
                     set_cat_section(CATSECT_EXT);
@@ -1662,16 +1676,17 @@ static void draw_catalog() {
         int show_real = 1;
         int show_cpx = 1;
         int show_mat = 1;
+        int show_list = 1;
 
         switch (catsect) {
             case CATSECT_REAL:
             case CATSECT_REAL_ONLY:
-                show_cpx = show_mat = 0; break;
+                show_cpx = show_mat = show_list = 0; break;
             case CATSECT_CPX:
-                show_real = show_mat = 0; break;
+                show_real = show_mat = show_list = 0; break;
             case CATSECT_MAT:
             case CATSECT_MAT_ONLY:
-                show_real = show_cpx = 0; break;
+                show_real = show_cpx = show_list = 0; break;
         }
 
         for (i = 0; i < vars_count; i++) {
@@ -1689,6 +1704,9 @@ static void draw_catalog() {
                 case TYPE_REALMATRIX:
                 case TYPE_COMPLEXMATRIX:
                     if (show_mat) vcount++;
+                    break;
+                case TYPE_LIST:
+                    if (show_list) vcount++;
                     break;
             }
         }
@@ -1726,6 +1744,10 @@ static void draw_catalog() {
                 case TYPE_REALMATRIX:
                 case TYPE_COMPLEXMATRIX:
                     if (show_mat) break; else continue;
+                case TYPE_LIST:
+                    if (show_list) break; else continue;
+                default:
+                    continue;
             }
             j++;
             if (j / 6 == catalogmenu_row[catindex]) {
@@ -1844,6 +1866,7 @@ void show() {
                 if (bufptr == 45)
                     bufptr = phloat2string(((vartype_real *) rx)->x, buf,
                                            44, 2, 0, 3, 0, MAX_MANT_DIGITS);
+                show_one_or_two_lines:
                 if (bufptr <= 22)
                     draw_string(0, 0, buf, bufptr);
                 else {
@@ -1854,10 +1877,12 @@ void show() {
             }
             case TYPE_STRING: {
                 vartype_string *s = (vartype_string *) rx;
-                draw_char(0, 0, '"');
-                draw_string(1, 0, s->text, s->length);
-                draw_char(s->length + 1, 0, '"');
-                break;
+                bufptr = 0;
+                char2buf(buf, 44, &bufptr, '"');
+                string2buf(buf, 44, &bufptr, s->txt(), s->length);
+                if (bufptr < 44)
+                    char2buf(buf, 44, &bufptr, '"');
+                goto show_one_or_two_lines;
             }
             case TYPE_COMPLEX: {
                 vartype_complex *c = (vartype_complex *) rx;
@@ -1893,16 +1918,21 @@ void show() {
                 bufptr = vartype2string(rx, buf, 22);
                 draw_string(0, 0, buf, bufptr);
                 draw_string(0, 1, "1:1=", 4);
-                if (rm->array->is_string[0]) {
-                    draw_char(4, 1, '"');
-                    draw_string(5, 1, phloat_text(*d), phloat_length(*d));
-                    draw_char(5 + phloat_length(*d), 1, '"');
+                bufptr = 0;
+                if (rm->array->is_string[0] != 0) {
+                    char *text;
+                    int4 len;
+                    get_matrix_string(rm, 0, &text, &len);
+                    char2buf(buf, 18, &bufptr, '"');
+                    string2buf(buf, 18, &bufptr, text, len);
+                    if (bufptr < 18)
+                        char2buf(buf, 18, &bufptr, '"');
                 } else {
                     bufptr = phloat2string(*d, buf, 18,
                                            0, 0, 3,
                                            flags.f.thousands_separators);
-                    draw_string(4, 1, buf, bufptr);
                 }
+                draw_string(4, 1, buf, bufptr);
                 break;
             }
             case TYPE_COMPLEXMATRIX: {
@@ -2248,7 +2278,7 @@ struct prp_data_struct {
 };
 
 static prp_data_struct *prp_data;
-static int print_program_worker(int interrupted);
+static int print_program_worker(bool interrupted);
 
 int print_program(int prgm_index, int4 pc, int4 lines, int normal) {
     prp_data_struct *dat = (prp_data_struct *) malloc(sizeof(prp_data_struct));
@@ -2280,7 +2310,7 @@ int print_program(int prgm_index, int4 pc, int4 lines, int normal) {
          * we don't do the 'interruptible' thing in this case.
          */
         int err;
-        while ((err = print_program_worker(0)) == ERR_INTERRUPTIBLE);
+        while ((err = print_program_worker(false)) == ERR_INTERRUPTIBLE);
         return err;
     } else {
         print_text(NULL, 0, 1);
@@ -2290,7 +2320,7 @@ int print_program(int prgm_index, int4 pc, int4 lines, int normal) {
     }
 }
 
-static int print_program_worker(int interrupted) {
+static int print_program_worker(bool interrupted) {
     prp_data_struct *dat = prp_data;
     int printed = 0;
 
@@ -2398,8 +2428,8 @@ int command2buf(char *buf, int len, int cmd, const arg_struct *arg) {
     int bufptr = 0;
 
     int4 xrom_arg;
-    if ((cmd_array[cmd].hp42s_code & 0xfffff800) == 0x0000a000 && (cmd_array[cmd].flags & FLAG_HIDDEN) != 0) {
-        xrom_arg = cmd_array[cmd].hp42s_code;
+    if ((cmd_array[cmd].code1 & 0xf8) == 0xa0 && (cmd_array[cmd].flags & FLAG_HIDDEN) != 0) {
+        xrom_arg = (cmd_array[cmd].code1 << 8) | cmd_array[cmd].code2;
         cmd = CMD_XROM;
     } else if (cmd == CMD_XROM)
         xrom_arg = arg->val.num;
@@ -2503,13 +2533,12 @@ static int get_cat_index() {
 void set_menu(int level, int menuid) {
     int err = set_menu_return_err(level, menuid, false);
     if (err != ERR_NONE) {
-        display_error(err, 1);
+        display_error(err, true);
         flush_display();
     }
 }
 
 int set_menu_return_err(int level, int menuid, bool exitall) {
-    int *newmenu;
     int err;
 
     switch (level) {
@@ -2536,12 +2565,12 @@ int set_menu_return_err(int level, int menuid, bool exitall) {
     lbl_02: mode_commandmenu = MENU_NONE;
     lbl_03:
 
-    newmenu = get_front_menu();
-    if (newmenu != NULL) {
-        if (*newmenu == MENU_CATALOG) {
+    int newmenu = get_front_menu();
+    if (newmenu != MENU_NONE) {
+        if (newmenu == MENU_CATALOG) {
             int index = get_cat_index();
             mode_updown = index != -1 && catalogmenu_rows[index] > 1;
-        } else if (*newmenu == MENU_PROGRAMMABLE) {
+        } else if (newmenu == MENU_PROGRAMMABLE) {
             /* The programmable menu's up/down annunciator is on if the UP
              * and/or DOWN keys have been assigned to.
              * This is something the original HP-42S doesn't do, but I couldn't
@@ -2558,9 +2587,9 @@ int set_menu_return_err(int level, int menuid, bool exitall) {
             /* The up/down annunciator for catalogs depends on how many
              * items they contain; this is handled in draw_catalog().
              */
-            mode_updown = *newmenu == MENU_VARMENU
+            mode_updown = newmenu == MENU_VARMENU
                                 ? varmenu_rows > 1
-                                : menus[*newmenu].next != MENU_NONE;
+                                : menus[newmenu].next != MENU_NONE;
         }
     } else
         mode_updown = false;
@@ -2649,42 +2678,41 @@ void set_catalog_menu(int section) {
             return;
         case CATSECT_REAL:
         case CATSECT_REAL_ONLY:
-            if (!vars_exist(1, 0, 0))
+            if (!vars_exist(CATSECT_REAL))
                 mode_commandmenu = MENU_NONE;
             return;
         case CATSECT_CPX:
-            if (!vars_exist(0, 1, 0))
+            if (!vars_exist(CATSECT_CPX))
                 mode_commandmenu = MENU_NONE;
             return;
         case CATSECT_MAT:
         case CATSECT_MAT_ONLY:
-            if (!vars_exist(0, 0, 1))
+            if (!vars_exist(CATSECT_MAT))
                 mode_commandmenu = MENU_NONE;
             return;
         case CATSECT_VARS_ONLY:
-            if (!vars_exist(1, 1, 1))
+            if (!vars_exist(-1))
                 mode_commandmenu = MENU_NONE;
             return;
         case CATSECT_PGM_SOLVE:
         case CATSECT_PGM_INTEG:
+        case CATSECT_PGM_MENU:
         default:
             mode_commandmenu = MENU_NONE;
             return;
     }
 }
 
-int *get_front_menu() {
+int get_front_menu() {
     if (mode_commandmenu != MENU_NONE)
-        return &mode_commandmenu;
+        return mode_commandmenu;
     if (mode_alphamenu != MENU_NONE)
-        return &mode_alphamenu;
+        return mode_alphamenu;
     if (mode_transientmenu != MENU_NONE)
-        return &mode_transientmenu;
+        return mode_transientmenu;
     if (mode_plainmenu != MENU_NONE)
-        return &mode_plainmenu;
-    if (mode_appmenu != MENU_NONE)
-        return &mode_appmenu;
-    return NULL;
+        return mode_plainmenu;
+    return mode_appmenu;
 }
 
 void set_cat_section(int section) {
@@ -2772,33 +2800,33 @@ void update_catalog() {
         case CATSECT_PGM_ONLY:
             break;
         case CATSECT_REAL:
-            if (!vars_exist(1, 0, 0))
+            if (!vars_exist(CATSECT_REAL))
                 set_cat_section(CATSECT_TOP);
             break;
         case CATSECT_CPX:
-            if (!vars_exist(0, 1, 0))
+            if (!vars_exist(CATSECT_CPX))
                 set_cat_section(CATSECT_TOP);
             break;
         case CATSECT_MAT:
-            if (!vars_exist(0, 0, 1))
+            if (!vars_exist(CATSECT_MAT))
                 set_cat_section(CATSECT_TOP);
             break;
         case CATSECT_REAL_ONLY:
-            if (!vars_exist(1, 0, 0)) {
+            if (!vars_exist(CATSECT_REAL)) {
                 *the_menu = MENU_NONE;
                 redisplay();
                 return;
             }
             break;
         case CATSECT_MAT_ONLY:
-            if (!vars_exist(0, 0, 1)) {
+            if (!vars_exist(CATSECT_MAT)) {
                 *the_menu = MENU_NONE;
                 redisplay();
                 return;
             }
             break;
         case CATSECT_VARS_ONLY:
-            if (!vars_exist(1, 1, 1)) {
+            if (!vars_exist(-1)) {
                 *the_menu = MENU_NONE;
                 redisplay();
                 return;
@@ -2806,9 +2834,10 @@ void update_catalog() {
             break;
         case CATSECT_PGM_SOLVE:
         case CATSECT_PGM_INTEG:
+        case CATSECT_PGM_MENU:
             if (!mvar_prgms_exist()) {
                 *the_menu = MENU_NONE;
-                display_error(ERR_NO_MENU_VARIABLES, 0);
+                display_error(ERR_NO_MENU_VARIABLES, false);
                 redisplay();
                 return;
             }
@@ -2848,7 +2877,7 @@ void clear_prgm_menu() {
         progmenu_length[i] = 0;
 }
 
-void assign_prgm_key(int keynum, int is_gto, const arg_struct *arg) {
+void assign_prgm_key(int keynum, bool is_gto, const arg_struct *arg) {
     int length, i;
     keynum--;
     progmenu_arg[keynum] = (arg_struct) *arg;
@@ -2886,7 +2915,7 @@ void do_prgm_menu_key(int keynum) {
     err = docmd_gto(&progmenu_arg[keynum]);
     if (err != ERR_NONE) {
         set_running(false);
-        display_error(err, 1);
+        display_error(err, true);
         flush_display();
         return;
     }
@@ -2896,7 +2925,7 @@ void do_prgm_menu_key(int keynum) {
             current_prgm = oldprgm;
             pc = oldpc;
             set_running(false);
-            display_error(err, 1);
+            display_error(err, true);
             flush_display();
             return;
         }

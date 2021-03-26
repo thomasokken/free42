@@ -45,10 +45,10 @@ static bool loadSkinsWindowMapped = false;
 state_type state;
 char free42dirname[FILENAMELEN];
 
-static int quit_flag = 0;
-static int enqueued;
-static int keep_running = 0;
-static int we_want_cpu = 0;
+static bool quit_flag = false;
+static bool enqueued;
+static bool keep_running = false;
+static bool we_want_cpu = false;
 
 static char statefilename[FILENAMELEN];
 static char printfilename[FILENAMELEN];
@@ -60,7 +60,7 @@ static unsigned char *macro;
 static bool macro_is_name;
 static int mouse_key;
 static unsigned short active_keycode = -1;
-static int just_pressed_shift = 0;
+static bool just_pressed_shift = false;
 static int keymap_length = 0;
 static keymap_entry *keymap = NULL;
 
@@ -149,7 +149,8 @@ static struct timeval runner_end_time;
         runner_end_time.tv_usec -= 1000000;
         runner_end_time.tv_sec++;
     }
-    int dummy1, dummy2;
+    bool dummy1;
+    int dummy2;
     keep_running = core_keydown(0, &dummy1, &dummy2);
     if (quit_flag)
         [self quit];
@@ -1057,7 +1058,7 @@ static char version[32] = "";
 
 - (void) timeout3_callback {
     timeout3_active = false;
-    keep_running = core_timeout3(1);
+    keep_running = core_timeout3(true);
     if (keep_running)
         [self startRunner];
 }
@@ -1112,7 +1113,7 @@ static void shell_keydown() {
     skin_set_pressed_key(skey);
     if (timeout3_active && (macro != NULL || ckey != 28 /* KEY_SHIFT */)) {
         [instance cancelTimeout3];
-        core_timeout3(0);
+        core_timeout3(false);
     }
     
     // We temporarily set we_want_cpu to 'true', to force the calls
@@ -1124,9 +1125,9 @@ static void shell_keydown() {
     
     if (macro != NULL) {
         if (macro_is_name) {
-            we_want_cpu = 1;
+            we_want_cpu = true;
             keep_running = core_keydown_command((const char *) macro, &enqueued, &repeat);
-            we_want_cpu = 0;
+            we_want_cpu = false;
         } else {
             if (*macro == 0) {
                 squeak();
@@ -1137,9 +1138,9 @@ static void shell_keydown() {
                 skin_display_set_enabled(false);
             }
             while (*macro != 0) {
-                we_want_cpu = 1;
+                we_want_cpu = true;
                 keep_running = core_keydown(*macro++, &enqueued, &repeat);
-                we_want_cpu = 0;
+                we_want_cpu = false;
                 if (*macro != 0 && !enqueued)
                     core_keyup();
             }
@@ -1159,9 +1160,9 @@ static void shell_keydown() {
             }
         }
     } else {
-        we_want_cpu = 1;
+        we_want_cpu = true;
         keep_running = core_keydown(ckey, &enqueued, &repeat);
-        we_want_cpu = 0;
+        we_want_cpu = false;
     }
     
     if (quit_flag)
@@ -1221,7 +1222,7 @@ void calc_keydown(NSString *characters, NSUInteger flags, unsigned short keycode
     unsigned short c = [characters characterAtIndex:0];
     
     bool printable = len == 1 && c >= 32 && c <= 126;
-    just_pressed_shift = 0;
+    just_pressed_shift = false;
     
     bool ctrl = (flags & NSControlKeyMask) != 0;
     bool alt = (flags & NSAlternateKeyMask) != 0;
@@ -1352,7 +1353,7 @@ void calc_keymodifierschanged(NSUInteger flags) {
     shift_was_down = shift_is_down;
     if (shift_is_down) {
         // Shift pressed
-        just_pressed_shift = 1;
+        just_pressed_shift = true;
     } else {
         // Shift released
         if (ckey == 0 && just_pressed_shift) {
@@ -1400,13 +1401,13 @@ void shell_beeper(int frequency, int duration) {
     shell_delay(125);
 }
 
-int shell_low_battery() {
+bool shell_low_battery() {
     int lowbat = IOPSGetBatteryWarningLevel() != kIOPSLowBatteryWarningNone;
     if (ann_battery != lowbat) {
         ann_battery = lowbat;
         skin_update_annunciator(5, ann_battery);
      }
-    return lowbat;
+    return lowbat != 0;
 }
 
 uint4 shell_milliseconds() {
@@ -1415,10 +1416,10 @@ uint4 shell_milliseconds() {
     return (uint4) (tv.tv_sec * 1000L + tv.tv_usec / 1000);
 }
 
-int shell_decimal_point() {
+bool shell_decimal_point() {
     NSLocale *loc = [NSLocale currentLocale];
     NSString *dec = [loc objectForKey:NSLocaleDecimalSeparator];
-    return [dec isEqualToString:@","] ? 0 : 1;
+    return ![dec isEqualToString:@","];
 }
 
 int shell_date_format() {
@@ -1435,7 +1436,7 @@ int shell_date_format() {
         return 0;
 }
 
-int shell_clk24() {
+bool shell_clk24() {
     NSLocale *loc = [NSLocale currentLocale];
     NSString *timeFormat = [NSDateFormatter dateFormatFromTemplate:@"j" options:0 locale:loc];
     return [timeFormat rangeOfString:@"a"].location == NSNotFound;
@@ -1505,8 +1506,8 @@ void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
 }
 
 void shell_powerdown() {
-    quit_flag = 1;
-    we_want_cpu = 1;
+    quit_flag = true;
+    we_want_cpu = true;
 }
 
 void shell_print(const char *text, int length,
@@ -1674,7 +1675,7 @@ void shell_log(const char *message) {
     NSLog(@"%s", message);
 }
 
-int shell_wants_cpu() {
+bool shell_wants_cpu() {
     if (we_want_cpu)
         return true;
     struct timeval now;

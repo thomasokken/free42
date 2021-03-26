@@ -1751,3 +1751,22 @@
   }
   
 + #endif /* FREE42_FPTEST */
+*** orig/LIBRARY/src/bid128_hypot.c	2011-06-29 14:33:00.000000000 -0400
+--- LIBRARY/src/bid128_hypot.c	2021-03-05 16:07:08.000000000 -0500
+***************
+*** 126,132 ****
+  	x.w[BID_HIGH_128W] &= 0x7fffffffffffffffull;
+  	y.w[BID_HIGH_128W] &= 0x7fffffffffffffffull;
+  
+! 	if(exponent_x - exponent_y >= 35)
+  	{
+  	 res.w[BID_HIGH_128W] = x.w[BID_HIGH_128W];
+  	 res.w[BID_LOW_128W] = x.w[BID_LOW_128W];
+--- 126,132 ----
+  	x.w[BID_HIGH_128W] &= 0x7fffffffffffffffull;
+  	y.w[BID_HIGH_128W] &= 0x7fffffffffffffffull;
+  
+! 	if(exponent_x - exponent_y >= 69)
+  	{
+  	 res.w[BID_HIGH_128W] = x.w[BID_HIGH_128W];
+  	 res.w[BID_LOW_128W] = x.w[BID_LOW_128W];

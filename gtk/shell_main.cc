@@ -84,7 +84,7 @@ static int print_text_top;
 static int print_text_bottom;
 static int print_text_pixel_height;
 static bool quit_flag = false;
-static int enqueued;
+static bool enqueued;
 
 
 /* Private globals */
@@ -2499,14 +2499,15 @@ static gboolean print_key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
 static void shell_keydown() {
     GdkWindow *win = gtk_widget_get_window(calc_widget);
 
-    int repeat, keep_running;
+    int repeat;
+    bool keep_running;
     if (skey == -1)
         skey = skin_find_skey(ckey);
     skin_invalidate_key(win, skey);
     if (timeout3_id != 0 && (macro != NULL || ckey != 28 /* KEY_SHIFT */)) {
         g_source_remove(timeout3_id);
         timeout3_id = 0;
-        core_timeout3(0);
+        core_timeout3(false);
     }
 
     if (macro != NULL) {
@@ -2567,7 +2568,7 @@ static void shell_keyup() {
         timeout_id = 0;
     }
     if (!enqueued) {
-        int keep_running = core_keyup();
+        bool keep_running = core_keyup();
         if (quit_flag)
             quit();
         if (keep_running)
@@ -2785,7 +2786,7 @@ static gboolean timeout2(gpointer cd) {
 }
 
 static gboolean timeout3(gpointer cd) {
-    bool keep_running = core_timeout3(1);
+    bool keep_running = core_timeout3(true);
     timeout3_id = 0;
     if (keep_running)
         enable_reminder();
@@ -2839,8 +2840,9 @@ static void repaint_printout(cairo_t *cr) {
 }
 
 static gboolean reminder(gpointer cd) {
-    int dummy1, dummy2;
-    int keep_running = core_keydown(0, &dummy1, &dummy2);
+    bool dummy1;
+    int dummy2;
+    bool keep_running = core_keydown(0, &dummy1, &dummy2);
     if (quit_flag)
         quit();
     if (keep_running)
@@ -2982,8 +2984,8 @@ void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
     }
 }
 
-int shell_wants_cpu() {
-    return g_main_context_pending(NULL) ? 1 : 0;
+bool shell_wants_cpu() {
+    return g_main_context_pending(NULL);
 }
 
 void shell_delay(int duration) {
@@ -3017,7 +3019,7 @@ uint4 shell_get_mem() {
     return (uint4) bytes;
 }
 
-int shell_low_battery() {
+bool shell_low_battery() {
          
     int lowbat = 0;
     FILE *apm = fopen("/proc/apm", "r");
@@ -3085,7 +3087,7 @@ int shell_low_battery() {
             skin_invalidate_annunciator(win, 5);
         }
     }
-    return lowbat;
+    return lowbat != 0;
 }
 
 void shell_powerdown() {
@@ -3113,8 +3115,8 @@ uint4 shell_milliseconds() {
     return (uint4) (tv.tv_sec * 1000L + tv.tv_usec / 1000);
 }
 
-int shell_decimal_point() {
-    return decimal_point ? 1 : 0;
+bool shell_decimal_point() {
+    return decimal_point;
 }
 
 int shell_date_format() {
@@ -3144,7 +3146,7 @@ int shell_date_format() {
         return 0;
 }
 
-int shell_clk24() {
+bool shell_clk24() {
     struct tm t;
     t.tm_sec = 0;
     t.tm_min = 0;

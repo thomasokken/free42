@@ -14,9 +14,10 @@
                     android:normalScreens="true"
                     android:largeScreens="true"/>
   
-  <application android:label="Free42"
-               android:icon="@drawable/icon"
-               android:allowBackup="true">
+  <application android:label="${appName}"
+               android:icon="@mipmap/icon"
+               android:allowBackup="true"
+               android:requestLegacyExternalStorage="true">
     <activity android:name="Free42Activity"
               android:launchMode="singleInstance"
               android:theme="@android:style/Theme.NoTitleBar"
@@ -59,7 +60,7 @@
     </activity>
     <provider
         android:name="android.support.v4.content.FileProvider"
-        android:authorities="com.thomasokken.free42.fileprovider"
+        android:authorities="${applicationId}.fileprovider"
         android:grantUriPermissions="true"
         android:exported="false">
       <meta-data

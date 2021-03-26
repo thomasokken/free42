@@ -25,13 +25,6 @@
 #include "bid_functions.h"
 #endif
 
-// A little hack to allow storing 6-character strings in a phloat
-struct hp_string {
-    char text[6];
-    unsigned char length;
-};
-#define phloat_text(x) (((hp_string *) &(x))->text)
-#define phloat_length(x) (((hp_string *) &(x))->length)
 
 #ifdef BCD_MATH
 #define MAX_MANT_DIGITS 34

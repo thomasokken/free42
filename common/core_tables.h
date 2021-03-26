@@ -421,8 +421,8 @@
 /* The order up to and including BRESET is set in stone, because those       */
 /* functions can all appear in state files from before 2.5, when programs in */
 /* state files were still stored as memory dumps. From 2.5 onward, programs  */
-/* in state files are stored in "raw" format, so the details of how they are */
-/* stored in memory become a private implementation detail.                  */
+/* in state files are stored in "raw" format, so how they are stored in      */
+/* memory becomes a private implementation detail.                           */
 #define CMD_GETKEY1     377
 #define CMD_LASTO       378
 /* Useful X-Fcn functions missing from the 42S */
@@ -430,33 +430,64 @@
 #define CMD_X_SWAP_F    380
 #define CMD_RCLFLAG     381
 #define CMD_STOFLAG     382
-/* No-op, stored in raw files as 0xf0, a.k.a. TEXT 0 on the 41C */
-#define CMD_NOP         383
-/* Fused Multiply-Add */
-#define CMD_FMA         384
 /* User-defined functions */
-#define CMD_FUNC        385
-#define CMD_RTNYES      386
-#define CMD_RTNNO       387
-#define CMD_RTNERR      388
-#define CMD_STRACE      389
+#define CMD_FUNC        383
+#define CMD_RTNYES      384
+#define CMD_RTNNO       385
+#define CMD_RTNERR      386
+#define CMD_STRACE      387
 /* Big Stack */
-#define CMD_4STK        390
-#define CMD_L4STK       391
-#define CMD_NSTK        392
-#define CMD_LNSTK       393
-#define CMD_DEPTH       394
-#define CMD_DROPN       395
-#define CMD_DUP         396
-#define CMD_DUPN        397
-#define CMD_PICK        398
-#define CMD_UNPICK      399
-#define CMD_RDNN        400
-#define CMD_RUPN        401
-/* Get list of LBLs with MVARs */
-#define CMD_MVARCAT     402
+#define CMD_4STK        388
+#define CMD_L4STK       389
+#define CMD_NSTK        390
+#define CMD_LNSTK       391
+#define CMD_DEPTH       392
+#define CMD_DROPN       393
+#define CMD_DUP         394
+#define CMD_DUPN        395
+#define CMD_PICK        396
+#define CMD_UNPICK      397
+#define CMD_RDNN        398
+#define CMD_RUPN        399
+/* Miscellaneous */
+#define CMD_NOP         400
+#define CMD_FMA         401
+#define CMD_PGMMENU     402
+/* (Skipping 403 because of single-byte equality checks with CMD_END) */
+#define CMD_PMEXEC      404
+#define CMD_PRMVAR      405
+/* String & List Functions */
+#define CMD_XASTO       406
+#define CMD_LXASTO      407
+#define CMD_APPEND      408
+#define CMD_EXTEND      409
+#define CMD_SUBSTR      410
+#define CMD_LENGTH      411
+#define CMD_HEAD        412
+#define CMD_REV         413
+#define CMD_POS         414
+#define CMD_S_TO_N      415
+#define CMD_N_TO_S      416
+#define CMD_C_TO_N      417
+#define CMD_N_TO_C      418
+#define CMD_LIST_T      419
+#define CMD_NEWLIST     420
+#define CMD_NEWSTR      421
+/* Generalized Comparisons */
+#define CMD_X_EQ_NN     422
+#define CMD_X_NE_NN     423
+#define CMD_X_LT_NN     424
+#define CMD_X_GT_NN     425
+#define CMD_X_LE_NN     426
+#define CMD_X_GE_NN     427
+#define CMD_0_EQ_NN     428
+#define CMD_0_NE_NN     429
+#define CMD_0_LT_NN     430
+#define CMD_0_GT_NN     431
+#define CMD_0_LE_NN     432
+#define CMD_0_GE_NN     433
 
-#define CMD_SENTINEL    403
+#define CMD_SENTINEL    434
 
 
 /* command_spec.argtype */
@@ -481,12 +512,13 @@
 
 /* command_spec.flags */
 
-#define FLAG_NONE      0  /* Boring! */
 #define FLAG_PRGM_ONLY 1  /* Only allowed in program mode (LBL, DEL, ...) */
 #define FLAG_IMMED     2  /* Executes in program mode (DEL, GTO.nnn, ...) */
 #define FLAG_HIDDEN    4  /* Cannot be activated using XEQ "NAME" (SIMQ, ...) */
 #define FLAG_NO_PRGM   8  /* Cannot be programmed (SIMQ, MATA, ...) */
 #define FLAG_NO_SHOW  16  /* Do not show after keytimeout1 */
+#define FLAG_SPECIAL  32  /* hp42s_code flags 0x01 */
+#define FLAG_ILLEGAL  64  /* hp42s_code flags 0x02 */
 
 
 /* Builtin cmd arg types */
@@ -529,13 +561,16 @@ struct arg_struct {
 
 
 struct command_spec {
-    const char *name;
-    char name_length;
-    char argtype;
-    signed char argcount;
-    char flags;
-    uint4 hp42s_code;
     int (*handler)(arg_struct *arg);
+    const char *name;
+    unsigned char flags;
+    unsigned char scode;
+    unsigned char code1;
+    unsigned char code2;
+    unsigned char name_length;
+    unsigned char argtype;
+    signed char argcount;
+    unsigned char rttypes;
 };
 
 extern const command_spec cmd_array[];

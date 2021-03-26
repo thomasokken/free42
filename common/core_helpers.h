@@ -36,6 +36,8 @@ int recall_two_results(vartype *x, vartype *y);
 void unary_result(vartype *x);
 int unary_two_results(vartype *x, vartype *y);
 int binary_result(vartype *x);
+void binary_two_results(vartype *x, vartype *y);
+int ternary_result(vartype *x);
 bool ensure_stack_capacity(int n);
 void shrink_stack();
 phloat rad_to_angle(phloat x);
@@ -46,6 +48,9 @@ void append_alpha_string(const char *buf, int buflen, int reverse);
 
 void string_copy(char *dst, int *dstlen, const char *src, int srclen);
 bool string_equals(const char *s1, int s1len, const char *s2, int s2len);
+int string_pos(const char *ntext, int nlen, const vartype *hs, int startpos);
+bool vartype_equals(const vartype *v1, const vartype *v2);
+int anum(const char *text, int len, phloat *res);
 
 #define FLAGOP_SF 0
 #define FLAGOP_CF 1
@@ -96,7 +101,7 @@ void string2buf(char *buf, int buflen, int *bufptr, const char *s, int slen);
 int uint2string(uint4 n, char *buf, int buflen);
 int int2string(int4 n, char *buf, int buflen);
 int vartype2string(const vartype *v, char *buf, int buflen, int max_mant_digits = 12);
-char *phloat2program(phloat d);
+const char *phloat2program(phloat d);
 int easy_phloat2string(phloat d, char *buf, int buflen, int base_mode);
 int ip2revstring(phloat d, char *buf, int buflen);
 

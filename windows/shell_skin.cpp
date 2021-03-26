@@ -48,7 +48,7 @@ struct SkinKey {
 
 struct SkinMacro {
     int code;
-	bool isName;
+    bool isName;
     unsigned char macro[SKIN_MAX_MACRO_LENGTH + 1];
     SkinMacro *next;
 };
@@ -391,7 +391,7 @@ void skin_load(wchar_t *skinname, const wchar_t *basedir, long *width, long *hei
                 }
             }
         } else if (_strnicmp(line, "macro:", 6) == 0) {
-			char *quot1 = strchr(line + 6, '"');
+            char *quot1 = strchr(line + 6, '"');
             if (quot1 != NULL) {
                 char *quot2 = strrchr(line + 6, '"');
                 if (quot2 != quot1) {
@@ -411,45 +411,45 @@ void skin_load(wchar_t *skinname, const wchar_t *basedir, long *width, long *hei
                     }
                 }
             } else {
-				char *tok = strtok(line + 6, " \t");
-				int len = 0;
-				SkinMacro *macro = NULL;
-				while (tok != NULL) {
-					char *endptr;
-					long n = strtol(tok, &endptr, 10);
-					if (*endptr != 0) {
-						/* Not a proper number; ignore this macro */
-						if (macro != NULL) {
-							free(macro);
-							macro = NULL;
-							break;
-						}
-					}
-					if (macro == NULL) {
-						if (n < 38 || n > 255)
-							/* Macro code out of range; ignore this macro */
-							break;
-						macro = (SkinMacro *) malloc(sizeof(SkinMacro));
-						// TODO - handle memory allocation failure
-						macro->code = n;
-						macro->isName = false;
-					} else if (len < SKIN_MAX_MACRO_LENGTH) {
-						if (n < 1 || n > 37) {
-							/* Key code out of range; ignore this macro */
-							free(macro);
-							macro = NULL;
-							break;
-						}
-						macro->macro[len++] = (unsigned char) n;
-					}
-					tok = strtok(NULL, " \t");
-				}
-				if (macro != NULL) {
-					macro->macro[len++] = 0;
-					macro->next = macrolist;
-					macrolist = macro;
-				}
-			}
+                char *tok = strtok(line + 6, " \t");
+                int len = 0;
+                SkinMacro *macro = NULL;
+                while (tok != NULL) {
+                    char *endptr;
+                    long n = strtol(tok, &endptr, 10);
+                    if (*endptr != 0) {
+                        /* Not a proper number; ignore this macro */
+                        if (macro != NULL) {
+                            free(macro);
+                            macro = NULL;
+                            break;
+                        }
+                    }
+                    if (macro == NULL) {
+                        if (n < 38 || n > 255)
+                            /* Macro code out of range; ignore this macro */
+                            break;
+                        macro = (SkinMacro *) malloc(sizeof(SkinMacro));
+                        // TODO - handle memory allocation failure
+                        macro->code = n;
+                        macro->isName = false;
+                    } else if (len < SKIN_MAX_MACRO_LENGTH) {
+                        if (n < 1 || n > 37) {
+                            /* Key code out of range; ignore this macro */
+                            free(macro);
+                            macro = NULL;
+                            break;
+                        }
+                        macro->macro[len++] = (unsigned char) n;
+                    }
+                    tok = strtok(NULL, " \t");
+                }
+                if (macro != NULL) {
+                    macro->macro[len++] = 0;
+                    macro->next = macrolist;
+                    macrolist = macro;
+                }
+            }
         } else if (_strnicmp(line, "annunciator:", 12) == 0) {
             int annnum;
             int disp_x, disp_y, disp_width, disp_height;
@@ -752,10 +752,10 @@ int skin_find_skey(int ckey) {
 unsigned char *skin_find_macro(int ckey, bool *is_name) {
     SkinMacro *m = macrolist;
     while (m != NULL) {
-		if (m->code == ckey) {
-			*is_name = m->isName;
+        if (m->code == ckey) {
+            *is_name = m->isName;
             return m->macro;
-		}
+        }
         m = m->next;
     }
     return NULL;
@@ -774,8 +774,8 @@ unsigned char *skin_keymap_lookup(int keycode, bool ctrl, bool alt, bool shift, 
                 *exact = true;
                 return entry->macro;
             }
-			if (cshift)
-				macro = entry->macro;
+            if (cshift)
+                macro = entry->macro;
         }
     }
     *exact = false;

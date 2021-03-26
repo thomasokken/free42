@@ -404,7 +404,7 @@ static int get_summation() {
     if (last > size)
         return ERR_SIZE_ERROR;
     for (i = first; i < last; i++)
-        if (r->array->is_string[i])
+        if (r->array->is_string[i] != 0)
             return ERR_ALPHA_DATA_IS_INVALID;
     sigmaregs = r->array->data + first;
     sum.x = sigmaregs[0];
@@ -708,13 +708,12 @@ int docmd_mean(arg_struct *arg) {
         free_vartype(mx);
         return ERR_INSUFFICIENT_MEMORY;
     }
-    free_vartype(stack[sp - 1]);
-    stack[sp - 1] = my;
-    free_vartype(lastx);
-    lastx = stack[sp];
-    stack[sp] = mx;
-    print_trace();
-    return ERR_NONE;
+    if (flags.f.big_stack) {
+        return recall_two_results(mx, my);
+    } else {
+        binary_two_results(mx, my);
+        return ERR_NONE;
+    }
 }
 
 int docmd_sdev(arg_struct *arg) {
@@ -745,13 +744,12 @@ int docmd_sdev(arg_struct *arg) {
         free_vartype(sx);
         return ERR_INSUFFICIENT_MEMORY;
     }
-    free_vartype(stack[sp - 1]);
-    stack[sp - 1] = sy;
-    free_vartype(lastx);
-    lastx = stack[sp];
-    stack[sp] = sx;
-    print_trace();
-    return ERR_NONE;
+    if (flags.f.big_stack) {
+        return recall_two_results(sx, sy);
+    } else {
+        binary_two_results(sx, sy);
+        return ERR_NONE;
+    }
 }
 
 int docmd_slope(arg_struct *arg) {
@@ -781,13 +779,12 @@ int docmd_sum(arg_struct *arg) {
         free_vartype(sx);
         return ERR_INSUFFICIENT_MEMORY;
     }
-    free_vartype(lastx);
-    free_vartype(stack[sp - 1]);
-    stack[sp - 1] = sy;
-    lastx = stack[sp];
-    stack[sp] = sx;
-    print_trace();
-    return ERR_NONE;
+    if (flags.f.big_stack) {
+        return recall_two_results(sx, sy);
+    } else {
+        binary_two_results(sx, sy);
+        return ERR_NONE;
+    }
 }
 
 int docmd_wmean(arg_struct *arg) {
@@ -1002,10 +999,6 @@ int docmd_rotxy(arg_struct *arg) {
     // Not using get_base_param() to fetch x, because that
     // would make it impossible to specify a negative shift
     // count in unsigned mode.
-    if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else if (stack[sp]->type != TYPE_REAL)
-        return ERR_INVALID_TYPE;
     phloat px = floor(((vartype_real *) stack[sp])->x);
     int wsize = effective_wsize();
     if (px >= wsize || px <= -wsize)
@@ -1111,89 +1104,79 @@ int docmd_xor(arg_struct *arg) {
 }
 
 int docmd_to_dec(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_REAL) {
-        phloat oct = ((vartype_real *) stack[sp])->x;
-        phloat res;
-        int neg = oct < 0;
-        if (neg)
-            oct = -oct;
-        if (oct > 777777777777.0 || oct != floor(oct))
-            return ERR_INVALID_DATA;
-        vartype *v;
-        #ifdef BCD_MATH
-            phloat dec = 0, mul = 1;
-            while (oct != 0) {
-                int digit = to_digit(oct);
-                if (digit > 7)
-                    return ERR_INVALID_DATA;
-                oct = floor(oct / 10);
-                dec += digit * mul;
-                mul *= 8;
-            }
-            res = neg ? -dec : dec;
-        #else
-            int8 ioct = to_int8(oct);
-            int8 dec = 0, mul = 1;
-            while (ioct != 0) {
-                int digit = (int) (ioct % 10);
-                if (digit > 7)
-                    return ERR_INVALID_DATA;
-                ioct /= 10;
-                dec += digit * mul;
-                mul <<= 3;
-            }
-            res = (double) (neg ? -dec : dec);
-        #endif
-        v = new_real(res);
-        if (v == NULL)
-            return ERR_INSUFFICIENT_MEMORY;
-        unary_result(v);
-        return ERR_NONE;
-    } else if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else
-        return ERR_INVALID_TYPE;
+    phloat oct = ((vartype_real *) stack[sp])->x;
+    phloat res;
+    int neg = oct < 0;
+    if (neg)
+        oct = -oct;
+    if (oct > 777777777777.0 || oct != floor(oct))
+        return ERR_INVALID_DATA;
+    vartype *v;
+    #ifdef BCD_MATH
+        phloat dec = 0, mul = 1;
+        while (oct != 0) {
+            int digit = to_digit(oct);
+            if (digit > 7)
+                return ERR_INVALID_DATA;
+            oct = floor(oct / 10);
+            dec += digit * mul;
+            mul *= 8;
+        }
+        res = neg ? -dec : dec;
+    #else
+        int8 ioct = to_int8(oct);
+        int8 dec = 0, mul = 1;
+        while (ioct != 0) {
+            int digit = (int) (ioct % 10);
+            if (digit > 7)
+                return ERR_INVALID_DATA;
+            ioct /= 10;
+            dec += digit * mul;
+            mul <<= 3;
+        }
+        res = (double) (neg ? -dec : dec);
+    #endif
+    v = new_real(res);
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    unary_result(v);
+    return ERR_NONE;
 }
 
 int docmd_to_oct(arg_struct *arg) {
-    if (stack[sp]->type == TYPE_REAL) {
-        phloat dec = ((vartype_real *) stack[sp])->x;
-        phloat res;
-        int neg = dec < 0;
-        if (neg)
-            dec = -dec;
-        if (dec > 68719476735.0 || dec != floor(dec))
-            return ERR_INVALID_DATA;
-        vartype *v;
-        #ifdef BCD_MATH
-            phloat oct = 0, mul = 1;
-            while (dec != 0) {
-                int digit = to_int(fmod(dec, 8));
-                dec = floor(dec / 8);
-                oct += digit * mul;
-                mul *= 10;
-            }
-            res = neg ? -oct : oct;
-        #else
-            int8 idec = to_int8(dec);
-            int8 oct = 0, mul = 1;
-            while (idec != 0) {
-                int digit = (int) (idec & 7);
-                idec >>= 3;
-                oct += digit * mul;
-                mul *= 10;
-            }
-            res = (double) (neg ? -oct : oct);
-        #endif
-        v = new_real(res);
-        if (v == NULL)
-            return ERR_INSUFFICIENT_MEMORY;
-        unary_result(v);
-        return ERR_NONE;
-    } else if (stack[sp]->type == TYPE_STRING)
-        return ERR_ALPHA_DATA_IS_INVALID;
-    else
-        return ERR_INVALID_TYPE;
+    phloat dec = ((vartype_real *) stack[sp])->x;
+    phloat res;
+    int neg = dec < 0;
+    if (neg)
+        dec = -dec;
+    if (dec > 68719476735.0 || dec != floor(dec))
+        return ERR_INVALID_DATA;
+    vartype *v;
+    #ifdef BCD_MATH
+        phloat oct = 0, mul = 1;
+        while (dec != 0) {
+            int digit = to_int(fmod(dec, 8));
+            dec = floor(dec / 8);
+            oct += digit * mul;
+            mul *= 10;
+        }
+        res = neg ? -oct : oct;
+    #else
+        int8 idec = to_int8(dec);
+        int8 oct = 0, mul = 1;
+        while (idec != 0) {
+            int digit = (int) (idec & 7);
+            idec >>= 3;
+            oct += digit * mul;
+            mul *= 10;
+        }
+        res = (double) (neg ? -oct : oct);
+    #endif
+    v = new_real(res);
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    unary_result(v);
+    return ERR_NONE;
 }
 
 static void accum(phloat *sum, phloat term, int weight) {
@@ -1271,7 +1254,7 @@ static int sigma_helper_1(int weight) {
     if (last > size)
         return ERR_SIZE_ERROR;
     for (i = first; i < last; i++)
-        if (r->array->is_string[i])
+        if (r->array->is_string[i] != 0)
             return ERR_ALPHA_DATA_IS_INVALID;
     sigmaregs = r->array->data + first;
 
@@ -1303,7 +1286,7 @@ static int sigma_helper_1(int weight) {
             if (rm->columns != 2)
                 return ERR_DIMENSION_ERROR;
             for (i = 0; i < rm->rows * 2; i++)
-                if (rm->array->is_string[i])
+                if (rm->array->is_string[i] != 0)
                     return ERR_ALPHA_DATA_IS_INVALID;
             x = (vartype_real *) new_real(0);
             if (x == NULL)

@@ -24,6 +24,7 @@
 #include "free42.h"
 #include "core_phloat.h"
 #include "core_tables.h"
+#include "core_variables.h"
 
 extern FILE *gfile;
 
@@ -39,19 +40,19 @@ extern FILE *gfile;
 #define ERR_INVALID_DATA            5
 #define ERR_NONEXISTENT             6
 #define ERR_DIMENSION_ERROR         7
-#define ERR_SIZE_ERROR              8
-#define ERR_RESTRICTED_OPERATION    9
-#define ERR_YES                    10
-#define ERR_NO                     11
-#define ERR_STOP                   12
-#define ERR_LABEL_NOT_FOUND        13
-#define ERR_NO_REAL_VARIABLES      14
-#define ERR_NO_COMPLEX_VARIABLES   15
-#define ERR_NO_MATRIX_VARIABLES    16
-#define ERR_NO_MENU_VARIABLES      17
-#define ERR_STAT_MATH_ERROR        18
-#define ERR_INVALID_FORECAST_MODEL 19
-#define ERR_TOO_FEW_ARGUMENTS      20
+#define ERR_TOO_FEW_ARGUMENTS       8
+#define ERR_SIZE_ERROR              9
+#define ERR_RESTRICTED_OPERATION   10
+#define ERR_YES                    11
+#define ERR_NO                     12
+#define ERR_STOP                   13
+#define ERR_LABEL_NOT_FOUND        14
+#define ERR_NO_REAL_VARIABLES      15
+#define ERR_NO_COMPLEX_VARIABLES   16
+#define ERR_NO_MATRIX_VARIABLES    17
+#define ERR_NO_MENU_VARIABLES      18
+#define ERR_STAT_MATH_ERROR        19
+#define ERR_INVALID_FORECAST_MODEL 20
 #define ERR_SINGULAR_MATRIX        21
 #define ERR_SOLVE_SOLVE            22
 #define ERR_INTEG_INTEG            23
@@ -69,6 +70,7 @@ extern FILE *gfile;
 #define ERR_NUMBER_TOO_SMALL       35
 #define ERR_BIG_STACK_DISABLED     36
 #define ERR_INVALID_CONTEXT        37
+#define ERR_NAME_TOO_LONG          38
 
 struct error_spec {
     const char *text;
@@ -212,83 +214,12 @@ struct menu_spec {
 extern const menu_spec menus[];
 
 
-/***********************/
-/* Variable data types */
-/***********************/
-
-#define TYPE_NULL 0
-#define TYPE_REAL 1
-#define TYPE_COMPLEX 2
-#define TYPE_REALMATRIX 3
-#define TYPE_COMPLEXMATRIX 4
-#define TYPE_STRING 5
-#define TYPE_LIST 6
-
-struct vartype {
-    int type;
-};
-
-
-struct vartype_real {
-    int type;
-    phloat x;
-};
-
-
-struct vartype_complex {
-    int type;
-    phloat re, im;
-};
-
-
-struct realmatrix_data {
-    int refcount;
-    phloat *data;
-    char *is_string;
-};
-
-struct vartype_realmatrix {
-    int type;
-    int4 rows;
-    int4 columns;
-    realmatrix_data *array;
-};
-
-
-struct complexmatrix_data {
-    int refcount;
-    phloat *data;
-};
-
-struct vartype_complexmatrix {
-    int type;
-    int4 rows;
-    int4 columns;
-    complexmatrix_data *array;
-};
-
-
-struct vartype_string {
-    int type;
-    int length;
-    char text[6];
-};
-
-
-struct list_data {
-    int refcount;
-    vartype **data;
-};
-
-struct vartype_list {
-    int type;
-    int4 size;
-    list_data *array;
-};
-
 /******************/
 /* Emulator state */
 /******************/
+
+/* Suppress menu updates while state loading is in progress */
+extern bool loading_state;
 
 /* Registers */
 #define REG_T 0
@@ -452,7 +383,7 @@ extern int varmenu_role;
 /****************/
 
 extern bool mode_clall;
-extern int (*mode_interruptible)(int);
+extern int (*mode_interruptible)(bool);
 extern bool mode_stoppable;
 extern bool mode_command_entry;
 extern bool mode_number_entry;
@@ -488,8 +419,8 @@ extern int xeq_invisible;
 /* Multi-keystroke commands -- edit state */
 /* Relevant when mode_command_entry != 0 */
 extern int incomplete_command;
-extern int incomplete_ind;
-extern int incomplete_alpha;
+extern bool incomplete_ind;
+extern bool incomplete_alpha;
 extern int incomplete_length;
 extern int incomplete_maxdigits;
 extern int incomplete_argtype;
@@ -510,13 +441,14 @@ extern int4 incomplete_saved_highlight_row;
 #define CATSECT_VARS_ONLY 9
 #define CATSECT_PGM_SOLVE 10
 #define CATSECT_PGM_INTEG 11
-#define CATSECT_EXT 12
-#define CATSECT_EXT_TIME 13
-#define CATSECT_EXT_XFCN 14
-#define CATSECT_EXT_BASE 15
-#define CATSECT_EXT_PRGM 16
-#define CATSECT_EXT_STK 17
-#define CATSECT_EXT_MISC 18
+#define CATSECT_PGM_MENU 12
+#define CATSECT_EXT 13
+#define CATSECT_EXT_TIME 14
+#define CATSECT_EXT_XFCN 15
+#define CATSECT_EXT_BASE 16
+#define CATSECT_EXT_PRGM 17
+#define CATSECT_EXT_STK 18
+#define CATSECT_EXT_MISC 19
 
 /* Command line handling temporaries */
 extern char cmdline[100];

@@ -56,7 +56,7 @@ patch -p0 <../intel-lib-linux.patch
 # Of course, proceed with caution. Your mileage may vary.
 
 case `uname -m` in
-  armv7|armv7l|ppc)
+  armv7|armv7l|i386|ppc)
     patch -p0 <../intel-lib-unknown-32bit.patch
     ;;
   aarch64|arm64|i86pc)

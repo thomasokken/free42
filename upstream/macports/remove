@@ -4,6 +4,7 @@ android
 build-android
 build-gtk
 build-history
+build-upstream
 build-windows
 update-version-number
 gtk
