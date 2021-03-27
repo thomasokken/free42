@@ -51,7 +51,7 @@ vartype *new_real(phloat value) {
 
 vartype *new_complex(phloat re, phloat im) {
     vartype_complex *c;
-    if (realpool_size > 0) {
+    if (complexpool_size > 0) {
         c = complexpool[--complexpool_size];
     } else {
         c = (vartype_complex *) malloc(sizeof(vartype_complex));
