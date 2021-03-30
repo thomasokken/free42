@@ -1,3 +1,13 @@
+2021-03-29: release 3.0.2
+
+* Fixed possible stack corruption or crash due to LNSTK, when big stack mode is
+  already active.
+* Fixed DROPN crash in 4STK mode.
+* Fixed matrix editor's GOTO Row/Column when stack empty (big stack mode).
+* Fixed bounds check bug in AGRAPH. This could cause nothing to be drawn when
+  the pattern was one pixel from being entirely off-screen.
+* Android version: Fixed filesystem access in Android 10.
+
 2021-03-04: release 3.0.1
 
 * Implemented a work-around for a bug in the decimal floating-point library
