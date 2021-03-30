@@ -3131,10 +3131,12 @@ int push_stack_state(bool big) {
         free_vartype(st);
         goto nomem;
     }
-    memcpy(st_data + 1, stack, save_levels * sizeof(vartype *));
-    memmove(stack + n_dups, stack + sp - 3 + n_dups, (sp + 1 - save_levels) * sizeof(vartype *));
-    memcpy(stack, dups, n_dups * sizeof(vartype *));
-    sp -= save_levels - n_dups;
+    if (!flags.f.big_stack) {
+        memcpy(st_data + 1, stack, save_levels * sizeof(vartype *));
+        memmove(stack + n_dups, stack + sp - 3 + n_dups, (sp + 1 - save_levels) * sizeof(vartype *));
+        memcpy(stack, dups, n_dups * sizeof(vartype *));
+        sp -= save_levels - n_dups;
+    }
 
     store_private_var("ST", 2, st);
     flags.f.big_stack = big;
