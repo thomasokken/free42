@@ -1195,7 +1195,6 @@ int docmd_pgmmenu(arg_struct *arg) {
     if (err == ERR_NONE) {
         set_cat_section(CATSECT_PGM_MENU);
         move_cat_row(0);
-        clear_row(0);
     }
     return err;
 }
