@@ -4455,7 +4455,7 @@ void start_incomplete_command(int cmd_id) {
     else if (argtype == ARG_MKEY)
         set_menu(MENULEVEL_COMMAND, MENU_BLANK);
     else if (argtype == ARG_VAR) {
-        if (mode_alphamenu != MENU_NONE)
+        if (mode_alphamenu != MENU_NONE || mode_plainmenu != MENU_NONE)
             set_catalog_menu(CATSECT_VARS_ONLY);
         else if (mode_appmenu == MENU_VARMENU)
             mode_commandmenu = MENU_VARMENU;
@@ -4466,7 +4466,9 @@ void start_incomplete_command(int cmd_id) {
     } else if (argtype == ARG_NAMED)
         set_catalog_menu(CATSECT_VARS_ONLY);
     else if (argtype == ARG_REAL) {
-        if (mode_appmenu == MENU_VARMENU)
+        if (mode_alphamenu != MENU_NONE || mode_plainmenu != MENU_NONE)
+            set_catalog_menu(CATSECT_REAL_ONLY);
+        else if (mode_appmenu == MENU_VARMENU)
             mode_commandmenu = MENU_VARMENU;
         else if (mode_appmenu == MENU_INTEG_PARAMS)
             mode_commandmenu = MENU_INTEG_PARAMS;

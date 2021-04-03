@@ -1151,15 +1151,13 @@ int docmd_rdnn(arg_struct *arg) {
     int err = arg_to_num(arg, &n);
     if (err != ERR_NONE)
         return err;
-    if (n < 2)
-        goto done;
     if (n > sp + 1)
         return ERR_SIZE_ERROR;
-    vartype *v;
-    v = stack[sp];
-    memmove(stack + sp - n + 2, stack + sp - n + 1, (n - 1) * sizeof(vartype *));
-    stack[sp - n + 1] = v;
-    done:
+    if (n > 1) {
+        vartype *v = stack[sp];
+        memmove(stack + sp - n + 2, stack + sp - n + 1, (n - 1) * sizeof(vartype *));
+        stack[sp - n + 1] = v;
+    }
     print_trace();
     return ERR_NONE;
 }
@@ -1171,15 +1169,13 @@ int docmd_rupn(arg_struct *arg) {
     int err = arg_to_num(arg, &n);
     if (err != ERR_NONE)
         return err;
-    if (n < 2)
-        goto done;
     if (n > sp + 1)
         return ERR_SIZE_ERROR;
-    vartype *v;
-    v = stack[sp - n + 1];
-    memmove(stack + sp - n + 1, stack + sp - n + 2, (n - 1) * sizeof(vartype *));
-    stack[sp] = v;
-    done:
+    if (n > 1) {
+        vartype *v = stack[sp - n + 1];
+        memmove(stack + sp - n + 1, stack + sp - n + 2, (n - 1) * sizeof(vartype *));
+        stack[sp] = v;
+    }
     print_trace();
     return ERR_NONE;
 }
