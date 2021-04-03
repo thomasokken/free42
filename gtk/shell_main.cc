@@ -2519,14 +2519,22 @@ static void shell_keydown() {
                 return;
             }
             bool one_key_macro = macro[1] == 0 || (macro[2] == 0 && macro[0] == 28);
-            if (!one_key_macro)
+            if (one_key_macro) {
+                while (*macro != 0) {
+                    keep_running = core_keydown(*macro++, &enqueued, &repeat);
+                    if (*macro != 0 && !enqueued)
+                        core_keyup();
+                }
+            } else {
+                bool waitForProgram = !program_running();
                 skin_display_set_enabled(false);
-            while (*macro != 0) {
-                keep_running = core_keydown(*macro++, &enqueued, &repeat);
-                if (*macro != 0 && !enqueued)
-                    core_keyup();
-            }
-            if (!one_key_macro) {
+                while (*macro != 0) {
+                    keep_running = core_keydown(*macro++, &enqueued, &repeat);
+                    if (*macro != 0 && !enqueued)
+                        core_keyup();
+                    while (waitForProgram && keep_running)
+                        keep_running = core_keydown(0, &enqueued, &repeat);
+                }
                 skin_display_set_enabled(true);
                 skin_invalidate_display(win);
                 skin_invalidate_annunciator(win, 1);

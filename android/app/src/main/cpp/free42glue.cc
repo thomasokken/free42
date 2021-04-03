@@ -350,6 +350,12 @@ Java_com_thomasokken_free42_Free42Activity_redisplay(JNIEnv *env, jobject thiz) 
     redisplay();
 }
 
+extern "C" jboolean
+Java_com_thomasokken_free42_Free42Activity_program_1running(JNIEnv *env, jobject thiz) {
+    Tracer T("program_running");
+    return program_running();
+}
+
 static bool alwaysRepaintFullDisplay = false;
 
 extern "C" void

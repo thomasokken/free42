@@ -1221,18 +1221,27 @@ public class Free42Activity extends Activity {
                     String cmd = (String) macroObj;
                     running = core_keydown_command(cmd, enqueued, repeat, true);
                 } else {
+                    running = false;
                     byte[] macro = (byte[]) macroObj;
                     boolean one_key_macro = macro.length == 1 || (macro.length == 2 && macro[0] == 28);
-                    if (!one_key_macro)
+                    if (one_key_macro) {
+                        for (int i = 0; i < macro.length; i++) {
+                            running = core_keydown(macro[i] & 255, enqueued, repeat, true);
+                            if (!enqueued.value)
+                                core_keyup();
+                        }
+                    } else {
+                        boolean waitForProgram = !program_running();
                         skin.set_display_enabled(false);
-                    for (int i = 0; i < macro.length - 1; i++) {
-                        core_keydown(macro[i] & 255, enqueued, repeat, true);
-                        if (!enqueued.value)
-                            core_keyup();
-                    }
-                    running = core_keydown(macro[macro.length - 1] & 255, enqueued, repeat, true);
-                    if (!one_key_macro)
+                        for (int i = 0; i < macro.length; i++) {
+                            running = core_keydown(macro[i] & 255, enqueued, repeat, true);
+                            if (!enqueued.value)
+                                core_keyup();
+                            while (waitForProgram && running)
+                                running = core_keydown(0, null, null, true);
+                        }
                         skin.set_display_enabled(true);
+                    }
                 }
                 if (running)
                     startRunner();
@@ -2041,6 +2050,7 @@ public class Free42Activity extends Activity {
     private native void getCoreSettings(CoreSettings settings);
     private native void putCoreSettings(CoreSettings settings);
     private native void redisplay();
+    private native boolean program_running();
     private native void setAlwaysRepaintFullDisplay(boolean alwaysRepaint);
     private native void core_update_allow_big_stack();
 
