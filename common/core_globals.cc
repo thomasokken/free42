@@ -776,9 +776,10 @@ bool no_keystrokes_yet;
  * Version 33: 3.0    Big stack; parameterized RTNERR
  * Version 34: 3.0    Long strings
  * Version 35: 3.0    Changing 'int' to 'bool' where appropriate
- * Version 36: 3.0.3  LASTERR
+ * Version 36-38:     Plus42 stuff
+ * Version 39: 3.0.3  LASTERR
  */
-#define FREE42_VERSION 36
+#define FREE42_VERSION 39
 
 
 /*******************/
@@ -4201,7 +4202,7 @@ static bool load_state2(bool *clear, bool *too_new) {
     if (!read_int(&input_length)) return false;
     if (!read_arg(&input_arg, ver < 9)) return false;
 
-    if (ver < 36) {
+    if (ver < 39) {
         lasterr = 0;
     } else {
         if (!read_int(&lasterr)) return false;
