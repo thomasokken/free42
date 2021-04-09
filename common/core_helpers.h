@@ -28,7 +28,7 @@
 /* Utility functions */
 /*********************/
 
-int resolve_ind_arg(arg_struct *arg);
+int resolve_ind_arg(arg_struct *arg, char *buf = NULL, int *len = NULL);
 int arg_to_num(arg_struct *arg, int4 *num);
 int recall_result_silently(vartype *v);
 int recall_result(vartype *v);

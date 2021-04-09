@@ -72,6 +72,8 @@ extern FILE *gfile;
 #define ERR_INVALID_CONTEXT        37
 #define ERR_NAME_TOO_LONG          38
 
+#define RTNERR_MAX 8
+
 struct error_spec {
     const char *text;
     int length;
@@ -468,6 +470,11 @@ extern int matedit_prev_appmenu;
 extern char input_name[11];
 extern int input_length;
 extern arg_struct input_arg;
+
+/* LASTERR */
+extern int lasterr;
+extern int lasterr_length;
+extern char lasterr_text[22];
 
 /* BASE application */
 extern int baseapp;

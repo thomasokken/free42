@@ -53,6 +53,7 @@ int docmd_breset(arg_struct *arg);
 int docmd_nop(arg_struct *arg);
 int docmd_fma(arg_struct *arg);
 int docmd_func(arg_struct *arg);
+int docmd_lasterr(arg_struct *arg);
 int docmd_rtnyes(arg_struct *arg);
 int docmd_rtnno(arg_struct *arg);
 int docmd_rtnerr(arg_struct *arg);

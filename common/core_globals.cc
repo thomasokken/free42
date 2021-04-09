@@ -669,6 +669,11 @@ char input_name[11];
 int input_length;
 arg_struct input_arg;
 
+/* LASTERR */
+int lasterr = 0;
+int lasterr_length;
+char lasterr_text[22];
+
 /* BASE application */
 int baseapp = 0;
 
@@ -771,8 +776,9 @@ bool no_keystrokes_yet;
  * Version 33: 3.0    Big stack; parameterized RTNERR
  * Version 34: 3.0    Long strings
  * Version 35: 3.0    Changing 'int' to 'bool' where appropriate
+ * Version 36: 3.0.3  LASTERR
  */
-#define FREE42_VERSION 35
+#define FREE42_VERSION 36
 
 
 /*******************/
@@ -4195,6 +4201,14 @@ static bool load_state2(bool *clear, bool *too_new) {
     if (!read_int(&input_length)) return false;
     if (!read_arg(&input_arg, ver < 9)) return false;
 
+    if (ver < 36) {
+        lasterr = 0;
+    } else {
+        if (!read_int(&lasterr)) return false;
+        if (!read_int(&lasterr_length)) return false;
+        if (fread(lasterr_text, 1, 22, gfile) != 22) return false;
+    }
+
     if (!read_int(&baseapp)) return false;
 
     if (ver < 21) {
@@ -4363,6 +4377,10 @@ void save_state() {
     if (fwrite(input_name, 1, 11, gfile) != 11) return;
     if (!write_int(input_length)) return;
     if (!write_arg(&input_arg)) return;
+
+    if (!write_int(lasterr)) return;
+    if (!write_int(lasterr_length)) return;
+    if (fwrite(lasterr_text, 1, 22, gfile) != 22) return;
 
     if (!write_int(baseapp)) return;
 

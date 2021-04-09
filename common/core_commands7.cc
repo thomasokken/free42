@@ -878,6 +878,18 @@ int docmd_func(arg_struct *arg) {
     return push_func_state(arg->val.num);
 }
 
+int docmd_lasterr(arg_struct *arg) {
+    vartype *v;
+    if (lasterr != -1)
+        v = new_real(lasterr);
+    else
+        v = new_string(lasterr_text, lasterr_length);
+    lasterr = ERR_NONE;
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    return recall_result(v);
+}
+
 int docmd_rtnyes(arg_struct *arg) {
     if (!program_running())
         return ERR_RESTRICTED_OPERATION;
@@ -900,18 +912,31 @@ int docmd_rtnerr(arg_struct *arg) {
     if (!program_running())
         return ERR_RESTRICTED_OPERATION;
     int err;
-    int4 e;
-    err = arg_to_num(arg, &e);
-    if (err != ERR_NONE)
-        return err;
-    if (e >= ERR_SIZE_ERROR)
-        return ERR_INVALID_DATA;
-    err = pop_func_state(true);
-    if (err != ERR_NONE)
-        return err;
-    err = to_int(e);
+    int len;
+    if (arg->type == ARGTYPE_IND_NUM
+            || arg->type == ARGTYPE_IND_STK
+            || arg->type == ARGTYPE_IND_STR) {
+        len = 22;
+        err = resolve_ind_arg(arg, lasterr_text, &len);
+        if (err != ERR_NONE)
+            return err;
+    }
+    if (arg->type == ARGTYPE_STR) {
+        lasterr_length = len;
+        err = -1;
+    } else if (arg->type == ARGTYPE_NUM) {
+        err = arg->val.num;
+        if (err > RTNERR_MAX)
+            return ERR_INVALID_DATA;
+    } else {
+        return ERR_INTERNAL_ERROR;
+    }
+    int err2 = pop_func_state(true);
+    if (err2 != ERR_NONE)
+        return err2;
     if (err != ERR_NONE && flags.f.error_ignore) {
         flags.f.error_ignore = 0;
+        lasterr = err;
         err = ERR_NONE;
     }
     if (err != ERR_NONE)
