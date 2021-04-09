@@ -458,7 +458,8 @@ const command_spec cmd_array[] =
     // RTNERR IND ST X... So we don't need those three XROMs any more, but we
     // can't safely use them, so they should be left unassigned.
     { /* FUNC */       docmd_func,        "FUNC",                0x01, 0x00, 0xf2, 0xe0,  4, ARG_FUNC,   0, NA_T },
-    { /* LASTERR */    docmd_lasterr,     "L\301STER\322",       0x00, 0x00, 0xa7, 0xf6,  7, ARG_NONE,   0, NA_T },
+    { /* ERRMSG */     docmd_errmsg,      "ERRMSG",              0x00, 0x00, 0xa7, 0xf6,  6, ARG_NONE,   0, NA_T },
+    { /* ERRNO */      docmd_errno,       "ERRNO",               0x00, 0x00, 0xa7, 0xf7,  5, ARG_NONE,   0, NA_T },
     { /* RTNYES */     docmd_rtnyes,      "RTNYES",              0x00, 0x00, 0xa7, 0xde,  6, ARG_NONE,   0, NA_T },
     { /* RTNNO */      docmd_rtnno,       "RTNNO",               0x00, 0x00, 0xa7, 0xdf,  5, ARG_NONE,   0, NA_T },
     { /* RTNERR */     docmd_rtnerr,      "RTNERR",              0x01, 0xdc, 0xf2, 0xa0,  6, ARG_NUM9,   0, NA_T },

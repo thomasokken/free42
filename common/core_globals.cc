@@ -669,7 +669,7 @@ char input_name[11];
 int input_length;
 arg_struct input_arg;
 
-/* LASTERR */
+/* ERRMSG/ERRNO */
 int lasterr = 0;
 int lasterr_length;
 char lasterr_text[22];
@@ -777,7 +777,7 @@ bool no_keystrokes_yet;
  * Version 34: 3.0    Long strings
  * Version 35: 3.0    Changing 'int' to 'bool' where appropriate
  * Version 36-38:     Plus42 stuff
- * Version 39: 3.0.3  LASTERR
+ * Version 39: 3.0.3  ERRMSG/ERRNO
  */
 #define FREE42_VERSION 39
 

@@ -878,13 +878,23 @@ int docmd_func(arg_struct *arg) {
     return push_func_state(arg->val.num);
 }
 
-int docmd_lasterr(arg_struct *arg) {
+int docmd_errmsg(arg_struct *arg) {
+    vartype *v;
+    if (lasterr != -1)
+        v = new_string(errors[lasterr].text, errors[lasterr].length);
+    else
+        v = new_string(lasterr_text, lasterr_length);
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    return recall_result(v);
+}
+
+int docmd_errno(arg_struct *arg) {
     vartype *v;
     if (lasterr != -1)
         v = new_real(lasterr);
     else
         v = new_string(lasterr_text, lasterr_length);
-    lasterr = ERR_NONE;
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     return recall_result(v);

@@ -471,7 +471,7 @@ extern char input_name[11];
 extern int input_length;
 extern arg_struct input_arg;
 
-/* LASTERR */
+/* ERRMSG/ERRNO */
 extern int lasterr;
 extern int lasterr_length;
 extern char lasterr_text[22];
