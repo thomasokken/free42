@@ -1411,3 +1411,16 @@ int docmd_0_ge_nn(arg_struct *arg) {
         return err;
     return ((vartype_real *) v)->x <= 0 ? ERR_YES : ERR_NO;
 }
+
+///////////////////////////////////
+///// String & List Functions /////
+///////////////////////////////////
+
+int docmd_xstr(arg_struct *arg) {
+    if (arg->type != ARGTYPE_XSTR)
+        return ERR_INTERNAL_ERROR;
+    vartype *v = new_string(arg->val.xstr, arg->length);
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    return recall_result(v);
+}

@@ -459,37 +459,38 @@
 #define CMD_PMEXEC      406
 #define CMD_PRMVAR      407
 /* String & List Functions */
-#define CMD_XASTO       408
-#define CMD_LXASTO      409
-#define CMD_APPEND      410
-#define CMD_EXTEND      411
-#define CMD_SUBSTR      412
-#define CMD_LENGTH      413
-#define CMD_HEAD        414
-#define CMD_REV         415
-#define CMD_POS         416
-#define CMD_S_TO_N      417
-#define CMD_N_TO_S      418
-#define CMD_C_TO_N      419
-#define CMD_N_TO_C      420
-#define CMD_LIST_T      421
-#define CMD_NEWLIST     422
-#define CMD_NEWSTR      423
+#define CMD_XSTR        408
+#define CMD_XASTO       409
+#define CMD_LXASTO      410
+#define CMD_APPEND      411
+#define CMD_EXTEND      412
+#define CMD_SUBSTR      413
+#define CMD_LENGTH      414
+#define CMD_HEAD        415
+#define CMD_REV         416
+#define CMD_POS         417
+#define CMD_S_TO_N      418
+#define CMD_N_TO_S      419
+#define CMD_C_TO_N      420
+#define CMD_N_TO_C      421
+#define CMD_LIST_T      422
+#define CMD_NEWLIST     423
+#define CMD_NEWSTR      424
 /* Generalized Comparisons */
-#define CMD_X_EQ_NN     424
-#define CMD_X_NE_NN     425
-#define CMD_X_LT_NN     426
-#define CMD_X_GT_NN     427
-#define CMD_X_LE_NN     428
-#define CMD_X_GE_NN     429
-#define CMD_0_EQ_NN     430
-#define CMD_0_NE_NN     431
-#define CMD_0_LT_NN     432
-#define CMD_0_GT_NN     433
-#define CMD_0_LE_NN     434
-#define CMD_0_GE_NN     435
+#define CMD_X_EQ_NN     425
+#define CMD_X_NE_NN     426
+#define CMD_X_LT_NN     427
+#define CMD_X_GT_NN     428
+#define CMD_X_LE_NN     429
+#define CMD_X_GE_NN     430
+#define CMD_0_EQ_NN     431
+#define CMD_0_NE_NN     432
+#define CMD_0_LT_NN     433
+#define CMD_0_GT_NN     434
+#define CMD_0_LE_NN     435
+#define CMD_0_GE_NN     436
 
-#define CMD_SENTINEL    436
+#define CMD_SENTINEL    437
 
 
 /* command_spec.argtype */
@@ -509,7 +510,8 @@
 #define ARG_PRGM     12 /* Alpha label (CATSECT_PGM) */
 #define ARG_RVAR     13 /* Variable (real only) (MVAR, INTEG, SOLVE) */
 #define ARG_MAT      14 /* Variable (matrix only) (EDITN, INDEX) */
-#define ARG_OTHER    15 /* Weirdos */
+#define ARG_XSTR     15 /* Long string (XSTR) */
+#define ARG_OTHER    16 /* Weirdos */
 
 
 /* command_spec.flags */
@@ -543,6 +545,7 @@
 #define ARGTYPE_LCLBL     9
 #define ARGTYPE_DOUBLE   10
 #define ARGTYPE_LBLINDEX 11
+#define ARGTYPE_XSTR     12
 
 
 struct arg_struct {
@@ -555,6 +558,7 @@ struct arg_struct {
         char stk;
         int cmd; /* For backward compatibility only! */
         char lclbl;
+        const char *xstr;
     } val;
     // This used to be a member of the 'val' union, but once I changed it
     // from 'double' to 'phloat', that was no longer possible.

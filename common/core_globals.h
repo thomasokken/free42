@@ -427,7 +427,7 @@ extern int incomplete_length;
 extern int incomplete_maxdigits;
 extern int incomplete_argtype;
 extern int incomplete_num;
-extern char incomplete_str[7];
+extern char incomplete_str[22];
 extern int4 incomplete_saved_pc;
 extern int4 incomplete_saved_highlight_row;
 

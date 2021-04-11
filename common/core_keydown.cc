@@ -1356,7 +1356,7 @@ void keydown_command_entry(int shift, int key) {
             if (shift && c >= 'A' && c <= 'Z')
                 c += 'a' - 'A';
             handle_char:
-            if (incomplete_length < 7)
+            if (incomplete_length < (incomplete_argtype == ARG_XSTR ? 22 : 7))
                 incomplete_str[incomplete_length++] = c;
             if (m != NULL)
                 set_menu(MENULEVEL_COMMAND, m->parent);
@@ -1427,7 +1427,7 @@ void keydown_command_entry(int shift, int key) {
                 default: goto nocharkey1;
             }
         }
-        if (incomplete_length < 7)
+        if (incomplete_length < (incomplete_argtype == ARG_XSTR ? 22 : 7))
             incomplete_str[incomplete_length++] = c;
         /* incomplete_alpha can be 0 at this point if
          * the command is CMD_LBL. */
@@ -1525,7 +1525,10 @@ void keydown_command_entry(int shift, int key) {
                             set_menu(MENULEVEL_COMMAND, MENU_NONE);
                     } else if (incomplete_argtype == ARG_PRGM)
                         set_catalog_menu(CATSECT_PGM_ONLY);
-                    else
+                    else if (incomplete_argtype == ARG_XSTR) {
+                        pending_command = CMD_NULL;
+                        finish_command_entry(false);
+                    } else
                         goto out_of_alpha;
                     redisplay();
                 } else if (mode_commandmenu == MENU_CATALOG
@@ -1575,7 +1578,9 @@ void keydown_command_entry(int shift, int key) {
                         set_catalog_menu(CATSECT_MAT_ONLY);
                 } else if (incomplete_argtype == ARG_PRGM)
                     set_catalog_menu(CATSECT_PGM_ONLY);
-                else {
+                else if (incomplete_argtype == ARG_XSTR) {
+                    /* Stay in ALPHA mode */
+                } else {
                     out_of_alpha:
                     if (incomplete_ind
                             || incomplete_argtype != ARG_RVAR)
@@ -1676,11 +1681,16 @@ void keydown_command_entry(int shift, int key) {
                 finish_command_entry(false);
                 return;
             } else {
-                pending_command_arg.type =
-                        incomplete_ind ? ARGTYPE_IND_STR : ARGTYPE_STR;
+                if (incomplete_argtype == ARG_XSTR) {
+                    pending_command_arg.type = ARGTYPE_XSTR;
+                    pending_command_arg.val.xstr = incomplete_str;
+                } else {
+                    pending_command_arg.type =
+                            incomplete_ind ? ARGTYPE_IND_STR : ARGTYPE_STR;
+                    for (i = 0; i < incomplete_length; i++)
+                        pending_command_arg.val.text[i] = incomplete_str[i];
+                }
                 pending_command_arg.length = incomplete_length;
-                for (i = 0; i < incomplete_length; i++)
-                    pending_command_arg.val.text[i] = incomplete_str[i];
 
                 if (!incomplete_ind && incomplete_command == CMD_XEQ)
                     finish_xeq();

@@ -1530,7 +1530,7 @@ static int ext_prgm_cat[] = {
     CMD_0_EQ_NN, CMD_0_NE_NN, CMD_0_LT_NN, CMD_0_GT_NN, CMD_0_LE_NN, CMD_0_GE_NN,
     CMD_X_EQ_NN, CMD_X_NE_NN, CMD_X_LT_NN, CMD_X_GT_NN, CMD_X_LE_NN, CMD_X_GE_NN,
     CMD_ERRMSG,  CMD_ERRNO,   CMD_FUNC,    CMD_LASTO,   CMD_LSTO,    CMD_RTNERR,
-    CMD_RTNNO,   CMD_RTNYES,  CMD_SST_UP,  CMD_SST_RT,  CMD_NULL,    CMD_NULL
+    CMD_RTNNO,   CMD_RTNYES,  CMD_SST_UP,  CMD_SST_RT,  CMD_XSTR,    CMD_NULL
 };
 
 #if defined(ANDROID) || defined(IPHONE)
@@ -2507,6 +2507,11 @@ int command2buf(char *buf, int len, int cmd, const arg_struct *arg) {
                 string2buf(buf, len, &bufptr, lbl->name, lbl->length);
                 char2buf(buf, len, &bufptr, '"');
             }
+        } else if (arg->type == ARGTYPE_XSTR) {
+            char2buf(buf, len, &bufptr, '"');
+            string2buf(buf, len, &bufptr, arg->val.xstr,
+                                            arg->length);
+            char2buf(buf, len, &bufptr, '"');
         } else /* ARGTYPE_COMMAND; for backward compatibility only */ {
             const command_spec *cs = &cmd_array[arg->val.cmd];
             char2buf(buf, len, &bufptr, '"');

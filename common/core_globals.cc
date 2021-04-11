@@ -646,7 +646,7 @@ int incomplete_length;
 int incomplete_maxdigits;
 int incomplete_argtype;
 int incomplete_num;
-char incomplete_str[7];
+char incomplete_str[22];
 int4 incomplete_saved_pc;
 int4 incomplete_saved_highlight_row;
 
@@ -778,8 +778,9 @@ bool no_keystrokes_yet;
  * Version 35: 3.0    Changing 'int' to 'bool' where appropriate
  * Version 36-38:     Plus42 stuff
  * Version 39: 3.0.3  ERRMSG/ERRNO
+ * Version 40: 3.0.3  Longer incomplete_str buffer
  */
-#define FREE42_VERSION 39
+#define FREE42_VERSION 40
 
 
 /*******************/
@@ -2332,6 +2333,12 @@ int get_command_length(int prgm_index, int4 pc) {
         case ARGTYPE_DOUBLE:
             pc2 += sizeof(phloat);
             break;
+        case ARGTYPE_XSTR: {
+            int xl = prgm->text[pc2++];
+            xl += prgm->text[pc2++] << 8;
+            pc2 += xl;
+            break;
+        }
     }
     if (have_orig_num)
         while (prgm->text[pc2++]);
@@ -2407,6 +2414,14 @@ void get_next_command(int4 *pc, int *command, arg_struct *arg, int find_target, 
             unsigned char *b = (unsigned char *) &arg->val_d;
             for (int i = 0; i < (int) sizeof(phloat); i++)
                 *b++ = prgm->text[(*pc)++];
+            break;
+        }
+        case ARGTYPE_XSTR: {
+            int xstr_len = prgm->text[(*pc)++];
+            xstr_len += prgm->text[(*pc)++] << 8;
+            arg->length = xstr_len;
+            arg->val.xstr = (const char *) (prgm->text + *pc);
+            (*pc) += xstr_len;
             break;
         }
     }
@@ -2595,6 +2610,7 @@ void delete_command(int4 pc) {
 void store_command(int4 pc, int command, arg_struct *arg, const char *num_str) {
     unsigned char buf[100];
     int bufptr = 0;
+    int xstr_len;
     int i;
     int4 pos;
     prgm_struct *prgm = prgms + current_prgm;
@@ -2765,6 +2781,18 @@ void store_command(int4 pc, int command, arg_struct *arg, const char *num_str) {
                 buf[bufptr++] = *b++;
             break;
         }
+        case ARGTYPE_XSTR: {
+            xstr_len = arg->length;
+            if (xstr_len > 65535)
+                xstr_len = 65535;
+            buf[bufptr++] = xstr_len;
+            buf[bufptr++] = xstr_len >> 8;
+            // Not storing the text in 'buf' because it may not fit;
+            // we'll handle that separately when copying the buffer
+            // into the program.
+            bufptr += xstr_len;
+            break;
+        }
     }
 
     if (command == CMD_NUMBER && num_str != NULL) {
@@ -2784,7 +2812,7 @@ void store_command(int4 pc, int command, arg_struct *arg, const char *num_str) {
 
     if (bufptr + prgm->size > prgm->capacity) {
         unsigned char *newtext;
-        prgm->capacity += 512;
+        prgm->capacity += bufptr + 512;
         newtext = (unsigned char *) malloc(prgm->capacity);
         // TODO - handle memory allocation failure
         for (pos = 0; pos < pc; pos++)
@@ -2798,8 +2826,13 @@ void store_command(int4 pc, int command, arg_struct *arg, const char *num_str) {
         for (pos = prgm->size - 1; pos >= pc; pos--)
             prgm->text[pos + bufptr] = prgm->text[pos];
     }
-    for (pos = 0; pos < bufptr; pos++)
-        prgm->text[pc + pos] = buf[pos];
+    if (arg->type == ARGTYPE_XSTR) {
+        int instr_len = bufptr - xstr_len;
+        memcpy(prgm->text + pc, buf, instr_len);
+        memcpy(prgm->text + pc + instr_len, arg->val.xstr, xstr_len);
+    } else {
+        memcpy(prgm->text + pc, buf, bufptr);
+    }
     prgm->size += bufptr;
     if (command != CMD_END && flags.f.printer_exists && (flags.f.trace_print || flags.f.normal_print))
         print_program_line(current_prgm, pc);
@@ -3994,9 +4027,17 @@ bool read_arg(arg_struct *arg, bool old) {
 }
 
 bool write_arg(const arg_struct *arg) {
-    if (!write_char(arg->type))
+    int type = arg->type;
+    if (type == ARGTYPE_XSTR)
+        // This type is always used immediately, so no need to persist it;
+        // also, persisting it would be difficult, since this variant uses
+        // a pointer to the actual text, which is context-dependent and
+        // would be impossible to restore.
+        type = ARGTYPE_NONE;
+
+    if (!write_char(type))
         return false;
-    switch (arg->type) {
+    switch (type) {
         case ARGTYPE_NONE:
             return true;
         case ARGTYPE_NUM:
@@ -4182,7 +4223,8 @@ static bool load_state2(bool *clear, bool *too_new) {
     if (!read_int(&incomplete_maxdigits)) return false;
     if (!read_int(&incomplete_argtype)) return false;
     if (!read_int(&incomplete_num)) return false;
-    if (fread(incomplete_str, 1, 7, gfile) != 7) return false;
+    int isl = ver < 40 ? 7 : 22;
+    if (fread(incomplete_str, 1, isl, gfile) != isl) return false;
     if (!read_int4(&incomplete_saved_pc)) return false;
     if (!read_int4(&incomplete_saved_highlight_row)) return false;
 
@@ -4359,7 +4401,7 @@ void save_state() {
     if (!write_int(incomplete_maxdigits)) return;
     if (!write_int(incomplete_argtype)) return;
     if (!write_int(incomplete_num)) return;
-    if (fwrite(incomplete_str, 1, 7, gfile) != 7) return;
+    if (fwrite(incomplete_str, 1, 22, gfile) != 22) return;
     if (!write_int4(pc2line(incomplete_saved_pc))) return;
     if (!write_int4(incomplete_saved_highlight_row)) return;
 

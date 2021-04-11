@@ -1005,6 +1005,33 @@ static void export_hp42s(int index) {
                 } else if (cmd == CMD_XROM) {
                     cmdbuf[cmdlen++] = (char) (0xA0 + ((arg.val.num >> 8) & 7));
                     cmdbuf[cmdlen++] = (char) arg.val.num;
+                } else if (cmd == CMD_XSTR) {
+                    int len = arg.length;
+                    if (len == 0) {
+                        cmdbuf[cmdlen++] = (char) 0xF2;
+                        cmdbuf[cmdlen++] = (char) 0xA7;
+                        cmdbuf[cmdlen++] = (char) 0x41;
+                    } else {
+                        /* Writing directly to 'buf' here, not using 'cmdbuf', */
+                        /* since XSTR can be very long and may not fit in one  */
+                        /* piece.                                              */
+                        const char *ptr = arg.val.xstr;
+                        while (len > 0) {
+                            if (buflen + 16 > 1000 - 50) {
+                                if (raw_write(buf, buflen) != buflen)
+                                    goto done;
+                                buflen = 0;
+                            }
+                            int slen = len <= 13 ? len : 13;
+                            buf[buflen++] = (char) (0xF2 + slen);
+                            buf[buflen++] = (char) 0xA7;
+                            buf[buflen++] = (char) (slen < len ? 0x49 : 0x41);
+                            memcpy(buf + buflen, ptr, slen);
+                            buflen += slen;
+                            ptr += slen;
+                            len -= slen;
+                        }
+                    }
                 } else {
                     /* Shouldn't happen */
                     continue;
@@ -1093,7 +1120,7 @@ static void export_hp42s(int index) {
                 /* Illegal command */
                 continue;
         }
-        if (buflen + cmdlen > 1000) {
+        if (buflen + cmdlen > 1000 - 50) {
             if (raw_write(buf, buflen) != buflen)
                 goto done;
             buflen = 0;
@@ -1201,6 +1228,11 @@ int4 core_program_size(int prgm_index) {
                         size += 4;
                 } else if (cmd == CMD_XROM) {
                     size += 2;
+                } else if (cmd == CMD_XSTR) {
+                    int n = (arg.length + 12) / 13;
+                    if (n == 0)
+                        n = 1;
+                    size += arg.length + n * 3;
                 } else {
                     /* Shouldn't happen */
                     continue;
@@ -1656,7 +1688,7 @@ static int hp42ext[] = {
 
     /* 40-4F */
     CMD_PRMVAR | 0x0000,
-    CMD_NULL   | 0x4000,
+    CMD_XSTR   | 0x0000,
     CMD_NULL   | 0x4000,
     CMD_NULL   | 0x4000,
     CMD_NULL   | 0x4000,
@@ -1664,7 +1696,7 @@ static int hp42ext[] = {
     CMD_NULL   | 0x4000,
     CMD_NULL   | 0x4000,
     CMD_PRMVAR | 0x1000,
-    CMD_NULL   | 0x4000,
+    CMD_XSTR   | 0x1000,
     CMD_NULL   | 0x4000,
     CMD_NULL   | 0x4000,
     CMD_NULL   | 0x4000,
@@ -1975,6 +2007,8 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
     }
 
     char numbuf[50];
+    char *xstr_buf = NULL;
+    int xstr_len = 0;
 
     while (!done_flag) {
         skip:
@@ -2230,7 +2264,28 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                                                 : ARGTYPE_IND_STR;
                         str_len = byte1 - 0x0F1;
                         extra_extension = false;
-                        goto do_string;
+                        if (cmd != CMD_XSTR)
+                            goto do_string;
+                        // XSTR is stored as a sequence of instructions, since
+                        // it may encode a string of up to 65535 characters, while
+                        // instructions are limited to 16 bytes, giving a payload
+                        // of up to 13 characters per instruction.
+                        char *newbuf = (char *) realloc(xstr_buf, xstr_len + str_len);
+                        if (newbuf == NULL)
+                            goto done;
+                        xstr_buf = newbuf;
+                        while (str_len-- > 0) {
+                            int b = raw_getc();
+                            if (b == EOF)
+                                goto done;
+                            xstr_buf[xstr_len++] = b;
+                        }
+                        if (arg.type == ARGTYPE_IND_STR)
+                            continue;
+                        arg.type = ARGTYPE_XSTR;
+                        arg.length = xstr_len;
+                        arg.val.xstr = xstr_buf;
+                        goto store;
                     } else if (flag == 2) {
                         int ind;
                         if (byte1 != 0x0F2)
@@ -2374,6 +2429,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
 
     if (raw_file_name != NULL)
         raw_close("import");
+    free(xstr_buf);
 }
 
 static int real2buf(char *buf, phloat x) {
@@ -4433,7 +4489,8 @@ void start_incomplete_command(int cmd_id) {
     incomplete_command = cmd_id;
     incomplete_ind = false;
     if (argtype == ARG_NAMED || argtype == ARG_PRGM
-            || argtype == ARG_RVAR || argtype == ARG_MAT)
+            || argtype == ARG_RVAR || argtype == ARG_MAT
+            || argtype == ARG_XSTR)
         incomplete_alpha = true;
     else
         incomplete_alpha = false;
@@ -4493,7 +4550,7 @@ void start_incomplete_command(int cmd_id) {
         }
     } else if (argtype == ARG_LBL || argtype == ARG_PRGM)
         set_catalog_menu(CATSECT_PGM_ONLY);
-    else if (cmd_id == CMD_LBL)
+    else if (cmd_id == CMD_LBL || cmd_id == CMD_XSTR)
         set_menu(MENULEVEL_COMMAND, MENU_ALPHA1);
     redisplay();
 }

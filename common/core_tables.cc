@@ -481,14 +481,15 @@ const command_spec cmd_array[] =
 
     /* Miscellaneous */
     { /* NOP */        docmd_nop,         "NOP",                 0x00, 0x00, 0x00, 0xf0,  3, ARG_NONE,   0, NA_T },
-    { /* FMA */        docmd_fma,         "FMA",                 0x00, 0x00, 0xa7, 0xda,  3, ARG_NONE,   3, 0x01 },
-    { /* PGMMENU */    docmd_pgmmenu,     "P\307\315M\305NU",    0x00, 0x00, 0xa7, 0xe8,  7, ARG_NONE,   0, NA_T },
     /* (Skipping 403 because of single-byte equality checks with CMD_END) */
     { /* DUMMY */      NULL,              "",                    0x44, 0x00, 0x00, 0x00,  0, ARG_OTHER,  0, UNIM },
+    { /* FMA */        docmd_fma,         "FMA",                 0x00, 0x00, 0xa7, 0xda,  3, ARG_NONE,   3, 0x01 },
+    { /* PGMMENU */    docmd_pgmmenu,     "P\307\315M\305NU",    0x00, 0x00, 0xa7, 0xe8,  7, ARG_NONE,   0, NA_T },
     { /* PMEXEC */     NULL,              "",                    0x44, 0x00, 0x00, 0x00,  0, ARG_OTHER,  0, NA_T },
     { /* PRMVAR */     docmd_prmvar,      "PRMVAR",              0x00, 0x40, 0xf2, 0x30,  6, ARG_PRGM,   0, NA_T },
 
     /* String & List Functions */
+    { /* XSTR */       docmd_xstr,        "XSTR",                0x20, 0x41, 0x00, 0x00,  4, ARG_XSTR,   0, NA_T },
     { /* XASTO */      docmd_xrom,        "XASTO",               0x00, 0x01, 0xf2, 0x11,  5, ARG_VAR,    0, UNIM },
     { /* LXASTO */     docmd_xrom,        "LXASTO",              0x00, 0x02, 0xf2, 0x12,  6, ARG_NAMED,  0, UNIM },
     { /* APPEND */     docmd_xrom,        "APPEND",              0x00, 0x00, 0xa7, 0xe9,  6, ARG_NONE,   0, UNIM },

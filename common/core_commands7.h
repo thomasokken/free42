@@ -90,4 +90,6 @@ int docmd_0_gt_nn(arg_struct *arg);
 int docmd_0_le_nn(arg_struct *arg);
 int docmd_0_ge_nn(arg_struct *arg);
 
+int docmd_xstr(arg_struct *arg);
+
 #endif
