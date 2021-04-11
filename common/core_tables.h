@@ -550,7 +550,7 @@
 
 struct arg_struct {
     unsigned char type;
-    unsigned char length;
+    unsigned short length;
     int4 target;
     union {
         int4 num;

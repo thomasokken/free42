@@ -3914,6 +3914,7 @@ bool read_arg(arg_struct *arg, bool old) {
     if (state_is_portable) {
         if (!read_char((char *) &arg->type))
             return false;
+        char c;
         switch (arg->type) {
             case ARGTYPE_NONE:
                 return true;
@@ -3927,8 +3928,13 @@ bool read_arg(arg_struct *arg, bool old) {
                 return read_char(&arg->val.stk);
             case ARGTYPE_STR:
             case ARGTYPE_IND_STR:
-                return read_char((char *) &arg->length)
-                && fread(arg->val.text, 1, arg->length, gfile) == arg->length;
+                // Serializing 'length' as a char for backward compatibility.
+                // Values > 255 only happen for XSTR, and those are never
+                // serialized.
+                if (!read_char(&c))
+                    return false;
+                arg->length = c & 255;
+                return fread(arg->val.text, 1, arg->length, gfile) == arg->length;
             case ARGTYPE_COMMAND:
                 return read_int(&arg->val.cmd);
             case ARGTYPE_LCLBL:
