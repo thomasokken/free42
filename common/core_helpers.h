@@ -69,8 +69,8 @@ int effective_wsize();
 phloat base2phloat(int8 n);
 bool phloat2base(phloat p, int8 *n);
 
-void print_text(const char *text, int length, int left_justified);
-void print_lines(const char *text, int length, int left_justified);
+void print_text(const char *text, int length, bool left_justified);
+void print_lines(const char *text, int length, bool left_justified);
 void print_right(const char *left, int leftlen,
                  const char *right, int rightlen);
 void print_wide(const char *left, int leftlen,

@@ -880,7 +880,7 @@ bool phloat2base(phloat p, int8 *res) {
     return true;
 }
 
-void print_text(const char *text, int length, int left_justified) {
+void print_text(const char *text, int length, bool left_justified) {
     /* TODO: check preferences so we don't waste any time generating
      * print-outs that aren't going to be accepted by the shell anyway
      */
@@ -939,14 +939,14 @@ void print_text(const char *text, int length, int left_justified) {
     shell_print(buf, bufptr, bitmap, 18, 0, 0, 143, 9);
 }
 
-void print_lines(const char *text, int length, int left_justified) {
+void print_lines(const char *text, int length, bool left_justified) {
     int line_start = 0;
     int width = flags.f.double_wide_print ? 12 : 24;
     while (line_start + width < length) {
         print_text(text + line_start, width, left_justified);
         line_start += width;
     }
-    print_text(text + line_start, length - line_start, left_justified);
+    print_text(text + line_start, length - line_start, length > width ? true : left_justified);
 }
 
 void print_right(const char *left, int leftlen, const char *right, int rightlen) {
@@ -967,16 +967,16 @@ void print_right(const char *left, int leftlen, const char *right, int rightlen)
             buf[len++] = ' ';
         for (i = 0; i < rightlen; i++)
             buf[len++] = right[i];
-        print_text(buf, len, 0);
+        print_text(buf, len, false);
     } else {
         int line_start = 0;
         while (leftlen - line_start >= width) {
-            print_text(left + line_start, width, 1);
+            print_text(left + line_start, width, true);
             line_start += width;
         }
         if (leftlen - line_start + rightlen + 1 > width) {
-            print_text(left + line_start, leftlen - line_start, 1);
-            print_text(right, rightlen, 0);
+            print_text(left + line_start, leftlen - line_start, true);
+            print_text(right, rightlen, false);
         } else {
             string_copy(buf, &len, left + line_start, leftlen - line_start);
             pad = width - len - rightlen;
@@ -984,7 +984,7 @@ void print_right(const char *left, int leftlen, const char *right, int rightlen)
                 buf[len++] = ' ';
             for (i = 0; i < rightlen; i++)
                 buf[len++] = right[i];
-            print_text(buf, len, 1);
+            print_text(buf, len, true);
         }
     }
 }
@@ -1001,24 +1001,24 @@ void print_wide(const char *left, int leftlen, const char *right, int rightlen) 
             buf[bufptr++] = ' ';
         for (i = 0; i < rightlen; i++)
             buf[bufptr++] = right[i];
-        print_text(buf, bufptr, 1);
+        print_text(buf, bufptr, true);
     } else {
         for (i = 0; i < leftlen; i++) {
             buf[bufptr++] = left[i];
             if (bufptr == width) {
-                print_text(buf, width, 1);
+                print_text(buf, width, true);
                 bufptr = 0;
             }
         }
         for (i = 0; i < rightlen; i++) {
             buf[bufptr++] = right[i];
             if (bufptr == width) {
-                print_text(buf, width, 1);
+                print_text(buf, width, true);
                 bufptr = 0;
             }
         }
         if (bufptr > 0)
-            print_text(buf, bufptr, 1);
+            print_text(buf, bufptr, true);
     }
 }
 
@@ -1074,7 +1074,7 @@ void print_command(int cmd, const arg_struct *arg) {
          * on one line, we print them left-justified, because having the excess
          * go near the right margin looks weird and confusing.
          */
-        int left = bufptr > (flags.f.double_wide_print ? 12 : 24);
+        bool left = bufptr > (flags.f.double_wide_print ? 12 : 24);
         print_lines(buf, bufptr, left);
     }
 

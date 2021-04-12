@@ -587,7 +587,7 @@ static int finish_solve(int message) {
 
     if (print && message != SOLVE_ROOT)
         print_lines(solve_message[message].text,
-                    solve_message[message].length, 1);
+                    solve_message[message].length, true);
 
     return solve.keep_running ? ERR_NONE : ERR_STOP;
 }

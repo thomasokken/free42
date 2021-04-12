@@ -50,7 +50,7 @@ void show();
 void redisplay();
 
 void print_display();
-int print_program(int prgm_index, int4 pc, int4 lines, int normal);
+int print_program(int prgm_index, int4 pc, int4 lines, bool normal);
 void print_program_line(int prgm_index, int4 pc);
 int command2buf(char *buf, int len, int cmd, const arg_struct *arg);
 

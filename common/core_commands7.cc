@@ -521,7 +521,7 @@ int docmd_date(arg_struct *arg) {
         flags.f.message = 1;
         flags.f.two_line_message = 0;
         if (flags.f.trace_print && flags.f.printer_exists)
-            print_text(buf, bufptr, 1);
+            print_text(buf, bufptr, true);
     }
     return recall_result(new_x);
 }
@@ -611,7 +611,7 @@ int docmd_dow(arg_struct *arg) {
         flags.f.message = 1;
         flags.f.two_line_message = 0;
         if (flags.f.trace_print && flags.f.printer_exists)
-            print_text(weekdaynames + jd * 3, 3, 1);
+            print_text(weekdaynames + jd * 3, 3, true);
     }
 
     unary_result(new_x);
@@ -666,7 +666,7 @@ int docmd_time(arg_struct *arg) {
         flags.f.message = 1;
         flags.f.two_line_message = 0;
         if (flags.f.trace_print && flags.f.printer_exists)
-            print_text(buf, bufptr, 1);
+            print_text(buf, bufptr, true);
     }
     return recall_result(new_x);
 }
@@ -1264,7 +1264,7 @@ int docmd_prmvar(arg_struct *arg) {
             break;
         if (!found) {
             shell_annunciators(-1, -1, 1, -1, -1, -1);
-            print_text(NULL, 0, 1);
+            print_text(NULL, 0, true);
             found = true;
         }
 

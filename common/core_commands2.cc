@@ -1051,7 +1051,7 @@ int docmd_prsigma(arg_struct *arg) {
         return ERR_PRINTING_IS_DISABLED;
 
     shell_annunciators(-1, -1, 1, -1, -1, -1);
-    print_text(NULL, 0, 1);
+    print_text(NULL, 0, true);
     for (i = 0; i < nr; i++) {
         int4 j = i + mode_sigma_reg;
         if (rm->array->is_string[j] != 0) {
@@ -1086,7 +1086,7 @@ int docmd_prp(arg_struct *arg) {
         return ERR_INVALID_TYPE;
     if (!flags.f.printer_exists)
         return ERR_PRINTING_IS_DISABLED;
-    return print_program(prgm_index, -1, -1, 0);
+    return print_program(prgm_index, -1, -1, false);
 }
 
 static vartype *prv_var;
@@ -1245,10 +1245,10 @@ int docmd_prstk(arg_struct *arg) {
         return ERR_PRINTING_IS_DISABLED;
     shell_annunciators(-1, -1, 1, -1, -1, -1);
     if (arg != NULL)
-        print_text(NULL, 0, 1);
+        print_text(NULL, 0, true);
     if (flags.f.big_stack) {
         if (sp == -1)
-            print_text("<Empty Stack>", 13, 1);
+            print_text("<Empty Stack>", 13, true);
         else {
             char nbuf[8];
             int nlen;
@@ -1307,24 +1307,24 @@ int docmd_pra(arg_struct *arg) {
         return ERR_PRINTING_IS_DISABLED;
     shell_annunciators(-1, -1, 1, -1, -1, -1);
     if (reg_alpha_length == 0)
-        print_text(NULL, 0, 1);
+        print_text(NULL, 0, true);
     else {
         int line_start = 0;
         int width = flags.f.double_wide_print ? 12 : 24;
         int i;
         for (i = 0; i < reg_alpha_length; i++) {
             if (reg_alpha[i] == 10) {
-                print_text(reg_alpha + line_start, i - line_start, 1);
+                print_text(reg_alpha + line_start, i - line_start, true);
                 line_start = i + 1;
             } else if (i == line_start + width) {
-                print_text(reg_alpha + line_start, i - line_start, 1);
+                print_text(reg_alpha + line_start, i - line_start, true);
                 line_start = i;
             }
         }
         if (line_start < reg_alpha_length
                 || (line_start > 0 && reg_alpha[line_start - 1] == 10))
             print_text(reg_alpha + line_start,
-                       reg_alpha_length - line_start, 1);
+                       reg_alpha_length - line_start, true);
     }
     shell_annunciators(-1, -1, 0, -1, -1, -1);
     return ERR_NONE;
@@ -1361,7 +1361,7 @@ int docmd_prx(arg_struct *arg) {
                 * one line, we print it left-justified, because having the excess
                 * go near the right margin looks weird and confusing.
                 */
-                int left = len > (flags.f.double_wide_print ? 12 : 24);
+                bool left = len > (flags.f.double_wide_print ? 12 : 24);
                 print_lines(buf, len, left);
             }
         }
@@ -1393,7 +1393,7 @@ int docmd_prusr(arg_struct *arg) {
         return ERR_PRINTING_IS_DISABLED;
     else {
         shell_annunciators(-1, -1, 1, -1, -1, -1);
-        print_text(NULL, 0, 1);
+        print_text(NULL, 0, true);
         prusr_state = 0;
         prusr_index = vars_count - 1;
         mode_interruptible = prusr_worker;
@@ -1414,7 +1414,7 @@ static int prusr_worker(bool interrupted) {
         int llen, rlen;
         if (prusr_index < 0) {
             if (vars_count > 0)
-                print_text(NULL, 0, 1);
+                print_text(NULL, 0, true);
             prusr_state = 1;
             prusr_index = 0;
             goto state1;
@@ -1462,7 +1462,7 @@ static int prusr_worker(bool interrupted) {
                                       labels[prusr_index].length);
             char2buf(buf, 13, &len, '"');
         }
-        print_text(buf, len, 1);
+        print_text(buf, len, true);
         prusr_index++;
     }
     return ERR_INTERRUPTIBLE;
@@ -1475,14 +1475,14 @@ int docmd_list(arg_struct *arg) {
         return ERR_NONE;
     if (!flags.f.printer_exists)
         return ERR_PRINTING_IS_DISABLED;
-    return print_program(current_prgm, pc, arg->val.num, 0);
+    return print_program(current_prgm, pc, arg->val.num, false);
 }
 
 int docmd_adv(arg_struct *arg) {
     if (flags.f.printer_exists
             && (flags.f.printer_enable || !program_running())) {
         shell_annunciators(-1, -1, 1, -1, -1, -1);
-        print_text(NULL, 0, 1);
+        print_text(NULL, 0, true);
         shell_annunciators(-1, -1, 0, -1, -1, -1);
     }
     return ERR_NONE;

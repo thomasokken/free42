@@ -1301,7 +1301,7 @@ void display_error(int error, bool print) {
     flags.f.two_line_message = 0;
     if (print && (flags.f.trace_print || flags.f.normal_print)
             && flags.f.printer_exists)
-        print_text(err_text, err_len, 1);
+        print_text(err_text, err_len, true);
 }
 
 void display_command(int row) {
@@ -2299,14 +2299,15 @@ struct prp_data_struct {
     int4 lines;
     int width;
     int first;
-    int trace;
-    int normal;
+    bool trace;
+    bool normal;
+    bool full_xstr;
 };
 
 static prp_data_struct *prp_data;
 static int print_program_worker(bool interrupted);
 
-int print_program(int prgm_index, int4 pc, int4 lines, int normal) {
+int print_program(int prgm_index, int4 pc, int4 lines, bool normal) {
     prp_data_struct *dat = (prp_data_struct *) malloc(sizeof(prp_data_struct));
     if (dat == NULL)
         return ERR_INSUFFICIENT_MEMORY;
@@ -2321,11 +2322,13 @@ int print_program(int prgm_index, int4 pc, int4 lines, int normal) {
     dat->width = flags.f.double_wide_print ? 12 : 24;
     dat->first = 1;
     if (normal) {
-        dat->trace = 0;
-        dat->normal = 1;
+        dat->trace = false;
+        dat->normal = true;
+        dat->full_xstr = false;
     } else {
         dat->trace = flags.f.trace_print;
         dat->normal = flags.f.normal_print;
+        dat->full_xstr = true;
     }
 
     current_prgm = prgm_index;
@@ -2339,7 +2342,7 @@ int print_program(int prgm_index, int4 pc, int4 lines, int normal) {
         while ((err = print_program_worker(false)) == ERR_INTERRUPTIBLE);
         return err;
     } else {
-        print_text(NULL, 0, 1);
+        print_text(NULL, 0, true);
         mode_interruptible = print_program_worker;
         mode_stoppable = true;
         return ERR_INTERRUPTIBLE;
@@ -2364,11 +2367,11 @@ static int print_program_worker(bool interrupted) {
         if (dat->trace) {
             if (dat->cmd == CMD_LBL || dat->first) {
                 if (dat->len > 0) {
-                    print_lines(dat->buf, dat->len, 1);
+                    print_lines(dat->buf, dat->len, true);
                     printed = 1;
                 }
                 if (!dat->first)
-                    print_text(NULL, 0, 1);
+                    print_text(NULL, 0, true);
                 dat->first = 0;
                 dat->buf[0] = ' ';
                 dat->len = 1 + prgmline2buf(dat->buf + 1, 100 - 1, dat->line,
@@ -2376,7 +2379,7 @@ static int print_program_worker(bool interrupted) {
                                             &dat->arg, orig_num);
                 if (dat->cmd == CMD_LBL || dat->cmd == CMD_END
                         || dat->lines == 1) {
-                    print_lines(dat->buf, dat->len, 1);
+                    print_lines(dat->buf, dat->len, true);
                     printed = 1;
                     dat->len = 0;
                 }
@@ -2387,11 +2390,11 @@ static int print_program_worker(bool interrupted) {
                     dat->buf[dat->len++] = ' ';
                 }
                 len2 = prgmline2buf(dat->buf + dat->len, 100 - dat->len, -1, 0,
-                                                dat->cmd, &dat->arg, orig_num,
-                                                false, true, &xstr);
+                                    dat->cmd, &dat->arg, orig_num,
+                                    false, true, dat->full_xstr ? &xstr : NULL);
                 if (dat->len > 0 && dat->len + len2 > dat->width) {
                     /* Break line before current instruction */
-                    print_lines(dat->buf, dat->len - 2, 1);
+                    print_lines(dat->buf, dat->len - 2, true);
                     printed = 1;
                     if (xstr == NULL) {
                         for (i = 0; i < len2; i++)
@@ -2403,17 +2406,17 @@ static int print_program_worker(bool interrupted) {
                 } else if (xstr != NULL) {
                     print_xstr:
                     int plen = (len2 / dat->width) * dat->width;
-                    print_lines(xstr, plen, 1);
+                    print_lines(xstr, plen, true);
                     memcpy(dat->buf, xstr + plen, len2 - plen);
                     dat->len = len2 - plen;
                 } else
                     dat->len += len2;
                 if (dat->lines == 1 || dat->cmd == CMD_END) {
-                    print_lines(dat->buf, dat->len, 1);
+                    print_lines(dat->buf, dat->len, true);
                     printed = 1;
                 } else if (dat->len >= dat->width) {
                     len2 = (dat->len / dat->width) * dat->width;
-                    print_lines(dat->buf, len2, 1);
+                    print_lines(dat->buf, len2, true);
                     printed = 1;
                     for (i = len2; i < dat->len; i++)
                         dat->buf[i - len2] = dat->buf[i];
@@ -2423,7 +2426,8 @@ static int print_program_worker(bool interrupted) {
         } else {
             dat->len = prgmline2buf(dat->buf, 100, dat->line,
                                     dat->cmd == CMD_LBL, dat->cmd, &dat->arg,
-                                    orig_num, false, true, &xstr);
+                                    orig_num, false, true,
+                                    dat->full_xstr ? &xstr : NULL);
             char *buf2 = xstr == NULL ? dat->buf : xstr;
             if (dat->normal) {
                 /* In normal mode, programs are printed right-justified;
@@ -2439,7 +2443,7 @@ static int print_program_worker(bool interrupted) {
                     buf2[dat->len++] = ' ';
                 /* Insert blank line above LBLs */
                 if (dat->cmd == CMD_LBL && !dat->first)
-                    print_text(NULL, 0, 1);
+                    print_text(NULL, 0, true);
                 dat->first = 0;
             }
             print_lines(buf2, dat->len, !dat->normal);
@@ -2462,7 +2466,7 @@ static int print_program_worker(bool interrupted) {
 }
 
 void print_program_line(int prgm_index, int4 pc) {
-    print_program(prgm_index, pc, 1, 1);
+    print_program(prgm_index, pc, 1, true);
 }
 
 int command2buf(char *buf, int len, int cmd, const arg_struct *arg) {

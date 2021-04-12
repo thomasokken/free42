@@ -566,7 +566,7 @@ bool core_keyup() {
         if ((flags.f.trace_print || flags.f.normal_print)
                 && flags.f.printer_exists) {
             if (cmd == CMD_LBL)
-                print_text(NULL, 0, 1);
+                print_text(NULL, 0, true);
             print_program_line(current_prgm, oldpc);
         }
         mode_disable_stack_lift = false;
@@ -4289,7 +4289,7 @@ static void continue_running() {
         get_next_command(&pc, &cmd, &arg, 1, NULL);
         if (flags.f.trace_print && flags.f.printer_exists) {
             if (cmd == CMD_LBL)
-                print_text(NULL, 0, 1);
+                print_text(NULL, 0, true);
             print_program_line(current_prgm, oldpc);
         }
         mode_disable_stack_lift = false;
