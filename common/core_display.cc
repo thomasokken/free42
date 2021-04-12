@@ -978,7 +978,8 @@ void clear_row(int row) {
 static int prgmline2buf(char *buf, int len, int4 line, int highlight,
                         int cmd, arg_struct *arg, const char *orig_num,
                         bool shift_left = false,
-                        bool highlight_final_end = true) {
+                        bool highlight_final_end = true,
+                        char **xstr = NULL) {
     int bufptr = 0;
     if (line != -1) {
         if (line < 10)
@@ -1044,8 +1045,16 @@ static int prgmline2buf(char *buf, int len, int4 line, int highlight,
         string2buf(buf, len, &bufptr, arg->val.text + append,
                                      arg->length - append);
         char2buf(buf, len, &bufptr, '"');
-    } else
+    } else if (cmd == CMD_XSTR && xstr != NULL && bufptr + 7 + arg->length > len) {
+        *xstr = (char *) malloc(bufptr + 7 + arg->length);
+        if (*xstr == NULL)
+            goto normal;
+        memcpy(*xstr, buf, bufptr);
+        bufptr += command2buf(*xstr + bufptr, arg->length + 7, cmd, arg);
+    } else {
+        normal:
         bufptr += command2buf(buf + bufptr, len - bufptr, cmd, arg);
+    }
 
     return bufptr;
 }
@@ -1093,14 +1102,22 @@ void tb_print_current_program(textbuf *tb) {
             if (cmd == CMD_END)
                 end = true;
         }
-        int len = prgmline2buf(buf, 100, line, cmd == CMD_LBL, cmd, &arg, orig_num, false, false);
+        char *xstr = NULL;
+        int len = prgmline2buf(buf, 100, line, cmd == CMD_LBL, cmd, &arg, orig_num, false, false, &xstr);
+        char *buf2 = xstr == NULL ? buf : xstr;
         for (int i = 0; i < len; i++)
-            if (buf[i] == 10)
-                buf[i] = 138;
-        int utf8len = hp2ascii(utf8buf, buf, len);
-        utf8buf[utf8len++] = '\r';
-        utf8buf[utf8len++] = '\n';
-        tb_write(tb, utf8buf, utf8len);
+            if (buf2[i] == 10)
+                buf2[i] = 138;
+        int off = 0;
+        while (len > 0) {
+            int slen = len <= 100 ? len : 100;
+            int utf8len = hp2ascii(utf8buf, buf2 + off, slen);
+            tb_write(tb, utf8buf, utf8len);
+            off += slen;
+            len -= slen;
+        }
+        tb_write(tb, "\r\n", 2);
+        free(xstr);
         line++;
     } while (!end);
 }
@@ -2343,6 +2360,7 @@ static int print_program_worker(bool interrupted) {
         else
             get_next_command(&dat->pc, &dat->cmd, &dat->arg, 0, &orig_num);
 
+        char *xstr = NULL;
         if (dat->trace) {
             if (dat->cmd == CMD_LBL || dat->first) {
                 if (dat->len > 0) {
@@ -2369,14 +2387,25 @@ static int print_program_worker(bool interrupted) {
                     dat->buf[dat->len++] = ' ';
                 }
                 len2 = prgmline2buf(dat->buf + dat->len, 100 - dat->len, -1, 0,
-                                                        dat->cmd, &dat->arg, orig_num);
+                                                dat->cmd, &dat->arg, orig_num,
+                                                false, true, &xstr);
                 if (dat->len > 0 && dat->len + len2 > dat->width) {
                     /* Break line before current instruction */
                     print_lines(dat->buf, dat->len - 2, 1);
                     printed = 1;
-                    for (i = 0; i < len2; i++)
-                        dat->buf[i] = dat->buf[dat->len + i];
-                    dat->len = len2;
+                    if (xstr == NULL) {
+                        for (i = 0; i < len2; i++)
+                            dat->buf[i] = dat->buf[dat->len + i];
+                        dat->len = len2;
+                    } else {
+                        goto print_xstr;
+                    }
+                } else if (xstr != NULL) {
+                    print_xstr:
+                    int plen = (len2 / dat->width) * dat->width;
+                    print_lines(xstr, plen, 1);
+                    memcpy(dat->buf, xstr + plen, len2 - plen);
+                    dat->len = len2 - plen;
                 } else
                     dat->len += len2;
                 if (dat->lines == 1 || dat->cmd == CMD_END) {
@@ -2393,7 +2422,9 @@ static int print_program_worker(bool interrupted) {
             }
         } else {
             dat->len = prgmline2buf(dat->buf, 100, dat->line,
-                                    dat->cmd == CMD_LBL, dat->cmd, &dat->arg, orig_num);
+                                    dat->cmd == CMD_LBL, dat->cmd, &dat->arg,
+                                    orig_num, false, true, &xstr);
+            char *buf2 = xstr == NULL ? dat->buf : xstr;
             if (dat->normal) {
                 /* In normal mode, programs are printed right-justified;
                  * we pad the instuctions to a minimum of 8 characters so
@@ -2402,18 +2433,19 @@ static int print_program_worker(bool interrupted) {
                  * right after the first space or 'goose' (6) character.
                  */
                 int p = 0;
-                while (dat->buf[p] != ' ' && dat->buf[p] != 6)
+                while (buf2[p] != ' ' && buf2[p] != 6)
                     p++;
                 while (dat->len < p + 9)
-                    dat->buf[dat->len++] = ' ';
+                    buf2[dat->len++] = ' ';
                 /* Insert blank line above LBLs */
                 if (dat->cmd == CMD_LBL && !dat->first)
                     print_text(NULL, 0, 1);
                 dat->first = 0;
             }
-            print_lines(dat->buf, dat->len, !dat->normal);
+            print_lines(buf2, dat->len, !dat->normal);
             printed = 1;
         }
+        free(xstr);
         dat->line++;
         dat->lines--;
 
