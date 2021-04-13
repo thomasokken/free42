@@ -3528,6 +3528,22 @@ static void paste_programs(const char *buf) {
                 arg.length = len;
                 memcpy(arg.val.text, hpbuf + hppos + 1, len);
                 goto store;
+            } else if (cmd == CMD_XSTR) {
+                int q1 = -1, q2 = -1;
+                for (int i = hppos; i < hpend; i++) {
+                    if (hpbuf[i] == '"') {
+                        if (q1 == -1)
+                            q1 = i;
+                        else
+                            q2 = i;
+                    }
+                }
+                if (q2 == -1)
+                    goto line_done;
+                arg.type = ARGTYPE_XSTR;
+                arg.length = q2 - q1 - 1;
+                arg.val.xstr = hpbuf + q1 + 1;
+                goto store;
             } else if (cmd != CMD_NONE) {
                 int flags;
                 flags = cmd_array[cmd].flags;
