@@ -2416,6 +2416,9 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
             pending_end = true;
         } else {
             store_command_after(&pc, cmd, &arg, numbuf);
+            free(xstr_buf);
+            xstr_buf = NULL;
+            xstr_len = 0;
         }
     }
 
