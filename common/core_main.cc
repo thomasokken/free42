@@ -3249,7 +3249,8 @@ static void paste_programs(const char *buf) {
     bool after_end = true;
     bool done = false;
     int pos = 0;
-    char hpbuf[1027];
+    char hpbuf_s[259];
+    char *hpbuf = NULL;
     int cmd;
     arg_struct arg;
     char numbuf[50];
@@ -3265,8 +3266,20 @@ static void paste_programs(const char *buf) {
             goto line_done;
         // We now have a line between 'pos' and 'end', length 'end - pos'.
         // Convert to HP-42S encoding:
+        int alen;
+        alen = end - pos;
+        if (alen > 255) {
+            hpbuf = (char *) malloc(alen + 4);
+            if (hpbuf == NULL) {
+                display_error(ERR_INSUFFICIENT_MEMORY, false);
+                redisplay();
+                return;
+            }
+        } else {
+            hpbuf = hpbuf_s;
+        }
         int hpend;
-        hpend = ascii2hp(hpbuf, 1023, buf + pos, end - pos);
+        hpend = ascii2hp(hpbuf, alen, buf + pos, alen);
         // Perform additional translations, to support various 42S-to-text
         // and 41-to-text conversion schemes:
         hpend = text2hp(hpbuf, hpend);
@@ -3842,6 +3855,10 @@ static void paste_programs(const char *buf) {
             goto store;
         }
         pos = end + 1;
+        if (hpbuf != hpbuf_s) {
+            free(hpbuf);
+            hpbuf = NULL;
+        }
     }
 }
 
