@@ -193,11 +193,11 @@ bool core_hex_menu() {
     return get_front_menu() == MENU_BASE_A_THRU_F;
 }
 
-static int ascii2hp(char *dst, const char *src, int maxchars);
+static int ascii2hp(char *dst, int dstlen, const char *src, int srclen = -1);
 
 bool core_keydown_command(const char *name, bool *enqueued, int *repeat) {
     char hpname[70];
-    int len = ascii2hp(hpname, name, 63);
+    int len = ascii2hp(hpname, 63, name);
     int cmd = find_builtin(hpname, len, false);
     if (cmd == CMD_NONE) {
         set_shift(false);
@@ -2744,10 +2744,10 @@ static bool parse_phloat(const char *p, int len, phloat *res) {
         return false;
 }
 
-/* NOTE: The destination buffer should be able to store maxchars + 4
+/* NOTE: The destination buffer should be able to store dstlen + 4
  * characters, because of how we parse [LF] and [ESC].
  */
-static int ascii2hp(char *dst, const char *src, int maxchars) {
+static int ascii2hp(char *dst, int dstlen, const char *src, int srclen) {
     int srcpos = 0, dstpos = 0;
     // state machine for detecting [LF] and [ESC]:
     // 0: ''
@@ -2759,8 +2759,8 @@ static int ascii2hp(char *dst, const char *src, int maxchars) {
     // 6: '[ESC'
     int state = 0;
     bool afterCR = false;
-    while (dstpos < maxchars + (state == 0 ? 1 : 4)) {
-        char c = src[srcpos++];
+    while (dstpos < dstlen + (state == 0 ? 1 : 4)) {
+        char c = srclen == -1 || srcpos < srclen ? src[srcpos++] : 0;
         retry:
         if (c == 0)
             break;
@@ -2786,7 +2786,7 @@ static int ascii2hp(char *dst, const char *src, int maxchars) {
                 continue;
             }
             while (len-- > 0) {
-                c = src[srcpos++];
+                c = srclen == -1 || srcpos < srclen ? src[srcpos++] : 0;
                 if ((c & 0xc0) != 0x80)
                     // Unexpected non-continuation byte
                     goto retry;
@@ -2968,7 +2968,7 @@ static int ascii2hp(char *dst, const char *src, int maxchars) {
         }
         dst[dstpos++] = (char) code;
     }
-    return dstpos > maxchars ? maxchars : dstpos;
+    return dstpos > dstlen ? dstlen : dstpos;
 }
 
 struct text_alias {
@@ -3249,7 +3249,6 @@ static void paste_programs(const char *buf) {
     bool after_end = true;
     bool done = false;
     int pos = 0;
-    char asciibuf[1024];
     char hpbuf[1027];
     int cmd;
     arg_struct arg;
@@ -3267,9 +3266,7 @@ static void paste_programs(const char *buf) {
         // We now have a line between 'pos' and 'end', length 'end - pos'.
         // Convert to HP-42S encoding:
         int hpend;
-        strncpy(asciibuf, buf + pos, end - pos);
-        asciibuf[end - pos] = 0;
-        hpend = ascii2hp(hpbuf, asciibuf, 1023);
+        hpend = ascii2hp(hpbuf, 1023, buf + pos, end - pos);
         // Perform additional translations, to support various 42S-to-text
         // and 41-to-text conversion schemes:
         hpend = text2hp(hpbuf, hpend);
@@ -3841,7 +3838,7 @@ void core_paste(const char *buf) {
         paste_programs(buf);
     } else if (alpha_active()) {
         char hpbuf[48];
-        int len = ascii2hp(hpbuf, buf, 44);
+        int len = ascii2hp(hpbuf, 44, buf);
         int tlen = len + reg_alpha_length;
         if (tlen > 44) {
             int off = tlen - 44;
@@ -3896,27 +3893,18 @@ void core_paste(const char *buf) {
         } else if (rows == 1 && cols == 1) {
             // Scalar
             int len = (int) strlen(buf);
-            char *asciibuf = (char *) malloc(len + 1);
-            if (asciibuf == NULL) {
-                display_error(ERR_INSUFFICIENT_MEMORY, false);
-                redisplay();
-                return;
-            }
-            strcpy(asciibuf, buf);
-            if (len > 0 && asciibuf[len - 1] == '\n') {
-                asciibuf[--len] = 0;
-                if (len > 0 && asciibuf[len - 1] == '\r')
-                    asciibuf[--len] = 0;
+            if (len > 0 && buf[len - 1] == '\n') {
+                len--;
+                if (len > 0 && buf[len - 1] == '\r')
+                    len--;
             }
             char *hpbuf = (char *) malloc(len + 4);
             if (hpbuf == NULL) {
-                free(asciibuf);
                 display_error(ERR_INSUFFICIENT_MEMORY, false);
                 redisplay();
                 return;
             }
-            len = ascii2hp(hpbuf, asciibuf, len);
-            free(asciibuf);
+            len = ascii2hp(hpbuf, len, buf, len);
             v = parse_base(hpbuf, len);
             if (v == NULL) {
                 phloat re, im;
@@ -3956,17 +3944,8 @@ void core_paste(const char *buf) {
                 redisplay();
                 return;
             }
-            char *asciibuf = (char *) malloc(max_cell_size + 1);
-            if (asciibuf == NULL) {
-                free(data);
-                free(is_string);
-                display_error(ERR_INSUFFICIENT_MEMORY, false);
-                redisplay();
-                return;
-            }
             char *hpbuf = (char *) malloc(max_cell_size + 5);
             if (hpbuf == NULL) {
-                free(asciibuf);
                 free(data);
                 free(is_string);
                 display_error(ERR_INSUFFICIENT_MEMORY, false);
@@ -3980,15 +3959,13 @@ void core_paste(const char *buf) {
                 c = buf[pos++];
                 if (c == 0 || c == '\t' || c == '\r' || c == '\n') {
                     int cellsize = pos - spos - 1;
-                    memcpy(asciibuf, buf + spos, cellsize);
                     if (c == '\r') {
                         c = '\n';
                         if (buf[pos] == '\n')
                             pos++;
                     }
+                    int hplen = ascii2hp(hpbuf, cellsize, buf + spos, cellsize);
                     spos = pos;
-                    asciibuf[cellsize] = 0;
-                    int hplen = ascii2hp(hpbuf, asciibuf, cellsize);
                     phloat re, im;
                     int slen;
                     int type = parse_scalar(hpbuf, hplen, true, &re, &im, &slen);
@@ -4010,7 +3987,6 @@ void core_paste(const char *buf) {
                                 if (newdata == NULL) {
                                     nomem:
                                     free(data);
-                                    free(asciibuf);
                                     free(hpbuf);
                                     display_error(ERR_INSUFFICIENT_MEMORY, false);
                                     redisplay();
@@ -4092,7 +4068,6 @@ void core_paste(const char *buf) {
                     break;
             }
 
-            free(asciibuf);
             free(hpbuf);
             if (is_string != NULL) {
                 vartype_realmatrix *rm = (vartype_realmatrix *)
