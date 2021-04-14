@@ -3010,14 +3010,7 @@ int push_rtn_addr(int prgm, int4 pc) {
     return ERR_NONE;
 }
 
-int push_indexed_matrix(const char *name, int len) {
-    if (matedit_mode == 0 || matedit_mode == 2)
-        return ERR_NONE;
-    if (!string_equals(name, len, matedit_name, matedit_length))
-        return ERR_NONE;
-    if (matedit_mode == 3)
-        return ERR_RESTRICTED_OPERATION;
-    
+int push_indexed_matrix() {
     if (rtn_level == 0) {
         if (rtn_level_0_has_matrix_entry)
             return ERR_NONE;
@@ -3033,7 +3026,7 @@ int push_indexed_matrix(const char *name, int len) {
         rtn_sp += 2;
         rtn_stack_matrix_name_entry e1;
         int dlen;
-        string_copy(e1.name, &dlen, name, len);
+        string_copy(e1.name, &dlen, matedit_name, matedit_length);
         e1.length = dlen;
         memcpy(&rtn_stack[rtn_sp - 1], &e1, sizeof(e1));
         rtn_stack_matrix_ij_entry e2;
@@ -3056,7 +3049,7 @@ int push_indexed_matrix(const char *name, int len) {
         rtn_stack[rtn_sp - 1].set_has_matrix(true);
         rtn_stack_matrix_name_entry e1;
         int dlen;
-        string_copy(e1.name, &dlen, name, len);
+        string_copy(e1.name, &dlen, matedit_name, matedit_length);
         e1.length = dlen;
         memcpy(&rtn_stack[rtn_sp - 2], &e1, sizeof(e1));
         rtn_stack_matrix_ij_entry e2;

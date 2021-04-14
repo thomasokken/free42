@@ -542,7 +542,13 @@ int store_var(const char *name, int namelength, vartype *value, bool local) {
             vars[varindex].name[i] = name[i];
         vars[varindex].level = get_rtn_level();
         vars[varindex].flags = VAR_HIDING;
-        push_indexed_matrix(name, namelength);
+        if ((matedit_mode == 1 || matedit_mode == 3)
+                && string_equals(name, namelength, matedit_name, matedit_length)) {
+            if (matedit_mode == 3)
+                return ERR_RESTRICTED_OPERATION;
+            else
+                push_indexed_matrix();
+        }
     } else {
         if (matedit_mode == 1 &&
                 string_equals(name, namelength, matedit_name, matedit_length)) {

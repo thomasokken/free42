@@ -1372,12 +1372,24 @@ int docmd_index(arg_struct *arg) {
     if (arg->type != ARGTYPE_STR)
         return ERR_INVALID_TYPE;
 
-    m = recall_var(arg->val.text, arg->length);
-    if (m == NULL)
+    int mi = lookup_var(arg->val.text, arg->length);
+    if (mi == -1)
         return ERR_NONEXISTENT;
+    m = vars[mi].value;
     if (m->type != TYPE_REALMATRIX && m->type != TYPE_COMPLEXMATRIX)
         return ERR_INVALID_TYPE;
 
+    /* If the matrix we're about to index is local, and another matrix
+     * is already indexed, and that other matrix is not a local at the same
+     * level, then we push the IJ pointers, so the previous indexing is
+     * restored when this function returns.
+     */
+    if (matedit_mode == 1) {
+        int varindex = lookup_var(matedit_name, matedit_length);
+        if (vars[varindex].level < vars[mi].level)
+            push_indexed_matrix();
+    }
+    
     /* TODO: keep a 'weak' lock on the matrix while it is indexed.
      * If it is deleted or redimensioned, I and J should be reset to 1.
      * Note that the current code uses a lazy, keep-it-safe approach
