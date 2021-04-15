@@ -899,59 +899,72 @@ int docmd_editn(arg_struct *arg) {
     }
     if (arg->type != ARGTYPE_STR)
         return ERR_INVALID_TYPE;
-    m = recall_var(arg->val.text, arg->length);
-    if (m == NULL)
+    
+    int mi = lookup_var(arg->val.text, arg->length);
+    if (mi == -1)
         return ERR_NONEXISTENT;
-    else if (m->type != TYPE_REALMATRIX && m->type != TYPE_COMPLEXMATRIX)
+    m = vars[mi].value;
+    if (m->type != TYPE_REALMATRIX && m->type != TYPE_COMPLEXMATRIX)
         return ERR_INVALID_TYPE;
-    else {
-        vartype *v;
-        int i;
-        if (m->type == TYPE_REALMATRIX) {
-            vartype_realmatrix *rm = (vartype_realmatrix *) m;
-            if (rm->array->is_string[0] != 0) {
-                char *text;
-                int4 len;
-                get_matrix_string(rm , 0, &text, &len);
-                v = new_string(text, len);
-            } else
-                v = new_real(rm->array->data[0]);
-        } else {
-            vartype_complexmatrix *cm = (vartype_complexmatrix *) m;
-            v = new_complex(cm->array->data[0], cm->array->data[1]);
-        }
-        if (v == NULL)
-            return ERR_INSUFFICIENT_MEMORY;
-        /* TODO: implement a mechanism that locks a matrix while it is
-         * under edit. While locked, operations such as CLV, DIM, or
-         * assignment should fail with ERR_RESTRICTED_OPERATION.
-         */
-        matedit_mode = 3;
-        flags.f.grow = 0;
-        matedit_length = arg->length;
-        for (i = 0; i < matedit_length; i++)
-            matedit_name[i] = arg->val.text[i];
-        if (sp == -1)
-            sp = 0;
-        else
-            free_vartype(stack[sp]);
-        stack[sp] = v;
-        matedit_i = 0;
-        matedit_j = 0;
-        if (mode_appmenu >= MENU_MATRIX1 && mode_appmenu <= MENU_MATRIX_SIMQ)
-            matedit_prev_appmenu = mode_appmenu;
-        else
-            matedit_prev_appmenu = MENU_NONE;
-        set_menu(MENULEVEL_APP, MENU_MATRIX_EDIT1);
-        set_appmenu_exitcallback(1);
-        print_trace();
-        if (flags.f.big_stack)
-            mode_disable_stack_lift = true;
-        else
-            /* HP-42S bug compatibility */
-            mode_disable_stack_lift = flags.f.stack_lift_disable;
-        return ERR_NONE;
+
+    vartype *v;
+    int i;
+    if (m->type == TYPE_REALMATRIX) {
+        vartype_realmatrix *rm = (vartype_realmatrix *) m;
+        if (rm->array->is_string[0] != 0) {
+            char *text;
+            int4 len;
+            get_matrix_string(rm , 0, &text, &len);
+            v = new_string(text, len);
+        } else
+            v = new_real(rm->array->data[0]);
+    } else {
+        vartype_complexmatrix *cm = (vartype_complexmatrix *) m;
+        v = new_complex(cm->array->data[0], cm->array->data[1]);
     }
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+
+    /* If the matrix we're about to edit is local, and another matrix
+     * is already indexed, and that other matrix is not a local at the same
+     * level, then we push the IJ pointers, so the previous indexing is
+     * restored when this function returns.
+     */
+    if (matedit_mode == 1) {
+        int varindex = lookup_var(matedit_name, matedit_length);
+        if (vars[varindex].level < vars[mi].level)
+            push_indexed_matrix();
+    }
+
+    /* TODO: implement a mechanism that locks a matrix while it is
+     * under edit. While locked, operations such as CLV, DIM, or
+     * assignment should fail with ERR_RESTRICTED_OPERATION.
+     */
+    matedit_mode = 3;
+    flags.f.grow = 0;
+    matedit_length = arg->length;
+    for (i = 0; i < matedit_length; i++)
+        matedit_name[i] = arg->val.text[i];
+    if (sp == -1)
+        sp = 0;
+    else
+        free_vartype(stack[sp]);
+    stack[sp] = v;
+    matedit_i = 0;
+    matedit_j = 0;
+    if (mode_appmenu >= MENU_MATRIX1 && mode_appmenu <= MENU_MATRIX_SIMQ)
+        matedit_prev_appmenu = mode_appmenu;
+    else
+        matedit_prev_appmenu = MENU_NONE;
+    set_menu(MENULEVEL_APP, MENU_MATRIX_EDIT1);
+    set_appmenu_exitcallback(1);
+    print_trace();
+    if (flags.f.big_stack)
+        mode_disable_stack_lift = true;
+    else
+        /* HP-42S bug compatibility */
+        mode_disable_stack_lift = flags.f.stack_lift_disable;
+    return ERR_NONE;
 }
 
 int docmd_exitall(arg_struct *arg) {
