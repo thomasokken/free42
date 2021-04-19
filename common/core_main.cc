@@ -4160,12 +4160,13 @@ void core_paste(const char *buf) {
                 v = (vartype *) cm;
             }
         }
-        mode_number_entry = false;
         if (recall_result(v) != ERR_NONE) {
             display_error(ERR_INSUFFICIENT_MEMORY, false);
             redisplay();
             return;
         }
+        mode_number_entry = false;
+        mode_varmenu = false;
         flags.f.stack_lift_disable = 0;
         flags.f.message = 0;
         flags.f.two_line_message = 0;
