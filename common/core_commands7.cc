@@ -961,6 +961,13 @@ int docmd_strace(arg_struct *arg) {
     return ERR_NONE;
 }
 
+int docmd_varmnu1(arg_struct *arg) {
+    int err = docmd_varmenu(arg);
+    if (err == ERR_NONE)
+        mode_varmenu = true;
+    return err;
+}
+
 /////////////////////
 ///// Big Stack /////
 /////////////////////
