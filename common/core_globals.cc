@@ -3532,6 +3532,42 @@ int rtn_with_error(int err) {
     return err;
 }
 
+/* When IJ is pushed because INDEX or EDITN are applied to a matrix more local
+ * than the indexed matrix, it is possible for the pushed matrix to be deleted
+ * before IJ are popped. Ideally, this should be handled by making sure that
+ * the matrix named by the pushed name is actually the same one as currently
+ * found by that name, but that would require saving additional state to the
+ * stack. So, we use this simple check instead, which may not always prevent
+ * the wrong matrix from ending up indexed, but will prevent crashes due to
+ * accessing nonexistent matrices or to accessing the indexed matrix out of
+ * range.
+ */
+static void validate_matedit() {
+    if (matedit_mode != 1 && matedit_mode != 3)
+        return;
+    int idx = lookup_var(matedit_name, matedit_length);
+    if (idx == -1) {
+        fail:
+        matedit_mode = 0;
+        return;
+    }
+    vartype *v = vars[idx].value;
+    int4 rows, cols;
+    if (v->type == TYPE_REALMATRIX) {
+        vartype_realmatrix *rm = (vartype_realmatrix *) v;
+        rows = rm->rows;
+        cols = rm->columns;
+    } else if (v->type == TYPE_COMPLEXMATRIX) {
+        vartype_complexmatrix *cm = (vartype_complexmatrix *) v;
+        rows = cm->rows;
+        cols = cm->columns;
+    } else {
+        goto fail;
+    }
+    if (matedit_i >= rows || matedit_j >= cols)
+        goto fail;
+}
+
 void pop_rtn_addr(int *prgm, int4 *pc, bool *stop) {
     remove_locals();
     if (rtn_level == 0) {
@@ -3550,6 +3586,7 @@ void pop_rtn_addr(int *prgm, int4 *pc, bool *stop) {
             matedit_i = e2.i;
             matedit_j = e2.j;
             matedit_mode = 1;
+            validate_matedit();
         }
     } else {
         rtn_sp--;
