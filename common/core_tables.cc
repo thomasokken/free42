@@ -488,6 +488,8 @@ const command_spec cmd_array[] =
     { /* PMEXEC */     NULL,              "",                    0x44, 0x00, 0x00, 0x00,  0, ARG_OTHER,  0, NA_T },
     { /* PRMVAR */     docmd_prmvar,      "PRMVAR",              0x00, 0x40, 0xf2, 0x30,  6, ARG_PRGM,   0, NA_T },
     { /* VARMNU1 */    docmd_varmnu1,     "V\301\322MN\3251",    0x00, 0x42, 0xf2, 0x31,  7, ARG_PRGM,   0, NA_T },
+    { /* X2LINE */     docmd_x2line,      "X2LINE",              0x42, 0x00, 0x00, 0x00,  6, ARG_NONE,   1, 0x13 },
+    { /* A2LINE */     docmd_a2line,      "A2LINE",              0x42, 0x00, 0x00, 0x00,  6, ARG_NONE,   0, NA_T },
 
     /* String & List Functions */
     { /* XSTR */       docmd_xstr,        "XSTR",                0x20, 0x41, 0x00, 0x00,  4, ARG_XSTR,   0, NA_T },

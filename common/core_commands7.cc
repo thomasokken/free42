@@ -24,6 +24,7 @@
 #include "core_commands2.h"
 #include "core_commands7.h"
 #include "core_display.h"
+#include "core_globals.h"
 #include "core_helpers.h"
 #include "core_main.h"
 #include "core_sto_rcl.h"
@@ -966,6 +967,14 @@ int docmd_varmnu1(arg_struct *arg) {
     if (err == ERR_NONE)
         mode_varmenu = true;
     return err;
+}
+
+int docmd_x2line(arg_struct *arg) {
+    return x2line();
+}
+
+int docmd_a2line(arg_struct *arg) {
+    return a2line();
 }
 
 /////////////////////

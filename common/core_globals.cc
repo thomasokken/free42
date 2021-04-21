@@ -2856,6 +2856,93 @@ void store_command_after(int4 *pc, int command, arg_struct *arg, const char *num
     store_command(*pc, command, arg, num_str);
 }
 
+static bool ensure_prgm_space(int n) {
+    prgm_struct *prgm = prgms + current_prgm;
+    if (prgm->size + n <= prgm->capacity)
+        return true;
+    int4 newcapacity = prgm->size + n;
+    unsigned char *newtext = (unsigned char *) realloc(prgm->text, newcapacity);
+    if (newtext == NULL)
+        return false;
+    prgm->text = newtext;
+    prgm->capacity = newcapacity;
+    return true;
+}
+
+int x2line() {
+    switch (stack[sp]->type) {
+        case TYPE_REAL: {
+            if (!ensure_prgm_space(2 + sizeof(phloat)))
+                return ERR_INSUFFICIENT_MEMORY;
+            vartype_real *r = (vartype_real *) stack[sp];
+            arg_struct arg;
+            arg.type = ARGTYPE_DOUBLE;
+            arg.val_d = r->x;
+            store_command_after(&pc, CMD_NUMBER, &arg, NULL);
+            return ERR_NONE;
+        }
+        case TYPE_COMPLEX: {
+            if (!ensure_prgm_space(6 + 2 * sizeof(phloat)))
+                return ERR_INSUFFICIENT_MEMORY;
+            vartype_complex *c = (vartype_complex *) stack[sp];
+            arg_struct arg;
+            arg.type = ARGTYPE_DOUBLE;
+            arg.val_d = c->re;
+            store_command_after(&pc, CMD_NUMBER, &arg, NULL);
+            arg.type = ARGTYPE_DOUBLE;
+            arg.val_d = c->im;
+            store_command_after(&pc, CMD_NUMBER, &arg, NULL);
+            arg.type = ARGTYPE_NONE;
+            store_command_after(&pc, CMD_COMPLEX, &arg, NULL);
+            return ERR_NONE;
+        }
+        case TYPE_STRING: {
+            vartype_string *s = (vartype_string *) stack[sp];
+            int len = s->length;
+            if (len > 65535)
+                len = 65535;
+            if (!ensure_prgm_space(4 + len))
+                return ERR_INSUFFICIENT_MEMORY;
+            arg_struct arg;
+            arg.type = ARGTYPE_XSTR;
+            arg.length = len;
+            arg.val.xstr = s->txt();
+            store_command_after(&pc, CMD_XSTR, &arg, NULL);
+            return ERR_NONE;
+        }
+        default:
+            return ERR_INTERNAL_ERROR;
+    }
+}
+
+int a2line() {
+    if (!ensure_prgm_space(reg_alpha_length + ((reg_alpha_length - 2) / 14 + 1) * 3))
+        return ERR_INSUFFICIENT_MEMORY;
+    const char *p = reg_alpha;
+    int len = reg_alpha_length;
+    int maxlen = 15;
+    do {
+        int len2 = len;
+        if (len2 > maxlen)
+            len2 = maxlen;
+        arg_struct arg;
+        arg.type = ARGTYPE_STR;
+        if (maxlen == 15) {
+            arg.length = len2;
+            memcpy(arg.val.text, p, len2);
+        } else {
+            arg.length = len2 + 1;
+            arg.val.text[0] = 127;
+            memcpy(arg.val.text + 1, p, len2);
+        }
+        store_command_after(&pc, CMD_STRING, &arg, NULL);
+        p += len2;
+        len -= len2;
+        maxlen = 14;
+    } while (len > 0);
+    return ERR_NONE;
+}
+
 static int pc_line_convert(int4 loc, int loc_is_pc) {
     int4 pc = 0;
     int4 line = 1;
