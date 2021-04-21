@@ -2916,12 +2916,16 @@ int x2line() {
 }
 
 int a2line() {
+    if (reg_alpha_length == 0) {
+        squeak();
+        return ERR_NONE;
+    }
     if (!ensure_prgm_space(reg_alpha_length + ((reg_alpha_length - 2) / 14 + 1) * 3))
         return ERR_INSUFFICIENT_MEMORY;
     const char *p = reg_alpha;
     int len = reg_alpha_length;
     int maxlen = 15;
-    do {
+    while (len > 0) {
         int len2 = len;
         if (len2 > maxlen)
             len2 = maxlen;
@@ -2939,7 +2943,7 @@ int a2line() {
         p += len2;
         len -= len2;
         maxlen = 14;
-    } while (len > 0);
+    }
     return ERR_NONE;
 }
 
