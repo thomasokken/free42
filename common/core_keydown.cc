@@ -1562,7 +1562,7 @@ void keydown_command_entry(int shift, int key) {
                         && ((catsect = get_cat_section()) == CATSECT_EXT_0_CMP
                                 || catsect == CATSECT_EXT_X_CMP)) {
                     set_catalog_menu(CATSECT_EXT_PRGM);
-                    move_cat_row(2);
+                    set_cat_row(2);
                     redisplay();
                 } else {
                     pending_command = CMD_NULL;
