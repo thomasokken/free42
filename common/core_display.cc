@@ -1546,38 +1546,36 @@ static int ext_stk_cat[] = {
 static int ext_prgm_cat[] = {
     CMD_0_EQ_NN, CMD_0_NE_NN, CMD_0_LT_NN, CMD_0_GT_NN, CMD_0_LE_NN, CMD_0_GE_NN,
     CMD_X_EQ_NN, CMD_X_NE_NN, CMD_X_LT_NN, CMD_X_GT_NN, CMD_X_LE_NN, CMD_X_GE_NN,
-    CMD_ERRMSG,  CMD_ERRNO,   CMD_FUNC,    CMD_LASTO,   CMD_LSTO,    CMD_RTNERR,
-    CMD_RTNNO,   CMD_RTNYES,  CMD_SST_UP,  CMD_SST_RT,  CMD_XSTR,    CMD_NULL
+    CMD_ERRMSG,  CMD_ERRNO,   CMD_FUNC,    CMD_GETKEY1, CMD_LASTO,   CMD_LSTO,
+    CMD_NOP,     CMD_PGMMENU, CMD_PRMVAR,  CMD_RTNERR,  CMD_RTNNO,   CMD_RTNYES,
+    CMD_SST_UP,  CMD_SST_RT,  CMD_VARMNU1, CMD_XSTR,    CMD_NULL,    CMD_NULL
 };
 
 #if defined(ANDROID) || defined(IPHONE)
 #ifdef FREE42_FPTEST
 static int ext_misc_cat[] = {
-    CMD_A2LINE, CMD_FMA,     CMD_GETKEY1, CMD_NOP,   CMD_PGMMENU, CMD_PRMVAR,
-    CMD_STRACE, CMD_VARMNU1, CMD_X2LINE,  CMD_ACCEL, CMD_LOCAT,   CMD_HEADING,
-    CMD_FPTEST, CMD_NULL,    CMD_NULL,    CMD_NULL,  CMD_NULL,    CMD_NULL
+    CMD_A2LINE,  CMD_FMA,    CMD_STRACE, CMD_X2LINE, CMD_ACCEL, CMD_LOCAT, 
+    CMD_HEADING, CMD_FPTEST, CMD_NULL,   CMD_NULL,   CMD_NULL,  CMD_NULL
 };
-#define MISC_CAT_ROWS 3
+#define MISC_CAT_ROWS 2
 #else
 static int ext_misc_cat[] = {
-    CMD_A2LINE, CMD_FMA,     CMD_GETKEY1, CMD_NOP,   CMD_PGMMENU, CMD_PRMVAR,
-    CMD_STRACE, CMD_VARMNU1, CMD_X2LINE,  CMD_ACCEL, CMD_LOCAT,   CMD_HEADING
+    CMD_A2LINE,  CMD_FMA,  CMD_STRACE, CMD_X2LINE, CMD_ACCEL, CMD_LOCAT,
+    CMD_HEADING, CMD_NULL, CMD_NULL,   CMD_NULL,   CMD_NULL,  CMD_NULL
 };
 #define MISC_CAT_ROWS 2
 #endif
 #else
 #ifdef FREE42_FPTEST
 static int ext_misc_cat[] = {
-    CMD_A2LINE, CMD_FMA,     CMD_GETKEY1, CMD_NOP,    CMD_PGMMENU, CMD_PRMVAR,
-    CMD_STRACE, CMD_VARMNU1, CMD_X2LINE,  CMD_FPTEST, CMD_NULL,    CMD_NULL
+    CMD_A2LINE, CMD_FMA, CMD_STRACE, CMD_X2LINE, CMD_FPTEST, CMD_NULL
 };
-#define MISC_CAT_ROWS 2
+#define MISC_CAT_ROWS 1
 #else
 static int ext_misc_cat[] = {
-    CMD_A2LINE, CMD_FMA,     CMD_GETKEY1, CMD_NOP,  CMD_PGMMENU, CMD_PRMVAR,
-    CMD_STRACE, CMD_VARMNU1, CMD_X2LINE,  CMD_NULL, CMD_NULL,    CMD_NULL
+    CMD_A2LINE, CMD_FMA, CMD_STRACE, CMD_X2LINE, CMD_NULL, CMD_NULL
 };
-#define MISC_CAT_ROWS 2
+#define MISC_CAT_ROWS 1
 #endif
 #endif
 
@@ -1674,7 +1672,7 @@ static void draw_catalog() {
             case CATSECT_EXT_TIME: subcat = ext_time_cat; subcat_rows = 3; break;
             case CATSECT_EXT_XFCN: subcat = ext_xfcn_cat; subcat_rows = 1; break;
             case CATSECT_EXT_BASE: subcat = ext_base_cat; subcat_rows = 1; break;
-            case CATSECT_EXT_PRGM: subcat = ext_prgm_cat; subcat_rows = 4; break;
+            case CATSECT_EXT_PRGM: subcat = ext_prgm_cat; subcat_rows = 5; break;
             case CATSECT_EXT_STK:
                 if (!core_settings.allow_big_stack) {
                     set_cat_section(CATSECT_EXT);
