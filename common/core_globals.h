@@ -451,6 +451,8 @@ extern int4 incomplete_saved_highlight_row;
 #define CATSECT_EXT_PRGM 17
 #define CATSECT_EXT_STK 18
 #define CATSECT_EXT_MISC 19
+#define CATSECT_EXT_0_CMP 20
+#define CATSECT_EXT_X_CMP 21
 
 /* Command line handling temporaries */
 extern char cmdline[100];

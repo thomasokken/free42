@@ -1544,11 +1544,9 @@ static int ext_stk_cat[] = {
 };
 
 static int ext_prgm_cat[] = {
-    CMD_0_EQ_NN, CMD_0_NE_NN, CMD_0_LT_NN, CMD_0_GT_NN, CMD_0_LE_NN, CMD_0_GE_NN,
-    CMD_X_EQ_NN, CMD_X_NE_NN, CMD_X_LT_NN, CMD_X_GT_NN, CMD_X_LE_NN, CMD_X_GE_NN,
     CMD_ERRMSG,  CMD_ERRNO,   CMD_FUNC,    CMD_GETKEY1, CMD_LASTO,   CMD_LSTO,
     CMD_NOP,     CMD_PGMMENU, CMD_PRMVAR,  CMD_RTNERR,  CMD_RTNNO,   CMD_RTNYES,
-    CMD_SST_UP,  CMD_SST_RT,  CMD_VARMNU1, CMD_XSTR,    CMD_NULL,    CMD_NULL
+    CMD_SST_UP,  CMD_SST_RT,  CMD_VARMNU1, CMD_XSTR,    -2 /* 0? */, -3 /* X? */
 };
 
 #if defined(ANDROID) || defined(IPHONE)
@@ -1578,6 +1576,14 @@ static int ext_misc_cat[] = {
 #define MISC_CAT_ROWS 1
 #endif
 #endif
+
+static int ext_0_cmp_cat[] = {
+    CMD_0_EQ_NN, CMD_0_NE_NN, CMD_0_LT_NN, CMD_0_GT_NN, CMD_0_LE_NN, CMD_0_GE_NN
+};
+
+static int ext_x_cmp_cat[] = {
+    CMD_X_EQ_NN, CMD_X_NE_NN, CMD_X_LT_NN, CMD_X_GT_NN, CMD_X_LE_NN, CMD_X_GE_NN
+};
 
 static void draw_catalog() {
     int catsect = get_cat_section();
@@ -1664,7 +1670,7 @@ static void draw_catalog() {
         mode_updown = catalogmenu_rows[catindex] > 1;
         shell_annunciators(mode_updown, -1, -1, -1, -1, -1);
     } else if (catsect == CATSECT_FCN
-            || catsect >= CATSECT_EXT_TIME && catsect <= CATSECT_EXT_MISC) {
+            || catsect >= CATSECT_EXT_TIME && catsect <= CATSECT_EXT_X_CMP) {
         int *subcat;
         int subcat_rows;
         switch (catsect) {
@@ -1672,7 +1678,7 @@ static void draw_catalog() {
             case CATSECT_EXT_TIME: subcat = ext_time_cat; subcat_rows = 3; break;
             case CATSECT_EXT_XFCN: subcat = ext_xfcn_cat; subcat_rows = 1; break;
             case CATSECT_EXT_BASE: subcat = ext_base_cat; subcat_rows = 1; break;
-            case CATSECT_EXT_PRGM: subcat = ext_prgm_cat; subcat_rows = 5; break;
+            case CATSECT_EXT_PRGM: subcat = ext_prgm_cat; subcat_rows = 3; break;
             case CATSECT_EXT_STK:
                 if (!core_settings.allow_big_stack) {
                     set_cat_section(CATSECT_EXT);
@@ -1682,6 +1688,8 @@ static void draw_catalog() {
                     break;
                 }
             case CATSECT_EXT_MISC: subcat = ext_misc_cat; subcat_rows = MISC_CAT_ROWS; break;
+            case CATSECT_EXT_0_CMP: subcat = ext_0_cmp_cat; subcat_rows = 1; break;
+            case CATSECT_EXT_X_CMP: subcat = ext_x_cmp_cat; subcat_rows = 1; break;
         }
 
         int desired_row = catalogmenu_row[catindex];
@@ -1690,8 +1698,13 @@ static void draw_catalog() {
         for (int i = 0; i < 6; i++) {
             int cmd = subcat[desired_row * 6 + i];
             catalogmenu_item[catindex][i] = cmd;
-            draw_key(i, 0, 1, cmd_array[cmd].name,
-                              cmd_array[cmd].name_length);
+            if (cmd == -2)
+                draw_key(i, 0, 1, "0?", 2);
+            else if (cmd == -3)
+                draw_key(i, 0, 1, "X?", 2);
+            else
+                draw_key(i, 0, 1, cmd_array[cmd].name,
+                                  cmd_array[cmd].name_length);
         }
         catalogmenu_rows[catindex] = subcat_rows;
         mode_updown = subcat_rows > 1;
@@ -2725,6 +2738,8 @@ void set_catalog_menu(int section) {
         case CATSECT_EXT_PRGM:
         case CATSECT_EXT_STK:
         case CATSECT_EXT_MISC:
+        case CATSECT_EXT_0_CMP:
+        case CATSECT_EXT_X_CMP:
             return;
         case CATSECT_REAL:
         case CATSECT_REAL_ONLY:
@@ -2845,6 +2860,8 @@ void update_catalog() {
         case CATSECT_EXT_PRGM:
         case CATSECT_EXT_STK:
         case CATSECT_EXT_MISC:
+        case CATSECT_EXT_0_CMP:
+        case CATSECT_EXT_X_CMP:
             return;
         case CATSECT_PGM:
         case CATSECT_PGM_ONLY:
