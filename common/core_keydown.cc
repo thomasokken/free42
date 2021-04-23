@@ -2111,6 +2111,7 @@ void keydown_normal_mode(int shift, int key) {
                     } else {
                         switch (varmenu_role) {
                             case 0: /* Plain ol' VARMENU */
+                            case 3: /* VARMNU1 */
                                 pending_command =
                                     mode_varmenu ? CMD_VMEXEC : CMD_VMSTO;
                                 break;
@@ -2151,7 +2152,13 @@ void keydown_normal_mode(int shift, int key) {
             }
             if (key == KEY_EXIT) {
                 set_menu(MENULEVEL_APP, MENU_NONE);
-                pending_command = CMD_CANCELLED;
+                if (varmenu_role == 3) {
+                    pending_command = CMD_VMEXEC;
+                    pending_command_arg.type = ARGTYPE_STR;
+                    pending_command_arg.length = 0;
+                } else {
+                    pending_command = CMD_CANCELLED;
+                }
                 return;
             }
         }
