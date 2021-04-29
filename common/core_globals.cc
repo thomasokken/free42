@@ -2767,7 +2767,7 @@ void store_command(int4 pc, int command, arg_struct *arg, const char *num_str) {
             break;
         case ARGTYPE_STR:
         case ARGTYPE_IND_STR: {
-            buf[bufptr++] = arg->length;
+            buf[bufptr++] = (unsigned char) arg->length;
             for (i = 0; i < arg->length; i++)
                 buf[bufptr++] = arg->val.text[i];
             break;
@@ -4177,7 +4177,7 @@ bool write_arg(const arg_struct *arg) {
             return write_char(arg->val.stk);
         case ARGTYPE_STR:
         case ARGTYPE_IND_STR:
-            return write_char(arg->length)
+            return write_char((char) arg->length)
                 && fwrite(arg->val.text, 1, arg->length, gfile) == arg->length;
         case ARGTYPE_COMMAND:
             return write_int(arg->val.cmd);
