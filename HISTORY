@@ -1,3 +1,21 @@
+2021-04-28: release 3.0.3
+
+* Implemented VARMNU1. This is a variation on VARMENU, with two differences: It
+  allows selecting a variable without having to press its menu button twice;
+  and it catches EXIT, performing CLA RUN when it is pressed.
+* Implemented X2LINE and A2LINE functions. These non-programmable functions
+  create program lines containing the current contents of the X or ALPHA
+  registers, respectively.
+* When INDEX or EDITN are performed on a local matrix, while another matrix is
+  already indexed, the IJ pointers are saved, and restored when the current
+  function returns.
+* RTNERR now accepts a string instead of a numeric argument, so functions can
+  raise error messages other than the eight standard ones.
+* Implemented ERRNO and ERRMSG functions. These return the error number and
+  error message, respectively, for the last error caught by flag 25.
+* Implemented XSTR function, for creating strings directly in the X register.
+* Fixed memory leak in the parameterized comparison functions.
+
 2021-03-29: release 3.0.2
 
 * Fixed possible stack corruption or crash due to LNSTK, when big stack mode is
