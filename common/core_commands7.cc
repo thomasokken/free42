@@ -1332,7 +1332,7 @@ struct temp_vartype {
         if (err == ERR_NONE && require_real) {
             if (v->type == TYPE_STRING)
                 err = ERR_ALPHA_DATA_IS_INVALID;
-            if (v->type != TYPE_REAL)
+            else if (v->type != TYPE_REAL)
                 err = ERR_INVALID_TYPE;
         }
     }
