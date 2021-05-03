@@ -3883,6 +3883,11 @@ void core_paste(const char *buf) {
         }
         memcpy(reg_alpha + reg_alpha_length, hpbuf, len);
         reg_alpha_length += len;
+        if (len > 0) {
+            flags.f.alpha_data_input = 1;
+            if (flags.f.trace_print && flags.f.printer_exists)
+                docmd_pra(NULL);
+        }
     } else {
         int rows = 0, cols = 0;
         int col = 1;
@@ -4170,6 +4175,8 @@ void core_paste(const char *buf) {
         flags.f.stack_lift_disable = 0;
         flags.f.message = 0;
         flags.f.two_line_message = 0;
+        if (v->type == TYPE_REAL || v->type == TYPE_COMPLEX)
+            flags.f.numeric_data_input = 1;
     }
     redisplay();
 }
