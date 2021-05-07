@@ -813,7 +813,7 @@ int docmd_wsize(arg_struct *arg) {
 #ifdef BCD_MATH
     if (x >= 65 || x < 1)
 #else
-    if (x >= 53 || x < 1)
+    if (x >= 54 || x < 1)
 #endif
         return ERR_INVALID_DATA;
     mode_wsize = to_int(x);
