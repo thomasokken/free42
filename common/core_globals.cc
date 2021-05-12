@@ -3768,7 +3768,7 @@ void clear_all_rtns() {
     if (mode_plainmenu == MENU_PROGRAMMABLE)
         set_menu(MENULEVEL_PLAIN, MENU_NONE);
     if (varmenu_role == 3)
-        varmenu_role = 4;
+        varmenu_role = 0;
 }
 
 int get_rtn_level() {

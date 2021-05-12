@@ -675,7 +675,7 @@ int virtual_flag_handler(int flagop, int flagnum) {
         }
         case 47: /* variable_menu */ {
             int its_on = mode_appmenu == MENU_VARMENU
-                && (varmenu_role == 0 || varmenu_role >= 3);
+                && (varmenu_role == 0 || varmenu_role == 3);
             switch (flagop) {
                 case FLAGOP_FS_T:
                     return its_on ? ERR_YES : ERR_NO;
