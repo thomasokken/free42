@@ -3765,6 +3765,10 @@ void clear_all_rtns() {
     } else if (st_mode == 1) {
         docmd_nstk(NULL);
     }
+    if (mode_plainmenu == MENU_PROGRAMMABLE)
+        set_menu(MENULEVEL_PLAIN, MENU_NONE);
+    if (varmenu_role == 3)
+        varmenu_role = 4;
 }
 
 int get_rtn_level() {

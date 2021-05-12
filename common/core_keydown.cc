@@ -2112,6 +2112,7 @@ void keydown_normal_mode(int shift, int key) {
                         switch (varmenu_role) {
                             case 0: /* Plain ol' VARMENU */
                             case 3: /* VARMNU1 */
+                            case 4: /* VARMNU1 without EXIT */
                                 pending_command =
                                     mode_varmenu ? CMD_VMEXEC : CMD_VMSTO;
                                 break;
