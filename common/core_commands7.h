@@ -62,6 +62,8 @@ int docmd_strace(arg_struct *arg);
 int docmd_varmnu1(arg_struct *arg);
 int docmd_x2line(arg_struct *arg);
 int docmd_a2line(arg_struct *arg);
+int docmd_rcomplx(arg_struct *arg);
+int docmd_pcomplx(arg_struct *arg);
 
 int docmd_4stk(arg_struct *arg);
 int docmd_l4stk(arg_struct *arg);

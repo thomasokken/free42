@@ -2893,7 +2893,7 @@ int x2line() {
             arg.val_d = c->im;
             store_command_after(&pc, CMD_NUMBER, &arg, NULL);
             arg.type = ARGTYPE_NONE;
-            store_command_after(&pc, CMD_COMPLEX, &arg, NULL);
+            store_command_after(&pc, CMD_RCOMPLX, &arg, NULL);
             return ERR_NONE;
         }
         case TYPE_STRING: {

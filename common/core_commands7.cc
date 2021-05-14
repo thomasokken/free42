@@ -979,6 +979,22 @@ int docmd_a2line(arg_struct *arg) {
     return a2line();
 }
 
+int docmd_rcomplx(arg_struct *arg) {
+    bool p = flags.f.polar;
+    flags.f.polar = 0;
+    int err = docmd_complex(arg);
+    flags.f.polar = p;
+    return err;
+}
+
+int docmd_pcomplx(arg_struct *arg) {
+    bool p = flags.f.polar;
+    flags.f.polar = 1;
+    int err = docmd_complex(arg);
+    flags.f.polar = p;
+    return err;
+}
+
 /////////////////////
 ///// Big Stack /////
 /////////////////////
