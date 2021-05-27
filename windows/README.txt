@@ -24,7 +24,7 @@ Free42Binary.exe. When Free42 sees this file, it will ignore %APPDATA%\Free42
 and keep those files in its own directory.
 
 Free42 comes with two skins built in, but you may use different ones, by
-storing them in the directory where Free42Decimal.exe or Free42Binary are
+storing them in the directory where Free42Decimal.exe or Free42Binary.exe are
 located, or (if not running from a removable drive with the "portable" file),
 in %APPDATA%\Free42.
 
