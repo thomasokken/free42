@@ -3170,7 +3170,7 @@ int push_func_state(int n) {
     // FD list layout:
     // 0: n, the 2-digit parameter to FUNC
     // 1: original stack depth, or -1 for 4-level stack
-    // 2: flag 25, encoded as a string "0" or "1"
+    // 2: flag 25, ERRNO, and ERRMSG
     // 3: lastx
     // 4: X / level 1
     // 5: Y / level 2
@@ -3183,7 +3183,7 @@ int push_func_state(int n) {
     vartype **fd_data = ((vartype_list *) fd)->array->data;
     fd_data[0] = new_real(n);
     fd_data[1] = new_real(flags.f.big_stack ? sp + 1 : -1);
-    fd_data[2] = new_string(flags.f.error_ignore ? "1" : "0", 1);
+    fd_data[2] = new_string(NULL, lasterr == -1 ? 2 + lasterr_length : 2);
     fd_data[3] = dup_vartype(lastx);
     for (int i = 0; i < inputs; i++)
         fd_data[i + 4] = dup_vartype(stack[sp - i]);
@@ -3192,8 +3192,14 @@ int push_func_state(int n) {
             free_vartype(fd);
             return ERR_INSUFFICIENT_MEMORY;
         }
+    vartype_string *s = (vartype_string *) fd_data[2];
+    s->txt()[0] = flags.f.error_ignore ? '1' : '0';
+    s->txt()[1] = (char) lasterr;
+    if (lasterr == -1)
+        memcpy(s->txt() + 2, lasterr_text, lasterr_length);
     store_private_var("FD", 2, fd);
     flags.f.error_ignore = 0;
+    lasterr = ERR_NONE;
 
     if (rtn_level == 0)
         rtn_level_0_has_func_state = true;
@@ -3396,8 +3402,15 @@ int pop_func_state(bool error) {
         lastx = fd_data[li];
         fd_data[li] = NULL;
 
-        char f25 = ((vartype_string *) fd_data[2])->txt()[0] == '1';
-        flags.f.error_ignore = f25;
+        vartype_string *s = (vartype_string *) fd_data[2];
+        flags.f.error_ignore = s->txt()[0] == '1';
+        if (s->length > 1) {
+            lasterr = (signed char) s->txt()[1];
+            if (lasterr == -1) {
+                lasterr_length = s->length - 2;
+                memcpy(lasterr_text, s->txt() + 2, lasterr_length);
+            }
+        }
 
         goto done;
     }
@@ -3497,8 +3510,15 @@ int pop_func_state(bool error) {
         lastx = fd_data[li];
         fd_data[li] = NULL;
 
-        char f25 = ((vartype_string *) fd_data[2])->txt()[0] == '1';
-        flags.f.error_ignore = f25;
+        vartype_string *s = (vartype_string *) fd_data[2];
+        flags.f.error_ignore = s->txt()[0] == '1';
+        if (s->length > 1) {
+            lasterr = (signed char) s->txt()[1];
+            if (lasterr == -1) {
+                lasterr_length = s->length - 2;
+                memcpy(lasterr_text, s->txt() + 2, lasterr_length);
+            }
+        }
 
         flags.f.big_stack = fd_big;
     }
