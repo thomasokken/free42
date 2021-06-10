@@ -1,3 +1,24 @@
+2021-06-10: release 3.0.4
+
+* Fixed bug in complex LU decomposition, which could lead to incorrect results
+  in INVRT, DET, and matrix division with complex matrices.
+* FUNC and RTN now save and restore ERRMSG and ERRNO along with flag 25.
+* Added RCOMPLX and PCOMPLX functions. These work like COMPLEX, except they
+  ignore flag 73 (POLAR mode) and instead always assume rectangular or polar
+  mode, respectively.
+  Also modified X2LINE so it uses RCOMPLX instead of COMPLEX when generating
+  program lines for complex numbers, so the generated code is correct
+  regardless of RECT/POLAR mode.
+* MENU and VARMNU1 tweaks: The programmable menu is now cancelled whenever an
+  operation is performed that clears the RTN stack, such as BST, or GTO in RUN
+  mode. And in VARMNU1, don't trap EXIT when the menu was activated in RUN
+  mode, or when an operation was performed that cleared the RTN stack.
+* Binary version: Fixed WSIZE to allow word size of 53.
+* Paste fixes: In PRGM and ALPHA modes, Paste now clears any messages that may
+  have been left in the display from previous operations. (In RUN mode, this
+  was already the case.) Also, Paste now sets flag 22 when pasting real or
+  complex scalars into X, and sets flag 23 when pasting in ALPHA mode.
+
 2021-04-28: release 3.0.3
 
 * Implemented VARMNU1. This is a variation on VARMENU, with two differences: It
@@ -2050,7 +2071,7 @@
   specifically designed for the Pocket PC.
 * ->POL now detects the case that the real and/or imaginary parts are zero, and
   returns exact results for those cases.
-* Canceling a partially-entered DEL, LIST, or PRP command in PRGM mode could
+* Cancelling a partially-entered DEL, LIST, or PRP command in PRGM mode could
   cause the instruction pointer to be set to an invalid location. Fixed.
 
 2006-03-19: release 1.4.5
