@@ -335,6 +335,7 @@ static int lu_decomp_c_worker(bool interrupted) {
         }
 
         max = 0;
+        imax = j;
         for (i = j; i < n; i++) {
             sum_re = a[2 * (i * n + j)];
             sum_im = a[2 * (i * n + j) + 1];
