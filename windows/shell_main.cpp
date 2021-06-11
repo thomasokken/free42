@@ -36,7 +36,7 @@
 #include "StatesWindow.h"
 #include "shell_main.h"
 
-#include "VERSION.rc"
+#include "VERSION.h"
 
 using std::set;
 
