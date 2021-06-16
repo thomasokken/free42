@@ -1236,7 +1236,7 @@ public class Free42Activity extends Activity {
                         for (int i = 0; i < macro.length; i++) {
                             running = core_keydown(macro[i] & 255, enqueued, repeat, true);
                             if (!enqueued.value)
-                                core_keyup();
+                                running = core_keyup();
                             while (waitForProgram && running)
                                 running = core_keydown(0, null, null, true);
                         }

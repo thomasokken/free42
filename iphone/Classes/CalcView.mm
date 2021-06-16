@@ -856,7 +856,7 @@ static void shell_keydown() {
                     keep_running = core_keydown(*macro++, &enqueued, &repeat);
                     we_want_cpu = false;
                     if (*macro != 0 && !enqueued)
-                        core_keyup();
+                        keep_running = core_keyup();
                     while (waitForProgram && keep_running) {
                         we_want_cpu = true;
                         keep_running = core_keydown(0, &enqueued, &repeat);

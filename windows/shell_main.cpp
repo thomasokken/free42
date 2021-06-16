@@ -490,7 +490,7 @@ static void shell_keydown() {
                 while (*macro != 0) {
                     running = core_keydown(*macro++, &enqueued, &repeat);
                     if (*macro != 0 && !enqueued)
-                        core_keyup();
+                        running = core_keyup();
                     while (waitForProgram && running)
                         running = core_keydown(0, &enqueued, &repeat);
                 }
