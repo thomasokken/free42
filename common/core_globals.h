@@ -278,7 +278,7 @@ typedef union {
         char eng_or_all;
         char grad;
         char rad;
-        char continuous_on;
+        char VIRTUAL_continuous_on;
         char VIRTUAL_solving;
         char VIRTUAL_integrating;
         char VIRTUAL_variable_menu;

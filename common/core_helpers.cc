@@ -611,7 +611,7 @@ bool shell_always_on(int ao) {
 int virtual_flag_handler(int flagop, int flagnum) {
     /* NOTE: the determination which flag numbers are handled by this
      * function is made by docmd_sf() etc.; they do this based on a constant
-     * string 'virtual_flags' defined locally in core_commands.c.
+     * string 'virtual_flags' defined in core_globals.cc.
      */
     switch (flagnum) {
         case 27: /* custom_menu */ {
