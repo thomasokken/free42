@@ -1431,7 +1431,8 @@ static void get_home_dir(wchar_t *path, int pathlen) {
     bool use_exedir = false;
     if (search != INVALID_HANDLE_VALUE) {
         do {
-            if (_wcsicmp(wfd.cFileName, L"portable") == 0) {
+            if (_wcsicmp(wfd.cFileName, L"portable") == 0
+                    || _wcsicmp(wfd.cFileName, L"portable.") == 0) {
                 use_exedir = true;
                 break;
             }
