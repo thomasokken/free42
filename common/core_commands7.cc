@@ -1011,7 +1011,7 @@ int docmd_mixed(arg_struct *arg) {
 
 int docmd_4stk(arg_struct *arg) {
     if (!flags.f.big_stack)
-        return core_settings.allow_big_stack ? ERR_NONE : ERR_BIG_STACK_DISABLED;
+        return ERR_NONE;
     // Should be safe to assume the stack always has capacity >= 4
     if (sp < 3) {
         int off = 3 - sp;

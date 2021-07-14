@@ -2119,8 +2119,6 @@ void redisplay() {
             draw_key(i, 0, 0, progmenu_label[i], progmenu_length[i]);
         avail_rows = 1;
     } else if (menu_id != MENU_NONE) {
-        if (!core_settings.allow_big_stack && menu_id == MENU_MODES5)
-            menu_id = mode_plainmenu = MENU_MODES1;
         const menu_spec *m = menus + menu_id;
         for (i = 0; i < 6; i++) {
             const menu_item_spec *mi = m->child + i;
