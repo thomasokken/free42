@@ -780,9 +780,10 @@ bool no_keystrokes_yet;
  * Version 36-38:     Plus42 stuff
  * Version 39: 3.0.3  ERRMSG/ERRNO
  * Version 40: 3.0.3  Longer incomplete_str buffer
- * Version 41: 3.0.6  CAPS/Mixed for menus
+ * Version 41: 3.0.3  Plus42 stuff
+ * Version 42: 3.0.6  CAPS/Mixed for menus
  */
-#define FREE42_VERSION 41
+#define FREE42_VERSION 42
 
 
 /*******************/
@@ -1820,7 +1821,7 @@ static bool unpersist_globals() {
         }
     } else
         mode_wsize = 36;
-    if (ver >= 41) {
+    if (ver >= 42) {
         if (!read_bool(&mode_menu_caps)) {
             mode_menu_caps = false;
             goto done;
