@@ -995,6 +995,16 @@ int docmd_pcomplx(arg_struct *arg) {
     return err;
 }
 
+int docmd_caps(arg_struct *arg) {
+    mode_menu_caps = true;
+    return ERR_NONE;
+}
+
+int docmd_mixed(arg_struct *arg) {
+    mode_menu_caps = false;
+    return ERR_NONE;
+}
+
 /////////////////////
 ///// Big Stack /////
 /////////////////////

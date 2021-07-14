@@ -492,6 +492,8 @@ const command_spec cmd_array[] =
     { /* A2LINE */     docmd_a2line,      "A2LINE",              0x42, 0x00, 0x00, 0x00,  6, ARG_NONE,   0, NA_T },
     { /* RCOMPLX */    docmd_rcomplx,     "RC\317\315P\314X",    0x00, 0x00, 0xa7, 0xf8,  7, ARG_NONE,   0, NA_T },
     { /* PCOMPLX */    docmd_pcomplx,     "PC\317\315P\314X",    0x00, 0x00, 0xa7, 0xf9,  7, ARG_NONE,   0, NA_T },
+    { /* CAPS */       docmd_caps,        "CAPS",                0x00, 0x00, 0xa7, 0xfa,  4, ARG_NONE,   0, NA_T },
+    { /* Mixed */      docmd_mixed,       "Mixed",               0x00, 0x00, 0xa7, 0xfb,  5, ARG_NONE,   0, NA_T },
 
     /* String & List Functions */
     { /* XSTR */       docmd_xstr,        "XSTR",                0x20, 0x41, 0x00, 0x00,  4, ARG_XSTR,   0, NA_T },

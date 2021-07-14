@@ -984,6 +984,8 @@ static void draw_key(int n, int highlight, int hide_meta,
             continue;
 
         c &= 127;
+        if (mode_menu_caps && c >= 'a' && c <= 'z')
+            c -= 32;
         m = smallchars_map[c];
         cw = smallchars_offset[m + 1] - smallchars_offset[m];
         if (swidth != 0)
@@ -1007,6 +1009,8 @@ static void draw_key(int n, int highlight, int hide_meta,
         if (hide_meta && c >= 128)
             continue;
         c &= 127;
+        if (mode_menu_caps && c >= 'a' && c <= 'z')
+            c -= 32;
         m = smallchars_map[c];
         o = smallchars_offset[m];
         cw = smallchars_offset[m + 1] - o;
@@ -1604,29 +1608,30 @@ static int ext_prgm_cat[] = {
 #if defined(ANDROID) || defined(IPHONE)
 #ifdef FREE42_FPTEST
 static int ext_misc_cat[] = {
-    CMD_A2LINE, CMD_FMA,   CMD_PCOMPLX, CMD_RCOMPLX, CMD_STRACE, CMD_X2LINE,
-    CMD_ACCEL,  CMD_LOCAT, CMD_HEADING, CMD_FPTEST,  CMD_NULL,   CMD_NULL
+    CMD_A2LINE, CMD_CAPS,   CMD_FMA,   CMD_MIXED, CMD_PCOMPLX, CMD_RCOMPLX,
+    CMD_STRACE, CMD_X2LINE, CMD_ACCEL, CMD_LOCAT, CMD_HEADING, CMD_FPTEST
 };
 #define MISC_CAT_ROWS 2
 #else
 static int ext_misc_cat[] = {
-    CMD_A2LINE, CMD_FMA,   CMD_PCOMPLX, CMD_RCOMPLX, CMD_STRACE, CMD_X2LINE,
-    CMD_ACCEL,  CMD_LOCAT, CMD_HEADING, CMD_NULL,    CMD_NULL,   CMD_NULL
+    CMD_A2LINE, CMD_CAPS,   CMD_FMA,   CMD_MIXED, CMD_PCOMPLX, CMD_RCOMPLX,
+    CMD_STRACE, CMD_X2LINE, CMD_ACCEL, CMD_LOCAT, CMD_HEADING, CMD_NULL
 };
 #define MISC_CAT_ROWS 2
 #endif
 #else
 #ifdef FREE42_FPTEST
 static int ext_misc_cat[] = {
-    CMD_A2LINE, CMD_FMA,  CMD_PCOMPLX, CMD_RCOMPLX, CMD_STRACE, CMD_X2LINE,
-    CMD_FPTEST, CMD_NULL, CMD_NULL,    CMD_NULL,    CMD_NULL,   CMD_NULL
+    CMD_A2LINE, CMD_CAPS,   CMD_FMA,    CMD_MIXED, CMD_PCOMPLX, CMD_RCOMPLX,
+    CMD_STRACE, CMD_X2LINE, CMD_FPTEST, CMD_NULL,  CMD_NULL,    CMD_NULL
 };
 #define MISC_CAT_ROWS 2
 #else
 static int ext_misc_cat[] = {
-    CMD_A2LINE, CMD_FMA, CMD_PCOMPLX, CMD_RCOMPLX, CMD_STRACE, CMD_X2LINE
+    CMD_A2LINE, CMD_CAPS,   CMD_FMA,  CMD_MIXED, CMD_PCOMPLX, CMD_RCOMPLX,
+    CMD_STRACE, CMD_X2LINE, CMD_NULL, CMD_NULL,  CMD_NULL,    CMD_NULL
 };
-#define MISC_CAT_ROWS 1
+#define MISC_CAT_ROWS 2
 #endif
 #endif
 
@@ -2209,6 +2214,12 @@ void redisplay() {
                             break;
                         case CMD_NSTK:
                             is_flag = flags.f.big_stack;
+                            break;
+                        case CMD_CAPS:
+                            is_flag = mode_menu_caps;
+                            break;
+                        case CMD_MIXED:
+                            is_flag = !mode_menu_caps;
                             break;
                         case CMD_PON:
                             is_flag = flags.f.printer_exists;

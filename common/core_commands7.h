@@ -64,6 +64,8 @@ int docmd_x2line(arg_struct *arg);
 int docmd_a2line(arg_struct *arg);
 int docmd_rcomplx(arg_struct *arg);
 int docmd_pcomplx(arg_struct *arg);
+int docmd_caps(arg_struct *arg);
+int docmd_mixed(arg_struct *arg);
 
 int docmd_4stk(arg_struct *arg);
 int docmd_l4stk(arg_struct *arg);
