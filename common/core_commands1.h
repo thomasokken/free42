@@ -48,6 +48,7 @@ int docmd_eng(arg_struct *arg);
 int docmd_all(arg_struct *arg);
 int docmd_null(arg_struct *arg);
 int docmd_asto(arg_struct *arg);
+int docmd_xasto(arg_struct *arg);
 int docmd_arcl(arg_struct *arg);
 int docmd_cla(arg_struct *arg);
 int docmd_deg(arg_struct *arg);

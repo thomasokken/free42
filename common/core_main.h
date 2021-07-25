@@ -339,7 +339,7 @@ bool alpha_active();
 
 int want_to_run_again();
 void do_interactive(int command);
-int find_builtin(const char *name, int namelen, bool strict);
+int find_builtin(const char *name, int namelen);
 
 void sst();
 void bst();

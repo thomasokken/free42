@@ -445,15 +445,17 @@ extern int4 incomplete_saved_highlight_row;
 #define CATSECT_PGM_SOLVE 10
 #define CATSECT_PGM_INTEG 11
 #define CATSECT_PGM_MENU 12
-#define CATSECT_EXT 13
+#define CATSECT_EXT_1 13
 #define CATSECT_EXT_TIME 14
 #define CATSECT_EXT_XFCN 15
 #define CATSECT_EXT_BASE 16
 #define CATSECT_EXT_PRGM 17
-#define CATSECT_EXT_STK 18
-#define CATSECT_EXT_MISC 19
-#define CATSECT_EXT_0_CMP 20
-#define CATSECT_EXT_X_CMP 21
+#define CATSECT_EXT_STR 18
+#define CATSECT_EXT_STK 19
+#define CATSECT_EXT_2 20
+#define CATSECT_EXT_MISC 21
+#define CATSECT_EXT_0_CMP 22
+#define CATSECT_EXT_X_CMP 23
 
 /* Command line handling temporaries */
 extern char cmdline[100];

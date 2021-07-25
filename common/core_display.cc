@@ -1593,16 +1593,22 @@ static int ext_base_cat[] = {
     CMD_BRESET, CMD_BSIGNED, CMD_BWRAP, CMD_WSIZE, CMD_WSIZE_T, CMD_NULL
 };
 
-static int ext_stk_cat[] = {
-    CMD_4STK,   CMD_DEPTH, CMD_DROP, CMD_DROPN, CMD_DUP,  CMD_DUPN,
-    CMD_L4STK,  CMD_LNSTK, CMD_NSTK, CMD_PICK,  CMD_RUPN, CMD_RDNN,
-    CMD_UNPICK, CMD_NULL,  CMD_NULL, CMD_NULL,  CMD_NULL, CMD_NULL
-};
-
 static int ext_prgm_cat[] = {
     CMD_ERRMSG,  CMD_ERRNO,   CMD_FUNC,    CMD_GETKEY1, CMD_LASTO,   CMD_LSTO,
     CMD_NOP,     CMD_PGMMENU, CMD_PRMVAR,  CMD_RTNERR,  CMD_RTNNO,   CMD_RTNYES,
     CMD_SST_UP,  CMD_SST_RT,  CMD_VARMNU1, CMD_XSTR,    -2 /* 0? */, -3 /* X? */
+};
+
+static int ext_str_cat[] = {
+    CMD_APPEND, CMD_C_TO_N,  CMD_EXTEND, CMD_HEAD,   CMD_LENGTH, CMD_LIST_T,
+    CMD_LXASTO, CMD_NEWLIST, CMD_NEWSTR, CMD_N_TO_C, CMD_N_TO_S, CMD_POS,
+    CMD_REV,    CMD_SUBSTR,  CMD_S_TO_N, CMD_XASTO,  CMD_NULL,   CMD_NULL
+};
+
+static int ext_stk_cat[] = {
+    CMD_4STK,   CMD_DEPTH, CMD_DROP, CMD_DROPN, CMD_DUP,  CMD_DUPN,
+    CMD_L4STK,  CMD_LNSTK, CMD_NSTK, CMD_PICK,  CMD_RUPN, CMD_RDNN,
+    CMD_UNPICK, CMD_NULL,  CMD_NULL, CMD_NULL,  CMD_NULL, CMD_NULL
 };
 
 #if defined(ANDROID) || defined(IPHONE)
@@ -1656,19 +1662,22 @@ static void draw_catalog() {
         draw_key(5, 0, 0, "MEM", 3);
         mode_updown = true;
         shell_annunciators(1, -1, -1, -1, -1, -1);
-    } else if (catsect == CATSECT_EXT) {
-        draw_ext:
+    } else if (catsect == CATSECT_EXT_1) {
         draw_key(0, 0, 0, "TIME", 4);
         draw_key(1, 0, 0, "XFCN", 4);
         draw_key(2, 0, 0, "BASE", 4);
         draw_key(3, 0, 0, "PRGM", 4);
-        if (core_settings.allow_big_stack) {
-            draw_key(4, 0, 0, "STK", 3);
-            draw_key(5, 0, 0, "MISC", 4);
-        } else {
-            draw_key(4, 0, 0, "MISC", 4);
-            draw_key(5, 0, 0, "", 0);
-        }
+        draw_key(4, 0, 0, "STR", 3);
+        draw_key(5, 0, 0, "STK", 3);
+        mode_updown = true;
+        shell_annunciators(1, -1, -1, -1, -1, -1);
+    } else if (catsect == CATSECT_EXT_2) {
+        draw_key(0, 0, 0, "MISC", 4);
+        draw_key(1, 0, 0, "", 0);
+        draw_key(2, 0, 0, "", 0);
+        draw_key(3, 0, 0, "", 0);
+        draw_key(4, 0, 0, "", 0);
+        draw_key(5, 0, 0, "", 0);
         mode_updown = true;
         shell_annunciators(1, -1, -1, -1, -1, -1);
     } else if (catsect == CATSECT_PGM
@@ -1737,14 +1746,8 @@ static void draw_catalog() {
             case CATSECT_EXT_XFCN: subcat = ext_xfcn_cat; subcat_rows = 1; break;
             case CATSECT_EXT_BASE: subcat = ext_base_cat; subcat_rows = 1; break;
             case CATSECT_EXT_PRGM: subcat = ext_prgm_cat; subcat_rows = 3; break;
-            case CATSECT_EXT_STK:
-                if (!core_settings.allow_big_stack) {
-                    set_cat_section(CATSECT_EXT);
-                    goto draw_ext;
-                } else {
-                    subcat = ext_stk_cat; subcat_rows = 3;
-                    break;
-                }
+            case CATSECT_EXT_STR: subcat = ext_str_cat; subcat_rows = 3; break;
+            case CATSECT_EXT_STK: subcat = ext_stk_cat; subcat_rows = 3; break;
             case CATSECT_EXT_MISC: subcat = ext_misc_cat; subcat_rows = MISC_CAT_ROWS; break;
             case CATSECT_EXT_0_CMP: subcat = ext_0_cmp_cat; subcat_rows = 1; break;
             case CATSECT_EXT_X_CMP: subcat = ext_x_cmp_cat; subcat_rows = 1; break;
@@ -2793,12 +2796,14 @@ void set_catalog_menu(int section) {
         case CATSECT_FCN:
         case CATSECT_PGM:
         case CATSECT_PGM_ONLY:
-        case CATSECT_EXT:
+        case CATSECT_EXT_1:
         case CATSECT_EXT_TIME:
         case CATSECT_EXT_XFCN:
         case CATSECT_EXT_BASE:
         case CATSECT_EXT_PRGM:
+        case CATSECT_EXT_STR:
         case CATSECT_EXT_STK:
+        case CATSECT_EXT_2:
         case CATSECT_EXT_MISC:
         case CATSECT_EXT_0_CMP:
         case CATSECT_EXT_X_CMP:
@@ -2915,12 +2920,14 @@ void update_catalog() {
     switch (get_cat_section()) {
         case CATSECT_TOP:
         case CATSECT_FCN:
-        case CATSECT_EXT:
+        case CATSECT_EXT_1:
         case CATSECT_EXT_TIME:
         case CATSECT_EXT_XFCN:
         case CATSECT_EXT_BASE:
         case CATSECT_EXT_PRGM:
+        case CATSECT_EXT_STR:
         case CATSECT_EXT_STK:
+        case CATSECT_EXT_2:
         case CATSECT_EXT_MISC:
         case CATSECT_EXT_0_CMP:
         case CATSECT_EXT_X_CMP:
