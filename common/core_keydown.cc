@@ -901,31 +901,14 @@ void keydown_command_entry(int shift, int key) {
                 return;
             } else if (catsect == CATSECT_EXT_1) {
                 switch (menukey) {
-                    case 0:
-                        set_cat_section(CATSECT_EXT_TIME);
-                        move_cat_row(0);
-                        break;
-                    case 1:
-                        set_cat_section(CATSECT_EXT_XFCN);
-                        move_cat_row(0);
-                        break;
-                    case 2:
-                        set_cat_section(CATSECT_EXT_BASE);
-                        move_cat_row(0);
-                        break;
-                    case 3:
-                        set_cat_section(CATSECT_EXT_PRGM);
-                        move_cat_row(0);
-                        break;
-                    case 4:
-                        set_cat_section(CATSECT_EXT_STR);
-                        move_cat_row(0);
-                        break;
-                    case 5:
-                        set_cat_section(CATSECT_EXT_STK);
-                        move_cat_row(0);
-                        break;
+                    case 0: set_cat_section(CATSECT_EXT_TIME); break;
+                    case 1: set_cat_section(CATSECT_EXT_XFCN); break;
+                    case 2: set_cat_section(CATSECT_EXT_BASE); break;
+                    case 3: set_cat_section(CATSECT_EXT_PRGM); break;
+                    case 4: set_cat_section(CATSECT_EXT_STR); break;
+                    case 5: set_cat_section(CATSECT_EXT_STK); break;
                 }
+                move_cat_row(0);
                 redisplay();
                 return;
             } else if (catsect == CATSECT_EXT_2) {
