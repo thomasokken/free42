@@ -6,6 +6,8 @@ LU Decomposition and back-substitution code, and Ridders' root-refinement
    algorithm, based on sample code from "Numerical Recipes in C".
 Skins designed by, or based on original work of: Erik Ehrling and
    Sébastien Carlier.
+Lowercase letters in the menu font taken from the WP-34S manual by Walter Bonin
+    and Paul Dale.
 
 The iPhone version's embedded HTTP server uses Minizip 1.01h, a zlib-based zip
 creation and extraction package. Minizip is (C) by Gilles Vollant.

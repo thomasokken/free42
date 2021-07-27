@@ -1,3 +1,8 @@
+2021-07-27: release 3.0.6
+
+* Added string and list functions. See the Free42 web site for details.
+* Added lowercase letters to the menu font.
+
 2021-07-01: release 3.0.5
 
 * L4STK could crash, due to an incorrect LNSTK fix in 3.0.2. Fixed.
