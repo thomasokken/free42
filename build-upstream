@@ -7,6 +7,11 @@
 mkdir -p packages
 
 cd upstream
-sh ./build-macports
+# MacPorts disabled for the time being; need feedback from the port maintainer
+# whether the new project, with Decimal and Binary being build targets instead
+# of build configurations, still even works in the MacPorts environment.
+# The new MacOS and iOS project structure was implemented in 3.0.2; at the time
+# of writing, the port was at 2.5.20 and hadn't been updated in almost a year.
+# sh ./build-macports
 sh ./build-nologo
 cd ..
