@@ -1138,6 +1138,11 @@ void tb_write(textbuf *tb, const char *data, size_t size) {
     }
 }
 
+void tb_indent(textbuf *tb, int indent) {
+    for (int i = 0; i < indent; i++)
+        tb_write(tb, " ", 1);
+}
+
 void tb_write_null(textbuf *tb) {
     char c = 0;
     tb_write(tb, &c, 1);

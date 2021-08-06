@@ -63,6 +63,7 @@ struct textbuf {
 
 void tb_write(textbuf *tb, const char *data, size_t size);
 void tb_write_null(textbuf *tb);
+void tb_indent(textbuf *tb, int indent);
 void tb_print_current_program(textbuf *tb);
 
 #define MENULEVEL_COMMAND   0

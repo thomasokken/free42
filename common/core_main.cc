@@ -2472,18 +2472,150 @@ static int complex2buf(char *buf, phloat re, phloat im, bool always_rect) {
     return bufptr;
 }
 
+static void serialize_list(textbuf *tb, vartype_list *list, int indent) {
+    char buf[50];
+    tb_indent(tb, indent);
+    tb_write(tb, "{\n", 2);
+    indent += 2;
+    tb_indent(tb, indent);
+    int n = int2string(list->size, buf, 49);
+    tb_write(tb, buf, n);
+    tb_write(tb, "-Elem List\n", 11);
+    for (int i = 0; i < list->size; i++) {
+        vartype *elem = list->array->data[i];
+        switch (elem->type) {
+            case TYPE_NULL: {
+                tb_indent(tb, indent);
+                tb_write(tb, "null\n", 5);
+                break;
+            }
+            case TYPE_REAL: {
+                vartype_real *r = (vartype_real *) elem;
+                tb_indent(tb, indent);
+                n = real2buf(buf, r->x);
+                tb_write(tb, buf, n);
+                tb_write(tb, "\n", 1);
+                break;
+            }
+            case TYPE_COMPLEX: {
+                vartype_complex *c = (vartype_complex *) elem;
+                tb_indent(tb, indent);
+                n = complex2buf(buf, c->re, c->im, true);
+                tb_write(tb, buf, n);
+                tb_write(tb, "\n", 1);
+                break;
+            }
+            case TYPE_STRING: {
+                vartype_string *s = (vartype_string *) elem;
+                tb_indent(tb, indent);
+                tb_write(tb, "\"", 1);
+                const char *txt = s->txt();
+                char cbuf[5];
+                for (int j = 0; j < s->length; j++) {
+                    char c = txt[j];
+                    if (c == '"') {
+                        tb_write(tb, "\\\"", 2);
+                    } else {
+                        if (c == 10)
+                            c = 138;
+                        n = hp2ascii(cbuf, &c, 1);
+                        tb_write(tb, cbuf, n);
+                    }
+                }
+                tb_write(tb, "\"\n", 2);
+                break;
+            }
+            case TYPE_REALMATRIX: {
+                vartype_realmatrix *rm = (vartype_realmatrix *) elem;
+                tb_indent(tb, indent);
+                tb_write(tb, "[\n", 2);
+                indent += 2;
+                tb_indent(tb, indent);
+                n = int2string(rm->rows, buf, 49);
+                tb_write(tb, buf, n);
+                tb_write(tb, "x", 1);
+                n = int2string(rm->columns, buf, 49);
+                tb_write(tb, buf, n);
+                tb_write(tb, " Matrix\n", 8);
+                for (int j = 0; j < rm->rows * rm->columns; j++) {
+                    tb_indent(tb, indent);
+                    if (rm->array->is_string[j]) {
+                        tb_write(tb, "\"", 1);
+                        char *text;
+                        int4 len;
+                        get_matrix_string(rm, j, &text, &len);
+                        char cbuf[5];
+                        for (int k = 0; k < len; k++) {
+                            char c = text[k];
+                            if (c == '"') {
+                                tb_write(tb, "\\\"", 2);
+                            } else {
+                                if (c == 10)
+                                    c = 138;
+                                n = hp2ascii(cbuf, &c, 1);
+                                tb_write(tb, cbuf, n);
+                            }
+                        }
+                        tb_write(tb, "\"\n", 2);
+                    } else {
+                        n = real2buf(buf, rm->array->data[j]);
+                        tb_write(tb, buf, n);
+                        tb_write(tb, "\n", 1);
+                    }
+                }
+                indent -= 2;
+                tb_indent(tb, indent);
+                tb_write(tb, "]\n", 2);
+                break;
+            }
+            case TYPE_COMPLEXMATRIX: {
+                vartype_complexmatrix *cm = (vartype_complexmatrix *) elem;
+                tb_indent(tb, indent);
+                tb_write(tb, "[\n", 2);
+                indent += 2;
+                tb_indent(tb, indent);
+                n = int2string(cm->rows, buf, 49);
+                tb_write(tb, buf, n);
+                tb_write(tb, "x", 1);
+                n = int2string(cm->columns, buf, 49);
+                tb_write(tb, buf, n);
+                tb_write(tb, " Cpx Matrix\n", 12);
+                for (int j = 0; j < cm->rows * cm->columns * 2; j += 2) {
+                    tb_indent(tb, indent);
+                    n = complex2buf(buf, cm->array->data[j], cm->array->data[j + 1], true);
+                    tb_write(tb, buf, n);
+                    tb_write(tb, "\n", 1);
+                }
+                indent -= 2;
+                tb_indent(tb, indent);
+                tb_write(tb, "]\n", 2);
+                break;
+            }
+            case TYPE_LIST: {
+                serialize_list(tb, (vartype_list *) elem, indent);
+                break;
+            }
+        }
+    }
+    indent -= 2;
+    tb_indent(tb, indent);
+    tb_write(tb, "}\n", 2);
+}
+
 char *core_copy() {
     if (mode_interruptible != NULL)
         stop_interruptible();
     set_running(false);
 
+    textbuf tb;
+    tb.buf = NULL;
+    tb.size = 0;
+    tb.capacity = 0;
+    tb.fail = false;
+
     if (flags.f.prgm_mode) {
-        textbuf tb;
-        tb.buf = NULL;
-        tb.size = 0;
-        tb.capacity = 0;
-        tb.fail = false;
         tb_print_current_program(&tb);
+        textbuf_finish:
         tb_write_null(&tb);
         if (tb.fail) {
             free(tb.buf);
@@ -2522,11 +2654,6 @@ char *core_copy() {
         vartype_realmatrix *rm = (vartype_realmatrix *) stack[sp];
         phloat *data = rm->array->data;
         char *is_string = rm->array->is_string;
-        textbuf tb;
-        tb.buf = NULL;
-        tb.size = 0;
-        tb.capacity = 0;
-        tb.fail = false;
         char buf[50];
         int n = 0;
         for (int r = 0; r < rm->rows; r++) {
@@ -2554,22 +2681,10 @@ char *core_copy() {
             if (r < rm->rows - 1)
                 tb_write(&tb, "\n", 1);
         }
-        tb_write_null(&tb);
-        if (tb.fail) {
-            free(tb.buf);
-            display_error(ERR_INSUFFICIENT_MEMORY, false);
-            redisplay();
-            return NULL;
-        } else
-            return tb.buf;
+        goto textbuf_finish;
     } else if (stack[sp]->type == TYPE_COMPLEXMATRIX) {
         vartype_complexmatrix *cm = (vartype_complexmatrix *) stack[sp];
         phloat *data = cm->array->data;
-        textbuf tb;
-        tb.buf = NULL;
-        tb.size = 0;
-        tb.capacity = 0;
-        tb.fail = false;
         char buf[100];
         int n = 0;
         for (int r = 0; r < cm->rows; r++) {
@@ -2583,14 +2698,10 @@ char *core_copy() {
             if (r < cm->rows - 1)
                 tb_write(&tb, "\n", 1);
         }
-        tb_write_null(&tb);
-        if (tb.fail) {
-            free(tb.buf);
-            display_error(ERR_INSUFFICIENT_MEMORY, false);
-            redisplay();
-            return NULL;
-        } else
-            return tb.buf;
+        goto textbuf_finish;
+    } else if (stack[sp]->type == TYPE_LIST) {
+        serialize_list(&tb, (vartype_list *) stack[sp], 0);
+        goto textbuf_finish;
     } else {
         // Shouldn't happen: unrecognized data type
         return NULL;
