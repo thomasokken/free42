@@ -152,7 +152,6 @@ if do_windows:
     v_file.write("#define FREE42_VERSION_1 \"Free42 " + version_name + "\"\n")
     v_file.write("#define FREE42_VERSION_2 \"" + version_name + "\\0\"\n")
     v_file.write("#define FREE42_VERSION_3 " + str(version_comps[0]) + "," + str(version_comps[1]) + "," + str(version_comps[2]) + "," + str(version_comps[3]) + "\n")
-    v_file.write("#define FREE42_VERSION_4 \"Release " + version_name + "\"\n")
     v_file.close()
 
 # Create a new entry at the top of HISTORY, appropriately labeled, and dump the commit history since the latest tag.
