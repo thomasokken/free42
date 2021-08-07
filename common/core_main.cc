@@ -4042,13 +4042,13 @@ static int get_token(const char *buf, int *pos, int *start) {
         }
     } else if (c == '<') {
         if (strncmp(buf + *pos - 1, STR_INF, 10) == 0) {
-            *pos += 10;
+            *pos += 9;
             return 10;
         } else if (strncmp(buf + *pos - 1, STR_NEG_INF, 11) == 0) {
-            *pos += 11;
+            *pos += 10;
             return 11;
         } else if (strncmp(buf + *pos - 1, STR_NAN, 14) == 0) {
-            *pos += 14;
+            *pos += 13;
             return 14;
         } else
             goto normal;
