@@ -2716,7 +2716,21 @@ char *core_copy() {
     }
 }
 
+const char *STR_INF = "<Infinity>";
+const char *STR_NEG_INF = "<-Infinity>";
+const char *STR_NAN = "<Not a Number>";
+
 static int scan_number(const char *buf, int len, int pos) {
+    if (buf[pos] == '<') {
+        if (len >= 10 && strncmp(buf + pos, STR_INF, 10) == 0)
+            return pos + 10;
+        else if (len >= 11 && strncmp(buf + pos, STR_NEG_INF, 11) == 0)
+            return pos + 11;
+        else if (len >= 14 && strncmp(buf + pos, STR_NAN, 14) == 0)
+            return pos + 14;
+        else
+            return pos;
+    }
     // 0: before number
     // 1: in mantissa, before decimal
     // 2: in mantissa, after decimal
@@ -2775,6 +2789,19 @@ static int scan_number(const char *buf, int len, int pos) {
 }
 
 static bool parse_phloat(const char *p, int len, phloat *res) {
+    if (p[0] == '<') {
+        if (len >= 10 && strncmp(p, STR_INF, 10) == 0) {
+            *res = POS_HUGE_PHLOAT * 2;
+            return true;
+        } else if (len >= 11 && strncmp(p, STR_NEG_INF, 11) == 0) {
+            *res = NEG_HUGE_PHLOAT * 2;
+            return true;
+        } else if (len >= 14 && strncmp(p, STR_NAN, 14) == 0) {
+            *res = NAN_PHLOAT;
+            return true;
+        } else
+            return false;
+    }
     // We can't pass the string on to string2phloat() unchanged, because
     // that function is picky: it does not allow '+' signs, and it does
     // not allow the mantissa to be more than 34 or 16 digits long (including
@@ -4013,7 +4040,20 @@ static int get_token(const char *buf, int *pos, int *start) {
             }
             (*pos)++;
         }
+    } else if (c == '<') {
+        if (strncmp(buf + *pos - 1, STR_INF, 10) == 0) {
+            *pos += 10;
+            return 10;
+        } else if (strncmp(buf + *pos - 1, STR_NEG_INF, 11) == 0) {
+            *pos += 11;
+            return 11;
+        } else if (strncmp(buf + *pos - 1, STR_NAN, 14) == 0) {
+            *pos += 14;
+            return 14;
+        } else
+            goto normal;
     } else {
+        normal:
         while (true) {
             c = buf[*pos];
             if (c == 0 || c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\f')
