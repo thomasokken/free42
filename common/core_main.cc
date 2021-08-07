@@ -2512,13 +2512,17 @@ static void serialize_list(textbuf *tb, vartype_list *list, int indent) {
                 const char *txt = s->txt();
                 char cbuf[5];
                 for (int j = 0; j < s->length; j++) {
-                    char c = txt[j];
+                    unsigned char c = txt[j];
+                    if (c == 10)
+                        c = 138;
+                    else if (c >= 130 && c != 138)
+                        c &= 127;
                     if (c == '"') {
                         tb_write(tb, "\\\"", 2);
+                    } else if (c == '\\') {
+                        tb_write(tb, "\\\\", 2);
                     } else {
-                        if (c == 10)
-                            c = 138;
-                        n = hp2ascii(cbuf, &c, 1);
+                        n = hp2ascii(cbuf, (const char *) &c, 1);
                         tb_write(tb, cbuf, n);
                     }
                 }
@@ -2546,13 +2550,17 @@ static void serialize_list(textbuf *tb, vartype_list *list, int indent) {
                         get_matrix_string(rm, j, &text, &len);
                         char cbuf[5];
                         for (int k = 0; k < len; k++) {
-                            char c = text[k];
+                            unsigned char c = text[k];
+                            if (c == 10)
+                                c = 138;
+                            else if (c >= 130 && c != 138)
+                                c &= 127;
                             if (c == '"') {
                                 tb_write(tb, "\\\"", 2);
+                            } else if (c == '\\') {
+                                tb_write(tb, "\\\\", 2);
                             } else {
-                                if (c == 10)
-                                    c = 138;
-                                n = hp2ascii(cbuf, &c, 1);
+                                n = hp2ascii(cbuf, (const char *) &c, 1);
                                 tb_write(tb, cbuf, n);
                             }
                         }
@@ -3976,6 +3984,219 @@ static void paste_programs(const char *buf) {
     }
 }
 
+static int get_token(const char *buf, int *pos, int *start) {
+    char c;
+    while (true) {
+        c = buf[*pos];
+        if (c == 0)
+            return 0;
+        if (c != ' ' && c != '\t' && c != '\n' && c != '\r' && c != '\f')
+            break;
+        (*pos)++;
+    }
+    *start = *pos;
+    (*pos)++;
+    if (c == '"') {
+        while (true) {
+            c = buf[*pos];
+            if (c == 0)
+                return *pos - *start;
+            if (c == '"') {
+                (*pos)++;
+                return *pos - *start;
+            }
+            if (c == '\\') {
+                (*pos)++;
+                c = buf[*pos];
+                if (c == 0)
+                    return *pos - *start;
+            }
+            (*pos)++;
+        }
+    } else {
+        while (true) {
+            c = buf[*pos];
+            if (c == 0 || c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\f')
+                return *pos - *start;
+            (*pos)++;
+        }
+    }
+}
+
+static int parse_int(const char *buf, int len) {
+    int r = 0;
+    for (int i = 0; i < len; i++) {
+        char c = buf[i];
+        if (c < '0' || c > '9')
+            return -1;
+        r = r * 10 + c - '0';
+    }
+    return r;
+}
+
+static char *parse_string(const char *buf, int len, int *slen) {
+    char *s = (char *) malloc(len - 2);
+    if (s == NULL)
+        return NULL;
+    int sl = 0;
+    for (int i = 1; i < len - 1; i++) {
+        char c = buf[i];
+        if (c == '\\')
+            c = buf[++i];
+        s[sl++] = c;
+    }
+    char *s2 = (char *) malloc(sl + 4);
+    if (s2 == NULL) {
+        free(s);
+        return NULL;
+    }
+    sl = ascii2hp(s2, sl, s, sl);
+    free(s);
+    *slen = sl;
+    return s2;
+}
+
+static vartype *deserialize_list(const char *buf, int *pos) {
+    int tstart;
+    int tlen = get_token(buf, pos, &tstart);
+    if (tlen != 1 || buf[tstart] != '{')
+        return NULL;
+    tlen = get_token(buf, pos, &tstart);
+    if (tlen < 6 || strncmp(buf + tstart + tlen - 5, "-Elem", 5) != 0)
+        return NULL;
+    int len = parse_int(buf + tstart, tlen - 5);
+    if (len == -1)
+        return NULL;
+    tlen = get_token(buf, pos, &tstart);
+    if (tlen != 4 || strncmp(buf + tstart, "List", 4) != 0)
+        return NULL;
+    vartype_list *list = (vartype_list *) new_list(len);
+    if (list == NULL)
+        return NULL;
+    for (int i = 0; i < len; i++) {
+        tlen = get_token(buf, pos, &tstart);
+        if (tlen == 0)
+            goto failure;
+        if (buf[tstart] == '{') {
+            if (tlen != 1)
+                goto failure;
+            (*pos)--;
+            vartype *e = deserialize_list(buf, pos);
+            if (e == NULL)
+                goto failure;
+            list->array->data[i] = e;
+        } else if (buf[tstart] == '[') {
+            if (tlen != 1)
+                goto failure;
+            tlen = get_token(buf, pos, &tstart);
+            if (tlen == 0)
+                goto failure;
+            int x = -1;
+            for (int j = 0; j < tlen; j++) {
+                if (buf[tstart + j] == 'x') {
+                    x = j;
+                    break;
+                }
+            }
+            if (x == -1 || x == 0 || x == tlen - 1)
+                goto failure;
+            int rows = parse_int(buf + tstart, x);
+            int cols = parse_int(buf + tstart + x + 1, tlen - x - 1);
+            if (rows == -1 || cols == -1)
+                goto failure;
+            bool cpx;
+            tlen = get_token(buf, pos, &tstart);
+            vartype *m;
+            if (tlen == 6 && strncmp(buf + tstart, "Matrix", 6) == 0) {
+                m = new_realmatrix(rows, cols);
+                if (m == NULL)
+                    goto failure;
+                cpx = false;
+            } else if (tlen == 3 && strncmp(buf + tstart, "Cpx", 3) == 0) {
+                tlen = get_token(buf, pos, &tstart);
+                if (tlen != 6 || strncmp(buf + tstart, "Matrix", 6) != 0)
+                    goto failure;
+                m = new_complexmatrix(rows, cols);
+                if (m == NULL)
+                    goto failure;
+                cpx = true;
+            } else
+                goto failure;
+            list->array->data[i] = m;
+            int cells = rows * cols;
+            for (int j = 0; j < cells; j++) {
+                tlen = get_token(buf, pos, &tstart);
+                if (tlen == 0)
+                    goto failure;
+                if (buf[tstart] == '"') {
+                    if (cpx)
+                        goto failure;
+                    int slen;
+                    char *s = parse_string(buf + tstart, tlen, &slen);
+                    if (s == NULL)
+                        return NULL;
+                    bool res = put_matrix_string((vartype_realmatrix *) m, j, s, slen);
+                    free(s);
+                    if (!res)
+                        goto failure;
+                } else {
+                    phloat re, im;
+                    int slen;
+                    int type = parse_scalar(buf + tstart, tlen, true, &re, &im, &slen);
+                    if (cpx) {
+                        if (type == TYPE_REAL)
+                            im = 0;
+                        else if (type != TYPE_COMPLEX)
+                            goto failure;
+                        vartype_complexmatrix *cm = (vartype_complexmatrix *) m;
+                        cm->array->data[j * 2] = re;
+                        cm->array->data[j * 2 + 1] = im;
+                    } else {
+                        if (type != TYPE_REAL)
+                            goto failure;
+                        vartype_realmatrix *rm = (vartype_realmatrix *) m;
+                        rm->array->data[j] = re;
+                    }
+                }
+            }
+            tlen = get_token(buf, pos, &tstart);
+            if (tlen != 1 || buf[tstart] != ']')
+                goto failure;
+        } else if (buf[tstart] == '"') {
+            int slen;
+            char *s = parse_string(buf + tstart, tlen, &slen);
+            if (s == NULL)
+                return NULL;
+            vartype *str = new_string(s, slen);
+            free(s);
+            if (str == NULL)
+                goto failure;
+            list->array->data[i] = str;
+        } else {
+            phloat re, im;
+            int slen;
+            int type = parse_scalar(buf + tstart, tlen, true, &re, &im, &slen);
+            vartype *v;
+            if (type == TYPE_REAL)
+                v = new_real(re);
+            else if (type == TYPE_COMPLEX)
+                v = new_complex(re, im);
+            else
+                goto failure;
+            if (v == NULL)
+                goto failure;
+            list->array->data[i] = v;
+        }
+    }
+    tlen = get_token(buf, pos, &tstart);
+    if (tlen != 1 || buf[tstart] != '}') {
+        failure:
+        free_vartype((vartype *) list);
+        return NULL;
+    } else
+        return (vartype *) list;
+}
+
 void core_paste(const char *buf) {
     if (mode_interruptible != NULL)
         stop_interruptible();
@@ -4006,6 +4227,14 @@ void core_paste(const char *buf) {
         int cell_size = 0;
         int pos = 0;
         char lastchar, c = 0;
+        vartype *v;
+        if (buf[0] == '{') {
+            // Try to parse a list; if unsuccessful, fall back on TSV parsing
+            int tpos = 0;
+            v = deserialize_list(buf, &tpos);
+            if (v != NULL)
+                goto parse_success;
+        }
         while (true) {
             lastchar = c;
             c = buf[pos++];
@@ -4039,7 +4268,6 @@ void core_paste(const char *buf) {
             if (max_cell_size < cell_size)
                 max_cell_size = cell_size;
         }
-        vartype *v;
         if (rows == 0) {
             return;
         } else if (rows == 1 && cols == 1) {
@@ -4276,6 +4504,7 @@ void core_paste(const char *buf) {
                 v = (vartype *) cm;
             }
         }
+        parse_success:
         if (recall_result(v) != ERR_NONE) {
             display_error(ERR_INSUFFICIENT_MEMORY, false);
             redisplay();
