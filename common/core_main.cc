@@ -2459,7 +2459,7 @@ static int complex2buf(char *buf, phloat re, phloat im, bool always_rect) {
     if (polar) {
         string2buf(buf, 99, &bufptr, " \342\210\240 ", 5);
     } else {
-        if (y >= 0)
+        if (y >= 0 || p_isinf(y) != 0 || p_isnan(y))
             buf[bufptr++] = '+';
     }
     bufptr += phloat2string(y, buf + bufptr, 99 - bufptr, 2, 0, 3, 0, MAX_MANT_DIGITS);
@@ -2721,13 +2721,14 @@ const char *STR_NEG_INF = "<-Infinity>";
 const char *STR_NAN = "<Not a Number>";
 
 static int scan_number(const char *buf, int len, int pos) {
-    if (buf[pos] == '<') {
-        if (len >= 10 && strncmp(buf + pos, STR_INF, 10) == 0)
-            return pos + 10;
-        else if (len >= 11 && strncmp(buf + pos, STR_NEG_INF, 11) == 0)
-            return pos + 11;
-        else if (len >= 14 && strncmp(buf + pos, STR_NAN, 14) == 0)
-            return pos + 14;
+    if (buf[pos] == '<' || len > 1 && (buf[pos] == '-' || buf[pos] == '+') && buf[pos + 1] == '<') {
+        int off = buf[pos] == '<' ? 0 : 1;
+        if (len >= 10 + off && strncmp(buf + pos + off, STR_INF, 10) == 0)
+            return pos + off + 10;
+        else if (len >= 11 + off && strncmp(buf + pos + off, STR_NEG_INF, 11) == 0)
+            return pos + off + 11;
+        else if (len >= 14 + off && strncmp(buf + pos + off, STR_NAN, 14) == 0)
+            return pos + off + 14;
         else
             return pos;
     }
@@ -2789,14 +2790,17 @@ static int scan_number(const char *buf, int len, int pos) {
 }
 
 static bool parse_phloat(const char *p, int len, phloat *res) {
-    if (p[0] == '<') {
-        if (len >= 10 && strncmp(p, STR_INF, 10) == 0) {
-            *res = POS_HUGE_PHLOAT * 2;
+    if (p[0] == '<' || len > 1 && (p[0] == '-' || p[0] == '+') && p[1] == '<') {
+        int off = p[0] == '<' ? 0 : 1;
+        bool neg = p[0] == '-';
+        if (len >= 10 + off && strncmp(p + off, STR_INF, 10) == 0) {
+            goto return_inf;
+        } else if (len >= 11 + off && strncmp(p + off, STR_NEG_INF, 11) == 0) {
+            neg = !neg;
+            return_inf:
+            *res = (neg ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT) * 2;
             return true;
-        } else if (len >= 11 && strncmp(p, STR_NEG_INF, 11) == 0) {
-            *res = NEG_HUGE_PHLOAT * 2;
-            return true;
-        } else if (len >= 14 && strncmp(p, STR_NAN, 14) == 0) {
+        } else if (len >= 14 + off && strncmp(p + off, STR_NAN, 14) == 0) {
             *res = NAN_PHLOAT;
             return true;
         } else
@@ -4040,25 +4044,23 @@ static int get_token(const char *buf, int *pos, int *start) {
             }
             (*pos)++;
         }
-    } else if (c == '<') {
-        if (strncmp(buf + *pos - 1, STR_INF, 10) == 0) {
-            *pos += 9;
-            return 10;
-        } else if (strncmp(buf + *pos - 1, STR_NEG_INF, 11) == 0) {
-            *pos += 10;
-            return 11;
-        } else if (strncmp(buf + *pos - 1, STR_NAN, 14) == 0) {
-            *pos += 13;
-            return 14;
-        } else
-            goto normal;
     } else {
         normal:
         while (true) {
             c = buf[*pos];
             if (c == 0 || c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\f')
                 return *pos - *start;
-            (*pos)++;
+            if (c == '<') {
+                if (strncmp(buf + *pos, STR_INF, 10) == 0) {
+                    *pos += 10;
+                } else if (strncmp(buf + *pos, STR_NEG_INF, 11) == 0) {
+                    *pos += 11;
+                } else if (strncmp(buf + *pos, STR_NAN, 14) == 0) {
+                    *pos += 14;
+                } else
+                    (*pos)++;
+            } else
+                (*pos)++;
         }
     }
 }
