@@ -4045,7 +4045,6 @@ static int get_token(const char *buf, int *pos, int *start) {
             (*pos)++;
         }
     } else {
-        normal:
         while (true) {
             c = buf[*pos];
             if (c == 0 || c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\f')
