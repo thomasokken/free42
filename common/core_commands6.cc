@@ -154,19 +154,17 @@ static int mappable_tan_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
         *yim = tanh(xim);
         return ERR_NONE;
     }
-
-    phloat xre2 = xre * 2;
-    if (p_isnan(xre) || p_isnan(xim) || p_isinf(xre2)) {
+    if (p_isnan(xre) || p_isnan(xim)) {
         *yre = NAN_PHLOAT;
         *yim = NAN_PHLOAT;
         return ERR_NONE;
     }
-    phloat xim2 = xim * 2;
-    phloat sinxre2, cosxre2;
-    p_sincos(xre2, &sinxre2, &cosxre2);
-    phloat sinhxim2 = sinh(xim2);
-    phloat coshxim2 = cosh(xim2);
-    phloat d = cosxre2 + coshxim2;
+
+    phloat sinxre, cosxre;
+    p_sincos(xre, &sinxre, &cosxre);
+    phloat sinhxim = sinh(xim);
+    phloat coshxim = cosh(xim);
+    phloat d = cosxre * cosxre + sinhxim * sinhxim;
     if (d == 0) {
         if (flags.f.range_error_ignore) {
             *yre = POS_HUGE_PHLOAT;
@@ -180,21 +178,8 @@ static int mappable_tan_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
         *yim = xim < 0 ? -1 : 1;
         return ERR_NONE;
     }
-    *yre = sinxre2 / d;
-    *yim = sinhxim2 / d;
-    int inf;
-    if ((inf = p_isinf(*yre)) != 0) {
-        if (flags.f.range_error_ignore)
-            *yre = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
-        else
-            return ERR_OUT_OF_RANGE;
-    }
-    if ((inf = p_isinf(*yim)) != 0) {
-        if (flags.f.range_error_ignore)
-            *yim = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
-        else
-            return ERR_OUT_OF_RANGE;
-    }
+    *yre = sinxre * cosxre / d;
+    *yim = sinhxim * coshxim / d;
     return ERR_NONE;
 }
 

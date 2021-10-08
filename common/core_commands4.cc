@@ -864,55 +864,42 @@ static int mappable_tanh_r(phloat x, phloat *y) {
 }   
 
 static int mappable_tanh_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
-    if (xim == 0) {
-        *yre = tanh(xre);
-        *yim = 0;
-        return ERR_NONE;
-    } else if (xre == 0) {
+    /* NOTE: DEG/RAD/GRAD mode does not apply here. */
+
+    if (xre == 0) {
         *yre = 0;
         return math_tan(xim, yim, true);
-    }
-
-    phloat xim2 = xim * 2;
-    if (p_isnan(xre) || p_isnan(xim) || p_isinf(xim2)) {
-        *yre = NAN_PHLOAT;
-        *yim = NAN_PHLOAT;
+    } else if (xim == 0) {
+        *yim = 0;
+        *yre = tanh(xre);
         return ERR_NONE;
     }
-    phloat xre2 = xre * 2;
-    phloat sinhxre2 = sinh(xre2);
-    phloat coshxre2 = cosh(xre2);
-    phloat sinxim2, cosxim2;
-    p_sincos(xim2, &sinxim2, &cosxim2);
-    phloat d = coshxre2 + cosxim2;
+    if (p_isnan(xim) || p_isnan(xre)) {
+        *yim = NAN_PHLOAT;
+        *yre = NAN_PHLOAT;
+        return ERR_NONE;
+    }
+
+    phloat sinxim, cosxim;
+    p_sincos(xim, &sinxim, &cosxim);
+    phloat sinhxre = sinh(xre);
+    phloat coshxre = cosh(xre);
+    phloat d = cosxim * cosxim + sinhxre * sinhxre;
     if (d == 0) {
         if (flags.f.range_error_ignore) {
-            *yre = POS_HUGE_PHLOAT;
             *yim = POS_HUGE_PHLOAT;
+            *yre = POS_HUGE_PHLOAT;
             return ERR_NONE;
         } else
             return ERR_OUT_OF_RANGE;
     }
     if (p_isinf(d) != 0) {
-        *yre = xre < 0 ? -1 : 1;
         *yim = 0;
+        *yre = xre < 0 ? -1 : 1;
         return ERR_NONE;
     }
-    *yre = sinhxre2 / d;
-    *yim = sinxim2 / d;
-    int inf;
-    if ((inf = p_isinf(*yre)) != 0) {
-        if (flags.f.range_error_ignore)
-            *yre = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
-        else
-            return ERR_OUT_OF_RANGE;
-    }
-    if ((inf = p_isinf(*yim)) != 0) {
-        if (flags.f.range_error_ignore)
-            *yim = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
-        else
-            return ERR_OUT_OF_RANGE;
-    }
+    *yim = sinxim * cosxim / d;
+    *yre = sinhxre * coshxre / d;
     return ERR_NONE;
 }
 
