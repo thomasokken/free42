@@ -496,8 +496,13 @@
 #define CMD_0_GT_NN     441
 #define CMD_0_LE_NN     442
 #define CMD_0_GE_NN     443
+/* Equations */
+#define CMD_PARSE       444
+#define CMD_UNPARSE     445
+#define CMD_EVAL        446
+#define CMD_EQN_T       447
 
-#define CMD_SENTINEL    444
+#define CMD_SENTINEL    448
 
 
 /* command_spec.argtype */
