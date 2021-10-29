@@ -1115,7 +1115,7 @@ static int mappable_rnd_r(phloat x, phloat *y) {
             int neg = t < 0;
             if (neg)
                 t = -t;
-            if (t > 1e20)
+            if (t >= ALWAYS_INT_FROM)
                 *y = x;
             else {
                 t = floor(t * rnd_multiplier + 0.5) / rnd_multiplier;
