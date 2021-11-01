@@ -501,8 +501,10 @@
 #define CMD_UNPARSE     445
 #define CMD_EVAL        446
 #define CMD_EQN_T       447
+#define CMD_EQEXT       448
+#define CMD_EQSTD       449
 
-#define CMD_SENTINEL    448
+#define CMD_SENTINEL    450
 
 
 /* command_spec.argtype */
