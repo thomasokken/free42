@@ -503,8 +503,11 @@
 #define CMD_EQN_T       447
 #define CMD_EQEXT       448
 #define CMD_EQSTD       449
+#define CMD_GTOL        450
+#define CMD_XEQL        451
+#define CMD_SVAR_T      452
 
-#define CMD_SENTINEL    450
+#define CMD_SENTINEL    453
 
 
 /* command_spec.argtype */
