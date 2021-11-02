@@ -57,7 +57,7 @@
 // Note about XROM numbers:
 // The Free42/Plus42 extensions use
 // XROM 31,01-63 (a7c1-a7ff) (Data Logger ROM, entire range)
-// XROM 30,37-39 (a7a5-a7a7) (Card Reader, unused codes only)
+// XROM 30,37-40 (a7a5-a7a8) (Card Reader, unused codes only)
 
 const command_spec cmd_array[] =
 {
@@ -546,7 +546,8 @@ const command_spec cmd_array[] =
     { /* EQSTD */      docmd_xrom,        "EQSTD",               0x00, 0x00, 0xa7, 0xa6,  5, ARG_NONE,   0, PL42 },
     { /* GTOL */       docmd_xrom,        "GTOL",                0x20, 0x00, 0x00, 0x00,  4, ARG_COUNT,  0, PL42 },
     { /* XEQL */       docmd_xrom,        "XEQL",                0x20, 0x00, 0x00, 0x00,  4, ARG_COUNT,  0, PL42 },
-    { /* SVAR_T */     docmd_xrom,        "SVAR?",               0x00, 0x00, 0xa7, 0xa7,  5, ARG_NONE,   0, PL42 }
+    { /* SVAR_T */     docmd_xrom,        "SVAR?",               0x00, 0x00, 0xa7, 0xa7,  5, ARG_NONE,   0, PL42 },
+    { /* MATITEM */    docmd_xrom,        "MATITEM",             0x00, 0x00, 0xa7, 0xa8,  7, ARG_NONE,   0, PL42 }
 };
 
 /*

@@ -506,8 +506,9 @@
 #define CMD_GTOL        450
 #define CMD_XEQL        451
 #define CMD_SVAR_T      452
+#define CMD_MATITEM     453
 
-#define CMD_SENTINEL    453
+#define CMD_SENTINEL    454
 
 
 /* command_spec.argtype */
