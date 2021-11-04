@@ -526,7 +526,7 @@ void delete_command(int4 pc);
 void store_command(int4 pc, int command, arg_struct *arg, const char *num_str);
 void store_command_after(int4 *pc, int command, arg_struct *arg, const char *num_str);
 int x2line();
-int a2line();
+int a2line(bool append);
 int4 pc2line(int4 pc);
 int4 line2pc(int4 line);
 int4 find_local_label(const arg_struct *arg);

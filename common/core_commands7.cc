@@ -982,7 +982,11 @@ int docmd_x2line(arg_struct *arg) {
 }
 
 int docmd_a2line(arg_struct *arg) {
-    return a2line();
+    return a2line(false);
+}
+
+int docmd_a2pline(arg_struct *arg) {
+    return a2line(true);
 }
 
 int docmd_rcomplx(arg_struct *arg) {

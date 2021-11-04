@@ -2928,7 +2928,7 @@ int x2line() {
     }
 }
 
-int a2line() {
+int a2line(bool append) {
     if (reg_alpha_length == 0) {
         squeak();
         return ERR_NONE;
@@ -2940,7 +2940,9 @@ int a2line() {
     int maxlen = 15;
 
     arg_struct arg;
-    if (p[0] == 0x7f || (p[0] & 128) != 0) {
+    if (append) {
+        maxlen = 14;
+    } else if (p[0] == 0x7f || (p[0] & 128) != 0) {
         arg.type = ARGTYPE_NONE;
         store_command_after(&pc, CMD_CLA, &arg, NULL);
         maxlen = 14;
