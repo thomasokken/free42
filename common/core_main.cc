@@ -4797,7 +4797,6 @@ static synonym_spec hp41_synonyms[] =
     { "0#?",    false, 3, CMD_0_NE_NN },
     { "0<=?",   false, 4, CMD_0_LE_NN },
     { "0>=?",   false, 4, CMD_0_GE_NN },
-    { {'A','2','+','L','I','N','E'},false, 7, CMD_A2PLINE },
     { "",       true,  0, CMD_NONE    }
 };
 
