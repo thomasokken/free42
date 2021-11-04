@@ -3586,7 +3586,7 @@ static void paste_programs(const char *buf) {
         if (lineno_start != -1 && hppos == prev_hppos)
             // No space following line number? Not acceptable.
             goto line_done;
-        if (hppos < hpend - 1 && hpbuf[hppos] == 127 && hpbuf[hppos + 1] == '"') {
+        if (hppos < hpend - 1 && (hpbuf[hppos] == 127 || hpbuf[hppos] == '+') && hpbuf[hppos + 1] == '"') {
             // Appended string
             hpbuf[hppos + 1] = 127;
             goto do_string;
