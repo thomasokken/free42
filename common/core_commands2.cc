@@ -1622,7 +1622,10 @@ int docmd_number(arg_struct *arg) {
     vartype *new_x = new_real(arg->val_d);
     if (new_x == NULL)
         return ERR_INSUFFICIENT_MEMORY;
-    return recall_result_silently(new_x);
+    int err = recall_result_silently(new_x);
+    if (err == ERR_NONE)
+        print_stack_trace();
+    return err;
 }
 
 int docmd_string(arg_struct *arg) {
