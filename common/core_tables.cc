@@ -545,10 +545,21 @@ const command_spec cmd_array[] =
     { /* EQN_T */      docmd_xrom,        "EQN?",                0x00, 0x00, 0xa7, 0xff,  4, ARG_NONE,   0, PL42 },
     { /* EQEXT */      docmd_xrom,        "EQEXT",               0x00, 0x00, 0xa7, 0xa5,  5, ARG_NONE,   0, PL42 },
     { /* EQSTD */      docmd_xrom,        "EQSTD",               0x00, 0x00, 0xa7, 0xa6,  5, ARG_NONE,   0, PL42 },
-    { /* GTOL */       docmd_xrom,        "GTOL",                0x20, 0x00, 0x00, 0x00,  4, ARG_COUNT,  0, PL42 },
-    { /* XEQL */       docmd_xrom,        "XEQL",                0x20, 0x00, 0x00, 0x00,  4, ARG_COUNT,  0, PL42 },
-    { /* SVAR_T */     docmd_xrom,        "SVAR?",               0x00, 0x00, 0xa7, 0xa7,  5, ARG_NONE,   0, PL42 },
-    { /* MATITEM */    docmd_xrom,        "MATITEM",             0x00, 0x00, 0xa7, 0xa8,  7, ARG_NONE,   0, PL42 }
+    { /* GTOL */       docmd_xrom,        "GTOL",                0x24, 0x00, 0x00, 0x00,  4, ARG_COUNT,  0, PL42 },
+    { /* XEQL */       docmd_xrom,        "XEQL",                0x24, 0x00, 0x00, 0x00,  4, ARG_COUNT,  0, PL42 },
+    { /* SVAR_T */     docmd_xrom,        "SVAR",                0x04, 0x00, 0xa7, 0xa7,  4, ARG_NONE,   0, PL42 },
+    { /* MATITEM */    docmd_xrom,        "MATITEM",             0x04, 0x00, 0xa7, 0xa8,  7, ARG_NONE,   0, PL42 },
+    { /* GEN_EQ */     docmd_xrom,        "=",                   0x04, 0x00, 0xa7, 0xa9,  1, ARG_NONE,   0, PL42 },
+    { /* GEN_NE */     docmd_xrom,        "\014",                0x04, 0x00, 0xa7, 0xaa,  1, ARG_NONE,   0, PL42 },
+    { /* GEN_LT */     docmd_xrom,        "<",                   0x04, 0x00, 0xa7, 0xab,  1, ARG_NONE,   0, PL42 },
+    { /* GEN_GT */     docmd_xrom,        ">",                   0x04, 0x00, 0xa7, 0xac,  1, ARG_NONE,   0, PL42 },
+    { /* GEN_LE */     docmd_xrom,        "\011",                0x04, 0x00, 0xa7, 0xad,  1, ARG_NONE,   0, PL42 },
+    { /* GEN_GE */     docmd_xrom,        "\013",                0x04, 0x00, 0xa7, 0xae,  1, ARG_NONE,   0, PL42 },
+    { /* GEN_AND */    docmd_xrom,        "&&",                  0x04, 0x00, 0xa7, 0xaf,  2, ARG_NONE,   0, PL42 },
+    { /* GEN_OR */     docmd_xrom,        "||",                  0x04, 0x00, 0xa7, 0xb0,  2, ARG_NONE,   0, PL42 },
+    { /* GEN_XOR */    docmd_xrom,        "^^",                  0x04, 0x00, 0xa7, 0xb1,  2, ARG_NONE,   0, PL42 },
+    { /* GEN_NOT */    docmd_xrom,        "!",                   0x04, 0x00, 0xa7, 0xb2,  1, ARG_NONE,   0, PL42 },
+    { /* IF_T */       docmd_xrom,        "IF?",                 0x04, 0x00, 0xa7, 0xb3,  3, ARG_NONE,   0, PL42 }
 };
 
 /*

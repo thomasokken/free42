@@ -508,8 +508,19 @@
 #define CMD_XEQL        452
 #define CMD_SVAR_T      453
 #define CMD_MATITEM     454
+#define CMD_GEN_EQ      455
+#define CMD_GEN_NE      456
+#define CMD_GEN_LT      457
+#define CMD_GEN_GT      458
+#define CMD_GEN_LE      459
+#define CMD_GEN_GE      460
+#define CMD_GEN_AND     461
+#define CMD_GEN_OR      462
+#define CMD_GEN_XOR     463
+#define CMD_GEN_NOT     464
+#define CMD_IF_T        465
 
-#define CMD_SENTINEL    455
+#define CMD_SENTINEL    466
 
 
 /* command_spec.argtype */
