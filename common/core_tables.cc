@@ -50,14 +50,9 @@
  */
 #define UNIM 0x00
 
-/* Dummy value, to be used for Plus42-specific functions.
- */
-#define PL42 0x00
-
 // Note about XROM numbers:
-// The Free42/Plus42 extensions use
-// XROM 31,01-63 (a7c1-a7ff) (Data Logger ROM, entire range)
-// XROM 30,37-40 (a7a5-a7a8) (Card Reader, unused codes only)
+// The Free42 extensions use
+// XROM 31,01-59 (a7c1-a7fb) (Data Logger ROM)
 
 const command_spec cmd_array[] =
 {

@@ -1032,18 +1032,6 @@ static void export_hp42s(int index) {
                             len -= slen;
                         }
                     }
-                } else if (cmd == CMD_GTOL) {
-                    cmdbuf[cmdlen++] = (char) 0xF4;
-                    cmdbuf[cmdlen++] = (char) 0xA7;
-                    cmdbuf[cmdlen++] = (char) 0x32;
-                    cmdbuf[cmdlen++] = arg.val.num >> 8;
-                    cmdbuf[cmdlen++] = arg.val.num;
-                } else if (cmd == CMD_XEQL) {
-                    cmdbuf[cmdlen++] = (char) 0xF4;
-                    cmdbuf[cmdlen++] = (char) 0xA7;
-                    cmdbuf[cmdlen++] = (char) 0x33;
-                    cmdbuf[cmdlen++] = arg.val.num >> 8;
-                    cmdbuf[cmdlen++] = arg.val.num;
                 } else {
                     /* Shouldn't happen */
                     continue;
@@ -1245,8 +1233,6 @@ int4 core_program_size(int prgm_index) {
                     if (n == 0)
                         n = 1;
                     size += arg.length + n * 3;
-                } else if (cmd == CMD_GTOL || cmd == CMD_XEQL) {
-                    size += 5;
                 } else {
                     /* Shouldn't happen */
                     continue;
@@ -2394,23 +2380,6 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                             if (suffix == EOF)
                                 goto done;
                             goto do_suffix;
-                        } else if (byte2 == 0x032 || byte2 == 0x033) {
-                            /* GTOL/XEQL */
-                            int sz;
-                            if (byte1 != 0x0F3)
-                                goto plain_string;
-                            suffix = raw_getc();
-                            if (suffix == EOF)
-                                goto done;
-                            sz = suffix << 8;
-                            suffix = raw_getc();
-                            if (suffix == EOF)
-                                goto done;
-                            sz += suffix;
-                            cmd = byte2 == 0x032 ? CMD_GTOL : CMD_XEQL;
-                            arg.type = ARGTYPE_NUM;
-                            arg.val.num = sz;
-                            goto store;
                         } else /* byte2 == 0x0F7 */ {
                             /* SIZE */
                             int sz;
