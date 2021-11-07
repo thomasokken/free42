@@ -1,3 +1,16 @@
+2021-11-07: release 3.0.7
+
+* A2LINE now handles strings that start with characters 127-255 in a more
+  sensible manner. Also, added A2+LINE function for generating appended
+  strings, since the old trick of using a string starting with character 127 no
+  longer works.
+* More accurate complex TAN and TANH.
+* RND did not handle large numbers correctly, failing to round off as many
+  digits as necessary in certain cases. Fixed.
+* Σ+ and Σ- always wanted two arguments, even in NSTK mode, when X contained a
+  real matrix. Fixed.
+* Copy and Paste now handle list objects.
+
 2021-07-27: release 3.0.6
 
 * Added string and list functions. See the Free42 web site for details.
