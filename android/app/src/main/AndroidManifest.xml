@@ -16,8 +16,7 @@
   
   <application android:label="${appName}"
                android:icon="@mipmap/icon"
-               android:allowBackup="true"
-               android:requestLegacyExternalStorage="true">
+               android:allowBackup="true">
     <activity android:name="Free42Activity"
               android:launchMode="singleInstance"
               android:theme="@android:style/Theme.NoTitleBar"
