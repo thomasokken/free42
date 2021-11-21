@@ -1411,7 +1411,10 @@ public class Free42Activity extends Activity {
                 }
             }
             tmpBitmap.copyPixelsFromBuffer(tmpBuffer);
-            canvas.drawBitmap(tmpBitmap, new Rect(0, 0, src_width, src_height), clip, new Paint());
+            Paint p = new Paint();
+            p.setAntiAlias(false);
+            p.setFilterBitmap(false);
+            canvas.drawBitmap(tmpBitmap, new Rect(0, 0, src_width, src_height), clip, p);
             canvas.restore();
         }
         
