@@ -95,6 +95,17 @@ bool core_alpha_menu();
  */
 bool core_hex_menu();
 
+/* core_special_menu_key()
+ *
+ * The shell can call this function if the physical cursor left, cursor right,
+ * or delete keys have been pressed; the core will return the appropriate
+ * menu key to trigger. This is to support menus like the matrix editor.
+ * Which can be: 1=left, 2=shift left, 3=right, 4=shift right, 5=del.
+ * The return value is a menu key number 1-6, or 0 if no special menu key
+ * is available.
+ */
+int core_special_menu_key(int which);
+
 /* core_keydown()
  *
  * This function informs the emulator core that an HP-42S key was pressed. Keys

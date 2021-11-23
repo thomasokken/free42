@@ -195,6 +195,10 @@ bool core_hex_menu() {
 
 static int ascii2hp(char *dst, int dstlen, const char *src, int srclen = -1);
 
+int core_special_menu_key(int which) {
+    return special_menu_key(which);
+}
+
 bool core_keydown_command(const char *name, bool *enqueued, int *repeat) {
     char hpname[70];
     int len = ascii2hp(hpname, 63, name);

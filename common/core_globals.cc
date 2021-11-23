@@ -783,8 +783,9 @@ bool no_keystrokes_yet;
  * Version 41: 3.0.3  Plus42 stuff
  * Version 42: 3.0.6  CAPS/Mixed for menus
  * Version 43: 3.0.7  Plus42 stuff
+ * Version 44: 3.0.8  cursor left, cursor right, del key handling
  */
-#define FREE42_VERSION 42
+#define FREE42_VERSION 44
 
 
 /*******************/

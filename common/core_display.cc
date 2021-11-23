@@ -591,6 +591,12 @@ static char progmenu_label[6][7];
 
 static int appmenu_exitcallback;
 
+/* Menu keys that should respond to certain hardware
+ * keyboard keys, in addition to the keymap:
+ * 0:none 1:left 2:shift-left 3:right 4:shift-right 5:del
+ */
+static char special_key[6] = { 0, 0, 0, 0, 0, 0 };
+
 
 /*******************************/
 /* Private function prototypes */
@@ -627,6 +633,8 @@ bool persist_display() {
     if (fwrite(display, 1, 272, gfile) != 272)
         return false;
     if (!write_int(appmenu_exitcallback)) return false;
+    if (fwrite(special_key, 1, 6, gfile) != 6)
+        return false;
     return true;
 }
 
@@ -665,6 +673,11 @@ bool unpersist_display(int version) {
         if (fread(display, 1, 272, gfile) != 272)
             return false;
         if (!read_int(&appmenu_exitcallback)) return false;
+        if (version >= 44) {
+            if (fread(special_key, 1, 6, gfile) != 6)
+                return false;
+        } else
+            memset(special_key, 0, 6);
     } else {
         int custommenu_cmd[3][6];
         is_dirty = false;
@@ -751,6 +764,7 @@ void clear_display() {
     for (i = 0; i < 272; i++)
         display[i] = 0;
     mark_dirty(0, 0, 16, 131);
+    memset(special_key, 0, 6);
 }
 
 void flush_display() {
@@ -1025,6 +1039,37 @@ static void draw_key(int n, int highlight, int hide_meta,
         x++;
     }
     /* No need for mark_dirty(); fill_rect() took care of that already. */
+
+    /* Support for automatically mapping physical cursor left,
+     * cursor right, and delete keys, to menu keys with legends
+     * consisting of arrows, double-head arrows, or the word
+     * DEL.
+     */
+    if (string_equals(s, length, "\20", 1))
+        /* <- */
+        special_key[n] = 1;
+    else if (string_equals(s, length, "<\20", 2)
+          || string_equals(s, length, "^", 1))
+        /* <<- or up */
+        special_key[n] = 2;
+    else if (string_equals(s, length, "\17", 1))
+        /* -> */
+        special_key[n] = 3;
+    else if (string_equals(s, length, "\17>", 2)
+          || string_equals(s, length, "\16", 1))
+        /* ->> or down */
+        special_key[n] = 4;
+    else if (string_equals(s, length, "DEL", 3))
+        special_key[n] = 5;
+    else
+        special_key[n] = 0;
+}
+
+int special_menu_key(int which) {
+    for (int i = 0; i < 6; i++)
+        if (special_key[i] == which)
+            return i + 1;
+    return 0;
 }
 
 void clear_row(int row) {

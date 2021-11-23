@@ -150,6 +150,12 @@ Java_com_thomasokken_free42_Free42Activity_core_1hex_1menu(JNIEnv *env, jobject 
     return core_hex_menu();
 }
 
+extern "C" jint
+Java_com_thomasokken_free42_Free42Activity_core_1special_1menu_1key(JNIEnv *env, jobject thiz, jint which) {
+    Tracer T("core_special_menu_key");
+    return core_special_menu_key(which);
+}
+
 static struct timeval keydown_end_time;
 
 extern "C" jboolean

@@ -682,6 +682,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
         case WM_SYSCHAR: {
             static int virtKey = 0;
             int keyChar;
+
             if ((lParam & (1 << 30)) != 0)
                 // Auto-repeat event; ignore.
                 break;
@@ -772,6 +773,28 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
                         mouse_key = false;
                         active_keycode = virtKey;
                         break;
+                    } else if (virtKey == 37 || virtKey == 39 || virtKey == 46) {
+                        int which;
+                        if (virtKey == 37)
+                            which = shift_down ? 2 : 1;
+                        else if (virtKey == 39)
+                            which = shift_down ? 4 : 3;
+                        else if (virtKey == 46)
+                            which = 5;
+                        else
+                            which = 0;
+                        if (which != 0) {
+                            which = core_special_menu_key(which);
+                            if (which != 0) {
+                                ckey = which;
+                                skey = -1;
+                                macro = NULL;
+                                shell_keydown();
+                                mouse_key = false;
+                                active_keycode = virtKey;
+                                break;
+                            }
+                        }
                     }
                 }
 

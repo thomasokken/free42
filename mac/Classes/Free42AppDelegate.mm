@@ -1297,6 +1297,28 @@ void calc_keydown(NSString *characters, NSUInteger flags, unsigned short keycode
                 mouse_key = 0;
                 active_keycode = keycode;
                 return;
+            } else if (c == 0xf702 || c == 0xf703 || c == 0xf728) {
+                int which;
+               if (c == 0xf702)
+                    which = shift ? 2 : 1;
+                else if (c == 0xf703)
+                    which = shift ? 4 : 3;
+                else if (c == 0xf728)
+                    which = 5;
+                else
+                    which = 0;
+                if (which != 0) {
+                    which = core_special_menu_key(which);
+                    if (which != 0) {
+                        ckey = which;
+                        skey = -1;
+                        macro = NULL;
+                        shell_keydown();
+                        mouse_key = 0;
+                        active_keycode = keycode;
+                        return;
+                    }
+                }
             }
         }
     }

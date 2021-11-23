@@ -2682,6 +2682,30 @@ static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
                         mouse_key = false;
                         active_keycode = event->hardware_keycode;
                         return TRUE;
+                    } else if (event->keyval == GDK_KEY_Left
+                            || event->keyval == GDK_KEY_Right
+                            || event->keyval == GDK_KEY_Delete) {
+                        int which;
+                        if (event->keyval == GDK_KEY_Left)
+                            which = shift ? 2 : 1;
+                        else if (event->keyval == GDK_KEY_Right)
+                            which = shift ? 4 : 3;
+                        else if (event->keyval == GDK_KEY_Delete)
+                            which = 5;
+                        else
+                            which = 0;
+                        if (which != 0) {
+                            which = core_special_menu_key(which);
+                            if (which != 0) {
+                                ckey = which;
+                                skey = -1;
+                                macro = NULL;
+                                shell_keydown();
+                                mouse_key = false;
+                                active_keycode = event->hardware_keycode;
+                                return TRUE;
+                            }
+                        }
                     }
                 }
             }
