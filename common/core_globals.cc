@@ -3830,9 +3830,17 @@ bool unwind_stack_until_solve() {
     int prgm;
     int4 pc;
     bool stop;
+    int st_mode = -1;
     do {
+        get_saved_stack_mode(&st_mode);
         pop_rtn_addr(&prgm, &pc, &stop);
     } while (prgm != -2);
+    if (st_mode == 0) {
+        arg_struct dummy_arg;
+        docmd_4stk(&dummy_arg);
+    } else if (st_mode == 1) {
+        docmd_nstk(NULL);
+    }
     return stop;
 }
 
