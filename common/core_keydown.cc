@@ -1657,13 +1657,14 @@ void keydown_command_entry(int shift, int key) {
                     return;
                 } else if ((incomplete_command != CMD_ASSIGNa
                         && incomplete_command != CMD_CLP
-                        && incomplete_command != CMD_PRP)
+                        && incomplete_command != CMD_PRP
+                        && incomplete_command != CMD_XSTR)
                         || mode_commandmenu < MENU_ALPHA1
                         || mode_commandmenu > MENU_ALPHA_MISC2) {
                     squeak();
                     return;
                 }
-                /* ASSIGN, CLP, or PRP, alpha menu active, zero-length string:
+                /* ASSIGN, CLP, or PRP, XSTR, alpha menu active, zero-length string:
                  * these are the only cases where an empty string is allowed
                  * as an argument. We fall through to the command completion
                  * code below.

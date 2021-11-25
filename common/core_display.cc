@@ -1479,6 +1479,11 @@ void display_command(int row) {
                                          labels[labelindex].length);
             char2buf(buf, 22, &bufptr, '"');
         }
+     } else if (pending_command_arg.type == ARGTYPE_XSTR) {
+         char2buf(buf, 22, &bufptr, '"');
+         string2buf(buf, 22, &bufptr, pending_command_arg.val.xstr,
+                    pending_command_arg.length);
+         char2buf(buf, 22, &bufptr, '"');
     } else /* ARGTYPE_LCLBL */ {
         char2buf(buf, 22, &bufptr, pending_command_arg.val.lclbl);
     }
