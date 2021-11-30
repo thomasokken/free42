@@ -10,17 +10,12 @@ no other decent place to put.
 
 -------------------------------------------------------------------------------
 Binary vs. Decimal
-Starting with release 1.4, Free42 can be built with binary or with decimal
-floating point. Building the binary versions works as always (just say "make");
-to build the decimal versions, set the BCD_MATH environment variable, or use
-"make BCD_MATH=1".
-When switching between building the decimal and binary version (or vice versa),
-be sure to do "make clean", to avoid linking the wrong objects.
-When building the Windows version using Visual C++, choose the Free42Binary or
-Free42Decimal projects; these projects are set up so that all output files are
-written to separate directories (ReleaseBinary, ReleaseDecimal, DebugBinary,
-DebugDecimal), so you can switch between these projects without having to worry
-about cleaning up object files.
+Free42 can be built with binary or with decimal floating point. The Windows,
+MacOS, iOS, and Android projects all contain separate targets for Decimal and
+Binary builds; for the Linux version, the selection is made using the BCD_MATH
+environment variable.
+When switching between building the decimal and binary version for Linux, be
+sure to do "make clean", to avoid linking the wrong objects.
 
 
 -------------------------------------------------------------------------------
