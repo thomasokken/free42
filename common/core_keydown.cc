@@ -2399,12 +2399,11 @@ void keydown_normal_mode(int shift, int key) {
                 } else if (catsect == CATSECT_FCN
                         || catsect >= CATSECT_EXT_TIME && catsect <= CATSECT_EXT_X_CMP) {
                     int cmd = get_cat_item(menukey);
-                    if (cmd == -1) {
+                    if (cmd == CMD_NULL) {
                         if (flags.f.prgm_mode) {
                             pending_command = CMD_NULL;
                             return;
-                        } else
-                            cmd = CMD_NULL;
+                        }
                     } else if (cmd < 0) {
                         set_cat_section(cmd == -2 ? CATSECT_EXT_0_CMP : CATSECT_EXT_X_CMP);
                         move_cat_row(0);
