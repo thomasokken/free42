@@ -1007,8 +1007,14 @@ static void export_hp42s(int index) {
                         goto non_string_suffix;
                     }
                 } else if (cmd == CMD_XROM) {
-                    cmdbuf[cmdlen++] = (char) (0xA0 + ((arg.val.num >> 8) & 7));
-                    cmdbuf[cmdlen++] = (char) arg.val.num;
+                    if (arg.type == ARGTYPE_NUM) {
+                        cmdbuf[cmdlen++] = (char) (0xA0 + ((arg.val.num >> 8) & 7));
+                        cmdbuf[cmdlen++] = (char) arg.val.num;
+                    } else {
+                        cmdbuf[cmdlen++] = (char) (0xF0 + arg.length);
+                        for (int i = 0; i < arg.length; i++)
+                            cmdbuf[cmdlen++] = arg.val.text[i];
+                    }
                 } else if (cmd == CMD_XSTR) {
                     int len = arg.length;
                     if (len == 0) {
@@ -1231,7 +1237,10 @@ int4 core_program_size(int prgm_index) {
                     else
                         size += 4;
                 } else if (cmd == CMD_XROM) {
-                    size += 2;
+                    if (arg.type == ARGTYPE_NUM)
+                        size += 2;
+                    else
+                        size += arg.length + 1;
                 } else if (cmd == CMD_XSTR) {
                     int n = (arg.length + 12) / 13;
                     if (n == 0)
@@ -2205,18 +2214,21 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                         case 0x0E5: cmd = CMD_FIX; arg.val.num = 11; break;
                         case 0x0E6: cmd = CMD_SCI; arg.val.num = 11; break;
                         case 0x0E7: cmd = CMD_ENG; arg.val.num = 11; break;
-                        default: goto plain_string;
+                        default: goto xrom_string;
                     }
                     arg.type = ARGTYPE_NUM;
                     goto store;
                 }
-                if ((byte2 & 0x080) == 0 || byte1 < 0x0F2) {
+                if ((byte2 & 0x080) == 0) {
                     /* String */
                     int i;
-                    plain_string:
+                    cmd = CMD_STRING;
+                    goto string_2;
+                    xrom_string:
+                    cmd = CMD_XROM;
+                    string_2:
                     str_len = byte1 - 0x0F0;
                     raw_ungetc(byte2);
-                    cmd = CMD_STRING;
                     arg.type = ARGTYPE_STR;
                     do_string:
                     for (i = 0; i < str_len; i++) {
@@ -2293,7 +2305,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                     } else if (flag == 2) {
                         int ind;
                         if (byte1 != 0x0F2)
-                            goto plain_string;
+                            goto xrom_string;
                         suffix = raw_getc();
                         if (suffix == EOF)
                             goto done;
@@ -2329,7 +2341,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                             /* ASSIGN */
                             str_len = byte1 - 0x0F2;
                             if (str_len == 0)
-                                goto plain_string;
+                                goto xrom_string;
                             assign = 1;
                             cmd = CMD_ASGN01;
                             arg.type = ARGTYPE_STR;
@@ -2339,7 +2351,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                             /* KEYG/KEYX name, KEYG/KEYX IND name */
                             str_len = byte1 - 0x0F2;
                             if (str_len == 0)
-                                goto plain_string;
+                                goto xrom_string;
                             cmd = byte2 == 0x0C2 || byte2 == 0x0CA
                                     ? CMD_KEY1X : CMD_KEY1G;
                             suffix = raw_getc();
@@ -2372,7 +2384,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                         } else if (byte2 == 0x0E2 || byte2 == 0x0E3) {
                             /* KEYG/KEYX suffix */
                             if (byte1 != 0x0F3)
-                                goto plain_string;
+                                goto xrom_string;
                             suffix = raw_getc();
                             if (suffix == EOF)
                                 goto done;
@@ -2388,7 +2400,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                             /* SIZE */
                             int sz;
                             if (byte1 != 0x0F3)
-                                goto plain_string;
+                                goto xrom_string;
                             suffix = raw_getc();
                             if (suffix == EOF)
                                 goto done;
@@ -2403,8 +2415,8 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                             goto store;
                         }
                     } else /* flag == 4 */ {
-                        /* Illegal value; treat as plain string */
-                        goto plain_string;
+                        /* Unknown value; store as string XROM */
+                        goto xrom_string;
                     }
                 }
             }
@@ -3909,6 +3921,33 @@ static void paste_programs(const char *buf) {
                     goto handle_string_arg;
                 }
                 int len = tok_end - tok_start;
+                if (len >= 4 && len <= 32 && len % 2 == 0 && hpbuf[tok_start] == '0' && hpbuf[tok_start + 1] == 'x') {
+                    // XROM 0xdeadbeef: used for strings whose first character has its high
+                    // bit set, putting it in the space of HP-42S extensions, but which do
+                    // not correspond to any actual known extension.
+                    char d = 0;
+                    arg.length = 0;
+                    for (int i = 2; i < len; i++) {
+                        char c = hpbuf[tok_start + i];
+                        if (c >= '0' && c <= '9')
+                            d += c - '0';
+                        else if (c >= 'A' && c <= 'F')
+                            d += c - 'A' + 10;
+                        else if (c >= 'a' && c <= 'f')
+                            d += c - 'a' + 10;
+                        else
+                            goto line_done;
+                        if ((i & 1) != 0) {
+                            arg.val.text[arg.length++] = d;
+                            d = 0;
+                        } else {
+                            d <<= 4;
+                        }
+                    }
+                    cmd = CMD_XROM;
+                    arg.type = ARGTYPE_STR;
+                    goto store;
+                }
                 if (len > 5)
                     goto line_done;
                 char xrombuf[6];

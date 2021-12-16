@@ -2610,8 +2610,18 @@ int command2buf(char *buf, int len, int cmd, const arg_struct *arg) {
     if ((cmd_array[cmd].code1 & 0xf8) == 0xa0 && (cmd_array[cmd].flags & FLAG_HIDDEN) != 0) {
         xrom_arg = (cmd_array[cmd].code1 << 8) | cmd_array[cmd].code2;
         cmd = CMD_XROM;
-    } else if (cmd == CMD_XROM)
-        xrom_arg = arg->val.num;
+    } else if (cmd == CMD_XROM) {
+        if (arg->type == ARGTYPE_NUM) {
+            xrom_arg = arg->val.num;
+        } else {
+            string2buf(buf, len, &bufptr, "XROM 0x", 7);
+            for (int i = 0; i < arg->length; i++) {
+                char2buf(buf, len, &bufptr, "0123456789abcdef"[(arg->val.text[i] >> 4) & 15]);
+                char2buf(buf, len, &bufptr, "0123456789abcdef"[arg->val.text[i] & 15]);
+            }
+            return bufptr;
+        }
+    }
 
     const command_spec *cmdspec = &cmd_array[cmd];
     if (cmd >= CMD_ASGN01 && cmd <= CMD_ASGN18)
