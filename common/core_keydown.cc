@@ -1367,6 +1367,11 @@ void keydown_command_entry(int shift, int key) {
                 incomplete_str[incomplete_length++] = c;
             if (m != NULL)
                 set_menu(MENULEVEL_COMMAND, m->parent);
+            if (core_settings.auto_repeat) {
+                repeating = 2;
+                repeating_key = c + 1024;
+                repeating_shift = 0;
+            }
             /* incomplete_alpha can be 0 at this point if
              * the command is CMD_LBL. */
             incomplete_alpha = true;
@@ -1436,6 +1441,11 @@ void keydown_command_entry(int shift, int key) {
         }
         if (incomplete_length < (incomplete_argtype == ARG_XSTR ? 22 : 7))
             incomplete_str[incomplete_length++] = c;
+        if (core_settings.auto_repeat) {
+            repeating = 2;
+            repeating_key = c + 1024;
+            repeating_shift = 0;
+        }
         /* incomplete_alpha can be 0 at this point if
          * the command is CMD_LBL. */
         incomplete_alpha = true;
@@ -1627,6 +1637,10 @@ void keydown_command_entry(int shift, int key) {
                     else
                         set_menu(MENULEVEL_COMMAND, MENU_NONE);
                 }
+            } else if (incomplete_alpha) {
+                repeating = 2;
+                repeating_key = KEY_BSP;
+                repeating_shift = 0;
             }
             redisplay();
             return;
