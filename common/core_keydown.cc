@@ -1637,7 +1637,7 @@ void keydown_command_entry(int shift, int key) {
                     else
                         set_menu(MENULEVEL_COMMAND, MENU_NONE);
                 }
-            } else if (incomplete_alpha) {
+            } else if (incomplete_alpha && core_settings.auto_repeat) {
                 repeating = 2;
                 repeating_key = KEY_BSP;
                 repeating_shift = 0;
