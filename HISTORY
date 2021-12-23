@@ -1,3 +1,11 @@
+2021-12-23: release 3.0.8
+
+* Auto-repeat for XSTR, and ALPHA arguments in general.
+* Windows, MacOS, and Linux versions: Keyboard mapping for CursorLeft to ←,
+  Shift-CursorLeft to <← and ↑, CursorRight to →, Shift-CursorRight to →> and
+  ↓, and Delete to DEL, in menus.
+* Android version: Fixed blurry print-out on certain devices.
+
 2021-11-07: release 3.0.7
 
 * A2LINE now handles strings that start with characters 127-255 in a more
