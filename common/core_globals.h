@@ -130,7 +130,6 @@ extern const error_spec errors[];
 /*********/
 
 #define MENU_NONE          -1
-#define MENU_SHORTCUT      -2
 #define MENU_ALPHA1         0
 #define MENU_ALPHA2         1
 #define MENU_ALPHA_ABCDE1   2
