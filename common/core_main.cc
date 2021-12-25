@@ -90,15 +90,12 @@ void core_init(int read_saved_state, int4 version, const char *state_file_name, 
         // and over, and, on iOS and Android, needing to be deleted and
         // reinstalled.
         state_file_name_crash = (char *) malloc(strlen(state_file_name) + 24);
-        if (state_file_name_crash != NULL) {
-            uint4 date, time;
-            int weekday;
-            shell_get_time_date(&time, &date, &weekday);
-            sprintf(state_file_name_crash, "%s.%08u%08u.crash", state_file_name, date, time);
-            my_rename(state_file_name, state_file_name_crash);
-            gfile = my_fopen(state_file_name_crash, "rb");
-        } else
-            gfile = my_fopen(state_file_name, "rb");
+        uint4 date, time;
+        int weekday;
+        shell_get_time_date(&time, &date, &weekday);
+        sprintf(state_file_name_crash, "%s.%08u%08u.crash", state_file_name, date, time);
+        my_rename(state_file_name, state_file_name_crash);
+        gfile = my_fopen(state_file_name_crash, "rb");
         if (gfile == NULL)
             read_saved_state = 0;
         else if (offset > 0)
@@ -116,19 +113,14 @@ void core_init(int read_saved_state, int4 version, const char *state_file_name, 
         fclose(gfile);
     if (state_file_name != NULL) {
         if (reason == 0) {
-            if (state_file_name_crash != NULL)
-                my_rename(state_file_name_crash, state_file_name);
+            my_rename(state_file_name_crash, state_file_name);
         } else {
-            char *tmp = (char *) malloc(strlen(state_file_name) + 9);
-            if (tmp != NULL) {
-                strcpy(tmp, state_file_name);
-                strcat(tmp, reason == 1 ? ".corrupt" : ".too_new");
-                if (state_file_name_crash != NULL)
-                    my_rename(state_file_name_crash, tmp);
-                else
-                    my_rename(state_file_name, tmp);
-                free(tmp);
-            }
+            char *tmp = (char *) malloc(strlen(state_file_name_crash) + 3);
+            strcpy(tmp, state_file_name_crash);
+            tmp[strlen(state_file_name_crash) - 6] = 0;
+            strcat(tmp, reason == 1 ? ".corrupt" : ".too_new");
+            my_rename(state_file_name_crash, tmp);
+            free(tmp);
         }
     }
     free(state_file_name_crash);
