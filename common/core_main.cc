@@ -2198,19 +2198,6 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                 byte2 = raw_getc();
                 if (byte2 == EOF)
                     goto done;
-                if (byte1 == 0x0F1) {
-                    switch (byte2) {
-                        case 0x0D5: cmd = CMD_FIX; arg.val.num = 10; break;
-                        case 0x0D6: cmd = CMD_SCI; arg.val.num = 10; break;
-                        case 0x0D7: cmd = CMD_ENG; arg.val.num = 10; break;
-                        case 0x0E5: cmd = CMD_FIX; arg.val.num = 11; break;
-                        case 0x0E6: cmd = CMD_SCI; arg.val.num = 11; break;
-                        case 0x0E7: cmd = CMD_ENG; arg.val.num = 11; break;
-                        default: goto xrom_string;
-                    }
-                    arg.type = ARGTYPE_NUM;
-                    goto store;
-                }
                 if ((byte2 & 0x080) == 0) {
                     /* String */
                     int i;
@@ -2257,6 +2244,19 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                     goto store;
                 } else {
                     /* Parameterized HP-42S extension */
+                    if (byte1 == 0x0F1) {
+                        switch (byte2) {
+                            case 0x0D5: cmd = CMD_FIX; arg.val.num = 10; break;
+                            case 0x0D6: cmd = CMD_SCI; arg.val.num = 10; break;
+                            case 0x0D7: cmd = CMD_ENG; arg.val.num = 10; break;
+                            case 0x0E5: cmd = CMD_FIX; arg.val.num = 11; break;
+                            case 0x0E6: cmd = CMD_SCI; arg.val.num = 11; break;
+                            case 0x0E7: cmd = CMD_ENG; arg.val.num = 11; break;
+                            default: goto xrom_string;
+                        }
+                        arg.type = ARGTYPE_NUM;
+                        goto store;
+                    }
                     if (byte2 == 0xa7) {
                         byte2 = raw_getc();
                         if (byte2 == EOF)
