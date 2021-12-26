@@ -1,6 +1,6 @@
 2021-12-26: release 3.0.9
 
-* Fixed handling on single-character strings in programs.
+* Fixed handling of single-character strings in programs.
   This was broken in the previous release.
 
 2021-12-23: release 3.0.8
