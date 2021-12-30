@@ -111,7 +111,7 @@ void core_init(int read_saved_state, int4 version, const char *state_file_name, 
     }
     if (gfile != NULL)
         fclose(gfile);
-    if (read_saved_state != 0) {
+    if (state_file_name_crash != NULL) {
         if (reason == 0) {
             my_rename(state_file_name_crash, state_file_name);
         } else {
@@ -122,8 +122,8 @@ void core_init(int read_saved_state, int4 version, const char *state_file_name, 
             my_rename(state_file_name_crash, tmp);
             free(tmp);
         }
+        free(state_file_name_crash);
     }
-    free(state_file_name_crash);
 
     repaint_display();
     shell_annunciators(mode_updown,
