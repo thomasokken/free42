@@ -2639,7 +2639,12 @@ void keydown_normal_mode(int shift, int key) {
                 pending_command = CMD_CANCELLED;
                 return;
             case KEY_RUN: command = CMD_RUN; break;
-            case KEY_ADD: command = basekeys() ? CMD_BASEADD : CMD_ADD; break;
+            case KEY_ADD:
+                if (!flags.f.prgm_mode && sp > 0 && (stack[sp - 1]->type == TYPE_LIST || stack[sp - 1]->type == TYPE_STRING))
+                    command = CMD_APPEND;
+                else
+                    command = basekeys() ? CMD_BASEADD : CMD_ADD;
+                break;
             default: command = key >= 2048 ? key - 2048 : CMD_NONE; break;
         }
     } else {
