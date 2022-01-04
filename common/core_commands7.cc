@@ -1963,3 +1963,94 @@ int docmd_newstr(arg_struct *arg) {
         return ERR_INSUFFICIENT_MEMORY;
     return recall_result(v);
 }
+
+int docmd_to_list(arg_struct *arg) {
+    phloat x = ((vartype_real *) stack[sp])->x;
+    if (x < 0)
+        x = -x;
+    if (x >= 2147483648.0)
+        return ERR_SIZE_ERROR;
+    int4 n = to_int4(x);
+    if (n > sp)
+        return ERR_SIZE_ERROR;
+    vartype_list *list = (vartype_list *) new_list(n);
+    if (list == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    if (flags.f.big_stack) {
+        for (int i = 0; i < n; i++)
+            list->array->data[i] = stack[sp - n + i];
+        free_vartype(lastx);
+        lastx = stack[sp];
+        sp -= n;
+    } else {
+        vartype *zeroes[3];
+        for (int i = 0; i < n; i++) {
+            zeroes[i] = new_real(0);
+            if (zeroes[i] == NULL) {
+                while (i > 0)
+                    free_vartype(zeroes[--i]);
+                free_vartype((vartype *) list);
+                return ERR_INSUFFICIENT_MEMORY;
+            }
+        }
+        for (int i = 0; i < n; i++)
+            list->array->data[i] = stack[sp - n + i];
+        free_vartype(lastx);
+        lastx = stack[3];
+        for (int i = 3; i >= 0; i--) {
+            int j = i - n;
+            stack[i] = j >= 0 ? stack[j] : zeroes[i];
+        }
+    }
+    stack[sp] = (vartype *) list;
+    return ERR_NONE;
+}
+
+int docmd_from_list(arg_struct *arg) {
+    vartype_list *list = (vartype_list *) stack[sp];
+    int4 n = list->size;
+    if (!flags.f.big_stack && n > 3)
+        return ERR_SIZE_ERROR;
+
+    // It would be nice if we could just put the list items
+    // on the stack, and then shallow-delete the list, but
+    // alas, there's LASTx. So, we start by creating a deep
+    // clone.
+    list = (vartype_list *) dup_vartype((vartype *) list);
+    vartype *size = new_real(n);
+    if (list == NULL || size == NULL || !disentangle((vartype *) list)) {
+        nomem:
+        free_vartype((vartype *) list);
+        free_vartype(size);
+        return ERR_INSUFFICIENT_MEMORY;
+    }
+
+    if (flags.f.big_stack) {
+        if (!ensure_stack_capacity(n))
+            goto nomem;
+        free_vartype(lastx);
+        lastx = stack[sp];
+        for (int i = 0; i < n; i++)
+            stack[sp++] = list->array->data[i];
+        stack[sp] = size;
+    } else {
+        free_vartype(lastx);
+        lastx = stack[3];
+        if (n > 0) {
+            for (int i = 0; i < 3; i++) {
+                int j = i - n;
+                if (j < 0)
+                    free_vartype(stack[i]);
+                else
+                    stack[j] = stack[i];
+            }
+            for (int i = 0; i < n; i++)
+                stack[3 - n + i] = list->array->data[i];
+        }
+        stack[3] = size;
+    }
+    free(list->array->data);
+    free(list->array);
+    free(list);
+    return ERR_NONE;
+}

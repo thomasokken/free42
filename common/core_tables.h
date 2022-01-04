@@ -484,21 +484,23 @@
 #define CMD_LIST_T      430
 #define CMD_NEWLIST     431
 #define CMD_NEWSTR      432
+#define CMD_TO_LIST     433
+#define CMD_FROM_LIST   434
 /* Generalized Comparisons */
-#define CMD_X_EQ_NN     433
-#define CMD_X_NE_NN     434
-#define CMD_X_LT_NN     435
-#define CMD_X_GT_NN     436
-#define CMD_X_LE_NN     437
-#define CMD_X_GE_NN     438
-#define CMD_0_EQ_NN     439
-#define CMD_0_NE_NN     440
-#define CMD_0_LT_NN     441
-#define CMD_0_GT_NN     442
-#define CMD_0_LE_NN     443
-#define CMD_0_GE_NN     444
+#define CMD_X_EQ_NN     435
+#define CMD_X_NE_NN     436
+#define CMD_X_LT_NN     437
+#define CMD_X_GT_NN     438
+#define CMD_X_LE_NN     439
+#define CMD_X_GE_NN     440
+#define CMD_0_EQ_NN     441
+#define CMD_0_NE_NN     442
+#define CMD_0_LT_NN     443
+#define CMD_0_GT_NN     444
+#define CMD_0_LE_NN     445
+#define CMD_0_GE_NN     446
 
-#define CMD_SENTINEL    445
+#define CMD_SENTINEL    447
 
 
 /* command_spec.argtype */
