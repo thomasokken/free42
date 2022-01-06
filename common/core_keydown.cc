@@ -1653,7 +1653,6 @@ void keydown_command_entry(int shift, int key) {
                 if (mode_commandmenu == MENU_NONE
                         || (mode_commandmenu == MENU_CATALOG
                             && (catsect = get_cat_section()) == CATSECT_TOP
-                            || catsect == CATSECT_MORE
                             || catsect == CATSECT_EXT_1
                             || catsect == CATSECT_EXT_2)) {
                     set_menu(MENULEVEL_COMMAND, MENU_ALPHA1);
