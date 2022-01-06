@@ -205,6 +205,7 @@ static BOOL urlInInbox(NSURL *url) {
             [RootViewController showMessage:@"Import failed."];
             return NO;
         } else {
+            core_repaint_display();
             NSString *message = [NSString stringWithFormat:@"%d raw file%s imported.", nProgs, nProgs == 1 ? "" : "s"];
             [RootViewController showMessage:message];
             return YES;
