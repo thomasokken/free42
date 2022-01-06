@@ -1652,20 +1652,10 @@ void keydown_command_entry(int shift, int key) {
                 int catsect;
                 if (mode_commandmenu == MENU_NONE
                         || (mode_commandmenu == MENU_CATALOG
-                            && (catsect = get_cat_section()) != CATSECT_FCN
-                            && catsect != CATSECT_PGM
-                            && catsect != CATSECT_REAL
-                            && catsect != CATSECT_CPX
-                            && catsect != CATSECT_MAT
-                            && catsect != CATSECT_EXT_TIME
-                            && catsect != CATSECT_EXT_XFCN
-                            && catsect != CATSECT_EXT_BASE
-                            && catsect != CATSECT_EXT_PRGM
-                            && catsect != CATSECT_EXT_STR
-                            && catsect != CATSECT_EXT_STK
-                            && catsect != CATSECT_EXT_MISC
-                            && catsect != CATSECT_EXT_0_CMP
-                            && catsect != CATSECT_EXT_X_CMP)) {
+                            && (catsect = get_cat_section()) == CATSECT_TOP
+                            || catsect == CATSECT_MORE
+                            || catsect == CATSECT_EXT_1
+                            || catsect == CATSECT_EXT_2)) {
                     set_menu(MENULEVEL_COMMAND, MENU_ALPHA1);
                     redisplay();
                     return;
