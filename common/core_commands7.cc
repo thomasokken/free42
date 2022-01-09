@@ -1537,7 +1537,7 @@ static int concat(bool extend) {
                     // Try to shrink the data array back down. No worries if this
                     // fails, we just hold on to the resized one in that case.
                     new_data = (vartype **) realloc(list->array->data, list->size * sizeof(vartype *));
-                    if (new_data != NULL)
+                    if (new_data != NULL || list->size == 0)
                         list->array->data = new_data;
                     stack[sp - 1] = (vartype *) list;
                     goto nomem;

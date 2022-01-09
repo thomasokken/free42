@@ -173,7 +173,7 @@ vartype *new_list(int4 size) {
         return NULL;
     }
     list->array->data = (vartype **) malloc(size * sizeof(vartype *));
-    if (list->array->data == NULL) {
+    if (list->array->data == NULL && size != 0) {
         free(list->array);
         free(list);
         return NULL;
@@ -440,7 +440,7 @@ int disentangle(vartype *v) {
                 if (ld == NULL)
                     return 0;
                 ld->data = (vartype **) malloc(list->size * sizeof(vartype *));
-                if (ld->data == NULL) {
+                if (ld->data == NULL && list->size != 0) {
                     free(ld);
                     return 0;
                 }
