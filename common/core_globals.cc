@@ -52,6 +52,7 @@ const error_spec errors[] = {
     { /* DIMENSION_ERROR */        "Dimension Error",         15 },
     { /* TOO_FEW_ARGUMENTS */      "Too Few Arguments",       17 },
     { /* SIZE_ERROR */             "Size Error",              10 },
+    { /* STACK_DEPTH_ERROR */      "Stack Depth Error",       17 },
     { /* RESTRICTED_OPERATION */   "Restricted Operation",    20 },
     { /* YES */                    "Yes",                      3 },
     { /* NO */                     "No",                       2 },

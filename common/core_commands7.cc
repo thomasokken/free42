@@ -1104,7 +1104,7 @@ int docmd_dropn(arg_struct *arg) {
     if (err != ERR_NONE)
         return err;
     if (n > sp + 1)
-        return ERR_SIZE_ERROR;
+        return ERR_STACK_DEPTH_ERROR;
     for (int i = sp - n + 1; i <= sp; i++)
         free_vartype(stack[i]);
     if (flags.f.big_stack) {
@@ -1143,7 +1143,7 @@ int docmd_dupn(arg_struct *arg) {
         return err;
     if (flags.f.big_stack) {
         if (n > sp + 1)
-            return ERR_SIZE_ERROR;
+            return ERR_STACK_DEPTH_ERROR;
         if (!ensure_stack_capacity(n))
             return ERR_INSUFFICIENT_MEMORY;
         for (int i = 1; i <= n; i++) {
@@ -1177,7 +1177,7 @@ int docmd_dupn(arg_struct *arg) {
                 stack[REG_T] = v0;
                 break;
             default:
-                return ERR_SIZE_ERROR;
+                return ERR_STACK_DEPTH_ERROR;
         }
     }
     print_stack_trace();
@@ -1195,7 +1195,7 @@ int docmd_pick(arg_struct *arg) {
         return ERR_NONEXISTENT;
     n--;
     if (n > sp)
-        return ERR_SIZE_ERROR;
+        return ERR_STACK_DEPTH_ERROR;
     vartype *v = dup_vartype(stack[sp - n]);
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
@@ -1213,7 +1213,7 @@ int docmd_unpick(arg_struct *arg) {
         return ERR_NONEXISTENT;
     n--;
     if (n > (flags.f.big_stack ? sp - 1 : sp))
-        return ERR_SIZE_ERROR;
+        return ERR_STACK_DEPTH_ERROR;
     // Note: UNPICK consumes X, i.e. drops it from the stack. This is unlike
     // any other STO-like function in Free42, but it is needed in order to make
     // PICK and UNPICK work as a pair like they do in the RPL calculators.
@@ -1241,7 +1241,7 @@ int docmd_rdnn(arg_struct *arg) {
     if (err != ERR_NONE)
         return err;
     if (n > sp + 1)
-        return ERR_SIZE_ERROR;
+        return ERR_STACK_DEPTH_ERROR;
     if (n > 1) {
         vartype *v = stack[sp];
         memmove(stack + sp - n + 2, stack + sp - n + 1, (n - 1) * sizeof(vartype *));
@@ -1259,7 +1259,7 @@ int docmd_rupn(arg_struct *arg) {
     if (err != ERR_NONE)
         return err;
     if (n > sp + 1)
-        return ERR_SIZE_ERROR;
+        return ERR_STACK_DEPTH_ERROR;
     if (n > 1) {
         vartype *v = stack[sp - n + 1];
         memmove(stack + sp - n + 1, stack + sp - n + 2, (n - 1) * sizeof(vartype *));
@@ -1969,10 +1969,10 @@ int docmd_to_list(arg_struct *arg) {
     if (x < 0)
         x = -x;
     if (x >= 2147483648.0)
-        return ERR_SIZE_ERROR;
+        return ERR_STACK_DEPTH_ERROR;
     int4 n = to_int4(x);
     if (n > sp)
-        return ERR_SIZE_ERROR;
+        return ERR_STACK_DEPTH_ERROR;
     vartype_list *list = (vartype_list *) new_list(n);
     if (list == NULL)
         return ERR_INSUFFICIENT_MEMORY;
@@ -2010,7 +2010,7 @@ int docmd_from_list(arg_struct *arg) {
     vartype_list *list = (vartype_list *) stack[sp];
     int4 n = list->size;
     if (!flags.f.big_stack && n > 3)
-        return ERR_SIZE_ERROR;
+        return ERR_STACK_DEPTH_ERROR;
 
     // It would be nice if we could just put the list items
     // on the stack, and then shallow-delete the list, but
