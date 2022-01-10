@@ -1058,13 +1058,20 @@ int docmd_prsigma(arg_struct *arg) {
             char *text;
             int4 len;
             get_matrix_string(rm, j, &text, &len);
-            bufptr = 0;
-            char2buf(buf, 100, &bufptr, '"');
-            string2buf(buf, 100, &bufptr, text, len);
-            char2buf(buf, 100, &bufptr, '"');
-        } else
+            char *sbuf = (char *) malloc(len + 2);
+            if (sbuf == NULL) {
+                print_wide(sigma_labels[i].text, sigma_labels[i].length, "<Low Mem>", 9);
+            } else {
+                sbuf[0] = '"';
+                memcpy(sbuf + 1, text, len);
+                sbuf[len + 1] = '"';
+                print_wide(sigma_labels[i].text, sigma_labels[i].length, sbuf, len + 2);
+                free(sbuf);
+            }
+        } else {
             bufptr = easy_phloat2string(rm->array->data[j], buf, 100, 0);
-        print_wide(sigma_labels[i].text, sigma_labels[i].length, buf, bufptr);
+            print_wide(sigma_labels[i].text, sigma_labels[i].length, buf, bufptr);
+        }
     }
     shell_annunciators(-1, -1, 0, -1, -1, -1);
     return ERR_NONE;
