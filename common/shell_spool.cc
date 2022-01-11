@@ -288,7 +288,7 @@ void shell_spool_gif(const char *bits, int bytesperline,
                 g->prefix = pixel;
                 goto no_emit;
             }
-            
+
             /* Compute hash code
              * TODO: There's a lot of room for improvement here!
              * I'm getting search percentages of over 30%; looking for
@@ -313,7 +313,7 @@ void shell_spool_gif(const char *bits, int bytesperline,
                 }
                 hash_index = g->hash_next[hash_index];
             }
-            
+
             /* Not found: */
             if (g->maxcode < 4096) {
                 g->prefix_table[g->maxcode] = g->prefix;
@@ -324,7 +324,7 @@ void shell_spool_gif(const char *bits, int bytesperline,
             }
             new_code = g->prefix;
             g->prefix = pixel;
-            
+
             emit: {
                 int outcode = g->initial_clear ? g->clear_code
                                     : g->really_done ? g->end_code : new_code;

@@ -710,7 +710,7 @@ bool no_keystrokes_yet;
 
 /* Version number for the state file.
  * State file versions correspond to application releases as follows:
- * 
+ *
  * Version  0: 1.0    first release
  * Version  1: 1.0.13 "IP Hack" option
  * Version  2: 1.0.13 "singular matrix" and matrix "out of range" options
@@ -725,7 +725,7 @@ bool no_keystrokes_yet;
  * Version 11: 1.4.44 "Auto-Repeat" option
  * Version 12: 1.4.52 BIGSTACK (iphone only);
  *                    new BCDFloat format (Inf and NaN flags)
- * 
+ *
  *  ========== NOTE: BCD20 Upgrade in Free42 1.4.52 ==========
  *  In version 1.4.52, I upgraded to a new version of BCD20, without realizing
  *  that it uses a slightly different storage format (NaN and Inifinity are now
@@ -1329,7 +1329,7 @@ static bool unpersist_vartype(vartype **v, bool padded) {
                 return false;
         }
     }
-    
+
     // !state_is_portable
     int type;
     if (fread(&type, 1, sizeof(int), gfile) != sizeof(int))
@@ -1780,8 +1780,8 @@ static bool unpersist_globals() {
         bool bigstack;
         if (!read_bool(&bigstack))
             goto done;
-    }    
-    
+    }
+
     if (!read_int(&reg_alpha_length)) {
         reg_alpha_length = 0;
         goto done;
@@ -1943,7 +1943,7 @@ static bool unpersist_globals() {
         prgm_highlight_row = 0;
         goto done;
     }
-    
+
     if (state_is_portable) {
         vars_capacity = 0;
         if (vars != NULL) {
@@ -1988,7 +1988,7 @@ static bool unpersist_globals() {
         }
         vars_capacity = vars_count;
     }
-    
+
     if (!read_int(&varmenu_length)) {
         varmenu_length = 0;
         goto done;
@@ -2126,7 +2126,7 @@ static bool unpersist_globals() {
         #endif
         rebuild_label_table();
     }
-    
+
     ret = true;
 
     done:
@@ -2469,7 +2469,7 @@ void get_next_command(int4 *pc, int *command, arg_struct *arg, int find_target, 
             arg->type = ARGTYPE_DOUBLE;
         }
     }
-    
+
     if (find_target) {
         target_pc = find_local_label(arg);
         arg->target = target_pc;
@@ -2755,7 +2755,7 @@ void store_command(int4 pc, int command, arg_struct *arg, const char *num_str) {
     }
 
     if ((command == CMD_GTO || command == CMD_XEQ)
-            && (arg->type == ARGTYPE_NUM || arg->type == ARGTYPE_STK 
+            && (arg->type == ARGTYPE_NUM || arg->type == ARGTYPE_STK
                                          || arg->type == ARGTYPE_LCLBL))
         for (i = 0; i < 4; i++)
             buf[bufptr++] = 255;
@@ -2851,7 +2851,7 @@ void store_command(int4 pc, int command, arg_struct *arg, const char *num_str) {
     prgm->size += bufptr;
     if (command != CMD_END && flags.f.printer_exists && (flags.f.trace_print || flags.f.normal_print))
         print_program_line(current_prgm, pc);
-    
+
     if (command == CMD_END ||
             (command == CMD_LBL && arg->type == ARGTYPE_STR))
         rebuild_label_table();
@@ -4296,7 +4296,7 @@ static bool load_state2(bool *clear, bool *too_new) {
                 break;
         }
     }
-    
+
     if (ver < 9) {
         state_file_number_format = NUMBER_FORMAT_BINARY;
     } else {

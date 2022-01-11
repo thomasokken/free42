@@ -879,7 +879,7 @@ static int mappable_to_hr(phloat x, phloat *y) {
 #endif
     if (neg)
         x = -x;
-    
+
     if (x == x + 1)
         res = x;
     else {

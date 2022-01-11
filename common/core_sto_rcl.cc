@@ -1111,7 +1111,7 @@ int div_rr(phloat x, phloat y, phloat *z) {
     *z = r;
     return ERR_NONE;
 }
-    
+
 int div_rc(phloat x, phloat yre, phloat yim, phloat *zre, phloat *zim) {
     phloat rre, rim;
     int inf;
@@ -1248,7 +1248,7 @@ int mul_rr(phloat x, phloat y, phloat *z) {
     *z = r;
     return ERR_NONE;
 }
-    
+
 int mul_rc(phloat x, phloat yre, phloat yim, phloat *zre, phloat *zim) {
     phloat rre, rim;
     int inf;
@@ -1336,7 +1336,7 @@ int sub_rr(phloat x, phloat y, phloat *z) {
     *z = r;
     return ERR_NONE;
 }
-    
+
 int sub_rc(phloat x, phloat yre, phloat yim, phloat *zre, phloat *zim) {
     phloat rre;
     int inf;
@@ -1408,7 +1408,7 @@ int add_rr(phloat x, phloat y, phloat *z) {
     *z = r;
     return ERR_NONE;
 }
-    
+
 int add_rc(phloat x, phloat yre, phloat yim, phloat *zre, phloat *zim) {
     phloat rre;
     int inf;

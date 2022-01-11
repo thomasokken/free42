@@ -267,7 +267,7 @@ int4 core_program_size(int prgm_index);
  *
  * This function is called by the shell after the user has selected a nonempty
  * set of programs (from the list returned by core_list_programs()) and
- * confirmed the operation (supplied a file name etc.). 
+ * confirmed the operation (supplied a file name etc.).
  * The 'count' parameter indicates how many programs are to be exported; the
  * 'indexes' parameter is an array of program indexes.
  * When called by the core during state file saving, raw_file_name will be

@@ -140,7 +140,7 @@ int main(int argc, char *argv[]) {
     fprintf(out, "/*************************************/\n");
     fprintf(out, "/* Sizes of skin layout descriptions */\n");
     fprintf(out, "/*************************************/\n\n");
-    
+
     fprintf(out, "extern const long skin_layout_size[] = {\n");
     for (i = 0; i < nskins; i++) {
         char fname[1024];

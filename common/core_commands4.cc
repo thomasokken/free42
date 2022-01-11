@@ -277,7 +277,7 @@ static int mappable_ln_1_x(phloat x, phloat *y) {
         return ERR_INVALID_DATA;
     *y = log1p(x);
     return ERR_NONE;
-}   
+}
 
 int docmd_ln_1_x(arg_struct *arg) {
     vartype *v;
@@ -611,7 +611,7 @@ int docmd_swap_r(arg_struct *arg) {
         /* Should not happen, but could, as long as I don't implement
          * matrix locking. */
         return ERR_INVALID_TYPE;
-    
+
     if (stack[sp]->type == TYPE_STRING)
         return ERR_ALPHA_DATA_IS_INVALID;
     if (stack[sp]->type != TYPE_REAL)
@@ -689,7 +689,7 @@ static int mappable_sinh_r(phloat x, phloat *y) {
             return ERR_OUT_OF_RANGE;
     }
     return ERR_NONE;
-}   
+}
 
 static int mappable_sinh_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     if (xim == 0) {
@@ -861,7 +861,7 @@ int docmd_stoij(arg_struct *arg) {
 static int mappable_tanh_r(phloat x, phloat *y) {
     *y = tanh(x);
     return ERR_NONE;
-}   
+}
 
 static int mappable_tanh_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     /* NOTE: DEG/RAD/GRAD mode does not apply here. */

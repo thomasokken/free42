@@ -330,7 +330,7 @@ void keydown(int shift, int key) {
         redisplay();
         return;
     }
-    
+
     if (key == KEY_UP || key == KEY_DOWN) {
         if (get_front_menu() == MENU_CATALOG) {
             int sect = get_cat_section();
@@ -355,7 +355,7 @@ void keydown(int shift, int key) {
             }
         }
     }
-    
+
     if (!flags.f.prgm_mode && key == KEY_UP
             && (shift || get_front_menu() == MENU_NONE)) {
         /* BST in normal or alpha mode */
@@ -373,7 +373,7 @@ void keydown(int shift, int key) {
         return;
     }
 
-    if (mode_number_entry) 
+    if (mode_number_entry)
         keydown_number_entry(shift, key);
     else if (mode_command_entry)
         keydown_command_entry(shift, key);
@@ -759,7 +759,7 @@ void keydown_command_entry(int shift, int key) {
             return;
         }
     }
-    
+
     if (incomplete_command == CMD_LBL && !incomplete_alpha && incomplete_length == 1
             && shift && key == KEY_ENTER) {
         /* More LBL weirdness: you can switch to ALPHA mode while entering
@@ -796,7 +796,7 @@ void keydown_command_entry(int shift, int key) {
         }
     }
 
-    
+
     /* Another oddity: ASSIGN... */
     if (incomplete_argtype == ARG_CKEY) {
         int menukey = find_menu_key(key);
@@ -1158,8 +1158,8 @@ void keydown_command_entry(int shift, int key) {
             finish_command_entry(false);
             return;
         }
-            
-        
+
+
         if (key == KEY_ENTER) {
             if (incomplete_length == 0) {
                 if (incomplete_ind
@@ -1463,7 +1463,7 @@ void keydown_command_entry(int shift, int key) {
             }
             return;
         }
-        
+
         if (key == KEY_EXIT) {
             const menu_spec *m;
             if (mode_commandmenu == MENU_NONE) {
@@ -2549,7 +2549,7 @@ void keydown_normal_mode(int shift, int key) {
             }
             return;
         }
-        
+
         if (key == KEY_EXIT) {
             if (menu == MENU_CATALOG) {
                 int catsect = get_cat_section();

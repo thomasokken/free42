@@ -215,7 +215,7 @@ static int mappable_cosh_r(phloat x, phloat *y) {
             return ERR_OUT_OF_RANGE;
     }
     return ERR_NONE;
-}   
+}
 
 static int mappable_cosh_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     if (xim == 0) {
@@ -899,7 +899,7 @@ int docmd_editn(arg_struct *arg) {
     }
     if (arg->type != ARGTYPE_STR)
         return ERR_INVALID_TYPE;
-    
+
     int mi = lookup_var(arg->val.text, arg->length);
     if (mi == -1)
         return ERR_NONEXISTENT;
@@ -980,7 +980,7 @@ static int mappable_e_pow_x_1(phloat x, phloat *y) {
             return ERR_OUT_OF_RANGE;
     }
     return ERR_NONE;
-}   
+}
 
 int docmd_e_pow_x_1(arg_struct *arg) {
     vartype *v;
@@ -1072,7 +1072,7 @@ int docmd_getm(arg_struct *arg) {
         /* Should not happen, but could, as long as I don't implement
          * matrix locking. */
         return ERR_INVALID_TYPE;
-    
+
     if (stack[sp]->type == TYPE_STRING)
         return ERR_ALPHA_DATA_IS_INVALID;
     if (stack[sp]->type != TYPE_REAL)
@@ -1402,7 +1402,7 @@ int docmd_index(arg_struct *arg) {
         if (vars[varindex].level < vars[mi].level)
             push_indexed_matrix();
     }
-    
+
     /* TODO: keep a 'weak' lock on the matrix while it is indexed.
      * If it is deleted or redimensioned, I and J should be reset to 1.
      * Note that the current code uses a lazy, keep-it-safe approach

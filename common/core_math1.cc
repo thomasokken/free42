@@ -221,7 +221,7 @@ bool unpersist_math(int ver, bool discard) {
         } else {
             solve.prev_sp = -2;
         }
-        
+
         if (!read_int(&integ.version)) return false;
         if (fread(integ.prgm_name, 1, 7, gfile) != 7) return false;
         if (!read_int(&integ.prgm_length)) return false;
@@ -990,7 +990,7 @@ int return_to_solve(int failure, bool stop) {
             // extended-precision math for solver internals, or at least a
             // slightly smarter implementation of the midpoint calculation,
             // e.g. fall back on x3 = x1 + (x2 - x1) / 2 if x3 = (x1 + x2) / 2
-            // returns an incorrect result. 
+            // returns an incorrect result.
             if (solve.x3 <= solve.x1 || solve.x3 >= solve.x2) {
                 solve.which = -1;
                 return finish_solve(SOLVE_ROOT);
@@ -1170,7 +1170,7 @@ static int finish_integ() {
 int return_to_integ(bool stop) {
     if (stop)
         integ.keep_running = 0;
-    
+
     switch (integ.state) {
     case 0:
         return ERR_INTERNAL_ERROR;
@@ -1236,7 +1236,7 @@ int return_to_integ(bool stop) {
 
         if (++integ.n >= ROMB_MAX)
             return finish_integ(); // too many
-        
+
         goto loop1;
     default:
         return ERR_INTERNAL_ERROR;

@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
     fprintf(out, "/***********************/\n");
     fprintf(out, "/* Size of keymap file */\n");
     fprintf(out, "/***********************/\n\n");
-    
+
     inp = fopen("keymap.txt", "rb");
     if (inp == NULL) {
         int err = errno;

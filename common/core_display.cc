@@ -1338,7 +1338,7 @@ void display_incomplete_command(int row) {
         bufptr += int2string(line, buf + bufptr, 40 - bufptr);
         char2buf(buf, 40, &bufptr, 6);
     }
-        
+
     if (incomplete_command == CMD_ASSIGNb) {
         string2buf(buf, 40, &bufptr, "ASSIGN \"", 8);
         string2buf(buf, 40, &bufptr, pending_command_arg.val.text,

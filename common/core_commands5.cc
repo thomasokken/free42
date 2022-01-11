@@ -424,7 +424,7 @@ static int get_summation() {
     }
     return ERR_NONE;
 }
-    
+
 static struct model_struct {
     phloat x;
     phloat x2;
@@ -864,17 +864,17 @@ int docmd_not(arg_struct *arg) {
 }
 
 int docmd_or(arg_struct *arg) {
-    int8 x, y; 
-    int err; 
+    int8 x, y;
+    int err;
     vartype *v;
-    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE) 
+    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE)
         return err;
     if ((err = get_base_param(stack[sp - 1], &y)) != ERR_NONE)
         return err;
     int8 res = x | y;
     base_range_check(&res, true);
     v = new_real(base2phloat(res));
-    if (v == NULL) 
+    if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     return binary_result(v);
 }
@@ -993,7 +993,7 @@ int docmd_pgminti(arg_struct *arg) {
 int docmd_rotxy(arg_struct *arg) {
     int x;
     uint8 y, res;
-    int err; 
+    int err;
     vartype *v;
 
     // Not using get_base_param() to fetch x, because that
@@ -1021,7 +1021,7 @@ int docmd_rotxy(arg_struct *arg) {
         base_range_check((int8 *) &res, true);
     }
     v = new_real(base2phloat((int8) res));
-    if (v == NULL) 
+    if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     return binary_result(v);
 }
@@ -1089,16 +1089,16 @@ int docmd_vmsolve(arg_struct *arg) {
 
 int docmd_xor(arg_struct *arg) {
     int8 x, y;
-    int err; 
+    int err;
     vartype *v;
-    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE) 
+    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE)
         return err;
     if ((err = get_base_param(stack[sp - 1], &y)) != ERR_NONE)
         return err;
     int8 res = x ^ y;
     base_range_check(&res, true);
     v = new_real(base2phloat(res));
-    if (v == NULL) 
+    if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     return binary_result(v);
 }

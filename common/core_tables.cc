@@ -455,7 +455,7 @@ const command_spec cmd_array[] =
     { /* X<>F */       docmd_x_swap_f,    "X<>F",                0x00, 0x00, 0xa6, 0x6e,  4, ARG_NONE,   1, 0x01 },
     { /* RCLFLAG */    docmd_rclflag,     "RCLFLAG",             0x00, 0x00, 0xa6, 0x60,  7, ARG_NONE,   0, NA_T },
     { /* STOFLAG */    docmd_stoflag,     "STOFLAG",             0x00, 0x00, 0xa6, 0x6d,  7, ARG_NONE,  -1, 0x00 },
-    
+
     /* User-defined functions */
     // Note: a7db-a7dd encode FUNC0-FUNC2, superseded by FUNC 00, FUNC 11, and
     // FUNC 21, and a7e0 encodes RTNERR without argument, and is superseded by
@@ -552,7 +552,7 @@ TODO: what about 1F (W ""), AF & B0 (SPARE)?
 Quick instruction length finder: 00-8F are 1 byte, except 1D-1F, which are
 followed by a string (Fn plus n bytes of text, for a total of n+2 bytes).
 90-BF are 2 bytes (but what about AF & B0 (SPARE)?)
-C0-CD: if byte 3 is Fn, then it's a global label with a total of n+3 bytes (the 
+C0-CD: if byte 3 is Fn, then it's a global label with a total of n+3 bytes (the
 string has an extra byte prepended which the 41C uses for key assignment); if
 byte 3 is not Fn (TODO: which values are allowed & what do they mean?) it is an
 END, 3 bytes.
@@ -734,7 +734,7 @@ MAT_T        A2 66
 DIM_T        A6 E7
 ASSIGNa      n/a
 ASSIGNb      n/a
-ASGN01       Fn C0 name 00 
+ASGN01       Fn C0 name 00
 ASGN02       Fn C0 name 01
 ASGN03       Fn C0 name 02
 ASGN04       Fn C0 name 03

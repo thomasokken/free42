@@ -201,7 +201,7 @@ void shell_print(const char *text, int length,
  * established international standards, the one exception being acceleration,
  * which it expresses in units of Earth gravities rather than the standard
  * m/s^2. TODO: what is the exact conversion factor used by the iPhone?
- * 
+ *
  * shell_get_acceleration: x, y, z in g's (see above). Looking at the device
  * in portrait orientation, positive x points to the right, positive y points
  * up, and positive z points toward the user.
@@ -239,7 +239,7 @@ bool shell_always_on(int always_on);
 void shell_get_time_date(uint4 *time, uint4 *date, int *weekday);
 
 /* shell_message()
- * 
+ *
  * Displays a modal pop-up message box.
  */
 void shell_message(const char *message);

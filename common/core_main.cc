@@ -630,7 +630,7 @@ bool core_powercycle() {
             need_redisplay = true;
         mode_getkey = false;
     }
-    
+
     if (flags.f.big_stack && !core_settings.allow_big_stack) {
         arg_struct dummy_arg;
         docmd_4stk(&dummy_arg);
@@ -980,7 +980,7 @@ static void export_hp42s(int index) {
                             cmdbuf[cmdlen++] = cs->name[i];
                     }
                     cmdbuf[cmdlen++] = cmd - CMD_ASGN01;
-                } else if ((cmd >= CMD_KEY1G && cmd <= CMD_KEY9G) 
+                } else if ((cmd >= CMD_KEY1G && cmd <= CMD_KEY9G)
                             || (cmd >= CMD_KEY1X && cmd <= CMD_KEY9X)) {
                     int keyg = cmd <= CMD_KEY9G;
                     int keynum = cmd - (keyg ? CMD_KEY1G : CMD_KEY1X) + 1;
@@ -1222,7 +1222,7 @@ int4 core_program_size(int prgm_index) {
                          * anyway.
                          */
                         size += cmd_array[arg.val.cmd].name_length + 3;
-                } else if ((cmd >= CMD_KEY1G && cmd <= CMD_KEY9G) 
+                } else if ((cmd >= CMD_KEY1G && cmd <= CMD_KEY9G)
                             || (cmd >= CMD_KEY1X && cmd <= CMD_KEY9X)) {
                     if (arg.type == ARGTYPE_STR || arg.type == ARGTYPE_IND_STR)
                         size += arg.length + 3;
@@ -1437,7 +1437,7 @@ static int hp42tofree42[] = {
     CMD_TO_HR   | 0x0000,
     CMD_RND     | 0x0000,
     CMD_TO_OCT  | 0x0000,
-    
+
     /* 70-7F */
     CMD_CLSIGMA  | 0x0000,
     CMD_SWAP     | 0x0000,
@@ -1999,7 +1999,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
     int saved_normal = flags.f.normal_print;
     flags.f.trace_print = 0;
     flags.f.normal_print = 0;
-    
+
     if (num_progs > 0) {
         // Loading state file
         goto_dot_dot(true);
@@ -3057,7 +3057,7 @@ static int ascii2hp(char *dst, int dstlen, const char *src, int srclen /* = -1 *
                     continue;
                 }
                 break;
-            case 0x030a: 
+            case 0x030a:
                 if (dstpos > 0 && dst[dstpos - 1] == 'A') {
                     code = 20;
                     dstpos--;
@@ -4691,7 +4691,7 @@ void do_interactive(int command) {
             if (pc == -1)
                 pc = 0;
             else if (prgms[current_prgm].text[pc] != CMD_END)
-                pc += get_command_length(current_prgm, pc);       
+                pc += get_command_length(current_prgm, pc);
             prgm_highlight_row = 1;
             start_incomplete_command(command);
         }
@@ -5034,7 +5034,7 @@ void finish_command_entry(bool refresh) {
             prgm_highlight_row = 1;
             pending_command = CMD_NONE;
             redisplay();
-        } 
+        }
     } else {
         do_it_now:
         if (refresh)

@@ -226,7 +226,7 @@ int shell_loadimage() {
                     || !read_short(&iheight)
                     || !read_byte(&info))
                 goto unexp_eof;
-            
+
             if (itop + iheight > pm->height
                     || ileft + iwidth > pm->width) {
                 fprintf(stderr, "Image position and size not contained within screen size!\n");
