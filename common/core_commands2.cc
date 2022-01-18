@@ -405,8 +405,6 @@ int docmd_input(arg_struct *arg) {
         int size = input_length + 1;
         switch (v->type) {
             case TYPE_STRING: size += ((vartype_string *) v)->length + 2; break;
-            case TYPE_EQUATION: size += ((vartype_equation *) v)->data->length + 2; break;
-            case TYPE_UNIT: size += ((vartype_unit *) v)->length + 100; break;
             default: size += 100;
         }
         char *buf = (char *) malloc(size);
