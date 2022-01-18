@@ -501,15 +501,6 @@ bool core_keyup() {
         if (pending_command == CMD_RUN || pending_command == CMD_SST
                 || pending_command == CMD_SST_UP || pending_command == CMD_SST_RT) {
             int err = generic_sto(&input_arg, 0);
-            if ((flags.f.trace_print || flags.f.normal_print)
-                    && flags.f.printer_exists) {
-                char lbuf[12], rbuf[100];
-                int llen, rlen;
-                string_copy(lbuf, &llen, input_name, input_length);
-                lbuf[llen++] = '=';
-                rlen = vartype2string(stack[sp], rbuf, 100);
-                print_wide(lbuf, llen, rbuf, rlen);
-            }
             input_length = 0;
             if (err != ERR_NONE) {
                 pending_command = CMD_NONE;

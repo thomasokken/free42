@@ -400,6 +400,26 @@ int docmd_input(arg_struct *arg) {
         return ERR_INVALID_TYPE;
     }
 
+    if (flags.f.printer_enable && flags.f.printer_exists
+            && (flags.f.trace_print || flags.f.normal_print)) {
+        int size = input_length + 1;
+        switch (v->type) {
+            case TYPE_STRING: size += ((vartype_string *) v)->length + 2; break;
+            case TYPE_EQUATION: size += ((vartype_equation *) v)->data->length + 2; break;
+            case TYPE_UNIT: size += ((vartype_unit *) v)->length + 100; break;
+            default: size += 100;
+        }
+        char *buf = (char *) malloc(size);
+        if (buf != NULL) {
+            int bufptr = 0;
+            string2buf(buf, size, &bufptr, input_name, input_length);
+            char2buf(buf, size, &bufptr, '?');
+            bufptr += vartype2string(v, buf + bufptr, size - bufptr);
+            print_lines(buf, bufptr, true);
+            free(buf);
+        }
+    }
+
     docmd_cld(NULL);
     if (recall_result(v) != ERR_NONE)
         return ERR_INSUFFICIENT_MEMORY;
