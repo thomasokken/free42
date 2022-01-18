@@ -33,8 +33,15 @@ public class ShellSpool {
         StringBuffer buf = new StringBuffer();
         for (int i = 0; i < src.length; i++) {
             int c = src[i] & 255;
-            if (c >= 130 && c != 138)
-                c &= 127;
+            if (c >= 130 && c != 138) {
+                // Escape sequence: euro sign plus two hex digits.
+                // In hp2ascii(), only used for undefined characters;
+                // in ascii2hp(), accepted for everything.
+                buf.append("\u20ac");
+                buf.append("0123456789abcdef".charAt(c >> 4));
+                buf.append("0123456789abcdef".charAt(c & 15));
+                continue;
+            }
             String esc;
             switch (c) {
                 case  0:   esc = "\u00f7"; break; // division sign

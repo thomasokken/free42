@@ -30,8 +30,17 @@ int hp2ascii(char *dst, const char *src, int srclen) {
     int s, d = 0;
     for (s = 0; s < srclen; s++) {
         c = src[s];
-        if (c >= 130 && c != 138)
-            c &= 127;
+        if (c >= 130 && c != 138) {
+            // Escape sequence: euro sign plus two hex digits.
+            // In hp2ascii(), only used for undefined characters;
+            // in ascii2hp(), accepted for everything.
+            dst[d++] = 0xe2;
+            dst[d++] = 0x82;
+            dst[d++] = 0xac;
+            dst[d++] = "0123456789abcdef"[c >> 4];
+            dst[d++] = "0123456789abcdef"[c & 15];
+            continue;
+        }
         switch (c) {
             case  0:   esc = "\303\267"; break;     // division sign
             case  1:   esc = "\303\227"; break;     // multiplication sign
