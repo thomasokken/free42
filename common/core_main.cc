@@ -1665,7 +1665,7 @@ static int hp42ext[] = {
     CMD_0_GE_NN | 0x1000,
 
     /* 30-3F */
-    CMD_PRMVAR  | 0x2000,
+    CMD_PGMVAR  | 0x2000,
     CMD_VARMNU1 | 0x2000,
     CMD_NULL    | 0x4000,
     CMD_NULL    | 0x4000,
@@ -1683,7 +1683,7 @@ static int hp42ext[] = {
     CMD_NULL    | 0x4000,
 
     /* 40-4F */
-    CMD_PRMVAR  | 0x0000,
+    CMD_PGMVAR  | 0x0000,
     CMD_XSTR    | 0x0000,
     CMD_VARMNU1 | 0x0000,
     CMD_NULL    | 0x4000,
@@ -1691,7 +1691,7 @@ static int hp42ext[] = {
     CMD_NULL    | 0x4000,
     CMD_NULL    | 0x4000,
     CMD_NULL    | 0x4000,
-    CMD_PRMVAR  | 0x1000,
+    CMD_PGMVAR  | 0x1000,
     CMD_XSTR    | 0x1000,
     CMD_VARMNU1 | 0x1000,
     CMD_NULL    | 0x4000,

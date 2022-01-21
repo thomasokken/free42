@@ -457,7 +457,7 @@
 #define CMD_FMA         404
 #define CMD_PGMMENU     405
 #define CMD_PMEXEC      406
-#define CMD_PRMVAR      407
+#define CMD_PGMVAR      407
 #define CMD_VARMNU1     408
 #define CMD_X2LINE      409
 #define CMD_A2LINE      410

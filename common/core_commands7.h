@@ -87,7 +87,7 @@ int docmd_rdnn(arg_struct *arg);
 int docmd_rupn(arg_struct *arg);
 
 int docmd_pgmmenu(arg_struct *arg);
-int docmd_prmvar(arg_struct *arg);
+int docmd_pgmvar(arg_struct *arg);
 
 int docmd_x_eq_nn(arg_struct *arg);
 int docmd_x_ne_nn(arg_struct *arg);

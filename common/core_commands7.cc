@@ -1300,7 +1300,7 @@ int docmd_pgmmenu(arg_struct *arg) {
     return err;
 }
 
-int docmd_prmvar(arg_struct *arg) {
+int docmd_pgmvar(arg_struct *arg) {
     if (!flags.f.printer_enable && program_running())
         return ERR_NONE;
     if (!flags.f.printer_exists)
