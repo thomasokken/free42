@@ -1015,6 +1015,22 @@ int docmd_mixed(arg_struct *arg) {
     return ERR_NONE;
 }
 
+int docmd_skip(arg_struct *arg) {
+    return ERR_NO;
+}
+
+int docmd_cpxmat_t(arg_struct *arg) {
+    return stack[sp]->type == TYPE_COMPLEXMATRIX ? ERR_YES : ERR_NO;
+}
+
+int docmd_type_t(arg_struct *arg) {
+    vartype *v = new_real(stack[sp]->type);
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    unary_result(v);
+    return ERR_NONE;
+}
+
 /////////////////////
 ///// Big Stack /////
 /////////////////////
