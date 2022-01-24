@@ -1114,7 +1114,7 @@
 					"$(PROJECT_DIR)",
 				);
 				"OTHER_CFLAGS[arch=*]" = "-DFREE42_FPTEST";
-				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.Free42b;
+				PRODUCT_BUNDLE_IDENTIFIER = com.thomasokken.Free42b;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = 1;
@@ -1150,7 +1150,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.Free42b;
+				PRODUCT_BUNDLE_IDENTIFIER = com.thomasokken.Free42b;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = 1;
@@ -1186,7 +1186,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.Free42b;
+				PRODUCT_BUNDLE_IDENTIFIER = com.thomasokken.Free42b;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = 1;
