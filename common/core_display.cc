@@ -2626,10 +2626,16 @@ int command2buf(char *buf, int len, int cmd, const arg_struct *arg) {
     }
 
     const command_spec *cmdspec = &cmd_array[cmd];
-    if (cmd >= CMD_ASGN01 && cmd <= CMD_ASGN18)
+    if (cmd >= CMD_ASGN01 && cmd <= CMD_ASGN18) {
         string2buf(buf, len, &bufptr, "ASSIGN ", 7);
-    else
-        string2buf(buf, len, &bufptr, cmdspec->name, cmdspec->name_length);
+    } else {
+        for (int i = 0; i < cmdspec->name_length; i++) {
+            int c = (unsigned char) cmdspec->name[i];
+            if (c >= 130 && c != 138)
+                c &= 127;
+            char2buf(buf, len, &bufptr, c);
+        }
+    }
 
     if (cmd == CMD_XROM) {
         int n = xrom_arg & 0x7FF;
