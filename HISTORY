@@ -1,3 +1,13 @@
+2022-01-27: release 3.0.10
+
+* Added →LIST, LIST→, SKIP, CPXMAT?, and TYPE? functions, and changed the name
+  of PRMVAR to PGMVAR. See the Free42 web site for details.
+* INPUT caused incorrect printer output in NORM and TRACE modes. Fixed.
+* Escape sequences for undefined characters in Copy and Paste and printer
+  output.
+* When the Y register contains a string or list, in RUN mode, the + key now
+  performs APPEND.
+
 2021-12-29: release 3.0.9a (Windows only)
 
 * Fixed crash when launching without state
