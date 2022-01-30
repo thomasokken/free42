@@ -968,7 +968,11 @@ int docmd_editn(arg_struct *arg) {
 }
 
 int docmd_exitall(arg_struct *arg) {
-    return set_menu_return_err(MENULEVEL_APP, MENU_NONE, true);
+    int err = set_menu_return_err(MENULEVEL_APP, MENU_NONE, true);
+    if(persistent_custom_menu && !flags.f.prgm_mode) {
+        set_plainmenu(last_custom_menu);
+    }
+    return err;
 }
 
 static int mappable_e_pow_x_1(phloat x, phloat *y) {

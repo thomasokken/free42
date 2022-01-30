@@ -581,4 +581,8 @@ void hard_reset(int reason);
 bool off_enabled();
 #endif
 
+/* Persistent custom menu DM42 firmware mod */
+extern bool persistent_custom_menu; // Go automatically to the CUSTOM menu if no other menu is active
+extern int last_custom_menu;
+
 #endif

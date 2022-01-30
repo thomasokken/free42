@@ -51,6 +51,63 @@ int my_rename(const char *oldname, const char *newname);
 #endif
 
 
+
+static bool pcm_shifted = false;
+
+static void shift_pcm()
+{
+    if(persistent_custom_menu && flags.f.local_label == 0) {
+        int front_menu = get_front_menu();
+        if (mode_commandmenu == MENU_NONE
+            && mode_alphamenu == MENU_NONE
+            && mode_transientmenu == MENU_NONE
+            && mode_appmenu == MENU_NONE
+            && (front_menu == MENU_CUSTOM1
+                || front_menu == MENU_CUSTOM2
+                || front_menu == MENU_CUSTOM3)) {
+            int menu = mode_plainmenu;
+            const menu_spec *m = menus + menu;
+            int nextmenu = m->prev;
+            if (nextmenu != MENU_NONE) {
+                set_menu(MENULEVEL_PLAIN, nextmenu);
+                redisplay();
+                pcm_shifted=true;
+            }
+        }
+    }
+}
+
+
+static void unshift_pcm(bool do_redisplay, bool do_display_x)
+{
+    if(persistent_custom_menu && flags.f.local_label == 0) {
+        pcm_shifted = false;
+        int menu = mode_plainmenu;
+        if (menu == MENU_CUSTOM1
+            || menu == MENU_CUSTOM2
+            || menu == MENU_CUSTOM3) {
+            const menu_spec *m = menus + menu;
+            int nextmenu = m->next;
+            if (nextmenu != MENU_NONE) {
+                if (mode_commandmenu == MENU_NONE
+                    && mode_alphamenu == MENU_NONE
+                    && mode_transientmenu == MENU_NONE
+                    && mode_appmenu == MENU_NONE) {
+                    set_menu(MENULEVEL_PLAIN, nextmenu);
+                    if(do_redisplay) {
+                        redisplay();
+                    }
+                    if(do_display_x) {
+                        display_x(0);
+                    }
+                } else {
+                    mode_plainmenu = nextmenu;
+                }
+            }
+        }
+    }
+}
+
 static void set_shift(bool state) {
     if (mode_shift != state) {
         mode_shift = state;
@@ -212,6 +269,11 @@ bool core_keydown(int key, bool *enqueued, int *repeat) {
 
     if (key == KEY_SHIFT) {
         set_shift(!mode_shift);
+        if(mode_shift) {
+            shift_pcm();
+        } else {
+            unshift_pcm(true, false);
+        }
         return (mode_running && !mode_getkey && !mode_pause) || keybuf_head != keybuf_tail;
     }
 
@@ -363,10 +425,14 @@ bool core_keydown(int key, bool *enqueued, int *repeat) {
         if (mode_getkey && mode_running)
             shell_annunciators(-1, -1, -1, 1, -1, -1);
         keydown(shift, key);
+        if(pcm_shifted) {
+            unshift_pcm(key != KEY_DOT, key == KEY_EXIT);
+        }
         if (repeating != 0) {
             *repeat = repeating;
             repeating = 0;
         }
+
         return mode_running && !mode_getkey;
     }
 
@@ -1899,6 +1965,26 @@ static int hp42ext[] = {
     CMD_RUPN    | 0x1000
 };
 
+void core_dm42f3()
+{
+    if(!flags.f.prgm_mode) {
+        const char *cmd = "DM42F3";
+        arg_struct arg;
+
+        arg.type = ARGTYPE_STR;
+        arg.length = strlen(cmd);
+        for (int i = 0; i < arg.length; i++) {
+            arg.val.text[i] = cmd[i];
+        }
+        int error = handle(CMD_XEQ, &arg);
+        handle_error(error);
+    }
+}
+
+void core_toggle_persistent_custom_menu()
+{
+    persistent_custom_menu = !persistent_custom_menu;
+}
 
 static bool looks_like_zero(const char *buf) {
     char c;

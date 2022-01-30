@@ -2347,7 +2347,7 @@ void redisplay() {
     }
 
     if (!flags.f.prgm_mode &&
-            (mode_command_entry || pending_command != CMD_NONE)) {
+            (mode_command_entry || pending_command >= 0)) {
         int cmd_row;
         if (menu_id == MENU_NONE) {
             cmd_row = 1;

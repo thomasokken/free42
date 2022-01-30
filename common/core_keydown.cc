@@ -89,6 +89,44 @@ static void view(const char *varname, int varlength) {
     }
 }
 
+static void update_last_custom_menu()
+{
+    if (persistent_custom_menu && !flags.f.prgm_mode) {
+        int front_menu = get_front_menu();
+        if (front_menu == MENU_CUSTOM1
+            || front_menu == MENU_CUSTOM2
+            || front_menu == MENU_CUSTOM3) {
+            last_custom_menu = front_menu;
+        }
+    }
+}
+
+static void handle_persistent_custom_menu(int shift, int key)
+{
+    // In prgm mode disable persistent custome menu (enable easy "Exit" from custom mode)
+    if (persistent_custom_menu && !flags.f.prgm_mode) {
+        int front_menu = get_front_menu();
+        if ( front_menu == MENU_NONE ) {      // if no menu is active
+            set_plainmenu(last_custom_menu);  // activate custom menu
+        } else {
+            // Some menu is active
+            // Check if CUSTOM is pressed from the clean custom menu
+            // and deactivate it once (do that only if app menu is not activ)
+            if (mode_commandmenu == MENU_NONE
+                && mode_alphamenu == MENU_NONE
+                && mode_transientmenu == MENU_NONE
+                && mode_appmenu == MENU_NONE
+                && shift && key == KEY_2 
+                && (front_menu == MENU_CUSTOM1
+                    || front_menu == MENU_CUSTOM2
+                    || front_menu == MENU_CUSTOM3)) {
+                set_menu(MENULEVEL_PLAIN, MENU_NONE);
+                redisplay();
+            }
+        }
+    }
+}
+
 struct cmd_getkey_mapping_struct {
     int2 key;
     int2 cmd;
@@ -255,6 +293,7 @@ void keydown(int shift, int key) {
         flags.f.message = 0;
         flags.f.two_line_message = 0;
         redisplay();
+        handle_persistent_custom_menu(shift, key);
         return;
     }
 
@@ -381,6 +420,8 @@ void keydown(int shift, int key) {
         keydown_alpha_mode(shift, key);
     else
         keydown_normal_mode(shift, key);
+
+    handle_persistent_custom_menu(shift, key);
 }
 
 void keydown_number_entry(int shift, int key) {
@@ -1963,7 +2004,7 @@ void keydown_alpha_mode(int shift, int key) {
             case KEY_5: set_plainmenu(MENU_CONVERT1); break;
             case KEY_6: set_plainmenu(MENU_FLAGS); break;
             case KEY_MUL: set_plainmenu(MENU_PROB); break;
-            case KEY_2: set_plainmenu(MENU_CUSTOM1); break;
+            case KEY_2: (persistent_custom_menu && mode_appmenu == MENU_NONE) ? set_menu(MENULEVEL_PLAIN, MENU_NONE) : set_plainmenu(MENU_CUSTOM1); break;
             case KEY_3: set_plainmenu(MENU_PGM_FCN1); break;
             case KEY_SUB: set_plainmenu(MENU_PRINT1); break;
             case KEY_0: set_plainmenu(MENU_TOP_FCN); break;
@@ -2547,6 +2588,7 @@ void keydown_normal_mode(int shift, int key) {
                     redisplay();
                 }
             }
+            update_last_custom_menu();
             return;
         }
 

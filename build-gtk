@@ -22,9 +22,9 @@ export MK
 unset BCD_MATH
 cd gtk
 $MK cleaner
-$MK $ALSA
+$MK -j 6 $ALSA
 $MK clean
-$MK BCD_MATH=1 $ALSA
+$MK -j 6 BCD_MATH=1 $ALSA
 cd ..
 
 rm -rf $PKGNAME
