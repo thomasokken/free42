@@ -84,6 +84,7 @@ static void view(const char *varname, int varlength) {
         flush_display();
         pending_command = CMD_NONE;
     } else {
+        flags.f.message = 0;
         pending_command = CMD_LINGER1;
         shell_request_timeout3(2000);
     }
