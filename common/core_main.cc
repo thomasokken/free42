@@ -3091,13 +3091,20 @@ static int ascii2hp(char *dst, int dstlen, const char *src, int srclen /* = -1 *
             default:
                 // Anything outside of the printable ASCII range or LF or
                 // ESC is not representable, so we replace it with bullets,
-                // except for combining diacritics, which we skip, and tabs,
-                // which we treat as spaces.
-                if (code >= 0x0300 && code <= 0x036f) {
+                // except for combining diacritics and zero-width spaces,
+                // which we skip, and tabs and various other whitespace
+                // characters, which we treat as spaces.
+                if (code >= 0x0300 && code <= 0x036f || code >= 0x200b && code <= 0x200d) {
                     state = 0;
                     continue;
                 }
-                if (code == 9)
+                if (code >= 9 && code <= 13 // ASCII whitespace chars
+                        || code == 0x85 || code == 0xa0 // Latin-1 line break, non-break space
+                        || code >= 0x2000 && code <= 0x200a // Unicode spaces
+                        || code == 0x2028 // Unicode line separator
+                        || code == 0x2029 // Unicode paragraph separator
+                        || code == 0x202f // Narrow no-break space
+                        )
                     code = 32;
                 else if (code < 32 && code != 10 && code != 27 || code > 126)
                     code = 31;
