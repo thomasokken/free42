@@ -3265,6 +3265,12 @@ int push_stack_state(bool big) {
             save_levels = sp + 1 - in;
         } else {
             save_levels = sp - 3;
+            for (int i = 0; i < 3 - sp; i++) {
+                dups[i] = new_real(0);
+                if (dups[i] == NULL)
+                    goto nomem;
+                n_dups = i + 1;
+            }
         }
         if (save_levels < 0)
             save_levels = 0;
