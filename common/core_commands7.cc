@@ -2070,3 +2070,17 @@ int docmd_from_list(arg_struct *arg) {
     free(list);
     return ERR_NONE;
 }
+
+int docmd_width(arg_struct *arg) {
+    vartype *v = new_real(131);
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    return recall_result(v);
+}
+
+int docmd_height(arg_struct *arg) {
+    vartype *v = new_real(16);
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    return recall_result(v);
+}

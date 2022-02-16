@@ -502,8 +502,11 @@
 #define CMD_0_GT_NN     447
 #define CMD_0_LE_NN     448
 #define CMD_0_GE_NN     449
+/* For Plus42 compatibility */
+#define CMD_WIDTH       450
+#define CMD_HEIGHT      451
 
-#define CMD_SENTINEL    450
+#define CMD_SENTINEL    452
 
 
 /* command_spec.argtype */

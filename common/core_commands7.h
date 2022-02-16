@@ -120,4 +120,7 @@ int docmd_newstr(arg_struct *arg);
 int docmd_to_list(arg_struct *arg);
 int docmd_from_list(arg_struct *arg);
 
+int docmd_width(arg_struct *arg);
+int docmd_height(arg_struct *arg);
+
 #endif
