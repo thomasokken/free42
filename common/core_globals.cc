@@ -3005,6 +3005,22 @@ int4 line2pc(int4 line) {
         return pc_line_convert(line, 0);
 }
 
+int4 global_pc2line(int prgm, int4 pc) {
+    int saved_prgm = current_prgm;
+    current_prgm = prgm;
+    int4 res = pc2line(pc);
+    current_prgm = saved_prgm;
+    return res;
+}
+
+int4 global_line2pc(int prgm, int4 line) {
+    int saved_prgm = current_prgm;
+    current_prgm = prgm;
+    int4 res = line2pc(line);
+    current_prgm = saved_prgm;
+    return res;
+}
+
 int4 find_local_label(const arg_struct *arg) {
     int4 orig_pc = pc;
     int4 search_pc;

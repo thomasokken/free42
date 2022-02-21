@@ -108,8 +108,13 @@ bool persist_math() {
     if (fwrite(solve.var_name, 1, 7, gfile) != 7) return false;
     if (!write_int(solve.var_length)) return false;
     if (!write_int(solve.keep_running)) return false;
-    if (!write_int(solve.prev_prgm)) return false;
-    if (!write_int4(solve.prev_pc)) return false;
+    if (solve_active()) {
+        if (!write_int(solve.prev_prgm)) return false;
+        if (!write_int4(global_pc2line(solve.prev_prgm, solve.prev_pc))) return false;
+    } else {
+        if (!write_int(0)) return false;
+        if (!write_int4(0)) return false;
+    }
     if (!write_int(solve.state)) return false;
     if (!write_int(solve.which)) return false;
     if (!write_int(solve.toggle)) return false;
@@ -145,8 +150,13 @@ bool persist_math() {
     if (fwrite(integ.var_name, 1, 7, gfile) != 7) return false;
     if (!write_int(integ.var_length)) return false;
     if (!write_int(integ.keep_running)) return false;
-    if (!write_int(integ.prev_prgm)) return false;
-    if (!write_int4(integ.prev_pc)) return false;
+    if (integ_active()) {
+        if (!write_int(integ.prev_prgm)) return false;
+        if (!write_int4(global_pc2line(integ.prev_prgm, integ.prev_pc))) return false;
+    } else {
+        if (!write_int(0)) return false;
+        if (!write_int4(0)) return false;
+    }
     if (!write_int(integ.state)) return false;
     if (!write_phloat(integ.llim)) return false;
     if (!write_phloat(integ.ulim)) return false;
@@ -186,6 +196,8 @@ bool unpersist_math(int ver, bool discard) {
         if (!read_int(&solve.keep_running)) return false;
         if (!read_int(&solve.prev_prgm)) return false;
         if (!read_int4(&solve.prev_pc)) return false;
+        if (solve_active())
+            solve.prev_pc = global_line2pc(solve.prev_prgm, solve.prev_pc);
         if (!read_int(&solve.state)) return false;
         if (!read_int(&solve.which)) return false;
         if (!read_int(&solve.toggle)) return false;
@@ -232,6 +244,8 @@ bool unpersist_math(int ver, bool discard) {
         if (!read_int(&integ.keep_running)) return false;
         if (!read_int(&integ.prev_prgm)) return false;
         if (!read_int4(&integ.prev_pc)) return false;
+        if (integ_active())
+            integ.prev_pc = global_line2pc(integ.prev_prgm, integ.prev_pc);
         if (!read_int(&integ.state)) return false;
         if (!read_phloat(&integ.llim)) return false;
         if (!read_phloat(&integ.ulim)) return false;
