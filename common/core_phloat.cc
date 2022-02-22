@@ -729,7 +729,7 @@ Phloat pow(Phloat y, Phloat x) {
 
 Phloat floor(Phloat p) {
     BID_UINT128 res;
-    bid128_round_integral_zero(&res, &p.val);
+    bid128_round_integral_negative(&res, &p.val);
     return Phloat(res);
 }
 
