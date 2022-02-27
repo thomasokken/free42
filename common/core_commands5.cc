@@ -999,7 +999,8 @@ int docmd_rotxy(arg_struct *arg) {
     // Not using get_base_param() to fetch x, because that
     // would make it impossible to specify a negative shift
     // count in unsigned mode.
-    phloat px = floor(((vartype_real *) stack[sp])->x);
+    phloat px = ((vartype_real *) stack[sp])->x;
+    px = px < 0 ? -floor(-px) : floor(px);
     int wsize = effective_wsize();
     if (px >= wsize || px <= -wsize)
         return ERR_INVALID_DATA;
