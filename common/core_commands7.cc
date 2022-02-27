@@ -542,7 +542,7 @@ int docmd_date_plus(arg_struct *arg) {
     err = greg2jd(y, m, d, &jd);
     if (err != ERR_NONE)
         return err;
-    jd += to_int4(floor(days));
+    jd += to_int4(days < 0 ? -floor(-days) : floor(days));
     err = jd2greg(jd, &y, &m, &d);
     if (err != ERR_NONE)
         return err;
