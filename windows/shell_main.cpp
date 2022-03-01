@@ -2858,3 +2858,10 @@ int my_rename(const char *oldname, const char *newname) {
     free(wnewname);
     return ret;
 }
+
+int my_remove(const char *name) {
+    wchar_t *wname = utf2wide(name);
+    int ret = _wremove(wname);
+    free(wname);
+    return ret;
+}

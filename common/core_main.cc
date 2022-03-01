@@ -45,9 +45,11 @@
 #ifdef WINDOWS
 FILE *my_fopen(const char *name, const char *mode);
 int my_rename(const char *oldname, const char *newname);
+int my_remove(const char *name);
 #else
 #define my_fopen fopen
 #define my_rename rename
+#define my_remove remove
 #endif
 
 
@@ -138,10 +140,19 @@ void core_save_state(const char *state_file_name) {
     if (mode_interruptible != NULL)
         stop_interruptible();
     set_running(false);
-    gfile = my_fopen(state_file_name, "wb");
+
+    char *state_file_name_crash = (char *) malloc(strlen(state_file_name) + 24);
+    uint4 date, time;
+    int weekday;
+    shell_get_time_date(&time, &date, &weekday);
+    sprintf(state_file_name_crash, "%s.%08u%08u.crash", state_file_name, date, time);
+
+    gfile = my_fopen(state_file_name_crash, "wb");
     if (gfile != NULL) {
         save_state();
         fclose(gfile);
+        my_remove(state_file_name);
+        my_rename(state_file_name_crash, state_file_name);
     }
 }
 
