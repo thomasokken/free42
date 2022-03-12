@@ -72,7 +72,9 @@ struct SkinAnnunciator {
 
 static SkinRect skin;
 static SkinPoint display_loc;
-static SkinPoint display_scale;
+static double display_scale_x;
+static double display_scale_y;
+static bool display_scale_int;
 static SkinColor display_bg, display_fg;
 static SkinKey *keylist = NULL;
 static int nkeys = 0;
@@ -387,8 +389,9 @@ void skin_load(int *width, int *height) {
                                             &xscale, &yscale, &bg, &fg) == 6) {
                 display_loc.x = x;
                 display_loc.y = y;
-                display_scale.x = (int) xscale;
-                display_scale.y = (int) yscale;
+                display_scale_x = xscale;
+                display_scale_y = yscale;
+                display_scale_int = xscale == (int) xscale && yscale == (int) yscale;
                 display_bg.r = (unsigned char) (bg >> 16);
                 display_bg.g = (unsigned char) (bg >> 8);
                 display_bg.b = (unsigned char) bg;
@@ -556,8 +559,8 @@ void skin_load(int *width, int *height) {
     if (disp_image != NULL)
         g_object_unref(disp_image);
     disp_image = gdk_pixbuf_new(GDK_COLORSPACE_RGB, FALSE, 8,
-                                131 * display_scale.x + 4,
-                                16 * display_scale.y + 4);
+                                131 + 4,
+                                16 + 4);
     guint32 p = (display_bg.r << 24)
                     | (display_bg.g << 16) | (display_bg.b << 8);
     gdk_pixbuf_fill(disp_image, p);
@@ -635,19 +638,14 @@ void skin_repaint_annunciator(cairo_t *cr, int which, bool state) {
     if (!display_enabled)
         return;
     SkinAnnunciator *ann = annunciators + (which - 1);
+    cairo_save(cr);
     if (state)
         gdk_cairo_set_source_pixbuf(cr, skin_image,
                 ann->disp_rect.x - ann->src.x - skin.x,
                 ann->disp_rect.y - ann->src.y - skin.y);
     else
         gdk_cairo_set_source_pixbuf(cr, skin_image, -skin.x, -skin.y);
-    GdkRectangle clip;
-    clip.x = ann->disp_rect.x;
-    clip.y = ann->disp_rect.y;
-    clip.width = ann->disp_rect.width;
-    clip.height = ann->disp_rect.height;
-    gdk_cairo_rectangle(cr, &clip);
-    cairo_save(cr);
+    cairo_rectangle(cr, ann->disp_rect.x, ann->disp_rect.y, ann->disp_rect.width, ann->disp_rect.height);
     cairo_clip(cr);
     cairo_paint(cr);
     cairo_restore(cr);
@@ -669,10 +667,10 @@ void skin_find_key(int x, int y, bool cshift, int *skey, int *ckey) {
     int i;
     if (core_menu()
             && x >= display_loc.x
-            && x < display_loc.x + 131 * display_scale.x
-            && y >= display_loc.y + 9 * display_scale.y
-            && y < display_loc.y + 16 * display_scale.y) {
-        int softkey = (x - display_loc.x) / (22 * display_scale.x) + 1;
+            && x < display_loc.x + 131 * display_scale_x
+            && y >= display_loc.y + 9 * display_scale_y
+            && y < display_loc.y + 16 * display_scale_y) {
+        int softkey = (x - display_loc.x) / (22 * display_scale_x) + 1;
         *skey = -1 - softkey;
         *ckey = softkey;
         return;
@@ -746,10 +744,17 @@ void skin_repaint_key(cairo_t *cr, int key, bool state) {
             // in that state. But, just staying on the safe side.
             return;
         key = -1 - key;
-        int x = (key - 1) * 22 * display_scale.x;
-        int y = 9 * display_scale.y;
-        int width = 21 * display_scale.x;
-        int height = 7 * display_scale.y;
+        int x = (key - 1) * 22;
+        int y = 9;
+        int width = 21;
+        int height = 7;
+
+        cairo_save(cr);
+        cairo_translate(cr, display_loc.x + x * display_scale_x, display_loc.y + y * display_scale_y);
+        cairo_scale(cr, display_scale_x, display_scale_y);
+        cairo_rectangle(cr, 0, 0, width, height);
+        cairo_clip(cr);
+
         if (state) {
             // Construct a temporary pixbuf, create the inverted version of
             // the affected screen rectangle there, and blit it
@@ -779,30 +784,23 @@ void skin_repaint_key(cairo_t *cr, int key, bool state) {
                 s1 += s_bpl;
                 d1 += d_bpl;
             }
-            gdk_cairo_set_source_pixbuf(cr, tmpbuf, display_loc.x + x, display_loc.y + y);
-            GdkRectangle clip;
-            clip.x = display_loc.x + x;
-            clip.y = display_loc.y + y;
-            clip.width = width;
-            clip.height = height;
-            gdk_cairo_rectangle(cr, &clip);
-            cairo_save(cr);
-            cairo_clip(cr);
+            gdk_cairo_set_source_pixbuf(cr, tmpbuf, 0, 0);
+            if (display_scale_int)
+                cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_NEAREST);
+            else
+                cairo_set_antialias(cr, CAIRO_ANTIALIAS_BEST);
             cairo_paint(cr);
             cairo_restore(cr);
+            g_object_unref(tmpbuf);
         } else {
             // Repaint the screen
-            GdkRectangle clip;
-            clip.x = display_loc.x + x;
-            clip.y = display_loc.y + y;
-            clip.width = width;
-            clip.height = height;
-            gdk_cairo_rectangle(cr, &clip);
-            cairo_save(cr);
-            cairo_clip(cr);
             cairo_set_source_rgb(cr, display_bg.r / 255.0, display_bg.g / 255.0, display_bg.b / 255.0);
             cairo_paint(cr);
-            gdk_cairo_set_source_pixbuf(cr, disp_image, display_loc.x - 2, display_loc.y - 2);
+            gdk_cairo_set_source_pixbuf(cr, disp_image, -x - 2, -y - 2);
+            if (display_scale_int)
+                cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_NEAREST);
+            else
+                cairo_set_antialias(cr, CAIRO_ANTIALIAS_BEST);
             cairo_paint(cr);
             cairo_restore(cr);
         }
@@ -812,19 +810,14 @@ void skin_repaint_key(cairo_t *cr, int key, bool state) {
     if (key < 0 || key >= nkeys)
         return;
     k = keylist + key;
-    GdkRectangle clip;
-    clip.x = k->disp_rect.x;
-    clip.y = k->disp_rect.y;
-    clip.width = k->disp_rect.width;
-    clip.height = k->disp_rect.height;
     if (state)
         gdk_cairo_set_source_pixbuf(cr, skin_image,
                 k->disp_rect.x - k->src.x - skin.x,
                 k->disp_rect.y - k->src.y - skin.y);
     else
         gdk_cairo_set_source_pixbuf(cr, skin_image, -skin.x, -skin.y);
-    gdk_cairo_rectangle(cr, &clip);
     cairo_save(cr);
+    cairo_rectangle(cr, k->disp_rect.x, k->disp_rect.y, k->disp_rect.width, k->disp_rect.height);
     cairo_clip(cr);
     cairo_paint(cr);
     cairo_restore(cr);
@@ -836,10 +829,10 @@ void skin_invalidate_key(GdkWindow *win, int key) {
     if (key >= -7 && key <= -2) {
         /* Soft key */
         key = -1 - key;
-        int x = (key - 1) * 22 * display_scale.x;
-        int y = 9 * display_scale.y;
-        int width = 21 * display_scale.x;
-        int height = 7 * display_scale.y;
+        int x = (key - 1) * 22 * display_scale_x;
+        int y = 9 * display_scale_y;
+        int width = 21 * display_scale_x;
+        int height = 7 * display_scale_y;
         GdkRectangle clip;
         clip.x = display_loc.x + x;
         clip.y = display_loc.y + y;
@@ -864,8 +857,6 @@ void skin_display_invalidater(GdkWindow *win, const char *bits, int bytesperline
     guchar *pix = gdk_pixbuf_get_pixels(disp_image);
     int disp_bpl = gdk_pixbuf_get_rowstride(disp_image);
     pix += 2 * disp_bpl + 6;
-    int sx = display_scale.x;
-    int sy = display_scale.y;
 
     for (int v = y; v < y + height; v++)
         for (int h = x; h < x + width; h++) {
@@ -874,50 +865,46 @@ void skin_display_invalidater(GdkWindow *win, const char *bits, int bytesperline
                 c = display_fg;
             else
                 c = display_bg;
-            for (int vv = v * sy; vv < (v + 1) * sy; vv++) {
-                guchar *p = pix + disp_bpl * vv;
-                for (int hh = h * sx; hh < (h + 1) * sx; hh++) {
-                    guchar *p2 = p + hh * 3;
-                    p2[0] = c.r;
-                    p2[1] = c.g;
-                    p2[2] = c.b;
-                }
-            }
+            guchar *p = pix + disp_bpl * v + h * 3;
+            p[0] = c.r;
+            p[1] = c.g;
+            p[2] = c.b;
         }
     if (win != NULL) {
         if (allow_paint && display_enabled) {
             GdkRectangle clip;
-            clip.x = display_loc.x + x * sx;
-            clip.y = display_loc.y + y * sy;
-            clip.width = width * sx;
-            clip.height = height * sy;
+            clip.x = display_loc.x + x * display_scale_x;
+            clip.y = display_loc.y + y * display_scale_y;
+            clip.width = width * display_scale_x;
+            clip.height = height * display_scale_y;
             gdk_window_invalidate_rect(win, &clip, FALSE);
         }
     } else {
         gtk_widget_queue_draw_area(calc_widget,
-                display_loc.x - display_scale.x,
-                display_loc.y - display_scale.y,
-                133 * display_scale.x,
-                18 * display_scale.y);
+                display_loc.x - display_scale_x,
+                display_loc.y - display_scale_y,
+                133 * display_scale_x,
+                18 * display_scale_y);
     }
 }
 
 void skin_repaint_display(cairo_t *cr) {
-    if (display_enabled) {
-        GdkRectangle clip;
-        clip.x = display_loc.x - 1;
-        clip.y = display_loc.y - 1;
-        clip.width = 131 * display_scale.x + 2;
-        clip.height = 16 * display_scale.y + 2;
-        gdk_cairo_rectangle(cr, &clip);
-        cairo_save(cr);
-        cairo_clip(cr);
-        cairo_set_source_rgb(cr, display_bg.r / 255.0, display_bg.g / 255.0, display_bg.b / 255.0);
-        cairo_paint(cr);
-        gdk_cairo_set_source_pixbuf(cr, disp_image, display_loc.x - 2, display_loc.y - 2);
-        cairo_paint(cr);
-        cairo_restore(cr);
-    }
+    if (!display_enabled)
+        return;
+    cairo_save(cr);
+    cairo_translate(cr, display_loc.x, display_loc.y);
+    cairo_scale(cr, display_scale_x, display_scale_y);
+    cairo_rectangle(cr, -1, -1, 131 + 2, 16 + 2);
+    cairo_clip(cr);
+    cairo_set_source_rgb(cr, display_bg.r / 255.0, display_bg.g / 255.0, display_bg.b / 255.0);
+    cairo_paint(cr);
+    gdk_cairo_set_source_pixbuf(cr, disp_image, -2, -2);
+    if (display_scale_int)
+        cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_NEAREST);
+    else
+        cairo_set_antialias(cr, CAIRO_ANTIALIAS_BEST);
+    cairo_paint(cr);
+    cairo_restore(cr);
 }
 
 void skin_invalidate_display(GdkWindow *win) {
@@ -925,8 +912,8 @@ void skin_invalidate_display(GdkWindow *win) {
         GdkRectangle clip;
         clip.x = display_loc.x;
         clip.y = display_loc.y;
-        clip.width = 131 * display_scale.x;
-        clip.height = 16 * display_scale.y;
+        clip.width = 131 * display_scale_x;
+        clip.height = 16 * display_scale_y;
         gdk_window_invalidate_rect(win, &clip, FALSE);
     }
 }
