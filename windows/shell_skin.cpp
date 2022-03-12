@@ -24,6 +24,10 @@
 #include "shell_loadimage.h"
 #include "core_main.h"
 
+#include <gdiplus.h>
+#include <gdiplusgraphics.h>
+using namespace Gdiplus;
+
 
 /**************************/
 /* Skin description stuff */
@@ -60,7 +64,8 @@ struct SkinAnnunciator {
 
 static SkinRect skin;
 static SkinPoint display_loc;
-static SkinPoint display_scale;
+static double display_scale_x, display_scale_y;
+static bool display_scale_int;
 static COLORREF display_bg, display_fg;
 static SkinKey *keylist = NULL;
 static int nkeys = 0;
@@ -82,7 +87,8 @@ static unsigned char *skin_bitmap = NULL;
 static int skin_bytesperline;
 static BITMAPV4HEADER *skin_header = NULL;
 static HBITMAP skin_dib = NULL;
-static unsigned char *disp_bitmap = NULL;
+static Gdiplus::Bitmap *disp_bitmap = NULL;
+static unsigned char *disp_bits = NULL;
 static int disp_bytesperline;
 
 static keymap_entry *keymap = NULL;
@@ -348,10 +354,11 @@ void skin_load(wchar_t *skinname, const wchar_t *basedir, long *width, long *hei
                                             &xscale, &yscale, &bg, &fg) == 6) {
                 display_loc.x = x;
                 display_loc.y = y;
-                display_scale.x = (int) xscale;
-                display_scale.y = (int) yscale;
-                display_bg = ((bg >> 16) & 255) | (bg & 0x0FF00) | ((bg & 255) << 16);
-                display_fg = ((fg >> 16) & 255) | (fg & 0x0FF00) | ((fg & 255) << 16);
+                display_scale_x = xscale;
+                display_scale_y = yscale;
+                display_scale_int = xscale == (int) xscale && yscale == (int) yscale;
+                display_bg = bg;
+                display_fg = fg;
             }
         } else if (_strnicmp(line, "key:", 4) == 0) {
             char keynumbuf[20];
@@ -504,17 +511,28 @@ void skin_load(wchar_t *skinname, const wchar_t *basedir, long *width, long *hei
     *width = skin.width;
     *height = skin.height;
 
-    /********************************/
-    /* (Re)build the display bitmap */
-    /********************************/
+    /****************************/
+    /* Build the display bitmap */
+    /****************************/
 
-    if (disp_bitmap != NULL)
-        free(disp_bitmap);
-    disp_bytesperline = ((131 * display_scale.x + 15) >> 3) & ~1;
-    size = disp_bytesperline * 16 * display_scale.y;
-    disp_bitmap = (unsigned char *) malloc(size);
-    // TODO - handle memory allocation failure
-    memset(disp_bitmap, 255, size);
+    if (disp_bits == NULL) {
+        // Allocating a bitmap with one pixel of extra room around the edges;
+        // this is to avoid sharp lines when blurriness bleeds across the edge.
+        disp_bytesperline = (((131 + 2) + 31) >> 3) & ~3;
+        size = disp_bytesperline * (16 + 2);
+        disp_bits = (unsigned char *) malloc(size);
+        disp_bitmap = new Gdiplus::Bitmap(131 + 2, 16 + 2, disp_bytesperline, PixelFormat1bppIndexed, disp_bits);
+        memset(disp_bits, 0, size);
+    }
+    struct {
+        Gdiplus::ColorPalette pal;
+        ARGB entry2;
+    } pal;
+    pal.pal.Flags = 0;
+    pal.pal.Count = 2;
+    pal.pal.Entries[0] = display_bg | 0xff000000;
+    pal.pal.Entries[1] = display_fg | 0xff000000;
+    disp_bitmap->SetPalette(&pal.pal);
 }
 
 int skin_init_image(int type, int ncolors, const SkinColor *colors,
@@ -718,10 +736,10 @@ void skin_find_key(int x, int y, bool cshift, int *skey, int *ckey) {
     int i;
     if (core_menu()
             && x >= display_loc.x
-            && x < display_loc.x + 131 * display_scale.x
-            && y >= display_loc.y + 9 * display_scale.y
-            && y < display_loc.y + 16 * display_scale.y) {
-        int softkey = (x - display_loc.x) / (22 * display_scale.x) + 1;
+            && x < display_loc.x + 131 * display_scale_x
+            && y >= display_loc.y + 9 * display_scale_y
+            && y < display_loc.y + 16 * display_scale_y) {
+        int softkey = (x - display_loc.x) / (22 * display_scale_x) + 1;
         *skey = -1 - softkey;
         *ckey = softkey;
         return;
@@ -793,28 +811,18 @@ void skin_repaint_key(HDC hdc, HDC memdc, int key, int state) {
             // execution, and softkey events should be impossible to generate
             // in that state. But, just staying on the safe side.
             return;
-        int x, y, w, h;
-        HBITMAP bitmap;
-        if (state) {
-            old_bg = SetBkColor(hdc, display_fg);
-            old_fg = SetTextColor(hdc, display_bg);
-        } else {
-            old_bg = SetBkColor(hdc, display_bg);
-            old_fg = SetTextColor(hdc, display_fg);
-        }
         key = -1 - key;
-        x = (key - 1) * 22 * display_scale.x;
-        y = 9 * display_scale.y;
-        w = 131 * display_scale.x;
-        h = 16 * display_scale.y;
-        bitmap = CreateBitmap(w, h, 1, 1, disp_bitmap);
-        SelectObject(memdc, bitmap);
-        BitBlt(hdc, display_loc.x + x, display_loc.y + y,
-               21 * display_scale.x, 7 * display_scale.y,
-               memdc, x, y, SRCCOPY);
-        SetBkColor(hdc, old_bg);
-        SetTextColor(hdc, old_fg);
-        DeleteObject(bitmap);
+        int vo = 16 - 6;
+        int ho = (key - 1) * 22 + 1;
+        for (int i = 0; i < 2; i++) {
+            if (state) {
+                for (int v = 0; v < 7; v++)
+                    for (int h = 0; h < 22 - 1; h++)
+                        disp_bits[(v + vo) * disp_bytesperline + ((h + ho) >> 3)] ^= 128 >> ((h + ho) & 7);
+            }
+            if (i == 0)
+                skin_repaint_display(hdc);
+        }
         return;
     }
 
@@ -842,54 +850,33 @@ void skin_repaint_key(HDC hdc, HDC memdc, int key, int state) {
 
 void skin_display_blitter(HDC hdc, const char *bits, int bytesperline, int x, int y,
                                      int width, int height) {
-    int h, v, hh, vv;
-    int sx = display_scale.x;
-    int sy = display_scale.y;
+    int h, v;
+    double sx = display_scale_x;
+    double sy = display_scale_y;
 
     for (v = y; v < y + height; v++)
         for (h = x; h < x + width; h++) {
-            int pixel = (bits[v * bytesperline + (h >> 3)] & (1 << (h & 7))) == 0;
-            for (vv = v * sy; vv < (v + 1) * sy; vv++)
-                for (hh = h * sx; hh < (h + 1) * sx; hh++)
-                    if (pixel)
-                        disp_bitmap[vv * disp_bytesperline + (hh >> 3)] |= 128 >> (hh & 7);
-                    else
-                        disp_bitmap[vv * disp_bytesperline + (hh >> 3)] &= ~(128 >> (hh & 7));
+            int pixel = (bits[v * bytesperline + (h >> 3)] & (1 << (h & 7))) != 0;
+            if (pixel)
+                disp_bits[(v + 1) * disp_bytesperline + ((h + 1) >> 3)] |= 128 >> ((h + 1) & 7);
+            else
+                disp_bits[(v + 1) * disp_bytesperline + ((h + 1) >> 3)] &= ~(128 >> ((h + 1) & 7));
         }
     
-    if (display_enabled) {
-        HDC memdc = CreateCompatibleDC(hdc);
-        HBITMAP bitmap = CreateBitmap(131 * sx, 16 * sy, 1, 1, disp_bitmap);
-        SelectObject(memdc, bitmap);
-
-        COLORREF old_bg = SetBkColor(hdc, display_bg);
-        COLORREF old_fg = SetTextColor(hdc, display_fg);
-        BitBlt(hdc, display_loc.x + x * sx, display_loc.y + y * sy,
-                    width * sx, height * sy, memdc, x * sx, y * sy, SRCCOPY);
-        SetBkColor(hdc, old_bg);
-        SetTextColor(hdc, old_fg);
-
-        DeleteDC(memdc);
-        DeleteObject(bitmap);
-    }
+    skin_repaint_display(hdc);
 }
 
-void skin_repaint_display(HDC hdc, HDC memdc) {
+void skin_repaint_display(HDC hdc) {
     if (!display_enabled)
         return;
-    int w = 131 * display_scale.x;
-    int h = 16 * display_scale.y;
-    HBITMAP bitmap = CreateBitmap(w, h, 1, 1, disp_bitmap);
-
-    SelectObject(memdc, bitmap);
-
-    COLORREF old_bg = SetBkColor(hdc, display_bg);
-    COLORREF old_fg = SetTextColor(hdc, display_fg);
-    BitBlt(hdc, display_loc.x, display_loc.y, w, h, memdc, 0, 0, SRCCOPY);
-    SetBkColor(hdc, old_bg);
-    SetTextColor(hdc, old_fg);
-
-    DeleteObject(bitmap);
+    Graphics g(hdc);
+    g.TranslateTransform((REAL) display_loc.x, (REAL) display_loc.y);
+    g.ScaleTransform((REAL) display_scale_x, (REAL) display_scale_y);
+    if (display_scale_int)
+        g.SetInterpolationMode(InterpolationModeNearestNeighbor);
+    else
+        g.SetInterpolationMode(InterpolationModeBilinear);
+    g.DrawImage(disp_bitmap, -1, -1, 131 + 2, 16 + 2);
 }
 
 void skin_display_set_enabled(bool enable) {

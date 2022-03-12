@@ -26,6 +26,9 @@
 
 #include <set>
 
+#include <gdiplus.h>
+using namespace Gdiplus;
+
 #include "free42.h"
 #include "shell.h"
 #include "shell_skin.h"
@@ -205,6 +208,11 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 
     MyRegisterClass(hInstance);
 
+    // GDI+ initialization
+    GdiplusStartupInput gdiplusStartupInput;
+    ULONG_PTR gdiplusToken;
+    GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+
     // Perform application initialization:
     if (!InitInstance (hInstance, nCmdShow)) 
     {
@@ -230,6 +238,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
     }
 
     Quit();
+    GdiplusShutdown(gdiplusToken);
     return msg.wParam;
 }
 
@@ -497,7 +506,7 @@ static void shell_keydown() {
                 skin_display_set_enabled(true);
                 HDC hdc = GetDC(hMainWnd);
                 HDC memdc = CreateCompatibleDC(hdc);
-                skin_repaint_display(hdc, memdc);
+                skin_repaint_display(hdc);
                 skin_repaint_annunciator(hdc, memdc, 1, ann_updown);
                 skin_repaint_annunciator(hdc, memdc, 2, ann_shift);
                 skin_repaint_annunciator(hdc, memdc, 3, ann_print);
@@ -645,7 +654,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
             HDC hdc = BeginPaint(hWnd, &ps);
             HDC memdc = CreateCompatibleDC(hdc);
             skin_repaint(hdc, memdc);
-            skin_repaint_display(hdc, memdc);
+            skin_repaint_display(hdc);
             skin_repaint_annunciator(hdc, memdc, 1, ann_updown);
             skin_repaint_annunciator(hdc, memdc, 2, ann_shift);
             skin_repaint_annunciator(hdc, memdc, 3, ann_print);
