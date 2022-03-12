@@ -739,7 +739,7 @@ void skin_find_key(int x, int y, bool cshift, int *skey, int *ckey) {
             && x < display_loc.x + 131 * display_scale_x
             && y >= display_loc.y + 9 * display_scale_y
             && y < display_loc.y + 16 * display_scale_y) {
-        int softkey = (x - display_loc.x) / (22 * display_scale_x) + 1;
+        int softkey = (int) ((x - display_loc.x) / (22 * display_scale_x) + 1);
         *skey = -1 - softkey;
         *ckey = softkey;
         return;
