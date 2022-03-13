@@ -516,12 +516,12 @@ void skin_load(wchar_t *skinname, const wchar_t *basedir, long *width, long *hei
     /****************************/
 
     if (disp_bits == NULL) {
-        // Allocating a bitmap with one pixel of extra room around the edges;
+        // Allocating a bitmap with two pixels of extra room around the edges;
         // this is to avoid sharp lines when blurriness bleeds across the edge.
-        disp_bytesperline = (((131 + 2) + 31) >> 3) & ~3;
-        size = disp_bytesperline * (16 + 2);
+        disp_bytesperline = (((131 + 4) + 31) >> 3) & ~3;
+        size = disp_bytesperline * (16 + 4);
         disp_bits = (unsigned char *) malloc(size);
-        disp_bitmap = new Gdiplus::Bitmap(131 + 2, 16 + 2, disp_bytesperline, PixelFormat1bppIndexed, disp_bits);
+        disp_bitmap = new Gdiplus::Bitmap(131 + 4, 16 + 4, disp_bytesperline, PixelFormat1bppIndexed, disp_bits);
         memset(disp_bits, 0, size);
     }
     struct {
@@ -812,8 +812,8 @@ void skin_repaint_key(HDC hdc, HDC memdc, int key, int state) {
             // in that state. But, just staying on the safe side.
             return;
         key = -1 - key;
-        int vo = 16 - 6;
-        int ho = (key - 1) * 22 + 1;
+        int vo = 16 - 5;
+        int ho = (key - 1) * 22 + 2;
         for (int i = 0; i < 2; i++) {
             if (state) {
                 for (int v = 0; v < 7; v++)
@@ -858,9 +858,9 @@ void skin_display_blitter(HDC hdc, const char *bits, int bytesperline, int x, in
         for (h = x; h < x + width; h++) {
             int pixel = (bits[v * bytesperline + (h >> 3)] & (1 << (h & 7))) != 0;
             if (pixel)
-                disp_bits[(v + 1) * disp_bytesperline + ((h + 1) >> 3)] |= 128 >> ((h + 1) & 7);
+                disp_bits[(v + 2) * disp_bytesperline + ((h + 2) >> 3)] |= 128 >> ((h + 2) & 7);
             else
-                disp_bits[(v + 1) * disp_bytesperline + ((h + 1) >> 3)] &= ~(128 >> ((h + 1) & 7));
+                disp_bits[(v + 2) * disp_bytesperline + ((h + 2) >> 3)] &= ~(128 >> ((h + 2) & 7));
         }
     
     skin_repaint_display(hdc);
@@ -875,8 +875,9 @@ void skin_repaint_display(HDC hdc) {
     if (display_scale_int)
         g.SetInterpolationMode(InterpolationModeNearestNeighbor);
     else
-        g.SetInterpolationMode(InterpolationModeBilinear);
-    g.DrawImage(disp_bitmap, -1, -1, 131 + 2, 16 + 2);
+        g.SetInterpolationMode(InterpolationModeBicubic);
+    g.SetClip(Rect(-1, -1, 131 + 2, 16 + 2));
+    g.DrawImage(disp_bitmap, -2, -2, 131 + 4, 16 + 4);
 }
 
 void skin_display_set_enabled(bool enable) {
