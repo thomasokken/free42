@@ -92,7 +92,7 @@ static int skin_y;
 static int skin_type;
 static const SkinColor *skin_cmap;
 
-static GdkPixbuf *disp_image = NULL;
+static char disp_bits[272];
 
 static vector<string> skin_labels;
 
@@ -552,18 +552,11 @@ void skin_load(int *width, int *height) {
     *width = skin.width;
     *height = skin.height;
 
-    /********************************/
-    /* (Re)build the display bitmap */
-    /********************************/
+    /*********************************/
+    /* Initialize the display bitmap */
+    /*********************************/
 
-    if (disp_image != NULL)
-        g_object_unref(disp_image);
-    disp_image = gdk_pixbuf_new(GDK_COLORSPACE_RGB, FALSE, 8,
-                                131 + 4,
-                                16 + 4);
-    guint32 p = (display_bg.r << 24)
-                    | (display_bg.g << 16) | (display_bg.b << 8);
-    gdk_pixbuf_fill(disp_image, p);
+    memset(disp_bits, 0, 272);
 }
 
 int skin_init_image(int type, int ncolors, const SkinColor *colors,
@@ -750,60 +743,22 @@ void skin_repaint_key(cairo_t *cr, int key, bool state) {
         int height = 7;
 
         cairo_save(cr);
-        cairo_translate(cr, display_loc.x + x * display_scale_x, display_loc.y + y * display_scale_y);
+        cairo_translate(cr, display_loc.x, display_loc.y);
         cairo_scale(cr, display_scale_x, display_scale_y);
-        cairo_rectangle(cr, 0, 0, width, height);
+        cairo_rectangle(cr, x, y, width, height);
         cairo_clip(cr);
+        cairo_set_source_rgb(cr, display_bg.r / 255.0, display_bg.g / 255.0, display_bg.b / 255.0);
+        cairo_paint(cr);
+        cairo_set_source_rgb(cr, display_fg.r / 255.0, display_fg.g / 255.0, display_fg.b / 255.0);
 
-        if (state) {
-            // Construct a temporary pixbuf, create the inverted version of
-            // the affected screen rectangle there, and blit it
-            GdkPixbuf *tmpbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, FALSE, 8,
-                                               width, height);
-            int s_bpl = gdk_pixbuf_get_rowstride(disp_image);
-            int d_bpl = gdk_pixbuf_get_rowstride(tmpbuf);
-            guchar *s1 = gdk_pixbuf_get_pixels(disp_image) + (x + 2) * 3 + s_bpl * (y + 2);
-            guchar *d1 = gdk_pixbuf_get_pixels(tmpbuf);
-            for (int v = 0; v < height; v++) {
-                guchar *src = s1;
-                guchar *dst = d1;
-                for (int h = 0; h < width; h++) {
-                    unsigned char r = *src++;
-                    unsigned char g = *src++;
-                    unsigned char b = *src++;
-                    if (r == display_bg.r && g == display_bg.g && b == display_bg.b) {
-                        *dst++ = display_fg.r;
-                        *dst++ = display_fg.g;
-                        *dst++ = display_fg.b;
-                    } else {
-                        *dst++ = display_bg.r;
-                        *dst++ = display_bg.g;
-                        *dst++ = display_bg.b;
-                    }
+        for (int v = y; v < y + height; v++)
+            for (int h = x; h < x + width; h++)
+                if (((disp_bits[v * 17 + (h >> 3)] & (1 << (h & 7))) != 0) != state) {
+                    cairo_rectangle(cr, h, v, 1, 1);
+                    cairo_fill(cr);
                 }
-                s1 += s_bpl;
-                d1 += d_bpl;
-            }
-            gdk_cairo_set_source_pixbuf(cr, tmpbuf, 0, 0);
-            if (display_scale_int)
-                cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_NEAREST);
-            else
-                cairo_set_antialias(cr, CAIRO_ANTIALIAS_BEST);
-            cairo_paint(cr);
-            cairo_restore(cr);
-            g_object_unref(tmpbuf);
-        } else {
-            // Repaint the screen
-            cairo_set_source_rgb(cr, display_bg.r / 255.0, display_bg.g / 255.0, display_bg.b / 255.0);
-            cairo_paint(cr);
-            gdk_cairo_set_source_pixbuf(cr, disp_image, -x - 2, -y - 2);
-            if (display_scale_int)
-                cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_NEAREST);
-            else
-                cairo_set_antialias(cr, CAIRO_ANTIALIAS_BEST);
-            cairo_paint(cr);
-            cairo_restore(cr);
-        }
+
+        cairo_restore(cr);
         return;
     }
 
@@ -854,22 +809,13 @@ void skin_invalidate_key(GdkWindow *win, int key) {
 
 void skin_display_invalidater(GdkWindow *win, const char *bits, int bytesperline,
                                         int x, int y, int width, int height) {
-    guchar *pix = gdk_pixbuf_get_pixels(disp_image);
-    int disp_bpl = gdk_pixbuf_get_rowstride(disp_image);
-    pix += 2 * disp_bpl + 6;
-
     for (int v = y; v < y + height; v++)
-        for (int h = x; h < x + width; h++) {
-            SkinColor c;
+        for (int h = x; h < x + width; h++)
             if ((bits[v * bytesperline + (h >> 3)] & (1 << (h & 7))) != 0)
-                c = display_fg;
+                disp_bits[v * 17 + (h >> 3)] |= 1 << (h & 7);
             else
-                c = display_bg;
-            guchar *p = pix + disp_bpl * v + h * 3;
-            p[0] = c.r;
-            p[1] = c.g;
-            p[2] = c.b;
-        }
+                disp_bits[v * 17 + (h >> 3)] &= ~(1 << (h & 7));
+
     if (win != NULL) {
         if (allow_paint && display_enabled) {
             GdkRectangle clip;
@@ -898,12 +844,15 @@ void skin_repaint_display(cairo_t *cr) {
     cairo_clip(cr);
     cairo_set_source_rgb(cr, display_bg.r / 255.0, display_bg.g / 255.0, display_bg.b / 255.0);
     cairo_paint(cr);
-    gdk_cairo_set_source_pixbuf(cr, disp_image, -2, -2);
-    if (display_scale_int)
-        cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_NEAREST);
-    else
-        cairo_set_antialias(cr, CAIRO_ANTIALIAS_BEST);
-    cairo_paint(cr);
+    cairo_set_source_rgb(cr, display_fg.r / 255.0, display_fg.g / 255.0, display_fg.b / 255.0);
+    for (int v = 0; v < 16; v++) {
+        for (int h = 0; h < 131; h++) {
+            if ((disp_bits[v * 17 + (h >> 3)] & (1 << (h & 7))) != 0) {
+                cairo_rectangle(cr, h, v, 1, 1);
+                cairo_fill(cr);
+            }
+        }
+    }
     cairo_restore(cr);
 }
 
