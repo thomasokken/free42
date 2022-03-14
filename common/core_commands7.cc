@@ -1177,8 +1177,8 @@ int docmd_dupn(arg_struct *arg) {
                 }
                 free_vartype(stack[REG_Z]);
                 free_vartype(stack[REG_T]);
-                stack[REG_Z] = v1;
-                stack[REG_T] = v0;
+                stack[REG_Z] = v0;
+                stack[REG_T] = v1;
                 break;
             default:
                 return ERR_STACK_DEPTH_ERROR;
