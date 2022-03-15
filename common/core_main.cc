@@ -149,10 +149,13 @@ void core_save_state(const char *state_file_name) {
 
     gfile = my_fopen(state_file_name_crash, "wb");
     if (gfile != NULL) {
-        save_state();
+        bool success;
+        save_state(&success);
         fclose(gfile);
-        my_remove(state_file_name);
-        my_rename(state_file_name_crash, state_file_name);
+        if (success) {
+            my_remove(state_file_name);
+            my_rename(state_file_name_crash, state_file_name);
+        }
     }
 }
 

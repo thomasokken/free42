@@ -572,7 +572,7 @@ bool read_arg(arg_struct *arg, bool old);
 bool write_arg(const arg_struct *arg);
 
 bool load_state(int4 version, bool *clear, bool *too_new);
-void save_state();
+void save_state(bool *success);
 // Reason:
 // 0 = Memory Clear
 // 1 = State File Corrupt

@@ -4555,7 +4555,8 @@ bool load_state(int4 ver_p, bool *clear, bool *too_new) {
     return load_state2(clear, too_new);
 }
 
-void save_state() {
+void save_state(bool *success) {
+    *success = false;
     if (!write_int4(FREE42_MAGIC) || !write_int4(FREE42_VERSION))
         return;
 
@@ -4652,6 +4653,7 @@ void save_state() {
 
     if (!write_int4(FREE42_MAGIC)) return;
     if (!write_int4(FREE42_VERSION)) return;
+    *success = true;
 }
 
 // Reason:
