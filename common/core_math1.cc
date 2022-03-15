@@ -354,19 +354,18 @@ static int find_shadow(const char *name, int length) {
 }
 
 void put_shadow(const char *name, int length, phloat value) {
-    int i = find_shadow(name, length);
-    if (i == -1) {
-        for (i = 0; i < NUM_SHADOWS; i++)
-            if (solve.shadow_length[i] == 0)
-                goto do_insert;
-        /* No empty slots available. Remove slot 0 (the oldest) and
-         * move all subsequent ones down, freeing up slot NUM_SHADOWS - 1
-         */
-        for (i = 0; i < NUM_SHADOWS - 1; i++) {
-            string_copy(solve.shadow_name[i], &solve.shadow_length[i],
-                        solve.shadow_name[i + 1], solve.shadow_length[i + 1]);
-            solve.shadow_value[i] = solve.shadow_value[i + 1];
-        }
+    remove_shadow(name, length);
+    int i;
+    for (i = 0; i < NUM_SHADOWS; i++)
+        if (solve.shadow_length[i] == 0)
+            goto do_insert;
+    /* No empty slots available. Remove slot 0 (the oldest) and
+     * move all subsequent ones down, freeing up slot NUM_SHADOWS - 1
+     */
+    for (i = 0; i < NUM_SHADOWS - 1; i++) {
+        string_copy(solve.shadow_name[i], &solve.shadow_length[i],
+                    solve.shadow_name[i + 1], solve.shadow_length[i + 1]);
+        solve.shadow_value[i] = solve.shadow_value[i + 1];
     }
     do_insert:
     string_copy(solve.shadow_name[i], &solve.shadow_length[i], name, length);
@@ -383,13 +382,13 @@ int get_shadow(const char *name, int length, phloat *value) {
 
 void remove_shadow(const char *name, int length) {
     int i = find_shadow(name, length);
-    int j;
     if (i == -1)
         return;
-    for (j = i; j < NUM_SHADOWS - 1; j++) {
+    while (i < NUM_SHADOWS - 1) {
         string_copy(solve.shadow_name[i], &solve.shadow_length[i],
                     solve.shadow_name[i + 1], solve.shadow_length[i + 1]);
         solve.shadow_value[i] = solve.shadow_value[i + 1];
+        i++;
     }
     solve.shadow_length[NUM_SHADOWS - 1] = 0;
 }
