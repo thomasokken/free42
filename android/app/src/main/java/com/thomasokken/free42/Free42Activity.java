@@ -102,7 +102,7 @@ public class Free42Activity extends Activity {
 
     public static final String[] builtinSkinNames = new String[] { "Standard", "Landscape" };
     
-    private static final int SHELL_VERSION = 18;
+    private static final int SHELL_VERSION = 19;
     
     private static final int PRINT_BACKGROUND_COLOR = Color.LTGRAY;
     
@@ -246,6 +246,8 @@ public class Free42Activity extends Activity {
     ///////////////////////////////////////////////////////
     ///// Top-level code to interface with Android UI /////
     ///////////////////////////////////////////////////////
+
+    private boolean show_ad = false;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -447,6 +449,11 @@ public class Free42Activity extends Activity {
         if (impTemp != null) {
             doImport2(impTemp);
             new File(impTemp).delete();
+        }
+
+        if (show_ad) {
+            doAbout();
+            show_ad = false;
         }
     }
     
@@ -1779,6 +1786,7 @@ public class Free42Activity extends Activity {
                     cs.allow_big_stack = state_read_boolean();
                 putCoreSettings(cs);
             }
+            show_ad = shell_version < 19;
             init_shell_state(shell_version);
         } catch (IllegalArgumentException e) {
             return false;
@@ -1856,7 +1864,9 @@ public class Free42Activity extends Activity {
             putCoreSettings(cs);
             // fall through
         case 18:
-            // current version (SHELL_VERSION = 18),
+            // fall through
+        case 19:
+            // current version (SHELL_VERSION = 19),
             // so nothing to do here since everything
             // was initialized from the state file.
             ;
