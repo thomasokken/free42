@@ -17,7 +17,7 @@
 
 #import <UIKit/UIKit.h>
 
-#define SHELL_VERSION 9
+#define SHELL_VERSION 10
 #define FILENAMELEN 1024
 
 struct state_type {
