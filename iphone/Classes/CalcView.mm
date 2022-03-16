@@ -776,7 +776,9 @@ static void init_shell_state(int version) {
             core_settings.allow_big_stack = false;
             /* fall through */
         case 9:
-            /* current version (SHELL_VERSION = 9),
+            /* fall through */
+        case 10:
+            /* current version (SHELL_VERSION = 10),
              * so nothing to do here since everything
              * was initialized from the state file.
              */
