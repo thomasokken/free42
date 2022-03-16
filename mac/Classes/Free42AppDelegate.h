@@ -19,7 +19,7 @@
 #import <WebKit/WebKit.h>
 
 #define FILENAMELEN 256
-#define SHELL_VERSION 3
+#define SHELL_VERSION 4
 
 struct state_type {
     int printerToTxtFile;

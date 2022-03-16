@@ -97,7 +97,7 @@ static int gif_lines;
 static void show_message(const char *title, const char *message);
 static void read_key_map(const char *keymapfilename);
 static void init_shell_state(int4 ver);
-static int read_shell_state(int4 *ver);
+static int read_shell_state(int4 *ver, bool *show_ad);
 static int write_shell_state();
 static void shell_keydown();
 static void shell_keyup();
@@ -278,12 +278,13 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
     int init_mode;
     char core_state_file_name[FILENAMELEN];
     int core_state_file_offset;
+    bool show_ad = false;
     if (statefilename[0] != 0)
         statefile = fopen(statefilename, "r");
     else
         statefile = NULL;
     if (statefile != NULL) {
-        if (read_shell_state(&version)) {
+        if (read_shell_state(&version, &show_ad)) {
             init_mode = 1;
         } else {
             init_shell_state(-1);
@@ -302,7 +303,7 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
             core_state_file_offset = ftell(statefile);
         }
         fclose(statefile);
-    }  else {
+    } else {
         // The shell state was missing or corrupt, but there
         // may still be a valid core state...
         snprintf(core_state_file_name, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreName);
@@ -360,6 +361,8 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
     
     CFRunLoopTimerRef lowBatTimer = CFRunLoopTimerCreate(NULL, CFAbsoluteTimeGetCurrent(), 60, 0, 0, low_battery_checker, NULL);
     CFRunLoopAddTimer(CFRunLoopGetCurrent(), lowBatTimer, kCFRunLoopCommonModes);
+    if (show_ad)
+        [self showAbout:nil];
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
@@ -1783,7 +1786,9 @@ static void init_shell_state(int4 version) {
             core_settings.allow_big_stack = false;
             /* fall through */
         case 3:
-            /* current version (SHELL_VERSION = 3),
+            /* fall through */
+        case 4:
+            /* current version (SHELL_VERSION = 4),
              * so nothing to do here since everything
              * was initialized from the state file.
              */
@@ -1791,7 +1796,7 @@ static void init_shell_state(int4 version) {
     }
 }
 
-static int read_shell_state(int4 *ver) {
+static int read_shell_state(int4 *ver, bool *show_ad) {
     int4 magic;
     int4 version;
     int4 state_size;
@@ -1834,6 +1839,7 @@ static int read_shell_state(int4 *ver) {
     
     init_shell_state(state_version);
     *ver = version;
+    *show_ad = state_version < 4;
     return 1;
 }
 
