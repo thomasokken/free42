@@ -112,7 +112,7 @@ static int keymap_length = 0;
 static keymap_entry *keymap = NULL;
 
 
-#define SHELL_VERSION 11
+#define SHELL_VERSION 12
 
 state_type state;
 static int placement_saved = 0;
@@ -178,7 +178,7 @@ static void printout_length_changed();
 
 static void read_key_map(const wchar_t *keymapfilename);
 static void init_shell_state(int4 version);
-static int read_shell_state(int4 *version);
+static int read_shell_state(int4 *version, bool *show_ad);
 static int write_shell_state();
 static void txt_writer(const char *text, int length);
 static void txt_newliner();
@@ -379,10 +379,11 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
     int4 version;
     wchar_t core_state_file_name[FILENAMELEN];
     int core_state_file_offset;
+    bool show_ad = false;
 
     statefile = _wfopen(statefilename, L"rb");
     if (statefile != NULL) {
-        if (read_shell_state(&version))
+        if (read_shell_state(&version, &show_ad))
             init_mode = 1;
         else {
             init_shell_state(-1);
@@ -455,6 +456,8 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
         running = true;
     SetTimer(NULL, 0, 60000, battery_checker);
 
+    if (show_ad)
+        DialogBoxW(hInst, (LPCWSTR)IDD_ABOUTBOX, hMainWnd, (DLGPROC)About);
     return TRUE;
 }
 
@@ -2621,7 +2624,9 @@ static void init_shell_state(int4 version) {
             core_settings.allow_big_stack = false;
             // fall through
         case 11:
-            // current version (SHELL_VERSION = 11),
+            // fall through
+        case 12:
+            // current version (SHELL_VERSION = 12),
             // so nothing to do here since everything
             // was initialized from the state file.
             ;
@@ -2650,7 +2655,7 @@ struct old_state_type {
     bool auto_repeat;
 };
 
-static int read_shell_state(int4 *ver) {
+static int read_shell_state(int4 *ver, bool *show_ad) {
     int4 magic;
     int4 version;
     int4 state_size;
@@ -2711,6 +2716,7 @@ static int read_shell_state(int4 *ver) {
         // Initialize the parts of the shell state
         // that were NOT read from the state file
         init_shell_state(state_version);
+        *show_ad = state_version < 12;
     } else
         init_shell_state(-1);
 
