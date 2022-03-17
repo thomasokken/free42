@@ -54,7 +54,6 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;FREE42_FPTEST;_WINDOWS;WINDOWS;_CRT_SECURE_NO_WARNINGS;BCD_MATH;DECIMAL_CALL_BY_REFERENCE=1;DECIMAL_GLOBAL_ROUNDING=1;DECIMAL_GLOBAL_ROUNDING_ACCESS_FUNCTIONS=1;DECIMAL_GLOBAL_EXCEPTION_FLAGS=1;DECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeader />
@@ -68,6 +67,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
