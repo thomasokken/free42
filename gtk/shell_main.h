@@ -25,7 +25,7 @@
 extern GtkWidget *calc_widget;
 extern bool allow_paint;
 
-#define SHELL_VERSION 8
+#define SHELL_VERSION 9
 
 struct state_type {
     int extras;

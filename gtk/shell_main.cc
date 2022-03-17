@@ -138,7 +138,7 @@ static guint ann_print_timeout_id = 0;
 
 static void read_key_map(const char *keymapfilename);
 static void init_shell_state(int4 version);
-static int read_shell_state(int4 *version);
+static int read_shell_state(int4 *version, bool *show_ad);
 static int write_shell_state();
 static void int_term_handler(int sig);
 static gboolean gt_signal_handler(GIOChannel *source, GIOCondition condition,
@@ -504,10 +504,11 @@ static void activate(GtkApplication *theApp, gpointer userData) {
     int init_mode;
     char core_state_file_name[FILENAMELEN];
     int core_state_file_offset;
+    bool show_ad = false;
 
     statefile = fopen(statefilename, "r");
     if (statefile != NULL) {
-        if (read_shell_state(&version)) {
+        if (read_shell_state(&version, &show_ad)) {
             if (skin_arg != NULL) {
                 strncpy(state.skinName, skin_arg, FILENAMELEN - 1);
                 state.skinName[FILENAMELEN - 1] = 0;
@@ -530,7 +531,7 @@ static void activate(GtkApplication *theApp, gpointer userData) {
             core_state_file_offset = ftell(statefile);
         }
         fclose(statefile);
-    }  else {
+    } else {
         // The shell state was missing or corrupt, but there
         // may still be a valid core state...
         snprintf(core_state_file_name, FILENAMELEN, "%s/%s.f42", free42dirname, state.coreName);
@@ -788,6 +789,9 @@ static void activate(GtkApplication *theApp, gpointer userData) {
         sigaction(SIGINT, &act, NULL);
         sigaction(SIGTERM, &act, NULL);
     }
+
+    if (show_ad)
+        aboutCB();
 }
 
 keymap_entry *parse_keymap_entry(char *line, int lineno) {
@@ -957,7 +961,9 @@ static void init_shell_state(int4 version) {
             core_settings.allow_big_stack = false;
             /* fall through */
         case 8:
-            /* current version (SHELL_VERSION = 8),
+            /* fall through */
+        case 9:
+            /* current version (SHELL_VERSION = 9),
              * so nothing to do here since everything
              * was initialized from the state file.
              */
@@ -965,7 +971,7 @@ static void init_shell_state(int4 version) {
     }
 }
 
-static int read_shell_state(int4 *ver) {
+static int read_shell_state(int4 *ver, bool *show_ad) {
     int4 magic;
     int4 version;
     int4 state_size;
@@ -1006,6 +1012,7 @@ static int read_shell_state(int4 *ver) {
 
     init_shell_state(state_version);
     *ver = version;
+    *show_ad = state_version < 9;
     return 1;
 }
 
