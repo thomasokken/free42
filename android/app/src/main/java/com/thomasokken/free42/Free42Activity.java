@@ -85,6 +85,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
@@ -1125,8 +1126,24 @@ public class Free42Activity extends Activity {
                 lp.addRule(RelativeLayout.BELOW, label3.getId());
                 addView(label4, lp);
 
+                ImageButton plus42B = new ImageButton(context);
+                plus42B.setId(6);
+                plus42B.setImageResource(R.drawable.plus42_ad);
+                plus42B.setBackgroundResource(0);
+                plus42B.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.thomasokken.plus42"));
+                        startActivity(browserIntent);
+                    }
+                });
+                lp = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+                lp.addRule(RelativeLayout.CENTER_HORIZONTAL);
+                lp.addRule(RelativeLayout.BELOW, label4.getId());
+                addView(plus42B, lp);
+
                 Button okB = new Button(context);
-                okB.setId(6);
+                okB.setId(7);
                 okB.setText("   OK   ");
                 okB.setOnClickListener(new OnClickListener() {
                     public void onClick(View view) {
@@ -1134,7 +1151,7 @@ public class Free42Activity extends Activity {
                     }
                 });
                 lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-                lp.addRule(RelativeLayout.BELOW, label4.getId());
+                lp.addRule(RelativeLayout.BELOW, plus42B.getId());
                 lp.addRule(RelativeLayout.CENTER_HORIZONTAL);
                 addView(okB, lp);
 
