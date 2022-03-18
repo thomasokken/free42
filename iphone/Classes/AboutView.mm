@@ -25,6 +25,7 @@
 @synthesize doneButton;
 @synthesize versionLabel;
 @synthesize copyrightLabel;
+@synthesize plus42_ad;
 
 - (id)initWithFrame:(CGRect)frame {
     if (self = [super initWithFrame:frame]) {
@@ -37,6 +38,15 @@
     [super awakeFromNib];
     [versionLabel setText:[NSString stringWithFormat:@"Free42 %s", [Free42AppDelegate getVersion]]];
     [copyrightLabel setText:@"© 2004-2022 Thomas Okken"];
+    UITapGestureRecognizer *singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(bannerTapped:)];
+    singleTap.numberOfTapsRequired = 1;
+    singleTap.numberOfTouchesRequired = 1;
+    [plus42_ad addGestureRecognizer:singleTap];
+    [plus42_ad setUserInteractionEnabled:YES];
+}
+
+- (void)bannerTapped:(UIGestureRecognizer *)gestureRecognizer {
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"itms-apps://itunes.apple.com/app/apple-store/id337692629?mt=8"]];
 }
 
 - (void)drawRect:(CGRect)rect {

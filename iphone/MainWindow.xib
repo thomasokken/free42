@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="20037" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -52,25 +52,25 @@
                     </items>
                 </navigationBar>
                 <imageView opaque="NO" clearsContextBeforeDrawing="NO" userInteractionEnabled="NO" contentMode="center" fixedFrame="YES" image="about-icon.png" translatesAutoresizingMaskIntoConstraints="NO" id="106">
-                    <rect key="frame" x="20" y="70" width="57" height="57"/>
+                    <rect key="frame" x="20" y="63" width="57" height="57"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 </imageView>
                 <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" fixedFrame="YES" text="Free42" lineBreakMode="tailTruncation" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="107">
-                    <rect key="frame" x="20" y="135" width="280" height="21"/>
+                    <rect key="frame" x="20" y="128" width="280" height="21"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                     <nil key="textColor"/>
                     <nil key="highlightedColor"/>
                 </label>
                 <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" fixedFrame="YES" text="© 2004-2084 Thomas Okken" lineBreakMode="tailTruncation" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="108">
-                    <rect key="frame" x="20" y="179" width="280" height="21"/>
+                    <rect key="frame" x="20" y="156" width="280" height="21"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                     <nil key="textColor"/>
                     <nil key="highlightedColor"/>
                 </label>
                 <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="224" customClass="URLButton">
-                    <rect key="frame" x="20" y="208" width="280" height="21"/>
+                    <rect key="frame" x="20" y="185" width="280" height="21"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                     <state key="normal" title="https://thomasokken.com/free42/">
@@ -82,7 +82,7 @@
                     </state>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="225" customClass="URLButton">
-                    <rect key="frame" x="20" y="233" width="280" height="21"/>
+                    <rect key="frame" x="20" y="210" width="280" height="21"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
                     <state key="normal" title="https://thomasokken.com/free42/#doc">
@@ -93,6 +93,10 @@
                         <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     </state>
                 </button>
+                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" fixedFrame="YES" image="plus42-ad.png" translatesAutoresizingMaskIntoConstraints="NO" id="NLb-6U-LZC">
+                    <rect key="frame" x="16" y="239" width="279" height="210"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                </imageView>
             </subviews>
             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
             <nil key="simulatedStatusBarMetrics"/>
@@ -100,9 +104,10 @@
             <connections>
                 <outlet property="copyrightLabel" destination="108" id="112"/>
                 <outlet property="doneButton" destination="91" id="96"/>
+                <outlet property="plus42_ad" destination="NLb-6U-LZC" id="aTO-nD-gkD"/>
                 <outlet property="versionLabel" destination="107" id="111"/>
             </connections>
-            <point key="canvasLocation" x="2678" y="485"/>
+            <point key="canvasLocation" x="2676.8000000000002" y="484.85757121439286"/>
         </view>
         <view contentMode="scaleToFill" id="C2c-Vb-laU" customClass="DeleteSkinView">
             <rect key="frame" x="0.0" y="0.0" width="320" height="460"/>
@@ -879,6 +884,7 @@
     </objects>
     <resources>
         <image name="about-icon.png" width="57" height="57"/>
+        <image name="plus42-ad.png" width="320" height="240"/>
         <systemColor name="darkTextColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

@@ -78,6 +78,8 @@
 		E98DD7700F8C1A210089D9FA /* tone8.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD7650F8C1A210089D9FA /* tone8.wav */; };
 		E98DD7710F8C1A210089D9FA /* tone9.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD7660F8C1A210089D9FA /* tone9.wav */; };
 		E98FA4840F913E2900DED348 /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = E98FA4830F913E2900DED348 /* icon.png */; };
+		E9926C1227E48B31006D87F7 /* plus42-ad.png in Resources */ = {isa = PBXBuildFile; fileRef = E9926C1127E48B31006D87F7 /* plus42-ad.png */; };
+		E9926C1327E48B31006D87F7 /* plus42-ad.png in Resources */ = {isa = PBXBuildFile; fileRef = E9926C1127E48B31006D87F7 /* plus42-ad.png */; };
 		E997E4AB1CF0FAFE009939CE /* readtest.c in Sources */ = {isa = PBXBuildFile; fileRef = E997E4AA1CF0FAFE009939CE /* readtest.c */; settings = {COMPILER_FLAGS = "-D__intptr_t_defined -DLINUX"; }; };
 		E997E4AD1CF0FB12009939CE /* readtest_lines.cc in Sources */ = {isa = PBXBuildFile; fileRef = E997E4AC1CF0FB12009939CE /* readtest_lines.cc */; };
 		E997E4B01CF11ED4009939CE /* RootViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = E997E4AF1CF11ED4009939CE /* RootViewController.mm */; };
@@ -300,6 +302,7 @@
 		E98DD7650F8C1A210089D9FA /* tone8.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = tone8.wav; sourceTree = "<group>"; };
 		E98DD7660F8C1A210089D9FA /* tone9.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = tone9.wav; sourceTree = "<group>"; };
 		E98FA4830F913E2900DED348 /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
+		E9926C1127E48B31006D87F7 /* plus42-ad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "plus42-ad.png"; sourceTree = "<group>"; };
 		E997E4AA1CF0FAFE009939CE /* readtest.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = readtest.c; path = IntelRDFPMathLib20U1/TESTS/readtest.c; sourceTree = "<group>"; };
 		E997E4AC1CF0FB12009939CE /* readtest_lines.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = readtest_lines.cc; sourceTree = "<group>"; };
 		E997E4AE1CF11ED4009939CE /* RootViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootViewController.h; sourceTree = "<group>"; };
@@ -466,6 +469,7 @@
 				E94DE6C51011E9AE005E6B19 /* about-icon.png */,
 				E9A1EE381FCB8F5D0047398C /* about-icon@2x.png */,
 				E98FA4830F913E2900DED348 /* icon.png */,
+				E9926C1127E48B31006D87F7 /* plus42-ad.png */,
 				8D1107310486CEB800E47090 /* Info.plist */,
 				E9BB9E9525682C7100708152 /* Launch Screen.storyboard */,
 				28AD733E0D9D9553002E5188 /* MainWindow.xib */,
@@ -679,6 +683,7 @@
 				E98FA4840F913E2900DED348 /* icon.png in Resources */,
 				E9C255DD1996B9C1007634C9 /* Ehrling42sl.layout in Resources */,
 				E9031C8F0FF68FB10023F9EC /* builtin_skins.txt in Resources */,
+				E9926C1227E48B31006D87F7 /* plus42-ad.png in Resources */,
 				E9AE2564233C1CD0005072BA /* click2.wav in Resources */,
 				E9AE2565233C1CD0005072BA /* click1.wav in Resources */,
 				E91B5369233C569F00E30DE8 /* click8.wav in Resources */,
@@ -722,6 +727,7 @@
 				E9FC40CB260707AF00E52296 /* icon.png in Resources */,
 				E9FC40CC260707AF00E52296 /* Ehrling42sl.layout in Resources */,
 				E9FC40CD260707AF00E52296 /* builtin_skins.txt in Resources */,
+				E9926C1327E48B31006D87F7 /* plus42-ad.png in Resources */,
 				E9FC40CE260707AF00E52296 /* click2.wav in Resources */,
 				E9FC40CF260707AF00E52296 /* click1.wav in Resources */,
 				E9FC40D0260707AF00E52296 /* click8.wav in Resources */,
