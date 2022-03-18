@@ -39,6 +39,7 @@
 #include "core_display.h"
 #include "icon-128x128.xpm"
 #include "icon-48x48.xpm"
+#include "plus42-ad.xpm"
 
 #ifndef _POSIX_HOST_NAME_MAX
 #define _POSIX_HOST_NAME_MAX 255
@@ -105,6 +106,7 @@ static GtkWidget *print_widget;
 static GtkAdjustment *print_adj;
 static GdkPixbuf *icon_128;
 static GdkPixbuf *icon_48;
+static GdkPixbuf *plus42_ad;
 
 static int ckey = 0;
 static int skey;
@@ -561,6 +563,7 @@ static void activate(GtkApplication *theApp, gpointer userData) {
 
     icon_128 = gdk_pixbuf_new_from_xpm_data((const char **) icon_128_xpm);
     icon_48 = gdk_pixbuf_new_from_xpm_data((const char **) icon_48_xpm);
+    plus42_ad = gdk_pixbuf_new_from_xpm_data((const char **) plus42_ad_xpm);
 
     gtk_window_set_icon(GTK_WINDOW(mainwindow), icon_128);
     gtk_window_set_title(GTK_WINDOW(mainwindow), TITLE);
@@ -2415,7 +2418,13 @@ static void aboutCB() {
         GtkWidget *forumbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
         gtk_box_pack_start(GTK_BOX(forumbox), forumlink, FALSE, FALSE, 0);
         gtk_box_pack_start(GTK_BOX(box2), forumbox, FALSE, FALSE, 0);
+        GtkWidget *adlink = gtk_link_button_new("https://thomasokken.com/plus42/");
+        GtkWidget *adbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+        gtk_box_pack_start(GTK_BOX(adbox), adlink, FALSE, FALSE, 0);
+        gtk_box_pack_start(GTK_BOX(box2), adbox, FALSE, FALSE, 0);
         gtk_box_pack_start(GTK_BOX(box), box2, FALSE, FALSE, 0);
+        GtkWidget *ad = gtk_image_new_from_pixbuf(plus42_ad);
+        gtk_box_pack_start(GTK_BOX(box), ad, FALSE, FALSE, 10);
         focus_ok_button(GTK_WINDOW(about), container);
         gtk_widget_show_all(GTK_WIDGET(about));
     } else {
