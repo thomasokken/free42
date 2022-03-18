@@ -46,7 +46,7 @@
 }
 
 - (void)bannerTapped:(UIGestureRecognizer *)gestureRecognizer {
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"itms-apps://itunes.apple.com/app/apple-store/id337692629?mt=8"]];
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"itms-apps://itunes.apple.com/app/apple-store/id1597963622?mt=8"]];
 }
 
 - (void)drawRect:(CGRect)rect {
