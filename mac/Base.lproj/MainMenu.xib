@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="17701" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="20037" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="17701"/>
-        <plugIn identifier="com.apple.WebKitIBPlugin" version="17701"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="20037"/>
+        <plugIn identifier="com.apple.WebKitIBPlugin" version="20037"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -330,7 +330,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <clipView key="contentView" id="uwR-uY-YBn">
                             <rect key="frame" x="1" y="1" width="358" height="598"/>
-                            <autoresizingMask key="autoresizingMask"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="505" customClass="PrintView">
                                     <rect key="frame" x="0.0" y="0.0" width="358" height="627"/>
@@ -358,19 +358,19 @@
         <window title="About Free42" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="508">
             <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="711" y="417" width="353" height="189"/>
+            <rect key="contentRect" x="711" y="417" width="616" height="280"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1366" height="743"/>
             <view key="contentView" id="509">
-                <rect key="frame" x="0.0" y="0.0" width="353" height="189"/>
+                <rect key="frame" x="0.0" y="0.0" width="616" height="280"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <imageView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="510">
-                        <rect key="frame" x="20" y="105" width="64" height="64"/>
+                        <rect key="frame" x="20" y="196" width="64" height="64"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="icon" id="511"/>
                     </imageView>
                     <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="512">
-                        <rect key="frame" x="89" y="105" width="137" height="17"/>
+                        <rect key="frame" x="89" y="196" width="137" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Free42" id="513">
                             <font key="font" metaFont="system"/>
@@ -379,7 +379,7 @@
                         </textFieldCell>
                     </textField>
                     <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="514">
-                        <rect key="frame" x="17" y="70" width="209" height="17"/>
+                        <rect key="frame" x="17" y="161" width="209" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="© 2004-2084 Thomas Okken" id="515">
                             <font key="font" metaFont="system"/>
@@ -388,7 +388,7 @@
                         </textFieldCell>
                     </textField>
                     <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="516" customClass="URLTextField">
-                        <rect key="frame" x="17" y="45" width="319" height="17"/>
+                        <rect key="frame" x="17" y="136" width="319" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="https://thomasokken.com/free42/" id="517">
                             <font key="font" metaFont="system"/>
@@ -397,7 +397,7 @@
                         </textFieldCell>
                     </textField>
                     <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="518" customClass="URLTextField">
-                        <rect key="frame" x="17" y="20" width="319" height="17"/>
+                        <rect key="frame" x="17" y="111" width="319" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="https://thomasokken.com/free42/#doc" id="519">
                             <font key="font" metaFont="system"/>
@@ -405,12 +405,23 @@
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
+                    <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="67y-C2-5mV">
+                        <rect key="frame" x="276" y="20" width="320" height="240"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="plus42-ad" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="Y7Z-8o-oJG">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="clickAd:" target="520" id="jeQ-nH-RX4"/>
+                        </connections>
+                    </button>
                 </subviews>
             </view>
             <connections>
                 <outlet property="delegate" destination="520" id="593"/>
             </connections>
-            <point key="canvasLocation" x="90" y="581"/>
+            <point key="canvasLocation" x="221" y="626"/>
         </window>
         <customObject id="520" customClass="Free42AppDelegate">
             <connections>
@@ -467,7 +478,7 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <clipView key="contentView" id="60P-f7-UKn">
                             <rect key="frame" x="1" y="1" width="238" height="133"/>
-                            <autoresizingMask key="autoresizingMask"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <tableView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnReordering="NO" columnResizing="NO" multipleSelection="NO" autosaveColumns="NO" typeSelect="NO" id="571">
                                     <rect key="frame" x="0.0" y="0.0" width="238" height="133"/>
@@ -915,8 +926,18 @@ Gw
             </connections>
             <point key="canvasLocation" x="1421" y="284"/>
         </window>
+        <button id="aPH-ri-FZv">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="240"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="plus42-ad" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="FAh-nx-NRZ">
+                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                <font key="font" metaFont="system"/>
+            </buttonCell>
+            <point key="canvasLocation" x="246" y="626"/>
+        </button>
     </objects>
     <resources>
         <image name="icon" width="512" height="512"/>
+        <image name="plus42-ad" width="320" height="240"/>
     </resources>
 </document>

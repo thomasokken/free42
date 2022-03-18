@@ -494,6 +494,12 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
     [NSApp runModalForWindow:aboutWindow];
 }
 
+- (IBAction) clickAd:(id)sender {
+    NSString *urlStr = @"https://thomasokken.com/plus42/";
+    NSURL *url = [NSURL URLWithString:urlStr];
+    [[NSWorkspace sharedWorkspace] openURL:url];
+}
+
 - (IBAction) showPreferences:(id)sender {
     [prefsSingularMatrix setState:core_settings.matrix_singularmatrix];
     [prefsMatrixOutOfRange setState:core_settings.matrix_outofrange];
