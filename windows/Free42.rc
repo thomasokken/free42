@@ -34,6 +34,8 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // remains consistent on all systems.
 IDI_FREE42              ICON    DISCARDABLE     "Free42.ICO"
 
+IDB_AD                  BITMAP  DISCARDABLE     "plus42-ad.bmp"
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Menu
@@ -111,7 +113,7 @@ END
 // Dialog
 //
 
-IDD_ABOUTBOX DIALOG DISCARDABLE  65499, 40, 225, 53
+IDD_ABOUTBOX DIALOG DISCARDABLE  65499, 40, 225, 205
 STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
 CAPTION "About Free42"
 FONT 8, "System"
@@ -124,6 +126,9 @@ BEGIN
     LTEXT           "https://thomasokken.com/free42/#doc",
                     IDC_FORUMLINK,31,37,191,8,SS_NOTIFY
     DEFPUSHBUTTON   "OK",IDOK,189,6,30,11,WS_GROUP
+    CONTROL         IDB_AD,IDC_STATIC,"Static",SS_BITMAP,31,57,320,240
+    LTEXT           "https://thomasokken.com/plus42/",
+                    IDC_PLUS42LINK,31,182,191,8,SS_NOTIFY
 END
 
 IDD_PREFERENCES DIALOG DISCARDABLE  65476, 36, 322, 148

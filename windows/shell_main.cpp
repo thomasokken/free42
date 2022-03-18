@@ -1162,6 +1162,10 @@ static LRESULT CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPa
                 GetDlgItemText(hDlg, id, buf, 255);
                 ShellExecute(NULL, "open", buf, NULL, NULL, SW_SHOWNORMAL);
             }
+            else if (id == IDC_PLUS42LINK)
+            {
+                ShellExecute(NULL, "open", "https://thomasokken.com/plus42/", NULL, NULL, SW_SHOWNORMAL);
+            }
             break;
     }
     return FALSE;
