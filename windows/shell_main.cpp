@@ -505,16 +505,25 @@ static void shell_keydown() {
                 }
                 skin_display_set_enabled(true);
                 HDC hdc = GetDC(hMainWnd);
-                HDC memdc = CreateCompatibleDC(hdc);
                 skin_repaint_display(hdc);
-                skin_repaint_annunciator(hdc, memdc, 1, ann_updown);
-                skin_repaint_annunciator(hdc, memdc, 2, ann_shift);
-                skin_repaint_annunciator(hdc, memdc, 3, ann_print);
-                skin_repaint_annunciator(hdc, memdc, 4, ann_run);
-                skin_repaint_annunciator(hdc, memdc, 5, ann_battery);
-                skin_repaint_annunciator(hdc, memdc, 6, ann_g);
-                skin_repaint_annunciator(hdc, memdc, 7, ann_rad);
+                /*
+                HDC memdc = CreateCompatibleDC(hdc);
+                if (ann_updown)
+                    skin_repaint_annunciator(hdc, memdc, 1);
+                if (ann_shift)
+                    skin_repaint_annunciator(hdc, memdc, 2);
+                if (ann_print)
+                    skin_repaint_annunciator(hdc, memdc, 3);
+                if (ann_run)
+                    skin_repaint_annunciator(hdc, memdc, 4);
+                if (ann_battery)
+                    skin_repaint_annunciator(hdc, memdc, 5);
+                if (ann_g)
+                    skin_repaint_annunciator(hdc, memdc, 6);
+                if (ann_rad)
+                    skin_repaint_annunciator(hdc, memdc, 7);
                 DeleteDC(memdc);
+                */
                 ReleaseDC(hMainWnd, hdc);
                 repeat = 0;
             }
@@ -655,13 +664,20 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
             HDC memdc = CreateCompatibleDC(hdc);
             skin_repaint(hdc, memdc);
             skin_repaint_display(hdc);
-            skin_repaint_annunciator(hdc, memdc, 1, ann_updown);
-            skin_repaint_annunciator(hdc, memdc, 2, ann_shift);
-            skin_repaint_annunciator(hdc, memdc, 3, ann_print);
-            skin_repaint_annunciator(hdc, memdc, 4, ann_run);
-            skin_repaint_annunciator(hdc, memdc, 5, ann_battery);
-            skin_repaint_annunciator(hdc, memdc, 6, ann_g);
-            skin_repaint_annunciator(hdc, memdc, 7, ann_rad);
+            if (ann_updown)
+                skin_repaint_annunciator(hdc, memdc, 1);
+            if (ann_shift)
+                skin_repaint_annunciator(hdc, memdc, 2);
+            if (ann_print)
+                skin_repaint_annunciator(hdc, memdc, 3);
+            if (ann_run)
+                skin_repaint_annunciator(hdc, memdc, 4);
+            if (ann_battery)
+                skin_repaint_annunciator(hdc, memdc, 5);
+            if (ann_g)
+                skin_repaint_annunciator(hdc, memdc, 6);
+            if (ann_rad)
+                skin_repaint_annunciator(hdc, memdc, 7);
             if (ckey != 0)
                 skin_repaint_key(hdc, memdc, skey, 1);
             DeleteDC(memdc);
@@ -2192,11 +2208,7 @@ static VOID CALLBACK ann_print_timeout(HWND hwnd, UINT uMsg, UINT idEvent, DWORD
     KillTimer(NULL, ann_print_timer);
     ann_print_timer = 0;
     ann_print = 0;
-    HDC hdc = GetDC(hMainWnd);
-    HDC memdc = CreateCompatibleDC(hdc);
-    skin_repaint_annunciator(hdc, memdc, 3, ann_print);
-    DeleteDC(memdc);
-    ReleaseDC(hMainWnd, hdc);
+    skin_update_annunciator(hMainWnd, 3);
 }
 
 /* shell_annunciators()
@@ -2209,16 +2221,13 @@ static VOID CALLBACK ann_print_timeout(HWND hwnd, UINT uMsg, UINT idEvent, DWORD
  * so the shell is expected to handle that one by itself.
  */
 void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
-    HDC hdc = GetDC(hMainWnd);
-    HDC memdc = CreateCompatibleDC(hdc);
-
     if (updn != -1 && ann_updown != updn) {
         ann_updown = updn;
-        skin_repaint_annunciator(hdc, memdc, 1, ann_updown);
+        skin_update_annunciator(hMainWnd, 1);
     }
     if (shf != -1 && ann_shift != shf) {
         ann_shift = shf;
-        skin_repaint_annunciator(hdc, memdc, 2, ann_shift);
+        skin_update_annunciator(hMainWnd, 2);
     }
     if (prt != -1) {
         if (ann_print_timer != 0) {
@@ -2228,26 +2237,23 @@ void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
         if (ann_print != prt)
             if (prt) {
                 ann_print = 1;
-                skin_repaint_annunciator(hdc, memdc, 3, ann_print);
+                skin_update_annunciator(hMainWnd, 3);
             } else {
                 ann_print_timer = SetTimer(NULL, 0, 1000, ann_print_timeout);
             }
     }
     if (run != -1 && ann_run != run) {
         ann_run = run;
-        skin_repaint_annunciator(hdc, memdc, 4, ann_run);
+        skin_update_annunciator(hMainWnd, 4);
     }
     if (g != -1 && ann_g != g) {
         ann_g = g;
-        skin_repaint_annunciator(hdc, memdc, 6, ann_g);
+        skin_update_annunciator(hMainWnd, 6);
     }
     if (rad != -1 && ann_rad != rad) {
         ann_rad = rad;
-        skin_repaint_annunciator(hdc, memdc, 7, ann_rad);
+        skin_update_annunciator(hMainWnd, 7);
     }
-
-    DeleteDC(memdc);
-    ReleaseDC(hMainWnd, hdc);
 }
 
 bool shell_wants_cpu() {
@@ -2286,11 +2292,7 @@ bool shell_low_battery() {
                 && (powerstat.BatteryFlag & 6) != 0; // low or critical
     if (ann_battery != lowbat) {
         ann_battery = lowbat;
-        HDC hdc = GetDC(hMainWnd);
-        HDC memdc = CreateCompatibleDC(hdc);
-        skin_repaint_annunciator(hdc, memdc, 5, ann_battery);
-        DeleteDC(memdc);
-        ReleaseDC(hMainWnd, hdc);
+        skin_update_annunciator(hMainWnd, 5);
     }
     return lowbat != 0;
 }

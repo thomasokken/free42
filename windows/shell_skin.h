@@ -51,7 +51,8 @@ void skin_put_pixels(unsigned const char *data);
 void skin_finish_image();
 
 void skin_repaint(HDC hdc, HDC memdc);
-void skin_repaint_annunciator(HDC hdc, HDC memdc, int which, int state);
+void skin_repaint_annunciator(HDC hdc, HDC memdc, int which);
+void skin_update_annunciator(HWND hWnd, int which);
 void skin_find_key(int x, int y, bool cshift, int *skey, int *ckey);
 int skin_find_skey(int ckey);
 unsigned char *skin_find_macro(int ckey, bool *is_name);
