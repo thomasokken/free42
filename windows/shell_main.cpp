@@ -152,7 +152,6 @@ static LRESULT CALLBACK About(HWND, UINT, WPARAM, LPARAM);
 static LRESULT CALLBACK ExportProgram(HWND, UINT, WPARAM, LPARAM);
 static LRESULT CALLBACK Preferences(HWND, UINT, WPARAM, LPARAM);
 static void get_home_dir(wchar_t *path, int pathlen);
-static void mapCalculatorKey();
 static void copy();
 static void paste();
 static void Quit();
@@ -1265,10 +1264,6 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
                 ctl = GetDlgItem(hDlg, IDC_ALWAYSONTOP);
                 SendMessage(ctl, BM_SETCHECK, 1, 0);
             }
-            if (state.calculatorKey) {
-                ctl = GetDlgItem(hDlg, IDC_CALCULATOR_KEY);
-                SendMessage(ctl, BM_SETCHECK, 1, 0);
-            }
             if (state.printerToTxtFile) {
                 ctl = GetDlgItem(hDlg, IDC_PRINTER_TXT);
                 SendMessage(ctl, BM_SETCHECK, 1, 0);
@@ -1307,11 +1302,6 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
                         if (hPrintOutWnd != NULL)
                             SetWindowPos(hPrintOutWnd, alwaysOnTop ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
                     }
-                    ctl = GetDlgItem(hDlg, IDC_CALCULATOR_KEY);
-                    BOOL prevCalculatorKey = state.calculatorKey;
-                    state.calculatorKey = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
-                    if (state.calculatorKey != prevCalculatorKey)
-                        mapCalculatorKey();
 
                     ctl = GetDlgItem(hDlg, IDC_PRINTER_TXT);
                     state.printerToTxtFile = SendMessage(ctl, BM_GETCHECK, 0, 0);
@@ -1510,41 +1500,6 @@ static void get_home_dir(wchar_t *path, int pathlen) {
     } else {
         wcsncpy(path, L"C:\\Free42", pathlen);
         path[pathlen - 1] = 0;
-    }
-}
-
-static void mapCalculatorKey() {
-    wchar_t path[MAX_PATH];
-    if (state.calculatorKey) {
-        // Get current executable's path
-        GetModuleFileNameW(0, path, MAX_PATH - 1);
-    } else {
-        // Windows default
-        wcscpy(path, L"calc.exe");
-    }
-    HKEY k1, k2, k3, k4, k5, k6, k7;
-    DWORD disp;
-    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "SOFTWARE", 0, KEY_QUERY_VALUE, &k1) == ERROR_SUCCESS) {
-        if (RegCreateKeyEx(k1, "Microsoft", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k2, &disp) == ERROR_SUCCESS) {
-            if (RegCreateKeyEx(k2, "Windows", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k3, &disp) == ERROR_SUCCESS) {
-                if (RegCreateKeyEx(k3, "CurrentVersion", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k4, &disp) == ERROR_SUCCESS) {
-                    if (RegCreateKeyEx(k4, "Explorer", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k5, &disp) == ERROR_SUCCESS) {
-                        if (RegCreateKeyEx(k5, "AppKey", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k6, &disp) == ERROR_SUCCESS) {
-                            if (RegCreateKeyEx(k6, "18", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k7, &disp) == ERROR_SUCCESS) {
-                                RegSetValueExW(k7, L"ShellExecute", 0, REG_SZ, (const unsigned char *) path, wcslen(path) * 2 + 2);
-                                RegCloseKey(k7);
-                            }
-                            RegCloseKey(k6);
-                        }
-                        RegCloseKey(k5);
-                    }
-                    RegCloseKey(k4);
-                }
-                RegCloseKey(k3);
-            }
-            RegCloseKey(k2);
-        }
-        RegCloseKey(k1);
     }
 }
 
@@ -2607,7 +2562,6 @@ static void init_shell_state(int4 version) {
             state.singleInstance = TRUE;
             // fall through
         case 6:
-            state.calculatorKey = FALSE;
             // fall through
         case 7:
             wcscpy(state.coreName, L"Untitled");
@@ -2699,7 +2653,6 @@ static int read_shell_state(int4 *ver) {
             MultiByteToWideChar(CP_ACP, 0, old_state.skinName, FILENAMELEN, state.skinName, FILENAMELEN);
             state.alwaysOnTop = old_state.alwaysOnTop;
             state.singleInstance = old_state.singleInstance;
-            state.calculatorKey = old_state.calculatorKey;
             MultiByteToWideChar(CP_ACP, 0, old_state.coreName, FILENAMELEN, state.coreName, FILENAMELEN);
             state.matrix_singularmatrix = old_state.matrix_singularmatrix;
             state.matrix_outofrange = old_state.matrix_outofrange;
