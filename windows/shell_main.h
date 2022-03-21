@@ -61,7 +61,7 @@ struct state_type {
     wchar_t skinName[FILENAMELEN];
     BOOL alwaysOnTop;
     BOOL singleInstance;
-    BOOL calculatorKey;
+    BOOL dummy;
     wchar_t coreName[FILENAMELEN];
     bool matrix_singularmatrix;
     bool matrix_outofrange;

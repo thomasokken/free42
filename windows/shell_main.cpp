@@ -152,7 +152,6 @@ static LRESULT CALLBACK About(HWND, UINT, WPARAM, LPARAM);
 static LRESULT CALLBACK ExportProgram(HWND, UINT, WPARAM, LPARAM);
 static LRESULT CALLBACK Preferences(HWND, UINT, WPARAM, LPARAM);
 static void get_home_dir(wchar_t *path, int pathlen);
-static void mapCalculatorKey();
 static void copy();
 static void paste();
 static void Quit();
@@ -508,16 +507,25 @@ static void shell_keydown() {
                 }
                 skin_display_set_enabled(true);
                 HDC hdc = GetDC(hMainWnd);
-                HDC memdc = CreateCompatibleDC(hdc);
                 skin_repaint_display(hdc);
-                skin_repaint_annunciator(hdc, memdc, 1, ann_updown);
-                skin_repaint_annunciator(hdc, memdc, 2, ann_shift);
-                skin_repaint_annunciator(hdc, memdc, 3, ann_print);
-                skin_repaint_annunciator(hdc, memdc, 4, ann_run);
-                skin_repaint_annunciator(hdc, memdc, 5, ann_battery);
-                skin_repaint_annunciator(hdc, memdc, 6, ann_g);
-                skin_repaint_annunciator(hdc, memdc, 7, ann_rad);
+                /*
+                HDC memdc = CreateCompatibleDC(hdc);
+                if (ann_updown)
+                    skin_repaint_annunciator(hdc, memdc, 1);
+                if (ann_shift)
+                    skin_repaint_annunciator(hdc, memdc, 2);
+                if (ann_print)
+                    skin_repaint_annunciator(hdc, memdc, 3);
+                if (ann_run)
+                    skin_repaint_annunciator(hdc, memdc, 4);
+                if (ann_battery)
+                    skin_repaint_annunciator(hdc, memdc, 5);
+                if (ann_g)
+                    skin_repaint_annunciator(hdc, memdc, 6);
+                if (ann_rad)
+                    skin_repaint_annunciator(hdc, memdc, 7);
                 DeleteDC(memdc);
+                */
                 ReleaseDC(hMainWnd, hdc);
                 repeat = 0;
             }
@@ -658,13 +666,20 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
             HDC memdc = CreateCompatibleDC(hdc);
             skin_repaint(hdc, memdc);
             skin_repaint_display(hdc);
-            skin_repaint_annunciator(hdc, memdc, 1, ann_updown);
-            skin_repaint_annunciator(hdc, memdc, 2, ann_shift);
-            skin_repaint_annunciator(hdc, memdc, 3, ann_print);
-            skin_repaint_annunciator(hdc, memdc, 4, ann_run);
-            skin_repaint_annunciator(hdc, memdc, 5, ann_battery);
-            skin_repaint_annunciator(hdc, memdc, 6, ann_g);
-            skin_repaint_annunciator(hdc, memdc, 7, ann_rad);
+            if (ann_updown)
+                skin_repaint_annunciator(hdc, memdc, 1);
+            if (ann_shift)
+                skin_repaint_annunciator(hdc, memdc, 2);
+            if (ann_print)
+                skin_repaint_annunciator(hdc, memdc, 3);
+            if (ann_run)
+                skin_repaint_annunciator(hdc, memdc, 4);
+            if (ann_battery)
+                skin_repaint_annunciator(hdc, memdc, 5);
+            if (ann_g)
+                skin_repaint_annunciator(hdc, memdc, 6);
+            if (ann_rad)
+                skin_repaint_annunciator(hdc, memdc, 7);
             if (ckey != 0)
                 skin_repaint_key(hdc, memdc, skey, 1);
             DeleteDC(memdc);
@@ -1256,10 +1271,6 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
                 ctl = GetDlgItem(hDlg, IDC_ALWAYSONTOP);
                 SendMessage(ctl, BM_SETCHECK, 1, 0);
             }
-            if (state.calculatorKey) {
-                ctl = GetDlgItem(hDlg, IDC_CALCULATOR_KEY);
-                SendMessage(ctl, BM_SETCHECK, 1, 0);
-            }
             if (state.printerToTxtFile) {
                 ctl = GetDlgItem(hDlg, IDC_PRINTER_TXT);
                 SendMessage(ctl, BM_SETCHECK, 1, 0);
@@ -1298,11 +1309,6 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
                         if (hPrintOutWnd != NULL)
                             SetWindowPos(hPrintOutWnd, alwaysOnTop ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
                     }
-                    ctl = GetDlgItem(hDlg, IDC_CALCULATOR_KEY);
-                    BOOL prevCalculatorKey = state.calculatorKey;
-                    state.calculatorKey = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
-                    if (state.calculatorKey != prevCalculatorKey)
-                        mapCalculatorKey();
 
                     ctl = GetDlgItem(hDlg, IDC_PRINTER_TXT);
                     state.printerToTxtFile = SendMessage(ctl, BM_GETCHECK, 0, 0);
@@ -1501,41 +1507,6 @@ static void get_home_dir(wchar_t *path, int pathlen) {
     } else {
         wcsncpy(path, L"C:\\Free42", pathlen);
         path[pathlen - 1] = 0;
-    }
-}
-
-static void mapCalculatorKey() {
-    wchar_t path[MAX_PATH];
-    if (state.calculatorKey) {
-        // Get current executable's path
-        GetModuleFileNameW(0, path, MAX_PATH - 1);
-    } else {
-        // Windows default
-        wcscpy(path, L"calc.exe");
-    }
-    HKEY k1, k2, k3, k4, k5, k6, k7;
-    DWORD disp;
-    if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, "SOFTWARE", 0, KEY_QUERY_VALUE, &k1) == ERROR_SUCCESS) {
-        if (RegCreateKeyEx(k1, "Microsoft", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k2, &disp) == ERROR_SUCCESS) {
-            if (RegCreateKeyEx(k2, "Windows", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k3, &disp) == ERROR_SUCCESS) {
-                if (RegCreateKeyEx(k3, "CurrentVersion", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k4, &disp) == ERROR_SUCCESS) {
-                    if (RegCreateKeyEx(k4, "Explorer", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k5, &disp) == ERROR_SUCCESS) {
-                        if (RegCreateKeyEx(k5, "AppKey", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k6, &disp) == ERROR_SUCCESS) {
-                            if (RegCreateKeyEx(k6, "18", 0, "", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &k7, &disp) == ERROR_SUCCESS) {
-                                RegSetValueExW(k7, L"ShellExecute", 0, REG_SZ, (const unsigned char *) path, wcslen(path) * 2 + 2);
-                                RegCloseKey(k7);
-                            }
-                            RegCloseKey(k6);
-                        }
-                        RegCloseKey(k5);
-                    }
-                    RegCloseKey(k4);
-                }
-                RegCloseKey(k3);
-            }
-            RegCloseKey(k2);
-        }
-        RegCloseKey(k1);
     }
 }
 
@@ -2199,11 +2170,7 @@ static VOID CALLBACK ann_print_timeout(HWND hwnd, UINT uMsg, UINT idEvent, DWORD
     KillTimer(NULL, ann_print_timer);
     ann_print_timer = 0;
     ann_print = 0;
-    HDC hdc = GetDC(hMainWnd);
-    HDC memdc = CreateCompatibleDC(hdc);
-    skin_repaint_annunciator(hdc, memdc, 3, ann_print);
-    DeleteDC(memdc);
-    ReleaseDC(hMainWnd, hdc);
+    skin_update_annunciator(hMainWnd, 3);
 }
 
 /* shell_annunciators()
@@ -2216,16 +2183,13 @@ static VOID CALLBACK ann_print_timeout(HWND hwnd, UINT uMsg, UINT idEvent, DWORD
  * so the shell is expected to handle that one by itself.
  */
 void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
-    HDC hdc = GetDC(hMainWnd);
-    HDC memdc = CreateCompatibleDC(hdc);
-
     if (updn != -1 && ann_updown != updn) {
         ann_updown = updn;
-        skin_repaint_annunciator(hdc, memdc, 1, ann_updown);
+        skin_update_annunciator(hMainWnd, 1);
     }
     if (shf != -1 && ann_shift != shf) {
         ann_shift = shf;
-        skin_repaint_annunciator(hdc, memdc, 2, ann_shift);
+        skin_update_annunciator(hMainWnd, 2);
     }
     if (prt != -1) {
         if (ann_print_timer != 0) {
@@ -2235,26 +2199,23 @@ void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
         if (ann_print != prt)
             if (prt) {
                 ann_print = 1;
-                skin_repaint_annunciator(hdc, memdc, 3, ann_print);
+                skin_update_annunciator(hMainWnd, 3);
             } else {
                 ann_print_timer = SetTimer(NULL, 0, 1000, ann_print_timeout);
             }
     }
     if (run != -1 && ann_run != run) {
         ann_run = run;
-        skin_repaint_annunciator(hdc, memdc, 4, ann_run);
+        skin_update_annunciator(hMainWnd, 4);
     }
     if (g != -1 && ann_g != g) {
         ann_g = g;
-        skin_repaint_annunciator(hdc, memdc, 6, ann_g);
+        skin_update_annunciator(hMainWnd, 6);
     }
     if (rad != -1 && ann_rad != rad) {
         ann_rad = rad;
-        skin_repaint_annunciator(hdc, memdc, 7, ann_rad);
+        skin_update_annunciator(hMainWnd, 7);
     }
-
-    DeleteDC(memdc);
-    ReleaseDC(hMainWnd, hdc);
 }
 
 bool shell_wants_cpu() {
@@ -2293,11 +2254,7 @@ bool shell_low_battery() {
                 && (powerstat.BatteryFlag & 6) != 0; // low or critical
     if (ann_battery != lowbat) {
         ann_battery = lowbat;
-        HDC hdc = GetDC(hMainWnd);
-        HDC memdc = CreateCompatibleDC(hdc);
-        skin_repaint_annunciator(hdc, memdc, 5, ann_battery);
-        DeleteDC(memdc);
-        ReleaseDC(hMainWnd, hdc);
+        skin_update_annunciator(hMainWnd, 5);
     }
     return lowbat != 0;
 }
@@ -2612,7 +2569,6 @@ static void init_shell_state(int4 version) {
             state.singleInstance = TRUE;
             // fall through
         case 6:
-            state.calculatorKey = FALSE;
             // fall through
         case 7:
             wcscpy(state.coreName, L"Untitled");
@@ -2706,7 +2662,6 @@ static int read_shell_state(int4 *ver, bool *show_ad) {
             MultiByteToWideChar(CP_ACP, 0, old_state.skinName, FILENAMELEN, state.skinName, FILENAMELEN);
             state.alwaysOnTop = old_state.alwaysOnTop;
             state.singleInstance = old_state.singleInstance;
-            state.calculatorKey = old_state.calculatorKey;
             MultiByteToWideChar(CP_ACP, 0, old_state.coreName, FILENAMELEN, state.coreName, FILENAMELEN);
             state.matrix_singularmatrix = old_state.matrix_singularmatrix;
             state.matrix_outofrange = old_state.matrix_outofrange;

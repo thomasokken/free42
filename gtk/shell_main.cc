@@ -2457,13 +2457,20 @@ static gboolean draw_cb(GtkWidget *w, cairo_t *cr, gpointer cd) {
     allow_paint = true;
     skin_repaint(cr);
     skin_repaint_display(cr);
-    skin_repaint_annunciator(cr, 1, ann_updown);
-    skin_repaint_annunciator(cr, 2, ann_shift);
-    skin_repaint_annunciator(cr, 3, ann_print);
-    skin_repaint_annunciator(cr, 4, ann_run);
-    skin_repaint_annunciator(cr, 5, ann_battery);
-    skin_repaint_annunciator(cr, 6, ann_g);
-    skin_repaint_annunciator(cr, 7, ann_rad);
+    if (ann_updown)
+        skin_repaint_annunciator(cr, 1);
+    if (ann_shift)
+        skin_repaint_annunciator(cr, 2);
+    if (ann_print)
+        skin_repaint_annunciator(cr, 3);
+    if (ann_run)
+        skin_repaint_annunciator(cr, 4);
+    if (ann_battery)
+        skin_repaint_annunciator(cr, 5);
+    if (ann_g)
+        skin_repaint_annunciator(cr, 6);
+    if (ann_rad)
+        skin_repaint_annunciator(cr, 7);
     if (ckey != 0)
         skin_repaint_key(cr, skey, 1);
     return TRUE;
