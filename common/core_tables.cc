@@ -42,7 +42,7 @@
 #define FUNC 0xff
 
 /* Dummy value, to be used only when argcount = 0. Only used for actual
- * existing functions; for unimplemented functions, leave it at 0x00.
+ * existing functions; for unimplemented functions, use UNIM.
  */
 #define NA_T 0x00
 

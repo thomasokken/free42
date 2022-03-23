@@ -647,22 +647,20 @@ Phloat fabs(Phloat p) {
 }
 
 Phloat pow(Phloat y, Phloat x) {
-    BID_UINT128 temp, res;
-    bid128_round_integral_negative(&temp, &x.val);
+    BID_UINT128 tmp, res;
+    bid128_round_integral_negative(&tmp, &x.val);
     int r;
-    bid128_quiet_equal(&r, &temp, &x.val);
+    bid128_quiet_equal(&r, &tmp, &x.val);
     if (r != 0) {
-        // Integral power. bid128_pow doesn't handle these very well,
-        // so I'm using repeated squaring instead. This way at least
-        // we get exact results for integral powers of ten!
+        // Integral power. Use repeated squaring for these, at
+        // least as long as the calculations are exact. We make sure
+        // of this by scaling the number to make the mantissa the
+        // smallest possible integer, and then check whether it
+        // grows beyond 10^34-1.
         if (x < -2147483647.0 || x > 2147483647.0)
-            // For really huge exponents, the repeated-squaring
-            // algorithm for integer exponents loses its accuracy
-            // and speed advantage, and we switch to the
-            // library's bid128_pow() instead.
-            goto noninteger_exponent;
+            goto inexact;
         int4 ex = to_int4(x);
-        bool exp_even = (ex & 1) == 0;
+        // Handle base of zero
         bid128_isZero(&r, &y.val);
         if (r != 0) {
             if (ex < 0) {
@@ -676,52 +674,82 @@ Phloat pow(Phloat y, Phloat x) {
             else
                 return 0;
         }
+        // Handle negative base
+        bool result_negative;
+        BID_UINT128 yy;
+        bid128_isSigned(&r, &y.val);
+        if (r != 0) {
+            result_negative = (ex & 1) != 0;
+            bid128_negate(&yy, &y.val);
+        } else {
+            result_negative = false;
+            yy = y.val;
+        }
+        // Handle negative exponent
         int ione = 1;
         bid128_from_int32(&res, &ione);
-        BID_UINT128 yy;
         if (ex < 0) {
-            bid128_div(&yy, &res, &y.val);
+            bid128_div(&tmp, &res, &yy);
+            yy = tmp;
             ex = -ex;
-        } else
-            yy = y.val;
-        while (true) {
-            BID_UINT128 tmp;
-            if ((ex & 1) != 0) {
-                bid128_mul(&tmp, &res, &yy);
-                res = tmp;
-                int inf;
-                if ((inf = p_isinf(res)) != 0) {
-                    // We're stopping early, because the final result
-                    // is definitely infinity, but we have to make sure
-                    // we get the sign right, since we're not doing the
-                    // full set of multiplications.
-                    if (exp_even) {
-                        if (inf < 0) {
-                            bid128_negate(&tmp, &res);
-                            return tmp;
-                        } else
-                            return res;
-                    } else {
-                        bid128_isSigned(&r, &y.val);
-                        if (((r != 0) ^ (inf < 0)) != 0) {
-                            bid128_negate(&tmp, &res);
-                            return tmp;
-                        } else
-                            return res;
-                    }
-                }
-                bid128_isZero(&r, &res);
-                if (r != 0)
-                    return res;
-            }
-            ex >>= 1;
-            if (ex == 0)
-                return res;
-            bid128_mul(&tmp, &yy, &yy);
+        }
+        // Scale mantissa to smallest possible integer
+        int scale;
+        bid128_ilogb(&scale, &yy);
+        if (scale != 0) {
+            scale = -scale;
+            bid128_scalbn(&tmp, &yy, &scale);
+            scale = -scale;
             yy = tmp;
         }
+        while (true) {
+            bid128_round_integral_negative(&tmp, &yy);
+            bid128_quiet_equal(&r, &tmp, &yy);
+            if (r != 0)
+                break;
+            r = 1;
+            bid128_scalbn(&tmp, &yy, &r);
+            yy = tmp;
+            scale--;
+        }
+        int8 final_scale = scale;
+        final_scale *= ex;
+        if (final_scale > 6144 || final_scale < -6209)
+            // Out of range, but let bid128_pow() deal with it
+            goto inexact;
+        scale = (int) final_scale;
+        // Only perform repeated squaring if scaled mantissa != 1
+        bid128_quiet_equal(&r, &res, &yy);
+        if (r == 0) {
+            // Check if exponent so large that result can't possibly be exact
+            if (ex > 112)
+                goto inexact;
+            bid128_ilogb(&r, &yy);
+            if (ex * r > 33)
+                goto inexact;
+            // Perform exponentiation by repeated squaring
+            while (true) {
+                if ((ex & 1) != 0) {
+                    bid128_mul(&tmp, &res, &yy);
+                    res = tmp;
+                    bid128_ilogb(&r, &res);
+                    if (r > 33)
+                        goto inexact;
+                }
+                ex >>= 1;
+                if (ex == 0)
+                    break;
+                bid128_mul(&tmp, &yy, &yy);
+                yy = tmp;
+            }
+        }
+        bid128_scalbn(&tmp, &res, &scale);
+        if (!result_negative)
+            return Phloat(tmp);
+        bid128_negate(&res, &tmp);
+        return Phloat(res);
     } else {
-        noninteger_exponent:
+        inexact:
         bid128_pow(&res, &y.val, &x.val);
         return Phloat(res);
     }
