@@ -802,11 +802,13 @@ int docmd_y_pow_x(arg_struct *arg) {
                 /* Complex number to integer power */
                 phloat rre, rim, yre, yim;
                 int4 ex;
-                if (x < -2147483647.0 || x > 2147483647.0)
-                    /* For really huge exponents, the repeated-squaring
-                     * algorithm for integer exponents loses its accuracy
-                     * and speed advantage, and we switch to the general
-                     * complex-to-real-power code instead.
+                if (x < -256 || x > 256)
+                    /* For large exponents, repeated squaring is not a good
+                     * choice, since the error can become significant in
+                     * numbers close to 1. The important case to get right is
+                     * pure real, which is handled by the regular pow(), so we
+                     * only try to be clever here when we're dealing with
+                     * relatively small integer exponents.
                      */
                     goto complex_pow_real_1;
                 rre = 1;
