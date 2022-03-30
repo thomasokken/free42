@@ -761,6 +761,32 @@ int docmd_inv(arg_struct *arg) {
     return err;
 }
 
+#ifdef BCD_MATH
+    const phloat mant_max = scalbn(1, 34);
+    const int exact_cpx_pow_max = 225;
+#else
+    const phloat mant_max = scalbn(1, 53);
+    const int exact_cpx_pow_max = 105;
+#endif
+
+static bool c_mul(phloat *yre, phloat *yim, phloat xre, phloat xim) {
+    phloat a = xre * *yre;
+    if (fabs(a) >= mant_max)
+        return false;
+    a = fma(-xim, *yim, a);
+    if (fabs(a) >= mant_max)
+        return false;
+    phloat b = xre * *yim;
+    if (fabs(b) >= mant_max)
+        return false;
+    b = fma(xim, *yre, b);
+    if (fabs(b) >= mant_max)
+        return false;
+    *yre = a;
+    *yim = b;
+    return true;
+}
+
 int docmd_y_pow_x(arg_struct *arg) {
     phloat yr, yphi;
     int inf;
@@ -817,41 +843,102 @@ int docmd_y_pow_x(arg_struct *arg) {
                     res = new_complex(1, 0);
                     goto done;
                 }
-                if (yre != 0 && yim != 0)
-                    /* If not pure real or pure imaginary, just use the polar formula */
-                    goto complex_pow_real_1;
                 int4 ex = to_int4(x);
-                phloat y;
-                int ii;
-                if (yre == 0) {
-                    if (yim > 0) {
-                        y = yim;
-                        ii = ex & 3;
+                if (yre == 0 || yim == 0) {
+                    /* Pure real or pure imaginary: calculate in terms of real pow() */
+                    phloat y;
+                    int ii;
+                    if (yre == 0) {
+                        if (yim > 0) {
+                            y = yim;
+                            ii = ex & 3;
+                        } else {
+                            y = -yim;
+                            ii = (ex * 3) & 3;
+                        }
                     } else {
-                        y = -yim;
-                        ii = (ex * 3) & 3;
+                        if (yre > 0) {
+                            y = yre;
+                            ii = 0;
+                        } else {
+                            y = -yre;
+                            ii = (ex & 1) << 1;
+                        }
                     }
-                } else {
-                    if (yre > 0) {
-                        y = yre;
-                        ii = 0;
-                    } else {
-                        y = -yre;
-                        ii = (ex & 1) << 1;
+                    phloat r = pow(y, ex);
+                    if ((inf = p_isinf(r)) != 0) {
+                        if (!flags.f.range_error_ignore)
+                            return ERR_OUT_OF_RANGE;
+                        r = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
+                    }
+                    switch (ii) {
+                        case 0: res = new_complex( r,  0); break;
+                        case 1: res = new_complex( 0,  r); break;
+                        case 2: res = new_complex(-r,  0); break;
+                        case 3: res = new_complex( 0, -r); break;
+                    }
+                    goto done;
+                }
+                /* Try repeated squaring, but only as long as it is exact. */
+                /* Handle negative exponent */
+                if (ex < 0) {
+                    phloat h = hypot(yre, yim);
+                    yre = yre / h / h;
+                    yim = (-yim) / h / h;
+                    ex = -ex;
+                }
+                /* Scale Y to smallest possible Gaussian integer */
+                int s1 = ilogb(yre);
+                int s2 = ilogb(yim);
+                int scale = s1 > s2 ? s1 : s2;
+                yre = scalbn(yre, -scale);
+                yim = scalbn(yim, -scale);
+                while (true) {
+                    if (yre == floor(yre) && yim == floor(yim))
+                        break;
+                    yre = scalbn(yre, 1);
+                    yim = scalbn(yim, 1);
+                    if (fabs(yre) >= mant_max || fabs(yim) >= mant_max)
+                        goto complex_pow_real_1;
+                    scale--;
+                }
+                int8 final_scale = scale;
+                final_scale *= ex;
+                if (final_scale > 6144 || final_scale < -6209)
+                    // Out of range, but let the non-int case deal with it
+                    goto complex_pow_real_1;
+                scale = (int) final_scale;
+                /* Perform the square-and-multiply loop */
+                phloat rre = 1;
+                phloat rim = 0;
+                if (yre != 1 || yim != 0) {
+                    if (ex > exact_cpx_pow_max)
+                        goto complex_pow_real_1;
+                    while (true) {
+                        if ((ex & 1) != 0) {
+                            if (!c_mul(&rre, &rim, yre, yim))
+                                goto complex_pow_real_1;
+                        }
+                        ex >>= 1;
+                        if (ex == 0)
+                            break;
+                        if (!c_mul(&yre, &yim, yre, yim))
+                            goto complex_pow_real_1;
                     }
                 }
-                phloat r = pow(y, ex);
-                if ((inf = p_isinf(r)) != 0) {
+                rre = scalbn(rre, scale);
+                if ((inf = p_isinf(rre)) != 0) {
                     if (!flags.f.range_error_ignore)
                         return ERR_OUT_OF_RANGE;
-                    r = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
+                    rre = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
                 }
-                switch (ii) {
-                    case 0: res = new_complex( r,  0); break;
-                    case 1: res = new_complex( 0,  r); break;
-                    case 2: res = new_complex(-r,  0); break;
-                    case 3: res = new_complex( 0, -r); break;
+                rim = scalbn(rim, scale);
+                if ((inf = p_isinf(rim)) != 0) {
+                    if (!flags.f.range_error_ignore)
+                        return ERR_OUT_OF_RANGE;
+                    rim = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
                 }
+                res = new_complex(rre, rim);
                 goto done;
             }
         } else if (stack[sp - 1]->type == TYPE_REAL) {

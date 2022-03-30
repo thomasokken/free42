@@ -767,6 +767,18 @@ Phloat fma(Phloat x, Phloat y, Phloat z) {
     return Phloat(res);
 }
 
+int ilogb(Phloat x) {
+    int n;
+    bid128_ilogb(&n, &x.val);
+    return n;
+}
+
+Phloat scalbn(Phloat x, int n) {
+    BID_UINT128 res;
+    bid128_scalbn(&res, &x.val, &n);
+    return Phloat(res);
+}
+
 Phloat operator*(int x, Phloat y) {
     BID_UINT128 xx, res;
     bid128_from_int32(&xx, &x);
