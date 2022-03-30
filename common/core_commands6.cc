@@ -763,10 +763,14 @@ int docmd_inv(arg_struct *arg) {
 
 #ifdef BCD_MATH
     const phloat mant_max = scalbn(1, 34);
-    const int exact_cpx_pow_max = 225;
+    #define EXACT_CPX_POW_MAX 225
+    #define MIN_SCALE -6209
+    #define MAX_SCALE 6144
 #else
     const phloat mant_max = scalbn(1, 53);
-    const int exact_cpx_pow_max = 105;
+    #define EXACT_CPX_POW_MAX 105
+    #define MIN_SCALE -1127
+    #define MAX_SCALE 1024
 #endif
 
 static bool c_mul(phloat *yre, phloat *yim, phloat xre, phloat xim) {
@@ -904,7 +908,7 @@ int docmd_y_pow_x(arg_struct *arg) {
                 }
                 int8 final_scale = scale;
                 final_scale *= ex;
-                if (final_scale > 6144 || final_scale < -6209)
+                if (final_scale > MAX_SCALE || final_scale < MIN_SCALE)
                     // Out of range, but let the non-int case deal with it
                     goto complex_pow_real_1;
                 scale = (int) final_scale;
@@ -912,7 +916,7 @@ int docmd_y_pow_x(arg_struct *arg) {
                 phloat rre = 1;
                 phloat rim = 0;
                 if (yre != 1 || yim != 0) {
-                    if (ex > exact_cpx_pow_max)
+                    if (ex > EXACT_CPX_POW_MAX)
                         goto complex_pow_real_1;
                     while (true) {
                         if ((ex & 1) != 0) {
