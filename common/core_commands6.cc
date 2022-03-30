@@ -766,16 +766,24 @@ int docmd_y_pow_x(arg_struct *arg) {
     int inf;
     vartype *res;
 
-    if (stack[sp]->type == TYPE_STRING || stack[sp - 1]->type == TYPE_STRING)
+    if (false) {
+        done:
+        if (res == NULL)
+            return ERR_INSUFFICIENT_MEMORY;
+        else
+            return binary_result(res);
+    }
+
+    if (stack[sp]->type == TYPE_STRING || stack[sp - 1]->type == TYPE_STRING) {
         return ERR_ALPHA_DATA_IS_INVALID;
-    else if (stack[sp]->type != TYPE_REAL
+    } else if (stack[sp]->type != TYPE_REAL
             && stack[sp]->type != TYPE_COMPLEX
             || stack[sp - 1]->type != TYPE_REAL
-            && stack[sp - 1]->type != TYPE_COMPLEX)
+            && stack[sp - 1]->type != TYPE_COMPLEX) {
         return ERR_INVALID_TYPE;
-    else if (stack[sp]->type == TYPE_REAL) {
+    } else if (stack[sp]->type == TYPE_REAL) {
         phloat x = ((vartype_real *) stack[sp])->x;
-        if (x == floor(x)) {
+        if (x == floor(x) && fabs(x) <= 2147483647) {
             /* Integer exponent */
             if (stack[sp - 1]->type == TYPE_REAL) {
                 /* Real number to integer power */
@@ -794,73 +802,57 @@ int docmd_y_pow_x(arg_struct *arg) {
                     r = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
                 }
                 res = new_real(r);
-                if (res == NULL)
-                    return ERR_INSUFFICIENT_MEMORY;
-                else
-                    return binary_result(res);
+                goto done;
             } else {
                 /* Complex number to integer power */
-                phloat rre, rim, yre, yim;
-                int4 ex;
-                if (x < -256 || x > 256)
-                    /* For large exponents, repeated squaring is not a good
-                     * choice, since the error can become significant in
-                     * numbers close to 1. The important case to get right is
-                     * pure real, which is handled by the regular pow(), so we
-                     * only try to be clever here when we're dealing with
-                     * relatively small integer exponents.
-                     */
+                phloat yre = ((vartype_complex *) stack[sp - 1])->re;
+                phloat yim = ((vartype_complex *) stack[sp - 1])->im;
+                if (yre == 0 && yim == 0) {
+                    if (x <= 0)
+                        return ERR_INVALID_DATA;
+                    res = new_complex(0, 0);
+                    goto done;
+                }
+                if (x == 0) {
+                    res = new_complex(1, 0);
+                    goto done;
+                }
+                if (yre != 0 && yim != 0)
+                    /* If not pure real or pure imaginary, just use the polar formula */
                     goto complex_pow_real_1;
-                rre = 1;
-                rim = 0;
-                yre = ((vartype_complex *) stack[sp - 1])->re;
-                yim = ((vartype_complex *) stack[sp - 1])->im;
-                ex = to_int4(x);
-                if (ex <= 0 && yre == 0 && yim == 0)
-                    return ERR_INVALID_DATA;
-                if (ex < 0) {
-                    phloat h = hypot(yre, yim);
-                    yre = yre / h / h;
-                    yim = (-yim) / h / h;
-                    ex = -ex;
-                }
-                while (1) {
-                    phloat tmp;
-                    if ((ex & 1) != 0) {
-                        tmp = rre * yre - rim * yim;
-                        rim = rre * yim + rim * yre;
-                        rre = tmp;
-                        /* TODO: can one component be infinite while
-                         * the other is zero? If yes, how do we handle
-                         * that?
-                         */
-                        if (p_isinf(rre) && p_isinf(rim))
-                            break;
-                        if (rre == 0 && rim == 0)
-                            break;
+                int4 ex = to_int4(x);
+                phloat y;
+                int ii;
+                if (yre == 0) {
+                    if (yim > 0) {
+                        y = yim;
+                        ii = ex & 3;
+                    } else {
+                        y = -yim;
+                        ii = (ex * 3) & 3;
                     }
-                    ex >>= 1;
-                    if (ex == 0)
-                        break;
-                    tmp = yre * yre - yim * yim;
-                    yim = 2 * yre * yim;
-                    yre = tmp;
+                } else {
+                    if (yre > 0) {
+                        y = yre;
+                        ii = 0;
+                    } else {
+                        y = -yre;
+                        ii = (ex & 1) << 1;
+                    }
                 }
-                if ((inf = p_isinf(rre)) != 0) {
+                phloat r = pow(y, ex);
+                if ((inf = p_isinf(r)) != 0) {
                     if (!flags.f.range_error_ignore)
                         return ERR_OUT_OF_RANGE;
-                    rre = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
+                    r = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
                 }
-                if ((inf = p_isinf(rim)) != 0) {
-                    if (!flags.f.range_error_ignore)
-                        return ERR_OUT_OF_RANGE;
-                    rim = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
+                switch (ii) {
+                    case 0: res = new_complex( r,  0); break;
+                    case 1: res = new_complex( 0,  r); break;
+                    case 2: res = new_complex(-r,  0); break;
+                    case 3: res = new_complex( 0, -r); break;
                 }
-                res = new_complex(rre, rim);
-                if (res == NULL)
-                    return ERR_INSUFFICIENT_MEMORY;
-                else
-                    return binary_result(res);
+                goto done;
             }
         } else if (stack[sp - 1]->type == TYPE_REAL) {
             /* Real number to noninteger real power */
@@ -881,10 +873,7 @@ int docmd_y_pow_x(arg_struct *arg) {
                 r = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
             }
             res = new_real(r);
-            if (res == NULL)
-                return ERR_INSUFFICIENT_MEMORY;
-            else
-                return binary_result(res);
+            goto done;
         } else {
             /* Complex (or negative real) number to noninteger real power */
             complex_pow_real_1:
@@ -919,10 +908,7 @@ int docmd_y_pow_x(arg_struct *arg) {
                 rim = yr * im;
             }
             res = new_complex(rre, rim);
-            if (res == NULL)
-                return ERR_INSUFFICIENT_MEMORY;
-            else
-                return binary_result(res);
+            goto done;
         }
     } else {
         /* Real or complex number to complex power */
@@ -942,12 +928,8 @@ int docmd_y_pow_x(arg_struct *arg) {
         if (yre == 0 && yim == 0) {
             if (xre <= 0)
                 return ERR_INVALID_DATA;
-            else
-                res = new_complex(0, 0);
-            if (res == NULL)
-                return ERR_INSUFFICIENT_MEMORY;
-            else
-                return binary_result(res);
+            res = new_complex(0, 0);
+            goto done;
         }
         err = mappable_ln_c(yre, yim, &lre, &lim);
         if (err != ERR_NONE)
@@ -959,10 +941,7 @@ int docmd_y_pow_x(arg_struct *arg) {
         if (err != ERR_NONE)
             return err;
         res = new_complex(xre, xim);
-        if (res == NULL)
-            return ERR_INSUFFICIENT_MEMORY;
-        else
-            return binary_result(res);
+        goto done;
     }
 }
 
