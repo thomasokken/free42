@@ -149,8 +149,6 @@ Phloat fabs(Phloat p);
 Phloat pow(Phloat x, Phloat y);
 Phloat floor(Phloat x);
 Phloat fma(Phloat x, Phloat y, Phloat z);
-int ilogb(Phloat x);
-Phloat scalbn(Phloat x, int n);
 
 Phloat operator*(int x, Phloat y);
 Phloat operator/(int x, Phloat y);

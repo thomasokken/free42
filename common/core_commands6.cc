@@ -761,36 +761,6 @@ int docmd_inv(arg_struct *arg) {
     return err;
 }
 
-#ifdef BCD_MATH
-    const phloat mant_max = scalbn(1, 34);
-    #define EXACT_CPX_POW_MAX 225
-    #define MIN_SCALE -6209
-    #define MAX_SCALE 6144
-#else
-    const phloat mant_max = scalbn(1, 53);
-    #define EXACT_CPX_POW_MAX 105
-    #define MIN_SCALE -1127
-    #define MAX_SCALE 1024
-#endif
-
-static bool c_mul(phloat *yre, phloat *yim, phloat xre, phloat xim) {
-    phloat a = xre * *yre;
-    if (fabs(a) >= mant_max)
-        return false;
-    a = fma(-xim, *yim, a);
-    if (fabs(a) >= mant_max)
-        return false;
-    phloat b = xre * *yim;
-    if (fabs(b) >= mant_max)
-        return false;
-    b = fma(xim, *yre, b);
-    if (fabs(b) >= mant_max)
-        return false;
-    *yre = a;
-    *yim = b;
-    return true;
-}
-
 int docmd_y_pow_x(arg_struct *arg) {
     phloat yr, yphi;
     int inf;
@@ -813,7 +783,7 @@ int docmd_y_pow_x(arg_struct *arg) {
         return ERR_INVALID_TYPE;
     } else if (stack[sp]->type == TYPE_REAL) {
         phloat x = ((vartype_real *) stack[sp])->x;
-        if (x == floor(x) && fabs(x) <= 2147483647) {
+        if (x == floor(x)) {
             /* Integer exponent */
             if (stack[sp - 1]->type == TYPE_REAL) {
                 /* Real number to integer power */
@@ -835,108 +805,53 @@ int docmd_y_pow_x(arg_struct *arg) {
                 goto done;
             } else {
                 /* Complex number to integer power */
-                phloat yre = ((vartype_complex *) stack[sp - 1])->re;
-                phloat yim = ((vartype_complex *) stack[sp - 1])->im;
-                if (yre == 0 && yim == 0) {
-                    if (x <= 0)
-                        return ERR_INVALID_DATA;
-                    res = new_complex(0, 0);
-                    goto done;
-                }
-                if (x == 0) {
-                    res = new_complex(1, 0);
-                    goto done;
-                }
-                int4 ex = to_int4(x);
-                if (yre == 0 || yim == 0) {
-                    /* Pure real or pure imaginary: calculate in terms of real pow() */
-                    phloat y;
-                    int ii;
-                    if (yre == 0) {
-                        if (yim > 0) {
-                            y = yim;
-                            ii = ex & 3;
-                        } else {
-                            y = -yim;
-                            ii = (ex * 3) & 3;
-                        }
-                    } else {
-                        if (yre > 0) {
-                            y = yre;
-                            ii = 0;
-                        } else {
-                            y = -yre;
-                            ii = (ex & 1) << 1;
-                        }
-                    }
-                    phloat r = pow(y, ex);
-                    if ((inf = p_isinf(r)) != 0) {
-                        if (!flags.f.range_error_ignore)
-                            return ERR_OUT_OF_RANGE;
-                        r = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
-                    }
-                    switch (ii) {
-                        case 0: res = new_complex( r,  0); break;
-                        case 1: res = new_complex( 0,  r); break;
-                        case 2: res = new_complex(-r,  0); break;
-                        case 3: res = new_complex( 0, -r); break;
-                    }
-                    goto done;
-                }
-                /* Try repeated squaring, but only as long as it is exact. */
-                /* Handle negative exponent */
-                if (ex < 0) {
-                    phloat h = hypot(yre, yim);
-                    yre = yre / h / h;
-                    yim = (-yim) / h / h;
-                    ex = -ex;
-                }
-                /* Scale Y to smallest possible Gaussian integer */
-                int s1 = ilogb(yre);
-                int s2 = ilogb(yim);
-                int scale = s1 > s2 ? s1 : s2;
-                yre = scalbn(yre, -scale);
-                yim = scalbn(yim, -scale);
-                while (true) {
-                    if (yre == floor(yre) && yim == floor(yim))
-                        break;
-                    yre = scalbn(yre, 1);
-                    yim = scalbn(yim, 1);
-                    if (fabs(yre) >= mant_max || fabs(yim) >= mant_max)
-                        goto complex_pow_real_1;
-                    scale--;
-                }
-                int8 final_scale = scale;
-                final_scale *= ex;
-                if (final_scale > MAX_SCALE || final_scale < MIN_SCALE)
-                    // Out of range, but let the non-int case deal with it
+                phloat rre, rim, yre, yim;
+                int4 ex;
+                if (x < -2147483647.0 || x > 2147483647.0)
                     goto complex_pow_real_1;
-                scale = (int) final_scale;
-                /* Perform the square-and-multiply loop */
-                phloat rre = 1;
-                phloat rim = 0;
-                if (yre != 1 || yim != 0) {
-                    if (ex > EXACT_CPX_POW_MAX)
-                        goto complex_pow_real_1;
-                    while (true) {
-                        if ((ex & 1) != 0) {
-                            if (!c_mul(&rre, &rim, yre, yim))
-                                goto complex_pow_real_1;
-                        }
-                        ex >>= 1;
-                        if (ex == 0)
-                            break;
-                        if (!c_mul(&yre, &yim, yre, yim))
+                rre = 1;
+                rim = 0;
+                yre = ((vartype_complex *) stack[sp - 1])->re;
+                yim = ((vartype_complex *) stack[sp - 1])->im;
+                ex = to_int4(x);
+                if (ex <= 0 && yre == 0 && yim == 0)
+                    return ERR_INVALID_DATA;
+                bool invert = ex < 0;
+                if (invert)
+                    ex = -ex;
+                while (1) {
+                    phloat tmp;
+                    if ((ex & 1) != 0) {
+                        tmp = rre * yre - rim * yim;
+                        rim = rre * yim + rim * yre;
+                        rre = tmp;
+                        if (p_isinf(rre) || p_isnan(rre) || p_isinf(rim) || p_isnan(rim))
                             goto complex_pow_real_1;
+                        if (rre == 0 && rim == 0)
+                            if (invert)
+                                goto complex_pow_real_1;
+                            else
+                                break;
                     }
+                    ex >>= 1;
+                    if (ex == 0)
+                        break;
+                    tmp = yre * yre - yim * yim;
+                    yim = 2 * yre * yim;
+                    yre = tmp;
+                    if (p_isinf(yre) || p_isnan(yre) || p_isinf(yim) || p_isnan(yim))
+                        goto complex_pow_real_1;
                 }
-                rre = scalbn(rre, scale);
+                if (invert) {
+                    phloat h = hypot(rre, rim);
+                    rre = rre / h / h;
+                    rim = (-rim) / h / h;
+                }
                 if ((inf = p_isinf(rre)) != 0) {
                     if (!flags.f.range_error_ignore)
                         return ERR_OUT_OF_RANGE;
                     rre = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
                 }
-                rim = scalbn(rim, scale);
                 if ((inf = p_isinf(rim)) != 0) {
                     if (!flags.f.range_error_ignore)
                         return ERR_OUT_OF_RANGE;
@@ -1019,7 +934,8 @@ int docmd_y_pow_x(arg_struct *arg) {
         if (yre == 0 && yim == 0) {
             if (xre <= 0)
                 return ERR_INVALID_DATA;
-            res = new_complex(0, 0);
+            else
+                res = new_complex(0, 0);
             goto done;
         }
         err = mappable_ln_c(yre, yim, &lre, &lim);
