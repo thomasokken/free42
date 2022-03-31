@@ -807,7 +807,18 @@ int docmd_y_pow_x(arg_struct *arg) {
                 /* Complex number to integer power */
                 phloat rre, rim, yre, yim;
                 int4 ex;
-                if (x < -2147483647.0 || x > 2147483647.0)
+                if (x < -256.0 || x > 256.0)
+                    /* At some point, the cumulative error in repeated squaring
+                     * becomes larger than the error in the polar power
+                     * formula, so we only use repeated squaring for smallish
+                     * exponents. The limit of 256 is somewhat arbitrary, but
+                     * high enough that whenever possible, the function will
+                     * return exact results for short bases, i.e. bases where
+                     * first and last nonzero digits are close together. The
+                     * smallest non-trivial base is 1+i, which can be raised to
+                     * the power 225 in the decimal version, and to the power
+                     * 107 in the binary version, with exact results.
+                     */
                     goto complex_pow_real_1;
                 rre = 1;
                 rim = 0;
