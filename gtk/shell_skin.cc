@@ -608,7 +608,6 @@ void skin_put_pixels(unsigned const char *data) {
     } else { // skin_type == IMGTYPE_TRUECOLOR
         int xx = 0;
         for (int x = 0; x < width; x++) {
-            xx++;
             *p++ = data[xx++];
             *p++ = data[xx++];
             *p++ = data[xx++];

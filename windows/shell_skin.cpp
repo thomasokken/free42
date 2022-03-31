@@ -590,10 +590,10 @@ void skin_put_pixels(unsigned const char *data) {
     } else if (skin_type == IMGTYPE_TRUECOLOR) {
         int i;
         for (i = 0; i < skin_width; i++) {
-            data++;
-            *dst++ = *data++;
-            *dst++ = *data++;
-            *dst++ = *data++;
+            *dst++ = data[2];
+            *dst++ = data[1];
+            *dst++ = data[0];
+            data += 3;
         }
     } else
         memcpy(dst, data, skin_bytesperline);
