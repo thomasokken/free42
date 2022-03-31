@@ -264,26 +264,25 @@ int shell_loadimage() {
                     lcmap[i].b = b;
                 }
                 if (pm->depth != 24) {
-                    int newbytesperline = pm->width * 4;
+                    int newbytesperline = pm->width * 3;
                     int v, h;
                     unsigned char *newpixels = (unsigned char *)
                                 malloc(newbytesperline * pm->height);
                     // TODO - handle memory allocation failure
-                    for (v = 0; v < pm->height; v++)
+                    for (v = 0; v < pm->height; v++) {
+                        unsigned char *newpixel = newpixels + newbytesperline * v;
                         for (h = 0; h < pm->width; h++) {
-                            unsigned char pixel, *newpixel;
+                            unsigned char pixel;
                             if (pm->depth == 1)
                                 pixel = (pm->pixels[pm->bytesperline * v
                                                 + (h >> 3)] >> (h & 7)) & 1;
                             else
                                 pixel = pm->pixels[pm->bytesperline * v + h];
-                            newpixel = newpixels
-                                        + (newbytesperline * v + 4 * h);
-                            newpixel[0] = 0;
-                            newpixel[1] = pm->cmap[pixel].r;
-                            newpixel[2] = pm->cmap[pixel].g;
-                            newpixel[3] = pm->cmap[pixel].b;
+                            *newpixel++ = pm->cmap[pixel].r;
+                            *newpixel++ = pm->cmap[pixel].g;
+                            *newpixel++ = pm->cmap[pixel].b;
                         }
+                    }
                     free(pm->pixels);
                     pm->pixels = newpixels;
                     pm->bytesperline = newbytesperline;
@@ -395,11 +394,10 @@ int shell_loadimage() {
                                     if (pm->depth == 8)
                                         pm->pixels[pm->bytesperline * (itop + v) + ileft + h] = pixel;
                                     else if (pm->depth == 24) {
-                                        unsigned char *rgb = pm->pixels + (pm->bytesperline * (itop + v) + 4 * (ileft + h));
-                                        rgb[0] = 0;
-                                        rgb[1] = lcmap[pixel].r;
-                                        rgb[2] = lcmap[pixel].g;
-                                        rgb[3] = lcmap[pixel].b;
+                                        unsigned char *rgb = pm->pixels + (pm->bytesperline * (itop + v) + 3 * (ileft + h));
+                                        *rgb++ = lcmap[pixel].r;
+                                        *rgb++ = lcmap[pixel].g;
+                                        *rgb = lcmap[pixel].b;
                                     } else {
                                         /* VERY inefficient. 16 memory accesses
                                          * to write one byte. Then again, 1-bit
