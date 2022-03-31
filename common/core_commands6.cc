@@ -766,14 +766,22 @@ int docmd_y_pow_x(arg_struct *arg) {
     int inf;
     vartype *res;
 
-    if (stack[sp]->type == TYPE_STRING || stack[sp - 1]->type == TYPE_STRING)
+    if (false) {
+        done:
+        if (res == NULL)
+            return ERR_INSUFFICIENT_MEMORY;
+        else
+            return binary_result(res);
+    }
+
+    if (stack[sp]->type == TYPE_STRING || stack[sp - 1]->type == TYPE_STRING) {
         return ERR_ALPHA_DATA_IS_INVALID;
-    else if (stack[sp]->type != TYPE_REAL
+    } else if (stack[sp]->type != TYPE_REAL
             && stack[sp]->type != TYPE_COMPLEX
             || stack[sp - 1]->type != TYPE_REAL
-            && stack[sp - 1]->type != TYPE_COMPLEX)
+            && stack[sp - 1]->type != TYPE_COMPLEX) {
         return ERR_INVALID_TYPE;
-    else if (stack[sp]->type == TYPE_REAL) {
+    } else if (stack[sp]->type == TYPE_REAL) {
         phloat x = ((vartype_real *) stack[sp])->x;
         if (x == floor(x)) {
             /* Integer exponent */
@@ -794,20 +802,12 @@ int docmd_y_pow_x(arg_struct *arg) {
                     r = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
                 }
                 res = new_real(r);
-                if (res == NULL)
-                    return ERR_INSUFFICIENT_MEMORY;
-                else
-                    return binary_result(res);
+                goto done;
             } else {
                 /* Complex number to integer power */
                 phloat rre, rim, yre, yim;
                 int4 ex;
                 if (x < -2147483647.0 || x > 2147483647.0)
-                    /* For really huge exponents, the repeated-squaring
-                     * algorithm for integer exponents loses its accuracy
-                     * and speed advantage, and we switch to the general
-                     * complex-to-real-power code instead.
-                     */
                     goto complex_pow_real_1;
                 rre = 1;
                 rim = 0;
@@ -816,26 +816,22 @@ int docmd_y_pow_x(arg_struct *arg) {
                 ex = to_int4(x);
                 if (ex <= 0 && yre == 0 && yim == 0)
                     return ERR_INVALID_DATA;
-                if (ex < 0) {
-                    phloat h = hypot(yre, yim);
-                    yre = yre / h / h;
-                    yim = (-yim) / h / h;
+                bool invert = ex < 0;
+                if (invert)
                     ex = -ex;
-                }
                 while (1) {
                     phloat tmp;
                     if ((ex & 1) != 0) {
                         tmp = rre * yre - rim * yim;
                         rim = rre * yim + rim * yre;
                         rre = tmp;
-                        /* TODO: can one component be infinite while
-                         * the other is zero? If yes, how do we handle
-                         * that?
-                         */
-                        if (p_isinf(rre) && p_isinf(rim))
-                            break;
+                        if (p_isinf(rre) || p_isnan(rre) || p_isinf(rim) || p_isnan(rim))
+                            goto complex_pow_real_1;
                         if (rre == 0 && rim == 0)
-                            break;
+                            if (invert)
+                                goto complex_pow_real_1;
+                            else
+                                break;
                     }
                     ex >>= 1;
                     if (ex == 0)
@@ -843,6 +839,13 @@ int docmd_y_pow_x(arg_struct *arg) {
                     tmp = yre * yre - yim * yim;
                     yim = 2 * yre * yim;
                     yre = tmp;
+                    if (p_isinf(yre) || p_isnan(yre) || p_isinf(yim) || p_isnan(yim))
+                        goto complex_pow_real_1;
+                }
+                if (invert) {
+                    phloat h = hypot(rre, rim);
+                    rre = rre / h / h;
+                    rim = (-rim) / h / h;
                 }
                 if ((inf = p_isinf(rre)) != 0) {
                     if (!flags.f.range_error_ignore)
@@ -855,10 +858,7 @@ int docmd_y_pow_x(arg_struct *arg) {
                     rim = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
                 }
                 res = new_complex(rre, rim);
-                if (res == NULL)
-                    return ERR_INSUFFICIENT_MEMORY;
-                else
-                    return binary_result(res);
+                goto done;
             }
         } else if (stack[sp - 1]->type == TYPE_REAL) {
             /* Real number to noninteger real power */
@@ -879,10 +879,7 @@ int docmd_y_pow_x(arg_struct *arg) {
                 r = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
             }
             res = new_real(r);
-            if (res == NULL)
-                return ERR_INSUFFICIENT_MEMORY;
-            else
-                return binary_result(res);
+            goto done;
         } else {
             /* Complex (or negative real) number to noninteger real power */
             complex_pow_real_1:
@@ -917,10 +914,7 @@ int docmd_y_pow_x(arg_struct *arg) {
                 rim = yr * im;
             }
             res = new_complex(rre, rim);
-            if (res == NULL)
-                return ERR_INSUFFICIENT_MEMORY;
-            else
-                return binary_result(res);
+            goto done;
         }
     } else {
         /* Real or complex number to complex power */
@@ -942,10 +936,7 @@ int docmd_y_pow_x(arg_struct *arg) {
                 return ERR_INVALID_DATA;
             else
                 res = new_complex(0, 0);
-            if (res == NULL)
-                return ERR_INSUFFICIENT_MEMORY;
-            else
-                return binary_result(res);
+            goto done;
         }
         err = mappable_ln_c(yre, yim, &lre, &lim);
         if (err != ERR_NONE)
@@ -957,10 +948,7 @@ int docmd_y_pow_x(arg_struct *arg) {
         if (err != ERR_NONE)
             return err;
         res = new_complex(xre, xim);
-        if (res == NULL)
-            return ERR_INSUFFICIENT_MEMORY;
-        else
-            return binary_result(res);
+        goto done;
     }
 }
 
