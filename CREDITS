@@ -13,7 +13,8 @@ The iPhone version's embedded HTTP server uses Minizip 1.01h, a zlib-based zip
 creation and extraction package. Minizip is (C) by Gilles Vollant.
 
 Testing: Vini Matangrano, Dave Johnson, Walter Bonin, Andrés Rodriguez,
-   Jeff O., Miguel Toro, Les Wright, Werner Huysegoms, and many others.
+   Jeff O., Miguel Toro, Les Wright, Werner Huysegoms, Vincent Weber,
+   Albert Chan, and many others.
 
 Free42 has benefited tremendously from, and probably wouldn't even exist today
 if it weren't for, these excellent pieces of Free Software: PRC-Tools by

@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <new>
 
 
 #include "shell_skin.h"
@@ -33,6 +34,16 @@ struct SkinPixmap {
 
 static SkinPixmap pixmap;
 
+struct GifColorMap {
+    SkinColor color[256];
+    short index[256];
+    GifColorMap() {
+        for (int i = 0; i < 256; i++) {
+            index[i] = -1;
+            color[i].r = color[i].g = color[i].b = 0;
+        }
+    }
+};
 
 static int read_byte(int *n) {
     int c = skin_getchar();
@@ -57,7 +68,9 @@ static int read_short(int *n) {
 
 int shell_loadimage() {
     SkinPixmap *pm = &pixmap;
-    SkinColor *lcmap = NULL;
+    GifColorMap *lcmap = NULL;
+    GifColorMap gcmap;
+    int image_colors = 0;
 
     int sig;
 
@@ -70,8 +83,9 @@ int shell_loadimage() {
     int ncolors;
     int size;
 
-    int mono;
-    int invert;
+    bool mono;
+    bool black_used = false;
+    bool white_used = false;
 
     int i, j, type, res;
     unsigned char *ptr;
@@ -133,48 +147,34 @@ int shell_loadimage() {
                 fprintf(stderr, "Fatally premature EOF.\n");
                 goto failed;
             }
-            pm->cmap[i].r = r;
-            pm->cmap[i].g = g;
-            pm->cmap[i].b = b;
+            gcmap.color[i].r = r;
+            gcmap.color[i].g = g;
+            gcmap.color[i].b = b;
         }
     } else {
         for (i = 0; i < ncolors; i++) {
             int k = (i * 255) / (ncolors - 1);
-            pm->cmap[i].r = k;
-            pm->cmap[i].g = k;
-            pm->cmap[i].b = k;
+            gcmap.color[i].r = k;
+            gcmap.color[i].g = k;
+            gcmap.color[i].b = k;
         }
     }
 
-    /* Set unused colormap entries to 'black' */
-    for (i = ncolors; i < 256; i++) {
-        pm->cmap[i].r = 0;
-        pm->cmap[i].g = 0;
-        pm->cmap[i].b = 0;
-    }
-
-    if (ncolors == 2) {
+    mono = false;
+    if (ncolors <= 2) {
         /* Test for true black & white */
-        if (pm->cmap[0].r == 0
-                && pm->cmap[0].g == 0
-                && pm->cmap[0].b == 0
-                && pm->cmap[1].r == 255
-                && pm->cmap[1].g == 255
-                && pm->cmap[1].b == 255) {
-            mono = 1;
-            invert = 0;
-        } else if (pm->cmap[0].r == 255
-                && pm->cmap[0].g == 255
-                && pm->cmap[0].b == 255
-                && pm->cmap[1].r == 0
-                && pm->cmap[1].g == 0
-                && pm->cmap[1].b == 0) {
-            mono = 1;
-            invert = 1;
-        } else
-            mono = 0;
-    } else
-        mono = 0;
+        mono = true;
+        for (i = 0; i < ncolors; i++)
+            if (!(gcmap.color[i].r == 0
+                    && gcmap.color[i].g == 0
+                    && gcmap.color[i].b == 0
+                || gcmap.color[i].r == 255
+                    && gcmap.color[i].g == 255
+                    && gcmap.color[i].b == 255)) {
+                mono = false;
+                break;
+            }
+    }
 
     if (mono) {
         pm->depth = 1;
@@ -187,7 +187,23 @@ int shell_loadimage() {
     size = pm->bytesperline * pm->height;
     pm->pixels = (unsigned char *) malloc(size);
     // TODO - handle memory allocation failure
-    memset(pm->pixels, pm->depth == 1 ? background * 255 : background, size);
+
+    if (has_global_cmap) {
+        if (pm->depth == 1) {
+            memset(pm->pixels, background * 255, size);
+            if (background == 0)
+                black_used = true;
+            else
+                white_used = true;
+        } else {
+            memset(pm->pixels, background, size);
+            pm->cmap[0] = gcmap.color[background];
+            gcmap.index[background] = 0;
+            image_colors = 1;
+        }
+    } else {
+        memset(pm->pixels, 0, size);
+    }
 
     while (1) {
         int whatnext;
@@ -244,14 +260,14 @@ int shell_loadimage() {
              */
             if ((info & 128) == 0) {
                 /* Using global color map */
-                lcmap = pm->cmap;
+                lcmap = &gcmap;
                 lbpp = bpp;
                 lncolors = ncolors;
             } else {
                 /* Using local color map */
                 lbpp = (info & 7) + 1;
                 lncolors = 1 << lbpp;
-                lcmap = (SkinColor *) malloc(256 * sizeof(SkinColor));
+                lcmap = new (std::nothrow) GifColorMap;
                 // TODO - handle memory allocation failure
                 for (i = 0; i < lncolors; i++) {
                     int r, g, b;
@@ -259,34 +275,9 @@ int shell_loadimage() {
                             || !read_byte(&g)
                             || !read_byte(&b))
                         goto unexp_eof;
-                    lcmap[i].r = r;
-                    lcmap[i].g = g;
-                    lcmap[i].b = b;
-                }
-                if (pm->depth != 24) {
-                    int newbytesperline = pm->width * 3;
-                    int v, h;
-                    unsigned char *newpixels = (unsigned char *)
-                                malloc(newbytesperline * pm->height);
-                    // TODO - handle memory allocation failure
-                    for (v = 0; v < pm->height; v++) {
-                        unsigned char *newpixel = newpixels + newbytesperline * v;
-                        for (h = 0; h < pm->width; h++) {
-                            unsigned char pixel;
-                            if (pm->depth == 1)
-                                pixel = (pm->pixels[pm->bytesperline * v
-                                                + (h >> 3)] >> (h & 7)) & 1;
-                            else
-                                pixel = pm->pixels[pm->bytesperline * v + h];
-                            *newpixel++ = pm->cmap[pixel].r;
-                            *newpixel++ = pm->cmap[pixel].g;
-                            *newpixel++ = pm->cmap[pixel].b;
-                        }
-                    }
-                    free(pm->pixels);
-                    pm->pixels = newpixels;
-                    pm->bytesperline = newbytesperline;
-                    pm->depth = 24;
+                    lcmap->color[i].r = r;
+                    lcmap->color[i].g = g;
+                    lcmap->color[i].b = b;
                 }
             }
 
@@ -391,27 +382,120 @@ int shell_loadimage() {
                                 }
                                 for (j = explen - 1; j >= 0; j--) {
                                     int pixel = expanded[j];
-                                    if (pm->depth == 8)
-                                        pm->pixels[pm->bytesperline * (itop + v) + ileft + h] = pixel;
-                                    else if (pm->depth == 24) {
-                                        unsigned char *rgb = pm->pixels + (pm->bytesperline * (itop + v) + 3 * (ileft + h));
-                                        *rgb++ = lcmap[pixel].r;
-                                        *rgb++ = lcmap[pixel].g;
-                                        *rgb = lcmap[pixel].b;
-                                    } else {
-                                        /* VERY inefficient. 16 memory accesses
-                                         * to write one byte. Then again, 1-bit
-                                         * images never consume very many bytes
-                                         * and I'm in a hurry. Maybe TODO.
-                                         */
+                                    if (pm->depth == 1) {
+                                        int p = lcmap->index[pixel];
+                                        if (p == -1) {
+                                            unsigned char r = lcmap->color[pixel].r;
+                                            unsigned char g = lcmap->color[pixel].g;
+                                            unsigned char b = lcmap->color[pixel].b;
+                                            if (r == 0 && g == 0 && b == 0) {
+                                                p = 0;
+                                                black_used = true;
+                                            } else if (r == 255 && g == 255 || b == 255) {
+                                                p = 1;
+                                                white_used = true;
+                                            } else {
+                                                /* Not black & white; switch to 8-bit */
+                                                int newbytesperline = pm->width;
+                                                int newsize = newbytesperline * pm->height;
+                                                unsigned char *newpixels = (unsigned char *)
+                                                            malloc(newsize);
+                                                // TODO - handle memory allocation failure
+                                                if (!white_used || !black_used)
+                                                    memset(newpixels, 0, newsize);
+                                                else
+                                                    for (int v = 0; v < pm->height; v++) {
+                                                        unsigned char *newpixel = newpixels + newbytesperline * v;
+                                                        for (int h = 0; h < pm->width; h++) {
+                                                            unsigned char px = (pm->pixels[pm->bytesperline * v + (h >> 3)] >> (h & 7)) & 1;
+                                                            *newpixel++ = px;
+                                                        }
+                                                    }
+                                                free(pm->pixels);
+                                                pm->pixels = newpixels;
+                                                pm->bytesperline = newbytesperline;
+                                                pm->depth = 8;
+                                                if (black_used && white_used) {
+                                                    pm->cmap[0].r = 0;
+                                                    pm->cmap[0].g = 0;
+                                                    pm->cmap[0].b = 0;
+                                                    pm->cmap[1].r = 255;
+                                                    pm->cmap[1].g = 255;
+                                                    pm->cmap[1].b = 255;
+                                                    image_colors = 2;
+                                                } else if (black_used || white_used) {
+                                                    unsigned char c = black_used ? 0 : 255;
+                                                    pm->cmap[0].r = c;
+                                                    pm->cmap[0].g = c;
+                                                    pm->cmap[0].b = c;
+                                                    image_colors = 1;
+                                                } else {
+                                                    image_colors = 0;
+                                                }
+                                                if (white_used && !black_used)
+                                                    for (i = 0; i < 256; i++)
+                                                        if (lcmap->index[i] == 1)
+                                                            lcmap->index[i] = 0;
+                                                goto indexed;
+                                            }
+                                            lcmap->index[pixel] = p;
+                                        }
                                         int x = ileft + h;
-                                        int index = pm->bytesperline
-                                                * (itop + v) + (x >> 3);
+                                        int index = pm->bytesperline * (itop + v) + (x >> 3);
                                         unsigned char mask = 1 << (x & 7);
-                                        if (pixel)
+                                        if (p)
                                             pm->pixels[index] |= mask;
                                         else
                                             pm->pixels[index] &= ~mask;
+                                    } else if (pm->depth == 8) {
+                                        indexed:
+                                        int p = lcmap->index[pixel];
+                                        if (p == -1) {
+                                            unsigned char r = lcmap->color[pixel].r;
+                                            unsigned char g = lcmap->color[pixel].g;
+                                            unsigned char b = lcmap->color[pixel].b;
+                                            for (p = 0; p < image_colors; p++)
+                                                if (pm->cmap[p].r == r
+                                                        && pm->cmap[p].g == g
+                                                        && pm->cmap[p].b == b) {
+                                                    lcmap->index[pixel] = p;
+                                                    goto found;
+                                                }
+                                            if (image_colors == 256) {
+                                                /* Out of colormap entries; switch to truecolor */
+                                                int newbytesperline = pm->width * 3;
+                                                unsigned char *newpixels = (unsigned char *)
+                                                            malloc(newbytesperline * pm->height);
+                                                // TODO - handle memory allocation failure
+                                                for (int v = 0; v < pm->height; v++) {
+                                                    unsigned char *newpixel = newpixels + newbytesperline * v;
+                                                    for (int h = 0; h < pm->width; h++) {
+                                                        unsigned char px = pm->pixels[pm->bytesperline * v + h];
+                                                        *newpixel++ = pm->cmap[px].r;
+                                                        *newpixel++ = pm->cmap[px].g;
+                                                        *newpixel++ = pm->cmap[px].b;
+                                                    }
+                                                }
+                                                free(pm->pixels);
+                                                pm->pixels = newpixels;
+                                                pm->bytesperline = newbytesperline;
+                                                pm->depth = 24;
+                                                goto truecolor;
+                                            }
+                                            p = image_colors++;
+                                            pm->cmap[p].r = r;
+                                            pm->cmap[p].g = g;
+                                            pm->cmap[p].b = b;
+                                            lcmap->index[pixel] = p;
+                                        }
+                                        found:
+                                        pm->pixels[pm->bytesperline * (itop + v) + ileft + h] = p;
+                                    } else {
+                                        truecolor:
+                                        unsigned char *rgb = pm->pixels + (pm->bytesperline * (itop + v) + 3 * (ileft + h));
+                                        *rgb++ = lcmap->color[pixel].r;
+                                        *rgb++ = lcmap->color[pixel].g;
+                                        *rgb = lcmap->color[pixel].b;
                                     }
                                     if (++h == iwidth) {
                                         h = 0;
@@ -478,8 +562,8 @@ int shell_loadimage() {
                     goto unexp_eof;
             }
 
-            if (lcmap != pm->cmap)
-                free(lcmap);
+            if (lcmap != &gcmap)
+                delete lcmap;
             lcmap = NULL;
 
         } else if (whatnext == '!') {
@@ -509,18 +593,11 @@ int shell_loadimage() {
     }
 
     done:
-    if (lcmap != NULL && lcmap != pm->cmap)
-        free(lcmap);
-    if (pm->depth == 24) {
+    if (lcmap != NULL && lcmap != &gcmap)
+        delete lcmap;
+    if (pm->depth == 1 || pm->depth == 24) {
         free(pm->cmap);
         pm->cmap = NULL;
-    }
-    if (pm->depth == 1) {
-        free(pm->cmap);
-        pm->cmap = NULL;
-        if (invert)
-            for (i = 0; i < size; i++)
-                pm->pixels[i] = ~pm->pixels[i];
     }
 
     /* Successfully read the image. Now, write it out: */
@@ -554,8 +631,8 @@ int shell_loadimage() {
 
 
     failed:
-    if (lcmap != NULL && lcmap != pm->cmap)
-        free(lcmap);
+    if (lcmap != NULL && lcmap != &gcmap)
+        delete lcmap;
     if (pm->cmap != NULL) {
         free(pm->cmap);
         pm->cmap = NULL;
