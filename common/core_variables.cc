@@ -298,12 +298,13 @@ bool put_matrix_string(vartype_realmatrix *rm, int i, const char *text, int4 len
         *(int4 **) &rm->array->data[i] = p;
         rm->array->is_string[i] = 2;
     } else {
-        if (rm->array->is_string[i] == 2)
-            free(*(void **) &rm->array->data[i]);
+        void *oldptr = rm->array->is_string[i] == 2 ? *(void **) &rm->array->data[i] : NULL;
         char *t = (char *) &rm->array->data[i];
         t[0] = length;
         memmove(t + 1, text, length);
         rm->array->is_string[i] = 1;
+        if (oldptr != NULL)
+            free(oldptr);
     }
     return true;
 }
