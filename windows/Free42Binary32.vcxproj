@@ -11,8 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{1757EC64-6C3D-413F-855B-32605476D747}</ProjectGuid>
-    <RootNamespace>Free42Decimal</RootNamespace>
+    <ProjectGuid>{DF1D5B05-23C8-432A-94BF-ACC78831C191}</ProjectGuid>
+    <RootNamespace>Free42Binary</RootNamespace>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -53,7 +53,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;FREE42_FPTEST;_WINDOWS;WINDOWS;_CRT_SECURE_NO_WARNINGS;BCD_MATH;DECIMAL_CALL_BY_REFERENCE=1;DECIMAL_GLOBAL_ROUNDING=1;DECIMAL_GLOBAL_ROUNDING_ACCESS_FUNCTIONS=1;DECIMAL_GLOBAL_EXCEPTION_FLAGS=1;DECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;FREE42_FPTEST;_WINDOWS;WINDOWS;_CRT_SECURE_NO_WARNINGS;DECIMAL_CALL_BY_REFERENCE=1;DECIMAL_GLOBAL_ROUNDING=1;DECIMAL_GLOBAL_ROUNDING_ACCESS_FUNCTIONS=1;DECIMAL_GLOBAL_EXCEPTION_FLAGS=1;DECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeader />
@@ -63,7 +63,7 @@
     </ClCompile>
     <Link>
       <AdditionalOptions>/NODEFAULTLIB:libcmt.lib %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>cl111libbid.lib;winmm.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>cl111libbid32.lib;winmm.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
@@ -74,7 +74,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;WINDOWS;_CRT_SECURE_NO_WARNINGS;BCD_MATH;DECIMAL_CALL_BY_REFERENCE=1;DECIMAL_GLOBAL_ROUNDING=1;DECIMAL_GLOBAL_ROUNDING_ACCESS_FUNCTIONS=1;DECIMAL_GLOBAL_EXCEPTION_FLAGS=1;DECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;WINDOWS;_CRT_SECURE_NO_WARNINGS;DECIMAL_CALL_BY_REFERENCE=1;DECIMAL_GLOBAL_ROUNDING=1;DECIMAL_GLOBAL_ROUNDING_ACCESS_FUNCTIONS=1;DECIMAL_GLOBAL_EXCEPTION_FLAGS=1;DECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader />
@@ -84,7 +84,7 @@
     </ClCompile>
     <Link>
       <AdditionalOptions>/NODEFAULTLIB:libcmt.lib %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>cl111libbid.lib;winmm.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>cl111libbid32.lib;winmm.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>

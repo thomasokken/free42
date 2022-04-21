@@ -6,13 +6,22 @@
 mkdir -p packages
 
 cd windows
-sh ./build-intel-lib.sh
+sh ./build-intel-lib.sh 32
+rm -rf IntelRDFPMathLib20U1
+sh ./build-intel-lib.sh 64
 cmd /c build-all.bat
 cd ..
-rm -rf Free42Windows
+rm -rf Free42Windows-32bit
+mkdir Free42Windows-32bit
+cp windows/README.txt Free42Windows-32bit
+mv windows/32/Free42Binary.exe Free42Windows-32bit
+mv windows/32/Free42Decimal.exe Free42Windows-32bit
+rmdir windows/32
+zip -r packages/Free42Windows-32bit.zip Free42Windows-32bit
+rm -rf Free42Windows-32bit
 mkdir Free42Windows
 cp windows/README.txt Free42Windows
-cp windows/Free42Binary.exe Free42Windows
-cp windows/Free42Decimal.exe Free42Windows
+mv windows/Free42Binary.exe Free42Windows
+mv windows/Free42Decimal.exe Free42Windows
 zip -r packages/Free42Windows.zip Free42Windows
 rm -rf Free42Windows
