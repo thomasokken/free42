@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{D1567DAB-064D-4910-9FC6-47C93041594C}</ProjectGuid>
+    <RootNamespace>Free42Decimal</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>NotSet</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>16.0.29511.113</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+    <TargetName>Free42Decimal</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <TargetName>Free42Decimal</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_WIN64;_DEBUG;FREE42_FPTEST;_WINDOWS;WINDOWS;_CRT_SECURE_NO_WARNINGS;BCD_MATH;DECIMAL_CALL_BY_REFERENCE=1;DECIMAL_GLOBAL_ROUNDING=1;DECIMAL_GLOBAL_ROUNDING_ACCESS_FUNCTIONS=1;DECIMAL_GLOBAL_EXCEPTION_FLAGS=1;DECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;4800;4309;4756;4723;4244;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <AdditionalOptions>/NODEFAULTLIB:libcmt.lib %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>cl111libbid64.lib;winmm.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX64</TargetMachine>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;_WIN64;NDEBUG;_WINDOWS;WINDOWS;_CRT_SECURE_NO_WARNINGS;BCD_MATH;DECIMAL_CALL_BY_REFERENCE=1;DECIMAL_GLOBAL_ROUNDING=1;DECIMAL_GLOBAL_ROUNDING_ACCESS_FUNCTIONS=1;DECIMAL_GLOBAL_EXCEPTION_FLAGS=1;DECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;4800;4309;4756;4723;4244;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <AdditionalOptions>/NODEFAULTLIB:libcmt.lib %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>cl111libbid64.lib;winmm.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="core_commands1.cpp" />
+    <ClCompile Include="core_commands2.cpp" />
+    <ClCompile Include="core_commands3.cpp" />
+    <ClCompile Include="core_commands4.cpp" />
+    <ClCompile Include="core_commands5.cpp" />
+    <ClCompile Include="core_commands6.cpp" />
+    <ClCompile Include="core_commands7.cpp" />
+    <ClCompile Include="core_display.cpp" />
+    <ClCompile Include="core_globals.cpp" />
+    <ClCompile Include="core_helpers.cpp" />
+    <ClCompile Include="core_keydown.cpp" />
+    <ClCompile Include="core_linalg1.cpp" />
+    <ClCompile Include="core_linalg2.cpp" />
+    <ClCompile Include="core_main.cpp" />
+    <ClCompile Include="core_math1.cpp" />
+    <ClCompile Include="core_math2.cpp" />
+    <ClCompile Include="core_phloat.cpp" />
+    <ClCompile Include="core_sto_rcl.cpp" />
+    <ClCompile Include="core_tables.cpp" />
+    <ClCompile Include="core_variables.cpp" />
+    <ClCompile Include="keymap.cpp" />
+    <ClCompile Include="msg2string.cpp" />
+    <ClCompile Include="readtest.c">
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">-I IntelRDFPMathLib20U1/TESTS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">-I IntelRDFPMathLib20U1/TESTS %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <ClCompile Include="readtest_lines.cpp">
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <ClCompile Include="shell_loadimage.cpp" />
+    <ClCompile Include="shell_main.cpp" />
+    <ClCompile Include="shell_skin.cpp" />
+    <ClCompile Include="shell_spool.cpp" />
+    <ClCompile Include="skins.cpp" />
+    <ClCompile Include="StatesWindow.cpp" />
+    <ClCompile Include="StdAfx.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="bid_conf.h" />
+    <ClInclude Include="bid_functions.h" />
+    <ClInclude Include="core_commands1.h" />
+    <ClInclude Include="core_commands2.h" />
+    <ClInclude Include="core_commands3.h" />
+    <ClInclude Include="core_commands4.h" />
+    <ClInclude Include="core_commands5.h" />
+    <ClInclude Include="core_commands6.h" />
+    <ClInclude Include="core_commands7.h" />
+    <ClInclude Include="core_display.h" />
+    <ClInclude Include="core_globals.h" />
+    <ClInclude Include="core_helpers.h" />
+    <ClInclude Include="core_keydown.h" />
+    <ClInclude Include="core_linalg1.h" />
+    <ClInclude Include="core_linalg2.h" />
+    <ClInclude Include="core_main.h" />
+    <ClInclude Include="core_math1.h" />
+    <ClInclude Include="core_math2.h" />
+    <ClInclude Include="core_phloat.h" />
+    <ClInclude Include="core_sto_rcl.h" />
+    <ClInclude Include="core_tables.h" />
+    <ClInclude Include="core_variables.h" />
+    <ClInclude Include="free42.h" />
+    <ClInclude Include="msg2string.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="shell.h" />
+    <ClInclude Include="shell_loadimage.h" />
+    <ClInclude Include="shell_main.h" />
+    <ClInclude Include="shell_skin.h" />
+    <ClInclude Include="shell_spool.h" />
+    <ClInclude Include="StatesWindow.h" />
+    <ClInclude Include="StdAfx.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Free42.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Free42.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

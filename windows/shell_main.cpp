@@ -83,8 +83,8 @@ static char szPrintOutTitle[MAX_LOADSTRING];       // The print-out title bar te
 static char szMainWindowClass[MAX_LOADSTRING];     // The main window class
 static char szPrintOutWindowClass[MAX_LOADSTRING]; // The print-out window class
 
-static UINT timer = 0;
-static UINT timer3 = 0;
+static UINT_PTR timer = 0;
+static UINT_PTR timer3 = 0;
 static bool running = false;
 static bool enqueued = false;
 
@@ -140,7 +140,7 @@ static int ann_run = 0;
 static int ann_battery = 0;
 static int ann_g = 0;
 static int ann_rad = 0;
-static UINT ann_print_timer = 0;
+static UINT_PTR ann_print_timer = 0;
 
 
 // Forward declarations of functions included in this code module:
@@ -156,11 +156,11 @@ static void copy();
 static void paste();
 static void Quit();
 
-static VOID CALLBACK repeater(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime);
-static VOID CALLBACK timeout1(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime);
-static VOID CALLBACK timeout2(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime);
-static VOID CALLBACK timeout3(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime);
-static VOID CALLBACK battery_checker(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime);
+static VOID CALLBACK repeater(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
+static VOID CALLBACK timeout1(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
+static VOID CALLBACK timeout2(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
+static VOID CALLBACK timeout3(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
+static VOID CALLBACK battery_checker(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
 
 static void show_printout();
 static void export_program();
@@ -1201,10 +1201,10 @@ static LRESULT CALLBACK ExportProgram(HWND hDlg, UINT message, WPARAM wParam, LP
                     int wlen = MultiByteToWideChar(CP_UTF8, 0, p, len, NULL, 0);
                     wchar_t *wbuf = (wchar_t *) malloc(wlen * 2);
                     if (wbuf == NULL) {
-                        SendMessageW(list, LB_ADDSTRING, 0, (long) L"<Low Mem>");
+                        SendMessageW(list, LB_ADDSTRING, 0, (WPARAM) L"<Low Mem>");
                     } else {
                         MultiByteToWideChar(CP_UTF8, 0, p, len, wbuf, wlen);
-                        SendMessageW(list, LB_ADDSTRING, 0, (long) wbuf);
+                        SendMessageW(list, LB_ADDSTRING, 0, (WPARAM) wbuf);
                         free(wbuf);
                     }
                     p += len;
@@ -1222,7 +1222,7 @@ static LRESULT CALLBACK ExportProgram(HWND hDlg, UINT message, WPARAM wParam, LP
                     if (sel_prog_count > 0) {
                         sel_prog_list = (int *) malloc(sel_prog_count * sizeof(int));
                         // TODO - handle memory allocation failure
-                        SendMessage(list, LB_GETSELITEMS, sel_prog_count, (long) sel_prog_list);
+                        SendMessage(list, LB_GETSELITEMS, sel_prog_count, (LPARAM) sel_prog_list);
                     }
                     EndDialog(hDlg, 1);
                     return TRUE;
@@ -1655,7 +1655,7 @@ static void Quit() {
     shell_spool_exit();
 }
 
-static VOID CALLBACK repeater(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) {
+static VOID CALLBACK repeater(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime) {
     KillTimer(NULL, timer);
     int repeat = core_repeat();
     if (repeat != 0)
@@ -1664,7 +1664,7 @@ static VOID CALLBACK repeater(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) 
         timer = SetTimer(NULL, 0, 250, timeout1);
 }
 
-static VOID CALLBACK timeout1(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) {
+static VOID CALLBACK timeout1(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime) {
     KillTimer(NULL, timer);
     if (ckey != 0) {
         core_keytimeout1();
@@ -1673,14 +1673,14 @@ static VOID CALLBACK timeout1(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) 
         timer = 0;
 }
 
-static VOID CALLBACK timeout2(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) {
+static VOID CALLBACK timeout2(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime) {
     KillTimer(NULL, timer);
     if (ckey != 0)
         core_keytimeout2();
     timer = 0;
 }
 
-static VOID CALLBACK timeout3(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) {
+static VOID CALLBACK timeout3(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime) {
     KillTimer(NULL, timer3);
     bool keep_running = core_timeout3(true);
     timer3 = 0;
@@ -1691,7 +1691,7 @@ static VOID CALLBACK timeout3(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) 
     }
 }
 
-static VOID CALLBACK battery_checker(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) {
+static VOID CALLBACK battery_checker(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime) {
     shell_low_battery();
 }
 
@@ -2166,7 +2166,7 @@ void shell_beeper(int frequency, int duration) {
         SND_RESOURCE);
 }
 
-static VOID CALLBACK ann_print_timeout(HWND hwnd, UINT uMsg, UINT idEvent, DWORD dwTime) {
+static VOID CALLBACK ann_print_timeout(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime) {
     KillTimer(NULL, ann_print_timer);
     ann_print_timer = 0;
     ann_print = 0;
@@ -2241,7 +2241,11 @@ void shell_request_timeout3(int delay) {
 uint4 shell_get_mem() {
     MEMORYSTATUS memstat;
     GlobalMemoryStatus(&memstat);
+#ifdef _WIN64
     return memstat.dwAvailPhys;
+#else
+    return memstat.dwAvailPhys > 0x0ffffffff ? (uint4)-1 : (uint4)memstat.dwAvailPhys;
+#endif
 }
 
 bool shell_low_battery() {
