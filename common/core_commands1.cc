@@ -675,7 +675,7 @@ int docmd_clp(arg_struct *arg) {
     return clear_prgm(arg);
 }
 
-int docmd_clv(arg_struct *arg) {
+static int clv_helper(arg_struct *arg, bool global) {
     int err;
     if (arg->type == ARGTYPE_IND_NUM
             || arg->type == ARGTYPE_IND_STK
@@ -690,11 +690,20 @@ int docmd_clv(arg_struct *arg) {
         if (matedit_mode == 3
                 && string_equals(arg->val.text, arg->length, matedit_name, matedit_length))
             return ERR_RESTRICTED_OPERATION;
-        purge_var(arg->val.text, arg->length);
+        if (!purge_var(arg->val.text, arg->length, global, !global))
+            return ERR_RESTRICTED_OPERATION;
         remove_shadow(arg->val.text, arg->length);
         return ERR_NONE;
     } else
         return ERR_INVALID_TYPE;
+}
+
+int docmd_clv(arg_struct *arg) {
+    return clv_helper(arg, true);
+}
+
+int docmd_lclv(arg_struct *arg) {
+    return clv_helper(arg, false);
 }
 
 int docmd_clst(arg_struct *arg) {

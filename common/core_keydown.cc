@@ -2232,7 +2232,7 @@ void keydown_normal_mode(int shift, int key) {
                                 pending_command = CMD_NONE;
                                 redisplay();
                                 return;
-                            } else if (cmd == CMD_CLV || cmd == CMD_PRV) {
+                            } else if (cmd == CMD_CLV || cmd == CMD_PRV || cmd == CMD_LCLV) {
                                 if (!flags.f.prgm_mode && vars_count == 0) {
                                     display_error(ERR_NO_VARIABLES, false);
                                     pending_command = CMD_NONE;

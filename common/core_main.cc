@@ -1737,7 +1737,7 @@ static int hp42ext[] = {
     CMD_NULL | 0x4000,
     CMD_NULL | 0x4000,
     CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
+    CMD_LCLV | 0x2000,
     CMD_NULL | 0x4000,
     CMD_NULL | 0x4000,
     CMD_NULL | 0x4000,
@@ -1752,6 +1752,7 @@ static int hp42ext[] = {
 
     /* 70-7F */
     CMD_NULL | 0x4000,
+    CMD_LCLV | 0x0000,
     CMD_NULL | 0x4000,
     CMD_NULL | 0x4000,
     CMD_NULL | 0x4000,
@@ -1759,8 +1760,7 @@ static int hp42ext[] = {
     CMD_NULL | 0x4000,
     CMD_NULL | 0x4000,
     CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
+    CMD_LCLV | 0x1000,
     CMD_NULL | 0x4000,
     CMD_NULL | 0x4000,
     CMD_NULL | 0x4000,
@@ -4696,7 +4696,7 @@ void do_interactive(int command) {
         set_menu(MENULEVEL_ALPHA, MENU_NONE);
         redisplay();
         return;
-    } else if (command == CMD_CLV || command == CMD_PRV) {
+    } else if (command == CMD_CLV || command == CMD_PRV || command == CMD_LCLV) {
         if (!flags.f.prgm_mode && vars_count == 0) {
             display_error(ERR_NO_VARIABLES, false);
             redisplay();
@@ -5167,7 +5167,7 @@ void finish_xeq() {
             shell_delay(250);
             pending_command = CMD_NONE;
             set_menu(MENULEVEL_COMMAND, MENU_NONE);
-            if ((cmd == CMD_CLV || cmd == CMD_PRV)
+            if ((cmd == CMD_CLV || cmd == CMD_PRV || cmd == CMD_LCLV)
                     && !flags.f.prgm_mode && vars_count == 0) {
                 display_error(ERR_NO_VARIABLES, false);
                 pending_command = CMD_NONE;
