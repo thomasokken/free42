@@ -3054,7 +3054,7 @@ void shell_request_timeout3(int delay) {
     timeout3_id = g_timeout_add(delay, timeout3, NULL);
 }
 
-uint4 shell_get_mem() { 
+uint8 shell_get_mem() {
     FILE *meminfo = fopen("/proc/meminfo", "r");
     char line[1024];
     uint8 bytes = 0;
@@ -3065,13 +3065,11 @@ uint4 shell_get_mem() {
             uint8 kbytes;
             if (sscanf(line + 8, "%llu", &kbytes) == 1)
                 bytes = 1024 * kbytes;
-            if (bytes > 4294967295)
-                bytes = 4294967295;
             break;
         }
     }
     fclose(meminfo);
-    return (uint4) bytes;
+    return bytes;
 }
 
 bool shell_low_battery() {

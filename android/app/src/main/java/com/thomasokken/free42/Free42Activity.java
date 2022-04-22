@@ -2233,9 +2233,8 @@ public class Free42Activity extends Activity {
      * shell_get_mem()
      * Callback to get the amount of free memory in bytes.
      */
-    public int shell_get_mem() {
-        long freeMem = Runtime.getRuntime().freeMemory();
-        return freeMem > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) freeMem;
+    public long shell_get_mem() {
+        return Runtime.getRuntime().freeMemory();
     }
     
     /**
