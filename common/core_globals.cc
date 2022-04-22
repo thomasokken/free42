@@ -1880,9 +1880,6 @@ static bool unpersist_globals() {
                 goto done;
             }
         vars_capacity = vars_count;
-
-        // Purging zero-length var that may have been created by buggy INTEG
-        purge_var("", 0);
     }
 
     prgms_count = 0;

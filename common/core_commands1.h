@@ -67,6 +67,7 @@ int docmd_rdxcomma(arg_struct *arg);
 int docmd_clsigma(arg_struct *arg);
 int docmd_clp(arg_struct *arg);
 int docmd_clv(arg_struct *arg);
+int docmd_lclv(arg_struct *arg);
 int docmd_clst(arg_struct *arg);
 int docmd_clrg(arg_struct *arg);
 int docmd_del(arg_struct *arg);

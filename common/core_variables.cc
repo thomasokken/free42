@@ -568,13 +568,25 @@ int store_var(const char *name, int namelength, vartype *value, bool local) {
     return ERR_NONE;
 }
 
-void purge_var(const char *name, int namelength) {
+bool purge_var(const char *name, int namelength, bool global, bool local) {
     int varindex = lookup_var(name, namelength);
     if (varindex == -1)
-        return;
-    if (vars[varindex].level != -1 && vars[varindex].level != get_rtn_level())
-        // Won't delete local var not created at this level
-        return;
+        return true;
+    if (vars[varindex].level == -1) {
+        if (!global)
+            // Asked to delete a local, but found a global;
+            // not an error, but don't delete.
+            return true;
+    } else {
+        if (!local)
+            // Asked to delete a global, but found a local;
+            // that's an error.
+            return false;
+        if (vars[varindex].level != get_rtn_level())
+            // Found a local at a lower level;
+            // not an error, but don't delete.
+            return true;
+    }
     if (matedit_mode == 1 && string_equals(matedit_name, matedit_length, name, namelength))
         matedit_mode = 0;
     free_vartype(vars[varindex].value);
@@ -590,6 +602,7 @@ void purge_var(const char *name, int namelength) {
         vars[i] = vars[i + 1];
     vars_count--;
     update_catalog();
+    return true;
 }
 
 void purge_all_vars() {
