@@ -464,12 +464,12 @@ void shell_request_timeout3(int delay) {
     env->DeleteLocalRef(klass);
 }
 
-unsigned int shell_get_mem() {
+uint8 shell_get_mem() {
     Tracer T("shell_get_mem");
     JNIEnv *env = getJniEnv();
     jclass klass = env->GetObjectClass(g_activity);
-    jmethodID mid = env->GetMethodID(klass, "shell_get_mem", "()I");
-    unsigned int ret = env->CallIntMethod(g_activity, mid);
+    jmethodID mid = env->GetMethodID(klass, "shell_get_mem", "()J");
+    uint8 ret = env->CallLongMethod(g_activity, mid);
     // Delete local references
     env->DeleteLocalRef(klass);
     return ret;

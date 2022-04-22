@@ -1517,6 +1517,18 @@ int int2string(int4 n, char *buf, int buflen) {
     return count + uint2string(u, buf + count, buflen - count);
 }
 
+int ulong2string(uint8 n, char *buf, int buflen) {
+    uint8 pt = 1;
+    int count = 0;
+    while (n / pt >= 10)
+        pt *= 10;
+    while (pt != 0) {
+        char2buf(buf, buflen, &count, (char) ('0' + (n / pt) % 10));
+        pt /= 10;
+    }
+    return count;
+}
+
 int vartype2string(const vartype *v, char *buf, int buflen, int max_mant_digits) {
     int dispmode;
     int digits = 0;

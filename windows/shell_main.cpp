@@ -2231,14 +2231,10 @@ void shell_request_timeout3(int delay) {
     timer3 = SetTimer(NULL, 0, delay, timeout3);
 }
 
-uint4 shell_get_mem() {
+uint8 shell_get_mem() {
     MEMORYSTATUS memstat;
     GlobalMemoryStatus(&memstat);
-#ifdef _WIN64
     return memstat.dwAvailPhys;
-#else
-    return memstat.dwAvailPhys > 0x0ffffffff ? (uint4)-1 : (uint4)memstat.dwAvailPhys;
-#endif
 }
 
 bool shell_low_battery() {

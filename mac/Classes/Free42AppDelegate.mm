@@ -1496,7 +1496,7 @@ void shell_delay(int duration) {
     nanosleep(&ts, NULL);
 }
 
-uint4 shell_get_mem() {
+uint8 shell_get_mem() {
     uint8 bytes = 0;
     mach_msg_type_number_t count = HOST_VM_INFO_COUNT;
     vm_statistics_data_t vmstat;
@@ -1504,9 +1504,7 @@ uint4 shell_get_mem() {
         bytes = vmstat.free_count;
         bytes *= getpagesize();
     }
-    if (bytes > 4294967295)
-        bytes = 4294967295;
-    return (uint4) bytes;
+    return bytes;
 }
 
 void shell_blitter(const char *bits, int bytesperline, int x, int y, int width, int height) {

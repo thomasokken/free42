@@ -111,7 +111,7 @@ void shell_request_timeout3(int delay);
  *
  * Callback to get the amount of free memory in bytes.
  */
-uint4 shell_get_mem();
+uint8 shell_get_mem();
 
 /* shell_low_battery()
  *
