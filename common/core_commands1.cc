@@ -1071,20 +1071,16 @@ int docmd_fp(arg_struct *arg) {
 static phloat rnd_multiplier;
 
 static int mappable_rnd_r(phloat x, phloat *y) {
-    if (flags.f.fix_or_all) {
-        if (flags.f.eng_or_all)
+    if (flags.f.fix_or_all && !flags.f.eng_or_all) {
+        phloat t = x;
+        int neg = t < 0;
+        if (neg)
+            t = -t;
+        if (t >= ALWAYS_INT_FROM)
             *y = x;
         else {
-            phloat t = x;
-            int neg = t < 0;
-            if (neg)
-                t = -t;
-            if (t >= ALWAYS_INT_FROM)
-                *y = x;
-            else {
-                t = floor(t * rnd_multiplier + 0.5) / rnd_multiplier;
-                *y = neg ? -t : t;
-            }
+            t = floor(t * rnd_multiplier + 0.5) / rnd_multiplier;
+            *y = neg ? -t : t;
         }
         return ERR_NONE;
     } else {
@@ -1132,11 +1128,16 @@ static int mappable_rnd_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
 int docmd_rnd(arg_struct *arg) {
     vartype *v;
     int err;
-    int digits = 0;
-    if (flags.f.digits_bit3) digits += 8;
-    if (flags.f.digits_bit2) digits += 4;
-    if (flags.f.digits_bit1) digits += 2;
-    if (flags.f.digits_bit0) digits += 1;
+    int digits;
+    if (flags.f.fix_or_all && flags.f.eng_or_all) {
+        digits = 11;
+    } else {
+        digits = 0;
+        if (flags.f.digits_bit3) digits += 8;
+        if (flags.f.digits_bit2) digits += 4;
+        if (flags.f.digits_bit1) digits += 2;
+        if (flags.f.digits_bit0) digits += 1;
+    }
     rnd_multiplier = pow(10.0, digits);
     err = map_unary(stack[sp], &v, mappable_rnd_r, mappable_rnd_c);
     if (err == ERR_NONE)
