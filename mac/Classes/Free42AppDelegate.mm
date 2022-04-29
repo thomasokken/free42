@@ -953,15 +953,20 @@ static char version[32] = "";
 
 + (const char *) getVersion {
     if (version[0] == 0) {
-        NSString *appVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"];
+        NSString *appVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
         strcpy(version, [appVersion UTF8String]);
-        // Version string consists of up to four dot-separated numbers.
-        // If there are four, change the last ".nn" to a letter.
+        // Version string consists of up to three dot-separated numbers.
+        // If there are three, change the last ".nn" to a letter.
         int pos, num;
-        if (sscanf(version, "%*d.%*d.%*d.%n%d", &pos, &num) == 1) {
+        if (sscanf(version, "%*d.%*d.%n%d", &pos, &num) == 1) {
             version[pos - 1] = 'a' + num - 1;
             version[pos] = 0;
         }
+        // The first consists of the major and minor version components
+        // joined together. *sigh* Long story.
+        int len = strlen(version);
+        memmove(version + 2, version + 1, len);
+        version[1] = '.';
     }
     return version;
 }
