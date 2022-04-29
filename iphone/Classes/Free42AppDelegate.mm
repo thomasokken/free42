@@ -67,7 +67,7 @@ static char version[32] = "";
         }
         // The first consists of the major and minor version components
         // joined together. *sigh* Long story.
-        int len = strlen(version);
+        size_t len = strlen(version);
         memmove(version + 2, version + 1, len);
         version[1] = '.';
     }   
