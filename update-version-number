@@ -70,7 +70,7 @@ if not version_raw[-1].isdigit():
     version_raw = version_raw[0:-1]
 else:
     version_final = 0
-version_comps = map(int, version_raw.split('.'))
+version_comps = version_raw.split('.')
 while len(version_comps) < 3:
     version_comps.append(0)
 version_comps.append(version_final)
