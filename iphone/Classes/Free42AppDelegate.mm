@@ -61,15 +61,27 @@ static char version[32] = "";
         // Version string consists of up to three dot-separated numbers.
         // If there are three, change the last ".nn" to a letter.
         int pos, num;
+        char c = 0;
         if (sscanf(version, "%*d.%*d.%n%d", &pos, &num) == 1) {
-            version[pos - 1] = 'a' + num - 1;
-            version[pos] = 0;
+            c = 'a' + num - 1;
+            version[pos - 1] = 0;
         }
-        // The first consists of the major and minor version components
-        // joined together. *sigh* Long story.
+        // If there are now two components, remove the second if it is ".0"
         size_t len = strlen(version);
+        if (len > 2 && version[len - 2] == '.' && version[len - 1] == '0') {
+            len -= 2;
+            version[len] = 0;
+        }
+        // The first component consists of the major and minor version
+        // components joined together. *sigh* Long story.
         memmove(version + 2, version + 1, len);
         version[1] = '.';
+        len++;
+        // Append that version letter we found in the first step
+        if (c != 0) {
+            version[len++] = c;
+            version[len] = 0;
+        }
     }   
     return version;
 }
