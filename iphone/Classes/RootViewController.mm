@@ -149,19 +149,6 @@ static RootViewController *instance;
     calcView.frame = r;
 }
 
-static bool show_ad = false;
-
-+ (void) setNag:(bool)nag {
-    show_ad = nag;
-}
-
-- (void) nag {
-    if (show_ad) {
-        [self showAbout2];
-        show_ad = false;
-    }
-}
-
 - (void) enterBackground {
     [CalcView enterBackground];
 }

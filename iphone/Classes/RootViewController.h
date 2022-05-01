@@ -62,8 +62,6 @@
 - (void) quit;
 - (void) batteryLevelChanged;
 - (void) layoutSubViews;
-+ (void) setNag:(bool)nag;
-- (void) nag;
 
 + (void) showMessage:(NSString *) message;
 + (void) presentViewController:(UIViewController *)ctrl animated:(BOOL)a completion:(void (^)(void))completion;

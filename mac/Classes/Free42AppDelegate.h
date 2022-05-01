@@ -142,7 +142,6 @@ void calc_keymodifierschanged(NSUInteger flags);
 - (void)windowDidBecomeKey:(NSNotification *)notification;
 
 - (IBAction) showAbout:(id)sender;
-- (IBAction) clickAd:(id)sender;
 - (IBAction) showPreferences:(id)sender;
 - (void) getPreferences;
 - (IBAction) browsePrintTextFile:(id)sender;

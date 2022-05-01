@@ -177,7 +177,7 @@ static void printout_length_changed();
 
 static void read_key_map(const wchar_t *keymapfilename);
 static void init_shell_state(int4 version);
-static int read_shell_state(int4 *version, bool *show_ad);
+static int read_shell_state(int4 *version);
 static int write_shell_state();
 static void txt_writer(const char *text, int length);
 static void txt_newliner();
@@ -378,11 +378,10 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
     int4 version;
     wchar_t core_state_file_name[FILENAMELEN];
     int core_state_file_offset;
-    bool show_ad = false;
 
     statefile = _wfopen(statefilename, L"rb");
     if (statefile != NULL) {
-        if (read_shell_state(&version, &show_ad))
+        if (read_shell_state(&version))
             init_mode = 1;
         else {
             init_shell_state(-1);
@@ -455,8 +454,6 @@ static BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
         running = true;
     SetTimer(NULL, 0, 60000, battery_checker);
 
-    if (show_ad)
-        DialogBoxW(hInst, (LPCWSTR)IDD_ABOUTBOX, hMainWnd, (DLGPROC)About);
     return TRUE;
 }
 
@@ -1176,10 +1173,6 @@ static LRESULT CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPa
                 char buf[256];
                 GetDlgItemText(hDlg, id, buf, 255);
                 ShellExecute(NULL, "open", buf, NULL, NULL, SW_SHOWNORMAL);
-            }
-            else if (id == IDC_PLUS42LINK)
-            {
-                ShellExecute(NULL, "open", "https://thomasokken.com/plus42/", NULL, NULL, SW_SHOWNORMAL);
             }
             break;
     }
@@ -2615,7 +2608,7 @@ struct old_state_type {
     bool auto_repeat;
 };
 
-static int read_shell_state(int4 *ver, bool *show_ad) {
+static int read_shell_state(int4 *ver) {
     int4 magic;
     int4 version;
     int4 state_size;
@@ -2675,7 +2668,6 @@ static int read_shell_state(int4 *ver, bool *show_ad) {
         // Initialize the parts of the shell state
         // that were NOT read from the state file
         init_shell_state(state_version);
-        *show_ad = state_version < 12;
     } else
         init_shell_state(-1);
 

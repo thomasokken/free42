@@ -39,7 +39,6 @@
 #include "core_display.h"
 #include "icon-128x128.xpm"
 #include "icon-48x48.xpm"
-#include "plus42-ad.xpm"
 
 #ifndef _POSIX_HOST_NAME_MAX
 #define _POSIX_HOST_NAME_MAX 255
@@ -106,7 +105,6 @@ static GtkWidget *print_widget;
 static GtkAdjustment *print_adj;
 static GdkPixbuf *icon_128;
 static GdkPixbuf *icon_48;
-static GdkPixbuf *plus42_ad;
 
 static int ckey = 0;
 static int skey;
@@ -140,7 +138,7 @@ static guint ann_print_timeout_id = 0;
 
 static void read_key_map(const char *keymapfilename);
 static void init_shell_state(int4 version);
-static int read_shell_state(int4 *version, bool *show_ad);
+static int read_shell_state(int4 *version);
 static int write_shell_state();
 static void int_term_handler(int sig);
 static gboolean gt_signal_handler(GIOChannel *source, GIOCondition condition,
@@ -506,11 +504,10 @@ static void activate(GtkApplication *theApp, gpointer userData) {
     int init_mode;
     char core_state_file_name[FILENAMELEN];
     int core_state_file_offset;
-    bool show_ad = false;
 
     statefile = fopen(statefilename, "r");
     if (statefile != NULL) {
-        if (read_shell_state(&version, &show_ad)) {
+        if (read_shell_state(&version)) {
             if (skin_arg != NULL) {
                 strncpy(state.skinName, skin_arg, FILENAMELEN - 1);
                 state.skinName[FILENAMELEN - 1] = 0;
@@ -563,7 +560,6 @@ static void activate(GtkApplication *theApp, gpointer userData) {
 
     icon_128 = gdk_pixbuf_new_from_xpm_data((const char **) icon_128_xpm);
     icon_48 = gdk_pixbuf_new_from_xpm_data((const char **) icon_48_xpm);
-    plus42_ad = gdk_pixbuf_new_from_xpm_data((const char **) plus42_ad_xpm);
 
     gtk_window_set_icon(GTK_WINDOW(mainwindow), icon_128);
     gtk_window_set_title(GTK_WINDOW(mainwindow), TITLE);
@@ -792,9 +788,6 @@ static void activate(GtkApplication *theApp, gpointer userData) {
         sigaction(SIGINT, &act, NULL);
         sigaction(SIGTERM, &act, NULL);
     }
-
-    if (show_ad)
-        aboutCB();
 }
 
 keymap_entry *parse_keymap_entry(char *line, int lineno) {
@@ -974,7 +967,7 @@ static void init_shell_state(int4 version) {
     }
 }
 
-static int read_shell_state(int4 *ver, bool *show_ad) {
+static int read_shell_state(int4 *ver) {
     int4 magic;
     int4 version;
     int4 state_size;
@@ -1015,7 +1008,6 @@ static int read_shell_state(int4 *ver, bool *show_ad) {
 
     init_shell_state(state_version);
     *ver = version;
-    *show_ad = state_version < 9;
     return 1;
 }
 
@@ -2418,13 +2410,7 @@ static void aboutCB() {
         GtkWidget *forumbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
         gtk_box_pack_start(GTK_BOX(forumbox), forumlink, FALSE, FALSE, 0);
         gtk_box_pack_start(GTK_BOX(box2), forumbox, FALSE, FALSE, 0);
-        GtkWidget *adlink = gtk_link_button_new("https://thomasokken.com/plus42/");
-        GtkWidget *adbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-        gtk_box_pack_start(GTK_BOX(adbox), adlink, FALSE, FALSE, 0);
-        gtk_box_pack_start(GTK_BOX(box2), adbox, FALSE, FALSE, 0);
         gtk_box_pack_start(GTK_BOX(box), box2, FALSE, FALSE, 0);
-        GtkWidget *ad = gtk_image_new_from_pixbuf(plus42_ad);
-        gtk_box_pack_start(GTK_BOX(box), ad, FALSE, FALSE, 10);
         focus_ok_button(GTK_WINDOW(about), container);
         gtk_widget_show_all(GTK_WIDGET(about));
     } else {

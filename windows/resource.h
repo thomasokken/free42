@@ -81,8 +81,6 @@
 #define IDM_MORE_IMPORT                 32787
 #define IDM_MORE_EXPORT                 32788
 #define IDC_STATIC                      -1
-#define IDB_AD                          2000
-#define IDC_PLUS42LINK                  2001
 
 // Next default values for new objects
 // 

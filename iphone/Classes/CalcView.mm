@@ -64,7 +64,7 @@ static void quit2(bool really_quit);
 static void shell_keydown();
 static void shell_keyup();
 
-static int read_shell_state(int *version, bool *show_ad);
+static int read_shell_state(int *version);
 static void init_shell_state(int version);
 static int write_shell_state();
 
@@ -429,9 +429,8 @@ static struct timeval runner_end_time;
     int init_mode, version;
     char core_state_file_name[FILENAMELEN];
     int core_state_file_offset;
-    bool show_ad = false;
     if (statefile != NULL) {
-        if (read_shell_state(&version, &show_ad)) {
+        if (read_shell_state(&version)) {
             init_mode = 1;
         } else {
             init_shell_state(-1);
@@ -477,8 +476,6 @@ static struct timeval runner_end_time;
     panrec.cancelsTouchesInView = NO;
     panrec.delaysTouchesEnded = NO;
     [self addGestureRecognizer:panrec];
-    if (show_ad)
-        [RootViewController setNag:true];
 }
 
 - (void) handlePan:(UIPanGestureRecognizer *)panrec {
@@ -687,7 +684,7 @@ static CLLocationManager *locMgr = nil;
 
 extern int off_enable_flag;
 
-static int read_shell_state(int *ver, bool *show_ad) {
+static int read_shell_state(int *ver) {
     TRACE("read_shell_state");
     int magic;
     int version;
@@ -729,7 +726,6 @@ static int read_shell_state(int *ver, bool *show_ad) {
     
     init_shell_state(state_version);
     *ver = version;
-    *show_ad = state_version < 10;
     return 1;
 }
 

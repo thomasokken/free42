@@ -21,13 +21,11 @@
     UIBarButtonItem *doneButton;
     UILabel *versionLabel;
     UILabel *copyrightLabel;
-    UIImageView *plus42_ad;
 }
 
 @property (nonatomic, retain) IBOutlet UIBarButtonItem *doneButton;
 @property (nonatomic, retain) IBOutlet UILabel *versionLabel;
 @property (nonatomic, retain) IBOutlet UILabel *copyrightLabel;
-@property (nonatomic, retain) IBOutlet UIImageView *plus42_ad;
 
 - (void) raised;
 - (IBAction) done;

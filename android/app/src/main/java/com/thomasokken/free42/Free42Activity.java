@@ -85,7 +85,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
@@ -247,8 +246,6 @@ public class Free42Activity extends Activity {
     ///////////////////////////////////////////////////////
     ///// Top-level code to interface with Android UI /////
     ///////////////////////////////////////////////////////
-
-    private boolean show_ad = false;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -450,11 +447,6 @@ public class Free42Activity extends Activity {
         if (impTemp != null) {
             doImport2(impTemp);
             new File(impTemp).delete();
-        }
-
-        if (show_ad) {
-            doAbout();
-            show_ad = false;
         }
     }
     
@@ -1126,24 +1118,8 @@ public class Free42Activity extends Activity {
                 lp.addRule(RelativeLayout.BELOW, label3.getId());
                 addView(label4, lp);
 
-                ImageButton plus42B = new ImageButton(context);
-                plus42B.setId(6);
-                plus42B.setImageResource(R.drawable.plus42_ad);
-                plus42B.setBackgroundResource(0);
-                plus42B.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.thomasokken.plus42"));
-                        startActivity(browserIntent);
-                    }
-                });
-                lp = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-                lp.addRule(RelativeLayout.CENTER_HORIZONTAL);
-                lp.addRule(RelativeLayout.BELOW, label4.getId());
-                addView(plus42B, lp);
-
                 Button okB = new Button(context);
-                okB.setId(7);
+                okB.setId(6);
                 okB.setText("   OK   ");
                 okB.setOnClickListener(new OnClickListener() {
                     public void onClick(View view) {
@@ -1151,7 +1127,7 @@ public class Free42Activity extends Activity {
                     }
                 });
                 lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-                lp.addRule(RelativeLayout.BELOW, plus42B.getId());
+                lp.addRule(RelativeLayout.BELOW, label4.getId());
                 lp.addRule(RelativeLayout.CENTER_HORIZONTAL);
                 addView(okB, lp);
 
@@ -1803,7 +1779,6 @@ public class Free42Activity extends Activity {
                     cs.allow_big_stack = state_read_boolean();
                 putCoreSettings(cs);
             }
-            show_ad = shell_version < 19;
             init_shell_state(shell_version);
         } catch (IllegalArgumentException e) {
             return false;
