@@ -1,3 +1,24 @@
+2022-05-01: release 3.0.11
+
+* Implemented LCLV: CLV for local variables only. The regular CLV now works on
+  global variables only.
+* RND in ALL mode now rounds like in SCI 11, instead of doing nothing.
+* HEAD, when applied to a string in a numbered register, would corrupt the
+  string if it was 16 characters long before the call (8 characters in the
+  binary version). Fixed.
+* Y^X accuracy improvements with integer X.
+* Fixed DUPN 2 in 4STK mode. It used to duplicate X into T and Y into Z.
+  DUPN in NSTK mode was not affected by this bug.
+* Added WIDTH and HEIGHT functions. These always return 131 and 16,
+  respectively; this may not seem very useful, but can be used in programs that
+  are meant to work in both Free42 and Plus42, to allow them to take advantage
+  of the larger display when running in Plus42.
+* L4STK didn't pad the stack to 4 levels when used without FUNC. Fixed.
+* Binary version: ROTXY and DATE+ rounded toward negative infinity instead of
+  rounding toward zero. Fixed.
+* Windows version: comes in 64-bit and 32-bit versions now.
+* Windows and GTK versions: Now support fractional display scaling.
+
 2022-01-27: release 3.0.10
 
 * Added →LIST, LIST→, SKIP, CPXMAT?, and TYPE? functions, and changed the name
