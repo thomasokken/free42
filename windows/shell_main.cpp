@@ -2124,14 +2124,7 @@ static void printout_length_changed() {
 
 void shell_blitter(const char *bits, int bytesperline, int x, int y,
                    int width, int height) {
-    HDC hdc = GetDC(hMainWnd);
-    skin_display_blitter(hdc, bits, bytesperline, x, y, width, height);
-    if (skey >= -7 && skey <= -2) {
-        HDC memdc = CreateCompatibleDC(hdc);
-        skin_repaint_key(hdc, memdc, skey, 1);
-        DeleteObject(memdc);
-    }
-    ReleaseDC(hMainWnd, hdc);
+    skin_display_blitter(hMainWnd, bits, bytesperline, x, y, width, height);
 }
 
 const char *shell_platform() {
@@ -2212,6 +2205,11 @@ void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
 }
 
 bool shell_wants_cpu() {
+    static DWORD lastCount = 0;
+    DWORD count = GetTickCount();
+    if (count - lastCount < 10)
+        return false;
+    lastCount = count;
     MSG msg;
     return PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE) != 0;
 }

@@ -852,7 +852,7 @@ void skin_repaint_key(HDC hdc, HDC memdc, int key, int state) {
     }
 }
 
-void skin_display_blitter(HDC hdc, const char *bits, int bytesperline, int x, int y,
+void skin_display_blitter(HWND hWnd, const char *bits, int bytesperline, int x, int y,
                                      int width, int height) {
     int h, v;
     double sx = display_scale_x;
@@ -867,7 +867,12 @@ void skin_display_blitter(HDC hdc, const char *bits, int bytesperline, int x, in
                 disp_bits[(v + 2) * disp_bytesperline + ((h + 2) >> 3)] &= ~(128 >> ((h + 2) & 7));
         }
     
-    skin_repaint_display(hdc);
+    RECT r;
+    SetRect(&r, (int) (display_loc.x + (x - 1) * display_scale_x),
+                (int) (display_loc.y + (y - 1) * display_scale_y),
+                (int) ceil(display_loc.x + (x + width + 1) * display_scale_x),
+                (int) ceil(display_loc.y + (y + height + 1) * display_scale_y));
+    InvalidateRect(hWnd, &r, FALSE);
 }
 
 void skin_repaint_display(HDC hdc) {
