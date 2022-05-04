@@ -60,7 +60,9 @@ unsigned char *skin_keymap_lookup(int keycode, bool ctrl, bool alt, bool shift, 
 void skin_repaint_key(HDC hdc, HDC memdc, int key, int state);
 void skin_display_blitter(HWND hWnd, const char *bits, int bytesperline, int x, int y,
                           int width, int height);
+bool need_to_paint_only_display(RECT *r);
 void skin_repaint_display(HDC hdc);
 void skin_display_set_enabled(bool enable);
+void invalidate_display(HWND hWnd);
 
 #endif

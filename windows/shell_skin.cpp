@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "shell_skin.h"
 #include "shell_loadimage.h"
@@ -875,6 +876,13 @@ void skin_display_blitter(HWND hWnd, const char *bits, int bytesperline, int x, 
     InvalidateRect(hWnd, &r, FALSE);
 }
 
+bool need_to_paint_only_display(RECT *r) {
+    return r->left >= (int) (display_loc.x - display_scale_x)
+        && r->top >= (int) (display_loc.y - display_scale_y)
+        && r->right <= (int) ceil(display_loc.x + 132 * display_scale_x)
+        && r->bottom <= (int) ceil(display_loc.y + 17 * display_scale_y);
+}
+
 void skin_repaint_display(HDC hdc) {
     if (!display_enabled)
         return;
@@ -891,4 +899,13 @@ void skin_repaint_display(HDC hdc) {
 
 void skin_display_set_enabled(bool enable) {
     display_enabled = enable;
+}
+
+void invalidate_display(HWND hWnd) {
+    RECT r;
+    SetRect(&r, (int) (display_loc.x - display_scale_x),
+                (int) (display_loc.y - display_scale_y),
+                (int) ceil(display_loc.x + 132 * display_scale_x),
+                (int) ceil(display_loc.y + 17 * display_scale_y));
+    InvalidateRect(hWnd, &r, FALSE);
 }
