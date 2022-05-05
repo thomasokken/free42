@@ -103,6 +103,7 @@ int docmd_0_le_nn(arg_struct *arg);
 int docmd_0_ge_nn(arg_struct *arg);
 
 int docmd_xstr(arg_struct *arg);
+int docmd_xview(arg_struct *arg);
 int docmd_append(arg_struct *arg);
 int docmd_extend(arg_struct *arg);
 int docmd_substr(arg_struct *arg);

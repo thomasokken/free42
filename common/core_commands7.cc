@@ -1470,6 +1470,18 @@ int docmd_xstr(arg_struct *arg) {
     return recall_result(v);
 }
 
+int docmd_xview(arg_struct *arg) {
+    char temp_alpha[44];
+    int temp_alpha_length;
+    string_copy(temp_alpha, &temp_alpha_length, reg_alpha, reg_alpha_length);
+    vartype_string *s = (vartype_string *) stack[sp];
+    int len = s->length > 44 ? 44 : s->length;
+    string_copy(reg_alpha, &reg_alpha_length, s->txt(), len);
+    int err = docmd_aview(arg);
+    string_copy(reg_alpha, &reg_alpha_length, temp_alpha, temp_alpha_length);
+    return err;
+}
+
 static int concat(bool extend) {
     if (stack[sp - 1]->type == TYPE_STRING) {
         char *text;

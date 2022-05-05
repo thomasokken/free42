@@ -508,6 +508,7 @@ const command_spec cmd_array[] =
     { /* XSTR */       docmd_xstr,        "XSTR",                0x20, 0x41, 0x00, 0x00,  4, ARG_XSTR,   0, NA_T },
     { /* XASTO */      docmd_xasto,       "XASTO",               0x00, 0x01, 0xf2, 0x11,  5, ARG_VAR,    0, NA_T },
     { /* LXASTO */     docmd_lxasto,      "LXASTO",              0x00, 0x02, 0xf2, 0x12,  6, ARG_NAMED,  0, NA_T },
+    { /* XVIEW */      docmd_xview,       "XVIEW",               0x00, 0x00, 0xa7, 0x19,  5, ARG_NONE,   1, 0x10 },
     { /* APPEND */     docmd_append,      "APPEND",              0x00, 0x00, 0xa7, 0xe9,  6, ARG_NONE,   2, ALLT },
     { /* EXTEND */     docmd_extend,      "EXTEND",              0x00, 0x00, 0xa7, 0xea,  6, ARG_NONE,   2, ALLT },
     { /* SUBSTR */     docmd_substr,      "SUBSTR",              0x00, 0x00, 0xa7, 0xeb,  6, ARG_NONE,   2, FUNC },

@@ -1663,7 +1663,7 @@ static int ext_str_cat[] = {
     CMD_APPEND,    CMD_C_TO_N, CMD_EXTEND, CMD_HEAD,    CMD_LENGTH, CMD_TO_LIST,
     CMD_FROM_LIST, CMD_LIST_T, CMD_LXASTO, CMD_NEWLIST, CMD_NEWSTR, CMD_N_TO_C,
     CMD_N_TO_S,    CMD_POS,    CMD_REV,    CMD_SUBSTR,  CMD_S_TO_N, CMD_XASTO,
-    CMD_XSTR,      CMD_NULL,   CMD_NULL,   CMD_NULL,    CMD_NULL,   CMD_NULL
+    CMD_XSTR,      CMD_XVIEW,  CMD_NULL,   CMD_NULL,    CMD_NULL,   CMD_NULL
 };
 
 static int ext_stk_cat[] = {
