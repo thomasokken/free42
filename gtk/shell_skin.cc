@@ -830,6 +830,15 @@ void skin_display_invalidater(GdkWindow *win, const char *bits, int bytesperline
     }
 }
 
+bool need_to_paint_only_display(cairo_t *cr) {
+    double left, top, right, bottom;
+    cairo_clip_extents(cr, &left, &top, &right, &bottom);
+    return left >= display_loc.x - display_scale_x
+        && top >= display_loc.y - display_scale_y
+        && right <= display_loc.x + 132 * display_scale_x
+        && bottom <= display_loc.y + 17 * display_scale_y;
+}
+
 void skin_repaint_display(cairo_t *cr) {
     if (!display_enabled)
         return;

@@ -2441,24 +2441,32 @@ static gboolean delete_print_cb(GtkWidget *w, GdkEventAny *ev) {
 
 static gboolean draw_cb(GtkWidget *w, cairo_t *cr, gpointer cd) {
     allow_paint = true;
-    skin_repaint(cr);
-    skin_repaint_display(cr);
-    if (ann_updown)
-        skin_repaint_annunciator(cr, 1);
-    if (ann_shift)
-        skin_repaint_annunciator(cr, 2);
-    if (ann_print)
-        skin_repaint_annunciator(cr, 3);
-    if (ann_run)
-        skin_repaint_annunciator(cr, 4);
-    if (ann_battery)
-        skin_repaint_annunciator(cr, 5);
-    if (ann_g)
-        skin_repaint_annunciator(cr, 6);
-    if (ann_rad)
-        skin_repaint_annunciator(cr, 7);
-    if (ckey != 0)
-        skin_repaint_key(cr, skey, 1);
+    bool only_disp = need_to_paint_only_display(cr);
+    if (!only_disp)
+        skin_repaint(cr);
+    if (ckey < -7 || ckey > -2)
+        skin_repaint_display(cr);
+    if (!only_disp) {
+        if (ann_updown)
+            skin_repaint_annunciator(cr, 1);
+        if (ann_shift)
+            skin_repaint_annunciator(cr, 2);
+        if (ann_print)
+            skin_repaint_annunciator(cr, 3);
+        if (ann_run)
+            skin_repaint_annunciator(cr, 4);
+        if (ann_battery)
+            skin_repaint_annunciator(cr, 5);
+        if (ann_g)
+            skin_repaint_annunciator(cr, 6);
+        if (ann_rad)
+            skin_repaint_annunciator(cr, 7);
+        if (ckey != 0)
+            skin_repaint_key(cr, skey, 1);
+    } else {
+        if (ckey >= -7 && ckey <= -2)
+            skin_repaint_key(cr, skey, 1);
+    }
     return TRUE;
 }
 
@@ -3026,6 +3034,13 @@ void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
 }
 
 bool shell_wants_cpu() {
+    static uint4 lastCount = 0;
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    uint4 count = tv.tv_sec * 1000L + tv.tv_usec / 1000;
+    if (count - lastCount < 10)
+        return false;
+    lastCount = count;
     return g_main_context_pending(NULL);
 }
 
