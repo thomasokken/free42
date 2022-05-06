@@ -482,7 +482,7 @@ int docmd_view(arg_struct *arg) {
     return view_helper(arg, 1);
 }
 
-static void aview_helper() {
+static void aview_helper(const char *text, int length) {
 #define DISP_ROWS 2
 #define DISP_COLUMNS 22
     int line_start[DISP_ROWS];
@@ -490,8 +490,8 @@ static void aview_helper() {
     int line = 0;
     int i;
     line_start[0] = 0;
-    for (i = 0; i < reg_alpha_length; i++) {
-        if (reg_alpha[i] == 10) {
+    for (i = 0; i < length; i++) {
+        if (text[i] == 10) {
             if (line == DISP_ROWS - 1)
                 break;
             line_length[line] = i - line_start[line];
@@ -510,12 +510,12 @@ static void aview_helper() {
     if (flags.f.two_line_message || program_running())
         clear_row(1);
     for (i = 0; i <= line; i++)
-        draw_string(0, i, reg_alpha + line_start[i], line_length[i]);
+        draw_string(0, i, text + line_start[i], line_length[i]);
     flush_display();
 }
 
 int docmd_aview(arg_struct *arg) {
-    aview_helper();
+    aview_helper(reg_alpha, reg_alpha_length);
     if (flags.f.printer_enable || !program_running()) {
         if (flags.f.printer_exists)
             docmd_pra(arg);
@@ -548,7 +548,7 @@ int docmd_xeq(arg_struct *arg) {
 }
 
 int docmd_prompt(arg_struct *arg) {
-    aview_helper();
+    aview_helper(reg_alpha, reg_alpha_length);
     if (flags.f.printer_enable && flags.f.printer_exists
             && (flags.f.trace_print || flags.f.normal_print))
         docmd_pra(arg);
@@ -1324,34 +1324,50 @@ int docmd_prstk(arg_struct *arg) {
     return ERR_NONE;
 }
 
-int docmd_pra(arg_struct *arg) {
-    // arg == NULL if we're called to do TRACE mode auto-print
-    if (arg != NULL && !flags.f.printer_enable && program_running())
+static int pra_helper(bool trace, const char *text, int length) {
+    if (!trace && !flags.f.printer_enable && program_running())
         return ERR_NONE;
     if (!flags.f.printer_exists)
         return ERR_PRINTING_IS_DISABLED;
     shell_annunciators(-1, -1, 1, -1, -1, -1);
-    if (reg_alpha_length == 0)
+    if (length == 0)
         print_text(NULL, 0, true);
     else {
         int line_start = 0;
         int width = flags.f.double_wide_print ? 12 : 24;
         int i;
-        for (i = 0; i < reg_alpha_length; i++) {
-            if (reg_alpha[i] == 10) {
-                print_text(reg_alpha + line_start, i - line_start, true);
+        for (i = 0; i < length; i++) {
+            if (text[i] == 10) {
+                print_text(text + line_start, i - line_start, true);
                 line_start = i + 1;
             } else if (i == line_start + width) {
-                print_text(reg_alpha + line_start, i - line_start, true);
+                print_text(text + line_start, i - line_start, true);
                 line_start = i;
             }
         }
-        if (line_start < reg_alpha_length
-                || (line_start > 0 && reg_alpha[line_start - 1] == 10))
-            print_text(reg_alpha + line_start,
-                       reg_alpha_length - line_start, true);
+        if (line_start < length
+                || (line_start > 0 && text[line_start - 1] == 10))
+            print_text(text + line_start,
+                       length - line_start, true);
     }
     shell_annunciators(-1, -1, 0, -1, -1, -1);
+    return ERR_NONE;
+}
+
+int docmd_pra(arg_struct *arg) {
+    // arg == NULL if we're called to do TRACE mode auto-print
+    return pra_helper(arg == NULL, reg_alpha, reg_alpha_length);
+}
+
+int docmd_xview(arg_struct *arg) {
+    vartype_string *s = (vartype_string *) stack[sp];
+    aview_helper(s->txt(), s->length);
+    if (flags.f.printer_enable || !program_running()) {
+        if (flags.f.printer_exists)
+            pra_helper(false, s->txt(), s->length);
+        else
+            return ERR_STOP;
+    }
     return ERR_NONE;
 }
 
