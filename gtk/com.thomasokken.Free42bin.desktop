@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Free42 (binary)
+Comment=HP-42s emulator
+Icon=free42icon-128x128.xpm
+Exec=free42bin
+Categories=GTK;Utility;Calculator;
+Keywords=calculation;arithmetic;scientific;RPN;
