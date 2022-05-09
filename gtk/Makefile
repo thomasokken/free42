@@ -16,6 +16,7 @@
 ###############################################################################
 
 PKG_CONFIG ?= pkg-config
+CXX_FOR_BUILD ?= $(CXX)
 
 CFLAGS = -MMD \
 	 -Wall \
@@ -105,13 +106,13 @@ readtest.o: readtest.c
 	$(CC) $(CFLAGS) -I IntelRDFPMathLib20U1/TESTS -D__intptr_t_defined -DLINUX -c -o $@ $<
 
 skin2cc: skin2cc.cc
-	$(CXX) -o skin2cc skin2cc.cc
+	$(CXX_FOR_BUILD) -o skin2cc skin2cc.cc
 
 skins.cc: skin2cc skin2cc.conf
 	./skin2cc
 
 keymap2cc: keymap2cc.cc
-	$(CXX) -o keymap2cc keymap2cc.cc
+	$(CXX_FOR_BUILD) -o keymap2cc keymap2cc.cc
 
 keymap.cc: keymap2cc keymap.txt
 	./keymap2cc
