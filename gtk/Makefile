@@ -15,6 +15,8 @@
 # along with this program; if not, see http://www.gnu.org/licenses/.
 ###############################################################################
 
+PKG_CONFIG ?= pkg-config
+
 CFLAGS = -MMD \
 	 -Wall \
 	 -Wno-parentheses \
@@ -27,7 +29,7 @@ CFLAGS = -MMD \
 	 -Wno-class-memaccess \
 	 -Wno-unknown-warning-option \
 	 -g \
-	 $(shell pkg-config --cflags gtk+-3.0) \
+	 $(shell $(PKG_CONFIG) --cflags gtk+-3.0) \
 	 -DGDK_DISABLE_DEPRECATION_WARNINGS -DGTK_DISABLE_SINGLE_INCLUDES -DGSEAL_ENABLE \
 	 -DVERSION="\"$(shell cat VERSION)\"" \
 	 -DVERSION_PLATFORM="\"$(shell uname -s)\"" \
@@ -42,7 +44,7 @@ CXXFLAGS = $(CFLAGS) \
 	 -fno-rtti \
 	 -D_WCHAR_T_DEFINED
 
-LIBS = gcc111libbid.a $(shell pkg-config --libs gtk+-3.0)
+LIBS = gcc111libbid.a $(shell $(PKG_CONFIG) --libs gtk+-3.0)
 
 ifdef AUDIO_ALSA
 LIBS += -lpthread -ldl
