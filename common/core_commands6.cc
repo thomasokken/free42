@@ -619,7 +619,7 @@ static int mappable_sqrt_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     if (xre >= 0) {
         *yre = a;
         *yim = b;
-    } else if (b >= 0) {
+    } else if (xim >= 0) {
         *yre = b;
         *yim = a;
     } else {
