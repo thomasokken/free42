@@ -785,8 +785,9 @@ bool no_keystrokes_yet;
  * Version 42: 3.0.6  CAPS/Mixed for menus
  * Version 43: 3.0.7  Plus42 stuff
  * Version 44: 3.0.8  cursor left, cursor right, del key handling
+ * Version 45: 3.0.12 SOLVE secant impatience
  */
-#define FREE42_VERSION 44
+#define FREE42_VERSION 45
 
 
 /*******************/
