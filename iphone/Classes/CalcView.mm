@@ -682,7 +682,7 @@ static CLLocationManager *locMgr = nil;
 /////                   Here beginneth thy olde C code                    /////
 ///////////////////////////////////////////////////////////////////////////////
 
-extern int off_enable_flag;
+extern bool off_enable_flag;
 
 static int read_shell_state(int *ver) {
     TRACE("read_shell_state");
@@ -780,7 +780,7 @@ static void init_shell_state(int version) {
              */
             ;
     }
-    off_enable_flag = state.offEnabled ? 1 : 0;
+    off_enable_flag = state.offEnabled;
 }
 
 static void quit2(bool really_quit) {
@@ -924,7 +924,7 @@ static int write_shell_state() {
     int state_size = sizeof(state);
     int state_version = SHELL_VERSION;
 
-    state.offEnabled = off_enable_flag != 0;
+    state.offEnabled = off_enable_flag;
     
     FILE *statefile = fopen("config/state", "w");
     if (statefile == NULL)
