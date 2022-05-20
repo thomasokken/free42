@@ -2229,7 +2229,13 @@ public class Free42Activity extends Activity {
      */
     public void shell_powerdown() {
         quit_flag = true;
-        finish();
+        if (android.os.Build.VERSION.SDK_INT < 21)
+            finish();
+        else
+            try {
+                Method m = Free42Activity.class.getMethod("finishAndRemoveTask");
+                m.invoke(this);
+            } catch (Exception e) {}
     }
     
     private class AlwaysOnSetter implements Runnable {
