@@ -207,30 +207,16 @@ int math_acosh(phloat xre, phloat xim, phloat *yre, phloat *yim) {
         return ERR_NONE;
     }
 
-    /* TODO: review; and deal with overflows in intermediate results */
-    phloat ar, aphi, are, aim, br, bphi, bre, bim, cre, cim;
+    phloat are, aim, bre, bim;
 
-    /* a = sqrt(x + 1) */
-    ar = sqrt(hypot(xre + 1, xim));
-    aphi = atan2(xim, xre + 1) / 2;
-    p_sincos(aphi, &aim, &are);
-    are *= ar;
-    aim *= ar;
+    /* a = sqrt(x - 1) */
+    math_sqrt(xre - 1, xim, &are, &aim);
+    /* b = sqrt(x + 1) */
+    math_sqrt(xre + 1, xim, &bre, &bim);
 
-    /* b = sqrt(x - 1) */
-    br = sqrt(hypot(xre - 1, xim));
-    bphi = atan2(xim, xre - 1) / 2;
-    p_sincos(bphi, &bim, &bre);
-    bre *= br;
-    bim *= br;
+    *yre = asinh(are * bre + aim * bim);
+    *yim = atan(aim / bre) * 2;
 
-    /* c = x + a * b */
-    cre = xre + are * bre - aim * bim;
-    cim = xim + are * bim + aim * bre;
-
-    /* y = log(c) */
-    *yre = log(hypot(cre, cim));
-    *yim = atan2(cim, cre);
     return ERR_NONE;
 }
 
@@ -282,5 +268,39 @@ int math_atanh(phloat xre, phloat xim, phloat *yre, phloat *yim) {
      * you can't get close enough to the critical values to cause
      * trouble.
      */
+    return ERR_NONE;
+}
+
+int math_sqrt(phloat xre, phloat xim, phloat *yre, phloat *yim) {
+    if (xre == 0 && xim == 0) {
+        *yre = 0;
+        *yim = 0;
+        return ERR_NONE;
+    }
+
+    phloat r = hypot(xre, xim);
+    phloat a = sqrt((r + fabs(xre)) / 2);
+    phloat b = xim / (a * 2);
+
+    if (p_isinf(a)) {
+        xre /= 100;
+        xim /= 100;
+        r = hypot(xre, xim);
+        a = sqrt((r + fabs(xre)) / 2);
+        b = xim / (a * 2);
+        a *= 10;
+        b *= 10;
+    }
+
+    if (xre >= 0) {
+        *yre = a;
+        *yim = b;
+    } else if (xim >= 0) {
+        *yre = b;
+        *yim = a;
+    } else {
+        *yre = -b;
+        *yim = -a;
+    }
     return ERR_NONE;
 }
