@@ -723,6 +723,8 @@ static int read_shell_state(int *ver) {
     }
     if (state_version >= 9)
         core_settings.allow_big_stack = state.allow_big_stack;
+    if (state_version >= 11)
+        core_settings.localized_copy_paste = state.localized_copy_paste;
     
     init_shell_state(state_version);
     *ver = version;
@@ -774,7 +776,10 @@ static void init_shell_state(int version) {
         case 9:
             /* fall through */
         case 10:
-            /* current version (SHELL_VERSION = 10),
+            core_settings.localized_copy_paste = true;
+            /* fall through */
+        case 11:
+            /* current version (SHELL_VERSION = 11),
              * so nothing to do here since everything
              * was initialized from the state file.
              */
@@ -941,6 +946,7 @@ static int write_shell_state() {
     state.matrix_outofrange = core_settings.matrix_outofrange;
     state.auto_repeat = core_settings.auto_repeat;
     state.allow_big_stack = core_settings.allow_big_stack;
+    state.localized_copy_paste = core_settings.localized_copy_paste;
     if (fwrite(&state, 1, sizeof(state), statefile) != sizeof(state))
         return 0;
     

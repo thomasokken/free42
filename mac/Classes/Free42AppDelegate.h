@@ -19,7 +19,7 @@
 #import <WebKit/WebKit.h>
 
 #define FILENAMELEN 256
-#define SHELL_VERSION 4
+#define SHELL_VERSION 5
 
 struct state_type {
     int printerToTxtFile;
@@ -36,6 +36,7 @@ struct state_type {
     bool matrix_outofrange;
     bool auto_repeat;
     bool allow_big_stack;
+    bool localized_copy_paste;
 };
 
 extern state_type state;
@@ -74,6 +75,7 @@ void calc_keymodifierschanged(NSUInteger flags);
     NSButton *prefsMatrixOutOfRange;
     NSButton *prefsAutoRepeat;
     NSButton *prefsAllowBigStack;
+    NSButton *prefsLocalizedCopyPaste;
     NSButton *prefsPrintText;
     NSTextField *prefsPrintTextFile;
     NSButton *prefsPrintTextRaw;
@@ -115,6 +117,7 @@ void calc_keymodifierschanged(NSUInteger flags);
 @property (nonatomic, retain) IBOutlet NSButton *prefsMatrixOutOfRange;
 @property (nonatomic, retain) IBOutlet NSButton *prefsAutoRepeat;
 @property (nonatomic, retain) IBOutlet NSButton *prefsAllowBigStack;
+@property (nonatomic, retain) IBOutlet NSButton *prefsLocalizedCopyPaste;
 @property (nonatomic, retain) IBOutlet NSButton *prefsPrintText;
 @property (nonatomic, retain) IBOutlet NSTextField *prefsPrintTextFile;
 @property (nonatomic, retain) IBOutlet NSButton *prefsPrintTextRaw;
