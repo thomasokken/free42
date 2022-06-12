@@ -4732,7 +4732,7 @@ void hard_reset(int reason) {
     flags.f.error_ignore = 0;
     flags.f.audio_enable = 1;
     /* flags.f.VIRTUAL_custom_menu = 0; */
-    flags.f.decimal_point = shell_decimal_point() ? 1 : 0; // HP-42S sets this to 1 on hard reset
+    flags.f.decimal_point = number_format()[0] != ','; // HP-42S sets this to 1 on hard reset
     flags.f.thousands_separators = 1;
     flags.f.stack_lift_disable = 0;
     int df = shell_date_format();

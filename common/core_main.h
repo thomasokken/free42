@@ -364,6 +364,7 @@ void start_alpha_prgm_line();
 void finish_alpha_prgm_line();
 int shiftcharacter(char c);
 void set_old_pc(int4 pc);
+const char *number_format();
 
 
 #endif

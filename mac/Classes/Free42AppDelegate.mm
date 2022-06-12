@@ -1467,10 +1467,23 @@ uint4 shell_milliseconds() {
     return (uint4) (tv.tv_sec * 1000L + tv.tv_usec / 1000);
 }
 
-bool shell_decimal_point() {
+const char *shell_number_format() {
     NSLocale *loc = [NSLocale currentLocale];
-    NSString *dec = [loc objectForKey:NSLocaleDecimalSeparator];
-    return ![dec isEqualToString:@","];
+    static NSString *f = nil;
+    [f release];
+    f = [loc objectForKey:NSLocaleDecimalSeparator];
+    NSNumberFormatter *fmt = [[NSNumberFormatter alloc] init];
+    fmt.numberStyle = NSNumberFormatterDecimalStyle;
+    if (fmt.usesGroupingSeparator) {
+        NSString *sep = [loc objectForKey:NSLocaleGroupingSeparator];
+        int ps = fmt.groupingSize;
+        int ss = fmt.secondaryGroupingSize;
+        if (ss == 0)
+            ss = ps;
+        f = [NSString stringWithFormat:@"%@%@%c%c", f, sep, '0' + ps, '0' + ss];
+    }
+    [f retain];
+    return [f UTF8String];
 }
 
 int shell_date_format() {

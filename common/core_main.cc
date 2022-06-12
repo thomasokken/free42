@@ -5337,3 +5337,25 @@ static int handle_error(int error) {
         return 0;
     }
 }
+
+const char *number_format() {
+    const char *uf = shell_number_format();
+    static char df[9];
+    df[0] = 0;
+    int len = ascii2hp(df, 4, uf);
+    if (len >= 4)
+        df[4] = 0;
+    else
+        df[1] = 0;
+    // Sanity enforcement:
+    // Decimal must be '.' or ','; default to '.'
+    // Grouping char must be 0 (no grouping), '.', ',', '\'', or ' '; default to 0
+    // Primary and secondary group sizes must be between 1 and 9; default to no grouping
+    if (df[0] != ',')
+        df[0] = '.';
+    if (df[1] != 0 && df[1] != '.' && df[1] != ',' && df[1] != '\'' && df[1] != ' ')
+        df[1] = 0;
+    if (df[1] != 0 && !(df[2] >= '1' && df[2] <= '9' && df[3] >= '1' && df[3] <= '9'))
+        df[1] = 0;
+    return df;
+}
