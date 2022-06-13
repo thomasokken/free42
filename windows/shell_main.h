@@ -67,6 +67,7 @@ struct state_type {
     bool matrix_outofrange;
     bool auto_repeat;
     bool allow_big_stack;
+    bool localized_copy_paste;
 };
 
 extern state_type state;

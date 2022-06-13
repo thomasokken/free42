@@ -112,7 +112,7 @@ static int keymap_length = 0;
 static keymap_entry *keymap = NULL;
 
 
-#define SHELL_VERSION 12
+#define SHELL_VERSION 13
 
 state_type state;
 static int placement_saved = 0;
@@ -1248,6 +1248,10 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
                 ctl = GetDlgItem(hDlg, IDC_ALLOW_BIG_STACK);
                 SendMessage(ctl, BM_SETCHECK, 1, 0);
             }
+            if (core_settings.localized_copy_paste) {
+                ctl = GetDlgItem(hDlg, IDC_LOCALIZED_COPY_PASTE);
+                SendMessage(ctl, BM_SETCHECK, 1, 0);
+            }
             if (state.alwaysOnTop) {
                 ctl = GetDlgItem(hDlg, IDC_ALWAYSONTOP);
                 SendMessage(ctl, BM_SETCHECK, 1, 0);
@@ -1282,6 +1286,8 @@ static LRESULT CALLBACK Preferences(HWND hDlg, UINT message, WPARAM wParam, LPAR
                     core_settings.allow_big_stack = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
                     if (oldAllowBigStack != core_settings.allow_big_stack)
                         core_update_allow_big_stack();
+                    ctl = GetDlgItem(hDlg, IDC_LOCALIZED_COPY_PASTE);
+                    core_settings.localized_copy_paste = SendMessage(ctl, BM_GETCHECK, 0, 0) != 0;
                     ctl = GetDlgItem(hDlg, IDC_ALWAYSONTOP);
                     BOOL alwaysOnTop = SendMessage(ctl, BM_GETCHECK, 0, 0);
                     if (alwaysOnTop != state.alwaysOnTop) {
@@ -2258,10 +2264,29 @@ uint4 shell_milliseconds() {
     return GetTickCount();
 }
 
-bool shell_decimal_point() {
+const char *shell_number_format() {
     char dec[4];
     GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, dec, 4);
-    return strcmp(dec, ",") != 0;
+    char sep[4];
+    GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_STHOUSAND, sep, 4);
+    char grp[10];
+    GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SGROUPING, grp, 10);
+    int g1, g2;
+    int n = sscanf(grp, "%d;%d", &g1, &g2);
+    static char r[5];
+    if (n == 0) {
+        r[0] = dec[0];
+        r[1] = 0;
+    } else {
+        r[0] = dec[0];
+        r[1] = sep[0];
+        r[2] = '0' + g1;
+        if (n == 1 || g2 == 0)
+            g2 = g1;
+        r[3] = '0' + g2;
+        r[4] = 0;
+    }
+    return r;
 }
 
 int shell_date_format() {
@@ -2565,7 +2590,10 @@ static void init_shell_state(int4 version) {
         case 11:
             // fall through
         case 12:
-            // current version (SHELL_VERSION = 12),
+            core_settings.localized_copy_paste = true;
+            // fall through
+        case 13:
+            // current version (SHELL_VERSION = 13),
             // so nothing to do here since everything
             // was initialized from the state file.
             ;
@@ -2623,6 +2651,7 @@ static int read_shell_state(int4 *ver) {
             core_settings.matrix_outofrange = state.matrix_outofrange;
             core_settings.auto_repeat = state.auto_repeat;
             core_settings.allow_big_stack = state.allow_big_stack;
+            core_settings.localized_copy_paste = state.localized_copy_paste;
         } else {
             old_state_type old_state;
             if (fread(&old_state, 1, state_size, statefile) != state_size)
@@ -2679,6 +2708,7 @@ static int write_shell_state() {
     state.matrix_outofrange = core_settings.matrix_outofrange;
     state.auto_repeat = core_settings.auto_repeat;
     state.allow_big_stack = core_settings.allow_big_stack;
+    state.localized_copy_paste = core_settings.localized_copy_paste;
     if (fwrite(&state, 1, sizeof(state_type), statefile) != sizeof(state_type))
         return 0;
 
