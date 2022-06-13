@@ -67,6 +67,7 @@ public class PreferencesDialog extends Dialog {
     private CheckBox matrixOutOfRangeCB;
     private CheckBox autoRepeatCB;
     private CheckBox allowBigStackCB;
+    private CheckBox localizedCopyPasteCB;
     private CheckBox alwaysOnCB;
     private SeekBar keyClicksSB;
     private SeekBar hapticSB;
@@ -92,6 +93,7 @@ public class PreferencesDialog extends Dialog {
         matrixOutOfRangeCB = (CheckBox) findViewById(R.id.matrixOutOfRangeCB);
         autoRepeatCB = (CheckBox) findViewById(R.id.autoRepeatCB);
         allowBigStackCB = (CheckBox) findViewById(R.id.allowBigStackCB);
+        localizedCopyPasteCB = (CheckBox) findViewById(R.id.localizedCopyPasteCB);
         alwaysOnCB = (CheckBox) findViewById(R.id.alwaysOnCB);
         keyClicksSB = (SeekBar) findViewById(R.id.keyClicksSB);
         keyClicksSB.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -258,6 +260,14 @@ public class PreferencesDialog extends Dialog {
 
     public boolean getAllowBigStack() {
         return allowBigStackCB.isChecked();
+    }
+
+    public void setLocalizedCopyPaste(boolean b) {
+        localizedCopyPasteCB.setChecked(b);
+    }
+
+    public boolean getLocalizedCopyPaste() {
+        return localizedCopyPasteCB.isChecked();
     }
 
     public void setAlwaysOn(boolean b) {
