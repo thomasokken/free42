@@ -1,3 +1,14 @@
+2022-06-14: release 3.0.12
+
+* Localized Copy & Paste.
+* More accurate complex ACOS and ACOSH.
+* SOLVE now handles functions that are always positive or always negative a bit
+  better, reporting Extremum when the iteration appears to be bouncing around
+  without improving, instead of continuing indefinitely.
+* Added XVIEW function. This works like AVIEW, except it takes the string from
+  the X register instead of ALPHA, so it avoids the 44-character length limit.
+* Android version: Now removes itself from the task list if exited using OFF.
+
 2022-05-05: release 3.0.11a (Windows and Linux)
 
 * More efficient display updating, so long-running programs that update the
