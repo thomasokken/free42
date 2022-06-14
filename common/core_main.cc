@@ -2448,8 +2448,8 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
     free(xstr_buf);
 }
 
-static int real2buf(char *buf, phloat x) {
-    int bufptr = phloat2string(x, buf, 49, 2, 0, 3, 0, MAX_MANT_DIGITS);
+static int real2buf(char *buf, phloat x, const char *format = NULL) {
+    int bufptr = phloat2string(x, buf, 49, 2, 0, 3, 0, MAX_MANT_DIGITS, format);
     /* Convert small-caps 'E' to regular 'e' */
     for (int i = 0; i < bufptr; i++)
         if (buf[i] == 24)
@@ -2457,7 +2457,7 @@ static int real2buf(char *buf, phloat x) {
     return bufptr;
 }
 
-static int complex2buf(char *buf, phloat re, phloat im, bool always_rect) {
+static int complex2buf(char *buf, phloat re, phloat im, bool always_rect, const char *format = NULL) {
     bool polar = !always_rect && flags.f.polar;
     phloat x, y;
     if (polar) {
@@ -2468,14 +2468,14 @@ static int complex2buf(char *buf, phloat re, phloat im, bool always_rect) {
         x = re;
         y = im;
     }
-    int bufptr = phloat2string(x, buf, 99, 2, 0, 3, 0, MAX_MANT_DIGITS);
+    int bufptr = phloat2string(x, buf, 99, 2, 0, 3, 0, MAX_MANT_DIGITS, format);
     if (polar) {
         string2buf(buf, 99, &bufptr, " \342\210\240 ", 5);
     } else {
         if (y >= 0 || p_isinf(y) != 0 || p_isnan(y))
             buf[bufptr++] = '+';
     }
-    bufptr += phloat2string(y, buf + bufptr, 99 - bufptr, 2, 0, 3, 0, MAX_MANT_DIGITS);
+    bufptr += phloat2string(y, buf + bufptr, 99 - bufptr, 2, 0, 3, 0, MAX_MANT_DIGITS, format);
     if (!polar)
         buf[bufptr++] = 'i';
     /* Convert small-caps 'E' to regular 'e' */
@@ -2655,14 +2655,16 @@ char *core_copy() {
         buf[0] = 0;
         return buf;
     } else if (stack[sp]->type == TYPE_REAL) {
+        const char *format = core_settings.localized_copy_paste ? number_format() : NULL;
         char *buf = (char *) malloc(50);
-        int bufptr = real2buf(buf, ((vartype_real *) stack[sp])->x);
+        int bufptr = real2buf(buf, ((vartype_real *) stack[sp])->x, format);
         buf[bufptr] = 0;
         return buf;
     } else if (stack[sp]->type == TYPE_COMPLEX) {
+        const char *format = core_settings.localized_copy_paste ? number_format() : NULL;
         char *buf = (char *) malloc(100);
         vartype_complex *c = (vartype_complex *) stack[sp];
-        int bufptr = complex2buf(buf, c->re, c->im, false);
+        int bufptr = complex2buf(buf, c->re, c->im, false, format);
         buf[bufptr] = 0;
         return buf;
     } else if (stack[sp]->type == TYPE_STRING) {
@@ -2672,6 +2674,7 @@ char *core_copy() {
         buf[bufptr] = 0;
         return buf;
     } else if (stack[sp]->type == TYPE_REALMATRIX) {
+        const char *format = core_settings.localized_copy_paste ? number_format() : NULL;
         vartype_realmatrix *rm = (vartype_realmatrix *) stack[sp];
         phloat *data = rm->array->data;
         char *is_string = rm->array->is_string;
@@ -2681,7 +2684,7 @@ char *core_copy() {
             for (int c = 0; c < rm->columns; c++) {
                 int bufptr;
                 if (is_string[n] == 0) {
-                    bufptr = real2buf(buf, data[n]);
+                    bufptr = real2buf(buf, data[n], format);
                     tb_write(&tb, buf, bufptr);
                 } else {
                     char *text;
@@ -2704,13 +2707,14 @@ char *core_copy() {
         }
         goto textbuf_finish;
     } else if (stack[sp]->type == TYPE_COMPLEXMATRIX) {
+        const char *format = core_settings.localized_copy_paste ? number_format() : NULL;
         vartype_complexmatrix *cm = (vartype_complexmatrix *) stack[sp];
         phloat *data = cm->array->data;
         char buf[100];
         int n = 0;
         for (int r = 0; r < cm->rows; r++) {
             for (int c = 0; c < cm->columns; c++) {
-                int bufptr = complex2buf(buf, data[n], data[n + 1], true);
+                int bufptr = complex2buf(buf, data[n], data[n + 1], true, format);
                 if (c < cm->columns - 1)
                     buf[bufptr++] = '\t';
                 tb_write(&tb, buf, bufptr);
