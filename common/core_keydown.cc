@@ -30,15 +30,31 @@
 #include "shell.h"
 
 
-static int is_number_key(int shift, int key) {
+static bool is_number_key(int shift, int key, bool *invalid) {
+    *invalid = false;
     if (get_front_menu() == MENU_BASE_A_THRU_F
             && (key == KEY_SIGMA || key == KEY_INV || key == KEY_SQRT
                 || key == KEY_LOG || key == KEY_LN || key == KEY_XEQ))
-        return 1;
-    return !shift && (key == KEY_0 || key == KEY_1 || key == KEY_2
-                || key == KEY_3 || key == KEY_4 || key == KEY_5
-                || key == KEY_6 || key == KEY_7 || key == KEY_8
-                || key == KEY_9 || key == KEY_DOT || key == KEY_E);
+        return true;
+    if (shift)
+        return false;
+    if (key == KEY_0 || key == KEY_1)
+        return true;
+    int base = get_base();
+    if (key == KEY_DOT || key == KEY_E) {
+        *invalid = base != 10;
+        return true;
+    }
+    if (key == KEY_2 || key == KEY_3 || key == KEY_4
+            || key == KEY_5 || key == KEY_6 || key == KEY_7) {
+        *invalid = base == 2;
+        return true;
+    }
+    if (key == KEY_8 || key == KEY_9) {
+        *invalid = base == 2 || base == 8;
+        return true;
+    }
+    return false;
 }
 
 static int basekeys() {
@@ -280,10 +296,13 @@ void keydown(int shift, int key) {
         return;
     }
 
+    bool invalid;
     if (mode_number_entry
-            && !is_number_key(shift, key)
+            && !is_number_key(shift, key, &invalid)
             && (key != KEY_CHS || shift || basekeys() || get_base() != 10)
             && (key != KEY_BSP || shift)) {
+        if (invalid)
+            return;
         /* Leaving number entry mode */
         mode_number_entry = false;
         if (flags.f.prgm_mode) {
@@ -2002,7 +2021,10 @@ void keydown_alpha_mode(int shift, int key) {
 void keydown_normal_mode(int shift, int key) {
     int command;
 
-    if (is_number_key(shift, key)) {
+    bool invalid;
+    if (is_number_key(shift, key, &invalid)) {
+        if (invalid)
+            return;
         /* Entering number entry mode */
         if (deferred_print)
             print_command(CMD_NULL, NULL);
