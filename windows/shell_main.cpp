@@ -2265,28 +2265,31 @@ uint4 shell_milliseconds() {
 }
 
 const char *shell_number_format() {
-    char dec[4];
-    GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, dec, 4);
-    char sep[4];
-    GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_STHOUSAND, sep, 4);
+    wchar_t dec[4];
+    GetLocaleInfoW(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, dec, 4);
+    wchar_t sep[4];
+    GetLocaleInfoW(LOCALE_USER_DEFAULT, LOCALE_STHOUSAND, sep, 4);
     char grp[10];
     GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SGROUPING, grp, 10);
     int g1, g2;
     int n = sscanf(grp, "%d;%d", &g1, &g2);
-    static char r[5];
+    wchar_t r[5];
+    static char *ret = NULL;
+    free(ret);
     if (n == 0) {
         r[0] = dec[0];
         r[1] = 0;
     } else {
         r[0] = dec[0];
         r[1] = sep[0];
-        r[2] = '0' + g1;
+        r[2] = L'0' + g1;
         if (n == 1 || g2 == 0)
             g2 = g1;
-        r[3] = '0' + g2;
+        r[3] = L'0' + g2;
         r[4] = 0;
     }
-    return r;
+    ret = wide2utf(r);
+    return ret;
 }
 
 int shell_date_format() {
