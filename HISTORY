@@ -1,3 +1,8 @@
+2022-06-16: release 3.0.13
+
+* Fixed handling of invalid number keys in BINM and OCTM modes.
+* Windows and Linux versions: Fixed handling of non-ASCII separator characters.
+
 2022-06-14: release 3.0.12
 
 * Localized Copy & Paste.
