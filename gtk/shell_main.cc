@@ -355,7 +355,7 @@ static const char *compactMenuOutroXml =
 static int use_compactmenu = 0;
 static char *skin_arg = NULL;
 
-static char cached_number_format[5];
+static char cached_number_format[9];
 
 static void activate(GtkApplication *theApp, gpointer userData);
 
@@ -380,6 +380,23 @@ int main(int argc, char *argv[]) {
     return status;
 }
 
+static void copy_one_utf8_char(char *dst, const char *src) {
+    int n, c = *src & 255;
+    if (c == 0)
+        return;
+    else if ((c & 0x80) == 0)
+        n = 1;
+    else if ((c & 0xc0) == 0x80)
+        return;
+    else if ((c & 0xe0) == 0xc0)
+        n = 2;
+    else if ((c & 0xf0) == 0xe0)
+        n = 3;
+    else
+        return;
+    strncat(dst, src, n);
+}
+
 static void activate(GtkApplication *theApp, gpointer userData) {
 
     if (app != NULL) {
@@ -394,19 +411,19 @@ static void activate(GtkApplication *theApp, gpointer userData) {
     // gtk_init(), and then set it to the C locale, because the binary/decimal
     // conversions expect a decimal point, not a comma.
     struct lconv *loc = localeconv();
-    cached_number_format[0] = loc->decimal_point[0];
-    cached_number_format[1] = 0;
+    cached_number_format[0] = 0;
+    copy_one_utf8_char(cached_number_format, loc->decimal_point);
     if (loc->thousands_sep[0] != 0) {
-        int g1, g2;
-        g1 = loc->grouping[0];
+        int g1 = loc->grouping[0];
         if (g1 != 0) {
-            g2 = loc->grouping[1];
+            int g2 = loc->grouping[1];
             if (g2 == 0)
                 g2 = g1;
-            cached_number_format[1] = loc->thousands_sep[0];
-            cached_number_format[2] = '0' + g1;
-            cached_number_format[3] = '0' + g2;
-            cached_number_format[4] = 0;
+            copy_one_utf8_char(cached_number_format, loc->thousands_sep);
+            char g[2];
+            g[0] = '0' + g1;
+            g[1] = '0' + g2;
+            strncat(cached_number_format, g, 2);
         }
     }
     setlocale(LC_NUMERIC, "C");
