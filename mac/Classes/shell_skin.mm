@@ -666,7 +666,7 @@ void skin_finish_image() {
     
     CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, skin_bitmap, bytes_per_line * skin_height, MyProviderReleaseData);
     skin_image = CGImageCreate(skin_width, skin_height, bits_per_component, bits_per_pixel, bytes_per_line,
-                               color_space, kCGBitmapByteOrder32Big, provider, NULL, false, kCGRenderingIntentDefault);
+                               color_space, kCGBitmapByteOrderDefault, provider, NULL, false, kCGRenderingIntentDefault);
     CGDataProviderRelease(provider);
     CGColorSpaceRelease(color_space);
     skin_bitmap = NULL;
