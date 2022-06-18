@@ -1,3 +1,7 @@
+2022-06-18: release 3.0.13a (iOS and MacOS)
+
+* Fixed skin rendering for iOS 16 and MacOS 13.
+
 2022-06-16: release 3.0.13
 
 * Fixed handling of invalid number keys in BINM and OCTM modes.
