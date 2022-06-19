@@ -18,7 +18,7 @@
 PKG_CONFIG ?= pkg-config
 CXX_FOR_BUILD ?= $(CXX)
 
-CFLAGS = -MMD \
+CFLAGS += -MMD \
 	 -Wall \
 	 -Wno-parentheses \
 	 -Wno-write-strings \
@@ -100,7 +100,7 @@ $(EXE): $(OBJS) gcc111libbid.a
 $(SRCS) skin2cc.cc keymap2cc.cc skin2cc.conf: symlinks
 
 .cc.o:
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 
 readtest.o: readtest.c
 	$(CC) $(CFLAGS) -I IntelRDFPMathLib20U1/TESTS -D__intptr_t_defined -DLINUX -c -o $@ $<
