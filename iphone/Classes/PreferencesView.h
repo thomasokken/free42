@@ -23,6 +23,7 @@
     UISwitch *matrixOutOfRangeSwitch;
     UISwitch *autoRepeatSwitch;
     UISwitch *allowBigStackSwitch;
+    UISwitch *localizedCopyPasteSwitch;
     UISwitch *alwaysOnSwitch;
     UISlider *keyClicksSlider;
     UISlider *hapticFeedbackSlider;
@@ -43,6 +44,7 @@
 @property (nonatomic, retain) IBOutlet UISwitch *matrixOutOfRangeSwitch;
 @property (nonatomic, retain) IBOutlet UISwitch *autoRepeatSwitch;
 @property (nonatomic, retain) IBOutlet UISwitch *allowBigStackSwitch;
+@property (nonatomic, retain) IBOutlet UISwitch *localizedCopyPasteSwitch;
 @property (nonatomic, retain) IBOutlet UISwitch *alwaysOnSwitch;
 @property (nonatomic, retain) IBOutlet UISlider *keyClicksSlider;
 @property (nonatomic, retain) IBOutlet UISlider *hapticFeedbackSlider;

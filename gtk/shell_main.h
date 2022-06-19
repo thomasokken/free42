@@ -25,7 +25,7 @@
 extern GtkWidget *calc_widget;
 extern bool allow_paint;
 
-#define SHELL_VERSION 9
+#define SHELL_VERSION 10
 
 struct state_type {
     int extras;
@@ -45,6 +45,7 @@ struct state_type {
     bool auto_repeat;
     bool old_repaint;
     bool allow_big_stack;
+    bool localized_copy_paste;
 };
 
 extern state_type state;

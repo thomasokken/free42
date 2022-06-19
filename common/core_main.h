@@ -325,6 +325,7 @@ struct core_settings_struct {
     bool matrix_outofrange;
     bool auto_repeat;
     bool allow_big_stack;
+    bool localized_copy_paste;
 };
 
 extern core_settings_struct core_settings;
@@ -364,6 +365,7 @@ void start_alpha_prgm_line();
 void finish_alpha_prgm_line();
 int shiftcharacter(char c);
 void set_old_pc(int4 pc);
+const char *number_format();
 
 
 #endif

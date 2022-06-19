@@ -152,8 +152,10 @@ int arg_to_num(arg_struct *arg, int4 *num) {
 
 int recall_result_silently(vartype *v) {
     if (flags.f.stack_lift_disable) {
-        // sp guaranteed to be >= 0 in this case
-        free_vartype(stack[sp]);
+        if (sp == -1)
+            sp = 0;
+        else
+            free_vartype(stack[sp]);
     } else if (flags.f.big_stack) {
         if (!ensure_stack_capacity(1)) {
             free_vartype(v);
@@ -179,13 +181,14 @@ int recall_result(vartype *v) {
 
 int recall_two_results(vartype *x, vartype *y) {
     if (flags.f.big_stack) {
-        int off = flags.f.stack_lift_disable ? 1 : 2;
+        bool sld = flags.f.stack_lift_disable && sp != -1;
+        int off = sld ? 1 : 2;
         if (!ensure_stack_capacity(off)) {
             free_vartype(x);
             free_vartype(y);
             return ERR_INSUFFICIENT_MEMORY;
         }
-        if (flags.f.stack_lift_disable)
+        if (sld)
             free_vartype(stack[sp]);
         sp += off;
     } else {

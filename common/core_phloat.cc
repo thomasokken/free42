@@ -1027,7 +1027,24 @@ double decimal2double(void *data, bool pin_magnitude /* = false */) {
 
 
 int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
-                         int dispmode, int thousandssep, int max_mant_digits) {
+                         int dispmode, int thousandssep, int max_mant_digits,
+                         const char *format) {
+    int group1, group2;
+    char dec, sep;
+    if (format == NULL) {
+        dec = flags.f.decimal_point ? '.' : ',';
+        sep = flags.f.decimal_point ? ',' : '.';
+        group1 = group2 = 3;
+    } else {
+        dec = format[0];
+        thousandssep = format[1] != 0;
+        if (thousandssep) {
+            sep = format[1];
+            group1 = format[2] - '0';
+            group2 = format[3] - '0';
+        }
+    }
+
     if (pd == 0)
         pd = 0; // Suppress signed zero
 
@@ -1135,8 +1152,7 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
         while (binbufptr > 0)
             char2buf(buf, buflen, &chars_so_far, binbuf[--binbufptr]);
         if (inexact)
-            char2buf(buf, buflen, &chars_so_far,
-                     (char) (flags.f.decimal_point ? '.' : ','));
+            char2buf(buf, buflen, &chars_so_far, dec);
         return chars_so_far;
 
         decimal_after_all:;
@@ -1344,9 +1360,12 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
             char2buf(buf, buflen, &chars_so_far, '-');
 
         for (i = int_digits - 1; i >= 0; i--) {
-            if (thousandssep && i % 3 == 2 && i != int_digits - 1)
-                char2buf(buf, buflen, &chars_so_far,
-                                (char) (flags.f.decimal_point ? ',' : '.'));
+            if (thousandssep && i >= group1 - 1 && (i - group1 + 1) % group2 == 0 && i != int_digits - 1)
+                if (sep == ' ')
+                    // U+2009: Unicode thin space
+                    string2buf(buf, buflen, &chars_so_far, "\342\200\211", 3);
+                else
+                    char2buf(buf, buflen, &chars_so_far, sep);
             char2buf(buf, buflen, &chars_so_far, (char)('0' + norm_ip[max_int_digits - 1 - i]));
         }
 
@@ -1362,8 +1381,7 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
             frac_digits = max_int_digits - int_digits;
 
         if (frac_digits > 0 || (dispmode == 0 && thousandssep)) {
-            char2buf(buf, buflen, &chars_so_far,
-                                (char) (flags.f.decimal_point ? '.' : ','));
+            char2buf(buf, buflen, &chars_so_far, dec);
             for (i = 0; i < frac_digits; i++)
                 char2buf(buf, buflen, &chars_so_far, (char) ('0' + norm_fp[i]));
         }
@@ -1483,8 +1501,7 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
             char2buf(buf, buflen, &chars_so_far,
                                     (char) ('0' + norm_mantissa[i]));
             if (i == e3)
-                char2buf(buf, buflen, &chars_so_far,
-                                    (char) (flags.f.decimal_point ? '.' : ','));
+                char2buf(buf, buflen, &chars_so_far, dec);
         }
 
         char2buf(buf, buflen, &chars_so_far, 24);

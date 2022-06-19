@@ -682,7 +682,7 @@ static CLLocationManager *locMgr = nil;
 /////                   Here beginneth thy olde C code                    /////
 ///////////////////////////////////////////////////////////////////////////////
 
-extern int off_enable_flag;
+extern bool off_enable_flag;
 
 static int read_shell_state(int *ver) {
     TRACE("read_shell_state");
@@ -723,6 +723,8 @@ static int read_shell_state(int *ver) {
     }
     if (state_version >= 9)
         core_settings.allow_big_stack = state.allow_big_stack;
+    if (state_version >= 11)
+        core_settings.localized_copy_paste = state.localized_copy_paste;
     
     init_shell_state(state_version);
     *ver = version;
@@ -774,13 +776,16 @@ static void init_shell_state(int version) {
         case 9:
             /* fall through */
         case 10:
-            /* current version (SHELL_VERSION = 10),
+            core_settings.localized_copy_paste = true;
+            /* fall through */
+        case 11:
+            /* current version (SHELL_VERSION = 11),
              * so nothing to do here since everything
              * was initialized from the state file.
              */
             ;
     }
-    off_enable_flag = state.offEnabled ? 1 : 0;
+    off_enable_flag = state.offEnabled;
 }
 
 static void quit2(bool really_quit) {
@@ -924,7 +929,7 @@ static int write_shell_state() {
     int state_size = sizeof(state);
     int state_version = SHELL_VERSION;
 
-    state.offEnabled = off_enable_flag != 0;
+    state.offEnabled = off_enable_flag;
     
     FILE *statefile = fopen("config/state", "w");
     if (statefile == NULL)
@@ -941,6 +946,7 @@ static int write_shell_state() {
     state.matrix_outofrange = core_settings.matrix_outofrange;
     state.auto_repeat = core_settings.auto_repeat;
     state.allow_big_stack = core_settings.allow_big_stack;
+    state.localized_copy_paste = core_settings.localized_copy_paste;
     if (fwrite(&state, 1, sizeof(state), statefile) != sizeof(state))
         return 0;
     
@@ -1074,10 +1080,23 @@ unsigned int shell_milliseconds() {
     return (unsigned int) (tv.tv_sec * 1000L + tv.tv_usec / 1000);
 }
 
-bool shell_decimal_point() {
+const char *shell_number_format() {
     NSLocale *loc = [NSLocale currentLocale];
-    NSString *dec = [loc objectForKey:NSLocaleDecimalSeparator];
-    return ![dec isEqualToString:@","];
+    static NSString *f = nil;
+    [f release];
+    f = [loc objectForKey:NSLocaleDecimalSeparator];
+    NSNumberFormatter *fmt = [[NSNumberFormatter alloc] init];
+    fmt.numberStyle = NSNumberFormatterDecimalStyle;
+    if (fmt.usesGroupingSeparator) {
+        NSString *sep = [loc objectForKey:NSLocaleGroupingSeparator];
+        int ps = (int) fmt.groupingSize;
+        int ss = (int) fmt.secondaryGroupingSize;
+        if (ss == 0)
+            ss = ps;
+        f = [NSString stringWithFormat:@"%@%@%c%c", f, sep, '0' + ps, '0' + ss];
+    }
+    [f retain];
+    return [f UTF8String];
 }
 
 int shell_date_format() {

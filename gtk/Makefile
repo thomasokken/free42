@@ -15,6 +15,9 @@
 # along with this program; if not, see http://www.gnu.org/licenses/.
 ###############################################################################
 
+PKG_CONFIG ?= pkg-config
+CXX_FOR_BUILD ?= $(CXX)
+
 CFLAGS += -MMD \
 	 -Wall \
 	 -Wno-parentheses \
@@ -27,7 +30,7 @@ CFLAGS += -MMD \
 	 -Wno-class-memaccess \
 	 -Wno-unknown-warning-option \
 	 -g \
-	 $(shell pkg-config --cflags gtk+-3.0) \
+	 $(shell $(PKG_CONFIG) --cflags gtk+-3.0) \
 	 -DGDK_DISABLE_DEPRECATION_WARNINGS -DGTK_DISABLE_SINGLE_INCLUDES -DGSEAL_ENABLE \
 	 -DVERSION="\"$(shell cat VERSION)\"" \
 	 -DVERSION_PLATFORM="\"$(shell uname -s)\"" \
@@ -42,7 +45,7 @@ CXXFLAGS = $(CFLAGS) \
 	 -fno-rtti \
 	 -D_WCHAR_T_DEFINED
 
-LIBS = gcc111libbid.a $(shell pkg-config --libs gtk+-3.0)
+LIBS = gcc111libbid.a $(shell $(PKG_CONFIG) --libs gtk+-3.0)
 
 ifdef AUDIO_ALSA
 LIBS += -lpthread -ldl
@@ -103,13 +106,13 @@ readtest.o: readtest.c
 	$(CC) $(CFLAGS) -I IntelRDFPMathLib20U1/TESTS -D__intptr_t_defined -DLINUX -c -o $@ $<
 
 skin2cc: skin2cc.cc
-	$(CXX) -o skin2cc skin2cc.cc
+	$(CXX_FOR_BUILD) -o skin2cc skin2cc.cc
 
 skins.cc: skin2cc skin2cc.conf
 	./skin2cc
 
 keymap2cc: keymap2cc.cc
-	$(CXX) -o keymap2cc keymap2cc.cc
+	$(CXX_FOR_BUILD) -o keymap2cc keymap2cc.cc
 
 keymap.cc: keymap2cc keymap.txt
 	./keymap2cc
