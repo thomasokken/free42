@@ -1120,8 +1120,28 @@ public class Free42Activity extends Activity {
                 lp.addRule(RelativeLayout.BELOW, label3.getId());
                 addView(label4, lp);
 
+                TextView label5 = new TextView(context);
+                label5.setId(6);
+                label5.setText("Plus42: Free42 Enhanced");
+                lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+                lp.addRule(RelativeLayout.ALIGN_LEFT, label4.getId());
+                lp.addRule(RelativeLayout.BELOW, label4.getId());
+                lp.setMargins(0, 10, 0, 0);
+                addView(label5, lp);
+
+                TextView label6 = new TextView(context);
+                label6.setId(7);
+                s = new SpannableString("https://thomasokken.com/plus42/");
+                Linkify.addLinks(s, Linkify.WEB_URLS);
+                label6.setText(s);
+                label6.setMovementMethod(LinkMovementMethod.getInstance());
+                lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+                lp.addRule(RelativeLayout.ALIGN_LEFT, label5.getId());
+                lp.addRule(RelativeLayout.BELOW, label5.getId());
+                addView(label6, lp);
+
                 Button okB = new Button(context);
-                okB.setId(6);
+                okB.setId(8);
                 okB.setText("   OK   ");
                 okB.setOnClickListener(new OnClickListener() {
                     public void onClick(View view) {
@@ -1129,7 +1149,7 @@ public class Free42Activity extends Activity {
                     }
                 });
                 lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-                lp.addRule(RelativeLayout.BELOW, label4.getId());
+                lp.addRule(RelativeLayout.BELOW, label6.getId());
                 lp.addRule(RelativeLayout.CENTER_HORIZONTAL);
                 addView(okB, lp);
 
