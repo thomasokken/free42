@@ -366,19 +366,19 @@
         <window title="About Free42" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="508">
             <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="711" y="417" width="353" height="189"/>
+            <rect key="contentRect" x="711" y="417" width="353" height="249"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1366" height="743"/>
             <view key="contentView" id="509">
-                <rect key="frame" x="0.0" y="0.0" width="353" height="189"/>
+                <rect key="frame" x="0.0" y="0.0" width="353" height="249"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <imageView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="510">
-                        <rect key="frame" x="20" y="105" width="64" height="64"/>
+                        <rect key="frame" x="20" y="165" width="64" height="64"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="icon" id="511"/>
                     </imageView>
                     <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="512">
-                        <rect key="frame" x="89" y="105" width="137" height="17"/>
+                        <rect key="frame" x="89" y="165" width="137" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Free42" id="513">
                             <font key="font" metaFont="system"/>
@@ -387,7 +387,7 @@
                         </textFieldCell>
                     </textField>
                     <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="514">
-                        <rect key="frame" x="17" y="70" width="209" height="17"/>
+                        <rect key="frame" x="17" y="130" width="209" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="© 2004-2084 Thomas Okken" id="515">
                             <font key="font" metaFont="system"/>
@@ -396,7 +396,7 @@
                         </textFieldCell>
                     </textField>
                     <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="516" customClass="URLTextField">
-                        <rect key="frame" x="17" y="45" width="319" height="17"/>
+                        <rect key="frame" x="17" y="105" width="319" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="https://thomasokken.com/free42/" id="517">
                             <font key="font" metaFont="system"/>
@@ -405,9 +405,27 @@
                         </textFieldCell>
                     </textField>
                     <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="518" customClass="URLTextField">
-                        <rect key="frame" x="17" y="20" width="319" height="17"/>
+                        <rect key="frame" x="17" y="80" width="319" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="https://thomasokken.com/free42/#doc" id="519">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="IAt-a9-stm">
+                        <rect key="frame" x="17" y="45" width="294" height="17"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Plus42: Free42 Enhanced" id="2cS-PN-q5l">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FfZ-1n-D82" customClass="URLTextField">
+                        <rect key="frame" x="17" y="20" width="319" height="17"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="https://thomasokken.com/plus42/" id="eVn-Kf-c5m">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -418,7 +436,7 @@
             <connections>
                 <outlet property="delegate" destination="520" id="593"/>
             </connections>
-            <point key="canvasLocation" x="90" y="581"/>
+            <point key="canvasLocation" x="89.5" y="580.5"/>
         </window>
         <customObject id="520" customClass="Free42AppDelegate">
             <connections>
