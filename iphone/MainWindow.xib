@@ -93,6 +93,23 @@
                         <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     </state>
                 </button>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Plus42: Free42 Enhanced" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Mbd-j7-MvJ">
+                    <rect key="frame" x="20" y="276" width="280" height="21"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Tsc-js-efQ" customClass="URLButton">
+                    <rect key="frame" x="20" y="305" width="280" height="21"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                    <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                    <state key="normal" title="https://thomasokken.com/plus42/">
+                        <color key="titleColor" systemColor="linkColor"/>
+                        <color key="titleShadowColor" red="0.49803921568627452" green="0.49803921568627452" blue="0.49803921568627452" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    </state>
+                </button>
             </subviews>
             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
             <nil key="simulatedStatusBarMetrics"/>
@@ -102,7 +119,7 @@
                 <outlet property="doneButton" destination="91" id="96"/>
                 <outlet property="versionLabel" destination="107" id="111"/>
             </connections>
-            <point key="canvasLocation" x="2678" y="485"/>
+            <point key="canvasLocation" x="2676.8000000000002" y="484.85757121439286"/>
         </view>
         <view contentMode="scaleToFill" id="C2c-Vb-laU" customClass="DeleteSkinView">
             <rect key="frame" x="0.0" y="0.0" width="320" height="460"/>
