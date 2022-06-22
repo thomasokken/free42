@@ -272,9 +272,31 @@ int math_atanh(phloat xre, phloat xim, phloat *yre, phloat *yim) {
 }
 
 int math_sqrt(phloat xre, phloat xim, phloat *yre, phloat *yim) {
-    if (xre == 0 && xim == 0) {
-        *yre = 0;
-        *yim = 0;
+    if (xre == 0) {
+        if (xim == 0) {
+            *yre = 0;
+            *yim = 0;
+        } else {
+            bool neg = xim < 0;
+            if (neg)
+                xim = -xim;
+            phloat r;
+            if (xim > 1)
+                r = sqrt(xim / 2);
+            else
+                r = sqrt(xim * 2) / 2;
+            *yre = r;
+            *yim = neg ? -r : r;
+        }
+        return ERR_NONE;
+    } else if (xim == 0) {
+        if (xre > 0) {
+            *yre = sqrt(xre);
+            *yim = 0;
+        } else {
+            *yre = 0;
+            *yim = sqrt(-xre);
+        }
         return ERR_NONE;
     }
 
