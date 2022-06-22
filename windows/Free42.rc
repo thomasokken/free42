@@ -111,7 +111,7 @@ END
 // Dialog
 //
 
-IDD_ABOUTBOX DIALOG DISCARDABLE  65499, 40, 225, 53
+IDD_ABOUTBOX DIALOG DISCARDABLE  65499, 40, 225, 78
 STYLE DS_MODALFRAME | WS_CAPTION | WS_SYSMENU
 CAPTION "About Free42"
 FONT 8, "System"
@@ -123,6 +123,9 @@ BEGIN
                     IDC_WEBSITELINK,31,27,191,8,SS_NOTIFY
     LTEXT           "https://thomasokken.com/free42/#doc",
                     IDC_FORUMLINK,31,37,191,8,SS_NOTIFY
+    LTEXT           "Plus42: Free42 Enhanced",IDC_STATIC,31,52,98,8
+    LTEXT           "https://thomasokken.com/plus42/",
+                    IDC_WEBSITELINK_PLUS42,31,62,191,8,SS_NOTIFY
     DEFPUSHBUTTON   "OK",IDOK,189,6,30,11,WS_GROUP
 END
 
