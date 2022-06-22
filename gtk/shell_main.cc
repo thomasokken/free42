@@ -2452,6 +2452,13 @@ static void aboutCB() {
         GtkWidget *forumbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
         gtk_box_pack_start(GTK_BOX(forumbox), forumlink, FALSE, FALSE, 0);
         gtk_box_pack_start(GTK_BOX(box2), forumbox, FALSE, FALSE, 0);
+        GtkWidget *plus42 = gtk_label_new("Plus42: Free42 Enhanced");
+        gtk_misc_set_alignment(GTK_MISC(plus42), 0, 0);
+        gtk_box_pack_start(GTK_BOX(box2), plus42, FALSE, FALSE, 0);
+        GtkWidget *websiteplus42link = gtk_link_button_new("https://thomasokken.com/plus42/");
+        GtkWidget *websiteplus42box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+        gtk_box_pack_start(GTK_BOX(websiteplus42box), websiteplus42link, FALSE, FALSE, 0);
+        gtk_box_pack_start(GTK_BOX(box2), websiteplus42box, FALSE, FALSE, 0);
         gtk_box_pack_start(GTK_BOX(box), box2, FALSE, FALSE, 0);
         focus_ok_button(GTK_WINDOW(about), container);
         gtk_widget_show_all(GTK_WIDGET(about));
