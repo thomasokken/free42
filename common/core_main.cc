@@ -2737,7 +2737,7 @@ const char *STR_INF = "<Infinity>";
 const char *STR_NEG_INF = "<-Infinity>";
 const char *STR_NAN = "<Not a Number>";
 
-static int scan_number(const char *buf, int len, int pos, const char *format) {
+static int scan_number(const char *buf, int len, int pos, const char *format, bool no_sep = false) {
     if (buf[pos] == '<' || len > 1 && (buf[pos] == '-' || buf[pos] == '+') && buf[pos + 1] == '<') {
         int off = buf[pos] == '<' ? 0 : 1;
         if (len >= 10 + off && strncmp(buf + pos + off, STR_INF, 10) == 0)
@@ -2767,7 +2767,7 @@ static int scan_number(const char *buf, int len, int pos, const char *format) {
         char c = buf[p];
         switch (state) {
             case 0:
-                if ((c >= '0' && c <= '9') || c == '+' || c == '-')
+                if (c >= '0' && c <= '9' || c == '+' || c == '-')
                     state = 1;
                 else if (c == dec)
                     state = 2;
@@ -2777,7 +2777,7 @@ static int scan_number(const char *buf, int len, int pos, const char *format) {
                     return p;
                 break;
             case 1:
-                if ((c >= '0' && c <= '9') || c == sep || c == ' ')
+                if (c >= '0' && c <= '9' || !no_sep && (c == sep || c == ' '))
                     /* state = 1 */;
                 else if (c == dec)
                     state = 2;
@@ -3380,7 +3380,7 @@ static int parse_scalar(const char *buf, int len, bool strict, phloat *re, phloa
     while (i < len && buf[i] == ' ')
         i++;
     s1 = i;
-    i = scan_number(buf, len, i, format);
+    i = scan_number(buf, len, i, format, true);
     e1 = i;
     if (e1 == s1)
         goto attempt_4;
@@ -3393,7 +3393,7 @@ static int parse_scalar(const char *buf, int len, bool strict, phloat *re, phloa
     while (i < len && buf[i] == ' ')
         i++;
     s2 = i;
-    i = scan_number(buf, len, i, format);
+    i = scan_number(buf, len, i, format, true);
     e2 = i;
     if (e2 == s2)
         goto attempt_4;
