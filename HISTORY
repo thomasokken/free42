@@ -1,3 +1,8 @@
+2022-08-13: release 3.0.14
+
+* Fixed (re,im) complex pasting. This was broken by localized copy & paste.
+* Special cases for pure real and pure imaginary in SQRT.
+
 2022-06-18: release 3.0.13a (iOS and MacOS)
 
 * Fixed skin rendering for iOS 16 and MacOS 13.
