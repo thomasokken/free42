@@ -1984,6 +1984,7 @@ static int procrustean_phloat2string(phloat d, char *buf, int buflen) {
         if (zero_since != -1) {
             memmove(tbuf + zero_since, tbuf + epos, tbuflen - epos);
             tbuflen -= epos - zero_since;
+            epos = zero_since;
         }
         if (tbuflen <= buflen) {
             memcpy(buf, tbuf, tbuflen);
