@@ -759,7 +759,7 @@ int get_base() {
         return 10;
 }
 
-void set_base(int base) {
+void set_base(int base, bool a_thru_f) {
     int oldbase = 0;
     if (flags.f.base_bit0) oldbase += 1;
     if (flags.f.base_bit1) oldbase += 2;
@@ -774,7 +774,7 @@ void set_base(int base) {
     flags.f.base_bit1 = (base & 2) != 0;
     flags.f.base_bit2 = (base & 4) != 0;
     flags.f.base_bit3 = (base & 8) != 0;
-    if (mode_appmenu == MENU_BASE_A_THRU_F)
+    if (!a_thru_f && mode_appmenu == MENU_BASE_A_THRU_F)
         set_menu(MENULEVEL_APP, MENU_BASE);
 
     if (base != oldbase)

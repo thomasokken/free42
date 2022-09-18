@@ -72,6 +72,16 @@ int docmd_hexm(arg_struct *arg) {
     return base_helper(16);
 }
 
+int docmd_a_thru_f(arg_struct *arg) {
+    int err = set_menu_return_err(MENULEVEL_APP, MENU_BASE_A_THRU_F, false);
+    if (err != ERR_NONE)
+        return err;
+    set_appmenu_exitcallback(2);
+    baseapp = 1;
+    set_base(16, true);
+    return ERR_NONE;
+}
+
 int docmd_linf(arg_struct *arg) {
     flags.f.lin_fit = 1;
     flags.f.log_fit = 0;

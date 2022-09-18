@@ -25,6 +25,7 @@ int docmd_binm(arg_struct *arg);
 int docmd_octm(arg_struct *arg);
 int docmd_decm(arg_struct *arg);
 int docmd_hexm(arg_struct *arg);
+int docmd_a_thru_f(arg_struct *arg);
 int docmd_linf(arg_struct *arg);
 int docmd_logf(arg_struct *arg);
 int docmd_expf(arg_struct *arg);

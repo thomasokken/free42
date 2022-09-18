@@ -62,7 +62,7 @@ int anum(const char *text, int len, phloat *res);
 int virtual_flag_handler(int flagop, int flagnum);
 
 int get_base();
-void set_base(int base);
+void set_base(int base, bool a_thru_f = false);
 int get_base_param(const vartype *v, int8 *n);
 int base_range_check(int8 *n, bool force_wrap);
 int effective_wsize();
