@@ -480,12 +480,18 @@ static struct timeval runner_end_time;
 
 - (void) handlePan:(UIPanGestureRecognizer *)panrec {
     static CGFloat prevX;
-    UIGestureRecognizerState state = [panrec state];
+    CGFloat dir;
+    switch (state.swipeDirectionMode) {
+        case 0: dir = 1; break;
+        case 2: dir = -1; break;
+        default: return;
+    }
+    UIGestureRecognizerState gstate = [panrec state];
     CGPoint p = [panrec translationInView:[self superview]];
     PrintView *print = ((Free42AppDelegate *) UIApplication.sharedApplication.delegate).rootViewController.printView;
     CGRect cf = self.frame;
     CGRect pf = print.frame;
-    if (state == UIGestureRecognizerStateBegan) {
+    if (gstate == UIGestureRecognizerStateBegan) {
         // Make sure the Print-Out view isn't hidden
         [RootViewController showPrintOut];
         [RootViewController showMain];
@@ -493,7 +499,7 @@ static struct timeval runner_end_time;
         touchDelayed = 0;
         prevX = self.frame.origin.x;
     }
-    if (state == UIGestureRecognizerStateEnded) {
+    if (gstate == UIGestureRecognizerStateEnded) {
         cf.origin.x = prevX;
         self.frame = cf;
         pf.origin.x = prevX;
@@ -502,14 +508,14 @@ static struct timeval runner_end_time;
         CGFloat scale = self.bounds.size.width / self.bounds.size.height;
         if (scale < 1)
             scale = 1;
-        if (scale * (p.x + v.x / 16) < -self.bounds.size.width / 3)
+        if (scale * (p.x + v.x / 16) * dir < -self.bounds.size.width / 3)
             [RootViewController showPrintOut];
     } else {
-        if (p.x > 0)
+        if (dir * p.x > 0)
             p.x = 0;
         cf.origin.x = self.superview.bounds.origin.x + p.x;
         self.frame = cf;
-        pf.origin.x = self.superview.bounds.origin.x + p.x + self.frame.size.width;
+        pf.origin.x = self.superview.bounds.origin.x + p.x + dir * self.frame.size.width;
         print.frame = pf;
     }
 }
@@ -779,7 +785,10 @@ static void init_shell_state(int version) {
             core_settings.localized_copy_paste = true;
             /* fall through */
         case 11:
-            /* current version (SHELL_VERSION = 11),
+            state.swipeDirectionMode = 0;
+            /* fall through */
+        case 12:
+            /* current version (SHELL_VERSION = 12),
              * so nothing to do here since everything
              * was initialized from the state file.
              */

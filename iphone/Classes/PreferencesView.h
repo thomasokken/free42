@@ -28,6 +28,7 @@
     UISlider *keyClicksSlider;
     UISlider *hapticFeedbackSlider;
     UISegmentedControl *orientationSelector;
+    UISegmentedControl *swipeDirectionSelector;
     UISwitch *maintainSkinAspectSwitch;
     UISwitch *printToTextSwitch;
     UITextField *printToTextField;
@@ -49,6 +50,7 @@
 @property (nonatomic, retain) IBOutlet UISlider *keyClicksSlider;
 @property (nonatomic, retain) IBOutlet UISlider *hapticFeedbackSlider;
 @property (nonatomic, retain) IBOutlet UISegmentedControl *orientationSelector;
+@property (nonatomic, retain) IBOutlet UISegmentedControl *swipeDirectionSelector;
 @property (nonatomic, retain) IBOutlet UISwitch *maintainSkinAspectSwitch;
 @property (nonatomic, retain) IBOutlet UISwitch *printToTextSwitch;
 @property (nonatomic, retain) IBOutlet UITextField *printToTextField;

@@ -107,18 +107,24 @@ int print_text_pixel_height;
 
 - (void) handlePan:(UIPanGestureRecognizer *)panrec {
     static CGFloat prevX;
-    UIGestureRecognizerState state = [panrec state];
+    CGFloat dir;
+    switch (state.swipeDirectionMode) {
+        case 0: dir = -1; break;
+        case 2: dir = 1; break;
+        default: return;
+    }
+    UIGestureRecognizerState gstate = [panrec state];
     CGPoint p = [panrec translationInView:[self superview]];
     CalcView *calc = ((Free42AppDelegate *) UIApplication.sharedApplication.delegate).rootViewController.calcView;
     CGRect pf = self.frame;
     CGRect cf = calc.frame;
-    if (state == UIGestureRecognizerStateBegan) {
+    if (gstate == UIGestureRecognizerStateBegan) {
         // Make sure the Calculator view isn't hidden
         [RootViewController showMain];
         [RootViewController showPrintOut];
         prevX = self.frame.origin.x;
     }
-    if (state == UIGestureRecognizerStateEnded) {
+    if (gstate == UIGestureRecognizerStateEnded) {
         pf.origin.x = prevX;
         self.frame = pf;
         cf.origin.x = prevX;
@@ -127,14 +133,14 @@ int print_text_pixel_height;
         CGFloat scale = self.bounds.size.width / self.bounds.size.height;
         if (scale < 1)
             scale = 1;
-        if (scale * (p.x + v.x / 16) > self.bounds.size.width / 3)
+        if (scale * (p.x + v.x / 16) * dir < -self.bounds.size.width / 3)
             [RootViewController showMain];
     } else {
-        if (p.x < 0)
+        if (dir * p.x > 0)
             p.x = 0;
         pf.origin.x = self.superview.bounds.origin.x + p.x;
         self.frame = pf;
-        cf.origin.x = self.superview.bounds.origin.x + p.x - calc.frame.size.width;
+        cf.origin.x = self.superview.bounds.origin.x + p.x + dir * calc.frame.size.width;
         calc.frame = cf;
     }
 }
