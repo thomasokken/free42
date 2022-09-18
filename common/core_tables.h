@@ -470,7 +470,7 @@
 #define CMD_SKIP        417
 #define CMD_CPXMAT_T    418
 #define CMD_TYPE_T      419
-#define CMD_A_THRU_F    420
+#define CMD_A_THRU_F_2  420
 /* String & List Functions */
 #define CMD_XSTR        421
 #define CMD_XASTO       422
