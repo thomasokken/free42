@@ -1,3 +1,15 @@
+2022-10-01: release 3.0.15
+
+* Fixed crash in SHOW for certain complex numbers.
+* Added A...F function. This allows programs to turn on HEXM mode with the
+  A...F menu activated.
+* iOS version: Added Calculator / Print-Out swipe direction configuration
+  option to Preferences.
+* Android, iOS, and MacOS versions: Fixed incorrect Out of Range error returned
+  by BASE functions in certain cases, e.g. BRESET 64 WSIZE 1 ENTER BASE÷
+  The problem is caused by an optimizer bug in the ARM compiler, and does not
+  affect the Windows and Linux versions, nor the MacOS version on Intel.
+
 2022-08-13: release 3.0.14
 
 * Fixed (re,im) complex pasting. This was broken by localized copy & paste.
