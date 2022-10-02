@@ -801,6 +801,8 @@ int base_range_check(int8 *n, bool force_wrap) {
                 *n &= (1ULL << wsize) - 1;
         }
     } else if (flags.f.base_signed) {
+        if (wsize == 64)
+            return ERR_NONE;
         int8 high = 1LL << (wsize - 1);
         int8 low = -high;
         high--;
