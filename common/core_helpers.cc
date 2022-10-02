@@ -748,6 +748,8 @@ int virtual_flag_handler(int flagop, int flagnum) {
 }
 
 int get_base() {
+    if (flags.f.prgm_mode)
+        return 10;
     int base = 0;
     if (flags.f.base_bit0) base += 1;
     if (flags.f.base_bit1) base += 2;

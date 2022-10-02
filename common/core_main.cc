@@ -415,8 +415,12 @@ void core_keytimeout1() {
         display_command(0);
         /* If the program catalog was left up by GTO or XEQ,
          * don't paint over it */
-        if (mode_transientmenu == MENU_NONE || pending_command == CMD_NULL)
+        if (mode_transientmenu == MENU_NONE || pending_command == CMD_NULL) {
+            bool saved_prgm_mode = flags.f.prgm_mode;
+            flags.f.prgm_mode = 0;
             display_x(1);
+            flags.f.prgm_mode = saved_prgm_mode;
+        }
         flush_display();
     }
 }
@@ -429,7 +433,10 @@ void core_keytimeout2() {
             && (cmd_array[pending_command].flags & FLAG_NO_SHOW) == 0) {
         clear_row(0);
         draw_string(0, 0, "NULL", 4);
+        bool saved_prgm_mode = flags.f.prgm_mode;
+        flags.f.prgm_mode = 0;
         display_x(1);
+        flags.f.prgm_mode = saved_prgm_mode;
         flush_display();
         pending_command = CMD_CANCELLED;
     }
