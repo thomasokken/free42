@@ -388,7 +388,7 @@ extern bool mode_clall;
 extern int (*mode_interruptible)(bool);
 extern bool mode_stoppable;
 extern bool mode_command_entry;
-extern bool mode_number_entry;
+extern char mode_number_entry;
 extern bool mode_alpha_entry;
 extern bool mode_shift;
 extern int mode_appmenu;

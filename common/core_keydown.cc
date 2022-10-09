@@ -427,6 +427,7 @@ void keydown_number_entry(int shift, int key) {
      */
 
     if (key == KEY_BSP && cmdline_length == 1) {
+        char pne = mode_number_entry;
         mode_number_entry = false;
         if (flags.f.prgm_mode) {
             pc = line2pc(pc2line(pc) - 1);
@@ -434,7 +435,7 @@ void keydown_number_entry(int shift, int key) {
             redisplay();
             return;
         } else {
-            pending_command = flags.f.big_stack ? CMD_DROP : CMD_CLX;
+            pending_command = flags.f.big_stack ? pne == 2 ? CMD_DROP_CANCL : CMD_DROP : CMD_CLX;
             return;
         }
     }
@@ -494,10 +495,10 @@ void keydown_number_entry(int shift, int key) {
                         /* This is a bit odd, but it's how the HP-42S
                          * does it, so there.
                          */
-                        mode_number_entry = false;
                         free_vartype(stack[sp]);
                         stack[sp] = new_real(0);
-                        pending_command = flags.f.big_stack ? CMD_DROP : CMD_CLX;
+                        pending_command = flags.f.big_stack ? mode_number_entry == 2 ? CMD_DROP_CANCL : CMD_DROP : CMD_CLX;
+                        mode_number_entry = false;
                         return;
                     }
                 }
@@ -2033,7 +2034,7 @@ void keydown_normal_mode(int shift, int key) {
             cmdline_row = 0;
         else
             cmdline_row = 1;
-        mode_number_entry = true;
+        mode_number_entry = !flags.f.prgm_mode && flags.f.big_stack && !flags.f.numeric_data_input ? 2 : 1;
         if (flags.f.prgm_mode) {
             if (pc == -1)
                 pc = 0;

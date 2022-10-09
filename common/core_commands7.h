@@ -78,6 +78,7 @@ int docmd_nstk(arg_struct *arg);
 int docmd_lnstk(arg_struct *arg);
 int docmd_depth(arg_struct *arg);
 int docmd_drop(arg_struct *arg);
+int docmd_drop_cancl(arg_struct *arg);
 int docmd_dropn(arg_struct *arg);
 int docmd_dup(arg_struct *arg);
 int docmd_dupn(arg_struct *arg);

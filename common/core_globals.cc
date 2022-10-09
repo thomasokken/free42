@@ -608,7 +608,7 @@ bool mode_clall;
 int (*mode_interruptible)(bool) = NULL;
 bool mode_stoppable;
 bool mode_command_entry;
-bool mode_number_entry;
+char mode_number_entry;
 bool mode_alpha_entry;
 bool mode_shift;
 int mode_appmenu;
@@ -4371,7 +4371,7 @@ static bool load_state2(bool *clear, bool *too_new) {
 
     if (!read_bool(&mode_clall)) return false;
     if (!read_bool(&mode_command_entry)) return false;
-    if (!read_bool(&mode_number_entry)) return false;
+    if (!read_char(&mode_number_entry)) return false;
     if (!read_bool(&mode_alpha_entry)) return false;
     if (!read_bool(&mode_shift)) return false;
     if (!read_int(&mode_appmenu)) return false;
@@ -4576,7 +4576,7 @@ void save_state(bool *success) {
     if (!write_bool(core_settings.auto_repeat)) return;
     if (!write_bool(mode_clall)) return;
     if (!write_bool(mode_command_entry)) return;
-    if (!write_bool(mode_number_entry)) return;
+    if (!write_char(mode_number_entry)) return;
     if (!write_bool(mode_alpha_entry)) return;
     if (!write_bool(mode_shift)) return;
     if (!write_int(mode_appmenu)) return;

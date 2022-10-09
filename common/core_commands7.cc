@@ -1106,6 +1106,13 @@ int docmd_drop(arg_struct *arg) {
     return ERR_NONE;
 }
 
+int docmd_drop_cancl(arg_struct *arg) {
+    int err = docmd_drop(arg);
+    if (err == ERR_NONE)
+        flags.f.numeric_data_input = false;
+    return err;
+}
+
 int docmd_dropn(arg_struct *arg) {
     int4 n;
     int err = arg_to_num(arg, &n);
