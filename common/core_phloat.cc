@@ -1065,14 +1065,16 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
 
     /* base_mode: 0=only decimal, 1=all bases, 2=SHOW */
     int base = get_base();
-    if (base_mode == 1 && base != 10 || base_mode == 2 && base <= 8) {
+    int wsize = effective_wsize();
+    if (base_mode == 1 && base != 10
+            || base_mode == 2 && (base == 2
+                               || base == 8 && wsize > 60)) {
         uint8 n;
         int inexact, shift;
         bool too_big = false;
         char binbuf[64];
         int binbufptr = 0;
 
-        int wsize = effective_wsize();
         phloat high, low;
         if (flags.f.base_signed) {
             high = pow(phloat(2), wsize - 1);
