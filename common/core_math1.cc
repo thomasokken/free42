@@ -58,6 +58,8 @@ struct solve_state {
     phloat shadow_value[NUM_SHADOWS];
     uint4 last_disp_time;
     int prev_sp;
+    phloat f_gap;
+    int f_gap_worsening_counter;
 };
 
 static solve_state solve;
@@ -322,6 +324,7 @@ bool unpersist_math(int ver, bool discard) {
             reset_integ();
         }
     }
+    solve.f_gap = NAN_PHLOAT;
 
     return true;
 }
@@ -482,6 +485,7 @@ int start_solve(const char *name, int length, phloat x1, phloat x2) {
     solve.last_disp_time = 0;
     solve.toggle = 1;
     solve.secant_impatience = 0;
+    solve.f_gap = NAN_PHLOAT;
     solve.keep_running = !should_i_stop_at_this_level() && program_running();
     return call_solve_fn(1, 1);
 }
@@ -496,6 +500,7 @@ struct message_spec {
 #define SOLVE_EXTREMUM      2
 #define SOLVE_BAD_GUESSES   3
 #define SOLVE_CONSTANT      4
+#define SOLVE_NOT_SURE     -1
 
 static const message_spec solve_message[] = {
     { NULL,             0 },
@@ -511,6 +516,12 @@ static int finish_solve(int message) {
     int dummy, print;
 
     phloat final_f = solve.curr_f;
+
+    if (message == SOLVE_NOT_SURE)
+        if (!p_isnan(solve.f_gap) && solve.f_gap_worsening_counter >= 3)
+            message = SOLVE_SIGN_REVERSAL;
+        else
+            message = SOLVE_ROOT;
 
     if (solve.which == -1) {
         /* Ridders was terminated because it wasn't making progress; this does
@@ -611,6 +622,21 @@ static int finish_solve(int message) {
                     solve_message[message].length, true);
 
     return solve.keep_running ? ERR_NONE : ERR_STOP;
+}
+
+static void track_f_gap() {
+    phloat gap = solve.fx2 - solve.fx1;
+    if (gap == 0 || p_isnan(gap)) {
+        solve.f_gap = NAN_PHLOAT;
+        return;
+    }
+    if (p_isnan(solve.f_gap)
+            || (gap > 0) != (solve.f_gap > 0)
+            || fabs(gap) < fabs(solve.f_gap))
+        solve.f_gap_worsening_counter = 0;
+    else
+        solve.f_gap_worsening_counter++;
+    solve.f_gap = gap;
 }
 
 int return_to_solve(int failure, bool stop) {
@@ -858,6 +884,7 @@ int return_to_solve(int failure, bool stop) {
                 solve.fx1 = solve.fx2;
                 solve.fx2 = tmp;
             }
+            track_f_gap();
             do_secant:
             if (solve.fx1 == solve.fx2)
                 return finish_solve(SOLVE_EXTREMUM);
@@ -868,7 +895,7 @@ int return_to_solve(int failure, bool stop) {
             if (p_isinf(slope)) {
                 solve.x3 = (solve.x1 + solve.x2) / 2;
                 if (solve.x3 == solve.x1 || solve.x3 == solve.x2)
-                    return finish_solve(SOLVE_ROOT);
+                    return finish_solve(SOLVE_NOT_SURE);
                 else
                     return call_solve_fn(3, 4);
             } else if (slope == 0) {
@@ -904,7 +931,7 @@ int return_to_solve(int failure, bool stop) {
                     solve.which = 1;
                     solve.curr_f = solve.fx1;
                     solve.prev_x = solve.x2;
-                    return finish_solve(SOLVE_ROOT);
+                    return finish_solve(SOLVE_NOT_SURE);
                 }
                 if (solve.x3 == solve.x2) {
                     if (fabs(slope) > 1e50) {
@@ -915,7 +942,7 @@ int return_to_solve(int failure, bool stop) {
                     solve.which = 2;
                     solve.curr_f = solve.fx2;
                     solve.prev_x = solve.x1;
-                    return finish_solve(SOLVE_ROOT);
+                    return finish_solve(SOLVE_NOT_SURE);
                 }
                 /* If we're extrapolating, make sure we don't race away from
                  * the current interval too quickly */
@@ -981,7 +1008,7 @@ int return_to_solve(int failure, bool stop) {
                  * We could handle this better but this seems adequate.
                  */
                 solve.which = -1;
-                return finish_solve(SOLVE_ROOT);
+                return finish_solve(SOLVE_NOT_SURE);
             }
             solve.xm = solve.x3;
             solve.fxm = f;
@@ -990,7 +1017,7 @@ int return_to_solve(int failure, bool stop) {
             xnew = solve.xm + (solve.xm - solve.x1) * (solve.fxm / s);
             if (xnew == solve.x1 || xnew == solve.x2) {
                 solve.which = -1;
-                return finish_solve(SOLVE_ROOT);
+                return finish_solve(SOLVE_NOT_SURE);
             }
             solve.x3 = xnew;
             return call_solve_fn(3, 7);
@@ -1018,6 +1045,7 @@ int return_to_solve(int failure, bool stop) {
                 solve.x1 = solve.x3;
                 solve.fx1 = f;
             }
+            track_f_gap();
             do_ridders:
             solve.x3 = (solve.x1 + solve.x2) / 2;
             // TODO: The following termination condition should really be
@@ -1034,7 +1062,7 @@ int return_to_solve(int failure, bool stop) {
             // returns an incorrect result.
             if (solve.x3 <= solve.x1 || solve.x3 >= solve.x2) {
                 solve.which = -1;
-                return finish_solve(SOLVE_ROOT);
+                return finish_solve(SOLVE_NOT_SURE);
             } else
                 return call_solve_fn(3, 6);
 
