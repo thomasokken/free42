@@ -1,3 +1,3 @@
-#define FREE42_VERSION_1 "Free42 3.0.15"
-#define FREE42_VERSION_2 "3.0.15\0"
-#define FREE42_VERSION_3 3,0,15,0
+#define FREE42_VERSION_1 "Free42 3.0.16"
+#define FREE42_VERSION_2 "3.0.16\0"
+#define FREE42_VERSION_3 3,0,16,0
