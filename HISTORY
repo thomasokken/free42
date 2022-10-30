@@ -2,7 +2,7 @@
 
 * SOLVE does a better job of reporting Sign Reversal when a function changes
   sign around a vertical asymptote, instead of reporting it as a root.
-* BASE: complex numbers displayed in non-decimal bases in some cases.
+* BASE: complex numbers were being copied in non-decimal bases in some cases.
 * Better OCTM handling in SHOW.
 * Fixed number entry in PRGM mode when BINM/OCTM/HEXM active.
 * No longer setting flag 22 if number entry ends with DROP in NSTK mode.
