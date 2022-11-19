@@ -20,14 +20,16 @@
     <activity android:name="Free42Activity"
               android:launchMode="singleInstance"
               android:theme="@android:style/Theme.NoTitleBar"
-              android:configChanges="orientation|screenSize|screenLayout">
+              android:configChanges="orientation|screenSize|screenLayout"
+              android:exported="true">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
         <category android:name="android.intent.category.LAUNCHER"/>
       </intent-filter>
     </activity>
     <activity android:name="FileImportActivity"
-        android:label="Free42">
+        android:label="Free42"
+        android:exported="true">
       <intent-filter tools:ignore="AppLinkUrlError">
         <action android:name="android.intent.action.SEND"/>
         <action android:name="android.intent.action.VIEW"/>
