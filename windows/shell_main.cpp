@@ -644,8 +644,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
             bool only_disp = need_to_paint_only_display(&ps.rcPaint);
             if (!only_disp)
                 skin_repaint(hdc, memdc);
-            if (ckey < -7 || ckey > -2)
-                skin_repaint_display(hdc);
+            skin_repaint_display(hdc);
             if (!only_disp) {
                 if (ann_updown)
                     skin_repaint_annunciator(hdc, memdc, 1);
@@ -664,7 +663,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
                 if (ckey != 0)
                     skin_repaint_key(hdc, memdc, skey, 1);
             } else {
-                if (ckey >= -7 && ckey <= -2)
+                if (skey >= -7 && skey <= -2)
                     skin_repaint_key(hdc, memdc, skey, 1);
             }
             DeleteDC(memdc);
