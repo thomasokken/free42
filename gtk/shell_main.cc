@@ -2493,8 +2493,7 @@ static gboolean draw_cb(GtkWidget *w, cairo_t *cr, gpointer cd) {
     bool only_disp = need_to_paint_only_display(cr);
     if (!only_disp)
         skin_repaint(cr);
-    if (ckey < -7 || ckey > -2)
-        skin_repaint_display(cr);
+    skin_repaint_display(cr);
     if (!only_disp) {
         if (ann_updown)
             skin_repaint_annunciator(cr, 1);
@@ -2513,7 +2512,7 @@ static gboolean draw_cb(GtkWidget *w, cairo_t *cr, gpointer cd) {
         if (ckey != 0)
             skin_repaint_key(cr, skey, 1);
     } else {
-        if (ckey >= -7 && ckey <= -2)
+        if (skey >= -7 && skey <= -2)
             skin_repaint_key(cr, skey, 1);
     }
     return TRUE;
