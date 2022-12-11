@@ -3256,17 +3256,14 @@ static vartype *parse_base(const char *buf, int len) {
     bool neg = false;
     int8 n = 0;
     int i = 0;
-    while (buf[i] == ' ')
+    while (i < len && buf[i] == ' ')
         i++;
-    if (buf[i] == '-') {
+    if (i < len && buf[i] == '-') {
         neg = true;
         i++;
     }
-    while (bits < 64) {
-        char c = buf[i];
-        if (c == 0)
-            break;
-        i++;
+    while (i < len && bits < 64) {
+        char c = buf[i++];
         int d;
         if (base == 16) {
             if (c >= '0' && c <= '9')
@@ -3286,18 +3283,15 @@ static vartype *parse_base(const char *buf, int len) {
         n = n << bpd | d;
         bits += bpd;
     }
-    while (buf[i] == ' ')
+    while (i < len && buf[i] == ' ')
         i++;
-    if (buf[i] != 0)
+    if (i < len)
         return NULL;
     if (bits == 0)
         return NULL;
     if (neg)
         n = -n;
-    if ((n & 0x800000000LL) == 0)
-        n &= 0x7ffffffffLL;
-    else
-        n |= 0xfffffff000000000LL;
+    base_range_check(&n, true);
     return new_real((phloat) n);
 }
 
