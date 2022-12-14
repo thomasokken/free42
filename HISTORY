@@ -1,3 +1,9 @@
+2022-12-14: release 3.0.17
+
+* Fixed a couple of bugs in Paste of scalars in BINM, OCTM, and HEXM modes.
+* Fixed pasting of U+22A2 and U+22A6 ('append' characters used by i41CX and
+  Emu42).
+
 2022-10-29: release 3.0.16
 
 * SOLVE does a better job of reporting Sign Reversal when a function changes
