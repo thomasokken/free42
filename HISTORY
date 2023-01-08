@@ -22,10 +22,9 @@
   A...F menu activated.
 * iOS version: Added Calculator / Print-Out swipe direction configuration
   option to Preferences.
-* Android, iOS, and MacOS versions: Fixed incorrect Out of Range error returned
-  by BASE functions in certain cases, e.g. BRESET 64 WSIZE 1 ENTER BASE÷
-  The problem is caused by an optimizer bug in the ARM compiler, and does not
-  affect the Windows and Linux versions, nor the MacOS version on Intel.
+* Android, iOS, and MacOS ARM versions: Fixed incorrect Out of Range error
+  returned by BASE functions in certain cases, e.g. BRESET 64 WSIZE 1 ENTER
+  BASE÷.
 
 2022-08-13: release 3.0.14
 
