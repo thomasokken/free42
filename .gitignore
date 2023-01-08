@@ -24,7 +24,10 @@
 /android/.idea/deploymentTargetDropDown.xml
 
 # /android/.idea/modules/app/
+/android/.idea/modules/app/android.app.androidTest.iml
 /android/.idea/modules/app/android.app.iml
+/android/.idea/modules/app/android.app.main.iml
+/android/.idea/modules/app/android.app.unitTest.iml
 
 # /android/app/
 /android/app/*.iml

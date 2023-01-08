@@ -61,6 +61,7 @@ android {
             }
         }
     }
+    namespace 'com.thomasokken.free42'
 }
 
 dependencies {
