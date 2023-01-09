@@ -604,9 +604,9 @@
 			inputPaths = (
 			);
 			outputPaths = (
-				"${SRCROOT}/IntelRDFPMathLib20U1/TESTS/readtest.c",
-				"${SRCROOT}/readtest_lines.cc",
-				"$(SRCROOT}/gcc111libbid.a",
+				"$(SRCROOT)/IntelRDFPMathLib20U1/TESTS/readtest.c",
+				"$(SRCROOT)/readtest_lines.cc",
+				"$(SRCROOT)/gcc111libbid.a",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -622,9 +622,9 @@
 			);
 			name = "Run Script";
 			outputPaths = (
-				"${SRCROOT}/IntelRDFPMathLib20U1/TESTS/readtest.c",
-				"$(SRCROOT}/readtest_lines.cc",
-				"$(SRCROOT}/gcc111libbid.a",
+				"$(SRCROOT)/IntelRDFPMathLib20U1/TESTS/readtest.c",
+				"$(SRCROOT)/readtest_lines.cc",
+				"$(SRCROOT)/gcc111libbid.a",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
