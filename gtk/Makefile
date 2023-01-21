@@ -55,6 +55,14 @@ ifneq "$(findstring 6162,$(shell echo ab | od -x))" ""
 CFLAGS += -DF42_BIG_ENDIAN -DBID_BIG_ENDIAN
 endif
 
+ifeq "$(shell uname -m)" "arm64"
+CFLAGS += -fsigned-char -DBID_SIZE_LONG=8
+else ifeq "$(shell uname -m)" "aarch64"
+CFLAGS += -fsigned-char -DBID_SIZE_LONG=8
+else ifeq "$(shell uname -m | sed 's/^\(...\).*$/\1/')" "arm"
+CFLAGS += -fsigned-char -DBID_SIZE_LONG=4
+endif
+
 SRCS = shell_main.cc shell_skin.cc skins.cc keymap.cc shell_loadimage.cc \
 	shell_spool.cc core_main.cc core_commands1.cc core_commands2.cc \
 	core_commands3.cc core_commands4.cc core_commands5.cc \

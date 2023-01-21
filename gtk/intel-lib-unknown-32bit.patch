@@ -1,3 +1,22 @@
+*** orig/LIBRARY/makefile	2011-07-13 20:52:30.000000000 +0200
+--- LIBRARY/makefile	2023-01-21 22:19:07.069569926 +0100
+***************
+*** 108,114 ****
+  _CFLAGS_CONFIG := 
+  _CFLAGS_OS     := $(call HostOsTypeSelect, -DLINUX, -DWINDOWS)
+  _CFLAGS_ARCH   := $(call HostArchTypeSelect,-Dia32,-DITANIUM -Dia64, -Defi2)
+! _CFLAGS_CC     :=
+  _CFLAGS_OPT    := 
+      
+  ifeq ($(BID_BIG_ENDIAN),true)
+--- 108,114 ----
+  _CFLAGS_CONFIG := 
+  _CFLAGS_OS     := $(call HostOsTypeSelect, -DLINUX, -DWINDOWS)
+  _CFLAGS_ARCH   := $(call HostArchTypeSelect,-Dia32,-DITANIUM -Dia64, -Defi2)
+! _CFLAGS_CC     := -fsigned-char -DBID_SIZE_LONG=4
+  _CFLAGS_OPT    := 
+      
+  ifeq ($(BID_BIG_ENDIAN),true)
 *** orig/LIBRARY/makefile.iml_head	2011-07-12 11:26:21.000000000 -0400
 --- LIBRARY/makefile.iml_head	2019-08-07 17:51:39.719846842 -0400
 ***************
