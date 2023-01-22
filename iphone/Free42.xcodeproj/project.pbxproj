@@ -933,6 +933,11 @@
 					"$(PROJECT_DIR)",
 				);
 				"OTHER_CFLAGS[arch=*]" = "-DFREE42_FPTEST";
+				"OTHER_CFLAGS[arch=arm64]" = (
+					"-DFREE42_FPTEST",
+					"-fsigned-char",
+					"-DBID_SIZE_LONG=8",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.Free42;
 				PRODUCT_NAME = Free42;
 				PROVISIONING_PROFILE = "";
@@ -957,6 +962,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
+				);
+				"OTHER_CFLAGS[arch=arm64]" = (
+					"-fsigned-char",
+					"-DBID_SIZE_LONG=8",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.Free42;
 				PRODUCT_NAME = Free42;
@@ -1073,6 +1082,10 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 				);
+				"OTHER_CFLAGS[arch=arm64]" = (
+					"-fsigned-char",
+					"-DBID_SIZE_LONG=8",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.Free42;
 				PRODUCT_NAME = Free42;
 				PROVISIONING_PROFILE = "";
@@ -1112,6 +1125,11 @@
 					"$(PROJECT_DIR)",
 				);
 				"OTHER_CFLAGS[arch=*]" = "-DFREE42_FPTEST";
+				"OTHER_CFLAGS[arch=arm64]" = (
+					"-DFREE42_FPTEST",
+					"-fsigned-char",
+					"-DBID_SIZE_LONG=8",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.thomasokken.Free42b;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
@@ -1148,6 +1166,10 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 				);
+				"OTHER_CFLAGS[arch=arm64]" = (
+					"-fsigned-char",
+					"-DBID_SIZE_LONG=8",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.thomasokken.Free42b;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
@@ -1183,6 +1205,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
+				);
+				"OTHER_CFLAGS[arch=arm64]" = (
+					"-fsigned-char",
+					"-DBID_SIZE_LONG=8",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.thomasokken.Free42b;
 				PRODUCT_NAME = "$(TARGET_NAME)";

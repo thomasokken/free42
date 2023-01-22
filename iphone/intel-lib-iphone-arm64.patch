@@ -1,18 +1,20 @@
 *** orig/LIBRARY/makefile	2016-05-21 10:44:12.000000000 -0400
 --- LIBRARY/makefile	2016-05-21 10:44:33.000000000 -0400
 ***************
-*** 109,115 ****
+*** 108,115 ****
+  _CFLAGS_CONFIG := 
   _CFLAGS_OS     := $(call HostOsTypeSelect, -DLINUX, -DWINDOWS)
   _CFLAGS_ARCH   := $(call HostArchTypeSelect,-Dia32,-DITANIUM -Dia64, -Defi2)
-  _CFLAGS_CC     :=
+! _CFLAGS_CC     :=
 ! _CFLAGS_OPT    := 
       
   ifeq ($(BID_BIG_ENDIAN),true)
       _CFLAGS_CONFIG += -DBID_BIG_ENDIAN=1
---- 109,115 ----
+--- 108,115 ----
+  _CFLAGS_CONFIG := 
   _CFLAGS_OS     := $(call HostOsTypeSelect, -DLINUX, -DWINDOWS)
   _CFLAGS_ARCH   := $(call HostArchTypeSelect,-Dia32,-DITANIUM -Dia64, -Defi2)
-  _CFLAGS_CC     :=
+! _CFLAGS_CC     := -fsigned-char -DBID_SIZE_LONG=8
 ! _CFLAGS_OPT    := -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk
       
   ifeq ($(BID_BIG_ENDIAN),true)
