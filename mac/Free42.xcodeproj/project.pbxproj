@@ -876,6 +876,11 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				"OTHER_CFLAGS[arch=*]" = "-DFREE42_FPTEST";
+				"OTHER_CFLAGS[arch=arm64]" = (
+					"-DFREE42_FPTEST",
+					"-fsigned-char",
+					"-DBID_SIZE_LONG=8",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.thomasokken.Free42;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
@@ -927,6 +932,10 @@
 					"\"$(SRCROOT)\"",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				"OTHER_CFLAGS[arch=arm64]" = (
+					"-fsigned-char",
+					"-DBID_SIZE_LONG=8",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.thomasokken.Free42;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
