@@ -70,187 +70,6 @@ int assert_numeric(const vartype *v) {
         return ERR_INVALID_TYPE;
 }
 
-int generic_div(const vartype *px, const vartype *py, int (*completion)(int, vartype *)) {
-    if ((px->type == TYPE_REALMATRIX || px->type == TYPE_COMPLEXMATRIX)
-            && (py->type == TYPE_REALMATRIX || py->type == TYPE_COMPLEXMATRIX)){
-        return linalg_div(py, px, completion);
-    } else {
-        vartype *dst;
-        int error = map_binary(px, py, &dst, div_rr, div_rc, div_cr, div_cc);
-        return completion(error, dst);
-    }
-}
-
-int generic_mul(const vartype *px, const vartype *py, int (*completion)(int, vartype *)) {
-    if ((px->type == TYPE_REALMATRIX || px->type == TYPE_COMPLEXMATRIX)
-            && (py->type == TYPE_REALMATRIX || py->type == TYPE_COMPLEXMATRIX)){
-        return linalg_mul(py, px, completion);
-    } else {
-        vartype *dst;
-        int error = map_binary(px, py, &dst, mul_rr, mul_rc, mul_cr, mul_cc);
-        return completion(error, dst);
-    }
-}
-
-int generic_sub(const vartype *px, const vartype *py, vartype **dst) {
-    if (px->type == TYPE_REAL && py->type == TYPE_REAL) {
-        vartype_real *x = (vartype_real *) px;
-        vartype_real *y = (vartype_real *) py;
-        phloat res = y->x - x->x;
-        int inf = p_isinf(res);
-        if (inf != 0) {
-            if (flags.f.range_error_ignore)
-                res = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
-            else
-                return ERR_OUT_OF_RANGE;
-        }
-        *dst = new_real(res);
-        if (*dst == NULL)
-            return ERR_INSUFFICIENT_MEMORY;
-        else
-            return ERR_NONE;
-    } else if (px->type == TYPE_COMPLEX && py->type == TYPE_COMPLEX) {
-        vartype_complex *x = (vartype_complex *) px;
-        vartype_complex *y = (vartype_complex *) py;
-        int inf;
-        phloat re, im;
-        re = y->re - x->re;
-        inf = p_isinf(re);
-        if (inf != 0) {
-            if (flags.f.range_error_ignore)
-                re = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
-            else
-                return ERR_OUT_OF_RANGE;
-        }
-        im = y->im - x->im;
-        inf = p_isinf(im);
-        if (inf != 0) {
-            if (flags.f.range_error_ignore)
-                im = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
-            else
-                return ERR_OUT_OF_RANGE;
-        }
-        *dst = new_complex(re, im);
-        if (*dst == NULL)
-            return ERR_INSUFFICIENT_MEMORY;
-        else
-            return ERR_NONE;
-    } else if (px->type == TYPE_REAL && py->type == TYPE_COMPLEX) {
-        vartype_real *x = (vartype_real *) px;
-        vartype_complex *y = (vartype_complex *) py;
-        int inf;
-        phloat re = y->re - x->x;
-        inf = p_isinf(re);
-        if (inf != 0) {
-            if (flags.f.range_error_ignore)
-                re = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
-            else
-                return ERR_OUT_OF_RANGE;
-        }
-        *dst = new_complex(re, y->im);
-        if (*dst == NULL)
-            return ERR_INSUFFICIENT_MEMORY;
-        else
-            return ERR_NONE;
-    } else if (px->type == TYPE_COMPLEX && py->type == TYPE_REAL) {
-        vartype_complex *x = (vartype_complex *) px;
-        vartype_real *y = (vartype_real *) py;
-        phloat re = y->x - x->re;
-        int inf = p_isinf(re);
-        if (inf != 0) {
-            if (flags.f.range_error_ignore)
-                re = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
-            else
-                return ERR_OUT_OF_RANGE;
-        }
-        *dst = new_complex(re, -x->im);
-        if (*dst == NULL)
-            return ERR_INSUFFICIENT_MEMORY;
-        else
-            return ERR_NONE;
-    } else
-        return map_binary(px, py, dst, sub_rr, sub_rc, sub_cr, sub_cc);
-}
-
-int generic_add(const vartype *px, const vartype *py, vartype **dst) {
-    if (px->type == TYPE_REAL && py->type == TYPE_REAL) {
-        vartype_real *x = (vartype_real *) px;
-        vartype_real *y = (vartype_real *) py;
-        phloat res = y->x + x->x;
-        int inf = p_isinf(res);
-        if (inf != 0) {
-            if (flags.f.range_error_ignore)
-                res = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
-            else
-                return ERR_OUT_OF_RANGE;
-        }
-        *dst = new_real(res);
-        if (*dst == NULL)
-            return ERR_INSUFFICIENT_MEMORY;
-        else
-            return ERR_NONE;
-    } else if (px->type == TYPE_COMPLEX && py->type == TYPE_COMPLEX) {
-        vartype_complex *x = (vartype_complex *) px;
-        vartype_complex *y = (vartype_complex *) py;
-        int inf;
-        phloat re, im;
-        re = x->re + y->re;
-        inf = p_isinf(re);
-        if (inf != 0) {
-            if (flags.f.range_error_ignore)
-                re = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
-            else
-                return ERR_OUT_OF_RANGE;
-        }
-        im = x->im + y->im;
-        inf = p_isinf(im);
-        if (inf != 0) {
-            if (flags.f.range_error_ignore)
-                im = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
-            else
-                return ERR_OUT_OF_RANGE;
-        }
-        *dst = new_complex(re, im);
-        if (*dst == NULL)
-            return ERR_INSUFFICIENT_MEMORY;
-        else
-            return ERR_NONE;
-    } else if (px->type == TYPE_REAL && py->type == TYPE_COMPLEX) {
-        vartype_real *x = (vartype_real *) px;
-        vartype_complex *y = (vartype_complex *) py;
-        phloat re = y->re + x->x;
-        int inf = p_isinf(re);
-        if (inf != 0) {
-            if (flags.f.range_error_ignore)
-                re = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
-            else
-                return ERR_OUT_OF_RANGE;
-        }
-        *dst = new_complex(re, y->im);
-        if (*dst == NULL)
-            return ERR_INSUFFICIENT_MEMORY;
-        else
-            return ERR_NONE;
-    } else if (px->type == TYPE_COMPLEX && py->type == TYPE_REAL) {
-        vartype_complex *x = (vartype_complex *) px;
-        vartype_real *y = (vartype_real *) py;
-        phloat re = x->re + y->x;
-        int inf = p_isinf(re);
-        if (inf != 0) {
-            if (flags.f.range_error_ignore)
-                re = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
-            else
-                return ERR_OUT_OF_RANGE;
-        }
-        *dst = new_complex(re, x->im);
-        if (*dst == NULL)
-            return ERR_INSUFFICIENT_MEMORY;
-        else
-            return ERR_NONE;
-    } else
-        return map_binary(px, py, dst, add_rr, add_rc, add_cr, add_cc);
-}
-
 int generic_rcl(arg_struct *arg, vartype **dst) {
     int err;
     if (arg->type == ARGTYPE_IND_NUM
@@ -1095,7 +914,7 @@ int map_binary(const vartype *src1, const vartype *src2, vartype **dst,
     }
 }
 
-int div_rr(phloat x, phloat y, phloat *z) {
+static int div_rr(phloat x, phloat y, phloat *z) {
     phloat r;
     int inf;
     if (x == 0)
@@ -1112,7 +931,7 @@ int div_rr(phloat x, phloat y, phloat *z) {
     return ERR_NONE;
 }
 
-int div_rc(phloat x, phloat yre, phloat yim, phloat *zre, phloat *zim) {
+static int div_rc(phloat x, phloat yre, phloat yim, phloat *zre, phloat *zim) {
     phloat rre, rim;
     int inf;
     if (x == 0)
@@ -1143,7 +962,7 @@ int div_rc(phloat x, phloat yre, phloat yim, phloat *zre, phloat *zim) {
  * http://forge.scilab.org/index.php/p/compdiv/source/tree/21/doc/improved_cdiv.pdf
  */
 
-int div_cr(phloat xre, phloat xim, phloat y, phloat *zre, phloat *zim) {
+static int div_cr(phloat xre, phloat xim, phloat y, phloat *zre, phloat *zim) {
     phloat r, t, rre, rim;
     int inf;
     if (xre == 0 && xim == 0)
@@ -1188,7 +1007,7 @@ int div_cr(phloat xre, phloat xim, phloat y, phloat *zre, phloat *zim) {
     return ERR_NONE;
 }
 
-int div_cc(phloat xre, phloat xim, phloat yre, phloat yim,
+static int div_cc(phloat xre, phloat xim, phloat yre, phloat yim,
                                                     phloat *zre, phloat *zim) {
     phloat r, t, rre, rim;
     int inf;
@@ -1234,7 +1053,7 @@ int div_cc(phloat xre, phloat xim, phloat yre, phloat yim,
     return ERR_NONE;
 }
 
-int mul_rr(phloat x, phloat y, phloat *z) {
+static int mul_rr(phloat x, phloat y, phloat *z) {
     phloat r;
     int inf;
     r = y * x;
@@ -1249,7 +1068,7 @@ int mul_rr(phloat x, phloat y, phloat *z) {
     return ERR_NONE;
 }
 
-int mul_rc(phloat x, phloat yre, phloat yim, phloat *zre, phloat *zim) {
+static int mul_rc(phloat x, phloat yre, phloat yim, phloat *zre, phloat *zim) {
     phloat rre, rim;
     int inf;
     rre = yre * x;
@@ -1273,7 +1092,7 @@ int mul_rc(phloat x, phloat yre, phloat yim, phloat *zre, phloat *zim) {
     return ERR_NONE;
 }
 
-int mul_cr(phloat xre, phloat xim, phloat y, phloat *zre, phloat *zim) {
+static int mul_cr(phloat xre, phloat xim, phloat y, phloat *zre, phloat *zim) {
     phloat rre, rim;
     int inf;
     rre = y * xre;
@@ -1297,7 +1116,7 @@ int mul_cr(phloat xre, phloat xim, phloat y, phloat *zre, phloat *zim) {
     return ERR_NONE;
 }
 
-int mul_cc(phloat xre, phloat xim, phloat yre, phloat yim,
+static int mul_cc(phloat xre, phloat xim, phloat yre, phloat yim,
                                                     phloat *zre, phloat *zim) {
     phloat rre, rim;
     int inf;
@@ -1322,7 +1141,7 @@ int mul_cc(phloat xre, phloat xim, phloat yre, phloat yim,
     return ERR_NONE;
 }
 
-int sub_rr(phloat x, phloat y, phloat *z) {
+static int sub_rr(phloat x, phloat y, phloat *z) {
     phloat r;
     int inf;
     r = y - x;
@@ -1337,7 +1156,7 @@ int sub_rr(phloat x, phloat y, phloat *z) {
     return ERR_NONE;
 }
 
-int sub_rc(phloat x, phloat yre, phloat yim, phloat *zre, phloat *zim) {
+static int sub_rc(phloat x, phloat yre, phloat yim, phloat *zre, phloat *zim) {
     phloat rre;
     int inf;
     rre = yre - x;
@@ -1353,7 +1172,7 @@ int sub_rc(phloat x, phloat yre, phloat yim, phloat *zre, phloat *zim) {
     return ERR_NONE;
 }
 
-int sub_cr(phloat xre, phloat xim, phloat y, phloat *zre, phloat *zim) {
+static int sub_cr(phloat xre, phloat xim, phloat y, phloat *zre, phloat *zim) {
     phloat rre;
     int inf;
     rre = y - xre;
@@ -1369,7 +1188,7 @@ int sub_cr(phloat xre, phloat xim, phloat y, phloat *zre, phloat *zim) {
     return ERR_NONE;
 }
 
-int sub_cc(phloat xre, phloat xim, phloat yre, phloat yim,
+static int sub_cc(phloat xre, phloat xim, phloat yre, phloat yim,
                                                     phloat *zre, phloat *zim) {
     phloat rre, rim;
     int inf;
@@ -1394,7 +1213,7 @@ int sub_cc(phloat xre, phloat xim, phloat yre, phloat yim,
     return ERR_NONE;
 }
 
-int add_rr(phloat x, phloat y, phloat *z) {
+static int add_rr(phloat x, phloat y, phloat *z) {
     phloat r;
     int inf;
     r = y + x;
@@ -1409,7 +1228,7 @@ int add_rr(phloat x, phloat y, phloat *z) {
     return ERR_NONE;
 }
 
-int add_rc(phloat x, phloat yre, phloat yim, phloat *zre, phloat *zim) {
+static int add_rc(phloat x, phloat yre, phloat yim, phloat *zre, phloat *zim) {
     phloat rre;
     int inf;
     rre = yre + x;
@@ -1425,7 +1244,7 @@ int add_rc(phloat x, phloat yre, phloat yim, phloat *zre, phloat *zim) {
     return ERR_NONE;
 }
 
-int add_cr(phloat xre, phloat xim, phloat y, phloat *zre, phloat *zim) {
+static int add_cr(phloat xre, phloat xim, phloat y, phloat *zre, phloat *zim) {
     phloat rre;
     int inf;
     rre = y + xre;
@@ -1441,7 +1260,7 @@ int add_cr(phloat xre, phloat xim, phloat y, phloat *zre, phloat *zim) {
     return ERR_NONE;
 }
 
-int add_cc(phloat xre, phloat xim, phloat yre, phloat yim,
+static int add_cc(phloat xre, phloat xim, phloat yre, phloat yim,
                                                     phloat *zre, phloat *zim) {
     phloat rre, rim;
     int inf;
@@ -1464,4 +1283,34 @@ int add_cc(phloat xre, phloat xim, phloat yre, phloat yim,
     *zre = rre;
     *zim = rim;
     return ERR_NONE;
+}
+
+int generic_div(const vartype *px, const vartype *py, int (*completion)(int, vartype *)) {
+    if ((px->type == TYPE_REALMATRIX || px->type == TYPE_COMPLEXMATRIX)
+            && (py->type == TYPE_REALMATRIX || py->type == TYPE_COMPLEXMATRIX)){
+        return linalg_div(py, px, completion);
+    } else {
+        vartype *dst;
+        int error = map_binary(px, py, &dst, div_rr, div_rc, div_cr, div_cc);
+        return completion(error, dst);
+    }
+}
+
+int generic_mul(const vartype *px, const vartype *py, int (*completion)(int, vartype *)) {
+    if ((px->type == TYPE_REALMATRIX || px->type == TYPE_COMPLEXMATRIX)
+            && (py->type == TYPE_REALMATRIX || py->type == TYPE_COMPLEXMATRIX)){
+        return linalg_mul(py, px, completion);
+    } else {
+        vartype *dst;
+        int error = map_binary(px, py, &dst, mul_rr, mul_rc, mul_cr, mul_cc);
+        return completion(error, dst);
+    }
+}
+
+int generic_sub(const vartype *px, const vartype *py, vartype **dst) {
+    return map_binary(px, py, dst, sub_rr, sub_rc, sub_cr, sub_cc);
+}
+
+int generic_add(const vartype *px, const vartype *py, vartype **dst) {
+    return map_binary(px, py, dst, add_rr, add_rc, add_cr, add_cc);
 }
