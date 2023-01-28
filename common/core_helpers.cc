@@ -86,7 +86,7 @@ int resolve_ind_arg(arg_struct *arg, char *buf, int *buflen) {
                 v = lastx;
             } else {
                 if (idx > sp)
-                    return ERR_NONEXISTENT;
+                    return ERR_STACK_DEPTH_ERROR;
                 v = stack[sp - idx];
             }
             goto finish_resolve;

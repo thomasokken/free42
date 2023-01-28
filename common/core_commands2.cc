@@ -702,7 +702,7 @@ static int generic_loop(arg_struct *arg, bool isg) {
                 v = lastx;
             } else {
                 if (idx > sp)
-                    return ERR_NONEXISTENT;
+                    return ERR_STACK_DEPTH_ERROR;
                 v = stack[sp - idx];
             }
             if (v->type == TYPE_REAL)

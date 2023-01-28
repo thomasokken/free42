@@ -1760,7 +1760,7 @@ int docmd_head(arg_struct *arg) {
                 s = lastx;
             } else {
                 if (idx > sp)
-                    return ERR_NONEXISTENT;
+                    return ERR_STACK_DEPTH_ERROR;
                 s = stack[sp - idx];
             }
             doit:
