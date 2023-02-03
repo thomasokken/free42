@@ -1055,5 +1055,8 @@ int docmd_stoflag(arg_struct *arg) {
     if (new_g != -1 || new_rad != -1)
         shell_annunciators(-1, -1, -1, -1, new_g, new_rad);
 
+    if (b <= 30 && e >= 30 && ((lfs >> 30) & 1) == 1)
+        mode_disable_stack_lift = true;
+
     return ERR_NONE;
 }
