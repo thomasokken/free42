@@ -3546,15 +3546,18 @@ static void paste_programs(const char *buf) {
             } else {
                 // Check for 1/X, 10^X, 4STK, and generalized comparisons with 0
                 int len = hpend - prev_hppos;
-                if (len == 3 && strncmp(hpbuf + prev_hppos, "1/X", 3) == 0) {
+                if ((len == 3 || len > 3 && hpbuf[3] == ' ')
+                        && strncmp(hpbuf + prev_hppos, "1/X", 3) == 0) {
                     cmd = CMD_INV;
                     arg.type = ARGTYPE_NONE;
                     goto store;
-                } else if (len == 4 && strncmp(hpbuf + prev_hppos, "10^X", 4) == 0) {
+                } else if ((len == 4 || len > 4 && hpbuf[4] == ' ')
+                        && strncmp(hpbuf + prev_hppos, "10^X", 4) == 0) {
                     cmd = CMD_10_POW_X;
                     arg.type = ARGTYPE_NONE;
                     goto store;
-                } else if (len == 4 && strncmp(hpbuf + prev_hppos, "4STK", 4) == 0) {
+                } else if ((len == 4 || len > 4 && hpbuf[4] == ' ')
+                        && strncmp(hpbuf + prev_hppos, "4STK", 4) == 0) {
                     cmd = CMD_4STK;
                     arg.type = ARGTYPE_NONE;
                     goto store;
