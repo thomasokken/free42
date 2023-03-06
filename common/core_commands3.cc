@@ -560,6 +560,7 @@ int docmd_delr(arg_struct *arg) {
         else
             free_vartype(stack[sp]);
         stack[sp] = newx;
+        mode_disable_stack_lift = true;
     }
     matedit_i = newi;
     return ERR_NONE;
