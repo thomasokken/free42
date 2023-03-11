@@ -1837,6 +1837,7 @@ static void draw_catalog() {
         int vcount = 0;
         int i, j, k = -1;
         int show_real = 1;
+        int show_str = 1;
         int show_cpx = 1;
         int show_mat = 1;
         int show_list = 1;
@@ -1846,10 +1847,12 @@ static void draw_catalog() {
             case CATSECT_REAL_ONLY:
                 show_cpx = show_mat = show_list = 0; break;
             case CATSECT_CPX:
-                show_real = show_mat = show_list = 0; break;
+                show_real = show_str = show_mat = show_list = 0; break;
             case CATSECT_MAT:
             case CATSECT_MAT_ONLY:
-                show_real = show_cpx = show_list = 0; break;
+                show_real = show_str = show_cpx = show_list = 0; break;
+            case CATSECT_LIST_STR_ONLY:
+                show_real = show_cpx = show_mat = 0; break;
         }
 
         for (i = 0; i < vars_count; i++) {
@@ -1858,8 +1861,10 @@ static void draw_catalog() {
                 continue;
             switch (type) {
                 case TYPE_REAL:
-                case TYPE_STRING:
                     if (show_real) vcount++;
+                    break;
+                case TYPE_STRING:
+                    if (show_str) vcount++;
                     break;
                 case TYPE_COMPLEX:
                     if (show_cpx) vcount++;
@@ -1900,8 +1905,9 @@ static void draw_catalog() {
             int type = vars[i].value->type;
             switch (type) {
                 case TYPE_REAL:
-                case TYPE_STRING:
                     if (show_real) break; else continue;
+                case TYPE_STRING:
+                    if (show_str) break; else continue;
                 case TYPE_COMPLEX:
                     if (show_cpx) break; else continue;
                 case TYPE_REALMATRIX:
@@ -2870,6 +2876,8 @@ void set_plainmenu(int menuid) {
 void set_catalog_menu(int section) {
     mode_commandmenu = MENU_CATALOG;
     move_cat_row(0);
+    if (section == CATSECT_VARS_ONLY && incomplete_command == CMD_HEAD)
+        section = CATSECT_LIST_STR_ONLY;
     set_cat_section(section);
     switch (section) {
         case CATSECT_TOP:
@@ -2900,6 +2908,10 @@ void set_catalog_menu(int section) {
         case CATSECT_MAT:
         case CATSECT_MAT_ONLY:
             if (!vars_exist(CATSECT_MAT))
+                mode_commandmenu = MENU_NONE;
+            return;
+        case CATSECT_LIST_STR_ONLY:
+            if (!vars_exist(CATSECT_LIST_STR_ONLY))
                 mode_commandmenu = MENU_NONE;
             return;
         case CATSECT_VARS_ONLY:
@@ -3036,6 +3048,13 @@ void update_catalog() {
             break;
         case CATSECT_MAT_ONLY:
             if (!vars_exist(CATSECT_MAT)) {
+                *the_menu = MENU_NONE;
+                redisplay();
+                return;
+            }
+            break;
+        case CATSECT_LIST_STR_ONLY:
+            if (!vars_exist(CATSECT_LIST_STR_ONLY)) {
                 *the_menu = MENU_NONE;
                 redisplay();
                 return;

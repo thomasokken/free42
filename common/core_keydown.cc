@@ -1679,6 +1679,7 @@ void keydown_command_entry(int shift, int key) {
                             || catsect == CATSECT_PGM_ONLY
                             || catsect == CATSECT_REAL_ONLY
                             || catsect == CATSECT_MAT_ONLY
+                            || catsect == CATSECT_LIST_STR_ONLY
                             || catsect == CATSECT_VARS_ONLY)) {
                     set_menu(MENULEVEL_COMMAND, MENU_ALPHA1);
                     redisplay();

@@ -621,8 +621,12 @@ bool vars_exist(int section) {
             return true;
         switch (vars[i].value->type) {
             case TYPE_REAL:
-            case TYPE_STRING:
                 if (section == CATSECT_REAL)
+                    return true;
+                else
+                    break;
+            case TYPE_STRING:
+                if (section == CATSECT_REAL || section == CATSECT_LIST_STR_ONLY)
                     return true;
                 else
                     break;
@@ -634,6 +638,11 @@ bool vars_exist(int section) {
             case TYPE_REALMATRIX:
             case TYPE_COMPLEXMATRIX:
                 if (section == CATSECT_MAT)
+                    return true;
+                else
+                    break;
+            case TYPE_LIST:
+                if (section == CATSECT_LIST_STR_ONLY)
                     return true;
                 else
                     break;
