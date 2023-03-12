@@ -70,6 +70,7 @@ int docmd_x_ge_y(arg_struct *arg);
 int docmd_prsigma(arg_struct *arg);
 int docmd_prp(arg_struct *arg);
 int docmd_prv(arg_struct *arg);
+int docmd_prrg(arg_struct *arg);
 int docmd_prstk(arg_struct *arg);
 int docmd_pra(arg_struct *arg);
 int docmd_prx(arg_struct *arg);

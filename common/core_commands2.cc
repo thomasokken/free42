@@ -1260,6 +1260,80 @@ static int prv_worker(bool interrupted) {
     }
 }
 
+static int prrg_worker(bool interrupted) {
+    char lbuf[32], rbuf[100];
+    int llen = 0, rlen = 0;
+    int4 sz;
+
+    if (interrupted) {
+        shell_annunciators(-1, -1, 0, -1, -1, -1);
+        return ERR_STOP;
+    }
+
+    char2buf(lbuf, 32, &llen, 'R');
+    if (prv_index < 10)
+        char2buf(lbuf, 32, &llen, '0');
+    llen += int2string(prv_index, lbuf + llen, 32 - llen);
+    char2buf(lbuf, 32, &llen, '=');
+
+    if (prv_var->type == TYPE_REALMATRIX) {
+        vartype_realmatrix *rm = (vartype_realmatrix *) prv_var;
+        sz = rm->rows * rm->columns;
+        if (rm->array->is_string[prv_index] != 0) {
+            char *text;
+            int4 len;
+            get_matrix_string(rm, prv_index, &text, &len);
+            char *sbuf = (char *) malloc(len + 2);
+            if (sbuf == NULL) {
+                print_wide(lbuf, llen, "<Low Mem>", 9);
+            } else {
+                sbuf[0] = '"';
+                memcpy(sbuf + 1, text, len);
+                sbuf[len + 1] = '"';
+                print_wide(lbuf, llen, sbuf, len + 2);
+                free(sbuf);
+            }
+        } else {
+            rlen = easy_phloat2string(rm->array->data[prv_index],
+                                        rbuf, 100, 0);
+            print_wide(lbuf, llen, rbuf, rlen);
+        }
+    } else /* prv_var->type == TYPE_COMPLEXMATRIX */ {
+        vartype_complexmatrix *cm = (vartype_complexmatrix *) prv_var;
+        sz = cm->rows * cm->columns;
+        vartype_complex cpx;
+        cpx.type = TYPE_COMPLEX;
+        cpx.re = cm->array->data[2 * prv_index];
+        cpx.im = cm->array->data[2 * prv_index + 1];
+        rlen = vartype2string((vartype *) &cpx, rbuf, 100);
+        print_wide(lbuf, llen, rbuf, rlen);
+    }
+
+    if (++prv_index < sz)
+        return ERR_INTERRUPTIBLE;
+    else {
+        shell_annunciators(-1, -1, 0, -1, -1, -1);
+        return ERR_NONE;
+    }
+}
+
+int docmd_prrg(arg_struct *arg) {
+    vartype *regs = recall_var("REGS", 4);
+    if (regs == NULL)
+        return ERR_NONEXISTENT;
+    if (!flags.f.printer_enable && program_running())
+        return ERR_NONE;
+    if (!flags.f.printer_exists)
+        return ERR_PRINTING_IS_DISABLED;
+    shell_annunciators(-1, -1, 1, -1, -1, -1);
+    print_text(NULL, 0, true);
+    prv_var = regs;
+    prv_index = 0;
+    mode_interruptible = prrg_worker;
+    mode_stoppable = true;
+    return ERR_INTERRUPTIBLE;
+}
+
 int docmd_prstk(arg_struct *arg) {
     char buf[100];
     int len;
