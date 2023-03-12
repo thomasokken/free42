@@ -487,31 +487,32 @@
 #define CMD_POS         433
 #define CMD_S_TO_N      434
 #define CMD_N_TO_S      435
-#define CMD_C_TO_N      436
-#define CMD_N_TO_C      437
-#define CMD_LIST_T      438
-#define CMD_NEWLIST     439
-#define CMD_NEWSTR      440
-#define CMD_TO_LIST     441
-#define CMD_FROM_LIST   442
+#define CMD_NN_TO_S     436
+#define CMD_C_TO_N      437
+#define CMD_N_TO_C      438
+#define CMD_LIST_T      439
+#define CMD_NEWLIST     440
+#define CMD_NEWSTR      441
+#define CMD_TO_LIST     442
+#define CMD_FROM_LIST   443
 /* Generalized Comparisons */
-#define CMD_X_EQ_NN     443
-#define CMD_X_NE_NN     444
-#define CMD_X_LT_NN     445
-#define CMD_X_GT_NN     446
-#define CMD_X_LE_NN     447
-#define CMD_X_GE_NN     448
-#define CMD_0_EQ_NN     449
-#define CMD_0_NE_NN     450
-#define CMD_0_LT_NN     451
-#define CMD_0_GT_NN     452
-#define CMD_0_LE_NN     453
-#define CMD_0_GE_NN     454
+#define CMD_X_EQ_NN     444
+#define CMD_X_NE_NN     445
+#define CMD_X_LT_NN     446
+#define CMD_X_GT_NN     447
+#define CMD_X_LE_NN     448
+#define CMD_X_GE_NN     449
+#define CMD_0_EQ_NN     450
+#define CMD_0_NE_NN     451
+#define CMD_0_LT_NN     452
+#define CMD_0_GT_NN     453
+#define CMD_0_LE_NN     454
+#define CMD_0_GE_NN     455
 /* For Plus42 compatibility */
-#define CMD_WIDTH       455
-#define CMD_HEIGHT      456
+#define CMD_WIDTH       456
+#define CMD_HEIGHT      457
 
-#define CMD_SENTINEL    457
+#define CMD_SENTINEL    458
 
 
 /* command_spec.argtype */

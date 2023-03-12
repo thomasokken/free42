@@ -521,6 +521,7 @@ const command_spec cmd_array[] =
     { /* POS */        docmd_pos,         "POS",                 0x00, 0x00, 0xa7, 0xee,  3, ARG_NONE,   2, FUNC },
     { /* S_TO_N */     docmd_s_to_n,      "S\017N",              0x00, 0x00, 0xa7, 0xef,  3, ARG_NONE,   1, 0x10 },
     { /* N_TO_S */     docmd_n_to_s,      "N\017S",              0x00, 0x00, 0xa7, 0xf0,  3, ARG_NONE,   1, ALLT },
+    { /* NN_TO_S */    docmd_nn_to_s,     "NN\017S",             0x00, 0x00, 0xa7, 0x1d,  4, ARG_NONE,   1, ALLT },
     { /* C_TO_N */     docmd_c_to_n,      "C\017N",              0x00, 0x00, 0xa7, 0xf1,  3, ARG_NONE,   1, 0x10 },
     { /* N_TO_C */     docmd_n_to_c,      "N\017C",              0x00, 0x00, 0xa7, 0xf2,  3, ARG_NONE,   1, 0x01 },
     { /* LIST_T */     docmd_list_t,      "LIST?",               0x00, 0x00, 0xa7, 0xf3,  5, ARG_NONE,   1, ALLT },

@@ -1903,20 +1903,28 @@ int docmd_s_to_n(arg_struct *arg) {
     return ERR_NONE;
 }
 
-int docmd_n_to_s(arg_struct *arg) {
+static int number_to_string(int max_mant_digits) {
     // N->S: convert number to string, like ARCL
     vartype *v;
     if (stack[sp]->type == TYPE_STRING) {
         v = dup_vartype(stack[sp]);
     } else {
         char buf[100];
-        int bufptr = vartype2string(stack[sp], buf, 100);
+        int bufptr = vartype2string(stack[sp], buf, 100, max_mant_digits);
         v = new_string(buf, bufptr);
     }
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     unary_result(v);
     return ERR_NONE;
+}
+
+int docmd_n_to_s(arg_struct *arg) {
+    return number_to_string(12);
+}
+
+int docmd_nn_to_s(arg_struct *args) {
+    return number_to_string(MAX_MANT_DIGITS);
 }
 
 int docmd_c_to_n(arg_struct *arg) {
