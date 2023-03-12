@@ -4864,6 +4864,7 @@ static synonym_spec hp41_synonyms[] =
     { "X>=Y?",  false, 5, CMD_X_GE_Y  },
     { "S-N",    false, 3, CMD_S_TO_N  },
     { "N-S",    false, 3, CMD_N_TO_S  },
+    { "NN-S",   false, 4, CMD_NN_TO_S },
     { "C-N",    false, 3, CMD_C_TO_N  },
     { "N-C",    false, 3, CMD_N_TO_C  },
     { "X<>?",   false, 4, CMD_X_NE_NN },
