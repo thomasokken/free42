@@ -472,7 +472,7 @@
 #define CMD_TYPE_T      419
 #define CMD_A_THRU_F_2  420
 #define CMD_DROP_CANCL  421
-#define CMD_PRRG        422
+#define CMD_PRREG       422
 /* String & List Functions */
 #define CMD_XSTR        423
 #define CMD_XASTO       424

@@ -1116,7 +1116,7 @@ int docmd_prp(arg_struct *arg) {
 
 static vartype *prv_var;
 static int4 prv_index;
-static bool prv_prrg;
+static bool prv_prreg;
 static int prv_worker(bool interrupted);
 
 int docmd_prv(arg_struct *arg) {
@@ -1164,7 +1164,7 @@ int docmd_prv(arg_struct *arg) {
                 || v->type == TYPE_LIST
                 && ((vartype_list *) v)->size > 0) {
             prv_var = v;
-            prv_prrg = false;
+            prv_prreg = false;
             prv_index = 0;
             mode_interruptible = prv_worker;
             mode_stoppable = true;
@@ -1189,7 +1189,7 @@ static int prv_worker(bool interrupted) {
     if (prv_var->type == TYPE_REALMATRIX) {
         vartype_realmatrix *rm = (vartype_realmatrix *) prv_var;
         sz = rm->rows * rm->columns;
-        if (prv_prrg) {
+        if (prv_prreg) {
             char2buf(lbuf, 32, &llen, 'R');
             if (prv_index < 10)
                 char2buf(lbuf, 32, &llen, '0');
@@ -1225,7 +1225,7 @@ static int prv_worker(bool interrupted) {
     } else if (prv_var->type == TYPE_COMPLEXMATRIX) {
         vartype_complexmatrix *cm = (vartype_complexmatrix *) prv_var;
         sz = cm->rows * cm->columns;
-        if (prv_prrg) {
+        if (prv_prreg) {
             char2buf(lbuf, 32, &llen, 'R');
             if (prv_index < 10)
                 char2buf(lbuf, 32, &llen, '0');
@@ -1278,7 +1278,7 @@ static int prv_worker(bool interrupted) {
     }
 }
 
-int docmd_prrg(arg_struct *arg) {
+int docmd_prreg(arg_struct *arg) {
     vartype *regs = recall_var("REGS", 4);
     if (regs == NULL)
         return ERR_NONEXISTENT;
@@ -1289,7 +1289,7 @@ int docmd_prrg(arg_struct *arg) {
     shell_annunciators(-1, -1, 1, -1, -1, -1);
     print_text(NULL, 0, true);
     prv_var = regs;
-    prv_prrg = true;
+    prv_prreg = true;
     prv_index = 0;
     mode_interruptible = prv_worker;
     mode_stoppable = true;
@@ -1448,7 +1448,7 @@ int docmd_prx(arg_struct *arg) {
                             || stack[sp]->type == TYPE_LIST
                             && ((vartype_list *) stack[sp])->size > 0)) {
             prv_var = stack[sp];
-            prv_prrg = false;
+            prv_prreg = false;
             prv_index = 0;
             mode_interruptible = prv_worker;
             mode_stoppable = true;
