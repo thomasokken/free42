@@ -1116,6 +1116,7 @@ int docmd_prp(arg_struct *arg) {
 
 static vartype *prv_var;
 static int4 prv_index;
+static bool prv_prrg;
 static int prv_worker(bool interrupted);
 
 int docmd_prv(arg_struct *arg) {
@@ -1163,6 +1164,7 @@ int docmd_prv(arg_struct *arg) {
                 || v->type == TYPE_LIST
                 && ((vartype_list *) v)->size > 0) {
             prv_var = v;
+            prv_prrg = false;
             prv_index = 0;
             mode_interruptible = prv_worker;
             mode_stoppable = true;
@@ -1186,13 +1188,21 @@ static int prv_worker(bool interrupted) {
 
     if (prv_var->type == TYPE_REALMATRIX) {
         vartype_realmatrix *rm = (vartype_realmatrix *) prv_var;
-        i = prv_index / rm->columns;
-        j = prv_index % rm->columns;
         sz = rm->rows * rm->columns;
-        llen = int2string(i + 1, lbuf, 32);
-        char2buf(lbuf, 32, &llen, ':');
-        llen += int2string(j + 1, lbuf + llen, 32 - llen);
-        char2buf(lbuf, 32, &llen, '=');
+        if (prv_prrg) {
+            char2buf(lbuf, 32, &llen, 'R');
+            if (prv_index < 10)
+                char2buf(lbuf, 32, &llen, '0');
+            llen += int2string(prv_index, lbuf + llen, 32 - llen);
+            char2buf(lbuf, 32, &llen, '=');
+        } else {
+            i = prv_index / rm->columns;
+            j = prv_index % rm->columns;
+            llen = int2string(i + 1, lbuf, 32);
+            char2buf(lbuf, 32, &llen, ':');
+            llen += int2string(j + 1, lbuf + llen, 32 - llen);
+            char2buf(lbuf, 32, &llen, '=');
+        }
         if (rm->array->is_string[prv_index] != 0) {
             char *text;
             int4 len;
@@ -1214,15 +1224,23 @@ static int prv_worker(bool interrupted) {
         }
     } else if (prv_var->type == TYPE_COMPLEXMATRIX) {
         vartype_complexmatrix *cm = (vartype_complexmatrix *) prv_var;
+        sz = cm->rows * cm->columns;
+        if (prv_prrg) {
+            char2buf(lbuf, 32, &llen, 'R');
+            if (prv_index < 10)
+                char2buf(lbuf, 32, &llen, '0');
+            llen += int2string(prv_index, lbuf + llen, 32 - llen);
+            char2buf(lbuf, 32, &llen, '=');
+        } else {
+            i = prv_index / cm->columns;
+            j = prv_index % cm->columns;
+            llen = int2string(i + 1, lbuf, 32);
+            char2buf(lbuf, 32, &llen, ':');
+            llen += int2string(j + 1, lbuf + llen, 32 - llen);
+            char2buf(lbuf, 32, &llen, '=');
+        }
         vartype_complex cpx;
         cpx.type = TYPE_COMPLEX;
-        i = prv_index / cm->columns;
-        j = prv_index % cm->columns;
-        sz = cm->rows * cm->columns;
-        llen = int2string(i + 1, lbuf, 32);
-        char2buf(lbuf, 32, &llen, ':');
-        llen += int2string(j + 1, lbuf + llen, 32 - llen);
-        char2buf(lbuf, 32, &llen, '=');
         cpx.re = cm->array->data[2 * prv_index];
         cpx.im = cm->array->data[2 * prv_index + 1];
         rlen = vartype2string((vartype *) &cpx, rbuf, 100);
@@ -1260,63 +1278,6 @@ static int prv_worker(bool interrupted) {
     }
 }
 
-static int prrg_worker(bool interrupted) {
-    char lbuf[32], rbuf[100];
-    int llen = 0, rlen = 0;
-    int4 sz;
-
-    if (interrupted) {
-        shell_annunciators(-1, -1, 0, -1, -1, -1);
-        return ERR_STOP;
-    }
-
-    char2buf(lbuf, 32, &llen, 'R');
-    if (prv_index < 10)
-        char2buf(lbuf, 32, &llen, '0');
-    llen += int2string(prv_index, lbuf + llen, 32 - llen);
-    char2buf(lbuf, 32, &llen, '=');
-
-    if (prv_var->type == TYPE_REALMATRIX) {
-        vartype_realmatrix *rm = (vartype_realmatrix *) prv_var;
-        sz = rm->rows * rm->columns;
-        if (rm->array->is_string[prv_index] != 0) {
-            char *text;
-            int4 len;
-            get_matrix_string(rm, prv_index, &text, &len);
-            char *sbuf = (char *) malloc(len + 2);
-            if (sbuf == NULL) {
-                print_wide(lbuf, llen, "<Low Mem>", 9);
-            } else {
-                sbuf[0] = '"';
-                memcpy(sbuf + 1, text, len);
-                sbuf[len + 1] = '"';
-                print_wide(lbuf, llen, sbuf, len + 2);
-                free(sbuf);
-            }
-        } else {
-            rlen = easy_phloat2string(rm->array->data[prv_index],
-                                        rbuf, 100, 0);
-            print_wide(lbuf, llen, rbuf, rlen);
-        }
-    } else /* prv_var->type == TYPE_COMPLEXMATRIX */ {
-        vartype_complexmatrix *cm = (vartype_complexmatrix *) prv_var;
-        sz = cm->rows * cm->columns;
-        vartype_complex cpx;
-        cpx.type = TYPE_COMPLEX;
-        cpx.re = cm->array->data[2 * prv_index];
-        cpx.im = cm->array->data[2 * prv_index + 1];
-        rlen = vartype2string((vartype *) &cpx, rbuf, 100);
-        print_wide(lbuf, llen, rbuf, rlen);
-    }
-
-    if (++prv_index < sz)
-        return ERR_INTERRUPTIBLE;
-    else {
-        shell_annunciators(-1, -1, 0, -1, -1, -1);
-        return ERR_NONE;
-    }
-}
-
 int docmd_prrg(arg_struct *arg) {
     vartype *regs = recall_var("REGS", 4);
     if (regs == NULL)
@@ -1328,8 +1289,9 @@ int docmd_prrg(arg_struct *arg) {
     shell_annunciators(-1, -1, 1, -1, -1, -1);
     print_text(NULL, 0, true);
     prv_var = regs;
+    prv_prrg = true;
     prv_index = 0;
-    mode_interruptible = prrg_worker;
+    mode_interruptible = prv_worker;
     mode_stoppable = true;
     return ERR_INTERRUPTIBLE;
 }
@@ -1486,6 +1448,7 @@ int docmd_prx(arg_struct *arg) {
                             || stack[sp]->type == TYPE_LIST
                             && ((vartype_list *) stack[sp])->size > 0)) {
             prv_var = stack[sp];
+            prv_prrg = false;
             prv_index = 0;
             mode_interruptible = prv_worker;
             mode_stoppable = true;
