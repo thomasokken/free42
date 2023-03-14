@@ -437,6 +437,9 @@ int docmd_rclel(arg_struct *arg) {
         int4 n = matedit_i * cm->columns + matedit_j;
         v = new_complex(cm->array->data[2 * n],
                         cm->array->data[2 * n + 1]);
+    } else if (m->type == TYPE_LIST) {
+        vartype_list *list = (vartype_list *) m;
+        v = dup_vartype(list->array->data[matedit_i]);
     } else
         return ERR_INVALID_TYPE;
     if (v == NULL)
@@ -751,7 +754,9 @@ int docmd_stoel(arg_struct *arg) {
     if (m == NULL)
         return ERR_NONEXISTENT;
 
-    if (m->type != TYPE_REALMATRIX && m->type != TYPE_COMPLEXMATRIX)
+    if (m->type != TYPE_REALMATRIX
+            && m->type != TYPE_COMPLEXMATRIX
+            && m->type != TYPE_LIST)
         /* Should not happen, but could, as long as I don't implement
          * matrix locking.
          */
@@ -776,7 +781,7 @@ int docmd_stoel(arg_struct *arg) {
             return ERR_NONE;
         } else
             return ERR_INVALID_TYPE;
-    } else /* m->type == TYPE_COMPLEXMATRIX */ {
+    } else if (m->type == TYPE_COMPLEXMATRIX) {
         vartype_complexmatrix *cm = (vartype_complexmatrix *) m;
         int4 n = matedit_i * cm->columns + matedit_j;
         if (stack[sp]->type == TYPE_REAL) {
@@ -792,6 +797,14 @@ int docmd_stoel(arg_struct *arg) {
             return ERR_ALPHA_DATA_IS_INVALID;
         else
             return ERR_INVALID_TYPE;
+    } else /* m->type == TYPE_LIST */ {
+        vartype_list *list = (vartype_list *) m;
+        vartype *v = dup_vartype(stack[sp]);
+        if (v == NULL)
+            return ERR_INSUFFICIENT_MEMORY;
+        free_vartype(list->array->data[matedit_i]);
+        list->array->data[matedit_i] = v;
+        return ERR_NONE;
     }
 }
 
@@ -847,6 +860,10 @@ int docmd_stoij(arg_struct *arg) {
     } else if (m->type == TYPE_COMPLEXMATRIX) {
         vartype_complexmatrix *cm = (vartype_complexmatrix *) m;
         if (i == 0 || i > cm->rows || j == 0 || j > cm->columns)
+            return ERR_DIMENSION_ERROR;
+    } else if (m->type == TYPE_LIST) {
+        vartype_list *list = (vartype_list *) m;
+        if (i == 0 || i > list->size || j != 1)
             return ERR_DIMENSION_ERROR;
     } else
         /* Should not happen, but could, as long as I don't implement
@@ -991,6 +1008,7 @@ static int matedit_move(int direction) {
     vartype *m, *v;
     vartype_realmatrix *rm;
     vartype_complexmatrix *cm;
+    vartype_list *list;
     int4 rows, columns, new_i, new_j, old_n, new_n;
     int edge_flag = 0;
     int end_flag = 0;
@@ -1020,6 +1038,10 @@ static int matedit_move(int direction) {
         cm = (vartype_complexmatrix *) m;
         rows = cm->rows;
         columns = cm->columns;
+    } else if (m->type == TYPE_LIST) {
+        list = (vartype_list *) m;
+        rows = list->size;
+        columns = 1;
     } else
         return ERR_INVALID_TYPE;
 
@@ -1115,7 +1137,7 @@ static int matedit_move(int direction) {
             free_vartype(v);
             return ERR_INVALID_TYPE;
         }
-    } else /* m->type == TYPE_COMPLEXMATRIX */ {
+    } else if (m->type == TYPE_COMPLEXMATRIX) {
         if (old_n != new_n) {
             v = new_complex(cm->array->data[2 * new_n],
                             cm->array->data[2 * new_n + 1]);
@@ -1135,6 +1157,23 @@ static int matedit_move(int direction) {
             free_vartype(v);
             return stack[sp]->type == TYPE_STRING ? ERR_ALPHA_DATA_IS_INVALID
                                               : ERR_INVALID_TYPE;
+        }
+    } else /* m->type == TYPE_LIST */ {
+        if (old_n != new_n) {
+            v = dup_vartype(list->array->data[new_n]);
+            if (v == NULL)
+                return ERR_INSUFFICIENT_MEMORY;
+        }
+        if (sp == -1) {
+            /* There's nothing to store, so leave cell unchanged */
+        } else {
+            vartype *nv = dup_vartype(stack[sp]);
+            if (nv == NULL) {
+                free_vartype(v);
+                return ERR_INSUFFICIENT_MEMORY;
+            }
+            free_vartype(list->array->data[old_n]);
+            list->array->data[old_n] = nv;
         }
     }
 

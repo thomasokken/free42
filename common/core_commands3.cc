@@ -755,6 +755,10 @@ int matedit_get_dim(int4 *rows, int4 *columns) {
         *rows = cm->rows;
         *columns = cm->columns;
         return ERR_NONE;
+    } else if (m->type == TYPE_LIST) {
+        vartype_list *list = (vartype_list *) m;
+        *rows = list->size;
+        *columns = 1;
     } else
         return ERR_INVALID_TYPE;
 }
@@ -843,44 +847,52 @@ int docmd_edit(arg_struct *arg) {
     int err = finish_edit();
     if (err != ERR_NONE)
         return err;
-    if (stack[sp]->type == TYPE_REALMATRIX || stack[sp]->type == TYPE_COMPLEXMATRIX) {
-        vartype *v;
-        if (stack[sp]->type == TYPE_REALMATRIX) {
-            vartype_realmatrix *rm = (vartype_realmatrix *) stack[sp];
-            if (rm->array->is_string[0] != 0) {
-                char *text;
-                int4 len;
-                get_matrix_string(rm, 0, &text, &len);
-                v = new_string(text, len);
-            } else
-                v = new_real(rm->array->data[0]);
-        } else {
-            vartype_complexmatrix *cm = (vartype_complexmatrix *) stack[sp];
-            v = new_complex(cm->array->data[0], cm->array->data[1]);
-        }
-        if (v == NULL)
-            return ERR_INSUFFICIENT_MEMORY;
-        matedit_mode = 2;
-        flags.f.grow = 0;
-        matedit_x = stack[sp];
-        stack[sp] = v;
-        matedit_i = 0;
-        matedit_j = 0;
-        if (mode_appmenu >= MENU_MATRIX1 && mode_appmenu <= MENU_MATRIX_SIMQ)
-            matedit_prev_appmenu = mode_appmenu;
-        else
-            matedit_prev_appmenu = MENU_NONE;
-        set_menu(MENULEVEL_APP, MENU_MATRIX_EDIT1);
-        set_appmenu_exitcallback(1);
-        print_trace();
-        if (flags.f.big_stack)
-            mode_disable_stack_lift = true;
-        else
-            /* HP-42S bug compatibility */
-            mode_disable_stack_lift = flags.f.stack_lift_disable;
-        return ERR_NONE;
-    } else
+    if (stack[sp]->type != TYPE_REALMATRIX
+            && stack[sp]->type != TYPE_COMPLEXMATRIX
+            && stack[sp]->type != TYPE_LIST)
         return ERR_INVALID_TYPE;
+
+    vartype *v;
+    if (stack[sp]->type == TYPE_REALMATRIX) {
+        vartype_realmatrix *rm = (vartype_realmatrix *) stack[sp];
+        if (rm->array->is_string[0] != 0) {
+            char *text;
+            int4 len;
+            get_matrix_string(rm, 0, &text, &len);
+            v = new_string(text, len);
+        } else
+            v = new_real(rm->array->data[0]);
+    } else if (stack[sp]->type == TYPE_COMPLEXMATRIX) {
+        vartype_complexmatrix *cm = (vartype_complexmatrix *) stack[sp];
+        v = new_complex(cm->array->data[0], cm->array->data[1]);
+    } else {
+        vartype_list *list = (vartype_list *) stack[sp];
+        if (list->size == 0)
+            // TODO Support for empty lists to be added later
+            return ERR_NOT_YET_IMPLEMENTED;
+        v = dup_vartype(list->array->data[0]);
+    }
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    matedit_mode = 2;
+    flags.f.grow = 0;
+    matedit_x = stack[sp];
+    stack[sp] = v;
+    matedit_i = 0;
+    matedit_j = 0;
+    if (mode_appmenu >= MENU_MATRIX1 && mode_appmenu <= MENU_MATRIX_SIMQ)
+        matedit_prev_appmenu = mode_appmenu;
+    else
+        matedit_prev_appmenu = MENU_NONE;
+    set_menu(MENULEVEL_APP, MENU_MATRIX_EDIT1);
+    set_appmenu_exitcallback(1);
+    print_trace();
+    if (flags.f.big_stack)
+        mode_disable_stack_lift = true;
+    else
+        /* HP-42S bug compatibility */
+        mode_disable_stack_lift = flags.f.stack_lift_disable;
+    return ERR_NONE;
 }
 
 int docmd_editn(arg_struct *arg) {
@@ -905,7 +917,9 @@ int docmd_editn(arg_struct *arg) {
     if (mi == -1)
         return ERR_NONEXISTENT;
     m = vars[mi].value;
-    if (m->type != TYPE_REALMATRIX && m->type != TYPE_COMPLEXMATRIX)
+    if (m->type != TYPE_REALMATRIX
+            && m->type != TYPE_COMPLEXMATRIX
+            && m->type != TYPE_LIST)
         return ERR_INVALID_TYPE;
 
     vartype *v;
@@ -919,10 +933,17 @@ int docmd_editn(arg_struct *arg) {
             v = new_string(text, len);
         } else
             v = new_real(rm->array->data[0]);
-    } else {
+    } else if (m->type == TYPE_COMPLEXMATRIX) {
         vartype_complexmatrix *cm = (vartype_complexmatrix *) m;
         v = new_complex(cm->array->data[0], cm->array->data[1]);
+    } else {
+        vartype_list *list = (vartype_list *) m;
+        if (list->size == 0)
+            // TODO Support for empty lists to be added later
+            return ERR_NOT_YET_IMPLEMENTED;
+        v = dup_vartype(list->array->data[0]);
     }
+
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
 
@@ -1390,8 +1411,16 @@ int docmd_index(arg_struct *arg) {
     if (mi == -1)
         return ERR_NONEXISTENT;
     m = vars[mi].value;
-    if (m->type != TYPE_REALMATRIX && m->type != TYPE_COMPLEXMATRIX)
+    if (m->type != TYPE_REALMATRIX
+            && m->type != TYPE_COMPLEXMATRIX
+            && m->type != TYPE_LIST)
         return ERR_INVALID_TYPE;
+    // TODO Support for empty lists to be added later
+    if (m->type == TYPE_LIST) {
+        vartype_list *list = (vartype_list *) stack[sp];
+        if (list->size == 0)
+            return ERR_NOT_YET_IMPLEMENTED;
+    }
 
     /* If the matrix we're about to index is local, and another matrix
      * is already indexed, and that other matrix is not a local at the same
