@@ -1271,7 +1271,8 @@ int dimension_array(const char *name, int namelen, int4 rows, int4 columns, bool
      */
     int4 size = rows * columns;
     if (matrix == NULL || (matrix->type != TYPE_REALMATRIX
-                        && matrix->type != TYPE_COMPLEXMATRIX)) {
+                        && matrix->type != TYPE_COMPLEXMATRIX
+                        && matrix->type != TYPE_LIST)) {
         vartype *newmatrix;
         if (size == 0)
             return ERR_NONE;
@@ -1401,7 +1402,7 @@ int dimension_array_ref(vartype *matrix, int4 rows, int4 columns) {
             oldmatrix->columns = columns;
             return ERR_NONE;
         }
-    } else /* matrix->type == TYPE_COMPLEXMATRIX */ {
+    } else if (matrix->type == TYPE_COMPLEXMATRIX) {
         vartype_complexmatrix *oldmatrix = (vartype_complexmatrix *) matrix;
         if (oldmatrix->rows == rows && oldmatrix->columns == columns)
             return ERR_NONE;
@@ -1450,6 +1451,82 @@ int dimension_array_ref(vartype *matrix, int4 rows, int4 columns) {
             oldmatrix->array = new_array;
             oldmatrix->rows = rows;
             oldmatrix->columns = columns;
+            return ERR_NONE;
+        }
+    } else /* matrix->type == TYPE_LIST */ {
+        if (columns != 1)
+            return ERR_DIMENSION_ERROR;
+        vartype_list *oldlist = (vartype_list *) matrix;
+        if (oldlist->size == size)
+            return ERR_NONE;
+        if (oldlist->array->refcount == 1) {
+            /* Since there are no shared references to this array,
+             * I can modify it in place using a realloc().
+             */
+            if (oldlist->size > size) {
+                for (int4 i = size; i < oldlist->size; i++) {
+                    free_vartype(oldlist->array->data[i]);
+                    oldlist->array->data[i] = NULL;
+                }
+                vartype **new_data = (vartype **) realloc(oldlist->array->data, size * sizeof(vartype *));
+                /* Note: If the realloc() fails to shrink the array, we just keep
+                 * using the existing one, basically pretending that it succeeded.
+                 */
+                if (new_data != NULL)
+                    oldlist->array->data = new_data;
+                oldlist->size = size;
+                return ERR_NONE;
+            } else {
+                vartype **new_data = (vartype **) realloc(oldlist->array->data, size * sizeof(vartype *));
+                if (new_data == NULL)
+                    return ERR_INSUFFICIENT_MEMORY;
+                for (int4 i = oldlist->size; i < size; i++) {
+                    new_data[i] = new_real(0);
+                    if (new_data[i] == NULL) {
+                        /* Argh. Roll back everything and give up. */
+                        for (int4 j = oldlist->size; j < i; j++) {
+                            free_vartype(new_data[j]);
+                            new_data[j] = NULL;
+                        }
+                        vartype **reverted_data = (vartype **) realloc(new_data, oldlist->size * sizeof(vartype *));
+                        oldlist->array->data = reverted_data == NULL ? new_data : reverted_data;
+                        return ERR_INSUFFICIENT_MEMORY;
+                    }
+                }
+                oldlist->array->data = new_data;
+                oldlist->size = size;
+                return ERR_NONE;
+            }
+        } else {
+            /* There are shared references to the list. This means I
+             * can't realloc() it; I'm going to allocate a brand-new instance,
+             * and copy the contents from the old instance. I don't use
+             * disentangle(); that's only useful if you want to eliminate
+             * shared references without resizing.
+             */
+            int4 i, s, oldsize;
+            list_data *new_array = (list_data *) malloc(sizeof(list_data));
+            if (new_array == NULL)
+                return ERR_INSUFFICIENT_MEMORY;
+            new_array->data = (vartype **) malloc(size * sizeof(vartype *));
+            if (new_array->data == NULL) {
+                free(new_array);
+                return ERR_INSUFFICIENT_MEMORY;
+            }
+            for (int4 i = 0; i < size; i++) {
+                new_array->data[i] = i < oldlist->size ? dup_vartype(oldlist->array->data[i]) : new_real(0);
+                if (new_array->data[i] == NULL) {
+                    for (int4 j = 0; j < i; j++)
+                        free_vartype(new_array->data[j]);
+                    free(new_array->data);
+                    free(new_array);
+                    return ERR_INSUFFICIENT_MEMORY;
+                }
+            }
+            new_array->refcount = 1;
+            oldlist->array->refcount--;
+            oldlist->array = new_array;
+            oldlist->size = size;
             return ERR_NONE;
         }
     }
