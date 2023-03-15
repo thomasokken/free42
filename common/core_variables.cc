@@ -556,7 +556,9 @@ int store_var(const char *name, int namelength, vartype *value, bool local) {
     } else {
         if (matedit_mode == 1 &&
                 string_equals(name, namelength, matedit_name, matedit_length)) {
-            if (value->type == TYPE_REALMATRIX || value->type == TYPE_COMPLEXMATRIX)
+            if (value->type == TYPE_REALMATRIX
+                    || value->type == TYPE_COMPLEXMATRIX
+                    || value->type == TYPE_LIST)
                 matedit_i = matedit_j = 0;
             else
                 matedit_mode = 0;

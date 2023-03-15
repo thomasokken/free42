@@ -3716,6 +3716,10 @@ static void validate_matedit() {
         vartype_complexmatrix *cm = (vartype_complexmatrix *) v;
         rows = cm->rows;
         cols = cm->columns;
+    } else if (v->type == TYPE_LIST) {
+        vartype_list *list = (vartype_list *) v;
+        rows = list->size;
+        cols = 1;
     } else {
         goto fail;
     }
