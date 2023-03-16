@@ -5059,8 +5059,8 @@ void start_incomplete_command(int cmd_id) {
             display_error(ERR_NO_REAL_VARIABLES, false);
         }
     } else if (argtype == ARG_MAT) {
-        if (flags.f.prgm_mode || vars_exist(CATSECT_MAT))
-            set_catalog_menu(CATSECT_MAT_ONLY);
+        if (flags.f.prgm_mode || vars_exist(CATSECT_MAT_LIST))
+            set_catalog_menu(CATSECT_MAT_LIST_ONLY);
         else if (cmd_id != CMD_DIM) {
             mode_command_entry = false;
             display_error(ERR_NO_MATRIX_VARIABLES, false);

@@ -1852,6 +1852,9 @@ static void draw_catalog() {
             case CATSECT_MAT:
             case CATSECT_MAT_ONLY:
                 show_real = show_str = show_cpx = show_list = 0; break;
+            case CATSECT_MAT_LIST:
+            case CATSECT_MAT_LIST_ONLY:
+                show_real = show_str = show_cpx = 0; break;
             case CATSECT_LIST_STR_ONLY:
                 show_real = show_cpx = show_mat = 0; break;
         }
@@ -2911,6 +2914,11 @@ void set_catalog_menu(int section) {
             if (!vars_exist(CATSECT_MAT))
                 mode_commandmenu = MENU_NONE;
             return;
+        case CATSECT_MAT_LIST:
+        case CATSECT_MAT_LIST_ONLY:
+            if (!vars_exist(CATSECT_MAT_LIST))
+                mode_commandmenu = MENU_NONE;
+            return;
         case CATSECT_LIST_STR_ONLY:
             if (!vars_exist(CATSECT_LIST_STR_ONLY))
                 mode_commandmenu = MENU_NONE;
@@ -3040,6 +3048,10 @@ void update_catalog() {
             if (!vars_exist(CATSECT_MAT))
                 set_cat_section(CATSECT_TOP);
             break;
+        case CATSECT_MAT_LIST:
+            if (!vars_exist(CATSECT_MAT_LIST))
+                set_cat_section(CATSECT_TOP);
+            break;
         case CATSECT_REAL_ONLY:
             if (!vars_exist(CATSECT_REAL)) {
                 *the_menu = MENU_NONE;
@@ -3049,6 +3061,13 @@ void update_catalog() {
             break;
         case CATSECT_MAT_ONLY:
             if (!vars_exist(CATSECT_MAT)) {
+                *the_menu = MENU_NONE;
+                redisplay();
+                return;
+            }
+            break;
+        case CATSECT_MAT_LIST_ONLY:
+            if (!vars_exist(CATSECT_MAT_LIST)) {
                 *the_menu = MENU_NONE;
                 redisplay();
                 return;

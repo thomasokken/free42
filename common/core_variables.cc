@@ -639,12 +639,12 @@ bool vars_exist(int section) {
                     break;
             case TYPE_REALMATRIX:
             case TYPE_COMPLEXMATRIX:
-                if (section == CATSECT_MAT)
+                if (section == CATSECT_MAT || section == CATSECT_MAT_LIST)
                     return true;
                 else
                     break;
             case TYPE_LIST:
-                if (section == CATSECT_LIST_STR_ONLY)
+                if (section == CATSECT_LIST_STR_ONLY || section == CATSECT_MAT_LIST)
                     return true;
                 else
                     break;
