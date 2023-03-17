@@ -1,3 +1,19 @@
+2023-03-17: release 3.0.18
+
+* EDIT, EDITN, and INDEX now support lists, acting like they are 1-column
+  matrices. (Empty lists are not supported, they must have at least one
+  element. This limitation will be removed in a future release. Note that you
+  can create a new 1-element list by simply doing NEWLIST 0 +.)
+  This includes STOIJ, RCLIJ, STOEL, RCLEL, I+, I-, J+, J-, ←, ↑, ↓, →, INSR,
+  DELR, and DIM.
+* Added PRREG. Because PRV "REGS" is not a good substitute.
+* Added NN→S. This works like N→S (convert number to string on the stack), but
+  without the 12-digit mantissa length limit, so you get full precision in ALL
+  mode.
+* Fixed stack lift handling in DELR and STOFLAG.
+* Fixed pasting 1/X, 10^X, and 4STK, when pasted without line number and with
+  trailing space.
+
 2022-12-14: release 3.0.17
 
 * Fixed a couple of bugs in Paste of scalars in BINM, OCTM, and HEXM modes.
@@ -479,7 +495,7 @@
 * Android version: Added file extension filtering for file, http, and https URL
   schemes. This should make Free42 not appear in as many file selection
   contexts as before, without making it disappear from contexts where it should
-  be offered as an option. N.B. File extension filtering is not supported with
+  be offered as an option. Note: file extension filtering is not supported with
   the content scheme, which means Free42 will still show up in all contexts
   where attachments are opened, and depending on the file manager used, also
   when opening files from file managers.
@@ -1340,7 +1356,7 @@
   conversions with code that uses the standard C library's equivalent
   functionality. This fixes final-digit errors in the Binary version, and also
   final-digit errors when switching from the Decimal to the Binary version.
-* All versions: Added angle reduction code to make SIN, COS, and ->REC more
+* All versions: Added angle reduction code to make SIN, COS, and →REC more
   accurate in DEG and GRAD modes.
 * Windows version: Now uses %APPDATA%\Free42 as the default Free42 directory
   (for storing state.bin, print.bin, and keymap.txt). This avoids permissions
@@ -1598,7 +1614,7 @@
 
 2009-11-25: release 1.4.61
 
-* Decimal version: ->OCT (decimal-to-octal conversion) was broken; it actually
+* Decimal version: →OCT (decimal-to-octal conversion) was broken; it actually
   converted octal to decimal. Fixed.
 
 2009-11-11: (no new code release)
@@ -2203,7 +2219,7 @@
 * Added a new voyager-style skin to the Free42Skins.zip package (Windows and
   Unix), and created a new package, Free42PocketPCSkins.zip, with skins
   specifically designed for the Pocket PC.
-* ->POL now detects the case that the real and/or imaginary parts are zero, and
+* →POL now detects the case that the real and/or imaginary parts are zero, and
   returns exact results for those cases.
 * Cancelling a partially-entered DEL, LIST, or PRP command in PRGM mode could
   cause the instruction pointer to be set to an invalid location. Fixed.
@@ -2357,9 +2373,9 @@
   return (1,0); this is not consistent with the real HP-42S, which returns
   "Invalid Data", but it is consistent with the way Free42 already treated
   0^0).
-* SIN, COS, P->R, and COMPLEX, when used in DEG and GRAD modes, now return
-  exact results for multiples of 90 degrees (100 grads). Also, the TAN function
-  now returns exact results for multiples of 45 degrees (50 grads).
+* SIN, COS, P→R, and COMPLEX, when used in DEG and GRAD modes, now return exact
+  results for multiples of 90 degrees (100 grads). Also, the TAN function now
+  returns exact results for multiples of 45 degrees (50 grads).
 * Added range checks to the complex versions of SIN and COS.
 * In PRGM mode, the A..F command in the BASE menu now says "Restricted
   Operation".
@@ -2467,11 +2483,11 @@
 
 2005-03-23: release 1.2.10
 
-* The code in ->HMS, HMS+, and HMS-, that was supposed to prevent results such
-  as ->HMS(61/60) = 1.006 (by adding 0.4 to fix the minutes, or 0.004 to fix
-  the seconds, to get 1.01 in this example) was incorrect; it would apply the
+* The code in →HMS, HMS+, and HMS-, that was supposed to prevent results such
+  as >HMS(61/60) = 1.006 (by adding 0.4 to fix the minutes, or 0.004 to fix the
+  seconds, to get 1.01 in this example) was incorrect; it would apply the
   correction in cases where the intermediate result was rounded down due to
-  binary round-off; this would cause ->HMS(119/60) to return 1.594 instead of
+  binary round-off; this would cause >HMS(119/60) to return 1.594 instead of
   1.59. Fixed by making the test for when to perform the adjustment more
   accurate.
 
@@ -2528,9 +2544,9 @@
   the format used on the calculator's display -- so flag 28 controls whether
   '.' or ',' is the decimal. Thousands separators are ignored regardless of the
   setting of flag 29.
-* 61 ENTER 60 / ->HMS now returns 1.01 instead of 1.006. I added a check to
-  see if round-off after the final computation step caused the seconds or
-  minutes to reach 60. I also added this same check to HMS+ and HMS-.
+* 61 ENTER 60 / →HMS now returns 1.01 instead of 1.006. I added a check to see
+  if round-off after the final computation step caused the seconds or minutes
+  to reach 60. I also added this same check to HMS+ and HMS-.
 * Clicking in the bottom half of the display now activates "soft" (menu) keys.
   This actually means you now simply have another way of clicking the six keys
   in the top row of the keyboard, but the visual feedback is different, and
@@ -3231,8 +3247,8 @@
 
 2004-11-06: release 1.0.1
 
-* Reduce arguments to SIN, COS, TAN, ->REC, and COMPLEX (in POLAR mode)
-  by applying fmod(x, 360) (in DEG mode) or fmod(x, 400) (in GRAD mode).
+* Reduce arguments to SIN, COS, TAN, →REC, and COMPLEX (in POLAR mode) by
+  applying fmod(x, 360) (in DEG mode) or fmod(x, 400) (in GRAD mode).
   In RAD mode, the behavior is unchanged. See angle_to_rad().
 * Fixed a bug in keydown_command_entry() that made it impossible to create
   alpha LBLs where the first character was a shifted alpha menu key (e.g.
