@@ -807,6 +807,7 @@ int matedit_get_dim(int4 *rows, int4 *columns) {
         vartype_list *list = (vartype_list *) m;
         *rows = list->size;
         *columns = 1;
+        return ERR_NONE;
     } else
         return ERR_INVALID_TYPE;
 }

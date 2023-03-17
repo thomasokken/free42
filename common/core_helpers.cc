@@ -1504,7 +1504,6 @@ int dimension_array_ref(vartype *matrix, int4 rows, int4 columns) {
              * disentangle(); that's only useful if you want to eliminate
              * shared references without resizing.
              */
-            int4 i, s, oldsize;
             list_data *new_array = (list_data *) malloc(sizeof(list_data));
             if (new_array == NULL)
                 return ERR_INSUFFICIENT_MEMORY;
