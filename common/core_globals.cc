@@ -399,7 +399,7 @@ const menu_spec menus[] = {
                         { 0x1000 + CMD_LIST,  0, "" },
                         { 0x1000 + CMD_ADV,   0, "" },
                         { 0x1000 + CMD_PRLCD, 0, "" },
-                        { 0x1000 + CMD_NULL,  0, "" },
+                        { 0x1000 + CMD_PRREG, 0, "" },
                         { 0x1000 + CMD_DELAY, 0, "" } } },
     { /* MENU_PRINT3 */ MENU_NONE, MENU_PRINT1, MENU_PRINT2,
                       { { 0x2000 + CMD_PON,    0, "" },
