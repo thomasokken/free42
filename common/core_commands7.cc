@@ -1924,7 +1924,13 @@ int docmd_n_to_s(arg_struct *arg) {
 }
 
 int docmd_nn_to_s(arg_struct *args) {
-    return number_to_string(MAX_MANT_DIGITS);
+    char saved_fix_or_all = flags.f.fix_or_all;
+    char saved_eng_or_all = flags.f.eng_or_all;
+    flags.f.fix_or_all = flags.f.eng_or_all = 1;
+    int err = number_to_string(MAX_MANT_DIGITS);
+    flags.f.fix_or_all = saved_fix_or_all;
+    flags.f.eng_or_all = saved_eng_or_all;
+    return err;
 }
 
 int docmd_c_to_n(arg_struct *arg) {
