@@ -2344,8 +2344,6 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                         if (byte2 == 0x0C0) {
                             /* ASSIGN */
                             str_len = byte1 - 0x0F2;
-                            if (str_len == 0)
-                                goto xrom_string;
                             assign = 1;
                             cmd = CMD_ASGN01;
                             arg.type = ARGTYPE_STR;
