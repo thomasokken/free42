@@ -2484,10 +2484,10 @@
 2005-03-23: release 1.2.10
 
 * The code in →HMS, HMS+, and HMS-, that was supposed to prevent results such
-  as >HMS(61/60) = 1.006 (by adding 0.4 to fix the minutes, or 0.004 to fix the
+  as →HMS(61/60) = 1.006 (by adding 0.4 to fix the minutes, or 0.004 to fix the
   seconds, to get 1.01 in this example) was incorrect; it would apply the
   correction in cases where the intermediate result was rounded down due to
-  binary round-off; this would cause >HMS(119/60) to return 1.594 instead of
+  binary round-off; this would cause →HMS(119/60) to return 1.594 instead of
   1.59. Fixed by making the test for when to perform the adjustment more
   accurate.
 
