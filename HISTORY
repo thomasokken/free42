@@ -1,3 +1,13 @@
+2023-04-05: release 3.0.19
+
+* Fixed crash in RTNERR when switching back to NSTK mode after FUNC/L4STK.
+* Fixed ASSIGN "" in programs.
+* Added PRREG to the PRINT menu.
+* NN→S now ignores the display mode and always acts like ALL mode is active.
+  The idea being that if you care about the display mode, you'll probably be
+  using N→S, and you only need NN→S if you specifically want to see full
+  internal precision.
+
 2023-03-17: release 3.0.18
 
 * EDIT, EDITN, and INDEX now support lists, acting like they are 1-column
