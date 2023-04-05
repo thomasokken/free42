@@ -3528,7 +3528,7 @@ int pop_func_state(bool error) {
             memcpy(stack, st->array->data + 1, st_levels * sizeof(vartype *));
             memset(st->array->data + 1, 0, st_levels * sizeof(vartype *));
             sp = st_levels - 1;
-            for (int i = fd->size - 1; i >= 4; i++)
+            for (int i = fd->size - 1; i >= 4; i--)
                 stack[++sp] = fd_data[i];
             memset(fd->array->data + 4, 0, fd_levels * sizeof(vartype *));
         } else {
