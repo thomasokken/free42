@@ -776,7 +776,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				"OTHER_CFLAGS[arch=*]" = "-DFREE42_FPTEST";
 				"OTHER_CFLAGS[arch=arm64]" = (
 					"-DFREE42_FPTEST",
@@ -818,7 +818,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				"OTHER_CFLAGS[arch=arm64]" = (
 					"-fsigned-char",
 					"-DBID_SIZE_LONG=8",
@@ -874,7 +874,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				"OTHER_CFLAGS[arch=*]" = "-DFREE42_FPTEST";
 				"OTHER_CFLAGS[arch=arm64]" = (
 					"-DFREE42_FPTEST",
@@ -931,7 +931,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				"OTHER_CFLAGS[arch=arm64]" = (
 					"-fsigned-char",
 					"-DBID_SIZE_LONG=8",
