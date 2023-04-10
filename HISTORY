@@ -1,8 +1,8 @@
 2023-04-10: release 3.0.19a (iOS and MacOS)
 
-* PRP and Copy (in PRGM mode) were dropping line 01, because of an optimizer
-  bug in the latest compiler. Reduced optimization level from -Os to -O1 to
-  work around this problem.
+* Copy in PRGM mode was dropping line 01, because of an optimizer bug in the
+  latest compiler. Reduced optimization level from -Os to -O1 to work around
+  this problem.
 
 2023-04-05: release 3.0.19
 
