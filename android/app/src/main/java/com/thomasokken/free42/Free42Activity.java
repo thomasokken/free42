@@ -947,7 +947,7 @@ public class Free42Activity extends Activity {
             calcView.invalidate();
             core_repaint_display();
         } catch (IllegalArgumentException e) {
-            shell_beeper(1835, 125);
+            shell_beeper(10);
         }
     }
     
@@ -2032,7 +2032,7 @@ public class Free42Activity extends Activity {
     
     private void click() {
         if (keyClicksLevel > 0)
-            playSound(keyClicksLevel + 10, 0);
+            playSound(keyClicksLevel + 10);
         if (keyVibration > 0) {
             int ms = (int) (Math.pow(2, (keyVibration - 1) / 2.0) + 0.5);
             Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -2041,7 +2041,7 @@ public class Free42Activity extends Activity {
     }
     
     
-    public void playSound(int index, int duration) {
+    public void playSound(int index) {
         soundPool.play(soundIds[index], 1f, 1f, 0, 0, 1f);
     }
     
@@ -2129,27 +2129,17 @@ public class Free42Activity extends Activity {
     /**
      * shell_beeper()
      * Callback invoked by the emulator core to play a sound.
-     * The first parameter is the frequency in Hz; the second is the
-     * duration in ms. The sound volume is up to the GUI to control.
+     * The parameter is the tone number, from 0 to 9, or 10 for the error beep.
      * Sound playback should be synchronous (the beeper function should
      * not return until the sound has finished), if possible.
      */
-    public void shell_beeper(int frequency, int duration) {
-        int sound_number = 10;
-        for (int i = 0; i < 10; i++) {
-            if (frequency <= cutoff_freqs[i]) {
-                sound_number = i;
-                break;
-            }
-        }
-        playSound(sound_number, sound_number == 10 ? 125 : 250);
+    public void shell_beeper(int tone) {
+        playSound(tone);
         try {
-            Thread.sleep(sound_number == 10 ? 125 : 250);
+            Thread.sleep(tone == 10 ? 125 : 250);
         } catch (InterruptedException e) {}
     }
 
-    private final int[] cutoff_freqs = { 164, 220, 243, 275, 293, 324, 366, 418, 438, 550 };
-    
     private PrintAnnunciatorTurnerOffer pato = null;
 
     private class PrintAnnunciatorTurnerOffer extends Thread {

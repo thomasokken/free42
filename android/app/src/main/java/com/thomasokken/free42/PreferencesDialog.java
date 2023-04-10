@@ -103,7 +103,7 @@ public class PreferencesDialog extends Dialog {
                 if (fromUser) {
                     if (val != prevVal) {
                         if (val > 0)
-                            Free42Activity.instance.playSound(val + 10, 0);
+                            Free42Activity.instance.playSound(val + 10);
                         prevVal = val;
                     }
                 }

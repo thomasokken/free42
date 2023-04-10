@@ -976,18 +976,10 @@ const char *shell_platform() {
     return p;
 }
 
-void shell_beeper(int frequency, int duration) {
+void shell_beeper(int tone) {
     TRACE("shell_beeper");
-    const int cutoff_freqs[] = { 164, 220, 243, 275, 293, 324, 366, 418, 438, 550 };
-    for (int i = 0; i < 10; i++) {
-        if (frequency <= cutoff_freqs[i]) {
-            [RootViewController playSound:i];
-            shell_delay(250);
-            return;
-        }
-    }
-    [RootViewController playSound:10];
-    shell_delay(125);
+    [RootViewController playSound:tone];
+    shell_delay(tone == 10 ? 125 : 250);
 }
 
 void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {

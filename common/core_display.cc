@@ -886,27 +886,12 @@ void fly_goose() {
 
 void squeak() {
     if (flags.f.audio_enable)
-        shell_beeper(1835, 125);
+        shell_beeper(10);
 }
 
 void tone(int n) {
-    if (flags.f.audio_enable) {
-        int frequency;
-        switch (n) {
-            case 0: frequency = 164; break;
-            case 1: frequency = 220; break;
-            case 2: frequency = 243; break;
-            case 3: frequency = 275; break;
-            case 4: frequency = 293; break;
-            case 5: frequency = 324; break;
-            case 6: frequency = 366; break;
-            case 7: frequency = 418; break;
-            case 8: frequency = 438; break;
-            case 9: frequency = 550; break;
-            default: return;
-        }
-        shell_beeper(frequency, 250);
-    }
+    if (flags.f.audio_enable)
+        shell_beeper(n);
 }
 
 

@@ -1442,17 +1442,9 @@ int8 shell_random_seed() {
     return tv.tv_sec * 1000LL + tv.tv_usec / 1000;
 }
 
-void shell_beeper(int frequency, int duration) {
-    const int cutoff_freqs[] = { 164, 220, 243, 275, 293, 324, 366, 418, 438, 550 };
-    for (int i = 0; i < 10; i++) {
-        if (frequency <= cutoff_freqs[i]) {
-            AudioServicesPlaySystemSound(soundIDs[i]);
-            shell_delay(250);
-            return;
-        }
-    }
-    AudioServicesPlaySystemSound(soundIDs[10]);
-    shell_delay(125);
+void shell_beeper(int tone) {
+    AudioServicesPlaySystemSound(soundIDs[tone]);
+    shell_delay(tone == 10 ? 125 : 250);
 }
 
 bool shell_low_battery() {

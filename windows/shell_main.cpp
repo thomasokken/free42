@@ -2127,20 +2127,11 @@ const char *shell_platform() {
     return p;
 }
 
-void shell_beeper(int frequency, int duration) {
-    const int cutoff_freqs[] = { 164, 220, 243, 275, 293, 324, 366, 418, 438, 550 };
+void shell_beeper(int tone) {
     const int sound_ids[] = { IDR_TONE0_WAVE, IDR_TONE1_WAVE, IDR_TONE2_WAVE,
          IDR_TONE3_WAVE, IDR_TONE4_WAVE, IDR_TONE5_WAVE, IDR_TONE6_WAVE,
-         IDR_TONE7_WAVE, IDR_TONE8_WAVE, IDR_TONE9_WAVE };
-    for (int i = 0; i < 10; i++) {
-        if (frequency <= cutoff_freqs[i]) {
-            PlaySound(MAKEINTRESOURCE(sound_ids[i]),
-                GetModuleHandle(NULL),
-                SND_RESOURCE);
-            return;
-        }
-    }
-    PlaySound(MAKEINTRESOURCE(IDR_SQUEAK_WAVE),
+         IDR_TONE7_WAVE, IDR_TONE8_WAVE, IDR_TONE9_WAVE, IDR_SQUEAK_WAVE };
+    PlaySound(MAKEINTRESOURCE(sound_ids[tone]),
         GetModuleHandle(NULL),
         SND_RESOURCE);
 }
