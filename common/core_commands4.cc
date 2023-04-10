@@ -241,11 +241,11 @@ int docmd_insr(arg_struct *arg) {
                 if (array->data[i] == NULL) {
                     for (int4 j = 0; j < i; j++)
                         free_vartype(array->data[j]);
-                        if (interactive)
-                            free_vartype(newx);
-                        free(array->data);
-                        free(array);
-                        return ERR_INSUFFICIENT_MEMORY;
+                    if (interactive)
+                        free_vartype(newx);
+                    free(array->data);
+                    free(array);
+                    return ERR_INSUFFICIENT_MEMORY;
                 }
             }
             array->refcount = 1;
