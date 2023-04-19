@@ -1,3 +1,9 @@
+2023-04-19: release 3.0.20
+
+* Changed Σ+/Σ- so that, in NSTK mode, they will accept a single real argument,
+  assuming Y=0 in that case.
+* Tuned TONE frequencies to A440 scale.
+
 2023-04-10: release 3.0.19a (iOS and MacOS)
 
 * Copy in PRGM mode was dropping line 01, because of an optimizer bug in the
