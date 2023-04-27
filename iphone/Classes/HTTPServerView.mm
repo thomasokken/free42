@@ -285,7 +285,7 @@ void errprintf(const char *fmt, ...) {
     va_list ap;
     char text[1024];
     va_start(ap, fmt);
-    vsprintf(text, fmt, ap);
+    vsnprintf(text, 1024, fmt, ap);
     [instance performSelectorOnMainThread:@selector(appendToLog:) withObject:[[NSString stringWithUTF8String:text] retain] waitUntilDone:NO];
     va_end(ap);
     

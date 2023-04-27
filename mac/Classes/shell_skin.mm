@@ -261,7 +261,7 @@ static bool skin_open(const char *skinname, bool open_layout, bool force_builtin
     
     if (!force_builtin) {
         /* Look for file */
-        sprintf(buf, "%s/Library/Application Support/Free42/%s.%s", getenv("HOME"), skinname, open_layout ? "layout" : "gif");
+        snprintf(buf, 1024, "%s/Library/Application Support/Free42/%s.%s", getenv("HOME"), skinname, open_layout ? "layout" : "gif");
         external_file = fopen(buf, "rb");
         if (external_file != NULL)
             return true;

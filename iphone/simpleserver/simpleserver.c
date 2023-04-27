@@ -205,7 +205,7 @@ static void sockprintf(int sock, const char *fmt, ...) {
     ssize_t sent;
     int err;
     va_start(ap, fmt);
-    vsprintf(text, fmt, ap);
+    vsnprintf(text, LINEBUFSIZE, fmt, ap);
     sent = send(sock, text, strlen(text), 0);
     err = errno;
     if (sent != strlen(text))
@@ -240,7 +240,7 @@ static void tbprintf(textbuf *tb, const char *fmt, ...) {
     va_list ap;
     char text[LINEBUFSIZE];
     va_start(ap, fmt);
-    vsprintf(text, fmt, ap);
+    vsnprintf(text, LINEBUFSIZE, fmt, ap);
     tbwrite(tb, text, strlen(text));
     va_end(ap);
 }
@@ -688,7 +688,7 @@ static char *prgm_name_list_make_unique(prgm_name_list *n, const char *name) {
     int i = 0;
     char tmpname[12];
     while (1) {
-        sprintf(tmpname, "%s.%d", name, i);
+        snprintf(tmpname, 12, "%s.%d", name, i);
         name2 = prgm_name_list_find(n, tmpname);
         if (name2 != NULL)
             return name2;

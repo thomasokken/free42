@@ -952,15 +952,15 @@ int string2phloat(const char *buf, int buflen, phloat *d) {
      * and 'mant_sign' contains the mantissa's sign.
      */
     char decstr[35];
-    char *cp = decstr;
+    int pos = 0;
     if (mant_sign)
-        *cp++ = '-';
+        decstr[pos++] = '-';
     for (i = 0; i < 16; i++) {
-        *cp++ = mantissa[i] + '0';
+        decstr[pos++] = mantissa[i] + '0';
         if (i == 0)
-            *cp++ = '.';
+            decstr[pos++] = '.';
     }
-    sprintf(cp, "e%d", exp);
+    snprintf(decstr + pos, 35 - pos, "e%d", exp);
     sscanf(decstr, "%le", &res);
     if (isinf(res))
         return mant_sign ? 2 : 1;
@@ -1169,7 +1169,7 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
 
 #ifndef BCD_MATH
     double d = to_double(pd);
-    sprintf(decstr, "%.15e", d);
+    snprintf(decstr, 50, "%.15e", d);
 #else
     bid128_to_string(decstr, &pd.val);
 #endif

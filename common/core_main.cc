@@ -91,11 +91,12 @@ void core_init(int read_saved_state, int4 version, const char *state_file_name, 
         // launch with Memory Clear rather than just crashing on startup over
         // and over, and, on iOS and Android, needing to be deleted and
         // reinstalled.
-        state_file_name_crash = (char *) malloc(strlen(state_file_name) + 24);
+        size_t bufsize = strlen(state_file_name) + 24;
+        state_file_name_crash = (char *) malloc(bufsize);
         uint4 date, time;
         int weekday;
         shell_get_time_date(&time, &date, &weekday);
-        sprintf(state_file_name_crash, "%s.%08u%08u.crash", state_file_name, date, time);
+        snprintf(state_file_name_crash, bufsize, "%s.%08u%08u.crash", state_file_name, date, time);
         my_rename(state_file_name, state_file_name_crash);
         gfile = my_fopen(state_file_name_crash, "rb");
         if (gfile == NULL)
@@ -141,11 +142,12 @@ void core_save_state(const char *state_file_name) {
         stop_interruptible();
     set_running(false);
 
-    char *state_file_name_crash = (char *) malloc(strlen(state_file_name) + 24);
+    size_t bufsize = strlen(state_file_name) + 24;
+    char *state_file_name_crash = (char *) malloc(bufsize);
     uint4 date, time;
     int weekday;
     shell_get_time_date(&time, &date, &weekday);
-    sprintf(state_file_name_crash, "%s.%08u%08u.crash", state_file_name, date, time);
+    snprintf(state_file_name_crash, bufsize, "%s.%08u%08u.crash", state_file_name, date, time);
 
     gfile = my_fopen(state_file_name_crash, "wb");
     if (gfile != NULL) {
@@ -812,7 +814,7 @@ static void raw_close(const char *mode) {
     if (raw_buf == NULL) {
         if (ferror(gfile)) {
             char msg[50];
-            sprintf(msg, "An error occurred during program %s.", mode);
+            snprintf(msg, 50, "An error occurred during program %s.", mode);
             shell_message(msg);
         }
         fclose(gfile);
@@ -1296,7 +1298,7 @@ void core_export_programs(int count, const int *indexes, const char *raw_file_na
             if (gfile == NULL) {
                 char msg[1024];
                 int err = errno;
-                sprintf(msg, "Could not open \"%s\" for writing: %s (%d)", raw_file_name, strerror(err), err);
+                snprintf(msg, 1024, "Could not open \"%s\" for writing: %s (%d)", raw_file_name, strerror(err), err);
                 shell_message(msg);
                 return;
             }
@@ -1991,7 +1993,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
             if (gfile == NULL) {
                 char msg[1024];
                 int err = errno;
-                sprintf(msg, "Could not open \"%s\" for reading: %s (%d)", raw_file_name, strerror(err), err);
+                snprintf(msg, 1024, "Could not open \"%s\" for reading: %s (%d)", raw_file_name, strerror(err), err);
                 shell_message(msg);
                 return;
             }
@@ -2841,7 +2843,8 @@ static bool parse_phloat(const char *p, int len, phloat *res, const char *format
     // comply with those restrictions.
     // Note that this function does not check well-formedness;
     // that part should be checked beforehand using scan_number().
-    char buf[100];
+    const size_t BSIZE = 100;
+    char buf[BSIZE];
     bool in_mant = true;
     bool leading_zero = true;
     int exp_offset = 0;
@@ -2859,7 +2862,7 @@ static bool parse_phloat(const char *p, int len, phloat *res, const char *format
         decimal = format[0];
         separator = format[1];
     }
-    while (i < 100 && j < len) {
+    while (i < BSIZE - 1 && j < len) {
         char c = p[j++];
         if (c == 0)
             break;
@@ -2908,13 +2911,16 @@ static bool parse_phloat(const char *p, int len, phloat *res, const char *format
     }
     if (in_mant && empty_mant)
         return false;
-    if (in_mant && mant_digits == 0)
+    if (in_mant && mant_digits == 0 && i < BSIZE - 1)
         buf[i++] = '0';
     if (neg_exp)
         exp = -exp;
     exp += exp_offset;
-    if (exp != 0)
-        i += sprintf(buf + i, "\030%d", exp);
+    if (exp != 0) {
+        i += snprintf(buf + i, BSIZE - i, "\030%d", exp);
+        if (i > BSIZE - 1)
+            i = BSIZE - 1;
+    }
     int err = string2phloat(buf, i, res);
     if (err == 0)
         return true;

@@ -550,13 +550,13 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
 
 - (IBAction) browsePrintTextFile:(id)sender {
     FileSavePanel *saveDlg = [FileSavePanel panelWithTitle:@"Select Text File Name" types:@"Text;txt;All Files;*" path:[prefsPrintTextFile stringValue]];
-    if ([saveDlg runModal] == NSOKButton)
+    if ([saveDlg runModal] == NSModalResponseOK)
         [prefsPrintTextFile setStringValue:[saveDlg path]];
 }
 
 - (IBAction) browsePrintGIFFile:(id)sender {
     FileSavePanel *saveDlg = [FileSavePanel panelWithTitle:@"Select GIF File Name" types:@"GIF;gif;All Files;*" path:[prefsPrintGIFFile stringValue]];
-    if ([saveDlg runModal] == NSOKButton)
+    if ([saveDlg runModal] == NSModalResponseOK)
         [prefsPrintGIFFile setStringValue:[saveDlg path]];
 }
 
@@ -581,7 +581,7 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
 
 - (IBAction) importPrograms:(id)sender {
     FileOpenPanel *openDlg = [FileOpenPanel panelWithTitle:@"Import Programs" types:@"Program Files;raw;All Files;*"];
-    if ([openDlg runModal] == NSOKButton) {
+    if ([openDlg runModal] == NSModalResponseOK) {
         NSArray* paths = [openDlg paths];
         for (int i = 0; i < [paths count]; i++) {
             NSString* fileName = [paths objectAtIndex:i];
@@ -634,7 +634,7 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
         }
     }
     FileSavePanel *saveDlg = [FileSavePanel panelWithTitle:@"Export Programs" types:@"Program Files;raw;All Files;*" path:name];
-    if ([saveDlg runModal] == NSOKButton) {
+    if ([saveDlg runModal] == NSModalResponseOK) {
         NSString *fileName = [saveDlg path];
         char cFileName[1024];
         [fileName getCString:cFileName maxLength:1024 encoding:NSUTF8StringEncoding];
@@ -991,7 +991,7 @@ static char version[32] = "";
     [alert addButtonWithTitle:@"OK"];
     [alert setMessageText:title];
     [alert setInformativeText:message];
-    [alert setAlertStyle:NSCriticalAlertStyle];
+    [alert setAlertStyle:NSAlertStyleCritical];
     [alert runModal];
 }
 
@@ -1256,9 +1256,9 @@ void calc_keydown(NSString *characters, NSUInteger flags, unsigned short keycode
     bool printable = len == 1 && c >= 32 && c <= 126;
     just_pressed_shift = false;
     
-    bool ctrl = (flags & NSControlKeyMask) != 0;
-    bool alt = (flags & NSAlternateKeyMask) != 0;
-    bool shift = (flags & NSShiftKeyMask) != 0;
+    bool ctrl = (flags & NSEventModifierFlagControl) != 0;
+    bool alt = (flags & NSEventModifierFlagOption) != 0;
+    bool shift = (flags & NSEventModifierFlagShift) != 0;
     bool cshift = ann_shift != 0;
     
     if (ckey != 0) {
@@ -1401,7 +1401,7 @@ void calc_keyup(NSString *characters, NSUInteger flags, unsigned short keycode) 
 
 void calc_keymodifierschanged(NSUInteger flags) {
     static bool shift_was_down = false;
-    bool shift_is_down = (flags & NSShiftKeyMask) != 0;
+    bool shift_is_down = (flags & NSEventModifierFlagShift) != 0;
     if (shift_is_down == shift_was_down)
         return;
     shift_was_down = shift_is_down;

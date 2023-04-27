@@ -718,7 +718,7 @@ extern "C" {
         va_list ap;
         char text[1024];
         va_start(ap, fmt);
-        c = vsprintf(text, fmt, ap);
+        c = vsnprintf(text, 1024, fmt, ap);
         shell_log(text);
         va_end(ap);
         return c;

@@ -134,7 +134,7 @@
         [alert addButtonWithTitle:@"Cancel"];
         [alert setMessageText:@"Revert state?"];
         [alert setInformativeText:[NSString stringWithFormat:@"Are you sure you want to revert the state \"%@\" to the last version saved?", name]];
-        [alert setAlertStyle:NSWarningAlertStyle];
+        [alert setAlertStyle:NSAlertStyleWarning];
         if ([alert runModal] != NSAlertFirstButtonReturn)
             return;
     }
@@ -275,7 +275,7 @@
     [alert addButtonWithTitle:@"Cancel"];
     [alert setMessageText:@"Delete state?"];
     [alert setInformativeText:[NSString stringWithFormat:@"Are you sure you want to delete the state \"%@\"?", name]];
-    [alert setAlertStyle:NSWarningAlertStyle];
+    [alert setAlertStyle:NSAlertStyleWarning];
     if ([alert runModal] != NSAlertFirstButtonReturn)
         return;
     NSString *statePath = [NSString stringWithFormat:@"%s/%@.f42", free42dirname, name];
@@ -285,7 +285,7 @@
 
 - (void) doImport {
     FileOpenPanel *openDlg = [FileOpenPanel panelWithTitle:@"Import State" types:@"Free42 State;f42;All Files;*"];
-    if ([openDlg runModal] != NSOKButton)
+    if ([openDlg runModal] != NSModalResponseOK)
         return;
     NSArray *paths = [openDlg paths];
     for (int i = 0; i < [paths count]; i++) {
@@ -310,7 +310,7 @@
     if (name == nil)
         return;
     FileSavePanel *saveDlg = [FileSavePanel panelWithTitle:@"Export State" types:@"Free42 State;f42;All Files;*" path:name];
-    if ([saveDlg runModal] != NSOKButton)
+    if ([saveDlg runModal] != NSModalResponseOK)
         return;
     NSString *copyPath = [saveDlg path];
     const char *copyPathC = [copyPath UTF8String];

@@ -46,18 +46,6 @@
     calc_mouseup();
 }
 
-static NSString *unicode(NSString *src) {
-    char buf[1024] = "";
-    int len = [src length];
-    for (int i = 0; i < len; i++) {
-        unsigned short c = [src characterAtIndex:i];
-        if (i > 0)
-            strcat(buf, " ");
-        sprintf(buf + strlen(buf), "0x%x", c);
-    }
-    return [NSString stringWithUTF8String:buf];
-}
-
 - (void)keyDown:(NSEvent *)theEvent {
     if ([theEvent isARepeat])
         return;

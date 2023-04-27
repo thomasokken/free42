@@ -579,9 +579,9 @@ static void activate(GtkApplication *theApp, gpointer userData) {
 
     char *xml = (char *) malloc(10240);
     if (use_compactmenu)
-        sprintf(xml, mainWindowXml, compactMenuIntroXml, compactMenuOutroXml);
+        snprintf(xml, 10240, mainWindowXml, compactMenuIntroXml, compactMenuOutroXml);
     else
-        sprintf(xml, mainWindowXml, "", "");
+        snprintf(xml, 10240, mainWindowXml, "", "");
     GtkBuilder *builder = gtk_builder_new();
     gtk_builder_add_from_string(builder, xml, -1, NULL);
     free(xml);
@@ -3166,11 +3166,11 @@ bool shell_low_battery() {
         char capacity_filename[50];
         char line[50];
         for (int n = 0; n <= 2; n++) {
-            sprintf(status_filename, "/sys/class/power_supply/BAT%d/status", n);
+            snprintf(status_filename, 50, "/sys/class/power_supply/BAT%d/status", n);
             FILE *status_file = fopen(status_filename, "r");
             if (status_file == NULL)
                 continue;
-            sprintf(capacity_filename, "/sys/class/power_supply/BAT%d/capacity", n);
+            snprintf(capacity_filename, 50, "/sys/class/power_supply/BAT%d/capacity", n);
             FILE *capacity_file = fopen(capacity_filename, "r");
             if (capacity_file == NULL) {
                 fclose(status_file);

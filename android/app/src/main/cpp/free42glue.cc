@@ -712,7 +712,7 @@ void shell_logprintf(const char *format, ...) {
     va_list ap;
     va_start(ap, format);
     char buf[1000];
-    vsprintf(buf, format, ap);
+    vsnprintf(buf, 1000, format, ap);
     shell_log(buf);
     va_end(ap);
 }

@@ -233,6 +233,6 @@ const char *msg2string(unsigned int msg) {
         i++;
     }
 #endif
-    sprintf(buf, "0x%04x", msg);
+    snprintf(buf, 20, "0x%04x", msg);
     return buf;
 }
