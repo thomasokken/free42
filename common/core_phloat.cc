@@ -42,24 +42,22 @@ phloat NAN_2_PHLOAT;
 
 
 /* Note: this function does not handle infinities or NaN */
-static void bcdfloat2string(short *p, char *buf) {
+static void bcdfloat2string(short *p, char *buf, size_t buflen) {
+    size_t pos = 0;
     short exp = p[7];
     bool neg = (exp & 0x8000) != 0;
     exp = ((short) (exp << 3)) >> 3;
     if (neg)
-        *buf++ = '-';
+        buf[pos++] = '-';
+    buf[pos++] = '?';
     for (int i = 0; i < 7; i++) {
         short d = p[i];
-        sprintf(buf, "%04d", d);
-        if (i == 0) {
-            for (int j = 4; j >= 2; j--)
-                buf[j] = buf[j - 1];
-            buf[1] = '.';
-            buf += 5;
-        } else
-            buf += 4;
+        pos += snprintf(buf + pos, buflen - pos, "%04d", d);
     }
-    sprintf(buf, "e%d", exp * 4 - 1);
+    size_t firstdigit = neg ? 1 : 0;
+    buf[firstdigit] = buf[firstdigit + 1];
+    buf[firstdigit + 1] = '.';
+    snprintf(buf + pos, buflen - pos, "e%d", exp * 4 - 1);
 }
 
 static void bcdfloat_old2new(void *bcd) {
@@ -820,8 +818,8 @@ void update_decimal(BID_UINT128 *val) {
     short *p = (short *) val;
     if (state_file_number_format == NUMBER_FORMAT_BCD20_OLD)
         bcdfloat_old2new(p);
-    char decstr[35];
-    bcdfloat2string(p, decstr);
+    char decstr[36];
+    bcdfloat2string(p, decstr, 36);
     bid128_from_string(val, decstr);
 }
 
@@ -1010,8 +1008,8 @@ double decimal2double(void *data, bool pin_magnitude /* = false */) {
     if (p[0] == 0)
         return 0;
 
-    char decstr[35];
-    bcdfloat2string(p, decstr);
+    char decstr[36];
+    bcdfloat2string(p, decstr, 36);
     double res;
     sscanf(decstr, "%le", &res);
     if (isnan(res) || !pin_magnitude)
