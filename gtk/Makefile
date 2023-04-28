@@ -59,7 +59,7 @@ ifeq "$(shell uname -m)" "arm64"
 CFLAGS += -fsigned-char -DBID_SIZE_LONG=8
 else ifeq "$(shell uname -m)" "aarch64"
 CFLAGS += -fsigned-char -DBID_SIZE_LONG=8
-else ifeq "$(shell uname -m | sed 's/^\(...\).*$/\1/')" "arm"
+else ifeq "$(shell uname -m | sed 's/^\(...\).*$$/\1/')" "arm"
 CFLAGS += -fsigned-char -DBID_SIZE_LONG=4
 endif
 
