@@ -769,67 +769,6 @@ char *core_list_programs() {
     return buf;
 }
 
-#ifdef IPHONE
-
-// This would have been a lot cleaner using fmemopen(), but that's only supported
-// in iOS 11 and later, and I'm not ready to give up on iOS 8 through 10 yet.
-
-static char *raw_buf;
-static size_t raw_size;
-static size_t raw_pos;
-
-static int raw_getc() {
-    if (raw_buf == NULL)
-        return fgetc(gfile);
-    else {
-        if (raw_pos < raw_size)
-            return raw_buf[raw_pos++] & 255;
-        else
-            return EOF;
-    }
-}
-
-static int raw_ungetc(int c) {
-    if (raw_buf == NULL)
-        return ungetc(c, gfile);
-    else {
-        raw_buf[--raw_pos] = (char) c;
-        return c;
-    }
-}
-
-static size_t raw_write(const char *buf, size_t size) {
-    if (raw_buf == NULL)
-        return fwrite(buf, 1, size, gfile);
-    else {
-        if (raw_pos + size > raw_size)
-            size = raw_size - raw_pos;
-        memcpy(raw_buf + raw_pos, buf, size);
-        raw_pos += size;
-        return size;
-    }
-}
-
-static void raw_close(const char *mode) {
-    if (raw_buf == NULL) {
-        if (ferror(gfile)) {
-            char msg[50];
-            snprintf(msg, 50, "An error occurred during program %s.", mode);
-            shell_message(msg);
-        }
-        fclose(gfile);
-    }
-}
-
-#else
-
-#define raw_getc() fgetc(gfile)
-#define raw_ungetc(c) ungetc(c, gfile)
-#define raw_write(buf, size) fwrite(buf, 1, size, gfile)
-#define raw_close(dummy) fclose(gfile)
-
-#endif
-
 static void export_hp42s(int index) {
     int4 pc = 0;
     int cmd;
@@ -1034,7 +973,7 @@ static void export_hp42s(int index) {
                         const char *ptr = arg.val.xstr;
                         while (len > 0) {
                             if (buflen + 16 > 1000 - 50) {
-                                if (raw_write(buf, buflen) != buflen)
+                                if (fwrite(buf, 1, buflen, gfile) != buflen)
                                     goto done;
                                 buflen = 0;
                             }
@@ -1137,7 +1076,7 @@ static void export_hp42s(int index) {
                 continue;
         }
         if (buflen + cmdlen > 1000 - 50) {
-            if (raw_write(buf, buflen) != buflen)
+            if (fwrite(buf, 1, buflen, gfile) != buflen)
                 goto done;
             buflen = 0;
         }
@@ -1145,7 +1084,7 @@ static void export_hp42s(int index) {
             buf[buflen++] = cmdbuf[i];
     } while (cmd != CMD_END && pc < prgms[index].size);
     if (buflen > 0)
-        raw_write(buf, buflen);
+        fwrite(buf, 1, buflen, gfile);
     done:
     current_prgm = saved_prgm;
 }
@@ -1288,11 +1227,8 @@ void core_export_programs(int count, const int *indexes, const char *raw_file_na
             ssize_t size;
             memcpy(&buf, raw_file_name + 5, sizeof(char *));
             memcpy(&size, raw_file_name + 13, sizeof(ssize_t));
-            raw_buf = buf;
-            raw_size = size;
-            raw_pos = 0;
+            gfile = fmemopen(buf, size, "wb");
         } else {
-            raw_buf = NULL;
 #endif
             gfile = my_fopen(raw_file_name, "wb");
             if (gfile == NULL) {
@@ -1304,16 +1240,17 @@ void core_export_programs(int count, const int *indexes, const char *raw_file_na
             }
 #ifdef IPHONE
         }
-    } else {
-        raw_buf = NULL;
 #endif
     }
     for (int i = 0; i < count; i++) {
         int p = indexes[i];
         export_hp42s(p);
     }
-    if (raw_file_name != NULL)
-        raw_close("export");
+    if (raw_file_name != NULL) {
+        if (ferror(gfile))
+            shell_message("An error occurred during program export.");
+        fclose(gfile);
+    }
 }
 
 static int hp42tofree42[] = {
@@ -1983,11 +1920,8 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
             ssize_t size;
             memcpy(&buf, raw_file_name + 5, sizeof(char *));
             memcpy(&size, raw_file_name + 13, sizeof(ssize_t));
-            raw_buf = buf;
-            raw_size = size;
-            raw_pos = 0;
+            gfile = fmemopen(buf, size, "rb");
         } else {
-            raw_buf = NULL;
 #endif
             gfile = my_fopen(raw_file_name, "rb");
             if (gfile == NULL) {
@@ -1999,8 +1933,6 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
             }
 #ifdef IPHONE
         }
-    } else {
-        raw_buf = NULL;
 #endif
     }
 
@@ -2031,7 +1963,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
 
     while (!done_flag) {
         skip:
-        byte1 = raw_getc();
+        byte1 = fgetc(gfile);
         if (byte1 == EOF)
             goto done;
         cmd = hp42tofree42[byte1];
@@ -2048,7 +1980,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                 arg.val.num--;
             goto store;
         } else if (flag == 2) {
-            suffix = raw_getc();
+            suffix = fgetc(gfile);
             if (suffix == EOF)
                 goto done;
             goto do_suffix;
@@ -2069,23 +2001,23 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                     else
                         byte1 += '0' - 0x10;
                     numbuf[numlen++] = byte1;
-                    byte1 = raw_getc();
+                    byte1 = fgetc(gfile);
                 } while (byte1 >= 0x10 && byte1 <= 0x1C);
                 if (byte1 == EOF)
                     done_flag = 1;
                 else if (byte1 != 0x00)
-                    raw_ungetc(byte1);
+                    ungetc(byte1, gfile);
                 numbuf[numlen++] = 0;
                 arg.val_d = parse_number_line(numbuf);
                 cmd = CMD_NUMBER;
                 arg.type = ARGTYPE_DOUBLE;
             } else if (byte1 == 0x1D || byte1 == 0x1E) {
                 cmd = byte1 == 0x1D ? CMD_GTO : CMD_XEQ;
-                str_len = raw_getc();
+                str_len = fgetc(gfile);
                 if (str_len == EOF)
                     goto done;
                 else if (str_len < 0x0F1) {
-                    raw_ungetc(str_len);
+                    ungetc(str_len, gfile);
                     goto skip;
                 } else
                     str_len -= 0x0F0;
@@ -2101,7 +2033,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                  * on the cmd_array table.
                  */
                 uint4 code;
-                byte2 = raw_getc();
+                byte2 = fgetc(gfile);
                 if (byte2 == EOF)
                     goto done;
                 code = (((unsigned int) byte1) << 8) | byte2;
@@ -2151,7 +2083,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                 goto store;
             } else if (byte1 == 0x0AE) {
                 /* GTO/XEQ IND */
-                suffix = raw_getc();
+                suffix = fgetc(gfile);
                 if (suffix == EOF)
                     goto done;
                 if ((suffix & 0x80) != 0)
@@ -2166,7 +2098,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                 goto skip;
             } else if (byte1 >= 0x0B1 && byte1 <= 0x0BF) {
                 /* 2-byte GTO */
-                byte2 = raw_getc();
+                byte2 = fgetc(gfile);
                 if (byte2 == EOF)
                     goto done;
                 cmd = CMD_GTO;
@@ -2175,10 +2107,10 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                 goto store;
             } else if (byte1 >= 0x0C0 && byte1 <= 0x0CD) {
                 /* GLOBAL */
-                byte2 = raw_getc();
+                byte2 = fgetc(gfile);
                 if (byte2 == EOF)
                     goto done;
-                str_len = raw_getc();
+                str_len = fgetc(gfile);
                 if (str_len == EOF)
                     goto done;
                 if (str_len < 0x0F1) {
@@ -2189,7 +2121,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                 } else {
                     /* LBL "" */
                     str_len -= 0x0F1;
-                    byte2 = raw_getc();
+                    byte2 = fgetc(gfile);
                     if (byte2 == EOF)
                         goto done;
                     cmd = CMD_LBL;
@@ -2198,10 +2130,10 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                 }
             } else if (byte1 >= 0x0D0 && byte1 <= 0x0EF) {
                 /* 3-byte GTO & XEQ */
-                byte2 = raw_getc();
+                byte2 = fgetc(gfile);
                 if (byte2 == EOF)
                     goto done;
-                suffix = raw_getc();
+                suffix = fgetc(gfile);
                 if (suffix == EOF)
                     goto done;
                 cmd = byte1 <= 0x0DF ? CMD_GTO : CMD_XEQ;
@@ -2209,7 +2141,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                 goto do_suffix;
             } else /* byte1 >= 0xF1 && byte1 <= 0xFF */ {
                 /* Strings and parameterized HP-42S extensions */
-                byte2 = raw_getc();
+                byte2 = fgetc(gfile);
                 if (byte2 == EOF)
                     goto done;
                 if ((byte2 & 0x080) == 0) {
@@ -2221,11 +2153,11 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                     cmd = CMD_XROM;
                     string_2:
                     str_len = byte1 - 0x0F0;
-                    raw_ungetc(byte2);
+                    ungetc(byte2, gfile);
                     arg.type = ARGTYPE_STR;
                     do_string:
                     for (i = 0; i < str_len; i++) {
-                        suffix = raw_getc();
+                        suffix = fgetc(gfile);
                         if (suffix == EOF)
                             goto done;
                         arg.val.text[i] = suffix;
@@ -2238,7 +2170,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                     arg.length = str_len;
                     if (assign) {
                         assign = 0;
-                        suffix = raw_getc();
+                        suffix = fgetc(gfile);
                         if (suffix == EOF)
                             goto done;
                         if (suffix > 17) {
@@ -2272,7 +2204,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                         goto store;
                     }
                     if (byte2 == 0xa7) {
-                        byte2 = raw_getc();
+                        byte2 = fgetc(gfile);
                         if (byte2 == EOF)
                             goto done;
                         byte1--;
@@ -2297,7 +2229,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                             goto done;
                         xstr_buf = newbuf;
                         while (str_len-- > 0) {
-                            int b = raw_getc();
+                            int b = fgetc(gfile);
                             if (b == EOF)
                                 goto done;
                             xstr_buf[xstr_len++] = b;
@@ -2312,7 +2244,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                         int ind;
                         if (byte1 != 0x0F2)
                             goto xrom_string;
-                        suffix = raw_getc();
+                        suffix = fgetc(gfile);
                         if (suffix == EOF)
                             goto done;
                         do_suffix:
@@ -2358,7 +2290,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                                 goto xrom_string;
                             cmd = byte2 == 0x0C2 || byte2 == 0x0CA
                                     ? CMD_KEY1X : CMD_KEY1G;
-                            suffix = raw_getc();
+                            suffix = fgetc(gfile);
                             if (suffix == EOF)
                                 goto done;
                             if (suffix < 1 || suffix > 9) {
@@ -2374,7 +2306,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                                 arg.val.text[0] = byte2;
                                 arg.val.text[1] = suffix;
                                 for (i = 2; i < arg.length; i++) {
-                                    int c = raw_getc();
+                                    int c = fgetc(gfile);
                                     if (c == EOF)
                                         goto done;
                                     arg.val.text[i] = c;
@@ -2389,14 +2321,14 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                             /* KEYG/KEYX suffix */
                             if (byte1 != 0x0F3)
                                 goto xrom_string;
-                            suffix = raw_getc();
+                            suffix = fgetc(gfile);
                             if (suffix == EOF)
                                 goto done;
                             if (suffix < 1 || suffix > 9)
                                 goto bad_keyg_keyx;
                             cmd = byte2 == 0x0E2 ? CMD_KEY1X : CMD_KEY1G;
                             cmd += suffix - 1;
-                            suffix = raw_getc();
+                            suffix = fgetc(gfile);
                             if (suffix == EOF)
                                 goto done;
                             goto do_suffix;
@@ -2405,11 +2337,11 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                             int sz;
                             if (byte1 != 0x0F3)
                                 goto xrom_string;
-                            suffix = raw_getc();
+                            suffix = fgetc(gfile);
                             if (suffix == EOF)
                                 goto done;
                             sz = suffix << 8;
-                            suffix = raw_getc();
+                            suffix = fgetc(gfile);
                             if (suffix == EOF)
                                 goto done;
                             sz += suffix;
@@ -2450,8 +2382,11 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
     flags.f.trace_print = saved_trace;
     flags.f.normal_print = saved_normal;
 
-    if (raw_file_name != NULL)
-        raw_close("import");
+    if (raw_file_name != NULL) {
+        if (ferror(gfile))
+            shell_message("An error occurred during program import.");
+        fclose(gfile);
+    }
     free(xstr_buf);
 }
 
