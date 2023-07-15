@@ -23,6 +23,9 @@
 /android/.idea/jarRepositories.xml
 /android/.idea/deploymentTargetDropDown.xml
 
+# /android/.idea/modules/
+/android/.idea/modules/android.iml
+
 # /android/.idea/modules/app/
 /android/.idea/modules/app/android.app.androidTest.iml
 /android/.idea/modules/app/android.app.iml
