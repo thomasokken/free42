@@ -567,6 +567,8 @@ int anum(const char *text, int len, phloat *res) {
             } else if (c == '.') {
                 /* ignore */
             } else {
+                if (!have_mant_digits)
+                    goto retry;
                 break;
             }
         } else {
