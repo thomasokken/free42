@@ -224,6 +224,7 @@
 /windows/.vs
 /windows/Debug
 /windows/Release
+/windows/32
 /windows/keymap.cpp
 /windows/skins.cpp
 /windows/Free42Binary.exe
