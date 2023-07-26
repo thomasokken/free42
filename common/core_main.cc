@@ -523,7 +523,17 @@ bool core_keyup() {
         /* INPUT active */
         if (pending_command == CMD_RUN || pending_command == CMD_SST
                 || pending_command == CMD_SST_UP || pending_command == CMD_SST_RT) {
-            int err = generic_sto(&input_arg, 0);
+            int err;
+            if (sp == -1) {
+                vartype_real zero;
+                zero.type = TYPE_REAL;
+                zero.x = 0;
+                stack[++sp] = (vartype *) &zero;
+                err = generic_sto(&input_arg, 0);
+                sp--;
+            } else {
+                err = generic_sto(&input_arg, 0);
+            }
             input_length = 0;
             if (err != ERR_NONE) {
                 pending_command = CMD_NONE;
