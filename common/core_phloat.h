@@ -30,7 +30,7 @@
 #define MAX_MANT_DIGITS 34
 #define ALWAYS_INT_FROM (pow(10, MAX_MANT_DIGITS))
 #else
-#define MAX_MANT_DIGITS 16
+#define MAX_MANT_DIGITS 17
 #define ALWAYS_INT_FROM ((double) (1LL << 53))
 #endif
 

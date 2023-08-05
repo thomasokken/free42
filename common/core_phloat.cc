@@ -860,7 +860,7 @@ int string2phloat(const char *buf, int buflen, phloat *d) {
      * 4: negative underflow
      * 5: other error
      */
-    char mantissa[16] = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
+    char mantissa[MAX_MANT_DIGITS];
     int mant_sign = 0;
     int skipping_zeroes = 1;
     int seen_dot = 0;
@@ -874,6 +874,8 @@ int string2phloat(const char *buf, int buflen, phloat *d) {
     char sep = flags.f.decimal_point ? ',' : '.';
     int is_zero = 1;
     double res;
+
+    memset(mantissa, 0, MAX_MANT_DIGITS);
 
     for (i = 0; i < buflen; i++) {
         char c = buf[i];
@@ -906,7 +908,7 @@ int string2phloat(const char *buf, int buflen, phloat *d) {
             }
             /* Once we get here, c should be a digit */
             if (++mant_digits > MAX_MANT_DIGITS)
-                /* Too many digits! We only allow the user to enter 16 (binary) or 34 (decimal). */
+                /* Too many digits! We only allow the user to enter 17 (binary) or 34 (decimal). */
                 return 5;
             if (c == '0' && skipping_zeroes)
                 continue;
@@ -953,7 +955,7 @@ int string2phloat(const char *buf, int buflen, phloat *d) {
     int pos = 0;
     if (mant_sign)
         decstr[pos++] = '-';
-    for (i = 0; i < 16; i++) {
+    for (i = 0; i < MAX_MANT_DIGITS; i++) {
         decstr[pos++] = mantissa[i] + '0';
         if (i == 0)
             decstr[pos++] = '.';
@@ -1167,7 +1169,7 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
 
 #ifndef BCD_MATH
     double d = to_double(pd);
-    snprintf(decstr, 50, "%.15e", d);
+    snprintf(decstr, 50, "%.*e", MAX_MANT_DIGITS - 1, d);
 #else
     bid128_to_string(decstr, &pd.val);
 #endif
