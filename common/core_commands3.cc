@@ -1258,12 +1258,12 @@ static int hms_add_or_sub(bool add) {
 
         if (add) {
             ys += xs;
-            if (ys >= 60) {
+            while (ys >= 60) {
                 ys -= 60;
                 ym++;
             }
             ym += xm;
-            if (ym >= 60) {
+            while (ym >= 60) {
                 ym -= 60;
                 yh++;
             }
