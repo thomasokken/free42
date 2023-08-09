@@ -1270,20 +1270,24 @@ static int hms_add_or_sub(bool add) {
             yh += xh;
         } else {
             ys -= xs;
-            if (ys < 0) {
-                ys += 60;
-                ym--;
-            } else if (ys >= 60) {
+            if (ys >= 60) {
                 ys -= 60;
                 ym++;
+            } else {
+                while (ys < 0) {
+                    ys += 60;
+                    ym--;
+                }
             }
             ym -= xm;
-            if (ym < 0) {
-                ym += 60;
-                yh--;
-            } else if (ym >= 60) {
+            if (ym >= 60) {
                 ym -= 60;
                 yh++;
+            } else {
+                while (ym < 0) {
+                    ym += 60;
+                    yh--;
+                }
             }
             yh -= xh;
             if (yh < 0) {
