@@ -1,3 +1,21 @@
+2023-08-11: release 3.0.21
+
+* INPUT would crash if R/S was pressed while the stack was empty, in NSTK mode.
+  Fixed.
+* ANUM would consider a decimal point or comma by itself as zero, instead of
+  ignoring it. Fixed.
+* EDIT, EDITN, and INDEX didn't clear flags 76 and 77 (matrix edge wrap and end
+  wrap), while they should. Fixed.
+* Decimal version: In HMS+ and HMS-, fixed handling of cases where either or
+  both of the arguments has a number of minutes or seconds >= 60. (The binary
+  version did not have this bug.)
+* Binary version: max digits for SHOW increased to 17. This was necessary
+  because 16 digits was actually never enough to begin with. For example, 5 1/X
+  and 5 SQRT X^2 1/X both returned a result that looked like 0.2 in SHOW, even
+  though they are different, as can be easily verified with X=Y? or by
+  subtracting them. It takes 17 decimal digits to ensure that different binary
+  numbers will always be rendered as different decimal numbers.
+
 2023-04-19: release 3.0.20
 
 * Changed Σ+/Σ- so that, in NSTK mode, they will accept a single real argument,
