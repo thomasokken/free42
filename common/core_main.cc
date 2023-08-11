@@ -2047,24 +2047,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                 if (byte2 == EOF)
                     goto done;
                 code = (((unsigned int) byte1) << 8) | byte2;
-                if (code >= 0x0A7DB && code <= 0x0A7DD) {
-                    /* FUNC0, FUNC1, FUNC2: translate to FUNC nn */
-                    cmd = CMD_FUNC;
-                    arg.type = ARGTYPE_NUM;
-                    if (code == 0x0A7DB)
-                        arg.val.num = 0;
-                    else if (code == 0x0A7DC)
-                        arg.val.num = 11;
-                    else // code == 0x0A7DD
-                        arg.val.num = 21;
-                    goto store;
-                } else if (code == 0x0A7E0) {
-                    /* Unparameterized RTNERR: translate to RTNERR IND ST X */
-                    cmd = CMD_RTNERR;
-                    arg.type = ARGTYPE_IND_STK;
-                    arg.val.stk = 'X';
-                    goto store;
-                } else if (code >= 0x0a679 && code <= 0x0a67e) {
+                if (code >= 0x0a679 && code <= 0x0a67e) {
                     /* HP-41CX: X=NN? etc. */
                     switch (code & 0xf) {
                         case 0x9: cmd = CMD_X_EQ_NN; break;
@@ -3495,17 +3478,17 @@ static void paste_programs(const char *buf) {
             } else {
                 // Check for 1/X, 10^X, 4STK, and generalized comparisons with 0
                 int len = hpend - prev_hppos;
-                if ((len == 3 || len > 3 && hpbuf[3] == ' ')
+                if ((len == 3 || len > 3 && hpbuf[prev_hppos + 3] == ' ')
                         && strncmp(hpbuf + prev_hppos, "1/X", 3) == 0) {
                     cmd = CMD_INV;
                     arg.type = ARGTYPE_NONE;
                     goto store;
-                } else if ((len == 4 || len > 4 && hpbuf[4] == ' ')
+                } else if ((len == 4 || len > 4 && hpbuf[prev_hppos + 4] == ' ')
                         && strncmp(hpbuf + prev_hppos, "10^X", 4) == 0) {
                     cmd = CMD_10_POW_X;
                     arg.type = ARGTYPE_NONE;
                     goto store;
-                } else if ((len == 4 || len > 4 && hpbuf[4] == ' ')
+                } else if ((len == 4 || len > 4 && hpbuf[prev_hppos + 4] == ' ')
                         && strncmp(hpbuf + prev_hppos, "4STK", 4) == 0) {
                     cmd = CMD_4STK;
                     arg.type = ARGTYPE_NONE;
@@ -3974,18 +3957,6 @@ static void paste_programs(const char *buf) {
                 arg.type = ARGTYPE_NUM;
                 arg.val.num = (a << 6) | b;
                 goto store;
-            } else if ((string_equals(hpbuf + hppos, cmd_end - hppos - 1, "FNC", 3)
-                    || string_equals(hpbuf + hppos, cmd_end - hppos - 1, "FUNC", 4))
-                    && hpbuf[cmd_end - 1] >= '0'
-                    && hpbuf[cmd_end - 1] <= '2') {
-                cmd = CMD_FUNC;
-                arg.type = ARGTYPE_NUM;
-                switch (hpbuf[cmd_end - 1]) {
-                    case '0': arg.val.num =  0; break;
-                    case '1': arg.val.num = 11; break;
-                    case '2': arg.val.num = 21; break;
-                }
-                goto store;
             } else {
                 // Number or bust!
                 if (nexttoken(hpbuf, hppos, hpend, &tok_start, &tok_end)) {
@@ -4056,12 +4027,6 @@ static void paste_programs(const char *buf) {
             store_command_after(&pc, cmd, &arg, numbuf);
 
         line_done:
-        if (cmd == CMD_RTNERR && arg.type == ARGTYPE_NONE) {
-            // Hack to handle RTNERR with no argument as RTNERR IND ST X
-            arg.type = ARGTYPE_IND_STK;
-            arg.val.stk = 'X';
-            goto store;
-        }
         pos = end + 1;
         if (hpbuf != hpbuf_s) {
             free(hpbuf);
