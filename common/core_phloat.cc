@@ -261,6 +261,17 @@ Phloat Phloat::operator=(Phloat p) {
 }
 
 /* public */
+void Phloat::assign17digits(double d) {
+    if (isinf(d) || isnan(d)) {
+        binary64_to_bid128(&val, &d);
+    } else {
+        char buf[25];
+        snprintf(buf, 25, "%.16e", d);
+        bid128_from_string(&val, buf);
+    }
+}
+
+/* public */
 bool Phloat::operator==(Phloat p) const {
     int r;
     bid128_quiet_equal(&r, (BID_UINT128 *) &val, &p.val);

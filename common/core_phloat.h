@@ -82,6 +82,7 @@ class Phloat {
         Phloat operator=(uint8 i);
         Phloat operator=(double d);
         Phloat operator=(Phloat p);
+        void assign17digits(double d);
         bool operator==(Phloat p) const;
         bool operator!=(Phloat p) const;
         bool operator<(Phloat p) const;
