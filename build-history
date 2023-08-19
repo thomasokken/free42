@@ -8,7 +8,7 @@ hist = hist.replace("&", "&amp;")
 hist = hist.replace("<", "&lt;")
 hist = hist.replace(">", "&gt;")
 
-title = "Free42 history"
+title = "Free42 History"
 
 try:
     os.mkdir("packages", 0o755)
