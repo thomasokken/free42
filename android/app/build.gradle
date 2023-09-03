@@ -9,7 +9,6 @@ android {
             keyPassword free42_keyPassword
         }
     }
-    compileSdkVersion 34
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 34
