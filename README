@@ -59,6 +59,64 @@ pkg install devel/gmake
 
 
 -------------------------------------------------------------------------------
+Adding types:
+
+When adding a type 'foo', you need to define an appropriate vartype_foo struct,
+create a new_foo() function (constructor), and add support for the new type in
+* dup_vartype()
+* free_vartype()
+* vartype2string()
+* persist_vartype()
+* unpersist_vartype()
+* vartype_equals()
+* core_copy() and core_paste()
+  (Note that even if you choose not to support copying and pasting objects of
+  the new type by themselves, you should always support copying and pasting
+  them as part of a list, by adding the appropriate code in serialize_list()
+  and deserialize_list().)
+
+
+-------------------------------------------------------------------------------
+clang optimizer weirdness
+
+In recent versions of clang (not sure starting when; I noticed it in early
+April 2023), the compiler pursues an aggressive optimization strategy that can
+cause it to emit provably incorrect code. Specifically:
+
+In tb_print_current_program() (core_display.cc), the 'if (line > 0) { ... }'
+block is executed even the first time through the loop, when line is still 0.
+Why? Apple tech support explained it like this: when line == 0, the local
+variable orig_num is uninitialized when it is passed to prgmline2buf(). The
+compiler considers this an error, but instead of emitting an error or a
+warning, it jumps to the conclusion that line > 0 must always be true, since
+that is the only way orig_num would always be initialized.
+
+I find this explanation completely idiotic. You're taking code that is legal C,
+and because of a point of arguably poor coding style, you generate clearly
+incorrect code, by executing the 'if (line > 0)' block even when line == 0. I
+could understand making the compiler emit a warning, or even an error, for this
+kind of code, although I would also expect there to be an option to disable
+this check, since this is legal C code. But as it is, the compiler insists on
+generating bad code. Rather than do the Apple-recommended fix of adding an
+initializer to the declaration of orig_num, and then hope that no other
+undiscovered problems like this exist elsewhere (remember: NO WARNING!), I
+chose to use a less aggressive optimization level. The option -O1 is the
+highest optimization level that avoids the problem, so that's what I'll stick
+with until the issue is resolved, either by Apple removing this moronic
+behavior from their compiler, or by them adding a warning so at least I'll know
+exactly *what* to fix.
+
+Note: the same code pattern exists in several places in core_display.cc,
+specifically, all places where orig_num is used.
+Also note: it's not even clear what is the exact condition when the compiler
+goes nuts like this. The 'cmd' variable is also passed without being
+initialized, but apparently, that is not a problem.
+Finally note: this appears to be specific to Apple's clang, affecting the iOS
+and MacOS versions. If this brain-damage should spread to other compilers, you
+can tell when Copy in PRGM mode skips line 01.
+
+
+-------------------------------------------------------------------------------
 About the character sets:
 ('bigchars' and 'smallchars' arrays in core_display.c)
 
