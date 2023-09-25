@@ -133,12 +133,10 @@ static RootViewController *instance;
         int sbh = sbh1 - sbh2;
         r = CGRectMake(self.view.bounds.origin.x, self.view.bounds.origin.y + sbh, self.view.bounds.size.width, self.view.bounds.size.height - sbh);
     }
-    if (@available(iOS 11.0, *)) {
-        if (window.bounds.size.width > window.bounds.size.height) {
-            UIEdgeInsets ei = window.safeAreaInsets;
-            r.origin.x += ei.left;
-            r.size.width -= ei.right + ei.left;
-        }
+    if (window.bounds.size.width > window.bounds.size.height) {
+        UIEdgeInsets ei = window.safeAreaInsets;
+        r.origin.x += ei.left;
+        r.size.width -= ei.right + ei.left;
     }
     printView.frame = r;
     httpServerView.frame = r;
