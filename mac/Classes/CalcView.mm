@@ -49,13 +49,25 @@
 - (void)keyDown:(NSEvent *)theEvent {
     if ([theEvent isARepeat])
         return;
-    calc_keydown([theEvent characters], [theEvent modifierFlags], [theEvent keyCode]);
+    NSString *characters = [theEvent characters];
+    if ([characters length] == 0) {
+        if (@available(macOS 10.15, *)) {
+            characters = [theEvent charactersByApplyingModifiers:[theEvent modifierFlags] & NSEventModifierFlagDeviceIndependentFlagsMask ^ NSEventModifierFlagShift];
+        }
+    }
+    calc_keydown(characters, [theEvent modifierFlags], [theEvent keyCode]);
 }
 
 - (void)keyUp:(NSEvent *)theEvent {
     if ([theEvent isARepeat])
         return;
-    calc_keyup([theEvent characters], [theEvent modifierFlags], [theEvent keyCode]);
+    NSString *characters = [theEvent characters];
+    if ([characters length] == 0) {
+        if (@available(macOS 10.15, *)) {
+            characters = [theEvent charactersByApplyingModifiers:[theEvent modifierFlags] & NSEventModifierFlagDeviceIndependentFlagsMask ^ NSEventModifierFlagShift];
+        }
+    }
+    calc_keyup(characters, [theEvent modifierFlags], [theEvent keyCode]);
 }
 
 - (void)flagsChanged:(NSEvent *)theEvent {
