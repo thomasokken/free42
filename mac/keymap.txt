@@ -1,6 +1,6 @@
 # Default key mapping table for Free42 (Mac version)
 #
-# Format: [Ctrl|Alt|Shift]* <Character> : <macro>
+# Format: [Ctrl|Alt|Shift|CShift]* <Character> : <macro>
 # <Character> is either a printable character, or a unicode character code
 # written in hexadecimal with a 0x prefix. So, for example, the character 0
 # (zero) can be written as "0" or "0x30" (without the quotes); the two
@@ -9,6 +9,13 @@
 # between 1 and 255; codes 1..37 correspond to actual keys on the calculator's
 # keyboard, while codes 38..255 can be used to refer to extra keys defined by
 # customized skins.
+#
+# Ctrl, Alt, and Shift refer to the Control, Option, and Shift modifier keys on
+# the Mac keyboard.
+# CShift refers to the state of the Calculator's Shift annunciator. This
+# modifier makes it possible for [CShift] [Key] to activate a different
+# keystroke or macro than the unshifted [Key], so you can, for example, make
+# CShift SQRT be something other than X^2.
 #
 # Anything from a "#" until the end of the line is a comment, and is ignored.
 # White space (Space, Tab) separates tokens in the key map, but is otherwise

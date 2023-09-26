@@ -1,12 +1,18 @@
 # Default key mapping table for Free42 (GTK version)
 #
-# Format: [Ctrl|Alt|Shift]* <KeyName> : <macro>
+# Format: [Ctrl|Alt|Shift|CShift]* <KeyName> : <macro>
 # <KeyName> is a string consisting of the name of the symbolic constant as
 # defined in <gdk/gdkkeysyms.h>, with the leading "GDK_" removed; <macro> is a
 # sequence of zero or more HP-42S key codes. The key codes must be between 1
 # and 255; codes 1..37 correspond to actual keys on the calculator's keyboard,
 # while codes 38..255 can be used to refer to extra keys defined by customized
 # skins.
+#
+# Ctrl, Alt, and Shift refer to those modifier keys on the PC keyboard.
+# CShift refers to the state of the Calculator's Shift annunciator. This
+# modifier makes it possible for [CShift] [Key] to activate a different
+# keystroke or macro than the unshifted [Key], so you can, for example, make
+# CShift SQRT be something other than X^2.
 #
 # Anything from a "#" until the end of the line is a comment, and is ignored.
 # White space (Space, Tab) separates tokens in the key map, but is otherwise
