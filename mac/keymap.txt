@@ -1,6 +1,6 @@
 # Default key mapping table for Free42 (Mac version)
 #
-# Format: [Ctrl|Alt|Shift|CShift]* <Character> : <macro>
+# Format: [Ctrl|Alt|Shift|CShift|NumPad]* <Character> : <macro>
 # <Character> is either a printable character, or a unicode character code
 # written in hexadecimal with a 0x prefix. So, for example, the character 0
 # (zero) can be written as "0" or "0x30" (without the quotes); the two
@@ -16,6 +16,9 @@
 # modifier makes it possible for [CShift] [Key] to activate a different
 # keystroke or macro than the unshifted [Key], so you can, for example, make
 # CShift SQRT be something other than X^2.
+# NumPad indicates keys on the numeric keypad. Note that if a key on the
+# numeric keypad does not have a mapping, the corresponding non-NumPad mapping
+# will be used instead.
 #
 # Anything from a "#" until the end of the line is a comment, and is ignored.
 # White space (Space, Tab) separates tokens in the key map, but is otherwise

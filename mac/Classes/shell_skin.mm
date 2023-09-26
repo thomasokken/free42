@@ -113,6 +113,7 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
         char *tok;
         bool ctrl = false;
         bool alt = false;
+        bool numpad = false;
         bool shift = false;
         bool cshift = false;
         unsigned short keychar = 0;
@@ -132,6 +133,8 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
                 ctrl = true;
             else if (strcasecmp(tok, "alt") == 0)
                 alt = true;
+            else if (strcasecmp(tok, "numpad") == 0)
+                numpad = true;
             else if (strcasecmp(tok, "shift") == 0)
                 shift = true;
             else if (strcasecmp(tok, "cshift") == 0)
@@ -171,6 +174,7 @@ keymap_entry *parse_keymap_entry(char *line, int lineno) {
         
         entry.ctrl = ctrl;
         entry.alt = alt;
+        entry.numpad = numpad;
         entry.shift = shift;
         entry.cshift = cshift;
         entry.keychar = keychar;
@@ -819,21 +823,21 @@ unsigned char *skin_find_macro(int ckey, bool *is_name) {
 }
 
 unsigned char *skin_keymap_lookup(unsigned short keychar, bool printable,
-                                  bool ctrl, bool alt, bool shift, bool cshift,
-                                  bool *exact) {
+                                  bool ctrl, bool alt, bool numpad, bool shift,
+                                  bool cshift, bool *exact) {
     int i;
     unsigned char *macro = NULL;
     for (i = 0; i < keymap_length; i++) {
         keymap_entry *entry = keymap + i;
         if (ctrl == entry->ctrl
-            && alt == entry->alt
-            && (printable || shift == entry->shift)
-            && keychar == entry->keychar) {
-            if (cshift == entry->cshift) {
+                && alt == entry->alt
+                && (printable || shift == entry->shift)
+                && keychar == entry->keychar) {
+            if ((!numpad || shift == entry->shift) && numpad == entry->numpad && cshift == entry->cshift) {
                 *exact = true;
                 return entry->macro;
             }
-            if (cshift)
+            if ((numpad || !entry->numpad) && (cshift || !entry->cshift))
                 macro = entry->macro;
         }
     }

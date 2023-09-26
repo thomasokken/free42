@@ -1258,6 +1258,7 @@ void calc_keydown(NSString *characters, NSUInteger flags, unsigned short keycode
     
     bool ctrl = (flags & NSEventModifierFlagControl) != 0;
     bool alt = (flags & NSEventModifierFlagOption) != 0;
+    bool numpad = (flags & NSEventModifierFlagNumericPad) != 0;
     bool shift = (flags & NSEventModifierFlagShift) != 0;
     bool cshift = ann_shift != 0;
     
@@ -1267,20 +1268,19 @@ void calc_keydown(NSString *characters, NSUInteger flags, unsigned short keycode
     }
     
     bool exact;
-    unsigned char *key_macro = skin_keymap_lookup(c, printable,
-                                                  ctrl, alt, shift, cshift, &exact);
+    unsigned char *key_macro = skin_keymap_lookup(c, printable, ctrl, alt, numpad, shift, cshift, &exact);
     if (key_macro == NULL || !exact) {
         for (int i = 0; i < keymap_length; i++) {
             keymap_entry *entry = keymap + i;
             if (ctrl == entry->ctrl
-                && alt == entry->alt
-                && (printable || shift == entry->shift)
-                && c == entry->keychar) {
-                if (cshift == entry->cshift) {
+                    && alt == entry->alt
+                    && (printable || shift == entry->shift)
+                    && c == entry->keychar) {
+                if ((!numpad || shift == entry->shift) && numpad == entry->numpad && cshift == entry->cshift) {
                     key_macro = entry->macro;
                     break;
                 } else {
-                    if (cshift && key_macro == NULL)
+                    if ((numpad || !entry->numpad) && (cshift || !entry->cshift) && key_macro == NULL)
                         key_macro = entry->macro;
                 }
             }
