@@ -788,7 +788,10 @@ static void init_shell_state(int version) {
             state.swipeDirectionMode = 0;
             /* fall through */
         case 12:
-            /* current version (SHELL_VERSION = 12),
+            state.shakeToClearStack = false;
+            /* fall through */
+        case 13:
+            /* current version (SHELL_VERSION = 13),
              * so nothing to do here since everything
              * was initialized from the state file.
              */

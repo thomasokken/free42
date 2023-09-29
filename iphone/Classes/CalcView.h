@@ -17,7 +17,7 @@
 
 #import <UIKit/UIKit.h>
 
-#define SHELL_VERSION 12
+#define SHELL_VERSION 13
 #define FILENAMELEN 1024
 
 struct state_type {
@@ -41,6 +41,7 @@ struct state_type {
     bool allow_big_stack;
     bool localized_copy_paste;
     int swipeDirectionMode; // 0=left 1=off 2=right
+    bool shakeToClearStack;
 };
 
 extern state_type state;

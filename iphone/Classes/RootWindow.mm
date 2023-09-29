@@ -17,12 +17,21 @@
 
 #import "RootWindow.h"
 #import "RootViewController.h"
+#import "CalcView.h"
+#import "core_main.h"
 
 @implementation RootWindow
 
 - (void) layoutSubviews {
     RootViewController *rvc = (RootViewController *) self.rootViewController;
     [rvc layoutSubViews];
+}
+
+- (void) motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event {
+    if (motion == UIEventSubtypeMotionShake && state.shakeToClearStack)
+        core_shake();
+    else
+        [super motionEnded:motion withEvent:event];
 }
 
 @end
