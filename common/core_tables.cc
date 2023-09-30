@@ -506,6 +506,7 @@ const command_spec cmd_array[] =
     { /* A_THRU_F_2 */ docmd_a_thru_f,    "A...F",               0x00, 0x00, 0xa7, 0x1b,  5, ARG_NONE,   0, NA_T },
     { /* DROP_CANCL */ docmd_drop_cancl,  "DROP",                0x04, 0x00, 0x00, 0x00,  4, ARG_NONE,   1, ALLT },
     { /* PRREG */      docmd_prreg,       "PRR\305G",            0x00, 0x00, 0xa7, 0x50,  5, ARG_NONE,   0, NA_T },
+    { /* CSLD_T */     docmd_csld_t,      "CSLD?",               0x00, 0x00, 0xa7, 0xdb,  5, ARG_NONE,   0, NA_T },
 
     /* String & List Functions */
     { /* XSTR */       docmd_xstr,        "XSTR",                0x20, 0x41, 0x00, 0x00,  4, ARG_XSTR,   0, NA_T },

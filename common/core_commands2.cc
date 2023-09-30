@@ -536,12 +536,15 @@ int docmd_xeq(arg_struct *arg) {
             int4 dummy2;
             bool dummy3;
             pop_rtn_addr(&dummy1, &dummy2, &dummy3);
-        }
+        } else
+            mode_caller_stack_lift_disabled = flags.f.stack_lift_disable;
         return err;
     } else {
         int err = docmd_gto(arg);
         if (err != ERR_NONE)
             return err;
+        else
+            mode_caller_stack_lift_disabled = flags.f.stack_lift_disable;
         clear_all_rtns();
         return ERR_RUN;
     }

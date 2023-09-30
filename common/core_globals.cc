@@ -622,6 +622,7 @@ bool mode_getkey;
 bool mode_getkey1;
 bool mode_pause = false;
 bool mode_disable_stack_lift; /* transient */
+bool mode_caller_stack_lift_disabled;
 bool mode_varmenu;
 bool mode_updown;
 int4 mode_sigma_reg;
@@ -786,8 +787,9 @@ bool no_keystrokes_yet;
  * Version 43: 3.0.7  Plus42 stuff
  * Version 44: 3.0.8  cursor left, cursor right, del key handling
  * Version 45: 3.0.12 SOLVE secant impatience
+ * Version 46: 3.1    CSLD?
  */
-#define FREE42_VERSION 45
+#define FREE42_VERSION 46
 
 
 /*******************/
@@ -4399,6 +4401,10 @@ static bool load_state2(bool *clear, bool *too_new) {
             mode_commandmenu += extra;
     }
     if (!read_bool(&mode_running)) return false;
+    if (ver < 46)
+        mode_caller_stack_lift_disabled = false;
+    else if (!read_bool(&mode_caller_stack_lift_disabled))
+        return false;
     if (!read_bool(&mode_varmenu)) return false;
     if (!read_bool(&mode_updown)) return false;
 
@@ -4590,6 +4596,7 @@ void save_state(bool *success) {
     if (!write_int(mode_alphamenu)) return;
     if (!write_int(mode_commandmenu)) return;
     if (!write_bool(mode_running)) return;
+    if (!write_bool(mode_caller_stack_lift_disabled)) return;
     if (!write_bool(mode_varmenu)) return;
     if (!write_bool(mode_updown)) return;
     if (!write_bool(mode_getkey)) return;
@@ -4807,6 +4814,7 @@ void hard_reset(int reason) {
     mode_running = false;
     mode_getkey = false;
     mode_pause = false;
+    mode_caller_stack_lift_disabled = false;
     mode_varmenu = false;
     prgm_highlight_row = 0;
     varmenu_length = 0;

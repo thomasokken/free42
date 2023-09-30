@@ -1031,6 +1031,10 @@ int docmd_type_t(arg_struct *arg) {
     return ERR_NONE;
 }
 
+int docmd_csld_t(arg_struct *arg) {
+    return mode_caller_stack_lift_disabled ? ERR_YES : ERR_NO;
+}
+
 /////////////////////
 ///// Big Stack /////
 /////////////////////
