@@ -1253,7 +1253,7 @@ void calc_keydown(NSString *characters, NSUInteger flags, unsigned short keycode
         return;
     unsigned short c = [characters characterAtIndex:0];
     
-    bool printable = len == 1 && c >= 32 && c <= 126;
+    bool printable = len == 1 && c >= 33 && c <= 126;
     just_pressed_shift = false;
     
     bool ctrl = (flags & NSEventModifierFlagControl) != 0;
