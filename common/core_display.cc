@@ -3168,6 +3168,7 @@ void do_prgm_menu_key(int keynum) {
             display_error(err, true);
             flush_display();
             return;
-        }
+        } else
+            mode_caller_stack_lift_disabled = flags.f.stack_lift_disable;
     }
 }
