@@ -17,6 +17,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 #include "core_commands1.h"
 #include "core_commands2.h"
@@ -1066,46 +1067,39 @@ int docmd_e_pow_x_1(arg_struct *arg) {
 }
 
 static int fnrm(vartype *m, phloat *norm) {
+    int4 size;
+    phloat *data;
     if (m->type == TYPE_REALMATRIX) {
         vartype_realmatrix *rm = (vartype_realmatrix *) m;
         if (contains_strings(rm))
             return ERR_ALPHA_DATA_IS_INVALID;
-        int4 size = rm->rows * rm->columns;
-        phloat nrm = 0;
-        for (int4 i = 0; i < size; i++) {
-            /* TODO -- overflows in intermediaries */
-            phloat x = rm->array->data[i];
-            nrm += x * x;
-        }
-        if (p_isinf(nrm)) {
-            if (flags.f.range_error_ignore)
-                nrm = POS_HUGE_PHLOAT;
-            else
-                return ERR_OUT_OF_RANGE;
-        } else
-            nrm = sqrt(nrm);
-        *norm = nrm;
-        return ERR_NONE;
+        size = rm->rows * rm->columns;
+        data = rm->array->data;
     } else {
         vartype_complexmatrix *cm = (vartype_complexmatrix *) m;
-        int4 size = 2 * cm->rows * cm->columns;
-        int4 i;
-        phloat nrm = 0;
-        for (i = 0; i < size; i++) {
-            /* TODO -- overflows in intermediaries */
-            phloat x = cm->array->data[i];
-            nrm += x * x;
-        }
-        if (p_isinf(nrm)) {
-            if (flags.f.range_error_ignore)
-                nrm = POS_HUGE_PHLOAT;
-            else
-                return ERR_OUT_OF_RANGE;
-        } else
-            nrm = sqrt(nrm);
-        *norm = nrm;
-        return ERR_NONE;
+        size = 2 * cm->rows * cm->columns;
+        data = cm->array->data;
     }
+    int max_exp = INT_MIN;
+    for (int4 i = 0; i < size; i++) {
+        int s = ilogb(data[i]);
+        if (s > max_exp)
+            max_exp = s;
+    }
+    phloat nrm = 0;
+    for (int4 i = 0; i < size; i++) {
+        phloat x = scalbn(data[i], -max_exp);
+        nrm += x * x;
+    }
+    nrm = scalbn(sqrt(nrm), max_exp);
+    if (p_isinf(nrm)) {
+        if (flags.f.range_error_ignore)
+            nrm = POS_HUGE_PHLOAT;
+        else
+            return ERR_OUT_OF_RANGE;
+    }
+    *norm = nrm;
+    return ERR_NONE;
 }
 
 int docmd_fnrm(arg_struct *arg) {
