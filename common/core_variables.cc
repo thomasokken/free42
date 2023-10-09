@@ -598,7 +598,6 @@ bool purge_var(const char *name, int namelength, bool global, bool local) {
                 vars[i].flags &= ~VAR_HIDDEN;
                 break;
             }
-        pop_indexed_matrix(name, namelength);
     }
     for (int i = varindex; i < vars_count - 1; i++)
         vars[i] = vars[i + 1];

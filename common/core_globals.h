@@ -549,7 +549,6 @@ bool should_i_stop_at_this_level();
 int rtn(int err);
 int rtn_with_error(int err);
 void pop_rtn_addr(int *prgm, int4 *pc, bool *stop);
-void pop_indexed_matrix(const char *name, int namelen);
 void clear_all_rtns();
 int get_rtn_level();
 bool solve_active();

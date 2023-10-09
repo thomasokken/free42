@@ -788,8 +788,9 @@ bool no_keystrokes_yet;
  * Version 44: 3.0.8  cursor left, cursor right, del key handling
  * Version 45: 3.0.12 SOLVE secant impatience
  * Version 46: 3.1    CSLD?
+ * Version 47: 3.1    Back-port of Plus42 RTN stack; FUNC stack hiding
  */
-#define FREE42_VERSION 46
+#define FREE42_VERSION 47
 
 
 /*******************/
@@ -831,30 +832,7 @@ struct rtn_stack_entry {
     }
 };
 
-struct rtn_stack_matrix_name_entry {
-    unsigned char length;
-    char name[7];
-};
-
-struct rtn_stack_matrix_ij_entry {
-    int4 i, j;
-};
-
-/* Stack pointer vs. level:
- * The stack pointer is the pointer into the actual rtn_stack array, while
- * the stack level is the number of pending returns. The difference between
- * the two is due to the fact that a return may or may not have a saved
- * INDEX matrix name & position associated with it, and that saved matrix
- * state takes up 16 bytes, compared to 8 bytes for a return by itself.
- * I don't want to set aside 24 bytes for every return, and optimize by
- * storing 8 bytes for a plain return (rtn_stack_entry struct) and 24 bytes
- * for a return with INDEX matrix (rtn_stack_entry plus rtn_stack_matrix_name_entry
- * plus rtn_stack_matrix_ij_entry), but that means that the physical stack
- * pointer and the number of pending returns are no longer guaranteed to
- * be in sync, hence the need to track them separately.
- */
 #define MAX_RTN_LEVEL 1024
-static int rtn_sp = 0;
 static int rtn_stack_capacity = 0;
 static rtn_stack_entry *rtn_stack = NULL;
 static int rtn_level = 0;
@@ -1676,8 +1654,6 @@ static bool persist_globals() {
             goto done;
     if (!write_int(varmenu_role))
         goto done;
-    if (!write_int(rtn_sp))
-        goto done;
     if (!write_int(rtn_level))
         goto done;
     if (!write_bool(rtn_level_0_has_matrix_entry))
@@ -1686,29 +1662,13 @@ static bool persist_globals() {
         goto done;
     int saved_prgm;
     saved_prgm = current_prgm;
-    for (i = rtn_sp - 1; i >= 0; i--) {
-        bool matrix_entry_follows = i == 1 && rtn_level_0_has_matrix_entry;
-        if (matrix_entry_follows) {
-            i++;
-        } else {
-            matrix_entry_follows = rtn_stack[i].has_matrix();
-            current_prgm = rtn_stack[i].get_prgm();
-            int4 line = rtn_stack[i].pc;
-            if (current_prgm >= 0)
-                line = pc2line(line);
-            if (!write_int4(rtn_stack[i].prgm)
-                    || !write_int4(line))
-                goto done;
-        }
-        if (matrix_entry_follows) {
-            rtn_stack_matrix_name_entry *e1 = (rtn_stack_matrix_name_entry *) &rtn_stack[--i];
-            rtn_stack_matrix_ij_entry *e2 = (rtn_stack_matrix_ij_entry *) &rtn_stack[--i];
-            if (!write_char(e1->length)
-                    || fwrite(e1->name, 1, e1->length, gfile) != e1->length
-                    || !write_int4(e2->i)
-                    || !write_int4(e2->j))
-                goto done;
-        }
+    for (i = rtn_level - 1; i >= 0; i--) {
+        current_prgm = rtn_stack[i].get_prgm();
+        int4 line = rtn_stack[i].pc;
+        if (current_prgm >= 0)
+            line = pc2line(line);
+        if (!write_int4(rtn_stack[i].prgm) || !write_int4(line))
+            goto done;
     }
     current_prgm = saved_prgm;
     if (!write_bool(rtn_solve_active))
@@ -2022,8 +1982,12 @@ static bool unpersist_globals() {
     }
     if (!read_int(&varmenu_role))
         goto done;
-    if (!read_int(&rtn_sp))
-        goto done;
+    if (ver < 47) {
+        // rtn_sp; obsolete
+        int dummy;
+        if (!read_int(&dummy))
+            goto done;
+    }
     if (ver >= 24) {
         if (!read_int(&rtn_level))
             goto done;
@@ -2036,15 +2000,27 @@ static bool unpersist_globals() {
             rtn_level_0_has_func_state = false;
         }
         rtn_stack_capacity = 16;
-        while (rtn_sp > rtn_stack_capacity)
+        while (rtn_level > rtn_stack_capacity)
             rtn_stack_capacity <<= 1;
         rtn_stack = (rtn_stack_entry *) realloc(rtn_stack, rtn_stack_capacity * sizeof(rtn_stack_entry));
-        if (state_is_portable) {
+        if (ver >= 47) {
             int saved_prgm = current_prgm;
-            for (i = rtn_sp - 1; i >= 0; i--) {
-                bool matrix_entry_follows = i == 1 && rtn_level_0_has_matrix_entry;
-                if (matrix_entry_follows) {
-                    i++;
+            for (i = rtn_level - 1; i >= 0; i--) {
+                int4 line;
+                if (!read_int4(&rtn_stack[i].prgm)) goto done;
+                if (!read_int4(&line)) goto done;
+                current_prgm = rtn_stack[i].get_prgm();
+                if (current_prgm >= 0)
+                    line = line2pc(line);
+                rtn_stack[i].pc = line;
+            }
+            current_prgm = saved_prgm;
+        } else if (state_is_portable) {
+            int saved_prgm = current_prgm;
+            for (i = rtn_level - 1; i >= 0; i--) {
+                bool matrix_entry_follows;
+                if (i == 0) {
+                    matrix_entry_follows = rtn_level_0_has_matrix_entry;
                 } else {
                     int4 prgm, line;
                     if (!read_int4(&prgm) || !read_int4(&line))
@@ -2057,27 +2033,32 @@ static bool unpersist_globals() {
                     rtn_stack[i].pc = line;
                 }
                 if (matrix_entry_follows) {
-                    rtn_stack_matrix_name_entry *e1 = (rtn_stack_matrix_name_entry *) &rtn_stack[--i];
-                    rtn_stack_matrix_ij_entry *e2 = (rtn_stack_matrix_ij_entry *) &rtn_stack[--i];
-                    if (!read_char((char *) &e1->length)
-                            || fread(e1->name, 1, e1->length, gfile) != e1->length
-                            || !read_int4(&e2->i)
-                            || !read_int4(&e2->j))
+                    char dummy1;
+                    char dummy2[7];
+                    int4 dummy3, dummy4;
+                    if (!read_char(&dummy1)
+                            || fread(dummy2, 1, dummy1, gfile) != dummy1
+                            || !read_int4(&dummy3)
+                            || !read_int4(&dummy4))
                         goto done;
+                    // Not doing anything with these old matrix stack entries,
+                    // since they don't contain the stack level.
+                    // Without that information, we can't reliably use them.
                 }
             }
             current_prgm = saved_prgm;
         } else {
-            int sz = rtn_sp * sizeof(rtn_stack_entry);
-            if (fread(rtn_stack, 1, sz, gfile) != sz)
-                goto done;
+            rtn_stack_entry dummy;
+            int sz = sizeof(rtn_stack_entry);
+            for (int i = 0; i < rtn_level; i++)
+                if (fread(&dummy, 1, sz, gfile) != sz)
+                    goto done;
         }
         if (!read_bool(&rtn_solve_active))
             goto done;
         if (!read_bool(&rtn_integ_active))
             goto done;
     } else {
-        rtn_level = rtn_sp;
         rtn_level_0_has_matrix_entry = false;
         rtn_level_0_has_func_state = false;
         rtn_stack_capacity = 16;
@@ -2089,7 +2070,7 @@ static bool unpersist_globals() {
             if (fread(&prgm, 1, sizeof(int), gfile) != sizeof(int))
                 goto done;
             rtn_stack[i].set_prgm(prgm);
-            if (i < rtn_sp)
+            if (i < rtn_level)
                 if (prgm == -2)
                     rtn_solve_active = true;
                 else if (prgm == -3)
@@ -3122,7 +3103,7 @@ int find_global_label_index(const arg_struct *arg, int *idx) {
 int push_rtn_addr(int prgm, int4 pc) {
     if (rtn_level == MAX_RTN_LEVEL)
         return ERR_RTN_STACK_FULL;
-    if (rtn_sp == rtn_stack_capacity) {
+    if (rtn_level == rtn_stack_capacity) {
         int new_rtn_stack_capacity = rtn_stack_capacity + 16;
         rtn_stack_entry *new_rtn_stack = (rtn_stack_entry *) realloc(rtn_stack, new_rtn_stack_capacity * sizeof(rtn_stack_entry));
         if (new_rtn_stack == NULL)
@@ -3130,9 +3111,8 @@ int push_rtn_addr(int prgm, int4 pc) {
         rtn_stack_capacity = new_rtn_stack_capacity;
         rtn_stack = new_rtn_stack;
     }
-    rtn_stack[rtn_sp].set_prgm(prgm);
-    rtn_stack[rtn_sp].pc = pc;
-    rtn_sp++;
+    rtn_stack[rtn_level].set_prgm(prgm);
+    rtn_stack[rtn_level].pc = pc;
     rtn_level++;
     if (prgm == -2)
         rtn_solve_active = true;
@@ -3142,52 +3122,24 @@ int push_rtn_addr(int prgm, int4 pc) {
 }
 
 int push_indexed_matrix() {
-    if (rtn_level == 0) {
-        if (rtn_level_0_has_matrix_entry)
-            return ERR_NONE;
-        if (rtn_sp + 2 > rtn_stack_capacity) {
-            int new_rtn_stack_capacity = rtn_stack_capacity + 16;
-            rtn_stack_entry *new_rtn_stack = (rtn_stack_entry *) realloc(rtn_stack, new_rtn_stack_capacity * sizeof(rtn_stack_entry));
-            if (new_rtn_stack == NULL)
-                return ERR_INSUFFICIENT_MEMORY;
-            rtn_stack_capacity = new_rtn_stack_capacity;
-            rtn_stack = new_rtn_stack;
+    if (rtn_level == 0 ? rtn_level_0_has_matrix_entry : rtn_stack[rtn_level - 1].has_matrix())
+        return ERR_NONE;
+    vartype_list *list = (vartype_list *) new_list(3);
+    if (list == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    list->array->data[0] = new_string(matedit_name, matedit_length);
+    list->array->data[1] = new_real(matedit_i);
+    list->array->data[2] = new_real(matedit_j);
+    for (int i = 0; i < 3; i++)
+        if (list->array->data[i] == NULL) {
+            free_vartype((vartype *) list);
+            return ERR_INSUFFICIENT_MEMORY;
         }
+    store_private_var("MAT", 3, (vartype *) list);
+    if (rtn_level == 0)
         rtn_level_0_has_matrix_entry = true;
-        rtn_sp += 2;
-        rtn_stack_matrix_name_entry e1;
-        int dlen;
-        string_copy(e1.name, &dlen, matedit_name, matedit_length);
-        e1.length = dlen;
-        memcpy(&rtn_stack[rtn_sp - 1], &e1, sizeof(e1));
-        rtn_stack_matrix_ij_entry e2;
-        e2.i = matedit_i;
-        e2.j = matedit_j;
-        memcpy(&rtn_stack[rtn_sp - 2], &e2, sizeof(e2));
-    } else {
-        if (rtn_stack[rtn_sp - 1].has_matrix())
-            return ERR_NONE;
-        if (rtn_sp + 2 > rtn_stack_capacity) {
-            int new_rtn_stack_capacity = rtn_stack_capacity + 16;
-            rtn_stack_entry *new_rtn_stack = (rtn_stack_entry *) realloc(rtn_stack, new_rtn_stack_capacity * sizeof(rtn_stack_entry));
-            if (new_rtn_stack == NULL)
-                return ERR_INSUFFICIENT_MEMORY;
-            rtn_stack_capacity = new_rtn_stack_capacity;
-            rtn_stack = new_rtn_stack;
-        }
-        rtn_sp += 2;
-        rtn_stack[rtn_sp - 1] = rtn_stack[rtn_sp - 3];
-        rtn_stack[rtn_sp - 1].set_has_matrix(true);
-        rtn_stack_matrix_name_entry e1;
-        int dlen;
-        string_copy(e1.name, &dlen, matedit_name, matedit_length);
-        e1.length = dlen;
-        memcpy(&rtn_stack[rtn_sp - 2], &e1, sizeof(e1));
-        rtn_stack_matrix_ij_entry e2;
-        e2.i = matedit_i;
-        e2.j = matedit_j;
-        memcpy(&rtn_stack[rtn_sp - 3], &e2, sizeof(e2));
-    }
+    else
+        rtn_stack[rtn_level - 1].set_has_matrix(true);
     matedit_mode = 0;
     return ERR_NONE;
 }
@@ -3244,7 +3196,7 @@ int push_func_state(int n) {
     if (rtn_level == 0)
         rtn_level_0_has_func_state = true;
     else
-        rtn_stack[rtn_sp - 1].set_has_func(true);
+        rtn_stack[rtn_level - 1].set_has_func(true);
     return ERR_NONE;
 }
 
@@ -3320,7 +3272,7 @@ int push_stack_state(bool big) {
     if (rtn_level == 0)
         rtn_level_0_has_func_state = true;
     else
-        rtn_stack[rtn_sp - 1].set_has_func(true);
+        rtn_stack[rtn_level - 1].set_has_func(true);
     return ERR_NONE;
 }
 
@@ -3329,7 +3281,7 @@ int pop_func_state(bool error) {
         if (!rtn_level_0_has_func_state)
             return ERR_NONE;
     } else {
-        if (!rtn_stack[rtn_sp - 1].has_func())
+        if (!rtn_stack[rtn_level - 1].has_func())
             return ERR_NONE;
     }
 
@@ -3573,19 +3525,19 @@ int pop_func_state(bool error) {
     if (rtn_level == 0)
         rtn_level_0_has_func_state = false;
     else
-        rtn_stack[rtn_sp - 1].set_has_func(false);
+        rtn_stack[rtn_level - 1].set_has_func(false);
 
     print_trace();
     return ERR_NONE;
 }
 
 void step_out() {
-    if (rtn_sp > 0)
+    if (rtn_level > 0)
         rtn_stop_level = rtn_level - 1;
 }
 
 void step_over() {
-    if (rtn_sp >= 0)
+    if (rtn_level >= 0)
         rtn_stop_level = rtn_level;
 }
 
@@ -3730,30 +3682,31 @@ static void validate_matedit() {
 }
 
 void pop_rtn_addr(int *prgm, int4 *pc, bool *stop) {
+    if (rtn_level == 0 ? rtn_level_0_has_matrix_entry : rtn_stack[rtn_level - 1].has_matrix()) {
+        vartype_list *list = (vartype_list *) recall_and_purge_private_var("MAT", 3);
+        if (list != NULL) {
+            vartype_string *s = (vartype_string *) list->array->data[0];
+            string_copy(matedit_name, &matedit_length, s->txt(), s->length);
+            matedit_i = to_int4(((vartype_real *) list->array->data[1])->x);
+            matedit_j = to_int4(((vartype_real *) list->array->data[2])->x);
+            matedit_mode = 1;
+            free_vartype((vartype *) list);
+        }
+        if (rtn_level == 0)
+            rtn_level_0_has_matrix_entry = false;
+        else
+            rtn_stack[rtn_level - 1].set_has_matrix(false);
+    }
     remove_locals();
     if (rtn_level == 0) {
         *prgm = -1;
         *pc = -1;
         rtn_stop_level = -1;
         rtn_level_0_has_func_state = false;
-        if (rtn_level_0_has_matrix_entry) {
-            rtn_level_0_has_matrix_entry = false;
-            restore_indexed_matrix:
-            rtn_stack_matrix_name_entry e1;
-            memcpy(&e1, &rtn_stack[--rtn_sp], sizeof(e1));
-            string_copy(matedit_name, &matedit_length, e1.name, e1.length);
-            rtn_stack_matrix_ij_entry e2;
-            memcpy(&e2, &rtn_stack[--rtn_sp], sizeof(e2));
-            matedit_i = e2.i;
-            matedit_j = e2.j;
-            matedit_mode = 1;
-            validate_matedit();
-        }
     } else {
-        rtn_sp--;
         rtn_level--;
-        *prgm = rtn_stack[rtn_sp].get_prgm();
-        *pc = rtn_stack[rtn_sp].pc;
+        *prgm = rtn_stack[rtn_level].get_prgm();
+        *pc = rtn_stack[rtn_level].pc;
         if (rtn_stop_level >= rtn_level) {
             *stop = true;
             rtn_stop_level = -1;
@@ -3763,43 +3716,6 @@ void pop_rtn_addr(int *prgm, int4 *pc, bool *stop) {
             rtn_solve_active = false;
         else if (*prgm == -3)
             rtn_integ_active = false;
-        if (rtn_stack[rtn_sp].has_matrix())
-            goto restore_indexed_matrix;
-    }
-}
-
-void pop_indexed_matrix(const char *name, int namelen) {
-    if (rtn_level == 0) {
-        if (rtn_level_0_has_matrix_entry) {
-            rtn_stack_matrix_name_entry e1;
-            memcpy(&e1, &rtn_stack[rtn_sp - 1], sizeof(e1));
-            if (string_equals(e1.name, e1.length, name, namelen)) {
-                rtn_level_0_has_matrix_entry = false;
-                string_copy(matedit_name, &matedit_length, e1.name, e1.length);
-                rtn_stack_matrix_ij_entry e2;
-                memcpy(&e2, &rtn_stack[rtn_sp - 2], sizeof(e2));
-                matedit_i = e2.i;
-                matedit_j = e2.j;
-                matedit_mode = 1;
-                rtn_sp -= 2;
-            }
-        }
-    } else {
-        if (rtn_stack[rtn_sp - 1].has_matrix()) {
-            rtn_stack_matrix_name_entry e1;
-            memcpy(&e1, &rtn_stack[rtn_sp - 2], sizeof(e1));
-            if (string_equals(e1.name, e1.length, name, namelen)) {
-                string_copy(matedit_name, &matedit_length, e1.name, e1.length);
-                rtn_stack_matrix_ij_entry e2;
-                memcpy(&e2, &rtn_stack[rtn_sp - 3], sizeof(e2));
-                matedit_i = e2.i;
-                matedit_j = e2.j;
-                matedit_mode = 1;
-                rtn_stack[rtn_sp - 3].set_has_matrix(false);
-                rtn_stack[rtn_sp - 3].pc = rtn_stack[rtn_sp - 1].pc;
-                rtn_sp -= 2;
-            }
-        }
     }
 }
 
@@ -3808,7 +3724,7 @@ static void get_saved_stack_mode(int *m) {
         if (!rtn_level_0_has_func_state)
             return;
     } else {
-        if (!rtn_stack[rtn_sp - 1].has_func())
+        if (!rtn_stack[rtn_level - 1].has_func())
             return;
     }
     vartype_list *st = (vartype_list *) recall_private_var("ST", 2);
@@ -4697,7 +4613,6 @@ void hard_reset(int reason) {
         free(rtn_stack);
     rtn_stack_capacity = 16;
     rtn_stack = (rtn_stack_entry *) malloc(rtn_stack_capacity * sizeof(rtn_stack_entry));
-    rtn_sp = 0;
     rtn_level = 0;
     rtn_stop_level = -1;
     rtn_solve_active = false;
@@ -4877,7 +4792,7 @@ static bool convert_programs(bool *clear_stack) {
         return success;
     }
     int mod_count = 0;
-    int rsp = rtn_sp;
+    int rsp = rtn_level;
     if (rtn_solve_active || rtn_integ_active) {
         *clear_stack = true;
     } else {
