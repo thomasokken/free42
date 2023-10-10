@@ -692,6 +692,8 @@ static int clv_helper(arg_struct *arg, bool global) {
             return ERR_RESTRICTED_OPERATION;
         if (!purge_var(arg->val.text, arg->length, global, !global))
             return ERR_RESTRICTED_OPERATION;
+        if (!global)
+            maybe_pop_indexed_matrix(arg->val.text, arg->length);
         remove_shadow(arg->val.text, arg->length);
         return ERR_NONE;
     } else

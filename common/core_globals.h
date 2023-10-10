@@ -540,6 +540,7 @@ int find_global_label(const arg_struct *arg, int *prgm, int4 *pc);
 int find_global_label_index(const arg_struct *arg, int *idx);
 int push_rtn_addr(int prgm, int4 pc);
 int push_indexed_matrix();
+void maybe_pop_indexed_matrix(const char *name, int len);
 int push_func_state(int n);
 int push_stack_state(bool big);
 int pop_func_state(bool error);

@@ -3144,6 +3144,26 @@ int push_indexed_matrix() {
     return ERR_NONE;
 }
 
+void maybe_pop_indexed_matrix(const char *name, int len) {
+    if (rtn_level == 0 ? !rtn_level_0_has_matrix_entry : !rtn_stack[rtn_level - 1].has_matrix())
+        return;
+    if (!string_equals(matedit_name, matedit_length, name, len))
+        return;
+    vartype_list *list = (vartype_list *) recall_and_purge_private_var("MAT", 3);
+    if (list == NULL)
+        return;
+    vartype_string *s = (vartype_string *) list->array->data[0];
+    string_copy(matedit_name, &matedit_length, s->txt(), s->length);
+    matedit_i = to_int4(((vartype_real *) list->array->data[1])->x);
+    matedit_j = to_int4(((vartype_real *) list->array->data[2])->x);
+    matedit_mode = 1;
+    free_vartype((vartype *) list);
+    if (rtn_level == 0)
+        rtn_level_0_has_matrix_entry = false;
+    else
+        rtn_stack[rtn_level - 1].set_has_matrix(false);
+}
+
 int push_func_state(int n) {
     if (!program_running())
         return ERR_RESTRICTED_OPERATION;
