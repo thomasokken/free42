@@ -1265,8 +1265,10 @@ phloat cos_grad(phloat x) {
 }
 
 int dimension_array(const char *name, int namelen, int4 rows, int4 columns, bool check_matedit) {
+    int idx = lookup_var(name, namelen);
     if (check_matedit
             && (matedit_mode == 1 || matedit_mode == 3)
+            && idx != -1 && vars[idx].level == matedit_level
             && string_equals(name, namelen, matedit_name, matedit_length)) {
         if (matedit_mode == 1)
             matedit_i = matedit_j = 0;
@@ -1274,7 +1276,7 @@ int dimension_array(const char *name, int namelen, int4 rows, int4 columns, bool
             return ERR_RESTRICTED_OPERATION;
     }
 
-    vartype *matrix = recall_var(name, namelen);
+    vartype *matrix = idx == -1 ? NULL : vars[idx].value;
     /* NOTE: 'size' will only ever be 0 when we're called from
      * docmd_size(); docmd_dim() does not allow 0-size matrices.
      */
@@ -1907,4 +1909,45 @@ int ip2revstring(phloat d, char *buf, int buflen) {
     if (s == -1 && bufpos < buflen)
         buf[bufpos++] = '-';
     return bufpos;
+}
+
+vartype *matedit_get() {
+    if (matedit_mode != 1 && matedit_mode != 3)
+        return NULL;
+    vartype *m = NULL;
+    for (int i = vars_count - 1; i >= 0; i--) {
+        var_struct *lv = vars + i;
+        if ((lv->flags & VAR_PRIVATE) != 0)
+            continue;
+        if (matedit_level != -1 && lv->level < matedit_level)
+            return NULL;
+        if (lv->level == matedit_level && string_equals(matedit_name, matedit_length, lv->name, lv->length)) {
+            m = lv->value;
+            break;
+        }
+    }
+    // Apart from the check for m == NULL, the following checks *should* be unnecessary,
+    // we're already preventing those scenarios. Or that's what we're trying, anyway...
+    if (m == NULL) {
+        bad_matrix:
+        if (matedit_mode == 3)
+            leave_matrix_editor();
+        return NULL;
+    } else if (m->type == TYPE_REALMATRIX) {
+        vartype_realmatrix *rm = (vartype_realmatrix *) m;
+        if (matedit_i >= rm->rows || matedit_j >= rm->columns)
+            matedit_i = matedit_j = 0;
+    } else if (m->type == TYPE_COMPLEXMATRIX) {
+        vartype_complexmatrix *cm = (vartype_complexmatrix *) m;
+        if (matedit_i >= cm->rows || matedit_j >= cm->columns)
+            matedit_i = matedit_j = 0;
+    } else
+        goto bad_matrix;
+    return m;
+}
+
+void leave_matrix_editor() {
+    set_appmenu_exitcallback(0);
+    set_menu(MENULEVEL_APP, MENU_NONE);
+    matedit_mode = 0;
 }

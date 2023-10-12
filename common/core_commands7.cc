@@ -763,15 +763,13 @@ int docmd_lsto(arg_struct *arg) {
             && stack[sp]->type != TYPE_REALMATRIX
             && stack[sp]->type != TYPE_COMPLEXMATRIX)
         return ERR_RESTRICTED_OPERATION;
-    /* When EDITN is active, don't allow the matrix being
-     * edited to be overwritten. */
-    if (matedit_mode == 3 && string_equals(arg->val.text,
-                arg->length, matedit_name, matedit_length))
-        return ERR_RESTRICTED_OPERATION;
     vartype *newval = dup_vartype(stack[sp]);
     if (newval == NULL)
         return ERR_INSUFFICIENT_MEMORY;
-    return store_var(arg->val.text, arg->length, newval, true);
+    err = store_var(arg->val.text, arg->length, newval, true);
+    if (err != ERR_NONE)
+        free_vartype(newval);
+    return err;
 }
 
 int docmd_lasto(arg_struct *arg) {

@@ -444,18 +444,19 @@ int generic_sto(arg_struct *arg, char operation) {
                  * target's dimensions to change. Note that this restriction is
                  * applied even if the target's dimensions would not, in fact,
                  * change. */
+                int idx = lookup_var(arg->val.text, arg->length);
+                if (idx == -1)
+                    return ERR_NONEXISTENT;
                 if (operation == '*'
                         && (stack[sp]->type == TYPE_REALMATRIX
                             || stack[sp]->type == TYPE_COMPLEXMATRIX)
                         && matedit_mode == 3
+                        && matedit_level == vars[idx].level
                         && string_equals(arg->val.text,
                                 arg->length, matedit_name, matedit_length))
                     return ERR_RESTRICTED_OPERATION;
-                vartype *oldval = recall_var(arg->val.text, arg->length);
-                if (oldval == NULL)
-                    return ERR_NONEXISTENT;
                 temp_arg = *arg;
-                return apply_sto_operation(operation, oldval, false);
+                return apply_sto_operation(operation, vars[idx].value, false);
             }
         }
         default:

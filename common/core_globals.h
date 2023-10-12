@@ -468,6 +468,7 @@ extern int cmdline_row;
 
 /* Matrix editor / matrix indexing */
 extern int matedit_mode; /* 0=off, 1=index, 2=edit, 3=editn */
+extern int matedit_level;
 extern char matedit_name[7];
 extern int matedit_length;
 extern vartype *matedit_x;

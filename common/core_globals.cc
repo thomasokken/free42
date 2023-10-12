@@ -660,6 +660,7 @@ int cmdline_row;
 
 /* Matrix editor / matrix indexing */
 int matedit_mode; /* 0=off, 1=index, 2=edit, 3=editn */
+int matedit_level;
 char matedit_name[7];
 int matedit_length;
 vartype *matedit_x;
@@ -3124,13 +3125,14 @@ int push_rtn_addr(int prgm, int4 pc) {
 int push_indexed_matrix() {
     if (rtn_level == 0 ? rtn_level_0_has_matrix_entry : rtn_stack[rtn_level - 1].has_matrix())
         return ERR_NONE;
-    vartype_list *list = (vartype_list *) new_list(3);
+    vartype_list *list = (vartype_list *) new_list(4);
     if (list == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     list->array->data[0] = new_string(matedit_name, matedit_length);
-    list->array->data[1] = new_real(matedit_i);
-    list->array->data[2] = new_real(matedit_j);
-    for (int i = 0; i < 3; i++)
+    list->array->data[1] = new_real(matedit_level);
+    list->array->data[2] = new_real(matedit_i);
+    list->array->data[3] = new_real(matedit_j);
+    for (int i = 0; i < 4; i++)
         if (list->array->data[i] == NULL) {
             free_vartype((vartype *) list);
             return ERR_INSUFFICIENT_MEMORY;
@@ -3154,8 +3156,9 @@ void maybe_pop_indexed_matrix(const char *name, int len) {
         return;
     vartype_string *s = (vartype_string *) list->array->data[0];
     string_copy(matedit_name, &matedit_length, s->txt(), s->length);
-    matedit_i = to_int4(((vartype_real *) list->array->data[1])->x);
-    matedit_j = to_int4(((vartype_real *) list->array->data[2])->x);
+    matedit_level = to_int4(((vartype_real *) list->array->data[1])->x);
+    matedit_i = to_int4(((vartype_real *) list->array->data[2])->x);
+    matedit_j = to_int4(((vartype_real *) list->array->data[3])->x);
     matedit_mode = 1;
     free_vartype((vartype *) list);
     if (rtn_level == 0)
@@ -3569,6 +3572,8 @@ bool should_i_stop_at_this_level() {
 }
 
 static void remove_locals() {
+    if (matedit_mode == 3 && matedit_level >= rtn_level)
+        leave_matrix_editor();
     int last = -1;
     for (int i = vars_count - 1; i >= 0; i--) {
         if (vars[i].level == -1)
@@ -3576,6 +3581,7 @@ static void remove_locals() {
         if (vars[i].level < rtn_level)
             break;
         if ((matedit_mode == 1 || matedit_mode == 3)
+                && vars[i].level == matedit_level
                 && string_equals(vars[i].name, vars[i].length, matedit_name, matedit_length)) {
             if (matedit_mode == 3) {
                 set_appmenu_exitcallback(0);
@@ -3707,8 +3713,9 @@ void pop_rtn_addr(int *prgm, int4 *pc, bool *stop) {
         if (list != NULL) {
             vartype_string *s = (vartype_string *) list->array->data[0];
             string_copy(matedit_name, &matedit_length, s->txt(), s->length);
-            matedit_i = to_int4(((vartype_real *) list->array->data[1])->x);
-            matedit_j = to_int4(((vartype_real *) list->array->data[2])->x);
+            matedit_level = to_int4(((vartype_real *) list->array->data[1])->x);
+            matedit_i = to_int4(((vartype_real *) list->array->data[2])->x);
+            matedit_j = to_int4(((vartype_real *) list->array->data[3])->x);
             matedit_mode = 1;
             free_vartype((vartype *) list);
         }
@@ -4382,6 +4389,10 @@ static bool load_state2(bool *clear, bool *too_new) {
     if (!read_int(&cmdline_row)) return false;
 
     if (!read_int(&matedit_mode)) return false;
+    if (ver < 47)
+        matedit_level = -1;
+    else
+        if (!read_int(&matedit_level)) return false;
     if (fread(matedit_name, 1, 7, gfile) != 7) return false;
     if (!read_int(&matedit_length)) return false;
     if (!unpersist_vartype(&matedit_x, ver < 18)) return false;
@@ -4561,6 +4572,7 @@ void save_state(bool *success) {
     if (!write_int(cmdline_row)) return;
 
     if (!write_int(matedit_mode)) return;
+    if (!write_int(matedit_level)) return;
     if (fwrite(matedit_name, 1, 7, gfile) != 7) return;
     if (!write_int(matedit_length)) return;
     if (!persist_vartype(matedit_x)) return;

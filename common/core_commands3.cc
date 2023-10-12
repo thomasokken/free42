@@ -361,7 +361,7 @@ int docmd_delr(arg_struct *arg) {
             return ERR_NONEXISTENT;
         case 1:
         case 3:
-            m = recall_var(matedit_name, matedit_length);
+            m = matedit_get();
             break;
         case 2:
             m = matedit_x;
@@ -782,7 +782,7 @@ int matedit_get_dim(int4 *rows, int4 *columns) {
             return ERR_NONEXISTENT;
         case 1:
         case 3:
-            m = recall_var(matedit_name, matedit_length);
+            m = matedit_get();
             break;
         case 2:
             m = matedit_x;
@@ -975,7 +975,6 @@ int docmd_editn(arg_struct *arg) {
         return ERR_INVALID_TYPE;
 
     vartype *v;
-    int i;
     if (m->type == TYPE_REALMATRIX) {
         vartype_realmatrix *rm = (vartype_realmatrix *) m;
         if (rm->array->is_string[0] != 0) {
@@ -1004,11 +1003,8 @@ int docmd_editn(arg_struct *arg) {
      * level, then we push the IJ pointers, so the previous indexing is
      * restored when this function returns.
      */
-    if (matedit_mode == 1) {
-        int varindex = lookup_var(matedit_name, matedit_length);
-        if (vars[varindex].level < vars[mi].level)
-            push_indexed_matrix();
-    }
+    if (matedit_mode == 1 && matedit_level < vars[mi].level)
+        push_indexed_matrix();
 
     /* TODO: implement a mechanism that locks a matrix while it is
      * under edit. While locked, operations such as CLV, DIM, or
@@ -1016,9 +1012,8 @@ int docmd_editn(arg_struct *arg) {
      */
     matedit_mode = 3;
     flags.f.grow = 0;
-    matedit_length = arg->length;
-    for (i = 0; i < matedit_length; i++)
-        matedit_name[i] = arg->val.text[i];
+    string_copy(matedit_name, &matedit_length, arg->val.text, arg->length);
+    matedit_level = vars[mi].level;
     if (sp == -1)
         sp = 0;
     else
@@ -1125,7 +1120,7 @@ int docmd_getm(arg_struct *arg) {
             return ERR_NONEXISTENT;
         case 1:
         case 3:
-            m = recall_var(matedit_name, matedit_length);
+            m = matedit_get();
             break;
         case 2:
             m = matedit_x;
@@ -1434,7 +1429,6 @@ void matedit_goto(int4 row, int4 column) {
 int docmd_index(arg_struct *arg) {
     int err;
     vartype *m;
-    int i;
 
     if (matedit_mode == 2 || matedit_mode == 3)
         /* TODO: on the real HP-42S, you get this error message the
@@ -1478,11 +1472,8 @@ int docmd_index(arg_struct *arg) {
      * level, then we push the IJ pointers, so the previous indexing is
      * restored when this function returns.
      */
-    if (matedit_mode == 1) {
-        int varindex = lookup_var(matedit_name, matedit_length);
-        if (vars[varindex].level < vars[mi].level)
-            push_indexed_matrix();
-    }
+    if (matedit_mode == 1 && matedit_level < vars[mi].level)
+        push_indexed_matrix();
 
     /* TODO: keep a 'weak' lock on the matrix while it is indexed.
      * If it is deleted or redimensioned, I and J should be reset to 1.
@@ -1499,9 +1490,8 @@ int docmd_index(arg_struct *arg) {
     matedit_j = 0;
     flags.f.matrix_edge_wrap = 0;
     flags.f.matrix_end_wrap = 0;
-    matedit_length = arg->length;
-    for (i = 0; i < matedit_length; i++)
-        matedit_name[i] = arg->val.text[i];
+    string_copy(matedit_name, &matedit_length, arg->val.text, arg->length);
+    matedit_level = vars[mi].level;
     return ERR_NONE;
 }
 

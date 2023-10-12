@@ -46,7 +46,7 @@ int docmd_insr(arg_struct *arg) {
             return ERR_NONEXISTENT;
         case 1:
         case 3:
-            m = recall_var(matedit_name, matedit_length);
+            m = matedit_get();
             break;
         case 2:
             m = matedit_x;
@@ -289,9 +289,13 @@ int docmd_j_add(arg_struct *arg) {
             if (flags.f.grow) {
                 if (matedit_mode == 2)
                     err = dimension_array_ref(matedit_x, rows + 1, columns);
-                else
-                    err = dimension_array(matedit_name, matedit_length,
-                                            rows + 1, columns, false);
+                else {
+                    vartype *m = matedit_get();
+                    if (m == NULL)
+                        err = ERR_NONEXISTENT;
+                    else
+                        err = dimension_array_ref(m, rows + 1, columns);
+                }
                 if (err != ERR_NONE) {
                     matedit_i = oldi;
                     matedit_j = oldj;
@@ -364,7 +368,7 @@ int docmd_putm(arg_struct *arg) {
             return ERR_NONEXISTENT;
         case 1:
         case 3:
-            m = recall_var(matedit_name, matedit_length);
+            m = matedit_get();
             break;
         case 2:
             m = matedit_x;
@@ -467,7 +471,7 @@ int docmd_rclel(arg_struct *arg) {
             return ERR_NONEXISTENT;
         case 1:
         case 3:
-            m = recall_var(matedit_name, matedit_length);
+            m = matedit_get();
             break;
         case 2:
             m = matedit_x;
@@ -655,7 +659,7 @@ int docmd_swap_r(arg_struct *arg) {
             return ERR_NONEXISTENT;
         case 1:
         case 3:
-            m = recall_var(matedit_name, matedit_length);
+            m = matedit_get();
             break;
         case 2:
             m = matedit_x;
@@ -799,7 +803,7 @@ int docmd_stoel(arg_struct *arg) {
             return ERR_NONEXISTENT;
         case 1:
         case 3:
-            m = recall_var(matedit_name, matedit_length);
+            m = matedit_get();
             break;
         case 2:
             m = matedit_x;
@@ -875,7 +879,7 @@ int docmd_stoij(arg_struct *arg) {
             return ERR_NONEXISTENT;
         case 1:
         case 3:
-            m = recall_var(matedit_name, matedit_length);
+            m = matedit_get();
             break;
         case 2:
             m = matedit_x;
@@ -1075,7 +1079,7 @@ static int matedit_move(int direction) {
             return ERR_NONEXISTENT;
         case 1:
         case 3:
-            m = recall_var(matedit_name, matedit_length);
+            m = matedit_get();
             break;
         case 2:
             m = matedit_x;
@@ -1129,9 +1133,14 @@ static int matedit_move(int direction) {
                         if (matedit_mode == 2)
                             err = dimension_array_ref(matedit_x,
                                                       rows + 1, columns);
-                        else
-                            err = dimension_array(matedit_name, matedit_length,
-                                                  rows + 1, columns, false);
+                        else {
+                            vartype *m2 = matedit_get();
+                            if (m2 == NULL)
+                                err = ERR_NONEXISTENT;
+                            else
+                                err = dimension_array_ref(m2,
+                                                    rows + 1, columns);
+                        }
                         if (err != ERR_NONE)
                             return err;
                         new_i = rows++;
@@ -1320,11 +1329,9 @@ static int matx_completion(int error, vartype *res) {
         free_vartype(stack[sp]);
     stack[sp] = matx_v;
     matedit_mode = 3;
-    matedit_length = 4;
-    matedit_name[0] = 'M';
-    matedit_name[1] = 'A';
-    matedit_name[2] = 'T';
-    matedit_name[3] = 'X';
+    string_copy(matedit_name, &matedit_length, "MATX", 4);
+    int mi = lookup_var(matedit_name, matedit_length);
+    matedit_level = vars[mi].level;
     matedit_i = 0;
     matedit_j = 0;
     if (flags.f.big_stack)
@@ -1414,11 +1421,9 @@ static int matabx(int which) {
         free_vartype(stack[sp]);
     stack[sp] = v;
     matedit_mode = 3;
-    matedit_length = 4;
-    matedit_name[0] = 'M';
-    matedit_name[1] = 'A';
-    matedit_name[2] = 'T';
-    matedit_name[3] = which == 0 ? 'A' : 'B';
+    string_copy(matedit_name, &matedit_length, which == 0 ? "MATA" : "MATB", 4);
+    int mi = lookup_var(matedit_name, matedit_length);
+    matedit_level = vars[mi].level;
     matedit_i = 0;
     matedit_j = 0;
     if (flags.f.big_stack)
@@ -1553,7 +1558,7 @@ static int max_min_helper(int do_max) {
             return ERR_NONEXISTENT;
         case 1:
         case 3:
-            m = recall_var(matedit_name, matedit_length);
+            m = matedit_get();
             break;
         case 2:
             m = matedit_x;
@@ -1606,7 +1611,7 @@ int docmd_find(arg_struct *arg) {
             return ERR_NONEXISTENT;
         case 1:
         case 3:
-            m = recall_var(matedit_name, matedit_length);
+            m = matedit_get();
             break;
         case 2:
             m = matedit_x;
