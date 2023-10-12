@@ -4390,7 +4390,7 @@ static bool load_state2(bool *clear, bool *too_new) {
 
     if (!read_int(&matedit_mode)) return false;
     if (ver < 47)
-        matedit_level = -1;
+        matedit_level = -2; // This is handled later in this function
     else
         if (!read_int(&matedit_level)) return false;
     if (fread(matedit_name, 1, 7, gfile) != 7) return false;
@@ -4447,6 +4447,26 @@ static bool load_state2(bool *clear, bool *too_new) {
         return false;
     if (!unpersist_globals())
         return false;
+
+    /* When loading older states, figure out matedit_level.
+     * This is needed for EDITN and INDEX to keep working across
+     * upgrades. Note that we're not dealing with saved matrix
+     * info on the RTN stack, though, so this provides only
+     * partial compatibility, covering only the most common
+     * scenarios.
+     */
+    if (matedit_level == -2 && (matedit_mode == 1 || matedit_mode == 3)) {
+        matedit_level = -1;
+        for (int i = vars_count - 1; i >= 0; i--) {
+            var_struct *vs = vars + i;
+            if ((vs->flags & (VAR_HIDDEN | VAR_PRIVATE)) != 0)
+                continue;
+            if (string_equals(matedit_name, matedit_length, vs->name, vs->length)) {
+                matedit_level = vs->level;
+                break;
+            }
+        }
+    }
 
     if (ver < 4) {
         /* Before state file version 4, I used to save the BCD table in the
