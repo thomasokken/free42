@@ -2019,9 +2019,9 @@ static bool unpersist_globals() {
         } else if (state_is_portable) {
             int saved_prgm = current_prgm;
             for (i = rtn_level - 1; i >= 0; i--) {
-                bool matrix_entry_follows;
-                if (i == 0) {
-                    matrix_entry_follows = rtn_level_0_has_matrix_entry;
+                bool matrix_entry_follows = i == 0 && rtn_level_0_has_matrix_entry;
+                if (matrix_entry_follows) {
+                    i++;
                 } else {
                     int4 prgm, line;
                     if (!read_int4(&prgm) || !read_int4(&line))
