@@ -2018,16 +2018,18 @@ static bool unpersist_globals() {
             current_prgm = saved_prgm;
         } else if (state_is_portable) {
             int saved_prgm = current_prgm;
-            for (i = rtn_level - 1; i >= 0; i--) {
-                bool matrix_entry_follows = i == 0 && rtn_level_0_has_matrix_entry;
-                if (matrix_entry_follows) {
-                    i++;
+            for (i = rtn_level - 1; i >= -1; i--) {
+                bool matrix_entry_follows;
+                if (i == -1) {
+                    if (rtn_level_0_has_matrix_entry)
+                        matrix_entry_follows = true;
                 } else {
                     int4 prgm, line;
                     if (!read_int4(&prgm) || !read_int4(&line))
                         goto done;
                     rtn_stack[i].prgm = prgm;
                     matrix_entry_follows = rtn_stack[i].has_matrix();
+                    rtn_stack[i].set_has_matrix(false);
                     current_prgm = rtn_stack[i].get_prgm();
                     if (current_prgm >= 0)
                         line = line2pc(line);
@@ -4835,39 +4837,35 @@ static bool convert_programs(bool *clear_stack) {
     // updates very efficiently later on.
     int *mod_prgm = (int *) malloc((rtn_level + 2) * sizeof(int));
     int4 *mod_pc = (int4 *) malloc((rtn_level + 2) * sizeof(int4));
-    int *mod_sp = (int *) malloc((rtn_level + 2) * sizeof(int));
-    if (mod_prgm == NULL || mod_pc == NULL || mod_sp == NULL) {
+    int *mod_level = (int *) malloc((rtn_level + 2) * sizeof(int));
+    if (mod_prgm == NULL || mod_pc == NULL || mod_level == NULL) {
         end:
         free(mod_prgm);
         free(mod_pc);
-        free(mod_sp);
+        free(mod_level);
         return success;
     }
     int mod_count = 0;
-    int rsp = rtn_level;
     if (rtn_solve_active || rtn_integ_active) {
         *clear_stack = true;
     } else {
         for (i = 0; i < rtn_level; i++) {
-            rsp--;
-            mod_prgm[mod_count] = rtn_stack[rsp].get_prgm();
-            mod_pc[mod_count] = rtn_stack[rsp].pc;
-            mod_sp[mod_count] = rsp;
-            if (rtn_stack[rsp].has_matrix())
-                rsp -= 2;
+            mod_prgm[mod_count] = rtn_stack[i].get_prgm();
+            mod_pc[mod_count] = rtn_stack[i].pc;
+            mod_level[mod_count] = i;
             mod_count++;
         }
     }
     if (saved_pc > 0) {
         mod_prgm[mod_count] = current_prgm;
         mod_pc[mod_count] = saved_pc;
-        mod_sp[mod_count] = -1;
+        mod_level[mod_count] = -1;
         mod_count++;
     }
     if (incomplete_saved_pc > 0) {
         mod_prgm[mod_count] = current_prgm;
         mod_pc[mod_count] = incomplete_saved_pc;
-        mod_sp[mod_count] = -2;
+        mod_level[mod_count] = -2;
         mod_count++;
     }
     mod_count--;
@@ -4885,9 +4883,9 @@ static bool convert_programs(bool *clear_stack) {
                 int4 tmp4 = mod_pc[i];
                 mod_pc[i] = mod_pc[j];
                 mod_pc[j] = tmp4;
-                tmp = mod_sp[i];
-                mod_sp[i] = mod_sp[j];
-                mod_sp[j] = tmp;
+                tmp = mod_level[i];
+                mod_level[i] = mod_level[j];
+                mod_level[j] = tmp;
             }
 
     for (i = 0; i < prgms_count; i++) {
@@ -4903,7 +4901,7 @@ static bool convert_programs(bool *clear_stack) {
                 // means that something is out of whack, because we have an old
                 // PC value that does not actually coincide with the beginning
                 // of an instruction.
-                int s = mod_sp[mod_count];
+                int s = mod_level[mod_count];
                 if (s == -1)
                     saved_pc = pc;
                 else if (s == -2)
