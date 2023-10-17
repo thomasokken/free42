@@ -2018,35 +2018,77 @@ static bool unpersist_globals() {
             current_prgm = saved_prgm;
         } else if (state_is_portable) {
             int saved_prgm = current_prgm;
-            for (i = rtn_level - 1; i >= -1; i--) {
+            for (int lvl = rtn_level - 1; lvl >= -1; lvl--) {
                 bool matrix_entry_follows;
-                if (i == -1) {
-                    if (rtn_level_0_has_matrix_entry)
-                        matrix_entry_follows = true;
+                if (lvl == -1) {
+                    matrix_entry_follows = rtn_level_0_has_matrix_entry;
                 } else {
                     int4 prgm, line;
                     if (!read_int4(&prgm) || !read_int4(&line))
                         goto done;
-                    rtn_stack[i].prgm = prgm;
-                    matrix_entry_follows = rtn_stack[i].has_matrix();
-                    rtn_stack[i].set_has_matrix(false);
-                    current_prgm = rtn_stack[i].get_prgm();
+                    rtn_stack[lvl].prgm = prgm;
+                    matrix_entry_follows = rtn_stack[lvl].has_matrix();
+                    current_prgm = rtn_stack[lvl].get_prgm();
                     if (current_prgm >= 0)
                         line = line2pc(line);
-                    rtn_stack[i].pc = line;
+                    rtn_stack[lvl].pc = line;
                 }
                 if (matrix_entry_follows) {
-                    char dummy1;
-                    char dummy2[7];
-                    int4 dummy3, dummy4;
-                    if (!read_char(&dummy1)
-                            || fread(dummy2, 1, dummy1, gfile) != dummy1
-                            || !read_int4(&dummy3)
-                            || !read_int4(&dummy4))
+                    char m_len;
+                    char m_name[7];
+                    int4 m_i, m_j;
+                    if (!read_char(&m_len)
+                            || fread(m_name, 1, m_len, gfile) != m_len
+                            || !read_int4(&m_i)
+                            || !read_int4(&m_j))
                         goto done;
-                    // Not doing anything with these old matrix stack entries,
-                    // since they don't contain the stack level.
-                    // Without that information, we can't reliably use them.
+                    vartype_list *list = (vartype_list *) new_list(4);
+                    if (list == NULL)
+                        goto done;
+                    list->array->data[0] = new_string(m_name, m_len);
+                    list->array->data[1] = new_real(0);
+                    list->array->data[2] = new_real(m_i);
+                    list->array->data[3] = new_real(m_j);
+                    for (int i = 0; i < 4; i++)
+                        if (list->array->data[i] == NULL) {
+                            free_vartype((vartype *) list);
+                            goto done;
+                        }
+                    int pos = vars_count - 1;
+                    int m_lvl = -2;
+                    for (; pos >= 0; pos--) {
+                        var_struct *vs = vars + pos;
+                        if (vs->level < lvl + 1 && string_equals(vs->name, vs->length, m_name, m_len)) {
+                            m_lvl = vs->level;
+                            break;
+                        }
+                    }
+                    if (m_lvl == -2) {
+                        // shouldn't happen
+                        free_vartype((vartype *) list);
+                        goto done;
+                    }
+                    ((vartype_real *) list->array->data[1])->x = m_lvl;
+                    for (pos = 0; pos < vars_count; pos++)
+                        if (vars[pos].level >= lvl + 1)
+                            break;
+                    if (vars_count == vars_capacity) {
+                        int newcap = vars_capacity + 8;
+                        var_struct *newvars = (var_struct *) realloc(vars, newcap * sizeof(var_struct));
+                        if (newvars == NULL) {
+                            free_vartype((vartype *) list);
+                            goto done;
+                        }
+                        vars = newvars;
+                        vars_capacity = newcap;
+                    }
+                    memmove(vars + pos + 1, vars + pos, (vars_count - pos) * sizeof(var_struct));
+                    memcpy(vars[pos].name, "MAT", 3);
+                    vars[pos].length = 3;
+                    vars[pos].level = lvl + 1;
+                    vars[pos].flags = VAR_PRIVATE;
+                    vars[pos].value = (vartype *) list;
+                    vars_count++;
                 }
             }
             current_prgm = saved_prgm;
