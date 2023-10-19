@@ -41,44 +41,6 @@ phloat NAN_1_PHLOAT;
 phloat NAN_2_PHLOAT;
 
 
-/* Note: this function does not handle infinities or NaN */
-static void bcdfloat2string(short *p, char *buf, size_t buflen) {
-    size_t pos = 0;
-    short exp = p[7];
-    bool neg = (exp & 0x8000) != 0;
-    exp = ((short) (exp << 3)) >> 3;
-    if (neg)
-        buf[pos++] = '-';
-    buf[pos++] = '?';
-    for (int i = 0; i < 7; i++) {
-        short d = p[i];
-        pos += snprintf(buf + pos, buflen - pos, "%04d", d);
-    }
-    size_t firstdigit = neg ? 1 : 0;
-    buf[firstdigit] = buf[firstdigit + 1];
-    buf[firstdigit + 1] = '.';
-    snprintf(buf + pos, buflen - pos, "e%d", exp * 4 - 1);
-}
-
-static void bcdfloat_old2new(void *bcd) {
-    // Convert old (<= 1.4.51) BCDFloat, where NaN is signalled by
-    // (exp & 0x7FFF) == 0x3000, and Infinity is signalled by
-    // (exp & 0x7FFF) == 0x3FFF, to the new (>= 1.4.52) BCDFloat, where NaN is
-    // signalled by (exp & 0x4000) != 0 and Infinity is signalled by
-    // (exp & 0x2000) != 0 (and the exponent field is 2 bits narrower).
-    short *p = (short *) bcd;
-    short uexp = p[7] & 0x7FFF;
-    if (uexp == 0x3000)
-        // NaN
-        p[7] = 0x4000;
-    else if (uexp == 0x3FFF)
-        // Infinity
-        p[7] = (p[7] & 0x8000) | 0x2000;
-    else
-        p[7] = p[7] & 0x9FFF;
-}
-
-
 #ifdef BCD_MATH
 
 
@@ -120,8 +82,7 @@ int string2phloat(const char *buf, int buflen, phloat *d) {
         return 0;
     }
 
-    // First, convert from HP-42S format to bcdfloat format:
-    // strip thousands separators, convert comma to dot if
+    // Strip thousands separators, convert comma to dot if
     // appropriate, and convert char(24) to 'E'.
     // Also, reject numbers with more than MAX_MANT_DIGITS digits in the mantissa.
     char buf2[100];
@@ -835,17 +796,6 @@ bool operator==(int4 x, Phloat y) {
 
 Phloat PI("3.141592653589793238462643383279503");
 
-void update_decimal(BID_UINT128 *val) {
-    if (state_file_number_format == NUMBER_FORMAT_BID128)
-        return;
-    short *p = (short *) val;
-    if (state_file_number_format == NUMBER_FORMAT_BCD20_OLD)
-        bcdfloat_old2new(p);
-    char decstr[36];
-    bcdfloat2string(p, decstr, 36);
-    bid128_from_string(val, decstr);
-}
-
 
 #else // BCD_MATH
 
@@ -994,55 +944,22 @@ int string2phloat(const char *buf, int buflen, phloat *d) {
 }
 
 double decimal2double(void *data, bool pin_magnitude /* = false */) {
-    if (state_file_number_format == NUMBER_FORMAT_BID128) {
-        double res;
-        BID_UINT128 *b, b2;
-        if ((((size_t) data) & 15) != 0) {
-            //b2 = *((BID_UINT128 *) data);
-            memcpy(&b2, data, 16);
-            b = &b2;
-        } else
-            b = (BID_UINT128 *) data;
-        bid128_to_binary64(&res, b);
-        if (isnan(res) || !pin_magnitude)
-            return res;
-        int r;
-        if (res == 0 && !(bid128_isZero(&r, b), r))
-            return (bid128_isSigned(&r, b), r) ? NEG_TINY_PHLOAT : POS_TINY_PHLOAT;
-        int inf = isinf(res);
-        return inf == 0 ? res : inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
-    }
-
-    // BCD20_OLD or BCD20_NEW
-    short *p = (short *) data;
-    if (state_file_number_format == NUMBER_FORMAT_BCD20_OLD)
-        bcdfloat_old2new(p);
-
-    short exp = p[7];
-    bool neg = (exp & 0x8000) != 0;
-    double zero = 0;
-
-    if ((exp & 0x4000) != 0) // NaN
-        return 0 / zero;
-    else if ((exp & 0x2000) != 0) // -Inf or Inf
-        if (pin_magnitude)
-            return neg ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
-        else
-            return neg ? -1 / zero : 1 / zero;
-
-    if (p[0] == 0)
-        return 0;
-
-    char decstr[36];
-    bcdfloat2string(p, decstr, 36);
     double res;
-    sscanf(decstr, "%le", &res);
+    BID_UINT128 *b, b2;
+    if ((((size_t) data) & 15) != 0) {
+        //b2 = *((BID_UINT128 *) data);
+        memcpy(&b2, data, 16);
+        b = &b2;
+    } else
+        b = (BID_UINT128 *) data;
+    bid128_to_binary64(&res, b);
     if (isnan(res) || !pin_magnitude)
         return res;
-    else if (res == 0)
-        return neg ? NEG_TINY_PHLOAT : POS_TINY_PHLOAT;
-    else
-        return res;
+    int r;
+    if (res == 0 && !(bid128_isZero(&r, b), r))
+        return (bid128_isSigned(&r, b), r) ? NEG_TINY_PHLOAT : POS_TINY_PHLOAT;
+    int inf = isinf(res);
+    return inf == 0 ? res : inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
 }
 
 

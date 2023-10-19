@@ -505,8 +505,8 @@ extern int keybuf[16];
 extern int remove_program_catalog;
 
 #define NUMBER_FORMAT_BINARY 0
-#define NUMBER_FORMAT_BCD20_OLD 1
-#define NUMBER_FORMAT_BCD20_NEW 2
+#define NUMBER_FORMAT_BCD20_OLD 1 // obsolete
+#define NUMBER_FORMAT_BCD20_NEW 2 // obsolete
 #define NUMBER_FORMAT_BID128 3
 extern int state_file_number_format;
 
@@ -557,8 +557,6 @@ bool solve_active();
 bool integ_active();
 bool unwind_stack_until_solve();
 
-extern bool state_is_portable;
-
 bool read_bool(bool *b);
 bool write_bool(bool b);
 bool read_char(char *c);
@@ -573,7 +571,7 @@ bool read_int8(int8 *n);
 bool write_int8(int8 n);
 bool read_phloat(phloat *d);
 bool write_phloat(phloat d);
-bool read_arg(arg_struct *arg, bool old);
+bool read_arg(arg_struct *arg);
 bool write_arg(const arg_struct *arg);
 
 bool load_state(int4 version, bool *clear, bool *too_new);

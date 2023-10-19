@@ -643,123 +643,44 @@ bool persist_display() {
 }
 
 bool unpersist_display(int version) {
-    if (state_is_portable) {
-        for (int i = 0; i < 5; i++) {
-            if (!read_int(&catalogmenu_section[i])) return false;
-            if (!read_int(&catalogmenu_rows[i])) return false;
-            if (!read_int(&catalogmenu_row[i])) return false;
-            for (int j = 0; j < 6; j++)
-                if (!read_int(&catalogmenu_item[i][j])) return false;
+    for (int i = 0; i < 5; i++) {
+        if (!read_int(&catalogmenu_section[i])) return false;
+        if (!read_int(&catalogmenu_rows[i])) return false;
+        if (!read_int(&catalogmenu_row[i])) return false;
+        for (int j = 0; j < 6; j++)
+            if (!read_int(&catalogmenu_item[i][j])) return false;
+    }
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 6; j++) {
+            if (!read_int(&custommenu_length[i][j])) return false;
+            if (fread(custommenu_label[i][j], 1, 7, gfile) != 7) return false;
         }
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 6; j++) {
-                if (!read_int(&custommenu_length[i][j])) return false;
-                if (fread(custommenu_label[i][j], 1, 7, gfile) != 7) return false;
-            }
-        }
-        for (int i = 0; i < 9; i++)
-            if (!read_arg(progmenu_arg + i, false))
-                return false;
-        if (version < 35) {
-            int temp;
-            for (int i = 0; i < 9; i++) {
-                if (!read_int(&temp)) return false;
-                progmenu_is_gto[i] = temp != 0;
-            }
-        } else {
-            for (int i = 0; i < 9; i++)
-                if (!read_bool(&progmenu_is_gto[i])) return false;
-        }
-        for (int i = 0; i < 6; i++) {
-            if (!read_int(&progmenu_length[i])) return false;
-            if (fread(progmenu_label[i], 1, 7, gfile) != 7) return false;
-        }
-        if (fread(display, 1, 272, gfile) != 272)
+    }
+    for (int i = 0; i < 9; i++)
+        if (!read_arg(progmenu_arg + i))
             return false;
-        if (!read_int(&appmenu_exitcallback)) return false;
-        if (version >= 44) {
-            if (fread(special_key, 1, 6, gfile) != 6)
-                return false;
-        } else
-            memset(special_key, 0, 6);
-    } else {
-        int custommenu_cmd[3][6];
-        is_dirty = false;
-        if (fread(catalogmenu_section, 1, 5 * sizeof(int), gfile)
-                != 5 * sizeof(int))
-            return false;
-        if (fread(catalogmenu_rows, 1, 5 * sizeof(int), gfile)
-                != 5 * sizeof(int))
-            return false;
-        if (fread(catalogmenu_row, 1, 5 * sizeof(int), gfile)
-                != 5 * sizeof(int))
-            return false;
-        if (fread(catalogmenu_item, 1, 30 * sizeof(int), gfile)
-                != 30 * sizeof(int))
-            return false;
-
-        if (version < 7) {
-            /* In version 7, I removed the special handling
-             * of FCN catalog assignments (after discovering how
-             * the real HP-42S does it and realizing that, for perfect
-             * compatibility, I had to do it the same way).
-             */
-            if (fread(custommenu_cmd, 1, 18 * sizeof(int), gfile)
-                    != 18 * sizeof(int))
-                return false;
-        }
-        if (fread(custommenu_length, 1, 18 * sizeof(int), gfile)
-                != 18 * sizeof(int))
-            return false;
-        if (fread(custommenu_label, 1, 126, gfile)
-                != 126)
-            return false;
-        if (version < 7) {
-            /* Starting with version 7, FCN catalog assignments are no longer
-             * handled specially; instead, commands with shortened key labels
-             * (e.g. ENTER/ENTR, ASSIGN/ASGN) are handled by using "meta"
-             * characters to indicate the disappearing positions. This is how
-             * the HP-42S does it, and since this can even affect programs
-             * (e.g. create the line STO "ENTER" by selecting ENTER from the
-             * function catalog, and the second E is encoded as meta-E in the
-             * program!), we have to do it the same way, for compatibility.
-             * I think my original approach was better, but such is life. :-)
-             */
-            int row, pos;
-            for (row = 0; row < 3; row++)
-                for (pos = 0; pos < 6; pos++) {
-                    int cmd = custommenu_cmd[row][pos];
-                    if (cmd != CMD_NONE) {
-                        const command_spec *cs = &cmd_array[cmd];
-                        string_copy(custommenu_label[row][pos],
-                                    &custommenu_length[row][pos],
-                                    cs->name, cs->name_length);
-                    }
-                }
-        }
-
-        for (int i = 0; i < 9; i++)
-            if (!read_arg(progmenu_arg + i, version < 9))
-                return false;
+    if (version < 35) {
+        int temp;
         for (int i = 0; i < 9; i++) {
-            int temp;
-            if (fread(&temp, 1, sizeof(int), gfile) != sizeof(int))
-                return false;
+            if (!read_int(&temp)) return false;
             progmenu_is_gto[i] = temp != 0;
         }
-        if (fread(progmenu_length, 1, 6 * sizeof(int), gfile)
-                != 6 * sizeof(int))
-            return false;
-        if (fread(progmenu_label, 1, 42, gfile)
-                != 42)
-            return false;
-        if (fread(display, 1, 272, gfile)
-                != 272)
-            return false;
-        if (fread(&appmenu_exitcallback, 1, sizeof(int), gfile)
-                != sizeof(int))
-            return false;
+    } else {
+        for (int i = 0; i < 9; i++)
+            if (!read_bool(&progmenu_is_gto[i])) return false;
     }
+    for (int i = 0; i < 6; i++) {
+        if (!read_int(&progmenu_length[i])) return false;
+        if (fread(progmenu_label[i], 1, 7, gfile) != 7) return false;
+    }
+    if (fread(display, 1, 272, gfile) != 272)
+        return false;
+    if (!read_int(&appmenu_exitcallback)) return false;
+    if (version >= 44) {
+        if (fread(special_key, 1, 6, gfile) != 6)
+            return false;
+    } else
+        memset(special_key, 0, 6);
     return true;
 }
 

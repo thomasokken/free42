@@ -188,141 +188,99 @@ bool persist_math() {
     return true;
 }
 
-bool unpersist_math(int ver, bool discard) {
-    if (state_is_portable) {
-        if (!read_int(&solve.version)) return false;
-        if (fread(solve.prgm_name, 1, 7, gfile) != 7) return false;
-        if (!read_int(&solve.prgm_length)) return false;
-        if (fread(solve.active_prgm_name, 1, 7, gfile) != 7) return false;
-        if (!read_int(&solve.active_prgm_length)) return false;
-        if (fread(solve.var_name, 1, 7, gfile) != 7) return false;
-        if (!read_int(&solve.var_length)) return false;
-        if (!read_int(&solve.keep_running)) return false;
-        if (!read_int(&solve.prev_prgm)) return false;
-        if (!read_int4(&solve.prev_pc)) return false;
-        if (solve_active())
-            solve.prev_pc = global_line2pc(solve.prev_prgm, solve.prev_pc);
-        if (!read_int(&solve.state)) return false;
-        if (!read_int(&solve.which)) return false;
-        if (!read_int(&solve.toggle)) return false;
-        if (!read_int(&solve.retry_counter)) return false;
-        if (ver < 45) {
-            solve.secant_impatience = 0;
-        } else {
-            if (!read_int(&solve.secant_impatience)) return false;
-        }
-        if (!read_phloat(&solve.retry_value)) return false;
-        if (!read_phloat(&solve.x1)) return false;
-        if (!read_phloat(&solve.x2)) return false;
-        if (!read_phloat(&solve.x3)) return false;
-        if (!read_phloat(&solve.fx1)) return false;
-        if (!read_phloat(&solve.fx2)) return false;
-        if (!read_phloat(&solve.prev_x)) return false;
-        if (!read_phloat(&solve.curr_x)) return false;
-        if (!read_phloat(&solve.curr_f)) return false;
-        if (!read_phloat(&solve.xm)) return false;
-        if (!read_phloat(&solve.fxm)) return false;
-        if (ver >= 29) {
-            if (!read_phloat(&solve.best_f)) return false;
-            if (!read_phloat(&solve.best_x)) return false;
-            if (!read_phloat(&solve.second_f)) return false;
-            if (!read_phloat(&solve.second_x)) return false;
-        } else {
-            solve.best_f = solve.second_f = POS_HUGE_PHLOAT;
-            solve.best_x = solve.second_x = 0;
-        }
-        for (int i = 0; i < NUM_SHADOWS; i++) {
-            if (fread(solve.shadow_name[i], 1, 7, gfile) != 7) return false;
-            if (!read_int(&solve.shadow_length[i])) return false;
-            if (!read_phloat(&solve.shadow_value[i])) return false;
-        }
-        if (!read_int4((int4 *) &solve.last_disp_time)) return false;
-        if (ver >= 33) {
-            if (!read_int(&solve.prev_sp)) return false;
-        } else {
-            solve.prev_sp = -2;
-        }
-
-        if (!read_int(&integ.version)) return false;
-        if (fread(integ.prgm_name, 1, 7, gfile) != 7) return false;
-        if (!read_int(&integ.prgm_length)) return false;
-        if (fread(integ.active_prgm_name, 1, 7, gfile) != 7) return false;
-        if (!read_int(&integ.active_prgm_length)) return false;
-        if (fread(integ.var_name, 1, 7, gfile) != 7) return false;
-        if (!read_int(&integ.var_length)) return false;
-        if (!read_int(&integ.keep_running)) return false;
-        if (!read_int(&integ.prev_prgm)) return false;
-        if (!read_int4(&integ.prev_pc)) return false;
-        if (integ_active())
-            integ.prev_pc = global_line2pc(integ.prev_prgm, integ.prev_pc);
-        if (!read_int(&integ.state)) return false;
-        if (!read_phloat(&integ.llim)) return false;
-        if (!read_phloat(&integ.ulim)) return false;
-        if (!read_phloat(&integ.acc)) return false;
-        if (!read_phloat(&integ.a)) return false;
-        if (!read_phloat(&integ.b)) return false;
-        if (!read_phloat(&integ.eps)) return false;
-        if (!read_int(&integ.n)) return false;
-        if (!read_int(&integ.m)) return false;
-        if (!read_int(&integ.i)) return false;
-        if (!read_int(&integ.k)) return false;
-        if (!read_phloat(&integ.h)) return false;
-        if (!read_phloat(&integ.sum)) return false;
-        for (int i = 0; i < ROMB_K; i++)
-            if (!read_phloat(&integ.c[i])) return false;
-        for (int i = 0; i <= ROMB_K; i++)
-            if (!read_phloat(&integ.s[i])) return false;
-        if (!read_int(&integ.nsteps)) return false;
-        if (!read_phloat(&integ.p)) return false;
-        if (!read_phloat(&integ.t)) return false;
-        if (!read_phloat(&integ.u)) return false;
-        if (!read_phloat(&integ.prev_int)) return false;
-        if (!read_phloat(&integ.prev_res)) return false;
-        if (ver >= 33) {
-            if (!read_int(&integ.prev_sp)) return false;
-        } else {
-            integ.prev_sp = -2;
-        }
+bool unpersist_math(int ver) {
+    if (!read_int(&solve.version)) return false;
+    if (fread(solve.prgm_name, 1, 7, gfile) != 7) return false;
+    if (!read_int(&solve.prgm_length)) return false;
+    if (fread(solve.active_prgm_name, 1, 7, gfile) != 7) return false;
+    if (!read_int(&solve.active_prgm_length)) return false;
+    if (fread(solve.var_name, 1, 7, gfile) != 7) return false;
+    if (!read_int(&solve.var_length)) return false;
+    if (!read_int(&solve.keep_running)) return false;
+    if (!read_int(&solve.prev_prgm)) return false;
+    if (!read_int4(&solve.prev_pc)) return false;
+    if (solve_active())
+        solve.prev_pc = global_line2pc(solve.prev_prgm, solve.prev_pc);
+    if (!read_int(&solve.state)) return false;
+    if (!read_int(&solve.which)) return false;
+    if (!read_int(&solve.toggle)) return false;
+    if (!read_int(&solve.retry_counter)) return false;
+    if (ver < 45) {
+        solve.secant_impatience = 0;
     } else {
-        int size;
-        bool success;
-        void *dummy;
+        if (!read_int(&solve.secant_impatience)) return false;
+    }
+    if (!read_phloat(&solve.retry_value)) return false;
+    if (!read_phloat(&solve.x1)) return false;
+    if (!read_phloat(&solve.x2)) return false;
+    if (!read_phloat(&solve.x3)) return false;
+    if (!read_phloat(&solve.fx1)) return false;
+    if (!read_phloat(&solve.fx2)) return false;
+    if (!read_phloat(&solve.prev_x)) return false;
+    if (!read_phloat(&solve.curr_x)) return false;
+    if (!read_phloat(&solve.curr_f)) return false;
+    if (!read_phloat(&solve.xm)) return false;
+    if (!read_phloat(&solve.fxm)) return false;
+    if (ver >= 29) {
+        if (!read_phloat(&solve.best_f)) return false;
+        if (!read_phloat(&solve.best_x)) return false;
+        if (!read_phloat(&solve.second_f)) return false;
+        if (!read_phloat(&solve.second_x)) return false;
+    } else {
+        solve.best_f = solve.second_f = POS_HUGE_PHLOAT;
+        solve.best_x = solve.second_x = 0;
+    }
+    for (int i = 0; i < NUM_SHADOWS; i++) {
+        if (fread(solve.shadow_name[i], 1, 7, gfile) != 7) return false;
+        if (!read_int(&solve.shadow_length[i])) return false;
+        if (!read_phloat(&solve.shadow_value[i])) return false;
+    }
+    if (!read_int4((int4 *) &solve.last_disp_time)) return false;
+    if (ver >= 33) {
+        if (!read_int(&solve.prev_sp)) return false;
+    } else {
+        solve.prev_sp = -2;
+    }
 
-        if (fread(&size, 1, sizeof(int), gfile) != sizeof(int))
-            return false;
-        if (!discard && size == sizeof(solve_state)) {
-            if (fread(&solve, 1, size, gfile) != size)
-                return false;
-            if (solve.version != SOLVE_VERSION)
-                reset_solve();
-        } else {
-            dummy = malloc(size);
-            if (dummy == NULL)
-                return false;
-            success = fread(dummy, 1, size, gfile) == size;
-            free(dummy);
-            if (!success)
-                return false;
-            reset_solve();
-        }
-
-        if (fread(&size, 1, sizeof(int), gfile) != sizeof(int))
-            return false;
-        if (!discard && size == sizeof(integ_state)) {
-            if (fread(&integ, 1, size, gfile) != size)
-                return false;
-            if (integ.version != INTEG_VERSION)
-                reset_integ();
-        } else {
-            dummy = malloc(size);
-            if (dummy == NULL)
-                return false;
-            success = fread(dummy, 1, size, gfile) == size;
-            free(dummy);
-            if (!success)
-                return false;
-            reset_integ();
-        }
+    if (!read_int(&integ.version)) return false;
+    if (fread(integ.prgm_name, 1, 7, gfile) != 7) return false;
+    if (!read_int(&integ.prgm_length)) return false;
+    if (fread(integ.active_prgm_name, 1, 7, gfile) != 7) return false;
+    if (!read_int(&integ.active_prgm_length)) return false;
+    if (fread(integ.var_name, 1, 7, gfile) != 7) return false;
+    if (!read_int(&integ.var_length)) return false;
+    if (!read_int(&integ.keep_running)) return false;
+    if (!read_int(&integ.prev_prgm)) return false;
+    if (!read_int4(&integ.prev_pc)) return false;
+    if (integ_active())
+        integ.prev_pc = global_line2pc(integ.prev_prgm, integ.prev_pc);
+    if (!read_int(&integ.state)) return false;
+    if (!read_phloat(&integ.llim)) return false;
+    if (!read_phloat(&integ.ulim)) return false;
+    if (!read_phloat(&integ.acc)) return false;
+    if (!read_phloat(&integ.a)) return false;
+    if (!read_phloat(&integ.b)) return false;
+    if (!read_phloat(&integ.eps)) return false;
+    if (!read_int(&integ.n)) return false;
+    if (!read_int(&integ.m)) return false;
+    if (!read_int(&integ.i)) return false;
+    if (!read_int(&integ.k)) return false;
+    if (!read_phloat(&integ.h)) return false;
+    if (!read_phloat(&integ.sum)) return false;
+    for (int i = 0; i < ROMB_K; i++)
+        if (!read_phloat(&integ.c[i])) return false;
+    for (int i = 0; i <= ROMB_K; i++)
+        if (!read_phloat(&integ.s[i])) return false;
+    if (!read_int(&integ.nsteps)) return false;
+    if (!read_phloat(&integ.p)) return false;
+    if (!read_phloat(&integ.t)) return false;
+    if (!read_phloat(&integ.u)) return false;
+    if (!read_phloat(&integ.prev_int)) return false;
+    if (!read_phloat(&integ.prev_res)) return false;
+    if (ver >= 33) {
+        if (!read_int(&integ.prev_sp)) return false;
+    } else {
+        integ.prev_sp = -2;
     }
     solve.f_gap = NAN_PHLOAT;
 

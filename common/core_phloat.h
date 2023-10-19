@@ -162,8 +162,6 @@ bool operator==(int4 x, Phloat y);
 
 extern Phloat PI;
 
-void update_decimal(BID_UINT128 *val);
-
 
 #endif // BCD_MATH
 
