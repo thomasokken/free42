@@ -2708,7 +2708,8 @@ void maybe_pop_indexed_matrix(const char *name, int len) {
 
 /* Layout of STK list used to save state for FUNC and LNSTK/L4STK:
  * 0: Mode: [0-4][0-4] for FUNC, or -1 for stand-alone LNSTK/L4STK;
- * 1: State: "ABCD<Text>" where A=Caller Big Stack, B=CSLD, C=F25, D=ERRNO, <Text>=ERRMSG
+ * 1: State: "ABCDE<Text>" where A=Caller Big Stack, B=LNSTK/L4STK after FUNC,
+ *    C=CSLD, D=F25, E=ERRNO, <Text>=ERRMSG
  *    For stand-alone LNSTK/L4STK, only A is present.
  * 2: Saved stack capacity
  * 3: Saved stack. For stand-alone LNSTK/L4STK that didn't have to
@@ -2736,7 +2737,7 @@ int push_func_state(int n) {
         return ERR_INSUFFICIENT_MEMORY;
     vartype_list *slist = (vartype_list *) stk;
     slist->array->data[0] = new_real(n);
-    slist->array->data[1] = new_string(NULL, lasterr == -1 ? 4 + lasterr_length : 4);
+    slist->array->data[1] = new_string(NULL, lasterr == -1 ? 5 + lasterr_length : 5);
     slist->array->data[2] = new_real(stack_capacity);
     int i;
     for (i = 0; i < 3; i++)
@@ -2774,9 +2775,10 @@ int push_func_state(int n) {
     /* OK, we have everything we need. Now move it all into place... */
     vartype_string *s = (vartype_string *) slist->array->data[1];
     s->txt()[0] = flags.f.big_stack ? '1' : '0';
-    s->txt()[1] = mode_caller_stack_lift_disabled ? '1' : '0';
-    s->txt()[2] = flags.f.error_ignore ? '1' : '0';
-    s->txt()[3] = (char) lasterr;
+    s->txt()[1] = '0';
+    s->txt()[2] = mode_caller_stack_lift_disabled ? '1' : '0';
+    s->txt()[3] = flags.f.error_ignore ? '1' : '0';
+    s->txt()[4] = (char) lasterr;
     if (lasterr == -1)
         memcpy(s->txt() + 4, lasterr_text, lasterr_length);
     vartype **tmpstk = tlist->array->data;
@@ -2800,6 +2802,51 @@ int push_func_state(int n) {
     return ERR_NONE;
 }
 
+int push_stack_state(bool big) {
+    vartype *stk = recall_private_var("STK", 3);
+    if (stk != NULL) {
+        /* LNSTK/L4STK after FUNC */
+        vartype_list *slist = (vartype_list *) stk;
+        vartype_string *s = (vartype_string *) slist->array->data[1];
+        if (s->length == 1 || s->txt()[1] != '0')
+            /* LNSTK/L4STK after LNSTK/L4STK: not allowed */
+            return ERR_INVALID_CONTEXT;
+        if (flags.f.big_stack == big) {
+            /* Nothing to do */
+        } else if (big) {
+            /* Assuming we're being called right after FUNC, so
+             * the stack contains the parameters, padded to depth 4
+             * with zeros. We just remove the padding now.
+             */
+            vartype_real *mode = (vartype_real *) slist->array->data[0];
+            int inputs = to_int(mode->x) / 10;
+            int excess = 4 - inputs;
+            if (excess > 0) {
+                for (int i = 0; i < excess; i++)
+                    free_vartype(stack[i]);
+                memmove(stack, stack + excess, inputs * sizeof(vartype *));
+                sp = inputs - 1;
+            }
+            flags.f.big_stack = true;
+        } else {
+            /* Just a plain switch to 4STK using truncation to 4 levels.
+             * FUNC has already taken care of saving the entire stack,
+             * so there's no need to do that here.
+             */
+            int err = docmd_4stk(NULL);
+            if (err != ERR_NONE)
+                return err;
+        }
+        s->txt()[1] = '1';
+        return ERR_NONE;
+    } else {
+        /* Stand-alone LNSTK/L4STK */
+        /* TODO */
+        return ERR_NONE;
+    }
+}
+
+/*
 int push_stack_state(bool big) {
     vartype *st = recall_private_var("ST", 2);
     if (st != NULL)
@@ -2875,6 +2922,7 @@ int push_stack_state(bool big) {
         rtn_stack[rtn_level - 1].set_has_func(true);
     return ERR_NONE;
 }
+*/
 
 int pop_func_state(bool error) {
     if (rtn_level == 0) {
