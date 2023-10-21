@@ -2706,52 +2706,90 @@ void maybe_pop_indexed_matrix(const char *name, int len) {
         rtn_stack[rtn_level - 1].set_has_matrix(false);
 }
 
+/* Layout of STK list used to save state for FUNC and LNSTK/L4STK:
+ * 0: Mode: [0-4][0-4] for FUNC, or -1 for stand-alone LNSTK/L4STK;
+ * 1: State: "ABCD<Text>" where A=Caller Big Stack, B=CSLD, C=F25, D=ERRNO, <Text>=ERRMSG
+ *    For stand-alone LNSTK/L4STK, only A is present.
+ * 2: Saved stack capacity
+ * 3: Saved stack. For stand-alone LNSTK/L4STK that didn't have to
+ *    change the actual stack mode, this is empty; for stand-alone
+ *    LNSTK, this is also empty; for all other cases, this is the entire stack.
+ * 4: Saved LASTX
+ */
+
 int push_func_state(int n) {
     if (!program_running())
         return ERR_RESTRICTED_OPERATION;
-    vartype *fd = recall_private_var("FD", 2);
-    if (fd != NULL)
-        return ERR_INVALID_CONTEXT;
-    vartype *st = recall_private_var("ST", 2);
-    if (st != NULL)
+    int inputs = n / 10;
+    if (sp + 1 < inputs)
+        return ERR_TOO_FEW_ARGUMENTS;
+
+    vartype *stk = recall_private_var("STK", 2);
+    if (stk != NULL)
         return ERR_INVALID_CONTEXT;
     if (!ensure_var_space(1))
         return ERR_INSUFFICIENT_MEMORY;
-    int inputs = flags.f.big_stack ? n / 10 : 4;
-    if (sp + 1 < inputs)
-        return ERR_TOO_FEW_ARGUMENTS;
-    int size = inputs + 4;
-    // FD list layout:
-    // 0: n, the 2-digit parameter to FUNC
-    // 1: original stack depth, or -1 for 4-level stack
-    // 2: flag 25, ERRNO, and ERRMSG
-    // 3: lastx
-    // 4: X / level 1
-    // 5: Y / level 2
-    // etc.
-    // For 4-level stack, all 4 registers are saved;
-    // for big stack, the input parameters are saved.
-    fd = new_list(size);
-    if (fd == NULL)
+
+    /* Create the STK list */
+    stk = new_list(5);
+    if (stk == NULL)
         return ERR_INSUFFICIENT_MEMORY;
-    vartype **fd_data = ((vartype_list *) fd)->array->data;
-    fd_data[0] = new_real(n);
-    fd_data[1] = new_real(flags.f.big_stack ? sp + 1 : -1);
-    fd_data[2] = new_string(NULL, lasterr == -1 ? 2 + lasterr_length : 2);
-    fd_data[3] = dup_vartype(lastx);
-    for (int i = 0; i < inputs; i++)
-        fd_data[i + 4] = dup_vartype(stack[sp - i]);
-    for (int i = 0; i < size; i++)
-        if (fd_data[i] == NULL) {
-            free_vartype(fd);
+    vartype_list *slist = (vartype_list *) stk;
+    slist->array->data[0] = new_real(n);
+    slist->array->data[1] = new_string(NULL, lasterr == -1 ? 4 + lasterr_length : 4);
+    slist->array->data[2] = new_real(stack_capacity);
+    int i;
+    for (i = 0; i < 3; i++)
+        if (slist->array->data[i] == NULL) {
+            nomem1:
+            free_vartype(stk);
             return ERR_INSUFFICIENT_MEMORY;
         }
-    vartype_string *s = (vartype_string *) fd_data[2];
-    s->txt()[0] = flags.f.error_ignore ? '1' : '0';
-    s->txt()[1] = (char) lasterr;
+
+    /* Create the new stack
+     * Note that we're creating a list here, while the actual stack is just
+     * a plain array of (vartype *). We'll swap the array in this list with
+     * the one for the RPN stack once all allocations have been done, and then
+     * use this list to store the old stack in the STK list.
+     */
+    int newdepth = flags.f.big_stack ? inputs : 4;
+    vartype_list *tlist = (vartype_list *) new_list(newdepth);
+    if (tlist == NULL)
+        goto nomem1;
+    for (i = 0; i < inputs; i++)
+        tlist->array->data[newdepth - 1 - i] = dup_vartype(stack[sp - i]);
+    for (i = inputs; i < newdepth; i++)
+        tlist->array->data[newdepth - 1 - i] = new_real(0);
+    for (i = 0; i < newdepth; i++)
+        if (tlist->array->data[i] == NULL) {
+            nomem2:
+            free_vartype((vartype *) tlist);
+            goto nomem1;
+        }
+
+    vartype *newlastx = new_real(0);
+    if (newlastx == NULL)
+        goto nomem2;
+
+    /* OK, we have everything we need. Now move it all into place... */
+    vartype_string *s = (vartype_string *) slist->array->data[1];
+    s->txt()[0] = flags.f.big_stack ? '1' : '0';
+    s->txt()[1] = mode_caller_stack_lift_disabled ? '1' : '0';
+    s->txt()[2] = flags.f.error_ignore ? '1' : '0';
+    s->txt()[3] = (char) lasterr;
     if (lasterr == -1)
-        memcpy(s->txt() + 2, lasterr_text, lasterr_length);
-    store_private_var("FD", 2, fd);
+        memcpy(s->txt() + 4, lasterr_text, lasterr_length);
+    vartype **tmpstk = tlist->array->data;
+    int4 tmpdepth = tlist->size;
+    tlist->array->data = stack;
+    tlist->size = sp;
+    stack = tmpstk;
+    sp = stack_capacity = tmpdepth;
+    slist->array->data[3] = (vartype *) tlist;
+    slist->array->data[4] = lastx;
+    lastx = newlastx;
+
+    store_private_var("STK", 3, stk);
     flags.f.error_ignore = 0;
     lasterr = ERR_NONE;
 
