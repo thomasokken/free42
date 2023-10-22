@@ -2780,7 +2780,7 @@ int push_func_state(int n) {
     vartype **tmpstk = tlist->array->data;
     int4 tmpdepth = tlist->size;
     tlist->array->data = stack;
-    tlist->size = sp;
+    tlist->size = sp + 1;
     stack = tmpstk;
     stack_capacity = tmpdepth;
     sp = tmpdepth - 1;
@@ -2872,7 +2872,7 @@ int push_stack_state(bool big) {
             vartype **tmpstk = tlist->array->data;
             int4 tmpdepth = tlist->size;
             tlist->array->data = stack;
-            tlist->size = sp;
+            tlist->size = sp + 1;
             stack = tmpstk;
             stack_capacity = tmpdepth;
             sp = tmpdepth - 1;
@@ -2889,6 +2889,75 @@ int push_stack_state(bool big) {
     }
 }
 
+/* Layout of STK list used to save state for FUNC and LNSTK/L4STK:
+ * 0: Mode: [0-4][0-4] for FUNC, or -1 for stand-alone LNSTK/L4STK;
+ * 1: State: "ABCDE<Text>" where A=Caller Big Stack, B=LNSTK/L4STK after FUNC,
+ *    C=CSLD, D=F25, E=ERRNO, <Text>=ERRMSG
+ *    For stand-alone LNSTK/L4STK, only A is present.
+ * 2: Saved stack. For stand-alone LNSTK/L4STK that didn't have to
+ *    change the actual stack mode, this is empty; for stand-alone
+ *    LNSTK, this is also empty; for all other cases, this is the entire stack.
+ * 3: Saved LASTX (FUNC only)
+ */
+
+int pop_func_state(bool error) {
+    if (rtn_level == 0) {
+        if (!rtn_level_0_has_func_state)
+            return ERR_NONE;
+    } else {
+        if (!rtn_stack[rtn_level - 1].has_func())
+            return ERR_NONE;
+    }
+
+    vartype_list *stk = (vartype_list *) recall_private_var("STK", 3);
+    if (stk == NULL)
+        // Older FD/ST-based FUNC logic, pre-47. Too difficult to deal with, so
+        // we punt. Note that this can only happen if a user upgrades from <47
+        // to >=47 while execution is stopped with old FUNC data on the stack.
+        // That seems like a reasonable scenario to ignore.
+        return ERR_INVALID_DATA;
+
+    vartype **stk_data = stk->array->data;
+    int n = to_int(((vartype_real *) stk_data[0])->x);
+
+    if (n == -1) {
+        // Stand-alone LNSTK/L4STK
+        char big = ((vartype_string *) stk_data[1])->txt()[0] == '1';
+        if (big && !flags.f.big_stack && stk_data[2] != NULL) {
+            // Extend the stack back to its original size, restoring its
+            // original contents, but only those above the current contents.
+            vartype_list *tlist = (vartype_list *) stk_data[2];
+            int4 tlsize = tlist->size;
+            for (int i = 0; i < 4 && i < tlsize; i++) {
+                free_vartype(stack[sp - i]);
+                stack[sp - i] = tlist->array->data[tlsize - 1 - i];
+                tlist->array->data[tlsize - 1 - i] = NULL;
+            }
+            vartype **tmpstk = stack;
+            int tmpsize = sp + 1;
+            stack = tlist->array->data;
+            stack_capacity = tlist->size;
+            sp = stack_capacity - 1;
+            tlist->array->data = tmpstk;
+            tlist->size = tmpsize;
+        }
+        flags.f.big_stack = big;
+    } else {
+        // FUNC, with or without LNSTK/L4STK
+        /* TODO */
+    }
+
+    done:
+    if (rtn_level == 0)
+        rtn_level_0_has_func_state = false;
+    else
+        rtn_stack[rtn_level - 1].set_has_func(false);
+
+    print_trace();
+    return ERR_NONE;
+}
+
+/*
 int pop_func_state(bool error) {
     if (rtn_level == 0) {
         if (!rtn_level_0_has_func_state)
@@ -3143,6 +3212,7 @@ int pop_func_state(bool error) {
     print_trace();
     return ERR_NONE;
 }
+*/
 
 void step_out() {
     if (rtn_level > 0)
