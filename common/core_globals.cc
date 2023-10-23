@@ -2919,10 +2919,13 @@ int pop_func_state(bool error) {
 
     vartype **stk_data = stk->array->data;
     int n = to_int(((vartype_real *) stk_data[0])->x);
+    vartype_string *state = (vartype_string *) stk_data[1];
+    bool big = state->txt()[0] == '1';
+
+    int err = ERR_NONE;
 
     if (n == -1) {
         // Stand-alone LNSTK/L4STK
-        char big = ((vartype_string *) stk_data[1])->txt()[0] == '1';
         if (big && !flags.f.big_stack && stk_data[2] != NULL) {
             // Extend the stack back to its original size, restoring its
             // original contents, but only those above the current contents.
@@ -2940,279 +2943,135 @@ int pop_func_state(bool error) {
             sp = stack_capacity - 1;
             tlist->array->data = tmpstk;
             tlist->size = tmpsize;
+        } else if (!big && flags.f.big_stack) {
+            if (sp < 3) {
+                int extra = 3 - sp;
+                vartype *zeros[4];
+                bool nomem = false;
+                for (int i = 0; i < extra; i++) {
+                    zeros[i] = new_real(0);
+                    if (zeros[i] == NULL)
+                        nomem = true;
+                }
+                if (nomem || !ensure_stack_capacity(extra)) {
+                    for (int i = 0; i < extra; i++)
+                        free_vartype(zeros[i]);
+                    big = true; // because the switch back to 4STK has failed
+                    err = ERR_INSUFFICIENT_MEMORY;
+                } else {
+                    memmove(stack + extra, stack, (sp + 1) * sizeof(vartype *));
+                    for (int i = 0; i < extra; i++)
+                        stack[i] = zeros[i];
+                    sp = 3;
+                }
+            } else {
+                while (sp > 3)
+                    free_vartype(stack[sp--]);
+            }
         }
-        flags.f.big_stack = big;
     } else {
         // FUNC, with or without LNSTK/L4STK
-        /* TODO */
+        vartype_list *tlist = (vartype_list *) stk_data[2];
+
+        vartype **tmpstk = stack;
+        int tmpsize = sp + 1;
+        stack = tlist->array->data;
+        stack_capacity = tlist->size;
+        sp = stack_capacity - 1;
+        tlist->array->data = tmpstk;
+        tlist->size = tmpsize;
+
+        if (error) {
+            error:
+            free_vartype(lastx);
+            lastx = stk_data[3];
+            stk_data[3] = NULL;
+        } else {
+            int inputs = n % 10;
+            int outputs = n / 10;
+            bool nolift = n == 1 && state->txt()[2] == '1';
+            int growth = outputs - inputs;
+            if (nolift)
+                growth--;
+            if (big) {
+                if (!ensure_stack_capacity(growth)) {
+                    err = ERR_INSUFFICIENT_MEMORY;
+                    goto error;
+                }
+                if (inputs > 0) {
+                    vartype *t = stack[sp];
+                    stack[sp] = lastx;
+                    lastx = t;
+                }
+                if (nolift)
+                    inputs++;
+                for (int i = 0; i < inputs; i++) {
+                    free_vartype(stack[sp - i]);
+                    stack[sp - i] = NULL;
+                }
+                sp -= inputs;
+                sp += outputs;
+                for (int i = 0; i < outputs; i++) {
+                    stack[sp - i] = tmpstk[tmpsize - i - 1];
+                    tmpstk[tmpsize - i - 1] = NULL;
+                }
+            } else {
+                vartype *tdups[4];
+                int nz = -growth;
+                for (int i = 0; i < nz; i++) {
+                    tdups[i] = dup_vartype(tmpstk[0]);
+                    if (tdups[i] == NULL) {
+                        for (int j = 0; j < i; j++)
+                            free_vartype(tdups[j]);
+                        err = ERR_INSUFFICIENT_MEMORY;
+                        goto error;
+                    }
+                }
+                if (inputs > 0) {
+                    vartype *t = stack[sp];
+                    stack[sp] = lastx;
+                    lastx = t;
+                }
+                if (nolift)
+                    inputs++;
+                for (int i = 0; i < inputs; i++) {
+                    free_vartype(stack[sp - i]);
+                    stack[sp - i] = NULL;
+                }
+                if (growth > 0) {
+                    for (int i = 0; i < growth; i++)
+                        free_vartype(stack[i]);
+                    memmove(stack, stack + growth, (4 - outputs) * sizeof(vartype *));
+                } else if (growth < 0) {
+                    int shrinkage = -growth;
+                    memmove(stack + shrinkage, stack, (4 - outputs) * sizeof(vartype *));
+                    for (int i = 0; i < shrinkage; i++)
+                        stack[i] = tdups[i];
+                }
+                for (int i = 0; i < outputs; i++) {
+                    stack[sp - i] = tmpstk[tmpsize - i - 1];
+                    tmpstk[tmpsize - i - 1] = NULL;
+                }
+            }
+        }
+
+        flags.f.error_ignore = state->txt()[3] == '1';
+        lasterr = (signed char) state->txt()[4];
+        if (lasterr == -1) {
+            lasterr_length = state->length - 5;
+            memcpy(lasterr_text, state->txt() + 5, lasterr_length);
+        }
     }
 
-    done:
     if (rtn_level == 0)
         rtn_level_0_has_func_state = false;
     else
         rtn_stack[rtn_level - 1].set_has_func(false);
 
+    flags.f.big_stack = big;
     print_trace();
-    return ERR_NONE;
+    return err;
 }
-
-/*
-int pop_func_state(bool error) {
-    if (rtn_level == 0) {
-        if (!rtn_level_0_has_func_state)
-            return ERR_NONE;
-    } else {
-        if (!rtn_stack[rtn_level - 1].has_func())
-            return ERR_NONE;
-    }
-
-    vartype_list *st = (vartype_list *) recall_private_var("ST", 2);
-    vartype_list *fd = (vartype_list *) recall_private_var("FD", 2);
-
-    if (st == NULL && fd == NULL)
-        // Pre-bigstack. Rather a hassle to deal with, so punt.
-        // Note that this can only happen if a user upgrades from
-        // 2.5.23 or 2.5.24 to >2.5.24 while execution is stopped
-        // with old FUNC data on the stack. That seems like a
-        // reasonable scenario to ignore.
-        return ERR_INVALID_DATA;
-
-    if (st != NULL) {
-        vartype **st_data = st->array->data;
-        char big = ((vartype_string *) st_data[0])->txt()[0] == '1';
-        if (big == flags.f.big_stack)
-            st = NULL;
-    }
-
-    if (st != NULL && fd == NULL) {
-        vartype **st_data = st->array->data;
-        char big = ((vartype_string *) st_data[0])->txt()[0] == '1';
-        if (big) {
-            if (!core_settings.allow_big_stack)
-                return ERR_BIG_STACK_DISABLED;
-            int4 size = st->size - 1;
-            if (size > 0) {
-                if (!ensure_stack_capacity(size))
-                    return ERR_INSUFFICIENT_MEMORY;
-                memmove(stack + size, stack, 4 * sizeof(vartype *));
-                memcpy(stack, st_data + 1, size * sizeof(vartype *));
-                memset(st_data + 1, 0, size * sizeof(vartype *));
-                sp += size;
-            }
-            flags.f.big_stack = 1;
-        } else {
-            int err = docmd_4stk(NULL);
-            if (err != ERR_NONE)
-                return err;
-        }
-        goto done;
-    }
-
-    if (st == NULL && fd != NULL) {
-        vartype **fd_data = fd->array->data;
-        int n = to_int(((vartype_real *) fd_data[0])->x);
-        int old_depth = to_int(((vartype_real *) fd_data[1])->x);
-        char big = old_depth >= 0;
-        if (big != flags.f.big_stack)
-            // Note that this must be the result of NSTK or 4STK;
-            // the effects of LNSTK or L4STK would already have been
-            // undone by the time we get here (if switching back
-            // to the saved mode was a no-op), or we wouldn't even
-            // be here in the first place (the case of st != NULL
-            // and fd != NULL with a nontrivial L4STK/LNSTK
-            // wrap-up, is handled separately at the end of this
-            // function).
-            return ERR_INVALID_CONTEXT;
-
-        if (error)
-            n = 0;
-        int in = n / 10;
-        int out = n % 10;
-
-        if (!big) {
-            int n_tdups = (in == 4 ? 3 : in) - out;
-            if (n_tdups < 0)
-                n_tdups = 0;
-            vartype *tdups[3];
-            for (int i = 0; i < n_tdups; i++) {
-                tdups[i] = dup_vartype(fd_data[7]); // T
-                if (tdups[i] == NULL) {
-                    for (int j = 0; j < i; j++)
-                        free_vartype(tdups[j]);
-                    return ERR_INSUFFICIENT_MEMORY;
-                }
-            }
-            for (int d = out; d < 4; d++) {
-                int s = d + in - out;
-                vartype *v;
-                if (s < 4) {
-                    v = fd_data[s + 4];
-                    fd_data[s + 4] = NULL;
-                } else if (d > out) {
-                    v = tdups[--n_tdups];
-                } else {
-                    v = fd_data[7]; // T
-                    fd_data[7] = NULL;
-                }
-                free_vartype(stack[sp - d]);
-                stack[sp - d] = v;
-            }
-        } else if (error) {
-            int other_depth = old_depth - fd->size + 4;
-            while (sp >= other_depth)
-                free_vartype(stack[sp--]);
-            for (int i = fd->size - 1; i >= 4; i--) {
-                stack[++sp] = fd_data[i];
-                fd_data[i] = NULL;
-            }
-        } else {
-            int depth = sp + 1;
-            int excess = depth - (old_depth - in + out);
-            if (excess > 0) {
-                for (int i = 0; i < excess; i++)
-                    free_vartype(stack[sp - out - i]);
-                memmove(stack + depth - out - excess, stack + depth - out, out * sizeof(vartype *));
-                sp -= excess;
-            }
-        }
-
-        free_vartype(lastx);
-        int li = in == 0 ? 3 : 4; // L : X
-        lastx = fd_data[li];
-        fd_data[li] = NULL;
-
-        vartype_string *s = (vartype_string *) fd_data[2];
-        flags.f.error_ignore = s->txt()[0] == '1';
-        if (s->length > 1) {
-            lasterr = (signed char) s->txt()[1];
-            if (lasterr == -1) {
-                lasterr_length = s->length - 2;
-                memcpy(lasterr_text, s->txt() + 2, lasterr_length);
-            }
-        }
-
-        goto done;
-    }
-
-    if (st != NULL && fd != NULL) {
-        vartype **st_data = st->array->data;
-        char st_big = ((vartype_string *) st_data[0])->txt()[0] == '1';
-        vartype **fd_data = fd->array->data;
-        int old_depth = to_int(((vartype_real *) fd_data[1])->x);
-        char fd_big = old_depth >= 0;
-        if (st_big != fd_big)
-            // Apparently someone called 4STK/NSTK between FUNC and L4STK/LNSTK
-            return ERR_INVALID_CONTEXT;
-        if (fd_big && !core_settings.allow_big_stack)
-            return ERR_BIG_STACK_DISABLED;
-
-        int n = to_int(((vartype_real *) fd_data[0])->x);
-
-        if (error)
-            n = 0;
-        int in = n / 10;
-        int out = n % 10;
-
-        if (!fd_big) {
-            int n_tdups = (in == 4 ? 3 : in) - out;
-            if (n_tdups < 0)
-                n_tdups = 0;
-            vartype *tdups[3];
-            for (int i = 0; i < n_tdups; i++) {
-                tdups[i] = dup_vartype(fd_data[7]); // T
-                if (tdups[i] == NULL) {
-                    for (int j = 0; j < i; j++)
-                        free_vartype(tdups[j]);
-                    return ERR_INSUFFICIENT_MEMORY;
-                }
-            }
-            int err = docmd_4stk(NULL);
-            if (err != ERR_NONE) {
-                for (int i = 0; i < n_tdups; i++)
-                    free_vartype(tdups[i]);
-                return err;
-            }
-            for (int d = out; d < 4; d++) {
-                int s = d + in - out;
-                vartype *v;
-                if (s < 4) {
-                    v = fd_data[s + 4];
-                    fd_data[s + 4] = NULL;
-                } else if (d > out) {
-                    v = tdups[--n_tdups];
-                } else {
-                    v = fd_data[7]; // T
-                    fd_data[7] = NULL;
-                }
-                free_vartype(stack[sp - d]);
-                stack[sp - d] = v;
-            }
-        } else if (error) {
-            int fd_levels = fd->size - 4;
-            int st_levels = st->size - 1;
-            int old_depth = fd_levels + st_levels;
-            if (stack_capacity < old_depth) {
-                vartype **new_stack = (vartype **) realloc(stack, old_depth * sizeof(vartype *));
-                if (new_stack == NULL)
-                    return ERR_INSUFFICIENT_MEMORY;
-                stack = new_stack;
-                stack_capacity = old_depth;
-            }
-            for (int i = 0; i <= sp; i++)
-                free_vartype(stack[i]);
-            memcpy(stack, st->array->data + 1, st_levels * sizeof(vartype *));
-            memset(st->array->data + 1, 0, st_levels * sizeof(vartype *));
-            sp = st_levels - 1;
-            for (int i = fd->size - 1; i >= 4; i--)
-                stack[++sp] = fd_data[i];
-            memset(fd->array->data + 4, 0, fd_levels * sizeof(vartype *));
-        } else {
-            int st_levels = st->size - 1;
-            int needed_capacity = st_levels + out;
-            if (stack_capacity < needed_capacity) {
-                vartype **new_stack = (vartype **) realloc(stack, needed_capacity * sizeof(vartype *));
-                if (new_stack == NULL)
-                    return ERR_INSUFFICIENT_MEMORY;
-                stack = new_stack;
-                stack_capacity = needed_capacity;
-            }
-            for (int i = 0; i <= sp - out; i++)
-                free_vartype(stack[i]);
-            memmove(stack + st_levels, stack + sp + 1 - out, out * sizeof(vartype *));
-            memcpy(stack, st->array->data + 1, st_levels * sizeof(vartype *));
-            sp = st_levels + out - 1;
-            memset(st->array->data + 1, 0, st_levels * sizeof(vartype *));
-        }
-
-        free_vartype(lastx);
-        int li = in == 0 ? 3 : 4; // L : X
-        lastx = fd_data[li];
-        fd_data[li] = NULL;
-
-        vartype_string *s = (vartype_string *) fd_data[2];
-        flags.f.error_ignore = s->txt()[0] == '1';
-        if (s->length > 1) {
-            lasterr = (signed char) s->txt()[1];
-            if (lasterr == -1) {
-                lasterr_length = s->length - 2;
-                memcpy(lasterr_text, s->txt() + 2, lasterr_length);
-            }
-        }
-
-        flags.f.big_stack = fd_big;
-    }
-
-    done:
-    if (rtn_level == 0)
-        rtn_level_0_has_func_state = false;
-    else
-        rtn_stack[rtn_level - 1].set_has_func(false);
-
-    print_trace();
-    return ERR_NONE;
-}
-*/
 
 void step_out() {
     if (rtn_level > 0)
