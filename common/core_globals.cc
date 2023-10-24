@@ -2752,7 +2752,9 @@ int push_func_state(int n) {
      * use this list to store the old stack in the STK list.
      */
     int newdepth = flags.f.big_stack ? inputs : 4;
-    vartype_list *tlist = (vartype_list *) new_list(newdepth);
+    // Allocating size 4 because the stack must always have capacity >= 4
+    vartype_list *tlist = (vartype_list *) new_list(4);
+    tlist->size = newdepth;
     if (tlist == NULL)
         goto nomem1;
     for (i = 0; i < newdepth; i++) {
@@ -2783,6 +2785,8 @@ int push_func_state(int n) {
     tlist->size = sp + 1;
     stack = tmpstk;
     stack_capacity = tmpdepth;
+    if (stack_capacity < 4)
+        stack_capacity = 4;
     sp = tmpdepth - 1;
     slist->array->data[2] = (vartype *) tlist;
     slist->array->data[3] = lastx;
@@ -2889,16 +2893,23 @@ int push_stack_state(bool big) {
     }
 }
 
-/* Layout of STK list used to save state for FUNC and LNSTK/L4STK:
- * 0: Mode: [0-4][0-4] for FUNC, or -1 for stand-alone LNSTK/L4STK;
- * 1: State: "ABCDE<Text>" where A=Caller Big Stack, B=LNSTK/L4STK after FUNC,
- *    C=CSLD, D=F25, E=ERRNO, <Text>=ERRMSG
- *    For stand-alone LNSTK/L4STK, only A is present.
- * 2: Saved stack. For stand-alone LNSTK/L4STK that didn't have to
- *    change the actual stack mode, this is empty; for stand-alone
- *    LNSTK, this is also empty; for all other cases, this is the entire stack.
- * 3: Saved LASTX (FUNC only)
+/* FUNC and L4STK save the stack in a list, but this has one undesirable
+ * side effect: if the state is saved and restored, the array inside the
+ * list will be created without any spare room. This is bad when restoring
+ * the stack, because there is the assumption that the stack array will
+ * always have capacity >= 4. This function makes sure the array has that
+ * capacity.
  */
+static bool ensure_list_capacity_4(vartype_list *list) {
+    int4 size = list->size;
+    if (size < 4) {
+        vartype **newdata = (vartype **) realloc(list->array->data, 4 * sizeof(vartype *));
+        if (newdata == NULL)
+            return false;
+        list->array->data = newdata;
+    }
+    return true;
+}
 
 int pop_func_state(bool error) {
     if (rtn_level == 0) {
@@ -2923,6 +2934,13 @@ int pop_func_state(bool error) {
     bool big = state->txt()[0] == '1';
 
     int err = ERR_NONE;
+    if (false) {
+        error:
+        free_vartype(lastx);
+        lastx = stk_data[3];
+        stk_data[3] = NULL;
+        goto done;
+    }
 
     if (n == -1) {
         // Stand-alone LNSTK/L4STK
@@ -2930,6 +2948,8 @@ int pop_func_state(bool error) {
             // Extend the stack back to its original size, restoring its
             // original contents, but only those above the current contents.
             vartype_list *tlist = (vartype_list *) stk_data[2];
+            if (!ensure_list_capacity_4(tlist))
+                return ERR_INSUFFICIENT_MEMORY;
             int4 tlsize = tlist->size;
             for (int i = 0; i < 4 && i < tlsize; i++) {
                 free_vartype(stack[sp - i]);
@@ -2941,6 +2961,8 @@ int pop_func_state(bool error) {
             stack = tlist->array->data;
             stack_capacity = tlist->size;
             sp = stack_capacity - 1;
+            if (stack_capacity < 4)
+                stack_capacity = 4;
             tlist->array->data = tmpstk;
             tlist->size = tmpsize;
         } else if (!big && flags.f.big_stack) {
@@ -2972,28 +2994,32 @@ int pop_func_state(bool error) {
     } else {
         // FUNC, with or without LNSTK/L4STK
         vartype_list *tlist = (vartype_list *) stk_data[2];
+        if (!ensure_list_capacity_4(tlist)) {
+            err = ERR_INSUFFICIENT_MEMORY;
+            goto error;
+        }
 
         vartype **tmpstk = stack;
         int tmpsize = sp + 1;
         stack = tlist->array->data;
         stack_capacity = tlist->size;
         sp = stack_capacity - 1;
+        if (stack_capacity < 4)
+            stack_capacity = 4;
         tlist->array->data = tmpstk;
         tlist->size = tmpsize;
 
         if (error) {
-            error:
-            free_vartype(lastx);
-            lastx = stk_data[3];
-            stk_data[3] = NULL;
+            goto error;
         } else {
-            int inputs = n % 10;
-            int outputs = n / 10;
+            int inputs = n / 10;
+            int outputs = n % 10;
             bool nolift = n == 1 && state->txt()[2] == '1';
             int growth = outputs - inputs;
             if (nolift)
                 growth--;
             if (big) {
+                flags.f.big_stack = true;
                 if (!ensure_stack_capacity(growth)) {
                     err = ERR_INSUFFICIENT_MEMORY;
                     goto error;
@@ -3002,6 +3028,10 @@ int pop_func_state(bool error) {
                     vartype *t = stack[sp];
                     stack[sp] = lastx;
                     lastx = t;
+                } else {
+                    free_vartype(lastx);
+                    lastx = stk_data[3];
+                    stk_data[3] = NULL;
                 }
                 if (nolift)
                     inputs++;
@@ -3019,7 +3049,7 @@ int pop_func_state(bool error) {
                 vartype *tdups[4];
                 int nz = -growth;
                 for (int i = 0; i < nz; i++) {
-                    tdups[i] = dup_vartype(tmpstk[0]);
+                    tdups[i] = dup_vartype(stack[0]);
                     if (tdups[i] == NULL) {
                         for (int j = 0; j < i; j++)
                             free_vartype(tdups[j]);
@@ -3031,6 +3061,10 @@ int pop_func_state(bool error) {
                     vartype *t = stack[sp];
                     stack[sp] = lastx;
                     lastx = t;
+                } else {
+                    free_vartype(lastx);
+                    lastx = stk_data[3];
+                    stk_data[3] = NULL;
                 }
                 if (nolift)
                     inputs++;
@@ -3063,6 +3097,7 @@ int pop_func_state(bool error) {
         }
     }
 
+    done:
     if (rtn_level == 0)
         rtn_level_0_has_func_state = false;
     else
