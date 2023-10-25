@@ -2774,7 +2774,7 @@ int push_func_state(int n) {
     vartype_string *s = (vartype_string *) slist->array->data[1];
     s->txt()[0] = flags.f.big_stack ? '1' : '0';
     s->txt()[1] = '0';
-    s->txt()[2] = mode_caller_stack_lift_disabled ? '1' : '0';
+    s->txt()[2] = mode_caller_stack_lift_disabled && sp != -1 ? '1' : '0';
     s->txt()[3] = flags.f.error_ignore ? '1' : '0';
     s->txt()[4] = (char) lasterr;
     if (lasterr == -1)
