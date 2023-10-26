@@ -2932,6 +2932,8 @@ int pop_func_state(bool error) {
     int n = to_int(((vartype_real *) stk_data[0])->x);
     vartype_string *state = (vartype_string *) stk_data[1];
     bool big = state->txt()[0] == '1';
+    if (big && !core_settings.allow_big_stack)
+        return ERR_BIG_STACK_DISABLED;
 
     int err = ERR_NONE;
     if (false) {
