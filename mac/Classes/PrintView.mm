@@ -95,6 +95,13 @@
 }
 
 - (void)drawRect:(NSRect)rect {
+    int length = printout_bottom - printout_top;
+    if (length < 0)
+        length += PRINT_LINES;
+    if (rect.origin.y < 0)
+        rect.origin.y = 0;
+    if (rect.origin.y + rect.size.height > length)
+        rect.size.height = length - rect.origin.y;
     CGContextRef myContext = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
     CGContextSetRGBFillColor(myContext, 1.0, 1.0, 1.0, 1.0);
     CGContextFillRect(myContext, NSRectToCGRect(rect));
@@ -103,9 +110,6 @@
     int xmax = (int) (rect.origin.x + rect.size.width);
     int ymin = (int) rect.origin.y;
     int ymax = (int) (rect.origin.y + rect.size.height);
-    int length = printout_bottom - printout_top;
-    if (length < 0)
-        length += PRINT_LINES;
     for (int v = ymin; v < ymax; v++) {
         int v2 = printout_top + v;
         if (v2 >= PRINT_LINES)
