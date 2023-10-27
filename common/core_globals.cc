@@ -3072,13 +3072,14 @@ int pop_func_state(bool error) {
                     free_vartype(stack[sp - i]);
                     stack[sp - i] = NULL;
                 }
+                int remains = 4 - (inputs > outputs ? inputs : outputs);
                 if (growth > 0) {
                     for (int i = 0; i < growth; i++)
                         free_vartype(stack[i]);
-                    memmove(stack, stack + growth, (4 - outputs) * sizeof(vartype *));
+                    memmove(stack, stack + growth, remains * sizeof(vartype *));
                 } else if (growth < 0) {
                     int shrinkage = -growth;
-                    memmove(stack + shrinkage, stack, (4 - outputs) * sizeof(vartype *));
+                    memmove(stack + shrinkage, stack, remains * sizeof(vartype *));
                     for (int i = 0; i < shrinkage; i++)
                         stack[i] = tdups[i];
                 }
