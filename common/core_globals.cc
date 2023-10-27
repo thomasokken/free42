@@ -2778,15 +2778,13 @@ int push_func_state(int n) {
     s->txt()[3] = flags.f.error_ignore ? '1' : '0';
     s->txt()[4] = (char) lasterr;
     if (lasterr == -1)
-        memcpy(s->txt() + 4, lasterr_text, lasterr_length);
+        memcpy(s->txt() + 5, lasterr_text, lasterr_length);
     vartype **tmpstk = tlist->array->data;
     int4 tmpdepth = tlist->size;
     tlist->array->data = stack;
     tlist->size = sp + 1;
     stack = tmpstk;
-    stack_capacity = tmpdepth;
-    if (stack_capacity < 4)
-        stack_capacity = 4;
+    stack_capacity = 4;
     sp = tmpdepth - 1;
     slist->array->data[2] = (vartype *) tlist;
     slist->array->data[3] = lastx;
