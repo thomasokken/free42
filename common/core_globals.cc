@@ -2810,7 +2810,7 @@ int push_stack_state(bool big) {
         if (s->length == 1 || s->txt()[1] != '0')
             /* LNSTK/L4STK after LNSTK/L4STK: not allowed */
             return ERR_INVALID_CONTEXT;
-        if (flags.f.big_stack == big) {
+        if ((bool) flags.f.big_stack == big) {
             /* Nothing to do */
         } else if (big) {
             /* Assuming we're being called right after FUNC, so
