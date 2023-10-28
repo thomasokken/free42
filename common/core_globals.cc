@@ -2865,8 +2865,8 @@ int push_stack_state(bool big) {
             if (tlist == NULL)
                 goto nomem;
             for (i = 0; i < 4; i++) {
-                tlist->array->data[i] = i <= sp ? dup_vartype(stack[sp - i]) : new_real(0);
-                if (tlist->array->data[i] == NULL) {
+                tlist->array->data[3 - i] = i <= sp ? dup_vartype(stack[sp - i]) : new_real(0);
+                if (tlist->array->data[3 - i] == NULL) {
                     free_vartype((vartype *) tlist);
                     goto nomem;
                 }
@@ -2882,6 +2882,7 @@ int push_stack_state(bool big) {
         }
 
         store_private_var("STK", 3, stk);
+        flags.f.big_stack = big;
 
         if (rtn_level == 0)
             rtn_level_0_has_func_state = true;
@@ -2946,23 +2947,22 @@ int pop_func_state(bool error) {
         // Stand-alone LNSTK/L4STK
         if (big && !flags.f.big_stack && stk_data[2] != NULL) {
             // Extend the stack back to its original size, restoring its
-            // original contents, but only those above the current contents.
+            // original contents, but only those above level 4.
             vartype_list *tlist = (vartype_list *) stk_data[2];
             if (!ensure_list_capacity_4(tlist))
                 return ERR_INSUFFICIENT_MEMORY;
-            int4 tlsize = tlist->size;
-            for (int i = 0; i < 4 && i < tlsize; i++) {
-                free_vartype(stack[sp - i]);
-                stack[sp - i] = tlist->array->data[tlsize - 1 - i];
-                tlist->array->data[tlsize - 1 - i] = NULL;
+            while (tlist->size < 4)
+                tlist->array->data[tlist->size++] = NULL;
+            for (int i = 0; i < 4; i++) {
+                free_vartype(tlist->array->data[tlist->size - 1 - i]);
+                tlist->array->data[tlist->size - 1 - i] = stack[sp - i];
+                stack[sp - i] = NULL;
             }
             vartype **tmpstk = stack;
             int tmpsize = sp + 1;
             stack = tlist->array->data;
             stack_capacity = tlist->size;
             sp = stack_capacity - 1;
-            if (stack_capacity < 4)
-                stack_capacity = 4;
             tlist->array->data = tmpstk;
             tlist->size = tmpsize;
         } else if (!big && flags.f.big_stack) {
