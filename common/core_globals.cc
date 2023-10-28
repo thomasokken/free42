@@ -3014,16 +3014,24 @@ int pop_func_state(bool error) {
 
         int inputs = n / 10;
         int outputs = n % 10;
-        while (tmpsize < outputs) {
+        if (tmpsize < outputs) {
             // One could make the case that this should be an error.
             // I chose to be lenient and pad the result set with zeros instead.
-            vartype *zero = new_real(0);
-            if (zero == NULL) {
+            int deficit = outputs - tmpsize;
+            memmove(tmpstk + deficit, tmpstk, tmpsize * sizeof(vartype *));
+            bool nomem = false;
+            for (int i = 0; i < deficit; i++) {
+                vartype *zero = new_real(0);
+                tmpstk[i] = zero;
+                if (zero == NULL)
+                    nomem = true;
+            }
+            tmpsize += deficit;
+            tlist->size = tmpsize;
+            if (nomem) {
                 err = ERR_INSUFFICIENT_MEMORY;
                 goto error;
             }
-            tmpstk[tmpsize++] = zero;
-            tlist->size = tmpsize;
         }
 
         bool do_lastx = inputs > 0;
