@@ -3009,84 +3009,89 @@ int pop_func_state(bool error) {
         tlist->array->data = tmpstk;
         tlist->size = tmpsize;
 
-        if (error) {
+        if (error)
             goto error;
+
+        int inputs = n / 10;
+        int outputs = n % 10;
+        while (tmpsize < outputs) {
+            // One could make the case that this should be an error.
+            // I chose to be lenient and pad the result set with zeros instead.
+            vartype *zero = new_real(0);
+            if (zero == NULL) {
+                err = ERR_INSUFFICIENT_MEMORY;
+                goto error;
+            }
+            tmpstk[tmpsize++] = zero;
+            tlist->size = tmpsize;
+        }
+
+        bool do_lastx = inputs > 0;
+        if (n == 1 && state->txt()[2] == '1')
+            // RCL-like function with stack lift disabled
+            inputs = 1;
+        int growth = outputs - inputs;
+        if (big) {
+            flags.f.big_stack = true;
+            if (!ensure_stack_capacity(growth)) {
+                err = ERR_INSUFFICIENT_MEMORY;
+                goto error;
+            }
+            free_vartype(lastx);
+            if (do_lastx) {
+                lastx = stack[sp];
+                stack[sp] = NULL;
+            } else {
+                lastx = stk_data[3];
+                stk_data[3] = NULL;
+            }
+            for (int i = 0; i < inputs; i++) {
+                free_vartype(stack[sp - i]);
+                stack[sp - i] = NULL;
+            }
+            sp -= inputs;
+            sp += outputs;
+            for (int i = 0; i < outputs; i++) {
+                stack[sp - i] = tmpstk[tmpsize - i - 1];
+                tmpstk[tmpsize - i - 1] = NULL;
+            }
         } else {
-            int inputs = n / 10;
-            int outputs = n % 10;
-            bool nolift = n == 1 && state->txt()[2] == '1';
-            int growth = outputs - inputs;
-            if (nolift)
-                growth--;
-            if (big) {
-                flags.f.big_stack = true;
-                if (!ensure_stack_capacity(growth)) {
+            vartype *tdups[4];
+            int n_tdups = -growth;
+            for (int i = 0; i < n_tdups; i++) {
+                tdups[i] = dup_vartype(stack[0]);
+                if (tdups[i] == NULL) {
+                    for (int j = 0; j < i; j++)
+                        free_vartype(tdups[j]);
                     err = ERR_INSUFFICIENT_MEMORY;
                     goto error;
                 }
-                if (inputs > 0) {
-                    vartype *t = stack[sp];
-                    stack[sp] = lastx;
-                    lastx = t;
-                } else {
-                    free_vartype(lastx);
-                    lastx = stk_data[3];
-                    stk_data[3] = NULL;
-                }
-                if (nolift)
-                    inputs++;
-                for (int i = 0; i < inputs; i++) {
-                    free_vartype(stack[sp - i]);
-                    stack[sp - i] = NULL;
-                }
-                sp -= inputs;
-                sp += outputs;
-                for (int i = 0; i < outputs; i++) {
-                    stack[sp - i] = tmpstk[tmpsize - i - 1];
-                    tmpstk[tmpsize - i - 1] = NULL;
-                }
+            }
+            free_vartype(lastx);
+            if (do_lastx) {
+                lastx = stack[sp];
+                stack[sp] = NULL;
             } else {
-                vartype *tdups[4];
-                int nz = -growth;
-                for (int i = 0; i < nz; i++) {
-                    tdups[i] = dup_vartype(stack[0]);
-                    if (tdups[i] == NULL) {
-                        for (int j = 0; j < i; j++)
-                            free_vartype(tdups[j]);
-                        err = ERR_INSUFFICIENT_MEMORY;
-                        goto error;
-                    }
-                }
-                if (inputs > 0) {
-                    vartype *t = stack[sp];
-                    stack[sp] = lastx;
-                    lastx = t;
-                } else {
-                    free_vartype(lastx);
-                    lastx = stk_data[3];
-                    stk_data[3] = NULL;
-                }
-                if (nolift)
-                    inputs++;
-                for (int i = 0; i < inputs; i++) {
-                    free_vartype(stack[sp - i]);
-                    stack[sp - i] = NULL;
-                }
-                int remains = 4 - (inputs > outputs ? inputs : outputs);
-                if (growth > 0) {
-                    for (int i = 0; i < growth; i++)
-                        free_vartype(stack[i]);
-                    memmove(stack, stack + growth, remains * sizeof(vartype *));
-                } else if (growth < 0) {
-                    int shrinkage = -growth;
-                    memmove(stack + shrinkage, stack, remains * sizeof(vartype *));
-                    for (int i = 0; i < shrinkage; i++)
-                        stack[i] = tdups[i];
-                }
-                for (int i = 0; i < outputs; i++) {
-                    stack[sp - i] = tmpstk[tmpsize - i - 1];
-                    tmpstk[tmpsize - i - 1] = NULL;
-                }
+                lastx = stk_data[3];
+                stk_data[3] = NULL;
+            }
+            for (int i = 0; i < inputs; i++) {
+                free_vartype(stack[sp - i]);
+                stack[sp - i] = NULL;
+            }
+            if (growth > 0) {
+                for (int i = 0; i < growth; i++)
+                    free_vartype(stack[i]);
+                memmove(stack, stack + growth, (4 - outputs) * sizeof(vartype *));
+            } else if (growth < 0) {
+                int shrinkage = -growth;
+                memmove(stack + shrinkage, stack, (4 - inputs) * sizeof(vartype *));
+                for (int i = 0; i < shrinkage; i++)
+                    stack[i] = tdups[i];
+            }
+            for (int i = 0; i < outputs; i++) {
+                stack[sp - i] = tmpstk[tmpsize - i - 1];
+                tmpstk[tmpsize - i - 1] = NULL;
             }
         }
 
