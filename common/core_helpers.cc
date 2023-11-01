@@ -1911,29 +1911,56 @@ int ip2revstring(phloat d, char *buf, int buflen) {
     return bufpos;
 }
 
-vartype *matedit_get() {
+int matedit_get(vartype **res) {
+    if (matedit_mode == 0)
+        return ERR_NONEXISTENT;
     if (matedit_mode != 1 && matedit_mode != 3)
         return NULL;
+
     vartype *m = NULL;
-    for (int i = vars_count - 1; i >= 0; i--) {
-        var_struct *lv = vars + i;
-        if ((lv->flags & VAR_PRIVATE) != 0)
-            continue;
-        if (matedit_level != -1 && lv->level < matedit_level)
-            return NULL;
-        if (lv->level == matedit_level && string_equals(matedit_name, matedit_length, lv->name, lv->length)) {
-            m = lv->value;
-            break;
+    if (matedit_mode == 2)
+        m = matedit_x;
+    else
+        for (int i = vars_count - 1; i >= 0; i--) {
+            var_struct *lv = vars + i;
+            if ((lv->flags & VAR_PRIVATE) != 0)
+                continue;
+            if (matedit_level != -1 && lv->level < matedit_level)
+                return NULL;
+            if (lv->level == matedit_level && string_equals(matedit_name, matedit_length, lv->name, lv->length)) {
+                m = lv->value;
+                break;
+            }
         }
-    }
-    // Apart from the check for m == NULL, the following checks *should* be unnecessary,
-    // we're already preventing those scenarios. Or that's what we're trying, anyway...
+    int err = ERR_NONEXISTENT;
     if (m == NULL) {
         bad_matrix:
-        if (matedit_mode == 3)
+        if (matedit_mode == 2 || matedit_mode == 3)
             leave_matrix_editor();
-        return NULL;
-    } else if (m->type == TYPE_REALMATRIX) {
+        return err;
+    }
+
+    for (int i = 0; i < matedit_stack_depth; i++) {
+        if (m->type != TYPE_LIST) {
+            err = i == 0 ? ERR_INVALID_TYPE : ERR_INVALID_DATA;
+            goto bad_matrix;
+        }
+        vartype_list *list = (vartype_list *) m;
+        if (matedit_stack[i] >= list->size) {
+            err = ERR_INVALID_DATA;
+            goto bad_matrix;
+        }
+        m = list->array->data[matedit_stack[i]];
+    }
+
+    if (m->type != TYPE_REALMATRIX && m->type != TYPE_COMPLEXMATRIX && m->type != TYPE_LIST) {
+        err = matedit_stack_depth == 0 ? ERR_INVALID_TYPE : ERR_INVALID_DATA;
+        goto bad_matrix;
+    }
+
+    // The following checks *should* be unnecessary, we're already preventing
+    // those scenarios. Or that's what we're trying, anyway...
+    if (m->type == TYPE_REALMATRIX) {
         vartype_realmatrix *rm = (vartype_realmatrix *) m;
         if (matedit_i >= rm->rows || matedit_j >= rm->columns)
             matedit_i = matedit_j = 0;
@@ -1941,9 +1968,15 @@ vartype *matedit_get() {
         vartype_complexmatrix *cm = (vartype_complexmatrix *) m;
         if (matedit_i >= cm->rows || matedit_j >= cm->columns)
             matedit_i = matedit_j = 0;
-    } else
-        goto bad_matrix;
-    return m;
+    } else { // m->type == TYPE_LIST
+        vartype_list *list = (vartype_list *) m;
+        if (matedit_i >= list->size)
+            matedit_i = 0;
+        matedit_j = -1;
+    }
+
+    *res = m;
+    return ERR_NONE;
 }
 
 void leave_matrix_editor() {

@@ -1200,9 +1200,15 @@ void display_x(int row) {
     clear_row(row);
     vartype *x = sp >= 0 ? stack[sp] : NULL;
     if (matedit_mode == 2 || matedit_mode == 3) {
+        for (int i = 0; i < matedit_stack_depth; i++) {
+            bufptr += int2string(matedit_stack[i] + 1, buf + bufptr, 22 - bufptr);
+            char2buf(buf, 22, &bufptr, '.');
+        }
         bufptr += int2string(matedit_i + 1, buf + bufptr, 22 - bufptr);
-        char2buf(buf, 22, &bufptr, ':');
-        bufptr += int2string(matedit_j + 1, buf + bufptr, 22 - bufptr);
+        if (matedit_j != -1) {
+            char2buf(buf, 22, &bufptr, ':');
+            bufptr += int2string(matedit_j + 1, buf + bufptr, 22 - bufptr);
+        }
         char2buf(buf, 22, &bufptr, '=');
     } else if (input_length > 0) {
         string2buf(buf, 22, &bufptr, input_name, input_length);

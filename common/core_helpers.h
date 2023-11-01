@@ -106,7 +106,7 @@ const char *phloat2program(phloat d);
 int easy_phloat2string(phloat d, char *buf, int buflen, int base_mode);
 int ip2revstring(phloat d, char *buf, int buflen);
 
-vartype *matedit_get();
+int matedit_get(vartype **res);
 void leave_matrix_editor();
 
 

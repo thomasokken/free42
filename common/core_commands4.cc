@@ -41,25 +41,9 @@ int docmd_insr(arg_struct *arg) {
     int err, refcount;
     int interactive;
 
-    switch (matedit_mode) {
-        case 0:
-            return ERR_NONEXISTENT;
-        case 1:
-        case 3:
-            m = matedit_get();
-            break;
-        case 2:
-            m = matedit_x;
-            break;
-        default:
-            return ERR_INTERNAL_ERROR;
-    }
-    if (m == NULL)
-        return ERR_NONEXISTENT;
-    if (m->type != TYPE_REALMATRIX
-            && m->type != TYPE_COMPLEXMATRIX
-            && m->type != TYPE_LIST)
-        return ERR_INVALID_TYPE;
+    err = matedit_get(&m);
+    if (err != ERR_NONE)
+        return err;
 
     interactive = matedit_mode == 2 || matedit_mode == 3;
     if (interactive && sp != -1) {
@@ -363,27 +347,10 @@ int docmd_putm(arg_struct *arg) {
     vartype *m;
     int4 i, j;
 
-    switch (matedit_mode) {
-        case 0:
-            return ERR_NONEXISTENT;
-        case 1:
-        case 3:
-            m = matedit_get();
-            break;
-        case 2:
-            m = matedit_x;
-            break;
-        default:
-            return ERR_INTERNAL_ERROR;
-    }
-
-    if (m == NULL)
-        return ERR_NONEXISTENT;
-
-    if (m->type != TYPE_REALMATRIX && m->type != TYPE_COMPLEXMATRIX)
-        /* Shouldn't happen, but could, as long as I don't
-         * implement matrix locking
-         */
+    int err = matedit_get(&m);
+    if (err != ERR_NONE)
+        return err;
+    if (m->type == TYPE_LIST)
         return ERR_INVALID_TYPE;
 
     if (stack[sp]->type == TYPE_STRING)
@@ -466,22 +433,9 @@ int docmd_putm(arg_struct *arg) {
 
 int docmd_rclel(arg_struct *arg) {
     vartype *m, *v;
-    switch (matedit_mode) {
-        case 0:
-            return ERR_NONEXISTENT;
-        case 1:
-        case 3:
-            m = matedit_get();
-            break;
-        case 2:
-            m = matedit_x;
-            break;
-        default:
-            return ERR_INTERNAL_ERROR;
-    }
-
-    if (m == NULL)
-        return ERR_NONEXISTENT;
+    int err = matedit_get(&m);
+    if (err == ERR_NONE)
+        return err;
 
     if (m->type == TYPE_REALMATRIX) {
         vartype_realmatrix *rm = (vartype_realmatrix *) m;
@@ -501,8 +455,7 @@ int docmd_rclel(arg_struct *arg) {
     } else if (m->type == TYPE_LIST) {
         vartype_list *list = (vartype_list *) m;
         v = dup_vartype(list->array->data[matedit_i]);
-    } else
-        return ERR_INVALID_TYPE;
+    }
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     return recall_result(v);
@@ -654,26 +607,10 @@ int docmd_swap_r(arg_struct *arg) {
     phloat xx, yy;
     int4 x, y, i;
 
-    switch (matedit_mode) {
-        case 0:
-            return ERR_NONEXISTENT;
-        case 1:
-        case 3:
-            m = matedit_get();
-            break;
-        case 2:
-            m = matedit_x;
-            break;
-        default:
-            return ERR_INTERNAL_ERROR;
-    }
-
-    if (m == NULL)
-        return ERR_NONEXISTENT;
-
-    if (m->type != TYPE_REALMATRIX && m->type != TYPE_COMPLEXMATRIX)
-        /* Should not happen, but could, as long as I don't implement
-         * matrix locking. */
+    int err = matedit_get(&m);
+    if (err != ERR_NONE)
+        return err;
+    if (m->type == TYPE_LIST)
         return ERR_INVALID_TYPE;
 
     if (stack[sp]->type == TYPE_STRING)
@@ -798,30 +735,9 @@ int docmd_sinh(arg_struct *arg) {
 
 int docmd_stoel(arg_struct *arg) {
     vartype *m;
-    switch (matedit_mode) {
-        case 0:
-            return ERR_NONEXISTENT;
-        case 1:
-        case 3:
-            m = matedit_get();
-            break;
-        case 2:
-            m = matedit_x;
-            break;
-        default:
-            return ERR_INTERNAL_ERROR;
-    }
-
-    if (m == NULL)
-        return ERR_NONEXISTENT;
-
-    if (m->type != TYPE_REALMATRIX
-            && m->type != TYPE_COMPLEXMATRIX
-            && m->type != TYPE_LIST)
-        /* Should not happen, but could, as long as I don't implement
-         * matrix locking.
-         */
-        return ERR_INVALID_TYPE;
+    int err = matedit_get(&m);
+    if (err != ERR_NONE)
+        return err;
 
     if (!disentangle(m))
         return ERR_INSUFFICIENT_MEMORY;
@@ -874,22 +790,9 @@ int docmd_stoij(arg_struct *arg) {
     phloat x, y;
     int4 i, j;
 
-    switch (matedit_mode) {
-        case 0:
-            return ERR_NONEXISTENT;
-        case 1:
-        case 3:
-            m = matedit_get();
-            break;
-        case 2:
-            m = matedit_x;
-            break;
-        default:
-            return ERR_INTERNAL_ERROR;
-    }
-
-    if (m == NULL)
-        return ERR_NONEXISTENT;
+    int err = matedit_get(&m);
+    if (err != ERR_NONE)
+        return err;
 
     if (stack[sp]->type == TYPE_STRING)
         return ERR_ALPHA_DATA_IS_INVALID;
@@ -926,10 +829,7 @@ int docmd_stoij(arg_struct *arg) {
         vartype_list *list = (vartype_list *) m;
         if (i == 0 || i > list->size || j != 1)
             return ERR_DIMENSION_ERROR;
-    } else
-        /* Should not happen, but could, as long as I don't implement
-         * matrix locking. */
-        return ERR_INVALID_TYPE;
+    }
 
     matedit_i = i - 1;
     matedit_j = j - 1;
@@ -1074,22 +974,9 @@ static int matedit_move(int direction) {
     int edge_flag = 0;
     int end_flag = 0;
 
-    switch (matedit_mode) {
-        case 0:
-            return ERR_NONEXISTENT;
-        case 1:
-        case 3:
-            m = matedit_get();
-            break;
-        case 2:
-            m = matedit_x;
-            break;
-        default:
-            return ERR_INTERNAL_ERROR;
-    }
-
-    if (m == NULL)
-        return ERR_NONEXISTENT;
+    int err = matedit_get(&m);
+    if (err != ERR_NONE)
+        return err;
 
     if (m->type == TYPE_REALMATRIX) {
         rm = (vartype_realmatrix *) m;
@@ -1099,12 +986,11 @@ static int matedit_move(int direction) {
         cm = (vartype_complexmatrix *) m;
         rows = cm->rows;
         columns = cm->columns;
-    } else if (m->type == TYPE_LIST) {
+    } else { // TYPE_LIST
         list = (vartype_list *) m;
         rows = list->size;
         columns = 1;
-    } else
-        return ERR_INVALID_TYPE;
+    }
 
     if (!disentangle(m))
         return ERR_INSUFFICIENT_MEMORY;
@@ -1553,21 +1439,9 @@ static int max_min_helper(int do_max) {
     int4 i, max_or_min_index = 0;
     vartype *new_x, *new_y;
 
-    switch (matedit_mode) {
-        case 0:
-            return ERR_NONEXISTENT;
-        case 1:
-        case 3:
-            m = matedit_get();
-            break;
-        case 2:
-            m = matedit_x;
-            break;
-        default:
-            return ERR_INTERNAL_ERROR;
-    }
-    if (m == NULL)
-        return ERR_NONEXISTENT;
+    int err = matedit_get(&m);
+    if (err != ERR_NONE)
+        return err;
     if (m->type != TYPE_REALMATRIX)
         return ERR_INVALID_TYPE;
     rm = (vartype_realmatrix *) m;
@@ -1606,21 +1480,11 @@ int docmd_find(arg_struct *arg) {
     vartype *m;
     if (stack[sp]->type == TYPE_REALMATRIX || stack[sp]->type == TYPE_COMPLEXMATRIX)
         return ERR_INVALID_TYPE;
-    switch (matedit_mode) {
-        case 0:
-            return ERR_NONEXISTENT;
-        case 1:
-        case 3:
-            m = matedit_get();
-            break;
-        case 2:
-            m = matedit_x;
-            break;
-        default:
-            return ERR_INTERNAL_ERROR;
-    }
-    if (m == NULL)
-        return ERR_NONEXISTENT;
+    int err = matedit_get(&m);
+    if (err != ERR_NONE)
+        return err;
+    if (m->type == TYPE_LIST)
+        return ERR_INVALID_TYPE;
     if (m->type == TYPE_REALMATRIX) {
         vartype_realmatrix *rm;
         int4 i, j, p = 0;
