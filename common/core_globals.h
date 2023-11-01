@@ -475,6 +475,8 @@ extern vartype *matedit_x;
 extern int4 matedit_i;
 extern int4 matedit_j;
 extern int matedit_prev_appmenu;
+extern int4 *matedit_stack;
+extern int matedit_stack_depth;
 
 /* INPUT */
 extern char input_name[11];

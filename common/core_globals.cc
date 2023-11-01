@@ -667,6 +667,8 @@ vartype *matedit_x;
 int4 matedit_i;
 int4 matedit_j;
 int matedit_prev_appmenu;
+int4 *matedit_stack = NULL;
+int matedit_stack_depth = 0;
 
 /* INPUT */
 char input_name[11];
@@ -736,8 +738,9 @@ bool no_keystrokes_yet;
  * Version 45: 3.0.12 SOLVE secant impatience
  * Version 46: 3.1    CSLD?
  * Version 47: 3.1    Back-port of Plus42 RTN stack; FUNC stack hiding
+ * Version 48: 3.1    Matrix editor nested lists
  */
-#define FREE42_VERSION 47
+#define FREE42_VERSION 48
 
 
 /*******************/
@@ -3744,6 +3747,28 @@ static bool load_state2(bool *clear, bool *too_new) {
     if (!read_int4(&matedit_i)) return false;
     if (!read_int4(&matedit_j)) return false;
     if (!read_int(&matedit_prev_appmenu)) return false;
+    if (ver < 48) {
+        matedit_stack = NULL;
+        matedit_stack_depth = 0;
+    } else {
+        if (!read_int(&matedit_stack_depth)) return false;
+        if (matedit_stack_depth == 0) {
+            matedit_stack = NULL;
+        } else {
+            matedit_stack = (int4 *) malloc(matedit_stack_depth * sizeof(int4));
+            if (matedit_stack == NULL) {
+                matedit_stack_depth = 0;
+                return false;
+            }
+            for (int i = 0; i < matedit_stack_depth; i++)
+                if (!read_int4(matedit_stack + i)) {
+                    free(matedit_stack);
+                    matedit_stack = NULL;
+                    matedit_stack_depth = 0;
+                    return false;
+                }
+        }
+    }
 
     if (fread(input_name, 1, 11, gfile) != 11) return false;
     if (!read_int(&input_length)) return false;
@@ -3896,6 +3921,9 @@ void save_state(bool *success) {
     if (!write_int4(matedit_i)) return;
     if (!write_int4(matedit_j)) return;
     if (!write_int(matedit_prev_appmenu)) return;
+    if (!write_int(matedit_stack_depth)) return;
+    for (int i = 0; i < matedit_stack_depth)
+        if (!write_int4(matedit_stack[i])) return;
 
     if (fwrite(input_name, 1, 11, gfile) != 11) return;
     if (!write_int(input_length)) return;
@@ -3985,6 +4013,9 @@ void hard_reset(int reason) {
     pending_command = CMD_NONE;
 
     matedit_mode = 0;
+    matedit_stack_depth = 0;
+    free(matedit_stack);
+    matedit_stack = NULL;
     input_length = 0;
     baseapp = 0;
     random_number_low = 0;
