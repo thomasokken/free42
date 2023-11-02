@@ -21,7 +21,7 @@
 #include "free42.h"
 #include "core_globals.h"
 
-int matedit_get_dim(int4 *rows, int4 *columns);
+int matedit_get_dim(int4 *rows, int4 *columns, vartype **res = NULL);
 
 int docmd_acosh(arg_struct *arg);
 int docmd_aleng(arg_struct *arg);

@@ -1983,4 +1983,7 @@ void leave_matrix_editor() {
     set_appmenu_exitcallback(0);
     set_menu(MENULEVEL_APP, MENU_NONE);
     matedit_mode = 0;
+    free(matedit_stack);
+    matedit_stack = NULL;
+    matedit_stack_depth = 0;
 }

@@ -758,7 +758,7 @@ int docmd_dot(arg_struct *arg) {
     return binary_result(v);
 }
 
-int matedit_get_dim(int4 *rows, int4 *columns) {
+int matedit_get_dim(int4 *rows, int4 *columns, vartype **res) {
     vartype *m;
 
     int err = matedit_get(&m);
@@ -778,6 +778,8 @@ int matedit_get_dim(int4 *rows, int4 *columns) {
         *rows = list->size;
         *columns = 1;
     }
+    if (res != NULL)
+        *res = m;
     return ERR_NONE;
 }
 
@@ -833,6 +835,9 @@ int appmenu_exitcallback_1(int menuid, bool exitall) {
             matedit_x = NULL;
         }
         matedit_mode = 0;
+        free(matedit_stack);
+        matedit_stack = NULL;
+        matedit_stack_depth = 0;
         flags.f.grow = 0;
         flags.f.stack_lift_disable = 0;
         /* Note: no need to check the value returned by set_menu() here:

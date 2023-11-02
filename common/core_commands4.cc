@@ -262,10 +262,26 @@ int docmd_j_add(arg_struct *arg) {
     int4 rows, columns;
     int4 oldi = matedit_i;
     int4 oldj = matedit_j;
-    int err = matedit_get_dim(&rows, &columns);
+    vartype *m;
+    int err = matedit_get_dim(&rows, &columns, &m);
     if (err != ERR_NONE)
         return err;
-    if (++matedit_j >= columns) {
+    if (m->type == TYPE_LIST) {
+        vartype_list *list = (vartype_list *) m;
+        if (matedit_i >= list->size)
+            return ERR_NONEXISTENT;
+        vartype *m2 = list->array->data[matedit_i];
+        if (m2->type != TYPE_REALMATRIX && m2->type != TYPE_COMPLEXMATRIX && m2->type != TYPE_LIST)
+            return ERR_INVALID_TYPE;
+        int4 *newstack = (int4 *) realloc(matedit_stack, (matedit_stack_depth + 1) * sizeof(int4));
+        if (newstack == NULL)
+            return ERR_INSUFFICIENT_MEMORY;
+        matedit_stack = newstack;
+        matedit_stack[matedit_stack_depth++] = matedit_i;
+        matedit_i = matedit_j = 0;
+        flags.f.matrix_edge_wrap = 0;
+        flags.f.matrix_end_wrap = 0;
+    } else if (++matedit_j >= columns) {
         flags.f.matrix_edge_wrap = 1;
         matedit_j = 0;
         if (++matedit_i >= rows) {
@@ -293,10 +309,20 @@ int docmd_j_add(arg_struct *arg) {
 
 int docmd_j_sub(arg_struct *arg) {
     int4 rows, columns;
-    int err = matedit_get_dim(&rows, &columns);
+    vartype *m;
+    int err = matedit_get_dim(&rows, &columns, &m);
     if (err != ERR_NONE)
         return err;
-    if (--matedit_j < 0) {
+    if (m->type == TYPE_LIST) {
+        if (matedit_stack_depth > 0) {
+            // Range check?
+            matedit_i = matedit_stack[--matedit_stack_depth];
+            matedit_stack = (int4 *) realloc(matedit_stack, matedit_stack_depth * sizeof(int4));
+            matedit_j = -1;
+        }
+        flags.f.matrix_edge_wrap = 0;
+        flags.f.matrix_end_wrap = 0;
+    } else if (--matedit_j < 0) {
         flags.f.matrix_edge_wrap = 1;
         matedit_j = columns - 1;
         if (--matedit_i < 0) {

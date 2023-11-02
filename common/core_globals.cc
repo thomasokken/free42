@@ -2667,14 +2667,16 @@ int push_rtn_addr(int prgm, int4 pc) {
 int push_indexed_matrix() {
     if (rtn_level == 0 ? rtn_level_0_has_matrix_entry : rtn_stack[rtn_level - 1].has_matrix())
         return ERR_NONE;
-    vartype_list *list = (vartype_list *) new_list(4);
+    vartype_list *list = (vartype_list *) new_list(4 + matedit_stack_depth);
     if (list == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     list->array->data[0] = new_string(matedit_name, matedit_length);
     list->array->data[1] = new_real(matedit_level);
     list->array->data[2] = new_real(matedit_i);
     list->array->data[3] = new_real(matedit_j);
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < matedit_stack_depth; i++)
+        list->array->data[4 + i] = new_real(matedit_stack[i]);
+    for (int i = 0; i < 4 + matedit_stack_depth; i++)
         if (list->array->data[i] == NULL) {
             free_vartype((vartype *) list);
             return ERR_INSUFFICIENT_MEMORY;
@@ -2685,6 +2687,9 @@ int push_indexed_matrix() {
     else
         rtn_stack[rtn_level - 1].set_has_matrix(true);
     matedit_mode = 0;
+    free(matedit_stack);
+    matedit_stack = NULL;
+    matedit_stack_depth = 0;
     return ERR_NONE;
 }
 
@@ -2696,11 +2701,19 @@ void maybe_pop_indexed_matrix(const char *name, int len) {
     vartype_list *list = (vartype_list *) recall_and_purge_private_var("MAT", 3);
     if (list == NULL)
         return;
+    int newdepth = list->size - 4;
+    int4 *newstack = newdepth == 0 ? NULL : (int4 *) malloc(newdepth * sizeof(int4));
+    // TODO Handle memory allocation failure
     vartype_string *s = (vartype_string *) list->array->data[0];
     string_copy(matedit_name, &matedit_length, s->txt(), s->length);
     matedit_level = to_int4(((vartype_real *) list->array->data[1])->x);
     matedit_i = to_int4(((vartype_real *) list->array->data[2])->x);
     matedit_j = to_int4(((vartype_real *) list->array->data[3])->x);
+    matedit_stack_depth = newdepth;
+    free(matedit_stack);
+    matedit_stack = newstack;
+    for (int i = 0; i < newdepth; i++)
+        matedit_stack[i] = to_int4(((vartype_real *) list->array->data[i + 4])->x);
     matedit_mode = 1;
     free_vartype((vartype *) list);
     if (rtn_level == 0)
@@ -3159,6 +3172,9 @@ static void remove_locals() {
                 set_menu(MENULEVEL_APP, MENU_NONE);
             }
             matedit_mode = 0;
+            free(matedit_stack);
+            matedit_stack = NULL;
+            matedit_stack_depth = 0;
         }
         if ((vars[i].flags & VAR_HIDING) != 0) {
             for (int j = i - 1; j >= 0; j--)
@@ -3242,11 +3258,19 @@ void pop_rtn_addr(int *prgm, int4 *pc, bool *stop) {
     if (rtn_level == 0 ? rtn_level_0_has_matrix_entry : rtn_stack[rtn_level - 1].has_matrix()) {
         vartype_list *list = (vartype_list *) recall_and_purge_private_var("MAT", 3);
         if (list != NULL) {
+            int newdepth = list->size - 4;
+            int4 *newstack = newdepth == 0 ? NULL : (int4 *) malloc(newdepth * sizeof(vartype *));
+            // TODO: Handle memory allocation failure
             vartype_string *s = (vartype_string *) list->array->data[0];
             string_copy(matedit_name, &matedit_length, s->txt(), s->length);
             matedit_level = to_int4(((vartype_real *) list->array->data[1])->x);
             matedit_i = to_int4(((vartype_real *) list->array->data[2])->x);
             matedit_j = to_int4(((vartype_real *) list->array->data[3])->x);
+            matedit_stack_depth = newdepth;
+            free(matedit_stack);
+            matedit_stack = newstack;
+            for (int i = 0; i < matedit_stack_depth; i++)
+                matedit_stack[i] = to_int4(((vartype_real *) list->array->data[i + 4])->x);
             matedit_mode = 1;
             free_vartype((vartype *) list);
         }

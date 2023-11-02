@@ -552,10 +552,14 @@ int store_var(const char *name, int namelength, vartype *value, bool local) {
                 string_equals(name, namelength, matedit_name, matedit_length)) {
             if (value->type == TYPE_REALMATRIX
                     || value->type == TYPE_COMPLEXMATRIX
-                    || value->type == TYPE_LIST)
+                    || value->type == TYPE_LIST) {
                 matedit_i = matedit_j = 0;
-            else
+            } else {
                 matedit_mode = 0;
+                free(matedit_stack);
+                matedit_stack = NULL;
+                matedit_stack_depth = 0;
+            }
         }
         free_vartype(vars[varindex].value);
     }
@@ -585,8 +589,12 @@ bool purge_var(const char *name, int namelength, bool global, bool local) {
     }
     if (matedit_mode == 1
             && matedit_level == vars[varindex].level
-            && string_equals(matedit_name, matedit_length, name, namelength))
+            && string_equals(matedit_name, matedit_length, name, namelength)) {
         matedit_mode = 0;
+        free(matedit_stack);
+        matedit_stack = NULL;
+        matedit_stack_depth = 0;
+    }
     free_vartype(vars[varindex].value);
     if ((vars[varindex].flags & VAR_HIDING) != 0) {
         for (int i = varindex - 1; i >= 0; i--)
