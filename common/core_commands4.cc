@@ -271,21 +271,15 @@ int docmd_j_add(arg_struct *arg) {
         if (++matedit_i >= rows) {
             flags.f.matrix_end_wrap = 1;
             if (flags.f.grow) {
-                if (matedit_mode == 2)
-                    err = dimension_array_ref(matedit_x, rows + 1, columns);
-                else {
-                    vartype *m = matedit_get();
-                    if (m == NULL)
-                        err = ERR_NONEXISTENT;
-                    else
-                        err = dimension_array_ref(m, rows + 1, columns);
-                }
+                vartype *m;
+                err = matedit_get(&m);
+                if (err == ERR_NONE)
+                    err = dimension_array_ref(m, rows + 1, columns);
                 if (err != ERR_NONE) {
                     matedit_i = oldi;
                     matedit_j = oldj;
-                    return err;
-                }
-                matedit_i = rows;
+                } else
+                    matedit_i = rows;
             } else
                 matedit_i = 0;
         } else
@@ -1015,18 +1009,10 @@ static int matedit_move(int direction) {
                 if (++new_i >= rows) {
                     end_flag = 1;
                     if (flags.f.grow) {
-                        int err;
-                        if (matedit_mode == 2)
-                            err = dimension_array_ref(matedit_x,
-                                                      rows + 1, columns);
-                        else {
-                            vartype *m2 = matedit_get();
-                            if (m2 == NULL)
-                                err = ERR_NONEXISTENT;
-                            else
-                                err = dimension_array_ref(m2,
-                                                    rows + 1, columns);
-                        }
+                        vartype *m;
+                        int err = matedit_get(&m);
+                        if (err == ERR_NONE)
+                            err = dimension_array_ref(m, rows + 1, columns);
                         if (err != ERR_NONE)
                             return err;
                         new_i = rows++;

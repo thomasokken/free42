@@ -3922,7 +3922,7 @@ void save_state(bool *success) {
     if (!write_int4(matedit_j)) return;
     if (!write_int(matedit_prev_appmenu)) return;
     if (!write_int(matedit_stack_depth)) return;
-    for (int i = 0; i < matedit_stack_depth)
+    for (int i = 0; i < matedit_stack_depth; i++)
         if (!write_int4(matedit_stack[i])) return;
 
     if (fwrite(input_name, 1, 11, gfile) != 11) return;
