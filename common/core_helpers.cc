@@ -450,6 +450,8 @@ bool vartype_equals(const vartype *v1, const vartype *v2) {
         case TYPE_REALMATRIX: {
             const vartype_realmatrix *x = (const vartype_realmatrix *) v1;
             const vartype_realmatrix *y = (const vartype_realmatrix *) v2;
+            if (x->array == y->array)
+                return true;
             int4 sz, i;
             if (x->rows != y->rows || x->columns != y->columns)
                 return false;
@@ -476,6 +478,8 @@ bool vartype_equals(const vartype *v1, const vartype *v2) {
         case TYPE_COMPLEXMATRIX: {
             const vartype_complexmatrix *x = (const vartype_complexmatrix *) v1;
             const vartype_complexmatrix *y = (const vartype_complexmatrix *) v2;
+            if (x->array == y->array)
+                return true;
             int4 sz, i;
             if (x->rows != y->rows || x->columns != y->columns)
                 return false;
@@ -493,6 +497,8 @@ bool vartype_equals(const vartype *v1, const vartype *v2) {
         case TYPE_LIST: {
             const vartype_list *x = (const vartype_list *) v1;
             const vartype_list *y = (const vartype_list *) v2;
+            if (x->array == y->array)
+                return true;
             if (x->size != y->size)
                 return false;
             int4 sz = x->size;

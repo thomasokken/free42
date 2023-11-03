@@ -24,6 +24,7 @@
 #include "core_display.h"
 #include "core_helpers.h"
 #include "core_linalg1.h"
+#include "core_main.h"
 #include "core_math2.h"
 #include "core_sto_rcl.h"
 #include "core_variables.h"
@@ -985,6 +986,128 @@ int docmd_x_swap(arg_struct *arg) {
 #define DIR_UP    2
 #define DIR_DOWN  3
 
+static int matedit_move_list(vartype_list *list, int direction) {
+    vartype **old_loc = NULL;
+    vartype *old_x = NULL;
+    vartype *new_x = NULL;
+    int4 new_i = matedit_i;
+    int4 new_j = -1;
+    bool end_flag = false;
+
+    if (direction == DIR_LEFT && matedit_stack_depth == 0) {
+        if (!program_running())
+            squeak();
+        flags.f.matrix_edge_wrap = false;
+        flags.f.matrix_end_wrap = false;
+        return ERR_NONE;
+    }
+
+    // Prepare for storing X, but don't actually store it yet
+    if (sp != -1 && !vartype_equals(list->array->data[matedit_i], stack[sp])) {
+        if (!disentangle((vartype *) list))
+            return ERR_INSUFFICIENT_MEMORY;
+        old_x = dup_vartype(stack[sp]);
+        if (old_x == NULL)
+            return ERR_INSUFFICIENT_MEMORY;
+        old_loc = list->array->data + matedit_i;
+    }
+
+    if (direction == DIR_UP || direction == DIR_DOWN) {
+        if (direction == DIR_UP) {
+            if (++new_i >= list->size) {
+                new_i = 0;
+                end_flag = true;
+            }
+        } else {
+            if (--new_i < 0) {
+                new_i = list->size - 1;
+                end_flag = true;
+            }
+        }
+        if (new_i != matedit_i || sp == -1) {
+            new_x = dup_vartype(list->array->data[new_i]);
+            if (new_x == NULL) {
+                nomem:
+                free_vartype(old_x);
+                return ERR_INSUFFICIENT_MEMORY;
+            }
+        }
+    } else if (direction == DIR_LEFT) {
+        new_i = matedit_stack[matedit_stack_depth--];
+        vartype *m;
+        // Ignoring error; can't fail, because us getting here means
+        // that the matedit_get() in the caller succeeded, and that
+        // call requires that the list we're getting here must exist.
+        matedit_get(&m);
+        vartype_list *l2 = (vartype_list *) m;
+        if (new_i >= l2->size)
+            new_i = l2->size - 1;
+        new_x = dup_vartype(l2->array->data[new_i]);
+        if (new_x == NULL) {
+            matedit_stack_depth++;
+            goto nomem;
+        }
+    } else { // DIR_RIGHT
+        vartype *m = new_x != NULL ? new_x : list->array->data[matedit_i];
+        if (m->type == TYPE_REALMATRIX || m->type == TYPE_COMPLEXMATRIX || m->type == TYPE_LIST) {
+            int4 *newstack = (int4 *) realloc(matedit_stack, (matedit_stack_depth + 1) * sizeof(int4));
+            if (newstack == NULL)
+                goto nomem;
+            matedit_stack = newstack;
+            new_i = 0;
+            if (m->type == TYPE_REALMATRIX) {
+                vartype_realmatrix *rm = (vartype_realmatrix *) m;
+                new_j = 0;
+                if (rm->array->is_string[0] != 0) {
+                    char *text;
+                    int4 len;
+                    get_matrix_string(rm, 0, &text, &len);
+                    new_x = new_string(text, len);
+                } else
+                    new_x = new_real(rm->array->data[0]);
+                if (new_x == NULL)
+                    goto nomem;
+            } else if (m->type == TYPE_COMPLEXMATRIX) {
+                vartype_complexmatrix *cm = (vartype_complexmatrix *) m;
+                new_j = 0;
+                new_x = new_complex(cm->array->data[0], cm->array->data[1]);
+                if (new_x == NULL)
+                    goto nomem;
+            } else { // TYPE_LIST
+                vartype_list *l2 = (vartype_list *) m;
+                if (new_i < l2->size) {
+                    new_x = dup_vartype(l2->array->data[new_i]);
+                    if (new_x == NULL)
+                        goto nomem;
+                }
+            }
+            matedit_stack[matedit_stack_depth++] = matedit_i;
+        } else {
+            if (!program_running())
+                squeak();
+        }
+    }
+
+    free_vartype(*old_loc);
+    *old_loc = old_x;
+
+    if (new_x != NULL) {
+        if (sp == -1)
+            sp = 0;
+        else
+            free_vartype(stack[sp]);
+        stack[sp] = new_x;
+    }
+
+    matedit_i = new_i;
+    flags.f.matrix_edge_wrap = false;
+    flags.f.matrix_end_wrap = end_flag;
+    mode_disable_stack_lift = true;
+
+    print_trace();
+    return ERR_NONE;
+}
+
 static int matedit_move(int direction) {
     vartype *m, *v;
     vartype_realmatrix *rm;
@@ -997,19 +1120,17 @@ static int matedit_move(int direction) {
     int err = matedit_get(&m);
     if (err != ERR_NONE)
         return err;
+    if (m->type == TYPE_LIST)
+        return matedit_move_list((vartype_list *) m, direction);
 
     if (m->type == TYPE_REALMATRIX) {
         rm = (vartype_realmatrix *) m;
         rows = rm->rows;
         columns = rm->columns;
-    } else if (m->type == TYPE_COMPLEXMATRIX) {
+    } else { // TYPE_COMPLEXMATRIX
         cm = (vartype_complexmatrix *) m;
         rows = cm->rows;
         columns = cm->columns;
-    } else { // TYPE_LIST
-        list = (vartype_list *) m;
-        rows = list->size;
-        columns = 1;
     }
 
     if (!disentangle(m))
@@ -1101,7 +1222,7 @@ static int matedit_move(int direction) {
             free_vartype(v);
             return ERR_INVALID_TYPE;
         }
-    } else if (m->type == TYPE_COMPLEXMATRIX) {
+    } else { // m->type == TYPE_COMPLEXMATRIX
         if (old_n != new_n) {
             v = new_complex(cm->array->data[2 * new_n],
                             cm->array->data[2 * new_n + 1]);
@@ -1121,23 +1242,6 @@ static int matedit_move(int direction) {
             free_vartype(v);
             return stack[sp]->type == TYPE_STRING ? ERR_ALPHA_DATA_IS_INVALID
                                               : ERR_INVALID_TYPE;
-        }
-    } else /* m->type == TYPE_LIST */ {
-        if (old_n != new_n) {
-            v = dup_vartype(list->array->data[new_n]);
-            if (v == NULL)
-                return ERR_INSUFFICIENT_MEMORY;
-        }
-        if (sp == -1) {
-            /* There's nothing to store, so leave cell unchanged */
-        } else {
-            vartype *nv = dup_vartype(stack[sp]);
-            if (nv == NULL) {
-                free_vartype(v);
-                return ERR_INSUFFICIENT_MEMORY;
-            }
-            free_vartype(list->array->data[old_n]);
-            list->array->data[old_n] = nv;
         }
     }
 
