@@ -21,6 +21,7 @@
 #include "core_keydown.h"
 #include "core_commands2.h"
 #include "core_commands3.h"
+#include "core_commands4.h"
 #include "core_display.h"
 #include "core_helpers.h"
 #include "core_main.h"
@@ -2596,6 +2597,25 @@ void keydown_normal_mode(int shift, int key) {
                     set_cat_row(3);
                 } else
                     set_menu(level, MENU_NONE);
+            } else if ((menu == MENU_MATRIX_EDIT1
+                       || menu == MENU_MATRIX_EDIT2)
+                       && matedit_stack_depth > 0) {
+                if (sp != -1) {
+                    int err = docmd_stoel(NULL);
+                    if (err != ERR_NONE) {
+                        display_error(err, false);
+                        flush_display();
+                        return;
+                    }
+                }
+                matedit_i = matedit_stack[--matedit_stack_depth];
+                if (sp != -1)
+                    flags.f.stack_lift_disable = true;
+                int err = docmd_rclel(NULL);
+                if (err != ERR_NONE)
+                    display_error(err, false);
+                redisplay();
+                return;
             } else {
                 const menu_spec *m = menus + menu;
                 set_menu(level, m->parent);

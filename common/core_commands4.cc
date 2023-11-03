@@ -455,7 +455,7 @@ int docmd_putm(arg_struct *arg) {
 int docmd_rclel(arg_struct *arg) {
     vartype *m, *v;
     int err = matedit_get(&m);
-    if (err == ERR_NONE)
+    if (err != ERR_NONE)
         return err;
 
     if (m->type == TYPE_REALMATRIX) {
@@ -1013,7 +1013,7 @@ static int matedit_move_list(vartype_list *list, int direction) {
     }
 
     if (direction == DIR_UP || direction == DIR_DOWN) {
-        if (direction == DIR_UP) {
+        if (direction == DIR_DOWN) {
             if (++new_i >= list->size) {
                 new_i = 0;
                 end_flag = true;
@@ -1033,7 +1033,7 @@ static int matedit_move_list(vartype_list *list, int direction) {
             }
         }
     } else if (direction == DIR_LEFT) {
-        new_i = matedit_stack[matedit_stack_depth--];
+        new_i = matedit_stack[--matedit_stack_depth];
         vartype *m;
         // Ignoring error; can't fail, because us getting here means
         // that the matedit_get() in the caller succeeded, and that
@@ -1088,8 +1088,10 @@ static int matedit_move_list(vartype_list *list, int direction) {
         }
     }
 
-    free_vartype(*old_loc);
-    *old_loc = old_x;
+    if (old_x != NULL) {
+        free_vartype(*old_loc);
+        *old_loc = old_x;
+    }
 
     if (new_x != NULL) {
         if (sp == -1)
@@ -1112,7 +1114,6 @@ static int matedit_move(int direction) {
     vartype *m, *v;
     vartype_realmatrix *rm;
     vartype_complexmatrix *cm;
-    vartype_list *list;
     int4 rows, columns, new_i, new_j, old_n, new_n;
     int edge_flag = 0;
     int end_flag = 0;
