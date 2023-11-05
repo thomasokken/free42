@@ -1920,8 +1920,6 @@ int ip2revstring(phloat d, char *buf, int buflen) {
 int matedit_get(vartype **res) {
     if (matedit_mode == 0)
         return ERR_NONEXISTENT;
-    if (matedit_mode == 0)
-        return NULL;
 
     vartype *m = NULL;
     if (matedit_mode == 2)
@@ -1978,7 +1976,7 @@ int matedit_get(vartype **res) {
         vartype_list *list = (vartype_list *) m;
         if (matedit_i >= list->size)
             matedit_i = 0;
-        matedit_j = -1;
+        matedit_j = 0;
     }
 
     *res = m;

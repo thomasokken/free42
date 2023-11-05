@@ -1205,7 +1205,7 @@ void display_x(int row) {
             char2buf(buf, 22, &bufptr, '.');
         }
         bufptr += int2string(matedit_i + 1, buf + bufptr, 22 - bufptr);
-        if (matedit_j != -1) {
+        if (!matedit_is_list) {
             char2buf(buf, 22, &bufptr, ':');
             bufptr += int2string(matedit_j + 1, buf + bufptr, 22 - bufptr);
         }

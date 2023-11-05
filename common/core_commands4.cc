@@ -280,6 +280,7 @@ int docmd_j_add(arg_struct *arg) {
         matedit_stack = newstack;
         matedit_stack[matedit_stack_depth++] = matedit_i;
         matedit_i = matedit_j = 0;
+        matedit_is_list = m2->type == TYPE_LIST;
         flags.f.matrix_edge_wrap = 0;
         flags.f.matrix_end_wrap = 0;
     } else if (++matedit_j >= columns) {
@@ -319,7 +320,8 @@ int docmd_j_sub(arg_struct *arg) {
             // Range check?
             matedit_i = matedit_stack[--matedit_stack_depth];
             matedit_stack = (int4 *) realloc(matedit_stack, matedit_stack_depth * sizeof(int4));
-            matedit_j = -1;
+            matedit_j = 0;
+            matedit_is_list = true;
         }
         flags.f.matrix_edge_wrap = 0;
         flags.f.matrix_end_wrap = 0;

@@ -669,6 +669,7 @@ int4 matedit_j;
 int matedit_prev_appmenu;
 int4 *matedit_stack = NULL;
 int matedit_stack_depth = 0;
+bool matedit_is_list;
 
 /* INPUT */
 char input_name[11];
@@ -2673,7 +2674,7 @@ int push_indexed_matrix() {
     list->array->data[0] = new_string(matedit_name, matedit_length);
     list->array->data[1] = new_real(matedit_level);
     list->array->data[2] = new_real(matedit_i);
-    list->array->data[3] = new_real(matedit_j);
+    list->array->data[3] = new_real(matedit_is_list ? -1 : matedit_j);
     for (int i = 0; i < matedit_stack_depth; i++)
         list->array->data[4 + i] = new_real(matedit_stack[i]);
     for (int i = 0; i < 4 + matedit_stack_depth; i++)
@@ -2709,6 +2710,9 @@ void maybe_pop_indexed_matrix(const char *name, int len) {
     matedit_level = to_int4(((vartype_real *) list->array->data[1])->x);
     matedit_i = to_int4(((vartype_real *) list->array->data[2])->x);
     matedit_j = to_int4(((vartype_real *) list->array->data[3])->x);
+    matedit_is_list = matedit_j == -1;
+    if (matedit_is_list)
+        matedit_j = 0;
     matedit_stack_depth = newdepth;
     free(matedit_stack);
     matedit_stack = newstack;
@@ -3266,6 +3270,9 @@ void pop_rtn_addr(int *prgm, int4 *pc, bool *stop) {
             matedit_level = to_int4(((vartype_real *) list->array->data[1])->x);
             matedit_i = to_int4(((vartype_real *) list->array->data[2])->x);
             matedit_j = to_int4(((vartype_real *) list->array->data[3])->x);
+            matedit_is_list = matedit_j == -1;
+            if (matedit_is_list)
+                matedit_j = 0;
             matedit_stack_depth = newdepth;
             free(matedit_stack);
             matedit_stack = newstack;
@@ -3774,6 +3781,7 @@ static bool load_state2(bool *clear, bool *too_new) {
     if (ver < 48) {
         matedit_stack = NULL;
         matedit_stack_depth = 0;
+        matedit_is_list = false;
     } else {
         if (!read_int(&matedit_stack_depth)) return false;
         if (matedit_stack_depth == 0) {
@@ -3792,6 +3800,7 @@ static bool load_state2(bool *clear, bool *too_new) {
                     return false;
                 }
         }
+        if (!read_bool(&matedit_is_list)) return false;
     }
 
     if (fread(input_name, 1, 11, gfile) != 11) return false;
@@ -3948,6 +3957,7 @@ void save_state(bool *success) {
     if (!write_int(matedit_stack_depth)) return;
     for (int i = 0; i < matedit_stack_depth; i++)
         if (!write_int4(matedit_stack[i])) return;
+    if (!write_bool(matedit_is_list)) return;
 
     if (fwrite(input_name, 1, 11, gfile) != 11) return;
     if (!write_int(input_length)) return;

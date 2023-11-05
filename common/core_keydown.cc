@@ -2609,6 +2609,8 @@ void keydown_normal_mode(int shift, int key) {
                     }
                 }
                 matedit_i = matedit_stack[--matedit_stack_depth];
+                matedit_j = 0;
+                matedit_is_list = true;
                 if (sp != -1)
                     flags.f.stack_lift_disable = true;
                 int err = docmd_rclel(NULL);
