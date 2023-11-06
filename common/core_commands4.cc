@@ -998,7 +998,6 @@ static int matedit_move_list(vartype_list *list, int direction) {
     vartype *old_x = NULL;
     vartype *new_x = NULL;
     int4 new_i = matedit_i;
-    int4 new_j = -1;
     bool end_flag = false;
 
     if (direction == DIR_LEFT && matedit_stack_depth == 0) {
@@ -1069,7 +1068,6 @@ static int matedit_move_list(vartype_list *list, int direction) {
             new_i = 0;
             if (m->type == TYPE_REALMATRIX) {
                 vartype_realmatrix *rm = (vartype_realmatrix *) m;
-                new_j = 0;
                 if (rm->array->is_string[0] != 0) {
                     char *text;
                     int4 len;
@@ -1081,7 +1079,6 @@ static int matedit_move_list(vartype_list *list, int direction) {
                     goto nomem;
             } else if (m->type == TYPE_COMPLEXMATRIX) {
                 vartype_complexmatrix *cm = (vartype_complexmatrix *) m;
-                new_j = 0;
                 new_x = new_complex(cm->array->data[0], cm->array->data[1]);
                 if (new_x == NULL)
                     goto nomem;
