@@ -1930,7 +1930,7 @@ int matedit_get(vartype **res) {
             if ((lv->flags & VAR_PRIVATE) != 0)
                 continue;
             if (matedit_level != -1 && lv->level < matedit_level)
-                return NULL;
+                return ERR_NONEXISTENT;
             if (lv->level == matedit_level && string_equals(matedit_name, matedit_length, lv->name, lv->length)) {
                 m = lv->value;
                 break;

@@ -1204,8 +1204,15 @@ void display_x(int row) {
             bufptr += int2string(matedit_stack[i] + 1, buf + bufptr, 22 - bufptr);
             char2buf(buf, 22, &bufptr, '.');
         }
-        bufptr += int2string(matedit_i + 1, buf + bufptr, 22 - bufptr);
-        if (!matedit_is_list) {
+        if (matedit_is_list) {
+            vartype *m;
+            int err = matedit_get(&m);
+            if (err != ERR_NONE || ((vartype_list *) m)->size == 0)
+                char2buf(buf, 22, &bufptr, 'E');
+            else
+                bufptr += int2string(matedit_i + 1, buf + bufptr, 22 - bufptr);
+        } else {
+            bufptr += int2string(matedit_i + 1, buf + bufptr, 22 - bufptr);
             char2buf(buf, 22, &bufptr, ':');
             bufptr += int2string(matedit_j + 1, buf + bufptr, 22 - bufptr);
         }

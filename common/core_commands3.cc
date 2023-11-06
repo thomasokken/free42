@@ -377,7 +377,7 @@ int docmd_delr(arg_struct *arg) {
         refcount = list->array->refcount;
     }
 
-    if (rows == 1)
+    if (rows == 1 && m->type != TYPE_LIST)
         return ERR_DIMENSION_ERROR;
 
     if (matedit_i >= rows)
@@ -891,9 +891,9 @@ int docmd_edit(arg_struct *arg) {
     } else {
         vartype_list *list = (vartype_list *) stack[sp];
         if (list->size == 0)
-            // TODO Support for empty lists to be added later
-            return ERR_NOT_YET_IMPLEMENTED;
-        v = dup_vartype(list->array->data[0]);
+            v = new_real(0);
+        else
+            v = dup_vartype(list->array->data[0]);
     }
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
@@ -964,9 +964,9 @@ int docmd_editn(arg_struct *arg) {
     } else {
         vartype_list *list = (vartype_list *) m;
         if (list->size == 0)
-            // TODO Support for empty lists to be added later
-            return ERR_NOT_YET_IMPLEMENTED;
-        v = dup_vartype(list->array->data[0]);
+            v = new_real(0);
+        else
+            v = dup_vartype(list->array->data[0]);
     }
 
     if (v == NULL)
@@ -1329,6 +1329,9 @@ int docmd_i_add(arg_struct *arg) {
     int err = matedit_get_dim(&rows, &columns);
     if (err != ERR_NONE)
         return err;
+    if (rows == 0)
+        // Empty list. We allow matedit_i == 0, because we have to allow *something*.
+        rows = 1;
     if (++matedit_i >= rows) {
         flags.f.matrix_edge_wrap = 1;
         matedit_i = 0;
@@ -1349,6 +1352,9 @@ int docmd_i_sub(arg_struct *arg) {
     int err = matedit_get_dim(&rows, &columns);
     if (err != ERR_NONE)
         return err;
+    if (rows == 0)
+        // Empty list. We allow matedit_i == 0, because we have to allow *something*.
+        rows = 1;
     if (--matedit_i < 0) {
         flags.f.matrix_edge_wrap = 1;
         matedit_i = rows - 1;
@@ -1368,6 +1374,9 @@ void matedit_goto(int4 row, int4 column) {
     int4 rows, columns;
     int err = matedit_get_dim(&rows, &columns);
     if (err == ERR_NONE) {
+        if (rows == 0)
+            // Empty list. We allow matedit_i == 0, because we have to allow *something*.
+            rows = 1;
         if (row == 0 || row > rows || column == 0 || column > columns)
             err = ERR_DIMENSION_ERROR;
         else {
@@ -1419,12 +1428,6 @@ int docmd_index(arg_struct *arg) {
             && m->type != TYPE_COMPLEXMATRIX
             && m->type != TYPE_LIST)
         return ERR_INVALID_TYPE;
-    // TODO Support for empty lists to be added later
-    if (m->type == TYPE_LIST) {
-        vartype_list *list = (vartype_list *) stack[sp];
-        if (list->size == 0)
-            return ERR_NOT_YET_IMPLEMENTED;
-    }
 
     /* If the matrix we're about to index is local, and another matrix
      * is already indexed, and that other matrix is not a local at the same

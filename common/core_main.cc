@@ -4629,7 +4629,8 @@ void do_interactive(int command) {
     if (command == CMD_GOTOROW) {
         if (sp != -1) {
             err = docmd_stoel(NULL);
-            if (err != ERR_NONE) {
+            if (err != ERR_NONE && err != ERR_NONEXISTENT) {
+                // Nonexistent happens with empty lists
                 display_error(err, true);
                 redisplay();
                 return;

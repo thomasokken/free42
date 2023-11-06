@@ -2602,7 +2602,8 @@ void keydown_normal_mode(int shift, int key) {
                        && matedit_stack_depth > 0) {
                 if (sp != -1) {
                     int err = docmd_stoel(NULL);
-                    if (err != ERR_NONE) {
+                    if (err != ERR_NONE && err != ERR_NONEXISTENT) {
+                        // Nonexistent happens with empty lists
                         display_error(err, false);
                         flush_display();
                         return;
