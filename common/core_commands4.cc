@@ -1077,18 +1077,21 @@ static int matedit_move_list(vartype_list *list, int direction) {
                     new_x = new_real(rm->array->data[0]);
                 if (new_x == NULL)
                     goto nomem;
+                matedit_is_list = false;
             } else if (m->type == TYPE_COMPLEXMATRIX) {
                 vartype_complexmatrix *cm = (vartype_complexmatrix *) m;
                 new_x = new_complex(cm->array->data[0], cm->array->data[1]);
                 if (new_x == NULL)
                     goto nomem;
+                matedit_is_list = false;
             } else { // TYPE_LIST
                 vartype_list *l2 = (vartype_list *) m;
-                if (new_i < l2->size) {
+                if (new_i < l2->size)
                     new_x = dup_vartype(l2->array->data[new_i]);
-                    if (new_x == NULL)
-                        goto nomem;
-                }
+                else
+                    new_x = new_real(0);
+                if (new_x == NULL)
+                    goto nomem;
             }
             matedit_stack[matedit_stack_depth++] = matedit_i;
         } else {
