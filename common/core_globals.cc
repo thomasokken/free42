@@ -3006,9 +3006,12 @@ int pop_func_state(bool error) {
                         stack[i] = zeros[i];
                     sp = 3;
                 }
-            } else {
-                while (sp > 3)
-                    free_vartype(stack[sp--]);
+            } else if (sp > 3) {
+                int excess = sp - 3;
+                for (int i = 0; i < excess; i++)
+                    free_vartype(stack[i]);
+                memmove(stack, stack + excess, 4 * sizeof(vartype *));
+                sp = 3;
             }
         }
     } else {
