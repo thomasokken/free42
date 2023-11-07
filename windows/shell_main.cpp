@@ -735,8 +735,9 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
                 }
 
                 bool exact;
+                bool extended = (lParam & (1 << 24)) != 0;
                 bool cshift_down = ann_shift != 0;
-                unsigned char *key_macro = skin_keymap_lookup(virtKey, ctrl_down, alt_down, shift_down, cshift_down, &exact);
+                unsigned char *key_macro = skin_keymap_lookup(virtKey, ctrl_down, alt_down, extended, shift_down, cshift_down, &exact);
                 if (key_macro == NULL || !exact) {
                     for (i = 0; i < keymap_length; i++) {
                         keymap_entry *entry = keymap + i;
@@ -744,11 +745,11 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
                                 && alt_down == entry->alt
                                 && shift_down == entry->shift
                                 && virtKey == entry->keycode) {
-                            if (cshift_down == entry->cshift) {
+                            if (extended == entry->extended && cshift_down == entry->cshift) {
                                 key_macro = entry->macro;
                                 break;
                             } else {
-                                if (cshift_down && key_macro == NULL)
+                                if ((extended || !entry->extended) && (cshift_down || !entry->cshift) && key_macro == NULL)
                                     key_macro = entry->macro;
                             }
                         }

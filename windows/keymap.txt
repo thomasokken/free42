@@ -1,6 +1,6 @@
 # Default key mapping table for Free42 (Windows version)
 #
-# Format: [Ctrl|Alt|Shift|CShift]* <KeyCode> : <macro>
+# Format: [Ctrl|Alt|Shift|CShift|Extended]* <KeyCode> : <macro>
 # <KeyCode> is a numeric Windows key code; <macro> is a sequence of zero or
 # more HP-42S key codes. The HP-42S key codes must be between 1 and 255;
 # codes 1..37 correspond to actual keys on the calculator's keyboard, while
@@ -11,6 +11,10 @@
 # modifier makes it possible for [CShift] [Key] to activate a different
 # keystroke or macro than the unshifted [Key], so you can, for example, make
 # CShift SQRT be something other than X^2.
+# Extended indicates the 10 cursor movement keys to the left of the numeric
+# keypad, as opposed to the cursor movement functions on the digit and period
+# keys in the numeric keypad. Note that if an extended key does not have a
+# mapping, the corresponding non-extended mapping will be used instead.
 #
 # Anything from a "#" until the end of the line is a comment, and is ignored.
 # White space (Space, Tab) separates tokens in the key map, but is otherwise
