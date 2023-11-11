@@ -2705,11 +2705,11 @@ static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
                             && alt == entry->alt
                             && (printable || shift == entry->shift)
                             && event->keyval == entry->keyval) {
-                        if (cshift == entry->cshift) {
+                        if (shift == entry->shift && cshift == entry->cshift) {
                             key_macro = entry->macro;
                             break;
                         } else {
-                            if (cshift && key_macro == NULL)
+                            if ((shift || !entry->shift) && (cshift || !entry->cshift) && key_macro == NULL)
                                 key_macro = entry->macro;
                         }
                     }
