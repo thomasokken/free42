@@ -710,11 +710,11 @@ unsigned char *skin_keymap_lookup(guint keyval, bool printable,
                 && alt == entry->alt
                 && (printable || shift == entry->shift)
                 && keyval == entry->keyval) {
-            if (cshift == entry->cshift) {
+            if (shift == entry->shift && cshift == entry->cshift) {
                 *exact = true;
                 return entry->macro;
             }
-            if (cshift)
+            if ((shift || !entry->shift) && (cshift || !entry->cshift) && macro == NULL)
                 macro = entry->macro;
         }
     }
