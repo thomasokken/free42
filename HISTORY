@@ -1,3 +1,20 @@
+2023-11-14: release 3.1
+
+* EDIT, EDITN, and INDEX now support editing lists, nested lists, empty lists,
+  and matrices within lists. See the Free42 web site for details.
+* FUNC now hides the caller's RPN stack, so user-defined functions can use
+  functions like CLST and R↓ without causing side effects.
+* User-defined functions can now be made to support 'stack lift disable'
+  properly. For functions using FUNC, this happens automatically, and other
+  functions can use the new CSLD? function (Caller's Stack Lift Disabled?).
+* FNRM and UVEC, when called with very large parameters, could get incorrect
+  results due to overflows in intermediaries. Fixed.
+* Fixed parameter bounds check in PIXEL.
+* Windows, MacOS, and Linux versions: Keyboard maps now support separate
+  mappings for unshifted and shifted numeric keypad keys, and unshifted and
+  shifted Space.
+* iOS version: Added option to use the shake gesture to do CLST in RUN mode.
+
 2023-08-11: release 3.0.21
 
 * INPUT would crash if R/S was pressed while the stack was empty, in NSTK mode.
