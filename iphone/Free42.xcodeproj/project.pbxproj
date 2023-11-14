@@ -625,6 +625,9 @@
 					1D6058900D05DD3D006BFB54 = {
 						DevelopmentTeam = F4D88K2P5W;
 					};
+					E9FC40B0260707AF00E52296 = {
+						DevelopmentTeam = F4D88K2P5W;
+					};
 				};
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Free42" */;
@@ -1094,6 +1097,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COPY_PHASE_STRIP = NO;
+				DEVELOPMENT_TEAM = F4D88K2P5W;
 				ENABLE_BITCODE = NO;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
 				GCC_DYNAMIC_NO_PIC = NO;
