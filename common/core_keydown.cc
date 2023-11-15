@@ -661,18 +661,8 @@ void keydown_number_entry(int shift, int key) {
             char2buf(buf, 100, &bufptr, '0');
         bufptr += int2string(line, buf + bufptr, 100 - bufptr);
         char2buf(buf, 100, &bufptr, 6);
-    } else if (matedit_mode == 2 || matedit_mode == 3) {
-        bufptr += int2string(matedit_i + 1, buf + bufptr, 100 - bufptr);
-        char2buf(buf, 100, &bufptr, ':');
-        bufptr += int2string(matedit_j + 1, buf + bufptr, 100 - bufptr);
-        char2buf(buf, 100, &bufptr, '=');
-    } else if (input_length > 0) {
-        string2buf(buf, 100, &bufptr, input_name, input_length);
-        char2buf(buf, 100, &bufptr, '?');
-    } else if (flags.f.big_stack) {
-        string2buf(buf, 100, &bufptr, "1\200", 2);
     } else {
-        string2buf(buf, 100, &bufptr, "x\200", 2);
+        xlabel2buf(buf, 100, &bufptr);
     }
     string2buf(buf, 100, &bufptr, cmdline, cmdline_length);
     char2buf(buf, 100, &bufptr, '_');

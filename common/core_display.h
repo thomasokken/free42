@@ -40,6 +40,7 @@ int special_menu_key(int which);
 void clear_row(int row);
 
 void display_prgm_line(int row, int line_offset);
+void xlabel2buf(char *buf, int buflen, int *bufptr);
 void display_x(int row);
 void display_y(int row);
 void display_incomplete_command(int row);

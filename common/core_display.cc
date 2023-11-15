@@ -1193,38 +1193,42 @@ void display_prgm_line(int row, int line_offset) {
     }
 }
 
-void display_x(int row) {
-    char buf[22];
-    int bufptr = 0;
-
-    clear_row(row);
-    vartype *x = sp >= 0 ? stack[sp] : NULL;
+void xlabel2buf(char *buf, int buflen, int *bufptr) {
     if (matedit_mode == 2 || matedit_mode == 3) {
         for (int i = 0; i < matedit_stack_depth; i++) {
-            bufptr += int2string(matedit_stack[i] + 1, buf + bufptr, 22 - bufptr);
-            char2buf(buf, 22, &bufptr, '.');
+            *bufptr += int2string(matedit_stack[i] + 1, buf + *bufptr, buflen - *bufptr);
+            char2buf(buf, buflen, bufptr, '.');
         }
         if (matedit_is_list) {
             vartype *m;
             int err = matedit_get(&m);
             if (err != ERR_NONE || ((vartype_list *) m)->size == 0)
-                char2buf(buf, 22, &bufptr, 'E');
+                char2buf(buf, buflen, bufptr, 'E');
             else
-                bufptr += int2string(matedit_i + 1, buf + bufptr, 22 - bufptr);
+                *bufptr += int2string(matedit_i + 1, buf + *bufptr, buflen - *bufptr);
         } else {
-            bufptr += int2string(matedit_i + 1, buf + bufptr, 22 - bufptr);
-            char2buf(buf, 22, &bufptr, ':');
-            bufptr += int2string(matedit_j + 1, buf + bufptr, 22 - bufptr);
+            *bufptr += int2string(matedit_i + 1, buf + *bufptr, buflen - *bufptr);
+            char2buf(buf, buflen, bufptr, ':');
+            *bufptr += int2string(matedit_j + 1, buf + *bufptr, buflen - *bufptr);
         }
-        char2buf(buf, 22, &bufptr, '=');
+        char2buf(buf, buflen, bufptr, '=');
     } else if (input_length > 0) {
-        string2buf(buf, 22, &bufptr, input_name, input_length);
-        char2buf(buf, 22, &bufptr, '?');
+        string2buf(buf, buflen, bufptr, input_name, input_length);
+        char2buf(buf, buflen, bufptr, '?');
     } else if (flags.f.big_stack) {
-        string2buf(buf, 22, &bufptr, "1\200", 2);
+        string2buf(buf, buflen, bufptr, "1\200", 2);
     } else {
-        string2buf(buf, 22, &bufptr, "x\200", 2);
+        string2buf(buf, buflen, bufptr, "x\200", 2);
     }
+}
+
+void display_x(int row) {
+    char buf[22];
+    int bufptr = 0;
+
+    clear_row(row);
+    xlabel2buf(buf, 22, &bufptr);
+    vartype *x = sp >= 0 ? stack[sp] : NULL;
     if (x != NULL)
         bufptr += vartype2string(x, buf + bufptr, 22 - bufptr);
     draw_string(0, row, buf, bufptr);
