@@ -412,7 +412,10 @@ int docmd_delr(arg_struct *arg) {
             newx = new_complex(cm->array->data[2 * n],
                                cm->array->data[2 * n + 1]);
         } else {
-            newx = dup_vartype(list->array->data[n]);
+            if (n < 0)
+                newx = new_real(0);
+            else
+                newx = dup_vartype(list->array->data[n]);
         }
 
         if (newx == NULL)
