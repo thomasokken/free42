@@ -1193,9 +1193,16 @@ void keydown_command_entry(int shift, int key) {
             } else if (!shift) {
                 if (incomplete_command == CMD_GOTOROW) {
                     pending_command_arg.val.num = incomplete_num;
+                    vartype *m;
+                    int err = matedit_get(&m);
+                    if (err == ERR_NONE && m->type == TYPE_LIST) {
+                        incomplete_num = 1;
+                        goto do_goto1;
+                    }
                     start_incomplete_command(CMD_GOTOCOLUMN);
                     return;
                 } else if (incomplete_command == CMD_GOTOCOLUMN) {
+                    do_goto1:
                     matedit_goto(pending_command_arg.val.num, incomplete_num);
                     pending_command = CMD_NONE;
                     finish_command_entry(true);
@@ -1277,9 +1284,16 @@ void keydown_command_entry(int shift, int key) {
             if (incomplete_length == incomplete_maxdigits) {
                 if (incomplete_command == CMD_GOTOROW) {
                     pending_command_arg.val.num = incomplete_num;
+                    vartype *m;
+                    int err = matedit_get(&m);
+                    if (err == ERR_NONE && m->type == TYPE_LIST) {
+                        incomplete_num = 1;
+                        goto do_goto2;
+                    }
                     start_incomplete_command(CMD_GOTOCOLUMN);
                     return;
                 } else if (incomplete_command == CMD_GOTOCOLUMN) {
+                    do_goto2:
                     matedit_goto(pending_command_arg.val.num, incomplete_num);
                     pending_command = CMD_NONE;
                     finish_command_entry(true);
