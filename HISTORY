@@ -23,7 +23,6 @@
 * Windows, MacOS, and Linux versions: Keyboard maps now support separate
   mappings for unshifted and shifted numeric keypad keys, and unshifted and
   shifted Space.
-* iOS version: Added option to use the shake gesture to do CLST in RUN mode.
 
 2023-08-11: release 3.0.21
 

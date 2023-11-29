@@ -4584,19 +4584,6 @@ void core_paste(const char *buf) {
     redisplay();
 }
 
-#ifdef IPHONE
-void core_shake() {
-    int docmd_clst(arg_struct *arg);
-
-    if (mode_running || mode_getkey || mode_pause || mode_command_entry || flags.f.prgm_mode || alpha_active())
-        return;
-    mode_number_entry = false;
-    flags.f.stack_lift_disable = 0;
-    docmd_clst(NULL);
-    redisplay();
-}
-#endif
-
 void set_alpha_entry(bool state) {
     mode_alpha_entry = state;
 }

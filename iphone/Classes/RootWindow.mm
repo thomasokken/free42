@@ -27,11 +27,4 @@
     [rvc layoutSubViews];
 }
 
-- (void) motionEnded:(UIEventSubtype)motion withEvent:(UIEvent *)event {
-    if (motion == UIEventSubtypeMotionShake && state.shakeToClearStack)
-        core_shake();
-    else
-        [super motionEnded:motion withEvent:event];
-}
-
 @end
