@@ -115,6 +115,13 @@ Finally note: this appears to be specific to Apple's clang, affecting the iOS
 and MacOS versions. If this brain-damage should spread to other compilers, you
 can tell when Copy in PRGM mode skips line 01.
 
+UPDATE: I ran into another clang optimizer bug; this one causes ASSIGN ""
+(Shift 1 ENTER ENTER) to fail, when building with -O1. The second ENTER isn't
+handled correctly. I can't be bothered to find out where exactly the optimizer
+messes up; this is the third time I've had a buggy release thanks to Apple's
+clang. I've had it. I'm going with -O0 for all MacOS and iOS builds from now
+on.
+
 
 -------------------------------------------------------------------------------
 About the character sets:
