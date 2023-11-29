@@ -1,3 +1,13 @@
+2023-11-29: release 3.1.1
+
+* In the matrix / list editor (EDIT and EDITN), GOTO would prompt for a column
+  even when editing a list, and any column number other than 1 would cause an
+  error. Lists are one-dimensional, so the user should only be asked for a row.
+  Fixed.
+* iOS and MacOS versions: ASSIGN "" didn't work, because the second ENTER
+  wasn't being handled correctly. This was caused by an optimizer bug in
+  Apple's latest compiler. Fixed.
+
 2023-11-15: release 3.1
 
 * EDIT, EDITN, and INDEX now support editing lists, nested lists, empty lists,
