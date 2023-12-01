@@ -3107,6 +3107,6 @@ void do_prgm_menu_key(int keynum) {
             flush_display();
             return;
         } else
-            mode_caller_stack_lift_disabled = flags.f.stack_lift_disable;
+            save_csld();
     }
 }
