@@ -1,3 +1,8 @@
+2023-12-01: release 3.1.2
+
+* CSLD? did not handle intervening XEQ/RTN. Fixed.
+* FUNC did not detect previous FUNC/LNSTK/L4STK. Fixed.
+
 2023-11-29: release 3.1.1
 
 * In the matrix / list editor (EDIT and EDITN), GOTO would prompt for a column
