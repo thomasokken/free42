@@ -2744,7 +2744,7 @@ int push_func_state(int n) {
     if (sp + 1 < inputs)
         return ERR_TOO_FEW_ARGUMENTS;
 
-    vartype *stk = recall_private_var("STK", 2);
+    vartype *stk = recall_private_var("STK", 3);
     if (stk != NULL)
         return ERR_INVALID_CONTEXT;
     if (!ensure_var_space(1))
