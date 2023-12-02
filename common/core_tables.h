@@ -493,27 +493,26 @@
 #define CMD_N_TO_C      439
 #define CMD_LIST_T      440
 #define CMD_NEWLIST     441
-#define CMD_NEWSTR      442
-#define CMD_TO_LIST     443
-#define CMD_FROM_LIST   444
+#define CMD_TO_LIST     442
+#define CMD_FROM_LIST   443
 /* Generalized Comparisons */
-#define CMD_X_EQ_NN     445
-#define CMD_X_NE_NN     446
-#define CMD_X_LT_NN     447
-#define CMD_X_GT_NN     448
-#define CMD_X_LE_NN     449
-#define CMD_X_GE_NN     450
-#define CMD_0_EQ_NN     451
-#define CMD_0_NE_NN     452
-#define CMD_0_LT_NN     453
-#define CMD_0_GT_NN     454
-#define CMD_0_LE_NN     455
-#define CMD_0_GE_NN     456
+#define CMD_X_EQ_NN     444
+#define CMD_X_NE_NN     445
+#define CMD_X_LT_NN     446
+#define CMD_X_GT_NN     447
+#define CMD_X_LE_NN     448
+#define CMD_X_GE_NN     449
+#define CMD_0_EQ_NN     450
+#define CMD_0_NE_NN     451
+#define CMD_0_LT_NN     452
+#define CMD_0_GT_NN     453
+#define CMD_0_LE_NN     454
+#define CMD_0_GE_NN     455
 /* For Plus42 compatibility */
-#define CMD_WIDTH       457
-#define CMD_HEIGHT      458
+#define CMD_WIDTH       456
+#define CMD_HEIGHT      457
 
-#define CMD_SENTINEL    459
+#define CMD_SENTINEL    458
 
 
 /* command_spec.argtype */

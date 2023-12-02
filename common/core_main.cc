@@ -2061,6 +2061,14 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                     arg.val.stk = 'Y';
                     goto store;
                 }
+                if (code == 0x0a7f5) {
+                    /* NEWSTR; deprecated, replace with XSTR "" */
+                    cmd = CMD_XSTR;
+                    arg.type = ARGTYPE_XSTR;
+                    arg.length = 0;
+                    arg.val.xstr = NULL;
+                    goto store;
+                }
                 for (i = 0; i < CMD_SENTINEL; i++)
                     if (cmd_array[i].code1 == byte1 && cmd_array[i].code2 == byte2) {
                         if ((cmd_array[i].flags & FLAG_HIDDEN) != 0)

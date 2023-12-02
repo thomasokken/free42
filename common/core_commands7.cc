@@ -1976,13 +1976,6 @@ int docmd_newlist(arg_struct *arg) {
     return recall_result(v);
 }
 
-int docmd_newstr(arg_struct *arg) {
-    vartype *v = new_string("", 0);
-    if (v == NULL)
-        return ERR_INSUFFICIENT_MEMORY;
-    return recall_result(v);
-}
-
 int docmd_to_list(arg_struct *arg) {
     phloat x = ((vartype_real *) stack[sp])->x;
     if (x < 0)

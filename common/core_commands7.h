@@ -119,7 +119,6 @@ int docmd_c_to_n(arg_struct *arg);
 int docmd_n_to_c(arg_struct *arg);
 int docmd_list_t(arg_struct *arg);
 int docmd_newlist(arg_struct *arg);
-int docmd_newstr(arg_struct *arg);
 int docmd_to_list(arg_struct *arg);
 int docmd_from_list(arg_struct *arg);
 
