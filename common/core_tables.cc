@@ -374,25 +374,6 @@ const command_spec cmd_array[] =
 
     /* Here endeth the original Free42 function table. */
 
-    /* Underhill's COPAN (Obsolete) */
-    { /* OPENF */      docmd_xrom,        "OPENF",               0x00, 0x00, 0xa7, 0xc1,  5, ARG_NONE,   0, UNIM },
-    { /* CLOSF */      docmd_xrom,        "CLOSF",               0x00, 0x00, 0xa7, 0xc2,  5, ARG_NONE,   0, UNIM },
-    { /* READP */      docmd_xrom,        "READP",               0x00, 0x00, 0xa7, 0xc3,  5, ARG_NONE,   0, UNIM },
-    { /* WRITP */      docmd_xrom,        "WRITP",               0x00, 0x00, 0xa7, 0xc4,  5, ARG_NONE,   0, UNIM },
-    { /* GETXY */      docmd_xrom,        "GETXY",               0x00, 0x00, 0xa7, 0xc5,  5, ARG_NONE,   0, UNIM },
-    { /* PUTXY */      docmd_xrom,        "PUTXY",               0x00, 0x00, 0xa7, 0xc6,  5, ARG_NONE,   0, UNIM },
-    { /* CLRP */       docmd_xrom,        "CLRP",                0x00, 0x00, 0xa7, 0xc7,  4, ARG_NONE,   0, UNIM },
-    { /* CLRD */       docmd_xrom,        "CLRD",                0x00, 0x00, 0xa7, 0xc8,  4, ARG_NONE,   0, UNIM },
-    { /* APPD */       docmd_xrom,        "APPD",                0x00, 0x00, 0xa7, 0xc9,  4, ARG_NONE,   0, UNIM },
-    { /* GETN */       docmd_xrom,        "GETN",                0x00, 0x00, 0xa7, 0xca,  4, ARG_NONE,   0, UNIM },
-    { /* PUTN */       docmd_xrom,        "PUTN",                0x00, 0x00, 0xa7, 0xcb,  4, ARG_NONE,   0, UNIM },
-    { /* GETZ */       docmd_xrom,        "GETZ",                0x00, 0x00, 0xa7, 0xcc,  4, ARG_NONE,   0, UNIM },
-    { /* PUTZ */       docmd_xrom,        "PUTZ",                0x00, 0x00, 0xa7, 0xcd,  4, ARG_NONE,   0, UNIM },
-    { /* DELP */       docmd_xrom,        "DELP",                0x00, 0x00, 0xa7, 0xce,  4, ARG_NONE,   0, UNIM },
-
-    /* Big Stack; additional functions from 4STK */
-    { /* DROP */       docmd_drop,        "DROP",                0x00, 0x00, 0xa2, 0x71,  4, ARG_NONE,   1, ALLT },
-
     /* Accelerometer, GPS, and compass support */
     { /* ACCEL */      docmd_accel,       "ACCEL",               0x00, 0x00, 0xa7, 0xcf,  5, ARG_NONE,   0, NA_T },
     { /* LOCAT */      docmd_locat,       "LOCAT",               0x00, 0x00, 0xa7, 0xd0,  5, ARG_NONE,   0, NA_T },
@@ -476,6 +457,7 @@ const command_spec cmd_array[] =
     { /* NSTK */       docmd_nstk,        "NSTK",                0x00, 0x00, 0xa7, 0xe4,  4, ARG_NONE,   0, NA_T },
     { /* LNSTK */      docmd_lnstk,       "LNSTK",               0x00, 0x00, 0xa7, 0xe5,  5, ARG_NONE,   0, NA_T },
     { /* DEPTH */      docmd_depth,       "DEPTH",               0x00, 0x00, 0xa7, 0xe6,  5, ARG_NONE,   0, NA_T },
+    { /* DROP */       docmd_drop,        "DROP",                0x00, 0x00, 0xa2, 0x71,  4, ARG_NONE,   1, ALLT },
     { /* DROPN */      docmd_dropn,       "DR\317PN",            0x00, 0xf1, 0xf2, 0xa1,  5, ARG_NUM9,   0, NA_T },
     { /* DUP */        docmd_dup,         "DUP",                 0x00, 0x00, 0xa7, 0xe7,  3, ARG_NONE,   1, ALLT },
     { /* DUPN */       docmd_dupn,        "DUPN",                0x00, 0xf2, 0xf2, 0xa2,  4, ARG_NUM9,   0, NA_T },

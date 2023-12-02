@@ -4815,7 +4815,6 @@ int find_builtin(const char *name, int namelen) {
     }
 
     for (i = 0; true; i++) {
-        if (i == CMD_OPENF) i += 14; // Skip COPAN
         if (i == CMD_SENTINEL)
             break;
         if ((cmd_array[i].flags & FLAG_HIDDEN) != 0)
