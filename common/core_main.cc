@@ -3611,7 +3611,7 @@ static void paste_programs(const char *buf) {
                 cmd_end++;
             if (cmd_end == hppos)
                 goto line_done;
-            if (cmd_end - hppos == 5 && hpbuf[hppos] == 'X' && strncmp(hpbuf + 2, "NN?", 3) == 0) {
+            if (cmd_end - hppos == 5 && hpbuf[hppos] == 'X' && strncmp(hpbuf + hppos + 2, "NN?", 3) == 0) {
                 // HP-41CX: X=NN? etc.
                 switch (hpbuf[hppos + 1]) {
                     case '=': cmd = CMD_X_EQ_NN; goto cx_comp;
@@ -3627,6 +3627,14 @@ static void paste_programs(const char *buf) {
                 arg.val.stk = 'Y';
                 goto store;
                 not_cx_comp:;
+            }
+            if (cmd_end - hppos == 6 && strncmp(hpbuf + hppos, "NEWSTR", 6) == 0) {
+                // NEWSTR; obsolete function replaced by XSTR ""
+                cmd = CMD_XSTR;
+                arg.type = ARGTYPE_XSTR;
+                arg.length = 0;
+                arg.val.xstr = NULL;
+                goto store;
             }
             cmd = find_builtin(hpbuf + hppos, cmd_end - hppos);
             int tok_start, tok_end;
