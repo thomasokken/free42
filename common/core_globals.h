@@ -347,12 +347,9 @@ struct prgm_struct {
     int4 size;
     int lclbl_invalid;
     unsigned char *text;
-};
-struct prgm_struct_32bit {
-    int4 capacity;
-    int4 size;
-    int lclbl_invalid;
-    int4 text;
+    inline bool is_end(int4 pc) {
+        return text[pc] == CMD_END && (text[pc + 1] & 112) == 0;
+    }
 };
 extern int prgms_capacity;
 extern int prgms_count;

@@ -1911,7 +1911,7 @@ void keydown_alpha_mode(int shift, int key) {
                 int4 line = pc2line(pc);
                 if (line != 0
                         && (current_prgm != prgms_count - 1
-                            || prgms[current_prgm].text[pc] != CMD_END)) {
+                            || !prgms[current_prgm].is_end(pc))) {
                     delete_command(pc);
                     pc = line2pc(line - 1);
                 }
@@ -2045,7 +2045,7 @@ void keydown_normal_mode(int shift, int key) {
         if (flags.f.prgm_mode) {
             if (pc == -1)
                 pc = 0;
-            else if (prgms[current_prgm].text[pc] != CMD_END)
+            else if (!prgms[current_prgm].is_end(pc))
                 pc += get_command_length(current_prgm, pc);
             prgm_highlight_row = 1;
             if (cmdline_row == 1)
@@ -2083,7 +2083,7 @@ void keydown_normal_mode(int shift, int key) {
         if (line == 0)
             return;
         if (current_prgm != prgms_count - 1
-                || prgms[current_prgm].text[pc] != CMD_END)
+                || !prgms[current_prgm].is_end(pc))
             delete_command(pc);
         pc = line2pc(line - 1);
         prgm_highlight_row = 0;

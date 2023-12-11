@@ -447,29 +447,28 @@
 #define CMD_NN_TO_S     400
 #define CMD_C_TO_N      401
 #define CMD_N_TO_C      402
-/* (Skipping 403 because of single-byte equality checks with CMD_END) */
-#define CMD_LIST_T      404
-#define CMD_NEWLIST     405
-#define CMD_TO_LIST     406
-#define CMD_FROM_LIST   407
+#define CMD_LIST_T      403
+#define CMD_NEWLIST     404
+#define CMD_TO_LIST     405
+#define CMD_FROM_LIST   406
 /* Generalized Comparisons */
-#define CMD_X_EQ_NN     408
-#define CMD_X_NE_NN     409
-#define CMD_X_LT_NN     410
-#define CMD_X_GT_NN     411
-#define CMD_X_LE_NN     412
-#define CMD_X_GE_NN     413
-#define CMD_0_EQ_NN     414
-#define CMD_0_NE_NN     415
-#define CMD_0_LT_NN     416
-#define CMD_0_GT_NN     417
-#define CMD_0_LE_NN     418
-#define CMD_0_GE_NN     419
+#define CMD_X_EQ_NN     407
+#define CMD_X_NE_NN     408
+#define CMD_X_LT_NN     409
+#define CMD_X_GT_NN     410
+#define CMD_X_LE_NN     411
+#define CMD_X_GE_NN     412
+#define CMD_0_EQ_NN     413
+#define CMD_0_NE_NN     414
+#define CMD_0_LT_NN     415
+#define CMD_0_GT_NN     416
+#define CMD_0_LE_NN     417
+#define CMD_0_GE_NN     418
 /* For Plus42 compatibility */
-#define CMD_WIDTH       420
-#define CMD_HEIGHT      421
+#define CMD_WIDTH       419
+#define CMD_HEIGHT      420
 
-#define CMD_SENTINEL    422
+#define CMD_SENTINEL    421
 
 
 /* command_spec.argtype */

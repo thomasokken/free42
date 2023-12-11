@@ -2400,7 +2400,7 @@ void store_command(int4 pc, int command, arg_struct *arg, const char *num_str) {
 void store_command_after(int4 *pc, int command, arg_struct *arg, const char *num_str) {
     if (*pc == -1)
         *pc = 0;
-    else if (prgms[current_prgm].text[*pc] != CMD_END)
+    else if (!prgms[current_prgm].is_end(*pc))
         *pc += get_command_length(current_prgm, *pc);
     store_command(*pc, command, arg, num_str);
 }
@@ -2518,7 +2518,7 @@ static int pc_line_convert(int4 loc, int loc_is_pc) {
             if (line >= loc)
                 return pc;
         }
-        if (prgm->text[pc] == CMD_END)
+        if (prgm->is_end(pc))
             return loc_is_pc ? line : pc;
         pc += get_command_length(current_prgm, pc);
         line++;

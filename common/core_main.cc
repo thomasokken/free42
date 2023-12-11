@@ -4694,7 +4694,7 @@ void do_interactive(int command) {
             incomplete_saved_highlight_row = prgm_highlight_row;
             if (pc == -1)
                 pc = 0;
-            else if (prgms[current_prgm].text[pc] != CMD_END)
+            else if (!prgms[current_prgm].is_end(pc))
                 pc += get_command_length(current_prgm, pc);
             prgm_highlight_row = 1;
             start_incomplete_command(command);
@@ -5137,7 +5137,7 @@ void start_alpha_prgm_line() {
     incomplete_saved_highlight_row = prgm_highlight_row;
     if (pc == -1)
         pc = 0;
-    else if (prgms[current_prgm].text[pc] != CMD_END)
+    else if (!prgms[current_prgm].is_end(pc))
         pc += get_command_length(current_prgm, pc);
     prgm_highlight_row = 1;
     if (cmdline_row == 1)
@@ -5196,7 +5196,7 @@ static int handle_error(int error) {
                 || error == ERR_STOP)
             flags.f.stack_lift_disable = mode_disable_stack_lift;
         if (error == ERR_NO) {
-            if (prgms[current_prgm].text[pc] != CMD_END)
+            if (!prgms[current_prgm].is_end(pc))
                 pc += get_command_length(current_prgm, pc);
         } else if (error == ERR_STOP) {
             if (pc >= prgms[current_prgm].size)
@@ -5239,7 +5239,7 @@ static int handle_error(int error) {
                 || error == ERR_STOP)
             flags.f.stack_lift_disable = mode_disable_stack_lift;
         if (error == ERR_NO) {
-            if (prgms[current_prgm].text[pc] != CMD_END)
+            if (!prgms[current_prgm].is_end(pc))
                 pc += get_command_length(current_prgm, pc);
             goto noerr;
         } else if (error == ERR_NONE || error == ERR_YES || error == ERR_STOP) {

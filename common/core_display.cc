@@ -2327,7 +2327,7 @@ void redisplay() {
                     if (pc == -1)
                         prgm_highlight_row = 0;
                     else {
-                        if (prgms[current_prgm].text[pc] == CMD_END)
+                        if (prgms[current_prgm].is_end(pc))
                             prgm_highlight_row = 1;
                     }
                     if (prgm_highlight_row == 0) {
