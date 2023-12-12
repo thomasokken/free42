@@ -1,3 +1,8 @@
+2023-12-12: release 3.1.2a (iOS and MacOS)
+
+* Fixed crash when loading skin images with local colormaps, caused by a bug in
+  Xcode 15.
+
 2023-12-01: release 3.1.2
 
 * CSLD? did not handle intervening XEQ/RTN. Fixed.
