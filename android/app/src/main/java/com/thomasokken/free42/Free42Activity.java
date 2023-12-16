@@ -107,7 +107,12 @@ public class Free42Activity extends Activity {
     private static final int PRINT_BACKGROUND_COLOR = Color.LTGRAY;
     
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
-    
+
+    private static final int IMPORT_RAW = 1;
+    private static final int EXPORT_RAW = 2;
+    private static final int IMPORT_STATE = 3;
+    private static final int EXPORT_STATE = 4;
+
     public static Free42Activity instance;
     
     static {
@@ -445,7 +450,8 @@ public class Free42Activity extends Activity {
         impTemp = importedProgram;
         importedProgram = null;
         if (impTemp != null) {
-            doImport2(impTemp);
+            core_import_programs(impTemp);
+            redisplay();
             new File(impTemp).delete();
         }
     }
@@ -689,7 +695,19 @@ public class Free42Activity extends Activity {
             // default: Cancel; do nothing
         }
     }
-    
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode != Activity.RESULT_OK || data == null)
+            return;
+        Uri uri = data.getData();
+        if (uri == null)
+            return;
+        switch (requestCode) {
+            case IMPORT_RAW: doImportRaw(uri); break;
+            case EXPORT_RAW: doExportRaw(uri); break;
+        }
+    }
+
     private void doSelectSkin() {
         SkinSelectDialog ssd = new SkinSelectDialog(this);
         ssd.setListener(new SkinSelectDialog.Listener() {
@@ -770,22 +788,53 @@ public class Free42Activity extends Activity {
     }
     
     private void doImport() {
-        if (!checkStorageAccess())
-            return;
-        FileSelectionDialog fsd = new FileSelectionDialog(this, new String[] { "raw", "*" });
-        fsd.setOkListener(new FileSelectionDialog.OkListener() {
-            public void okPressed(String path) {
-                doImport2(path);
-            }
-        });
-        fsd.show();
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        // TODO: Is there any point to putExtra() when opening a document?
+        intent.putExtra(Intent.EXTRA_TITLE, "Importing, eh?");
+        startActivityForResult(intent, IMPORT_RAW);
     }
-    
-    private void doImport2(String path) {
-        core_import_programs(path);
-        redisplay();
+
+    private void doImportRaw(Uri uri) {
+        try {
+            String url = uri.toString();
+            String result = java.net.URLDecoder.decode(url, "UTF-8");
+            if (!result.toLowerCase().endsWith(".raw"))
+                return;
+        } catch (UnsupportedEncodingException e) {
+            // Won't happen; UTF-8 is always available
+        }
+        InputStream is = null;
+        OutputStream os = null;
+        String tempName = "_TEMP_RAW_";
+        try {
+            is = getContentResolver().openInputStream(uri);
+            os = openFileOutput(tempName, Context.MODE_PRIVATE);
+            byte[] buf = new byte[8192];
+            int n;
+            while ((n = is.read(buf)) != -1)
+                os.write(buf, 0, n);
+            tempName = getFilesDir().getAbsolutePath() + "/" + tempName;
+        } catch (IOException e) {
+            tempName = null;
+        } finally {
+            if (is != null)
+                try {
+                    is.close();
+                } catch (IOException e2) {}
+            if (os != null)
+                try {
+                    os.close();
+                } catch (IOException e2) {}
+        }
+        if (tempName != null) {
+            core_import_programs(tempName);
+            redisplay();
+            new File(tempName).delete();
+        }
     }
-    
+
     private boolean[] selectedProgramIndexes;
     private String[] programNames;
     private boolean exportShare;
@@ -812,8 +861,6 @@ public class Free42Activity extends Activity {
     }
 
     private void doExport(boolean share) {
-        if (!share && !checkStorageAccess())
-            return;
         exportShare = share;
         programNames = core_list_programs();
         selectedProgramIndexes = new boolean[programNames.length];
@@ -842,7 +889,7 @@ public class Free42Activity extends Activity {
         StatesDialog sd = new StatesDialog(this, selectedState);
         sd.show();
     }
-    
+
     private void doProgramSelectionClick(DialogInterface dialog, int which) {
         if (which == DialogInterface.BUTTON_POSITIVE) {
             String name = null;
@@ -855,12 +902,9 @@ public class Free42Activity extends Activity {
                 if (exportShare) {
                     doShare();
                 } else {
-                    FileSelectionDialog fsd = new FileSelectionDialog(this, new String[]{"raw", "*"});
-                    fsd.setOkListener(new FileSelectionDialog.OkListener() {
-                        public void okPressed(String path) {
-                            doExport2(path);
-                        }
-                    });
+                    Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                    intent.setType("*/*");
                     if (name.startsWith("\"")) {
                         int q = name.indexOf('"', 1);
                         if (q != -1)
@@ -870,8 +914,8 @@ public class Free42Activity extends Activity {
                     } else {
                         name = "Untitled.raw";
                     }
-                    fsd.setPath(name);
-                    fsd.show();
+                    intent.putExtra(Intent.EXTRA_TITLE, name);
+                    startActivityForResult(intent, EXPORT_RAW);
                 }
             }
         }
@@ -889,6 +933,34 @@ public class Free42Activity extends Activity {
             if (selectedProgramIndexes[i])
                 selection[n++] = i;
         core_export_programs(selection, path);
+    }
+
+    private void doExportRaw(Uri uri) {
+        String tempName = "_TEMP_RAW_";
+        String fullTempName = getFilesDir().getAbsolutePath() + "/" + tempName;
+        doExport2(fullTempName);
+        InputStream is = null;
+        OutputStream os = null;
+        try {
+            is = openFileInput(tempName);
+            os = getContentResolver().openOutputStream(uri);
+            byte[] buf = new byte[8192];
+            int n;
+            while ((n = is.read(buf)) != -1)
+                os.write(buf, 0, n);
+        } catch (IOException e) {
+            // ignore
+        } finally {
+            if (is != null)
+                try {
+                    is.close();
+                } catch (IOException e) {}
+            if (os != null)
+                try {
+                    os.close();
+                } catch (IOException e) {}
+        }
+        new File(fullTempName).delete();
     }
 
     private void doShare() {
