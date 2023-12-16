@@ -103,7 +103,7 @@ public class Free42Activity extends Activity {
 
     public static final String[] builtinSkinNames = new String[] { "Standard", "Landscape" };
     
-    private static final int SHELL_VERSION = 20;
+    private static final int SHELL_VERSION = 21;
     
     private static final int PRINT_BACKGROUND_COLOR = Color.LTGRAY;
     
@@ -1943,8 +1943,16 @@ public class Free42Activity extends Activity {
             cs.localized_copy_paste = true;
             putCoreSettings(cs);
             // fall through
-        case 20:
-            // current version (SHELL_VERSION = 20),
+        case 20: {
+            String homePath = getFilesDir().getAbsolutePath() + "/";
+            if (ShellSpool.printToGifFileName.startsWith(homePath))
+                ShellSpool.printToGifFileName = ShellSpool.printToGifFileName.substring(homePath.length());
+            if (ShellSpool.printToTxtFileName.startsWith(homePath))
+                ShellSpool.printToTxtFileName = ShellSpool.printToTxtFileName.substring(homePath.length());
+            // fall through
+        }
+        case 21:
+            // current version (SHELL_VERSION = 21),
             // so nothing to do here since everything
             // was initialized from the state file.
             ;
