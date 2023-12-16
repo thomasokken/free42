@@ -41,6 +41,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -51,8 +53,11 @@ public class StatesDialog extends Dialog {
     private Button switchToButton;
     private String stateDirName;
 
+    private static StatesDialog instance;
+
     public StatesDialog(Context ctx, String selectedState) {
         super(ctx);
+        instance = this;
         setContentView(R.layout.states_dialog);
         getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT,
                 WindowManager.LayoutParams.MATCH_PARENT);
@@ -332,23 +337,23 @@ public class StatesDialog extends Dialog {
     }
 
     private void doImport() {
-        if (!Free42Activity.checkStorageAccess())
-            return;
-        FileSelectionDialog fsd = new FileSelectionDialog(getContext(), new String[]{"f42", "*"});
-        fsd.setOkListener(new FileSelectionDialog.OkListener() {
-            public void okPressed(String path) {
-                doImport2(path);
-            }
-        });
-        fsd.show();
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        // TODO: Is there any point to putExtra() when opening a document?
+        intent.putExtra(Intent.EXTRA_TITLE, "Importing, eh?");
+        Free42Activity.instance.startActivityForResult(intent, Free42Activity.IMPORT_STATE);
     }
 
-    private void doImport2(String path) {
-        int lastSlash = path.lastIndexOf('/');
-        String name = lastSlash == -1 ? path : path.substring(lastSlash + 1);
-        int len = name.length();
-        if (len > 4 && name.endsWith(".f42"))
-            name = name.substring(0, len - 4);
+    public static void doImport2(Uri uri) {
+        instance.doImport3(uri);
+    }
+
+    private void doImport3(Uri uri) {
+        String name = Free42Activity.getNameFromUri(uri);
+        if (name == null || !name.endsWith(".f42"))
+            return;
+        name = name.substring(0, name.length() - 4);
         String destPath = getContext().getFilesDir() + "/" + name + ".f42";
         if (new File(destPath).exists())
             destPath = getContext().getFilesDir() + "/" + makeCopyName(name) + ".f42";
@@ -356,7 +361,7 @@ public class StatesDialog extends Dialog {
         OutputStream os = null;
         boolean failed = true;
         try {
-            is = new FileInputStream(path);
+            is = Free42Activity.instance.getContentResolver().openInputStream(uri);
             os = new FileOutputStream(destPath);
             byte[] buf = new byte[8192];
             int n;
@@ -369,13 +374,11 @@ public class StatesDialog extends Dialog {
             if (is != null)
                 try {
                     is.close();
-                } catch (IOException e) {
-                }
+                } catch (IOException e) {}
             if (os != null)
                 try {
                     os.close();
-                } catch (IOException e) {
-                }
+                } catch (IOException e) {}
         }
         if (failed)
             new File(destPath).delete();
@@ -383,55 +386,60 @@ public class StatesDialog extends Dialog {
     }
 
     private void doExport() {
-        if (!Free42Activity.checkStorageAccess())
-            return;
         String selectedStateName = getSelectedState();
         if (selectedStateName == null)
             return;
-        FileSelectionDialog fsd = new FileSelectionDialog(getContext(), new String[]{"f42", "*"});
-        fsd.setPath(selectedStateName + ".f42");
-        fsd.setOkListener(new FileSelectionDialog.OkListener() {
-            public void okPressed(String path) {
-                if (path.endsWith(".f42"))
-                    doExport2(path);
-            }
-        });
-        fsd.show();
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        intent.putExtra(Intent.EXTRA_TITLE, selectedStateName + ".f42");
+        Free42Activity.instance.startActivityForResult(intent, Free42Activity.EXPORT_STATE);
     }
 
-    private void doExport2(String finalPath) {
+    public static void doExport2(Uri uri) {
+        instance.doExport3(uri);
+    }
+
+    private void doExport3(Uri uri) {
         String selectedStateName = getSelectedState();
-        // Once we get here, finalName contains a valid name for creating the duplicate.
-        // What we do next depends on whether the selected state is the currently active
-        // one. If it is, we'll call core_save_state(), to make sure the duplicate
+        // How we save the state depends on whether the selected state is the currently
+        // active one. If it is, we'll call core_save_state(), to make sure the duplicate
         // actually matches the most up-to-date state; otherwise, we can simply copy
         // the existing state file.
-        if (selectedStateName.equals(Free42Activity.getSelectedState()))
-            Free42Activity.saveStateAs(finalPath);
-        else {
-            String origPath = stateDirName + "/" + getSelectedState() + ".f42";
-            FileInputStream fis = null;
-            FileOutputStream fos = null;
-            try {
-                fis = new FileInputStream(origPath);
-                fos = new FileOutputStream(finalPath);
-                byte[] buf = new byte[1024];
-                int n;
-                while ((n = fis.read(buf)) > 0)
-                    fos.write(buf, 0, n);
-            } catch (IOException e) {
-                Free42Activity.showAlert("State export failed.");
-            } finally {
-                if (fis != null)
-                    try {
-                        fis.close();
-                    } catch (IOException e) {}
-                if (fos != null)
-                    try {
-                        fos.close();
-                    } catch (IOException e) {}
-            }
+        String origPath = null;
+        boolean deleteOrig;
+        if (selectedStateName.equals(Free42Activity.getSelectedState())) {
+            String tempName = "_TEMP_STATE_";
+            origPath = stateDirName + "/" + tempName;
+            Free42Activity.saveStateAs(origPath);
+            deleteOrig = true;
+        } else {
+            origPath = stateDirName + "/" + getSelectedState() + ".f42";
+            deleteOrig = false;
         }
+        InputStream is = null;
+        OutputStream os = null;
+        try {
+            is = new FileInputStream(origPath);
+            os = Free42Activity.instance.getContentResolver().openOutputStream(uri);
+            byte[] buf = new byte[1024];
+            int n;
+            while ((n = is.read(buf)) > 0)
+                os.write(buf, 0, n);
+        } catch (IOException e) {
+            Free42Activity.showAlert("State export failed.");
+        } finally {
+            if (is != null)
+                try {
+                    is.close();
+                } catch (IOException e) {}
+            if (os != null)
+                try {
+                    os.close();
+                } catch (IOException e) {}
+        }
+        if (deleteOrig)
+            new File(origPath).delete();
         updateUI(true);
     }
 

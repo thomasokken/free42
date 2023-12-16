@@ -49,6 +49,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -68,10 +69,10 @@ import android.media.SoundPool;
 import android.net.Uri;
 import android.os.BatteryManager;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Vibrator;
+import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -108,10 +109,10 @@ public class Free42Activity extends Activity {
     
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
 
-    private static final int IMPORT_RAW = 1;
-    private static final int EXPORT_RAW = 2;
-    private static final int IMPORT_STATE = 3;
-    private static final int EXPORT_STATE = 4;
+    public static final int IMPORT_RAW = 1;
+    public static final int EXPORT_RAW = 2;
+    public static final int IMPORT_STATE = 3;
+    public static final int EXPORT_STATE = 4;
 
     public static Free42Activity instance;
     
@@ -608,7 +609,7 @@ public class Free42Activity extends Activity {
             itemsList.add("States");
             itemsList.add("Preferences");
             itemsList.add("Select Skin");
-            itemsList.add("Skin: Other...");
+            itemsList.add("File Import & Export");
             itemsList.add("Copy");
             itemsList.add("Paste");
             itemsList.add("About Free42");
@@ -642,7 +643,7 @@ public class Free42Activity extends Activity {
                 doSelectSkin();
                 break;
             case 5:
-                doSkinOther();
+                doFileManagement();
                 break;
             case 6:
                 doCopy();
@@ -705,6 +706,8 @@ public class Free42Activity extends Activity {
         switch (requestCode) {
             case IMPORT_RAW: doImportRaw(uri); break;
             case EXPORT_RAW: doExportRaw(uri); break;
+            case IMPORT_STATE: StatesDialog.doImport2(uri); break;
+            case EXPORT_STATE: StatesDialog.doExport2(uri); break;
         }
     }
 
@@ -719,19 +722,8 @@ public class Free42Activity extends Activity {
         ssd.show();
     }
 
-    private void doSkinOther() {
-        if (!checkStorageAccess())
-            return;
-        FileSelectionDialog fsd = new FileSelectionDialog(this, new String[] { "layout", "*" });
-        if (externalSkinName[orientation].length() > 0)
-            fsd.setPath(externalSkinName[orientation] + ".layout");
-        fsd.setOkListener(new FileSelectionDialog.OkListener() {
-            public void okPressed(String path) {
-                if (path.endsWith(".layout"))
-                    doSelectSkin(path.substring(0, path.length() - 7));
-            }
-        });
-        fsd.show();
+    private void doFileManagement() {
+        // TODO
     }
 
     public static String getSelectedSkin() {
@@ -797,21 +789,16 @@ public class Free42Activity extends Activity {
     }
 
     private void doImportRaw(Uri uri) {
-        try {
-            String url = uri.toString();
-            String result = java.net.URLDecoder.decode(url, "UTF-8");
-            if (!result.toLowerCase().endsWith(".raw"))
-                return;
-        } catch (UnsupportedEncodingException e) {
-            // Won't happen; UTF-8 is always available
-        }
+        String name = getNameFromUri(uri);
+        if (name == null || !name.toLowerCase().endsWith(".raw"))
+            return;
         InputStream is = null;
         OutputStream os = null;
         String tempName = "_TEMP_RAW_";
         try {
             is = getContentResolver().openInputStream(uri);
             os = openFileOutput(tempName, Context.MODE_PRIVATE);
-            byte[] buf = new byte[8192];
+            byte[] buf = new byte[1024];
             int n;
             while ((n = is.read(buf)) != -1)
                 os.write(buf, 0, n);
@@ -944,7 +931,7 @@ public class Free42Activity extends Activity {
         try {
             is = openFileInput(tempName);
             os = getContentResolver().openOutputStream(uri);
-            byte[] buf = new byte[8192];
+            byte[] buf = new byte[1024];
             int n;
             while ((n = is.read(buf)) != -1)
                 os.write(buf, 0, n);
@@ -2739,17 +2726,15 @@ public class Free42Activity extends Activity {
     public void shell_log(String s) {
         System.err.print(s);
     }
-    
-    public static boolean checkStorageAccess() {
-        return instance.checkStorageAccess2();
-    }
-    
-    private boolean checkStorageAccess2() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            getExternalFilesDir(null).mkdirs();
-            return true;
-        }
-        ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE }, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-        return false;
+
+    public static String getNameFromUri(Uri uri) {
+        Cursor cursor = instance.getContentResolver().query(uri, null, null, null, null);
+        if (cursor == null)
+            return null;
+        int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+        cursor.moveToFirst();
+        String name = cursor.getString(nameIndex);
+        cursor.close();
+        return name;
     }
 }
