@@ -341,7 +341,7 @@ public class StatesDialog extends Dialog {
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
         // TODO: Is there any point to putExtra() when opening a document?
-        intent.putExtra(Intent.EXTRA_TITLE, "Importing, eh?");
+        // intent.putExtra(Intent.EXTRA_TITLE, "Importing, eh?");
         Free42Activity.instance.startActivityForResult(intent, Free42Activity.IMPORT_STATE);
     }
 

@@ -825,7 +825,7 @@ public class Free42Activity extends Activity {
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
         // TODO: Is there any point to putExtra() when opening a document?
-        intent.putExtra(Intent.EXTRA_TITLE, "Importing, eh?");
+        // intent.putExtra(Intent.EXTRA_TITLE, "Importing, eh?");
         startActivityForResult(intent, IMPORT_RAW);
     }
 
@@ -922,7 +922,7 @@ public class Free42Activity extends Activity {
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
         // TODO: Is there any point to putExtra() when opening a document?
-        intent.putExtra(Intent.EXTRA_TITLE, "Importing, eh?");
+        // intent.putExtra(Intent.EXTRA_TITLE, "Importing, eh?");
         startActivityForResult(intent, IMPORT_FILE);
     }
 
