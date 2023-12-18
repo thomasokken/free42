@@ -1030,7 +1030,89 @@ public class Free42Activity extends Activity {
     }
 
     private void doDeleteFileOrDirectory() {
-        // TODO
+        FileSelectionDialog fsd = new FileSelectionDialog(this, null);
+        fsd.setPath(fileMgmtPath);
+        fsd.setOkListener(new FileSelectionDialog.OkListener() {
+            public void okPressed(String path) {
+                doDeleteFileOrDirectory2(path);
+            }
+        });
+        fsd.show();
+    }
+
+    private File fileMgmtDeletionFile;
+
+    private void doDeleteFileOrDirectory2(String path) {
+        if (path.equals("") || path.equals("/"))
+            // Not deleting the home directory!
+            return;
+        File f = new File(getFilesDir() + "/" + path);
+        if (!f.exists())
+            return;
+        fileMgmtDeletionFile = f;
+        if (f.isDirectory()) {
+            if (path.endsWith("/"))
+                path = path.substring(0, path.length() - 1);
+            fileMgmtPath = path;
+            int lastslash = fileMgmtPath.lastIndexOf('/');
+            if (lastslash != -1)
+                fileMgmtPath = fileMgmtPath.substring(0, lastslash);
+            new AlertDialog.Builder(this)
+                    .setTitle("Confirm Delete Directory")
+                    .setMessage("Are you sure you want to delete the directory \"" + f.getName() + "\"?")
+                    .setIcon(android.R.drawable.ic_dialog_info)
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            doDeleteDirectory();
+                        }
+                    })
+                    .setNegativeButton("Cancel", null).show();
+        } else {
+            fileMgmtPath = path;
+            int lastslash = fileMgmtPath.lastIndexOf('/');
+            if (lastslash != -1)
+                fileMgmtPath = fileMgmtPath.substring(0, lastslash);
+            new AlertDialog.Builder(this)
+                    .setTitle("Confirm Delete File")
+                    .setMessage("Are you sure you want to delete the file \"" + f.getName() + "\"?")
+                    .setIcon(android.R.drawable.ic_dialog_info)
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            fileMgmtDeletionFile.delete();
+                        }
+                    })
+                    .setNegativeButton("Cancel", null).show();
+        }
+    }
+
+    private void doDeleteDirectory() {
+        File[] contents = fileMgmtDeletionFile.listFiles();
+        if (contents == null || contents.length == 0) {
+            fileMgmtDeletionFile.delete();
+            return;
+        }
+        new AlertDialog.Builder(this)
+                .setTitle("Directory Not Empty")
+                .setMessage("The directory \"" + fileMgmtDeletionFile.getName() + "\" is not empty; delete anyway?")
+                .setIcon(android.R.drawable.ic_dialog_info)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        doDeleteDirectory2(fileMgmtDeletionFile);
+                    }
+                })
+                .setNegativeButton("Cancel", null).show();
+    }
+
+    private void doDeleteDirectory2(File dir) {
+        File[] contents = dir.listFiles();
+        if (contents != null)
+            for (File f : contents) {
+                if (f.isDirectory())
+                    doDeleteDirectory2(f);
+                else
+                    f.delete();
+            }
+        dir.delete();
     }
 
     private void doStates(String selectedState) {

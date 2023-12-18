@@ -44,6 +44,9 @@ public class FileSelectionDialog extends Dialog {
     
     public FileSelectionDialog(Context ctx, String[] types) {
         super(ctx);
+        boolean selectFileOrDir = types == null;
+        if (selectFileOrDir)
+            types = new String[] { "*" };
         boolean landscape = ctx.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
         setContentView(landscape ? R.layout.file_selection_dialog_landscape : R.layout.file_selection_dialog_portrait);
         getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT,
@@ -134,7 +137,7 @@ public class FileSelectionDialog extends Dialog {
                     fileNameTF.setText(item.getName());
             }
         });
-        setTitle("Select File");
+        setTitle(selectFileOrDir ? "Select File or Directory" : "Select File");
         homeDir = ctx.getFilesDir().getAbsolutePath();
         doHome();
     }
