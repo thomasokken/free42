@@ -129,6 +129,7 @@ public class Free42Activity extends Activity {
     private PreferencesDialog preferencesDialog;
     private AlertDialog mainMenuDialog;
     private AlertDialog programImportExportMenuDialog;
+    private AlertDialog fileManagementMenuDialog;
     private Handler mainHandler;
     private boolean alwaysOn;
     
@@ -606,10 +607,10 @@ public class Free42Activity extends Activity {
             List<String> itemsList = new ArrayList<String>();
             itemsList.add("Show Print-Out");
             itemsList.add("Program Import & Export");
+            itemsList.add("File Import & Export");
             itemsList.add("States");
             itemsList.add("Preferences");
             itemsList.add("Select Skin");
-            itemsList.add("File Import & Export");
             itemsList.add("Copy");
             itemsList.add("Paste");
             itemsList.add("About Free42");
@@ -634,16 +635,16 @@ public class Free42Activity extends Activity {
                 postProgramImportExportMenu();
                 return;
             case 2:
+                postFileManagementMenu();
+                break;
+            case 3:
                 doStates(null);
                 return;
-            case 3:
+            case 4:
                 doPreferences();
                 return;
-            case 4:
-                doSelectSkin();
-                break;
             case 5:
-                doFileManagement();
+                doSelectSkin();
                 break;
             case 6:
                 doCopy();
@@ -697,6 +698,45 @@ public class Free42Activity extends Activity {
         }
     }
 
+    private void postFileManagementMenu() {
+        if (programImportExportMenuDialog == null) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("File Management Menu");
+            List<String> itemsList = new ArrayList<String>();
+            itemsList.add("Import File");
+            itemsList.add("Export File");
+            itemsList.add("Delete File or Directory");
+            itemsList.add("Back");
+            itemsList.add("Cancel");
+            builder.setItems(itemsList.toArray(new String[itemsList.size()]),
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            fileManagementMenuItemSelected(which);
+                        }
+                    });
+            fileManagementMenuDialog = builder.create();
+        }
+        fileManagementMenuDialog.show();
+    }
+
+    private void fileManagementMenuItemSelected(int which) {
+        switch (which) {
+            case 0:
+                doImportFile();
+                return;
+            case 1:
+                doExportFile();
+                return;
+            case 2:
+                doDeleteFileOrDirectory();
+                return;
+            case 3:
+                postMainMenu();
+                return;
+            // default: Cancel; do nothing
+        }
+    }
+
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != Activity.RESULT_OK || data == null)
             return;
@@ -720,10 +760,6 @@ public class Free42Activity extends Activity {
             }
         });
         ssd.show();
-    }
-
-    private void doFileManagement() {
-        // TODO
     }
 
     public static String getSelectedSkin() {
@@ -870,6 +906,18 @@ public class Free42Activity extends Activity {
         builder.setPositiveButton("OK", listener);
         builder.setNegativeButton("Cancel", null);
         builder.create().show();
+    }
+
+    private void doImportFile() {
+        // TODO
+    }
+
+    private void doExportFile() {
+        // TODO
+    }
+
+    private void doDeleteFileOrDirectory() {
+        // TODO
     }
 
     private void doStates(String selectedState) {
