@@ -39,6 +39,7 @@ public class FileSelectionDialog extends Dialog {
     private Button okButton;
     private Button cancelButton;
     private OkListener okListener;
+    private String homeDir;
     private String currentPath;
     
     public FileSelectionDialog(Context ctx, String[] types) {
@@ -112,7 +113,7 @@ public class FileSelectionDialog extends Dialog {
                                 name += "." + type;
                         }
                     }
-                    okListener.okPressed(currentPath + name);
+                    okListener.okPressed(currentPath + "/" + name);
                 }
                 FileSelectionDialog.this.dismiss();
             }
@@ -128,12 +129,13 @@ public class FileSelectionDialog extends Dialog {
             public void onItemClick(AdapterView<?> view, View parent, int position, long id) {
                 File item = (File) view.getAdapter().getItem(position);
                 if (item.isDirectory())
-                    setPath(item.getAbsolutePath());
+                    setPath(currentPath + "/" + item.getName());
                 else
                     fileNameTF.setText(item.getName());
             }
         });
         setTitle("Select File");
+        homeDir = ctx.getFilesDir().getAbsolutePath();
         doHome();
     }
     
@@ -146,30 +148,46 @@ public class FileSelectionDialog extends Dialog {
     }
     
     public void setPath(String path) {
+        /* Normalize path by removing leading and trailing slashes,
+         * and replacing repeated slashes by individual ones.
+         */
+        StringTokenizer tok = new StringTokenizer(path, "/");
+        StringBuffer pathBuf = new StringBuffer();
+        while (tok.hasMoreTokens()) {
+            String t = tok.nextToken();
+            if (pathBuf.length() > 0)
+                pathBuf.append("/");
+            pathBuf.append(t);
+        }
+        path = pathBuf.toString();
+
+        /* Split path into directory and file. If the path
+         * points to an existing directory, use the entire
+         * path for the current directory, and leave the
+         * current fileName unchanged.
+         */
         String fileName = fileNameTF.getText().toString();
-        File f = new File(path);
+        File f = new File(homeDir + "/" + path);
         if (!f.exists() || f.isFile()) {
             int p = path.lastIndexOf("/");
             if (p == -1) {
                 fileName = path;
-                path = getContext().getExternalFilesDir(null).getAbsolutePath();
+                path = "";
             } else {
                 fileName = path.substring(p + 1);
                 path = path.substring(0, p);
-                if (path.length() == 0)
-                    path = "/";
             }
         }
-        StringTokenizer tok = new StringTokenizer(path, "/");
+        tok = new StringTokenizer(path, "/");
         List<String> pathComps = new ArrayList<String>();
-        pathComps.add("/");
-        StringBuffer pathBuf = new StringBuffer();
-        pathBuf.append("/");
+        pathComps.add("<home>");
+        pathBuf = new StringBuffer();
         while (tok.hasMoreTokens()) {
             String t = tok.nextToken();
             pathComps.add(t);
+            if (pathBuf.length() > 0)
+                pathBuf.append("/");
             pathBuf.append(t);
-            pathBuf.append("/");
         }
         ArrayAdapter<String> aa = new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item, pathComps);
         dirListSpinner.setAdapter(aa);
@@ -177,7 +195,7 @@ public class FileSelectionDialog extends Dialog {
         fileNameTF.setText(fileName);
         currentPath = pathBuf.toString();
         
-        File[] list = new File(currentPath).listFiles();
+        File[] list = new File(homeDir + "/" + currentPath).listFiles();
         if (list == null)
             list = new File[0];
         Arrays.sort(list);
@@ -188,7 +206,7 @@ public class FileSelectionDialog extends Dialog {
     }
 
     private void doHome() {
-        setPath(FileSelectionDialog.this.getContext().getExternalFilesDir(null).getAbsolutePath());
+        setPath("");
     }
     
     private void doUp() {
@@ -201,10 +219,10 @@ public class FileSelectionDialog extends Dialog {
     private void doMkDir() {
         String dirName = fileNameTF.getText().toString();
         if (dirName != null && dirName.length() > 0) {
-            File newDir = new File(currentPath + dirName);
+            File newDir = new File(homeDir + "/" + currentPath + "/" + dirName);
             newDir.mkdir();
             if (newDir.isDirectory())
-                setPath(newDir.getAbsolutePath());
+                setPath(currentPath + "/" + dirName);
         }
     }
     
