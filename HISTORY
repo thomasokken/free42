@@ -1,3 +1,7 @@
+2023-12-18: release 3.1.2b (Android only)
+
+* Fixed file access for Android >= 11.
+
 2023-12-12: release 3.1.2a (iOS and MacOS)
 
 * Fixed crash when loading skin images with local colormaps, caused by a bug in
