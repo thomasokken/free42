@@ -19,6 +19,7 @@ package com.thomasokken.free42;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -113,6 +114,8 @@ public class Free42Activity extends Activity {
     public static final int EXPORT_RAW = 2;
     public static final int IMPORT_STATE = 3;
     public static final int EXPORT_STATE = 4;
+    public static final int IMPORT_FILE = 5;
+    public static final int EXPORT_FILE = 6;
 
     public static Free42Activity instance;
     
@@ -748,6 +751,8 @@ public class Free42Activity extends Activity {
             case EXPORT_RAW: doExportRaw(uri); break;
             case IMPORT_STATE: StatesDialog.doImport2(uri); break;
             case EXPORT_STATE: StatesDialog.doExport2(uri); break;
+            case IMPORT_FILE: doImportFile2(uri); break;
+            case EXPORT_FILE: doExportFile3(uri); break;
         }
     }
 
@@ -908,12 +913,120 @@ public class Free42Activity extends Activity {
         builder.create().show();
     }
 
+    private String fileMgmtPath = "";
+    private Uri fileMgmtImportUri;
+    private String fileMgmtExportPath;
+
     private void doImportFile() {
-        // TODO
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        // TODO: Is there any point to putExtra() when opening a document?
+        intent.putExtra(Intent.EXTRA_TITLE, "Importing, eh?");
+        startActivityForResult(intent, IMPORT_FILE);
+    }
+
+    private void doImportFile2(Uri uri) {
+        fileMgmtImportUri = uri;
+        String name = getNameFromUri(uri);
+        int lastdot = name.lastIndexOf('.');
+        String[] suffixes;
+        if (lastdot == -1)
+            suffixes = new String[] { "*" };
+        else
+            suffixes = new String[] { name.substring(lastdot + 1), "*" };
+        FileSelectionDialog fsd = new FileSelectionDialog(this, suffixes);
+        fsd.setPath(fileMgmtPath + "/" + name);
+        fsd.setOkListener(new FileSelectionDialog.OkListener() {
+            public void okPressed(String path) {
+                doImportFile3(path);
+            }
+        });
+        fsd.show();
+    }
+
+    private void doImportFile3(String path) {
+        int lastslash = path.lastIndexOf('/');
+        if (lastslash == -1)
+            fileMgmtPath = path;
+        else
+            fileMgmtPath = path.substring(0, lastslash);
+        InputStream is = null;
+        OutputStream os = null;
+        try {
+            is = getContentResolver().openInputStream(fileMgmtImportUri);
+            os = new FileOutputStream(getFilesDir() + "/" + path);
+            byte[] buf = new byte[1024];
+            int n;
+            while ((n = is.read(buf)) != -1)
+                os.write(buf, 0, n);
+        } catch (IOException e) {
+            // TODO: Message box
+        } finally {
+            if (is != null)
+                try {
+                    is.close();
+                } catch (IOException e) {}
+            if (os != null)
+                try {
+                    os.close();
+                } catch (IOException e) {}
+        }
     }
 
     private void doExportFile() {
-        // TODO
+        FileSelectionDialog fsd = new FileSelectionDialog(this, new String[] { "*" });
+        fsd.setPath(fileMgmtPath);
+        fsd.setOkListener(new FileSelectionDialog.OkListener() {
+            public void okPressed(String path) {
+                doExportFile2(path);
+            }
+        });
+        fsd.show();
+    }
+
+    private void doExportFile2(String path) {
+        fileMgmtExportPath = path;
+        int lastslash = path.lastIndexOf('/');
+        String name = null;
+        if (lastslash == -1) {
+            fileMgmtPath = "";
+            name = path;
+        } else {
+            fileMgmtPath = path.substring(0, lastslash);
+            name = path.substring(lastslash + 1);
+        }
+
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        if (name != null && name.length() != 0)
+            intent.putExtra(Intent.EXTRA_TITLE, name);
+        startActivityForResult(intent, EXPORT_FILE);
+    }
+
+    private void doExportFile3(Uri uri) {
+        InputStream is = null;
+        OutputStream os = null;
+        try {
+            is = new FileInputStream(getFilesDir() + "/" + fileMgmtExportPath);
+            os = getContentResolver().openOutputStream(uri);
+            byte[] buf = new byte[1024];
+            int n;
+            while ((n = is.read(buf)) != -1)
+                os.write(buf, 0, n);
+        } catch (IOException e) {
+            // TODO: Message box
+        } finally {
+            if (is != null)
+                try {
+                    is.close();
+                } catch (IOException e) {}
+            if (os != null)
+                try {
+                    os.close();
+                } catch (IOException e) {}
+        }
     }
 
     private void doDeleteFileOrDirectory() {
