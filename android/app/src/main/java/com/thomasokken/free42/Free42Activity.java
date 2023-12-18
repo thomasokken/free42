@@ -802,7 +802,7 @@ public class Free42Activity extends Activity {
             int n;
             while ((n = is.read(buf)) != -1)
                 os.write(buf, 0, n);
-            tempName = getFilesDir().getAbsolutePath() + "/" + tempName;
+            tempName = getFilesDir() + "/" + tempName;
         } catch (IOException e) {
             tempName = null;
         } finally {
@@ -924,7 +924,7 @@ public class Free42Activity extends Activity {
 
     private void doExportRaw(Uri uri) {
         String tempName = "_TEMP_RAW_";
-        String fullTempName = getFilesDir().getAbsolutePath() + "/" + tempName;
+        String fullTempName = getFilesDir() + "/" + tempName;
         doExport2(fullTempName);
         InputStream is = null;
         OutputStream os = null;
@@ -1944,7 +1944,7 @@ public class Free42Activity extends Activity {
             putCoreSettings(cs);
             // fall through
         case 20: {
-            String homePath = getFilesDir().getAbsolutePath() + "/";
+            String homePath = getFilesDir() + "/";
             if (ShellSpool.printToGifFileName.startsWith(homePath))
                 ShellSpool.printToGifFileName = ShellSpool.printToGifFileName.substring(homePath.length());
             if (ShellSpool.printToTxtFileName.startsWith(homePath))
@@ -2436,12 +2436,13 @@ public class Free42Activity extends Activity {
         printPaperView.print(text, bits, bytesperline, x, y, width, height);
 
         if (ShellSpool.printToTxt) {
+            String txtFileName = getFilesDir() + "/" + ShellSpool.printToTxtFileName;
             try {
                 if (printTxtStream == null)
-                    if (new File(ShellSpool.printToTxtFileName).exists())
-                        printTxtStream = new FileOutputStream(ShellSpool.printToTxtFileName, true);
+                    if (new File(txtFileName).exists())
+                        printTxtStream = new FileOutputStream(txtFileName, true);
                     else
-                        printTxtStream = new FileOutputStream(ShellSpool.printToTxtFileName);
+                        printTxtStream = new FileOutputStream(txtFileName);
                 if (text != null)
                     ShellSpool.shell_spool_txt(text, printTxtStream);
                 else
@@ -2499,14 +2500,14 @@ public class Free42Activity extends Activity {
                     seq = seq.substring(seq.length() - 4);
                     name += "." + seq + ".gif";
     
-                    if (!new File(name).exists())
+                    if (!new File(getFilesDir() + "/" + name).exists())
                         break;
                 }
             }
 
             try {
                 if (name != null) {
-                    printGifFile = new RandomAccessFile(name, "rw");
+                    printGifFile = new RandomAccessFile(getFilesDir() + "/" + name, "rw");
                     gif_lines = 0;
                     ShellSpool.shell_start_gif(printGifFile, ShellSpool.maxGifHeight);
                 }
