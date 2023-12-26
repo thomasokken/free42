@@ -305,7 +305,7 @@
   instructions, like the top-level menu presented by SOLVER and ∫f(x). It is
   meant to be used by programs that aim to implement a similar behavior as
   those built-in menus.
-* On cold start, now setting the date and time format accordig to the host
+* On cold start, now setting the date and time format according to the host
   operating system's locale settings.
 * The Free42 extensions to the HP-42S instruction set are now shown in separate
   sections in CATALOG, rather than at the end of the FCN catalog.
