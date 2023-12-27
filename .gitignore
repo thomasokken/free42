@@ -166,6 +166,8 @@
 /gtk/shell_spool.h
 /gtk/skin2cc.cc
 /gtk/skin2cc.conf
+/gtk/raw2txt
+/gtk/txt2raw
 
 # /iphone/
 /iphone/.DS_Store
