@@ -1,0 +1,10 @@
+#!/bin/sh -e
+
+# This script builds raw2txt.exe txt2raw.exe
+# It should be run in a Cygwin bash shell (under MS Windows, obviously).
+
+mkdir -p ../packages
+
+sh ./build-intel-lib.sh 32
+
+cmd /c build-raw-conv.bat
