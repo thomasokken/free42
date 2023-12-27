@@ -50,3 +50,5 @@ cmp skin2cpp.conf ../common/skin2cc.conf
 cmp keymap2cpp.cpp ../common/keymap2cc.cc
 cmp bid_conf.h ../common/bid_conf.h
 cmp bid_functions.h ../common/bid_functions.h
+cmp raw2txt.cpp ../common/raw2txt.cc
+cmp txt2raw.cpp ../common/txt2raw.cc

@@ -49,3 +49,5 @@ copy skin2cpp.conf ..\common\skin2cc.conf
 copy keymap2cpp.cpp ..\common\keymap2cc.cc
 copy bid_conf.h ..\common
 copy bid_functions.h ..\common
+copy raw2txt.cpp ..\common\raw2txt.cc
+copy txt2raw.cpp ..\common\txt2raw.cc

@@ -49,6 +49,8 @@ del skin2cpp.conf
 del keymap2cpp.cpp
 del bid_conf.h
 del bid_functions.h
+del raw2txt.cpp
+del txt2raw.cpp
 rmdir /s /q IntelRDFPMathLib20U1
 del readtest.c
 del readtest_lines.cpp
