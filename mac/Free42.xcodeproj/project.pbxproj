@@ -135,6 +135,52 @@
 		E9E059D822FEF866009DDC40 /* StateListDataSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9E059D722FEF866009DDC40 /* StateListDataSource.mm */; };
 		E9E335DE0FF67A1D006A40AD /* keymap.txt in Resources */ = {isa = PBXBuildFile; fileRef = E9E335DD0FF67A1D006A40AD /* keymap.txt */; };
 		E9E394C525A953050001FDC9 /* DisabledMenuItem.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9E394C325A953050001FDC9 /* DisabledMenuItem.mm */; };
+		E9EB0E562B3DA09E00F70E61 /* core_commands2.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4020FEC0A44007C56A4 /* core_commands2.cc */; };
+		E9EB0E572B3DA09E00F70E61 /* core_tables.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4220FEC0A44007C56A4 /* core_tables.cc */; };
+		E9EB0E582B3DA09E00F70E61 /* core_commands1.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4000FEC0A44007C56A4 /* core_commands1.cc */; };
+		E9EB0E592B3DA09E00F70E61 /* core_keydown.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4120FEC0A44007C56A4 /* core_keydown.cc */; };
+		E9EB0E5A2B3DA09E00F70E61 /* core_main.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4180FEC0A44007C56A4 /* core_main.cc */; };
+		E9EB0E5B2B3DA09E00F70E61 /* core_phloat.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D41E0FEC0A44007C56A4 /* core_phloat.cc */; };
+		E9EB0E5C2B3DA09E00F70E61 /* core_globals.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D40E0FEC0A44007C56A4 /* core_globals.cc */; };
+		E9EB0E5D2B3DA09E00F70E61 /* core_linalg1.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4140FEC0A44007C56A4 /* core_linalg1.cc */; };
+		E9EB0E5E2B3DA09E00F70E61 /* core_commands7.cc in Sources */ = {isa = PBXBuildFile; fileRef = E99FDE2D11624FFA004DB479 /* core_commands7.cc */; };
+		E9EB0E5F2B3DA09E00F70E61 /* core_linalg2.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4160FEC0A44007C56A4 /* core_linalg2.cc */; };
+		E9EB0E602B3DA09E00F70E61 /* core_math1.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D41A0FEC0A44007C56A4 /* core_math1.cc */; };
+		E9EB0E612B3DA09E00F70E61 /* core_variables.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4240FEC0A44007C56A4 /* core_variables.cc */; };
+		E9EB0E622B3DA09E00F70E61 /* core_commands5.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4080FEC0A44007C56A4 /* core_commands5.cc */; };
+		E9EB0E632B3DA09E00F70E61 /* shell_spool.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D42A0FEC0A44007C56A4 /* shell_spool.cc */; };
+		E9EB0E642B3DA09E00F70E61 /* core_sto_rcl.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4200FEC0A44007C56A4 /* core_sto_rcl.cc */; };
+		E9EB0E652B3DA09E00F70E61 /* core_commands6.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D40A0FEC0A44007C56A4 /* core_commands6.cc */; };
+		E9EB0E662B3DA09E00F70E61 /* core_math2.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D41C0FEC0A44007C56A4 /* core_math2.cc */; };
+		E9EB0E672B3DA09E00F70E61 /* core_display.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D40C0FEC0A44007C56A4 /* core_display.cc */; };
+		E9EB0E682B3DA09E00F70E61 /* core_commands4.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4060FEC0A44007C56A4 /* core_commands4.cc */; };
+		E9EB0E692B3DA09E00F70E61 /* core_commands3.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4040FEC0A44007C56A4 /* core_commands3.cc */; };
+		E9EB0E6A2B3DA09E00F70E61 /* core_helpers.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4100FEC0A44007C56A4 /* core_helpers.cc */; };
+		E9EB0E6D2B3DA11C00F70E61 /* raw2txt.cc in Sources */ = {isa = PBXBuildFile; fileRef = E9EB0E6C2B3DA0F500F70E61 /* raw2txt.cc */; };
+		E9EB0E6F2B3DA25400F70E61 /* gcc111libbid.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E9092A7718C2A52500609AB0 /* gcc111libbid.a */; };
+		E9EB0E732B3DADDF00F70E61 /* core_commands7.cc in Sources */ = {isa = PBXBuildFile; fileRef = E99FDE2D11624FFA004DB479 /* core_commands7.cc */; };
+		E9EB0E742B3DADDF00F70E61 /* core_sto_rcl.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4200FEC0A44007C56A4 /* core_sto_rcl.cc */; };
+		E9EB0E752B3DADDF00F70E61 /* core_commands1.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4000FEC0A44007C56A4 /* core_commands1.cc */; };
+		E9EB0E762B3DADDF00F70E61 /* core_commands4.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4060FEC0A44007C56A4 /* core_commands4.cc */; };
+		E9EB0E772B3DADDF00F70E61 /* core_helpers.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4100FEC0A44007C56A4 /* core_helpers.cc */; };
+		E9EB0E782B3DADDF00F70E61 /* core_linalg2.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4160FEC0A44007C56A4 /* core_linalg2.cc */; };
+		E9EB0E792B3DADDF00F70E61 /* core_commands6.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D40A0FEC0A44007C56A4 /* core_commands6.cc */; };
+		E9EB0E7A2B3DADDF00F70E61 /* core_keydown.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4120FEC0A44007C56A4 /* core_keydown.cc */; };
+		E9EB0E7B2B3DADDF00F70E61 /* core_display.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D40C0FEC0A44007C56A4 /* core_display.cc */; };
+		E9EB0E7C2B3DADDF00F70E61 /* core_variables.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4240FEC0A44007C56A4 /* core_variables.cc */; };
+		E9EB0E7D2B3DADDF00F70E61 /* core_commands5.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4080FEC0A44007C56A4 /* core_commands5.cc */; };
+		E9EB0E7E2B3DADDF00F70E61 /* shell_spool.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D42A0FEC0A44007C56A4 /* shell_spool.cc */; };
+		E9EB0E7F2B3DADDF00F70E61 /* core_tables.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4220FEC0A44007C56A4 /* core_tables.cc */; };
+		E9EB0E802B3DADDF00F70E61 /* core_math2.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D41C0FEC0A44007C56A4 /* core_math2.cc */; };
+		E9EB0E812B3DADDF00F70E61 /* core_phloat.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D41E0FEC0A44007C56A4 /* core_phloat.cc */; };
+		E9EB0E822B3DADDF00F70E61 /* core_linalg1.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4140FEC0A44007C56A4 /* core_linalg1.cc */; };
+		E9EB0E832B3DADDF00F70E61 /* core_commands3.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4040FEC0A44007C56A4 /* core_commands3.cc */; };
+		E9EB0E842B3DADDF00F70E61 /* core_math1.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D41A0FEC0A44007C56A4 /* core_math1.cc */; };
+		E9EB0E852B3DADDF00F70E61 /* core_commands2.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4020FEC0A44007C56A4 /* core_commands2.cc */; };
+		E9EB0E862B3DADDF00F70E61 /* core_main.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4180FEC0A44007C56A4 /* core_main.cc */; };
+		E9EB0E882B3DADDF00F70E61 /* core_globals.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D40E0FEC0A44007C56A4 /* core_globals.cc */; };
+		E9EB0E8A2B3DADDF00F70E61 /* gcc111libbid.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E9092A7718C2A52500609AB0 /* gcc111libbid.a */; };
+		E9EB0E8F2B3DADFB00F70E61 /* txt2raw.cc in Sources */ = {isa = PBXBuildFile; fileRef = E9EB0E6B2B3DA0F500F70E61 /* txt2raw.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -248,6 +294,10 @@
 		E9E335DD0FF67A1D006A40AD /* keymap.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = keymap.txt; sourceTree = "<group>"; };
 		E9E394C325A953050001FDC9 /* DisabledMenuItem.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = DisabledMenuItem.mm; path = Classes/DisabledMenuItem.mm; sourceTree = "<group>"; };
 		E9E394C425A953050001FDC9 /* DisabledMenuItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DisabledMenuItem.h; path = Classes/DisabledMenuItem.h; sourceTree = "<group>"; };
+		E9EB0E3A2B3D9FB600F70E61 /* raw2txt */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = raw2txt; sourceTree = BUILT_PRODUCTS_DIR; };
+		E9EB0E6B2B3DA0F500F70E61 /* txt2raw.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = txt2raw.cc; path = ../common/txt2raw.cc; sourceTree = "<group>"; };
+		E9EB0E6C2B3DA0F500F70E61 /* raw2txt.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = raw2txt.cc; path = ../common/raw2txt.cc; sourceTree = "<group>"; };
+		E9EB0E8E2B3DADDF00F70E61 /* txt2raw */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = txt2raw; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -272,6 +322,22 @@
 				E969E24A2603F14900EABB28 /* Cocoa.framework in Frameworks */,
 				E969E24B2603F14900EABB28 /* AudioToolbox.framework in Frameworks */,
 				E969E24C2603F14900EABB28 /* gcc111libbid.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E9EB0E372B3D9FB600F70E61 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E9EB0E6F2B3DA25400F70E61 /* gcc111libbid.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E9EB0E892B3DADDF00F70E61 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E9EB0E8A2B3DADDF00F70E61 /* gcc111libbid.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -335,6 +401,8 @@
 			children = (
 				8D1107320486CEB800E47090 /* Free42 Decimal.app */,
 				E969E2522603F14900EABB28 /* Free42 Binary.app */,
+				E9EB0E3A2B3D9FB600F70E61 /* raw2txt */,
+				E9EB0E8E2B3DADDF00F70E61 /* txt2raw */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -455,6 +523,8 @@
 				E959D4290FEC0A44007C56A4 /* shell_loadimage.h */,
 				E959D42A0FEC0A44007C56A4 /* shell_spool.cc */,
 				E959D42B0FEC0A44007C56A4 /* shell_spool.h */,
+				E9EB0E6C2B3DA0F500F70E61 /* raw2txt.cc */,
+				E9EB0E6B2B3DA0F500F70E61 /* txt2raw.cc */,
 			);
 			name = Common;
 			sourceTree = "<group>";
@@ -500,6 +570,40 @@
 			productReference = E969E2522603F14900EABB28 /* Free42 Binary.app */;
 			productType = "com.apple.product-type.application";
 		};
+		E9EB0E392B3D9FB600F70E61 /* raw2txt */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E9EB0E402B3D9FB600F70E61 /* Build configuration list for PBXNativeTarget "raw2txt" */;
+			buildPhases = (
+				E9EB0E6E2B3DA1BA00F70E61 /* ShellScript */,
+				E9EB0E362B3D9FB600F70E61 /* Sources */,
+				E9EB0E372B3D9FB600F70E61 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = raw2txt;
+			productName = raw2txt;
+			productReference = E9EB0E3A2B3D9FB600F70E61 /* raw2txt */;
+			productType = "com.apple.product-type.tool";
+		};
+		E9EB0E702B3DADDF00F70E61 /* txt2raw */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E9EB0E8B2B3DADDF00F70E61 /* Build configuration list for PBXNativeTarget "txt2raw" */;
+			buildPhases = (
+				E9EB0E712B3DADDF00F70E61 /* ShellScript */,
+				E9EB0E722B3DADDF00F70E61 /* Sources */,
+				E9EB0E892B3DADDF00F70E61 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = txt2raw;
+			productName = raw2txt;
+			productReference = E9EB0E8E2B3DADDF00F70E61 /* txt2raw */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -513,6 +617,9 @@
 					};
 					E969E2082603F14900EABB28 = {
 						DevelopmentTeam = F4D88K2P5W;
+					};
+					E9EB0E392B3D9FB600F70E61 = {
+						CreatedOnToolsVersion = 15.1;
 					};
 				};
 			};
@@ -533,6 +640,8 @@
 			targets = (
 				8D1107260486CEB800E47090 /* Free42 Decimal */,
 				E969E2082603F14900EABB28 /* Free42 Binary */,
+				E9EB0E392B3D9FB600F70E61 /* raw2txt */,
+				E9EB0E702B3DADDF00F70E61 /* txt2raw */,
 			);
 		};
 /* End PBXProject section */
@@ -630,6 +739,40 @@
 			shellPath = /bin/sh;
 			shellScript = "if [ -f gcc111libbid.a ]; then exit 0; fi\nARCHS=(arm64 x86_64)\nLIBNAMES=\nfor ARCH in ${ARCHS[@]}; do\n  rm -rf IntelRDFPMathLib20U1\n  tar xvfz ../inteldecimal/IntelRDFPMathLib20U1.tar.gz\n  cd IntelRDFPMathLib20U1\n  patch -p0 <../intel-lib-mac-$ARCH.patch\n  cd LIBRARY\n  make CC=gcc CALL_BY_REF=1 GLOBAL_RND=1 GLOBAL_FLAGS=1 UNCHANGED_BINARY_FLAGS=0\n  mv libbid.a ../../gcc111libbid-$ARCH.a\n  LIBNAMES=\"$LIBNAMES gcc111libbid-$ARCH.a\"\n  cd ../..\ndone\nlipo -create $LIBNAMES -output gcc111libbid.a\n( echo '#ifdef FREE42_FPTEST'; echo 'const char *readtest_lines[] = {'; tr -d '\\r' < IntelRDFPMathLib20U1/TESTS/readtest.in | sed 's/^\\(.*\\)$/\"\\1\",/'; echo '0 };'; echo '#endif' ) > readtest_lines.cc\n";
 		};
+		E9EB0E6E2B3DA1BA00F70E61 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ -f gcc111libbid.a ]; then exit 0; fi\nARCHS=(arm64 x86_64)\nLIBNAMES=\nfor ARCH in ${ARCHS[@]}; do\n  rm -rf IntelRDFPMathLib20U1\n  tar xvfz ../inteldecimal/IntelRDFPMathLib20U1.tar.gz\n  cd IntelRDFPMathLib20U1\n  patch -p0 <../intel-lib-mac-$ARCH.patch\n  cd LIBRARY\n  make CC=gcc CALL_BY_REF=1 GLOBAL_RND=1 GLOBAL_FLAGS=1 UNCHANGED_BINARY_FLAGS=0\n  mv libbid.a ../../gcc111libbid-$ARCH.a\n  LIBNAMES=\"$LIBNAMES gcc111libbid-$ARCH.a\"\n  cd ../..\ndone\nlipo -create $LIBNAMES -output gcc111libbid.a\n( echo '#ifdef FREE42_FPTEST'; echo 'const char *readtest_lines[] = {'; tr -d '\\r' < IntelRDFPMathLib20U1/TESTS/readtest.in | sed 's/^\\(.*\\)$/\"\\1\",/'; echo '0 };'; echo '#endif' ) > readtest_lines.cc\n";
+		};
+		E9EB0E712B3DADDF00F70E61 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ -f gcc111libbid.a ]; then exit 0; fi\nARCHS=(arm64 x86_64)\nLIBNAMES=\nfor ARCH in ${ARCHS[@]}; do\n  rm -rf IntelRDFPMathLib20U1\n  tar xvfz ../inteldecimal/IntelRDFPMathLib20U1.tar.gz\n  cd IntelRDFPMathLib20U1\n  patch -p0 <../intel-lib-mac-$ARCH.patch\n  cd LIBRARY\n  make CC=gcc CALL_BY_REF=1 GLOBAL_RND=1 GLOBAL_FLAGS=1 UNCHANGED_BINARY_FLAGS=0\n  mv libbid.a ../../gcc111libbid-$ARCH.a\n  LIBNAMES=\"$LIBNAMES gcc111libbid-$ARCH.a\"\n  cd ../..\ndone\nlipo -create $LIBNAMES -output gcc111libbid.a\n( echo '#ifdef FREE42_FPTEST'; echo 'const char *readtest_lines[] = {'; tr -d '\\r' < IntelRDFPMathLib20U1/TESTS/readtest.in | sed 's/^\\(.*\\)$/\"\\1\",/'; echo '0 };'; echo '#endif' ) > readtest_lines.cc\n";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -722,6 +865,64 @@
 				E969E2442603F14900EABB28 /* ProgramListDataSource.mm in Sources */,
 				E969E2452603F14900EABB28 /* shell_skin.mm in Sources */,
 				E969E2462603F14900EABB28 /* URLTextField.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E9EB0E362B3D9FB600F70E61 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E9EB0E5E2B3DA09E00F70E61 /* core_commands7.cc in Sources */,
+				E9EB0E642B3DA09E00F70E61 /* core_sto_rcl.cc in Sources */,
+				E9EB0E582B3DA09E00F70E61 /* core_commands1.cc in Sources */,
+				E9EB0E682B3DA09E00F70E61 /* core_commands4.cc in Sources */,
+				E9EB0E6A2B3DA09E00F70E61 /* core_helpers.cc in Sources */,
+				E9EB0E5F2B3DA09E00F70E61 /* core_linalg2.cc in Sources */,
+				E9EB0E652B3DA09E00F70E61 /* core_commands6.cc in Sources */,
+				E9EB0E592B3DA09E00F70E61 /* core_keydown.cc in Sources */,
+				E9EB0E672B3DA09E00F70E61 /* core_display.cc in Sources */,
+				E9EB0E612B3DA09E00F70E61 /* core_variables.cc in Sources */,
+				E9EB0E622B3DA09E00F70E61 /* core_commands5.cc in Sources */,
+				E9EB0E632B3DA09E00F70E61 /* shell_spool.cc in Sources */,
+				E9EB0E572B3DA09E00F70E61 /* core_tables.cc in Sources */,
+				E9EB0E662B3DA09E00F70E61 /* core_math2.cc in Sources */,
+				E9EB0E5B2B3DA09E00F70E61 /* core_phloat.cc in Sources */,
+				E9EB0E5D2B3DA09E00F70E61 /* core_linalg1.cc in Sources */,
+				E9EB0E692B3DA09E00F70E61 /* core_commands3.cc in Sources */,
+				E9EB0E602B3DA09E00F70E61 /* core_math1.cc in Sources */,
+				E9EB0E562B3DA09E00F70E61 /* core_commands2.cc in Sources */,
+				E9EB0E5A2B3DA09E00F70E61 /* core_main.cc in Sources */,
+				E9EB0E6D2B3DA11C00F70E61 /* raw2txt.cc in Sources */,
+				E9EB0E5C2B3DA09E00F70E61 /* core_globals.cc in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E9EB0E722B3DADDF00F70E61 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E9EB0E732B3DADDF00F70E61 /* core_commands7.cc in Sources */,
+				E9EB0E742B3DADDF00F70E61 /* core_sto_rcl.cc in Sources */,
+				E9EB0E8F2B3DADFB00F70E61 /* txt2raw.cc in Sources */,
+				E9EB0E752B3DADDF00F70E61 /* core_commands1.cc in Sources */,
+				E9EB0E762B3DADDF00F70E61 /* core_commands4.cc in Sources */,
+				E9EB0E772B3DADDF00F70E61 /* core_helpers.cc in Sources */,
+				E9EB0E782B3DADDF00F70E61 /* core_linalg2.cc in Sources */,
+				E9EB0E792B3DADDF00F70E61 /* core_commands6.cc in Sources */,
+				E9EB0E7A2B3DADDF00F70E61 /* core_keydown.cc in Sources */,
+				E9EB0E7B2B3DADDF00F70E61 /* core_display.cc in Sources */,
+				E9EB0E7C2B3DADDF00F70E61 /* core_variables.cc in Sources */,
+				E9EB0E7D2B3DADDF00F70E61 /* core_commands5.cc in Sources */,
+				E9EB0E7E2B3DADDF00F70E61 /* shell_spool.cc in Sources */,
+				E9EB0E7F2B3DADDF00F70E61 /* core_tables.cc in Sources */,
+				E9EB0E802B3DADDF00F70E61 /* core_math2.cc in Sources */,
+				E9EB0E812B3DADDF00F70E61 /* core_phloat.cc in Sources */,
+				E9EB0E822B3DADDF00F70E61 /* core_linalg1.cc in Sources */,
+				E9EB0E832B3DADDF00F70E61 /* core_commands3.cc in Sources */,
+				E9EB0E842B3DADDF00F70E61 /* core_math1.cc in Sources */,
+				E9EB0E852B3DADDF00F70E61 /* core_commands2.cc in Sources */,
+				E9EB0E862B3DADDF00F70E61 /* core_main.cc in Sources */,
+				E9EB0E882B3DADDF00F70E61 /* core_globals.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -946,6 +1147,300 @@
 			};
 			name = Release;
 		};
+		E9EB0E3E2B3D9FB600F70E61 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = NO;
+				CLANG_WARN_CONSTANT_CONVERSION = NO;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = F4D88K2P5W;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DECIMAL_CALL_BY_REFERENCE=1",
+					"DECIMAL_GLOBAL_ROUNDING=1",
+					"DECIMAL_GLOBAL_ROUNDING_ACCESS_FUNCTIONS=1",
+					"DECIMAL_GLOBAL_EXCEPTION_FLAGS=1",
+					"DECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS=1",
+					_WCHAR_T_DEFINED,
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = NO;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				"OTHER_CFLAGS[arch=arm64]" = (
+					"-fsigned-char",
+					"-DBID_SIZE_LONG=8",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		E9EB0E3F2B3D9FB600F70E61 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = NO;
+				CLANG_WARN_CONSTANT_CONVERSION = NO;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = F4D88K2P5W;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DECIMAL_CALL_BY_REFERENCE=1",
+					"DECIMAL_GLOBAL_ROUNDING=1",
+					"DECIMAL_GLOBAL_ROUNDING_ACCESS_FUNCTIONS=1",
+					"DECIMAL_GLOBAL_EXCEPTION_FLAGS=1",
+					"DECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS=1",
+					_WCHAR_T_DEFINED,
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = NO;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				"OTHER_CFLAGS[arch=arm64]" = (
+					"-fsigned-char",
+					"-DBID_SIZE_LONG=8",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		E9EB0E8C2B3DADDF00F70E61 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = NO;
+				CLANG_WARN_CONSTANT_CONVERSION = NO;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = F4D88K2P5W;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DECIMAL_CALL_BY_REFERENCE=1",
+					"DECIMAL_GLOBAL_ROUNDING=1",
+					"DECIMAL_GLOBAL_ROUNDING_ACCESS_FUNCTIONS=1",
+					"DECIMAL_GLOBAL_EXCEPTION_FLAGS=1",
+					"DECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS=1",
+					_WCHAR_T_DEFINED,
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = NO;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				"OTHER_CFLAGS[arch=arm64]" = (
+					"-fsigned-char",
+					"-DBID_SIZE_LONG=8",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		E9EB0E8D2B3DADDF00F70E61 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = NO;
+				CLANG_WARN_CONSTANT_CONVERSION = NO;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = F4D88K2P5W;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DECIMAL_CALL_BY_REFERENCE=1",
+					"DECIMAL_GLOBAL_ROUNDING=1",
+					"DECIMAL_GLOBAL_ROUNDING_ACCESS_FUNCTIONS=1",
+					"DECIMAL_GLOBAL_EXCEPTION_FLAGS=1",
+					"DECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS=1",
+					_WCHAR_T_DEFINED,
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = NO;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				"OTHER_CFLAGS[arch=arm64]" = (
+					"-fsigned-char",
+					"-DBID_SIZE_LONG=8",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -972,6 +1467,24 @@
 			buildConfigurations = (
 				E969E24F2603F14900EABB28 /* Debug */,
 				E969E2512603F14900EABB28 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E9EB0E402B3D9FB600F70E61 /* Build configuration list for PBXNativeTarget "raw2txt" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E9EB0E3E2B3D9FB600F70E61 /* Debug */,
+				E9EB0E3F2B3D9FB600F70E61 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E9EB0E8B2B3DADDF00F70E61 /* Build configuration list for PBXNativeTarget "txt2raw" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E9EB0E8C2B3DADDF00F70E61 /* Debug */,
+				E9EB0E8D2B3DADDF00F70E61 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
