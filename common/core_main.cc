@@ -2857,6 +2857,8 @@ static bool parse_phloat(const char *p, int len, phloat *res, const char *format
         if (i > BSIZE - 1)
             i = BSIZE - 1;
     }
+    if (i == 0)
+        return false;
     int err = string2phloat(buf, i, res);
     if (err == 0)
         return true;
