@@ -1032,7 +1032,18 @@ static int mappable_e_pow_x_1_r(phloat x, phloat *y) {
 }
 
 static int mappable_e_pow_x_1_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
-    return ERR_NOT_YET_IMPLEMENTED;
+    phloat k = expm1(xre);
+    phloat t = xim;
+    phloat s = sin(t);
+    t = sin(t / 2);
+    t = -2 * t * t;
+    s *= k + 1;
+    if (-t > fabs(k))
+        *yre = k + k * t + t;
+    else
+        *yre = t + k * t + k;
+    *yim = s;
+    return ERR_NONE;
 }
 
 int docmd_e_pow_x_1(arg_struct *arg) {

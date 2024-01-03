@@ -367,7 +367,47 @@ static int mappable_ln_1_x_r(phloat x, phloat *y) {
 }
 
 static int mappable_ln_1_x_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
-    return ERR_NOT_YET_IMPLEMENTED;
+    if (xim == 0) {
+        if (xre == -1)
+            return ERR_INVALID_DATA;
+        if (xre > -1) {
+            *yre = log1p(xre);
+            *yim = 0;
+        } else {
+            *yre = log(-(xre + 1));
+            *yim = PI;
+        }
+        return ERR_NONE;
+    } else if (xre == -1) {
+        if (xim > 0) {
+            *yre = log(xim);
+            *yim = PI / 2;
+        } else {
+            *yre = log(-xim);
+            *yim = -PI / 2;
+        }
+        return ERR_NONE;
+    } else {
+        phloat x1re = xre + 1;
+        phloat h = hypot(x1re, xim);
+        phloat bre;
+        phloat s;
+        if (p_isinf(h)) {
+            s = 10000;
+            h = hypot(x1re / s, xim / s);
+            bre = log(h) + log(s);
+        } else {
+            s = 1;
+            bre = log(h);
+        }
+        phloat bim = atan2(xim, x1re);
+        phloat cre = x1re - 1 - xre;
+        phloat dre = cre * x1re / h / h * s;
+        phloat dim = -cre * xim / h / h * s;
+        *yre = bre - dre;
+        *yim = bim - dim;
+        return ERR_NONE;
+    }
 }
 
 int docmd_ln_1_x(arg_struct *arg) {
