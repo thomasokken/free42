@@ -419,11 +419,28 @@ int docmd_ln_1_x(arg_struct *arg) {
 }
 
 int docmd_c_ln_1_x(arg_struct *arg) {
-    vartype *v;
-    int err = map_unary(stack[sp], &v, mappable_ln_1_x_r, mappable_ln_1_x_c);
-    if (err == ERR_NONE)
-        unary_result(v);
-    return err;
+    if (stack[sp]->type == TYPE_REAL && !flags.f.real_result_only) {
+        vartype_real *x = (vartype_real *) stack[sp];
+        if (x->x == -1)
+            return ERR_INVALID_DATA;
+        vartype *res;
+        if (x->x > -1)
+            res = new_real(log1p(x->x));
+        else
+            res = new_complex(log(-(x->x + 1)), PI);
+        if (res == NULL)
+            return ERR_INSUFFICIENT_MEMORY;
+        else {
+            unary_result(res);
+            return ERR_NONE;
+        }
+    } else {
+        vartype *v;
+        int err = map_unary(stack[sp], &v, mappable_ln_1_x_r, mappable_ln_1_x_c);
+        if (err == ERR_NONE)
+            unary_result(v);
+        return err;
+    }
 }
 
 int docmd_posa(arg_struct *arg) {
