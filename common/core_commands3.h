@@ -43,6 +43,7 @@ int docmd_edit(arg_struct *arg);
 int docmd_editn(arg_struct *arg);
 int docmd_exitall(arg_struct *arg);
 int docmd_e_pow_x_1(arg_struct *arg);
+int docmd_c_e_pow_x_1(arg_struct *arg);
 int docmd_fnrm(arg_struct *arg);
 int docmd_getm(arg_struct *arg);
 int docmd_grow(arg_struct *arg);

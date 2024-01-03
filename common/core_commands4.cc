@@ -359,16 +359,28 @@ int docmd_j_sub(arg_struct *arg) {
     return ERR_NONE;
 }
 
-static int mappable_ln_1_x(phloat x, phloat *y) {
+static int mappable_ln_1_x_r(phloat x, phloat *y) {
     if (x <= -1)
         return ERR_INVALID_DATA;
     *y = log1p(x);
     return ERR_NONE;
 }
 
+static int mappable_ln_1_x_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
 int docmd_ln_1_x(arg_struct *arg) {
     vartype *v;
-    int err = map_unary(stack[sp], &v, mappable_ln_1_x, NULL);
+    int err = map_unary(stack[sp], &v, mappable_ln_1_x_r, NULL);
+    if (err == ERR_NONE)
+        unary_result(v);
+    return err;
+}
+
+int docmd_c_ln_1_x(arg_struct *arg) {
+    vartype *v;
+    int err = map_unary(stack[sp], &v, mappable_ln_1_x_r, mappable_ln_1_x_c);
     if (err == ERR_NONE)
         unary_result(v);
     return err;

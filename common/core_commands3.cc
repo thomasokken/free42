@@ -1020,7 +1020,7 @@ int docmd_exitall(arg_struct *arg) {
     return set_menu_return_err(MENULEVEL_APP, MENU_NONE, true);
 }
 
-static int mappable_e_pow_x_1(phloat x, phloat *y) {
+static int mappable_e_pow_x_1_r(phloat x, phloat *y) {
     *y = expm1(x);
     if (p_isinf(*y) != 0) {
         if (flags.f.range_error_ignore)
@@ -1031,9 +1031,21 @@ static int mappable_e_pow_x_1(phloat x, phloat *y) {
     return ERR_NONE;
 }
 
+static int mappable_e_pow_x_1_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
 int docmd_e_pow_x_1(arg_struct *arg) {
     vartype *v;
-    int err = map_unary(stack[sp], &v, mappable_e_pow_x_1, NULL);
+    int err = map_unary(stack[sp], &v, mappable_e_pow_x_1_r, NULL);
+    if (err == ERR_NONE)
+        unary_result(v);
+    return err;
+}
+
+int docmd_c_e_pow_x_1(arg_struct *arg) {
+    vartype *v;
+    int err = map_unary(stack[sp], &v, mappable_e_pow_x_1_r, mappable_e_pow_x_1_c);
     if (err == ERR_NONE)
         unary_result(v);
     return err;

@@ -26,6 +26,7 @@ int docmd_invrt(arg_struct *arg);
 int docmd_j_add(arg_struct *arg);
 int docmd_j_sub(arg_struct *arg);
 int docmd_ln_1_x(arg_struct *arg);
+int docmd_c_ln_1_x(arg_struct *arg);
 int docmd_posa(arg_struct *arg);
 int docmd_putm(arg_struct *arg);
 int docmd_rclel(arg_struct *arg);
