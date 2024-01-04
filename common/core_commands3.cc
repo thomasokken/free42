@@ -1043,6 +1043,13 @@ static int mappable_e_pow_x_1_c(phloat xre, phloat xim, phloat *yre, phloat *yim
     else
         *yre = t + k * t + k;
     *yim = s;
+    if (p_isinf(*yre) || p_isinf(*yim)) {
+        if (flags.f.range_error_ignore) {
+            *yre = p_isnan(*yre) ? 0 : *yre < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
+            *yim = p_isnan(*yim) ? 0 : *yim < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
+        } else
+            return ERR_OUT_OF_RANGE;
+    }
     return ERR_NONE;
 }
 
