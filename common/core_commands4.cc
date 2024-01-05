@@ -1247,17 +1247,59 @@ static int matedit_move(int direction) {
     if (m->type == TYPE_LIST)
         return matedit_move_list((vartype_list *) m, direction);
 
+    vartype *reg_x = sp == -1 ? NULL : stack[sp];
+    bool changed;
+
+    // Note: checking whether the current cell is unchanged, so we can avoid
+    // calling disentangle() unnecessarily. This is so that the matrix editor
+    // can be used to view the contents of a matrix, without duplicating it if
+    // we're not changing it.
+
     if (m->type == TYPE_REALMATRIX) {
         rm = (vartype_realmatrix *) m;
         rows = rm->rows;
         columns = rm->columns;
+        old_n = matedit_i * columns + matedit_j;
+        if (reg_x == NULL) {
+            changed = false;
+        } else if (reg_x->type == TYPE_REAL) {
+            if (rm->array->is_string[old_n] != 0)
+                changed = true;
+            else
+                changed = rm->array->data[old_n] != ((vartype_real *) reg_x)->x;
+        } else if (reg_x->type == TYPE_STRING) {
+            if (rm->array->is_string[old_n] == 0)
+                changed = true;
+            else {
+                char *text;
+                int4 len;
+                get_matrix_string(rm, old_n, &text, &len);
+                vartype_string *s = (vartype_string *) reg_x;
+                changed = !string_equals(text, len, s->txt(), s->length);
+            }
+        } else {
+            return ERR_INVALID_TYPE;
+        }
     } else { // TYPE_COMPLEXMATRIX
         cm = (vartype_complexmatrix *) m;
         rows = cm->rows;
         columns = cm->columns;
+        old_n = matedit_i * columns + matedit_j;
+        if (reg_x == NULL) {
+            changed = false;
+        } else if (reg_x->type == TYPE_REAL) {
+            changed = cm->array->data[old_n * 2] != ((vartype_real *) reg_x)->x
+                   || cm->array->data[old_n * 2 + 1] != 0;
+        } else if (reg_x->type == TYPE_COMPLEX) {
+            vartype_complex *c = (vartype_complex *) reg_x;
+            changed = cm->array->data[old_n * 2] != c->re
+                   || cm->array->data[old_n * 2 + 1] != c->im;
+        } else {
+            return reg_x->type == TYPE_STRING ? ERR_ALPHA_DATA_IS_INVALID : ERR_INVALID_TYPE;
+        }
     }
 
-    if (!disentangle(m))
+    if (changed && !disentangle(m))
         return ERR_INSUFFICIENT_MEMORY;
 
     new_i = matedit_i;
@@ -1280,10 +1322,7 @@ static int matedit_move(int direction) {
                 if (++new_i >= rows) {
                     end_flag = 1;
                     if (flags.f.grow) {
-                        vartype *m;
-                        int err = matedit_get(&m);
-                        if (err == ERR_NONE)
-                            err = dimension_array_ref(m, rows + 1, columns);
+                        int err = dimension_array_ref(m, rows + 1, columns);
                         if (err != ERR_NONE)
                             return err;
                         new_i = rows++;
@@ -1314,7 +1353,6 @@ static int matedit_move(int direction) {
             break;
     }
 
-    old_n = matedit_i * columns + matedit_j;
     new_n = new_i * columns + new_j;
 
     if (m->type == TYPE_REALMATRIX) {
@@ -1329,22 +1367,19 @@ static int matedit_move(int direction) {
             if (v == NULL)
                 return ERR_INSUFFICIENT_MEMORY;
         }
-        if (sp == -1) {
+        if (!changed) {
             /* There's nothing to store, so leave cell unchanged */
         } else if (stack[sp]->type == TYPE_REAL) {
             if (rm->array->is_string[old_n] == 2)
                 free(*(void **) &rm->array->data[old_n]);
             rm->array->is_string[old_n] = 0;
             rm->array->data[old_n] = ((vartype_real *) stack[sp])->x;
-        } else if (stack[sp]->type == TYPE_STRING) {
+        } else {
             vartype_string *s = (vartype_string *) stack[sp];
             if (!put_matrix_string(rm, old_n, s->txt(), s->length)) {
                 free_vartype(v);
                 return ERR_INSUFFICIENT_MEMORY;
             }
-        } else {
-            free_vartype(v);
-            return ERR_INVALID_TYPE;
         }
     } else { // m->type == TYPE_COMPLEXMATRIX
         if (old_n != new_n) {
@@ -1353,19 +1388,15 @@ static int matedit_move(int direction) {
             if (v == NULL)
                 return ERR_INSUFFICIENT_MEMORY;
         }
-        if (sp == -1) {
+        if (!changed) {
             /* There's nothing to store, so leave cell unchanged */
         } else if (stack[sp]->type == TYPE_REAL) {
             cm->array->data[2 * old_n] = ((vartype_real *) stack[sp])->x;
             cm->array->data[2 * old_n + 1] = 0;
-        } else if (stack[sp]->type == TYPE_COMPLEX) {
+        } else {
             vartype_complex *c = (vartype_complex *) stack[sp];
             cm->array->data[2 * old_n] = c->re;
             cm->array->data[2 * old_n + 1] = c->im;
-        } else {
-            free_vartype(v);
-            return stack[sp]->type == TYPE_STRING ? ERR_ALPHA_DATA_IS_INVALID
-                                              : ERR_INVALID_TYPE;
         }
     }
 
