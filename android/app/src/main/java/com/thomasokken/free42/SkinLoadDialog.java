@@ -128,8 +128,9 @@ public class SkinLoadDialog extends Dialog {
         try {
             loadFile(urls[0], tempGifName);
             loadFile(urls[1], tempLayoutName);
-            String gifName = filesDir + "/" + urls[2] + ".gif";
-            String layoutName = filesDir + "/" + urls[2] + ".layout";
+            String sname = java.net.URLDecoder.decode(urls[2], "UTF-8");
+            String gifName = filesDir + "/" + sname + ".gif";
+            String layoutName = filesDir + "/" + sname + ".layout";
             new File(tempGifName).renameTo(new File(gifName));
             new File(tempLayoutName).renameTo(new File(layoutName));
             Free42Activity.showAlert("Skin Loaded");

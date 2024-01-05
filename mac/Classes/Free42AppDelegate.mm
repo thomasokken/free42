@@ -880,11 +880,12 @@ static void tbnonewliner() {
         return;
     if (taskSuccess[0] && taskSuccess[1]) {
         char buf1[FILENAMELEN], buf2[FILENAMELEN];
+        const char *sname = [[skinName stringByRemovingPercentEncoding] UTF8String];
         snprintf(buf1, FILENAMELEN, "%s/_temp_gif_", free42dirname);
-        snprintf(buf2, FILENAMELEN, "%s/%s.gif", free42dirname, [skinName UTF8String]);
+        snprintf(buf2, FILENAMELEN, "%s/%s.gif", free42dirname, sname);
         rename(buf1, buf2);
         snprintf(buf1, FILENAMELEN, "%s/_temp_layout_", free42dirname);
-        snprintf(buf2, FILENAMELEN, "%s/%s.layout", free42dirname, [skinName UTF8String]);
+        snprintf(buf2, FILENAMELEN, "%s/%s.layout", free42dirname, sname);
         rename(buf1, buf2);
         if (loadSkinsWindowMapped)
             show_message("Message", "Skin Loaded");

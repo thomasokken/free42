@@ -159,7 +159,7 @@
         return nil;
     }
     NSString *baseName = [gifUrl lastPathComponent];
-    return [NSArray arrayWithObjects:gifUrl, layoutUrl, [baseName substringToIndex:[baseName length] - 4], nil];
+    return [NSArray arrayWithObjects:gifUrl, layoutUrl, [[baseName substringToIndex:[baseName length] - 4] stringByRemovingPercentEncoding], nil];
 }
 
 @end
