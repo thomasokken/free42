@@ -227,7 +227,10 @@ void Phloat::assign17digits(double d) {
         binary64_to_bid128(&val, &d);
     } else {
         char buf[25];
-        snprintf(buf, 25, "%.16e", d);
+        snprintf(buf, 25, "%.15e", d);
+        double d2;
+        if (sscanf(buf, "%le", &d2) != 1 || d != d2)
+            snprintf(buf, 25, "%.16e", d);
         bid128_from_string(&val, buf);
     }
 }
@@ -1109,7 +1112,10 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
 
 #ifndef BCD_MATH
     double d = to_double(pd);
-    snprintf(decstr, 50, "%.*e", MAX_MANT_DIGITS - 1, d);
+    snprintf(decstr, 50, "%.*e", MAX_MANT_DIGITS - 2, d);
+    double d2;
+    if (sscanf(decstr, "%le", &d2) != 1 || d != d2)
+        snprintf(decstr, 50, "%.*e", MAX_MANT_DIGITS - 1, d);
 #else
     bid128_to_string(decstr, &pd.val);
 #endif
