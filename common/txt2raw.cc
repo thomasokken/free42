@@ -10,7 +10,7 @@
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
-        fprintf(stderr, "Usage: %s <text-file>\n", argv[0]);
+        fprintf(stderr, "Usage: %s <text-file>\nBuild date: %s\n", argv[0], __DATE__);
         return 1;
     }
 
