@@ -15,6 +15,8 @@
 		E9031C8F0FF68FB10023F9EC /* builtin_skins.txt in Resources */ = {isa = PBXBuildFile; fileRef = E9031C8E0FF68FB10023F9EC /* builtin_skins.txt */; };
 		E9031C920FF68FCD0023F9EC /* Ehrling42sm.gif in Resources */ = {isa = PBXBuildFile; fileRef = E9031C900FF68FCD0023F9EC /* Ehrling42sm.gif */; };
 		E9031C930FF68FCD0023F9EC /* Ehrling42sm.layout in Resources */ = {isa = PBXBuildFile; fileRef = E9031C910FF68FCD0023F9EC /* Ehrling42sm.layout */; };
+		E904A3232B571F8400C0D6F3 /* keymap.txt in Resources */ = {isa = PBXBuildFile; fileRef = E904A3222B571F8400C0D6F3 /* keymap.txt */; };
+		E904A3242B571F8400C0D6F3 /* keymap.txt in Resources */ = {isa = PBXBuildFile; fileRef = E904A3222B571F8400C0D6F3 /* keymap.txt */; };
 		E908D3ED16D04D92000710EB /* SelectProgramsView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E908D3EC16D04D92000710EB /* SelectProgramsView.mm */; };
 		E90B374C23116467000189D3 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E90B374B23116467000189D3 /* CoreMotion.framework */; };
 		E91005D10F893F8900B68C27 /* core_commands1.cc in Sources */ = {isa = PBXBuildFile; fileRef = E91005A80F893F8900B68C27 /* core_commands1.cc */; };
@@ -205,6 +207,7 @@
 		E9031C8E0FF68FB10023F9EC /* builtin_skins.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = builtin_skins.txt; sourceTree = "<group>"; };
 		E9031C900FF68FCD0023F9EC /* Ehrling42sm.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = Ehrling42sm.gif; path = skins/Ehrling42sm.gif; sourceTree = SOURCE_ROOT; };
 		E9031C910FF68FCD0023F9EC /* Ehrling42sm.layout */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Ehrling42sm.layout; path = skins/Ehrling42sm.layout; sourceTree = SOURCE_ROOT; };
+		E904A3222B571F8400C0D6F3 /* keymap.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = keymap.txt; path = ../mac/keymap.txt; sourceTree = "<group>"; };
 		E908D3EB16D04D92000710EB /* SelectProgramsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SelectProgramsView.h; sourceTree = "<group>"; };
 		E908D3EC16D04D92000710EB /* SelectProgramsView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SelectProgramsView.mm; sourceTree = "<group>"; };
 		E90B374B23116467000189D3 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
@@ -462,6 +465,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				E904A3222B571F8400C0D6F3 /* keymap.txt */,
 				E9A1EE361FCB8C630047398C /* Images.xcassets */,
 				E94DE6C51011E9AE005E6B19 /* about-icon.png */,
 				E9A1EE381FCB8F5D0047398C /* about-icon@2x.png */,
@@ -674,6 +678,7 @@
 				E9C255DC1996B9C1007634C9 /* Ehrling42sl.gif in Resources */,
 				E98DD76E0F8C1A210089D9FA /* tone6.wav in Resources */,
 				E91B536B233C569F00E30DE8 /* click9.wav in Resources */,
+				E904A3232B571F8400C0D6F3 /* keymap.txt in Resources */,
 				E969A3A322D15AB100E6EBEB /* Matt42X.gif in Resources */,
 				E969A3A622D15AB100E6EBEB /* SGS-L.layout in Resources */,
 				E98DD76F0F8C1A210089D9FA /* tone7.wav in Resources */,
@@ -717,6 +722,7 @@
 				E9FC40C3260707AF00E52296 /* Ehrling42sl.gif in Resources */,
 				E9FC40C4260707AF00E52296 /* tone6.wav in Resources */,
 				E9FC40C5260707AF00E52296 /* click9.wav in Resources */,
+				E904A3242B571F8400C0D6F3 /* keymap.txt in Resources */,
 				E9FC40C6260707AF00E52296 /* Matt42X.gif in Resources */,
 				E9FC40C7260707AF00E52296 /* SGS-L.layout in Resources */,
 				E9FC40C8260707AF00E52296 /* tone7.wav in Resources */,

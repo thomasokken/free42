@@ -28,9 +28,10 @@ struct SkinColor {
 struct keymap_entry {
     bool ctrl;
     bool alt;
-    bool shift; 
+    bool numpad;
+    bool shift;
     bool cshift; 
-    int keycode;
+    unsigned short keychar;
     unsigned char macro[KEYMAP_MAX_MACRO_LENGTH + 1];
 };
 

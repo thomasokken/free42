@@ -71,5 +71,7 @@ extern FILE *statefile;
 - (void) cancelRepeater;
 + (void) stopTextPrinting;
 + (void) stopGifPrinting;
+- (void) setActive:(bool) active;
++ (void) readKeyMap;
 
 @end

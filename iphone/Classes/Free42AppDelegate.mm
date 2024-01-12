@@ -21,6 +21,7 @@
 
 #import "Free42AppDelegate.h"
 #import "RootViewController.h"
+#import "CalcView.h"
 #import "StatesView.h"
 #import "core_main.h"
 
@@ -38,6 +39,7 @@ static char version[32] = "";
     [[UIDevice currentDevice] setBatteryMonitoringEnabled:YES];
     [[NSNotificationCenter defaultCenter] addObserver:rootViewController selector:@selector(batteryLevelChanged) name:UIDeviceBatteryLevelDidChangeNotification object:nil];
     [rootViewController batteryLevelChanged];
+    [CalcView readKeyMap];
 }
 
 - (void) applicationDidEnterBackground:(UIApplication *)application {
