@@ -1,3 +1,13 @@
+2024-01-17: release 3.1.3
+
+* Added C.LN1+X and C.E^X-1 functions. These are complex-capable versions of
+  LN1+X and E^X-1.
+* Fixed pasting of strings that start with E.
+* Binary version: When converting binary to decimal, only use 17 digits when
+  actually needed. This prevents 0.1 from turning into 1.0000000000000001e-1,
+  for example.
+* iOS version: Support for external keyboards.
+
 2023-12-18: release 3.1.2b (Android only)
 
 * Fixed file access for Android >= 11.
