@@ -1133,6 +1133,9 @@ static void calc_keydown(NSString *characters, long flags, int keycode) {
         c2 = @"\uf727";
     else if ([characters isEqualToString:@"\177"])
         c2 = @"\uf728";
+    else if ([characters isEqualToString:@"\33"])
+        // Allow Ctrl-[ to be used as Esc, for keyboards without an Esc key
+        flags &= ~UIKeyModifierControl;
     if (c2 != nil) {
         characters = c2;
         len = [c2 length];
