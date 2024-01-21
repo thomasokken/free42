@@ -1252,16 +1252,39 @@ void calc_keydown(NSString *characters, NSUInteger flags, unsigned short keycode
     int len = [characters length];
     if (len == 0)
         return;
-    unsigned short c = [characters characterAtIndex:0];
-    
-    bool printable = len == 1 && c >= 33 && c <= 126;
-    just_pressed_shift = false;
     
     bool ctrl = (flags & NSEventModifierFlagControl) != 0;
     bool alt = (flags & NSEventModifierFlagOption) != 0;
     bool numpad = (flags & NSEventModifierFlagNumericPad) != 0;
     bool shift = (flags & NSEventModifierFlagShift) != 0;
     bool cshift = ann_shift != 0;
+    
+    unsigned short c = [characters characterAtIndex:0];
+    bool printable = !ctrl && len == 1 && c >= 33 && c <= 126;
+
+    // TODO: If requiring 10.15 compatibility is not a problem, we
+    // can use [NSEvent charactersByApplyingModifiers] to figure out
+    // exactly which key is being pressed, and we can start properly
+    // supporting mappings like Shift-2 where we don't have to know
+    // what the shifted character of the 2 key is, or * where we don't
+    // have to know whether the * character is in a shifted and
+    // unshifted position, etc. This will allow really clean keyboard
+    // maps.
+    // Whether the other OSes support this kind of thing as well
+    // remains to be seen. Last I checked, there was no
+    // charactersByApplyingModifiers in UIEvent, so we're off to a bad
+    // start on iOS...
+    // Until those mythical better days arrive, here's a hack to make
+    // Ctrl-Shift-2, Ctrl-Shift-6, and Ctrl-Shift-Minus work.
+    
+    if (ctrl && shift)
+        switch (c) {
+            case  0: c = '2'; break; // Ctrl-@
+            case 30: c = '6'; break; // Ctrl-^
+            case 31: c = '-'; break; // Ctrl-_
+        }
+
+    just_pressed_shift = false;
     
     if (ckey != 0) {
         shell_keyup();

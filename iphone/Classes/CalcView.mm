@@ -1141,15 +1141,14 @@ static void calc_keydown(NSString *characters, long flags, int keycode) {
         len = [c2 length];
     }
 
-    unsigned short c = [characters characterAtIndex:0];
-
-    bool printable = len == 1 && c >= 33 && c <= 126;
-
     bool ctrl = (flags & UIKeyModifierControl) != 0;
     bool alt = (flags & UIKeyModifierAlternate) != 0;
     bool numpad = (flags & UIKeyModifierNumericPad) != 0;
     bool shift = (flags & UIKeyModifierShift) != 0;
     bool cshift = ann_shift != 0;
+
+    unsigned short c = [characters characterAtIndex:0];
+    bool printable = !ctrl && len == 1 && c >= 33 && c <= 126;
 
     if (ckey != 0) {
         shell_keyup();
