@@ -702,7 +702,7 @@ public class Free42Activity extends Activity {
     }
 
     private void postFileManagementMenu() {
-        if (programImportExportMenuDialog == null) {
+        if (fileManagementMenuDialog == null) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("File Management Menu");
             List<String> itemsList = new ArrayList<String>();
