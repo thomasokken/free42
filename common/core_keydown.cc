@@ -1425,7 +1425,7 @@ void keydown_command_entry(int shift, int key) {
             return;
         }
 
-        if (incomplete_length == 0 && shift && key == KEY_ADD) {
+        if (shift && key == KEY_ADD) {
             if (mode_commandmenu == MENU_CATALOG)
                 squeak();
             else {
