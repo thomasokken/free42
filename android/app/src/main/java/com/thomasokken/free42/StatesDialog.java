@@ -17,6 +17,7 @@
 
 package com.thomasokken.free42;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -417,30 +418,7 @@ public class StatesDialog extends Dialog {
             origPath = stateDirName + "/" + getSelectedState() + ".f42";
             deleteOrig = false;
         }
-        InputStream is = null;
-        OutputStream os = null;
-        try {
-            is = new FileInputStream(origPath);
-            os = Free42Activity.instance.getContentResolver().openOutputStream(uri);
-            byte[] buf = new byte[1024];
-            int n;
-            while ((n = is.read(buf)) > 0)
-                os.write(buf, 0, n);
-        } catch (IOException e) {
-            Free42Activity.showAlert("State export failed.");
-        } finally {
-            if (is != null)
-                try {
-                    is.close();
-                } catch (IOException e) {}
-            if (os != null)
-                try {
-                    os.close();
-                } catch (IOException e) {}
-        }
-        if (deleteOrig)
-            new File(origPath).delete();
-        updateUI(true);
+        BackgroundIO.save(origPath, uri, deleteOrig, "State export failed.", new Runnable() { public void run() { updateUI(true); }});
     }
 
     private void doShare() {

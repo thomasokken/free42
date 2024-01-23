@@ -1006,27 +1006,7 @@ public class Free42Activity extends Activity {
     }
 
     private void doExportFile3(Uri uri) {
-        InputStream is = null;
-        OutputStream os = null;
-        try {
-            is = new FileInputStream(getFilesDir() + "/" + fileMgmtExportPath);
-            os = getContentResolver().openOutputStream(uri);
-            byte[] buf = new byte[1024];
-            int n;
-            while ((n = is.read(buf)) != -1)
-                os.write(buf, 0, n);
-        } catch (IOException e) {
-            // TODO: Message box
-        } finally {
-            if (is != null)
-                try {
-                    is.close();
-                } catch (IOException e) {}
-            if (os != null)
-                try {
-                    os.close();
-                } catch (IOException e) {}
-        }
+        BackgroundIO.save(getFilesDir() + "/" + fileMgmtExportPath, uri, false, null, null);
     }
 
     private void doDeleteFileOrDirectory() {
@@ -1166,31 +1146,9 @@ public class Free42Activity extends Activity {
     }
 
     private void doExportRaw(Uri uri) {
-        String tempName = "_TEMP_RAW_";
-        String fullTempName = getFilesDir() + "/" + tempName;
-        doExport2(fullTempName);
-        InputStream is = null;
-        OutputStream os = null;
-        try {
-            is = openFileInput(tempName);
-            os = getContentResolver().openOutputStream(uri);
-            byte[] buf = new byte[1024];
-            int n;
-            while ((n = is.read(buf)) != -1)
-                os.write(buf, 0, n);
-        } catch (IOException e) {
-            // ignore
-        } finally {
-            if (is != null)
-                try {
-                    is.close();
-                } catch (IOException e) {}
-            if (os != null)
-                try {
-                    os.close();
-                } catch (IOException e) {}
-        }
-        new File(fullTempName).delete();
+        String tempName = getFilesDir() + "/" + "_TEMP_RAW_";
+        doExport2(tempName);
+        BackgroundIO.save(tempName, uri,true,null,null);
     }
 
     private void doShare() {
