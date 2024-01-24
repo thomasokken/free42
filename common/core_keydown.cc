@@ -993,6 +993,33 @@ void keydown_command_entry(int shift, int key) {
                         pending_command_arg.val.text[i] =
                                             vars[itemindex].name[i];
                 }
+
+                if (!incomplete_ind
+                        && (pending_command == CMD_GTO
+                            || pending_command == CMD_XEQ
+                            || pending_command == CMD_LBL
+                            || (pending_command >= CMD_KEY1G
+                                && pending_command <= CMD_KEY9X))
+                        && pending_command_arg.length == 1
+                        && ((pending_command_arg.val.text[0] >= 'A'
+                                && pending_command_arg.val.text[0] <= 'J')
+                            || (pending_command_arg.val.text[0] >= 'a'
+                                && pending_command_arg.val.text[0] <= 'e'))) {
+                    /* Display XEQ "A" briefly before changing to XEQ A */
+                    mode_command_entry = false;
+                    if (flags.f.prgm_mode) {
+                        flags.f.prgm_mode = 0;
+                        redisplay();
+                        flags.f.prgm_mode = 1;
+                        shell_delay(125);
+                    } else
+                        redisplay();
+                    pending_command_arg.type = ARGTYPE_LCLBL;
+                    pending_command_arg.val.lclbl = pending_command_arg.val.text[0];
+                    finish_command_entry(false);
+                    return;
+                }
+
                 if (!incomplete_ind && incomplete_command == CMD_XEQ)
                     finish_xeq();
                 else
