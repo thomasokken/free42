@@ -833,34 +833,15 @@ public class Free42Activity extends Activity {
         String name = getNameFromUri(uri);
         if (name == null || !name.toLowerCase().endsWith(".raw"))
             return;
-        InputStream is = null;
-        OutputStream os = null;
-        String tempName = "_TEMP_RAW_";
-        try {
-            is = getContentResolver().openInputStream(uri);
-            os = openFileOutput(tempName, Context.MODE_PRIVATE);
-            byte[] buf = new byte[1024];
-            int n;
-            while ((n = is.read(buf)) != -1)
-                os.write(buf, 0, n);
-            tempName = getFilesDir() + "/" + tempName;
-        } catch (IOException e) {
-            tempName = null;
-        } finally {
-            if (is != null)
-                try {
-                    is.close();
-                } catch (IOException e2) {}
-            if (os != null)
-                try {
-                    os.close();
-                } catch (IOException e2) {}
-        }
-        if (tempName != null) {
-            core_import_programs(tempName);
-            redisplay();
-            new File(tempName).delete();
-        }
+        String tempName = getFilesDir() + "/" + "_TEMP_RAW_";
+        BackgroundIO.load(uri, tempName, null,
+                new Runnable() {
+                    public void run() {
+                        core_import_programs(tempName);
+                        redisplay();
+                        new File(tempName).delete();
+                    }
+                });
     }
 
     private boolean[] selectedProgramIndexes;
@@ -951,27 +932,7 @@ public class Free42Activity extends Activity {
             fileMgmtPath = path;
         else
             fileMgmtPath = path.substring(0, lastslash);
-        InputStream is = null;
-        OutputStream os = null;
-        try {
-            is = getContentResolver().openInputStream(fileMgmtImportUri);
-            os = new FileOutputStream(getFilesDir() + "/" + path);
-            byte[] buf = new byte[1024];
-            int n;
-            while ((n = is.read(buf)) != -1)
-                os.write(buf, 0, n);
-        } catch (IOException e) {
-            // TODO: Message box
-        } finally {
-            if (is != null)
-                try {
-                    is.close();
-                } catch (IOException e) {}
-            if (os != null)
-                try {
-                    os.close();
-                } catch (IOException e) {}
-        }
+        BackgroundIO.load(fileMgmtImportUri, getFilesDir() + "/" + path, null, null);
     }
 
     private void doExportFile() {

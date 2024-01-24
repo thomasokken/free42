@@ -358,32 +358,7 @@ public class StatesDialog extends Dialog {
         String destPath = getContext().getFilesDir() + "/" + name + ".f42";
         if (new File(destPath).exists())
             destPath = getContext().getFilesDir() + "/" + makeCopyName(name) + ".f42";
-        InputStream is = null;
-        OutputStream os = null;
-        boolean failed = true;
-        try {
-            is = Free42Activity.instance.getContentResolver().openInputStream(uri);
-            os = new FileOutputStream(destPath);
-            byte[] buf = new byte[8192];
-            int n;
-            while ((n = is.read(buf)) > 0)
-                os.write(buf, 0, n);
-            failed = false;
-        } catch (IOException e) {
-            Free42Activity.showAlert("State import failed.");
-        } finally {
-            if (is != null)
-                try {
-                    is.close();
-                } catch (IOException e) {}
-            if (os != null)
-                try {
-                    os.close();
-                } catch (IOException e) {}
-        }
-        if (failed)
-            new File(destPath).delete();
-        updateUI(true);
+        BackgroundIO.load(uri, destPath, "State import failed.", new Runnable() { public void run() { updateUI(true); } });
     }
 
     private void doExport() {
