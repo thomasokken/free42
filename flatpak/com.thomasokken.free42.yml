@@ -1,0 +1,26 @@
+id: com.thomasokken.free42
+runtime: org.freedesktop.Platform
+runtime-version: '22.08'
+sdk: org.freedesktop.Sdk
+command: free42dec
+finish-args:
+  - --socket=x11
+  - --socket=pulseaudio
+modules:
+  - name: free42
+    buildsystem: simple
+    build-commands:
+      - install -Dm644 com.thomasokken.free42.metainfo.xml -t $FLATPAK_DEST/share/metainfo
+      - install -Dm644 com.thomasokken.free42.desktop -t $FLATPAK_DEST/share/applications
+      - install -D free42dec /app/bin/free42dec
+      - install -Dm644 com.thomasokken.free42.png -t $FLATPAK_DEST/share/icons/hicolor/128x128/apps/
+    sources:
+      - type: archive
+        url: https://thomasokken.com/free42/download/Free42Linux.tgz
+        sha256: 6edaca1601c8467188cb2f274d7f3d07d2b883e177be7a23a700f96b887cb332
+      - type: file
+        path: com.thomasokken.free42.png
+      - type: file
+        path: com.thomasokken.free42.metainfo.xml
+      - type: file
+        path: com.thomasokken.free42.desktop

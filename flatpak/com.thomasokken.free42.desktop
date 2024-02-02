@@ -1,0 +1,9 @@
+[Desktop Entry]
+Comment=HP-42S Scientific Programmable Calculator
+Terminal=false
+Name=Free42
+Exec=free42dec
+Type=Application
+Icon=com.thomasokken.free42.png
+Categories=Utility;Education;Office;
+Keywords=HP;42s;Calculator;RPN;

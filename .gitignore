@@ -99,6 +99,10 @@
 
 # /common/
 
+# /flatpak/
+/flatpak/.flatpak-builder
+/flatpak/build-dir
+
 # /gtk/
 /gtk/*.a
 /gtk/*.d
