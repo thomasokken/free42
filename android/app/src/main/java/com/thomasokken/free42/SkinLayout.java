@@ -318,8 +318,8 @@ public class SkinLayout {
                     } catch (NumberFormatException e) {
                         // ignore
                     }
-                } else if (lcline.startsWith("mackey:")) {
-                    KeymapEntry entry = KeymapEntry.parse(line.substring(7), lineno);
+                } else if (lcline.startsWith("droidkey:")) {
+                    KeymapEntry entry = KeymapEntry.parse(line.substring(9), lineno);
                     if (entry != null)
                         keymapList.add(entry);
                 }
@@ -432,7 +432,7 @@ public class SkinLayout {
         return null;
     }
 
-    public byte[] keymap_lookup(char keychar, boolean printable,
+    public byte[] keymap_lookup(String keychar, boolean printable,
                                 boolean ctrl, boolean alt, boolean numpad, boolean shift,
                                 boolean cshift, BooleanHolder exact) {
         byte[] macro = null;
@@ -440,7 +440,7 @@ public class SkinLayout {
             if (ctrl == entry.ctrl
                     && alt == entry.alt
                     && (printable || shift == entry.shift)
-                    && keychar == entry.keychar) {
+                    && keychar.equals(entry.keychar)) {
                 if ((!numpad || shift == entry.shift) && numpad == entry.numpad && cshift == entry.cshift) {
                     exact.value = true;
                     return entry.macro;

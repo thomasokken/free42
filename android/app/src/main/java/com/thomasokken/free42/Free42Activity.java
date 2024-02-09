@@ -84,6 +84,7 @@ import android.support.v4.content.FileProvider;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
+import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -106,8 +107,9 @@ import android.widget.TextView;
 public class Free42Activity extends Activity {
 
     public static final String[] builtinSkinNames = new String[] { "Standard", "Landscape" };
+    private static final String KEYMAP_FILE_NAME = "keymap.txt";
     
-    private static final int SHELL_VERSION = 21;
+    private static final int SHELL_VERSION = 22;
     
     private static final int PRINT_BACKGROUND_COLOR = Color.LTGRAY;
     
@@ -276,7 +278,7 @@ public class Free42Activity extends Activity {
         importedState = intent.getStringExtra("importedState");
         importedProgram = intent.getStringExtra("importedProgram");
 
-        readKeymap("keymap.txt");
+        readKeymap(KEYMAP_FILE_NAME);
         
         int init_mode;
         IntHolder version = new IntHolder();
@@ -1602,44 +1604,21 @@ public class Free42Activity extends Activity {
             if (event.getRepeatCount() > 0)
                 return true;
 
-            int uch = event.getUnicodeChar();
-            if (uch == 0)
-                uch = event.getUnicodeChar(0);
-            just_pressed_shift = uch == 0 && event.isShiftPressed() && !event.isCtrlPressed() && !event.isAltPressed();
-            if (uch > 0x0ffff)
+            just_pressed_shift = keyCode == KeyEvent.KEYCODE_SHIFT_LEFT || keyCode == KeyEvent.KEYCODE_SHIFT_RIGHT;
+            if (keyCode == KeyEvent.KEYCODE_SHIFT_LEFT
+                    || keyCode == KeyEvent.KEYCODE_SHIFT_RIGHT
+                    || keyCode == KeyEvent.KEYCODE_ALT_LEFT
+                    || keyCode == KeyEvent.KEYCODE_ALT_RIGHT
+                    || keyCode == KeyEvent.KEYCODE_CTRL_LEFT
+                    || keyCode == KeyEvent.KEYCODE_CTRL_RIGHT)
                 return super.onKeyDown(keyCode, event);
-            char ch = (char) uch;
 
-            switch (event.getKeyCode()) {
-                case KeyEvent.KEYCODE_DPAD_UP: ch = '\uf700'; break;
-                case KeyEvent.KEYCODE_DPAD_DOWN: ch = '\uf701'; break;
-                case KeyEvent.KEYCODE_DPAD_LEFT: ch = '\uf702'; break;
-                case KeyEvent.KEYCODE_DPAD_RIGHT: ch = '\uf703'; break;
-                case KeyEvent.KEYCODE_INSERT: ch = '\uf727'; break;
-                case KeyEvent.KEYCODE_FORWARD_DEL: ch = '\uf728'; break;
-                case KeyEvent.KEYCODE_MOVE_HOME: ch = '\uf729'; break;
-                case KeyEvent.KEYCODE_MOVE_END: ch = '\uf72b'; break;
-                case KeyEvent.KEYCODE_PAGE_UP: ch = '\uf72c'; break;
-                case KeyEvent.KEYCODE_PAGE_DOWN: ch = '\uf72d'; break;
-                case KeyEvent.KEYCODE_ESCAPE: ch = '\33'; break;
-                case KeyEvent.KEYCODE_DEL: ch = '\177'; break;
-                case KeyEvent.KEYCODE_ENTER: ch = '\15'; break;
-                case KeyEvent.KEYCODE_F1: ch = '\uf704'; break;
-                case KeyEvent.KEYCODE_F2: ch = '\uf705'; break;
-                case KeyEvent.KEYCODE_F3: ch = '\uf706'; break;
-                case KeyEvent.KEYCODE_F4: ch = '\uf707'; break;
-                case KeyEvent.KEYCODE_F5: ch = '\uf708'; break;
-                case KeyEvent.KEYCODE_F6: ch = '\uf709'; break;
-                case KeyEvent.KEYCODE_F7: ch = '\uf70a'; break;
-                case KeyEvent.KEYCODE_F8: ch = '\uf70b'; break;
-                case KeyEvent.KEYCODE_F9: ch = '\uf70c'; break;
-                case KeyEvent.KEYCODE_F10: ch = '\uf70d'; break;
-                case KeyEvent.KEYCODE_F11: ch = '\uf70e'; break;
-                case KeyEvent.KEYCODE_F12: ch = '\uf70f'; break;
-            }
-
+            int ch = event.getUnicodeChar();
             if (ch == 0)
-                return super.onKeyDown(keyCode, event);
+                ch = event.getUnicodeChar(0);
+            ch &= KeyCharacterMap.COMBINING_ACCENT_MASK;
+            String code = ch == 0 ? KeyEvent.keyCodeToString(keyCode).substring(8)
+                                  : "" + (char) ch;
 
             boolean ctrl = event.isCtrlPressed();
             boolean alt = event.isAltPressed();
@@ -1648,14 +1627,14 @@ public class Free42Activity extends Activity {
             boolean cshift = skin.getAnnunciators()[1];
 
             // Allow Ctrl-[ to be used as Esc, for keyboards without an Esc key
-            if (ch == '\33') {
+            if (code.equals("ESCAPE")) {
                 ctrl = false;
-            } else if (ch == '[' && ctrl) {
+            } else if (code.equals("[") && ctrl) {
                 ctrl = false;
-                ch = '\33';
+                code = "ESCAPE";
             }
 
-            switch (event.getKeyCode()) {
+            switch (keyCode) {
                 case KeyEvent.KEYCODE_NUMPAD_0:
                 case KeyEvent.KEYCODE_NUMPAD_1:
                 case KeyEvent.KEYCODE_NUMPAD_2:
@@ -1677,7 +1656,7 @@ public class Free42Activity extends Activity {
                     numpad = true;
             }
 
-            boolean printable = !ctrl && ch >= 33 && ch <= 126;
+            boolean printable = !ctrl && !alt && ch >= 33 && ch <= 126;
 
             if (ckey != 0) {
                 shell_keyup(null);
@@ -1685,13 +1664,13 @@ public class Free42Activity extends Activity {
             }
 
             BooleanHolder exact = new BooleanHolder();
-            byte[] key_macro = skin.keymap_lookup(ch, printable, ctrl, alt, numpad, shift, cshift, exact);
+            byte[] key_macro = skin.keymap_lookup(code, printable, ctrl, alt, numpad, shift, cshift, exact);
             if (key_macro == null || !exact.value) {
                 for (KeymapEntry entry : keymap) {
                     if (ctrl == entry.ctrl
                             && alt == entry.alt
                             && (printable || shift == entry.shift)
-                            && ch == entry.keychar) {
+                            && code.equals(entry.keychar)) {
                         if ((!numpad || shift == entry.shift) && numpad == entry.numpad && cshift == entry.cshift) {
                             key_macro = entry.macro;
                             break;
@@ -1718,7 +1697,7 @@ public class Free42Activity extends Activity {
                         macroObj = null;
                         shell_keydown();
                         mouse_key = false;
-                        active_keycode = event.getKeyCode();
+                        active_keycode = keyCode;
                         return true;
                     } else if (core_hex_menu() && ((ch >= 'a' && ch <= 'f')
                                                 || (ch >= 'A' && ch <= 'F'))) {
@@ -1730,15 +1709,15 @@ public class Free42Activity extends Activity {
                         macroObj = null;
                         shell_keydown();
                         mouse_key = false;
-                        active_keycode = event.getKeyCode();
+                        active_keycode = keyCode;
                         return true;
-                    } else if (ch == '\uf702' || ch == '\uf703' || ch == '\uf728') {
+                    } else if (code.equals("DPAD_LEFT") || code.equals("DPAD_RIGHT") || code.equals("FORWARD_DEL")) {
                         int which;
-                        if (ch == '\uf702')
+                        if (code.equals("DPAD_LEFT"))
                             which = shift ? 2 : 1;
-                        else if (ch == '\uf703')
+                        else if (code.equals("DPAD_RIGHT"))
                             which = shift ? 4 : 3;
-                        else if (ch == '\uf728')
+                        else if (code.equals("FORWARD_DEL"))
                             which = 5;
                         else
                             which = 0;
@@ -1750,7 +1729,7 @@ public class Free42Activity extends Activity {
                                 macroObj = null;
                                 shell_keydown();
                                 mouse_key = false;
-                                active_keycode = event.getKeyCode();
+                                active_keycode = keyCode;
                                 return true;
                             }
                         }
@@ -1758,53 +1737,61 @@ public class Free42Activity extends Activity {
                 }
             }
 
-            if (key_macro != null) {
-                // A keymap entry is a sequence of zero or more calculator
-                // keystrokes (1..37) and/or macros (38..255). We expand
-                // macros here before invoking shell_keydown().
-                // If the keymap entry is one key, or two keys with the
-                // first being 'shift', we highlight the key in question
-                // by setting ckey; otherwise, we set ckey to -10, which
-                // means no skin key will be highlighted.
-                ckey = -10;
-                skey = -1;
-                if (key_macro.length > 0)
-                    if (key_macro.length == 1)
-                        ckey = key_macro[0];
-                    else if (key_macro.length == 2 && key_macro[0] == 28)
-                        ckey = key_macro[1];
-                boolean needs_expansion = false;
-                for (int j = 0; j < key_macro.length; j++)
-                    if ((key_macro[j] & 255) > 37) {
-                        needs_expansion = true;
-                        break;
-                    }
-                if (needs_expansion) {
-                    byte[] macrobuf = new byte[1024];
-                    int p = 0;
-                    for (int j = 0; j < key_macro.length && p < 1023; j++) {
-                        int c = key_macro[j] & 255;
-                        if (c <= 37)
-                            macrobuf[p++] = (byte) c;
-                        else {
-                            Object m = skin.find_macro(c);
-                            if (m != null && m instanceof byte[]) {
-                                byte[] mb = (byte[]) m;
-                                for (int p2 = 0; p2 < mb.length && p < 1023; p2++)
-                                    macrobuf[p++] = mb[p2];
-                            }
+            if (key_macro == null)
+                return super.onKeyDown(keyCode, event);
+
+            // A keymap entry is a sequence of zero or more calculator
+            // keystrokes (1..37) and/or macros (38..255). We expand
+            // macros here before invoking shell_keydown().
+            // If the keymap entry is one key, or two keys with the
+            // first being 'shift', we highlight the key in question
+            // by setting ckey; otherwise, we set ckey to -10, which
+            // means no skin key will be highlighted.
+            ckey = -10;
+            skey = -1;
+            if (key_macro.length > 0)
+                if (key_macro.length == 1)
+                    ckey = key_macro[0];
+                else if (key_macro.length == 2 && key_macro[0] == 28)
+                    ckey = key_macro[1];
+            boolean needs_expansion = false;
+            for (int j = 0; j < key_macro.length; j++)
+                if ((key_macro[j] & 255) > 37) {
+                    needs_expansion = true;
+                    break;
+                }
+            if (needs_expansion) {
+                byte[] macrobuf = new byte[1024];
+                int p = 0;
+                boolean is_string = false;
+                for (int j = 0; j < key_macro.length && p < 1023; j++) {
+                    int c = key_macro[j] & 255;
+                    if (c <= 37)
+                        macrobuf[p++] = (byte) c;
+                    else {
+                        Object m = skin.find_macro(c);
+                        if (m instanceof byte[]) {
+                            byte[] mb = (byte[]) m;
+                            for (int p2 = 0; p2 < mb.length && p < 1023; p2++)
+                                macrobuf[p++] = mb[p2];
+                        } else if (m instanceof String) {
+                            macroObj = m;
+                            is_string = true;
+                            break;
                         }
                     }
+                }
+                if (!is_string) {
                     byte[] mbres = new byte[p];
                     System.arraycopy(macrobuf, 0, mbres, 0, p);
                     macroObj = mbres;
-                } else {
-                    macroObj = key_macro;
                 }
-                shell_keydown();
-                mouse_key = false;
-                active_keycode = event.getKeyCode();
+            } else {
+                macroObj = key_macro;
             }
+            shell_keydown();
+            mouse_key = false;
+            active_keycode = keyCode;
             return true;
         }
 
@@ -2428,7 +2415,11 @@ public class Free42Activity extends Activity {
             // fall through
         }
         case 21:
-            // current version (SHELL_VERSION = 21),
+            new File(getFilesDir() + "/" + KEYMAP_FILE_NAME).delete();
+            readKeymap(KEYMAP_FILE_NAME);
+            // fall through
+        case 22:
+            // current version (SHELL_VERSION = 22),
             // so nothing to do here since everything
             // was initialized from the state file.
             ;

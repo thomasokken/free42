@@ -28,7 +28,7 @@ public class KeymapEntry {
     public boolean numpad;
     public boolean shift;
     public boolean cshift;
-    public char keychar;
+    public String keychar;
     public byte[] macro;
 
     public static KeymapEntry parse(String line, int lineno) {
@@ -52,7 +52,7 @@ public class KeymapEntry {
             boolean numpad = false;
             boolean shift = false;
             boolean cshift = false;
-            char keychar = 0;
+            String keychar = null;
             boolean done = false;
             ByteArrayOutputStream macro = new ByteArrayOutputStream();
             int macrolen = 0;
@@ -75,20 +75,15 @@ public class KeymapEntry {
                 else if (tok.equalsIgnoreCase("cshift"))
                     cshift = true;
                 else {
-                    if (tok.length() == 1)
-                        keychar = tok.charAt(0);
-                    else {
-                        boolean success = false;
-                        try {
-                            if (tok.substring(0, 2).equalsIgnoreCase("0x")) {
-                                keychar = (char) Integer.parseInt(tok.substring(2), 16);
-                                success = true;
-                            }
-                        } catch (NumberFormatException e) {}
-                        if (!success) {
-                            System.err.println("Keymap, line " + lineno + ": Bad keycode.");
-                            return null;
+                    boolean success = false;
+                    try {
+                        if (tok.length() > 2 && tok.substring(0, 2).equalsIgnoreCase("0x")) {
+                            keychar = "" + (char) Integer.parseInt(tok.substring(2), 16);
+                            success = true;
                         }
+                    } catch (NumberFormatException e) {}
+                    if (!success) {
+                        keychar = tok;
                     }
                     done = true;
                 }
