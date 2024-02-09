@@ -23,6 +23,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -78,6 +79,7 @@ public class SkinLayout {
     private SkinKey[] keylist = null;
     private SkinMacro[] macrolist = null;
     private SkinAnnunciator[] annunciators = new SkinAnnunciator[7];
+    private KeymapEntry[] keymap;
     private boolean display_enabled = true;
     private Bitmap skinBitmap;
     private Bitmap display = Bitmap.createBitmap(131, 16, Bitmap.Config.ARGB_8888);
@@ -144,12 +146,13 @@ public class SkinLayout {
             
             BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
             String line;
-            //int lineno = 0;
+            int lineno = 0;
             List<SkinKey> tempkeylist = new ArrayList<SkinKey>();
             List<SkinMacro> tempmacrolist = new ArrayList<SkinMacro>();
+            List<KeymapEntry> keymapList = new ArrayList<KeymapEntry>();
             lineloop:
             while ((line = reader.readLine()) != null) {
-                //lineno++;
+                lineno++;
                 line = line.replace('\t', ' ');
                 int pound = line.indexOf('#');
                 if (pound != -1)
@@ -315,21 +318,15 @@ public class SkinLayout {
                     } catch (NumberFormatException e) {
                         // ignore
                     }
-                } else if (line.indexOf(':') != -1) {
-                    // TODO: Embedded keyboard mappings
-    //              keymap_entry *entry = parse_keymap_entry(line, lineno);
-    //              if (entry != NULL) {
-    //                  if (keymap_length == kmcap) {
-    //                      kmcap += 50;
-    //                      keymap = (keymap_entry *)
-    //                          realloc(keymap, kmcap * sizeof(keymap_entry));
-    //                  }
-    //                  memcpy(keymap + (keymap_length++), entry, sizeof(keymap_entry));
-    //              }
+                } else if (lcline.startsWith("mackey:")) {
+                    KeymapEntry entry = KeymapEntry.parse(line.substring(7), lineno);
+                    if (entry != null)
+                        keymapList.add(entry);
                 }
             }
             keylist = tempkeylist.toArray(new SkinKey[0]);
             macrolist = tempmacrolist.toArray(new SkinMacro[0]);
+            keymap = keymapList.toArray(new KeymapEntry[0]);
         } catch (IOException e) {
             throw new IllegalArgumentException(e);
         } finally {
@@ -435,29 +432,27 @@ public class SkinLayout {
         return null;
     }
 
-//unsigned char *skin_keymap_lookup(guint keyval, bool printable,
-//                bool ctrl, bool alt, bool shift, bool cshift,
-//                bool *exact) {
-//    int i;
-//    unsigned char *macro = NULL;
-//    for (i = 0; i < keymap_length; i++) {
-//  keymap_entry *entry = keymap + i;
-//  if (ctrl == entry->ctrl
-//      && alt == entry->alt
-//      && (printable || shift == entry->shift)
-//      && keyval == entry->keyval) {
-//      if (cshift == entry->cshift) {
-//      *exact = true;
-//      return entry->macro;
-//      }
-//      if (cshift)
-//      macro = entry->macro;
-//  }
-//    }
-//    *exact = false;
-//    return macro;
-//}
-    
+    public byte[] keymap_lookup(char keychar, boolean printable,
+                                boolean ctrl, boolean alt, boolean numpad, boolean shift,
+                                boolean cshift, BooleanHolder exact) {
+        byte[] macro = null;
+        for (KeymapEntry entry : keymap) {
+            if (ctrl == entry.ctrl
+                    && alt == entry.alt
+                    && (printable || shift == entry.shift)
+                    && keychar == entry.keychar) {
+                if ((!numpad || shift == entry.shift) && numpad == entry.numpad && cshift == entry.cshift) {
+                    exact.value = true;
+                    return entry.macro;
+                }
+                if ((numpad || !entry.numpad) && (cshift || !entry.cshift))
+                    macro = entry.macro;
+            }
+        }
+        exact.value = false;
+        return macro;
+    }
+
     private void repaint_key(Canvas canvas, Bitmap skin, int key, boolean state) {
         if (key >= -7 && key <= -2) {
             /* Soft key */
