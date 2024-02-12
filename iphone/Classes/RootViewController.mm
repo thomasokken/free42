@@ -95,6 +95,7 @@ static RootViewController *instance;
     
     [calcView setActive:true];
     [window makeKeyAndVisible];
+    window.backgroundColor = [UIColor blackColor];
     window.rootViewController = self;
 }
 
@@ -208,17 +209,25 @@ void shell_message(const char *message) {
 }
 
 - (void) showMain2 {
-    [self.view bringSubviewToFront:calcView];
-    [calcView setActive:true];
+    [UIView transitionWithView:self.view duration:0.3 options:UIViewAnimationOptionTransitionFlipFromRight | UIViewAnimationOptionCurveEaseInOut animations:^{
+        [self.view bringSubviewToFront:calcView];
+        [calcView setActive:true];
+    } completion:NULL];
 }
 
 + (void) showMain {
     [instance showMain2];
 }
 
+- (void)flipToViewWithBlock:(void (^)(void))block {
+    [UIView transitionWithView:self.view duration:0.3 options:UIViewAnimationOptionTransitionFlipFromLeft | UIViewAnimationOptionCurveEaseInOut animations:block completion:NULL];
+}
+
 - (void) showPrintOut2 {
-    [calcView setActive:false];
-    [self.view bringSubviewToFront:printView];
+    [self flipToViewWithBlock:^{
+        [calcView setActive:false];
+        [self.view bringSubviewToFront:printView];
+    }];
 }
 
 + (void) showPrintOut {
@@ -226,9 +235,11 @@ void shell_message(const char *message) {
 }
 
 - (void) showHttpServer2 {
-    [httpServerView raised];
-    [calcView setActive:false];
-    [self.view bringSubviewToFront:httpServerView];
+    [self flipToViewWithBlock:^{
+        [httpServerView raised];
+        [calcView setActive:false];
+        [self.view bringSubviewToFront:httpServerView];
+    }];
 }
 
 + (void) showHttpServer {
@@ -236,9 +247,11 @@ void shell_message(const char *message) {
 }
 
 - (void) showSelectSkin2 {
-    [selectSkinView raised];
-    [calcView setActive:false];
-    [self.view bringSubviewToFront:selectSkinView];
+    [self flipToViewWithBlock:^{
+        [selectSkinView raised];
+        [calcView setActive:false];
+        [self.view bringSubviewToFront:selectSkinView];
+    }];
 }
 
 + (void) showSelectSkin {
@@ -246,9 +259,11 @@ void shell_message(const char *message) {
 }
 
 - (void) showPreferences2 {
-    [preferencesView raised];
-    [calcView setActive:false];
-    [self.view bringSubviewToFront:preferencesView];
+    [self flipToViewWithBlock:^{
+        [preferencesView raised];
+        [calcView setActive:false];
+        [self.view bringSubviewToFront:preferencesView];
+    }];
 }
 
 + (void) showPreferences {
@@ -256,9 +271,11 @@ void shell_message(const char *message) {
 }
 
 - (void) showAbout2 {
-    [aboutView raised];
-    [calcView setActive:false];
-    [self.view bringSubviewToFront:aboutView];
+    [self flipToViewWithBlock:^{
+        [aboutView raised];
+        [calcView setActive:false];
+        [self.view bringSubviewToFront:aboutView];
+    }];
 }
 
 + (void) showAbout {
@@ -276,7 +293,9 @@ void shell_message(const char *message) {
 }
 
 + (void) doImport {
-    [SelectFileView raiseWithTitle:@"Import Programs" selectTitle:@"Import" types:@"raw,*" initialFile:nil selectDir:NO callbackObject:instance callbackSelector:@selector(doImport2:)];
+    [instance flipToViewWithBlock:^{
+        [SelectFileView raiseWithTitle:@"Import Programs" selectTitle:@"Import" types:@"raw,*" initialFile:nil selectDir:NO callbackObject:instance callbackSelector:@selector(doImport2:)];
+    }];
 }
 
 - (void) doImport2:(NSString *) path {
@@ -284,9 +303,11 @@ void shell_message(const char *message) {
 }
 
 + (void) doExport:(BOOL)share {
-    [instance.selectProgramsView raised:share];
-    [instance.calcView setActive:false];
-    [instance.self.view bringSubviewToFront:instance.selectProgramsView];
+    [instance flipToViewWithBlock:^{
+        [instance.selectProgramsView raised:share];
+        [instance.calcView setActive:false];
+        [instance.self.view bringSubviewToFront:instance.selectProgramsView];
+    }];
 }
 
 - (void) showLoadSkin2 {
@@ -300,13 +321,15 @@ void shell_message(const char *message) {
 }
 
 - (void) showStates2:(NSString *)stateName {
-    [statesView raised];
-    if (stateName != nil) {
-        [statesView selectState:stateName];
-        [stateName release];
-    }
-    [calcView setActive:false];
-    [self.view bringSubviewToFront:statesView];
+    [self flipToViewWithBlock:^{
+        [statesView raised];
+        if (stateName != nil) {
+            [statesView selectState:stateName];
+            [stateName release];
+        }
+        [calcView setActive:false];
+        [self.view bringSubviewToFront:statesView];
+    }];
 }
 
 + (void) showStates:(NSString *)stateName {
