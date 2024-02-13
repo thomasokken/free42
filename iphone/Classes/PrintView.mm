@@ -25,6 +25,7 @@
 
 @implementation PrintView
 
+@synthesize navBar;
 @synthesize scrollView;
 @synthesize tile1;
 @synthesize tile2;
@@ -345,6 +346,11 @@ static void tbnonewliner() {
                     style:UIAlertActionStyleCancel
                     handler:^(UIAlertAction *action)
                         { return; }]];
+    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+        UIPopoverPresentationController *pctrl = [ctrl popoverPresentationController];
+        pctrl.sourceView = self;
+        pctrl.sourceRect = navBar.bounds;
+    }
     [RootViewController presentViewController:ctrl animated:YES completion:nil];
 }
 

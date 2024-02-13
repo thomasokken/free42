@@ -27,6 +27,7 @@
 }
 
 @property (nonatomic, retain) IBOutlet UIBarButtonItem *switchToButton;
+@property (nonatomic, retain) IBOutlet UINavigationBar *navBar;
 @property (nonatomic, retain) IBOutlet UITableView *stateTable;
 
 - (void) raised;

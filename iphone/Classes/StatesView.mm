@@ -27,6 +27,7 @@
 @implementation StatesView
 
 @synthesize switchToButton;
+@synthesize navBar;
 @synthesize stateTable;
 
 - (id) initWithFrame:(CGRect)frame {
@@ -168,6 +169,11 @@
                     style:UIAlertActionStyleCancel
                     handler:^(UIAlertAction *action)
                         { return; }]];
+    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+        UIPopoverPresentationController *pctrl = [ctrl popoverPresentationController];
+        pctrl.sourceView = self;
+        pctrl.sourceRect = navBar.bounds;
+    }
     [RootViewController presentViewController:ctrl animated:YES completion:nil];
 }
 

@@ -785,6 +785,18 @@ bool skin_in_menu_area(int x, int y) {
     return y < display_loc.y + display_scale.y * 8;
 }
 
+void skin_position_menu(UIView *view, UIAlertController *ctrl) {
+    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+        UIPopoverPresentationController *pctrl = [ctrl popoverPresentationController];
+        pctrl.sourceView = view;
+        int x = display_loc.x / skin_scale_h + skin_offset_h;
+        int y = display_loc.y / skin_scale_v + skin_offset_v;
+        int width = display_scale.x * 131 / skin_scale_h;
+        int height = display_scale.y * 16 / skin_scale_v;
+        pctrl.sourceRect = CGRectMake(x, y, width, height);
+    }
+}
+
 void skin_find_key(int x, int y, bool cshift, int *skey, int *ckey) {
     x = (x - skin_offset_h) * skin_scale_h;
     y = (y - skin_offset_v) * skin_scale_v;

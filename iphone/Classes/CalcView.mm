@@ -223,6 +223,7 @@ static CalcView *calcView = nil;
                     style:UIAlertActionStyleCancel
                     handler:^(UIAlertAction *action)
                         { return; }]];
+    skin_position_menu(self, ctrl);
     [RootViewController presentViewController:ctrl animated:YES completion:nil];
 }
 
@@ -255,6 +256,7 @@ static CalcView *calcView = nil;
                     style:UIAlertActionStyleCancel
                     handler:^(UIAlertAction *action)
                         { return; }]];
+    skin_position_menu(self, ctrl);
     [RootViewController presentViewController:ctrl animated:YES completion:nil];
 }
 

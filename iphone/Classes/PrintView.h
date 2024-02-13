@@ -46,6 +46,7 @@ extern int print_text_pixel_height;
     PrintTileView *tile2;
 }
 
+@property (nonatomic, retain) IBOutlet UINavigationBar *navBar;
 @property (nonatomic, retain) IBOutlet UIScrollView *scrollView;
 @property (nonatomic, retain) IBOutlet PrintTileView *tile1;
 @property (nonatomic, retain) IBOutlet PrintTileView *tile2;
