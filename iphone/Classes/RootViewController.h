@@ -68,7 +68,9 @@
 
 + (void) playSound: (int) which;
 + (void) showMain;
++ (void) showMainWithoutAnimation;
 + (void) showPrintOut;
++ (void) showPrintOutWithoutAnimation;
 + (void) showHttpServer;
 + (void) showSelectSkin;
 + (void) showPreferences;

@@ -219,6 +219,15 @@ void shell_message(const char *message) {
     [instance showMain2];
 }
 
+- (void) showMainWithoutAnimation2 {
+    [self.view bringSubviewToFront:calcView];
+    [calcView setActive:true];
+}
+
++ (void) showMainWithoutAnimation {
+    [instance showMainWithoutAnimation2];
+}
+
 - (void)flipToViewWithBlock:(void (^)(void))block {
     [UIView transitionWithView:self.view duration:0.3 options:UIViewAnimationOptionTransitionFlipFromLeft | UIViewAnimationOptionCurveEaseInOut animations:block completion:NULL];
 }
@@ -232,6 +241,15 @@ void shell_message(const char *message) {
 
 + (void) showPrintOut {
     [instance showPrintOut2];
+}
+
+- (void) showPrintOutWithoutAnimation2 {
+    [calcView setActive:false];
+    [self.view bringSubviewToFront:printView];
+}
+
++ (void) showPrintOutWithoutAnimation {
+    [instance showPrintOutWithoutAnimation2];
 }
 
 - (void) showHttpServer2 {
