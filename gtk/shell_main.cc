@@ -301,6 +301,7 @@ static const char *mainWindowXml =
                     "<child>"
                       "<object class='GtkMenuItem' id='clear_printout_item'>"
                         "<property name='label'>Clear Print-Out</property>"
+                        "<accelerator key='D' signal='activate' modifiers='GDK_CONTROL_MASK'/>"
                       "</object>"
                     "</child>"
                   "</object>"
@@ -2547,6 +2548,9 @@ static gboolean print_key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
             break;
         case GDK_KEY_i:
             copyPrintAsImageCB();
+            break;
+        case GDK_KEY_d:
+            clearPrintOutCB();
             break;
         case GDK_KEY_q:
             quit();
