@@ -62,7 +62,7 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "Copy Print-Out as Text\tCtrl+T", IDM_COPYPRINTASTEXT
         MENUITEM "Copy Print-Out as Image\tCtrl+I", IDM_COPYPRINTASIMAGE
-        MENUITEM "Clear Print-Out",             IDM_CLEARPRINTOUT
+        MENUITEM "Clear Print-Out\tCtrl+D",     IDM_CLEARPRINTOUT
     END
     POPUP "&Skin"
     BEGIN
@@ -97,6 +97,7 @@ IDC_FREE42 ACCELERATORS MOVEABLE PURE
 BEGIN
     "A",            IDM_PAPERADVANCE,       VIRTKEY, CONTROL, NOINVERT
     "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    "D",            IDM_CLEARPRINTOUT,      VIRTKEY, CONTROL, NOINVERT
     "I",            IDM_COPYPRINTASIMAGE,   VIRTKEY, CONTROL, NOINVERT
     "Q",            IDM_EXIT,               VIRTKEY, CONTROL, NOINVERT
     "T",            IDM_COPYPRINTASTEXT,    VIRTKEY, CONTROL, NOINVERT

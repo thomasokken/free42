@@ -1123,6 +1123,9 @@ static LRESULT CALLBACK PrintOutWndProc(HWND hWnd, UINT message, WPARAM wParam, 
                 case IDM_COPYPRINTASIMAGE:
                     copy_print_as_image();
                     break;
+                case IDM_CLEARPRINTOUT:
+                    clear_printout();
+                    break;
                 case IDM_EXIT:
                     DestroyWindow(hMainWnd);
                     break;
