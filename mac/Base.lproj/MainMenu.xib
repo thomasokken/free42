@@ -136,8 +136,7 @@
                                     <action selector="doCopyPrintOutAsImage:" target="520" id="eYN-96-Wxu"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Clear Print-Out" id="451">
-                                <modifierMask key="keyEquivalentModifierMask"/>
+                            <menuItem title="Clear Print-Out" keyEquivalent="d" id="451">
                                 <connections>
                                     <action selector="clearPrintOut:" target="520" id="613"/>
                                 </connections>
