@@ -800,7 +800,7 @@ static void read_key_map(const char *keymapfilename);
 @end
 
 static void read_key_map(const char *keymapfilename) {
-    FILE *keymapfile = NULL;//fopen(keymapfilename, "r");
+    FILE *keymapfile = fopen(keymapfilename, "r");
     int kmcap = 0;
     char line[1024];
     int lineno = 0;
