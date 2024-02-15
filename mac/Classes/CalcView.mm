@@ -25,6 +25,12 @@
     self = [super initWithFrame:frame];
     if (self) {
         // Initialization code here.
+        self.postsFrameChangedNotifications = YES;
+        [[NSNotificationCenter defaultCenter]
+             addObserver:self
+             selector:@selector(frameDidChange:)
+             name:NSViewFrameDidChangeNotification
+             object:self];
     }
     return self;
 }
@@ -37,8 +43,23 @@
     return YES;
 }
 
+- (void) viewDidMoveToWindow {
+    [[self.window standardWindowButton:NSWindowZoomButton] setEnabled:NO];
+    [super viewDidMoveToWindow];
+}
+
+- (void)frameDidChange:(NSNotification*)notification {
+    int sw, sh;
+    skin_get_size(&sw, &sh);
+    state.mainWindowWidth = self.frame.size.width;
+    state.mainWindowHeight = self.frame.size.height;
+    [self scaleUnitSquareToSize:NSMakeSize(self.bounds.size.width / sw, self.bounds.size.height / sh)];
+    [self setNeedsDisplay:YES];
+}
+
 - (void)mouseDown:(NSEvent *)theEvent {
     NSPoint loc = [theEvent locationInWindow];
+    loc = [self convertPoint:loc fromView:nil];
     calc_mousedown((int) loc.x, (int) loc.y);
 }
 

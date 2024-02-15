@@ -324,9 +324,17 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
     long win_width, win_height;
     skin_load(&win_width, &win_height);
     NSSize sz;
-    sz.width = win_width;
-    sz.height = win_height;
+    if (state.mainWindowWidth == 0) {
+        sz.width = win_width;
+        sz.height = win_height;
+        state.mainWindowWidth = win_width;
+        state.mainWindowHeight = win_height;
+    } else {
+        sz.width = state.mainWindowWidth;
+        sz.height = state.mainWindowHeight;
+    }
     [mainWindow setContentSize:sz];
+    [mainWindow setContentAspectRatio:NSMakeSize(sz.width / 16384, sz.height / 16384)];
     
     if (state.mainWindowKnown) {
         NSPoint pt;
@@ -1009,6 +1017,7 @@ static char version[32] = "";
     NSString *name = [item title];
     [name getCString:state.skinName maxLength:FILENAMELEN encoding:NSUTF8StringEncoding];
     long w, h;
+    [calcView scaleUnitSquareToSize:CGSizeMake(1, 1)];
     skin_load(&w, &h);
     core_repaint_display();
     NSSize sz;
@@ -1019,6 +1028,7 @@ static char version[32] = "";
     p.x = frame.origin.x;
     p.y = frame.origin.y + frame.size.height;
     [mainWindow setContentSize:sz];
+    [mainWindow setContentAspectRatio:NSMakeSize(sz.width / 16384, sz.height / 16384)];
     [mainWindow setFrameTopLeftPoint:p];
     [calcView setNeedsDisplayInRect:CGRectMake(0, 0, w, h)];
 }
@@ -1835,7 +1845,11 @@ static void init_shell_state(int4 version) {
             core_settings.localized_copy_paste = true;
             /* fall through */
         case 5:
-            /* current version (SHELL_VERSION = 5),
+            state.mainWindowWidth = 0;
+            state.mainWindowHeight = 0;
+            /* fall through */
+        case 6:
+            /* current version (SHELL_VERSION = 6),
              * so nothing to do here since everything
              * was initialized from the state file.
              */

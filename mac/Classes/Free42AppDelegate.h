@@ -19,7 +19,7 @@
 #import <WebKit/WebKit.h>
 
 #define FILENAMELEN 256
-#define SHELL_VERSION 5
+#define SHELL_VERSION 6
 
 struct state_type {
     int printerToTxtFile;
@@ -37,6 +37,7 @@ struct state_type {
     bool auto_repeat;
     bool allow_big_stack;
     bool localized_copy_paste;
+    int mainWindowWidth, mainWindowHeight;
 };
 
 extern state_type state;
