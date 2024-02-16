@@ -1027,8 +1027,8 @@ static char version[32] = "";
     NSPoint p;
     p.x = frame.origin.x;
     p.y = frame.origin.y + frame.size.height;
-    [mainWindow setContentSize:sz];
     [mainWindow setContentAspectRatio:NSMakeSize(sz.width / 16384, sz.height / 16384)];
+    [mainWindow setContentSize:sz];
     [mainWindow setFrameTopLeftPoint:p];
     [calcView setNeedsDisplayInRect:CGRectMake(0, 0, w, h)];
 }
