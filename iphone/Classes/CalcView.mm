@@ -707,6 +707,7 @@ static CLLocationManager *locMgr = nil;
 static void read_key_map(const char *keymapfilename);
 
 + (void) readKeyMap {
+    mkdir("config", 0755);
     read_key_map("config/keymap.txt");
 }
 
