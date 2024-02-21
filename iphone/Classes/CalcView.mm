@@ -1278,6 +1278,11 @@ static void calc_keydown(NSString *characters, long flags, int keycode) {
         shell_keydown();
         mouse_key = false;
         active_keycode = keycode;
+//    } else {
+//        // Debug: place unmapped key codes in X register
+//        if ([characters length] == 1)
+//            characters = [NSString stringWithFormat:@"U+%04X", (int) [characters characterAtIndex:0]];
+//        core_paste([characters UTF8String]);
     }
 }
 
