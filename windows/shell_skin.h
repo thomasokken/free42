@@ -51,19 +51,19 @@ int skin_init_image(int type, int ncolors, const SkinColor *colors,
 void skin_put_pixels(unsigned const char *data);
 void skin_finish_image();
 
-void skin_repaint(HDC hdc, HDC memdc);
-void skin_repaint_annunciator(HDC hdc, HDC memdc, int which);
-void skin_update_annunciator(HWND hWnd, int which);
+void skin_repaint();
+void skin_update_annunciator(int which);
 void skin_find_key(int x, int y, bool cshift, int *skey, int *ckey);
 int skin_find_skey(int ckey);
 unsigned char *skin_find_macro(int ckey, bool *is_name);
 unsigned char *skin_keymap_lookup(int keycode, bool ctrl, bool alt, bool extended, bool shift, bool cshift, bool *exact);
-void skin_repaint_key(HDC hdc, HDC memdc, int key, int state);
-void skin_display_blitter(HWND hWnd, const char *bits, int bytesperline, int x, int y,
-                          int width, int height);
-bool need_to_paint_only_display(RECT *r);
-void skin_repaint_display(HDC hdc);
+void skin_invalidate_key(int key);
+void skin_display_blitter(const char *bits, int bytesperline, int x, int y, int width, int height);
 void skin_display_set_enabled(bool enable);
-void invalidate_display(HWND hWnd);
+void invalidate_display();
+void skin_get_size(int *width, int *height);
+void skin_set_window(HWND window);
+void skin_set_window_size(int width, int height);
+void skin_get_window_size(int *width, int *height);
 
 #endif

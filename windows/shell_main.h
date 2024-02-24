@@ -68,6 +68,7 @@ struct state_type {
     bool auto_repeat;
     bool allow_big_stack;
     bool localized_copy_paste;
+    int mainWindowWidth, mainWindowHeight;
 };
 
 extern state_type state;
@@ -80,5 +81,17 @@ int browse_file(HWND owner, wchar_t *title, int save, wchar_t *filter, wchar_t *
 int browse_file_w(HWND owner, wchar_t *title, int save, wchar_t *filter, wchar_t *defExt, wchar_t *buf, int buflen);
 char *wide2utf(const wchar_t *w);
 ci_string to_ci_string(int i);
+
+extern int ckey;
+extern int skey;
+
+extern int ann_updown;
+extern int ann_shift;
+extern int ann_print;
+extern int ann_run;
+extern int ann_battery;
+extern int ann_g;
+extern int ann_rad;
+
 
 #endif
