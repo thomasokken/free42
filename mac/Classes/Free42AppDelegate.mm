@@ -335,7 +335,8 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
     }
     [mainWindow setContentSize:sz];
     [mainWindow setContentAspectRatio:NSMakeSize(sz.width / 16384, sz.height / 16384)];
-    
+    [mainWindow setMinSize:NSMakeSize(160, 160)];
+
     if (state.mainWindowKnown) {
         NSPoint pt;
         pt.x = state.mainWindowX;
