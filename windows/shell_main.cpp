@@ -98,7 +98,7 @@ static int print_text_bottom;
 static int print_text_pixel_height;
 
 int ckey = 0;
-int skey;
+int skey = -1;
 static unsigned char *macro;
 static bool macro_is_name;
 static int active_keycode = 0;
