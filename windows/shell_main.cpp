@@ -635,6 +635,19 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
             }
             break;
         }
+        case WM_GETMINMAXINFO: {
+            RECT windowRect, clientRect;
+            GetWindowRect(hWnd, &windowRect);
+            GetClientRect(hWnd, &clientRect);
+            int vBorder = (windowRect.bottom - windowRect.top) - (clientRect.bottom - clientRect.top);
+            int hBorder = (windowRect.right - windowRect.left) - (clientRect.right - clientRect.left);
+
+            LPMINMAXINFO lpMMI = (LPMINMAXINFO) lParam;
+            lpMMI->ptMinTrackSize.x = 160 + hBorder;
+            lpMMI->ptMinTrackSize.y = 160 + vBorder;
+
+            return 0;
+        }
         case WM_SIZING: {
             // Enforce aspect ratio.
 
