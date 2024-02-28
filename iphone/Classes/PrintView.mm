@@ -358,6 +358,11 @@ static void tbnonewliner() {
     NSString *txt = [self printOutAsText];
     UIImage *img = [self printOutAsImage];
     UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:@[txt, img] applicationActivities:nil];
+    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+        UIPopoverPresentationController *pctrl = [activityViewController popoverPresentationController];
+        pctrl.sourceView = self;
+        pctrl.sourceRect = navBar.bounds;
+    }
     [self.window.rootViewController presentViewController:activityViewController animated:YES completion:nil];
 }
 

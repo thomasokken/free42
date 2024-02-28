@@ -382,6 +382,11 @@
     if (strcmp([name UTF8String], state.coreName) == 0)
         core_save_state([statePath UTF8String]);
     UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:@[[NSURL fileURLWithPath:statePath]] applicationActivities:nil];
+    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+        UIPopoverPresentationController *pctrl = [activityViewController popoverPresentationController];
+        pctrl.sourceView = self;
+        pctrl.sourceRect = navBar.bounds;
+    }
     [self.window.rootViewController presentViewController:activityViewController animated:YES completion:nil];
 }
 

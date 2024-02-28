@@ -19,6 +19,7 @@
 #import <sys/stat.h>
 #import "SelectProgramsView.h"
 #import "CalcView.h"
+#import "Free42AppDelegate.h"
 #import "RootViewController.h"
 #import "SelectFileView.h"
 #import "shell_skin_iphone.h"
@@ -144,6 +145,12 @@ static NSString *export_path = nil;
         const char *rawPathC = [rawPath UTF8String];
         core_export_programs((int) count, indexes, rawPathC);
         UIActivityViewController *activityViewController = [[UIActivityViewController alloc] initWithActivityItems:@[[NSURL fileURLWithPath:rawPath]] applicationActivities:nil];
+        if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+            UIPopoverPresentationController *pctrl = [activityViewController popoverPresentationController];
+            CalcView *calc = ((Free42AppDelegate *) UIApplication.sharedApplication.delegate).rootViewController.calcView;
+            pctrl.sourceView = calc;
+            pctrl.sourceRect = CGRectMake(0, 0, calc.bounds.size.width, 10);
+        }
         [self.window.rootViewController presentViewController:activityViewController animated:YES completion:nil];
     } else {
         core_export_programs((int) count, indexes, [export_path UTF8String]);
