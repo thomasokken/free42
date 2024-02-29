@@ -101,6 +101,8 @@ static int keymap_length;
 
 static bool display_enabled = true;
 
+static int window_width, window_height;
+
 
 /**********************************************************/
 /* Linked-in skins; defined in the skins.c, which in turn */
@@ -152,15 +154,14 @@ static void addMenuItem(GtkMenu *menu, const char *name, bool enabled) {
 }
 
 static void selectSkinCB(GtkWidget *w, gpointer cd) {
-    char *name = (char *) cd;
-    if (strcmp(state.skinName, name) != 0) {
-        int w, h;
-        strcpy(state.skinName, name);
-        skin_load(&w, &h);
-        core_repaint_display();
-        gtk_widget_set_size_request(calc_widget, w, h);
-        gtk_widget_queue_draw(calc_widget);
-    }
+    int sw, sh;
+    strcpy(state.skinName, (char *) cd);
+    skin_load(&sw, &sh);
+    core_repaint_display();
+
+    skin_set_window_size(sw, sh);
+    gtk_window_resize(GTK_WINDOW(mainwindow), sw, sh + menu_bar_height);
+    gtk_widget_queue_draw(calc_widget);
 }
 
 static bool skin_open(const char *name, bool open_layout, bool force_builtin) {
@@ -640,6 +641,15 @@ void skin_repaint_annunciator(cairo_t *cr, int which) {
     cairo_restore(cr);
 }
 
+static void scaled_gdk_window_invalidate_rect(GdkWindow *win, const GdkRectangle *rect, gboolean invalidate_children) {
+    GdkRectangle scaled_rect;
+    scaled_rect.x = (int) (((double) rect->x) * window_width / skin.width);
+    scaled_rect.y = (int) (((double) rect->y) * window_height / skin.height);
+    scaled_rect.width = (int) ceil(((double) rect->width) * window_width / skin.width);
+    scaled_rect.height = (int) ceil(((double) rect->height) * window_height / skin.height);
+    gdk_window_invalidate_rect(win, &scaled_rect, invalidate_children);
+}
+
 void skin_invalidate_annunciator(GdkWindow *win, int which) {
     if (!display_enabled)
         return;
@@ -649,7 +659,7 @@ void skin_invalidate_annunciator(GdkWindow *win, int which) {
     clip.y = ann->disp_rect.y;
     clip.width = ann->disp_rect.width;
     clip.height = ann->disp_rect.height;
-    gdk_window_invalidate_rect(win, &clip, FALSE);
+    scaled_gdk_window_invalidate_rect(win, &clip, FALSE);
 }
 
 void skin_find_key(int x, int y, bool cshift, int *skey, int *ckey) {
@@ -789,7 +799,7 @@ void skin_invalidate_key(GdkWindow *win, int key) {
         clip.y = display_loc.y + y;
         clip.width = width;
         clip.height = height;
-        gdk_window_invalidate_rect(win, &clip, FALSE);
+        scaled_gdk_window_invalidate_rect(win, &clip, FALSE);
         return;
     }
     if (key < 0 || key >= nkeys)
@@ -800,7 +810,7 @@ void skin_invalidate_key(GdkWindow *win, int key) {
     clip.y = k->disp_rect.y;
     clip.width = k->disp_rect.width;
     clip.height = k->disp_rect.height;
-    gdk_window_invalidate_rect(win, &clip, FALSE);
+    scaled_gdk_window_invalidate_rect(win, &clip, FALSE);
 }
 
 void skin_display_invalidater(GdkWindow *win, const char *bits, int bytesperline,
@@ -819,7 +829,7 @@ void skin_display_invalidater(GdkWindow *win, const char *bits, int bytesperline
             clip.y = display_loc.y + y * display_scale_y;
             clip.width = width * display_scale_x;
             clip.height = height * display_scale_y;
-            gdk_window_invalidate_rect(win, &clip, FALSE);
+            scaled_gdk_window_invalidate_rect(win, &clip, FALSE);
         }
     } else {
         gtk_widget_queue_draw_area(calc_widget,
@@ -868,10 +878,25 @@ void skin_invalidate_display(GdkWindow *win) {
         clip.y = display_loc.y;
         clip.width = 131 * display_scale_x;
         clip.height = 16 * display_scale_y;
-        gdk_window_invalidate_rect(win, &clip, FALSE);
+        scaled_gdk_window_invalidate_rect(win, &clip, FALSE);
     }
 }
 
 void skin_display_set_enabled(bool enable) {
     display_enabled = enable;
+}
+
+void skin_get_size(int *width, int *height) {
+    *width = skin.width;
+    *height = skin.height;
+}
+
+void skin_set_window_size(int width, int height) {
+    window_width = width;
+    window_height = height;
+}
+
+void skin_get_window_size(int *width, int *height) {
+    *width = window_width;
+    *height = window_height;
 }

@@ -23,9 +23,10 @@
 #define FILENAMELEN 256
 
 extern GtkWidget *calc_widget;
+extern GtkWidget *mainwindow;
 extern bool allow_paint;
 
-#define SHELL_VERSION 10
+#define SHELL_VERSION 11
 
 struct state_type {
     int extras;
@@ -46,6 +47,7 @@ struct state_type {
     bool old_repaint;
     bool allow_big_stack;
     bool localized_copy_paste;
+    int mainWindowWidth, mainWindowHeight;
 };
 
 extern state_type state;
@@ -64,5 +66,18 @@ struct keymap_entry {
 };
     
 keymap_entry *parse_keymap_entry(char *line, int lineno);
+
+extern int ckey;
+extern int skey;
+
+extern int ann_updown;
+extern int ann_shift;
+extern int ann_print;
+extern int ann_run;
+extern int ann_battery;
+extern int ann_g;
+extern int ann_rad;
+
+extern int menu_bar_height;
 
 #endif

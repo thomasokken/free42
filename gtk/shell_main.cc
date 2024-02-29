@@ -55,7 +55,9 @@
 /* These are global because the skin code uses them a lot */
 
 GtkWidget *calc_widget;
+GtkWidget *mainwindow;
 bool allow_paint = false;
+int menu_bar_height = -1;
 
 state_type state;
 char free42dirname[FILENAMELEN];
@@ -98,16 +100,16 @@ static int gif_lines;
 static int pype[2];
 
 static GtkApplication *app = NULL;
-static GtkWidget *mainwindow;
 static GtkWidget *printwindow;
 static GtkWidget *print_widget;
 //static GdkGC *print_gc = NULL;
 static GtkAdjustment *print_adj;
 static GdkPixbuf *icon_128;
 static GdkPixbuf *icon_48;
+static guint resize_timeout_id = 0;
 
-static int ckey = 0;
-static int skey;
+int ckey = 0;
+int skey = -1;
 static unsigned char *macro;
 static bool macro_is_name;
 static bool mouse_key;
@@ -124,13 +126,13 @@ static FILE *statefile = NULL;
 static char statefilename[FILENAMELEN];
 static char printfilename[FILENAMELEN];
 
-static int ann_updown = 0;
-static int ann_shift = 0;
-static int ann_print = 0;
-static int ann_run = 0;
-static int ann_battery = 0;
-static int ann_g = 0;
-static int ann_rad = 0;
+int ann_updown = 0;
+int ann_shift = 0;
+int ann_print = 0;
+int ann_run = 0;
+int ann_battery = 0;
+int ann_g = 0;
+int ann_rad = 0;
 static guint ann_print_timeout_id = 0;
 
 
@@ -148,6 +150,7 @@ static char *strclone(const char *s);
 static bool file_exists(const char *name);
 static void show_message(const char *title, const char *message, GtkWidget *parent = mainwindow);
 static void no_mwm_resize_borders(GtkWidget *window);
+static void no_mwm_zoom_box(GtkWidget *window);
 static void scroll_printout_to_bottom();
 static void quitCB();
 static void statesCB();
@@ -334,6 +337,10 @@ static const char *mainWindowXml =
               "%s"
             "</child>"
           "</object>"
+          "<packing>"
+            "<property name='expand'>FALSE</property>"
+            "<property name='fill'>TRUE</property>"
+          "</packing>"
         "</child>"
       "</object>"
     "</child>"
@@ -359,6 +366,8 @@ static char *skin_arg = NULL;
 static char cached_number_format[9];
 
 static void activate(GtkApplication *theApp, gpointer userData);
+static void menubar_resized(GtkWidget *w, GtkAllocation *allocation, gpointer data);
+static void calc_resized(GtkWidget *w, GtkAllocation *allocation, gpointer data);
 
 int main(int argc, char *argv[]) {
     for (int i = 1; i < argc; i++) {
@@ -596,13 +605,16 @@ static void activate(GtkApplication *theApp, gpointer userData) {
     gtk_window_set_icon(GTK_WINDOW(mainwindow), icon_128);
     gtk_window_set_title(GTK_WINDOW(mainwindow), TITLE);
     gtk_window_set_role(GTK_WINDOW(mainwindow), "Free42 Calculator");
-    gtk_window_set_resizable(GTK_WINDOW(mainwindow), FALSE);
-    no_mwm_resize_borders(mainwindow);
+    //gtk_window_set_resizable(GTK_WINDOW(mainwindow), FALSE);
+    no_mwm_zoom_box(mainwindow);
     g_signal_connect(G_OBJECT(mainwindow), "delete_event",
                      G_CALLBACK(delete_cb), NULL);
     if (state.mainWindowKnown)
         gtk_window_move(GTK_WINDOW(mainwindow), state.mainWindowX,
                                             state.mainWindowY);
+
+    GtkWidget *menubar = GTK_WIDGET(gtk_builder_get_object(builder, "menubar"));
+    g_signal_connect(G_OBJECT(menubar), "size-allocate", G_CALLBACK(menubar_resized), NULL);
 
     // The "Skin" menu is dynamic; we don't populate any items in it here.
     // Instead, we attach a callback which scans the .free42 directory for
@@ -656,9 +668,11 @@ static void activate(GtkApplication *theApp, gpointer userData) {
 
     int win_width, win_height;
     skin_load(&win_width, &win_height);
+    skin_set_window_size(win_width, win_height);
+    if (state.mainWindowWidth != 0)
+        skin_set_window_size(state.mainWindowWidth, state.mainWindowHeight);
     GtkWidget *w = gtk_drawing_area_new();
-    gtk_widget_set_size_request(w, win_width, win_height);
-    gtk_box_pack_start(GTK_BOX(box), w, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(box), w, TRUE, TRUE, 0);
     g_signal_connect(G_OBJECT(w), "draw", G_CALLBACK(draw_cb), NULL);
     gtk_widget_add_events(w, GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK);
     g_signal_connect(G_OBJECT(w), "button-press-event", G_CALLBACK(button_cb), NULL);
@@ -666,7 +680,16 @@ static void activate(GtkApplication *theApp, gpointer userData) {
     gtk_widget_set_can_focus(w, TRUE);
     g_signal_connect(G_OBJECT(w), "key-press-event", G_CALLBACK(key_cb), NULL);
     g_signal_connect(G_OBJECT(w), "key-release-event", G_CALLBACK(key_cb), NULL);
+    g_signal_connect(G_OBJECT(w), "size-allocate", G_CALLBACK(calc_resized), NULL);
+    gtk_widget_set_size_request(w, 160, 160);
     calc_widget = w;
+
+    /*
+    GdkGeometry geom;
+    geom.min_width = 160;
+    geom.min_height = 160;
+    gtk_window_set_geometry_hints(GTK_WINDOW(mainwindow), w, &geom, GdkWindowHints(GDK_HINT_MIN_SIZE));
+    */
 
 
     /**************************************/
@@ -820,6 +843,40 @@ static void activate(GtkApplication *theApp, gpointer userData) {
         sigaction(SIGINT, &act, NULL);
         sigaction(SIGTERM, &act, NULL);
     }
+}
+
+static void menubar_resized(GtkWidget *w, GtkAllocation *allocation, gpointer data) {
+    if (menu_bar_height == allocation->height)
+        return;
+    menu_bar_height = allocation->height;
+    int win_width, win_height;
+    skin_get_window_size(&win_width, &win_height);
+    gtk_window_resize(GTK_WINDOW(mainwindow), win_width, win_height + menu_bar_height);
+}
+
+static gboolean resizer(gpointer cd) {
+    int win_width, win_height;
+    skin_get_window_size(&win_width, &win_height);
+    gtk_window_resize(GTK_WINDOW(mainwindow), win_width, win_height + menu_bar_height);
+    resize_timeout_id = 0;
+    return FALSE;
+}
+
+static void calc_resized(GtkWidget *w, GtkAllocation *allocation, gpointer data) {
+    int skin_width, skin_height;
+    skin_get_size(&skin_width, &skin_height);
+    int win_width = allocation->width;
+    int win_height = allocation->height;
+    double hScale = ((double) win_width) / skin_width;
+    double vScale = ((double) win_height) / skin_height;
+    if (hScale > vScale)
+        win_width = (int) (skin_width * vScale + 0.5);
+    else if (vScale > hScale)
+        win_height = (int) (skin_height * hScale + 0.5);
+    skin_set_window_size(win_width, win_height);
+    if (resize_timeout_id != 0)
+        g_source_remove(resize_timeout_id);
+    resize_timeout_id = g_timeout_add(250, resizer, NULL);
 }
 
 keymap_entry *parse_keymap_entry(char *line, int lineno) {
@@ -994,7 +1051,11 @@ static void init_shell_state(int4 version) {
             core_settings.localized_copy_paste = true;
             /* fall through */
         case 10:
-            /* current version (SHELL_VERSION = 10),
+            state.mainWindowWidth = 0;
+            state.mainWindowHeight = 0;
+            // fall through
+        case 11:
+            /* current version (SHELL_VERSION = 11),
              * so nothing to do here since everything
              * was initialized from the state file.
              */
@@ -1159,6 +1220,10 @@ static void quit() {
     state.mainWindowKnown = 1;
     state.mainWindowX = x;
     state.mainWindowY = y;
+    GtkAllocation allocation;
+    gtk_widget_get_allocation(calc_widget, &allocation);
+    state.mainWindowWidth = allocation.width;
+    state.mainWindowHeight = allocation.height;
 
     if (state.printWindowMapped) {
         gtk_window_get_position(GTK_WINDOW(printwindow), &x, &y);
@@ -1229,6 +1294,19 @@ static void no_mwm_resize_borders(GtkWidget *window) {
     // So, we use an additional GDK call to set the appropriate mwm properties.
     g_signal_connect(G_OBJECT(window), "realize",
                      G_CALLBACK(no_mwm_resize_helper), NULL);
+}
+
+static void no_mwm_zoom_helper(GtkWidget *w, gpointer cd) {
+    GdkWindow *win = gtk_widget_get_window(w);
+    gdk_window_set_decorations(win, GdkWMDecoration(GDK_DECOR_ALL
+                                    | GDK_DECOR_MAXIMIZE));
+    gdk_window_set_functions(win, GdkWMFunction(GDK_FUNC_ALL
+                                    | GDK_FUNC_MAXIMIZE));
+}
+
+static void no_mwm_zoom_box(GtkWidget *window) {
+    g_signal_connect(G_OBJECT(window), "realize",
+                     G_CALLBACK(no_mwm_zoom_helper), NULL);
 }
 
 static void scroll_printout_to_bottom() {
@@ -2490,6 +2568,12 @@ static gboolean delete_print_cb(GtkWidget *w, GdkEventAny *ev) {
 }
 
 static gboolean draw_cb(GtkWidget *w, cairo_t *cr, gpointer cd) {
+    cairo_save(cr);
+    int win_width, win_height, skin_width, skin_height;
+    skin_get_window_size(&win_width, &win_height);
+    skin_get_size(&skin_width, &skin_height);
+    cairo_scale(cr, ((double) win_width) / skin_width, ((double) win_height) / skin_height);
+
     allow_paint = true;
     bool only_disp = need_to_paint_only_display(cr);
     if (!only_disp)
@@ -2516,6 +2600,8 @@ static gboolean draw_cb(GtkWidget *w, cairo_t *cr, gpointer cd) {
         if (skey >= -7 && skey <= -2)
             skin_repaint_key(cr, skey, 1);
     }
+
+    cairo_restore(cr);
     return TRUE;
 }
 
@@ -2606,13 +2692,8 @@ static void shell_keydown() {
                 }
                 skin_display_set_enabled(true);
                 skin_invalidate_display(win);
-                skin_invalidate_annunciator(win, 1);
-                skin_invalidate_annunciator(win, 2);
-                skin_invalidate_annunciator(win, 3);
-                skin_invalidate_annunciator(win, 4);
-                skin_invalidate_annunciator(win, 5);
-                skin_invalidate_annunciator(win, 6);
-                skin_invalidate_annunciator(win, 7);
+                for (int i = 1; i <= 7; i++)
+                    skin_invalidate_annunciator(win, i);
                 repeat = 0;
             }
         }
@@ -2658,8 +2739,11 @@ static void shell_keyup() {
 static gboolean button_cb(GtkWidget *w, GdkEventButton *event, gpointer cd) {
     if (event->type == GDK_BUTTON_PRESS) {
         if (ckey == 0) {
-            int x = (int) event->x;
-            int y = (int) event->y;
+            int win_width, win_height, skin_width, skin_height;
+            skin_get_window_size(&win_width, &win_height);
+            skin_get_size(&skin_width, &skin_height);
+            int x = (int) (event->x * skin_width / win_width);
+            int y = (int) (event->y * skin_height / win_height);
             skin_find_key(x, y, ann_shift != 0, &skey, &ckey);
             if (ckey != 0) {
                 macro = skin_find_macro(ckey, &macro_is_name);
