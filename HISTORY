@@ -1,3 +1,8 @@
+2024-03-01: release 3.1.4f (Linux only)
+
+* Resizable main window.
+* Ctrl-D shortcut for Clear Print-Out.
+
 2024-02-28: release 3.1.4e (iOS, Windows, and MacOS)
 
 * iOS version: Fixed crash when sharing on iPad.
