@@ -773,7 +773,7 @@ void skin_repaint() {
     EndPaint(window, &ps);
 }
 
-void skin_update_annunciator(int which) {
+void skin_invalidate_annunciator(int which) {
     if (!display_enabled)
         return;
     SkinAnnunciator *ann = annunciators + (which - 1);
