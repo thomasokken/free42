@@ -775,7 +775,7 @@ static void activate(GtkApplication *theApp, gpointer userData) {
     GdkGeometry geom;
     geom.min_width = 358;
     geom.max_width = 358;
-    geom.min_height = 1;
+    geom.min_height = 18;
     geom.max_height = 32767;
     geom.width_inc = 1;
     geom.height_inc = 18;

@@ -346,7 +346,9 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
     
     sz.width = 373;
     sz.height = state.printWindowKnown ? state.printWindowHeight : 600;
+    sz.height = 18 * floor(sz.height / 18);
     [printWindow setContentSize:sz];
+    [printWindow setResizeIncrements:NSMakeSize(1, 18)];
     [printView initialUpdate];
     
     if (state.printWindowKnown) {
