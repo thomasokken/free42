@@ -87,7 +87,7 @@ static const SkinColor *skin_colors = NULL;
 static int skin_y;
 static unsigned char *skin_data = NULL;
 static int skin_bytesperline;
-static BITMAPV4HEADER *skin_header = NULL;
+static BITMAPINFOHEADER *skin_header = NULL;
 static Gdiplus::Bitmap *skin_bitmap = NULL;
 static Gdiplus::Bitmap *disp_bitmap = NULL;
 static unsigned char *disp_bits = NULL;
@@ -619,7 +619,7 @@ void skin_put_pixels(unsigned const char *data) {
 }
 
 void skin_finish_image() {
-    BITMAPV4HEADER *bh;
+    BITMAPINFOHEADER *bh;
     
     if (skin_type == IMGTYPE_MONO) {
         skin_bitmap = new Gdiplus::Bitmap(skin_width, skin_height, skin_bytesperline, PixelFormat1bppIndexed, skin_data);
@@ -630,7 +630,7 @@ void skin_finish_image() {
     if (skin_type == IMGTYPE_COLORMAPPED) {
         RGBQUAD *cmap;
         int i;
-        bh = (BITMAPV4HEADER *) malloc(sizeof(BITMAPV4HEADER) + skin_ncolors * sizeof(RGBQUAD));
+        bh = (BITMAPINFOHEADER *) malloc(sizeof(BITMAPINFOHEADER) + skin_ncolors * sizeof(RGBQUAD));
         // TODO - handle memory allocation failure
         cmap = (RGBQUAD *) (bh + 1);
         for (i = 0; i < skin_ncolors; i++) {
@@ -642,7 +642,7 @@ void skin_finish_image() {
     } else if (skin_type == IMGTYPE_GRAY) {
         RGBQUAD *cmap;
         int i;
-        bh = (BITMAPV4HEADER *) malloc(sizeof(BITMAPV4HEADER) + 256 * sizeof(RGBQUAD));
+        bh = (BITMAPINFOHEADER *) malloc(sizeof(BITMAPINFOHEADER) + 256 * sizeof(RGBQUAD));
         // TODO - handle memory allocation failure
         cmap = (RGBQUAD *) (bh + 1);
         for (i = 0; i < 256; i++) {
@@ -650,40 +650,33 @@ void skin_finish_image() {
             cmap[i].rgbReserved = 0;
         }
     } else
-        bh = (BITMAPV4HEADER *) malloc(sizeof(BITMAPV4HEADER));
+        bh = (BITMAPINFOHEADER *) malloc(sizeof(BITMAPINFOHEADER));
         // TODO - handle memory allocation failure
 
-    bh->bV4Size = sizeof(BITMAPV4HEADER);
-    bh->bV4Width = skin_width;
-    bh->bV4Height = -skin_height;
-    bh->bV4Planes = 1;
+    bh->biSize = sizeof(BITMAPINFOHEADER);
+    bh->biWidth = skin_width;
+    bh->biHeight = -skin_height;
+    bh->biPlanes = 1;
     switch (skin_type) {
         case IMGTYPE_MONO:
-            bh->bV4BitCount = 1;
-            bh->bV4ClrUsed = 0;
+            bh->biBitCount = 1;
             break;
         case IMGTYPE_GRAY:
-            bh->bV4BitCount = 8;
-            bh->bV4ClrUsed = 256;
+            bh->biBitCount = 8;
             break;
         case IMGTYPE_COLORMAPPED:
-            bh->bV4BitCount = 8;
-            bh->bV4ClrUsed = skin_ncolors;
+            bh->biBitCount = 8;
             break;
         case IMGTYPE_TRUECOLOR:
-            bh->bV4BitCount = 24;
-            bh->bV4ClrUsed = 0;
+            bh->biBitCount = 24;
             break;
     }
-    bh->bV4V4Compression = BI_RGB;
-    bh->bV4SizeImage = skin_bytesperline * skin_height;
-    bh->bV4XPelsPerMeter = 2835;
-    bh->bV4YPelsPerMeter = 2835;
-    bh->bV4ClrImportant = 0;
-    /* bh->bV4RedMask, bh->bV4GreenMask, bh->bV4BlueMask, bh->bV4AlphaMask: unused */
-    //bh->bV4CSType = LCS_WINDOWS_COLOR_SPACE;
-    bh->bV4CSType = LCS_CALIBRATED_RGB;
-    /* bh->bV4Endpoints, bh->bV4GammaRed, bh->bV4GammaGreen, bh->bV4GammaBlue: unused */
+    bh->biCompression = BI_RGB;
+    bh->biSizeImage = skin_bytesperline * skin_height;
+    bh->biXPelsPerMeter = 2835;
+    bh->biYPelsPerMeter = 2835;
+    bh->biClrUsed = 0;
+    bh->biClrImportant = 0;
     
     skin_header = bh;
 
