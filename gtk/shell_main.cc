@@ -777,7 +777,9 @@ static void activate(GtkApplication *theApp, gpointer userData) {
     geom.max_width = 358;
     geom.min_height = 1;
     geom.max_height = 32767;
-    gtk_window_set_geometry_hints(GTK_WINDOW(printwindow), NULL, &geom, GdkWindowHints(GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE));
+    geom.width_inc = 1;
+    geom.height_inc = 18;
+    gtk_window_set_geometry_hints(GTK_WINDOW(printwindow), NULL, &geom, GdkWindowHints(GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE | GDK_HINT_RESIZE_INC));
 
     if (state.printWindowKnown)
         gtk_window_move(GTK_WINDOW(printwindow), state.printWindowX,
