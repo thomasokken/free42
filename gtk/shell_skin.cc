@@ -624,8 +624,12 @@ void skin_finish_image() {
 }
 
 void skin_repaint(cairo_t *cr) {
+    cairo_save(cr);
     gdk_cairo_set_source_pixbuf(cr, skin_image, -skin.x, -skin.y);
+    cairo_rectangle(cr, 0, 0, skin.width, skin.height);
+    cairo_clip(cr);
     cairo_paint(cr);
+    cairo_restore(cr);
 }
 
 void skin_repaint_annunciator(cairo_t *cr, int which) {
