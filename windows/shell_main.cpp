@@ -1103,17 +1103,35 @@ static LRESULT CALLBACK PrintOutWndProc(HWND hWnd, UINT message, WPARAM wParam, 
             hPrintOutWnd = NULL;
             return 0;
         case WM_SIZING: {
+            RECT windowRect, clientRect;
+            GetWindowRect(hPrintOutWnd, &windowRect);
+            GetClientRect(hPrintOutWnd, &clientRect);
+            int vBorder = (windowRect.bottom - windowRect.top) - (clientRect.bottom - clientRect.top);
+
             LPRECT r = (LPRECT) lParam;
             switch (wParam) {
-                case WMSZ_BOTTOMLEFT:
                 case WMSZ_TOPLEFT:
                 case WMSZ_LEFT:
+                case WMSZ_BOTTOMLEFT:
                     r->left = r->right - printOutWidth;
                     break;
-                case WMSZ_BOTTOMRIGHT:
                 case WMSZ_TOPRIGHT:
                 case WMSZ_RIGHT:
+                case WMSZ_BOTTOMRIGHT:
                     r->right = r->left + printOutWidth;
+                    break;
+            }
+            switch (wParam) {
+                case WMSZ_TOPLEFT:
+                case WMSZ_TOP:
+                case WMSZ_TOPRIGHT:
+                    r->top += (r->bottom - r->top - vBorder) % 18;
+                    break;
+                case WMSZ_BOTTOMLEFT:
+                case WMSZ_BOTTOM:
+                case WMSZ_BOTTOMRIGHT:
+                    r->bottom -= (r->bottom - r->top - vBorder) % 18;
+                    break;
             }
             return 1;
         }
