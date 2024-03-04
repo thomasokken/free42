@@ -851,13 +851,15 @@ static void menubar_resized(GtkWidget *w, GtkAllocation *allocation, gpointer da
     menu_bar_height = allocation->height;
     int win_width, win_height;
     skin_get_window_size(&win_width, &win_height);
-    gtk_window_resize(GTK_WINDOW(mainwindow), win_width, win_height + menu_bar_height);
+    int mh = menu_bar_height >= 2 ? menu_bar_height : 0;
+    gtk_window_resize(GTK_WINDOW(mainwindow), win_width, win_height + mh);
 }
 
 static gboolean resizer(gpointer cd) {
     int win_width, win_height;
     skin_get_window_size(&win_width, &win_height);
-    gtk_window_resize(GTK_WINDOW(mainwindow), win_width, win_height + menu_bar_height);
+    int mh = menu_bar_height >= 2 ? menu_bar_height : 0;
+    gtk_window_resize(GTK_WINDOW(mainwindow), win_width, win_height + mh);
     resize_timeout_id = 0;
     return FALSE;
 }
