@@ -848,10 +848,10 @@ void skin_invalidate_key(int key) {
     if (key >= -7 && key <= -2) {
         /* Soft key */
         key = -1 - key;
-        double left = display_loc.x + (key - 1) * 22 * display_scale_x;
-        double top = display_loc.y + 9 * display_scale_y;
-        double right = left + 21 * display_scale_x;
-        double bottom = top + 7 * display_scale_y;
+        double left = display_loc.x + ((key - 1) * 22 - 1) * display_scale_x;
+        double top = display_loc.y + (9 - 1) * display_scale_y;
+        double right = left + (21 + 2) * display_scale_x;
+        double bottom = top + (7 + 2) * display_scale_y;
         skin_invalidate((int) left, (int) top, (int) ceil(right), (int) ceil(bottom));
     } else if (key < 0 || key >= nkeys) {
         return;
