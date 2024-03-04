@@ -1222,10 +1222,10 @@ static void quit() {
     state.mainWindowKnown = 1;
     state.mainWindowX = x;
     state.mainWindowY = y;
-    GtkAllocation allocation;
-    gtk_widget_get_allocation(calc_widget, &allocation);
-    state.mainWindowWidth = allocation.width;
-    state.mainWindowHeight = allocation.height;
+    int w, h;
+    skin_get_window_size(&w, &h);
+    state.mainWindowWidth = w;
+    state.mainWindowHeight = h;
 
     if (state.printWindowMapped) {
         gtk_window_get_position(GTK_WINDOW(printwindow), &x, &y);
