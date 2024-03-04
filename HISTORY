@@ -1,7 +1,7 @@
 2024-03-04: release 3.1.4g (Windows, MacOS, and Linux)
 
 * Windows, MacOS, and Linux versions: Constraining print-out window height to
-multiples of 18 pixels, that is, to a whole number of lines.
+  multiples of 18 pixels, that is, to a whole number of lines.
 * Windows version: Fixed skin rendering problem in Windows Vista.
 * Linux version: Fixed a few bugs related to main window resizing.
 
