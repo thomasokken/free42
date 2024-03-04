@@ -744,10 +744,14 @@ void skin_repaint_key(cairo_t *cr, int key, bool state) {
             // in that state. But, just staying on the safe side.
             return;
         key = -1 - key;
-        int x = (key - 1) * 22;
-        int y = 9;
-        int width = 21;
-        int height = 7;
+        int kx = (key - 1) * 22;
+        int ky = 9;
+        int kw = 21;
+        int kh = 7;
+        int x = kx - 1;
+        int y = ky - 1;
+        int width = kw + 2;
+        int height = kh + 2;
 
         cairo_save(cr);
         cairo_translate(cr, display_loc.x, display_loc.y);
@@ -758,12 +762,25 @@ void skin_repaint_key(cairo_t *cr, int key, bool state) {
         cairo_paint(cr);
         cairo_set_source_rgb(cr, display_fg.r / 255.0, display_fg.g / 255.0, display_fg.b / 255.0);
 
-        for (int v = y; v < y + height; v++)
-            for (int h = x; h < x + width; h++)
-                if (((disp_bits[v * 17 + (h >> 3)] & (1 << (h & 7))) != 0) != state) {
+        if (x < 0)
+            x = 0;
+        if (y < 0)
+            y = 0;
+        if (x + width > 131)
+            width = 131 - x;
+        if (y + height > 16)
+            height = 16 - y;
+
+        for (int v = y; v < y + height; v++) {
+            bool in_key_v = v >= ky && v < ky + kh;
+            for (int h = x; h < x + width; h++) {
+                bool ks = !(in_key_v && h >= kx && h < kx + kw) ^ state;
+                if (((disp_bits[v * 17 + (h >> 3)] & (1 << (h & 7))) != 0) != ks) {
                     cairo_rectangle(cr, h, v, 1, 1);
                     cairo_fill(cr);
                 }
+            }
+        }
 
         cairo_restore(cr);
         return;
@@ -791,10 +808,10 @@ void skin_invalidate_key(GdkWindow *win, int key) {
     if (key >= -7 && key <= -2) {
         /* Soft key */
         key = -1 - key;
-        int x = (key - 1) * 22 * display_scale_x;
-        int y = 9 * display_scale_y;
-        int width = 21 * display_scale_x;
-        int height = 7 * display_scale_y;
+        int x = (key - 1) * 22 * display_scale_x - 1;
+        int y = 9 * display_scale_y - 1;
+        int width = 21 * display_scale_x + 2;
+        int height = 7 * display_scale_y + 2;
         GdkRectangle clip;
         clip.x = display_loc.x + x;
         clip.y = display_loc.y + y;
