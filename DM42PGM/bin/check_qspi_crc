@@ -1,0 +1,46 @@
+#!/bin/bash
+
+pgm=$1
+h=${2:-dm/qspi_crc.h}
+
+q=build/${pgm}_qspi.bin
+
+
+filesize() {
+	stat -Lc%s "$1"
+}
+
+
+if [ ! -f "$q" ];then
+	echo "ERROR: Missing qspi file '$q'"
+	exit 1
+fi
+
+if [ ! -f "$h" ]; then
+	sz=0
+	crc=0
+else
+	sz=`cat $h  | grep SIZE | awk '{print $3}'`
+	crc=`cat $h | grep CRC  | awk '{print $3}'`
+fi
+
+nsz=`filesize $q`
+ncrc=0x`crc32 $q`
+
+if [ $sz != $nsz -o $crc != $ncrc ]; then
+	cat << OI
+====
+QSPI Contents changed:
+   Size:   $sz	-> $nsz
+    CRC:   $crc	-> $ncrc
+====
+Run build once more.
+OI
+	cat << OI > $h
+
+#define QSPI_DATA_SIZE $nsz
+#define QSPI_DATA_CRC  $ncrc
+
+OI
+	exit 1
+fi

@@ -82,6 +82,7 @@ void core_init(int read_saved_state, int4 version, const char *state_file_name, 
 
     phloat_init();
 
+#ifndef ARM
     char *state_file_name_crash = NULL;
     if (read_saved_state == 1) {
         // Before loading state, rename the state file by appending .crash
@@ -91,14 +92,19 @@ void core_init(int read_saved_state, int4 version, const char *state_file_name, 
         // launch with Memory Clear rather than just crashing on startup over
         // and over, and, on iOS and Android, needing to be deleted and
         // reinstalled.
-        size_t bufsize = strlen(state_file_name) + 24;
-        state_file_name_crash = (char *) malloc(bufsize);
-        uint4 date, time;
-        int weekday;
-        shell_get_time_date(&time, &date, &weekday);
-        snprintf(state_file_name_crash, bufsize, "%s.%08u%08u.crash", state_file_name, date, time);
-        my_rename(state_file_name, state_file_name_crash);
-        gfile = my_fopen(state_file_name_crash, "rb");
+        state_file_name_crash = (char *) malloc(strlen(state_file_name) + 24);
+        if (state_file_name_crash != NULL) {
+            uint4 date, time;
+            int weekday;
+            shell_get_time_date(&time, &date, &weekday);
+            sprintf(state_file_name_crash, "%s.%08u%08u.crash", state_file_name, date, time);
+            my_rename(state_file_name, state_file_name_crash);
+            gfile = my_fopen(state_file_name_crash, "rb");
+        } else
+#else
+    if (read_saved_state == 1) {
+#endif
+        gfile = my_fopen(state_file_name, "rb");
         if (gfile == NULL)
             read_saved_state = 0;
         else if (offset > 0)
@@ -114,19 +120,26 @@ void core_init(int read_saved_state, int4 version, const char *state_file_name, 
     }
     if (gfile != NULL)
         fclose(gfile);
-    if (state_file_name_crash != NULL) {
+#ifndef ARM
+    if (state_file_name != NULL) {
         if (reason == 0) {
-            my_rename(state_file_name_crash, state_file_name);
+            if (state_file_name_crash != NULL)
+                my_rename(state_file_name_crash, state_file_name);
         } else {
-            char *tmp = (char *) malloc(strlen(state_file_name_crash) + 3);
-            strcpy(tmp, state_file_name_crash);
-            tmp[strlen(state_file_name_crash) - 6] = 0;
-            strcat(tmp, reason == 1 ? ".corrupt" : ".too_new");
-            my_rename(state_file_name_crash, tmp);
-            free(tmp);
+            char *tmp = (char *) malloc(strlen(state_file_name) + 9);
+            if (tmp != NULL) {
+                strcpy(tmp, state_file_name);
+                strcat(tmp, reason == 1 ? ".corrupt" : ".too_new");
+                if (state_file_name_crash != NULL)
+                    my_rename(state_file_name_crash, tmp);
+                else
+                    my_rename(state_file_name, tmp);
+                free(tmp);
+            }
         }
-        free(state_file_name_crash);
     }
+    free(state_file_name_crash);
+#endif
 
     repaint_display();
     shell_annunciators(mode_updown,
@@ -714,6 +727,64 @@ void core_update_allow_big_stack() {
     redisplay();
 }
 
+
+#ifdef ARM
+
+// Use old non-dynamically allocated version
+int core_list_programs(char *buf, int bufsize) {
+    int lastidx = -1;
+    int bufptr = 0;
+    int label;
+    int count = 0;
+    for (label = 0; label < labels_count; label++) {
+        int len = labels[label].length;
+        char name[51];
+        int namelen = 0;
+        int end = 0;
+        int i;
+
+        if (len == 0) {
+            if (labels[label].prgm == lastidx)
+                continue;
+            if (label == labels_count - 1) {
+                string2buf(name, 21, &namelen, ".END.", 5);
+                namelen = 5;
+            } else {
+                string2buf(name, 21, &namelen, "END", 3);
+                namelen = 3;
+            }
+            end = 1;
+        } else {
+            name[namelen++] = '"';
+            namelen += hp2ascii(name + namelen, labels[label].name, len);
+            name[namelen++] = '"';
+            end = labels[label + 1].length == 0;
+        }
+
+        lastidx = labels[label].prgm;
+
+        if (bufptr + namelen + 1 >= bufsize) {
+            if (bufptr > 0 && buf[bufptr - 1] != 0) {
+                buf[bufptr - 1] = 0;
+                count++;
+            }
+            return count;
+        }
+        for (i = 0; i < namelen; i++)
+            buf[bufptr++] = name[i];
+        if (end) {
+            buf[bufptr++] = 0;
+            count++;
+        } else {
+            buf[bufptr++] = ' ';
+        }
+    }
+    return count;
+}
+
+
+#else
+
 char *core_list_programs() {
     int bufsize = 1024;
     char *buf = (char *) malloc(bufsize);
@@ -778,6 +849,7 @@ char *core_list_programs() {
     buf[3] = (char) count;
     return buf;
 }
+#endif
 
 static void export_hp42s(int index) {
     int4 pc = 0;

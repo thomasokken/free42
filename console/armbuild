@@ -1,0 +1,40 @@
+#!/bin/bash
+
+MAKEOPT=" -j12 $MAKEOPT"
+
+rm -f libfree42_*.a
+
+type arm-none-eabi-gcc > /dev/null 2>&1
+if [ $? != 0 ]; then
+	echo "Activate ARM toolchain"
+	exit 1
+fi
+
+
+if [ ! -z "$BLD_BIN" ]; then
+	make clean
+	echo "=== ARM_LIB=1"
+	ARM_LIB=1 make $MAKEOPT libfree42.a
+	mv libfree42.a libfree42_bin.a
+
+	make clean
+	echo "=== RELEASE=1 ARM_LIB=1"
+	RELEASE=1 ARM_LIB=1 make $MAKEOPT libfree42.a
+	mv libfree42.a libfree42_bin_rel.a
+fi
+
+
+make clean
+echo "=== ARM_LIB=1 BCD_MATH=1"
+ARM_LIB=1 BCD_MATH=1 make $MAKEOPT libfree42.a
+if [ $? != 0 ]; then
+  echo "BUILD FAILED"
+  exit 1
+fi
+mv libfree42.a libfree42_bcd.a
+
+make clean
+echo "=== RELEASE=1 ARM_LIB=1 BCD_MATH=1"
+RELEASE=1 ARM_LIB=1 BCD_MATH=1 make $MAKEOPT libfree42.a
+mv libfree42.a ../DM42PGM/lib/libfree42_bcd_rel.a
+

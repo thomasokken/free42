@@ -20,7 +20,6 @@
 
 #include "free42.h"
 
-
 /**********************************/
 /* Shell/Core interface functions */
 /**********************************/
@@ -249,7 +248,12 @@ bool core_powercycle();
  * This function will return NULL if it fails to allocate the buffer.
  * The caller should free() the buffer once it is finished using it.
  */
+#ifdef ARM
+// Use old non-dynamically allocated version
+int core_list_programs(char *buf, int bufsize);
+#else
 char *core_list_programs();
+#endif
 
 /* core_program_size()
  * This function returns the size of a program, specified by its index.
@@ -320,7 +324,8 @@ void core_update_allow_big_stack();
  * should provide the appropriate controls in a "Preferences" dialog box to
  * allow the user to view and change these settings.
  */
-struct core_settings_struct {
+struct core_settings_struct
+{
     bool matrix_singularmatrix;
     bool matrix_outofrange;
     bool auto_repeat;
@@ -330,7 +335,6 @@ struct core_settings_struct {
 
 extern core_settings_struct core_settings;
 
-
 /*******************/
 /* Keyboard repeat */
 /*******************/
@@ -338,7 +342,6 @@ extern core_settings_struct core_settings;
 extern int repeating;
 extern int repeating_shift;
 extern int repeating_key;
-
 
 /*******************/
 /* Other functions */
@@ -366,6 +369,5 @@ void finish_alpha_prgm_line();
 int shiftcharacter(char c);
 void set_old_pc(int4 pc);
 const char *number_format();
-
 
 #endif

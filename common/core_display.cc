@@ -24,6 +24,7 @@
 #include "core_helpers.h"
 #include "core_main.h"
 #include "core_tables.h"
+#include "core_aux.h"
 #include "core_variables.h"
 #include "shell.h"
 #include "shell_spool.h"
@@ -41,8 +42,10 @@
 #pragma warning(disable:4838)
 #endif
 
+#include <string.h>
+#include <stdio.h>
 
-static const char bigchars[130][5] =
+static const unsigned char bigchars[130][5] =
     {
         { 0x08, 0x08, 0x2a, 0x08, 0x08 },
         { 0x22, 0x14, 0x08, 0x14, 0x22 },
@@ -176,7 +179,7 @@ static const char bigchars[130][5] =
         { 0x04, 0x08, 0x70, 0x08, 0x04 }
     };
 
-static const char smallchars[416] =
+static const unsigned char smallchars[416] =
     {
         0x00, 0x00, 0x00,
         0x5c,
@@ -577,6 +580,12 @@ static char smallchars_map[128] =
 
 static char display[272];
 
+#ifdef ARM
+char* core_display_buffer() {
+  return display;
+}
+#endif
+
 static bool is_dirty = false;
 static int dirty_top, dirty_left, dirty_bottom, dirty_right;
 
@@ -685,6 +694,9 @@ bool unpersist_display(int version) {
 }
 
 void clear_display() {
+#ifdef ARM
+    thell_clear_display();
+#endif
     int i;
     for (i = 0; i < 272; i++)
         display[i] = 0;
@@ -705,16 +717,29 @@ void repaint_display() {
 }
 
 void draw_pixel(int x, int y) {
+#ifdef ARM
+    thell_draw_pixel(x, y);
+    if ( graphics_mode() )
+        return;
+#endif
     display[y * 17 + (x >> 3)] |= 1 << (x & 7);
     mark_dirty(y, x, y + 1, x + 1);
 }
 
 void draw_pattern(phloat dx, phloat dy, const char *pattern, int pattern_width){
     int x, y, h, v, hmin, hmax, vmin, vmax;
+    int const MAXX = gr_MAXX();
+    int const MAXY = gr_MAXY();
+
     x = dx < 0 ? to_int(-floor(-dx + 0.5)) : to_int(floor(dx + 0.5));
     y = dy < 0 ? to_int(-floor(-dy + 0.5)) : to_int(floor(dy + 0.5));
-    if (x + pattern_width < 1 || x > 131 || y + 8 < 1 || y > 16)
+    if (x + pattern_width < 1 || x > MAXX || y + 8 < 1 || y > MAXY)
         return;
+#ifdef ARM
+    thell_draw_pattern(x-1,y-1, pattern, pattern_width, (flags.f.agraph_control1<<1)|flags.f.agraph_control0);
+    if ( graphics_mode() )
+        return;
+#endif
     hmin = x < 1 ? 1 - x : 0;
     hmax = x + pattern_width > 132 ? 132 - x : pattern_width;
     vmin = y < 1 ? 1 - y : 0;
@@ -836,6 +861,9 @@ static void mark_dirty(int top, int left, int bottom, int right) {
 }
 
 void draw_char(int x, int y, char c) {
+#ifdef ARM
+    thell_draw_char(x,y, c);
+#endif
     int X, Y, h, v;
     unsigned char uc = (unsigned char) c;
     if (x < 0 || x >= 22 || y < 0 || y >= 2)
@@ -858,12 +886,13 @@ void draw_char(int x, int y, char c) {
     mark_dirty(Y, X, Y + 8, X + 5);
 }
 
-const char *get_char(char c) {
+const unsigned char *get_char(char c) {
     unsigned char uc = (unsigned char) c;
     if (uc >= 130)
         uc -= 128;
     return bigchars[uc];
 }
+
 
 void draw_string(int x, int y, const char *s, int length) {
     while (length != 0 && x < 22) {
@@ -895,6 +924,10 @@ static void draw_key(int n, int highlight, int hide_meta,
      * so that we know *not* to suppress menu highlights while stepping. */
     if (flags.f.prgm_mode == 1)
         highlight = 0;
+
+#ifdef ARM
+    thell_draw_menu_key(n, highlight, s, length);
+#endif
 
     if (highlight) {
         int f = smallchars_map[fatdot];
@@ -983,10 +1016,13 @@ int special_menu_key(int which) {
 }
 
 void clear_row(int row) {
+#ifdef ARM
+    thell_clear_row(row);
+#endif
     fill_rect(0, row * 8, 131, 8, 0);
 }
 
-static int prgmline2buf(char *buf, int len, int4 line, int highlight,
+int prgmline2buf(char *buf, int len, int4 line, int highlight,
                         int cmd, arg_struct *arg, const char *orig_num,
                         bool shift_left = false,
                         bool highlight_final_end = true,
@@ -1873,6 +1909,9 @@ void display_mem() {
     buflen = ulong2string(bytes, buf, 20);
     draw_string(0, 1, buf, buflen);
     draw_string(buflen + 1, 1, "Bytes", 5);
+#ifdef ARM
+    thell_draw_menu_key(-3, 0, NULL, 0);
+#endif
     flush_display();
 }
 
@@ -2048,6 +2087,9 @@ void show() {
             }
         }
     }
+#ifdef ARM
+    thell_start_show();
+#endif
     flush_display();
 }
 
@@ -2068,13 +2110,24 @@ void redisplay() {
         flush_display();
         return;
     }
-
+#ifndef ARM
     if (flags.f.two_line_message)
         return;
+#else
+    if (flags.f.two_line_message)
+    {
+        if (!core_menu())
+            return;
+        thell_draw_menu_key(-1, 0, NULL, 0);
+    } else {
+#endif
     if (flags.f.message)
         clear_row(1);
     else
         clear_display();
+#ifdef ARM
+    }
+#endif
 
     if (mode_commandmenu != MENU_NONE)
         menu_id = mode_commandmenu;
@@ -2285,6 +2338,10 @@ void redisplay() {
         }
         avail_rows = 1;
     }
+
+#ifdef ARM
+    thell_draw_menu_key(-2, 0, NULL, 0);
+#endif
 
     if (!flags.f.prgm_mode &&
             (mode_command_entry || pending_command != CMD_NONE)) {

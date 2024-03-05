@@ -1,0 +1,13 @@
+diff --git a/IntelRDFPMathLib/LIBRARY/src/bid128_hypot.c b/IntelRDFPMathLib/LIBRARY/src/bid128_hypot.c
+index 51748a1..7e5b1ca 100755
+--- a/IntelRDFPMathLib/LIBRARY/src/bid128_hypot.c
++++ b/IntelRDFPMathLib/LIBRARY/src/bid128_hypot.c
+@@ -126,7 +126,7 @@ else {
+        x.w[BID_HIGH_128W] &= 0x7fffffffffffffffull;
+        y.w[BID_HIGH_128W] &= 0x7fffffffffffffffull;
+ 
+-       if(exponent_x - exponent_y >= 35)
++       if(exponent_x - exponent_y >= 68)
+        {
+         res.w[BID_HIGH_128W] = x.w[BID_HIGH_128W];
+         res.w[BID_LOW_128W] = x.w[BID_LOW_128W];

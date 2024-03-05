@@ -1,0 +1,44 @@
+
+This directory contains sources and makefile for build of simple 
+testing console frontend of Free42 and for standalone ARM libraries.
+
+
+== Console application build
+
+Use make to build the application. There are some build parameters
+available:
+
+BCD_MATH=1   - (original Free42 make option) activates BCD build
+               Note that you need intel library to link the application
+
+USE_CURSES=1 - Uses curses library for direct key input. Simple
+               line interface which accepts key codes is used otherwise.
+
+UTF8_DISP=1  - Draws the LCD in block graphics instead of ASCII.
+
+
+Note that you should run 
+ make clean
+before build with different make parameters.
+
+E.g.
+make clean
+BCD_MATH=1 USE_CURSES=1 UTF8_DISP=1 make -j30
+
+Builds BCD version of Free42 with curses key read and with UTF8 display support.
+
+
+
+
+== ARM library build
+
+Add ARM toolchain to PATH and run:
+ ./armbuild
+
+Four versions of libraries are built
+
+libfree42_bcd.a      - BCD no optimizations
+libfree42_bcd_rel.a  - BCD optimized for release
+libfree42_bin.a      - BIN no optimizations
+libfree42_bin_rel.a  - BIN optimized for release
+

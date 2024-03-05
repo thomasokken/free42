@@ -28,6 +28,7 @@
 #include "core_math2.h"
 #include "core_sto_rcl.h"
 #include "core_variables.h"
+#include "core_aux.h"
 #include "shell.h"
 
 
@@ -694,6 +695,7 @@ static int generic_loop(arg_struct *arg, bool isg) {
         case ARGTYPE_STK: {
             int idx;
             switch (arg->val.stk) {
+                default:
                 case 'X': idx = 0; break;
                 case 'Y': idx = 1; break;
                 case 'Z': idx = 2; break;
@@ -839,25 +841,27 @@ int docmd_agraph(arg_struct *arg) {
 static void pixel_helper(phloat dx, phloat dy) {
     dx = dx < 0 ? -floor(-dx + 0.5) : floor(dx + 0.5);
     dy = dy < 0 ? -floor(-dy + 0.5) : floor(dy + 0.5);
-    int x = dx < -132 ? -132 : dx > 132 ? 132 : to_int(dx);
-    int y = dy < -17 ? -17 : dy > 17 ? 17 : to_int(dy);
+    int const MAXX = gr_MAXX();
+    int const MAXY = gr_MAXY();
+    int x = dx < -(MAXX+1) ? -(MAXX+1) : dx > (MAXX+1) ? (MAXX+1) : to_int(dx);
+    int y = dy < -(MAXX+1) ? -(MAXX+1) : dy > (MAXX+1) ? (MAXX+1) : to_int(dy);
     int i;
     int dot = 1;
     if (x < 0) {
         x = -x;
-        if (x >= 1 && x <= 131)
-            for (i = 0; i < 16; i++)
+        if (x >= 1 && x <= MAXX)
+            for (i = 0; i < MAXY; i++)
                 draw_pixel(x - 1, i);
         dot = 0;
     }
     if (y < 0) {
         y = -y;
-        if (y >= 1 && y <= 16)
-            for (i = 0; i < 131; i++)
+        if (y >= 1 && y <= MAXY)
+            for (i = 0; i < MAXX; i++)
                 draw_pixel(i, y - 1);
         dot = 0;
     }
-    if (dot && x >= 1 && x <= 131 && y >= 1 && y <= 16)
+    if (dot && x >= 1 && x <= MAXX && y >= 1 && y <= MAXY)
         draw_pixel(x - 1, y - 1);
 }
 
@@ -1582,15 +1586,24 @@ int docmd_prlcd(arg_struct *arg) {
     }
 }
 
+unsigned int printer_delay = 1800; // Default 1800ms
+
 int docmd_delay(arg_struct *arg) {
     phloat x = ((vartype_real *) stack[sp])->x;
     if (x < 0)
         x = -x;
     if (x >= 1.95)
         return ERR_INVALID_DATA;
-    else
-        /* We don't actually use the delay value... */
+    else {
+#ifdef BCD_MATH
+        int4 d = to_int4(x*1000);
+#else
+        int4 d = (int4)floor(x*1000+0.5);
+#endif
+        printer_delay = (unsigned int)d;
+        if ( printer_delay > 1950 ) printer_delay = 1950;
         return ERR_NONE;
+    }
 }
 
 int docmd_pon(arg_struct *arg) {

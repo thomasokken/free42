@@ -98,6 +98,7 @@ phloat fix_hms(phloat x);
 
 void char2buf(char *buf, int buflen, int *bufptr, char c);
 void string2buf(char *buf, int buflen, int *bufptr, const char *s, int slen);
+void cmdnam2buf(char *buf, int buflen, int *bufptr, const char *s, int slen);
 int uint2string(uint4 n, char *buf, int buflen);
 int int2string(int4 n, char *buf, int buflen);
 int ulong2string(uint8 n, char *buf, int buflen);
@@ -109,5 +110,42 @@ int ip2revstring(phloat d, char *buf, int buflen);
 int matedit_get(vartype **res);
 void leave_matrix_editor();
 
+#ifdef ARM
+#define mallocU(x) unguarded_malloc(x,__FILE__,__LINE__)
+#define reallocU(x,y) unguarded_realloc(x,y,__FILE__,__LINE__)
+void* unguarded_malloc(size_t size, const char* file, int line);
+void* unguarded_realloc(void *ptr, size_t size, const char* file, int line);
+
+extern "C" {
+// ------------
+// Map filesystem functions to statefile open/read/write/etc.
+// read/write return int to avoid warnings in free42 code
+#define FILE int
+int statefile_read(void *ptr, size_t size, size_t nmemb, FILE *stream);
+int statefile_write(const void *ptr, size_t size, size_t nmemb, FILE *stream);
+FILE *statefile_open(const char *pathname, const char *mode);
+int statefile_close(FILE *stream);
+int statefile_seek(FILE *stream, long offset, int whence);
+int statefile_getc(FILE *stream);
+int statefile_ungetc(int c, FILE *stream);
+long statefile_tell(FILE *stream);
+int statefile_putc(int c, FILE *stream);
+
+#define fread  statefile_read
+#define fwrite statefile_write
+#define fopen  statefile_open
+#define fclose statefile_close
+#define fseek  statefile_seek 
+#define fgetc  statefile_getc
+#define ungetc statefile_ungetc
+#define ftell  statefile_tell
+#define fputc  statefile_putc
+// ------------
+}
+
+#else
+#define mallocU  malloc
+#define reallocU realloc
+#endif
 
 #endif

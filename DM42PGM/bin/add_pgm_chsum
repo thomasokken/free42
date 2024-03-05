@@ -1,0 +1,75 @@
+#!/bin/bash
+
+bin=$1
+pgm=$2
+
+# -- Functions ------------
+
+
+checkutils() {
+	e=0
+	for p in "$@"; do
+		type $p > /dev/null 2>&1
+		if [ $? != 0 ]; then
+			e=1
+			echo "ERROR: Missing required utility $p"
+		fi
+	done
+	if [ $e != 0 ]; then
+		exit 1
+	fi
+}
+
+
+# Convert hex digits to uint32_t
+toint() {
+	local x
+	x=`printf "%08x" "0x$1" |
+		sed -e 's|\(..\)|\1@|g' | tr '@' '\012' | tac | tr -d '\012' |
+		sed -e 's|\(..\)|@\1|g' | sed -e 's|@|\\\x|g'`
+	printf "$x"
+}
+
+toint8() {
+	local x
+	x=`printf "$1" | sed -e 's|\(..\)|@\1|g' | sed -e 's|@|\\\x|g'`
+	printf "$x"
+}
+
+dumppgm() {
+	(
+		dd if=$bin bs=4 count=1
+		toint $hexsz
+		dd if=$bin bs=4 skip=2
+	) 2>/dev/null
+}
+
+
+
+# -- MAIN ------------------
+
+checkutils sha1sum sed tac dd printf find type
+
+if [ ! -f "$bin" ]; then
+	echo "ERROR: Cannot find program binary '$bin'"
+	exit 1
+fi
+
+if [ -z "$pgm" ]; then
+	echo "ERROR: Missing destination file name"
+	exit 1
+fi
+
+pgmsz=`find "$bin" -printf "%s"`
+hexsz=`printf "%08x" $pgmsz`
+
+sha=`dumppgm | sha1sum | tr -d ' -'`
+
+echo "SHA1: $sha"
+
+(
+	dumppgm
+	toint8 $sha
+) > $pgm
+
+

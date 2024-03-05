@@ -1,0 +1,123 @@
+# Default key mapping table for Free42 (GTK version)
+#
+# Format: [Ctrl|Alt|Shift]* <KeyName> : <macro>
+# <KeyName> is a string consisting of the name of the symbolic constant as
+# defined in <gdk/gdkkeysyms.h>, with the leading "GDK_" removed; <macro> is a
+# sequence of zero or more HP-42S key codes. The key codes must be between 1
+# and 255; codes 1..37 correspond to actual keys on the calculator's keyboard,
+# while codes 38..255 can be used to refer to extra keys defined by customized
+# skins.
+#
+# Anything from a "#" until the end of the line is a comment, and is ignored.
+# White space (Space, Tab) separates tokens in the key map, but is otherwise
+# ignored.
+#
+# NOTE: Key events that translate to a single character in the printable
+# ASCII range (32..126) are matched without regard of the state of the Shift
+# and Caps Lock keys -- so you don't have to use "Shift A" to match uppercase
+# "A", etc. For other key events, shift *is* relevant (e.g. "Return" is not
+# the same as "Shift Return").
+
+F1              : 1       # menu key 1
+Shift F1        : 28 1    # menu key 1, shifted
+F2              : 2       # menu key 2
+Shift F2        : 28 2    # menu key 2, shifted
+F3              : 3       # menu key 3
+Shift F3        : 28 3    # menu key 3, shifted
+F4              : 4       # menu key 4
+Shift F4        : 28 4    # menu key 4, shifted
+F5              : 5       # menu key 5
+Shift F5        : 28 5    # menu key 5, shifted
+F6              : 6       # menu key 6
+Shift F6        : 28 6    # menu key 6, shifted
+a               : 1       # Sigma+ ("Accumulate")
+A               : 28 1    # Sigma-
+v               : 2       # 1/X ("inVerse")
+V               : 28 2    # Y^X
+q               : 3       # sqrt(X) ("sQuare root")
+Q               : 28 3    # X^2
+o               : 4       # LOG ("lOg, not Ln")
+O               : 28 4    # 10^X
+l               : 5       # LN ("Ln, not lOg")
+L               : 28 5    # E^X
+x               : 6       # XEQ
+X               : 28 6    # GTO
+m               : 7       # STO (m as in memory)
+M               : 28 7    # COMPLEX
+r               : 8       # RCL
+R               : 28 8    # %
+d               : 9       # RDN (d as in down)
+D               : 28 9    # PI
+s               : 10      # SIN
+S               : 28 10   # ASIN
+c               : 11      # COS
+C               : 28 11   # ACOS
+t               : 12      # TAN
+T               : 28 12   # ATAN
+Return          : 13      # ENTER
+KP_Enter        : 13      # ENTER
+Shift Return    : 28 13   # ALPHA
+w               : 14      # X<>Y ("sWap")
+W               : 28 14   # LASTX
+n               : 15      # +/- ("Negative")
+N               : 28 15   # MODES
+e               : 16      # E
+E               : 28 16   # DISP
+BackSpace       : 17      # <-
+Shift BackSpace : 28 17   # CLEAR
+Up              : 18      # up
+Shift Up        : 28 18   # BST
+7               : 19      # 7
+KP_7            : 19      # 7
+ampersand       : 28 19   # SOLVER
+8               : 20      # 8
+KP_8            : 20      # 8
+Alt 8           : 28 20   # Integ f(x) (note: can't use "Shift 8" because that's "*", which we use for "multiply")
+9               : 21      # 9
+KP_9            : 21      # 9
+parenleft       : 28 21   # MATRIX
+slash           : 22      # divide
+KP_Divide       : 22      # divide
+question        : 28 22   # STAT
+Down            : 23      # down
+Shift Down      : 28 23   # SST
+4               : 24      # 4
+KP_4            : 24      # 4
+dollar          : 28 24   # BASE
+5               : 25      # 5
+KP_5            : 25      # 5
+percent         : 28 25   # CONVERT
+6               : 26      # 6
+KP_6            : 26      # 6
+asciicircum     : 28 26   # FLAGS
+asterisk        : 27      # multiply
+KP_Multiply     : 27      # multiply
+Ctrl 8          : 28 27   # PROB ("*" is already shifted so we have to do something odd here)
+1               : 29      # 1
+KP_1            : 29      # 1
+exclam          : 28 29   # ASSIGN
+2               : 30      # 2
+KP_2            : 30      # 2
+at              : 28 30   # CUSTOM
+3               : 31      # 3
+KP_3            : 31      # 3
+numbersign      : 28 31   # PGM.FCN
+minus           : 32      # -
+KP_Subtract     : 32      # -
+underscore      : 28 32   # PRINT
+Escape          : 33      # EXIT
+Shift Escape    : 28 33   # OFF
+0               : 34      # 0
+KP_0            : 34      # 0
+parenright      : 28 34   # TOP.FCN
+period          : 35      # .
+comma           : 35      # .
+KP_Decimal      : 35      # .
+KP_Separator    : 35      # .
+greater         : 28 35   # SHOW
+less            : 28 35   # SHOW
+backslash       : 36      # R/S
+bar             : 28 36   # PRGM
+plus            : 37      # +
+KP_Add          : 37      # +
+equal           : 28 37   # CATALOG ("+" is already shifted so we have to do something odd here)

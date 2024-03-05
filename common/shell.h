@@ -262,4 +262,32 @@ void shell_message(const char *message);
  */
 void shell_log(const char *message);
 
+#if defined(ARM)
+/* shell_malloc_fail()
+ * 
+ * Called when un-guarded malloc fails.
+ */
+void shell_malloc_fail(size_t size, const char * file, int line);
+
+double shell_vbat();
+int shell_dev_id();
+void shell_force_lcd_refresh(int what);
+
+// Text interface functions
+void thell_draw_menu_key(int n, int highlight, const char *s, int length);
+void thell_draw_char(int x, int y, char c);
+
+// Mode: 0=or, 1=set, 2=and_not, 3=xor 
+void thell_draw_pattern(int x, int y, const char * pattern, int pattern_width, int mode);
+void thell_draw_pixel(int x, int y);
+
+void thell_clear_display();
+void thell_clear_row(int row);
+
+void thell_start_show();
+
+void thell_edit_number(const char * prompt, int prompt_len, const char * line, int line_length);
+
+#endif
+
 #endif

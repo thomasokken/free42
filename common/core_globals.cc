@@ -1461,9 +1461,38 @@ static bool unpersist_globals() {
     if (!read_int(&nprogs)) {
         goto done;
     }
-    loading_state = true;
-    core_import_programs(nprogs, NULL);
-    loading_state = false;
+    if (state_is_portable) {
+        loading_state = true;
+        core_import_programs(nprogs, NULL);
+        loading_state = false;
+    } else {
+        prgms_count = nprogs;
+        prgms = (prgm_struct *) malloc(prgms_count * sizeof(prgm_struct));
+        if (prgms == NULL) {
+            prgms_count = 0;
+            goto done;
+        }
+        for (i = 0; i < prgms_count; i++)
+            if (fread(prgms + i, 1, sizeof(prgm_struct_32bit), gfile) != sizeof(prgm_struct_32bit)) {
+                free(prgms);
+                prgms = NULL;
+                prgms_count = 0;
+                goto done;
+            }
+        prgms_capacity = prgms_count;
+        for (i = 0; i < prgms_count; i++) {
+            prgms[i].capacity = prgms[i].size;
+            prgms[i].text = (unsigned char *) mallocU(prgms[i].size);
+            // TODO - handle memory allocation failure
+        }
+        for (i = 0; i < prgms_count; i++) {
+            if (fread(prgms[i].text, 1, prgms[i].size, gfile)
+                    != prgms[i].size) {
+                clear_all_prgms();
+                goto done;
+            }
+        }
+    }
     if (!read_int(&current_prgm)) {
         current_prgm = 0;
         goto done;
@@ -1805,7 +1834,7 @@ void goto_dot_dot(bool force_new) {
         prgm_struct *newprgms;
         int i;
         prgms_capacity += 10;
-        newprgms = (prgm_struct *) malloc(prgms_capacity * sizeof(prgm_struct));
+        newprgms = (prgm_struct *) mallocU(prgms_capacity * sizeof(prgm_struct));
         // TODO - handle memory allocation failure
         for (i = 0; i < prgms_count; i++)
             newprgms[i] = prgms[i];
@@ -2041,7 +2070,7 @@ void rebuild_label_table() {
                     int i;
                     labels_capacity += 50;
                     newlabels = (label_struct *)
-                                malloc(labels_capacity * sizeof(label_struct));
+                                mallocU(labels_capacity * sizeof(label_struct));
                     // TODO - handle memory allocation failure
                     for (i = 0; i < labels_count; i++)
                         newlabels[i] = labels[i];
@@ -2123,7 +2152,7 @@ void delete_command(int4 pc) {
         newsize = prgm->size + nextprgm->size;
         if (newsize > prgm->capacity) {
             int4 newcapacity = (newsize + 511) & ~511;
-            unsigned char *newtext = (unsigned char *) malloc(newcapacity);
+            unsigned char *newtext = (unsigned char *) mallocU(newcapacity);
             // TODO - handle memory allocation failure
             for (pos = 0; pos < prgm->size; pos++)
                 newtext[pos] = prgm->text[pos];
@@ -2246,7 +2275,7 @@ void store_command(int4 pc, int command, arg_struct *arg, const char *num_str) {
             int i;
             prgms_capacity += 10;
             new_prgms = (prgm_struct *)
-                            malloc(prgms_capacity * sizeof(prgm_struct));
+                            mallocU(prgms_capacity * sizeof(prgm_struct));
             // TODO - handle memory allocation failure
             for (i = 0; i <= current_prgm; i++)
                 new_prgms[i] = prgms[i];
@@ -2263,7 +2292,7 @@ void store_command(int4 pc, int command, arg_struct *arg, const char *num_str) {
         new_prgm = prgm + 1;
         new_prgm->size = prgm->size - pc;
         new_prgm->capacity = (new_prgm->size + 511) & ~511;
-        new_prgm->text = (unsigned char *) malloc(new_prgm->capacity);
+        new_prgm->text = (unsigned char *) mallocU(new_prgm->capacity);
         // TODO - handle memory allocation failure
         for (i = pc; i < prgm->size; i++)
             new_prgm->text[i - pc] = prgm->text[i];
@@ -2362,7 +2391,7 @@ void store_command(int4 pc, int command, arg_struct *arg, const char *num_str) {
     if (bufptr + prgm->size > prgm->capacity) {
         unsigned char *newtext;
         prgm->capacity += bufptr + 512;
-        newtext = (unsigned char *) malloc(prgm->capacity);
+        newtext = (unsigned char *) mallocU(prgm->capacity);
         // TODO - handle memory allocation failure
         for (pos = 0; pos < pc; pos++)
             newtext[pos] = prgm->text[pos];

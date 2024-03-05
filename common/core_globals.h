@@ -26,7 +26,11 @@
 #include "core_tables.h"
 #include "core_variables.h"
 
+#ifdef ARM
+extern int* gfile;
+#else
 extern FILE *gfile;
+#endif
 
 /**********/
 /* Errors */
