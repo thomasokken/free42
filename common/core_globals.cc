@@ -1461,38 +1461,9 @@ static bool unpersist_globals() {
     if (!read_int(&nprogs)) {
         goto done;
     }
-    if (state_is_portable) {
-        loading_state = true;
-        core_import_programs(nprogs, NULL);
-        loading_state = false;
-    } else {
-        prgms_count = nprogs;
-        prgms = (prgm_struct *) malloc(prgms_count * sizeof(prgm_struct));
-        if (prgms == NULL) {
-            prgms_count = 0;
-            goto done;
-        }
-        for (i = 0; i < prgms_count; i++)
-            if (fread(prgms + i, 1, sizeof(prgm_struct_32bit), gfile) != sizeof(prgm_struct_32bit)) {
-                free(prgms);
-                prgms = NULL;
-                prgms_count = 0;
-                goto done;
-            }
-        prgms_capacity = prgms_count;
-        for (i = 0; i < prgms_count; i++) {
-            prgms[i].capacity = prgms[i].size;
-            prgms[i].text = (unsigned char *) mallocU(prgms[i].size);
-            // TODO - handle memory allocation failure
-        }
-        for (i = 0; i < prgms_count; i++) {
-            if (fread(prgms[i].text, 1, prgms[i].size, gfile)
-                    != prgms[i].size) {
-                clear_all_prgms();
-                goto done;
-            }
-        }
-    }
+    loading_state = true;
+    core_import_programs(nprogs, NULL);
+    loading_state = false;
     if (!read_int(&current_prgm)) {
         current_prgm = 0;
         goto done;

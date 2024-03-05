@@ -497,7 +497,7 @@ void main_loop_curses() {
 #define LINELEN 256
 
 void main_loop() {
-  core_init(0,0);
+  core_init(0,0, NULL, 0);
   for(;;) {
     char s[LINELEN];
 

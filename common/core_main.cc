@@ -1329,8 +1329,8 @@ void core_export_programs(int count, const int *indexes, const char *raw_file_na
         export_hp42s(p);
     }
     if (raw_file_name != NULL) {
-        if (ferror(gfile))
-            shell_message("An error occurred during program export.");
+        // if (ferror(gfile))
+        //     shell_message("An error occurred during program export.");
         fclose(gfile);
     }
 }
@@ -2456,8 +2456,8 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
     flags.f.normal_print = saved_normal;
 
     if (raw_file_name != NULL) {
-        if (ferror(gfile))
-            shell_message("An error occurred during program import.");
+        // if (ferror(gfile))
+        //     shell_message("An error occurred during program import.");
         fclose(gfile);
     }
     free(xstr_buf);

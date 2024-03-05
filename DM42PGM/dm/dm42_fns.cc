@@ -1494,14 +1494,15 @@ bool shell_clk24() {
 }
 
 
+const int tone_freqs[] = { 165, 220, 247, 277, 294, 330, 370, 415, 440, 554, 1865 };
 
-
-void shell_beeper(int frequency, int duration) {
+void shell_beeper(int tone) {
+  int frequency = tone_freqs[tone];
+  int duration = tone == 10 ? 125 : 250;
   DBGSHELL("shell_beeper fr=%i dur=%i\n", frequency, duration);
   // FIXME: Eat the time when BEEP is OFF?
   //if ( !ST(STAT_BEEP_MUTE) ) 
   {
-    if ( duration > 1000 ) duration = 1000; // Well, we don't want to block for ages
     start_buzzer_freq(frequency*1000);
     for( ; duration > 0 ; duration -= 10) {
       sys_delay(duration > 10 ? 10 : duration);
@@ -4023,7 +4024,7 @@ void program_main() {
         wait_for_key_release(-1);
       } else {
         // Just beep :)
-        shell_beeper(1835, 125);
+        shell_beeper(10);
       }
     }
 
