@@ -717,7 +717,7 @@ void skin_repaint() {
     g.SetClip(Rect(display_loc.x - 1, display_loc.y - 1, ((int) ceil(display_scale_x * 131)) + 2, ((int) ceil(display_scale_y * 16)) + 2));
     Matrix oldTransform;
     g.GetTransform(&oldTransform);
-    g.TranslateTransform((REAL) (display_loc.x + 1), (REAL) (display_loc.y + 1));
+    g.TranslateTransform((REAL) display_loc.x, (REAL) display_loc.y);
     g.ScaleTransform((REAL) display_scale_x, (REAL) display_scale_y);
     if (display_scale_int && skin.width == window_width && skin.height == window_height)
         g.SetInterpolationMode(InterpolationModeNearestNeighbor);
@@ -732,10 +732,10 @@ void skin_repaint() {
                 for (int h = 0; h < 22 - 1; h++)
                     disp_bits[(v + vo) * disp_bytesperline + ((h + ho) >> 3)] ^= 128 >> ((h + ho) & 7);
             if (i == 0)
-                g.DrawImage(disp_bitmap, -2, -2, 131 + 4, 16 + 4);
+                g.DrawImage(disp_bitmap, (REAL) -1.5, (REAL) -1.5);
         }
     } else {
-        g.DrawImage(disp_bitmap, -2, -2, 131 + 4, 16 + 4);
+        g.DrawImage(disp_bitmap, (REAL) -1.5, (REAL) -1.5);
     }
     g.SetTransform(&oldTransform);
     g.SetClip(&oldClip);
