@@ -1647,7 +1647,7 @@ int shell_write(const char *buf, int4 buflen) {
 }
 #endif
 
-uint4 shell_get_mem() {
+uint8 shell_get_mem() {
   DBGSHELL("shell_get_mem: %i\n", sys_free_mem());
   return sys_free_mem(); // Returns free mem
 }
