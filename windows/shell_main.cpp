@@ -100,7 +100,7 @@ static int print_text_pixel_height;
 int ckey = 0;
 int skey = -1;
 static unsigned char *macro;
-static bool macro_is_name;
+static int macro_type;
 static int active_keycode = 0;
 static bool ctrl_down = false;
 static bool alt_down = false;
@@ -480,8 +480,8 @@ static void shell_keydown() {
     }
     int repeat;
     if (macro != NULL) {
-        if (macro_is_name) {
-            running = core_keydown_command((const char *) macro, &enqueued, &repeat);
+        if (macro_type != 0) {
+            running = core_keydown_command((const char *) macro, macro_type == 2, &enqueued, &repeat);
         } else {
             if (*macro == 0) {
                 squeak();
@@ -726,7 +726,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
                 int y = HIWORD(lParam);  // vertical position of cursor
                 skin_find_key(x, y, ann_shift != 0, &skey, &ckey);
                 if (ckey != 0) {
-                    macro = skin_find_macro(ckey, &macro_is_name);
+                    macro = skin_find_macro(ckey, &macro_type);
                     shell_keydown();
                     mouse_key = true;
                 }
@@ -889,7 +889,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
                             if (c <= 37)
                                 macrobuf[p++] = c;
                             else {
-                                unsigned char *m = skin_find_macro(c, &macro_is_name);
+                                unsigned char *m = skin_find_macro(c, &macro_type);
                                 if (m != NULL)
                                     while (*m != 0 && p < 1023)
                                         macrobuf[p++] = *m++;
@@ -899,7 +899,7 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
                         macro = macrobuf;
                     } else {
                         macro = key_macro;
-                        macro_is_name = false;
+                        macro_type = 0;
                     }
                     shell_keydown();
                     mouse_key = false;

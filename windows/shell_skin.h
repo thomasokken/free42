@@ -55,7 +55,7 @@ void skin_repaint();
 void skin_invalidate_annunciator(int which);
 void skin_find_key(int x, int y, bool cshift, int *skey, int *ckey);
 int skin_find_skey(int ckey);
-unsigned char *skin_find_macro(int ckey, bool *is_name);
+unsigned char *skin_find_macro(int ckey, int *type);
 unsigned char *skin_keymap_lookup(int keycode, bool ctrl, bool alt, bool extended, bool shift, bool cshift, bool *exact);
 void skin_invalidate_key(int key);
 void skin_display_blitter(const char *bits, int bytesperline, int x, int y, int width, int height);
