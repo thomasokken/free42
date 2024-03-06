@@ -2019,6 +2019,7 @@ extern "C"  {
 #define CALC_FLAG_AUDIO_ON  26
 #define CALC_FLAG_DMY       31
 #define CALC_FLAG_YMD       67
+#define CALC_FLAG_CUSTMENU  99
 
 void dm42_set_beep_mute(int val) {
   set_calc_flag(CALC_FLAG_AUDIO_ON, !val);
@@ -3848,7 +3849,6 @@ void program_main() {
     if (key == KEY_F6) hwdbg_trace_init();
 #endif
 
-
     /* =========================
        Main menu - Function keys
 
@@ -3866,6 +3866,15 @@ void program_main() {
     if ( !core_menu() && key>=KEY_F1 && key<=KEY_F6 ) {
       int consume_key = 1;
       int redraw = 1;
+
+      if ( get_calc_flag(CALC_FLAG_CUSTMENU) ) {
+          int repeat;
+          bool enqueued;
+          core_keydown_command("CUSTOM", &enqueued, &repeat);
+          core_keyup();
+          core_keydown(key - MAX_KEY_NR, &enqueued, &repeat);
+          key = -1;
+      }
 
       switch (key) {
         case KEY_F1:
