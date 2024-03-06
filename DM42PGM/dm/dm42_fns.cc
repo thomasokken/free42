@@ -3016,7 +3016,7 @@ void disp_regs(int what) {
   if ( is_disp_main_menu() && !display_core_menu ) {
     const char * menu[] = 
       // {"Menu-","Vol-","Vol+","RegFmt","Font-","Font+"};
-      {"Help","Menu","","Volume","RegFmt","FonSz"};
+      {"Help","Menu","Custom","Volume","RegFmt","FonSz"};
     lcd_draw_menu_keys(menu);
   }
 
@@ -3884,6 +3884,9 @@ void program_main() {
           break;
         
         case KEY_F3:
+          int repeat;
+          bool enqueued;
+          core_keydown_command("CUSTOM", &enqueued, &repeat);
           break;
 
         case KEY_F4:
