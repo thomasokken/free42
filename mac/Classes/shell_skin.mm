@@ -43,11 +43,14 @@ struct SkinKey {
 };
 
 #define SKIN_MAX_MACRO_LENGTH 63
+#define SKIN_MAX_HALF_MACRO_LENGTH ((SKIN_MAX_MACRO_LENGTH - 1) / 2)
 
 struct SkinMacro {
     int code;
     bool isName;
-    unsigned char macro[SKIN_MAX_MACRO_LENGTH + 1];
+    char secondType; // 0:none, 1:name, 2:text
+    unsigned char macro[SKIN_MAX_HALF_MACRO_LENGTH + 1];
+    unsigned char macro2[SKIN_MAX_HALF_MACRO_LENGTH + 1];
     SkinMacro *next;
 };
 
@@ -446,11 +449,11 @@ void skin_load(long *width, long *height) {
         } else if (strncasecmp(line, "macro:", 6) == 0) {
             char *quot1 = strchr(line + 6, '"');
             if (quot1 != NULL) {
-                char *quot2 = strrchr(line + 6, '"');
-                if (quot2 != quot1) {
+                char *quot2 = strchr(quot1 + 1, '"');
+                if (quot2 != NULL) {
                     long len = quot2 - quot1 - 1;
-                    if (len > SKIN_MAX_MACRO_LENGTH)
-                        len = SKIN_MAX_MACRO_LENGTH;
+                    if (len > SKIN_MAX_HALF_MACRO_LENGTH)
+                        len = SKIN_MAX_HALF_MACRO_LENGTH;
                     int n;
                     if (sscanf(line + 6, "%d", &n) == 1 && n >= 38 && n <= 255) {
                         SkinMacro *macro = (SkinMacro *) malloc(sizeof(SkinMacro));
@@ -459,6 +462,21 @@ void skin_load(long *width, long *height) {
                         macro->isName = true;
                         memcpy(macro->macro, quot1 + 1, len);
                         macro->macro[len] = 0;
+                        macro->secondType = 0;
+                        quot1 = strchr(quot2 + 1, '"');
+                        if (quot1 == NULL)
+                            quot1 = strchr(quot2 + 1, '\'');
+                        if (quot1 != NULL) {
+                            quot2 = strchr(quot1 + 1, *quot1);
+                            if (quot2 != NULL) {
+                                len = quot2 - quot1 - 1;
+                                if (len > SKIN_MAX_HALF_MACRO_LENGTH)
+                                    len = SKIN_MAX_HALF_MACRO_LENGTH;
+                                memcpy(macro->macro2, quot1 + 1, len);
+                                macro->macro2[len] = 0;
+                                macro->secondType = *quot1 == '"' ? 1 : 2;
+                            }
+                        }
                         macro->next = macrolist;
                         macrolist = macro;
                     }
@@ -810,12 +828,17 @@ int skin_find_skey(int ckey) {
     return -1;
 }
 
-unsigned char *skin_find_macro(int ckey, bool *is_name) {
+unsigned char *skin_find_macro(int ckey, int *type) {
     SkinMacro *m = macrolist;
     while (m != NULL) {
         if (m->code == ckey) {
-            *is_name = m->isName;
-            return m->macro;
+            if (!m->isName || m->secondType == 0 || !core_alpha_menu()) {
+                *type = m->isName ? 1 : 0;
+                return m->macro;
+            } else {
+                *type = m->secondType;
+                return m->macro2;
+            }
         }
         m = m->next;
     }
