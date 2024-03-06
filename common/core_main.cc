@@ -220,15 +220,25 @@ int core_special_menu_key(int which) {
     return special_menu_key(which);
 }
 
-bool core_keydown_command(const char *name, bool *enqueued, int *repeat) {
+bool core_keydown_command(const char *name, bool is_text, bool *enqueued, int *repeat) {
     char hpname[70];
     int len = ascii2hp(hpname, 63, name);
-    int cmd = find_builtin(hpname, len);
-    if (cmd == CMD_NONE) {
-        set_shift(false);
-        squeak();
+    if (is_text) {
+        int ch = hpname[0] & 255;
+        if (len == 0) {
+            ch = 0;
+            set_shift(false);
+            squeak();
+        }
+        return core_keydown(ch == 0 ? 0 : ch + 1024, enqueued, repeat);
+    } else {
+        int cmd = find_builtin(hpname, len);
+        if (cmd == CMD_NONE) {
+            set_shift(false);
+            squeak();
+        }
+        return core_keydown(cmd == CMD_NONE ? 0 : cmd + 2048, enqueued, repeat);
     }
-    return core_keydown(cmd == CMD_NONE ? 0 : cmd + 2048, enqueued, repeat);
 }
 
 bool core_keydown(int key, bool *enqueued, int *repeat) {

@@ -57,7 +57,7 @@ static FILE *statefile = NULL;
 static int ckey = 0;
 static int skey;
 static unsigned char *macro;
-static bool macro_is_name;
+static int macro_type;
 static int mouse_key;
 static unsigned short active_keycode = -1;
 static bool just_pressed_shift = false;
@@ -1158,9 +1158,9 @@ static void shell_keydown() {
     // EventAvail is an annoying omission of the iPhone API.)
     
     if (macro != NULL) {
-        if (macro_is_name) {
+        if (macro_type != 0) {
             we_want_cpu = true;
-            keep_running = core_keydown_command((const char *) macro, &enqueued, &repeat);
+            keep_running = core_keydown_command((const char *) macro, macro_type == 2, &enqueued, &repeat);
             we_want_cpu = false;
         } else {
             if (*macro == 0) {
@@ -1246,7 +1246,7 @@ void calc_mousedown(int x, int y) {
     if (ckey == 0) {
         skin_find_key(x, y, ann_shift != 0, &skey, &ckey);
         if (ckey != 0) {
-            macro = skin_find_macro(ckey, &macro_is_name);
+            macro = skin_find_macro(ckey, &macro_type);
             shell_keydown();
             mouse_key = 1;
         }
@@ -1409,7 +1409,7 @@ void calc_keydown(NSString *characters, NSUInteger flags, unsigned short keycode
                 if (c <= 37)
                     macrobuf[p++] = c;
                 else {
-                    unsigned char *m = skin_find_macro(c, &macro_is_name);
+                    unsigned char *m = skin_find_macro(c, &macro_type);
                     if (m != NULL)
                         while (*m != 0 && p < 1023)
                             macrobuf[p++] = *m++;
@@ -1419,7 +1419,7 @@ void calc_keydown(NSString *characters, NSUInteger flags, unsigned short keycode
             macro = macrobuf;
         } else {
             macro = key_macro;
-            macro_is_name = false;
+            macro_type = 0;
         }
         shell_keydown();
         mouse_key = 0;

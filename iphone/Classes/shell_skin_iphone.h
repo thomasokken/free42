@@ -27,7 +27,7 @@ bool skin_in_menu_area(int x, int y);
 void skin_position_menu(UIView *view, UIAlertController *ctrl);
 void skin_find_key(int x, int y, bool cshift, int *skey, int *ckey);
 int skin_find_skey(int ckey);
-unsigned char *skin_find_macro(int ckey, bool *is_name);
+unsigned char *skin_find_macro(int ckey, int *type);
 unsigned char *skin_keymap_lookup(unsigned short keychar, bool printable,
                   bool ctrl, bool alt, bool numpad, bool shift, bool cshift,
                   bool *exact);

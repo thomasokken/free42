@@ -82,7 +82,7 @@ static bool we_want_cpu = false;
 static int ckey = 0;
 static int skey;
 static unsigned char *macro;
-static bool macro_is_name;
+static int macro_type;
 static bool mouse_key;
 static int active_keycode = -1;
 static bool just_pressed_shift = false;
@@ -313,7 +313,7 @@ static CGPoint touchPoint;
                 UIImpactFeedbackGenerator *fbgen = [[UIImpactFeedbackGenerator alloc] initWithStyle:s];
                 [fbgen impactOccurred];
             }
-            macro = skin_find_macro(ckey, &macro_is_name);
+            macro = skin_find_macro(ckey, &macro_type);
             shell_keydown();
             mouse_key = true;
         }
@@ -1005,9 +1005,9 @@ static void shell_keydown() {
     // EventAvail is an annoying omission of the iPhone API.)
         
     if (macro != NULL) {
-        if (macro_is_name) {
+        if (macro_type != 0) {
             we_want_cpu = true;
-            keep_running = core_keydown_command((const char *) macro, &enqueued, &repeat);
+            keep_running = core_keydown_command((const char *) macro, macro_type == 2, &enqueued, &repeat);
             we_want_cpu = false;
         } else {
             if (*macro == 0) {
@@ -1263,7 +1263,7 @@ static void calc_keydown(NSString *characters, long flags, int keycode) {
                 if (c <= 37)
                     macrobuf[p++] = c;
                 else {
-                    unsigned char *m = skin_find_macro(c, &macro_is_name);
+                    unsigned char *m = skin_find_macro(c, &macro_type);
                     if (m != NULL)
                         while (*m != 0 && p < 1023)
                             macrobuf[p++] = *m++;
@@ -1273,7 +1273,7 @@ static void calc_keydown(NSString *characters, long flags, int keycode) {
             macro = macrobuf;
         } else {
             macro = key_macro;
-            macro_is_name = false;
+            macro_type = 0;
         }
         shell_keydown();
         mouse_key = false;
