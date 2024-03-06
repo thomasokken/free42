@@ -111,7 +111,7 @@ static guint resize_timeout_id = 0;
 int ckey = 0;
 int skey = -1;
 static unsigned char *macro;
-static bool macro_is_name;
+static int macro_type;
 static bool mouse_key;
 static guint16 active_keycode = 0;
 static bool just_pressed_shift = false;
@@ -2670,8 +2670,8 @@ static void shell_keydown() {
     }
 
     if (macro != NULL) {
-        if (macro_is_name) {
-            keep_running = core_keydown_command((const char *) macro, &enqueued, &repeat);
+        if (macro_type != 0) {
+            keep_running = core_keydown_command((const char *) macro, macro_type == 2, &enqueued, &repeat);
         } else {
             if (*macro == 0) {
                 squeak();
@@ -2750,7 +2750,7 @@ static gboolean button_cb(GtkWidget *w, GdkEventButton *event, gpointer cd) {
             int y = (int) (event->y * skin_height / win_height);
             skin_find_key(x, y, ann_shift != 0, &skey, &ckey);
             if (ckey != 0) {
-                macro = skin_find_macro(ckey, &macro_is_name);
+                macro = skin_find_macro(ckey, &macro_type);
                 shell_keydown();
                 mouse_key = true;
             }
@@ -2896,7 +2896,7 @@ static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
                         if (c <= 37)
                             macrobuf[p++] = c;
                         else {
-                            unsigned char *m = skin_find_macro(c, &macro_is_name);
+                            unsigned char *m = skin_find_macro(c, &macro_type);
                             if (m != NULL)
                                 while (*m != 0 && p < 1023)
                                     macrobuf[p++] = *m++;
@@ -2906,7 +2906,7 @@ static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
                     macro = macrobuf;
                 } else {
                     macro = key_macro;
-                    macro_is_name = false;
+                    macro_type = 0;
                 }
                 shell_keydown();
                 mouse_key = false;
