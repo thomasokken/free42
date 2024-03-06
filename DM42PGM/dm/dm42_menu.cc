@@ -163,9 +163,9 @@ int lcd_for_dm42(int what) {
       int h2 = lcd_lineHeight(t20)/2;
       lcd_setXY(t20, t24->x, t24->y);
       t20->y += h2-5;
-      lcd_print(t20, "DM42 v" DM42_VERSION " (Not supported by SwissMicros)");
+      lcd_print(t20, PROGRAM_NAME " v" PROGRAM_VERSION " (Not supported by SwissMicros)");
       t20->y += h2;
-      lcd_print(t20, "%s (C) 2004-2022, Thomas Okken", free42_version_str());
+      lcd_print(t20, "%s (C) 2004-2024, Thomas Okken", free42_version_str());
       t20->y += h2;
       lcd_puts(t20, "Intel Decimal FloatingPointMath Lib v2.0u1");
       lcd_puts(t20, "  (C) 2007-2018, Intel Corp.");
