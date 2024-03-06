@@ -3059,9 +3059,9 @@ void disp_regs(int what) {
 
     int pgm_line = last_pgm_top_line;
     int pgm_line_end = last_pgm_top_line + font_lines;
+    int offset_line = 0;
     for( ; !pln.is_end && pgm_line < pgm_line_end; pgm_line++ ) {
-      len = get_pgm_line(&pln, pgm_line);
-      if ( pgm_line == pi.pgm_line ) {
+      if ( !offset_line && (pgm_line == pi.pgm_line) ) {
         if (is_show) {
           // Display both lines
           hp2font(bb,tlcd[0],LCD_HP_CHARS);
@@ -3070,9 +3070,19 @@ void disp_regs(int what) {
         }
         hp2font(bb,tlcd[pi.y_row],LCD_HP_CHARS);
         lcd_putsAt(fReg, last_line++, bb);
+        if (is_edit) {
+          offset_line = 1;
+          pgm_line--;
+          pgm_line_end--;
+        }
       } else {
+        len = get_pgm_line(&pln, pgm_line);
         hp2font(pb,pb,len);
-        lcd_putsAt(fReg, last_line++, pb);
+        char *p = strchr(pb, ' ');
+        if (p)
+          lcd_printAt(fReg, last_line++, "%02d %s", pgm_line+offset_line, p+1);
+        else
+          lcd_putsAt(fReg, last_line++, pb);
       }
     }
 
