@@ -300,6 +300,7 @@
 /console/*.d
 /console/*.a
 /console/keymap.cc
+/console/keymap2cc
 
 # /DM42PGM
 /DM42PGM/build
