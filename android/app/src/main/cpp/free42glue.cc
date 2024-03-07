@@ -188,7 +188,8 @@ Java_com_thomasokken_free42_Free42Activity_core_1keydown(JNIEnv *env, jobject th
 
 extern "C" jboolean
 Java_com_thomasokken_free42_Free42Activity_core_1keydown_1command(JNIEnv *env, jobject thiz,
-                            jstring cmd, jobject enqueued, jobject repeat, jboolean immediate_return) {
+                            jstring cmd, jboolean is_text, jobject enqueued, jobject repeat,
+                            jboolean immediate_return) {
     Tracer T("core_keydown_command");
     gettimeofday(&keydown_end_time, NULL);
     if (!immediate_return) {
@@ -201,7 +202,7 @@ Java_com_thomasokken_free42_Free42Activity_core_1keydown_1command(JNIEnv *env, j
     bool enq;
     int rep;
     const char *buf = env->GetStringUTFChars(cmd, NULL);
-    jboolean ret = core_keydown_command(buf, &enq, &rep);
+    jboolean ret = core_keydown_command(buf, is_text, &enq, &rep);
     env->ReleaseStringUTFChars(cmd, buf);
     if (enqueued != NULL) {
         jclass klass = env->GetObjectClass(enqueued);

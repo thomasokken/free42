@@ -163,6 +163,7 @@ public class Free42Activity extends Activity {
     private int ckey;
     private int skey;
     private Object macroObj;
+    private boolean macroIsText;
     private boolean mouse_key;
     private int active_keycode = -1;
     private boolean just_pressed_shift;
@@ -1513,7 +1514,7 @@ public class Free42Activity extends Activity {
             } else if (macroObj instanceof String) {
                 // Direct-mapped command
                 String cmd = (String) macroObj;
-                running = core_keydown_command(cmd, enqueued, repeat, true);
+                running = core_keydown_command(cmd, macroIsText, enqueued, repeat, true);
             } else {
                 running = false;
                 byte[] macro = (byte[]) macroObj;
@@ -1588,6 +1589,11 @@ public class Free42Activity extends Activity {
                 }
                 click();
                 macroObj = skin.find_macro(ckey);
+                if (macroObj instanceof Object[]) {
+                    Object[] arr = (Object[]) macroObj;
+                    macroObj = arr[0];
+                    macroIsText = (Boolean) arr[1];
+                }
                 shell_keydown();
                 mouse_key = true;
             } else {
@@ -1774,8 +1780,10 @@ public class Free42Activity extends Activity {
                             byte[] mb = (byte[]) m;
                             for (int p2 = 0; p2 < mb.length && p < 1023; p2++)
                                 macrobuf[p++] = mb[p2];
-                        } else if (m instanceof String) {
-                            macroObj = m;
+                        } else if (m instanceof Object[]) {
+                            Object[] arr = (Object[]) m;
+                            macroObj = arr[0];
+                            macroIsText = (Boolean) arr[1];
                             is_string = true;
                             break;
                         }
@@ -2598,11 +2606,11 @@ public class Free42Activity extends Activity {
     private native void core_cleanup();
     private native void core_repaint_display();
     private native boolean core_menu();
-    private native boolean core_alpha_menu();
+    public native boolean core_alpha_menu();
     private native boolean core_hex_menu();
     private native int core_special_menu_key(int which);
     private native boolean core_keydown(int key, BooleanHolder enqueued, IntHolder repeat, boolean immediate_return);
-    private native boolean core_keydown_command(String cmd, BooleanHolder enqueued, IntHolder repeat, boolean immediate_return);
+    private native boolean core_keydown_command(String cmd, boolean is_text, BooleanHolder enqueued, IntHolder repeat, boolean immediate_return);
     private native int core_repeat();
     private native void core_keytimeout1();
     private native void core_keytimeout2();
