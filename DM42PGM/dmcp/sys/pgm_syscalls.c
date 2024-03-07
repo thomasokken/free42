@@ -153,6 +153,10 @@ void _free_r(struct _reent *pr, void *ptr) {
     free(ptr);
 }
 
+void _exit(int code) {
+    sys_reset();
+}    
+
 void post_main() {
     // Just start DMCP
     set_reset_magic(RUN_DMCP_MAGIC);

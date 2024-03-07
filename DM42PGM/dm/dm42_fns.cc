@@ -366,6 +366,8 @@ extern "C" {
 
 #include <dm42_menu.h>
 #include <dm42_fns.h>
+#include <dm42_macros.h>
+
 
 #ifndef assert_param
 #define assert_param(c)
@@ -753,6 +755,7 @@ const char ann03[] =
 #include "data/ann03.c"
 ;
 
+static bool userMode = false;
 
 //const  uint8_t ann_offs[ANN_CNT]    = { 0, 4, 8, 13, 16, 20, 22};
 const  uint8_t ann_offs[ANN_CNT]    = { 0, 4, 9, 14, 17, 21, 23};
@@ -2019,7 +2022,6 @@ extern "C"  {
 #define CALC_FLAG_AUDIO_ON  26
 #define CALC_FLAG_DMY       31
 #define CALC_FLAG_YMD       67
-#define CALC_FLAG_CUSTMENU  99
 
 void dm42_set_beep_mute(int val) {
   set_calc_flag(CALC_FLAG_AUDIO_ON, !val);
@@ -3017,7 +3019,7 @@ void disp_regs(int what) {
   if ( is_disp_main_menu() && !display_core_menu ) {
     const char * menu[] = 
       // {"Menu-","Vol-","Vol+","RegFmt","Font-","Font+"};
-      {"Help","Menu","Custom","Volume","RegFmt","FonSz"};
+      {"Help","Menu","User","Volume","RegFmt","FonSz"};
     lcd_draw_menu_keys(menu);
   }
 
@@ -3849,12 +3851,26 @@ void program_main() {
     if (key == KEY_F6) hwdbg_trace_init();
 #endif
 
+    if (userMode) {
+      uint8_t keys[32];
+      int n = macros_get_keys(key, keys, 32);
+      if (n > 0) {
+        for (int i = 0; i < n; i++) {
+          core_keydown(keys[i], &enqueued, &repeat);
+          if (!enqueued) {
+            core_keyup();
+          }
+        }
+        key = -1;
+      }
+    }
+
     /* =========================
        Main menu - Function keys
 
            F1 - Help
            F2 - Toggle main menu
-           F3 - (not assigned)
+           F3 - User mode
            F4 - Increase volume 
      Shift-F4 - Decrease volume
            F5 - Stack alignment
@@ -3866,15 +3882,6 @@ void program_main() {
     if ( !core_menu() && key>=KEY_F1 && key<=KEY_F6 ) {
       int consume_key = 1;
       int redraw = 1;
-
-      if ( get_calc_flag(CALC_FLAG_CUSTMENU) ) {
-          int repeat;
-          bool enqueued;
-          core_keydown_command("CUSTOM", &enqueued, &repeat);
-          core_keyup();
-          core_keydown(key - MAX_KEY_NR, &enqueued, &repeat);
-          key = -1;
-      }
 
       switch (key) {
         case KEY_F1:
@@ -3893,9 +3900,11 @@ void program_main() {
           break;
         
         case KEY_F3:
-          int repeat;
-          bool enqueued;
-          core_keydown_command("CUSTOM", &enqueued, &repeat);
+          if (ANN(SHIFT)) {
+            //TODO: choose keymap
+          } else {
+            userMode = !userMode;
+          }
           break;
 
         case KEY_F4:

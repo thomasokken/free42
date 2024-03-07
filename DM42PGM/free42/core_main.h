@@ -1,6 +1,6 @@
 /*****************************************************************************
  * Free42 -- an HP-42S calculator simulator
- * Copyright (C) 2004-2021  Thomas Okken
+ * Copyright (C) 2004-2024  Thomas Okken
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2,
@@ -19,7 +19,6 @@
 #define CORE_MAIN_H 1
 
 #include "free42.h"
-
 
 /**********************************/
 /* Shell/Core interface functions */
@@ -95,6 +94,17 @@ bool core_alpha_menu();
  */
 bool core_hex_menu();
 
+/* core_special_menu_key()
+ *
+ * The shell can call this function if the physical cursor left, cursor right,
+ * or delete keys have been pressed; the core will return the appropriate
+ * menu key to trigger. This is to support menus like the matrix editor.
+ * Which can be: 1=left, 2=shift left, 3=right, 4=shift right, 5=del.
+ * The return value is a menu key number 1-6, or 0 if no special menu key
+ * is available.
+ */
+int core_special_menu_key(int which);
+
 /* core_keydown()
  *
  * This function informs the emulator core that an HP-42S key was pressed. Keys
@@ -141,8 +151,11 @@ bool core_keydown(int key, bool *enqueued, int *repeat);
  * mapping by creating a macro that performs XEQ and spells out the command
  * name, or selects the command from a menu or the FCN catalog, all of which
  * have potentially undesirable side effects.
+ * The is_text parameter signals that the command is actually literal text to
+ * be entered. This should only happen when ALPHA is active. This corresponds
+ * to secondary macros with '' delimiters.
  */
-bool core_keydown_command(const char *name, bool *enqueued, int *repeat);
+bool core_keydown_command(const char *name, bool is_text, bool *enqueued, int *repeat);
 
 /* core_repeat()
  *
@@ -238,7 +251,6 @@ bool core_powercycle();
  * This function will return NULL if it fails to allocate the buffer.
  * The caller should free() the buffer once it is finished using it.
  */
-
 #ifdef ARM
 // Use old non-dynamically allocated version
 int core_list_programs(char *buf, int bufsize);
@@ -262,7 +274,7 @@ int4 core_program_size(int prgm_index);
  *
  * This function is called by the shell after the user has selected a nonempty
  * set of programs (from the list returned by core_list_programs()) and
- * confirmed the operation (supplied a file name etc.). 
+ * confirmed the operation (supplied a file name etc.).
  * The 'count' parameter indicates how many programs are to be exported; the
  * 'indexes' parameter is an array of program indexes.
  * When called by the core during state file saving, raw_file_name will be
@@ -315,15 +327,16 @@ void core_update_allow_big_stack();
  * should provide the appropriate controls in a "Preferences" dialog box to
  * allow the user to view and change these settings.
  */
-struct core_settings_struct {
+struct core_settings_struct
+{
     bool matrix_singularmatrix;
     bool matrix_outofrange;
     bool auto_repeat;
     bool allow_big_stack;
+    bool localized_copy_paste;
 };
 
 extern core_settings_struct core_settings;
-
 
 /*******************/
 /* Keyboard repeat */
@@ -332,7 +345,6 @@ extern core_settings_struct core_settings;
 extern int repeating;
 extern int repeating_shift;
 extern int repeating_key;
-
 
 /*******************/
 /* Other functions */
@@ -345,7 +357,7 @@ bool alpha_active();
 
 int want_to_run_again();
 void do_interactive(int command);
-int find_builtin(const char *name, int namelen, bool strict);
+int find_builtin(const char *name, int namelen);
 
 void sst();
 void bst();
@@ -359,6 +371,6 @@ void start_alpha_prgm_line();
 void finish_alpha_prgm_line();
 int shiftcharacter(char c);
 void set_old_pc(int4 pc);
-
+const char *number_format();
 
 #endif

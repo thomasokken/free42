@@ -26,7 +26,7 @@ BIN_DIR = bin/
 ######################################
 # source
 ######################################
-C_SOURCES = 
+C_SOURCES =
 ASM_SOURCES = \
   dmcp/startup_pgm.s
 
@@ -39,6 +39,7 @@ C_INCLUDES += -Idm -Idmcp
 # Free42 frontend
 CXX_SOURCES += dm/dm42_fns.cc
 CXX_SOURCES += dm/dm42_menu.cc
+CXX_SOURCES += dm/dm42_macros.cc dm/minIni.cc
 C_DEFS += -DARM -DDM42
 C_DEFS += -DDECIMAL_CALL_BY_REFERENCE=1 -DDECIMAL_GLOBAL_ROUNDING=1 \
   -DDECIMAL_GLOBAL_ROUNDING_ACCESS_FUNCTIONS=1 -DDECIMAL_GLOBAL_EXCEPTION_FLAGS=1 \
