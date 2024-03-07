@@ -17,24 +17,19 @@ extern "C"
 #include <dm42_fns.h>
 
 static char macros_filenames[32] = "";
-static char macros_keymap[32] = "";
+static char macros_keymap[16] = "";
 
-int macros_load_callback(const char *fpath, const char *fname, void *data) {
-    FRESULT res;
-    FIL *fp = NULL;
-
+int keymaps_load_callback(const char *fpath, const char *fname, void *data) {
     lcd_puts(t24, "Loading ...");
     lcd_puts(t24, fname);
     lcd_refresh();
-    res = f_open(fp, fpath, FA_READ);
-    if (res != FR_OK) {
-        lcd_puts(t24, "Fail to open.");
+    if (ini_getsection(0, macros_keymap, sizeof(macros_keymap), fname) <= 0) {
+        lcd_puts(t24, "Fail to read.");
         lcd_refresh();
         wait_for_key_press();
         return 0; // Continue in the file list
     }
     strncpy(macros_filenames, fname, sizeof(macros_filenames)-1);
-    f_close(fp);
     lcd_puts(t24, "Success");
     lcd_refresh();
     sys_delay(1500);
@@ -42,8 +37,8 @@ int macros_load_callback(const char *fpath, const char *fname, void *data) {
 }
 
 void macros_set_keymap(const char *keymap) {
-    if (strlen(keymap) > 0 && strlen(keymap) < 32) {
-        strncpy(macros_keymap, keymap, 32);
+    if (strlen(keymap) > 0 && strlen(keymap) < 16) {
+        strncpy(macros_keymap, keymap, 16);
     }
 }
 

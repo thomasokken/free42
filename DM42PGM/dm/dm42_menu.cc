@@ -56,6 +56,7 @@ extern "C" {
 
 #include <dm42_menu.h>
 #include <dm42_fns.h>
+#include <dm42_macros.h>
 
 
 // Possibility to override default
@@ -73,7 +74,9 @@ void after_fat_format_dm42() {
     check_create_dir(SCR_DIR);    // Create /SCREENS  directory       
     check_create_dir(OFFIMG_DIR); // Create /OFFIMG   directory      
     check_create_dir(HELP_DIR);   // Create /HELP     directory    
-    check_create_dir(PRINT_DIR);  // Create /PRINTS   directory      
+    check_create_dir(PRINT_DIR);  // Create /PRINTS   directory
+
+    check_create_dir(KEYMAP_DIR); // Create /KEYS     directory
   }
 }
 
@@ -705,6 +708,7 @@ const uint8_t mid_menu[] = {
 const uint8_t mid_file[] = {
     MI_LOAD_PGM,
     MI_SAVE_PGM,
+    MI_LOAD_KEYMAP,
     MI_MSC,
     MI_DISK_INFO,
     0 }; // Terminator
@@ -844,6 +848,11 @@ int run_menu_item(uint8_t line_id) {
   case MI_CLEAN_RESET:
     run_reset_state_file();
     //ret = MRET_EXIT;
+    break;
+
+  case MI_LOAD_KEYMAP:
+    ret = file_selection_screen("Load Keymap", KEYMAP_DIR, KEYMAP_EXT, keymaps_load_callback, 0, 0, NULL);
+    if (ret == MRET_EXIT) ret = 0;
     break;
 
   //case MI_SAVE_STAT:
@@ -1028,6 +1037,7 @@ const char * menu_line_str(uint8_t line_id, char * s, const int slen) {
   case MI_LOAD_STATE:   ln = "Load State";           break;
   case MI_SAVE_STATE:   ln = "Save State";           break;
   case MI_CLEAN_RESET:  ln = "Load Clean State";     break;
+  case MI_LOAD_KEYMAP:  ln = "Load Keymap";          break;
 
   case MI_STACK_CONFIG:
     ln = layout_str(s, "Stack Layout");              break;

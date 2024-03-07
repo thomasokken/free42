@@ -4,9 +4,10 @@ extern "C" {
 }
 
 
-#define INI_BUFFERSIZE  256       /* maximum line length, maximum path length */
+#define INI_BUFFERSIZE  128       /* maximum line length, maximum path length */
 #define INI_ANSIONLY
 #define INI_READONLY
+#define INI_NOBROWSE
 
 #if defined FF_USE_STRFUNC && FF_USE_STRFUNC == 2 && !defined INI_LINETERM
   #define INI_LINETERM  "\n"

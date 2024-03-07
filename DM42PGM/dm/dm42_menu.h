@@ -111,6 +111,8 @@ extern const smenu_t   MID_STACK_AREA; // Stack area config
 
 #define MI_DYNSTACKEXT     67
 
+#define MI_LOAD_KEYMAP     70
+
 // --------------------------------
 
 #define MRET_SAVESTATE   777
