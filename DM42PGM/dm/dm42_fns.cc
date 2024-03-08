@@ -3260,6 +3260,15 @@ void disp_regs(int what) {
     }
   }
 
+  if ( userMode ) {
+    // t20->newln = 0; 
+    // t20->lnfill = 0;
+    lcd_setXY(t20, 350, ANN_LCD_Y);
+    lcd_puts(t20, "USER");
+    // t20->newln = 1; 
+    // t20->lnfill = 1;
+  }
+
   //is_edit_x = is_edit = 0;
 
   clear_lcd_update_timeout();
@@ -3851,11 +3860,20 @@ void program_main() {
     if (key == KEY_F6) hwdbg_trace_init();
 #endif
 
-    if (userMode) {
+    if (userMode && key != KEY_SHIFT && key != KEY_F3) {
+      char keyname[12];
+      if (ANN(SHIFT)) {
+        sprintf(keyname, "SHIFT-%s", keycode2keyname(key));
+      } else {
+        strcpy(keyname, keycode2keyname(key));
+      }
       uint8_t keys[32];
-      int n = macro_get_keys(key, keys, 32);
+      int n = macro_get_keys(keyname, keys, 32);
       if (n > 0) {
         for (int i = 0; i < n; i++) {
+          if (keys[i] == KEY_SHIFT && ANN(SHIFT)) {
+            continue;
+          }
           core_keydown(keys[i], &enqueued, &repeat);
           if (!enqueued) {
             core_keyup();
@@ -3903,7 +3921,8 @@ void program_main() {
           if (ANN(SHIFT)) {
             //TODO: choose keymap
           } else {
-            userMode = !userMode;
+            if (macro_get_keymap() != NULL)
+              userMode = !userMode;
           }
           break;
 

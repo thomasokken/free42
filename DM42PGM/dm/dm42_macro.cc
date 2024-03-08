@@ -15,8 +15,35 @@ extern "C"
 #include <dm42_menu.h>
 #include <dm42_fns.h>
 
+static const char *dm42_keys[] = {
+    "SIGMA", "INV", "SQRT", "LOG", "LN", "XEQ",
+    "STO", "RCL", "RDN", "SIN", "COS", "TAN",
+    "ENTER", "SWAP", "CHS", "E", "BSP", 
+    "UP", "7", "8", "9", "DIV", 
+    "DOWN", "4", "5", "6", "MUL",
+    "SHIFT", "1", "2", "3", "SUB",
+    "EXIT", "0", "DOT", "RUN", "ADD",
+    "F1", "F2", "F3", "F4", "F5", "F6",
+};
+
+const char *keycode2keyname(int keycode) {
+    if (keycode < 0 || keycode >= MAX_FNKEY_NR) {
+        return NULL;
+    }
+    return dm42_keys[keycode-1];
+}
+
+static int keyname2keycode(const char *keyname) {
+    for (int i = 0; i < MAX_FNKEY_NR; i++) {
+        if (strcasecmp(dm42_keys[i], keyname) == 0) {
+            return i+1;
+        }
+    }
+    return -1;
+}
+
 struct dm42_macro {
-    int keycode;
+    char keyname[12];
     uint8_t keys[10];
     uint len;
     struct dm42_macro *next;
@@ -69,22 +96,18 @@ static int keymaps_load_ini_handler(void* user, const char* section, const char*
     if (macro == NULL) {
         return 0;
     }
-    macro->keycode = atoi(name);
+    strncpy(macro->keyname, name, 11);
     macro->len = 0;
     macro->next = NULL;
-    const char *p = value;
-    while (*p != '\0') {
-        if (macro->len >= sizeof(macro->keys)) {
-            free(macro);
-            return 0;
+    char *p = (char *)value;
+    // split value with space sperator using strtok
+    char *token = strtok(p, " ");
+    while (token != NULL) {
+        int keycode = keyname2keycode(token);
+        if (keycode >= 0) {
+            macro->keys[macro->len++] = keycode;
         }
-        macro->keys[macro->len++] = atoi(p);
-        while (*p != '\0' && *p != ' ') {
-            p++;
-        }
-        if (*p == ' ') {
-            p++;
-        }
+        token = strtok(NULL, " ");
     }
     if (current_keymap->macros == NULL) {
         current_keymap->macros = macro;
@@ -109,7 +132,7 @@ int keymaps_load_callback(const char *fpath, const char *fname, void *data) {
         lcd_puts(t24, "Fail to open.");
         lcd_refresh();
         wait_for_key_press();
-        return 0; // Continue in the file list
+        return 0;
     }
     uint size = f_size(&file);
     char *buffer = (char *)malloc(size + 1);
@@ -118,7 +141,7 @@ int keymaps_load_callback(const char *fpath, const char *fname, void *data) {
         lcd_refresh();
         wait_for_key_press();
         f_close(&file);
-        return 0; // Continue in the file list
+        return 0;
     }
     uint read;
     f_read(&file, buffer, size, &read);
@@ -134,13 +157,10 @@ int keymaps_load_callback(const char *fpath, const char *fname, void *data) {
         sys_delay(1500);
     }
     free(buffer);
-    return 0;
+    return MRET_EXIT;
 }
 
 void macro_set_keymap(const char *keymap) {
-    if (keymap == NULL) {
-        return;
-    }
     struct keymap *km = keymaps;
     while (km != NULL) {
         if (strcmp(km->name, keymap) == 0) {
@@ -170,13 +190,13 @@ bool macro_find_keymap(int num, char *keymap, int size) {
     return false;
 }
 
-int macro_get_keys(int keycode, uint8_t keys[], uint len) {
+int macro_get_keys(const char *keyname, uint8_t keys[], uint len) {
     if (current_keymap == NULL) {
         return 0;
     }
     struct dm42_macro *macro = current_keymap->macros;
     while (macro != NULL) {
-        if (macro->keycode == keycode) {
+        if (strcasecmp(macro->keyname, keyname) == 0) {
             if (macro->len > len) {
                 return 0;
             }

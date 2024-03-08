@@ -9,10 +9,10 @@
 #define KEYMAP_EXT     ".ini"
 
 int keymaps_load_callback(const char *fpath, const char *fname, void *data);
-
+const char *keycode2keyname(int keycode);
 void macro_set_keymap(const char *keymap);
 const char *macro_get_keymap();
 bool macro_find_keymap(int num, char *keymap, int size);
-int macro_get_keys(int keycode, uint8_t keys[], int len);
+int macro_get_keys(const char *keyname, uint8_t keys[], int len);
 
 #endif // DM42_MACROS_H
