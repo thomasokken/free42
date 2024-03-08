@@ -1,3 +1,8 @@
+2024-03-07: release 3.1.5
+
+* Direct command mapping now supports alternate mappings for ALPHA mode.
+* Windows version: Fixed a couple of display glitches.
+
 2024-03-04: release 3.1.4g (Windows, MacOS, and Linux)
 
 * Windows, MacOS, and Linux versions: Constraining print-out window height to

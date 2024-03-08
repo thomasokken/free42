@@ -2,6 +2,7 @@
 #include <sstream>
 #include <string>
 
+#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -17,6 +18,10 @@ int main(int argc, char *argv[]) {
     core_init(0, 0, NULL, 0);
 
     std::ifstream in(argv[1]);
+    if (in.fail()) {
+        fprintf(stderr, "Can't open input file: %s\n", strerror(errno));
+        return 1;
+    }
     std::stringstream txtbuf;
     txtbuf << in.rdbuf();
     flags.f.prgm_mode = 1;
@@ -26,6 +31,13 @@ int main(int argc, char *argv[]) {
     if (len >= 4 && strcasecmp(argv[1] + (len - 4), ".txt") == 0)
         len -= 4;
     std::string outname = std::string(argv[1], len) + ".raw";
+
+    FILE *out = fopen(outname.c_str(), "wb");
+    if (out == NULL) {
+        fprintf(stderr, "Can't open output file: %s\n", strerror(errno));
+        return 1;
+    }
+    fclose(out);
 
     int *indexes = new int[prgms_count];
     for (int i = 0; i < prgms_count; i++)
