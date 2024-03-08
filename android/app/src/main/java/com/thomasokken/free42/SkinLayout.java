@@ -65,6 +65,8 @@ public class SkinLayout {
     private static class SkinMacro {
         int code;
         Object macro;
+        String macro2;
+        boolean secondIsText;
     }
 
     private static class SkinAnnunciator {
@@ -251,8 +253,8 @@ public class SkinLayout {
                 } else if (lcline.startsWith("macro:")) {
                     int quot1 = line.indexOf('"');
                     if (quot1 != -1) {
-                        int quot2 = line.lastIndexOf('"');
-                        if (quot1 != quot2) {
+                        int quot2 = line.indexOf('"', quot1 + 1);
+                        if (quot2 != -1) {
                             int len = quot2 - quot1 - 1;
                             try {
                                 int n = Integer.parseInt(line.substring(6, quot1).trim());
@@ -260,6 +262,17 @@ public class SkinLayout {
                                     SkinMacro macro = new SkinMacro();
                                     macro.code = n;
                                     macro.macro = line.substring(quot1 + 1, quot2);
+                                    quot1 = line.indexOf('"', quot2 + 1);
+                                    if (quot1 == -1)
+                                        quot1 = line.indexOf('\'', quot2 + 1);
+                                    if (quot1 != -1) {
+                                        char q = line.charAt(quot1);
+                                        quot2 = line.indexOf(q, quot1 + 1);
+                                        if (quot2 != -1) {
+                                            macro.macro2 = line.substring(quot1 + 1, quot2);
+                                            macro.secondIsText = q == '\'';
+                                        }
+                                    }
                                     tempmacrolist.add(macro);
                                 }
                             } catch (Exception e) {
@@ -420,15 +433,21 @@ public class SkinLayout {
     public int find_skey(int ckey) {
         int i;
         for (i = 0; i < keylist.length; i++)
-        if (keylist[i].code == ckey || keylist[i].shifted_code == ckey)
-            return i;
+            if (keylist[i].code == ckey || keylist[i].shifted_code == ckey)
+                return i;
         return -1;
     }
 
     public Object find_macro(int ckey) {
         for (SkinMacro macro : macrolist)
-            if (macro.code == ckey)
-                return macro.macro;
+            if (macro.code == ckey) {
+                if (macro.macro instanceof byte[])
+                    return macro.macro;
+                else if (macro.macro2 == null || !Free42Activity.instance.core_alpha_menu())
+                    return new Object[] { macro.macro, false };
+                else
+                    return new Object[] { macro.macro2, macro.secondIsText };
+            }
         return null;
     }
 
