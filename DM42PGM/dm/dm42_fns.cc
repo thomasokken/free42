@@ -366,7 +366,7 @@ extern "C" {
 
 #include <dm42_menu.h>
 #include <dm42_fns.h>
-#include <dm42_macros.h>
+#include <dm42_macro.h>
 
 
 #ifndef assert_param
@@ -3497,7 +3497,7 @@ void set_shift() {
 }
 
 
-void update_aplha_table() {
+void update_alpha_table() {
   // Check whether alpha mode was activated/deactivated and 
   // change state and annunciators accordingly
   if ( core_alpha_menu() ) {
@@ -3853,7 +3853,7 @@ void program_main() {
 
     if (userMode) {
       uint8_t keys[32];
-      int n = macros_get_keys(key, keys, 32);
+      int n = macro_get_keys(key, keys, 32);
       if (n > 0) {
         for (int i = 0; i < n; i++) {
           core_keydown(keys[i], &enqueued, &repeat);
@@ -3977,7 +3977,7 @@ void program_main() {
 
     // == Key translation
 
-    update_aplha_table();
+    update_alpha_table();
 
     if ( alpha_table != ALPHA_INACTIVE && ANN(SHIFT) ) {
       if ( key == KEY_UP ) {
@@ -4114,7 +4114,7 @@ void program_main() {
       printf("RUN: end of keydown: keep_running=%i\n", keep_running);
     }
 
-    update_aplha_table();
+    update_alpha_table();
 
   }  // Main loop
 }
