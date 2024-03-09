@@ -709,7 +709,6 @@ const uint8_t mid_menu[] = {
 const uint8_t mid_file[] = {
     MI_LOAD_PGM,
     MI_SAVE_PGM,
-    MI_LOAD_KEYMAP,
     MI_MSC,
     MI_DISK_INFO,
     0 }; // Terminator
@@ -849,10 +848,6 @@ int run_menu_item(uint8_t line_id) {
   case MI_CLEAN_RESET:
     run_reset_state_file();
     //ret = MRET_EXIT;
-    break;
-
-  case MI_LOAD_KEYMAP:
-    return file_selection_screen("Load Keymap", KEYMAP_DIR, KEYMAP_EXT, keymaps_load_callback, 0, 0, NULL);
     break;
 
   //case MI_SAVE_STAT:
@@ -1037,7 +1032,6 @@ const char * menu_line_str(uint8_t line_id, char * s, const int slen) {
   case MI_LOAD_STATE:   ln = "Load State";           break;
   case MI_SAVE_STATE:   ln = "Save State";           break;
   case MI_CLEAN_RESET:  ln = "Load Clean State";     break;
-  case MI_LOAD_KEYMAP:  ln = "Load Keymap >";          break;
 
   case MI_STACK_CONFIG:
     ln = layout_str(s, "Stack Layout");              break;

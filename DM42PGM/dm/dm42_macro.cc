@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 
 #include "core_main.h"
 #include "core_aux.h"
@@ -15,6 +16,9 @@ extern "C"
 #include <dm42_menu.h>
 #include <dm42_fns.h>
 
+
+char *strsep (char **, const char *);
+
 static const char *dm42_keys[] = {
     "SIGMA", "INV", "SQRT", "LOG", "LN", "XEQ",
     "STO", "RCL", "RDN", "SIN", "COS", "TAN",
@@ -26,7 +30,7 @@ static const char *dm42_keys[] = {
     "F1", "F2", "F3", "F4", "F5", "F6",
 };
 
-const char *keycode2keyname(int keycode) {
+static const char *keycode2keyname(int keycode) {
     if (keycode < 0 || keycode >= MAX_FNKEY_NR) {
         return NULL;
     }
@@ -44,8 +48,7 @@ static int keyname2keycode(const char *keyname) {
 
 struct dm42_macro {
     char keyname[12];
-    uint8_t keys[10];
-    uint len;
+    char keys[64];
     struct dm42_macro *next;
 };
 
@@ -97,18 +100,7 @@ static int keymaps_load_ini_handler(void* user, const char* section, const char*
         return 0;
     }
     strncpy(macro->keyname, name, 11);
-    macro->len = 0;
-    macro->next = NULL;
-    char *p = (char *)value;
-    // split value with space sperator using strtok
-    char *token = strtok(p, " ");
-    while (token != NULL) {
-        int keycode = keyname2keycode(token);
-        if (keycode >= 0) {
-            macro->keys[macro->len++] = keycode;
-        }
-        token = strtok(NULL, " ");
-    }
+    strncpy(macro->keys, value, 63);
     if (current_keymap->macros == NULL) {
         current_keymap->macros = macro;
     } else {
@@ -190,22 +182,49 @@ bool macro_find_keymap(int num, char *keymap, int size) {
     return false;
 }
 
-int macro_get_keys(const char *keyname, uint8_t keys[], uint len) {
+bool macro_exec(int key, bool shift) {
     if (current_keymap == NULL) {
-        return 0;
+        return false;
     }
+    char keyname[12];
+    if (shift) {
+        sprintf(keyname, "SHIFT %s", keycode2keyname(key));
+    } else {
+        strcpy(keyname, keycode2keyname(key));
+    }
+    bool enqueued;
+    int repeat;
     struct dm42_macro *macro = current_keymap->macros;
     while (macro != NULL) {
         if (strcasecmp(macro->keyname, keyname) == 0) {
-            if (macro->len > len) {
-                return 0;
+            char keys[64];
+            strncpy(keys, macro->keys, sizeof(keys)-1);
+            char *p = keys;
+            char *key;
+            if (shift) core_keydown(KEY_SHIFT, &enqueued, &repeat); // release shift key
+            while ((key = strsep(&p, " ")) != NULL) {
+                if (strlen(key) > 2 && key[0] == '"') {
+                    core_keydown(KEY_ENTER, &enqueued, &repeat);
+                    for (char *ch = key+1; *ch != '"'; ch++) {
+                        const char text[2] = {*ch, '\0'};
+                        core_keydown_command(text, true,  &enqueued, &repeat);
+                    }
+                    core_keydown(KEY_ENTER, &enqueued, &repeat);
+                } else {
+                    int keycode = keyname2keycode(key);
+                    if (keycode > 0) {
+                        core_keydown(keycode, &enqueued, &repeat);
+                    } else {
+                        core_keydown_command(key, false, &enqueued, &repeat);
+                    }
+                    if (!enqueued) core_keyup();
+                }
             }
-            memcpy(keys, macro->keys, macro->len);
-            return macro->len;
+            return true;
         }
         macro = macro->next;
     }
-    return 0;
+    return false;
 }
 
 } // extern "C"
