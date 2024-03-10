@@ -1086,7 +1086,7 @@ int statefile_seek(FILE *stream, long offset, int whence) {
   CHECK_SF_BUF();
   DEACTIVATE_SF_BUF();
   if (whence == SEEK_CUR) offs += f_tell(ppgm_fp);
-  if (whence == SEEK_END) f_size(ppgm_fp);
+  if (whence == SEEK_END) offs += f_size(ppgm_fp);
 
   if (offs < 0) offs = 0;
   pgm_res = f_lseek(ppgm_fp, offs);
@@ -3258,16 +3258,17 @@ void disp_regs(int what) {
         lcd_fill_rect(210+a*17, ANN_LCD_Y, 16, ANN_LCD_DY, 0);
       }
     }
+
+    if ( userMode ) {
+      t20->newln = 0; 
+      t20->lnfill = 0;
+      lcd_setXY(t20, 350, ANN_LCD_Y);
+      lcd_puts(t20, "USER");
+      t20->newln = 1; 
+      t20->lnfill = 1;
+    }
   }
 
-  if ( userMode ) {
-    t20->newln = 0; 
-    t20->lnfill = 0;
-    lcd_setXY(t20, 350, ANN_LCD_Y);
-    lcd_puts(t20, "USER");
-    t20->newln = 1; 
-    t20->lnfill = 1;
-  }
 
   //is_edit_x = is_edit = 0;
 

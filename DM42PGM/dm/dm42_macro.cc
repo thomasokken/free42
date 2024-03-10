@@ -30,6 +30,8 @@ static const char *dm42_keys[] = {
     "F1", "F2", "F3", "F4", "F5", "F6",
 };
 
+#define MAX_KEYS_LEN 64
+
 static const char *keycode2keyname(int keycode) {
     if (keycode < 0 || keycode >= MAX_FNKEY_NR) {
         return NULL;
@@ -48,23 +50,23 @@ static int keyname2keycode(const char *keyname) {
 
 struct dm42_macro {
     char keyname[12];
-    char keys[64];
+    char keys[MAX_KEYS_LEN];
     struct dm42_macro *next;
 };
 
-struct keymap {
+struct dm42_keymap {
     char name[16];
     struct dm42_macro *macros;    
-    struct keymap *next;
+    struct dm42_keymap *next;
 };
 
-static struct keymap *keymaps = NULL;
-static struct keymap *current_keymap = NULL;
+static struct dm42_keymap *keymaps = NULL;
+static struct dm42_keymap *current_keymap = NULL;
 
 static void macro_free_keymaps() {
-    struct keymap *km = keymaps;
+    struct dm42_keymap *km = keymaps;
     while (km != NULL) {
-        struct keymap *next = km->next;
+        struct dm42_keymap *next = km->next;
         struct dm42_macro *macro = km->macros;
         while (macro != NULL) {
             struct dm42_macro *next = macro->next;
@@ -80,7 +82,7 @@ static void macro_free_keymaps() {
 
 static int keymaps_load_ini_handler(void* user, const char* section, const char* name,const char* value) {
     if (keymaps == NULL || strcmp(current_keymap->name, section) != 0) {
-        struct keymap *km = (struct keymap *)malloc(sizeof(struct keymap));
+        struct dm42_keymap *km = (struct dm42_keymap *)malloc(sizeof(struct dm42_keymap));
         if (km == NULL) {
             return 0;
         }
@@ -100,7 +102,7 @@ static int keymaps_load_ini_handler(void* user, const char* section, const char*
         return 0;
     }
     strncpy(macro->keyname, name, 11);
-    strncpy(macro->keys, value, 63);
+    strncpy(macro->keys, value, MAX_KEYS_LEN-1);
     if (current_keymap->macros == NULL) {
         current_keymap->macros = macro;
     } else {
@@ -153,7 +155,7 @@ int keymaps_load_callback(const char *fpath, const char *fname, void *data) {
 }
 
 void macro_set_keymap(const char *keymap) {
-    struct keymap *km = keymaps;
+    struct dm42_keymap *km = keymaps;
     while (km != NULL) {
         if (strcmp(km->name, keymap) == 0) {
             current_keymap = km;
@@ -171,7 +173,7 @@ const char *macro_get_keymap() {
 }
 
 bool macro_find_keymap(int num, char *keymap, int size) {
-    struct keymap *km = keymaps;
+    struct dm42_keymap *km = keymaps;
     while (km != NULL) {
         if (num-- == 0) {
             strncpy(keymap, km->name, size);
@@ -197,7 +199,7 @@ bool macro_exec(int key, bool shift) {
     struct dm42_macro *macro = current_keymap->macros;
     while (macro != NULL) {
         if (strcasecmp(macro->keyname, keyname) == 0) {
-            char keys[64];
+            char keys[MAX_KEYS_LEN];
             strncpy(keys, macro->keys, sizeof(keys)-1);
             char *p = keys;
             char *key;
