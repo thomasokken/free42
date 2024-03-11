@@ -1340,17 +1340,16 @@ void shell_print(const char *text, int length,
   }
 
   // Text print
-  if (is_print_to_screen_active()) {
-    print_to_screen(text, length);
-    return;
-  }
-
   if (is_print_to_file(PRTOF_GRAPHICS)) {
     prtof_add_graphics_lines(bits, bytesperline, width, height);
   }
 
   if (is_print_to_file(PRTOF_TEXT)) {
     prtof_add_text(text, length, is_wide_print());
+  }
+
+  if (is_print_to_screen()) {
+    print_to_screen(text, length);
   }
 
   if (is_print_to_file(PRTOF_NOIR))
@@ -2616,10 +2615,6 @@ bool is_print_to_screen() {
     return PS(PRINT_TO_SCREEN);
 }
 
-bool is_print_to_screen_active() {
-    return is_print_to_screen() && program_running();
-}
-
 void set_print_to_screen(bool val) {
     SETBY_PS(val, PRINT_TO_SCREEN);
 }
@@ -2994,7 +2989,7 @@ void disp_reg(const char *prompt, reg_id_t reg_id, int line_reg_nr, int bottom_u
 
 
 void disp_regs(int what) {
-  static int last_pgm_top_line = 0;
+    static int last_pgm_top_line = 0;
   char bb[LCD_HP_CHARS+2];
   int len;
 

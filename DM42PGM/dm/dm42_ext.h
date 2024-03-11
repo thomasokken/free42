@@ -20,7 +20,6 @@ bool macro_exec(int key, bool shift);
 
 // print to graphic screen
 bool is_print_to_screen();
-bool is_print_to_screen_active();
 void set_print_to_screen(bool value);
 void print_to_screen(const char *text, int length);
 
