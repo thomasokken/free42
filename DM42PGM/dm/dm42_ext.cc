@@ -229,4 +229,25 @@ bool macro_exec(int key, bool shift) {
     return false;
 }
 
+
+static int print_to_screen_count = 0;
+
+void print_to_screen(const char *text, int length) {
+    if (t24->y >= LCD_Y - t24->f->height*2) {
+        t24->y = LCD_Y; lcd_prevLn(t24);
+        lcd_putsR(t24, "    Press any key to continue");
+        lcd_refresh();
+        wait_for_key_press();        
+        print_to_screen_count = 0;
+    }
+    if (print_to_screen_count == 0) {
+        lcd_clear_buf();
+        lcd_writeClr(t24);
+        lcd_writeNl(t24);
+    }
+    lcd_puts(t24, text);
+    lcd_refresh();
+    print_to_screen_count++;
+}
+
 } // extern "C"

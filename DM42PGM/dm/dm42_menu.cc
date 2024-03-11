@@ -56,7 +56,7 @@ extern "C" {
 
 #include <dm42_menu.h>
 #include <dm42_fns.h>
-#include <dm42_macro.h>
+#include <dm42_ext.h>
 #include <strings.h>
 
 
@@ -720,6 +720,7 @@ const uint8_t mid_print[] = {
     MI_PRTOF_GR_IN_TXT,
     MI_PRTOF_NOIR,
     MI_PRINT_DBLNL,
+    MI_PRINT_TO_SCREEN,
     0 }; // Terminator
 
 
@@ -887,6 +888,9 @@ int run_menu_item(uint8_t line_id) {
     break;
   case MI_PRINT_DBLNL:
     set_print_to_file(PRINT_DBLNL, !is_print_to_file(PRINT_DBLNL), 1);
+    break;
+  case MI_PRINT_TO_SCREEN:
+    set_print_to_screen(!is_print_to_screen());
     break;
 
   /* Stack */
@@ -1073,6 +1077,7 @@ const char * menu_line_str(uint8_t line_id, char * s, const int slen) {
   case MI_PRTOF_NOIR:      ln = opt_str(s, " Don't print to IR", is_print_to_file(PRTOF_NOIR));      break;
   case MI_PRTOF_GR_IN_TXT: ln = opt_str(s, " Graphics in Text",  is_print_to_file(PRTOF_GR_IN_TXT)); break;
   case MI_PRINT_DBLNL:     ln = opt_str(s, " Double Newline",    is_print_to_file(PRINT_DBLNL));     break;
+  case MI_PRINT_TO_SCREEN: ln = opt_str(s, " Print to Screen",   is_print_to_screen()); break;
 
   default:
     ln = NULL;
