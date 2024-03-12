@@ -832,7 +832,15 @@ int docmd_agraph(arg_struct *arg) {
             return ERR_NONE;
         }
         case TYPE_STRING:
-            return ERR_ALPHA_DATA_IS_INVALID;
+            if (stack[sp - 1]->type != TYPE_REAL || stack[sp - 2]->type != TYPE_REAL)
+                return ERR_INVALID_TYPE;
+            vartype_string *s = (vartype_string *) stack[sp];
+            phloat x = ((vartype_real *) stack[sp - 1])->x;
+            phloat y = ((vartype_real *) stack[sp - 2])->x;
+            draw_pattern(x, y, reg_alpha, reg_alpha_length);
+            flush_display();
+            flags.f.message = flags.f.two_line_message = 1;
+            return ERR_NONE;
         default:
             return ERR_INVALID_TYPE;
     }

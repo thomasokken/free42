@@ -462,6 +462,36 @@ void set_calc_flag(int flag_nr, int val) {
   flags.farray[flag_nr] = val ? 1 : 0;
 }
 
+void draw_text(phloat dx, phloat dy, const char *text, int text_length) {
+    int const MAXY = gr_MAXY();
+    int const MAXX = gr_MAXX();
+
+    int x = dx < 0 ? to_int(-floor(-dx + 0.5)) : to_int(floor(dx + 0.5));
+    int y = dy < 0 ? to_int(-floor(-dy + 0.5)) : to_int(floor(dy + 0.5));
+    if (x + text_length < 1 || x > MAXX || y + 8 < 1 || y > MAXY)
+        return;
+
+    int i = 0;
+    for (char *p = (char *)text; i < text_length; p++, i++) {
+        unsigned char uc = (unsigned char)*p;
+        if (uc >= 130)
+            uc -= 128;
+        int X = x * 6;
+        int Y = y * 8;
+        for (int v = 0; v < 8; v++) {
+            int YY = Y + v;
+            for (int h = 0; h < 5; h++) {
+                int XX = X + h;
+                char mask = 1 << (XX & 7);
+                if (bigchars[uc][h] & (1 << v))
+                    display[YY * 17 + (XX >> 3)] |= mask;
+                else
+                    display[YY * 17 + (XX >> 3)] &= ~mask;
+            }
+        }
+    }
+} 
+
 
 } // extern "C"
 
