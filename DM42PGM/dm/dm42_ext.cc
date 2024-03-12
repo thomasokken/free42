@@ -229,24 +229,4 @@ bool macro_exec(int key, bool shift) {
     return false;
 }
 
-
-#define MAX_PRINT_TOS_LINES 6
-static char buffer_print_to_screen[MAX_PRINT_TOS_LINES][23];
-static int buffer_print_to_screen_count = 0;
-
-void print_to_screen(const char *text, int length) {
-    if (buffer_print_to_screen_count == MAX_PRINT_TOS_LINES-1) {
-        for (int i = 0; i < 5; i++) {
-            strcpy(buffer_print_to_screen[i], buffer_print_to_screen[i+1]);
-        }
-        buffer_print_to_screen[MAX_PRINT_TOS_LINES-1][0] = '\0';
-    }
-    if (length > 22) {
-        length = 22;
-    }
-    strncpy(buffer_print_to_screen[buffer_print_to_screen_count], text, length);
-    buffer_print_to_screen[buffer_print_to_screen_count][length] = '\0';
-    buffer_print_to_screen_count++;
-}
-
 } // extern "C"
