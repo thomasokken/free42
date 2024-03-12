@@ -22,6 +22,7 @@
 #include "core_helpers.h"
 #include "core_display.h"
 #include "core_variables.h"
+#include "core_aux.h"
 
 
 // We cache vartype_real, vartype_complex, and vartype_string instances, to
@@ -492,7 +493,7 @@ int lookup_var(const char *name, int namelength) {
 vartype *recall_var(const char *name, int namelength) {
     int varindex = lookup_var(name, namelength);
     if (varindex == -1)
-        return NULL;
+        return recall_vvar(name, namelength);
     else
         return vars[varindex].value;
 }
@@ -513,6 +514,8 @@ int store_var(const char *name, int namelength, vartype *value, bool local) {
     int varindex = lookup_var(name, namelength);
     int i;
     if (varindex == -1) {
+        if ( store_vvar(name, namelength, value) )
+            return ERR_NONE;
         /* Name not found; create new global or local */
         if (vars_count == vars_capacity) {
             int nc = vars_capacity + 25;

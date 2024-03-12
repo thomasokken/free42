@@ -29,7 +29,6 @@
 #include "shell.h"
 #include "shell_spool.h"
 
-
 /********************/
 /* HP-42S font data */
 /********************/
@@ -44,6 +43,7 @@
 
 #include <string.h>
 #include <stdio.h>
+
 
 static const unsigned char bigchars[130][5] =
     {
@@ -2626,12 +2626,16 @@ int command2buf(char *buf, int len, int cmd, const arg_struct *arg) {
     if (cmd >= CMD_ASGN01 && cmd <= CMD_ASGN18) {
         string2buf(buf, len, &bufptr, "ASSIGN ", 7);
     } else {
+#ifdef ARM
+        cmdnam2buf(buf, len, &bufptr, cmdspec->name, cmdspec->name_length);
+#else
         for (int i = 0; i < cmdspec->name_length; i++) {
             int c = (unsigned char) cmdspec->name[i];
             if (c >= 130 && c != 138)
                 c &= 127;
             char2buf(buf, len, &bufptr, c);
         }
+#endif
     }
 
     if (cmd == CMD_XROM) {

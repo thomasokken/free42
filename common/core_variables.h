@@ -138,4 +138,8 @@ vartype *recall_private_var(const char *name, int namelength);
 vartype *recall_and_purge_private_var(const char *name, int namelength);
 int store_private_var(const char *name, int namelength, vartype *value);
 
+// Returns: 1=variable consumed, 0=unknown variable
+int store_vvar(const char *name, int namelength, vartype *value);
+vartype *recall_vvar(const char *name, int namelength);
+
 #endif

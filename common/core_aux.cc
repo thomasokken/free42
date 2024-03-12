@@ -286,6 +286,8 @@ int reg2str(char *buf, int buflen, reg_id_t reg_id) {
   } else {
     switch(reg_id) {
       default: // tame compiler
+        buf[0] = 0;
+        break;
       case AUX_REG_X:
         if (get_dynstack_size() == 0) {
           buf[0] = 0;
