@@ -831,7 +831,8 @@ int docmd_agraph(arg_struct *arg) {
             flags.f.message = flags.f.two_line_message = 1;
             return ERR_NONE;
         }
-        case TYPE_STRING:
+        case TYPE_STRING: {
+#ifdef ARM
             if (stack[sp - 1]->type != TYPE_REAL || stack[sp - 2]->type != TYPE_REAL)
                 return ERR_INVALID_TYPE;
             vartype_string *s = (vartype_string *) stack[sp];
@@ -841,6 +842,10 @@ int docmd_agraph(arg_struct *arg) {
             flush_display();
             flags.f.message = flags.f.two_line_message = 1;
             return ERR_NONE;
+#else
+            return ERR_ALPHA_DATA_IS_INVALID;
+#endif
+        }
         default:
             return ERR_INVALID_TYPE;
     }
