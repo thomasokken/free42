@@ -102,4 +102,8 @@ void clear_prgm_menu();
 void assign_prgm_key(int keynum, bool is_gto, const arg_struct *arg);
 void do_prgm_menu_key(int keynum);
 
+#ifdef ARM
+void dm_draw_string(phloat dx, phloat dy, const char *text, int length);
+#endif
+
 #endif

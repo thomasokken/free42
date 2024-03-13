@@ -838,8 +838,7 @@ int docmd_agraph(arg_struct *arg) {
             vartype_string *s = (vartype_string *) stack[sp];
             phloat x = ((vartype_real *) stack[sp - 1])->x;
             phloat y = ((vartype_real *) stack[sp - 2])->x;
-            draw_pattern(x, y, reg_alpha, reg_alpha_length);
-            flush_display();
+            dm_draw_string(x, y, s->txt(), s->length);
             flags.f.message = flags.f.two_line_message = 1;
             return ERR_NONE;
 #else
