@@ -3187,12 +3187,20 @@ void dm_draw_string(phloat dx, phloat dy, const char *text, int length) {
         unsigned char uc = (unsigned char)text[i];
         if (uc >= 130)
             uc -= 128;
+        if (uc == 10) {
+            x = dx < 0 ? to_int(-floor(-dx + 0.5)) : to_int(floor(dx + 0.5));
+            y += 10;
+            if (y > MAXY)
+                return;
+            continue;
+        }
         for (int v = 0; v < 8; v++) {
             for (int h = 0; h < 5; h++) {
                 if (bigchars[uc][h] & (1 << v))
                     thell_draw_pixel(x+h, y+v);
             }
         }
+        x += 6;
     }
 } 
 #endif
