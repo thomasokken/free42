@@ -504,8 +504,8 @@ static struct timeval runner_end_time;
     CGRect pf = print.frame;
     if (gstate == UIGestureRecognizerStateBegan) {
         // Make sure the Print-Out view isn't hidden
-        [RootViewController showPrintOut];
-        [RootViewController showMain];
+        [RootViewController showPrintOutWithoutAnimation];
+        [RootViewController showMainWithoutAnimation];
         [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(touchesBegan2) object:nil];
         touchDelayed = 0;
         prevX = self.frame.origin.x;
@@ -520,7 +520,7 @@ static struct timeval runner_end_time;
         if (scale < 1)
             scale = 1;
         if (scale * (p.x + v.x / 16) * dir < -self.bounds.size.width / 3)
-            [RootViewController showPrintOut];
+            [RootViewController showPrintOutWithoutAnimation];
     } else {
         if (dir * p.x > 0)
             p.x = 0;
