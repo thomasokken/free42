@@ -803,8 +803,16 @@ int docmd_agraph(arg_struct *arg) {
             if (stack[sp - 1]->type == TYPE_REAL) {
                 phloat x = ((vartype_real *) stack[sp])->x;
                 phloat y = ((vartype_real *) stack[sp - 1])->x;
+#ifdef ARM
+                if (flags.f.f33) {
+                    dm_draw_string(x, y, reg_alpha, reg_alpha_length);
+                } else {
+#endif
                 draw_pattern(x, y, reg_alpha, reg_alpha_length);
                 flush_display();
+#ifdef ARM
+                }
+#endif
                 flags.f.message = flags.f.two_line_message = 1;
                 return ERR_NONE;
             } else if (stack[sp - 1]->type == TYPE_STRING)
