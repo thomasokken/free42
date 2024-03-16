@@ -516,12 +516,30 @@ static void aview_helper(const char *text, int length) {
 }
 
 int docmd_aview(arg_struct *arg) {
-    aview_helper(reg_alpha, reg_alpha_length);
-    if (flags.f.printer_enable || !program_running()) {
-        if (flags.f.printer_exists)
-            docmd_pra(arg);
-        else
-            return ERR_STOP;
+#ifdef ARM
+    bool dm42 = true;
+#else
+    bool dm42 = false;
+#endif
+    int n = sp;
+    if (flags.f.f33 && dm42) {
+        if (n < 1) return ERR_TOO_FEW_ARGUMENTS;
+        if (stack[n]->type != TYPE_REAL || stack[n-1]->type != TYPE_REAL) {
+            return ERR_INVALID_TYPE;
+        }
+        phloat x = ((vartype_real *) stack[n--])->x;
+        phloat y = ((vartype_real *) stack[n--])->x;
+        dm_draw_string(x, y, reg_alpha, reg_alpha_length);
+        flags.f.message = 1;
+        flags.f.two_line_message = 1;
+    } else {
+        aview_helper(reg_alpha, reg_alpha_length);
+        if (flags.f.printer_enable || !program_running()) {
+            if (flags.f.printer_exists)
+                docmd_pra(arg);
+            else
+                return ERR_STOP;
+        }
     }
     return ERR_NONE;
 }
@@ -803,16 +821,8 @@ int docmd_agraph(arg_struct *arg) {
             if (stack[sp - 1]->type == TYPE_REAL) {
                 phloat x = ((vartype_real *) stack[sp])->x;
                 phloat y = ((vartype_real *) stack[sp - 1])->x;
-#ifdef ARM
-                if (flags.f.f33) {
-                    dm_draw_string(x, y, reg_alpha, reg_alpha_length);
-                } else {
-#endif
                 draw_pattern(x, y, reg_alpha, reg_alpha_length);
                 flush_display();
-#ifdef ARM
-                }
-#endif
                 flags.f.message = flags.f.two_line_message = 1;
                 return ERR_NONE;
             } else if (stack[sp - 1]->type == TYPE_STRING)
@@ -839,20 +849,8 @@ int docmd_agraph(arg_struct *arg) {
             flags.f.message = flags.f.two_line_message = 1;
             return ERR_NONE;
         }
-        case TYPE_STRING: {
-#ifdef ARM
-            if (stack[sp - 1]->type != TYPE_REAL || stack[sp - 2]->type != TYPE_REAL)
-                return ERR_INVALID_TYPE;
-            vartype_string *s = (vartype_string *) stack[sp];
-            phloat x = ((vartype_real *) stack[sp - 1])->x;
-            phloat y = ((vartype_real *) stack[sp - 2])->x;
-            dm_draw_string(x, y, s->txt(), s->length);
-            flags.f.message = flags.f.two_line_message = 1;
-            return ERR_NONE;
-#else
+        case TYPE_STRING:
             return ERR_ALPHA_DATA_IS_INVALID;
-#endif
-        }
         default:
             return ERR_INVALID_TYPE;
     }
@@ -1423,13 +1421,35 @@ int docmd_pra(arg_struct *arg) {
 }
 
 int docmd_xview(arg_struct *arg) {
-    vartype_string *s = (vartype_string *) stack[sp];
-    aview_helper(s->txt(), s->length);
-    if (flags.f.printer_enable || !program_running()) {
-        if (flags.f.printer_exists)
-            pra_helper(false, s->txt(), s->length);
-        else
-            return ERR_STOP;
+#ifdef ARM
+    bool dm42 = true;
+#else
+    bool dm42 = false;
+#endif
+    int n = sp;
+    if (n < 0) return ERR_TOO_FEW_ARGUMENTS;
+    if (stack[n]->type != TYPE_STRING) {
+        return ERR_INVALID_TYPE;
+    }
+    vartype_string *s = (vartype_string *) stack[n--];
+    if (flags.f.f33 && dm42) {
+        if (n < 1) return ERR_TOO_FEW_ARGUMENTS;
+        if (stack[n]->type != TYPE_REAL || stack[n-1]->type != TYPE_REAL) {
+            return ERR_INVALID_TYPE;
+        }
+        phloat x = ((vartype_real *) stack[n--])->x;
+        phloat y = ((vartype_real *) stack[n--])->x;
+        dm_draw_string(x, y, s->txt(), s->length);
+        flags.f.message = 1;
+        flags.f.two_line_message = 1;
+    } else {
+        aview_helper(s->txt(), s->length);
+        if (flags.f.printer_enable || !program_running()) {
+            if (flags.f.printer_exists)
+                pra_helper(false, s->txt(), s->length);
+            else
+                return ERR_STOP;
+        }
     }
     return ERR_NONE;
 }

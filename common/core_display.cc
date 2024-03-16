@@ -3175,8 +3175,8 @@ void do_prgm_menu_key(int keynum) {
 
 #ifdef ARM
 void dm_draw_string(phloat dx, phloat dy, const char *text, int length) {
-    int const MAXY = gr_MAXY();
     int const MAXX = gr_MAXX();
+    int const MAXY = gr_MAXY();
 
     int x = dx < 0 ? to_int(-floor(-dx + 0.5)) : to_int(floor(dx + 0.5));
     int y = dy < 0 ? to_int(-floor(-dy + 0.5)) : to_int(floor(dy + 0.5));
