@@ -51,6 +51,7 @@
         tapBackground.cancelsTouchesInView = NO;
         [self addGestureRecognizer:tapBackground];
     }
+    webView.navigationDelegate = self;
     NSString *url = [urlField text];
     if (url == nil || [url length] == 0)
         [urlField setText:@"https://thomasokken.com/free42/skins/"];
@@ -125,13 +126,13 @@
     [loadButton setEnabled:YES];
 }
 
-- (void)webViewDidStartLoad:(UIWebView *)webView {
+- (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(WKNavigation *)navigation {
     [loadButton setEnabled:NO];
     [loadButton setTitle:@"..."];
 }
 
-- (void)webViewDidFinishLoad:(UIWebView *)webView {
-    NSString *url = [[[webView request] URL] absoluteString];
+- (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
+    NSString *url = [[webView URL] absoluteString];
     [urlField setText:url];
     [loadButton setTitle:@"Load"];
     [loadButton setEnabled:[LoadSkinView skinUrlPair:url] != nil];

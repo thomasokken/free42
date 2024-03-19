@@ -16,12 +16,13 @@
  *****************************************************************************/
 
 #import <UIKit/UIKit.h>
+#import <WebKit/WebKit.h>
 
 
-@interface LoadSkinView : UIView {
+@interface LoadSkinView : UIView <WKNavigationDelegate> {
     UITextField *urlField;
     UIBarButtonItem *loadButton;
-    UIWebView *webView;
+    WKWebView *webView;
     BOOL showMessages;
     NSURLSession *session;
     NSURLSessionDataTask *task[2];
@@ -31,7 +32,7 @@
 
 @property (nonatomic, retain) IBOutlet UITextField *urlField;
 @property (nonatomic, retain) IBOutlet UIBarButtonItem *loadButton;
-@property (nonatomic, retain) IBOutlet UIWebView *webView;
+@property (nonatomic, retain) IBOutlet WKWebView *webView;
 
 - (void) raised;
 - (IBAction) done;

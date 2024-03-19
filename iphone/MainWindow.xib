@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="22505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="32700.99.1234" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22504"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22684"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -238,7 +238,7 @@
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <state key="normal" title="←"/>
                     <connections>
-                        <action selector="goBack" destination="Glm-RJ-JN7" eventType="primaryActionTriggered" id="ruS-TT-AZf"/>
+                        <action selector="goBack:" destination="jNB-NH-dVe" eventType="primaryActionTriggered" id="bGf-1y-KHe"/>
                     </connections>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8TF-bi-44b">
@@ -246,7 +246,7 @@
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <state key="normal" title="→"/>
                     <connections>
-                        <action selector="goForward" destination="Glm-RJ-JN7" eventType="primaryActionTriggered" id="587-A6-ztq"/>
+                        <action selector="goForward:" destination="jNB-NH-dVe" eventType="primaryActionTriggered" id="YcQ-05-Xld"/>
                     </connections>
                 </button>
                 <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="cDc-Mu-Sdq">
@@ -263,23 +263,24 @@
                         <action selector="reload" destination="31h-BE-IyQ" eventType="primaryActionTriggered" id="j6O-O2-hiF"/>
                     </connections>
                 </button>
-                <webView contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Glm-RJ-JN7">
-                    <rect key="frame" x="0.0" y="86" width="320" height="374"/>
+                <wkWebView contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jNB-NH-dVe">
+                    <rect key="frame" x="0.0" y="88" width="320" height="372"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                     <color key="backgroundColor" red="0.36078431370000003" green="0.38823529410000002" blue="0.4039215686" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                    <connections>
-                        <outlet property="delegate" destination="31h-BE-IyQ" id="5XU-kZ-vF0"/>
-                    </connections>
-                </webView>
+                    <wkWebViewConfiguration key="configuration">
+                        <audiovisualMediaTypes key="mediaTypesRequiringUserActionForPlayback" none="YES"/>
+                        <wkPreferences key="preferences"/>
+                    </wkWebViewConfiguration>
+                </wkWebView>
             </subviews>
             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <connections>
                 <outlet property="loadButton" destination="qqj-np-cnj" id="MEl-jh-Kla"/>
                 <outlet property="urlField" destination="cDc-Mu-Sdq" id="8Gt-jA-wlp"/>
-                <outlet property="webView" destination="Glm-RJ-JN7" id="yTw-yB-O3P"/>
+                <outlet property="webView" destination="jNB-NH-dVe" id="Aml-we-w95"/>
             </connections>
-            <point key="canvasLocation" x="2064" y="-66"/>
+            <point key="canvasLocation" x="2064" y="-66.566716641679164"/>
         </view>
         <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="67" customClass="PreferencesView">
             <rect key="frame" x="0.0" y="0.0" width="320" height="460"/>
