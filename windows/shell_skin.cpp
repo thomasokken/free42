@@ -552,12 +552,14 @@ void skin_load(wchar_t *skinname, const wchar_t *basedir, long *width, long *hei
     /****************************/
 
     if (disp_bits == NULL) {
-        // Allocating a bitmap with two pixels of extra room around the edges;
-        // this is to avoid sharp lines when blurriness bleeds across the edge.
-        disp_bytesperline = (((131 + 4) + 31) >> 3) & ~3;
-        size = disp_bytesperline * (16 + 4);
+        // Allocating a bitmap with 4x4 pixels for each calculator pixel, and
+        // margins of four pixels around the edges. The upscaling is done to
+        // reduce blurriness when scaling, and the margin is to avoid edge
+        // effects when blurring runs across the edge.
+        disp_bytesperline = (((131 * 4 + 8) + 31) >> 3) & ~3;
+        size = disp_bytesperline * (16 * 4 + 8);
         disp_bits = (unsigned char *) malloc(size);
-        disp_bitmap = new Gdiplus::Bitmap(131 + 4, 16 + 4, disp_bytesperline, PixelFormat1bppIndexed, disp_bits);
+        disp_bitmap = new Gdiplus::Bitmap(131 * 4 + 8, 16 * 4 + 8, disp_bytesperline, PixelFormat1bppIndexed, disp_bits);
         memset(disp_bits, 0, size);
     }
     struct {
@@ -736,24 +738,30 @@ void skin_repaint() {
     Matrix oldTransform;
     g.GetTransform(&oldTransform);
     g.TranslateTransform((REAL) display_loc.x, (REAL) display_loc.y);
-    g.ScaleTransform((REAL) display_scale_x, (REAL) display_scale_y);
+    g.ScaleTransform((REAL) display_scale_x / 4, (REAL) display_scale_y / 4);
     if (display_scale_int && skin.width == window_width && skin.height == window_height)
         g.SetInterpolationMode(InterpolationModeNearestNeighbor);
     else
-        g.SetInterpolationMode(InterpolationModeBicubic);
+        g.SetInterpolationMode(InterpolationModeBilinear);
     if (skey >= -7 && skey <= -2) {
         int key = -1 - skey;
-        int vo = 16 - 5;
-        int ho = (key - 1) * 22 + 2;
+        int vo = (16 - 7) + 1;
+        int ho = ((key - 1) * 22) + 1;
         for (int i = 0; i < 2; i++) {
             for (int v = 0; v < 7; v++)
-                for (int h = 0; h < 22 - 1; h++)
-                    disp_bits[(v + vo) * disp_bytesperline + ((h + ho) >> 3)] ^= 128 >> ((h + ho) & 7);
+                for (int h = 0; h < 22 - 1; h++) {
+                    int baddr = (v + vo) * 4 * disp_bytesperline + ((h + ho) >> 1);
+                    int newb = disp_bits[baddr] ^= ((h + ho) & 1) == 0 ? 240 : 15;
+                    for (int i = 0; i < 4; i++) {
+                        disp_bits[baddr] = newb;
+                        baddr += disp_bytesperline;
+                    }
+                }
             if (i == 0)
-                g.DrawImage(disp_bitmap, (REAL) -1.5, (REAL) -1.5);
+                g.DrawImage(disp_bitmap, (REAL) -4.5, (REAL) -4.5);
         }
     } else {
-        g.DrawImage(disp_bitmap, (REAL) -1.5, (REAL) -1.5);
+        g.DrawImage(disp_bitmap, (REAL) -4.5, (REAL) -4.5);
     }
     g.SetTransform(&oldTransform);
     g.SetClip(&oldClip);
@@ -885,17 +893,20 @@ void skin_invalidate_key(int key) {
 }
 
 void skin_display_blitter(const char *bits, int bytesperline, int x, int y, int width, int height) {
-    int h, v;
-    double sx = display_scale_x;
-    double sy = display_scale_y;
-
-    for (v = y; v < y + height; v++)
-        for (h = x; h < x + width; h++) {
+    // Drawing calculator pixels as 4x4 pixel blocks in order to reduce blurriness when scaled
+    for (int v = y; v < y + height; v++)
+        for (int h = x; h < x + width; h++) {
             int pixel = (bits[v * bytesperline + (h >> 3)] & (1 << (h & 7))) != 0;
+            int baddr = (v * 4 + 4) * disp_bytesperline + ((h + 1) >> 1);
+            char newb;
             if (pixel)
-                disp_bits[(v + 2) * disp_bytesperline + ((h + 2) >> 3)] |= 128 >> ((h + 2) & 7);
+                newb = disp_bits[baddr] | ((h & 1) != 0 ? 240 : 15);
             else
-                disp_bits[(v + 2) * disp_bytesperline + ((h + 2) >> 3)] &= ~(128 >> ((h + 2) & 7));
+                newb = disp_bits[baddr] & ((h & 1) != 0 ? 15 : 240);
+            for (int i = 0; i < 4; i++) {
+                disp_bits[baddr] = newb;
+                baddr += disp_bytesperline;
+            }
         }
     
     skin_invalidate((int) (display_loc.x + (x - 1) * display_scale_x),
