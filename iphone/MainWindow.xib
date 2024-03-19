@@ -238,7 +238,7 @@
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <state key="normal" title="←"/>
                     <connections>
-                        <action selector="goBack:" destination="jNB-NH-dVe" eventType="primaryActionTriggered" id="bGf-1y-KHe"/>
+                        <action selector="goBack" destination="31h-BE-IyQ" eventType="primaryActionTriggered" id="6AD-eV-i7d"/>
                     </connections>
                 </button>
                 <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8TF-bi-44b">
@@ -246,7 +246,7 @@
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <state key="normal" title="→"/>
                     <connections>
-                        <action selector="goForward:" destination="jNB-NH-dVe" eventType="primaryActionTriggered" id="YcQ-05-Xld"/>
+                        <action selector="goForward" destination="31h-BE-IyQ" eventType="primaryActionTriggered" id="Xz2-we-jSp"/>
                     </connections>
                 </button>
                 <textField opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="cDc-Mu-Sdq">

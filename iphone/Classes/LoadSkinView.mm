@@ -138,6 +138,14 @@
     [loadButton setEnabled:[LoadSkinView skinUrlPair:url] != nil];
 }
 
+- (IBAction) goBack {
+    [webView goBack];
+}
+
+- (IBAction) goForward {
+    [webView goForward];
+}
+
 + (NSArray *)skinUrlPair:(NSString *)url {
     NSURLComponents *u = [NSURLComponents componentsWithString:url];
     NSString *path = [u path];

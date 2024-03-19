@@ -37,5 +37,7 @@
 - (void) raised;
 - (IBAction) done;
 - (IBAction) loadSkin;
+- (IBAction) goBack;
+- (IBAction) goForward;
 
 @end
