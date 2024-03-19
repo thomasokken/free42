@@ -64,7 +64,7 @@ void calc_keymodifierschanged(NSUInteger flags);
 @class PrintView;
 @class StatesWindow;
 
-@interface Free42AppDelegate : NSObject {
+@interface Free42AppDelegate : NSObject <WKNavigationDelegate> {
     NSWindow *mainWindow;
     CalcView *calcView;
     
@@ -95,7 +95,7 @@ void calc_keymodifierschanged(NSUInteger flags);
     NSWindow *loadSkinsWindow;
     NSTextField *loadSkinsURL;
     NSButton *loadSkinButton;
-    WebView *loadSkinsWebView;
+    WKWebView *loadSkinsWebView;
     NSWindow *deleteSkinsWindow;
     NSTableView *skinListView;
     SkinListDataSource *skinListDataSource;
@@ -134,7 +134,7 @@ void calc_keymodifierschanged(NSUInteger flags);
 @property (nonatomic, retain) IBOutlet NSWindow *loadSkinsWindow;
 @property (nonatomic, retain) IBOutlet NSTextField *loadSkinsURL;
 @property (nonatomic, retain) IBOutlet NSButton *loadSkinButton;
-@property (nonatomic, retain) IBOutlet WebView *loadSkinsWebView;
+@property (nonatomic, retain) IBOutlet WKWebView *loadSkinsWebView;
 @property (nonatomic, retain) IBOutlet NSWindow *deleteSkinsWindow;
 @property (nonatomic, retain) IBOutlet NSTableView *skinListView;
 @property (nonatomic, retain) IBOutlet SkinListDataSource *skinListDataSource;
