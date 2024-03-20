@@ -291,5 +291,7 @@
 /windows/shell_spool.h
 /windows/skin2cpp.conf
 /windows/skin2cpp.cpp
+/windows/raw2txt
 /windows/raw2txt.cpp
+/windows/txt2raw
 /windows/txt2raw.cpp
