@@ -122,7 +122,6 @@ static bool is_file(const char *name);
 @synthesize prefsLocalizedCopyPaste;
 @synthesize prefsPrintText;
 @synthesize prefsPrintTextFile;
-@synthesize prefsPrintTextRaw;
 @synthesize prefsPrintGIF;
 @synthesize prefsPrintGIFFile;
 @synthesize prefsPrintGIFMaxHeight;
