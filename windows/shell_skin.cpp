@@ -28,6 +28,7 @@
 
 #include <gdiplus.h>
 #include <gdiplusgraphics.h>
+#include <uxtheme.h>
 using namespace Gdiplus;
 
 
@@ -722,7 +723,11 @@ static void skin_repaint_annunciator(Graphics *g, int which) {
 void skin_repaint() {
     PAINTSTRUCT ps;
     HDC hdc = BeginPaint(window, &ps);
-    Graphics g(hdc);
+    RECT rc;
+    GetClientRect(window, &rc);
+    HDC memdc;
+    HPAINTBUFFER hbuf = BeginBufferedPaint(hdc, &rc, BPBF_COMPATIBLEBITMAP, NULL, &memdc);
+    Graphics g(memdc);
     g.ScaleTransform((Gdiplus::REAL) (((double) window_width) / skin.width),
                      (Gdiplus::REAL) (((double) window_height) / skin.height));
 
@@ -789,6 +794,7 @@ void skin_repaint() {
                         key->disp_rect.width, key->disp_rect.height, Gdiplus::UnitPixel);
         }
     }
+    EndBufferedPaint(hbuf, TRUE);
     EndPaint(window, &ps);
 }
 

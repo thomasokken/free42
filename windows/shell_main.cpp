@@ -27,6 +27,7 @@
 #include <set>
 
 #include <gdiplus.h>
+#include <uxtheme.h>
 using namespace Gdiplus;
 
 #include "free42.h"
@@ -555,6 +556,14 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 #endif
 
     switch (message) {
+        case WM_CREATE: {
+            BufferedPaintInit();
+            return 0;
+        }
+        case WM_NCDESTROY: {
+            BufferedPaintUnInit();
+            return 0;
+        }
         case WM_COMMAND: {
             int wmId    = LOWORD(wParam); 
             int wmEvent = HIWORD(wParam); 
