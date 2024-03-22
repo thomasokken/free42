@@ -1,3 +1,8 @@
+2024-03-22: release 3.1.5b (iOS, Windows, and MacOS)
+
+* Windows version: Fixed display flicker using buffered painting.
+* iOS and MacOS versions: Changed skin loader to use WKWebView.
+
 2024-03-21: release 3.1.5a (Windows only)
 
 * Reduced display blurriness when the main window is resized.
