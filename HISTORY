@@ -1,3 +1,7 @@
+2024-03-26: release 3.1.6
+
+* Accuracy improvements for C.LN1+X, and complex LN, ATAN, and ATANH.
+
 2024-03-22: release 3.1.5b (iOS, Windows, and MacOS)
 
 * Windows version: Fixed display flicker using buffered painting.
