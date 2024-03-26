@@ -310,8 +310,8 @@ int math_ln(phloat xre, phloat xim, phloat *yre, phloat *yim) {
             h = log(h) / 2;
         } else {
             #ifdef BCD_MATH
-            phloat m = scalbn(phloat(1), 37);
-            phloat b = -log(phloat(10)) * 37;
+            phloat m = scalbn(phloat(1), 38);
+            phloat b = -log(phloat(10)) * 38;
             #else
             phloat m = 0x2000000000000000; // 2^61
             phloat b = -log(phloat(2)) * 61;
