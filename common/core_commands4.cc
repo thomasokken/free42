@@ -389,23 +389,13 @@ static int mappable_ln_1_x_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
         return ERR_NONE;
     } else {
         phloat x1re = xre + 1;
-        phloat h = hypot(x1re, xim);
-        phloat bre;
-        phloat s;
-        if (p_isinf(h)) {
-            s = 10000;
-            h = hypot(x1re / s, xim / s);
-            bre = log(h) + log(s);
-        } else {
-            s = 1;
-            bre = log(h);
-        }
-        phloat bim = atan2(xim, x1re);
-        phloat cre = x1re - 1 - xre;
-        phloat dre = cre * x1re / h / h * s;
-        phloat dim = -cre * xim / h / h * s;
-        *yre = bre - dre;
-        *yim = bim - dim;
+        phloat are, aim;
+        math_ln(x1re, xim, &are, &aim);
+        phloat bre = x1re - 1 - xre;
+        phloat cre, cim;
+        math_inv(x1re, xim, &cre, &cim);
+        *yre = are - bre * cre;
+        *yim = aim - bre * cim;
         return ERR_NONE;
     }
 }

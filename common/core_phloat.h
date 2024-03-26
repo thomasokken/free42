@@ -42,6 +42,7 @@
 
 #define p_isinf(x) (isinf(x) ? (x) > 0 ? 1 : -1 : 0)
 #define p_isnan isnan
+#define p_isnormal isnormal
 #define p_sincos(x, s, c) { *(s) = sin(x); *(c) = cos(x); }
 #define to_digit(x) ((int) fmod((x), 10.0))
 #define to_char(x) ((char) (x))
@@ -108,6 +109,7 @@ class Phloat {
 // defines them as macros.
 int p_isinf(Phloat p);
 int p_isnan(Phloat p);
+int p_isnormal(Phloat p);
 
 // We don't define type cast operators, because they just lead
 // to tons of ambiguities. Defining explicit conversions instead.

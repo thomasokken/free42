@@ -353,27 +353,23 @@ static int mappable_log_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
             *yim = 0;
         } else {
             *yre = log10(-xre);
-            *yim = PI / log(10.0);
+            *yim = PI / log(phloat(10.0));
         }
         return ERR_NONE;
     } else if (xre == 0) {
         if (xim > 0) {
             *yre = log10(xim);
-            *yim = PI / log(100.0);
+            *yim = PI / log(phloat(100.0));
         } else {
             *yre = log10(-xim);
-            *yim = -PI / log(100.0);
+            *yim = -PI / log(phloat(100.0));
         }
         return ERR_NONE;
     } else {
-        phloat h = hypot(xre, xim);
-        if (p_isinf(h)) {
-            const phloat s = 10000;
-            h = hypot(xre / s, xim / s);
-            *yre = log10(h) + 4;
-        } else
-            *yre = log10(h);
-        *yim = atan2(xim, xre) / log(10.0);
+        math_ln(xre, xim, yre, yim);
+        phloat s = log(phloat(10.0));
+        *yre /= s;
+        *yim /= s;
         return ERR_NONE;
     }
 }
@@ -387,7 +383,7 @@ int docmd_log(arg_struct *arg) {
             if (flags.f.real_result_only)
                 return ERR_INVALID_DATA;
             else {
-                vartype *r = new_complex(log10(-x->x), PI / log(10.0));
+                vartype *r = new_complex(log10(-x->x), PI / log(phloat(10.0)));
                 if (r == NULL)
                     return ERR_INSUFFICIENT_MEMORY;
                 else {
@@ -426,7 +422,7 @@ static int mappable_10_pow_x_r(phloat x, phloat *y) {
 static int mappable_10_pow_x_c(phloat xre, phloat xim, phloat *yre, phloat *yim){
     int inf;
     phloat h;
-    xim *= log(10.0);
+    xim *= log(phloat(10.0));
     if ((inf = p_isinf(xim)) != 0)
         xim = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
     h = pow(10, xre);
@@ -472,40 +468,6 @@ static int mappable_ln_r(phloat x, phloat *y) {
     }
 }
 
-static int mappable_ln_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
-    if (xim == 0) {
-        if (xre == 0)
-            return ERR_INVALID_DATA;
-        if (xre > 0) {
-            *yre = log(xre);
-            *yim = 0;
-        } else {
-            *yre = log(-xre);
-            *yim = PI;
-        }
-        return ERR_NONE;
-    } else if (xre == 0) {
-        if (xim > 0) {
-            *yre = log(xim);
-            *yim = PI / 2;
-        } else {
-            *yre = log(-xim);
-            *yim = -PI / 2;
-        }
-        return ERR_NONE;
-    } else {
-        phloat h = hypot(xre, xim);
-        if (p_isinf(h)) {
-            const phloat s = 10000;
-            h = hypot(xre / s, xim / s);
-            *yre = log(h) + log(s);
-        } else
-            *yre = log(h);
-        *yim = atan2(xim, xre);
-        return ERR_NONE;
-    }
-}
-
 int docmd_ln(arg_struct *arg) {
     if (stack[sp]->type == TYPE_REAL) {
         vartype_real *x = (vartype_real *) stack[sp];
@@ -534,7 +496,7 @@ int docmd_ln(arg_struct *arg) {
         }
     } else {
         vartype *v;
-        int err = map_unary(stack[sp], &v, mappable_ln_r, mappable_ln_c);
+        int err = map_unary(stack[sp], &v, mappable_ln_r, math_ln);
         if (err == ERR_NONE)
             unary_result(v);
         return err;
@@ -674,54 +636,9 @@ static int mappable_inv_r(phloat x, phloat *y) {
     return ERR_NONE;
 }
 
-static int mappable_inv_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
-    phloat r, t, rre, rim;
-    int inf;
-    if (xre == 0 && xim == 0)
-        return ERR_DIVIDE_BY_0;
-    if (fabs(xim) <= fabs(xre)) {
-        r = xim / xre;
-        t = 1 / (xre + xim * r);
-        if (r == 0) {
-            rre = t;
-            rim = -xim * (1 / xre) * t;
-        } else {
-            rre = t;
-            rim = -r * t;
-        }
-    } else {
-        r = xre / xim;
-        t = 1 / (xre * r + xim);
-        if (r == 0) {
-            rre = xre * (1 / xim) * t;
-            rim = -t;
-        } else {
-            rre = r * t;
-            rim = -t;
-        }
-    }
-    inf = p_isinf(rre);
-    if (inf != 0) {
-        if (flags.f.range_error_ignore)
-            rre = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
-        else
-            return ERR_OUT_OF_RANGE;
-    }
-    inf = p_isinf(rim);
-    if (inf != 0) {
-        if (flags.f.range_error_ignore)
-            rim = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
-        else
-            return ERR_OUT_OF_RANGE;
-    }
-    *yre = rre;
-    *yim = rim;
-    return ERR_NONE;
-}
-
 int docmd_inv(arg_struct *arg) {
     vartype *v;
-    int err = map_unary(stack[sp], &v, mappable_inv_r, mappable_inv_c);
+    int err = map_unary(stack[sp], &v, mappable_inv_r, math_inv);
     if (err == ERR_NONE)
         unary_result(v);
     return err;
@@ -915,7 +832,7 @@ int docmd_y_pow_x(arg_struct *arg) {
                 res = new_complex(0, 0);
             goto done;
         }
-        err = mappable_ln_c(yre, yim, &lre, &lim);
+        err = math_ln(yre, yim, &lre, &lim);
         if (err != ERR_NONE)
             return err;
         tmp = lre * xre - lim * xim;

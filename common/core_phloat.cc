@@ -404,6 +404,12 @@ int p_isnan(Phloat p) {
     return r;
 }
 
+int p_isnormal(Phloat p) {
+    int r;
+    bid128_isNormal(&r, &p.val);
+    return r;
+}
+
 int to_digit(Phloat p) {
     BID_UINT128 ten, res;
     int d10 = 10;

@@ -243,32 +243,89 @@ int math_atanh(phloat xre, phloat xim, phloat *yre, phloat *yim) {
         return ERR_NONE;
     }
 
-    phloat are, aim, bre, bim, cre, cim, h;
+    phloat x = fabs(xre);
+    phloat y = fabs(xim);
 
-    /* TODO: review, and deal with overflows in intermediate results */
+#ifdef BCD_MATH
+    const Phloat BIG(1000000000000000000LL);
+#else
+    const double BIG = 0x8000000; // 2^27
+#endif
 
-    /* a = 1 + x */
-    are = 1 + xre;
-    aim = xim;
+    if (x >= BIG || y >= BIG) { // atan(1/z) ~= 1/z
+        math_inv(x, y, &x, &y); // atan(x+y*I) ~= pi/2 + t
+        x += PI / 2;            // |re(t^3/3)/re(t)| <= 0x1p-54
+                                // |im(t^3/3)/im(t)| <= 0x1p-54
+    } else {
+        phloat x2 = x * x;
+        phloat ym = 1 - y;
+        x = atan2(2 * x, (1 + y) * ym - x2) / 2;
+        y = log1p(4 * y / (ym * ym + x2)) / 4;
+    }
 
-    /* b = 1 - x */
-    bre = 1 - xre;
-    bim = - xim;
+    x = fabs(x);
+    if (xre < 0)
+        x = -x;
+    y = fabs(y);
+    if (xim < 0)
+        y = -y;
 
-    /* c = a / b */
-    h = hypot(bre, bim);
-    cre = (are * bre + aim * bim) / h / h;
-    cim = (aim * bre - are * bim) / h / h;
-
-    /* y = log(c) / 2 */
-    *yre = log(hypot(cre, cim)) / 2;
-    *yim = atan2(cim, cre) / 2;
-
-    /* Theoretically, you could go out of range, but in practice,
-     * you can't get close enough to the critical values to cause
-     * trouble.
-     */
+    *yre = x;
+    *yim = y;
     return ERR_NONE;
+}
+
+int math_ln(phloat xre, phloat xim, phloat *yre, phloat *yim) {
+    if (xim == 0) {
+        if (xre == 0)
+            return ERR_INVALID_DATA;
+        if (xre > 0) {
+            *yre = log(xre);
+            *yim = 0;
+        } else {
+            *yre = log(-xre);
+            *yim = PI;
+        }
+        return ERR_NONE;
+    } else if (xre == 0) {
+        if (xim > 0) {
+            *yre = log(xim);
+            *yim = PI / 2;
+        } else {
+            *yre = log(-xim);
+            *yim = -PI / 2;
+        }
+        return ERR_NONE;
+    } else {
+        phloat h = xre * xre + xim * xim;
+        phloat a = atan2(xim, xre);
+        if (h > 0.5 && h < 3.0) {
+            if ((h = fabs(xre)) < (xim = fabs(xim))) {
+                h = xim;
+                xim = xre;
+            }
+            h -= 1; /* x^2-1 = 2*(x-1) + (x-1)^2 */
+            h = log1p(2 * h + h * h + xim * xim) / 2;
+        } else if (p_isnormal(h)) {
+            h = log(h) / 2;
+        } else {
+            #ifdef BCD_MATH
+            phloat m = scalbn(phloat(1), 37);
+            phloat b = -log(phloat(10)) * 37;
+            #else
+            phloat m = 0x2000000000000000; // 2^61
+            phloat b = -log(phloat(2)) * 61;
+            #endif
+            if (p_isinf(h)) {
+                m = 1 / m;
+                b = -b;
+            }
+            h = log(hypot(m * xre, m * xim)) + b;
+        }
+        *yre = h;
+        *yim = a;
+        return ERR_NONE;
+    }
 }
 
 int math_sqrt(phloat xre, phloat xim, phloat *yre, phloat *yim) {
@@ -324,5 +381,50 @@ int math_sqrt(phloat xre, phloat xim, phloat *yre, phloat *yim) {
         *yre = -b;
         *yim = -a;
     }
+    return ERR_NONE;
+}
+
+int math_inv(phloat xre, phloat xim, phloat *yre, phloat *yim) {
+    phloat r, t, rre, rim;
+    int inf;
+    if (xre == 0 && xim == 0)
+        return ERR_DIVIDE_BY_0;
+    if (fabs(xim) <= fabs(xre)) {
+        r = xim / xre;
+        t = 1 / (xre + xim * r);
+        if (r == 0) {
+            rre = t;
+            rim = -xim * (1 / xre) * t;
+        } else {
+            rre = t;
+            rim = -r * t;
+        }
+    } else {
+        r = xre / xim;
+        t = 1 / (xre * r + xim);
+        if (r == 0) {
+            rre = xre * (1 / xim) * t;
+            rim = -t;
+        } else {
+            rre = r * t;
+            rim = -t;
+        }
+    }
+    inf = p_isinf(rre);
+    if (inf != 0) {
+        if (flags.f.range_error_ignore)
+            rre = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
+        else
+            return ERR_OUT_OF_RANGE;
+    }
+    inf = p_isinf(rim);
+    if (inf != 0) {
+        if (flags.f.range_error_ignore)
+            rim = inf == 1 ? POS_HUGE_PHLOAT : NEG_HUGE_PHLOAT;
+        else
+            return ERR_OUT_OF_RANGE;
+    }
+    *yre = rre;
+    *yim = rim;
     return ERR_NONE;
 }
