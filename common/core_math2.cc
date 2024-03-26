@@ -243,8 +243,8 @@ int math_atanh(phloat xre, phloat xim, phloat *yre, phloat *yim) {
         return ERR_NONE;
     }
 
-    phloat x = fabs(xre);
-    phloat y = fabs(xim);
+    phloat x = fabs(xim);
+    phloat y = fabs(xre);
 
 #ifdef BCD_MATH
     const Phloat BIG(1000000000000000000LL);
@@ -264,14 +264,14 @@ int math_atanh(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     }
 
     x = fabs(x);
-    if (xre < 0)
+    if (xim < 0)
         x = -x;
     y = fabs(y);
-    if (xim < 0)
+    if (xre < 0)
         y = -y;
 
-    *yre = x;
-    *yim = y;
+    *yre = y;
+    *yim = x;
     return ERR_NONE;
 }
 

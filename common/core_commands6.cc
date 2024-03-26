@@ -320,11 +320,7 @@ static int mappable_atan_r(phloat x, phloat *y) {
 }
 
 static int mappable_atan_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
-    phloat tre, tim;
-    int err = math_atanh(xim, -xre, &tre, &tim);
-    *yre = -tim;
-    *yim = tre;
-    return err;
+    return math_atanh(xim, xre, yim, yre);
 }
 
 int docmd_atan(arg_struct *arg) {
