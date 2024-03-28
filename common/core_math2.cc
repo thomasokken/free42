@@ -146,39 +146,18 @@ int math_asinh(phloat xre, phloat xim, phloat *yre, phloat *yim) {
         return ERR_NONE;
     }
 
-    /* TODO: review; and deal with overflows in intermediate results */
-    phloat are, aim, br, bphi;
+    // Calculating asinh(x) as i * asin(x / i)
+    phloat zre = xim;
+    phloat zim = -xre;
 
-    /* If re(x)<0, we calculate asinh(x)=-asinh(-x); this avoids the loss of
-     * significance in x+sqrt(x^2+1) when x is large and sqrt(x^2+1) approaches
-     * -x.
-     */
-    int neg = xre < 0;
-    if (neg) {
-        xre = -xre;
-        xim = -xim;
-    }
+    phloat are, aim, bre, bim;
+    math_sqrt(zre + 1, zim, &are, &aim);
+    math_sqrt(-zre + 1, -zim, &bre, &bim);
+    phloat x2 = atan(zre / (are * bre - aim * bim));
+    phloat y2 = asinh(are * bim - aim * bre);
 
-    /* a = x ^ 2 + 1 */
-    are = xre * xre - xim * xim + 1;
-    aim = 2 * xre * xim;
-
-    /* b = sqrt(a) */
-    br = sqrt(hypot(are, aim));
-    bphi = atan2(aim, are) / 2;
-
-    /* a = b + x */
-    p_sincos(bphi, &aim, &are);
-    are = are * br + xre;
-    aim = aim * br + xim;
-
-    /* y = log(a) */
-    *yre = log(hypot(are, aim));
-    *yim = atan2(aim, are);
-    if (neg) {
-        *yre = -*yre;
-        *yim = -*yim;
-    }
+    *yre = -copysign(y2, zim);
+    *yim = copysign(x2, zre);
     return ERR_NONE;
 }
 

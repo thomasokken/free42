@@ -758,6 +758,12 @@ Phloat scalbn(Phloat x, int y) {
     return Phloat(res);
 }
 
+Phloat copysign(Phloat x, Phloat y) {
+    BID_UINT128 res;
+    bid128_copySign(&res, &x.val, &y.val);
+    return Phloat(res);
+}
+
 Phloat operator*(int x, Phloat y) {
     BID_UINT128 xx, res;
     bid128_from_int32(&xx, &x);
