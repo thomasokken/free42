@@ -3457,6 +3457,24 @@ static void paste_programs(const char *buf) {
         // Perform additional translations, to support various 42S-to-text
         // and 41-to-text conversion schemes:
         hpend = text2hp(hpbuf, hpend);
+
+        // Comments: semicolons and at signs, if not preceded by a double
+        // quote, are considered comment delimiters, and they, and everything
+        // following until the end of the line, are ignored.
+        // Note that any extraneous text following a syntactically correct
+        // complete command is also considered a comment, so in most cases it
+        // isn't necessary to use a delimiter. But sometimes it is,
+        // specifically, unnumbered number lines followed by comments.
+        for (int i = 0; i < hpend; i++) {
+            c = hpbuf[i];
+            if (c == '"')
+                break;
+            if (c == '@' || c == ';') {
+                hpend = i;
+                break;
+            }
+        }
+
         // Skip leading whitespace and line number.
         int hppos;
         hppos = 0;
