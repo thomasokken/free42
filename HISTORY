@@ -1,3 +1,8 @@
+2024-03-30: release 3.1.7
+
+* Now recognizing comment delimiters '@' and ';' for program pasting.
+* More accurate complex ASIN/ASINH.
+
 2024-03-26: release 3.1.6
 
 * Accuracy improvements for C.LN1+X, and complex LN, ATAN, and ATANH.
