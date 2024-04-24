@@ -1,3 +1,7 @@
+2024-04-24: release 3.1.8
+
+* Fixed ALPHA pasting during command entry.
+
 2024-03-30: release 3.1.7
 
 * Now recognizing comment delimiters '@' and ';' for program pasting.
