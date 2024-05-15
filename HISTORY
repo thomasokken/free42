@@ -1,3 +1,8 @@
+2024-05-15: release 3.1.8a (Android, iOS, and MacOS)
+
+* PSE could halt program execution if it was used right after TONE or BEEP.
+  Fixed.
+
 2024-04-24: release 3.1.8
 
 * Fixed ALPHA pasting during command entry.
