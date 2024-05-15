@@ -242,6 +242,8 @@ bool core_keydown(int key, bool *enqueued, int *repeat) {
     }
 
     if (mode_pause) {
+        if (key == 0)
+            return 0;
         mode_pause = false;
         set_running(false);
         if (!mode_shift && (key == KEY_RUN || key == KEY_EXIT)) {
