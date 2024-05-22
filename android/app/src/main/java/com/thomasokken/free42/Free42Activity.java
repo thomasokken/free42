@@ -1623,8 +1623,14 @@ public class Free42Activity extends Activity {
             if (ch == 0)
                 ch = event.getUnicodeChar(0);
             ch &= KeyCharacterMap.COMBINING_ACCENT_MASK;
-            String code = ch == 0 ? KeyEvent.keyCodeToString(keyCode).substring(8)
-                                  : "" + (char) ch;
+            String code;
+            if (ch == 0) {
+                code = KeyEvent.keyCodeToString(keyCode);
+                if (code.startsWith("KEYCODE_"))
+                    code = code.substring(8);
+            } else {
+                code = "" + (char) ch;
+            }
 
             boolean ctrl = event.isCtrlPressed();
             boolean alt = event.isAltPressed();
