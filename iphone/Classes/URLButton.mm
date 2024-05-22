@@ -33,7 +33,7 @@
 - (void) buttonClicked {
     NSString *urlStr = self.titleLabel.text;
     NSURL *url = [NSURL URLWithString:urlStr];
-    [[UIApplication sharedApplication] openURL:url];
+    [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
 }
 
 @end
