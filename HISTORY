@@ -1,3 +1,7 @@
+2024-05-28: release 3.1.8b (Android only)
+
+* Fixed crash for certain unrecognized key codes from Bluetooth keyboards.
+
 2024-05-15: release 3.1.8a (Android, iOS, and MacOS)
 
 * PSE could halt program execution if it was used right after TONE or BEEP.
