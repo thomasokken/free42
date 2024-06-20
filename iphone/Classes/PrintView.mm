@@ -121,8 +121,8 @@ int print_text_pixel_height;
     CGRect cf = calc.frame;
     if (gstate == UIGestureRecognizerStateBegan) {
         // Make sure the Calculator view isn't hidden
-        [RootViewController showMain];
-        [RootViewController showPrintOut];
+        [RootViewController showMainWithoutAnimation];
+        [RootViewController showPrintOutWithoutAnimation];
         prevX = self.frame.origin.x;
     }
     if (gstate == UIGestureRecognizerStateEnded) {
@@ -135,7 +135,7 @@ int print_text_pixel_height;
         if (scale < 1)
             scale = 1;
         if (scale * (p.x + v.x / 16) * dir < -self.bounds.size.width / 3)
-            [RootViewController showMain];
+            [RootViewController showMainWithoutAnimation];
     } else {
         if (dir * p.x > 0)
             p.x = 0;
