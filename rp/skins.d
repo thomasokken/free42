@@ -1,0 +1,1 @@
+skins.o: skins.cc

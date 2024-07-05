@@ -1,0 +1,1 @@
+../common/core_commands6.cc
