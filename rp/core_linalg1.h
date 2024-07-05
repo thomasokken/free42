@@ -1,1 +1,0 @@
-../common/core_linalg1.h

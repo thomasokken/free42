@@ -1,1 +1,0 @@
-../common/core_linalg2.cc

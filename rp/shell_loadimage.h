@@ -1,1 +1,0 @@
-../common/shell_loadimage.h

@@ -1,1 +1,0 @@
-../common/bid_functions.h

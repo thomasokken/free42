@@ -1,1 +1,0 @@
-../common/core_math1.h
