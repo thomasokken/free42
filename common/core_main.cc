@@ -2238,7 +2238,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                         // instructions are limited to 16 bytes, giving a payload
                         // of up to 13 characters per instruction.
                         char *newbuf = (char *) realloc(xstr_buf, xstr_len + str_len);
-                        if (newbuf == NULL)
+                        if (newbuf == NULL && xstr_len + str_len != 0)
                             goto done;
                         xstr_buf = newbuf;
                         while (str_len-- > 0) {
