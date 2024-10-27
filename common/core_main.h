@@ -351,8 +351,8 @@ void set_alpha_entry(bool state);
 void set_running(bool state);
 bool program_running();
 bool alpha_active();
+int dequeue_key();
 
-int want_to_run_again();
 void do_interactive(int command);
 int find_builtin(const char *name, int namelen);
 

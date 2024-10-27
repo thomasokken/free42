@@ -402,6 +402,21 @@ bool core_keydown(int key, bool *enqueued, int *repeat) {
     return 0;
 }
 
+int dequeue_key() {
+    if (keybuf_tail == keybuf_head)
+        return 0;
+    int key = keybuf[keybuf_tail];
+    keybuf_tail = (keybuf_tail + 1) & 15;
+    bool shift = key < 0;
+    if (shift)
+        key = -key;
+    if (key > 37)
+        key = 0;
+    else if (shift)
+        key += 37;
+    return key;
+}
+
 int core_repeat() {
     keydown(repeating_shift, repeating_key);
     int rpt = repeating;

@@ -691,6 +691,14 @@ int docmd_getkey1(arg_struct *arg) {
     return ERR_NONE;
 }
 
+int docmd_getkeya(arg_struct *arg) {
+    int key = dequeue_key();
+    vartype *v = new_real(key);
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    return recall_result(v);
+}
+
 ////////////////////////////////////////////////////////////////
 ///// Intel Decimal Floating-Point Math Library: self-test /////
 ////////////////////////////////////////////////////////////////

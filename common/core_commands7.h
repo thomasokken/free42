@@ -39,6 +39,7 @@ int docmd_mdy(arg_struct *arg);
 int docmd_time(arg_struct *arg);
 int docmd_ymd(arg_struct *arg);
 int docmd_getkey1(arg_struct *arg);
+int docmd_getkeya(arg_struct *arg);
 
 int docmd_fptest(arg_struct *arg);
 
