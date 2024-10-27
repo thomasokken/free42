@@ -1,3 +1,10 @@
+2024-10-27: release 3.1.9
+
+* Implemented GETKEYA. This works like GETKEY, except that it will not wait for
+  a keystroke if no keystrokes are in the keyboard queue, returning 0 instead
+  in that case.
+* Android version: Fixed crash with relative file imports.
+
 2024-05-28: release 3.1.8b (Android only)
 
 * Fixed crash for certain unrecognized key codes from Bluetooth keyboards.
