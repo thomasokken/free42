@@ -410,8 +410,11 @@ int dequeue_key() {
     bool shift = key < 0;
     if (shift)
         key = -key;
-    if (key > 37)
-        key = 0;
+    if (key > 2048) {
+        key = find_cmd_getkey_mapping(key - 2048);
+        if (key == 0)
+            squeak();
+    }
     else if (shift)
         key += 37;
     return key;

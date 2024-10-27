@@ -25,5 +25,6 @@ void keydown_number_entry(int shift, int key);
 void keydown_command_entry(int shift, int key);
 void keydown_alpha_mode(int shift, int key);
 void keydown_normal_mode(int shift, int key);
+int find_cmd_getkey_mapping(int cmd);
 
 #endif

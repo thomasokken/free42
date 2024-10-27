@@ -152,6 +152,18 @@ static cmd_getkey_mapping_struct cmd_getkey_mapping[] = {
     {  0, CMD_NONE }
 };
 
+int find_cmd_getkey_mapping(int cmd) {
+    cmd_getkey_mapping_struct *gm = cmd_getkey_mapping;
+    while (true) {
+        if (gm->key == 0)
+            // Command that's not on the standard keyboard
+            return 0;
+        else if (gm->cmd == cmd)
+            return gm->key;
+        gm++;
+    }
+}
+
 void keydown(int shift, int key) {
     // Preserve state of Shift, to allow MENU handlers to implement
     // different behaviors for unshifted and shifted menu keys.
@@ -190,18 +202,11 @@ void keydown(int shift, int key) {
         if (key >= 2048) {
             // Direct command mapping
             int cmd = key - 2048;
-            cmd_getkey_mapping_struct *gm = cmd_getkey_mapping;
-            while (true) {
-                if (gm->key == 0) {
-                    // Command that's not on the standard keyboard
-                    squeak();
-                    shell_annunciators(-1, -1, -1, 0, -1, -1);
-                    return;
-                } else if (gm->cmd == cmd) {
-                    key = gm->key;
-                    break;
-                }
-                gm++;
+            key = find_cmd_getkey_mapping(cmd);
+            if (key == 0) {
+                squeak();
+                shell_annunciators(-1, -1, -1, 0, -1, -1);
+                return;
             }
         } else {
             if (shift)
