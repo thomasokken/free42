@@ -1367,7 +1367,7 @@ static void states_changed_cb(GtkWidget *w, gpointer p) {
 
 static GtkWidget *dlg;
 
-static char *get_state_name(const char *prompt) {
+static char *get_state_name(const char *prompt, const char *initialName) {
     static GtkWidget *state_name_dialog = NULL;
     static GtkWidget *promptLabel;
     static GtkWidget *name;
@@ -1397,10 +1397,13 @@ static char *get_state_name(const char *prompt) {
 
     gtk_window_set_role(GTK_WINDOW(state_name_dialog), "Free42 Dialog");
     gtk_label_set_text(GTK_LABEL(promptLabel), prompt);
+    gtk_entry_set_text(GTK_ENTRY(name), initialName);
+    gtk_editable_select_region(GTK_EDITABLE(name), 0, -1);
 
     char *result = NULL;
     while (true) {
         gtk_window_set_focus(GTK_WINDOW(state_name_dialog), name);
+        gtk_widget_grab_focus(GTK_WIDGET(name));
         int response = gtk_dialog_run(GTK_DIALOG(state_name_dialog));
         if (response == GTK_RESPONSE_ACCEPT) {
             const char *tmp = gtk_entry_get_text(GTK_ENTRY(name));
@@ -1454,7 +1457,7 @@ static bool switchTo(const char *selectedStateName) {
 }
 
 static void states_menu_new() {
-    char *name = get_state_name("New state name:");
+    char *name = get_state_name("New state name:", "");
     if (name == NULL)
         return;
     char path[FILENAMELEN];
@@ -1565,7 +1568,7 @@ static void states_menu_rename() {
         return;
     char prompt[FILENAMELEN];
     snprintf(prompt, FILENAMELEN, "Rename \"%s\" to:", state_names[selectedStateIndex]);
-    char *newname = get_state_name(prompt);
+    char *newname = get_state_name(prompt, state_names[selectedStateIndex]);
     if (newname == NULL)
         return;
     char oldpath[FILENAMELEN];
