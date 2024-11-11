@@ -189,7 +189,7 @@ public class StatesDialog extends Dialog {
     }
 
     private void doNew() {
-        getStateName("New state name:", 0);
+        getStateName("New state name:", "", 0);
     }
 
     private void doNew2(String newStateName) {
@@ -291,7 +291,7 @@ public class StatesDialog extends Dialog {
 
     private void doRename() {
         String selectedState = getSelectedState();
-        getStateName("Rename \"" +  selectedState + "\" to:", 1);
+        getStateName("Rename \"" +  selectedState + "\" to:", selectedState, 1);
     }
 
     private void doRename2(String newStateName) {
@@ -496,13 +496,15 @@ public class StatesDialog extends Dialog {
     private EditText stateName;
     private int continuation;
 
-    private void getStateName(String prompt, int continuation) {
+    private void getStateName(String prompt, String initialName, int continuation) {
         this.continuation = continuation;
         Context ctx = getContext();
         AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
         builder.setTitle("State Name");
         builder.setMessage(prompt);
         stateName = new EditText(ctx);
+        stateName.setText(initialName);
+        stateName.setSelectAllOnFocus(true);
         builder.setView(stateName);
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
