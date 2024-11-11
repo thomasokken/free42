@@ -78,7 +78,9 @@ static LRESULT CALLBACK StateNameDlgProc(HWND hDlg, UINT message, WPARAM wParam,
     switch (message) {
         case WM_INITDIALOG: {
             SetDlgItemTextW(hDlg, IDC_STATE_PROMPT, stateLabel.c_str());
-            SetDlgItemTextW(hDlg, IDC_STATE_NAME, L"");
+            SetDlgItemTextW(hDlg, IDC_STATE_NAME, stateName.c_str());
+            HWND edit = GetDlgItem(hDlg, IDC_STATE_NAME);
+            SendMessage(edit, EM_SETSEL, 0, -1);
             return TRUE;
         }
         case WM_COMMAND: {
@@ -108,7 +110,8 @@ static LRESULT CALLBACK StateNameDlgProc(HWND hDlg, UINT message, WPARAM wParam,
     return FALSE;
 }
 
-static ci_string getStateName(HWND hDlg, const ci_string label) {
+static ci_string getStateName(HWND hDlg, const ci_string initialName, const ci_string label) {
+    stateName = initialName;
     stateLabel = label;
     DialogBoxW(hInst, (LPCWSTR)IDD_STATE_NAME, hDlg, (DLGPROC)StateNameDlgProc);
     return stateName;
@@ -191,7 +194,7 @@ static void switchTo(HWND hDlg) {
 }
 
 static void doNew(HWND hDlg) {
-    ci_string name = getStateName(hDlg, L"New state name:");
+    ci_string name = getStateName(hDlg, L"", L"New state name:");
     if (name == L"")
         return;
     ci_string path = free42dirname;
@@ -304,7 +307,7 @@ static void doRename(HWND hDlg) {
     ci_string prompt = L"Rename \"";
     prompt += selectedStateName;
     prompt += L"\" to:";
-    ci_string newname = getStateName(hDlg, prompt);
+    ci_string newname = getStateName(hDlg, selectedStateName, prompt);
     if (newname == L"")
         return;
     ci_string oldpath = ci_string(free42dirname) + L"\\" + selectedStateName + L".f42";
