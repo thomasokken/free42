@@ -27,7 +27,7 @@
 @property (nonatomic, retain) IBOutlet NSTextField *label;
 @property (nonatomic, retain) IBOutlet NSTextField *stateName;
 
-- (void) setupWithLabel:(NSString *)label existingNames:(NSMutableArray *)names;
+- (void) setupWithLabel:(NSString *)label initialName:(NSString *)name existingNames:(NSMutableArray *)names;
 - (NSString *) selectedName;
 - (IBAction) ok:(id)sender;
 - (IBAction) cancel:(id)sender;

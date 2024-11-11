@@ -143,7 +143,7 @@
 }
 
 - (void) doNew {
-    [stateNameWindow setupWithLabel:@"New State Name:" existingNames:[stateListDataSource getNames]];
+    [stateNameWindow setupWithLabel:@"New State Name:" initialName:@"" existingNames:[stateListDataSource getNames]];
     [NSApp runModalForWindow:stateNameWindow];
     NSString *name = [stateNameWindow selectedName];
     if (name == nil)
@@ -248,7 +248,7 @@
     NSString *oldname = [self selectedStateName];
     if (oldname == nil)
         return;
-    [stateNameWindow setupWithLabel:[NSString stringWithFormat:@"Rename \"%@\" to:", oldname] existingNames:[stateListDataSource getNames]];
+    [stateNameWindow setupWithLabel:[NSString stringWithFormat:@"Rename \"%@\" to:", oldname] initialName:oldname existingNames:[stateListDataSource getNames]];
     [NSApp runModalForWindow:stateNameWindow];
     NSString *newname = [stateNameWindow selectedName];
     if (newname == nil)

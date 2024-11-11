@@ -23,9 +23,10 @@
 @synthesize label;
 @synthesize stateName;
 
-- (void) setupWithLabel:(NSString *)labelText existingNames:(NSMutableArray *)names {
+- (void) setupWithLabel:(NSString *)labelText initialName:(NSString *)name existingNames:(NSMutableArray *)names {
     [label setStringValue:labelText];
-    [stateName setStringValue:@""];
+    [stateName setStringValue:name];
+    [stateName selectText:nil];
     existingNames = [NSMutableArray arrayWithArray:names];
     confirmed = NO;
 }
