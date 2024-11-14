@@ -1,3 +1,7 @@
+2024-11-14: release 3.1.10
+
+* Now pre-populating state name for States -> More -> Rename.
+
 2024-10-27: release 3.1.9
 
 * Implemented GETKEYA. This works like GETKEY, except that it will not wait for
