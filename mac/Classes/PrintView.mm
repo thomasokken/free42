@@ -94,7 +94,18 @@
     }
 }
 
+- (void) viewDidChangeEffectiveAppearance {
+    self.needsDisplay = YES;
+}
+
 - (void)drawRect:(NSRect)rect {
+    bool dark = false;
+    if (@available(*, macOS 10.14)) {
+        NSAppearance *currentAppearance = [NSAppearance  currentAppearance];
+        if (currentAppearance.name == NSAppearanceNameDarkAqua)
+            dark = true;
+    }
+
     int length = printout_bottom - printout_top;
     if (length < 0)
         length += PRINT_LINES;
@@ -103,9 +114,9 @@
     if (rect.origin.y + rect.size.height > length)
         rect.size.height = length - rect.origin.y;
     CGContextRef myContext = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
-    CGContextSetRGBFillColor(myContext, 1.0, 1.0, 1.0, 1.0);
+    CGContextSetRGBFillColor(myContext, !dark, !dark, !dark, 1.0);
     CGContextFillRect(myContext, NSRectToCGRect(rect));
-    CGContextSetRGBFillColor(myContext, 0.0, 0.0, 0.0, 1.0);
+    CGContextSetRGBFillColor(myContext, dark, dark, dark, 1.0);
     int xmin = (int) rect.origin.x;
     int xmax = (int) (rect.origin.x + rect.size.width);
     int ymin = (int) rect.origin.y;

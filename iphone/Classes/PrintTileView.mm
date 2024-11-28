@@ -35,14 +35,20 @@
     self.contentMode = UIViewContentModeRedraw;
 }
 
+- (void) traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
+    [self setNeedsDisplay];
+}
+
 - (void)drawRect:(CGRect)rect
 {
+    bool dark = UIScreen.mainScreen.traitCollection.userInterfaceStyle == UIUserInterfaceStyleDark;
+
     //NSLog(@"tile.drawRect: %f %f %f %f", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
     CGFloat scale = [PrintView scale];
     CGContextRef myContext = UIGraphicsGetCurrentContext();
-    CGContextSetRGBFillColor(myContext, 1.0, 1.0, 1.0, 1.0);
-    //CGContextFillRect(myContext, rect);
-    CGContextSetRGBFillColor(myContext, 0.0, 0.0, 0.0, 1.0);
+    CGContextSetRGBFillColor(myContext, !dark, !dark, !dark, 1.0);
+    CGContextFillRect(myContext, rect);
+    CGContextSetRGBFillColor(myContext, dark, dark, dark, 1.0);
     int xmin = floor(rect.origin.x / scale);
     if (xmin < 18)
         xmin = 18;
