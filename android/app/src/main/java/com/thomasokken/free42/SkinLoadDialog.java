@@ -145,7 +145,9 @@ public class SkinLoadDialog extends Dialog {
         try {
             loadFile(urls[0], tempGifName);
             loadFile(urls[1], tempLayoutName);
-            String sname = java.net.URLDecoder.decode(urls[2], "UTF-8");
+            String sname = urls[2];
+            sname = sname.replace("+", "%2B"); // prevent turning + into space
+            sname = java.net.URLDecoder.decode(sname, "UTF-8");
             String gifName = filesDir + "/" + sname + ".gif";
             String layoutName = filesDir + "/" + sname + ".layout";
             new File(tempGifName).renameTo(new File(gifName));
