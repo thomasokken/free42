@@ -95,6 +95,7 @@
 }
 
 - (void) viewDidChangeEffectiveAppearance {
+    [super viewDidChangeEffectiveAppearance];
     self.needsDisplay = YES;
 }
 

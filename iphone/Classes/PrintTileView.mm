@@ -36,6 +36,7 @@
 }
 
 - (void) traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
+    [super traitCollectionDidChange:previousTraitCollection];
     [self setNeedsDisplay];
 }
 
