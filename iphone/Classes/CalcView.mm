@@ -1102,6 +1102,7 @@ static void calc_keydown(NSString *characters, long flags, int keycode) {
 
     NSString *c2 = nil;
     if ([characters hasPrefix:@"UIKeyInput"]) {
+        // See https://developer.apple.com/documentation/uikit/input-strings-for-special-keys?language=objc
         NSString *s = [characters substringFromIndex:10];
         unsigned int fn;
         if ([s isEqualToString:@"UpArrow"])
