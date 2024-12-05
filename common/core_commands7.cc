@@ -1041,7 +1041,7 @@ int docmd_csld_t(arg_struct *arg) {
     return is_csld() ? ERR_YES : ERR_NO;
 }
 
-static int get_mat_or_list(arg_struct *arg, bool matrix, vartype **res, int *rows, int *cols) {
+static int get_mat_or_list(arg_struct *arg, bool matrix, vartype **res, int4 *rows, int4 *cols) {
     if (arg->type == ARGTYPE_IND_NUM
             || arg->type == ARGTYPE_IND_STK
             || arg->type == ARGTYPE_IND_STR) {
@@ -1095,7 +1095,7 @@ static int get_mat_or_list(arg_struct *arg, bool matrix, vartype **res, int *row
 
 int docmd_getmi(arg_struct *arg) {
     vartype *v;
-    int rows, cols;
+    int4 rows, cols;
     int err = get_mat_or_list(arg, true, &v, &rows, &cols);
     if (err != ERR_NONE)
         return err;
@@ -1128,12 +1128,60 @@ int docmd_getmi(arg_struct *arg) {
 }
 
 int docmd_putmi(arg_struct *arg) {
-    return ERR_NOT_YET_IMPLEMENTED;
+    if (stack[sp - 2]->type == TYPE_STRING)
+        return ERR_ALPHA_DATA_IS_INVALID;
+    else if (stack[sp - 2]->type != TYPE_REAL)
+        return ERR_INVALID_TYPE;
+    if (stack[sp - 1]->type == TYPE_STRING)
+        return ERR_ALPHA_DATA_IS_INVALID;
+    else if (stack[sp - 1]->type != TYPE_REAL)
+        return ERR_INVALID_TYPE;
+
+    vartype *v;
+    int4 rows, cols;
+    int err = get_mat_or_list(arg, true, &v, &rows, &cols);
+    if (err != ERR_NONE)
+        return err;
+    int4 row, col;
+    if (!dim_to_int4(stack[sp - 2], &row) || row >= rows)
+        return ERR_DIMENSION_ERROR;
+    if (!dim_to_int4(stack[sp - 1], &col) || col >= cols)
+        return ERR_DIMENSION_ERROR;
+
+    int4 n = row * cols + col;
+    if (v->type == TYPE_REALMATRIX) {
+        vartype_realmatrix *rm = (vartype_realmatrix *) v;
+        if (stack[sp]->type == TYPE_REAL) {
+            if (rm->array->is_string[n] == 2)
+                free(*(void **) &rm->array->data[n]);
+            rm->array->is_string[n] = 0;
+            rm->array->data[n] = ((vartype_real *) stack[sp])->x;
+        } else if (stack[sp]->type == TYPE_STRING) {
+            vartype_string *s = (vartype_string *) stack[sp];
+            if (!put_matrix_string(rm, n, s->txt(), s->length))
+                return ERR_INSUFFICIENT_MEMORY;
+        } else
+            return ERR_INVALID_TYPE;
+    } else {
+        vartype_complexmatrix *cm = (vartype_complexmatrix *) v;
+        if (stack[sp]->type == TYPE_REAL) {
+            cm->array->data[2 * n] = ((vartype_real *) stack[sp])->x;
+            cm->array->data[2 * n + 1] = 0;
+        } else if (stack[sp]->type == TYPE_COMPLEX) {
+            cm->array->data[2 * n] = ((vartype_complex *) stack[sp])->re;
+            cm->array->data[2 * n + 1] = ((vartype_complex *) stack[sp])->im;
+        } else if (stack[sp]->type == TYPE_STRING)
+            return ERR_ALPHA_DATA_IS_INVALID;
+        else
+            return ERR_INVALID_TYPE;
+    }
+
+    return ERR_NONE;
 }
 
 int docmd_getli(arg_struct *arg) {
     vartype *v;
-    int size;
+    int4 size;
     int err = get_mat_or_list(arg, false, &v, &size, NULL);
     if (err != ERR_NONE)
         return err;
@@ -1150,7 +1198,28 @@ int docmd_getli(arg_struct *arg) {
 }
 
 int docmd_putli(arg_struct *arg) {
-    return ERR_NOT_YET_IMPLEMENTED;
+    if (stack[sp - 1]->type == TYPE_STRING)
+        return ERR_ALPHA_DATA_IS_INVALID;
+    else if (stack[sp - 1]->type != TYPE_REAL)
+        return ERR_INVALID_TYPE;
+
+    vartype *v;
+    int4 size;
+    int err = get_mat_or_list(arg, false, &v, &size, NULL);
+    if (err != ERR_NONE)
+        return err;
+    int4 item;
+    if (!dim_to_int4(stack[sp - 1], &item) || item >= size)
+        return ERR_DIMENSION_ERROR;
+
+    vartype_list *list = (vartype_list *) v;
+    v = dup_vartype(stack[sp]);
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    free_vartype(list->array->data[item]);
+    list->array->data[item] = v;
+
+    return ERR_NONE;
 }
 
 /////////////////////
