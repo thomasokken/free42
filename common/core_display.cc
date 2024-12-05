@@ -1599,31 +1599,34 @@ static int ext_stk_cat[] = {
 #ifdef FREE42_FPTEST
 static int ext_misc_cat[] = {
     CMD_A2LINE, CMD_A2PLINE, CMD_CAPS,    CMD_C_LN_1_X, CMD_C_E_POW_X_1, CMD_FMA,
-    CMD_HEIGHT, CMD_MIXED,   CMD_PCOMPLX, CMD_PRREG,    CMD_RCOMPLX,     CMD_STRACE,
-    CMD_WIDTH,  CMD_X2LINE,  CMD_ACCEL,   CMD_LOCAT,    CMD_HEADING,     CMD_FPTEST
+    CMD_GETLI,  CMD_GETMI,   CMD_HEIGHT,  CMD_MIXED,    CMD_PCOMPLX,     CMD_PRREG,
+    CMD_PUTLI,  CMD_PUTMI,   CMD_RCOMPLX, CMD_STRACE,   CMD_WIDTH,       CMD_X2LINE,
+    CMD_ACCEL,  CMD_LOCAT,   CMD_HEADING, CMD_FPTEST,   CMD_NULL,        CMD_NULL
 };
-#define MISC_CAT_ROWS 3
+#define MISC_CAT_ROWS 4
 #else
 static int ext_misc_cat[] = {
     CMD_A2LINE, CMD_A2PLINE, CMD_CAPS,    CMD_C_LN_1_X, CMD_C_E_POW_X_1, CMD_FMA,
-    CMD_HEIGHT, CMD_MIXED,   CMD_PCOMPLX, CMD_PRREG,    CMD_RCOMPLX,     CMD_STRACE,
-    CMD_WIDTH,  CMD_X2LINE,  CMD_ACCEL,   CMD_LOCAT,    CMD_HEADING,     CMD_NULL
+    CMD_GETLI,  CMD_GETMI,   CMD_HEIGHT,  CMD_MIXED,    CMD_PCOMPLX,     CMD_PRREG,
+    CMD_PUTLI,  CMD_PUTMI,   CMD_RCOMPLX, CMD_STRACE,   CMD_WIDTH,       CMD_X2LINE,
+    CMD_ACCEL,  CMD_LOCAT,   CMD_HEADING, CMD_NULL,     CMD_NULL,        CMD_NULL
 };
-#define MISC_CAT_ROWS 3
+#define MISC_CAT_ROWS 4
 #endif
 #else
 #ifdef FREE42_FPTEST
 static int ext_misc_cat[] = {
     CMD_A2LINE, CMD_A2PLINE, CMD_CAPS,    CMD_C_LN_1_X, CMD_C_E_POW_X_1, CMD_FMA,
-    CMD_HEIGHT, CMD_MIXED,   CMD_PCOMPLX, CMD_PRREG,    CMD_RCOMPLX,     CMD_STRACE,
-    CMD_WIDTH,  CMD_X2LINE,  CMD_FPTEST,  CMD_NULL,     CMD_NULL,        CMD_NULL
+    CMD_GETLI,  CMD_GETMI,   CMD_HEIGHT,  CMD_MIXED,    CMD_PCOMPLX,     CMD_PRREG,
+    CMD_PUTLI,  CMD_PUTMI,   CMD_RCOMPLX, CMD_STRACE,   CMD_WIDTH,       CMD_X2LINE,
+    CMD_FPTEST, CMD_NULL,    CMD_NULL,    CMD_NULL,     CMD_NULL,        CMD_NULL
 };
-#define MISC_CAT_ROWS 3
+#define MISC_CAT_ROWS 4
 #else
 static int ext_misc_cat[] = {
     CMD_A2LINE, CMD_A2PLINE, CMD_CAPS,    CMD_C_LN_1_X, CMD_C_E_POW_X_1, CMD_FMA,
-    CMD_HEIGHT, CMD_MIXED,   CMD_PCOMPLX, CMD_PRREG,    CMD_RCOMPLX,     CMD_STRACE,
-    CMD_WIDTH,  CMD_X2LINE,  CMD_NULL,    CMD_NULL,     CMD_NULL,        CMD_NULL
+    CMD_GETLI,  CMD_GETMI,   CMD_HEIGHT,  CMD_MIXED,    CMD_PCOMPLX,     CMD_PRREG,
+    CMD_PUTLI,  CMD_PUTMI,   CMD_RCOMPLX, CMD_STRACE,   CMD_WIDTH,       CMD_X2LINE
 };
 #define MISC_CAT_ROWS 3
 #endif
@@ -1781,6 +1784,9 @@ static void draw_catalog() {
                 show_real = show_str = show_cpx = 0; break;
             case CATSECT_LIST_STR_ONLY:
                 show_real = show_cpx = show_mat = 0; break;
+            case CATSECT_LIST:
+            case CATSECT_LIST_ONLY:
+                show_real = show_str = show_cpx = show_mat = 0; break;
         }
 
         for (i = 0; i < vars_count; i++) {
@@ -2847,6 +2853,11 @@ void set_catalog_menu(int section) {
             if (!vars_exist(CATSECT_LIST_STR_ONLY))
                 mode_commandmenu = MENU_NONE;
             return;
+        case CATSECT_LIST:
+        case CATSECT_LIST_ONLY:
+            if (!vars_exist(CATSECT_LIST))
+                mode_commandmenu = MENU_NONE;
+            return;
         case CATSECT_VARS_ONLY:
             if (!vars_exist(-1))
                 mode_commandmenu = MENU_NONE;
@@ -2976,6 +2987,10 @@ void update_catalog() {
             if (!vars_exist(CATSECT_MAT_LIST))
                 set_cat_section(CATSECT_TOP);
             break;
+        case CATSECT_LIST:
+            if (!vars_exist(CATSECT_LIST))
+                set_cat_section(CATSECT_TOP);
+            break;
         case CATSECT_REAL_ONLY:
             if (!vars_exist(CATSECT_REAL)) {
                 *the_menu = MENU_NONE;
@@ -2999,6 +3014,13 @@ void update_catalog() {
             break;
         case CATSECT_LIST_STR_ONLY:
             if (!vars_exist(CATSECT_LIST_STR_ONLY)) {
+                *the_menu = MENU_NONE;
+                redisplay();
+                return;
+            }
+            break;
+        case CATSECT_LIST_ONLY:
+            if (!vars_exist(CATSECT_LIST)) {
                 *the_menu = MENU_NONE;
                 redisplay();
                 return;

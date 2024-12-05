@@ -463,6 +463,10 @@ const command_spec cmd_array[] =
     { /* CSLD_T */      docmd_csld_t,      "CSLD?",               0x00, 0x00, 0xa7, 0xdb,  5, ARG_NONE,   0, NA_T },
     { /* C_LN_1_X */    docmd_c_ln_1_x,    "C.LN1+X",             0x00, 0x00, 0xa6, 0xfe,  7, ARG_NONE,   0, 0x0f },
     { /* C_E_POW_X_1 */ docmd_c_e_pow_x_1, "C.E^X-1",             0x00, 0x00, 0xa6, 0xff,  7, ARG_NONE,   0, 0x0f },
+    { /* GETMI */       docmd_getmi,       "G\305TMI",            0x00, 0x72, 0xf2, 0x65,  5, ARG_M_STK,  2, 0x01 },
+    { /* PUTMI */       docmd_putmi,       "PUTMI",               0x00, 0x73, 0xf2, 0x66,  5, ARG_M_STK,  3, 0x12 },
+    { /* GETLI */       docmd_getli,       "GETLI",               0x00, 0x74, 0xf2, 0x67,  5, ARG_L_STK,  1, 0x01 },
+    { /* PUTLI */       docmd_putli,       "PUTLI",               0x00, 0x75, 0xf2, 0x68,  5, ARG_L_STK,  2, ALLT },
 
     /* String & List Functions */
     { /* XSTR */        docmd_xstr,        "XSTR",                0x20, 0x41, 0x00, 0x00,  4, ARG_XSTR,   0, NA_T },

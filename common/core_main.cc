@@ -1719,40 +1719,40 @@ static int hp42ext[] = {
     CMD_NULL | 0x4000,
 
     /* 60-6F */
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_LCLV | 0x2000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
+    CMD_NULL  | 0x4000,
+    CMD_NULL  | 0x4000,
+    CMD_NULL  | 0x4000,
+    CMD_NULL  | 0x4000,
+    CMD_LCLV  | 0x2000,
+    CMD_GETMI | 0x2000,
+    CMD_PUTMI | 0x2000,
+    CMD_GETLI | 0x2000,
+    CMD_PUTLI | 0x2000,
+    CMD_NULL  | 0x4000,
+    CMD_NULL  | 0x4000,
+    CMD_NULL  | 0x4000,
+    CMD_NULL  | 0x4000,
+    CMD_NULL  | 0x4000,
+    CMD_NULL  | 0x4000,
+    CMD_NULL  | 0x4000,
 
     /* 70-7F */
-    CMD_NULL | 0x4000,
-    CMD_LCLV | 0x0000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_LCLV | 0x1000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
-    CMD_NULL | 0x4000,
+    CMD_NULL  | 0x4000,
+    CMD_LCLV  | 0x0000,
+    CMD_GETMI | 0x0000,
+    CMD_PUTMI | 0x0000,
+    CMD_GETLI | 0x0000,
+    CMD_PUTLI | 0x0000,
+    CMD_NULL  | 0x4000,
+    CMD_NULL  | 0x4000,
+    CMD_NULL  | 0x4000,
+    CMD_LCLV  | 0x1000,
+    CMD_GETMI | 0x1000,
+    CMD_PUTMI | 0x1000,
+    CMD_GETLI | 0x1000,
+    CMD_PUTLI | 0x1000,
+    CMD_NULL  | 0x4000,
+    CMD_NULL  | 0x4000,
 
     /* 80-8F */
     CMD_VIEW    | 0x0000,
@@ -5006,6 +5006,7 @@ void start_incomplete_command(int cmd_id) {
     incomplete_ind = false;
     if (argtype == ARG_NAMED || argtype == ARG_PRGM
             || argtype == ARG_RVAR || argtype == ARG_MAT
+            || argtype == ARG_M_STK || argtype == ARG_L_STK
             || argtype == ARG_XSTR)
         incomplete_alpha = true;
     else
@@ -5064,6 +5065,12 @@ void start_incomplete_command(int cmd_id) {
             mode_command_entry = false;
             display_error(ERR_NO_MATRIX_VARIABLES, false);
         }
+    } else if (argtype == ARG_M_STK) {
+        if (flags.f.prgm_mode || vars_exist(CATSECT_MAT))
+            set_catalog_menu(CATSECT_MAT_ONLY);
+    } else if (argtype == ARG_L_STK) {
+        if (flags.f.prgm_mode || vars_exist(CATSECT_LIST))
+            set_catalog_menu(CATSECT_LIST_ONLY);
     } else if (argtype == ARG_LBL || argtype == ARG_PRGM)
         set_catalog_menu(CATSECT_PGM_ONLY);
     else if (cmd_id == CMD_LBL || cmd_id == CMD_XSTR)

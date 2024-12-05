@@ -433,45 +433,49 @@
 #define CMD_CSLD_T      387
 #define CMD_C_LN_1_X    388
 #define CMD_C_E_POW_X_1 389
+#define CMD_GETMI       390
+#define CMD_PUTMI       391
+#define CMD_GETLI       392
+#define CMD_PUTLI       393
 /* String & List Functions */
-#define CMD_XSTR        390
-#define CMD_XASTO       391
-#define CMD_LXASTO      392
-#define CMD_XVIEW       393
-#define CMD_APPEND      394
-#define CMD_EXTEND      395
-#define CMD_SUBSTR      396
-#define CMD_LENGTH      397
-#define CMD_HEAD        398
-#define CMD_REV         399
-#define CMD_POS         400
-#define CMD_S_TO_N      401
-#define CMD_N_TO_S      402
-#define CMD_NN_TO_S     403
-#define CMD_C_TO_N      404
-#define CMD_N_TO_C      405
-#define CMD_LIST_T      406
-#define CMD_NEWLIST     407
-#define CMD_TO_LIST     408
-#define CMD_FROM_LIST   409
+#define CMD_XSTR        394
+#define CMD_XASTO       395
+#define CMD_LXASTO      396
+#define CMD_XVIEW       397
+#define CMD_APPEND      398
+#define CMD_EXTEND      399
+#define CMD_SUBSTR      400
+#define CMD_LENGTH      401
+#define CMD_HEAD        402
+#define CMD_REV         403
+#define CMD_POS         404
+#define CMD_S_TO_N      405
+#define CMD_N_TO_S      406
+#define CMD_NN_TO_S     407
+#define CMD_C_TO_N      408
+#define CMD_N_TO_C      409
+#define CMD_LIST_T      410
+#define CMD_NEWLIST     411
+#define CMD_TO_LIST     412
+#define CMD_FROM_LIST   413
 /* Generalized Comparisons */
-#define CMD_X_EQ_NN     410
-#define CMD_X_NE_NN     411
-#define CMD_X_LT_NN     412
-#define CMD_X_GT_NN     413
-#define CMD_X_LE_NN     414
-#define CMD_X_GE_NN     415
-#define CMD_0_EQ_NN     416
-#define CMD_0_NE_NN     417
-#define CMD_0_LT_NN     418
-#define CMD_0_GT_NN     419
-#define CMD_0_LE_NN     420
-#define CMD_0_GE_NN     421
+#define CMD_X_EQ_NN     414
+#define CMD_X_NE_NN     415
+#define CMD_X_LT_NN     416
+#define CMD_X_GT_NN     417
+#define CMD_X_LE_NN     418
+#define CMD_X_GE_NN     419
+#define CMD_0_EQ_NN     420
+#define CMD_0_NE_NN     421
+#define CMD_0_LT_NN     422
+#define CMD_0_GT_NN     423
+#define CMD_0_LE_NN     424
+#define CMD_0_GE_NN     425
 /* For Plus42 compatibility */
-#define CMD_WIDTH       422
-#define CMD_HEIGHT      423
+#define CMD_WIDTH       426
+#define CMD_HEIGHT      427
 
-#define CMD_SENTINEL    424
+#define CMD_SENTINEL    428
 
 
 /* command_spec.argtype */
@@ -491,8 +495,10 @@
 #define ARG_PRGM     12 /* Alpha label (CATSECT_PGM) */
 #define ARG_RVAR     13 /* Variable (real only) (MVAR, INTEG, SOLVE) */
 #define ARG_MAT      14 /* Variable (matrix only) (EDITN, INDEX) */
-#define ARG_XSTR     15 /* Long string (XSTR) */
-#define ARG_OTHER    16 /* Weirdos */
+#define ARG_M_STK    15 /* Matrix variable or stack (GETMI, PUTMI) */
+#define ARG_L_STK    16 /* List variable or stack (GETLI, PUTLI) */
+#define ARG_XSTR     17 /* Long string (XSTR) */
+#define ARG_OTHER    18 /* Weirdos */
 
 
 /* command_spec.flags */

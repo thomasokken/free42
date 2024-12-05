@@ -73,6 +73,10 @@ int docmd_skip(arg_struct *arg);
 int docmd_cpxmat_t(arg_struct *arg);
 int docmd_type_t(arg_struct *arg);
 int docmd_csld_t(arg_struct *arg);
+int docmd_getmi(arg_struct *arg);
+int docmd_putmi(arg_struct *arg);
+int docmd_getli(arg_struct *arg);
+int docmd_putli(arg_struct *arg);
 
 int docmd_4stk(arg_struct *arg);
 int docmd_l4stk(arg_struct *arg);

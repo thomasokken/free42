@@ -1041,6 +1041,22 @@ int docmd_csld_t(arg_struct *arg) {
     return is_csld() ? ERR_YES : ERR_NO;
 }
 
+int docmd_getmi(arg_struct *arg) {
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_putmi(arg_struct *arg) {
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_getli(arg_struct *arg) {
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_putli(arg_struct *arg) {
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
 /////////////////////
 ///// Big Stack /////
 /////////////////////

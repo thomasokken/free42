@@ -647,7 +647,7 @@ bool vars_exist(int section) {
                 else
                     break;
             case TYPE_LIST:
-                if (section == CATSECT_LIST_STR_ONLY || section == CATSECT_MAT_LIST)
+                if (section == CATSECT_LIST_STR_ONLY || section == CATSECT_MAT_LIST || section == CATSECT_LIST)
                     return true;
                 else
                     break;
