@@ -1209,15 +1209,40 @@ int docmd_putli(arg_struct *arg) {
     if (err != ERR_NONE)
         return err;
     int4 item;
-    if (!dim_to_int4(stack[sp - 1], &item) || item >= size)
+    if (!dim_to_int4(stack[sp - 1], &item))
         return ERR_DIMENSION_ERROR;
 
     vartype_list *list = (vartype_list *) v;
     v = dup_vartype(stack[sp]);
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
-    free_vartype(list->array->data[item]);
-    list->array->data[item] = v;
+    if (!disentangle((vartype *) list)) {
+        fail:
+        free_vartype(v);
+        return ERR_INSUFFICIENT_MEMORY;
+    }
+    if (item < size) {
+        free_vartype(list->array->data[item]);
+        list->array->data[item] = v;
+    } else {
+        vartype **new_data = (vartype **) realloc(list->array->data, (item + 1) * sizeof(vartype *));
+        if (new_data == NULL)
+            goto fail;
+        for (int i = list->size; i < item; i++) {
+            new_data[i] = new_real(0);
+            if (new_data[i] == NULL) {
+                while (--i >= list->size)
+                    free_vartype(new_data[i]);
+                new_data = (vartype **) realloc(new_data, list->size * sizeof(vartype *));
+                if (new_data != NULL || list->size == 0)
+                    list->array->data = new_data;
+                goto fail;
+            }
+        }
+        new_data[item] = v;
+        list->array->data = new_data;
+        list->size = item + 1;
+    }
 
     return ERR_NONE;
 }
