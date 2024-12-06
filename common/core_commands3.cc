@@ -1120,7 +1120,6 @@ int docmd_fnrm(arg_struct *arg) {
 
 int docmd_getm(arg_struct *arg) {
     vartype *m;
-    phloat xx, yy;
     int4 x, y;
 
     int err = matedit_get(&m);
@@ -1138,23 +1137,12 @@ int docmd_getm(arg_struct *arg) {
     if (stack[sp - 1]->type != TYPE_REAL)
         return ERR_INVALID_TYPE;
 
-    xx = ((vartype_real *) stack[sp])->x;
-    if (xx <= -2147483648.0 || xx >= 2147483648.0)
+    if (!dim_to_int4(stack[sp], &x))
         return ERR_DIMENSION_ERROR;
-    x = to_int4(xx);
-    if (x == 0)
+    x++;
+    if (!dim_to_int4(stack[sp - 1], &y))
         return ERR_DIMENSION_ERROR;
-    if (x < 0)
-        x = -x;
-
-    yy = ((vartype_real *) stack[sp - 1])->x;
-    if (yy <= -2147483648.0 || yy >= 2147483648.0)
-        return ERR_DIMENSION_ERROR;
-    y = to_int4(yy);
-    if (y == 0)
-        return ERR_DIMENSION_ERROR;
-    if (y < 0)
-        y = -y;
+    y++;
 
     if (m->type == TYPE_REALMATRIX) {
         vartype_realmatrix *src, *dst;

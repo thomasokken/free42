@@ -707,7 +707,6 @@ int docmd_rsum(arg_struct *arg) {
 
 int docmd_swap_r(arg_struct *arg) {
     vartype *m;
-    phloat xx, yy;
     int4 x, y, i;
 
     int err = matedit_get(&m);
@@ -725,25 +724,10 @@ int docmd_swap_r(arg_struct *arg) {
     if (stack[sp - 1]->type != TYPE_REAL)
         return ERR_INVALID_TYPE;
 
-    xx = ((vartype_real *) stack[sp])->x;
-    if (xx <= -2147483648.0 || xx >= 2147483648.0)
+    if (!dim_to_int4(stack[sp], &x))
         return ERR_DIMENSION_ERROR;
-    x = to_int4(xx);
-    if (x == 0)
+    if (!dim_to_int4(stack[sp - 1], &y))
         return ERR_DIMENSION_ERROR;
-    if (x < 0)
-        x = -x;
-    x--;
-
-    yy = ((vartype_real *) stack[sp - 1])->x;
-    if (yy <= -2147483648.0 || yy >= 2147483648.0)
-        return ERR_DIMENSION_ERROR;
-    y = to_int4(yy);
-    if (y == 0)
-        return ERR_DIMENSION_ERROR;
-    if (y < 0)
-        y = -y;
-    y--;
 
     if (m->type == TYPE_REALMATRIX) {
         vartype_realmatrix *rm = (vartype_realmatrix *) m;
@@ -892,7 +876,6 @@ int docmd_stoel(arg_struct *arg) {
 
 int docmd_stoij(arg_struct *arg) {
     vartype *m;
-    phloat x, y;
     int4 i, j;
 
     int err = matedit_get(&m);
@@ -908,36 +891,27 @@ int docmd_stoij(arg_struct *arg) {
     if (stack[sp - 1]->type != TYPE_REAL)
         return ERR_INVALID_TYPE;
 
-    x = ((vartype_real *) stack[sp])->x;
-    if (x <= -2147483648.0 || x >= 2147483648.0)
+    if (!dim_to_int4(stack[sp], &j))
         return ERR_DIMENSION_ERROR;
-    j = to_int4(x);
-    if (j < 0)
-        j = -j;
-
-    y = ((vartype_real *) stack[sp - 1])->x;
-    if (y <= -2147483648.0 || y >= 2147483648.0)
+    if (!dim_to_int4(stack[sp - 1], &i))
         return ERR_DIMENSION_ERROR;
-    i = to_int4(y);
-    if (i < 0)
-        i = -i;
 
     if (m->type == TYPE_REALMATRIX) {
         vartype_realmatrix *rm = (vartype_realmatrix *) m;
-        if (i == 0 || i > rm->rows || j == 0 || j > rm->columns)
+        if (i >= rm->rows || j >= rm->columns)
             return ERR_DIMENSION_ERROR;
     } else if (m->type == TYPE_COMPLEXMATRIX) {
         vartype_complexmatrix *cm = (vartype_complexmatrix *) m;
-        if (i == 0 || i > cm->rows || j == 0 || j > cm->columns)
+        if (i >= cm->rows || j >= cm->columns)
             return ERR_DIMENSION_ERROR;
     } else if (m->type == TYPE_LIST) {
         vartype_list *list = (vartype_list *) m;
-        if (i == 0 || i > list->size || j != 1)
+        if (i >= list->size || j != 0)
             return ERR_DIMENSION_ERROR;
     }
 
-    matedit_i = i - 1;
-    matedit_j = j - 1;
+    matedit_i = i;
+    matedit_j = j;
     return ERR_NONE;
 }
 
