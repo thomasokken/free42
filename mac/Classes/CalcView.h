@@ -19,6 +19,12 @@
 
 
 @interface CalcView : NSView {
+    NSMenuItem *keyboardShortcutsMenuItem;
+    bool keyboardShortcutsShowing;
 }
+
+@property (nonatomic, retain) IBOutlet NSMenuItem *keyboardShortcutsMenuItem;
+
+- (IBAction) toggleKeyboardShortcuts:(id)sender;
 
 @end

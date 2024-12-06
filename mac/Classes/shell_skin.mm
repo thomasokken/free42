@@ -694,7 +694,7 @@ void skin_finish_image() {
     skin_bitmap = NULL;
 }
 
-void skin_repaint(NSRect *rect) {
+void skin_repaint(NSRect *rect, bool shortcuts) {
     CGContextRef myContext = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
     
     // Optimize for the common case that *only* the display needs painting
@@ -778,6 +778,11 @@ void skin_repaint(NSRect *rect) {
                 CGImageRelease(ann_image);
             }
         }
+    }
+    
+    if (shortcuts) {
+        CGContextSetRGBFillColor(myContext, 1.0, 1.0, 1.0, 0.7);
+        CGContextFillRect(myContext, NSRectToCGRect(*rect));
     }
 }
 

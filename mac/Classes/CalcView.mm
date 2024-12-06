@@ -21,6 +21,8 @@
 
 @implementation CalcView
 
+@synthesize keyboardShortcutsMenuItem;
+
 - (id)initWithFrame:(NSRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
@@ -31,12 +33,13 @@
              selector:@selector(frameDidChange:)
              name:NSViewFrameDidChangeNotification
              object:self];
+        keyboardShortcutsShowing = false;
     }
     return self;
 }
 
 - (void)drawRect:(NSRect)rect {
-    skin_repaint(&rect);
+    skin_repaint(&rect, keyboardShortcutsShowing);
 }
 
 - (BOOL) acceptsFirstResponder {
@@ -93,6 +96,12 @@
 
 - (void)flagsChanged:(NSEvent *)theEvent {
     calc_keymodifierschanged([theEvent modifierFlags]);
+}
+
+- (IBAction) toggleKeyboardShortcuts:(id)sender {
+    keyboardShortcutsShowing = !keyboardShortcutsShowing;
+    [keyboardShortcutsMenuItem setState:keyboardShortcutsShowing ? NSOnState : NSOffState];
+    [self setNeedsDisplay:YES];
 }
 
 @end
