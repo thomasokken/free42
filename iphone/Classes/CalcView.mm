@@ -260,6 +260,11 @@ static CalcView *calcView = nil;
     [RootViewController presentViewController:ctrl animated:YES completion:nil];
 }
 
+- (void) traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
+    [super traitCollectionDidChange:previousTraitCollection];
+    [self setNeedsDisplay];
+}
+
 - (void) drawRect:(CGRect)rect {
     TRACE("drawRect");
     skin_repaint(&rect);

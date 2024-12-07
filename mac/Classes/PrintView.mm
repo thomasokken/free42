@@ -115,9 +115,11 @@
     if (rect.origin.y + rect.size.height > length)
         rect.size.height = length - rect.origin.y;
     CGContextRef myContext = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
-    CGContextSetRGBFillColor(myContext, !dark, !dark, !dark, 1.0);
+    double bg = dark ? 0.071 : 1.0;
+    double fg = dark ? 0.859 : 0.0;
+    CGContextSetRGBFillColor(myContext, bg, bg, bg, 1.0);
     CGContextFillRect(myContext, NSRectToCGRect(rect));
-    CGContextSetRGBFillColor(myContext, dark, dark, dark, 1.0);
+    CGContextSetRGBFillColor(myContext, fg, fg, fg, 1.0);
     int xmin = (int) rect.origin.x;
     int xmax = (int) (rect.origin.x + rect.size.width);
     int ymin = (int) rect.origin.y;

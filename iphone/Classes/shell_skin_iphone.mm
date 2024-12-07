@@ -784,6 +784,11 @@ void skin_repaint(CGRect *rect) {
             }
         }
     }
+
+    if (UIScreen.mainScreen.traitCollection.userInterfaceStyle == UIUserInterfaceStyleDark) {
+        CGContextSetRGBFillColor(myContext, 0.0, 0.0, 0.0, 0.15);
+        CGContextFillRect(myContext, *rect);
+    }
 }
 
 void skin_update_annunciator(int which, int state, CalcView *view) {

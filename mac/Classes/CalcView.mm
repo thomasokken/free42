@@ -104,4 +104,9 @@
     [self setNeedsDisplay:YES];
 }
 
+- (void) viewDidChangeEffectiveAppearance {
+    [super viewDidChangeEffectiveAppearance];
+    self.needsDisplay = YES;
+}
+
 @end

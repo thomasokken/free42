@@ -784,6 +784,14 @@ void skin_repaint(NSRect *rect, bool shortcuts) {
         CGContextSetRGBFillColor(myContext, 1.0, 1.0, 1.0, 0.7);
         CGContextFillRect(myContext, NSRectToCGRect(*rect));
     }
+
+    if (@available(*, macOS 10.14)) {
+        NSAppearance *currentAppearance = [NSAppearance  currentAppearance];
+        if (currentAppearance.name == NSAppearanceNameDarkAqua) {
+            CGContextSetRGBFillColor(myContext, 0.0, 0.0, 0.0, 0.15);
+            CGContextFillRect(myContext, NSRectToCGRect(*rect));
+        }
+    }
 }
 
 void skin_update_annunciator(int which, int state) {

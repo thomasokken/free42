@@ -47,9 +47,11 @@
     //NSLog(@"tile.drawRect: %f %f %f %f", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
     CGFloat scale = [PrintView scale];
     CGContextRef myContext = UIGraphicsGetCurrentContext();
-    CGContextSetRGBFillColor(myContext, !dark, !dark, !dark, 1.0);
+    double bg = dark ? 0.071 : 1.0;
+    double fg = dark ? 0.859 : 0.0;
+    CGContextSetRGBFillColor(myContext, bg, bg, bg, 1.0);
     CGContextFillRect(myContext, rect);
-    CGContextSetRGBFillColor(myContext, dark, dark, dark, 1.0);
+    CGContextSetRGBFillColor(myContext, fg, fg, fg, 1.0);
     int xmin = floor(rect.origin.x / scale);
     if (xmin < 18)
         xmin = 18;
