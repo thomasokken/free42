@@ -715,45 +715,9 @@ struct KeyShortcutInfo {
                 && height == that->sens_rect.height;
     }
     
-    void add(keymap_entry *e, bool shifted) {
+    void add(NSString *entryStr, bool shifted) {
         NSString **str = shifted ? &this->shifted : &this->unshifted;
-        NSString *mods = @"";
-        if (e->numpad)
-            mods = [mods stringByAppendingString:@"{n}"];
-        if (e->cshift)
-            mods = [mods stringByAppendingString:@"{c}"];
-        if (e->ctrl)
-            mods = [mods stringByAppendingString:@"^"];
-        if (e->alt)
-            mods = [mods stringByAppendingString:@"\u2325"];
-        if (e->shift)
-            mods = [mods stringByAppendingString:@"\u21e7"];
-        NSString *c;
-        switch (e->keychar) {
-            case 3: c = @"KpEnter"; break;
-            case 13: c = @"Enter"; break;
-            case 27: c = @"Esc"; break;
-            case 127: c = @"\u232B"; break;
-            case NSUpArrowFunctionKey: c = @"\u2191"; break;
-            case NSDownArrowFunctionKey: c = @"\u2193"; break;
-            case NSLeftArrowFunctionKey: c = @"\u2190"; break;
-            case NSRightArrowFunctionKey: c = @"\u2192"; break;
-            case NSInsertFunctionKey: c = @"Insert"; break;
-            case NSDeleteFunctionKey: c = @"\u2326"; break;
-            case NSHomeFunctionKey: c = @"Home"; break;
-            case NSBeginFunctionKey: c = @"Begin"; break;
-            case NSEndFunctionKey: c = @"End"; break;
-            case NSPageUpFunctionKey: c = @"PgUp"; break;
-            case NSPageDownFunctionKey: c = @"PgDn"; break;
-            case NSPrevFunctionKey: c = @"Prev"; break;
-            case NSNextFunctionKey: c = @"Next"; break;
-            default:
-                if (e->keychar >= NSF1FunctionKey && e->keychar <= NSF35FunctionKey)
-                    c = [NSString stringWithFormat:@"F%d", e->keychar - NSF1FunctionKey + 1];
-                else
-                    c = [NSString stringWithFormat:@"%C", e->keychar];
-        }
-        *str = [NSString stringWithFormat:@"%@%@ %@", mods, c, *str];
+        *str = [entryStr stringByAppendingFormat:@" %@", *str];
     }
     
     NSString *text() {
@@ -770,8 +734,48 @@ struct KeyShortcutInfo {
     }
 };
 
+static NSString *entry_to_text(keymap_entry *e) {
+    NSString *mods = @"";
+    bool printable = !e->ctrl && e->keychar >= 33 && e->keychar <= 126;
+    if (e->numpad)
+        mods = [mods stringByAppendingString:@"{n}"];
+    if (e->ctrl)
+        mods = [mods stringByAppendingString:@"^"];
+    if (e->alt)
+        mods = [mods stringByAppendingString:@"\u2325"];
+    if (e->shift && !printable)
+        mods = [mods stringByAppendingString:@"\u21e7"];
+    NSString *c;
+    switch (e->keychar) {
+        case 3: c = @"KpEnter"; break;
+        case 13: c = @"Enter"; break;
+        case 27: c = @"Esc"; break;
+        case 127: c = @"\u232B"; break;
+        case NSUpArrowFunctionKey: c = @"\u2191"; break;
+        case NSDownArrowFunctionKey: c = @"\u2193"; break;
+        case NSLeftArrowFunctionKey: c = @"\u2190"; break;
+        case NSRightArrowFunctionKey: c = @"\u2192"; break;
+        case NSInsertFunctionKey: c = @"Insert"; break;
+        case NSDeleteFunctionKey: c = @"\u2326"; break;
+        case NSHomeFunctionKey: c = @"Home"; break;
+        case NSBeginFunctionKey: c = @"Begin"; break;
+        case NSEndFunctionKey: c = @"End"; break;
+        case NSPageUpFunctionKey: c = @"PgUp"; break;
+        case NSPageDownFunctionKey: c = @"PgDn"; break;
+        case NSPrevFunctionKey: c = @"Prev"; break;
+        case NSNextFunctionKey: c = @"Next"; break;
+        default:
+            if (e->keychar >= NSF1FunctionKey && e->keychar <= NSF35FunctionKey)
+                c = [NSString stringWithFormat:@"F%d", e->keychar - NSF1FunctionKey + 1];
+            else
+                c = [NSString stringWithFormat:@"%C", e->keychar];
+    }
+    return [mods stringByAppendingString:c];
+}
+
 static KeyShortcutInfo *get_shortcut_info() {
     KeyShortcutInfo *head = NULL;
+    NSMutableSet *seen = [NSMutableSet setWithCapacity:100];
     for (int km = 0; km < 2; km++) {
         keymap_entry *kmap;
         int kmap_len;
@@ -782,6 +786,8 @@ static KeyShortcutInfo *get_shortcut_info() {
             get_keymap(&kmap, &kmap_len);
         for (int i = kmap_len - 1; i >= 0; i--) {
             keymap_entry *e = kmap + i;
+            if (e->cshift)
+                continue;
             int key;
             bool shifted;
             if (e->macro[1] == 0) {
@@ -795,21 +801,29 @@ static KeyShortcutInfo *get_shortcut_info() {
             SkinKey *k = NULL;
             for (int j = 0; j < nkeys; j++) {
                 k = keylist + j;
-                if (k->code == key)
+                if (key == k->code)
                     break;
+                if (key == k->shifted_code) {
+                    shifted = true;
+                    break;
+                }
                 k = NULL;
             }
             if (k == NULL)
                 continue;
+            NSString *entryStr = entry_to_text(e);
+            if ([seen containsObject:entryStr])
+                continue;
+            [seen addObject:entryStr];
             for (KeyShortcutInfo *p = head; p != NULL; p = p->next) {
                 if (p->sameRect(k)) {
-                    p->add(e, shifted);
+                    p->add(entryStr, shifted);
                     goto endloop;
                 }
             }
             KeyShortcutInfo *ki;
             ki = new KeyShortcutInfo(k);
-            ki->add(e, shifted);
+            ki->add(entryStr, shifted);
             ki->next = head;
             head = ki;
             endloop:;
