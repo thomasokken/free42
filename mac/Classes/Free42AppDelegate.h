@@ -17,6 +17,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import <WebKit/WebKit.h>
+#import "shell_skin.h"
 
 #define FILENAMELEN 256
 #define SHELL_VERSION 6
@@ -57,6 +58,8 @@ void calc_mouseup();
 void calc_keydown(NSString *characters, NSUInteger flags, unsigned short keycode);
 void calc_keyup(NSString *characters, NSUInteger flags, unsigned short keycode);
 void calc_keymodifierschanged(NSUInteger flags);
+
+void get_keymap(keymap_entry **map, int *length);
     
 @class ProgramListDataSource;
 @class SkinListDataSource;

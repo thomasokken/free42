@@ -1481,6 +1481,11 @@ void calc_keymodifierschanged(NSUInteger flags) {
     }
 }
 
+void get_keymap(keymap_entry **map, int *length) {
+    *map = keymap;
+    *length = keymap_length;
+}
+
 static void show_message(const char *title, const char *message) {
     [Free42AppDelegate showCMessage:message withTitle:title];
 }

@@ -694,6 +694,130 @@ void skin_finish_image() {
     skin_bitmap = NULL;
 }
 
+struct KeyShortcutInfo {
+    int x, y, width, height;
+    NSString *unshifted, *shifted;
+    KeyShortcutInfo *next;
+    
+    KeyShortcutInfo(SkinKey *k) {
+        x = k->sens_rect.x;
+        y = k->sens_rect.y;
+        width = k->sens_rect.width;
+        height = k->sens_rect.height;
+        unshifted = @"";
+        shifted = @"";
+    }
+    
+    bool sameRect(SkinKey *that) {
+        return x == that->sens_rect.x
+                && y == that->sens_rect.y
+                && width == that->sens_rect.width
+                && height == that->sens_rect.height;
+    }
+    
+    void add(keymap_entry *e, bool shifted) {
+        NSString **str = shifted ? &this->shifted : &this->unshifted;
+        NSString *mods = @"";
+        if (e->numpad)
+            mods = [mods stringByAppendingString:@"{n}"];
+        if (e->cshift)
+            mods = [mods stringByAppendingString:@"{c}"];
+        if (e->ctrl)
+            mods = [mods stringByAppendingString:@"^"];
+        if (e->alt)
+            mods = [mods stringByAppendingString:@"\u2325"];
+        if (e->shift)
+            mods = [mods stringByAppendingString:@"\u21e7"];
+        NSString *c;
+        switch (e->keychar) {
+            case 3: c = @"KpEnter"; break;
+            case 13: c = @"Enter"; break;
+            case 27: c = @"Esc"; break;
+            case 127: c = @"\u232B"; break;
+            case NSUpArrowFunctionKey: c = @"\u2191"; break;
+            case NSDownArrowFunctionKey: c = @"\u2193"; break;
+            case NSLeftArrowFunctionKey: c = @"\u2190"; break;
+            case NSRightArrowFunctionKey: c = @"\u2192"; break;
+            case NSInsertFunctionKey: c = @"Insert"; break;
+            case NSDeleteFunctionKey: c = @"\u2326"; break;
+            case NSHomeFunctionKey: c = @"Home"; break;
+            case NSBeginFunctionKey: c = @"Begin"; break;
+            case NSEndFunctionKey: c = @"End"; break;
+            case NSPageUpFunctionKey: c = @"PgUp"; break;
+            case NSPageDownFunctionKey: c = @"PgDn"; break;
+            case NSPrevFunctionKey: c = @"Prev"; break;
+            case NSNextFunctionKey: c = @"Next"; break;
+            default:
+                if (e->keychar >= NSF1FunctionKey && e->keychar <= NSF35FunctionKey)
+                    c = [NSString stringWithFormat:@"F%d", e->keychar - NSF1FunctionKey + 1];
+                else
+                    c = [NSString stringWithFormat:@"%C", e->keychar];
+        }
+        *str = [NSString stringWithFormat:@"%@%@ %@", mods, c, *str];
+    }
+    
+    NSString *text() {
+        NSString *u, *s;
+        if ([unshifted length] == 0)
+            u = @"n/a";
+        else
+            u = [unshifted substringToIndex:[unshifted length] - 1];
+        if ([shifted length] == 0)
+            s = @"n/a";
+        else
+            s = [shifted substringToIndex:[shifted length] - 1];
+        return [NSString stringWithFormat:@"%@\n%@", s, u];
+    }
+};
+
+static KeyShortcutInfo *get_shortcut_info() {
+    KeyShortcutInfo *head = NULL;
+    for (int km = 0; km < 2; km++) {
+        keymap_entry *kmap;
+        int kmap_len;
+        if (km == 0) {
+            kmap = keymap;
+            kmap_len = keymap_length;
+        } else
+            get_keymap(&kmap, &kmap_len);
+        for (int i = kmap_len - 1; i >= 0; i--) {
+            keymap_entry *e = kmap + i;
+            int key;
+            bool shifted;
+            if (e->macro[1] == 0) {
+                key = e->macro[0];
+                shifted = false;
+            } else if (e->macro[0] == 28 && e->macro[2] == 0) {
+                key = e->macro[1];
+                shifted = true;
+            } else
+                continue;
+            SkinKey *k = NULL;
+            for (int j = 0; j < nkeys; j++) {
+                k = keylist + j;
+                if (k->code == key)
+                    break;
+                k = NULL;
+            }
+            if (k == NULL)
+                continue;
+            for (KeyShortcutInfo *p = head; p != NULL; p = p->next) {
+                if (p->sameRect(k)) {
+                    p->add(e, shifted);
+                    goto endloop;
+                }
+            }
+            KeyShortcutInfo *ki;
+            ki = new KeyShortcutInfo(k);
+            ki->add(e, shifted);
+            ki->next = head;
+            head = ki;
+            endloop:;
+        }
+    }
+    return head;
+}
+
 void skin_repaint(NSRect *rect, bool shortcuts) {
     CGContextRef myContext = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
     
@@ -781,8 +905,20 @@ void skin_repaint(NSRect *rect, bool shortcuts) {
     }
     
     if (shortcuts) {
-        CGContextSetRGBFillColor(myContext, 1.0, 1.0, 1.0, 0.7);
+        CGContextSetRGBFillColor(myContext, 1.0, 1.0, 1.0, 0.5);
         CGContextFillRect(myContext, NSRectToCGRect(*rect));
+        KeyShortcutInfo *ksinfo = get_shortcut_info();
+        while (ksinfo != NULL) {
+            CGContextSetRGBFillColor(myContext, 1.0, 1.0, 1.0, 0.5);
+            CGContextFillRect(myContext, CGRectMake(ksinfo->x + 2, ksinfo->y + 2, ksinfo->width - 4, ksinfo->height - 4));
+            CGContextSetRGBFillColor(myContext, 0.0, 0.0, 0.0, 1.0);
+            NSString *text = ksinfo->text();
+            CGRect r = CGRectMake(ksinfo->x + 4, ksinfo->y + 4, ksinfo->width - 8, ksinfo->height - 8);
+            [text drawInRect:r withAttributes:nil];
+            KeyShortcutInfo *next = ksinfo->next;
+            delete ksinfo;
+            ksinfo = next;
+        }
     }
 
     if (@available(*, macOS 10.14)) {
