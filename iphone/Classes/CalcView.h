@@ -52,11 +52,11 @@ void get_keymap(keymap_entry **map, int *length);
 
 
 @interface CalcView : UIView {
-    UISwitch *keyboardShortcutsSwitch;
+    UIButton *keyboardShortcutsButton;
     bool keyboardShortcutsShowing;
 }
 
-@property (nonatomic, retain) IBOutlet UISwitch *keyboardShortcutsSwitch;
+@property (nonatomic, retain) IBOutlet UIButton *keyboardShortcutsButton;
 
 - (void) awakeFromNib;
 - (void) layoutSubviews;

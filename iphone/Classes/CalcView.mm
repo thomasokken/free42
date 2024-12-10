@@ -177,7 +177,7 @@ static CalcView *calcView = nil;
 
 @implementation CalcView
 
-@synthesize keyboardShortcutsSwitch;
+@synthesize keyboardShortcutsButton;
 
 
 - (id) initWithFrame:(CGRect)frame {
@@ -724,7 +724,10 @@ static void read_key_map(const char *keymapfilename);
 }
 
 - (IBAction) toggleKeyboardShortcuts:(id)sender {
-    keyboardShortcutsShowing = keyboardShortcutsSwitch.on;
+    [RootViewController showMain];
+    keyboardShortcutsShowing = !keyboardShortcutsShowing;
+    NSString *newTitle = keyboardShortcutsShowing ? @"Hide Keyboard Shortcuts" : @"Show Keyboard Shortcuts";
+    [keyboardShortcutsButton setTitle:newTitle forState:UIControlStateNormal];
     [self setNeedsDisplay];
 }
 
