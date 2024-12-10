@@ -922,13 +922,16 @@ void skin_repaint(NSRect *rect, bool shortcuts) {
         CGContextSetRGBFillColor(myContext, 1.0, 1.0, 1.0, 0.5);
         CGContextFillRect(myContext, NSRectToCGRect(*rect));
         KeyShortcutInfo *ksinfo = get_shortcut_info();
+        NSMutableDictionary *atts = [NSMutableDictionary dictionary];
+        double fsize = sqrt(((double) skin.width) * skin.height) / 40;
+        [atts setObject:[NSFont systemFontOfSize:fsize] forKey:NSFontAttributeName];
         while (ksinfo != NULL) {
             CGContextSetRGBFillColor(myContext, 1.0, 1.0, 1.0, 0.5);
             CGContextFillRect(myContext, CGRectMake(ksinfo->x + 2, ksinfo->y + 2, ksinfo->width - 4, ksinfo->height - 4));
             CGContextSetRGBFillColor(myContext, 0.0, 0.0, 0.0, 1.0);
             NSString *text = ksinfo->text();
             CGRect r = CGRectMake(ksinfo->x + 4, ksinfo->y + 4, ksinfo->width - 8, ksinfo->height - 8);
-            [text drawInRect:r withAttributes:nil];
+            [text drawInRect:r withAttributes:atts];
             KeyShortcutInfo *next = ksinfo->next;
             delete ksinfo;
             ksinfo = next;
