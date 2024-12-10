@@ -117,6 +117,11 @@ static void gif_seeker(int4 pos);
 static void gif_writer(const char *text, int length);
 static bool is_file(const char *name);
 
+void get_keymap(keymap_entry **map, int *length) {
+    *map = keymap;
+    *length = keymap_length;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 /////                    Ende ophphe ye olde C stuphphe                   /////
 ///////////////////////////////////////////////////////////////////////////////
@@ -171,6 +176,8 @@ static double hdg_mag = 0, hdg_true = 0, hdg_acc = -1, hdg_x = 0, hdg_y = 0, hdg
 static CalcView *calcView = nil;
 
 @implementation CalcView
+
+@synthesize keyboardShortcutsSwitch;
 
 
 - (id) initWithFrame:(CGRect)frame {
@@ -267,7 +274,7 @@ static CalcView *calcView = nil;
 
 - (void) drawRect:(CGRect)rect {
     TRACE("drawRect");
-    skin_repaint(&rect);
+    skin_repaint(&rect, keyboardShortcutsShowing);
 }
 
 - (void) dealloc {
@@ -714,6 +721,11 @@ static void read_key_map(const char *keymapfilename);
 + (void) readKeyMap {
     mkdir("config", 0755);
     read_key_map("config/keymap.txt");
+}
+
+- (IBAction) toggleKeyboardShortcuts:(id)sender {
+    keyboardShortcutsShowing = keyboardShortcutsSwitch.on;
+    [self setNeedsDisplay];
 }
 
 // Keyboard handling (UIResponder methods)

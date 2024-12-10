@@ -16,6 +16,7 @@
  *****************************************************************************/
 
 #import <UIKit/UIKit.h>
+#import "shell_skin.h"
 
 #define SHELL_VERSION 13
 #define FILENAMELEN 1024
@@ -47,10 +48,15 @@ struct state_type {
 extern state_type state;
 extern FILE *statefile;
 
+void get_keymap(keymap_entry **map, int *length);
+
 
 @interface CalcView : UIView {
-    //
+    UISwitch *keyboardShortcutsSwitch;
+    bool keyboardShortcutsShowing;
 }
+
+@property (nonatomic, retain) IBOutlet UISwitch *keyboardShortcutsSwitch;
 
 - (void) awakeFromNib;
 - (void) layoutSubviews;
@@ -73,5 +79,6 @@ extern FILE *statefile;
 + (void) stopGifPrinting;
 - (void) setActive:(bool) active;
 + (void) readKeyMap;
+- (IBAction) toggleKeyboardShortcuts:(id)sender;
 
 @end

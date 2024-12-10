@@ -21,7 +21,7 @@
 
 void skin_load(long *width, long *height);
 
-void skin_repaint(CGRect *rect);
+void skin_repaint(CGRect *rect, bool shortcuts);
 void skin_update_annunciator(int which, int state, CalcView *view);
 bool skin_in_menu_area(int x, int y);
 void skin_position_menu(UIView *view, UIAlertController *ctrl);
