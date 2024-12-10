@@ -82,6 +82,10 @@
 #define IDM_MORE_DELETE                 32786
 #define IDM_MORE_IMPORT                 32787
 #define IDM_MORE_EXPORT                 32788
+#define IDM_DOCUMENTATION               32789
+#define IDM_WEBSITE                     32790
+#define IDM_OTHER_WEBSITE               32791
+#define IDM_SHORTCUTS                   32792
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -89,7 +93,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        155
-#define _APS_NEXT_COMMAND_VALUE         32789
+#define _APS_NEXT_COMMAND_VALUE         32793
 #define _APS_NEXT_CONTROL_VALUE         1025
 #define _APS_NEXT_SYMED_VALUE           110
 #endif

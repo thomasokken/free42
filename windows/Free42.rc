@@ -70,6 +70,11 @@ BEGIN
     END
     POPUP "&Help"
     BEGIN
+        MENUITEM "Documentation",               IDM_DOCUMENTATION
+        MENUITEM "Web Site",                    IDM_WEBSITE
+        MENUITEM "Plus42 Web Site",             IDM_OTHER_WEBSITE
+        MENUITEM "Keyboard Shortcuts\tCtrl+K",  IDM_SHORTCUTS
+        MENUITEM SEPARATOR
         MENUITEM "&About Free42...",            IDM_ABOUT
     END
 END
@@ -99,6 +104,7 @@ BEGIN
     "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
     "D",            IDM_CLEARPRINTOUT,      VIRTKEY, CONTROL, NOINVERT
     "I",            IDM_COPYPRINTASIMAGE,   VIRTKEY, CONTROL, NOINVERT
+    "K",            IDM_SHORTCUTS,          VIRTKEY, CONTROL, NOINVERT
     "Q",            IDM_EXIT,               VIRTKEY, CONTROL, NOINVERT
     "T",            IDM_COPYPRINTASTEXT,    VIRTKEY, CONTROL, NOINVERT
     "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
