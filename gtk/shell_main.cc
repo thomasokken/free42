@@ -135,6 +135,9 @@ int ann_g = 0;
 int ann_rad = 0;
 static guint ann_print_timeout_id = 0;
 
+static bool keyboardShortcutsShowing = false;
+static GtkCheckMenuItem *keyboardShortcutsMenuItem;
+
 
 /* Private functions */
 
@@ -167,6 +170,10 @@ static void preferencesCB();
 static void appendSuffix(char *path, char *suffix);
 static void copyCB();
 static void pasteCB();
+static void documentationCB();
+static void websiteCB();
+static void otherWebsiteCB();
+static void keyboardShortcutsCB();
 static void aboutCB();
 static gboolean delete_cb(GtkWidget *w, GdkEventAny *ev);
 static gboolean delete_print_cb(GtkWidget *w, GdkEventAny *ev);
@@ -326,6 +333,30 @@ static const char *mainWindowXml =
                 "<property name='label'>Help</property>"
                 "<child type='submenu'>"
                   "<object class='GtkMenu' id='help_menu'>"
+                    "<child>"
+                      "<object class='GtkMenuItem' id='documentation_item'>"
+                        "<property name='label'>Documentation</property>"
+                      "</object>"
+                    "</child>"
+                    "<child>"
+                      "<object class='GtkMenuItem' id='website_item'>"
+                        "<property name='label'>Web Site</property>"
+                      "</object>"
+                    "</child>"
+                    "<child>"
+                      "<object class='GtkMenuItem' id='other_website_item'>"
+                        "<property name='label'>Plus42 Web Site</property>"
+                      "</object>"
+                    "</child>"
+                    "<child>"
+                      "<object class='GtkCheckMenuItem' id='keyboard_shortcuts_item'>"
+                        "<property name='label'>Keyboard Shortcuts</property>"
+                      "</object>"
+                    "</child>"
+                    "<child>"
+                      "<object class='GtkSeparatorMenuItem' id='sep_6'>"
+                      "</object>"
+                    "</child>"
                     "<child>"
                       "<object class='GtkMenuItem' id='about_item'>"
                         "<property name='label'>About Free42...</property>"
@@ -656,6 +687,14 @@ static void activate(GtkApplication *theApp, gpointer userData) {
     g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(copyPrintAsImageCB), NULL);
     item = GTK_MENU_ITEM(gtk_builder_get_object(builder, "clear_printout_item"));
     g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(clearPrintOutCB), NULL);
+    item = GTK_MENU_ITEM(gtk_builder_get_object(builder, "documentation_item"));
+    g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(documentationCB), NULL);
+    item = GTK_MENU_ITEM(gtk_builder_get_object(builder, "website_item"));
+    g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(websiteCB), NULL);
+    item = GTK_MENU_ITEM(gtk_builder_get_object(builder, "other_website_item"));
+    g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(otherWebsiteCB), NULL);
+    keyboardShortcutsMenuItem = GTK_CHECK_MENU_ITEM(gtk_builder_get_object(builder, "keyboard_shortcuts_item"));
+    g_signal_connect(G_OBJECT(keyboardShortcutsMenuItem), "activate", G_CALLBACK(keyboardShortcutsCB), NULL);
     item = GTK_MENU_ITEM(gtk_builder_get_object(builder, "about_item"));
     g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(aboutCB), NULL);
 
@@ -2505,6 +2544,25 @@ static bool focus_ok_button(GtkWindow *window, GtkWidget *container) {
     return false;
 }
 
+static void documentationCB() {
+    gtk_show_uri_on_window(GTK_WINDOW(mainwindow), "https://thomasokken.com/free42/#doc", GDK_CURRENT_TIME, NULL);
+}
+
+static void websiteCB() {
+    gtk_show_uri_on_window(GTK_WINDOW(mainwindow), "https://thomasokken.com/free42/", GDK_CURRENT_TIME, NULL);
+}
+
+static void otherWebsiteCB() {
+    gtk_show_uri_on_window(GTK_WINDOW(mainwindow), "https://thomasokken.com/plus42/", GDK_CURRENT_TIME, NULL);
+}
+
+static void keyboardShortcutsCB() {
+    keyboardShortcutsShowing = !keyboardShortcutsShowing;
+    gtk_check_menu_item_set_active(keyboardShortcutsMenuItem, keyboardShortcutsShowing);
+    GdkWindow *win = gtk_widget_get_window(calc_widget);
+    gdk_window_invalidate_rect(win, NULL, FALSE);
+}
+
 static void aboutCB() {
     static GtkWidget *about = NULL;
 
@@ -2606,6 +2664,12 @@ static gboolean draw_cb(GtkWidget *w, cairo_t *cr, gpointer cd) {
     } else {
         if (skey >= -7 && skey <= -2)
             skin_repaint_key(cr, skey, 1);
+    }
+
+    if (keyboardShortcutsShowing) {
+        cairo_set_source_rgba(cr, 1.0, 1.0, 1.0, 0.5);
+        cairo_rectangle(cr, 0, 0, skin_width, skin_height);
+        cairo_fill(cr);
     }
 
     cairo_restore(cr);
