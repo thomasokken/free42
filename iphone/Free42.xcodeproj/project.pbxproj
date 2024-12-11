@@ -49,6 +49,8 @@
 		E9200DF81699E1EC001BC4B5 /* PrintView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9200DF51699E1EC001BC4B5 /* PrintView.mm */; };
 		E9200DFB169A0004001BC4B5 /* PrintTileView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9200DFA169A0004001BC4B5 /* PrintTileView.mm */; };
 		E92BCF39114C420900832FAD /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E92BCF38114C420900832FAD /* CoreLocation.framework */; };
+		E92EADB12D0987860019F001 /* GrayButton.mm in Sources */ = {isa = PBXBuildFile; fileRef = E92EADB02D0987860019F001 /* GrayButton.mm */; };
+		E92EADB22D0987860019F001 /* GrayButton.mm in Sources */ = {isa = PBXBuildFile; fileRef = E92EADB02D0987860019F001 /* GrayButton.mm */; };
 		E92FA6D42BB00C22004424EA /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = E92FA6D32BB00C22004424EA /* PrivacyInfo.xcprivacy */; };
 		E92FA6D52BB00C22004424EA /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = E92FA6D32BB00C22004424EA /* PrivacyInfo.xcprivacy */; };
 		E935A89C22B542F9007C41DF /* DeleteSkinView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E935A89A22B542F9007C41DF /* DeleteSkinView.mm */; };
@@ -268,6 +270,8 @@
 		E9200DF9169A0004001BC4B5 /* PrintTileView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrintTileView.h; sourceTree = "<group>"; };
 		E9200DFA169A0004001BC4B5 /* PrintTileView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PrintTileView.mm; sourceTree = "<group>"; };
 		E92BCF38114C420900832FAD /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = /System/Library/Frameworks/CoreLocation.framework; sourceTree = "<absolute>"; };
+		E92EADAF2D0987860019F001 /* GrayButton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GrayButton.h; sourceTree = "<group>"; };
+		E92EADB02D0987860019F001 /* GrayButton.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = GrayButton.mm; sourceTree = "<group>"; };
 		E92FA6D32BB00C22004424EA /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		E935A89A22B542F9007C41DF /* DeleteSkinView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DeleteSkinView.mm; sourceTree = "<group>"; };
 		E935A89B22B542F9007C41DF /* DeleteSkinView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeleteSkinView.h; sourceTree = "<group>"; };
@@ -384,6 +388,8 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				E92EADAF2D0987860019F001 /* GrayButton.h */,
+				E92EADB02D0987860019F001 /* GrayButton.mm */,
 				E9BA0EAC0F9224F00087EBFB /* AboutView.h */,
 				E977D0781698FB4E00AA3FD9 /* AboutView.mm */,
 				E9200DF01699E1EC001BC4B5 /* CalcView.h */,
@@ -828,6 +834,7 @@
 				E9B16DFA0F88EE46002BB9B2 /* shell_loadimage.cc in Sources */,
 				E91005D10F893F8900B68C27 /* core_commands1.cc in Sources */,
 				E91005D20F893F8900B68C27 /* core_commands2.cc in Sources */,
+				E92EADB22D0987860019F001 /* GrayButton.mm in Sources */,
 				E91005D30F893F8900B68C27 /* core_commands3.cc in Sources */,
 				E91005D40F893F8900B68C27 /* core_commands4.cc in Sources */,
 				E91005D50F893F8900B68C27 /* core_commands5.cc in Sources */,
@@ -882,6 +889,7 @@
 				E9FC40DA260707AF00E52296 /* shell_loadimage.cc in Sources */,
 				E9FC40DB260707AF00E52296 /* core_commands1.cc in Sources */,
 				E9FC40DC260707AF00E52296 /* core_commands2.cc in Sources */,
+				E92EADB12D0987860019F001 /* GrayButton.mm in Sources */,
 				E9FC40DD260707AF00E52296 /* core_commands3.cc in Sources */,
 				E9FC40DE260707AF00E52296 /* core_commands4.cc in Sources */,
 				E9FC40DF260707AF00E52296 /* core_commands5.cc in Sources */,
