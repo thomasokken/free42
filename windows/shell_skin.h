@@ -51,7 +51,7 @@ int skin_init_image(int type, int ncolors, const SkinColor *colors,
 void skin_put_pixels(unsigned const char *data);
 void skin_finish_image();
 
-void skin_repaint();
+void skin_repaint(bool shortcuts);
 void skin_invalidate_annunciator(int which);
 void skin_find_key(int x, int y, bool cshift, int *skey, int *ckey);
 int skin_find_skey(int ckey);

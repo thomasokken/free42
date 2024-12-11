@@ -20,6 +20,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <string>
+#include <set>
 
 #include "shell_skin.h"
 #include "shell_main.h"
@@ -30,6 +32,10 @@
 #include <gdiplusgraphics.h>
 #include <uxtheme.h>
 using namespace Gdiplus;
+
+using std::wstring;
+using std::to_wstring;
+using std::set;
 
 
 /**************************/
@@ -720,7 +726,241 @@ static void skin_repaint_annunciator(Graphics *g, int which) {
     g->DrawImage(skin_bitmap, ann->disp_rect.x, ann->disp_rect.y, ann->src.x, ann->src.y, ann->disp_rect.width, ann->disp_rect.height, Gdiplus::UnitPixel);
 }
 
-void skin_repaint() {
+struct KeyShortcutInfo {
+    int x, y, width, height;
+    wstring unshifted, shifted;
+    KeyShortcutInfo *next;
+    
+    KeyShortcutInfo(SkinKey *k) {
+        x = k->sens_rect.x;
+        y = k->sens_rect.y;
+        width = k->sens_rect.width;
+        height = k->sens_rect.height;
+        unshifted = L"";
+        shifted = L"";
+    }
+    
+    bool sameRect(SkinKey *that) {
+        return x == that->sens_rect.x
+                && y == that->sens_rect.y
+                && width == that->sens_rect.width
+                && height == that->sens_rect.height;
+    }
+    
+    void add(wstring entryStr, bool shifted) {
+        wstring *str = shifted ? &this->shifted : &this->unshifted;
+        *str = entryStr + L" " + *str;
+    }
+    
+    wstring text() {
+        wstring u, s;
+        if (unshifted.size() == 0)
+            u = L"n/a";
+        else
+            u = unshifted.substr(0, unshifted.size() - 1);
+        if (shifted.size() == 0)
+            s = L"n/a";
+        else
+            s = shifted.substr(0, shifted.size() - 1);
+        return s + L"\n" + u;
+    }
+};
+
+static wstring keycode_to_text(int code) {
+    // source: https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
+    // dated 06/06/2024
+
+    if (code >= '0' && code <= '9' || code >= 'A' && code <= 'Z') {
+        wchar_t s[2] = { (wchar_t) code, 0 };
+        return s;
+    } else if (code >= VK_NUMPAD0 && code <= VK_NUMPAD9) {
+        return wstring(L"Num") + to_wstring(code - VK_NUMPAD0);
+    } else if (code >= VK_F1 && code <= VK_F24) {
+        return wstring(L"F") + to_wstring(code - VK_F1 + 1);
+    }
+
+    switch (code) {
+        case VK_LBUTTON: return L"LBUTTON"; // Left mouse button
+        case VK_RBUTTON: return L"RBUTTON"; // Right mouse button
+        case VK_CANCEL: return L"CANCEL"; // Control - break processing
+        case VK_MBUTTON: return L"MBUTTON"; // Middle mouse button
+        case VK_XBUTTON1: return L"XBUTTON1"; // X1 mouse button
+        case VK_XBUTTON2: return L"XBUTTON2"; // X2 mouse button
+        case VK_BACK: return L"\x232B"; // BACKSPACE key
+        case VK_TAB: return L"TAB"; // TAB key
+        case VK_CLEAR: return L"CLEAR"; // CLEAR key
+        case VK_RETURN: return L"Enter"; // ENTER key
+        case VK_SHIFT: return L"SHIFT"; // SHIFT key
+        case VK_CONTROL: return L"CONTROL"; // CTRL key
+        case VK_MENU: return L"MENU"; // ALT key
+        case VK_PAUSE: return L"PAUSE"; // PAUSE key
+        case VK_CAPITAL: return L"CAPITAL"; // CAPS LOCK key
+        case VK_KANA: return L"KANA"; // IME Kana mode
+        //case VK_HANGUL: return L"HANGUL"; // IME Hangul mode
+        case VK_IME_ON: return L"IME_ON"; // IME On
+        case VK_JUNJA: return L"JUNJA"; // IME Junja mode
+        case VK_FINAL: return L"FINAL"; // IME final mode
+        case VK_HANJA: return L"HANJA"; // IME Hanja mode
+        //case VK_KANJI: return L"KANJI"; // IME Kanji mode
+        case VK_IME_OFF: return L"IME_OFF"; // IME Off
+        case VK_ESCAPE: return L"Esc"; // ESC key
+        case VK_CONVERT: return L"CONVERT"; // IME convert
+        case VK_NONCONVERT: return L"NONCONVERT"; // IME nonconvert
+        case VK_ACCEPT: return L"ACCEPT"; // IME accept
+        case VK_MODECHANGE: return L"MODECHANGE"; // IME mode change request
+        case VK_SPACE: return L"SPACE"; // SPACEBAR
+        case VK_PRIOR: return L"PRIOR"; // PAGE UP key
+        case VK_NEXT: return L"Next"; // PAGE DOWN key
+        case VK_END: return L"End"; // END key
+        case VK_HOME: return L"Home"; // HOME key
+        case VK_LEFT: return L"\x2190"; // LEFT ARROW key
+        case VK_UP: return L"\x2191"; // UP ARROW key
+        case VK_RIGHT: return L"\x2192"; // RIGHT ARROW key
+        case VK_DOWN: return L"\x2193"; // DOWN ARROW key
+        case VK_SELECT: return L"SELECT"; // SELECT key
+        case VK_PRINT: return L"PRINT"; // PRINT key
+        case VK_EXECUTE: return L"EXECUTE"; // EXECUTE key
+        case VK_SNAPSHOT: return L"SNAPSHOT"; // PRINT SCREEN key
+        case VK_INSERT: return L"Ins"; // INS key
+        case VK_DELETE: return L"\x2326"; // DEL key
+        case VK_HELP: return L"HELP"; // HELP key
+        case VK_LWIN: return L"LWIN"; // Left Windows key
+        case VK_RWIN: return L"RWIN"; // Right Windows key
+        case VK_APPS: return L"APPS"; // Applications key
+        case VK_SLEEP: return L"SLEEP"; // Computer Sleep key
+        case VK_MULTIPLY: return L"*"; // Multiply key
+        case VK_ADD: return L"+"; // Add key
+        case VK_SEPARATOR: return L","; // Separator key
+        case VK_SUBTRACT: return L"-"; // Subtract key
+        case VK_DECIMAL: return L"."; // Decimal key
+        case VK_DIVIDE: return L"/"; // Divide key
+        case VK_NUMLOCK: return L"NUMLOCK"; // NUM LOCK key
+        case VK_SCROLL: return L"SCROLL"; // SCROLL LOCK key
+        case VK_LSHIFT: return L"LSHIFT"; // Left SHIFT key
+        case VK_RSHIFT: return L"RSHIFT"; // Right SHIFT key
+        case VK_LCONTROL: return L"LCONTROL"; // Left CONTROL key
+        case VK_RCONTROL: return L"RCONTROL"; // Right CONTROL key
+        case VK_LMENU: return L"LMENU"; // Left ALT key
+        case VK_RMENU: return L"RMENU"; // Right ALT key
+        case VK_BROWSER_BACK: return L"BROWSER_BACK"; // Browser Back key
+        case VK_BROWSER_FORWARD: return L"BROWSER_FORWARD"; // Browser Forward key
+        case VK_BROWSER_REFRESH: return L"BROWSER_REFRESH"; // Browser Refresh key
+        case VK_BROWSER_STOP: return L"BROWSER_STOP"; // Browser Stop key
+        case VK_BROWSER_SEARCH: return L"BROWSER_SEARCH"; // Browser Search key
+        case VK_BROWSER_FAVORITES: return L"BROWSER_FAVORITES"; // Browser Favorites key
+        case VK_BROWSER_HOME: return L"BROWSER_HOME"; // Browser Start and Home key
+        case VK_VOLUME_MUTE: return L"VOLUME_MUTE"; // Volume Mute key
+        case VK_VOLUME_DOWN: return L"VOLUME_DOWN"; // Volume Down key
+        case VK_VOLUME_UP: return L"VOLUME_UP"; // Volume Up key
+        case VK_MEDIA_NEXT_TRACK: return L"MEDIA_NEXT_TRACK"; // Next Track key
+        case VK_MEDIA_PREV_TRACK: return L"MEDIA_PREV_TRACK"; // Previous Track key
+        case VK_MEDIA_STOP: return L"MEDIA_STOP"; // Stop Media key
+        case VK_MEDIA_PLAY_PAUSE: return L"MEDIA_PLAY_PAUSE"; // Play / Pause Media key
+        case VK_LAUNCH_MAIL: return L"LAUNCH_MAIL"; // Start Mail key
+        case VK_LAUNCH_MEDIA_SELECT: return L"LAUNCH_MEDIA_SELECT"; // Select Media key
+        case VK_LAUNCH_APP1: return L"LAUNCH_APP1"; // Start Application 1 key
+        case VK_LAUNCH_APP2: return L"LAUNCH_APP2"; // Start Application 2 key
+        case VK_OEM_1: return L";"; // Used for miscellaneous characters; it can vary by keyboard.For the US standard keyboard, the; : key
+        case VK_OEM_PLUS: return L"+"; // For any country / region, the + key
+        case VK_OEM_COMMA: return L","; // For any country / region, the, key
+        case VK_OEM_MINUS: return L"-"; // For any country / region, the - key
+        case VK_OEM_PERIOD: return L"."; // For any country / region, the.key
+        case VK_OEM_2: return L"/"; // Used for miscellaneous characters; it can vary by keyboard.For the US standard keyboard, the / ? key
+        case VK_OEM_3: return L"`"; // Used for miscellaneous characters; it can vary by keyboard.For the US standard keyboard, the `~ key
+        case VK_OEM_4: return L"["; // Used for miscellaneous characters; it can vary by keyboard.For the US standard keyboard, the[{ key
+        case VK_OEM_5: return L"\\"; // Used for miscellaneous characters; it can vary by keyboard.For the US standard keyboard, the \\ | key
+        case VK_OEM_6: return L"]"; // Used for miscellaneous characters; it can vary by keyboard.For the US standard keyboard, the]} key
+        case VK_OEM_7: return L"'"; // Used for miscellaneous characters; it can vary by keyboard.For the US standard keyboard, the '" key
+        case VK_OEM_8: return L"OEM_8"; // Used for miscellaneous characters; it can vary by keyboard.
+        case VK_OEM_102: return L"OEM_102"; // The <> keys on the US standard keyboard, or the \\ | key on the non - US 102 - key keyboard
+        case VK_PROCESSKEY: return L"PROCESSKEY"; // IME PROCESS key
+        case VK_PACKET: return L"PACKET"; // Used to pass Unicode characters as if they were keystrokes.The VK_PACKET key is the low word of a 32 - bit Virtual Key value used for non - keyboard input methods.For more information, see Remark in KEYBDINPUT, SendInput, WM_KEYDOWN, and WM_KEYUP
+        case VK_ATTN: return L"ATTN"; // Attn key
+        case VK_CRSEL: return L"CRSEL"; // CrSel key
+        case VK_EXSEL: return L"EXSEL"; // ExSel key
+        case VK_EREOF: return L"EREOF"; // Erase EOF key
+        case VK_PLAY: return L"PLAY"; // Play key
+        case VK_ZOOM: return L"ZOOM"; // Zoom key
+        case VK_NONAME: return L"NONAME"; // Reserved
+        case VK_PA1: return L"PA1"; // PA1 key
+        case VK_OEM_CLEAR: return L"OEM_CLEAR"; // Clear key
+        default: return wstring(L"VK(") + to_wstring(code) + L")";
+    }
+}
+
+static wstring entry_to_text(keymap_entry *e) {
+    wstring mods = L"";
+    if (e->extended)
+        mods += L"{e}";
+    if (e->ctrl)
+        mods += L"^";
+    if (e->alt)
+        mods += L"\x2325";
+    if (e->shift)
+        mods += L"\x21e7";
+    return mods + keycode_to_text(e->keycode);
+}
+
+static KeyShortcutInfo *get_shortcut_info() {
+    KeyShortcutInfo *head = NULL;
+    set<wstring> seen;
+    for (int km = 0; km < 2; km++) {
+        keymap_entry *kmap;
+        int kmap_len;
+        if (km == 0) {
+            kmap = keymap;
+            kmap_len = keymap_length;
+        } else
+            get_keymap(&kmap, &kmap_len);
+        for (int i = kmap_len - 1; i >= 0; i--) {
+            keymap_entry *e = kmap + i;
+            if (e->cshift)
+                continue;
+            int key;
+            bool shifted;
+            if (e->macro[1] == 0) {
+                key = e->macro[0];
+                shifted = false;
+            } else if (e->macro[0] == 28 && e->macro[2] == 0) {
+                key = e->macro[1];
+                shifted = true;
+            } else
+                continue;
+            SkinKey *k = NULL;
+            for (int j = 0; j < nkeys; j++) {
+                k = keylist + j;
+                if (key == k->code)
+                    break;
+                if (key == k->shifted_code) {
+                    shifted = true;
+                    break;
+                }
+                k = NULL;
+            }
+            if (k == NULL)
+                continue;
+            wstring entryStr = entry_to_text(e);
+            if (seen.find(entryStr) != seen.end())
+                continue;
+            seen.insert(entryStr);
+            for (KeyShortcutInfo *p = head; p != NULL; p = p->next) {
+                if (p->sameRect(k)) {
+                    p->add(entryStr, shifted);
+                    goto endloop;
+                }
+            }
+            KeyShortcutInfo *ki;
+            ki = new KeyShortcutInfo(k);
+            ki->add(entryStr, shifted);
+            ki->next = head;
+            head = ki;
+            endloop:;
+        }
+    }
+    return head;
+}
+
+void skin_repaint(bool shortcuts) {
     PAINTSTRUCT ps;
     HDC hdc = BeginPaint(window, &ps);
     RECT rc;
@@ -794,6 +1034,25 @@ void skin_repaint() {
                         key->disp_rect.width, key->disp_rect.height, Gdiplus::UnitPixel);
         }
     }
+
+    if (shortcuts) {
+        SolidBrush transparentWhite(Color(127, 255, 255, 255));
+        SolidBrush opaqueBlack(Color(255, 0, 0, 0));
+        g.FillRectangle(&transparentWhite, 0, 0, skin.width, skin.height);
+        KeyShortcutInfo *ksinfo = get_shortcut_info();
+        FontFamily fontFamily(L"Arial");
+        double fsize = sqrt(((double) skin.width) * skin.height) / 50;
+        Font font(&fontFamily, (REAL) fsize, FontStyleRegular, UnitPoint);
+        while (ksinfo != NULL) {
+            g.FillRectangle(&transparentWhite, ksinfo->x + 2, ksinfo->y + 2, ksinfo->width - 4, ksinfo->height - 4);
+            RectF r((REAL) (ksinfo->x + 4), (REAL) (ksinfo->y + 4), (REAL) (ksinfo->width - 8), (REAL) (ksinfo->height - 8));
+            g.DrawString(ksinfo->text().c_str(), -1, &font, r, NULL, &opaqueBlack);
+            KeyShortcutInfo *next = ksinfo->next;
+            delete ksinfo;
+            ksinfo = next;
+        }
+    }
+
     EndBufferedPaint(hbuf, TRUE);
     EndPaint(window, &ps);
 }

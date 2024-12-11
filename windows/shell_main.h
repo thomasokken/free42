@@ -22,6 +22,8 @@
 #include "stdafx.h"
 #include "resource.h"
 
+#include "shell_skin.h"
+
 struct ci_char_traits : public std::char_traits<wchar_t> {
     static bool eq(wchar_t c1, wchar_t c2) { return towupper(c1) == towupper(c2); }
     static bool ne(wchar_t c1, wchar_t c2) { return towupper(c1) != towupper(c2); }
@@ -92,6 +94,8 @@ extern int ann_run;
 extern int ann_battery;
 extern int ann_g;
 extern int ann_rad;
+
+void get_keymap(keymap_entry **map, int *length);
 
 
 #endif
