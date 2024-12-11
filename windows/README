@@ -2,13 +2,16 @@ I keep all the common files in the 'common' directory. In order to build the
 Windows version, you must first create copies of these files in the 'windows'
 directory using the copy-files.bat script.
 
-Note: the Free42 workspace contains four projects: Free42Binary, Free42Decimal,
-keymap2cpp, and skin2cpp. Before building Free42Binary and Free42Decimal, you
-must build keymap2cpp and skin2cpp and run them; this creates the keymap.cpp
-and skins.cpp files, which contain the default keymap and the skins to be
-compiled into the Free42 executable.
+Note: the Free42 workspace contains six projects: Free42Binary32,
+Free42Binary64, Free42Decimal32, Free42Decimal64, keymap2cpp, and skin2cpp.
+Before building Free42Binary and Free42Decimal, you must build keymap2cpp and
+skin2cpp and run them; this creates the keymap.cpp and skins.cpp files, which
+contain the default keymap and the skins to be compiled into the Free42
+executable.
 
 Starting with version 1.5.9, the Windows build of Free42 builds the Intel
-Floating-Point library from source. Run build-intel-lib.sh to build the
-library; if successful, this will create a file named cl111libbid.lib,
-containing x86 objects.
+Floating-Point library from source. Run build-intel-lib.sh 32 to build the
+32-bit library; if successful, this will create a file named
+cl111libbid32.lib, containing x86 objects; and/or run build-intel-lib.sh 64 to
+build the 64-bit library; if successful, this will create a file named
+cl111libbid64.lib, containing x86_64 objects.
