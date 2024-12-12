@@ -708,18 +708,24 @@ struct KeyShortcutInfo {
 
 static string entry_to_text(keymap_entry *e) {
     string c;
-    switch (e->keyval) {
-        case GDK_KEY_Escape: c = "Esc"; break;
-        case GDK_KEY_BackSpace: c = "\342\214\253"; break;
-        case GDK_KEY_Up: c = "\342\206\221"; break;
-        case GDK_KEY_Down: c = "\342\206\223"; break;
-        case GDK_KEY_Left: c = "\342\206\220"; break;
-        case GDK_KEY_Right: c = "\342\206\222"; break;
-        case GDK_KEY_Insert: c = "Ins"; break;
-        case GDK_KEY_Delete: c = "\342\214\246"; break;
-        case GDK_KEY_Page_Up: c = "PgUp"; break;
-        case GDK_KEY_Page_Down: c = "PgDn"; break;
-        default: c = string(gdk_keyval_name(e->keyval));
+    if (e->keyval >= 33 && e->keyval <= 126) {
+        /* Corresponds to the printable ASCII range */
+        char s[2] = { (char) e->keyval, 0 };
+        c = s;
+    } else {
+        switch (e->keyval) {
+            case GDK_KEY_Escape: c = "Esc"; break;
+            case GDK_KEY_BackSpace: c = "\342\214\253"; break;
+            case GDK_KEY_Up: c = "\342\206\221"; break;
+            case GDK_KEY_Down: c = "\342\206\223"; break;
+            case GDK_KEY_Left: c = "\342\206\220"; break;
+            case GDK_KEY_Right: c = "\342\206\222"; break;
+            case GDK_KEY_Insert: c = "Ins"; break;
+            case GDK_KEY_Delete: c = "\342\214\246"; break;
+            case GDK_KEY_Page_Up: c = "PgUp"; break;
+            case GDK_KEY_Page_Down: c = "PgDn"; break;
+            default: c = string(gdk_keyval_name(e->keyval));
+        }
     }
     string mods = "";
     bool printable = !e->ctrl && c.size() == 1 && c[0] >= 33 && c[0] <= 126;
@@ -791,24 +797,73 @@ static KeyShortcutInfo *get_shortcut_info() {
     return head;
 }
 
+static void draw_text_in_rect(cairo_t *cr, const char *text, int x, int y, int width, int height) {
+    cairo_font_extents_t extents;
+    cairo_font_extents(cr, &extents);
+    cairo_save(cr);
+    cairo_rectangle(cr, x, y, width, height);
+    cairo_clip(cr);
+
+    size_t len = strlen(text);
+    char *buf = (char *) malloc(len + 1);
+    if (buf == NULL)
+        return;
+    size_t pos = 0;
+    double ypos = y + extents.ascent;
+
+    /* This is not efficient, but bear in mind we're only using this for pretty short chunks of text */
+    while (pos < len) {
+        strcpy(buf, text + pos);
+        char *lf = strchr(buf, '\n');
+        if (lf != NULL)
+            *lf = 0;
+        int extra = 1;
+        while (true) {
+            cairo_text_extents_t ext;
+            cairo_text_extents(cr, buf, &ext);
+            if (ext.width <= width)
+                break;
+            /* Too long; look for a word break */
+            char *sp = strrchr(buf, ' ');
+            if (sp != NULL && sp > buf) {
+                *sp = 0;
+                continue;
+            }
+            /* The whole line is one word; trim one char at a time until it's short enough */
+            size_t last = strlen(buf) - 1;
+            extra = 0;
+            do {
+                while (last > 0 && (buf[last] & 0xc0) == 0x80)
+                    last--;
+                if (last == 0)
+                    break;
+                buf[last--] = 0;
+                cairo_text_extents(cr, buf, &ext);
+            } while (ext.width > width);
+        }
+        cairo_move_to(cr, x, ypos);
+        cairo_show_text(cr, buf);
+        ypos += extents.height;
+        pos += strlen(buf) + extra;
+    }
+
+    free(buf);
+    cairo_restore(cr);
+}
+
 void skin_draw_keyboard_shortcuts(cairo_t *cr) {
     cairo_set_source_rgba(cr, 1.0, 1.0, 1.0, 0.5);
     cairo_rectangle(cr, 0, 0, skin.width, skin.height);
     cairo_fill(cr);
     KeyShortcutInfo *ksinfo = get_shortcut_info();
-    /*
-    FontFamily fontFamily(L"Arial");
-    double fsize = sqrt(((double) skin.width) * skin.height) / 50;
-    Font font(&fontFamily, (REAL) fsize, FontStyleRegular, UnitPoint);
-    */
+    cairo_select_font_face(cr, "sans-serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_set_font_size(cr, sqrt(((double) skin.width) * skin.height) / 42);
     while (ksinfo != NULL) {
         cairo_set_source_rgba(cr, 1.0, 1.0, 1.0, 0.5);
         cairo_rectangle(cr, ksinfo->x + 2, ksinfo->y + 2, ksinfo->width - 4, ksinfo->height - 4);
         cairo_fill(cr);
-        /*
-        RectF r((REAL) (ksinfo->x + 4), (REAL) (ksinfo->y + 4), (REAL) (ksinfo->width - 8), (REAL) (ksinfo->height - 8));
-        g.DrawString(ksinfo->text().c_str(), -1, &font, r, NULL, &opaqueBlack);
-        */
+        cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
+        draw_text_in_rect(cr, ksinfo->text().c_str(), ksinfo->x + 4, ksinfo->y + 4, ksinfo->width - 8, ksinfo->height - 8);
         KeyShortcutInfo *next = ksinfo->next;
         delete ksinfo;
         ksinfo = next;
