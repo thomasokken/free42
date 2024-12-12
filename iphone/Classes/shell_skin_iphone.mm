@@ -749,7 +749,7 @@ static NSString *entry_to_text(keymap_entry *e) {
         case 0xf701: c = @"\u2193"; break;
         case 0xf702: c = @"\u2190"; break;
         case 0xf703: c = @"\u2192"; break;
-        case 0xf727: c = @"Insert"; break;
+        case 0xf727: c = @"Ins"; break;
         case 0xf728: c = @"\u2326"; break;
         case 0xf729: c = @"Home"; break;
         case 0xf72a: c = @"Begin"; break;

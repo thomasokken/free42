@@ -755,7 +755,7 @@ static NSString *entry_to_text(keymap_entry *e) {
         case NSDownArrowFunctionKey: c = @"\u2193"; break;
         case NSLeftArrowFunctionKey: c = @"\u2190"; break;
         case NSRightArrowFunctionKey: c = @"\u2192"; break;
-        case NSInsertFunctionKey: c = @"Insert"; break;
+        case NSInsertFunctionKey: c = @"Ins"; break;
         case NSDeleteFunctionKey: c = @"\u2326"; break;
         case NSHomeFunctionKey: c = @"Home"; break;
         case NSBeginFunctionKey: c = @"Begin"; break;
