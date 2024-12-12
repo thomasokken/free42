@@ -23,6 +23,8 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <math.h>
+#include <string>
+#include <set>
 
 #include <string>
 #include <vector>
@@ -662,6 +664,155 @@ void skin_repaint_annunciator(cairo_t *cr, int which) {
     cairo_clip(cr);
     cairo_paint(cr);
     cairo_restore(cr);
+}
+
+struct KeyShortcutInfo {
+    int x, y, width, height;
+    string unshifted, shifted;
+    KeyShortcutInfo *next;
+    
+    KeyShortcutInfo(SkinKey *k) {
+        x = k->sens_rect.x;
+        y = k->sens_rect.y;
+        width = k->sens_rect.width;
+        height = k->sens_rect.height;
+        unshifted = "";
+        shifted = "";
+    }
+    
+    bool sameRect(SkinKey *that) {
+        return x == that->sens_rect.x
+                && y == that->sens_rect.y
+                && width == that->sens_rect.width
+                && height == that->sens_rect.height;
+    }
+    
+    void add(string entryStr, bool shifted) {
+        string *str = shifted ? &this->shifted : &this->unshifted;
+        *str = entryStr + " " + *str;
+    }
+    
+    string text() {
+        string u, s;
+        if (unshifted.size() == 0)
+            u = "n/a";
+        else
+            u = unshifted.substr(0, unshifted.size() - 1);
+        if (shifted.size() == 0)
+            s = "n/a";
+        else
+            s = shifted.substr(0, shifted.size() - 1);
+        return s + "\n" + u;
+    }
+};
+
+static string entry_to_text(keymap_entry *e) {
+    string c;
+    switch (e->keyval) {
+        case GDK_KEY_Escape: c = "Esc"; break;
+        case GDK_KEY_BackSpace: c = "\342\214\253"; break;
+        case GDK_KEY_Up: c = "\342\206\221"; break;
+        case GDK_KEY_Down: c = "\342\206\223"; break;
+        case GDK_KEY_Left: c = "\342\206\220"; break;
+        case GDK_KEY_Right: c = "\342\206\222"; break;
+        case GDK_KEY_Insert: c = "Ins"; break;
+        case GDK_KEY_Delete: c = "\342\214\246"; break;
+        case GDK_KEY_Page_Up: c = "PgUp"; break;
+        case GDK_KEY_Page_Down: c = "PgDn"; break;
+        default: c = string(gdk_keyval_name(e->keyval));
+    }
+    string mods = "";
+    bool printable = !e->ctrl && c.size() == 1 && c[0] >= 33 && c[0] <= 126;
+    if (e->ctrl)
+        mods += "^";
+    if (e->alt)
+        mods += "\342\214\245";
+    if (e->shift && !printable)
+        mods += "\342\207\247";
+    return mods + c;
+}
+
+static KeyShortcutInfo *get_shortcut_info() {
+    KeyShortcutInfo *head = NULL;
+    set<string> seen;
+    for (int km = 0; km < 2; km++) {
+        keymap_entry *kmap;
+        int kmap_len;
+        if (km == 0) {
+            kmap = keymap;
+            kmap_len = keymap_length;
+        } else
+            get_keymap(&kmap, &kmap_len);
+        for (int i = kmap_len - 1; i >= 0; i--) {
+            keymap_entry *e = kmap + i;
+            if (e->cshift)
+                continue;
+            int key;
+            bool shifted;
+            if (e->macro[1] == 0) {
+                key = e->macro[0];
+                shifted = false;
+            } else if (e->macro[0] == 28 && e->macro[2] == 0) {
+                key = e->macro[1];
+                shifted = true;
+            } else
+                continue;
+            SkinKey *k = NULL;
+            for (int j = 0; j < nkeys; j++) {
+                k = keylist + j;
+                if (key == k->code)
+                    break;
+                if (key == k->shifted_code) {
+                    shifted = true;
+                    break;
+                }
+                k = NULL;
+            }
+            if (k == NULL)
+                continue;
+            string entryStr = entry_to_text(e);
+            if (seen.find(entryStr) != seen.end())
+                continue;
+            seen.insert(entryStr);
+            for (KeyShortcutInfo *p = head; p != NULL; p = p->next) {
+                if (p->sameRect(k)) {
+                    p->add(entryStr, shifted);
+                    goto endloop;
+                }
+            }
+            KeyShortcutInfo *ki;
+            ki = new KeyShortcutInfo(k);
+            ki->add(entryStr, shifted);
+            ki->next = head;
+            head = ki;
+            endloop:;
+        }
+    }
+    return head;
+}
+
+void skin_draw_keyboard_shortcuts(cairo_t *cr) {
+    cairo_set_source_rgba(cr, 1.0, 1.0, 1.0, 0.5);
+    cairo_rectangle(cr, 0, 0, skin.width, skin.height);
+    cairo_fill(cr);
+    KeyShortcutInfo *ksinfo = get_shortcut_info();
+    /*
+    FontFamily fontFamily(L"Arial");
+    double fsize = sqrt(((double) skin.width) * skin.height) / 50;
+    Font font(&fontFamily, (REAL) fsize, FontStyleRegular, UnitPoint);
+    */
+    while (ksinfo != NULL) {
+        cairo_set_source_rgba(cr, 1.0, 1.0, 1.0, 0.5);
+        cairo_rectangle(cr, ksinfo->x + 2, ksinfo->y + 2, ksinfo->width - 4, ksinfo->height - 4);
+        cairo_fill(cr);
+        /*
+        RectF r((REAL) (ksinfo->x + 4), (REAL) (ksinfo->y + 4), (REAL) (ksinfo->width - 8), (REAL) (ksinfo->height - 8));
+        g.DrawString(ksinfo->text().c_str(), -1, &font, r, NULL, &opaqueBlack);
+        */
+        KeyShortcutInfo *next = ksinfo->next;
+        delete ksinfo;
+        ksinfo = next;
+    }
 }
 
 static void scaled_gdk_window_invalidate_rect(GdkWindow *win, const GdkRectangle *rect, gboolean invalidate_children) {

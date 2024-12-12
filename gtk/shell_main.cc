@@ -135,6 +135,11 @@ int ann_g = 0;
 int ann_rad = 0;
 static guint ann_print_timeout_id = 0;
 
+void get_keymap(keymap_entry **map, int *length) {
+    *map = keymap;
+    *length = keymap_length;
+}
+
 static bool keyboardShortcutsShowing = false;
 static GtkCheckMenuItem *keyboardShortcutsMenuItem;
 
@@ -351,6 +356,7 @@ static const char *mainWindowXml =
                     "<child>"
                       "<object class='GtkCheckMenuItem' id='keyboard_shortcuts_item'>"
                         "<property name='label'>Keyboard Shortcuts</property>"
+                        "<accelerator key='K' signal='activate' modifiers='GDK_CONTROL_MASK'/>"
                       "</object>"
                     "</child>"
                     "<child>"
@@ -2666,11 +2672,8 @@ static gboolean draw_cb(GtkWidget *w, cairo_t *cr, gpointer cd) {
             skin_repaint_key(cr, skey, 1);
     }
 
-    if (keyboardShortcutsShowing) {
-        cairo_set_source_rgba(cr, 1.0, 1.0, 1.0, 0.5);
-        cairo_rectangle(cr, 0, 0, skin_width, skin_height);
-        cairo_fill(cr);
-    }
+    if (keyboardShortcutsShowing)
+        skin_draw_keyboard_shortcuts(cr);
 
     cairo_restore(cr);
     return TRUE;

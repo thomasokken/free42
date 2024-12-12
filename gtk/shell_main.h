@@ -80,4 +80,7 @@ extern int ann_rad;
 
 extern int menu_bar_height;
 
+void get_keymap(keymap_entry **map, int *length);
+
+
 #endif
