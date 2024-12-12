@@ -29,6 +29,8 @@
      * Once we start targeting iOS 13 or later, this check can be removed;
      * and once we start targeting iOS 15 or later, we can get rid of this
      * class altogether, and use a plain ol' UIButton with Style: Gray.
+     * Note: the only iPhones that I'm still supporting that require iOS 12
+     * are the 5s and 6; all later models run at least iOS 15.
      */
     if (@available(iOS 13.0, *)) {
         self.backgroundColor = UIColor.systemGray5Color;
