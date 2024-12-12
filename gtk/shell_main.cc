@@ -2551,15 +2551,27 @@ static bool focus_ok_button(GtkWindow *window, GtkWidget *container) {
 }
 
 static void documentationCB() {
+#if GTK_MINOR_VERSION >= 22
     gtk_show_uri_on_window(GTK_WINDOW(mainwindow), "https://thomasokken.com/free42/#doc", GDK_CURRENT_TIME, NULL);
+#else
+    gtk_show_uri(gtk_widget_get_screen(mainwindow), "https://thomasokken.com/free42/#doc", GDK_CURRENT_TIME, NULL);
+#endif
 }
 
 static void websiteCB() {
+#if GTK_MINOR_VERSION >= 22
     gtk_show_uri_on_window(GTK_WINDOW(mainwindow), "https://thomasokken.com/free42/", GDK_CURRENT_TIME, NULL);
+#else
+    gtk_show_uri(gtk_widget_get_screen(mainwindow), "https://thomasokken.com/free42/", GDK_CURRENT_TIME, NULL);
+#endif
 }
 
 static void otherWebsiteCB() {
+#if GTK_MINOR_VERSION >= 22
     gtk_show_uri_on_window(GTK_WINDOW(mainwindow), "https://thomasokken.com/plus42/", GDK_CURRENT_TIME, NULL);
+#else
+    gtk_show_uri(gtk_widget_get_screen(mainwindow), "https://thomasokken.com/plus42/", GDK_CURRENT_TIME, NULL);
+#endif
 }
 
 static void keyboardShortcutsCB() {
