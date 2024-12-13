@@ -774,7 +774,7 @@ static wstring keycode_to_text(int code) {
         wchar_t s[2] = { (wchar_t) code, 0 };
         return s;
     } else if (code >= VK_NUMPAD0 && code <= VK_NUMPAD9) {
-        return wstring(L"Num") + to_wstring(code - VK_NUMPAD0);
+        return wstring(L"Kp") + to_wstring(code - VK_NUMPAD0);
     } else if (code >= VK_F1 && code <= VK_F24) {
         return wstring(L"F") + to_wstring(code - VK_F1 + 1);
     }
