@@ -34,8 +34,10 @@ import java.util.TreeSet;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 
 public class SkinLayout {
@@ -641,20 +643,17 @@ public class SkinLayout {
         }
 
         if (shortcuts) {
-            Paint tp = new Paint();
-            tp.setARGB(127, 255, 255, 255);
-            canvas.drawRect(0, 0, skin.width, skin.height, tp);
+            Paint transparentWhite = new Paint();
+            transparentWhite.setARGB(127, 255, 255, 255);
+            canvas.drawRect(0, 0, skin.width, skin.height, transparentWhite);
             List<KeyShortcutInfo> ksinfolist = getShortcutInfo();
-            /*
-            cairo_select_font_face(cr, "sans-serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-            cairo_set_font_size(cr, sqrt(((double) skin.width) * skin.height) / 42);
-            */
+            Paint opaqueBlack = new Paint();
+            opaqueBlack.setColor(Color.BLACK);
+            opaqueBlack.setTypeface(Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD));
+            opaqueBlack.setTextSize((float) Math.sqrt(((double) skin.width) * skin.height) / 30);
             for (KeyShortcutInfo ksinfo : ksinfolist) {
-                canvas.drawRect(ksinfo.x + 2, ksinfo.y + 2, ksinfo.x + ksinfo.width - 2, ksinfo.y + ksinfo.height - 2, tp);
-                /*
-                cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
-                draw_text_in_rect(cr, ksinfo->text().c_str(), ksinfo->x + 4, ksinfo->y + 4, ksinfo->width - 8, ksinfo->height - 8);
-                */
+                canvas.drawRect(ksinfo.x + 2, ksinfo.y + 2, ksinfo.x + ksinfo.width - 2, ksinfo.y + ksinfo.height - 2, transparentWhite);
+                drawTextInRect(canvas, ksinfo.text(), ksinfo.x + 4, ksinfo.y + 4, ksinfo.width - 8, ksinfo.height - 8, opaqueBlack);
             }
         }
     }
@@ -799,61 +798,27 @@ public class SkinLayout {
         return list;
     }
 
-/*
-static void draw_text_in_rect(cairo_t *cr, const char *text, int x, int y, int width, int height) {
-        cairo_font_extents_t extents;
-        cairo_font_extents(cr, &extents);
-        cairo_save(cr);
-        cairo_rectangle(cr, x, y, width, height);
-        cairo_clip(cr);
-
-        size_t len = strlen(text);
-        char *buf = (char *) malloc(len + 1);
-        if (buf == NULL)
-        return;
-        size_t pos = 0;
-        double ypos = y + extents.ascent;
-
-        /* This is not efficient, but bear in mind we're only using this for pretty short chunks of text * /
-        while (pos < len) {
-        strcpy(buf, text + pos);
-        char *lf = strchr(buf, '\n');
-        if (lf != NULL)
-        *lf = 0;
-        int extra = 1;
-        while (true) {
-        cairo_text_extents_t ext;
-        cairo_text_extents(cr, buf, &ext);
-        if (ext.width <= width)
-        break;
-        /* Too long; look for a word break * /
-        char *sp = strrchr(buf, ' ');
-        if (sp != NULL && sp > buf) {
-        *sp = 0;
-        continue;
+    private void drawTextInRect(Canvas canvas, String text, int x, int y, int width, int height, Paint paint) {
+        Paint.FontMetrics metrics = paint.getFontMetrics();
+        float spacing = -metrics.ascent + metrics.descent + metrics.leading;
+        char[] chars = text.toCharArray();
+        float ypos = y - paint.ascent();
+        int pos = 0;
+        canvas.save();
+        canvas.clipRect(x, y, x + width, y + height);
+        while (pos < chars.length) {
+            int lf = text.indexOf('\n', pos);
+            if (lf == -1)
+                lf = chars.length;
+            int len = paint.breakText(chars, pos, lf - pos, width, null);
+            canvas.drawText(chars, pos, len, x, ypos, paint);
+            pos += len;
+            if (pos < chars.length && (chars[pos] == ' ' || chars[pos] == '\n'))
+                pos++;
+            ypos += spacing;
         }
-        /* The whole line is one word; trim one char at a time until it's short enough * /
-        size_t last = strlen(buf) - 1;
-        extra = 0;
-        do {
-        while (last > 0 && (buf[last] & 0xc0) == 0x80)
-        last--;
-        if (last == 0)
-        break;
-        buf[last--] = 0;
-        cairo_text_extents(cr, buf, &ext);
-        } while (ext.width > width);
-        }
-        cairo_move_to(cr, x, ypos);
-        cairo_show_text(cr, buf);
-        ypos += extents.height;
-        pos += strlen(buf) + extra;
-        }
-
-        free(buf);
-        cairo_restore(cr);
-        }
-        */
+        canvas.restore();
+    }
 
     public Rect set_display_enabled(boolean enable) {
         if (display_enabled == enable)
