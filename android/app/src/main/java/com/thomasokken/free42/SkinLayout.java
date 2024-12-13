@@ -734,7 +734,7 @@ public class SkinLayout {
         if (numpad)
             c = "Kp" + c;
         String mods = "";
-        boolean printable = !e.ctrl && c.length() == 1 && c.charAt(0) >= 33 && c.charAt(0) <= 126;
+        boolean printable = !e.ctrl && !e.alt && c.length() == 1 && c.charAt(0) >= 33 && c.charAt(0) <= 126;
         if (e.ctrl)
             mods += "^";
         if (e.alt)
