@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
+import java.util.TreeSet;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -91,15 +92,17 @@ public class SkinLayout {
     private boolean skinSmoothing;
     private boolean displaySmoothing;
     private boolean maintainSkinAspect;
+    private KeymapEntry[] calcKeymap;
 
-    public SkinLayout(Context ctx, String skinName, boolean skinSmoothing, boolean displaySmoothing, boolean maintainSkinAspect) {
-        this(ctx, skinName, skinSmoothing, displaySmoothing, maintainSkinAspect, null);
+    public SkinLayout(Context ctx, String skinName, boolean skinSmoothing, boolean displaySmoothing, boolean maintainSkinAspect, KeymapEntry[] calcKeymap) {
+        this(ctx, skinName, skinSmoothing, displaySmoothing, maintainSkinAspect, calcKeymap, null);
     }
     
-    public SkinLayout(Context ctx, String skinName, boolean skinSmoothing, boolean displaySmoothing, boolean maintainSkinAspect, boolean[] ann_state) {
+    public SkinLayout(Context ctx, String skinName, boolean skinSmoothing, boolean displaySmoothing, boolean maintainSkinAspect, KeymapEntry[] calcKeymap, boolean[] ann_state) {
         this.skinSmoothing = skinSmoothing;
         this.displaySmoothing = displaySmoothing;
         this.maintainSkinAspect = maintainSkinAspect;
+        this.calcKeymap = calcKeymap;
         if (ann_state == null)
             this.ann_state = new boolean[7];
         else
@@ -579,7 +582,7 @@ public class SkinLayout {
             return new Rect(minx, miny, maxx, maxy);
     }
     
-    public void repaint(Canvas canvas) {
+    public void repaint(Canvas canvas, boolean shortcuts) {
         Rect clip = canvas.getClipBounds();
         boolean paintDisplay = false;
         boolean paintSkin = false;
@@ -636,8 +639,222 @@ public class SkinLayout {
             if (active_key >= -7 && active_key <= -2)
                 repaint_key(canvas, skinBitmap, active_key, true);
         }
+
+        if (shortcuts) {
+            Paint tp = new Paint();
+            tp.setARGB(127, 255, 255, 255);
+            canvas.drawRect(0, 0, skin.width, skin.height, tp);
+            List<KeyShortcutInfo> ksinfolist = getShortcutInfo();
+            /*
+            cairo_select_font_face(cr, "sans-serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+            cairo_set_font_size(cr, sqrt(((double) skin.width) * skin.height) / 42);
+            */
+            for (KeyShortcutInfo ksinfo : ksinfolist) {
+                canvas.drawRect(ksinfo.x + 2, ksinfo.y + 2, ksinfo.x + ksinfo.width - 2, ksinfo.y + ksinfo.height - 2, tp);
+                /*
+                cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
+                draw_text_in_rect(cr, ksinfo->text().c_str(), ksinfo->x + 4, ksinfo->y + 4, ksinfo->width - 8, ksinfo->height - 8);
+                */
+            }
+        }
     }
-    
+
+    private class KeyShortcutInfo {
+        int x, y, width, height;
+        String unshifted, shifted;
+
+        KeyShortcutInfo(SkinKey k) {
+            x = k.sens_rect.x;
+            y = k.sens_rect.y;
+            width = k.sens_rect.width;
+            height = k.sens_rect.height;
+            unshifted = "";
+            shifted = "";
+        }
+
+        boolean sameRect(SkinKey that) {
+            return x == that.sens_rect.x
+                    && y == that.sens_rect.y
+                    && width == that.sens_rect.width
+                    && height == that.sens_rect.height;
+        }
+
+        void add(String entryStr, boolean shift) {
+            if (shift)
+                shifted = entryStr + " " + shifted;
+            else
+                unshifted = entryStr + " " + unshifted;
+        }
+
+        String text() {
+            String u, s;
+            if (unshifted.length() == 0)
+                u = "n/a";
+            else
+                u = unshifted.substring(0, unshifted.length() - 1);
+            if (shifted.length() == 0)
+                s = "n/a";
+            else
+                s = shifted.substring(0, shifted.length() - 1);
+            return s + "\n" + u;
+        }
+    }
+
+    private static String entry_to_text(KeymapEntry e) {
+        String c;
+        boolean numpad = e.numpad;
+        String k = e.keychar;
+        if (k.startsWith("NUMPAD_")) {
+            k = k.substring(7);
+            numpad = true;
+        }
+        if (e.keychar.equals("ESCAPE"))
+            c = "Esc";
+        else if (e.keychar.equals("\n"))
+            c = "Enter";
+        else if (e.keychar.equals("DEL"))
+            c = "\u232b";
+        else if (e.keychar.equals("DPAD_UP"))
+            c = "\u2191";
+        else if (e.keychar.equals("DPAD_DOWN"))
+            c = "\u2193";
+        else if (e.keychar.equals("DPAD_LEFT"))
+            c = "\u2190";
+        else if (e.keychar.equals("DPAD_RIGHT"))
+            c = "\u2192";
+        else if (e.keychar.equals("INSERT"))
+            c = "Ins";
+        else if (e.keychar.equals("FORWARD_DEL"))
+            c = "\u2326";
+        else if (e.keychar.equals("PAGE_UP"))
+            c = "PgUp";
+        else if (e.keychar.equals("PAGE_DOWN"))
+            c = "PgDn";
+        else
+            c = e.keychar;
+        if (numpad)
+            c = "Kp" + c;
+        String mods = "";
+        boolean printable = !e.ctrl && c.length() == 1 && c.charAt(0) >= 33 && c.charAt(0) <= 126;
+        if (e.ctrl)
+            mods += "^";
+        if (e.alt)
+            mods += "\u2325";
+        if (e.shift && !printable)
+            mods += "\u21e7";
+        return mods + c;
+    }
+
+    private List<KeyShortcutInfo> getShortcutInfo() {
+        ArrayList<KeyShortcutInfo> list = new ArrayList<KeyShortcutInfo>();
+        TreeSet<String> seen = new TreeSet<String>();
+        for (int km = 0; km < 2; km++) {
+            KeymapEntry[] kmap = km == 0 ? keymap : calcKeymap;
+            for (int i = kmap.length - 1; i >= 0; i--) {
+                KeymapEntry e = kmap[i];
+                if (e.cshift)
+                    continue;
+                int key;
+                boolean shifted;
+                if (e.macro.length == 1) {
+                    key = e.macro[0];
+                    shifted = false;
+                } else if (e.macro[0] == 28 && e.macro.length == 2) {
+                    key = e.macro[1];
+                    shifted = true;
+                } else
+                    continue;
+                SkinKey k = null;
+                for (int j = 0; j < keylist.length; j++) {
+                    k = keylist[j];
+                    if (key == k.code)
+                        break;
+                    if (key == k.shifted_code) {
+                        shifted = true;
+                        break;
+                    }
+                    k = null;
+                }
+                if (k == null)
+                    continue;
+                String entryStr = entry_to_text(e);
+                if (seen.contains(entryStr))
+                    continue;
+                seen.add(entryStr);
+                boolean exists = false;
+                for (KeyShortcutInfo p : list) {
+                    if (p.sameRect(k)) {
+                        p.add(entryStr, shifted);
+                        exists = true;
+                        break;
+                    }
+                }
+                if (!exists) {
+                    KeyShortcutInfo ki = new KeyShortcutInfo(k);
+                    ki.add(entryStr, shifted);
+                    list.add(ki);
+                }
+            }
+        }
+        return list;
+    }
+
+/*
+static void draw_text_in_rect(cairo_t *cr, const char *text, int x, int y, int width, int height) {
+        cairo_font_extents_t extents;
+        cairo_font_extents(cr, &extents);
+        cairo_save(cr);
+        cairo_rectangle(cr, x, y, width, height);
+        cairo_clip(cr);
+
+        size_t len = strlen(text);
+        char *buf = (char *) malloc(len + 1);
+        if (buf == NULL)
+        return;
+        size_t pos = 0;
+        double ypos = y + extents.ascent;
+
+        /* This is not efficient, but bear in mind we're only using this for pretty short chunks of text * /
+        while (pos < len) {
+        strcpy(buf, text + pos);
+        char *lf = strchr(buf, '\n');
+        if (lf != NULL)
+        *lf = 0;
+        int extra = 1;
+        while (true) {
+        cairo_text_extents_t ext;
+        cairo_text_extents(cr, buf, &ext);
+        if (ext.width <= width)
+        break;
+        /* Too long; look for a word break * /
+        char *sp = strrchr(buf, ' ');
+        if (sp != NULL && sp > buf) {
+        *sp = 0;
+        continue;
+        }
+        /* The whole line is one word; trim one char at a time until it's short enough * /
+        size_t last = strlen(buf) - 1;
+        extra = 0;
+        do {
+        while (last > 0 && (buf[last] & 0xc0) == 0x80)
+        last--;
+        if (last == 0)
+        break;
+        buf[last--] = 0;
+        cairo_text_extents(cr, buf, &ext);
+        } while (ext.width > width);
+        }
+        cairo_move_to(cr, x, ypos);
+        cairo_show_text(cr, buf);
+        ypos += extents.height;
+        pos += strlen(buf) + extra;
+        }
+
+        free(buf);
+        cairo_restore(cr);
+        }
+        */
+
     public Rect set_display_enabled(boolean enable) {
         if (display_enabled == enable)
             return null;

@@ -390,17 +390,17 @@ public class Free42Activity extends Activity {
         skin = null;
         if (skinName[orientation].length() == 0 && externalSkinName[orientation].length() > 0) {
             try {
-                skin = new SkinLayout(this, externalSkinName[orientation], skinSmoothing[orientation], displaySmoothing[orientation], maintainSkinAspect[orientation]);
+                skin = new SkinLayout(this, externalSkinName[orientation], skinSmoothing[orientation], displaySmoothing[orientation], maintainSkinAspect[orientation], keymap);
             } catch (IllegalArgumentException e) {}
         }
         if (skin == null) {
             try {
-                skin = new SkinLayout(this, skinName[orientation], skinSmoothing[orientation], displaySmoothing[orientation], maintainSkinAspect[orientation]);
+                skin = new SkinLayout(this, skinName[orientation], skinSmoothing[orientation], displaySmoothing[orientation], maintainSkinAspect[orientation], keymap);
             } catch (IllegalArgumentException e) {}
         }
         if (skin == null) {
             try {
-                skin = new SkinLayout(this, builtinSkinNames[0], skinSmoothing[orientation], displaySmoothing[orientation], maintainSkinAspect[orientation]);
+                skin = new SkinLayout(this, builtinSkinNames[0], skinSmoothing[orientation], displaySmoothing[orientation], maintainSkinAspect[orientation], keymap);
             } catch (IllegalArgumentException e) {
                 // This one should never fail; we're loading a built-in skin.
             }
@@ -438,7 +438,7 @@ public class Free42Activity extends Activity {
         for (int i = 0; i < soundResourceIds.length; i++)
             soundIds[i] = soundPool.load(this, soundResourceIds[i], 1);
     }
-    
+
     @Override
     protected void onStart() {
         // Check battery level -- this is necessary because the ACTTON_BATTERY_LOW
@@ -621,17 +621,17 @@ public class Free42Activity extends Activity {
         SkinLayout newSkin = null;
         if (skinName[orientation].length() == 0 && externalSkinName[orientation].length() > 0) {
             try {
-                newSkin = new SkinLayout(this, externalSkinName[orientation], skinSmoothing[orientation], displaySmoothing[orientation], maintainSkinAspect[orientation], ann_state);
+                newSkin = new SkinLayout(this, externalSkinName[orientation], skinSmoothing[orientation], displaySmoothing[orientation], maintainSkinAspect[orientation], keymap, ann_state);
             } catch (IllegalArgumentException e) {}
         }
         if (newSkin == null) {
             try {
-                newSkin = new SkinLayout(this, skinName[orientation], skinSmoothing[orientation], displaySmoothing[orientation], maintainSkinAspect[orientation], ann_state);
+                newSkin = new SkinLayout(this, skinName[orientation], skinSmoothing[orientation], displaySmoothing[orientation], maintainSkinAspect[orientation], keymap, ann_state);
             } catch (IllegalArgumentException e) {}
         }
         if (newSkin == null) {
             try {
-                newSkin = new SkinLayout(this, builtinSkinNames[0], skinSmoothing[orientation], displaySmoothing[orientation], maintainSkinAspect[orientation], ann_state);
+                newSkin = new SkinLayout(this, builtinSkinNames[0], skinSmoothing[orientation], displaySmoothing[orientation], maintainSkinAspect[orientation], keymap, ann_state);
             } catch (IllegalArgumentException e) {
                 // This one should never fail; we're loading a built-in skin.
             }
@@ -1228,7 +1228,7 @@ public class Free42Activity extends Activity {
     private void doSelectSkin(String skinName) {
         try {
             boolean[] annunciators = skin.getAnnunciators();
-            skin = new SkinLayout(this, skinName, skinSmoothing[orientation], displaySmoothing[orientation], maintainSkinAspect[orientation], annunciators);
+            skin = new SkinLayout(this, skinName, skinSmoothing[orientation], displaySmoothing[orientation], maintainSkinAspect[orientation], keymap, annunciators);
             if (skinName.startsWith("/")) {
                 externalSkinName[orientation] = skinName;
                 this.skinName[orientation] = "";
@@ -1363,10 +1363,13 @@ public class Free42Activity extends Activity {
         private class AboutView extends RelativeLayout {
             public AboutView(Context context) {
                 super(context);
-                
+
+                int gap = (int) (getResources().getDisplayMetrics().density * 10 + 0.5);
+
                 ImageView icon = new ImageView(context);
                 icon.setId(1);
                 icon.setImageResource(R.mipmap.icon);
+                icon.setPadding(gap, gap, gap, gap);
                 addView(icon);
                 
                 TextView label1 = new TextView(context);
@@ -1431,8 +1434,24 @@ public class Free42Activity extends Activity {
                 lp.addRule(RelativeLayout.BELOW, label5.getId());
                 addView(label6, lp);
 
+                Button shortcutsB = new Button(context);
+                shortcutsB.setId(8);
+                shortcutsB.setText(calcView.shortcutsShowing() ? "Hide Keyboard Shortcuts" : "Show Keyboard Shortcuts");
+                shortcutsB.setOnClickListener(new OnClickListener() {
+                    public void onClick(View view) {
+                        calcView.toggleShortcuts();
+                        AboutDialog.this.dismiss();
+                    }
+                });
+                shortcutsB.setBackgroundColor(0xffc0c0c0);
+                lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+                lp.addRule(RelativeLayout.CENTER_HORIZONTAL);
+                lp.addRule(RelativeLayout.BELOW, label6.getId());
+                lp.setMargins(gap, gap, gap, gap);
+                addView(shortcutsB, lp);
+
                 Button okB = new Button(context);
-                okB.setId(8);
+                okB.setId(9);
                 okB.setText("   OK   ");
                 okB.setOnClickListener(new OnClickListener() {
                     public void onClick(View view) {
@@ -1440,7 +1459,7 @@ public class Free42Activity extends Activity {
                     }
                 });
                 lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-                lp.addRule(RelativeLayout.BELOW, label6.getId());
+                lp.addRule(RelativeLayout.BELOW, shortcutsB.getId());
                 lp.addRule(RelativeLayout.CENTER_HORIZONTAL);
                 addView(okB, lp);
 
@@ -1458,6 +1477,7 @@ public class Free42Activity extends Activity {
         private float hScale, vScale;
         private int hOffset, vOffset;
         private boolean possibleMenuEvent = false;
+        private boolean shortcutsShowing = false;
 
         public CalcView(Context context) {
             super(context);
@@ -1481,6 +1501,15 @@ public class Free42Activity extends Activity {
             }
         }
 
+        public boolean shortcutsShowing() {
+            return shortcutsShowing;
+        }
+
+        public void toggleShortcuts() {
+            shortcutsShowing = !shortcutsShowing;
+            invalidate();
+        }
+
         @Override
         protected void onSizeChanged(int w, int h, int oldw, int oldh) {
             width = w;
@@ -1492,7 +1521,7 @@ public class Free42Activity extends Activity {
         protected void onDraw(Canvas canvas) {
             canvas.translate(hOffset, vOffset);
             canvas.scale(hScale, vScale);
-            skin.repaint(canvas);
+            skin.repaint(canvas, shortcutsShowing);
         }
 
         private void shell_keydown() {
