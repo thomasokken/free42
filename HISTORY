@@ -1,3 +1,12 @@
+2024-12-13: release 3.1.11
+
+* Added option to show the active keyboard map superimposed on the skin. The
+  desktop versions have this in the Help menu, and the mobile versions have it
+  in the About dialog.
+* Added functions for direct access to matrix and list elements: GETMI, PUTMI,
+  GETLI, and PUTLI. See the Free42 web site for details.
+* iOS and MacOS versions: Improved Dark Mode support.
+
 2024-11-14: release 3.1.10
 
 * Now pre-populating state name for States -> More -> Rename.
