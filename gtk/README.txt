@@ -110,7 +110,7 @@ BST      Shift CursorUp
 7        '7'
 SOLVER   '&' (Shift 7)
 8        '8'
-∫f(x)    Alt 8 (can't use Shift 8 because that's 'x' (multiply))
+∫f(x)    Alt 8 (can't use Shift 8 because that's * (multiply))
 9        '9'
 MATRIX   '(' (Shift 9)
 ÷        '/'
@@ -125,7 +125,7 @@ CONVERT  '%' (Shift 5)
 6        '6'
 FLAGS    '^' (Shift 6)
 ×        '*'
-PROB     Ctrl 8 (can't use Shift * because '*' is shifted itself (Shift 8))
+PROB     Ctrl 8 (can't use Shift * because * is shifted itself (Shift 8))
 
 Shift    Shift
 1        '1'
