@@ -100,8 +100,6 @@ static const SkinColor *skin_cmap;
 
 static char disp_bits[272];
 
-static vector<string> skin_labels;
-
 static keymap_entry *keymap = NULL;
 static int keymap_length;
 
@@ -148,20 +146,40 @@ static void addMenuItem(GtkMenu *menu, const char *name, bool enabled) {
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(w), checked);
     gtk_widget_set_sensitive(w, enabled);
 
-    // Apparently, there is no way to retrieve the label from a menu item,
-    // so I have to store them and pass them to the callback explicitly.
-    skin_labels.push_back(name);
-    const char *lbl = skin_labels.back().c_str();
     g_signal_connect(G_OBJECT(w), "activate",
-                     G_CALLBACK(selectSkinCB), (gpointer) lbl);
+                     G_CALLBACK(selectSkinCB), NULL);
 
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), w);
     gtk_widget_show(w);
 }
 
 static void selectSkinCB(GtkWidget *w, gpointer cd) {
+    /* The gtk_check_menu_item_set_active() call causes this callback
+     * to be re-entered; this bit of logic is to prevent getting stuck
+     * in infinite recursion.
+     */
+    static bool busy = false;
+    if (busy)
+        return;
+    busy = true;
+
+    GtkWidget *skin_menu = gtk_widget_get_parent(w);
+    GList *children = gtk_container_get_children(GTK_CONTAINER(skin_menu));
+    GList *item = children;
+    while (item != NULL) {
+        GtkWidget *mi = GTK_WIDGET(item->data);
+        if (GTK_IS_CHECK_MENU_ITEM(mi))
+            gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(mi),
+                                            GTK_WIDGET(mi) == w);
+        item = item->next;
+    }
+    g_list_free(children);
+
+    busy = false;
+
+    const char *label = gtk_menu_item_get_label(GTK_MENU_ITEM(w));
+    strcpy(state.skinName, label);
     int sw, sh;
-    strcpy(state.skinName, (char *) cd);
     skin_load(&sw, &sh);
     core_repaint_display();
 
@@ -290,8 +308,6 @@ void skin_menu_update(GtkWidget *w) {
         item = item->next;
     }
     g_list_free(children);
-
-    skin_labels.clear();
 
     set<string> shared_skins;
     const char *xdg_data_dirs = getenv("XDG_DATA_DIRS");
