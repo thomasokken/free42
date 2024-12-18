@@ -169,8 +169,7 @@ static void selectSkinCB(GtkWidget *w, gpointer cd) {
     while (item != NULL) {
         GtkWidget *mi = GTK_WIDGET(item->data);
         if (GTK_IS_CHECK_MENU_ITEM(mi))
-            gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(mi),
-                                            GTK_WIDGET(mi) == w);
+            gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(mi), mi == w);
         item = item->next;
     }
     g_list_free(children);
