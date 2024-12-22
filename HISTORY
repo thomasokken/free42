@@ -1,3 +1,7 @@
+2024-12-22: release 3.1.12
+
+* Fixed pasting of GETMI, PUTMI, GETLI, and PUTLI.
+
 2024-12-13: release 3.1.11
 
 * Added option to show the active keyboard map superimposed on the skin. The
