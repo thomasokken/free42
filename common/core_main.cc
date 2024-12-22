@@ -3868,7 +3868,7 @@ static void paste_programs(const char *buf) {
                         }
                         if (tok_end - tok_start == 2 && isdigit(hpbuf[tok_start])
                                                      && isdigit(hpbuf[tok_start + 1])) {
-                            if (!ind && string_required)
+                            if (!ind && (string_required || cmd == CMD_GETMI || cmd == CMD_PUTMI || cmd == CMD_GETLI || cmd == CMD_PUTLI))
                                 goto line_done;
                             arg.type = ind ? ARGTYPE_IND_NUM : ARGTYPE_NUM;
                             sscanf(hpbuf + tok_start, "%02d", &arg.val.num);
@@ -3911,6 +3911,11 @@ static void paste_programs(const char *buf) {
                     case ARG_RVAR: {
                         string_required = true;
                         stk_allowed = false;
+                        argtype = ARG_VAR;
+                        goto string_only;
+                    }
+                    case ARG_M_STK:
+                    case ARG_L_STK: {
                         argtype = ARG_VAR;
                         goto string_only;
                     }
