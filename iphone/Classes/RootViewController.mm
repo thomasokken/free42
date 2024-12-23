@@ -168,6 +168,21 @@ static BOOL battery_is_low = NO;
 static BOOL battery_is_low_ann = NO;
 
 - (void) batteryLevelChanged {
+    // I noticed that when the battery on my iPhone 13 mini is low and
+    // I plug in the charger, when the rising battery level reaches 21%,
+    // the battery in the status bar changes color from red to white,
+    // but it can take several minutes before the low-battery annunciator
+    // in the app goes away. This lag wasn't always there; it used to be
+    // that the app annunciator would track the system's low battery
+    // indication instantly.
+    // I don't know when this changed, whether the relevant change between
+    // then and now is newer iPhone hardware, or some change in iOS. But
+    // for what it's worth, it looks like on my iPhone 13 mini, running
+    // iOS 18, the battery level is reported with a resolution of 5%,
+    // so we don't get a notification when the percentage goes from 20%
+    // to 21%, which is the level where the battery in the status bar
+    // stops being red; instead, we get a notification when the level
+    // reaches 25%. Boo.
     BOOL low = [[UIDevice currentDevice] batteryLevel] < 0.205;
     if (low != battery_is_low) {
         battery_is_low = low;
