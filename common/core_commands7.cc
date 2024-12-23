@@ -1710,7 +1710,10 @@ static int concat(bool extend) {
             arg_struct arg;
             arg.type = ARGTYPE_STK;
             arg.val.stk = 'X';
+            char saved_trace = flags.f.trace_print;
+            flags.f.trace_print = 0;
             docmd_arcl(&arg);
+            flags.f.trace_print = saved_trace;
             text = reg_alpha;
             len = reg_alpha_length;
         }
