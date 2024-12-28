@@ -59,11 +59,12 @@ void shell_blitter(const char *bits, int bytesperline, int x, int y,
 /* shell_beeper()
  *
  * Callback invoked by the emulator core to play a sound.
- * The parameter is the tone number, from 0 to 9, or 10 for the error beep.
- * Sound playback should be synchronous (the beeper function should
- * not return until the sound has finished), if possible.
+ * The parameter is the tone number, from 0 to 9, or 10 for the error beep,
+ * or 11 for BEEP. If the sound is being played asynchronously, the function
+ * returns the number of milliseconds the caller should wait for the sound
+ * to finish playing.
  */
-void shell_beeper(int tone);
+int shell_beeper(int tone);
 
 /* shell_annunciators()
  *
@@ -102,7 +103,8 @@ void shell_delay(int duration);
  * Callback to ask the shell to call core_timeout3() after the given number of
  * milliseconds. If there are keystroke events during that time, the timeout is
  * cancelled. (Pressing 'shift' does not cancel the timeout.)
- * This function supports the delay after SHOW, MEM, and shift-VARMENU.
+ * This function supports the delays after PAUSE, TONE, BEEP, SHOW, MEM, and
+ * shift-VARMENU.
  */
 void shell_request_timeout3(int delay);
 

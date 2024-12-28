@@ -71,6 +71,8 @@
 		E977D08B1698FB4E00AA3FD9 /* SelectSkinView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E977D07F1698FB4E00AA3FD9 /* SelectSkinView.mm */; };
 		E977D08D1698FB4E00AA3FD9 /* shell_skin_iphone.mm in Sources */ = {isa = PBXBuildFile; fileRef = E977D0811698FB4E00AA3FD9 /* shell_skin_iphone.mm */; };
 		E977D09A1699050400AA3FD9 /* URLButton.mm in Sources */ = {isa = PBXBuildFile; fileRef = E977D0991699050400AA3FD9 /* URLButton.mm */; };
+		E9838F9E2D20461E00B7644E /* beep.wav in Resources */ = {isa = PBXBuildFile; fileRef = E9838F9D2D20461E00B7644E /* beep.wav */; };
+		E9838F9F2D20461E00B7644E /* beep.wav in Resources */ = {isa = PBXBuildFile; fileRef = E9838F9D2D20461E00B7644E /* beep.wav */; };
 		E98DD7510F8C198A0089D9FA /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E98DD7500F8C198A0089D9FA /* AudioToolbox.framework */; };
 		E98DD7670F8C1A210089D9FA /* squeak.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD75C0F8C1A210089D9FA /* squeak.wav */; };
 		E98DD7680F8C1A210089D9FA /* tone0.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD75D0F8C1A210089D9FA /* tone0.wav */; };
@@ -297,6 +299,7 @@
 		E977D0811698FB4E00AA3FD9 /* shell_skin_iphone.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = shell_skin_iphone.mm; sourceTree = "<group>"; };
 		E977D0981699050400AA3FD9 /* URLButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = URLButton.h; sourceTree = "<group>"; };
 		E977D0991699050400AA3FD9 /* URLButton.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = URLButton.mm; sourceTree = "<group>"; };
+		E9838F9D2D20461E00B7644E /* beep.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = beep.wav; sourceTree = "<group>"; };
 		E98DD7500F8C198A0089D9FA /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		E98DD75C0F8C1A210089D9FA /* squeak.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = squeak.wav; sourceTree = "<group>"; };
 		E98DD75D0F8C1A210089D9FA /* tone0.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = tone0.wav; sourceTree = "<group>"; };
@@ -483,6 +486,7 @@
 				E92FA6D32BB00C22004424EA /* PrivacyInfo.xcprivacy */,
 				E9BB9E9525682C7100708152 /* Launch Screen.storyboard */,
 				28AD733E0D9D9553002E5188 /* MainWindow.xib */,
+				E9838F9D2D20461E00B7644E /* beep.wav */,
 				E9AE2560233C1CD0005072BA /* click1.wav */,
 				E9AE255F233C1CD0005072BA /* click2.wav */,
 				E9AE255D233C1CCF005072BA /* click3.wav */,
@@ -682,6 +686,7 @@
 				E98DD76B0F8C1A210089D9FA /* tone3.wav in Resources */,
 				E9AE2563233C1CD0005072BA /* click5.wav in Resources */,
 				E969A3A422D15AB100E6EBEB /* Matt42X.layout in Resources */,
+				E9838F9F2D20461E00B7644E /* beep.wav in Resources */,
 				E98DD76C0F8C1A210089D9FA /* tone4.wav in Resources */,
 				E98DD76D0F8C1A210089D9FA /* tone5.wav in Resources */,
 				E9A1EE371FCB8C630047398C /* Images.xcassets in Resources */,
@@ -727,6 +732,7 @@
 				E9FC40BD260707AF00E52296 /* tone3.wav in Resources */,
 				E9FC40BE260707AF00E52296 /* click5.wav in Resources */,
 				E9FC40BF260707AF00E52296 /* Matt42X.layout in Resources */,
+				E9838F9E2D20461E00B7644E /* beep.wav in Resources */,
 				E9FC40C0260707AF00E52296 /* tone4.wav in Resources */,
 				E9FC40C1260707AF00E52296 /* tone5.wav in Resources */,
 				E9FC40C2260707AF00E52296 /* Images.xcassets in Resources */,

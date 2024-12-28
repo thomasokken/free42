@@ -39,6 +39,7 @@
 #define IDD_STATES                      152
 #define IDD_STATE_NAME                  153
 #define IDR_STATES_MORE                 154
+#define IDR_BEEP_WAVE                   155
 #define IDC_MATRIX_SINGULARMATRIX       1000
 #define IDC_MATRIX_OUTOFRANGE           1001
 #define IDC_AUTO_REPEAT                 1002
@@ -92,7 +93,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        155
+#define _APS_NEXT_RESOURCE_VALUE        156
 #define _APS_NEXT_COMMAND_VALUE         32793
 #define _APS_NEXT_CONTROL_VALUE         1025
 #define _APS_NEXT_SYMED_VALUE           110

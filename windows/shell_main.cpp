@@ -2234,13 +2234,15 @@ const char *shell_platform() {
     return p;
 }
 
-void shell_beeper(int tone) {
+int shell_beeper(int tone) {
     const int sound_ids[] = { IDR_TONE0_WAVE, IDR_TONE1_WAVE, IDR_TONE2_WAVE,
          IDR_TONE3_WAVE, IDR_TONE4_WAVE, IDR_TONE5_WAVE, IDR_TONE6_WAVE,
-         IDR_TONE7_WAVE, IDR_TONE8_WAVE, IDR_TONE9_WAVE, IDR_SQUEAK_WAVE };
+         IDR_TONE7_WAVE, IDR_TONE8_WAVE, IDR_TONE9_WAVE, IDR_SQUEAK_WAVE,
+         IDR_BEEP_WAVE };
     PlaySound(MAKEINTRESOURCE(sound_ids[tone]),
         GetModuleHandle(NULL),
         SND_RESOURCE);
+    return 0;
 }
 
 static VOID CALLBACK ann_print_timeout(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime) {

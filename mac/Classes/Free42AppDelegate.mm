@@ -36,7 +36,7 @@
 
 
 static Free42AppDelegate *instance = NULL;
-static SystemSoundID soundIDs[11];
+static SystemSoundID soundIDs[12];
 
 static bool launchingWithPrintoutVisible;
 static bool scrollPrintoutToBottomInitially = true;
@@ -165,8 +165,8 @@ static struct timeval runner_end_time;
     /***** Create sound IDs *****/
     /****************************/
     
-    const char *sound_names[] = { "tone0", "tone1", "tone2", "tone3", "tone4", "tone5", "tone6", "tone7", "tone8", "tone9", "squeak" };
-    for (int i = 0; i < 11; i++) {
+    const char *sound_names[] = { "tone0", "tone1", "tone2", "tone3", "tone4", "tone5", "tone6", "tone7", "tone8", "tone9", "squeak", "beep" };
+    for (int i = 0; i < 12; i++) {
         NSString *name = [NSString stringWithUTF8String:sound_names[i]];
         NSString *path = [[NSBundle mainBundle] pathForResource:name ofType:@"wav"];
         OSStatus status = AudioServicesCreateSystemSoundID((CFURLRef)[NSURL fileURLWithPath:path], &soundIDs[i]);
@@ -1508,9 +1508,9 @@ int8 shell_random_seed() {
     return tv.tv_sec * 1000LL + tv.tv_usec / 1000;
 }
 
-void shell_beeper(int tone) {
+int shell_beeper(int tone) {
     AudioServicesPlaySystemSound(soundIDs[tone]);
-    shell_delay(tone == 10 ? 125 : 250);
+    return tone < 10 ? 250 : tone == 10 ? 0 : 1000;
 }
 
 bool shell_low_battery() {

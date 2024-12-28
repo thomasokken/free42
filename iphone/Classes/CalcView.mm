@@ -314,7 +314,7 @@ static CGPoint touchPoint;
                 [self showMainMenu];
         } else {
             if (state.keyClicks > 0)
-                [RootViewController playSound:state.keyClicks + 10];
+                [RootViewController playSound:state.keyClicks + 11];
             if (state.hapticFeedback > 0) {
                 UIImpactFeedbackStyle s;
                 switch (state.hapticFeedback) {
@@ -1366,10 +1366,10 @@ const char *shell_platform() {
     return p;
 }
 
-void shell_beeper(int tone) {
+int shell_beeper(int tone) {
     TRACE("shell_beeper");
     [RootViewController playSound:tone];
-    shell_delay(tone == 10 ? 125 : 250);
+    return tone < 10 ? 250 : tone == 10 ? 0 : 1000;
 }
 
 void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {

@@ -238,7 +238,7 @@ bool core_keydown(int key, bool *enqueued, int *repeat) {
 
     if (key == KEY_SHIFT) {
         set_shift(!mode_shift);
-        return (mode_running && !mode_getkey && !mode_pause) || keybuf_head != keybuf_tail;
+        return (mode_running && !mode_getkey && !mode_pause && !mode_tone) || keybuf_head != keybuf_tail;
     }
 
     if (mode_pause) {
@@ -250,6 +250,16 @@ bool core_keydown(int key, bool *enqueued, int *repeat) {
             redisplay();
             return 0;
         }
+    }
+
+    if (mode_tone) {
+        if (((keybuf_head + 1) & 15) != keybuf_tail) {
+            if (mode_shift)
+                key = -key;
+            keybuf[keybuf_head] = key;
+            keybuf_head = (keybuf_head + 1) & 15;
+        }
+        return 0;
     }
 
     if (mode_interruptible != NULL) {
@@ -484,6 +494,12 @@ bool core_timeout3(bool repaint) {
         }
         return true;
     }
+    if (mode_tone) {
+        mode_tone = false;
+        if (repaint && !program_running())
+            redisplay();
+        return true;
+    }
     /* Remove the output of SHOW, MEM, or shift-VARMENU from the display */
     if (pending_command == CMD_LINGER1)
         pending_command = CMD_CANCELLED;
@@ -498,7 +514,7 @@ bool core_timeout3(bool repaint) {
 }
 
 bool core_keyup() {
-    if (mode_pause) {
+    if (mode_pause || mode_tone) {
         /* The only way this can happen is if they key in question was Shift */
         return false;
     }
@@ -641,9 +657,9 @@ bool core_keyup() {
 
     handle_error(error);
     pending_command = CMD_NONE;
-    if (!mode_getkey && !mode_pause)
+    if (!mode_getkey && !mode_pause && !mode_tone)
         redisplay();
-    return (mode_running && !mode_getkey && !mode_pause) || keybuf_head != keybuf_tail;
+    return (mode_running && !mode_getkey && !mode_pause && !mode_tone) || keybuf_head != keybuf_tail;
 }
 
 bool core_powercycle() {
@@ -4830,6 +4846,8 @@ static void continue_running() {
             shell_request_timeout3(1000);
             return;
         }
+        if (mode_tone)
+            return;
         if (error == ERR_INTERRUPTIBLE)
             return;
         if (!handle_error(error))

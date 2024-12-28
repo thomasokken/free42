@@ -3192,8 +3192,15 @@ void shell_blitter(const char *bits, int bytesperline, int x, int y,
 
 const int tone_freqs[] = { 165, 220, 247, 277, 294, 330, 370, 415, 440, 554, 1865 };
 
-void shell_beeper(int tone) {
+int shell_beeper(int tone) {
 #ifdef AUDIO_ALSA
+    if (tone == 11) {
+        shell_beeper(8);
+        shell_beeper(5);
+        shell_beeper(9);
+        shell_beeper(8);
+        return 0;
+    }
     const char *display_name = gdk_display_get_name(gdk_display_get_default());
     if (display_name == NULL || display_name[0] == ':') {
         int frequency = tone_freqs[tone];
@@ -3205,6 +3212,7 @@ void shell_beeper(int tone) {
 #else
     gdk_display_beep(gdk_display_get_default());
 #endif
+    return 0;
 }
 
 static gboolean ann_print_timeout(gpointer cd) {
