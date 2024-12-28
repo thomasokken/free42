@@ -1,3 +1,8 @@
+2024-12-28: release 3.1.12a (Android only)
+
+* Made TONE and BEEP play audio asynchronously. This should fix the occasional
+  crashes caused by those functions hogging the UI too long.
+
 2024-12-22: release 3.1.12
 
 * Fixed pasting of GETMI, PUTMI, GETLI, and PUTLI.
