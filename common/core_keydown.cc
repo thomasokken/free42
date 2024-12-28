@@ -2059,7 +2059,14 @@ void keydown_alpha_mode(int shift, int key) {
             case KEY_5: set_plainmenu(MENU_CONVERT1); break;
             case KEY_6: set_plainmenu(MENU_FLAGS); break;
             case KEY_MUL: set_plainmenu(MENU_PROB); break;
-            case KEY_2: set_plainmenu(MENU_CUSTOM1); break;
+            case KEY_2: set_plainmenu(MENU_NONE);
+                        if (flags.f.prgm_mode) {
+                            pending_command = CMD_CUSTOM;
+                            return;
+                        } else {
+                            command = CMD_CUSTOM;
+                            break;
+                        }
             case KEY_3: set_plainmenu(MENU_PGM_FCN1); break;
             case KEY_SUB: set_plainmenu(MENU_PRINT1); break;
             case KEY_0: set_plainmenu(MENU_TOP_FCN); break;
@@ -2799,7 +2806,13 @@ void keydown_normal_mode(int shift, int key) {
             case KEY_6: set_plainmenu(MENU_FLAGS); return;
             case KEY_MUL: set_plainmenu(MENU_PROB); return;
             case KEY_1: command = CMD_ASSIGNa; break;
-            case KEY_2: set_plainmenu(MENU_CUSTOM1); return;
+            case KEY_2: if (flags.f.prgm_mode) {
+                            pending_command = CMD_CUSTOM;
+                            return;
+                        } else {
+                            command = CMD_CUSTOM;
+                            break;
+                        }
             case KEY_3: set_plainmenu(MENU_PGM_FCN1); return;
             case KEY_SUB: set_plainmenu(MENU_PRINT1); return;
             case KEY_DOT: show();
