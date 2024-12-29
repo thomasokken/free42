@@ -5098,14 +5098,14 @@ void start_incomplete_command(int cmd_id) {
                 mode_commandmenu = MENU_ALPHA1;
         } else {
             mode_command_entry = false;
-            display_error(ERR_NO_REAL_VARIABLES, false);
+            display_error(ERR_NO_REAL_VARIABLES, true);
         }
     } else if (argtype == ARG_MAT) {
         if (flags.f.prgm_mode || vars_exist(CATSECT_MAT_LIST))
             set_catalog_menu(CATSECT_MAT_LIST_ONLY);
         else if (cmd_id != CMD_DIM) {
             mode_command_entry = false;
-            display_error(ERR_NO_MATRIX_VARIABLES, false);
+            display_error(ERR_NO_MATRIX_VARIABLES, true);
         }
     } else if (argtype == ARG_M_STK) {
         if (flags.f.prgm_mode || vars_exist(CATSECT_MAT))
