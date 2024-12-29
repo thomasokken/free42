@@ -2237,6 +2237,15 @@ void keydown_normal_mode(int shift, int key) {
                                 break;
                             case 2: /* Integrator */
                                 if (mode_varmenu) {
+                                    if ((flags.f.trace_print || flags.f.normal_print) && flags.f.printer_exists) {
+                                        char buf[9];
+                                        int ptr = 0;
+                                        char2buf(buf, 9, &ptr, '"');
+                                        string2buf(buf, 9, &ptr, varmenu_labeltext[menukey],
+                                                                 varmenu_labellength[menukey]);
+                                        char2buf(buf, 9, &ptr, '"');
+                                        print_right(NULL, 0, buf, ptr);
+                                    }
                                     set_integ_var(varmenu_labeltext[menukey],
                                                   varmenu_labellength[menukey]);
                                     set_menu(MENULEVEL_APP, MENU_INTEG_PARAMS);

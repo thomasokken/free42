@@ -552,7 +552,7 @@ static int finish_solve(int message) {
     string_copy(arg.val.text, &dummy, solve.var_name, solve.var_length);
     arg.length = solve.var_length;
 
-    print = flags.f.trace_print && flags.f.printer_exists;
+    print = (flags.f.trace_print || flags.f.normal_print) && flags.f.printer_exists;
 
     if (!solve.keep_running) {
         view_helper(&arg, print);
@@ -1181,7 +1181,7 @@ static int finish_integ() {
         flush_display();
         flags.f.message = 1;
         flags.f.two_line_message = 0;
-        if (flags.f.trace_print && flags.f.printer_exists)
+        if ((flags.f.trace_print || flags.f.normal_print) && flags.f.printer_exists)
             print_wide(buf, 2, buf + 2, bufptr - 2);
         return ERR_STOP;
     } else
