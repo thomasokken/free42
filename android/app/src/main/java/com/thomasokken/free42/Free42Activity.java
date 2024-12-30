@@ -1,6 +1,6 @@
 /*****************************************************************************
  * Free42 -- an HP-42S calculator simulator
- * Copyright (C) 2004-2024  Thomas Okken
+ * Copyright (C) 2004-2025  Thomas Okken
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License, version 2,
@@ -1386,7 +1386,7 @@ public class Free42Activity extends Activity {
 
                 TextView label2 = new TextView(context);
                 label2.setId(3);
-                label2.setText("\u00a9 2004-2024 Thomas Okken");
+                label2.setText("\u00a9 2004-2025 Thomas Okken");
                 lp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
                 lp.addRule(RelativeLayout.ALIGN_LEFT, label1.getId());
                 lp.addRule(RelativeLayout.BELOW, label1.getId());
