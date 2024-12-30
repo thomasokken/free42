@@ -4749,6 +4749,7 @@ void do_interactive(int command) {
             }
         }
     } else if (command == CMD_A_THRU_F) {
+        print_menu_trace("A...F", 5);
         set_base(16);
         set_menu(MENULEVEL_APP, MENU_BASE_A_THRU_F);
         redisplay();

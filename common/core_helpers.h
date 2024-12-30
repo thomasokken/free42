@@ -77,6 +77,7 @@ void print_right(const char *left, int leftlen,
 void print_wide(const char *left, int leftlen,
                 const char *right, int rightlen);
 void print_command(int cmd, const arg_struct *arg);
+void print_menu_trace(const char *name, int len);
 void print_trace();
 void print_stack_trace();
 

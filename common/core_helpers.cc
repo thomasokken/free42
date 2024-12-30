@@ -1058,17 +1058,8 @@ void print_wide(const char *left, int leftlen, const char *right, int rightlen) 
     }
 }
 
-void print_command(int cmd, const arg_struct *arg) {
-    char buf[100];
-    int bufptr = 0;
-
-    if (cmd == CMD_NULL && !deferred_print)
-        return;
-
+static void print_command_2(const char *text, int len) {
     shell_annunciators(-1, -1, 1, -1, -1, -1);
-
-    if (cmd != CMD_NULL)
-        bufptr += command2buf(buf, 100, cmd, arg);
 
     if (deferred_print) {
         /* If the display mode is FIX n, and the user has not entered
@@ -1104,18 +1095,37 @@ void print_command(int cmd, const arg_struct *arg) {
             }
             never_mind:;
         }
-        print_right(cmdline, cmdline_length, buf, bufptr);
+        print_right(cmdline, cmdline_length, text, len);
     } else {
         /* Normally we print commands right-justified, but if they don't fit
          * on one line, we print them left-justified, because having the excess
          * go near the right margin looks weird and confusing.
          */
-        bool left = bufptr > (flags.f.double_wide_print ? 12 : 24);
-        print_lines(buf, bufptr, left);
+        bool left = len > (flags.f.double_wide_print ? 12 : 24);
+        print_lines(text, len, left);
     }
 
     deferred_print = 0;
     shell_annunciators(-1, -1, 0, -1, -1, -1);
+}
+
+void print_command(int cmd, const arg_struct *arg) {
+    char buf[100];
+    int bufptr = 0;
+
+    if (cmd == CMD_NULL && !deferred_print)
+        return;
+
+    if (cmd != CMD_NULL)
+        bufptr += command2buf(buf, 100, cmd, arg);
+
+    print_command_2(buf, bufptr);
+}
+
+void print_menu_trace(const char *name, int len) {
+    if ((flags.f.trace_print || flags.f.normal_print) && flags.f.printer_exists)
+        if (!flags.f.prgm_mode || string_equals(name, len, "PRGM", 4))
+            print_command_2(name, len);
 }
 
 void print_trace() {

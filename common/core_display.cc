@@ -2751,7 +2751,10 @@ void set_appmenu_exitcallback(int callback_id) {
     appmenu_exitcallback = callback_id;
 }
 
-void set_plainmenu(int menuid) {
+void set_plainmenu(int menuid, const char *name, int length) {
+    if (name != NULL)
+        print_menu_trace(name, length);
+
     mode_commandmenu = MENU_NONE;
     mode_alphamenu = MENU_NONE;
     mode_transientmenu = MENU_NONE;
