@@ -1334,7 +1334,7 @@ void display_error(int error) {
     draw_string(0, 0, err_text, err_len);
     flags.f.message = 1;
     flags.f.two_line_message = 0;
-    if ((flags.f.trace_print || flags.f.normal_print) && flags.f.printer_exists)
+    if (!flags.f.prgm_mode && (flags.f.trace_print || flags.f.normal_print) && flags.f.printer_exists)
         print_text(err_text, err_len, true);
 }
 
