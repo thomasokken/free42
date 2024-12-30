@@ -1123,9 +1123,14 @@ void print_command(int cmd, const arg_struct *arg) {
 }
 
 void print_menu_trace(const char *name, int len) {
+    if (!flags.f.prgm_mode
+            && (flags.f.trace_print || flags.f.normal_print) && flags.f.printer_exists)
+        print_command_2(name, len);
+}
+
+void print_menu_trace_always(const char *name, int len) {
     if ((flags.f.trace_print || flags.f.normal_print) && flags.f.printer_exists)
-        if (!flags.f.prgm_mode || string_equals(name, len, "PRGM", 4))
-            print_command_2(name, len);
+        print_command_2(name, len);
 }
 
 void print_trace() {

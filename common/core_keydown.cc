@@ -267,7 +267,7 @@ void keydown(int shift, int key) {
             }
         }
 
-        print_menu_trace("PRGM", 4);
+        print_menu_trace_always("PRGM", 4);
 
         mode_alpha_entry = false;
         mode_number_entry = false;
