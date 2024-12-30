@@ -1410,7 +1410,7 @@ void matedit_goto(int4 row, int4 column) {
         }
     }
     if (err != ERR_NONE) {
-        display_error(err, true);
+        display_error(err);
         flush_display();
     }
 }

@@ -1320,7 +1320,7 @@ void display_incomplete_command(int row) {
     }
 }
 
-void display_error(int error, bool print) {
+void display_error(int error) {
     clear_row(0);
     int err_len;
     const char *err_text;
@@ -1334,8 +1334,7 @@ void display_error(int error, bool print) {
     draw_string(0, 0, err_text, err_len);
     flags.f.message = 1;
     flags.f.two_line_message = 0;
-    if (print && (flags.f.trace_print || flags.f.normal_print)
-            && flags.f.printer_exists)
+    if ((flags.f.trace_print || flags.f.normal_print) && flags.f.printer_exists)
         print_text(err_text, err_len, true);
 }
 
@@ -2683,7 +2682,7 @@ static int get_cat_index() {
 void set_menu(int level, int menuid) {
     int err = set_menu_return_err(level, menuid, false);
     if (err != ERR_NONE) {
-        display_error(err, true);
+        display_error(err);
         flush_display();
     }
 }
@@ -3043,7 +3042,7 @@ void update_catalog() {
         case CATSECT_PGM_MENU:
             if (!mvar_prgms_exist()) {
                 *the_menu = MENU_NONE;
-                display_error(ERR_NO_MENU_VARIABLES, false);
+                display_error(ERR_NO_MENU_VARIABLES);
                 redisplay();
                 return;
             }
@@ -3121,7 +3120,7 @@ void do_prgm_menu_key(int keynum) {
     err = docmd_gto(&progmenu_arg[keynum]);
     if (err != ERR_NONE) {
         set_running(false);
-        display_error(err, true);
+        display_error(err);
         flush_display();
         return;
     }
@@ -3131,7 +3130,7 @@ void do_prgm_menu_key(int keynum) {
             current_prgm = oldprgm;
             pc = oldpc;
             set_running(false);
-            display_error(err, true);
+            display_error(err);
             flush_display();
             return;
         } else

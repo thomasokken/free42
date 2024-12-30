@@ -3234,7 +3234,7 @@ int rtn(int err) {
             /* It's an END; go to line 0 */
             pc = -1;
         if (err != ERR_NONE)
-            display_error(err, true);
+            display_error(err);
         return ERR_STOP;
     } else {
         current_prgm = newprgm;

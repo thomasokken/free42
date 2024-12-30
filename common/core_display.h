@@ -44,7 +44,7 @@ void xlabel2buf(char *buf, int buflen, int *bufptr);
 void display_x(int row);
 void display_y(int row);
 void display_incomplete_command(int row);
-void display_error(int error, bool print);
+void display_error(int error);
 void display_command(int row);
 void draw_varmenu();
 void display_mem();
