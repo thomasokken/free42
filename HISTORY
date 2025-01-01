@@ -1,3 +1,8 @@
+2025-01-01: release 3.1.12b (Android only)
+
+* Rolling back the beeper fix from the previous release. It was not performing
+  as intended. Back to the drawing board.
+
 2024-12-28: release 3.1.12a (Android only)
 
 * Made TONE and BEEP play audio asynchronously. This should fix the occasional
