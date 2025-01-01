@@ -42,8 +42,6 @@
 		E959D4410FEC0A44007C56A4 /* core_variables.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4240FEC0A44007C56A4 /* core_variables.cc */; };
 		E959D4420FEC0A44007C56A4 /* shell_loadimage.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D4280FEC0A44007C56A4 /* shell_loadimage.cc */; };
 		E959D4430FEC0A44007C56A4 /* shell_spool.cc in Sources */ = {isa = PBXBuildFile; fileRef = E959D42A0FEC0A44007C56A4 /* shell_spool.cc */; };
-		E95EE0F42D204B6C00BFBA0D /* beep.wav in Resources */ = {isa = PBXBuildFile; fileRef = E95EE0F32D204B6C00BFBA0D /* beep.wav */; };
-		E95EE0F52D204B6C00BFBA0D /* beep.wav in Resources */ = {isa = PBXBuildFile; fileRef = E95EE0F32D204B6C00BFBA0D /* beep.wav */; };
 		E969E20B2603F14900EABB28 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		E969E20C2603F14900EABB28 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD58140DA1D0A300B32029 /* MainMenu.xib */; };
 		E969E20D2603F14900EABB28 /* squeak.wav in Resources */ = {isa = PBXBuildFile; fileRef = E9B079250FF548690021B83D /* squeak.wav */; };
@@ -254,7 +252,6 @@
 		E959D4290FEC0A44007C56A4 /* shell_loadimage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shell_loadimage.h; path = ../common/shell_loadimage.h; sourceTree = SOURCE_ROOT; };
 		E959D42A0FEC0A44007C56A4 /* shell_spool.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = shell_spool.cc; path = ../common/shell_spool.cc; sourceTree = SOURCE_ROOT; };
 		E959D42B0FEC0A44007C56A4 /* shell_spool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shell_spool.h; path = ../common/shell_spool.h; sourceTree = SOURCE_ROOT; };
-		E95EE0F32D204B6C00BFBA0D /* beep.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = beep.wav; sourceTree = "<group>"; };
 		E969E2522603F14900EABB28 /* Free42 Binary.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Free42 Binary.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E969E2562603F59B00EABB28 /* Free42Release.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = Free42Release.entitlements; sourceTree = "<group>"; };
 		E97714CB0FEC0E9A00F8CA16 /* shell_skin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shell_skin.h; path = Classes/shell_skin.h; sourceTree = "<group>"; };
@@ -444,7 +441,6 @@
 				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
 				E9E335DD0FF67A1D006A40AD /* keymap.txt */,
 				1DDD58140DA1D0A300B32029 /* MainMenu.xib */,
-				E95EE0F32D204B6C00BFBA0D /* beep.wav */,
 				E9B079250FF548690021B83D /* squeak.wav */,
 				E9B079270FF548770021B83D /* tone0.wav */,
 				E9B079280FF548770021B83D /* tone1.wav */,
@@ -673,7 +669,6 @@
 				E9031CB10FF690AC0023F9EC /* builtin_skins.txt in Resources */,
 				E9031CB60FF690CB0023F9EC /* Ehrling42sl.gif in Resources */,
 				E9031CB70FF690CB0023F9EC /* Ehrling42sl.layout in Resources */,
-				E95EE0F42D204B6C00BFBA0D /* beep.wav in Resources */,
 				E9031CB80FF690CB0023F9EC /* Standard.gif in Resources */,
 				E9031CB90FF690CB0023F9EC /* Standard.layout in Resources */,
 			);
@@ -701,7 +696,6 @@
 				E969E21A2603F14900EABB28 /* builtin_skins.txt in Resources */,
 				E969E21B2603F14900EABB28 /* Ehrling42sl.gif in Resources */,
 				E969E21C2603F14900EABB28 /* Ehrling42sl.layout in Resources */,
-				E95EE0F52D204B6C00BFBA0D /* beep.wav in Resources */,
 				E969E21D2603F14900EABB28 /* Standard.gif in Resources */,
 				E969E21E2603F14900EABB28 /* Standard.layout in Resources */,
 			);

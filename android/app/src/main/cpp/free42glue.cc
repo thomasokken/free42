@@ -423,15 +423,14 @@ void shell_blitter(const char *bits, int bytesperline, int x, int y,
     env->DeleteLocalRef(bits2);
 }
 
-int shell_beeper(int tone) {
+void shell_beeper(int tone) {
     Tracer T("shell_beeper");
     JNIEnv *env = getJniEnv();
     jclass klass = env->GetObjectClass(g_activity);
-    jmethodID mid = env->GetMethodID(klass, "shell_beeper", "(I)I");
-    int ret = env->CallIntMethod(g_activity, mid, tone);
+    jmethodID mid = env->GetMethodID(klass, "shell_beeper", "(I)V");
+    env->CallVoidMethod(g_activity, mid, tone);
     // Delete local references
     env->DeleteLocalRef(klass);
-    return ret;
 }
 
 void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {

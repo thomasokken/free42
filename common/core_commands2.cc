@@ -895,11 +895,10 @@ int docmd_pixel(arg_struct *arg) {
 }
 
 int docmd_beep(arg_struct *arg) {
-    int delay = tone(11);
-    if (delay > 0) {
-        mode_tone = true;
-        shell_request_timeout3(delay);
-    }
+    tone(8);
+    tone(5);
+    tone(9);
+    tone(8);
     return ERR_NONE;
 }
 
@@ -913,11 +912,7 @@ int docmd_tone(arg_struct *arg) {
         return err;
     if (num >= 10)
         return ERR_INVALID_DATA;
-    int delay = tone(num);
-    if (delay > 0) {
-        mode_tone = true;
-        shell_request_timeout3(delay);
-    }
+    tone(num);
     return ERR_NONE;
 }
 

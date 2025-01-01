@@ -810,11 +810,9 @@ void squeak() {
         shell_beeper(10);
 }
 
-int tone(int n) {
+void tone(int n) {
     if (flags.f.audio_enable)
-        return shell_beeper(n);
-    else
-        return 0;
+        shell_beeper(n);
 }
 
 

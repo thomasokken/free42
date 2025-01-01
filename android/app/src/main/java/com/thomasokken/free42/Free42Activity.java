@@ -430,7 +430,7 @@ public class Free42Activity extends Activity {
         int[] soundResourceIds = {
                 R.raw.tone0, R.raw.tone1, R.raw.tone2, R.raw.tone3, R.raw.tone4,
                 R.raw.tone5, R.raw.tone6, R.raw.tone7, R.raw.tone8, R.raw.tone9,
-                R.raw.squeak, R.raw.beep,
+                R.raw.squeak,
                 R.raw.click1, R.raw.click2, R.raw.click3, R.raw.click4, R.raw.click5,
                 R.raw.click6, R.raw.click7, R.raw.click8, R.raw.click9
             };
@@ -2609,7 +2609,7 @@ public class Free42Activity extends Activity {
     
     private void click() {
         if (keyClicksLevel > 0)
-            playSound(keyClicksLevel + 11);
+            playSound(keyClicksLevel + 10);
         if (keyVibration > 0) {
             int ms = (int) (Math.pow(2, (keyVibration - 1) / 2.0) + 0.5);
             Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -2706,19 +2706,15 @@ public class Free42Activity extends Activity {
     /**
      * shell_beeper()
      * Callback invoked by the emulator core to play a sound.
-     * The parameter is the tone number, from 0 to 9, or 10 for the error beep,
-     * or 11 for BEEP. If the sound is being played asynchronously, the function
-     * returns the number of milliseconds the caller should wait for the sound
-     * to finish playing.
+     * The parameter is the tone number, from 0 to 9, or 10 for the error beep.
+     * Sound playback should be synchronous (the beeper function should
+     * not return until the sound has finished), if possible.
      */
-    public int shell_beeper(int tone) {
+    public void shell_beeper(int tone) {
         playSound(tone);
-        /* Note that we're not asking the caller to wait after the error beep,
-         * only after the sounds used for TONE and BEEP. Those are the only ones
-         * that will occur during program execution, which is the only time when
-         * waiting is actually necessary for proper operation.
-         */
-        return tone < 10 ? 250 : tone == 10 ? 0 : 1000;
+        try {
+            Thread.sleep(tone == 10 ? 125 : 250);
+        } catch (InterruptedException e) {}
     }
 
     private PrintAnnunciatorTurnerOffer pato = null;

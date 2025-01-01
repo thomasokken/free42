@@ -621,7 +621,6 @@ bool mode_running;
 bool mode_getkey;
 bool mode_getkey1;
 bool mode_pause = false;
-bool mode_tone = false;
 bool mode_disable_stack_lift; /* transient */
 bool mode_caller_stack_lift_disabled;
 bool mode_varmenu;
@@ -4170,7 +4169,6 @@ void hard_reset(int reason) {
     mode_running = false;
     mode_getkey = false;
     mode_pause = false;
-    mode_tone = false;
     mode_caller_stack_lift_disabled = false;
     mode_varmenu = false;
     prgm_highlight_row = 0;

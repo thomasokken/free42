@@ -356,7 +356,6 @@ IDR_TONE7_WAVE WAVE tone7.wav
 IDR_TONE8_WAVE WAVE tone8.wav
 IDR_TONE9_WAVE WAVE tone9.wav
 IDR_SQUEAK_WAVE WAVE squeak.wav
-IDR_BEEP_WAVE WAVE beep.wav
 
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////

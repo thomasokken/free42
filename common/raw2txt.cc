@@ -62,8 +62,8 @@ void shell_blitter(const char *bits, int bytesperline, int x, int y,
     //
 }
 
-int shell_beeper(int tone) {
-    return 0;
+void shell_beeper(int tone) {
+    //
 }
 
 void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
