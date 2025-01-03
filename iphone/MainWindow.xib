@@ -26,6 +26,12 @@
             <simulatedStatusBarMetrics key="simulatedStatusBarMetrics" statusBarStyle="lightContent"/>
             <point key="canvasLocation" x="663" y="132"/>
         </window>
+        <view contentMode="scaleToFill" id="jTQ-m9-Alh" customClass="AlphaKeyboardView">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+            <point key="canvasLocation" x="2043" y="549"/>
+        </view>
         <view clearsContextBeforeDrawing="NO" multipleTouchEnabled="YES" contentMode="scaleToFill" id="64" customClass="CalcView">
             <rect key="frame" x="0.0" y="0.0" width="320" height="460"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -875,6 +881,7 @@
             </view>
             <connections>
                 <outlet property="aboutView" destination="65" id="ZkC-yX-UIv"/>
+                <outlet property="alphaKeyboardView" destination="jTQ-m9-Alh" id="OqM-hn-fIx"/>
                 <outlet property="calcView" destination="64" id="6jJ-L6-Do4"/>
                 <outlet property="deleteSkinView" destination="C2c-Vb-laU" id="Baa-TG-euO"/>
                 <outlet property="httpServerView" destination="66" id="MB3-wb-bPS"/>

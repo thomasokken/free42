@@ -18,7 +18,7 @@
 #import <UIKit/UIKit.h>
 
 
-@interface AboutKeyboard : UIView {
+@interface AlphaKeyboardView : UIView {
     //
 }
 

@@ -18,6 +18,7 @@
 #import <AudioToolbox/AudioServices.h>
 
 #import "CalcView.h"
+#import "AlphaKeyboardView.h"
 #import "PrintView.h"
 #import "HTTPServerView.h"
 #import "SelectSkinView.h"
@@ -42,6 +43,7 @@ static RootViewController *instance;
 @synthesize window;
 
 @synthesize calcView;
+@synthesize alphaKeyboardView;
 @synthesize printView;
 @synthesize httpServerView;
 @synthesize selectSkinView;
@@ -83,6 +85,7 @@ static RootViewController *instance;
     [self.view addSubview:aboutView];
     [self.view addSubview:selectFileView];
     [self.view addSubview:statesView];
+    [self.view addSubview:alphaKeyboardView];
     [self.view addSubview:calcView];
     [self layoutSubViews];
     
@@ -229,6 +232,18 @@ void shell_message(const char *message) {
 
 + (void) showMain {
     [instance showMain2];
+}
+
+- (void) showAlphaKeyboard2 {
+    // TODO: Layout keyboard dynamically to take up the entire width of the
+    // screen, to be anchored to the bottom, and to have a height that gives
+    // it the same aspect ratio as kbWidth:kbHeight.
+    [self.view bringSubviewToFront:alphaKeyboardView];
+    [alphaKeyboardView raised];
+}
+
++ (void) showAlphaKeyboard {
+    [instance showAlphaKeyboard2];
 }
 
 - (void) showPrintOut2 {
