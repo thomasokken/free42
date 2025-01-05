@@ -77,7 +77,7 @@ public class ShellSpool {
                 case 31:   esc = "\u2022"; break; // bullet
                 case 94:   esc = "\u2191"; break; // upward-pointing arrow
                 case 127:  esc = "\u251c"; break; // append sign
-                case 128:  esc = ":"; break;      // thin colon
+                case 128:  esc = "\u2236"; break; // thin colon
                 case 129:  esc = "\u028f"; break; // small-caps y
                 case 138:  esc = "[LF]"; break;   // LF symbol
                 default:   buf.append((char) c); continue;

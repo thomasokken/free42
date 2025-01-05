@@ -3041,6 +3041,7 @@ static int ascii2hp(char *dst, int dstlen, const char *src, int srclen /* = -1 *
             case 0x22a2:                    // right tack sign (i41CX)
             case 0x22a6:                    // assertion sign (Emu42)
             case 0x251c: code = 127; break; // append sign
+            case 0x2236: code = 128; break; // ratio sign, used for thin colon
             case 0x028f: code = 129; break; // small-caps y
             case 0x240a: code = 138; break; // LF symbol
             // Combining accents: apply them if they fit,
