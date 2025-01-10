@@ -969,8 +969,8 @@ bool skin_in_menu_area(int x, int y, bool *keyboard) {
     x = (x - skin_offset_h) * skin_scale_h;
     y = (y - skin_offset_v) * skin_scale_v;
     if (keyboard != NULL)
-        *keyboard = x > skin.width / 2;
-    return y < display_loc.y + display_scale.y * 8;
+        *keyboard = x > display_loc.x + display_scale.x * 131 / 2;
+    return y < display_loc.y + display_scale.y * 16 / 2;
 }
 
 void skin_position_menu(UIView *view, UIAlertController *ctrl) {
