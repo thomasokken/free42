@@ -194,6 +194,14 @@ void shell_print(const char *text, int length,
                  const char *bits, int bytesperline,
                  int x, int y, int width, int height);
 
+#ifdef IPHONE
+/* shell_show_alpha_keyboard()
+ *
+ * Requests the pop-up ALPHA keyboard to be shown or hidden.
+ */
+void shell_show_alpha_keyboard(bool show);
+#endif
+
 #if defined(ANDROID) || defined(IPHONE)
 /* shell_get_acceleration()
  * shell_get_location()

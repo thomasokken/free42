@@ -1713,6 +1713,10 @@ void shell_print(const char *text, int length,
     }
 }
 
+void shell_show_alpha_keyboard(bool show) {
+    [RootViewController showAlphaKeyboard:show];
+}
+
 //////////////////////////////////////////////////////////////////////
 /////   Accelerometer, Location Services, and Compass support    /////
 //////////////////////////////////////////////////////////////////////

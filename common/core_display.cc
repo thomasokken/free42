@@ -2061,6 +2061,15 @@ void redisplay() {
     int avail_rows = 2;
     int i;
 
+#ifdef IPHONE
+    static bool popup_keyboard_visible = false;
+    bool popup_kb = core_alpha_menu();
+    if (popup_keyboard_visible != popup_kb) {
+        popup_keyboard_visible = popup_kb;
+        shell_show_alpha_keyboard(popup_kb);
+    }
+#endif
+
     if (mode_clall) {
         clear_display();
         draw_string(0, 0, "Clear All Memory?", 17);
