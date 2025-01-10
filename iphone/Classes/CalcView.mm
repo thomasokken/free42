@@ -288,7 +288,6 @@ static CGPoint touchPoint;
 
 - (void) touchesBegan: (NSSet *) touches withEvent: (UIEvent *) event {
     TRACE("touchesBegan");
-    [super touchesBegan:touches withEvent:event];
     if (touchDelayed != 0) {
         [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(touchesBegan2) object:nil];
         [self touchesBegan2];
@@ -345,13 +344,11 @@ static CGPoint touchPoint;
 
 - (void) touchesEnded: (NSSet *) touches withEvent: (UIEvent *) event {
     TRACE("touchesEnded");
-    [super touchesEnded:touches withEvent:event];
     [self myTouchesEnded:touches];
 }
 
 - (void) touchesCancelled: (NSSet *) touches withEvent: (UIEvent *) event {
     TRACE("touchesCancelled");
-    [super touchesCancelled:touches withEvent:event];
     [self myTouchesEnded:touches];
 }
 

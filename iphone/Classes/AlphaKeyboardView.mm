@@ -417,7 +417,6 @@ const CGFloat bRadius = 5;
 }
 
 - (void) touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-    [super touchesBegan:touches withEvent:event];
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(expandBubble) object:nil];
 
     CGFloat xs = kbRect.size.width / KB_WIDTH;
@@ -494,7 +493,6 @@ const CGFloat bRadius = 5;
 }
 
 - (void) touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-    [super touchesBegan:touches withEvent:event];
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(expandBubble) object:nil];
     
     if (false) {
@@ -548,7 +546,6 @@ const CGFloat bRadius = 5;
 }
 
 - (void) touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-    [super touchesMoved:touches withEvent:event];
     if (currentKey == -1 || kbMap[currentKey].special != SPEC_NONE)
         return;
     CGPoint p = [[touches anyObject] locationInView:self];
