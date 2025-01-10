@@ -549,27 +549,29 @@ const CGFloat bRadius = 5;
 
 - (void) touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     [super touchesMoved:touches withEvent:event];
-    if (currentKey != -1 && keyExpanded) {
-        CGPoint p = [[touches anyObject] locationInView:self];
-        if (p.y > expKeyRect.origin.y + expKeyRect.size.height + 5) {
-            currentKey = -1;
-            [self setNeedsDisplay];
-            return;
-        }
-        int idx = expCurrentIndex;
-        if (CGRectContainsPoint(expKeyRect, p))
+    if (currentKey == -1 || kbMap[currentKey].special != SPEC_NONE)
+        return;
+    CGPoint p = [[touches anyObject] locationInView:self];
+    if (p.y > expKeyRect.origin.y + expKeyRect.size.height + 5) {
+        currentKey = -1;
+        [self setNeedsDisplay];
+        return;
+    }
+    if (!keyExpanded)
+        return;
+    int idx = expCurrentIndex;
+    if (CGRectContainsPoint(expKeyRect, p))
+        idx = 0;
+    else if (CGRectContainsPoint(expBubbleRect, p)) {
+        idx = (int) ((p.x - expOffset) / expSpacing + 0.5);
+        if (idx < 0)
             idx = 0;
-        else if (CGRectContainsPoint(expBubbleRect, p)) {
-            idx = (int) ((p.x - expOffset) / expSpacing + 0.5);
-            if (idx < 0)
-                idx = 0;
-            else if (idx > expMaxIndex)
-                idx = expMaxIndex;
-        }
-        if (expCurrentIndex != idx) {
-            [self setNeedsDisplay];
-            expCurrentIndex = idx;
-        }
+        else if (idx > expMaxIndex)
+            idx = expMaxIndex;
+    }
+    if (expCurrentIndex != idx) {
+        [self setNeedsDisplay];
+        expCurrentIndex = idx;
     }
 }
 
