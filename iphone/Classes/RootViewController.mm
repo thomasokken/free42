@@ -114,6 +114,13 @@ static RootViewController *instance;
         return UIStatusBarStyleLightContent;
 }
 
+- (UIRectEdge) preferredScreenEdgesDeferringSystemGestures {
+    // In AlphaKeyboardView, I was getting annoying delays on the
+    // P and Q keys, i.e. the keys near the edges of the screen.
+    // Adding this fixed those delays.
+    return UIRectEdgeLeft | UIRectEdgeRight;
+}
+
 - (UIInterfaceOrientationMask) supportedInterfaceOrientations {
     if (state.orientationMode == 0)
         return UIInterfaceOrientationMaskAll;
