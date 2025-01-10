@@ -109,6 +109,7 @@ int millitime() {
 
 @implementation AlphaKeyboardView {
     CGRect kbRect;
+    CGRect safeRect;
     int currentKey;
     bool keyExpanded;
     int shiftReleased;
@@ -149,6 +150,16 @@ int millitime() {
     CGFloat ah = kbRect.size.height / (self.bounds.size.width > self.bounds.size.height ? 2 : 3);
     kbRect.origin.y += kbRect.size.height - ah;
     kbRect.size.height = ah;
+
+    if (self.bounds.size.width < self.bounds.size.height) {
+        int bm = [RootViewController getBottomMargin];
+        safeRect = kbRect;
+        kbRect.origin.y -= bm;
+        safeRect.origin.y -= bm;
+        safeRect.size.height += bm;
+    } else {
+        safeRect = CGRectMake(0, 0, 0, 0);
+    }
     [self setNeedsDisplay];
 }
 
@@ -194,6 +205,7 @@ const CGFloat bRadius = 5;
 
     CGContextSetFillColorWithColor(myContext, back);
     CGContextFillRect(myContext, kbRect);
+    CGContextFillRect(myContext, safeRect);
 
     int kn = -1;
     for (const key *k = kbMap; k->special != SPEC_LAST; k++) {

@@ -68,6 +68,7 @@
 
 + (void) showMessage:(NSString *) message;
 + (void) presentViewController:(UIViewController *)ctrl animated:(BOOL)a completion:(void (^)(void))completion;
++ (int) getBottomMargin;
 
 + (void) playSound: (int) which;
 + (void) showMain;

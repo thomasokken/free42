@@ -218,6 +218,10 @@ bool shell_low_battery() {
     [instance presentViewController:ctrl animated:a completion:completion];
 }
 
++ (int) getBottomMargin {
+    return instance.window.safeAreaInsets.bottom;
+}
+
 void shell_message(const char *message) {
     [RootViewController showMessage:[NSString stringWithUTF8String:message]];
 }
