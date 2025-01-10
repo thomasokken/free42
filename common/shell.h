@@ -194,15 +194,14 @@ void shell_print(const char *text, int length,
                  const char *bits, int bytesperline,
                  int x, int y, int width, int height);
 
-#ifdef IPHONE
+#if defined(ANDROID) || defined(IPHONE)
+
 /* shell_show_alpha_keyboard()
  *
  * Requests the pop-up ALPHA keyboard to be shown or hidden.
  */
 void shell_show_alpha_keyboard(bool show);
-#endif
 
-#if defined(ANDROID) || defined(IPHONE)
 /* shell_get_acceleration()
  * shell_get_location()
  * shell_get_heading()
@@ -238,6 +237,7 @@ bool shell_get_location(double *lat, double *lon, double *lat_lon_acc,
                                 double *elev, double *elev_acc);
 bool shell_get_heading(double *mag_heading, double *true_heading, double *acc,
                                 double *x, double *y, double *z);
+
 #endif
 
 /* shell_always_on()

@@ -598,6 +598,10 @@ void shell_print(const char *text, int length,
     env->DeleteLocalRef(bits2);
 }
 
+void shell_show_alpha_keyboard(bool show) {
+    // Not yet implemented
+}
+
 bool shell_get_acceleration(double *x, double *y, double *z) {
     Tracer T("shell_get_acceleration");
     JNIEnv *env = getJniEnv();

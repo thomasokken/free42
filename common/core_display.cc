@@ -2061,7 +2061,7 @@ void redisplay() {
     int avail_rows = 2;
     int i;
 
-#ifdef IPHONE
+#if defined(ANDROID) || defined(IPHONE)
     static bool popup_keyboard_visible = false;
     bool popup_kb = core_alpha_menu();
     if (popup_keyboard_visible != popup_kb) {
