@@ -317,18 +317,7 @@ static CGPoint touchPoint;
                 else
                     [self showMainMenu];
         } else {
-            if (state.keyClicks > 0)
-                [RootViewController playSound:state.keyClicks + 10];
-            if (state.hapticFeedback > 0) {
-                UIImpactFeedbackStyle s;
-                switch (state.hapticFeedback) {
-                    case 1: s = UIImpactFeedbackStyleLight; break;
-                    case 2: s = UIImpactFeedbackStyleMedium; break;
-                    case 3: s = UIImpactFeedbackStyleHeavy; break;
-                }
-                UIImpactFeedbackGenerator *fbgen = [[UIImpactFeedbackGenerator alloc] initWithStyle:s];
-                [fbgen impactOccurred];
-            }
+            [self keyFeedback2];
             macro = skin_find_macro(ckey, &macro_type);
             shell_keydown();
             mouse_key = true;
@@ -364,6 +353,25 @@ static CGPoint touchPoint;
     TRACE("touchesCancelled");
     [super touchesCancelled:touches withEvent:event];
     [self myTouchesEnded:touches];
+}
+
+- (void) keyFeedback2 {
+    if (state.keyClicks > 0)
+        [RootViewController playSound:state.keyClicks + 10];
+    if (state.hapticFeedback > 0) {
+        UIImpactFeedbackStyle s;
+        switch (state.hapticFeedback) {
+            case 1: s = UIImpactFeedbackStyleLight; break;
+            case 2: s = UIImpactFeedbackStyleMedium; break;
+            case 3: s = UIImpactFeedbackStyleHeavy; break;
+        }
+        UIImpactFeedbackGenerator *fbgen = [[UIImpactFeedbackGenerator alloc] initWithStyle:s];
+        [fbgen impactOccurred];
+    }
+}
+
++ (void) keyFeedback {
+    [calcView keyFeedback2];
 }
 
 + (void) repaint {

@@ -432,6 +432,7 @@ const CGFloat bRadius = 5;
         return;
     currentKey = kn;
     keyExpanded = false;
+    [CalcView keyFeedback];
     
     const key *k = kbMap + kn;
     if (k->special == SPEC_ALT) {

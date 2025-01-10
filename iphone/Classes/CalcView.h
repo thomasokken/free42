@@ -78,6 +78,7 @@ void get_keymap(keymap_entry **map, int *length);
 + (void) alphaKeyboardAlpha:(unsigned short) code;
 + (void) alphaKeyboardDown:(int) key;
 + (void) alphaKeyboardUp;
++ (void) keyFeedback;
 + (void) stopTextPrinting;
 + (void) stopGifPrinting;
 - (void) setActive:(bool) active;
