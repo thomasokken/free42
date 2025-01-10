@@ -646,6 +646,7 @@ static struct timeval runner_end_time;
     }
     skey = -1;
     macro = macrobuf;
+    macro_type = 0;
     shell_keydown();
     mouse_key = false;
     active_keycode = -1;
