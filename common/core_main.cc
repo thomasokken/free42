@@ -207,6 +207,43 @@ int core_special_menu_key(int which) {
     return special_menu_key(which);
 }
 
+static bool core_keydown_2(int key, bool *enqueued, int *repeat);
+
+bool core_keydown(int key, bool *enqueued, int *repeat) {
+    if (key >= 1024) {
+        int code = key - 1024;
+        char ubuf[5];
+        int n = 0;
+        if (code < 128) {
+            ubuf[n++] = code;
+        } else if (code < 2048) {
+            ubuf[n++] = (code >> 6) | 0xc0;
+            ubuf[n++] = (code & 63) | 0x80;
+        } else if (code < 65536) {
+            ubuf[n++] = (code >> 12) | 0xe0;
+            ubuf[n++] = ((code >> 6) & 63) | 0x80;
+            ubuf[n++] = (code & 63) | 0x80;
+        } else if (code < 1114112) {
+            ubuf[n++] = (code >> 18) | 0xf0;
+            ubuf[n++] = ((code >> 12) & 63) | 0x80;
+            ubuf[n++] = ((code >> 6) & 63) | 0x80;
+            ubuf[n++] = (code & 63) | 0x80;
+        } else {
+            fail:
+            set_shift(false);
+            squeak();
+            return core_keydown_2(0, enqueued, repeat);
+        }
+        ubuf[n] = 0;
+        char hpbuf[5];
+        int len = ascii2hp(hpbuf, 1, ubuf);
+        if (len == 0)
+            goto fail;
+        key = 1024 + (hpbuf[0] & 255);
+    }
+    return core_keydown_2(key, enqueued, repeat);
+}
+
 bool core_keydown_command(const char *name, bool is_text, bool *enqueued, int *repeat) {
     char hpname[70];
     int len = ascii2hp(hpname, 63, name);
@@ -217,18 +254,18 @@ bool core_keydown_command(const char *name, bool is_text, bool *enqueued, int *r
             set_shift(false);
             squeak();
         }
-        return core_keydown(ch == 0 ? 0 : ch + 1024, enqueued, repeat);
+        return core_keydown_2(ch == 0 ? 0 : ch + 1024, enqueued, repeat);
     } else {
         int cmd = find_builtin(hpname, len);
         if (cmd == CMD_NONE) {
             set_shift(false);
             squeak();
         }
-        return core_keydown(cmd == CMD_NONE ? 0 : cmd + 2048, enqueued, repeat);
+        return core_keydown_2(cmd == CMD_NONE ? 0 : cmd + 2048, enqueued, repeat);
     }
 }
 
-bool core_keydown(int key, bool *enqueued, int *repeat) {
+static bool core_keydown_2(int key, bool *enqueued, int *repeat) {
 
     *enqueued = 0;
     *repeat = 0;
@@ -4692,6 +4729,16 @@ void core_paste(const char *buf) {
     flags.f.message = 0;
     flags.f.two_line_message = 0;
     redisplay();
+}
+
+void core_get_char_pixels(const char *ch, char *pixels) {
+    char hpbuf[6];
+    int hplen = ascii2hp(hpbuf, 1, ch);
+    if (hplen == 0)
+        hpbuf[0] = ' ';
+    const char *bits = get_char(hpbuf[0]);
+    for (int i = 0; i < 5; i++)
+        pixels[i] = bits[i];
 }
 
 void set_alpha_entry(bool state) {

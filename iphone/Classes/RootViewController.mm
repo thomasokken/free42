@@ -18,6 +18,7 @@
 #import <AudioToolbox/AudioServices.h>
 
 #import "CalcView.h"
+#import "AlphaKeyboardView.h"
 #import "PrintView.h"
 #import "HTTPServerView.h"
 #import "SelectSkinView.h"
@@ -42,6 +43,7 @@ static RootViewController *instance;
 @synthesize window;
 
 @synthesize calcView;
+@synthesize alphaKeyboardView;
 @synthesize printView;
 @synthesize httpServerView;
 @synthesize selectSkinView;
@@ -83,6 +85,7 @@ static RootViewController *instance;
     [self.view addSubview:aboutView];
     [self.view addSubview:selectFileView];
     [self.view addSubview:statesView];
+    [self.view addSubview:alphaKeyboardView];
     [self.view addSubview:calcView];
     [self layoutSubViews];
     
@@ -149,6 +152,7 @@ static RootViewController *instance;
     aboutView.frame = r;
     selectFileView.frame = r;
     statesView.frame = r;
+    alphaKeyboardView.frame = r;
     calcView.frame = r;
 }
 
@@ -229,6 +233,37 @@ void shell_message(const char *message) {
 
 + (void) showMain {
     [instance showMain2];
+}
+
+- (void) showAlphaKeyboard2:(BOOL)show {
+    if (show) {
+        [alphaKeyboardView raised];
+        [self.view bringSubviewToFront:alphaKeyboardView];
+    } else {
+        [self showMain2];
+    }
+}
+
++ (void) showAlphaKeyboard:(BOOL)show {
+    [instance showAlphaKeyboard2:show];
+}
+
+- (void) toggleAlphaKeyboard2 {
+    NSArray *views = self.view.subviews;
+    for (int i = views.count - 1; i >= 0; i--) {
+        UIView *v = [views objectAtIndex:i];
+        if (v == alphaKeyboardView) {
+            [self showMain2];
+            break;
+        } else if (v == calcView) {
+            [self showAlphaKeyboard2:YES];
+            break;
+        }
+    }
+}
+
++ (void) toggleAlphaKeyboard {
+    [instance toggleAlphaKeyboard2];
 }
 
 - (void) showPrintOut2 {

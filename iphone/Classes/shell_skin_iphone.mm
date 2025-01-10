@@ -965,9 +965,11 @@ void skin_update_annunciator(int which, int state, CalcView *view) {
     [view setNeedsDisplayInRect:CGRectMake(r->x / skin_scale_h + skin_offset_h, r->y / skin_scale_v + skin_offset_v, r->width / skin_scale_h, r->height / skin_scale_v)];
 }
     
-bool skin_in_menu_area(int x, int y) {
+bool skin_in_menu_area(int x, int y, bool *keyboard) {
     x = (x - skin_offset_h) * skin_scale_h;
     y = (y - skin_offset_v) * skin_scale_v;
+    if (keyboard != NULL)
+        *keyboard = x > skin.width / 2;
     return y < display_loc.y + display_scale.y * 8;
 }
 

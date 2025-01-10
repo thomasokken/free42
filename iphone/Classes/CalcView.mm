@@ -310,8 +310,12 @@ static CGPoint touchPoint;
     if (ckey == 0) {
         skin_find_key(x, y, ann_shift != 0, &skey, &ckey);
         if (ckey == 0) {
-            if (skin_in_menu_area(x, y))
-                [self showMainMenu];
+            bool keyboard;
+            if (skin_in_menu_area(x, y, &keyboard))
+                if (keyboard)
+                    [RootViewController toggleAlphaKeyboard];
+                else
+                    [self showMainMenu];
         } else {
             if (state.keyClicks > 0)
                 [RootViewController playSound:state.keyClicks + 10];
@@ -617,6 +621,38 @@ static struct timeval runner_end_time;
     TRACE("cancelRepeater");
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(repeater_callback) object:NULL];
     repeater_active = false;
+}
+
++ (void) alphaKeyboardAlpha:(unsigned short) code {
+    ckey = 1024 + code;
+    skey = -1;
+    macro = NULL;
+    shell_keydown();
+    mouse_key = false;
+    active_keycode = -1;
+}
+
++ (void) alphaKeyboardDown:(int) key {
+    static unsigned char macrobuf[3];
+    if (key > 37) {
+        macrobuf[0] = 28;
+        macrobuf[1] = key - 37;
+        macrobuf[2] = 0;
+        ckey = key - 37;
+    } else {
+        macrobuf[0] = key;
+        macrobuf[1] = 0;
+        ckey = key;
+    }
+    skey = -1;
+    macro = macrobuf;
+    shell_keydown();
+    mouse_key = false;
+    active_keycode = -1;
+}
+
++ (void) alphaKeyboardUp {
+    shell_keyup();
 }
 
 - (void) repeater_callback {

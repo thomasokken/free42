@@ -105,6 +105,8 @@
 		E9F7136C16C5F1F0006A9553 /* minizip_ioapi.c in Sources */ = {isa = PBXBuildFile; fileRef = E9F7136616C5F1F0006A9553 /* minizip_ioapi.c */; };
 		E9F7136D16C5F1F0006A9553 /* minizip_unzip.c in Sources */ = {isa = PBXBuildFile; fileRef = E9F7136816C5F1F0006A9553 /* minizip_unzip.c */; settings = {COMPILER_FLAGS = "-DNOUNCRYPT"; }; };
 		E9F7136E16C5F1F0006A9553 /* minizip_zip.c in Sources */ = {isa = PBXBuildFile; fileRef = E9F7136A16C5F1F0006A9553 /* minizip_zip.c */; settings = {COMPILER_FLAGS = "-DNOCRYPT"; }; };
+		E9F94FE62D2883370054518B /* AlphaKeyboardView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9F94FE52D2883360054518B /* AlphaKeyboardView.mm */; };
+		E9F94FE72D2883370054518B /* AlphaKeyboardView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E9F94FE52D2883360054518B /* AlphaKeyboardView.mm */; };
 		E9FC40B4260707AF00E52296 /* click4.wav in Resources */ = {isa = PBXBuildFile; fileRef = E9AE2561233C1CD0005072BA /* click4.wav */; };
 		E9FC40B5260707AF00E52296 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28AD733E0D9D9553002E5188 /* MainWindow.xib */; };
 		E9FC40B6260707AF00E52296 /* squeak.wav in Resources */ = {isa = PBXBuildFile; fileRef = E98DD75C0F8C1A210089D9FA /* squeak.wav */; };
@@ -346,6 +348,8 @@
 		E9F7136916C5F1F0006A9553 /* minizip_unzip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = minizip_unzip.h; path = simpleserver/minizip_unzip.h; sourceTree = "<group>"; };
 		E9F7136A16C5F1F0006A9553 /* minizip_zip.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = minizip_zip.c; path = simpleserver/minizip_zip.c; sourceTree = "<group>"; };
 		E9F7136B16C5F1F0006A9553 /* minizip_zip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = minizip_zip.h; path = simpleserver/minizip_zip.h; sourceTree = "<group>"; };
+		E9F94FE42D2883360054518B /* AlphaKeyboardView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AlphaKeyboardView.h; sourceTree = "<group>"; };
+		E9F94FE52D2883360054518B /* AlphaKeyboardView.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AlphaKeyboardView.mm; sourceTree = "<group>"; };
 		E9FC4116260707AF00E52296 /* Free42 Binary.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Free42 Binary.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -388,16 +392,18 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				E92EADAF2D0987860019F001 /* GrayButton.h */,
-				E92EADB02D0987860019F001 /* GrayButton.mm */,
 				E9BA0EAC0F9224F00087EBFB /* AboutView.h */,
 				E977D0781698FB4E00AA3FD9 /* AboutView.mm */,
+				E9F94FE42D2883360054518B /* AlphaKeyboardView.h */,
+				E9F94FE52D2883360054518B /* AlphaKeyboardView.mm */,
 				E9200DF01699E1EC001BC4B5 /* CalcView.h */,
 				E9200DF11699E1EC001BC4B5 /* CalcView.mm */,
 				E935A89B22B542F9007C41DF /* DeleteSkinView.h */,
 				E935A89A22B542F9007C41DF /* DeleteSkinView.mm */,
 				E9200DF21699E1EC001BC4B5 /* Free42AppDelegate.h */,
 				E9200DF31699E1EC001BC4B5 /* Free42AppDelegate.mm */,
+				E92EADAF2D0987860019F001 /* GrayButton.h */,
+				E92EADB02D0987860019F001 /* GrayButton.mm */,
 				E9BA0E7B0F92245E0087EBFB /* HTTPServerView.h */,
 				E977D0791698FB4E00AA3FD9 /* HTTPServerView.mm */,
 				E935A89E22B54ED4007C41DF /* LoadSkinView.h */,
@@ -854,6 +860,7 @@
 				E91005E10F893F8900B68C27 /* core_sto_rcl.cc in Sources */,
 				E91005E20F893F8900B68C27 /* core_tables.cc in Sources */,
 				E91005E30F893F8900B68C27 /* core_variables.cc in Sources */,
+				E9F94FE62D2883370054518B /* AlphaKeyboardView.mm in Sources */,
 				E93F2B560F894D9000CE8542 /* shell_spool.cc in Sources */,
 				E91CC1D40F8C1FE900EE702C /* simpleserver.c in Sources */,
 				E91CC1D60F8C200800EE702C /* icons.c in Sources */,
@@ -909,6 +916,7 @@
 				E9FC40ED260707AF00E52296 /* core_sto_rcl.cc in Sources */,
 				E9FC40EE260707AF00E52296 /* core_tables.cc in Sources */,
 				E9FC40EF260707AF00E52296 /* core_variables.cc in Sources */,
+				E9F94FE72D2883370054518B /* AlphaKeyboardView.mm in Sources */,
 				E9FC40F0260707AF00E52296 /* shell_spool.cc in Sources */,
 				E9FC40F1260707AF00E52296 /* simpleserver.c in Sources */,
 				E9FC40F2260707AF00E52296 /* icons.c in Sources */,

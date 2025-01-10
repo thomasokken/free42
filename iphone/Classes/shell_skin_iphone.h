@@ -23,7 +23,7 @@ void skin_load(long *width, long *height);
 
 void skin_repaint(CGRect *rect, bool shortcuts);
 void skin_update_annunciator(int which, int state, CalcView *view);
-bool skin_in_menu_area(int x, int y);
+bool skin_in_menu_area(int x, int y, bool *keyboard);
 void skin_position_menu(UIView *view, UIAlertController *ctrl);
 void skin_find_key(int x, int y, bool cshift, int *skey, int *ckey);
 int skin_find_skey(int ckey);

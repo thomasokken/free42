@@ -18,6 +18,7 @@
 #import <UIKit/UIKit.h>
 
 @class CalcView;
+@class AlphaKeyboardView;
 @class PrintView;
 @class HTTPServerView;
 @class SelectSkinView;
@@ -32,6 +33,7 @@
 @interface RootViewController : UIViewController {
     UIWindow *window;
     CalcView *calcView;
+    AlphaKeyboardView *alphaKeyboardView;
     PrintView *printView;
     HTTPServerView *httpServerView;
     SelectSkinView *selectSkinView;
@@ -46,6 +48,7 @@
 
 @property (nonatomic, retain) IBOutlet UIWindow *window;
 @property (nonatomic, retain) IBOutlet CalcView *calcView;
+@property (nonatomic, retain) IBOutlet AlphaKeyboardView *alphaKeyboardView;
 @property (nonatomic, retain) IBOutlet PrintView *printView;
 @property (nonatomic, retain) IBOutlet HTTPServerView *httpServerView;
 @property (nonatomic, retain) IBOutlet SelectSkinView *selectSkinView;
@@ -68,6 +71,8 @@
 
 + (void) playSound: (int) which;
 + (void) showMain;
++ (void) showAlphaKeyboard:(BOOL)show;
++ (void) toggleAlphaKeyboard;
 + (void) showPrintOut;
 + (void) showHttpServer;
 + (void) showSelectSkin;
