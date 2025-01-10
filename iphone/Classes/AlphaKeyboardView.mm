@@ -323,7 +323,8 @@ const CGFloat bRadius = 5;
     CGFloat R = bRadius;
     
     expKeyRect = CGRectMake(r.origin.x, bb, r.size.width, r.origin.y + r.size.height - bb);
-    expBubbleRect = CGRectMake(bl, bt, br - bl, bb - bt);
+    CGFloat ext = bb - bt;
+    expBubbleRect = CGRectMake(bl - ext, bt - ext, br - bl + 2 * ext, bb - bt + 2 * ext);
 
     UIBezierPath *path = [UIBezierPath bezierPath];
     [path moveToPoint:CGPointMake(bl, bt + R)];
