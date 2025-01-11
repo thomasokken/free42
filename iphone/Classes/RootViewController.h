@@ -72,8 +72,7 @@
 
 + (void) playSound: (int) which;
 + (void) showMain;
-+ (void) showAlphaKeyboard:(BOOL)show;
-+ (void) toggleAlphaKeyboard;
++ (void) showAlphaKeyboard;
 + (void) showPrintOut;
 + (void) showHttpServer;
 + (void) showSelectSkin;
