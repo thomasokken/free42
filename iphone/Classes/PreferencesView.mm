@@ -37,6 +37,7 @@
 @synthesize hapticFeedbackSlider;
 @synthesize orientationSelector;
 @synthesize swipeDirectionSelector;
+@synthesize popupAlphaKeyboardSwitch;
 @synthesize maintainSkinAspectSwitch;
 @synthesize printToTextSwitch;
 @synthesize printToTextField;
@@ -81,6 +82,7 @@
     [hapticFeedbackSlider setValue:state.hapticFeedback];
     [orientationSelector setSelectedSegmentIndex:state.orientationMode];
     [swipeDirectionSelector setSelectedSegmentIndex:state.swipeDirectionMode];
+    [popupAlphaKeyboardSwitch setOn:state.popupAlphaKeyboard];
     [maintainSkinAspectSwitch setOn:state.maintainSkinAspect[[CalcView isPortrait] ? 0 : 1] != 0];
     [printToTextSwitch setOn:(state.printerToTxtFile != 0)];
     [printToTextField setText:[NSString stringWithUTF8String:state.printerTxtFileName]];
@@ -219,6 +221,7 @@
         [CalcView repaint];
     }
     state.swipeDirectionMode = (int) swipeDirectionSelector.selectedSegmentIndex;
+    state.popupAlphaKeyboard = popupAlphaKeyboardSwitch.on;
     state.printerToTxtFile = printToTextSwitch.on;
     NSString *s = [printToTextField text];
     if ([s length] > 0 && ![[s lowercaseString] hasSuffix:@".txt"])
