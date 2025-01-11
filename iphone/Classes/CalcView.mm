@@ -40,28 +40,6 @@
 #import "core_globals.h"
 
 
-///////////////////////////////////////////////////////////////////////////////
-/////                         Ye olde C stuphphe                          /////
-///////////////////////////////////////////////////////////////////////////////
-
-#if 0
-class Tracer {
-private:
-    const char *name;
-public:
-    Tracer(const char *name) {
-        this->name = name;
-        NSLog(@"%@ : ENTERING %s", [NSThread currentThread], name);
-    }
-    ~Tracer() {
-        NSLog(@"%@ : EXITING %s", [NSThread currentThread], name);
-    }
-};
-#define TRACE(x) Tracer T(x)
-#else
-#define TRACE(x)
-#endif
-        
 static void quit2(bool really_quit);
 static void shell_keydown();
 static void shell_keyup();
@@ -123,10 +101,6 @@ void get_keymap(keymap_entry **map, int *length) {
     *length = keymap_length;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-/////                    Ende ophphe ye olde C stuphphe                   /////
-///////////////////////////////////////////////////////////////////////////////
-
 
 //////////////////////////////////////////////////////////////////////
 /////   Accelerometer, Location Services, and Compass support    /////
@@ -182,7 +156,6 @@ static CalcView *calcView = nil;
 
 
 - (id) initWithFrame:(CGRect)frame {
-    TRACE("initWithFrame");
     if (self = [super initWithFrame:frame]) {
         // Note: this does not get called when instantiated from a nib file,
         // so don't bother doing anything here!
@@ -274,12 +247,10 @@ static CalcView *calcView = nil;
 }
 
 - (void) drawRect:(CGRect)rect {
-    TRACE("drawRect");
     skin_repaint(&rect, keyboardShortcutsShowing);
 }
 
 - (void) dealloc {
-    TRACE("dealloc");
     NSLog(@"Shutting down!");
     [super dealloc];
 }
@@ -288,7 +259,6 @@ static char touchDelayed = 0;
 static CGPoint touchPoint;
 
 - (void) touchesBegan: (NSSet *) touches withEvent: (UIEvent *) event {
-    TRACE("touchesBegan");
     if (touchDelayed != 0) {
         [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(touchesBegan2) object:nil];
         [self touchesBegan2];
@@ -352,12 +322,10 @@ static CGPoint touchPoint;
 }
 
 - (void) touchesEnded: (NSSet *) touches withEvent: (UIEvent *) event {
-    TRACE("touchesEnded");
     [self myTouchesEnded:touches];
 }
 
 - (void) touchesCancelled: (NSSet *) touches withEvent: (UIEvent *) event {
-    TRACE("touchesCancelled");
     [self myTouchesEnded:touches];
 }
 
@@ -381,17 +349,14 @@ static CGPoint touchPoint;
 }
 
 + (void) repaint {
-    TRACE("repaint");
     [calcView setNeedsDisplay];
 }
 
 + (void) quit {
-    TRACE("quit");
     quit2(true);
 }
 
 - (void) quitB {
-    TRACE("quitB");
     quit2(true);
 }
 
@@ -415,12 +380,10 @@ static CGPoint touchPoint;
 }
 
 + (void) enterBackground {
-    TRACE("enterBackground");
     quit2(false);
 }
 
 + (void) leaveBackground {
-    TRACE("leaveBackground");
     keep_running = core_powercycle();
     if (keep_running)
         [calcView startRunner];
@@ -446,7 +409,6 @@ static CGPoint touchPoint;
 static struct timeval runner_end_time;
 
 - (void) startRunner {
-    TRACE("startRunner");
     gettimeofday(&runner_end_time, NULL);
     runner_end_time.tv_usec += 10000; // run for up to 10 ms
     if (runner_end_time.tv_usec >= 1000000) {
@@ -463,7 +425,6 @@ static struct timeval runner_end_time;
 }
 
 - (void) awakeFromNib {
-    TRACE("awakeFromNib");
     [super awakeFromNib];
     calcView = self;
     statefile = fopen("config/state", "r");
@@ -583,7 +544,6 @@ static struct timeval runner_end_time;
 }
 
 - (void) setTimeout:(int) which {
-    TRACE("setTimeout");
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(timeout_callback) object:NULL];
     timeout_which = which;
     timeout_active = true;
@@ -591,13 +551,11 @@ static struct timeval runner_end_time;
 }
 
 - (void) cancelTimeout {
-    TRACE("cancelTimeout");
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(timeout_callback) object:NULL];
     timeout_active = false;
 }
 
 - (void) timeout_callback {
-    TRACE("timeout_callback");
     timeout_active = false;
     if (ckey != 0) {
         if (timeout_which == 1) {
@@ -610,20 +568,17 @@ static struct timeval runner_end_time;
 }
 
 - (void) setTimeout3: (int) delay {
-    TRACE("setTimeout3");
     [self cancelTimeout3];
     [self performSelector:@selector(timeout3_callback) withObject:NULL afterDelay:(delay / 1000.0)];
     timeout3_active = true;
 }
 
 - (void) cancelTimeout3 {
-    TRACE("cancelTimeout3");
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(timeout3_callback) object:NULL];
     timeout3_active = false;
 }
     
 - (void) timeout3_callback {
-    TRACE("timeout3_callback");
     timeout3_active = false;
     keep_running = core_timeout3(true);
     if (keep_running)
@@ -631,14 +586,12 @@ static struct timeval runner_end_time;
 }
 
 - (void) setRepeater: (int) delay {
-    TRACE("setRepeater");
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(repeater_callback) object:NULL];
     [self performSelector:@selector(repeater_callback) withObject:NULL afterDelay:(delay / 1000.0)];
     repeater_active = true;
 }
 
 - (void) cancelRepeater {
-    TRACE("cancelRepeater");
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(repeater_callback) object:NULL];
     repeater_active = false;
 }
@@ -677,7 +630,6 @@ static struct timeval runner_end_time;
 }
 
 - (void) repeater_callback {
-    TRACE("repeater_callback");
     int repeat = core_repeat();
     if (repeat != 0)
         [self setRepeater:(repeat == 1 ? 200 : 100)];
@@ -927,7 +879,6 @@ static void read_key_map(const char *keymapfilename) {
 extern bool off_enable_flag;
 
 static int read_shell_state(int *ver) {
-    TRACE("read_shell_state");
     int magic;
     int version;
     int state_size;
@@ -974,7 +925,6 @@ static int read_shell_state(int *ver) {
 }
 
 static void init_shell_state(int version) {
-    TRACE("init_shell_state");
     switch (version) {
         case -1:
             state.printerToTxtFile = 0;
@@ -1039,8 +989,6 @@ static void init_shell_state(int version) {
 }
 
 static void quit2(bool really_quit) {
-    TRACE("quit2");
-
     [PrintView dump];
     
     if (print_txt != NULL) {
@@ -1069,7 +1017,6 @@ static void quit2(bool really_quit) {
 }
 
 static void shell_keydown() {
-    TRACE("shell_keydown");
     int repeat;
     if (skey == -1)
         skey = skin_find_skey(ckey);
@@ -1155,7 +1102,6 @@ static void shell_keydown() {
 }
 
 static void shell_keyup() {
-    TRACE("shell_keyup");
     skin_set_pressed_key(-1, calcView);
     ckey = 0;
     skey = -1;
@@ -1384,7 +1330,6 @@ static void calc_keyup(NSString *characters, long flags, int keycode) {
 }
 
 static int write_shell_state() {
-    TRACE("write_shell_state");
     int magic = FREE42_MAGIC;
     int version = 27;
     int state_size = sizeof(state);
@@ -1416,7 +1361,6 @@ static int write_shell_state() {
 }
 
 void shell_blitter(const char *bits, int bytesperline, int x, int y, int width, int height) {
-    TRACE("shell_blitter");
     skin_display_blitter(bits, bytesperline, x, y, width, height, calcView);
 }
 
@@ -1429,13 +1373,11 @@ const char *shell_platform() {
 }
 
 void shell_beeper(int tone) {
-    TRACE("shell_beeper");
     [RootViewController playSound:tone];
     shell_delay(tone == 10 ? 125 : 250);
 }
 
 void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
-    TRACE("shell_annunciators");
     if (updn != -1 && ann_updown != updn) {
         ann_updown = updn;
         skin_update_annunciator(1, ann_updown, calcView);
@@ -1475,7 +1417,6 @@ void shell_log(const char *message) {
 }
 
 bool shell_wants_cpu() {
-    TRACE("shell_wants_cpu");
     if (we_want_cpu)
         return true;
     struct timeval now;
@@ -1485,7 +1426,6 @@ bool shell_wants_cpu() {
 }
 
 void shell_delay(int duration) {
-    TRACE("shell_delay");
     struct timespec ts;
     ts.tv_sec = duration / 1000;
     ts.tv_nsec = (duration % 1000) * 1000000;
@@ -1493,12 +1433,10 @@ void shell_delay(int duration) {
 }
 
 void shell_request_timeout3(int delay) {
-    TRACE("shell_request_timeout3");
     [calcView setTimeout3:delay];
 }
 
 uint8 shell_get_mem() {
-    TRACE("shell_get_mem");
     int mib[2];
     size_t memsize = 0;
     size_t len;
@@ -1514,20 +1452,17 @@ uint8 shell_get_mem() {
 }
 
 void shell_powerdown() {
-    TRACE("shell_powerdown");
     quit_flag = true;
     we_want_cpu = true;
 }
 
 int8 shell_random_seed() {
-    TRACE("shell_random_seed");
     struct timeval tv;
     gettimeofday(&tv, NULL);
     return tv.tv_sec * 1000LL + tv.tv_usec / 1000;
 }
 
 unsigned int shell_milliseconds() {
-    TRACE("shell_milliseconds");
     struct timeval tv;
     gettimeofday(&tv, NULL);
     return (unsigned int) (tv.tv_sec * 1000L + tv.tv_usec / 1000);
@@ -1588,8 +1523,6 @@ void shell_get_time_date(uint4 *time, uint4 *date, int *weekday) {
 void shell_print(const char *text, int length,
                  const char *bits, int bytesperline,
                  int x, int y, int width, int height) {
-    TRACE("shell_print");
-
     int xx, yy;
     int oldlength, newlength;
     
