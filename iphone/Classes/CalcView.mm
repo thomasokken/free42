@@ -1016,7 +1016,10 @@ static void init_shell_state(int version) {
         case 12:
             /* fall through */
         case 13:
-            /* current version (SHELL_VERSION = 13),
+            state.popupAlphaKeyboard = false;
+            /* fall through */
+        case 14:
+            /* current version (SHELL_VERSION = 14),
              * so nothing to do here since everything
              * was initialized from the state file.
              */
