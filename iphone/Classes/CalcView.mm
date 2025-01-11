@@ -24,6 +24,7 @@
 #import <CoreMotion/CoreMotion.h>
 
 #import "CalcView.h"
+#import "AlphaKeyboardView.h"
 #import "PrintView.h"
 #import "RootViewController.h"
 #import "Free42AppDelegate.h"
@@ -521,7 +522,9 @@ static struct timeval runner_end_time;
     UIGestureRecognizerState gstate = [panrec state];
     CGPoint p = [panrec translationInView:[self superview]];
     PrintView *print = ((Free42AppDelegate *) UIApplication.sharedApplication.delegate).rootViewController.printView;
+    AlphaKeyboardView *alpha = ((Free42AppDelegate *) UIApplication.sharedApplication.delegate).rootViewController.alphaKeyboardView;
     CGRect cf = self.frame;
+    CGRect af = alpha.frame;
     CGRect pf = print.frame;
     if (gstate == UIGestureRecognizerStateBegan) {
         // Make sure the Print-Out view isn't hidden
@@ -534,6 +537,8 @@ static struct timeval runner_end_time;
     if (gstate == UIGestureRecognizerStateEnded) {
         cf.origin.x = prevX;
         self.frame = cf;
+        af.origin.x = prevX;
+        alpha.frame = af;
         pf.origin.x = prevX;
         print.frame = pf;
         CGPoint v = [panrec velocityInView:[self superview]];
@@ -547,6 +552,8 @@ static struct timeval runner_end_time;
             p.x = 0;
         cf.origin.x = self.superview.bounds.origin.x + p.x;
         self.frame = cf;
+        af.origin.x = self.superview.bounds.origin.x + p.x;
+        alpha.frame = af;
         pf.origin.x = self.superview.bounds.origin.x + p.x + dir * self.frame.size.width;
         print.frame = pf;
     }

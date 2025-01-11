@@ -17,6 +17,7 @@
 
 #import "PrintView.h"
 #import "CalcView.h"
+#import "AlphaKeyboardView.h"
 #import "RootViewController.h"
 #import "Free42AppDelegate.h"
 #import "shell.h"
@@ -117,8 +118,10 @@ int print_text_pixel_height;
     UIGestureRecognizerState gstate = [panrec state];
     CGPoint p = [panrec translationInView:[self superview]];
     CalcView *calc = ((Free42AppDelegate *) UIApplication.sharedApplication.delegate).rootViewController.calcView;
+    AlphaKeyboardView *alpha = ((Free42AppDelegate *) UIApplication.sharedApplication.delegate).rootViewController.alphaKeyboardView;
     CGRect pf = self.frame;
     CGRect cf = calc.frame;
+    CGRect af = alpha.frame;
     if (gstate == UIGestureRecognizerStateBegan) {
         // Make sure the Calculator view isn't hidden
         [RootViewController showMain];
@@ -130,6 +133,8 @@ int print_text_pixel_height;
         self.frame = pf;
         cf.origin.x = prevX;
         calc.frame = cf;
+        af.origin.x = prevX;
+        alpha.frame = af;
         CGPoint v = [panrec velocityInView:[self superview]];
         CGFloat scale = self.bounds.size.width / self.bounds.size.height;
         if (scale < 1)
@@ -143,6 +148,8 @@ int print_text_pixel_height;
         self.frame = pf;
         cf.origin.x = self.superview.bounds.origin.x + p.x + dir * calc.frame.size.width;
         calc.frame = cf;
+        af.origin.x = self.superview.bounds.origin.x + p.x + dir * calc.frame.size.width;
+        alpha.frame = af;
     }
 }
 
