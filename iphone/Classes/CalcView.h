@@ -42,7 +42,7 @@ struct state_type {
     bool allow_big_stack;
     bool localized_copy_paste;
     int swipeDirectionMode; // 0=left 1=off 2=right
-    bool popupAlphaKeyboard;
+    char popupAlphaKeyboard; // 0=off 1=on 2=disabled
 };
 
 extern state_type state;
