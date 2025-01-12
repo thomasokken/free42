@@ -495,6 +495,9 @@ const CGFloat bRadius = 5;
 - (void) touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(expandBubble) object:nil];
     
+    if (currentKey == -1)
+        return;
+    
     if (false) {
         done:
         currentKey = -1;
@@ -517,18 +520,7 @@ const CGFloat bRadius = 5;
         goto done;
     }
 
-    CGFloat xs = kbRect.size.width / KB_WIDTH;
-    CGFloat ys = kbRect.size.height / KB_HEIGHT;
-    UITouch *touch = [touches anyObject];
-    CGPoint p = [touch locationInView:self];
-    p.x -= kbRect.origin.x;
-    p.y -= kbRect.origin.y;
-    
-    int kn = findKey(p, xs, ys);
-    if (kn == -1 || kn != currentKey)
-        goto done;
-    
-    const key *k = kbMap + kn;
+    const key *k = kbMap + currentKey;
     if (k->special == SPEC_SHIFT) {
         shiftReleased = num ? 0 : millitime();
         currentKey = -1;
