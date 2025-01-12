@@ -210,7 +210,7 @@ int core_special_menu_key(int which) {
 static bool core_keydown_2(int key, bool *enqueued, int *repeat);
 
 bool core_keydown(int key, bool *enqueued, int *repeat) {
-    if (key >= 1024) {
+    if (key >= 1024 && key != 1034) {
         int code = key - 1024;
         char ubuf[5];
         int n = 0;
