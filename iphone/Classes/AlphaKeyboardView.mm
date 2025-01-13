@@ -110,6 +110,7 @@ int millitime() {
 @implementation AlphaKeyboardView {
     CGRect kbRect;
     CGRect safeRect;
+    bool portrait;
     int currentKey;
     bool keyExpanded;
     int shiftReleased;
@@ -147,11 +148,12 @@ int millitime() {
 
 - (void) layoutSubviews {
     kbRect = self.bounds;
-    CGFloat ah = kbRect.size.height / (self.bounds.size.width > self.bounds.size.height ? 2 : 3);
+    portrait = self.bounds.size.width < self.bounds.size.height;
+    CGFloat ah = kbRect.size.height / (portrait ? 3 : 2);
     kbRect.origin.y += kbRect.size.height - ah;
     kbRect.size.height = ah;
 
-    if (self.bounds.size.width < self.bounds.size.height) {
+    if (portrait) {
         int bm = [RootViewController getBottomMargin];
         safeRect = kbRect;
         kbRect.origin.y -= bm;
@@ -277,7 +279,7 @@ const CGFloat bRadius = 5;
     core_get_char_pixels(c, bits);
     CGContext *myContext = UIGraphicsGetCurrentContext();
     CGContextSetFillColorWithColor(myContext, color);
-    CGFloat ps = r.size.height / 16;
+    CGFloat ps = r.size.height / (portrait ? 16 : 12);
     CGFloat x = r.origin.x + (r.size.width - 5 * ps) / 2;
     CGFloat y = r.origin.y + (r.size.height - 8 * ps) / 2;
     for (int v = 0; v < 8; v++)
@@ -370,7 +372,7 @@ const CGFloat bRadius = 5;
     char bits[5];
     core_get_char_pixels(c, bits);
     CGContextSetFillColorWithColor(myContext, textColor);
-    CGFloat ps = r.size.height * 1.3 / 16;
+    CGFloat ps = r.size.height * 1.3 / (portrait ? 16 : 12);
     CGFloat x = cpos.x - 2.5 * ps;
     CGFloat y = cpos.y - 4 * ps;
     for (int v = 0; v < 8; v++)
@@ -380,7 +382,7 @@ const CGFloat bRadius = 5;
 }
 
 - (void) drawLargeBubble:(CGRect)r forChars:(NSString *)s shadowColor:(CGColorRef)shadowColor textColor:(CGColorRef)textColor blueColor:(CGColorRef)blueColor {
-    CGFloat ps = r.size.height / 16;
+    CGFloat ps = r.size.height / (portrait ? 16 : 12);
     CGFloat width = ps * 5 * (2 * [s length] + 1) + 2 * bRadius;
     if (width < r.size.width + 4 * bRadius)
         width = r.size.width + 4 * bRadius;
