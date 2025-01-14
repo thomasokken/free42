@@ -322,7 +322,7 @@ const CGFloat bRadius = 5;
     }
     
     CGFloat bb = r.origin.y - r.size.height * 7 / 40;
-    CGFloat bt = bb - 1.3 * r.size.height;
+    CGFloat bt = bb - 1.3 * r.size.height * (portrait ? 1 : 1.333);
     CGFloat R = bRadius;
     
     expKeyRect = CGRectMake(r.origin.x, bb, r.size.width, r.origin.y + r.size.height - bb);
@@ -385,7 +385,7 @@ const CGFloat bRadius = 5;
 - (void) drawLargeBubble:(CGRect)r forChars:(NSString *)s shadowColor:(CGColorRef)shadowColor textColor:(CGColorRef)textColor blueColor:(CGColorRef)blueColor {
     CGFloat ps = r.size.height / (portrait ? 16 : 12);
     CGFloat space = ps * 5 * (portrait ? 1 : 2);
-    CGFloat width = (ps * 5 + space) * [s length] + (portrait ? ps * 5 : 0) + 2 * bRadius;
+    CGFloat width = (ps * 5 + space) * [s length] + space + 2 * bRadius;
     if (width < r.size.width + 4 * bRadius)
         width = r.size.width + 4 * bRadius;
     CGPoint cpos;
@@ -547,7 +547,7 @@ const CGFloat bRadius = 5;
     if (currentKey == -1 || kbMap[currentKey].special != SPEC_NONE)
         return;
     CGPoint p = [[touches anyObject] locationInView:self];
-    if (p.y > expKeyRect.origin.y + expKeyRect.size.height + 5) {
+    if (p.y > expKeyRect.origin.y + expKeyRect.size.height * (portrait ? 1 : 1.333) + 5) {
         currentKey = -1;
         [self setNeedsDisplay];
         return;
