@@ -119,8 +119,8 @@ int millitime() {
     bool lock;
     CGRect expKeyRect;
     CGRect expBubbleRect;
-    int expOffset;
-    int expSpacing;
+    CGFloat expOffset;
+    CGFloat expSpacing;
     int expCurrentIndex;
     int expMaxIndex;
     bool expStillOnKey;
@@ -384,7 +384,8 @@ const CGFloat bRadius = 5;
 
 - (void) drawLargeBubble:(CGRect)r forChars:(NSString *)s shadowColor:(CGColorRef)shadowColor textColor:(CGColorRef)textColor blueColor:(CGColorRef)blueColor {
     CGFloat ps = r.size.height / (portrait ? 16 : 12);
-    CGFloat width = ps * 5 * (2 * [s length] + 1) + 2 * bRadius;
+    CGFloat space = ps * 5 * (portrait ? 1 : 2);
+    CGFloat width = (ps * 5 + space) * [s length] + (portrait ? ps * 5 : 0) + 2 * bRadius;
     if (width < r.size.width + 4 * bRadius)
         width = r.size.width + 4 * bRadius;
     CGPoint cpos;
@@ -395,10 +396,11 @@ const CGFloat bRadius = 5;
     [path setLineWidth:1];
     [path stroke];
     
-    expOffset = cpos.x - ([s length] - 1) * 5.0 * ps;
-    expSpacing = 10 * ps;
+    expSpacing = 5 * ps + space;
+    expOffset = cpos.x - ([s length] - 1) * expSpacing / 2;
     expMaxIndex = [s length] - 1;
-    path = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(expOffset + expCurrentIndex * expSpacing - 4.5 * ps, cpos.y - 6 * ps, 9 * ps, 12 * ps) cornerRadius:ps];
+    CGFloat hw = expSpacing * 0.9;
+    path = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(expOffset + expCurrentIndex * expSpacing - hw / 2, cpos.y - 6 * ps, hw, 12 * ps) cornerRadius:ps];
     CGContextSetFillColorWithColor(myContext, blueColor);
     [path fill];
     char bits[5];
