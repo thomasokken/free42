@@ -130,10 +130,6 @@ static RootViewController *instance;
         return UIInterfaceOrientationMaskLandscape;
 }
 
-- (BOOL) prefersHomeIndicatorAutoHidden {
-    return YES;
-}
-
 - (void) layoutSubViews {
     CGRect r;
     if ([UIApplication sharedApplication].isStatusBarHidden)
