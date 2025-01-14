@@ -282,12 +282,12 @@ static CGPoint touchPoint;
         if (ckey == 0) {
             bool keyboard;
             if (skin_in_menu_area(x, y, &keyboard))
-                if (state.popupAlphaKeyboard != 2 && keyboard) {
+                if (state.popupAlphaKeyboard != 0 && keyboard) {
                     if (!core_alpha_menu())
                         squeak();
                     else {
-                        state.popupAlphaKeyboard = 1 - state.popupAlphaKeyboard;
-                        if (state.popupAlphaKeyboard == 1)
+                        state.popupAlphaKeyboard = 3 - state.popupAlphaKeyboard;
+                        if (state.popupAlphaKeyboard == 2)
                             [RootViewController showAlphaKeyboard];
                         else
                             [calcView.superview bringSubviewToFront:calcView];
@@ -717,7 +717,7 @@ static CLLocationManager *locMgr = nil;
 - (void) setActive:(bool) active {
     if (active) {
         [self becomeFirstResponder];
-        if (state.popupAlphaKeyboard == 1 && core_alpha_menu())
+        if (state.popupAlphaKeyboard == 2 && core_alpha_menu())
             [RootViewController showAlphaKeyboard];
     } else
         [self resignFirstResponder];
@@ -1673,7 +1673,7 @@ void shell_print(const char *text, int length,
 }
 
 void shell_show_alpha_keyboard(bool show) {
-    if (state.popupAlphaKeyboard == 1)
+    if (state.popupAlphaKeyboard == 2)
         if (show)
             [RootViewController showAlphaKeyboard];
         else

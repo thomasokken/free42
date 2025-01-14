@@ -562,9 +562,9 @@
                                     <rect key="frame" x="21" y="498" width="279" height="32"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                                     <segments>
+                                        <segment title="Disabled"/>
                                         <segment title="Off"/>
                                         <segment title="On"/>
-                                        <segment title="Disabled"/>
                                     </segments>
                                 </segmentedControl>
                             </subviews>
