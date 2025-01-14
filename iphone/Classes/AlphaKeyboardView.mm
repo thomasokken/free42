@@ -123,6 +123,7 @@ int millitime() {
     int expSpacing;
     int expCurrentIndex;
     int expMaxIndex;
+    bool expStillOnKey;
 }
 
 - (id) initWithFrame:(CGRect)frame {
@@ -433,6 +434,7 @@ const CGFloat bRadius = 5;
         return;
     currentKey = kn;
     keyExpanded = false;
+    expStillOnKey = true;
     [CalcView keyFeedback];
     
     const key *k = kbMap + kn;
@@ -551,14 +553,17 @@ const CGFloat bRadius = 5;
     if (!keyExpanded)
         return;
     int idx = expCurrentIndex;
-    if (CGRectContainsPoint(expKeyRect, p))
+    if (expStillOnKey && CGRectContainsPoint(expKeyRect, p)) {
         idx = 0;
-    else if (CGRectContainsPoint(expBubbleRect, p)) {
-        idx = (int) ((p.x - expOffset) / expSpacing + 0.5);
-        if (idx < 0)
-            idx = 0;
-        else if (idx > expMaxIndex)
-            idx = expMaxIndex;
+    } else {
+        expStillOnKey = false;
+        if (CGRectContainsPoint(expBubbleRect, p)) {
+            idx = (int) ((p.x - expOffset) / expSpacing + 0.5);
+            if (idx < 0)
+                idx = 0;
+            else if (idx > expMaxIndex)
+                idx = expMaxIndex;
+        }
     }
     if (expCurrentIndex != idx) {
         [self setNeedsDisplay];
