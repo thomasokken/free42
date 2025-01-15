@@ -23,6 +23,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
+import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
@@ -110,8 +111,8 @@ public class AlphaKeyboardView extends View {
     private boolean num;
     private boolean shift;
     private boolean lock;
-    private Rect expKeyRect;
-    private Rect expBubbleRect;
+    private RectF expKeyRect;
+    private RectF expBubbleRect;
     private Float expOffset;
     private Float expSpacing;
     private int expCurrentIndex;
@@ -171,7 +172,7 @@ public class AlphaKeyboardView extends View {
         invalidate();
     }
 
-    static private final int bRadius = 5;
+    private static final int bRadius = 5;
 
     protected void onDraw(Canvas canvas) {
         boolean dark = false;
@@ -222,9 +223,9 @@ public class AlphaKeyboardView extends View {
                 if (!active) {
                     drawCharKey(r, chars.charAt(0), text, canvas, paint);
                 } else if (!keyExpanded) {
-                    drawSmallBubble(r, chars.charAt(0), shadow, text, paint);
+                    drawSmallBubble(r, chars.charAt(0), shadow, text, canvas, paint);
                 } else {
-                    drawLargeBubble(r, chars, shadow, text, blueCap, paint);
+                    drawLargeBubble(r, chars, shadow, text, blueCap, canvas, paint);
                 }
             } else {
                 if (k.special == SPEC_RS || k.special == SPEC_ENTER)
@@ -269,7 +270,7 @@ public class AlphaKeyboardView extends View {
         }
     }
 
-    void drawCharKey(RectF r, char c, int color, Canvas canvas, Paint paint) {
+    private void drawCharKey(RectF r, char c, int color, Canvas canvas, Paint paint) {
         canvas.drawRoundRect(r, bRadius, bRadius, paint);
         byte[] bits = core_get_char_pixels(c);
         paint.setColor(color);
@@ -287,137 +288,153 @@ public class AlphaKeyboardView extends View {
                 }
     }
 
-    /*
-    - (UIBezierPath *) makeBubble:(CGRect)r width:(CGFloat)width cpos:(CGPoint *)cpos {
-        CGFloat bl, br;
-        CGFloat ew = r.size.width * 0.15;
+    private static RectF setRect(RectF r, float left, float top, float right, float bottom) {
+        r.left = left;
+        r.top = top;
+        r.right = right;
+        r.bottom = bottom;
+        return r;
+    }
+
+    private Path makeBubble(RectF r, float width, PointF cpos) {
+        float bl, br;
+        float ew = (r.right - r.left) * 0.15f;
         if (ew < 2 * bRadius)
             ew = 2 * bRadius;
-        bl = r.origin.x - ew;
+        bl = r.left - ew;
         if (width == 0) {
-            br = r.origin.x + r.size.width + ew;
+            br = r.right + ew;
             width = br - bl;
         } else
             br = bl + width;
-        bool leftFlush = false;
-        bool rightFlush = false;
+        boolean leftFlush = false;
+        boolean rightFlush = false;
 
         if (bl < 5) {
             bl = 5;
             br = 5 + width;
-            if (bl > r.origin.x - 2 * bRadius) {
-                bl = r.origin.x;
+            if (bl > r.left - 2 * bRadius) {
+                bl = r.left;
                 br = bl + width;
                 leftFlush = true;
             }
-        } else if (br > self.bounds.size.width - 5) {
-            br = self.bounds.size.width - 5;
+        } else if (br > getWidth() - 5) {
+            br = getWidth() - 5;
             bl = br - width;
-            if (br < r.origin.x + r.size.width + 2 * bRadius) {
-                br = r.origin.x + r.size.width;
+            if (br < r.right + 2 * bRadius) {
+                br = r.right;
                 bl = br - width;
                 rightFlush = true;
             }
         }
 
-        CGFloat bb = r.origin.y - r.size.height * 7 / 40;
-        CGFloat bt = bb - 1.3 * r.size.height * (portrait ? 1 : 1.333);
-        CGFloat R = bRadius;
+        float bb = r.top - (r.bottom - r.top) * 7 / 40;
+        float bt = bb - 1.3f * (r.bottom - r.top) * (portrait ? 1 : 1.333f);
+        float R = bRadius;
 
-        expKeyRect = CGRectMake(r.origin.x, bb, r.size.width, r.origin.y + r.size.height - bb);
-        CGFloat ext = bb - bt;
-        expBubbleRect = CGRectMake(bl - ext, bt - ext, br - bl + 2 * ext, bb - bt + 2 * ext);
+        expKeyRect = new RectF(r.left, bb, r.right, r.bottom);
+        float ext = bb - bt;
+        expBubbleRect = new RectF(bl - ext, bt - ext, br + ext, bb + ext);
 
-        UIBezierPath *path = [UIBezierPath bezierPath];
-        [path moveToPoint:CGPointMake(bl, bt + R)];
-        [path addArcWithCenter:CGPointMake(bl + R, bt + R) radius:R startAngle:M_PI endAngle:M_PI * 1.5 clockwise:YES];
-        [path addLineToPoint:CGPointMake(br - R, bt)];
-        [path addArcWithCenter:CGPointMake(br - R, bt + R) radius:R startAngle:M_PI * 1.5 endAngle:0 clockwise:YES];
+        Path path = new Path();
+        RectF tr = new RectF();
+        path.moveTo(bl, bt + R);
+        path.addArc(setRect(tr, bl, bt, bl + 2 * R, bt + 2 * R), 180, 90);
+        path.lineTo(br - R, bt);
+        path.addArc(setRect(tr, br - 2 * R, bt, br, bt + 2 * R), 270, 90);
         if (rightFlush) {
-            [path addLineToPoint:CGPointMake(br, r.origin.y + r.size.height - R)];
+            path.lineTo(br, r.bottom - R);
         } else {
-            [path addLineToPoint:CGPointMake(br, bb - R)];
-            [path addArcWithCenter:CGPointMake(br - R, bb - R) radius:R startAngle:0 endAngle:M_PI / 2 clockwise:YES];
-            [path addLineToPoint:CGPointMake(r.origin.x + r.size.width + R, bb)];
-            [path addArcWithCenter:CGPointMake(r.origin.x + r.size.width + R, bb + R) radius:R startAngle:M_PI * 1.5 endAngle:M_PI clockwise:NO];
-            [path addLineToPoint:CGPointMake(r.origin.x + r.size.width, r.origin.y + r.size.height - R)];
+            path.lineTo(br, bb - R);
+            path.addArc(setRect(tr, br - 2 * R, bb - 2 * R, br, bb), 0, 90);
+            path.lineTo(r.right + R, bb);
+            path.addArc(setRect(tr, r.right, bb, r.right + 2 * R, bb + 2 * R), 270, -90);
+            path.lineTo(r.right, r.bottom - R);
         }
-        [path addArcWithCenter:CGPointMake(r.origin.x + r.size.width - R, r.origin.y + r.size.height - R) radius:R startAngle:0 endAngle:M_PI / 2 clockwise:YES];
-        [path addLineToPoint:CGPointMake(r.origin.x + R, r.origin.y + r.size.height)];
-        [path addArcWithCenter:CGPointMake(r.origin.x + R, r.origin.y + r.size.height - R) radius:R startAngle:M_PI / 2 endAngle:M_PI clockwise:YES];
+        path.addArc(setRect(tr, r.right - 2 * R, r.bottom - 2 * R, r.right, r.bottom), 0, 90);
+        path.lineTo(r.left + R, r.bottom);
+        path.addArc(setRect(tr, r.left, r.bottom - 2 * R, r.left + 2 * R, r.bottom), 90, 90);
         if (!leftFlush) {
-            [path addLineToPoint:CGPointMake(r.origin.x, bb + R)];
-            [path addArcWithCenter:CGPointMake(r.origin.x - R, bb + R) radius:R startAngle:0 endAngle:M_PI * 1.5 clockwise:NO];
-            [path addLineToPoint:CGPointMake(bl + R, bb)];
-            [path addArcWithCenter:CGPointMake(bl + R, bb - R) radius:R startAngle:M_PI /2 endAngle:M_PI clockwise:YES];
+            path.lineTo(r.left, bb + R);
+            path.addArc(setRect(tr, r.left - 2 * R, bb, r.left, bb + 2 * R), 0, -90);
+            path.lineTo(bl + R, bb);
+            path.addArc(setRect(tr, bl, bb - 2 * R, bl + 2 * R, bb), 90, 90);
         }
-        [path closePath];
+        path.close();
 
-        cpos->x = (bl + br) / 2;
-        cpos->y = (bt + bb) / 2;
+        cpos.x = (bl + br) / 2;
+        cpos.y = (bt + bb) / 2;
         return path;
     }
-    */
 
-    void drawSmallBubble(RectF r, char c, int shadowColor, int textColor, Paint paint) {
-        /*
-        CGFloat width = r.size.width * 1.3;
-        if (width < r.size.width + 4 * bRadius)
-            width = r.size.width + 4 * bRadius;
-        CGPoint cpos;
-        UIBezierPath *path = [self makeBubble:r width:0 cpos:&cpos];
-        [path fill];
-        CGContext *myContext = UIGraphicsGetCurrentContext();
-        CGContextSetStrokeColorWithColor(myContext, shadowColor);
-        [path setLineWidth:1];
-        [path stroke];
-        char bits[5];
-        core_get_char_pixels(c, bits);
-        CGContextSetFillColorWithColor(myContext, textColor);
-        CGFloat ps = r.size.height * 1.3 / (portrait ? 16 : 12);
-        CGFloat x = cpos.x - 2.5 * ps;
-        CGFloat y = cpos.y - 4 * ps;
+    void drawSmallBubble(RectF r, char c, int shadowColor, int textColor, Canvas canvas, Paint paint) {
+        float width = (r.right - r.left) * 1.3f;
+        if (width < (r.right - r.left) + 4 * bRadius)
+            width = (r.right - r.left) + 4 * bRadius;
+        PointF cpos = new PointF();
+        Path path = makeBubble(r, 0, cpos);
+        canvas.drawPath(path, paint);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(1);
+        paint.setColor(shadowColor);
+        canvas.drawPath(path, paint);
+        byte[] bits = core_get_char_pixels(c);
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(textColor);
+        float ps = (r.bottom - r.top) * 1.3f / (portrait ? 16 : 12);
+        float x = cpos.x - 2.5f * ps;
+        float y = cpos.y - 4 * ps;
         for (int v = 0; v < 8; v++)
             for (int h = 0; h < 5; h++)
-                if (((bits[h] >> v) & 1) != 0)
-                    CGContextFillRect(myContext, CGRectMake(x + h * ps, y + v * ps, ps, ps));
-        */
+                if (((bits[h] >> v) & 1) != 0) {
+                    float left = x + h * ps;
+                    float top = y + v * ps;
+                    float right = left + ps;
+                    float bottom = top + ps;
+                    canvas.drawRect(left, top, right, bottom, paint);
+                }
     }
 
-    void drawLargeBubble(RectF r, String s, int shadowColor, int textColor, int blueColor, Paint paint) {
-        /*
-        CGFloat ps = r.size.height / (portrait ? 16 : 12);
-        CGFloat space = ps * 5 * (portrait ? 1 : 2);
-        CGFloat width = (ps * 5 + space) * [s length] + space + 2 * bRadius;
-        if (width < r.size.width + 4 * bRadius)
-            width = r.size.width + 4 * bRadius;
-        CGPoint cpos;
-        UIBezierPath *path = [self makeBubble:r width:width cpos:&cpos];
-        [path fill];
-        CGContext *myContext = UIGraphicsGetCurrentContext();
-        CGContextSetStrokeColorWithColor(myContext, shadowColor);
-        [path setLineWidth:1];
-        [path stroke];
+    void drawLargeBubble(RectF r, String s, int shadowColor, int textColor, int blueColor, Canvas canvas, Paint paint) {
+        float ps = (r.bottom - r.top) / (portrait ? 16 : 12);
+        float space = ps * 5 * (portrait ? 1 : 2);
+        float width = (ps * 5 + space) * s.length() + space + 2 * bRadius;
+        if (width < (r.right - r.left) + 4 * bRadius)
+            width = (r.right - r.left) + 4 * bRadius;
+        PointF cpos = new PointF();
+        Path path = makeBubble(r, width, cpos);
+        canvas.drawPath(path, paint);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(1);
+        paint.setColor(shadowColor);
+        canvas.drawPath(path, paint);
+        paint.setStyle(Paint.Style.FILL);
 
         expSpacing = 5 * ps + space;
-        expOffset = cpos.x - ([s length] - 1) * expSpacing / 2;
-        expMaxIndex = [s length] - 1;
-        CGFloat hw = expSpacing * 0.9;
-        path = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(expOffset + expCurrentIndex * expSpacing - hw / 2, cpos.y - 6 * ps, hw, 12 * ps) cornerRadius:ps];
-        CGContextSetFillColorWithColor(myContext, blueColor);
-        [path fill];
-        char bits[5];
-        for (int i = 0; i < [s length]; i++) {
-            core_get_char_pixels([[s substringWithRange:NSMakeRange(i, 1)] UTF8String], bits);
-            CGContextSetFillColorWithColor(myContext, i == expCurrentIndex ? UIColor.whiteColor.CGColor : textColor);
-            CGFloat x = expOffset + i * expSpacing - 2.5 * ps;
-            CGFloat y = cpos.y - 4 * ps;
+        expOffset = cpos.x - (s.length() - 1) * expSpacing / 2;
+        expMaxIndex = s.length() - 1;
+        float hw = expSpacing * 0.9f;
+        RectF rr = new RectF(expOffset + expCurrentIndex * expSpacing - hw / 2,
+                             cpos.y - 6 * ps,
+                             expOffset + expCurrentIndex * expSpacing + hw / 2,
+                             cpos.y + 6 * ps);
+        paint.setColor(blueColor);
+        canvas.drawRoundRect(rr, ps, ps, paint);
+        for (int i = 0; i < s.length(); i++) {
+            byte[] bits = core_get_char_pixels(s.charAt(i));
+            paint.setColor(i == expCurrentIndex ? Color.WHITE : textColor);
+            float x = expOffset + i * expSpacing - 2.5f * ps;
+            float y = cpos.y - 4 * ps;
             for (int v = 0; v < 8; v++)
                 for (int h = 0; h < 5; h++)
-                    if (((bits[h] >> v) & 1) != 0)
-                        CGContextFillRect(myContext, CGRectMake(x + h * ps, y + v * ps, ps, ps));
+                    if (((bits[h] >> v) & 1) != 0) {
+                        float left = x + h * ps;
+                        float top = y + v * ps;
+                        float right = left + ps;
+                        float bottom = top + ps;
+                        canvas.drawRect(left, top, right, bottom, paint);
+                    }
         }
-        */
     }
 
     public boolean onTouchEvent(MotionEvent e) {
@@ -450,14 +467,7 @@ public class AlphaKeyboardView extends View {
                 invalidate();
                 return true;
             }
-/*
-            done2:
-            if (!lock && !num)
-                shift = false;
-            done:
-            [self setNeedsDisplay];
-            return;
-*/
+
             if (k.special == SPEC_SHIFT) {
                 if (!num && shiftReleased != 0 && System.currentTimeMillis() < shiftReleased + 250) {
                     shift = true;
