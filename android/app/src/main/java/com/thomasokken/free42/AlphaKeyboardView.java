@@ -172,7 +172,7 @@ public class AlphaKeyboardView extends View {
         invalidate();
     }
 
-    private static final int bRadius = 5;
+    private static final int bRadius = 15;
 
     protected void onDraw(Canvas canvas) {
         boolean dark = false;
@@ -339,26 +339,26 @@ public class AlphaKeyboardView extends View {
         Path path = new Path();
         RectF tr = new RectF();
         path.moveTo(bl, bt + R);
-        path.addArc(setRect(tr, bl, bt, bl + 2 * R, bt + 2 * R), 180, 90);
+        path.arcTo(setRect(tr, bl, bt, bl + 2 * R, bt + 2 * R), 180, 90);
         path.lineTo(br - R, bt);
-        path.addArc(setRect(tr, br - 2 * R, bt, br, bt + 2 * R), 270, 90);
+        path.arcTo(setRect(tr, br - 2 * R, bt, br, bt + 2 * R), 270, 90);
         if (rightFlush) {
             path.lineTo(br, r.bottom - R);
         } else {
             path.lineTo(br, bb - R);
-            path.addArc(setRect(tr, br - 2 * R, bb - 2 * R, br, bb), 0, 90);
+            path.arcTo(setRect(tr, br - 2 * R, bb - 2 * R, br, bb), 0, 90);
             path.lineTo(r.right + R, bb);
-            path.addArc(setRect(tr, r.right, bb, r.right + 2 * R, bb + 2 * R), 270, -90);
+            path.arcTo(setRect(tr, r.right, bb, r.right + 2 * R, bb + 2 * R), 270, -90);
             path.lineTo(r.right, r.bottom - R);
         }
-        path.addArc(setRect(tr, r.right - 2 * R, r.bottom - 2 * R, r.right, r.bottom), 0, 90);
+        path.arcTo(setRect(tr, r.right - 2 * R, r.bottom - 2 * R, r.right, r.bottom), 0, 90);
         path.lineTo(r.left + R, r.bottom);
-        path.addArc(setRect(tr, r.left, r.bottom - 2 * R, r.left + 2 * R, r.bottom), 90, 90);
+        path.arcTo(setRect(tr, r.left, r.bottom - 2 * R, r.left + 2 * R, r.bottom), 90, 90);
         if (!leftFlush) {
             path.lineTo(r.left, bb + R);
-            path.addArc(setRect(tr, r.left - 2 * R, bb, r.left, bb + 2 * R), 0, -90);
+            path.arcTo(setRect(tr, r.left - 2 * R, bb, r.left, bb + 2 * R), 0, -90);
             path.lineTo(bl + R, bb);
-            path.addArc(setRect(tr, bl, bb - 2 * R, bl + 2 * R, bb), 90, 90);
+            path.arcTo(setRect(tr, bl, bb - 2 * R, bl + 2 * R, bb), 90, 90);
         }
         path.close();
 
