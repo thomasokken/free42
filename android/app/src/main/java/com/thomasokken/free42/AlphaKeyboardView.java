@@ -26,6 +26,8 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
+import android.os.Handler;
+import android.view.MotionEvent;
 import android.view.View;
 
 public class AlphaKeyboardView extends View {
@@ -97,21 +99,24 @@ public class AlphaKeyboardView extends View {
         new key(904, 247, 149, 66, SPEC_ENTER)
     };
 
-    Rect kbRect;
-    boolean portrait;
-    int currentKey;
-    boolean keyExpanded;
-    int shiftReleased;
-    boolean num;
-    boolean shift;
-    boolean lock;
-    Rect expKeyRect;
-    Rect expBubbleRect;
-    Float expOffset;
-    Float expSpacing;
-    int expCurrentIndex;
-    int expMaxIndex;
-    boolean expStillOnKey;
+    private Handler mainHandler;
+    private final Runnable expandBubbleCaller = new Runnable() { public void run() { expandBubble(); } };
+
+    private Rect kbRect;
+    private boolean portrait;
+    private int currentKey;
+    private boolean keyExpanded;
+    private long shiftReleased;
+    private boolean num;
+    private boolean shift;
+    private boolean lock;
+    private Rect expKeyRect;
+    private Rect expBubbleRect;
+    private Float expOffset;
+    private Float expSpacing;
+    private int expCurrentIndex;
+    private int expMaxIndex;
+    private boolean expStillOnKey;
 
     /* core_get_char_pixels()
      *
@@ -124,18 +129,12 @@ public class AlphaKeyboardView extends View {
         super(context);
         // self.multipleTouchEnabled = false;
         setBackgroundColor(0x00000000); // transparent
+        mainHandler = new Handler();
     }
 
-//    protected void onDraw(Canvas canvas) {
-//        Paint paint = new Paint();
-//        paint.setStyle(Paint.Style.FILL);
-//        paint.setColor(Color.RED);
-//        canvas.drawCircle(50, 50, 25, paint);
-//    }
-//
-    private static int findKey(Point p, double xs, double ys) {
-        int x = (int) (p.x / xs);
-        int y = (int) (p.y / ys);
+    private static int findKey(float px, float py, double xs, double ys) {
+        int x = (int) (px / xs);
+        int y = (int) (py / ys);
         double bestDistance = Double.MAX_VALUE;
         int bestKey = -1;
         int n = -1;
@@ -153,6 +152,7 @@ public class AlphaKeyboardView extends View {
         }
         return bestDistance < 7 ? bestKey : -1;
     }
+
     public void raised() {
         currentKey = -1;
         num = false;
@@ -420,169 +420,187 @@ public class AlphaKeyboardView extends View {
         */
     }
 
+    public boolean onTouchEvent(MotionEvent e) {
+        float x = e.getX();
+        float y = e.getY();
+        int what = e.getAction();
+        if (what == MotionEvent.ACTION_DOWN) {
+            if (!kbRect.contains((int) x, (int) y))
+                return false;
+            mainHandler.removeCallbacks(expandBubbleCaller);
+
+            float xs = ((float) (kbRect.right - kbRect.left)) / KB_WIDTH;
+            float ys = ((float) (kbRect.bottom - kbRect.top)) / KB_HEIGHT;
+            x -= kbRect.left;
+            y -= kbRect.top;
+
+            int kn = findKey(x, y, xs, ys);
+            if (kn == -1)
+                return true;
+            currentKey = kn;
+            keyExpanded = false;
+            expStillOnKey = true;
+            Free42Activity.keyFeedback();
+
+            key k = kbMap[kn];
+            if (k.special == SPEC_ALT) {
+                num = !num;
+                shift = false;
+                lock = false;
+                invalidate();
+                return true;
+            }
 /*
-- (BOOL) pointInside:(CGPoint)point withEvent:(UIEvent *)event {
-    // Pass events outside the keyboard rect to the CalcView
-    return CGRectContainsPoint(kbRect, point);
-}
+            done2:
+            if (!lock && !num)
+                shift = false;
+            done:
+            [self setNeedsDisplay];
+            return;
+*/
+            if (k.special == SPEC_SHIFT) {
+                if (!num && shiftReleased != 0 && System.currentTimeMillis() < shiftReleased + 250) {
+                    shift = true;
+                    lock = true;
+                } else {
+                    shift = !shift;
+                    lock = false;
+                }
+                invalidate();
+                return true;
+            }
+            if (k.special == SPEC_BACKSPACE || k.special == SPEC_RS) {
+                int keyCode = k.special == SPEC_BACKSPACE ? 17 : 36;
+                Free42Activity.alphaKeyboardDown(keyCode);
+                if (!lock && !num)
+                    shift = false;
+                invalidate();
+                return true;
+            }
+            if (k.special == SPEC_SPACE) {
+                Free42Activity.alphaKeyboardAlpha(' ');
+                if (!lock && !num)
+                    shift = false;
+                invalidate();
+                return true;
+            }
+            if (k.special == SPEC_ESC) {
+                if (shift && !num)
+                    Free42Activity.alphaKeyboardAlpha((char) 27); // [ESC] character
+                else
+                    Free42Activity.alphaKeyboardDown(33); // EXIT key
+                if (!lock && !num)
+                    shift = false;
+                invalidate();
+                return true;
+            }
+            if (k.special == SPEC_ENTER) {
+                if (shift && !num)
+                    Free42Activity.alphaKeyboardAlpha((char) 10); // [LF] character
+                else
+                    Free42Activity.alphaKeyboardDown(13); // ENTER key
+                if (!lock && !num)
+                    shift = false;
+                invalidate();
+                return true;
+            }
 
-- (void) touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(expandBubble) object:nil];
+            // At this point, the key must be a normal character key.
+            // We don't type the characters on key-down; we make bubbles
+            // appear on the screen, and type a character only when the
+            // user ends the touch in the right spot.
+            String keyText = num ? shift ? k.sym : k.num : shift ? k.shifted : k.normal;
+            if (keyText.length() > 1)
+                mainHandler.postDelayed(expandBubbleCaller, 375);
+            invalidate();
+            return true;
+        } else if (what == MotionEvent.ACTION_UP) {
+            mainHandler.removeCallbacks(expandBubbleCaller);
 
-    CGFloat xs = kbRect.size.width / KB_WIDTH;
-    CGFloat ys = kbRect.size.height / KB_HEIGHT;
-    UITouch *touch = [touches anyObject];
-    CGPoint p = [touch locationInView:self];
-    p.x -= kbRect.origin.x;
-    p.y -= kbRect.origin.y;
-    
-    int kn = findKey(p, xs, ys);
-    if (kn == -1)
-        return;
-    currentKey = kn;
-    keyExpanded = false;
-    expStillOnKey = true;
-    [CalcView keyFeedback];
-    
-    const key *k = kbMap + kn;
-    if (k->special == SPEC_ALT) {
-        num = !num;
-        shift = false;
-        lock = false;
-        goto done;
-        done2:
-        if (!lock && !num)
-            shift = false;
-        done:
-        [self setNeedsDisplay];
-        return;
-    }
-    if (k->special == SPEC_SHIFT) {
-        if (!num && shiftReleased != 0 && System.currentTimeMillis() < shiftReleased + 250) {
-            shift = true;
-            lock = true;
-        } else {
-            shift = !shift;
-            lock = false;
-        }
-        goto done;
-    }
-    if (k->special == SPEC_BACKSPACE || k->special == SPEC_RS) {
-        int keyCode = k->special == SPEC_BACKSPACE ? 17 : 36;
-        [CalcView alphaKeyboardDown:keyCode];
-        goto done2;
-    }
-    if (k->special == SPEC_SPACE) {
-        [CalcView alphaKeyboardAlpha:' '];
-        goto done2;
-    }
-    if (k->special == SPEC_ESC) {
-        if (shift && !num)
-            [CalcView alphaKeyboardAlpha:27]; // [ESC] character
-        else
-            [CalcView alphaKeyboardDown:33]; // EXIT key
-        goto done2;
-    }
-    if (k->special == SPEC_ENTER) {
-        if (shift && !num)
-            [CalcView alphaKeyboardAlpha:10]; // [LF] character
-        else
-            [CalcView alphaKeyboardDown:13]; // ENTER key
-        goto done2;
-    }
-    
-    // At this point, the key must be a normal character key.
-    // We don't type the characters on key-down; we make bubbles
-    // appear on the screen, and type a character only when the
-    // user ends the touch in the right spot.
-    const char *keyText = num ? shift ? k->sym : k->num : shift ? k->shifted : k->normal;
-    NSString *s = [NSString stringWithUTF8String:keyText];
-    if ([s length] > 1)
-        [self performSelector:@selector(expandBubble) withObject:nil afterDelay:0.375];
-    goto done;
-}
+            if (currentKey == -1)
+                return false;
 
-- (void) touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(expandBubble) object:nil];
-    
-    if (currentKey == -1)
-        return;
-    
-    if (false) {
-        done:
-        currentKey = -1;
-        shiftReleased = 0;
-        [self setNeedsDisplay];
-        return;
-    }
-    
-    if (currentKey != -1 && kbMap[currentKey].special == SPEC_NONE) {
-        if (!keyExpanded)
-            expCurrentIndex = 0;
-        const key *k = kbMap + currentKey;
-        const char *chars = num ? shift ? k->sym : k->num : shift ? k->shifted : k->normal;
-        NSString *s = [NSString stringWithUTF8String:chars];
-        unsigned short c = [s characterAtIndex:expCurrentIndex];
-        [CalcView alphaKeyboardAlpha:c];
-        [CalcView alphaKeyboardUp];
-        if (!lock && !num)
-            shift = false;
-        goto done;
-    }
+            if (false) {
+                done:
+                currentKey = -1;
+                shiftReleased = 0;
+                invalidate();
+                return true;
+            }
 
-    const key *k = kbMap + currentKey;
-    if (k->special == SPEC_SHIFT) {
-        shiftReleased = num ? 0 : System.currentTimeMillis();
-        currentKey = -1;
-        [self setNeedsDisplay];
-        return;
-    }
-    if (k->special != SPEC_NONE) {
-        [CalcView alphaKeyboardUp];
-        goto done;
-    }
-    
-    if (!lock && !num)
-        shift = false;
-    goto done;
-}
+            if (kbMap[currentKey].special == SPEC_NONE) {
+                if (!keyExpanded)
+                    expCurrentIndex = 0;
+                key k = kbMap[currentKey];
+                String chars = num ? shift ? k.sym : k.num : shift ? k.shifted : k.normal;
+                char c = chars.charAt(expCurrentIndex);
+                Free42Activity.alphaKeyboardAlpha(c);
+                Free42Activity.alphaKeyboardUp();;
+                if (!lock && !num)
+                    shift = false;
+                currentKey = -1;
+                shiftReleased = 0;
+                invalidate();
+                return true;
+            }
 
-- (void) touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-    if (currentKey == -1 || kbMap[currentKey].special != SPEC_NONE)
-        return;
-    CGPoint p = [[touches anyObject] locationInView:self];
-    if (p.y > expKeyRect.origin.y + expKeyRect.size.height * (portrait ? 1 : 1.333) + 5) {
-        currentKey = -1;
-        [self setNeedsDisplay];
-        return;
-    }
-    if (!keyExpanded)
-        return;
-    int idx = expCurrentIndex;
-    if (expStillOnKey && CGRectContainsPoint(expKeyRect, p)) {
-        idx = 0;
-    } else {
-        expStillOnKey = false;
-        if (CGRectContainsPoint(expBubbleRect, p)) {
-            idx = (int) ((p.x - expOffset) / expSpacing + 0.5);
-            if (idx < 0)
+            key k = kbMap[currentKey];
+            if (k.special == SPEC_SHIFT) {
+                shiftReleased = num ? 0 : System.currentTimeMillis();
+                currentKey = -1;
+                invalidate();
+                return true;
+            }
+            if (k.special != SPEC_NONE) {
+                Free42Activity.alphaKeyboardUp();
+                currentKey = -1;
+                shiftReleased = 0;
+                invalidate();
+                return true;
+            }
+
+            if (!lock && !num)
+                shift = false;
+            currentKey = -1;
+            shiftReleased = 0;
+            invalidate();
+            return true;
+        } else if (what == MotionEvent.ACTION_MOVE) {
+            if (currentKey == -1 || kbMap[currentKey].special != SPEC_NONE)
+                return false;
+            if (y > expKeyRect.top + (expKeyRect.bottom - expKeyRect.top) * (portrait ? 1 : 1.333) + 5) {
+                currentKey = -1;
+                invalidate();
+                return true;
+            }
+            if (!keyExpanded)
+                return true;
+            int idx = expCurrentIndex;
+            if (expStillOnKey && expKeyRect.contains((int) x, (int) y)) {
                 idx = 0;
-            else if (idx > expMaxIndex)
-                idx = expMaxIndex;
+            } else {
+                expStillOnKey = false;
+                if (expBubbleRect.contains((int) x, (int) y)) {
+                    idx = (int) ((x - expOffset) / expSpacing + 0.5);
+                    if (idx < 0)
+                        idx = 0;
+                    else if (idx > expMaxIndex)
+                        idx = expMaxIndex;
+                }
+            }
+            if (expCurrentIndex != idx) {
+                invalidate();
+                expCurrentIndex = idx;
+            }
+            return true;
+        } else {
+            return false;
         }
     }
-    if (expCurrentIndex != idx) {
-        [self setNeedsDisplay];
-        expCurrentIndex = idx;
+
+    private void expandBubble() {
+        keyExpanded = true;
+        expCurrentIndex = 0;
+        invalidate();
     }
-}
-
-- (void) expandBubble {
-    keyExpanded = true;
-    expCurrentIndex = 0;
-    [self setNeedsDisplay];
-}
-
-@end
-    */
 }

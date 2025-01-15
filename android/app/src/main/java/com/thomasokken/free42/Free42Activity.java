@@ -1903,6 +1903,18 @@ public class Free42Activity extends Activity {
             inval.inset(-1, -1);
             invalidate(inval);
         }
+
+        public void alphaKeyboardAlpha(char c) {
+            //
+        }
+
+        public void alphaKeyboardDown(int key) {
+            //
+        }
+
+        public void alphaKeyboardUp() {
+            //
+        }
     }
 
     /**
@@ -2644,6 +2656,22 @@ public class Free42Activity extends Activity {
             Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
             v.vibrate(ms);
         }
+    }
+
+    public static void keyFeedback() {
+        instance.click();
+    }
+
+    public static void alphaKeyboardAlpha(char c) {
+        instance.calcView.alphaKeyboardAlpha(c);
+    }
+
+    public static void alphaKeyboardDown(int key) {
+        instance.calcView.alphaKeyboardDown(key);
+    }
+
+    public static void alphaKeyboardUp() {
+        instance.calcView.alphaKeyboardUp();
     }
     
     
