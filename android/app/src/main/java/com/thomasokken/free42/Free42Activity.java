@@ -89,6 +89,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -129,6 +130,7 @@ public class Free42Activity extends Activity {
     }
     
     private CalcView calcView;
+    private CalcContainer calcContainer;
     private SkinLayout skin;
     private KeymapEntry[] keymap;
     private View printView;
@@ -340,7 +342,9 @@ public class Free42Activity extends Activity {
         
         mainHandler = new Handler();
         calcView = new CalcView(this);
-        setContentView(calcView);
+        AlphaKeyboardView kb = new AlphaKeyboardView(this);
+        calcContainer = new CalcContainer(this, calcView, kb);
+        setContentView(calcContainer);
 
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         printView = inflater.inflate(R.layout.print_view, null);
@@ -887,7 +891,7 @@ public class Free42Activity extends Activity {
     
     private void doFlipCalcPrintout() {
         printViewShowing = !printViewShowing;
-        setContentView(printViewShowing ? printView : calcView);
+        setContentView(printViewShowing ? printView : calcContainer);
     }
     
     private void doImport() {
@@ -1466,6 +1470,26 @@ public class Free42Activity extends Activity {
             }
         }
     }
+
+    private class CalcContainer extends ViewGroup {
+        private CalcView calcView;
+        private AlphaKeyboardView alphaKeyboardView;
+        public CalcContainer(Context ctx, CalcView calcView, AlphaKeyboardView alphaKeyboardView) {
+            super(ctx);
+            this.calcView = calcView;
+            this.alphaKeyboardView = alphaKeyboardView;
+            addView(alphaKeyboardView);
+            addView(calcView);
+        }
+        protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+            calcView.layout(0, 0, right - left, bottom - top);
+            alphaKeyboardView.layout(0, 0, right - left, bottom - top);
+        }
+        void showAlphaKeyboard(boolean show) {
+            bringChildToFront(show ? alphaKeyboardView : calcView);
+        }
+    }
+
     /**
      * This class is calculator view used by the Free42 Activity.
      * Note that most of the heavy lifting takes place in the
@@ -3045,6 +3069,14 @@ public class Free42Activity extends Activity {
                 printGifFile = null;
             }
         }
+    }
+
+    /**
+     * shell_show_alpha_keyboard()
+     * Requests the pop-up ALPHA keyboard to be shown or hidden.
+     */
+    void shell_show_alpha_keyboard(boolean show) {
+        calcContainer.showAlphaKeyboard(show);
     }
 
     /**

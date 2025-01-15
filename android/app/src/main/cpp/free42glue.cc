@@ -599,7 +599,13 @@ void shell_print(const char *text, int length,
 }
 
 void shell_show_alpha_keyboard(bool show) {
-    // Not yet implemented
+    Tracer T("shell_show_alpha_keyboard");
+    JNIEnv *env = getJniEnv();
+    jclass klass = env->GetObjectClass(g_activity);
+    jmethodID mid = env->GetMethodID(klass, "shell_show_alpha_keyboard", "(Z)V");
+    env->CallVoidMethod(g_activity, mid, show);
+    // Delete local references
+    env->DeleteLocalRef(klass);
 }
 
 bool shell_get_acceleration(double *x, double *y, double *z) {
