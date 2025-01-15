@@ -1905,15 +1905,36 @@ public class Free42Activity extends Activity {
         }
 
         public void alphaKeyboardAlpha(char c) {
-            //
+            ckey = 1024 + c;
+            skey = -1;
+            macroObj = null;
+            shell_keydown();
+            mouse_key = false;
+            active_keycode = -1;
         }
 
         public void alphaKeyboardDown(int key) {
-            //
+            byte[] macro;
+            if (key > 37) {
+                macro = new byte[2];
+                macro[0] = 28;
+                macro[1] = (byte) (key - 37);
+                ckey = key - 37;
+            } else {
+                macro = new byte[1];
+                macro[0] = (byte) key;
+                ckey = key;
+            }
+            skey = -1;
+            macroObj = macro;
+            macroIsText = false;
+            shell_keydown();
+            mouse_key = false;
+            active_keycode = -1;
         }
 
         public void alphaKeyboardUp() {
-            //
+            shell_keyup(null);
         }
     }
 
