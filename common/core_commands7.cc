@@ -888,7 +888,10 @@ int docmd_fma(arg_struct *arg) {
 }
 
 int docmd_func(arg_struct *arg) {
-    return push_func_state(arg->val.num);
+    int err = push_func_state(arg->val.num);
+    if (err == ERR_NONE)
+        print_stack_trace();
+    return err;
 }
 
 int docmd_errmsg(arg_struct *arg) {
