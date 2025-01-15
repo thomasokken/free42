@@ -1486,7 +1486,12 @@ public class Free42Activity extends Activity {
             alphaKeyboardView.layout(0, 0, right - left, bottom - top);
         }
         void showAlphaKeyboard(boolean show) {
-            bringChildToFront(show ? alphaKeyboardView : calcView);
+            if (show) {
+                bringChildToFront(alphaKeyboardView);
+                alphaKeyboardView.raised();
+            } else {
+                bringChildToFront(calcView);
+            }
         }
     }
 
