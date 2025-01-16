@@ -310,12 +310,16 @@ char *core_copy();
  */
 void core_paste(const char *s);
 
+#if defined(ANDROID) || defined(IPHONE)
+
 /* core_get_char_pixels()
  *
  * Gets character pixels from the calculator's 8x5 characters, for the
  * given UTF-8 encoded character, provided as a null-terminated string.
  */
 void core_get_char_pixels(const char *ch, char *pixels);
+
+#endif
 
 /* core_update_allow_big_stack()
  *
