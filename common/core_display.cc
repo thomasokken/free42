@@ -2062,9 +2062,11 @@ void redisplay() {
     int i;
 
 #if defined(ANDROID) || defined(IPHONE)
-    static bool popup_keyboard_visible = false;
+    static bool popup_keyboard_visible;
+    static bool first = true;
     bool popup_kb = core_alpha_menu();
-    if (popup_keyboard_visible != popup_kb) {
+    if (first || popup_keyboard_visible != popup_kb) {
+        first = false;
         popup_keyboard_visible = popup_kb;
         shell_show_alpha_keyboard(popup_kb);
     }
