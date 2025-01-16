@@ -118,7 +118,7 @@ static RootViewController *instance;
     // In AlphaKeyboardView, I was getting annoying delays on the
     // P and Q keys, i.e. the keys near the edges of the screen.
     // Adding this fixed those delays.
-    return UIRectEdgeLeft | UIRectEdgeRight | UIRectEdgeBottom;
+    return UIRectEdgeLeft | UIRectEdgeRight;
 }
 
 - (UIInterfaceOrientationMask) supportedInterfaceOrientations {
