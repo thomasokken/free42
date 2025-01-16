@@ -3153,7 +3153,7 @@ public class Free42Activity extends Activity {
      * shell_show_alpha_keyboard()
      * Requests the pop-up ALPHA keyboard to be shown or hidden.
      */
-    void shell_show_alpha_keyboard(boolean show) {
+    public void shell_show_alpha_keyboard(boolean show) {
         calcContainer.showAlphaKeyboard(show);
     }
 
