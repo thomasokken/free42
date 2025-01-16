@@ -143,10 +143,25 @@
 
             </LinearLayout>
 
+            <LinearLayout android:id="@+id/popupAlphaBox"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_below="@+id/styleBox"
+                android:layout_alignParentLeft="true"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Pop-up ALPHA keyboard"/>
+
+                <Spinner android:id="@+id/popupAlphaSpinner"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
             <CheckBox android:id="@+id/maintainSkinAspectCB"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:text="Maintain skin aspect ratio"
-                android:layout_below="@+id/styleBox"
+                android:layout_below="@+id/popupAlphaBox"
                 android:layout_alignParentLeft="true"/>
 
             <CheckBox android:id="@+id/skinSmoothingCB"

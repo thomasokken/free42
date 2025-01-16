@@ -110,7 +110,7 @@ public class Free42Activity extends Activity {
     public static final String[] builtinSkinNames = new String[] { "Standard", "Landscape" };
     private static final String KEYMAP_FILE_NAME = "keymap.txt";
     
-    private static final int SHELL_VERSION = 22;
+    private static final int SHELL_VERSION = 23;
     
     private static final int PRINT_BACKGROUND_COLOR = Color.LTGRAY;
     
@@ -190,6 +190,7 @@ public class Free42Activity extends Activity {
     private int keyVibration = 0;
     private int preferredOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
     private int style = 0;
+    private int popupAlpha = 0;
     
     private final Runnable repeaterCaller = new Runnable() { public void run() { repeater(); } };
     private final Runnable timeout1Caller = new Runnable() { public void run() { timeout1(); } };
@@ -1268,6 +1269,7 @@ public class Free42Activity extends Activity {
         preferencesDialog.setKeyVibration(keyVibration);
         preferencesDialog.setOrientation(preferredOrientation);
         preferencesDialog.setStyle(style);
+        preferencesDialog.setPopupAlpha(popupAlpha);
         preferencesDialog.setDisplayFullRepaint(alwaysRepaintFullDisplay);
         preferencesDialog.setMaintainSkinAspect(maintainSkinAspect[orientation]);
         preferencesDialog.setSkinSmoothing(skinSmoothing[orientation]);
@@ -1298,6 +1300,7 @@ public class Free42Activity extends Activity {
         int oldOrientation = preferredOrientation;
         preferredOrientation = preferencesDialog.getOrientation();
         style = preferencesDialog.getStyle();
+        popupAlpha = preferencesDialog.getPopupAlpha();
         alwaysRepaintFullDisplay = preferencesDialog.getDisplayFullRepaint();
         setAlwaysRepaintFullDisplay(alwaysRepaintFullDisplay);
 
@@ -2408,6 +2411,8 @@ public class Free42Activity extends Activity {
                     style = maxStyle;
             } else
                 style = 0;
+            if (shell_version >= 23)
+                popupAlpha = state_read_int();
             if (shell_version >= 10)
                 alwaysRepaintFullDisplay = state_read_boolean();
             if (shell_version >= 11)
@@ -2524,7 +2529,10 @@ public class Free42Activity extends Activity {
             readKeymap(KEYMAP_FILE_NAME);
             // fall through
         case 22:
-            // current version (SHELL_VERSION = 22),
+            popupAlpha = 0;
+            // fall through
+        case 23:
+            // current version (SHELL_VERSION = 23),
             // so nothing to do here since everything
             // was initialized from the state file.
             ;
@@ -2553,6 +2561,7 @@ public class Free42Activity extends Activity {
             state_write_boolean(displaySmoothing[1]);
             state_write_int(keyVibration);
             state_write_int(style);
+            state_write_int(popupAlpha);
             state_write_boolean(alwaysRepaintFullDisplay);
             state_write_boolean(alwaysOn);
             state_write_boolean(maintainSkinAspect[0]);
