@@ -251,7 +251,7 @@ public class AlphaKeyboardView extends View {
                     case SPEC_ALT: label = num ? "ABC" : "123"; break;
                     case SPEC_ESC: label = "Esc"; break;
                     case SPEC_SPACE: label = "Space"; break;
-                    case SPEC_RS: label = "R\u2009/\u2009S"; break;
+                    case SPEC_RS: label = "R/S"; break;
                     case SPEC_ENTER: label = "Enter"; break;
                 }
                 if (label == null)
