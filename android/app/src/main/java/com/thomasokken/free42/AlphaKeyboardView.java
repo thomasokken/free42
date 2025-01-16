@@ -22,14 +22,16 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.os.Handler;
+import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 
 public class AlphaKeyboardView extends View {
     private static final int SPEC_NONE = 0;
@@ -102,6 +104,8 @@ public class AlphaKeyboardView extends View {
 
     private Handler mainHandler;
     private final Runnable expandBubbleCaller = new Runnable() { public void run() { expandBubble(); } };
+    private float bRadius;
+    private float shadowWidth;
 
     private Rect kbRect;
     private boolean portrait;
@@ -131,6 +135,16 @@ public class AlphaKeyboardView extends View {
         // self.multipleTouchEnabled = false;
         setBackgroundColor(0x00000000); // transparent
         mainHandler = new Handler();
+        // scale rounded corner radius and shadow width according to screen resolution
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+        DisplayMetrics metrics = new DisplayMetrics();
+        display.getMetrics(metrics);
+        int width = metrics.widthPixels;
+        int height = metrics.heightPixels;
+        int s = width < height ? width : height;
+        bRadius = s / 75f;
+        shadowWidth = s / 375f;
     }
 
     private static int findKey(float px, float py, double xs, double ys) {
@@ -172,8 +186,6 @@ public class AlphaKeyboardView extends View {
         invalidate();
     }
 
-    private static final int bRadius = 15;
-
     protected void onDraw(Canvas canvas) {
         boolean dark = false;
         int back, cap, grayCap, blueCap, shadow, text;
@@ -207,15 +219,14 @@ public class AlphaKeyboardView extends View {
         for (key k : kbMap) {
             kn++;
             boolean active = kn == currentKey;
-            final int sw = 1;
             r.left = k.x * xs + kbRect.left;
-            r.top = k.y * ys + kbRect.top + sw;
+            r.top = k.y * ys + kbRect.top + shadowWidth;
             r.right = r.left + k.w * xs;
-            r.bottom = r.top + k.h * ys - sw;
+            r.bottom = r.top + k.h * ys - shadowWidth;
             paint.setColor(shadow);
             canvas.drawRoundRect(r, bRadius, bRadius, paint);
-            r.top -= sw;
-            r.bottom -= sw;
+            r.top -= shadowWidth;
+            r.bottom -= shadowWidth;
 
             if (k.special == SPEC_NONE) {
                 String chars = num ? shift ? k.sym : k.num : shift ? k.shifted : k.normal;
@@ -375,7 +386,7 @@ public class AlphaKeyboardView extends View {
         Path path = makeBubble(r, 0, cpos);
         canvas.drawPath(path, paint);
         paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(1);
+        paint.setStrokeWidth(shadowWidth);
         paint.setColor(shadowColor);
         canvas.drawPath(path, paint);
         byte[] bits = core_get_char_pixels(c);
@@ -405,7 +416,7 @@ public class AlphaKeyboardView extends View {
         Path path = makeBubble(r, width, cpos);
         canvas.drawPath(path, paint);
         paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(1);
+        paint.setStrokeWidth(shadowWidth);
         paint.setColor(shadowColor);
         canvas.drawPath(path, paint);
         paint.setStyle(Paint.Style.FILL);
