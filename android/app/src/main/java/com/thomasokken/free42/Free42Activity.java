@@ -1486,6 +1486,7 @@ public class Free42Activity extends Activity {
             this.alphaKeyboardView = alphaKeyboardView;
             addView(alphaKeyboardView);
             addView(calcView);
+            alphaKeyboardView.setVisibility(View.INVISIBLE);
         }
         protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
             calcView.layout(0, 0, right - left, bottom - top);
@@ -1493,9 +1494,11 @@ public class Free42Activity extends Activity {
         }
         void showAlphaKeyboard(boolean show) {
             if (show) {
+                alphaKeyboardView.setVisibility(View.VISIBLE);
                 bringChildToFront(alphaKeyboardView);
                 alphaKeyboardView.raised();
             } else {
+                alphaKeyboardView.setVisibility(View.INVISIBLE);
                 bringChildToFront(calcView);
             }
         }
