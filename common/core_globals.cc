@@ -631,6 +631,7 @@ bool mode_time_clktd;
 bool mode_time_clk24;
 int mode_wsize;
 bool mode_menu_caps;
+bool mode_popup_unknown = true;
 
 phloat entered_number;
 int entered_string_length;

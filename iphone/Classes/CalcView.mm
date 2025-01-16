@@ -539,6 +539,10 @@ static struct timeval runner_end_time;
     char corefilename[FILENAMELEN];
     snprintf(corefilename, FILENAMELEN, "config/%s.f42", state.coreName);
     core_init(1, 26, corefilename, 0);
+    if (state.popupAlphaKeyboard == 2 && core_alpha_menu())
+        [RootViewController showAlphaKeyboard];
+    else
+        [calcView.superview bringSubviewToFront:calcView];
     if (core_powercycle())
         [calcView startRunner];
 }

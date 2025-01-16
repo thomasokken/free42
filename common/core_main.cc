@@ -129,6 +129,7 @@ void core_init(int read_saved_state, int4 version, const char *state_file_name, 
     }
 
     repaint_display();
+    mode_popup_unknown = true;
     shell_annunciators(mode_updown,
                        mode_shift,
                        0 /*print*/,

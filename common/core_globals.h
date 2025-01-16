@@ -407,6 +407,7 @@ extern bool mode_time_clktd;
 extern bool mode_time_clk24;
 extern int mode_wsize;
 extern bool mode_menu_caps;
+extern bool mode_popup_unknown;
 
 extern phloat entered_number;
 extern int entered_string_length;

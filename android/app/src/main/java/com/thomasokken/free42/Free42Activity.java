@@ -873,6 +873,8 @@ public class Free42Activity extends Activity {
         coreName = stateName;
         String newFileName = getFilesDir() + "/" + coreName + ".f42";
         core_init(1, 26, newFileName, 0);
+        boolean show = popupAlpha == 2 && core_alpha_menu();
+        calcContainer.showAlphaKeyboard(show);
         if (core_powercycle())
             startRunner();
     }
