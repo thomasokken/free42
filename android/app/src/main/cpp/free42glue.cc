@@ -327,18 +327,10 @@ Java_com_thomasokken_free42_AlphaKeyboardView_core_1get_1char_1pixels(JNIEnv *en
     } else if (c < 2048) {
         ubuf[n++] = (c >> 6) | 0xc0;
         ubuf[n++] = (c & 63) | 0x80;
-    } else if (c < 65536) {
+    } else {
         ubuf[n++] = (c >> 12) | 0xe0;
         ubuf[n++] = ((c >> 6) & 63) | 0x80;
         ubuf[n++] = (c & 63) | 0x80;
-    } else if (c < 1114112) {
-        ubuf[n++] = (c >> 18) | 0xf0;
-        ubuf[n++] = ((c >> 12) & 63) | 0x80;
-        ubuf[n++] = ((c >> 6) & 63) | 0x80;
-        ubuf[n++] = (c & 63) | 0x80;
-    } else {
-        // Shouldn't happen
-        return NULL;
     }
     ubuf[n] = 0;
     core_get_char_pixels(ubuf, cbuf);
