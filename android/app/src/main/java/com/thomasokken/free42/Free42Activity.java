@@ -1303,6 +1303,7 @@ public class Free42Activity extends Activity {
         preferredOrientation = preferencesDialog.getOrientation();
         style = preferencesDialog.getStyle();
         popupAlpha = preferencesDialog.getPopupAlpha();
+        calcContainer.showAlphaKeyboard(popupAlpha == 2 && core_alpha_menu());
         alwaysRepaintFullDisplay = preferencesDialog.getDisplayFullRepaint();
         setAlwaysRepaintFullDisplay(alwaysRepaintFullDisplay);
 
@@ -1616,7 +1617,7 @@ public class Free42Activity extends Activity {
                 possibleMenuEvent = false;
                 int x = (int) ((e.getX() - hOffset) / hScale);
                 int y = (int) ((e.getY() - vOffset) / vScale);
-                if (skin.in_menu_area(x, y))
+                if (skin.in_menu_area(x, y) != 0)
                     Free42Activity.this.postMainMenu();
             }
             ckey = 0;
@@ -1646,8 +1647,17 @@ public class Free42Activity extends Activity {
                 skey = skeyHolder.value;
                 ckey = ckeyHolder.value;
                 if (ckey == 0) {
-                    if (skin.in_menu_area(x, y))
+                    int where = skin.in_menu_area(x, y);
+                    if (where == 1 || where == 2 && popupAlpha == 0)
                         this.possibleMenuEvent = true;
+                    else if (where == 2) {
+                        if (!core_alpha_menu())
+                            playSound(10);
+                        else {
+                            popupAlpha = 3 - popupAlpha;
+                            calcContainer.showAlphaKeyboard(popupAlpha == 2);
+                        }
+                    }
                     return true;
                 }
                 click();
