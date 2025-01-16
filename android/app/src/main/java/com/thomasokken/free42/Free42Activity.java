@@ -414,6 +414,8 @@ public class Free42Activity extends Activity {
 
         nativeInit();
         core_init(init_mode, version.value, coreFileName, coreFileOffset);
+        if (popupAlpha == 2 && core_alpha_menu())
+            calcContainer.showAlphaKeyboard(true);
 
         lowBatteryReceiver = new BroadcastReceiver() {
             public void onReceive(Context ctx, Intent intent) {
