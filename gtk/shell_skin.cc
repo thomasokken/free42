@@ -885,6 +885,12 @@ void skin_draw_keyboard_shortcuts(cairo_t *cr) {
     }
 }
 
+void skin_make_darker(cairo_t *cr) {
+    cairo_set_source_rgba(cr, 0.0, 0.0, 0.0, 0.15);
+    cairo_rectangle(cr, 0, 0, skin.width, skin.height);
+    cairo_fill(cr);
+}
+
 static void scaled_gdk_window_invalidate_rect(GdkWindow *win, const GdkRectangle *rect, gboolean invalidate_children) {
     GdkRectangle scaled_rect;
     scaled_rect.x = (int) (((double) rect->x) * window_width / skin.width);

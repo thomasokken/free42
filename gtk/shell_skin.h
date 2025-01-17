@@ -42,6 +42,7 @@ void skin_finish_image();
 void skin_repaint(cairo_t *cr);
 void skin_repaint_annunciator(cairo_t *cr, int which);
 void skin_draw_keyboard_shortcuts(cairo_t *cr);
+void skin_make_darker(cairo_t *cr);
 void skin_invalidate_annunciator(GdkWindow *win, int which);
 void skin_find_key(int x, int y, bool cshift, int *key, int *code);
 int skin_find_skey(int ckey);

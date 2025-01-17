@@ -194,7 +194,7 @@ static gboolean timeout1(gpointer cd);
 static gboolean timeout2(gpointer cd);
 static gboolean timeout3(gpointer cd);
 static gboolean battery_checker(gpointer cd);
-static void repaint_printout(cairo_t *cr);
+static void repaint_printout(cairo_t *cr, bool dark);
 static gboolean reminder(gpointer cd);
 static void txt_writer(const char *text, int length);
 static void txt_newliner();
@@ -2650,6 +2650,12 @@ static gboolean delete_print_cb(GtkWidget *w, GdkEventAny *ev) {
     return TRUE;
 }
 
+static bool is_dark(GtkWidget *w) {
+    GtkStyle *style = gtk_widget_get_style(w);
+    GdkColor c = style->bg[GTK_STATE_NORMAL];
+    return 0.299 * c.red + 0.587 * c.green + 0.114 * c.blue < 32768;
+}
+
 static gboolean draw_cb(GtkWidget *w, cairo_t *cr, gpointer cd) {
     cairo_save(cr);
     int win_width, win_height, skin_width, skin_height;
@@ -2686,13 +2692,15 @@ static gboolean draw_cb(GtkWidget *w, cairo_t *cr, gpointer cd) {
 
     if (keyboardShortcutsShowing)
         skin_draw_keyboard_shortcuts(cr);
+    if (is_dark(w))
+        skin_make_darker(cr);
 
     cairo_restore(cr);
     return TRUE;
 }
 
 static gboolean print_draw_cb(GtkWidget *w, cairo_t *cr, gpointer cd) {
-    repaint_printout(cr);
+    repaint_printout(cr, is_dark(w));
     return TRUE;
 }
 
@@ -3069,7 +3077,7 @@ static gboolean battery_checker(gpointer cd) {
     return TRUE;
 }
 
-static void repaint_printout(cairo_t *cr) {
+static void repaint_printout(cairo_t *cr, bool dark) {
     GdkRectangle clip;
     if (!gdk_cairo_get_clip_rectangle(cr, &clip))
         gtk_widget_get_allocation(print_widget, &clip);
@@ -3091,13 +3099,13 @@ static void repaint_printout(cairo_t *cr) {
         for (int h = clip.x; h < clip.x + clip.width; h++) {
             unsigned char c;
             if (v >= length)
-                c = 127;
+                c = dark ? 64 : 192;
             else if (h < 36 || h >= 322)
-                c = 255;
+                c = dark ? 18 : 255;
             else if ((print_bitmap[v3 + ((h - 36) >> 3)] & (1 << ((h - 36) & 7))) == 0)
-                c = 255;
+                c = dark ? 18 : 255;
             else
-                c = 0;
+                c = dark ? 219 : 0;
             *dst++ = c;
             *dst++ = c;
             *dst++ = c;
