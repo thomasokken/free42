@@ -129,7 +129,9 @@ void core_init(int read_saved_state, int4 version, const char *state_file_name, 
     }
 
     repaint_display();
+    #if defined(ANDROID) || defined(IPHONE)
     mode_popup_unknown = true;
+    #endif
     shell_annunciators(mode_updown,
                        mode_shift,
                        0 /*print*/,

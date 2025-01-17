@@ -631,7 +631,9 @@ bool mode_time_clktd;
 bool mode_time_clk24;
 int mode_wsize;
 bool mode_menu_caps;
+#if defined(ANDROID) || defined(IPHONE)
 bool mode_popup_unknown = true;
+#endif
 
 phloat entered_number;
 int entered_string_length;
