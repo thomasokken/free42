@@ -96,6 +96,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * This Activity class contains most of the Free42 'shell' functionality;
@@ -190,7 +191,7 @@ public class Free42Activity extends Activity {
     private int keyVibration = 0;
     private int preferredOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
     private int style = 0;
-    private int popupAlpha = 0;
+    private int popupAlpha = 1;
     
     private final Runnable repeaterCaller = new Runnable() { public void run() { repeater(); } };
     private final Runnable timeout1Caller = new Runnable() { public void run() { timeout1(); } };
@@ -1656,10 +1657,11 @@ public class Free42Activity extends Activity {
                     if (where == 1 || where == 2 && popupAlpha == 0)
                         this.possibleMenuEvent = true;
                     else if (where == 2) {
-                        if (!core_alpha_menu())
-                            playSound(10);
-                        else {
-                            popupAlpha = 3 - popupAlpha;
+                        popupAlpha = 3 - popupAlpha;
+                        if (!core_alpha_menu()) {
+                            Toast toast = Toast.makeText(Free42Activity.this, "Pop-up ALPHA keyboard " + (popupAlpha == 1 ? "Off" : "On"), Toast.LENGTH_SHORT);
+                            toast.show();
+                        } else {
                             calcContainer.showAlphaKeyboard(popupAlpha == 2);
                         }
                     }
@@ -2547,7 +2549,7 @@ public class Free42Activity extends Activity {
             readKeymap(KEYMAP_FILE_NAME);
             // fall through
         case 22:
-            popupAlpha = 0;
+            popupAlpha = 1;
             // fall through
         case 23:
             // current version (SHELL_VERSION = 23),

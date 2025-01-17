@@ -27,6 +27,7 @@
 #import "AlphaKeyboardView.h"
 #import "PrintView.h"
 #import "RootViewController.h"
+#import "ToastAlert.h"
 #import "Free42AppDelegate.h"
 #import "free42.h"
 #import "core_main.h"
@@ -283,10 +284,12 @@ static CGPoint touchPoint;
             bool keyboard;
             if (skin_in_menu_area(x, y, &keyboard))
                 if (state.popupAlphaKeyboard != 0 && keyboard) {
-                    if (!core_alpha_menu())
-                        squeak();
-                    else {
-                        state.popupAlphaKeyboard = 3 - state.popupAlphaKeyboard;
+                    state.popupAlphaKeyboard = 3 - state.popupAlphaKeyboard;
+                    if (!core_alpha_menu()) {
+                        NSString *message = [NSString stringWithFormat:@"Pop-up ALPHA keyboard %s", state.popupAlphaKeyboard == 1 ? "Off" : "On"];
+                        [self addSubview: [[ToastAlert alloc] initWithText:message]];
+                    } else {
+
                         if (state.popupAlphaKeyboard == 2)
                             [RootViewController showAlphaKeyboard];
                         else
@@ -980,7 +983,7 @@ static void init_shell_state(int version) {
         case 12:
             /* fall through */
         case 13:
-            state.popupAlphaKeyboard = 0;
+            state.popupAlphaKeyboard = 1;
             /* fall through */
         case 14:
             /* current version (SHELL_VERSION = 14),
