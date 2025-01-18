@@ -243,6 +243,15 @@ void shell_message(const char *message) {
 }
 
 - (void) showAlphaKeyboard2 {
+    NSArray *views = [self.view subviews];
+    for (int i = [views count] - 1; i >= 0; i--) {
+        UIView *view = [views objectAtIndex:i];
+        if (view == alphaKeyboardView)
+            // ALPHA keyboard is already in front; nothing to do
+            return;
+        else if (view == calcView)
+            break;
+    }
     [alphaKeyboardView raised];
     [self.view bringSubviewToFront:alphaKeyboardView];
 }

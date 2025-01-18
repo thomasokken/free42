@@ -150,6 +150,7 @@ static double hdg_mag = 0, hdg_true = 0, hdg_acc = -1, hdg_x = 0, hdg_y = 0, hdg
 
 
 static CalcView *calcView = nil;
+static bool macroInProgress = false;
 
 @implementation CalcView
 
@@ -1062,6 +1063,7 @@ static void shell_keydown() {
             } else {
                 bool waitForProgram = !program_running();
                 skin_display_set_enabled(false);
+                macroInProgress = true;
                 while (*macro != 0) {
                     we_want_cpu = true;
                     keep_running = core_keydown(*macro++, &enqueued, &repeat);
@@ -1075,7 +1077,13 @@ static void shell_keydown() {
                     }
                 }
                 skin_display_set_enabled(true);
+                macroInProgress = false;
                 skin_repaint_display(calcView);
+                if (state.popupAlphaKeyboard == 2)
+                    if (core_alpha_menu())
+                        [RootViewController showAlphaKeyboard];
+                    else
+                        [calcView.superview bringSubviewToFront:calcView];
                 /*
                 skin_repaint_annunciator(1, ann_updown);
                 skin_repaint_annunciator(2, ann_shift);
@@ -1680,7 +1688,7 @@ void shell_print(const char *text, int length,
 }
 
 void shell_show_alpha_keyboard(bool show) {
-    if (state.popupAlphaKeyboard == 2)
+    if (state.popupAlphaKeyboard == 2 && !macroInProgress)
         if (show)
             [RootViewController showAlphaKeyboard];
         else

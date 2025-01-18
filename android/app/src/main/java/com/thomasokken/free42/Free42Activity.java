@@ -192,6 +192,7 @@ public class Free42Activity extends Activity {
     private int preferredOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
     private int style = 0;
     private int popupAlpha = 1;
+    private boolean macroInProgress = false;
     
     private final Runnable repeaterCaller = new Runnable() { public void run() { repeater(); } };
     private final Runnable timeout1Caller = new Runnable() { public void run() { timeout1(); } };
@@ -1483,6 +1484,7 @@ public class Free42Activity extends Activity {
     private class CalcContainer extends ViewGroup {
         private CalcView calcView;
         private AlphaKeyboardView alphaKeyboardView;
+        private boolean alphaShowing;
         public CalcContainer(Context ctx, CalcView calcView, AlphaKeyboardView alphaKeyboardView) {
             super(ctx);
             this.calcView = calcView;
@@ -1490,12 +1492,16 @@ public class Free42Activity extends Activity {
             addView(alphaKeyboardView);
             addView(calcView);
             alphaKeyboardView.setVisibility(View.INVISIBLE);
+            alphaShowing = false;
         }
         protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
             calcView.layout(0, 0, right - left, bottom - top);
             alphaKeyboardView.layout(0, 0, right - left, bottom - top);
         }
         void showAlphaKeyboard(boolean show) {
+            if (show == alphaShowing)
+                return;
+            alphaShowing = show;
             if (show) {
                 alphaKeyboardView.setVisibility(View.VISIBLE);
                 bringChildToFront(alphaKeyboardView);
@@ -1598,6 +1604,7 @@ public class Free42Activity extends Activity {
                 } else {
                     boolean waitForProgram = !program_running();
                     skin.set_display_enabled(false);
+                    macroInProgress = true;
                     for (int i = 0; i < macro.length; i++) {
                         running = core_keydown(macro[i] & 255, enqueued, repeat, true);
                         if (!enqueued.value)
@@ -1606,6 +1613,9 @@ public class Free42Activity extends Activity {
                             running = core_keydown(0, null, null, true);
                     }
                     skin.set_display_enabled(true);
+                    macroInProgress = false;
+                    if (popupAlpha == 2)
+                        calcContainer.showAlphaKeyboard(core_alpha_menu());
                 }
             }
             if (running)
@@ -3159,7 +3169,7 @@ public class Free42Activity extends Activity {
      * Requests the pop-up ALPHA keyboard to be shown or hidden.
      */
     public void shell_show_alpha_keyboard(boolean show) {
-        if (popupAlpha == 2)
+        if (popupAlpha == 2 && !macroInProgress)
             calcContainer.showAlphaKeyboard(show);
     }
 
