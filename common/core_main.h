@@ -375,7 +375,7 @@ int find_menu_key(int key);
 void start_incomplete_command(int cmd_id);
 void finish_command_entry(bool refresh);
 void finish_xeq();
-void start_alpha_prgm_line();
+bool start_alpha_prgm_line();
 void finish_alpha_prgm_line();
 int shiftcharacter(char c);
 void set_old_pc(int4 pc);

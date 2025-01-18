@@ -24,13 +24,15 @@
 
 #endif
 
+#include "core_helpers.h"
+
 int hp2ascii(char *dst, const char *src, int srclen) {
     const char *esc;
     unsigned char c;
     int s, d = 0;
     for (s = 0; s < srclen; s++) {
         c = src[s];
-        if (c >= 130 && c != 138) {
+        if (undefined_char(c)) {
             // Escape sequence: euro sign plus two hex digits.
             // In hp2ascii(), only used for undefined characters;
             // in ascii2hp(), accepted for everything.
@@ -42,41 +44,42 @@ int hp2ascii(char *dst, const char *src, int srclen) {
             continue;
         }
         switch (c) {
-            case  0:   esc = "\303\267"; break;     // division sign
-            case  1:   esc = "\303\227"; break;     // multiplication sign
-            case  2:   esc = "\342\210\232"; break; // square root sign
-            case  3:   esc = "\342\210\253"; break; // integral sign
-            case  4:   esc = "\342\226\222"; break; // gray rectangle
-            case  5:   esc = "\316\243"; break;     // uppercase sigma
-            case  6:   esc = "\342\226\270"; break; // small right-pointing triangle
-            case  7:   esc = "\317\200"; break;     // lowercase pi
-            case  8:   esc = "\302\277"; break;     // upside-down question mark
-            case  9:   esc = "\342\211\244"; break; // less-than-or-equals sign
-            case 11:   esc = "\342\211\245"; break; // greater-than-or-equals sign
-            case 12:   esc = "\342\211\240"; break; // not-equals sign
-            case 13:   esc = "\342\206\265"; break; // down-then-left arrow
-            case 14:   esc = "\342\206\223"; break; // downward-pointing arrow
-            case 15:   esc = "\342\206\222"; break; // right-pointing arrow
-            case 16:   esc = "\342\206\220"; break; // left-pointing arrow
-            case 17:   esc = "\316\274"; break;     // lowercase mu
-            case 18:   esc = "\302\243"; break;     // pound sterling sign
-            case 19:   esc = "\302\260"; break;     // degree symbol
-            case 20:   esc = "\303\205"; break;     // uppercase a with ring
-            case 21:   esc = "\303\221"; break;     // uppercase n with tilde
-            case 22:   esc = "\303\204"; break;     // uppercase a with umlaut
-            case 23:   esc = "\342\210\241"; break; // measured angle symbol
-            case 24:   esc = "\341\264\207"; break; // small-caps e
-            case 25:   esc = "\303\206"; break;     // uppercase ae ligature
-            case 26:   esc = "\342\200\246"; break; // ellipsis
-            case 27:   esc = "[ESC]"; break;        // EC symbol
-            case 28:   esc = "\303\226"; break;     // uppercase o with umlaut
-            case 29:   esc = "\303\234"; break;     // uppercase u with umlaut
-            case 30:   esc = "\342\226\222"; break; // gray rectangle
-            case 31:   esc = "\342\200\242"; break; // bullet
-            case 94:   esc = "\342\206\221"; break; // upward-pointing arrow
+            case   0:  esc = "\303\267"; break;     // division sign
+            case   1:  esc = "\303\227"; break;     // multiplication sign
+            case   2:  esc = "\342\210\232"; break; // square root sign
+            case   3:  esc = "\342\210\253"; break; // integral sign
+            case   4:  esc = "\342\226\222"; break; // gray rectangle
+            case   5:  esc = "\316\243"; break;     // uppercase sigma
+            case   6:  esc = "\342\226\270"; break; // small right-pointing triangle
+            case   7:  esc = "\317\200"; break;     // lowercase pi
+            case   8:  esc = "\302\277"; break;     // upside-down question mark
+            case   9:  esc = "\342\211\244"; break; // less-than-or-equals sign
+            case  11:  esc = "\342\211\245"; break; // greater-than-or-equals sign
+            case  12:  esc = "\342\211\240"; break; // not-equals sign
+            case  13:  esc = "\342\206\265"; break; // down-then-left arrow
+            case  14:  esc = "\342\206\223"; break; // downward-pointing arrow
+            case  15:  esc = "\342\206\222"; break; // right-pointing arrow
+            case  16:  esc = "\342\206\220"; break; // left-pointing arrow
+            case  17:  esc = "\316\274"; break;     // lowercase mu
+            case  18:  esc = "\302\243"; break;     // pound sterling sign
+            case  19:  esc = "\302\260"; break;     // degree symbol
+            case  20:  esc = "\303\205"; break;     // uppercase a with ring
+            case  21:  esc = "\303\221"; break;     // uppercase n with tilde
+            case  22:  esc = "\303\204"; break;     // uppercase a with umlaut
+            case  23:  esc = "\342\210\241"; break; // measured angle symbol
+            case  24:  esc = "\341\264\207"; break; // small-caps e
+            case  25:  esc = "\303\206"; break;     // uppercase ae ligature
+            case  26:  esc = "\342\200\246"; break; // ellipsis
+            case  27:  esc = "[ESC]"; break;        // EC symbol
+            case  28:  esc = "\303\226"; break;     // uppercase o with umlaut
+            case  29:  esc = "\303\234"; break;     // uppercase u with umlaut
+            case  30:  esc = "\342\226\222"; break; // gray rectangle
+            case  31:  esc = "\342\200\242"; break; // bullet
+            case  94:  esc = "\342\206\221"; break; // upward-pointing arrow
             case 127:  esc = "\342\224\234"; break; // append sign
             case 128:  esc = "\342\210\266"; break; // thin colon
             case 129:  esc = "\312\217"; break;     // small-caps y
+            case 130:  esc = "\342\227\254"; break; // gray right-pointing triangle
             case 138:  esc = "[LF]"; break;         // LF symbol
             default:   dst[d++] = c; continue;
         }

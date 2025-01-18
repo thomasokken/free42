@@ -760,6 +760,8 @@ int docmd_clrg(arg_struct *arg) {
 int docmd_del(arg_struct *arg) {
     if (arg->type != ARGTYPE_NUM)
         return ERR_INVALID_TYPE;
+    if (prgms[current_prgm].locked)
+        return ERR_PROGRAM_LOCKED;
     clear_prgm_lines(arg->val.num);
     return ERR_NONE;
 }

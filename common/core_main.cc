@@ -2558,7 +2558,7 @@ static void serialize_list(textbuf *tb, vartype_list *list, int indent) {
                     unsigned char c = txt[j];
                     if (c == 10)
                         c = 138;
-                    else if (c >= 130 && c != 138)
+                    else if (undefined_char(c))
                         c &= 127;
                     if (c == '"') {
                         tb_write(tb, "\\\"", 2);
@@ -2596,7 +2596,7 @@ static void serialize_list(textbuf *tb, vartype_list *list, int indent) {
                             unsigned char c = text[k];
                             if (c == 10)
                                 c = 138;
-                            else if (c >= 130 && c != 138)
+                            else if (undefined_char(c))
                                 c &= 127;
                             if (c == '"') {
                                 tb_write(tb, "\\\"", 2);
@@ -3083,6 +3083,7 @@ static int ascii2hp(char *dst, int dstlen, const char *src, int srclen /* = -1 *
             case 0x251c: code = 127; break; // append sign
             case 0x2236: code = 128; break; // ratio sign, used for thin colon
             case 0x028f: code = 129; break; // small-caps y
+            case 0x25ec: code = 130; break; // gray right-pointing triangle
             case 0x240a: code = 138; break; // LF symbol
             // Combining accents: apply them if they fit,
             // otherwise ignore them
@@ -4981,10 +4982,10 @@ int find_builtin(const char *name, int namelen) {
         for (j = 0; j < namelen; j++) {
             unsigned char c1, c2;
             c1 = name[j];
-            if (c1 >= 130 && c1 != 138)
+            if (undefined_char(c1))
                 c1 &= 127;
             c2 = cmd_array[i].name[j];
-            if (c2 >= 130 && c2 != 138)
+            if (undefined_char(c2))
                 c2 &= 127;
             if (c1 != c2)
                 goto nomatch2;
@@ -5288,7 +5289,9 @@ void finish_xeq() {
     }
 }
 
-void start_alpha_prgm_line() {
+bool start_alpha_prgm_line() {
+    if (flags.f.prgm_mode && prgms[current_prgm].locked)
+        return false;
     incomplete_saved_pc = pc;
     incomplete_saved_highlight_row = prgm_highlight_row;
     if (pc == -1)
@@ -5300,6 +5303,7 @@ void start_alpha_prgm_line() {
         display_prgm_line(0, -1);
     entered_string_length = 0;
     mode_alpha_entry = true;
+    return true;
 }
 
 void finish_alpha_prgm_line() {

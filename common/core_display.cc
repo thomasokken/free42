@@ -42,7 +42,7 @@
 #endif
 
 
-static const char bigchars[130][5] =
+static const char bigchars[131][5] =
     {
         { 0x08, 0x08, 0x2a, 0x08, 0x08 },
         { 0x22, 0x14, 0x08, 0x14, 0x22 },
@@ -173,10 +173,11 @@ static const char bigchars[130][5] =
         { 0x08, 0x04, 0x08, 0x10, 0x08 },
         { 0x7f, 0x08, 0x08, 0x08, 0x08 },
         { 0x28, 0x00, 0x00, 0x00, 0x00 },
-        { 0x04, 0x08, 0x70, 0x08, 0x04 }
+        { 0x04, 0x08, 0x70, 0x08, 0x04 },
+        { 0x2a, 0x55, 0x2a, 0x14, 0x08 },
     };
 
-static const char smallchars[416] =
+static const char smallchars[423] =
     {
         0x00, 0x00, 0x00,
         0x5c,
@@ -304,9 +305,11 @@ static const char smallchars[416] =
         0x68, 0x58, 0x58,
         0x20, 0x70, 0x20, 0x3c,
         0x7c, 0x54, 0x00, 0x78, 0x48,
+        0x18, 0x60, 0x18,
+        0x28, 0x54, 0x28, 0x10,
     };
 
-static short smallchars_offset[127] =
+static short smallchars_offset[129] =
     {
           0,
           3,
@@ -435,9 +438,11 @@ static short smallchars_offset[127] =
         407,
         411,
         416,
+        419,
+        423,
     };
 
-static char smallchars_map[128] =
+static char smallchars_map[132] =
     {
         /*   0 */  70,
         /*   1 */  71,
@@ -566,7 +571,10 @@ static char smallchars_map[128] =
         /* 124 */  66,
         /* 125 */  67,
         /* 126 */  68,
-        /* 127 */  85
+        /* 127 */  85,
+        /* 128 */  26,
+        /* 129 */ 126,
+        /* 130 */ 127,
     };
 
 #if defined(WINDOWS) && !defined(__GNUC__)
@@ -840,7 +848,7 @@ void draw_char(int x, int y, char c) {
     unsigned char uc = (unsigned char) c;
     if (x < 0 || x >= 22 || y < 0 || y >= 2)
         return;
-    if (uc >= 130)
+    if (uc > 130)
         uc -= 128;
     X = x * 6;
     Y = y * 8;
@@ -860,7 +868,7 @@ void draw_char(int x, int y, char c) {
 
 const char *get_char(char c) {
     unsigned char uc = (unsigned char) c;
-    if (uc >= 130)
+    if (uc > 130)
         uc -= 128;
     return bigchars[uc];
 }
@@ -904,10 +912,11 @@ static void draw_key(int n, int highlight, int hide_meta,
     while (len < length) {
         int c, m, cw;
         c = (unsigned char) s[len++];
-        if (hide_meta && c >= 128)
-            continue;
-
-        c &= 127;
+        if (undefined_char(c) || c == 138)
+            if (hide_meta)
+                continue;
+            else
+                c &= 127;
         if (mode_menu_caps && c >= 'a' && c <= 'z')
             c -= 32;
         m = smallchars_map[c];
@@ -930,9 +939,11 @@ static void draw_key(int n, int highlight, int hide_meta,
             c = fatdot;
         else
             c = (unsigned char) s[i];
-        if (hide_meta && c >= 128)
-            continue;
-        c &= 127;
+        if (undefined_char(c) || c == 138)
+            if (hide_meta)
+                continue;
+            else
+                c &= 127;
         if (mode_menu_caps && c >= 'a' && c <= 'z')
             c -= 32;
         m = smallchars_map[c];
@@ -996,10 +1007,8 @@ static int prgmline2buf(char *buf, int len, int4 line, int highlight,
         if (line < 10)
             char2buf(buf, len, &bufptr, '0');
         bufptr += int2string(line, buf + bufptr, len - bufptr);
-        if (highlight)
-            char2buf(buf, len, &bufptr, 6);
-        else
-            char2buf(buf, len, &bufptr, ' ');
+        char h = highlight == 0 ? ' ' : highlight == 2 && prgms[current_prgm].locked ? 130 : 6;
+        char2buf(buf, len, &bufptr, h);
     }
 
     if (line == 0) {
@@ -1177,7 +1186,7 @@ void display_prgm_line(int row, int line_offset) {
         /* Should not get offset == -1 when at line 0! */
     }
 
-    bufptr = prgmline2buf(buf, len, tmpline, line_offset == 0, cmd, &arg, orig_num, row == -1);
+    bufptr = prgmline2buf(buf, len, tmpline, line_offset == 0 ? 2 : 0, cmd, &arg, orig_num, row == -1);
 
     if (row == -1) {
         clear_display();
@@ -1263,7 +1272,7 @@ void display_incomplete_command(int row) {
         if (line < 10)
             char2buf(buf, 40, &bufptr, '0');
         bufptr += int2string(line, buf + bufptr, 40 - bufptr);
-        char2buf(buf, 40, &bufptr, 6);
+        char2buf(buf, 40, &bufptr, prgms[current_prgm].locked ? 130 : 6);
     }
 
     if (incomplete_command == CMD_ASSIGNb) {
@@ -2586,7 +2595,7 @@ int command2buf(char *buf, int len, int cmd, const arg_struct *arg) {
     } else {
         for (int i = 0; i < cmdspec->name_length; i++) {
             int c = (unsigned char) cmdspec->name[i];
-            if (c >= 130 && c != 138)
+            if (undefined_char(c))
                 c &= 127;
             char2buf(buf, len, &bufptr, c);
         }

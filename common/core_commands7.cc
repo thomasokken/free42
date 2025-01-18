@@ -998,6 +998,14 @@ int docmd_a2pline(arg_struct *arg) {
     return a2line(true);
 }
 
+int docmd_lock(arg_struct *arg) {
+    return prgm_lock(true);
+}
+
+int docmd_unlock(arg_struct *arg) {
+    return prgm_lock(false);
+}
+
 int docmd_rcomplx(arg_struct *arg) {
     bool p = flags.f.polar;
     flags.f.polar = 0;

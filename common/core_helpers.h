@@ -53,6 +53,8 @@ int string_pos(const char *ntext, int nlen, const vartype *hs, int startpos);
 bool vartype_equals(const vartype *v1, const vartype *v2);
 int anum(const char *text, int len, phloat *res);
 
+#define undefined_char(c) ((c) >= 131 && (c) != 138)
+
 #define FLAGOP_SF 0
 #define FLAGOP_CF 1
 #define FLAGOP_FS_T 2

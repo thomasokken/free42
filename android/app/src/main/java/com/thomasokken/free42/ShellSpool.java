@@ -29,11 +29,15 @@ public class ShellSpool {
     public static String printToGifFileName = "";
     public static int maxGifHeight = 256;
 
+    private static boolean undefined_char(int c) {
+        return c >= 131 && c != 138;
+    }
+
     public static byte[] hp2utf8(byte[] src) {
         StringBuffer buf = new StringBuffer();
         for (int i = 0; i < src.length; i++) {
             int c = src[i] & 255;
-            if (c >= 130 && c != 138) {
+            if (undefined_char(c)) {
                 // Escape sequence: euro sign plus two hex digits.
                 // In hp2ascii(), only used for undefined characters;
                 // in ascii2hp(), accepted for everything.
@@ -79,6 +83,7 @@ public class ShellSpool {
                 case 127:  esc = "\u251c"; break; // append sign
                 case 128:  esc = "\u2236"; break; // thin colon
                 case 129:  esc = "\u028f"; break; // small-caps y
+                case 130:  esc = "\u25ec"; break; // gray right-pointing triangle
                 case 138:  esc = "[LF]"; break;   // LF symbol
                 default:   buf.append((char) c); continue;
             }

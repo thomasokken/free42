@@ -81,7 +81,9 @@ const error_spec errors[] = {
     { /* NUMBER_TOO_SMALL */       "Number Too Small",        16 },
     { /* BIG_STACK_DISABLED */     "Big Stack Disabled",      18 },
     { /* INVALID_CONTEXT */        "Invalid Context",         15 },
-    { /* NAME_TOO_LONG */          "Name Too Long",           13 }
+    { /* NAME_TOO_LONG */          "Name Too Long",           13 },
+    { /* PROGRAM_LOCKED */         "Program Locked",          14 },
+    { /* NEXT_PROGRAM_LOCKED */    "Next Program Locked",     19 },
 };
 
 
@@ -743,8 +745,9 @@ bool no_keystrokes_yet;
  * Version 46: 3.1    CSLD?
  * Version 47: 3.1    Back-port of Plus42 RTN stack; FUNC stack hiding
  * Version 48: 3.1    Matrix editor nested lists
+ * Version 49: 3.1.13 Program locking
  */
-#define FREE42_VERSION 48
+#define FREE42_VERSION 49
 
 
 /*******************/
@@ -1302,6 +1305,9 @@ static bool persist_globals() {
         goto done;
     for (i = 0; i < prgms_count; i++)
         core_export_programs(1, &i, NULL);
+    for (i = 0; i < prgms_count; i++)
+        if (!write_bool(prgms[i].locked))
+            goto done;
     if (!write_int(current_prgm))
         goto done;
     if (!write_int4(pc2line(pc)))
@@ -1467,6 +1473,10 @@ static bool unpersist_globals() {
     loading_state = true;
     core_import_programs(nprogs, NULL);
     loading_state = false;
+    if (ver >= 49)
+        for (i = 0; i < nprogs; i++)
+            if (!read_bool(&prgms[i].locked))
+                goto done;
     if (!read_int(&current_prgm)) {
         current_prgm = 0;
         goto done;
@@ -1819,7 +1829,8 @@ void goto_dot_dot(bool force_new) {
     current_prgm = prgms_count++;
     prgms[current_prgm].capacity = 0;
     prgms[current_prgm].size = 0;
-    prgms[current_prgm].lclbl_invalid = 1;
+    prgms[current_prgm].lclbl_invalid = true;
+    prgms[current_prgm].locked = false;
     prgms[current_prgm].text = NULL;
     command = CMD_END;
     arg.type = ARGTYPE_NONE;
@@ -2014,7 +2025,7 @@ void get_next_command(int4 *pc, int *command, arg_struct *arg, int find_target, 
             prgm->text[orig_pc + i] = target_pc;
             target_pc >>= 8;
         }
-        prgm->lclbl_invalid = 0;
+        prgm->lclbl_invalid = false;
     }
 }
 
@@ -2101,7 +2112,7 @@ static void invalidate_lclbls(int prgm_index, bool force) {
             }
             pc2 += get_command_length(prgm_index, pc2);
         }
-        prgm->lclbl_invalid = 1;
+        prgm->lclbl_invalid = true;
     }
 }
 
@@ -2159,13 +2170,18 @@ void delete_command(int4 pc) {
     draw_varmenu();
 }
 
-void store_command(int4 pc, int command, arg_struct *arg, const char *num_str) {
+bool store_command(int4 pc, int command, arg_struct *arg, const char *num_str) {
     unsigned char buf[100];
     int bufptr = 0;
     int xstr_len;
     int i;
     int4 pos;
     prgm_struct *prgm = prgms + current_prgm;
+
+    if (flags.f.prgm_mode && prgm->locked) {
+        display_error(ERR_PROGRAM_LOCKED);
+        return false;
+    }
 
     /* We should never be called with pc = -1, but just to be safe... */
     if (pc == -1)
@@ -2288,7 +2304,7 @@ void store_command(int4 pc, int command, arg_struct *arg, const char *num_str) {
         invalidate_lclbls(current_prgm - 1, true);
         clear_all_rtns();
         draw_varmenu();
-        return;
+        return true;
     }
 
     if ((command == CMD_GTO || command == CMD_XEQ)
@@ -2398,14 +2414,17 @@ void store_command(int4 pc, int command, arg_struct *arg, const char *num_str) {
     clear_all_rtns();
     if (!loading_state)
         draw_varmenu();
+    return true;
 }
 
 void store_command_after(int4 *pc, int command, arg_struct *arg, const char *num_str) {
+    int4 oldpc = *pc;
     if (*pc == -1)
         *pc = 0;
     else if (!prgms[current_prgm].is_end(*pc))
         *pc += get_command_length(current_prgm, *pc);
-    store_command(*pc, command, arg, num_str);
+    if (!store_command(*pc, command, arg, num_str))
+        *pc = oldpc;
 }
 
 static bool ensure_prgm_space(int n) {
@@ -2422,6 +2441,8 @@ static bool ensure_prgm_space(int n) {
 }
 
 int x2line() {
+    if (prgms[current_prgm].locked)
+        return ERR_PROGRAM_LOCKED;
     switch (stack[sp]->type) {
         case TYPE_REAL: {
             if (!ensure_prgm_space(2 + sizeof(phloat)))
@@ -2468,6 +2489,8 @@ int x2line() {
 }
 
 int a2line(bool append) {
+    if (prgms[current_prgm].locked)
+        return ERR_PROGRAM_LOCKED;
     if (reg_alpha_length == 0) {
         squeak();
         return ERR_NONE;
@@ -2505,6 +2528,13 @@ int a2line(bool append) {
         len -= len2;
         maxlen = 14;
     }
+    return ERR_NONE;
+}
+
+int prgm_lock(bool lock) {
+    if (!flags.f.prgm_mode)
+        return ERR_RESTRICTED_OPERATION;
+    prgms[current_prgm].locked = lock;
     return ERR_NONE;
 }
 

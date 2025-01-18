@@ -65,6 +65,8 @@ int docmd_varmnu1(arg_struct *arg);
 int docmd_x2line(arg_struct *arg);
 int docmd_a2line(arg_struct *arg);
 int docmd_a2pline(arg_struct *arg);
+int docmd_lock(arg_struct *arg);
+int docmd_unlock(arg_struct *arg);
 int docmd_rcomplx(arg_struct *arg);
 int docmd_pcomplx(arg_struct *arg);
 int docmd_caps(arg_struct *arg);

@@ -72,6 +72,8 @@ extern FILE *gfile;
 #define ERR_BIG_STACK_DISABLED     37
 #define ERR_INVALID_CONTEXT        38
 #define ERR_NAME_TOO_LONG          39
+#define ERR_PROGRAM_LOCKED         40
+#define ERR_NEXT_PROGRAM_LOCKED    41
 
 #define RTNERR_MAX 8
 
@@ -345,7 +347,8 @@ extern var_struct *vars;
 struct prgm_struct {
     int4 capacity;
     int4 size;
-    int lclbl_invalid;
+    bool lclbl_invalid;
+    bool locked;
     unsigned char *text;
     inline bool is_end(int4 pc) {
         return text[pc] == CMD_END && (text[pc + 1] & 112) == 0;
@@ -532,10 +535,11 @@ int get_command_length(int prgm, int4 pc);
 void get_next_command(int4 *pc, int *command, arg_struct *arg, int find_target, const char **num_str);
 void rebuild_label_table();
 void delete_command(int4 pc);
-void store_command(int4 pc, int command, arg_struct *arg, const char *num_str);
+bool store_command(int4 pc, int command, arg_struct *arg, const char *num_str);
 void store_command_after(int4 *pc, int command, arg_struct *arg, const char *num_str);
 int x2line();
 int a2line(bool append);
+int prgm_lock(bool lock);
 int4 pc2line(int4 pc);
 int4 line2pc(int4 line);
 int4 global_pc2line(int prgm, int4 pc);
