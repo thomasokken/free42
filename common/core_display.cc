@@ -442,7 +442,7 @@ static short smallchars_offset[129] =
         423,
     };
 
-static char smallchars_map[132] =
+static char smallchars_map[131] =
     {
         /*   0 */  70,
         /*   1 */  71,
@@ -848,7 +848,7 @@ void draw_char(int x, int y, char c) {
     unsigned char uc = (unsigned char) c;
     if (x < 0 || x >= 22 || y < 0 || y >= 2)
         return;
-    if (uc > 130)
+    if (undefined_char(uc) || uc == 138)
         uc -= 128;
     X = x * 6;
     Y = y * 8;
@@ -868,7 +868,7 @@ void draw_char(int x, int y, char c) {
 
 const char *get_char(char c) {
     unsigned char uc = (unsigned char) c;
-    if (uc > 130)
+    if (undefined_char(uc) || uc == 138)
         uc -= 128;
     return bigchars[uc];
 }

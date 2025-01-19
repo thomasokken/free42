@@ -31,9 +31,8 @@ typedef void (*file_newliner)();
 /* hp2ascii()
  *
  * Converts characters outside the range 32-126 and 10 to their ASCII
- * or extended ASCII equivalents; substitutes escape sequences for characters
- * for which no reasonable equivalents exist, and for all character codes
- * above 130.
+ * or extended ASCII equivalents. Substitutes escape sequences for
+ * undefined characters.
  */
 int hp2ascii(char *dst, const char *src, int srclen);
 
