@@ -19,6 +19,8 @@
 #define CORE_PHLOAT_H 1
 
 
+#include <stddef.h>
+
 #include "free42.h"
 #ifdef BCD_MATH
 #include "bid_conf.h"
