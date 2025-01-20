@@ -3165,6 +3165,14 @@ public class Free42Activity extends Activity {
     }
 
     /**
+     * shell_alpha_keyboard_enabled()
+     * Checks whether the pop-up ALPHA keyboard is enabled.
+     */
+    public boolean shell_alpha_keyboard_enabled() {
+        return popupAlpha == 2;
+    }
+
+    /**
      * shell_show_alpha_keyboard()
      * Requests the pop-up ALPHA keyboard to be shown or hidden.
      */

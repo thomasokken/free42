@@ -1687,6 +1687,10 @@ void shell_print(const char *text, int length,
     }
 }
 
+bool shell_alpha_keyboard_enabled() {
+    return state.popupAlphaKeyboard == 2;
+}
+
 void shell_show_alpha_keyboard(bool show) {
     if (state.popupAlphaKeyboard == 2 && !macroInProgress)
         if (show)

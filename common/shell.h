@@ -194,7 +194,17 @@ void shell_print(const char *text, int length,
                  const char *bits, int bytesperline,
                  int x, int y, int width, int height);
 
+#if !defined(ANDROID) && !defined(IPHONE)
+#define shell_alpha_keyboard_enabled() (false)
+#endif
+
 #if defined(ANDROID) || defined(IPHONE)
+
+/* shell_alpha_keyboard_enabled()
+ *
+ * Checks whether the pop-up ALPHA keyboard is enabled.
+ */
+bool shell_alpha_keyboard_enabled();
 
 /* shell_show_alpha_keyboard()
  *

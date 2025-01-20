@@ -621,6 +621,17 @@ void shell_print(const char *text, int length,
     env->DeleteLocalRef(bits2);
 }
 
+bool shell_alpha_keyboard_enabled() {
+    Tracer T("shell_alpha_keyboard_enabled");
+    JNIEnv *env = getJniEnv();
+    jclass klass = env->GetObjectClass(g_activity);
+    jmethodID mid = env->GetMethodID(klass, "shell_alpha_keyboard_enabled", "()Z");
+    bool ret = env->CallBooleanMethod(g_activity, mid);
+    // Delete local references
+    env->DeleteLocalRef(klass);
+    return ret;
+}
+
 void shell_show_alpha_keyboard(bool show) {
     Tracer T("shell_show_alpha_keyboard");
     JNIEnv *env = getJniEnv();
