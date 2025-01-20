@@ -1202,7 +1202,6 @@ static void shell_keydown() {
                 }
             } else {
                 bool waitForProgram = !program_running();
-                skin_display_set_enabled(false);
                 while (*macro != 0) {
                     we_want_cpu = true;
                     keep_running = core_keydown(*macro++, &enqueued, &repeat);
@@ -1215,17 +1214,6 @@ static void shell_keydown() {
                         we_want_cpu = false;
                     }
                 }
-                skin_display_set_enabled(true);
-                skin_repaint_display();
-                /*
-                skin_repaint_annunciator(1, ann_updown);
-                skin_repaint_annunciator(2, ann_shift);
-                skin_repaint_annunciator(3, ann_print);
-                skin_repaint_annunciator(4, ann_run);
-                skin_repaint_annunciator(5, ann_battery);
-                skin_repaint_annunciator(6, ann_g);
-                skin_repaint_annunciator(7, ann_rad);
-                */
                 repeat = 0;
             }
         }

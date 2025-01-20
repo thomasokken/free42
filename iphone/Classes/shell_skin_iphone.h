@@ -34,4 +34,3 @@ unsigned char *skin_keymap_lookup(unsigned short keychar, bool printable,
 void skin_set_pressed_key(int skey, CalcView *view);
 void skin_display_blitter(const char *bits, int bytesperline, int x, int y, int width, int height, CalcView *view);
 void skin_repaint_display(CalcView *view);
-void skin_display_set_enabled(bool enable);

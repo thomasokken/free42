@@ -89,8 +89,6 @@ static int disp_bytesperline;
 static keymap_entry *keymap = NULL;
 static int keymap_length = 0;
 
-static bool display_enabled = true;
-
 
 /*****************/
 /* Keymap parser */
@@ -1080,15 +1078,8 @@ void skin_display_blitter(const char *bits, int bytesperline, int x, int y, int 
 }
 
 void skin_repaint_display() {
-    if (!display_enabled)
-        // Prevent screen flashing during macro execution
-        return;
     Free42AppDelegate *delegate = (Free42AppDelegate *) [NSApp delegate];
     [delegate.calcView setNeedsDisplayInRect:CGRectMake(display_loc.x, display_loc.y, 131 * display_scale.x, 16 * display_scale.y)];
-}
-
-void skin_display_set_enabled(bool enable) {
-    display_enabled = enable;
 }
 
 void skin_get_size(int *width, int *height) {

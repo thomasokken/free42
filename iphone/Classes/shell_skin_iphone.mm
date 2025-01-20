@@ -95,8 +95,6 @@ static int disp_bytesperline;
 static keymap_entry *keymap = NULL;
 static int keymap_length = 0;
 
-static bool display_enabled = true;
-
 
 /*****************/
 /* Keymap parser */
@@ -1105,12 +1103,5 @@ void skin_display_blitter(const char *bits, int bytesperline, int x, int y, int 
 }
 
 void skin_repaint_display(CalcView *view) {
-    if (!display_enabled)
-        // Prevent screen flashing during macro execution
-        return;
     [view setNeedsDisplayInRect:CGRectMake(display_loc.x / skin_scale_h + skin_offset_h, display_loc.y / skin_scale_v + skin_offset_v, 131 * display_scale.x / skin_scale_h, 16 * display_scale.y / skin_scale_v)];
-}
-
-void skin_display_set_enabled(bool enable) {
-    display_enabled = enable;
 }

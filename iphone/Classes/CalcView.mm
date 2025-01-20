@@ -1062,7 +1062,6 @@ static void shell_keydown() {
                 }
             } else {
                 bool waitForProgram = !program_running();
-                skin_display_set_enabled(false);
                 macroInProgress = true;
                 while (*macro != 0) {
                     we_want_cpu = true;
@@ -1076,23 +1075,12 @@ static void shell_keydown() {
                         we_want_cpu = false;
                     }
                 }
-                skin_display_set_enabled(true);
                 macroInProgress = false;
-                skin_repaint_display(calcView);
                 if (state.popupAlphaKeyboard == 2)
                     if (core_alpha_menu())
                         [RootViewController showAlphaKeyboard];
                     else
                         [calcView.superview bringSubviewToFront:calcView];
-                /*
-                skin_repaint_annunciator(1, ann_updown);
-                skin_repaint_annunciator(2, ann_shift);
-                skin_repaint_annunciator(3, ann_print);
-                skin_repaint_annunciator(4, ann_run);
-                skin_repaint_annunciator(5, ann_battery);
-                skin_repaint_annunciator(6, ann_g);
-                skin_repaint_annunciator(7, ann_rad);
-                */
                 repeat = 0;
             }
         }
