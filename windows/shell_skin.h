@@ -59,8 +59,6 @@ unsigned char *skin_find_macro(int ckey, int *type);
 unsigned char *skin_keymap_lookup(int keycode, bool ctrl, bool alt, bool extended, bool shift, bool cshift, bool *exact);
 void skin_invalidate_key(int key);
 void skin_display_blitter(const char *bits, int bytesperline, int x, int y, int width, int height);
-void skin_display_set_enabled(bool enable);
-void invalidate_display();
 void skin_get_size(int *width, int *height);
 void skin_set_window(HWND window);
 void skin_set_window_size(int width, int height);

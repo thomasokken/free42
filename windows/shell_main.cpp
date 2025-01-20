@@ -497,7 +497,6 @@ static void shell_keydown() {
                 }
             } else {
                 bool waitForProgram = !program_running();
-                skin_display_set_enabled(false);
                 while (*macro != 0) {
                     running = core_keydown(*macro++, &enqueued, &repeat);
                     if (*macro != 0 && !enqueued)
@@ -505,10 +504,6 @@ static void shell_keydown() {
                     while (waitForProgram && running)
                         running = core_keydown(0, &enqueued, &repeat);
                 }
-                skin_display_set_enabled(true);
-                invalidate_display();
-                for (int i = 1; i <= 7; i++)
-                    skin_invalidate_annunciator(i);
                 repeat = 0;
             }
         }

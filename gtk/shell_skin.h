@@ -56,8 +56,6 @@ void skin_display_invalidater(GdkWindow *win, const char *bits, int bytesperline
                                 int x, int y, int width, int height);
 bool need_to_paint_only_display(cairo_t *cr);
 void skin_repaint_display(cairo_t *cr);
-void skin_invalidate_display(GdkWindow *win);
-void skin_display_set_enabled(bool enable);
 void skin_get_size(int *width, int *height);
 void skin_set_window_size(int width, int height);
 void skin_get_window_size(int *width, int *height);

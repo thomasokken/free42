@@ -106,8 +106,6 @@ static int disp_bytesperline;
 static keymap_entry *keymap = NULL;
 static int keymap_length = 0;
 
-static bool display_enabled = true;
-
 static HWND window;
 static int window_width, window_height;
 
@@ -1058,8 +1056,6 @@ void skin_repaint(bool shortcuts) {
 }
 
 void skin_invalidate_annunciator(int which) {
-    if (!display_enabled)
-        return;
     SkinAnnunciator *ann = annunciators + (which - 1);
     skin_invalidate(ann->disp_rect.x, ann->disp_rect.y,
         ann->disp_rect.x + ann->disp_rect.width, ann->disp_rect.y + ann->disp_rect.height);
@@ -1178,19 +1174,6 @@ void skin_display_blitter(const char *bits, int bytesperline, int x, int y, int 
                     (int) (display_loc.y + (y - 1) * display_scale_y),
                     (int) ceil(display_loc.x + (x + width + 1) * display_scale_x),
                     (int) ceil(display_loc.y + (y + height + 1) * display_scale_y));
-}
-
-void skin_display_set_enabled(bool enable) {
-    display_enabled = enable;
-}
-
-void invalidate_display() {
-    if (!display_enabled)
-        return;
-    skin_invalidate((int) (display_loc.x - display_scale_x),
-                    (int) (display_loc.y - display_scale_y),
-                    (int) ceil(display_loc.x + 132 * display_scale_x),
-                    (int) ceil(display_loc.y + 17 * display_scale_y));
 }
 
 void skin_get_size(int *width, int *height) {

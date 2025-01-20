@@ -103,8 +103,6 @@ static char disp_bits[272];
 static keymap_entry *keymap = NULL;
 static int keymap_length;
 
-static bool display_enabled = true;
-
 static int window_width, window_height;
 
 
@@ -668,8 +666,6 @@ void skin_repaint(cairo_t *cr) {
 }
 
 void skin_repaint_annunciator(cairo_t *cr, int which) {
-    if (!display_enabled)
-        return;
     SkinAnnunciator *ann = annunciators + (which - 1);
     cairo_save(cr);
     gdk_cairo_set_source_pixbuf(cr, skin_image,
@@ -901,8 +897,6 @@ static void scaled_gdk_window_invalidate_rect(GdkWindow *win, const GdkRectangle
 }
 
 void skin_invalidate_annunciator(GdkWindow *win, int which) {
-    if (!display_enabled)
-        return;
     SkinAnnunciator *ann = annunciators + (which - 1);
     GdkRectangle clip;
     clip.x = ann->disp_rect.x;
@@ -992,11 +986,6 @@ void skin_repaint_key(cairo_t *cr, int key, bool state) {
 
     if (key >= -7 && key <= -2) {
         /* Soft key */
-        if (!display_enabled)
-            // Should never happen -- the display is only disabled during macro
-            // execution, and softkey events should be impossible to generate
-            // in that state. But, just staying on the safe side.
-            return;
         key = -1 - key;
         int kx = (key - 1) * 22;
         int ky = 9;
@@ -1057,8 +1046,6 @@ void skin_repaint_key(cairo_t *cr, int key, bool state) {
 }
 
 void skin_invalidate_key(GdkWindow *win, int key) {
-    if (!display_enabled)
-        return;
     if (key >= -7 && key <= -2) {
         /* Soft key */
         key = -1 - key;
@@ -1095,7 +1082,7 @@ void skin_display_invalidater(GdkWindow *win, const char *bits, int bytesperline
                 disp_bits[v * 17 + (h >> 3)] &= ~(1 << (h & 7));
 
     if (win != NULL) {
-        if (allow_paint && display_enabled) {
+        if (allow_paint) {
             GdkRectangle clip;
             clip.x = display_loc.x + x * display_scale_x;
             clip.y = display_loc.y + y * display_scale_y;
@@ -1122,8 +1109,6 @@ bool need_to_paint_only_display(cairo_t *cr) {
 }
 
 void skin_repaint_display(cairo_t *cr) {
-    if (!display_enabled)
-        return;
     cairo_save(cr);
     cairo_translate(cr, display_loc.x, display_loc.y);
     cairo_scale(cr, display_scale_x, display_scale_y);
@@ -1141,21 +1126,6 @@ void skin_repaint_display(cairo_t *cr) {
         }
     }
     cairo_restore(cr);
-}
-
-void skin_invalidate_display(GdkWindow *win) {
-    if (display_enabled) {
-        GdkRectangle clip;
-        clip.x = display_loc.x;
-        clip.y = display_loc.y;
-        clip.width = 131 * display_scale_x;
-        clip.height = 16 * display_scale_y;
-        scaled_gdk_window_invalidate_rect(win, &clip, FALSE);
-    }
-}
-
-void skin_display_set_enabled(bool enable) {
-    display_enabled = enable;
 }
 
 void skin_get_size(int *width, int *height) {
