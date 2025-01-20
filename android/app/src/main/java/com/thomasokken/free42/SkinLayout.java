@@ -85,7 +85,6 @@ public class SkinLayout {
     private SkinMacro[] macrolist = null;
     private SkinAnnunciator[] annunciators = new SkinAnnunciator[7];
     private KeymapEntry[] keymap;
-    private boolean display_enabled = true;
     private Bitmap skinBitmap;
     private Bitmap display = Bitmap.createBitmap(131, 16, Bitmap.Config.ARGB_8888);
     private int[] display_buffer = new int[131 * 16];
@@ -486,11 +485,6 @@ public class SkinLayout {
     private void repaint_key(Canvas canvas, Bitmap skin, int key, boolean state) {
         if (key >= -7 && key <= -2) {
             /* Soft key */
-            if (!display_enabled)
-                // Should never happen -- the display is only disabled during macro
-                // execution, and softkey events should be impossible to generate
-                // in that state. But, just staying on the safe side.
-                return;
             key = -1 - key;
             Rect dst = new Rect((int) (display_loc.x + (key - 1) * 22 * display_scale.x),
                                 (int) (display_loc.y + 9 * display_scale.y),
@@ -605,7 +599,6 @@ public class SkinLayout {
             paintSkin = Rect.intersects(clip, sk);
             paintDisplay = Rect.intersects(clip, disp);
         }
-        paintDisplay = paintDisplay && display_enabled;
         if (!paintDisplay && !paintSkin)
             return;
         Paint p = new Paint();
@@ -615,22 +608,21 @@ public class SkinLayout {
             p.setFilterBitmap(skinSmoothing);
             canvas.drawBitmap(skinBitmap, new Rect(skin.x, skin.y, skin.x + skin.width, skin.y + skin.height),
                                           new Rect(0, 0, skin.width, skin.height), p);
-            if (display_enabled)
-                for (int i = 0; i < 7; i++)
-                    if (ann_state[i]) {
-                        SkinAnnunciator ann = annunciators[i];
-                        Rect src = new Rect(ann.src.x,
-                                            ann.src.y,
-                                            ann.src.x + ann.disp_rect.width,
-                                            ann.src.y + ann.disp_rect.height);
-                        Rect dst = new Rect(ann.disp_rect.x,
-                                            ann.disp_rect.y,
-                                            ann.disp_rect.x + ann.disp_rect.width,
-                                            ann.disp_rect.y + ann.disp_rect.height);
-                        p.setAntiAlias(displaySmoothing);
-                        p.setFilterBitmap(displaySmoothing);
-                        canvas.drawBitmap(skinBitmap, src, dst, p);
-                    }
+            for (int i = 0; i < 7; i++)
+                if (ann_state[i]) {
+                    SkinAnnunciator ann = annunciators[i];
+                    Rect src = new Rect(ann.src.x,
+                                        ann.src.y,
+                                        ann.src.x + ann.disp_rect.width,
+                                        ann.src.y + ann.disp_rect.height);
+                    Rect dst = new Rect(ann.disp_rect.x,
+                                        ann.disp_rect.y,
+                                        ann.disp_rect.x + ann.disp_rect.width,
+                                        ann.disp_rect.y + ann.disp_rect.height);
+                    p.setAntiAlias(displaySmoothing);
+                    p.setFilterBitmap(displaySmoothing);
+                    canvas.drawBitmap(skinBitmap, src, dst, p);
+                }
             if (active_key >= 0)
                 repaint_key(canvas, skinBitmap, active_key, true);
         }
@@ -824,22 +816,5 @@ public class SkinLayout {
             ypos += spacing;
         }
         canvas.restore();
-    }
-
-    public Rect set_display_enabled(boolean enable) {
-        if (display_enabled == enable)
-            return null;
-        display_enabled = enable;
-        if (!display_enabled)
-            return null;
-        Rect r = new Rect(display_loc.x, display_loc.y,
-                            (int) Math.ceil(display_loc.x + 131 * display_scale.x),
-                            (int) Math.ceil(display_loc.y + 16 * display_scale.y));
-        for (int i = 0; i < 7; i++) {
-            SkinRect a = annunciators[i].disp_rect;
-            Rect ra = new Rect(a.x, a.y, a.x + a.width, a.y + a.height);
-            r.union(ra);
-        }
-        return r;
     }
 }

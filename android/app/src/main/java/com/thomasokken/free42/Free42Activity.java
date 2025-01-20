@@ -1603,16 +1603,14 @@ public class Free42Activity extends Activity {
                     }
                 } else {
                     boolean waitForProgram = !program_running();
-                    skin.set_display_enabled(false);
                     macroInProgress = true;
                     for (int i = 0; i < macro.length; i++) {
                         running = core_keydown(macro[i] & 255, enqueued, repeat, true);
-                        if (!enqueued.value)
+                        if (i < macro.length - 1 && !enqueued.value)
                             running = core_keyup();
                         while (waitForProgram && running)
                             running = core_keydown(0, null, null, true);
                     }
-                    skin.set_display_enabled(true);
                     macroInProgress = false;
                     if (popupAlpha == 2)
                         calcContainer.showAlphaKeyboard(core_alpha_menu());
