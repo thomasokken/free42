@@ -5186,8 +5186,11 @@ void finish_command_entry(bool refresh) {
             redisplay();
         } else {
             int inserting_an_end = pending_command == CMD_END;
-            if ((cmd_array[pending_command].flags & FLAG_IMMED) != 0)
+            if ((cmd_array[pending_command].flags & FLAG_IMMED) != 0) {
+                pc = incomplete_saved_pc;
+                prgm_highlight_row = incomplete_saved_highlight_row;
                 goto do_it_now;
+            }
             store_command(pc, pending_command, &pending_command_arg, NULL);
             if (inserting_an_end)
                 /* current_prgm was already incremented by store_command() */
