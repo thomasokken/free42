@@ -2,13 +2,14 @@
 Free42 for RP-42 is in development. Lastest
 version of Free42 is **0.0.1**. [Free42 0.0.1](https://github.com/Jeremy924/free42/releases/download/development/Free42.bin)
 
+Information about RP-42 can be found [here](https://github.com/Jeremy924/rp42-hardware).
+
 ### Free42 for RP42 versions
 [Version 0.0.1](https://github.com/Jeremy924/free42/releases/download/development/Free42.bin)
 
 ### Installing on RP42
 To install on Free42, run the installer script.
-You must have pyserial install to run it. To install
-pyserial. This script is just for uploading during 
+You must have pyserial installed to run it. This script is just for uploading during 
 development purposes. The script can be found 
 [here](https://github.com/Jeremy924/free42/blob/master/upload/FlashUploader0_0_1.py). 
 
