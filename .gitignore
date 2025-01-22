@@ -295,3 +295,8 @@
 /windows/raw2txt.cpp
 /windows/txt2raw
 /windows/txt2raw.cpp
+
+#rp42
+/rp42/Free42/Debug/
+/rp42/Free42/Release/
+/rp42/Free42/cmake-build-debug/

@@ -1,1 +1,0 @@
-IntelRDFPMathLib20U1/TESTS/readtest.c
