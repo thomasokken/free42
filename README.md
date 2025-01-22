@@ -1,4 +1,18 @@
--------------------------------------------------------------------------------
+# Free42 for RP-42
+Free42 for RP-42 is in development. Lastest
+version of Free42 is **0.0.1**. [Free42 0.0.1](https://github.com/Jeremy924/free42/releases/download/development/Free42.bin)
+
+### Free42 for RP42 versions
+[Version 0.0.1](https://github.com/Jeremy924/free42/releases/download/development/Free42.bin)
+
+### Installing on RP42
+To install on Free42, run the installer script.
+You must have pyserial install to run it. To install
+pyserial. This script is just for uploading during 
+development purposes. The script can be found 
+[here](https://github.com/Jeremy924/free42/blob/master/upload/FlashUploader0_0_1.py). 
+
+## Free42
 Free42 is a software clone of the Hewlett-Packard 42S calculator. If you know
 how to use an HP-42S, you know how to use Free42.
 If you're new to the HP-42S and its clones, you may want to take a peek at the
@@ -9,7 +23,7 @@ no other decent place to put.
 
 
 -------------------------------------------------------------------------------
-Binary vs. Decimal
+### Binary vs. Decimal
 Free42 can be built with binary or with decimal floating point. The Windows,
 MacOS, iOS, and Android projects all contain separate targets for Decimal and
 Binary builds; for the Linux version, the selection is made using the BCD_MATH
@@ -19,23 +33,23 @@ sure to do "make clean", to avoid linking the wrong objects.
 
 
 -------------------------------------------------------------------------------
-Building on Raspbian 10
-
+## Building on Raspbian 10
+```bash
 # apt install libgtk-3-dev
 # apt install libasound2-dev
 $ git clone https://github.com/thomasokken/free42.git
 $ cd free42/gtk
 $ make BCD_MATH=1 AUDIO_ALSA=1
-
+```
 
 -------------------------------------------------------------------------------
-Creating Free42 build environment in FreeBSD
+## Creating Free42 build environment in FreeBSD
 
 Create VirtualBox VM (using VirtualBox 5.2.22)
 Install FreeBSD-12.0-RELEASE-amd64-dvd1.iso
 
 then:
-
+```bash
 pkg install gnome3
 pkg install xorg
 pkg install virtualbox-ose-additions
@@ -56,10 +70,10 @@ Now, some more stuff:
 
 pkg install devel/pkgconf
 pkg install devel/gmake
-
+```
 
 -------------------------------------------------------------------------------
-Adding types:
+### Adding types:
 
 When adding a type 'foo', you need to define an appropriate vartype_foo struct,
 create a new_foo() function (constructor), and add support for the new type in
@@ -77,7 +91,7 @@ create a new_foo() function (constructor), and add support for the new type in
 
 
 -------------------------------------------------------------------------------
-clang optimizer weirdness
+### clang optimizer weirdness
 
 In recent versions of clang (not sure starting when; I noticed it in early
 April 2023), the compiler pursues an aggressive optimization strategy that can
@@ -235,7 +249,7 @@ other hand it is consistent with the behavior of the X=Y? and X≠Y? functions.
 
 
 -------------------------------------------------------------------------------
-Differences between the Free42 printer emulation and the HP-42S/82240
+### Differences between the Free42 printer emulation and the HP-42S/82240
 
 Free42 prints programs differently in NORM or TRACE modes: in NORM mode, the
 listing is right-justified, and in TRACE mode, the listing is compact (multiple
