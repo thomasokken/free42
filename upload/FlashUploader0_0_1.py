@@ -3,7 +3,7 @@ import time
 import serial
 import serial.tools.list_ports
 
-# location on my pc: C:\Users\Jerem\OneDrive\Documents\career\my_projects\stm-workspace\Free42\Debug\Free42.bin
+# location on my pc: my_projects\stm-workspace\Free42\Debug\Free42.bin
 
 print("Flash loader 2.0\n")
 
