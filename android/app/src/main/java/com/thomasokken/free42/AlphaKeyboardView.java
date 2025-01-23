@@ -115,10 +115,10 @@ public class AlphaKeyboardView extends View {
     private boolean num;
     private boolean shift;
     private boolean lock;
-    private RectF expKeyRect;
-    private RectF expBubbleRect;
-    private Float expOffset;
-    private Float expSpacing;
+    private RectF expKeyRect = new RectF(0, 0, 0, 0);
+    private RectF expBubbleRect = new RectF(0, 0, 0, 0);
+    private float expOffset;
+    private float expSpacing;
     private int expCurrentIndex;
     private int expMaxIndex;
     private boolean expStillOnKey;
