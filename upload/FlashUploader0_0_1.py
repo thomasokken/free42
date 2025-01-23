@@ -3,66 +3,57 @@ import time
 import serial
 import serial.tools.list_ports
 
-# location on my pc: my_projects\stm-workspace\Free42\Debug\Free42.bin
+# location on my pc: stm-workspace\Free42\Debug\Free42.bin
 
-print("\033[32;1;5mFlash loader 2.0\033[0m\n")
+print("Flash loader 2.0\n")
 
 try:
-    file = open(input("Enter location of file to load to flash: "), 'rb')
+    file = open(input("Enter file to load to flash: "), 'rb')
 except FileNotFoundError:
     print("File not found")
     exit()
 
 data = file.read()
-print('\n\033[4m' + str(len(data)) + "\033[0m bytes to write\n")
-
-print('To switch to program loader, disconnect power from calculator, then press and hold the top left button, and then connect power')
-
+print(len(data), "bytes to write")
 
 print("\nAvailable Ports:")
 ports = serial.tools.list_ports.comports()
 for port in ports:
     print('\t' + port.device)
-
-
 port = input("Enter the port name: ")
-
 ser = serial.Serial(port, 9600, timeout=1)
 
-print("Erasing Chip")
-ser.write('echo off\nfrw\nwe\nec\n'.encode())
-
-for i in range(30):
-    print(f"Erasing chip: {i * (100//30)}%")
+ser.write('frw\nwe\nec\n'.encode())
+for i in range(20):
+    print("Erasing chip: ", i * 5, "%")
     time.sleep(1)
-    pass
-
-print("Erasing chip: 100%")
+    
 ser.close()
 
-input("Please reset the calculator. Then press enter to continue")
+print('Disconnect and reconnect power to chip while holding down top left button')
 
-print("\nAvailable Ports:")
-ports = serial.tools.list_ports.comports()
-for port in ports:
-    print('\t' + port.device)
-
-ser = serial.Serial(input('Input new port:'), 9600, timeout=1)
-
-ser.write('echo off\nfrw\n'.encode())
 
 def print_status(current, total):
     print(f'Writing program: {current / total * 100:.1f}%')
+    
+print('New ports:')
+ports = serial.tools.list_ports.comports()
+for port in ports:
+    print('\t' + port.device)
+port = input("Enter the port name: ")
+ser = serial.Serial(port, 9600, timeout=1)
+
+ser.write('echo off\nfrw\n'.encode())
 
 size = 256
 sb = True
 count = 0
 for i in range(0, len(data), size):
-    if i < 200_000:
+    if i < 299500:
         continue
 
     if count == 20:
-        print_status(i - 200_000, len(data) - 200_000)
+        print_status(i - 299500, len(data) - 295000)
         count = 0
     d = data[i:i+size]
     if len(d) < size:
@@ -87,14 +78,14 @@ size = 256
 small_count = 0
 sb = True
 for i in range(0, len(data), size):
-    if i > 199_000:
+    if i > 300000:
         break
     d = data[i:i+size]
     if len(d) < size:
         d += b'\xFF' * (size - len(d))
     ser.write(f'W {i} {size} \n'.encode())
     if count == 20:
-        print_status(i, 200_000)
+        print_status(i, 300000)
         count = 0
     time.sleep(0.001)
     ser.write(d)
