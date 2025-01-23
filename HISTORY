@@ -1,3 +1,11 @@
+2025-01-23: release 3.2
+
+* Program locking, to prevent accidental editing of programs. This is done
+  using the LOCK and UNLOCK functions. See the Free42 web site for details.
+* Improved display contrast in the built-in skins.
+* Android and iOS versions: Pop-up ALPHA keyboard, for easier text entry.
+* GTK version: Dark Mode support.
+
 2025-01-01: release 3.1.12b (Android only)
 
 * Rolling back the beeper fix from the previous release. It was not performing
