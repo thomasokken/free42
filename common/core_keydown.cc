@@ -798,13 +798,13 @@ void keydown_command_entry(int shift, int key) {
     }
 
     if ((incomplete_command == CMD_ASTO || incomplete_command == CMD_ARCL)
-            && incomplete_length == 1 && mode_commandmenu == MENU_NONE
+            && mode_commandmenu == MENU_NONE
             && mode_alphamenu >= MENU_ALPHA1 && mode_alphamenu <= MENU_ALPHA_MISC2) {
-        /* A similar oddity are ASTO and ARCL, when entered using the
-         * STO and RCL keys while ALPHA mode is active. Initially,
-         * you'll get a menu of all variables, but when you type a
-         * digit, the variables menu disappears, and the ALPHA menu
-         * returns... but we still want 0-9 to be treated as numeric.
+        /* ASTO and ARCL in ALPHA mode: When no variables menu is shown, either
+         * because one digit has already been typed, or because no variables
+         * exist, you can type digits for a numeric argument, even though the
+         * ALPHA menu is active. Note that this behaves similarly to LBL, but
+         * different.
          */
         switch (key - 1024) {
             case '0': key = KEY_0; break;
