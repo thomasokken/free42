@@ -117,6 +117,7 @@ int millitime() {
     bool num;
     bool shift;
     bool lock;
+    bool expKeyRectValid;
     CGRect expKeyRect;
     CGRect expBubbleRect;
     CGFloat expOffset;
@@ -326,6 +327,7 @@ const CGFloat bRadius = 5;
     CGFloat R = bRadius;
     
     expKeyRect = CGRectMake(r.origin.x, bb, r.size.width, r.origin.y + r.size.height - bb);
+    expKeyRectValid = true;
     CGFloat ext = bb - bt;
     expBubbleRect = CGRectMake(bl - ext, bt - ext, br - bl + 2 * ext, bb - bt + 2 * ext);
 
@@ -436,6 +438,7 @@ const CGFloat bRadius = 5;
         return;
     currentKey = kn;
     keyExpanded = false;
+    expKeyRectValid = false;
     expStillOnKey = true;
     [CalcView keyFeedback];
     
@@ -544,7 +547,7 @@ const CGFloat bRadius = 5;
 }
 
 - (void) touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-    if (currentKey == -1 || kbMap[currentKey].special != SPEC_NONE)
+    if (currentKey == -1 || kbMap[currentKey].special != SPEC_NONE || !expKeyRectValid)
         return;
     CGPoint p = [[touches anyObject] locationInView:self];
     if (p.y > expKeyRect.origin.y + expKeyRect.size.height * (portrait ? 1 : 1.333) + 5) {
