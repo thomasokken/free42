@@ -115,8 +115,8 @@ public class AlphaKeyboardView extends View {
     private boolean num;
     private boolean shift;
     private boolean lock;
-    private RectF expKeyRect = new RectF(0, 0, 0, 0);
-    private RectF expBubbleRect = new RectF(0, 0, 0, 0);
+    private RectF expKeyRect;
+    private RectF expBubbleRect;
     private float expOffset;
     private float expSpacing;
     private int expCurrentIndex;
@@ -467,6 +467,7 @@ public class AlphaKeyboardView extends View {
                 return true;
             currentKey = kn;
             keyExpanded = false;
+            expKeyRect = null;
             expStillOnKey = true;
             Free42Activity.keyFeedback();
 
@@ -587,7 +588,7 @@ public class AlphaKeyboardView extends View {
             invalidate();
             return true;
         } else if (what == MotionEvent.ACTION_MOVE) {
-            if (currentKey == -1 || kbMap[currentKey].special != SPEC_NONE)
+            if (currentKey == -1 || kbMap[currentKey].special != SPEC_NONE || expKeyRect == null)
                 return false;
             if (y > expKeyRect.top + (expKeyRect.bottom - expKeyRect.top) * (portrait ? 1 : 1.333) + 5) {
                 currentKey = -1;
