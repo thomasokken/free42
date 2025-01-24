@@ -1707,6 +1707,8 @@ public class Free42Activity extends Activity {
                     || keyCode == KeyEvent.KEYCODE_CTRL_RIGHT)
                 return super.onKeyDown(keyCode, event);
 
+            cancelRepeaterAndTimeouts1And2();
+
             int ch = event.getUnicodeChar();
             if (ch == 0)
                 ch = event.getUnicodeChar(0);
@@ -1902,6 +1904,7 @@ public class Free42Activity extends Activity {
         public boolean onKeyUp(int keyCode, KeyEvent event) {
             if (event.getRepeatCount() > 0)
                 return true;
+            cancelRepeaterAndTimeouts1And2();
             if (just_pressed_shift) {
                 just_pressed_shift = false;
                 ckey = 28;
@@ -1936,6 +1939,7 @@ public class Free42Activity extends Activity {
         }
 
         public void alphaKeyboardAlpha(char c) {
+            cancelRepeaterAndTimeouts1And2();
             ckey = 1024 + c;
             skey = -1;
             macroObj = null;
@@ -1945,6 +1949,7 @@ public class Free42Activity extends Activity {
         }
 
         public void alphaKeyboardDown(int key) {
+            cancelRepeaterAndTimeouts1And2();
             byte[] macro;
             if (key > 37) {
                 macro = new byte[2];
@@ -1965,6 +1970,7 @@ public class Free42Activity extends Activity {
         }
 
         public void alphaKeyboardUp() {
+            cancelRepeaterAndTimeouts1And2();
             shell_keyup(null);
         }
     }
