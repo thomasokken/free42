@@ -1,3 +1,7 @@
+2025-01-24: release 3.2a (Android only)
+
+* Pop-up keyboard typing fixes.
+
 2025-01-23: release 3.2
 
 * Program locking, to prevent accidental editing of programs. This is done
