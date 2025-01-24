@@ -507,7 +507,7 @@ public class AlphaKeyboardView extends View {
                 return true;
             }
             if (k.special == SPEC_ESC) {
-                if (shift && !num)
+                if (shift && !lock && !num)
                     Free42Activity.alphaKeyboardAlpha((char) 27); // [ESC] character
                 else
                     Free42Activity.alphaKeyboardDown(33); // EXIT key
@@ -517,7 +517,7 @@ public class AlphaKeyboardView extends View {
                 return true;
             }
             if (k.special == SPEC_ENTER) {
-                if (shift && !num)
+                if (shift && !lock && !num)
                     Free42Activity.alphaKeyboardAlpha((char) 10); // [LF] character
                 else
                     Free42Activity.alphaKeyboardDown(13); // ENTER key

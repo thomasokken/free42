@@ -472,14 +472,14 @@ const CGFloat bRadius = 5;
         goto done2;
     }
     if (k->special == SPEC_ESC) {
-        if (shift && !num)
+        if (shift && !lock && !num)
             [CalcView alphaKeyboardAlpha:27]; // [ESC] character
         else
             [CalcView alphaKeyboardDown:33]; // EXIT key
         goto done2;
     }
     if (k->special == SPEC_ENTER) {
-        if (shift && !num)
+        if (shift && !lock && !num)
             [CalcView alphaKeyboardAlpha:10]; // [LF] character
         else
             [CalcView alphaKeyboardDown:13]; // ENTER key
