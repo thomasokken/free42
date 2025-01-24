@@ -1784,8 +1784,8 @@ public class Free42Activity extends Activity {
                 }
             }
 
-            if (key_macro == null || (key_macro[0] != 36 || key_macro[1] != 0)
-                    && (key_macro[0] != 28 || key_macro[1] != 36 || key_macro[2] != 0)) {
+            if (key_macro == null || (key_macro[0] != 36 || key_macro.length > 1)
+                    && (key_macro[0] != 28 || key_macro[1] != 36 || key_macro.length > 2)) {
                 // The test above is to make sure that whatever mapping is in
                 // effect for R/S will never be overridden by the special cases
                 // for the ALPHA and A..F menus.
