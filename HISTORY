@@ -12,7 +12,7 @@
   using the LOCK and UNLOCK functions. See the Free42 web site for details.
 * Improved display contrast in the built-in skins.
 * Android and iOS versions: Pop-up ALPHA keyboard, for easier text entry.
-* GTK version: Dark Mode support.
+* Linux version: Dark Mode support.
 
 2025-01-01: release 3.1.12b (Android only)
 
@@ -663,7 +663,7 @@
   always run in Single Instance mode; what was removed was the possibility to
   turn *off* Single Instance and allow multiple instances to run concurrently.
   That never worked well, and in the Windows version, there was never any
-  reason to allow it. In the GTK version, there was a reason, which was that
+  reason to allow it. In the Linux version, there was a reason, which was that
   Single Instance was hard to implement and did not work well in all
   environments; with GTK 3, Single Instance is supported by the platform, and
   there is no longer any reason not to use it.  
