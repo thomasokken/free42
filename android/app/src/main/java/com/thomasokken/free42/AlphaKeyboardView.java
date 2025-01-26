@@ -83,7 +83,7 @@ public class AlphaKeyboardView extends View {
         new key(378,  87,  94, 66, SPEC_NONE, "F", "f", ";", "~"),
         new key(484,  87,  94, 66, SPEC_NONE, "G", "g", "(", "<≤"),
         new key(590,  87,  94, 66, SPEC_NONE, "H", "h", ")", ">≥"),
-        new key(696,  87,  94, 66, SPEC_NONE, "J", "j", "√∫", "∡▸▒"),
+        new key(696,  87,  94, 66, SPEC_NONE, "J", "j", "√∫", "∡▸◬▒"),
         new key(802,  87,  94, 66, SPEC_NONE, "K", "k", "&", "&"),
         new key(908,  87,  94, 66, SPEC_NONE, "L", "l", "@", "@"),
         new key(  9, 167, 126, 66, SPEC_SHIFT),
