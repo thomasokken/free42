@@ -330,9 +330,6 @@ static void skin_close() {
 
 void skin_load(long *width, long *height) {
     char line[1024];
-    int size;
-    int kmcap = 0;
-    int lineno = 0;
     bool force_builtin = false;
     
     if (state.skinName[0] == 0) {
@@ -371,7 +368,10 @@ void skin_load(long *width, long *height) {
         free(keymap);
     keymap = NULL;
     keymap_length = 0;
-    
+    int kmcap = 0;
+
+    int lineno = 0;
+
     while (skin_gets(line, 1024)) {
         lineno++;
         if (*line == 0)
@@ -592,7 +592,7 @@ void skin_load(long *width, long *height) {
     if (disp_bitmap != NULL)
         free(disp_bitmap);
     disp_bytesperline = 17; // bytes needed for 131 pixels
-    size = disp_bytesperline * 16;
+    int size = disp_bytesperline * 16;
     disp_bitmap = (unsigned char *) malloc(size);
     // TODO - handle memory allocation failure
     memset(disp_bitmap, 255, size);

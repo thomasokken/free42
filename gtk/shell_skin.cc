@@ -355,7 +355,6 @@ void skin_menu_update(GtkWidget *w) {
 
 void skin_load(int *width, int *height) {
     char line[1024];
-    int lineno = 0;
     bool force_builtin = false;
 
     if (state.skinName[0] == 0) {
@@ -388,6 +387,8 @@ void skin_load(int *width, int *height) {
     keymap = NULL;
     keymap_length = 0;
     int kmcap = 0;
+
+    int lineno = 0;
 
     while (skin_gets(line, 1024)) {
         lineno++;

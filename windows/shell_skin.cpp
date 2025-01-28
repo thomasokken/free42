@@ -326,9 +326,6 @@ static void skin_invalidate(int left, int top, int right, int bottom) {
 void skin_load(wchar_t *skinname, const wchar_t *basedir, long *width, long *height) {
     char line[1024];
     bool force_builtin = false;
-    int size;
-    int kmcap = 0;
-    int lineno = 0;
 
     if (skinname[0] == 0) {
         fallback_on_1st_builtin_skin:
@@ -359,6 +356,9 @@ void skin_load(wchar_t *skinname, const wchar_t *basedir, long *width, long *hei
         free(keymap);
     keymap = NULL;
     keymap_length = 0;
+    int kmcap = 0;
+
+    int lineno = 0;
 
     while (skin_gets(line, 1024)) {
         lineno++;
@@ -562,7 +562,7 @@ void skin_load(wchar_t *skinname, const wchar_t *basedir, long *width, long *hei
         // reduce blurriness when scaling, and the margin is to avoid edge
         // effects when blurring runs across the edge.
         disp_bytesperline = (((131 * 4 + 8) + 31) >> 3) & ~3;
-        size = disp_bytesperline * (16 * 4 + 8);
+        int size = disp_bytesperline * (16 * 4 + 8);
         disp_bits = (unsigned char *) malloc(size);
         disp_bitmap = new Gdiplus::Bitmap(131 * 4 + 8, 16 * 4 + 8, disp_bytesperline, PixelFormat1bppIndexed, disp_bits);
         memset(disp_bits, 0, size);
