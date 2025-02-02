@@ -209,23 +209,31 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* spiHandle)
 
 /* USER CODE BEGIN 1 */
 
-void sendCommand(uint8_t* command, size_t count) {
-	  HAL_GPIO_WritePin(LCD_A0_GPIO_Port, LCD_A0_Pin, RESET);
-	  HAL_GPIO_WritePin(LCD_RST_GPIO_Port, LCD_RST_Pin, SET);
-	  HAL_GPIO_WritePin(LCD_CS_GPIO_Port, LCD_CS_Pin, RESET);
+void inline sendCommand(uint8_t* command, size_t count) {
+    LCD_A0_GPIO_Port->BRR = (uint32_t)(LCD_A0_Pin|LCD_CS_Pin);
+    LCD_RST_GPIO_Port->BSRR = (uint32_t)LCD_RST_Pin;
+    //HAL_GPIO_WritePin(LCD_A0_GPIO_Port, LCD_A0_Pin, RESET);
+	//  HAL_GPIO_WritePin(LCD_RST_GPIO_Port, LCD_RST_Pin, SET);
+	//  HAL_GPIO_WritePin(LCD_CS_GPIO_Port, LCD_CS_Pin, RESET);
 
 	  HAL_SPI_Transmit(&hspi3, command, count, 10000);
+
+      LCD_CS_GPIO_Port->BSRR = (uint32_t)LCD_CS_Pin;
 }
 
-void sendData(uint8_t* data, size_t count) {
-	  HAL_GPIO_WritePin(LCD_A0_GPIO_Port, LCD_A0_Pin, SET);
-	  HAL_GPIO_WritePin(LCD_RST_GPIO_Port, LCD_RST_Pin, SET);
-	  HAL_GPIO_WritePin(LCD_CS_GPIO_Port, LCD_CS_Pin, RESET);
+void inline sendData(uint8_t* data, size_t count) {
+    LCD_A0_GPIO_Port->BSRR = (uint32_t)LCD_A0_Pin|LCD_RST_Pin;
+    LCD_RST_GPIO_Port->BRR = (uint32_t)LCD_CS_Pin;
+	//  HAL_GPIO_WritePin(LCD_A0_GPIO_Port, LCD_A0_Pin, SET);
+	//  HAL_GPIO_WritePin(LCD_RST_GPIO_Port, LCD_RST_Pin, SET);
+	//  HAL_GPIO_WritePin(LCD_CS_GPIO_Port, LCD_CS_Pin, RESET);
 
 	HAL_SPI_Transmit(&hspi3, data, count, 10000);
+
+    LCD_CS_GPIO_Port->BSRR = (uint32_t)LCD_CS_Pin;
 }
 
-void setAddress(int page, int column) {
+void inline setAddress(int page, int column) {
 	uint8_t commands[3] = {
 			0b10110000 | page,
 			0b00010000 | (column >> 4),
