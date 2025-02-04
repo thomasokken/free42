@@ -2000,9 +2000,42 @@ static bool parse_number_line(char *buf, phloat *res) {
     return true;
 }
 
-void core_import_programs(int num_progs, const char *raw_file_name) {
-    int i;
+static void decode_xrom(int byte1, int byte2, int *cmd, arg_struct *arg) {
+    /* XROM & parameterless HP-42S extensions.
+     * I don't want to build a reverse look-up table
+     * for these, so instead I just do a linear search
+     * on the cmd_array table.
+     */
+    uint4 code = (((unsigned int) byte1) << 8) | byte2;
+    if (code >= 0x0a679 && code <= 0x0a67e) {
+        /* HP-41CX: X=NN? etc. */
+        switch (code & 0xf) {
+            case 0x9: *cmd = CMD_X_EQ_NN; break;
+            case 0xa: *cmd = CMD_X_NE_NN; break;
+            case 0xb: *cmd = CMD_X_LT_NN; break;
+            case 0xc: *cmd = CMD_X_LE_NN; break;
+            case 0xd: *cmd = CMD_X_GT_NN; break;
+            case 0xe: *cmd = CMD_X_GE_NN; break;
+        }
+        arg->type = ARGTYPE_IND_STK;
+        arg->val.stk = 'Y';
+        return;
+    }
+    for (int i = 0; i < CMD_SENTINEL; i++)
+        if (cmd_array[i].code1 == byte1 && cmd_array[i].code2 == byte2) {
+            if ((cmd_array[i].flags & FLAG_HIDDEN) != 0)
+                break;
+            *cmd = i;
+            arg->type = ARGTYPE_NONE;
+            return;
+        }
+    /* Not found; insert XROM instruction */
+    *cmd = CMD_XROM;
+    arg->type = ARGTYPE_NUM;
+    arg->val.num = code & 0x07FF;
+}
 
+void core_import_programs(int num_progs, const char *raw_file_name) {
     int byte1, byte2, suffix;
     int cmd, flag, str_len;
     int done_flag = 0;
@@ -2124,42 +2157,11 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                 /* "W" function (see HP-41C instruction table */
                 goto skip;
             } else if (byte1 >= 0x0A0 && byte1 <= 0x0A7) {
-                /* XROM & parameterless HP-42S extensions.
-                 * I don't want to build a reverse look-up table
-                 * for these, so instead I just do a linear search
-                 * on the cmd_array table.
-                 */
-                uint4 code;
+                /* XROM mm,nn */
                 byte2 = fgetc(gfile);
                 if (byte2 == EOF)
                     goto done;
-                code = (((unsigned int) byte1) << 8) | byte2;
-                if (code >= 0x0a679 && code <= 0x0a67e) {
-                    /* HP-41CX: X=NN? etc. */
-                    switch (code & 0xf) {
-                        case 0x9: cmd = CMD_X_EQ_NN; break;
-                        case 0xa: cmd = CMD_X_NE_NN; break;
-                        case 0xb: cmd = CMD_X_LT_NN; break;
-                        case 0xc: cmd = CMD_X_LE_NN; break;
-                        case 0xd: cmd = CMD_X_GT_NN; break;
-                        case 0xe: cmd = CMD_X_GE_NN; break;
-                    }
-                    arg.type = ARGTYPE_IND_STK;
-                    arg.val.stk = 'Y';
-                    goto store;
-                }
-                for (i = 0; i < CMD_SENTINEL; i++)
-                    if (cmd_array[i].code1 == byte1 && cmd_array[i].code2 == byte2) {
-                        if ((cmd_array[i].flags & FLAG_HIDDEN) != 0)
-                            break;
-                        cmd = i;
-                        arg.type = ARGTYPE_NONE;
-                        goto store;
-                    }
-                /* Not found; insert XROM instruction */
-                cmd = CMD_XROM;
-                arg.type = ARGTYPE_NUM;
-                arg.val.num = code & 0x07FF;
+                decode_xrom(byte1, byte2, &cmd, &arg);
                 goto store;
             } else if (byte1 == 0x0AE) {
                 /* GTO/XEQ IND */
@@ -4068,9 +4070,9 @@ static void paste_programs(const char *buf) {
                     goto line_done;
                 if (a < 0 || a > 31 || b < 0 || b > 63)
                     goto line_done;
-                cmd = CMD_XROM;
-                arg.type = ARGTYPE_NUM;
-                arg.val.num = (a << 6) | b;
+                int byte1 = 0xa0 | (a >> 2);
+                int byte2 = ((a << 6) | b) & 255;
+                decode_xrom(byte1, byte2, &cmd, &arg);
                 goto store;
             } else {
                 // Number or bust!
