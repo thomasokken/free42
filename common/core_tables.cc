@@ -469,6 +469,7 @@ const command_spec cmd_array[] =
     { /* PUTLI */       docmd_putli,       "PUTLI",               0x00, 0x75, 0xf2, 0x68,  5, ARG_L_STK,  2, ALLT },
     { /* LOCK */        docmd_lock,        "LOCK",                0x42, 0x00, 0x00, 0x00,  4, ARG_NONE,   0, NA_T },
     { /* UNLOCK */      docmd_unlock,      "UNL\317\303K",        0x42, 0x00, 0x00, 0x00,  6, ARG_NONE,   0, NA_T },
+    { /* IDENT */       docmd_ident,       "IDENT",               0x00, 0x00, 0xa7, 0xf5,  5, ARG_NONE,   0, NA_T },
 
     /* String & List Functions */
     { /* XSTR */        docmd_xstr,        "XSTR",                0x20, 0x41, 0x00, 0x00,  4, ARG_XSTR,   0, NA_T },

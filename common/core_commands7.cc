@@ -1006,6 +1006,19 @@ int docmd_unlock(arg_struct *arg) {
     return prgm_lock(false);
 }
 
+int docmd_ident(arg_struct *arg) {
+    const char *platform = shell_platform();
+    int len = 0;
+    while (platform[len] != 0 && platform[len] != ' ')
+        len++;
+    vartype_string *s = (vartype_string *) new_string(NULL, len + 7);
+    if (s == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    memcpy(s->txt(), "Free42 ", 7);
+    memcpy(s->txt() + 7, platform, len);
+    return recall_result((vartype *) s);
+}
+
 int docmd_rcomplx(arg_struct *arg) {
     bool p = flags.f.polar;
     flags.f.polar = 0;
