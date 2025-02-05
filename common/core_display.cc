@@ -442,7 +442,7 @@ static short smallchars_offset[129] =
         423,
     };
 
-static char smallchars_map[131] =
+static char smallchars_map[136] =
     {
         /*   0 */  70,
         /*   1 */  71,
@@ -574,7 +574,12 @@ static char smallchars_map[131] =
         /* 127 */  85,
         /* 128 */  26,
         /* 129 */ 126,
-        /* 130 */ 127,
+        /* 130 */  72,
+        /* 131 */  73,
+        /* 132 */  69,
+        /* 133 */  74,
+        /* 134 */  97,
+        /* 135 */ 127,
     };
 
 #if defined(WINDOWS) && !defined(__GNUC__)
@@ -850,6 +855,8 @@ void draw_char(int x, int y, char c) {
         return;
     if (undefined_char(uc) || uc == 138)
         uc -= 128;
+    else if (uc == 135)
+        uc = 130;
     X = x * 6;
     Y = y * 8;
     for (v = 0; v < 8; v++) {
@@ -870,6 +877,8 @@ const char *get_char(char c) {
     unsigned char uc = (unsigned char) c;
     if (undefined_char(uc) || uc == 138)
         uc -= 128;
+    else if (uc == 135)
+        uc = 130;
     return bigchars[uc];
 }
 
@@ -1007,7 +1016,7 @@ static int prgmline2buf(char *buf, int len, int4 line, int highlight,
         if (line < 10)
             char2buf(buf, len, &bufptr, '0');
         bufptr += int2string(line, buf + bufptr, len - bufptr);
-        char h = highlight == 0 ? ' ' : highlight == 2 && prgms[current_prgm].locked ? 130 : 6;
+        char h = highlight == 0 ? ' ' : highlight == 2 && prgms[current_prgm].locked ? 135 : 6;
         char2buf(buf, len, &bufptr, h);
     }
 
@@ -1272,7 +1281,7 @@ void display_incomplete_command(int row) {
         if (line < 10)
             char2buf(buf, 40, &bufptr, '0');
         bufptr += int2string(line, buf + bufptr, 40 - bufptr);
-        char2buf(buf, 40, &bufptr, prgms[current_prgm].locked ? 130 : 6);
+        char2buf(buf, 40, &bufptr, prgms[current_prgm].locked ? 135 : 6);
     }
 
     if (incomplete_command == CMD_ASSIGNb) {

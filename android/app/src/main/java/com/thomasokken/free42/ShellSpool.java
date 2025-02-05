@@ -30,7 +30,7 @@ public class ShellSpool {
     public static int maxGifHeight = 256;
 
     private static boolean undefined_char(int c) {
-        return c >= 131 && c != 138;
+        return c >= 130 && c != 135 && c != 138;
     }
 
     public static byte[] hp2utf8(byte[] src) {
@@ -83,7 +83,7 @@ public class ShellSpool {
                 case 127:  esc = "\u251c"; break; // append sign
                 case 128:  esc = "\u2236"; break; // thin colon
                 case 129:  esc = "\u028f"; break; // small-caps y
-                case 130:  esc = "\u25ec"; break; // gray right-pointing triangle
+                case 135:  esc = "\u25ec"; break; // gray right-pointing triangle
                 case 138:  esc = "[LF]"; break;   // LF symbol
                 default:   buf.append((char) c); continue;
             }

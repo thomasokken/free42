@@ -79,7 +79,7 @@ int hp2ascii(char *dst, const char *src, int srclen) {
             case 127:  esc = "\342\224\234"; break; // append sign
             case 128:  esc = "\342\210\266"; break; // thin colon
             case 129:  esc = "\312\217"; break;     // small-caps y
-            case 130:  esc = "\342\227\254"; break; // gray right-pointing triangle
+            case 135:  esc = "\342\227\254"; break; // gray right-pointing triangle
             case 138:  esc = "[LF]"; break;         // LF symbol
             default:   dst[d++] = c; continue;
         }

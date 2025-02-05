@@ -3071,7 +3071,7 @@ static int ascii2hp(char *dst, int dstlen, const char *src, int srclen /* = -1 *
             case 0x251c: code = 127; break; // append sign
             case 0x2236: code = 128; break; // ratio sign, used for thin colon
             case 0x028f: code = 129; break; // small-caps y
-            case 0x25ec: code = 130; break; // gray right-pointing triangle
+            case 0x25ec: code = 135; break; // gray right-pointing triangle
             case 0x240a: code = 138; break; // LF symbol
             // Combining accents: apply them if they fit,
             // otherwise ignore them
