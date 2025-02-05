@@ -69,7 +69,7 @@ static void set_solve_integ(int solve) {
     if (solve)
         print_menu_trace("SOLVER", 6);
     else
-        print_menu_trace("\003f(x)", 5);
+        print_menu_trace("\3f(x)", 5);
     if (flags.f.prgm_mode || !mvar_prgms_exist()) {
         set_menu(MENULEVEL_APP, solve ? MENU_SOLVE : MENU_INTEG);
         if (!flags.f.prgm_mode)
@@ -83,7 +83,7 @@ static void set_solve_integ(int solve) {
             if (solve)
                 draw_string(0, 0, "Select Solve Program", 20);
             else
-                draw_string(0, 0, "Select \003f(x) Program", 20);
+                draw_string(0, 0, "Select \3f(x) Program", 20);
             flags.f.message = 1;
             flags.f.two_line_message = 0;
         } else

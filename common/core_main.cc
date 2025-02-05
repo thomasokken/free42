@@ -3606,12 +3606,12 @@ static void paste_programs(const char *buf) {
                                     && hpbuf[prev_hppos + 2] == '?'
                                     && hpbuf[prev_hppos + 3] == ' ') {
                     switch (hpbuf[prev_hppos + 1]) {
-                        case '=':    cmd = CMD_0_EQ_NN; goto parse_arg;
-                        case '\014': cmd = CMD_0_NE_NN; goto parse_arg;
-                        case '<':    cmd = CMD_0_LT_NN; goto parse_arg;
-                        case '>':    cmd = CMD_0_GT_NN; goto parse_arg;
-                        case '\011': cmd = CMD_0_LE_NN; goto parse_arg;
-                        case '\013': cmd = CMD_0_GE_NN; goto parse_arg;
+                        case '=':   cmd = CMD_0_EQ_NN; goto parse_arg;
+                        case '\14': cmd = CMD_0_NE_NN; goto parse_arg;
+                        case '<':   cmd = CMD_0_LT_NN; goto parse_arg;
+                        case '>':   cmd = CMD_0_GT_NN; goto parse_arg;
+                        case '\11': cmd = CMD_0_LE_NN; goto parse_arg;
+                        case '\13': cmd = CMD_0_GE_NN; goto parse_arg;
                         default: goto not_zero_comp;
                     }
                     parse_arg:
@@ -4938,7 +4938,7 @@ static synonym_spec hp41_synonyms[] =
     { "X<>0?",  false, 5, CMD_X_NE_0  },
     { "X<>Y?",  false, 5, CMD_X_NE_Y  },
     { "v",      false, 1, CMD_DOWN    },
-    { "SST\016",true,  4, CMD_SST     },
+    { "SST\16", true,  4, CMD_SST     },
     { "X>=0?",  false, 5, CMD_X_GE_0  },
     { "X>=Y?",  false, 5, CMD_X_GE_Y  },
     { "S-N",    false, 3, CMD_S_TO_N  },

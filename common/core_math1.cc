@@ -1174,7 +1174,7 @@ static int finish_integ() {
     if (!integ.keep_running) {
         char buf[22];
         int bufptr = 0;
-        string2buf(buf, 22, &bufptr, "\003=", 2);
+        string2buf(buf, 22, &bufptr, "\3=", 2);
         bufptr += vartype2string(x, buf + bufptr, 22 - bufptr);
         clear_row(0);
         draw_string(0, 0, buf, bufptr);
