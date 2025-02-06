@@ -1011,12 +1011,21 @@ int docmd_ident(arg_struct *arg) {
     int len = 0;
     while (platform[len] != 0 && platform[len] != ' ')
         len++;
-    vartype_string *s = (vartype_string *) new_string(NULL, len + 7);
-    if (s == NULL)
+
+    char vbuf[16];
+    memcpy(vbuf, platform, len);
+    vbuf[len] = 0;
+    int vcomp[4] = { 0, 0, 0, 0 };
+    sscanf(vbuf, "%d.%d.%d", &vcomp[0], &vcomp[1], &vcomp[2]);
+    char c = vbuf[len - 1];
+    if (c >= 'a')
+        vcomp[3] = c - 'a' + 1;
+    int ver = ((vcomp[0] * 100 + vcomp[1]) * 100 + vcomp[2]) * 100 + vcomp[3];
+
+    vartype *v = new_real(ver);
+    if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
-    memcpy(s->txt(), "Free42 ", 7);
-    memcpy(s->txt() + 7, platform, len);
-    return recall_result((vartype *) s);
+    return recall_result(v);
 }
 
 int docmd_rcomplx(arg_struct *arg) {
