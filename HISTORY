@@ -1,3 +1,12 @@
+2025-02-07: release 3.2.1
+
+* Fixed crash when trying to load invalid skins.
+* Added IDENT function. This returns the app's version number as an integer,
+  in aabbccdd format, with 3.1.12b formatted as 3011202, for example.
+* XROMs are now decoded immediately when pasting.
+* iOS version: Removed noise from annunciator area in the Standard-4" and
+  Standard-X skins.
+
 2025-01-25: release 3.2b (Android and iOS)
 
 * More keyboard fixes.
