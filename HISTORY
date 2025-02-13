@@ -1,3 +1,7 @@
+2025-02-13: release 3.2.2
+
+* The CUSTOM menu didn't stick reliably, due to a bug introduced in 3.2. Fixed.
+
 2025-02-07: release 3.2.1
 
 * Fixed crash when trying to load invalid skins.
