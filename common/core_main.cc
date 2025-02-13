@@ -2036,7 +2036,7 @@ static void decode_xrom(int byte1, int byte2, int *cmd, arg_struct *arg) {
 }
 
 static void decode_suffix(int cmd, int suffix, arg_struct *arg) {
-    bool ind = (suffix & 0x080) != 0;
+    bool ind = (suffix & 0x80) != 0;
     suffix &= 0x7f;
     if (!ind && (cmd == CMD_LBL || cmd == CMD_GTO || cmd == CMD_XEQ
                 || cmd >= CMD_KEY1G && cmd <= CMD_KEY9X)
@@ -2071,7 +2071,7 @@ static void decode_string(unsigned char *buf, int *cmd, arg_struct *arg, char **
     bool extra_extension = false;
     bool assign = false;
     
-    if ((byte2 & 0x080) == 0) {
+    if ((byte2 & 0x80) == 0) {
         /* String */
         int i;
         *cmd = CMD_STRING;
@@ -2079,7 +2079,7 @@ static void decode_string(unsigned char *buf, int *cmd, arg_struct *arg, char **
         xrom_string:
         *cmd = CMD_XROM;
         string_2:
-        str_len = byte1 - 0x0f0;
+        str_len = byte1 - 0xf0;
         pos--;
         arg->type = ARGTYPE_STR;
         do_string:
@@ -2131,14 +2131,14 @@ static void decode_string(unsigned char *buf, int *cmd, arg_struct *arg, char **
         }
     } else {
         /* Parameterized HP-42S extension */
-        if (byte1 == 0x0f1) {
+        if (byte1 == 0xf1) {
             switch (byte2) {
-                case 0x0d5: *cmd = CMD_FIX; arg->val.num = 10; break;
-                case 0x0d6: *cmd = CMD_SCI; arg->val.num = 10; break;
-                case 0x0d7: *cmd = CMD_ENG; arg->val.num = 10; break;
-                case 0x0e5: *cmd = CMD_FIX; arg->val.num = 11; break;
-                case 0x0e6: *cmd = CMD_SCI; arg->val.num = 11; break;
-                case 0x0e7: *cmd = CMD_ENG; arg->val.num = 11; break;
+                case 0xd5: *cmd = CMD_FIX; arg->val.num = 10; break;
+                case 0xd6: *cmd = CMD_SCI; arg->val.num = 10; break;
+                case 0xd7: *cmd = CMD_ENG; arg->val.num = 10; break;
+                case 0xe5: *cmd = CMD_FIX; arg->val.num = 11; break;
+                case 0xe6: *cmd = CMD_SCI; arg->val.num = 11; break;
+                case 0xe7: *cmd = CMD_ENG; arg->val.num = 11; break;
                 default: goto xrom_string;
             }
             arg->type = ARGTYPE_NUM;
@@ -2155,29 +2155,29 @@ static void decode_string(unsigned char *buf, int *cmd, arg_struct *arg, char **
         if (flag == 0 || flag == 1) {
             arg->type = flag == 0 ? ARGTYPE_STR
                                     : ARGTYPE_IND_STR;
-            str_len = byte1 - 0x0f1;
+            str_len = byte1 - 0xf1;
             extra_extension = false;
             goto do_string;
         } else if (flag == 2) {
-            if (byte1 != 0x0f2)
+            if (byte1 != 0xf2)
                 goto xrom_string;
             int suffix = buf[pos++];
             decode_suffix(*cmd, suffix, arg);
         } else if (flag == 3) {
-            if (byte2 == 0x0c0) {
+            if (byte2 == 0xc0) {
                 /* ASSIGN */
-                str_len = byte1 - 0x0f2;
+                str_len = byte1 - 0xf2;
                 assign = 1;
                 *cmd = CMD_ASGN01;
                 arg->type = ARGTYPE_STR;
                 goto do_string;
-            } else if (byte2 == 0x0c2 || byte2 == 0x0c3
-                    || byte2 == 0x0ca || byte2 == 0x0cb) {
+            } else if (byte2 == 0xc2 || byte2 == 0xc3
+                    || byte2 == 0xca || byte2 == 0xcb) {
                 /* KEYG/KEYX name, KEYG/KEYX IND name */
-                str_len = byte1 - 0x0f2;
+                str_len = byte1 - 0xf2;
                 if (str_len == 0)
                     goto xrom_string;
-                *cmd = byte2 == 0x0c2 || byte2 == 0x0ca
+                *cmd = byte2 == 0xc2 || byte2 == 0xca
                         ? CMD_KEY1X : CMD_KEY1G;
                 int key;
                 key = buf[pos++];
@@ -2198,23 +2198,23 @@ static void decode_string(unsigned char *buf, int *cmd, arg_struct *arg, char **
                     return;
                 }
                 *cmd += key - 1;
-                arg->type = byte2 == 0x0c2 || byte2 == 0x0c3
+                arg->type = byte2 == 0xc2 || byte2 == 0xc3
                             ? ARGTYPE_STR : ARGTYPE_IND_STR;
                 goto do_string;
-            } else if (byte2 == 0x0e2 || byte2 == 0x0e3) {
+            } else if (byte2 == 0xe2 || byte2 == 0xe3) {
                 /* KEYG/KEYX suffix */
-                if (byte1 != 0x0f3)
+                if (byte1 != 0xf3)
                     goto xrom_string;
                 int key = buf[pos++];
                 if (key < 1 || key > 9)
                     goto bad_keyg_keyx;
-                *cmd = byte2 == 0x0e2 ? CMD_KEY1X : CMD_KEY1G;
+                *cmd = byte2 == 0xe2 ? CMD_KEY1X : CMD_KEY1G;
                 *cmd += key - 1;
                 int suffix = buf[pos++];
                 decode_suffix(*cmd, suffix, arg);
-            } else /* byte2 == 0x0f7 */ {
+            } else /* byte2 == 0xf7 */ {
                 /* SIZE */
-                if (byte1 != 0x0f3)
+                if (byte1 != 0xf3)
                     goto xrom_string;
                 int hi = buf[pos++];
                 int lo = buf[pos++];
@@ -2337,11 +2337,11 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                 str_len = fgetc(gfile);
                 if (str_len == EOF)
                     goto done;
-                else if (str_len < 0x0f1) {
+                else if (str_len < 0xf1) {
                     ungetc(str_len, gfile);
                     goto skip;
                 } else
-                    str_len -= 0x0f0;
+                    str_len -= 0xf0;
                 arg.type = ARGTYPE_STR;
                 do_string:
                 for (int i = 0; i < str_len; i++) {
@@ -2354,13 +2354,13 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
             } else if (byte1 == 0x1f) {
                 /* "W" function (see HP-41C instruction table */
                 goto skip;
-            } else if (byte1 >= 0x0a0 && byte1 <= 0x0a7) {
+            } else if (byte1 >= 0xa0 && byte1 <= 0xa7) {
                 /* XROM mm,nn */
                 byte2 = fgetc(gfile);
                 if (byte2 == EOF)
                     goto done;
                 decode_xrom(byte1, byte2, &cmd, &arg);
-            } else if (byte1 == 0x0ae) {
+            } else if (byte1 == 0xae) {
                 /* GTO/XEQ IND */
                 suffix = fgetc(gfile);
                 if (suffix == EOF)
@@ -2369,13 +2369,13 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                     cmd = CMD_XEQ;
                 else {
                     cmd = CMD_GTO;
-                    suffix |= 0x080;
+                    suffix |= 0x80;
                 }
                 decode_suffix(cmd, suffix, &arg);
-            } else if (byte1 == 0x0af || byte1 == 0x0b0) {
+            } else if (byte1 == 0xaf || byte1 == 0xb0) {
                 /* SPARE functions (see HP-41C instruction table */
                 goto skip;
-            } else if (byte1 >= 0x0b1 && byte1 <= 0x0bf) {
+            } else if (byte1 >= 0xb1 && byte1 <= 0xbf) {
                 /* 2-byte GTO */
                 byte2 = fgetc(gfile);
                 if (byte2 == EOF)
@@ -2383,7 +2383,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                 cmd = CMD_GTO;
                 arg.type = ARGTYPE_NUM;
                 arg.val.num = (byte1 & 15) - 1;
-            } else if (byte1 >= 0x0c0 && byte1 <= 0x0cd) {
+            } else if (byte1 >= 0xc0 && byte1 <= 0xcd) {
                 /* GLOBAL */
                 byte2 = fgetc(gfile);
                 if (byte2 == EOF)
@@ -2391,13 +2391,13 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                 str_len = fgetc(gfile);
                 if (str_len == EOF)
                     goto done;
-                if (str_len < 0x0f1) {
+                if (str_len < 0xf1) {
                     /* END */
                     cmd = CMD_END;
                     arg.type = ARGTYPE_NONE;
                 } else {
                     /* LBL "" */
-                    str_len -= 0x0f1;
+                    str_len -= 0xf1;
                     byte2 = fgetc(gfile);
                     if (byte2 == EOF)
                         goto done;
@@ -2405,7 +2405,7 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                     arg.type = ARGTYPE_STR;
                     goto do_string;
                 }
-            } else if (byte1 >= 0x0d0 && byte1 <= 0x0ef) {
+            } else if (byte1 >= 0xd0 && byte1 <= 0xef) {
                 /* 3-byte GTO & XEQ */
                 byte2 = fgetc(gfile);
                 if (byte2 == EOF)
@@ -2413,14 +2413,14 @@ void core_import_programs(int num_progs, const char *raw_file_name) {
                 suffix = fgetc(gfile);
                 if (suffix == EOF)
                     goto done;
-                cmd = byte1 <= 0x0df ? CMD_GTO : CMD_XEQ;
+                cmd = byte1 <= 0xdf ? CMD_GTO : CMD_XEQ;
                 suffix &= 0x7f;
                 decode_suffix(cmd, suffix, &arg);
             } else /* byte1 >= 0xf1 && byte1 <= 0xff */ {
                 /* Strings and parameterized HP-42S extensions */
                 unsigned char buf[16];
                 buf[0] = byte1;
-                str_len = byte1 - 0x0f0;
+                str_len = byte1 - 0xf0;
                 for (int i = 0; i < str_len; i++) {
                     int c = fgetc(gfile);
                     if (c == EOF)
