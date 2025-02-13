@@ -343,7 +343,7 @@ int docmd_custom(arg_struct *arg) {
     if (mode_plainmenu != MENU_CUSTOM1
             && mode_plainmenu != MENU_CUSTOM2
             && mode_plainmenu != MENU_CUSTOM3)
-        set_menu(MENULEVEL_PLAIN, MENU_CUSTOM1);
+        set_plainmenu(MENU_CUSTOM1, NULL, 0);
     return ERR_NONE;
 }
 
