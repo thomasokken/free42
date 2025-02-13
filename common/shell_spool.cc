@@ -197,7 +197,7 @@ int shell_start_gif(file_writer writer, int width, int provisional_height) {
     *p++ = width >> 8;
     *p++ = height & 255;
     *p++ = height >> 8;
-    *p++ = (char) 0xF0;
+    *p++ = (char) 0xf0;
     *p++ = 0;
     *p++ = 0;
 

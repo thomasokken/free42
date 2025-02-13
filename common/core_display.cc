@@ -2613,7 +2613,7 @@ int command2buf(char *buf, int len, int cmd, const arg_struct *arg) {
     }
 
     if (cmd == CMD_XROM) {
-        int n = xrom_arg & 0x7FF;
+        int n = xrom_arg & 0x7ff;
         int rom = n >> 6;
         int instr = n & 63;
         char2buf(buf, len, &bufptr, ' ');
