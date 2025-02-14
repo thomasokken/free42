@@ -73,15 +73,22 @@ int hp2ascii(char *dst, const char *src, int srclen) {
             case  27:  esc = "[ESC]"; break;        // EC symbol
             case  28:  esc = "\303\226"; break;     // uppercase o with umlaut
             case  29:  esc = "\303\234"; break;     // uppercase u with umlaut
-            case  30:  esc = "\342\226\222"; break; // gray rectangle
+            case  30:  esc = "^"; break;            // caret
             case  31:  esc = "\342\200\242"; break; // bullet
             case  94:  esc = "\342\206\221"; break; // upward-pointing arrow
             case 127:  esc = "\342\224\234"; break; // append sign
             case 128:  esc = "\342\210\266"; break; // thin colon
             case 129:  esc = "\312\217"; break;     // small-caps y
+            case 130:  esc = "\316\251"; break;     // uppercase omega
+            case 131:  esc = "\341\264\233"; break; // small-caps t
+            case 132:  esc = "\312\237"; break;     // small-caps l
+            case 133:  esc = "\341\264\200"; break; // small-caps a
+            case 134:  esc = "\342\226\271"; break; // hollow right-pointing triangle
             case 135:  esc = "\342\227\254"; break; // gray right-pointing triangle
+            case 136:  esc = "\302\253"; break;     // opening guillemet
+            case 137:  esc = "\302\273"; break;     // closing guillemet
             case 138:  esc = "[LF]"; break;         // LF symbol
-            default:   dst[d++] = c; continue;
+            default: dst[d++] = c; continue;
         }
         while (*esc != 0)
             dst[d++] = *esc++;

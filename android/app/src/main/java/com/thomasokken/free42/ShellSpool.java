@@ -30,7 +30,7 @@ public class ShellSpool {
     public static int maxGifHeight = 256;
 
     private static boolean undefined_char(int c) {
-        return c >= 130 && c != 135 && c != 138;
+        return c >= 139;
     }
 
     public static byte[] hp2utf8(byte[] src) {
@@ -48,42 +48,49 @@ public class ShellSpool {
             }
             String esc;
             switch (c) {
-                case  0:   esc = "\u00f7"; break; // division sign
-                case  1:   esc = "\u00d7"; break; // multiplication sign
-                case  2:   esc = "\u221a"; break; // square root sign
-                case  3:   esc = "\u222b"; break; // integral sign
-                case  4:   esc = "\u2592"; break; // gray rectangle
-                case  5:   esc = "\u03a3"; break; // uppercase sigma
-                case  6:   esc = "\u25b8"; break; // small right-pointing triangle
-                case  7:   esc = "\u03c0"; break; // lowercase pi
-                case  8:   esc = "\u00bf"; break; // upside-down question mark
-                case  9:   esc = "\u2264"; break; // less-than-or-equals sign
-                case 11:   esc = "\u2265"; break; // greater-than-or-equals sign
-                case 12:   esc = "\u2260"; break; // not-equals sign
-                case 13:   esc = "\u21b5"; break; // down-then-left arrow
-                case 14:   esc = "\u2193"; break; // downward-pointing arrow
-                case 15:   esc = "\u2192"; break; // right-pointing arrow
-                case 16:   esc = "\u2190"; break; // left-pointing arrow
-                case 17:   esc = "\u03bc"; break; // lowercase mu
-                case 18:   esc = "\u00a3"; break; // pound sterling sign
-                case 19:   esc = "\u00b0"; break; // degree symbol
-                case 20:   esc = "\u00c5"; break; // uppercase a with ring
-                case 21:   esc = "\u00d1"; break; // uppercase n with tilde
-                case 22:   esc = "\u00c4"; break; // uppercase a with umlaut
-                case 23:   esc = "\u2221"; break; // measured angle symbol
-                case 24:   esc = "\u1d07"; break; // small-caps e
-                case 25:   esc = "\u00c6"; break; // uppercase ae ligature
-                case 26:   esc = "\u2026"; break; // ellipsis
-                case 27:   esc = "[ESC]"; break;  // EC symbol
-                case 28:   esc = "\u00d6"; break; // uppercase o with umlaut
-                case 29:   esc = "\u00dc"; break; // uppercase u with umlaut
-                case 30:   esc = "\u2592"; break; // gray rectangle
-                case 31:   esc = "\u2022"; break; // bullet
-                case 94:   esc = "\u2191"; break; // upward-pointing arrow
+                case   0:  esc = "\u00f7"; break; // division sign
+                case   1:  esc = "\u00d7"; break; // multiplication sign
+                case   2:  esc = "\u221a"; break; // square root sign
+                case   3:  esc = "\u222b"; break; // integral sign
+                case   4:  esc = "\u2592"; break; // gray rectangle
+                case   5:  esc = "\u03a3"; break; // uppercase sigma
+                case   6:  esc = "\u25b8"; break; // small right-pointing triangle
+                case   7:  esc = "\u03c0"; break; // lowercase pi
+                case   8:  esc = "\u00bf"; break; // upside-down question mark
+                case   9:  esc = "\u2264"; break; // less-than-or-equals sign
+                case  11:  esc = "\u2265"; break; // greater-than-or-equals sign
+                case  12:  esc = "\u2260"; break; // not-equals sign
+                case  13:  esc = "\u21b5"; break; // down-then-left arrow
+                case  14:  esc = "\u2193"; break; // downward-pointing arrow
+                case  15:  esc = "\u2192"; break; // right-pointing arrow
+                case  16:  esc = "\u2190"; break; // left-pointing arrow
+                case  17:  esc = "\u03bc"; break; // lowercase mu
+                case  18:  esc = "\u00a3"; break; // pound sterling sign
+                case  19:  esc = "\u00b0"; break; // degree symbol
+                case  20:  esc = "\u00c5"; break; // uppercase a with ring
+                case  21:  esc = "\u00d1"; break; // uppercase n with tilde
+                case  22:  esc = "\u00c4"; break; // uppercase a with umlaut
+                case  23:  esc = "\u2221"; break; // measured angle symbol
+                case  24:  esc = "\u1d07"; break; // small-caps e
+                case  25:  esc = "\u00c6"; break; // uppercase ae ligature
+                case  26:  esc = "\u2026"; break; // ellipsis
+                case  27:  esc = "[ESC]"; break;  // EC symbol
+                case  28:  esc = "\u00d6"; break; // uppercase o with umlaut
+                case  29:  esc = "\u00dc"; break; // uppercase u with umlaut
+                case  30:  esc = "^"; break;      // caret
+                case  31:  esc = "\u2022"; break; // bullet
+                case  94:  esc = "\u2191"; break; // upward-pointing arrow
                 case 127:  esc = "\u251c"; break; // append sign
                 case 128:  esc = "\u2236"; break; // thin colon
                 case 129:  esc = "\u028f"; break; // small-caps y
+                case 130:  esc = "\u03a9"; break; // uppercase omega
+                case 131:  esc = "\u1d1b"; break; // small-caps t
+                case 132:  esc = "\u029f"; break; // small-caps l
+                case 133:  esc = "\u1d00"; break; // small-caps a
+                case 134:  esc = "\u25b9"; break; // hollow right-pointing triangle
                 case 135:  esc = "\u25ec"; break; // gray right-pointing triangle
+                case 136:  esc = "\u00ab"; break; // opening guillemet
+                case 137:  esc = "\u00bb"; break; // closing guillemet
                 case 138:  esc = "[LF]"; break;   // LF symbol
                 default:   buf.append((char) c); continue;
             }

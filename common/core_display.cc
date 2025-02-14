@@ -42,7 +42,7 @@
 #endif
 
 
-static const char bigchars[131][5] =
+static const char bigchars[138][5] =
     {
         { 0x08, 0x08, 0x2a, 0x08, 0x08 },
         { 0x22, 0x14, 0x08, 0x14, 0x22 },
@@ -74,7 +74,7 @@ static const char bigchars[131][5] =
         { 0x1f, 0x15, 0x71, 0x50, 0x50 },
         { 0x3c, 0x43, 0x42, 0x43, 0x3c },
         { 0x3c, 0x41, 0x40, 0x41, 0x3c },
-        { 0x55, 0x2a, 0x55, 0x2a, 0x55 },
+        { 0x04, 0x02, 0x01, 0x02, 0x04 },
         { 0x3c, 0x3c, 0x3c, 0x3c, 0x3c },
         { 0x00, 0x00, 0x00, 0x00, 0x00 },
         { 0x00, 0x00, 0x5f, 0x00, 0x00 },
@@ -174,10 +174,17 @@ static const char bigchars[131][5] =
         { 0x7f, 0x08, 0x08, 0x08, 0x08 },
         { 0x28, 0x00, 0x00, 0x00, 0x00 },
         { 0x04, 0x08, 0x70, 0x08, 0x04 },
+        { 0x5e, 0x61, 0x01, 0x61, 0x5e },
+        { 0x04, 0x04, 0x7c, 0x04, 0x04 },
+        { 0x7c, 0x40, 0x40, 0x40, 0x40 },
+        { 0x78, 0x14, 0x14, 0x14, 0x78 },
+        { 0x7f, 0x41, 0x22, 0x14, 0x08 },
         { 0x2a, 0x55, 0x2a, 0x14, 0x08 },
+        { 0x08, 0x14, 0x2a, 0x14, 0x22 },
+        { 0x22, 0x14, 0x2a, 0x14, 0x08 },
     };
 
-static const char smallchars[423] =
+static const char smallchars[454] =
     {
         0x00, 0x00, 0x00,
         0x5c,
@@ -303,13 +310,21 @@ static const char smallchars[423] =
         0x48, 0x30, 0x48,
         0x98, 0xa0, 0x78,
         0x68, 0x58, 0x58,
+        0x08, 0x04, 0x08,
+        0x18, 0x60, 0x18,
+        0x58, 0x64, 0x04, 0x64, 0x58,
+        0x7c, 0x44, 0x28, 0x10,
+        0x08, 0x78, 0x08,
         0x20, 0x70, 0x20, 0x3c,
         0x7c, 0x54, 0x00, 0x78, 0x48,
-        0x18, 0x60, 0x18,
+        0x78, 0x40, 0x40,
+        0x70, 0x28, 0x70,
         0x28, 0x54, 0x28, 0x10,
+        0x10, 0x28, 0x54, 0x28, 0x44,
+        0x44, 0x28, 0x54, 0x28, 0x10,
     };
 
-static short smallchars_offset[129] =
+static short smallchars_offset[137] =
     {
           0,
           3,
@@ -436,13 +451,21 @@ static short smallchars_offset[129] =
         401,
         404,
         407,
-        411,
-        416,
-        419,
-        423,
+        410,
+        413,
+        418,
+        422,
+        425,
+        429,
+        434,
+        437,
+        440,
+        444,
+        449,
+        454,
     };
 
-static char smallchars_map[136] =
+static char smallchars_map[138] =
     {
         /*   0 */  70,
         /*   1 */  71,
@@ -457,7 +480,7 @@ static char smallchars_map[136] =
         /*  10 */  77,
         /*  11 */  78,
         /*  12 */  79,
-        /*  13 */ 124,
+        /*  13 */ 129,
         /*  14 */  80,
         /*  15 */  81,
         /*  16 */  82,
@@ -471,10 +494,10 @@ static char smallchars_map[136] =
         /*  24 */  37,
         /*  25 */  94,
         /*  26 */  86,
-        /*  27 */ 125,
+        /*  27 */ 130,
         /*  28 */  89,
         /*  29 */  90,
-        /*  30 */  69,
+        /*  30 */ 124,
         /*  31 */  95,
         /*  32 */   0,
         /*  33 */   1,
@@ -573,13 +596,15 @@ static char smallchars_map[136] =
         /* 126 */  68,
         /* 127 */  85,
         /* 128 */  26,
-        /* 129 */ 126,
-        /* 130 */  72,
-        /* 131 */  73,
-        /* 132 */  69,
-        /* 133 */  74,
-        /* 134 */  97,
-        /* 135 */ 127,
+        /* 129 */ 125,
+        /* 130 */ 126,
+        /* 131 */ 128,
+        /* 132 */ 131,
+        /* 133 */ 132,
+        /* 134 */ 127,
+        /* 135 */ 133,
+        /* 136 */ 134,
+        /* 137 */ 135,
     };
 
 #if defined(WINDOWS) && !defined(__GNUC__)
@@ -855,8 +880,6 @@ void draw_char(int x, int y, char c) {
         return;
     if (undefined_char(uc) || uc == 138)
         uc -= 128;
-    else if (uc == 135)
-        uc = 130;
     X = x * 6;
     Y = y * 8;
     for (v = 0; v < 8; v++) {
@@ -877,8 +900,6 @@ const char *get_char(char c) {
     unsigned char uc = (unsigned char) c;
     if (undefined_char(uc) || uc == 138)
         uc -= 128;
-    else if (uc == 135)
-        uc = 130;
     return bigchars[uc];
 }
 

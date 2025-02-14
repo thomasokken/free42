@@ -3058,20 +3058,28 @@ static int ascii2hp(char *dst, int dstlen, const char *src, int srclen /* = -1 *
             case 0x00f6: code =  28; break; // lowercase o with umlaut
             case 0x00dc:                    // uppercase u with umlaut
             case 0x00fc: code =  29; break; // lowercase u with umlaut
+            case '^':    code =  30; break; // caret
             case 0x00b7:                    // middle dot (Emu42)
             case 0x2022: code =  31; break; // bullet
             case 0x201c:                    // left curly double quote
             case 0x201d: code =  34; break; // right curly double quote
             case 0x2018:                    // left curly single quote
             case 0x2019: code =  39; break; // right curly single quote
-            case 0x2191: code =  94; break; // upward-pointing arrow
             case 0x2212: code =  45; break; // minus sign
+            case 0x2191: code =  94; break; // upward-pointing arrow
             case 0x22a2:                    // right tack sign (i41CX)
             case 0x22a6:                    // assertion sign (Emu42)
             case 0x251c: code = 127; break; // append sign
             case 0x2236: code = 128; break; // ratio sign, used for thin colon
             case 0x028f: code = 129; break; // small-caps y
+            case 0x03a9: code = 130; break; // Uppercase omega
+            case 0x1d1b: code = 131; break; // small-caps t
+            case 0x029f: code = 132; break; // small-caps l
+            case 0x1d00: code = 133; break; // small-caps a
+            case 0x25b9: code = 134; break; // hollow right-pointing triangle
             case 0x25ec: code = 135; break; // gray right-pointing triangle
+            case 0x00ab: code = 136; break; // opening guillemet
+            case 0x00bb: code = 137; break; // closing guillemet
             case 0x240a: code = 138; break; // LF symbol
             // Combining accents: apply them if they fit,
             // otherwise ignore them
