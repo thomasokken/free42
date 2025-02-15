@@ -207,6 +207,32 @@ static int dirTypeCapacity = 0;
         return 0;
 }
 
+- (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return UITableViewCellEditingStyleDelete;
+}
+
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSUInteger n = [indexPath indexAtPosition:1];
+    if (dirList == NULL || n >= [dirList count])
+        return NO;
+    return dirType[n] ? NO : YES;
+}
+
+- (UISwipeActionsConfiguration *) tableView:(UITableView *) tableView trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *) indexPath {
+    return nil;
+}
+
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (editingStyle == UITableViewCellEditingStyleDelete) {
+        NSUInteger n = [indexPath indexAtPosition:1];
+        if (dirList == NULL || n >= [dirList count] || dirType[n])
+            return;
+        NSString *path = [NSString stringWithFormat:@"%@/%@", dirName, [dirList objectAtIndex:n]];
+        remove([path UTF8String]);
+        [self typeChanged];
+    }
+}
+
 - (IBAction) selectFile {
     [self endEditing:YES];
     // unregister for keyboard notifications while not visible.
