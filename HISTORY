@@ -1,3 +1,9 @@
+2025-02-16: release 3.2.3
+
+* Added a few characters to the character set, in order to allow copying and
+  pasting text between Free42 and Plus42 without losing information.
+* iOS version: Implemented Swipe to Delete in the file selector dialog.
+
 2025-02-13: release 3.2.2
 
 * The CUSTOM menu didn't stick reliably, due to a bug introduced in 3.2. Fixed.
