@@ -427,9 +427,6 @@ int docmd_input(arg_struct *arg) {
 
 int view_helper(arg_struct *arg, bool print) {
     int err;
-    char buf[22];
-    int bufptr = 0, part2;
-    vartype *v;
     if (arg->type == ARGTYPE_IND_NUM
             || arg->type == ARGTYPE_IND_STK
             || arg->type == ARGTYPE_IND_STR) {
@@ -437,6 +434,13 @@ int view_helper(arg_struct *arg, bool print) {
         if (err != ERR_NONE)
             return err;
     }
+    vartype *v;
+    err = generic_rcl(arg, &v);
+    if (err != ERR_NONE)
+        return err;
+
+    char buf[64];
+    int bufptr = 0;
     switch (arg->type) {
         case ARGTYPE_NUM: {
             int num = arg->val.num;
@@ -455,27 +459,43 @@ int view_helper(arg_struct *arg, bool print) {
             break;
     }
     char2buf(buf, 22, &bufptr, '=');
-    part2 = bufptr;
-    err = generic_rcl(arg, &v);
-    if (err != ERR_NONE)
-        return err;
+    int part2 = bufptr;
+
     bufptr += vartype2string(v, buf + bufptr, 22 - bufptr);
-    free_vartype(v);
     clear_row(0);
     draw_string(0, 0, buf, bufptr);
     flush_display();
     flags.f.message = 1;
     flags.f.two_line_message = 0;
 
+    err = ERR_NONE;
     if (print && (flags.f.printer_enable || !program_running())) {
         if (flags.f.printer_exists) {
             shell_annunciators(-1, -1, 1, -1, -1, -1);
-            print_wide(buf, part2, buf + part2, bufptr - part2);
+            bufptr = part2;
+            char *sbuf = NULL;
+            char *pbuf = buf;
+            int slen = 64;
+            if (v->type == TYPE_STRING) {
+                vartype_string *s = (vartype_string *) v;
+                slen = bufptr + s->length + 2;
+                sbuf = (char *) malloc(slen);
+                if (sbuf == NULL) {
+                    slen = 64;
+                } else {
+                    memcpy(sbuf, buf, bufptr);
+                    pbuf = sbuf;
+                }
+            }
+            bufptr += vartype2string(v, pbuf + bufptr, slen - bufptr);
+            print_lines(pbuf, bufptr, true);
+            free(sbuf);
             shell_annunciators(-1, -1, 0, -1, -1, -1);
         } else
-            return ERR_STOP;
+            err = ERR_STOP;
     }
-    return ERR_NONE;
+    free_vartype(v);
+    return err;
 }
 
 int docmd_view(arg_struct *arg) {
