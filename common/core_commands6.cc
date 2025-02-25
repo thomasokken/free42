@@ -688,8 +688,38 @@ int docmd_y_pow_x(arg_struct *arg) {
                 goto done;
             } else {
                 /* Complex number to integer power */
-                phloat rre, rim, yre, yim;
-                int4 ex;
+                phloat yre = ((vartype_complex *) stack[sp - 1])->re;
+                phloat yim = ((vartype_complex *) stack[sp - 1])->im;
+                int4 ex = to_int4(x);
+                if (ex <= 0 && yre == 0 && yim == 0)
+                    return ERR_INVALID_DATA;
+                bool invert = ex < 0;
+                if (invert)
+                    ex = -ex;
+                phloat rre, rim;
+
+                if (yre == yim) {
+                    /* (a+ai)^n : we can avoid doing complex math for this */
+#ifdef BCD_MATH
+                    phloat r = pow(yre * yre * 2, ex / 2);
+                    if (ex % 2 != 0)
+                        r *= yre;
+#else
+                    phloat r = scalbn(pow(yre, ex), ex / 2);
+#endif
+                    switch (ex % 8) {
+                        case 0: rre =  r; rim =  0; break;
+                        case 1: rre =  r; rim =  r; break;
+                        case 2: rre =  0; rim =  r; break;
+                        case 3: rre = -r; rim =  r; break;
+                        case 4: rre = -r; rim =  0; break;
+                        case 5: rre = -r; rim = -r; break;
+                        case 6: rre =  0; rim = -r; break;
+                        case 7: rre =  r; rim = -r; break;
+                    }
+                    goto complex_pow_int_done;
+                }
+
                 if (x < -256.0 || x > 256.0)
                     /* At some point, the cumulative error in repeated squaring
                      * becomes larger than the error in the polar power
@@ -705,14 +735,6 @@ int docmd_y_pow_x(arg_struct *arg) {
                     goto complex_pow_real_1;
                 rre = 1;
                 rim = 0;
-                yre = ((vartype_complex *) stack[sp - 1])->re;
-                yim = ((vartype_complex *) stack[sp - 1])->im;
-                ex = to_int4(x);
-                if (ex <= 0 && yre == 0 && yim == 0)
-                    return ERR_INVALID_DATA;
-                bool invert = ex < 0;
-                if (invert)
-                    ex = -ex;
                 while (1) {
                     phloat tmp;
                     if ((ex & 1) != 0) {
@@ -736,6 +758,7 @@ int docmd_y_pow_x(arg_struct *arg) {
                     if (p_isinf(yre) || p_isnan(yre) || p_isinf(yim) || p_isnan(yim))
                         goto complex_pow_real_1;
                 }
+                complex_pow_int_done:
                 if (invert) {
                     phloat h = hypot(rre, rim);
                     rre = rre / h / h;
