@@ -760,9 +760,9 @@ int docmd_y_pow_x(arg_struct *arg) {
                 }
                 complex_pow_int_done:
                 if (invert) {
-                    phloat h = hypot(rre, rim);
-                    rre = rre / h / h;
-                    rim = (-rim) / h / h;
+                    int err = math_inv(rre, rim, &rre, &rim);
+                    if (err != ERR_NONE)
+                        return err;
                 }
                 if ((inf = p_isinf(rre)) != 0) {
                     if (!flags.f.range_error_ignore)
