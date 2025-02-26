@@ -666,19 +666,14 @@ int docmd_y_pow_x(arg_struct *arg) {
         return ERR_INVALID_TYPE;
     } else if (stack[sp]->type == TYPE_REAL) {
         phloat x = ((vartype_real *) stack[sp])->x;
-        if (x == floor(x)) {
+        if (x == to_int4(x)) {
             /* Integer exponent */
             if (stack[sp - 1]->type == TYPE_REAL) {
                 /* Real number to integer power */
                 phloat y = ((vartype_real *) stack[sp - 1])->x;
-                if (x == 0 && y == 0)
+                if (y == 0 && x <= 0)
                     return ERR_INVALID_DATA;
                 phloat r = pow(y, x);
-                if (p_isnan(r))
-                    /* Should not happen; pow() is supposed to be able
-                     * to raise negative numbers to integer exponents
-                     */
-                    return ERR_INVALID_DATA;
                 if ((inf = p_isinf(r)) != 0) {
                     if (!flags.f.range_error_ignore)
                         return ERR_OUT_OF_RANGE;
@@ -691,15 +686,43 @@ int docmd_y_pow_x(arg_struct *arg) {
                 phloat yre = ((vartype_complex *) stack[sp - 1])->re;
                 phloat yim = ((vartype_complex *) stack[sp - 1])->im;
                 int4 ex = to_int4(x);
-                if (ex <= 0 && yre == 0 && yim == 0)
-                    return ERR_INVALID_DATA;
+
+                if (yim == 0) {
+                    /* Pure real base */
+                    if (yre == 0 && ex <= 0)
+                        return ERR_INVALID_DATA;
+                    phloat r = pow(yre, ex);
+                    if ((inf = p_isinf(r)) != 0) {
+                        if (!flags.f.range_error_ignore)
+                            return ERR_OUT_OF_RANGE;
+                        r = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
+                    }
+                    res = new_complex(r, 0);
+                    goto done;
+                } else if (yre == 0) {
+                    /* Pure imaginary base */
+                    phloat r = pow(yim, ex);
+                    if ((inf = p_isinf(r)) != 0) {
+                        if (!flags.f.range_error_ignore)
+                            return ERR_OUT_OF_RANGE;
+                        r = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
+                    }
+                    switch (ex & 3) {
+                        case 0: res = new_complex( r,  0); break;
+                        case 1: res = new_complex( 0,  r); break;
+                        case 2: res = new_complex(-r,  0); break;
+                        case 3: res = new_complex( 0, -r); break;
+                    }
+                    goto done;
+                }
+
                 bool invert = ex < 0;
                 if (invert)
                     ex = -ex;
                 phloat rre, rim;
 
-                if (yre == yim) {
-                    /* (a+ai)^n : we can avoid doing complex math for this */
+                if (yre == yim || yre == -yim) {
+                    /* (a±ai)^n => pure real, pure imaginary, or r±ri */
 #ifdef BCD_MATH
                     phloat r = pow(yre * yre * 2, ex / 2);
                     if (ex % 2 != 0)
@@ -717,6 +740,8 @@ int docmd_y_pow_x(arg_struct *arg) {
                         case 6: rre =  0; rim = -r; break;
                         case 7: rre =  r; rim = -r; break;
                     }
+                    if (yre != yim)
+                        rim = -rim;
                     goto complex_pow_int_done;
                 }
 
@@ -729,8 +754,7 @@ int docmd_y_pow_x(arg_struct *arg) {
                      * return exact results for short bases, i.e. bases where
                      * first and last nonzero digits are close together. The
                      * smallest non-trivial base is 1+i, which can be raised to
-                     * the power 225 in the decimal version, and to the power
-                     * 107 in the binary version, with exact results.
+                     * the power 225 in the decimal version with exact results.
                      */
                     goto complex_pow_real_1;
                 rre = 1;
