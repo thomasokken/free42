@@ -29,6 +29,7 @@ CFLAGS += -MMD \
 	 -Wno-format-truncation \
 	 -Wno-class-memaccess \
 	 -Wno-unknown-warning-option \
+	 -Wno-unknown-pragmas \
 	 -g \
 	 $(shell $(PKG_CONFIG) --cflags gtk+-3.0) \
 	 -DGDK_DISABLE_DEPRECATION_WARNINGS -DGTK_DISABLE_SINGLE_INCLUDES -DGSEAL_ENABLE \

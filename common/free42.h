@@ -30,6 +30,8 @@
 #define int8 long long
 #define uint8 unsigned long long
 
+#pragma STDC FP_CONTRACT OFF
+
 #if defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 /* I have tested big-endian state file compatibility in Fedora 12
  * running on qemu-system-ppc. I found that I needed to explicitly
