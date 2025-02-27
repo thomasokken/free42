@@ -15,3 +15,32 @@ Floating-Point library from source. Run build-intel-lib.sh 32 to build the
 cl111libbid32.lib, containing x86 objects; and/or run build-intel-lib.sh 64 to
 build the 64-bit library; if successful, this will create a file named
 cl111libbid64.lib, containing x86_64 objects.
+
+DisableSpecificWarnings:
+
+4018 'expression': signed/unsigned mismatch
+4068 unknown pragma 'identifier'
+4244 'conversion_type': conversion from 'type1' to 'type2', possible loss of data
+4267 'variable': conversion from 'size_t' to 'type', possible loss of data
+4309 'conversion': truncation of constant value
+4703 potentially uninitialized local pointer variable 'identifier' used
+4723 potential divide by 0
+4756 overflow in constant arithmetic
+4800 Implicit conversion from 'type' to bool. Possible information loss
+4838 conversion from 'type_1' to 'type_2' requires a narrowing conversion
+4996 'deprecated-declaration': deprecation-message
+
+     === free42 === === plus42 ===
+      bin   dec      bin   dec
+     32 64 32 64 rt 32 64 32 64 rt
+4018                 x  x  x  x  x
+4068  x  x  x  x  x  x  x  x  x  x
+4244     x     x        x     x
+4267     x     x  x     x     x  x
+4309  x  x  x  x  x  x  x  x  x  x
+4703              x              x
+4723  x  x  x  x  x  x  x  x  x  x
+4756  x  x  x  x  x  x  x  x  x  x
+4800  x  x  x  x  x  x  x  x  x  x
+4838              x              x
+4996  x  x  x  x  x  x  x  x  x  x
