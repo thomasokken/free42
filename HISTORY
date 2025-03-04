@@ -1,3 +1,11 @@
+2025-03-04: release 3.2.5
+
+* When looking up built-in functions, ^ and ↑ are now considered equal. This
+  fixes problems with program typing and pasting, and with direct command
+  mapping in certain skins, specifically HP-41G and the Mueck_F42* skins.
+  (Note: this is a related but separate issue from the updates to the Mueck
+  skins' *.raw support files three days ago.)
+
 2025-03-03: release 3.2.4
 
 * More accurate integer powers of complex numbers. Specifically: special cases
