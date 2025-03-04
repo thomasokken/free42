@@ -4990,9 +4990,13 @@ int find_builtin(const char *name, int namelen) {
             c1 = name[j];
             if (undefined_char(c1))
                 c1 &= 127;
+            else if (c1 == 30)
+                c1 = 94;
             c2 = cmd_array[i].name[j];
             if (undefined_char(c2))
                 c2 &= 127;
+            else if (c2 == 30)
+                c2 = 94;
             if (c1 != c2)
                 goto nomatch2;
         }
