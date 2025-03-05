@@ -9,7 +9,7 @@
 2025-03-03: release 3.2.4
 
 * More accurate integer powers of complex numbers. Specifically: special cases
-  for pure real, pure integer, and numbers of the form a+ai and a-ai.
+  for pure real, pure imaginary, and numbers of the form a+ai and a-ai.
 * Fixed VIEW for long values.
 * Windows and Linux versions: Fixed handling of skins with non-zero offsets of
   the main image (the top left corner of the Skin: line).
