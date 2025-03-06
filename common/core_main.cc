@@ -242,6 +242,8 @@ bool core_keydown(int key, bool *enqueued, int *repeat) {
         int len = ascii2hp(hpbuf, 1, ubuf);
         if (len == 0)
             goto fail;
+        if (hpbuf[0] == 30)
+            hpbuf[0] = 94;
         key = 1024 + (hpbuf[0] & 255);
     }
     return core_keydown_2(key, enqueued, repeat);
