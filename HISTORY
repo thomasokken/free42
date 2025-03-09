@@ -1,3 +1,9 @@
+2025-03-09: release 3.2.6
+
+* Made ^ on hardware keyboards type ↑ again. This had changed to ^ when I added
+  that character to the Free42 character set in 3.2.3, but typing it isn't
+  appropriate in an HP-42S emulation.
+
 2025-03-04: release 3.2.5
 
 * When looking up built-in functions, ^ and ↑ are now considered equal. This
