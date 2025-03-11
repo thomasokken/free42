@@ -275,6 +275,25 @@ static int dirTypeCapacity = 0;
     [self typeChanged];
 }
 
+static int dirListCompare(int a, int b) {
+    if (dirType[a] != dirType[b])
+        // Directories always come first
+        return dirType[a] ? -1 : 1;
+    NSString *sa = [dirList objectAtIndex:a];
+    NSString *sb = [dirList objectAtIndex:b];
+    if (dirType[a]) {
+        if ([sa isEqualToString:@".."])
+            return -1;
+        else if ([sb isEqualToString:@".."])
+            return 1;
+    }
+    bool da = [sa characterAtIndex:0] == '.';
+    bool db = [sb characterAtIndex:0] == '.';
+    if (da != db)
+        return da ? -1 : 1;
+    return [sa localizedCaseInsensitiveCompare:sb];
+}
+
 - (IBAction) typeChanged {
     if (dirList == NULL)
         dirList = [[NSMutableArray arrayWithCapacity:10] retain];
@@ -329,6 +348,16 @@ static int dirTypeCapacity = 0;
         }
     }
     closedir(dir);
+    for (int i = 0; i < dirTypeLength - 1; i++)
+        for (int j = i + 1; j < dirTypeLength; j++)
+            if (dirListCompare(i, j) > 0) {
+                NSString *ts = [dirList objectAtIndex:i];
+                [dirList replaceObjectAtIndex:i withObject:[dirList objectAtIndex:j]];
+                [dirList replaceObjectAtIndex:j withObject:ts];
+                bool tb = dirType[i];
+                dirType[i] = dirType[j];
+                dirType[j] = tb;
+            }
     [directoryListingView reloadData];
 }
 
