@@ -1,3 +1,7 @@
+2025-03-11: release 3.2.6a (iOS only)
+
+* The file selector wasn't sorting the directory listing. Fixed.
+
 2025-03-09: release 3.2.6
 
 * Made ^ on hardware keyboards type ↑ again. This had changed to ^ when I added
