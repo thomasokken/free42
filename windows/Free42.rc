@@ -73,6 +73,7 @@ BEGIN
         MENUITEM "Documentation",               IDM_DOCUMENTATION
         MENUITEM "Web Site",                    IDM_WEBSITE
         MENUITEM "Plus42 Web Site",             IDM_OTHER_WEBSITE
+        MENUITEM SEPARATOR
         MENUITEM "Keyboard Shortcuts\tCtrl+K",  IDM_SHORTCUTS
         MENUITEM "Edit Keyboard Map",           IDM_EDIT_KEYMAP
         MENUITEM SEPARATOR
