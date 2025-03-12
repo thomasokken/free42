@@ -125,6 +125,7 @@ static guint reminder_id = 0;
 static FILE *statefile = NULL;
 static char statefilename[FILENAMELEN];
 static char printfilename[FILENAMELEN];
+static char keymapfilename[FILENAMELEN];
 
 int ann_updown = 0;
 int ann_shift = 0;
@@ -179,6 +180,7 @@ static void documentationCB();
 static void websiteCB();
 static void otherWebsiteCB();
 static void keyboardShortcutsCB();
+static void editKeymapCB();
 static void aboutCB();
 static gboolean delete_cb(GtkWidget *w, GdkEventAny *ev);
 static gboolean delete_print_cb(GtkWidget *w, GdkEventAny *ev);
@@ -360,6 +362,11 @@ static const char *mainWindowXml =
                       "</object>"
                     "</child>"
                     "<child>"
+                      "<object class='GtkCheckMenuItem' id='edit_keymap_item'>"
+                        "<property name='label'>Edit Keyboard Map</property>"
+                      "</object>"
+                    "</child>"
+                    "<child>"
                       "<object class='GtkSeparatorMenuItem' id='sep_6'>"
                       "</object>"
                     "</child>"
@@ -480,8 +487,6 @@ static void activate(GtkApplication *theApp, gpointer userData) {
     /***** Try to create the $XDG_DATA_HOME/free42 directory *****/
     /*************************************************************/
 
-    char keymapfilename[FILENAMELEN];
-
     char *xdg_data_home = getenv("XDG_DATA_HOME");
     char *home = getenv("HOME");
 
@@ -564,7 +569,15 @@ static void activate(GtkApplication *theApp, gpointer userData) {
     dir_done:
     snprintf(statefilename, FILENAMELEN, "%s/state", free42dirname);
     snprintf(printfilename, FILENAMELEN, "%s/print", free42dirname);
-    snprintf(keymapfilename, FILENAMELEN, "%s/keymap", free42dirname);
+    snprintf(keymapfilename, FILENAMELEN, "%s/keymap.txt", free42dirname);
+
+    if (!file_exists(keymapfilename)) {
+        char oldkeymapfilename[FILENAMELEN];
+        strcpy(oldkeymapfilename, keymapfilename);
+        oldkeymapfilename[strlen(oldkeymapfilename) - 4] = 0;
+        if (file_exists(oldkeymapfilename))
+            rename(oldkeymapfilename, keymapfilename);
+    }
 
     
     /****************************/
@@ -701,6 +714,8 @@ static void activate(GtkApplication *theApp, gpointer userData) {
     g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(otherWebsiteCB), NULL);
     keyboardShortcutsMenuItem = GTK_CHECK_MENU_ITEM(gtk_builder_get_object(builder, "keyboard_shortcuts_item"));
     g_signal_connect(G_OBJECT(keyboardShortcutsMenuItem), "activate", G_CALLBACK(keyboardShortcutsCB), NULL);
+    item = GTK_MENU_ITEM(gtk_builder_get_object(builder, "edit_keymap_item"));
+    g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(editKeymapCB), NULL);
     item = GTK_MENU_ITEM(gtk_builder_get_object(builder, "about_item"));
     g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(aboutCB), NULL);
 
@@ -2579,6 +2594,12 @@ static void keyboardShortcutsCB() {
     gtk_check_menu_item_set_active(keyboardShortcutsMenuItem, keyboardShortcutsShowing);
     GdkWindow *win = gtk_widget_get_window(calc_widget);
     gdk_window_invalidate_rect(win, NULL, FALSE);
+}
+
+static void editKeymapCB() {
+    char cmd[FILENAMELEN + 12];
+    snprintf(cmd, FILENAMELEN + 12, "xdg-open '%s'", keymapfilename);
+    system(cmd);
 }
 
 static void aboutCB() {
