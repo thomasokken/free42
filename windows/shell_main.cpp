@@ -622,6 +622,13 @@ static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
                 case IDM_SHORTCUTS:
                     toggle_keyboard_shortcuts();
                     break;
+                case IDM_EDIT_KEYMAP: {
+                    wchar_t keymapname[FILENAMELEN];
+                    get_home_dir(keymapname, FILENAMELEN);
+                    wcscat(keymapname, L"\\keymap.txt");
+                    ShellExecuteW(NULL, L"edit", keymapname, NULL, NULL, SW_SHOWNORMAL);
+                    break;
+                }
                 case IDM_ABOUT:
                     DialogBoxW(hInst, (LPCWSTR)IDD_ABOUTBOX, hWnd, (DLGPROC)About);
                     break;

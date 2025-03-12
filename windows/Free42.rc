@@ -74,6 +74,7 @@ BEGIN
         MENUITEM "Web Site",                    IDM_WEBSITE
         MENUITEM "Plus42 Web Site",             IDM_OTHER_WEBSITE
         MENUITEM "Keyboard Shortcuts\tCtrl+K",  IDM_SHORTCUTS
+        MENUITEM "Edit Keyboard Map",           IDM_EDIT_KEYMAP
         MENUITEM SEPARATOR
         MENUITEM "&About Free42...",            IDM_ABOUT
     END
