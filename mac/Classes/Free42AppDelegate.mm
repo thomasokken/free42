@@ -525,6 +525,11 @@ static void low_battery_checker(CFRunLoopTimerRef timer, void *info) {
     [[NSWorkspace sharedWorkspace] openURL:url];
 }
 
+- (IBAction) editKeymap:(id)sender {
+    NSString *keymapFileName = [NSString stringWithFormat:@"%s/Library/Application Support/Free42/keymap.txt", getenv("HOME")];
+    [[NSWorkspace sharedWorkspace] openFile:keymapFileName];
+}
+
 - (IBAction) showPreferences:(id)sender {
     [prefsSingularMatrix setState:core_settings.matrix_singularmatrix];
     [prefsMatrixOutOfRange setState:core_settings.matrix_outofrange];

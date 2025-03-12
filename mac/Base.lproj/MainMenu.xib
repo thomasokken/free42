@@ -195,6 +195,12 @@
                                     <action selector="toggleKeyboardShortcuts:" target="501" id="0R0-vj-h0Y"/>
                                 </connections>
                             </menuItem>
+                            <menuItem title="Edit Keyboard Map" id="y7g-UY-vgm">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="editKeymap:" target="520" id="3W4-Nn-LUe"/>
+                                </connections>
+                            </menuItem>
                         </items>
                     </menu>
                 </menuItem>
