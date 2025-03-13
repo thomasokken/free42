@@ -32,7 +32,7 @@ If Free42 does not run as is, you will also need to download and install the
 Visual C++ Redistributable for Visual Studio 2015 / 2017 / 2019.
 You can download this package from
 https://www.microsoft.com/en-us/download/details.aspx?id=48145
-(get the file vc_redist.x86.exe)
+(get the file vc_redist.x64.exe (64-bit) or vc_redist.x86.exe (32-bit))
 
 
 Uninstalling Free42:
@@ -141,6 +141,21 @@ In ALPHA mode, all PC keyboard keys that normally generate printable ASCII
 characters, enter those characters into the ALPHA register (or to the command
 argument, if a command with an alphanumeric argument is being entered). These
 mappings override any other mappings that may be defined for those keys.
+
+
+Customizing the Keyboard Map
+
+The standard keyboard map is designed to work well with U.S. English keyboards.
+If you use a different keyboard layout, or if you have specific preferences for
+how the keys should be mapped, you can customize the keyboard map to better fit
+your needs.
+
+The keyboard map is %APPDATA%\Free42\keymap.txt, which is usually
+C:\Users\<YourUserName>\AppData\Roaming\Free42\keymap.txt. You can edit this
+file using any text editor. For convenience, you can use the "Edit Keyboard
+Map" command in the Help menu to open the keyboard map in the default text
+editor. Note that after making changes to the keyboard map, you have to exit
+and restart Free42 for the changes to take effect.
 
 
 What's the deal with the "Decimal" and "Binary"?
