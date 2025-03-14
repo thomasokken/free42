@@ -294,6 +294,15 @@ static int dirListCompare(int a, int b) {
     return [sa localizedCaseInsensitiveCompare:sb];
 }
 
+static void dirListSwap(int a, int b) {
+    NSString *ts = [dirList objectAtIndex:a];
+    [dirList replaceObjectAtIndex:a withObject:[dirList objectAtIndex:b]];
+    [dirList replaceObjectAtIndex:b withObject:ts];
+    bool tb = dirType[a];
+    dirType[a] = dirType[b];
+    dirType[b] = tb;
+}
+
 - (IBAction) typeChanged {
     if (dirList == NULL)
         dirList = [[NSMutableArray arrayWithCapacity:10] retain];
@@ -348,16 +357,35 @@ static int dirListCompare(int a, int b) {
         }
     }
     closedir(dir);
-    for (int i = 0; i < dirTypeLength - 1; i++)
-        for (int j = i + 1; j < dirTypeLength; j++)
-            if (dirListCompare(i, j) > 0) {
-                NSString *ts = [dirList objectAtIndex:i];
-                [dirList replaceObjectAtIndex:i withObject:[dirList objectAtIndex:j]];
-                [dirList replaceObjectAtIndex:j withObject:ts];
-                bool tb = dirType[i];
-                dirType[i] = dirType[j];
-                dirType[j] = tb;
+
+    /* https://en.wikipedia.org/wiki/Heapsort#Standard_implementation */
+    int start = dirTypeLength / 2;
+    int end = dirTypeLength;
+    while (end > 1) {
+        if (start > 0) {    /* Heap construction */
+            start--;
+        } else {            /* Heap extraction */
+            end--;
+            dirListSwap(end, 0);
+        }
+
+        /* The following is siftDown(a, start, end) */
+        int root = start;
+        int child;
+        while ((child = root * 2 + 1) < end) {
+            /* If there is a right child and that child is greater */
+            if (child + 1 < end && dirListCompare(child, child + 1) < 0)
+                child++;
+
+            if (dirListCompare(root, child) < 0) {
+                dirListSwap(root, child);
+                root = child;         /* repeat to continue sifting down the child now */
+            } else {
+                break;                /* return to outer loop */
             }
+        }
+    }
+
     [directoryListingView reloadData];
 }
 
