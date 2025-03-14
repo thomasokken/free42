@@ -291,7 +291,7 @@ static int dirListCompare(int a, int b) {
     bool db = [sb characterAtIndex:0] == '.';
     if (da != db)
         return da ? -1 : 1;
-    return [sa localizedCaseInsensitiveCompare:sb];
+    return [sa caseInsensitiveCompare:sb];
 }
 
 static void dirListSwap(int a, int b) {
@@ -325,11 +325,14 @@ static void dirListSwap(int a, int b) {
     struct dirent *d;
     
     while ((d = readdir(dir)) != NULL) {
-        if (strcmp(d->d_name, ".") == 0)
+        if (strcmp(d->d_name, "..") == 0) {
+            if (strcmp(cDirName, ".") == 0)
+                // Don't show ".." in the top-level (Documents) directory
+                continue;
+        } else if (d->d_name[0] == '.') {
+            // Apart from '..', suppress everything that starts with '.'
             continue;
-        if (strcmp(d->d_name, "..") == 0 && strcmp(cDirName, ".") == 0)
-            // Don't show ".." in the top-level (Documents) directory
-            continue;
+        }
         char *p = (char *) malloc(strlen(cDirName) + strlen(d->d_name) + 2);
         strcpy(p, cDirName);
         strcat(p, "/");
