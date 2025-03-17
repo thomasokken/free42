@@ -1,3 +1,11 @@
+2025-03-17: release 3.2.7
+
+* Windows, MacOS, and Linux versions: Added "Edit Keyboard Map" option to the
+  Help menu. Also, added a section about keyboard map customization in the
+  README.txt file.
+* iOS version: More efficient sorting in file selector.
+* Android version: Now distributing optimized APKs.
+
 2025-03-11: release 3.2.6a (iOS only)
 
 * The file selector wasn't sorting the directory listing. Fixed.
