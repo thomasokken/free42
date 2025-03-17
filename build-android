@@ -8,12 +8,9 @@ cd android/app/src/main/cpp
 sh ./link-files.sh
 sh ./build-intel-lib.sh
 cd ../../../..
+./gradlew --warning-mode all bundleDecimalRelease
+mv app/build/outputs/bundle/decimalRelease/app-decimal-release.aab ../packages/Free42Android.aab
 ./gradlew --warning-mode all assembleDecimalRelease
 mv app/build/outputs/apk/decimal/release/app-decimal-release.apk ../packages/Free42Android.apk
 #./gradlew --warning-mode all assembleBinaryRelease
 #mv app/build/outputs/apk/binary/release/app-binary-release.apk ../packages/Free42BinaryAndroid.apk
-
-# Upload these to the Play Store to get symbolicated native crash logs.
-# (This isn't needed for aab uploads, but it is needed for apk.)
-cd app/build/intermediates/native_symbol_tables/decimalRelease/out
-zip -r ../../../../../../../packages/symbols.zip .
