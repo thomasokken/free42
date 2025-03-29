@@ -1,3 +1,9 @@
+2025-03-29: release 3.2.7a (Linux only)
+
+* The "Edit Keyboard Map" menu item would show a check mark when selected,
+  which it shouldn't. That menu item launches a text editor, it doesn't toggle
+  a mode. Fixed.
+
 2025-03-17: release 3.2.7
 
 * Windows, MacOS, and Linux versions: Added "Edit Keyboard Map" option to the
@@ -245,7 +251,7 @@
 * Decimal version: In HMS+ and HMS-, fixed handling of cases where either or
   both of the arguments has a number of minutes or seconds >= 60. (The binary
   version did not have this bug.)
-* Binary version: max digits for SHOW increased to 17. This was necessary
+* Binary version: Max digits for SHOW increased to 17. This was necessary
   because 16 digits was actually never enough to begin with. For example, 5 1/X
   and 5 SQRT X^2 1/X both returned a result that looked like 0.2 in SHOW, even
   though they are different, as can be easily verified with X=Y? or by
@@ -369,7 +375,7 @@
 * L4STK didn't pad the stack to 4 levels when used without FUNC. Fixed.
 * Binary version: ROTXY and DATE+ rounded toward negative infinity instead of
   rounding toward zero. Fixed.
-* Windows version: comes in 64-bit and 32-bit versions now.
+* Windows version: Comes in 64-bit and 32-bit versions now.
 * Windows and Linux versions: Now support fractional display scaling.
 
 2022-01-27: release 3.0.10
