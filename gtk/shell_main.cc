@@ -366,7 +366,7 @@ static const char *mainWindowXml =
                       "</object>"
                     "</child>"
                     "<child>"
-                      "<object class='GtkCheckMenuItem' id='edit_keymap_item'>"
+                      "<object class='GtkMenuItem' id='edit_keymap_item'>"
                         "<property name='label'>Edit Keyboard Map</property>"
                       "</object>"
                     "</child>"
