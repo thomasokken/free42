@@ -945,7 +945,7 @@ void print_text(const char *text, int length, bool left_justified) {
         bitmap[i] = 0;
     for (i = 0; i < bufptr; i++) {
         int j;
-        const char *charbits = get_char(buf[i]);
+        const unsigned char *charbits = get_char(buf[i]);
         for (j = 0; j < 5; j++) {
             int x1 = i * 6 + j;
             int x2 = x1 + 1;

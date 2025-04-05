@@ -4750,7 +4750,7 @@ void core_get_char_pixels(const char *ch, char *pixels) {
     int hplen = ascii2hp(hpbuf, 1, ch);
     if (hplen == 0)
         hpbuf[0] = ' ';
-    const char *bits = get_char(hpbuf[0]);
+    const unsigned char *bits = get_char(hpbuf[0]);
     for (int i = 0; i < 5; i++)
         pixels[i] = bits[i];
 }

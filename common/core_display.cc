@@ -42,7 +42,7 @@
 #endif
 
 
-static const char bigchars[138][5] =
+static const unsigned char bigchars[138][5] =
     {
         { 0x08, 0x08, 0x2a, 0x08, 0x08 },
         { 0x22, 0x14, 0x08, 0x14, 0x22 },
@@ -184,7 +184,7 @@ static const char bigchars[138][5] =
         { 0x22, 0x14, 0x2a, 0x14, 0x08 },
     };
 
-static const char smallchars[454] =
+static const unsigned char smallchars[454] =
     {
         0x00, 0x00, 0x00,
         0x5c,
@@ -324,7 +324,7 @@ static const char smallchars[454] =
         0x44, 0x28, 0x54, 0x28, 0x10,
     };
 
-static short smallchars_offset[137] =
+static const short smallchars_offset[137] =
     {
           0,
           3,
@@ -465,7 +465,7 @@ static short smallchars_offset[137] =
         454,
     };
 
-static char smallchars_map[138] =
+static const unsigned char smallchars_map[138] =
     {
         /*   0 */  70,
         /*   1 */  71,
@@ -896,7 +896,7 @@ void draw_char(int x, int y, char c) {
     mark_dirty(Y, X, Y + 8, X + 5);
 }
 
-const char *get_char(char c) {
+const unsigned char *get_char(char c) {
     unsigned char uc = (unsigned char) c;
     if (undefined_char(uc) || uc == 138)
         uc -= 128;
