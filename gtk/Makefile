@@ -23,7 +23,6 @@ CFLAGS += -MMD \
 	 -Wno-parentheses \
 	 -Wno-write-strings \
 	 -Wno-sign-compare \
-	 -Wno-sometimes-uninitialized \
 	 -Wno-format-truncation \
 	 -Wno-class-memaccess \
 	 -Wno-unknown-warning-option \
