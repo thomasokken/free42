@@ -1162,7 +1162,7 @@ void tb_print_current_program(textbuf *tb) {
         char *buf2 = xstr == NULL ? buf : xstr;
         for (int i = 0; i < len; i++)
             if (buf2[i] == 10)
-                buf2[i] = 138;
+                buf2[i] = (char) 138;
         int off = 0;
         while (len > 0) {
             int slen = len <= 100 ? len : 100;

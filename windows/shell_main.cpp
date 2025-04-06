@@ -2038,9 +2038,9 @@ static void copy_print_as_image() {
         *bmbuf++ = 0;
         *bmbuf++ = 0;
         *bmbuf++ = 0;
-        *bmbuf++ = 255;
-        *bmbuf++ = 255;
-        *bmbuf++ = 255;
+        *bmbuf++ = (char) 255;
+        *bmbuf++ = (char) 255;
+        *bmbuf++ = (char) 255;
         *bmbuf++ = 0;
 
         if (empty) {
@@ -2052,15 +2052,15 @@ static void copy_print_as_image() {
                     vv -= PRINT_LINES;
                 char *src = printout + vv * PRINT_BYTESPERLINE;
                 for (int i = 0; i < 4; i++)
-                    *bmbuf++ = 255;
-                char pc = 255;
+                    *bmbuf++ = (char) 255;
+                char pc = (char) 255;
                 for (int h = 0; h <= 36; h++) {
                     char c = h == 36 ? 255 : src[h];
                     *bmbuf++ = ((c & 240) >> 4) | ((pc & 15) << 4);
                     pc = c;
                 }
                 for (int i = 0; i < 7; i++)
-                    *bmbuf++ = 255;
+                    *bmbuf++ = (char) 255;
             }
         }
 

@@ -22,7 +22,6 @@ DisableSpecificWarnings:
 4068 unknown pragma 'identifier'
 4244 'conversion_type': conversion from 'type1' to 'type2', possible loss of data
 4267 'variable': conversion from 'size_t' to 'type', possible loss of data
-4309 'conversion': truncation of constant value
 4703 potentially uninitialized local pointer variable 'identifier' used
 4723 potential divide by 0
 4756 overflow in constant arithmetic
@@ -37,7 +36,6 @@ DisableSpecificWarnings:
 4068  x  x  x  x  x  x  x  x  x  x
 4244     x     x        x     x
 4267     x     x  x     x     x  x
-4309  x  x  x  x  x  x  x  x  x  x
 4703              x              x
 4723  x  x  x  x  x  x  x  x  x  x
 4756  x  x  x  x  x  x  x  x  x  x
