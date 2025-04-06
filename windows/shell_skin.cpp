@@ -428,7 +428,7 @@ void skin_load(wchar_t *skinname, const wchar_t *basedir, long *width, long *hei
             if (quot1 != NULL) {
                 char *quot2 = strchr(quot1 + 1, '"');
                 if (quot2 != NULL) {
-                    long len = quot2 - quot1 - 1;
+                    long len = (long) (quot2 - quot1 - 1);
                     if (len > SKIN_MAX_HALF_MACRO_LENGTH)
                         len = SKIN_MAX_HALF_MACRO_LENGTH;
                     int n;
@@ -446,7 +446,7 @@ void skin_load(wchar_t *skinname, const wchar_t *basedir, long *width, long *hei
                         if (quot1 != NULL) {
                             quot2 = strchr(quot1 + 1, *quot1);
                             if (quot2 != NULL) {
-                                len = quot2 - quot1 - 1;
+                                len = (long) (quot2 - quot1 - 1);
                                 if (len > SKIN_MAX_HALF_MACRO_LENGTH)
                                     len = SKIN_MAX_HALF_MACRO_LENGTH;
                                 memcpy(macro->macro2, quot1 + 1, len);

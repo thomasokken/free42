@@ -134,7 +134,7 @@ static void updateUI(HWND hDlg, bool rescan) {
             SendMessage(list, LB_SETCURSEL, index, 0);
     }
     
-    int index = SendMessage(list, LB_GETCURSEL, 0, 0);
+    int index = (int) SendMessage(list, LB_GETCURSEL, 0, 0);
     if (index == LB_ERR)
         selectedStateName = L"";
     else
@@ -212,7 +212,7 @@ static bool copyState(const wchar_t *orig_name, const wchar_t *copy_name) {
     FILE *fout = _wfopen(copy_name, L"wb");
     if (fin != NULL && fout != NULL) {
         char buf[1024];
-        int n;
+        size_t n;
         while ((n = fread(buf, 1, 1024, fin)) > 0)
             fwrite(buf, 1, n, fout);
         if (ferror(fin) || ferror(fout))
@@ -243,7 +243,7 @@ static void doDuplicate(HWND hDlg) {
     // of the original, but if the name of the original already ends with " copy"
     // or " copy NNN", it seems more elegant to continue the sequence rather than
     // add another " copy" suffix.
-    int len = copyName.length();
+    int len = (int) copyName.length();
     if (len > 5 && copyName.substr(len - 5) == L" copy") {
         copyName = copyName.substr(0, len - 5);
         n = 1;
@@ -347,7 +347,7 @@ static void doImport(HWND hDlg) {
     ci_string path = buf;
     size_t p = path.find_last_of('\\');
     ci_string name = p == std::string::npos ? path : path.substr(p + 1);
-    int len = name.length();
+    int len = (int) name.length();
     if (len > 4 && name.substr(len - 4) == L".f42")
         name = name.substr(0, len - 4);
     ci_string destPath = ci_string(free42dirname) + L"\\" + name + L".f42";

@@ -1244,7 +1244,7 @@ int4 core_program_size(int prgm_index) {
                         p = orig_num;
                     else
                         p = phloat2program(arg.val_d);
-                    size += strlen(p) + 1;
+                    size += (int4) strlen(p) + 1;
                 } else if (cmd == CMD_STRING) {
                     size += arg.length + 1;
                 } else if (cmd >= CMD_ASGN01 && cmd <= CMD_ASGN18) {
