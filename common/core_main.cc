@@ -4585,7 +4585,7 @@ void core_paste(const char *buf) {
                                 free(is_string);
                                 is_string = NULL;
                                 phloat *newdata;
-                                newdata = (phloat *) realloc(data, 2 * n * sizeof(phloat));
+                                newdata = (phloat *) realloc((void *) data, 2 * n * sizeof(phloat));
                                 if (newdata == NULL) {
                                     nomem:
                                     free(data);

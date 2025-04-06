@@ -680,7 +680,7 @@ int matrix_copy(vartype *dst, const vartype *src) {
             int4 size = s->rows * s->columns;
             free_long_strings(d->array->is_string, d->array->data, size);
             memset(d->array->is_string, 0, size);
-            memcpy(d->array->data, s->array->data, size * sizeof(phloat));
+            memcpy((void *) d->array->data, (const void *) s->array->data, size * sizeof(phloat));
             return ERR_NONE;
         } else if (dst->type == TYPE_COMPLEXMATRIX) {
             vartype_complexmatrix *d = (vartype_complexmatrix *) dst;
@@ -703,7 +703,7 @@ int matrix_copy(vartype *dst, const vartype *src) {
         if (s->rows != d->rows || s->columns != d->columns)
             return ERR_DIMENSION_ERROR;
         int4 size = s->rows * s->columns * 2;
-        memcpy(d->array->data, s->array->data, size * sizeof(phloat));
+        memcpy((void *) d->array->data, (const void *) s->array->data, size * sizeof(phloat));
         return ERR_NONE;
     } else
         return ERR_INVALID_TYPE;

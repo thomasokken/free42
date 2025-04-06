@@ -37,8 +37,12 @@
 #include "shell_spool.h"
 #include "core_main.h"
 #include "core_display.h"
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wwrite-strings"
 #include "icon-128x128.xpm"
 #include "icon-48x48.xpm"
+#pragma GCC diagnostic pop
 
 #ifndef _POSIX_HOST_NAME_MAX
 #define _POSIX_HOST_NAME_MAX 255
@@ -173,7 +177,7 @@ static void copyPrintAsTextCB();
 static void copyPrintAsImageCB();
 static void clearPrintOutCB();
 static void preferencesCB();
-static void appendSuffix(char *path, char *suffix);
+static void appendSuffix(char *path, const char *suffix);
 static void copyCB();
 static void pasteCB();
 static void documentationCB();
@@ -2515,7 +2519,7 @@ static void preferencesCB() {
     gtk_widget_hide(GTK_WIDGET(dialog));
 }
 
-static void appendSuffix(char *path, char *suffix) {
+static void appendSuffix(char *path, const char *suffix) {
     int len = strlen(path);
     int slen = strlen(suffix);
     if (len == 0 || len >= FILENAMELEN - slen)

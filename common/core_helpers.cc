@@ -1359,7 +1359,7 @@ int dimension_array_ref(vartype *matrix, int4 rows, int4 columns) {
                 char *new_is_string = (char *) realloc(oldmatrix->array->is_string, size);
                 if (new_is_string != NULL)
                     oldmatrix->array->is_string = new_is_string;
-                phloat *new_data = (phloat *) realloc(oldmatrix->array->data, size * sizeof(phloat));
+                phloat *new_data = (phloat *) realloc((void *) oldmatrix->array->data, size * sizeof(phloat));
                 if (new_data != NULL)
                     oldmatrix->array->data = new_data;
                 oldmatrix->rows = rows;
@@ -1378,7 +1378,7 @@ int dimension_array_ref(vartype *matrix, int4 rows, int4 columns) {
             char *new_is_string = (char *) malloc(size);
             if (new_is_string == NULL)
                 return ERR_INSUFFICIENT_MEMORY;
-            phloat *new_data = (phloat *) realloc(oldmatrix->array->data, size * sizeof(phloat));
+            phloat *new_data = (phloat *) realloc((void *) oldmatrix->array->data, size * sizeof(phloat));
             if (new_data == NULL) {
                 free(new_is_string);
                 return ERR_INSUFFICIENT_MEMORY;
@@ -1457,7 +1457,7 @@ int dimension_array_ref(vartype *matrix, int4 rows, int4 columns) {
              */
             int4 i, oldsize;
             phloat *new_data = (phloat *)
-                    realloc(oldmatrix->array->data, 2 * size * sizeof(phloat));
+                    realloc((void *) oldmatrix->array->data, 2 * size * sizeof(phloat));
             if (new_data == NULL)
                 return ERR_INSUFFICIENT_MEMORY;
             oldsize = oldmatrix->rows * oldmatrix->columns;
