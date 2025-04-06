@@ -48,7 +48,7 @@
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;strcasecmp=stricmp;_CRT_SECURE_NO_WARNINGS;DECIMAL_CALL_BY_REFERENCE=1;DECIMAL_GLOBAL_ROUNDING=1;DECIMAL_GLOBAL_ROUNDING_ACCESS_FUNCTIONS=1;DECIMAL_GLOBAL_EXCEPTION_FLAGS=1;DECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <DisableSpecificWarnings>4068;4996;4800;4756;4723;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4068;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <AdditionalOptions>/NODEFAULTLIB:libcmt.lib %(AdditionalOptions)</AdditionalOptions>
@@ -64,7 +64,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;strcasecmp=stricmp;_CRT_SECURE_NO_WARNINGS;DECIMAL_CALL_BY_REFERENCE=1;DECIMAL_GLOBAL_ROUNDING=1;DECIMAL_GLOBAL_ROUNDING_ACCESS_FUNCTIONS=1;DECIMAL_GLOBAL_EXCEPTION_FLAGS=1;DECIMAL_GLOBAL_EXCEPTION_FLAGS_ACCESS_FUNCTIONS=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <DisableSpecificWarnings>4068;4996;4800;4756;4723;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4068;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <AdditionalOptions>/NODEFAULTLIB:libcmt.lib %(AdditionalOptions)</AdditionalOptions>

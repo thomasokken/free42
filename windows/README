@@ -20,17 +20,11 @@ DisableSpecificWarnings:
 
 4018 'expression': signed/unsigned mismatch
 4068 unknown pragma 'identifier'
-4723 potential divide by 0
-4756 overflow in constant arithmetic
-4800 Implicit conversion from 'type' to bool. Possible information loss
 4996 'deprecated-declaration': deprecation-message
 
      === free42 === === plus42 ===
       bin   dec      bin   dec
      32 64 32 64 rt 32 64 32 64 rt
-4018                 x  x  x  x  x
+4018                 x     x     x
 4068  x  x  x  x  x  x  x  x  x  x
-4723  x  x  x  x  x  x  x  x  x  x
-4756  x  x  x  x  x  x  x  x  x  x
-4800  x  x  x  x  x  x  x  x  x  x
 4996  x  x  x  x  x  x  x  x  x  x
