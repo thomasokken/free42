@@ -602,7 +602,7 @@ static void activate(GtkApplication *theApp, gpointer userData) {
     int4 version;
     int init_mode;
     char core_state_file_name[FILENAMELEN];
-    int core_state_file_offset;
+    int core_state_file_offset = 0;
 
     statefile = fopen(statefilename, "r");
     if (statefile != NULL) {
@@ -3222,12 +3222,11 @@ void shell_blitter(const char *bits, int bytesperline, int x, int y,
     }
 }
 
-const int tone_freqs[] = { 165, 220, 247, 277, 294, 330, 370, 415, 440, 554, 1865 };
-
 void shell_beeper(int tone) {
 #ifdef AUDIO_ALSA
     const char *display_name = gdk_display_get_name(gdk_display_get_default());
     if (display_name == NULL || display_name[0] == ':') {
+        const int tone_freqs[] = { 165, 220, 247, 277, 294, 330, 370, 415, 440, 554, 1865 };
         int frequency = tone_freqs[tone];
         int duration = tone == 10 ? 125 : 250;
         if (!alsa_beeper(frequency, duration))

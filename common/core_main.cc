@@ -2069,7 +2069,7 @@ static void decode_string(unsigned char *buf, int *cmd, arg_struct *arg, char **
     int pos = 0;
     int byte1 = buf[pos++];
     int byte2 = buf[pos++];
-    int str_len;
+    int str_len = 0;
     bool extra_extension = false;
     bool assign = false;
     
@@ -2166,6 +2166,7 @@ static void decode_string(unsigned char *buf, int *cmd, arg_struct *arg, char **
             int suffix = buf[pos++];
             decode_suffix(*cmd, suffix, arg);
         } else if (flag == 3) {
+            int key;
             if (byte2 == 0xc0) {
                 /* ASSIGN */
                 str_len = byte1 - 0xf2;
@@ -2181,7 +2182,6 @@ static void decode_string(unsigned char *buf, int *cmd, arg_struct *arg, char **
                     goto xrom_string;
                 *cmd = byte2 == 0xc2 || byte2 == 0xca
                         ? CMD_KEY1X : CMD_KEY1G;
-                int key;
                 key = buf[pos++];
                 if (key < 1 || key > 9) {
                     /* Treat as plain string. Alas, it is
@@ -2207,7 +2207,7 @@ static void decode_string(unsigned char *buf, int *cmd, arg_struct *arg, char **
                 /* KEYG/KEYX suffix */
                 if (byte1 != 0xf3)
                     goto xrom_string;
-                int key = buf[pos++];
+                key = buf[pos++];
                 if (key < 1 || key > 9)
                     goto bad_keyg_keyx;
                 *cmd = byte2 == 0xe2 ? CMD_KEY1X : CMD_KEY1G;

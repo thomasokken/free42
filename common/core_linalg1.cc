@@ -1166,7 +1166,7 @@ int linalg_det(const vartype *src, void (*completion)(int, vartype *)) {
 
 static int det_r_completion(int error, vartype_realmatrix *a, int4 *perm,
                                          phloat det) {
-    vartype *det_v;
+    vartype *det_v = NULL;
 
     core_settings.matrix_singularmatrix = linalg_det_prev_sm_err;
 
@@ -1197,7 +1197,7 @@ static int det_r_completion(int error, vartype_realmatrix *a, int4 *perm,
 
 static int det_c_completion(int error, vartype_complexmatrix *a, int4 *perm,
                                     phloat det_re, phloat det_im) {
-    vartype *det_v;
+    vartype *det_v = NULL;
 
     core_settings.matrix_singularmatrix = linalg_det_prev_sm_err;
 

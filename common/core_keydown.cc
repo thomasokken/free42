@@ -1775,7 +1775,7 @@ void keydown_command_entry(int shift, int key) {
                 int catsect;
                 if (mode_commandmenu == MENU_NONE
                         || (mode_commandmenu == MENU_CATALOG
-                            && (catsect = get_cat_section()) == CATSECT_TOP
+                            && ((catsect = get_cat_section()) == CATSECT_TOP
                             || catsect == CATSECT_EXT_1
                             || catsect == CATSECT_EXT_2
                             || catsect == CATSECT_PGM_ONLY
@@ -1784,7 +1784,7 @@ void keydown_command_entry(int shift, int key) {
                             || catsect == CATSECT_LIST_STR_ONLY
                             || catsect == CATSECT_MAT_LIST_ONLY
                             || catsect == CATSECT_LIST_ONLY
-                            || catsect == CATSECT_VARS_ONLY)) {
+                            || catsect == CATSECT_VARS_ONLY))) {
                     set_menu(MENULEVEL_COMMAND, MENU_ALPHA1);
                     redisplay();
                     return;

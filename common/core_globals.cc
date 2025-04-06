@@ -1703,7 +1703,7 @@ int clear_prgm(const arg_struct *arg) {
     int prgm_index;
     if (arg->type == ARGTYPE_LBLINDEX)
         prgm_index = labels[arg->val.num].prgm;
-    else if (arg->type == ARGTYPE_STR) {
+    else { // arg->type == ARGTYPE_STR
         if (arg->length == 0) {
             if (current_prgm < 0 || current_prgm >= prgms_count)
                 return ERR_INTERNAL_ERROR;

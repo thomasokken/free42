@@ -1024,7 +1024,7 @@ static int prgmline2buf(char *buf, int len, int4 line, int highlight,
         if (line < 10)
             char2buf(buf, len, &bufptr, '0');
         bufptr += int2string(line, buf + bufptr, len - bufptr);
-        char h = highlight == 0 ? ' ' : highlight == 2 && prgms[current_prgm].locked ? 135 : 6;
+        char h = highlight == 0 ? ' ' : highlight == 2 && prgms[current_prgm].locked ? (char) 135 : 6;
         char2buf(buf, len, &bufptr, h);
     }
 
@@ -1167,7 +1167,7 @@ void tb_print_current_program(textbuf *tb) {
 void display_prgm_line(int row, int line_offset) {
     int4 tmppc = pc;
     int4 tmpline = pc2line(pc);
-    int cmd;
+    int cmd = CMD_NONE;
     arg_struct arg;
     char buf[44];
     int bufptr;
@@ -1289,7 +1289,7 @@ void display_incomplete_command(int row) {
         if (line < 10)
             char2buf(buf, 40, &bufptr, '0');
         bufptr += int2string(line, buf + bufptr, 40 - bufptr);
-        char2buf(buf, 40, &bufptr, prgms[current_prgm].locked ? 135 : 6);
+        char2buf(buf, 40, &bufptr, prgms[current_prgm].locked ? (char) 135 : 6);
     }
 
     if (incomplete_command == CMD_ASSIGNb) {
