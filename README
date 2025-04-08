@@ -59,6 +59,28 @@ pkg install devel/gmake
 
 
 -------------------------------------------------------------------------------
+Creating Free42 build environment in Solaris
+
+Create VirtualBox VM (using VirtualBox 7.0.24)
+Install Solaris 11.4 using sol-11_4-vbox.ova from Oracle, and configure it
+per the instructions at
+https://www.oracle.com/it-infrastructure/technologies/handsonlab-solaris11-on-vm-virtualbox.html
+
+then:
+
+# pkgadd -d http://get.opencsw.org/now
+# /opt/csw/bin/pkgutil -U
+# /opt/csw/bin/pkgutil -y -i git
+# /opt/csw/bin/pkgutil -y -i pkgconfig
+# pkg install gcc
+
+Add this to your .profile:
+
+export PATH=$PATH:/opt/csw/bin
+export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/lib/amd64/pkgconfig:/usr/share/pkgconfig
+
+
+-------------------------------------------------------------------------------
 Adding types:
 
 When adding a type 'foo', you need to define an appropriate vartype_foo struct,
