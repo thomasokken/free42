@@ -1,3 +1,7 @@
+2025-04-10: release 3.2.8
+
+* Fixed crash in RCOMPLX/PCOMPLX when the stack is empty (NSTK mode).
+
 2025-03-29: release 3.2.7a (Linux only)
 
 * The "Edit Keyboard Map" menu item would show a check mark when selected,
