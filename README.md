@@ -1,11 +1,11 @@
 # Free42 for RP-42
 Free42 for RP-42 is in development. Lastest
-version of Free42 is **0.0.1**. [Free42 0.0.1](https://github.com/Jeremy924/free42/releases/download/development/Free42.bin)
+version of Free42 is **0.0.1**. [Free42 0.0.1](https://jeremy924.github.io/rp42/software.html#free42)
 
-Information about RP-42 can be found [here](https://github.com/Jeremy924/rp42-hardware).
+Information about RP-42 can be found [here](https://jeremy924.github.io/rp42/index.html).
 
 ### Free42 for RP42 versions
-[Version 0.0.1](https://github.com/Jeremy924/free42/releases/download/development/Free42.bin)
+[Version 0.0.1](https://jeremy924.github.io/rp42/software.html#free42)
 
 ### Installing on RP42
 To install on Free42, run the installer script.
