@@ -31,7 +31,7 @@
 /********************************************************/
 
 int appmenu_exitcallback_2(int menuid, bool exitall) {
-    if (menuid >= MENU_BASE
+    if (menuid >= MENU_BASE1
             && menuid <= MENU_BASE_LOGIC
             && !exitall) {
         mode_appmenu = menuid;
@@ -46,7 +46,7 @@ int appmenu_exitcallback_2(int menuid, bool exitall) {
 
 static int base_helper(int base) {
     if (program_running()) {
-        int err = set_menu_return_err(MENULEVEL_APP, MENU_BASE, false);
+        int err = set_menu_return_err(MENULEVEL_APP, MENU_BASE1, false);
         if (err != ERR_NONE)
             return err;
         set_appmenu_exitcallback(2);

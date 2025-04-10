@@ -805,7 +805,7 @@ void set_base(int base, bool a_thru_f) {
     flags.f.base_bit2 = (base & 4) != 0;
     flags.f.base_bit3 = (base & 8) != 0;
     if (!a_thru_f && mode_appmenu == MENU_BASE_A_THRU_F)
-        set_menu(MENULEVEL_APP, MENU_BASE);
+        set_menu(MENULEVEL_APP, MENU_BASE1);
 
     if (base != oldbase)
         print_trace();
