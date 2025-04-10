@@ -324,7 +324,7 @@ __weak HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
   *      implementations in user file.
   * @retval None
   */
-__weak void HAL_IncTick(void)
+__weak __attribute__((section(".RamFunc"))) void HAL_IncTick(void)
 {
   uwTick += (uint32_t)uwTickFreq;
 }

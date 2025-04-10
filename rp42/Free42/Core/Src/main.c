@@ -30,9 +30,14 @@
 
 #define __ramFunc __attribute__((section(".RamFunc")))
 
-int Scan_Keyboard(void);
-void Basic_Hardware_Test();
-uint8_t GetKey(uint16_t pin);
+//extern uint32_t __attribute__((section("SYS_FUNC"))) (*sys_func)(uint32_t command, void* args);
+//uint64_t (*system_call_data)(uint16_t, void*) = 0x20000000;
+
+SystemCallData __attribute__((section(".SYS_CALL_DATA"))) systemCallData;
+
+//int Scan_Keyboard(void);
+//void Basic_Hardware_Test();
+//uint8_t GetKey(uint16_t pin);
 
 /* USER CODE END Includes */
 
@@ -43,10 +48,10 @@ uint8_t GetKey(uint16_t pin);
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define KEY_QUEUE_SIZE 10
-uint8_t key_queue[KEY_QUEUE_SIZE];
-uint8_t kqri = 0;
-uint8_t kqwi = 0;
+//#define KEY_QUEUE_SIZE 10
+//uint8_t key_queue[KEY_QUEUE_SIZE];
+//uint8_t kqri = 0;
+//uint8_t kqwi = 0;
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -61,7 +66,7 @@ uint8_t kqwi = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
-void SystemClock_Config(void);
+//void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -71,9 +76,14 @@ void SystemClock_Config(void);
 bool enqueued = false;
 int repeat = 0;
 
-void __ramFunc update_lcd() {
+void update_lcd() {
+	systemCallData.args = frame; // the frame array contains the bytes to draw to the LCD
+	systemCallData.command = 0x0012; // 0x0012 = DRAW_LCD
+	__asm__("SVC #0");
+	//__asm__("SVC #0"); // perform the sys call
+	// DRAW_LCD has no return value, so nothing is needed afterward
 	//frame[0] ^= 0xff;
-  if (true) {
+  /*if (true) {
 	  frame_ready = false;
 	  setAddress(0, 0);
 	  sendData(frame, 132);
@@ -83,8 +93,8 @@ void __ramFunc update_lcd() {
 	  sendData(frame + 132 * 2, 132);
 	  setAddress(3, 0);
 	  sendData(frame + 132 * 3, 132);
-  }
-}
+  }*/
+ }
 
 /* USER CODE END 0 */
 
@@ -102,7 +112,7 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+  //HAL_Init();
 
   /* USER CODE BEGIN Init */
 
@@ -116,39 +126,66 @@ int main(void)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_SPI3_Init();
+  //MX_GPIO_Init();
+  //MX_SPI3_Init();
   /* USER CODE BEGIN 2 */
 
-  // interrupt requets are disabled in the firmware so that no interrupts are triggered
+  // interrupt requests are disabled in the firmware so that no interrupts are triggered
   // while interrupt handlers are being copied into RAM
-  __enable_irq();
+  //__enable_irq();
 
   core_init(0, 1, "", 0);
-  frame_ready = true;
   update_lcd();
-  ROW0_GPIO_Port->BSRR = ROW0_Pin|ROW1_Pin|ROW2_Pin|ROW3_Pin|ROW4_Pin|ROW5_Pin|ROW6_Pin;
+  //ROW0_GPIO_Port->BSRR = ROW0_Pin|ROW1_Pin|ROW2_Pin|ROW3_Pin|ROW4_Pin|ROW5_Pin|ROW6_Pin;
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  bool keydown = false;
+  bool* enqueued = (bool*) malloc(sizeof(bool));
+  int* repeat = (int*) malloc(sizeof(int));
   while (1)
   {
-	  HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
-
-	  if (kqri == kqwi) continue;
-	  uint8_t key = key_queue[kqri++];
-	  if (kqri == KEY_QUEUE_SIZE) kqri = 0;
-	  if (key == 255) core_keyup();
-	  else {
-		  bool* enqued = false;
-		  int* repeat = 0;
-		  core_keydown(key, enqued, repeat);
+	  //HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+	  /*uint8_t key = 254;
+	  if (kqri == kqwi) {
+		  HAL_Delay(10);
+		  key = Scan_Keyboard();
+		  if (key == 255 && !keydown) {
+			  key = 254;
+			  continue;
+		  }
 	  }
 
-	  frame_ready = true;
-	  update_lcd();
+	  if (key == 254) key = key_queue[kqri++];*/
+	  //uint8_t key = (uint8_t) sys_func(0x0002, 0);
+
+	  while (1) {
+		  systemCallData.command = 0x0002;
+		  __asm__("SVC #0");
+		  uint8_t key = (uint8_t) systemCallData.result;
+		  // read all keys before redrawing
+
+		  if (key == 255) {
+			  core_keyup();
+		  } else {
+			  core_keydown(key, enqueued, repeat);
+		  }
+
+		  //update_lcd();
+
+	  }
+
+	  uint8_t key = systemCallData.result;
+	  if (key != 255) keydown = true;
+	  if (key == 255) core_keyup();
+	  else {
+		  core_keydown(key, enqueued, repeat);
+	  }
+
+	  //frame_ready = true;
+	  //update_lcd();
 
 	  /**
 	   *
@@ -191,13 +228,13 @@ int main(void)
   * @brief System Clock Configuration
   * @retval None
   */
-void SystemClock_Config(void)
+/*void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
   /** Configure the main internal regulator output voltage
-  */
+
   if (HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1) != HAL_OK)
   {
     Error_Handler();
@@ -205,7 +242,7 @@ void SystemClock_Config(void)
 
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
-  */
+
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
@@ -221,7 +258,7 @@ void SystemClock_Config(void)
   }
 
   /** Initializes the CPU, AHB and APB buses clocks
-  */
+
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
@@ -233,9 +270,9 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-}
-
-/* USER CODE BEGIN 4 */
+}*/
+/*
+/* USER CODE BEGIN 4
 uint32_t last_key_time = 0;
 uint8_t last_key = 0;
 void __ramFunc HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
@@ -263,42 +300,45 @@ void __ramFunc HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	key_queue[kqwi++] = key;
 	if (kqwi == KEY_QUEUE_SIZE) kqwi = 0;
 	EXTI->PR1 = (COL0_Pin | COL1_Pin | COL2_Pin | COL3_Pin | COL4_Pin | COL5_Pin);
-}
+}*/
 
-
+/**
+ * Determines which key was pressed.
+ * Input: pin corresponding to the column that was triggered
+ * Returns: the key encoded in a uint8_t from 1 to 37 inclusive. Returns 255 if no key is pressed.
+ */
+/*
 uint8_t __ramFunc GetKey(uint16_t pin)
 {
+	  // disable interrupts on the keys so that it doesn't keep triggering more interrupts
+	  EXTI->IMR1 &= ~(COL0_Pin | COL1_Pin | COL2_Pin | COL3_Pin | COL4_Pin | COL5_Pin);
+
+	  // switch pins to digital input instead of external interrupts
 	  GPIO_InitTypeDef GPIO_InitStruct = {0};
 
 	  GPIO_InitStruct.Pin = COL0_Pin|COL1_Pin|COL2_Pin|COL3_Pin
 	                          |COL4_Pin|COL5_Pin;
 	  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
 	  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-	  HAL_GPIO_Init(COL0_GPIO_Port, &GPIO_InitStruct);
-	  EXTI->IMR1 &= ~(COL0_Pin | COL1_Pin | COL2_Pin | COL3_Pin | COL4_Pin | COL5_Pin);
 
+	  // this function should be put in RAM since it is part of an interrupt routine
+	  HAL_GPIO_Init(COL0_GPIO_Port, &GPIO_InitStruct);
+
+	  // there's probably a better way to encode the row pins that an array
 	uint16_t rows[] = { ROW0_Pin, ROW1_Pin, ROW2_Pin, ROW3_Pin, ROW4_Pin, ROW5_Pin, ROW6_Pin };
+
+	// the key that was pressed, or 255 if no key was pressed.
 	uint8_t key_press = 255;
 
+	// reset all the row pins to 0 so that we can step through them 1 at a time
 	ROW0_GPIO_Port->BRR = ROW0_Pin|ROW1_Pin|ROW2_Pin|ROW3_Pin|ROW4_Pin|ROW5_Pin|ROW6_Pin;
-	//HAL_GPIO_WritePin(ROW0_GPIO_Port, ROW0_Pin|ROW1_Pin|ROW2_Pin|ROW3_Pin|ROW4_Pin|ROW5_Pin|ROW6_Pin, GPIO_PIN_RESET);
 	for (uint8_t r = 0; r < 7; r++) {
-		/*
-		 *
-		 *   if(PinState != GPIO_PIN_RESET)
-  {
-    GPIOx->BSRR = (uint32_t)GPIO_Pin;
-  }
-  else
-  {
-    GPIOx->BRR = (uint32_t)GPIO_Pin;
-  }
-		 */
+		// set a row to high, then check if the column pin is high
 		ROW0_GPIO_Port->BSRR = rows[r];
 		GPIO_PinState state = (COL0_GPIO_Port->IDR & pin) != 0 ? GPIO_PIN_SET : GPIO_PIN_RESET;
 		ROW0_GPIO_Port->BRR = rows[r];
 
-		int c = -1;
+		int c = -1; // get the column number
 		if (state == GPIO_PIN_SET) {
 			switch (pin) {
 				case COL0_Pin: c = 0; break;
@@ -309,6 +349,7 @@ uint8_t __ramFunc GetKey(uint16_t pin)
 				case COL5_Pin: c = 5; break;
 			}
 
+			// do some math to convert into a number from 1 to 37
 			int row = r == 8 ? 5 : (r == 10 ? 6 : r);
 			key_press = row * 5 + c + 1;
 			if (row > 0) key_press++;
@@ -320,17 +361,22 @@ uint8_t __ramFunc GetKey(uint16_t pin)
 		}
 	}
 
+	// set all pins back to high so that a rising interrupt will be triggered again when the button changes state
 	ROW0_GPIO_Port->BSRR =  ROW0_Pin|ROW1_Pin|ROW2_Pin|ROW3_Pin|ROW4_Pin|ROW5_Pin|ROW6_Pin;
-	//HAL_GPIO_WritePin(ROW0_GPIO_Port, ROW0_Pin|ROW1_Pin|ROW2_Pin|ROW3_Pin|ROW4_Pin|ROW5_Pin|ROW6_Pin, GPIO_PIN_SET);
 
+	// switch back to interrupt mode
 		  GPIO_InitStruct.Pin = COL0_Pin|COL1_Pin|COL2_Pin|COL3_Pin
 		                          |COL4_Pin|COL5_Pin;
 		  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
 		  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
 
 		  HAL_GPIO_Init(COL0_GPIO_Port, &GPIO_InitStruct);
+
+		  // reset any pending external interrupts?
+			EXTI->PR1 = (COL0_Pin | COL1_Pin | COL2_Pin | COL3_Pin | COL4_Pin | COL5_Pin);
+
+			// renable external interrupts
 	  EXTI->IMR1 |= (COL0_Pin | COL1_Pin | COL2_Pin | COL3_Pin | COL4_Pin | COL5_Pin);
-		EXTI->PR1 = (COL0_Pin | COL1_Pin | COL2_Pin | COL3_Pin | COL4_Pin | COL5_Pin);
 
 
 	return key_press;
@@ -338,6 +384,76 @@ uint8_t __ramFunc GetKey(uint16_t pin)
 
 int Scan_Keyboard()
 {
+	  // disable interrupts on the keys so that it doesn't keep triggering more interrupts
+	  EXTI->IMR1 &= ~(COL0_Pin | COL1_Pin | COL2_Pin | COL3_Pin | COL4_Pin | COL5_Pin);
+
+	  // switch pins to digital input instead of external interrupts
+	  GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+	  GPIO_InitStruct.Pin = COL0_Pin|COL1_Pin|COL2_Pin|COL3_Pin
+	                          |COL4_Pin|COL5_Pin;
+	  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+	  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+
+	  // this function should be put in RAM since it is part of an interrupt routine
+	  HAL_GPIO_Init(COL0_GPIO_Port, &GPIO_InitStruct);
+
+	  // there's probably a better way to encode the row pins that an array
+	uint16_t rows[] = { ROW0_Pin, ROW1_Pin, ROW2_Pin, ROW3_Pin, ROW4_Pin, ROW5_Pin, ROW6_Pin };
+
+	// the key that was pressed, or 255 if no key was pressed.
+	uint8_t key_press = 255;
+
+	// reset all the row pins to 0 so that we can step through them 1 at a time
+	ROW0_GPIO_Port->BRR = ROW0_Pin|ROW1_Pin|ROW2_Pin|ROW3_Pin|ROW4_Pin|ROW5_Pin|ROW6_Pin;
+	for (uint8_t r = 0; r < 7; r++) {
+		// set a row to high, then check if the column pin is high
+		ROW0_GPIO_Port->BSRR = rows[r];
+		uint32_t column_values = COL0_GPIO_Port->IDR&(COL0_Pin|COL1_Pin|COL2_Pin|COL3_Pin|COL4_Pin|COL5_Pin);
+		ROW0_GPIO_Port->BRR = rows[r];
+
+		int c = -1; // get the column number
+		if (column_values != 0) {
+			if (column_values&COL0_Pin != 0) c = 0;
+			else if (column_values & COL1_Pin != 0) c = 1;
+			else if (column_values & COL2_Pin != 0) c = 2;
+			else if (column_values & COL3_Pin != 0) c = 3;
+			else if (column_values & COL4_Pin != 0) c = 4;
+			else if (column_values & COL5_Pin != 0) c = 5;
+			// do some math to convert into a number from 1 to 37
+			int row = r == 8 ? 5 : (r == 10 ? 6 : r);
+			key_press = row * 5 + c + 1;
+			if (row > 0) key_press++;
+			if (row > 1) key_press++;
+			if (row > 2) key_press++;
+			if (key_press > 13) key_press--;
+
+			break;
+		}
+	}
+
+	// set all pins back to high so that a rising interrupt will be triggered again when the button changes state
+	ROW0_GPIO_Port->BSRR =  ROW0_Pin|ROW1_Pin|ROW2_Pin|ROW3_Pin|ROW4_Pin|ROW5_Pin|ROW6_Pin;
+
+	// switch back to interrupt mode
+		  GPIO_InitStruct.Pin = COL0_Pin|COL1_Pin|COL2_Pin|COL3_Pin
+		                          |COL4_Pin|COL5_Pin;
+		  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+		  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+
+		  HAL_GPIO_Init(COL0_GPIO_Port, &GPIO_InitStruct);
+
+		  // reset any pending external interrupts?
+			EXTI->PR1 = (COL0_Pin | COL1_Pin | COL2_Pin | COL3_Pin | COL4_Pin | COL5_Pin);
+
+			// renable external interrupts
+	  EXTI->IMR1 |= (COL0_Pin | COL1_Pin | COL2_Pin | COL3_Pin | COL4_Pin | COL5_Pin);
+
+
+	return key_press;
+
+
+	/*
 	uint16_t rows = 0b10100011111;
 	uint16_t columns = 0b111111;
 
@@ -379,6 +495,7 @@ int Scan_Keyboard()
 	}
 
 	return key_press;
+
 }
 
 
@@ -430,7 +547,7 @@ void Basic_Hardware_Test() {
 			  HAL_Delay(2);
 		  }
 	  }
-}
+}*/
 /* USER CODE END 4 */
 
 /**

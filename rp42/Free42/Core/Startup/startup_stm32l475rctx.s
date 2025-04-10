@@ -59,10 +59,10 @@ defined in linker script */
 	.weak	Reset_Handler
 	.type	Reset_Handler, %function
 Reset_Handler:
-  ldr   sp, =_estack    /* Set stack pointer */
+//  ldr   sp, =_estack    /* Set stack pointer */
 
 /* Call the clock system initialization function.*/
-    bl  SystemInit
+//    bl  SystemInit
 
 /* Copy the data segment initializers from flash to SRAM */
   ldr r0, =_sdata
@@ -133,20 +133,20 @@ Infinite_Loop:
 g_pfnVectors:
 	.word	_estack
 	.word	Reset_Handler
-	.word	NMI_Handler
-	.word	HardFault_Handler
-	.word	MemManage_Handler
-	.word	BusFault_Handler
-	.word	UsageFault_Handler
 	.word	0
 	.word	0
 	.word	0
 	.word	0
-	.word	SVC_Handler
-	.word	DebugMon_Handler
 	.word	0
-	.word	PendSV_Handler
-	.word	SysTick_Handler
+	.word	0
+	.word	0
+	.word	0
+	.word	0
+	.word	0
+	.word	0
+	.word	0
+	.word	0
+	.word	0
 	.word	WWDG_IRQHandler
 	.word	PVD_PVM_IRQHandler
 	.word	TAMP_STAMP_IRQHandler

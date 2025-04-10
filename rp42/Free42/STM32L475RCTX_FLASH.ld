@@ -39,13 +39,14 @@ ENTRY(Reset_Handler)
 /* Highest address of the user mode stack */
 _estack = ORIGIN(RAM) + LENGTH(RAM); /* end of "RAM" Ram type memory */
 
-_Min_Heap_Size = 0x200; /* required amount of heap */
-_Min_Stack_Size = 0x400; /* required amount of stack */
+_Min_Heap_Size = 0x5000; /* required amount of heap */
+_Min_Stack_Size = 0x5000; /* required amount of stack */
 
 /* Memories definition */
 MEMORY
 {
-  RAM    (xrw)    : ORIGIN = 0x20000000,   LENGTH = 96K
+  SYS_CALL_DATA (rw)   : ORIGIN = 0x20000000, LENGTH = 12
+  RAM    (xrw)    : ORIGIN = 0x20000000+20K,   LENGTH = 96K-20K
   RAM2    (xrw)    : ORIGIN = 0x10000000,   LENGTH = 32K
   FLASH    (rx)    : ORIGIN = 0x90000000,   LENGTH = 8M
 }
@@ -53,6 +54,13 @@ MEMORY
 /* Sections */
 SECTIONS
 {
+  .SYS_CALL_DATA (NOLOAD) : 
+  {
+  	. = ALIGN(4);
+  	*(.SYS_CALL_DATA)
+  	. = ALIGN(4);
+  } >SYS_CALL_DATA
+  
   /* The startup code into "FLASH" Rom type memory */
   .isr_vector :
   {
@@ -142,8 +150,8 @@ SECTIONS
     _sdata = .;        /* create a global symbol at data start */
     *(.data)           /* .data sections */
     *(.data*)          /* .data* sections */
-    *(.RamFunc)        /* .RamFunc sections */
-    *(.RamFunc*)       /* .RamFunc* sections */
+    *(.RamFunc)      /* .RamFunc sections */
+    *(.RamFunc*)      /* .RamFunc* sections */
 
     . = ALIGN(4);
     _edata = .;        /* define a global symbol at data end */

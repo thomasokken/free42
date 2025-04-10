@@ -1,4 +1,7 @@
 #include "core_main.h"
+#include "main.h"
+
+#include <algorithm>
 
 //#include <iostream>
 
@@ -18,6 +21,7 @@ int main(int argc, char* argv[]) {
 }
 */
 
+const int frame_size = 132 * 4;
 char frame[132 * 4];
 bool frame_ready = false;
 
@@ -55,24 +59,27 @@ const char* shell_number_format() {
 int8 shell_random_seed() {
     return 0;
 }
+//0x20017ee0 0x900485fa
 
+int out_of_bounds_counter = 0;
 void shell_blitter(char const* bits, int bytesperline, int x, int y, int width, int height) {
 	for (int yi = y; yi < y + height; yi++) {
 		for (int xi = x; xi < x + width; xi++) {
+			unsigned int index1 = xi+(yi*2)/8*132;
+			unsigned int index2 = xi+(yi*2+1)/8*132;
+
+			if (index1 >= frame_size || index2 >= frame_size) {
+				out_of_bounds_counter++;
+				continue;
+			}
+
             if (((int) bits[xi / 8 + yi * bytesperline] & (1 << (xi % 8))) == 0) {
-                //if (yi % 8 == 7) {
-                //    frame[xi+yi/8*132] &= 0xff ^ (1 << (yi % 8));
-                //    frame[xi+yi/8*132] &= 0xff ^ (1);
-                //}
-                frame[xi+(yi*2)/8*132] &= 0xff ^ (1 << ((yi*2) % 8));
-                frame[xi+(yi*2+1)/8*132] &= 0xff ^ (1 << ((yi*2+1) % 8));
+                frame[index1] &= 0xff ^ (1 << ((yi*2) % 8));
+                frame[index2] &= 0xff ^ (1 << ((yi*2+1) % 8));
             } else {
-                //if (yi % 8 == 7) {
-                //    frame[xi+yi/8*132] |= (1 << (yi % 8));
-                //    frame[xi+yi/8*132] |= (1);
-                //}
-                frame[xi+(yi*2+1)/8*132] |= (1 << ((yi*2+1) % 8));
-                frame[xi+yi*2/8*132] |= (1 << (yi*2 % 8));
+
+                frame[index1] |= (1 << ((yi*2+1) % 8));
+                frame[index2] |= (1 << (yi*2 % 8));
             }
             //std::cout << (((int) bits[xi / 8 + yi * bytesperline] & (1 << (xi % 8))) == 0 ? ' ' : '#');
 
@@ -80,7 +87,10 @@ void shell_blitter(char const* bits, int bytesperline, int x, int y, int width, 
 		}
         //std::cout << std::endl;
 	}
-	frame_ready = true;
+
+	systemCallData.args = frame; // the frame array contains the bytes to draw to the LCD
+	systemCallData.command = 0x0012; // 0x0012 = DRAW_LCD
+	__asm__("SVC #0");
 }
 
 uint4 shell_milliseconds() {
@@ -134,6 +144,21 @@ void shell_annuciators(int updn, int shf, int prt, int run, int g, int rad) {
 }
 
 void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
+	if (shf) frame[131] |= 0xf0;
+	else     frame[131] &= 0x0f;
+	if (updn) frame[131] |= 0x0f;
+	else      frame[131] &= 0xf0;
+
+	if (prt) frame[131+132] |= 0xf0;
+	else     frame[131+132] &= 0x0f;
+	if (run) frame[131+132] |= 0x0f;
+	else     frame[131+132] &= 0xf0;
+
+	if (g) frame[131+132*2] |= 0xf0;
+	else     frame[131+132*2] &= 0x0f;
+	if (rad) frame[131+132*2] |= 0x0f;
+	else     frame[131+132*2] &= 0xf0;
+
 	//frame[131 * 0] = updn ? 0xff : 0x00;
 	//frame[132 * 1 + 131] = shf ? 0xff : 0x00;
 	//frame[132 * 2 + 131] = prt ? 0xff : 0x00;
