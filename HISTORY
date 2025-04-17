@@ -2084,8 +2084,9 @@
 
 2009-02-22: release 1.4.46
 
-* UVEC returned Invalid Type for complex scalar arguments. Fixed; it now returns
-  z/|z| (same as the SIGN function for such arguments), like the real HP-42S.
+* UVEC returned Invalid Type for complex scalar arguments. Fixed; it now
+  returns z/|z| (same as the SIGN function for such arguments), like the real
+  HP-42S.
 * When functions with arguments, e.g. STO, FIX, etc., were entered into a
   program from the CUSTOM menu, they would get inserted before the current
   program line instead of after. Fixed.
@@ -2864,10 +2865,10 @@
   keycodes in the range 38..255; these keys are mapped using "Macro:"
   definitions in the same *.layout file. The macro is a sequence of zero or
   more standard key codes (1..37).
-* Windows & Motif versions: Key mappings can now be defined in the skin *.layout
-  file. The syntax is identical to that used in the keymap.txt/keymap file.
-  When the skin maps a key that is also mapped in the default keymap file, the
-  skin's mapping takes precedence.
+* Windows & Motif versions: Key mappings can now be defined in the skin
+  *.layout file. The syntax is identical to that used in the keymap.txt/keymap
+  file. When the skin maps a key that is also mapped in the default keymap
+  file, the skin's mapping takes precedence.
   Note that such customized *.layout files are OS-dependent, since the way PC
   keyboard keys are specified is different between Windows and Motif: Windows
   uses numeric key codes, while Motif uses X11 KeySyms.
@@ -3212,14 +3213,14 @@
   bogus directory length and a corrupted directory structure (which can be
   repaired by resetting the Palm while Free42 is running; when this happens,
   Free42 will rebuild the directory the next time it starts up). Fixed now.
-* Windows & Motif versions: GIF file names looked like foobar0000.gif, should be
-  foobar.0000.gif, like in the PalmOS version. Fixed.
-* Motif version: When the print window scrolls because of a print command, while
-  it is partially obscured, the region that is scrolled out from under the
-  obscuring window did not get painted. I added a GraphicsExpose event handler
-  that schedules a full repaint whenever that happens. Not pretty, but unless I
-  can find a way to handle those events synchronously (as they are caused by
-  the scroll operation), it's the best I can do.
+* Windows & Motif versions: GIF file names looked like foobar0000.gif, should
+  be foobar.0000.gif, like in the PalmOS version. Fixed.
+* Motif version: When the print window scrolls because of a print command,
+  while it is partially obscured, the region that is scrolled out from under
+  the obscuring window did not get painted. I added a GraphicsExpose event
+  handler that schedules a full repaint whenever that happens. Not pretty, but
+  unless I can find a way to handle those events synchronously (as they are
+  caused by the scroll operation), it's the best I can do.
 
 2005-01-17: release 1.1.1
 
