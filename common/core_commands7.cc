@@ -996,7 +996,7 @@ static int rn(bool left, bool c) {
     int wsize = effective_wsize();
     if (nn >= wsize + 1)
         return ERR_INVALID_DATA;
-    int n = (int) nn;
+    int n = to_int(nn);
     int8 xx;
     int err = get_base_param(stack[sp - 1], &xx);
     if (err != ERR_NONE)
@@ -1059,7 +1059,7 @@ static int bit(int op) {
     int wsize = effective_wsize();
     if (x >= wsize)
         return ERR_INVALID_DATA;
-    int n = (int) x;
+    int n = to_int(x);
     int8 mask = 1LL << n;
     int8 f;
     int err = get_base_param(stack[sp - 1], &f);
@@ -1122,7 +1122,7 @@ static int make_mask(bool left) {
     int wsize = effective_wsize();
     if (x >= wsize + 1)
         return ERR_INVALID_DATA;
-    int n = (int) x;
+    int n = to_int(x);
     int8 res;
     if (n == 64)
         res = -1;
