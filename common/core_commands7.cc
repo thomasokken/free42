@@ -820,6 +820,10 @@ int docmd_lxasto(arg_struct *arg) {
     return err;
 }
 
+/////////////////////////////
+///// BASE enhancements /////
+/////////////////////////////
+
 int docmd_wsize(arg_struct *arg) {
     phloat x = ((vartype_real *) stack[sp])->x;
 #ifdef BCD_MATH
@@ -855,6 +859,245 @@ int docmd_breset(arg_struct *arg) {
     flags.f.base_signed = 1;
     flags.f.base_wrap = 0;
     return ERR_NONE;
+}
+
+int docmd_sl(arg_struct *arg) {
+    int8 x;
+    int err = get_base_param(stack[sp], &x);
+    if (err != ERR_NONE) {
+        flags.f.base_wrap = 0;
+        return err;
+    }
+    int8 hibit = x & (1LL << (effective_wsize() - 1));
+    flags.f.f20 = hibit != 0;
+    x = (x ^ hibit) << 1;
+    base_range_check(&x, true);
+    vartype *v = new_real(base2phloat(x));
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    unary_result(v);
+    return ERR_NONE;
+}
+
+static int sr(bool arith) {
+    int8 x;
+    int err = get_base_param(stack[sp], &x);
+    if (err != ERR_NONE)
+        return err;
+    flags.f.f20 = x & 1;
+    int8 hibit = x & (1LL << (effective_wsize() - 1));
+    x >>= 1;
+    if (hibit != 0)
+        if (arith && flags.f.base_signed)
+            x |= hibit;
+        else
+            x &= ~hibit;
+    base_range_check(&x, true);
+    vartype *v = new_real(base2phloat(x));
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    unary_result(v);
+    return ERR_NONE;
+}
+
+int docmd_sr(arg_struct *arg) {
+    return sr(false);
+}
+
+int docmd_asr(arg_struct *arg) {
+    return sr(true);
+}
+
+static int rl(bool c) {
+    int8 x;
+    int err = get_base_param(stack[sp], &x);
+    if (err != ERR_NONE)
+        return err;
+    int8 hibit = x & (1LL << (effective_wsize() - 1));
+    x -= hibit;
+    x <<= 1;
+    bool carry = hibit != 0;
+    if (c ? flags.f.f20 : carry)
+        x++;
+    flags.f.f20 = carry;
+    base_range_check(&x, true);
+    vartype *v = new_real(base2phloat(x));
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    unary_result(v);
+    return ERR_NONE;
+}
+
+int docmd_rl(arg_struct *arg) {
+    return rl(false);
+}
+
+int docmd_rlc(arg_struct *arg) {
+    return rl(true);
+}
+
+static int rr(bool c) {
+    int8 x;
+    int err = get_base_param(stack[sp], &x);
+    if (err != ERR_NONE)
+        return err;
+    bool carry = x & 1;
+    x >>= 1;
+    int wsize = effective_wsize();
+    if (wsize < 64)
+        x &= (1LL << wsize - 1) - 1;
+    if (c ? flags.f.f20 : carry)
+        x |= 1LL << (wsize - 1);
+    flags.f.f20 = carry;
+    base_range_check(&x, true);
+    vartype *v = new_real(base2phloat(x));
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    unary_result(v);
+    return ERR_NONE;
+}
+
+int docmd_rr(arg_struct *arg) {
+    return rr(false);
+}
+
+int docmd_rrc(arg_struct *arg) {
+    return rr(true);
+}
+
+int docmd_lj(arg_struct *arg) {
+    int8 x;
+    int err = get_base_param(stack[sp], &x);
+    if (err != ERR_NONE)
+        return err;
+    int count = 0;
+    if (x != 0) {
+        int8 mask = 1LL << (effective_wsize() - 1);
+        while ((x & mask) == 0) {
+            x <<= 1;
+            count++;
+        }
+    }
+    base_range_check(&x, true);
+    vartype *vx = new_real(count);
+    vartype *vy = new_real(base2phloat(x));
+    if (vx == NULL || vy == NULL) {
+        free_vartype(vx);
+        free_vartype(vy);
+        return ERR_INSUFFICIENT_MEMORY;
+    }
+    return unary_two_results(vx, vy);
+}
+
+int docmd_rln(arg_struct *arg) {
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_rrn(arg_struct *arg) {
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_rlcn(arg_struct *arg) {
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int docmd_rrcn(arg_struct *arg) {
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+static int bit(int op) {
+    phloat x = ((vartype_real *) stack[sp])->x;
+    if (x < 0)
+        x = -x;
+    int wsize = effective_wsize();
+    if (x >= wsize)
+        return ERR_INVALID_DATA;
+    int n = (int) x;
+    int8 mask = 1LL << n;
+    int8 f;
+    int err = get_base_param(stack[sp - 1], &f);
+    if (err != ERR_NONE)
+        return err;
+    if (op == 2) {
+        err = unary_no_result();
+        if (err == ERR_NONE)
+            err = (f & mask) == 0 ? ERR_NO : ERR_YES;
+        return err;
+    }
+    if (op == 0)
+        f |= mask;
+    else
+        f &= ~mask;
+    base_range_check(&f, true);
+    vartype *v = new_real(base2phloat(f));
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    return binary_result(v);
+}
+
+int docmd_sb(arg_struct *arg) {
+    return bit(0);
+}
+
+int docmd_cb(arg_struct *arg) {
+    return bit(1);
+}
+
+int docmd_b_t(arg_struct *arg) {
+    return bit(2);
+}
+
+int docmd_num_b(arg_struct *arg) {
+    int8 x;
+    int err = get_base_param(stack[sp], &x);
+    if (err != ERR_NONE)
+        return err;
+    int wsize = effective_wsize();
+    if (wsize < 64)
+        x &= (1LL << wsize) - 1;
+    uint8 ux = (uint8) x;
+    int count = 0;
+    while (ux != 0) {
+        count += ux & 1;
+        ux >>= 1;
+    }
+    vartype *v = new_real(count);
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    unary_result(v);
+    return ERR_NONE;
+}
+
+static int make_mask(bool left) {
+    phloat x = ((vartype_real *) stack[sp])->x;
+    if (x < 0)
+        x = -x;
+    int wsize = effective_wsize();
+    if (x >= wsize + 1)
+        return ERR_INVALID_DATA;
+    int n = (int) x;
+    int8 res;
+    if (n == 64)
+        res = -1;
+    else {
+        res = (1LL << n) - 1;
+        if (left)
+            res <<= wsize - n;
+    }
+    base_range_check(&res, true);
+    vartype *v = new_real(base2phloat(res));
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    unary_result(v);
+    return ERR_NONE;
+}
+
+int docmd_maskl(arg_struct *arg) {
+    return make_mask(true);
+}
+
+int docmd_maskr(arg_struct *arg) {
+    return make_mask(false);
 }
 
 ////////////////////////////////////////////////////////

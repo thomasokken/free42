@@ -17,6 +17,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 #include "core_globals.h"
 #include "core_commands2.h"
@@ -508,20 +509,41 @@ const menu_spec menus[] = {
                         { 0x1000 + CMD_NULL, 0, "" },
                         { 0x2000 + CMD_WRAP, 0, "" },
                         { 0x2000 + CMD_GROW, 0, "" } } },
-    { /* MENU_BASE1 */ MENU_NONE, MENU_BASE2, MENU_BASE2,
+    { /* MENU_BASE1 */ MENU_NONE, MENU_BASE2, MENU_BASE5,
                       { { 0x1000 + CMD_A_THRU_F, 0, ""      },
                         { 0x2000 + CMD_HEXM,     0, ""      },
                         { 0x2000 + CMD_DECM,     0, ""      },
                         { 0x2000 + CMD_OCTM,     0, ""      },
                         { 0x2000 + CMD_BINM,     0, ""      },
                         { MENU_BASE_LOGIC,       5, "LOGIC" } } },
-    { /* MENU_BASE2 */ MENU_NONE, MENU_BASE1, MENU_BASE1,
-                      { { 0x1000 + CMD_WSIZE,   0, "" },
-                        { 0x1000 + CMD_WSIZE_T, 0, "" },
-                        { 0x2000 + CMD_BSIGNED, 0, "" },
-                        { 0x2000 + CMD_BWRAP,   0, "" },
-                        { 0x1000 + CMD_NULL,    0, "" },
-                        { 0x1000 + CMD_BRESET,  0, "" } } },
+    { /* MENU_BASE2 */ MENU_NONE, MENU_BASE3, MENU_BASE1,
+                      { { 0x1000 + CMD_SL,  0, "" },
+                        { 0x1000 + CMD_SR,  0, "" },
+                        { 0x1000 + CMD_RL,  0, "" },
+                        { 0x1000 + CMD_RR,  0, "" },
+                        { 0x1000 + CMD_RLC, 0, "" },
+                        { 0x1000 + CMD_RRC, 0, "" } } },
+    { /* MENU_BASE3 */ MENU_NONE, MENU_BASE4, MENU_BASE2,
+                      { { 0x1000 + CMD_LJ,   0, "" },
+                        { 0x1000 + CMD_ASR,  0, "" },
+                        { 0x1000 + CMD_RLN,  0, "" },
+                        { 0x1000 + CMD_RRN,  0, "" },
+                        { 0x1000 + CMD_RLCN, 0, "" },
+                        { 0x1000 + CMD_RRCN, 0, "" } } },
+    { /* MENU_BASE4 */ MENU_BASE4, MENU_BASE5, MENU_BASE3,
+                      { { 0x1000 + CMD_SB,    0, "" },
+                        { 0x1000 + CMD_CB,    0, "" },
+                        { 0x1000 + CMD_B_T,   0, "" },
+                        { 0x1000 + CMD_NUM_B, 0, "" },
+                        { 0x1000 + CMD_MASKL, 0, "" },
+                        { 0x1000 + CMD_MASKR, 0, "" } } },
+    { /* MENU_BASE5 */ MENU_NONE, MENU_BASE1, MENU_BASE4,
+                      { { MENU_BASE_FLOAT,   5, "FLOAT" },
+                        { 0x1000 + CMD_NULL, 0, ""      },
+                        { 0x1000 + CMD_NULL, 0, ""      },
+                        { 0x1000 + CMD_NULL, 0, ""      },
+                        { MENU_BASE_MODES,   5, "MODES" },
+                        { MENU_BASE_DISP,    4, "DISP"  } } },
     { /* MENU_BASE_A_THRU_F */ MENU_BASE1, MENU_NONE, MENU_NONE,
                       { { 0, 1, "A" },
                         { 0, 1, "B" },
@@ -536,6 +558,27 @@ const menu_spec menus[] = {
                         { 0x1000 + CMD_NOT,   0, "" },
                         { 0x1000 + CMD_BIT_T, 0, "" },
                         { 0x1000 + CMD_ROTXY, 0, "" } } },
+    { /* MENU_BASE_FLOAT */ MENU_BASE5, MENU_NONE, MENU_NONE,
+                      { { 0x1000 + CMD_NOP,  0, "" },
+                        { 0x1000 + CMD_NULL, 0, "" },
+                        { 0x1000 + CMD_NULL, 0, "" },
+                        { 0x1000 + CMD_NULL, 0, "" },
+                        { 0x1000 + CMD_NULL, 0, "" },
+                        { 0x1000 + CMD_NULL, 0, "" } } },
+    { /* MENU_BASE_MODES */ MENU_BASE5, MENU_NONE, MENU_NONE,
+                      { { 0x1000 + CMD_WSIZE,   0, "" },
+                        { 0x1000 + CMD_WSIZE_T, 0, "" },
+                        { 0x2000 + CMD_BSIGNED, 0, "" },
+                        { 0x2000 + CMD_BWRAP,   0, "" },
+                        { 0x1000 + CMD_NULL,    0, "" },
+                        { 0x1000 + CMD_BRESET,  0, "" } } },
+    { /* MENU_BASE_DISP */ MENU_BASE5, MENU_NONE, MENU_NONE,
+                      { { 0x1000 + CMD_NOP,  0, "" },
+                        { 0x1000 + CMD_NULL, 0, "" },
+                        { 0x1000 + CMD_NULL, 0, "" },
+                        { 0x1000 + CMD_NULL, 0, "" },
+                        { 0x1000 + CMD_NULL, 0, "" },
+                        { 0x1000 + CMD_NULL, 0, "" } } },
     { /* MENU_SOLVE */ MENU_NONE, MENU_NONE, MENU_NONE,
                       { { 0x1000 + CMD_MVAR,   0, "" },
                         { 0x1000 + CMD_NULL,   0, "" },
@@ -747,8 +790,9 @@ bool no_keystrokes_yet;
  * Version 48: 3.1    Matrix editor nested lists
  * Version 49: 3.1.13 Program locking
  * Version 50: 3.2.9  Move BASE settings from MODES to BASE
+ * Version 51: 3.2.9  BASE enhancements
  */
-#define FREE42_VERSION 50
+#define FREE42_VERSION 51
 
 
 /*******************/
@@ -3702,6 +3746,21 @@ bool write_arg(const arg_struct *arg) {
     }
 }
 
+static void menu_adjust(int from1, int to1, int offset1,
+                        int from2 = INT_MIN, int to2 = INT_MIN, int offset2 = INT_MIN,
+                        int from3 = INT_MIN, int to3 = INT_MIN, int offset3 = INT_MIN) {
+    static int *menuptr[] = { &mode_appmenu, &mode_plainmenu, &mode_transientmenu, &mode_alphamenu, &mode_commandmenu };
+    for (int i = 0; i < 5; i++) {
+        int *menu = menuptr[i];
+        if (*menu >= from1 && *menu <= to1)
+            *menu += offset1;
+        else if (*menu >= from2 && *menu <= to2)
+            *menu += offset2;
+        else if (*menu >= from3 && *menu <= to3)
+            *menu += offset3;
+    }
+}
+
 static bool load_state2(bool *clear, bool *too_new) {
     int4 magic;
     int4 version;
@@ -3772,40 +3831,12 @@ static bool load_state2(bool *clear, bool *too_new) {
     if (!read_int(&mode_transientmenu)) return false;
     if (!read_int(&mode_alphamenu)) return false;
     if (!read_int(&mode_commandmenu)) return false;
-    if (ver < 33) {
-        if (mode_appmenu > 24)
-            mode_appmenu += 2;
-        if (mode_plainmenu > 24)
-            mode_plainmenu += 2;
-        if (mode_transientmenu > 24)
-            mode_transientmenu += 2;
-        if (mode_alphamenu > 24)
-            mode_alphamenu += 2;
-        if (mode_commandmenu > 24)
-            mode_commandmenu += 2;
-    }
-    if (ver < 50) {
-        if (mode_appmenu == 24)
-            mode_appmenu = 61;
-        else if (mode_appmenu > 24 && mode_appmenu <= 61)
-            mode_appmenu--;
-        if (mode_plainmenu == 24)
-            mode_plainmenu = 61;
-        else if (mode_plainmenu > 24 && mode_plainmenu <= 61)
-            mode_plainmenu--;
-        if (mode_transientmenu == 24)
-            mode_transientmenu = 61;
-        else if (mode_transientmenu > 24 && mode_transientmenu <= 61)
-            mode_transientmenu--;
-        if (mode_alphamenu == 24)
-            mode_alphamenu = 61;
-        else if (mode_alphamenu > 24 && mode_alphamenu <= 61)
-            mode_alphamenu--;
-        if (mode_commandmenu == 24)
-            mode_commandmenu = 61;
-        else if (mode_commandmenu > 24 && mode_commandmenu <= 61)
-            mode_commandmenu--;
-    }
+    if (ver < 33)
+        menu_adjust(24, INT_MAX, 2);
+    if (ver < 50)
+        menu_adjust(24, 24, 37, 25, 61, -1);
+    if (ver < 51)
+        menu_adjust(61, 61, 7, 62, 63, 3, 64, INT_MAX, 6);
     if (!read_bool(&mode_running)) return false;
     if (ver < 46)
         mode_caller_stack_lift_disabled = false;

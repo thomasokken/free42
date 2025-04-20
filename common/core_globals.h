@@ -195,11 +195,17 @@ extern const error_spec errors[];
 #define MENU_MATRIX_EDIT2  59
 #define MENU_BASE1         60
 #define MENU_BASE2         61
-#define MENU_BASE_A_THRU_F 62
-#define MENU_BASE_LOGIC    63
-#define MENU_SOLVE         64
-#define MENU_INTEG         65
-#define MENU_INTEG_PARAMS  66
+#define MENU_BASE3         62
+#define MENU_BASE4         63
+#define MENU_BASE5         64
+#define MENU_BASE_A_THRU_F 65
+#define MENU_BASE_LOGIC    66
+#define MENU_BASE_FLOAT    67
+#define MENU_BASE_MODES    68
+#define MENU_BASE_DISP     69
+#define MENU_SOLVE         70
+#define MENU_INTEG         71
+#define MENU_INTEG_PARAMS  72
 
 
 struct menu_item_spec {
