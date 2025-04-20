@@ -530,7 +530,7 @@ const menu_spec menus[] = {
                         { 0x1000 + CMD_RRN,  0, "" },
                         { 0x1000 + CMD_RLCN, 0, "" },
                         { 0x1000 + CMD_RRCN, 0, "" } } },
-    { /* MENU_BASE4 */ MENU_BASE4, MENU_BASE5, MENU_BASE3,
+    { /* MENU_BASE4 */ MENU_NONE, MENU_BASE5, MENU_BASE3,
                       { { 0x1000 + CMD_SB,    0, "" },
                         { 0x1000 + CMD_CB,    0, "" },
                         { 0x1000 + CMD_B_T,   0, "" },
