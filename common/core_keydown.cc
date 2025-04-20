@@ -62,7 +62,7 @@ static int basekeys() {
     if (!baseapp)
         return 0;
     int menu = get_front_menu();
-    return menu >= MENU_BASE1 && menu <= MENU_BASE_LOGIC;
+    return menu >= MENU_BASE1 && menu <= MENU_BASE_DISP;
 }
 
 static void set_solve_integ(int solve) {

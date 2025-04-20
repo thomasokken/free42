@@ -989,20 +989,55 @@ int docmd_lj(arg_struct *arg) {
     return unary_two_results(vx, vy);
 }
 
+static int rn(bool left, bool c) {
+    phloat nn = ((vartype_real *) stack[sp])->x;
+    if (nn < 0)
+        nn = -nn;
+    int wsize = effective_wsize();
+    if (nn >= wsize + 1)
+        return ERR_INVALID_DATA;
+    int n = (int) nn;
+    int8 xx;
+    int err = get_base_param(stack[sp - 1], &xx);
+    if (err != ERR_NONE)
+        return err;
+    uint8 x = xx;
+    if (n != 0) {
+        if (c) {
+            return ERR_NOT_YET_IMPLEMENTED;
+        } else {
+            if (left) {
+                x = (x << n) | (x >> (wsize - n));
+                flags.f.f20 = x & 1;
+            } else {
+                x = (x >> n) | (x << (wsize - n));
+                flags.f.f20 = (x >> (wsize - 1)) & 1;
+            }
+        }
+    }
+    xx = x;
+    base_range_check(&xx, true);
+    vartype *v = new_real(base2phloat(xx));
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    unary_result(v);
+    return ERR_NONE;
+}
+
 int docmd_rln(arg_struct *arg) {
-    return ERR_NOT_YET_IMPLEMENTED;
+    return rn(true, false);
 }
 
 int docmd_rrn(arg_struct *arg) {
-    return ERR_NOT_YET_IMPLEMENTED;
+    return rn(false, false);
 }
 
 int docmd_rlcn(arg_struct *arg) {
-    return ERR_NOT_YET_IMPLEMENTED;
+    return rn(true, true);
 }
 
 int docmd_rrcn(arg_struct *arg) {
-    return ERR_NOT_YET_IMPLEMENTED;
+    return rn(false, true);
 }
 
 static int bit(int op) {

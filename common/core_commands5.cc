@@ -32,7 +32,7 @@
 
 int appmenu_exitcallback_2(int menuid, bool exitall) {
     if (menuid >= MENU_BASE1
-            && menuid <= MENU_BASE_LOGIC
+            && menuid <= MENU_BASE_DISP
             && !exitall) {
         mode_appmenu = menuid;
         set_appmenu_exitcallback(2);
