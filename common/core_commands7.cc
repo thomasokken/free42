@@ -1004,7 +1004,19 @@ static int rn(bool left, bool c) {
     uint8 x = xx;
     if (n != 0) {
         if (c) {
-            return ERR_NOT_YET_IMPLEMENTED;
+            if (left) {
+                bool carry = (x >> (wsize - n)) & 1;
+                int s = wsize - n + 1;
+                uint8 t = s == 64 ? 0 : x >> s;
+                x = (x << n) | t | (((uint8) flags.f.f20) << (n - 1));
+                flags.f.f20 = carry;
+            } else {
+                bool carry = (x >> (n - 1)) & 1;
+                int s = wsize - n + 1;
+                uint8 t = s == 64 ? 0 : x << s;
+                x = (x >> n) | t | (((uint8) flags.f.f20) << (wsize - n));
+                flags.f.f20 = carry;
+            }
         } else {
             if (left) {
                 x = (x << n) | (x >> (wsize - n));
