@@ -68,6 +68,7 @@ int docmd_rr(arg_struct *arg);
 int docmd_rlc(arg_struct *arg);
 int docmd_rrc(arg_struct *arg);
 int docmd_lj(arg_struct *arg);
+int docmd_rj(arg_struct *arg);
 int docmd_asr(arg_struct *arg);
 int docmd_rln(arg_struct *arg);
 int docmd_rrn(arg_struct *arg);

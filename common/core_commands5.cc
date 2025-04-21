@@ -1188,6 +1188,33 @@ int docmd_lj(arg_struct *arg) {
     return unary_two_results(vx, vy);
 }
 
+int docmd_rj(arg_struct *arg) {
+    int8 x;
+    int err = get_base_param(stack[sp], &x);
+    if (err != ERR_NONE)
+        return err;
+    int count = 0;
+    uint8 xx = (uint8) x;
+    int wsize = effective_wsize();
+    if (wsize < 64)
+        xx &= (1ULL << wsize) - 1;
+    if (xx != 0) {
+        while ((xx & 1) == 0) {
+            xx >>= 1;
+            count++;
+        }
+    }
+    x = (int8) xx;
+    vartype *vx = new_real(count);
+    vartype *vy = new_real(base2phloat(x));
+    if (vx == NULL || vy == NULL) {
+        free_vartype(vx);
+        free_vartype(vy);
+        return ERR_INSUFFICIENT_MEMORY;
+    }
+    return unary_two_results(vx, vy);
+}
+
 static int rn(bool left, bool c) {
     phloat nn = ((vartype_real *) stack[sp])->x;
     if (nn < 0)

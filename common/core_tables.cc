@@ -413,6 +413,7 @@ const command_spec cmd_array[] =
     { /* RLC */         docmd_rlc,         "RLC",                 0x00, 0x00, 0xa7, 0xfb,  3, ARG_NONE,   1, 0x01 },
     { /* RRC */         docmd_rrc,         "RRC",                 0x00, 0x00, 0xa7, 0x2a,  3, ARG_NONE,   1, 0x01 },
     { /* LJ */          docmd_lj,          "LJ",                  0x00, 0x00, 0xa7, 0x2b,  2, ARG_NONE,   1, 0x01 },
+    { /* RJ */          docmd_rj,          "RJ",                  0x00, 0x00, 0xa7, 0x72,  2, ARG_NONE,   1, 0x01 },
     { /* ASR */         docmd_asr,         "ASR",                 0x00, 0x00, 0xa7, 0x2c,  3, ARG_NONE,   1, 0x01 },
     { /* RLN */         docmd_rln,         "RLN",                 0x00, 0x00, 0xa7, 0x2d,  3, ARG_NONE,   2, 0x01 },
     { /* RRN */         docmd_rrn,         "RRN",                 0x00, 0x00, 0xa7, 0x2e,  3, ARG_NONE,   2, 0x01 },
