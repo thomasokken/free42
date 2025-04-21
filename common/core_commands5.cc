@@ -1144,7 +1144,7 @@ static int rr(bool c) {
     x >>= 1;
     int wsize = effective_wsize();
     if (wsize < 64)
-        x &= (1LL << wsize - 1) - 1;
+        x &= (1LL << (wsize - 1)) - 1;
     if (c ? mode_carry : carry)
         x |= 1LL << (wsize - 1);
     mode_carry = carry;
@@ -1427,7 +1427,7 @@ static bool result2bits(void *data, int size) {
         if (x < 0 || x >= pow(phloat(2), 64))
             return false;
         switch (size) {
-            case 4: *((uint4 *) data) = to_int8(x); break;
+            case 4: *((uint4 *) data) = (uint4) to_int8(x); break;
             case 8: *((uint8 *) data) = to_int8(x); break;
         }
         return true;
