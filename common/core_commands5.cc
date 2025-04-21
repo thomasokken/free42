@@ -1032,27 +1032,8 @@ int docmd_basechs(arg_struct *arg) {
     int err;
     if ((err = get_base_param(stack[sp], &x)) != ERR_NONE)
         return err;
-    if (flags.f.base_wrap) {
-        x = -x;
-        base_range_check(&x, true);
-    } else if (flags.f.base_signed) {
-        int8 maxneg = -1LL << (effective_wsize() - 1);
-        if (x == maxneg) {
-            if (flags.f.range_error_ignore)
-                x = -1 - maxneg;
-            else
-                return ERR_OUT_OF_RANGE;
-        } else
-            x = -x;
-    } else {
-        if (x != 0) {
-            if (flags.f.range_error_ignore)
-                x = 0;
-            else
-                return ERR_OUT_OF_RANGE;
-        } else
-            x = 0;
-    }
+    x = -x;
+    base_range_check(&x, true);
     ((vartype_real *) stack[sp])->x = base2phloat(x);
     return ERR_NONE;
 }
