@@ -1382,8 +1382,8 @@ static int bits2result(void *data, int size) {
             for (int i = 0; i < size; i++) {
                 unsigned char c = *d;
                 d += dir;
-                *dst++ = "0123456789abcdef"[c >> 4];
-                *dst++ = "0123456789abcdef"[c & 15];
+                *dst++ = "0123456789ABCDEF"[c >> 4];
+                *dst++ = "0123456789ABCDEF"[c & 15];
             }
         }
     }
@@ -1415,8 +1415,8 @@ static bool result2bits(void *data, int size) {
             return false;
         char *src = s->txt();
         for (int i = 0; i < s->length; i++) {
-            char c = tolower(*src++);
-            if (c < '0' || c > '9' && c < 'a' || c > 'f')
+            char c = toupper(*src++);
+            if (c < '0' || c > '9' && c < 'A' || c > 'F')
                 return false;
         }
         int slen = s->length / 2;
@@ -1431,10 +1431,10 @@ static bool result2bits(void *data, int size) {
         }
         src = s->txt();
         for (int i = 0; i < slen; i++) {
-            char c1 = tolower(*src++);
-            char c2 = tolower(*src++);
-            unsigned char b = (c1 < 'a' ? c1 - '0' : c1 - 'a' + 10) << 4
-                            | (c2 < 'a' ? c2 - '0' : c2 - 'a' + 10);
+            char c1 = toupper(*src++);
+            char c2 = toupper(*src++);
+            unsigned char b = (c1 < 'A' ? c1 - '0' : c1 - 'A' + 10) << 4
+                            | (c2 < 'A' ? c2 - '0' : c2 - 'A' + 10);
             *dst = b;
             dst += dir;
         }
