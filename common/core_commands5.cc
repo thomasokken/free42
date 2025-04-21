@@ -820,7 +820,8 @@ int docmd_baseadd(arg_struct *arg) {
     if ((err = get_base_param(stack[sp - 1], &y)) != ERR_NONE)
         return err;
     res = x + y;
-    if (!flags.f.base_wrap && effective_wsize() == 64) {
+    int wsize = effective_wsize();
+    if (!flags.f.base_wrap && wsize == 64) {
         if (flags.f.base_signed) {
             if (x > 0 && y > 0) {
                 if (res < x || res < y)
@@ -850,7 +851,17 @@ int docmd_baseadd(arg_struct *arg) {
     v = new_real(base2phloat(res));
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
-    return binary_result(v);
+    err = binary_result(v);
+    if (err == ERR_NONE) {
+        if (wsize == 64)
+            mode_carry = (uint8) x > (uint8) ~y;
+        else {
+            uint8 mask;
+            mask = (1ULL << wsize) - 1;
+            mode_carry = (uint8) (x & mask) > (uint8) (~y & mask);
+        }
+    }
+    return err;
 }
 
 int docmd_basesub(arg_struct *arg) {
@@ -861,7 +872,8 @@ int docmd_basesub(arg_struct *arg) {
         return err;
     if ((err = get_base_param(stack[sp - 1], &y)) != ERR_NONE)
         return err;
-    if (!flags.f.base_signed && !flags.f.base_wrap && (uint8) x > (uint8) y) {
+    bool carry = (uint8) x > (uint8) y;
+    if (!flags.f.base_signed && !flags.f.base_wrap && carry) {
         if (flags.f.range_error_ignore)
             res = 0;
         else
@@ -893,7 +905,10 @@ int docmd_basesub(arg_struct *arg) {
     v = new_real(base2phloat(res));
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
-    return binary_result(v);
+    err = binary_result(v);
+    if (err == ERR_NONE)
+        mode_carry = carry;
+    return err;
 }
 
 int docmd_basemul(arg_struct *arg) {
