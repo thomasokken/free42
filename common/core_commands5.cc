@@ -15,7 +15,10 @@
  * along with this program; if not, see http://www.gnu.org/licenses/.
  *****************************************************************************/
 
+#include <string.h>
 #include <stdlib.h>
+#include "bid_conf.h"
+#include "bid_functions.h"
 
 #include "core_commands2.h"
 #include "core_commands5.h"
@@ -1356,6 +1359,279 @@ int docmd_cc(arg_struct *arg) {
 int docmd_c_t(arg_struct *arg) {
     return mode_carry ? ERR_YES : ERR_NO;
 }
+
+static int bits2result(void *data, int size) {
+    int wsize = effective_wsize();
+    vartype *v;
+    if (size * 8 <= wsize) {
+        int8 d;
+        if (size == 4)
+            d = *(uint4 *) data;
+        else
+            d = *(uint8 *) data;
+        v = new_real((phloat) d);
+    } else {
+        v = new_string(NULL, size * 2);
+        if (v != NULL) {
+            unsigned char *d = (unsigned char *) data;
+            char *dst = ((vartype_string *) v)->txt();
+            unsigned short t = 0x0102;
+            int dir = *((unsigned char *) &t) == 0x01 ? 1 : -1;
+            if (dir == -1)
+                d += size - 1;
+            for (int i = 0; i < size; i++) {
+                unsigned char c = *d;
+                d += dir;
+                *dst++ = "0123456789abcdef"[c >> 4];
+                *dst++ = "0123456789abcdef"[c & 15];
+            }
+        }
+    }
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    unary_result(v);
+    return ERR_NONE;
+}
+
+static bool result2bits(void *data, int size) {
+    vartype *v = stack[sp];
+    if (v->type == TYPE_REAL) {
+        phloat x = ((vartype_real *) v)->x;
+        if (x < 0 || x >= pow(phloat(2), 64))
+            return false;
+        switch (size) {
+            case 4: *((uint4 *) data) = to_int8(x); break;
+            case 8: *((uint8 *) data) = to_int8(x); break;
+        }
+        return true;
+    } else {
+        vartype_string *s = (vartype_string *) v;
+        unsigned short t = 0x0102;
+        int dir = *((unsigned char *) &t) == 0x01 ? 1 : -1;
+        unsigned char *dst = (unsigned char *) data;
+        if (dir == -1)
+            dst += size - 1;
+        if (s->length < 2 || (s->length & 1) != 0)
+            return false;
+        char *src = s->txt();
+        for (int i = 0; i < s->length; i++) {
+            char c = tolower(*src++);
+            if (c < '0' || c > '9' && c < 'a' || c > 'f')
+                return false;
+        }
+        int slen = s->length / 2;
+        if (slen < size) {
+            for (int i = slen; i < size; i++) {
+                *dst = 0;
+                dst += dir;
+            }
+        } else if (slen > size) {
+            src += (size - slen) * 2;
+            slen = size;
+        }
+        src = s->txt();
+        for (int i = 0; i < slen; i++) {
+            char c1 = tolower(*src++);
+            char c2 = tolower(*src++);
+            unsigned char b = (c1 < 'a' ? c1 - '0' : c1 - 'a' + 10) << 4
+                            | (c2 < 'a' ? c2 - '0' : c2 - 'a' + 10);
+            *dst = b;
+            dst += dir;
+        }
+        return true;
+    }
+}
+
+#ifdef BCD_MATH
+
+int docmd_n_to_bs(arg_struct *arg) {
+    BID_UINT128 x = ((vartype_real *) stack[sp])->x.val;
+    float r;
+    bid128_to_binary32(&r, &x);
+    return bits2result(&r, 4);
+}
+
+int docmd_n_to_bd(arg_struct *arg) {
+    BID_UINT128 x = ((vartype_real *) stack[sp])->x.val;
+    double r;
+    bid128_to_binary64(&r, &x);
+    return bits2result(&r, 8);
+}
+
+int docmd_n_to_ds(arg_struct *arg) {
+    BID_UINT128 x = ((vartype_real *) stack[sp])->x.val;
+    BID_UINT32 r;
+    bid128_to_bid32(&r, &x);
+    return bits2result(&r, 4);
+}
+
+int docmd_n_to_dd(arg_struct *arg) {
+    BID_UINT128 x = ((vartype_real *) stack[sp])->x.val;
+    BID_UINT64 r;
+    bid128_to_bid64(&r, &x);
+    return bits2result(&r, 8);
+}
+
+int docmd_n_to_dq(arg_struct *arg) {
+    BID_UINT128 x = ((vartype_real *) stack[sp])->x.val;
+    return bits2result(&x, 16);
+}
+
+int docmd_bs_to_n(arg_struct *arg) {
+    float x;
+    if (!result2bits(&x, 4))
+        return ERR_INVALID_DATA;
+    vartype *v = new_real(x);
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    unary_result(v);
+    return ERR_NONE;
+}
+
+int docmd_bd_to_n(arg_struct *arg) {
+    double x;
+    if (!result2bits(&x, 8))
+        return ERR_INVALID_DATA;
+    vartype *v = new_real(x);
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    unary_result(v);
+    return ERR_NONE;
+}
+
+int docmd_ds_to_n(arg_struct *arg) {
+    BID_UINT32 x;
+    if (!result2bits(&x, 4))
+        return ERR_INVALID_DATA;
+    BID_UINT128 xx;
+    bid32_to_bid128(&xx, &x);
+    vartype *v = new_real(xx);
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    unary_result(v);
+    return ERR_NONE;
+}
+
+int docmd_dd_to_n(arg_struct *arg) {
+    BID_UINT64 x;
+    if (!result2bits(&x, 8))
+        return ERR_INVALID_DATA;
+    BID_UINT128 xx;
+    bid64_to_bid128(&xx, &x);
+    vartype *v = new_real(xx);
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    unary_result(v);
+    return ERR_NONE;
+}
+
+int docmd_dq_to_n(arg_struct *arg) {
+    BID_UINT128 x;
+    if (!result2bits(&x, 16))
+        return ERR_INVALID_DATA;
+    vartype *v = new_real(x);
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    unary_result(v);
+    return ERR_NONE;
+}
+
+#else
+
+int docmd_n_to_bs(arg_struct *arg) {
+    double x = ((vartype_real *) stack[sp])->x;
+    float r = (float) x;
+    return bits2result(&r, 4);
+}
+
+int docmd_n_to_bd(arg_struct *arg) {
+    double x = ((vartype_real *) stack[sp])->x;
+    return bits2result(&x, 8);
+}
+
+int docmd_n_to_ds(arg_struct *arg) {
+    double x = ((vartype_real *) stack[sp])->x;
+    BID_UINT32 r;
+    binary64_to_bid32(&r, &x);
+    return bits2result(&r, 4);
+}
+
+int docmd_n_to_dd(arg_struct *arg) {
+    double x = ((vartype_real *) stack[sp])->x;
+    BID_UINT64 r;
+    binary64_to_bid64(&r, &x);
+    return bits2result(&r, 8);
+}
+
+int docmd_n_to_dq(arg_struct *arg) {
+    double x = ((vartype_real *) stack[sp])->x;
+    BID_UINT128 r;
+    binary64_to_bid128(&r, &x);
+    return bits2result(&r, 16);
+}
+
+int docmd_bs_to_n(arg_struct *arg) {
+    float x;
+    if (!result2bits(&x, 4))
+        return ERR_INVALID_DATA;
+    vartype *v = new_real(x);
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    unary_result(v);
+    return ERR_NONE;
+}
+
+int docmd_bd_to_n(arg_struct *arg) {
+    double x;
+    if (!result2bits(&x, 8))
+        return ERR_INVALID_DATA;
+    vartype *v = new_real(x);
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    unary_result(v);
+    return ERR_NONE;
+}
+
+int docmd_ds_to_n(arg_struct *arg) {
+    BID_UINT32 x;
+    if (!result2bits(&x, 4))
+        return ERR_INVALID_DATA;
+    double r;
+    bid32_to_binary64(&r, &x);
+    vartype *v = new_real(r);
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    unary_result(v);
+    return ERR_NONE;
+}
+
+int docmd_dd_to_n(arg_struct *arg) {
+    BID_UINT64 x;
+    if (!result2bits(&x, 8))
+        return ERR_INVALID_DATA;
+    double r;
+    bid64_to_binary64(&r, &x);
+    vartype *v = new_real(r);
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    unary_result(v);
+    return ERR_NONE;
+}
+
+int docmd_dq_to_n(arg_struct *arg) {
+    BID_UINT128 x;
+    if (!result2bits(&x, 16))
+        return ERR_INVALID_DATA;
+    double r;
+    bid128_to_binary64(&r, &x);
+    vartype *v = new_real(r);
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    unary_result(v);
+    return ERR_NONE;
+}
+
+#endif
 
 int docmd_wsize(arg_struct *arg) {
     phloat x = ((vartype_real *) stack[sp])->x;

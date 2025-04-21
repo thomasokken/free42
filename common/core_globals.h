@@ -200,12 +200,13 @@ extern const error_spec errors[];
 #define MENU_BASE5         64
 #define MENU_BASE_A_THRU_F 65
 #define MENU_BASE_LOGIC    66
-#define MENU_BASE_FLOAT    67
-#define MENU_BASE_MODES    68
-#define MENU_BASE_DISP     69
-#define MENU_SOLVE         70
-#define MENU_INTEG         71
-#define MENU_INTEG_PARAMS  72
+#define MENU_BASE_FLOAT1   67
+#define MENU_BASE_FLOAT2   68
+#define MENU_BASE_MODES    69
+#define MENU_BASE_DISP     70
+#define MENU_SOLVE         71
+#define MENU_INTEG         72
+#define MENU_INTEG_PARAMS  73
 
 
 struct menu_item_spec {

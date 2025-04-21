@@ -541,7 +541,7 @@ const menu_spec menus[] = {
                       { { 0x1000 + CMD_SC,  0, ""      },
                         { 0x1000 + CMD_CC,  0, ""      },
                         { 0x1000 + CMD_C_T, 0, ""      },
-                        { MENU_BASE_FLOAT,  5, "FLOAT" },
+                        { MENU_BASE_FLOAT1, 5, "FLOAT" },
                         { MENU_BASE_MODES,  5, "MODES" },
                         { MENU_BASE_DISP,   4, "DISP"  } } },
     { /* MENU_BASE_A_THRU_F */ MENU_BASE1, MENU_NONE, MENU_NONE,
@@ -558,13 +558,20 @@ const menu_spec menus[] = {
                         { 0x1000 + CMD_NOT,   0, "" },
                         { 0x1000 + CMD_BIT_T, 0, "" },
                         { 0x1000 + CMD_ROTXY, 0, "" } } },
-    { /* MENU_BASE_FLOAT */ MENU_BASE5, MENU_NONE, MENU_NONE,
-                      { { 0x1000 + CMD_NOP,  0, "" },
-                        { 0x1000 + CMD_NULL, 0, "" },
-                        { 0x1000 + CMD_NULL, 0, "" },
-                        { 0x1000 + CMD_NULL, 0, "" },
-                        { 0x1000 + CMD_NULL, 0, "" },
-                        { 0x1000 + CMD_NULL, 0, "" } } },
+    { /* MENU_BASE_FLOAT1 */ MENU_BASE5, MENU_BASE_FLOAT2, MENU_BASE_FLOAT2,
+                      { { 0x1000 + CMD_N_TO_BS, 0, "" },
+                        { 0x1000 + CMD_BS_TO_N, 0, "" },
+                        { 0x1000 + CMD_N_TO_BD, 0, "" },
+                        { 0x1000 + CMD_BD_TO_N, 0, "" },
+                        { 0x1000 + CMD_NULL,    0, "" },
+                        { 0x1000 + CMD_NULL,    0, "" } } },
+    { /* MENU_BASE_FLOAT2 */ MENU_BASE5, MENU_BASE_FLOAT1, MENU_BASE_FLOAT1,
+                      { { 0x1000 + CMD_N_TO_DS, 0, "" },
+                        { 0x1000 + CMD_DS_TO_N, 0, "" },
+                        { 0x1000 + CMD_N_TO_DD, 0, "" },
+                        { 0x1000 + CMD_DD_TO_N, 0, "" },
+                        { 0x1000 + CMD_N_TO_DQ, 0, "" },
+                        { 0x1000 + CMD_DQ_TO_N, 0, "" } } },
     { /* MENU_BASE_MODES */ MENU_BASE5, MENU_NONE, MENU_NONE,
                       { { 0x1000 + CMD_WSIZE,   0, "" },
                         { 0x1000 + CMD_WSIZE_T, 0, "" },
@@ -3864,7 +3871,7 @@ static bool load_state2(bool *clear, bool *too_new) {
     if (ver < 50)
         menu_adjust(24, 24, 37, 25, 61, -1);
     if (ver < 51)
-        menu_adjust(61, 61, 7, 62, 63, 3, 64, INT_MAX, 6);
+        menu_adjust(61, 61, 7, 62, 63, 3, 64, INT_MAX, 7);
     if (!read_bool(&mode_running)) return false;
     if (ver < 46)
         mode_caller_stack_lift_disabled = false;
