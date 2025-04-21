@@ -30,58 +30,6 @@
 /* Implementations of HP-42S built-in functions, part 5 */
 /********************************************************/
 
-int appmenu_exitcallback_2(int menuid, bool exitall) {
-    if (menuid >= MENU_BASE1
-            && menuid <= MENU_BASE_DISP
-            && !exitall) {
-        mode_appmenu = menuid;
-        set_appmenu_exitcallback(2);
-    } else {
-        set_base(10);
-        mode_appmenu = menuid;
-        baseapp = 0;
-    }
-    return ERR_NONE;
-}
-
-static int base_helper(int base) {
-    if (program_running()) {
-        int err = set_menu_return_err(MENULEVEL_APP, MENU_BASE1, false);
-        if (err != ERR_NONE)
-            return err;
-        set_appmenu_exitcallback(2);
-        baseapp = 1;
-    }
-    set_base(base);
-    return ERR_NONE;
-}
-
-int docmd_binm(arg_struct *arg) {
-    return base_helper(2);
-}
-
-int docmd_octm(arg_struct *arg) {
-    return base_helper(8);
-}
-
-int docmd_decm(arg_struct *arg) {
-    return base_helper(10);
-}
-
-int docmd_hexm(arg_struct *arg) {
-    return base_helper(16);
-}
-
-int docmd_a_thru_f(arg_struct *arg) {
-    int err = set_menu_return_err(MENULEVEL_APP, MENU_BASE_A_THRU_F, false);
-    if (err != ERR_NONE)
-        return err;
-    set_appmenu_exitcallback(2);
-    baseapp = 1;
-    set_base(16, true);
-    return ERR_NONE;
-}
-
 int docmd_linf(arg_struct *arg) {
     flags.f.lin_fit = 1;
     flags.f.log_fit = 0;
@@ -116,268 +64,6 @@ int docmd_pwrf(arg_struct *arg) {
 
 int docmd_allsigma(arg_struct *arg) {
     flags.f.all_sigma = 1;
-    return ERR_NONE;
-}
-
-int docmd_and(arg_struct *arg) {
-    int8 x, y;
-    int err;
-    vartype *v;
-    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE)
-        return err;
-    if ((err = get_base_param(stack[sp - 1], &y)) != ERR_NONE)
-        return err;
-    int8 res = x & y;
-    base_range_check(&res, true);
-    v = new_real(base2phloat(res));
-    if (v == NULL)
-        return ERR_INSUFFICIENT_MEMORY;
-    return binary_result(v);
-}
-
-int docmd_baseadd(arg_struct *arg) {
-    int8 x, y, res;
-    int err;
-    vartype *v;
-    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE)
-        return err;
-    if ((err = get_base_param(stack[sp - 1], &y)) != ERR_NONE)
-        return err;
-    res = x + y;
-    if (!flags.f.base_wrap && effective_wsize() == 64) {
-        if (flags.f.base_signed) {
-            if (x > 0 && y > 0) {
-                if (res < x || res < y)
-                    if (flags.f.range_error_ignore)
-                        res = (1LL << (effective_wsize() - 1)) - 1;
-                    else
-                        return ERR_OUT_OF_RANGE;
-            } else if (x < 0 && y < 0) {
-                if (res > x || res > y)
-                    if (flags.f.range_error_ignore)
-                        res = -1LL << (effective_wsize() - 1);
-                    else
-                        return ERR_OUT_OF_RANGE;
-            }
-        } else {
-            if ((uint8) res < (uint8) x || (uint8) res < (uint8) y)
-                if (flags.f.range_error_ignore)
-                    res = ~0LL;
-                else
-                    return ERR_OUT_OF_RANGE;
-        }
-    } else {
-        err = base_range_check(&res, false);
-        if (err != ERR_NONE)
-            return err;
-    }
-    v = new_real(base2phloat(res));
-    if (v == NULL)
-        return ERR_INSUFFICIENT_MEMORY;
-    return binary_result(v);
-}
-
-int docmd_basesub(arg_struct *arg) {
-    int8 x, y, res;
-    int err;
-    vartype *v;
-    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE)
-        return err;
-    if ((err = get_base_param(stack[sp - 1], &y)) != ERR_NONE)
-        return err;
-    if (!flags.f.base_signed && !flags.f.base_wrap && (uint8) x > (uint8) y) {
-        if (flags.f.range_error_ignore)
-            res = 0;
-        else
-            return ERR_OUT_OF_RANGE;
-    } else {
-        res = y - x;
-        if (!flags.f.base_wrap && effective_wsize() == 64) {
-            if (flags.f.base_signed) {
-                if (x < 0 && y > 0) {
-                    if (x == (int8) 0x8000000000000000LL || res < -x || res < y)
-                        if (flags.f.range_error_ignore)
-                            res = (1LL << (effective_wsize() - 1)) - 1;
-                        else
-                            return ERR_OUT_OF_RANGE;
-                } else if (x > 0 && y < 0) {
-                    if (y == (int8) 0x8000000000000000LL || res > -x || res > y)
-                        if (flags.f.range_error_ignore)
-                            res = -1LL << (effective_wsize() - 1);
-                        else
-                            return ERR_OUT_OF_RANGE;
-                }
-            }
-        } else {
-            err = base_range_check(&res, false);
-            if (err != ERR_NONE)
-                return err;
-        }
-    }
-    v = new_real(base2phloat(res));
-    if (v == NULL)
-        return ERR_INSUFFICIENT_MEMORY;
-    return binary_result(v);
-}
-
-int docmd_basemul(arg_struct *arg) {
-    int8 x, y;
-    int8 res;
-    int err;
-    vartype *v;
-    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE)
-        return err;
-    if ((err = get_base_param(stack[sp - 1], &y)) != ERR_NONE)
-        return err;
-    if (x == 0 || y == 0) {
-        res = 0;
-    } else {
-        /* Performing a 64-bit x 64-bit => 128-bit multiplication.
-         * Doing it unsigned to keep things somewhat simple.
-         */
-        int wsize = effective_wsize();
-        bool neg = false;
-        uint8 op1, op2;
-        if (flags.f.base_signed) {
-            if (wsize == 64) {
-                if (x == (int8) 0x8000000000000000LL && y != 1) {
-                    if (flags.f.base_wrap)
-                        res = (y & 1) == 0 ? 0 : x;
-                    else if (flags.f.range_error_ignore)
-                        res = y > 0 ? 0x8000000000000000LL : 0x7fffffffffffffffLL;
-                    else
-                        return ERR_OUT_OF_RANGE;
-                } else if (y == (int8) 0x8000000000000000LL && x != 1) {
-                    if (flags.f.base_wrap)
-                        res = (x & 1) == 0 ? 0 : y;
-                    else if (flags.f.range_error_ignore)
-                        res = x > 0 ? 0x8000000000000000LL : 0x7fffffffffffffffLL;
-                    else
-                        return ERR_OUT_OF_RANGE;
-                }
-            }
-            if (x < 0) {
-                neg = true;
-                op1 = (uint8) -x;
-            } else {
-                op1 = (uint8) x;
-            }
-            if (y < 0) {
-                neg = !neg;
-                op2 = (uint8) -y;
-            } else {
-                op2 = (uint8) y;
-            }
-        } else {
-            op1 = (uint8) x;
-            op2 = (uint8) y;
-        }
-
-        uint8 u1 = op1 & 0xffffffff;
-        uint8 v1 = op2 & 0xffffffff;
-        uint8 t = u1 * v1;
-        uint8 w3 = t & 0xffffffff;
-        uint8 k = t >> 32;
-
-        op1 >>= 32;
-        t = op1 * v1 + k;
-        k = t & 0xffffffff;
-        uint8 w1 = t >> 32;
-
-        op2 >>= 32;
-        t = u1 * op2 + k;
-        k = t >> 32;
-
-        uint8 hi = op1 * op2 + w1 + k;
-        uint8 lo = (t << 32) + w3;
-
-        if (flags.f.base_wrap) {
-            if (neg)
-                res = -(int8) lo;
-            else
-                res = (int8) lo;
-            base_range_check(&res, true);
-        } else if (flags.f.base_signed) {
-            if (neg) {
-                if (hi != 0 || lo > (1ULL << (wsize - 1)))
-                    if (flags.f.range_error_ignore)
-                        lo = 1ULL << (wsize - 1);
-                    else
-                        return ERR_OUT_OF_RANGE;
-                res = - (int8) lo;
-            } else {
-                if (hi != 0 || lo > (1ULL << (wsize - 1)) - 1)
-                    if (flags.f.range_error_ignore)
-                        lo = (1ULL << (wsize - 1)) - 1;
-                    else
-                        return ERR_OUT_OF_RANGE;
-                res = (int8) lo;
-            }
-        } else {
-            if (hi != 0 || wsize < 64 && lo > (1ULL << wsize) - 1)
-                if (flags.f.range_error_ignore)
-                    lo = wsize == 64 ? ~0ULL : (1ULL << wsize) - 1;
-                else
-                    return ERR_OUT_OF_RANGE;
-            res = (int8) lo;
-        }
-    }
-
-    v = new_real(base2phloat(res));
-    if (v == NULL)
-        return ERR_INSUFFICIENT_MEMORY;
-    return binary_result(v);
-}
-
-int docmd_basediv(arg_struct *arg) {
-    int8 x, y, res;
-    int err;
-    vartype *v;
-    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE)
-        return err;
-    if ((err = get_base_param(stack[sp - 1], &y)) != ERR_NONE)
-        return err;
-    if (x == 0)
-        return ERR_DIVIDE_BY_0;
-    if (flags.f.base_signed)
-        res = y / x;
-    else
-        res = (int8) (((uint8) y) / ((uint8) x));
-    if ((err = base_range_check(&res, false)) != ERR_NONE)
-        return err;
-    v = new_real(base2phloat(res));
-    if (v == NULL)
-        return ERR_INSUFFICIENT_MEMORY;
-    return binary_result(v);
-}
-
-int docmd_basechs(arg_struct *arg) {
-    int8 x;
-    int err;
-    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE)
-        return err;
-    if (flags.f.base_wrap) {
-        x = -x;
-        base_range_check(&x, true);
-    } else if (flags.f.base_signed) {
-        int8 maxneg = -1LL << (effective_wsize() - 1);
-        if (x == maxneg) {
-            if (flags.f.range_error_ignore)
-                x = -1 - maxneg;
-            else
-                return ERR_OUT_OF_RANGE;
-        } else
-            x = -x;
-    } else {
-        if (x != 0) {
-            if (flags.f.range_error_ignore)
-                x = 0;
-            else
-                return ERR_OUT_OF_RANGE;
-        } else
-            x = 0;
-    }
-    ((vartype_real *) stack[sp])->x = base2phloat(x);
     return ERR_NONE;
 }
 
@@ -596,18 +282,6 @@ int docmd_best(arg_struct *arg) {
     flags.f.exp_fit = best == MODEL_EXP;
     flags.f.pwr_fit = best == MODEL_PWR;
     return firsterr;
-}
-
-int docmd_bit_t(arg_struct *arg) {
-    int8 x, y;
-    int err;
-    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE)
-        return err;
-    if ((err = get_base_param(stack[sp - 1], &y)) != ERR_NONE)
-        return err;
-    if (x < 0 || x >= effective_wsize())
-        return ERR_INVALID_DATA;
-    return (y & (1ULL << x)) != 0 ? ERR_YES : ERR_NO;
 }
 
 int docmd_corr(arg_struct *arg) {
@@ -858,37 +532,6 @@ int docmd_linsigma(arg_struct *arg) {
     return ERR_NONE;
 }
 
-int docmd_not(arg_struct *arg) {
-    int8 x;
-    int err;
-    vartype *v;
-    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE)
-        return err;
-    int8 res = ~x;
-    base_range_check(&res, true);
-    v = new_real(base2phloat(res));
-    if (v == NULL)
-        return ERR_INSUFFICIENT_MEMORY;
-    unary_result(v);
-    return ERR_NONE;
-}
-
-int docmd_or(arg_struct *arg) {
-    int8 x, y;
-    int err;
-    vartype *v;
-    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE)
-        return err;
-    if ((err = get_base_param(stack[sp - 1], &y)) != ERR_NONE)
-        return err;
-    int8 res = x | y;
-    base_range_check(&res, true);
-    v = new_real(base2phloat(res));
-    if (v == NULL)
-        return ERR_INSUFFICIENT_MEMORY;
-    return binary_result(v);
-}
-
 int docmd_pgmslv(arg_struct *arg) {
     int err;
     if (arg->type == ARGTYPE_IND_NUM
@@ -1000,6 +643,137 @@ int docmd_pgminti(arg_struct *arg) {
         return ERR_INVALID_TYPE;
 }
 
+////////////////
+///// BASE /////
+////////////////
+
+int appmenu_exitcallback_2(int menuid, bool exitall) {
+    if (menuid >= MENU_BASE1
+            && menuid <= MENU_BASE_DISP
+            && !exitall) {
+        mode_appmenu = menuid;
+        set_appmenu_exitcallback(2);
+    } else {
+        set_base(10);
+        mode_appmenu = menuid;
+        baseapp = 0;
+    }
+    return ERR_NONE;
+}
+
+int docmd_a_thru_f(arg_struct *arg) {
+    int err = set_menu_return_err(MENULEVEL_APP, MENU_BASE_A_THRU_F, false);
+    if (err != ERR_NONE)
+        return err;
+    set_appmenu_exitcallback(2);
+    baseapp = 1;
+    set_base(16, true);
+    return ERR_NONE;
+}
+
+static int base_helper(int base) {
+    if (program_running()) {
+        int err = set_menu_return_err(MENULEVEL_APP, MENU_BASE1, false);
+        if (err != ERR_NONE)
+            return err;
+        set_appmenu_exitcallback(2);
+        baseapp = 1;
+    }
+    set_base(base);
+    return ERR_NONE;
+}
+
+int docmd_binm(arg_struct *arg) {
+    return base_helper(2);
+}
+
+int docmd_octm(arg_struct *arg) {
+    return base_helper(8);
+}
+
+int docmd_decm(arg_struct *arg) {
+    return base_helper(10);
+}
+
+int docmd_hexm(arg_struct *arg) {
+    return base_helper(16);
+}
+
+int docmd_and(arg_struct *arg) {
+    int8 x, y;
+    int err;
+    vartype *v;
+    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE)
+        return err;
+    if ((err = get_base_param(stack[sp - 1], &y)) != ERR_NONE)
+        return err;
+    int8 res = x & y;
+    base_range_check(&res, true);
+    v = new_real(base2phloat(res));
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    return binary_result(v);
+}
+
+int docmd_or(arg_struct *arg) {
+    int8 x, y;
+    int err;
+    vartype *v;
+    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE)
+        return err;
+    if ((err = get_base_param(stack[sp - 1], &y)) != ERR_NONE)
+        return err;
+    int8 res = x | y;
+    base_range_check(&res, true);
+    v = new_real(base2phloat(res));
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    return binary_result(v);
+}
+
+int docmd_xor(arg_struct *arg) {
+    int8 x, y;
+    int err;
+    vartype *v;
+    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE)
+        return err;
+    if ((err = get_base_param(stack[sp - 1], &y)) != ERR_NONE)
+        return err;
+    int8 res = x ^ y;
+    base_range_check(&res, true);
+    v = new_real(base2phloat(res));
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    return binary_result(v);
+}
+
+int docmd_not(arg_struct *arg) {
+    int8 x;
+    int err;
+    vartype *v;
+    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE)
+        return err;
+    int8 res = ~x;
+    base_range_check(&res, true);
+    v = new_real(base2phloat(res));
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    unary_result(v);
+    return ERR_NONE;
+}
+
+int docmd_bit_t(arg_struct *arg) {
+    int8 x, y;
+    int err;
+    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE)
+        return err;
+    if ((err = get_base_param(stack[sp - 1], &y)) != ERR_NONE)
+        return err;
+    if (x < 0 || x >= effective_wsize())
+        return ERR_INVALID_DATA;
+    return (y & (1ULL << x)) != 0 ? ERR_YES : ERR_NO;
+}
+
 int docmd_rotxy(arg_struct *arg) {
     int x;
     uint8 y, res;
@@ -1035,6 +809,252 @@ int docmd_rotxy(arg_struct *arg) {
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     return binary_result(v);
+}
+
+int docmd_baseadd(arg_struct *arg) {
+    int8 x, y, res;
+    int err;
+    vartype *v;
+    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE)
+        return err;
+    if ((err = get_base_param(stack[sp - 1], &y)) != ERR_NONE)
+        return err;
+    res = x + y;
+    if (!flags.f.base_wrap && effective_wsize() == 64) {
+        if (flags.f.base_signed) {
+            if (x > 0 && y > 0) {
+                if (res < x || res < y)
+                    if (flags.f.range_error_ignore)
+                        res = (1LL << (effective_wsize() - 1)) - 1;
+                    else
+                        return ERR_OUT_OF_RANGE;
+            } else if (x < 0 && y < 0) {
+                if (res > x || res > y)
+                    if (flags.f.range_error_ignore)
+                        res = -1LL << (effective_wsize() - 1);
+                    else
+                        return ERR_OUT_OF_RANGE;
+            }
+        } else {
+            if ((uint8) res < (uint8) x || (uint8) res < (uint8) y)
+                if (flags.f.range_error_ignore)
+                    res = ~0LL;
+                else
+                    return ERR_OUT_OF_RANGE;
+        }
+    } else {
+        err = base_range_check(&res, false);
+        if (err != ERR_NONE)
+            return err;
+    }
+    v = new_real(base2phloat(res));
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    return binary_result(v);
+}
+
+int docmd_basesub(arg_struct *arg) {
+    int8 x, y, res;
+    int err;
+    vartype *v;
+    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE)
+        return err;
+    if ((err = get_base_param(stack[sp - 1], &y)) != ERR_NONE)
+        return err;
+    if (!flags.f.base_signed && !flags.f.base_wrap && (uint8) x > (uint8) y) {
+        if (flags.f.range_error_ignore)
+            res = 0;
+        else
+            return ERR_OUT_OF_RANGE;
+    } else {
+        res = y - x;
+        if (!flags.f.base_wrap && effective_wsize() == 64) {
+            if (flags.f.base_signed) {
+                if (x < 0 && y > 0) {
+                    if (x == (int8) 0x8000000000000000LL || res < -x || res < y)
+                        if (flags.f.range_error_ignore)
+                            res = (1LL << (effective_wsize() - 1)) - 1;
+                        else
+                            return ERR_OUT_OF_RANGE;
+                } else if (x > 0 && y < 0) {
+                    if (y == (int8) 0x8000000000000000LL || res > -x || res > y)
+                        if (flags.f.range_error_ignore)
+                            res = -1LL << (effective_wsize() - 1);
+                        else
+                            return ERR_OUT_OF_RANGE;
+                }
+            }
+        } else {
+            err = base_range_check(&res, false);
+            if (err != ERR_NONE)
+                return err;
+        }
+    }
+    v = new_real(base2phloat(res));
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    return binary_result(v);
+}
+
+int docmd_basemul(arg_struct *arg) {
+    int8 x, y;
+    int8 res;
+    int err;
+    vartype *v;
+    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE)
+        return err;
+    if ((err = get_base_param(stack[sp - 1], &y)) != ERR_NONE)
+        return err;
+    if (x == 0 || y == 0) {
+        res = 0;
+    } else {
+        /* Performing a 64-bit x 64-bit => 128-bit multiplication.
+         * Doing it unsigned to keep things somewhat simple.
+         */
+        int wsize = effective_wsize();
+        bool neg = false;
+        uint8 op1, op2;
+        if (flags.f.base_signed) {
+            if (wsize == 64) {
+                if (x == (int8) 0x8000000000000000LL && y != 1) {
+                    if (flags.f.base_wrap)
+                        res = (y & 1) == 0 ? 0 : x;
+                    else if (flags.f.range_error_ignore)
+                        res = y > 0 ? 0x8000000000000000LL : 0x7fffffffffffffffLL;
+                    else
+                        return ERR_OUT_OF_RANGE;
+                } else if (y == (int8) 0x8000000000000000LL && x != 1) {
+                    if (flags.f.base_wrap)
+                        res = (x & 1) == 0 ? 0 : y;
+                    else if (flags.f.range_error_ignore)
+                        res = x > 0 ? 0x8000000000000000LL : 0x7fffffffffffffffLL;
+                    else
+                        return ERR_OUT_OF_RANGE;
+                }
+            }
+            if (x < 0) {
+                neg = true;
+                op1 = (uint8) -x;
+            } else {
+                op1 = (uint8) x;
+            }
+            if (y < 0) {
+                neg = !neg;
+                op2 = (uint8) -y;
+            } else {
+                op2 = (uint8) y;
+            }
+        } else {
+            op1 = (uint8) x;
+            op2 = (uint8) y;
+        }
+
+        uint8 u1 = op1 & 0xffffffff;
+        uint8 v1 = op2 & 0xffffffff;
+        uint8 t = u1 * v1;
+        uint8 w3 = t & 0xffffffff;
+        uint8 k = t >> 32;
+
+        op1 >>= 32;
+        t = op1 * v1 + k;
+        k = t & 0xffffffff;
+        uint8 w1 = t >> 32;
+
+        op2 >>= 32;
+        t = u1 * op2 + k;
+        k = t >> 32;
+
+        uint8 hi = op1 * op2 + w1 + k;
+        uint8 lo = (t << 32) + w3;
+
+        if (flags.f.base_wrap) {
+            if (neg)
+                res = -(int8) lo;
+            else
+                res = (int8) lo;
+            base_range_check(&res, true);
+        } else if (flags.f.base_signed) {
+            if (neg) {
+                if (hi != 0 || lo > (1ULL << (wsize - 1)))
+                    if (flags.f.range_error_ignore)
+                        lo = 1ULL << (wsize - 1);
+                    else
+                        return ERR_OUT_OF_RANGE;
+                res = - (int8) lo;
+            } else {
+                if (hi != 0 || lo > (1ULL << (wsize - 1)) - 1)
+                    if (flags.f.range_error_ignore)
+                        lo = (1ULL << (wsize - 1)) - 1;
+                    else
+                        return ERR_OUT_OF_RANGE;
+                res = (int8) lo;
+            }
+        } else {
+            if (hi != 0 || wsize < 64 && lo > (1ULL << wsize) - 1)
+                if (flags.f.range_error_ignore)
+                    lo = wsize == 64 ? ~0ULL : (1ULL << wsize) - 1;
+                else
+                    return ERR_OUT_OF_RANGE;
+            res = (int8) lo;
+        }
+    }
+
+    v = new_real(base2phloat(res));
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    return binary_result(v);
+}
+
+int docmd_basediv(arg_struct *arg) {
+    int8 x, y, res;
+    int err;
+    vartype *v;
+    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE)
+        return err;
+    if ((err = get_base_param(stack[sp - 1], &y)) != ERR_NONE)
+        return err;
+    if (x == 0)
+        return ERR_DIVIDE_BY_0;
+    if (flags.f.base_signed)
+        res = y / x;
+    else
+        res = (int8) (((uint8) y) / ((uint8) x));
+    if ((err = base_range_check(&res, false)) != ERR_NONE)
+        return err;
+    v = new_real(base2phloat(res));
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    return binary_result(v);
+}
+
+int docmd_basechs(arg_struct *arg) {
+    int8 x;
+    int err;
+    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE)
+        return err;
+    if (flags.f.base_wrap) {
+        x = -x;
+        base_range_check(&x, true);
+    } else if (flags.f.base_signed) {
+        int8 maxneg = -1LL << (effective_wsize() - 1);
+        if (x == maxneg) {
+            if (flags.f.range_error_ignore)
+                x = -1 - maxneg;
+            else
+                return ERR_OUT_OF_RANGE;
+        } else
+            x = -x;
+    } else {
+        if (x != 0) {
+            if (flags.f.range_error_ignore)
+                x = 0;
+            else
+                return ERR_OUT_OF_RANGE;
+        } else
+            x = 0;
+    }
+    ((vartype_real *) stack[sp])->x = base2phloat(x);
+    return ERR_NONE;
 }
 
 /////////////////////////////
@@ -1466,22 +1486,6 @@ int docmd_vmsolve(arg_struct *arg) {
     clear_all_rtns();
     string_copy(reg_alpha, &reg_alpha_length, arg->val.text, arg->length);
     return start_solve(arg->val.text, arg->length, x1, x2);
-}
-
-int docmd_xor(arg_struct *arg) {
-    int8 x, y;
-    int err;
-    vartype *v;
-    if ((err = get_base_param(stack[sp], &x)) != ERR_NONE)
-        return err;
-    if ((err = get_base_param(stack[sp - 1], &y)) != ERR_NONE)
-        return err;
-    int8 res = x ^ y;
-    base_range_check(&res, true);
-    v = new_real(base2phloat(res));
-    if (v == NULL)
-        return ERR_INSUFFICIENT_MEMORY;
-    return binary_result(v);
 }
 
 int docmd_to_dec(arg_struct *arg) {
