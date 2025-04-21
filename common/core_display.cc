@@ -2236,6 +2236,21 @@ void redisplay() {
                         case CMD_BWRAP:
                             is_flag = flags.f.base_wrap;
                             break;
+                        case CMD_DECINT:
+                            is_flag = mode_dec_int;
+                            break;
+                        case CMD_BINSEP:
+                            is_flag = mode_bin_sep;
+                            break;
+                        case CMD_OCTSEP:
+                            is_flag = mode_oct_sep;
+                            break;
+                        case CMD_DECSEP:
+                            is_flag = mode_dec_sep;
+                            break;
+                        case CMD_HEXSEP:
+                            is_flag = mode_hex_sep;
+                            break;
                         case CMD_MDY:
                             is_flag = !flags.f.ymd && !flags.f.dmy;
                             break;

@@ -415,6 +415,12 @@ extern int mode_goose;
 extern bool mode_time_clktd;
 extern bool mode_time_clk24;
 extern int mode_wsize;
+extern bool mode_carry;
+extern bool mode_dec_int;
+extern bool mode_bin_sep;
+extern bool mode_oct_sep;
+extern bool mode_dec_sep;
+extern bool mode_hex_sep;
 extern bool mode_menu_caps;
 #if defined(ANDROID) || defined(IPHONE)
 extern bool mode_popup_unknown;

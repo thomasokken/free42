@@ -824,43 +824,6 @@ int docmd_lxasto(arg_struct *arg) {
 ///// BASE enhancements /////
 /////////////////////////////
 
-int docmd_wsize(arg_struct *arg) {
-    phloat x = ((vartype_real *) stack[sp])->x;
-#ifdef BCD_MATH
-    if (x >= 65 || x < 1)
-#else
-    if (x >= 54 || x < 1)
-#endif
-        return ERR_INVALID_DATA;
-    mode_wsize = to_int(x);
-    print_trace();
-    return ERR_NONE;
-}
-
-int docmd_wsize_t(arg_struct *arg) {
-    vartype *new_x = new_real(effective_wsize());
-    if (new_x == NULL)
-        return ERR_INSUFFICIENT_MEMORY;
-    return recall_result(new_x);
-}
-
-int docmd_bsigned(arg_struct *arg) {
-    flags.f.base_signed = !flags.f.base_signed;
-    return ERR_NONE;
-}
-
-int docmd_bwrap(arg_struct *arg) {
-    flags.f.base_wrap = !flags.f.base_wrap;
-    return ERR_NONE;
-}
-
-int docmd_breset(arg_struct *arg) {
-    mode_wsize = 36;
-    flags.f.base_signed = 1;
-    flags.f.base_wrap = 0;
-    return ERR_NONE;
-}
-
 int docmd_sl(arg_struct *arg) {
     int8 x;
     int err = get_base_param(stack[sp], &x);
@@ -869,7 +832,7 @@ int docmd_sl(arg_struct *arg) {
         return err;
     }
     int8 hibit = x & (1LL << (effective_wsize() - 1));
-    flags.f.f20 = hibit != 0;
+    mode_carry = hibit != 0;
     x = (x ^ hibit) << 1;
     base_range_check(&x, true);
     vartype *v = new_real(base2phloat(x));
@@ -884,7 +847,7 @@ static int sr(bool arith) {
     int err = get_base_param(stack[sp], &x);
     if (err != ERR_NONE)
         return err;
-    flags.f.f20 = x & 1;
+    mode_carry = x & 1;
     int8 hibit = x & (1LL << (effective_wsize() - 1));
     x >>= 1;
     if (hibit != 0)
@@ -917,9 +880,9 @@ static int rl(bool c) {
     x -= hibit;
     x <<= 1;
     bool carry = hibit != 0;
-    if (c ? flags.f.f20 : carry)
+    if (c ? mode_carry : carry)
         x++;
-    flags.f.f20 = carry;
+    mode_carry = carry;
     base_range_check(&x, true);
     vartype *v = new_real(base2phloat(x));
     if (v == NULL)
@@ -946,9 +909,9 @@ static int rr(bool c) {
     int wsize = effective_wsize();
     if (wsize < 64)
         x &= (1LL << wsize - 1) - 1;
-    if (c ? flags.f.f20 : carry)
+    if (c ? mode_carry : carry)
         x |= 1LL << (wsize - 1);
-    flags.f.f20 = carry;
+    mode_carry = carry;
     base_range_check(&x, true);
     vartype *v = new_real(base2phloat(x));
     if (v == NULL)
@@ -1008,22 +971,22 @@ static int rn(bool left, bool c) {
                 bool carry = (x >> (wsize - n)) & 1;
                 int s = wsize - n + 1;
                 uint8 t = s == 64 ? 0 : x >> s;
-                x = (x << n) | t | (((uint8) flags.f.f20) << (n - 1));
-                flags.f.f20 = carry;
+                x = (x << n) | t | (((uint8) mode_carry) << (n - 1));
+                mode_carry = carry;
             } else {
                 bool carry = (x >> (n - 1)) & 1;
                 int s = wsize - n + 1;
                 uint8 t = s == 64 ? 0 : x << s;
-                x = (x >> n) | t | (((uint8) flags.f.f20) << (wsize - n));
-                flags.f.f20 = carry;
+                x = (x >> n) | t | (((uint8) mode_carry) << (wsize - n));
+                mode_carry = carry;
             }
         } else {
             if (left) {
                 x = (x << n) | (x >> (wsize - n));
-                flags.f.f20 = x & 1;
+                mode_carry = x & 1;
             } else {
                 x = (x >> n) | (x << (wsize - n));
-                flags.f.f20 = (x >> (wsize - 1)) & 1;
+                mode_carry = (x >> (wsize - 1)) & 1;
             }
         }
     }
@@ -1145,6 +1108,82 @@ int docmd_maskl(arg_struct *arg) {
 
 int docmd_maskr(arg_struct *arg) {
     return make_mask(false);
+}
+
+int docmd_sc(arg_struct *arg) {
+    mode_carry = true;
+    return ERR_NONE;
+}
+
+int docmd_cc(arg_struct *arg) {
+    mode_carry = false;
+    return ERR_NONE;
+}
+
+int docmd_c_t(arg_struct *arg) {
+    return mode_carry ? ERR_YES : ERR_NO;
+}
+
+int docmd_wsize(arg_struct *arg) {
+    phloat x = ((vartype_real *) stack[sp])->x;
+#ifdef BCD_MATH
+    if (x >= 65 || x < 1)
+#else
+    if (x >= 54 || x < 1)
+#endif
+        return ERR_INVALID_DATA;
+    mode_wsize = to_int(x);
+    print_trace();
+    return ERR_NONE;
+}
+
+int docmd_wsize_t(arg_struct *arg) {
+    vartype *new_x = new_real(effective_wsize());
+    if (new_x == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    return recall_result(new_x);
+}
+
+int docmd_bsigned(arg_struct *arg) {
+    flags.f.base_signed = !flags.f.base_signed;
+    return ERR_NONE;
+}
+
+int docmd_bwrap(arg_struct *arg) {
+    flags.f.base_wrap = !flags.f.base_wrap;
+    return ERR_NONE;
+}
+
+int docmd_breset(arg_struct *arg) {
+    mode_wsize = 36;
+    flags.f.base_signed = 1;
+    flags.f.base_wrap = 0;
+    return ERR_NONE;
+}
+
+int docmd_decint(arg_struct *arg) {
+    mode_dec_int = !mode_dec_int;
+    return ERR_NONE;
+}
+
+int docmd_binsep(arg_struct *arg) {
+    mode_bin_sep = !mode_bin_sep;
+    return ERR_NONE;
+}
+
+int docmd_octsep(arg_struct *arg) {
+    mode_oct_sep = !mode_oct_sep;
+    return ERR_NONE;
+}
+
+int docmd_decsep(arg_struct *arg) {
+    mode_dec_sep = !mode_dec_sep;
+    return ERR_NONE;
+}
+
+int docmd_hexsep(arg_struct *arg) {
+    mode_hex_sep = !mode_hex_sep;
+    return ERR_NONE;
 }
 
 ////////////////////////////////////////////////////////

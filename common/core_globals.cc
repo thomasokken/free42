@@ -538,12 +538,12 @@ const menu_spec menus[] = {
                         { 0x1000 + CMD_MASKL, 0, "" },
                         { 0x1000 + CMD_MASKR, 0, "" } } },
     { /* MENU_BASE5 */ MENU_NONE, MENU_BASE1, MENU_BASE4,
-                      { { MENU_BASE_FLOAT,   5, "FLOAT" },
-                        { 0x1000 + CMD_NULL, 0, ""      },
-                        { 0x1000 + CMD_NULL, 0, ""      },
-                        { 0x1000 + CMD_NULL, 0, ""      },
-                        { MENU_BASE_MODES,   5, "MODES" },
-                        { MENU_BASE_DISP,    4, "DISP"  } } },
+                      { { 0x1000 + CMD_SC,  0, ""      },
+                        { 0x1000 + CMD_CC,  0, ""      },
+                        { 0x1000 + CMD_C_T, 0, ""      },
+                        { MENU_BASE_FLOAT,  5, "FLOAT" },
+                        { MENU_BASE_MODES,  5, "MODES" },
+                        { MENU_BASE_DISP,   4, "DISP"  } } },
     { /* MENU_BASE_A_THRU_F */ MENU_BASE1, MENU_NONE, MENU_NONE,
                       { { 0, 1, "A" },
                         { 0, 1, "B" },
@@ -573,12 +573,12 @@ const menu_spec menus[] = {
                         { 0x1000 + CMD_NULL,    0, "" },
                         { 0x1000 + CMD_BRESET,  0, "" } } },
     { /* MENU_BASE_DISP */ MENU_BASE5, MENU_NONE, MENU_NONE,
-                      { { 0x1000 + CMD_NOP,  0, "" },
-                        { 0x1000 + CMD_NULL, 0, "" },
-                        { 0x1000 + CMD_NULL, 0, "" },
-                        { 0x1000 + CMD_NULL, 0, "" },
-                        { 0x1000 + CMD_NULL, 0, "" },
-                        { 0x1000 + CMD_NULL, 0, "" } } },
+                      { { 0x2000 + CMD_DECINT, 0, "" },
+                        { 0x1000 + CMD_NULL,   0, "" },
+                        { 0x2000 + CMD_BINSEP, 0, "" },
+                        { 0x2000 + CMD_OCTSEP, 0, "" },
+                        { 0x2000 + CMD_DECSEP, 0, "" },
+                        { 0x2000 + CMD_HEXSEP, 0, "" } } },
     { /* MENU_SOLVE */ MENU_NONE, MENU_NONE, MENU_NONE,
                       { { 0x1000 + CMD_MVAR,   0, "" },
                         { 0x1000 + CMD_NULL,   0, "" },
@@ -675,6 +675,12 @@ int mode_goose;
 bool mode_time_clktd;
 bool mode_time_clk24;
 int mode_wsize;
+bool mode_carry;
+bool mode_dec_int;
+bool mode_bin_sep;
+bool mode_oct_sep;
+bool mode_dec_sep;
+bool mode_hex_sep;
 bool mode_menu_caps;
 #if defined(ANDROID) || defined(IPHONE)
 bool mode_popup_unknown = true;
@@ -790,9 +796,10 @@ bool no_keystrokes_yet;
  * Version 48: 3.1    Matrix editor nested lists
  * Version 49: 3.1.13 Program locking
  * Version 50: 3.2.9  Move BASE settings from MODES to BASE
- * Version 51: 3.2.9  BASE enhancements
+ * Version 51: 3.2.9  BASE enhancements (menu additions)
+ * Version 52: 3.2.9  BASE enhancements (carry; display modes)
  */
-#define FREE42_VERSION 51
+#define FREE42_VERSION 52
 
 
 /*******************/
@@ -1342,6 +1349,18 @@ static bool persist_globals() {
         goto done;
     if (!write_int(mode_wsize))
         goto done;
+    if (!write_bool(mode_carry))
+        goto done;
+    if (!write_bool(mode_dec_int))
+        goto done;
+    if (!write_bool(mode_bin_sep))
+        goto done;
+    if (!write_bool(mode_oct_sep))
+        goto done;
+    if (!write_bool(mode_dec_sep))
+        goto done;
+    if (!write_bool(mode_hex_sep))
+        goto done;
     if (!write_bool(mode_menu_caps))
         goto done;
     if (fwrite(&flags, 1, sizeof(flags_struct), gfile) != sizeof(flags_struct))
@@ -1489,6 +1508,15 @@ static bool unpersist_globals() {
     if (!read_int(&mode_wsize)) {
         mode_wsize = 36;
         goto done;
+    }
+    mode_carry = mode_dec_int = mode_bin_sep = mode_oct_sep = mode_dec_sep = mode_hex_sep = false;
+    if (ver >= 52) {
+        if (!read_bool(&mode_carry)) goto done;
+        if (!read_bool(&mode_dec_int)) goto done;
+        if (!read_bool(&mode_bin_sep)) goto done;
+        if (!read_bool(&mode_oct_sep)) goto done;
+        if (!read_bool(&mode_dec_sep)) goto done;
+        if (!read_bool(&mode_hex_sep)) goto done;
     }
     if (ver >= 42) {
         if (!read_bool(&mode_menu_caps)) {
@@ -4266,6 +4294,12 @@ void hard_reset(int reason) {
     mode_time_clktd = false;
     mode_time_clk24 = shell_clk24();
     mode_wsize = 36;
+    mode_carry = false;
+    mode_dec_int = false;
+    mode_bin_sep = false;
+    mode_oct_sep = false;
+    mode_dec_sep = false;
+    mode_hex_sep = false;
     mode_menu_caps = false;
 
     reset_math();
