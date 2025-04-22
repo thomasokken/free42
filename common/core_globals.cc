@@ -802,9 +802,9 @@ bool no_keystrokes_yet;
  * Version 47: 3.1    Back-port of Plus42 RTN stack; FUNC stack hiding
  * Version 48: 3.1    Matrix editor nested lists
  * Version 49: 3.1.13 Program locking
- * Version 50: 3.2.9  Move BASE settings from MODES to BASE
- * Version 51: 3.2.9  BASE enhancements (menu additions)
- * Version 52: 3.2.9  BASE enhancements (carry; display modes)
+ * Version 50: 3.3    Move BASE settings from MODES to BASE
+ * Version 51: 3.3    BASE enhancements (menu additions)
+ * Version 52: 3.3    BASE enhancements (carry; display modes)
  */
 #define FREE42_VERSION 52
 
