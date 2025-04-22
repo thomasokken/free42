@@ -3307,6 +3307,8 @@ static vartype *parse_base(const char *buf, int len) {
     }
     while (i < len && bits < 64) {
         char c = buf[i++];
+        if (c == ' ')
+            continue;
         int d;
         if (base == 16) {
             if (c >= '0' && c <= '9')
