@@ -1097,11 +1097,21 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
             base = 16;
         }
         if (base == 10) {
+            bool sign = false;
+            if (flags.f.base_signed) {
+                uint8 s = 1ULL << (wsize - 1);
+                if ((n & s) != 0) {
+                    sign = true;
+                    n = ~n + 1;
+                }
+            }
             while (n != 0) {
                 int digit = n % 10;
                 binbuf[binbufptr++] = '0' + digit;
                 n /= 10;
             }
+            if (sign)
+                binbuf[binbufptr++] = '-';
         } else {
             shift = base == 2 ? 1 : base == 8 ? 3 : 4;
             while (n != 0) {
