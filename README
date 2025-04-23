@@ -178,7 +178,7 @@ XEQ 117, XEQ 118.
 These commands do actually work, but entering the corresponding labels into a
 program is a bit tricky...
 
-->POL and ->REC with a real number in X reject a string in Y (good), accept a
+→POL and →REC with a real number in X reject a string in Y (good), accept a
 real number in Y (good), accept a complex number in Y but only use its real
 part (undocumented and not very useful), and accept real and complex matrices
 in Y with weird results. I'd say the complex and matrix cases are all bugs,
