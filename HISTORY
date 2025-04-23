@@ -1,3 +1,9 @@
+2025-04-23: release 3.3
+
+* BASE enhancements: shift and rotate functions, bit manipulation functions,
+  floating-point conversions, and optional digit grouping. See the Free42 web
+  site for all the details.
+
 2025-04-10: release 3.2.8
 
 * Fixed crash in RCOMPLX/PCOMPLX when the stack is empty (NSTK mode).
