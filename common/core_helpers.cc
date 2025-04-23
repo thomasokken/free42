@@ -647,6 +647,77 @@ int anum(const char *text, int len, phloat *res) {
     return true;
 }
 
+void fix_thousands_separators(char *buf, int *bufptr) {
+    /* First, remove the old separators... */
+    int i, j = 0;
+    char dot = flags.f.decimal_point ? '.' : ',';
+    char sep = flags.f.decimal_point ? ',' : '.';
+    int intdigits = 0;
+    int counting_intdigits = 1;
+    int nsep;
+    for (i = 0; i < *bufptr; i++) {
+        char c = buf[i];
+        if (c != sep)
+            buf[j++] = c;
+        if (c == dot || c == 24)
+            counting_intdigits = 0;
+        else if (counting_intdigits && c >= '0' && c <= '9')
+            intdigits++;
+    }
+    /* Now, put 'em back... */
+    if (!flags.f.thousands_separators) {
+        *bufptr = j;
+        return;
+    }
+    nsep = (intdigits - 1) / 3;
+    if (nsep == 0) {
+        *bufptr = j;
+        return;
+    }
+    for (i = j - 1; i >= 0; i--)
+        buf[i + nsep] = buf[i];
+    j += nsep;
+    for (i = 0; i < j; i++) {
+        char c = buf[i + nsep];
+        buf[i] = c;
+        if (nsep > 0 && c >= '0' && c <= '9') {
+            if (intdigits % 3 == 1) {
+                buf[++i] = sep;
+                nsep--;
+            }
+            intdigits--;
+        }
+    }
+    *bufptr = j;
+}
+
+void fix_base_separators(char *buf, int *bufptr) {
+    /* First, remove the old separators... */
+    int digits = 0;
+    for (int i = 0; i < *bufptr; i++) {
+        char c = buf[i];
+        if (c != ' ')
+            buf[digits++] = c;
+    }
+    /* Now, put 'em back... */
+    *bufptr = digits;
+    switch (get_base()) {
+        case  2: if (!mode_bin_sep) return; else break;
+        case  8: if (!mode_oct_sep) return; else break;
+        case 10: if (!mode_dec_sep) return; else break;
+        case 16: if (!mode_hex_sep) return; else break;
+    }
+    int nsep = (digits - 1) / 4;
+    if (nsep == 0)
+        return;
+    *bufptr += nsep;
+    for (int i = digits - 1; i >= 0; i--) {
+        buf[i + nsep] = buf[i];
+        if (((digits - i) & 3) == 0 && i != 0)
+            buf[i + (--nsep)] = ' ';
+    }
+}
+
 #if (!defined(ANDROID) && !defined(IPHONE))
 static bool always_on = false;
 bool shell_always_on(int ao) {

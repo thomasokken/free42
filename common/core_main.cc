@@ -5048,50 +5048,6 @@ void bst() {
     }
 }
 
-void fix_thousands_separators(char *buf, int *bufptr) {
-    /* First, remove the old separators... */
-    int i, j = 0;
-    char dot = flags.f.decimal_point ? '.' : ',';
-    char sep = flags.f.decimal_point ? ',' : '.';
-    int intdigits = 0;
-    int counting_intdigits = 1;
-    int nsep;
-    for (i = 0; i < *bufptr; i++) {
-        char c = buf[i];
-        if (c != sep)
-            buf[j++] = c;
-        if (c == dot || c == 24)
-            counting_intdigits = 0;
-        else if (counting_intdigits && c >= '0' && c <= '9')
-            intdigits++;
-    }
-    /* Now, put 'em back... */
-    if (!flags.f.thousands_separators) {
-        *bufptr = j;
-        return;
-    }
-    nsep = (intdigits - 1) / 3;
-    if (nsep == 0) {
-        *bufptr = j;
-        return;
-    }
-    for (i = j - 1; i >= 0; i--)
-        buf[i + nsep] = buf[i];
-    j += nsep;
-    for (i = 0; i < j; i++) {
-        char c = buf[i + nsep];
-        buf[i] = c;
-        if (nsep > 0 && c >= '0' && c <= '9') {
-            if (intdigits % 3 == 1) {
-                buf[++i] = sep;
-                nsep--;
-            }
-            intdigits--;
-        }
-    }
-    *bufptr = j;
-}
-
 int find_menu_key(int key) {
     switch (key) {
         case KEY_SIGMA: return 0;

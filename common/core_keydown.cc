@@ -454,8 +454,11 @@ void keydown_number_entry(int shift, int key) {
 
     if (key == KEY_BSP) {
         cmdline_length--;
-        if (!flags.f.prgm_mode && base == 10)
-            fix_thousands_separators(cmdline, &cmdline_length);
+        if (!flags.f.prgm_mode)
+            if (base == 10)
+                fix_thousands_separators(cmdline, &cmdline_length);
+            else
+                fix_base_separators(cmdline, &cmdline_length);
         if (core_settings.auto_repeat) {
             repeating = 2;
             repeating_key = key;
@@ -615,23 +618,33 @@ void keydown_number_entry(int shift, int key) {
                 return;
             }
         } else {
-            int bits = base == 2 ? 1 : base == 8 ? 3 : 4;
-            int wsize = effective_wsize();
-            int maxchars = (wsize + bits - 1) / bits;
-            if (cmdline_length > maxchars) {
+            bool zero = true;
+            int bits = 0;
+            int bits_per_digit = base == 2 ? 1 : base == 8 ? 3 : 4;
+            for (int i = 0; i < cmdline_length; i++) {
+                char c = cmdline[i];
+                if (c == ' ')
+                    continue;
+                if (!zero) {
+                    bits += bits_per_digit;
+                    continue;
+                }
+                int d = c < 'A' ? c - '0' : c - 'A' + 10;
+                if (d >= 8)
+                    bits = 4;
+                else if (d >= 4)
+                    bits = 3;
+                else if (d >= 2)
+                    bits = 2;
+                else
+                    bits = d;
+                zero = false;
+            }
+            if (bits > effective_wsize()) {
                 cmdline_length--;
                 return;
             }
-            if (cmdline_length == maxchars) {
-                int slop = maxchars * bits - wsize;
-                int max = 1 << (bits - slop);
-                int d = cmdline[0];
-                d -= d <= '9' ? '0' : ('A' - 10);
-                if (d >= max) {
-                    cmdline_length--;
-                    return;
-                }
-            }
+            fix_base_separators(cmdline, &cmdline_length);
         }
     }
 
@@ -644,6 +657,8 @@ void keydown_number_entry(int shift, int key) {
         int i;
         for (i = 0; i < cmdline_length; i++) {
             char c = cmdline[i];
+            if (c == ' ')
+                continue;
             int digit = c <= '9' ? c - '0' : c - 'A' + 10;
             n = n * base + digit;
         }

@@ -370,7 +370,6 @@ int find_builtin(const char *name, int namelen);
 void sst();
 void bst();
 
-void fix_thousands_separators(char *buf, int *bufptr);
 int find_menu_key(int key);
 void start_incomplete_command(int cmd_id);
 void finish_command_entry(bool refresh);
