@@ -1107,6 +1107,8 @@ int phloat2string(phloat pd, char *buf, int buflen, int base_mode, int digits,
                 if ((n & s) != 0) {
                     sign = true;
                     n = ~n + 1;
+                    if (wsize < 64)
+                        n &= (1ULL << wsize) - 1;
                 }
             }
             int p = 0;
