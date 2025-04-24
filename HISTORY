@@ -1,3 +1,7 @@
+2025-04-24: release 3.3.1
+
+* BASE: Fixed DECINT behavior for -2^(WSIZE-1)
+
 2025-04-23: release 3.3
 
 * BASE enhancements: shift and rotate functions, bit manipulation functions,
