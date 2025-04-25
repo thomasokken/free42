@@ -96,20 +96,6 @@ void update_lcd() {
   }*/
  }
 
-char GetKey() {
-  systemCallData.command = 0x0001;
-  __asm__("SVC #0");
-
-  return systemCallData.result;
-}
-
-char WaitForKey() {
-	systemCallData.command = 0x0002;
-	__asm__("SVC #0");
-
-	return systemCallData.result;
-}
-
 /* USER CODE END 0 */
 
 /**
@@ -185,22 +171,14 @@ int main(void)
 
 			  keydown = false;
 		  } else {
-			  core_keydown(key, enqueued, repeat);
-
-			  unsigned int count = 0;
-			  while (program_running()) {
-				  core_keydown(0, enqueued, repeat);
-
-				  count++;
-				  if (count == 5) {
-					  count = 0;
-					  char key = GetKey();
-					  if (key != 255)
-						  core_keydown(key, enqueued, repeat);
-				  }
+			  if (core_keydown(key, enqueued, repeat)) {
+				  while (core_keydown(0, &enqueued, &repeat)) continue;
 			  }
 
+			  while (program_running()) core_keydown(0, &enqueued, &repeat);
+
 			  core_keyup();
+
 			  keydown = true;
 		  }
 
