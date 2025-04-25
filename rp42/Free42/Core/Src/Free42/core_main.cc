@@ -74,6 +74,10 @@ static int4 oldpc;
 core_settings_struct core_settings;
 
 extern "C" {
+bool program_running() {
+    return mode_running;
+}
+
 void core_init(int read_saved_state, int4 version, const char *state_file_name, int offset) {
 
     /* Possible values for read_saved_state:
@@ -139,11 +143,6 @@ void core_init(int read_saved_state, int4 version, const char *state_file_name, 
                        flags.f.rad || flags.f.grad);
 }
 bool core_keydown(int key, bool *enqueued, int *repeat) {
-
-	if (phloat(5) != phloat(5)) {
-		return false;
-	}
-
     *enqueued = 0;
     *repeat = 0;
 
@@ -315,6 +314,7 @@ bool core_keydown(int key, bool *enqueued, int *repeat) {
     /* Nothing going on at all! */
     return 0;
 }
+
 
 void core_save_state(const char *state_file_name) {
     if (mode_interruptible != NULL)
@@ -4676,9 +4676,6 @@ void set_running(bool state) {
     }
 }
 
-bool program_running() {
-    return mode_running;
-}
 
 void do_interactive(int command) {
     int err;

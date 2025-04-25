@@ -43,6 +43,9 @@ extern "C" {
  */
 void core_init(int read_state, int4 version, const char *state_file_name, int offset);
 
+bool program_running();
+
+
 /* core_keydown()
  *
  * This function informs the emulator core that an HP-42S key was pressed. Keys
@@ -362,7 +365,6 @@ extern int repeating_key;
 
 void set_alpha_entry(bool state);
 void set_running(bool state);
-bool program_running();
 
 int want_to_run_again();
 void do_interactive(int command);

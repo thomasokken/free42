@@ -2,6 +2,7 @@
 #include "main.h"
 
 #include <algorithm>
+#include <string.h>
 
 //#include <iostream>
 
@@ -31,7 +32,8 @@ void shell_get_time_date(unsigned int*, unsigned int*, int*) {
 }
 
 void shell_powerdown() {
-
+    systemCallData.command = 0x0020; // 0x0012 = POWER_DOWN
+    __asm__("SVC #0");
 }
 
 
@@ -40,20 +42,24 @@ void shell_message(char const*) {
 }
 
 
-void shell_request_timeout3(int) {
-
+void shell_request_timeout3(int delay) {
+    systemCallData.command = 0x0041; // 0x0041 = delay until key press
+    systemCallData.args = (void*) delay; // delay in milliseconds
+    __asm__("SVC #0");
 }
 
 bool shell_wants_cpu() {
     return false;
 }
 
-void shell_delay(int) {
-
+void shell_delay(int delay) {
+    systemCallData.command = 0x0040; // 0x0040 = delay
+    systemCallData.args = (void*) delay; // delay in milliseconds
+    __asm__("SVC #0");
 }
 
 const char* shell_number_format() {
-    return ",011";
+    return ".,33";
 }
 
 int8 shell_random_seed() {
@@ -72,6 +78,8 @@ void shell_blitter(char const* bits, int bytesperline, int x, int y, int width, 
 				out_of_bounds_counter++;
 				continue;
 			}
+
+			if (index1 == 131 || index2 == 131) continue;
 
             if (((int) bits[xi / 8 + yi * bytesperline] & (1 << (xi % 8))) == 0) {
                 frame[index1] &= 0xff ^ (1 << ((yi*2) % 8));
@@ -94,7 +102,10 @@ void shell_blitter(char const* bits, int bytesperline, int x, int y, int width, 
 }
 
 uint4 shell_milliseconds() {
-    return 0;
+    systemCallData.command = 0x0042;
+    __asm("SVC #0");
+
+    return (uint4) systemCallData.result;
 }
 
 void shell_beeper(int) {
@@ -105,12 +116,24 @@ uint8 shell_get_mem() {
     return 1000;
 }
 
-void shell_print(char const*, int, char const*, int, int, int, int, int) {
+void shell_print(char const* content, int length, char const*, int, int, int, int, int) {
+	char* copy = new char[length + 1];
+	if (copy == nullptr) return;
 
+	memcpy(copy, content, length);
+	copy[length] = '\0';
+
+    systemCallData.command = 0x0050;
+    systemCallData.args = (void*) copy;
+
+    __asm("SVC #0");
+
+    delete[] copy;
 }
 
+const char* PLATFORM = "RP42 0.0.5b";
 const char* shell_platform() {
-    return 0;
+    return PLATFORM;
 }
 
 int shell_date_format() {
@@ -139,47 +162,8 @@ void skin_finish_image() {
 }
 
 
-void shell_annuciators(int updn, int shf, int prt, int run, int g, int rad) {
-
-}
 
 void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
-	if (shf) frame[131] |= 0xf0;
-	else     frame[131] &= 0x0f;
-	if (updn) frame[131] |= 0x0f;
-	else      frame[131] &= 0xf0;
-
-	if (prt) frame[131+132] |= 0xf0;
-	else     frame[131+132] &= 0x0f;
-	if (run) frame[131+132] |= 0x0f;
-	else     frame[131+132] &= 0xf0;
-
-	if (g) frame[131+132*2] |= 0xf0;
-	else     frame[131+132*2] &= 0x0f;
-	if (rad) frame[131+132*2] |= 0x0f;
-	else     frame[131+132*2] &= 0xf0;
-
-	//frame[131 * 0] = updn ? 0xff : 0x00;
-	//frame[132 * 1 + 131] = shf ? 0xff : 0x00;
-	//frame[132 * 2 + 131] = prt ? 0xff : 0x00;
-	//frame[132 * 3 + 131] = run ? 0xff : 0x00;
-
-    /*std::cout << "updating annuncators" << std::endl;
-    if (updn != -1)
-        std::cout << "updn: " << (updn == 1 ? "on" : "off") << " ";
-
-    if (shf != -1)
-        std::cout << "shf: " << (shf == 1 ? "on" : "off") << " ";
-
-    if (prt != -1)
-        std::cout << "prt: " << (prt == 1 ? "on" : "off") << " ";
-
-    if (run != -1)
-        std::cout << "run: " << (run == 1 ? "on" : "off") << " ";    
-
-    if (g != -1)
-        std::cout << "g: " << (g == 1 ? "on" : "off") << " ";  
-
-    if (rad != -1)
-        std::cout << "rad: " << (rad == 1 ? "on" : "off") << " ";  */
+	if (shf) frame[131] = 0xff;
+	else frame[131] = 0x00;
 }

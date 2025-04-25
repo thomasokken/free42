@@ -96,6 +96,20 @@ void update_lcd() {
   }*/
  }
 
+char GetKey() {
+  systemCallData.command = 0x0001;
+  __asm__("SVC #0");
+
+  return systemCallData.result;
+}
+
+char WaitForKey() {
+	systemCallData.command = 0x0002;
+	__asm__("SVC #0");
+
+	return systemCallData.result;
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -160,7 +174,6 @@ int main(void)
 
 	  if (key == 254) key = key_queue[kqri++];*/
 	  //uint8_t key = (uint8_t) sys_func(0x0002, 0);
-
 	  while (1) {
 		  systemCallData.command = 0x0002;
 		  __asm__("SVC #0");
@@ -168,9 +181,27 @@ int main(void)
 		  // read all keys before redrawing
 
 		  if (key == 255) {
-			  core_keyup();
+			//if (!*enqueued) core_keyup();
+
+			  keydown = false;
 		  } else {
 			  core_keydown(key, enqueued, repeat);
+
+			  unsigned int count = 0;
+			  while (program_running()) {
+				  core_keydown(0, enqueued, repeat);
+
+				  count++;
+				  if (count == 5) {
+					  count = 0;
+					  char key = GetKey();
+					  if (key != 255)
+						  core_keydown(key, enqueued, repeat);
+				  }
+			  }
+
+			  core_keyup();
+			  keydown = true;
 		  }
 
 		  //update_lcd();
