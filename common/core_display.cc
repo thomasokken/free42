@@ -2154,10 +2154,10 @@ void redisplay() {
         if (flags.f.local_label
                 && !(mode_command_entry && incomplete_argtype == ARG_CKEY)) {
             for (i = 0; i < 5; i++) {
-                char c = (r == 0 ? 'A' : 'F') + i;
+                char c = (r == 0 ? (mode_menu_caps || !mode_shift ? 'A' : 'a') : 'F') + i;
                 draw_key(i, 0, 0, &c, 1);
             }
-            draw_key(5, 0, 0, "XEQ", 3);
+            draw_key(5, 0, 0, mode_shift ? "GTO" : "XEQ", 3);
         } else {
             for (i = 0; i < 6; i++) {
                 draw_key(i, 0, 1, custommenu_label[r][i],
@@ -2345,7 +2345,50 @@ void redisplay() {
                             break;
                     }
                 }
-                draw_key(i, is_flag, 1, cmd->name, cmd->name_length);
+                int scmd = CMD_NONE;
+                if (mode_shift) {
+                    switch (menu_id) {
+                        case MENU_TOP_FCN: {
+                            switch (i) {
+                                case 0: scmd = CMD_SIGMASUB; break;
+                                case 1: scmd = CMD_Y_POW_X; break;
+                                case 2: scmd = CMD_SQUARE; break;
+                                case 3: scmd = CMD_10_POW_X; break;
+                                case 4: scmd = CMD_E_POW_X; break;
+                                case 5: scmd = CMD_GTO; break;
+                            }
+                            break;
+                        }
+                        case MENU_PGM_FCN1: {
+                            if (i == 5)
+                                scmd = CMD_GTO;
+                            break;
+                        }
+                        case MENU_STAT1: {
+                            if (i == 0)
+                                scmd = CMD_SIGMASUB;
+                            break;
+                        }
+                        case MENU_BASE2: {
+                            if (i == 0)
+                                scmd = CMD_SLN;
+                            else if (i == 1)
+                                scmd = CMD_SRN;
+                            break;
+                        }
+                        case MENU_BASE3: {
+                            if (i == 0)
+                                scmd = CMD_RJ;
+                            else if (i == 1)
+                                scmd = CMD_ASRN;
+                            break;
+                        }
+                    }
+                }
+                if (scmd == CMD_NONE)
+                    draw_key(i, is_flag, 1, cmd->name, cmd->name_length);
+                else
+                    draw_key(i, is_flag, 1, cmd_array[scmd].name, cmd_array[scmd].name_length);
             }
         }
         avail_rows = 1;

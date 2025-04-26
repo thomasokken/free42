@@ -2733,21 +2733,35 @@ void keydown_normal_mode(int shift, int key) {
                     redisplay();
                     return;
                 }
-                if (menu == MENU_TOP_FCN && shift) {
-                    switch (menukey) {
-                        case 0: cmd_id = CMD_SIGMASUB; break;
-                        case 1: cmd_id = CMD_Y_POW_X; break;
-                        case 2: cmd_id = CMD_SQUARE; break;
-                        case 3: cmd_id = CMD_10_POW_X; break;
-                        case 4: cmd_id = CMD_E_POW_X; break;
-                        case 5: cmd_id = CMD_GTO; break;
+                cmd_id &= 0xfff;
+                if (shift) {
+                    if (menu == MENU_TOP_FCN) {
+                        switch (menukey) {
+                            case 0: cmd_id = CMD_SIGMASUB; break;
+                            case 1: cmd_id = CMD_Y_POW_X; break;
+                            case 2: cmd_id = CMD_SQUARE; break;
+                            case 3: cmd_id = CMD_10_POW_X; break;
+                            case 4: cmd_id = CMD_E_POW_X; break;
+                            case 5: cmd_id = CMD_GTO; break;
+                        }
+                    } else if (menu == MENU_PGM_FCN1) {
+                        if (menukey == 5)
+                            cmd_id = CMD_GTO;
+                    } else if (menu == MENU_STAT1) {
+                        if (menukey == 0)
+                            cmd_id = CMD_SIGMASUB;
+                    } else if (menu == MENU_BASE2) {
+                        switch (menukey) {
+                            case 0: cmd_id = CMD_SLN; break;
+                            case 1: cmd_id = CMD_SRN; break;
+                        }
+                    } else if (menu == MENU_BASE3) {
+                        switch (menukey) {
+                            case 0: cmd_id = CMD_RJ; break;
+                            case 1: cmd_id = CMD_ASRN; break;
+                        }
                     }
-                } else if (menu == MENU_PGM_FCN1 && menukey == 5 && shift)
-                    cmd_id = CMD_GTO;
-                else if (menu == MENU_STAT1 && menukey == 0 && shift)
-                    cmd_id = CMD_SIGMASUB;
-                else
-                    cmd_id &= 0xfff;
+                }
                 if (level == MENULEVEL_TRANSIENT
                         || (level == MENULEVEL_PLAIN && !mode_plainmenu_sticky))
                     set_menu(level, MENU_NONE);
