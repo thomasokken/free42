@@ -1107,6 +1107,137 @@ int docmd_asr(arg_struct *arg) {
     return sr(true);
 }
 
+int docmd_sln(arg_struct *arg) {
+    phloat nn = ((vartype_real *) stack[sp])->x;
+    if (nn < 0)
+        nn = -nn;
+    int wsize = effective_wsize();
+    if (nn >= wsize + 1)
+        return ERR_INVALID_DATA;
+    int n = to_int(nn);
+    int8 x;
+    int err = get_base_param(stack[sp - 1], &x);
+    if (err != ERR_NONE)
+        return err;
+    bool carry = mode_carry;
+    if (n == wsize) {
+        carry = x & 1;
+        x = 0;
+    } else if (n > 0) {
+        carry = (x >> (wsize - n)) & 1;
+        x <<= n;
+    }
+    base_range_check(&x, true);
+    vartype *v = new_real(base2phloat(x));
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    err = binary_result(v);
+    if (err == ERR_NONE)
+        mode_carry = carry;
+    return err;
+}
+
+static int srn(bool arith) {
+    phloat nn = ((vartype_real *) stack[sp])->x;
+    if (nn < 0)
+        nn = -nn;
+    int wsize = effective_wsize();
+    if (nn >= wsize + 1)
+        return ERR_INVALID_DATA;
+    int n = to_int(nn);
+    int8 x;
+    int err = get_base_param(stack[sp - 1], &x);
+    if (err != ERR_NONE)
+        return err;
+    if (wsize < 64)
+        x &= (1LL << wsize) - 1;
+    bool carry = mode_carry;
+    if (n > 0) {
+        carry = (x >> (n - 1)) & 1;
+        bool neg = arith && ((x >> (wsize - 1)) & 1);
+        if (n == wsize) {
+            if (neg)
+                if (wsize == 64)
+                    x = ~0LL;
+                else
+                    x = (1LL << wsize) - 1;
+            else
+                x = 0;
+        } else {
+            x = ((uint8) x) >> n;
+            if (neg)
+                x |= -1LL << (wsize - n);
+        }
+    }
+    base_range_check(&x, true);
+    vartype *v = new_real(base2phloat(x));
+    if (v == NULL)
+        return ERR_INSUFFICIENT_MEMORY;
+    err = binary_result(v);
+    if (err == ERR_NONE)
+        mode_carry = carry;
+    return err;
+}
+
+int docmd_srn(arg_struct *arg) {
+    return srn(false);
+}
+
+int docmd_asrn(arg_struct *arg) {
+    return srn(true);
+}
+
+int docmd_lj(arg_struct *arg) {
+    int8 x;
+    int err = get_base_param(stack[sp], &x);
+    if (err != ERR_NONE)
+        return err;
+    int count = 0;
+    if (x != 0) {
+        int8 mask = 1LL << (effective_wsize() - 1);
+        while ((x & mask) == 0) {
+            x <<= 1;
+            count++;
+        }
+    }
+    base_range_check(&x, true);
+    vartype *vx = new_real(count);
+    vartype *vy = new_real(base2phloat(x));
+    if (vx == NULL || vy == NULL) {
+        free_vartype(vx);
+        free_vartype(vy);
+        return ERR_INSUFFICIENT_MEMORY;
+    }
+    return unary_two_results(vx, vy);
+}
+
+int docmd_rj(arg_struct *arg) {
+    int8 x;
+    int err = get_base_param(stack[sp], &x);
+    if (err != ERR_NONE)
+        return err;
+    int count = 0;
+    uint8 xx = (uint8) x;
+    int wsize = effective_wsize();
+    if (wsize < 64)
+        xx &= (1ULL << wsize) - 1;
+    if (xx != 0) {
+        while ((xx & 1) == 0) {
+            xx >>= 1;
+            count++;
+        }
+    }
+    x = (int8) xx;
+    vartype *vx = new_real(count);
+    vartype *vy = new_real(base2phloat(x));
+    if (vx == NULL || vy == NULL) {
+        free_vartype(vx);
+        free_vartype(vy);
+        return ERR_INSUFFICIENT_MEMORY;
+    }
+    return unary_two_results(vx, vy);
+}
+
 static int rl(bool c) {
     int8 x;
     int err = get_base_param(stack[sp], &x);
@@ -1162,57 +1293,6 @@ int docmd_rr(arg_struct *arg) {
 
 int docmd_rrc(arg_struct *arg) {
     return rr(true);
-}
-
-int docmd_lj(arg_struct *arg) {
-    int8 x;
-    int err = get_base_param(stack[sp], &x);
-    if (err != ERR_NONE)
-        return err;
-    int count = 0;
-    if (x != 0) {
-        int8 mask = 1LL << (effective_wsize() - 1);
-        while ((x & mask) == 0) {
-            x <<= 1;
-            count++;
-        }
-    }
-    base_range_check(&x, true);
-    vartype *vx = new_real(count);
-    vartype *vy = new_real(base2phloat(x));
-    if (vx == NULL || vy == NULL) {
-        free_vartype(vx);
-        free_vartype(vy);
-        return ERR_INSUFFICIENT_MEMORY;
-    }
-    return unary_two_results(vx, vy);
-}
-
-int docmd_rj(arg_struct *arg) {
-    int8 x;
-    int err = get_base_param(stack[sp], &x);
-    if (err != ERR_NONE)
-        return err;
-    int count = 0;
-    uint8 xx = (uint8) x;
-    int wsize = effective_wsize();
-    if (wsize < 64)
-        xx &= (1ULL << wsize) - 1;
-    if (xx != 0) {
-        while ((xx & 1) == 0) {
-            xx >>= 1;
-            count++;
-        }
-    }
-    x = (int8) xx;
-    vartype *vx = new_real(count);
-    vartype *vy = new_real(base2phloat(x));
-    if (vx == NULL || vy == NULL) {
-        free_vartype(vx);
-        free_vartype(vy);
-        return ERR_INSUFFICIENT_MEMORY;
-    }
-    return unary_two_results(vx, vy);
 }
 
 static int rn(bool left, bool c) {
