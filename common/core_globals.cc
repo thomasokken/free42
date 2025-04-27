@@ -265,10 +265,17 @@ const menu_spec menus[] = {
                         { 0x2000 + CMD_CLK12,   0, "" },
                         { 0x2000 + CMD_CLK24,   0, "" } } },
     { /* MENU_MODES4 */ MENU_NONE, MENU_MODES1, MENU_MODES3,
-                      { { 0x2000 + CMD_4STK,    0, "" },
-                        { 0x2000 + CMD_NSTK,    0, "" },
-                        { 0x2000 + CMD_CAPS,    0, "" },
+                      { { 0x2000 + CMD_4STK, 0, ""      },
+                        { 0x2000 + CMD_NSTK, 0, ""      },
+                        { 0x1000 + CMD_NULL, 0, ""      },
+                        { 0x1000 + CMD_NULL, 0, ""      },
+                        { 0x1000 + CMD_NULL, 0, ""      },
+                        { MENU_MODES_MENUS,  5, "MENUS" } } },
+    { /* MENU_MODES_MENUS */ MENU_MODES4, MENU_NONE, MENU_NONE,
+                      { { 0x2000 + CMD_CAPS,    0, "" },
                         { 0x2000 + CMD_MIXED,   0, "" },
+                        { 0x2000 + CMD_STATIC,  0, "" },
+                        { 0x2000 + CMD_DYNAMIC, 0, "" },
                         { 0x1000 + CMD_NULL,    0, "" },
                         { 0x1000 + CMD_NULL,    0, "" } } },
     { /* MENU_DISP */ MENU_NONE, MENU_NONE, MENU_NONE,
@@ -689,6 +696,7 @@ bool mode_oct_sep;
 bool mode_dec_sep;
 bool mode_hex_sep;
 bool mode_menu_caps;
+bool mode_menu_static;
 #if defined(ANDROID) || defined(IPHONE)
 bool mode_popup_unknown = true;
 #endif
@@ -805,8 +813,9 @@ bool no_keystrokes_yet;
  * Version 50: 3.3    Move BASE settings from MODES to BASE
  * Version 51: 3.3    BASE enhancements (menu additions)
  * Version 52: 3.3    BASE enhancements (carry; display modes)
+ * Version 53: 3.3.3  STATIC/DYNAMIC for menus
  */
-#define FREE42_VERSION 52
+#define FREE42_VERSION 53
 
 
 /*******************/
@@ -1370,6 +1379,8 @@ static bool persist_globals() {
         goto done;
     if (!write_bool(mode_menu_caps))
         goto done;
+    if (!write_bool(mode_menu_static))
+        goto done;
     if (fwrite(&flags, 1, sizeof(flags_struct), gfile) != sizeof(flags_struct))
         goto done;
     if (!write_int(prgms_count))
@@ -1532,6 +1543,13 @@ static bool unpersist_globals() {
         }
     } else
         mode_menu_caps = false;
+    if (ver >= 53) {
+        if (!read_bool(&mode_menu_static)) {
+            mode_menu_static = false;
+            goto done;
+        }
+    } else
+        mode_menu_static = false;
     if (fread(&flags, 1, sizeof(flags_struct), gfile)
             != sizeof(flags_struct))
         goto done;
@@ -3872,6 +3890,8 @@ static bool load_state2(bool *clear, bool *too_new) {
         menu_adjust(24, 24, 37, 25, 61, -1);
     if (ver < 51)
         menu_adjust(61, 61, 7, 62, 63, 3, 64, INT_MAX, 7);
+    if (ver < 53)
+        menu_adjust(26, INT_MAX, 1);
     if (!read_bool(&mode_running)) return false;
     if (ver < 46)
         mode_caller_stack_lift_disabled = false;
@@ -4308,6 +4328,7 @@ void hard_reset(int reason) {
     mode_dec_sep = false;
     mode_hex_sep = false;
     mode_menu_caps = false;
+    mode_menu_static = false;
 
     reset_math();
 

@@ -67,6 +67,8 @@ int docmd_rcomplx(arg_struct *arg);
 int docmd_pcomplx(arg_struct *arg);
 int docmd_caps(arg_struct *arg);
 int docmd_mixed(arg_struct *arg);
+int docmd_static(arg_struct *arg);
+int docmd_dynamic(arg_struct *arg);
 int docmd_skip(arg_struct *arg);
 int docmd_cpxmat_t(arg_struct *arg);
 int docmd_type_t(arg_struct *arg);

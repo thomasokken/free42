@@ -280,11 +280,13 @@ static bool core_keydown_2(int key, bool *enqueued, int *repeat) {
 
     if (key == KEY_SHIFT) {
         set_shift(!mode_shift);
-        int menuid = get_front_menu();
-        if (menuid == MENU_TOP_FCN || menuid == MENU_PGM_FCN1 || menuid == MENU_STAT1
-                || menuid == MENU_BASE2 || menuid == MENU_BASE3
-                || menuid == MENU_CUSTOM1 || menuid == MENU_CUSTOM2 || menuid == MENU_CUSTOM3)
-            redisplay();
+        if (!mode_menu_static) {
+            int menuid = get_front_menu();
+            if (menuid == MENU_TOP_FCN || menuid == MENU_PGM_FCN1 || menuid == MENU_STAT1
+                    || menuid == MENU_BASE2 || menuid == MENU_BASE3
+                    || menuid == MENU_CUSTOM1 || menuid == MENU_CUSTOM2 || menuid == MENU_CUSTOM3)
+                redisplay();
+        }
         return (mode_running && !mode_getkey && !mode_pause) || keybuf_head != keybuf_tail;
     }
 

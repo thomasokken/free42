@@ -498,6 +498,8 @@ const command_spec cmd_array[] =
     { /* PCOMPLX */     docmd_pcomplx,     "PC\317\315P\314X",    0x00, 0x00, 0xa7, 0xf9,  7, ARG_NONE,  -1, 0x00 },
     { /* CAPS */        docmd_caps,        "CAPS",                0x42, 0x00, 0x00, 0x00,  4, ARG_NONE,   0, NA_T },
     { /* MIXED */       docmd_mixed,       "Mixed",               0x42, 0x00, 0x00, 0x00,  5, ARG_NONE,   0, NA_T },
+    { /* STATIC */      docmd_static,      "STAT\311\303",        0x42, 0x00, 0x00, 0x00,  6, ARG_NONE,   0, NA_T },
+    { /* DYNAMIC */     docmd_dynamic,     "DYN\301\315\311\303", 0x42, 0x00, 0x00, 0x00,  7, ARG_NONE,   0, NA_T },
     { /* SKIP */        docmd_skip,        "SKIP",                0x00, 0x00, 0xa2, 0x74,  4, ARG_NONE,   0, NA_T },
     { /* CPXMAT_T */    docmd_cpxmat_t,    "C\320\330M\301T?",    0x00, 0x00, 0xa2, 0x75,  7, ARG_NONE,   1, ALLT },
     { /* TYPE_T */      docmd_type_t,      "TYP\305?",            0x00, 0x00, 0xa2, 0x76,  5, ARG_NONE,   1, ALLT },

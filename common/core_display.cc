@@ -1630,37 +1630,38 @@ static int ext_stk_cat[] = {
 #if defined(ANDROID) || defined(IPHONE)
 #ifdef FREE42_FPTEST
 static int ext_misc_cat[] = {
-    CMD_A2LINE,  CMD_A2PLINE, CMD_CAPS,   CMD_C_LN_1_X, CMD_C_E_POW_X_1, CMD_FMA,
-    CMD_GETLI,   CMD_GETMI,   CMD_HEIGHT, CMD_IDENT,    CMD_LOCK,        CMD_MIXED,
-    CMD_PCOMPLX, CMD_PRREG,   CMD_PUTLI,  CMD_PUTMI,    CMD_RCOMPLX,     CMD_STRACE,
-    CMD_UNLOCK,  CMD_WIDTH,   CMD_X2LINE, CMD_ACCEL,    CMD_LOCAT,       CMD_HEADING,
-    CMD_FPTEST,  CMD_NULL,    CMD_NULL,   CMD_NULL,     CMD_NULL,        CMD_NULL
+    CMD_A2LINE, CMD_A2PLINE, CMD_CAPS,   CMD_C_LN_1_X, CMD_C_E_POW_X_1, CMD_DYNAMIC,
+    CMD_FMA,    CMD_GETLI,   CMD_GETMI,  CMD_HEIGHT,   CMD_IDENT,       CMD_LOCK,
+    CMD_MIXED,  CMD_PCOMPLX, CMD_PRREG,  CMD_PUTLI,    CMD_PUTMI,       CMD_RCOMPLX,
+    CMD_STATIC, CMD_STRACE,  CMD_UNLOCK, CMD_WIDTH,    CMD_X2LINE,      CMD_ACCEL,
+    CMD_LOCAT,  CMD_HEADING, CMD_FPTEST, CMD_NULL,     CMD_NULL,        CMD_NULL
 };
 #define MISC_CAT_ROWS 5
 #else
 static int ext_misc_cat[] = {
-    CMD_A2LINE,  CMD_A2PLINE, CMD_CAPS,   CMD_C_LN_1_X, CMD_C_E_POW_X_1, CMD_FMA,
-    CMD_GETLI,   CMD_GETMI,   CMD_HEIGHT, CMD_IDENT,    CMD_LOCK,        CMD_MIXED,
-    CMD_PCOMPLX, CMD_PRREG,   CMD_PUTLI,  CMD_PUTMI,    CMD_RCOMPLX,     CMD_STRACE,
-    CMD_UNLOCK,  CMD_WIDTH,   CMD_X2LINE, CMD_ACCEL,    CMD_LOCAT,       CMD_HEADING
+    CMD_A2LINE, CMD_A2PLINE, CMD_CAPS,   CMD_C_LN_1_X, CMD_C_E_POW_X_1, CMD_DYNAMIC,
+    CMD_FMA,    CMD_GETLI,   CMD_GETMI,  CMD_HEIGHT,   CMD_IDENT,       CMD_LOCK,
+    CMD_MIXED,  CMD_PCOMPLX, CMD_PRREG,  CMD_PUTLI,    CMD_PUTMI,       CMD_RCOMPLX,
+    CMD_STATIC, CMD_STRACE,  CMD_UNLOCK, CMD_WIDTH,    CMD_X2LINE,      CMD_ACCEL,
+    CMD_LOCAT,  CMD_HEADING, CMD_NULL,   CMD_NULL,     CMD_NULL,        CMD_NULL
 };
-#define MISC_CAT_ROWS 4
+#define MISC_CAT_ROWS 5
 #endif
 #else
 #ifdef FREE42_FPTEST
 static int ext_misc_cat[] = {
-    CMD_A2LINE,  CMD_A2PLINE, CMD_CAPS,   CMD_C_LN_1_X, CMD_C_E_POW_X_1, CMD_FMA,
-    CMD_GETLI,   CMD_GETMI,   CMD_HEIGHT, CMD_IDENT,    CMD_LOCK,        CMD_MIXED,
-    CMD_PCOMPLX, CMD_PRREG,   CMD_PUTLI,  CMD_PUTMI,    CMD_RCOMPLX,     CMD_STRACE,
-    CMD_UNLOCK,  CMD_WIDTH,   CMD_X2LINE, CMD_FPTEST,   CMD_NULL,        CMD_NULL
+    CMD_A2LINE, CMD_A2PLINE, CMD_CAPS,   CMD_C_LN_1_X, CMD_C_E_POW_X_1, CMD_DYNAMIC,
+    CMD_FMA,    CMD_GETLI,   CMD_GETMI,  CMD_HEIGHT,   CMD_IDENT,       CMD_LOCK,
+    CMD_MIXED,  CMD_PCOMPLX, CMD_PRREG,  CMD_PUTLI,    CMD_PUTMI,       CMD_RCOMPLX,
+    CMD_STATIC, CMD_STRACE,  CMD_UNLOCK, CMD_WIDTH,    CMD_X2LINE,      CMD_FPTEST
 };
 #define MISC_CAT_ROWS 4
 #else
 static int ext_misc_cat[] = {
-    CMD_A2LINE,  CMD_A2PLINE, CMD_CAPS,   CMD_C_LN_1_X, CMD_C_E_POW_X_1, CMD_FMA,
-    CMD_GETLI,   CMD_GETMI,   CMD_HEIGHT, CMD_IDENT,    CMD_LOCK,        CMD_MIXED,
-    CMD_PCOMPLX, CMD_PRREG,   CMD_PUTLI,  CMD_PUTMI,    CMD_RCOMPLX,     CMD_STRACE,
-    CMD_UNLOCK,  CMD_WIDTH,   CMD_X2LINE, CMD_NULL,     CMD_NULL,        CMD_NULL
+    CMD_A2LINE, CMD_A2PLINE, CMD_CAPS,   CMD_C_LN_1_X, CMD_C_E_POW_X_1, CMD_DYNAMIC,
+    CMD_FMA,    CMD_GETLI,   CMD_GETMI,  CMD_HEIGHT,   CMD_IDENT,       CMD_LOCK,
+    CMD_MIXED,  CMD_PCOMPLX, CMD_PRREG,  CMD_PUTLI,    CMD_PUTMI,       CMD_RCOMPLX,
+    CMD_STATIC, CMD_STRACE,  CMD_UNLOCK, CMD_WIDTH,    CMD_X2LINE,      CMD_NULL
 };
 #define MISC_CAT_ROWS 4
 #endif
@@ -2154,10 +2155,10 @@ void redisplay() {
         if (flags.f.local_label
                 && !(mode_command_entry && incomplete_argtype == ARG_CKEY)) {
             for (i = 0; i < 5; i++) {
-                char c = (r == 0 ? (mode_menu_caps || !mode_shift ? 'A' : 'a') : 'F') + i;
+                char c = (r == 0 ? (mode_menu_caps || mode_menu_static || !mode_shift ? 'A' : 'a') : 'F') + i;
                 draw_key(i, 0, 0, &c, 1);
             }
-            draw_key(5, 0, 0, mode_shift ? "GTO" : "XEQ", 3);
+            draw_key(5, 0, 0, mode_menu_static || !mode_shift ? "XEQ" : "GTO", 3);
         } else {
             for (i = 0; i < 6; i++) {
                 draw_key(i, 0, 1, custommenu_label[r][i],
@@ -2285,6 +2286,12 @@ void redisplay() {
                         case CMD_MIXED:
                             is_flag = !mode_menu_caps;
                             break;
+                        case CMD_STATIC:
+                            is_flag = mode_menu_static;
+                            break;
+                        case CMD_DYNAMIC:
+                            is_flag = !mode_menu_static;
+                            break;
                         case CMD_PON:
                             is_flag = flags.f.printer_exists;
                             break;
@@ -2346,7 +2353,7 @@ void redisplay() {
                     }
                 }
                 int scmd = CMD_NONE;
-                if (mode_shift) {
+                if (!mode_menu_static && mode_shift) {
                     switch (menu_id) {
                         case MENU_TOP_FCN: {
                             switch (i) {
