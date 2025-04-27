@@ -1079,7 +1079,7 @@ static int inv_c_completion2(int error, vartype_complexmatrix *a, int4 *perm,
 /***** Matrix determinant *****/
 /******************************/
 
-static void (*linalg_det_completion)(int error, vartype *det);
+static void (*linalg_det_completion)(vartype *det);
 static bool linalg_det_prev_sm_err;
 
 static int det_r_completion(int error, vartype_realmatrix *a, int4 *perm,
@@ -1087,34 +1087,76 @@ static int det_r_completion(int error, vartype_realmatrix *a, int4 *perm,
 static int det_c_completion(int error, vartype_complexmatrix *a, int4 *perm,
                                     phloat det_re, phloat det_im);
 
-int linalg_det(const vartype *src, void (*completion)(int, vartype *)) {
+static int small_det_r(vartype_realmatrix *m, phloat *r) {
+    if (m->rows == 1) {
+        *r = m->array->data[0];
+        return ERR_NONE;
+    }
+    phloat *a = m->array->data;
+    int s[4];
+    for (int i = 0; i < 4; i++)
+        s[i] = a[i] == 0 || p_isinf(a[i]) != 0 ? 0 : ilogb(a[i]);
+    phloat p1 = scalbn(a[0], -s[0]) * scalbn(a[3], -s[3]);
+    int s1 = s[0] + s[3];
+    phloat p2 = scalbn(a[1], -s[1]) * scalbn(a[2], -s[2]);
+    int s2 = s[1] + s[2];
+    if (s1 > s2) {
+        p2 = scalbn(p2, s2 - s1);
+        s2 = s1;
+    } else if (s2 > s1) {
+        p1 = scalbn(p1, s1 - s2);
+        s1 = s2;
+    }
+    *r = scalbn(p1 - p2, s1);
+    int inf = p_isinf(*r);
+    if (inf != 0)
+        if (flags.f.range_error_ignore)
+            *r = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
+        else
+            return ERR_OUT_OF_RANGE;
+    return ERR_NONE;
+}
+
+static int small_det_c(vartype_complexmatrix *m, phloat *dre, phloat *dim) {
+    if (m->rows == 1) {
+        *dre = m->array->data[0];
+        *dim = m->array->data[1];
+        return ERR_NONE;
+    }
+    return ERR_NOT_YET_IMPLEMENTED;
+}
+
+int linalg_det(const vartype *src, void (*completion)(vartype *)) {
     int4 n;
     int4 *perm;
     if (src->type == TYPE_REALMATRIX) {
         vartype_realmatrix *ma = (vartype_realmatrix *) src;
         n = ma->rows;
-        if (n != ma->columns) {
-            completion(ERR_DIMENSION_ERROR, 0);
+        if (n != ma->columns)
             return ERR_DIMENSION_ERROR;
-        }
-        if (contains_strings(ma)) {
-            completion(ERR_ALPHA_DATA_IS_INVALID, 0);
+        if (contains_strings(ma))
             return ERR_ALPHA_DATA_IS_INVALID;
+        if (n <= 2) {
+            phloat d;
+            int err = small_det_r(ma, &d);
+            if (err != ERR_NONE)
+                return err;
+            vartype *v = new_real(d);
+            if (v == NULL)
+                return ERR_INSUFFICIENT_MEMORY;
+            completion(v);
+            return ERR_NONE;
         }
         ma = (vartype_realmatrix *) dup_vartype(src);
-        if (ma == NULL) {
-            completion(ERR_INSUFFICIENT_MEMORY, 0);
+        if (ma == NULL)
             return ERR_INSUFFICIENT_MEMORY;
-        }
         if (!disentangle((vartype *) ma)) {
             free_vartype((vartype *) ma);
-            completion(ERR_INSUFFICIENT_MEMORY, 0);
             return ERR_INSUFFICIENT_MEMORY;
         }
         perm = (int4 *) malloc(n * sizeof(int4));
         if (perm == NULL) {
             free_vartype((vartype *) ma);
-            completion(ERR_INSUFFICIENT_MEMORY, 0);
             return ERR_INSUFFICIENT_MEMORY;
         }
 
@@ -1135,6 +1177,17 @@ int linalg_det(const vartype *src, void (*completion)(int, vartype *)) {
         n = ma->rows;
         if (n != ma->columns)
             return ERR_DIMENSION_ERROR;
+        if (n <= 1) {
+            phloat dre, dim;
+            int err = small_det_c(ma, &dre, &dim);
+            if (err != ERR_NONE)
+                return err;
+            vartype *v = new_complex(dre, dim);
+            if (v == NULL)
+                return ERR_INSUFFICIENT_MEMORY;
+            completion(v);
+            return ERR_NONE;
+        }
         ma = (vartype_complexmatrix *) dup_vartype(src);
         if (ma == NULL)
             return ERR_INSUFFICIENT_MEMORY;
@@ -1191,7 +1244,8 @@ static int det_r_completion(int error, vartype_realmatrix *a, int4 *perm,
             error = ERR_INSUFFICIENT_MEMORY;
     }
 
-    linalg_det_completion(error, det_v);
+    if (error == ERR_NONE)
+        linalg_det_completion(det_v);
     return error;
 }
 
@@ -1229,6 +1283,7 @@ static int det_c_completion(int error, vartype_complexmatrix *a, int4 *perm,
             error = ERR_INSUFFICIENT_MEMORY;
     }
 
-    linalg_det_completion(error, det_v);
+    if (error == ERR_NONE)
+        linalg_det_completion(det_v);
     return error;
 }
