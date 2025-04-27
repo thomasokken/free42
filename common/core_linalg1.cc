@@ -1144,10 +1144,10 @@ static int small_det_c(vartype_complexmatrix *m, phloat *dre, phloat *dim) {
     }
     phloat *a = m->array->data;
     int s1, s2, s3, s4;
-    phloat r1re = dot_2d(a[0], a[6], a[1], a[7], false, &s1);
-    phloat r1im = dot_2d(a[0], a[7], a[1], a[6], true, &s2);
-    phloat r2re = dot_2d(a[2], a[4], a[3], a[5], false, &s3);
-    phloat r2im = dot_2d(a[2], a[5], a[3], a[4], true, &s4);
+    phloat r1re = dot_2d(a[0], a[1], a[6], a[7], false, &s1);
+    phloat r1im = dot_2d(a[0], a[1], a[7], a[6], true, &s2);
+    phloat r2re = dot_2d(a[2], a[3], a[4], a[5], false, &s3);
+    phloat r2im = dot_2d(a[2], a[3], a[5], a[4], true, &s4);
     *dre = ssub(r1re, s1, r2re, s3);
     *dim = ssub(r1im, s2, r2im, s4);
     int inf = p_isinf(*dre);
@@ -1216,7 +1216,7 @@ int linalg_det(const vartype *src, void (*completion)(vartype *)) {
         n = ma->rows;
         if (n != ma->columns)
             return ERR_DIMENSION_ERROR;
-        if (n <= 1) {
+        if (n <= 2) {
             phloat dre, dim;
             int err = small_det_c(ma, &dre, &dim);
             if (err != ERR_NONE)
