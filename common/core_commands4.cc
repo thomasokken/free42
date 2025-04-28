@@ -251,9 +251,8 @@ int docmd_insr(arg_struct *arg) {
     return ERR_NONE;
 }
 
-static void invrt_completion(int error, vartype *res) {
-    if (error == ERR_NONE)
-        unary_result(res);
+static void invrt_completion(vartype *res) {
+    unary_result(res);
 }
 
 int docmd_invrt(arg_struct *arg) {
