@@ -1086,84 +1086,8 @@ static int det_r_completion(int error, vartype_realmatrix *a, int4 *perm,
                                     phloat det);
 static int det_c_completion(int error, vartype_complexmatrix *a, int4 *perm,
                                     phloat det_re, phloat det_im);
-
-static phloat dot_2d(phloat a1, phloat a2, phloat a3, phloat a4, bool add, int *scale = NULL) {
-    int s1 = a1 == 0 || p_isinf(a1) != 0 ? 0 : ilogb(a1);
-    int s2 = a2 == 0 || p_isinf(a2) != 0 ? 0 : ilogb(a2);
-    int s3 = a3 == 0 || p_isinf(a3) != 0 ? 0 : ilogb(a3);
-    int s4 = a4 == 0 || p_isinf(a4) != 0 ? 0 : ilogb(a4);
-    phloat p1 = scalbn(a1, -s1) * scalbn(a3, -s3);
-    int z1 = s1 + s3;
-    phloat p2 = scalbn(a2, -s2) * scalbn(a4, -s4);
-    int z2 = s2 + s4;
-    if (z1 > z2) {
-        p2 = scalbn(p2, z2 - z1);
-        z2 = z1;
-    } else if (z2 > z1) {
-        p1 = scalbn(p1, z1 - z2);
-        z1 = z2;
-    }
-    if (scale == NULL)
-        return scalbn(add ? p1 + p2 : p1 - p2, z1);
-    *scale = z1;
-    return add ? p1 + p2 : p1 - p2;
-}
-
-static phloat ssub(phloat a1, int s1, phloat a2, int s2) {
-    if (s1 > s2) {
-        a2 = scalbn(a2, s2 - s1);
-        s2 = s1;
-    } else if (s2 > s1) {
-        a1 = scalbn(a1, s1 - s2);
-        s1 = s2;
-    }
-    return scalbn(a1 - a2, s1);
-}
-
-static int small_det_r(vartype_realmatrix *m, phloat *r) {
-    if (m->rows == 1) {
-        *r = m->array->data[0];
-        return ERR_NONE;
-    }
-    phloat *a = m->array->data;
-    *r = dot_2d(a[0], a[1], a[3], a[2], false);
-    int inf = p_isinf(*r);
-    if (inf != 0)
-        if (flags.f.range_error_ignore)
-            *r = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
-        else
-            return ERR_OUT_OF_RANGE;
-    return ERR_NONE;
-}
-
-static int small_det_c(vartype_complexmatrix *m, phloat *dre, phloat *dim) {
-    if (m->rows == 1) {
-        *dre = m->array->data[0];
-        *dim = m->array->data[1];
-        return ERR_NONE;
-    }
-    phloat *a = m->array->data;
-    int s1, s2, s3, s4;
-    phloat r1re = dot_2d(a[0], a[1], a[6], a[7], false, &s1);
-    phloat r1im = dot_2d(a[0], a[1], a[7], a[6], true, &s2);
-    phloat r2re = dot_2d(a[2], a[3], a[4], a[5], false, &s3);
-    phloat r2im = dot_2d(a[2], a[3], a[5], a[4], true, &s4);
-    *dre = ssub(r1re, s1, r2re, s3);
-    *dim = ssub(r1im, s2, r2im, s4);
-    int inf = p_isinf(*dre);
-    if (inf != 0)
-        if (flags.f.range_error_ignore)
-            *dre = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
-        else
-            return ERR_OUT_OF_RANGE;
-    inf = p_isinf(*dim);
-    if (inf != 0)
-        if (flags.f.range_error_ignore)
-            *dim = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
-        else
-            return ERR_OUT_OF_RANGE;
-    return ERR_NONE;
-}
+static int small_det_r(vartype_realmatrix *m, phloat *r);
+static int small_det_c(vartype_complexmatrix *m, phloat *dre, phloat *dim);
 
 int linalg_det(const vartype *src, void (*completion)(vartype *)) {
     int4 n;
@@ -1325,4 +1249,82 @@ static int det_c_completion(int error, vartype_complexmatrix *a, int4 *perm,
     if (error == ERR_NONE)
         linalg_det_completion(det_v);
     return error;
+}
+
+static phloat dot_2d(phloat a1, phloat a2, phloat a3, phloat a4, bool add, int *scale = NULL) {
+    int s1 = a1 == 0 || p_isinf(a1) != 0 ? 0 : ilogb(a1);
+    int s2 = a2 == 0 || p_isinf(a2) != 0 ? 0 : ilogb(a2);
+    int s3 = a3 == 0 || p_isinf(a3) != 0 ? 0 : ilogb(a3);
+    int s4 = a4 == 0 || p_isinf(a4) != 0 ? 0 : ilogb(a4);
+    phloat p1 = scalbn(a1, -s1) * scalbn(a3, -s3);
+    int z1 = s1 + s3;
+    phloat p2 = scalbn(a2, -s2) * scalbn(a4, -s4);
+    int z2 = s2 + s4;
+    if (z1 > z2) {
+        p2 = scalbn(p2, z2 - z1);
+        z2 = z1;
+    } else if (z2 > z1) {
+        p1 = scalbn(p1, z1 - z2);
+        z1 = z2;
+    }
+    if (scale == NULL)
+        return scalbn(add ? p1 + p2 : p1 - p2, z1);
+    *scale = z1;
+    return add ? p1 + p2 : p1 - p2;
+}
+
+static phloat ssub(phloat a1, int s1, phloat a2, int s2) {
+    if (s1 > s2) {
+        a2 = scalbn(a2, s2 - s1);
+        s2 = s1;
+    } else if (s2 > s1) {
+        a1 = scalbn(a1, s1 - s2);
+        s1 = s2;
+    }
+    return scalbn(a1 - a2, s1);
+}
+
+static int small_det_r(vartype_realmatrix *m, phloat *r) {
+    if (m->rows == 1) {
+        *r = m->array->data[0];
+        return ERR_NONE;
+    }
+    phloat *a = m->array->data;
+    *r = dot_2d(a[0], a[1], a[3], a[2], false);
+    int inf = p_isinf(*r);
+    if (inf != 0)
+        if (flags.f.range_error_ignore)
+            *r = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
+        else
+            return ERR_OUT_OF_RANGE;
+    return ERR_NONE;
+}
+
+static int small_det_c(vartype_complexmatrix *m, phloat *dre, phloat *dim) {
+    if (m->rows == 1) {
+        *dre = m->array->data[0];
+        *dim = m->array->data[1];
+        return ERR_NONE;
+    }
+    phloat *a = m->array->data;
+    int s1, s2, s3, s4;
+    phloat r1re = dot_2d(a[0], a[1], a[6], a[7], false, &s1);
+    phloat r1im = dot_2d(a[0], a[1], a[7], a[6], true, &s2);
+    phloat r2re = dot_2d(a[2], a[3], a[4], a[5], false, &s3);
+    phloat r2im = dot_2d(a[2], a[3], a[5], a[4], true, &s4);
+    *dre = ssub(r1re, s1, r2re, s3);
+    *dim = ssub(r1im, s2, r2im, s4);
+    int inf = p_isinf(*dre);
+    if (inf != 0)
+        if (flags.f.range_error_ignore)
+            *dre = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
+        else
+            return ERR_OUT_OF_RANGE;
+    inf = p_isinf(*dim);
+    if (inf != 0)
+        if (flags.f.range_error_ignore)
+            *dim = inf < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
+        else
+            return ERR_OUT_OF_RANGE;
+    return ERR_NONE;
 }
