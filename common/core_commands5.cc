@@ -1793,7 +1793,6 @@ int docmd_wsize(arg_struct *arg) {
 #endif
         return ERR_INVALID_DATA;
     mode_wsize = to_int(x);
-    print_trace();
     return ERR_NONE;
 }
 
