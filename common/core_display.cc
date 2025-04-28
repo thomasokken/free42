@@ -1731,7 +1731,7 @@ static void draw_catalog() {
             catalogmenu_row[catindex] = catalogmenu_rows[catindex] - 1;
         j = -1;
         for (i = labels_count - 1; i >= 0; i--) {
-            int show_this_label;
+            bool show_this_label;
             if (catsect == CATSECT_PGM || catsect == CATSECT_PGM_ONLY) {
                 show_this_label = labels[i].length > 0 || i == 0
                                     || labels[i - 1].prgm != labels[i].prgm;

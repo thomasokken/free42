@@ -340,12 +340,12 @@ void put_shadow(const char *name, int length, phloat value) {
     solve.shadow_value[i] = value;
 }
 
-int get_shadow(const char *name, int length, phloat *value) {
+bool get_shadow(const char *name, int length, phloat *value) {
     int i = find_shadow(name, length);
     if (i == -1)
-        return 0;
+        return false;
     *value = solve.shadow_value[i];
-    return 1;
+    return true;
 }
 
 void remove_shadow(const char *name, int length) {

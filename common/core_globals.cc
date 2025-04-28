@@ -1936,21 +1936,21 @@ void goto_dot_dot(bool force_new) {
     pc = -1;
 }
 
-int mvar_prgms_exist() {
+bool mvar_prgms_exist() {
     int i;
     for (i = 0; i < labels_count; i++)
         if (label_has_mvar(i))
-            return 1;
-    return 0;
+            return true;
+    return false;
 }
 
-int label_has_mvar(int lblindex) {
+bool label_has_mvar(int lblindex) {
     int saved_prgm;
     int4 pc;
     int command;
     arg_struct arg;
     if (labels[lblindex].length == 0)
-        return 0;
+        return false;
     saved_prgm = current_prgm;
     current_prgm = labels[lblindex].prgm;
     pc = labels[lblindex].pc;
@@ -2751,7 +2751,7 @@ int4 find_local_label(const arg_struct *arg) {
     return -2;
 }
 
-static int find_global_label_2(const arg_struct *arg, int *prgm, int4 *pc, int *idx) {
+static bool find_global_label_2(const arg_struct *arg, int *prgm, int4 *pc, int *idx) {
     int i;
     const char *name = arg->val.text;
     int namelen = arg->length;
@@ -2770,17 +2770,17 @@ static int find_global_label_2(const arg_struct *arg, int *prgm, int4 *pc, int *
             *pc = labels[i].pc;
         if (idx != NULL)
             *idx = i;
-        return 1;
+        return true;
         nomatch:;
     }
-    return 0;
+    return false;
 }
 
-int find_global_label(const arg_struct *arg, int *prgm, int4 *pc) {
+bool find_global_label(const arg_struct *arg, int *prgm, int4 *pc) {
     return find_global_label_2(arg, prgm, pc, NULL);
 }
 
-int find_global_label_index(const arg_struct *arg, int *idx) {
+bool find_global_label_index(const arg_struct *arg, int *idx) {
     return find_global_label_2(arg, NULL, NULL, idx);
 }
 

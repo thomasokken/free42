@@ -23,6 +23,6 @@
  * skin_putpixels(), and skin_finish_image().
  * These functions should be declared in shell_skin.h.
  */
-int shell_loadimage();
+bool shell_loadimage();
 
 #endif

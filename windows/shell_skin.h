@@ -46,8 +46,8 @@ keymap_entry *parse_keymap_entry(char *line, int lineno);
 
 int skin_getchar();
 void skin_rewind();
-int skin_init_image(int type, int ncolors, const SkinColor *colors,
-                    int width, int height);
+bool skin_init_image(int type, int ncolors, const SkinColor *colors,
+                     int width, int height);
 void skin_put_pixels(unsigned const char *data);
 void skin_finish_image();
 

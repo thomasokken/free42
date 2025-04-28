@@ -595,8 +595,8 @@ void skin_load(int *width, int *height) {
     memset(disp_bits, 0, 272);
 }
 
-int skin_init_image(int type, int ncolors, const SkinColor *colors,
-                    int width, int height) {
+bool skin_init_image(int type, int ncolors, const SkinColor *colors,
+                     int width, int height) {
     if (skin_image != NULL) {
         g_object_unref(skin_image);
         skin_image = NULL;
@@ -607,7 +607,7 @@ int skin_init_image(int type, int ncolors, const SkinColor *colors,
     skin_y = 0;
     skin_type = type;
     skin_cmap = colors;
-    return 1;
+    return true;
 }
 
 void skin_put_pixels(unsigned const char *data) {

@@ -58,9 +58,9 @@ static bool is_number_key(int shift, int key, bool *invalid) {
     return false;
 }
 
-static int basekeys() {
+static bool basekeys() {
     if (!baseapp)
-        return 0;
+        return false;
     int menu = get_front_menu();
     return menu >= MENU_BASE1 && menu <= MENU_BASE_DISP;
 }

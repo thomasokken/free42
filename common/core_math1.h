@@ -26,7 +26,7 @@ bool unpersist_math(int ver);
 void reset_math();
 
 void put_shadow(const char *name, int length, phloat value);
-int get_shadow(const char *name, int length, phloat *value);
+bool get_shadow(const char *name, int length, phloat *value);
 void remove_shadow(const char *name, int length);
 void set_solve_prgm(const char *name, int length);
 int start_solve(const char *name, int length, phloat x1, phloat x2);

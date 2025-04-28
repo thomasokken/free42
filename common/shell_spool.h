@@ -65,7 +65,7 @@ void shell_spool_bitmap_to_txt(const char *bits, int bytesperline,
  * Returns 1 on success; 0 if it failed because of a memory allocation
  * failure.
  */
-int shell_start_gif(file_writer writer, int width, int provisional_height);
+bool shell_start_gif(file_writer writer, int width, int provisional_height);
 
 /* shell_spool_gif()
  *
