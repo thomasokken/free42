@@ -1594,7 +1594,9 @@ int docmd_bs_to_n(arg_struct *arg) {
     float x;
     if (!result2bits(&x, 4))
         return ERR_INVALID_DATA;
-    vartype *v = new_real(x);
+    BID_UINT128 r;
+    binary32_to_bid128(&r, &x);
+    vartype *v = new_real(r);
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     unary_result(v);
@@ -1605,7 +1607,9 @@ int docmd_bd_to_n(arg_struct *arg) {
     double x;
     if (!result2bits(&x, 8))
         return ERR_INVALID_DATA;
-    vartype *v = new_real(x);
+    BID_UINT128 r;
+    binary64_to_bid128(&r, &x);
+    vartype *v = new_real(r);
     if (v == NULL)
         return ERR_INSUFFICIENT_MEMORY;
     unary_result(v);
