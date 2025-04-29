@@ -50,6 +50,8 @@ static int div_cc_completion1(int error, vartype_complexmatrix *a, int4 *perm,
                                     phloat det_re, phloat det_im);
 static int div_cc_completion2(int error, vartype_complexmatrix *a, int4 *perm,
                                     vartype_complexmatrix *b);
+static int small_div(const vartype *left, const vartype *right,
+                                    int (*completion)(int, vartype *));
 
 int linalg_div(const vartype *left, const vartype *right,
                                     int (*completion)(int, vartype *)) {
@@ -63,6 +65,8 @@ int linalg_div(const vartype *left, const vartype *right,
             int4 *perm;
             if (denom->rows != rows || denom->columns != rows)
                 return completion(ERR_DIMENSION_ERROR, NULL);
+            if (denom->rows <= 2)
+                return small_div(left, right, completion);
             perm = (int4 *) malloc(rows * sizeof(int4));
             if (perm == NULL)
                 return completion(ERR_INSUFFICIENT_MEMORY, NULL);
@@ -92,6 +96,8 @@ int linalg_div(const vartype *left, const vartype *right,
             int4 *perm;
             if (denom->rows != rows || denom->columns != rows)
                 return completion(ERR_DIMENSION_ERROR, NULL);
+            if (denom->rows <= 2)
+                return small_div(left, right, completion);
             perm = (int4 *) malloc(rows * sizeof(int4));
             if (perm == NULL)
                 return completion(ERR_INSUFFICIENT_MEMORY, NULL);
@@ -123,6 +129,8 @@ int linalg_div(const vartype *left, const vartype *right,
             int4 *perm;
             if (denom->rows != rows || denom->columns != rows)
                 return completion(ERR_DIMENSION_ERROR, 0);
+            if (denom->rows <= 2)
+                return small_div(left, right, completion);
             perm = (int4 *) malloc(rows * sizeof(int4));
             if (perm == NULL)
                 return completion(ERR_INSUFFICIENT_MEMORY, NULL);
@@ -152,6 +160,8 @@ int linalg_div(const vartype *left, const vartype *right,
             int4 *perm;
             if (denom->rows != rows || denom->columns != rows)
                 return completion(ERR_DIMENSION_ERROR, NULL);
+            if (denom->rows <= 2)
+                return small_div(left, right, completion);
             perm = (int4 *) malloc(rows * sizeof(int4));
             if (perm == NULL)
                 return completion(ERR_INSUFFICIENT_MEMORY, NULL);
@@ -270,6 +280,40 @@ static int div_cc_completion2(int error, vartype_complexmatrix *a, int4 *perm,
     free_vartype((vartype *) a);
     free(perm);
     return linalg_div_completion(error, linalg_div_result);
+}
+
+static int small_inv_r(vartype_realmatrix *ma, void (*completion)(vartype *));
+static int small_inv_c(vartype_complexmatrix *ma, void (*completion)(vartype *));
+static int matrix_mul_rr(vartype_realmatrix *left, vartype_realmatrix *right, int (*completion)(int, vartype *));
+static int matrix_mul_cr(vartype_complexmatrix *left, vartype_realmatrix *right, int (*completion)(int, vartype *));
+static int matrix_mul_rc(vartype_realmatrix *left, vartype_complexmatrix *right, int (*completion)(int, vartype *));
+static int matrix_mul_cc(vartype_complexmatrix *left, vartype_complexmatrix *right, int (*completion)(int, vartype *));
+
+static vartype *small_div_res;
+
+static void small_div_completion(vartype *v) {
+    small_div_res = v;
+}
+
+static int small_div(const vartype *left, const vartype *right, int (*completion)(int, vartype *)) {
+    int err;
+    if (right->type == TYPE_REALMATRIX) {
+        err = small_inv_r((vartype_realmatrix *) right, small_div_completion);
+        if (err != ERR_NONE)
+            return completion(err, NULL);
+        if (left->type == TYPE_REALMATRIX)
+            return matrix_mul_rr((vartype_realmatrix *) small_div_res, (vartype_realmatrix *) left, completion);
+        else
+            return matrix_mul_rc((vartype_realmatrix *) small_div_res, (vartype_complexmatrix *) left, completion);
+    } else {
+        err = small_inv_c((vartype_complexmatrix *) right, small_div_completion);
+        if (err != ERR_NONE)
+            return completion(err, NULL);
+        if (left->type == TYPE_REALMATRIX)
+            return matrix_mul_cr((vartype_complexmatrix *) small_div_res, (vartype_realmatrix *) left, completion);
+        else
+            return matrix_mul_cc((vartype_complexmatrix *) small_div_res, (vartype_complexmatrix *) left, completion);
+    }
 }
 
 
@@ -963,8 +1007,6 @@ static int inv_c_completion1(int error, vartype_complexmatrix *a, int4 *perm,
                                 phloat det_re, phloat det_im);
 static int inv_c_completion2(int error, vartype_complexmatrix *a, int4 *perm,
                                 vartype_complexmatrix *b);
-static int small_inv_r(vartype_realmatrix *ma, void (*completion)(vartype *));
-static int small_inv_c(vartype_complexmatrix *ma, void (*completion)(vartype *));
 
 int linalg_inv(const vartype *src, void (*completion)(vartype *)) {
     int4 n;
