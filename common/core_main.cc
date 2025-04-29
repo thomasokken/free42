@@ -4975,11 +4975,6 @@ static synonym_spec hp41_synonyms[] =
     { "SST\16", true,  4, CMD_SST     },
     { "X>=0?",  false, 5, CMD_X_GE_0  },
     { "X>=Y?",  false, 5, CMD_X_GE_Y  },
-    { "S-N",    false, 3, CMD_S_TO_N  },
-    { "N-S",    false, 3, CMD_N_TO_S  },
-    { "NN-S",   false, 4, CMD_NN_TO_S },
-    { "C-N",    false, 3, CMD_C_TO_N  },
-    { "N-C",    false, 3, CMD_N_TO_C  },
     { "X<>?",   false, 4, CMD_X_NE_NN },
     { "X#?",    false, 3, CMD_X_NE_NN },
     { "X<=?",   false, 4, CMD_X_LE_NN },
@@ -4992,26 +4987,25 @@ static synonym_spec hp41_synonyms[] =
 };
 
 int find_builtin(const char *name, int namelen) {
-    int i, j;
-
-    for (i = 0; hp41_synonyms[i].cmd_id != CMD_NONE; i++) {
+    for (int i = 0; hp41_synonyms[i].cmd_id != CMD_NONE; i++) {
         if (namelen != hp41_synonyms[i].namelen)
             continue;
-        for (j = 0; j < namelen; j++)
+        for (int j = 0; j < namelen; j++)
             if (name[j] != hp41_synonyms[i].name[j])
                 goto nomatch1;
         return hp41_synonyms[i].cmd_id;
         nomatch1:;
     }
 
-    for (i = 0; true; i++) {
-        if (i == CMD_SENTINEL)
-            break;
+    int fuzzy_match = CMD_NONE;
+
+    for (int i = 0; i < CMD_SENTINEL; i++) {
         if ((cmd_array[i].flags & FLAG_HIDDEN) != 0)
             continue;
         if (cmd_array[i].name_length != namelen)
             continue;
-        for (j = 0; j < namelen; j++) {
+        bool exact = true;
+        for (int j = 0; j < namelen; j++) {
             unsigned char c1, c2;
             c1 = name[j];
             if (undefined_char(c1))
@@ -5024,12 +5018,18 @@ int find_builtin(const char *name, int namelen) {
             else if (c2 == 30)
                 c2 = 94;
             if (c1 != c2)
-                goto nomatch2;
+                if (c1 == '-' && c2 == '\17')
+                    exact = false;
+                else
+                    goto nomatch2;
         }
-        return i;
+        if (exact)
+            return i;
+        else
+            fuzzy_match = i;
         nomatch2:;
     }
-    return CMD_NONE;
+    return fuzzy_match;
 }
 
 void sst() {
