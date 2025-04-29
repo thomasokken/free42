@@ -41,13 +41,6 @@ extern "C" {
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
-typedef struct  __attribute__((packed)) {
-	void* args;
-	uint32_t result;
-	uint16_t command;
-} SystemCallData;
-
-extern SystemCallData systemCallData;
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/

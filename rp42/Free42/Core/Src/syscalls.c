@@ -30,6 +30,7 @@
 #include <sys/time.h>
 #include <sys/times.h>
 
+#include "rp/RP.hh"
 
 /* Variables */
 extern int __io_putchar(int ch) __attribute__((weak));
@@ -52,15 +53,17 @@ int _getpid(void)
 
 int _kill(int pid, int sig)
 {
-  (void)pid;
-  (void)sig;
-  errno = EINVAL;
+  if (pid == 1) {
+	  _exit(sig);
+	  return 0;
+  }
+
   return -1;
 }
 
 void _exit (int status)
 {
-  _kill(status, -1);
+  RP_EXIT(status);
   while (1) {}    /* Make sure we hang here */
 }
 

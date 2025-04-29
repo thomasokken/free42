@@ -3,6 +3,9 @@
 
 #include <algorithm>
 #include <string.h>
+#include <memory.h>
+#include <rp/RP.hh>
+#include <unistd.h>
 
 //#include <iostream>
 
@@ -43,9 +46,7 @@ void shell_message(char const*) {
 
 
 void shell_request_timeout3(int delay) {
-    systemCallData.command = 0x0041; // 0x0041 = delay until key press
-    systemCallData.args = (void*) delay; // delay in milliseconds
-    __asm__("SVC #0");
+	RP_DELAY_UNTIL(delay);
 }
 
 bool shell_wants_cpu() {
@@ -53,9 +54,7 @@ bool shell_wants_cpu() {
 }
 
 void shell_delay(int delay) {
-    systemCallData.command = 0x0040; // 0x0040 = delay
-    systemCallData.args = (void*) delay; // delay in milliseconds
-    __asm__("SVC #0");
+	RP_DELAY(delay);
 }
 
 const char* shell_number_format() {
@@ -96,16 +95,11 @@ void shell_blitter(char const* bits, int bytesperline, int x, int y, int width, 
         //std::cout << std::endl;
 	}
 
-	systemCallData.args = frame; // the frame array contains the bytes to draw to the LCD
-	systemCallData.command = 0x0012; // 0x0012 = DRAW_LCD
-	__asm__("SVC #0");
+	RP_DISPLAY_DRAW((uint8_t*)frame);
 }
 
 uint4 shell_milliseconds() {
-    systemCallData.command = 0x0042;
-    __asm("SVC #0");
-
-    return (uint4) systemCallData.result;
+	return RP_MILLIS();
 }
 
 void shell_beeper(int) {
@@ -113,7 +107,7 @@ void shell_beeper(int) {
 }
 
 uint8 shell_get_mem() {
-    return 1000;
+    return __get_PSP() - (uint32_t)sbrk(0);
 }
 
 void shell_print(char const* content, int length, char const*, int, int, int, int, int) {
@@ -123,10 +117,7 @@ void shell_print(char const* content, int length, char const*, int, int, int, in
 	memcpy(copy, content, length);
 	copy[length] = '\0';
 
-    systemCallData.command = 0x0050;
-    systemCallData.args = (void*) copy;
-
-    __asm("SVC #0");
+	RP_PASTE(copy);
 
     delete[] copy;
 }

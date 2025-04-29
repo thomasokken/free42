@@ -17,6 +17,7 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#include <rp/RP.hh>
 #include "main.h"
 #include "spi.h"
 #include "gpio.h"
@@ -33,7 +34,6 @@
 //extern uint32_t __attribute__((section("SYS_FUNC"))) (*sys_func)(uint32_t command, void* args);
 //uint64_t (*system_call_data)(uint16_t, void*) = 0x20000000;
 
-SystemCallData __attribute__((section(".SYS_CALL_DATA"))) systemCallData;
 
 //int Scan_Keyboard(void);
 //void Basic_Hardware_Test();
@@ -77,9 +77,7 @@ bool enqueued = false;
 int repeat = 0;
 
 void update_lcd() {
-	systemCallData.args = frame; // the frame array contains the bytes to draw to the LCD
-	systemCallData.command = 0x0012; // 0x0012 = DRAW_LCD
-	__asm__("SVC #0");
+	RP_DISPLAY_DRAW(frame);
 	//__asm__("SVC #0"); // perform the sys call
 	// DRAW_LCD has no return value, so nothing is needed afterward
 	//frame[0] ^= 0xff;
@@ -161,9 +159,7 @@ int main(void)
 	  if (key == 254) key = key_queue[kqri++];*/
 	  //uint8_t key = (uint8_t) sys_func(0x0002, 0);
 	  while (1) {
-		  systemCallData.command = 0x0002;
-		  __asm__("SVC #0");
-		  uint8_t key = (uint8_t) systemCallData.result;
+		  char key = RP_WA_KEY();
 		  // read all keys before redrawing
 
 		  if (key == 255) {
@@ -184,13 +180,6 @@ int main(void)
 
 		  //update_lcd();
 
-	  }
-
-	  uint8_t key = systemCallData.result;
-	  if (key != 255) keydown = true;
-	  if (key == 255) core_keyup();
-	  else {
-		  core_keydown(key, enqueued, repeat);
 	  }
 
 	  //frame_ready = true;
