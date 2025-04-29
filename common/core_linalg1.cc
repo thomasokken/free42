@@ -290,29 +290,37 @@ static int matrix_mul_rc(vartype_realmatrix *left, vartype_complexmatrix *right,
 static int matrix_mul_cc(vartype_complexmatrix *left, vartype_complexmatrix *right, int (*completion)(int, vartype *));
 
 static vartype *small_div_res;
+static int (*small_div_completion)(int, vartype *);
 
-static void small_div_completion(vartype *v) {
+static void small_div_completion_1(vartype *v) {
     small_div_res = v;
+}
+
+static int small_div_completion_2(int err, vartype *v) {
+    free_vartype(small_div_res);
+    return small_div_completion(err, v);
 }
 
 static int small_div(const vartype *left, const vartype *right, int (*completion)(int, vartype *)) {
     int err;
     if (right->type == TYPE_REALMATRIX) {
-        err = small_inv_r((vartype_realmatrix *) right, small_div_completion);
+        err = small_inv_r((vartype_realmatrix *) right, small_div_completion_1);
         if (err != ERR_NONE)
             return completion(err, NULL);
+        small_div_completion = completion;
         if (left->type == TYPE_REALMATRIX)
-            return matrix_mul_rr((vartype_realmatrix *) small_div_res, (vartype_realmatrix *) left, completion);
+            return matrix_mul_rr((vartype_realmatrix *) small_div_res, (vartype_realmatrix *) left, small_div_completion_2);
         else
-            return matrix_mul_rc((vartype_realmatrix *) small_div_res, (vartype_complexmatrix *) left, completion);
+            return matrix_mul_rc((vartype_realmatrix *) small_div_res, (vartype_complexmatrix *) left, small_div_completion_2);
     } else {
-        err = small_inv_c((vartype_complexmatrix *) right, small_div_completion);
+        err = small_inv_c((vartype_complexmatrix *) right, small_div_completion_1);
         if (err != ERR_NONE)
             return completion(err, NULL);
+        small_div_completion = completion;
         if (left->type == TYPE_REALMATRIX)
-            return matrix_mul_cr((vartype_complexmatrix *) small_div_res, (vartype_realmatrix *) left, completion);
+            return matrix_mul_cr((vartype_complexmatrix *) small_div_res, (vartype_realmatrix *) left, small_div_completion_2);
         else
-            return matrix_mul_cc((vartype_complexmatrix *) small_div_res, (vartype_complexmatrix *) left, completion);
+            return matrix_mul_cc((vartype_complexmatrix *) small_div_res, (vartype_complexmatrix *) left, small_div_completion_2);
     }
 }
 
