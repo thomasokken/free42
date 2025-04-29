@@ -1,3 +1,18 @@
+2025-04-29: release 3.3.3
+
+* BASE menu: Implemented SLN, SRN, and ASRN. These functions are can be typed
+  as Shift-SL, Shift-SR, and Shift-ASR, respectively, and RJ can now be typed
+  as Shift-LJ.
+* More accurate DET, INVRT, and matrix division for 2x2 matrices.
+* When spelling out built-in function names, '-' is now accepted as an
+  alternative for '→', to make conversion functions easier to type.
+* Menu keys that execute different functions when pressed with Shift now show
+  their alternate function while Shift is active. (This behavior can be
+  disabled and enabled using the new STATIC and DYNAMIC settings in the new
+  MENUS submenu of the MODES menu.)
+* Decimal version: BS→N and BD→N were rounding their results to 16 digits.
+  Fixed.
+
 2025-04-25: release 3.3.2
 
 * RLN, RRN, RLCN, and RRCN did not drop the stack. Fixed.
