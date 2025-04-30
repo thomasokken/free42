@@ -24,7 +24,7 @@ int linalg_div(const vartype *left, const vartype *right,
                              int (*completion)(int, vartype *));
 int linalg_mul(const vartype *left, const vartype *right,
                              int (*completion)(int, vartype *));
-int linalg_inv(const vartype *src, void (*completion)(vartype *));
-int linalg_det(const vartype *src, void (*completion)(vartype *));
+int linalg_inv(const vartype *src, int (*completion)(int, vartype *));
+int linalg_det(const vartype *src, int (*completion)(int, vartype *));
 
 #endif

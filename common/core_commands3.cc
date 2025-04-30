@@ -602,8 +602,10 @@ int docmd_delr(arg_struct *arg) {
     return ERR_NONE;
 }
 
-static void det_completion(vartype *det) {
-    unary_result(det);
+static int det_completion(int error, vartype *det) {
+    if (error == ERR_NONE)
+        unary_result(det);
+    return error;
 }
 
 int docmd_det(arg_struct *arg) {
