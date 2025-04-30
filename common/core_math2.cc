@@ -366,27 +366,39 @@ int math_sqrt(phloat xre, phloat xim, phloat *yre, phloat *yim) {
 int math_inv(phloat xre, phloat xim, phloat *yre, phloat *yim) {
     phloat r, t, rre, rim;
     int inf;
-    if (xre == 0 && xim == 0)
-        return ERR_DIVIDE_BY_0;
-    if (fabs(xim) <= fabs(xre)) {
-        r = xim / xre;
-        t = 1 / (xre + xim * r);
-        if (r == 0) {
-            rre = t;
-            rim = -xim * (1 / xre) * t;
-        } else {
-            rre = t;
-            rim = -r * t;
+    if (xre == 0) {
+        if (xim == 0)
+            return ERR_DIVIDE_BY_0;
+        else {
+            rre = 0;
+            rim = -1 / xim;
         }
     } else {
-        r = xre / xim;
-        t = 1 / (xre * r + xim);
-        if (r == 0) {
-            rre = xre * (1 / xim) * t;
-            rim = -t;
+        if (xim == 0) {
+            rre = 1 / xre;
+            rim = 0;
         } else {
-            rre = r * t;
-            rim = -t;
+            if (fabs(xim) <= fabs(xre)) {
+                r = xim / xre;
+                t = 1 / (xre + xim * r);
+                if (r == 0) {
+                    rre = t;
+                    rim = -xim * (1 / xre) * t;
+                } else {
+                    rre = t;
+                    rim = -r * t;
+                }
+            } else {
+                r = xre / xim;
+                t = 1 / (xre * r + xim);
+                if (r == 0) {
+                    rre = xre * (1 / xim) * t;
+                    rim = -t;
+                } else {
+                    rre = r * t;
+                    rim = -t;
+                }
+            }
         }
     }
     inf = p_isinf(rre);
