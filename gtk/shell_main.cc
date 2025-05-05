@@ -2774,13 +2774,13 @@ static gboolean print_key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
     return TRUE;
 }
 
-static void shell_keydown() {
+static void shell_keydown(bool cshift) {
     GdkWindow *win = gtk_widget_get_window(calc_widget);
 
     int repeat;
     bool keep_running;
     if (skey == -1)
-        skey = skin_find_skey(ckey);
+        skey = skin_find_skey(ckey, cshift);
     skin_invalidate_key(win, skey);
     if (timeout3_id != 0 && (macro != NULL || ckey != 28 /* KEY_SHIFT */)) {
         g_source_remove(timeout3_id);
@@ -2865,7 +2865,7 @@ static gboolean button_cb(GtkWidget *w, GdkEventButton *event, gpointer cd) {
             skin_find_key(x, y, ann_shift != 0, &skey, &ckey);
             if (ckey != 0) {
                 macro = skin_find_macro(ckey, &macro_type);
-                shell_keydown();
+                shell_keydown(ann_shift != 0);
                 mouse_key = true;
             }
         }
@@ -2937,7 +2937,7 @@ static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
                         ckey = 1024 + c;
                         skey = -1;
                         macro = NULL;
-                        shell_keydown();
+                        shell_keydown(false);
                         mouse_key = false;
                         active_keycode = event->hardware_keycode;
                         return TRUE;
@@ -2949,7 +2949,7 @@ static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
                             ckey = c - 'A' + 1;
                         skey = -1;
                         macro = NULL;
-                        shell_keydown();
+                        shell_keydown(false);
                         mouse_key = false;
                         active_keycode = event->hardware_keycode;
                         return TRUE;
@@ -2971,7 +2971,7 @@ static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
                                 ckey = which;
                                 skey = -1;
                                 macro = NULL;
-                                shell_keydown();
+                                shell_keydown(false);
                                 mouse_key = false;
                                 active_keycode = event->hardware_keycode;
                                 return TRUE;
@@ -2991,11 +2991,14 @@ static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
                 // means no skin key will be highlighted.
                 ckey = -10;
                 skey = -1;
+                bool skin_shift = cshift;
                 if (key_macro[0] != 0)
                     if (key_macro[1] == 0)
                         ckey = key_macro[0];
-                    else if (key_macro[2] == 0 && key_macro[0] == 28)
+                    else if (key_macro[2] == 0 && key_macro[0] == 28) {
                         ckey = key_macro[1];
+                        skin_shift = true;
+                    }
                 bool needs_expansion = false;
                 for (int j = 0; key_macro[j] != 0; j++)
                     if (key_macro[j] > 37) {
@@ -3022,7 +3025,7 @@ static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
                     macro = key_macro;
                     macro_type = 0;
                 }
-                shell_keydown();
+                shell_keydown(skin_shift);
                 mouse_key = false;
                 active_keycode = event->hardware_keycode;
             }
@@ -3034,7 +3037,7 @@ static gboolean key_cb(GtkWidget *w, GdkEventKey *event, gpointer cd) {
                 ckey = 28;
                 skey = -1;
                 macro = NULL;
-                shell_keydown();
+                shell_keydown(false);
                 shell_keyup();
             }
         } else {

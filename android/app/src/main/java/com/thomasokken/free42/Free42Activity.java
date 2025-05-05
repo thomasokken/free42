@@ -1571,13 +1571,13 @@ public class Free42Activity extends Activity {
             skin.repaint(canvas, shortcutsShowing);
         }
 
-        private void shell_keydown() {
+        private void shell_keydown(boolean cshift) {
             if (timeout3_active && (macroObj != null || ckey != 28 /* SHIFT */)) {
                 cancelTimeout3();
                 core_timeout3(false);
             }
             if (skey == -1)
-                skey = skin.find_skey(ckey);
+                skey = skin.find_skey(ckey, cshift);
             Rect inval = skin.set_active_key(skey);
             if (inval != null)
                 invalidateScaled(inval);
@@ -1682,7 +1682,8 @@ public class Free42Activity extends Activity {
                     macroObj = arr[0];
                     macroIsText = (Boolean) arr[1];
                 }
-                shell_keydown();
+                boolean cshift = skin.getAnnunciators()[1];
+                shell_keydown(cshift);
                 mouse_key = true;
             } else {
                 shell_keyup(e);
@@ -1798,7 +1799,7 @@ public class Free42Activity extends Activity {
                         ckey = 1024 + ch;
                         skey = -1;
                         macroObj = null;
-                        shell_keydown();
+                        shell_keydown(false);
                         mouse_key = false;
                         active_keycode = keyCode;
                         return true;
@@ -1810,7 +1811,7 @@ public class Free42Activity extends Activity {
                             ckey = ch - 'A' + 1;
                         skey = -1;
                         macroObj = null;
-                        shell_keydown();
+                        shell_keydown(false);
                         mouse_key = false;
                         active_keycode = keyCode;
                         return true;
@@ -1830,7 +1831,7 @@ public class Free42Activity extends Activity {
                                 ckey = which;
                                 skey = -1;
                                 macroObj = null;
-                                shell_keydown();
+                                shell_keydown(false);
                                 mouse_key = false;
                                 active_keycode = keyCode;
                                 return true;
@@ -1852,11 +1853,14 @@ public class Free42Activity extends Activity {
             // means no skin key will be highlighted.
             ckey = -10;
             skey = -1;
+            boolean skin_shift = cshift;
             if (key_macro.length > 0)
                 if (key_macro.length == 1)
                     ckey = key_macro[0];
-                else if (key_macro.length == 2 && key_macro[0] == 28)
+                else if (key_macro.length == 2 && key_macro[0] == 28) {
                     ckey = key_macro[1];
+                    skin_shift = true;
+                }
             boolean needs_expansion = false;
             for (int j = 0; j < key_macro.length; j++)
                 if ((key_macro[j] & 255) > 37) {
@@ -1894,7 +1898,7 @@ public class Free42Activity extends Activity {
             } else {
                 macroObj = key_macro;
             }
-            shell_keydown();
+            shell_keydown(skin_shift);
             mouse_key = false;
             active_keycode = keyCode;
             return true;
@@ -1910,7 +1914,7 @@ public class Free42Activity extends Activity {
                 ckey = 28;
                 skey = -1;
                 macroObj = null;
-                shell_keydown();
+                shell_keydown(false);
                 shell_keyup(null);
                 return true;
             } else if (!mouse_key && event.getKeyCode() == active_keycode) {
@@ -1943,7 +1947,7 @@ public class Free42Activity extends Activity {
             ckey = 1024 + c;
             skey = -1;
             macroObj = null;
-            shell_keydown();
+            shell_keydown(false);
             mouse_key = false;
             active_keycode = -1;
         }
@@ -1964,7 +1968,7 @@ public class Free42Activity extends Activity {
             skey = -1;
             macroObj = macro;
             macroIsText = false;
-            shell_keydown();
+            shell_keydown(false);
             mouse_key = false;
             active_keycode = -1;
         }

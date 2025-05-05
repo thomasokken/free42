@@ -1012,12 +1012,15 @@ void skin_find_key(int x, int y, bool cshift, int *skey, int *ckey) {
     *ckey = 0;
 }
 
-int skin_find_skey(int ckey) {
-    int i;
-    for (i = 0; i < nkeys; i++)
+int skin_find_skey(int ckey, bool cshift) {
+    int fuzzy_match = -1;
+    for (int i = 0; i < nkeys; i++)
         if (keylist[i].code == ckey || keylist[i].shifted_code == ckey)
-            return i;
-    return -1;
+            if ((cshift ? keylist[i].shifted_code : keylist[i].code) == ckey)
+                return i;
+            else if (fuzzy_match == -1)
+                fuzzy_match = i;
+    return fuzzy_match;
 }
 
 unsigned char *skin_find_macro(int ckey, int *type) {

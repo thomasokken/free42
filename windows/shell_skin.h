@@ -54,7 +54,7 @@ void skin_finish_image();
 void skin_repaint(bool shortcuts);
 void skin_invalidate_annunciator(int which);
 void skin_find_key(int x, int y, bool cshift, int *skey, int *ckey);
-int skin_find_skey(int ckey);
+int skin_find_skey(int ckey, bool cshift);
 unsigned char *skin_find_macro(int ckey, int *type);
 unsigned char *skin_keymap_lookup(int keycode, bool ctrl, bool alt, bool extended, bool shift, bool cshift, bool *exact);
 void skin_invalidate_key(int key);

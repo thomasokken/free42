@@ -42,7 +42,7 @@
 
 
 static void quit2(bool really_quit);
-static void shell_keydown();
+static void shell_keydown(bool cshift);
 static void shell_keyup();
 static void calc_keydown(NSString *characters, long flags, int keycode);
 static void calc_keyup(NSString *characters, long flags, int keycode);
@@ -301,7 +301,7 @@ static CGPoint touchPoint;
         } else {
             [self keyFeedback2];
             macro = skin_find_macro(ckey, &macro_type);
-            shell_keydown();
+            shell_keydown(ann_shift != 0);
             mouse_key = true;
         }
     }
@@ -608,7 +608,7 @@ static struct timeval runner_end_time;
     ckey = 1024 + code;
     skey = -1;
     macro = NULL;
-    shell_keydown();
+    shell_keydown(false);
     mouse_key = false;
     active_keycode = -1;
 }
@@ -628,7 +628,7 @@ static struct timeval runner_end_time;
     skey = -1;
     macro = macrobuf;
     macro_type = 0;
-    shell_keydown();
+    shell_keydown(false);
     mouse_key = false;
     active_keycode = -1;
 }
@@ -1024,10 +1024,10 @@ static void quit2(bool really_quit) {
     }
 }
 
-static void shell_keydown() {
+static void shell_keydown(bool cshift) {
     int repeat;
     if (skey == -1)
-        skey = skin_find_skey(ckey);
+        skey = skin_find_skey(ckey, cshift);
     skin_set_pressed_key(skey, calcView);
     if (timeout3_active && (macro != NULL || ckey != 28 /* KEY_SHIFT */)) {
         [calcView cancelTimeout3];
@@ -1224,7 +1224,7 @@ static void calc_keydown(NSString *characters, long flags, int keycode) {
                 ckey = 1024 + c;
                 skey = -1;
                 macro = NULL;
-                shell_keydown();
+                shell_keydown(false);
                 mouse_key = false;
                 active_keycode = keycode;
                 return;
@@ -1236,7 +1236,7 @@ static void calc_keydown(NSString *characters, long flags, int keycode) {
                     ckey = c - 'A' + 1;
                 skey = -1;
                 macro = NULL;
-                shell_keydown();
+                shell_keydown(false);
                 mouse_key = false;
                 active_keycode = keycode;
                 return;
@@ -1256,7 +1256,7 @@ static void calc_keydown(NSString *characters, long flags, int keycode) {
                         ckey = which;
                         skey = -1;
                         macro = NULL;
-                        shell_keydown();
+                        shell_keydown(false);
                         mouse_key = false;
                         active_keycode = keycode;
                         return;
@@ -1276,11 +1276,14 @@ static void calc_keydown(NSString *characters, long flags, int keycode) {
         // means no skin key will be highlighted.
         ckey = -10;
         skey = -1;
+        bool skin_shift = cshift;
         if (key_macro[0] != 0)
             if (key_macro[1] == 0)
                 ckey = key_macro[0];
-            else if (key_macro[2] == 0 && key_macro[0] == 28)
+            else if (key_macro[2] == 0 && key_macro[0] == 28) {
                 ckey = key_macro[1];
+                skin_shift = true;
+            }
         bool needs_expansion = false;
         for (int j = 0; key_macro[j] != 0; j++)
             if (key_macro[j] > 37) {
@@ -1307,7 +1310,7 @@ static void calc_keydown(NSString *characters, long flags, int keycode) {
             macro = key_macro;
             macro_type = 0;
         }
-        shell_keydown();
+        shell_keydown(skin_shift);
         mouse_key = false;
         active_keycode = keycode;
 //    } else {
@@ -1324,7 +1327,7 @@ static void calc_keyup(NSString *characters, long flags, int keycode) {
         ckey = 28;
         skey = -1;
         macro = NULL;
-        shell_keydown();
+        shell_keydown(false);
         shell_keyup();
     } else if (!mouse_key && keycode == active_keycode) {
         shell_keyup();

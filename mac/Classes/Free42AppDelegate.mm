@@ -99,7 +99,7 @@ static void read_key_map(const char *keymapfilename);
 static void init_shell_state(int4 ver);
 static int read_shell_state(int4 *ver);
 static int write_shell_state();
-static void shell_keydown();
+static void shell_keydown(bool cshift);
 static void shell_keyup();
 
 static void txt_writer(const char *text, int length);
@@ -1169,10 +1169,10 @@ static char version[32] = "";
 
 @end
 
-static void shell_keydown() {
+static void shell_keydown(bool cshift) {
     int repeat;
     if (skey == -1)
-        skey = skin_find_skey(ckey);
+        skey = skin_find_skey(ckey, cshift);
     skin_set_pressed_key(skey);
     if (timeout3_active && (macro != NULL || ckey != 28 /* KEY_SHIFT */)) {
         [instance cancelTimeout3];
@@ -1264,7 +1264,7 @@ void calc_mousedown(int x, int y) {
         skin_find_key(x, y, ann_shift != 0, &skey, &ckey);
         if (ckey != 0) {
             macro = skin_find_macro(ckey, &macro_type);
-            shell_keydown();
+            shell_keydown(ann_shift != 0);
             mouse_key = 1;
         }
     }
@@ -1355,7 +1355,7 @@ void calc_keydown(NSString *characters, NSUInteger flags, unsigned short keycode
                 ckey = 1024 + c;
                 skey = -1;
                 macro = NULL;
-                shell_keydown();
+                shell_keydown(false);
                 mouse_key = 0;
                 active_keycode = keycode;
                 return;
@@ -1367,7 +1367,7 @@ void calc_keydown(NSString *characters, NSUInteger flags, unsigned short keycode
                     ckey = c - 'A' + 1;
                 skey = -1;
                 macro = NULL;
-                shell_keydown();
+                shell_keydown(false);
                 mouse_key = 0;
                 active_keycode = keycode;
                 return;
@@ -1387,7 +1387,7 @@ void calc_keydown(NSString *characters, NSUInteger flags, unsigned short keycode
                         ckey = which;
                         skey = -1;
                         macro = NULL;
-                        shell_keydown();
+                        shell_keydown(false);
                         mouse_key = 0;
                         active_keycode = keycode;
                         return;
@@ -1407,11 +1407,14 @@ void calc_keydown(NSString *characters, NSUInteger flags, unsigned short keycode
         // means no skin key will be highlighted.
         ckey = -10;
         skey = -1;
+        bool skin_shift = cshift;
         if (key_macro[0] != 0)
             if (key_macro[1] == 0)
                 ckey = key_macro[0];
-            else if (key_macro[2] == 0 && key_macro[0] == 28)
+            else if (key_macro[2] == 0 && key_macro[0] == 28) {
                 ckey = key_macro[1];
+                skin_shift = true;
+            }
         bool needs_expansion = false;
         for (int j = 0; key_macro[j] != 0; j++)
             if (key_macro[j] > 37) {
@@ -1438,7 +1441,7 @@ void calc_keydown(NSString *characters, NSUInteger flags, unsigned short keycode
             macro = key_macro;
             macro_type = 0;
         }
-        shell_keydown();
+        shell_keydown(skin_shift);
         mouse_key = 0;
         active_keycode = keycode;
     }
@@ -1468,7 +1471,7 @@ void calc_keymodifierschanged(NSUInteger flags) {
             ckey = 28;
             skey = -1;
             macro = NULL;
-            shell_keydown();
+            shell_keydown(false);
             shell_keyup();
         }
     }
