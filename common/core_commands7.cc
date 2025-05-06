@@ -1153,6 +1153,8 @@ int docmd_putmi(arg_struct *arg) {
         return ERR_DIMENSION_ERROR;
     if (!dim_to_int4(stack[sp - 1], &col) || col >= cols)
         return ERR_DIMENSION_ERROR;
+    if (!disentangle(v))
+        return ERR_INSUFFICIENT_MEMORY;
 
     int4 n = row * cols + col;
     if (v->type == TYPE_REALMATRIX) {
