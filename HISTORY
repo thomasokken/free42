@@ -1,3 +1,11 @@
+2025-05-06: release 3.3.4
+
+* Fixed handling of shared matrices in PUTMI.
+* Fixed handling of subnormal complex numbers in 1/X.
+* Added SLN, SRN, and ASRN to CATALOG->BASE.
+* Fixed skin key highlighting for hardware keyboard keystrokes, when using
+  certain skins with complicated key mappings.
+
 2025-04-29: release 3.3.3
 
 * BASE menu: Implemented SLN, SRN, and ASRN. These functions are can be typed
