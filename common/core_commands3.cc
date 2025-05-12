@@ -1033,22 +1033,28 @@ static int mappable_e_pow_x_1_r(phloat x, phloat *y) {
 }
 
 static int mappable_e_pow_x_1_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
-    phloat k = expm1(xre);
-    phloat t = xim;
-    phloat s = sin(t);
-    t = sin(t / 2);
-    t = -2 * t * t;
-    s *= k + 1;
-    if (-t > fabs(k))
-        *yre = k + k * t + t;
-    else
-        *yre = t + k * t + k;
-    *yim = s;
-    if (p_isinf(*yre) || p_isinf(*yim)) {
-        if (flags.f.range_error_ignore) {
-            *yre = p_isnan(*yre) ? 0 : *yre < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
-            *yim = p_isnan(*yim) ? 0 : *yim < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
-        } else
+    phloat s, c;
+    p_sincos(xim / 2, &s, &c);
+    phloat y = exp(xre);
+    phloat k = y - 1 - y * (log(y) - xre); /* expm1(x) */
+    phloat t = -2 * s * s;      /* -versin(Imag(z)) */
+    y *= 2 * s * c;             /* Imag(expm1(z)) */
+    c = k * t;                  /* e^z = (1+k) * (1+t) + y*I */
+    s = c + k;
+    c = c - (s - k);            /* k*t + k = s + c */
+    s = s + (c + t);            /* Real(expm1(z)) */
+    *yre = s;
+    *yim = y;
+    if (p_isinf(*yre)) {
+        if (flags.f.range_error_ignore)
+            *yre = *yre < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
+        else
+            return ERR_OUT_OF_RANGE;
+    }
+    if (p_isinf(*yim)) {
+        if (flags.f.range_error_ignore)
+            *yim = *yim < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
+        else
             return ERR_OUT_OF_RANGE;
     }
     return ERR_NONE;
