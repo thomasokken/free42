@@ -1033,13 +1033,12 @@ static int mappable_e_pow_x_1_r(phloat x, phloat *y) {
 }
 
 static int mappable_e_pow_x_1_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
-    phloat s, c;
-    p_sincos(xim / 2, &s, &c);
+    phloat s = sin(xim / 2);
     phloat y = exp(xre);
     phloat k = y - 1 - y * (log(y) - xre); /* expm1(x) */
     phloat t = -2 * s * s;      /* -versin(Imag(z)) */
-    y *= 2 * s * c;             /* Imag(expm1(z)) */
-    c = k * t;                  /* e^z = (1+k) * (1+t) + y*I */
+    y *= sin(xim);
+    phloat c = k * t;           /* e^z = (1+k) * (1+t) + y*I */
     s = c + k;
     c = c - (s - k);            /* k*t + k = s + c */
     s = s + (c + t);            /* Real(expm1(z)) */
