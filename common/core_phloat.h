@@ -45,7 +45,6 @@
 #define p_isinf(x) (isinf(x) ? (x) > 0 ? 1 : -1 : 0)
 #define p_isnan isnan
 #define p_isnormal isnormal
-#define p_sincos(x, s, c) { *(s) = sin(x); *(c) = cos(x); }
 #define to_digit(x) ((int) fmod((x), 10.0))
 #define to_char(x) ((char) (x))
 #define to_int(x) ((int) (x))
@@ -53,6 +52,12 @@
 #define to_int8(x) ((int8) (x))
 #define to_uint8(x) ((uint8) (x))
 #define to_double(x) ((double) (x))
+
+#ifdef HAVE_SINCOS
+#define p_sincos sincos
+#else
+#define p_sincos(x, s, c) { *(s) = sin(x); *(c) = cos(x); }
+#endif
 
 #define PI 3.1415926535897932384626433
 #define P 7
