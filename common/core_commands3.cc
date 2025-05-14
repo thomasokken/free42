@@ -1033,17 +1033,11 @@ static int mappable_e_pow_x_1_r(phloat x, phloat *y) {
 }
 
 static int mappable_e_pow_x_1_c(phloat xre, phloat xim, phloat *yre, phloat *yim) {
+    phloat x = xre;
+    phloat y = exp(x);
     phloat s = sin(xim / 2);
-    phloat y = exp(xre);
-    phloat k = y - 1 - y * (log(y) - xre); /* expm1(x) */
-    phloat t = -2 * s * s;      /* -versin(Imag(z)) */
-    y *= sin(xim);
-    phloat c = k * t;           /* e^z = (1+k) * (1+t) + y*I */
-    s = c + k;
-    c = c - (s - k);            /* k*t + k = s + c */
-    s = s + (c + t);            /* Real(expm1(z)) */
-    *yre = s;
-    *yim = y;
+    *yre = y - 1 - y * (log(y) - x + 2 * s * s);
+    *yim = y * sin(xim);
     if (p_isinf(*yre)) {
         if (flags.f.range_error_ignore)
             *yre = *yre < 0 ? NEG_HUGE_PHLOAT : POS_HUGE_PHLOAT;
