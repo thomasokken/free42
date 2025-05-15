@@ -33,16 +33,19 @@ SystemCallData __attribute__((section(".SYS_CALL_DATA"))) systemCallData;
 #define DELAY_UNTIL     0x0041
 #define MILLIS          0x0042
 #define PASTE           0x0050
+
 #define FOPEN           0x0100
 #define FCLOSE          0x0101
 #define FREAD           0x0110
 #define FWRITE          0x0111
 #define FSEEK           0x0112
+#define FSTAT           0x0113
+#define STAT            0x0114
 #define FLIST           0x0120
 #define FUNLINK         0x0121
 #define FRENAME         0x0122
-#define MKDIR           0x0121
-#define RMDIR           0x0122
+#define MKDIR           0x0123
+#define RMDIR           0x0124
 
 #define PRINT_SUCCESS 0
 #define PRINT_FAIL 1
@@ -105,7 +108,7 @@ void RP_DISPLAY_OFF() {
 
 	__asm volatile("SVC #0");
 }
-void RP_DISPLAY_DRAW(uint8_t* buf) {
+void RP_DISPLAY_DRAW(char* buf) {
 	systemCallData.command = DRAW_LCD;
 	systemCallData.args = buf;
 
@@ -219,7 +222,7 @@ uint32_t RP_FOPEN(RP_FILE* handle, const char* filename, unsigned char flags) {
 	return systemCallData.result;
 }
 
-uint32_t RP_FCLOSE(RP_FILE* handle) {
+uint32_t RP_FCLOSE(RP_FILE handle) {
 	systemCallData.command = FCLOSE;
 	systemCallData.args = (void*) handle;
 
@@ -228,7 +231,7 @@ uint32_t RP_FCLOSE(RP_FILE* handle) {
 	return systemCallData.result;
 }
 
-uint32_t RP_FREAD(RP_FILE* handle, char* buff, uint32_t len, uint32_t* bytesRead) {
+uint32_t RP_FREAD(RP_FILE handle, char* buff, uint32_t len, uint32_t* bytesRead) {
 	struct {
 		uint32_t handle;
 		uint32_t bytesRead;
@@ -236,7 +239,7 @@ uint32_t RP_FREAD(RP_FILE* handle, char* buff, uint32_t len, uint32_t* bytesRead
 		uint32_t len;
 	} buffer;
 
-	buffer.handle = *handle;
+	buffer.handle = handle;
 	buffer.buf = buff;
 	buffer.len = len;
 
@@ -249,7 +252,7 @@ uint32_t RP_FREAD(RP_FILE* handle, char* buff, uint32_t len, uint32_t* bytesRead
 	return systemCallData.result;
 }
 
-uint32_t RP_FWRITE(RP_FILE* handle, const char* buff, uint32_t len, uint32_t* bytesWritten) {
+uint32_t RP_FWRITE(RP_FILE handle, const char* buff, uint32_t len, uint32_t* bytesWritten) {
 	struct {
 		uint32_t handle;
 		uint32_t bytesWritten;
@@ -257,7 +260,7 @@ uint32_t RP_FWRITE(RP_FILE* handle, const char* buff, uint32_t len, uint32_t* by
 		uint32_t len;
 	} buffer;
 
-	buffer.handle = *handle;
+	buffer.handle = handle;
 	buffer.buf = buff;
 	buffer.len = len;
 
@@ -269,14 +272,16 @@ uint32_t RP_FWRITE(RP_FILE* handle, const char* buff, uint32_t len, uint32_t* by
 
 	return systemCallData.result;
 }
-uint32_t RP_FSEEK(RP_FILE* handle, uint32_t offset) {
+uint32_t RP_FSEEK(RP_FILE handle, uint32_t offset, uint32_t dir) {
 	struct {
 		uint32_t handle;
 		uint32_t offset;
+		uint32_t dir;
 	} args;
 
-	args.handle = *handle;
+	args.handle = handle;
 	args.offset = offset;
+	args.dir = dir;
 
 	systemCallData.command = FSEEK;
 	systemCallData.args = &args;
@@ -285,6 +290,41 @@ uint32_t RP_FSEEK(RP_FILE* handle, uint32_t offset) {
 
 	return systemCallData.result;
 }
+
+uint32_t RP_STAT(const char* path, struct stat* stat) {
+	struct {
+		const char* path;
+		struct stat* stat;
+	} args;
+
+	args.stat = stat;
+	args.path = path;
+
+	systemCallData.command = STAT;
+	systemCallData.args = &args;
+
+	__asm volatile("SVC #0");
+
+	return systemCallData.result;
+}
+
+uint32_t RP_FSTAT(RP_FILE handle, struct stat* stat) {
+	struct {
+		int handle;
+		struct stat* stat;
+	} args;
+
+	args.stat = stat;
+	args.handle = handle;
+
+	systemCallData.command = FSTAT;
+	systemCallData.args = &args;
+
+	__asm volatile("SVC #0");
+
+	return systemCallData.result;
+}
+
 uint32_t RP_FLIST(const char* folder, char** file_list) {
 
 }

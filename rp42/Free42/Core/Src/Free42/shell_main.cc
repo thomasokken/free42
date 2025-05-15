@@ -35,6 +35,7 @@ void shell_get_time_date(unsigned int*, unsigned int*, int*) {
 }
 
 void shell_powerdown() {
+	core_save_state("0:/Free42/free42.dat");
     systemCallData.command = 0x0020; // 0x0012 = POWER_DOWN
     __asm__("SVC #0");
 }
@@ -95,7 +96,7 @@ void shell_blitter(char const* bits, int bytesperline, int x, int y, int width, 
         //std::cout << std::endl;
 	}
 
-	RP_DISPLAY_DRAW((uint8_t*)frame);
+	RP_DISPLAY_DRAW((char*)frame);
 }
 
 uint4 shell_milliseconds() {
@@ -155,6 +156,6 @@ void skin_finish_image() {
 
 
 void shell_annunciators(int updn, int shf, int prt, int run, int g, int rad) {
-	if (shf) frame[131] = 0xff;
-	else frame[131] = 0x00;
+	if (shf) frame[131] = 0xff; else frame[131] = 0x00;
+	RP_DISPLAY_DRAW((char*) frame);
 }

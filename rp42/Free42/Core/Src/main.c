@@ -25,6 +25,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdbool.h>
+#include <stdlib.h>
 
 #include "core_main.h"
 #include "shell_main.h"
@@ -132,7 +133,8 @@ int main(void)
   // while interrupt handlers are being copied into RAM
   //__enable_irq();
 
-  core_init(0, 1, "", 0);
+  RP_MKDIR("0:/Free42");
+  core_init(1, 1, "0:/Free42/free42.dat", 0);
   update_lcd();
   //ROW0_GPIO_Port->BSRR = ROW0_Pin|ROW1_Pin|ROW2_Pin|ROW3_Pin|ROW4_Pin|ROW5_Pin|ROW6_Pin;
 
@@ -140,7 +142,6 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  bool keydown = false;
   bool* enqueued = (bool*) malloc(sizeof(bool));
   int* repeat = (int*) malloc(sizeof(int));
   while (1)
@@ -165,17 +166,14 @@ int main(void)
 		  if (key == 255) {
 			//if (!*enqueued) core_keyup();
 
-			  keydown = false;
 		  } else {
 			  if (core_keydown(key, enqueued, repeat)) {
-				  while (core_keydown(0, &enqueued, &repeat)) continue;
+				  while (core_keydown(0, enqueued, repeat)) continue;
 			  }
 
-			  while (program_running()) core_keydown(0, &enqueued, &repeat);
+			  while (program_running()) core_keydown(0, enqueued, repeat);
 
 			  core_keyup();
-
-			  keydown = true;
 		  }
 
 		  //update_lcd();

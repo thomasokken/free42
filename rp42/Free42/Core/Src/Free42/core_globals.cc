@@ -3669,6 +3669,7 @@ bool write_arg(const arg_struct *arg) {
 }
 
 static bool load_state2(bool *clear, bool *too_new) {
+
     int4 magic;
     int4 version;
     *clear = false;
@@ -3677,7 +3678,6 @@ static bool load_state2(bool *clear, bool *too_new) {
     /* The shell has verified the initial magic and version numbers,
      * and loaded the shell state, before we got called.
      */
-
     if (!read_int4(&magic))
         return false;
     if (magic != FREE42_MAGIC)
@@ -3729,15 +3729,20 @@ static bool load_state2(bool *clear, bool *too_new) {
 
     if (!read_bool(&mode_clall)) return false;
     if (!read_bool(&mode_command_entry)) return false;
+
     if (!read_char(&mode_number_entry)) return false;
+
     if (!read_bool(&mode_alpha_entry)) return false;
     if (!read_bool(&mode_shift)) return false;
+
     if (!read_int(&mode_appmenu)) return false;
+
     if (!read_int(&mode_plainmenu)) return false;
     if (!read_bool(&mode_plainmenu_sticky)) return false;
     if (!read_int(&mode_transientmenu)) return false;
     if (!read_int(&mode_alphamenu)) return false;
     if (!read_int(&mode_commandmenu)) return false;
+
     if (ver < 33) {
         if (mode_appmenu > MENU_MODES3)
             mode_appmenu += 2;
@@ -3750,6 +3755,7 @@ static bool load_state2(bool *clear, bool *too_new) {
         if (mode_commandmenu > MENU_MODES3)
             mode_commandmenu += 2;
     }
+
     if (!read_bool(&mode_running)) return false;
     if (ver < 46)
         mode_caller_stack_lift_disabled = false;
@@ -3762,14 +3768,19 @@ static bool load_state2(bool *clear, bool *too_new) {
         return false;
 
     if (!read_phloat(&entered_number)) return false;
+
     if (!read_int(&entered_string_length)) return false;
+
     if (fread(entered_string, 1, 15, gfile) != 15) return false;
 
     if (!read_int(&pending_command)) return false;
+
     if (!read_arg(&pending_command_arg)) return false;
+
     if (!read_int(&xeq_invisible)) return false;
 
     if (!read_int(&incomplete_command)) return false;
+
     if (ver < 35) {
         int temp;
         if (!read_int(&temp)) return false;
@@ -3780,6 +3791,7 @@ static bool load_state2(bool *clear, bool *too_new) {
         if (!read_bool(&incomplete_ind)) return false;
         if (!read_bool(&incomplete_alpha)) return false;
     }
+
     if (!read_int(&incomplete_length)) return false;
     if (!read_int(&incomplete_maxdigits)) return false;
     if (!read_int(&incomplete_argtype)) return false;
@@ -3804,6 +3816,7 @@ static bool load_state2(bool *clear, bool *too_new) {
     if (!read_int4(&matedit_i)) return false;
     if (!read_int4(&matedit_j)) return false;
     if (!read_int(&matedit_prev_appmenu)) return false;
+
     if (ver < 48) {
         matedit_stack = NULL;
         matedit_stack_depth = 0;
@@ -3826,6 +3839,7 @@ static bool load_state2(bool *clear, bool *too_new) {
                     return false;
                 }
         }
+
         if (!read_bool(&matedit_is_list)) return false;
     }
 
@@ -3856,6 +3870,7 @@ static bool load_state2(bool *clear, bool *too_new) {
 
     if (!unpersist_display(ver))
         return false;
+
     if (!unpersist_globals())
         return false;
 

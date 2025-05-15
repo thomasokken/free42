@@ -36,6 +36,7 @@
 #include "core_variables.h"
 #include "shell.h"
 #include "shell_spool.h"
+#include "rp/RP.hh"
 
 #ifndef BCD_MATH
 // We need these locally for BID128->double conversion
@@ -49,8 +50,8 @@ int my_rename(const char *oldname, const char *newname);
 int my_remove(const char *name);
 #else
 #define my_fopen fopen
-#define my_rename rename
-#define my_remove remove
+#define my_rename RP_RENAME
+#define my_remove RP_UNLINK
 #endif
 
 
@@ -120,10 +121,15 @@ void core_init(int read_saved_state, int4 version, const char *state_file_name, 
     }
     if (gfile != NULL)
         fclose(gfile);
+
+
     if (state_file_name_crash != NULL) {
+
         if (reason == 0) {
+
             my_rename(state_file_name_crash, state_file_name);
         } else {
+
             char *tmp = (char *) malloc(strlen(state_file_name_crash) + 3);
             strcpy(tmp, state_file_name_crash);
             tmp[strlen(state_file_name_crash) - 6] = 0;
@@ -135,6 +141,7 @@ void core_init(int read_saved_state, int4 version, const char *state_file_name, 
     }
 
     repaint_display();
+
     shell_annunciators(mode_updown,
                        mode_shift,
                        0 /*print*/,
