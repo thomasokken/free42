@@ -535,7 +535,7 @@ public class Free42Activity extends Activity {
     
     @Override
     protected void onDestroy() {
-        // core_cleanup();
+        core_cleanup();
         if (lowBatteryReceiver != null) {
             unregisterReceiver(lowBatteryReceiver);
             lowBatteryReceiver = null;
