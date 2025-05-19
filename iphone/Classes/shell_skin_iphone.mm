@@ -556,7 +556,7 @@ void skin_load(long *width, long *height) {
             skin_offset_h = ([CalcView width] - skin.width / skin_scale_h) / 2;
         } else {
             skin_scale_v = skin_scale_h;
-            skin_offset_v = ([CalcView height] - skin.height / skin_scale_v) / 2;
+            skin_offset_v = ([CalcView height] - skin.height / skin_scale_v);
         }
     }
 
