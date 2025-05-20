@@ -159,6 +159,7 @@ Phloat fabs(Phloat p);
 Phloat pow(Phloat x, Phloat y);
 Phloat floor(Phloat x);
 Phloat fma(Phloat x, Phloat y, Phloat z);
+Phloat nextafter(Phloat x, Phloat y);
 int ilogb(Phloat x);
 Phloat scalbn(Phloat x, int y);
 Phloat copysign(Phloat x, Phloat y);

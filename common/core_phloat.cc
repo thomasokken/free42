@@ -746,6 +746,12 @@ Phloat fma(Phloat x, Phloat y, Phloat z) {
     return Phloat(res);
 }
 
+Phloat nextafter(Phloat x, Phloat y) {
+    BID_UINT128 res;
+    bid128_nextafter(&res, &x.val, &y.val);
+    return Phloat(res);
+}
+
 int ilogb(Phloat x) {
     int res;
     bid128_ilogb(&res, &x.val);
