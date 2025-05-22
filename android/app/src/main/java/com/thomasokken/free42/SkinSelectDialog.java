@@ -142,7 +142,7 @@ public class SkinSelectDialog extends Dialog {
     }
 
     private void doSkinDeleteClick(DialogInterface dialog, int which) {
-        if (which == DialogInterface.BUTTON_POSITIVE) {
+        if (which == DialogInterface.BUTTON_POSITIVE && selectedSkinIndexes != null) {
             for (int i = 0; i < selectedSkinIndexes.length; i++)
                 if (selectedSkinIndexes[i]) {
                     String baseName = skinDirName + "/" + skinNames[i];
